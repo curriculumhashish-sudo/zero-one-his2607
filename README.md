@@ -1,13 +1,31 @@
-# 🚀`zero-one-xxx` 
+# 🚀`zero-one-his` 
 
-xxx相关概念参考：
+相关概念参考：
 
-- 
-- 
+- [百度百科-HIS](https://baike.baidu.com/item/%E5%8C%BB%E9%99%A2%E7%AE%A1%E7%90%86%E4%BF%A1%E6%81%AF%E7%B3%BB%E7%BB%9F%EF%BC%88HIS%E7%B3%BB%E7%BB%9F%EF%BC%89/15185863)
+- [维基百科-HIS](https://en.wikipedia.org/wiki/Hospital_information_system)
+- [医院常见的HIS、CIS、LIS、EMR、PACS、RIS都是指哪些系统？](https://www.sohu.com/a/562837673_121262714)
 
 ## 📖 项目简介
 
+`zero-one-his`集十大核心模块于一体，涵盖目录管理、基础数据配置、个性化设置、门诊/住院全流程管理、药房药库智能管控、精细化耗材管理、财务核算体系、医保合规对接及多维报表分析等功能模块，共计372项标准化功能。 系统深度适配民营及公立一二级医院业务场景，支持单体医院、集团化运营及区域医疗协同等多种部署模式，并通过国家信创认证体系，确保全栈技术自主可控。
 
+核心功能
+
+- 门诊收费
+- 门诊医生站
+- 门诊护士站
+- 住院收费
+- 住院医生站
+- 住院护士站
+- 药房管理
+- 财务管理
+- 医保管理
+- 库房管理
+- 报表管理
+- 目录管理
+- 基础数据
+- 智能助手
 
 ## 🏗️ 系统架构图
 
@@ -16,7 +34,7 @@ xxx相关概念参考：
 ![architecture](./documents/00、preview-pic/architecture.jpg)
 
 ## 📁 项目结构说明
-> `zero-one-xxx`  
+> `zero-one-his` 
 >
 > > `.gitignore` -- 忽略提交配置
 > >
@@ -24,11 +42,11 @@ xxx相关概念参考：
 > >
 > > `documents` -- 环境搭建、编码规范、项目需求等等文档资源
 > >
-> > `xxx-java` -- `Java`项目主体
+> > `his-java` -- `Java`项目主体
 > >
-> > `xxx-cpp` -- `C++`项目主体
+> > `his-cpp` -- `C++`项目主体
 > >
-> > `xxx-frontend` -- 前端项目主体
+> > `his-frontend` -- 前端项目主体
 
 ## 🛠️ 软件架构
 
@@ -103,6 +121,7 @@ xxx相关概念参考：
 | `pinyin-pro`         | 汉字转拼音库   | latest | https://pinyin-pro.cn/                                       |
 | `FcDesigner`         | 表单设计器     | latest | https://view.form-create.com/                                |
 | `bpmn-js`            | 流程图编辑框架 | latest | https://bpmn.io/toolkit/bpmn-js/<br>https://github.com/bpmn-io/bpmn-js-examples |
+| `Tiptap`             | 无头文本编辑器 | `3.x`  | https://github.com/ueberdosis/tiptap<br>https://tiptap.dev/  |
 
 ### 💻 `CPP`技术栈
 
@@ -183,7 +202,7 @@ xxx相关概念参考：
 
 ## 🙏 特别鸣谢
 
-`zero-one-xxx`的诞生离不开开源软件和社区的支持，感谢以下开源项目及项目维护者：
+`zero-one-his`的诞生离不开开源软件和社区的支持，感谢以下开源项目及项目维护者：
 
 - `spring`：https://github.com/spring-projects
 - `alibaba`：https://github.com/alibaba
