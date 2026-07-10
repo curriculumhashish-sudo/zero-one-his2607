@@ -20,7 +20,11 @@ const routes = [
 // 读取子目录下面菜单设置为二级路由
 const secondRouter = import.meta.glob<RouteRecordRawArray>('./**/index.ts', { eager: true })
 for (const path in secondRouter) {
-  routes[0].children.push(...secondRouter[path].default)
+  const route = routes[0]
+  const children = secondRouter[path]?.default
+  if (route?.children && children) {
+    route.children.push(...children)
+  }
 }
 
 export default routes
