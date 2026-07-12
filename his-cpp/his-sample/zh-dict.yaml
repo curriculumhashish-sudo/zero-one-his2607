@@ -1,0 +1,4 @@
+﻿test:
+ get:
+  summary: 查询测试接口
+  result: 这个是测试接口，返回测试数据
