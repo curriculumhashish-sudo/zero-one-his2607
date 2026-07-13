@@ -21,7 +21,7 @@
 
 ```env
 VITE_CAPTCHA_URL=http://your-captcha-server.com
-VITE_CAPTCHA_PREFIX=/captcha
+VITE_CAPTCHA_PREFIX=captcha
 ```
 
 ### 2. 静态资源部署
