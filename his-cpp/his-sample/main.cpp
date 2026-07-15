@@ -28,6 +28,7 @@
 #include "NacosClient.h"
 #endif
 
+
 /**
  * 服务器参数解析
  * 注意：
@@ -153,10 +154,26 @@ void parseServerArgs(int argc, char* argv[]) {
 #endif
 }
 
+#include "FastDfsClient.h"
+
+void testDfs() {
+	// 创建FastDFS客户端对象
+	FastDfsClient client("192.168.28.132");
+	std::string path = "E:\\Images\\20141011112401959.jpg.source.jpg";
+	// 上传文件，返回字段名
+	std::string field = client.uploadFile(path);
+	std::cout << field << std::endl;
+	// 下载文件，保存到指定路径
+	std::string savePath = "E:\\test";
+	client.downloadFile(field, &savePath);
+	// 删除文件
+	client.deleteFile(field);
+}
+
 int main(int argc, char* argv[]) {
 	// 服务器参数初始化
 	parseServerArgs(argc, argv);
-
+	testDfs();
 #ifndef _RELEASE_DOC_
 	// 初始数据库连接
 	bool initConnPool = DbInit::initDbPool(DBConfig(
