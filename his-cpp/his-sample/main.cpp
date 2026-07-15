@@ -170,10 +170,35 @@ void testDfs() {
 	client.deleteFile(field);
 }
 
+#include "ExcelComponent.h"
+void testExcel() {
+	ExcelComponent excel;
+	std::string path = "E:\\test.xlsx";
+	std::vector<std::vector<std::string>> data;
+	data.emplace_back(std::vector<std::string>{"1", "zhangsan"});
+	data.emplace_back(std::vector<std::string>{"2", "lisi"});
+	excel.writeVectorToFile(path, "Sheet1", data);
+	auto readData = excel.readIntoVector(path, "Sheet1");
+	for (auto& v : readData) {
+		for (auto& s : v) {
+			std::cout << s << " ";
+		}
+		std::cout << std::endl;
+	}
+
+	// 演示将Excel上传到Fasdfs
+	auto buff = excel.writeVectorToBuff("Sheet1", data);
+	const char* charData = reinterpret_cast<const char*>(buff.data());
+	FastDfsClient client("192.168.28.132");
+	auto fileld = client.uploadFile(charData, buff.size(), "xlsx");
+	std::cout << fileld << std::endl;
+}
+
 int main(int argc, char* argv[]) {
 	// 服务器参数初始化
 	parseServerArgs(argc, argv);
-	testDfs();
+	//testDfs();
+	testExcel();
 #ifndef _RELEASE_DOC_
 	// 初始数据库连接
 	bool initConnPool = DbInit::initDbPool(DBConfig(
