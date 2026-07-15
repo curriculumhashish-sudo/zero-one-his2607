@@ -155,7 +155,6 @@ void parseServerArgs(int argc, char* argv[]) {
 }
 
 #include "FastDfsClient.h"
-
 void testDfs() {
 	// 创建FastDFS客户端对象
 	FastDfsClient client("192.168.28.132");
@@ -194,11 +193,23 @@ void testExcel() {
 	std::cout << fileld << std::endl;
 }
 
+#include "RocketClient.h"
+void testRocket() {
+	RocketClient client("192.168.28.132:9876");
+	auto res = client.productMsgSync("test", "hello world");
+	if (res == rocketmq::SendStatus::SEND_OK)
+		std::cout << "send ok" << std::endl;
+	else
+		std::cout << "send fail" << std::endl;
+}
+
 int main(int argc, char* argv[]) {
 	// 服务器参数初始化
 	parseServerArgs(argc, argv);
 	//testDfs();
-	testExcel();
+	//testExcel();
+	testRocket();
+
 #ifndef _RELEASE_DOC_
 	// 初始数据库连接
 	bool initConnPool = DbInit::initDbPool(DBConfig(
