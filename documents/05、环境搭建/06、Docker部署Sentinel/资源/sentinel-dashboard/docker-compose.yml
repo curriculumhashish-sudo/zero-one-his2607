@@ -1,0 +1,17 @@
+services:
+  sentinel-dashboard:
+    image: sentinel-dashboard:1.8.9
+    networks:
+      - sentinel
+    container_name: sentinel-dashboard
+    restart: always
+    ports:
+      - "8718:8080"
+    environment:
+      - JAVA_OPTS=-Dserver.port=8080 -Dcsp.sentinel.dashboard.server=localhost:8080 -Dproject.name=sentinel-dashboard -Djava.security.egd=file:/dev/./urandom -Dcsp.sentinel.api.port=8719
+    volumes:
+      - ./logs:/root/logs/csp
+networks:
+  sentinel:
+    name: sentinel
+    driver: bridge

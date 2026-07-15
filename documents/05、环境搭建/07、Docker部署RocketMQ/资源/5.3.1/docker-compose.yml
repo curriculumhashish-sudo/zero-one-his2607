@@ -1,0 +1,57 @@
+services:
+  rocketmq-namesrv:
+    image: apache/rocketmq:5.3.1
+    networks:
+      - mq
+    container_name: rocketmq-namesrv
+    ports:
+      - "9876:9876"
+    environment:
+      - JAVA_OPT_EXT=-server -Xms128m -Xmx128m -Xmn64m
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./namesrv/logs:/home/rocketmq/logs
+      - ./namesrv/store:/home/rocketmq/store
+      - /etc/localtime:/etc/localtime:ro
+    command: sh mqnamesrv
+  rocketmq-broker:
+    image: apache/rocketmq:5.3.1
+    networks:
+      - mq
+    container_name: rocketmq-broker
+    ports:
+      - "10909:10909"
+      - "10911:10911"
+      - "10912:10912"
+      - "8081:8081"
+      - "8082:8080"
+    environment:
+      - JAVA_OPT_EXT=-server -Xms128m -Xmx128m -Xmn64m
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./broker/logs:/home/rocketmq/logs
+      - ./broker/store:/home/rocketmq/store
+      - ./broker/conf:/home/rocketmq/conf
+      - /etc/localtime:/etc/localtime:ro
+    command: sh mqbroker -c /home/rocketmq/conf/broker.conf -n rocketmq-namesrv:9876 --enable-proxy
+    depends_on:
+      - rocketmq-namesrv
+  rocketmq-console:
+    image: apacherocketmq/rocketmq-dashboard:2.1.0
+    networks:
+      - mq
+    container_name: rocketmq-console
+    ports:
+      - "8280:8082"
+    environment:
+      - JAVA_OPTS=-Drocketmq.namesrv.addr=rocketmq-namesrv:9876 -Dlogging.level.root=info -Dcom.rocketmq.sendMessageWithVIPChannel=false
+      - TZ=Asia/Shanghai
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - rocketmq-namesrv
+      - rocketmq-broker
+networks:
+  mq:
+    name: rocketmq_network
+    driver: bridge
