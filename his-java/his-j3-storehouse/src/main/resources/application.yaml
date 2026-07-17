@@ -1,0 +1,7 @@
+server:
+  port: ${sp.storehouse}
+  servlet:
+    context-path: /storehouse
+spring:
+  application:
+    name: ${sn.storehouse}

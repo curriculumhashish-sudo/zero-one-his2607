@@ -1,0 +1,7 @@
+server:
+  port: ${sp.register}
+  servlet:
+    context-path: /register
+spring:
+  application:
+    name: ${sn.register}

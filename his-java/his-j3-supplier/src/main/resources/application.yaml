@@ -1,0 +1,7 @@
+server:
+  port: ${sp.supplier}
+  servlet:
+    context-path: /supplier
+spring:
+  application:
+    name: ${sn.supplier}

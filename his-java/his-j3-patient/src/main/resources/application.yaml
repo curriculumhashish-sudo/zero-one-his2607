@@ -1,0 +1,7 @@
+server:
+  port: ${sp.patient}
+  servlet:
+    context-path: /patient
+spring:
+  application:
+    name: ${sn.patient}
