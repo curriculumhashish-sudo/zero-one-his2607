@@ -225,13 +225,27 @@ void testMongo() {
 		});
 }
 
+#include "RedisClient.h"
+void testRedis() {
+	RedisClient rc("192.168.28.132", 6379, "01star");
+	bool setr = rc.execute<bool>([](Redis* r) {
+		return r->set("key", "val");
+		});
+	std::cout << setr << std::endl;
+	std::string getr = rc.execute<std::string>([](Redis* r) {
+		return r->get("key").value();
+		});
+	std::cout << getr << std::endl;
+}
+
 int main(int argc, char* argv[]) {
 	// 服务器参数初始化
 	parseServerArgs(argc, argv);
 	//testDfs();
 	//testExcel();
 	//testRocket();
-	testMongo();
+	//testMongo();
+	testRedis();
 
 #ifndef _RELEASE_DOC_
 	// 初始数据库连接
