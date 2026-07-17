@@ -1,7 +1,7 @@
 server:
   port: ${sp.storehouse}
   servlet:
-    context-path: /storehouse
+    context-path: /database
 spring:
   application:
     name: ${sn.storehouse}

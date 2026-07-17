@@ -1,7 +1,7 @@
 server:
   port: ${sp.supplier}
   servlet:
-    context-path: /supplier
+    context-path: /database
 spring:
   application:
     name: ${sn.supplier}

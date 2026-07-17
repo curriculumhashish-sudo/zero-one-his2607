@@ -1,7 +1,7 @@
 server:
   port: ${sp.department}
   servlet:
-    context-path: /department
+    context-path: /database
 spring:
   application:
     name: ${sn.department}

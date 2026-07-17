@@ -10,10 +10,12 @@
     </parent>
     <artifactId>his-j3-patient</artifactId>
     <dependencies>
+        <!--spring web mvc-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+        <!--导入系统内置模块-->
         <dependency>
             <groupId>com.zeroone.star</groupId>
             <artifactId>his-apis</artifactId>
@@ -22,13 +24,36 @@
             <groupId>com.zeroone.star</groupId>
             <artifactId>his-common</artifactId>
         </dependency>
+        <!--nacos discovery-->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
         </dependency>
+        <!--nacos config-->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+        </dependency>
+        <!--数据库-->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-jsqlparser</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
         </dependency>
     </dependencies>
     <build>
@@ -38,6 +63,20 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <mainClass>com.zeroone.star.j3.patient.PatientApplication</mainClass>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.zeroone.star</groupId>
+                <artifactId>mp-code-generator-plugin</artifactId>
+                <configuration>
+                    <dbConfig>
+                        <host>192.168.220.128</host>
+                        <port>3306</port>
+                        <dbname>his_j3_patient</dbname>
+                        <username>root</username>
+                        <password>123456</password>
+                    </dbConfig>
+                    <outDir>${project.basedir}/src/main/java</outDir>
                 </configuration>
             </plugin>
             <plugin>
