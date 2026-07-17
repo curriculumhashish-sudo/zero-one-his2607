@@ -1,4 +1,4 @@
-package com.zeroone.star.Equipment.config;
+package com.zeroone.star.equipment.config;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.zeroone.star.project.components.user.UserHolder;
@@ -13,14 +13,16 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * 鎻忚堪锛歁P鍒濆鍖? * </p>
- * <p>鐗堟潈锛?copy;01鏄熺悆</p>
- * <p>鍦板潃锛?1鏄熺悆鎬婚儴</p>
- * @author j4缁? * @version 1.0.0
+ * 描述：MP初始化
+ * </p>
+ * <p>版权：&copy;01星球</p>
+ * <p>地址：01星球总部</p>
+ * @author j4组
+ * @version 1.0.0
  */
 @Configuration
 @ComponentScan("com.zeroone.star.project.config.mybatis")
-@MapperScan("com.zeroone.star.Equipment.mapper")
+@MapperScan("com.zeroone.star.equipment.mapper")
 public class MyBatisInit {
 
     @Resource
@@ -32,21 +34,13 @@ public class MyBatisInit {
             @Override
             public void insertFill(MetaObject metaObject) {
                 this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
-                try {
-                    this.strictInsertFill(metaObject, "createBy", String.class, userHolder.getCurrentUser().getUsername());
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                }
+                this.strictInsertFill(metaObject, "createBy", String.class, userHolder.getCurrentUser() != null ? userHolder.getCurrentUser().getUsername() : "system");
             }
 
             @Override
             public void updateFill(MetaObject metaObject) {
                 this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
-                try {
-                    this.strictUpdateFill(metaObject, "updateBy", String.class, userHolder.getCurrentUser().getUsername());
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                }
+                this.strictUpdateFill(metaObject, "updateBy", String.class, userHolder.getCurrentUser() != null ? userHolder.getCurrentUser().getUsername() : "system");
             }
         };
     }

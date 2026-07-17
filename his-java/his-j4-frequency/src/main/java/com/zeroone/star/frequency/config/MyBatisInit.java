@@ -34,21 +34,13 @@ public class MyBatisInit {
             @Override
             public void insertFill(MetaObject metaObject) {
                 this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
-                try {
-                    this.strictInsertFill(metaObject, "createBy", String.class, userHolder.getCurrentUser().getUsername());
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                }
+                this.strictInsertFill(metaObject, "createBy", String.class, userHolder.getCurrentUser() != null ? userHolder.getCurrentUser().getUsername() : "system");
             }
 
             @Override
             public void updateFill(MetaObject metaObject) {
                 this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
-                try {
-                    this.strictUpdateFill(metaObject, "updateBy", String.class, userHolder.getCurrentUser().getUsername());
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                }
+                this.strictUpdateFill(metaObject, "updateBy", String.class, userHolder.getCurrentUser() != null ? userHolder.getCurrentUser().getUsername() : "system");
             }
         };
     }

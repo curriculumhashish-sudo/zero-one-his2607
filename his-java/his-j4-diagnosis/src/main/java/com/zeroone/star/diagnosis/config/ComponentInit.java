@@ -1,4 +1,4 @@
-package com.zeroone.star.Diagnosis.config;
+package com.zeroone.star.diagnosis.config;
 
 import com.zeroone.star.project.exception.EhResultWrapper;
 import com.zeroone.star.project.vo.JsonVO;
@@ -8,10 +8,12 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * <p>
- * 鎻忚堪锛氬垵濮嬪寲鑷畾涔夌粍浠? * </p>
- * <p>鐗堟潈锛?copy;01鏄熺悆</p>
- * <p>鍦板潃锛?1鏄熺悆鎬婚儴</p>
- * @author j4缁? * @version 1.0.0
+ * 描述：初始化自定义组件
+ * </p>
+ * <p>版权：&copy;01星球</p>
+ * <p>地址：01星球总部</p>
+ * @author j4组
+ * @version 1.0.0
  */
 @Configuration
 @ComponentScan({
