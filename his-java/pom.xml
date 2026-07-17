@@ -37,6 +37,12 @@
         <module>his-gateway</module>
         <module>his-login</module>
         <module>his-mcp-gateway</module>
+        <module>his-j4-frequency</module>
+        <module>his-j4-equipment</module>
+        <module>his-j4-sample</module>
+        <module>his-j4-medicine</module>
+        <module>his-j4-diagnosis</module>
+        <module>his-j4-treatment</module>
     </modules>
     <properties>
         <!-- 项目版本号 -->

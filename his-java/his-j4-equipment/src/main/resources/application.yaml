@@ -1,0 +1,7 @@
+server:
+  port: ${sp.Equipment}
+  servlet:
+    context-path: /Equipment
+spring:
+  application:
+    name: ${sn.Equipment}
