@@ -203,12 +203,35 @@ void testRocket() {
 		std::cout << "send fail" << std::endl;
 }
 
+#include "MongoClient.h"
+#include "bsoncxx/json.hpp"
+void testMongo() {
+	MongoClient mc("mongodb://awei:123456@192.168.28.132:27017/firstDb");
+	using bsoncxx::builder::basic::kvp;
+	using bsoncxx::builder::basic::make_document;
+	mc.addOne("test", make_document(kvp("mongo", "4.0.0")));
+	mc.execute("test", [](mongocxx::collection* conn) {
+		auto result = conn->find_one(make_document(kvp("key", "vaule")));
+		if (result) {
+			std::cout << bsoncxx::to_json(*result) << std::endl;
+		}
+		else {
+			std::cout << "No result found" << std::endl;
+		}
+		auto cursor = conn->find(make_document(kvp("key", "vaule")));
+		for (auto&& doc : cursor) {
+			std::cout << bsoncxx::to_json(doc) << std::endl;
+		}
+		});
+}
+
 int main(int argc, char* argv[]) {
 	// 服务器参数初始化
 	parseServerArgs(argc, argv);
 	//testDfs();
 	//testExcel();
-	testRocket();
+	//testRocket();
+	testMongo();
 
 #ifndef _RELEASE_DOC_
 	// 初始数据库连接
