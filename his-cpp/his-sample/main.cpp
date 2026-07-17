@@ -153,9 +153,39 @@ void parseServerArgs(int argc, char* argv[]) {
 #endif
 }
 
+
+#include "FastDfsClient.h"
+
+void test_fastdfs()
+{
+	FastDfsClient client("127.0.0.1");
+
+	string name = client.uploadFile("F:\large_project\Snipaste_2026-07-16_20-49-29.png");
+	cout << name << endl;
+}
+
+#include "ExcelComponent.h"
+
+void test_excel() {
+	ExcelComponent excel;
+	string path = "F:\\test.xlsx";
+	vector<vector<string>>data={{ "1","a" }, { "2","b" }};
+	excel.writeVectorToFile(path, "sheet1", data);
+	data.clear();
+	auto Data=excel.readIntoVector(path, "sheet1");
+	for (auto i : Data) {
+		for (auto s : i) {
+			cout << s << " ";
+		}
+		cout << endl;
+	}
+}
+
 int main(int argc, char* argv[]) {
 	// 服务器参数初始化
 	parseServerArgs(argc, argv);
+	//test_fastdfs();
+	test_excel();
 
 #ifndef _RELEASE_DOC_
 	// 初始数据库连接
