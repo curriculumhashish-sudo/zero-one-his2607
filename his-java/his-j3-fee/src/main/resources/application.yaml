@@ -1,7 +1,7 @@
 server:
   port: ${sp.fee:10206}
   servlet:
-    context-path: /fee
+    context-path: /
 spring:
   application:
     name: ${sn.fee:his-j3-fee}
