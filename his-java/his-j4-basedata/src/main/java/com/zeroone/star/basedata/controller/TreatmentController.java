@@ -14,6 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
  * @version 1.0.0
  */
 @RestController
-@RequestMapping("/basedata/treatment")
+@RequestMapping("/treatment")
 public class TreatmentController implements TreatmentApis {
 }
