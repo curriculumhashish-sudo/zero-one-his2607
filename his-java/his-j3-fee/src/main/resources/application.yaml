@@ -1,7 +1,25 @@
 server:
-  port: ${sp.fee}
+  port: ${sp.fee:10206}
   servlet:
-    context-path: /database
+    context-path: /fee
 spring:
   application:
-    name: ${sn.fee}
+    name: ${sn.fee:his-j3-fee}
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.100.128:8848
+      config:
+        server-addr: 192.168.100.128:8848
+        file-extension: yaml
+        enabled: true
+  datasource:
+    url: jdbc:mysql://192.168.100.128:3306/his_j3_fee?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      max-active: 20
+      min-idle: 5
+      initial-size: 5
