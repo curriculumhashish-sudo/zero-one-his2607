@@ -80,4 +80,46 @@ public class FeeNatureController implements FeeNatureApis {
         String statusText = isEnabled == 1 ? "启用" : "停用";
         return JsonVO.success(statusText + "成功");
     }
+
+    @Override
+    @GetMapping("/nameList")
+    @Operation(summary = "获取费用性质名称列表", description = "获取所有启用的费用性质名称，用于下拉框选择")
+    public JsonVO<List<FeeNatureVO>> getNameList() {
+        // 实际查询：SELECT id, name FROM t_fee_nature WHERE is_enabled = 1 ORDER BY sort_order
+        // TODO: 实际实现后续由开发者补充
+        List<FeeNatureVO> list = null;
+        return JsonVO.success(list);
+    }
+
+    @Override
+    @PostMapping
+    @Operation(summary = "添加费用性质", description = "新增一条费用性质记录")
+    public JsonVO<String> add(@Valid @RequestBody FeeNatureDTO dto) {
+        // 校验编码是否已存在（Mock）
+        if (dto.getCode() == null || dto.getCode().isEmpty()) {
+            return JsonVO.fail("费用性质编码不能为空");
+        }
+        // 模拟重复编码校验
+        if ("999".equals(dto.getCode())) {
+            return JsonVO.fail("费用性质编码已存在，请重新输入");
+        }
+        // TODO: 实际实现后续由开发者补充
+        return JsonVO.success("添加成功");
+    }
+
+    @Override
+    @DeleteMapping("/{id}")
+    @Operation(summary = "删除费用性质", description = "根据ID删除费用性质记录")
+    public JsonVO<String> delete(@PathVariable("id") Long id) {
+        // 校验ID是否存在（Mock）
+        if (id == null || id <= 0) {
+            return JsonVO.fail("ID参数错误");
+        }
+        // 模拟删除时检查关联数据（Mock：假设 ID=1 的数据被引用，不能删除）
+        if (id == 1L) {
+            return JsonVO.fail("该费用性质已被使用，无法删除");
+        }
+        // TODO: 实际实现后续由开发者补充
+        return JsonVO.success("删除成功");
+    }
 }

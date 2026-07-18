@@ -1,6 +1,7 @@
 package com.zeroone.star.project.vo.j3.fee;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -25,4 +26,14 @@ public class FeeNatureVO implements Serializable {
 
     @Schema(description = "是否启用 1 启用 0 禁用", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer isEnabled;
+
+    @Schema(description = "费用性质显示顺序", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Integer sortOrder;
+
+    @Schema(description = "费用性质分类", example = "自费", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String category;
+
+//    // 不能确定前端传输的是数字还是字符串
+//    @Schema(description = "费用性质分类", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+//    private Integer category;
 }

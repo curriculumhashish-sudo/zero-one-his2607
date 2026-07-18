@@ -26,4 +26,17 @@ public class FeeNatureDTO implements Serializable {
     @NotBlank(message = "编码不能为空")
     @Schema(description = "费用性质编码", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private String code;
+
+    @NotBlank(message = "显示顺序不能为空不能为空")
+    @Schema(description = "费用性质显示顺序", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Integer sortOrder;
+
+    @NotBlank(message = "分类不能为空")
+    @Schema(description = "费用性质分类", example = "自费", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String category;
+
+//    // 不能确定前端传输的是数字还是字符串
+//    @NotBlank(message = "分类不能为空")
+//    @Schema(description = "费用性质分类", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+//    private Integer category;
 }
