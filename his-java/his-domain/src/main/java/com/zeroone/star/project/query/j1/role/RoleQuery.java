@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 /**
  * 角色分页查询条件。
  *
- * @author 保温杯热水仙人
+ * @author j1-保温杯热水仙人
  * @version 1.0.0
  */
 @Data

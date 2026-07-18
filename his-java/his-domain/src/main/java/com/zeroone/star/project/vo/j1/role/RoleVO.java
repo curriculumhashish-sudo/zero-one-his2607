@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 /**
  * 角色显示对象。
  *
- * @author 保温杯热水仙人
+ * @author j1-保温杯热水仙人
  * @version 1.0.0
  */
 @Data
