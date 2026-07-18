@@ -27,7 +27,7 @@ public class FeeNatureDTO implements Serializable {
     @Schema(description = "费用性质编码", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private String code;
 
-    @NotBlank(message = "显示顺序不能为空不能为空")
+    @NotNull(message = "显示顺序不能为空不能为空")
     @Schema(description = "费用性质显示顺序", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer sortOrder;
 
