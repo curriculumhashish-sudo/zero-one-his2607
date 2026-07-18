@@ -1,4 +1,4 @@
-ckinpackage com.zeroone.star.statdata.config;
+package com.zeroone.star.statdata.config;
 
 import com.zeroone.star.project.exception.EhResultWrapper;
 import com.zeroone.star.project.vo.JsonVO;
