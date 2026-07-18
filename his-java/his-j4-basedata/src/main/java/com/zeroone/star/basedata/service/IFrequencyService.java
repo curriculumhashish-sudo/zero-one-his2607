@@ -2,6 +2,9 @@ package com.zeroone.star.basedata.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zeroone.star.basedata.entity.Frequency;
+import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.query.j4.frequency.FrequencyPageQuery;
+import com.zeroone.star.project.vo.j4.frequency.FrequencyVO;
 
 /**
  * <p>
@@ -13,4 +16,18 @@ import com.zeroone.star.basedata.entity.Frequency;
  * @version 1.0.0
  */
 public interface IFrequencyService extends IService<Frequency> {
+
+    /**
+     * 分页+条件查询频次列表
+     * @param query 分页查询条件
+     * @return 分页结果
+     */
+    PageDTO<FrequencyVO> queryFrequencyPage(FrequencyPageQuery query);
+
+    /**
+     * 根据ID查询频次详情
+     * @param id 频次ID
+     * @return 频次详情
+     */
+    FrequencyVO queryFrequencyDetail(String id);
 }
