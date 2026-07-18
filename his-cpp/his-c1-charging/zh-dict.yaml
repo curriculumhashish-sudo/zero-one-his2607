@@ -1,0 +1,8 @@
+rhqm:
+ form:
+  detail:
+   attain: 
+    tag: 获取明细列表（条件+分页）
+   export:
+    tag: 导出报表
+    
