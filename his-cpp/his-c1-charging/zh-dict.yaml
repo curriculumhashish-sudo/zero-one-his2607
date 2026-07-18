@@ -3,6 +3,15 @@ rhqm:
   detail:
    attain: 
     tag: 获取明细列表（条件+分页）
+    date_start: 开始时间
+    date_end: 结束时间
+    register_room: 挂号科室
+    fee_class: 费用大类
+    detail_class: 细分类
+    name: 患者姓名
+    project_name: 项目名称
+    his_id: 院内编码
+    fee_getter: 收费员
    export:
     tag: 导出报表
     
