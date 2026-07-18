@@ -1,0 +1,17 @@
+﻿server:
+  port: ${sp.schedule:10222}
+  servlet:
+    context-path: /schedule
+spring:
+  application:
+    name: ${sn.schedule:his-j8-schedule}
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${nacos.server-addr}
+      config:
+        server-addr: ${nacos.server-addr}
+        file-extension: yaml
+        shared-configs:
+          - data-id: his-common.yaml
+            refresh: true
