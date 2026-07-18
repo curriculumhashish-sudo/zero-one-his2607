@@ -17,7 +17,7 @@ import lombok.Data;
  */
 @Data
 @Schema(description = "菜单详情查询数据对象")
-public class MenuDetailQueryDTO {
+public class MenuDetailQuery {
 
     /**
      * 菜单ID
