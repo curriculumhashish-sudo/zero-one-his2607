@@ -42,10 +42,6 @@ target
 *.patch
 *.tmp
 
-# Markdown documentation
-*.md
-!README.md
-
 # Maven ignore
 .flattened-pom.xml
 
