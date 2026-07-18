@@ -11,15 +11,6 @@ import org.springframework.context.annotation.Configuration;
 
 import java.time.LocalDateTime;
 
-/**
- * <p>
- * 描述：MP初始化
- * </p>
- * <p>版权：&copy;01星球</p>
- * <p>地址：01星球总部</p>
- * @author j4组
- * @version 1.0.0
- */
 @Configuration
 @ComponentScan("com.zeroone.star.project.config.mybatis")
 @MapperScan("com.zeroone.star.basedata.mapper")
@@ -34,8 +25,13 @@ public class MyBatisInit {
             @Override
             public void insertFill(MetaObject metaObject) {
                 this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
+                this.strictInsertFill(metaObject, "createdAt", LocalDateTime.class, LocalDateTime.now());
+                this.strictInsertFill(metaObject, "updatedAt", LocalDateTime.class, LocalDateTime.now());
+                this.strictInsertFill(metaObject, "isDeleted", Integer.class, 0);
                 try {
-                    this.strictInsertFill(metaObject, "createBy", String.class, userHolder.getCurrentUser() != null ? userHolder.getCurrentUser().getUsername() : "system");
+                    String username = userHolder.getCurrentUser() != null ? userHolder.getCurrentUser().getUsername() : "system";
+                    this.strictInsertFill(metaObject, "createBy", String.class, username);
+                    this.strictInsertFill(metaObject, "createdBy", String.class, username);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -44,8 +40,11 @@ public class MyBatisInit {
             @Override
             public void updateFill(MetaObject metaObject) {
                 this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
+                this.strictUpdateFill(metaObject, "updatedAt", LocalDateTime.class, LocalDateTime.now());
                 try {
-                    this.strictUpdateFill(metaObject, "updateBy", String.class, userHolder.getCurrentUser() != null ? userHolder.getCurrentUser().getUsername() : "system");
+                    String username = userHolder.getCurrentUser() != null ? userHolder.getCurrentUser().getUsername() : "system";
+                    this.strictUpdateFill(metaObject, "updateBy", String.class, username);
+                    this.strictUpdateFill(metaObject, "updatedBy", String.class, username);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
