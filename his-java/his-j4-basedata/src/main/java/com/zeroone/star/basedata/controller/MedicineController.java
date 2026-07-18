@@ -1,6 +1,7 @@
 package com.zeroone.star.basedata.controller;
 
 import com.zeroone.star.project.j4.basedata.MedicineApis;
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,6 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
  * @version 1.0.0
  */
 @RestController
-@RequestMapping("/basedata/medicine")
+@RequestMapping("/medicine")
 public class MedicineController implements MedicineApis {
 }
