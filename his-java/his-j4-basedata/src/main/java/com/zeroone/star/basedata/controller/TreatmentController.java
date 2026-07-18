@@ -1,16 +1,23 @@
 package com.zeroone.star.basedata.controller;
 
 import com.zeroone.star.basedata.service.ITreatmentService;
-import com.zeroone.star.project.dto.j4.treatment.CreateTreatmentDTO;
-import com.zeroone.star.project.dto.j4.treatment.ToggleStatusDTO;
-import com.zeroone.star.project.dto.j4.treatment.UpdateTreatmentDTO;
 import com.zeroone.star.project.j4.basedata.TreatmentApis;
-import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j4.treatment.TreatmentVO;
+import com.zeroone.star.project.j4.basedata.dto.TreatmentDTO;
+import com.zeroone.star.project.j4.basedata.dto.TreatmentResponseDTO;
+import com.zeroone.star.project.j4.basedata.dto.TreatmentStatusDTO;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.annotation.Resource;
 
+/**
+ * <p>
+ * 描述：诊疗管理控制器
+ * </p>
+ * <p>版权：&copy;01星球</p>
+ * <p>地址：01星球总部</p>
+ * @author j4组
+ * @version 1.0.0
+ */
 @RestController
 public class TreatmentController implements TreatmentApis {
 
@@ -18,38 +25,22 @@ public class TreatmentController implements TreatmentApis {
     private ITreatmentService treatmentService;
 
     @Override
-    public JsonVO<TreatmentVO> createTreatment(CreateTreatmentDTO dto) {
-        TreatmentVO vo = treatmentService.createTreatment(dto);
-        if (vo != null) {
-            return JsonVO.success(vo);
-        }
-        return JsonVO.fail("新增诊疗失败");
+    public TreatmentResponseDTO addTreatment(TreatmentDTO treatmentDTO) {
+        return treatmentService.addTreatment(treatmentDTO);
     }
 
     @Override
-    public JsonVO<TreatmentVO> updateTreatment(UpdateTreatmentDTO dto) {
-        TreatmentVO vo = treatmentService.updateTreatment(dto);
-        if (vo != null) {
-            return JsonVO.success(vo);
-        }
-        return JsonVO.fail("修改诊疗失败，未找到诊疗项目");
+    public TreatmentResponseDTO updateTreatment(TreatmentDTO treatmentDTO) {
+        return treatmentService.updateTreatment(treatmentDTO);
     }
 
     @Override
-    public JsonVO<String> deleteTreatment(String id) {
-        boolean success = treatmentService.deleteTreatment(id);
-        if (success) {
-            return JsonVO.success("删除成功");
-        }
-        return JsonVO.fail("删除失败，未找到诊疗项目");
+    public Boolean deleteTreatment(String id) {
+        return treatmentService.deleteTreatment(id);
     }
 
     @Override
-    public JsonVO<TreatmentVO> toggleStatus(ToggleStatusDTO dto) {
-        TreatmentVO vo = treatmentService.toggleStatus(dto);
-        if (vo != null) {
-            return JsonVO.success(vo);
-        }
-        return JsonVO.fail("状态切换失败，未找到诊疗项目");
+    public TreatmentResponseDTO updateStatus(TreatmentStatusDTO statusDTO) {
+        return treatmentService.updateStatus(statusDTO);
     }
 }

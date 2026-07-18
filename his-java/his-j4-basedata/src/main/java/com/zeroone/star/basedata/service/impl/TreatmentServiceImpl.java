@@ -4,70 +4,76 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zeroone.star.basedata.entity.Treatment;
 import com.zeroone.star.basedata.mapper.TreatmentMapper;
 import com.zeroone.star.basedata.service.ITreatmentService;
-import com.zeroone.star.project.dto.j4.treatment.CreateTreatmentDTO;
-import com.zeroone.star.project.dto.j4.treatment.ToggleStatusDTO;
-import com.zeroone.star.project.dto.j4.treatment.UpdateTreatmentDTO;
-import com.zeroone.star.project.vo.j4.treatment.TreatmentVO;
+import com.zeroone.star.project.j4.basedata.dto.TreatmentDTO;
+import com.zeroone.star.project.j4.basedata.dto.TreatmentResponseDTO;
+import com.zeroone.star.project.j4.basedata.dto.TreatmentStatusDTO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
+/**
+ * <p>
+ * 描述：诊疗管理服务实现
+ * </p>
+ * <p>版权：&copy;01星球</p>
+ * <p>地址：01星球总部</p>
+ * @author j4组
+ * @version 1.0.0
+ */
 @Service
 public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, Treatment> implements ITreatmentService {
 
     @Override
-    public TreatmentVO createTreatment(CreateTreatmentDTO dto) {
+    public TreatmentResponseDTO addTreatment(TreatmentDTO treatmentDTO) {
         Treatment treatment = new Treatment();
-        BeanUtils.copyProperties(dto, treatment);
-        treatment.setId(UUID.randomUUID().toString());
+        BeanUtils.copyProperties(treatmentDTO, treatment);
         treatment.setCreatedAt(LocalDateTime.now());
         treatment.setIsDeleted(0);
         treatment.setVersion(0);
-        baseMapper.insert(treatment);
-        return convertToVO(treatment);
+        this.save(treatment);
+        return convertToResponseDTO(treatment);
     }
 
     @Override
-    public TreatmentVO updateTreatment(UpdateTreatmentDTO dto) {
-        Treatment treatment = baseMapper.selectById(dto.getId());
-        if (treatment == null) {
-            return null;
+    public TreatmentResponseDTO updateTreatment(TreatmentDTO treatmentDTO) {
+        Treatment treatment = this.getById(treatmentDTO.getId());
+        if (treatment != null) {
+            BeanUtils.copyProperties(treatmentDTO, treatment);
+            treatment.setUpdatedAt(LocalDateTime.now());
+            this.updateById(treatment);
         }
-        BeanUtils.copyProperties(dto, treatment);
-        treatment.setUpdatedAt(LocalDateTime.now());
-        baseMapper.updateById(treatment);
-        return convertToVO(treatment);
+        return convertToResponseDTO(treatment);
     }
 
     @Override
-    public boolean deleteTreatment(String id) {
-        Treatment treatment = baseMapper.selectById(id);
-        if (treatment == null) {
-            return false;
+    public Boolean deleteTreatment(String id) {
+        Treatment treatment = this.getById(id);
+        if (treatment != null) {
+            treatment.setIsDeleted(1);
+            treatment.setDeletedAt(LocalDateTime.now());
+            this.updateById(treatment);
+            return true;
         }
-        treatment.setIsDeleted(1);
-        treatment.setDeletedAt(LocalDateTime.now());
-        baseMapper.updateById(treatment);
-        return true;
+        return false;
     }
 
     @Override
-    public TreatmentVO toggleStatus(ToggleStatusDTO dto) {
-        Treatment treatment = baseMapper.selectById(dto.getId());
-        if (treatment == null) {
-            return null;
+    public TreatmentResponseDTO updateStatus(TreatmentStatusDTO statusDTO) {
+        Treatment treatment = this.getById(statusDTO.getId());
+        if (treatment != null) {
+            treatment.setStatusEnum(statusDTO.getStatusEnum());
+            treatment.setUpdatedAt(LocalDateTime.now());
+            this.updateById(treatment);
         }
-        treatment.setStatusEnum(dto.getStatusEnum());
-        treatment.setUpdatedAt(LocalDateTime.now());
-        baseMapper.updateById(treatment);
-        return convertToVO(treatment);
+        return convertToResponseDTO(treatment);
     }
 
-    private TreatmentVO convertToVO(Treatment treatment) {
-        TreatmentVO vo = new TreatmentVO();
-        BeanUtils.copyProperties(treatment, vo);
-        return vo;
+    private TreatmentResponseDTO convertToResponseDTO(Treatment treatment) {
+        TreatmentResponseDTO responseDTO = new TreatmentResponseDTO();
+        if (treatment != null) {
+            BeanUtils.copyProperties(treatment, responseDTO);
+        }
+        return responseDTO;
     }
 }
