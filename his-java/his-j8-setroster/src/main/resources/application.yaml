@@ -1,0 +1,7 @@
+server:
+  port: ${sp.setroster}
+  servlet:
+    context-path: /setroster
+spring:
+  application:
+    name: ${sn.setroster}
