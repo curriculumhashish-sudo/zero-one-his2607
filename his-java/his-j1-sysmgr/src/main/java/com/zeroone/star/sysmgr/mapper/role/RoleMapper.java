@@ -1,7 +1,7 @@
-package com.zeroone.star.sysmgr.mapper;
+package com.zeroone.star.sysmgr.mapper.role;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.zeroone.star.sysmgr.entity.RoleDO;
+import com.zeroone.star.sysmgr.entity.role.RoleDO;
 
 /**
  * 角色数据访问层骨架。

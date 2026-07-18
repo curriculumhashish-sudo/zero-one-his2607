@@ -1,9 +1,9 @@
-package com.zeroone.star.sysmgr.service.impl;
+package com.zeroone.star.sysmgr.service.role.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zeroone.star.sysmgr.entity.RoleDO;
-import com.zeroone.star.sysmgr.mapper.RoleMapper;
-import com.zeroone.star.sysmgr.service.IRoleService;
+import com.zeroone.star.sysmgr.entity.role.RoleDO;
+import com.zeroone.star.sysmgr.mapper.role.RoleMapper;
+import com.zeroone.star.sysmgr.service.role.IRoleService;
 import org.springframework.stereotype.Service;
 
 /**

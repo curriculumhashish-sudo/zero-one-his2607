@@ -1,4 +1,4 @@
-package com.zeroone.star.sysmgr.controller;
+package com.zeroone.star.sysmgr.controller.role;
 
 /**
  * 角色管理控制器骨架。
