@@ -1,7 +1,0 @@
-server:
-  port: ${sp.report}
-  servlet:
-    context-path: /report
-spring:
-  application:
-    name: ${sn.report}
