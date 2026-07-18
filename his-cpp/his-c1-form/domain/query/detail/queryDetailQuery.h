@@ -9,26 +9,22 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/**
- * 分页查询对象
- */
-class queryDetailQuery : public PageQuery
+
+// 获取明细列表的query
+class QueryDatail :public PageQuery
 {
-	DTO_INIT(SampleQuery, PageQuery);
-	// 姓名
+	DTO_INIT(QueryDatail, PageQuery);
+
+	// 挂号科室
+	DTO_FIELD(String, register_room);
+	DTO_FIELD_INFO(register_room) {
+		info->description = ZH_WORDS_GETTER("rhqm.form.detail.attain.register_room");
+	}
+
+	// 患者姓名
 	DTO_FIELD(String, name);
 	DTO_FIELD_INFO(name) {
-		info->description = ZH_WORDS_GETTER("sample.field.name");
-	}
-	// 性别
-	DTO_FIELD(String, sex);
-	DTO_FIELD_INFO(sex) {
-		info->description = ZH_WORDS_GETTER("sample.field.sex");
-	}
-	// 年龄
-	DTO_FIELD(UInt32, age);
-	DTO_FIELD_INFO(age) {
-		info->description = ZH_WORDS_GETTER("sample.field.age");
+		info->description = ZH_WORDS_GETTER("rhqm.form.detail.attain.name");
 	}
 };
 
