@@ -10,6 +10,9 @@ import com.zeroone.star.project.vo.j4.treatment.TreatmentListVO;
 import com.zeroone.star.project.vo.j4.treatment.TreatmentSelectVO;
 
 import java.util.List;
+import com.zeroone.star.project.dto.j4.treatment.TreatmentDTO;
+import com.zeroone.star.project.dto.j4.treatment.TreatmentResponseDTO;
+import com.zeroone.star.project.dto.j4.treatment.TreatmentStatusDTO;
 
 /**
  * <p>
@@ -29,4 +32,13 @@ public interface ITreatmentService extends IService<Treatment> {
     TreatmentDetailVO getTreatmentById(String id);
 
     List<String> listCategoryOptions();
+
+
+    TreatmentResponseDTO addTreatment(TreatmentDTO treatmentDTO);
+
+    TreatmentResponseDTO updateTreatment(TreatmentDTO treatmentDTO);
+
+    Boolean deleteTreatment(String id);
+
+    TreatmentResponseDTO updateStatus(TreatmentStatusDTO statusDTO);
 }

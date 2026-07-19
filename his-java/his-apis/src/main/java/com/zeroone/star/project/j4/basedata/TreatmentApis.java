@@ -10,6 +10,15 @@ import com.zeroone.star.project.vo.j4.treatment.TreatmentSelectVO;
 
 import java.util.List;
 
+import com.zeroone.star.project.dto.j4.treatment.TreatmentDTO;
+import com.zeroone.star.project.dto.j4.treatment.TreatmentResponseDTO;
+import com.zeroone.star.project.dto.j4.treatment.TreatmentStatusDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
+
 /**
  * <p>
  * 描述：诊疗管理 API 接口
@@ -47,4 +56,21 @@ public interface TreatmentApis {
      * @return 分类名称列表
      */
     JsonVO<List<String>> listCategoryOptions();
+
+
+    @Operation(summary = "新增诊疗项目")
+    @PostMapping("/add")
+    TreatmentResponseDTO addTreatment(@Valid @RequestBody TreatmentDTO treatmentDTO);
+
+    @Operation(summary = "修改诊疗项目")
+    @PutMapping("/update")
+    TreatmentResponseDTO updateTreatment(@Valid @RequestBody TreatmentDTO treatmentDTO);
+
+    @Operation(summary = "删除诊疗项目")
+    @DeleteMapping("/delete/{id}")
+    Boolean deleteTreatment(@Parameter(description = "诊疗项目ID") @PathVariable("id") String id);
+
+    @Operation(summary = "启/停用诊疗项目")
+    @PutMapping("/status")
+    TreatmentResponseDTO updateStatus(@Valid @RequestBody TreatmentStatusDTO statusDTO);
 }

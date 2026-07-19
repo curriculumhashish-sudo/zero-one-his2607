@@ -2,6 +2,10 @@ package com.zeroone.star.basedata.controller;
 
 import com.zeroone.star.basedata.service.ITreatmentService;
 import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.basedata.service.ITreatmentService;
+import com.zeroone.star.project.dto.j4.treatment.TreatmentDTO;
+import com.zeroone.star.project.dto.j4.treatment.TreatmentResponseDTO;
+import com.zeroone.star.project.dto.j4.treatment.TreatmentStatusDTO;
 import com.zeroone.star.project.j4.basedata.TreatmentApis;
 import com.zeroone.star.project.query.j4.treatment.TreatmentQuery;
 import com.zeroone.star.project.query.j4.treatment.TreatmentSelectQuery;
@@ -23,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+
+import jakarta.annotation.Resource;
 
 /**
  * <p>
@@ -75,5 +81,29 @@ public class TreatmentController implements TreatmentApis {
     @Override
     public JsonVO<List<String>> listCategoryOptions() {
         return JsonVO.success(treatmentService.listCategoryOptions());
+    }
+
+
+    @Resource
+    private ITreatmentService treatmentService;
+
+    @Override
+    public TreatmentResponseDTO addTreatment(TreatmentDTO treatmentDTO) {
+        return treatmentService.addTreatment(treatmentDTO);
+    }
+
+    @Override
+    public TreatmentResponseDTO updateTreatment(TreatmentDTO treatmentDTO) {
+        return treatmentService.updateTreatment(treatmentDTO);
+    }
+
+    @Override
+    public Boolean deleteTreatment(String id) {
+        return treatmentService.deleteTreatment(id);
+    }
+
+    @Override
+    public TreatmentResponseDTO updateStatus(TreatmentStatusDTO statusDTO) {
+        return treatmentService.updateStatus(statusDTO);
     }
 }

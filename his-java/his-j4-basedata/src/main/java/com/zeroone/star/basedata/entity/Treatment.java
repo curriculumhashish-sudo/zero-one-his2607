@@ -1,11 +1,17 @@
 package com.zeroone.star.basedata.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+
 import java.time.LocalDateTime;
 
 /**
@@ -19,82 +25,116 @@ import java.time.LocalDateTime;
  */
 @Data
 @TableName("treatment")
-public class Treatment implements Serializable {
+public class Treatment {
 
-    private static final long serialVersionUID = 1L;
-
-    /** 主键ID，雪花算法生成 */
-    @TableId(value = "id", type = IdType.ASSIGN_ID)
+    @TableId(value = "id", type = IdType.ASSIGN_UUID)
     private String id;
 
-    /** 租户ID */
+    @TableField("tenant_id")
     private String tenantId;
 
-    /** 创建时间 */
+    @TableField("created_at")
     private LocalDateTime createdAt;
 
-    /** 更新时间 */
+    @TableField("updated_at")
     private LocalDateTime updatedAt;
 
-    /** 创建人 */
+    @TableField("created_by")
     private String createdBy;
 
-    /** 更新人 */
+    @TableField("updated_by")
     private String updatedBy;
 
-    /** 逻辑删除标记，0未删除/1已删除 */
-    @TableLogic
-    private Boolean isDeleted;
+    @TableField("is_deleted")
+    private Integer isDeleted;
 
-    /** 删除时间 */
+    @TableField("deleted_at")
     private LocalDateTime deletedAt;
 
-    /** 删除人 */
+    @TableField("deleted_by")
     private String deletedBy;
 
-    /** 乐观锁版本号 */
-    @Version
+    @TableField("version")
     private Integer version;
 
-    /** 诊疗项目名称 */
-    private String name;
-
-    /** 服务类型编码 */
-    private String typeCode;
-
-    /** 分类编码 */
+    @TableField("category_code")
     private String categoryCode;
 
-    /** 提供机构ID */
-    private String offeredOrgId;
-
-    /** 专业科室编码 */
-    private String specialtyCode;
-
-    /** 执行地点ID */
-    private String locationId;
-
-    /** 状态枚举：ACTIVE启用/INACTIVE停用 */
-    private String statusEnum;
-
-    /** 是否有效标记 */
-    private Boolean activeFlag;
-
-    /** 是否需要预约标记 */
-    private Boolean appointmentRequiredFlag;
-
-    /** 医保编码 */
-    private String ybNo;
-
-    /** 业务编号（编码） */
+    @TableField("bus_no")
     private String busNo;
 
-    /** 备注说明 */
-    private String comment;
+    @TableField("name")
+    private String name;
 
-    /** 扩展详情 */
-    private String extraDetails;
+    @TableField("py_str")
+    private String pyStr;
 
-    /** 联系方式 */
-    private String contact;
+    @TableField("wb_str")
+    private String wbStr;
+
+    @TableField("package_unit_code")
+    private String packageUnitCode;
+
+    @TableField("type_enum")
+    private String typeEnum;
+
+    @TableField("status_enum")
+    private String statusEnum;
+
+    @TableField("description_text")
+    private String descriptionText;
+
+    @TableField("body_site_code")
+    private String bodySiteCode;
+
+    @TableField("specimen_code")
+    private String specimenCode;
+
+    @TableField("org_id")
+    private String orgId;
+
+    @TableField("location_id")
+    private String locationId;
+
+    @TableField("rule_id")
+    private Integer ruleId;
+
+    @TableField("pricing_flag")
+    private Integer pricingFlag;
+
+    @TableField("yb_flag")
+    private Integer ybFlag;
+
+    @TableField("yb_no")
+    private String ybNo;
+
+    @TableField("yb_match_flag")
+    private Integer ybMatchFlag;
+
+    @TableField("chrgitm_lv")
+    private Integer chrgitmLv;
+
+    @TableField("children_json")
+    private String childrenJson;
+
+    @TableField("children_flag")
+    private Integer childrenFlag;
+
+    @TableField("activity_version")
+    private String activityVersion;
+
+    @TableField("merchandise_name")
+    private String merchandiseName;
+
+    @TableField("merchandise_py_str")
+    private String merchandisePyStr;
+
+    @TableField("merchandise_wb_str")
+    private String merchandiseWbStr;
+
+    @TableField("def_encounter_unit_code")
+    private String defEncounterUnitCode;
+
+    @TableField("def_inhospital_unit_code")
+    private String defInhospitalUnitCode;
 }

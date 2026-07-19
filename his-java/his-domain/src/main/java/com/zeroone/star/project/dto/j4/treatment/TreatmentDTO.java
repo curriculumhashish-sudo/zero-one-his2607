@@ -1,44 +1,80 @@
 package com.zeroone.star.project.dto.j4.treatment;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+/**
+ * <p>
+ * 描述：诊疗管理请求DTO
+ * </p>
+ * <p>版权：&copy;01星球</p>
+ * <p>地址：01星球总部</p>
+ * @author j4组
+ * @version 1.0.0
+ */
+@Data
+public class TreatmentDTO {
 
-@Getter
-@Setter
-@Schema(description = "诊疗项目列表数据")
-public class TreatmentDTO implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-
-    @Schema(description = "主键ID")
     private String id;
 
-    @Schema(description = "业务编号（编码）", example = "CG001")
-    private String busNo;
+    private String tenantId;
 
-    @Schema(description = "诊疗项目名称", example = "血常规检查")
-    private String name;
-
-    @Schema(description = "目录分类", example = "检查")
+    @NotBlank(message = "诊疗项目类别编码不能为空")
     private String categoryCode;
 
-    @Schema(description = "价格(元)", example = "35.00")
-    private BigDecimal price;
+    @NotBlank(message = "业务编码不能为空")
+    private String busNo;
 
-    @Schema(description = "服务状态编码", example = "ACTIVE")
+    @NotBlank(message = "项目名称不能为空")
+    private String name;
+
+    private String pyStr;
+
+    private String wbStr;
+
+    private String packageUnitCode;
+
+    @NotBlank(message = "诊疗类型不能为空")
+    private String typeEnum;
+
+    @NotBlank(message = "发布状态不能为空")
     private String statusEnum;
 
-    @Schema(description = "服务状态显示名", example = "启用")
-    private String statusText;
+    private String descriptionText;
 
-    @Schema(description = "是否激活", example = "true")
-    private Boolean activeFlag;
+    private String bodySiteCode;
 
-    @Schema(description = "创建时间")
-    private LocalDateTime createdAt;
+    private String specimenCode;
+
+    private String orgId;
+
+    private String locationId;
+
+    private Integer ruleId;
+
+    private Integer pricingFlag;
+
+    private Integer ybFlag;
+
+    private String ybNo;
+
+    private Integer ybMatchFlag;
+
+    private Integer chrgitmLv;
+
+    private String childrenJson;
+
+    private Integer childrenFlag;
+
+    private String activityVersion;
+
+    private String merchandiseName;
+
+    private String merchandisePyStr;
+
+    private String merchandiseWbStr;
+
+    private String defEncounterUnitCode;
+
+    private String defInhospitalUnitCode;
 }
