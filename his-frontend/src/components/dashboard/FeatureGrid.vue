@@ -11,7 +11,12 @@
         class="feature-item animate-on-load"
         v-for="(link, index) in items"
         :key="link.name"
+        :class="{ 'is-navigable': link.navigable }"
         :style="{ animationDelay: `${delayOffset + index * delayStep}ms` }"
+        :role="link.navigable ? 'link' : undefined"
+        :tabindex="link.navigable ? 0 : undefined"
+        @click="navigate(link)"
+        @keydown.enter="navigate(link)"
       >
         <div class="feature-icon" :style="{ backgroundColor: link.bgColor }">
           <el-icon :size="22" color="#fff"><component :is="link.icon" /></el-icon>
@@ -25,7 +30,14 @@
 
 <script setup lang="ts">
 import { Setting } from '@element-plus/icons-vue'
+import { useRouter } from 'vue-router'
 import type { FeatureItem } from '@/components/dashboard/type'
+
+const router = useRouter()
+
+function navigate(link: FeatureItem) {
+  if (link.navigable) router.push(link.path)
+}
 
 /**
  * 常用功能入口网格组件
@@ -79,6 +91,10 @@ withDefaults(defineProps<Props>(), {
   border-radius: 10px;
   transition: all 0.3s;
   border: 1px solid transparent;
+}
+
+.feature-item.is-navigable {
+  cursor: pointer;
 }
 
 .feature-item:hover {

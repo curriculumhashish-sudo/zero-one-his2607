@@ -71,6 +71,8 @@ export interface FeatureItem {
   icon: any
   /** 图标背景色 */
   bgColor: string
-  /** 预留路由路径（当前为纯展示模式不跳转） */
+  /** 路由路径 */
   path: string
+  /** 是否允许点击跳转 */
+  navigable?: boolean
 }

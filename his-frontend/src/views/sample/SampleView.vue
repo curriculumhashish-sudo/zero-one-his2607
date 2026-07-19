@@ -248,6 +248,11 @@ const menus = reactive([
         text: '模板渲染器'
       }
     ]
+  },
+  {
+    id: 14,
+    path: '/sample/common',
+    text: '通用布局组件'
   }
 ])
 </script>

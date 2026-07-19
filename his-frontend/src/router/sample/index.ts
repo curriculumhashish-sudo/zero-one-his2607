@@ -79,6 +79,11 @@ const routes = [
         name: 'smedicaltemplaterender',
         path: '/sample/medicaltemplaterender',
         component: () => import('@/views/sample/medical-template/MedicalTemplateRender.vue')
+      },
+      {
+        name: 'scommon',
+        path: '/sample/common',
+        component: () => import('@/views/sample/common/Index.vue')
       }
     ]
   }

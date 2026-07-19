@@ -208,7 +208,14 @@ const quickLinks: FeatureItem[] = [
     path: '/sample/form',
     bgColor: '#7232dd'
   },
-  { name: '组件示例', desc: '基础与业务组件演示', icon: Box, path: '/sample', bgColor: '#07c160' },
+  {
+    name: '组件示例',
+    desc: '基础与业务组件演示',
+    icon: Box,
+    path: '/sample/common',
+    bgColor: '#07c160',
+    navigable: true
+  },
   {
     name: '系统设置',
     desc: '全局参数与功能配置',
