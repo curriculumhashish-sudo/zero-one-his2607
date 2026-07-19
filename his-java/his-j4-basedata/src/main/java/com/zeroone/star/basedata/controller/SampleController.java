@@ -14,6 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
  * @version 1.0.0
  */
 @RestController
-@RequestMapping("/basedata/sample")
+@RequestMapping("/sample")
 public class SampleController implements SampleApis {
 }
