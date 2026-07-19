@@ -6,7 +6,7 @@ lhfc:
       # ---- 功能1: 获取患者队列 ----
       GetPatientQueue:
         summary: 获取患者就诊队列(条件+分页)
-      ChargeItemDTO:
+      ChargeItemBriefDTO:
         chargeItemId: 收费明细主键
         statusCode: 收费状态编码
         statusText: 收费状态文本

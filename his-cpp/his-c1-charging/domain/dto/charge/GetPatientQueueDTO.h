@@ -7,23 +7,23 @@
 /*
 	收费明细据传输对象
 */
-class ChargeItemDTO : public oatpp::DTO
+class ChargeItemBriefDTO : public oatpp::DTO
 {
-	DTO_INIT(ChargeItemDTO, DTO);
+	DTO_INIT(ChargeItemBriefDTO, DTO);
 	//收费明细主键
-	API_DTO_FIELD_DEFAULT(String, chargeItemId, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeItemDTO.chargeItemId"));
+	API_DTO_FIELD_DEFAULT(String, chargeItemId, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeItemBriefDTO.chargeItemId"));
 
 	//收费状态编码
-	API_DTO_FIELD_DEFAULT(String, statusCode, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeItemDTO.statusCode"));
+	API_DTO_FIELD_DEFAULT(String, statusCode, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeItemBriefDTO.statusCode"));
 
 	//收费状态文本
-	API_DTO_FIELD_DEFAULT(String, statusText, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeItemDTO.statusText"));
+	API_DTO_FIELD_DEFAULT(String, statusText, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeItemBriefDTO.statusText"));
 	
 	//该行总金额
-	API_DTO_FIELD_DEFAULT(Float64, totalPrice, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeItemDTO.totalPrice"));
+	API_DTO_FIELD_DEFAULT(Float64, totalPrice, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeItemBriefDTO.totalPrice"));
 
 	//收费项目展示名称
-	API_DTO_FIELD_DEFAULT(String, itemLabel, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeItemDTO.itemLabel"));
+	API_DTO_FIELD_DEFAULT(String, itemLabel, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeItemBriefDTO.itemLabel"));
 };
 /*
 	获取患者队列数据传输对象
@@ -75,7 +75,7 @@ class GetPatientQueueDTO : public oatpp::DTO
 	API_DTO_FIELD_DEFAULT(Float64, paidAmount, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.paidAmount"));
 
 	//收费明细摘要列表
-	API_DTO_FIELD_DEFAULT(Vector<Object<ChargeItemDTO>>, cashierChargeItems, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.cashierChargeItems"));
+	API_DTO_FIELD_DEFAULT(Vector<Object<ChargeItemBriefDTO>>, cashierChargeItems, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.cashierChargeItems"));
 
 	//收费状态汇总编码
 	API_DTO_FIELD_DEFAULT(String, cashierChargeRollupStatusCode, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.cashierChargeRollupStatusCode"));
