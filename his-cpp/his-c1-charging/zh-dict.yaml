@@ -1,8 +1,9 @@
-﻿lhfc:
+lhfc:
   charging:
     charge:
       tags:
         t1: 门诊收费
+      # ---- 功能1: 获取患者队列 ----
       GetPatientQueue:
         summary: 获取患者就诊队列(条件+分页)
       ChargeItemDTO:
@@ -34,3 +35,167 @@
         startDate: 开始日期
         endDate: 结束日期
         queueTabCode: 收费状态(ALL/SETTLED/PENDING)
+      # ---- 功能2: 获取患者缴费项 ----
+      GetChargeItems:
+        summary: 获取患者缴费项
+      GetChargeItemsQuery:
+        encounterId: 就诊主键
+        includePriceExtension: 是否加载定价扩展字段
+      GetChargeItemRowDTO:
+        chargeItemId: 收费明细主键
+        serviceTable: 来源业务表名
+        serviceId: 来源业务主键
+        itemName: 收费项目展示名称
+        busNo: 收费明细业务流水号
+        unitPrice: 单价
+        quantityValue: 数量值
+        quantityUnit: 数量单位编码
+        quantityDisplay: 数量展示文本
+        chargeCategoryCode: 费用分类编码
+        chargeCategoryDisplay: 费用分类展示名
+        statusCode: 收费状态持久化码
+        statusText: 收费状态展示文案
+        totalPrice: 行总价
+        cashierUserId: 收款人系统用户主键
+        cashierName: 收款人姓名
+        discountRateDisplay: 折扣率展示文本
+        accountId: 记账账户主键
+        contractName: 费用性质合同名称
+        contractId: 费用性质合同主键
+        feeNatureDisplay: 费用性质展示
+        medTypeCode: 医疗类别
+        ybNo: 医保目录编码
+        medicalInsuranceCode: 医保编码展示
+      GetChargeItemDTO:
+        encounterId: 就诊主键
+        items: 待收费明细列表
+      # ---- 功能3A: 预结算 ----
+      PreSettleCharge:
+        summary: 预结算（生成草稿锁定收费项）
+      PreSettleChargeRequestDTO:
+        encounterId: 就诊主键
+        chargeItemIds: 待收收费项ID列表
+      PreSettleChargeLinePreviewDTO:
+        chargeItemId: 收费明细主键
+        itemLabel: 项目展示名称
+        lineAmount: 本行应收金额
+        feeNatureDisplay: 费用性质展示
+      OpSelfPayRollupDTO:
+        accountId: 自费账户主键
+        chargeItemIds: 自费收费项ID列表
+        totalAmount: 自费合计
+      OpInsurancePreSettleGroupDTO:
+        groupIndex: 分组序号
+        contractId: 费用性质合同主键
+        accountId: 记账账户主键
+        chargeItemIds: 收费项ID列表
+        medType: 医疗类别编码
+        medTypeDisplay: 医疗类别展示
+        diseCodg: 诊断编码
+        diseName: 诊断名称
+        medfeeSumamt: 医疗费总额
+        fundPaySumamt: 统筹基金支付
+        acctPay: 个人账户支付
+        psnCashPay: 个人现金支付
+        chrgBchno: 医保收费批次号
+        preSettleId: 医保预结算ID
+        mdtrtId: 就诊ID（医保侧）
+      PreSettleChargeResponseDTO:
+        paymentDraftId: 支付草稿主键
+        displayAmount: 展示应收金额
+        insurancePreSettled: 是否已完成医保预结算
+        settlementComposition: 结算构成
+        ybChrgBchno: 医保收费批次号
+        ybMedfeeSumamt: 医保医疗费总额
+        ybFundPaySumamt: 医保统筹支付
+        ybAcctPay: 医保个账支付
+        ybPsnCashPay: 医保现金自付
+        previews: 行预览列表
+        selfPayRollup: 自费汇总
+        insuranceGroups: 医保分组列表
+      # ---- 功能3C: 正式结算 ----
+      ConfirmSettleCharge:
+        summary: 正式结算（落账收费）
+      PaymentDetailSubmitDTO:
+        payChannelCode: 支付渠道编码
+        amount: 金额
+      ClientScanResultDTO:
+        _placeholder: 银联被扫回执（预留）
+      ConfirmSettleChargeRequestDTO:
+        paymentDraftId: 支付草稿主键
+        encounterId: 就诊主键
+        chargeItemIds: 收费项ID列表
+        paymentDetails: 支付明细列表
+        billDate: 账单日期
+        outcomeEnum: 结算结果枚举
+        ybChrgBchno: 医保收费批次号（单组）
+        ybChrgBchnos: 医保收费批次号列表（多组）
+        clientScanResult: 银联被扫回执
+      ConfirmSettleChargeResponseDTO:
+        paymentId: 正式支付主键
+        invoiceId: 票据草稿主键
+        invoiceStatus: 发票状态
+        successMessageCode: 成功语义码
+        ybSetlId: 医保结算ID
+      # ---- 功能4: 打印门诊收费小票 ----
+      PrintChargeReceipt:
+        summary: 打印门诊收费小票
+      PrintChargeReceiptRequestDTO:
+        encounterId: 就诊主键
+        paymentId: 支付流水主键
+      ChargeReceiptChargeLineDTO:
+        itemName: 项目名称
+        quantityText: 数量展示
+        amountText: 金额展示
+        chargeCategoryText: 费用类别
+      SlipDTO:
+        encounterId: 就诊ID
+        patientName: 患者姓名
+        hospitalName: 机构名称
+        genderEnumText: 性别展示
+        ageText: 年龄文本
+        feeNatureText: 费用性质
+        totalAmountText: 合计金额
+        poolingPayText: 统筹支付
+        fundPayText: 基金支付
+        accountPayText: 个人账户支付
+        deductibleLineText: 起付线
+        cashPayText: 现金支付
+        wechatPayText: 微信支付
+        alipayPayText: 支付宝支付
+        accountBalanceText: 个账支付后余额
+        cashierName: 收费员姓名
+        chargeTimeText: 收费时间
+        chargeItemLines: 收费项目列表
+      PrintChargeReceiptResponseDTO:
+        slip: 小票打印数据
+      # ---- 功能4B: 准备打印 ----
+      PreparePrint:
+        summary: 准备打印（获取打印模板）
+      PreparePrintRequestDTO:
+        scenarioCode: 业务场景码
+      PreparePrintResponseDTO:
+        traceId: 打印追踪ID
+        busNo: 模板业务号
+        scenarioCode: 场景码
+        templateVersion: 模板版本号
+        PrintJson: 模板结构
+        samplePrintData: 示例数据
+      # ---- 功能4C: 确认打印 ----
+      ConfirmPrint:
+        summary: 确认打印（审计落库）
+      ConfirmPrintRequestDTO:
+        traceId: 打印追踪ID
+        busNo: 模板业务号
+        scenarioCode: 场景码
+        templateVersion: 模板版本号
+        status: 打印结果
+        printData: 实际打印数据
+        bizRef: 业务锚点
+        printer: 打印机名称
+        copies: 打印份数
+        clientType: 客户端类型
+        errorCode: 失败错误码
+        errorMessage: 失败错误信息
+      ConfirmPrintResponseDTO:
+        ok: 审计落库是否成功
