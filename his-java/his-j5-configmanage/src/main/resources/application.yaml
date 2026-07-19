@@ -1,0 +1,12 @@
+server:
+  port: ${sp.configmanage:10500}
+  servlet:
+    context-path: /configmanage
+spring:
+  application:
+    name: J5_CONFIGMANAGE
+
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
