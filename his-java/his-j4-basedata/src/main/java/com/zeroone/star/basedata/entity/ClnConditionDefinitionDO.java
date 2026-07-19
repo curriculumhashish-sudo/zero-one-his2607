@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * 描述：诊断身体结构目录，对应 dia_body_structure 表
+ * 描述：诊断定义实体，对应 cln_condition_definition 表
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
@@ -24,8 +24,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
-@TableName("dia_body_structure")
-public class DiaBodyStructure implements Serializable {
+@TableName("cln_condition_definition")
+public class ClnConditionDefinitionDO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -80,19 +80,19 @@ public class DiaBodyStructure implements Serializable {
     private Integer version;
 
     /**
-     * 业务编号
+     * 来源枚举：general_dx(西医) / tcm_dx(中医) / tcm_syndrome(中医证候)
      */
-    private String busNo;
+    private String sourceEnum;
 
     /**
-     * 节点名称
+     * 病情编码，格式如 CDF00000001
+     */
+    private String conditionCode;
+
+    /**
+     * 诊断名称
      */
     private String name;
-
-    /**
-     * 状态枚举：ACTIVE / INACTIVE
-     */
-    private String statusEnum;
 
     /**
      * 拼音检索码
@@ -105,7 +105,37 @@ public class DiaBodyStructure implements Serializable {
     private String wbStr;
 
     /**
-     * 父节点主键（为空表示根节点）
+     * 诊断类型编码 → 关联字典 diag_type(309)
      */
-    private String parentId;
+    private String typeCode;
+
+    /**
+     * 描述说明
+     */
+    private String description;
+
+    /**
+     * 医保标记：0 否 / 1 是
+     */
+    private Boolean ybFlag;
+
+    /**
+     * 疾病编码（ICD 映射）
+     */
+    private String diseaseCode;
+
+    /**
+     * 医保编号
+     */
+    private String ybNo;
+
+    /**
+     * 医保匹配标记：0 未匹配 / 1 已匹配
+     */
+    private Boolean ybMatchFlag;
+
+    /**
+     * 状态枚举：ACTIVE / INACTIVE
+     */
+    private String statusEnum;
 }

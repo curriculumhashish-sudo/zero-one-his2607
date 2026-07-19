@@ -1,7 +1,7 @@
 package com.zeroone.star.basedata.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.zeroone.star.basedata.entity.DiaBodyStructure;
+import com.zeroone.star.basedata.entity.DiaBodyStructureDO;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -14,5 +14,5 @@ import org.apache.ibatis.annotations.Mapper;
  * @version 1.0.0
  */
 @Mapper
-public interface DiaBodyStructureMapper extends BaseMapper<DiaBodyStructure> {
+public interface DiaBodyStructureMapper extends BaseMapper<DiaBodyStructureDO> {
 }
