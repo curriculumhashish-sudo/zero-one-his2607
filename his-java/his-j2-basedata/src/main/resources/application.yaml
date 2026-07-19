@@ -1,8 +1,7 @@
 server:
-  port: ${sp.basedata}
+  port: ${sp.basedata:20000}
   servlet:
-    # 设置应用上下文路径
     context-path: /basedata
 spring:
   application:
-    name: ${sn.basedata}
+    name: his-j2-basedata
