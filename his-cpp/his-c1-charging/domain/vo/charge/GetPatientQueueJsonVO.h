@@ -3,7 +3,6 @@
 #define _GET_PATIENT_QUEUE_VO_
 
 #include "../../GlobalInclude.h"
-#include"domain/vo/JsonVO.h"
 #include"domain/dto/charge/GetPatientQueueDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)

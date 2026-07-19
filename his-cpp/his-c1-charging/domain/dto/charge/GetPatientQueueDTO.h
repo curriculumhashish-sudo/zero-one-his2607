@@ -166,7 +166,7 @@ public:
 */
 class GetPatientQueuePageDTO : public PageDTO<GetPatientQueueDTO::Wrapper>
 {
-	DTO_INIT(GetPatientQueuePageDTO, DTO);
+	DTO_INIT(GetPatientQueuePageDTO, PageDTO<GetPatientQueueDTO::Wrapper>);
 };
 #include OATPP_CODEGEN_END(DTO)
 #endif //!_GET_PATIENT_QUEUE_DTO_
