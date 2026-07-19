@@ -1,6 +1,9 @@
 package com.zeroone.star.project.j4.basedata;
 
 import com.zeroone.star.project.dto.PageDTO;
+
+import com.zeroone.star.project.dto.j4.frequency.FrequencySaveDTO;
+import com.zeroone.star.project.dto.j4.frequency.FrequencyUpdateDTO;
 import com.zeroone.star.project.dto.j4.frequency.FrequencyStatusDTO;
 import com.zeroone.star.project.query.j4.frequency.FrequencyPageQuery;
 import com.zeroone.star.project.vo.JsonVO;
@@ -38,6 +41,25 @@ public interface FrequencyApis {
     public JsonVO<FrequencyVO> queryFrequencyDetail(String id);
 
     /**
+     * 新增频次接口
+     * @param dto 新增数据
+     * @return 展现层数据结果
+     */
+    JsonVO<FrequencyVO> addFrequency(FrequencySaveDTO dto);
+
+    /**
+     * 修改频次接口
+     * @param dto 修改数据
+     * @return 展现层数据结果
+     */
+    JsonVO<FrequencyVO> modifyFrequency(FrequencyUpdateDTO dto);
+
+    /**
+     * 删除频次接口
+     * @param id 频次主键
+     * @return 结果状态载荷
+     */
+    JsonVO<Void> removeFrequency(String id);
      * 获取可用频次名称列表
      *
      * @return 频次名称列表

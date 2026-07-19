@@ -2,6 +2,8 @@ package com.zeroone.star.basedata.controller;
 
 import com.zeroone.star.basedata.service.IFrequencyService;
 import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j4.frequency.FrequencySaveDTO;
+import com.zeroone.star.project.dto.j4.frequency.FrequencyUpdateDTO;
 import com.zeroone.star.project.dto.j4.frequency.FrequencyStatusDTO;
 import com.zeroone.star.project.j4.basedata.FrequencyApis;
 import com.zeroone.star.project.query.j4.frequency.FrequencyPageQuery;
@@ -11,6 +13,8 @@ import com.zeroone.star.project.vo.j4.frequency.FrequencyVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +37,7 @@ public class FrequencyController implements FrequencyApis {
     @Resource
     private IFrequencyService frequencyService;
 
+    @Operation(summary = "查询频次列表(分页+条件)")
     @GetMapping("/query-frequency-list")
     @Override
     public JsonVO<PageDTO<FrequencyVO>> queryFrequencyList(FrequencyPageQuery query) {
@@ -40,6 +45,7 @@ public class FrequencyController implements FrequencyApis {
         return JsonVO.success(pageResult);
     }
 
+    @Operation(summary = "查询频次详情")
     @GetMapping("/query-frequency-detail")
     @Override
     public JsonVO<FrequencyVO> queryFrequencyDetail(@RequestParam String id) {
@@ -49,6 +55,29 @@ public class FrequencyController implements FrequencyApis {
         }
         return JsonVO.success(detail);
     }
+
+    @Operation(summary = "新增频次")
+    @PostMapping("add-frequency")
+    @Override
+    public JsonVO<FrequencyVO> addFrequency(@Validated @RequestBody FrequencySaveDTO dto) {
+        FrequencyVO vo = frequencyService.addFrequency(dto);
+        return JsonVO.success(vo);
+    }
+
+    @Operation(summary = "修改频次")
+    @PutMapping("modify-frequency")
+    @Override
+    public JsonVO<FrequencyVO> modifyFrequency(@Validated @RequestBody FrequencyUpdateDTO dto) {
+        FrequencyVO vo = frequencyService.modifyFrequency(dto);
+        return JsonVO.success(vo);
+    }
+
+    @Operation(summary = "删除频次")
+    @DeleteMapping("remove-frequency")
+    @Override
+    public JsonVO<Void> removeFrequency(@RequestBody String id) {
+        frequencyService.removeFrequency(id);
+        return JsonVO.success(null);
 
     @Operation(summary = "获取频次名称", description = "获取所有已启用的频次名称")
     @GetMapping("/list-frequency-names")
