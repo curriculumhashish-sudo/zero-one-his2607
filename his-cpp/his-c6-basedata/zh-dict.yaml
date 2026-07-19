@@ -1,0 +1,117 @@
+medication:
+  tag: 药品管理
+  page:
+    summary: 分页查询药品目录
+  get:
+    summary: 查询药品详情
+  create:
+    summary: 新增药品
+  edit:
+    summary: 修改药品
+  delete:
+    summary: 删除药品（支持批量）
+  start:
+    summary: 启用药品（支持批量）
+  stop:
+    summary: 停用药品（支持批量）
+  body:
+    page: 药品分页查询条件
+    id: 药品编号字符串
+    create: 新增药品请求对象
+    edit: 修改药品请求对象
+    ids: 药品编号数组，单条操作传一个编号，批量操作传多个编号
+  field:
+    authorization: 文档自测模式使用非空 Bearer 测试值，非文档模式使用项目真实鉴权
+    pageNo: 页码
+    pageSize: 每页数量
+    keyword: 名称、业务编码或拼音关键字
+    startDate: 查询开始时间
+    endDate: 查询结束时间
+    sortBy: 排序字段
+    sortDirection: 排序方向
+    where: 关键字匹配字段列表
+    id: 药品编号
+    medicationDefId: 药品定义编号
+    tenantId: 租户编号
+    orgId: 机构编号
+    busNo: 药品业务编码
+    name: 药品名称
+    domainEnum: 适用范围枚举
+    medVersion: 药品业务版本
+    nameEn: 药品英文名称
+    pyStr: 药品名称拼音码
+    wbStr: 药品名称五笔码
+    categoryCode: 药品分类编码
+    merchandiseName: 商品名称
+    merchandisePyStr: 商品名称拼音码
+    merchandiseWbStr: 商品名称五笔码
+    purchaseUnitCode: 采购单位编码
+    splitUnitCode: 拆零单位编码
+    comprisedText: 组成说明
+    ingredient: 主要成分
+    doseFrom: 剂量形式编码
+    approvalNumber: 批准文号
+    ybMatchFlag: 是否医保匹配
+    ybNo: 医保编码
+    pharmacologyCategoryCode: 药理分类编码
+    skinTestFlag: 是否需要皮试
+    injectFlag: 是否注射药
+    manufacturerId: 生产厂家编号
+    manufacturerText: 生产厂家名称
+    supplyId: 供应商编号
+    restrictedFlag: 是否限制使用
+    restrictedScope: 限制范围
+    activeFlag: 是否启用
+    childrenFlag: 是否儿童用药
+    characteristic: 药品特征
+    itemMinQuantity: 库存下限
+    itemMaxQuantity: 库存上限
+    defEncounterUnitCode: 门诊默认单位编码
+    defInhospitalUnitCode: 住院默认单位编码
+    nationalDrugCode: 国家药品编码
+    partAttributeEnum: 拆分属性枚举
+    antibioticCode: 抗菌药物编码
+    restrictedEnum: 限制等级枚举
+    selfFlag: 是否为自制药品
+    antibioticFlag: 是否抗菌药
+    basicFlag: 是否基本药物
+    thoPartAttributeEnum: 住院临时医嘱拆分属性
+    chrgitmLv: 医保等级
+    rxFlag: 是否处方药
+    dosageInstruction: 用法说明
+    drug69Code: 药品69码
+    totalVolume: 药品规格
+    doseFormCode: 剂型编码
+    doseUnitCode: 剂量单位编码
+    packageUnitCode: 包装单位编码
+    stockUnitCode: 库存单位编码
+    methodCode: 给药途径编码
+    rateCode: 给药频次编码
+    dose: 默认剂量
+    maxUnit: 单次最大用药剂量
+    usageLimit: 单次最大用量限定
+    locationId: 药品位置编号
+    ingredientItem: 成分项目
+    definition: 药品定义说明
+    dddCode: 限定日剂量编码
+    dddUnitCode: 限定日剂量单位
+    minRateCode: 最小给药频次
+    maxRateCode: 最大给药频次
+    doseUnitRatio: 剂量单位换算比
+    purchaseUnitRatio: 采购单位换算比
+    stockUnitRatio: 库存单位换算比
+    packageUnitRatio: 包装单位换算比
+    purchasePrice: 采购价格
+    retailPrice: 零售价格
+    maximumRetailPrice: 最高零售价格
+    statusEnum: 药品状态枚举
+    statusText: 药品状态文本
+    isDeleted: 是否删除
+    version: 乐观锁版本
+    createdAt: 创建时间
+    updatedAt: 更新时间
+    createdBy: 创建人
+    updatedBy: 更新人
+    total: 总记录数
+    pages: 总页数
+    rows: 当前页药品列表
