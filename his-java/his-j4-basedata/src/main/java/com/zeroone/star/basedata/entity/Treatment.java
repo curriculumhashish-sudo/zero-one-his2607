@@ -7,6 +7,15 @@ import lombok.Setter;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+/**
+ * <p>
+ * 描述：诊疗管理实体
+ * </p>
+ * <p>版权：&copy;01星球</p>
+ * <p>地址：01星球总部</p>
+ * @author j4组
+ * @version 1.0.0
+ */
 @Getter
 @Setter
 @TableName("adm_healthcare_service")
