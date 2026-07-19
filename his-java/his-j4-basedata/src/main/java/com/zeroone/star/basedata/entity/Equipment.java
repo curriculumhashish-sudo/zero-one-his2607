@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 public class Equipment {
 
     /** 主键标识 */
+    //TODO 主键是自增长还是基于雪花算法之类的还待商榷
     @TableId(type = IdType.AUTO)
     @Schema(description = "主键标识")
     private Long id;
