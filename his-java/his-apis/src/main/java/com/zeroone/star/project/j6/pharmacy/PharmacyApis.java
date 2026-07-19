@@ -18,7 +18,7 @@ public interface PharmacyApis {
      * 新增盘点单
      * <p>服务端根据头信息生成空明细行（占位），状态标记为草稿</p>
      *
-     * @param dto 头信息（purposeLocationId、categoryEnum 必填，busNo 为空）
+     * @param dto 头信息（purposeLocationId、categoryEnum 必填，busNo 由服务端生成，无需传入）
      * @return 含空明细行的盘点单详情
      */
     @Operation(summary = "新增盘点单", description = "生成空盘点单, 状态=草稿")
@@ -30,7 +30,7 @@ public interface PharmacyApis {
      * <p>填入完整实盘数据，快照锁定当前账面数（通过 inventoryItemId 关联 wkf_inventory_item），状态保持草稿</p>
      *
      * @param busNo 盘点单号（路径参数）
-     * @param dto   头信息 + 明细行列表
+     * @param dto   头信息 + 明细行列表(明细行仅含 inventoryItemId, traceNo, remake, actualQuantity, profitLossQuantity)
      * @return 更新后的盘点单详情
      */
     @Operation(summary = "保存盘点单", description = "填入实盘数据 + 快照锁定账面数，状态=草稿")
@@ -46,7 +46,7 @@ public interface PharmacyApis {
      * <p>将盘点明细数据更新到库中，获取申请人和申请时间，将状态从草稿更新为待审批</p>
      *
      * @param busNo 盘点单号（路径参数）
-     * @param dto   头信息 + 明细行列表
+     * @param dto   头信息 + 明细行列表(明细行仅含 inventoryItemId, traceNo, remake, actualQuantity, profitLossQuantity)
      * @return 更新后的盘点单详情（状态=PENDING_APPROVAL）
      */
     @Operation(summary = "保存盘点单并提交审批", description = "填入实盘数据，状态草稿→待审批")
