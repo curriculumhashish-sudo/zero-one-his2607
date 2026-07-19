@@ -1,7 +1,7 @@
 package com.zeroone.star.basedata.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.zeroone.star.basedata.entity.Frequency;
+import com.zeroone.star.basedata.entity.CusFrequencyDO;
 import com.zeroone.star.project.dto.PageDTO;
 <<<<<<< j4
 import com.zeroone.star.project.dto.j4.frequency.FrequencySaveDTO;
@@ -22,7 +22,7 @@ import java.util.List;
  * @author j4组
  * @version 1.0.0
  */
-public interface IFrequencyService extends IService<Frequency> {
+public interface IFrequencyService extends IService<CusFrequencyDO> {
 
     /**
      * 分页+条件查询频次列表
