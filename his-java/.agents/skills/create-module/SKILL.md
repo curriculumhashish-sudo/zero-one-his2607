@@ -1,3 +1,4 @@
+
 ---
 name: create-module
 description: 在 Java 微服务项目中按照既定规范创建新的 Maven 模块。当用户要求创建新模块、添加新服务模块或搭建新业务模块时使用此技能。
