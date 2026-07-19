@@ -20,7 +20,10 @@
 #include "Router.h"
 #include "ApiHelper.h"
 
-#include"charge/ChargeController.h"
+#include "charge/PatientQueueController.h"
+#include "charge/ChargeItemController.h"
+#include "charge/SettlementController.h"
+#include "charge/PrintController.h"
 
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
@@ -42,5 +45,12 @@ Router::Router(Endpoints* docEndpoints, HttpRouter* router)
 void Router::initRouter()
 {
 	// #TIP: Add system extension route definitions below
-	ROUTER_SIMPLE_BIND(ChargeController);
+	// 患者队列
+	ROUTER_SIMPLE_BIND(PatientQueueController);
+	// 缴费项管理
+	ROUTER_SIMPLE_BIND(ChargeItemController);
+	// 结算管理
+	ROUTER_SIMPLE_BIND(SettlementController);
+	// 打印管理
+	ROUTER_SIMPLE_BIND(PrintController);
 }

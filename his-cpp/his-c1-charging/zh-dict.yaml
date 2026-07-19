@@ -2,10 +2,13 @@ lhfc:
   charging:
     charge:
       tags:
-        t1: 门诊收费
+        t1: 获取患者队列
+        t2: 获取患者缴费项
+        t3: 确认缴费
+        t4: 打印门诊收费小票
       # ---- 功能1: 获取患者队列 ----
       GetPatientQueue:
-        summary: 获取患者就诊队列(条件+分页)
+        summary: 获取患者就诊队列（分页+条件查询）
       ChargeItemBriefDTO:
         chargeItemId: 收费明细主键
         statusCode: 收费状态编码
@@ -31,10 +34,13 @@ lhfc:
         cashierChargeRollupStatusText: 收费状态汇总文本
         paymentId: 最近一次成功支付流水主键
       GetPatientQueueQuery:
-        keyword: 关键字:姓名/就诊号
-        startDate: 开始日期
-        endDate: 结束日期
-        queueTabCode: 收费状态(ALL/SETTLED/PENDING)
+        keyword: 关键字（就诊流水号/患者姓名/身份证/手机号匹配）
+        startDate: 就诊开始日期下界（格式 yyyy-MM-dd HH:mm:ss）
+        endDate: 就诊开始日期上界（格式 yyyy-MM-dd HH:mm:ss）
+        queueTabCode: 页签（ALL/PENDING/SETTLED）
+        pageNo: 页码（0-based）
+        pageSize: 每页条数
+        organizationId: 科室ID（当前始终传 null）
       # ---- 功能2: 获取患者缴费项 ----
       GetChargeItems:
         summary: 获取患者缴费项
