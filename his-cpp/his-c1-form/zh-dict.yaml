@@ -1,0 +1,9 @@
+﻿rhqm:
+ form:
+  cost_info:
+   query:
+    title: "获取报表明细"
+   export:
+    title: "导出报表"
+    filename: "文件名"
+    

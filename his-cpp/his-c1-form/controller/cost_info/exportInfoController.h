@@ -9,8 +9,6 @@
 
 #include OATPP_CODEGEN_BEGIN(ApiController) ///< Begin ApiController codegen section
 
-#define API_TAG  "test aaa" 
-// ZH_WORDS_GETTER("file.tag")
 
 class ExportInfoController : public oatpp::web::server::api::ApiController
 {
@@ -20,11 +18,11 @@ public:
 	// 定义一个文件下载接口
 	// 定义描述
 	API_DEF_ENDPOINT_INFO(
-		ZH_WORDS_GETTER("file.download.summary"), downloadFile, Void, API_TAG,
-		API_DEF_ADD_QUERY_PARAMS(String, "filename", ZH_WORDS_GETTER("file.field.filename"), "file/test.jpg", true);
+		ZH_WORDS_GETTER("file.download.summary"), downloadFile, Void, ZH_WORDS_GETTER("rhqm.form.cost_info.export.title"),
+		API_DEF_ADD_QUERY_PARAMS(String, "filename", ZH_WORDS_GETTER("rhqm.form.cost_info.export.filename"), "file/test.jpg", true);
 	);
 	// 定义端点
-	API_HANDLER_ENDPOINT_OPTION(API_M_GET, "/file/download", downloadFile, QUERY(String, filename), return execDownloadFile(filename););
+	API_HANDLER_ENDPOINT_OPTION(API_M_GET, "/form/cost_info/export", downloadFile, QUERY(String, filename), return execDownloadFile(filename););
 private: 
 
 	// 执行文件下载处理

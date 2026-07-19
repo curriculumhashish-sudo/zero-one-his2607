@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "CostInfoController.h"
 
-StringJsonVO::Wrapper CostInfoController::executeQueryTest(const PageQuery::Wrapper& query)
+StringJsonVO::Wrapper CostInfoController::execQuery(const PageQuery::Wrapper& query)
 {
 	return StringJsonVO::Wrapper();
 }
