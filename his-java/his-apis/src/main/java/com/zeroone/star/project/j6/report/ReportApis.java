@@ -5,7 +5,7 @@ import com.zeroone.star.project.query.j6.report.EncounterWeekTrendQuery;
 import com.zeroone.star.project.vo.j6.report.DiseaseDistributionVO;
 import com.zeroone.star.project.vo.j6.report.EncounterMonthTrendVO;
 import com.zeroone.star.project.vo.j6.report.EncounterWeekTrendVO;
-import com.zeroone.star.project.vo.JsonVO
+import com.zeroone.star.project.vo.JsonVO;
 
 /**
  * <p>
