@@ -9,15 +9,15 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: 192.168.40.131:8848
+        server-addr: 192.168.136.136:8848
       config:
-        server-addr: 192.168.40.131:8848
+        server-addr: 192.168.136.136:8848
         file-extension: yaml
         enabled: true
   datasource:
-    url: jdbc:mysql://192.168.40.131:3306/zo_his?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://localhost:3306/test?useUnicode=true&useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
-    password: 123456
+    password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
