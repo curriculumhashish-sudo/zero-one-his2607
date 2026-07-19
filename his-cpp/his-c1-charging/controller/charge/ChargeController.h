@@ -35,7 +35,7 @@ public:
         API_TAG
     );
     API_HANDLER_ENDPOINT_QUERY_AUTH(
-        API_M_GET, "/charge/query-patient-queue", queryPatientQueue,
+        API_M_GET, "/charging/charge/query-patient-queue", queryPatientQueue,
         GetPatientQueueQuery, execQueryPatientQueue(query)
     );
 
@@ -48,7 +48,7 @@ public:
         API_TAG
     );
     API_HANDLER_ENDPOINT_QUERY_AUTH(
-        API_M_GET, "/charge/get-charge-items", getChargeItems,
+        API_M_GET, "/charging/charge/get-charge-items", getChargeItems,
         GetChargeItemsQuery, execGetChargeItems(query)
     );
 
@@ -60,7 +60,7 @@ public:
         API_TAG
     );
     API_HANDLER_ENDPOINT_AUTH(
-        API_M_POST, "/charge/pre-settle-charge", preSettleCharge,
+        API_M_POST, "/charging/charge/pre-settle-charge", preSettleCharge,
         BODY_DTO(PreSettleChargeRequestDTO::Wrapper, dto), execPreSettleCharge(dto)
     );
 
@@ -72,7 +72,7 @@ public:
         API_TAG
     );
     API_HANDLER_ENDPOINT_AUTH(
-        API_M_POST, "/charge/confirm-settle-charge", confirmSettleCharge,
+        API_M_POST, "/charging/charge/confirm-settle-charge", confirmSettleCharge,
         BODY_DTO(ConfirmSettleChargeRequestDTO::Wrapper, dto), execConfirmSettleCharge(dto)
     );
 
@@ -84,7 +84,7 @@ public:
         API_TAG
     );
     API_HANDLER_ENDPOINT_AUTH(
-        API_M_POST, "/charge/print-charge-receipt", printChargeReceipt,
+        API_M_POST, "/charging/charge/print-charge-receipt", printChargeReceipt,
         BODY_DTO(PrintChargeReceiptRequestDTO::Wrapper, dto), execPrintChargeReceipt(dto)
     );
 
@@ -96,7 +96,7 @@ public:
         API_TAG
     );
     API_HANDLER_ENDPOINT_AUTH(
-        API_M_POST, "/charge/prepare-print", preparePrint,
+        API_M_POST, "/charging/charge/prepare-print", preparePrint,
         BODY_DTO(PreparePrintRequestDTO::Wrapper, dto), execPreparePrint(dto)
     );
 
@@ -108,7 +108,7 @@ public:
         API_TAG
     );
     API_HANDLER_ENDPOINT_AUTH(
-        API_M_POST, "/charge/confirm-print", confirmPrint,
+        API_M_POST, "/charging/charge/confirm-print", confirmPrint,
         BODY_DTO(ConfirmPrintRequestDTO::Wrapper, dto), execConfirmPrint(dto)
     );
 
