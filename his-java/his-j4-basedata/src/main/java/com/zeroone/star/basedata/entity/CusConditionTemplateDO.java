@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 @Setter
 @ToString
 @TableName("cus_condition_template")
-public class CusConditionTemplate implements Serializable {
+public class CusConditionTemplateDO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

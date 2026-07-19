@@ -1,8 +1,8 @@
 package com.zeroone.star.basedata.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zeroone.star.basedata.entity.Diagnosis;
-import com.zeroone.star.basedata.mapper.DiagnosisMapper;
+import com.zeroone.star.basedata.entity.ClnConditionDefinitionDO;
+import com.zeroone.star.basedata.mapper.ClnConditionDefinitionMapper;
 import com.zeroone.star.basedata.service.IDiagnosisService;
 import org.springframework.stereotype.Service;
 
@@ -16,5 +16,5 @@ import org.springframework.stereotype.Service;
  * @version 1.0.0
  */
 @Service
-public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, Diagnosis> implements IDiagnosisService {
+public class DiagnosisServiceImpl extends ServiceImpl<ClnConditionDefinitionMapper, ClnConditionDefinitionDO> implements IDiagnosisService {
 }
