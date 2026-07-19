@@ -1,5 +1,6 @@
-package com.zeroone.star.project.j4.basedata.dto;
+package com.zeroone.star.project.dto.j4.treatment;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
@@ -14,7 +15,9 @@ import lombok.Data;
 @Data
 public class TreatmentStatusDTO {
 
+    @NotBlank(message = "诊疗项目ID不能为空")
     private String id;
 
+    @NotBlank(message = "状态不能为空")
     private String statusEnum;
 }

@@ -2,9 +2,9 @@ package com.zeroone.star.basedata.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zeroone.star.basedata.entity.Treatment;
-import com.zeroone.star.project.j4.basedata.dto.TreatmentDTO;
-import com.zeroone.star.project.j4.basedata.dto.TreatmentResponseDTO;
-import com.zeroone.star.project.j4.basedata.dto.TreatmentStatusDTO;
+import com.zeroone.star.project.dto.j4.treatment.TreatmentDTO;
+import com.zeroone.star.project.dto.j4.treatment.TreatmentResponseDTO;
+import com.zeroone.star.project.dto.j4.treatment.TreatmentStatusDTO;
 
 /**
  * <p>

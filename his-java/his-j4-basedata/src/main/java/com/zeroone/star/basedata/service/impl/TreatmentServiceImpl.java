@@ -5,9 +5,9 @@ import com.zeroone.star.basedata.convert.TreatmentConvert;
 import com.zeroone.star.basedata.entity.Treatment;
 import com.zeroone.star.basedata.mapper.TreatmentMapper;
 import com.zeroone.star.basedata.service.ITreatmentService;
-import com.zeroone.star.project.j4.basedata.dto.TreatmentDTO;
-import com.zeroone.star.project.j4.basedata.dto.TreatmentResponseDTO;
-import com.zeroone.star.project.j4.basedata.dto.TreatmentStatusDTO;
+import com.zeroone.star.project.dto.j4.treatment.TreatmentDTO;
+import com.zeroone.star.project.dto.j4.treatment.TreatmentResponseDTO;
+import com.zeroone.star.project.dto.j4.treatment.TreatmentStatusDTO;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -37,41 +37,42 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, Treatment
     @Override
     public TreatmentResponseDTO updateTreatment(TreatmentDTO treatmentDTO) {
         Treatment treatment = this.getById(treatmentDTO.getId());
-        if (treatment != null) {
-            Treatment updateTreatment = TreatmentConvert.INSTANCE.dtoToEntity(treatmentDTO);
-            updateTreatment.setCreatedAt(treatment.getCreatedAt());
-            updateTreatment.setCreatedBy(treatment.getCreatedBy());
-            updateTreatment.setIsDeleted(treatment.getIsDeleted());
-            updateTreatment.setDeletedAt(treatment.getDeletedAt());
-            updateTreatment.setDeletedBy(treatment.getDeletedBy());
-            updateTreatment.setVersion(treatment.getVersion());
-            updateTreatment.setUpdatedAt(LocalDateTime.now());
-            this.updateById(updateTreatment);
-            return TreatmentConvert.INSTANCE.entityToResponseDTO(updateTreatment);
+        if (treatment == null) {
+            throw new RuntimeException("诊疗项目不存在");
         }
-        return TreatmentConvert.INSTANCE.entityToResponseDTO(treatment);
+        Treatment updateTreatment = TreatmentConvert.INSTANCE.dtoToEntity(treatmentDTO);
+        updateTreatment.setCreatedAt(treatment.getCreatedAt());
+        updateTreatment.setCreatedBy(treatment.getCreatedBy());
+        updateTreatment.setIsDeleted(treatment.getIsDeleted());
+        updateTreatment.setDeletedAt(treatment.getDeletedAt());
+        updateTreatment.setDeletedBy(treatment.getDeletedBy());
+        updateTreatment.setVersion(treatment.getVersion());
+        updateTreatment.setUpdatedAt(LocalDateTime.now());
+        this.updateById(updateTreatment);
+        return TreatmentConvert.INSTANCE.entityToResponseDTO(updateTreatment);
     }
 
     @Override
     public Boolean deleteTreatment(String id) {
         Treatment treatment = this.getById(id);
-        if (treatment != null) {
-            treatment.setIsDeleted(1);
-            treatment.setDeletedAt(LocalDateTime.now());
-            this.updateById(treatment);
-            return true;
+        if (treatment == null) {
+            return false;
         }
-        return false;
+        treatment.setIsDeleted(1);
+        treatment.setDeletedAt(LocalDateTime.now());
+        this.updateById(treatment);
+        return true;
     }
 
     @Override
     public TreatmentResponseDTO updateStatus(TreatmentStatusDTO statusDTO) {
         Treatment treatment = this.getById(statusDTO.getId());
-        if (treatment != null) {
-            treatment.setStatusEnum(statusDTO.getStatusEnum());
-            treatment.setUpdatedAt(LocalDateTime.now());
-            this.updateById(treatment);
+        if (treatment == null) {
+            throw new RuntimeException("诊疗项目不存在");
         }
+        treatment.setStatusEnum(statusDTO.getStatusEnum());
+        treatment.setUpdatedAt(LocalDateTime.now());
+        this.updateById(treatment);
         return TreatmentConvert.INSTANCE.entityToResponseDTO(treatment);
     }
 }

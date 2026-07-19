@@ -1,8 +1,8 @@
 package com.zeroone.star.basedata.convert;
 
 import com.zeroone.star.basedata.entity.Treatment;
-import com.zeroone.star.project.j4.basedata.dto.TreatmentDTO;
-import com.zeroone.star.project.j4.basedata.dto.TreatmentResponseDTO;
+import com.zeroone.star.project.dto.j4.treatment.TreatmentDTO;
+import com.zeroone.star.project.dto.j4.treatment.TreatmentResponseDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;

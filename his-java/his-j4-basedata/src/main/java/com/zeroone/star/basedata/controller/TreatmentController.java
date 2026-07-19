@@ -1,10 +1,10 @@
 package com.zeroone.star.basedata.controller;
 
 import com.zeroone.star.basedata.service.ITreatmentService;
+import com.zeroone.star.project.dto.j4.treatment.TreatmentDTO;
+import com.zeroone.star.project.dto.j4.treatment.TreatmentResponseDTO;
+import com.zeroone.star.project.dto.j4.treatment.TreatmentStatusDTO;
 import com.zeroone.star.project.j4.basedata.TreatmentApis;
-import com.zeroone.star.project.j4.basedata.dto.TreatmentDTO;
-import com.zeroone.star.project.j4.basedata.dto.TreatmentResponseDTO;
-import com.zeroone.star.project.j4.basedata.dto.TreatmentStatusDTO;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.annotation.Resource;
