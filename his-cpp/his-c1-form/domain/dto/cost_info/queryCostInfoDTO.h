@@ -8,9 +8,9 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 // 报表细则获取
-class DetailDTO : public PageQuery
+class CostInfoDTO : public PageQuery
 {
-	DTO_INIT(DetailDTO, PageQuery);
+	DTO_INIT(CostInfoDTO, PageQuery);
 
 	// 测试代码
 	DTO_FIELD(String, register_room);

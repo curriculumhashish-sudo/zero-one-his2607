@@ -20,7 +20,7 @@
 #include "Router.h"
 #include "ApiHelper.h"
 
-#include "detail/detailController.h"
+#include "cost_info/costInfoController.h"
 
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
@@ -43,7 +43,7 @@ void Router::initRouter()
 {
 	// #TIP: Add system extension route definitions below
 	// 绑定报表明细控制器
-	ROUTER_SIMPLE_BIND(DetailController);
+	ROUTER_SIMPLE_BIND(CostInfoController);
 	// 绑定报表导出控制器
 	// ROUTER_SIMPLE_BIND()
 }

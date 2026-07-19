@@ -21,18 +21,18 @@
 #define DETAIL_CONTROLLER_H
 
 #include "domain/vo/BaseJsonVO.h"
-#include "domain/dto/detail/queryDetailDTO.h"
-#include "domain/query/detail/detailQuery.h"
-#include "domain/vo/detail/queryDetailVO.h"
+#include "domain/dto/cost_info/queryCostInfoDTO.h"
+#include "domain/query/cost_info/costInfoQuery.h"
+#include "domain/vo/cost_info/queryCostInfoVO.h"
 
 
 
 #include OATPP_CODEGEN_BEGIN(ApiController) ///< Begin ApiController codegen section
 
-class DetailController : public oatpp::web::server::api::ApiController
+class CostInfoController : public oatpp::web::server::api::ApiController
 {
 	// 定义控制器访问入口
-	API_ACCESS_DECLARE(DetailController);
+	API_ACCESS_DECLARE(CostInfoController);
 public:
 	// 定义查询接口描述
 	ENDPOINT_INFO(queryTest) {
