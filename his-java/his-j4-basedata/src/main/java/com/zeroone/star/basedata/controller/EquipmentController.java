@@ -1,7 +1,7 @@
 package com.zeroone.star.basedata.controller;
 
 import com.zeroone.star.project.dto.j4.equipment.EquipmentAddDTO;
-import com.zeroone.star.project.j4.equipment.EquipmentApis;
+import com.zeroone.star.project.j4.basedata.EquipmentApis;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j4.equipment.EquipmentCategoryVo;
 import com.zeroone.star.project.vo.j4.equipment.EquipmentVO;
