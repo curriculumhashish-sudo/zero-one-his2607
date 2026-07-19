@@ -49,7 +49,7 @@ public interface EquipmentApis {
      * @param dto 编辑器材数据
      * @return 编辑确认结果
      */
-    JsonVO<EquipmentUpdateVO> edit(EquipmentEditDTO dto);
+    JsonVO<EquipmentUpdateVO> modifyEquipment(EquipmentEditDTO dto);
 
     /**
      * 修改器材
@@ -65,7 +65,7 @@ public interface EquipmentApis {
      * @param dto 切换状态请求
      * @return 切换后结果
      */
-    JsonVO<EquipmentUpdateVO> toggleStatus(EquipmentStatusDTO dto);
+    JsonVO<EquipmentUpdateVO> modifyStatus(EquipmentStatusDTO dto);
 
     /**
      * 获取器材详情

@@ -74,7 +74,7 @@ public class EquipmentController implements EquipmentApis {
     @Override
     @PostMapping("/modify-equipment")
     @Operation(summary = "编辑器材", description = "编辑器材")
-    public JsonVO<EquipmentUpdateVO> edit(@RequestBody @Valid EquipmentEditDTO dto) {
+    public JsonVO<EquipmentUpdateVO> modifyEquipment(@RequestBody @Valid EquipmentEditDTO dto) {
         return null;
     }
 
@@ -100,7 +100,7 @@ public class EquipmentController implements EquipmentApis {
     @Override
     @PutMapping("/modify-equipment-status")
     @Operation(summary = "切换器材状态", description = "切换器材状态")
-    public JsonVO<EquipmentUpdateVO> toggleStatus(@RequestBody @Valid EquipmentStatusDTO dto) {
+    public JsonVO<EquipmentUpdateVO> modifyStatus(@RequestBody @Valid EquipmentStatusDTO dto) {
         return null;
     }
 
