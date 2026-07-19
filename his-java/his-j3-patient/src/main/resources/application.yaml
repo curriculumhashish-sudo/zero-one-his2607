@@ -1,7 +1,7 @@
 server:
   port: ${sp.patient}
   servlet:
-    context-path: /database
+    context-path: /basedata
 spring:
   application:
     name: ${sn.patient}
