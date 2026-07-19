@@ -1,5 +1,16 @@
 package com.zeroone.star.project.query.j6.pharmacy;
-// 进货单 详情查询（对应前端 GetInboundReceiptDetailRequest）
-// 字段：busNo
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
+
+/**
+ * 进货单详情查询对象。
+ */
+@Data
+@Schema(name = "InboundReceiptDetailQuery", description = "药库进货单详情查询条件")
 public class InboundReceiptDetailQuery {
+    @NotBlank(message = "业务单号不能为空")
+    @Schema(description = "业务单号")
+    private String busNo;
 }
