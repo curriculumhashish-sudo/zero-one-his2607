@@ -33,6 +33,7 @@ import java.util.List;
  * @author j4组
  * @version 1.0.0
  */
+
 @RestController
 @RequestMapping("/treatment")
 @Tag(name = "basedata-treatment", description = "诊疗管理接口")
