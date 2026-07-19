@@ -1,7 +1,0 @@
-server:
-  port: ${sp.Treatment}
-  servlet:
-    context-path: /Treatment
-spring:
-  application:
-    name: ${sn.Treatment}
