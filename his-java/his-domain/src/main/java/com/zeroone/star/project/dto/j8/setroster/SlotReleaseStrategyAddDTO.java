@@ -1,7 +1,9 @@
 package com.zeroone.star.project.dto.j8.setroster;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -76,4 +78,14 @@ public class SlotReleaseStrategyAddDTO {
             @Min(value = 0, message = "渠道配额不能小于0")
             @Max(value = 100, message = "渠道配额不能超过100")
                     Integer> channelQuota;
+
+    @AssertTrue(message = "渠道配额百分比总和必须为100")
+    @JsonIgnore
+    @Schema(hidden = true)
+    public boolean isChannelQuotaTotalValid() {
+        return channelQuota == null
+                || channelQuota.isEmpty()
+                || channelQuota.values().stream().allMatch(value -> value != null)
+                && channelQuota.values().stream().mapToInt(Integer::intValue).sum() == 100;
+    }
 }

@@ -20,9 +20,9 @@ import lombok.EqualsAndHashCode;
 @Schema(description = "修改放号策略参数")
 public class SlotReleaseStrategyModifyDTO extends SlotReleaseStrategyAddDTO {
 
-    @NotNull(message = "放号策略编号不能为空")
+    @NotNull(message = "放号策略主键ID不能为空")
     @Schema(
-            description = "放号策略编号",
+            description = "放号策略主键ID",
             example = "1",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
