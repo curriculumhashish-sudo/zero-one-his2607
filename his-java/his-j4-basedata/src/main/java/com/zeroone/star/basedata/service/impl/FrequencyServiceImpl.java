@@ -9,9 +9,13 @@ import com.zeroone.star.basedata.entity.Frequency;
 import com.zeroone.star.basedata.mapper.FrequencyMapper;
 import com.zeroone.star.basedata.service.IFrequencyService;
 import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j4.frequency.FrequencySaveDTO;
+import com.zeroone.star.project.dto.j4.frequency.FrequencyUpdateDTO;
 import com.zeroone.star.project.query.j4.frequency.FrequencyPageQuery;
 import com.zeroone.star.project.vo.j4.frequency.FrequencyVO;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
@@ -24,6 +28,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency> implements IFrequencyService {
+
+    @Resource
+    private MsFrequencyMapper msFrequencyMapper;
 
     @Override
     public PageDTO<FrequencyVO> queryFrequencyPage(FrequencyPageQuery query) {
@@ -55,5 +62,22 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
         FrequencyVO vo = new FrequencyVO();
         BeanUtil.copyProperties(frequency, vo);
         return vo;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public FrequencyVO addFrequency(FrequencySaveDTO dto) {
+        return null;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public FrequencyVO modifyFrequency(FrequencyUpdateDTO dto) {
+        return null;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void removeFrequency(String id) {
     }
 }
