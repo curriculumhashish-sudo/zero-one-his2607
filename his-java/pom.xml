@@ -37,6 +37,7 @@
         <module>his-gateway</module>
         <module>his-login</module>
         <module>his-mcp-gateway</module>
+        <module>his-j5-configmanage</module>
     </modules>
     <properties>
         <!-- 项目版本号 -->
@@ -58,6 +59,11 @@
             <dependency>
                 <groupId>com.zeroone.star</groupId>
                 <artifactId>his-domain</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.zeroone.star</groupId>
+                <artifactId>his-j5-configmanage</artifactId>
                 <version>${revision}</version>
             </dependency>
         </dependencies>
