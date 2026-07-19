@@ -14,6 +14,8 @@
 
 class CostInfoController : public oatpp::web::server::api::ApiController
 {
+	API_ACCESS_DECLARE(CostInfoController)
+public:
 	ENDPOINT_INFO(queryInfo) {
 		API_DEF_ADD_TITLE(ZH_WORDS_GETTER("rhqm.form.cost_info.query.title"));
 		API_DEF_ADD_AUTH();
