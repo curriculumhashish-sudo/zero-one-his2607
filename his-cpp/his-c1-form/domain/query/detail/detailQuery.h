@@ -29,3 +29,4 @@ class DetailQuery :public PageQuery
 };
 
 #include OATPP_CODEGEN_END(DTO)
+#endif
