@@ -1,5 +1,25 @@
 package com.zeroone.star.project.dto.j6.pharmacy;
-// 盘点单 审批流转（对应前端 submit/withdraw/agree/reject 四合一）
-// 字段：busNo, action(SUBMIT/WITHDRAW/AGREE/REJECT), changeReasonCode, changeReason, contractBusNo
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
+
+@Data
+@Schema(description = "Stocktake approval flow payload")
 public class StocktakeApprovalDTO {
+    @Schema(description = "Stocktake order business number", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "busNo cannot be blank")
+    private String busNo;
+
+    @Schema(description = "Approval action: SUBMIT, WITHDRAW, AGREE, REJECT")
+    private String action;
+
+    @Schema(description = "Reject or change reason code")
+    private String changeReasonCode;
+
+    @Schema(description = "Reject or change reason")
+    private String changeReason;
+
+    @Schema(description = "Contract business number")
+    private String contractBusNo;
 }
