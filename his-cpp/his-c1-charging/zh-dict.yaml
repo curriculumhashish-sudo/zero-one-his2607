@@ -3,6 +3,7 @@ rhqm:
   detail:
    attain: 
     tag: 获取明细列表（条件+分页）
+    title_1: 根据患者姓名获取明细
     date_start: 开始时间
     date_end: 结束时间
     register_room: 挂号科室

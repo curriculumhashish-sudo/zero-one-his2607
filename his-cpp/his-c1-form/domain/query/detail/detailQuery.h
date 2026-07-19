@@ -11,9 +11,9 @@
 
 
 // 获取明细列表的query
-class QueryDatail :public PageQuery
+class DetailQuery :public PageQuery
 {
-	DTO_INIT(QueryDatail, PageQuery);
+	DTO_INIT(DetailQuery, PageQuery);
 
 	// 挂号科室
 	DTO_FIELD(String, register_room);
