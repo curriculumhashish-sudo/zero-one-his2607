@@ -9,9 +9,14 @@ import com.zeroone.star.basedata.entity.Frequency;
 import com.zeroone.star.basedata.mapper.FrequencyMapper;
 import com.zeroone.star.basedata.service.IFrequencyService;
 import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j4.frequency.FrequencyStatusDTO;
 import com.zeroone.star.project.query.j4.frequency.FrequencyPageQuery;
+import com.zeroone.star.project.vo.j4.frequency.FrequencyOptionVO;
 import com.zeroone.star.project.vo.j4.frequency.FrequencyVO;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * <p>
@@ -24,6 +29,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency> implements IFrequencyService {
+    @Resource
+    private MsFrequencyMapper msFrequencyMapper;
 
     @Override
     public PageDTO<FrequencyVO> queryFrequencyPage(FrequencyPageQuery query) {
@@ -55,5 +62,23 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
         FrequencyVO vo = new FrequencyVO();
         BeanUtil.copyProperties(frequency, vo);
         return vo;
+    }
+
+    @Override
+    public List<FrequencyOptionVO> listFrequencyNames() {
+        List<Frequency> frequencies = lambdaQuery()
+                .eq(Frequency::getActiveFlag, (byte) 1)
+                .orderByAsc(Frequency::getSortNo)
+                .list();
+
+        return msFrequencyMapper.entitiesToOptionVos(frequencies);
+    }
+
+    @Override
+    public boolean modifyFrequencyStatus(FrequencyStatusDTO dto) {
+        return lambdaUpdate()
+                .eq(Frequency::getId, dto.getId())
+                .set(Frequency::getActiveFlag, dto.getActiveFlag())
+                .update();
     }
 }

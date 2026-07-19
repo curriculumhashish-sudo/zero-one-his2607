@@ -3,8 +3,12 @@ package com.zeroone.star.basedata.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zeroone.star.basedata.entity.Frequency;
 import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j4.frequency.FrequencyStatusDTO;
 import com.zeroone.star.project.query.j4.frequency.FrequencyPageQuery;
+import com.zeroone.star.project.vo.j4.frequency.FrequencyOptionVO;
 import com.zeroone.star.project.vo.j4.frequency.FrequencyVO;
+
+import java.util.List;
 
 /**
  * <p>
@@ -30,4 +34,19 @@ public interface IFrequencyService extends IService<Frequency> {
      * @return 频次详情
      */
     FrequencyVO queryFrequencyDetail(String id);
+
+    /**
+     * 获取已启用的频次名称列表
+     *
+     * @return 频次下拉选项列表
+     */
+    List<FrequencyOptionVO> listFrequencyNames();
+
+    /**
+     * 修改频次启停状态
+     *
+     * @param dto 频次状态参数
+     * @return 是否修改成功
+     */
+    boolean modifyFrequencyStatus(FrequencyStatusDTO dto);
 }
