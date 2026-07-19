@@ -157,6 +157,8 @@ MACRO(ADD_MSVC_PRECOMPILED_HEADER PrecompiledHeader PrecompiledSource SourcesVar
 ENDMACRO(ADD_MSVC_PRECOMPILED_HEADER)
 
 # 包含子项目
+add_subdirectory("his-c2-opdoctor")
+add_subdirectory("his-c2-opnurse")
 add_subdirectory ("lib-oatpp")
 add_subdirectory ("lib-mysql")
 add_subdirectory ("lib-common")
