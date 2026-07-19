@@ -15,6 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * <p>
+ * 描述：药库相关接口实现
+ * </p>
+ * @author BMXB
+ * @version 1.0.0
+ */
 @RestController
 @RequestMapping("/pharmacy/inbound-receipt")
 @Tag(name = "药库管理-进货单", description = "进货单列表查询、详情、删除")
