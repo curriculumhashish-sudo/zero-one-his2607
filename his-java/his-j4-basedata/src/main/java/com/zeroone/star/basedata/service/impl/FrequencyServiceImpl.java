@@ -1,6 +1,5 @@
 package com.zeroone.star.basedata.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -11,6 +10,7 @@ import com.zeroone.star.basedata.service.IFrequencyService;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.query.j4.frequency.FrequencyPageQuery;
 import com.zeroone.star.project.vo.j4.frequency.FrequencyVO;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 /**
@@ -24,6 +24,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency> implements IFrequencyService {
+
+    @Resource
+    private MsFrequencyMapper msFrequencyMapper;
 
     @Override
     public PageDTO<FrequencyVO> queryFrequencyPage(FrequencyPageQuery query) {
@@ -48,12 +51,6 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
 
     @Override
     public FrequencyVO queryFrequencyDetail(String id) {
-        Frequency frequency = baseMapper.selectById(id);
-        if (frequency == null) {
-            return null;
-        }
-        FrequencyVO vo = new FrequencyVO();
-        BeanUtil.copyProperties(frequency, vo);
-        return vo;
+        return msFrequencyMapper.entityToVo(baseMapper.selectById(id));
     }
 }
