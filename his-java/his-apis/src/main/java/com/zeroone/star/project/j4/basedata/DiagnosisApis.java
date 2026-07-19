@@ -65,20 +65,20 @@ public interface DiagnosisApis {
     }
 
     /**
-     * 停用诊断定义前校验引用关系
+     * 停用诊断定义前查询引用关系校验
      * @param id 诊断定义主键
      * @return 校验结果（可停用 / 不可停用 + 引用明细）
      */
-    default JsonVO<DisableCheckResultVO> checkBeforeDisable(String id) {
+    default JsonVO<DisableCheckResultVO> queryDisableCheck(String id) {
         return null;
     }
 
     /**
-     * 停用诊断定义（将状态改为 INACTIVE）
+     * 修改诊断定义为停用状态（将状态改为 INACTIVE）
      * @param id 诊断定义主键
      * @return 停用结果
      */
-    default JsonVO<String> disableDefinition(String id) {
+    default JsonVO<String> modifyDisableDefinition(String id) {
         return null;
     }
 

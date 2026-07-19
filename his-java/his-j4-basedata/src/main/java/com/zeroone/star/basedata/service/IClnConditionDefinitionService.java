@@ -56,17 +56,17 @@ public interface IClnConditionDefinitionService {
     void modifyDefinition(DiagnosisDefinitionDTO dto);
 
     /**
-     * 停用前校验引用关系
+     * 停用前查询引用关系校验
      * @param id 诊断定义 ID
      * @return 校验结果
      */
-    DisableCheckResultVO checkBeforeDisable(String id);
+    DisableCheckResultVO queryDisableCheck(String id);
 
     /**
-     * 停用诊断定义
+     * 修改诊断定义为停用状态
      * @param id 诊断定义 ID
      */
-    void disableDefinition(String id);
+    void modifyDisableDefinition(String id);
 
     /**
      * 医保对照维护

@@ -106,11 +106,11 @@ public class DiagnosisDefinitionController implements DiagnosisApis {
     }
 
     @Operation(summary = "停用诊断定义前的引用校验")
-    @GetMapping("check-disable/{id}")
+    @GetMapping("query-disable-check/{id}")
     @Override
-    public JsonVO<DisableCheckResultVO> checkBeforeDisable(@PathVariable String id) {
+    public JsonVO<DisableCheckResultVO> queryDisableCheck(@PathVariable String id) {
         try {
-            DisableCheckResultVO result = definitionService.checkBeforeDisable(id);
+            DisableCheckResultVO result = definitionService.queryDisableCheck(id);
             return JsonVO.success(result);
         } catch (Exception e) {
             return JsonVO.create(null, 500, e.getMessage());
@@ -118,11 +118,11 @@ public class DiagnosisDefinitionController implements DiagnosisApis {
     }
 
     @Operation(summary = "停用诊断定义")
-    @PutMapping("disable/{id}")
+    @PutMapping("modify-disable/{id}")
     @Override
-    public JsonVO<String> disableDefinition(@PathVariable String id) {
+    public JsonVO<String> modifyDisableDefinition(@PathVariable String id) {
         try {
-            definitionService.disableDefinition(id);
+            definitionService.modifyDisableDefinition(id);
             return JsonVO.success("停用成功");
         } catch (Exception e) {
             return JsonVO.create(null, 500, e.getMessage());
