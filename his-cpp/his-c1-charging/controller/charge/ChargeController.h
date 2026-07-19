@@ -17,35 +17,19 @@ class ChargeController : public oatpp::web::server::api::ApiController
 	API_ACCESS_DECLARE(ChargeController);
 public:
 	//获取患者队列接口描述
-	//API_DEF_ENDPOINT_INFO_QUERY_AUTH(
-	//	ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueue.summary"),
-	//	queryPatientQueue,
-	//	GetPatientQueueQuery,
-	//	GetPatientQueueJsonVO, 
-	//	API_TAG
-	//);
-	API_DEF_ENDPOINT_INFO_AUTH(
+	API_DEF_ENDPOINT_INFO_QUERY_AUTH(
 		ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueue.summary"),
-		queryPatientQueue, GetPatientQueueJsonVO, API_TAG,
-		// 定义分页查询参数描述
-		API_DEF_ADD_PAGE_PARAMS();
-		// 定义其他查询参数描述
-		API_DEF_ADD_QUERY_PARAMS(String, "keyword", ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueue.keyword"), "li ming", false);
-		API_DEF_ADD_QUERY_PARAMS(String, "startDate", ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueue.startDate"), "2026-07-14 17:05:08", false);
-		API_DEF_ADD_QUERY_PARAMS(String, "endDate", ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueue.endDate"), "2026-07-14 17:05:08", false);
-		API_DEF_ADD_QUERY_PARAMS(String, "queueTabCode", ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueue.queueTabCode"), "PENDING", true);
+		queryPatientQueue,
+		GetPatientQueueQuery,
+		GetPatientQueueJsonVO::Wrapper, 
+		API_TAG
 	);
 	//获取患者队列接口定义
-	//API_HANDLER_ENDPOINT_QUERY(
-	//	API_M_GET, "/charge/query-patient-queue", queryPatientQueue,
-	//	GetPatientQueueQuery, execQueryPatientQueue(query)
-	//);
-	ENDPOINT(API_M_GET, "/charge/query-patient-queue",queryPatientQueue, QUERIES(QueryParams, queryParams), API_HANDLER_AUTH_PARAME) {
-		// 解析查询参数为Query领域模型
-		API_HANDLER_QUERY_PARAM(getPatientQueueQuery,GetPatientQueueQuery, queryParams);
-		// 呼叫执行函数响应结果
-		API_HANDLER_RESP_VO(execQueryPatientQueue(getPatientQueueQuery));
-	}
+	API_HANDLER_ENDPOINT_QUERY_AUTH(
+		API_M_GET, "/charge/query-patient-queue", queryPatientQueue,
+		GetPatientQueueQuery, execQueryPatientQueue(query)
+	);
+
 private:
 	GetPatientQueueJsonVO::Wrapper execQueryPatientQueue(const GetPatientQueueQuery::Wrapper& query);
 };
