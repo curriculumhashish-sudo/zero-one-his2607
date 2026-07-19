@@ -29,7 +29,7 @@ public interface EquipmentApis {
      * 获取选择器材种类列表
      * @return 可选择的器材种类列表
      */
-    JsonVO<List<EquipmentCategoryVo>> getEquipmentCategoryList();
+    JsonVO<List<EquipmentCategoryVo>> queryEquipmentCategoryList();
 
     /**
      * 批量删除器材信息
