@@ -1,6 +1,5 @@
 package com.zeroone.star.project.j6.pharmacy;
 
-import cn.hutool.json.JSON;
 import com.zeroone.star.project.dto.j6.pharmacy.InventoryStatusDTO;
 import com.zeroone.star.project.query.j6.pharmacy.InventoryDetailQuery;
 import com.zeroone.star.project.vo.JsonVO;
@@ -16,7 +15,7 @@ public interface PharmacyApis {
      * @param inventoryDetailQueryDTO 分页条件
      * @return 返回查询到的所有数据
      */
-    public JsonVO<InventoryDetailVO> pageInventoryDetailCurrent(InventoryDetailQuery inventoryDetailQueryDTO);
+    JsonVO<InventoryDetailVO> pageInventoryDetailCurrent(InventoryDetailQuery inventoryDetailQueryDTO);
 
 
     /**
@@ -26,7 +25,7 @@ public interface PharmacyApis {
      * @param inventoryStatusDTO 需要停供/取消停供 的所有商品id
      * @return 成功修改了多少条数据
      */
-    public JsonVO<Integer> updateStatus(InventoryStatusDTO inventoryStatusDTO);
+    JsonVO<Integer> updateStatus(InventoryStatusDTO inventoryStatusDTO);
 
 
     /**
@@ -36,5 +35,5 @@ public interface PharmacyApis {
      * @param inventoryDetailQueryDTO 条件 (根据条件导出excel)
      * @return 导出的数据
      */
-    public JsonVO<ExcelExportVO> exportInventoryDetailCurrent(InventoryDetailQuery inventoryDetailQueryDTO);
+    JsonVO<ExcelExportVO> exportInventoryDetailCurrent(InventoryDetailQuery inventoryDetailQueryDTO);
 }
