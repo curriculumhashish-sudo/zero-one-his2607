@@ -1,9 +1,10 @@
-package com.zeroone.star.project.login.j2.basic;
+package com.zeroone.star.project.login.j2.basedata;
 
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j2.basic.EnumTypeAddDTO;
-import com.zeroone.star.project.dto.j2.basic.EnumTypeDTO;
-import com.zeroone.star.project.query.j2.basic.EnumTypeQuery;
+import com.zeroone.star.project.dto.j2.basedata.EnumTypeAddDTO;
+import com.zeroone.star.project.dto.j2.basedata.EnumTypeDTO;
+import com.zeroone.star.project.dto.j2.basedata.EnumTypeModifyDTO;
+import com.zeroone.star.project.query.j2.basedata.EnumTypeQuery;
 import com.zeroone.star.project.vo.JsonVO;
 
 public interface EnumApis {
@@ -27,5 +28,5 @@ public interface EnumApis {
      * @param data 修改参数
      * @return 修改结果
      */
-    JsonVO<String> modifyEnumType(EnumTypeAddDTO data);
+    JsonVO<String> modifyEnumType(EnumTypeModifyDTO data);
 }
