@@ -23,6 +23,9 @@
 #include "../controller/register/QuitNumberController.h"
 #include "../controller/register/PrintRegisterReceiptController.h"
 #include "hospitalization_registration/InpatientRegistrationController.h"
+#include"register/GetSeeController.h"
+#include"register/GetTodayAppointController.h"
+#include"register/AddRegisterContorller.h"
 
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
@@ -49,5 +52,7 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(QuitNumberController);
 	ROUTER_SIMPLE_BIND(PrintRegisterReceiptController);
 	ROUTER_SIMPLE_BIND(InpatientRegistrationController);
-	
+	ROUTER_SIMPLE_BIND(GetSeeController);
+	ROUTER_SIMPLE_BIND(GetTodayAppointController);
+	ROUTER_SIMPLE_BIND(AddRegisterContorller);
 }
