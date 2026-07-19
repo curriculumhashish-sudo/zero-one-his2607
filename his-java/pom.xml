@@ -37,6 +37,8 @@
         <module>his-gateway</module>
         <module>his-login</module>
         <module>his-mcp-gateway</module>
+        <module>his-j5-ons</module>
+        <module>his-j5-configuration</module>
     </modules>
     <properties>
         <!-- 项目版本号 -->
