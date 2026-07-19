@@ -51,7 +51,7 @@ public class FrequencyController implements FrequencyApis {
     }
 
     @Operation(summary = "新增频次")
-    @PostMapping("add")
+    @PostMapping("add-frequency")
     @Override
     public JsonVO<FrequencyVO> addFrequency(@Validated @RequestBody FrequencySaveDTO dto) {
         FrequencyVO vo = frequencyService.addFrequency(dto);
@@ -59,7 +59,7 @@ public class FrequencyController implements FrequencyApis {
     }
 
     @Operation(summary = "修改频次")
-    @PutMapping("modify")
+    @PutMapping("modify-frequency")
     @Override
     public JsonVO<FrequencyVO> modifyFrequency(@Validated @RequestBody FrequencyUpdateDTO dto) {
         FrequencyVO vo = frequencyService.modifyFrequency(dto);
@@ -67,7 +67,7 @@ public class FrequencyController implements FrequencyApis {
     }
 
     @Operation(summary = "删除频次")
-    @DeleteMapping("delete")
+    @DeleteMapping("remove-frequency")
     @Override
     public JsonVO<Void> removeFrequency(@RequestBody String id) {
         frequencyService.removeFrequency(id);
