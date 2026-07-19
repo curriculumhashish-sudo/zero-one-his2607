@@ -3,6 +3,7 @@
   cost_info:
    query:
     title: "获取报表明细"
+    tag: "报表明细"
     start_time: "开始时间"
     end_time: "结束时间"
     name: "患者姓名"
