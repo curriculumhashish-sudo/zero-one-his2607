@@ -1,0 +1,14 @@
+diagnose:
+    add:
+        encounterId: 就诊id
+        conditionId: 病情id
+        description: 诊断描述
+        diagTypeCode: 诊断类型
+        diagCode: 诊断编码
+        rank: 排序
+        primaryFlag: 是否主诊断
+        highestDiagFlag: 是否最高诊断
+        tcmFlag: 是否中医诊断
+        tcmSyndromeGroup: 中医证候组
+        medType: 医保类别
+        conditionCode: 病情编码
