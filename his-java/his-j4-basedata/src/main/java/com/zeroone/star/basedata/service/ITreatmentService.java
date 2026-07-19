@@ -2,6 +2,14 @@ package com.zeroone.star.basedata.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zeroone.star.basedata.entity.Treatment;
+import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.query.j4.treatment.TreatmentQuery;
+import com.zeroone.star.project.query.j4.treatment.TreatmentSelectQuery;
+import com.zeroone.star.project.vo.j4.treatment.TreatmentDetailVO;
+import com.zeroone.star.project.vo.j4.treatment.TreatmentListVO;
+import com.zeroone.star.project.vo.j4.treatment.TreatmentSelectVO;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +21,12 @@ import com.zeroone.star.basedata.entity.Treatment;
  * @version 1.0.0
  */
 public interface ITreatmentService extends IService<Treatment> {
+
+    PageDTO<TreatmentSelectVO> listTreatmentOptions(TreatmentSelectQuery query);
+
+    PageDTO<TreatmentListVO> queryTreatmentList(TreatmentQuery query);
+
+    TreatmentDetailVO getTreatmentById(String id);
+
+    List<String> listCategoryOptions();
 }

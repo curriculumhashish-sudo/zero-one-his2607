@@ -1,7 +1,7 @@
 package com.zeroone.star.basedata.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.zeroone.star.basedata.entity.Diagnosis;
+import com.zeroone.star.basedata.entity.ClnConditionDefinitionDO;
 
 /**
  * <p>
@@ -12,5 +12,5 @@ import com.zeroone.star.basedata.entity.Diagnosis;
  * @author j4组
  * @version 1.0.0
  */
-public interface IDiagnosisService extends IService<Diagnosis> {
+public interface IDiagnosisService extends IService<ClnConditionDefinitionDO> {
 }
