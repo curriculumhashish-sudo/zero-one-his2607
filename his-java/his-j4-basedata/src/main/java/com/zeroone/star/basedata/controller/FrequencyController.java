@@ -78,6 +78,7 @@ public class FrequencyController implements FrequencyApis {
     public JsonVO<Void> removeFrequency(@RequestBody String id) {
         frequencyService.removeFrequency(id);
         return JsonVO.success(null);
+    }
 
     @Operation(summary = "获取频次名称", description = "获取所有已启用的频次名称")
     @GetMapping("/list-frequency-names")
