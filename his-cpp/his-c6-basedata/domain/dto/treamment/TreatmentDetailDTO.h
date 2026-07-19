@@ -25,63 +25,58 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/**
- * Treatment item detail DTO.
- * Returned by "query-one" so the front-end can render the read-only detail view
- * or pre-fill the edit form. Defined standalone (does not inherit a TreatmentAddDTO)
- * because no add/modify DTO exists in this module yet.
- */
+
 class TreatmentDetailDTO : public oatpp::DTO
 {
 	DTO_INIT(TreatmentDetailDTO, DTO);
 
-	// Treatment item primary key
+	// 诊疗项目主键
 	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("treatment.field.id"), true);
-	// Treatment item business code (list column, not shown on the edit form)
+	// 诊疗项目业务编码
 	API_DTO_FIELD_REQUIRE(String, code, ZH_WORDS_GETTER("treatment.field.code"), true);
-	// Enabled/disabled status (list column, not shown on the edit form): 0-disabled 1-enabled
+	// 启用/禁用状态
 	API_DTO_FIELD_REQUIRE(Int32, status, ZH_WORDS_GETTER("treatment.field.status"), true);
 
-	// Basic information
-	// Treatment item name
+	// 基本信息
+	// 诊疗项目名称
 	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("treatment.field.name"), true);
-	// Category code (dictionary code only, no display text)
+	// 类别编码
 	API_DTO_FIELD_REQUIRE(String, categoryCode, ZH_WORDS_GETTER("treatment.field.category-code"), true);
-	// Business type enum: 1-examination 2-inspection 3-nursing 4-surgery 5-other
+	// 业务类型枚举
 	API_DTO_FIELD_REQUIRE(Int32, typeEnum, ZH_WORDS_GETTER("treatment.field.type-enum"), true);
-	// Sale/pricing unit code
+	// 销售/定价单位编码
 	API_DTO_FIELD_REQUIRE(String, packageUnitCode, ZH_WORDS_GETTER("treatment.field.package-unit-code"), false);
-	// Pinyin quick code
+	// 拼音快速码
 	API_DTO_FIELD_REQUIRE(String, pyStr, ZH_WORDS_GETTER("treatment.field.py-str"), false);
-	// Wubi quick code
+	// 五笔快速码
 	API_DTO_FIELD_REQUIRE(String, wbStr, ZH_WORDS_GETTER("treatment.field.wb-str"), false);
-	// Finance type code
+	// 财务类型编码
 	API_DTO_FIELD_REQUIRE(String, itemTypeCode, ZH_WORDS_GETTER("treatment.field.item-type-code"), false);
-	// Purchase/cost price
+	// 采购/成本价
 	API_DTO_FIELD_REQUIRE(Float64, purchasePrice, ZH_WORDS_GETTER("treatment.field.purchase-price"), false);
-	// Retail price
+	// 零售价
 	API_DTO_FIELD_REQUIRE(Float64, retailPrice, ZH_WORDS_GETTER("treatment.field.retail-price"), false);
-	// Maximum retail price
+	// 最高零售价
 	API_DTO_FIELD_REQUIRE(Float64, maximumRetailPrice, ZH_WORDS_GETTER("treatment.field.maximum-retail-price"), false);
-	// Description text
+	// 描述文本
 	API_DTO_FIELD_REQUIRE(String, descriptionText, ZH_WORDS_GETTER("treatment.field.description-text"), false);
 
-	// Medical insurance information
-	// Medical insurance flag: 0-no 1-yes
+	// 医保信息
+	// 医保标志
 	API_DTO_FIELD_REQUIRE(Int32, ybFlag, ZH_WORDS_GETTER("treatment.field.yb-flag"), false);
-	// Medical insurance registration code
+	// 医保登记编码
 	API_DTO_FIELD_REQUIRE(String, ybNo, ZH_WORDS_GETTER("treatment.field.yb-no"), false);
-	// Medical insurance category code
+	// 医保类别编码
 	API_DTO_FIELD_REQUIRE(String, ybType, ZH_WORDS_GETTER("treatment.field.yb-type"), false);
-	// Medical insurance code-matching flag: 0-unmatched 1-matched
+	// 医保对码标志
 	API_DTO_FIELD_REQUIRE(Int32, ybMatchFlag, ZH_WORDS_GETTER("treatment.field.yb-match-flag"), false);
-	// Medical insurance charge item level: 1-class A 2-class B 3-class C
+	// 医保收费项目等级
 	API_DTO_FIELD_REQUIRE(Int32, chrgitmLv, ZH_WORDS_GETTER("treatment.field.chrgitm-lv"), false);
 
-	// Sub-items (combo/package treatment lines)
+	// 子项
 	API_DTO_FIELD_REQUIRE(List<TreatmentChildDTO::Wrapper>, children, ZH_WORDS_GETTER("treatment.field.children"), false);
 };
 
 #include OATPP_CODEGEN_END(DTO)
 
-#endif // !_TREATMENTDETAILDTO_H_
+#endif 
