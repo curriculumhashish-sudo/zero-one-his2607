@@ -1,0 +1,29 @@
+﻿qi:
+  charging:
+    settle:
+      tag1: 获取患者列表（条件+分页）
+      tag2: 获取患者费用合计
+      tag3: 获取患者费用大类明细
+      summary1: 获取患者列表（条件+分页）
+      summary2: 获取患者费用合计
+      summary3: 获取患者费用大类明细
+      encounter_id: 就诊ID
+      inpatient_no: 住院号
+      patient_name: 患者姓名
+      gender: 性别
+      age: 年龄
+      dept_name: 科室
+      ward_name: 病区
+      bed_no: 床位号
+      admit_date: 入院日期
+      admit_start_date: 入院开始日期  
+      admit_end_date: 入院结束日期 
+      insurance_type: 医保类型
+      encounter_status: 就诊状态
+      total_hospital_fee: 住院总费用
+      personal_pay_fee: 个人自付金额
+      prepay_total_fee: 预交押金总额
+      final_balance_fee: 应补/应退金额
+      sort_num: 序号
+      charge_type_name: 费用大类
+      type_total_fee: 大类费用金额
