@@ -1,12 +1,17 @@
 package com.zeroone.star.project.j4.basedata;
 
 import com.zeroone.star.project.dto.PageDTO;
+
 import com.zeroone.star.project.dto.j4.frequency.FrequencySaveDTO;
 import com.zeroone.star.project.dto.j4.frequency.FrequencyUpdateDTO;
+import com.zeroone.star.project.dto.j4.frequency.FrequencyStatusDTO;
 import com.zeroone.star.project.query.j4.frequency.FrequencyPageQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j4.frequency.FrequencyOptionVO;
 import com.zeroone.star.project.vo.j4.frequency.FrequencyVO;
 import io.swagger.v3.oas.annotations.Operation;
+
+import java.util.List;
 
 /**
  * <p>
@@ -55,4 +60,17 @@ public interface FrequencyApis {
      * @return 结果状态载荷
      */
     JsonVO<Void> removeFrequency(String id);
+     * 获取可用频次名称列表
+     *
+     * @return 频次名称列表
+     */
+    JsonVO<List<FrequencyOptionVO>> listFrequencyNames();
+
+    /**
+     * 启用或停用频次
+     *
+     * @param dto 频次状态参数
+     * @return 是否修改成功
+     */
+    JsonVO<Boolean> modifyFrequencyStatus(FrequencyStatusDTO dto);
 }
