@@ -1,8 +1,5 @@
 package com.zeroone.star.basedata.constant;
 
-import com.zeroone.star.project.dto.j4.treatment.TreatmentOptionDTO;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -29,12 +26,8 @@ public class TreatmentConstants {
         TYPE_MAP.put("OTHER", "其他");
     }
 
-    public static List<TreatmentOptionDTO> listCategoryOptions() {
-        List<TreatmentOptionDTO> options = new ArrayList<>();
-        for (String name : CATEGORY_LIST) {
-            options.add(new TreatmentOptionDTO(name, name));
-        }
-        return options;
+    public static List<String> listCategoryOptions() {
+        return CATEGORY_LIST;
     }
 
     public static String getStatusText(String code) {
