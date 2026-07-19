@@ -29,3 +29,5 @@ class CostInfoExport : public PageQuery
 };
 
 #include OATPP_CODEGEN_END(DTO)
+
+#endif

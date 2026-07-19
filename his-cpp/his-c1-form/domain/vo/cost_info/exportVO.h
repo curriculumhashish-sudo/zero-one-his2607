@@ -11,8 +11,8 @@
 /**
  *  测试：显示JsonVO，用于响应给客户端的Json对象
  */
-class DetailJsonVO : public JsonVO<CostInfoExport::Wrapper> {
-	DTO_INIT(DetailJsonVO, JsonVO<CostInfoExport::Wrapper>);
+class ExportVO : public JsonVO<CostInfoExport::Wrapper> {
+	DTO_INIT(ExportVO, JsonVO<CostInfoExport::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)

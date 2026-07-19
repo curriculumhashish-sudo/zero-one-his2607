@@ -46,5 +46,5 @@ void Router::initRouter()
 	// 绑定报表明细控制器
 	ROUTER_SIMPLE_BIND(CostInfoController);
 	// 绑定报表导出控制器
-	ROUTER_SIMPLE_BIND(ExportInfoController)
+	ROUTER_SIMPLE_BIND(ExportInfoController);
 }

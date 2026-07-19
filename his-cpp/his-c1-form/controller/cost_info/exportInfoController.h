@@ -25,7 +25,7 @@ public:
 	);
 	// 定义端点
 	API_HANDLER_ENDPOINT_OPTION(API_M_GET, "/file/download", downloadFile, QUERY(String, filename), return execDownloadFile(filename););
-private: // 定义接口执行函数
+private: 
 
 	// 执行文件下载处理
 	std::shared_ptr<OutgoingResponse> execDownloadFile(const String& filename);
