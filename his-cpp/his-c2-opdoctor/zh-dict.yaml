@@ -38,3 +38,11 @@
         keyword: 关键字
         startDate: 开始日期
         endDate: 结束日期
+    patient:
+        pageIndex: 页码
+        pageSize: 每页条数
+        patientId: 患者id
+        keyword: 关键字
+        diagTypeCode: 诊断类型
+        startDate: 开始日期
+        endDate: 结束日期
