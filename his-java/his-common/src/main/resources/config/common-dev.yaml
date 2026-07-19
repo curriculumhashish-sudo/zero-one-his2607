@@ -3,17 +3,17 @@ spring:
   #https://github.com/alibaba/spring-cloud-alibaba/blob/2025.0.x/spring-cloud-alibaba-examples/nacos-example/readme-zh.md
   cloud:
     nacos:
-      server-addr: 192.168.220.128:8848
+      server-addr: 192.168.219.131:8848
       username: nacos
       password: nacos
       discovery:
-        namespace: project-dev
+        namespace: his-dev
       config:
-        namespace: project-dev
+        namespace: his-dev
     sentinel:
       transport:
         #本机的IP地址，客户端给sentinel监控使用，不配置可能会识别成其他网卡的ip导致错误
-        client-ip: 192.168.31.99
+        client-ip: 222.216.18.98
 
 #开启MP SQL日志打印
 mybatis-plus:
