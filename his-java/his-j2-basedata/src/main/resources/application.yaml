@@ -4,4 +4,22 @@ server:
     context-path: /basedata
 spring:
   application:
-    name: his-j2-basedata
+    name: ${sn.basedata:BASEDATA}
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/his_basedata_body?useUnicode=true&useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      initial-size: 1
+      min-idle: 1
+      max-active: 20
+      async-init: true
+      max-wait: 6000
+      validation-query: SELECT 1
+      test-while-idle: true
+      filters: stat
+logging:
+  level:
+    com.alibaba.nacos.client.naming: warn
