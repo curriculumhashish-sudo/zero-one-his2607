@@ -13,9 +13,9 @@ import lombok.EqualsAndHashCode;
 @Schema(description = "器材分页查询")
 public class EquipmentPageQuery extends PageQuery {
 
-    @Schema(description = "关键字搜索（器材名称/业务编号）")
+    @Schema(description = "关键字搜索（器材名称/业务编号）", example = "一次性使用无菌注射器")
     private String keyword;
 
-    @Schema(description = "器材分类编码")
+    @Schema(description = "器材分类编码", example = "11")
     private String categoryCode;
 }
