@@ -22,7 +22,7 @@ public interface DiagnosisApis {
      * @param dto 诊断主键集合
      * @return 操作结果
      */
-    JsonVO<Void> enableDiagnosis(DiagnosisStatusDTO dto);
+    JsonVO<Void> modifyDiagnosisEnable(DiagnosisStatusDTO dto);
 
     /**
      * 批量停用诊断。
@@ -30,15 +30,13 @@ public interface DiagnosisApis {
      * @param dto 诊断主键集合
      * @return 操作结果
      */
-    JsonVO<Void> disableDiagnosis(DiagnosisStatusDTO dto);
+    JsonVO<Void> modifyDiagnosisDisable(DiagnosisStatusDTO dto);
 
     /**
      * 更新诊断医保对照信息。
      *
-     * @param id 诊断主键
      * @param dto 医保对照信息
      * @return 更新后的医保对照信息
      */
-    JsonVO<MedicalInsuranceMatchVO> updateMedicalInsurance(String id,
-                                                           MedicalInsuranceMatchDTO dto);
+    JsonVO<MedicalInsuranceMatchVO> updateMedicalInsurance(MedicalInsuranceMatchDTO dto);
 }

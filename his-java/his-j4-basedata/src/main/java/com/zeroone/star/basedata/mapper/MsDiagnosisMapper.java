@@ -1,4 +1,4 @@
-package com.zeroone.star.basedata.service.impl;
+package com.zeroone.star.basedata.mapper;
 
 import com.zeroone.star.project.dto.j4.diagnosis.MedicalInsuranceMatchDTO;
 import com.zeroone.star.project.vo.j4.diagnosis.MedicalInsuranceMatchVO;

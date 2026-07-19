@@ -1,6 +1,6 @@
 package com.zeroone.star.basedata.controller;
 
-import com.zeroone.star.basedata.service.impl.MsDiagnosisMapper;
+import com.zeroone.star.basedata.mapper.MsDiagnosisMapper;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisStatusDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.MedicalInsuranceMatchDTO;
 import com.zeroone.star.project.j4.basedata.DiagnosisApis;
@@ -31,26 +31,24 @@ public class DiagnosisController implements DiagnosisApis {
 
     @Override
     @Operation(summary = "批量启用诊断")
-    @PatchMapping("/status/enable")
-    public JsonVO<Void> enableDiagnosis(@Valid @RequestBody DiagnosisStatusDTO dto) {
+    @PatchMapping("/modify-enable-status")
+    public JsonVO<Void> modifyDiagnosisEnable(@Valid @RequestBody DiagnosisStatusDTO dto) {
         return JsonVO.success(null);
     }
 
     @Override
     @Operation(summary = "批量停用诊断")
-    @PatchMapping("/status/disable")
-    public JsonVO<Void> disableDiagnosis(@Valid @RequestBody DiagnosisStatusDTO dto) {
+    @PatchMapping("/modify-disable-status")
+    public JsonVO<Void> modifyDiagnosisDisable(@Valid @RequestBody DiagnosisStatusDTO dto) {
         return JsonVO.success(null);
     }
 
     @Override
     @Operation(summary = "更新诊断医保对照")
-    @PutMapping("/{id}/medical-insurance")
+    @PutMapping("/modify-medical-insurance")
     public JsonVO<MedicalInsuranceMatchVO> updateMedicalInsurance(
-            @PathVariable String id,
             @Valid @RequestBody MedicalInsuranceMatchDTO dto) {
-        MedicalInsuranceMatchVO vo = msDiagnosisMapper.medicalInsuranceMatchDtoToVo(dto);
-        vo.setId(id);
+        MedicalInsuranceMatchVO vo = msDiagnosisMapper.toMedicalInsuranceMatchVO(dto);
         return JsonVO.success(vo);
     }
 }

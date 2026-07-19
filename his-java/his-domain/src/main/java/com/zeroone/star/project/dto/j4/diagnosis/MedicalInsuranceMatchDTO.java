@@ -3,6 +3,7 @@ package com.zeroone.star.project.dto.j4.diagnosis;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.util.StringUtils;
@@ -20,6 +21,11 @@ import java.io.Serializable;
 public class MedicalInsuranceMatchDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    @NotBlank(message = "诊断ID不能为空")
+    @Schema(description = "诊断ID", example = "101",
+            requiredMode = Schema.RequiredMode.REQUIRED)
+    private String id;
 
     @NotNull(message = "是否医保诊断不能为空")
     @Schema(description = "是否医保诊断", example = "true",
