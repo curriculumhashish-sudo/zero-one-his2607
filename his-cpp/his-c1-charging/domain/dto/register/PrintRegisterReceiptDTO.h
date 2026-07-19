@@ -13,14 +13,14 @@ class PrintRegisterReceiptDTO : public oatpp::DTO {
     // 打印类型
     DTO_FIELD(String, printType);
     DTO_FIELD_INFO(printType) {
-        info->description = ZH_WORDS_GETTER("macchiato.charging.register.field.printType");
+        info->description = ZH_WORDS_GETTER("macchiato.charging.register.printType");
         info->required = true;
     }
 
     // 是否设为默认
     DTO_FIELD(Boolean, isDefault);
     DTO_FIELD_INFO(isDefault) {
-        info->description = ZH_WORDS_GETTER("macchiato.charging.register.field.isDefault");
+        info->description = ZH_WORDS_GETTER("macchiato.charging.register.isDefault");
         info->required = false;
     }
 };

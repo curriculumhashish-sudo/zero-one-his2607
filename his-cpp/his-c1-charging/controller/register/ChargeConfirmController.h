@@ -8,7 +8,7 @@ using namespace oatpp;
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-#define API_TAG ZH_WORDS_GETTER("macchiato.charging.register.tag.tag1")
+#define API_TAG ZH_WORDS_GETTER("macchiato.charging.register.tag1")
 
 class ChargeConfirmController : public oatpp::web::server::api::ApiController
 {
@@ -25,7 +25,7 @@ public:
     // 定义展示收费详情端点处理逻辑
     API_HANDLER_ENDPOINT_AUTH(
         API_M_POST,
-        "/charge/confirm",
+        "/charging/register/chargeconfirmcontroller",
         confirmCharge,
         BODY_DTO(ChargeConfirmDTO::Wrapper, dto),
         execConfirmCharge(dto, authObject->getPayload())

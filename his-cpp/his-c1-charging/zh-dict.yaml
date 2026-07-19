@@ -1,25 +1,23 @@
 ﻿macchiato:
  charging:
   register:
-   field:
-    visitNumber: 就诊号
-    patientName: 患者姓名
-    phone: 联系电话
-    amount: 应收金额
-    paymentDraft: 支付草稿号
-    registrationType: 挂号类型
-    paymentMethod: 支付方式(1-现金,2-微信,3-支付宝,4-银行卡)
-    department: 挂号科室
-    doctor: 接诊医生
-    registrationTime: 挂号时间
-    refundAmount: 应退金额
-    status: 当前状态
-    printType: 打印类型
-    isDefault: 是否设为默认
-   tag:
-    tag1: 确认收费接口
-    tag2: 确认退号接口
-    tag3: 打印挂号小票接口
+   visitNumber: 就诊号
+   patientName: 患者姓名
+   phone: 联系电话
+   amount: 应收金额
+   paymentDraft: 支付草稿号
+   registrationType: 挂号类型
+   paymentMethod: 支付方式(1-现金,2-微信,3-支付宝,4-银行卡)
+   department: 挂号科室
+   doctor: 接诊医生
+   registrationTime: 挂号时间
+   refundAmount: 应退金额
+   status: 当前状态
+   printType: 打印类型
+   isDefault: 是否设为默认
+   tag1: 确认收费接口
+   tag2: 确认退号接口
+   tag3: 打印挂号小票接口
    summary1: 确认收费
    summary2: 确认退号
    summary3: 打印挂号小票
