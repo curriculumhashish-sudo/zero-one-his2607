@@ -1,9 +1,9 @@
-package com.zeroone.star.diagnosis.controller;
+package com.zeroone.star.basedata.controller;
 
-import com.zeroone.star.diagnosis.service.ICusConditionTemplateService;
+import com.zeroone.star.basedata.service.ICusConditionTemplateService;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisTemplateDTO;
-import com.zeroone.star.project.j4.diagnosis.DiagnosisApis;
+import com.zeroone.star.project.j4.basedata.DiagnosisApis;
 import com.zeroone.star.project.query.j4.diagnosis.DiagnosisTemplateQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisTemplateVO;

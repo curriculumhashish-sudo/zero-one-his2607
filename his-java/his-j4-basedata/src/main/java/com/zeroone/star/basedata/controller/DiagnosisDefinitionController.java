@@ -1,11 +1,11 @@
-package com.zeroone.star.diagnosis.controller;
+package com.zeroone.star.basedata.controller;
 
-import com.zeroone.star.diagnosis.entity.ClnConditionDefinition;
-import com.zeroone.star.diagnosis.service.IClnConditionDefinitionService;
+import com.zeroone.star.basedata.entity.ClnConditionDefinition;
+import com.zeroone.star.basedata.service.IClnConditionDefinitionService;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisDefinitionDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.YbMappingDTO;
-import com.zeroone.star.project.j4.diagnosis.DiagnosisApis;
+import com.zeroone.star.project.j4.basedata.DiagnosisApis;
 import com.zeroone.star.project.query.j4.diagnosis.DiagnosisDefinitionQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisDefinitionDetailVO;

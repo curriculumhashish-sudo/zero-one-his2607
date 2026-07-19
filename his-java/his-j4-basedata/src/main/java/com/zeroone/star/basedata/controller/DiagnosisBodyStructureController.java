@@ -1,8 +1,8 @@
-package com.zeroone.star.diagnosis.controller;
+package com.zeroone.star.basedata.controller;
 
-import com.zeroone.star.diagnosis.service.IDiaBodyStructureService;
+import com.zeroone.star.basedata.service.IDiaBodyStructureService;
 import com.zeroone.star.project.dto.j4.diagnosis.BodyStructureDTO;
-import com.zeroone.star.project.j4.diagnosis.DiagnosisApis;
+import com.zeroone.star.project.j4.basedata.DiagnosisApis;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j4.diagnosis.BodyStructureTreeNodeVO;
 import io.swagger.v3.oas.annotations.Operation;
