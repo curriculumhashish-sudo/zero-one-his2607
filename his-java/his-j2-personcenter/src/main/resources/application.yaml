@@ -1,0 +1,8 @@
+server:
+  port: ${sp.personcenter}
+  servlet:
+    # 设置应用上下文路径
+    context-path: /personcenter
+spring:
+  application:
+    name: ${sn.personcenter}

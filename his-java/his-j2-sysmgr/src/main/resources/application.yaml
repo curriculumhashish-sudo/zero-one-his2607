@@ -1,0 +1,8 @@
+server:
+  port: ${sp.j2-sysmgr}
+  servlet:
+    # 设置应用上下文路径
+    context-path: /j2-sysmgr
+spring:
+  application:
+    name: ${sn.j2-sysmgr}
