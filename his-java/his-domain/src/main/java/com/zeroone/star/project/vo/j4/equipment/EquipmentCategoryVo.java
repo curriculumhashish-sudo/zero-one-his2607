@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 耗材分类 VO
+ * 器材分类VO
  *
  * <p>对应术语体系 {@code device_category_code} 下的一个分类项。
  */
