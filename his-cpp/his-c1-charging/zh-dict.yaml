@@ -1,0 +1,36 @@
+﻿lhfc:
+  charging:
+    charge:
+      tags:
+        t1: 门诊收费
+      GetPatientQueue:
+        summary: 获取患者就诊队列(条件+分页)
+      ChargeItemDTO:
+        chargeItemId: 收费明细主键
+        statusCode: 收费状态编码
+        statusText: 收费状态文本
+        totalPrice: 该行总金额
+        itemLabel: 收费项目展示名称
+      GetPatientQueueDTO:
+        encounterId: 就诊单主键
+        encounterBusNo: 就诊业务流水号
+        patientId: 患者主键
+        patientName: 患者姓名
+        genderCode: 患者性别编码
+        genderEnumText: 患者性别文本
+        ageText: 患者年龄文本
+        organizationName: 科室名称
+        doctorName: 接诊医生姓名
+        startTime: 就诊开始时间
+        queueLabelCode: 队列/收费标签编码
+        totalAmount: 就诊费用总金额（可为 null）
+        paidAmount: 已支付金额（可为 null）
+        cashierChargeItems: 收费明细摘要列表
+        cashierChargeRollupStatusCode: 收费状态汇总编码
+        cashierChargeRollupStatusText: 收费状态汇总文本
+        paymentId: 最近一次成功支付流水主键
+      GetPatientQueueQuery:
+        keyword: 关键字:姓名/就诊号
+        startDate: 开始日期
+        endDate: 结束日期
+        queueTabCode: 收费状态(ALL/SETTLED/PENDING)
