@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _RENTDETAILDTO_H_
-#define _RENTDETAILDTO_H_
+#ifndef _EQUIPMENTDETAILDTO_H_
+#define _EQUIPMENTDETAILDTO_H_
 
 #include "EquipmentAddDTO.h"
 
@@ -13,13 +13,12 @@
 class EquipmentDetailDTO : public EquipmentAddDTO
 {
 	DTO_INIT(EquipmentDetailDTO, EquipmentAddDTO);
-	// 租户ID
+	// 器材ID
 	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("equipment.field.id"), true);
-	// 创建人
-	API_DTO_FIELD_REQUIRE(String, createBy, ZH_WORDS_GETTER("equipment.field.createBy"), true);
-	// 更新人
-	API_DTO_FIELD_REQUIRE(String, updateBy, ZH_WORDS_GETTER("equipment.field.updateBy"), true);
-	// 其他字段自己补充完整
+	// 器材名称
+	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("equipment.field.name"), true);
+	// 器材分类
+	API_DTO_FIELD_REQUIRE(String, classification, ZH_WORDS_GETTER("equipment.field.classification"), true);
 };
 
 /**
@@ -32,4 +31,4 @@ class EquipmentDetailPageDTO : public PageDTO<EquipmentDetailDTO::Wrapper>
 
 #include OATPP_CODEGEN_END(DTO)
 
-#endif // !_RENTDETAILDTO_H_
+#endif // !_EQUIPMENTDETAILDTO_H_
