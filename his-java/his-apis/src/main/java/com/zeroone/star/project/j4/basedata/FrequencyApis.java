@@ -42,7 +42,6 @@ public interface FrequencyApis {
      *
      * @return 频次名称列表
      */
-    @Operation(summary = "获取频次名称", description = "获取所有已启用的频次名称")
     JsonVO<List<FrequencyOptionVO>> listFrequencyNames();
 
     /**
@@ -51,6 +50,5 @@ public interface FrequencyApis {
      * @param dto 频次状态参数
      * @return 是否修改成功
      */
-    @Operation(summary = "启/停用频次", description = "修改指定频次的启用状态")
     JsonVO<Boolean> modifyFrequencyStatus(FrequencyStatusDTO dto);
 }

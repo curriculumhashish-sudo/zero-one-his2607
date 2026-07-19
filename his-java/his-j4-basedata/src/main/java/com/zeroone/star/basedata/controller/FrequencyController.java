@@ -8,6 +8,7 @@ import com.zeroone.star.project.query.j4.frequency.FrequencyPageQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j4.frequency.FrequencyOptionVO;
 import com.zeroone.star.project.vo.j4.frequency.FrequencyVO;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -49,12 +50,14 @@ public class FrequencyController implements FrequencyApis {
         return JsonVO.success(detail);
     }
 
+    @Operation(summary = "获取频次名称", description = "获取所有已启用的频次名称")
     @GetMapping("/list-frequency-names")
     @Override
     public JsonVO<List<FrequencyOptionVO>> listFrequencyNames() {
         return JsonVO.success(frequencyService.listFrequencyNames());
     }
 
+    @Operation(summary = "启/停用频次", description = "修改指定频次的启用状态")
     @PutMapping("/modify-frequency-status")
     @Override
     public JsonVO<Boolean> modifyFrequencyStatus(
