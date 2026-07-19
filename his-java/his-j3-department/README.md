@@ -22,3 +22,6 @@
 | 5 | 修改科室 | PUT | `/database/departments/{id}` |
 | 6 | 删除科室 | DELETE | `/database/departments/{id}` |
 | 7 | 启用/停用科室（支持批量） | PUT | `/database/departments/batch-status` |
+
+
+1\3\4\7
