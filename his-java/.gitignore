@@ -43,9 +43,3 @@ target
 
 # Maven ignore
 .flattened-pom.xml
-
-# Markdown files
-*.md
-
-# Git ignore file itself
-.gitignore
