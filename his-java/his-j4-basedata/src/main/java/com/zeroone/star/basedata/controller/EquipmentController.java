@@ -3,6 +3,7 @@ package com.zeroone.star.basedata.controller;
 import com.zeroone.star.basedata.service.IEquipmentService;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentAddDTO;
+import com.zeroone.star.project.j4.basedata.EquipmentApis;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentEditDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentStatusDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentUpdateDTO;
@@ -44,7 +45,7 @@ public class EquipmentController implements EquipmentApis {
      * @return 器材详情
      */
     @Override
-    @GetMapping
+    @GetMapping("get-by-id")
     @Operation(summary = "查询器材详情")
     public JsonVO<EquipmentVO> getEquipmentByEquipmentId(Long equipmentId) {
         return null;
@@ -55,7 +56,7 @@ public class EquipmentController implements EquipmentApis {
      * @return 可选择的器材种类列表
      */
     @Override
-    @GetMapping("/category")
+    @GetMapping("/query-equipment-category")
     @Operation(summary = "查询器材分类列表")
     public JsonVO<List<EquipmentCategoryVo>> queryEquipmentCategoryList() {
         return null;
@@ -67,7 +68,7 @@ public class EquipmentController implements EquipmentApis {
      * @return 无返回值
      */
     @Override
-    @DeleteMapping
+    @DeleteMapping("remove-by-ids")
     @Operation(summary = "批量删除器材")
     public JsonVO<Void> removeEquipmentByEquipmentIds(List<Long> equipmentIds) {
         return null;
@@ -79,7 +80,7 @@ public class EquipmentController implements EquipmentApis {
      * @return 无返回值
      */
     @Override
-    @PostMapping
+    @PostMapping("add-equipment")
     @Operation(summary = "新增器材")
     public JsonVO<Void> addEquipment(@RequestBody EquipmentAddDTO equipmentAddDTO) {
 @Tag(name = "basedata-equipment", description = "器材管理")
