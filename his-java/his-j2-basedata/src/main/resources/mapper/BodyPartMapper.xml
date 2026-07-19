@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.project.mapper.BodyPartMapper">
+
+    <resultMap id="treeMap" type="com.zeroone.star.project.vo.BodyPartTreeVO">
+        <id column="id" property="id"/>
+        <result column="part_code" property="partCode"/>
+        <result column="part_name" property="partName"/>
+        <result column="sort_order" property="sortOrder"/>
+        <collection property="children" column="id" select="selectChildren"/>
+    </resultMap>
+
+    <select id="selectTree" resultMap="treeMap">
+        SELECT id, part_code, part_name, sort_order
+        FROM his_basedata_body
+        WHERE parent_id IS NULL
+        ORDER BY sort_order ASC
+    </select>
+
+    <select id="selectChildren" resultMap="treeMap">
+        SELECT id, part_code, part_name, sort_order
+        FROM his_basedata_body
+        WHERE parent_id = #{id}
+        ORDER BY sort_order ASC
+    </select>
+
+    <select id="selectList" resultType="com.zeroone.star.project.vo.BodyPartListVO">
+        SELECT
+        t.id,
+        t.part_code AS partCode,
+        t.part_name AS partName,
+        t.parent_id AS parentId,
+        COALESCE(p.part_name, '顶级部位') AS parentName,
+        t.sort_order AS sortOrder,
+        t.status
+        FROM his_basedata_body t
+        LEFT JOIN his_basedata_body p ON t.parent_id = p.id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (t.part_code LIKE CONCAT('%', #{keyword}, '%')
+                OR t.part_name LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="parentId != null">
+                AND t.parent_id = #{parentId}
+            </if>
+            <if test="status != null">
+                AND t.status = #{status}
+            </if>
+        </where>
+        ORDER BY t.sort_order ASC
+    </select>
+</mapper>

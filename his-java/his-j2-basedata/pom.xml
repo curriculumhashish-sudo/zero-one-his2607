@@ -79,11 +79,11 @@
                 <artifactId>mp-code-generator-plugin</artifactId>
                 <configuration>
                     <dbConfig>
-                        <host>192.168.220.128</host>
+                        <host>127.0.0.1</host>
                         <port>3306</port>
                         <dbname>his_basedata</dbname>
                         <username>root</username>
-                        <password>123456</password>
+                        <password>root</password>
                     </dbConfig>
                     <outDir>${project.basedir}/src/main/java</outDir>
                 </configuration>
@@ -113,7 +113,7 @@
                                 <namingStrategy>alias</namingStrategy>
                                 <!-- 端口映射 -->
                                 <ports>
-                                    <port>10300:10300</port>
+                                    <port>20000:20000</port>
                                 </ports>
                                 <!-- 数据卷 -->
                                 <volumes>
