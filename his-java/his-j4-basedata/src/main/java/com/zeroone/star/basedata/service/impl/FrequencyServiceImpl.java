@@ -1,6 +1,5 @@
 package com.zeroone.star.basedata.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -55,13 +54,7 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
 
     @Override
     public FrequencyVO queryFrequencyDetail(String id) {
-        Frequency frequency = baseMapper.selectById(id);
-        if (frequency == null) {
-            return null;
-        }
-        FrequencyVO vo = new FrequencyVO();
-        BeanUtil.copyProperties(frequency, vo);
-        return vo;
+        return msFrequencyMapper.entityToVo(baseMapper.selectById(id));
     }
 
     @Override
