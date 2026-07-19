@@ -4,8 +4,7 @@
 #define _DETAIL_QEURY_VO_
 
 #include "../../GlobalInclude.h"
-#include "../../domain/dto/cost_info/queryCostInfoDTO.h"
-#
+#include "../../dto/cost_info/queryCostInfoDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 

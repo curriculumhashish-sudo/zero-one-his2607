@@ -21,6 +21,7 @@
 #include "ApiHelper.h"
 
 #include "cost_info/costInfoController.h"
+#include "cost_info/exportInfoController.h"
 
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
@@ -45,5 +46,5 @@ void Router::initRouter()
 	// 绑定报表明细控制器
 	ROUTER_SIMPLE_BIND(CostInfoController);
 	// 绑定报表导出控制器
-	// ROUTER_SIMPLE_BIND()
+	ROUTER_SIMPLE_BIND(ExportInfoController)
 }
