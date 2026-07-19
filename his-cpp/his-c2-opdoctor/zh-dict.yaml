@@ -20,3 +20,21 @@
         conditionId: 病情id
         deleteAt: 删除时间
         deleteBy: 删除人
+    usage:
+        id: 诊断数据主键
+        encounterId: 就诊id
+        conditionId: 病情id
+        description: 诊断描述
+        diagTypeCode: 诊断类型
+        diagCode: 诊断编码
+        rank: 排序
+        primaryFlag: 是否主诊断
+        highestDiagFlag: 是否最高诊断
+        tcmFlag: 是否中医诊断
+        tcmSyndromeGroup: 中医证候组
+        medType: 医保类别
+        conditionCode: 病情编码
+        createdAt: 诊断时间
+        keyword: 关键字
+        startDate: 开始日期
+        endDate: 结束日期
