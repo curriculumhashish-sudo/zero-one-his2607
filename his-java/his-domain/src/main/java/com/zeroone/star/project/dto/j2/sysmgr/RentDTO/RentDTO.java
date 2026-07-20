@@ -15,23 +15,21 @@ import lombok.Data;
 //补一下，创建时间什么的
 @Data
 @Schema(description = "用户数据传输对象")
-public class RentDTO extends RentAddDTO{
-    @Schema(description = "租户ID", example = "1")
+public class RentDTO {
+    @Schema(description = "租户名称", example = "01星球", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String tenantName;
+    @Schema(description = "租户状态", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String tenantStatus;
+    @Schema(description = "租户描述", example = "默认租户", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String tenantDescription;
+    @Schema(description = "租户ID", example = "1",requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String tenantId;
-    @Schema(description = "租户创建时间", example = "2023-07-01 00:00:00")
+    @Schema(description = "租户创建时间", example = "2023-07-01 00:00:00",requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String tenantCreateTime;
-    @Schema(description = "租户更新时间", example = "2023-07-01 00:00:00")
+    @Schema(description = "租户更新时间", example = "2023-07-01 00:00:00",requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String tenantUpdateTime;
-    @Schema(description = "租户创建人", example = "admin")
-    private String tenantCreator;
-    @Schema(description = "租户更新人", example = "admin")
-    private String tenantUpdater;
-    @Schema(description = "租户删除标志", example = "0")
+    @Schema(description = "租户删除标志", example = "0",requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String tenantDeleteFlag;
-    @Schema(description = "租户删除时间", example = "2023-07-01 00:00:00")
+    @Schema(description = "租户删除时间", example = "2023-07-01 00:00:00",requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String tenantDeleteTime;
-    @Schema(description = "租户删除人", example = "admin")
-    private String tenantDeleter;
-    @Schema(description = "租户删除人名称", example = "admin")
-    private String tenantDeleterName;
 }
