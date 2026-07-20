@@ -56,6 +56,7 @@ public interface IFrequencyService extends IService<CusFrequencyDO> {
      * @param id 频次ID
      */
     void removeFrequency(String id);
+
     /**
      * 获取已启用的频次名称列表
      *
