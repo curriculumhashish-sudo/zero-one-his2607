@@ -1,5 +1,8 @@
 package com.zeroone.star.basedata.service.impl;
 
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zeroone.star.basedata.constant.TreatmentConstants;
 import com.zeroone.star.basedata.entity.Treatment;
@@ -37,12 +40,37 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, Treatment
 
     @Override
     public PageDTO<TreatmentSelectVO> listTreatmentOptions(TreatmentSelectQuery query) {
-        return null;
+        Page<Treatment> page = new Page<>(query.getPageIndex(), query.getPageSize());
+        LambdaQueryWrapper<Treatment> wrapper = new LambdaQueryWrapper<>();
+        if (StrUtil.isNotBlank(query.getKeyword())) {
+            wrapper.and(w -> w
+                    .like(Treatment::getName, query.getKeyword())
+                    .or()
+                    .like(Treatment::getBusNo, query.getKeyword())
+            );
+        }
+        wrapper.orderByAsc(Treatment::getCreatedAt);
+        Page<Treatment> result = baseMapper.selectPage(page, wrapper);
+        return PageDTO.create(result, msTreatmentMapper::toSelectVO);
     }
 
     @Override
     public PageDTO<TreatmentListVO> queryTreatmentList(TreatmentQuery query) {
-        return null;
+        Page<Treatment> page = new Page<>(query.getPageIndex(), query.getPageSize());
+        LambdaQueryWrapper<Treatment> wrapper = new LambdaQueryWrapper<>();
+        if (StrUtil.isNotBlank(query.getKeyword())) {
+            wrapper.and(w -> w
+                    .like(Treatment::getName, query.getKeyword())
+                    .or()
+                    .like(Treatment::getBusNo, query.getKeyword())
+            );
+        }
+        if (StrUtil.isNotBlank(query.getCategoryCode())) {
+            wrapper.eq(Treatment::getCategoryCode, query.getCategoryCode());
+        }
+        wrapper.orderByAsc(Treatment::getCreatedAt);
+        Page<Treatment> result = baseMapper.selectPage(page, wrapper);
+        return PageDTO.create(result, msTreatmentMapper::toListVO);
     }
 
     @Override
