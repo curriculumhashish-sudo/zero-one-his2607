@@ -4,16 +4,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-@Schema(description = "枚举类型分页查询对象")
+@Schema(description = "枚举值对象")
 public class EnumDTO {
-    @Schema(description = "枚举类型序号",example = "1")
-    private String enumId;
-    @Schema(description = "枚举类型名称",example = "男性")
-    private String enumName;
-    @Schema(description = "枚举类型代码",example = "MALE")
-    private String enumCode;
-    @Schema(description = "枚举类型排序",example = "0")
-    private String enumSort;
-    @Schema(description = "枚举类型描述",example = "枚举类型描述")
+    @Schema(description = "枚举值序号(枚举值的唯一标识)",example = "1")
+    private Integer enumCode;
+    @Schema(description = "枚举值名称",example = "A型")
+    private String label;
+    @Schema(description = "枚举值存储字符/编码(枚举值的唯一标识),example = \"A\"")
+    private String enumString;
+    @Schema(description = "枚举值排序权重(权重越小越靠前)",example = "0")
+    private String order;
+    @Schema(description = "枚举值描述",example = "枚举类型描述")
     private String enumDescription;
 }

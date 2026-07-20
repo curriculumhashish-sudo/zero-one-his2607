@@ -15,21 +15,21 @@ public interface enumApis {
     /**
      * 删除枚举类型
      * @param dto 枚举删除对象DTO
-     * @return 枚举类型id
+     * @return 枚举值序号
      */
     JsonVO<String> deleteEnumType(EnumDeleteDTO dto);
 
     /**
      * 获取枚举名称列表
-      * @param query 枚举查询对象DTO
-      * @return 枚举查询对象DTO
+      * @param query 枚举值名字列表查询对象
+      * @return 枚举值名称列表
      */
     JsonVO<List<String>> getEnumTypeName(EnumListQuery query);
 
     /**
      * 获取枚举列表(条件+分页)
-     * @param query 枚举查询对象DTO
-     * @return
+     * @param query 枚举值关键词查询对象
+     * @return 枚举值列表
      */
     JsonVO<PageDTO<EnumDTO>> QueryAllEnum(EnumQuery query);
 

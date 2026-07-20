@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@Tag(name = "枚举管理相关接口")
+@Tag(name = "枚举值管理相关接口")
 public class EnumController implements enumApis {
     @Override
     @Operation(summary = "删除枚举类型")
