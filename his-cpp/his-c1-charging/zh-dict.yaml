@@ -338,6 +338,104 @@ lhfc:
       PreparePrintRequestDTO:
         scenarioCode:
           description: 业务场景码
+      PrintElementTypeDTO:
+        type:
+          description: 元素类型
+        title:
+          description: 元素标题
+        editable:
+          description: 是否可编辑
+        columnResizable:
+          description: 是否可调整列宽
+        isEnableDeleteRow:
+          description: 是否启用删除行
+        isEnableEditField:
+          description: 是否启用编辑字段
+        isEnableInsertRow:
+          description: 是否启用插入行
+        isEnableMergeCell:
+          description: 是否启用合并单元格
+        isEnableContextMenu:
+          description: 是否启用右键菜单
+        isEnableDeleteColumn:
+          description: 是否启用删除列
+        isEnableInsertColumn:
+          description: 是否启用插入列
+        columnAlignEditable:
+          description: 列对齐是否可编辑
+        columnTitleEditable:
+          description: 列标题是否可编辑
+        columnDisplayEditable:
+          description: 列显示是否可编辑
+        columnDisplayIndexEditable:
+          description: 列显示顺序是否可编辑
+      WatermarkOptionsDTO:
+        width:
+          description: 水印宽度
+        format:
+          description: 时间戳格式
+        height:
+          description: 水印高度
+        rotate:
+          description: 旋转角度
+        content:
+          description: 水印内容
+        fontSize:
+          description: 字体大小
+        fillStyle:
+          description: 填充样式
+        timestamp:
+          description: 是否显示时间戳
+      PanelLayoutOptionsDTO:
+        layoutType:
+          description: 布局类型
+        paperStyle:
+          description: 纸张样式
+        paperWidth:
+          description: 纸张宽度
+        paperHeight:
+          description: 纸张高度
+        layoutRowGap:
+          description: 行间距
+        layoutColumnGap:
+          description: 列间距
+      PrintElementDTO:
+        options:
+          description: 元素选项（随type变化）
+        printElementType:
+          description: 元素类型元信息
+      PrintPanelDTO:
+        name:
+          description: 面板名称
+        index:
+          description: 面板序号
+        width:
+          description: 纸张宽度（mm）
+        height:
+          description: 纸张高度（mm）
+        paperType:
+          description: 纸张类型
+        paperFooter:
+          description: 纸张底部边距
+        paperHeader:
+          description: 纸张顶部边距
+        paperNumberTop:
+          description: 页码顶部位置
+        paperNumberLeft:
+          description: 页码左侧位置
+        paperNumberContinue:
+          description: 页码是否连续
+        paperNumberDisabled:
+          description: 页码是否禁用
+        watermarkOptions:
+          description: 水印选项
+        panelLayoutOptions:
+          description: 面板布局选项
+        printElements:
+          description: 打印元素列表
+      PrintJsonDTO:
+        panels:
+          description: 面板列表
       PreparePrintResponseDTO:
         traceId:
           description: 打印追踪ID
@@ -354,6 +452,11 @@ lhfc:
       # ---- 功能4C: 确认打印 ----
       ConfirmPrint:
         summary: 确认打印（审计落库）
+      BizRefDTO:
+        encounterId:
+          description: 就诊主键
+        paymentId:
+          description: 支付流水主键
       ConfirmPrintRequestDTO:
         traceId:
           description: 打印追踪ID

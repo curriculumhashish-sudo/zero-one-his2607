@@ -4,6 +4,7 @@
 #define _PREPARE_PRINT_DTO_
 
 #include "../../GlobalInclude.h"
+#include "PrintTemplateDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 /*
@@ -37,7 +38,7 @@ class PreparePrintResponseDTO : public oatpp::DTO
     API_DTO_FIELD(Int32, templateVersion, ZH_WORDS_GETTER("lhfc.charging.charge.PreparePrintResponseDTO.templateVersion.description"), true, 2);
 
     // 模板结构（panels / paper / printElements 等）
-    API_DTO_FIELD(Any, PrintJson, ZH_WORDS_GETTER("lhfc.charging.charge.PreparePrintResponseDTO.PrintJson.description"), true, {});
+    API_DTO_FIELD(Object<PrintJsonDTO>, PrintJson, ZH_WORDS_GETTER("lhfc.charging.charge.PreparePrintResponseDTO.PrintJson.description"), true, {});
 
     // 示例数据（调试用）
     API_DTO_FIELD(Any, samplePrintData, ZH_WORDS_GETTER("lhfc.charging.charge.PreparePrintResponseDTO.samplePrintData.description"), true, {});

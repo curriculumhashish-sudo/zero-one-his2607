@@ -4,8 +4,23 @@
 #define _CONFIRM_PRINT_DTO_
 
 #include "../../GlobalInclude.h"
+#include "PrintChargeReceiptDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
+/*
+   业务锚点（bizRef 子对象）
+*/
+class BizRefDTO : public oatpp::DTO
+{
+    DTO_INIT(BizRefDTO, DTO);
+
+    // 就诊主键
+    API_DTO_FIELD(String, encounterId, ZH_WORDS_GETTER("lhfc.charging.charge.BizRefDTO.encounterId.description"), true, "337209205188464640");
+
+    // 支付流水主键
+    API_DTO_FIELD(String, paymentId, ZH_WORDS_GETTER("lhfc.charging.charge.BizRefDTO.paymentId.description"), true, "337209423854309376");
+};
+
 /*
    确认打印请求（审计落库）
 */
@@ -38,13 +53,13 @@ class ConfirmPrintRequestDTO : public oatpp::DTO
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.status.description"),
         true, "SUCCESS");
 
-    // 实际打印的业务数据
-    API_DTO_FIELD(Any, printData,
+    // 实际打印的业务数据（结构同 SlipDTO）
+    API_DTO_FIELD(Object<SlipDTO>, printData,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.printData.description"),
         false, {});
 
     // 业务锚点
-    API_DTO_FIELD(Any, bizRef,
+    API_DTO_FIELD(Object<BizRefDTO>, bizRef,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.bizRef.description"),
         false, {});
 
