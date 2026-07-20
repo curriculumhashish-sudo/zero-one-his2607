@@ -1,0 +1,31 @@
+﻿chinapres:
+  field:
+    patientid: "病历号"
+    presid: "处方号"
+    keyword: "搜索组套/历史处方"
+    id: "处方ID"
+    name: "处方名称"
+    herbs: "药材摘要"
+    prescno: "处方号"
+    status: "处方状态"
+    usage: "用法"
+    frequency: "频次"
+    days: "天数"
+    doses: "付数"
+    decoct: "代煎"
+    diagnosis: "诊断"
+    remark: "备注"
+    totalcount: "总味数"
+    doseamount: "单剂金额"
+    totalamount: "合计金额"
+    details: "药材明细"
+    herbname: "药材名称"
+    dosage: "剂量"
+    unitprice: "单价"
+    subtotal: "小计"
+  tags:
+    tag: "中医处方"
+  query:
+    summary: "获取历史处方"
+  detail:
+    summary: "获取指定患者本次就诊中医处方单"

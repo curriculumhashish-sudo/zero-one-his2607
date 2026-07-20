@@ -1,0 +1,23 @@
+#pragma once
+
+#ifndef _CHINAPRESQUERY_H_
+#define _CHINAPRESQUERY_H_
+
+#include "../../GlobalInclude.h"
+#include"domain/query/PageQuery.h"
+
+#include OATPP_CODEGEN_BEGIN(DTO)
+
+class ChinapresQuery : public PageQuery
+{
+	DTO_INIT(ChinapresQuery,PageQuery);
+	//患者病历号
+	API_DTO_FIELD_REQUIRE(String,patientId, ZH_WORDS_GETTER("chinapres.field.patientid"),true);
+	//处方号
+	API_DTO_FIELD_REQUIRE(String, presId, ZH_WORDS_GETTER("chinapres.field.presid"), false);
+	//搜索组套/历史处方关键字
+	API_DTO_FIELD_REQUIRE(String, keyword, ZH_WORDS_GETTER("chinapres.field.keyword"), false);
+};
+
+#include OATPP_CODEGEN_END(DTO)
+#endif // !_CHINAPRESQUERY_H_
