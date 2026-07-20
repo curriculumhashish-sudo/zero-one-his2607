@@ -8,7 +8,11 @@ import com.zeroone.star.project.vo.j6.report.ExpirationWarningVO;
 import com.zeroone.star.project.vo.j6.report.MonthlyAccessVO;
 import com.zeroone.star.project.vo.j6.report.SupplyAmountCompareVO;
 import java.util.List;
-
+import com.zeroone.star.project.query.j6.report.EncounterMonthTrendQuery;
+import com.zeroone.star.project.query.j6.report.EncounterWeekTrendQuery;
+import com.zeroone.star.project.vo.j6.report.DiseaseDistributionVO;
+import com.zeroone.star.project.vo.j6.report.EncounterMonthTrendVO;
+import com.zeroone.star.project.vo.j6.report.EncounterWeekTrendVO;
 
 /**
  * <p>
@@ -16,9 +20,10 @@ import java.util.List;
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
- * @author J6
+ * @author J6-xuegong-TKORHP
  * @version 1.0.0
  */
+
 public interface ReportApis {
     /**
      * 获取月访问量
@@ -40,7 +45,25 @@ public interface ReportApis {
      * @return 预警物资列表数据
      */
     JsonVO<List<ExpirationWarningVO>> queryExpirationWarning(ExpirationWarningQuery query);
+
+    /**
+     * 查询周接诊量门诊趋势
+     * @param query
+     * @return
+     */
+    JsonVO<EncounterWeekTrendVO> queryWeekTrend(EncounterWeekTrendQuery query);
+
+    /**
+     * 查询月接诊量门诊趋势
+     * @param query
+     * @return
+     */
+    JsonVO<EncounterMonthTrendVO> queryMonthTrend(EncounterMonthTrendQuery query);
+
+    /**
+     * 查询患者疾病类型分布
+     * @return
+     */
+    JsonVO<DiseaseDistributionVO> queryDiseaseStatistic();
+
 }
-
-
-

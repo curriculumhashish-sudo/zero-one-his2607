@@ -13,6 +13,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.zeroone.star.project.query.j6.report.EncounterMonthTrendQuery;
+import com.zeroone.star.project.query.j6.report.EncounterWeekTrendQuery;
+import com.zeroone.star.project.vo.j6.report.DiseaseDistributionVO;
+import com.zeroone.star.project.vo.j6.report.EncounterMonthTrendVO;
+import com.zeroone.star.project.vo.j6.report.EncounterWeekTrendVO;
+
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -20,7 +26,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/report")
+@RequestMapping("j6/report")
 @Tag(name = "report-center", description = "报表中心")
 public class ReportController implements ReportApis {
 
@@ -83,6 +89,27 @@ public class ReportController implements ReportApis {
         list.add(new ExpirationWarningVO("葡萄糖注射液 5%", "LOT20260610", "2026-09-20", 63, new BigDecimal("340.00"), "西药房", "华润医药集团有限公司"));
         list.add(new ExpirationWarningVO("医用防护口罩", "LOT20251215", "2026-10-15", 88, new BigDecimal("20000.00"), "医用耗材库", "3M中国有限公司"));
         return JsonVO.success(list);
+    }
+
+    @Operation(summary = "查询周接诊量门诊趋势")
+    @GetMapping("/week-trend")
+    @Override
+    public JsonVO<EncounterWeekTrendVO> queryWeekTrend(EncounterWeekTrendQuery query) {
+        return null;
+    }
+
+    @Operation(summary = "查询月接诊量门诊趋势")
+    @GetMapping("/month-trend")
+    @Override
+    public JsonVO<EncounterMonthTrendVO> queryMonthTrend(EncounterMonthTrendQuery query) {
+        return null;
+    }
+
+    @Operation(summary = "查询患者疾病类型分布")
+    @GetMapping("/disease-statistic")
+    @Override
+    public JsonVO<DiseaseDistributionVO> queryDiseaseStatistic() {
+        return null;
     }
 }
 
