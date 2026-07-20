@@ -32,7 +32,14 @@ public interface enumApis {
      * @return 枚举类型分页查询对象DTO
      */
     JsonVO<PageDTO<EnumDTO>> QueryAllEnum(EnumQuery query);
+    // TODO：名字不规范，应该为queryAllEnum
 
+    /**
+     * 根据枚举类型查询枚举列表
+      * @param enumTypeId 枚举类型ID
+     * @return 枚举类型分页查询对象列表DTO
+     */
+    JsonVO<List<EnumDTO>> listEnumsByEnumType(String enumTypeId);
 
     /**
      * 分页查询

@@ -18,6 +18,7 @@ import java.util.List;
 @Tag(name = "枚举管理相关接口")
 public class EnumController implements enumApis {
 
+    // TODO: 这里按理说应该传递id来删除对应实体，只有一个值就不用包装了吧
     @Override
     @Operation(summary = "删除枚举类型")
     @DeleteMapping("/sys/delete-enum")
@@ -39,21 +40,28 @@ public class EnumController implements enumApis {
         return null;
     }
 
-    @GetMapping("/query-all-enum-type")
+    @Override
+    @Operation(summary = "根据枚举类型查询枚举列表")
+    @GetMapping("/sys/list-enums-by-enum-type/{enumTypeId}")
+    public JsonVO<List<EnumDTO>> listEnumsByEnumType(@PathVariable(value = "enumTypeId", required = true) String enumTypeId) {
+        return null;
+    }
+
+    @GetMapping("/sys/query-all-enum-type")
     @Operation(summary = "分页查询枚举类型", description = "主要是分页，这里当前只有依据关键搜索")
     @Override
     public JsonVO<PageDTO<EnumTypeDTO>> queryAllEnumType(@RequestBody @Valid EnumTypeQuery query) {
         return null;
     }
 
-    @PostMapping("/add-enum-type")
+    @PostMapping("/sys/add-enum-type")
     @Operation(summary = "创建枚举类型", description = "租户等信息由jwt等提供，id自动生成")
     @Override
     public JsonVO<String> addEnumType(@RequestBody @Valid EnumTypeAddDTO data) {
         return null;
     }
 
-    @PutMapping("/modify-enum-type")
+    @PutMapping("/sys/modify-enum-type")
     @Operation(summary = "修改枚举类型", description = "对于创建过程，需要额外提供id")
     @Override
     public JsonVO<String> modifyEnumType(@RequestBody @Valid EnumTypeModifyDTO data) {
