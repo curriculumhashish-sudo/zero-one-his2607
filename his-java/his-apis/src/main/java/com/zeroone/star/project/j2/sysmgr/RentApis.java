@@ -1,8 +1,8 @@
 package com.zeroone.star.project.j2.sysmgr;
 
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j2.sysmgr.RentDTO.RentAddDTO;
-import com.zeroone.star.project.dto.j2.sysmgr.RentDTO.RentDTO;
+import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentAddDTO;
+import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentDTO;
 import com.zeroone.star.project.query.j2.sysmgr.RentQuery;
 import com.zeroone.star.project.vo.JsonVO;
 

@@ -13,6 +13,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * @author 阿伟学长
  * @version 1.0.0
  */
+//http://localhost:10400/basedata/doc.html
 @SpringBootApplication
 @EnableDiscoveryClient
 public class BasedataApplication {
