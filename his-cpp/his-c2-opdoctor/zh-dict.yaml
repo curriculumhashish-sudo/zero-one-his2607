@@ -1,0 +1,47 @@
+﻿test:
+  get:
+    summary: 查询测试接口
+    result: 这个是测试接口，返回测试数据
+
+common:
+  keyword: 关键词
+
+order:
+  tags:
+    tag: 医嘱管理
+  query:
+    summary: 分页查询医嘱
+  add:
+    summary: 新增医嘱
+  modify:
+    summary: 修改医嘱
+  catalog:
+    summary: 分页查询项目
+  field:
+    visitid: 就诊ID
+    patientid: 患者ID
+    departmentId: 科室ID
+    excludeCodes: 排除编码
+    strictStock: 严格库存检查
+    itemCode: 项目编码
+    itemName: 项目名称
+    category: 类别
+    spec: 规格
+    stock: 库存
+    unitPrice: 单价
+    diagnosis: 诊断
+    expenseType: 费用性质
+    orderType: 类型
+    dosage: 用量
+    frequency: 频次
+    routeCode: 给药途径
+    useDays: 使用天数
+    quantity: 数量
+    isSkinTest: 是否皮试
+    remark: 备注
+    orderid: 医嘱ID
+    doctorId: 医生ID
+    doctorName: 医生姓名
+    status: 状态
+    createTime: 开立时间
+    totalPrice: 总价
