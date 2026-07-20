@@ -1,0 +1,5 @@
+dept:
+ batch:
+  field:
+   deptIdList: 选中的科室列表
+   targetStatus: 目标状态
