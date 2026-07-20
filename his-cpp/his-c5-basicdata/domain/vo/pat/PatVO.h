@@ -2,7 +2,7 @@
 #define _PATIENT_VO_
 
 #include "../../GlobalInclude.h"
-#include "../../dto/pat/PatientDTO.h"
+#include "../../dto/pat/PatDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 

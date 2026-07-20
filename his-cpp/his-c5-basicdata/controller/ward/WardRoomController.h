@@ -7,7 +7,9 @@
 
 #include "domain/vo/BaseJsonVO.h"
 #include "domain/query/ward/WardRoomQuery.h"
-#include "domain/vo/ward/WardRommVO.h"
+#include "domain/vo/ward/WardRoomVO.h"
+#include "domain/dto/ward/WardRoomDTO.h"
+#include "ApiHelper.h"
 
 // 0 定义API控制器使用宏
 #include OATPP_CODEGEN_BEGIN(ApiController) 
@@ -28,8 +30,8 @@ public:
 	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/ward/beds", listBeds, WardQuery, execListBeds(query));
 
 private:
-	ListJsonVO<RoomVO>::Wrapper execListRooms(const WardQuery::Wrapper& query);
-	ListJsonVO<BedVO>::Wrapper execListBeds(const WardQuery::Wrapper& query);
+	JsonVO< List <RoomVO>::Wrapper execListRooms(const WardQuery::Wrapper& query)>;
+	JsonVO< List <BedVO> ::Wrapper execListBeds(const WardQuery::Wrapper& query)>;
 };
 
 #undef API_TAG_WARD

@@ -6,7 +6,10 @@
 #define _PAT_CONTROLLER_
 
 #include "domain/vo/BaseJsonVO.h"
-
+#include "domain/vo/pat/PatVO.h"
+#include "domain/dto/pat/PatDTO.h"
+#include "domain/query/pat/PatQuery.h"
+#include "ApiHelper.h"
 // 0 定义API控制器使用宏
 #include OATPP_CODEGEN_BEGIN(ApiController) 
 

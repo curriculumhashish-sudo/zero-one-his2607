@@ -1,4 +1,6 @@
 ﻿pat:
+ delete: 
+  summary: 患者删除
  field:
   id: 患者ID
   age: 年龄

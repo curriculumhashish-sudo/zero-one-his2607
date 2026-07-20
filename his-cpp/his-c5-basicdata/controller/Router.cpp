@@ -3,7 +3,7 @@
 #include "ApiHelper.h"
 
 #include "pat/PatController.h"
-#include "ward/WardController.h"
+#include "ward/WardRoomController.h"
 // 如果定义了关闭Swagger文档宏
 #ifdef CLOSE_SWAGGER_DOC
 // 简化绑定控制器宏定义

@@ -1,4 +1,5 @@
-﻿#ifndef _WARDROOM_DTO_
+﻿#pragma once
+#ifndef _WARDROOM_DTO_
 #define _WARDROOM_DTO_
 
 #include "../../GlobalInclude.h"

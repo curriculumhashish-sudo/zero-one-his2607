@@ -3,7 +3,7 @@
 
 #include "../../GlobalInclude.h"
 #include "../../dto/ward/BedDTO.h"
-
+#include "domain/vo/JsonVO.h"
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
@@ -16,8 +16,8 @@ class BedJsonVO : public JsonVO<BedDTO::Wrapper> {
 /**
  * 病床列表VO
  */
-class BedListJsonVO : public JsonVO<ListDTO<BedDTO::Wrapper>::Wrapper> {
-    DTO_INIT(BedListJsonVO, JsonVO<ListDTO<BedDTO::Wrapper>::Wrapper>);
+class BedListJsonVO : public JsonVO< List< BedDTO::Wrapper > > {
+    DTO_INIT(BedListJsonVO, JsonVO< List< BedDTO::Wrapper > >);
 };
 
 #include OATPP_CODEGEN_END(DTO)
