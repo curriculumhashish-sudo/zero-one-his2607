@@ -12,6 +12,10 @@ import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.query.j6.pharmacy.StockOutQuery;
 import com.zeroone.star.project.vo.j6.pharmacy.StockOutDetailVO;
 import com.zeroone.star.project.vo.j6.pharmacy.StockOutListVO;
+import com.zeroone.star.project.dto.j6.pharmacy.AgreeStockOutDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.RejectStockOutDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.SubmitStockOutApprovalDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.WithdrawStockOutApprovalDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -106,4 +110,32 @@ public interface PharmacyApis {
      * @return 分页结果
      */
     JsonVO<PageDTO<StockOutListVO>> getPharmacy(StockOutQuery stockOutQuery);
+
+    /**
+     * 提交出库审批
+     * @param dto 提交审批参数（busNo）
+     * @return 操作结果（含操作后状态）
+     */
+    JsonVO<String> submitStockOutApproval(SubmitStockOutApprovalDTO dto);
+
+    /**
+     * 撤回出库审批
+     * @param dto 撤回审批参数（busNo）
+     * @return 操作结果（含操作后状态）
+     */
+    JsonVO<String> withdrawStockOutApproval(WithdrawStockOutApprovalDTO dto);
+
+    /**
+     * 通过出库审批
+     * @param dto 通过审批参数（busNo + 可选contractBusNo）
+     * @return 操作结果（含操作后状态 + 药房入库壳单号）
+     */
+    JsonVO<String> agreeStockOut(AgreeStockOutDTO dto);
+
+    /**
+     * 驳回出库审批
+     * @param dto 驳回审批参数（busNo + rejectReason）
+     * @return 操作结果（含操作后状态）
+     */
+    JsonVO<String> rejectStockOut(RejectStockOutDTO dto);
 }
