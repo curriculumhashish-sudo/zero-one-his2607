@@ -23,11 +23,11 @@ public class WorkbenchMenuVO implements Serializable {
     @Schema(description = "前端图标")
     private String icon;
     @Schema(description = "名称")
-    private String menuName;
+    private String display_name;
     @Schema(description = "前端路由地址")
-    private String routePath;
+    private String path;
     @Schema(description = "权限标识，接口鉴权使用")
-    private String permissionKey;
+    private String permission_name;
     @Schema(description = "排序号")
-    private Integer sort;
+    private Integer sort_order;
 }
