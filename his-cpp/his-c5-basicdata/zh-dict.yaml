@@ -1,0 +1,12 @@
+patient:
+  tags: 用户接口
+  query-by-id:
+    summary: 获取患者详情
+  put:
+    summary: 修改患者
+  post:
+    summary: 新增患者
+  field:
+    id: 患者编号
+    name: 患者姓名
+    age: 患者年龄
