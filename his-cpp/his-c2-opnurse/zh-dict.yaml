@@ -14,4 +14,6 @@
   amount: 已执行次数
   person: 执行人
   operate: 操作
-   
+ modify:
+  operate1: 执行
+  operate2: 取消执行

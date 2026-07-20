@@ -13,3 +13,16 @@ BooleanJsonVO::Wrapper NurseController::execRemoveNurse(const String& id)
 
 }
 
+StringJsonVO::Wrapper NurseController::execOperateNurse(const NurseOperateDTO::Wrapper& dto, const PayloadDTO& payload)
+{
+	return {};
+}
+
+StringJsonVO::Wrapper NurseController::execCancelNurse(const NurseCancelDTO::Wrapper& dto, const PayloadDTO& payload)
+{
+	return {};
+}
+
+
+
+
