@@ -22,4 +22,11 @@ public class SubmitStockOutApprovalDTO {
     @Schema(description = "业务单号", example = "SO202607180001", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "业务单号不能为空")
     private String busNo;
+
+    /**
+     * 审批人ID（对应 wkf_supply_request.approver_id）
+     */
+    @Schema(description = "审批人ID", example = "310000000000000102", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "审批人不能为空")
+    private String approverId;
 }

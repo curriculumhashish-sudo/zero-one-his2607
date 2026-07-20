@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2026-07-20
  */
 @RestController
-@Tag(name = "pharmacy-stock-out-approval", description = "药库出库审批")
+@Tag(name = "药库出库审批", description = "药库出库审批")
 @Validated
 public class PharmacyController implements PharmacyApis {
 
@@ -33,7 +33,7 @@ public class PharmacyController implements PharmacyApis {
     @Override
     public JsonVO<String> submitStockOutApproval(@Validated @RequestBody SubmitStockOutApprovalDTO dto) {
         // TODO: 桩实现，待后续对接Service层
-        return JsonVO.success("提交成功，当前状态：APPROVAL");
+        return JsonVO.success("提交成功，当前状态：APPROVAL，审批人ID：" + dto.getApproverId());
     }
 
     @PostMapping("/pharmacy/stock-out/withdraw-approval")
