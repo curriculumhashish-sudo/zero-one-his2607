@@ -25,20 +25,25 @@ import com.zeroone.star.project.dto.j6.pharmacy.InventoryStatusDTO;
 import com.zeroone.star.project.query.j6.pharmacy.InventoryDetailQuery;
 import com.zeroone.star.project.vo.j6.pharmacy.ExcelExportVO;
 import com.zeroone.star.project.vo.j6.pharmacy.InventoryDetailVO;
+import com.zeroone.star.project.dto.j6.pharmacy.InboundReceiptDeleteDTO;
+import com.zeroone.star.project.query.j6.pharmacy.InboundReceiptDetailQuery;
+import com.zeroone.star.project.query.j6.pharmacy.InboundReceiptQuery;
+import com.zeroone.star.project.vo.j6.pharmacy.InboundReceiptDetailVO;
+import com.zeroone.star.project.vo.j6.pharmacy.InboundReceiptListVO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.validation.annotation.Validated;
 import lombok.RequiredArgsConstructor;
 import io.swagger.v3.oas.annotations.Parameter;
-import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 @RestController
 @RequestMapping("j6/warehouse")
@@ -265,5 +270,27 @@ public class PharmacyController implements PharmacyApis {
     @GetMapping("/test")
     String test() {
         return "test";
+    }
+
+
+    @Override
+    @Operation(summary = "获取进货单列表")
+    public JsonVO<List<InboundReceiptListVO>> queryAllInboundReceipt(@Valid InboundReceiptQuery query) {
+        // TODO 调用 Service 查询数据库，返回列表
+        return null;
+    }
+
+    @Override
+    @Operation(summary = "获取进货单详情")
+    public JsonVO<InboundReceiptDetailVO> getInboundReceiptDetail(@Valid InboundReceiptDetailQuery query) {
+        // TODO 调用 Service 查详情，返回头+明细行
+        return null;
+    }
+
+    @Override
+    @Operation(summary = "删除进货单")
+    public JsonVO<String> removeInboundReceipt(@Valid InboundReceiptDeleteDTO dto) {
+        // TODO 调用 Service 执行删除
+        return null;
     }
 }
