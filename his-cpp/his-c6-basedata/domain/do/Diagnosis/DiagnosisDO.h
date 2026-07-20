@@ -23,6 +23,7 @@
 
 /**
  * 诊断数据库实体DO，对应数据表 t_diagnosis
+ * 练手精简版，仅覆盖页面所需字段
  */
 class DiagnosisDO : public BaseDO
 {
@@ -34,48 +35,33 @@ class DiagnosisDO : public BaseDO
 	MYSQL_SYNTHESIZE(string, diagnosisName, DiagnosisName);
 	// 诊断分类 1-西医 2-中医
 	MYSQL_SYNTHESIZE(int, diagnosisType, DiagnosisType);
-	// 诊断目录分类（疾病与诊断/中医诊断等）
-	MYSQL_SYNTHESIZE(string, catalogName, CatalogName);
 	// 启用状态 0-停用 1-启用
 	MYSQL_SYNTHESIZE(int, status, Status);
 	// 备注
 	MYSQL_SYNTHESIZE(string, remark, Remark);
-	// 创建人ID
+	// 创建人
 	MYSQL_SYNTHESIZE(string, createBy, CreateBy);
 	// 创建时间
 	MYSQL_SYNTHESIZE(string, createTime, CreateTime);
-	// 修改人ID
+	// 修改人
 	MYSQL_SYNTHESIZE(string, updateBy, UpdateBy);
 	// 修改时间
 	MYSQL_SYNTHESIZE(string, updateTime, UpdateTime);
 public:
 	DiagnosisDO() : BaseDO("t_diagnosis")
 	{
-		// 主键id
 		MYSQL_ADD_FIELD_PK("id", "s", id);
-		// 诊断编码
 		MYSQL_ADD_FIELD("diagnosis_code", "s", diagnosisCode);
-		// 诊断名称
 		MYSQL_ADD_FIELD("diagnosis_name", "s", diagnosisName);
-		// 诊断分类
 		MYSQL_ADD_FIELD("diagnosis_type", "i", diagnosisType);
-		// 诊断目录名称
-		MYSQL_ADD_FIELD("catalog_name", "s", catalogName);
-		// 启用状态
 		MYSQL_ADD_FIELD("status", "i", status);
-		// 备注
 		MYSQL_ADD_FIELD("remark", "s", remark);
-		// 创建人
 		MYSQL_ADD_FIELD("create_by", "s", createBy);
-		// 创建时间
 		MYSQL_ADD_FIELD("create_time", "s", createTime);
-		// 修改人
 		MYSQL_ADD_FIELD("update_by", "s", updateBy);
-		// 修改时间
 		MYSQL_ADD_FIELD("update_time", "s", updateTime);
 	}
 };
 
-// 智能指针别名，方便DAO层使用
 typedef std::shared_ptr<DiagnosisDO> PtrDiagnosisDO;
-#endif // !_DIAGNOSIS_DO_#pragma once
+#endif // !_DIAGNOSIS_DO_

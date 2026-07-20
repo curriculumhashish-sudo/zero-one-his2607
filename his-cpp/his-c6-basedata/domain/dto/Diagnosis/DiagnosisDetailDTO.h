@@ -17,35 +17,36 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _DIAGNOSISPAGEVO_H_
-#define _DIAGNOSISPAGEVO_H_
+#ifndef _DIAGNOSIS_DETAIL_DTO_H_
+#define _DIAGNOSIS_DETAIL_DTO_H_
 
 #include "../../GlobalInclude.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * @brief 诊断管理列表VO
- * 对应页面：诊断后台管理主列表
- * 说明：列表仅返回关键标识数据，完整详情通过详情接口获取
+ * 诊断详情数据DTO
+ * 对应页面：诊断详情查看、编辑表单回填
  */
 class DiagnosisDetailDTO : public oatpp::DTO
 {
 	DTO_INIT(DiagnosisDetailDTO, DTO);
 
-	// 唯一主键标识
+	// 主键ID
 	API_DTO_FIELD_REQUIRE(Int32, id, ZH_WORDS_GETTER("diagnosis.field.id"), true);
 	// 诊断编码
 	API_DTO_FIELD_REQUIRE(String, diagnosisCode, ZH_WORDS_GETTER("diagnosis.field.code"), true);
 	// 诊断名称
 	API_DTO_FIELD_REQUIRE(String, diagnosisName, ZH_WORDS_GETTER("diagnosis.field.name"), true);
-	// 诊断目录分类
+	// 诊断分类 1-西医 2-中医
+	API_DTO_FIELD_REQUIRE(Int32, diagnosisType, ZH_WORDS_GETTER("diagnosis.field.type"), true);
+	// 所属诊断目录
 	API_DTO_FIELD_DEFAULT(String, catalogName, ZH_WORDS_GETTER("diagnosis.field.catalogName"));
-	// 启用状态
+	// 启用状态 0-停用 1-启用
 	API_DTO_FIELD_REQUIRE(Int32, status, ZH_WORDS_GETTER("diagnosis.field.status"), true);
-	
+	// 备注信息
+	API_DTO_FIELD_DEFAULT(String, remark, ZH_WORDS_GETTER("diagnosis.field.remark"));
 };
 
 #include OATPP_CODEGEN_END(DTO)
-
-#endif // !_DIAGNOSISPAGEVO_H_#pragma once
+#endif // !_DIAGNOSIS_DETAIL_DTO_H_

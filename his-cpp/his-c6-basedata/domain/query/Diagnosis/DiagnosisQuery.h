@@ -3,7 +3,7 @@
  Copyright Zero One Star. All rights reserved.
 
  @Author: awei
- @Date: 2022/10/25 11:36:29
+ @Date: 2026/07/20 11:00:34
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,31 +17,22 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _SAMPLE_QUERY_
-#define _SAMPLE_QUERY_
+#ifndef _DIAGNOSIS_SELECT_JSONVO_H_
+#define _DIAGNOSIS_SELECT_JSONVO_H_
 
 #include "../../GlobalInclude.h"
-#include "domain/query/PageQuery.h"
+#include "../dto/DiagnosisSelectDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * 定义一个查询诊断的信息传输模型
+ * 诊断下拉选择分页响应VO
+ * 接口：/diagnosis/select-page
  */
-class DiagnosisQuery : public PageQuery
+class DiagnosisSelectJsonVO : public JsonVO<DiagnosisSelectDTO::Wrapper>
 {
-	//定义初始化
-	DTO_INIT(DiagnosisQuery, PageQuery);
-
-	// 诊断编码 
-	API_DTO_FIELD_DEFAULT(String, diagnosisCode, ZH_WORDS_GETTER("diagnosis.flield.Code"));
-	// 诊断名称 
-	API_DTO_FIELD_DEFAULT(String, diagnosisName, ZH_WORDS_GETTER("diagnosis.flield.Name"));
-	////序号
-	//API_DTO_FIELD_DEFAULT(Int32, diagnosisId, ZH_WORDS_GETTER"diagnosis.flield.Id");
-	// 诊断分类 
-	API_DTO_FIELD_DEFAULT(String, diagnosisType, ZH_WORDS_GETTER("diagnosis.flield.Type"));
+	DTO_INIT(DiagnosisSelectJsonVO, JsonVO<DiagnosisSelectDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)
-#endif // !_SAMPLE_QUERY_#pragma once
+#endif // !_DIAGNOSIS_SELECT_JSONVO_H_

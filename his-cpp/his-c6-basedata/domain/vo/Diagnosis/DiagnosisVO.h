@@ -17,23 +17,22 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _DIAGNOSISPAGEJSONVO_H_
-#define _DIAGNOSISPAGEJSONVO_H_
+#ifndef _DIAGNOSIS_PAGE_JSONVO_H_
+#define _DIAGNOSIS_PAGE_JSONVO_H_
 
 #include "../../GlobalInclude.h"
-#include "../vo/DiagnosisPageVO.h"
+#include "../dto/DiagnosisPageDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
  * 诊断管理分页响应VO
- * 对应页面：诊断后台管理主列表（支持批量启停）
  * 接口：/diagnosis/page
  */
-class DiagnosisPageJsonVO : public JsonVO<DiagnosisPageVO::Wrapper>
+class DiagnosisPageJsonVO : public JsonVO<DiagnosisPageDTO::Wrapper>
 {
-	DTO_INIT(DiagnosisPageJsonVO, JsonVO<DiagnosisPageVO::Wrapper>);
+	DTO_INIT(DiagnosisPageJsonVO, JsonVO<DiagnosisPageDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)
-#endif // _DIAGNOSISPAGEJSONVO_H_#pragma once
+#endif // !_DIAGNOSIS_PAGE_JSONVO_H_

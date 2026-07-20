@@ -17,17 +17,16 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _DIAGNOSISDETAILJSONVO_H_
-#define _DIAGNOSISDETAILJSONVO_H_
+#ifndef _DIAGNOSIS_DETAIL_JSONVO_H_
+#define _DIAGNOSIS_DETAIL_JSONVO_H_
 
 #include "../../GlobalInclude.h"
-#include "../vo/DiagnosisDetailDTO.h"
+#include "../dto/DiagnosisDetailDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
  * 诊断详情单条响应VO
- * 对应页面：诊断详情查看、编辑表单回填弹窗
  * 接口：/diagnosis/detail
  */
 class DiagnosisDetailJsonVO : public JsonVO<DiagnosisDetailDTO::Wrapper>
@@ -36,4 +35,4 @@ class DiagnosisDetailJsonVO : public JsonVO<DiagnosisDetailDTO::Wrapper>
 };
 
 #include OATPP_CODEGEN_END(DTO)
-#endif // _DIAGNOSISDETAILJSONVO_H_#pragma once
+#endif // !_DIAGNOSIS_DETAIL_JSONVO_H_

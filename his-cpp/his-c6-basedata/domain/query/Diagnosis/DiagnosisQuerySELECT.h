@@ -3,7 +3,7 @@
  Copyright Zero One Star. All rights reserved.
 
  @Author: awei
- @Date: 2022/10/25 11:36:29
+ @Date: 2026/07/20 11:36:29
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _SAMPLE_QUERY_
-#define _SAMPLE_QUERY_
+#ifndef _DIAGNOSIS_SELECT_QUERY_
+#define _DIAGNOSIS_SELECT_QUERY_
 
 #include "../../GlobalInclude.h"
 #include "domain/query/PageQuery.h"
@@ -26,21 +26,20 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * 定义一个查询诊断的信息传输模型
+ * 诊断弹窗选择查询条件
+ * 对应页面：医生站/住院登记诊断选择弹窗
  */
-class DiagnosisQuery : public PageQuery
+class DiagnosisSelectQuery : public PageQuery
 {
-	//定义初始化
-	DTO_INIT(DiagnosisQuery, PageQuery);
-	
-	 // 诊断编码 
-	API_DTO_FIELD_DEFAULT(String, diagnosisCode, ZH_WORDS_GETTER("diagnosis.flield.Code"));
-	// 诊断名称 
-	API_DTO_FIELD_DEFAULT(String, diagnosisName, ZH_WORDS_GETTER("diagnosis.flield.Name"));
-	// 诊断分类 1西医 2中医，0查询全部类型
-	API_DTO_FIELD_DEFAULT(Int32, diagnosisType, ZH_WORDS_GETTER("diagnosis.flield.Type"));
-	
+	DTO_INIT(DiagnosisSelectQuery, PageQuery);
+
+	// 诊断编码检索
+	API_DTO_FIELD_DEFAULT(String, diagnosisCode, ZH_WORDS_GETTER("diagnosis.field.code"));
+	// 诊断名称检索
+	API_DTO_FIELD_DEFAULT(String, diagnosisName, ZH_WORDS_GETTER("diagnosis.field.name"));
+	// 诊断分类 1-西医 2-中医 0-全部
+	API_DTO_FIELD_DEFAULT(Int32, diagnosisType, ZH_WORDS_GETTER("diagnosis.field.type"));
 };
 
 #include OATPP_CODEGEN_END(DTO)
-#endif // !_SAMPLE_QUERY_#pragma once
+#endif // !_DIAGNOSIS_SELECT_QUERY_
