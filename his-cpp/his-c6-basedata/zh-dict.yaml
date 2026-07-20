@@ -11,7 +11,7 @@
     summary: 删除器材
   field:
     # 基础通用字段
-    id: 器材编号
+    id: 序号
     code: 器材编码
     name: 器材名称
     status: 器材状态 1-启用 0-禁用
