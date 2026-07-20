@@ -1,0 +1,22 @@
+﻿bedassign:
+    field:
+       patientid: 病人id
+       locationid: 床位id
+       appointmentid: 预约id
+       intended_admission_date: 预期入院日期
+bed:
+    tags:
+       t1: 床位管理接口
+    get:
+       summary: 查询空闲床位（按病区/科室/日期条件）
+    assign:
+       summary: 执行床位分配
+    field:
+       id: 床位id
+       name: 床位名称
+       parentid: 上级病区id
+       parentname: 上级病区名称
+       formenum: 类型(BED)
+       statusenum: 床位状态
+       organizationid: 所属科室id
+       intended_admission_date: 预期入院日期
