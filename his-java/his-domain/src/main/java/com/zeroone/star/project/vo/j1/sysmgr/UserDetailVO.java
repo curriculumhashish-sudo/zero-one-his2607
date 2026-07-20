@@ -3,45 +3,64 @@ package com.zeroone.star.project.vo.j1.sysmgr;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-@Schema(description = "用户详细信息")
+@Schema(description = "用户详情对象")
 public class UserDetailVO {
-    @Schema(description = "主键ID", example = "1001", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long id;
+    @Schema(description = "主键id", example = "336396155648217088")
+    private String id;
 
-    @Schema(description = "用户名", example = "lianglaoshi", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "用户名", example = "lianglaoshi")
     private String username;
 
-    @Schema(description = "姓名", example = "梁老师", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String realName;
+    @Schema(description = "角色ID列表", example = "[\"10\", \"20\"]")
+    private List<String> roleIds;
 
-    @Schema(description = "角色名称", example = "医生")
-    private List<String> roleNames;
+    @Schema(description = "默认登录科室ID", example = "322663218269917184")
+    private String defaultOrgId;
+
+    @Schema(description = "用户昵称", example = "梁老师")
+    private String nickname;
 
     @Schema(description = "手机号码", example = "13800138000")
-    private String phone;
+    private String phoneNumber;
 
-    @Schema(description = "电子邮箱", example = "lianglaoshi@hospital.com")
+    @Schema(description = "电子邮箱", example = "lianglaoshi@example.com")
     private String email;
 
-    @Schema(description = "用户状态 (1:启用, 0:停用)", example = "1")
+    @Schema(description = "性别 (2:男, 1:女, 0:未知)", example = "2")
+    private Integer gender;
+
+    @Schema(description = "出生日期 (yyyy-MM-dd)", example = "1990-01-01")
+    private LocalDate birthDate;
+
+    @Schema(description = "地址", example = "人民东路100号")
+    private String address;
+
+    @Schema(description = "医保码", example = "YB20240001")
+    private String ybNo;
+
+    @Schema(description = "签名图片", example = "/upload/signatures/sign_322663.png")
+    private String signatureImage;
+
+    @Schema(description = "职称编码", example = "PROF_001")
+    private String drProfiterole;
+
+    @Schema(description = "职业资格证编号", example = "PHAR20240001")
+    private String pharPracCertNo;
+
+    @Schema(description = "状态 (1:启用, 0:停用)", example = "1")
     private Integer status;
 
-    @Schema(description = "锁定状态 (1:已锁定, 0:未锁定)", example = "0")
-    private Integer lockStatus;
+    @Schema(description = "备注信息", example = "表现优异，可重点关注")
+    private String remark;
 
-    @Schema(description = "登录失败次数", example = "0")
-    private Integer loginFailCount;
+    @Schema(description = "出诊科室ID列表", example = "[\"dept_001\", \"dept_002\"]")
+    private List<String> consultDeptIds;
 
-    @Schema(description = "锁定结束时间", example = "2024-05-20 10:00:00")
-    private LocalDateTime lockEndTime;
-
-    @Schema(description = "创建时间", example = "2023-10-27 10:00:00")
-    private LocalDateTime createTime;
-
-    @Schema(description = "更新时间", example = "2023-10-28 12:00:00")
-    private LocalDateTime updateTime;
+    @Schema(description = "可接诊号源ID列表", example = "[\"src_10\", \"src_20\"]")
+    private List<String> receptionSourceIds;
 }
