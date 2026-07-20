@@ -15,78 +15,99 @@ class SupplierUpdateDTO : public oatpp::DTO
         String,
         id,
         "Supplier ID.",
-        true);
+        true
+    );
 
     API_DTO_FIELD_REQUIRE(
         Int32,
         version,
         "Optimistic lock version number.",
-        true);
+        true
+    );
+
+    API_DTO_FIELD_DEFAULT(
+        String,
+        name,
+        "Supplier name."
+    );
 
     API_DTO_FIELD_DEFAULT(
         String,
         typeEnum,
-        "Supplier type: 1: Manufacturer, 2: Supplier.");
+        "Supplier type: 1: Manufacturer, 2: Supplier."
+    );
 
     API_DTO_FIELD_DEFAULT(
         String,
         creditCode,
-        "Credit code.");
+        "Credit code."
+    );
 
     API_DTO_FIELD_DEFAULT(
         String,
         legalRepresentative,
-        "Legal representative.");
+        "Legal representative."
+    );
 
     API_DTO_FIELD_DEFAULT(
         String,
         address,
-        "Supplier address.");
+        "Supplier address."
+    );
 
     API_DTO_FIELD_DEFAULT(
         String,
         pyStr,
-        "Pinyin code.");
+        "Pinyin code."
+    );
 
     API_DTO_FIELD_DEFAULT(
         String,
         wbStr,
-        "Wubi code.");
+        "Wubi code."
+    );
 
     API_DTO_FIELD_DEFAULT(
         String,
         phone,
-        "Supplier phone number.");
+        "Supplier phone number."
+    );
 
     API_DTO_FIELD_DEFAULT(
         String,
         email,
-        "Supplier email address.");
+        "Supplier email address."
+    );
 
     API_DTO_FIELD_DEFAULT(
         String,
         bankName,
-        "Bank name.");
+        "Bank name."
+	);
 
     API_DTO_FIELD_DEFAULT(
         String,
         bankAccount,
-        "Bank account number.");
+        "Bank account number."
+    );
 
     API_DTO_FIELD_DEFAULT(
         String,
         orgId,
-        "Organization ID.");
+        "Organization ID."
+    );
 
     API_DTO_FIELD_DEFAULT(
         Int32,
         displayOrder,
-        "Display order.");
+        "Display order."
+    );
 
     API_DTO_FIELD_DEFAULT(
         String,
         note,
-        "Remark.");
+        "Remark."
+    );
 };
 
 #include OATPP_CODEGEN_END(DTO)
