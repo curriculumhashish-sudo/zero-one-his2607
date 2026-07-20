@@ -404,6 +404,68 @@ lhfc:
           description: 元素选项（随type变化）
         printElementType:
           description: 元素类型元信息
+      PrintElementOptionsDTO:
+        top:
+          description: 顶部偏移
+        left:
+          description: 左侧偏移
+        width:
+          description: 元素宽度
+        height:
+          description: 元素高度
+        field:
+          description: 绑定数据字段名
+        title:
+          description: 字段标题
+        fontSize:
+          description: 字体大小
+        hideTitle:
+          description: 是否隐藏标题
+        textAlign:
+          description: 文本对齐
+        fontWeight:
+          description: 字体粗细
+        columns:
+          description: 表格列定义
+        lineHeight:
+          description: 行高
+        tableBorder:
+          description: 表格边框样式
+        tableHeaderBorder:
+          description: 表头边框样式
+        tableHeaderRepeat:
+          description: 表头重复方式
+        tableBodyRowBorder:
+          description: 表体行边框样式
+        tableBodyRowHeight:
+          description: 表体行高度
+        tableBodyCellBorder:
+          description: 表体单元格边框样式
+        tableHeaderRowHeight:
+          description: 表头行高度
+        tableHeaderCellBorder:
+          description: 表头单元格边框样式
+        borderWidth:
+          description: 线宽
+      TableColumnDTO:
+        align:
+          description: 列对齐方式
+        field:
+          description: 绑定字段名
+        fixed:
+          description: 列宽是否固定
+        title:
+          description: 列标题
+        width:
+          description: 列宽度
+        checked:
+          description: 是否勾选显示
+        colspan:
+          description: 列合并数
+        rowspan:
+          description: 行合并数
+        columnId:
+          description: 列唯一标识
       PrintPanelDTO:
         name:
           description: 面板名称

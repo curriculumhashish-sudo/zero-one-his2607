@@ -119,15 +119,126 @@ class PanelLayoutOptionsDTO : public oatpp::DTO
 };
 
 /*
+   表格列定义（options.columns 子对象）
+*/
+class TableColumnDTO : public oatpp::DTO
+{
+    DTO_INIT(TableColumnDTO, DTO);
+
+    // 列对齐方式（left / center / right）
+    API_DTO_FIELD(String, align, ZH_WORDS_GETTER("lhfc.charging.charge.TableColumnDTO.align.description"), true, "left");
+
+    // 绑定字段名
+    API_DTO_FIELD(String, field, ZH_WORDS_GETTER("lhfc.charging.charge.TableColumnDTO.field.description"), true, "itemName");
+
+    // 列宽是否固定
+    API_DTO_FIELD(Boolean, fixed, ZH_WORDS_GETTER("lhfc.charging.charge.TableColumnDTO.fixed.description"), true, false);
+
+    // 列标题
+    API_DTO_FIELD(String, title, ZH_WORDS_GETTER("lhfc.charging.charge.TableColumnDTO.title.description"), true, "项目名称");
+
+    // 列宽度
+    API_DTO_FIELD(Float64, width, ZH_WORDS_GETTER("lhfc.charging.charge.TableColumnDTO.width.description"), true, 88.16);
+
+    // 是否勾选显示
+    API_DTO_FIELD(Boolean, checked, ZH_WORDS_GETTER("lhfc.charging.charge.TableColumnDTO.checked.description"), false, true);
+
+    // 列合并数
+    API_DTO_FIELD(Int32, colspan, ZH_WORDS_GETTER("lhfc.charging.charge.TableColumnDTO.colspan.description"), false, 1);
+
+    // 行合并数
+    API_DTO_FIELD(Int32, rowspan, ZH_WORDS_GETTER("lhfc.charging.charge.TableColumnDTO.rowspan.description"), false, 1);
+
+    // 列唯一标识
+    API_DTO_FIELD(String, columnId, ZH_WORDS_GETTER("lhfc.charging.charge.TableColumnDTO.columnId.description"), true, "itemName");
+};
+
+/*
+   打印元素选项（options 字段类型）
+   覆盖 text/table/hline 三种元素类型的全部属性，
+   不同类型只填充对应的字段子集，其余为 null
+*/
+class PrintElementOptionsDTO : public oatpp::DTO
+{
+    DTO_INIT(PrintElementOptionsDTO, DTO);
+
+    // --- 通用布局字段（所有类型必填） ---
+    // 顶部偏移
+    API_DTO_FIELD(Float64, top, ZH_WORDS_GETTER("lhfc.charging.charge.PrintElementOptionsDTO.top.description"), true, 8.0);
+
+    // 左侧偏移
+    API_DTO_FIELD(Float64, left, ZH_WORDS_GETTER("lhfc.charging.charge.PrintElementOptionsDTO.left.description"), true, 5.7);
+
+    // 元素宽度
+    API_DTO_FIELD(Float64, width, ZH_WORDS_GETTER("lhfc.charging.charge.PrintElementOptionsDTO.width.description"), true, 215.4);
+
+    // 元素高度
+    API_DTO_FIELD(Float64, height, ZH_WORDS_GETTER("lhfc.charging.charge.PrintElementOptionsDTO.height.description"), true, 16.0);
+
+    // --- text 专属字段 ---
+    // 绑定的数据字段名
+    API_DTO_FIELD(String, field, ZH_WORDS_GETTER("lhfc.charging.charge.PrintElementOptionsDTO.field.description"), false, "hospitalName");
+
+    // 字段标题
+    API_DTO_FIELD(String, title, ZH_WORDS_GETTER("lhfc.charging.charge.PrintElementOptionsDTO.title.description"), false, "");
+
+    // 字体大小
+    API_DTO_FIELD(Float64, fontSize, ZH_WORDS_GETTER("lhfc.charging.charge.PrintElementOptionsDTO.fontSize.description"), false, 11.0);
+
+    // 是否隐藏标题
+    API_DTO_FIELD(Boolean, hideTitle, ZH_WORDS_GETTER("lhfc.charging.charge.PrintElementOptionsDTO.hideTitle.description"), false, false);
+
+    // 文本对齐（left / center / right）
+    API_DTO_FIELD(String, textAlign, ZH_WORDS_GETTER("lhfc.charging.charge.PrintElementOptionsDTO.textAlign.description"), false, "left");
+
+    // 字体粗细（normal / bold）
+    API_DTO_FIELD(String, fontWeight, ZH_WORDS_GETTER("lhfc.charging.charge.PrintElementOptionsDTO.fontWeight.description"), false, "normal");
+
+    // --- table 专属字段 ---
+    // 表格列定义（二维数组）
+    API_DTO_FIELD(Vector<Vector<Object<TableColumnDTO>>>, columns, ZH_WORDS_GETTER("lhfc.charging.charge.PrintElementOptionsDTO.columns.description"), false, {});
+
+    // 行高
+    API_DTO_FIELD(Float64, lineHeight, ZH_WORDS_GETTER("lhfc.charging.charge.PrintElementOptionsDTO.lineHeight.description"), false, 14.0);
+
+    // 表格边框样式
+    API_DTO_FIELD(String, tableBorder, ZH_WORDS_GETTER("lhfc.charging.charge.PrintElementOptionsDTO.tableBorder.description"), false, "noBorder");
+
+    // 表头边框样式
+    API_DTO_FIELD(String, tableHeaderBorder, ZH_WORDS_GETTER("lhfc.charging.charge.PrintElementOptionsDTO.tableHeaderBorder.description"), false, "borderBottom");
+
+    // 表头重复方式
+    API_DTO_FIELD(String, tableHeaderRepeat, ZH_WORDS_GETTER("lhfc.charging.charge.PrintElementOptionsDTO.tableHeaderRepeat.description"), false, "first");
+
+    // 表体行边框样式
+    API_DTO_FIELD(String, tableBodyRowBorder, ZH_WORDS_GETTER("lhfc.charging.charge.PrintElementOptionsDTO.tableBodyRowBorder.description"), false, "noBorder");
+
+    // 表体行高度
+    API_DTO_FIELD(Float64, tableBodyRowHeight, ZH_WORDS_GETTER("lhfc.charging.charge.PrintElementOptionsDTO.tableBodyRowHeight.description"), false, 16.0);
+
+    // 表体单元格边框样式
+    API_DTO_FIELD(String, tableBodyCellBorder, ZH_WORDS_GETTER("lhfc.charging.charge.PrintElementOptionsDTO.tableBodyCellBorder.description"), false, "noBorder");
+
+    // 表头行高度
+    API_DTO_FIELD(Float64, tableHeaderRowHeight, ZH_WORDS_GETTER("lhfc.charging.charge.PrintElementOptionsDTO.tableHeaderRowHeight.description"), false, 20.0);
+
+    // 表头单元格边框样式
+    API_DTO_FIELD(String, tableHeaderCellBorder, ZH_WORDS_GETTER("lhfc.charging.charge.PrintElementOptionsDTO.tableHeaderCellBorder.description"), false, "noBorder");
+
+    // --- hline 专属字段 ---
+    // 线宽
+    API_DTO_FIELD(Float64, borderWidth, ZH_WORDS_GETTER("lhfc.charging.charge.PrintElementOptionsDTO.borderWidth.description"), false, 1.0);
+};
+
+/*
    打印元素（printElements 子对象）
-   options 随 type 变化较大（text/table/hline 各不同），保留 Any 类型
 */
 class PrintElementDTO : public oatpp::DTO
 {
     DTO_INIT(PrintElementDTO, DTO);
 
-    // 元素选项（text: field/title/fontSize/textAlign；table: field/columns/tableBorder；hline: borderWidth）
-    API_DTO_FIELD(Any, options, ZH_WORDS_GETTER("lhfc.charging.charge.PrintElementDTO.options.description"), true, {});
+    // 元素选项
+    API_DTO_FIELD(Object<PrintElementOptionsDTO>, options, ZH_WORDS_GETTER("lhfc.charging.charge.PrintElementDTO.options.description"), true, {});
 
     // 元素类型元信息
     API_DTO_FIELD(Object<PrintElementTypeDTO>, printElementType, ZH_WORDS_GETTER("lhfc.charging.charge.PrintElementDTO.printElementType.description"), true, {});
