@@ -1,9 +1,9 @@
-ï»¿#pragma once
+#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
  @Author: awei
- @Date: 2022/10/25 11:51:41
+ @Date: 2026/07/20 11:00:34
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,14 +17,23 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _DO_INCLUDE_
-#define _DO_INCLUDE_
+#ifndef _SAMPLE_FULL_SELECT_JSONVO_H_
+#define _SAMPLE_FULL_SELECT_JSONVO_H_
 
-#include "../../Macros.h"
-#include "BaseDO.h"
-#include <string>
-#include <list>
-#include <memory>
-using namespace std;
+#include "../../GlobalInclude.h"
+#include "../dto/SampleFullSelectDTO.h"
 
-#endif // !_DO_INCLUDE_
+#include OATPP_CODEGEN_BEGIN(DTO)
+
+/**
+ * Ñù±¾ÍêÕûÊý¾ÝÑ¡Ôñ·ÖÒ³ÏìÓ¦VO
+ * ½Ó¿Ú£º/sample/full-select-page
+ * Ò³Ãæ£ºÐ¯´øÍêÕûÑù±¾Êý¾Ý¡¢Ö§³ÖÖ±½Ó»ØÌîÐÞ¸ÄµÄÑù±¾Ñ¡Ôñµ¯´°
+ */
+class SampleFullSelectJsonVO : public JsonVO<SampleFullSelectDTO::Wrapper>
+{
+	DTO_INIT(SampleFullSelectJsonVO, JsonVO<SampleFullSelectDTO::Wrapper>);
+};
+
+#include OATPP_CODEGEN_END(DTO)
+#endif // !_SAMPLE_FULL_SELECT_JSONVO_H_
