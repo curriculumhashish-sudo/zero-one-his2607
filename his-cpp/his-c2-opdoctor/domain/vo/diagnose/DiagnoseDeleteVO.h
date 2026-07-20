@@ -10,7 +10,7 @@ class DiagnoseDeleteVO : public oatpp::DTO
 
 	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("diagnose.delete.id"), true);
 	API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("diagnose.delete.encounterId"), true);
-	API_DTO_FIELD_REQUIRE(String, conditionId, ZH_WORDS_GETTER("diagnose.delete.conditionId"));
+	API_DTO_FIELD_REQUIRE(String, conditionId, ZH_WORDS_GETTER("diagnose.delete.conditionId"), true);
 	API_DTO_FIELD_REQUIRE(String, deletedAt, ZH_WORDS_GETTER("diagnose.delete.deletedAt"), true);
 	API_DTO_FIELD_REQUIRE(String, deletedBy, ZH_WORDS_GETTER("diagnose.delete.deletedBy"), true);
 };
