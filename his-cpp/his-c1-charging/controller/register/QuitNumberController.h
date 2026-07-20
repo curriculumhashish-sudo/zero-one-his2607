@@ -8,7 +8,7 @@ using namespace oatpp;
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-#define API_TAG ZH_WORDS_GETTER("macchiato.charging.register.tag.tag2")
+#define API_TAG ZH_WORDS_GETTER("macchiato.charging.register.tag2")
 
 class QuitNumberController : public oatpp::web::server::api::ApiController {
     API_ACCESS_DECLARE(QuitNumberController);
@@ -24,7 +24,7 @@ public:
     // 确认退号接口端点
     API_HANDLER_ENDPOINT_AUTH(
         API_M_POST,                                   // HTTP方法：POST
-        "/quit/number",                               // 路由路径
+        "/charging/register/quitnumber",                               // 路由路径
         confirmQuitNumber,                            // 端点名称
         BODY_DTO(QuitNumberDTO::Wrapper, dto),          // 请求体参数（QuitNumberDTO的Wrapper）
         execConfirmQuitNumber(dto, authObject->getPayload()) // 处理方法（传入DTO和用户身份）
