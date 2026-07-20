@@ -2,6 +2,11 @@
   tag: 科室管理接口
   batch-status:
     summary: 批量启停科室
+    success:
+      enable: 批量启用科室成功
+      disable: 批量停用科室成功
+    fail:
+      empty: 批量操作失败，无匹配科室数据
   field:
     deptIdList: 批量科室ID数组
     targetStatus: 目标启停状态(0停用/1启用)
