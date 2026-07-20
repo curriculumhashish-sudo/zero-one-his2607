@@ -1,10 +1,14 @@
 package com.zeroone.star.project.j3.department;
 
+import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j3.department.DepartmentBatchDTO;
 import com.zeroone.star.project.dto.j3.department.DepartmentCreateDTO;
 import com.zeroone.star.project.dto.j3.department.DepartmentDTO;
+import com.zeroone.star.project.dto.j3.department.DepartmentUpdateDTO;
+import com.zeroone.star.project.query.j3.department.DepartmentQuery;
 import com.zeroone.star.project.query.j3.department.DepartmentTreeQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j3.department.DepartmentVO;
 
 import java.util.List;
 
@@ -50,4 +54,29 @@ public interface DepartmentApis {
      * @return 提示信息
      */
     JsonVO<String> activeOrInactiveDepartment(DepartmentBatchDTO dto);
+
+    /**
+     * 获取科室列表（条件+分页）
+     *
+     * @param query 科室列表查询条件
+     * @return 科室分页列表
+     */
+    JsonVO<PageDTO<DepartmentVO>> getDepartmentPage(DepartmentQuery query);
+
+    /**
+     * 修改科室
+     *
+     * @param id 科室对象ID
+     * @param dto 修改科室对象
+     * @return 提示信息
+     */
+    JsonVO<String> updateDepartment(String id, DepartmentUpdateDTO dto);
+
+    /**
+     * 删除科室
+     *
+     * @param id 科室对象ID
+     * @return 提示信息
+     */
+    JsonVO<String> deleteDepartment(String id);
 }
