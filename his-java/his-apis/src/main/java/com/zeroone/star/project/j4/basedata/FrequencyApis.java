@@ -57,6 +57,7 @@ public interface FrequencyApis {
      * @return 结果状态载荷
      */
     JsonVO<Void> removeFrequency(String id);
+
     /**
      * 获取可用频次名称列表
      *

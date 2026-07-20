@@ -1,8 +1,11 @@
-package com.zeroone.star.basedata.assembler;
+package com.zeroone.star.basedata.service.impl;
 
 import com.zeroone.star.basedata.entity.Treatment;
+import com.zeroone.star.project.dto.j4.treatment.TreatmentAddDTO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentDTO;
+import com.zeroone.star.project.dto.j4.treatment.TreatmentEditDTO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentSelectDTO;
+import com.zeroone.star.project.dto.j4.treatment.TreatmentUpdateDTO;
 import com.zeroone.star.project.vo.j4.treatment.TreatmentDetailVO;
 import com.zeroone.star.project.vo.j4.treatment.TreatmentListVO;
 import com.zeroone.star.project.vo.j4.treatment.TreatmentSelectVO;
@@ -40,4 +43,10 @@ public interface MsTreatmentMapper {
     List<TreatmentListVO> toListVOList(List<Treatment> treatments);
 
     TreatmentDetailVO toDetailVO(Treatment treatment);
+
+    Treatment addDtoToEntity(TreatmentAddDTO dto);
+
+    Treatment editDtoToEntity(TreatmentEditDTO dto);
+
+    Treatment updateDtoToEntity(TreatmentUpdateDTO dto);
 }
