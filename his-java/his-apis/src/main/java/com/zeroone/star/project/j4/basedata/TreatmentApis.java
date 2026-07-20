@@ -6,7 +6,6 @@ import com.zeroone.star.project.dto.j4.treatment.TreatmentEditDTO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentStatusDTO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentUpdateDTO;
 import com.zeroone.star.project.query.j4.treatment.TreatmentQuery;
-import com.zeroone.star.project.query.j4.treatment.TreatmentSelectQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j4.treatment.TreatmentDetailVO;
 import com.zeroone.star.project.vo.j4.treatment.TreatmentListVO;
@@ -37,7 +36,7 @@ public interface TreatmentApis {
      * @param query 查询条件
      * @return 分页数据，每条含id/busNo/name/categoryCode
      */
-    JsonVO<PageDTO<TreatmentSelectVO>> listTreatmentOptions(TreatmentSelectQuery query);
+    JsonVO<PageDTO<TreatmentSelectVO>> listTreatmentOptions(TreatmentQuery query);
 
     /**
      * 获取诊疗详情

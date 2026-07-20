@@ -1,6 +1,6 @@
 package com.zeroone.star.basedata.service.impl;
 
-import com.zeroone.star.basedata.entity.Treatment;
+import com.zeroone.star.basedata.entity.TreatmentDO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentAddDTO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentDTO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentEditDTO;
@@ -18,35 +18,35 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface MsTreatmentMapper {
 
-    TreatmentSelectVO toSelectVO(Treatment treatment);
+    TreatmentSelectVO toSelectVO(TreatmentDO treatmentDO);
 
-    List<TreatmentSelectVO> toSelectVOList(List<Treatment> treatments);
+    List<TreatmentSelectVO> toSelectVOList(List<TreatmentDO> treatmentDOS);
 
-    TreatmentSelectDTO toSelectDTO(Treatment treatment);
+    TreatmentSelectDTO toSelectDTO(TreatmentDO treatmentDO);
 
-    List<TreatmentSelectDTO> toSelectDTOList(List<Treatment> treatments);
-
-    @Mappings({
-            @Mapping(target = "statusText", ignore = true),
-            @Mapping(target = "price", ignore = true)
-    })
-    TreatmentDTO toDTO(Treatment treatment);
-
-    List<TreatmentDTO> toDTOList(List<Treatment> treatments);
+    List<TreatmentSelectDTO> toSelectDTOList(List<TreatmentDO> treatmentDOS);
 
     @Mappings({
             @Mapping(target = "statusText", ignore = true),
             @Mapping(target = "price", ignore = true)
     })
-    TreatmentListVO toListVO(Treatment treatment);
+    TreatmentDTO toDTO(TreatmentDO treatmentDO);
 
-    List<TreatmentListVO> toListVOList(List<Treatment> treatments);
+    List<TreatmentDTO> toDTOList(List<TreatmentDO> treatmentDOS);
 
-    TreatmentDetailVO toDetailVO(Treatment treatment);
+    @Mappings({
+            @Mapping(target = "statusText", ignore = true),
+            @Mapping(target = "price", ignore = true)
+    })
+    TreatmentListVO toListVO(TreatmentDO treatmentDO);
 
-    Treatment addDtoToEntity(TreatmentAddDTO dto);
+    List<TreatmentListVO> toListVOList(List<TreatmentDO> treatmentDOS);
 
-    Treatment editDtoToEntity(TreatmentEditDTO dto);
+    TreatmentDetailVO toDetailVO(TreatmentDO treatmentDO);
 
-    Treatment updateDtoToEntity(TreatmentUpdateDTO dto);
+    TreatmentDO addDtoToEntity(TreatmentAddDTO dto);
+
+    TreatmentDO editDtoToEntity(TreatmentEditDTO dto);
+
+    TreatmentDO updateDtoToEntity(TreatmentUpdateDTO dto);
 }

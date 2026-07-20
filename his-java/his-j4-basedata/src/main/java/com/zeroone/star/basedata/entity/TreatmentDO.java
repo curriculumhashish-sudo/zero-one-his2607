@@ -2,8 +2,6 @@ package com.zeroone.star.basedata.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -18,8 +16,8 @@ import java.time.LocalDateTime;
  * @version 1.0.0
  */
 @Data
-@TableName("treatment")
-public class Treatment implements Serializable {
+@TableName("adm_healthcare_service")
+public class TreatmentDO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

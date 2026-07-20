@@ -1,6 +1,6 @@
 package com.zeroone.star.basedata.service.impl;
 
-import com.zeroone.star.basedata.entity.Treatment;
+import com.zeroone.star.basedata.entity.TreatmentDO;
 import com.zeroone.star.basedata.mapper.TreatmentMapper;
 import com.zeroone.star.basedata.service.ITreatmentService;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentDTO;
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @SpringBootTest
 @Transactional
-class TreatmentServiceImplTest {
+class TreatmentDOServiceImplTest {
 
     @Resource
     private ITreatmentService treatmentService;
@@ -106,9 +106,9 @@ class TreatmentServiceImplTest {
 
         assertTrue(result);
 
-        Treatment treatment = treatmentMapper.selectById(createResponse.getId());
-        assertNotNull(treatment);
-        assertEquals(1, treatment.getIsDeleted());
+        TreatmentDO treatmentDO = treatmentMapper.selectById(createResponse.getId());
+        assertNotNull(treatmentDO);
+        assertEquals(1, treatmentDO.getIsDeleted());
     }
 
     @Test
