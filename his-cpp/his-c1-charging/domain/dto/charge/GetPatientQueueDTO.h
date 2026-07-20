@@ -5,88 +5,88 @@
 #include "../../GlobalInclude.h"
 #include OATPP_CODEGEN_BEGIN(DTO)
 /*
-	ÊÕ·ÑÃ÷Ï¸¾İ´«Êä¶ÔÏó
+	æ”¶è´¹æ˜ç»†æ®ä¼ è¾“å¯¹è±¡
 */
 class ChargeItemBriefDTO : public oatpp::DTO
 {
 	DTO_INIT(ChargeItemBriefDTO, DTO);
-	//ÊÕ·ÑÃ÷Ï¸Ö÷¼ü
+	//æ”¶è´¹æ˜ç»†ä¸»é”®
 	API_DTO_FIELD_DEFAULT(String, chargeItemId, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeItemBriefDTO.chargeItemId"));
 
-	//ÊÕ·Ñ×´Ì¬±àÂë
+	//æ”¶è´¹çŠ¶æ€ç¼–ç 
 	API_DTO_FIELD_DEFAULT(String, statusCode, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeItemBriefDTO.statusCode"));
 
-	//ÊÕ·Ñ×´Ì¬ÎÄ±¾
+	//æ”¶è´¹çŠ¶æ€æ–‡æœ¬
 	API_DTO_FIELD_DEFAULT(String, statusText, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeItemBriefDTO.statusText"));
 	
-	//¸ÃĞĞ×Ü½ğ¶î
+	//è¯¥è¡Œæ€»é‡‘é¢
 	API_DTO_FIELD_DEFAULT(Float64, totalPrice, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeItemBriefDTO.totalPrice"));
 
-	//ÊÕ·ÑÏîÄ¿Õ¹Ê¾Ãû³Æ
+	//æ”¶è´¹é¡¹ç›®å±•ç¤ºåç§°
 	API_DTO_FIELD_DEFAULT(String, itemLabel, ZH_WORDS_GETTER("lhfc.charging.charge.ChargeItemBriefDTO.itemLabel"));
 };
 /*
-	»ñÈ¡»¼Õß¶ÓÁĞÊı¾İ´«Êä¶ÔÏó
+	è·å–æ‚£è€…é˜Ÿåˆ—æ•°æ®ä¼ è¾“å¯¹è±¡
 */
 class GetPatientQueueDTO : public oatpp::DTO
 {
 	DTO_INIT(GetPatientQueueDTO, DTO);
 
-	// ¹ØÁªÒ»¸öPayloadDTO¸ºÔØÊı¾İ¶ÔÏó
+	// å…³è”ä¸€ä¸ªPayloadDTOè´Ÿè½½æ•°æ®å¯¹è±¡
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 
-	//¾ÍÕïµ¥id
+	//å°±è¯Šå•id
 	API_DTO_FIELD_DEFAULT(String, encounterId, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.encounterId"));
 
-	//¾ÍÕïÒµÎñÁ÷Ë®ºÅ
+	//å°±è¯Šä¸šåŠ¡æµæ°´å·
 	API_DTO_FIELD_DEFAULT(String, encounterBusNo, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.encounterBusNo"));
 
-	//»¼Õßid
+	//æ‚£è€…id
 	API_DTO_FIELD_DEFAULT(String, patientId, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.patientId"));
 
-	//»¼ÕßĞÕÃû
+	//æ‚£è€…å§“å
 	API_DTO_FIELD_DEFAULT(String, patientName, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.patientName"));
 
-	//»¼ÕßĞÔ±ğ±àÂë
+	//æ‚£è€…æ€§åˆ«ç¼–ç 
 	API_DTO_FIELD_DEFAULT(String, genderCode, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.genderCode"));
 
-	//»¼ÕßĞÔ±ğÎÄ±¾
+	//æ‚£è€…æ€§åˆ«æ–‡æœ¬
 	API_DTO_FIELD_DEFAULT(String, genderEnumText, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.genderEnumText"));
 
-	//»¼ÕßÄêÁä
+	//æ‚£è€…å¹´é¾„
 	API_DTO_FIELD_DEFAULT(String, ageText, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.ageText"));
 
-	//¿ÆÊÒÃû³Æ
+	//ç§‘å®¤åç§°
 	API_DTO_FIELD_DEFAULT(String, organizationName, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.organizationName"));
 
-	//½ÓÕïÒ½ÉúĞÕÃû
+	//æ¥è¯ŠåŒ»ç”Ÿå§“å
 	API_DTO_FIELD_DEFAULT(String, doctorName, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.doctorName"));
 
-	//¾ÍÕï¿ªÊ¼Ê±¼ä
+	//å°±è¯Šå¼€å§‹æ—¶é—´
 	API_DTO_FIELD_DEFAULT(String, startTime, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.startTime"));
 
-	//¶ÓÁĞ×´Ì¬
+	//é˜Ÿåˆ—çŠ¶æ€
 	API_DTO_FIELD_DEFAULT(String, queueLabelCode, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.queueLabelCode"));
 
-	//¾ÍÕï·ÑÓÃ×Ü½ğ¶î
+	//å°±è¯Šè´¹ç”¨æ€»é‡‘é¢
 	API_DTO_FIELD_DEFAULT(Float64, totalAmount, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.totalAmount"));
 
-	//ÒÑÖ§¸¶½ğ¶î
+	//å·²æ”¯ä»˜é‡‘é¢
 	API_DTO_FIELD_DEFAULT(Float64, paidAmount, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.paidAmount"));
 
-	//ÊÕ·ÑÃ÷Ï¸ÕªÒªÁĞ±í
+	//æ”¶è´¹æ˜ç»†æ‘˜è¦åˆ—è¡¨
 	API_DTO_FIELD_DEFAULT(Vector<Object<ChargeItemBriefDTO>>, cashierChargeItems, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.cashierChargeItems"));
 
-	//ÊÕ·Ñ×´Ì¬»ã×Ü±àÂë
+	//æ”¶è´¹çŠ¶æ€æ±‡æ€»ç¼–ç 
 	API_DTO_FIELD_DEFAULT(String, cashierChargeRollupStatusCode, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.cashierChargeRollupStatusCode"));
 
-	//ÊÕ·Ñ×´Ì¬»ã×ÜÎÄ±¾
+	//æ”¶è´¹çŠ¶æ€æ±‡æ€»æ–‡æœ¬
 	API_DTO_FIELD_DEFAULT(String, cashierChargeRollupStatusText, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.cashierChargeRollupStatusText"));
 
-	//×î½üÒ»´Î³É¹¦Ö§¸¶Á÷Ë®Ö÷¼ü
+	//æœ€è¿‘ä¸€æ¬¡æˆåŠŸæ”¯ä»˜æµæ°´ä¸»é”®
 	API_DTO_FIELD_DEFAULT(String, paymentId, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.paymentId"));
 public:
-	// Êı¾İĞ£Ñé£¨ÈçĞèÆôÓÃ¿É×ÔĞĞ½â³ı×¢ÊÍ²¢°´ĞèÊµÏÖ£©
+	// æ•°æ®æ ¡éªŒï¼ˆå¦‚éœ€å¯ç”¨å¯è‡ªè¡Œè§£é™¤æ³¨é‡Šå¹¶æŒ‰éœ€å®ç°ï¼‰
 	//std::string validate()
 	//{
 	//	if (!age || age < 0)
@@ -96,7 +96,7 @@ public:
 };
 
 /*
-	»ñÈ¡»¼Õß¶ÓÁĞ·ÖÒ³Êı¾İ´«Êä¶ÔÏó
+	è·å–æ‚£è€…é˜Ÿåˆ—åˆ†é¡µæ•°æ®ä¼ è¾“å¯¹è±¡
 */
 class GetPatientQueuePageDTO : public PageDTO<GetPatientQueueDTO::Wrapper>
 {

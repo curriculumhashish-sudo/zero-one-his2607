@@ -8,25 +8,25 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 /*
-	»ñÈ¡»¼Õß¶ÓÁĞ·ÖÒ³²éÑ¯¶ÔÏó
+	è·å–æ‚£è€…é˜Ÿåˆ—åˆ†é¡µæŸ¥è¯¢å¯¹è±¡
 */
 class GetPatientQueueQuery : public PageQuery {
 	DTO_INIT(GetPatientQueueQuery, PageQuery);
 
-	//¹Ø¼ü×Ö:ĞÕÃû/¾ÍÕïºÅ
+	//å…³é”®å­—:å§“å/å°±è¯Šå·
 	API_DTO_FIELD(String, keyword,
 		ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueQuery.keyword"),
 		false, "li ming");
 
-	//¿ªÊ¼ÈÕÆÚ
+	//å¼€å§‹æ—¥æœŸ
 	API_DTO_FIELD_DEFAULT(String, startDate,
 		ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueQuery.startDate"));
 
-	//½áÊøÈÕÆÚ
+	//ç»“æŸæ—¥æœŸ
 	API_DTO_FIELD_DEFAULT(String, endDate,
 		ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueQuery.endDate"));
 
-	//ÊÕ·Ñ×´Ì¬
+	//æ”¶è´¹çŠ¶æ€
 	API_DTO_FIELD(String, queueTabCode,
 		ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueQuery.queueTabCode"),
 		true,"PENDING");
