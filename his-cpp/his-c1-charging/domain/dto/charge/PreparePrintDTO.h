@@ -14,7 +14,7 @@ class PreparePrintRequestDTO : public oatpp::DTO
     DTO_INIT(PreparePrintRequestDTO, DTO);
 
     // 业务场景码（如 "op-charge-print"）
-    API_DTO_FIELD(String, scenarioCode, ZH_WORDS_GETTER("lhfc.charging.charge.PreparePrintRequestDTO.scenarioCode"), false, "op-charge-print");
+    API_DTO_FIELD(String, scenarioCode, ZH_WORDS_GETTER("lhfc.charging.charge.PreparePrintRequestDTO.scenarioCode.description"), false, "op-charge-print");
 };
 
 /*
@@ -25,22 +25,22 @@ class PreparePrintResponseDTO : public oatpp::DTO
     DTO_INIT(PreparePrintResponseDTO, DTO);
 
     // 打印追踪 ID（贯穿全链路）
-    API_DTO_FIELD(String, traceId, ZH_WORDS_GETTER("lhfc.charging.charge.PreparePrintResponseDTO.traceId"), true, "82c04876-49f7-4548-8ba1-6242441372ff");
+    API_DTO_FIELD(String, traceId, ZH_WORDS_GETTER("lhfc.charging.charge.PreparePrintResponseDTO.traceId.description"), true, "82c04876-49f7-4548-8ba1-6242441372ff");
 
     // 模板业务号
-    API_DTO_FIELD(String, busNo, ZH_WORDS_GETTER("lhfc.charging.charge.PreparePrintResponseDTO.busNo"), true, "PT202606260005");
+    API_DTO_FIELD(String, busNo, ZH_WORDS_GETTER("lhfc.charging.charge.PreparePrintResponseDTO.busNo.description"), true, "PT202606260005");
 
     // 场景码
-    API_DTO_FIELD(String, scenarioCode, ZH_WORDS_GETTER("lhfc.charging.charge.PreparePrintResponseDTO.scenarioCode"), true, "op-charge-print");
+    API_DTO_FIELD(String, scenarioCode, ZH_WORDS_GETTER("lhfc.charging.charge.PreparePrintResponseDTO.scenarioCode.description"), true, "op-charge-print");
 
     // 模板版本号
-    API_DTO_FIELD(Int32, templateVersion, ZH_WORDS_GETTER("lhfc.charging.charge.PreparePrintResponseDTO.templateVersion"), true, 2);
+    API_DTO_FIELD(Int32, templateVersion, ZH_WORDS_GETTER("lhfc.charging.charge.PreparePrintResponseDTO.templateVersion.description"), true, 2);
 
     // 模板结构（panels / paper / printElements 等）
-    API_DTO_FIELD(Any, PrintJson, ZH_WORDS_GETTER("lhfc.charging.charge.PreparePrintResponseDTO.PrintJson"), true, {});
+    API_DTO_FIELD(Any, PrintJson, ZH_WORDS_GETTER("lhfc.charging.charge.PreparePrintResponseDTO.PrintJson.description"), true, {});
 
     // 示例数据（调试用）
-    API_DTO_FIELD(Any, samplePrintData, ZH_WORDS_GETTER("lhfc.charging.charge.PreparePrintResponseDTO.samplePrintData"), true, {});
+    API_DTO_FIELD(Any, samplePrintData, ZH_WORDS_GETTER("lhfc.charging.charge.PreparePrintResponseDTO.samplePrintData.description"), true, {});
 };
 
 #include OATPP_CODEGEN_END(DTO)

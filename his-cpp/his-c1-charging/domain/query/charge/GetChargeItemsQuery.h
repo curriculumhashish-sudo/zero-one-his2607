@@ -14,12 +14,13 @@ class GetChargeItemsQuery : public oatpp::DTO {
 
     // 就诊主键
     API_DTO_FIELD(String, encounterId,
-        ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemsQuery.encounterId"),
+        ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemsQuery.encounterId.description"),
         true, "");
 
     // 是否加载定价扩展字段（成本/折扣）；true 时额外关联 adm_charge_item_definition 及产品读模型
-    API_DTO_FIELD_DEFAULT(Boolean, includePriceExtension,
-        ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemsQuery.includePriceExtension"));
+    API_DTO_FIELD(Boolean, includePriceExtension,
+        ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemsQuery.includePriceExtension.description"),
+        false, false);
 };
 
 #include OATPP_CODEGEN_END(DTO)
