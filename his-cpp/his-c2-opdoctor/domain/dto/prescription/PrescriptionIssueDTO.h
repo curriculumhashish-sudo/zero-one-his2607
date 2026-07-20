@@ -39,7 +39,7 @@ class PrescriptionIssueDTO : public oatpp::DTO
     // 医嘱备注
     API_DTO_FIELD_REQUIRE(String, remark, ZH_WORDS_GETTER("prescription.field.remark"), false);
 
-	// 药材列表
+	// 添加药材
 	API_DTO_FIELD_DEFAULT(
 		List<PrescriptionItemDTO::Wrapper>,
 		items,

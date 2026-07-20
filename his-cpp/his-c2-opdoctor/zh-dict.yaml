@@ -1,0 +1,29 @@
+﻿prescription:
+ tags:
+  tag: 中医处方
+ issue: 
+  summary: 签发处方
+ recall: 
+  summary: 撤回处方
+ field:
+  prescriptionId: 处方ID
+  status: 处方状态
+  createBy: 创建人
+  updateBy: 更新人
+  patientId: 患者ID
+  diagnosisId: 诊断ID
+  usage: 用法
+  frequency: 频次
+  days: 天数
+  copies: 付数
+  decoction: 是否代煎
+  remark: 医嘱备注
+  items: 添加药材
+  medicineId: 药材ID
+  dosage: 剂量(g)
+  materialCode: 精确搜项目编码
+  materialName: 模糊搜药材名称
+  category: 类别筛选：中草药、耗材
+
+
+

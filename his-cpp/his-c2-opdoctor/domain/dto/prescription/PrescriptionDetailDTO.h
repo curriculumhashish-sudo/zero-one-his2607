@@ -15,7 +15,7 @@ class PrescriptionDetailDTO : public PrescriptionIssueDTO
     DTO_INIT(PrescriptionDetailDTO, PrescriptionIssueDTO);
 
     // 处方ID
-    API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("prescription.field.id"), true);
+    API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("prescription.field.prescriptionId"), true);
 
     // 处方状态
     API_DTO_FIELD_REQUIRE(Int32, status, ZH_WORDS_GETTER("prescription.field.status"), true);
