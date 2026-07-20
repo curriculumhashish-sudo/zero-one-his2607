@@ -6,9 +6,18 @@ spring:
   cloud:
     nacos:
       config:
-        server-addr: 192.168.220.128:8848
-        group: DEFAULT_GROUP
-        file-extension: yaml
+        enabled: false
       discovery:
-        server-addr: 192.168.220.128:8848
-        group: DEFAULT_GROUP
+        enabled: false
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'default'
+      display-name: ${spring.application.name}
+      paths-to-match: '/**'
+      packages-to-scan: com.zeroone.star.ons
