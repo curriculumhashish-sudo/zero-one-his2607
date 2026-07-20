@@ -163,3 +163,5 @@ add_subdirectory ("lib-common")
 if(UNIX)
 	add_subdirectory ("nacos-register")
 endif()
+
+add_subdirectory("his-c1-charging")

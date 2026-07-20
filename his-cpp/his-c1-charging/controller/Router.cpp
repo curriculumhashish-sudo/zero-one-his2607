@@ -19,6 +19,12 @@
 #include "stdafx.h"
 #include "Router.h"
 #include "ApiHelper.h"
+#include "refund/GetPatientController.h"
+#include "refund/GetItemController.h"
+#include "refund/VerifyRefundController.h"
+#include "refund/ExecuteRefundController.h"
+#include "refund/PreparePrintController.h"
+#include "refund/ConfirmPrintController.h"
 
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
@@ -40,5 +46,12 @@ Router::Router(Endpoints* docEndpoints, HttpRouter* router)
 void Router::initRouter()
 {
 	// #TIP: Add system extension route definitions below
-	
+	ROUTER_SIMPLE_BIND(GetPatientController);
+	ROUTER_SIMPLE_BIND(GetItemController);
+	ROUTER_SIMPLE_BIND(VerifyRefundController);
+	ROUTER_SIMPLE_BIND(ExecuteRefundController);
+	ROUTER_SIMPLE_BIND(PreparePrintController);
+	ROUTER_SIMPLE_BIND(ConfirmPrintController);
+
+
 }
