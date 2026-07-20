@@ -1,24 +1,24 @@
 medication:
   tag: 药品管理
-  page:
+  query-page:
     summary: 分页查询药品目录
-  get:
+  query-one:
     summary: 查询药品详情
-  create:
+  add:
     summary: 新增药品
-  edit:
+  modify:
     summary: 修改药品
-  delete:
+  remove:
     summary: 删除药品（支持批量）
-  start:
+  enable:
     summary: 启用药品（支持批量）
-  stop:
+  disable:
     summary: 停用药品（支持批量）
   body:
     page: 药品分页查询条件
     id: 药品编号字符串
-    create: 新增药品请求对象
-    edit: 修改药品请求对象
+    add: 新增药品请求对象
+    modify: 修改药品请求对象
     ids: 药品编号数组，单条操作传一个编号，批量操作传多个编号
   field:
     authorization: 文档自测模式使用非空 Bearer 测试值，非文档模式使用项目真实鉴权

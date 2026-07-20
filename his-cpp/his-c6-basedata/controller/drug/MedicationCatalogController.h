@@ -20,7 +20,7 @@
 #ifndef _MEDICATION_CATALOG_CONTROLLER_H_
 #define _MEDICATION_CATALOG_CONTROLLER_H_
 
-#include "ApiHelper.h"
+#include "domain/GlobalInclude.h"
 #include "domain/query/drug/MedicationCatalogQuery.h"
 #include "domain/dto/drug/MedicationCatalogDTO.h"
 #include "domain/vo/drug/MedicationCatalogVO.h"
@@ -78,100 +78,125 @@ public:
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
 #define API_TAG ZH_WORDS_GETTER("medication.tag")
-#define MEDICATION_CATALOG_PATH "/api/app/medicationCatalog"
+#define MEDICATION_CATALOG_PATH "/api/app/medication-catalog"
+#define MEDICATION_CATALOG_LEGACY_PATH "/api/app/medicationCatalog"
 
 class MedicationCatalogController : public oatpp::web::server::api::ApiController
 {
-public:
-	MedicationCatalogController(OATPP_COMPONENT(std::shared_ptr<ObjectMapper>, objectMapper))
-		: oatpp::web::server::api::ApiController(objectMapper)
-	{
-#ifdef _RELEASE_DOC_
-		setDefaultAuthorizationHandler(std::make_shared<MedicationCatalogDocAuthorizeHandler>());
-#else
-		setDefaultAuthorizationHandler(std::make_shared<CustomerAuthorizeHandler>());
-#endif
-	}
+	API_ACCESS_DECLARE(MedicationCatalogController);
 
-	static std::shared_ptr<MedicationCatalogController> createShared(
-		OATPP_COMPONENT(std::shared_ptr<ObjectMapper>, objectMapper))
-	{
-		return std::make_shared<MedicationCatalogController>(objectMapper);
-	}
-
-	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.page.summary"), pageMedicationCatalog,
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.query-page.summary"), queryMedicationCatalogPage,
 		MedicationCatalogPageJsonVO::Wrapper, API_TAG,
 		MedicationCatalogSwagger::addBodyExample(info, ZH_WORDS_GETTER("medication.body.page"),
 			MedicationCatalogPageQuery::createShared());
 		MedicationCatalogSwagger::addResponseExample(info, MedicationCatalogPageJsonVO::createShared());
 	);
-	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_PATH "/pageMedicationCatalog", pageMedicationCatalog,
-		BODY_DTO(MedicationCatalogPageQuery::Wrapper, query), execPageMedicationCatalog(query));
+	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_PATH "/query-all", queryMedicationCatalogPage,
+		BODY_DTO(MedicationCatalogPageQuery::Wrapper, query), execQueryMedicationCatalogPage(query));
 
-	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.get.summary"), getMedicationCatalog,
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.query-one.summary"), queryMedicationCatalog,
 		MedicationCatalogDetailJsonVO::Wrapper, API_TAG,
 		MedicationCatalogSwagger::addBodyExample(info, ZH_WORDS_GETTER("medication.body.id"),
 			oatpp::String("322994171216400384"));
 		MedicationCatalogSwagger::addResponseExample(info, MedicationCatalogDetailJsonVO::createShared());
 	);
-	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_PATH "/getMedicationCatalog", getMedicationCatalog,
-		BODY_DTO(String, id), execGetMedicationCatalog(id));
+	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_PATH "/query-one", queryMedicationCatalog,
+		BODY_DTO(String, id), execQueryMedicationCatalog(id));
 
-	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.create.summary"), createMedicationCatalog,
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.add.summary"), addMedicationCatalog,
 		MedicationCatalogDetailJsonVO::Wrapper, API_TAG,
-		MedicationCatalogSwagger::addBodyExample(info, ZH_WORDS_GETTER("medication.body.create"),
-			MedicationCatalogCreateDTO::createShared());
+		MedicationCatalogSwagger::addBodyExample(info, ZH_WORDS_GETTER("medication.body.add"),
+			MedicationCatalogAddDTO::createShared());
 		MedicationCatalogSwagger::addResponseExample(info, MedicationCatalogDetailJsonVO::createShared());
 	);
-	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_PATH "/createMedicationCatalog", createMedicationCatalog,
-		BODY_DTO(MedicationCatalogCreateDTO::Wrapper, dto), execCreateMedicationCatalog(dto));
+	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_PATH "/add-medication", addMedicationCatalog,
+		BODY_DTO(MedicationCatalogAddDTO::Wrapper, dto), execAddMedicationCatalog(dto));
 
-	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.edit.summary"), editMedicationCatalog,
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.modify.summary"), modifyMedicationCatalog,
 		MedicationCatalogDetailJsonVO::Wrapper, API_TAG,
-		MedicationCatalogSwagger::addBodyExample(info, ZH_WORDS_GETTER("medication.body.edit"),
-			MedicationCatalogUpdateDTO::createShared());
+		MedicationCatalogSwagger::addBodyExample(info, ZH_WORDS_GETTER("medication.body.modify"),
+			MedicationCatalogModifyDTO::createShared());
 		MedicationCatalogSwagger::addResponseExample(info, MedicationCatalogDetailJsonVO::createShared());
 	);
-	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_PATH "/editMedicationCatalog", editMedicationCatalog,
-		BODY_DTO(MedicationCatalogUpdateDTO::Wrapper, dto), execEditMedicationCatalog(dto));
+	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_PATH "/modify-medication", modifyMedicationCatalog,
+		BODY_DTO(MedicationCatalogModifyDTO::Wrapper, dto), execModifyMedicationCatalog(dto));
 
-	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.delete.summary"), deleteMedicationCatalog,
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.remove.summary"), removeMedicationCatalog,
 		NoDataJsonVO::Wrapper, API_TAG,
 		MedicationCatalogSwagger::addBodyExample(info, ZH_WORDS_GETTER("medication.body.ids"),
 			MedicationCatalogSwagger::sampleIds());
 		MedicationCatalogSwagger::addResponseExample(info, MedicationCatalogSwagger::successNoData());
 	);
-	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_PATH "/deleteMedicationCatalog", deleteMedicationCatalog,
-		BODY_DTO(List<String>, ids), execDeleteMedicationCatalog(ids));
+	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_PATH "/remove-medication", removeMedicationCatalog,
+		BODY_DTO(List<String>, ids), execRemoveMedicationCatalog(ids));
 
-	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.start.summary"), startMedicationCatalog,
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.enable.summary"), enableMedicationCatalog,
 		NoDataJsonVO::Wrapper, API_TAG,
 		MedicationCatalogSwagger::addBodyExample(info, ZH_WORDS_GETTER("medication.body.ids"),
 			MedicationCatalogSwagger::sampleIds());
 		MedicationCatalogSwagger::addResponseExample(info, MedicationCatalogSwagger::successNoData());
 	);
-	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_PATH "/startMedicationCatalog", startMedicationCatalog,
-		BODY_DTO(List<String>, ids), execStartMedicationCatalog(ids));
+	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_PATH "/enable-medication", enableMedicationCatalog,
+		BODY_DTO(List<String>, ids), execEnableMedicationCatalog(ids));
 
-	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.stop.summary"), stopMedicationCatalog,
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.disable.summary"), disableMedicationCatalog,
 		NoDataJsonVO::Wrapper, API_TAG,
 		MedicationCatalogSwagger::addBodyExample(info, ZH_WORDS_GETTER("medication.body.ids"),
 			MedicationCatalogSwagger::sampleIds());
 		MedicationCatalogSwagger::addResponseExample(info, MedicationCatalogSwagger::successNoData());
 	);
-	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_PATH "/stopMedicationCatalog", stopMedicationCatalog,
-		BODY_DTO(List<String>, ids), execStopMedicationCatalog(ids));
+	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_PATH "/disable-medication", disableMedicationCatalog,
+		BODY_DTO(List<String>, ids), execDisableMedicationCatalog(ids));
+
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.query-page.summary"), pageMedicationCatalogLegacy,
+		MedicationCatalogPageJsonVO::Wrapper, API_TAG, info->hide = true;);
+	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_LEGACY_PATH "/pageMedicationCatalog",
+		pageMedicationCatalogLegacy, BODY_DTO(MedicationCatalogPageQuery::Wrapper, query),
+		execQueryMedicationCatalogPage(query));
+
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.query-one.summary"), getMedicationCatalogLegacy,
+		MedicationCatalogDetailJsonVO::Wrapper, API_TAG, info->hide = true;);
+	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_LEGACY_PATH "/getMedicationCatalog",
+		getMedicationCatalogLegacy, BODY_DTO(String, id), execQueryMedicationCatalog(id));
+
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.add.summary"), createMedicationCatalogLegacy,
+		MedicationCatalogDetailJsonVO::Wrapper, API_TAG, info->hide = true;);
+	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_LEGACY_PATH "/createMedicationCatalog",
+		createMedicationCatalogLegacy, BODY_DTO(MedicationCatalogAddDTO::Wrapper, dto),
+		execAddMedicationCatalog(dto));
+
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.modify.summary"), editMedicationCatalogLegacy,
+		MedicationCatalogDetailJsonVO::Wrapper, API_TAG, info->hide = true;);
+	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_LEGACY_PATH "/editMedicationCatalog",
+		editMedicationCatalogLegacy, BODY_DTO(MedicationCatalogModifyDTO::Wrapper, dto),
+		execModifyMedicationCatalog(dto));
+
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.remove.summary"), deleteMedicationCatalogLegacy,
+		NoDataJsonVO::Wrapper, API_TAG, info->hide = true;);
+	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_LEGACY_PATH "/deleteMedicationCatalog",
+		deleteMedicationCatalogLegacy, BODY_DTO(List<String>, ids), execRemoveMedicationCatalog(ids));
+
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.enable.summary"), startMedicationCatalogLegacy,
+		NoDataJsonVO::Wrapper, API_TAG, info->hide = true;);
+	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_LEGACY_PATH "/startMedicationCatalog",
+		startMedicationCatalogLegacy, BODY_DTO(List<String>, ids), execEnableMedicationCatalog(ids));
+
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.disable.summary"), stopMedicationCatalogLegacy,
+		NoDataJsonVO::Wrapper, API_TAG, info->hide = true;);
+	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_LEGACY_PATH "/stopMedicationCatalog",
+		stopMedicationCatalogLegacy, BODY_DTO(List<String>, ids), execDisableMedicationCatalog(ids));
 
 private:
-	MedicationCatalogPageJsonVO::Wrapper execPageMedicationCatalog(const MedicationCatalogPageQuery::Wrapper& query);
-	MedicationCatalogDetailJsonVO::Wrapper execGetMedicationCatalog(const String& id);
-	MedicationCatalogDetailJsonVO::Wrapper execCreateMedicationCatalog(const MedicationCatalogCreateDTO::Wrapper& dto);
-	MedicationCatalogDetailJsonVO::Wrapper execEditMedicationCatalog(const MedicationCatalogUpdateDTO::Wrapper& dto);
-	NoDataJsonVO::Wrapper execDeleteMedicationCatalog(const List<String>& ids);
-	NoDataJsonVO::Wrapper execStartMedicationCatalog(const List<String>& ids);
-	NoDataJsonVO::Wrapper execStopMedicationCatalog(const List<String>& ids);
+	MedicationCatalogPageJsonVO::Wrapper execQueryMedicationCatalogPage(const MedicationCatalogPageQuery::Wrapper& query);
+	MedicationCatalogDetailJsonVO::Wrapper execQueryMedicationCatalog(const String& id);
+	MedicationCatalogDetailJsonVO::Wrapper execAddMedicationCatalog(const MedicationCatalogAddDTO::Wrapper& dto);
+	MedicationCatalogDetailJsonVO::Wrapper execModifyMedicationCatalog(const MedicationCatalogModifyDTO::Wrapper& dto);
+	NoDataJsonVO::Wrapper execRemoveMedicationCatalog(const List<String>& ids);
+	NoDataJsonVO::Wrapper execEnableMedicationCatalog(const List<String>& ids);
+	NoDataJsonVO::Wrapper execDisableMedicationCatalog(const List<String>& ids);
 };
 
+#undef MEDICATION_CATALOG_LEGACY_PATH
 #undef MEDICATION_CATALOG_PATH
 #undef API_TAG
 

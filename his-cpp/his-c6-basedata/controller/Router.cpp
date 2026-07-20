@@ -18,18 +18,17 @@
 */
 #include "stdafx.h"
 #include "Router.h"
-#include "ApiHelper.h"
 #include "drug/MedicationCatalogController.h"
 
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
 // Simplified controller binding macro
-#define ROUTER_SIMPLE_BIND(__CLASS__) \
-router->addController(__CLASS__::createShared())
+#define ROUTER_SIMPLE_BIND(__CONTROLLER__) \
+router->addController(__CONTROLLER__)
 #else
 // Simplified controller binding macro (with Swagger support)
-#define ROUTER_SIMPLE_BIND(__CLASS__) \
-BIND_CONTROLLER(docEndpoints, router, __CLASS__)
+#define ROUTER_SIMPLE_BIND(__CONTROLLER__) \
+docEndpoints->append(router->addController(__CONTROLLER__)->getEndpoints())
 #endif
 
 Router::Router(Endpoints* docEndpoints, HttpRouter* router)
@@ -41,5 +40,12 @@ Router::Router(Endpoints* docEndpoints, HttpRouter* router)
 void Router::initRouter()
 {
 	// #TIP: Add system extension route definitions below
-	ROUTER_SIMPLE_BIND(MedicationCatalogController);
+	auto medicationCatalogController = MedicationCatalogController::createShared();
+#ifdef _RELEASE_DOC_
+	medicationCatalogController->setDefaultAuthorizationHandler(
+		std::make_shared<MedicationCatalogDocAuthorizeHandler>());
+#endif
+	ROUTER_SIMPLE_BIND(medicationCatalogController);
 }
+
+#undef ROUTER_SIMPLE_BIND
