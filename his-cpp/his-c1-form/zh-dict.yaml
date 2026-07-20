@@ -1,0 +1,17 @@
+﻿Litguidyo:
+ form:
+  inoutbound:
+   id: 编号
+   name: 项目名称
+   onemoney: 单价
+   allmoney: 总金额
+   number: 数量
+   origin: 产地
+   batch_number: 批号
+   excel: excel表格
+   summary: 物资入库出库数据查询
+   tag1 : 物资入库出库数据查询
+   time : 有效期
+   numbers: 有效物资数量
+   tag2: 物资有效期预警分布
+   summary2: 物资有效期查询

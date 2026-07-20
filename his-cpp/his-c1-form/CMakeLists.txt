@@ -32,6 +32,8 @@ endif()
 # 获取要编译的源代码
 file (GLOB_RECURSE SC_FILES ./*.cpp)
 list (REMOVE_ITEM SC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/./stdafx.cpp")
+# 排除构建输出目录，防止 out/ 下的 CMake 检测文件（如 CMakeCXXCompilerId.cpp）被编译
+list (FILTER SC_FILES EXCLUDE REGEX ".*/out/.*")
 
 # 设置预编译标头
 if(WIN32)
@@ -39,7 +41,7 @@ if(WIN32)
 endif()
 
 # 编译可执行文件
-add_executable (${appName} ${SC_FILES})
+add_executable (${appName} ${SC_FILES} "domain/query/data_statistics/InventoryMaterialQuery.h")
 
 # 发布Swagger文档包宏定义
 if(DEFINED _RELEASE_DOC_)
