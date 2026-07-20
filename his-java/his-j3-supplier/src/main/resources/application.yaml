@@ -1,7 +1,9 @@
 server:
-  port: ${sp.supplier}
+  port: ${sp.j3-supplier:10206}
   servlet:
-    context-path: /database
+    context-path: /j3-basedata
+  address: 0.0.0.0
+
 spring:
   application:
-    name: ${sn.supplier}
+    name: ${sn.j3-database:his-j3-database}

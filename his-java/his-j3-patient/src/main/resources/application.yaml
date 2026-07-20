@@ -1,7 +1,9 @@
 server:
-  port: ${sp.patient}
+  port: ${sp.j3-patient:10202}
   servlet:
-    context-path: /database
+    context-path: /j3-basedata
+  address: 0.0.0.0
+
 spring:
   application:
-    name: ${sn.patient}
+    name: ${sn.j3-database:his-j3-database}
