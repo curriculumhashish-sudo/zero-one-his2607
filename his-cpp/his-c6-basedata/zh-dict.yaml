@@ -1,0 +1,57 @@
+﻿equipment:
+  tags:
+    tag: 器材管理
+  query:
+    summary: 获取器材列表（条件+分页）
+  add:
+    summary: 新增器材
+  modify:
+    summary: 修改器材
+  remove:
+    summary: 删除器材
+  field:
+    # 基础通用字段
+    id: 器材编号
+    code: 器材编码
+    name: 器材名称
+    status: 器材状态 1-启用 0-禁用
+    desc: 器材描述
+    createBy: 创建人
+    updatBy: 更新人
+    keywords: 关键字,请输入器材名称或编码
+    classification: 器材分类
+    specification: 器材规格
+
+# 器材业务基础字段
+    goods: 商品名称
+    manufacturer: 生产厂家
+    price: 器材价格
+    supplier: 供应商
+    apprno: 批注文号
+
+# 财务医保相关字段
+    finantype: 财务类型
+    medinscat: 医保类别
+    medinsgra: 医保等级
+
+# 采购、库存、价格相关字段
+    purchaunit: 采购单位
+    purmin: 采购/拆零倍数
+    purchase: 购入价（包装单位）
+    inventory: 库存单位
+    invsplit: 库存/拆零倍数
+    retail: 零售价（包装单位）
+    maxretail: 最高零售价（包装单位）
+
+# 包装、拆零相关字段
+    packaging: 包装单位
+    packsplit: 包装/拆零倍数
+    split: 拆零单位
+
+# 库存警戒阈值字段
+    warningmax: 警戒线最高值(库存单位)
+    warningmin: 警戒线最低值(库存单位)
+
+# 辅助检索字段
+    pinyin: 拼音码
+    wubi: 五笔码

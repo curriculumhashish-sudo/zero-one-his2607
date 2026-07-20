@@ -14,7 +14,7 @@ class EquipmentQuery : public PageQuery
 	
 	// ¹Ø¼ü´Ê
 	API_DTO_FIELD_REQUIRE(String, keywords, ZH_WORDS_GETTER("equipment.field.keywords"), false);
-	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("equipment.field.name"), false);
+	
 	// Æ÷²Ä·ÖÀà
 	API_DTO_FIELD_REQUIRE(String, classification, ZH_WORDS_GETTER("equipment.field.classification"), false);
 };
