@@ -1,40 +1,26 @@
-﻿diagnosis:
- tags:
-  t1: 西医接口
-  t2: 中医接口
- get:
-  summary: 分页查询示例数据
- add:
-  summary: 新增诊断数据
- modify:
-  summary: 修改诊断数据
- remove:
-  summary: 删除诊断数据
- query-by-id:
-  summary: 通过ID获取单条数据
- export:
-  summary: 导出示例数据(响应Excel文件)
- export-pdf:
-  summary: 导出示例数据(响应PdfBase64字符串)
- import:
-  summary: 导入示例数据
- query-one:
-  summary: 使用声明式服务查询一条数据
- query-all:
-  summary: 使用声明式服务查询多条数据
- field:
-  patient_id: 患者id
-  encounter_id: 就诊id
-  condition_id: 临床id
-  encounter_diagnosis_id: 就诊诊断id
-  primary_flag: 是否主诊断
-  set_always: 是否设为常用
-  rank: 排序
-  condition_def_id: 诊断定义id
-  condition_code: 病情编码
-  condition_name: 疾病名称
-  diag_type_code: 诊断类型
-  disease_def_id: 疾病id
-  syndrome_def_id: 证候id
-  diagnosis_desc: 诊断描述
-  tcm_flag: 是否中医
+﻿tcm-prescription:
+  tags:
+    tag: 中药处方管理
+  sign:
+    summary: 签发中药处方
+  field:
+    prescription-group-key: 处方分组标识
+    medication-request-id: 医嘱请求ID
+    encounter-id: 住院就诊ID
+    patient-id: 患者ID
+    sign-targets: 签发目标列表
+    success: 是否签发成功
+    prescription-no-by-group-key: 处方分组与处方编号对应关系
+    action: 操作类型
+    medication-request-ids: 药品医嘱ID集合
+    prescription-no: 处方编号
+    scope: 操作范围
+    prescription-nos: 处方编号列表
+    stop-time: 停嘱时间
+    message: 操作提示信息
+  withdraw:
+    summary: 撤回中药处方
+  stop:
+    summary: 停嘱中药处方
+  cancel-stop:
+    summary: 取消停嘱中药处方
