@@ -30,14 +30,14 @@ class DiagnosisDO : public BaseDO
 	// 主键ID
 	MYSQL_SYNTHESIZE(string, id, Id);
 	// 诊断编码
-	MYSQL_SYNTHESIZE(string, diagnosisCode, DiagnosisCode);
+	MYSQL_SYNTHESIZE(string, diagnosisCode, DiagnosisCode);//左边是DO成员变量名；右边是set，get拼接的后缀名（对应service中的ZO_STAR_DOMAIN_DTO_TO_DO(data, dto）转换中的data参数）
 	// 诊断名称
 	MYSQL_SYNTHESIZE(string, diagnosisName, DiagnosisName);
-	// 诊断分类 1-西医 2-中医
-	MYSQL_SYNTHESIZE(int, diagnosisType, DiagnosisType);
+	// 诊断分类 西医 中医(表里的类型不止一个西医，中医主病，中医主证)
+	MYSQL_SYNTHESIZE(string, diagnosisType, DiagnosisType);
 	// 启用状态 0-停用 1-启用
 	MYSQL_SYNTHESIZE(int, status, Status);
-	// 备注
+	// 说明
 	MYSQL_SYNTHESIZE(string, remark, Remark);
 	// 创建人
 	MYSQL_SYNTHESIZE(string, createBy, CreateBy);
@@ -47,6 +47,22 @@ class DiagnosisDO : public BaseDO
 	MYSQL_SYNTHESIZE(string, updateBy, UpdateBy);
 	// 修改时间
 	MYSQL_SYNTHESIZE(string, updateTime, UpdateTime);
+
+
+	//医保编码
+	MYSQL_SYNTHESIZE(string, medicalInsuranceCode, MedicalInsuranceCode);
+	//诊断目录id外键
+	MYSQL_SYNTHESIZE(long long, categoryId, CategoryId);
+	//拼音助记
+	MYSQL_SYNTHESIZE(string, pinyinCode, PinyinCode);
+	//五笔助记
+	MYSQL_SYNTHESIZE(string, wubiCode, WubiCode);
+	//医保对码0-F 1-T
+	MYSQL_SYNTHESIZE(int, medicalInsuranceMatch, MedicalInsuranceMatch);
+	//医保标记0-F 1-T
+	MYSQL_SYNTHESIZE(int, medicalInsuranceTag, MedicalInsuranceTag);
+
+
 public:
 	DiagnosisDO() : BaseDO("t_diagnosis")
 	{
@@ -60,6 +76,15 @@ public:
 		MYSQL_ADD_FIELD("create_time", "s", createTime);
 		MYSQL_ADD_FIELD("update_by", "s", updateBy);
 		MYSQL_ADD_FIELD("update_time", "s", updateTime);
+
+		MYSQL_ADD_FIELD("medical_Insurance_Code", "s", medicalInsuranceCode);
+		MYSQL_ADD_FIELD("category_Id", "l",categoryId);
+		MYSQL_ADD_FIELD("pinyin_Code", "s", pinyinCode);
+		MYSQL_ADD_FIELD("wubi_Code", "s", wubiCode);
+		MYSQL_ADD_FIELD(" medical_Insurance_Match", "s", medicalInsuranceMatch);
+		MYSQL_ADD_FIELD(" medical_Insurance_Tag", "s", medicalInsuranceTag);
+
+
 	}
 };
 
