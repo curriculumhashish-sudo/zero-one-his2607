@@ -1,0 +1,17 @@
+server:
+  port: 10300
+  servlet:
+    context-path: /dispense
+spring:
+  application:
+    name: his-dispense
+  cloud:
+    sentinel:
+      transport:
+        dashboard: ${sentinel.dashboard}
+        port: 8721
+      eager: true
+
+feign:
+  sentinel:
+    enabled: true

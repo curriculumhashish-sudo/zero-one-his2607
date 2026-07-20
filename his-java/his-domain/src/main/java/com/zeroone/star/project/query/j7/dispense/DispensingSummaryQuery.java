@@ -1,4 +1,4 @@
-package com.zeroone.star.project.query.dispensing;
+package com.zeroone.star.project.query.j7.dispense;
 
 import com.zeroone.star.project.query.PageQuery;
 import io.swagger.v3.oas.annotations.media.Schema;

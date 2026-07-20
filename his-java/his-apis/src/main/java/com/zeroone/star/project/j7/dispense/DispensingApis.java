@@ -1,11 +1,11 @@
-package com.zeroone.star.project.dispensing;
+package com.zeroone.star.project.j7.dispense;
 
 import com.zeroone.star.project.dto.ExtendPageDTO;
-import com.zeroone.star.project.dto.dispensing.DispenseVerifyDTO;
-import com.zeroone.star.project.query.dispensing.DispensingSummaryQuery;
+import com.zeroone.star.project.dto.j7.dispense.DispenseVerifyDTO;
+import com.zeroone.star.project.query.j7.dispense.DispensingSummaryQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.dispensing.DispensingSummaryVO;
-import com.zeroone.star.project.vo.dispensing.PatientMedicationVO;
+import com.zeroone.star.project.vo.j7.dispense.DispensingSummaryVO;
+import com.zeroone.star.project.vo.j7.dispense.PatientMedicationVO;
 
 import java.util.List;
 
