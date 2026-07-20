@@ -1,0 +1,17 @@
+﻿nurse:
+ tags:
+  tag:  患者管理
+ query:
+  summary: 分页查询数据示例
+ remove:
+  summary: 删除数据示例
+ field:
+  name_code: 姓名/排队号
+  execu_project: 执行项目
+  use_project: 耗材项目
+  state: 状态
+  conten: 医嘱内容
+  amount: 已执行次数
+  person: 执行人
+  operate: 操作
+   
