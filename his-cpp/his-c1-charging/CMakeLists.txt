@@ -39,7 +39,7 @@ if(WIN32)
 endif()
 
 # 编译可执行文件
-add_executable (${appName} ${SC_FILES})
+add_executable (${appName} ${SC_FILES} "domain/query/pay_manage/GetPatientQueueQuery.h" "domain/query/pay_manage/GetPatientDetailsQuery.h" "domain/query/pay_manage/GetPatientPayRecordsQuery.h"  "domain/vo/pay_manage/GetPatientPayRecordsVO.h" "domain/vo/pay_manage/GetPatientQueueVO.h" "domain/dto/pay_manage/GetPatientDetailsDTO.h" "domain/dto/pay_manage/GetPatientPayRecordsDTO.h" "domain/dto/pay_manage/GetPatientQueueDTO.h" "controller/pay_manage/GetPatientDetailsController.h" "controller/pay_manage/GetPatientPayRecordsController.h" "controller/pay_manage/GetPatientQueueController.h" "controller/pay_manage/GetPatientDetailsController.cpp" "controller/pay_manage/GetPatientPayRecordsController.cpp" "controller/pay_manage/GetPatientQueueController.cpp")
 
 # 发布Swagger文档包宏定义
 if(DEFINED _RELEASE_DOC_)
