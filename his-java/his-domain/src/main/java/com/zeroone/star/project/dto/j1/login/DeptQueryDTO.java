@@ -2,8 +2,8 @@ package com.zeroone.star.project.dto.j1.login;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import jakarta.validation.constraints.NotNull;
 
-import javax.validation.constraints.NotNull;
 
 @Data
 @Schema(description = "科室查询请求参数")
