@@ -1,0 +1,38 @@
+server:
+  port: ${sp.j5-basedata}
+  servlet:
+    context-path: /template
+
+spring:
+  application:
+    name: ${sn.j5-basedata}
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/zo_his?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        group: DEFAULT_GROUP
+        file-extension: yaml
+      discovery:
+        server-addr: 127.0.0.1:8848
+        group: DEFAULT_GROUP
+
+# springdoc & knife4j
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      packages-to-scan: com.zeroone.star.hisj5basedata
+
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
