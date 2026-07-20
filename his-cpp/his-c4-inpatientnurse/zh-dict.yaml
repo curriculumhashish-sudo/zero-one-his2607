@@ -1,0 +1,24 @@
+﻿medical_advice:
+  tag: 医嘱相关接口
+  notexecute:
+    summary: 不执行医嘱
+    field:
+      advice_id: 医嘱执行记录表唯一标识id
+      advice_type: 医嘱类型
+      plan_time: 计划时间点
+    failreason:
+      listnotvalid: 列表请求参数无效
+      partparainvalid: 列表部分请求参数无效
+  cancelexecute:
+    summary: 取消执行医嘱
+    field:
+      items:
+        encounterId: 住院记录ID
+        procedureId: 医嘱执行记录ID
+      statusReasonText: 取消执行原因
+    result:
+      success: 是否取消成功
+      cancelledProcedureIds: 已取消执行记录ID列表
+      rebuiltSummaryNos: 重新生成的药品汇总单号列表
+      message: 处理结果说明
+      
