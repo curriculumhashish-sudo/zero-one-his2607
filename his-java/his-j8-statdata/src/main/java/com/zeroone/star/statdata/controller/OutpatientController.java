@@ -5,6 +5,7 @@ import com.zeroone.star.project.vo.j8.statdata.DiseaseDistributionItemVO;
 import com.zeroone.star.project.vo.j8.statdata.MonthlyVisitItemVO;
 import com.zeroone.star.project.vo.j8.statdata.WeeklyVisitItemVO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/statdata/outpatient")
+@Tag(name = "数据统计")
 public class OutpatientController {
     @GetMapping("/visit-trend/weekly")
     @Operation(summary = "获取周接诊量门诊趋势")
