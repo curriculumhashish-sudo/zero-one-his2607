@@ -1,4 +1,4 @@
-package com.zeroone.star.project.dto.j2.basedata.bodystructure;
+package com.zeroone.star.project.dto.j2.basedata.bodypartdto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -7,27 +7,27 @@ import lombok.Data;
 
 /**
  * <p>
- * 描述：修改部位传输数据
+ * 描述：修改部位传输对象
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
  *
- * @author 雾止洲
+ * @author 吴志洲
  * @version 1.0.0
  */
 @Data
-@Schema(description = "修改部位上传数据对象")
-public class BodyStructureUpdateDTO {
+@Schema(description = "修改部位传输对象")
+public class BodyPartModifyDTO {
 
     @NotBlank(message = "部位ID不能为空")
-    @Schema(description = "部位主键", example = "322663105141149696", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "部位ID", example = "322663105141149696", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
     @NotBlank(message = "部位名称不能为空")
     @Schema(description = "部位名称", example = "头部", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String name;
+    private String partName;
 
-    @Schema(description = "上级部位主键；为空时表示根节点", example = "322663105141149695")
+    @Schema(description = "上级部位ID；为空时调整为顶级部位", example = "322663105141149695")
     private String parentId;
 
     @Schema(description = "拼音码", example = "TB")

@@ -16,8 +16,8 @@ import java.util.List;
 @ToString
 public class BodyPartTreeVO {
 
-    @Schema(description = "部位ID", example = "1")
-    private Long id;
+    @Schema(description = "部位ID", example = "322663105141149696")
+    private String id;
 
     @Schema(description = "部位编码", example = "HEAD")
     private String partCode;

@@ -1,4 +1,4 @@
-package com.zeroone.star.project.dto.j2.basedata.bodystructure;
+package com.zeroone.star.project.dto.j2.basedata.bodypartdto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -8,20 +8,23 @@ import lombok.Data;
 
 /**
  * <p>
- * 描述：修改部位启停状态传输数据
+ * 描述：启停用部位传输对象
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
+ * <p>
+ * 状态值与 dia_body_structure.status_enum 保持一致：ACTIVE 表示启用，INACTIVE 表示停用。
+ * </p>
  *
- * @author 雾止洲
+ * @author 吴志洲
  * @version 1.0.0
  */
 @Data
-@Schema(description = "修改部位启停状态上传数据对象")
-public class BodyStructureStatusDTO {
+@Schema(description = "启停用部位传输对象")
+public class BodyPartStatusDTO {
 
     @NotBlank(message = "部位ID不能为空")
-    @Schema(description = "部位主键", example = "322663105141149696", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "部位ID", example = "322663105141149696", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
     @NotBlank(message = "目标状态不能为空")
