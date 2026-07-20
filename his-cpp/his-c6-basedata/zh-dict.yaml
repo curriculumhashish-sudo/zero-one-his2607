@@ -35,8 +35,7 @@ field:
    update_by: 修改人ID
    update_time: 修改时间
  type:
-    initial: 初步诊断
-    diag.type.confirm: 确诊诊断
-    diag.type.discharge: 出院诊断
-
+   western_medicine_diagnosis: "西医诊断"
+   chinese_main_disease_diagnosis: "中医主病诊断"
+   chinese_main_symptom_diagnosis: "中医主证诊断"
    
