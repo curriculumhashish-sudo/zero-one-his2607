@@ -22,49 +22,64 @@
 
 #include "../../GlobalInclude.h"
 #include "../../dto/drug/MedicationCatalogDTO.h"
+#include "domain/vo/JsonVO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class MedicationCatalogPageDTO : public oatpp::DTO
+class MedicationCatalogDetailVO : public MedicationCatalogModifyDTO
 {
-	DTO_INIT(MedicationCatalogPageDTO, DTO);
+	DTO_INIT(MedicationCatalogDetailVO, MedicationCatalogModifyDTO);
+
+	API_DTO_FIELD(String, medicationDefId, ZH_WORDS_GETTER("medication.field.medicationDefId"), true, "322994171216400384");
+	API_DTO_FIELD(String, statusText, ZH_WORDS_GETTER("medication.field.statusText"), true, u8"\u542F\u7528");
+	API_DTO_FIELD(Boolean, isDeleted, ZH_WORDS_GETTER("medication.field.isDeleted"), true, false);
+	API_DTO_FIELD(Int32, version, ZH_WORDS_GETTER("medication.field.version"), true, 0);
+	API_DTO_FIELD(String, createdAt, ZH_WORDS_GETTER("medication.field.createdAt"), true, "2026-07-14T10:30:00+08:00");
+	API_DTO_FIELD(String, updatedAt, ZH_WORDS_GETTER("medication.field.updatedAt"), true, "2026-07-20T05:30:00+08:00");
+	API_DTO_FIELD(String, createdBy, ZH_WORDS_GETTER("medication.field.createdBy"), false, "system");
+	API_DTO_FIELD(String, updatedBy, ZH_WORDS_GETTER("medication.field.updatedBy"), false, "axiao");
+};
+
+class MedicationCatalogPageVO : public oatpp::DTO
+{
+	DTO_INIT(MedicationCatalogPageVO, DTO);
 
 	API_DTO_FIELD(Int32, pageNo, ZH_WORDS_GETTER("medication.field.pageNo"), true, 1);
 	API_DTO_FIELD(Int32, pageSize, ZH_WORDS_GETTER("medication.field.pageSize"), true, 10);
 	API_DTO_FIELD(Int64, total, ZH_WORDS_GETTER("medication.field.total"), true, 15);
 	API_DTO_FIELD(Int32, pages, ZH_WORDS_GETTER("medication.field.pages"), true, 2);
-	DTO_FIELD(List<MedicationCatalogDetailDTO::Wrapper>, rows) = List<MedicationCatalogDetailDTO::Wrapper>::createShared();
+	DTO_FIELD(List<MedicationCatalogDetailVO::Wrapper>, rows) = List<MedicationCatalogDetailVO::Wrapper>::createShared();
 	DTO_FIELD_INFO(rows) {
 		info->description = ZH_WORDS_GETTER("medication.field.rows");
 		info->required = true;
 	}
 
 public:
-	MedicationCatalogPageDTO()
+	MedicationCatalogPageVO()
 	{
-		rows->push_back(MedicationCatalogDetailDTO::createShared());
+		rows->push_back(MedicationCatalogDetailVO::createShared());
 	}
 };
 
-class MedicationCatalogPageJsonVO : public JsonVO<MedicationCatalogPageDTO::Wrapper>
+class MedicationCatalogPageJsonVO : public JsonVO<MedicationCatalogPageVO::Wrapper>
 {
-	DTO_INIT(MedicationCatalogPageJsonVO, JsonVO<MedicationCatalogPageDTO::Wrapper>);
+	DTO_INIT(MedicationCatalogPageJsonVO, JsonVO<MedicationCatalogPageVO::Wrapper>);
 
 public:
 	MedicationCatalogPageJsonVO()
 	{
-		this->success(MedicationCatalogPageDTO::createShared());
+		this->success(MedicationCatalogPageVO::createShared());
 	}
 };
 
-class MedicationCatalogDetailJsonVO : public JsonVO<MedicationCatalogDetailDTO::Wrapper>
+class MedicationCatalogDetailJsonVO : public JsonVO<MedicationCatalogDetailVO::Wrapper>
 {
-	DTO_INIT(MedicationCatalogDetailJsonVO, JsonVO<MedicationCatalogDetailDTO::Wrapper>);
+	DTO_INIT(MedicationCatalogDetailJsonVO, JsonVO<MedicationCatalogDetailVO::Wrapper>);
 
 public:
 	MedicationCatalogDetailJsonVO()
 	{
-		this->success(MedicationCatalogDetailDTO::createShared());
+		this->success(MedicationCatalogDetailVO::createShared());
 	}
 };
 

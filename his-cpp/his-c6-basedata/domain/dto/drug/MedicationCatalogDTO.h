@@ -24,9 +24,9 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class MedicationCatalogCreateDTO : public oatpp::DTO
+class MedicationCatalogAddDTO : public oatpp::DTO
 {
-	DTO_INIT(MedicationCatalogCreateDTO, DTO);
+	DTO_INIT(MedicationCatalogAddDTO, DTO);
 
 	API_DTO_FIELD(String, tenantId, ZH_WORDS_GETTER("medication.field.tenantId"), false, "1");
 	API_DTO_FIELD(String, orgId, ZH_WORDS_GETTER("medication.field.orgId"), false, "322663105141149696");
@@ -103,25 +103,11 @@ class MedicationCatalogCreateDTO : public oatpp::DTO
 	API_DTO_FIELD(Float64, maximumRetailPrice, ZH_WORDS_GETTER("medication.field.maximumRetailPrice"), false, 28.0);
 };
 
-class MedicationCatalogUpdateDTO : public MedicationCatalogCreateDTO
+class MedicationCatalogModifyDTO : public MedicationCatalogAddDTO
 {
-	DTO_INIT(MedicationCatalogUpdateDTO, MedicationCatalogCreateDTO);
+	DTO_INIT(MedicationCatalogModifyDTO, MedicationCatalogAddDTO);
 
 	API_DTO_FIELD(String, id, ZH_WORDS_GETTER("medication.field.id"), true, "322994171216400384");
-};
-
-class MedicationCatalogDetailDTO : public MedicationCatalogUpdateDTO
-{
-	DTO_INIT(MedicationCatalogDetailDTO, MedicationCatalogUpdateDTO);
-
-	API_DTO_FIELD(String, medicationDefId, ZH_WORDS_GETTER("medication.field.medicationDefId"), true, "322994171216400384");
-	API_DTO_FIELD(String, statusText, ZH_WORDS_GETTER("medication.field.statusText"), true, u8"\u542F\u7528");
-	API_DTO_FIELD(Boolean, isDeleted, ZH_WORDS_GETTER("medication.field.isDeleted"), true, false);
-	API_DTO_FIELD(Int32, version, ZH_WORDS_GETTER("medication.field.version"), true, 0);
-	API_DTO_FIELD(String, createdAt, ZH_WORDS_GETTER("medication.field.createdAt"), true, "2026-07-14T10:30:00+08:00");
-	API_DTO_FIELD(String, updatedAt, ZH_WORDS_GETTER("medication.field.updatedAt"), true, "2026-07-20T05:30:00+08:00");
-	API_DTO_FIELD(String, createdBy, ZH_WORDS_GETTER("medication.field.createdBy"), false, "system");
-	API_DTO_FIELD(String, updatedBy, ZH_WORDS_GETTER("medication.field.updatedBy"), false, "axiao");
 };
 
 #include OATPP_CODEGEN_END(DTO)
