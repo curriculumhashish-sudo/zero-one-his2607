@@ -1,0 +1,16 @@
+﻿pat:
+ field:
+  id: 患者ID
+  age: 年龄
+  sex: 性别
+bed:
+ field:
+  id: 床号
+  wardRoomId: 所在病房ID
+  name: 病床名称
+  stauts: 状态  
+wardroom:
+ field:
+  id: 病区ID
+  name: 病区名称
+  wardAreaId: 所属病区ID
