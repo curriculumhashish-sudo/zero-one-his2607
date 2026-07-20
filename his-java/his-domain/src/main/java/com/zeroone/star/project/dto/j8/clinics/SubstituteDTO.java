@@ -1,4 +1,4 @@
-package com.zeroone.star.project.dto.j8.setroster;
+package com.zeroone.star.project.dto.j8.clinics;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

@@ -1,10 +1,10 @@
 package com.zeroone.star.clinics.controller;
 
-import com.zeroone.star.project.dto.j8.setroster.AllDayStopClinicExecuteDTO;
+import com.zeroone.star.project.dto.j8.clinics.AllDayStopClinicExecuteDTO;
 
-import com.zeroone.star.project.dto.j8.setroster.PartialStopClinicExecuteDTO;
-import com.zeroone.star.project.dto.j8.setroster.SubstituteDTO;
-import com.zeroone.star.project.j8.setroster.ClinicScheduleApis;
+import com.zeroone.star.project.dto.j8.clinics.PartialStopClinicExecuteDTO;
+import com.zeroone.star.project.dto.j8.clinics.SubstituteDTO;
+import com.zeroone.star.project.j8.clinics.ClinicScheduleApis;
 import com.zeroone.star.project.vo.JsonVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
