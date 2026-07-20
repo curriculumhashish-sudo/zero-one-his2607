@@ -78,5 +78,6 @@ public class UserController implements UserApis {
     @Override
     public JsonVO<String> lockUser(@PathVariable String id,@PathVariable Integer lockStatus) {
         return null;
+
     }
 }

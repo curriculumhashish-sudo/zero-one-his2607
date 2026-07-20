@@ -2,12 +2,12 @@ package com.zeroone.star.project.vo.j1.sysmgr;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
+
 @Schema(description = "用户详情对象")
 public class UserDetailVO {
     @Schema(description = "主键id", example = "336396155648217088")
@@ -63,4 +63,5 @@ public class UserDetailVO {
 
     @Schema(description = "可接诊号源ID列表", example = "[\"src_10\", \"src_20\"]")
     private List<String> receptionSourceIds;
+
 }

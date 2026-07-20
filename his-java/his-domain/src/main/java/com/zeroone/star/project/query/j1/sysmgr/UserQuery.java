@@ -7,6 +7,7 @@ import lombok.Data;
 
 @Data
 @Schema(description = "用户管理查询对象")
+
 public class UserQuery extends PageQuery {
     @Schema(description = "关键词(用户名或姓名)", example = "梁老师",requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String keyword;
