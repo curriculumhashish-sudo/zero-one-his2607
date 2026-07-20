@@ -8,7 +8,6 @@ import com.zeroone.star.basedata.entity.CusFrequencyDO;
 import com.zeroone.star.basedata.mapper.FrequencyMapper;
 import com.zeroone.star.basedata.service.IFrequencyService;
 import com.zeroone.star.project.dto.PageDTO;
-<<<<<<< j4
 import com.zeroone.star.project.dto.j4.frequency.FrequencySaveDTO;
 import com.zeroone.star.project.dto.j4.frequency.FrequencyUpdateDTO;
 import com.zeroone.star.project.dto.j4.frequency.FrequencyStatusDTO;
