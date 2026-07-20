@@ -10,14 +10,14 @@
 /**
  * 频次名称
  */
-class FrequencySimpleVO : public JsonVO
+class FrequencyVO : public StringJsonVO
 {
-	DTO_INIT(FrequencySimpleVO, JsonVO);
+	DTO_INIT(FrequencyVO, StringJsonVO);
 
-	// 主键ID（项目String）
+	// 主键ID
 	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("common.id"), true);
 	// 频次名称
-	API_DTO_FIELD_REQUIRE(String, freqName, ZH_WORDS_GETTER("frequency.field.freqName"), true);
+	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("frequency.field.name"), true);
 };
 
 #include OATPP_CODEGEN_END(DTO)
