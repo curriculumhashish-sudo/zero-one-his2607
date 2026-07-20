@@ -1,5 +1,7 @@
-dept:
- batch:
+﻿dept:
+  tag: 科室管理接口
+  batch-status:
+    summary: 批量启停科室
   field:
-   deptIdList: ѡ�еĿ����б�
-   targetStatus: Ŀ��״̬
+    deptIdList: 批量科室ID数组
+    targetStatus: 目标启停状态(0停用/1启用)
