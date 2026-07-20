@@ -1,6 +1,8 @@
 package com.zeroone.star.j3.supplier.controller;
 
 import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j3.supplier.SupplierBatchDTO;
+import com.zeroone.star.project.dto.j3.supplier.SupplierDTO;
 import com.zeroone.star.project.j3.supplier.SupplierApis;
 import com.zeroone.star.project.query.j3.supplier.SupplierQuery;
 import com.zeroone.star.project.vo.j3.supplier.SupplierDetailVO;
@@ -11,7 +13,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,7 +37,7 @@ import java.util.List;
  * @version 1.0.0
  */
 @RestController
-@RequestMapping("/api/j3/supplier")
+@RequestMapping("/suppliers")
 @Tag(name = "供应商管理", description = "供应商基础信息查询接口 — 下拉选择 / 列表分页 / 详情回填")
 public class SupplierController implements SupplierApis {
 
@@ -242,4 +249,63 @@ public class SupplierController implements SupplierApis {
 
         return JsonVO.success(detail);
     }
+
+    /**
+     * <p>新增供应商</p>
+     */
+    @Override
+    @PostMapping("/add")
+    @Operation(summary = "新增供应商",
+               description = "新增一条供应商记录，包含信用代码、联系方式、资质等信息")
+    public JsonVO<String> add(
+            @Parameter(description = "供应商数据", required = true)
+            @Valid @RequestBody SupplierDTO dto) {
+        // TODO: 实现新增供应商业务逻辑
+        return JsonVO.success("新增供应商成功");
+    }
+
+    /**
+     * <p>修改供应商</p>
+     */
+    @Override
+    @PutMapping("/update/{id}")
+    @Operation(summary = "修改供应商",
+               description = "根据ID修改供应商信息，部分关键字段有限制")
+    public JsonVO<String> update(
+            @Parameter(description = "供应商ID", example = "1", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "供应商数据", required = true)
+            @Valid @RequestBody SupplierDTO dto) {
+        // TODO: 实现修改供应商业务逻辑
+        return JsonVO.success("修改供应商成功");
+    }
+
+    /**
+     * <p>删除供应商</p>
+     */
+    @Override
+    @DeleteMapping("/delete/{id}")
+    @Operation(summary = "删除供应商",
+               description = "根据ID删除供应商记录，需检查是否被采购单引用")
+    public JsonVO<String> delete(
+            @Parameter(description = "供应商ID", example = "1", required = true)
+            @PathVariable Long id) {
+        // TODO: 实现删除供应商业务逻辑，需检查是否被采购单引用
+        return JsonVO.success("删除供应商成功");
+    }
+
+    /**
+     * <p>批量启/停用供应商</p>
+     */
+    @Override
+    @PutMapping("/batchUpdateStatus")
+    @Operation(summary = "批量启/停用供应商",
+               description = "支持批量操作供应商的启用状态，影响采购业务")
+    public JsonVO<String> batchUpdateStatus(
+            @Parameter(description = "批量操作参数", required = true)
+            @Valid @RequestBody SupplierBatchDTO batchDTO) {
+        // TODO: 实现批量启/停用供应商业务逻辑
+        return JsonVO.success("批量更新状态成功");
+    }
+
 }

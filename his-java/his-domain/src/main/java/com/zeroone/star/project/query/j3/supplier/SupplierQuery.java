@@ -27,4 +27,17 @@ public class SupplierQuery extends PageQuery {
 
     @Schema(description = "是否启用", example = "1")
     private Integer isEnabled;
+
+    // ---- 以下字段用于供应商列表分页筛选 ----
+    @Schema(description = "供应商名称（模糊匹配）", example = "华润")
+    private String name;
+
+    @Schema(description = "统一社会信用代码（精确匹配）", example = "91110000100000AAAA")
+    private String creditCode;
+
+    @Schema(description = "状态枚举值（ENABLED/DISABLED）", example = "ENABLED")
+    private String statusEnum;
+
+    @Schema(description = "类型枚举值（ENTERPRISE/INDIVIDUAL）", example = "ENTERPRISE")
+    private String typeEnum;
 }
