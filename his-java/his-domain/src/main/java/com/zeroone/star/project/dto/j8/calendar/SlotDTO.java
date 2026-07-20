@@ -20,13 +20,13 @@ import java.time.LocalDateTime;
 @Schema(description = "号源日历列表行数据")
 public class SlotDTO {
 
-    @Schema(description = "号源主键", example = "322663218269917184")
+    @Schema(description = "号源主键", example = "329701000000000049")
     private String slotId;
 
-    @Schema(description = "日程主键（前端封锁/解封按此分组）", example = "322663218269917185")
+    @Schema(description = "日程主键", example = "329700000000000001")
     private String scheduleId;
 
-    @Schema(description = "科室/机构主键", example = "322663218269917186")
+    @Schema(description = "科室主键", example = "322663218269917186")
     private String organizationId;
 
     @Schema(description = "医师主键", example = "322663218269917187")
@@ -41,7 +41,7 @@ public class SlotDTO {
     @Schema(description = "医师姓名", example = "张三")
     private String practitionerName;
 
-    @Schema(description = "号源类型名称（普通号/专家号等）", example = "普通号")
+    @Schema(description = "号源类型名称", example = "普通号")
     private String healthcareServiceName;
 
     @Schema(description = "时段开始时刻", example = "2026-07-20T08:00:00")
