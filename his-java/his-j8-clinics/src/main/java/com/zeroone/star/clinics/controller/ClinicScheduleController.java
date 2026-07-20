@@ -1,4 +1,4 @@
-        package com.zeroone.star.setroster.controller;
+        package com.zeroone.star.clinics.controller;
 
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j8.setroster.StopClinicExecuteDTO;
