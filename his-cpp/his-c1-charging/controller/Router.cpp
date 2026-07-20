@@ -19,6 +19,7 @@
 #include "stdafx.h"
 #include "Router.h"
 #include "ApiHelper.h"
+
 #include "../controller/register/ChargeConfirmController.h"
 #include "../controller/register/QuitNumberController.h"
 #include "../controller/register/PrintRegisterReceiptController.h"
@@ -31,6 +32,11 @@
 #include "charge/ChargeItemController.h"
 #include "charge/SettlementController.h"
 #include "charge/PrintController.h"
+
+#include"settle/GetPatientListController.h"
+#include"settle/GetCategoryDetailsController.h"
+#include"settle/GetTotalFeesController.h"
+
 
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
@@ -68,4 +74,9 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(SettlementController);
 	// 打印管理
 	ROUTER_SIMPLE_BIND(PrintController);
+
+	ROUTER_SIMPLE_BIND(GetPatientListController);
+	ROUTER_SIMPLE_BIND(GetCategoryDetailsController);
+	ROUTER_SIMPLE_BIND(GetTotalFeesController);
+
 }
