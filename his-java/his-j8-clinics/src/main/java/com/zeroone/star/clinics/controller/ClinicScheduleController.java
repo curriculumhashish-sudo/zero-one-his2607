@@ -1,19 +1,14 @@
 package com.zeroone.star.clinics.controller;
 
-import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j8.setroster.StopClinicExecuteDTO;
-import com.zeroone.star.project.dto.j8.setroster.StopClinicPreviewDTO;
+import com.zeroone.star.project.dto.j8.setroster.AllDayStopClinicExecuteDTO;
+
+import com.zeroone.star.project.dto.j8.setroster.PartialStopClinicExecuteDTO;
 import com.zeroone.star.project.dto.j8.setroster.SubstituteDTO;
 import com.zeroone.star.project.j8.setroster.ClinicScheduleApis;
-import com.zeroone.star.project.query.j8.setroster.ScheduleQuery;
-import com.zeroone.star.project.query.j8.setroster.StopClinicPreviewQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j8.setroster.ScheduleVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Arrays;
 
 @RequestMapping("/api/setroster")
 @RestController
@@ -38,14 +33,14 @@ public class ClinicScheduleController implements ClinicScheduleApis {
     @Operation(summary = "整日停诊")
     @PostMapping("/execute-stop-all-day")
     @Override
-    public JsonVO<String> executeStopAllDayClinic(@RequestBody StopClinicExecuteDTO dto) {
+    public JsonVO<String> executeAllDayStopClinic(@RequestBody AllDayStopClinicExecuteDTO dto) {
         return JsonVO.success("整日停诊执行成功");
     }
 
     @Operation(summary = "部分停诊")
     @PostMapping("/execute-stop-partial")
     @Override
-    public JsonVO<String> executeStopPartialClinic(@RequestBody StopClinicExecuteDTO dto) {
+    public JsonVO<String> executePartialStopClinic(@RequestBody PartialStopClinicExecuteDTO dto) {
         return JsonVO.success("部分停诊执行成功");
     }
 

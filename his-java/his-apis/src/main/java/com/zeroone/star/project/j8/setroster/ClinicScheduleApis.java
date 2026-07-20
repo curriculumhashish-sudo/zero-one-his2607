@@ -1,14 +1,10 @@
 package com.zeroone.star.project.j8.setroster;
 
 
-import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j8.setroster.StopClinicExecuteDTO;
-import com.zeroone.star.project.dto.j8.setroster.StopClinicPreviewDTO;
+import com.zeroone.star.project.dto.j8.setroster.AllDayStopClinicExecuteDTO;
+import com.zeroone.star.project.dto.j8.setroster.PartialStopClinicExecuteDTO;
 import com.zeroone.star.project.dto.j8.setroster.SubstituteDTO;
-import com.zeroone.star.project.query.j8.setroster.ScheduleQuery;
-import com.zeroone.star.project.query.j8.setroster.StopClinicPreviewQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j8.setroster.ScheduleVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
@@ -30,11 +26,11 @@ public interface ClinicScheduleApis {
 
     @Operation(summary = "整日停诊")
     @PostMapping("/setroster/execute-stop-all-day")
-    JsonVO<String> executeStopAllDayClinic(@RequestBody StopClinicExecuteDTO dto);
+    JsonVO<String> executeAllDayStopClinic(@RequestBody AllDayStopClinicExecuteDTO dto);
 
     @Operation(summary = "部分停诊")
     @PostMapping("/setroster/execute-stop-partial")
-    JsonVO<String> executeStopPartialClinic(@RequestBody StopClinicExecuteDTO dto);
+    JsonVO<String> executePartialStopClinic(@RequestBody PartialStopClinicExecuteDTO dto);
 
     @Operation(summary = "解锁停诊")
     @PostMapping("/setroster/unlock-stop-clinic")

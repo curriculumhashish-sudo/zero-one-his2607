@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 @Schema(description = "执行停诊信息")
-public class StopClinicExecuteDTO {
+public class AllDayStopClinicExecuteDTO {
     @Schema(description = "排班日程ID", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Long scheduleId;
 
@@ -16,4 +16,7 @@ public class StopClinicExecuteDTO {
 
     @Schema(description = "是否发送通知", example = "true")
     private Boolean sendNotification;
+
+    @Schema(description = "停诊原因", example = "医师请假")
+    private String stopReason;
 }
