@@ -1,9 +1,10 @@
 package com.zeroone.star.project.j3.department;
 
 import com.zeroone.star.project.dto.j3.department.DepartmentCreateDTO;
-import com.zeroone.star.project.dto.j3.department.DepartmentDTO;
 import com.zeroone.star.project.query.j3.department.DepartmentTreeQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j3.department.DepartmentDetailVO;
+import com.zeroone.star.project.vo.j3.department.DepartmentTreeVO;
 
 import java.util.List;
 
@@ -24,7 +25,7 @@ public interface DepartmentApis {
      * @param query 科室名称树筛选条件
      * @return 科室名称树结果
      */
-    JsonVO<DepartmentDTO> getDepartmentTree(DepartmentTreeQuery query);
+    JsonVO<DepartmentTreeVO> getDepartmentTree(DepartmentTreeQuery query);
 
     /**
      * 获取科室详情
@@ -32,7 +33,7 @@ public interface DepartmentApis {
      * @param id 科室对象ID
      * @return 科室详情结果
      */
-    JsonVO<DepartmentDTO> getDepartmentDetail(Long id);
+    JsonVO<DepartmentDetailVO> getDepartmentDetail(Long id);
 
     /**
      * 新增科室
