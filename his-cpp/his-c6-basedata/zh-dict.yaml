@@ -5,39 +5,38 @@ tags:
 get:
  summary: 分页查询数据
 post:
- summary: 新增一条数据
+ summary: 新增一条表单数据
+ summary_category:新增分类
 put:
  summary: 修改一条数据
 delete:
  summary: 删除数据支持批量
 field:
  category: 
-  category.id: 分类ID
-  category.cat_name: 分类名称
-  category.sort: 排序号
+   id:诊断分类ID
+   cat_name: 分类名称
  diag:
-   diag.id: 诊断主键ID
-   diag.diag_code: 诊断编码
-   diag.name: 疾病名称
-   diag.category_id: 所属分类ID
-   diag.diag_type: 诊断类型
-   diag.chronic_code: 特慢病编码
-   diag.medical_insurance_code: 医保ICD编码
-   diag.status: 启用状态
-   diag.medical_insurance_tag: 纳入医保标记
-   diag.medical_insurance_match: 医保编码匹配标记
-   diag.pinyin_code: 拼音助记码
-   diag.wubi_code: 五笔助记码
-   diag.remark: 备注说明
-   diag.is_delete: 逻辑删除标识
-   diag.create_by: 创建人ID
-   diag.create_time: 创建时间
-   diag.update_by: 修改人ID
-   diag.update_time: 修改时间
-   diag_type.initial: 初步诊断
-   diag.type.confirm: 确诊诊断
-   diag.type.discharge: 出院诊断
-   status.enable: 启用
-   status.disable: 停用
-   bool.yes: 是
-   bool.no: 否
+   id: 诊断主键ID
+   diag_code: 诊断编码
+   name: 疾病名称
+   category_id: 所属分类ID
+   diag_type: 诊断类型
+   chronic_code: 特慢病编码
+   medical_insurance_code: 医保ICD编码
+   status: 启用状态
+   medical_insurance_tag: 纳入医保标记
+   medical_insurance_match: 医保编码匹配标记
+   pinyin_code: 拼音助记码
+   wubi_code: 五笔助记码
+   remark: 备注说明
+   is_delete: 逻辑删除标识
+   create_by: 创建人ID
+   create_time: 创建时间
+   update_by: 修改人ID
+   update_time: 修改时间
+ type:
+    initial: 初步诊断
+    diag.type.confirm: 确诊诊断
+    diag.type.discharge: 出院诊断
+
+   
