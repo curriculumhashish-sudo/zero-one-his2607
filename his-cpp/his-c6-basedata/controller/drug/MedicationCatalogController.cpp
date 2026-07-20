@@ -28,17 +28,14 @@ namespace
 
 	bool isUnsignedIntegerId(const oatpp::String& value)
 	{
-		if (!hasText(value))
-		{
-			return false;
-		}
-		return value->find_first_not_of("0123456789") == std::string::npos;
+		return hasText(value)
+			&& value->find_first_not_of("0123456789") == std::string::npos;
 	}
 
-	template<class T>
-	bool hasRequiredMedicationFields(const T& dto)
+	bool hasRequiredEditFields(const MedicationCatalogModifyDTO::Wrapper& dto)
 	{
 		return dto
+			&& isUnsignedIntegerId(dto->id)
 			&& hasText(dto->name)
 			&& hasText(dto->merchandiseName)
 			&& hasText(dto->categoryCode)
@@ -63,103 +60,6 @@ namespace
 			&& dto->packageUnitRatio.getValue(0.0) > 0.0;
 	}
 
-	template<class T>
-	void applyMedicationFields(const T& dto, const MedicationCatalogDetailVO::Wrapper& detail)
-	{
-		if (!dto)
-		{
-			return;
-		}
-		detail->orgId = dto->orgId;
-		detail->medicationDefId = dto->medicationDefId;
-		detail->busNo = dto->busNo;
-		detail->name = dto->name;
-		detail->domainEnum = dto->domainEnum;
-		detail->version = dto->version;
-		detail->nameEn = dto->nameEn;
-		detail->pyStr = dto->pyStr;
-		detail->wbStr = dto->wbStr;
-		detail->categoryCode = dto->categoryCode;
-		detail->merchandiseName = dto->merchandiseName;
-		detail->merchandisePyStr = dto->merchandisePyStr;
-		detail->merchandiseWbStr = dto->merchandiseWbStr;
-		detail->purchaseUnitCode = dto->purchaseUnitCode;
-		detail->purchaseUnitCode_dictText = dto->purchaseUnitCode_dictText;
-		detail->splitUnitCode = dto->splitUnitCode;
-		detail->comprisedText = dto->comprisedText;
-		detail->ingredient = dto->ingredient;
-		detail->doseFrom = dto->doseFrom;
-		detail->doseFrom_dictText = dto->doseFrom_dictText;
-		detail->approvalNumber = dto->approvalNumber;
-		detail->ybMatchFlag = dto->ybMatchFlag;
-		detail->ybNo = dto->ybNo;
-		detail->pharmacologyCategoryCode = dto->pharmacologyCategoryCode;
-		detail->skinTestFlag = dto->skinTestFlag;
-		detail->injectFlag = dto->injectFlag;
-		detail->manufacturerId = dto->manufacturerId;
-		detail->doseUnitCode = dto->doseUnitCode;
-		detail->packageUnitCode = dto->packageUnitCode;
-		detail->stockUnitCode = dto->stockUnitCode;
-		detail->manufacturerText = dto->manufacturerText;
-		detail->supplyId = dto->supplyId;
-		detail->restrictedFlag = dto->restrictedFlag;
-		detail->restrictedScope = dto->restrictedScope;
-		detail->childrenFlag = dto->childrenFlag;
-		detail->characteristic = dto->characteristic;
-		detail->itemMinQuantity = dto->itemMinQuantity;
-		detail->itemMaxQuantity = dto->itemMaxQuantity;
-		detail->nationalDrugCode = dto->nationalDrugCode;
-		detail->partAttributeEnum = dto->partAttributeEnum;
-		detail->antibioticCode = dto->antibioticCode;
-		detail->antibioticCode_dictText = dto->antibioticCode_dictText;
-		detail->restrictedEnum = dto->restrictedEnum;
-		detail->selfFlag = dto->selfFlag;
-		detail->antibioticFlag = dto->antibioticFlag;
-		detail->basicFlag = dto->basicFlag;
-		detail->thoPartAttributeEnum = dto->thoPartAttributeEnum;
-		detail->chrgitmLv = dto->chrgitmLv;
-		detail->typeCode = dto->typeCode;
-		detail->typeCode_dictText = dto->typeCode_dictText;
-		detail->ybType = dto->ybType;
-		detail->rxFlag = dto->rxFlag;
-		detail->dosageInstruction = dto->dosageInstruction;
-		detail->drug69Code = dto->drug69Code;
-		detail->totalVolume = dto->totalVolume;
-		detail->doseFormCode = dto->doseFormCode;
-		detail->doseUnitCode_dictText = dto->doseUnitCode_dictText;
-		detail->methodCode = dto->methodCode;
-		detail->rateCode = dto->rateCode;
-		detail->dose = dto->dose;
-		detail->maxUnit = dto->maxUnit;
-		detail->usageLimit = dto->usageLimit;
-		detail->locationId = dto->locationId;
-		detail->ingredientItem = dto->ingredientItem;
-		detail->definition = dto->definition;
-		detail->dddCode = dto->dddCode;
-		detail->dddUnitCode = dto->dddUnitCode;
-		detail->minRateCode = dto->minRateCode;
-		detail->maxRateCode = dto->maxRateCode;
-		detail->doseUnitRatio = dto->doseUnitRatio;
-		detail->purchaseUnitRatio = dto->purchaseUnitRatio;
-		detail->stockUnitRatio = dto->stockUnitRatio;
-		detail->packageUnitRatio = dto->packageUnitRatio;
-		detail->statusEnum = dto->statusEnum;
-		detail->statusEnum_enumText = dto->statusEnum_enumText;
-		detail->activeFlag = dto->activeFlag;
-		detail->purchasePrice = dto->purchasePrice;
-		detail->retailPrice = dto->retailPrice;
-		detail->maximumRetailPrice = dto->maximumRetailPrice;
-		detail->specification = dto->totalVolume;
-		if (dto->statusEnum && dto->statusEnum == "INACTIVE")
-		{
-			detail->statusEnum_enumText = u8"\u5DF2\u505C\u7528";
-		}
-		if (dto->activeFlag != nullptr && !dto->activeFlag.getValue(false))
-		{
-			detail->activeFlagText = u8"\u505C\u7528";
-		}
-	}
-
 	NoDataJsonVO::Wrapper createBatchResult(const oatpp::List<oatpp::String>& ids)
 	{
 		auto result = NoDataJsonVO::createShared();
@@ -181,100 +81,51 @@ namespace
 	}
 }
 
-MedicationCatalogPageJsonVO::Wrapper MedicationCatalogController::execQueryMedicationCatalogPage(
-	const MedicationCatalogPageQuery::Wrapper& query)
-{
-	auto result = MedicationCatalogPageJsonVO::createShared();
-	if (!query || query->pageNo.getValue(0) <= 0 || query->pageSize.getValue(0) <= 0)
-	{
-		result->init(nullptr, RS_PARAMS_INVALID);
-		return result;
-	}
-	auto page = MedicationCatalogPageVO::createShared();
-	page->pageNo = query->pageNo;
-	page->pageSize = query->pageSize;
-	page->totalElements = page->totalCount;
-	const auto pageSize = query->pageSize.getValue(1);
-	const auto totalCount = page->totalCount.getValue(0);
-	page->totalPages = static_cast<v_int32>((totalCount + pageSize - 1) / pageSize);
-	result->success(page);
-	return result;
-}
-
-MedicationCatalogDetailJsonVO::Wrapper MedicationCatalogController::execQueryMedicationCatalog(const String& id)
-{
-	auto result = MedicationCatalogDetailJsonVO::createShared();
-	if (!hasText(id))
-	{
-		result->init(nullptr, RS_PARAMS_INVALID);
-		return result;
-	}
-	auto detail = MedicationCatalogDetailVO::createShared();
-	detail->id = id;
-	detail->medicationDefId = id;
-	result->success(detail);
-	return result;
-}
-
-MedicationCatalogInitJsonVO::Wrapper MedicationCatalogController::execGetMedicationInit(
-	const MedicationCatalogInitDTO::Wrapper& dto)
-{
-	auto result = MedicationCatalogInitJsonVO::createShared();
-	if (!dto)
-	{
-		result->init(nullptr, RS_PARAMS_INVALID);
-		return result;
-	}
-	result->success(MedicationCatalogInitVO::createShared());
-	return result;
-}
-
-MedicationCatalogDetailJsonVO::Wrapper MedicationCatalogController::execAddMedicationCatalog(
-	const MedicationCatalogAddDTO::Wrapper& dto)
-{
-	auto result = MedicationCatalogDetailJsonVO::createShared();
-	if (!hasRequiredMedicationFields(dto))
-	{
-		result->init(nullptr, RS_PARAMS_INVALID);
-		return result;
-	}
-	auto detail = MedicationCatalogDetailVO::createShared();
-	applyMedicationFields(dto, detail);
-	result->success(detail);
-	return result;
-}
-
-MedicationCatalogDetailJsonVO::Wrapper MedicationCatalogController::execModifyMedicationCatalog(
+MedicationCatalogDetailJsonVO::Wrapper MedicationCatalogController::execEditMedicationCatalog(
 	const MedicationCatalogModifyDTO::Wrapper& dto)
 {
 	auto result = MedicationCatalogDetailJsonVO::createShared();
-	if (!hasRequiredMedicationFields(dto) || !isUnsignedIntegerId(dto->id))
+	if (!hasRequiredEditFields(dto))
 	{
 		result->init(nullptr, RS_PARAMS_INVALID);
 		return result;
 	}
-	auto detail = MedicationCatalogDetailVO::createShared();
-	applyMedicationFields(dto, detail);
-	detail->id = dto->id;
-	if (!hasText(detail->medicationDefId))
+
+	try
 	{
-		detail->medicationDefId = dto->id;
+		const auto& mapper = getDefaultObjectMapper();
+		if (!mapper)
+		{
+			result->init(nullptr, RS_PARAMS_INVALID);
+			return result;
+		}
+
+		auto detail = mapper->readFromString<MedicationCatalogDetailVO::Wrapper>(mapper->writeToString(dto));
+		detail->specification = dto->totalVolume;
+		if (!hasText(detail->medicationDefId))
+		{
+			detail->medicationDefId = dto->id;
+		}
+		result->success(detail);
 	}
-	result->success(detail);
+	catch (const std::exception&)
+	{
+		result->init(nullptr, RS_PARAMS_INVALID);
+	}
 	return result;
 }
 
-NoDataJsonVO::Wrapper MedicationCatalogController::execRemoveMedicationCatalog(const List<String>& ids)
+NoDataJsonVO::Wrapper MedicationCatalogController::execDeleteMedicationCatalog(const List<String>& ids)
 {
 	return createBatchResult(ids);
 }
 
-NoDataJsonVO::Wrapper MedicationCatalogController::execEnableMedicationCatalog(const List<String>& ids)
+NoDataJsonVO::Wrapper MedicationCatalogController::execStartMedicationCatalog(const List<String>& ids)
 {
 	return createBatchResult(ids);
 }
 
-NoDataJsonVO::Wrapper MedicationCatalogController::execDisableMedicationCatalog(const List<String>& ids)
+NoDataJsonVO::Wrapper MedicationCatalogController::execStopMedicationCatalog(const List<String>& ids)
 {
 	return createBatchResult(ids);
 }

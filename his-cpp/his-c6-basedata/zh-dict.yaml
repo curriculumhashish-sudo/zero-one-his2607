@@ -1,27 +1,35 @@
 medication:
   tag: 药品管理
-  query-page:
-    summary: 分页查询药品目录
-  query-one:
-    summary: 查询药品详情
-  init:
-    summary: 获取药品管理初始化选项
-  add:
-    summary: 新增药品
-  modify:
+  edit:
     summary: 修改药品
-  remove:
+  delete:
     summary: 删除药品（支持批量）
-  enable:
+  start:
     summary: 启用药品（支持批量）
-  disable:
+  stop:
     summary: 停用药品（支持批量）
   body:
-    page: 药品分页查询条件
-    id: 药品编号字符串
-    add: 新增药品请求对象
-    modify: 修改药品请求对象
+    edit: 修改药品请求对象
     ids: 药品编号数组，单条操作传一个编号，批量操作传多个编号
+  example:
+    name: 阿莫西林胶囊
+    merchandiseName: 阿莫仙
+    purchaseUnitText: 盒
+    comprisedText: 一次性注射器
+    ingredient: 阿莫西林
+    doseFormText: 胶囊
+    approvalNumber: 国药准字H20060575
+    manufacturerText: 广州白云山医药集团股份有限公司
+    antibioticText: 青霉素类
+    typeText: 西药
+    doseUnitText: 克
+    ingredientItem: 阿莫西林
+    definition: 阿莫西林胶囊，用于敏感菌所致的呼吸道感染等
+    dosageInstruction: 饭后服用，每次1粒，每日3次
+    restrictedScope: 仅限呼吸内科使用
+    statusEnabled: 启用
+    locationText: 门诊药房
+    supplierText: 国药控股广州有限公司
   field:
     authorization: 文档自测模式使用非空 Bearer 测试值，非文档模式使用项目真实鉴权
     pageNo: 页码
