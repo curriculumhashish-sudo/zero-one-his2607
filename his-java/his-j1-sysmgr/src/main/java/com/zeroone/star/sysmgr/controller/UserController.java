@@ -1,82 +1,83 @@
 package com.zeroone.star.sysmgr.controller;
 
 import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j1.sysmgr.ChangePasswordDTO;
+import com.zeroone.star.project.dto.j1.sysmgr.UserDTO;
 import com.zeroone.star.project.j1.sysmgr.UserApis;
+import com.zeroone.star.project.query.j1.sysmgr.UserQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j1.sysmgr.UserDetailVO;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import com.zeroone.star.project.vo.j1.sysmgr.UserListVO;
+import com.zeroone.star.project.vo.j1.sysmgr.UserPageVO;
+import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/user")
 @Tag(name = "用户管理")
 public class UserController implements UserApis {
-    /**
-     * 1. 获取用户分页列表（条件查询 + 分页）
-     *
-     * @return
-     */
-    @GetMapping("/getPage")
-    public JsonVO<PageDTO<UserDetailVO>> getPage() {
+    @Operation(summary   = "分页查询用户列表")
+    @GetMapping("/page")
+    @Override
+    public JsonVO<PageDTO<UserPageVO>> getPage(UserQuery userQuery) {
         return null;
     }
 
-    /**
-     * 2. 获取用户列表
-     */
-    @GetMapping("/getList")
-    public void getList() {
+    @Operation(summary   = "分页查询选择用户列表")
+    @GetMapping("/list")
+    @Override
+    public JsonVO<PageDTO<UserListVO>> getList(UserQuery userQuery) {
+        return null;
     }
 
-    /**
-     * 3. 根据用户ID获取用户详细信息
-     */
-    @GetMapping("/getById")
-    public void getById() {
+    @Operation(summary   = "根据用户ID查询用户详情")
+    @GetMapping("/{id}")
+    @Override
+    public JsonVO<UserDetailVO> getById(@PathVariable String id) {
+        return null;
     }
 
-    /**
-     * 4. 新增用户
-     */
-    @PostMapping("/add")
-    public void add() {
+    @Operation(summary   = "新增用户")
+    @PostMapping
+    @Override
+    public JsonVO<String> saveUser(@RequestBody UserDTO userDTO) {
+        return null;
     }
 
-    /**
-     * 5. 更新用户信息
-     */
+    @Operation(summary   = "修改用户")
     @PutMapping("/update")
-    public void update() {
+    @Override
+    public JsonVO<String> updateUser(@RequestBody UserDTO userDTO) {
+        return null;
     }
 
-    /**
-     * 6. 删除用户
-     */
-    @DeleteMapping("/delete")
-    public void delete() {
+
+    @Operation(summary   = "删除用户")
+    @DeleteMapping("/{id}")
+    @Override
+    public JsonVO<String> deleteById(@PathVariable String id) {
+        return null;
     }
 
-    /**
-     * 7. 修改密码
-     */
+    @Operation(summary   = "修改用户密码")
     @PutMapping("/changePassword")
-    public void changePassword() {
+    public JsonVO<String> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO) {
+        return null;
     }
 
-    /**
-     * 8. 启用/禁用用户 (合并)
-     */
-    @PutMapping("/enableOrDisable")
-    public void enableOrDisable() {
+    @Operation(summary   = "修改用户状态")
+    @PutMapping("/updateStatus/{id}/status/{status}")
+    @Override
+    public JsonVO<String> updateStatus(@PathVariable String id, @PathVariable Integer status) {
+        return null;
     }
 
-    /**
-     * 9. 锁定/解锁用户 (合并)
-     */
-    @PutMapping("/lockOrUnlock")
-    public void lockOrUnlock() {
+    @Operation(summary   = "锁定用户")
+    @PutMapping("/lockUser/{id}/lockStatus/{lockStatus}")
+    @Override
+    public JsonVO<String> lockUser(@PathVariable String id,@PathVariable Integer lockStatus) {
+        return null;
+
     }
 }
