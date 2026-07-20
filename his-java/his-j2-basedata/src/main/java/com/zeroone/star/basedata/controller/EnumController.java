@@ -1,11 +1,11 @@
-package com.zeroone.star.personcenter.controller;
+package com.zeroone.star.basedata.controller;
 
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j2.sys.EnumDTO;
-import com.zeroone.star.project.dto.j2.sys.EnumDeleteDTO;
-import com.zeroone.star.project.j2.sys.enumApis;
-import com.zeroone.star.project.query.j2.sys.EnumListQuery;
-import com.zeroone.star.project.query.j2.sys.EnumQuery;
+import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumDTO;
+import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumDeleteDTO;
+import com.zeroone.star.project.j2.basedata.enumApis;
+import com.zeroone.star.project.query.j2.basedata.EnumListQuery;
+import com.zeroone.star.project.query.j2.basedata.EnumQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

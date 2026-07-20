@@ -1,4 +1,4 @@
-package com.zeroone.star.project.dto.j2.sysmgr.RentDTO;
+package com.zeroone.star.project.dto.j2.sysmgr.rentdto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
