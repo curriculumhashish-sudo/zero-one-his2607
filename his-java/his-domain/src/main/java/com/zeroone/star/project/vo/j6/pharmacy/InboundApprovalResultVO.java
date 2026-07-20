@@ -27,6 +27,6 @@ public class InboundApprovalResultVO {
     /**
      * 操作后单据最新状态枚举码
      */
-    @Schema(description = "操作后单据最新状态（PENDING_APPROVAL/DRAFT/AGREE/REJECT）", example = "PENDING_APPROVAL")
+    @Schema(description = "操作后单据最新状态（APPROVAL/WITHDRAW/AGREE/REJECT）",example = "APPROVAL")
     private String statusEnum;
 }
