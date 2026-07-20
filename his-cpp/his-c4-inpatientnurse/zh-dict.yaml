@@ -1,0 +1,22 @@
+dispense:
+ tags:
+  t1: 汇总领药管理
+ summary-list:
+  summary: 获取汇总领药单列表（条件+分页）
+ detail:
+  summary: 获取发药明细（按汇总单号）
+ field:
+  summary-no: 汇总单号
+  status-enum: 单据状态（WAIT_REVIEW-待审核/DISPENSED-已发药）
+  dispense-date: 发药日期（yyyy-MM-dd）
+  des-location-id: 领药目标科室标识
+  item-count: 药品条目数
+  planned-dispense-time: 计划发药时间
+  dispense-time: 发药时间
+  detail-id: 明细标识（一个药品一条明细）
+  medication-name: 药品名称
+  quantity: 开药数量
+  unit-code: 药品规格
+ mock:
+  med1-name: 0.9%氯化钠注射液
+  med1-unit: 250ml/袋
