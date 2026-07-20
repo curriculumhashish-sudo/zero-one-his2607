@@ -22,14 +22,4 @@ public class RentDTO {
     private String tenantStatus;
     @Schema(description = "租户描述", example = "默认租户", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String tenantDescription;
-    @Schema(description = "租户ID", example = "1",requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String tenantId;
-    @Schema(description = "租户创建时间", example = "2023-07-01 00:00:00",requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String tenantCreateTime;
-    @Schema(description = "租户更新时间", example = "2023-07-01 00:00:00",requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String tenantUpdateTime;
-    @Schema(description = "租户删除标志", example = "0",requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String tenantDeleteFlag;
-    @Schema(description = "租户删除时间", example = "2023-07-01 00:00:00",requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String tenantDeleteTime;
 }
