@@ -1,5 +1,6 @@
 ﻿diagnose:
     add:
+        summary: 新增诊断
         id: 诊断数据主键
         encounterId: 就诊id
         conditionId: 病情id
@@ -15,12 +16,14 @@
         conditionCode: 病情编码
         createAt: 创建时间
     delete:
+        summary: 删除诊断
         id: 诊断数据主键
         encounterId: 就诊id
         conditionId: 病情id
         deleteAt: 删除时间
         deleteBy: 删除人
     usage:
+        summary: 获取诊断使用历史
         id: 诊断数据主键
         encounterId: 就诊id
         conditionId: 病情id
@@ -39,6 +42,7 @@
         startDate: 开始日期
         endDate: 结束日期
     patient:
+        summary: 获取患者诊断记录（条件+分页）
         pageIndex: 页码
         pageSize: 每页条数
         patientId: 患者id
@@ -46,3 +50,4 @@
         diagTypeCode: 诊断类型
         startDate: 开始日期
         endDate: 结束日期
+    tag: 诊断管理    
