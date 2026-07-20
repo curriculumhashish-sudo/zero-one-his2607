@@ -32,6 +32,12 @@ class FrequencyPageJsonVO : public JsonVO<FrequencyPageDTO::Wrapper>
 	DTO_INIT(FrequencyPageJsonVO, JsonVO<FrequencyPageDTO::Wrapper>);
 };
 
+// 频次详情响应包装（code + message + data）
+class FrequencyDetailJsonVO : public JsonVO<FrequencyDTO::Wrapper>
+{
+    DTO_INIT(FrequencyDetailJsonVO, JsonVO<FrequencyDTO::Wrapper>);
+};
+
 #include OATPP_CODEGEN_END(DTO)
 
 #endif // !_FREQUENCYVO_H_

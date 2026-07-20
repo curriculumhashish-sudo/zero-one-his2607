@@ -24,6 +24,10 @@
 #include "domain/vo/treatment/TreatmentVO.h"
 #include "domain/dto/treatment/TreatmentAddDTO.h"
 #include "domain/dto/treatment/TreatmentModifyDTO.h"
+#include "domain/query/treatment/TreatmentQuery.h"
+#include "domain/dto/treatment/TreatmentPageDTO.h"
+#include "domain/dto/treatment/TreatmentSelectDTO.h"
+#include "domain/dto/treatment/TreatmentStatusDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 #define API_TAG ZH_WORDS_GETTER("treatment.tags.tag")
@@ -51,6 +55,26 @@ public: // 接口定义
 	// 修改诊疗：接口绑定
 	API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/treatment/modify-treatment", modifyTreatment,
 		BODY_DTO(TreatmentModifyDTO::Wrapper, dto), execModifyTreatment(dto, authObject->getPayload()));
+
+	// 启/停用诊疗（支持批量）：接口信息
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("treatment.modify-status.summary"), modifyTreatmentStatus, StringJsonVO::Wrapper, API_TAG);
+	// 启/停用诊疗（支持批量）：接口绑定
+	API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/treatment/modify-status", modifyTreatmentStatus,
+		BODY_DTO(TreatmentStatusDTO::Wrapper, dto), execModifyStatus(dto, authObject->getPayload()));
+
+	// 获取选择诊疗列表（条件+分页）：接口信息
+	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("treatment.query-select.summary"), querySelectTreatment,
+		TreatmentQuery, TreatmentSelectPageJsonVO::Wrapper, API_TAG);
+	// 获取选择诊疗列表（条件+分页）：接口绑定
+	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/treatment/query-select", querySelectTreatment,
+		TreatmentQuery, execQuerySelect(query));
+
+	// 获取诊疗列表（条件+分页）：接口信息
+	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("treatment.query-all.summary"), queryAllTreatment,
+		TreatmentQuery, TreatmentPageJsonVO::Wrapper, API_TAG);
+	// 获取诊疗列表（条件+分页）：接口绑定
+	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/treatment/query-all", queryAllTreatment,
+		TreatmentQuery, execQueryAll(query));
 private: // 接口执行函数
 	// 获取诊疗详情：执行函数
 	TreatmentDetailJsonVO::Wrapper execQueryOne(const String& id);
@@ -58,6 +82,15 @@ private: // 接口执行函数
 	StringJsonVO::Wrapper execAddTreatment(const TreatmentAddDTO::Wrapper& dto, const PayloadDTO& payload);
 	// 修改诊疗：执行函数
 	StringJsonVO::Wrapper execModifyTreatment(const TreatmentModifyDTO::Wrapper& dto, const PayloadDTO& payload);
+
+	// 启/停用诊疗（支持批量）：执行函数
+	StringJsonVO::Wrapper execModifyStatus(const TreatmentStatusDTO::Wrapper& dto, const PayloadDTO& payload);
+
+	// 获取选择诊疗列表（条件+分页）：执行函数
+	TreatmentSelectPageJsonVO::Wrapper execQuerySelect(const TreatmentQuery::Wrapper& query);
+
+	// 获取诊疗列表（条件+分页）：执行函数
+	TreatmentPageJsonVO::Wrapper execQueryAll(const TreatmentQuery::Wrapper& query);
 };
 
 #undef API_TAG

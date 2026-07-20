@@ -38,9 +38,18 @@ public: // 接口定义
 	// 获取频次列表（条件+分页）：接口绑定
 	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/frequency/query-all", queryAllFrequency,
 		FrequencyQuery, execQueryAll(query));
+
+	// 获取频次详情：接口信息
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("frequency.query-one.summary"), queryOneFrequency,
+		FrequencyDetailJsonVO::Wrapper, API_TAG,
+		API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("frequency.field.id"), "1", true););
+	// 获取频次详情：接口绑定
+	API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/frequency/query-one", queryOneFrequency, QUERY(String, id), execQueryOne(id));
 private: // 接口执行函数
 	// 获取频次列表（条件+分页）：执行函数
 	FrequencyPageJsonVO::Wrapper execQueryAll(const FrequencyQuery::Wrapper& query);
+  // 获取频次详情：执行函数
+	FrequencyDetailJsonVO::Wrapper execQueryOne(const String& id);
 };
 
 #undef API_TAG
