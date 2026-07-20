@@ -24,23 +24,27 @@ public interface ClinicScheduleApis {
     @PostMapping("/setroster/cancel-substitute")
     JsonVO<String> cancelSubstitute(@RequestParam Long scheduleId);
 
-    @Operation(summary = "停诊预览")
-    @PostMapping("/setroster/preview-stop-clinic")
-    JsonVO<StopClinicPreviewDTO> previewStopClinic(@RequestBody StopClinicPreviewQuery query);
+//    @Operation(summary = "停诊预览")
+//    @PostMapping("/setroster/preview-stop-clinic")
+//    JsonVO<StopClinicPreviewDTO> previewStopClinic(@RequestBody StopClinicPreviewQuery query);
 
-    @Operation(summary = "执行停诊")
-    @PostMapping("/setroster/execute-stop-clinic")
-    JsonVO<String> executeStopClinic(@RequestBody StopClinicExecuteDTO dto);
+    @Operation(summary = "整日停诊")
+    @PostMapping("/setroster/execute-stop-all-day")
+    JsonVO<String> executeStopAllDayClinic(@RequestBody StopClinicExecuteDTO dto);
+
+    @Operation(summary = "部分停诊")
+    @PostMapping("/setroster/execute-stop-partial")
+    JsonVO<String> executeStopPartialClinic(@RequestBody StopClinicExecuteDTO dto);
 
     @Operation(summary = "解锁停诊")
     @PostMapping("/setroster/unlock-stop-clinic")
     JsonVO<String> unlockStopClinic(@RequestParam Long scheduleId);
 
-    @Operation(summary = "查询排班日程列表")
-    @GetMapping("/setroster/query-schedule-list")
-    JsonVO<PageDTO<ScheduleVO>> queryScheduleList(ScheduleQuery query);
-
-    @Operation(summary = "查询排班日程详情")
-    @GetMapping("/setroster/query-schedule")
-    JsonVO<ScheduleVO> querySchedule(@RequestParam Long id);
+//    @Operation(summary = "查询排班日程列表")
+//    @GetMapping("/setroster/query-schedule-list")
+//    JsonVO<PageDTO<ScheduleVO>> queryScheduleList(ScheduleQuery query);
+//
+//    @Operation(summary = "查询排班日程详情")
+//    @GetMapping("/setroster/query-schedule")
+//    JsonVO<ScheduleVO> querySchedule(@RequestParam Long id);
 }
