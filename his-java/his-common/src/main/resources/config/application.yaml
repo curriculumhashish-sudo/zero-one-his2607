@@ -53,6 +53,6 @@ springdoc:
     - group: 'default'
       display-name: ${spring.application.name}
       paths-to-match: '/**'
-      packages-to-scan: com.zeroone.star
+      packages-to-scan: com.zeroone.stat.sysmgr.controller
   override-with-generic-response: false
   default-flat-param-object: true
