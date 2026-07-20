@@ -13,13 +13,13 @@ public class UserPageVO {
     private String id;
 
     @Schema(description = "用户名", example = "lianglaoshi")
-    private String userName;
+    private String username;
 
     @Schema(description = "姓名", example = "梁老师")
-    private String name;
+    private String nickname;
 
-    @Schema(description = "角色名称列表")
-    private List<String> roleNames;
+    @Schema(description = "角色Id列表")
+    private List<String> roleIds;
 
     @Schema(description = "手机号码", example = "13800138000")
     private String phoneNumber;
@@ -31,7 +31,7 @@ public class UserPageVO {
     private Integer status;
 
     @Schema(description = "锁定状态 (1:已锁定, 0:未锁定)", example = "0")
-    private String lockStatus;
+    private Integer lockStatus;
 
     @Schema(description = "登录失败次数", example = "0")
     private Integer loginFailCount;

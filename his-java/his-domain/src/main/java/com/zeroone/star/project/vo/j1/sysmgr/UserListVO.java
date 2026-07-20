@@ -7,7 +7,7 @@ import lombok.Data;
 @Schema(description = "选择用户列表对象")
 public class UserListVO {
     @Schema(description = "主键id", example = "336396155648217088")
-    private String Id;
+    private String id;
 
     @Schema(description = "用户名", example = "lianglaoshi")
     private String username;
