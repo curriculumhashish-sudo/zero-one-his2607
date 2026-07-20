@@ -8,7 +8,7 @@
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-	  https://www.apache.org/licenses/LICENSE-2.0
+      https://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,6 +25,8 @@
 #include "controller/medicalorderexecution/OrderExecuteControlController.h"
 #include "medicationcollection/DispenseController.h"
 #include "medicalorderverification/medicalorderverificationController.h"
+#include "medicalorderexecution/MedicalOrderExecutionController.h"
+
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
 // Simplified controller binding macro
@@ -44,7 +46,9 @@ Router::Router(Endpoints* docEndpoints, HttpRouter* router)
 
 void Router::initRouter()
 {
-	// #TIP: Add system extension route definitions below
+	// Medical Order Execution (core)
+	ROUTER_SIMPLE_BIND(MedicalOrderExecutionController);
+	// Other inpatient nurse modules
 	ROUTER_SIMPLE_BIND(MedicationCollectionController);
 	ROUTER_SIMPLE_BIND(EncounterManageController);
 	ROUTER_SIMPLE_BIND(AdmissionTransferController);

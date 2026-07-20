@@ -46,7 +46,7 @@ if(DEFINED _RELEASE_DOC_)
 	target_compile_definitions(${appName} PRIVATE _RELEASE_DOC_)
 endif()
 
-# 添加/bigobj选项
+# Add /bigobj option
 if(MSVC)
 	target_compile_options(${appName} PRIVATE /bigobj)
 endif()
