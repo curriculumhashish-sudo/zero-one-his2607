@@ -7,31 +7,30 @@ import com.zeroone.star.project.dto.j6.pharmacy.WithdrawInboundReceiptApprovalDT
 import com.zeroone.star.project.j6.pharmacy.PharmacyApis;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j6.pharmacy.InboundApprovalResultVO;
-
 import com.zeroone.star.project.dto.j6.pharmacy.StocktakeSaveDTO;
 import com.zeroone.star.project.vo.j6.pharmacy.StocktakeDetailVO;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RestController;
-
+import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.query.j6.pharmacy.StockOutQuery;
+import com.zeroone.star.project.vo.j6.pharmacy.StockOutDetailVO;
+import com.zeroone.star.project.vo.j6.pharmacy.StockOutListVO;
+import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import jakarta.validation.Valid;
-
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-
 @RestController
-@RequestMapping("j6/pharmacy")
+@RequestMapping("j6/warehouse")
 @RequiredArgsConstructor
-@Tag(name = "药库进货单审批", description = "进货单的提交审批、撤回审批、审批通过、驳回审批四个审批流转操作")
+@Tag(name = "药库管理", description = "药库管理相关接口")
 public class PharmacyController implements PharmacyApis {
 
 
@@ -152,5 +151,26 @@ public class PharmacyController implements PharmacyApis {
             @Parameter(description = "驳回审批入参", required = true)
             @RequestBody @Valid RejectInboundReceiptDTO dto) {
         return JsonVO.success(new InboundApprovalResultVO(true, "REJECT"));
+    }
+
+    @Operation(summary = "删除出库单")
+    @DeleteMapping("/removeStockOut")
+    @Override
+    public JsonVO<String> removeStockOut(@PathVariable String id) {
+        return null;
+    }
+
+    @Operation(summary = "获取药库出库单详情")
+    @GetMapping("/getStockOutDetail")
+    @Override
+    public JsonVO<StockOutDetailVO> getStockOutDetail(@PathVariable String id) {
+        return null;
+    }
+
+    @Operation(summary = "获取药库出库单列表")
+    @GetMapping("/getPharmacy")
+    @Override
+    public JsonVO<PageDTO<StockOutListVO>> getPharmacy(@RequestBody StockOutQuery stockOutQuery) {
+        return null;
     }
 }
