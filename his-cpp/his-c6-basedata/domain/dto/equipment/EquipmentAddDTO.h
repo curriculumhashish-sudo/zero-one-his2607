@@ -8,12 +8,14 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * 租户添加DTO类
+ * 器材添加DTO类
  */
 class EquipmentAddDTO : public oatpp::DTO
 {
 	DTO_INIT(EquipmentAddDTO, DTO);
 	
+	// 器材id
+	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("equipment.field.id"), true);
 	// 器材名称
 	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("equipment.field.name"), true);
 	// 器材分类

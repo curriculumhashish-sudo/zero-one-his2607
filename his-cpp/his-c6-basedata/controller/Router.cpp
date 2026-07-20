@@ -19,6 +19,7 @@
 #include "stdafx.h"
 #include "Router.h"
 #include "ApiHelper.h"
+#include "frequency/FrequencyController.h"
 #include "equipment/EquipmentController.h"
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
@@ -41,4 +42,5 @@ void Router::initRouter()
 {
 	// #TIP: Add system extension route definitions below
 	ROUTER_SIMPLE_BIND(EquipmentController);
+	ROUTER_SIMPLE_BIND(FrequencyController);
 }
