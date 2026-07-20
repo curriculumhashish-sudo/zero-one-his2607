@@ -1,4 +1,45 @@
-﻿tcm-prescription:
+diagnosis:
+ tags:
+  t1: 西医接口
+  t2: 中医接口
+ get:
+  summary: 分页查询示例数据
+ add:
+  summary: 新增诊断数据
+ modify:
+  summary: 修改诊断数据
+ remove:
+  summary: 删除诊断数据
+ query-by-id:
+  summary: 通过ID获取单条数据
+ export:
+  summary: 导出示例数据(响应Excel文件)
+ export-pdf:
+  summary: 导出示例数据(响应PdfBase64字符串)
+ import:
+  summary: 导入示例数据
+ query-one:
+  summary: 使用声明式服务查询一条数据
+ query-all:
+  summary: 使用声明式服务查询多条数据
+ field:
+  patient_id: 患者id
+  encounter_id: 就诊id
+  condition_id: 临床id
+  encounter_diagnosis_id: 就诊诊断id
+  primary_flag: 是否主诊断
+  set_always: 是否设为常用
+  rank: 排序
+  condition_def_id: 诊断定义id
+  condition_code: 病情编码
+  condition_name: 疾病名称
+  diag_type_code: 诊断类型
+  disease_def_id: 疾病id
+  syndrome_def_id: 证候id
+  diagnosis_desc: 诊断描述
+  tcm_flag: 是否中医
+
+tcm-prescription:
   tags:
     tag: 中药处方管理
   sign:
@@ -24,3 +65,65 @@
     summary: 停嘱中药处方
   cancel-stop:
     summary: 取消停嘱中药处方
+
+inpdocws:
+  cycle-control:
+    tag: 周期控制
+    patient-queue:
+      summary: 查询住院患者队列
+    discharge-advice:
+      summary: 创建出院建议
+  field:
+    encounterId: 就诊ID
+    patientId: 患者ID
+    patientName: 患者姓名
+    gender: 性别
+    age: 年龄
+    diagnosisSummary: 诊断摘要
+    bedName: 床号
+    bedId: 床位位置ID
+    wardId: 病区ID
+    wardName: 病区名称
+    houseName: 病房号
+    accountBalance: 账户余额
+    statusEnum: 就诊状态代码
+    statusEnumText: 就诊状态
+    pendingAuditCount: 待审核医嘱数
+    pendingExecuteCount: 待执行医嘱数
+    encounterBusNo: 住院号
+    admitTime: 入院时间
+    keyword: 关键字（住院号/姓名/床号）
+    dischargeWay: 出院方式代码（1-医嘱离院 2-转院 3-转社区 4-非医嘱离院 5-死亡 6-其他）
+    dischargeTime: 出院日期时间
+    dischargeDiagnosis: 出院诊断
+    newStatus: 操作后新状态
+    newStatusText: 新状态文本
+    dischargeWayText: 出院方式文本
+    adviceId: 出院建议ID
+
+medicalorder:
+  tag: "医嘱管理"
+  field:
+    id: "医嘱ID"
+    busNo: "业务编号"
+    groupId: "分组编号"
+    statusEnum: "医嘱状态"
+    patientId: "患者ID"
+    encounterId: "就诊ID"
+    medicationId: "药品ID"
+    prescriptionNo: "处方号"
+    orderIds: "医嘱ID列表"
+    orderId: "医嘱ID"
+    stopReason: "停嘱原因码"
+    autoRefund: "是否自动退费"
+    splitAll: "是否拆分全组"
+    splitCount: "拆分数量"
+    successCount: "成功数量"
+    failCount: "失败数量"
+    failReasons: "失败原因列表"
+  merge-order:
+    summary: "并组医嘱接口"
+  split-order:
+    summary: "拆嘱医嘱接口"
+  stop-order:
+    summary: "批量停止医嘱接口"
