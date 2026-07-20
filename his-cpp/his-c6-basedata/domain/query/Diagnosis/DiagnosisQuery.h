@@ -34,13 +34,13 @@ class DiagnosisQuery : public PageQuery
 	DTO_INIT(DiagnosisQuery, PageQuery);
 
 	// ’Ô∂œ±‡¬Î 
-	API_DTO_FIELD_DEFAULT(String, diagnosisCode, "diagnosis.flield.Code");
+	API_DTO_FIELD_DEFAULT(String, diagnosisCode, ZH_WORDS_GETTER("diagnosis.flield.Code"));
 	// ’Ô∂œ√˚≥∆ 
-	API_DTO_FIELD_DEFAULT(String, diagnosisName, "diagnosis.flield.Name");
-	//–Ú∫≈
-	API_DTO_FIELD_DEFAULT(Int32, diagnosisId, "diagnosis.flield.Id");
+	API_DTO_FIELD_DEFAULT(String, diagnosisName, ZH_WORDS_GETTER("diagnosis.flield.Name"));
+	////–Ú∫≈
+	//API_DTO_FIELD_DEFAULT(Int32, diagnosisId, ZH_WORDS_GETTER"diagnosis.flield.Id");
 	// ’Ô∂œ∑÷¿‡ 
-	API_DTO_FIELD_DEFAULT(String, diagnosisType, "diagnosis.flield.Type");
+	API_DTO_FIELD_DEFAULT(String, diagnosisType, ZH_WORDS_GETTER("diagnosis.flield.Type"));
 };
 
 #include OATPP_CODEGEN_END(DTO)

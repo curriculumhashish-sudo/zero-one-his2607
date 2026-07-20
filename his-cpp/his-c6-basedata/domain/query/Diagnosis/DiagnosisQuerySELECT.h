@@ -34,11 +34,12 @@ class DiagnosisQuery : public PageQuery
 	DTO_INIT(DiagnosisQuery, PageQuery);
 	
 	 // 诊断编码 
-	API_DTO_FIELD_DEFAULT(String, diagnosisCode, "diagnosis.flield.Code");
+	API_DTO_FIELD_DEFAULT(String, diagnosisCode, ZH_WORDS_GETTER("diagnosis.flield.Code"));
 	// 诊断名称 
-	API_DTO_FIELD_DEFAULT(String, diagnosisName, "diagnosis.flield.Name");
+	API_DTO_FIELD_DEFAULT(String, diagnosisName, ZH_WORDS_GETTER("diagnosis.flield.Name"));
 	// 诊断分类 1西医 2中医，0查询全部类型
-	API_DTO_FIELD_DEFAULT(Int32, diagnosisType, "diagnosis.flield.Type");
+	API_DTO_FIELD_DEFAULT(Int32, diagnosisType, ZH_WORDS_GETTER("diagnosis.flield.Type"));
+	
 };
 
 #include OATPP_CODEGEN_END(DTO)
