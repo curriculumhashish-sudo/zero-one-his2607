@@ -18,16 +18,16 @@ import com.zeroone.star.project.vo.JsonVO;
  *   <tr><th>方法</th><th>HTTP</th><th>路径</th><th>说明</th></tr>
  *   <tr><td>pageSlots</td><td>GET</td><td>/calendar/pageSlots</td><td>获取号源列表（分页 + 多条件查询 + 聚合统计）</td></tr>
  *   <tr><td>getSlotDetail</td><td>GET</td><td>/calendar/getSlotDetail</td><td>获取号源详情</td></tr>
- *   <tr><td>blockSlots</td><td>POST</td><td>/calendar/blockSlots</td><td>批量封锁号源</td></tr>
- *   <tr><td>unblockSlots</td><td>POST</td><td>/calendar/unblockSlots</td><td>批量解封号源</td></tr>
- *   <tr><td>setOverbooked</td><td>POST</td><td>/calendar/setOverbooked</td><td>标记超售</td></tr>
+ *   <tr><td>blockSlots</td><td>PUT</td><td>/calendar/blockSlots</td><td>批量封锁号源</td></tr>
+ *   <tr><td>unblockSlots</td><td>PUT</td><td>/calendar/unblockSlots</td><td>批量解封号源</td></tr>
+ *   <tr><td>setOverbooked</td><td>PUT</td><td>/calendar/setOverbooked</td><td>标记超售</td></tr>
  * </table>
  *
  * <h3>号源状态说明</h3>
  * <ul>
  *   <li><b>free</b> — 可约</li>
  *   <li><b>busy</b> — 已满</li>
- *   <li><b>BUSY_UNAVAILABLE</b> — 停诊</li>
+ *   <li><b>busy-unavailable</b> — 停诊</li>
  * </ul>
  *
  * <p>版权：&copy;01星球</p>
@@ -58,7 +58,7 @@ public interface SlotApis {
     JsonVO<SlotDetailDTO> getSlotDetail(String slotId);
 
     /**
-     * 批量封锁号源（将选中号源状态置为 BUSY_UNAVAILABLE）
+     * 批量封锁号源（将选中号源状态置为 busy-unavailable）
      *
      * @param dto 封锁请求（号源ID列表 + 封锁原因）
      * @return 操作结果（通过 code 判断）

@@ -31,6 +31,6 @@ public class SlotQuery extends PageQuery {
     @Schema(description = "医师主键（可选，筛选指定医师的号源）")
     private String practitionerId;
 
-    @Schema(description = "号源状态码（可选）：free=可约 / busy=已满 / BUSY_UNAVAILABLE=停诊")
+    @Schema(description = "号源状态码（可选）：free=可约 / busy=已满 / busy-unavailable=停诊")
     private String statusCode;
 }
