@@ -8,6 +8,15 @@ import com.zeroone.star.project.j6.pharmacy.PharmacyApis;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j6.pharmacy.InboundApprovalResultVO;
 
+import com.zeroone.star.project.dto.j6.pharmacy.StocktakeSaveDTO;
+import com.zeroone.star.project.vo.j6.pharmacy.StocktakeDetailVO;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,19 +26,73 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-/**
- * <p>
- * 描述：药库相关接口实现
- * </p>
- * @author AB
- * @version 1.0.0
- */
+
 @RestController
 @RequestMapping("j6/pharmacy")
+@RequiredArgsConstructor
 @Tag(name = "药库进货单审批", description = "进货单的提交审批、撤回审批、审批通过、驳回审批四个审批流转操作")
 public class PharmacyController implements PharmacyApis {
+
+
+    @Override
+    public JsonVO<StocktakeDetailVO> createStocktake(StocktakeSaveDTO dto) {
+        return JsonVO.success(buildExampleDetailVO());
+    }
+
+    @Override
+    public JsonVO<StocktakeDetailVO> saveStocktake(String busNo, StocktakeSaveDTO dto) {
+        StocktakeDetailVO vo = buildExampleDetailVO();
+        vo.setBusNo(busNo);
+        return JsonVO.success(vo);
+    }
+
+    @Override
+    public JsonVO<StocktakeDetailVO> submitStocktake(String busNo, StocktakeSaveDTO dto) {
+        StocktakeDetailVO vo = buildExampleDetailVO();
+        vo.setBusNo(busNo);
+        vo.setStatusEnum("PENDING_APPROVAL");
+        return JsonVO.success(vo);
+    }
+
+    /** Knife4j 示例数据 */
+    private StocktakeDetailVO buildExampleDetailVO() {
+        StocktakeDetailVO vo = new StocktakeDetailVO();
+        vo.setBusNo("PD202607180001");
+        vo.setStatusEnum("DRAFT");
+        vo.setPurposeLocationId("284503862625177600");
+        vo.setPurposeLocationName("西药库");
+        vo.setPractitionerId("322733572165734400");
+        vo.setApplicantId("322733572165734400");
+        vo.setApplyTime(LocalDateTime.of(2026, 7, 18, 14, 0, 0));
+        vo.setApproverId("322733572165734401");
+        vo.setApprovalTime(LocalDateTime.of(2026, 7, 18, 15, 0, 0));
+
+        StocktakeDetailVO.StocktakeDetailLineVO line =
+                new StocktakeDetailVO.StocktakeDetailLineVO();
+        line.setLineId("line_001");
+        line.setItemTable("medication");
+        line.setItemId("med_001");
+        line.setProductName("阿莫西林胶囊");
+        line.setSpecification("0.25g*24粒");
+        line.setManufacturer("华北制药");
+        line.setLotNumber("LOT20260701");
+        line.setExpirationDate("2028-06-30");
+        line.setUnitCode("PCS");
+        line.setBookQuantity(new BigDecimal("95.00"));
+        line.setProfitLossQuantity(new BigDecimal("5.00"));
+        line.setActualQuantity(new BigDecimal("100.00"));
+        line.setProfitLossAmount(new BigDecimal("125.50"));
+        line.setPrice(new BigDecimal("25.10"));
+        line.setInventoryItemId("inv_001");
+        line.setSupplierId("supplier_001");
+        line.setTraceNo("TRACE001");
+        line.setRemake("盘点正常");
+        line.setOccurrenceTime(LocalDateTime.of(2026, 7, 18, 10, 0, 0));
+
+        vo.setLines(List.of(line));
+        return vo;
+    }
 
     // ============================================================
     // 提交审批
@@ -37,8 +100,8 @@ public class PharmacyController implements PharmacyApis {
     @Override
     @PostMapping("/purchase-inbound/submitInboundReceiptApproval")
     @Operation(
-        summary = "提交审批",
-        description = "将草稿（DRAFT）状态的进货单提交至审批流程，状态变更为待审批（PENDING_APPROVAL）。可指定审批人（approverId）。服务端写入 applicantId 和 applyTime。"
+            summary = "提交审批",
+            description = "将草稿（DRAFT）状态的进货单提交至审批流程，状态变更为待审批（PENDING_APPROVAL）。可指定审批人（approverId）。服务端写入 applicantId 和 applyTime。"
     )
     public JsonVO<InboundApprovalResultVO> submitInboundReceiptApproval(
             @Parameter(description = "提交审批入参", required = true)
@@ -52,8 +115,8 @@ public class PharmacyController implements PharmacyApis {
     @Override
     @PostMapping("/purchase-inbound/withdrawInboundReceiptApproval")
     @Operation(
-        summary = "撤回审批",
-        description = "将待审批（PENDING_APPROVAL）状态的进货单撤回到草稿（DRAFT）状态。仅单据提交人可执行此操作。"
+            summary = "撤回审批",
+            description = "将待审批（PENDING_APPROVAL）状态的进货单撤回到草稿（DRAFT）状态。仅单据提交人可执行此操作。"
     )
     public JsonVO<InboundApprovalResultVO> withdrawInboundReceiptApproval(
             @Parameter(description = "撤回审批入参", required = true)
@@ -67,8 +130,8 @@ public class PharmacyController implements PharmacyApis {
     @Override
     @PostMapping("/purchase-inbound/agreeInboundReceipt")
     @Operation(
-        summary = "审批通过",
-        description = "审批人通过进货单，状态变更为已通过（AGREE）。服务端写入 approverId 和 approvalTime。如需上传医保，可传入 contractBusNo。"
+            summary = "审批通过",
+            description = "审批人通过进货单，状态变更为已通过（AGREE）。服务端写入 approverId 和 approvalTime。如需上传医保，可传入 contractBusNo。"
     )
     public JsonVO<InboundApprovalResultVO> agreeInboundReceipt(
             @Parameter(description = "审批通过入参", required = true)
@@ -82,8 +145,8 @@ public class PharmacyController implements PharmacyApis {
     @Override
     @PostMapping("/purchase-inbound/rejectInboundReceipt")
     @Operation(
-        summary = "驳回审批",
-        description = "审批人驳回进货单，状态变更为已驳回（REJECT）。必须填写驳回原因（rejectReason）。服务端写入 approverId 和 approvalTime。"
+            summary = "驳回审批",
+            description = "审批人驳回进货单，状态变更为已驳回（REJECT）。必须填写驳回原因（rejectReason）。服务端写入 approverId 和 approvalTime。"
     )
     public JsonVO<InboundApprovalResultVO> rejectInboundReceipt(
             @Parameter(description = "驳回审批入参", required = true)

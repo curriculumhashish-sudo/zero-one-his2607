@@ -45,6 +45,9 @@ target
 # Maven ignore
 .flattened-pom.xml
 
+# Design plan
+.plan/
+
 # User-specific files
 *.rsuser
 *.suo
