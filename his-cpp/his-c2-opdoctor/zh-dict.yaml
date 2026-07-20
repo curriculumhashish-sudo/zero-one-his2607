@@ -1,0 +1,17 @@
+prescription:
+ tags:
+  tag: 中医处方管理
+ add:
+  summary: 新增处方
+ remove:
+  summary: 删除处方
+ field:
+  id: 处方编号
+  usage: 用法
+  frequency: 频次
+  days: 天数
+  copies: 付数
+  decoction: 代煎
+  diagnosis: 诊断
+  remark: 备注
+  medicine: 药材
