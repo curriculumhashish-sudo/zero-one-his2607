@@ -29,14 +29,6 @@
                 <configuration><mainClass>com.zeroone.star.j3.ward.WardApplication</mainClass></configuration>
             </plugin>
             <plugin>
-                <groupId>com.zeroone.star</groupId>
-                <artifactId>mp-code-generator</artifactId>
-                <configuration>
-                    <dbConfig><host>192.168.220.128</host><port>3306</port><dbname>his_j3_ward</dbname><username>root</username><password>123456</password></dbConfig>
-                    <outDir>${project.basedir}/src/main/java</outDir>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
                 <configuration>
@@ -57,4 +49,21 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>codegen</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.zeroone.star</groupId>
+                        <artifactId>mp-code-generator-plugin</artifactId>
+                        <configuration>
+                            <dbConfig><host>192.168.220.128</host><port>3306</port><dbname>his_j3_ward</dbname><username>root</username><password>123456</password></dbConfig>
+                            <outDir>${project.basedir}/src/main/java</outDir>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

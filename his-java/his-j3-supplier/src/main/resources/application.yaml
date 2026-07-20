@@ -1,26 +1,9 @@
 server:
-  port: ${sp.j3-supplier:10207}
+  port: ${sp.j3-supplier:10206}
   servlet:
     context-path: /j3-basedata
   address: 0.0.0.0
+
 spring:
   application:
-    name: ${sn.j3-supplier:his-j3-supplier}
-  cloud:
-    nacos:
-      discovery:
-        server-addr: 192.168.40.131:8848
-      config:
-        server-addr: 192.168.40.131:8848
-        file-extension: yaml
-        enabled: true
-  datasource:
-    url: jdbc:mysql://192.168.40.131:3306/zo_his?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
-    username: root
-    password: 123456
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    type: com.alibaba.druid.pool.DruidDataSource
-    druid:
-      max-active: 20
-      min-idle: 5
-      initial-size: 5
+    name: ${sn.j3-database:his-j3-database}
