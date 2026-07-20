@@ -4,6 +4,8 @@ medication:
     summary: 分页查询药品目录
   query-one:
     summary: 查询药品详情
+  init:
+    summary: 获取药品管理初始化选项
   add:
     summary: 新增药品
   modify:
@@ -77,6 +79,9 @@ medication:
     basicFlag: 是否基本药物
     thoPartAttributeEnum: 住院临时医嘱拆分属性
     chrgitmLv: 医保等级
+    typeCode: 财务类型编码
+    typeCodeText: 财务类型名称
+    ybType: 医保类别编码
     rxFlag: 是否处方药
     dosageInstruction: 用法说明
     drug69Code: 药品69码
@@ -105,13 +110,40 @@ medication:
     retailPrice: 零售价格
     maximumRetailPrice: 最高零售价格
     statusEnum: 药品状态枚举
+    statusEnumText: 药品状态名称
     statusText: 药品状态文本
+    activeFlagText: 启停状态名称
+    specification: 列表展示规格
+    categoryCodeText: 药品分类名称
+    doseFromText: 剂量形式名称
+    doseUnitCodeText: 剂量单位名称
+    purchaseUnitCodeText: 采购单位名称
+    packageUnitCodeText: 包装单位名称
+    locationIdText: 药品位置名称
+    supplyIdText: 供应商名称
+    antibioticCodeText: 抗菌药物名称
+    potencyFlag: 是否效价药品
+    unitBandsJson: 药品单位带JSON文本
+    unitBands: 药品采购、拆零、包装、库存和剂量单位带
+    bandKind: 单位带类型
+    unitCode: 单位编码
+    unitName: 单位名称
+    ratioToSplit: 相对拆零单位换算比
+    unitPrice: 单位价格
     isDeleted: 是否删除
     version: 乐观锁版本
     createdAt: 创建时间
     updatedAt: 更新时间
     createdBy: 创建人
     updatedBy: 更新人
+    totalElements: 前端契约总记录数
+    totalCount: 参考系统实际总记录数
+    totalPages: 总页数
+    content: 当前页药品列表
+    optionValue: 初始化选项值
+    optionLabel: 初始化选项名称
+    optionSort: 初始化选项排序号
+    optionBusNo: 初始化选项业务编码
     total: 总记录数
     pages: 总页数
     rows: 当前页药品列表

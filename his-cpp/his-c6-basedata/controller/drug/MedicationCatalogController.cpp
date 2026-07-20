@@ -1,7 +1,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: axiao
+ @Author: bandao
  @Date: 2026/07/20
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,16 +31,27 @@ namespace
 	{
 		return dto
 			&& hasText(dto->name)
+			&& hasText(dto->merchandiseName)
+			&& hasText(dto->categoryCode)
+			&& hasText(dto->manufacturerText)
+			&& hasText(dto->supplyId)
+			&& hasText(dto->typeCode)
+			&& hasText(dto->pharmacologyCategoryCode)
+			&& hasText(dto->totalVolume)
 			&& hasText(dto->purchaseUnitCode)
 			&& hasText(dto->splitUnitCode)
 			&& hasText(dto->doseUnitCode)
+			&& hasText(dto->doseFormCode)
 			&& hasText(dto->packageUnitCode)
+			&& hasText(dto->stockUnitCode)
+			&& hasText(dto->partAttributeEnum)
+			&& hasText(dto->thoPartAttributeEnum)
 			&& dto->doseUnitRatio != nullptr
 			&& dto->purchaseUnitRatio != nullptr
+			&& dto->purchasePrice != nullptr
 			&& dto->stockUnitRatio != nullptr
-			&& dto->packageUnitRatio != nullptr
-			&& hasText(dto->statusEnum)
-			&& dto->activeFlag != nullptr;
+			&& dto->retailPrice != nullptr
+			&& dto->packageUnitRatio != nullptr;
 	}
 
 	template<class T>
@@ -55,7 +66,6 @@ namespace
 		detail->busNo = dto->busNo;
 		detail->name = dto->name;
 		detail->domainEnum = dto->domainEnum;
-		detail->medVersion = dto->medVersion;
 		detail->nameEn = dto->nameEn;
 		detail->pyStr = dto->pyStr;
 		detail->wbStr = dto->wbStr;
@@ -97,6 +107,8 @@ namespace
 		detail->basicFlag = dto->basicFlag;
 		detail->thoPartAttributeEnum = dto->thoPartAttributeEnum;
 		detail->chrgitmLv = dto->chrgitmLv;
+		detail->typeCode = dto->typeCode;
+		detail->ybType = dto->ybType;
 		detail->rxFlag = dto->rxFlag;
 		detail->dosageInstruction = dto->dosageInstruction;
 		detail->drug69Code = dto->drug69Code;
@@ -123,6 +135,15 @@ namespace
 		detail->purchasePrice = dto->purchasePrice;
 		detail->retailPrice = dto->retailPrice;
 		detail->maximumRetailPrice = dto->maximumRetailPrice;
+		detail->specification = dto->totalVolume;
+		if (dto->statusEnum && dto->statusEnum == "INACTIVE")
+		{
+			detail->statusEnum_enumText = u8"\u5DF2\u505C\u7528";
+		}
+		if (dto->activeFlag != nullptr && !dto->activeFlag.getValue(false))
+		{
+			detail->activeFlagText = u8"\u505C\u7528";
+		}
 	}
 
 	NoDataJsonVO::Wrapper createBatchResult(const oatpp::List<oatpp::String>& ids)
@@ -158,6 +179,10 @@ MedicationCatalogPageJsonVO::Wrapper MedicationCatalogController::execQueryMedic
 	auto page = MedicationCatalogPageVO::createShared();
 	page->pageNo = query->pageNo;
 	page->pageSize = query->pageSize;
+	page->totalElements = page->totalCount;
+	const auto pageSize = query->pageSize.getValue(1);
+	const auto totalCount = page->totalCount.getValue(0);
+	page->totalPages = static_cast<v_int32>((totalCount + pageSize - 1) / pageSize);
 	result->success(page);
 	return result;
 }
@@ -174,6 +199,19 @@ MedicationCatalogDetailJsonVO::Wrapper MedicationCatalogController::execQueryMed
 	detail->id = id;
 	detail->medicationDefId = id;
 	result->success(detail);
+	return result;
+}
+
+MedicationCatalogInitJsonVO::Wrapper MedicationCatalogController::execGetMedicationInit(
+	const MedicationCatalogInitDTO::Wrapper& dto)
+{
+	auto result = MedicationCatalogInitJsonVO::createShared();
+	if (!dto)
+	{
+		result->init(nullptr, RS_PARAMS_INVALID);
+		return result;
+	}
+	result->success(MedicationCatalogInitVO::createShared());
 	return result;
 }
 
@@ -204,6 +242,7 @@ MedicationCatalogDetailJsonVO::Wrapper MedicationCatalogController::execModifyMe
 	auto detail = MedicationCatalogDetailVO::createShared();
 	detail->id = dto->id;
 	detail->medicationDefId = dto->id;
+	detail->version = dto->version;
 	applyMedicationFields(dto, detail);
 	result->success(detail);
 	return result;
