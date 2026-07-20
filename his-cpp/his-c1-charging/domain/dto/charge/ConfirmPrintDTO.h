@@ -24,10 +24,14 @@ class ConfirmPrintRequestDTO : public oatpp::DTO
         true, "");
 
     // 场景码（固定值）
-    API_DTO_FIELD_DEFAULT(String, scenarioCode, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.scenarioCode"));
+    API_DTO_FIELD(String, scenarioCode,
+        ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.scenarioCode"),
+        false, "op-charge-print");
 
     // 模板版本号（4B 返回）
-    API_DTO_FIELD_DEFAULT(Int32, templateVersion, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.templateVersion"));
+    API_DTO_FIELD(Int32, templateVersion,
+        ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.templateVersion"),
+        false, 0);
 
     // 打印结果 SUCCESS / FAILED
     API_DTO_FIELD(String, status,
@@ -35,25 +39,39 @@ class ConfirmPrintRequestDTO : public oatpp::DTO
         true, "");
 
     // 实际打印的业务数据
-    API_DTO_FIELD_DEFAULT(Any, printData, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.printData"));
+    API_DTO_FIELD(Any, printData,
+        ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.printData"),
+        false, {});
 
     // 业务锚点
-    API_DTO_FIELD_DEFAULT(Any, bizRef, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.bizRef"));
+    API_DTO_FIELD(Any, bizRef,
+        ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.bizRef"),
+        false, {});
 
     // 打印机名称
-    API_DTO_FIELD_DEFAULT(String, printer, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.printer"));
+    API_DTO_FIELD(String, printer,
+        ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.printer"),
+        false, "");
 
     // 打印份数
-    API_DTO_FIELD_DEFAULT(Int32, copies, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.copies"));
+    API_DTO_FIELD(Int32, copies,
+        ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.copies"),
+        false, 1);
 
     // 客户端类型
-    API_DTO_FIELD_DEFAULT(String, clientType, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.clientType"));
+    API_DTO_FIELD(String, clientType,
+        ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.clientType"),
+        false, "electron-hiprint");
 
     // 失败时的错误码
-    API_DTO_FIELD_DEFAULT(String, errorCode, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.errorCode"));
+    API_DTO_FIELD(String, errorCode,
+        ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.errorCode"),
+        false, "");
 
     // 失败时的错误信息
-    API_DTO_FIELD_DEFAULT(String, errorMessage, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.errorMessage"));
+    API_DTO_FIELD(String, errorMessage,
+        ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.errorMessage"),
+        false, "");
 };
 
 /*
@@ -64,7 +82,7 @@ class ConfirmPrintResponseDTO : public oatpp::DTO
     DTO_INIT(ConfirmPrintResponseDTO, DTO);
 
     // 审计落库是否成功
-    API_DTO_FIELD_DEFAULT(Boolean, ok, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintResponseDTO.ok"));
+    API_DTO_FIELD(Boolean, ok, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintResponseDTO.ok"), true, true);
 };
 
 #include OATPP_CODEGEN_END(DTO)

@@ -13,76 +13,76 @@ class GetChargeItemRowDTO : public oatpp::DTO
     DTO_INIT(GetChargeItemRowDTO, DTO);
 
     // 收费明细主键
-    API_DTO_FIELD_DEFAULT(String, chargeItemId, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.chargeItemId"));
+    API_DTO_FIELD(String, chargeItemId, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.chargeItemId"), true, "337053386882945024");
 
     // 来源业务表名
-    API_DTO_FIELD_DEFAULT(String, serviceTable, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.serviceTable"));
+    API_DTO_FIELD(String, serviceTable, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.serviceTable"), false, "wkf_device_request");
 
     // 来源业务主键
-    API_DTO_FIELD_DEFAULT(String, serviceId, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.serviceId"));
+    API_DTO_FIELD(String, serviceId, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.serviceId"), false, "337053366783840256");
 
     // 收费项目展示名称
-    API_DTO_FIELD_DEFAULT(String, itemName, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.itemName"));
+    API_DTO_FIELD(String, itemName, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.itemName"), false, "一次性使用精密输液器（带针）");
 
     // 收费明细业务流水号
-    API_DTO_FIELD_DEFAULT(String, busNo, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.busNo"));
+    API_DTO_FIELD(String, busNo, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.busNo"), false, "CI2026-07-190014");
 
     // 单价
-    API_DTO_FIELD_DEFAULT(Float64, unitPrice, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.unitPrice"));
+    API_DTO_FIELD(Float64, unitPrice, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.unitPrice"), false, 0.35);
 
     // 数量值
-    API_DTO_FIELD_DEFAULT(Float64, quantityValue, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.quantityValue"));
+    API_DTO_FIELD(Float64, quantityValue, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.quantityValue"), false, 1.0);
 
     // 数量单位 code
-    API_DTO_FIELD_DEFAULT(String, quantityUnit, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.quantityUnit"));
+    API_DTO_FIELD(String, quantityUnit, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.quantityUnit"), false, "支");
 
     // 数量展示文本（不含单位）
-    API_DTO_FIELD_DEFAULT(String, quantityDisplay, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.quantityDisplay"));
+    API_DTO_FIELD(String, quantityDisplay, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.quantityDisplay"), false, "1");
 
     // 费用分类编码
-    API_DTO_FIELD_DEFAULT(String, chargeCategoryCode, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.chargeCategoryCode"));
+    API_DTO_FIELD(String, chargeCategoryCode, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.chargeCategoryCode"), false, "11");
 
     // 费用分类展示名
-    API_DTO_FIELD_DEFAULT(String, chargeCategoryDisplay, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.chargeCategoryDisplay"));
+    API_DTO_FIELD(String, chargeCategoryDisplay, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.chargeCategoryDisplay"), false, "医用耗材");
 
     // 收费状态持久化码
-    API_DTO_FIELD_DEFAULT(String, statusCode, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.statusCode"));
+    API_DTO_FIELD(String, statusCode, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.statusCode"), true, "SETTLED");
 
     // 收费状态展示文案
-    API_DTO_FIELD_DEFAULT(String, statusText, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.statusText"));
+    API_DTO_FIELD(String, statusText, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.statusText"), false, "已结算");
 
     // 行总价
-    API_DTO_FIELD_DEFAULT(Float64, totalPrice, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.totalPrice"));
+    API_DTO_FIELD(Float64, totalPrice, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.totalPrice"), false, 0.35);
 
     // 收款人系统用户主键
-    API_DTO_FIELD_DEFAULT(String, cashierUserId, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.cashierUserId"));
+    API_DTO_FIELD(String, cashierUserId, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.cashierUserId"), false, "308791351298756608");
 
     // 收款人姓名
-    API_DTO_FIELD_DEFAULT(String, cashierName, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.cashierName"));
+    API_DTO_FIELD(String, cashierName, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.cashierName"), false, "admin");
 
     // 折扣率展示文本
-    API_DTO_FIELD_DEFAULT(String, discountRateDisplay, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.discountRateDisplay"));
+    API_DTO_FIELD(String, discountRateDisplay, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.discountRateDisplay"), false, "10.0折");
 
     // 记账账户主键
-    API_DTO_FIELD_DEFAULT(String, accountId, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.accountId"));
+    API_DTO_FIELD(String, accountId, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.accountId"), false, "337053213544943616");
 
     // 费用性质合同名称（经 account_id → contract_no 关联）
-    API_DTO_FIELD_DEFAULT(String, contractName, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.contractName"));
+    API_DTO_FIELD(String, contractName, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.contractName"), false, "自费");
 
     // 费用性质合同主键
-    API_DTO_FIELD_DEFAULT(String, contractId, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.contractId"));
+    API_DTO_FIELD(String, contractId, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.contractId"), false, "3100000000000000001");
 
     // 费用性质展示
-    API_DTO_FIELD_DEFAULT(String, feeNatureDisplay, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.feeNatureDisplay"));
+    API_DTO_FIELD(String, feeNatureDisplay, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.feeNatureDisplay"), false, "自费");
 
     // 医疗类别
-    API_DTO_FIELD_DEFAULT(String, medTypeCode, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.medTypeCode"));
+    API_DTO_FIELD(String, medTypeCode, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.medTypeCode"), false, "");
 
     // 医保目录编码
-    API_DTO_FIELD_DEFAULT(String, ybNo, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.ybNo"));
+    API_DTO_FIELD(String, ybNo, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.ybNo"), false, "");
 
     // 医保编码展示
-    API_DTO_FIELD_DEFAULT(String, medicalInsuranceCode, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.medicalInsuranceCode"));
+    API_DTO_FIELD(String, medicalInsuranceCode, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.medicalInsuranceCode"), false, "");
 };
 
 /*
@@ -93,10 +93,10 @@ class GetChargeItemDTO : public oatpp::DTO
     DTO_INIT(GetChargeItemDTO, DTO);
 
     // 就诊主键
-    API_DTO_FIELD_DEFAULT(String, encounterId, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemDTO.encounterId"));
+    API_DTO_FIELD(String, encounterId, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemDTO.encounterId"), true, "337053213532360704");
 
     // 待收费明细列表
-    API_DTO_FIELD_DEFAULT(Vector<Object<GetChargeItemRowDTO>>, items, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemDTO.items"));
+    API_DTO_FIELD(Vector<Object<GetChargeItemRowDTO>>, items, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemDTO.items"), true, {});
 };
 
 #include OATPP_CODEGEN_END(DTO)

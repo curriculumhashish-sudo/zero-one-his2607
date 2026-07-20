@@ -68,13 +68,19 @@ class ConfirmSettleChargeRequestDTO : public oatpp::DTO
         true, "");
 
     // 医保收费批次号（单组）
-    API_DTO_FIELD_DEFAULT(String, ybChrgBchno, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeRequestDTO.ybChrgBchno"));
+    API_DTO_FIELD(String, ybChrgBchno,
+        ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeRequestDTO.ybChrgBchno"),
+        false, "");
 
     // 医保收费批次号列表（多组）
-    API_DTO_FIELD_DEFAULT(Vector<String>, ybChrgBchnos, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeRequestDTO.ybChrgBchnos"));
+    API_DTO_FIELD(Vector<String>, ybChrgBchnos,
+        ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeRequestDTO.ybChrgBchnos"),
+        false, {});
 
     // 银联被扫回执（仅扫码支付时传入）
-    API_DTO_FIELD_DEFAULT(Object<ClientScanResultDTO>, clientScanResult, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeRequestDTO.clientScanResult"));
+    API_DTO_FIELD(Object<ClientScanResultDTO>, clientScanResult,
+        ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeRequestDTO.clientScanResult"),
+        false, {});
 };
 
 /*
@@ -85,19 +91,19 @@ class ConfirmSettleChargeResponseDTO : public oatpp::DTO
     DTO_INIT(ConfirmSettleChargeResponseDTO, DTO);
 
     // 正式支付主键——打印小票的必传入参
-    API_DTO_FIELD_DEFAULT(String, paymentId, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeResponseDTO.paymentId"));
+    API_DTO_FIELD(String, paymentId, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeResponseDTO.paymentId"), true, "337209423854309376");
 
     // 票据草稿主键
-    API_DTO_FIELD_DEFAULT(String, invoiceId, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeResponseDTO.invoiceId"));
+    API_DTO_FIELD(String, invoiceId, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeResponseDTO.invoiceId"), true, "337209733486219264");
 
     // 发票状态 DRAFT / ISSUED / CANCELLED
-    API_DTO_FIELD_DEFAULT(String, invoiceStatus, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeResponseDTO.invoiceStatus"));
+    API_DTO_FIELD(String, invoiceStatus, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeResponseDTO.invoiceStatus"), true, "DRAFT");
 
     // 成功语义码
-    API_DTO_FIELD_DEFAULT(String, successMessageCode, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeResponseDTO.successMessageCode"));
+    API_DTO_FIELD(String, successMessageCode, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeResponseDTO.successMessageCode"), false, "EX-OPC-410");
 
     // 医保结算 ID（多组逗号分隔）
-    API_DTO_FIELD_DEFAULT(String, ybSetlId, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeResponseDTO.ybSetlId"));
+    API_DTO_FIELD(String, ybSetlId, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeResponseDTO.ybSetlId"), false, "");
 };
 
 #include OATPP_CODEGEN_END(DTO)
