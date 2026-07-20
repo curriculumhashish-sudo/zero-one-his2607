@@ -1,4 +1,4 @@
-﻿/*
+/*
  Copyright Zero One Star. All rights reserved.
 
  @Author: awei
@@ -32,6 +32,7 @@
 #include "charge/ChargeItemController.h"
 #include "charge/SettlementController.h"
 #include "charge/PrintController.h"
+#include "charge/PrepaymentController.h"
 
 #include"settle/GetPatientListController.h"
 #include"settle/GetCategoryDetailsController.h"
@@ -74,6 +75,8 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(SettlementController);
 	// 打印管理
 	ROUTER_SIMPLE_BIND(PrintController);
+	// 预交金管理
+	ROUTER_SIMPLE_BIND(PrepaymentController);
 
 	ROUTER_SIMPLE_BIND(GetPatientListController);
 	ROUTER_SIMPLE_BIND(GetCategoryDetailsController);

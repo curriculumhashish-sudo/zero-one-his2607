@@ -679,3 +679,85 @@ qi:
       sort_num: 序号
       charge_type_name: 费用大类
       type_total_fee: 大类费用金额
+Jack:
+  charging:
+    charge:
+      prepayment:
+        tag: 预交金管理
+        add:
+          summary: 收预交金
+        refund:
+          summary: 退预交金
+        query:
+          summary: 查询预交金流水
+      PrepaymentAddDTO:
+        inpatientNo:
+          description: 住院号
+        amount:
+          description: 收款金额
+        paymentMethod:
+          description: 支付方式（1-现金,2-微信,3-支付宝,4-银行卡）
+        operator:
+          description: 收款操作员
+        remark:
+          description: 备注
+      PrepaymentRefundDTO:
+        inpatientNo:
+          description: 住院号
+        amount:
+          description: 退款金额
+        refundMethod:
+          description: 退款方式（1-现金,2-微信,3-支付宝,4-银行卡）
+        operator:
+          description: 退款操作员
+        reason:
+          description: 退款原因
+        remark:
+          description: 备注
+      PrepaymentAddResponseDTO:
+        prepaymentId:
+          description: 预交金流水号
+        inpatientNo:
+          description: 住院号
+        amount:
+          description: 收款金额
+        paymentMethod:
+          description: 支付方式
+          value: 现金
+        createTime:
+          description: 收款时间
+      PrepaymentRefundResponseDTO:
+        prepaymentId:
+          description: 预交金流水号
+        inpatientNo:
+          description: 住院号
+        amount:
+          description: 退款金额
+        refundMethod:
+          description: 退款方式
+          value: 现金
+        createTime:
+          description: 退款时间
+      PrepaymentRecordDTO:
+        prepaymentId:
+          description: 预交金流水号
+        inpatientNo:
+          description: 住院号
+        patientName:
+          description: 患者姓名
+          value: 张三
+        amount:
+          description: 金额
+        type:
+          description: 类型（ADD-收,REFUND-退）
+        method:
+          description: 支付/退款方式
+          value: 现金
+        operator:
+          description: 操作员
+        createTime:
+          description: 操作时间
+      PrepaymentQuery:
+        inpatientNo:
+          description: 住院号
+          value: ZY202607190001
