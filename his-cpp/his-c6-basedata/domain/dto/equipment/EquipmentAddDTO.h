@@ -14,8 +14,6 @@ class EquipmentAddDTO : public oatpp::DTO
 {
 	DTO_INIT(EquipmentAddDTO, DTO);
 	
-	// ん第id
-	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("equipment.field.id"), true);
 	// ん第靡備
 	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("equipment.field.name"), true);
 	// ん第煦濬
