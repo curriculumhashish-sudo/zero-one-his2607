@@ -6,19 +6,17 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
  * <p>
- * 描述：诊所模块服务启动入口
+ * 描述：门诊服务
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
- * @author www
+ * @author 01star
  * @version 1.0.0
  */
 @SpringBootApplication
 @EnableDiscoveryClient
 public class ClinicsApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(ClinicsApplication.class, args);
     }
-
 }

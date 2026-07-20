@@ -1,19 +1,7 @@
-# 服务端口和名称配置（默认值）
-sp:
-  clinics: 10601
-sn:
-  clinics: J8_CLINICS
-
 server:
   port: ${sp.clinics}
   servlet:
-    # 设置应用上下文路径
-    context-path: /j8-clinics
+    context-path: /clinics
 spring:
   application:
     name: ${sn.clinics}
-  # 导入 his-common 模块的配置
-  config:
-    import:
-      - classpath:config/application.yaml
-      - classpath:config/common-${spring.profiles.active:dev}.yaml

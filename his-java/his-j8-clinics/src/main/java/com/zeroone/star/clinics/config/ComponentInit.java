@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
- * @author www
+ * @author 01star
  * @version 1.0.0
  */
 @Configuration
@@ -23,7 +23,6 @@ import org.springframework.context.annotation.Configuration;
         "com.zeroone.star.project.components.user"
 })
 public class ComponentInit {
-
     @Bean
     public EhResultWrapper ehResultWrapper() {
         return JsonVO::create;
