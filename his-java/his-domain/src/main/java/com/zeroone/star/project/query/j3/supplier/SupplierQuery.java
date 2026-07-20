@@ -2,36 +2,29 @@ package com.zeroone.star.project.query.j3.supplier;
 
 import com.zeroone.star.project.query.PageQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Pattern;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 /**
  * <p>
- * 描述：供应商列表查询条件入参
+ * 描述：获取供应商请求对象
  * </p>
- * <p>版权：&copy;01星球</p>
- * <p>地址：01星球总部</p>
- * @author zzcsz
+ * @author 业之
  * @version 1.0.0
  */
 @Getter
 @Setter
-@ToString(callSuper = true)
-@Schema(description = "供应商列表查询条件（继承分页基类 PageQuery）")
+@ToString
 public class SupplierQuery extends PageQuery {
 
-    @Schema(description = "供应商名称（模糊匹配）", example = "华润")
-    private String name;
+    @Schema(description = "关键词（名称或编号）", example = "华东")
+    private String keyword;
 
-    @Schema(description = "统一社会信用代码（精确匹配）", example = "91110000100000XXXX")
-    private String creditCode;
+    @Schema(description = "供应商类型", example = "生产厂家")
+    private String supplierType;
 
-    @Schema(description = "状态枚举值，可选 ENABLED（启用）或 DISABLED（停用）", example = "ENABLED")
-    @Pattern(regexp = "^(ENABLED|DISABLED)$", message = "statusEnum 取值非法，仅支持 ENABLED 或 DISABLED")
-    private String statusEnum;
-
-    @Schema(description = "类型枚举值", example = "ENTERPRISE")
-    private String typeEnum;
+    @Schema(description = "是否启用", example = "1")
+    private Integer isEnabled;
 }
