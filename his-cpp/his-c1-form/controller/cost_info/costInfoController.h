@@ -11,7 +11,7 @@
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-#define API_TAG ZH_WORDS_GETTER("rhqm.form.cost_info.title")
+#define API_TAG ZH_WORDS_GETTER("form.cost_info.tag")
 
 class CostInfoController : public oatpp::web::server::api::ApiController
 {

@@ -1,3 +1,8 @@
+form:
+ cost_info: 
+  tag: 报表中心-门诊费用明细
+ data_statistics: 
+  tag: 报表中心-数据统计
 Litguidyo:
  form:
   inoutbound:

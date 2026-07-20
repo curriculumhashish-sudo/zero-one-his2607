@@ -8,7 +8,7 @@
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-#define API_TAG ZH_WORDS_GETTER("lhfc.charging.charge.tags.t1")
+#define API_TAG ZH_WORDS_GETTER("charging.charge.tag")
 /*
    患者队列控制器
    负责分页+条件查询患者就诊队列

@@ -11,7 +11,7 @@
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
 
-#define API_TAG ZH_WORDS_GETTER("yxy.charging.register.tag2")
+#define API_TAG ZH_WORDS_GETTER("charging.register.tag")
 
 class GetTodayAppointController :public oatpp::web::server::api::ApiController
 {

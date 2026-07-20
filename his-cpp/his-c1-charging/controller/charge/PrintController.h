@@ -9,7 +9,7 @@
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-#define API_TAG ZH_WORDS_GETTER("lhfc.charging.charge.tags.t4")
+#define API_TAG ZH_WORDS_GETTER("charging.charge.tag")
 /*
    打印控制器
    负责门诊收费小票打印流程：打印小票、准备打印模板、确认打印审计落库

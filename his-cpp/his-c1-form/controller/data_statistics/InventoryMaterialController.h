@@ -8,7 +8,7 @@
 
 #include OATPP_CODEGEN_BEGIN(ApiController) //<- Begin Codegen
 
-#define API_TAG ZH_WORDS_GETTER("Litguidyo.form.inoutbound.tag2")
+#define API_TAG ZH_WORDS_GETTER("form.data_statistics.tag")
 
 class InventoryMaterialController : public oatpp::web::server::api::ApiController {
 	// 定义授权处理器入口

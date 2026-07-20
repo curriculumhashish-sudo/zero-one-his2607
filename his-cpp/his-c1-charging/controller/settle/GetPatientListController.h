@@ -12,7 +12,7 @@
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
 
-#define API_TAG ZH_WORDS_GETTER("qi.charging.settle.tag1")
+#define API_TAG ZH_WORDS_GETTER("charging.settle.tag")
 
 
 class GetPatientListController : public oatpp::web::server::api::ApiController

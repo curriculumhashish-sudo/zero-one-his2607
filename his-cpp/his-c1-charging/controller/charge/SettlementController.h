@@ -8,7 +8,7 @@
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-#define API_TAG ZH_WORDS_GETTER("lhfc.charging.charge.tags.t3")
+#define API_TAG ZH_WORDS_GETTER("charging.charge.tag")
 /*
    结算控制器
    负责预结算（生成草稿锁定收费项）和正式结算（落账收费）

@@ -1,3 +1,10 @@
+charging:
+ register:
+  tag: 收费工作站-门诊挂号
+ settle:
+  tag: 收费工作站-住院结算
+ charge:
+  tag: 收费工作站-门诊收费
 macchiato:
  charging:
   register:
