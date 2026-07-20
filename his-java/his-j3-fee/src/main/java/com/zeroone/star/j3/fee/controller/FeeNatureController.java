@@ -18,7 +18,7 @@ import java.util.List;
  * <p>
  * 描述：费用性质管理控制器（文档桩实现，仅用于生成前后端交互文档）
  * </p>
- * @author 白文儿
+ * @author 白文儿,夏饿
  * @version 1.0.0
  */
 @RestController
@@ -87,8 +87,17 @@ public class FeeNatureController implements FeeNatureApis {
     public JsonVO<List<FeeNatureVO>> getNameList() {
         // 实际查询：SELECT id, name FROM t_fee_nature WHERE is_enabled = 1 ORDER BY sort_order
         // TODO: 实际实现后续由开发者补充
-        List<FeeNatureVO> list = null;
-        return JsonVO.success(list);
+        List<FeeNatureVO> mockList = new ArrayList<>();
+        FeeNatureVO vo1 = new FeeNatureVO();
+        vo1.setId(1L);
+        vo1.setName("自费");
+        mockList.add(vo1);
+
+        FeeNatureVO vo2 = new FeeNatureVO();
+        vo2.setId(2L);
+        vo2.setName("省医保");
+        mockList.add(vo2);
+        return JsonVO.success(mockList);
     }
 
     @Override
