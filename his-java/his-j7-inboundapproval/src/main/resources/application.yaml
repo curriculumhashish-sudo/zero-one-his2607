@@ -1,0 +1,6 @@
+server:
+  port: 10107
+
+spring:
+  application:
+    name: his-j7-inboundapproval
