@@ -12,46 +12,51 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 进货单新增、保存、保存并提交数据对象。
+ * 药库进货单新增、保存、保存并提交数据对象。
  */
 @Data
 @Schema(name = "InboundReceiptSaveDTO", description = "药库进货单新增/保存/保存并提交请求")
 public class InboundReceiptSaveDTO {
-    @Schema(description = "业务单号，新增时可为空，编辑或提交时必填")
+    @Schema(description = "业务单号，新增时可为空，保存或提交时传入", example = "JHD202607190001")
     private String busNo;
 
-    @Schema(description = "来源业务单号，如关联药库订货单号")
+    @Schema(description = "来源业务单号，如关联药库订货单号", example = "DHD202607180001")
     private String originalBusNo;
 
-    @Schema(description = "供应类型编码")
+    @NotBlank(message = "供应类型不能为空")
+    @Schema(description = "供应类型编码", example = "INBOUND")
     private String typeEnum;
 
-    @Schema(description = "供应类别编码，采购入库通常为 PURCHASE")
+    @NotBlank(message = "供应类别不能为空")
+    @Schema(description = "供应类别编码，采购入库通常为 PURCHASE", example = "PURCHASE")
     private String categoryEnum;
 
-    @Schema(description = "来源位置类型，药库进货单可为空")
+    @Schema(description = "来源位置类型，药库进货单可为空", example = "SUPPLIER")
     private String sourceTypeEnum;
 
-    @Schema(description = "来源位置标识，药库进货单可为空")
+    @Schema(description = "来源位置标识，药库进货单可为空", example = "4100000000000000008")
     private String sourceLocationId;
 
     @NotBlank(message = "目的位置类型不能为空")
-    @Schema(description = "目的位置类型")
+    @Schema(description = "目的位置类型", example = "WAREHOUSE")
     private String purposeTypeEnum;
 
     @NotBlank(message = "目的库房不能为空")
-    @Schema(description = "目的库房标识")
+    @Schema(description = "目的库房标识", example = "322954885380706304")
     private String purposeLocationId;
 
     @NotBlank(message = "供应商不能为空")
-    @Schema(description = "供应商标识")
+    @Schema(description = "供应商标识", example = "4100000000000000008")
     private String supplierId;
 
-    @Schema(description = "经办人员标识")
+    @Schema(description = "经办人员标识", example = "100000000000000001")
     private String practitionerId;
 
-    @Schema(description = "乐观锁版本号，编辑时传入")
-    private Integer rowVersion;
+    @Schema(description = "原因/备注原因", example = "按药库订货单到货")
+    private String reason;
+
+    @Schema(description = "乐观锁版本号，保存或提交已有单据时传入", example = "0")
+    private Integer version;
 
     @Valid
     @NotEmpty(message = "进货明细不能为空")
@@ -59,7 +64,7 @@ public class InboundReceiptSaveDTO {
     private List<InboundReceiptLineDTO> lines;
 
     @Data
-    @Schema(name = "InboundReceiptLineDTO")
+    @Schema(name = "InboundReceiptLineDTO", description = "药库进货单明细行")
     public static class InboundReceiptLineDTO {
         @NotBlank(message = "项目物理表不能为空")
         @Schema(description = "项目物理表", example = "med_medication_definition")
@@ -74,27 +79,31 @@ public class InboundReceiptSaveDTO {
         private BigDecimal itemQuantity;
 
         @NotBlank(message = "单位编码不能为空")
-        @Schema(description = "单位编码")
+        @Schema(description = "单位编码", example = "BOX")
         private String unitCode;
 
         @Schema(description = "批号", example = "LOT2026071901")
         private String lotNumber;
 
-        @Schema(description = "追踪编号/追溯码，多个可按业务约定分隔")
+        @Schema(description = "追踪编号/追溯码，多个可按业务约定分隔", example = "TRACE202607190001")
         private String traceNo;
 
-        @Schema(description = "单价")
+        @Schema(description = "单价", example = "36.500000")
         private BigDecimal price;
 
-        @Schema(description = "合计价格")
+        @Schema(description = "合计价格", example = "730.000000")
         private BigDecimal totalPrice;
 
-        @Schema(description = "发生时间")
+        @Schema(description = "发生时间", example = "2026-07-19T10:30:00")
         private LocalDateTime occurrenceTime;
 
-        @Schema(description = "日期")
-        private LocalDateTime Time;
+        @Schema(description = "效期区间起点", example = "2026-07-01T00:00:00")
+        private LocalDateTime startTime;
 
+        @Schema(description = "效期区间止点", example = "2028-07-01T00:00:00")
+        private LocalDateTime endTime;
+
+        @Schema(description = "行备注", example = "按订货单到货")
         private String remake;
     }
 }
