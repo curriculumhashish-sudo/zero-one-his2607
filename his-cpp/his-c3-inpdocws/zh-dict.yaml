@@ -1,0 +1,40 @@
+﻿diagnosis:
+ tags:
+  t1: 西医接口
+  t2: 中医接口
+ get:
+  summary: 分页查询示例数据
+ add:
+  summary: 新增诊断数据
+ modify:
+  summary: 修改诊断数据
+ remove:
+  summary: 删除诊断数据
+ query-by-id:
+  summary: 通过ID获取单条数据
+ export:
+  summary: 导出示例数据(响应Excel文件)
+ export-pdf:
+  summary: 导出示例数据(响应PdfBase64字符串)
+ import:
+  summary: 导入示例数据
+ query-one:
+  summary: 使用声明式服务查询一条数据
+ query-all:
+  summary: 使用声明式服务查询多条数据
+ field:
+  patient_id: 患者id
+  encounter_id: 就诊id
+  condition_id: 临床id
+  encounter_diagnosis_id: 就诊诊断id
+  primary_flag: 是否主诊断
+  set_always: 是否设为常用
+  rank: 排序
+  condition_def_id: 诊断定义id
+  condition_code: 病情编码
+  condition_name: 疾病名称
+  diag_type_code: 诊断类型
+  disease_def_id: 疾病id
+  syndrome_def_id: 证候id
+  diagnosis_desc: 诊断描述
+  tcm_flag: 是否中医
