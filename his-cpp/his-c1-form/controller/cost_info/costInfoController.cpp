@@ -5,3 +5,8 @@ CostInfoJsonVO::Wrapper CostInfoController::execQuery(const CostInfoQuery::Wrapp
 {
 	return CostInfoJsonVO::Wrapper();
 }
+
+StringJsonVO::Wrapper CostInfoController::execExport(const ExportVO::Wrapper& query)
+{
+	return StringJsonVO::Wrapper();
+}
