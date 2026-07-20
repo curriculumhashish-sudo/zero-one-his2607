@@ -75,7 +75,7 @@ class GetPatientQueueDTO : public oatpp::DTO
 	API_DTO_FIELD(Float64, paidAmount, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.paidAmount.description"), false, 200.00);
 
 	//收费明细摘要列表
-	API_DTO_FIELD(Vector<Object<ChargeItemBriefDTO>>, cashierChargeItems, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.cashierChargeItems.description"), false, {});
+	API_DTO_FIELD(Vector<Object<ChargeItemBriefDTO>>, cashierChargeItems, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.cashierChargeItems.description"), false, {Object<ChargeItemBriefDTO>(ChargeItemBriefDTO::createShared())});
 
 	//收费状态汇总编码
 	API_DTO_FIELD(String, cashierChargeRollupStatusCode, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.cashierChargeRollupStatusCode.description"), false, "SETTLED");

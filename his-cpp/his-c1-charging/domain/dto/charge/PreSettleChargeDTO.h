@@ -16,12 +16,12 @@ class PreSettleChargeRequestDTO : public oatpp::DTO
     // 就诊主键
     API_DTO_FIELD(String, encounterId,
         ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeRequestDTO.encounterId.description"),
-        true, "");
+        true, "337209205188464640");
 
     // 用户选中的待收收费项 ID 列表
     API_DTO_FIELD(Vector<String>, chargeItemIds,
         ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeRequestDTO.chargeItemIds.description"),
-        true, {});
+        true, {"337206129186574336"});
 };
 
 /*
@@ -55,7 +55,7 @@ class OpSelfPayRollupDTO : public oatpp::DTO
     API_DTO_FIELD(String, accountId, ZH_WORDS_GETTER("lhfc.charging.charge.OpSelfPayRollupDTO.accountId.description"), false, "");
 
     // 自费收费项 ID 列表
-    API_DTO_FIELD(Vector<String>, chargeItemIds, ZH_WORDS_GETTER("lhfc.charging.charge.OpSelfPayRollupDTO.chargeItemIds.description"), true, {});
+    API_DTO_FIELD(Vector<String>, chargeItemIds, ZH_WORDS_GETTER("lhfc.charging.charge.OpSelfPayRollupDTO.chargeItemIds.description"), true, {"337206129186574336"});
 
     // 自费合计
     API_DTO_FIELD(Float64, totalAmount, ZH_WORDS_GETTER("lhfc.charging.charge.OpSelfPayRollupDTO.totalAmount.description"), false, 0.0);
@@ -78,7 +78,7 @@ class OpInsurancePreSettleGroupDTO : public oatpp::DTO
     API_DTO_FIELD(String, accountId, ZH_WORDS_GETTER("lhfc.charging.charge.OpInsurancePreSettleGroupDTO.accountId.description"), false, "");
 
     // 该组的收费项 ID 列表
-    API_DTO_FIELD(Vector<String>, chargeItemIds, ZH_WORDS_GETTER("lhfc.charging.charge.OpInsurancePreSettleGroupDTO.chargeItemIds.description"), true, {});
+    API_DTO_FIELD(Vector<String>, chargeItemIds, ZH_WORDS_GETTER("lhfc.charging.charge.OpInsurancePreSettleGroupDTO.chargeItemIds.description"), true, {"337206129186574336"});
 
     // 医疗类别 code
     API_DTO_FIELD(String, medType, ZH_WORDS_GETTER("lhfc.charging.charge.OpInsurancePreSettleGroupDTO.medType.description"), false, "");
@@ -149,13 +149,13 @@ class PreSettleChargeResponseDTO : public oatpp::DTO
     API_DTO_FIELD(Float64, ybPsnCashPay, ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeResponseDTO.ybPsnCashPay.description"), false, 0.0);
 
     // 行预览列表
-    API_DTO_FIELD(Vector<Object<PreSettleChargeLinePreviewDTO>>, previews, ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeResponseDTO.previews.description"), true, {});
+    API_DTO_FIELD(Vector<Object<PreSettleChargeLinePreviewDTO>>, previews, ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeResponseDTO.previews.description"), true, {Object<PreSettleChargeLinePreviewDTO>(PreSettleChargeLinePreviewDTO::createShared())});
 
     // 自费汇总
     API_DTO_FIELD(Object<OpSelfPayRollupDTO>, selfPayRollup, ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeResponseDTO.selfPayRollup.description"), false, {});
 
     // 医保分组列表
-    API_DTO_FIELD(Vector<Object<OpInsurancePreSettleGroupDTO>>, insuranceGroups, ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeResponseDTO.insuranceGroups.description"), false, {});
+    API_DTO_FIELD(Vector<Object<OpInsurancePreSettleGroupDTO>>, insuranceGroups, ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeResponseDTO.insuranceGroups.description"), false, {Object<OpInsurancePreSettleGroupDTO>(OpInsurancePreSettleGroupDTO::createShared())});
 };
 
 #include OATPP_CODEGEN_END(DTO)

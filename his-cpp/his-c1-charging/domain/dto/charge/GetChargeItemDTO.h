@@ -96,7 +96,7 @@ class GetChargeItemDTO : public oatpp::DTO
     API_DTO_FIELD(String, encounterId, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemDTO.encounterId.description"), true, "337053213532360704");
 
     // 待收费明细列表
-    API_DTO_FIELD(Vector<Object<GetChargeItemRowDTO>>, items, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemDTO.items.description"), true, {});
+    API_DTO_FIELD(Vector<Object<GetChargeItemRowDTO>>, items, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemDTO.items.description"), true, {Object<GetChargeItemRowDTO>(GetChargeItemRowDTO::createShared())});
 };
 
 #include OATPP_CODEGEN_END(DTO)

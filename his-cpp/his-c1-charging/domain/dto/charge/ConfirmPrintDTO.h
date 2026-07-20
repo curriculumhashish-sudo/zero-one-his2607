@@ -16,12 +16,12 @@ class ConfirmPrintRequestDTO : public oatpp::DTO
     // 打印追踪 ID（4B 返回）
     API_DTO_FIELD(String, traceId,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.traceId.description"),
-        true, "");
+        true, "82c04876-49f7-4548-8ba1-6242441372ff");
 
     // 模板业务号（4B 返回）
     API_DTO_FIELD(String, busNo,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.busNo.description"),
-        true, "");
+        true, "PT202606260005");
 
     // 场景码（固定值）
     API_DTO_FIELD(String, scenarioCode,
@@ -31,12 +31,12 @@ class ConfirmPrintRequestDTO : public oatpp::DTO
     // 模板版本号（4B 返回）
     API_DTO_FIELD(Int32, templateVersion,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.templateVersion.description"),
-        false, 0);
+        false, 2);
 
     // 打印结果 SUCCESS / FAILED
     API_DTO_FIELD(String, status,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.status.description"),
-        true, "");
+        true, "SUCCESS");
 
     // 实际打印的业务数据
     API_DTO_FIELD(Any, printData,
