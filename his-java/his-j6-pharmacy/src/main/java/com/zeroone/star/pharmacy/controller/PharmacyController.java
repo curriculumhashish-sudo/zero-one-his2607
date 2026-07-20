@@ -267,12 +267,6 @@ public class PharmacyController implements PharmacyApis {
         return JsonVO.fail("接口未完成");
     }
 
-    @GetMapping("/test")
-    String test() {
-        return "test";
-    }
-
-
     @Override
     @Operation(summary = "获取进货单列表")
     public JsonVO<List<InboundReceiptListVO>> queryAllInboundReceipt(@Valid InboundReceiptQuery query) {
