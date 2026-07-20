@@ -1,4 +1,7 @@
-﻿macchiato:
+﻿charging:
+ register:
+  tag: 收费工作站-门诊挂号
+macchiato:
  charging:
   register:
    visitNumber: 就诊号
@@ -15,9 +18,6 @@
    status: 当前状态
    printType: 打印类型
    isDefault: 是否设为默认
-   tag1: 确认收费接口
-   tag2: 确认退号接口
-   tag3: 打印挂号小票接口
    summary1: 确认收费
    summary2: 确认退号
    summary3: 打印挂号小票

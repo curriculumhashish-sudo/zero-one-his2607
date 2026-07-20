@@ -8,7 +8,7 @@ using namespace oatpp;
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-#define API_TAG ZH_WORDS_GETTER("macchiato.charging.register.tag1")
+#define API_TAG ZH_WORDS_GETTER("charging.register.tag")
 
 class ChargeConfirmController : public oatpp::web::server::api::ApiController
 {
