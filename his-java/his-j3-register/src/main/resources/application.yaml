@@ -1,22 +1,18 @@
 server:
-  port: ${sp.register}
+  port: ${sp.register:10204}
   servlet:
     context-path: /database
 spring:
   application:
-    name: ${sn.register}
+    name: ${sn.register:J3-REGISTER}
   cloud:
     nacos:
+      username: nacos
+      password: root
       discovery:
+        server-addr: 192.168.20.130:8848
         enabled: true
-  datasource:
-    type: com.alibaba.druid.pool.DruidDataSource
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.20.130:3306/zo_his?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
-    username: root
-    password: root
-    druid:
-      initial-size: 5
-      min-idle: 5
-      max-active: 20
-      max-wait: 60000
+      config:
+        server-addr: 192.168.20.130:8848
+        file-extension: yaml
+        enabled: true
