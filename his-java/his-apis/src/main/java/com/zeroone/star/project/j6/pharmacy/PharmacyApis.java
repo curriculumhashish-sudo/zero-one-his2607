@@ -10,36 +10,12 @@ import com.zeroone.star.project.dto.j6.pharmacy.StocktakeSaveDTO;
 import com.zeroone.star.project.vo.j6.pharmacy.StocktakeDetailVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
-@Tag(name = "药库管理")
 public interface PharmacyApis {
-
-    /**
-     * 提交审批：DRAFT → PENDING_APPROVAL
-     */
-    JsonVO<InboundApprovalResultVO> submitInboundReceiptApproval(SubmitInboundReceiptApprovalDTO dto);
-
-    /**
-     * 撤回审批：PENDING_APPROVAL → DRAFT
-     */
-    JsonVO<InboundApprovalResultVO> withdrawInboundReceiptApproval(WithdrawInboundReceiptApprovalDTO dto);
-
-    /**
-     * 审批通过：PENDING_APPROVAL → AGREE
-     */
-    JsonVO<InboundApprovalResultVO> agreeInboundReceipt(AgreeInboundReceiptDTO dto);
-
-    /**
-     * 驳回审批：PENDING_APPROVAL → REJECT
-     */
-    JsonVO<InboundApprovalResultVO> rejectInboundReceipt(RejectInboundReceiptDTO dto);
-
 
     /**
      * 新增盘点单
@@ -83,4 +59,25 @@ public interface PharmacyApis {
             @PathVariable String busNo,
             @RequestBody StocktakeSaveDTO dto
     );
+
+
+    /**
+     * 提交审批：DRAFT → PENDING_APPROVAL
+     */
+    JsonVO<InboundApprovalResultVO> submitInboundReceiptApproval(SubmitInboundReceiptApprovalDTO dto);
+
+    /**
+     * 撤回审批：PENDING_APPROVAL → DRAFT
+     */
+    JsonVO<InboundApprovalResultVO> withdrawInboundReceiptApproval(WithdrawInboundReceiptApprovalDTO dto);
+
+    /**
+     * 审批通过：PENDING_APPROVAL → AGREE
+     */
+    JsonVO<InboundApprovalResultVO> agreeInboundReceipt(AgreeInboundReceiptDTO dto);
+
+    /**
+     * 驳回审批：PENDING_APPROVAL → REJECT
+     */
+    JsonVO<InboundApprovalResultVO> rejectInboundReceipt(RejectInboundReceiptDTO dto);
 }
