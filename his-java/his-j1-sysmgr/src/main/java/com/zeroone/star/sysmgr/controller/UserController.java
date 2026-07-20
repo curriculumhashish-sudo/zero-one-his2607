@@ -19,37 +19,44 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class UserController implements UserApis {
     @Operation(summary   = "分页查询用户列表")
     @GetMapping("/page")
+    @Override
     public JsonVO<PageDTO<UserPageVO>> getPage(UserQuery userQuery) {
         return null;
     }
 
     @Operation(summary   = "分页查询选择用户列表")
     @GetMapping("/list")
+    @Override
     public JsonVO<PageDTO<UserListVO>> getList(UserQuery userQuery) {
         return null;
     }
 
     @Operation(summary   = "根据用户ID查询用户详情")
     @GetMapping("/{id}")
+    @Override
     public JsonVO<UserDetailVO> getById(@PathVariable String id) {
         return null;
     }
 
     @Operation(summary   = "新增用户")
     @PostMapping
+    @Override
     public JsonVO<String> saveUser(@RequestBody UserDTO userDTO) {
         return null;
     }
 
     @Operation(summary   = "修改用户")
     @PutMapping("/update")
+    @Override
     public JsonVO<String> updateUser(@RequestBody UserDTO userDTO) {
         return null;
     }
 
+
     @Operation(summary   = "删除用户")
     @DeleteMapping("/{id}")
-    public JsonVO<Void> deleteById(@PathVariable String id) {
+    @Override
+    public JsonVO<String> deleteById(@PathVariable String id) {
         return null;
     }
 
@@ -61,12 +68,14 @@ public class UserController implements UserApis {
 
     @Operation(summary   = "修改用户状态")
     @PutMapping("/updateStatus/{id}/status/{status}")
+    @Override
     public JsonVO<String> updateStatus(@PathVariable String id, @PathVariable Integer status) {
         return null;
     }
 
     @Operation(summary   = "锁定用户")
     @PutMapping("/lockUser/{id}/lockStatus/{lockStatus}")
+    @Override
     public JsonVO<String> lockUser(@PathVariable String id,@PathVariable Integer lockStatus) {
         return null;
     }

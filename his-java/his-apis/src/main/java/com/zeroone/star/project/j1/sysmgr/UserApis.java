@@ -58,7 +58,7 @@ public interface UserApis {
      * @param id 用户ID
      * @return 删除结果
      */
-    JsonVO<Void> deleteById(String id);
+    JsonVO<String> deleteById(String id);
 
     /**
      * 修改用户密码
