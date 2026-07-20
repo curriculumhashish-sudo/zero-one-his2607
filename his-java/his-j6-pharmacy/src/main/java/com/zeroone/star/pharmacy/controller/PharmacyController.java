@@ -1,33 +1,21 @@
 package com.zeroone.star.pharmacy.controller;
 
-import com.zeroone.star.project.dto.j6.pharmacy.AgreeInboundReceiptDTO;
-import com.zeroone.star.project.dto.j6.pharmacy.RejectInboundReceiptDTO;
-import com.zeroone.star.project.dto.j6.pharmacy.SubmitInboundReceiptApprovalDTO;
-import com.zeroone.star.project.dto.j6.pharmacy.WithdrawInboundReceiptApprovalDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.*;
 import com.zeroone.star.project.j6.pharmacy.PharmacyApis;
+import com.zeroone.star.project.query.j6.pharmacy.*;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j6.pharmacy.InboundApprovalResultVO;
-import com.zeroone.star.project.dto.j6.pharmacy.StocktakeSaveDTO;
 import com.zeroone.star.project.vo.j6.pharmacy.StocktakeDetailVO;
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.query.j6.pharmacy.StockOutQuery;
 import com.zeroone.star.project.vo.j6.pharmacy.StockOutDetailVO;
 import com.zeroone.star.project.vo.j6.pharmacy.StockOutListVO;
 import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import com.zeroone.star.project.dto.j6.pharmacy.AgreeStockOutDTO;
-import com.zeroone.star.project.dto.j6.pharmacy.RejectStockOutDTO;
-import com.zeroone.star.project.dto.j6.pharmacy.SubmitStockOutApprovalDTO;
-import com.zeroone.star.project.dto.j6.pharmacy.WithdrawStockOutApprovalDTO;
-import com.zeroone.star.project.dto.j6.pharmacy.InventoryStatusDTO;
-import com.zeroone.star.project.query.j6.pharmacy.InventoryDetailQuery;
+
 import com.zeroone.star.project.vo.j6.pharmacy.ExcelExportVO;
 import com.zeroone.star.project.vo.j6.pharmacy.InventoryDetailVO;
-import com.zeroone.star.project.dto.j6.pharmacy.InboundReceiptDeleteDTO;
-import com.zeroone.star.project.query.j6.pharmacy.InboundReceiptDetailQuery;
-import com.zeroone.star.project.query.j6.pharmacy.InboundReceiptQuery;
 import com.zeroone.star.project.vo.j6.pharmacy.InboundReceiptDetailVO;
 import com.zeroone.star.project.vo.j6.pharmacy.InboundReceiptListVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -50,6 +38,25 @@ import io.swagger.v3.oas.annotations.Parameter;
 @RequiredArgsConstructor
 @Tag(name = "药库管理", description = "药库管理相关接口")
 public class PharmacyController implements PharmacyApis {
+
+
+    @Override
+    @Tag(name = "药房盘点单据列表")
+    public JsonVO<PharmacyInventoryQueryDTO> listInventory(PharmacyInventoryQuery query) {
+        return JsonVO.success(new PharmacyInventoryQueryDTO());
+    }
+
+    @Override
+    @Tag(name = "药房盘点单详情")
+    public JsonVO<PharmacyInventoryDetailQueryDTO> getInventoryDetail(String queryDetail) {
+        return JsonVO.success(new PharmacyInventoryDetailQueryDTO());
+    }
+
+    @Override
+    @Tag(name = "新增单据")
+    public JsonVO<PharmacyInventorySaveDTO> addInventory(PharmacyInventorySaveDTO saveDTO) {
+        return JsonVO.success(new PharmacyInventorySaveDTO());
+    }
 
 
     @Override
