@@ -47,14 +47,14 @@ public class EnumController implements enumApis {
     @PostMapping("/add-enum-type")
     @Operation(summary = "添加枚举类型", description = "添加枚举类型")
     @Override
-    public JsonVO<String> addEnumType(EnumTypeAddDTO data) {
+    public JsonVO<String> addEnumType(@RequestBody EnumTypeAddDTO data) {
         return null;
     }
 
     @PutMapping("/modify-enum-type")
     @Operation(summary = "修改枚举类型", description = "修改枚举类型")
     @Override
-    public JsonVO<String> modifyEnumType(EnumTypeModifyDTO data) {
+    public JsonVO<String> modifyEnumType(@RequestBody EnumTypeModifyDTO data) {
         return null;
     }
 }

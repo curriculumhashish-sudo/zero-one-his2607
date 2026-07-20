@@ -31,13 +31,13 @@ public class RentController implements RentApis {
     @Operation(summary = "添加租户信息")
     @PostMapping("/addRent")
     @Override
-    public JsonVO<String> addRent(RentAddDTO addDTO) {
+    public JsonVO<String> addRent(@RequestBody RentAddDTO addDTO) {
         return null;
     }
     @Operation(summary = "更新租户信息")
     @PutMapping("/updateRent")
     @Override
-    public JsonVO<String> updateRent(RentDTO updateDTO) {
+    public JsonVO<String> updateRent(@RequestBody RentDTO updateDTO) {
         return null;
     }
     @Operation(summary = "删除租户信息")
