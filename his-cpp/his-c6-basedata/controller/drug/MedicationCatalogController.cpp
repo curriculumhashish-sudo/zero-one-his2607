@@ -26,6 +26,15 @@ namespace
 		return value && !value->empty();
 	}
 
+	bool isUnsignedIntegerId(const oatpp::String& value)
+	{
+		if (!hasText(value))
+		{
+			return false;
+		}
+		return value->find_first_not_of("0123456789") == std::string::npos;
+	}
+
 	template<class T>
 	bool hasRequiredMedicationFields(const T& dto)
 	{
@@ -46,12 +55,12 @@ namespace
 			&& hasText(dto->stockUnitCode)
 			&& hasText(dto->partAttributeEnum)
 			&& hasText(dto->thoPartAttributeEnum)
-			&& dto->doseUnitRatio != nullptr
-			&& dto->purchaseUnitRatio != nullptr
+			&& dto->doseUnitRatio.getValue(0.0) > 0.0
+			&& dto->purchaseUnitRatio.getValue(0.0) > 0.0
 			&& dto->purchasePrice != nullptr
-			&& dto->stockUnitRatio != nullptr
+			&& dto->stockUnitRatio.getValue(0.0) > 0.0
 			&& dto->retailPrice != nullptr
-			&& dto->packageUnitRatio != nullptr;
+			&& dto->packageUnitRatio.getValue(0.0) > 0.0;
 	}
 
 	template<class T>
@@ -61,11 +70,12 @@ namespace
 		{
 			return;
 		}
-		detail->tenantId = dto->tenantId;
 		detail->orgId = dto->orgId;
+		detail->medicationDefId = dto->medicationDefId;
 		detail->busNo = dto->busNo;
 		detail->name = dto->name;
 		detail->domainEnum = dto->domainEnum;
+		detail->version = dto->version;
 		detail->nameEn = dto->nameEn;
 		detail->pyStr = dto->pyStr;
 		detail->wbStr = dto->wbStr;
@@ -74,10 +84,12 @@ namespace
 		detail->merchandisePyStr = dto->merchandisePyStr;
 		detail->merchandiseWbStr = dto->merchandiseWbStr;
 		detail->purchaseUnitCode = dto->purchaseUnitCode;
+		detail->purchaseUnitCode_dictText = dto->purchaseUnitCode_dictText;
 		detail->splitUnitCode = dto->splitUnitCode;
 		detail->comprisedText = dto->comprisedText;
 		detail->ingredient = dto->ingredient;
 		detail->doseFrom = dto->doseFrom;
+		detail->doseFrom_dictText = dto->doseFrom_dictText;
 		detail->approvalNumber = dto->approvalNumber;
 		detail->ybMatchFlag = dto->ybMatchFlag;
 		detail->ybNo = dto->ybNo;
@@ -96,11 +108,10 @@ namespace
 		detail->characteristic = dto->characteristic;
 		detail->itemMinQuantity = dto->itemMinQuantity;
 		detail->itemMaxQuantity = dto->itemMaxQuantity;
-		detail->defEncounterUnitCode = dto->defEncounterUnitCode;
-		detail->defInhospitalUnitCode = dto->defInhospitalUnitCode;
 		detail->nationalDrugCode = dto->nationalDrugCode;
 		detail->partAttributeEnum = dto->partAttributeEnum;
 		detail->antibioticCode = dto->antibioticCode;
+		detail->antibioticCode_dictText = dto->antibioticCode_dictText;
 		detail->restrictedEnum = dto->restrictedEnum;
 		detail->selfFlag = dto->selfFlag;
 		detail->antibioticFlag = dto->antibioticFlag;
@@ -108,12 +119,14 @@ namespace
 		detail->thoPartAttributeEnum = dto->thoPartAttributeEnum;
 		detail->chrgitmLv = dto->chrgitmLv;
 		detail->typeCode = dto->typeCode;
+		detail->typeCode_dictText = dto->typeCode_dictText;
 		detail->ybType = dto->ybType;
 		detail->rxFlag = dto->rxFlag;
 		detail->dosageInstruction = dto->dosageInstruction;
 		detail->drug69Code = dto->drug69Code;
 		detail->totalVolume = dto->totalVolume;
 		detail->doseFormCode = dto->doseFormCode;
+		detail->doseUnitCode_dictText = dto->doseUnitCode_dictText;
 		detail->methodCode = dto->methodCode;
 		detail->rateCode = dto->rateCode;
 		detail->dose = dto->dose;
@@ -131,6 +144,7 @@ namespace
 		detail->stockUnitRatio = dto->stockUnitRatio;
 		detail->packageUnitRatio = dto->packageUnitRatio;
 		detail->statusEnum = dto->statusEnum;
+		detail->statusEnum_enumText = dto->statusEnum_enumText;
 		detail->activeFlag = dto->activeFlag;
 		detail->purchasePrice = dto->purchasePrice;
 		detail->retailPrice = dto->retailPrice;
@@ -156,7 +170,7 @@ namespace
 		}
 		for (const auto& id : *ids.get())
 		{
-			if (!hasText(id))
+			if (!isUnsignedIntegerId(id))
 			{
 				result->init(RS_PARAMS_INVALID);
 				return result;
@@ -234,16 +248,18 @@ MedicationCatalogDetailJsonVO::Wrapper MedicationCatalogController::execModifyMe
 	const MedicationCatalogModifyDTO::Wrapper& dto)
 {
 	auto result = MedicationCatalogDetailJsonVO::createShared();
-	if (!hasRequiredMedicationFields(dto) || !hasText(dto->id))
+	if (!hasRequiredMedicationFields(dto) || !isUnsignedIntegerId(dto->id))
 	{
 		result->init(nullptr, RS_PARAMS_INVALID);
 		return result;
 	}
 	auto detail = MedicationCatalogDetailVO::createShared();
-	detail->id = dto->id;
-	detail->medicationDefId = dto->id;
-	detail->version = dto->version;
 	applyMedicationFields(dto, detail);
+	detail->id = dto->id;
+	if (!hasText(detail->medicationDefId))
+	{
+		detail->medicationDefId = dto->id;
+	}
 	result->success(detail);
 	return result;
 }

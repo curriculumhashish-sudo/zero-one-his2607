@@ -96,19 +96,15 @@ class MedicationCatalogDetailVO : public MedicationCatalogModifyDTO
 {
 	DTO_INIT(MedicationCatalogDetailVO, MedicationCatalogModifyDTO);
 
-	API_DTO_FIELD(String, medicationDefId, ZH_WORDS_GETTER("medication.field.medicationDefId"), true, "322994171216400384");
+	API_DTO_FIELD(String, tenantId, ZH_WORDS_GETTER("medication.field.tenantId"), false, "1");
+	API_DTO_FIELD(String, defEncounterUnitCode, ZH_WORDS_GETTER("medication.field.defEncounterUnitCode"), false, "5");
+	API_DTO_FIELD(String, defInhospitalUnitCode, ZH_WORDS_GETTER("medication.field.defInhospitalUnitCode"), false, "5");
 	API_DTO_FIELD(String, specification, ZH_WORDS_GETTER("medication.field.specification"), true, "0.1g");
-	API_DTO_FIELD(String, statusEnum_enumText, ZH_WORDS_GETTER("medication.field.statusEnumText"), true, u8"\u5DF2\u542F\u7528");
 	API_DTO_FIELD(String, activeFlagText, ZH_WORDS_GETTER("medication.field.activeFlagText"), true, u8"\u542F\u7528");
 	API_DTO_FIELD(String, categoryCode_dictText, ZH_WORDS_GETTER("medication.field.categoryCodeText"), true, u8"\u897F\u836F");
-	API_DTO_FIELD(String, doseFrom_dictText, ZH_WORDS_GETTER("medication.field.doseFromText"), false, u8"\u56FA\u4F53");
-	API_DTO_FIELD(String, doseUnitCode_dictText, ZH_WORDS_GETTER("medication.field.doseUnitCodeText"), true, "g");
-	API_DTO_FIELD(String, purchaseUnitCode_dictText, ZH_WORDS_GETTER("medication.field.purchaseUnitCodeText"), true, u8"\u76D2");
 	API_DTO_FIELD(String, packageUnitCode_dictText, ZH_WORDS_GETTER("medication.field.packageUnitCodeText"), true, u8"\u76D2");
 	API_DTO_FIELD(String, locationId_dictText, ZH_WORDS_GETTER("medication.field.locationIdText"), false, u8"\u95E8\u8BCA\u836F\u623F");
 	API_DTO_FIELD(String, supplyId_dictText, ZH_WORDS_GETTER("medication.field.supplyIdText"), true, u8"\u6CB3\u5317\u533B\u836F\u4F9B\u5E94\u5546");
-	API_DTO_FIELD(String, typeCode_dictText, ZH_WORDS_GETTER("medication.field.typeCodeText"), true, u8"\u897F\u836F");
-	API_DTO_FIELD(String, antibioticCode_dictText, ZH_WORDS_GETTER("medication.field.antibioticCodeText"), false, u8"\u5934\u5B62\u83CC\u7D20\u7C7B");
 	API_DTO_FIELD(Boolean, potencyFlag, ZH_WORDS_GETTER("medication.field.potencyFlag"), false, false);
 	API_DTO_FIELD(String, unitBandsJson, ZH_WORDS_GETTER("medication.field.unitBandsJson"), false, "[]");
 	DTO_FIELD(List<MedicationCatalogUnitBandVO::Wrapper>, unitBands) =

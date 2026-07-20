@@ -28,11 +28,12 @@ class MedicationCatalogAddDTO : public oatpp::DTO
 {
 	DTO_INIT(MedicationCatalogAddDTO, DTO);
 
-	API_DTO_FIELD(String, tenantId, ZH_WORDS_GETTER("medication.field.tenantId"), false, "1");
 	API_DTO_FIELD(String, orgId, ZH_WORDS_GETTER("medication.field.orgId"), false, "322663105141149696");
+	API_DTO_FIELD(String, medicationDefId, ZH_WORDS_GETTER("medication.field.medicationDefId"), false, "322994171216400384");
 	API_DTO_FIELD(String, busNo, ZH_WORDS_GETTER("medication.field.busNo"), false, "MD0021");
 	API_DTO_FIELD(String, name, ZH_WORDS_GETTER("medication.field.name"), true, u8"\u5934\u5B62\u514B\u809F\u80F6\u56CA");
 	API_DTO_FIELD(String, domainEnum, ZH_WORDS_GETTER("medication.field.domainEnum"), false, "WESTERN_MEDICINE");
+	API_DTO_FIELD(String, version, ZH_WORDS_GETTER("medication.field.version"), false, "1");
 	API_DTO_FIELD(String, nameEn, ZH_WORDS_GETTER("medication.field.nameEn"), false, "Cefixime Capsules");
 	API_DTO_FIELD(String, pyStr, ZH_WORDS_GETTER("medication.field.pyStr"), false, "TBKWTJN");
 	API_DTO_FIELD(String, wbStr, ZH_WORDS_GETTER("medication.field.wbStr"), false, "UKTQ");
@@ -41,10 +42,12 @@ class MedicationCatalogAddDTO : public oatpp::DTO
 	API_DTO_FIELD(String, merchandisePyStr, ZH_WORDS_GETTER("medication.field.merchandisePyStr"), false, "TBKWTJN");
 	API_DTO_FIELD(String, merchandiseWbStr, ZH_WORDS_GETTER("medication.field.merchandiseWbStr"), false, "UKTQ");
 	API_DTO_FIELD(String, purchaseUnitCode, ZH_WORDS_GETTER("medication.field.purchaseUnitCode"), true, "2");
+	API_DTO_FIELD(String, purchaseUnitCode_dictText, ZH_WORDS_GETTER("medication.field.purchaseUnitCodeText"), false, u8"\u76D2");
 	API_DTO_FIELD(String, splitUnitCode, ZH_WORDS_GETTER("medication.field.splitUnitCode"), true, "5");
 	API_DTO_FIELD(String, comprisedText, ZH_WORDS_GETTER("medication.field.comprisedText"), false, u8"\u6BCF\u7C92\u542B\u5934\u5B62\u514B\u809F0.1g");
 	API_DTO_FIELD(String, ingredient, ZH_WORDS_GETTER("medication.field.ingredient"), false, u8"\u5934\u5B62\u514B\u809F");
 	API_DTO_FIELD(Int32, doseFrom, ZH_WORDS_GETTER("medication.field.doseFrom"), false, 1);
+	API_DTO_FIELD(String, doseFrom_dictText, ZH_WORDS_GETTER("medication.field.doseFromText"), false, u8"\u80F6\u56CA");
 	API_DTO_FIELD(String, approvalNumber, ZH_WORDS_GETTER("medication.field.approvalNumber"), false, u8"\u56FD\u836F\u51C6\u5B57H20041656");
 	API_DTO_FIELD(Boolean, ybMatchFlag, ZH_WORDS_GETTER("medication.field.ybMatchFlag"), false, false);
 	API_DTO_FIELD(String, ybNo, ZH_WORDS_GETTER("medication.field.ybNo"), false, "YA01BAA0001001010101");
@@ -60,11 +63,10 @@ class MedicationCatalogAddDTO : public oatpp::DTO
 	API_DTO_FIELD(Int32, characteristic, ZH_WORDS_GETTER("medication.field.characteristic"), false, 1);
 	API_DTO_FIELD(Float64, itemMinQuantity, ZH_WORDS_GETTER("medication.field.itemMinQuantity"), false, 10.0);
 	API_DTO_FIELD(Float64, itemMaxQuantity, ZH_WORDS_GETTER("medication.field.itemMaxQuantity"), false, 1000.0);
-	API_DTO_FIELD(String, defEncounterUnitCode, ZH_WORDS_GETTER("medication.field.defEncounterUnitCode"), false, "5");
-	API_DTO_FIELD(String, defInhospitalUnitCode, ZH_WORDS_GETTER("medication.field.defInhospitalUnitCode"), false, "5");
 	API_DTO_FIELD(String, nationalDrugCode, ZH_WORDS_GETTER("medication.field.nationalDrugCode"), false, "86902680000021");
 	API_DTO_FIELD(String, partAttributeEnum, ZH_WORDS_GETTER("medication.field.partAttributeEnum"), true, "2");
 	API_DTO_FIELD(String, antibioticCode, ZH_WORDS_GETTER("medication.field.antibioticCode"), false, "J01DD");
+	API_DTO_FIELD(String, antibioticCode_dictText, ZH_WORDS_GETTER("medication.field.antibioticCodeText"), false, u8"\u9752\u9709\u7D20\u7C7B");
 	API_DTO_FIELD(String, restrictedEnum, ZH_WORDS_GETTER("medication.field.restrictedEnum"), false, "NONE");
 	API_DTO_FIELD(Boolean, selfFlag, ZH_WORDS_GETTER("medication.field.selfFlag"), false, false);
 	API_DTO_FIELD(Boolean, antibioticFlag, ZH_WORDS_GETTER("medication.field.antibioticFlag"), false, false);
@@ -72,6 +74,7 @@ class MedicationCatalogAddDTO : public oatpp::DTO
 	API_DTO_FIELD(String, thoPartAttributeEnum, ZH_WORDS_GETTER("medication.field.thoPartAttributeEnum"), true, "2");
 	API_DTO_FIELD(Int32, chrgitmLv, ZH_WORDS_GETTER("medication.field.chrgitmLv"), false, 1);
 	API_DTO_FIELD(String, typeCode, ZH_WORDS_GETTER("medication.field.typeCode"), true, "1001");
+	API_DTO_FIELD(String, typeCode_dictText, ZH_WORDS_GETTER("medication.field.typeCodeText"), false, u8"\u897F\u836F");
 	API_DTO_FIELD(String, ybType, ZH_WORDS_GETTER("medication.field.ybType"), false, "1");
 	API_DTO_FIELD(Boolean, rxFlag, ZH_WORDS_GETTER("medication.field.rxFlag"), false, false);
 	API_DTO_FIELD(String, dosageInstruction, ZH_WORDS_GETTER("medication.field.dosageInstruction"), false, "1");
@@ -79,6 +82,7 @@ class MedicationCatalogAddDTO : public oatpp::DTO
 	API_DTO_FIELD(String, totalVolume, ZH_WORDS_GETTER("medication.field.totalVolume"), true, "0.1g");
 	API_DTO_FIELD(String, doseFormCode, ZH_WORDS_GETTER("medication.field.doseFormCode"), true, "5");
 	API_DTO_FIELD(String, doseUnitCode, ZH_WORDS_GETTER("medication.field.doseUnitCode"), true, "10");
+	API_DTO_FIELD(String, doseUnitCode_dictText, ZH_WORDS_GETTER("medication.field.doseUnitCodeText"), false, u8"\u514B");
 	API_DTO_FIELD(String, packageUnitCode, ZH_WORDS_GETTER("medication.field.packageUnitCode"), true, "2");
 	API_DTO_FIELD(String, stockUnitCode, ZH_WORDS_GETTER("medication.field.stockUnitCode"), true, "2");
 	API_DTO_FIELD(String, methodCode, ZH_WORDS_GETTER("medication.field.methodCode"), false, "1");
@@ -98,6 +102,7 @@ class MedicationCatalogAddDTO : public oatpp::DTO
 	API_DTO_FIELD(Float64, stockUnitRatio, ZH_WORDS_GETTER("medication.field.stockUnitRatio"), true, 20.0);
 	API_DTO_FIELD(Float64, packageUnitRatio, ZH_WORDS_GETTER("medication.field.packageUnitRatio"), true, 20.0);
 	API_DTO_FIELD(String, statusEnum, ZH_WORDS_GETTER("medication.field.statusEnum"), false, "ACTIVE");
+	API_DTO_FIELD(String, statusEnum_enumText, ZH_WORDS_GETTER("medication.field.statusEnumText"), false, u8"\u542F\u7528");
 	API_DTO_FIELD(Boolean, activeFlag, ZH_WORDS_GETTER("medication.field.activeFlag"), false, true);
 	API_DTO_FIELD(Float64, purchasePrice, ZH_WORDS_GETTER("medication.field.purchasePrice"), true, 6.99);
 	API_DTO_FIELD(Float64, retailPrice, ZH_WORDS_GETTER("medication.field.retailPrice"), true, 6.99);
@@ -109,7 +114,6 @@ class MedicationCatalogModifyDTO : public MedicationCatalogAddDTO
 	DTO_INIT(MedicationCatalogModifyDTO, MedicationCatalogAddDTO);
 
 	API_DTO_FIELD(String, id, ZH_WORDS_GETTER("medication.field.id"), true, "322994171216400384");
-	API_DTO_FIELD(String, version, ZH_WORDS_GETTER("medication.field.version"), false, "1");
 };
 
 class MedicationCatalogInitDTO : public oatpp::DTO
