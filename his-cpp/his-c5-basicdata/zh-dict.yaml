@@ -1,0 +1,35 @@
+﻿sup:
+  tags:
+    t1: 供应商管理接口
+  query-one:
+    summary: 根据ID查询供应商
+  query-all:
+    summary: 分页查询供应商列表
+  add:
+    summary: 新增供应商
+  modify:
+    summary: 修改供应商
+  batch-enable-disable:
+    summary: 批量启/停用供应商
+  batch-remove:
+    summary: 批量删除供应商
+  field:
+    id: 主键编号
+    ids: 供应商ID列表
+    keyword: 搜索关键字(名称)
+    busNo: 业务编号
+    name: 供应商名称
+    typeEnum: 类型枚举值
+    creditCode: 统一信用代码
+    legalRepresentative: 法定代表人
+    address: 地址
+    pyStr: 拼音码
+    wbStr: 五笔码
+    phone: 电话
+    email: 邮箱
+    bankName: 开户银行
+    bankAccount: 银行账号
+    orgId: 所属机构ID
+    displayOrder: 显示顺序
+    statusEnum: 状态枚举值(NORMAL/DISABLED)
+    note: 备注说明
