@@ -14,11 +14,11 @@ class FrequencyController : public oatpp::web::server::api::ApiController
 	API_ACCESS_DECLARE(FrequencyController);
 public:
 	// 获取频次名称列表
-	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("frequency.getname.summary"), getFrequencyName, FrequencyQuery, Vector<FrequencyVO::Wrapper>, API_TAG);
+	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("frequency.getname.summary"), getFrequencyName, FrequencyQuery, ListJsonVO<FrequencyVO::Wrapper>::Wrapper,  API_TAG);
 	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/frequency/getname", getFrequencyName, FrequencyQuery, executeGetFrequencyName(query));
 
 private:
-	Vector<FrequencyVO::Wrapper> executeGetFrequencyName(const FrequencyQuery::Wrapper& query);
+	ListJsonVO<FrequencyVO::Wrapper>::Wrapper executeGetFrequencyName(const FrequencyQuery::Wrapper& query);
 };
 
 #undef API_TAG

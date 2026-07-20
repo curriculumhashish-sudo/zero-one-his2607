@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "FrequencyController.h"
 
-Vector<FrequencyVO::Wrapper> FrequencyController::executeGetFrequencyName(const FrequencyQuery::Wrapper& query)
+ListJsonVO<FrequencyVO::Wrapper>::Wrapper FrequencyController::executeGetFrequencyName(const FrequencyQuery::Wrapper& query)
 {
 	return {};
 }
