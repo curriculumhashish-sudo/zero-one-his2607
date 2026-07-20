@@ -1,7 +1,7 @@
 server:
   port: ${sp.register}
   servlet:
-    context-path: /database
+    context-path: j3/basedata
 spring:
   application:
     name: ${sn.register}
