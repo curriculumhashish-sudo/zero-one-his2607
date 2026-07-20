@@ -1,5 +1,6 @@
 package com.zeroone.star.project.vo.j7.outpharm;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -10,66 +11,119 @@ import java.time.LocalDateTime;
  * 处方明细 + 药品基础信息 联合返回
  */
 @Data
+@Schema(description = "患者药品项目返回结果")
 public class PatientDrugItemVO {
-    // ========== 处方明细表 medication_dispense 字段 ==========
+
+    // ===== 处方明细 medication_dispense =====
+    @Schema(description = "处方明细ID")
     private String id;
+
+    @Schema(description = "租户ID")
     private String tenantId;
+
+    @Schema(description = "业务单号")
     private String busNo;
+
+    @Schema(description = "处方状态(status_enum)")
     private String statusEnum;
+
+    @Schema(description = "发药状态(dispense_enum)")
     private String dispenseEnum;
+
+    @Schema(description = "药品定义ID")
     private String medicationId;
+
+    @Schema(description = "患者ID")
     private String patientId;
+
+    @Schema(description = "就诊ID")
     private String encounterId;
+
+    @Schema(description = "医嘱ID")
     private String medReqId;
-    // 开单数量
+
+    @Schema(description = "开单数量", example = "2")
     private BigDecimal quantity;
-    // 单位编码
+
+    @Schema(description = "单位编码")
     private String unitCode;
-    // 已发药数量
+
+    @Schema(description = "已发药数量", example = "1")
     private BigDecimal dispenseQuantity;
-    // 批号
+
+    @Schema(description = "批号", example = "B20260101")
     private String lotNumber;
-    // 配药人ID、配药时间
+
+    @Schema(description = "配药人ID")
     private String preparerId;
+
+    @Schema(description = "配药时间")
     private LocalDateTime prepareTime;
-    // 发药人、发药时间
+
+    @Schema(description = "发药人ID")
     private String practitionerId;
+
+    @Schema(description = "发药时间")
     private LocalDateTime dispenseTime;
-    // 用法用量
+
+    @Schema(description = "用法用量说明")
     private String dosageInstruction;
+
+    @Schema(description = "给药途径编码")
     private String methodCode;
+
+    @Schema(description = "用药频次编码")
     private String frequencyCode;
+
+    @Schema(description = "单次剂量")
     private BigDecimal dose;
+
+    @Schema(description = "剂量单位编码")
     private String doseUnitCode;
+
+    @Schema(description = "汇总单号")
     private String summaryNo;
 
-    // ========== 药品基础表 medication_definition 联查字段 ==========
-    /** 药品名称 */
+    // ===== 药品基础信息 medication_definition =====
+    @Schema(description = "药品名称", example = "阿莫西林胶囊")
     private String name;
-    /** 商品名 */
+
+    @Schema(description = "商品名", example = "阿莫仙")
     private String merchandiseName;
-    /** 药品分类编码 */
+
+    @Schema(description = "药品分类编码")
     private String categoryCode;
-    /** 规格 */
+
+    @Schema(description = "规格", example = "0.25g*24粒")
     private String comprisedText;
-    /** 成分 */
+
+    @Schema(description = "主要成分", example = "阿莫西林")
     private String ingredient;
-    /** 国药准字 */
+
+    @Schema(description = "国药准字", example = "H20013001")
     private String approvalNumber;
-    /** 是否皮试 0否1是 */
+
+    @Schema(description = "是否皮试(0-否 1-是)")
     private Integer skinTestFlag;
-    /** 是否注射剂 */
+
+    @Schema(description = "是否注射剂(0-否 1-是)")
     private Integer injectFlag;
-    /** 生产厂家 */
+
+    @Schema(description = "生产厂家", example = "广州白云山制药")
     private String manufacturerText;
-    /** 是否抗生素 */
+
+    @Schema(description = "是否抗生素(0-否 1-是)")
     private Integer antibioticFlag;
-    /** 是否处方药 */
+
+    @Schema(description = "是否处方药(0-否 1-是)")
     private Integer rxFlag;
-    /** 剂型编码 */
+
+    @Schema(description = "剂型编码")
     private String doseFormCode;
-    /** 包装单位 */
+
+    @Schema(description = "包装单位编码")
     private String packageUnitCode;
-    /** 药品拼音 */
+
+    @Schema(description = "药品拼音码", example = "AMXL")
     private String pyStr;
 }

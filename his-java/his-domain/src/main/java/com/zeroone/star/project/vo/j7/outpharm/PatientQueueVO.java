@@ -1,5 +1,6 @@
 package com.zeroone.star.project.vo.j7.outpharm;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -9,46 +10,72 @@ import java.time.LocalDateTime;
  * 患者队列列表返回VO
  */
 @Data
+@Schema(description = "患者队列返回结果")
 public class PatientQueueVO {
-    // 主键
+
+    @Schema(description = "主键ID")
     private String id;
-    // 租户
+
+    @Schema(description = "租户ID")
     private String tenantId;
-    // 患者业务号
+
+    @Schema(description = "患者业务编号")
     private String busNo;
-    // 姓名
+
+    @Schema(description = "患者姓名")
     private String name;
-    // 性别编码
+
+    @Schema(description = "性别编码(gender_enum)")
     private String genderEnum;
-    // 出生日期
+
+    @Schema(description = "出生日期")
     private LocalDate birthDate;
-    // 身份证
+
+    @Schema(description = "身份证号")
     private String idCard;
-    // 手机号
+
+    @Schema(description = "联系电话")
     private String phone;
-    // 就诊状态
+
+    @Schema(description = "就诊状态(status_enum)")
     private String statusEnum;
-    // 有效标识
+
+    @Schema(description = "有效标识(0-无效 1-有效)")
     private Integer activeFlag;
-    // 地址-省市区街道
+
+    @Schema(description = "省")
     private String addressProvince;
+
+    @Schema(description = "市")
     private String addressCity;
+
+    @Schema(description = "区")
     private String addressDistrict;
+
+    @Schema(description = "街道")
     private String addressStreet;
-    // 民族编码
+
+    @Schema(description = "民族编码")
     private String nationalityCode;
-    // ABO血型
+
+    @Schema(description = "ABO血型")
     private String bloodTypeAbo;
-    // RH血型
+
+    @Schema(description = "RH血型")
     private String bloodTypeRh;
-    // 工作单位
+
+    @Schema(description = "工作单位")
     private String workCompany;
-    // 联系人姓名
+
+    @Schema(description = "联系人姓名")
     private String linkName;
-    // 联系人电话
+
+    @Schema(description = "联系人电话")
     private String linkTelcom;
-    // 创建时间
+
+    @Schema(description = "创建时间")
     private LocalDateTime createdAt;
-    // 所属机构
+
+    @Schema(description = "所属机构ID")
     private String organizationId;
 }
