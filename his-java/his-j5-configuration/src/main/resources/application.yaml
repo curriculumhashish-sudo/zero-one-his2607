@@ -6,9 +6,15 @@ spring:
   cloud:
     nacos:
       config:
-        server-addr: 192.168.220.128:8848
+        server-addr: 172.20.10.4:8848
+        namespace: his-dev
+        username: nacos
+        password: 123456
         group: DEFAULT_GROUP
         file-extension: yaml
       discovery:
-        server-addr: 192.168.220.128:8848
+        server-addr: 172.20.10.4:8848
+        namespace: his-dev
+        username: nacos
+        password: 123456
         group: DEFAULT_GROUP
