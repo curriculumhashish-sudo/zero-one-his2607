@@ -1,0 +1,2 @@
+his-cpp/lib-oatpp/lib64/debug/oatpp.lib filter=lfs diff=lfs merge=lfs -text
+his-cpp/lib-oatpp/lib64/release/oatpp.lib filter=lfs diff=lfs merge=lfs -text
