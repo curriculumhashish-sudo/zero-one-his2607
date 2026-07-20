@@ -22,7 +22,7 @@ import java.util.List;
  * @version 1.0.0
  */
 @RestController
-@RequestMapping("/fee")
+@RequestMapping("/fee-nature")
 @Tag(name = "费用性质管理", description = "费用性质相关操作接口")
 public class FeeNatureController implements FeeNatureApis {
 
