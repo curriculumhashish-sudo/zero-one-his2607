@@ -54,3 +54,4 @@ public interface WeekScheduleTemplateApis {
      */
     JsonVO<String> deleteWeekScheduleTemplate(Long id);
 }
+
