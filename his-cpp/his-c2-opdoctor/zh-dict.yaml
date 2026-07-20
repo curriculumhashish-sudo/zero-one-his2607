@@ -1,0 +1,17 @@
+prescription:
+  tags:
+    tag: 医嘱管理
+
+  batchDelete:
+    summary: 删除一条或多条未签发医嘱
+
+  mergeGroup:
+    summary: 将多条未签发医嘱合并为一个医嘱组
+
+  splitGroup:
+    summary: 将一条或多条已并组且未签发的医嘱拆组
+
+  field:
+    deletePrescriptionIds: 需要删除的医嘱ID集合，仅允许选择未签发医嘱
+    mergePrescriptionIds: 需要并组的医嘱ID集合，至少选择两条未签发医嘱
+    splitPrescriptionIds: 需要拆组的医嘱ID集合，仅允许选择已并组且未签发医嘱
