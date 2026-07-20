@@ -27,6 +27,11 @@
 #include"register/GetTodayAppointController.h"
 #include"register/AddRegisterContorller.h"
 
+#include "charge/PatientQueueController.h"
+#include "charge/ChargeItemController.h"
+#include "charge/SettlementController.h"
+#include "charge/PrintController.h"
+
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
 // Simplified controller binding macro
@@ -55,4 +60,12 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(GetSeeController);
 	ROUTER_SIMPLE_BIND(GetTodayAppointController);
 	ROUTER_SIMPLE_BIND(AddRegisterContorller);
+	// 患者队列
+	ROUTER_SIMPLE_BIND(PatientQueueController);
+	// 缴费项管理
+	ROUTER_SIMPLE_BIND(ChargeItemController);
+	// 结算管理
+	ROUTER_SIMPLE_BIND(SettlementController);
+	// 打印管理
+	ROUTER_SIMPLE_BIND(PrintController);
 }
