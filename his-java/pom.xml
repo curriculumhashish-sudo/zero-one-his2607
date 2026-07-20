@@ -37,6 +37,10 @@
         <module>his-gateway</module>
         <module>his-login</module>
         <module>his-mcp-gateway</module>
+        <module>his-j2-sysmgr</module>
+        <module>his-j2-basedata</module>
+        <module>his-j2-personcenter</module>
+        <module>his-j2-workbench</module>
     </modules>
     <properties>
         <!-- 项目版本号 -->
