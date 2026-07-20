@@ -9,7 +9,6 @@ import com.zeroone.star.project.query.j4.frequency.FrequencyPageQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j4.frequency.FrequencyOptionVO;
 import com.zeroone.star.project.vo.j4.frequency.FrequencyVO;
-import io.swagger.v3.oas.annotations.Operation;
 
 import java.util.List;
 
@@ -29,7 +28,6 @@ public interface FrequencyApis {
      * @param query
      * @return
      */
-    @Operation(description = "获取频次列表（分页+条件）")
     public JsonVO<PageDTO<FrequencyVO>> queryFrequencyList(FrequencyPageQuery query);
 
     /**
@@ -37,7 +35,6 @@ public interface FrequencyApis {
      * @param id
      * @return
      */
-    @Operation(description = "获取频次详情")
     public JsonVO<FrequencyVO> queryFrequencyDetail(String id);
 
     /**
@@ -60,6 +57,7 @@ public interface FrequencyApis {
      * @return 结果状态载荷
      */
     JsonVO<Void> removeFrequency(String id);
+
     /**
      * 获取可用频次名称列表
      *
