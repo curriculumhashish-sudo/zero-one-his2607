@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
  * @version 1.0.0
  */
 @Data
-@TableName("adm_healthcare_service")
+@TableName("AdmHealthcareService")
 public class TreatmentDO implements Serializable {
 
     private static final long serialVersionUID = 1L;
