@@ -14,21 +14,32 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * <p>
+ * 描述：日排班模板接口
+ * </p>
+ * <p>版权：&copy;01星球</p>
+ * <p>地址：01星球总部</p>
+ *
+ * @author 墨
+ * @version 1.0.0
+ */
+
 @RestController
-// @RequestMapping("/api/daily-schedule")
+@RequestMapping("/j8/setroster")
 @Tag(name = "日排班模板接口")
 public class DailyScheduleController implements DailyScheduleApis {
 
     @Override
     @Operation(summary = "获取日排班模板下拉选项")
-    @GetMapping("j8/setroster/listDailyScheduleOptions")
+    @GetMapping("/listDailyScheduleOptions")
     public JsonVO<List<DailyScheduleOptionVO>> listDailyScheduleOptions() {
         return JsonVO.success(new ArrayList<>());
     }
 
     @Override
     @Operation(summary = "分页查询日排班模板列表")
-    @GetMapping("j8/setroster/pageDailySchedule")
+    @GetMapping("/pageDailySchedule")
     public JsonVO<PageDTO<DailyScheduleDTO>> pageDailySchedule(
             DailyScheduleQuery query) {
         return JsonVO.success(new PageDTO<>(1L, 10L, 0L, 0L, new ArrayList<>()));
@@ -36,14 +47,14 @@ public class DailyScheduleController implements DailyScheduleApis {
 
     @Override
     @Operation(summary = "新增日排班模板")
-    @PostMapping("j8/setroster/addDailySchedule")
+    @PostMapping("/addDailySchedule")
     public JsonVO<String> addDailySchedule(AddDailyScheduleDTO dto) {
         return JsonVO.success("");
     }
 
     @Override
     @Operation(summary = "编辑日排班模板")
-    @PutMapping("j8/setroster/modifyDailySchedule")
+    @PutMapping("/modifyDailySchedule")
     public JsonVO<String> modifyDailySchedule(
             DailyScheduleDTO dto) {
         return JsonVO.success("");
@@ -51,7 +62,7 @@ public class DailyScheduleController implements DailyScheduleApis {
 
     @Override
     @Operation(summary = "删除日排班模板")
-    @DeleteMapping("j8/setroster/deleteDailySchedule/{id}")
+    @DeleteMapping("/deleteDailySchedule/{id}")
     public JsonVO<String> deleteDailySchedule(String id) {
         return JsonVO.success("");
     }
