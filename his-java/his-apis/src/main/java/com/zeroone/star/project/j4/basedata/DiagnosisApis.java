@@ -1,13 +1,15 @@
 package com.zeroone.star.project.j4.basedata;
 
 import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisDefinitionDTO;
 import com.zeroone.star.project.query.j4.diagnosis.DiagnosisPageQuery;
 import com.zeroone.star.project.query.j4.diagnosis.DiagnosisSelectPageQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisDetailVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisListVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisOptionVO;
-import io.swagger.v3.oas.annotations.Operation;
+
+import java.util.List;
 
 /**
  * <p>
@@ -44,4 +46,36 @@ public interface DiagnosisApis {
      */
     JsonVO<DiagnosisDetailVO> queryDiagnosisDetail(String id);
 
+    /**
+     * 新增诊断。
+     *
+     * @param dto 诊断定义数据
+     * @return 新增记录ID
+     */
+    JsonVO<String> addDefinition(DiagnosisDefinitionDTO dto);
+
+    /**
+     * 编辑诊断。
+     *
+     * @param dto 诊断定义数据
+     * @return 编辑结果
+     */
+    JsonVO<String> modifyDefinition(DiagnosisDefinitionDTO dto);
+
+    /**
+     * 启用或停用诊断，支持批量操作。
+     *
+     * @param ids 诊断ID列表
+     * @param status 状态编码
+     * @return 操作结果
+     */
+    JsonVO<String> modifyBatchStatus(List<String> ids, String status);
+
+    /**
+     * 删除诊断，支持批量操作。
+     *
+     * @param ids 诊断ID列表
+     * @return 删除结果
+     */
+    JsonVO<String> removeBatch(List<String> ids);
 }

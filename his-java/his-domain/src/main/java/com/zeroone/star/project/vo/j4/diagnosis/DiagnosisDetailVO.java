@@ -62,8 +62,6 @@ public class DiagnosisDetailVO implements Serializable {
     @Schema(description = "说明", example = "高血压病")
     private String description;
 
-
     @Schema(description = "状态编码", example = "ACTIVE")
     private String statusEnum;
-
 }
