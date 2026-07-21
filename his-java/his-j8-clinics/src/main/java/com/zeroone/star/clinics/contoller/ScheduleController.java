@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Tag(name = "门诊日程")
-@RequestMapping("/api/clinics")
+@RequestMapping("/j8/clinics")
 public class ScheduleController implements ClinicsApis {
 
 

@@ -21,7 +21,7 @@ import java.util.List;
 
 @RestController
 @Tag(name = "门诊排班管理")
-@RequestMapping("/api/clinics")
+@RequestMapping("/j8/clinics")
 @Validated
 public class MZScheduleController implements ScheduleApis {
 

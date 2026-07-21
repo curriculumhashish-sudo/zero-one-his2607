@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
-@RequestMapping("/api/clinics")
+@RequestMapping("/j8/clinics")
 @RestController
 @Tag(name = "门诊排班管理")
 public class ClinicScheduleController implements ClinicScheduleApis {
