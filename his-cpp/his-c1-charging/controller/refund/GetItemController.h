@@ -28,7 +28,7 @@
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
 // API 标签 — Swagger 文档分组: "退费管理"
-#define API_TAG ZH_WORDS_GETTER("xbzml.charging.refund.tags.t1")
+#define API_TAG ZH_WORDS_GETTER("charging.refund.tag")
 
 class GetItemController : public oatpp::web::server::api::ApiController
 {

@@ -1,16 +1,24 @@
+charging:
+ refund:    
+  tag: 收费工作站-门诊退费
+      
+
+
 xbzml:
   charging:
     refund:
-      tags:
-        t1: 退费管理
       get-patient-list:
         summary: 获取患者队列（分页+条件）
       get-item-list:
-        summary: 根据就诊ID查询退费项目明细（嵌套结构）
+        summary: 获取患者缴费项
       verify-refund:
         summary: 确认退费项目是否可退
       execute-refund:
         summary: 执行退费
+      prepare-print:
+        summary: 退费打印准备（回传打印模版）
+      confirm-print:
+        summary: 确认退费打印是否成功
       field:
         # get patient
         keyword: 查询关键字（患者姓名、就诊ID等）
@@ -53,7 +61,7 @@ xbzml:
         totalCount: 总记录数
         pageNo: 当前页码
         # verify refund
-        refundingChargeItemIds: 待退费收费项目ID列表（逗号分隔）
+        refundingChargeItemIds: 待退费收费项目ID列表
         allowed: 是否允许退费
         rejectReasonCode: 拒绝原因编码
         # execute refund
@@ -66,4 +74,15 @@ xbzml:
         reversePaymentId: 冲正支付记录ID
         halfRefundExecuted: 是否为半退
         insuranceRevoked: 医保是否已撤销
+        # prepare print
+        scenarioCode: 场景编码
+        templateVersion: 模版版本号
+        traceId: 打印任务追踪ID
+        busNo: 业务流水号
+        # confirm print
+        status: 打印状态
+        printData: 实际打印数据
+        bizRef: 业务参考信息
+        copies: 打印份数
+        clientType: 客户端类型
 

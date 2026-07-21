@@ -28,7 +28,7 @@
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
 // API tag for Swagger doc grouping: "Refund Management"
-#define API_TAG ZH_WORDS_GETTER("xbzml.charging.refund.tags.t1")
+#define API_TAG ZH_WORDS_GETTER("charging.refund.tag")
 
 class GetPatientController : public oatpp::web::server::api::ApiController
 {
