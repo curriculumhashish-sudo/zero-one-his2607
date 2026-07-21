@@ -1,4 +1,3 @@
-package com.zeroone.star.sysmgr.entity;
 package com.zeroone.star.sysmgr.entity.permission;
 /**
  * 。

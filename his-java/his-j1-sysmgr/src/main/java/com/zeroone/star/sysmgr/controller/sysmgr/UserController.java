@@ -1,9 +1,11 @@
-package com.zeroone.star.sysmgr.controller;
+package com.zeroone.star.sysmgr.controller.sysmgr;
 
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j1.sysmgr.ChangePasswordDTO;
+import com.zeroone.star.project.dto.j1.sysmgr.TenantQueryDTO;
 import com.zeroone.star.project.dto.j1.sysmgr.UserDTO;
 import com.zeroone.star.project.j1.sysmgr.UserApis;
+import com.zeroone.star.project.query.j1.login.TenantQuery;
 import com.zeroone.star.project.query.j1.sysmgr.UserQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j1.sysmgr.UserDetailVO;
@@ -17,6 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequestMapping("/user")
 @Tag(name = "用户管理")
 public class UserController implements UserApis {
+
     @Operation(summary   = "分页查询用户列表")
     @GetMapping("/page")
     @Override
@@ -24,10 +27,11 @@ public class UserController implements UserApis {
         return null;
     }
 
-    @Operation(summary   = "分页查询选择用户列表")
+
+    @Operation(summary   = "查询选择(租户)用户列表")
     @GetMapping("/list")
     @Override
-    public JsonVO<PageDTO<UserListVO>> getList(UserQuery userQuery) {
+    public JsonVO<PageDTO<UserListVO>> getList(TenantQuery tenantQuery) {
         return null;
     }
 
@@ -37,6 +41,7 @@ public class UserController implements UserApis {
     public JsonVO<UserDetailVO> getById(@PathVariable String id) {
         return null;
     }
+
 
     @Operation(summary   = "新增用户")
     @PostMapping
@@ -60,7 +65,7 @@ public class UserController implements UserApis {
         return null;
     }
 
-    @Operation(summary   = "修改用户密码")
+    @Operation(summary   = "修改密码")
     @PutMapping("/changePassword")
     public JsonVO<String> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO) {
         return null;

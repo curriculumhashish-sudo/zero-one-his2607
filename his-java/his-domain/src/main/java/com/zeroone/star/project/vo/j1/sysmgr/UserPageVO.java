@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-@Schema(description = "用户列表对象")
+@Schema(description = "(用户管理)用户列表")
 public class UserPageVO {
     @Schema(description = "主键id", example = "336396155648217088")
     private String id;

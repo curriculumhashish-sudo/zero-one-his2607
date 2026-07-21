@@ -3,12 +3,16 @@ package com.zeroone.star.project.j1.sysmgr;
 import com.zeroone.star.project.dto.PageDTO;
 
 import com.zeroone.star.project.dto.j1.sysmgr.ChangePasswordDTO;
+import com.zeroone.star.project.dto.j1.sysmgr.TenantQueryDTO;
 import com.zeroone.star.project.dto.j1.sysmgr.UserDTO;
+import com.zeroone.star.project.query.j1.login.TenantQuery;
 import com.zeroone.star.project.query.j1.sysmgr.UserQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j1.sysmgr.UserDetailVO;
 import com.zeroone.star.project.vo.j1.sysmgr.UserListVO;
 import com.zeroone.star.project.vo.j1.sysmgr.UserPageVO;
+import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.Map;
 
@@ -22,51 +26,6 @@ public interface UserApis {
 
 
     /**
-     * 1. 获取用户分页列表（条件查询 + 分页）
-     */
-    JsonVO<PageDTO<UserDetailVO>> getPage();
-
-    /**
-     * 2. 获取用户列表
-     */
-    public void getList();
-
-    /**
-     * 3. 根据用户ID获取用户详细信息
-     */
-    public void getById();
-
-    /**
-     * 4. 新增用户
-     */
-    public void add();
-
-    /**
-     * 5. 更新用户信息
-     */
-    public void update();
-
-    /**
-     * 6. 删除用户
-     */
-    public void delete();
-
-    /**
-     * 7. 修改密码
-     */
-    public void changePassword();
-
-    /**
-     * 8. 启用/禁用用户 (合并)
-     */
-    public void enableOrDisable();
-
-    /**
-     * 9. 锁定/解锁用户 (合并)
-     */
-    public void lockOrUnlock();
-
-    /**
      * 分页查询用户信息
      * @param userQuery 用户查询参数
      * @return 用户信息分页列表
@@ -75,10 +34,11 @@ public interface UserApis {
 
     /**
      * 列表用户信息
-      * @param userQuery 用户查询参数
+      * @param tenantQuery 用户查询参数
       * @return 用户信息列表
      */
-    JsonVO<PageDTO<UserListVO>> getList(UserQuery userQuery);
+    JsonVO<PageDTO<UserListVO>> getList(TenantQuery tenantQuery);
+
 
     /**
      * 根据用户ID获取用户信息

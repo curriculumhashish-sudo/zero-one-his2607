@@ -3,6 +3,7 @@ package com.zeroone.star.project.query.j1.sysmgr;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.query.PageQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Min;
 import lombok.Data;
 
 @Data
@@ -17,4 +18,6 @@ public class UserQuery extends PageQuery {
 
     @Schema(description = "锁定状态 (1:已锁定, 0-未锁定)", example = "0",requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Integer lockStatus;
+
+
 }

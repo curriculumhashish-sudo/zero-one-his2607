@@ -20,7 +20,7 @@ public class UserDTO {
     @Schema(description = "密码", requiredMode = Schema.RequiredMode.REQUIRED,example = "12345678")
     private String password;
 
-    @Schema(description = "角色ID列表", requiredMode = Schema.RequiredMode.REQUIRED,example = "1,2,3")
+    @Schema(description = "角色 ID列表", requiredMode = Schema.RequiredMode.REQUIRED,example = "1,2,3")
     private List<String> roleIds;
 
     @Schema(description = "默认登录科室ID")
@@ -32,7 +32,7 @@ public class UserDTO {
     @Schema(description = "手机号码")
     private String phoneNumber;
 
-    @Schema(description = "电子邮箱")
+    @Schema(description = "邮箱")
     private String email;
 
     @Schema(description = "性别 (2:男, 1:女, 0:未知)", requiredMode = Schema.RequiredMode.REQUIRED, example = "2")
@@ -62,9 +62,9 @@ public class UserDTO {
     @Schema(description = "备注信息")
     private String remark;
 
-    @Schema(description = "出诊科室ID列表 ")
-    private List<String> consultDeptIds;
-
-    @Schema(description = "可接诊号源ID列表")
-    private List<String> receptionSourceIds;
+//    @Schema(description = "出诊科室ID列表 ")
+//    private List<String> consultDeptIds;
+//
+//    @Schema(description = "可接诊号源ID列表")
+//    private List<String> receptionSourceIds;
 }
