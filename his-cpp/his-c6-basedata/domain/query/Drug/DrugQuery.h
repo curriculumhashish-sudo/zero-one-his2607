@@ -6,7 +6,7 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 class DrugQuery : public PageQuery
 {
-	DTO_INIT(DrugQuery, DTO);
+	DTO_INIT(DrugQuery, PageQuery);
 	API_DTO_FIELD_DEFAULT(String, keywords, ZH_WORDS_GETTER("Drug.field.keywords"), false);
 	//关键词
 	API_DTO_FIELD_DEFAULT(String, name, ZH_WORDS_GETTER("Drug.field.name"), false);
