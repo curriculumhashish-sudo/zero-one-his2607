@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zero.star.outpharm.service.DrugService;
 import com.zeroone.star.project.query.j7.outpharm.PatientDrugItemQuery;
 import com.zeroone.star.project.vo.j7.outpharm.PatientDrugItemVO;
+import org.springframework.stereotype.Service;
 
+@Service
 public class DrugServiceImpl implements DrugService {
     @Override
     public IPage<PatientDrugItemVO> pagePatientDrugItems(PatientDrugItemQuery query) {

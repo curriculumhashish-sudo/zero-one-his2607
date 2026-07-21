@@ -8,7 +8,7 @@
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>his-sample</artifactId>
+    <artifactId>his-j7-outpharm</artifactId>
     <dependencies>
         <!--spring web mvc-->
         <dependency>
@@ -64,6 +64,14 @@
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+            <version>3.5.0</version>
+            <scope>compile</scope>
+        </dependency>
+
+
     </dependencies>
     <build>
         <plugins>
