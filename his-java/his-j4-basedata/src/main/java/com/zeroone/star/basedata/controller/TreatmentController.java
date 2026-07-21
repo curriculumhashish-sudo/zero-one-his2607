@@ -37,7 +37,7 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 @RestController
 @RequestMapping("/treatment")
-@Tag(name = "basedata-treatment", description = "诊疗管理（7）")
+@Tag(name = "诊疗管理", description = "诊疗管理接口")
 public class TreatmentController implements TreatmentApis {
 
     @Resource
@@ -92,7 +92,7 @@ public class TreatmentController implements TreatmentApis {
     }
 
 
-    @Operation(summary = "删除诊疗", description = "删除诊疗项目")
+    @Operation(summary = "删除诊疗（支持批量）", description = "删除诊疗项目")
     @Parameters({
             @Parameter(name = "id", description = "诊疗项目ID", required = true, example = "1890000000000000001", in = ParameterIn.QUERY)
     })
