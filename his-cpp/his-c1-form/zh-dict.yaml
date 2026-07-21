@@ -5,8 +5,8 @@
 rhqm:
  form:
   cost_info:
-   title: 报表明细
    query:
+    title: 门诊费用明细(条件+分页)
     id: 编号
     start_time: 开始时间
     end_time: 结束时间
@@ -19,6 +19,6 @@ rhqm:
     checker: 收银员
     feeDir: 收退方向
    export:
-    tag: 导出报表
+    title: 导出报表
     fileID: 文件ID
     
