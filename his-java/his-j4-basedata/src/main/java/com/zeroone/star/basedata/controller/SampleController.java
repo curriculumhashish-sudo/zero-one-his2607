@@ -7,6 +7,7 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j4.sample.SpecimenDefinitionOperateVO;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.zeroone.star.project.dto.j4.sample.SpecimenDefinitionUpdateDTO;
 
 /**
  * <p>
@@ -29,6 +30,11 @@ public class SampleController implements SampleApis {
 
     @Override
     public JsonVO<SpecimenDefinitionOperateVO> delete(SpecimenDefinitionDeleteDTO dto) {
+        // TODO: 后续工单实现具体业务逻辑
+        throw new UnsupportedOperationException("待实现");
+    }
+    @Override
+    public JsonVO<SpecimenDefinitionOperateVO> update(SpecimenDefinitionUpdateDTO dto) {
         // TODO: 后续工单实现具体业务逻辑
         throw new UnsupportedOperationException("待实现");
     }

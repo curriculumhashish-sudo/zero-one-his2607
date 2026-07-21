@@ -4,6 +4,7 @@ import com.zeroone.star.project.dto.j4.sample.SpecimenDefinitionDeleteDTO;
 import com.zeroone.star.project.dto.j4.sample.SpecimenDefinitionStatusDTO;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j4.sample.SpecimenDefinitionOperateVO;
+import com.zeroone.star.project.dto.j4.sample.SpecimenDefinitionUpdateDTO;
 
 /**
  * <p>
@@ -31,4 +32,12 @@ public interface SampleApis {
      * @return 操作结果
      */
     JsonVO<SpecimenDefinitionOperateVO> delete(SpecimenDefinitionDeleteDTO dto);
+
+    /**
+     * 修改样本定义
+     * 根据主键与乐观锁版本号，修改样本名称、标本种类
+     * @param dto 修改请求数据
+     * @return 操作结果
+     */
+    JsonVO<SpecimenDefinitionOperateVO> update(SpecimenDefinitionUpdateDTO dto);
 }
