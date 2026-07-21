@@ -212,3 +212,26 @@ if(WIN32)
 	# 复制项目配置到可执行文件目录
 	install (DIRECTORY "conf" DESTINATION ${appName})
 endif()
+
+# ========== Diagnosis 模块文件 ==========
+# Controller
+controller/Diagnosis/DiagnosisController.h
+controller/Diagnosis/diagnoseController.cpp
+# DAO
+dao/Diagnosis/DiagnosisDAO.h
+dao/Diagnosis/DiagnosisDAO.cpp
+# DO
+domain/do/Diagnosis/DiagnosisDO.h
+# DTO
+domain/dto/Diagnosis/DiagnosisAddDTO.h
+domain/dto/Diagnosis/DiagnosisPageDTO.h
+domain/dto/Diagnosis/DiagnosisSelectDTO.h
+domain/dto/Diagnosis/DiagnosisDetailDTO.h
+domain/dto/Diagnosis/DiagnosisDeleteDTO.h
+# Query
+domain/query/Diagnosis/DiagnosisSelectQuery.h
+domain/query/Diagnosis/DiagnosisPageQuery.h
+# JsonVO
+domain/vo/Diagnosis/DiagnosisSelectJsonVO.h
+domain/vo/Diagnosis/DiagnosisPageJsonVO.h
+domain/vo/Diagnosis/DiagnosisDetailJsonVO.h
