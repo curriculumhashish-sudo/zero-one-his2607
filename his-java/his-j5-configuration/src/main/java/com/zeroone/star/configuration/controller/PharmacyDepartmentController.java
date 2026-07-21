@@ -50,6 +50,9 @@ public class PharmacyDepartmentController {
     public JsonVO<Boolean> save(
             @Parameter(description = "科室项目配置实体") @RequestBody CusServiceLocationTemplate template) {
         boolean result = serviceLocationTemplateService.saveTemplate(template);
+        if(!result){
+            return JsonVO.fail("保存失败");
+        }
         return JsonVO.success(result);
     }
 }
