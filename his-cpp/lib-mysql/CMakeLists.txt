@@ -21,3 +21,4 @@ set_target_properties (lib-mysql PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 # 安装库
 #install (TARGETS lib-mysql ARCHIVE DESTINATION libstatic)
 #install (DIRECTORY include/ DESTINATION include/lib-mysql)
+ 

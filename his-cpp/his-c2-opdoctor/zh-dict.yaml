@@ -1,0 +1,72 @@
+﻿title:
+ tags:
+  text: "周期循环"
+
+queue:
+ dto:
+  patientName: "姓名"
+  gender: "性别"
+  age: "年龄"
+  registerType: "挂号类型"
+  visitTime: "就诊时间"
+  visitNum: "病历号（唯一标识）"
+  payType: "支付类型"
+  visitStatus: "就诊状态"
+ query:
+  date: "日期"
+  patient: "患者"
+  visitStatus: "就诊状态"
+ param:
+  patientName: "姓名"
+  startDate: "就诊时间"
+  Status: "待诊/在诊"
+  finishStatus: "完诊"
+  allStatus: "全部状态"
+ get:
+  summary: "获取患者队列"
+
+
+
+rece:
+ dto:
+  name: "姓名"
+  visitStatus: "在诊状态"
+  gender: "性别"
+  age: "年龄"
+  registerType: "挂号类型"
+  medicalRecordNum: "病历号(唯一标识)"
+  recordType: "病历类型"
+  time: "就诊时间"
+  registerDept: "挂号科室"
+  phoneNum: "电话号"
+  allergyHistory: "过敏史"
+ query:
+  data: "日期"
+ param:
+  name: "姓名"
+  gender: "性别"
+  age: "年龄"
+  registerType: "挂号类型"
+  visitTime: "就诊时间"
+  visitNum: "就诊号"
+  payType: "支付类型"
+  visitStatus: "就诊状态"
+ get:
+  summary: "在诊患者"
+
+
+finish:
+ dto:
+  newVisitStatus: "完诊"
+ query:
+  visitStatus: "其他状态"
+ get:
+  summary: "完诊"
+  
+leave:
+ dto:
+  newVisitStatus: "暂离"
+ query:
+  visitStatus: "其他状态"
+ get:
+  summary: "暂离"
