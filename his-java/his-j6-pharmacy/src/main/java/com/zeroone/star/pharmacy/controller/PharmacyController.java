@@ -45,6 +45,7 @@ import org.springframework.validation.annotation.Validated;
 import lombok.RequiredArgsConstructor;
 import io.swagger.v3.oas.annotations.Parameter;
 
+
 @RestController
 @RequestMapping("j6/warehouse")
 @RequiredArgsConstructor
@@ -286,5 +287,37 @@ public class PharmacyController implements PharmacyApis {
     public JsonVO<String> removeInboundReceipt(@Valid InboundReceiptDeleteDTO dto) {
         // TODO 调用 Service 执行删除
         return null;
+    }
+
+    @Override
+    @Operation(summary = "新增药库进货单", description = "新增一张药库进货单草稿，后续数据落库由业务服务实现。")
+    @PostMapping
+    public JsonVO<InboundReceiptSaveResultVO> addInboundReceipt(@Valid @RequestBody InboundReceiptSaveDTO dto) {
+        return JsonVO.success(buildResult(dto.getBusNo(), "DRAFT", "新增成功", null, dto.getVersion()));
+    }
+
+    @Override
+    @Operation(summary = "保存药库进货单", description = "保存已存在的药库进货单草稿，后续数据落库由业务服务实现。")
+    @PutMapping
+    public JsonVO<InboundReceiptSaveResultVO> saveInboundReceipt(@Valid @RequestBody InboundReceiptSaveDTO dto) {
+        return JsonVO.success(buildResult(dto.getBusNo(), "DRAFT", "保存成功", null, dto.getVersion()));
+    }
+
+    @Override
+    @Operation(summary = "保存并提交药库进货单审批", description = "保存单据并提交审批，提交后进入待审批状态，后续数据落库和审批流由业务服务实现。")
+    @PostMapping("/submit")
+    public JsonVO<InboundReceiptSaveResultVO> saveAndSubmitInboundReceipt(@Valid @RequestBody InboundReceiptSaveDTO dto) {
+        return JsonVO.success(buildResult(dto.getBusNo(), "PENDING_APPROVAL", "保存并提交审批成功", LocalDateTime.now(), dto.getVersion()));
+    }
+
+    private InboundReceiptSaveResultVO buildResult(String busNo, String statusEnum, String actionResult, LocalDateTime applyTime, Integer version) {
+        InboundReceiptSaveResultVO result = new InboundReceiptSaveResultVO();
+        result.setId("510000000000000001");
+        result.setBusNo(busNo == null || busNo.isBlank() ? "JHD202607190001" : busNo);
+        result.setStatusEnum(statusEnum);
+        result.setVersion(version == null ? 0 : version + 1);
+        result.setActionResult(actionResult);
+        result.setApplyTime(applyTime);
+        return result;
     }
 }

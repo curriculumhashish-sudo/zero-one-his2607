@@ -2,16 +2,13 @@ package com.zeroone.star.project.query.j6.pharmacy;
 
 import com.zeroone.star.project.query.PageQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+
 import lombok.ToString;
 
 import java.time.LocalDateTime;
 
-// 进货单 列表查询（extends PageQuery）（对应前端 PageInboundReceiptsRequest）
-// 字段：sourceLocationId, purposeLocationId, statusEnum, keyword, applyTimeFrom, applyTimeTo, typeEnum
-@Getter
-@Setter
+@Data
 @ToString
 @Schema(description = "进货单列表查询参数")
 public class InboundReceiptQuery extends PageQuery {
