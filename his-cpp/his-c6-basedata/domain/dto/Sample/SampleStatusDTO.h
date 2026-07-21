@@ -3,7 +3,7 @@
  Copyright Zero One Star. All rights reserved.
 
  @Author: awei
- @Date: 2026/07/21 10:40:00
+ @Date: 2026/07/21 11:05:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -24,18 +24,17 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/**
- * 样本批量启用/停用请求DTO
+/*
+ * Request body for batch status update.
  */
 class SampleStatusDTO : public oatpp::DTO
 {
 	DTO_INIT(SampleStatusDTO, DTO);
 
-	// 样本ID列表
 	API_DTO_FIELD_REQUIRE(List<String>, ids, "sample id list", true);
-	// 目标状态：0-停用，1-启用
 	API_DTO_FIELD_REQUIRE(Int32, status, ZH_WORDS_GETTER("sample.field.status"), true);
 };
 
 #include OATPP_CODEGEN_END(DTO)
+
 #endif // !_SAMPLE_STATUS_DTO_H_
