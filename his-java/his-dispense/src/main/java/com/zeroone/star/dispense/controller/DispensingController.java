@@ -59,12 +59,4 @@ public class DispensingController implements DispensingApis {
         String result = dispensingService.verifyDispense(verifyDTO);
         return JsonVO.success(result);
     }
-
-    @Operation(summary = "发药后截单")
-    @PostMapping("close-summary")
-    @Override
-    public JsonVO<String> closeSummary(@Parameter(description = "汇总单号", example = "HZ20240719001") @RequestParam String summaryNo) {
-        String result = dispensingService.closeSummary(summaryNo);
-        return JsonVO.success(result);
-    }
 }
