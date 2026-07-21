@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
  * @version 1.0.0
  */
 @Data
-public class ServiceCatalogResponseDTO {
+public class TreatmentResponseDTO {
 
     private String id;
 

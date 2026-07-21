@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 
 @Data
 @Schema(description = "诊疗项目列表显示对象")
-public class ServiceCatalogListVO implements Serializable {
+public class TreatmentListVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

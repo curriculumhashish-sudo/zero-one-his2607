@@ -8,7 +8,7 @@ import lombok.Data;
  */
 @Data
 @Schema(description = "新增诊疗项目DTO")
-public class ServiceCatalogAddDTO {
+public class TreatmentAddDTO {
 
     @Schema(description = "诊疗项目名称", example = "血常规检查", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;

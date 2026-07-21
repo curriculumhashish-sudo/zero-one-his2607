@@ -9,7 +9,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @Schema(description = "诊疗项目选择数据（其他业务选择诊疗时使用）")
-public class ServiceCatalogSelectDTO implements Serializable {
+public class TreatmentSelectDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

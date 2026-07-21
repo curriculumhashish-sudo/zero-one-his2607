@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Schema(description = "更新诊疗项目请求：在创建字段基础上携带网关字符串主键和编辑校验码")
-public class ServiceCatalogEditDTO extends ServiceCatalogAddDTO {
+public class TreatmentEditDTO extends TreatmentAddDTO {
 
     @Schema(description = "诊疗定义主键", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
