@@ -253,6 +253,11 @@ const menus = reactive([
     id: 14,
     path: '/sample/common',
     text: '通用布局组件'
+  },
+  {
+    id: 15,
+    path: '/sample/warehouse',
+    text: '库房工作站'
   }
 ])
 </script>

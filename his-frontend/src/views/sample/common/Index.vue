@@ -27,34 +27,21 @@
           </div>
 
           <SearchPanel
-            v-model:collapsed="queryCollapsed"
-            :model="searchModel"
-            collapsible
-            label-width="90px"
+            v-model:keyword="searchKeyword"
+            v-model:dropdown-value="searchStatus"
+            :keyword-placeholder="'姓名或病历号'"
+            :dropdown-options="searchStatusOptions"
+            :dropdown-placeholder="'全部状态'"
+            :field-count="1"
             @search="handleSearch"
             @reset="resetSearch"
           >
-            <el-row :gutter="16">
-              <el-col :span="6">
-                <el-form-item label="关键字">
-                  <el-input v-model="searchModel.keyword" placeholder="姓名或病历号" clearable />
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item label="状态">
-                  <el-select v-model="searchModel.status" placeholder="全部状态" clearable>
-                    <el-option label="待诊" value="待诊" />
-                    <el-option label="诊疗中" value="诊疗中" />
-                    <el-option label="已完成" value="已完成" />
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="就诊日期">
-                  <DateRangeField />
-                </el-form-item>
-              </el-col>
-            </el-row>
+            <template #header>
+              <div class="query-shell__field">
+                <label class="query-shell__label">就诊日期</label>
+                <DateRangeField />
+              </div>
+            </template>
           </SearchPanel>
 
           <DataTablePanel
@@ -358,7 +345,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { Download, Plus, Refresh, Upload } from '@element-plus/icons-vue'
 import ActionToolbar from '@/components/common/ActionToolbar.vue'
 import DataTablePanel from '@/components/common/DataTablePanel.vue'
@@ -411,7 +398,6 @@ const componentOverview = [
 ]
 
 const activeTab = ref('query')
-const queryCollapsed = ref(false)
 const tablePage = ref(1)
 const tablePageSize = ref(10)
 const actionTablePage = ref(1)
@@ -422,7 +408,14 @@ const selectedPatients = ref<PatientRow[]>([])
 const lastActionText = ref('')
 const shellCollapsed = ref(false)
 const shellKeyword = ref('')
-const searchModel = reactive({ keyword: '', status: '' })
+const searchKeyword = ref('')
+const searchStatus = ref<string | number | null>(null)
+const searchStatusOptions = [
+  { label: '全部', value: '' },
+  { label: '待诊', value: '待诊' },
+  { label: '诊疗中', value: '诊疗中' },
+  { label: '已完成', value: '已完成' }
+]
 
 const patients: PatientRow[] = [
   {
@@ -464,11 +457,11 @@ const patients: PatientRow[] = [
 ]
 
 const filteredPatients = computed(() => {
-  const keyword = searchModel.keyword.trim()
+  const keyword = searchKeyword.value.trim()
   return patients.filter(
     (item) =>
       (!keyword || item.name.includes(keyword) || item.recordNo.includes(keyword)) &&
-      (!searchModel.status || item.status === searchModel.status)
+      (!searchStatus.value || item.status === searchStatus.value)
   )
 })
 
@@ -477,8 +470,8 @@ function handleSearch() {
 }
 
 function resetSearch() {
-  searchModel.keyword = ''
-  searchModel.status = ''
+  searchKeyword.value = ''
+  searchStatus.value = null
   tablePage.value = 1
 }
 

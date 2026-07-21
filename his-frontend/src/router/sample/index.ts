@@ -84,6 +84,11 @@ const routes = [
         name: 'scommon',
         path: '/sample/common',
         component: () => import('@/views/sample/common/Index.vue')
+      },
+      {
+        name: 'swarehouse',
+        path: '/sample/warehouse',
+        component: () => import('@/views/sample/common/warehouse/Index.vue')
       }
     ]
   }
