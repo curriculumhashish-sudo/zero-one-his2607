@@ -80,7 +80,7 @@ public:
 
 	}
 
-	ENDPOINT(API_M_POST, "/charging/admission/delete", admission_delete, BODY_DTO(AdmissionDeleteDTO::Wrapper, dto), API_HANDLER_AUTH_PARAME) {
+	ENDPOINT(API_M_DEL, "/charging/admission/delete", admission_delete, BODY_DTO(AdmissionDeleteDTO::Wrapper, dto), API_HANDLER_AUTH_PARAME) {
 		API_HANDLER_RESP_VO(admission_delete(dto));
 	}
 
