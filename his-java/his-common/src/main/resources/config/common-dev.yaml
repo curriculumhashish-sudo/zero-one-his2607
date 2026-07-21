@@ -1,76 +1,27 @@
 spring:
+  #nacos配置
+  #https://github.com/alibaba/spring-cloud-alibaba/blob/2025.0.x/spring-cloud-alibaba-examples/nacos-example/readme-zh.md
   cloud:
     nacos:
-      server-addr: 127.0.0.1:8848
+      server-addr: 192.168.220.128:8848
       username: nacos
       password: nacos
       discovery:
         namespace: project-dev
-        enabled: true
       config:
         namespace: project-dev
-        enabled: true
-    inetutils:
-      preferred-networks:
-        - 192.168
-        - 39.99
-      ignored-interfaces:
-        - docker0
-        - veth.*
-        - VM.*
-        - br-.*
     sentinel:
       transport:
-        client-ip: 192.168.1.7
+        #本机的IP地址，客户端给sentinel监控使用，不配置可能会识别成其他网卡的ip导致错误
+        client-ip: 192.168.31.99
 
-  datasource:
-    url: jdbc:mysql://127.0.0.1:3306/test?useUnicode=true&useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    username: root
-    password: 123456
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    type: com.alibaba.druid.pool.DruidDataSource
-    druid:
-      name: DruidDataSource
-      initial-size: 1
-      min-idle: 1
-      max-active: 20
-      async-init: true
-      max-wait: 6000
-      time-between-eviction-runs-millis: 60000
-      min-evictable-idle-time-millis: 300000
-      max-evictable-idle-time-millis: 900000
-      validation-query: SELECT 1
-      test-while-idle: true
-      test-on-borrow: false
-      test-on-return: false
-      pool-prepared-statements: true
-      max-pool-prepared-statement-per-connection-size: 20
-      connection-init-sqls: SET NAMES utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-      filters: stat
-
-  data:
-    redis:
-      host: 127.0.0.1
-      port: 6379
-
-sn:
-  auth: his-oauth2
-  login: his-login
-  gateway: his-gateway
-  mg: his-mcp-gateway
-
-sp:
-  auth: 10400
-  login: 10401
-  gateway: 10402
-  mg: 10002
-
+#开启MP SQL日志打印
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
+# 开启调试日志方便查看错误信息
 logging:
   level:
     org.springframework.security: DEBUG
     org.springframework.security.oauth2: DEBUG
-    com.alibaba.nacos.client: WARN

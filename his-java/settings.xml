@@ -51,7 +51,7 @@ under the License.
      |
      | Default: ${user.home}/.m2/repository
     -->
-    <localRepository>C:\Users\lz\.m2\repository</localRepository>
+    <localRepository>D:\software\Maven\repository</localRepository>
 
 
     <!-- interactiveMode
@@ -174,7 +174,7 @@ under the License.
          -->
         <mirror>
             <id>mirror</id>
-            <mirrorOf>*</mirrorOf>
+            <mirrorOf>central,jcenter,!2383166-snapshot-6TSW5l</mirrorOf>
             <name>mirror</name>
             <url>https://maven.aliyun.com/nexus/content/groups/public</url>
         </mirror>
