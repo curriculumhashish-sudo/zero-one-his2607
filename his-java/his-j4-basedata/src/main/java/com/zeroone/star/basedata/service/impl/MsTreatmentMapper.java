@@ -1,14 +1,14 @@
 package com.zeroone.star.basedata.service.impl;
 
-import com.zeroone.star.basedata.entity.TreatmentDO;
-import com.zeroone.star.project.dto.j4.treatment.TreatmentAddDTO;
+import com.zeroone.star.basedata.entity.WkfActivityDefinitionDO;
+import com.zeroone.star.project.dto.j4.treatment.ServiceCatalogAddDTO;
+import com.zeroone.star.project.dto.j4.treatment.ServiceCatalogEditDTO;
+import com.zeroone.star.project.dto.j4.treatment.ServiceCatalogSelectDTO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentDTO;
-import com.zeroone.star.project.dto.j4.treatment.TreatmentEditDTO;
-import com.zeroone.star.project.dto.j4.treatment.TreatmentSelectDTO;
-import com.zeroone.star.project.dto.j4.treatment.TreatmentUpdateDTO;
-import com.zeroone.star.project.vo.j4.treatment.TreatmentDetailVO;
-import com.zeroone.star.project.vo.j4.treatment.TreatmentListVO;
-import com.zeroone.star.project.vo.j4.treatment.TreatmentSelectVO;
+import com.zeroone.star.project.dto.j4.treatment.ServiceCatalogUpdateDTO;
+import com.zeroone.star.project.vo.j4.treatment.ServiceCatalogDetailVO;
+import com.zeroone.star.project.vo.j4.treatment.ServiceCatalogListVO;
+import com.zeroone.star.project.vo.j4.treatment.ServiceCatalogSelectVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -18,35 +18,35 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface MsTreatmentMapper {
 
-    TreatmentSelectVO toSelectVO(TreatmentDO treatmentDO);
+    ServiceCatalogSelectVO toSelectVO(WkfActivityDefinitionDO wkfActivityDefinitionDO);
 
-    List<TreatmentSelectVO> toSelectVOList(List<TreatmentDO> treatmentDOS);
+    List<ServiceCatalogSelectVO> toSelectVOList(List<WkfActivityDefinitionDO> wkfActivityDefinitionDOS);
 
-    TreatmentSelectDTO toSelectDTO(TreatmentDO treatmentDO);
+    ServiceCatalogSelectDTO toSelectDTO(WkfActivityDefinitionDO wkfActivityDefinitionDO);
 
-    List<TreatmentSelectDTO> toSelectDTOList(List<TreatmentDO> treatmentDOS);
-
-    @Mappings({
-            @Mapping(target = "statusText", ignore = true),
-            @Mapping(target = "price", ignore = true)
-    })
-    TreatmentDTO toDTO(TreatmentDO treatmentDO);
-
-    List<TreatmentDTO> toDTOList(List<TreatmentDO> treatmentDOS);
+    List<ServiceCatalogSelectDTO> toSelectDTOList(List<WkfActivityDefinitionDO> wkfActivityDefinitionDOS);
 
     @Mappings({
             @Mapping(target = "statusText", ignore = true),
             @Mapping(target = "price", ignore = true)
     })
-    TreatmentListVO toListVO(TreatmentDO treatmentDO);
+    TreatmentDTO toDTO(WkfActivityDefinitionDO wkfActivityDefinitionDO);
 
-    List<TreatmentListVO> toListVOList(List<TreatmentDO> treatmentDOS);
+    List<TreatmentDTO> toDTOList(List<WkfActivityDefinitionDO> wkfActivityDefinitionDOS);
 
-    TreatmentDetailVO toDetailVO(TreatmentDO treatmentDO);
+    @Mappings({
+            @Mapping(target = "statusText", ignore = true),
+            @Mapping(target = "price", ignore = true)
+    })
+    ServiceCatalogListVO toListVO(WkfActivityDefinitionDO wkfActivityDefinitionDO);
 
-    TreatmentDO addDtoToEntity(TreatmentAddDTO dto);
+    List<ServiceCatalogListVO> toListVOList(List<WkfActivityDefinitionDO> wkfActivityDefinitionDOS);
 
-    TreatmentDO editDtoToEntity(TreatmentEditDTO dto);
+    ServiceCatalogDetailVO toDetailVO(WkfActivityDefinitionDO wkfActivityDefinitionDO);
 
-    TreatmentDO updateDtoToEntity(TreatmentUpdateDTO dto);
+    WkfActivityDefinitionDO addDtoToEntity(ServiceCatalogAddDTO dto);
+
+    WkfActivityDefinitionDO editDtoToEntity(ServiceCatalogEditDTO dto);
+
+    WkfActivityDefinitionDO updateDtoToEntity(ServiceCatalogUpdateDTO dto);
 }

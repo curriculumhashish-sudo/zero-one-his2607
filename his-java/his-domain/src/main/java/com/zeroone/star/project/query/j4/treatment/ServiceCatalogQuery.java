@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "诊疗项目分页查询对象")
-public class TreatmentQuery extends PageQuery {
+public class ServiceCatalogQuery extends PageQuery {
 
     @Schema(description = "关键词（诊疗名称或编码，模糊查询）", example = "CT")
     private String keyword;

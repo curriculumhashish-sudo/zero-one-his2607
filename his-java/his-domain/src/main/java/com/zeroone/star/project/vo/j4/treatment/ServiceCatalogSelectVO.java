@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 @Data
 @Schema(description = "诊疗项目选择显示对象（其他业务选择诊疗时使用）")
-public class TreatmentSelectVO implements Serializable {
+public class ServiceCatalogSelectVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

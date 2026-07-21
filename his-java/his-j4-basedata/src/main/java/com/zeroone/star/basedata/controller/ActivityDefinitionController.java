@@ -1,17 +1,17 @@
 package com.zeroone.star.basedata.controller;
 
-import com.zeroone.star.basedata.service.ITreatmentService;
+import com.zeroone.star.basedata.service.IServiceCatalog;
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j4.treatment.TreatmentAddDTO;
-import com.zeroone.star.project.dto.j4.treatment.TreatmentEditDTO;
-import com.zeroone.star.project.dto.j4.treatment.TreatmentStatusDTO;
-import com.zeroone.star.project.dto.j4.treatment.TreatmentUpdateDTO;
+import com.zeroone.star.project.dto.j4.treatment.ServiceCatalogAddDTO;
+import com.zeroone.star.project.dto.j4.treatment.ServiceCatalogEditDTO;
+import com.zeroone.star.project.dto.j4.treatment.ServiceCatalogStatusDTO;
+import com.zeroone.star.project.dto.j4.treatment.ServiceCatalogUpdateDTO;
 import com.zeroone.star.project.j4.basedata.TreatmentApis;
-import com.zeroone.star.project.query.j4.treatment.TreatmentQuery;
+import com.zeroone.star.project.query.j4.treatment.ServiceCatalogQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j4.treatment.TreatmentDetailVO;
-import com.zeroone.star.project.vo.j4.treatment.TreatmentListVO;
-import com.zeroone.star.project.vo.j4.treatment.TreatmentSelectVO;
+import com.zeroone.star.project.vo.j4.treatment.ServiceCatalogDetailVO;
+import com.zeroone.star.project.vo.j4.treatment.ServiceCatalogListVO;
+import com.zeroone.star.project.vo.j4.treatment.ServiceCatalogSelectVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -39,26 +39,26 @@ import java.util.List;
 @Validated
 @RestController
 @RequestMapping("/treatment")
-@Tag(name = "basedata-treatment", description = "诊疗管理接口")
-public class TreatmentController implements TreatmentApis {
+@Tag(name = "basedata-activity-definitiona", description = "诊疗管理接口")
+public class ActivityDefinitionController implements TreatmentApis {
 
     @Resource
-    private ITreatmentService treatmentService;
+    private IServiceCatalog treatmentService;
 
     @Operation(summary = "获取诊疗列表（条件+分页）", description = "根据筛选条件分页查询诊疗项目，支持按关键词（名称/编码）和分类筛选，不传参数默认返回第一页")
     @ApiResponse(description = "分页结果数据")
     @GetMapping("/query-treatment-list")
     @Override
-    public JsonVO<PageDTO<TreatmentListVO>> queryTreatmentList(@ParameterObject TreatmentQuery query) {
-        return JsonVO.success(treatmentService.queryTreatmentList(query));
+    public JsonVO<PageDTO<ServiceCatalogListVO>> queryTreatmentList(@ParameterObject ServiceCatalogQuery query) {
+        return JsonVO.success(treatmentService.queryServiceCatalogList(query));
     }
 
     @Operation(summary = "获取诊疗列表（条件+分页）", description = "用于其他业务模块选择诊疗项目时的分页查询，返回编码/名称/分类")
     @ApiResponse(description = "分页数据，每条含id/busNo/name/categoryCode")
     @GetMapping("/list-treatment-options")
     @Override
-    public JsonVO<PageDTO<TreatmentSelectVO>> listTreatmentOptions(@ParameterObject TreatmentQuery query) {
-        return JsonVO.success(treatmentService.listTreatmentOptions(query));
+    public JsonVO<PageDTO<ServiceCatalogSelectVO>> listTreatmentOptions(@ParameterObject ServiceCatalogQuery query) {
+        return JsonVO.success(treatmentService.listServiceCatalogOptions(query));
     }
 
     @Operation(summary = "获取诊疗详情", description = "根据诊疗主键ID查询单条数据完整详情")
@@ -68,8 +68,8 @@ public class TreatmentController implements TreatmentApis {
     @ApiResponse(description = "诊疗详情数据")
     @GetMapping("/get-treatment")
     @Override
-    public JsonVO<TreatmentDetailVO> getTreatment(@RequestParam String id) {
-        return JsonVO.success(treatmentService.getTreatmentById(id));
+    public JsonVO<ServiceCatalogDetailVO> getTreatment(@RequestParam String id) {
+        return JsonVO.success(treatmentService.getServiceCatalogById(id));
     }
 
     @Operation(summary = "获取诊疗分类选项", description = "返回所有诊疗分类下拉选项")
@@ -84,8 +84,8 @@ public class TreatmentController implements TreatmentApis {
     @ApiResponse(description = "无返回值")
     @PostMapping("/add-treatment")
     @Override
-    public JsonVO<Void> addTreatment(@RequestBody @Valid TreatmentAddDTO treatmentAddDTO) {
-        treatmentService.addTreatment(treatmentAddDTO);
+    public JsonVO<Void> addTreatment(@RequestBody @Valid ServiceCatalogAddDTO serviceCatalogAddDTO) {
+        treatmentService.addServiceCatalog(serviceCatalogAddDTO);
         return JsonVO.success(null);
     }
 
@@ -93,23 +93,23 @@ public class TreatmentController implements TreatmentApis {
     @ApiResponse(description = "编辑确认结果")
     @PostMapping("/modify-treatment")
     @Override
-    public JsonVO<TreatmentDetailVO> modifyTreatment(@RequestBody @Valid TreatmentEditDTO dto) {
-        return JsonVO.success(treatmentService.modifyTreatment(dto));
+    public JsonVO<ServiceCatalogDetailVO> modifyTreatment(@RequestBody @Valid ServiceCatalogEditDTO dto) {
+        return JsonVO.success(treatmentService.modifyServiceCatalog(dto));
     }
 
     @Operation(summary = "更新诊疗项目", description = "更新诊疗项目（无编辑校验码，直接覆盖更新）")
     @ApiResponse(description = "修改确认结果")
     @PostMapping("/update-treatment")
     @Override
-    public JsonVO<TreatmentDetailVO> updateTreatment(@RequestBody @Valid TreatmentUpdateDTO dto) {
-        return JsonVO.success(treatmentService.updateTreatment(dto));
+    public JsonVO<ServiceCatalogDetailVO> updateTreatment(@RequestBody @Valid ServiceCatalogUpdateDTO dto) {
+        return JsonVO.success(treatmentService.updateServiceCatalog(dto));
     }
 
     @Operation(summary = "切换诊疗状态", description = "切换诊疗状态（启用/禁用取反）")
     @ApiResponse(description = "切换后的诊疗状态信息")
     @PutMapping("/modify-treatment-status")
     @Override
-    public JsonVO<TreatmentDetailVO> modifyStatus(@RequestBody @Valid TreatmentStatusDTO dto) {
+    public JsonVO<ServiceCatalogDetailVO> modifyStatus(@RequestBody @Valid ServiceCatalogStatusDTO dto) {
         return JsonVO.success(treatmentService.modifyStatus(dto));
     }
 
@@ -121,7 +121,7 @@ public class TreatmentController implements TreatmentApis {
     @DeleteMapping("/remove-treatment")
     @Override
     public JsonVO<Void> removeTreatment(@RequestParam String id) {
-        treatmentService.removeTreatment(id);
+        treatmentService.removeServiceCatalog(id);
         return JsonVO.success(null);
     }
 }
