@@ -25,7 +25,7 @@ public class WkfActivityDefinitionDO implements Serializable {
 
     /** 主键 */
     @TableId(value = "id", type = IdType.ASSIGN_ID)
-    @Schema(description = "主键", example = "123456789", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "主键(编码)", example = "123456789", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
     /** 租户标识 */
