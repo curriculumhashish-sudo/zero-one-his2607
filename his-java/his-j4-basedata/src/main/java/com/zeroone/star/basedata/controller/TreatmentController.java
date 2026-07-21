@@ -7,6 +7,7 @@ import com.zeroone.star.project.dto.j4.treatment.TreatmentEditDTO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentStatusDTO;
 import com.zeroone.star.project.j4.basedata.TreatmentApis;
 import com.zeroone.star.project.query.j4.treatment.TreatmentQuery;
+import com.zeroone.star.project.query.j4.treatment.TreatmentSelectQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j4.treatment.TreatmentDetailVO;
 import com.zeroone.star.project.vo.j4.treatment.TreatmentListVO;
@@ -46,8 +47,8 @@ public class TreatmentController implements TreatmentApis {
     @ApiResponse(description = "分页数据，每条含id/busNo/name/categoryCode")
     @GetMapping("/query-select-treatment-list")
     @Override
-    public JsonVO<PageDTO<TreatmentSelectVO>> listTreatmentOptions(@ParameterObject TreatmentQuery query) {
-        return JsonVO.success(treatmentService.listTreatmentOptions(query));
+    public JsonVO<PageDTO<TreatmentSelectVO>> listTreatmentOptions(TreatmentSelectQuery query) {
+        return JsonVO.success(null);
     }
 
 
