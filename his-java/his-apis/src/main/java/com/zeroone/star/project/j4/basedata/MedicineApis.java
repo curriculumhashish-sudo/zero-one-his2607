@@ -51,7 +51,7 @@ public interface MedicineApis {
 
     /**
     * <p>
-    * 描述：启用药品接口（批量）
+    * 描述：启/停用药品接口（批量）
     * </p>
     *
     * @author xxm
@@ -59,17 +59,7 @@ public interface MedicineApis {
     * @param dto 药品状态转换DTO
     * @return 药品状态转换VO 包含转换状态成功的药品ids
     */
-    JsonVO<MedicineChangeStatusVO> updateEnableMedicineStatus(MedicineChangeStatusDTO dto);
+    JsonVO<MedicineChangeStatusVO> updateEnableMedicineStatus(int status,MedicineChangeStatusDTO dto);
 
-    /**
-    * <p>
-    * 描述：停用药品接口（批量）
-    * </p>
-    *
-    * @author xxm
-    * @version 1.0.0
-    * @param dto 药品状态转换DTO
-    * @return 药品状态转换VO 包含转换状态成功的药品ids
-    */
-    JsonVO<MedicineChangeStatusVO> updateDisableMedicineStatus(MedicineChangeStatusDTO dto);
+
 }
