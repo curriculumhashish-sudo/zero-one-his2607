@@ -1,20 +1,24 @@
-﻿rhqm:
+﻿form:
+ cost_info:
+  tag: 报表中心-门诊费用明细
+
+rhqm:
  form:
   cost_info:
-   title: "报表明细"
+   title: 报表明细
    query:
-    tag: "获取报表明细"
-    start_time: "开始时间"
-    end_time: "结束时间"
-    name: "患者姓名"
-    room: "挂号科室"
-    feeClass: "费用大类"
-    detailClass: "细分类"
-    projectName: "项目名称"
-    hisID: "院内编号"
-    checker: "收银员"
-    feeDir: "收退方向"
+    id: 编号
+    start_time: 开始时间
+    end_time: 结束时间
+    name: 患者姓名
+    room: 挂号科室
+    feeClass: 费用大类
+    detailClass: 细分类
+    projectName: 项目名称
+    hisID: 院内编号
+    checker: 收银员
+    feeDir: 收退方向
    export:
-    tag: "导出报表"
-    fileID: "文件ID"
+    tag: 导出报表
+    fileID: 文件ID
     
