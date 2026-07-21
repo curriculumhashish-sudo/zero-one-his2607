@@ -1,4 +1,4 @@
-package com.zeroone.star.sysmgr.controller;
+package com.zeroone.star.sysmgr.controller.menu;
 
 import com.zeroone.star.project.dto.menu.*;
 import com.zeroone.star.project.menu.MenuApis;

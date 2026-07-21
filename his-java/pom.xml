@@ -39,7 +39,6 @@
         <module>his-mcp-gateway</module>
         <module>his-j1-sysmgr</module>
         <module>his-j1-login</module>
-        <module>his-j1-menu-manager</module>
     </modules>
     <properties>
         <!-- 项目版本号 -->
