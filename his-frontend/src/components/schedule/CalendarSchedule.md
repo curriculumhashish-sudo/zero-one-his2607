@@ -39,8 +39,38 @@
 
 `toolbar`（`{ range, view, title }`）、`dayHeader`（`{ cell }`）、`event`（`{ event, statusText }`）、`more`（`{ cell, count }`）、`empty`。
 
+## 数据模型
+
+```ts
+type CalendarView = 'month' | 'week'
+
+interface ScheduleEvent {
+  key: string | number
+  date: string          // YYYY-MM-DD
+  title: string
+  start?: string        // HH:mm
+  end?: string          // HH:mm
+  status?: string       // 由 statusMap 决定文案/色
+  resourceKey?: string | number
+  raw?: unknown
+}
+
+interface ScheduleResource {
+  key: string | number
+  name: string
+  color?: string        // 事件左侧色条
+  raw?: unknown
+}
+
+interface ScheduleStatusMeta { text: string; type?: 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'default' }
+type ScheduleStatusMap = Record<string, ScheduleStatusMeta>
+
+interface CalendarDateRange { start: string; end: string }
+```
+
 ## 备注
 
 - `rangeChange` 使用 `immediate` + `deep`，首帧即上报，切换视图/周期会再次上报，页面据此增量加载。
 - 事件着色优先取 `resources[].color`，否则回退 `statusMap[status].type` 对应的 `--el-color-*`。
 - 只读模式下 `dateClick` / `slotClick` 不发出。
+- 锚点日（`modelValue`）在网格中以 `primary-light-9` 底色高亮，「今天」另有顶部主题色条。

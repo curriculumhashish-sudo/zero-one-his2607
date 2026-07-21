@@ -102,4 +102,51 @@ describe('C54 AdviceOrderTable', () => {
     // 两行均无 remark，应渲染占位符
     expect(wrapper.text()).toContain('-')
   })
+
+  it('blocks row selection when readonly or disabledRow matches', () => {
+    // 高难：勾选可用性由 readonly 与 disabledRow 共同决定，组件不写死业务规则。
+    const readonly = mount(AdviceOrderTable, {
+      props: { rows, selectable: true, readonly: true },
+      global
+    })
+    // 只读时任何行都不可勾选
+    expect((readonly.vm as unknown as { canSelectRow: (r: AdviceOrder) => boolean }).canSelectRow(rows[0]!)).toBe(false)
+
+    const perRow = mount(AdviceOrderTable, {
+      props: {
+        rows,
+        selectable: true,
+        // 已完成的行禁止勾选，规则由页面注入
+        disabledRow: (row: AdviceOrder) => row.status === 'done'
+      },
+      global
+    })
+    const canSelect = (perRow.vm as unknown as { canSelectRow: (r: AdviceOrder) => boolean }).canSelectRow
+    expect(canSelect(rows[0]!)).toBe(true) // pending 可选
+    expect(canSelect(rows[1]!)).toBe(false) // done 不可选
+  })
+
+  it('keeps currentRowKey controlled under rapid repeated current changes', async () => {
+    // 高难 / 竞态：连续快速切换当前行，组件不得内部改写受控值，
+    // 只能逐次上报 currentChange，最终值由页面决定。
+    const wrapper = mount(AdviceOrderTable, {
+      props: { rows, currentRowKey: 'o1' },
+      global
+    })
+    const vm = wrapper.vm as unknown as { onCurrentChange: (row: AdviceOrder | null) => void }
+    // 模拟表格在同一 tick 内连续触发（用户快速点选或数据刷新）
+    vm.onCurrentChange(rows[1]!)
+    vm.onCurrentChange(rows[0]!)
+    vm.onCurrentChange(null)
+    await wrapper.vm.$nextTick()
+
+    const emitted = wrapper.emitted('currentChange')
+    expect(emitted).toHaveLength(3)
+    expect(emitted?.[0]).toEqual([rows[1]])
+    expect(emitted?.[1]).toEqual([rows[0]])
+    // 组件把 null 归一为 undefined 上报，而非自行清空受控值
+    expect(emitted?.[2]).toEqual([undefined])
+    // 受控值始终保持页面传入的原值，未被组件内部篡改
+    expect(wrapper.props('currentRowKey')).toBe('o1')
+  })
 })

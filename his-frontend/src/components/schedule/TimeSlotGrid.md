@@ -37,7 +37,27 @@
 
 `item`（`{ data, selectable, statusText }`，自定义单个号源）、`groupHeader`（`{ group, slots }`）、`empty`、`footer`。
 
+## 数据模型
+
+```ts
+interface TimeSlot {
+  key: string | number
+  start?: string        // HH:mm
+  end?: string          // HH:mm
+  label?: string        // 缺省时由 start/end 拼接
+  capacity?: number     // 总号数
+  remaining?: number    // 剩余号数
+  status?: 'available' | 'full' | 'disabled' | 'expired' | 'stopped' | string
+  group?: string        // 供 groupBy='group' 分组
+  raw?: unknown
+}
+
+interface TimeSlotStatusMeta { text: string; type?: 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'default'; selectable?: boolean }
+type TimeSlotStatusMap = Record<string, TimeSlotStatusMeta>
+```
+
 ## 备注
 
 - 不可选号源不使用原生 `disabled`，以便仍能发出 `disabledClick`，页面可据此提示「已满/停诊」。
 - 状态色通过 `is-{type}` class 映射到 `--el-color-*`。
+- 卡片 hover 有阴影过渡，选中态为 `primary` 描边 + `primary-light-9` 底色，剩余量固定压在卡片底部。

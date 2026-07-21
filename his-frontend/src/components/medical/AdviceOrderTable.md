@@ -29,8 +29,41 @@
 
 `toolbar`、`order`（`{ row }`，医嘱内容列）、`cell-{prop}`（`{ row, column }`，任意列自定义）、`actions`（`{ row, action }`）、`empty`、`summary`。
 
+## 数据模型
+
+```ts
+type MedicalKey = string | number
+
+interface AdviceOrder {
+  key: MedicalKey
+  name: string
+  specification?: string
+  dose?: string | number
+  unit?: string
+  frequency?: string
+  route?: string
+  days?: string | number
+  pharmacy?: string
+  remark?: string
+  status?: string
+  group?: string
+  groupItems?: AdviceOrder[]   // 医嘱内容列内嵌 C55 时用于成组括线
+  raw?: unknown
+}
+
+interface AdviceColumn {
+  prop: string
+  label: string
+  width?: string | number
+  minWidth?: string | number
+  formatter?: (row: AdviceOrder) => string
+  align?: 'left' | 'center' | 'right'
+}
+```
+
 ## 备注
 
 - 排序、分页、批量操作由页面负责；组件仅按 `rows` 顺序渲染当前页数据。
 - `groupBy` 只生成 `advice-group-*` 行类名，不改变行顺序。
 - 空值单元格统一显示 `-`。
+- `prop==='order'` 列内嵌 [AdviceOrderDisplayCell](./AdviceOrderDisplayCell.md)，行数据带 `groupItems` 时自动呈现成组括线版式。

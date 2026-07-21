@@ -32,7 +32,7 @@
         v-for="day in days"
         :key="day.date"
         class="calendar-schedule__day"
-        :class="{ 'is-other': !day.isCurrentMonth, 'is-today': day.isToday, 'is-weekend': day.isWeekend }"
+        :class="{ 'is-other': !day.isCurrentMonth, 'is-today': day.isToday, 'is-weekend': day.isWeekend, 'is-anchor': day.date === modelValue }"
         @click="onDateClick(day)"
       >
         <slot name="dayHeader" :cell="day">
@@ -337,6 +337,11 @@ defineExpose({ range, days })
   box-shadow: inset 0 2px var(--el-color-primary);
 }
 
+.calendar-schedule__day.is-anchor {
+  background: var(--el-color-primary-light-9);
+  box-shadow: inset 0 0 0 1px var(--el-color-primary-light-5);
+}
+
 .calendar-schedule__day-head {
   display: flex;
   align-items: center;
@@ -373,16 +378,24 @@ defineExpose({ range, days })
   gap: 4px;
   align-items: center;
   min-width: 0;
-  padding: 3px 5px;
+  padding: 4px 6px;
   overflow: hidden;
   font-size: 12px;
   color: var(--el-text-color-regular);
   text-align: left;
   cursor: pointer;
   background: var(--el-fill-color-light);
-  border: 0;
+  border: 1px solid transparent;
   border-left: 3px solid var(--el-color-primary);
-  border-radius: 2px;
+  border-radius: 4px;
+  transition:
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.calendar-schedule__event:hover {
+  background: var(--el-fill-color);
+  box-shadow: 0 1px 6px rgb(0 0 0 / 8%);
 }
 
 .calendar-schedule__more {

@@ -55,4 +55,33 @@ describe('C55 AdviceOrderDisplayCell', () => {
     // 这里断言 compact 类存在即视为通过；文本仍在 DOM 中由样式隐藏。
     expect(wrapper.find('.advice-cell__warning').exists()).toBe(true)
   })
+
+  it('renders grouped bracket layout with per-drug titles and one shared line', () => {
+    const order: AdviceOrder = {
+      key: 6,
+      name: '补液组',
+      groupItems: [
+        { key: 'g1', name: '0.9%氯化钠注射液', specification: '250ml', dose: 250, unit: 'ml', pharmacy: '住院药房', route: '静滴', frequency: 'qd', days: 1 },
+        { key: 'g2', name: '注射用头孢曲松钠', specification: '2g', dose: 2, unit: 'g' }
+      ]
+    }
+    const wrapper = mount(AdviceOrderDisplayCell, { props: { order }, global })
+    expect(wrapper.classes()).toContain('is-group')
+    // 题名拼接：名称【规格】（药房）
+    expect(wrapper.text()).toContain('0.9%氯化钠注射液【250ml】（住院药房）')
+    expect(wrapper.text()).toContain('注射用头孢曲松钠【2g】')
+    // 每味药一行
+    expect(wrapper.findAll('.advice-cell__group-line')).toHaveLength(2)
+    // 剂量：250ml/次
+    expect(wrapper.text()).toContain('250ml/次')
+    // 共用行取首项：静滴，qd（1天）
+    expect(wrapper.find('.advice-cell__group-shared').text()).toContain('静滴，qd（1天）')
+  })
+
+  it('falls back to single layout when groupItems is empty', () => {
+    const order: AdviceOrder = { key: 7, name: '单条医嘱', groupItems: [] }
+    const wrapper = mount(AdviceOrderDisplayCell, { props: { order }, global })
+    expect(wrapper.classes()).not.toContain('is-group')
+    expect(wrapper.find('.advice-cell__primary').text()).toContain('单条医嘱')
+  })
 })

@@ -35,13 +35,14 @@
             <el-switch v-model="calendarLoading" active-text="加载态" inline-prompt />
             <el-switch v-model="calendarReadonly" active-text="只读" inline-prompt />
             <el-switch v-model="calendarEmpty" active-text="空数据" inline-prompt />
+            <el-switch v-model="calendarError" active-text="异常" inline-prompt />
             <span class="demo-hint">当前范围：{{ calendarRange.start }} ~ {{ calendarRange.end }}</span>
           </div>
 
           <CalendarSchedule
             v-model="calendarDate"
             v-model:view="calendarView"
-            :events="calendarEmpty ? [] : currentCalendarEvents"
+            :events="calendarEmpty || calendarError ? [] : currentCalendarEvents"
             :resources="calendarResources"
             :status-map="calendarStatusMap"
             :loading="calendarLoading"
@@ -49,7 +50,14 @@
             @range-change="calendarRange = $event"
             @event-click="onEventClick"
             @date-click="onDateClick"
-          />
+          >
+            <template v-if="calendarError" #empty>
+              <div class="demo-error">
+                <span>排班数据加载失败</span>
+                <el-button size="small" @click="calendarError = false">重试</el-button>
+              </div>
+            </template>
+          </CalendarSchedule>
           <p v-if="calendarLog" class="demo-log">{{ calendarLog }}</p>
         </section>
       </el-tab-pane>
@@ -72,18 +80,26 @@
             </el-radio-group>
             <el-switch v-model="slotLoading" active-text="加载态" inline-prompt />
             <el-switch v-model="slotReadonly" active-text="只读" inline-prompt />
+            <el-switch v-model="slotError" active-text="异常" inline-prompt />
             <span class="demo-hint">已选：{{ selectedSlotLabel }}</span>
           </div>
 
           <TimeSlotGrid
             v-model="selectedSlot"
-            :slots="slotLoading ? [] : currentSlots"
+            :slots="slotLoading || slotError ? [] : currentSlots"
             group-by="group"
             :loading="slotLoading"
             :readonly="slotReadonly"
             @select="onSlotSelect"
             @disabled-click="onSlotDisabled"
-          />
+          >
+            <template v-if="slotError" #empty>
+              <div class="demo-error">
+                <span>号源加载失败</span>
+                <el-button size="small" @click="slotError = false">重试</el-button>
+              </div>
+            </template>
+          </TimeSlotGrid>
           <p v-if="slotLog" class="demo-log">{{ slotLog }}</p>
         </section>
       </el-tab-pane>
@@ -106,14 +122,18 @@
             </el-radio-group>
             <el-switch v-model="adviceLoading" active-text="加载态" inline-prompt />
             <el-switch v-model="adviceEmpty" active-text="空数据" inline-prompt />
+            <el-switch v-model="adviceReadonly" active-text="只读" inline-prompt />
+            <el-switch v-model="adviceError" active-text="异常" inline-prompt />
             <span class="demo-hint">当前行：{{ currentAdviceLabel }}</span>
           </div>
 
           <AdviceOrderTable
-            :rows="adviceEmpty ? [] : currentAdviceRows"
+            :rows="adviceEmpty || adviceError ? [] : currentAdviceRows"
             :columns="adviceColumns"
             :current-row-key="currentAdviceKey"
             :loading="adviceLoading"
+            :readonly="adviceReadonly"
+            selectable
             @current-change="onAdviceCurrent"
             @row-action="onAdviceAction"
           >
@@ -123,8 +143,14 @@
               </el-tag>
             </template>
             <template #actions="{ row, action }">
-              <el-button link type="primary" @click="action('detail')">详情</el-button>
-              <el-button link type="danger" :disabled="row.status === 'stopped'" @click="action('stop')">停止</el-button>
+              <el-button link type="primary" :disabled="adviceReadonly" @click="action('detail')">详情</el-button>
+              <el-button link type="danger" :disabled="adviceReadonly || row.status === 'stopped'" @click="action('stop')">停止</el-button>
+            </template>
+            <template v-if="adviceError" #empty>
+              <div class="demo-error">
+                <span>医嘱加载失败</span>
+                <el-button size="small" @click="adviceError = false">重试</el-button>
+              </div>
             </template>
           </AdviceOrderTable>
           <p v-if="adviceLog" class="demo-log">{{ adviceLog }}</p>
@@ -175,6 +201,7 @@ const calendarDataset = ref<'clinic' | 'exam'>('clinic')
 const calendarLoading = ref(false)
 const calendarReadonly = ref(false)
 const calendarEmpty = ref(false)
+const calendarError = ref(false)
 const calendarRange = ref<CalendarDateRange>({ start: '', end: '' })
 const calendarLog = ref('')
 
@@ -221,6 +248,7 @@ const selectedSlot = ref<MedicalKey | null>(null)
 const slotDataset = ref<'morning' | 'expert'>('morning')
 const slotLoading = ref(false)
 const slotReadonly = ref(false)
+const slotError = ref(false)
 const slotLog = ref('')
 
 const morningSlots: TimeSlot[] = [
@@ -258,6 +286,8 @@ function onSlotDisabled(slot: TimeSlot) {
 const adviceDataset = ref<'outpatient' | 'inpatient'>('outpatient')
 const adviceLoading = ref(false)
 const adviceEmpty = ref(false)
+const adviceReadonly = ref(false)
+const adviceError = ref(false)
 const currentAdviceKey = ref<MedicalKey | null>(null)
 const adviceLog = ref('')
 
@@ -281,6 +311,17 @@ const outpatientRows: AdviceOrder[] = [
 ]
 
 const inpatientRows: AdviceOrder[] = [
+  {
+    key: 'i0',
+    name: '补液抗感染组',
+    frequency: 'qd',
+    status: 'active',
+    group: '长期',
+    groupItems: [
+      { key: 'i0a', name: '0.9%氯化钠注射液', specification: '250ml', dose: 250, unit: 'ml', pharmacy: '住院西药房', route: '静脉滴注', frequency: 'qd', days: 3 },
+      { key: 'i0b', name: '注射用头孢曲松钠', specification: '2g', dose: 2, unit: 'g', pharmacy: '住院西药房' }
+    ]
+  },
   { key: 'i1', name: '0.9%氯化钠注射液', specification: '250ml', dose: 250, unit: 'ml', frequency: 'qd', route: '静脉滴注', status: 'active', group: '长期' },
   { key: 'i2', name: '注射用头孢曲松钠', specification: '2g', dose: 2, unit: 'g', frequency: 'qd', route: '静脉滴注', status: 'active', remark: '皮试阴性', group: '长期' },
   { key: 'i3', name: '心电监护', frequency: '持续', status: 'stopped', remark: '病情稳定已停', group: '护理' }
@@ -351,6 +392,16 @@ function onAdviceAction(payload: { row: AdviceOrder; action: string }) {
   color: var(--el-color-primary);
 }
 
+.overview-item strong {
+  font-size: 14px;
+  color: var(--el-text-color-primary);
+}
+
+.overview-item > span:last-child {
+  font-size: 13px;
+  color: var(--el-text-color-regular);
+}
+
 .demo-section {
   display: flex;
   flex-direction: column;
@@ -416,5 +467,14 @@ function onAdviceAction(payload: { row: AdviceOrder; action: string }) {
   padding: 10px 12px;
   border: 1px solid var(--el-border-color-lighter);
   border-radius: 6px;
+}
+
+.demo-error {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  color: var(--el-color-danger);
 }
 </style>
