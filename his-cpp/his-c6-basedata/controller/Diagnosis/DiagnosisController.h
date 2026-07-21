@@ -17,7 +17,7 @@
 #define _DIAGNOSISCONTROLLER_H_
 
 
-#include "GlobalInclude.h"
+//#include "GlobalInclude.h"
 #include "domain/dto/Diagnosis/DiagnoseDTO.h"
 
 // 查询Query
