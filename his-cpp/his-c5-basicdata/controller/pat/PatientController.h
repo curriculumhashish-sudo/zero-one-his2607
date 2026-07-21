@@ -33,12 +33,12 @@ public:
 	// 3.1 定义新增接口描述
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("patient.post.summary"), addPatient, StringJsonVO::Wrapper, API_TAG);
 	// 3.2 定义新增接口处理
-	API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/patient", addPatient, BODY_DTO(PatientAddDTO::Wrapper, dto), execAddPatient(dto, authObject->getPayload()));
+	API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/patient/add", addPatient, BODY_DTO(PatientAddDTO::Wrapper, dto), execAddPatient(dto, authObject->getPayload()));
 	 
 	// 3.1 定义修改接口描述
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("patient.put.summary"), modifyPatient, StringJsonVO::Wrapper, API_TAG);
 	// 3.2 定义修改接口处理
-	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/patient", modifyPatient, BODY_DTO(PatientDTO::Wrapper, dto), execModifyPatient(dto, authObject->getPayload()));
+	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/patient/modify", modifyPatient, BODY_DTO(PatientDTO::Wrapper, dto), execModifyPatient(dto, authObject->getPayload()));
 
 private:
 	// 3.3 演示ID查询数据

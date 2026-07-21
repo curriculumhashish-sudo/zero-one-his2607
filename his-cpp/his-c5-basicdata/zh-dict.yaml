@@ -1,5 +1,5 @@
 patient:
-  tags: 用户接口
+  tag: 患者管理接口
   query-by-id:
     summary: 获取患者详情
   put:
