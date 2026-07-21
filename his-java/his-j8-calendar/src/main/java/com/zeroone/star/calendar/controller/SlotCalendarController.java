@@ -1,6 +1,5 @@
 package com.zeroone.star.calendar.controller;
 
-import com.zeroone.star.calendar.service.ISlotCalendarService;
 import com.zeroone.star.project.dto.j8.calendar.SlotBlockDTO;
 import com.zeroone.star.project.dto.j8.calendar.SlotDetailDTO;
 import com.zeroone.star.project.dto.j8.calendar.SlotOverbookDTO;
@@ -11,15 +10,15 @@ import com.zeroone.star.project.query.j8.calendar.SlotQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
  * <p>
- * 描述：号源日历控制器
+ * 描述：号源日历控制器（桩代码，待后续实现业务逻辑）
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
@@ -27,49 +26,42 @@ import org.springframework.web.bind.annotation.RestController;
  * @version 1.0.0
  */
 @RestController
-@Tag(name = "calendar", description = "号源日历管理")
+@RequestMapping("/j8/calendar")
+@Tag(name = "号源日历")
 public class SlotCalendarController implements SlotApis {
 
-    @Resource
-    private ISlotCalendarService slotCalendarService;
-
     @Operation(summary = "获取号源列表（分页 + 多条件查询 + 聚合统计）")
-    @GetMapping("calendar/pageSlots")
     @Override
+    @GetMapping("/pageSlots")
     public JsonVO<SlotPageResultDTO> pageSlots(SlotQuery query) {
-        return slotCalendarService.pageSlots(query);
+        return null;
     }
 
     @Operation(summary = "获取号源详情")
-    @GetMapping("calendar/getSlotDetail")
     @Override
+    @GetMapping("/getSlotDetail")
     public JsonVO<SlotDetailDTO> getSlotDetail(String slotId) {
-        return slotCalendarService.getSlotDetail(slotId);
+        return null;
     }
 
     @Operation(summary = "批量封锁号源")
-    @PutMapping("calendar/blockSlots")
     @Override
+    @PutMapping("/blockSlots")
     public JsonVO<String> blockSlots(@RequestBody SlotBlockDTO dto) {
-        return slotCalendarService.blockSlots(
-                dto.getSlotIds().toArray(new String[0]),
-                dto.getReason()
-        );
+        return null;
     }
 
     @Operation(summary = "批量解封号源")
-    @PutMapping("calendar/unblockSlots")
     @Override
+    @PutMapping("/unblockSlots")
     public JsonVO<String> unblockSlots(@RequestBody SlotUnblockDTO dto) {
-        return slotCalendarService.unblockSlots(
-                dto.getSlotIds().toArray(new String[0])
-        );
+        return null;
     }
 
     @Operation(summary = "标记超售")
-    @PutMapping("calendar/setOverbooked")
     @Override
+    @PutMapping("/setOverbooked")
     public JsonVO<String> setOverbooked(@RequestBody SlotOverbookDTO dto) {
-        return slotCalendarService.setOverbooked(dto.getSlotId(), dto.getOverbooked());
+        return null;
     }
 }
