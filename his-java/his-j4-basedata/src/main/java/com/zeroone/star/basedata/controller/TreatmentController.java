@@ -92,7 +92,7 @@ public class TreatmentController implements TreatmentApis {
     }
 
 
-    @Operation(summary = "删除诊疗", description = "删除诊疗项目")
+    @Operation(summary = "删除诊疗（支持批量）", description = "删除诊疗项目")
     @Parameters({
             @Parameter(name = "id", description = "诊疗项目ID", required = true, example = "1890000000000000001", in = ParameterIn.QUERY)
     })
