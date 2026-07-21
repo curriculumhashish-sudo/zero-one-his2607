@@ -13,8 +13,10 @@ class PharmDTO : public oatpp::DTO
 	// 初始化定义
 	DTO_INIT(PharmDTO, DTO);
 
+	// 字段
+	// 供应商ID
 	DTO_FIELD(String, id);
-	DTO_FIELD(id) {
+	DTO_FIELD_INFO(id) {
 		info->description = ZH_WORDS_GETTER("pharm.field.id");
 	}
 
@@ -42,12 +44,11 @@ class PharmDTO : public oatpp::DTO
 		info->description = ZH_WORDS_GETTER("pharm.field.statusEnum");
 	}
 
-
 };
 
 class PharmPageDTO : public PageDTO<PharmDTO::Wrapper>
 {
-	DTO_INIT(PharmPageDTO, PageDTO<SupplierDTO::Wrapper>);
+	DTO_INIT(PharmPageDTO, PageDTO<PharmDTO::Wrapper>);
 };
 
 class PharmBatchEnableDisableDTO : public oatpp::DTO {
@@ -55,12 +56,12 @@ class PharmBatchEnableDisableDTO : public oatpp::DTO {
 
 	DTO_FIELD(List<String>, ids);
 	DTO_FIELD_INFO(ids) {
-		info->description = ZH_WORDS_GETTER("Pharm.field.ids");
+		info->description = ZH_WORDS_GETTER("pharm.field.ids");
 	}
 
 	DTO_FIELD(String, statusEnum);
 	DTO_FIELD_INFO(statusEnum) {
-		info->description = ZH_WORDS_GETTER("Pharm.field.statusEnum");
+		info->description = ZH_WORDS_GETTER("pharm.field.statusEnum");
 	}
 };
 

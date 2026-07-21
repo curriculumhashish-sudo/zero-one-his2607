@@ -1,7 +1,8 @@
 pharm:
-  id: 主键编号
-  name: 名称
-  typeEnum: 类型枚举值
-  classRoom: 上级科室
-  statusEnum: 状态
-  ids: 序号
+  field:
+    id: 主键编号
+    name: 名称
+    typeEnum: 类型枚举值
+    classRoom: 上级科室
+    statusEnum: 状态
+    ids: 序号
