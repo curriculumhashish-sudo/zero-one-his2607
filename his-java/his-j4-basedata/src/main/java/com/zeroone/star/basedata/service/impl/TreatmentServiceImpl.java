@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zeroone.star.basedata.constant.TreatmentConstants;
-import com.zeroone.star.basedata.entity.Treatment;
+import com.zeroone.star.basedata.entity.WkfActivityDefinitionDO;
 import com.zeroone.star.basedata.mapper.TreatmentMapper;
 import com.zeroone.star.basedata.service.ITreatmentService;
 import com.zeroone.star.project.dto.PageDTO;
@@ -33,53 +33,53 @@ import java.util.List;
  * @version 1.0.0
  */
 @Service
-public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, Treatment> implements ITreatmentService {
+public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivityDefinitionDO> implements ITreatmentService {
 
     @Resource
     private MsTreatmentMapper msTreatmentMapper;
 
     @Override
     public PageDTO<TreatmentSelectVO> listTreatmentOptions(TreatmentSelectQuery query) {
-        Page<Treatment> page = new Page<>(query.getPageIndex(), query.getPageSize());
-        LambdaQueryWrapper<Treatment> wrapper = new LambdaQueryWrapper<>();
+        Page<WkfActivityDefinitionDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
+        LambdaQueryWrapper<WkfActivityDefinitionDO> wrapper = new LambdaQueryWrapper<>();
         if (StrUtil.isNotBlank(query.getKeyword())) {
             wrapper.and(w -> w
-                    .like(Treatment::getName, query.getKeyword())
+                    .like(WkfActivityDefinitionDO::getName, query.getKeyword())
                     .or()
-                    .like(Treatment::getBusNo, query.getKeyword())
+                    .like(WkfActivityDefinitionDO::getBusNo, query.getKeyword())
             );
         }
-        wrapper.orderByAsc(Treatment::getCreatedAt);
-        Page<Treatment> result = baseMapper.selectPage(page, wrapper);
+        wrapper.orderByAsc(WkfActivityDefinitionDO::getCreatedAt);
+        Page<WkfActivityDefinitionDO> result = baseMapper.selectPage(page, wrapper);
         return PageDTO.create(result, msTreatmentMapper::toSelectVO);
     }
 
     @Override
     public PageDTO<TreatmentListVO> queryTreatmentList(TreatmentQuery query) {
-        Page<Treatment> page = new Page<>(query.getPageIndex(), query.getPageSize());
-        LambdaQueryWrapper<Treatment> wrapper = new LambdaQueryWrapper<>();
+        Page<WkfActivityDefinitionDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
+        LambdaQueryWrapper<WkfActivityDefinitionDO> wrapper = new LambdaQueryWrapper<>();
         if (StrUtil.isNotBlank(query.getKeyword())) {
             wrapper.and(w -> w
-                    .like(Treatment::getName, query.getKeyword())
+                    .like(WkfActivityDefinitionDO::getName, query.getKeyword())
                     .or()
-                    .like(Treatment::getBusNo, query.getKeyword())
+                    .like(WkfActivityDefinitionDO::getBusNo, query.getKeyword())
             );
         }
         if (StrUtil.isNotBlank(query.getCategoryCode())) {
-            wrapper.eq(Treatment::getCategoryCode, query.getCategoryCode());
+            wrapper.eq(WkfActivityDefinitionDO::getCategoryCode, query.getCategoryCode());
         }
-        wrapper.orderByAsc(Treatment::getCreatedAt);
-        Page<Treatment> result = baseMapper.selectPage(page, wrapper);
+        wrapper.orderByAsc(WkfActivityDefinitionDO::getCreatedAt);
+        Page<WkfActivityDefinitionDO> result = baseMapper.selectPage(page, wrapper);
         return PageDTO.create(result, msTreatmentMapper::toListVO);
     }
 
     @Override
     public TreatmentDetailVO getTreatmentById(String id) {
-        Treatment treatment = this.getById(id);
-        if (treatment == null) {
+        WkfActivityDefinitionDO wkfActivityDefinitionDO = this.getById(id);
+        if (wkfActivityDefinitionDO == null) {
             return null;
         }
-        return msTreatmentMapper.toDetailVO(treatment);
+        return msTreatmentMapper.toDetailVO(wkfActivityDefinitionDO);
     }
 
     @Override
@@ -89,59 +89,59 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, Treatment
 
     @Override
     public void addTreatment(TreatmentAddDTO treatmentAddDTO) {
-        Treatment treatment = msTreatmentMapper.addDtoToEntity(treatmentAddDTO);
-        this.save(treatment);
+        WkfActivityDefinitionDO wkfActivityDefinitionDO = msTreatmentMapper.addDtoToEntity(treatmentAddDTO);
+        this.save(wkfActivityDefinitionDO);
     }
 
     @Override
     public TreatmentDetailVO modifyTreatment(TreatmentEditDTO dto) {
-        Treatment treatment = this.getById(dto.getId());
-        if (treatment == null) {
+        WkfActivityDefinitionDO wkfActivityDefinitionDO = this.getById(dto.getId());
+        if (wkfActivityDefinitionDO == null) {
             throw new RuntimeException("诊疗项目不存在");
         }
-        Treatment updateTreatment = msTreatmentMapper.editDtoToEntity(dto);
-        updateTreatment.setCreatedAt(treatment.getCreatedAt());
-        updateTreatment.setCreatedBy(treatment.getCreatedBy());
-        updateTreatment.setIsDeleted(treatment.getIsDeleted());
-        updateTreatment.setDeletedAt(treatment.getDeletedAt());
-        updateTreatment.setDeletedBy(treatment.getDeletedBy());
-        updateTreatment.setVersion(treatment.getVersion());
-        this.updateById(updateTreatment);
-        return msTreatmentMapper.toDetailVO(updateTreatment);
+        WkfActivityDefinitionDO updateWkfActivityDefinitionDO = msTreatmentMapper.editDtoToEntity(dto);
+        updateWkfActivityDefinitionDO.setCreatedAt(wkfActivityDefinitionDO.getCreatedAt());
+        updateWkfActivityDefinitionDO.setCreatedBy(wkfActivityDefinitionDO.getCreatedBy());
+        updateWkfActivityDefinitionDO.setIsDeleted(wkfActivityDefinitionDO.getIsDeleted());
+        updateWkfActivityDefinitionDO.setDeletedAt(wkfActivityDefinitionDO.getDeletedAt());
+        updateWkfActivityDefinitionDO.setDeletedBy(wkfActivityDefinitionDO.getDeletedBy());
+        updateWkfActivityDefinitionDO.setVersion(wkfActivityDefinitionDO.getVersion());
+        this.updateById(updateWkfActivityDefinitionDO);
+        return msTreatmentMapper.toDetailVO(updateWkfActivityDefinitionDO);
     }
 
     @Override
     public TreatmentDetailVO updateTreatment(TreatmentUpdateDTO dto) {
-        Treatment treatment = this.getById(dto.getId());
-        if (treatment == null) {
+        WkfActivityDefinitionDO wkfActivityDefinitionDO = this.getById(dto.getId());
+        if (wkfActivityDefinitionDO == null) {
             throw new RuntimeException("诊疗项目不存在");
         }
-        Treatment updateTreatment = msTreatmentMapper.updateDtoToEntity(dto);
-        updateTreatment.setCreatedAt(treatment.getCreatedAt());
-        updateTreatment.setCreatedBy(treatment.getCreatedBy());
-        updateTreatment.setIsDeleted(treatment.getIsDeleted());
-        updateTreatment.setDeletedAt(treatment.getDeletedAt());
-        updateTreatment.setDeletedBy(treatment.getDeletedBy());
-        updateTreatment.setVersion(treatment.getVersion());
-        this.updateById(updateTreatment);
-        return msTreatmentMapper.toDetailVO(updateTreatment);
+        WkfActivityDefinitionDO updateWkfActivityDefinitionDO = msTreatmentMapper.updateDtoToEntity(dto);
+        updateWkfActivityDefinitionDO.setCreatedAt(wkfActivityDefinitionDO.getCreatedAt());
+        updateWkfActivityDefinitionDO.setCreatedBy(wkfActivityDefinitionDO.getCreatedBy());
+        updateWkfActivityDefinitionDO.setIsDeleted(wkfActivityDefinitionDO.getIsDeleted());
+        updateWkfActivityDefinitionDO.setDeletedAt(wkfActivityDefinitionDO.getDeletedAt());
+        updateWkfActivityDefinitionDO.setDeletedBy(wkfActivityDefinitionDO.getDeletedBy());
+        updateWkfActivityDefinitionDO.setVersion(wkfActivityDefinitionDO.getVersion());
+        this.updateById(updateWkfActivityDefinitionDO);
+        return msTreatmentMapper.toDetailVO(updateWkfActivityDefinitionDO);
     }
 
     @Override
     public TreatmentDetailVO modifyStatus(TreatmentStatusDTO dto) {
-        Treatment treatment = this.getById(dto.getId());
-        if (treatment == null) {
+        WkfActivityDefinitionDO wkfActivityDefinitionDO = this.getById(dto.getId());
+        if (wkfActivityDefinitionDO == null) {
             throw new RuntimeException("诊疗项目不存在");
         }
-        treatment.setStatusEnum(dto.getStatusEnum());
-        this.updateById(treatment);
-        return msTreatmentMapper.toDetailVO(treatment);
+        wkfActivityDefinitionDO.setStatusEnum(dto.getStatusEnum());
+        this.updateById(wkfActivityDefinitionDO);
+        return msTreatmentMapper.toDetailVO(wkfActivityDefinitionDO);
     }
 
     @Override
     public void removeTreatment(String id) {
-        Treatment treatment = this.getById(id);
-        if (treatment == null) {
+        WkfActivityDefinitionDO wkfActivityDefinitionDO = this.getById(id);
+        if (wkfActivityDefinitionDO == null) {
             throw new RuntimeException("诊疗项目不存在");
         }
         this.removeById(id);
