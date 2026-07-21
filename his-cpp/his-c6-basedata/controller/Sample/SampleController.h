@@ -19,9 +19,9 @@
 */
 #ifndef _SAMPLECONTROLLER_H_
 #define _SAMPLECONTROLLER_H_
-#include "domain/query/sample/SampleFullSelectQuery.h"
+#include "domain/query/sample/SampleQuery.h"
 //#include "domain/vo/BaseJsonVO.h"
-#include "domain/vo/sample/SampleFullSelectJsonVO.h"
+#include "domain/vo/sample/SampleJsonVO.h"
 #include "domain/dto/sample/SampleAddDTO.h"
 #include "domain/dto/sample/SampleEditDTO.h"
 #include "domain/dto/sample/SampleStatusDTO.h"
