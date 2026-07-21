@@ -1,4 +1,4 @@
-package com.zeroone.star.clinics.Contoller;
+package com.zeroone.star.clinics.contoller;
 
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j8.clinics.FormalRosterDTO;
@@ -7,7 +7,6 @@ import com.zeroone.star.project.dto.j8.clinics.ScheduleDTO;
 import com.zeroone.star.project.j8.clinics.ClinicsApis;
 import com.zeroone.star.project.query.j8.clinics.ScheduleListQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import io.prometheus.client.Summary;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;

@@ -1,4 +1,4 @@
-package com.zeroone.star.clinics.Contoller;
+package com.zeroone.star.clinics.contoller;
 
 import com.zeroone.star.project.dto.j8.clinics.AllDayStopClinicExecuteDTO;
 
