@@ -10,4 +10,3 @@ StringJsonVO::Wrapper EquipmentController::execAddEquipment(const EquipmentAddDT
 {
 	return {};
 }
-
