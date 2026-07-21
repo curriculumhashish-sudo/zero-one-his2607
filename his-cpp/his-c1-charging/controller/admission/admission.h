@@ -9,6 +9,7 @@
 #define API_TAG ZH_WORDS_GETTER("charging.admission.tag")
 
 #define API_TAG1 ZH_WORDS_GETTER("charging.admission.delete")
+//#define API_TAG2 ZH_WORDS_GETTER("charging.admission.tag1")
 
 /*
  * 示例控制器，演示基础接口的使用
@@ -29,6 +30,7 @@ public:
 		API_DEF_ADD_RSP_JSON_WRAPPER(StringJsonVO);
 		// 定义标签
 		API_DEF_ADD_TAG(API_TAG);
+
 		// 定义其他查询参数描述
 
 		API_DEF_ADD_PATH_PARAMS(Int64, "id", ZH_WORDS_GETTER("charging.admisssion.id"), 1, true);
@@ -85,6 +87,7 @@ public:
 	ENDPOINT(API_M_POST, "/charging/admission/add", admission_add, BODY_DTO(AdmissionAddDTO::Wrapper, dto), API_HANDLER_AUTH_PARAME) {
 		API_HANDLER_RESP_VO(admission_add(dto));
 	}
+
 private:
 	StringJsonVO::Wrapper admission_add(const AdmissionAddDTO::Wrapper& dto);
 
