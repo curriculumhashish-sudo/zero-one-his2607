@@ -17,27 +17,22 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _OUTPATIENT_TREND_ITEM_DTO_
-#define _OUTPATIENT_TREND_ITEM_DTO_
+#ifndef _OUTPATIENT_TREND_DATA_DTO_
+#define _OUTPATIENT_TREND_DATA_DTO_
 
 #include "../../GlobalInclude.h"
+#include "OutpatientTrendItemDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class OutpatientTrendItemDTO : public oatpp::DTO
+class OutpatientTrendDataDTO : public oatpp::DTO
 {
-	DTO_INIT(OutpatientTrendItemDTO, DTO);
+	DTO_INIT(OutpatientTrendDataDTO, DTO);
 
-	// stat date
-	DTO_FIELD(String, statDate);
-	DTO_FIELD_INFO(statDate) {
-		info->description = ZH_WORDS_GETTER("W.form.outpatient_stat.field.stat_date");
-	}
-
-	// daily visit count
-	DTO_FIELD(UInt64, visitCount);
-	DTO_FIELD_INFO(visitCount) {
-		info->description = ZH_WORDS_GETTER("W.form.outpatient_stat.field.visit_count");
+	// trend data point list
+	DTO_FIELD(List<Object<OutpatientTrendItemDTO>>, trendList);
+	DTO_FIELD_INFO(trendList) {
+		info->description = ZH_WORDS_GETTER("W.form.data_statistics.field.trend_list");
 	}
 };
 

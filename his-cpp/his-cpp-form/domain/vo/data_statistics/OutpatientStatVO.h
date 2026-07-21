@@ -17,38 +17,26 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _DISEASE_DISTRIBUTION_VO_H_
-#define _DISEASE_DISTRIBUTION_VO_H_
+#ifndef _OUTPATIENT_STAT_VO_
+#define _OUTPATIENT_STAT_VO_
 
 #include "../../GlobalInclude.h"
+#include "../../dto/data_statistics/OutpatientTrendDataDTO.h"
+#include "../../dto/data_statistics/DiseaseDistributionDataDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class DiseaseDistributionVO : public oatpp::DTO
+// Response VO for outpatient visit trend
+class OutpatientTrendJsonVO : public JsonVO<OutpatientTrendDataDTO::Wrapper>
 {
-    DTO_INIT(DiseaseDistributionVO, DTO);
+	DTO_INIT(OutpatientTrendJsonVO, JsonVO<OutpatientTrendDataDTO::Wrapper>);
+};
 
-    DTO_FIELD(String, diseaseName);
-    DTO_FIELD_INFO(diseaseName) {
-        info->description = "disease name";
-    }
-
-    DTO_FIELD(String, diseaseCode);
-    DTO_FIELD_INFO(diseaseCode) {
-        info->description = "disease code";
-    }
-
-    DTO_FIELD(UInt64, caseCount);
-    DTO_FIELD_INFO(caseCount) {
-        info->description = "case count";
-    }
-
-    DTO_FIELD(Float64, percentage);
-    DTO_FIELD_INFO(percentage) {
-        info->description = "percentage";
-    }
+// Response VO for disease type distribution
+class DiseaseDistributionJsonVO : public JsonVO<DiseaseDistributionDataDTO::Wrapper>
+{
+	DTO_INIT(DiseaseDistributionJsonVO, JsonVO<DiseaseDistributionDataDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)
-
-#endif // !_DISEASE_DISTRIBUTION_VO_H_
+#endif

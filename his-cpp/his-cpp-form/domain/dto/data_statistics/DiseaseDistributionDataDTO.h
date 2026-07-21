@@ -17,28 +17,24 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _OUTPATIENT_TREND_VO_H_
-#define _OUTPATIENT_TREND_VO_H_
+#ifndef _DISEASE_DISTRIBUTION_DATA_DTO_
+#define _DISEASE_DISTRIBUTION_DATA_DTO_
 
 #include "../../GlobalInclude.h"
+#include "DiseaseDistributionItemDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class OutpatientTrendVO : public oatpp::DTO
+class DiseaseDistributionDataDTO : public oatpp::DTO
 {
-    DTO_INIT(OutpatientTrendVO, DTO);
+	DTO_INIT(DiseaseDistributionDataDTO, DTO);
 
-    DTO_FIELD(String, statDate);
-    DTO_FIELD_INFO(statDate) {
-        info->description = "stat date";
-    }
-
-    DTO_FIELD(UInt64, visitCount);
-    DTO_FIELD_INFO(visitCount) {
-        info->description = "visit count";
-    }
+	// distribution data list
+	DTO_FIELD(List<Object<DiseaseDistributionItemDTO>>, distributionList);
+	DTO_FIELD_INFO(distributionList) {
+		info->description = ZH_WORDS_GETTER("W.form.data_statistics.field.distribution_list");
+	}
 };
 
 #include OATPP_CODEGEN_END(DTO)
-
-#endif // !_OUTPATIENT_TREND_VO_H_
+#endif

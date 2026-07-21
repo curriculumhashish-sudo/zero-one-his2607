@@ -19,7 +19,7 @@
 #include "stdafx.h"
 #include "Router.h"
 #include "ApiHelper.h"
-#include "outpatient/OutpatientStatController.h"
+#include "data_statistics/OutpatientStatController.h"
 
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC

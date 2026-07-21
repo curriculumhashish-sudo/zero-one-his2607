@@ -1,0 +1,22 @@
+form:
+  data_statistics:
+    tag: "报表中心-数据统计"
+W:
+  form:
+    data_statistics:
+      tag: "报表中心-数据统计"
+      query_trend:
+        summary: "查询门诊接诊量趋势（周/月）"
+      query_disease_distribution:
+        summary: "查询患者疾病类型分布"
+      field:
+        time_type: "时间维度（1=本周, 2=本月）"
+        start_date: "开始日期"
+        end_date: "结束日期"
+        org_id: "机构ID"
+        x_label: "X轴标签"
+        patient_count: "接诊患者数"
+        disease_name: "疾病名称"
+        percentage: "占比"
+        trend_list: "趋势数据列表"
+        distribution_list: "疾病分布数据列表"

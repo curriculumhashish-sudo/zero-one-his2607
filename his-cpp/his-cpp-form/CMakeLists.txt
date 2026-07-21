@@ -4,7 +4,7 @@
 cmake_minimum_required (VERSION 3.8)
 
 # 设置文件名称
-set (appName his-app-form)
+set (appName his-cpp-form)
 
 # 包含库目录
 include_directories ("./")
@@ -153,34 +153,34 @@ endif()
 
 # 复制配置到调试时可执行文件所在的目录
 # RSA公钥证书
-file (COPY "public.pem" DESTINATION ${PROJECT_BINARY_DIR}/${appName})
+file (COPY "public.pem" DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 # Swagger资源
 if (NOT DEFINED CLOSE_SWAGGER_DOC)
 	file (GLOB swaggerRes "../lib-oatpp/include/oatpp-swagger/res/*")
-	file (COPY ${swaggerRes} DESTINATION ${PROJECT_BINARY_DIR}/${appName}/res)
+	file (COPY ${swaggerRes} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/res)
 endif()
 # 中文词典
-file (COPY "zh-dict.yaml" DESTINATION ${PROJECT_BINARY_DIR}/${appName})
+file (COPY "zh-dict.yaml" DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 # 模板文件目录
 file (GLOB tplDir "tpl/*")
-file (COPY ${tplDir} DESTINATION "${PROJECT_BINARY_DIR}/${appName}/tpl")
+file (COPY ${tplDir} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/tpl")
 # 字体文件目录
 file (GLOB fontsDir "fonts/*")
-file (COPY ${fontsDir} DESTINATION "${PROJECT_BINARY_DIR}/${appName}/fonts")
+file (COPY ${fontsDir} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/fonts")
 # Ubuntu系统特殊处理
 if(IS_UBUNTU)
 	# 复制动态库到可执行文件目录
 	file (GLOB dylibdir "${PROJECT_SOURCE_DIR}/lib-dy/lib64/*")
-	file (COPY ${dylibdir} DESTINATION "${PROJECT_BINARY_DIR}/${appName}")
+	file (COPY ${dylibdir} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 endif()
 # Windows平台特殊处理
 if(WIN32)
 	# 复制dll文件到可执行文件目录
 	file (GLOB_RECURSE dycopy ${ZO_DY_DIR}/*.dll)
-	file (COPY ${dycopy} DESTINATION "${PROJECT_BINARY_DIR}/${appName}")
+	file (COPY ${dycopy} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 	# 复制项目配置到可执行文件目录
 	file (GLOB conf "conf/*")
-	file (COPY ${conf} DESTINATION ${PROJECT_BINARY_DIR}/${appName}/conf)
+	file (COPY ${conf} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/conf)
 endif()
 
 # 安装文件

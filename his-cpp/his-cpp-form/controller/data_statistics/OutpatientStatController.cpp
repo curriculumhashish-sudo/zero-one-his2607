@@ -17,19 +17,14 @@
  limitations under the License.
 */
 #include "stdafx.h"
-#include "controller/outpatient/OutpatientStatController.h"
+#include "controller/data_statistics/OutpatientStatController.h"
 
-OutpatientTrendJsonVO::Wrapper OutpatientStatController::execQueryWeeklyTrend(const OutpatientTrendQuery::Wrapper& query)
+OutpatientTrendJsonVO::Wrapper OutpatientStatController::execQueryTrend(const OutpatientTrendQuery::Wrapper& query)
 {
 	return OutpatientTrendJsonVO::Wrapper();
 }
 
-OutpatientTrendJsonVO::Wrapper OutpatientStatController::execQueryMonthlyTrend(const OutpatientTrendQuery::Wrapper& query)
-{
-	return OutpatientTrendJsonVO::Wrapper();
-}
-
-DiseaseDistributionJsonVO::Wrapper OutpatientStatController::execQueryDiseaseDistribution(const OutpatientTrendQuery::Wrapper& query)
+DiseaseDistributionJsonVO::Wrapper OutpatientStatController::execQueryDiseaseDistribution(const DiseaseDistributionQuery::Wrapper& query)
 {
 	return DiseaseDistributionJsonVO::Wrapper();
 }
