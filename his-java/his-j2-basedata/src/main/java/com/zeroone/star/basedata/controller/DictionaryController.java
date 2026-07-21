@@ -3,7 +3,7 @@ package com.zeroone.star.basedata.controller;
 import com.zeroone.star.project.dto.j2.basedata.dictionarytypedto.DictionaryAddDTO;
 import com.zeroone.star.project.dto.j2.basedata.dictionarytypedto.DictionaryDeleteDTO;
 import com.zeroone.star.project.dto.j2.basedata.dictionarytypedto.DictionaryModifyDTO;
-import com.zeroone.star.project.j2.dictionarytype.DictionaryApis;
+import com.zeroone.star.project.j2.basedata.dictionarytype.DictionaryApis;
 import com.zeroone.star.project.vo.JsonVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

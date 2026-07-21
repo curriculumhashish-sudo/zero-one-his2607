@@ -1,4 +1,4 @@
-package com.zeroone.star.project.query.j2.work;
+package com.zeroone.star.project.query.j2.workbench;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 

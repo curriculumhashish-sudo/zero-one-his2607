@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zeroone.star.basedata.mapper.BodyPartMapper">
 
-    <resultMap id="treeMap" type="com.zeroone.star.project.vo.j2.basedata.BodyPartTreeVO">
+    <resultMap id="treeMap" type="com.zeroone.star.project.vo.j2.basedata.bodypart.BodyPartTreeVO">
         <id column="id" property="id"/>
         <result column="part_code" property="partCode"/>
         <result column="part_name" property="partName"/>
@@ -24,7 +24,7 @@
         ORDER BY sort_order ASC
     </select>
 
-    <select id="selectList" resultType="com.zeroone.star.project.vo.j2.basedata.BodyPartListVO">
+    <select id="selectList" resultType="com.zeroone.star.project.vo.j2.basedata.bodypart.BodyPartListVO">
         SELECT
         t.id,
         t.part_code AS partCode,

@@ -1,4 +1,4 @@
-package com.zeroone.star.project.j2.sysmgr;
+package com.zeroone.star.project.j2.sysmgr.rent;
 
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentAddDTO;

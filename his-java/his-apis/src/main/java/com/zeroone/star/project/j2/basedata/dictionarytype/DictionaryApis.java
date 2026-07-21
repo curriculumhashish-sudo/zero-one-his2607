@@ -1,4 +1,4 @@
-package com.zeroone.star.project.j2.dictionarytype;
+package com.zeroone.star.project.j2.basedata.dictionarytype;
 
 import com.zeroone.star.project.dto.j2.basedata.dictionarytypedto.DictionaryAddDTO;
 import com.zeroone.star.project.dto.j2.basedata.dictionarytypedto.DictionaryDeleteDTO;

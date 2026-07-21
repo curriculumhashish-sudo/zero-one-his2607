@@ -1,4 +1,4 @@
-package com.zeroone.star.project.vo.j2.work;
+package com.zeroone.star.project.vo.j2.workbench;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import java.io.Serializable;

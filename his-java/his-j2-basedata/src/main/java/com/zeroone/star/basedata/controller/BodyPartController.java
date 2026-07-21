@@ -5,8 +5,10 @@ import com.zeroone.star.project.dto.j2.basedata.bodypartdto.BodyPartAddDTO;
 import com.zeroone.star.project.j2.basedata.qingzhou.IBodyPartApis;
 import com.zeroone.star.project.query.j2.basedata.BodyPartPageQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j2.basedata.BodyPartListVO;
-import com.zeroone.star.project.vo.j2.basedata.BodyPartTreeVO;
+
+import com.zeroone.star.project.vo.j2.basedata.bodypart.BodyPartListVO;
+import com.zeroone.star.project.vo.j2.basedata.bodypart.BodyPartTreeVO;
+import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,16 +31,16 @@ public class BodyPartController implements IBodyPartApis {
     @GetMapping("/tree")
     public JsonVO<List<BodyPartTreeVO>> getTree() {
         // TODO 后续实现从数据库获取部位树
-        return JsonVO.success(mapper.selectTree());
+        return null;
     }
 
     @Override
     @GetMapping("/list")
     public JsonVO<List<BodyPartListVO>> getList(BodyPartPageQuery query) {
         // TODO 后续实现分页条件查询
-        return JsonVO.success(mapper.selectList(query));
+        return null;
     }
-
+    
     @Override
     @PostMapping
     public JsonVO<Long> add(@Valid @RequestBody BodyPartAddDTO dto) {
