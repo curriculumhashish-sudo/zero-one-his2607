@@ -6,14 +6,14 @@ get:
  summary: 分页查询数据
 post:
  summary: 新增一条表单数据
- summary_category:新增分类
+ summary_category: 新增分类
 put:
  summary: 修改一条数据
 delete:
  summary: 删除数据支持批量
 field:
  category: 
-   id:诊断分类ID
+   id: 诊断分类ID
    cat_name: 分类名称
  diag:
    id: 诊断主键ID

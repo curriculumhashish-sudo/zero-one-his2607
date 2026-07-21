@@ -61,13 +61,17 @@ class DiagnosisDO : public BaseDO
 	MYSQL_SYNTHESIZE(int, medicalInsuranceMatch, MedicalInsuranceMatch);
 	//医保标记0-F 1-T
 	MYSQL_SYNTHESIZE(int, medicalInsuranceTag, MedicalInsuranceTag);
+	//删除标记0-F 1-T
+	MYSQL_SYNTHESIZE(int, isDelete, IsDelete);
+	//分类项目名
+	MYSQL_SYNTHESIZE(string,catName,CatName);
 
 
 public:
 	DiagnosisDO() : BaseDO("t_diagnosis")
 	{
 		MYSQL_ADD_FIELD_PK("id", "s", id);
-		MYSQL_ADD_FIELD("diagnosis_code", "s", diagnosisCode);
+		MYSQL_ADD_FIELD("diagnosis_code", "s", diagnosisCode);//左边是数据库对应字段，右边是DO的成员变量名
 		MYSQL_ADD_FIELD("diagnosis_name", "s", diagnosisName);
 		MYSQL_ADD_FIELD("diagnosis_type", "i", diagnosisType);
 		MYSQL_ADD_FIELD("status", "i", status);
@@ -83,6 +87,8 @@ public:
 		MYSQL_ADD_FIELD("wubi_Code", "s", wubiCode);
 		MYSQL_ADD_FIELD(" medical_Insurance_Match", "s", medicalInsuranceMatch);
 		MYSQL_ADD_FIELD(" medical_Insurance_Tag", "s", medicalInsuranceTag);
+		MYSQL_ADD_FIELD("is_Delete", "i", isDelete);
+		MYSQL_ADD_FIELD("cat_Name", "s", catName);
 
 
 	}
