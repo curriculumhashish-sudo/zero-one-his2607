@@ -37,6 +37,11 @@
         <module>his-gateway</module>
         <module>his-login</module>
         <module>his-mcp-gateway</module>
+        <module>his-j8-setroster</module>
+        <module>his-j8-clinics</module>
+        <module>his-j8-calendar</module>
+        <module>his-j8-outpatient</module>
+        <module>his-j8-statdata</module>
     </modules>
     <properties>
         <!-- 项目版本号 -->
