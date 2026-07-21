@@ -16,7 +16,7 @@
 #ifndef _DIAGNOSISCONTROLLER_H_
 #define _DIAGNOSISCONTROLLER_H_
 
-#include "domain/vo/BaseJsonVO.h"
+//#include "domain/vo/BaseJsonVO.h"
 //#include "GlobalInclude.h"
 #include "domain/dto/Diagnosis/DiagnoseDTO.h"
 
@@ -122,6 +122,7 @@ private:
 public:
 	// 3.1 定义新增诊断表接口描述
 API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.post.summary"), addDiagnose, StringJsonVO::Wrapper, API_TAG);
+
 // 3.2 定义新增诊断表接口处理
 API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/diagnose", addDiagnose, BODY_DTO(DiagnoseAddDTO::Wrapper, dto), execAddDiagnose(dto, authObject->getPayload()));
 
