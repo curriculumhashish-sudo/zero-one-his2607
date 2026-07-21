@@ -14,14 +14,14 @@
         tcmSyndromeGroup: 中医证候组
         medType: 医保类别
         conditionCode: 病情编码
-        createAt: 创建时间
+        createdAt: 创建时间
     delete:
         summary: 删除诊断
         id: 诊断数据主键
         encounterId: 就诊id
         conditionId: 病情id
-        deleteAt: 删除时间
-        deleteBy: 删除人
+        deletedAt: 删除时间
+        deletedBy: 删除人
     usage:
         summary: 获取诊断使用历史
         id: 诊断数据主键
