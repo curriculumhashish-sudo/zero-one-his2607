@@ -6,9 +6,9 @@
 
 #include OATPP_CODEGEN_BEGIN(ApiController) //<- Begin Codegen
 
-#define API_TAG ZH_WORDS_GETTER("yiguang.charging.admission.tag")
+#define API_TAG ZH_WORDS_GETTER("charging.admission.tag")
 
-#define API_TAG1 ZH_WORDS_GETTER("yiguang.charging.admission.delete")
+#define API_TAG1 ZH_WORDS_GETTER("charging.admission.delete")
 
 /*
  * 示例控制器，演示基础接口的使用
@@ -31,35 +31,35 @@ public:
 		API_DEF_ADD_TAG(API_TAG);
 		// 定义其他查询参数描述
 
-		API_DEF_ADD_PATH_PARAMS(Int64, "id", ZH_WORDS_GETTER("yiguang.charging.admisssion.id"), 1, true);
+		API_DEF_ADD_PATH_PARAMS(Int64, "id", ZH_WORDS_GETTER("charging.admisssion.id"), 1, true);
 
-		API_DEF_ADD_PATH_PARAMS(String, "name", ZH_WORDS_GETTER("yiguang.charging.admisssion.name"), "1", false);
+		API_DEF_ADD_PATH_PARAMS(String, "name", ZH_WORDS_GETTER("charging.admisssion.name"), "1", false);
 
-		API_DEF_ADD_PATH_PARAMS(String, "age", ZH_WORDS_GETTER("yiguang.charging.admisssion.age"), 1, true);
+		API_DEF_ADD_PATH_PARAMS(String, "age", ZH_WORDS_GETTER("charging.admisssion.age"), 1, true);
 
-		API_DEF_ADD_PATH_PARAMS(String, "sex", ZH_WORDS_GETTER("yiguang.charging.admisssion.sex"), "man", false);
+		API_DEF_ADD_PATH_PARAMS(String, "sex", ZH_WORDS_GETTER("charging.admisssion.sex"), "man", false);
 
-		API_DEF_ADD_PATH_PARAMS(String, "phone", ZH_WORDS_GETTER("yiguang.charging.admisssion.phone"), "1", true);
+		API_DEF_ADD_PATH_PARAMS(String, "phone", ZH_WORDS_GETTER("charging.admisssion.phone"), "1", true);
 
-		API_DEF_ADD_PATH_PARAMS(String, "admissionDept", ZH_WORDS_GETTER("yiguang.charging.admisssion.admissionDept"), "1", true);
+		API_DEF_ADD_PATH_PARAMS(String, "admissionDept", ZH_WORDS_GETTER("charging.admisssion.admissionDept"), "1", true);
 
-		API_DEF_ADD_PATH_PARAMS(String, "admission_ward", ZH_WORDS_GETTER("yiguang.charging.admisssion.admission_ward"), "1", true);
+		API_DEF_ADD_PATH_PARAMS(String, "admission_ward", ZH_WORDS_GETTER("charging.admisssion.admission_ward"), "1", true);
 
-		API_DEF_ADD_PATH_PARAMS(String, "attending_doctor", ZH_WORDS_GETTER("yiguang.charging.admisssion.attending_doctor"), "1", false);
+		API_DEF_ADD_PATH_PARAMS(String, "attending_doctor", ZH_WORDS_GETTER("charging.admisssion.attending_doctor"), "1", false);
 
-		API_DEF_ADD_PATH_PARAMS(String, "admissionDiagnosis", ZH_WORDS_GETTER("yiguang.charging.admisssion.admissionDiagnosis"), "1", true);
+		API_DEF_ADD_PATH_PARAMS(String, "admissionDiagnosis", ZH_WORDS_GETTER("charging.admisssion.admissionDiagnosis"), "1", true);
 
-		API_DEF_ADD_PATH_PARAMS(String, "diagnosisDesc", ZH_WORDS_GETTER("yiguang.charging.admisssion.diagnosisDesc"), "1", false);
+		API_DEF_ADD_PATH_PARAMS(String, "diagnosisDesc", ZH_WORDS_GETTER("charging.admisssion.diagnosisDesc"), "1", false);
 
-		API_DEF_ADD_PATH_PARAMS(String, "patientCondition", ZH_WORDS_GETTER("yiguang.charging.admisssion.patientCondition"), "1", false);
+		API_DEF_ADD_PATH_PARAMS(String, "patientCondition", ZH_WORDS_GETTER("charging.admisssion.patientCondition"), "1", false);
 
-		API_DEF_ADD_PATH_PARAMS(String, "admissionType", ZH_WORDS_GETTER("yiguang.charging.admisssion.admissionType"), "1", false);
+		API_DEF_ADD_PATH_PARAMS(String, "admissionType", ZH_WORDS_GETTER("charging.admisssion.admissionType"), "1", false);
 
-		API_DEF_ADD_PATH_PARAMS(String, "admissionMode", ZH_WORDS_GETTER("yiguang.charging.admisssion.admissionMode"), "1", false);
+		API_DEF_ADD_PATH_PARAMS(String, "admissionMode", ZH_WORDS_GETTER("charging.admisssion.admissionMode"), "1", false);
 
-		API_DEF_ADD_PATH_PARAMS(String, "feeNature", ZH_WORDS_GETTER("yiguang.charging.admisssion.feeNature"), "1", true);
+		API_DEF_ADD_PATH_PARAMS(String, "feeNature", ZH_WORDS_GETTER("charging.admisssion.feeNature"), "1", true);
 
-		API_DEF_ADD_PATH_PARAMS(String, "admissiondata", ZH_WORDS_GETTER("yiguang.charging.admisssion.admissiondata"), "1", true);
+		API_DEF_ADD_PATH_PARAMS(String, "admissiondata", ZH_WORDS_GETTER("charging.admisssion.admissiondata"), "1", true);
 
 	}
 
@@ -74,7 +74,7 @@ public:
 		API_DEF_ADD_TAG(API_TAG);
 		// 定义其他查询参数描述
 
-		API_DEF_ADD_PATH_PARAMS(String, "delete", ZH_WORDS_GETTER("yiguang.charging.admisssion.delete"), " ", false);
+		API_DEF_ADD_PATH_PARAMS(String, "delete", ZH_WORDS_GETTER("charging.admisssion.delete"), " ", false);
 
 	}
 

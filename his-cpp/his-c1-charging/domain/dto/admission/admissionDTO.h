@@ -32,97 +32,97 @@ class AdmissionAddDTO : public oatpp::DTO
 	// 姓名
 	DTO_FIELD(String, name);
 	DTO_FIELD_INFO(name) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.name");
+		info->description = ZH_WORDS_GETTER("charging.admission.name");
 	}
 
 	//身份证号
 	DTO_FIELD(Int64, id);
 	DTO_FIELD_INFO(id) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.id");
+		info->description = ZH_WORDS_GETTER("charging.admission.id");
 	}
 
 	//出生日期
 	DTO_FIELD(String, birthtime);
 	DTO_FIELD_INFO(birthtime) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.id");
+		info->description = ZH_WORDS_GETTER("charging.admission.id");
 	}
 
 	// 年龄
 	DTO_FIELD(Int32, age);
 	DTO_FIELD_INFO(age) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.age");
+		info->description = ZH_WORDS_GETTER("charging.admission.age");
 	}
 
 	// 性别
 	DTO_FIELD(String, sex);
 	DTO_FIELD_INFO(sex) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.sex");
+		info->description = ZH_WORDS_GETTER("charging.admission.sex");
 	}
 
 	//联系方式
 	DTO_FIELD(Int64, phone);
 	DTO_FIELD_INFO(phone) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.id");
+		info->description = ZH_WORDS_GETTER("charging.admission.id");
 	}
 
 	//入院科室
 	DTO_FIELD(String, admissionDept);
 	DTO_FIELD_INFO(admissionDept) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.id");
+		info->description = ZH_WORDS_GETTER("charging.admission.id");
 	}
 
 	//入院病区
 	DTO_FIELD(String, admission_ward);
 	DTO_FIELD_INFO(admission_ward) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.id");
+		info->description = ZH_WORDS_GETTER("charging.admission.id");
 	}
 
 	//主治医师
 	DTO_FIELD(String, attending_doctor);
 	DTO_FIELD_INFO(attending_doctor) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.id");
+		info->description = ZH_WORDS_GETTER("charging.admission.id");
 	}
 
 	//入院诊断
 	DTO_FIELD(String, admissionDiagnosis);
 	DTO_FIELD_INFO(admissionDiagnosis) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.id");
+		info->description = ZH_WORDS_GETTER("charging.admission.id");
 	}
 
 	//诊断描述
 	DTO_FIELD(String, diagnosisDesc);
 	DTO_FIELD_INFO(diagnosisDesc) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.id");
+		info->description = ZH_WORDS_GETTER("charging.admission.id");
 	}
 
 	//患者病情
 	DTO_FIELD(String, patientCondition);
 	DTO_FIELD_INFO(patientCondition) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.id");
+		info->description = ZH_WORDS_GETTER("charging.admission.id");
 	}
 
 	//入院类型
 	DTO_FIELD(String, admissionType);
 	DTO_FIELD_INFO(admissionType) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.id");
+		info->description = ZH_WORDS_GETTER("charging.admission.id");
 	}
 
 	//入院方式
 	DTO_FIELD(String, admissionMode);
 	DTO_FIELD_INFO(admissionMode) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.id");
+		info->description = ZH_WORDS_GETTER("charging.admission.id");
 	}
 
 	//费用性质
 	DTO_FIELD(String, feeNature);
 	DTO_FIELD_INFO(feeNature) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.id");
+		info->description = ZH_WORDS_GETTER("charging.admission.id");
 	}
 
 	//入院日期
 	DTO_FIELD(String, admissiondata);
 	DTO_FIELD_INFO(admissiondata) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.id");
+		info->description = ZH_WORDS_GETTER("charging.admission.id");
 	}
 
 	// 关联一个PayloadDTO负载数据对象
@@ -147,7 +147,7 @@ class AdmissionDeleteDTO : public oatpp::DTO
 	// 姓名
 	DTO_FIELD(String, thedelete);
 	DTO_FIELD_INFO(thedelete) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.delete");
+		info->description = ZH_WORDS_GETTER("charging.admission.delete");
 	}
 
 	// 关联一个PayloadDTO负载数据对象
