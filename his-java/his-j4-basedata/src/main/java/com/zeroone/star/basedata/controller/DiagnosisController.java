@@ -37,107 +37,48 @@ public class DiagnosisController implements DiagnosisApis {
     @PostMapping("/query-definition")
     @Override
     public JsonVO<PageDTO<DiagnosisDefinitionVO>> queryDefinitions(@RequestBody DiagnosisDefinitionQuery query) {
-        try {
-            com.baomidou.mybatisplus.extension.plugins.pagination.Page<ClnConditionDefinitionDO> page
-                    = definitionService.pageQuery(query);
-            return JsonVO.success(PageDTO.create(page, DiagnosisDefinitionVO::new));
-        } catch (Exception e) {
-            return JsonVO.create(null, 500, e.getMessage());
-        }
+        return null;
     }
 
     @Operation(summary = "获取诊断详情")
     @GetMapping("/get-definition/{id}")
     @Override
     public JsonVO<DiagnosisDefinitionDetailVO> queryDefinitionDetail(@PathVariable String id) {
-        try {
-            ClnConditionDefinitionDO entity = definitionService.getById(id);
-            if (entity == null) {
-                return JsonVO.create(null, 404, "诊断定义不存在");
-            }
-
-            DiagnosisDefinitionDetailVO vo = new DiagnosisDefinitionDetailVO();
-            vo.setId(entity.getId());
-            vo.setSourceEnum(entity.getSourceEnum());
-            vo.setConditionCode(entity.getConditionCode());
-            vo.setName(entity.getName());
-            vo.setPyStr(entity.getPyStr());
-            vo.setWbStr(entity.getWbStr());
-            vo.setTypeCode(entity.getTypeCode());
-            vo.setDiseaseCode(entity.getDiseaseCode());
-            vo.setYbFlag(entity.getYbFlag());
-            vo.setYbNo(entity.getYbNo());
-            vo.setYbMatchFlag(entity.getYbMatchFlag());
-            vo.setStatusEnum(entity.getStatusEnum());
-            vo.setDescription(entity.getDescription());
-
-            List<DiagnosisDefinitionDetailVO.ReferenceDetail> refs = definitionService.getReferences(id);
-            vo.setReferences(refs);
-
-            return JsonVO.success(vo);
-        } catch (Exception e) {
-            return JsonVO.create(null, 500, e.getMessage());
-        }
+        return null;
     }
 
     @Operation(summary = "新增诊断")
     @PostMapping("/add-definition")
     @Override
     public JsonVO<String> addDefinition(@RequestBody DiagnosisDefinitionDTO dto) {
-        try {
-            String id = definitionService.saveDefinition(dto);
-            return JsonVO.success(id);
-        } catch (Exception e) {
-            return JsonVO.create(null, 500, e.getMessage());
-        }
+        return null;
     }
 
     @Operation(summary = "修改诊断")
     @PutMapping("/modify-definition")
     @Override
     public JsonVO<String> modifyDefinition(@RequestBody DiagnosisDefinitionDTO dto) {
-        try {
-            definitionService.modifyDefinition(dto);
-            return JsonVO.success("编辑成功");
-        } catch (Exception e) {
-            return JsonVO.create(null, 500, e.getMessage());
-        }
+        return null;
     }
 
     @Operation(summary = "启/停用诊断（支持批量）")
-    @PutMapping("/batch-modify-status")
+    @PutMapping("/modify-batch-status")
     @Override
     public JsonVO<String> modifyBatchStatus(@RequestBody List<String> ids, @RequestParam String status) {
-        try {
-            definitionService.modifyBatchStatus(ids, status);
-            return JsonVO.success("操作成功");
-        } catch (Exception e) {
-            return JsonVO.create(null, 500, e.getMessage());
-        }
+        return null;
     }
 
     @Operation(summary = "删除诊断（支持批量）")
-    @DeleteMapping("/batch-delete")
+    @DeleteMapping("/remove-batch")
     @Override
     public JsonVO<String> removeBatch(@RequestBody List<String> ids) {
-        try {
-            definitionService.removeBatch(ids);
-            return JsonVO.success("删除成功");
-        } catch (Exception e) {
-            return JsonVO.create(null, 500, e.getMessage());
-        }
+        return null;
     }
 
     @Operation(summary = "获取选择诊断列表（条件+分页）")
     @PostMapping("/get-select-list")
     @Override
     public JsonVO<PageDTO<DiagnosisDefinitionVO>> getSelectList(@RequestBody DiagnosisDefinitionQuery query) {
-        try {
-            com.baomidou.mybatisplus.extension.plugins.pagination.Page<ClnConditionDefinitionDO> page
-                    = definitionService.getSelectList(query);
-            return JsonVO.success(PageDTO.create(page, DiagnosisDefinitionVO::new));
-        } catch (Exception e) {
-            return JsonVO.create(null, 500, e.getMessage());
-        }
+        return null;
     }
 }
