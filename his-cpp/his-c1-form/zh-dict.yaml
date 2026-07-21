@@ -1,4 +1,4 @@
-﻿form:
+form:
  cost_info:
   tag: 报表中心-门诊费用明细
 
@@ -21,4 +21,31 @@ rhqm:
    export:
     title: 导出报表
     fileID: 文件ID
-    
+   data:
+    id: 序号
+    clinicNo: 门诊号
+    name: 患者
+    room: 挂号科室
+    date: 就诊日期
+    feeClass: 大类
+    detailClass: 细分类
+    projectName: 项目名称
+    hisID: 院内编码
+    spec: 规格
+    number: 数量
+    unit: 单位
+    doctor: 开单医生
+    checker: 收费人
+    settleTime: 结算时间
+    source: 来源
+    insuranceLevel: 医保等级
+    insuranceType: 医保类型
+    originalPrice: 原价
+    discountAmount: 优惠金额
+    receivableAmount: 应收金额
+    discountedPrice: 折后金额
+    unitPrice: 单价
+    lineAmount: 行金额
+    actualAmount: 实收金额
+    insuranceAmount: 医保金额
+    selfPayAmount: 自费金额
