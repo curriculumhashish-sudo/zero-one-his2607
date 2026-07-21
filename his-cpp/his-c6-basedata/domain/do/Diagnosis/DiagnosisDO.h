@@ -63,7 +63,7 @@ public:
 		MYSQL_ADD_FIELD_PK("id", "s", id);
 		MYSQL_ADD_FIELD("diagnosis_code", "s", diagnosisCode);
 		MYSQL_ADD_FIELD("diagnosis_name", "s", diagnosisName);
-		MYSQL_ADD_FIELD("diagnosis_type", "s", diagnosisType);
+		MYSQL_ADD_FIELD("diagnosis_type", "i", diagnosisType);
 		MYSQL_ADD_FIELD("status", "i", status);
 		MYSQL_ADD_FIELD("remark", "s", remark);
 		MYSQL_ADD_FIELD("create_by", "s", createBy);
