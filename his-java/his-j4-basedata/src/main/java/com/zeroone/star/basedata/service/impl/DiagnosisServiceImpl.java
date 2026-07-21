@@ -70,13 +70,13 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
 
     @Override
     @Transactional
-    public void batchModifyStatus(List<String> ids, String status) {
+    public void modifyBatchStatus(List<String> ids, String status) {
         
     }
 
     @Override
     @Transactional
-    public void batchDelete(List<String> ids) {
+    public void removeBatch(List<String> ids) {
         
     }
 

@@ -61,13 +61,13 @@ public interface IDiagnosisService {
      * @param ids 诊断ID列表
      * @param status 状态（ACTIVE/INACTIVE）
      */
-    void batchModifyStatus(List<String> ids, String status);
+    void modifyBatchStatus(List<String> ids, String status);
 
     /**
      * 批量删除诊断
      * @param ids 诊断ID列表
      */
-    void batchDelete(List<String> ids);
+    void removeBatch(List<String> ids);
 
     /**
      * 获取选择列表（条件+分页）

@@ -107,9 +107,9 @@ public class DiagnosisController implements DiagnosisApis {
     @Operation(summary = "启/停用诊断（支持批量）")
     @PutMapping("/batch-modify-status")
     @Override
-    public JsonVO<String> batchModifyStatus(@RequestBody List<String> ids, @RequestParam String status) {
+    public JsonVO<String> modifyBatchStatus(@RequestBody List<String> ids, @RequestParam String status) {
         try {
-            definitionService.batchModifyStatus(ids, status);
+            definitionService.modifyBatchStatus(ids, status);
             return JsonVO.success("操作成功");
         } catch (Exception e) {
             return JsonVO.create(null, 500, e.getMessage());
@@ -119,9 +119,9 @@ public class DiagnosisController implements DiagnosisApis {
     @Operation(summary = "删除诊断（支持批量）")
     @DeleteMapping("/batch-delete")
     @Override
-    public JsonVO<String> batchDelete(@RequestBody List<String> ids) {
+    public JsonVO<String> removeBatch(@RequestBody List<String> ids) {
         try {
-            definitionService.batchDelete(ids);
+            definitionService.removeBatch(ids);
             return JsonVO.success("删除成功");
         } catch (Exception e) {
             return JsonVO.create(null, 500, e.getMessage());

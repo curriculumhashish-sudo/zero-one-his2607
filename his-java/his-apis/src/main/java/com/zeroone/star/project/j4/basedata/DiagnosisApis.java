@@ -70,7 +70,7 @@ public interface DiagnosisApis {
      * @param status 状态（ACTIVE/INACTIVE）
      * @return 操作结果
      */
-    default JsonVO<String> batchModifyStatus(List<String> ids, String status) {
+    default JsonVO<String> modifyBatchStatus(List<String> ids, String status) {
         return null;
     }
 
@@ -79,7 +79,7 @@ public interface DiagnosisApis {
      * @param ids 诊断定义主键列表
      * @return 删除结果
      */
-    default JsonVO<String> batchDelete(List<String> ids) {
+    default JsonVO<String> removeBatch(List<String> ids) {
         return null;
     }
 
