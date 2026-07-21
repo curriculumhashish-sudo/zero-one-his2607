@@ -25,6 +25,7 @@ public class TreatmentDO implements Serializable {
     @TableId(value = "id", type = IdType.ASSIGN_ID)
     private String id;
 
+
     /** 租户ID */
     private String tenantId;
 
