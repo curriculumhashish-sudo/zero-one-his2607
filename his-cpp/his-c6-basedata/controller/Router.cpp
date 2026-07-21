@@ -19,7 +19,7 @@
 #include "stdafx.h"
 #include "Router.h"
 #include "drug/MedicationCatalogController.h"
-
+#include "drug/DrugController.h"
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
 // Simplified controller binding macro
@@ -46,6 +46,10 @@ void Router::initRouter()
 		std::make_shared<MedicationCatalogDocAuthorizeHandler>());
 #endif
 	ROUTER_SIMPLE_BIND(medicationCatalogController);
-}
 
+}
+void Router::initRouter()
+{
+	
+}
 #undef ROUTER_SIMPLE_BIND
