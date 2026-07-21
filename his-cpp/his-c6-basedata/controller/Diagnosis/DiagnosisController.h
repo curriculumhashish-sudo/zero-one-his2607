@@ -147,10 +147,11 @@ private:
 StringJsonVO::Wrapper execAddDiagnose(const DiagnoseAddDTO::Wrapper& dto, const PayloadDTO& payload);
 //  新增诊断目录（分类）数据
 //StringJsonVO::Wrapper execAddDiagcategory(const DiagnoseAddDTO::Wrapper& dto, const PayloadDTO& payload);
-// 演示修改数据
+// 修改数据
 StringJsonVO::Wrapper execModifyDiagnose(const DiagnoseDTO::Wrapper& dto, const PayloadDTO& payload);
-// 演示删除数据
+// 删除数据（支持批量）
 ListJsonVO<String>::Wrapper execRemoveDiagnose(const List<String>& ids);
+//
 
 	DiagnosisSelectJsonVO::Wrapper executeListSelectDiagnosis(const DiagnosisSelectQuery::Wrapper& query);
 	DiagnosisPageJsonVO::Wrapper executeListDiagnosis(const DiagnosisPageQuery::Wrapper& query);
