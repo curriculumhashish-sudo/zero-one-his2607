@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @Tag(name = "放号时段模板管理")
+@RequestMapping("/j8/setroster") // 统一模块路径前缀
 public class SlotProvisionTemplateController implements SlotProvisionTemplateApis {
 
     @Operation(summary = "分页查询放号时段模板列表")

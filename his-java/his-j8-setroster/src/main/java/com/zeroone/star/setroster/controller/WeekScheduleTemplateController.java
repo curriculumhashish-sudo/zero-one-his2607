@@ -25,6 +25,7 @@ import java.util.ArrayList;
  * @version 1.0.0
  */
 @RestController
+@RequestMapping("/j8/setroster") // 统一模块路径前缀
 @Tag(name = "周排班模板管理")
 public class WeekScheduleTemplateController implements WeekScheduleTemplateApis {
 

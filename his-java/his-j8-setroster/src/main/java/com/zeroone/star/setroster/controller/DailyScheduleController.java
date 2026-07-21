@@ -16,6 +16,7 @@ import java.util.List;
 
 @RestController
 // @RequestMapping("/api/daily-schedule")
+@RequestMapping("/j8/setroster") // 统一模块路径前缀
 @Tag(name = "日排班模板接口")
 public class DailyScheduleController implements DailyScheduleApis {
 

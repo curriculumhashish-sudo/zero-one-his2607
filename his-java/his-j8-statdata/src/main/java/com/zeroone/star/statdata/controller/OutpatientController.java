@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/statdata/outpatient")
+@RequestMapping("/j8/statdata") // 统一模块路径前缀
 @Tag(name = "数据统计")
 public class OutpatientController {
     @GetMapping("/visit-trend/weekly")
