@@ -44,9 +44,9 @@ public interface DiagnosisApis {
      * @param id 诊断ID
      * @return 诊断详情
      */
-    JsonVO<DiagnosisDetailVO> queryDiagnosisDetail(String id);
+     JsonVO<DiagnosisDetailVO> queryDiagnosisDetail(String id);
 
-    /**
+     /**
      * 新增诊断。
      *
      * @param dto 诊断定义数据

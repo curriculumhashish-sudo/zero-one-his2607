@@ -6,6 +6,7 @@ import com.zeroone.star.project.j4.basedata.DiagnosisApis;
 import com.zeroone.star.project.query.j4.diagnosis.DiagnosisPageQuery;
 import com.zeroone.star.project.query.j4.diagnosis.DiagnosisSelectPageQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisDefinitionDetailVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisDetailVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisListVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisOptionVO;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,7 +36,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/diagnosis")
-@Tag(name = "basedata-diagnosis", description = "诊断管理接口")
+@Tag(name = "diagnosis", description = "诊断管理")
 public class DiagnosisController implements DiagnosisApis {
 
     @Override
@@ -54,8 +56,8 @@ public class DiagnosisController implements DiagnosisApis {
 
     @Override
     @Operation(summary = "获取诊断详情")
-    @GetMapping("/query-detail")
-    public JsonVO<DiagnosisDetailVO> queryDiagnosisDetail(@RequestParam String id) {
+    @GetMapping("/get-detail/{id}")
+    public JsonVO<DiagnosisDetailVO> queryDiagnosisDetail(@PathVariable String id) {
         return JsonVO.success(null);
     }
 
