@@ -3,7 +3,7 @@
 #define _DRUGCONTROLLER_H_
 #include "domain/vo/BaseJsonVO.h"
 #include OATPP_CODEGEN_BEGIN(ApiController)
-#include "../../GlobalInclude.h"
+
 #include "domain/query/Drug/DrugQuery.h"
 #include "domain/vo/drug/DrugListVO.h"
 

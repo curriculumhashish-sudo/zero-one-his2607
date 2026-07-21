@@ -46,13 +46,12 @@ void Router::initRouter()
 		std::make_shared<MedicationCatalogDocAuthorizeHandler>());
 #endif
 	ROUTER_SIMPLE_BIND(medicationCatalogController);
-	
-}
-void Router::initRouter()
-{
+
 
 	auto DrugController = DrugController::createShared();
 
 	ROUTER_SIMPLE_BIND(DrugController);
+	
 }
+
 #undef ROUTER_SIMPLE_BIND
