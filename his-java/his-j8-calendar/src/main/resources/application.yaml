@@ -1,7 +1,8 @@
 server:
-  port: ${sp.clinics}
+  port: ${sp.j8-calendar}
   servlet:
-    context-path: /clinics
+    # 设置应用上下文路径
+    context-path: /j8-calendar
 spring:
   application:
-    name: ${sn.clinics}
+    name: ${sn.j8-calendar}
