@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Schema(description = "诊疗项目详情数据")
-public class TreatmentDetailDTO implements Serializable {
+public class ServiceCatalogDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

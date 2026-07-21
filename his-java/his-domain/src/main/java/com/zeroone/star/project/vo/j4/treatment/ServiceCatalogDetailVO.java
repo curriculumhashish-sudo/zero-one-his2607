@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Schema(description = "诊疗项目详情显示对象")
-public class TreatmentDetailVO implements Serializable {
+public class ServiceCatalogDetailVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema(description = "修改诊疗项目对象")
-public class TreatmentUpdateDTO extends TreatmentAddDTO {
+public class ServiceCatalogUpdateDTO extends ServiceCatalogAddDTO {
 
     @Schema(description = "主键", example = "320010001000000003", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;

@@ -13,7 +13,7 @@ import lombok.Data;
  * @version 1.0.0
  */
 @Data
-public class TreatmentStatusDTO {
+public class ServiceCatalogStatusDTO {
 
     @NotBlank(message = "诊疗项目ID不能为空")
     private String id;
