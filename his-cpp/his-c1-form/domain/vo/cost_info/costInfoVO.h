@@ -9,8 +9,8 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 
-class CostInfoJsonVO : public JsonVO<CostInfoDTO::Wrapper> {
-	DTO_INIT(CostInfoJsonVO, JsonVO<CostInfoDTO::Wrapper>);
+class CostInfoJsonVO : public JsonVO<CostInfoDataDTO::Wrapper> {
+	DTO_INIT(CostInfoJsonVO, JsonVO<CostInfoDataDTO::Wrapper>);
 };
 
 class ExportVO : public JsonVO<CostInfoDTO::Wrapper> {
