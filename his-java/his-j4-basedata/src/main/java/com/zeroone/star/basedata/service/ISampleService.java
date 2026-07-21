@@ -1,7 +1,7 @@
 package com.zeroone.star.basedata.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.zeroone.star.basedata.entity.Sample;
+import com.zeroone.star.basedata.entity.AdmSpecimenDefinitionDO;
 
 /**
  * <p>
@@ -12,5 +12,5 @@ import com.zeroone.star.basedata.entity.Sample;
  * @author j4组
  * @version 1.0.0
  */
-public interface ISampleService extends IService<Sample> {
+public interface ISampleService extends IService<AdmSpecimenDefinitionDO> {
 }
