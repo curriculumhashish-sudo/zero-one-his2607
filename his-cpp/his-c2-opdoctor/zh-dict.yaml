@@ -1,27 +1,27 @@
 historyOrder:
   tags:
-    tag: ÀúÊ·Ò½Öö¹ÜÀí
+    tag: å†å²åŒ»å˜±ç®¡ç†
   list:
-    summary: ·ÖÒ³²éÑ¯ÀúÊ·¾ÍÕï¼ÇÂ¼ÁĞ±í
+    summary: åˆ†é¡µæŸ¥è¯¢å†å²å°±è¯Šè®°å½•åˆ—è¡¨
   detail:
-    summary: ·ÖÒ³²éÑ¯ÀúÊ·Ò½ÖöÃ÷Ï¸ÁĞ±í
+    summary: åˆ†é¡µæŸ¥è¯¢å†å²åŒ»å˜±æ˜ç»†åˆ—è¡¨
   field:
-    patientId: »¼ÕßID
-    visitId: ¾ÍÕïID
-    visitTime: ¾ÍÕïÊ±¼ä
-    visitType: ¾ÍÕïÀàĞÍ
-    mainDiagnosis: Ö÷Õï¶Ï
-    doctorName: Ò½ÉúĞÕÃû
-    drugCount: Ò©Æ·ÊıÁ¿
-    examCount: ÕïÁÆÊıÁ¿
-    materialCount: ºÄ²ÄÊıÁ¿
-    orderId: Ò½ÖöID
-    orderType: Ò½ÖöÀàĞÍ
-    orderName: Ò½ÖöÃû³Æ
-    quantity: ¿ªÁ¢ÊıÁ¿
-    executedCount: Ö´ĞĞ´ÎÊı
-    sampleType: Ñù±¾ÀàĞÍ
-    executeHospital: Ö´ĞĞÒ½Ôº
-    createTime: ¿ªÁ¢Ê±¼ä
-    diagnosis: Õï¶Ï
-    isSkinTest: ÊÇ·ñÆ¤ÊÔ
+    patientId: æ‚£è€…ID
+    visitId: å°±è¯ŠID
+    visitTime: å°±è¯Šæ—¶é—´
+    visitType: å°±è¯Šç±»å‹
+    mainDiagnosis: ä¸»è¯Šæ–­
+    doctorName: åŒ»ç”Ÿå§“å
+    drugCount: è¯å“æ•°é‡
+    examCount: è¯Šç–—æ•°é‡
+    materialCount: è€—ææ•°é‡
+    orderId: åŒ»å˜±ID
+    orderType: åŒ»å˜±ç±»å‹
+    orderName: åŒ»å˜±åç§°
+    quantity: å¼€ç«‹æ•°é‡
+    executedCount: æ‰§è¡Œæ¬¡æ•°
+    sampleType: æ ·æœ¬ç±»å‹
+    executeHospital: æ‰§è¡ŒåŒ»é™¢
+    createTime: å¼€ç«‹æ—¶é—´
+    diagnosis: è¯Šæ–­
+    isSkinTest: æ˜¯å¦çš®è¯•

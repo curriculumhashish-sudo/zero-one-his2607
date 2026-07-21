@@ -42,5 +42,6 @@ Router::Router(Endpoints* docEndpoints, HttpRouter* router)
 void Router::initRouter()
 {
 	// #TIP: Add system extension route definitions below
-	
+	ROUTER_SIMPLE_BIND(HistoryOrderListController);
+	ROUTER_SIMPLE_BIND(HistoryOrderDetailController);
 }
