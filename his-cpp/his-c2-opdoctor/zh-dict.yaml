@@ -1,6 +1,8 @@
 prescription:
  tags:
   tag: 中医处方管理
+ query:
+  summary: 获取历史处方
  add:
   summary: 新增处方
  remove:
@@ -15,3 +17,4 @@ prescription:
   diagnosis: 诊断
   remark: 备注
   medicine: 药材
+  preNum: 位数
