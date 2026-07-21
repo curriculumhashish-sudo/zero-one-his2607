@@ -17,10 +17,17 @@
         <dependency>
             <groupId>com.zeroone.star</groupId>
             <artifactId>his-apis</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.zeroone.star</groupId>
+            <artifactId>his-domain</artifactId>
+            <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>com.zeroone.star</groupId>
             <artifactId>his-common</artifactId>
+            <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
