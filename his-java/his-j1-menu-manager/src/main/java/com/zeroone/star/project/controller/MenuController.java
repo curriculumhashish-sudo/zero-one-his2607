@@ -4,13 +4,17 @@ import com.zeroone.star.project.dto.menu.*;
 import com.zeroone.star.project.menu.MenuApis;
 import com.zeroone.star.project.query.menu.MenuDetailQuery;
 import com.zeroone.star.project.query.menu.MenuTreeQuery;
+import com.zeroone.star.project.service.IMenuService;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.login.MenuTreeVO;
 import com.zeroone.star.project.vo.menu.MenuVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 菜单管理的api接口
@@ -21,6 +25,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("menu")
 @Tag(name = "菜单管理")
 public class MenuController implements MenuApis {
+
+    @Resource
+    private IMenuService menuService;
 
     /**
      * 加载菜单树结构
@@ -61,7 +68,20 @@ public class MenuController implements MenuApis {
     @GetMapping("getTreeByLoginUser")
     @Operation(summary = "根据当前登录用户来查询可见菜单树结构")
     public JsonVO<MenuTreeVO> getTreeByLoginUser(@Valid MenuTreeQuery query) {
-        return null;
+        List<MenuTreeVO> tree = menuService.listMenuTreeByLoginUser();
+        if (tree == null || tree.isEmpty()) {
+            return JsonVO.success(null);
+        }
+        if (tree.size() == 1) {
+            return JsonVO.success(tree.get(0));
+        }
+        // 多棵树：创建虚拟根节点合并
+        MenuTreeVO virtualRoot = new MenuTreeVO();
+        virtualRoot.setText("根菜单");
+        for (MenuTreeVO node : tree) {
+            virtualRoot.addChild(node);
+        }
+        return JsonVO.success(virtualRoot);
     }
 
     /**
@@ -139,6 +159,7 @@ public class MenuController implements MenuApis {
     @PostMapping("assignPermissions")
     @Operation(summary = "提交指定角色的菜单权限")
     public JsonVO<Boolean> assignPermissions(RolePermissionAssignDTO rolePermissionAssignDTO) {
-        return null;
+        boolean success = menuService.assignPermissions(rolePermissionAssignDTO);
+        return JsonVO.success(success);
     }
 }
