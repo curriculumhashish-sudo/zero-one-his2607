@@ -1,4 +1,4 @@
-package com.zeroone.star.project.controller;
+package com.zeroone.star.sysmgr.controller;
 
 import com.zeroone.star.project.dto.menu.*;
 import com.zeroone.star.project.menu.MenuApis;
@@ -31,7 +31,7 @@ public class MenuController implements MenuApis {
     @Override
     @GetMapping("getTree")
     @Operation(summary = "加载菜单树结构")
-    public JsonVO<MenuTreeVO> getMenuTree(@Valid MenuTreeQuery query) {
+    public JsonVO<MenuTreeVO> getMenuTree(@RequestParam @Valid MenuTreeQuery query) {
         return null;
     }
 
@@ -44,7 +44,7 @@ public class MenuController implements MenuApis {
     @Override
     @GetMapping("getById")
     @Operation(summary = "加载菜单详情信息")
-    public JsonVO<MenuVO> getMenu(@Valid MenuDetailQuery query) {
+    public JsonVO<MenuVO> getMenu(@RequestParam @Valid MenuDetailQuery query) {
         return null;
     }
 
@@ -60,7 +60,7 @@ public class MenuController implements MenuApis {
     @Override
     @GetMapping("getTreeByLoginUser")
     @Operation(summary = "根据当前登录用户来查询可见菜单树结构")
-    public JsonVO<MenuTreeVO> getTreeByLoginUser(@Valid MenuTreeQuery query) {
+    public JsonVO<MenuTreeVO> getTreeByLoginUser(@RequestParam @Valid MenuTreeQuery query) {
         return null;
     }
 
@@ -73,7 +73,7 @@ public class MenuController implements MenuApis {
     @Override
     @PostMapping("create")
     @Operation(summary = "创建菜单信息")
-    public JsonVO<Boolean> create(@Valid MenuCreateDTO menuDto) {
+    public JsonVO<Boolean> create(@RequestBody @Valid MenuCreateDTO menuDto) {
         return null;
     }
 
@@ -86,7 +86,7 @@ public class MenuController implements MenuApis {
     @Override
     @PutMapping("update")
     @Operation(summary = "更新菜单信息")
-    public JsonVO<Boolean> update(@Valid MenuUpdateDTO menuDto) {
+    public JsonVO<Boolean> update(@RequestBody @Valid MenuUpdateDTO menuDto) {
         return null;
     }
 
@@ -97,9 +97,9 @@ public class MenuController implements MenuApis {
      * @author 是丫丫
      */
     @Override
-    @DeleteMapping("delete")
+    @PostMapping("delete")
     @Operation(summary = "删除菜单信息")
-    public JsonVO<Boolean> delete(@Valid MenuDeleteDTO menuDto) {
+    public JsonVO<Boolean> delete(@RequestBody @Valid MenuDeleteDTO menuDto) {
         return null;
     }
 
@@ -112,7 +112,7 @@ public class MenuController implements MenuApis {
     @Override
     @PutMapping("enable")
     @Operation(summary = "启用菜单")
-    public JsonVO<Boolean> enable(@Valid MenuEnableDTO menuDto) {
+    public JsonVO<Boolean> enable(@RequestBody @Valid MenuEnableDTO menuDto) {
         return null;
     }
 
@@ -125,7 +125,7 @@ public class MenuController implements MenuApis {
     @Override
     @PutMapping("disable")
     @Operation(summary = "禁用菜单")
-    public JsonVO<Boolean> disable(@Valid MenuDisableDTO menuDto) {
+    public JsonVO<Boolean> disable(@RequestBody @Valid MenuDisableDTO menuDto) {
         return null;
     }
 
@@ -138,7 +138,7 @@ public class MenuController implements MenuApis {
     @Override
     @PostMapping("assignPermissions")
     @Operation(summary = "提交指定角色的菜单权限")
-    public JsonVO<Boolean> assignPermissions(RolePermissionAssignDTO rolePermissionAssignDTO) {
+    public JsonVO<Boolean> assignPermissions(@RequestBody RolePermissionAssignDTO rolePermissionAssignDTO) {
         return null;
     }
 }
