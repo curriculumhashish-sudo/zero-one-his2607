@@ -24,15 +24,12 @@
 #include "domain/dto/Diagnosis/DiagnoseDTO.h"
 #include "domain/vo/BaseJsonVO.h"
 
+#include "domain/query/Diagnosis/DiagnosisQuerySelect.h"
+#include "domain/query/Diagnosis/DiagnosisQuery.h"
 
-
-// �������ײ�ѯQuery
-#include "domain/query/Diagnosis/DiagnosisSelectQuery.h"
-#include "domain/query/Diagnosis/DiagnosisPageQuery.h"
-// �������׷�ҳ/���鷵��VO
-#include "domain/vo/diagnosis/DiagnosisSelectJsonVO.h"
-#include "domain/vo/diagnosis/DiagnosisPageJsonVO.h"
-#include "domain/vo/diagnosis/DiagnosisDetailJsonVO.h"
+#include "domain/vo/Diagnosis/DiagnosisSelectVO.h"
+#include "domain/vo/Diagnosis/DiagnosisVO.h"
+#include "domain/vo/Diagnosis/DiagnosisDetailVO.h"
 
 using namespace oatpp;
 
