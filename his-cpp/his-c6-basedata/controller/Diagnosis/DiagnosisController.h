@@ -16,21 +16,10 @@
 #ifndef _DIAGNOSISCONTROLLER_H_
 #define _DIAGNOSISCONTROLLER_H_
 
-//#include "domain/vo/BaseJsonVO.h"
-//#include "GlobalInclude.h"
+
+#include "GlobalInclude.h"
 #include "domain/dto/Diagnosis/DiagnoseDTO.h"
 
-
-/*
-//// �������ײ�ѯQuery
-//#include "../../domain/query/Diagnosis/DiagnosisSelectQuery.h"
-//#include "domain/query/Diagnosis/DiagnosisPageQuery.h"
-//// �������׷�ҳ/���鷵��VO
-//#include "domain/vo/diagnosis/DiagnosisSelectJsonVO.h"
-//#include "domain/vo/diagnosis/DiagnosisPageJsonVO.h"
-//#include "domain/vo/diagnosis/DiagnosisDetailJsonVO.h"
-这是你之前的头文件，暂时注释了
-*/
 // 查询Query
 #include "domain/query/Diagnosis/DiagnosisSelectQuery.h"
 #include "domain/query/Diagnosis/DiagnosisPageQuery.h"
@@ -60,22 +49,22 @@ class DiagnosisController : public oatpp::web::server::api::ApiController
 
 public:
 
-    1. ����ѡ����Ϸ�ҳ�ӿ� /diagnosis/select-page
-	 ����ҽ��վ��סԺ�Ǽǵ���ɸѡ����չʾ�������ݣ�����ҽ/��ҽ����ɸѡ��
+    1. diagnosis/select-page
+	
 	// 
 	//API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("diagnosis.select.summary"), listSelectDiagnosis, DiagnosisSelectJsonVO::Wrapper, API_TAG);
 	//API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/diagnosis/select-page", listSelectDiagnosis, DiagnosisSelectQuery, executeListSelectDiagnosis(query));
 
 	//
-	//  2. ��Ϲ�����̨��ҳ�ӿ� /diagnosis/page
-	//  ��̨���б���֧��Ŀ¼�����롢���ơ�״̬ɸѡ��֧��������ͣ
+	//  2. /diagnosis/page
+	//  
 	//
 	//API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("diagnosis.page.summary"), listDiagnosis, DiagnosisPageJsonVO::Wrapper, API_TAG);
 	//API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/diagnosis/page", listDiagnosis, DiagnosisPageQuery, executeListDiagnosis(query));
 
 	//
-	// 3. ��ȡ��ϵ�������ӿ� /diagnosis/detail
-	//  �������鵯�����༭��������
+	// 3. /diagnosis/detail
+	//  
 	// 
 	//API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnosis.detail.summary"), getDiagnosisDetail, DiagnosisDetailJsonVO::Wrapper, API_TAG,
 	//	API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("diagnosis.field.id"), "", true);
@@ -109,13 +98,13 @@ public:
 	API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/diagnosis", removeDiagnosis, BODY_DTO(List<String>, ids), execRemoveDiagnosis(ids));
 
 private:
-	// ����ѡ���ҳҵ��ʵ��
+	//
 	//DiagnosisSelectJsonVO::Wrapper executeListSelectDiagnosis(const DiagnosisSelectQuery::Wrapper& query);
-	//// ������̨��ҳҵ��ʵ��
+	//// 
 	//DiagnosisPageJsonVO::Wrapper executeListDiagnosis(const DiagnosisPageQuery::Wrapper& query);
-	//// ����ID��ѯ��������ʵ��
+	//// 
 	//DiagnosisDetailJsonVO::Wrapper executeGetDiagnosisDetail(const String& id);
-	这是你的代码，暂时注释了
+	
 	
 */
 
@@ -156,9 +145,7 @@ ListJsonVO<String>::Wrapper execRemoveDiagnose(const List<String>& ids);
 	DiagnosisSelectJsonVO::Wrapper executeListSelectDiagnosis(const DiagnosisSelectQuery::Wrapper& query);
 	DiagnosisPageJsonVO::Wrapper executeListDiagnosis(const DiagnosisPageQuery::Wrapper& query);
 	DiagnosisDetailJsonVO::Wrapper executeGetDiagnosisDetail(const String& id);
-	/*StringJsonVO::Wrapper execAddDiagnosis(const DiagnosisAddDTO::Wrapper& dto, const PayloadDTO& payload);
-	StringJsonVO::Wrapper execModifyDiagnosis(const DiagnosisPageDTO::Wrapper& dto, const PayloadDTO& payload);
-	ListJsonVO<String>::Wrapper execRemoveDiagnosis(const List<String>& ids);*/
+	
 };
 
 #undef API_TAG
