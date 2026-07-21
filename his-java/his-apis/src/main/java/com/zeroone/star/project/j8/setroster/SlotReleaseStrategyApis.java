@@ -4,10 +4,12 @@ package com.zeroone.star.project.j8.setroster;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotReleaseStrategyAddDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotReleaseStrategyDTO;
-import com.zeroone.star.project.dto.j8.setroster.SlotReleaseStrategyDetailDTO;
+import com.zeroone.star.project.dto.j8.setroster.SlotReleaseStrategyNameDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotReleaseStrategyModifyDTO;
 import com.zeroone.star.project.query.j8.setroster.SlotReleaseStrategyQuery;
 import com.zeroone.star.project.vo.JsonVO;
+
+import java.util.List;
 
 /**
  * <p>
@@ -30,11 +32,10 @@ public interface SlotReleaseStrategyApis {
 
 
     /**
-     * 查询放号策略详情
-     * @param id 查询条件
-     * @return 放号策略详情
+     * 获取放号策略名称
+     * @return 放号策略名称
      */
-    JsonVO<SlotReleaseStrategyDetailDTO> getSlotReleaseStrategy(Long id);
+    JsonVO<List<SlotReleaseStrategyNameDTO>> querySlotReleaseStrategyNames();
 
 
 
@@ -62,6 +63,6 @@ public interface SlotReleaseStrategyApis {
      * @param id 删除条件
      * @return 删除结果
      */
-    JsonVO<String> deleteSlotReleaseStrategy(Long id);
+    JsonVO<String> deleteSlotReleaseStrategy(String id);
 
 }

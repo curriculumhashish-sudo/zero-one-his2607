@@ -4,7 +4,7 @@ package com.zeroone.star.setroster.controller;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotReleaseStrategyAddDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotReleaseStrategyDTO;
-import com.zeroone.star.project.dto.j8.setroster.SlotReleaseStrategyDetailDTO;
+import com.zeroone.star.project.dto.j8.setroster.SlotReleaseStrategyNameDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotReleaseStrategyModifyDTO;
 import com.zeroone.star.project.enums.ResultStatus;
 import com.zeroone.star.project.j8.setroster.SlotReleaseStrategyApis;
@@ -14,6 +14,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * <p>
@@ -39,11 +41,10 @@ public class SlotReleaseStrategyController implements SlotReleaseStrategyApis {
         return JsonVO.create(null, ResultStatus.API_UN_IMPL);
     }
 
-    @Operation(summary = "查询放号策略详情")
-    @GetMapping("j8/setroster/getSlotReleaseStrategy")
+    @Operation(summary = "获取放号策略名称")
+    @GetMapping("j8/setroster/querySlotReleaseStrategyNames")
     @Override
-    public JsonVO<SlotReleaseStrategyDetailDTO> getSlotReleaseStrategy(
-            @RequestParam("id") Long id) {
+    public JsonVO<List<SlotReleaseStrategyNameDTO>> querySlotReleaseStrategyNames() {
         return JsonVO.create(null, ResultStatus.API_UN_IMPL);
     }
 
@@ -65,7 +66,7 @@ public class SlotReleaseStrategyController implements SlotReleaseStrategyApis {
     @DeleteMapping("j8/setroster/deleteSlotReleaseStrategy/{id}")
     @Override
     public JsonVO<String> deleteSlotReleaseStrategy(
-            @PathVariable("id") Long id) {
+            @PathVariable("id") String id) {
         return JsonVO.create(null, ResultStatus.API_UN_IMPL);
     }
 }

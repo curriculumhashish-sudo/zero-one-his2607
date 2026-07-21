@@ -1,7 +1,7 @@
 package com.zeroone.star.project.dto.j8.setroster;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -20,11 +20,11 @@ import lombok.EqualsAndHashCode;
 @Schema(description = "修改放号策略参数")
 public class SlotReleaseStrategyModifyDTO extends SlotReleaseStrategyAddDTO {
 
-    @NotNull(message = "放号策略主键ID不能为空")
+    @NotBlank(message = "放号策略主键ID不能为空")
     @Schema(
             description = "放号策略主键ID",
-            example = "1",
+            example = "329973511193890816",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
-    private Long id;
+    private String id;
 }
