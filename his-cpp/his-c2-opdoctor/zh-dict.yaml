@@ -1,0 +1,60 @@
+refund:
+ tags:
+  tag: 退费
+ apply:
+  summary: 提交退费申请
+ query:
+  summary: 获取退费清单
+patient:
+ detail:
+  patientNo: 病历号
+  patientName: 姓名
+  age: 年龄
+  gender: 性别
+  department: 科室
+  patientId: 门诊号
+  phone: 联系电话
+  idNumber: 证件号码
+  registrationType: 号别
+  visitStatus: 就诊状态
+  admissionTime: 接诊时间
+  doctor: 接诊医师
+ refund:
+  apply: 勾选项
+  applyNo: 勾选数
+  applySum: 已选合计费用
+  paymentNo: 支付单号
+  itemName: 收费项目名称
+  quantity: 数量
+  amount: 金额
+  chargeStatus: 收费状态
+  refundStatus: 退费状态
+Prescription:
+ tags:
+  tag: 处方单
+ query:
+  summary: 处方单
+ detail:
+  prescriptionNo: 处方号
+  costType: 费用性质
+  date: 日期
+  doctor: 开单医生
+  diagnosis: 诊断
+  totalPrice: 合计金额
+  pharmacist: 调配
+  dispenser: 发药
+  priceChecker: 划价
+  items: Rp
+Admission:
+ tags:
+  tag: 办理住院
+ apply:
+  summary: 办理住院
+ detail:
+  admissionDepartment: 入院科室
+  admissionWard: 入院病区
+  admissionDiagnosis: 入院主诊断
+  diagnosisDesc: 诊断描述
+  admissionType: 入院类型
+  admissionMethod: 入院方式
+  priority: 病情优先级
