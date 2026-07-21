@@ -28,19 +28,19 @@ public class RentController implements RentApis {
     public JsonVO<PageDTO<RentDTO>> queryAll(RentQuery query) {
         return null;
     }
-    @Operation(summary = "添加租户信息")
+    @Operation(summary = "新增租户")
     @PostMapping("/addRent")
     @Override
     public JsonVO<String> addRent(@RequestBody RentAddDTO addDTO) {
         return null;
     }
-    @Operation(summary = "更新租户信息")
+    @Operation(summary = "修改租户")
     @PutMapping("/updateRent")
     @Override
     public JsonVO<String> updateRent(@RequestBody RentDTO updateDTO) {
         return null;
     }
-    @Operation(summary = "删除租户信息")
+    @Operation(summary = "删除租户")
     @DeleteMapping("/deleteRent{id}")
     @Override
     public JsonVO<String> deleteRent(@PathVariable String id) {

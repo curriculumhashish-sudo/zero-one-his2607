@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 
 @RestController
-@Tag(name = "配置项管理")
+@Tag(name = "设置管理")
 public class SettingsController implements SettingsApis {
     @Operation(summary = "获取配置项列表")
     @GetMapping("query-all")

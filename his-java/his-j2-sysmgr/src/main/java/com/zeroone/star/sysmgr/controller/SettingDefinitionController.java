@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @version 1.0.0
  */
 @RestController
-@Tag(name = "配置管理")
+@Tag(name = "设置管理")
 public class SettingDefinitionController implements SettingDefinitionApis {
     @Operation(summary = "获取配置列表",description = "支持通过关键字进行模糊筛选")
     @GetMapping("query")
