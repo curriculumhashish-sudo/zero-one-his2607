@@ -3,6 +3,7 @@ package com.zeroone.star.project.j3.register;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j3.register.RegisterDTO;
 import com.zeroone.star.project.query.j3.register.RegisterQuery;
+import com.zeroone.star.project.vo.j3.register.RegisterVO;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j3.register.RegisterVO;
 

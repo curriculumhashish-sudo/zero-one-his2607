@@ -3,12 +3,14 @@ package com.zeroone.star.j3.department.controller;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j3.department.DepartmentBatchDTO;
 import com.zeroone.star.project.dto.j3.department.DepartmentCreateDTO;
-import com.zeroone.star.project.dto.j3.department.DepartmentDTO;
+
 import com.zeroone.star.project.dto.j3.department.DepartmentUpdateDTO;
 import com.zeroone.star.project.j3.department.DepartmentApis;
 import com.zeroone.star.project.query.j3.department.DepartmentQuery;
 import com.zeroone.star.project.query.j3.department.DepartmentTreeQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j3.department.DepartmentDetailVO;
+import com.zeroone.star.project.vo.j3.department.DepartmentTreeVO;
 import com.zeroone.star.project.vo.j3.department.DepartmentVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -35,9 +37,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/departments")
 @Slf4j
 @Tag(name = "科室管理")
+// TODO: 后期需调用Service层获得真实数据
 public class DepartmentController implements DepartmentApis {
 
-    @GetMapping("/tree")
+    @PostMapping("/tree")
     @Operation(summary = "获取科室名称树（支持门诊/住院筛选)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "成功",
@@ -46,8 +49,14 @@ public class DepartmentController implements DepartmentApis {
             @ApiResponse(responseCode = "404", description = "数据不存在")
     })
     @Override
-    public JsonVO<DepartmentDTO> getDepartmentTree(DepartmentTreeQuery query) {
-        return null;
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "成功",
+                    content = @Content(schema = @Schema(implementation = JsonVO.class))),
+            @ApiResponse(responseCode = "400", description = "参数错误"),
+            @ApiResponse(responseCode = "404", description = "科室不存在")
+    })
+    public JsonVO<DepartmentTreeVO> getDepartmentTree(@RequestBody DepartmentTreeQuery query) {
+        return JsonVO.success(null);
     }
 
     @GetMapping("/{id}")
@@ -59,8 +68,14 @@ public class DepartmentController implements DepartmentApis {
             @ApiResponse(responseCode = "404", description = "科室不存在")
     })
     @Override
-    public JsonVO<DepartmentDTO> getDepartmentDetail(@PathVariable Long id) {
-        return null;
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "成功",
+                    content = @Content(schema = @Schema(implementation = JsonVO.class))),
+            @ApiResponse(responseCode = "400", description = "参数错误"),
+            @ApiResponse(responseCode = "404", description = "科室不存在")
+    })
+    public JsonVO<DepartmentDetailVO> getDepartmentDetail(@PathVariable Long id) {
+        return JsonVO.success(null);
     }
 
     @PostMapping
@@ -72,7 +87,7 @@ public class DepartmentController implements DepartmentApis {
     })
     @Override
     public JsonVO<String> createDepartment(@Valid @RequestBody DepartmentCreateDTO dto) {
-        return null;
+        return JsonVO.success(null);
     }
 
     @PutMapping("/batch-status")
@@ -85,7 +100,7 @@ public class DepartmentController implements DepartmentApis {
     })
     @Override
     public JsonVO<String> activeOrInactiveDepartment(@Valid @RequestBody DepartmentBatchDTO dto) {
-        return null;
+        return JsonVO.success(null);
     }
 
     @GetMapping("/page")
@@ -98,7 +113,7 @@ public class DepartmentController implements DepartmentApis {
     })
     @Override
     public JsonVO<PageDTO<DepartmentVO>> getDepartmentPage(@Valid DepartmentQuery query) {
-        return null;
+        return JsonVO.success(null);
     }
 
     @PutMapping("/{id}")
@@ -114,7 +129,7 @@ public class DepartmentController implements DepartmentApis {
             @Parameter(description = "科室ID", example = "322663105141149696", required = true)
             @PathVariable("id") String id,
             @Valid @RequestBody DepartmentUpdateDTO dto) {
-        return null;
+        return JsonVO.success(null);
     }
 
     @DeleteMapping("/{id}")
@@ -130,6 +145,6 @@ public class DepartmentController implements DepartmentApis {
     public JsonVO<String> deleteDepartment(
             @Parameter(description = "科室ID", example = "322663105141149696", required = true)
             @PathVariable("id") String id) {
-        return null;
+        return JsonVO.success(null);
     }
 }
