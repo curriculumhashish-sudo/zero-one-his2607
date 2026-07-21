@@ -3,6 +3,7 @@ package com.zeroone.star.project.j2.basedata.qingzhou;
 
 import com.zeroone.star.project.dto.j2.basedata.bodypartdto.BodyPartAddDTO;
 import com.zeroone.star.project.query.j2.basedata.BodyPartPageQuery;
+import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j2.basedata.BodyPartListVO;
 import com.zeroone.star.project.vo.j2.basedata.BodyPartTreeVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,14 +23,11 @@ import java.util.List;
 public interface IBodyPartApis {
 
     @Operation(summary = "获取部位名称树")
-    @GetMapping("/basedata/body-part/tree")
-    List<BodyPartTreeVO> getTree();
+    JsonVO<List<BodyPartTreeVO>> getTree();
 
     @Operation(summary = "获取部位列表（条件+分页）")
-    @GetMapping("/basedata/body-part/list")
-    List<BodyPartListVO> getList(@Valid BodyPartPageQuery query);
+    JsonVO<List<BodyPartListVO>> getList(@Valid BodyPartPageQuery query);
 
     @Operation(summary = "添加部位")
-    @PostMapping("/basedata/body-part")
-    Long add(@Valid @RequestBody BodyPartAddDTO dto);
+    JsonVO<Long> add(@Valid @RequestBody BodyPartAddDTO dto);
 }

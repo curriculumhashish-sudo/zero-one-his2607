@@ -1,9 +1,9 @@
 package com.zeroone.star.basedata.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.zeroone.star.project.vo.BodyPartListVO;
-import com.zeroone.star.project.vo.BodyPartTreeVO;
 import com.zeroone.star.project.query.BodyPartPageQuery;
+import com.zeroone.star.project.vo.j2.basedata.BodyPartListVO;
+import com.zeroone.star.project.vo.j2.basedata.BodyPartTreeVO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

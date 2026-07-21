@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.zeroone.star.project.mapper.BodyPartMapper">
+<mapper namespace="com.zeroone.star.basedata.mapper.BodyPartMapper">
 
-    <resultMap id="treeMap" type="com.zeroone.star.project.vo.BodyPartTreeVO">
+    <resultMap id="treeMap" type="com.zeroone.star.project.vo.j2.basedata.BodyPartTreeVO">
         <id column="id" property="id"/>
         <result column="part_code" property="partCode"/>
         <result column="part_name" property="partName"/>
@@ -12,41 +12,45 @@
 
     <select id="selectTree" resultMap="treeMap">
         SELECT id, part_code, part_name, sort_order
-        FROM his_basedata_body
+        FROM his_basedata_body_part
         WHERE parent_id IS NULL
         ORDER BY sort_order ASC
     </select>
 
     <select id="selectChildren" resultMap="treeMap">
         SELECT id, part_code, part_name, sort_order
-        FROM his_basedata_body
+        FROM his_basedata_body_part
         WHERE parent_id = #{id}
         ORDER BY sort_order ASC
     </select>
 
-    <select id="selectList" resultType="com.zeroone.star.project.vo.BodyPartListVO">
+    <select id="selectList" resultType="com.zeroone.star.project.vo.j2.basedata.BodyPartListVO">
         SELECT
         t.id,
         t.part_code AS partCode,
         t.part_name AS partName,
         t.parent_id AS parentId,
-        COALESCE(p.part_name, '顶级部位') AS parentName,
-        t.sort_order AS sortOrder,
-        t.status
-        FROM his_basedata_body t
-        LEFT JOIN his_basedata_body p ON t.parent_id = p.id
+        t.status,
+        CASE WHEN COUNT(c.id) > 0 THEN 1 ELSE 0 END AS hasChildren
+        FROM his_basedata_body_part t
+        LEFT JOIN his_basedata_body_part c ON c.parent_id = t.id
         <where>
             <if test="keyword != null and keyword != ''">
                 AND (t.part_code LIKE CONCAT('%', #{keyword}, '%')
                 OR t.part_name LIKE CONCAT('%', #{keyword}, '%'))
             </if>
-            <if test="parentId != null">
+            <if test="parentId == 0">
+                AND t.parent_id IS NULL
+            </if>
+            <if test="parentId != null and parentId > 0">
                 AND t.parent_id = #{parentId}
             </if>
             <if test="status != null">
                 AND t.status = #{status}
             </if>
         </where>
+        GROUP BY t.id, t.part_code, t.part_name, t.parent_id, t.status
         ORDER BY t.sort_order ASC
     </select>
+
 </mapper>
