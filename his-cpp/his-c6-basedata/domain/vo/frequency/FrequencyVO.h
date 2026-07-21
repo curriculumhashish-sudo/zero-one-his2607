@@ -15,7 +15,7 @@ class FrequencyVO : public StringJsonVO
 	DTO_INIT(FrequencyVO, StringJsonVO);
 
 	// Ö÷¼üID
-	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("common.id"), true);
+	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("frequency.field.id"), true);
 	// Æµ´ÎÃû³Æ
 	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("frequency.field.name"), true);
 };

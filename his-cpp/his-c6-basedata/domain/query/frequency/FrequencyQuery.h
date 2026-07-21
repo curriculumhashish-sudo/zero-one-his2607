@@ -12,7 +12,7 @@ class FrequencyQuery : public PageQuery
 	DTO_INIT(FrequencyQuery, PageQuery);
 
 	// ◊¥Ã¨£®÷ª≤È∆Ù”√£©
-	API_DTO_FIELD_REQUIRE(String, status, ZH_WORDS_GETTER("common.status"), false);
+	API_DTO_FIELD_REQUIRE(String, status, ZH_WORDS_GETTER("frequency.field.status"), false);
 };
 
 #include OATPP_CODEGEN_END(DTO)
