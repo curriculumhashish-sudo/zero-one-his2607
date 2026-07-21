@@ -1,13 +1,16 @@
 #pragma once
-
 #ifndef  _DRUGCONTROLLER_H_
 #define _DRUGCONTROLLER_H_
 #include "domain/vo/BaseJsonVO.h"
 #include OATPP_CODEGEN_BEGIN(ApiController)
-using namespace oatpp;
+#include "../../GlobalInclude.h"
+
 class DrugController : public oatpp::web::server::api::ApiController
 {
-	   API_ACCESS_DECLARE();
+	API_ACCESS_DECLARE(DrugController);
+public:
+
+private:
 };
 #include OATPP_CODEGEN_END(ApiController)
 
