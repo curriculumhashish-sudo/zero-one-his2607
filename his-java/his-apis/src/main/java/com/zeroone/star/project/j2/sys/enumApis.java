@@ -13,11 +13,11 @@ import java.util.List;
 
 public interface enumApis {
     /**
-     * 删除枚举类型
+     * 删除枚举
      * @param dto 枚举删除对象DTO
-     * @return 枚举值序号
+     * @return 枚举序号
      */
-    JsonVO<String> deleteEnumType(EnumDeleteDTO dto);
+    JsonVO<Integer> deleteEnumType(EnumDeleteDTO dto);
 
     /**
      * 获取枚举名称列表
