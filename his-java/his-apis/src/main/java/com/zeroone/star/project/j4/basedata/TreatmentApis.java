@@ -47,12 +47,6 @@ public interface TreatmentApis {
     JsonVO<TreatmentDetailVO> getTreatment(String id);
 
     /**
-     * 获取诊疗分类选项
-     * @return 分类名称列表
-     */
-    JsonVO<List<String>> listCategoryOptions();
-
-    /**
      * 添加诊疗项目
      * @param treatmentAddDTO 诊疗详情信息DTO
      * @return 无返回值
@@ -66,12 +60,6 @@ public interface TreatmentApis {
      */
     JsonVO<TreatmentDetailVO> modifyTreatment(TreatmentEditDTO dto);
 
-    /**
-     * 修改诊疗项目
-     * @param dto 修改诊疗数据
-     * @return 修改确认结果
-     */
-    JsonVO<TreatmentDetailVO> updateTreatment(TreatmentUpdateDTO dto);
 
     /**
      * 切换诊疗状态（启用/禁用取反）
