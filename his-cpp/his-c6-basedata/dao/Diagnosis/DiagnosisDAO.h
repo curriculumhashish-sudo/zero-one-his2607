@@ -3,7 +3,7 @@
 #define _SAMPLE_DAO_
 #include "BaseDAO.h"
 #include "../../domain/do/Diagnosis/DiagnosisDO.h"
-#include "../../domain/query/Diagnosis/DiagnosisQuerySELECT.h"
+#include "../../domain/query/Diagnosis/DiagnosisSELECTQuery.h"
 /**
  * 示例表数据库操作实现
  */
