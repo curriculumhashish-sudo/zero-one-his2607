@@ -11,3 +11,7 @@ StringJsonVO::Wrapper EquipmentController::execAddEquipment(const EquipmentAddDT
 	return {};
 }
 
+EquipmentDetailJsonVO::Wrapper EquipmentController::executeQueryOne(const String& id)
+{
+	return {};
+}

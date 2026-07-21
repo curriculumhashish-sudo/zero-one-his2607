@@ -9,6 +9,8 @@
     summary: 修改器材
   remove:
     summary: 删除器材
+  query-one:
+    summary: 器材详情
   field:
     # 基础通用字段
     id: 序号

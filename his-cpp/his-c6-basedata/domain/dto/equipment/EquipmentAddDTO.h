@@ -8,7 +8,7 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * 租户添加DTO类
+ * 器材添加DTO类
  */
 class EquipmentAddDTO : public oatpp::DTO
 {
