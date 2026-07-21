@@ -6,8 +6,8 @@ import com.zeroone.star.project.j2.basedata.qingzhou.IBodyPartApis;
 
 import com.zeroone.star.project.query.j2.basedata.BodyPartPageQuery;
 
-import com.zeroone.star.project.vo.j2.basedata.BodyPartListVO;
-import com.zeroone.star.project.vo.j2.basedata.BodyPartTreeVO;
+import com.zeroone.star.project.vo.j2.basedata.bodypart.BodyPartListVO;
+import com.zeroone.star.project.vo.j2.basedata.bodypart.BodyPartTreeVO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

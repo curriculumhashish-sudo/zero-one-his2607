@@ -1,4 +1,4 @@
-package com.zeroone.star.project.dto.j2.dictionarytype;
+package com.zeroone.star.project.dto.j2.basedata.dictionarytypedto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

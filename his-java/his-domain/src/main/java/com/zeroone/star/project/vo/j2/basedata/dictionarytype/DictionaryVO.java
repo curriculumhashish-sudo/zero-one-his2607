@@ -1,4 +1,4 @@
-package com.zeroone.star.project.vo.j2.dictionarytype;
+package com.zeroone.star.project.vo.j2.basedata.dictionarytype;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
