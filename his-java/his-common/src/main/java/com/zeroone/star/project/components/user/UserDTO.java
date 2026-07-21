@@ -27,6 +27,10 @@ public class UserDTO {
      */
     private String username;
     /**
+     * 当前租户编号
+     */
+    private String tenantId;
+    /**
      * 是否启用
      */
     private Byte isEnabled;
