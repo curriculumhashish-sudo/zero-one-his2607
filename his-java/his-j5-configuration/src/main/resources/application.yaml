@@ -1,14 +1,29 @@
 server:
   port: 10501
+
 spring:
   application:
     name: his-j5-configuration
-  cloud:
-    nacos:
-      config:
-        server-addr: 192.168.100.133:8848
-        group: DEFAULT_GROUP
-        file-extension: yaml
-      discovery:
-        server-addr: 192.168.100.133:8848
-        group: DEFAULT_GROUP
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/example_db?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'default'
+      display-name: ${spring.application.name}
+      paths-to-match: '/**'
+      packages-to-scan: com.zeroone.star.configuration
+
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
