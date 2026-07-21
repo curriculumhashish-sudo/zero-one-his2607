@@ -34,8 +34,8 @@ public class DictionaryAddDTO {
     @Schema(description = "字典描述", example = "质量单位：毫克", requiredMode = Schema.RequiredMode.REQUIRED)
     private String definition;
 
-    @PositiveOrZero(message = "排序号必须为大于或等于0的整数")
-    @Schema(description = "排序号，数值越小越靠前；不传时由服务端排在末尾", example = "10",
+    @PositiveOrZero(message = "排序号必须为非负整数")
+    @Schema(description = "排序号，必须为非负整数，数值越小越靠前；不传时由服务端排在末尾", example = "10",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Long sortOrder;
 }
