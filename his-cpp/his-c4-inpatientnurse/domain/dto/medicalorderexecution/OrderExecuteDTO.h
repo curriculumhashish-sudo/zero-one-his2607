@@ -4,7 +4,7 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/*不执行医嘱DTO对象*/
+/*不执行医嘱请求数据DTO对象*/
 class OrderNotExecuteDTO : public oatpp::DTO
 {
 	DTO_INIT(OrderNotExecuteDTO, DTO);
@@ -29,7 +29,7 @@ class OrderNotExecuteDTO : public oatpp::DTO
 
 public:
 	// 数据校验
-	std::string validate()
+	std::string validate() const
 	{
 		if (!advice_id || advice_id->empty() || advice_id->size() > 64)
 			return "advice_id invalidate.";
@@ -45,9 +45,17 @@ public:
 
 		return "";
 	}
+
+	static std::string validate(const OrderNotExecuteDTO::Wrapper& dto)
+	{
+		if (!dto)
+			return "order not execute item is required.";
+
+		return dto->validate();
+	}
 };
 
-/*取消执行医嘱DTO中item对象*/
+/*取消执行医嘱请求DTO中item对象*/
 class CancelExecutionItemDTO : public oatpp::DTO 
 {
 	DTO_INIT(CancelExecutionItemDTO, DTO);
@@ -63,7 +71,7 @@ class CancelExecutionItemDTO : public oatpp::DTO
 	}
 };
 
-/*取消执行医嘱DTO对象*/
+/*取消执行医嘱DTO请求对象*/
 class CancelExecutionRequestDTO : public oatpp::DTO 
 {
 	DTO_INIT(CancelExecutionRequestDTO, DTO);
@@ -88,6 +96,7 @@ public:
 		if (!statusReasonText || statusReasonText->empty())
 			return "statusReasonText is required.";
 
+		/*内部字段都不能为空*/
 		for (auto& item : *items)
 		{
 			if (!item)

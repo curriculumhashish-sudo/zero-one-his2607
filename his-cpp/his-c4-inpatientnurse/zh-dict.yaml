@@ -7,7 +7,7 @@
       advice_type: 医嘱类型
       plan_time: 计划时间点
     failreason:
-      listnotvalid: 列表请求参数无效
+      listnotvalid: 列表请求参数无效或长度太长
       partparainvalid: 列表部分请求参数无效
   cancelexecute:
     summary: 取消执行医嘱
