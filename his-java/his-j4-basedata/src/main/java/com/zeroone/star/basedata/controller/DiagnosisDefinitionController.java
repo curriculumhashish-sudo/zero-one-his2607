@@ -1,6 +1,6 @@
 package com.zeroone.star.basedata.controller;
 
-import com.zeroone.star.basedata.entity.Diagnosis;
+import com.zeroone.star.basedata.entity.ClnConditionDefinitionDO;
 import com.zeroone.star.basedata.service.IClnConditionDefinitionService;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisDefinitionDTO;
@@ -39,7 +39,7 @@ public class DiagnosisDefinitionController implements DiagnosisApis {
     @Override
     public JsonVO<PageDTO<DiagnosisDefinitionVO>> queryDefinitions(@RequestBody DiagnosisDefinitionQuery query) {
         try {
-            com.baomidou.mybatisplus.extension.plugins.pagination.Page<Diagnosis> page
+            com.baomidou.mybatisplus.extension.plugins.pagination.Page<ClnConditionDefinitionDO> page
                     = definitionService.pageQuery(query);
             return JsonVO.success(PageDTO.create(page, DiagnosisDefinitionVO::new));
         } catch (Exception e) {
@@ -52,7 +52,7 @@ public class DiagnosisDefinitionController implements DiagnosisApis {
     @Override
     public JsonVO<DiagnosisDefinitionDetailVO> queryDefinitionDetail(@PathVariable String id) {
         try {
-            Diagnosis entity = definitionService.getById(id);
+            ClnConditionDefinitionDO entity = definitionService.getById(id);
             if (entity == null) {
                 return JsonVO.create(null, 404, "诊断定义不存在");
             }

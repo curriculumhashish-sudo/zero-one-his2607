@@ -18,7 +18,7 @@ import java.util.Date;
 @Getter
 @Setter
 @TableName("cus_frequency")
-public class Frequency implements Serializable {
+public class CusFrequencyDO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

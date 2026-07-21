@@ -1,7 +1,7 @@
 package com.zeroone.star.basedata.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zeroone.star.basedata.entity.Diagnosis;
+import com.zeroone.star.basedata.entity.ClnConditionDefinitionDO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisDefinitionDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.YbMappingDTO;
 import com.zeroone.star.project.query.j4.diagnosis.DiagnosisDefinitionQuery;
@@ -26,14 +26,14 @@ public interface IClnConditionDefinitionService {
      * @param query 查询条件
      * @return 分页结果
      */
-    Page<Diagnosis> pageQuery(DiagnosisDefinitionQuery query);
+    Page<ClnConditionDefinitionDO> pageQuery(DiagnosisDefinitionQuery query);
 
     /**
      * 根据 ID 查询诊断定义
      * @param id 主键
      * @return 诊断定义实体
      */
-    Diagnosis getById(String id);
+    ClnConditionDefinitionDO getById(String id);
 
     /**
      * 查询诊断定义的引用关系列表
