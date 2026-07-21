@@ -1,16 +1,14 @@
 package com.zeroone.star.project.vo.j2.basedata.bodypart;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.ToString;
 
 /**
  * 部位列表视图对象
  */
 @Schema(description = "部位列表视图对象")
-@Getter
-@Setter
+@Data
 @ToString
 public class BodyPartListVO {
 
@@ -26,12 +24,9 @@ public class BodyPartListVO {
     @Schema(description = "父级ID", example = "")
     private Long parentId;
 
-    @Schema(description = "上级部位名称", example = "顶级部位")
-    private String parentName;
-
-    @Schema(description = "排序号", example = "1")
-    private Integer sortOrder;
-
     @Schema(description = "状态（0-停用 1-启用）", example = "1")
     private Integer status;
+
+    @Schema(description = "是否有子节点（用于前端控制展开箭头显示）", example = "true")
+    private Boolean hasChildren;
 }
