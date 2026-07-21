@@ -29,3 +29,16 @@
     summary: "获取历史处方"
   detail:
     summary: "获取指定患者本次就诊中医处方单"
+medicalrecord:
+  tags:
+    tag: "病历管理"
+  field:
+    patientid1: "患者病历号"
+    keyword1: "搜索关键词"
+    recordid: "病历ID"
+    recordname: "病历名称"
+    status1: "状态"
+    createtime: "创建时间"
+    data: "分页数据"
+  query:
+    summary: "获取历史病历列表"

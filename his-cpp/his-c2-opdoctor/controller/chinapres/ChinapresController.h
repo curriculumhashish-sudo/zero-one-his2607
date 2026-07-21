@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef _CHINAPRESCONTROLLER_
 #define _CHINAPRESCONTROLLER_
@@ -18,7 +18,7 @@ public:
 
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("chinapres.query.summary"), queryChinapres, ChinapresQuery, ChinapresPageJsonVO::Wrapper, API_TAG);
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("chinapres.detail.summary"), queryChinapresdetails, ChinapresDetailQuery, ChinapresDetailJsonVO::Wrapper, API_TAG);
-	//��Ӧ
+	//响应
 	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/chinapres", queryChinapres, ChinapresQuery, executeQueryChinapres(query));
 	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/chinapres-datail", queryChinapresdetails, ChinapresDetailQuery, executeQueryChinapresDetail(query));
 private:
