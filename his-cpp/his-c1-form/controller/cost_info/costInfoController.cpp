@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "CostInfoController.h"
+#include "costInfoController.h"
 
 CostInfoJsonVO::Wrapper CostInfoController::execQuery(const CostInfoQuery::Wrapper& query)
 {
