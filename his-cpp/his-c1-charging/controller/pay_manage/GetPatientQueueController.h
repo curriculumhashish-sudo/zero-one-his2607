@@ -7,14 +7,14 @@
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-#define API_TAG ZH_WORDS_GETTER("byj.charging.pay_manage.tag1")
+#define API_TAG ZH_WORDS_GETTER("charging.pay_manage.GetPatientQueue.summary")
 
 class GetPatientQueueController :public oatpp::web::server::api::ApiController
 {
 	API_ACCESS_DECLARE(GetPatientQueueController);
 public:
 	ENDPOINT_INFO(queryGetPatientQueue) {
-		API_DEF_ADD_TITLE(ZH_WORDS_GETTER("byj.charging.pay_manage.summary1"));
+		API_DEF_ADD_TITLE(ZH_WORDS_GETTER("charging.pay_manage.GetPatientQueue.summary"));
 		API_DEF_ADD_AUTH();
 		API_DEF_ADD_RSP_JSON_WRAPPER(GetPatientQueuePageJsonVO);
 		API_DEF_ADD_TAG(API_TAG);

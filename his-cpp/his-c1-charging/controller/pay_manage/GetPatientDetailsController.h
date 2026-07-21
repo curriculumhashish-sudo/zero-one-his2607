@@ -6,7 +6,7 @@
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-#define API_TAG ZH_WORDS_GETTER("byj.charging.pay_manage.tag2")
+#define API_TAG ZH_WORDS_GETTER("charging.pay_manage.GetPatientDetails.summary")
 
 class GetPatientDetailsController : public oatpp::web::server::api::ApiController
 {
@@ -14,7 +14,7 @@ class GetPatientDetailsController : public oatpp::web::server::api::ApiControlle
 public:
     
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(
-        ZH_WORDS_GETTER("byj.charging.pay_manage.summary2"),
+        ZH_WORDS_GETTER("charging.pay_manage.GetPatientDetails.summary"),
         getPatientDetails,
         GetPatientDetailsQuery,
         GetPatientDetailsVO::Wrapper,

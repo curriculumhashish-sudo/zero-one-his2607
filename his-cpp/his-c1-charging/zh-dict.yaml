@@ -1,12 +1,15 @@
+charging:
+ pay_manage:
+  tag: 收费工作站-预交金管理
+  GetPatientQueue:
+   summary: 获取患者队列（条件+分页）
+  GetPatientDetails:
+   summary: 获取患者详细信息
+  GetPatientPayRecords:
+   summary: 获取患者预交金流水（条件+分页）
 byj:
  charging:
   pay_manage:
-   tag1: 获取患者队列（条件+分页）
-   tag2: 获取患者详细信息
-   tag3: 获取患者预交金流水（条件+分页）
-   summary1: 获取患者队列（条件+分页）
-   summary2: 获取患者详细信息
-   summary3: 获取患者预交金流水（条件+分页）
    hospitalized_number: 住院号
    name: 姓名
    bed_number: 床号
