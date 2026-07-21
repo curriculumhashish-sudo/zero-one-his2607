@@ -1,22 +1,16 @@
-#include<iostream>
-#include"Mapper.h"
-//class WardDO : public BaseDO
-//    id : string
-//    name : string
-//
-//    constructor :
-//table = adm_location
-//id 对应数据库 id
-//name 对应数据库 name
-class WardMapper : public Mapper<WardDO>
+
+#pragma once
+#include "../DoInclude.h"
+class WardDO : public BaseDO
 {
+    MYSQL_SYNTHESIZE(std::string , id , Id );
+    MYSQL_SYNTHESIZE(std::string , name ,Name);
+
 public:
-    WardDO mapper(ResultSet* resultSet) const override
+    WardDO() : BaseDO("adm_location")
     {
-        WardDO data;
-        data.setId(resultSet->getString("id"));
-        data.setName(resultSet->getString("name"));
-        return data;
+        MYSQL_ADD_FIELD_PK("id", "s", id );
+        MYSQL_ADD_FIELD("name", "s", name );
     }
 };
-
+typedef std::shared_ptr<WardDO> PtrWardDO;
