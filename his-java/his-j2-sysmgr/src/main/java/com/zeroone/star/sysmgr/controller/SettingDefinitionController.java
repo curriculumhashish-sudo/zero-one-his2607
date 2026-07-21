@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Tag(name = "配置管理")
 public class SettingDefinitionController implements SettingDefinitionApis {
-    @Operation(summary = "查询所有配置")
+    @Operation(summary = "获取配置列表",description = "支持通过关键字进行模糊筛选")
     @GetMapping("query")
     @Override
     public JsonVO<PageDTO<SettingDefinitionDTO>> queryAll(SettingDefinitionQuery query){
