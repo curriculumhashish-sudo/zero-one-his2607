@@ -1,0 +1,15 @@
+medicalOrderVerification:
+field:
+  name: 姓名
+  isPassed: 医嘱校对情况
+  medicalType: 用药类型
+  medicalPeriod: 用药周期
+  type: 类型
+  content: 内容
+tags:
+  tag: 医嘱校对
+query:
+  summary: 医嘱查询
+
+
+
