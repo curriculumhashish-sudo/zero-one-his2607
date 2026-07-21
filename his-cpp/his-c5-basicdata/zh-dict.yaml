@@ -1,0 +1,16 @@
+﻿pat:
+  tag: 患者管理接口
+  page:
+    success: 患者分页查询接口访问成功，业务数据待Service对接
+    summary: 分页查询患者列表
+    query:
+      field:
+        name: 患者姓名(模糊查询)
+        idCard: 患者证件号码
+    dto:
+      field:
+        id: 患者主键ID
+        name: 患者姓名
+        idCard: 身份证号
+        gender: 性别 1男 2女
+        age: 年龄
