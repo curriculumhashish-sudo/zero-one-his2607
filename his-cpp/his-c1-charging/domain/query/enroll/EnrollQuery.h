@@ -24,15 +24,15 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class InpatientRegistrationQuery : public PageQuery
+class EnrollQuery : public PageQuery
 {
-	DTO_INIT(InpatientRegistrationQuery, PageQuery);
+	DTO_INIT(EnrollQuery, PageQuery);
 
 	// Patient name or inpatient number.
 	DTO_FIELD(String, keyword);
 	DTO_FIELD_INFO(keyword)
 	{
-		info->description = ZH_WORDS_GETTER("QQQQ.charging.hospitalization_registration.field.keyword");
+		info->description = ZH_WORDS_GETTER("QQQQ.field.keyword");
 		info->required = false;
 	}
 
@@ -40,7 +40,7 @@ class InpatientRegistrationQuery : public PageQuery
 	DTO_FIELD(String, idCard);
 	DTO_FIELD_INFO(idCard)
 	{
-		info->description = ZH_WORDS_GETTER("QQQQ.charging.hospitalization_registration.field.id_card");
+		info->description = ZH_WORDS_GETTER("QQQQ.field.id_card");
 		info->required = false;
 	}
 
@@ -48,7 +48,7 @@ class InpatientRegistrationQuery : public PageQuery
 	DTO_FIELD(String, registrationListStatuses);
 	DTO_FIELD_INFO(registrationListStatuses)
 	{
-		info->description = ZH_WORDS_GETTER("QQQQ.charging.hospitalization_registration.field.statuses");
+		info->description = ZH_WORDS_GETTER("QQQQ.field.statuses");
 		info->required = false;
 	}
 };

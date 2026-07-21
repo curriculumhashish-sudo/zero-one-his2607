@@ -18,14 +18,14 @@
 */
 
 #include "stdafx.h"
-#include "InpatientRegistrationController.h"
+#include "EnrollController.h"
 
-InpatientRegistrationPageJsonVO::Wrapper InpatientRegistrationController::execQueryAll(
-	const InpatientRegistrationQuery::Wrapper& query
+EnrollPageJsonVO::Wrapper EnrollController::execQueryAll(
+	const EnrollQuery::Wrapper& query
 )
 {
 	// Build a sample list item for API documentation.
-	auto item = InpatientRegistrationListDTO::createShared();
+	auto item = EnrollListDTO::createShared();
 	item->encounterId = "demo-encounter-001";
 	item->encounterBusNo = "ZY202607190001";
 	item->patientName = "Zhang San";
@@ -37,10 +37,10 @@ InpatientRegistrationPageJsonVO::Wrapper InpatientRegistrationController::execQu
 	item->startTime = "2026-07-19 08:00:00";
 
 	// Build paginated sample data.
-	auto rows = oatpp::List<InpatientRegistrationListDTO::Wrapper>::createShared();
+	auto rows = oatpp::List<EnrollListDTO::Wrapper>::createShared();
 	rows->push_back(item);
 
-	auto page = InpatientRegistrationPageDTO::createShared();
+	auto page = EnrollPageDTO::createShared();
 	page->pageIndex = query->pageIndex;
 	page->pageSize = query->pageSize;
 	page->total = 1;
@@ -48,17 +48,17 @@ InpatientRegistrationPageJsonVO::Wrapper InpatientRegistrationController::execQu
 	page->calcPages();
 
 	// Build the unified JSON response.
-	auto result = InpatientRegistrationPageJsonVO::createShared();
+	auto result = EnrollPageJsonVO::createShared();
 	result->success(page);
 	return result;
 }
 
-InpatientRegistrationDetailJsonVO::Wrapper InpatientRegistrationController::execQueryById(
+EnrollDetailJsonVO::Wrapper EnrollController::execQueryById(
 	const String& encounterId
 )
 {
 	// Build the unified JSON response.
-	auto result = InpatientRegistrationDetailJsonVO::createShared();
+	auto result = EnrollDetailJsonVO::createShared();
 
 	// Reject an empty registration record ID.
 	if (!encounterId)
@@ -68,7 +68,7 @@ InpatientRegistrationDetailJsonVO::Wrapper InpatientRegistrationController::exec
 	}
 
 	// Build sample detail data for API documentation.
-	auto detail = InpatientRegistrationDetailDTO::createShared();
+	auto detail = EnrollDetailDTO::createShared();
 	detail->encounterId = encounterId;
 	detail->encounterBusNo = "ZY202607190001";
 	detail->patientName = "Zhang San";
