@@ -66,6 +66,30 @@ class MedicationCatalogDetailVO : public MedicationCatalogBaseDTO
 public:
 	MedicationCatalogDetailVO()
 	{
+		id = "10001";
+		name = ZH_WORDS_GETTER("medication.example.name");
+		categoryCode = "FL001";
+		merchandiseName = ZH_WORDS_GETTER("medication.example.merchandiseName");
+		purchaseUnitCode = "DW001";
+		splitUnitCode = "DW002";
+		pharmacologyCategoryCode = "YL001";
+		manufacturerText = ZH_WORDS_GETTER("medication.example.manufacturerText");
+		supplyId = "60001";
+		partAttributeEnum = "1";
+		thoPartAttributeEnum = "1";
+		typeCode = "CW001";
+		totalVolume = "5ml:0.5g";
+		doseFormCode = "JX001";
+		doseUnitCode = "DW001";
+		packageUnitCode = "DW003";
+		stockUnitCode = "DW004";
+		doseUnitRatio = 10.0;
+		purchaseUnitRatio = 10.0;
+		stockUnitRatio = 10.0;
+		packageUnitRatio = 10.0;
+		purchasePrice = 10.5;
+		retailPrice = 15.8;
+		specification = totalVolume;
 		unitBands->push_back(MedicationCatalogUnitBandVO::createShared());
 	}
 };
