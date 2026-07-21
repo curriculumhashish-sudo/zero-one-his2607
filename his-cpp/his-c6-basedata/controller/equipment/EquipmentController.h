@@ -37,7 +37,7 @@ public: // 定义接口
 	// 3.1 定义批量删除器材接口描述
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("equipment.delete.summary"), deleteEquipment, StringJsonVO::Wrapper, API_TAG);
 	// 3.2 定义批量删除器材接口描述
-	API_HANDLER_ENDPOINT_AUTH(API_M_DELETE, "/equipment/delete", deleteEquipment, BODY_DTO(EquipmentDeleteDTO::Wrapper, dto), execDeleteEquipment(dto, authObject->getPayload()));
+	API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/equipment/delete", deleteEquipment, BODY_DTO(EquipmentDeleteDTO::Wrapper, dto), execDeleteEquipment(dto, authObject->getPayload()));
 
 	// 3.1 定义批量启停用器材接口描述
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("equipment.status.summary"), changeEquipmentStatus, StringJsonVO::Wrapper, API_TAG);
