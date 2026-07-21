@@ -1,4 +1,16 @@
-﻿{
+{
+  "environments": [
+    {
+      "environment": "local_msvc_x64_x64",
+      "VisualStudio_VCToolsVersion": "14.44.35207",
+      "WindowsSDK_Version": "10.0.26100.0",
+      "VSInstallDir": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community",
+      "INCLUDE": "${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\include;${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\atlmfc\\include;C:\\Program Files (x86)\\Windows Kits\\10\\Include\\${env.WindowsSDK_Version}\\ucrt;C:\\Program Files (x86)\\Windows Kits\\10\\Include\\${env.WindowsSDK_Version}\\shared;C:\\Program Files (x86)\\Windows Kits\\10\\Include\\${env.WindowsSDK_Version}\\um;C:\\Program Files (x86)\\Windows Kits\\10\\Include\\${env.WindowsSDK_Version}\\winrt;C:\\Program Files (x86)\\Windows Kits\\10\\Include\\${env.WindowsSDK_Version}\\cppwinrt",
+      "LIB": "${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\lib\\x64;${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\atlmfc\\lib\\x64;C:\\Program Files (x86)\\Windows Kits\\10\\Lib\\${env.WindowsSDK_Version}\\ucrt\\x64;C:\\Program Files (x86)\\Windows Kits\\10\\Lib\\${env.WindowsSDK_Version}\\um\\x64",
+      "LIBPATH": "${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\lib\\x64",
+      "PATH": "${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\bin\\Hostx64\\x64;C:\\Program Files (x86)\\Windows Kits\\10\\bin\\${env.WindowsSDK_Version}\\x64;${env.VSInstallDir}\\Common7\\IDE;${env.PATH}"
+    }
+  ],
   "configurations": [
     {
       "name": "x64-Debug",
@@ -6,10 +18,10 @@
       "configurationType": "Debug",
       "buildRoot": "${projectDir}\\out\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
-      "cmakeCommandArgs": "-DUNIT_TEST=1",
+      "cmakeCommandArgs": "-DUNIT_TEST=1 -DCMAKE_C_COMPILER=\"${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\bin\\Hostx64\\x64\\cl.exe\" -DCMAKE_CXX_COMPILER=\"${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\bin\\Hostx64\\x64\\cl.exe\"",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [ "msvc_x64_x64" ]
+      "inheritEnvironments": [ "local_msvc_x64_x64" ]
     },
     {
       "name": "x64-Release",
@@ -19,8 +31,8 @@
       "installRoot": "${projectDir}\\out\\install\\${name}",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [ "msvc_x64_x64" ],
-      "cmakeCommandArgs": "-D_RELEASE_DOC_=1"
+      "inheritEnvironments": [ "local_msvc_x64_x64" ],
+      "cmakeCommandArgs": "-D_RELEASE_DOC_=1 -DCMAKE_C_COMPILER=\"${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\bin\\Hostx64\\x64\\cl.exe\" -DCMAKE_CXX_COMPILER=\"${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\bin\\Hostx64\\x64\\cl.exe\""
     },
     {
       "name": "Linux-GCC-Debug",

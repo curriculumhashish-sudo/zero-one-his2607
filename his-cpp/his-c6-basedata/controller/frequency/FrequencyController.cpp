@@ -38,7 +38,7 @@ namespace
 		row->executionPeriodUnit = nullptr;
 		row->dayInterval = nullptr;
 		row->totalExecutionCount = nullptr;
-		row->applicableScenes = u8"全部";
+		row->applicableScenes = u8"\u5168\u90e8";
 		row->allowCrossDay = allowCrossDay;
 		row->sortNo = sortNo;
 		return row;
@@ -47,16 +47,15 @@ namespace
 
 FrequencyPageJsonVO::Wrapper FrequencyController::execQueryAll(const FrequencyQuery::Wrapper& query)
 {
-	// This stage only defines the domain model and Swagger contract; no Service/DAO call yet.
-	// The example rows below mirror the first entries of the "Frequency Management" list page.
+	// Return sample rows until the Service and DAO layers are implemented.
 	auto pageDto = FrequencyPageDTO::createShared();
-	pageDto->addData(buildSampleFrequencyRow("1", "QD", u8"每日一次", "daily", "08:00", "same-day", 10));
-	pageDto->addData(buildSampleFrequencyRow("2", "BID", u8"每日两次", "daily", "08:00,18:00", "same-day", 20));
+	pageDto->addData(buildSampleFrequencyRow("1", "QD", u8"\u6bcf\u65e5\u4e00\u6b21", "daily", "08:00", "same-day", 10));
+	pageDto->addData(buildSampleFrequencyRow("2", "BID", u8"\u6bcf\u65e5\u4e24\u6b21", "daily", "08:00,18:00", "same-day", 20));
 
 	auto oneWithInterval = FrequencyDTO::createShared();
 	oneWithInterval->id = "10";
 	oneWithInterval->code = "QOD";
-	oneWithInterval->name = u8"隔日一次";
+	oneWithInterval->name = u8"\u9694\u65e5\u4e00\u6b21";
 	oneWithInterval->status = 1;
 	oneWithInterval->cycleType = "daily";
 	oneWithInterval->dayTimes = "08:00";
@@ -65,7 +64,7 @@ FrequencyPageJsonVO::Wrapper FrequencyController::execQueryAll(const FrequencyQu
 	oneWithInterval->executionPeriodUnit = nullptr;
 	oneWithInterval->dayInterval = 2;
 	oneWithInterval->totalExecutionCount = nullptr;
-	oneWithInterval->applicableScenes = u8"全部";
+	oneWithInterval->applicableScenes = u8"\u5168\u90e8";
 	oneWithInterval->allowCrossDay = "same-day";
 	oneWithInterval->sortNo = 100;
 	pageDto->addData(oneWithInterval);
@@ -73,16 +72,16 @@ FrequencyPageJsonVO::Wrapper FrequencyController::execQueryAll(const FrequencyQu
 	auto q12h = FrequencyDTO::createShared();
 	q12h->id = "14";
 	q12h->code = "Q12H";
-	q12h->name = u8"每12小时一次";
+	q12h->name = u8"\u6bcf12\u5c0f\u65f6\u4e00\u6b21";
 	q12h->status = 1;
 	q12h->cycleType = "interval";
 	q12h->dayTimes = nullptr;
 	q12h->dayCount = nullptr;
 	q12h->executionPeriod = 12;
-	q12h->executionPeriodUnit = u8"小时";
+	q12h->executionPeriodUnit = u8"\u5c0f\u65f6";
 	q12h->dayInterval = nullptr;
 	q12h->totalExecutionCount = nullptr;
-	q12h->applicableScenes = u8"全部";
+	q12h->applicableScenes = u8"\u5168\u90e8";
 	q12h->allowCrossDay = "cross-day";
 	q12h->sortNo = 140;
 	pageDto->addData(q12h);
@@ -99,45 +98,44 @@ FrequencyPageJsonVO::Wrapper FrequencyController::execQueryAll(const FrequencyQu
 
 FrequencyDetailJsonVO::Wrapper FrequencyController::execQueryOne(const String& id)
 {
-	// Return sample detail based on id. In real implementation this would call Service/DAO.
 	FrequencyDTO::Wrapper dto;
 	if (id == "1") {
-		dto = buildSampleFrequencyRow("1", "QD", u8"每日一次", "daily", "08:00", "same-day", 10);
+		dto = buildSampleFrequencyRow("1", "QD", u8"\u6bcf\u65e5\u4e00\u6b21", "daily", "08:00", "same-day", 10);
 	} else if (id == "2") {
-		dto = buildSampleFrequencyRow("2", "BID", u8"每日两次", "daily", "08:00,18:00", "same-day", 20);
+		dto = buildSampleFrequencyRow("2", "BID", u8"\u6bcf\u65e5\u4e24\u6b21", "daily", "08:00,18:00", "same-day", 20);
 	} else if (id == "10") {
 		dto = FrequencyDTO::createShared();
 		dto->id = "10";
 		dto->code = "QOD";
-		dto->name = u8"隔日一次";
+		dto->name = u8"\u9694\u65e5\u4e00\u6b21";
 		dto->status = 1;
 		dto->cycleType = "daily";
 		dto->dayTimes = "08:00";
 		dto->dayInterval = 2;
-		dto->applicableScenes = u8"全部";
+		dto->applicableScenes = u8"\u5168\u90e8";
 		dto->allowCrossDay = "same-day";
 		dto->sortNo = 100;
 	} else if (id == "14") {
 		dto = FrequencyDTO::createShared();
 		dto->id = "14";
 		dto->code = "Q12H";
-		dto->name = u8"每12小时一次";
+		dto->name = u8"\u6bcf12\u5c0f\u65f6\u4e00\u6b21";
 		dto->status = 1;
 		dto->cycleType = "interval";
 		dto->executionPeriod = 12;
-		dto->executionPeriodUnit = u8"小时";
-		dto->applicableScenes = u8"全部";
+		dto->executionPeriodUnit = u8"\u5c0f\u65f6";
+		dto->applicableScenes = u8"\u5168\u90e8";
 		dto->allowCrossDay = "cross-day";
 		dto->sortNo = 140;
 	} else {
 		dto = FrequencyDTO::createShared();
 		dto->id = id;
 		dto->code = "CUSTOM";
-		dto->name = u8"示例频次";
+		dto->name = u8"\u793a\u4f8b\u9891\u6b21";
 		dto->status = 1;
 		dto->cycleType = "daily";
 		dto->dayTimes = "08:00";
-		dto->applicableScenes = u8"全部";
+		dto->applicableScenes = u8"\u5168\u90e8";
 		dto->allowCrossDay = "same-day";
 		dto->sortNo = 999;
 	}

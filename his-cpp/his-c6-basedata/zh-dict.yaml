@@ -1,0 +1,65 @@
+frequency:
+ tags:
+  tag: Frequency Management
+ query-all:
+  summary: Query frequency list
+ query-one:
+  summary: Query frequency details
+ field:
+  id: Frequency ID
+  code: Frequency code
+  name: Frequency name
+  status: Status
+  cycle-type: Cycle type
+  day-times: Daily execution times
+  day-count: Day count
+  execution-period: Execution period
+  execution-period-unit: Execution period unit
+  day-interval: Day interval
+  total-execution-count: Total execution count
+  applicable-scenes: Applicable scenes
+  allow-cross-day: Allow cross-day execution
+  sort-no: Sort number
+  keywords: Search keywords
+treatment:
+ tags:
+  tag: Treatment Management
+ query-one:
+  summary: Query treatment details
+ query-select:
+  summary: Query selectable treatments
+ query-all:
+  summary: Query treatment list
+ add:
+  summary: Add treatment
+ modify:
+  summary: Modify treatment
+ modify-status:
+  summary: Modify treatment status
+ field:
+  id: Treatment ID
+  ids: Treatment IDs
+  code: Treatment code
+  name: Treatment name
+  status: Status
+  category-code: Category code
+  type-enum: Treatment type
+  package-unit-code: Package unit code
+  py-str: Pinyin abbreviation
+  wb-str: Wubi abbreviation
+  item-type-code: Item type code
+  purchase-price: Purchase price
+  retail-price: Retail price
+  maximum-retail-price: Maximum retail price
+  description-text: Description
+  yb-flag: Insurance flag
+  yb-no: Insurance number
+  yb-type: Insurance type
+  yb-match-flag: Insurance match flag
+  chrgitm-lv: Charge item level
+  children: Child items
+  child-id: Child item ID
+  children-id: Child item ID
+  children-name: Child item name
+  children-num: Child item quantity
+  keywords: Search keywords
