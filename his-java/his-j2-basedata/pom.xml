@@ -64,6 +64,10 @@
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.zeroone.star</groupId>
+            <artifactId>his-domain</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -79,11 +83,11 @@
                 <artifactId>mp-code-generator-plugin</artifactId>
                 <configuration>
                     <dbConfig>
-                        <host>127.0.0.1</host>
+                        <host>192.168.220.128</host>
                         <port>3306</port>
-                        <dbname>his_basedata</dbname>
+                        <dbname>test</dbname>
                         <username>root</username>
-                        <password>root</password>
+                        <password>123456</password>
                     </dbConfig>
                     <outDir>${project.basedir}/src/main/java</outDir>
                 </configuration>
@@ -113,7 +117,7 @@
                                 <namingStrategy>alias</namingStrategy>
                                 <!-- 端口映射 -->
                                 <ports>
-                                    <port>20000:20000</port>
+                                    <port>10202:10202</port>
                                 </ports>
                                 <!-- 数据卷 -->
                                 <volumes>

@@ -1,15 +1,21 @@
 package com.zeroone.star.basedata.controller;
 
-import com.zeroone.star.project.controller.IBodyPartController;
-import com.zeroone.star.project.dto.BodyPartAddDTO;
-import com.zeroone.star.project.query.BodyPartPageQuery;
-import com.zeroone.star.project.vo.BodyPartListVO;
-import com.zeroone.star.project.vo.BodyPartTreeVO;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+import com.zeroone.star.project.dto.j2.basedata.bodypartdto.BodyPartAddDTO;
+import com.zeroone.star.project.j2.basedata.qingzhou.IBodyPartApis;
+
+import com.zeroone.star.project.query.j2.basedata.BodyPartPageQuery;
+
+import com.zeroone.star.project.vo.j2.basedata.BodyPartListVO;
+import com.zeroone.star.project.vo.j2.basedata.BodyPartTreeVO;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,8 +26,7 @@ import java.util.List;
 @RequestMapping("/basedata/body-part")
 @Tag(name = "部位管理")
 @RequiredArgsConstructor
-public class BodyPartController implements IBodyPartController {
-
+public class BodyPartController implements IBodyPartApis {
     @Override
     public List<BodyPartTreeVO> getTree() {
         // TODO 后续实现从数据库获取部位树
