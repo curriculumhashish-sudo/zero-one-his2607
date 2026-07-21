@@ -55,7 +55,7 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import type { TreeInstance, TreeNodeData } from 'element-plus'
 import SidePanelShell from './SidePanelShell.vue'
-import type { CommonComponentKey, SideNavigatorNode } from './type'
+import type { CommonComponentKey, SideNavigatorNode } from './type.ts'
 
 interface SideNavigatorProps {
   modelValue?: CommonComponentKey | null
