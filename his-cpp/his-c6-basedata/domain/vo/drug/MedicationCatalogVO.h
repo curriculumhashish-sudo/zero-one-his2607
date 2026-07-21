@@ -38,10 +38,11 @@ class MedicationCatalogUnitBandVO : public oatpp::DTO
 	API_DTO_FIELD(Float64, unitPrice, ZH_WORDS_GETTER("medication.field.unitPrice"), true, 15.8);
 };
 
-class MedicationCatalogDetailVO : public MedicationCatalogModifyDTO
+class MedicationCatalogDetailVO : public MedicationCatalogBaseDTO
 {
-	DTO_INIT(MedicationCatalogDetailVO, MedicationCatalogModifyDTO);
+	DTO_INIT(MedicationCatalogDetailVO, MedicationCatalogBaseDTO);
 
+	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("medication.field.id"), true);
 	API_DTO_FIELD(String, specification, ZH_WORDS_GETTER("medication.field.specification"), true, "5ml:0.5g");
 	API_DTO_FIELD(String, activeFlagText, ZH_WORDS_GETTER("medication.field.activeFlagText"), true,
 		ZH_WORDS_GETTER("medication.example.statusEnabled"));
@@ -58,13 +59,9 @@ class MedicationCatalogDetailVO : public MedicationCatalogModifyDTO
 		ZH_WORDS_GETTER("medication.field.supplyIdText"), true,
 		ZH_WORDS_GETTER("medication.example.supplierText"));
 	API_DTO_FIELD(Boolean, potencyFlag, ZH_WORDS_GETTER("medication.field.potencyFlag"), false, false);
-	DTO_FIELD(List<MedicationCatalogUnitBandVO::Wrapper>, unitBands) =
-		List<MedicationCatalogUnitBandVO::Wrapper>::createShared();
-	DTO_FIELD_INFO(unitBands)
-	{
-		info->description = ZH_WORDS_GETTER("medication.field.unitBands");
-		info->required = true;
-	}
+	API_DTO_FIELD(List<MedicationCatalogUnitBandVO::Wrapper>, unitBands,
+		ZH_WORDS_GETTER("medication.field.unitBands"), true,
+		List<MedicationCatalogUnitBandVO::Wrapper>::createShared());
 
 public:
 	MedicationCatalogDetailVO()

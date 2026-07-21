@@ -49,7 +49,6 @@ public:
 		const oatpp::String& description, const T& example)
 	{
 		info->body.description = description;
-		info->body.required = true;
 		info->body.addExample("default", example);
 	}
 
@@ -140,7 +139,7 @@ class MedicationCatalogController : public oatpp::web::server::api::ApiControlle
 	);
 	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_PATH "/editMedicationCatalog",
 		medicationCatalog_editMedicationCatalog,
-		BODY_DTO(MedicationCatalogModifyDTO::Wrapper, dto), execEditMedicationCatalog(dto));
+		BODY_DTO(MedicationCatalogModifyDTO::Wrapper, dto), execModifyMedicationCatalog(dto));
 
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.delete.summary"), medicationCatalog_deleteMedicationCatalog,
 		NoDataJsonVO::Wrapper, API_TAG,
@@ -150,7 +149,7 @@ class MedicationCatalogController : public oatpp::web::server::api::ApiControlle
 	);
 	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_PATH "/deleteMedicationCatalog",
 		medicationCatalog_deleteMedicationCatalog,
-		BODY_DTO(List<String>, ids), execDeleteMedicationCatalog(ids));
+		BODY_DTO(List<String>, ids), execRemoveMedicationCatalog(ids));
 
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.start.summary"), medicationCatalog_startMedicationCatalog,
 		NoDataJsonVO::Wrapper, API_TAG,
@@ -173,8 +172,8 @@ class MedicationCatalogController : public oatpp::web::server::api::ApiControlle
 		BODY_DTO(List<String>, ids), execStopMedicationCatalog(ids));
 
 private:
-	MedicationCatalogDetailJsonVO::Wrapper execEditMedicationCatalog(const MedicationCatalogModifyDTO::Wrapper& dto);
-	NoDataJsonVO::Wrapper execDeleteMedicationCatalog(const List<String>& ids);
+	MedicationCatalogDetailJsonVO::Wrapper execModifyMedicationCatalog(const MedicationCatalogModifyDTO::Wrapper& dto);
+	NoDataJsonVO::Wrapper execRemoveMedicationCatalog(const List<String>& ids);
 	NoDataJsonVO::Wrapper execStartMedicationCatalog(const List<String>& ids);
 	NoDataJsonVO::Wrapper execStopMedicationCatalog(const List<String>& ids);
 };
