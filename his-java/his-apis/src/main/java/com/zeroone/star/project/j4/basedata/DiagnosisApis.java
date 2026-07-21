@@ -1,9 +1,13 @@
 package com.zeroone.star.project.j4.basedata;
 
-import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisStatusDTO;
-import com.zeroone.star.project.dto.j4.diagnosis.MedicalInsuranceMatchDTO;
+import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.query.j4.diagnosis.DiagnosisPageQuery;
+import com.zeroone.star.project.query.j4.diagnosis.DiagnosisSelectPageQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j4.diagnosis.MedicalInsuranceMatchVO;
+import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisDetailVO;
+import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisListVO;
+import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisOptionVO;
+import io.swagger.v3.oas.annotations.Operation;
 
 /**
  * <p>
@@ -17,26 +21,27 @@ import com.zeroone.star.project.vo.j4.diagnosis.MedicalInsuranceMatchVO;
 public interface DiagnosisApis {
 
     /**
-     * 批量启用诊断。
+     * 获取可选择诊断列表（条件+分页）。
      *
-     * @param dto 诊断主键集合
-     * @return 操作结果
+     * @param query 查询条件
+     * @return 可选择诊断分页数据
      */
-    JsonVO<Void> modifyDiagnosisEnable(DiagnosisStatusDTO dto);
+    JsonVO<PageDTO<DiagnosisOptionVO>> queryDiagnosisSelectList(DiagnosisSelectPageQuery query);
 
     /**
-     * 批量停用诊断。
+     * 获取诊断管理列表（条件+分页）。
      *
-     * @param dto 诊断主键集合
-     * @return 操作结果
+     * @param query 查询条件
+     * @return 诊断管理分页数据
      */
-    JsonVO<Void> modifyDiagnosisDisable(DiagnosisStatusDTO dto);
+    JsonVO<PageDTO<DiagnosisListVO>> queryDiagnosisList(DiagnosisPageQuery query);
 
     /**
-     * 更新诊断医保对照信息。
+     * 获取诊断详情。
      *
-     * @param dto 医保对照信息
-     * @return 更新后的医保对照信息
+     * @param id 诊断ID
+     * @return 诊断详情
      */
-    JsonVO<MedicalInsuranceMatchVO> updateMedicalInsurance(MedicalInsuranceMatchDTO dto);
+    JsonVO<DiagnosisDetailVO> queryDiagnosisDetail(String id);
+
 }
