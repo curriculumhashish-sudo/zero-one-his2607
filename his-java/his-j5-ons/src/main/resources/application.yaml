@@ -6,18 +6,15 @@ spring:
   cloud:
     nacos:
       config:
-        enabled: false
+        server-addr: localhost:8080
+        namespace: his-dev
+        username: nacos
+        password: nacos
+        group: DEFAULT_GROUP
+        file-extension: yaml
       discovery:
-        enabled: false
-
-springdoc:
-  swagger-ui:
-    path: /swagger-ui.html
-    tags-sorter: alpha
-  api-docs:
-    path: /v3/api-docs
-  group-configs:
-    - group: 'default'
-      display-name: ${spring.application.name}
-      paths-to-match: '/**'
-      packages-to-scan: com.zeroone.star.ons
+        server-addr: localhost:8080
+        namespace: his-dev
+        username: nacos
+        password: nacos
+        group: DEFAULT_GROUP
