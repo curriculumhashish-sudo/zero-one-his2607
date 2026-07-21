@@ -20,6 +20,7 @@ add_library (lib-oatpp STATIC ${SC_FILES})
 
 # 静态库输出名修改
 set_target_properties (lib-oatpp PROPERTIES OUTPUT_NAME oatpp-http)
+
 # 防止同名库被删除
 set_target_properties (lib-oatpp PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 
