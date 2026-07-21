@@ -1,23 +1,4 @@
-﻿frequency:
-  tags:
-    tag: 频次管理
-
-  getname:
-    summary: 获取频次下拉列表
-  query:
-    summary: 分页查询频次信息
-  add:
-    summary: 新增频次
-  modify:
-    summary: 修改频次
-  remove:
-    summary: 删除频次
-  detail:
-    summary: 获取频次详情
-  field:
-    id: 频次编号
-    name: 频次名称
-equipment:
+﻿equipment:
   tags:
     tag: 器材管理
   query:
