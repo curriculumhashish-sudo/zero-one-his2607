@@ -19,6 +19,7 @@
 #include "stdafx.h"
 #include "Router.h"
 #include "ApiHelper.h"
+#include "organization/OrganizationController.h"
 #include "sup/SupplierController.h"
 
 #include "sup/SupplierAddUpdateController.h"
@@ -43,6 +44,8 @@ Router::Router(Endpoints* docEndpoints, HttpRouter* router)
 void Router::initRouter()
 {
 	// #TIP: Add system extension route definitions below
+	ROUTER_SIMPLE_BIND(OrganizationController);
+	
 	ROUTER_SIMPLE_BIND(SupplierAddUpdateController);
 	// Supplier management routes
 	ROUTER_SIMPLE_BIND(SupplierController);
