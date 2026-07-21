@@ -46,36 +46,40 @@ public interface DiagnosisApis {
      */
      JsonVO<DiagnosisDetailVO> queryDiagnosisDetail(String id);
 
-     /**
-     * 新增诊断。
-     *
-     * @param dto 诊断定义数据
-     * @return 新增记录ID
+    /**
+     * 新增诊断
+     * @param dto 诊断定义数据（编码和拼音/五笔码由后端自动生成）
+     * @return 新增记录的 ID
      */
-    JsonVO<String> addDefinition(DiagnosisDefinitionDTO dto);
+    default JsonVO<String> addDefinition(DiagnosisDefinitionDTO dto) {
+        return null;
+    }
 
     /**
-     * 编辑诊断。
-     *
-     * @param dto 诊断定义数据
+     * 编辑诊断定义
+     * @param dto 诊断定义数据（id 必填，仅修改可编辑字段）
      * @return 编辑结果
      */
-    JsonVO<String> modifyDefinition(DiagnosisDefinitionDTO dto);
+    default JsonVO<String> modifyDefinition(DiagnosisDefinitionDTO dto) {
+        return null;
+    }
 
     /**
-     * 启用或停用诊断，支持批量操作。
-     *
-     * @param ids 诊断ID列表
-     * @param status 状态编码
+     * 启用/停用诊断定义（支持批量操作）
+     * @param ids 诊断定义主键列表
+     * @param status 状态（ACTIVE/INACTIVE）
      * @return 操作结果
      */
-    JsonVO<String> modifyBatchStatus(List<String> ids, String status);
+    default JsonVO<String> modifyBatchStatus(List<String> ids, String status) {
+        return null;
+    }
 
     /**
-     * 删除诊断，支持批量操作。
-     *
-     * @param ids 诊断ID列表
+     * 删除诊断定义（支持批量操作）
+     * @param ids 诊断定义主键列表
      * @return 删除结果
      */
-    JsonVO<String> removeBatch(List<String> ids);
+    default JsonVO<String> removeBatch(List<String> ids) {
+        return null;
+    }
 }

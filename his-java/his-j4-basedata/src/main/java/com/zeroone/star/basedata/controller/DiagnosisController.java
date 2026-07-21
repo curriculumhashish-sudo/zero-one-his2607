@@ -1,5 +1,6 @@
 package com.zeroone.star.basedata.controller;
 
+import com.zeroone.star.basedata.service.IDiagnosisService;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisDefinitionDTO;
 import com.zeroone.star.project.j4.basedata.DiagnosisApis;
@@ -12,6 +13,7 @@ import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisListVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisOptionVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,6 +41,9 @@ import java.util.List;
 @Tag(name = "diagnosis", description = "诊断管理")
 public class DiagnosisController implements DiagnosisApis {
 
+    @Resource
+    private IDiagnosisService definitionService;
+
     @Override
     @Operation(summary = "获取选择诊断列表（条件+分页）")
     @GetMapping("/query-select-list")
@@ -61,32 +66,30 @@ public class DiagnosisController implements DiagnosisApis {
         return JsonVO.success(null);
     }
 
-    @Override
     @Operation(summary = "新增诊断")
     @PostMapping("/add-definition")
+    @Override
     public JsonVO<String> addDefinition(@RequestBody DiagnosisDefinitionDTO dto) {
         return null;
     }
 
-    @Override
     @Operation(summary = "修改诊断")
     @PutMapping("/modify-definition")
+    @Override
     public JsonVO<String> modifyDefinition(@RequestBody DiagnosisDefinitionDTO dto) {
         return null;
     }
 
-    @Override
-    @Operation(summary = "启用或停用诊断（支持批量）")
+    @Operation(summary = "启/停用诊断（支持批量）")
     @PutMapping("/modify-batch-status")
-    public JsonVO<String> modifyBatchStatus(
-            @RequestBody List<String> ids,
-            @RequestParam String status) {
+    @Override
+    public JsonVO<String> modifyBatchStatus(@RequestBody List<String> ids, @RequestParam String status) {
         return null;
     }
 
-    @Override
     @Operation(summary = "删除诊断（支持批量）")
     @DeleteMapping("/remove-batch")
+    @Override
     public JsonVO<String> removeBatch(@RequestBody List<String> ids) {
         return null;
     }
