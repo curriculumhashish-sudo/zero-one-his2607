@@ -1,4 +1,4 @@
-package com.zeroone.star.clinics.controller;
+package com.zeroone.star.clinics.Contoller;
 
 import com.zeroone.star.project.dto.j8.clinics.AllDayStopClinicExecuteDTO;
 
@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
-@RequestMapping("/api/setroster")
+@RequestMapping("/api/clinics")
 @RestController
 @Tag(name = "门诊排班管理")
 public class ClinicScheduleController implements ClinicScheduleApis {

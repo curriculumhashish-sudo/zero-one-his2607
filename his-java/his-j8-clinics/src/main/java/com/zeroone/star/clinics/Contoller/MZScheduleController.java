@@ -1,4 +1,4 @@
-package com.zeroone.star.clinics.controller;
+package com.zeroone.star.clinics.Contoller;
 
 
 
@@ -21,7 +21,7 @@ import java.util.List;
 
 @RestController
 @Tag(name = "门诊排班管理")
-@RequestMapping("/j8/schedule")
+@RequestMapping("/api/clinics")
 @Validated
 public class MZScheduleController implements ScheduleApis {
 
