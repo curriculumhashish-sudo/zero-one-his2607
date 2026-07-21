@@ -54,7 +54,7 @@ public:
 
 	// 3. 诊断单条详情
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnosis.detail.summary"), getDiagnosisDetail, DiagnosisDetailJsonVO::Wrapper, API_TAG,
-		API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("diagnosis.field.id"), "", true);
+	   API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("diagnosis.field.id"), "", true);
 	);
 	API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/diagnosis/detail", getDiagnosisDetail, QUERY(String, id), executeGetDiagnosisDetail(id));
 
@@ -74,9 +74,9 @@ private:
 	DiagnosisSelectJsonVO::Wrapper executeListSelectDiagnosis(const DiagnosisSelectQuery::Wrapper& query);
 	DiagnosisPageJsonVO::Wrapper executeListDiagnosis(const DiagnosisPageQuery::Wrapper& query);
 	DiagnosisDetailJsonVO::Wrapper executeGetDiagnosisDetail(const String& id);
-	StringJsonVO::Wrapper execAddDiagnosis(const DiagnosisAddDTO::Wrapper& dto, const PayloadDTO& payload);
+	/*StringJsonVO::Wrapper execAddDiagnosis(const DiagnosisAddDTO::Wrapper& dto, const PayloadDTO& payload);
 	StringJsonVO::Wrapper execModifyDiagnosis(const DiagnosisPageDTO::Wrapper& dto, const PayloadDTO& payload);
-	ListJsonVO<String>::Wrapper execRemoveDiagnosis(const List<String>& ids);
+	ListJsonVO<String>::Wrapper execRemoveDiagnosis(const List<String>& ids);*/
 };
 
 #undef API_TAG
