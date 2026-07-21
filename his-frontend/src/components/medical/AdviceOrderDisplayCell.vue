@@ -1,9 +1,9 @@
 <template>
   <article class="advice-cell" :class="{ 'is-compact': compact }" @click="emit('click', order)">
-    <div class="advice-cell__primary" :title="text(order.name)"><slot name="name" :order="order">{{ text(order.name) || '未命名医嘱' }}</slot></div>
+    <div class="advice-cell__primary" :title="primaryText"><slot name="name" :order="order">{{ primaryText || '未命名医嘱' }}</slot></div>
     <div v-if="details" class="advice-cell__secondary" :title="details"><slot name="details" :order="order" :details="details">{{ details }}</slot></div>
-    <div v-if="showStatus || $slots.tags" class="advice-cell__tags"><slot name="tags" :order="order"><el-tag v-if="showStatus" size="small" effect="plain">{{ statusMap[order.status ?? ''] ?? order.status ?? '未知状态' }}</el-tag></slot></div>
-    <div v-if="showRemark && text(order.remark)" class="advice-cell__warning"><slot name="remark" :order="order">{{ text(order.remark) }}</slot></div>
+    <div v-if="showStatus || $slots.tags" class="advice-cell__tags"><slot name="tags" :order="order"><el-tag v-if="showStatus" size="small" effect="plain">{{ statusMap[statusText] ?? statusText ?? '未知状态' }}</el-tag></slot></div>
+    <div v-if="showRemark && remarkText" class="advice-cell__warning"><slot name="remark" :order="order">{{ remarkText }}</slot></div>
     <slot name="extra" :order="order" />
   </article>
 </template>
@@ -14,6 +14,9 @@ const props = withDefaults(defineProps<{ order: AdviceOrder; fields?: Partial<Re
 const emit = defineEmits<{ click: [order: AdviceOrder]; action: [order: AdviceOrder, action: string] }>()
 function value(name: keyof AdviceOrder) { const key = props.fields[name as keyof typeof props.fields] ?? name; return props.order[key] }
 function text(value: unknown) { return value === null || value === undefined || value === '' ? '' : String(value) }
+const primaryText = computed(() => text(value('name')))
+const statusText = computed(() => text(value('status')))
+const remarkText = computed(() => text(value('remark')))
 const details = computed(() => { const specification = text(value('specification')); const dose = [text(value('dose')), text(value('unit'))].filter(Boolean).join(''); return [specification, dose, text(value('frequency')), text(value('route')), text(value('days')) ? `${text(value('days'))}天` : ''].filter(Boolean).join(' · ') })
 </script>
 <style scoped>
