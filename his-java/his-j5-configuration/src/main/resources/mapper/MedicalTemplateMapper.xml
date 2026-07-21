@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.configuration.mapper.MedicalTemplateMapper">
+
+    <select id="countByCode" resultType="long">
+        SELECT COUNT(1)
+        FROM emr_template
+        WHERE code = #{code}
+        <if test="excludeId != null and excludeId != ''">
+            AND id &lt;&gt; #{excludeId}
+        </if>
+    </select>
+
+    <update id="softDeleteById">
+        UPDATE emr_template
+        SET is_deleted = 1,
+            deleted_at = #{deletedAt},
+            deleted_by = #{deletedBy},
+            updated_at = #{deletedAt},
+            updated_by = #{deletedBy}
+        WHERE id = #{id}
+          AND is_deleted = 0
+    </update>
+</mapper>
