@@ -37,7 +37,7 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 @RestController
 @RequestMapping("/treatment")
-@Tag(name = "basedata-treatment", description = "诊疗管理（7）")
+@Tag(name = "诊疗管理", description = "诊疗管理接口")
 public class TreatmentController implements TreatmentApis {
 
     @Resource
