@@ -1,0 +1,23 @@
+form:
+  data_statistics:
+    tag: "报表中心-数据统计"
+W:
+  form:
+    outpatient_stat:
+      tag: "门诊数据统计"
+      query_weekly_trend:
+        summary: "查询周接诊量门诊趋势"
+      query_monthly_trend:
+        summary: "查询月接诊量门诊趋势"
+      query_disease_distribution:
+        summary: "查询患者疾病类型分布"
+      field:
+        start_date: "开始日期"
+        end_date: "结束日期"
+        org_id: "机构ID"
+        stat_date: "统计日期"
+        visit_count: "接诊量"
+        disease_name: "疾病名称"
+        disease_code: "疾病编码"
+        case_count: "病例数"
+        percentage: "占比"
