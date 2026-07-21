@@ -1,11 +1,9 @@
 package com.zeroone.star.basedata.controller;
 
-
+import com.zeroone.star.basedata.mapper.BodyPartMapper;
 import com.zeroone.star.project.dto.j2.basedata.bodypartdto.BodyPartAddDTO;
 import com.zeroone.star.project.j2.basedata.qingzhou.IBodyPartApis;
-
 import com.zeroone.star.project.query.j2.basedata.BodyPartPageQuery;
-
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j2.basedata.BodyPartListVO;
 import com.zeroone.star.project.vo.j2.basedata.BodyPartTreeVO;
@@ -14,8 +12,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,24 +22,27 @@ import java.util.List;
 @Tag(name = "部位管理")
 @RequiredArgsConstructor
 public class BodyPartController implements IBodyPartApis {
+    // 自动注入 Mapper 对象，用于数据库操作，实现部位管理的持久层逻辑
+    private final BodyPartMapper mapper;
+
     @Override
-    @GetMapping("/basedata/body-part/tree")
+    @GetMapping("/tree")
     public JsonVO<List<BodyPartTreeVO>> getTree() {
         // TODO 后续实现从数据库获取部位树
-        return JsonVO.success(new ArrayList<>());
+        return JsonVO.success(mapper.selectTree());
     }
 
     @Override
-    @GetMapping("/basedata/body-part/list")
-    public JsonVO<List<BodyPartListVO>> getList(@Valid BodyPartPageQuery query) {
+    @GetMapping("/list")
+    public JsonVO<List<BodyPartListVO>> getList(BodyPartPageQuery query) {
         // TODO 后续实现分页条件查询
-        return JsonVO.success(new ArrayList<>());
+        return JsonVO.success(mapper.selectList(query));
     }
 
     @Override
-    @PostMapping("/basedata/body-part")
+    @PostMapping
     public JsonVO<Long> add(@Valid @RequestBody BodyPartAddDTO dto) {
-        // TODO 后续实现新增部位
+        // TODO 后续实现新增部位业务逻辑，暂返回1L
         return JsonVO.success(1L);
     }
 }
