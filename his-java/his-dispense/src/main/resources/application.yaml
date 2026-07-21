@@ -1,10 +1,10 @@
 server:
-  port: 10300
+  port: ${sp.dispense}
   servlet:
     context-path: /dispense
 spring:
   application:
-    name: his-dispense
+    name: ${sn.dispense}
   cloud:
     sentinel:
       transport:

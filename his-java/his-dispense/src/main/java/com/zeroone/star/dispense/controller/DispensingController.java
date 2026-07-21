@@ -9,6 +9,7 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j7.dispense.DispensingSummaryVO;
 import com.zeroone.star.project.vo.j7.dispense.PatientMedicationVO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,7 +47,7 @@ public class DispensingController implements DispensingApis {
     @Operation(summary = "获取患者药品明细")
     @GetMapping("query-patient-medications")
     @Override
-    public JsonVO<List<PatientMedicationVO>> queryPatientMedications(@RequestParam Long summaryId) {
+    public JsonVO<List<PatientMedicationVO>> queryPatientMedications(@Parameter(description = "汇总单ID", example = "1")@RequestParam Long summaryId) {
         List<PatientMedicationVO> list = dispensingService.queryPatientMedications(summaryId);
         return JsonVO.success(list);
     }
@@ -62,7 +63,7 @@ public class DispensingController implements DispensingApis {
     @Operation(summary = "发药后截单")
     @PostMapping("close-summary")
     @Override
-    public JsonVO<String> closeSummary(@RequestParam String summaryNo) {
+    public JsonVO<String> closeSummary(@Parameter(description = "汇总单号", example = "HZ20240719001") @RequestParam String summaryNo) {
         String result = dispensingService.closeSummary(summaryNo);
         return JsonVO.success(result);
     }

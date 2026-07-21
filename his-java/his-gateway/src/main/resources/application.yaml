@@ -37,10 +37,6 @@ spring:
               uri: lb://${sn.login}
               predicates:
                 - Path=/login/**
-            - id: dispense-route
-              uri: lb://${sn.dispense}
-              predicates:
-                - Path=/dispense/**
 
 zo:
   cloud:
@@ -65,10 +61,6 @@ zo:
           - "/login/get-menus"
           - "/login/logout"
           - "/chat/**"
-          - "/dispense/query-summary-list"
-          - "/dispense/query-patient-medications"
-          - "/dispense/verify-dispense"
-          - "/dispense/close-summary"
 
 knife4j:
   gateway:
