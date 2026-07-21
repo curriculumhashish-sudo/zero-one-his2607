@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.zeroone.star.project.components.user.UserHolder;
 import jakarta.annotation.Resource;
 import org.apache.ibatis.reflection.MetaObject;
-import org.mybatis.spring.annotation.MapperScan;
+//import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
  */
 @Configuration
 @ComponentScan("com.zeroone.star.project.config.mybatis")
-@MapperScan("com.zeroone.star.workbench.mapper")
+//@MapperScan("com.zeroone.star.workbench.mapper")
 public class MyBatisInit {
     @Resource
     UserHolder userHolder;
