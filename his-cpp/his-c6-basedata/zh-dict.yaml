@@ -22,6 +22,7 @@
     id: 频次编号
     name: 频次名称
     code: 频次编码
+<<<<<<< HEAD
     status: 启用状态
     cycle-type: 周期类型
     day-times: 日内执行时间
@@ -34,3 +35,15 @@
     allow-cross-day: 跨日策略
     sort-no: 排序号
     keywords: 关键字
+=======
+    status: 状态
+    cycleType: 周期类型
+    execTime: 执行时点
+    dayCount: 日计数
+    execCycle: 执行周期
+    dayInterval: 日间隔
+    totalTimes: 总次数
+    scene: 适用场景
+    crossDayPolicy: 跨日策略
+    sort: 排序号
+>>>>>>> b8469d8d5919eab7655377dbf0180bba15304511
