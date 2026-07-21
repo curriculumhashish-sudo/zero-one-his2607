@@ -1,8 +1,0 @@
-server:
-  port: ${sp.j8-calendar}
-  servlet:
-    # 设置应用上下文路径
-    context-path: /j8-calendar
-spring:
-  application:
-    name: ${sn.j8-calendar}
