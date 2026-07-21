@@ -17,3 +17,14 @@
   field:
     id: 频次编号
     name: 频次名称
+    code: 频次编码
+    status: 状态
+    cycleType: 周期类型
+    execTime: 执行时点
+    dayCount: 日计数
+    execCycle: 执行周期
+    dayInterval: 日间隔
+    totalTimes: 总次数
+    scene: 适用场景
+    crossDayPolicy: 跨日策略
+    sort: 排序号
