@@ -1,165 +1,152 @@
-<template>
-  <div>
-    <el-date-picker
-      v-model="dateRange"
-      :type="enableTime ? 'datetimerange' : 'daterange'"
-      :value-format="enableTime ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD'"
-      range-separator="至"
-      start-placeholder="开始时间"
-      end-placeholder="结束时间"
-      :shortcuts="shortcuts"
-      :disabled-date="disabledDate"
-      @change="handleRangeChange"
-    />
-    <el-checkbox v-model="enableTime">显示时分秒</el-checkbox>
-    <el-checkbox v-model="allowFuture">限制未来日期</el-checkbox>
-    <span style="margin-left: 12px; color: #909399; font-size: 13px"
-      >最大跨度 {{ maxRangeDays }} 天</span
-    >
-  </div>
-</template>
-
-<script lang="ts" setup>
-import { ref } from 'vue'
+<script setup lang="ts">
+import { computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import dayjs from 'dayjs'
 
-const dateRange = ref<[string, string] | null>(null)
-// 是否显示时分秒
-const enableTime = ref(false)
-// 是否限制未来日期
-const allowFuture = ref(false)
-// 最大跨度天数
-const maxRangeDays = ref(30)
+import type { DateRangeValue } from './type'
 
-// 快捷日期（注意：这些快捷日期是“未来”的，与 disabledDate 冲突？请根据实际需要调整）
-const shortcuts = [
-  {
-    text: '7天后',
-    value: () => {
-      const start = new Date()
-      const end = new Date()
-      end.setTime(start.getTime() + 3600 * 1000 * 24 * 7)
-      return [start, end]
-    }
-  },
-  {
-    text: '30天后',
-    value: () => {
-      const start = new Date()
-      const end = new Date()
-      end.setTime(start.getTime() + 3600 * 1000 * 24 * 30)
-      return [start, end]
-    }
-  }
-]
+defineOptions({
+  name: 'DateRangeField'
+})
 
-// 未来日期限制（动态）
-const disabledDate = (time: Date) => {
-  if (!allowFuture.value) return false // 不限制
+interface DateRangeFieldProps {
+  maxRangeDays?: number
+  showOptions?: boolean
+}
+
+const props = withDefaults(defineProps<DateRangeFieldProps>(), {
+  maxRangeDays: 30,
+  showOptions: true
+})
+
+const emit = defineEmits<{
+  change: [value: DateRangeValue]
+}>()
+
+const dateRange = defineModel<DateRangeValue>({ default: null })
+const enableTime = defineModel<boolean>('enableTime', { default: false })
+const limitFuture = defineModel<boolean>('limitFuture', { default: false })
+
+const pickerType = computed(() => (enableTime.value ? 'datetimerange' : 'daterange'))
+const valueFormat = computed(() => (enableTime.value ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD'))
+
+function parseDate(value: string) {
+  const matched = value.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (!matched) return null
+
+  const year = Number(matched[1])
+  const month = Number(matched[2])
+  const day = Number(matched[3])
+  const date = new Date(year, month - 1, day)
+
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
+function formatDate(date: Date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+function disabledDate(time: Date) {
+  if (!limitFuture.value) return false
+
   const todayEnd = new Date()
   todayEnd.setHours(23, 59, 59, 999)
   return time.getTime() > todayEnd.getTime()
 }
 
-// ========== 最大跨度处理 ==========
-function handleRangeChange(newVal: [string, string] | null): void {
-  if (!newVal || !Array.isArray(newVal) || newVal.length !== 2) {
-    // 清空时无需处理
+function handleRangeChange(value: DateRangeValue) {
+  if (!value) {
+    dateRange.value = null
+    emit('change', null)
     return
   }
 
-  const [start, end] = newVal
-  const maxDays = maxRangeDays.value
+  const [start, end] = value
+  const startDate = parseDate(start)
+  const endDate = parseDate(end)
+  const maxRangeDays = Math.max(0, props.maxRangeDays)
 
-  // 计算实际天数差（忽略时间，仅按日期）
-  const startDay = dayjs(start).startOf('day')
-  const endDay = dayjs(end).startOf('day')
-  const diffDays = Math.abs(endDay.diff(startDay, 'day'))
-
-  if (diffDays > maxDays) {
-    // 自动修正结束日期 = 开始日期 + maxDays
-    const correctedEnd = startDay.add(maxDays, 'day')
-    let finalEnd: string
-
-    if (enableTime.value) {
-      // 保留原结束时间的时分秒（如果有）
-      const endTime = dayjs(end).format('HH:mm:ss')
-      finalEnd = correctedEnd.format('YYYY-MM-DD') + ' ' + endTime
-    } else {
-      finalEnd = correctedEnd.format('YYYY-MM-DD')
-    }
-
-    // 更新 dateRange 并提示
-    dateRange.value = [start, finalEnd]
-    ElMessage.warning(`日期跨度不能超过 ${maxDays} 天，已自动调整结束日期`)
+  if (!startDate || !endDate) {
+    emit('change', value)
+    return
   }
-  // 未超出范围则不做改动
+
+  const millisecondsPerDay = 24 * 60 * 60 * 1000
+  const rangeDays = Math.abs(endDate.getTime() - startDate.getTime()) / millisecondsPerDay
+
+  if (rangeDays <= maxRangeDays) {
+    emit('change', value)
+    return
+  }
+
+  const correctedEnd = new Date(startDate)
+  correctedEnd.setDate(correctedEnd.getDate() + maxRangeDays)
+
+  const endTime = enableTime.value ? end.split(' ')[1] || '23:59:59' : ''
+  const correctedValue: DateRangeValue = [
+    start,
+    `${formatDate(correctedEnd)}${endTime ? ` ${endTime}` : ''}`
+  ]
+
+  dateRange.value = correctedValue
+  ElMessage.warning(`日期跨度不能超过 ${maxRangeDays} 天，已自动调整结束日期`)
+  emit('change', correctedValue)
 }
 </script>
 
+<template>
+  <div class="date-range-field">
+    <el-date-picker
+      v-model="dateRange"
+      class="date-range-field__picker"
+      :type="pickerType"
+      :value-format="valueFormat"
+      range-separator="至"
+      start-placeholder="开始日期"
+      end-placeholder="结束日期"
+      :disabled-date="disabledDate"
+      @change="handleRangeChange"
+    />
+
+    <div v-if="showOptions" class="date-range-field__options">
+      <el-checkbox v-model="enableTime">显示时分秒</el-checkbox>
+      <el-checkbox v-model="limitFuture">限制未来日期</el-checkbox>
+      <span class="date-range-field__hint">最大跨度 {{ maxRangeDays }} 天</span>
+    </div>
+  </div>
+</template>
+
 <style scoped>
-.demo-date-picker {
+.date-range-field {
   display: flex;
   width: 100%;
-  padding: 0;
+  min-width: 0;
   flex-wrap: wrap;
-}
-
-.demo-date-picker .block {
-  padding: 1.5rem 0;
-  text-align: center;
-  border-right: solid 1px var(--el-border-color);
-  flex: 1;
-  min-width: 300px;
-  display: flex;
-  flex-direction: column;
   align-items: center;
+  gap: 8px 12px;
 }
 
-.demo-date-picker .block:last-child {
-  border-right: none;
+.date-range-field__picker {
+  width: min(100%, 360px);
 }
 
-.demo-date-picker .block :deep(.el-date-editor) {
-  width: 300px;
+.date-range-field__options {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
 }
 
-.demo-date-picker .demonstration {
-  display: block;
+.date-range-field__options :deep(.el-checkbox) {
+  margin-right: 0;
+}
+
+.date-range-field__hint {
   color: var(--el-text-color-secondary);
-  font-size: 14px;
-  margin-bottom: 1rem;
-  width: 100%;
-}
-
-@media screen and (max-width: 1200px) {
-  .demo-date-picker .block {
-    flex: 0 0 50%;
-    border-bottom: solid 1px var(--el-border-color);
-  }
-
-  .demo-date-picker .block:nth-child(2n) {
-    border-right: none;
-  }
-
-  .demo-date-picker .block:nth-last-child(-n + 2):nth-child(2n + 1),
-  .demo-date-picker .block:last-child {
-    border-bottom: none;
-  }
-}
-
-@media screen and (max-width: 768px) {
-  .demo-date-picker .block {
-    flex: 0 0 100%;
-    padding: 1rem 0;
-    min-width: auto;
-    border-right: none;
-    border-bottom: solid 1px var(--el-border-color);
-  }
-
-  .demo-date-picker .block:last-child {
-    border-bottom: none;
-  }
+  font-size: 13px;
+  white-space: nowrap;
 }
 </style>
