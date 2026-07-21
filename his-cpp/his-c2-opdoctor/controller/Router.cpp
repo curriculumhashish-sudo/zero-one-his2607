@@ -20,6 +20,7 @@
 #include "Router.h"
 #include "ApiHelper.h"
 #include "prescription/PrescriptionController.h"
+#include " medicalrecord/MedicalRecordController.h"
 
 
 // If the macro for disabling Swagger documentation is defined
@@ -43,4 +44,5 @@ void Router::initRouter()
 {
 	// #TIP: Add system extension route definitions below
 	ROUTER_SIMPLE_BIND(PrescriptionController);
+	ROUTER_SIMPLE_BIND(MedicalRecordController);
 }

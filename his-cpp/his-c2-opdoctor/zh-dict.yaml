@@ -24,6 +24,18 @@
   materialCode: 精确搜项目编码
   materialName: 模糊搜药材名称
   category: 类别筛选：中草药、耗材
+medicalrecord:
+ field: 
+  medicalRecordId: 病历ID（为空表示新增，不为空表示修改）
+  patientId: 患者ID
+  content: 病历正文
+ tags:
+  tag: 门诊病历
+ save:
+  summary: 保存门诊病历
+
+
+
 
 
 
