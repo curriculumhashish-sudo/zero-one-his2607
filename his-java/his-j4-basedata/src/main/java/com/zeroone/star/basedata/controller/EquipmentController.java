@@ -3,7 +3,6 @@ package com.zeroone.star.basedata.controller;
 import com.zeroone.star.basedata.service.IEquipmentService;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentAddDTO;
-import com.zeroone.star.project.dto.j4.equipment.EquipmentEditDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentStatusDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentUpdateDTO;
 import com.zeroone.star.project.j4.basedata.EquipmentApis;
@@ -40,14 +39,14 @@ public class EquipmentController implements EquipmentApis {
     private IEquipmentService equipmentService;
 
     /**
-     * 分页查询器材列表
+     * 获取器材列表（条件+分页）
      *
      * @param query 分页查询条件（支持关键字搜索、分类筛选）
      * @return 分页器材数据
      */
     @Override
     @GetMapping("/query-equipment-list")
-    @Operation(summary = "分页查询器材列表", description = "分页查询器材列表")
+    @Operation(summary = "获取器材列表（条件+分页）", description = "获取器材列表（条件+分页）")
     public JsonVO<PageDTO<EquipmentVO>> queryPage(@Valid EquipmentPageQuery query) {
         return null;
     }
@@ -65,18 +64,6 @@ public class EquipmentController implements EquipmentApis {
         return null;
     }
 
-    /**
-     * 编辑器材（携带编辑校验码，支持并发编辑保护）
-     *
-     * @param dto 编辑器材数据（包含主键及编辑业务码）
-     * @return 编辑确认结果
-     */
-    @Override
-    @PostMapping("/modify-equipment")
-    @Operation(summary = "编辑器材", description = "编辑器材")
-    public JsonVO<EquipmentUpdateVO> modifyEquipment(@RequestBody @Valid EquipmentEditDTO dto) {
-        return null;
-    }
 
     /**
      * 修改器材（无编辑校验码，直接覆盖更新）
@@ -86,20 +73,20 @@ public class EquipmentController implements EquipmentApis {
      */
     @Override
     @PostMapping("/update-equipment")
-    @Operation(summary = "更新器材", description = "更新器材")
-    public JsonVO<EquipmentUpdateVO> update(@RequestBody @Valid EquipmentUpdateDTO dto) {
+    @Operation(summary = "修改器材", description = "修改器材")
+    public JsonVO<EquipmentUpdateVO> updateEquipment(@RequestBody @Valid EquipmentUpdateDTO dto) {
         return null;
     }
 
     /**
-     * 切换器材状态（启用/禁用取反）
+     * 启/停用器材（支持批量）
      *
      * @param dto 切换状态请求（仅主键）
      * @return 切换后的器材状态信息
      */
     @Override
     @PutMapping("/modify-equipment-status")
-    @Operation(summary = "切换器材状态", description = "切换器材状态")
+    @Operation(summary = "启/停用器材（支持批量）", description = "启/停用器材（支持批量）")
     public JsonVO<EquipmentUpdateVO> modifyStatus(@RequestBody @Valid EquipmentStatusDTO dto) {
         return null;
     }
