@@ -18,15 +18,15 @@ import java.io.Serializable;
 @Schema(description = "工作台功能卡片")
 //whale_menus
 public class WorkbenchMenuVO implements Serializable {
-    @Schema(description = "ID")
+    @Schema(description = "ID",example = "1000",requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
-    @Schema(description = "前端图标")
+    @Schema(description = "前端图标",example = "lucide:folder-tree")
     private String icon;
-    @Schema(description = "名称")
+    @Schema(description = "名称",example = "项目管理")
     private String display_name;
-    @Schema(description = "前端路由地址")
+    @Schema(description = "前端路由地址",example = "/system")
     private String path;
-    @Schema(description = "权限标识，接口鉴权使用")
+    @Schema(description = "权限标识")
     private String permission_name;
     @Schema(description = "排序号")
     private Integer sort_order;

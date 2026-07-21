@@ -21,7 +21,7 @@ public class UserWorkbenchQuery implements Serializable {
     private String tenantId;
 
     //whale_users
-    @Schema(description = "登录用户ID，网关自动注入", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "登录用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String userId;
 
     // whale_organization_units

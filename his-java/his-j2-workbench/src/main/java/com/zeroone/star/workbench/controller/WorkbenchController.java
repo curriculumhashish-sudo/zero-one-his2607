@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Tag(name = "工作台日常功能管理控制器")
 public class WorkbenchController implements WorkbenchApis {
-    @Operation(summary = "获取工作台日常功能")
     @GetMapping("query-workbench")
+    @Operation(summary = "获取工作台日常功能")
     @Override
     public JsonVO<UserWorkbenchVO> getUserWorkbench(UserWorkbenchQuery query) {
         return null;
