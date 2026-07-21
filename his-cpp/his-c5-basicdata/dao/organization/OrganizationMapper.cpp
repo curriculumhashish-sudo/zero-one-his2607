@@ -12,10 +12,9 @@ std::string OrganizationMapper::readNullableString(ResultSet* resultSet, const s
 }
 
 
-PtrOrganizationDO OrganizationMapper::mapper(ResultSet* resultSet) const override
+PtrAdmOrganizationDO OrganizationMapper::mapper(ResultSet* resultSet) const
 {
-    // Map one SQL result row into the organization domain object.
-    auto data = std::make_shared<OrganizationDO>();
+    auto data = std::make_shared<AdmOrganizationDO>();
 
     data->setId(resultSet->getString("id"));
     data->setName(resultSet->getString("name"));

@@ -7,8 +7,8 @@
 class OrganizationDAO : public BaseDAO
 {
 public:
-    std::list<PtrOrganizationDO> selectAllNotDeleted();
-    PtrOrganizationDO selectById(const std::string& id);
+    std::list<PtrAdmOrganizationDO> selectAllNotDeleted();
+    PtrAdmOrganizationDO selectById(const std::string& id);
 };
 
 #endif // !_ORGANIZATIONDAO_H_

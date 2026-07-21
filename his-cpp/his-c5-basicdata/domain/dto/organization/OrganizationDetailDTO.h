@@ -9,20 +9,20 @@ class OrganizationDetailDTO : public oatpp::DTO
 {
     DTO_INIT(OrganizationDetailDTO, DTO);
 
-    API_DTO_FIELD_REQUIRE(String, id, "Organization id", true);
-    API_DTO_FIELD_REQUIRE(String, name, "Organization name", true);
-    API_DTO_FIELD_DEFAULT(String, type_enum, "Organization type");
-    API_DTO_FIELD_DEFAULT(String, class_enum, "Organization category");
-    API_DTO_FIELD_DEFAULT(String, status_enum, "Organization status");
-    API_DTO_FIELD_DEFAULT(String, yb_no, "Medical insurance code");
-    API_DTO_FIELD_DEFAULT(String, yb_name, "Medical insurance name");
-    API_DTO_FIELD_DEFAULT(String, medins_id, "Medical institution id");
-    API_DTO_FIELD_DEFAULT(String, medins_admdvs, "Medical insurance area code");
-    API_DTO_FIELD_DEFAULT(String, medins_type, "Medical institution type");
-    API_DTO_FIELD_DEFAULT(String, medins_lv, "Medical institution level");
-    API_DTO_FIELD_DEFAULT(String, py_str, "Pinyin code");
-    API_DTO_FIELD_DEFAULT(String, wb_str, "Wubi code");
-    API_DTO_FIELD_DEFAULT(Int32, display_order, "Display order");
+    API_DTO_FIELD_REQUIRE(oatpp::String, id, ZH_WORDS_GETTER("organization.fields.id"), true);
+    API_DTO_FIELD_REQUIRE(oatpp::String, name, ZH_WORDS_GETTER("organization.fields.name"), true);
+    API_DTO_FIELD_DEFAULT(oatpp::String, type_enum, ZH_WORDS_GETTER("organization.fields.typeEnum"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, class_enum, ZH_WORDS_GETTER("organization.fields.classEnum"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, status_enum, ZH_WORDS_GETTER("organization.fields.statusEnum"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, yb_no, ZH_WORDS_GETTER("organization.fields.ybNo"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, yb_name, ZH_WORDS_GETTER("organization.fields.ybName"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, medins_id, ZH_WORDS_GETTER("organization.fields.medinsId"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, medins_admdvs, ZH_WORDS_GETTER("organization.fields.medinsAdmdvs"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, medins_type, ZH_WORDS_GETTER("organization.fields.medinsType"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, medins_lv, ZH_WORDS_GETTER("organization.fields.medinsLv"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, py_str, ZH_WORDS_GETTER("organization.fields.pyStr"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, wb_str, ZH_WORDS_GETTER("organization.fields.wbStr"));
+    API_DTO_FIELD_DEFAULT(oatpp::Int32, display_order, ZH_WORDS_GETTER("organization.fields.displayOrder"));
 };
 
 #include OATPP_CODEGEN_END(DTO)

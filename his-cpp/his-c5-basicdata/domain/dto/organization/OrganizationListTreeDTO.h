@@ -10,16 +10,16 @@ class OrganizationListTreeDTO : public oatpp::DTO, public TreeNode
 {
     DTO_INIT(OrganizationListTreeDTO, DTO);
 
-    API_DTO_FIELD_REQUIRE(String, id, "Organization id", true);
-    API_DTO_FIELD_REQUIRE(String, name, "Organization name", true);
-    API_DTO_FIELD_DEFAULT(String, type_enum, "Organization type");
-    API_DTO_FIELD_DEFAULT(String, class_enum, "Organization category");
-    API_DTO_FIELD_DEFAULT(String, status_enum, "Organization status");
+    API_DTO_FIELD_REQUIRE(oatpp::String, id, ZH_WORDS_GETTER("organization.fields.id"), true);
+    API_DTO_FIELD_REQUIRE(oatpp::String, name, ZH_WORDS_GETTER("organization.fields.name"), true);
+    API_DTO_FIELD_DEFAULT(oatpp::String, type_enum, ZH_WORDS_GETTER("organization.fields.typeEnum"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, class_enum, ZH_WORDS_GETTER("organization.fields.classEnum"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, status_enum, ZH_WORDS_GETTER("organization.fields.statusEnum"));
 
     API_DTO_FIELD(
-        List<OrganizationListTreeDTO::Wrapper>,
+        oatpp::List<OrganizationListTreeDTO::Wrapper>,
         children,
-        "Child organizations",
+        ZH_WORDS_GETTER("organization.fields.children"),
         false,
         {}
     );

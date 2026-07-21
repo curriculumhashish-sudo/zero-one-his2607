@@ -1,0 +1,28 @@
+organization:
+  tag: "科室管理"
+  endpoints:
+    nameTree: "获取科室名称树"
+    listTree: "获取科室列表树"
+    detail: "获取科室详情"
+  fields:
+    id: "科室唯一标识"
+    name: "科室名称"
+    children: "下级科室列表"
+    typeEnum: "科室类型"
+    classEnum: "科室类别"
+    statusEnum: "科室状态"
+    ybNo: "医保编码"
+    ybName: "医保名称"
+    medinsId: "机构标识"
+    medinsAdmdvs: "医保区划"
+    medinsType: "机构类型"
+    medinsLv: "机构等级"
+    pyStr: "拼音码"
+    wbStr: "五笔码"
+    displayOrder: "显示顺序"
+  queries:
+    typeEnum: "按科室类型筛选"
+    classEnum: "按科室类别筛选"
+    statusEnum: "按科室状态筛选"
+    keyword: "按科室及医保相关信息进行关键词筛选"
+    id: "科室唯一标识"

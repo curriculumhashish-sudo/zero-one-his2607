@@ -1,7 +1,7 @@
 #ifndef _ORGANIZATIONLISTTREEQUERY_H_
 #define _ORGANIZATIONLISTTREEQUERY_H_
 
-#include "../GlobalInclude.h"
+#include "../../GlobalInclude.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
@@ -10,27 +10,27 @@ class OrganizationListTreeQuery : public oatpp::DTO
     DTO_INIT(OrganizationListTreeQuery, DTO);
 
     API_DTO_FIELD_DEFAULT(
-        String,
+        oatpp::String,
         type_enum,
-        "Organization type filter"
+        ZH_WORDS_GETTER("organization.queries.typeEnum")
     );
 
     API_DTO_FIELD_DEFAULT(
-        String,
+        oatpp::String,
         class_enum,
-        "Organization category filter"
+        ZH_WORDS_GETTER("organization.queries.classEnum")
     );
 
     API_DTO_FIELD_DEFAULT(
-        String,
+        oatpp::String,
         status_enum,
-        "Organization status filter"
+        ZH_WORDS_GETTER("organization.queries.statusEnum")
     );
 
     API_DTO_FIELD_DEFAULT(
-        String,
+        oatpp::String,
         keyword,
-        "Keyword for organization and insurance fields"
+        ZH_WORDS_GETTER("organization.queries.keyword")
     );
 };
 

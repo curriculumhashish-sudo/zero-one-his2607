@@ -11,7 +11,7 @@ private:
     std::string readNullableString(ResultSet* resultSet, const std::string& column) const;
 
 public:
-    PtrOrganizationDO mapper(ResultSet* resultSet) const override;
+    PtrAdmOrganizationDO mapper(ResultSet* resultSet) const override;
 };
 
 #endif // !_ORGANIZATIONMAPPER_H_

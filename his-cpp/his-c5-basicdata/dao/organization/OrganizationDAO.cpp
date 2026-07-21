@@ -19,7 +19,7 @@ std::list<PtrAdmOrganizationDO> OrganizationDAO::selectAllNotDeleted()
     );
 }
 
-PtrOrganizationDO OrganizationDAO::selectById(const std::string& id)
+PtrAdmOrganizationDO OrganizationDAO::selectById(const std::string& id)
 {
     std::string sql =
         "SELECT "
