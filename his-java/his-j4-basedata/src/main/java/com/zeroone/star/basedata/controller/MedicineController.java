@@ -6,7 +6,6 @@ import com.zeroone.star.project.dto.j4.medicine.MedicineDeleteDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineUpdateDTO;
 import com.zeroone.star.project.j4.basedata.MedicineApis;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j4.medicine.MedicineChangeStatusVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineDeleteVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -49,8 +48,8 @@ public class MedicineController implements MedicineApis {
     }
 
     @PutMapping("/change-status/{status}")
-    @Operation(summary = "启/停用药品(支持批量)，status为1表示启用，为0表示停用")
-    public JsonVO<MedicineChangeStatusVO> updateEnableMedicineStatus(
+    @Operation(summary = "启/停用药品(支持批量)",description = "status为1表示启用，为0表示停用")
+    public JsonVO<Void> updateChangeMedicineStatus(
             @PathVariable int status,
             @Validated @RequestBody MedicineChangeStatusDTO dto
     ){
@@ -59,11 +58,11 @@ public class MedicineController implements MedicineApis {
         if(status == 0) {
             //要启用药品
             log.debug("启用药品成功");
-            return JsonVO.success(new MedicineChangeStatusVO(list));
+            return JsonVO.success(null);
         }else if (status == 1){
             //要停用药品
-            log.error("停用药品成功");
-            return JsonVO.success(new MedicineChangeStatusVO(list));
+            log.debug("停用药品成功");
+            return JsonVO.success(null);
         }
             return JsonVO.fail("status值有误");
     }

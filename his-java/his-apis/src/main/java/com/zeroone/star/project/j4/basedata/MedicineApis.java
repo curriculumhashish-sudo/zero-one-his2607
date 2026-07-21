@@ -4,16 +4,7 @@ import com.zeroone.star.project.dto.j4.medicine.MedicineChangeStatusDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineDeleteDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineUpdateDTO;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j4.medicine.MedicineChangeStatusVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineDeleteVO;
-import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * <p>
@@ -59,7 +50,7 @@ public interface MedicineApis {
     * @param dto 药品状态转换DTO
     * @return 药品状态转换VO 包含转换状态成功的药品ids
     */
-    JsonVO<MedicineChangeStatusVO> updateEnableMedicineStatus(int status,MedicineChangeStatusDTO dto);
+    JsonVO<Void> updateChangeMedicineStatus(int status,MedicineChangeStatusDTO dto);
 
 
 }
