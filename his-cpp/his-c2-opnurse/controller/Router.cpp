@@ -1,4 +1,4 @@
-﻿/*
+/*
  Copyright Zero One Star. All rights reserved.
 
  @Author: awei
@@ -8,7 +8,7 @@
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-	  https://www.apache.org/licenses/LICENSE-2.0
+      https://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,13 +20,13 @@
 #include "Router.h"
 #include "ApiHelper.h"
 
-// If the macro for disabling Swagger documentation is defined
+#include "print/PrintJobController.h"
+#include "print/PrintLogController.h"
+
 #ifdef CLOSE_SWAGGER_DOC
-// Simplified controller binding macro
 #define ROUTER_SIMPLE_BIND(__CLASS__) \
 router->addController(__CLASS__::createShared())
 #else
-// Simplified controller binding macro (with Swagger support)
 #define ROUTER_SIMPLE_BIND(__CLASS__) \
 BIND_CONTROLLER(docEndpoints, router, __CLASS__)
 #endif
@@ -39,6 +39,8 @@ Router::Router(Endpoints* docEndpoints, HttpRouter* router)
 
 void Router::initRouter()
 {
+	ROUTER_SIMPLE_BIND(PrintJobController);
+	ROUTER_SIMPLE_BIND(PrintLogController);
 	// #TIP: Add system extension route definitions below
-	
+
 }
