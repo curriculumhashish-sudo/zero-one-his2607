@@ -62,7 +62,7 @@
 
 <script setup lang="ts">
 import SidePanelShell from './SidePanelShell.vue'
-import type { CommonComponentKey, RecordSidebarItem } from './type'
+import type { CommonComponentKey, RecordSidebarItem } from './type.ts'
 
 interface RecordSidebarProps {
   modelValue?: CommonComponentKey | null
@@ -128,7 +128,10 @@ function selectItem(item: RecordSidebarItem) {
   font: inherit;
   text-align: left;
   cursor: pointer;
-  transition: color 0.2s, border-color 0.2s, background-color 0.2s;
+  transition:
+    color 0.2s,
+    border-color 0.2s,
+    background-color 0.2s;
 }
 
 .record-sidebar__item:hover:not(:disabled),

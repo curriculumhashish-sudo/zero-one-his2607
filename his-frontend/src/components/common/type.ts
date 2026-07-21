@@ -2,6 +2,8 @@ import type { Component } from 'vue'
 
 export type CommonComponentKey = string | number
 
+export type DateRangeValue = [start: string, end: string] | null
+
 export interface DetailSummaryItem {
   key: CommonComponentKey
   label: string

@@ -89,7 +89,10 @@ const routes = [
         name: 'swarehouse',
         path: '/sample/warehouse',
         component: () => import('@/views/sample/common/warehouse/Index.vue')
-      }
+      },
+      { name: 'spatientcomponents',
+        path: '/sample/patient-components',
+        component: () => import('@/views/sample/patient/Index.vue')}
     ]
   }
 ]
