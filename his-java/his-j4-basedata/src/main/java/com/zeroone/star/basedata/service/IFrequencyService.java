@@ -1,12 +1,16 @@
 package com.zeroone.star.basedata.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.zeroone.star.basedata.entity.Frequency;
+import com.zeroone.star.basedata.entity.CusFrequencyDO;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j4.frequency.FrequencySaveDTO;
 import com.zeroone.star.project.dto.j4.frequency.FrequencyUpdateDTO;
+import com.zeroone.star.project.dto.j4.frequency.FrequencyStatusDTO;
 import com.zeroone.star.project.query.j4.frequency.FrequencyPageQuery;
+import com.zeroone.star.project.vo.j4.frequency.FrequencyOptionVO;
 import com.zeroone.star.project.vo.j4.frequency.FrequencyVO;
+
+import java.util.List;
 
 /**
  * <p>
@@ -17,7 +21,7 @@ import com.zeroone.star.project.vo.j4.frequency.FrequencyVO;
  * @author j4组
  * @version 1.0.0
  */
-public interface IFrequencyService extends IService<Frequency> {
+public interface IFrequencyService extends IService<CusFrequencyDO> {
 
     /**
      * 分页+条件查询频次列表
@@ -52,4 +56,19 @@ public interface IFrequencyService extends IService<Frequency> {
      * @param id 频次ID
      */
     void removeFrequency(String id);
+
+    /**
+     * 获取已启用的频次名称列表
+     *
+     * @return 频次下拉选项列表
+     */
+    List<FrequencyOptionVO> listFrequencyNames();
+
+    /**
+     * 修改频次启停状态
+     *
+     * @param dto 频次状态参数
+     * @return 是否修改成功
+     */
+    boolean modifyFrequencyStatus(FrequencyStatusDTO dto);
 }

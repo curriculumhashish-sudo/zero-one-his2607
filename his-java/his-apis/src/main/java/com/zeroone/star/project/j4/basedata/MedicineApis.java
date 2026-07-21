@@ -1,5 +1,11 @@
 package com.zeroone.star.project.j4.basedata;
 
+import com.zeroone.star.project.dto.j4.medicine.MedicineChangeStatusDTO;
+import com.zeroone.star.project.dto.j4.medicine.MedicineDeleteDTO;
+import com.zeroone.star.project.dto.j4.medicine.MedicineDetailDTO;
+import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j4.medicine.MedicineDetailVO;
+
 /**
  * <p>
  * 描述：药品管理 API 接口
@@ -10,4 +16,52 @@ package com.zeroone.star.project.j4.basedata;
  * @version 1.0.0
  */
 public interface MedicineApis {
+    /**
+     * <p>
+     * 描述：获取药品详情接口
+     * </p>
+     *
+     * @author xxm
+     * @version 1.0.0
+     * @param id 药品id
+     * @return 药品详情VO
+     */
+    JsonVO<MedicineDetailVO> queryMedicineDetail(String id);
+    /**
+    * <p>
+    * 描述：修改药品接口
+    * </p>
+    *
+    * @author xxm
+    * @version 1.0.0
+    * @param dto 药品更新dto
+    * @return 更新结果
+    */
+    JsonVO<String> updateMedicine(MedicineDetailDTO dto);
+
+    /**
+    * <p>
+    * 描述：删除药品接口（批量）
+    * </p>
+    *
+    * @author xxm
+    * @version 1.0.0
+    * @param dto 药品删除dto
+    * @return 药品删除vo 包含删除成功药品ids
+    */
+    JsonVO<String> deleteMedicine(MedicineDeleteDTO dto);
+
+    /**
+    * <p>
+    * 描述：启/停用药品接口（批量）
+    * </p>
+    *
+    * @author xxm
+    * @version 1.0.0
+    * @param dto 药品状态转换DTO
+    * @return 药品状态转换VO 包含转换状态成功的药品ids
+    */
+    JsonVO<Void> updateChangeMedicineStatus(int status,MedicineChangeStatusDTO dto);
+
+
 }

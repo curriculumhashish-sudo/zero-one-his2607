@@ -1,7 +1,10 @@
 package com.zeroone.star.basedata.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.zeroone.star.basedata.entity.Medicine;
+import com.zeroone.star.basedata.entity.Medicine.MedMedicationDefinitionDO;
+import com.zeroone.star.project.dto.j4.medicine.MedicineChangeStatusDTO;
+import com.zeroone.star.project.dto.j4.medicine.MedicineDeleteDTO;
+import com.zeroone.star.project.dto.j4.medicine.MedicineDetailDTO;
 
 /**
  * <p>
@@ -12,5 +15,12 @@ import com.zeroone.star.basedata.entity.Medicine;
  * @author j4组
  * @version 1.0.0
  */
-public interface IMedicineService extends IService<Medicine> {
+public interface IMedicineService extends IService<MedMedicationDefinitionDO> {
+    MedicineDetailDTO queryMedicineDetailById(String id);
+
+    int updateMedicine(MedicineDetailDTO dto);
+
+    int deleteMedicine(MedicineDeleteDTO dto);
+
+    int updateChangeMedicineStatus(int status, MedicineChangeStatusDTO dto);
 }

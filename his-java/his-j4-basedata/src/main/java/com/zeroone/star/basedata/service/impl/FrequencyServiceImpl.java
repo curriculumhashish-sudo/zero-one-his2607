@@ -4,17 +4,21 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zeroone.star.basedata.entity.Frequency;
+import com.zeroone.star.basedata.entity.CusFrequencyDO;
 import com.zeroone.star.basedata.mapper.FrequencyMapper;
 import com.zeroone.star.basedata.service.IFrequencyService;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j4.frequency.FrequencySaveDTO;
 import com.zeroone.star.project.dto.j4.frequency.FrequencyUpdateDTO;
+import com.zeroone.star.project.dto.j4.frequency.FrequencyStatusDTO;
 import com.zeroone.star.project.query.j4.frequency.FrequencyPageQuery;
+import com.zeroone.star.project.vo.j4.frequency.FrequencyOptionVO;
 import com.zeroone.star.project.vo.j4.frequency.FrequencyVO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * <p>
@@ -26,28 +30,27 @@ import org.springframework.transaction.annotation.Transactional;
  * @version 1.0.0
  */
 @Service
-public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency> implements IFrequencyService {
-
+public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, CusFrequencyDO> implements IFrequencyService {
     @Resource
     private MsFrequencyMapper msFrequencyMapper;
 
     @Override
     public PageDTO<FrequencyVO> queryFrequencyPage(FrequencyPageQuery query) {
         // 构建分页对象
-        Page<Frequency> page = new Page<>(query.getPageIndex(), query.getPageSize());
+        Page<CusFrequencyDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
         // 构建查询条件
-        LambdaQueryWrapper<Frequency> wrapper = new LambdaQueryWrapper<>();
+        LambdaQueryWrapper<CusFrequencyDO> wrapper = new LambdaQueryWrapper<>();
         if (StrUtil.isNotBlank(query.getKeyword())) {
             wrapper.and(w -> w
-                    .like(Frequency::getName, query.getKeyword())
+                    .like(CusFrequencyDO::getName, query.getKeyword())
                     .or()
-                    .like(Frequency::getRateCode, query.getKeyword())
+                    .like(CusFrequencyDO::getRateCode, query.getKeyword())
             );
         }
         // 按排序号升序排列
-        wrapper.orderByAsc(Frequency::getSortNo);
+        wrapper.orderByAsc(CusFrequencyDO::getSortNo);
         // 执行分页查询
-        Page<Frequency> result = baseMapper.selectPage(page, wrapper);
+        Page<CusFrequencyDO> result = baseMapper.selectPage(page, wrapper);
         // 转换为 PageDTO<FrequencyVO>
         return PageDTO.create(result, FrequencyVO::new);
     }
@@ -72,5 +75,23 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, Frequency
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void removeFrequency(String id) {
+    }
+
+    @Override
+    public List<FrequencyOptionVO> listFrequencyNames() {
+        List<CusFrequencyDO> frequencies = lambdaQuery()
+                .eq(CusFrequencyDO::getActiveFlag, (byte) 1)
+                .orderByAsc(CusFrequencyDO::getSortNo)
+                .list();
+
+        return msFrequencyMapper.entitiesToOptionVos(frequencies);
+    }
+
+    @Override
+    public boolean modifyFrequencyStatus(FrequencyStatusDTO dto) {
+        return lambdaUpdate()
+                .eq(CusFrequencyDO::getId, dto.getId())
+                .set(CusFrequencyDO::getActiveFlag, dto.getActiveFlag())
+                .update();
     }
 }
