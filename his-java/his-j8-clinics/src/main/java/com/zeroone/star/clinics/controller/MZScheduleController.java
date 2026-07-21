@@ -23,7 +23,7 @@ import java.util.List;
 @Tag(name = "门诊排班管理")
 @RequestMapping("/j8/schedule")
 @Validated
-public class ScheduleController implements ScheduleApis {
+public class MZScheduleController implements ScheduleApis {
 
     @Operation(summary = "获取已放号源列表")
     @GetMapping("/getRelNumberSource")
