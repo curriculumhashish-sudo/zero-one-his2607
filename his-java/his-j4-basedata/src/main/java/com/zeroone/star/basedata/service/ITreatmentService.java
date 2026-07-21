@@ -1,7 +1,7 @@
 package com.zeroone.star.basedata.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.zeroone.star.basedata.entity.Treatment;
+import com.zeroone.star.basedata.entity.WkfActivityDefinitionDO;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentAddDTO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentEditDTO;
@@ -24,7 +24,7 @@ import java.util.List;
  * @author j4组
  * @version 1.0.0
  */
-public interface ITreatmentService extends IService<Treatment> {
+public interface ITreatmentService extends IService<WkfActivityDefinitionDO> {
 
     PageDTO<TreatmentSelectVO> listTreatmentOptions(TreatmentSelectQuery query);
 
