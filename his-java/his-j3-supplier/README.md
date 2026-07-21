@@ -22,3 +22,6 @@
 | 5 | 修改供应商 | PUT | `/supplier/{id}` |
 | 6 | 删除供应商 | DELETE | `/supplier/{id}` |
 | 7 | 启/停用供应商（支持批量） | PUT | `/supplier/batch-status` |
+
+
+http://localhost:10206/j3-basedata/doc.html#/home
