@@ -20,24 +20,24 @@
 */
 
 #include "../../GlobalInclude.h"
-#include "../../dto/hospitalization_registration/InpatientRegistrationDTO.h"
+#include "../../dto/enroll/EnrollDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
  * Paginated inpatient registration response.
  */
-class InpatientRegistrationPageJsonVO : public JsonVO<InpatientRegistrationPageDTO::Wrapper>
+class EnrollPageJsonVO : public JsonVO<EnrollPageDTO::Wrapper>
 {
-    DTO_INIT(InpatientRegistrationPageJsonVO, JsonVO<InpatientRegistrationPageDTO::Wrapper>);
+    DTO_INIT(EnrollPageJsonVO, JsonVO<EnrollPageDTO::Wrapper>);
 };
 
 /**
  * Inpatient registration detail response.
  */
-class InpatientRegistrationDetailJsonVO : public JsonVO<InpatientRegistrationDetailDTO::Wrapper>
+class EnrollDetailJsonVO : public JsonVO<EnrollDetailDTO::Wrapper>
 {
-    DTO_INIT(InpatientRegistrationDetailJsonVO, JsonVO<InpatientRegistrationDetailDTO::Wrapper>);
+    DTO_INIT(EnrollDetailJsonVO, JsonVO<EnrollDetailDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)

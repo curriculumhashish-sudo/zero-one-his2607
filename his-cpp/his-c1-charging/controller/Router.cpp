@@ -1,4 +1,4 @@
-﻿/*
+/*
  Copyright Zero One Star. All rights reserved.
 
  @Author: awei
@@ -35,6 +35,8 @@
 #include"settle/GetPatientListController.h"
 #include"settle/GetCategoryDetailsController.h"
 #include"settle/GetTotalFeesController.h"
+
+#include "enroll/EnrollController.h"
 
 
 // If the macro for disabling Swagger documentation is defined
@@ -77,4 +79,7 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(GetCategoryDetailsController);
 	ROUTER_SIMPLE_BIND(GetTotalFeesController);
 
+
+	ROUTER_SIMPLE_BIND(EnrollController);
+	
 }

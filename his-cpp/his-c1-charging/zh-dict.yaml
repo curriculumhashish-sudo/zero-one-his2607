@@ -5,6 +5,12 @@ charging:
   tag: 收费工作站-住院结算
  charge:
   tag: 收费工作站-门诊收费
+ enroll:
+  tag: 收费工作站-住院登记
+  query_all:
+   summary: 分页查询住院登记记录
+  query_by_id:
+   summary: 查看住院登记记录详情
 macchiato:
  charging:
   register:
@@ -634,3 +640,41 @@ qi:
       sort_num: 序号
       charge_type_name: 费用大类
       type_total_fee: 大类费用金额
+QQQQ:
+  field:
+    keyword: 患者姓名或住院号
+    id_card: 患者身份证号
+    statuses: 住院登记状态，多个状态使用逗号分隔
+    encounter_id: 住院登记记录ID
+    encounter_bus_no: 住院号
+    patient_name: 患者姓名
+    status_enum: 住院登记状态编码
+    status_enum_text: 住院登记状态名称
+    organization_name: 入院科室
+    ward_name: 入院病区
+    bed_name: 入科床位
+    start_time: 入院时间
+    patient_id: 患者ID
+    gender_enum: 性别编码
+    gender_enum_text: 性别
+    birth_date: 出生日期
+    age: 年龄
+    phone: 联系电话
+    admission_count: 住院次数
+    organization_id: 入院科室ID
+    ward_id: 入院病区ID
+    bed_id: 入科床位ID
+    outpatient_doctor_name: 门诊医生
+    attending_doctor_id: 主治医生ID
+    attending_doctor_name: 主治医生
+    condition_definition_id: 入院诊断ID
+    condition_definition_name: 入院诊断
+    diagnosis_description: 诊断描述
+    admit_source_code: 入院类型编码
+    admit_source_code_text: 入院类型
+    in_way_code: 入院方式编码
+    in_way_code_text: 入院方式
+    priority_enum: 患者病情编码
+    priority_enum_text: 患者病情
+    contract_id: 费用性质ID
+    contract_name: 费用性质
