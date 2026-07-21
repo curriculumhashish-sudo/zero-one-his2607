@@ -18,12 +18,12 @@ class HistoryOrderDetailDTO : public oatpp::DTO {
 	API_DTO_FIELD_REQUIRE(String, orderName, ZH_WORDS_GETTER("historyOrder.field.orderName"), true);	// 医嘱名称，如肝功13项，对应表格“医嘱内容”列主标题
 	API_DTO_FIELD_REQUIRE(Int32, quantity, ZH_WORDS_GETTER("historyOrder.field.quantity"), true);	// 开立总次数，对应“数量X次”
 	API_DTO_FIELD_REQUIRE(Int32, executedCount, ZH_WORDS_GETTER("historyOrder.field.executedCount"), true); // 已执行次数，对应“执行X次”
-	API_DTO_FIELD(String, sampleType, ZH_WORDS_GETTER("historyOrder.field.sampleType"), false);		// 样本类型，如血，检验类医嘱展示
+	API_DTO_FIELD_REQUIRE(String, sampleType, ZH_WORDS_GETTER("historyOrder.field.sampleType"), false);		// 样本类型，如血，检验类医嘱展示
 	API_DTO_FIELD_REQUIRE(String, executeHospital, ZH_WORDS_GETTER("historyOrder.field.executeHospital"), true); // 执行医院，医嘱内容列底部展示
 	API_DTO_FIELD_REQUIRE(String, createTime, ZH_WORDS_GETTER("historyOrder.field.createTime"), true);	// 开立时间，对应表格“开立时间”列
 	API_DTO_FIELD_REQUIRE(String, diagnosis, ZH_WORDS_GETTER("historyOrder.field.diagnosis"), true);		// 对应诊断，对应表格“诊断”列
 	API_DTO_FIELD_REQUIRE(String, doctorName, ZH_WORDS_GETTER("historyOrder.field.doctorName"), true);	// 开立医生，对应表格“医生”列
-	API_DTO_FIELD(Boolean, isSkinTest, ZH_WORDS_GETTER("historyOrder.field.isSkinTest"), false);			// 是否皮试，对应表格“皮试”列，无则显示—
+	API_DTO_FIELD_REQUIRE(Boolean, isSkinTest, ZH_WORDS_GETTER("historyOrder.field.isSkinTest"), false);			// 是否皮试，对应表格“皮试”列，无则显示—
 };
 
 /**
