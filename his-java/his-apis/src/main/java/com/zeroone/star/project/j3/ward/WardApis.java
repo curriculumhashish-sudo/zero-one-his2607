@@ -1,9 +1,9 @@
 package com.zeroone.star.project.j3.ward;
 
-import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j3.ward.*;
 import com.zeroone.star.project.query.j3.ward.*;
 import com.zeroone.star.project.vo.JsonVO;
+import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,8 +26,8 @@ public interface WardApis {
 
     @Operation(summary = "获取病区-病房-床位树形列表", description = "根据条件机构名称获取树形结构数据")
     JsonVO<List<WardTreeQuery>> getWardTree(
-            @Parameter(description = "机构名称", example = "住院内科")
-            String orgName
+            @Parameter(description = "树形查询条件", required = true)
+            WardTreeQuery query
     );
 
     /** ==================== 病区管理 ==================== */

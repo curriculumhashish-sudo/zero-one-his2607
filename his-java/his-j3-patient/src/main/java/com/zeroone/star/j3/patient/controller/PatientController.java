@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @version 1.0.0
  */
 @RestController
-@RequestMapping("patients")
+@RequestMapping("/patients")
 @Tag(name = "patient", description = "患者管理")
 public class PatientController implements PatientApis {
 

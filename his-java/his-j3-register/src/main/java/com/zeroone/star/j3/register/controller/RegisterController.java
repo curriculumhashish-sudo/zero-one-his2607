@@ -1,11 +1,13 @@
 package com.zeroone.star.j3.register.controller;
 
 import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j3.register.RegisterDTO;
 import com.zeroone.star.project.j3.register.RegisterApis;
 import com.zeroone.star.project.dto.j3.register.RegisterDTO;
 import com.zeroone.star.project.query.j3.register.RegisterQuery;
 import com.zeroone.star.project.vo.j3.register.RegisterVO;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j3.register.RegisterVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @version 1.0.0
  */
 @RestController
-@RequestMapping("/j3-register")
+@RequestMapping("/register-types")
 @Tag(name = "挂号类型管理", description = "挂号类型（普通号、专家号、特需号等）相关接口")
 public class RegisterController implements RegisterApis {
 

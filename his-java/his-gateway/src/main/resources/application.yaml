@@ -37,6 +37,48 @@ spring:
               uri: lb://${sn.login}
               predicates:
                 - Path=/login/**
+            - id: j3-department-route
+              uri: http://localhost:10201
+              predicates:
+                - Path=/j3-department/**
+              filters:
+                - StripPrefix=1
+            - id: j3-patient-route
+              uri: http://localhost:10202
+              predicates:
+                - Path=/j3-patient/**
+              filters:
+                - StripPrefix=1
+            - id: j3-register-route
+              uri: http://localhost:10203
+              predicates:
+                - Path=/j3-register/**
+              filters:
+                - StripPrefix=1
+            - id: j3-storehouse-route
+              uri: http://localhost:10204
+              predicates:
+                - Path=/j3-storehouse/**
+              filters:
+                - StripPrefix=1
+            - id: j3-fee-route
+              uri: http://localhost:10205
+              predicates:
+                - Path=/j3-fee/**
+              filters:
+                - StripPrefix=1
+            - id: j3-supplier-route
+              uri: http://localhost:10206
+              predicates:
+                - Path=/j3-supplier/**
+              filters:
+                - StripPrefix=1
+            - id: j3-ward-route
+              uri: http://localhost:10207
+              predicates:
+                - Path=/j3-ward/**
+              filters:
+                - StripPrefix=1
 
 zo:
   cloud:
@@ -54,6 +96,13 @@ zo:
           - "/doc.html"
           - "/v3/api-docs/**"
           - "/*/v3/api-docs"
+          - "/j3-department/**"
+          - "/j3-patient/**"
+          - "/j3-register/**"
+          - "/j3-storehouse/**"
+          - "/j3-fee/**"
+          - "/j3-supplier/**"
+          - "/j3-ward/**"
           - "/webjars/**"
         # 配置内部路径(需要用到凭证但不需要权限验证的请求)
         inner-paths:
@@ -67,9 +116,45 @@ knife4j:
     # 开启gateway聚合组件
     enabled: true
     # 指定服务发现的模式聚合微服务文档，并且是默认`default`分组
-    strategy: discover
+    strategy: manual
+    routes:
+      - name: J3-部门管理
+        service-name: his-j3-department
+        url: /j3-department/j3-basedata/v3/api-docs
+        context-path: /j3-department/j3-basedata
+        order: 1
+      - name: J3-患者管理
+        service-name: his-j3-patient
+        url: /j3-patient/j3-basedata/v3/api-docs
+        context-path: /j3-patient/j3-basedata
+        order: 2
+      - name: J3-挂号管理
+        service-name: his-j3-register
+        url: /j3-register/j3-basedata/v3/api-docs
+        context-path: /j3-register/j3-basedata
+        order: 3
+      - name: J3-库房管理
+        service-name: his-j3-storehouse
+        url: /j3-storehouse/j3-basedata/v3/api-docs
+        context-path: /j3-storehouse/j3-basedata
+        order: 4
+      - name: J3-费用管理
+        service-name: his-j3-fee
+        url: /j3-fee/j3-basedata/v3/api-docs
+        context-path: /j3-fee/j3-basedata
+        order: 5
+      - name: J3-供应商管理
+        service-name: his-j3-supplier
+        url: /j3-supplier/j3-basedata/v3/api-docs
+        context-path: /j3-supplier/j3-basedata
+        order: 6
+      - name: J3-病房管理
+        service-name: his-j3-ward
+        url: /j3-ward/j3-basedata/v3/api-docs
+        context-path: /j3-ward/j3-basedata
+        order: 7
     discover:
-      enabled: true
+      enabled: false
       # 指定版本号(Swagger2|OpenAPI3)
       version: openapi3
       # 需要排除的微服务

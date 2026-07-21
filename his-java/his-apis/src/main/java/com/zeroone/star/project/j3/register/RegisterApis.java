@@ -5,6 +5,7 @@ import com.zeroone.star.project.dto.j3.register.RegisterDTO;
 import com.zeroone.star.project.query.j3.register.RegisterQuery;
 import com.zeroone.star.project.vo.j3.register.RegisterVO;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j3.register.RegisterVO;
 
 /**
  * <p>

@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * @version 1.0.0
  */
 @RestController
-@RequestMapping("/storehouse")
+@RequestMapping("/storehouses")
 @Tag(name = "库房药房管理", description = "库房药房相关操作接口")
 public class StorehouseController implements StoreHouseApis {
 

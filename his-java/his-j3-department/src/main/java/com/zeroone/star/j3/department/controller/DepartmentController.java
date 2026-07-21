@@ -3,6 +3,7 @@ package com.zeroone.star.j3.department.controller;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j3.department.DepartmentBatchDTO;
 import com.zeroone.star.project.dto.j3.department.DepartmentCreateDTO;
+
 import com.zeroone.star.project.dto.j3.department.DepartmentUpdateDTO;
 import com.zeroone.star.project.j3.department.DepartmentApis;
 import com.zeroone.star.project.query.j3.department.DepartmentQuery;
@@ -41,6 +42,12 @@ public class DepartmentController implements DepartmentApis {
 
     @PostMapping("/tree")
     @Operation(summary = "获取科室名称树（支持门诊/住院筛选)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "成功",
+                    content = @Content(schema = @Schema(implementation = JsonVO.class))),
+            @ApiResponse(responseCode = "400", description = "参数错误"),
+            @ApiResponse(responseCode = "404", description = "数据不存在")
+    })
     @Override
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "成功",
@@ -54,6 +61,12 @@ public class DepartmentController implements DepartmentApis {
 
     @GetMapping("/{id}")
     @Operation(summary = "获取科室详情")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "成功",
+                    content = @Content(schema = @Schema(implementation = JsonVO.class))),
+            @ApiResponse(responseCode = "400", description = "参数错误"),
+            @ApiResponse(responseCode = "404", description = "科室不存在")
+    })
     @Override
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "成功",
