@@ -16,7 +16,7 @@ class EquipmentDetailPageJsonVO : public JsonVO<EquipmentDetailPageDTO::Wrapper>
 };
 
 /**
- * 响应给客户端的用户详细信息JsonVO对象
+ * 响应给客户端的one用户详细信息JsonVO对象
  */
 class EquipmentDetailJsonVO : public JsonVO<EquipmentAddDTO::Wrapper>
 {

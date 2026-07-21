@@ -8,7 +8,7 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * Æ÷²ÄÏêÇéDTO
+ * Æ÷²ÄÏêÇéall DTO
  */
 class EquipmentDetailDTO : public oatpp::DTO
 {
