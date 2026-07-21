@@ -1,7 +1,7 @@
 ﻿pat:
   tag: 患者管理接口
   page:
-    success: 患者分页查询接口访问成功，业务数据待Service对接
+    success: 患者分页查询接口访问成功
     summary: 分页查询患者列表
     query:
       field:
@@ -14,3 +14,19 @@
         idCard: 身份证号
         gender: 性别 1男 2女
         age: 年龄
+  select:
+    page:
+      summary: 分页查询弹窗可选患者列表
+      success: 查询可选患者列表成功
+    query:
+      field:
+        keyword: 搜索关键词(姓名/病历号/证件号)
+    dto:
+      field:
+        medicalNo: 病历号
+        name: 患者姓名
+        gender: 性别
+        birthDay: 出生日期
+        age: 年龄
+        phone: 联系电话
+        idCard: 身份证号
