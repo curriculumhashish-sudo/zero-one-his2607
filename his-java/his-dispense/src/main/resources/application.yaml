@@ -1,8 +1,10 @@
 server:
-  port: ${sp.dispense}
+  port:  ${sp.dispense}
   servlet:
     context-path: /dispense
 spring:
+  config:
+    import: nacos:data-source.yaml,nacos:system.yaml
   application:
     name: ${sn.dispense}
   cloud:
