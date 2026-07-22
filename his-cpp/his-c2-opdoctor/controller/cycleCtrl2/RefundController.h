@@ -34,9 +34,9 @@ class Refund2Controller : public oatpp::web::server::api::ApiController
 	API_ACCESS_DECLARE(Refund2Controller);
 public://定义接口
 	// 3.1.1 定义获取退费清单接口描述
-	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("cyclectrl2.refund.query"), queryRefund, Refund2Query,Refund2DetailJsonVO::Wrapper, API_TAG);
+	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("cyclectrl2.refund.query"), queryRefund, Refund2Query, Refund2DetailJsonVO::Wrapper, API_TAG);
 	// 3.1.2 定义获取退费清单接口处理
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/refund/query", queryRefund, Refund2Query,executeQueryRefund(query));
+	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/refund/query", queryRefund, Refund2Query, executeQueryRefund(query));
 	// 3.2.1 定义提交退费申请接口描述
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("cyclectrl2.refund.apply"), applyRefund, StringJsonVO::Wrapper, API_TAG);
 	// 3.2.2 定义提交退费申请接口处理

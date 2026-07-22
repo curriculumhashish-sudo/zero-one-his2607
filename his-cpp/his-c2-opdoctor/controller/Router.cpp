@@ -19,9 +19,9 @@
 #include "stdafx.h"
 #include "Router.h"
 #include "ApiHelper.h"
-#include"refund2/RefundController.h"
-#include"prescription2/PrescriptionController.h"
-#include"admission2/AdmissionController.h"
+#include"cycleCtrl2/RefundController.h"
+#include"cycleCtrl2/PrescriptionController.h"
+#include"cycleCtrl2/AdmissionController.h"
 
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
