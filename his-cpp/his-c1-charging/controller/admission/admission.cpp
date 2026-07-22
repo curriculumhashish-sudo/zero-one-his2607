@@ -9,5 +9,5 @@ StringJsonVO::Wrapper AdmissionController::admission_delete(
     const AdmissionDeleteDTO::Wrapper& dto
 )
 {
-    return StringJsonVO::Wrapper();
+    return StringJsonVO::Wrapper();//
 }
