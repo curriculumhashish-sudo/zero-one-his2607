@@ -49,7 +49,7 @@ class DiagnoseAddDTO : public oatpp::DTO
     //医保编码
     DTO_FIELD(oatpp::String, medicalInsuranceCode);
     DTO_FIELD_INFO(medicalInsuranceCode) { info->description = ZH_WORDS_GETTER("diagnose.field.diag.medical_insurance_code"); }
-    //状态
+    //状态 1-启用 0-停用
     DTO_FIELD(oatpp::Int32, status);
     DTO_FIELD_INFO(status) { info->description = ZH_WORDS_GETTER("diagnose.diag.status"); }
     // 医保标记（复选框bool）
@@ -153,6 +153,30 @@ class DiagnoseDTO : public DiagnoseAddDTO
         info->description = ZH_WORDS_GETTER("diagnose.field.diag.id");
     }
 };
+
+// 诊断批量状态修改DTO
+class DiagnoseBatchStatusDTO : public oatpp::DTO
+{
+    DTO_INIT(DiagnoseBatchStatusDTO, DTO);
+
+    // ID数组
+    DTO_FIELD(oatpp::List<oatpp::String>, ids);
+    DTO_FIELD_INFO(ids) {
+        info->description = ZH_WORDS_GETTER("diagnose.field.diag.id_list");
+        info->required = true;
+    }
+
+    // 目标状态 1-启用 0-停用
+    DTO_FIELD(oatpp::Int32, status);
+    DTO_FIELD_INFO(status) {
+        info->description = ZH_WORDS_GETTER("diagnose.field.diag.status");
+        info->required = true;
+    }
+    CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
+
+};
+
+
 
 
 #include OATPP_CODEGEN_END(DTO)

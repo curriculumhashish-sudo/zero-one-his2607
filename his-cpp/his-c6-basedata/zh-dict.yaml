@@ -34,6 +34,7 @@ diagnose:
     create_time: 创建时间
     update_by: 修改人ID
     update_time: 修改时间
+    id_list: 诊断id列表
  type:
    western_medicine_diagnosis: "西医诊断"
    chinese_main_disease_diagnosis: "中医主病诊断"

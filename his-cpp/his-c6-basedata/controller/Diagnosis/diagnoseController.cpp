@@ -4,6 +4,8 @@
 #include "../ApiDeclarativeServicesHelper.h"
 #include "ExcelComponent.h"
 #include "PdfComponent.h"
+#include "domain/vo/BaseJsonVO.h"
+
 //新增表单
 StringJsonVO::Wrapper DiagnosisController::execAddDiagnose(const DiagnoseAddDTO::Wrapper& dto, const PayloadDTO& payload)
 {
@@ -90,6 +92,38 @@ ListJsonVO<String>::Wrapper DiagnosisController::execRemoveDiagnose(const List<S
 	{
 		jvo->fail(nullptr);
 	}
+	// 响应结果
+	return jvo;
+}
+
+//批量停用/启用
+StringJsonVO::Wrapper DiagnosisController::execBatchChangeDiagnoseStatus(const DiagnoseBatchStatusDTO::Wrapper& dto, const PayloadDTO& payload)
+{
+	auto jvo = StringJsonVO::createShared();
+
+	if (!dto->ids || !dto->status)
+	{
+		jvo->init(nullptr, RS_PARAMS_INVALID);
+		return jvo;
+	}
+	if (*dto->status != 0 && *dto->status != 1)
+	{
+		jvo->init(nullptr, RS_PARAMS_INVALID);
+		return jvo;
+	}
+
+	dto->setPayload(&payload);
+
+	// 调用service批量修改状态
+	if (DiagnoseService().batchChangeStatus(dto->ids, dto->status))
+	{
+		jvo->success(nullptr);
+	}
+	else
+	{
+		jvo->fail(nullptr);
+	}
+
 	// 响应结果
 	return jvo;
 }

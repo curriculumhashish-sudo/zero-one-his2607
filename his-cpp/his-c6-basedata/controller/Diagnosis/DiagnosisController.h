@@ -140,6 +140,10 @@ API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/diagnose", modifyDiagnose, BODY_DTO(Diagn
 API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.delete.summary"), removeDiagnose, ListJsonVO<String>::Wrapper, API_TAG);
 //  定义删除接口处理
 API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/diagnose", removeDiagnose, BODY_DTO(List<String>, ids), execRemoveDiagnose(ids));
+// 定义批量启用/停用接口描述
+API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.field.diag.status"), batchChangeDiagnoseStatus, StringJsonVO::Wrapper, API_TAG);
+// 定义批量启用/停用接口处理
+API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/diagnose/batch/status", batchChangeDiagnoseStatus,BODY_DTO(DiagnoseBatchStatusDTO::Wrapper, dto),execBatchChangeDiagnoseStatus(dto, authObject->getPayload()));
 
 private:
 
@@ -151,6 +155,9 @@ StringJsonVO::Wrapper execAddDiagnose(const DiagnoseAddDTO::Wrapper& dto, const 
 StringJsonVO::Wrapper execModifyDiagnose(const DiagnoseDTO::Wrapper& dto, const PayloadDTO& payload);
 // 演示删除数据
 ListJsonVO<String>::Wrapper execRemoveDiagnose(const List<String>& ids);
+//演示批量启用/停用
+StringJsonVO::Wrapper execBatchChangeDiagnoseStatus(const DiagnoseBatchStatusDTO::Wrapper& dto, const PayloadDTO& payload);
+
 
 	DiagnosisSelectJsonVO::Wrapper executeListSelectDiagnosis(const DiagnosisSelectQuery::Wrapper& query);
 	DiagnosisPageJsonVO::Wrapper executeListDiagnosis(const DiagnosisPageQuery::Wrapper& query);
