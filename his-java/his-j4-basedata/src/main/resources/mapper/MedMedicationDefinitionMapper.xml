@@ -2,4 +2,113 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zeroone.star.basedata.mapper.MedMedicationDefinitionMapper">
 
+    <select id="selectMedicinePage" resultType="com.zeroone.star.project.vo.j4.medicine.MedicineListVO">
+        SELECT
+            m.id, m.bus_no, m.name, m.total_volume, m.active_flag,
+            m.category_code, m.manufacturer_text, m.package_unit_code,
+            (
+                SELECT c.price_value
+                FROM adm_charge_item_definition c
+                WHERE c.instance_table = 'med_medication_definition'
+                  AND c.instance_id = m.id
+                  AND c.price_type_code = 'SALE'
+                  AND c.is_deleted = 0
+                ORDER BY COALESCE(c.priority, 2147483647), c.id
+                LIMIT 1
+            ) AS retail_price
+        FROM med_medication_definition m
+        <where>
+            m.is_deleted = 0
+            <if test="query != null and query.keyword != null and query.keyword != ''">
+                AND (m.bus_no LIKE CONCAT('%', #{query.keyword}, '%')
+                  OR m.name LIKE CONCAT('%', #{query.keyword}, '%')
+                  OR m.merchandise_name LIKE CONCAT('%', #{query.keyword}, '%')
+                  OR m.py_str LIKE CONCAT('%', #{query.keyword}, '%')
+                  OR m.wb_str LIKE CONCAT('%', #{query.keyword}, '%'))
+            </if>
+            <if test="query != null and query.categoryCode != null and query.categoryCode != ''">
+                AND m.category_code = #{query.categoryCode}
+            </if>
+            <if test="query != null and query.activeFlag != null">
+                AND m.active_flag = #{query.activeFlag}
+            </if>
+        </where>
+        ORDER BY m.created_at DESC, m.id DESC
+    </select>
+
+    <select id="selectMedicineSelectPage"
+            resultType="com.zeroone.star.project.vo.j4.medicine.MedicineSelectVO">
+        SELECT
+        m.id AS id,
+        m.bus_no AS itemCode,
+        m.name AS itemName,
+        COALESCE(category_concept.display, m.category_code) AS categoryName,
+        m.total_volume AS specification,
+        COALESCE(inventory.stock_quantity, 0) AS stockQuantity,
+        m.stock_unit_code AS stockUnitCode,
+        COALESCE(unit_concept.display, m.stock_unit_code) AS stockUnitName,
+        (
+        SELECT price.price_value
+        FROM adm_charge_item_definition price
+        WHERE price.instance_table = 'med_medication_definition'
+        AND price.instance_id = m.id
+        AND price.price_type_code = 'SALE'
+        AND price.is_deleted = 0
+        AND price.status_enum = 'ACTIVE'
+        ORDER BY
+        COALESCE(price.priority, 2147483647),
+        price.id
+        LIMIT 1
+        ) AS unitPrice
+        FROM med_medication_definition m
+
+        LEFT JOIN (
+        SELECT
+        item_id,
+        unit_code,
+        SUM(quantity) AS stock_quantity
+        FROM wkf_inventory_item
+        WHERE item_table = 'med_medication_definition'
+        AND is_deleted = 0
+        AND inventory_status_enum = 'ACTIVE'
+        AND location_id = #{locationId}
+        GROUP BY item_id, unit_code
+        ) inventory
+        ON inventory.item_id = m.id
+        AND inventory.unit_code = m.stock_unit_code
+
+        LEFT JOIN ter_concept category_concept
+        ON category_concept.code_system_id = '900006'
+        AND category_concept.code = m.category_code
+        AND category_concept.is_active = 1
+        AND category_concept.is_deleted = 0
+
+        LEFT JOIN ter_concept unit_concept
+        ON unit_concept.code_system_id = '279125561775755265'
+        AND unit_concept.code = m.stock_unit_code
+        AND unit_concept.is_active = 1
+        AND unit_concept.is_deleted = 0
+
+        <where>
+            m.is_deleted = 0
+            AND m.active_flag = 1
+            AND m.status_enum = 'ACTIVE'
+
+            <if test="query.keyword != null and query.keyword != ''">
+                AND (
+                m.bus_no LIKE CONCAT('%', #{query.keyword}, '%')
+                OR m.name LIKE CONCAT('%', #{query.keyword}, '%')
+                OR m.merchandise_name LIKE CONCAT('%', #{query.keyword}, '%')
+                OR m.py_str LIKE CONCAT('%', #{query.keyword}, '%')
+                OR m.wb_str LIKE CONCAT('%', #{query.keyword}, '%')
+                )
+            </if>
+
+            <if test="query.categoryCode != null and query.categoryCode != ''">
+                AND m.category_code = #{query.categoryCode}
+            </if>
+        </where>
+
+        ORDER BY m.created_at DESC, m.id DESC
+    </select>
 </mapper>

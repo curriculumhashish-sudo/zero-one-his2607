@@ -1,17 +1,23 @@
 package com.zeroone.star.basedata.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zeroone.star.basedata.entity.Medicine.AdmChargeItemDefinitionDO;
 import com.zeroone.star.basedata.entity.Medicine.MedMedicationDefinitionDO;
 import com.zeroone.star.basedata.mapper.AdmChargeItemDefinitionMapper;
 import com.zeroone.star.basedata.mapper.MedMedicationDefinitionMapper;
 import com.zeroone.star.basedata.service.IMedicineService;
+import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineAddDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineChangeStatusDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineDeleteDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineDetailDTO;
+import com.zeroone.star.project.query.j4.medicine.MedicinePageQuery;
+import com.zeroone.star.project.query.j4.medicine.MedicineSelectPageQuery;
 import com.zeroone.star.project.vo.j4.medicine.MedicineAddVO;
+import com.zeroone.star.project.vo.j4.medicine.MedicineListVO;
+import com.zeroone.star.project.vo.j4.medicine.MedicineSelectVO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,8 +38,7 @@ import java.time.LocalDateTime;
 @Service
 public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapper, MedMedicationDefinitionDO> implements IMedicineService {
 
-    private static final String INSTANCE_TABLE =
-            "med_medication_definition";
+    private static final String INSTANCE_TABLE = "med_medication_definition";
 
     private static final String STATUS_ACTIVE = "ACTIVE";
 
@@ -45,14 +50,43 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
      * TODO 登录选择科室功能完成后，
      * 根据当前用户ID从Redis读取本次会话选择的科室orgId。
      */
-    private static final String TEMP_ORG_ID =
-            "322663105141149696";
+    private static final String TEMP_ORG_ID = "322663105141149696";
+
+    /**
+     * TODO 用户药房选择功能完成后，
+     * 从当前登录状态中获取对应的药房或库房locationId。
+     */
+    private static final String TEMP_LOCATION_ID = "322954949549363200";
 
     @Resource
     private MsMedicineMapper msMedicineMapper;
 
     @Resource
     private AdmChargeItemDefinitionMapper chargeItemMapper;
+
+    @Override
+    public PageDTO<MedicineListVO> queryMedicinePage(MedicinePageQuery query) {
+        Page<MedicineListVO> page = new Page<>(query.getPageIndex(), query.getPageSize());
+        Page<MedicineListVO> result = baseMapper.selectMedicinePage(page, query);
+        return PageDTO.create(result);
+    }
+
+    @Override
+    public PageDTO<MedicineSelectVO> queryMedicineSelectPage(
+            MedicineSelectPageQuery query) {
+
+        Page<MedicineSelectVO> page =
+                new Page<>(query.getPageIndex(), query.getPageSize());
+
+        Page<MedicineSelectVO> result =
+                baseMapper.selectMedicineSelectPage(
+                        page,
+                        query,
+                        TEMP_LOCATION_ID
+                );
+
+        return PageDTO.create(result);
+    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)

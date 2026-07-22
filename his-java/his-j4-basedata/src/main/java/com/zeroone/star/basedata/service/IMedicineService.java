@@ -2,11 +2,16 @@ package com.zeroone.star.basedata.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zeroone.star.basedata.entity.Medicine.MedMedicationDefinitionDO;
+import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineAddDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineChangeStatusDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineDeleteDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineDetailDTO;
+import com.zeroone.star.project.query.j4.medicine.MedicinePageQuery;
+import com.zeroone.star.project.query.j4.medicine.MedicineSelectPageQuery;
 import com.zeroone.star.project.vo.j4.medicine.MedicineAddVO;
+import com.zeroone.star.project.vo.j4.medicine.MedicineListVO;
+import com.zeroone.star.project.vo.j4.medicine.MedicineSelectVO;
 
 /**
  * <p>
@@ -18,6 +23,23 @@ import com.zeroone.star.project.vo.j4.medicine.MedicineAddVO;
  * @version 1.0.0
  */
 public interface IMedicineService extends IService<MedMedicationDefinitionDO> {
+
+    /**
+     * 条件分页查询药品列表
+     * @param query 查询条件和分页参数
+     * @return 药品分页列表
+     */
+    PageDTO<MedicineListVO> queryMedicinePage(MedicinePageQuery query);
+
+    /**
+     * 条件分页查询可选择的药品
+     *
+     * @param query 查询条件和分页参数
+     * @return 可选择药品分页列表
+     */
+    PageDTO<MedicineSelectVO> queryMedicineSelectPage(
+            MedicineSelectPageQuery query
+    );
 
     /**
      * 根据ID查询药品详情
