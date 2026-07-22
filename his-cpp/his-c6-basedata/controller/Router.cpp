@@ -19,8 +19,12 @@
 #include "stdafx.h"
 #include "Router.h"
 #include "ApiHelper.h"
+
 #include "drug/DrugController.h"
 #include"Diagnosis/DiagnosisController.h"
+
+#include "treatment/TreatmentController.h"
+
 
 #include "frequency/FrequencyController.h"
 #include "equipment/EquipmentController.h"
@@ -51,5 +55,5 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(EquipmentController);
 
 	ROUTER_SIMPLE_BIND(DiagnosisController);
-
+	ROUTER_SIMPLE_BIND(TreatmentController);
 }
