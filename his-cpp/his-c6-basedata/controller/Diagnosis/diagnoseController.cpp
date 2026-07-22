@@ -127,3 +127,24 @@ StringJsonVO::Wrapper DiagnosisController::execBatchChangeDiagnoseStatus(const D
 	// 响应结果
 	return jvo;
 }
+DiagnosisSelectJsonVO::Wrapper DiagnosisController::executeListSelectDiagnosis(const DiagnosisSelectQuery::Wrapper& query)
+{
+	auto jvo = DiagnosisSelectJsonVO::createShared();
+	// 后续调用 DiagnosisService 分页查询
+	// jvo->setData(service->listSelect(query));
+	return jvo;
+}
+
+DiagnosisPageJsonVO::Wrapper DiagnosisController::executeListDiagnosis(const DiagnosisPageQuery::Wrapper& query)
+{
+	auto jvo = DiagnosisPageJsonVO::createShared();
+	// 后续调用 DiagnosisService 管理页分页查询
+	return jvo;
+}
+
+DiagnosisDetailJsonVO::Wrapper DiagnosisController::executeGetDiagnosisDetail(const String& id)
+{
+	auto jvo = DiagnosisDetailJsonVO::createShared();
+	// 后续调用 DiagnosisService 根据ID查详情
+	return jvo;
+}
