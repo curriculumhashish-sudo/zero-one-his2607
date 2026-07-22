@@ -19,11 +19,16 @@
 #include "stdafx.h"
 #include "MedicationCatalogController.h"
 
+#include <algorithm>
+#include <cctype>
+
 namespace
 {
 	bool hasText(const oatpp::String& value)
 	{
-		return value && !value->empty();
+		return value && std::any_of(value->cbegin(), value->cend(), [](const char character) {
+			return std::isspace(static_cast<unsigned char>(character)) == 0;
+		});
 	}
 
 	bool isUnsignedIntegerId(const oatpp::String& value)
@@ -81,7 +86,7 @@ namespace
 	}
 }
 
-MedicationCatalogDetailJsonVO::Wrapper MedicationCatalogController::execEditMedicationCatalog(
+MedicationCatalogDetailJsonVO::Wrapper MedicationCatalogController::execModifyMedicationCatalog(
 	const MedicationCatalogModifyDTO::Wrapper& dto)
 {
 	auto result = MedicationCatalogDetailJsonVO::createShared();
@@ -93,7 +98,7 @@ MedicationCatalogDetailJsonVO::Wrapper MedicationCatalogController::execEditMedi
 
 	try
 	{
-		const auto& mapper = getDefaultObjectMapper();
+		const auto mapper = getDefaultObjectMapper();
 		if (!mapper)
 		{
 			result->init(nullptr, RS_PARAMS_INVALID);
@@ -101,6 +106,11 @@ MedicationCatalogDetailJsonVO::Wrapper MedicationCatalogController::execEditMedi
 		}
 
 		auto detail = mapper->readFromString<MedicationCatalogDetailVO::Wrapper>(mapper->writeToString(dto));
+		if (!detail)
+		{
+			result->init(nullptr, RS_PARAMS_INVALID);
+			return result;
+		}
 		detail->specification = dto->totalVolume;
 		if (!hasText(detail->medicationDefId))
 		{
@@ -115,7 +125,7 @@ MedicationCatalogDetailJsonVO::Wrapper MedicationCatalogController::execEditMedi
 	return result;
 }
 
-NoDataJsonVO::Wrapper MedicationCatalogController::execDeleteMedicationCatalog(const List<String>& ids)
+NoDataJsonVO::Wrapper MedicationCatalogController::execRemoveMedicationCatalog(const List<String>& ids)
 {
 	return createBatchResult(ids);
 }

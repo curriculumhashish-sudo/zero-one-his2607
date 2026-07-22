@@ -38,10 +38,11 @@ class MedicationCatalogUnitBandVO : public oatpp::DTO
 	API_DTO_FIELD(Float64, unitPrice, ZH_WORDS_GETTER("medication.field.unitPrice"), true, 15.8);
 };
 
-class MedicationCatalogDetailVO : public MedicationCatalogModifyDTO
+class MedicationCatalogDetailVO : public MedicationCatalogBaseDTO
 {
-	DTO_INIT(MedicationCatalogDetailVO, MedicationCatalogModifyDTO);
+	DTO_INIT(MedicationCatalogDetailVO, MedicationCatalogBaseDTO);
 
+	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("medication.field.id"), true);
 	API_DTO_FIELD(String, specification, ZH_WORDS_GETTER("medication.field.specification"), true, "5ml:0.5g");
 	API_DTO_FIELD(String, activeFlagText, ZH_WORDS_GETTER("medication.field.activeFlagText"), true,
 		ZH_WORDS_GETTER("medication.example.statusEnabled"));
@@ -58,17 +59,37 @@ class MedicationCatalogDetailVO : public MedicationCatalogModifyDTO
 		ZH_WORDS_GETTER("medication.field.supplyIdText"), true,
 		ZH_WORDS_GETTER("medication.example.supplierText"));
 	API_DTO_FIELD(Boolean, potencyFlag, ZH_WORDS_GETTER("medication.field.potencyFlag"), false, false);
-	DTO_FIELD(List<MedicationCatalogUnitBandVO::Wrapper>, unitBands) =
-		List<MedicationCatalogUnitBandVO::Wrapper>::createShared();
-	DTO_FIELD_INFO(unitBands)
-	{
-		info->description = ZH_WORDS_GETTER("medication.field.unitBands");
-		info->required = true;
-	}
+	API_DTO_FIELD(List<MedicationCatalogUnitBandVO::Wrapper>, unitBands,
+		ZH_WORDS_GETTER("medication.field.unitBands"), true,
+		List<MedicationCatalogUnitBandVO::Wrapper>::createShared());
 
 public:
 	MedicationCatalogDetailVO()
 	{
+		id = "10001";
+		name = ZH_WORDS_GETTER("medication.example.name");
+		categoryCode = "FL001";
+		merchandiseName = ZH_WORDS_GETTER("medication.example.merchandiseName");
+		purchaseUnitCode = "DW001";
+		splitUnitCode = "DW002";
+		pharmacologyCategoryCode = "YL001";
+		manufacturerText = ZH_WORDS_GETTER("medication.example.manufacturerText");
+		supplyId = "60001";
+		partAttributeEnum = "1";
+		thoPartAttributeEnum = "1";
+		typeCode = "CW001";
+		totalVolume = "5ml:0.5g";
+		doseFormCode = "JX001";
+		doseUnitCode = "DW001";
+		packageUnitCode = "DW003";
+		stockUnitCode = "DW004";
+		doseUnitRatio = 10.0;
+		purchaseUnitRatio = 10.0;
+		stockUnitRatio = 10.0;
+		packageUnitRatio = 10.0;
+		purchasePrice = 10.5;
+		retailPrice = 15.8;
+		specification = totalVolume;
 		unitBands->push_back(MedicationCatalogUnitBandVO::createShared());
 	}
 };

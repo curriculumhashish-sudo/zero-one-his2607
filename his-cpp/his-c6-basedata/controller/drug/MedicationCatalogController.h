@@ -27,39 +27,26 @@
 
 using namespace oatpp;
 
-#ifdef _RELEASE_DOC_
-class MedicationCatalogDocAuthorizeHandler final : public oatpp::web::server::handler::BearerAuthorizationHandler
-{
-public:
-	std::shared_ptr<AuthorizationObject> authorize(const oatpp::String& token) override
-	{
-		PayloadDTO payload;
-		payload.setCode(PayloadCode::SUCCESS);
-		payload.setToken(token ? token->c_str() : "");
-		return std::make_shared<CustomerAuthorizeObject>(payload);
-	}
-};
-#endif
-
 class MedicationCatalogSwagger final
 {
 public:
-	template<class T>
-	static void addBodyExample(const std::shared_ptr<oatpp::web::server::api::Endpoint::Info>& info,
-		const oatpp::String& description, const T& example)
+	static void addEditExamples(const std::shared_ptr<oatpp::web::server::api::Endpoint::Info>& info)
 	{
-		info->body.description = description;
-		info->body.required = true;
-		info->body.addExample("default", example);
+		info->body.description = ZH_WORDS_GETTER("medication.body.edit");
+		info->body.addExample("default", sampleEdit());
+		info->responses[oatpp::web::protocol::http::Status::CODE_200]
+			.addExample("success", successDetail());
 	}
 
-	template<class T>
-	static void addResponseExample(const std::shared_ptr<oatpp::web::server::api::Endpoint::Info>& info,
-		const T& example)
+	static void addBatchExamples(const std::shared_ptr<oatpp::web::server::api::Endpoint::Info>& info)
 	{
-		info->responses[oatpp::web::protocol::http::Status::CODE_200].addExample("success", example);
+		info->body.description = ZH_WORDS_GETTER("medication.body.ids");
+		info->body.addExample("default", sampleIds());
+		info->responses[oatpp::web::protocol::http::Status::CODE_200]
+			.addExample("success", successNoData());
 	}
 
+private:
 	static oatpp::List<oatpp::String> sampleIds()
 	{
 		auto ids = oatpp::List<oatpp::String>::createShared();
@@ -77,12 +64,8 @@ public:
 
 	static MedicationCatalogDetailJsonVO::Wrapper successDetail()
 	{
-		auto detail = MedicationCatalogDetailVO::createShared();
-		fillRequiredEditFields(detail);
-		detail->specification = detail->totalVolume;
-
 		auto result = MedicationCatalogDetailJsonVO::createShared();
-		result->success(detail);
+		result->success(MedicationCatalogDetailVO::createShared());
 		return result;
 	}
 
@@ -92,10 +75,7 @@ public:
 		result->init(RS_SUCCESS);
 		return result;
 	}
-
-private:
-	template<class T>
-	static void fillRequiredEditFields(const T& dto)
+	static void fillRequiredEditFields(const MedicationCatalogModifyDTO::Wrapper& dto)
 	{
 		dto->id = "10001";
 		dto->name = ZH_WORDS_GETTER("medication.example.name");
@@ -134,47 +114,39 @@ class MedicationCatalogController : public oatpp::web::server::api::ApiControlle
 
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.edit.summary"), medicationCatalog_editMedicationCatalog,
 		MedicationCatalogDetailJsonVO::Wrapper, API_TAG,
-		MedicationCatalogSwagger::addBodyExample(info, ZH_WORDS_GETTER("medication.body.edit"),
-			MedicationCatalogSwagger::sampleEdit());
-		MedicationCatalogSwagger::addResponseExample(info, MedicationCatalogSwagger::successDetail());
+		MedicationCatalogSwagger::addEditExamples(info);
 	);
-	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_PATH "/editMedicationCatalog",
+	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, MEDICATION_CATALOG_PATH "/editMedicationCatalog",
 		medicationCatalog_editMedicationCatalog,
-		BODY_DTO(MedicationCatalogModifyDTO::Wrapper, dto), execEditMedicationCatalog(dto));
+		BODY_DTO(MedicationCatalogModifyDTO::Wrapper, dto), execModifyMedicationCatalog(dto));
 
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.delete.summary"), medicationCatalog_deleteMedicationCatalog,
 		NoDataJsonVO::Wrapper, API_TAG,
-		MedicationCatalogSwagger::addBodyExample(info, ZH_WORDS_GETTER("medication.body.ids"),
-			MedicationCatalogSwagger::sampleIds());
-		MedicationCatalogSwagger::addResponseExample(info, MedicationCatalogSwagger::successNoData());
+		MedicationCatalogSwagger::addBatchExamples(info);
 	);
-	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_PATH "/deleteMedicationCatalog",
+	API_HANDLER_ENDPOINT_AUTH(API_M_DEL, MEDICATION_CATALOG_PATH "/deleteMedicationCatalog",
 		medicationCatalog_deleteMedicationCatalog,
-		BODY_DTO(List<String>, ids), execDeleteMedicationCatalog(ids));
+		BODY_DTO(List<String>, ids), execRemoveMedicationCatalog(ids));
 
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.start.summary"), medicationCatalog_startMedicationCatalog,
 		NoDataJsonVO::Wrapper, API_TAG,
-		MedicationCatalogSwagger::addBodyExample(info, ZH_WORDS_GETTER("medication.body.ids"),
-			MedicationCatalogSwagger::sampleIds());
-		MedicationCatalogSwagger::addResponseExample(info, MedicationCatalogSwagger::successNoData());
+		MedicationCatalogSwagger::addBatchExamples(info);
 	);
-	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_PATH "/startMedicationCatalog",
+	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, MEDICATION_CATALOG_PATH "/startMedicationCatalog",
 		medicationCatalog_startMedicationCatalog,
 		BODY_DTO(List<String>, ids), execStartMedicationCatalog(ids));
 
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medication.stop.summary"), medicationCatalog_stopMedicationCatalog,
 		NoDataJsonVO::Wrapper, API_TAG,
-		MedicationCatalogSwagger::addBodyExample(info, ZH_WORDS_GETTER("medication.body.ids"),
-			MedicationCatalogSwagger::sampleIds());
-		MedicationCatalogSwagger::addResponseExample(info, MedicationCatalogSwagger::successNoData());
+		MedicationCatalogSwagger::addBatchExamples(info);
 	);
-	API_HANDLER_ENDPOINT_AUTH(API_M_POST, MEDICATION_CATALOG_PATH "/stopMedicationCatalog",
+	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, MEDICATION_CATALOG_PATH "/stopMedicationCatalog",
 		medicationCatalog_stopMedicationCatalog,
 		BODY_DTO(List<String>, ids), execStopMedicationCatalog(ids));
 
 private:
-	MedicationCatalogDetailJsonVO::Wrapper execEditMedicationCatalog(const MedicationCatalogModifyDTO::Wrapper& dto);
-	NoDataJsonVO::Wrapper execDeleteMedicationCatalog(const List<String>& ids);
+	MedicationCatalogDetailJsonVO::Wrapper execModifyMedicationCatalog(const MedicationCatalogModifyDTO::Wrapper& dto);
+	NoDataJsonVO::Wrapper execRemoveMedicationCatalog(const List<String>& ids);
 	NoDataJsonVO::Wrapper execStartMedicationCatalog(const List<String>& ids);
 	NoDataJsonVO::Wrapper execStopMedicationCatalog(const List<String>& ids);
 };
