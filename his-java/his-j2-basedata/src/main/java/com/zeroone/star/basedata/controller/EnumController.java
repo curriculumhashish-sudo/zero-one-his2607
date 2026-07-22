@@ -48,13 +48,6 @@ public class EnumController implements EnumApis {
         return null;
     }
 
-    @GetMapping("/sys/query-all-enum-type")
-    @Operation(summary = "分页查询枚举类型", description = "主要是分页，这里当前只有依据关键搜索")
-    @Override
-    public JsonVO<PageDTO<EnumTypeDTO>> queryAllEnumType(@RequestBody @Valid EnumTypeQuery query) {
-        return null;
-    }
-
     @PostMapping("/sys/add-enum-type")
     @Operation(summary = "创建枚举类型", description = "租户等信息由jwt等提供，id自动生成")
     @Override

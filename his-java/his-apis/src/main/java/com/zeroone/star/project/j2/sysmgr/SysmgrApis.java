@@ -1,9 +1,9 @@
-package com.zeroone.star.project.sysmgr;
+package com.zeroone.star.project.j2.sysmgr;
 
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j2.sysmgr.AddTenantUserDTO;
 import com.zeroone.star.project.dto.j2.sysmgr.RemoveTenantUserDTO;
-import com.zeroone.star.project.query.j2_sysmgr.TenantUserQuery;
+import com.zeroone.star.project.query.j2.sysmgr.TenantUserQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j2.sysmgr.TenantUserVO;
 

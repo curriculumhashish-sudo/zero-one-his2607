@@ -40,13 +40,6 @@ public interface EnumApis {
      */
     JsonVO<List<EnumDTO>> listEnumsByEnumType(String enumTypeId);
 
-    /**
-     * 分页查询
-     *
-     * @param query 查询参数
-     * @return 查询结果
-     */
-    JsonVO<PageDTO<EnumTypeDTO>> queryAllEnumType(EnumTypeQuery query);
 
     /**
      * 添加枚举类型
