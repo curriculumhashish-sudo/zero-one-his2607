@@ -1,4 +1,4 @@
-﻿equipment:
+equipment:
   tags:
     tag: 器材管理
   query:
@@ -108,8 +108,45 @@ frequency:
     sort: 排序号
 
 
-    
-
-    
-    
-
+diagnose:
+ tags:
+  t1: 基础接口
+  t2: 声明式服务接口
+ get:
+  summary: 分页查询数据
+ post:
+  summary: 新增一条表单数据
+  summary_category: 新增分类
+ put:
+  summary: 修改一条数据
+ delete:
+  summary: 删除数据支持批量
+ field:
+  category: 
+    id: 诊断分类ID
+    cat_name: 分类名称
+  diag:
+    id: 诊断主键ID
+    diag_code: 诊断编码
+    name: 疾病名称
+    category_id: 所属分类ID
+    diag_type: 诊断类型
+    chronic_code: 特慢病编码
+    medical_insurance_code: 医保ICD编码
+    status: 启用状态
+    medical_insurance_tag: 纳入医保标记
+    medical_insurance_match: 医保编码匹配标记
+    pinyin_code: 拼音助记码
+    wubi_code: 五笔助记码
+    remark: 备注说明
+    is_delete: 逻辑删除标识
+    create_by: 创建人ID
+    create_time: 创建时间
+    update_by: 修改人ID
+    update_time: 修改时间
+    id_list: 诊断id列表
+ type:
+   western_medicine_diagnosis: "西医诊断"
+   chinese_main_disease_diagnosis: "中医主病诊断"
+   chinese_main_symptom_diagnosis: "中医主证诊断"
+   
