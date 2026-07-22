@@ -41,20 +41,7 @@ Router::Router(Endpoints* docEndpoints, HttpRouter* router)
 void Router::initRouter()
 {
 	// #TIP: Add system extension route definitions below
-
-	auto medicationCatalogController = MedicationCatalogController::createShared();
-#ifdef _RELEASE_DOC_
-	medicationCatalogController->setDefaultAuthorizationHandler(
-		std::make_shared<MedicationCatalogDocAuthorizeHandler>());
-#endif
-
-	ROUTER_SIMPLE_BIND(MedicationCatalogController);
-
-	auto DrugController = DrugController::createShared();
-
 	ROUTER_SIMPLE_BIND(DrugController);
-	
-
 }
 
 #undef ROUTER_SIMPLE_BIND
