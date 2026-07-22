@@ -9,7 +9,7 @@
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-	  https://www.apache.org/licenses/LICENSE-2.0
+      https://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,28 +25,47 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * 诊断详情数据DTO
- * 对应页面：诊断详情查看、编辑表单回填
+ * Diagnosis catalog detail used by both query-one and query-all.
  */
 class DiagnosisDetailDTO : public oatpp::DTO
 {
 	DTO_INIT(DiagnosisDetailDTO, DTO);
 
-	// 主键ID
-	API_DTO_FIELD_REQUIRE(Int32, id, ZH_WORDS_GETTER("diagnosis.field.id"), true);
-	// 诊断编码
-	API_DTO_FIELD_REQUIRE(String, diagnosisCode, ZH_WORDS_GETTER("diagnosis.field.code"), true);
-	// 诊断名称
-	API_DTO_FIELD_REQUIRE(String, diagnosisName, ZH_WORDS_GETTER("diagnosis.field.name"), true);
-	// 诊断分类 1-西医 2-中医
-	API_DTO_FIELD_REQUIRE(Int32, diagnosisType, ZH_WORDS_GETTER("diagnosis.field.type"), true);
-	// 所属诊断目录
-	API_DTO_FIELD_DEFAULT(String, catalogName, ZH_WORDS_GETTER("diagnosis.field.catalogName"));
-	// 启用状态 0-停用 1-启用
-	API_DTO_FIELD_REQUIRE(Int32, status, ZH_WORDS_GETTER("diagnosis.field.status"), true);
-	// 备注信息
-	API_DTO_FIELD_DEFAULT(String, remark, ZH_WORDS_GETTER("diagnosis.field.remark"));
+	API_DTO_FIELD(Int64, id, ZH_WORDS_GETTER("diagnose.field.catalog.id"), true, 317932056501817344LL);
+	API_DTO_FIELD(String, sourceEnum, ZH_WORDS_GETTER("diagnose.field.catalog.source_enum"), true, "general_dx");
+
+	DTO_FIELD(String, sourceEnumText, "sourceEnum_enumText") = u8"\u75be\u75c5\u4e0e\u8bca\u65ad";
+	DTO_FIELD_INFO(sourceEnumText) {
+		info->description = ZH_WORDS_GETTER("diagnose.field.catalog.source_enum_text");
+		info->required = true;
+	}
+
+	API_DTO_FIELD(String, conditionCode, ZH_WORDS_GETTER("diagnose.field.catalog.condition_code"), true, "CDF00000003");
+	API_DTO_FIELD(String, diseaseCode, ZH_WORDS_GETTER("diagnose.field.catalog.disease_code"), false, "J00");
+	API_DTO_FIELD(String, name, ZH_WORDS_GETTER("diagnose.field.catalog.name"), true, u8"\u611f\u5192");
+	API_DTO_FIELD(String, typeCode, ZH_WORDS_GETTER("diagnose.field.catalog.type_code"), false, "1");
+
+	DTO_FIELD(String, typeCodeText, "typeCode_dictText") = u8"\u897f\u533b\u8bca\u65ad";
+	DTO_FIELD_INFO(typeCodeText) {
+		info->description = ZH_WORDS_GETTER("diagnose.field.catalog.type_code_text");
+		info->required = false;
+	}
+
+	API_DTO_FIELD(String, description, ZH_WORDS_GETTER("diagnose.field.catalog.description"), false, "Common cold");
+	API_DTO_FIELD(String, pyStr, ZH_WORDS_GETTER("diagnose.field.catalog.py_str"), false, "GM");
+	API_DTO_FIELD(String, wbStr, ZH_WORDS_GETTER("diagnose.field.catalog.wb_str"), false, "DJ");
+	API_DTO_FIELD(Int32, ybFlag, ZH_WORDS_GETTER("diagnose.field.catalog.yb_flag"), false, 0);
+	API_DTO_FIELD(String, ybNo, ZH_WORDS_GETTER("diagnose.field.catalog.yb_no"), false, "1.002");
+	API_DTO_FIELD(Int32, ybMatchFlag, ZH_WORDS_GETTER("diagnose.field.catalog.yb_match_flag"), false, 0);
+	API_DTO_FIELD(String, statusEnum, ZH_WORDS_GETTER("diagnose.field.catalog.status_enum"), true, "ACTIVE");
+
+	DTO_FIELD(String, statusEnumText, "statusEnum_enumText") = u8"\u5df2\u542f\u7528";
+	DTO_FIELD_INFO(statusEnumText) {
+		info->description = ZH_WORDS_GETTER("diagnose.field.catalog.status_enum_text");
+		info->required = true;
+	}
 };
 
 #include OATPP_CODEGEN_END(DTO)
+
 #endif // !_DIAGNOSIS_DETAIL_DTO_H_

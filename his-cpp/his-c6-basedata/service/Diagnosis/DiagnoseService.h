@@ -1,28 +1,38 @@
+#pragma once
+/*
+ Copyright Zero One Star. All rights reserved.
 
-#ifndef DIAGNOSE_SERVICE_H
-#define DIAGNOSE_SERVICE_H
+ @Author: awei
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+*/
+#ifndef _DIAGNOSE_SERVICE_H_
+#define _DIAGNOSE_SERVICE_H_
 
 #include <string>
 #include "../../domain/dto/Diagnosis/DiagnoseDTO.h"
-//#include "dto/diagnose/DiagnoseEditDTO.h"
-//#include "dto/PayloadDTO.hpp"
 
+/**
+ * Business service for diagnosis write operations.
+ */
 class DiagnoseService
 {
 public:
-	// 单条新增诊断记录
 	std::string saveData(const DiagnoseAddDTO::Wrapper& dto);
-
-	// 根据ID修改诊断记录
 	bool updateData(const DiagnoseDTO::Wrapper& dto);
-
-	// 逻辑批量删除（停用）诊断记录
 	bool removeData(const oatpp::List<oatpp::String>& ids);
-//逻辑单条删除
-	bool removeOne(const string& ids);
-	//批量停用和启用
+	bool removeOne(const std::string& id);
 	bool batchChangeStatus(const oatpp::List<oatpp::String>& ids, oatpp::Int32 status);
-
 };
 
-#endif
+#endif // !_DIAGNOSE_SERVICE_H_
