@@ -1,29 +1,29 @@
-aptient:
+ï»¿aptient:
  tags:
-  tag:  »¼Õß¹ÜÀí
+  tag:  æ‚£è€…ç®¡ç†
  query:
-  summary: ·ÖÒ³²éÑ¯Êı¾İÊ¾Àı
+  summary: åˆ†é¡µæŸ¥è¯¢æ•°æ®ç¤ºä¾‹
  field:
-  status: ×´Ì¬
-  ConsumableProject: Ïû·ÑÏîÄ¿
-  OrderContent:  Ö´ĞĞÏîÄ¿
+  status: çŠ¶æ€
+  ConsumableProject: æ¶ˆè´¹é¡¹ç›®
+  OrderContent:  æ‰§è¡Œé¡¹ç›®
 
 nurse2:
  tags:
-  tag:  »¼Õß¹ÜÀí
+  tag:  æ‚£è€…ç®¡ç†
  query:
-  summary: ·ÖÒ³²éÑ¯Êı¾İÊ¾Àı
+  summary: åˆ†é¡µæŸ¥è¯¢æ•°æ®ç¤ºä¾‹
  remove:
-  summary: É¾³ıÊı¾İÊ¾Àı
+  summary: åˆ é™¤æ•°æ®ç¤ºä¾‹
  field:
-  name_code: ĞÕÃû/ÅÅ¶ÓºÅ
-  execu_project: Ö´ĞĞÏîÄ¿
-  use_project: ºÄ²ÄÏîÄ¿
-  state: ×´Ì¬
-  conten: Ò½ÖöÄÚÈİ
-  amount: ÒÑÖ´ĞĞ´ÎÊı
-  person: Ö´ĞĞÈË
-  operate: ²Ù×÷
+  name_code: å§“å/æ’é˜Ÿå·
+  execu_project: æ‰§è¡Œé¡¹ç›®
+  use_project: è€—æé¡¹ç›®
+  state: çŠ¶æ€
+  conten: åŒ»å˜±å†…å®¹
+  amount: å·²æ‰§è¡Œæ¬¡æ•°
+  person: æ‰§è¡Œäºº
+  operate: æ“ä½œ
  modify:
-  operate1: Ö´ĞĞ
-  operate2: È¡ÏûÖ´ĞĞ
+  operate1: æ‰§è¡Œ
+  operate2: å–æ¶ˆæ‰§è¡Œ

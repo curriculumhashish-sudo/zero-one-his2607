@@ -12,7 +12,7 @@
 #include "domain/dto/nurse2/NurseOperateDTO2.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
-#define API_TAG ZH_WORDS_GETTER("nurse.tags.tag")
+#define API_TAG ZH_WORDS_GETTER("nurse2.tags.tag")
 
 class NurseController2:public oatpp::web::server::api::ApiController
 {
