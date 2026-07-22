@@ -3,8 +3,8 @@
 #define _HISTORY_ORDER_LIST_CONTROLLER_H_
 
 #include "domain/vo/BaseJsonVO.h"
-#include "domain/query/historyOrder/historyOrderListQuery.h"
-#include "domain/vo/historyOrder/historyOrderListVO.h"
+#include "domain/query/prescription4/historyOrderListQuery.h"
+#include "domain/vo/prescription4/historyOrderListVO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 

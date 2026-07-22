@@ -19,8 +19,8 @@
 #include "stdafx.h"
 #include "Router.h"
 #include "ApiHelper.h"
-#include "historyOrder/historyOrderDetailController.h"
-#include "historyOrder/historyOrderListController.h"
+#include "prescription4/historyOrderDetailController.h"
+#include "prescription4/historyOrderListController.h"
 
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC

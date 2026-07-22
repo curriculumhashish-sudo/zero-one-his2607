@@ -2,7 +2,7 @@
 #ifndef _HISTORY_ORDER_LIST_VO_H_
 #define _HISTORY_ORDER_LIST_VO_H_
 
-#include "../../dto/historyOrder/historyOrderListDTO.h"	// 引入历史就诊记录分页DTO
+#include "../../dto/prescription4/historyOrderListDTO.h"	// 引入历史就诊记录分页DTO
 
 #include OATPP_CODEGEN_BEGIN(DTO)	// oatpp DTO 代码生成开始宏
 
