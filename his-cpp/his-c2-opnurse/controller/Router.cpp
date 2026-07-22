@@ -20,6 +20,7 @@
 #include "Router.h"
 #include "ApiHelper.h"
 #include"patient/PatientController.h"
+#include "nurse2/NurseController2.h"
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
 // Simplified controller binding macro
@@ -41,4 +42,5 @@ void Router::initRouter()
 {
 	// #TIP: Add system extension route definitions below
 	ROUTER_SIMPLE_BIND(PatientController);
+	ROUTER_SIMPLE_BIND(NurseController2);
 }
