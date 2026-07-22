@@ -17,16 +17,16 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _REFUNDVO_H_
-#define _REFUNDVO_H_
+#ifndef _PRESCRIPTIONVO_H_
+#define _PRESCRIPTIONVO_H_
 
-#include "../../dto/doctor/RefundDetailDTO.h"
+#include "../../dto/doctor/Prescription2DetailDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class RefundDetailJsonVO : public JsonVO<RefundDetailDTO::Wrapper>
+class Prescription2DetailJsonVO : public JsonVO<Prescription2DetailDTO::Wrapper>
 {
-	DTO_INIT(RefundDetailJsonVO, JsonVO<RefundDetailDTO::Wrapper>);
+	DTO_INIT(Prescription2DetailJsonVO, JsonVO<Prescription2DetailDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)

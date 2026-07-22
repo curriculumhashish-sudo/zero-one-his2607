@@ -21,24 +21,24 @@
 #define _PRESCRIPTIONCONTROLLER_H_
 
 #include "domain/vo/BaseJsonVO.h"
-#include"domain/query/Prescription/PrescriptionQuery.h"
-#include"domain/vo/doctor/PrescriptionVO.h"
+#include"domain/query/cycleCtrl2-prescription/PrescriptionQuery.h"
+#include"domain/vo/doctor/Prescription2VO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
-#define API_TAG1 ZH_WORDS_GETTER("Prescription.tags.tag")
+#define API_TAG1 ZH_WORDS_GETTER("cyclectrl2.prescription.tag")
 
-class PrescriptionController : public oatpp::web::server::api::ApiController
+class Prescription2Controller : public oatpp::web::server::api::ApiController
 {
 	//添加访问定义
-	API_ACCESS_DECLARE(PrescriptionController);
+	API_ACCESS_DECLARE(Prescription2Controller);
 public://定义接口
 	// 3.1.1 定义处方单单接口描述
-	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("Prescription.query.summary"), queryPrescription, PrescriptionQuery, PrescriptionDetailJsonVO::Wrapper, API_TAG1);
+	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("cyclectrl2.prescription.query"), query2Prescription, Prescription2Query, Prescription2DetailJsonVO::Wrapper, API_TAG1);
 	// 3.1.2 定义处方单接口处理
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/Prescription/query", queryPrescription, PrescriptionQuery, executeQueryPrescription(query));
+	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/prescription/query", query2Prescription, Prescription2Query, executeQueryPrescription(query));
 private://定义接口执行函数
 	//3.3定义处方单接口执行函数
-	PrescriptionDetailJsonVO::Wrapper executeQueryPrescription(const PrescriptionQuery::Wrapper& query);
+	Prescription2DetailJsonVO::Wrapper executeQueryPrescription(const Prescription2Query::Wrapper& query);
 };
 #undef API_TAG1
 
