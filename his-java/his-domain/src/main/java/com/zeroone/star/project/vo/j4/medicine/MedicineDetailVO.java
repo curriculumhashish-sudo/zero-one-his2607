@@ -1,25 +1,12 @@
-package com.zeroone.star.project.dto.j4.medicine;
+package com.zeroone.star.project.vo.j4.medicine;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 
 import java.math.BigDecimal;
 
-@Getter
-@Setter
-@ToString
-@Schema(description = "更新药品DTO")
-public class MedicineUpdateDTO{
-
-    @Schema(description = "id",example = "1",defaultValue = "1")
-    @NotBlank(message = "id不能为空")
-    private String id;
-
-
+public class MedicineDetailVO {
     /**
      * 药品名称
      */
@@ -424,5 +411,4 @@ public class MedicineUpdateDTO{
     @Schema(description = "包装倍数",example = "1",defaultValue = "1")
     @NotNull(message = "包装倍数不能为空")
     private Integer packageSplitRatio;
-
 }

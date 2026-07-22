@@ -2,9 +2,9 @@ package com.zeroone.star.project.j4.basedata;
 
 import com.zeroone.star.project.dto.j4.medicine.MedicineChangeStatusDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineDeleteDTO;
-import com.zeroone.star.project.dto.j4.medicine.MedicineUpdateDTO;
+import com.zeroone.star.project.dto.j4.medicine.MedicineDetailDTO;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j4.medicine.MedicineDeleteVO;
+import com.zeroone.star.project.vo.j4.medicine.MedicineDetailVO;
 
 /**
  * <p>
@@ -17,6 +17,17 @@ import com.zeroone.star.project.vo.j4.medicine.MedicineDeleteVO;
  */
 public interface MedicineApis {
     /**
+     * <p>
+     * 描述：获取药品详情接口
+     * </p>
+     *
+     * @author xxm
+     * @version 1.0.0
+     * @param id 药品id
+     * @return 药品详情VO
+     */
+    JsonVO<MedicineDetailVO> queryMedicineDetail(String id);
+    /**
     * <p>
     * 描述：修改药品接口
     * </p>
@@ -26,7 +37,7 @@ public interface MedicineApis {
     * @param dto 药品更新dto
     * @return 更新结果
     */
-    JsonVO<String> updateMedicine(MedicineUpdateDTO dto);
+    JsonVO<String> updateMedicine(MedicineDetailDTO dto);
 
     /**
     * <p>
@@ -38,7 +49,7 @@ public interface MedicineApis {
     * @param dto 药品删除dto
     * @return 药品删除vo 包含删除成功药品ids
     */
-    JsonVO<MedicineDeleteVO> deleteMedicine(MedicineDeleteDTO dto);
+    JsonVO<String> deleteMedicine(MedicineDeleteDTO dto);
 
     /**
     * <p>

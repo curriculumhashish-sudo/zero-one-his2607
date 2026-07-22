@@ -1,7 +1,7 @@
 package com.zeroone.star.basedata.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zeroone.star.basedata.entity.Sample;
+import com.zeroone.star.basedata.entity.AdmSpecimenDefinitionDO;
 import com.zeroone.star.basedata.mapper.SampleMapper;
 import com.zeroone.star.basedata.service.ISampleService;
 import org.springframework.stereotype.Service;
@@ -16,5 +16,5 @@ import org.springframework.stereotype.Service;
  * @version 1.0.0
  */
 @Service
-public class SampleServiceImpl extends ServiceImpl<SampleMapper, Sample> implements ISampleService {
+public class SampleServiceImpl extends ServiceImpl<SampleMapper, AdmSpecimenDefinitionDO> implements ISampleService {
 }

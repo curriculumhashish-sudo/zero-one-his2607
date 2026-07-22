@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * 描述：诊断常用模板，对应 cus_condition_template 表
+ * 描述：样本定义实体，对应 adm_specimen_definition 表
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
@@ -24,8 +24,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
-@TableName("cus_condition_template")
-public class CusConditionTemplateDO implements Serializable {
+@TableName("adm_specimen_definition")
+public class AdmSpecimenDefinitionDO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -80,27 +80,32 @@ public class CusConditionTemplateDO implements Serializable {
     private Integer version;
 
     /**
-     * 模板归属主体（医生 ID / 科室 ID / 全院标识）
+     * 样本定义聚合根/业务编号
      */
-    private String objectId;
+    private String busNo;
 
     /**
-     * 诊断定义主键 → 关联 cln_condition_definition.id
+     * 面向临床与维护页的显示名称
      */
-    private String definitionId;
+    private String name;
 
     /**
-     * 绑定类型枚举：个人 / 科室 / 全院
+     * 拼音检索码
      */
-    private String bindingEnum;
+    private String pyStr;
 
     /**
-     * 排序权重（越小越靠前）
+     * 五笔检索码
      */
-    private Integer sortWeight;
+    private String wbStr;
 
     /**
-     * 备注
+     * 标本种类（对应 SpecimenType 枚举）
      */
-    private String remark;
+    private String typeEnum;
+
+    /**
+     * 发布状态（对应 PublicationStatus 枚举）
+     */
+    private String statusEnum;
 }
