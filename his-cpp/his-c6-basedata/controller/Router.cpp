@@ -19,7 +19,6 @@
 #include "stdafx.h"
 #include "Router.h"
 #include "ApiHelper.h"
-#include "frequency/FrequencyController.h"
 #include "treatment/TreatmentController.h"
 
 // If the macro for disabling Swagger documentation is defined
@@ -42,6 +41,5 @@ Router::Router(Endpoints* docEndpoints, HttpRouter* router)
 void Router::initRouter()
 {
 	// Bind base data controllers.
-	ROUTER_SIMPLE_BIND(FrequencyController);
 	ROUTER_SIMPLE_BIND(TreatmentController);
 }
