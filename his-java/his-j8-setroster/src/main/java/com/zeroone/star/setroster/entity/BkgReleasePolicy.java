@@ -15,6 +15,17 @@ import java.time.LocalDateTime;
 /**
  * 放号策略数据库实体，对应 bkg_release_policy 表。
  */
+
+/**
+ * <p>
+ * 描述：放号策略数据库实体，对应 bkg_release_policy 表
+ * </p>
+ * <p>版权：01星球</p>
+ * <p>地址：01星球总部</p>
+ *
+ * @author 余悸
+ * @version 1.0.0
+ */
 @Data
 @TableName("bkg_release_policy")
 public class BkgReleasePolicy implements Serializable {

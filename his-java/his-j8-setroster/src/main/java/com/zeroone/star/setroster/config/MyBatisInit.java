@@ -32,21 +32,26 @@ public class MyBatisInit {
         return new MetaObjectHandler() {
             @Override
             public void insertFill(MetaObject metaObject) {
-                this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
-                try {
-                    this.strictInsertFill(metaObject, "createBy", String.class, userHolder.getCurrentUser().getUsername());
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                }
+                LocalDateTime now = LocalDateTime.now();
+                String userId = currentUserId();
+                this.strictInsertFill(metaObject, "createdAt", LocalDateTime.class, now);
+                this.strictInsertFill(metaObject, "updatedAt", LocalDateTime.class, now);
+                this.strictInsertFill(metaObject, "createdBy", String.class, userId);
+                this.strictInsertFill(metaObject, "updatedBy", String.class, userId);
             }
 
             @Override
             public void updateFill(MetaObject metaObject) {
-                this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
+                this.setFieldValByName("updatedAt", LocalDateTime.now(), metaObject);
+                this.setFieldValByName("updatedBy", currentUserId(), metaObject);
+            }
+
+            private String currentUserId() {
                 try {
-                    this.strictUpdateFill(metaObject, "updateBy", String.class, userHolder.getCurrentUser().getUsername());
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
+                    String userId = userHolder.getCurrentUser().getId();
+                    return userId == null || userId.isBlank() ? "system" : userId;
+                } catch (Exception ignored) {
+                    return "system";
                 }
             }
         };
