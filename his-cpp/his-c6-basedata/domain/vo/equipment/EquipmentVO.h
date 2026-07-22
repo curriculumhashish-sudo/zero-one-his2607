@@ -15,6 +15,14 @@ class EquipmentDetailPageJsonVO : public JsonVO<EquipmentDetailPageDTO::Wrapper>
 	DTO_INIT(EquipmentDetailPageJsonVO, JsonVO<EquipmentDetailPageDTO::Wrapper>);
 };
 
+/**
+ * 响应给客户端的one用户详细信息JsonVO对象
+ */
+class EquipmentDetailJsonVO : public JsonVO<EquipmentAddDTO::Wrapper>
+{
+	DTO_INIT(EquipmentDetailJsonVO, JsonVO<EquipmentAddDTO::Wrapper>);
+};
+
 #include OATPP_CODEGEN_END(DTO)
 
 #endif // !_EQUIPMENTVO_H_

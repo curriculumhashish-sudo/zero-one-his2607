@@ -28,9 +28,14 @@ equipment:
     summary: 修改器材
   remove:
     summary: 删除器材
+  status:
+    summary: 启停用器材
+  query-one:
+    summary: 器材详情
   field:
     # 基础通用字段
     id: 序号
+    ids: 待操作的器材ID集合
     code: 器材编码
     name: 器材名称
     status: 器材状态 1-启用 0-禁用
