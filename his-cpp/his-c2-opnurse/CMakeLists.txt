@@ -1,6 +1,9 @@
 ﻿# CMakeList.txt: his-c2-opnurse 的 CMake 项目，在此处包括源代码并定义
 # 项目特定的逻辑。
 #
+
+set(CMAKE_CXX_COMPILER_ID_SKIP_TEST ON CACHE BOOL "Skip compiler test file with main()")
+
 cmake_minimum_required (VERSION 3.8)
 
 # 设置文件名称
