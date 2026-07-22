@@ -1,14 +1,14 @@
 #include "stdafx.h"
 #include "DrugController.h"
-DrugListPageJsonVO::Wrapper executeQueryDrug(const DrugQuery::Wrapper& query)
+DrugListPageJsonVO::Wrapper DrugController::executeQueryDrug(const DrugQuery::Wrapper& query)
 {
 	return {};
 }
-StringJsonVO::Wrapper  execAddDrug(const DrugAddDTO::Wrapper& dto, const PayloadDTO& payload)
+StringJsonVO::Wrapper  DrugController::execAddDrug(const DrugAddDTO::Wrapper& dto, const PayloadDTO& payload)
 {
 	return {};
 }
-DrugDetailJsonVO::Wrapper executeQueryOne(const String& id)
+DrugDetailJsonVO::Wrapper DrugController::executeQueryOne(const String& id)
 {
 	return {};
 }
