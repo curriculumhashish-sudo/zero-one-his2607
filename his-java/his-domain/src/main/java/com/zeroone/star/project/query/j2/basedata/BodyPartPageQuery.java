@@ -2,6 +2,7 @@ package com.zeroone.star.project.query.j2.basedata;
 
 import com.zeroone.star.project.query.PageQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -10,8 +11,7 @@ import lombok.ToString;
  * 部位分页查询对象
  */
 @Schema(description = "部位分页查询对象")
-@Getter
-@Setter
+@Data
 @ToString
 public class BodyPartPageQuery extends PageQuery {
 

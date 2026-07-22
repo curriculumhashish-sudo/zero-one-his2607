@@ -1,6 +1,7 @@
 package com.zeroone.star.project.vo.j2.basedata.bodypart;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -9,8 +10,7 @@ import lombok.ToString;
  * 部位列表视图对象
  */
 @Schema(description = "部位列表视图对象")
-@Getter
-@Setter
+@Data
 @ToString
 public class BodyPartListVO {
 

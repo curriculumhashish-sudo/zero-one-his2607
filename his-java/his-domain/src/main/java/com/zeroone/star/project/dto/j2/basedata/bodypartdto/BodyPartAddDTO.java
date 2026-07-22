@@ -2,6 +2,7 @@ package com.zeroone.star.project.dto.j2.basedata.bodypartdto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -10,8 +11,7 @@ import lombok.ToString;
  * 新增部位传输对象
  */
 @Schema(description = "新增部位传输对象")
-@Getter
-@Setter
+@Data
 @ToString
 public class BodyPartAddDTO {
 
