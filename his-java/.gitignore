@@ -43,3 +43,7 @@ target
 
 # Maven ignore
 .flattened-pom.xml
+target/
+.idea/
+*.iml
+**/ch/
