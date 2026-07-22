@@ -1,4 +1,4 @@
-package com.zeroone.star.project.dto.j2.sysmgr.UserDTO;
+package com.zeroone.star.project.dto.j2.personcenter.UserDTO;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

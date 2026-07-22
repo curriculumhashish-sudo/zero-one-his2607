@@ -1,9 +1,9 @@
-package com.zeroone.star.sysmgr.controller;
+package com.zeroone.star.personcenter.controller;
 
-import com.zeroone.star.project.dto.j2.sysmgr.UserDTO.ChangePasswordDTO;
-import com.zeroone.star.project.dto.j2.sysmgr.UserDTO.UpdateUserDTO;
-import com.zeroone.star.project.dto.j2.sysmgr.UserDTO.UserInfoDTO;
-import com.zeroone.star.project.j2.sysmgr.UserApis;
+import com.zeroone.star.project.dto.j2.personcenter.UserDTO.ChangePasswordDTO;
+import com.zeroone.star.project.dto.j2.personcenter.UserDTO.UpdateUserDTO;
+import com.zeroone.star.project.dto.j2.personcenter.UserDTO.UserInfoDTO;
+import com.zeroone.star.project.j2.personcenter.UserApis;
 import com.zeroone.star.project.vo.JsonVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
