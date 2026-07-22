@@ -5,4 +5,3 @@ pharm:
     typeEnum: 类型枚举值
     classRoom: 上级科室
     statusEnum: 状态
-    ids: 序号

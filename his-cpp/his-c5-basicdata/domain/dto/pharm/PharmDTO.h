@@ -8,6 +8,18 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
+/**
+ * PharmDTO —— 供应商完整信息的数据传输对象
+ *
+ * 【作用】
+ * 当前端查询单条pharm详情时，后端用这个对象返回完整数据。
+ * 新增/修改pharm时，前端也用这个对象传表单数据。
+ *
+ * 【字段设计原则】
+ * 所有字段名与数据库 pharm 表的列名保持一致。
+ * 这样后续用 ZO_STAR_DOMAIN_DO_TO_DTO 宏做 DO→DTO 转换时，
+ * 字段名能自动匹配，不用手动一个个赋值。
+ */
 class PharmDTO : public oatpp::DTO
 {
 	// 初始化定义
@@ -15,7 +27,7 @@ class PharmDTO : public oatpp::DTO
 
 	// 字段
 	// 供应商ID
-	DTO_FIELD(String, id);
+	DTO_FIELD(UInt64, id);
 	DTO_FIELD_INFO(id) {
 		info->description = ZH_WORDS_GETTER("pharm.field.id");
 	}
@@ -46,26 +58,18 @@ class PharmDTO : public oatpp::DTO
 
 };
 
+/**
+ * PharmPageDTO —— 供应商分页列表的包装
+ *
+ * 【作用】
+ * 把多条 PharmDTO 装进 rows 列表里，
+ * 加上 total（总条数）、pages（总页数）、pageIndex（当前页）、pageSize（每页条数）等信息。
+ * 前端拿到后直接渲染分页表格。
+ */
 class PharmPageDTO : public PageDTO<PharmDTO::Wrapper>
 {
 	DTO_INIT(PharmPageDTO, PageDTO<PharmDTO::Wrapper>);
 };
-
-class PharmBatchEnableDisableDTO : public oatpp::DTO {
-	DTO_INIT(PharmBatchEnableDisableDTO, DTO);
-
-	DTO_FIELD(List<String>, ids);
-	DTO_FIELD_INFO(ids) {
-		info->description = ZH_WORDS_GETTER("pharm.field.ids");
-	}
-
-	DTO_FIELD(String, statusEnum);
-	DTO_FIELD_INFO(statusEnum) {
-		info->description = ZH_WORDS_GETTER("pharm.field.statusEnum");
-	}
-};
-
-
 
 #include OATPP_CODEGEN_END(DTO)
 
