@@ -1,4 +1,4 @@
-package com.zero.star.dispense.controller;
+package com.zeroone.star.dispense.controller;
 
 
 import com.zeroone.star.project.j7.outpharm.OutPharmApis;
@@ -7,8 +7,8 @@ import com.zeroone.star.project.query.j7.outpharm.PatientQueueQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j7.outpharm.PatientDrugItemVO;
 import com.zeroone.star.project.vo.j7.outpharm.PatientQueueVO;
-import com.zero.star.dispense.service.DrugService;
-import com.zero.star.dispense.service.PatientService;
+import com.zeroone.star.dispense.service.DrugService;
+import com.zeroone.star.dispense.service.PatientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
