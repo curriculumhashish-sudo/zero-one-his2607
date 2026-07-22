@@ -1,10 +1,18 @@
+<<<<<<< HEAD
 ﻿# CMakeList.txt: arch-skeleton 的 CMake 项目，在此处包括源代码并定义
+=======
+﻿# CMakeList.txt: his-c1-charging 的 CMake 项目，在此处包括源代码并定义
+>>>>>>> 29e277be45e89526e4fb67cd3f10e4bac478e7d3
 # 项目特定的逻辑。
 #
 cmake_minimum_required (VERSION 3.8)
 
 # 设置文件名称
+<<<<<<< HEAD
 set (appName arch-skeleton)
+=======
+set (appName his-c1-charging)
+>>>>>>> 29e277be45e89526e4fb67cd3f10e4bac478e7d3
 
 # 包含库目录
 include_directories ("./")
@@ -211,4 +219,8 @@ if(WIN32)
 	install (DIRECTORY "${ZO_DY_DIR}/" DESTINATION ${appName} FILES_MATCHING PATTERN "*.dll")
 	# 复制项目配置到可执行文件目录
 	install (DIRECTORY "conf" DESTINATION ${appName})
+<<<<<<< HEAD
 endif()
+=======
+endif()
+>>>>>>> 29e277be45e89526e4fb67cd3f10e4bac478e7d3

@@ -19,7 +19,14 @@
 #include "stdafx.h"
 #include "Router.h"
 #include "ApiHelper.h"
+<<<<<<< HEAD
 #include "data_statistics/OutpatientStatController.h"
+=======
+#include "data_statistics/InOutboundController.h"
+#include "data_statistics/InventoryMaterialController.h"
+
+#include "cost_info/costInfoController.h"
+>>>>>>> 29e277be45e89526e4fb67cd3f10e4bac478e7d3
 
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
@@ -41,5 +48,15 @@ Router::Router(Endpoints* docEndpoints, HttpRouter* router)
 void Router::initRouter()
 {
 	// #TIP: Add system extension route definitions below
+<<<<<<< HEAD
 	ROUTER_SIMPLE_BIND(OutpatientStatController);
+=======
+
+	ROUTER_SIMPLE_BIND(InOutboundController);
+	ROUTER_SIMPLE_BIND(InventoryMaterialController);
+
+	// 绑定报表明细控制器
+	ROUTER_SIMPLE_BIND(CostInfoController);
+
+>>>>>>> 29e277be45e89526e4fb67cd3f10e4bac478e7d3
 }
