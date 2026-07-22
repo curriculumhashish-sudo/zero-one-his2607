@@ -4,8 +4,8 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class GetPatientDetailsQuery : public oatpp::DTO {
-    DTO_INIT(GetPatientDetailsQuery, DTO);
+class Pay_ManageGetPatientDetailsQuery : public oatpp::DTO {
+    DTO_INIT(Pay_ManageGetPatientDetailsQuery, DTO);
 
     API_DTO_FIELD(String, hospitalized_number,
         ZH_WORDS_GETTER("byj.charging.pay_manage.hospitalized_number"),

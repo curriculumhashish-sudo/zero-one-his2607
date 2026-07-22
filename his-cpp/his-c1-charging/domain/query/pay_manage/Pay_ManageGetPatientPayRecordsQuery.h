@@ -5,9 +5,9 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class GetPatientPayRecordsQuery :public PageQuery
+class Pay_ManageGetPatientPayRecordsQuery :public PageQuery
 {
-	DTO_INIT(GetPatientPayRecordsQuery, PageQuery);
+	DTO_INIT(Pay_ManageGetPatientPayRecordsQuery, PageQuery);
 };
 
 #include OATPP_CODEGEN_END(DTO)

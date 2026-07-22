@@ -3,9 +3,9 @@
 #include "../../GlobalInclude.h"
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class GetPatientDetailsDTO : public oatpp::DTO
+class Pay_ManageGetPatientDetailsDTO : public oatpp::DTO
 {
-    DTO_INIT(GetPatientDetailsDTO, DTO);
+    DTO_INIT(Pay_ManageGetPatientDetailsDTO, DTO);
 
     API_DTO_FIELD(String, hospitalized_number, 
         ZH_WORDS_GETTER("byj.charging.pay_manage.hospitalized_number"),

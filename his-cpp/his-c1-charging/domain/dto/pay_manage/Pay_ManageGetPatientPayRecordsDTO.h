@@ -3,9 +3,9 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class GetPatientPayRecordsDTO :public oatpp::DTO
+class Pay_ManageGetPatientPayRecordsDTO :public oatpp::DTO
 {
-	DTO_INIT(GetPatientPayRecordsDTO, DTO);
+	DTO_INIT(Pay_ManageGetPatientPayRecordsDTO, DTO);
 
 	DTO_FIELD(String, pay_time);
 	DTO_FIELD_INFO(pay_time) {
@@ -45,9 +45,9 @@ class GetPatientPayRecordsDTO :public oatpp::DTO
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 };
 
-class GetPatientPayRecordsPageDTO : public PageDTO<GetPatientPayRecordsDTO::Wrapper>
+class Pay_ManageGetPatientPayRecordsPageDTO : public PageDTO<Pay_ManageGetPatientPayRecordsDTO::Wrapper>
 {
-	DTO_INIT(GetPatientPayRecordsPageDTO, PageDTO<GetPatientPayRecordsDTO::Wrapper>);
+	DTO_INIT(Pay_ManageGetPatientPayRecordsPageDTO, PageDTO<Pay_ManageGetPatientPayRecordsDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)

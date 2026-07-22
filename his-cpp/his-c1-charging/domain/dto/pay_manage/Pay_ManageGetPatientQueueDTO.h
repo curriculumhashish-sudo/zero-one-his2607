@@ -3,9 +3,9 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class GetPatientQueueDTO :public oatpp::DTO
+class Pay_ManageGetPatientQueueDTO :public oatpp::DTO
 {
-	DTO_INIT(GetPatientQueueDTO, DTO);
+	DTO_INIT(Pay_ManageGetPatientQueueDTO, DTO);
 
 	DTO_FIELD(String, name);
 	DTO_FIELD_INFO(name) {
@@ -55,9 +55,9 @@ class GetPatientQueueDTO :public oatpp::DTO
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 };
 
-class GetPatientQueuePageDTO : public PageDTO<GetPatientQueueDTO::Wrapper>
+class Pay_ManageGetPatientQueuePageDTO : public PageDTO<Pay_ManageGetPatientQueueDTO::Wrapper>
 {
-	DTO_INIT(GetPatientQueuePageDTO, PageDTO<GetPatientQueueDTO::Wrapper>);
+	DTO_INIT(Pay_ManageGetPatientQueuePageDTO, PageDTO<Pay_ManageGetPatientQueueDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)

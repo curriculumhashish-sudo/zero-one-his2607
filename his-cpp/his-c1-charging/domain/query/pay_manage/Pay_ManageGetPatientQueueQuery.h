@@ -5,9 +5,9 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class GetPatientQueueQuery :public PageQuery
+class Pay_ManageGetPatientQueueQuery :public PageQuery
 {
-	DTO_INIT(GetPatientQueueQuery, PageQuery);
+	DTO_INIT(Pay_ManageGetPatientQueueQuery, PageQuery);
 
 	
 	DTO_FIELD(String, hospitalized_number);
