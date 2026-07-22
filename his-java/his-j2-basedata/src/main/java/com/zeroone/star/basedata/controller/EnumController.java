@@ -2,7 +2,7 @@ package com.zeroone.star.basedata.controller;
 
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.*;
-import com.zeroone.star.project.j2.basedata.nulll.enumApis;
+import com.zeroone.star.project.j2.basedata.nulll.EnumApis;
 import com.zeroone.star.project.query.j2.basedata.EnumListQuery;
 import com.zeroone.star.project.query.j2.basedata.EnumQuery;
 import com.zeroone.star.project.query.j2.basedata.EnumTypeQuery;
@@ -16,7 +16,7 @@ import java.util.List;
 
 @RestController
 @Tag(name = "枚举管理相关接口")
-public class EnumController implements enumApis {
+public class EnumController implements EnumApis {
 
     // TODO: 这里按理说应该传递id来删除对应实体，只有一个值就不用包装了吧
     @Override
@@ -33,10 +33,11 @@ public class EnumController implements enumApis {
         return null;
     }
 
+
     @Override
     @Operation(summary = "获取所有枚举类型列表(条件+分页)")
     @GetMapping("/sys/query-all-enum")
-    public JsonVO<PageDTO<EnumDTO>> QueryAllEnum(@RequestBody EnumQuery query) {
+    public JsonVO<PageDTO<EnumDTO>> queryAllEnum(@RequestBody EnumQuery query) {
         return null;
     }
 

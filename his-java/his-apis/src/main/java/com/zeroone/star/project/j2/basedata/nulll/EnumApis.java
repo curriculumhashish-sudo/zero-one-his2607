@@ -10,8 +10,8 @@ import com.zeroone.star.project.vo.JsonVO;
 
 import java.util.List;
 
-// TODO: 请修改为正确的名称-- EnumApis
-public interface enumApis {
+
+public interface EnumApis {
     /**
      * 删除枚举类型
      * @param dto 枚举删除对象DTO
@@ -31,8 +31,7 @@ public interface enumApis {
      * @param query 枚举查询对象DTO
      * @return 枚举类型分页查询对象DTO
      */
-    JsonVO<PageDTO<EnumDTO>> QueryAllEnum(EnumQuery query);
-    // TODO：名字不规范，应该为queryAllEnum
+    JsonVO<PageDTO<EnumDTO>> queryAllEnum(EnumQuery query);
 
     /**
      * 根据枚举类型查询枚举列表
