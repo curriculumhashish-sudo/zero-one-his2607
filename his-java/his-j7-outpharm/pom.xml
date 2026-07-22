@@ -8,7 +8,7 @@
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>his-j7-outpharm</artifactId>
+    <artifactId>his-j7-dispense</artifactId>
     <dependencies>
         <!--spring web mvc-->
         <dependency>

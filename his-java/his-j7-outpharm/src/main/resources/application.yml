@@ -1,11 +1,11 @@
 server:
-  port: ${sp.sample}
+  port: ${sp.dispense}
   servlet:
     # 设置应用上下文路径
-    context-path: /sample
+    context-path: /outpharm
 spring:
   application:
-    name: ${sn.sample}
+    name: ${sn.dispense}
 springdoc:
 
   group-configs:
