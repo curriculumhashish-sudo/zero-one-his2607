@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * <p>
@@ -38,4 +39,10 @@ public class SlotReleaseStrategyDTO implements Serializable {
 
     @Schema(description = "每个时段的号源容量", example = "10")
     private Integer slotCapacity;
+
+    @Schema(
+            description = "各渠道配额百分比，供编辑表单回填",
+            example = "{\"WINDOW\":60,\"MINIAPP\":40}"
+    )
+    private Map<String, Integer> channelQuota;
 }
