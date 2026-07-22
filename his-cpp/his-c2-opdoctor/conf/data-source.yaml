@@ -7,7 +7,7 @@ spring:
      max-active: 5
   data:
     redis:
-      host: 192.168.28.132
+      host: 192.168.1.10
       port: 6379
       password: 01star
     mongodb:
