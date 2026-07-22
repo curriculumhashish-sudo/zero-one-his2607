@@ -1,8 +1,6 @@
 package com.zeroone.star.project.dto.menu;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
@@ -23,15 +21,49 @@ public class MenuCreateDTO {
     /**
      * 父菜单ID，0为一级目录
      */
-    @NotNull(message = "父菜单ID不能为空")
-    @Schema(description = "父菜单ID，0为一级目录", example = "0", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "父菜单ID，0为一级目录", example = "0")
     private Long parentId;
+
+    @Schema(description = "外部链接地址", example = "https://example.com")
+    private String externalUrl;
+
+    @Schema(description = "菜单编码", example = "system", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String code;
+
+    @Schema(description = "是否缓存页面", example = "true")
+    private Boolean keepAlive;
+
+    @Schema(description = "是否外链", example = "false")
+    private Boolean isExternal;
+
+    @Schema(description = "显示名称", example = "系统管理")
+    private String displayName;
+
+    @Schema(description = "备注", example = "系统管理目录")
+    private String remark;
+
+    @Schema(description = "是否隐藏", example = "false")
+    private Boolean isHidden;
+
+    @Schema(description = "排序号", example = "1")
+    private Integer sortOrder;
+
+    @Schema(description = "是否启用", example = "true")
+    private Boolean isEnabled;
+
+    @Schema(description = "菜单名称", example = "system", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String name;
+
+    @Schema(description = "菜单类型", example = "M")
+    private String menuType;
+
+    @Schema(description = "权限名称", example = "system:menu:list")
+    private String permissionName;
 
     /**
      * 菜单英文名称
      */
-    @NotBlank(message = "菜单名称不能为空")
-    @Schema(description = "菜单英文名称", example = "system", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "菜单英文名称", example = "system")
     private String menuName;
 
     /**

@@ -2,7 +2,8 @@ package com.zeroone.star.project.menu;
 
 import com.zeroone.star.project.dto.menu.*;
 import com.zeroone.star.project.query.menu.MenuDetailQuery;
-import com.zeroone.star.project.query.menu.MenuTreeQuery;
+import com.zeroone.star.project.query.menu.MenuListPageQuery;
+import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.login.MenuTreeVO;
 import com.zeroone.star.project.vo.menu.MenuVO;
@@ -16,11 +17,20 @@ public interface MenuApis {
 
     /**
      * 加载菜单树结构
-     * @param query 查询条件
      * @return 菜单树结构VO
      * @author 是丫丫
      */
-    default JsonVO<MenuTreeVO> getMenuTree(MenuTreeQuery query) {
+    default JsonVO<MenuTreeVO> getMenuTree() {
+        return JsonVO.success(null);
+    }
+
+    /**
+     * 获取菜单列表（条件 + 分页）
+     * @param query 查询条件
+     * @return 菜单分页列表
+     * @author 是丫丫
+     */
+    default JsonVO<PageDTO<MenuVO>> getMenuList(MenuListPageQuery query) {
         return JsonVO.success(null);
     }
 
@@ -36,11 +46,10 @@ public interface MenuApis {
 
     /**
      * 加载用户可见菜单树结构
-     * @param query 查询条件
      * @return 菜单树结构VO
      * @author 是丫丫
      */
-    default JsonVO<MenuTreeVO> getTreeByLoginUser(MenuTreeQuery query) {
+    default JsonVO<MenuTreeVO> getTreeByLoginUser() {
         return JsonVO.success(null);
     }
 
@@ -58,7 +67,7 @@ public interface MenuApis {
      * @return 是否修改成功
      * @author 是丫丫
      */
-    public JsonVO<Boolean> update(MenuUpdateDTO menuDto);
+    public JsonVO<Boolean> update(MenuUpdateRequestDTO menuDto);
 
     /**
      * 删除菜单信息

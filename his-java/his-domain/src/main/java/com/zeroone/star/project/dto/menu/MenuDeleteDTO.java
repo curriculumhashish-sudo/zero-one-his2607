@@ -16,7 +16,7 @@ import lombok.Data;
  * @date 2026/07/18 21:00
  */
 @Data
-@Schema(description = "菜单删除传输数据对象")
+@Schema(description = "IdRequest")
 public class MenuDeleteDTO {
 
     /**
