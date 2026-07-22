@@ -21,16 +21,16 @@
 #define _SAMPLE_FULL_SELECT_JSONVO_H_
 
 #include "../../GlobalInclude.h"
-
+#include "../../dto/Sample/SampleDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
  second
  */
-class SampleFullSelectJsonVO : public JsonVO<String>
+class SampleJsonVO : public JsonVO<SampleDTO::Wrapper>
 {
-	DTO_INIT(SampleFullSelectJsonVO, JsonVO<String>);
+	DTO_INIT(SampleJsonVO, JsonVO<SampleDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)

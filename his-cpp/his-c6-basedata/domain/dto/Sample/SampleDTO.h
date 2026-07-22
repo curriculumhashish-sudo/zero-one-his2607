@@ -28,9 +28,9 @@
  * 样本完整数据选择弹窗DTO
  * 页面说明：列表携带完整样本数据，可直接用于修改表单回填
  */
-class SampleFullSelectDTO : public oatpp::DTO
+class SampleDTO : public oatpp::DTO
 {
-	DTO_INIT(SampleFullSelectDTO, DTO);
+	DTO_INIT(SampleDTO, DTO);
 
 	// 主键ID
 	API_DTO_FIELD_REQUIRE(Int32, id, ZH_WORDS_GETTER("sample.field.id"), true);

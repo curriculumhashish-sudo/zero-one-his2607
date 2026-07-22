@@ -49,6 +49,7 @@ class SampleController : public oatpp::web::server::api::ApiController
 	// 
 	API_ACCESS_DECLARE(SampleController);
 public:
+	
 	// 
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("sample.select-name.summary"), listSampleName, SampleQuery, SampleJsonVO::Wrapper, API_TAG);
 	// 

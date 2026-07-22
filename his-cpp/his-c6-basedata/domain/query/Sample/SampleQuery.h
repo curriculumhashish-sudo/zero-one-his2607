@@ -28,9 +28,9 @@
 /**
 second
  */
-class SampleFullSelectQuery : public PageQuery
+class SampleQuery : public PageQuery
 {
-	DTO_INIT(SampleFullSelectQuery, PageQuery);
+	DTO_INIT(SampleQuery, PageQuery);
 
 	// 综合关键词，匹配样本业务编码、样本名称、拼音码、五笔码
 	API_DTO_FIELD_DEFAULT(String, keyword, ZH_WORDS_GETTER("sample.query.keyword"));
