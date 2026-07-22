@@ -22,9 +22,9 @@ public class EnumAddDTO {
 
     @NotBlank
     @Schema(description = "枚举类型ID，和EnumType的id关联，不由用户输入", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String typeId;
+    private String enumTypeId;
 
-    @Size(min = 1, max = 32, message = "枚举键长度必须在1到32个字符之间")
+    @Size(min = 1, max = 100, message = "枚举键长度必须在1到100个字符之间")
     @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "枚举类型键必须由字母、数字或下划线组成")
     @Schema(description = "枚举键，必须唯一", example = "enumKey", requiredMode = Schema.RequiredMode.REQUIRED)
     private String enumKey;
@@ -33,9 +33,9 @@ public class EnumAddDTO {
     @Schema(description = "枚举码，必须唯一", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer enumCode;
 
-    @Size(min = 1, max = 64, message = "标签长度必须在1到32个字符之间")
-    @Schema(description = "标签，必须唯一", example = "label", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String label;
+    @Size(min = 1, max = 500, message = "标签长度必须在1到500个字符之间")
+    @Schema(description = "标签，必须唯一", example = "男性", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String display;
 
     @NotNull
     @Schema(description = "排序", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
