@@ -1,15 +1,15 @@
 #pragma once
 
-#ifndef _CHINAPRESDETAILQUERY_H_
-#define _CHINAPRESDETAILQUERY_H_
+#ifndef _CHINAPRESDETAILQUERY1_H_
+#define _CHINAPRESDETAILQUERY1_H_
 
 #include "../../GlobalInclude.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class ChinapresDetailQuery : public  oatpp::DTO
+class ChinapresDetailQuery1 : public  oatpp::DTO
 {
-	DTO_INIT(ChinapresDetailQuery, DTO);
+	DTO_INIT(ChinapresDetailQuery1, DTO);
 	//患者病历号
 	API_DTO_FIELD_REQUIRE(String, patientId, ZH_WORDS_GETTER("chinapres.field.patientid"), true);
 	//处方号
@@ -17,4 +17,4 @@ class ChinapresDetailQuery : public  oatpp::DTO
 };
 
 #include OATPP_CODEGEN_END(DTO)
-#endif // !_CHINAPRESDETAILQUERY_H_
+#endif // !_CHINAPRESDETAILQUERY1_H_

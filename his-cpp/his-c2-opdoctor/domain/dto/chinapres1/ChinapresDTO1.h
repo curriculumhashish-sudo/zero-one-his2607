@@ -1,15 +1,15 @@
 #pragma once
 
-#ifndef _CHINAPRESDTO_H_
-#define _CHINAPRESDTO_H_
+#ifndef _CHINAPRESDTO1_H_
+#define _CHINAPRESDTO1_H_
 
 #include "../../GlobalInclude.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class ChinapresDTO : public  oatpp::DTO
+class ChinapresDTO1 : public  oatpp::DTO
 {
-	DTO_INIT(ChinapresDTO, DTO);
+	DTO_INIT(ChinapresDTO1, DTO);
 	//处方编号
 	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("chinapres.field.id"), true);
 	//处方数量
@@ -20,4 +20,4 @@ class ChinapresDTO : public  oatpp::DTO
 
 #include OATPP_CODEGEN_END(DTO)
 
-#endif // !_CHINAPRESDTO_H_
+#endif // !_CHINAPRESDTO1_H_

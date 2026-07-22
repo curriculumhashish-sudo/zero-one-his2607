@@ -2,8 +2,8 @@
 #define _MEDICALRECORDCONTROLLER_
 
 #include "domain/vo/BaseJsonVO.h"
-#include "domain/query/medicalrecord/MedicalRecordQuery.h"
-#include "domain/vo/medicalrecord/MedicalRecordPageJsonVO.h"
+#include "domain/query/outpatientrecord/MedicalRecordQuery.h"
+#include "domain/vo/outpatientrecord/MedicalRecordPageJsonVO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController) 
 #define API_TAG ZH_WORDS_GETTER("medicalrecord.tags.tag")

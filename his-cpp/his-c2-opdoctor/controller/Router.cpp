@@ -19,8 +19,8 @@
 #include "stdafx.h"
 #include "Router.h"
 #include "ApiHelper.h"
-#include "chinapres/ChinapresController.h"
-#include"medicalrecord/MedicalRecordController.h"
+#include "chinapres1/ChinapresController1.h"
+#include"outpatientrecord/MedicalRecordController.h"
 
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
@@ -42,6 +42,6 @@ Router::Router(Endpoints* docEndpoints, HttpRouter* router)
 void Router::initRouter()
 {
 	// #TIP: Add system extension route definitions below
-	ROUTER_SIMPLE_BIND(ChinapresController);
+	ROUTER_SIMPLE_BIND(ChinapresController1);
 	ROUTER_SIMPLE_BIND(MedicalRecordController);
 }

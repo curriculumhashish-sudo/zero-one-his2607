@@ -29,6 +29,8 @@
     summary: "获取历史处方"
   detail:
     summary: "获取指定患者本次就诊中医处方单"
+
+
 medicalrecord:
   tags:
     tag: "病历管理"

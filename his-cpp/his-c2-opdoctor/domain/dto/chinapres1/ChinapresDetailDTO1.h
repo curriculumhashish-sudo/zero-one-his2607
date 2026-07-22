@@ -1,13 +1,13 @@
 #pragma once
 
-#ifndef _CHINAPRESDETAILDTO_H_
-#define _CHINAPRESDETAILDTO_H_
+#ifndef _CHINAPRESDETAILDTO1_H_
+#define _CHINAPRESDETAILDTO1_H_
 
 #include "../../GlobalInclude.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class ChinapresHerbDTO : public  oatpp::DTO
+class ChinapresHerbDTO: public  oatpp::DTO
 {
 	DTO_INIT(ChinapresHerbDTO, DTO);
 	//药材名称
@@ -20,9 +20,9 @@ class ChinapresHerbDTO : public  oatpp::DTO
 	API_DTO_FIELD_REQUIRE(Float64, subtotal, ZH_WORDS_GETTER("chinapres.field.subtotal"), true);
 };
 
-class ChinapresDetailDTO : public  oatpp::DTO
+class ChinapresDetailDTO1: public  oatpp::DTO
 {
-	DTO_INIT(ChinapresDetailDTO, DTO);
+	DTO_INIT(ChinapresDetailDTO1, DTO);
 	//处方号
 	API_DTO_FIELD_REQUIRE(String, presCno, ZH_WORDS_GETTER("chinapres.field.prescno"), true);
 	//处方状态
@@ -52,4 +52,4 @@ class ChinapresDetailDTO : public  oatpp::DTO
 };
 
 #include OATPP_CODEGEN_END(DTO)
-#endif // !_CHINAPRESDETAILDTO_H_
+#endif // !_CHINAPRESDETAILDTO1_H_

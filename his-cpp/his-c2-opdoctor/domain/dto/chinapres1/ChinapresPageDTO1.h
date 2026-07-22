@@ -4,14 +4,14 @@
 #define _CHINAPRESPAGEDTO_H_
 
 #include "../../GlobalInclude.h"
-#include "ChinapresDTO.h"
+#include "ChinapresDTO1.h"
 #include "domain/dto/PageDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class ChinapresPageDTO : public PageDTO<ChinapresDTO::Wrapper>
+class ChinapresPageDTO1: public PageDTO<ChinapresDTO1::Wrapper>
 {
-	DTO_INIT(ChinapresPageDTO, PageDTO<ChinapresDTO::Wrapper>);
+	DTO_INIT(ChinapresPageDTO1, PageDTO<ChinapresDTO1::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)
