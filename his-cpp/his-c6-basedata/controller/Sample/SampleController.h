@@ -3,7 +3,7 @@
  Copyright Zero One Star. All rights reserved.
 
  @Author: awei
- @Date: 2026/07/20 17:39:36
+ @Date: 2026/07/22 17:39:36
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -19,12 +19,9 @@
 */
 #ifndef _SAMPLECONTROLLER_H_
 #define _SAMPLECONTROLLER_H_
-#include "domain/query/sample/SampleQuery.h"
-//#include "domain/vo/BaseJsonVO.h"
-#include "domain/vo/sample/SampleJsonVO.h"
-#include "domain/dto/sample/SampleAddDTO.h"
-#include "domain/dto/sample/SampleEditDTO.h"
-#include "domain/dto/sample/SampleStatusDTO.h"
+#include "domain/query/Sample/SampleQuery.h"
+#include "domain/vo/BaseJsonVO.h"
+#include "domain/vo/Sample/SampleJsonVO.h"
 using namespace oatpp;
 
 #include OATPP_CODEGEN_BEGIN(ApiController) //<- Begin Codegen
@@ -36,57 +33,48 @@ class SampleController : public oatpp::web::server::api::ApiController
 	// 添加访问定义
 	API_ACCESS_DECLARE(SampleController);
 public:
+	// 定义查询样本名称列表接口描述
+	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("sample.select-name.summary"), listSampleName, SampleQuery, SampleJsonVO::Wrapper, API_TAG);
+	// 定义查询样本名称列表接口端点
+	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/sample/select-name", listSampleName, SampleQuery, executeListSampleName(query));
 
-	/**
-	 * 1. 获取样本名称下拉列表（简易选择）
-	 */
-	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("sample.select-name.summary"), listSampleName, SampleFullSelectJsonVO::Wrapper, API_TAG);
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/sample/list-name", listSampleName, SampleFullSelectQuery, executeListSampleName(query));
+	// 定义查询样本分页列表接口描述
+	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("sample.list-page.summary"), listSamplePage, SampleQuery, SampleJsonVO::Wrapper, API_TAG);
+	// 定义查询样本分页列表接口端点
+	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/sample/list-page", listSamplePage, SampleQuery, executeListSamplePage(query));
 
-	/**
-	 * 2. 获取样本分页列表（多条件+分页）
-	 */
-	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("sample.list-page.summary"), listSamplePage, SampleFullSelectJsonVO::Wrapper, API_TAG);
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/sample/list-page", listSamplePage, SampleFullSelectQuery, executeListSamplePage(query));
+	// 定义新增样本信息接口描述
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("sample.add-sample.summary"), addSample, StringJsonVO::Wrapper, API_TAG);
+	// 定义新增样本信息接口端点
+	API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/sample/add-sample", addSample, BODY_DTO(SampleAddDTO::Wrapper, dto), executeAddSample(dto));
 
-	/**
-	 * 3. 新增样本
-	 */
-	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("sample.add.summary"), addSample, StringJsonVO::Wrapper, API_TAG);
-	API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/sample/add", addSample, BODY_DTO(SampleAddDTO::Wrapper, dto), executeAddSample(dto));
+	// 定义修改样本信息接口描述
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("sample.edit-sample.summary"), editSample, StringJsonVO::Wrapper, API_TAG);
+	// 定义修改样本信息接口端点
+	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/sample/edit-sample", editSample, BODY_DTO(SampleEditDTO::Wrapper, dto), executeEditSample(dto));
 
-	/**
-	 * 4. 修改样本
-	 */
-	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("sample.edit.summary"), editSample, StringJsonVO::Wrapper, API_TAG);
-	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/sample/edit", editSample, BODY_DTO(SampleEditDTO::Wrapper, dto), executeEditSample(dto));
+	// 定义删除样本信息接口描述
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("sample.remove-sample.summary"), removeSample, StringJsonVO::Wrapper, API_TAG);
+	// 定义删除样本信息接口端点
+	API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/sample/remove-sample", removeSample, BODY_DTO(SampleRemoveQuery::Wrapper, dto), executeRemoveSample(dto));
 
-	/**
-	 * 5. 删除样本（单条id）
-	 */
-	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("sample.remove.summary"), removeSample, StringJsonVO::Wrapper, API_TAG,
-		API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("sample.field.id"), "", true);
-	);
-	API_HANDLER_ENDPOINT_AUTH(API_M_DELETE, "/sample/remove", removeSample, QUERY(String, id), executeRemoveSample(id));
-
-	/**
-	 * 6. 启用/停用样本（批量修改状态）
-	 */
+	// 定义样本启停用接口描述
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("sample.switch-status.summary"), switchSampleStatus, StringJsonVO::Wrapper, API_TAG);
+	// 定义样本启停用接口端点
 	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/sample/switch-status", switchSampleStatus, BODY_DTO(SampleStatusDTO::Wrapper, dto), executeSwitchSampleStatus(dto));
 
 private:
-	// 1. 获取样本名称下拉
-	SampleFullSelectJsonVO::Wrapper executeListSampleName(const SampleFullSelectQuery::Wrapper& query);
-	// 2. 样本分页列表
-	SampleFullSelectJsonVO::Wrapper executeListSamplePage(const SampleFullSelectQuery::Wrapper& query);
-	// 3. 新增样本
+	// 查询样本名称列表
+	SampleJsonVO::Wrapper executeListSampleName(const SampleQuery::Wrapper& query);
+	// 查询样本分页列表
+	SampleJsonVO::Wrapper executeListSamplePage(const SampleQuery::Wrapper& query);
+	// 新增样本信息
 	StringJsonVO::Wrapper executeAddSample(const SampleAddDTO::Wrapper& dto);
-	// 4. 修改样本
+	// 修改样本信息
 	StringJsonVO::Wrapper executeEditSample(const SampleEditDTO::Wrapper& dto);
-	// 5. 删除样本
-	StringJsonVO::Wrapper executeRemoveSample(const String& id);
-	// 6. 启用/停用样本
+	// 删除样本信息
+	StringJsonVO::Wrapper executeRemoveSample(const SampleRemoveQuery::Wrapper& dto);
+	// 样本启停用状态切换
 	StringJsonVO::Wrapper executeSwitchSampleStatus(const SampleStatusDTO::Wrapper& dto);
 };
 

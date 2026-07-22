@@ -21,18 +21,16 @@
 #define _SAMPLE_FULL_SELECT_JSONVO_H_
 
 #include "../../GlobalInclude.h"
-#include "../dto/SampleFullSelectDTO.h"
+
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * 样本完整数据选择分页响应VO
- * 接口：/sample/full-select-page
- * 页面：携带完整样本数据、支持直接回填修改的样本选择弹窗
+ second
  */
-class SampleFullSelectJsonVO : public JsonVO<SampleFullSelectDTO::Wrapper>
+class SampleFullSelectJsonVO : public JsonVO<String>
 {
-	DTO_INIT(SampleFullSelectJsonVO, JsonVO<SampleFullSelectDTO::Wrapper>);
+	DTO_INIT(SampleFullSelectJsonVO, public JsonVO<String>);
 };
 
 #include OATPP_CODEGEN_END(DTO)
