@@ -19,9 +19,24 @@
 */
 #ifndef _SAMPLECONTROLLER_H_
 #define _SAMPLECONTROLLER_H_
+// 查询条件
 #include "domain/query/Sample/SampleQuery.h"
+#include "domain/query/Sample/SampleRemoveQuery.h"
+
+// 基础返回
 #include "domain/vo/BaseJsonVO.h"
+
+// 业务入参DTO
+#include "domain/dto/Sample/SampleAddDTO.h"
+#include "domain/dto/Sample/SampleEditDTO.h"
+#include "domain/dto/Sample/SampleStatusDTO.h"
+
+// 响应VO
 #include "domain/vo/Sample/SampleJsonVO.h"
+#include "domain/vo/Sample/SampleAddVO.h"
+#include "domain/vo/Sample/SampleEditVO.h"
+#include "domain/vo/Sample/SampleRemoveVO.h"
+#include "domain/vo/Sample/SampleStatusVO.h"
 using namespace oatpp;
 
 #include OATPP_CODEGEN_BEGIN(ApiController) //<- Begin Codegen
