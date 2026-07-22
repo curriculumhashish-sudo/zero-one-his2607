@@ -6,6 +6,6 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ComponentScan("com.zeroone.star.project.config.mybatis")
-//@MapperScan("com.zeroone.star.j7.dispense.mapper")
+@MapperScan("com.zeroone.star.j7.dispense.mapper")
 public class MyBatisInit {
 }

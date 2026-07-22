@@ -1,14 +1,8 @@
 server:
-port: 10400
-servlet:
-  context-path: /j7-dispense
+  port: ${sp.j7-dispense:10401}
+  servlet:
+    context-path: /j7-dispense
 
 spring:
   application:
-    name: his-j7-dispense
-  cloud:
-    nacos:
-      discovery:
-        enabled: false   # 临时禁用，避免连接超时
-      config:
-        enabled: false   # 临时禁用
+    name: ${sn.j7-dispense:J7_DISPENSE}
