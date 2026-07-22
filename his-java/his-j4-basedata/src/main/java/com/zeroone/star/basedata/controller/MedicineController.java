@@ -3,21 +3,21 @@ package com.zeroone.star.basedata.controller;
 
 import com.zeroone.star.basedata.service.IMedicineService;
 import com.zeroone.star.basedata.service.impl.MsMedicineMapper;
+import com.zeroone.star.project.dto.j4.medicine.MedicineAddDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineChangeStatusDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineDeleteDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineDetailDTO;
 import com.zeroone.star.project.j4.basedata.MedicineApis;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j4.medicine.MedicineAddVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineDetailVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * <p>
@@ -52,6 +52,7 @@ public class MedicineController implements MedicineApis {
         }
         return JsonVO.fail("获取失败");
     }
+
 
     @PutMapping("/update-medicine")
     @Operation(summary = "修改药品")
@@ -88,4 +89,11 @@ public class MedicineController implements MedicineApis {
         return JsonVO.fail("状态修改存在异常");
     }
 
+    @Override
+    @PostMapping("/add-medicine")
+    @Operation(summary = "新增药品", description = "新增药品主体及价格信息")
+    public JsonVO<MedicineAddVO> addMedicine(@Valid @RequestBody MedicineAddDTO dto) {
+        MedicineAddVO vo = medicineService.addMedicine(dto);
+        return JsonVO.success(vo);
+    }
 }

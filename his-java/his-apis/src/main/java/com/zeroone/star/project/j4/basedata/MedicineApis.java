@@ -1,9 +1,11 @@
 package com.zeroone.star.project.j4.basedata;
 
+import com.zeroone.star.project.dto.j4.medicine.MedicineAddDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineChangeStatusDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineDeleteDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineDetailDTO;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j4.medicine.MedicineAddVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineDetailVO;
 
 /**
@@ -63,5 +65,11 @@ public interface MedicineApis {
     */
     JsonVO<Void> updateChangeMedicineStatus(int status,MedicineChangeStatusDTO dto);
 
-
+    /**
+     * 新增药品。
+     *
+     * @param dto 新增药品信息
+     * @return 新增成功后的药品ID
+     */
+    JsonVO<MedicineAddVO> addMedicine(MedicineAddDTO dto);
 }
