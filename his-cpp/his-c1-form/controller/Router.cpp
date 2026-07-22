@@ -23,6 +23,7 @@
 #include "data_statistics/InventoryMaterialController.h"
 
 #include "cost_info/costInfoController.h"
+#include"data_statistics/OutpatientStatController.h"
 
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
@@ -50,5 +51,7 @@ void Router::initRouter()
 
 	// 绑定报表明细控制器
 	ROUTER_SIMPLE_BIND(CostInfoController);
+	
+	ROUTER_SIMPLE_BIND(OutpatientStatController);
 
 }
