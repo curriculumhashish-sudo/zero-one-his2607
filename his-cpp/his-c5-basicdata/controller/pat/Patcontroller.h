@@ -13,22 +13,23 @@
 // 0 定义API控制器使用宏
 #include OATPP_CODEGEN_BEGIN(ApiController) 
 
-#define API_TAG_PAT ZH_WORDS_GETTER("pat.tags")
+#define API_TAG ZH_WORDS_GETTER("pat.tags")
 
 class PatController : public oatpp::web::server::api::ApiController
 {
 	API_ACCESS_DECLARE(PatController);
 
 public:
-	// 删除患者（批量）: BODY -> List<String> ids
-	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("pat.delete.summary"), removePat, StringJsonVO::Wrapper, API_TAG_PAT);
-	API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/pat", removePat, BODY_DTO(List<String>, ids), execRemovePat(ids));
-
+	// 3.1 定义删除接口描述
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("pat.delete.summary"), removePat, ListJsonVO<String>::Wrapper, API_TAG);
+	// 3.2 定义删除接口处理
+	API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/pat/delete", removePat, BODY_DTO(List<String>, ids), execRemovePat(ids));
 private:
-	StringJsonVO::Wrapper execRemovePat(const List<String>& ids);
+	// 3.3 演示删除数据
+	ListJsonVO<String>::Wrapper execRemovePat(const List<String>& ids);
 };
 
-#undef API_TAG_PAT
+#undef API_TAG
 
 // 0 取消API控制器使用宏
 #include OATPP_CODEGEN_END(ApiController) 
