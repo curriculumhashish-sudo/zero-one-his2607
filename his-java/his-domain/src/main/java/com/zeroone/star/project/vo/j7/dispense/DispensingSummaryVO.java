@@ -52,10 +52,4 @@ public class DispensingSummaryVO {
 
     @Schema(description = "操作人姓名", example = "药师张三")
     private String operatorName;
-
-    @Schema(description = "截单时间", example = "2026-07-19 12:00:00")
-    private String closeTime;
-
-    @Schema(description = "截单人姓名", example = "药师李四")
-    private String closerName;
 }

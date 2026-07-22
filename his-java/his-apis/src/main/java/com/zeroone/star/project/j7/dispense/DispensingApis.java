@@ -40,11 +40,4 @@ public interface DispensingApis {
      * @return 核对发药结果
      */
     JsonVO<String> verifyDispense(DispenseVerifyDTO verifyDTO);
-
-    /**
-     * 发药后截单（关闭汇总单，防止后续修改）
-     * @param summaryNo 汇总单号
-     * @return 操作结果
-     */
-    JsonVO<String> closeSummary(String summaryNo);
 }
