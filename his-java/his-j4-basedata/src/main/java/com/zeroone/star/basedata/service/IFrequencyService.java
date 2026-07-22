@@ -1,7 +1,7 @@
 package com.zeroone.star.basedata.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.zeroone.star.basedata.entity.CusFrequencyDO;
+import com.zeroone.star.basedata.entity.frequency.CusFrequencyDO;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j4.frequency.FrequencySaveDTO;
 import com.zeroone.star.project.dto.j4.frequency.FrequencyUpdateDTO;

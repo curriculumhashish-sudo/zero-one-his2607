@@ -1,4 +1,4 @@
-package com.zeroone.star.basedata.entity.Medicine;
+package com.zeroone.star.basedata.entity.medicine;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Getter;

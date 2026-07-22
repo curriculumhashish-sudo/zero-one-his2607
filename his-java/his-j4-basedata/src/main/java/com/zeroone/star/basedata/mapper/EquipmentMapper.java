@@ -1,7 +1,7 @@
 package com.zeroone.star.basedata.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.zeroone.star.basedata.entity.EquipmentDO;
+import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinition;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -15,5 +15,5 @@ import org.apache.ibatis.annotations.Mapper;
  * @version 1.0.0
  */
 @Mapper
-public interface EquipmentMapper extends BaseMapper<EquipmentDO> {
+public interface EquipmentMapper extends BaseMapper<AdmDeviceDefinition> {
 }

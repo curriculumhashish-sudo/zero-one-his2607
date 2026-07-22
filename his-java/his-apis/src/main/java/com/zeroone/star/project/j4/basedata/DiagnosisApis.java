@@ -1,18 +1,13 @@
 package com.zeroone.star.project.j4.basedata;
 
 import com.zeroone.star.project.dto.PageDTO;
-
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisDefinitionDTO;
-
-
-import com.zeroone.star.project.query.j4.diagnosis.DiagnosisDefinitionQuery;
-
+import com.zeroone.star.project.query.j4.diagnosis.DiagnosisPageQuery;
+import com.zeroone.star.project.query.j4.diagnosis.DiagnosisSelectPageQuery;
 import com.zeroone.star.project.vo.JsonVO;
-
-import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisDefinitionDetailVO;
-import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisDefinitionVO;
-
-
+import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisDetailVO;
+import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisListVO;
+import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisOptionVO;
 
 import java.util.List;
 
@@ -27,24 +22,29 @@ import java.util.List;
  */
 public interface DiagnosisApis {
 
-    // 诊断目录维护
     /**
-     * 分页查询诊断定义列表
-     * @param query 查询条件（支持按名称/拼音码/五笔码/来源/类型/状态筛选）
-     * @return 分页诊断定义列表
+     * 获取可选择诊断列表（条件+分页）。
+     *
+     * @param query 查询条件
+     * @return 可选择诊断分页数据
      */
-    default JsonVO<PageDTO<DiagnosisDefinitionVO>> queryDefinitions(DiagnosisDefinitionQuery query) {
-        return null;
-    }
+    JsonVO<PageDTO<DiagnosisOptionVO>> queryDiagnosisSelectList(DiagnosisSelectPageQuery query);
 
     /**
-     * 查询诊断定义详情
-     * @param id 诊断定义主键
-     * @return 诊断定义详情（含引用关系列表）
+     * 获取诊断管理列表（条件+分页）。
+     *
+     * @param query 查询条件
+     * @return 诊断管理分页数据
      */
-    default JsonVO<DiagnosisDefinitionDetailVO> queryDefinitionDetail(String id) {
-        return null;
-    }
+    JsonVO<PageDTO<DiagnosisListVO>> queryDiagnosisList(DiagnosisPageQuery query);
+
+    /**
+     * 获取诊断详情。
+     *
+     * @param id 诊断ID
+     * @return 诊断详情
+     */
+     JsonVO<DiagnosisDetailVO> queryDiagnosisDetail(String id);
 
     /**
      * 新增诊断
@@ -80,16 +80,6 @@ public interface DiagnosisApis {
      * @return 删除结果
      */
     default JsonVO<String> removeBatch(List<String> ids) {
-        return null;
-    }
-
-
-    /**
-     * 获取选择诊断列表（条件+分页）
-     * @param query 查询条件
-     * @return 诊断列表
-     */
-    default JsonVO<PageDTO<DiagnosisDefinitionVO>> getSelectList(DiagnosisDefinitionQuery query) {
         return null;
     }
 }

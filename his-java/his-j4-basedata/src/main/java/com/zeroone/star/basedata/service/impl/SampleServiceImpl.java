@@ -1,7 +1,7 @@
 package com.zeroone.star.basedata.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zeroone.star.basedata.entity.AdmSpecimenDefinitionDO;
+import com.zeroone.star.basedata.entity.sample.AdmSpecimenDefinitionDO;
 import com.zeroone.star.basedata.mapper.SampleMapper;
 import com.zeroone.star.basedata.service.ISampleService;
 import org.springframework.stereotype.Service;

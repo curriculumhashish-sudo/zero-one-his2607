@@ -1,4 +1,4 @@
-package com.zeroone.star.basedata.entity;
+package com.zeroone.star.basedata.entity.equipment;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -22,7 +22,7 @@ import java.math.BigDecimal;
 @Data
 @TableName("adm_device_definition")
 @Schema(description = "器材定义")
-public class EquipmentDO {
+public class AdmDeviceDefinition {
 
     /**
      * 主键标识
