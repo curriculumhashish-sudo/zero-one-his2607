@@ -7,6 +7,7 @@ import com.zeroone.star.project.dto.j6.pharmacy.stockout.SubmitStockOutApprovalD
 import com.zeroone.star.project.dto.j6.pharmacy.stockout.WithdrawStockOutApprovalDTO;
 import com.zeroone.star.project.query.j6.pharmacy.stockout.StockOutQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutApprovalResultVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutDetailVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutListVO;
 
@@ -37,26 +38,26 @@ public interface WarehouseStockOutApis {
      * @param dto 提交审批参数（busNo）
      * @return 操作结果（含操作后状态）
      */
-    JsonVO<String> submitStockOutApproval(SubmitStockOutApprovalDTO dto);
+    JsonVO<StockOutApprovalResultVO> submitStockOutApproval(SubmitStockOutApprovalDTO dto);
 
     /**
      * 撤回出库审批
      * @param dto 撤回审批参数（busNo）
      * @return 操作结果（含操作后状态）
      */
-    JsonVO<String> withdrawStockOutApproval(WithdrawStockOutApprovalDTO dto);
+    JsonVO<StockOutApprovalResultVO> withdrawStockOutApproval(WithdrawStockOutApprovalDTO dto);
 
     /**
      * 通过出库审批
      * @param dto 通过审批参数（busNo + 可选contractBusNo）
      * @return 操作结果（含操作后状态 + 药房入库壳单号）
      */
-    JsonVO<String> agreeStockOut(AgreeStockOutDTO dto);
+    JsonVO<StockOutApprovalResultVO> agreeStockOut(AgreeStockOutDTO dto);
 
     /**
      * 驳回出库审批
      * @param dto 驳回审批参数（busNo + rejectReason）
      * @return 操作结果（含操作后状态）
      */
-    JsonVO<String> rejectStockOut(RejectStockOutDTO dto);
+    JsonVO<StockOutApprovalResultVO> rejectStockOut(RejectStockOutDTO dto);
 }
