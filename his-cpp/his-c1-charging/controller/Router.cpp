@@ -19,6 +19,12 @@
 #include "stdafx.h"
 #include "Router.h"
 #include "ApiHelper.h"
+#include "refund/RefundGetPatientController.h"
+#include "refund/RefundGetItemController.h"
+#include "refund/RefundVerifyRefundController.h"
+#include "refund/RefundExecuteRefundController.h"
+#include "refund/RefundPreparePrintController.h"
+#include "refund/RefundConfirmPrintController.h"
 
 #include "../controller/register/ChargeConfirmController.h"
 #include "../controller/register/QuitNumberController.h"
@@ -60,7 +66,6 @@ Router::Router(Endpoints* docEndpoints, HttpRouter* router)
 void Router::initRouter()
 {
 	// #TIP: Add system extension route definitions below
-
 	ROUTER_SIMPLE_BIND(ChargeConfirmController);
 	ROUTER_SIMPLE_BIND(QuitNumberController);
 	ROUTER_SIMPLE_BIND(PrintRegisterReceiptController);
@@ -84,4 +89,11 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(EnrollController);
 
 	
+	ROUTER_SIMPLE_BIND(RefundGetPatientController);
+	ROUTER_SIMPLE_BIND(RefundGetItemController);
+	ROUTER_SIMPLE_BIND(RefundVerifyRefundController);
+	ROUTER_SIMPLE_BIND(RefundExecuteRefundController);
+	ROUTER_SIMPLE_BIND(RefundPreparePrintController);
+	ROUTER_SIMPLE_BIND(RefundConfirmPrintController);
+
 }
