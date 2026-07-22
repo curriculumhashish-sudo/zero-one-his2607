@@ -6,17 +6,17 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
  * <p>
- * 描述：药房管理模块启动入口
+ * 描述：j7药房业务模块启动入口（临时模块，后续可按组长规范调整）
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
- * @author 阿伟学长
+ * @author j7
  * @version 1.0.0
  */
 @SpringBootApplication
 @EnableDiscoveryClient
-public class PharmacyApplication {
-    public static void main(String[] args){
-        SpringApplication.run(PharmacyApplication.class, args);
+public class J7PharmacyApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(J7PharmacyApplication.class, args);
     }
 }
