@@ -30,6 +30,7 @@
 #include "domain/dto/Sample/SampleAddDTO.h"
 #include "domain/dto/Sample/SampleEditDTO.h"
 #include "domain/dto/Sample/SampleStatusDTO.h"
+#include "domain/dto/Sample/SampleDTO.h"
 
 // œÏ”¶VO
 #include "domain/vo/Sample/SampleJsonVO.h"

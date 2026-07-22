@@ -26,8 +26,7 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * 样本完整数据选择弹窗查询条件
- * 对应页面：样本选择弹窗，支持名称/编码/拼音/五笔综合检索
+second
  */
 class SampleFullSelectQuery : public PageQuery
 {

@@ -2,6 +2,15 @@
 #include "stdafx.h"
 #include "SampleController.h"
 
+// 查询样本名称列表
+SampleJsonVO::Wrapper SampleController::executeListSampleName(const SampleQuery::Wrapper& query)
+{
+	(void)dto;
+	auto jvo = SampleJsonVO::createShared();
+	vo->success("json sample success");
+	return jvo;
+}
+
 // 新增样本
 StringJsonVO::Wrapper SampleController::executeAddSample(const SampleAddDTO::Wrapper& dto)
 {
