@@ -8,8 +8,8 @@
 #define _PRINT_JOB_CONTROLLER_
 
 #include "ApiHelper.h"
-#include "domain/vo/print/PrintJobVO.h"
-#include "domain/dto/print/PrintApiDTO.h"
+#include "domain/vo/opnurse3/PrintJobVO.h"
+#include "domain/dto/opnurse3/PrintApiDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 

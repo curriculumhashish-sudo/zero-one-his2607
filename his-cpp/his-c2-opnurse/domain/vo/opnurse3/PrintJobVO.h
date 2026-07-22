@@ -8,8 +8,8 @@
 #define _PRINT_JOB_VO_
 
 #include "../../GlobalInclude.h"
-#include "../../dto/print/PrintJobDTO.h"
-#include "../../dto/print/PrintApiDTO.h"
+#include "../../dto/opnurse3/PrintJobDTO.h"
+#include "../../dto/opnurse3/PrintApiDTO.h"
 #include "domain/vo/JsonVO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)

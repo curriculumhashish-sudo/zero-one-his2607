@@ -7,8 +7,8 @@
 #ifndef _PRINT_JOB_DAO_
 #define _PRINT_JOB_DAO_
 #include "BaseDAO.h"
-#include "../../domain/do/print/PrintJobDO.h"
-#include "../../domain/query/print/PrintJobQuery.h"
+#include "../../domain/do/opnurse3/PrintJobDO.h"
+#include "../../domain/query/opnurse3/PrintJobQuery.h"
 
 class PrintJobDAO : public BaseDAO
 {

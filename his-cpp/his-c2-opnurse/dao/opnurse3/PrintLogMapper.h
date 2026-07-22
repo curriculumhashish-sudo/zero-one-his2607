@@ -8,7 +8,7 @@
 #define _PRINT_LOG_MAPPER_
 
 #include "Mapper.h"
-#include "../../domain/do/print/PrintLogDO.h"
+#include "../../domain/do/opnurse3/PrintLogDO.h"
 
 class PrintLogMapper : public Mapper<PrintLogDO>
 {

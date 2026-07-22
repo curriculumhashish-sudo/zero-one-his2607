@@ -8,8 +8,8 @@
 #define _PRINT_LOG_CONTROLLER_
 
 #include "ApiHelper.h"
-#include "domain/vo/print/PrintLogVO.h"
-#include "domain/query/print/PrintLogQuery.h"
+#include "domain/vo/opnurse3/PrintLogVO.h"
+#include "domain/query/opnurse3/PrintLogQuery.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 

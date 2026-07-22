@@ -20,8 +20,8 @@
 #include "Router.h"
 #include "ApiHelper.h"
 
-#include "print/PrintJobController.h"
-#include "print/PrintLogController.h"
+#include "opnurse3/PrintJobController.h"
+#include "opnurse3/PrintLogController.h"
 
 #ifdef CLOSE_SWAGGER_DOC
 #define ROUTER_SIMPLE_BIND(__CLASS__) \

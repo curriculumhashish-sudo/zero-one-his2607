@@ -8,7 +8,7 @@
 #define _PRINT_LOG_VO_
 
 #include "../../GlobalInclude.h"
-#include "../../dto/print/PrintLogDTO.h"
+#include "../../dto/opnurse3/PrintLogDTO.h"
 #include "domain/vo/JsonVO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)

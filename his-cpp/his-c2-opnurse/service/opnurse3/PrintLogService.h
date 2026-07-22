@@ -7,9 +7,9 @@
 #ifndef _PRINT_LOG_SERVICE_
 #define _PRINT_LOG_SERVICE_
 
-#include "../../domain/dto/print/PrintLogDTO.h"
-#include "../../domain/query/print/PrintLogQuery.h"
-#include "../../dao/print/PrintLogDAO.h"
+#include "../../domain/dto/opnurse3/PrintLogDTO.h"
+#include "../../domain/query/opnurse3/PrintLogQuery.h"
+#include "../../dao/opnurse3/PrintLogDAO.h"
 
 class PrintLogService
 {
