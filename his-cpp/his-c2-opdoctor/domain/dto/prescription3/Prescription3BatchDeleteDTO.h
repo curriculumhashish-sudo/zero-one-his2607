@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _PRESCRIPTION_BATCH_DELETE_DTO_H_
-#define _PRESCRIPTION_BATCH_DELETE_DTO_H_
+#ifndef _PRESCRIPTION3_BATCH_DELETE_DTO_H_
+#define _PRESCRIPTION3_BATCH_DELETE_DTO_H_
 
 #include "../../GlobalInclude.h"
 
@@ -10,12 +10,14 @@
 /**
  * 删除医嘱请求对象
  *
- * 支持删除一条或多条医嘱。
- * 只有处于未签发（草稿）状态的医嘱才能删除。
+ * 支持删除一条或多条未签发医嘱。
  */
-class PrescriptionBatchDeleteDTO : public oatpp::DTO
+class Prescription3BatchDeleteDTO : public oatpp::DTO
 {
-    DTO_INIT(PrescriptionBatchDeleteDTO, DTO);
+    DTO_INIT(
+        Prescription3BatchDeleteDTO,
+        DTO
+    );
 
     /**
      * 需要删除的医嘱ID集合
@@ -24,7 +26,7 @@ class PrescriptionBatchDeleteDTO : public oatpp::DTO
         List<String>,
         prescriptionIds,
         ZH_WORDS_GETTER(
-            "prescription.field.deletePrescriptionIds"
+            "prescription3.field.deletePrescriptionIds"
         ),
         true
     );
