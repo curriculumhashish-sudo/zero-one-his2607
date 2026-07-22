@@ -99,7 +99,7 @@ public class AdmChargeItemDefinitionDO implements Serializable {
     private String statusEnum;
 
     /**
-     * 所属机构主键（可空表示全局）
+     * 所属科室标识，可空表示全局价格
      */
     private String orgId;
 
