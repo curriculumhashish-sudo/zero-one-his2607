@@ -1,7 +1,7 @@
-package com.zeroone.star.sysmgr.mappe/permission;
+package com.zeroone.star.sysmgr.mapper.permission;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.zeroone.star.sysmgr.entity.Permission;
+import com.zeroone.star.sysmgr.entity.permission.Permission;
 import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
