@@ -75,15 +75,9 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
     public PageDTO<MedicineSelectVO> queryMedicineSelectPage(
             MedicineSelectPageQuery query) {
 
-        Page<MedicineSelectVO> page =
-                new Page<>(query.getPageIndex(), query.getPageSize());
+        Page<MedicineSelectVO> page = new Page<>(query.getPageIndex(), query.getPageSize());
 
-        Page<MedicineSelectVO> result =
-                baseMapper.selectMedicineSelectPage(
-                        page,
-                        query,
-                        TEMP_LOCATION_ID
-                );
+        Page<MedicineSelectVO> result = baseMapper.selectMedicineSelectPage(page, query, TEMP_LOCATION_ID);
 
         return PageDTO.create(result);
     }
@@ -97,8 +91,7 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
         LocalDateTime now = LocalDateTime.now();
         String medicineId = IdWorker.getIdStr();
 
-        MedMedicationDefinitionDO medicine =
-                msMedicineMapper.addDtoToEntity(dto);
+        MedMedicationDefinitionDO medicine = msMedicineMapper.addDtoToEntity(dto);
 
         fillMedicineFields(medicine, medicineId, now);
 

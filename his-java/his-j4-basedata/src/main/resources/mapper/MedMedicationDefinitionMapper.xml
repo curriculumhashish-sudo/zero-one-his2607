@@ -36,8 +36,7 @@
         ORDER BY m.created_at DESC, m.id DESC
     </select>
 
-    <select id="selectMedicineSelectPage"
-            resultType="com.zeroone.star.project.vo.j4.medicine.MedicineSelectVO">
+    <select id="selectMedicineSelectPage" resultType="com.zeroone.star.project.vo.j4.medicine.MedicineSelectVO">
         SELECT
         m.id AS id,
         m.bus_no AS itemCode,
