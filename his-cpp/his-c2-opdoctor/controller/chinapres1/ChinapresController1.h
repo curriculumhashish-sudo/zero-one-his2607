@@ -9,7 +9,7 @@
 #include"domain/vo/chinapres1/ChinapresVO1.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController) 
-#define API_TAG ZH_WORDS_GETTER("chinapres.tags.tag")
+#define API_TAG ZH_WORDS_GETTER("chinapres1.tags.tag")
 
 class ChinapresController1: public oatpp::web::server::api::ApiController
 {
