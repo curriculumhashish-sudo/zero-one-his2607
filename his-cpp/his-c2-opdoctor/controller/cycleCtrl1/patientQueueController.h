@@ -4,9 +4,9 @@
 
 
 #include "domain/vo/BaseJsonVO.h"
-#include "domain/query/cycleCtrl/patientQueueQuery.h"
-#include "domain/dto/cycleCtrl/patientQueueDTO.h"
-#include "domain/vo/cycleCtrl/patientQueueVo.h"
+#include "domain/query/cycleCtrl1/patientQueueQuery.h"
+#include "domain/dto/cycleCtrl1/patientQueueDTO.h"
+#include "domain/vo/cycleCtrl1/patientQueueVo.h"
 #include "domain/GlobalInclude.h"
 
 
@@ -22,7 +22,7 @@ class PatientQueueController : public oatpp::web::server::api::ApiController
 
 public:
 	//1.1定义患者队列的查询接口处理
-	ENDPOINT(API_M_GET, "/cycleCtrl/queue", queryQueue, QUERIES(QueryParams, queryParams))
+	ENDPOINT(API_M_GET, "/cycleCtrl/queue", queryQueue, QUERIES(QueryParams, queryParams), API_HANDLER_AUTH_PARAME)
 	{
 		//解析查询参数为query的领域模型
 		API_HANDLER_QUERY_PARAM(userQuery, PatientQueueQuery, queryParams);
@@ -32,6 +32,8 @@ public:
 	//1.2定义患者队列的查询接口描述	
 	ENDPOINT_INFO(queryQueue)
 	{
+		//定义授权描述
+		API_DEF_ADD_AUTH();
 		//定义接口标题
 		API_DEF_ADD_TITLE(ZH_WORDS_GETTER("queue.get.summary"));
 		//定义响应参数格式

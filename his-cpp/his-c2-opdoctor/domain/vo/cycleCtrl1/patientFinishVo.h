@@ -4,7 +4,7 @@
 #define _PATIENTFINISHJSONVO_H
 
 #include "../../GlobalInclude.h"
-#include "../../dto/cycleCtrl/PatientFinishDTO.h"
+#include "../../dto/cycleCtrl1/PatientFinishDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 

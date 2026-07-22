@@ -3,7 +3,7 @@
 #define _RECEPTIONPATIENTVO_H_
 
 #include "../../GlobalInclude.h"
-#include "../../dto/cycleCtrl/receptionPatientDTO.h"
+#include "../../dto/cycleCtrl1/receptionPatientDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 

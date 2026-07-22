@@ -3,7 +3,7 @@
 #define _PATIENTLEAVEJSONVO_H
 
 #include "../../GlobalInclude.h"
-#include "../../dto/cycleCtrl/PatientLeaveDTO.h"
+#include "../../dto/cycleCtrl1/PatientLeaveDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
