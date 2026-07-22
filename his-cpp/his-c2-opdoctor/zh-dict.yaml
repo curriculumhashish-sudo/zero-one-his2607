@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 title:
  tags:
   text: "周期循环"
@@ -320,12 +321,54 @@ chinapres2:
   summary: 删除处方
  field:
   id: 处方编号
+=======
+﻿chinapres3:
+ tags:
+  tag: 中医处方
+ issue: 
+  summary: 签发处方
+ recall: 
+  summary: 撤回处方
+ field:
+  chinapres3Id: 处方ID
+  status: 处方状态
+  createBy: 创建人
+  updateBy: 更新人
+  patientId: 患者ID
+  diagnosisId: 诊断ID
+>>>>>>> origin/c2-chinapres-yan
   usage: 用法
   frequency: 频次
   days: 天数
   copies: 付数
+<<<<<<< HEAD
   decoction: 代煎
   diagnosis: 诊断
   remark: 备注
   medicine: 药材
   preNum: 位数
+=======
+  decoction: 是否代煎
+  remark: 医嘱备注
+  items: 添加药材
+  medicineId: 药材ID
+  dosage: 剂量(g)
+  materialCode: 精确搜项目编码
+  materialName: 模糊搜药材名称
+  category: 类别筛选：中草药、耗材
+outpatientrecord:
+ field: 
+  outpatientrecordId: 病历ID（为空表示新增，不为空表示修改）
+  patientId: 患者ID
+  content: 病历正文
+ tags:
+  tag: 门诊病历
+ save:
+  summary: 保存门诊病历
+
+
+
+
+
+
+>>>>>>> origin/c2-chinapres-yan
