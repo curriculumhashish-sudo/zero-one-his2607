@@ -1,0 +1,9 @@
+aptient:
+ tags:
+  tag:  患者管理
+ query:
+  summary: 分页查询数据示例
+ field:
+  status: 状态
+  ConsumableProject: 消费项目
+  OrderContent:  执行项目
