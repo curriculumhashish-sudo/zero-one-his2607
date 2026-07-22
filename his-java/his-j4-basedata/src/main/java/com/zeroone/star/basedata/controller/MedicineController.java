@@ -1,8 +1,23 @@
 package com.zeroone.star.basedata.controller;
 
+
+import com.zeroone.star.basedata.service.IMedicineService;
+import com.zeroone.star.basedata.service.impl.MsMedicineMapper;
+import com.zeroone.star.project.dto.j4.medicine.MedicineChangeStatusDTO;
+import com.zeroone.star.project.dto.j4.medicine.MedicineDeleteDTO;
+import com.zeroone.star.project.dto.j4.medicine.MedicineDetailDTO;
 import com.zeroone.star.project.j4.basedata.MedicineApis;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j4.medicine.MedicineDetailVO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
@@ -14,6 +29,63 @@ import org.springframework.web.bind.annotation.RestController;
  * @version 1.0.0
  */
 @RestController
-@RequestMapping("/basedata/medicine")
+@RequestMapping("/medicine")
+@Tag(name = "basedata-medicine", description = "药品管理接口")
+@Validated
+@Slf4j
 public class MedicineController implements MedicineApis {
+
+    @Resource
+    IMedicineService medicineService;
+
+    @Resource
+    MsMedicineMapper msMedicineMapper;
+
+    @Override
+    @GetMapping("/query-medicine")
+    @Operation(summary = "获取药品详情")
+    public JsonVO<MedicineDetailVO> queryMedicineDetail(String id) {
+        MedicineDetailDTO detailDTO = medicineService.queryMedicineDetailById(id);
+        MedicineDetailVO detailVO = msMedicineMapper.medicineDetailDtoToVo(detailDTO);
+        if(detailDTO!=null){
+            return JsonVO.success(detailVO);
+        }
+        return JsonVO.fail("获取失败");
+    }
+
+    @PutMapping("/update-medicine")
+    @Operation(summary = "修改药品")
+    public JsonVO<String> updateMedicine(@Validated @RequestBody MedicineDetailDTO dto){
+
+        int i =  medicineService.updateMedicine(dto);
+        if(i != 0) return JsonVO.success("修改成功");
+        return JsonVO.fail("修改失败") ;
+    }
+
+
+    @DeleteMapping("/delete-medicine")
+    @Operation(summary = "删除药品（支持批量）")
+    public JsonVO<String> deleteMedicine(@Validated @RequestBody MedicineDeleteDTO dto){
+
+        int i = medicineService.deleteMedicine(dto);
+        // 让删除失败的在service层抛异常
+        if(i != 0) return JsonVO.success("删除成功"+ i + "个药品");
+        return JsonVO.fail("删除失败");
+    }
+
+    @PutMapping("/change-status/{status}")
+    @Operation(summary = "启/停用药品(支持批量)",description = "status为1表示启用，为0表示停用")
+    public JsonVO<Void> updateChangeMedicineStatus(
+            @PathVariable int status,
+            @Validated @RequestBody MedicineChangeStatusDTO dto
+    ){
+        //在service里处理复杂逻辑
+        int i = medicineService.updateChangeMedicineStatus(status,dto);
+
+        if (i == dto.getSize()){
+            return JsonVO.success(null);
+        }
+        return JsonVO.fail("状态修改存在异常");
+    }
+
 }

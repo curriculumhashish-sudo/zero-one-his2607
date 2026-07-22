@@ -7,7 +7,7 @@ sp:
 server:
   port: ${sp.basedata}
   servlet:
-    context-path: /basedata
+    context-path: /j4-basedata
 spring:
   application:
     name: ${sn.basedata}
@@ -15,12 +15,12 @@ spring:
     # 确保 Nacos 配置正确
     nacos:
       config:
-        server-addr: 192.168.31.99:8848
+        server-addr: 127.0.0.1:8848
         namespace: his-dev  # 与 common-dev.yaml 保持一致
         username: nacos
         password: nacos
       discovery:
-        server-addr: 192.168.31.99:8848
+        server-addr: 127.0.0.1:8848
         namespace: his-dev
         username: nacos
         password: nacos
@@ -34,5 +34,4 @@ spring:
       host: 127.0.0.1
       port: 6379
       password: 1234
-
    
