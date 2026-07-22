@@ -37,6 +37,10 @@ spring:
               uri: lb://${sn.login}
               predicates:
                 - Path=/login/**
+            - id: sysmgr-route
+              uri: lb://sysmgr
+              predicates:
+                - Path=/j2-sysmgr/**
 
 zo:
   cloud:
