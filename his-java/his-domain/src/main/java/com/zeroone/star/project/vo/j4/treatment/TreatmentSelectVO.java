@@ -11,7 +11,7 @@ public class TreatmentSelectVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "主键ID")
+    @Schema(description = "主键ID", example = "1873645982637461")
     private String id;
 
     @Schema(description = "编码", example = "CG001")
