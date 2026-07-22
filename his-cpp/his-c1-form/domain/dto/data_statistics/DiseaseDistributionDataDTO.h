@@ -1,10 +1,9 @@
 #pragma once
-
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: QQQQ
- @Date: 2026/07/18
+ @Author: WYS
+ @Date: 2026/07/20 00:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -18,26 +17,24 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
+#ifndef _DISEASE_DISTRIBUTION_DATA_DTO_
+#define _DISEASE_DISTRIBUTION_DATA_DTO_
 
 #include "../../GlobalInclude.h"
-#include "../../dto/hospitalization_registration/InpatientRegistrationDTO.h"
+#include "DiseaseDistributionItemDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/**
- * Paginated inpatient registration response.
- */
-class InpatientRegistrationPageJsonVO : public JsonVO<InpatientRegistrationPageDTO::Wrapper>
+class DiseaseDistributionDataDTO : public oatpp::DTO
 {
-    DTO_INIT(InpatientRegistrationPageJsonVO, JsonVO<InpatientRegistrationPageDTO::Wrapper>);
-};
+	DTO_INIT(DiseaseDistributionDataDTO, DTO);
 
-/**
- * Inpatient registration detail response.
- */
-class InpatientRegistrationDetailJsonVO : public JsonVO<InpatientRegistrationDetailDTO::Wrapper>
-{
-    DTO_INIT(InpatientRegistrationDetailJsonVO, JsonVO<InpatientRegistrationDetailDTO::Wrapper>);
+	// distribution data list
+	DTO_FIELD(List<Object<DiseaseDistributionItemDTO>>, distributionList);
+	DTO_FIELD_INFO(distributionList) {
+		info->description = ZH_WORDS_GETTER("W.form.data_statistics.field.distribution_list");
+	}
 };
 
 #include OATPP_CODEGEN_END(DTO)
+#endif

@@ -23,7 +23,6 @@
 #include "../controller/register/ChargeConfirmController.h"
 #include "../controller/register/QuitNumberController.h"
 #include "../controller/register/PrintRegisterReceiptController.h"
-#include "hospitalization_registration/InpatientRegistrationController.h"
 #include"register/GetSeeController.h"
 #include"register/GetTodayAppointController.h"
 #include"register/AddRegisterContorller.h"
@@ -37,6 +36,8 @@
 #include"settle/GetPatientListController.h"
 #include"settle/GetCategoryDetailsController.h"
 #include"settle/GetTotalFeesController.h"
+
+#include "enroll/EnrollController.h"
 
 
 // If the macro for disabling Swagger documentation is defined
@@ -63,7 +64,6 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(ChargeConfirmController);
 	ROUTER_SIMPLE_BIND(QuitNumberController);
 	ROUTER_SIMPLE_BIND(PrintRegisterReceiptController);
-	ROUTER_SIMPLE_BIND(InpatientRegistrationController);
 	ROUTER_SIMPLE_BIND(GetSeeController);
 	ROUTER_SIMPLE_BIND(GetTodayAppointController);
 	ROUTER_SIMPLE_BIND(AddRegisterContorller);
@@ -82,4 +82,7 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(GetCategoryDetailsController);
 	ROUTER_SIMPLE_BIND(GetTotalFeesController);
 
+
+	ROUTER_SIMPLE_BIND(EnrollController);
+	
 }
