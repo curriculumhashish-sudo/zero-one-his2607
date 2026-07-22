@@ -1,7 +1,7 @@
 package com.zeroone.star.basedata.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zeroone.star.basedata.entity.AdmDeviceDefinition;
+import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinition;
 import com.zeroone.star.basedata.mapper.EquipmentMapper;
 import com.zeroone.star.basedata.service.IEquipmentService;
 import org.springframework.stereotype.Service;

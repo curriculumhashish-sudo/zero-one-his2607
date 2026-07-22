@@ -1,7 +1,7 @@
 package com.zeroone.star.basedata.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.zeroone.star.basedata.entity.AdmDeviceDefinition;
+import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinition;
 
 /**
  * <p>

@@ -1,4 +1,4 @@
-package com.zeroone.star.basedata.entity;
+package com.zeroone.star.basedata.entity.sample;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

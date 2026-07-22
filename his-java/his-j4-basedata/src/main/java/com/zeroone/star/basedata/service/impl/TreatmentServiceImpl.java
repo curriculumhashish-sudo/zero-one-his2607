@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zeroone.star.basedata.constant.TreatmentConstants;
-import com.zeroone.star.basedata.entity.WkfActivityDefinitionDO;
+import com.zeroone.star.basedata.entity.treatment.WkfActivityDefinitionDO;
 import com.zeroone.star.basedata.mapper.TreatmentMapper;
 import com.zeroone.star.basedata.service.ITreatmentService;
 import com.zeroone.star.project.dto.PageDTO;

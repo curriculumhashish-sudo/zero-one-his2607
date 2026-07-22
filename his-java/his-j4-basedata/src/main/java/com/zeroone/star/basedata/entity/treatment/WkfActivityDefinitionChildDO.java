@@ -1,4 +1,4 @@
-package com.zeroone.star.basedata.entity;
+package com.zeroone.star.basedata.entity.treatment;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;

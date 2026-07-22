@@ -2,7 +2,7 @@ package com.zeroone.star.basedata.service.impl;
 
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisDefinitionDTO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisDefinitionDetailVO;
-import com.zeroone.star.basedata.entity.ClnConditionDefinitionDO;
+import com.zeroone.star.basedata.entity.diagnosis.ClnConditionDefinitionDO;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import java.util.List;

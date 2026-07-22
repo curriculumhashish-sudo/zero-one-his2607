@@ -1,4 +1,4 @@
-package com.zeroone.star.basedata.entity;
+package com.zeroone.star.basedata.entity.frequency;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Getter;

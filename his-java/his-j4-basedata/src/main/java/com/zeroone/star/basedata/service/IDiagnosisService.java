@@ -1,7 +1,7 @@
 package com.zeroone.star.basedata.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zeroone.star.basedata.entity.ClnConditionDefinitionDO;
+import com.zeroone.star.basedata.entity.diagnosis.ClnConditionDefinitionDO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisDefinitionDTO;
 
 import com.zeroone.star.project.query.j4.diagnosis.DiagnosisDefinitionQuery;

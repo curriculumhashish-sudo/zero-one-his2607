@@ -1,4 +1,4 @@
-package com.zeroone.star.basedata.entity;
+package com.zeroone.star.basedata.entity.treatment;
 
 import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
