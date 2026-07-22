@@ -5,7 +5,7 @@
     :style="rootStyle"
   >
     <!-- ==================== Queue 区（左侧单据列表） ==================== -->
-    <aside class="document-workstation__queue" :style="queueStyle">
+    <aside ref="queueRef" class="document-workstation__queue" :style="queueStyle">
       <header v-if="$slots['queue-header']" class="document-workstation__queue-header">
         <div class="document-workstation__queue-header-content">
           <slot name="queue-header" />
@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, onUnmounted, watch } from 'vue'
 
 // ==================== Props ====================
 interface DocumentWorkstationProps {
@@ -76,7 +76,8 @@ const emit = defineEmits<{
 }>()
 
 // ==================== 内部拖拽状态 ====================
-const queuePx = ref(typeof props.queueWidth === 'number' ? props.queueWidth : 320)
+const queueRef = ref<HTMLElement | null>(null)
+const queueWidthValue = ref<string | number>(props.queueWidth)
 const dragging = ref(false)
 let startX = 0
 let startWidth = 0
@@ -87,15 +88,25 @@ const rootStyle = computed(() => ({
 }))
 
 const queueStyle = computed(() => ({
-  width: `${queuePx.value}px`
+  width:
+    typeof queueWidthValue.value === 'number'
+      ? `${queueWidthValue.value}px`
+      : queueWidthValue.value
 }))
+
+watch(
+  () => props.queueWidth,
+  (value) => {
+    if (!dragging.value) queueWidthValue.value = value
+  }
+)
 
 // ==================== 拖拽逻辑 ====================
 function onResizeStart(e: MouseEvent) {
   e.preventDefault()
   dragging.value = true
   startX = e.clientX
-  startWidth = queuePx.value
+  startWidth = queueRef.value?.getBoundingClientRect().width ?? props.minQueueWidth
   document.addEventListener('mousemove', onResizing)
   document.addEventListener('mouseup', onResizeEnd)
 }
@@ -104,12 +115,15 @@ function onResizing(e: MouseEvent) {
   if (!dragging.value) return
   const delta = e.clientX - startX
   const next = Math.min(props.maxQueueWidth, Math.max(props.minQueueWidth, startWidth + delta))
-  queuePx.value = next
+  queueWidthValue.value = next
 }
 
 function onResizeEnd() {
   dragging.value = false
-  emit('update:queueWidth', queuePx.value)
+  emit(
+    'update:queueWidth',
+    typeof queueWidthValue.value === 'number' ? queueWidthValue.value : startWidth
+  )
   document.removeEventListener('mousemove', onResizing)
   document.removeEventListener('mouseup', onResizeEnd)
 }

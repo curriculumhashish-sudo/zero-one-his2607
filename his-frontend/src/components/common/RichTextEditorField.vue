@@ -10,6 +10,7 @@
     />
     <!-- 编辑器 -->
     <Editor
+      :key="editorKey"
       :style="{ height: editorHeight, overflowY: 'hidden' }"
       v-model="valueHtml"
       :defaultConfig="editorConfig"
@@ -80,6 +81,7 @@ const editorRef = shallowRef<any>(null)
 const valueHtml = ref(props.modelValue)
 const error = ref<Error | null>(null)
 const isReady = ref(false)
+const editorKey = ref(0)
 
 // ---------- 编辑器高度计算 ----------
 const editorHeight = computed(() => {
@@ -118,7 +120,9 @@ const editorConfig = computed(() => {
             insertFn(url, file.name, '')
           } catch (err) {
             console.error('图片上传失败:', err)
-            emit('error', err as Error)
+            const uploadError = err instanceof Error ? err : new Error(String(err))
+            error.value = uploadError
+            emit('error', uploadError)
           }
         },
       },
@@ -166,6 +170,7 @@ const handleRetry = () => {
   }
   // 触发重新创建
   isReady.value = false
+  editorKey.value += 1
 }
 
 // ---------- 外部值同步 ----------

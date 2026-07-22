@@ -10,6 +10,7 @@
         <el-select
           v-if="statusMap.length > 0"
           :model-value="status"
+          :disabled="readonly || loading"
           size="small"
           class="doc-head-panel__status-select"
           @update:model-value="emit('update:status', $event)"
@@ -65,16 +66,17 @@
       </slot>
     </div>
 
-    <!-- ==================== Footer：全部操作按钮（按 status 禁用） ==================== -->
-    <footer class="doc-head-panel__footer">
+    <!-- ==================== Footer：页面配置的操作按钮 ==================== -->
+    <footer v-if="visibleActions.length || $slots.auditInfo || $slots.extra" class="doc-head-panel__footer">
       <div class="doc-head-panel__footer-btns">
-        <template v-for="btn in BUTTONS" :key="btn.action">
+        <template v-for="btn in visibleActions" :key="btn.key">
           <el-button
             :type="btn.type"
             :plain="btn.plain"
             size="small"
+            :loading="btn.loading"
             :disabled="isDisabled(btn)"
-            @click="emit('action', btn.action)"
+            @click="emit('action', btn.key, btn)"
           >
             {{ btn.label }}
           </el-button>
@@ -87,19 +89,28 @@
 </template>
 
 <script lang="ts" setup>
+import { computed } from 'vue'
+
 import type { CommonComponentKey, StatusDisplayOption } from '@/components/common/type'
 import StatusDisplay from '@/components/common/StatusDisplay.vue'
 import SearchPanel from '@/components/common/SearchPanel.vue'
 
 // ==================== 类型 ====================
 
-interface ButtonConfig {
-  action: string
+export interface DocumentHeadActionContext {
+  status: CommonComponentKey | null
+  readonly: boolean
+  loading: boolean
+}
+
+export interface DocumentHeadAction {
+  key: string
   label: string
-  type: 'primary' | 'success' | 'warning' | 'danger' | 'default'
+  type?: 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'default'
   plain?: boolean
-  /** 当前 status 为下列值之一时按钮可点击，其余状态禁用 */
-  enabledOn: CommonComponentKey[]
+  loading?: boolean
+  visible?: boolean | ((context: DocumentHeadActionContext) => boolean)
+  disabled?: boolean | ((context: DocumentHeadActionContext) => boolean)
 }
 
 // ==================== Props ====================
@@ -116,6 +127,8 @@ const props = withDefaults(
     readonly?: boolean
     /** 加载状态 */
     loading?: boolean
+    /** 底部操作配置；业务状态判断由页面提供 */
+    actions?: DocumentHeadAction[]
     /** 搜索关键词 v-model */
     keyword?: string
     /** 关键词字段标签 */
@@ -145,6 +158,7 @@ const props = withDefaults(
     statusMap: () => [],
     readonly: false,
     loading: false,
+    actions: () => [],
     keyword: '',
     keywordLabel: '关键词',
     keywordPlaceholder: '请输入关键词',
@@ -162,7 +176,7 @@ const props = withDefaults(
 // ==================== Emits ====================
 
 const emit = defineEmits<{
-  action: [action: string]
+  action: [action: string, item: DocumentHeadAction]
   'update:status': [value: CommonComponentKey]
   'update:keyword': [value: string]
   'update:dropdownValue': [value: string | number | null]
@@ -182,23 +196,25 @@ defineSlots<{
   extra?: () => unknown
 }>()
 
-// ==================== 按钮配置 ====================
+const actionContext = computed<DocumentHeadActionContext>(() => ({
+  status: props.status,
+  readonly: props.readonly,
+  loading: props.loading
+}))
 
-const BUTTONS: ButtonConfig[] = [
-  { action: 'save',          label: '保存',               type: 'primary', enabledOn: ['draft', 'rejected'] },
-  { action: 'saveAndSubmit', label: '保存并提交审批',     type: 'success', enabledOn: ['draft', 'rejected'] },
-  { action: 'delete',        label: '删除单据',           type: 'danger',  plain: true, enabledOn: ['draft', 'rejected'] },
-  { action: 'submit',        label: '提交审批',           type: 'primary', enabledOn: ['draft', 'rejected'] },
-  { action: 'approve',       label: '审批通过',           type: 'success', enabledOn: ['pending'] },
-  { action: 'reject',        label: '驳回',               type: 'danger',  plain: true, enabledOn: ['pending'] },
-  { action: 'withdraw',      label: '撤回',               type: 'warning', plain: true, enabledOn: ['pending', 'approved'] }
-]
+const visibleActions = computed(() =>
+  props.actions.filter((item) =>
+    typeof item.visible === 'function'
+      ? item.visible(actionContext.value)
+      : item.visible !== false
+  )
+)
 
-// ==================== 方法 ====================
-
-function isDisabled(btn: ButtonConfig): boolean {
-  if (props.status == null) return true
-  return !btn.enabledOn.includes(props.status)
+function isDisabled(item: DocumentHeadAction): boolean {
+  if (props.readonly || props.loading || item.loading) return true
+  return typeof item.disabled === 'function'
+    ? item.disabled(actionContext.value)
+    : Boolean(item.disabled)
 }
 </script>
 
@@ -215,7 +231,6 @@ function isDisabled(btn: ButtonConfig): boolean {
 }
 
 .doc-head-panel.is-readonly {
-  pointer-events: none;
   opacity: 0.7;
 }
 

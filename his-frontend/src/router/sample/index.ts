@@ -86,13 +86,30 @@ const routes = [
         component: () => import('@/views/sample/common/Index.vue')
       },
       {
+        name: 'scommonfoundation',
+        path: '/sample/common/foundation',
+        component: () => import('@/views/sample/common/foundation/Index.vue')
+      },
+      {
+        name: 'scommondocument',
+        path: '/sample/common/document',
+        component: () => import('@/views/sample/common/document/Index.vue')
+      },
+      {
+        name: 'scommonschedulemedical',
+        path: '/sample/common/schedule-medical',
+        component: () => import('@/views/sample/common/schedule-medical/Index.vue')
+      },
+      {
         name: 'swarehouse',
         path: '/sample/warehouse',
         component: () => import('@/views/sample/common/warehouse/Index.vue')
       },
-      { name: 'spatientcomponents',
+      {
+        name: 'spatientcomponents',
         path: '/sample/patient-components',
-        component: () => import('@/views/sample/patient/Index.vue')}
+        component: () => import('@/views/sample/patient/Index.vue')
+      }
     ]
   }
 ]

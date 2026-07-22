@@ -7,7 +7,7 @@
     <el-table
       v-loading="loading"
       :data="displayRows"
-      row-key="key"
+      :row-key="String(rowKey)"
       highlight-current-row
       :row-class-name="rowClass"
       @selection-change="onSelectionChange"

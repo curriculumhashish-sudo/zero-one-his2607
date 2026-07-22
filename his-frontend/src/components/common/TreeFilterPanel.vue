@@ -44,6 +44,7 @@
       :data="safeData"
       :props="treeProps"
       :node-key="nodeKey"
+      :current-node-key="currentKey ?? undefined"
       :default-expanded-keys="resolvedExpandedKeys"
       :default-expand-all="defaultExpandAll"
       :filter-node-method="filterNodeMethod"

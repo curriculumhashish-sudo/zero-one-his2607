@@ -5,6 +5,17 @@
         <h2>公共组件交互示例</h2>
         <p>按开发清单展示公共组件，示例数据仅用于验证组件展示和事件联动。</p>
       </div>
+      <div class="demo-header__actions">
+        <router-link to="/sample/common/foundation">
+          <el-button type="primary">查看 A 组基础组件</el-button>
+        </router-link>
+        <router-link to="/sample/common/document">
+          <el-button type="primary" plain>查看 C 组文档组件</el-button>
+        </router-link>
+        <router-link to="/sample/common/schedule-medical">
+          <el-button type="success" plain>查看 E 组排班医嘱组件</el-button>
+        </router-link>
+      </div>
     </header>
 
     <div class="component-overview">
@@ -650,6 +661,13 @@ const filteredDetailRows = computed(() =>
   margin: 6px 0 0;
   color: var(--el-text-color-secondary);
   font-size: 13px;
+}
+
+.demo-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .component-overview {

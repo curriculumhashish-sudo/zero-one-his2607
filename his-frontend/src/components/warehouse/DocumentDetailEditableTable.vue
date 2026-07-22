@@ -42,6 +42,7 @@
         :min-width="col.minWidth"
         :align="col.align || 'center'"
         :fixed="col.fixed"
+        :class-name="`ddet-col-${String(col.prop)}`"
         show-overflow-tooltip
       >
         <template #default="{ row, $index }">
@@ -264,30 +265,47 @@ function addRow() {
 
 function deleteRows() {
   if (selectedRows.value.length === 0) return
-  emit('rowDelete', [...selectedRows.value])
+  const deletedRows = [...selectedRows.value]
+  const deletedKeys = new Set(deletedRows.map((row) => keyOf(row)))
+  emit(
+    'update:modelValue',
+    props.modelValue.filter((row) => !deletedKeys.has(keyOf(row)))
+  )
+  emit('rowDelete', deletedRows)
+  selectedRows.value = []
 }
 
 // ==================== 编辑 & 校验 ====================
 
 function onChange(row: any, prop: string, value: any) {
-  row[prop] = value
   const rk = keyOf(row)
-  emit('update:modelValue', [...props.modelValue])
-  emit('rowChange', { rowKey: rk, row })
-  emit('cellChange', { rowKey: rk, prop, value, row })
+  const updatedRow = { ...row, [prop]: value }
+  const updatedRows = props.modelValue.map((item) =>
+    keyOf(item) === rk ? updatedRow : item
+  )
+  emit('update:modelValue', updatedRows)
+  emit('rowChange', { rowKey: rk, row: updatedRow })
+  emit('cellChange', { rowKey: rk, prop, value, row: updatedRow })
   const c = colConfig(prop)
-  if (c?.isAmount) emit('amountChange', { rowKey: rk, prop, value, row })
-  if (c?.isQty) emit('qtyChange', { rowKey: rk, prop, value, row })
+  if (c?.isAmount) emit('amountChange', { rowKey: rk, prop, value, row: updatedRow })
+  if (c?.isQty) emit('qtyChange', { rowKey: rk, prop, value, row: updatedRow })
+}
+
+function getRuleMessage(row: any, rule: EditableTableRule): string {
+  const value = row[rule.prop]
+  if (rule.required && (value == null || value === '')) {
+    return `${colConfig(rule.prop)?.label || rule.prop} 不能为空`
+  }
+  if (rule.validator) return rule.validator(value, row) || ''
+  if (rule.min != null && Number(value) < rule.min) return `最小值为 ${rule.min}`
+  if (rule.max != null && Number(value) > rule.max) return `最大值为 ${rule.max}`
+  return ''
 }
 
 function validateCell(row: any, prop: string) {
   const rk = keyOf(row); const rule = props.rules?.find((r) => r.prop === prop)
   if (!rule) return
-  const value = row[prop]; let msg = ''
-  if (rule.required && (value == null || value === '')) msg = `${colConfig(prop)?.label || prop} 不能为空`
-  else if (rule.validator) msg = rule.validator(value, row) || ''
-  else if (rule.min != null && Number(value) < rule.min) msg = `最小值为 ${rule.min}`
-  else if (rule.max != null && Number(value) > rule.max) msg = `最大值为 ${rule.max}`
+  const msg = getRuleMessage(row, rule)
 
   if (!errors.value[rk]) errors.value[rk] = {}
   if (msg) { errors.value[rk][prop] = msg }
@@ -303,9 +321,8 @@ function validate(): Record<string, Record<string, string>> {
   clearValidate()
   props.modelValue.forEach((row) =>
     (props.rules || []).forEach((rule) => {
-      const value = row[rule.prop]; const rk = keyOf(row); let msg = ''
-      if (rule.required && (value == null || value === '')) msg = `${colConfig(rule.prop)?.label || rule.prop} 不能为空`
-      else if (rule.validator) msg = rule.validator(value, row) || ''
+      const rk = keyOf(row)
+      const msg = getRuleMessage(row, rule)
       if (msg) {
         if (!errors.value[rk]) errors.value[rk] = {}
         errors.value[rk][rule.prop] = msg
@@ -319,8 +336,10 @@ function validate(): Record<string, Record<string, string>> {
 function clearValidate() { errors.value = {} }
 
 function focusCell(_rowKey: string | number, _prop: string) {
-  // DataTablePanel 内部表格的焦点定位
-  const el = document.querySelector(`.ddet [data-col-prop="${_prop}"] input, .ddet [data-col-prop="${_prop}"] .el-input__inner`)
+  const columnClass = `ddet-col-${CSS.escape(String(_prop))}`
+  const el = document.querySelector(
+    `.ddet td.${columnClass} input, .ddet td.${columnClass} .el-input__inner`
+  )
   if (el) (el as HTMLElement).focus()
 }
 

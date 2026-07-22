@@ -1,5 +1,5 @@
 <template>
-  <article class="advice-cell" :class="{ 'is-compact': compact, 'is-group': isGroup }" @click="emit('click', order)">
+  <article class="advice-cell" :class="{ 'is-compact': compact, 'is-group': isGroup }" :style="cellStyle" @click="emit('click', order)">
     <!-- 成组括线版式：groupItems 非空时启用，左侧竖括线拢住多药，底部共用行 -->
     <template v-if="isGroup">
       <div class="advice-cell__group-list">
@@ -38,6 +38,7 @@ const primaryText = computed(() => text(value('name')))
 const statusText = computed(() => text(value('status')))
 const remarkText = computed(() => text(value('remark')))
 const details = computed(() => detailOf(props.order))
+const cellStyle = computed(() => ({ '--advice-max-lines': String(Math.max(1, props.maxLines)) }))
 function detailOf(source: AdviceOrder) { const specification = text(value('specification', source)); const dose = [text(value('dose', source)), text(value('unit', source))].filter(Boolean).join(''); return [specification, dose, text(value('frequency', source)), text(value('route', source)), text(value('days', source)) ? `${text(value('days', source))}天` : ''].filter(Boolean).join(' · ') }
 
 /** 成组：groupItems 非空即启用括线版式 */
@@ -74,9 +75,9 @@ const sharedText = computed(() => {
 </script>
 <style scoped>
 .advice-cell { display: grid; gap: 3px; min-width: 0; cursor: pointer; }
-.advice-cell__primary,.advice-cell__secondary,.advice-cell__warning { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.advice-cell__primary,.advice-cell__warning { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .advice-cell__primary { color: var(--el-text-color-primary); font-weight: 600; }
-.advice-cell__secondary { color: var(--el-text-color-secondary); font-size: 12px; }
+.advice-cell__secondary { display: -webkit-box; overflow: hidden; color: var(--el-text-color-secondary); font-size: 12px; -webkit-box-orient: vertical; -webkit-line-clamp: var(--advice-max-lines); }
 .advice-cell__warning { color: var(--el-color-warning); font-size: 12px; }
 .advice-cell__tags { display: flex; gap: 4px; }
 .advice-cell.is-compact { gap: 1px; }

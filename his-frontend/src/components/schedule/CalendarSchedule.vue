@@ -23,57 +23,59 @@
     </header>
 
     <div v-if="loading" class="calendar-schedule__state"><el-skeleton :rows="5" animated /></div>
-    <div v-else-if="events.length === 0" class="calendar-schedule__state">
-      <slot name="empty">{{ emptyText }}</slot>
-    </div>
-    <div v-else class="calendar-schedule__grid" :class="`calendar-schedule__grid--${view}`">
-      <div v-for="label in weekLabels" :key="label" class="calendar-schedule__week-label">{{ label }}</div>
-      <article
-        v-for="day in days"
-        :key="day.date"
-        class="calendar-schedule__day"
-        :class="{ 'is-other': !day.isCurrentMonth, 'is-today': day.isToday, 'is-weekend': day.isWeekend, 'is-anchor': day.date === modelValue }"
-        @click="onDateClick(day)"
-      >
-        <slot name="dayHeader" :cell="day">
-          <div class="calendar-schedule__day-head">
+    <template v-else>
+      <div v-if="events.length === 0" class="calendar-schedule__state calendar-schedule__state--empty">
+        <slot name="empty">{{ emptyText }}</slot>
+      </div>
+      <div class="calendar-schedule__grid" :class="`calendar-schedule__grid--${view}`">
+        <div v-for="label in weekLabels" :key="label" class="calendar-schedule__week-label">{{ label }}</div>
+        <article
+          v-for="day in days"
+          :key="day.date"
+          class="calendar-schedule__day"
+          :class="{ 'is-other': !day.isCurrentMonth, 'is-today': day.isToday, 'is-weekend': day.isWeekend, 'is-anchor': day.date === modelValue }"
+          @click="onDateClick(day)"
+        >
+          <slot name="dayHeader" :cell="day">
+            <div class="calendar-schedule__day-head">
+              <button
+                type="button"
+                class="calendar-schedule__date"
+                :disabled="readonly"
+                @click.stop="onSlotClick(day)"
+              >
+                {{ day.day }}
+              </button>
+              <span v-if="day.isToday" class="calendar-schedule__today-tag">今天</span>
+            </div>
+          </slot>
+          <div class="calendar-schedule__events">
             <button
+              v-for="event in visibleEvents(day)"
+              :key="event.key"
               type="button"
-              class="calendar-schedule__date"
-              :disabled="readonly"
-              @click.stop="onSlotClick(day)"
+              class="calendar-schedule__event"
+              :style="eventStyle(event)"
+              @click.stop="emit('eventClick', event)"
             >
-              {{ day.day }}
+              <slot name="event" :event="event" :status-text="statusText(event)">
+                <span v-if="event.start" class="calendar-schedule__event-time">{{ event.start }}</span>
+                <span class="calendar-schedule__event-title">{{ event.title }}</span>
+                <span v-if="statusText(event)" class="calendar-schedule__event-status">{{ statusText(event) }}</span>
+              </slot>
             </button>
-            <span v-if="day.isToday" class="calendar-schedule__today-tag">今天</span>
+            <button
+              v-if="overflow(day) > 0"
+              type="button"
+              class="calendar-schedule__more"
+              @click.stop="onMoreClick(day)"
+            >
+              <slot name="more" :cell="day" :count="overflow(day)">+{{ overflow(day) }} 更多</slot>
+            </button>
           </div>
-        </slot>
-        <div class="calendar-schedule__events">
-          <button
-            v-for="event in visibleEvents(day)"
-            :key="event.key"
-            type="button"
-            class="calendar-schedule__event"
-            :style="eventStyle(event)"
-            @click.stop="emit('eventClick', event)"
-          >
-            <slot name="event" :event="event" :status-text="statusText(event)">
-              <span v-if="event.start" class="calendar-schedule__event-time">{{ event.start }}</span>
-              <span class="calendar-schedule__event-title">{{ event.title }}</span>
-              <span v-if="statusText(event)" class="calendar-schedule__event-status">{{ statusText(event) }}</span>
-            </slot>
-          </button>
-          <button
-            v-if="overflow(day) > 0"
-            type="button"
-            class="calendar-schedule__more"
-            @click.stop="onMoreClick(day)"
-          >
-            <slot name="more" :cell="day" :count="overflow(day)">+{{ overflow(day) }} 更多</slot>
-          </button>
-        </div>
-      </article>
-    </div>
+        </article>
+      </div>
+    </template>
   </section>
 </template>
 
@@ -420,5 +422,11 @@ defineExpose({ range, days })
   padding: 24px;
   color: var(--el-text-color-secondary);
   text-align: center;
+}
+
+.calendar-schedule__state--empty {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--el-border-color-lighter);
+  background: var(--el-fill-color-lighter);
 }
 </style>

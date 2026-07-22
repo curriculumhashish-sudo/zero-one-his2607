@@ -31,6 +31,7 @@ const emit = defineEmits<{
   dateChange: [value: DateRangeValue]
   refresh: []
   select: [patient: PatientSummary]
+  view: [patient: PatientSummary]
 }>()
 
 const searchModel = reactive({
@@ -59,6 +60,10 @@ function handleRefresh() {
 
 function handleSelect(patient: PatientSummary) {
   emit('select', patient)
+}
+
+function handleView(patient: PatientSummary) {
+  emit('view', patient)
 }
 </script>
 
@@ -117,7 +122,7 @@ function handleSelect(patient: PatientSummary) {
           :patient="patient"
           :selected="patient.id === selectedId"
           @select="handleSelect"
-          @view="handleSelect"
+          @view="handleView"
         />
       </div>
     </div>

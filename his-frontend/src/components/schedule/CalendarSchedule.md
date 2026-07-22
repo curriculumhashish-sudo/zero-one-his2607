@@ -39,6 +39,8 @@
 
 `toolbar`（`{ range, view, title }`）、`dayHeader`（`{ cell }`）、`event`（`{ event, statusText }`）、`more`（`{ cell, count }`）、`empty`。
 
+`events` 为空时，`empty` 作为网格上方的提示区域显示，日期网格仍然保留，因此页面仍可通过 `dateClick` / `slotClick` 创建排班。
+
 ## 数据模型
 
 ```ts

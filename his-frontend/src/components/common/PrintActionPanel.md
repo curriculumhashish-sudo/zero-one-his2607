@@ -2,51 +2,52 @@
 
 ## 组件定位
 
-`PrintActionPanel` 是 PDF 文件预览组件，基于 iframe 实现浏览器原生 PDF 渲染。
-
-它支持 URL 和 Blob 两种数据源，自动处理加载状态、错误状态和空状态，提供下载、新窗口打开等操作按钮，并在组件卸载时清理资源。
-
-> **注意**：当前组件代码与 `PdfPreviewPanel` 完全相同，疑似代码复制未进行功能扩展。建议根据实际打印需求进行差异化开发，如添加打印按钮、页面设置等功能。
-
-## 适用场景
-
-- 文档详情页的 PDF 在线预览
-- 表单中的 PDF 文件预览
-- 需要支持 Blob 对象预览的场景
-- 需要自定义加载、错误、空状态展示的场景
+`PrintActionPanel` 是打印操作控制面板，负责模板选择、打印机选择、预览/打印状态以及失败重试。组件不创建业务模板、不读取单据接口，也不绑定 hiprint、浏览器打印或本地打印客户端；实际预览和打印函数由页面注入。
 
 ## 基本用法
 
 ```vue
 <script setup lang="ts">
+import { ref } from 'vue'
 import PrintActionPanel from '@/components/common/PrintActionPanel.vue'
+import type {
+  PrintActionContext,
+  PrinterOption,
+  PrintTemplateOption
+} from '@/components/common/PrintActionPanel.vue'
 
-const pdfUrl = ref('https://example.com/document.pdf')
-const pdfBlob = ref<Blob | null>(null)
+const templateId = ref<string | number | null>('outpatient-record')
+const printerName = ref<string | null>('office-a4')
 
-function handleLoad(event: { url: string; fileName: string }) {
-  console.log('PDF 加载完成:', event)
+const templates: PrintTemplateOption[] = [
+  { value: 'outpatient-record', label: '门诊病历模板' },
+  { value: 'prescription', label: '处方笺模板' }
+]
+
+const printers: PrinterOption[] = [
+  { value: 'office-a4', label: '诊室 A4 打印机', status: 'online' },
+  { value: 'pharmacy', label: '药房打印机', status: 'offline' }
+]
+
+async function preview(context: PrintActionContext) {
+  // 调用页面已有的预览实现
+  return createPreview(context.templateValue)
 }
 
-function handleError(error: Error) {
-  console.error('PDF 加载失败:', error)
+async function print(context: PrintActionContext) {
+  // 调用页面已有的 hiprint、浏览器打印或客户端打印实现
+  return printDocument(context.templateValue, context.printerValue)
 }
 </script>
 
 <template>
-  <!-- 方式一：使用 URL -->
   <PrintActionPanel
-    :source="pdfUrl"
-    file-name="病历文档.pdf"
-    height="600px"
-    @load="handleLoad"
-    @error="handleError"
-  />
-
-  <!-- 方式二：使用 Blob -->
-  <PrintActionPanel
-    :source="pdfBlob"
-    file-name="报告.pdf"
+    v-model:template-value="templateId"
+    v-model:printer-value="printerName"
+    :templates="templates"
+    :printers="printers"
+    :preview="preview"
+    :print="print"
   />
 </template>
 ```
@@ -55,48 +56,56 @@ function handleError(error: Error) {
 
 | 属性 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
-| `source` | `string \| Blob \| null` | `null` | PDF 源：URL 字符串或 Blob 对象 |
-| `fileName` | `string` | `'document.pdf'` | 文件名（用于下载和显示） |
-| `height` | `string \| number` | `'600px'` | 预览高度（CSS 长度） |
-| `showToolbar` | `boolean` | `true` | 是否显示工具栏 |
-| `downloadable` | `boolean` | `true` | 是否允许下载 |
-| `openable` | `boolean` | `true` | 是否允许在新窗口打开 |
-| `timeout` | `number` | `30000` | 加载超时时间（毫秒） |
+| `templateValue` | `string \| number \| null` | `null` | 当前模板，支持 `v-model:template-value` |
+| `printerValue` | `string \| null` | `null` | 当前打印机，支持 `v-model:printer-value` |
+| `templates` | `PrintTemplateOption[]` | `[]` | 模板列表 |
+| `printers` | `PrinterOption[]` | `[]` | 打印机列表 |
+| `preview` | `PrintActionHandler` | - | 页面注入的预览函数 |
+| `print` | `PrintActionHandler` | - | 页面注入的打印函数 |
+| `loadPrinters` | `PrinterLoader` | - | 可选的打印机加载函数 |
+| `loading` | `boolean` | `false` | 页面外部加载状态 |
+| `disabled` | `boolean` | `false` | 整体禁用 |
+| `requirePrinter` | `boolean` | `true` | 打印前是否必须选择打印机 |
+| `autoLoadPrinters` | `boolean` | `true` | 挂载后是否调用 `loadPrinters` |
+| `title` | `string` | `打印设置` | 面板标题 |
+| `templateLabel` | `string` | `打印模板` | 模板字段标签 |
+| `printerLabel` | `string` | `打印机` | 打印机字段标签 |
+| `previewText` | `string` | `打印预览` | 预览按钮文字 |
+| `printText` | `string` | `开始打印` | 打印按钮文字 |
+
+`PrintActionContext` 包含 `templateValue`、`printerValue` 和 `signal`。页面的异步实现应监听 `signal`，组件卸载或任务取消后停止后续工作。
 
 ## 事件
 
 | 事件 | 参数 | 说明 |
 | --- | --- | --- |
-| `load` | `{ url, fileName }` | PDF 加载完成时触发 |
-| `error` | `error` | 加载失败或超时时触发 |
-| `retry` | - | 点击重试按钮时触发 |
-| `download` | `{ url, fileName }` | 点击下载按钮时触发 |
-| `open` | `{ url, fileName }` | 点击新窗口按钮时触发 |
+| `update:templateValue` | `value` | 模板变化 |
+| `update:printerValue` | `value` | 打印机变化 |
+| `preview` | `context` | 开始执行预览 |
+| `print` | `context` | 开始执行打印 |
+| `success` | `type, result` | 预览或打印成功 |
+| `error` | `error, type` | 预览、打印或打印机加载失败 |
+| `retry` | `type` | 用户重试失败操作 |
+| `printersLoaded` | `printers` | 打印机加载完成 |
 
 ## 插槽
 
 | 插槽 | 说明 |
 | --- | --- |
-| `loading` | 自定义加载状态内容 |
-| `error` | 自定义错误状态内容 |
-| `empty` | 自定义空状态内容 |
-| `toolbar` | 自定义工具栏内容 |
+| `header` | 自定义标题区域，参数 `{ busy }` |
+| `fields` | 完全替换模板和打印机字段 |
+| `actions` | 自定义操作按钮，提供 `preview`、`print`、`canPreview`、`canPrint`、`busy` |
 
 ## 暴露方法
 
-| 方法 | 返回值 | 说明 |
-| --- | --- | --- |
-| `reload` | `void` | 重新加载当前 PDF |
-| `getPdfSrc` | `string \| null` | 获取当前 PDF 源 URL |
-| `getLoading` | `boolean` | 获取加载状态 |
-| `retry` | `void` | 清除错误并重试 |
+- `preview()`：执行预览。
+- `print()`：执行打印。
+- `reloadPrinters()`：重新加载打印机。
+- `retry()`：重试最近一次失败操作。
+- `abort()`：取消当前异步操作。
 
 ## 职责边界
 
-不要在组件内写死 PDF 文件路径或后端接口。页面负责提供 `source`（URL 或 Blob），组件只负责预览和基础操作。
-
-当使用 Blob 作为源时，组件会自动创建 Object URL 并在卸载时释放，无需手动清理。
-
-**代码质量提示**：当前组件代码与 `PdfPreviewPanel` 完全重复，建议考虑以下优化方向：
-- 如果两者功能一致，可考虑删除其中一个，统一使用 `PdfPreviewPanel`
-- 如果需要打印专属功能，建议扩展当前组件，添加打印按钮、页面设置、打印预览等功能
+- 模板、打印机、单据数据和权限由页面负责。
+- 组件不写死打印地址、模板 JSON 或打印客户端。
+- 组件只串联选择、调用、加载、成功、失败和重试状态。

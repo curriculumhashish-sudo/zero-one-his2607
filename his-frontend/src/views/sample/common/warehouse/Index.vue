@@ -51,6 +51,7 @@
         v-model:keyword="searchKeyword"
         v-model:dropdown-value="searchDropdownValue"
         :status-map="docStatusMap"
+        :actions="docActions"
         :dropdown-options="searchDropdownOptions"
         :search-field-count="2"
         :show-search="false"
@@ -102,6 +103,7 @@ import DocumentWorkstationShell from '@/components/warehouse/DocumentWorkstation
 import DocumentQueueList from '@/components/warehouse/DocumentQueueList.vue'
 import DateRangeField from '@/components/common/DateRangeField.vue'
 import DocumentHeadPanel from '@/components/warehouse/DocumentHeadPanel.vue'
+import type { DocumentHeadAction } from '@/components/warehouse/DocumentHeadPanel.vue'
 import DocumentDetailEditableTable from '@/components/warehouse/DocumentDetailEditableTable.vue'
 import type { StatusDisplayOption } from '@/components/common/type'
 
@@ -168,6 +170,34 @@ const docStatusMap: StatusDisplayOption[] = [
   { value: 'pending', label: '待审核', type: 'warning' },
   { value: 'approved', label: '已审核', type: 'success' },
   { value: 'rejected', label: '已驳回', type: 'danger' },
+]
+
+const docActions: DocumentHeadAction[] = [
+  {
+    key: 'save',
+    label: '保存',
+    type: 'primary',
+    disabled: ({ status }) => !['draft', 'rejected'].includes(String(status))
+  },
+  {
+    key: 'submit',
+    label: '提交审批',
+    type: 'success',
+    visible: ({ status }) => ['draft', 'rejected'].includes(String(status))
+  },
+  {
+    key: 'approve',
+    label: '审批通过',
+    type: 'success',
+    visible: ({ status }) => status === 'pending'
+  },
+  {
+    key: 'reject',
+    label: '驳回',
+    type: 'danger',
+    plain: true,
+    visible: ({ status }) => status === 'pending'
+  }
 ]
 
 const searchKeyword = ref('')
@@ -250,8 +280,11 @@ function onRowDelete(rows: any[]) {
 function onCellChange(payload: { rowKey: string | number; prop: string; value: any; row: any }) {
   // 金额 = 数量 × 单价
   if (payload.prop === 'quantity' || payload.prop === 'price') {
-    const row = payload.row
-    row.amount = (row.quantity || 0) * (row.price || 0)
+    detailRows.value = detailRows.value.map((row) =>
+      row.id === payload.rowKey
+        ? { ...row, amount: (Number(payload.row.quantity) || 0) * (Number(payload.row.price) || 0) }
+        : row
+    )
   }
 }
 </script>
