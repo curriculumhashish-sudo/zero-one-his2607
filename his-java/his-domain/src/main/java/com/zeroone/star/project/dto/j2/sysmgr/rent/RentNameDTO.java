@@ -1,4 +1,4 @@
-package com.zeroone.star.project.dto.j2.sys;
+package com.zeroone.star.project.dto.j2.sysmgr.rent;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
