@@ -11,11 +11,11 @@ class ChinapresDTO1 : public  oatpp::DTO
 {
 	DTO_INIT(ChinapresDTO1, DTO);
 	//处方编号
-	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("chinapres.field.id"), true);
+	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("chinapres1.field.id"), true);
 	//处方数量
-	API_DTO_FIELD_REQUIRE(String, count, ZH_WORDS_GETTER("chinapres.field.count"),true);
+	API_DTO_FIELD_REQUIRE(String, count, ZH_WORDS_GETTER("chinapres1.field.count"),true);
 	//哪些药材
-	API_DTO_FIELD_REQUIRE(String, herbs, ZH_WORDS_GETTER("chinapres.field.herbs"), false);
+	API_DTO_FIELD_REQUIRE(String, herbs, ZH_WORDS_GETTER("chinapres1.field.herbs"), false);
 };
 
 #include OATPP_CODEGEN_END(DTO)

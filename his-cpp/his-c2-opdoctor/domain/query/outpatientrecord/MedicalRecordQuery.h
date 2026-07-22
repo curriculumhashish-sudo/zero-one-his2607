@@ -12,7 +12,7 @@ class MedicalRecordQuery : public PageQuery
 	//»¼Õß²¡ÀúºÅ
 	API_DTO_FIELD_REQUIRE(String, patientId, ZH_WORDS_GETTER("medicalrecord.field.patientid"), true);
 	//´¦·½ºÅ
-	API_DTO_FIELD_REQUIRE(String, presId, ZH_WORDS_GETTER("chinapres.field.presid"), false);
+	API_DTO_FIELD_REQUIRE(String, presId, ZH_WORDS_GETTER("chinapres1.field.presid"), false);
 	//ËÑË÷¹Ø¼ü´Ê
 	API_DTO_FIELD_REQUIRE(String, keyword, ZH_WORDS_GETTER("medicalrecord.field.keyword1"), false);
 };
