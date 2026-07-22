@@ -5,10 +5,9 @@ import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumTypeAddDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumTypeModifyDTO;
 import com.zeroone.star.project.query.j2.basedata.EnumTypeQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 
+
+// TODO: 已整合到null的类中，请删除
 public interface EnumApis {
 
     /**
@@ -17,7 +16,7 @@ public interface EnumApis {
      * @param query 查询参数
      * @return 查询结果
      */
-    JsonVO<PageDTO<com.zeroone.star.project.dto.j2.basedata.enumdto.EnumTypeDTO>> queryAll(EnumTypeQuery query);
+    JsonVO<PageDTO<com.zeroone.star.project.dto.j2.basedata.enumdto.EnumTypeDTO>> queryAllEnumType(EnumTypeQuery query);
 
     /**
      * 添加枚举类型
