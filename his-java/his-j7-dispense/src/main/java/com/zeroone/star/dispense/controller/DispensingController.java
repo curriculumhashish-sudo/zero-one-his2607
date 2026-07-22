@@ -30,7 +30,7 @@ import java.util.List;
  * @version 1.0.0
  */
 @RestController
-@Tag(name = "发药管理", description = "住院发药")
+@Tag(name = "住院发药", description = "住院发药基础流程")
 public class DispensingController implements DispensingApis {
 
     @Resource
