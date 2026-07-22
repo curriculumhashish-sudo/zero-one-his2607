@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "DrugController.h"
 DrugListPageJsonVO::Wrapper DrugController::executeQueryDrug(const DrugQuery::Wrapper& query)
 {
@@ -9,6 +9,10 @@ StringJsonVO::Wrapper  DrugController::execAddDrug(const DrugAddDTO::Wrapper& dt
 	return {};
 }
 DrugDetailJsonVO::Wrapper DrugController::executeQueryOne(const String& id)
+{
+	return {};
+}
+DrugSelectPageJsonVO::Wrapper DrugController::executeQueryDrugSe(const DrugSelectQuery::Wrapper& query)
 {
 	return {};
 }

@@ -1,4 +1,4 @@
-medication:
+﻿medication:
   tag: 药品管理
   edit:
     summary: 修改药品
@@ -12,11 +12,13 @@ medication:
     edit: 修改药品请求对象
     ids: 药品编号数组，单条操作传一个编号，批量操作传多个编号
   query:
-    summary: 分页条件查询
+    summary: 药品分页条件查询
   add:
     summary: 新增药品
   query-one:
     summary: 查看药品详情
+  Selectquery:
+    summary: 选择药品分页查询
   example:
     name: 阿莫西林胶囊
     merchandiseName: 阿莫仙
