@@ -20,6 +20,7 @@
 #include "Router.h"
 #include "ApiHelper.h"
 
+
 #include "cycleCtrl1/patientQueueController.h"
 #include "cycleCtrl1/receptionPatientController.h"
 #include "cycleCtrl1/patientFinishController.h"
@@ -31,6 +32,8 @@
 #include"cycleCtrl2/PrescriptionController.h"
 #include"cycleCtrl2/AdmissionController.h"
 
+
+#include "controller/prescription3/Prescription3Controller.h"
 
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
@@ -53,7 +56,6 @@ void Router::initRouter()
 {
 	// #TIP: Add system extension route definitions below
 
-
 	ROUTER_SIMPLE_BIND(PatientQueueController);
 	ROUTER_SIMPLE_BIND(RecePatientController);
 	ROUTER_SIMPLE_BIND(PatientFinishController);
@@ -65,5 +67,8 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(Refund2Controller);
 	ROUTER_SIMPLE_BIND(Prescription2Controller);
 	ROUTER_SIMPLE_BIND(Admission2Controller);
+
+
+	ROUTER_SIMPLE_BIND(Prescription3Controller);
 
 }
