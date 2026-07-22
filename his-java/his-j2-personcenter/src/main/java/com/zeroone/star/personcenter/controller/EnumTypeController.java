@@ -1,12 +1,12 @@
 package com.zeroone.star.personcenter.controller;
 
-import com.zeroone.star.project.dto.j2.sys.EnumTypeDeleteDTO;
 import com.zeroone.star.project.j2.sys.enumTypeApis;
 import com.zeroone.star.project.vo.JsonVO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class EnumTypeController implements enumTypeApis {
     @Override
     @Operation(summary = "删除枚举类型")
-    @DeleteMapping("/sys/delete-enum-type")
-    public JsonVO<String> deleteEnumType(@RequestBody EnumTypeDeleteDTO dto) {
+    @DeleteMapping("/sys/delete-enum-type/{enumKey}")
+    public JsonVO<String> deleteEnumType(@PathVariable String enumKey) {
         return null;
     }
 }
