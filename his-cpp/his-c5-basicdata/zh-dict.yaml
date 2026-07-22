@@ -1,0 +1,11 @@
+sup:
+  field:
+    id: 序号
+    supId: 供应商编号
+    name: 供应商/生产厂商名称
+    typeEnum: 类型
+    address: 地址
+    contact: 电话邮箱
+    statusEnum: 是否启用
+    pinyin: 拼音
+    wubi: 五笔
