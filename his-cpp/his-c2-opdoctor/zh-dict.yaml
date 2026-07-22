@@ -1,5 +1,4 @@
-
-﻿title:
+title:
  tags:
   text: "周期循环"
 
@@ -25,8 +24,6 @@ queue:
   allStatus: "全部状态"
  get:
   summary: "获取患者队列"
-
-
 
 rece:
  dto:
@@ -55,7 +52,6 @@ rece:
  get:
   summary: "在诊患者"
 
-
 finish:
  dto:
   newVisitStatus: "完诊"
@@ -63,7 +59,7 @@ finish:
   visitStatus: "其他状态"
  get:
   summary: "完诊"
-  
+
 leave:
  dto:
   newVisitStatus: "暂离"
@@ -72,59 +68,56 @@ leave:
  get:
   summary: "暂离"
 
-
-
-
-﻿diagnose:
-    add:
-        summary: 新增诊断
-        id: 诊断数据主键
-        encounterId: 就诊id
-        conditionId: 病情id
-        description: 诊断描述
-        diagTypeCode: 诊断类型
-        diagCode: 诊断编码
-        rank: 排序
-        primaryFlag: 是否主诊断
-        highestDiagFlag: 是否最高诊断
-        tcmFlag: 是否中医诊断
-        tcmSyndromeGroup: 中医证候组
-        medType: 医保类别
-        conditionCode: 病情编码
-        createdAt: 创建时间
-    delete:
-        summary: 删除诊断
-        id: 诊断数据主键
-        encounterId: 就诊id
-        conditionId: 病情id
-        deletedAt: 删除时间
-        deletedBy: 删除人
-    usage:
-        summary: 获取诊断使用历史
-        id: 诊断数据主键
-        encounterId: 就诊id
-        conditionId: 病情id
-        description: 诊断描述
-        diagTypeCode: 诊断类型
-        diagCode: 诊断编码
-        rank: 排序
-        primaryFlag: 是否主诊断
-        highestDiagFlag: 是否最高诊断
-        tcmFlag: 是否中医诊断
-        tcmSyndromeGroup: 中医证候组
-        medType: 医保类别
-        conditionCode: 病情编码
-        createdAt: 诊断时间
-        keyword: 关键字
-        startDate: 开始日期
-        endDate: 结束日期
-    patient:
-        summary: 获取患者诊断记录（条件+分页）
-        pageIndex: 页码
-        pageSize: 每页条数
-        patientId: 患者id
-        keyword: 关键字
-        diagTypeCode: 诊断类型
-        startDate: 开始日期
-        endDate: 结束日期
-    tag: 诊断管理    
+diagnose:
+ add:
+  summary: 新增诊断
+  id: 诊断数据主键
+  encounterId: 就诊id
+  conditionId: 病情id
+  description: 诊断描述
+  diagTypeCode: 诊断类型
+  diagCode: 诊断编码
+  rank: 排序
+  primaryFlag: 是否主诊断
+  highestDiagFlag: 是否最高诊断
+  tcmFlag: 是否中医诊断
+  tcmSyndromeGroup: 中医证候组
+  medType: 医保类别
+  conditionCode: 病情编码
+  createdAt: 创建时间
+ delete:
+  summary: 删除诊断
+  id: 诊断数据主键
+  encounterId: 就诊id
+  conditionId: 病情id
+  deletedAt: 删除时间
+  deletedBy: 删除人
+ usage:
+  summary: 获取诊断使用历史
+  id: 诊断数据主键
+  encounterId: 就诊id
+  conditionId: 病情id
+  description: 诊断描述
+  diagTypeCode: 诊断类型
+  diagCode: 诊断编码
+  rank: 排序
+  primaryFlag: 是否主诊断
+  highestDiagFlag: 是否最高诊断
+  tcmFlag: 是否中医诊断
+  tcmSyndromeGroup: 中医证候组
+  medType: 医保类别
+  conditionCode: 病情编码
+  createdAt: 诊断时间
+  keyword: 关键字
+  startDate: 开始日期
+  endDate: 结束日期
+ patient:
+  summary: 获取患者诊断记录（条件+分页）
+  pageIndex: 页码
+  pageSize: 每页条数
+  patientId: 患者id
+  keyword: 关键字
+  diagTypeCode: 诊断类型
+  startDate: 开始日期
+  endDate: 结束日期
+ tag: 诊断管理
