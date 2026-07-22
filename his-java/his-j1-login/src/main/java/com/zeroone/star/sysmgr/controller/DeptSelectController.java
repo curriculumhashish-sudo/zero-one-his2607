@@ -2,15 +2,14 @@ package com.zeroone.star.sysmgr.controller;
 
 import com.zeroone.star.project.dto.j1.login.DeptQueryDTO;
 import com.zeroone.star.project.dto.j1.login.DeptSelectDTO;
-import com.zeroone.star.project.dto.j1.login.vo.DepartmentVO;
-import com.zeroone.star.project.dto.j1.login.vo.DeptBindResultVO;
-import com.zeroone.star.project.query.j1.login.DeptQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j1.login.DepartmentVO;
+import com.zeroone.star.project.vo.j1.login.DeptBindResultVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController

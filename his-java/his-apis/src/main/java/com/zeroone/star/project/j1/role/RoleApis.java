@@ -5,47 +5,99 @@ import com.zeroone.star.project.dto.j1.role.RoleAddDTO;
 import com.zeroone.star.project.dto.j1.role.RoleModifyDTO;
 import com.zeroone.star.project.query.j1.role.RoleQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j1.role.RoleNameVO;
 import com.zeroone.star.project.vo.j1.role.RoleVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 /**
- * 角色管理接口定义。
-
- * @author 保温杯热水仙人
+ * <p>
+ * 描述：角色管理接口定义
+ * </p>
+ * <p>版权：&copy;01星球</p>
+ * <p>地址：01星球总部</p>
+ * @author j1-保温杯热水仙人
  * @version 1.0.0
  */
-@Tag(name = "J1-角色管理", description = "角色查询、新增、修改和删除接口")
+@Tag(name = "j1-角色管理", description = "角色查询、新增、修改和删除接口")
+@RequestMapping("/role")
 public interface RoleApis {
 
-    @Operation(summary = "分页查询角色")
-    JsonVO<PageDTO<RoleVO>> queryRoles(
-            @RequestBody(description = "角色查询条件", required = true) @Valid RoleQuery query);
+    /**
+     * 获取角色名称列表。
+     *
+     * @return 角色名称列表
+     */
+    @Operation(summary = "获取角色名称列表", description = "获取未删除角色的编号和显示名称，用于角色选择组件")
+    @GetMapping("/list-role-names")
+    JsonVO<List<RoleNameVO>> listRoleNames();
 
+    /**
+     * 分页查询角色。
+     *
+     * @param query 角色查询条件
+     * @return 角色分页数据
+     */
+    @Operation(summary = "分页查询角色")
+    @PostMapping("/query-roles")
+    JsonVO<PageDTO<RoleVO>> queryRoles(
+            @Valid @RequestBody RoleQuery query);
+
+    /**
+     * 获取角色详情。
+     *
+     * @param id 角色编号
+     * @return 角色详情
+     */
     @Operation(summary = "获取角色详情")
+    @GetMapping("/get-role")
     JsonVO<RoleVO> getRole(
             @Parameter(description = "角色编号", required = true, example = "329631932614709248")
-            @NotBlank(message = "角色编号不能为空") String id);
+            @RequestParam("id") @NotBlank(message = "角色编号不能为空") String id);
 
+    /**
+     * 新增角色。
+     *
+     * @param dto 新增角色数据
+     * @return 新增角色编号
+     */
     @Operation(summary = "新增角色", description = "角色内部名称和编码由服务端生成")
+    @PostMapping("/add-role")
     JsonVO<String> addRole(
-            @RequestBody(description = "新增角色数据", required = true) @Valid RoleAddDTO dto);
+            @Valid @RequestBody RoleAddDTO dto);
 
+    /**
+     * 修改角色。
+     *
+     * @param dto 修改角色数据
+     * @return 修改结果
+     */
     @Operation(summary = "修改角色", description = "角色内部名称和编码不允许修改")
+    @PutMapping("/modify-role")
     JsonVO<String> modifyRole(
-            @RequestBody(description = "修改角色数据", required = true) @Valid RoleModifyDTO dto);
+            @Valid @RequestBody RoleModifyDTO dto);
 
+    /**
+     * 删除角色。
+     *
+     * @param id 角色编号
+     * @return 删除结果
+     */
     @Operation(summary = "删除角色", description = "执行逻辑删除；内置静态角色不可删除")
+    @DeleteMapping("/remove-role")
     JsonVO<String> removeRole(
             @Parameter(description = "角色编号", required = true, example = "329631932614709248")
-            @NotBlank(message = "角色编号不能为空") String id);
-
-    @Operation(summary = "统计角色关联用户数")
-    JsonVO<Long> countRoleUsers(
-            @Parameter(description = "角色编号", required = true, example = "329631932614709248")
-            @NotBlank(message = "角色编号不能为空") String id);
+            @RequestParam("id") @NotBlank(message = "角色编号不能为空") String id);
 }

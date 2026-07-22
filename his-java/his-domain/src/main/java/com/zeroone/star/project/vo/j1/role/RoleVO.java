@@ -39,9 +39,6 @@ public class RoleVO {
     @Schema(description = "租户编号", example = "1")
     private String tenantId;
 
-    @Schema(description = "关联用户数量", example = "8", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long userCount;
-
     @Schema(description = "创建时间", example = "2026-07-18T10:30:00", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDateTime createdAt;
 
