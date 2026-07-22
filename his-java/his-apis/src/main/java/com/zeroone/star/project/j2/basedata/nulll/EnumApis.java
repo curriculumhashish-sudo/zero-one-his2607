@@ -10,14 +10,8 @@ import com.zeroone.star.project.vo.JsonVO;
 
 import java.util.List;
 
-
+// TODO: 建议将其移动到enums包下，统一管理格式
 public interface EnumApis {
-    /**
-     * 删除枚举类型
-     * @param dto 枚举删除对象DTO
-     * @return 枚举类型id
-     */
-    JsonVO<String> deleteEnumType(EnumDeleteDTO dto);
 
     /**
      * 获取枚举名称列表
@@ -33,6 +27,8 @@ public interface EnumApis {
      */
     JsonVO<PageDTO<EnumDTO>> queryAllEnum(EnumQuery query);
 
+
+
     /**
      * 根据枚举类型查询枚举列表
       * @param enumTypeId 枚举类型ID
@@ -41,8 +37,28 @@ public interface EnumApis {
     JsonVO<List<EnumDTO>> listEnumsByEnumType(String enumTypeId);
 
     /**
-     * 分页查询
-     *
+     * 添加枚举
+     * @param data 添加参数
+     * @return 添加结果
+     */
+    JsonVO<String> addEnum(EnumAddDTO data);
+
+    /**
+     * 修改枚举
+     * @param data 修改参数
+     * @return 修改结果
+     */
+    JsonVO<String> modifyEnum(EnumModifyDTO data);
+
+    /**
+     * 删除枚举
+     * @param id 枚举ID
+     * @return 删除结果
+     */
+    JsonVO<String> deleteEnum(String id);
+
+    /**
+     * 分页查询枚举类型
      * @param query 查询参数
      * @return 查询结果
      */
@@ -61,4 +77,11 @@ public interface EnumApis {
      * @return 修改结果
      */
     JsonVO<String> modifyEnumType(EnumTypeModifyDTO data);
+
+    /**
+     * 删除枚举类型
+     * @param dto 枚举删除对象DTO
+     * @return 枚举类型id
+     */
+    JsonVO<String> deleteEnumType(EnumDeleteDTO dto);
 }
