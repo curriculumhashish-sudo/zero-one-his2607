@@ -1,0 +1,39 @@
+server:
+  port: ${sp.dispense}
+  servlet:
+    context-path: /outpharm
+
+spring:
+  application:
+    name: ${sn.dispense}
+  cloud:
+    nacos:
+      config:
+        file-extension: yaml
+        refresh-enabled: true
+        import-check:
+          enabled: false
+      discovery:
+        service: ${sn.dispense}
+  config:
+    import:
+      - nacos:system.yaml
+      - nacos:data-source.yaml
+      - nacos:key-config.yaml
+      - nacos:gateway.yaml
+      - nacos:third-services.yaml
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+  packages-to-scan: com.zero.star.outpharm.controller
+  default-flat-param-object: true
+
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
