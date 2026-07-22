@@ -1,7 +1,7 @@
 package com.zeroone.star.basedata.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.zeroone.star.basedata.entity.EquipmentDO;
+import com.zeroone.star.basedata.entity.AdmDeviceDefinition;
 
 /**
  * <p>
@@ -13,5 +13,5 @@ import com.zeroone.star.basedata.entity.EquipmentDO;
  * @author j4组
  * @version 1.0.0
  */
-public interface IEquipmentService extends IService<EquipmentDO> {
+public interface IEquipmentService extends IService<AdmDeviceDefinition> {
 }
