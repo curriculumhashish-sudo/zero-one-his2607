@@ -30,7 +30,7 @@
  */
 class SampleFullSelectJsonVO : public JsonVO<String>
 {
-	DTO_INIT(SampleFullSelectJsonVO, public JsonVO<String>);
+	DTO_INIT(SampleFullSelectJsonVO, JsonVO<String>);
 };
 
 #include OATPP_CODEGEN_END(DTO)
