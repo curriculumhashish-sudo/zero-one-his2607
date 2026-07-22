@@ -3,8 +3,6 @@
 #
 cmake_minimum_required (VERSION 3.8)
 
-# 指定工程名
-project ("zero-one-his")
 
 # 设置安装目录前缀
 if(NOT WIN32)
