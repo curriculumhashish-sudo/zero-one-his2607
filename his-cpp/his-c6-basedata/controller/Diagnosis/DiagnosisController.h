@@ -16,7 +16,7 @@
 #ifndef _DIAGNOSISCONTROLLER_H_
 #define _DIAGNOSISCONTROLLER_H_
 
-#include "GlobalInclude.h"
+//#include "GlobalInclude.h"
 
 
 // 查询Query
@@ -24,10 +24,10 @@
 #include "domain/query/Diagnosis/DiagnosisPageQuery.h"
 
 // 业务DTO
-#include "domain/dto/Diagnosis/DiagnosisDTO.h"
+#include "domain/dto/Diagnosis/DiagnoseDTO.h"
 #include "domain/dto/Diagnosis/DiagnosisPageDTO.h"
 #include "domain/dto/Diagnosis/DiagnosisDetailDTO.h"
-#include "domain/dto/Diagnosis/DiagnosisDeleteDTO.h"
+#include "domain/dto/Diagnosis/DiagnosisSELECTDTO.h"
 
 // 返回JsonVO
 #include "domain/vo/Diagnosis/DiagnosisSelectJsonVO.h"
