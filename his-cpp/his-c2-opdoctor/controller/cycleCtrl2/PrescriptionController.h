@@ -25,7 +25,7 @@
 #include"domain/vo/doctor/Prescription2VO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
-#define API_TAG1 ZH_WORDS_GETTER("cyclectrl2.prescription.tag")
+#define API_TAG1 ZH_WORDS_GETTER("title.tags.text")
 
 class Prescription2Controller : public oatpp::web::server::api::ApiController
 {

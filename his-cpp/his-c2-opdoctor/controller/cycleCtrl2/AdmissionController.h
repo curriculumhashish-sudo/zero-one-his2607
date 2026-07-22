@@ -24,7 +24,7 @@
 #include"domain/query/cycleCtrl2-admission/AdmissionQuery.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
-#define API_TAG2 ZH_WORDS_GETTER("cyclectrl2.admission.tag")
+#define API_TAG2 ZH_WORDS_GETTER("title.tags.text")
 
 class Admission2Controller : public oatpp::web::server::api::ApiController
 {

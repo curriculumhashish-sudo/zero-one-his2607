@@ -26,7 +26,7 @@
 #include"../../domain/dto/doctor/Refund2ApplyDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
-#define API_TAG ZH_WORDS_GETTER("cyclectrl2.refund.tag")
+#define API_TAG ZH_WORDS_GETTER("title.tags.text")
 
 class Refund2Controller : public oatpp::web::server::api::ApiController
 {
