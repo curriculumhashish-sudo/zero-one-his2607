@@ -29,10 +29,10 @@
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
         </dependency>
         <!-- zero-one-cloud-starter-oauth2 -->
-        <dependency>
-            <groupId>com.zeroone.star</groupId>
-            <artifactId>zero-one-cloud-starter-oauth2</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.zeroone.star</groupId>-->
+<!--            <artifactId>zero-one-cloud-starter-oauth2</artifactId>-->
+<!--        </dependency>-->
         <!-- his-common -->
         <dependency>
             <groupId>com.zeroone.star</groupId>
@@ -128,9 +128,9 @@
                 <artifactId>mp-code-generator-plugin</artifactId>
                 <configuration>
                     <dbConfig>
-                        <host>192.168.220.128</host>
+                        <host>192.168.254.128</host>
                         <port>3306</port>
-                        <dbname>test</dbname>
+                        <dbname>zo_his</dbname>
                         <username>root</username>
                         <password>123456</password>
                     </dbConfig>
