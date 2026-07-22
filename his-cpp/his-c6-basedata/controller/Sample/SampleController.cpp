@@ -11,6 +11,13 @@ SampleJsonVO::Wrapper SampleController::executeListSampleName(const SampleQuery:
 	return jvo;
 }
 
+SampleJsonVO::Wrapper SampleController::executeListSamplePage(const SampleQuery::Wrapper& query)
+{
+	auto jvo = SampleJsonVO::createShared();
+	// TODO 调用Service层业务逻辑
+	return jvo;
+}
+
 //// 新增样本
 //StringJsonVO::Wrapper SampleController::executeAddSample(const SampleAddDTO::Wrapper& dto)
 //{
