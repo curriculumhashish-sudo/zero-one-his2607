@@ -16,31 +16,15 @@
 #ifndef _DIAGNOSISCONTROLLER_H_
 #define _DIAGNOSISCONTROLLER_H_
 
-<<<<<<< HEAD
-
-=======
-#include "domain/vo/BaseJsonVO.h"
->>>>>>> 0eea8a0a927b577bd96d0bc9b12e3a85fd4d66d3
-//#include "GlobalInclude.h"
-#include "domain/dto/Diagnosis/DiagnoseDTO.h"
+#include "GlobalInclude.h"
 
 
-/*
-//// �������ײ�ѯQuery
-//#include "../../domain/query/Diagnosis/DiagnosisSelectQuery.h"
-//#include "domain/query/Diagnosis/DiagnosisPageQuery.h"
-//// �������׷�ҳ/���鷵��VO
-//#include "domain/vo/diagnosis/DiagnosisSelectJsonVO.h"
-//#include "domain/vo/diagnosis/DiagnosisPageJsonVO.h"
-//#include "domain/vo/diagnosis/DiagnosisDetailJsonVO.h"
-这是你之前的头文件，暂时注释了
-*/
 // 查询Query
 #include "domain/query/Diagnosis/DiagnosisSelectQuery.h"
 #include "domain/query/Diagnosis/DiagnosisPageQuery.h"
 
 // 业务DTO
-#include "domain/dto/Diagnosis/DiagnosisAddDTO.h"
+#include "domain/dto/Diagnosis/DiagnosisDTO.h"
 #include "domain/dto/Diagnosis/DiagnosisPageDTO.h"
 #include "domain/dto/Diagnosis/DiagnosisDetailDTO.h"
 #include "domain/dto/Diagnosis/DiagnosisDeleteDTO.h"
@@ -49,7 +33,7 @@
 #include "domain/vo/Diagnosis/DiagnosisSelectJsonVO.h"
 #include "domain/vo/Diagnosis/DiagnosisPageJsonVO.h"
 #include "domain/vo/Diagnosis/DiagnosisDetailJsonVO.h"
-
+#include "domain/vo/BaseJsonVO.h"
 
 using namespace oatpp;
 
@@ -60,82 +44,28 @@ using namespace oatpp;
 class DiagnosisController : public oatpp::web::server::api::ApiController
 {
 	API_ACCESS_DECLARE(DiagnosisController);
-/*
 
 public:
+//1. diagnosis / select - page
+API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("diagnosis.select.summary"), listSelectDiagnosis, DiagnosisSelectJsonVO::Wrapper, API_TAG);
+API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/diagnosis/select-page", listSelectDiagnosis, DiagnosisSelectQuery, executeListSelectDiagnosis(query));
 
-    1. ����ѡ����Ϸ�ҳ�ӿ� /diagnosis/select-page
-	 ����ҽ��վ��סԺ�Ǽǵ���ɸѡ����չʾ�������ݣ�����ҽ/��ҽ����ɸѡ��
-	// 
-	//API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("diagnosis.select.summary"), listSelectDiagnosis, DiagnosisSelectJsonVO::Wrapper, API_TAG);
-	//API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/diagnosis/select-page", listSelectDiagnosis, DiagnosisSelectQuery, executeListSelectDiagnosis(query));
-
-	//
-	//  2. ��Ϲ�����̨��ҳ�ӿ� /diagnosis/page
-	//  ��̨���б���֧��Ŀ¼�����롢���ơ�״̬ɸѡ��֧��������ͣ
-	//
-	//API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("diagnosis.page.summary"), listDiagnosis, DiagnosisPageJsonVO::Wrapper, API_TAG);
-	//API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/diagnosis/page", listDiagnosis, DiagnosisPageQuery, executeListDiagnosis(query));
-
-	//
-	// 3. ��ȡ��ϵ�������ӿ� /diagnosis/detail
-	//  �������鵯�����༭��������
-	// 
-	//API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnosis.detail.summary"), getDiagnosisDetail, DiagnosisDetailJsonVO::Wrapper, API_TAG,
-	//	API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("diagnosis.field.id"), "", true);
-	//);
-	//API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/diagnosis/detail", getDiagnosisDetail, QUERY(String, id), executeGetDiagnosisDetail(id));
-	// 1. 诊断弹窗选择分页
-	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("diagnosis.select.summary"), listSelectDiagnosis, DiagnosisSelectJsonVO::Wrapper, API_TAG);
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/diagnosis/select-page", listSelectDiagnosis, DiagnosisSelectQuery, executeListSelectDiagnosis(query));
-
-	// 2. 诊断管理后台分页
-	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("diagnosis.page.summary"), listDiagnosis, DiagnosisPageJsonVO::Wrapper, API_TAG);
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/diagnosis/page", listDiagnosis, DiagnosisPageQuery, executeListDiagnosis(query));
-
-	// 3. 诊断单条详情
-	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnosis.detail.summary"), getDiagnosisDetail, DiagnosisDetailJsonVO::Wrapper, API_TAG,
-	   API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("diagnosis.field.id"), "", true);
-	);
-	API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/diagnosis/detail", getDiagnosisDetail, QUERY(String, id), executeGetDiagnosisDetail(id));
+//  2.  /diagnosis/page
+API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("diagnosis.page.summary"), listDiagnosis, DiagnosisPageJsonVO::Wrapper, API_TAG);
+API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/diagnosis/page", listDiagnosis, DiagnosisPageQuery, executeListDiagnosis(query));
+	 
+// 3.  /diagnosis/detail
+API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnosis.detail.summary"), getDiagnosisDetail, DiagnosisDetailJsonVO::Wrapper, API_TAG);
+API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/diagnosis/detail", getDiagnosisDetail, QUERY(String, id), executeGetDiagnosisDetail(id));
+API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("diagnosis.field.id"), "", true);
 
 
-	// 4. 新增诊断
-	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnosis.post.summary"), addDiagnosis, StringJsonVO::Wrapper, API_TAG);
-	API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/diagnosis", addDiagnosis, BODY_DTO(DiagnosisAddDTO::Wrapper, dto), execAddDiagnosis(dto, authObject->getPayload()));
-
-	// 5. 修改诊断
-	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnosis.put.summary"), modifyDiagnosis, StringJsonVO::Wrapper, API_TAG);
-	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/diagnosis", modifyDiagnosis, BODY_DTO(DiagnosisPageDTO::Wrapper, dto), execModifyDiagnosis(dto, authObject->getPayload()));
-
-	// 6. 批量删除诊断
-	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnosis.delete.summary"), removeDiagnosis, ListJsonVO<String>::Wrapper, API_TAG);
-	API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/diagnosis", removeDiagnosis, BODY_DTO(List<String>, ids), execRemoveDiagnosis(ids));
-
-private:
-	// ����ѡ���ҳҵ��ʵ��
-	//DiagnosisSelectJsonVO::Wrapper executeListSelectDiagnosis(const DiagnosisSelectQuery::Wrapper& query);
-	//// ������̨��ҳҵ��ʵ��
-	//DiagnosisPageJsonVO::Wrapper executeListDiagnosis(const DiagnosisPageQuery::Wrapper& query);
-	//// ����ID��ѯ��������ʵ��
-	//DiagnosisDetailJsonVO::Wrapper executeGetDiagnosisDetail(const String& id);
-	这是你的代码，暂时注释了
-	
-*/
-
-public:
-	// 3.1 定义新增诊断表接口描述
+// 3.1 定义新增诊断表接口描述
 API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.post.summary"), addDiagnose, StringJsonVO::Wrapper, API_TAG);
 // 3.2 定义新增诊断表接口处理
 API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/diagnose", addDiagnose, BODY_DTO(DiagnoseAddDTO::Wrapper, dto), execAddDiagnose(dto, authObject->getPayload()));
 
-//// 3.1 定义新增诊断目录接口描述
-//API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.post.summary_category"), addDiagcategory, StringJsonVO::Wrapper, API_TAG);
-//// 3.2 定义新增诊断目录接口处理
-//API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/diagnose/category", addDiagcategory, BODY_DTO(DiagcategoryAddDTO::Wrapper, dto), execAddDiagcategory(dto, authObject->getPayload()));
-//
-
-	//  定义修改接口描述
+//  定义修改接口描述
 API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.put.summary"), modifyDiagnose, StringJsonVO::Wrapper, API_TAG);
 // 定义修改接口处理
 API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/diagnose", modifyDiagnose, BODY_DTO(DiagnoseDTO::Wrapper, dto), execModifyDiagnose(dto, authObject->getPayload()));
@@ -144,6 +74,7 @@ API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/diagnose", modifyDiagnose, BODY_DTO(Diagn
 API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.delete.summary"), removeDiagnose, ListJsonVO<String>::Wrapper, API_TAG);
 //  定义删除接口处理
 API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/diagnose", removeDiagnose, BODY_DTO(List<String>, ids), execRemoveDiagnose(ids));
+
 // 定义批量启用/停用接口描述
 API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.field.diag.status"), batchChangeDiagnoseStatus, StringJsonVO::Wrapper, API_TAG);
 // 定义批量启用/停用接口处理
@@ -162,13 +93,12 @@ ListJsonVO<String>::Wrapper execRemoveDiagnose(const List<String>& ids);
 //演示批量启用/停用
 StringJsonVO::Wrapper execBatchChangeDiagnoseStatus(const DiagnoseBatchStatusDTO::Wrapper& dto, const PayloadDTO& payload);
 
-
+// select
 	DiagnosisSelectJsonVO::Wrapper executeListSelectDiagnosis(const DiagnosisSelectQuery::Wrapper& query);
+//page
 	DiagnosisPageJsonVO::Wrapper executeListDiagnosis(const DiagnosisPageQuery::Wrapper& query);
+//detail
 	DiagnosisDetailJsonVO::Wrapper executeGetDiagnosisDetail(const String& id);
-	/*StringJsonVO::Wrapper execAddDiagnosis(const DiagnosisAddDTO::Wrapper& dto, const PayloadDTO& payload);
-	StringJsonVO::Wrapper execModifyDiagnosis(const DiagnosisPageDTO::Wrapper& dto, const PayloadDTO& payload);
-	ListJsonVO<String>::Wrapper execRemoveDiagnosis(const List<String>& ids);*/
 };
 
 #undef API_TAG

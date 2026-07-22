@@ -19,7 +19,7 @@
 #include "../../dto/Diagnosis/DiagnosisSelectDTO.h"
 #include OATPP_CODEGEN_BEGIN(DTO)
 /**
- * 诊断下拉选择分页响应VO
+ * 诊断选择分页响应VO
  * 接口：/diagnosis/select-page
  */
 class DiagnosisSelectJsonVO : public JsonVO<DiagnosisSelectDTO::Wrapper>
