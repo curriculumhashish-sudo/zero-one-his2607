@@ -30,7 +30,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/refund-medicine")
-@Tag(name = "住院退药查询")
+@Tag(name = "住院退药")
 @Validated
 public class InpatientRefundMedicineController implements InpatientRefundMedicineApis {
 
