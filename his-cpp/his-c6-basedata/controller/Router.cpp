@@ -19,8 +19,8 @@
 #include "stdafx.h"
 #include "Router.h"
 #include "ApiHelper.h"
-#include "drug/MedicationCatalogController.h"
 #include "drug/DrugController.h"
+
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
 // Simplified controller binding macro
@@ -43,5 +43,3 @@ void Router::initRouter()
 	// #TIP: Add system extension route definitions below
 	ROUTER_SIMPLE_BIND(DrugController);
 }
-
-#undef ROUTER_SIMPLE_BIND
