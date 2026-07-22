@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
  * @date  2026-07-19
  */
 @RestController
-@RequestMapping("/menu")
+@RequestMapping("/api/menu")
 @Tag(name = "菜单管理")
 public class MenuController implements MenuApis {
 
@@ -98,7 +98,7 @@ public class MenuController implements MenuApis {
     @Override
     @PostMapping("update")
     @Operation(summary = "修改菜单")
-    public JsonVO<Boolean> update(@RequestBody @Valid MenuUpdateRequestDTO menuDto) {
+    public JsonVO<Boolean> update(@RequestBody @Valid MenuUpdateDTO menuDto) {
         return JsonVO.success(null);
     }
 

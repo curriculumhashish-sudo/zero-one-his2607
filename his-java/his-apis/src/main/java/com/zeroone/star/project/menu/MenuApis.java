@@ -67,7 +67,7 @@ public interface MenuApis {
      * @return 是否修改成功
      * @author 是丫丫
      */
-    public JsonVO<Boolean> update(MenuUpdateRequestDTO menuDto);
+    public JsonVO<Boolean> update(MenuUpdateDTO menuDto);
 
     /**
      * 删除菜单信息

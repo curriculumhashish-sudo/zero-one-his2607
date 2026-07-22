@@ -38,7 +38,6 @@
         <module>his-login</module>
         <module>his-mcp-gateway</module>
         <module>his-j1-sysmgr</module>
-        <module>his-j1-login</module>
     </modules>
     <properties>
         <!-- 项目版本号 -->
