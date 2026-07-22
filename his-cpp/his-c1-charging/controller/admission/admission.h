@@ -26,6 +26,9 @@ public:
 		API_DEF_ADD_TITLE(ZH_WORDS_GETTER("admission_add"));
 		// 定义默认授权参数（可选定义，如果定义了，下面ENDPOINT里面需要加入API_HANDLER_AUTH_PARAME）
 		API_DEF_ADD_AUTH();
+
+		info->summary = ZH_WORDS_GETTER("charging.admission.add_discription");
+
 		// 定义响应参数格式
 		API_DEF_ADD_RSP_JSON_WRAPPER(StringJsonVO);
 		// 定义标签
@@ -67,14 +70,18 @@ public:
 
 	ENDPOINT_INFO(admission_delete) {
 		// 定义接口标题
-		API_DEF_ADD_TITLE(ZH_WORDS_GETTER("admission_delete"));
+		API_DEF_ADD_TITLE(ZH_WORDS_GETTER("admisssion_delete"));
 		// 定义默认授权参数（可选定义，如果定义了，下面ENDPOINT里面需要加入API_HANDLER_AUTH_PARAME）
 		API_DEF_ADD_AUTH();
 		// 定义响应参数格式
 		API_DEF_ADD_RSP_JSON_WRAPPER(StringJsonVO);
+
+		info->summary = ZH_WORDS_GETTER("charging.admission.add_discription");
 		// 定义标签
 		API_DEF_ADD_TAG(API_TAG);
 		// 定义其他查询参数描述
+
+		
 
 		API_DEF_ADD_PATH_PARAMS(String, "delete", ZH_WORDS_GETTER("charging.admisssion.delete"), " ", false);
 

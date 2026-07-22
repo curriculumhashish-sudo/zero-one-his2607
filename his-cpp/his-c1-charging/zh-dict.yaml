@@ -1,8 +1,8 @@
 charging:
  admission:
   tag: 收费工作站-住院登记
-  tag1: 住院登记
-  tag2: 取消登记
+  add_discription: 住院登记
+  delete_discription: 取消登记
   id: 身份证号
   name: 姓名
   birthtime: 出生日期
