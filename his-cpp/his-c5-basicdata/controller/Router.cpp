@@ -24,6 +24,8 @@
 
 #include "sup/SupplierAddUpdateController.h"
 
+#include "pharm/PharmController.h"
+
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
 // Simplified controller binding macro
@@ -49,4 +51,7 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(SupplierAddUpdateController);
 	// Supplier management routes
 	ROUTER_SIMPLE_BIND(SupplierController);
+
+	ROUTER_SIMPLE_BIND(PharmController);
+
 }

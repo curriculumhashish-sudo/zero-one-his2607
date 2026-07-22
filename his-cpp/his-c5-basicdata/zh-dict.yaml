@@ -61,3 +61,28 @@ sup:
     displayOrder: 显示顺序
     statusEnum: 状态枚举值(NORMAL/DISABLED)
     note: 备注说明
+pharm:
+  tag: 库房药房管理
+  endpoints:
+    list: 分页查询库房药房列表
+    add: 新增库房药房
+    modify: 修改库房药房
+    remove: 删除库房药房
+    status: 切换库房药房状态
+  field:
+    id: 编号
+    name: 药房名称
+    type: 药房类型
+    sort: 排序号
+    remark: 备注
+    status: 状态
+  result:
+    empty: 暂无数据
+    add_success: 新增成功
+    add_fail: 新增失败
+    modify_success: 修改成功
+    modify_fail: 修改失败
+    remove_success: 删除成功
+    remove_fail: 删除失败
+    status_success: 状态更新成功
+    status_fail: 状态更新失败
