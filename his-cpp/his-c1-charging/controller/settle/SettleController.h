@@ -33,7 +33,7 @@ class SettleController : public oatpp::web::server::api::ApiController
 
 public:
 	API_DEF_ENDPOINT_INFO_AUTH(
-		ZH_WORDS_GETTER("charging.settle.settle.summary"),
+		ZH_WORDS_GETTER("ovo.charging.settle.Settle.summary"),
 		settle,
 		SettleJsonVO::Wrapper,
 		API_TAG);

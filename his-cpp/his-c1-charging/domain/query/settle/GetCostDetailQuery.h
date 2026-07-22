@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -28,19 +28,19 @@ class GetCostDetailQuery : public oatpp::DTO
 {
 	DTO_INIT(GetCostDetailQuery, DTO);
 
-	// Inpatient encounter identifier.
+	// 住院就诊记录主键。
 	API_DTO_FIELD(String, encounterId,
-		ZH_WORDS_GETTER("charging.settle.field.encounterId"),
+		ZH_WORDS_GETTER("ovo.charging.settle.GetCostDetailQuery.encounterId.description"),
 		true, "329874660147597312");
 
-	// Patient identifier used for cross-checking the encounter owner.
+	// 患者主键，用于校验该住院记录是否属于当前患者。
 	API_DTO_FIELD(String, patientId,
-		ZH_WORDS_GETTER("charging.settle.field.patientId"),
+		ZH_WORDS_GETTER("ovo.charging.settle.GetCostDetailQuery.patientId.description"),
 		true, "329874660197928960");
 
-	// Charge item status filter. ALL returns every status.
+	// 收费明细状态筛选条件，ALL 表示查询全部状态。
 	API_DTO_FIELD(String, statusEnum,
-		ZH_WORDS_GETTER("charging.settle.field.chargeStatusEnum"),
+		ZH_WORDS_GETTER("ovo.charging.settle.GetCostDetailQuery.statusEnum.description"),
 		false, "ALL");
 };
 

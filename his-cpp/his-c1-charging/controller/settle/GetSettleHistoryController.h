@@ -34,7 +34,7 @@ class GetSettleHistoryController : public oatpp::web::server::api::ApiController
 
 public:
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(
-		ZH_WORDS_GETTER("charging.settle.getHistory.summary"),
+		ZH_WORDS_GETTER("ovo.charging.settle.GetSettleHistory.summary"),
 		getSettleHistory,
 		GetSettleHistoryQuery,
 		GetSettleHistoryJsonVO::Wrapper,

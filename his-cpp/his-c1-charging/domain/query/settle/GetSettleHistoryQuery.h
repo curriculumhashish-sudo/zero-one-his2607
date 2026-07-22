@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -29,19 +29,19 @@ class GetSettleHistoryQuery : public PageQuery
 {
 	DTO_INIT(GetSettleHistoryQuery, PageQuery);
 
-	// Patient identifier.
+	// 患者主键。
 	API_DTO_FIELD(String, patientId,
-		ZH_WORDS_GETTER("charging.settle.field.patientId"),
+		ZH_WORDS_GETTER("ovo.charging.settle.GetSettleHistoryQuery.patientId.description"),
 		true, "329874660197928960");
 
-	// Optional encounter identifier. An empty value queries all encounters.
+	// 可选的住院就诊记录主键，为空时查询该患者的全部住院记录。
 	API_DTO_FIELD(String, encounterId,
-		ZH_WORDS_GETTER("charging.settle.field.historyEncounterId"),
+		ZH_WORDS_GETTER("ovo.charging.settle.GetSettleHistoryQuery.encounterId.description"),
 		false, "");
 
-	// Settlement status filter. ALL includes settlement and reversal records.
+	// 结算状态筛选条件，ALL 表示包含结算和退结算记录。
 	API_DTO_FIELD(String, statusEnum,
-		ZH_WORDS_GETTER("charging.settle.field.historyStatusEnum"),
+		ZH_WORDS_GETTER("ovo.charging.settle.GetSettleHistoryQuery.statusEnum.description"),
 		false, "ALL");
 };
 

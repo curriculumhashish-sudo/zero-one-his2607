@@ -34,7 +34,7 @@ class GetCostDetailController : public oatpp::web::server::api::ApiController
 
 public:
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(
-		ZH_WORDS_GETTER("charging.settle.getCostDetail.summary"),
+		ZH_WORDS_GETTER("ovo.charging.settle.GetCostDetail.summary"),
 		getCostDetail,
 		GetCostDetailQuery,
 		GetCostDetailJsonVO::Wrapper,
