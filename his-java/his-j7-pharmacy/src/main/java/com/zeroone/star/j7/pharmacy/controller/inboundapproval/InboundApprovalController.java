@@ -1,4 +1,4 @@
-package com.zeroone.star.j7.inboundapproval.controller;
+package com.zeroone.star.j7.pharmacy.controller.inboundapproval;
 
 import com.zeroone.star.project.dto.j7.inboundapproval.InboundApprovalDTO;
 import com.zeroone.star.project.j7.inboundapproval.InboundApprovalApis;

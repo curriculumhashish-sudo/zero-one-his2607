@@ -16,6 +16,11 @@
             <artifactId>his-common</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <!-- 提供spring web mvc保证编译通过 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
