@@ -1,3 +1,4 @@
+
 ﻿title:
  tags:
   text: "周期循环"
@@ -135,3 +136,31 @@ prescription3:
   deletePrescriptionIds: "需要删除的医嘱ID集合，仅允许选择未签发医嘱"
   mergePrescriptionIds: "需要并组的医嘱ID集合，至少选择两条未签发医嘱"
   splitPrescriptionIds: "需要拆组的医嘱ID集合，仅允许选择已并组且未签发医嘱"
+
+historyOrder:
+  tags:
+    tag: 历史医嘱管理
+  list:
+    summary: 分页查询历史就诊记录列表
+  detail:
+    summary: 分页查询历史医嘱明细列表
+  field:
+    patientId: 患者ID
+    visitId: 就诊ID
+    visitTime: 就诊时间
+    visitType: 就诊类型
+    mainDiagnosis: 主诊断
+    doctorName: 医生姓名
+    drugCount: 药品数量
+    examCount: 诊疗数量
+    materialCount: 耗材数量
+    orderId: 医嘱ID
+    orderType: 医嘱类型
+    orderName: 医嘱名称
+    quantity: 开立数量
+    executedCount: 执行次数
+    sampleType: 样本类型
+    executeHospital: 执行医院
+    createTime: 开立时间
+    diagnosis: 诊断
+    isSkinTest: 是否皮试
