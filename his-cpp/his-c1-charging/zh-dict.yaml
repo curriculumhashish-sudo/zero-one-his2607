@@ -13,6 +13,14 @@ charging:
    summary: 查看住院登记记录详情
  refund:    
   tag: 收费工作站-门诊退费
+ pay_manage:
+  tag: 收费工作站-预交金管理
+  GetPatientQueue:
+   summary: 获取患者队列（条件+分页）
+  GetPatientDetails:
+   summary: 获取患者详细信息
+  GetPatientPayRecords:
+   summary: 获取患者预交金流水（条件+分页）
 macchiato:
  charging:
   register:
@@ -844,4 +852,24 @@ xbzml:
         bizRef: 业务参考信息
         copies: 打印份数
         clientType: 客户端类型
-
+byj:
+ charging:
+  pay_manage:
+   hospitalized_number: 住院号
+   name: 姓名
+   bed_number: 床号
+   hospitalized_time: 入院日期
+   pay_time: 收费时间
+   service_type: 业务类型
+   cost: 金额(元)
+   pay_type: 支付方式
+   operateman: 操作员
+   bill_number: 票据号
+   status: 状态
+   sex: 性别
+   age: 年龄
+   depart: 所在科室
+   cost_attr: 费用性质
+   rest: 账户余额
+   ward: 病区
+   VisitStatus: 就诊状态

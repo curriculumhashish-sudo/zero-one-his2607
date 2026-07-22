@@ -45,6 +45,9 @@
 #include "enroll/EnrollController.h"
 
 
+#include"pay_manage/Pay_ManageGetPatientDetailsController.h"
+#include"pay_manage/Pay_ManageGetPatientPayRecordsController.h"
+#include"pay_manage/Pay_ManageGetPatientQueueController.h"
 
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
@@ -96,4 +99,7 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(RefundPreparePrintController);
 	ROUTER_SIMPLE_BIND(RefundConfirmPrintController);
 
+	ROUTER_SIMPLE_BIND(Pay_ManageGetPatientDetailsController);
+	ROUTER_SIMPLE_BIND(Pay_ManageGetPatientPayRecordsController);
+	ROUTER_SIMPLE_BIND(Pay_ManageGetPatientQueueController);
 }
