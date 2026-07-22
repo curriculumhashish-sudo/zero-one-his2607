@@ -42,6 +42,7 @@
 
 #include "order/OrderController.h"
 
+#include "chinapres2/Chinapres2Controller.h"
 
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
@@ -89,4 +90,5 @@ void Router::initRouter()
 
 	ROUTER_SIMPLE_BIND(ChinapresController1);
 	ROUTER_SIMPLE_BIND(MedicalRecordController);
+	ROUTER_SIMPLE_BIND(Chinapres2Controller);
 }
