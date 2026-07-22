@@ -1,3 +1,5 @@
+// Getter: Lombok会自动生成 getPageIndex() 与 getPageSize() 方法，无需手动编写
+
 package com.zeroone.star.project.query;
 
 import io.swagger.v3.oas.annotations.media.Schema;

@@ -1,0 +1,19 @@
+server:
+  port:  ${sp.dispense}
+  servlet:
+    context-path: /dispense
+spring:
+  config:
+    import: nacos:data-source.yaml,nacos:system.yaml
+  application:
+    name: ${sn.dispense}
+  cloud:
+    sentinel:
+      transport:
+        dashboard: ${sentinel.dashboard}
+        port: 8721
+      eager: true
+
+feign:
+  sentinel:
+    enabled: true

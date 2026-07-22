@@ -1,0 +1,54 @@
+package com.zeroone.star.dispense.controller;
+
+
+import com.zeroone.star.project.j7.outpharm.OutPharmApis;
+import com.zeroone.star.project.query.j7.outpharm.PatientDrugItemQuery;
+import com.zeroone.star.project.query.j7.outpharm.PatientQueueQuery;
+import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j7.outpharm.PatientDrugItemVO;
+import com.zeroone.star.project.vo.j7.outpharm.PatientQueueVO;
+import com.zeroone.star.dispense.service.DrugService;
+import com.zeroone.star.dispense.service.PatientService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+
+@RestController
+@RequestMapping("/api/j7/outpharm")
+@Validated
+@Tag(name = "门诊发药", description = "门诊发药相关接口（患者队列、处方药品查询）")
+@RequiredArgsConstructor
+public class OutPharmController implements OutPharmApis {
+
+    private final PatientService patientService;
+    private final DrugService drugService;
+
+    @Operation(
+            summary = "分页查询患者队列",
+            description = "根据姓名、状态、机构等条件分页查询候诊/发药患者队列"
+    )
+    @GetMapping("/patient-queue")
+    @Override
+    public JsonVO<IPage<PatientQueueVO>> pagePatientQueue(PatientQueueQuery query) {
+        IPage<PatientQueueVO> page = patientService.pagePatientQueue(query);
+        return page == null || page.getRecords().isEmpty()
+                ? JsonVO.fail(null)
+                : JsonVO.success(page);
+    }
+
+    @Operation(
+            summary = "分页查询患者药品项目",
+            description = "根据患者ID、就诊ID、处方状态等条件查询患者处方药品明细"
+    )
+    @GetMapping("/patient-drug-items")
+    @Override
+    public JsonVO<IPage<PatientDrugItemVO>> pagePatientDrugItems(PatientDrugItemQuery query) {
+        IPage<PatientDrugItemVO> page = drugService.pagePatientDrugItems(query);
+        return page == null || page.getRecords().isEmpty()
+                ? JsonVO.fail(null)
+                : JsonVO.success(page);
+    }
+}
