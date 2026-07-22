@@ -55,12 +55,6 @@ public interface EnumApis {
      */
     JsonVO<String> deleteEnum(String id);
 
-    /**
-     * 分页查询枚举类型
-     * @param query 查询参数
-     * @return 查询结果
-     */
-    JsonVO<PageDTO<EnumTypeDTO>> queryAllEnumType(EnumTypeQuery query);
 
     /**
      * 添加枚举类型

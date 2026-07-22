@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-// FIXME: 如果组长愿意的话，可以像字典系统那样将枚举类型和枚举值的管理接口拆开为两个controller（对应的Api也要拆开），，，只是我强迫症犯了。
 @RestController
 @Tag(name = "枚举管理")
 public class EnumController implements EnumApis {
@@ -26,7 +25,6 @@ public class EnumController implements EnumApis {
     public JsonVO<List<String>> getEnumTypeName(@RequestBody EnumListQuery query) {
         return null;
     }
-
 
 
     @Override
