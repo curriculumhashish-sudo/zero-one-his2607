@@ -135,3 +135,31 @@ bool DiagnoseService::removeData(const oatpp::List<oatpp::String>& ids)
     return false;
  
 }
+bool DiagnoseService::batchChangeStatus(const oatpp::List<oatpp::String>& ids, oatpp::Int32 status)
+{
+    DiagnosisDAO dao;
+    int successCount = 0;
+
+    // 直接更新状态；业务约定传入ID一定存在，无需查询判空
+    for (auto& idItem : *ids.get())
+    {
+        std::string id = idItem.getValue({});
+        DiagnosisDO data;
+        // 主键用于定位更新行
+        data.setId(id);
+        // 设置目标启用/停用状态
+        data.setStatus(*status);
+        // 填充修改时间
+        data.setUpdateTime(SimpleDateTimeFormat::format());
+        // data.setUpdateBy(操作用户名);
+
+        int affectRows = dao.update(data);
+        if (affectRows == 1)
+        {
+            successCount++;
+        }
+    }
+
+    // 至少成功一条返回true
+    return successCount > 0;
+}

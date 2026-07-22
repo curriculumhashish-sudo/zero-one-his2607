@@ -20,6 +20,9 @@ public:
 	bool removeData(const oatpp::List<oatpp::String>& ids);
 //逻辑单条删除
 	bool removeOne(const string& ids);
+	//批量停用和启用
+	bool batchChangeStatus(const oatpp::List<oatpp::String>& ids, oatpp::Int32 status);
+
 };
 
 #endif
