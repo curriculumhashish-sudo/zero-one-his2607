@@ -16,8 +16,8 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  */
 @SpringBootApplication
 @EnableDiscoveryClient
-public class OutPharmApplication {
+public class DispenseApplication {
     public static void main(String[] args) {
-        SpringApplication.run(OutPharmApplication.class, args);
+        SpringApplication.run(DispenseApplication.class, args);
     }
 }
