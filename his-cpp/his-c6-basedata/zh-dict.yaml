@@ -1,23 +1,4 @@
-﻿frequency:
-  tags:
-    tag: 频次管理
-
-  getname:
-    summary: 获取频次下拉列表
-  query:
-    summary: 分页查询频次信息
-  add:
-    summary: 新增频次
-  modify:
-    summary: 修改频次
-  remove:
-    summary: 删除频次
-  detail:
-    summary: 获取频次详情
-  field:
-    id: 频次编号
-    name: 频次名称
-equipment:
+﻿equipment:
   tags:
     tag: 器材管理
   query:
@@ -79,3 +60,56 @@ equipment:
 # 辅助检索字段
     pinyin: 拼音码
     wubi: 五笔码
+
+frequency:
+  tags:
+    tag: 频次管理
+
+  getname:
+    summary: 获取频次下拉列表
+  query:
+    summary: 分页查询频次信息
+  add:
+    summary: 新增频次
+  modify:
+    summary: 修改频次
+  remove:
+    summary: 删除频次
+  detail:
+    summary: 获取频次详情
+  query-all:
+    summary: 获取频次列表（条件+分页）
+  query-one:
+    summary: 获取频次详情
+  field:
+    id: 频次编号
+    name: 频次名称
+    code: 频次编码
+    status: 启用状态
+    keywords: 关键字
+    cycle-type: 周期类型
+    day-times: 日内执行时间
+    day-count: 天数
+    execution-period: 执行周期
+    execution-period-unit: 执行周期单位
+    day-interval: 间隔天数
+    total-execution-count: 总执行次数
+    applicable-scenes: 适用场景
+    allow-cross-day: 跨日策略
+    sort-no: 排序号
+    cycleType: 周期类型
+    execTime: 执行时点
+    dayCount: 日计数
+    execCycle: 执行周期
+    dayInterval: 日间隔
+    totalTimes: 总次数
+    scene: 适用场景
+    crossDayPolicy: 跨日策略
+    sort: 排序号
+
+
+    
+
+    
+    
+
