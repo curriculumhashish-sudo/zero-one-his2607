@@ -19,6 +19,7 @@
 #include "stdafx.h"
 #include "Router.h"
 #include "ApiHelper.h"
+#include "drug/DrugController.h"
 #include"Diagnosis/DiagnosisController.h"
 
 #include "frequency/FrequencyController.h"
@@ -44,6 +45,7 @@ void Router::initRouter()
 {
 
 	// #TIP: Add system extension route definitions below
+	ROUTER_SIMPLE_BIND(DrugController);
 
 	ROUTER_SIMPLE_BIND(FrequencyController);
 	ROUTER_SIMPLE_BIND(EquipmentController);

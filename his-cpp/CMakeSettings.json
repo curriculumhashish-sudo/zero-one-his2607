@@ -20,6 +20,7 @@
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "msvc_x64_x64" ],
+<<<<<<< HEAD
       "cmakeCommandArgs": "-D_RELEASE_DOC_=1 -DCMAKE_CXX_FLAGS=\"/std:c++17\""
     },
     {
@@ -59,6 +60,9 @@
       "rsyncCommandArgs": "-t --delete",
       "remoteCopyBuildOutput": false,
       "remoteCopySourcesMethod": "rsync"
+=======
+      "cmakeCommandArgs": "-D_RELEASE_DOC_=1"
+>>>>>>> dd3e1de266cac46cdf0d314f80a138d8f8af14b7
     }
   ]
 }

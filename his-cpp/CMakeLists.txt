@@ -3,8 +3,6 @@
 #
 cmake_minimum_required (VERSION 3.8)
 
-# 指定工程名
-project ("zero-one-his")
 
 # 设置安装目录前缀
 if(NOT WIN32)
@@ -166,4 +164,4 @@ if(UNIX)
 	add_subdirectory ("nacos-register")
 endif()
 # 在后面添加你的模块
-add_subdirectory("his-c6-basedata")
+add_subdirectory ("his-c6-basedata")
