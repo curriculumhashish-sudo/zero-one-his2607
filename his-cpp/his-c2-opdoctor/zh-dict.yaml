@@ -1,6 +1,4 @@
-
-
-title:
+﻿title:
  tags:
   text: "周期循环"
 
@@ -11,35 +9,35 @@ queue:
   age: "年龄"
   registerType: "挂号类型"
   visitTime: "就诊时间"
-  visitNum: "病历号（唯一标识�?
+  visitNum: "病历号（唯一标识）"
   payType: "支付类型"
-  visitStatus: "就诊状�?
+  visitStatus: "就诊状态"
  query:
   date: "日期"
-  patient: "患�?
-  visitStatus: "就诊状�?
+  patient: "患者"
+  visitStatus: "就诊状态"
  param:
   patientName: "姓名"
   startDate: "就诊时间"
   Status: "待诊/在诊"
   finishStatus: "完诊"
-  allStatus: "全部状�?
+  allStatus: "全部状态"
  get:
-  summary: "获取患者队�?
+  summary: "获取患者队列"
 
 rece:
  dto:
   name: "姓名"
-  visitStatus: "在诊状�?
+  visitStatus: "在诊状态"
   gender: "性别"
   age: "年龄"
   registerType: "挂号类型"
-  medicalRecordNum: "病历�?唯一标识)"
+  medicalRecordNum: "病历号(唯一标识)"
   recordType: "病历类型"
   time: "就诊时间"
   registerDept: "挂号科室"
-  phoneNum: "电话�?
-  allergyHistory: "过敏�?
+  phoneNum: "电话号"
+  allergyHistory: "过敏史"
  query:
   data: "日期"
  param:
@@ -48,17 +46,17 @@ rece:
   age: "年龄"
   registerType: "挂号类型"
   visitTime: "就诊时间"
-  visitNum: "就诊�?
+  visitNum: "就诊号"
   payType: "支付类型"
-  visitStatus: "就诊状�?
+  visitStatus: "就诊状态"
  get:
-  summary: "在诊患�?
+  summary: "在诊患者"
 
 finish:
  dto:
   newVisitStatus: "完诊"
  query:
-  visitStatus: "其他状�?
+  visitStatus: "其他状态"
  get:
   summary: "完诊"
 
@@ -66,112 +64,74 @@ leave:
  dto:
   newVisitStatus: "暂离"
  query:
-  visitStatus: "其他状�?
+  visitStatus: "其他状态"
  get:
   summary: "暂离"
 
 diagnose:
  add:
-  summary: 新增诊断
-  id: 诊断数据主键
-  encounterId: 就诊id
-  conditionId: 病情id
-  description: 诊断描述
-  diagTypeCode: 诊断类型
-  diagCode: 诊断编码
-  rank: 排序
-  primaryFlag: 是否主诊�?
-  highestDiagFlag: 是否最高诊�?
-  tcmFlag: 是否中医诊断
-  tcmSyndromeGroup: 中医证候组
-  medType: 医保类别
-  conditionCode: 病情编码
-  createdAt: 创建时间
+  summary: "新增诊断"
+  id: "诊断数据主键"
+  encounterId: "就诊id"
+  conditionId: "病情id"
+  description: "诊断描述"
+  diagTypeCode: "诊断类型"
+  diagCode: "诊断编码"
+  rank: "排序"
+  primaryFlag: "是否主诊断"
+  highestDiagFlag: "是否最高诊断"
+  tcmFlag: "是否中医诊断"
+  tcmSyndromeGroup: "中医证候组"
+  medType: "医保类别"
+  conditionCode: "病情编码"
+  createdAt: "创建时间"
  delete:
-  summary: 删除诊断
-  id: 诊断数据主键
-  encounterId: 就诊id
-  conditionId: 病情id
-  deletedAt: 删除时间
-  deletedBy: 删除�?
+  summary: "删除诊断"
+  id: "诊断数据主键"
+  encounterId: "就诊id"
+  conditionId: "病情id"
+  deletedAt: "删除时间"
+  deletedBy: "删除人"
  usage:
-  summary: 获取诊断使用历史
-  id: 诊断数据主键
-  encounterId: 就诊id
-  conditionId: 病情id
-  description: 诊断描述
-  diagTypeCode: 诊断类型
-  diagCode: 诊断编码
-  rank: 排序
-  primaryFlag: 是否主诊�?
-  highestDiagFlag: 是否最高诊�?
-  tcmFlag: 是否中医诊断
-  tcmSyndromeGroup: 中医证候组
-  medType: 医保类别
-  conditionCode: 病情编码
-  createdAt: 诊断时间
-  keyword: 关键�?
-  startDate: 开始日�?
-  endDate: 结束日期
+  summary: "获取诊断使用历史"
+  id: "诊断数据主键"
+  encounterId: "就诊id"
+  conditionId: "病情id"
+  description: "诊断描述"
+  diagTypeCode: "诊断类型"
+  diagCode: "诊断编码"
+  rank: "排序"
+  primaryFlag: "是否主诊断"
+  highestDiagFlag: "是否最高诊断"
+  tcmFlag: "是否中医诊断"
+  tcmSyndromeGroup: "中医证候组"
+  medType: "医保类别"
+  conditionCode: "病情编码"
+  createdAt: "诊断时间"
+  keyword: "关键字"
+  startDate: "开始日期"
+  endDate: "结束日期"
  patient:
-  summary: 获取患者诊断记录（条件+分页�?
-  pageIndex: 页码
-  pageSize: 每页条数
-  patientId: 患者id
-  keyword: 关键�?
-  diagTypeCode: 诊断类型
-  startDate: 开始日�?
-  endDate: 结束日期
- tag: 诊断管理
+  summary: "获取患者诊断记录（条件+分页）"
+  pageIndex: "页码"
+  pageSize: "每页条数"
+  patientId: "患者id"
+  keyword: "关键字"
+  diagTypeCode: "诊断类型"
+  startDate: "开始日期"
+  endDate: "结束日期"
+ tag: "诊断管理"
 
-cyclectrl2:
- refund:
-  tag: 退�?
-  apply: 提交退费申�?
-  query: 获取退费清�?
- patient:
-  patientNo: 病历�?
-  patientName: 姓名
-  age: 年龄
-  gender: 性别
-  department: 科室
-  patientId: 门诊�?
-  phone: 联系电话
-  idNumber: 证件号码
-  registrationType: 号别
-  visitStatus: 就诊状�?
-  admissionTime: 接诊时间
-  doctor: 接诊医师
-  apply: 勾选项
-  applyNo: 勾选数
-  applySum: 已选合计费�?
-  paymentNo: 支付单号
-  itemName: 收费项目名称
-  quantity: 数量
-  amount: 金额
-  chargeStatus: 收费状�?
-  refundStatus: 退费状�?
- prescription:
-  tag: 处方�?
-  query: 处方�?
-  prescriptionNo: 处方�?
-  costType: 费用性质
-  date: 日期
-  doctor: 开单医�?
-  diagnosis: 诊断
-  totalPrice: 合计金额
-  pharmacist: 调配
-  dispenser: 发药
-  priceChecker: 划价
-  items: Rp
- admission:
-  tag: 办理住院
-  apply: 办理住院
-  admissionDepartment: 入院科室
-  admissionWard: 入院病区
-  admissionDiagnosis: 入院主诊�?
-  diagnosisDesc: 诊断描述
-  admissionType: 入院类型
-  admissionMethod: 入院方式
-  priority: 病情优先�?
-
+prescription3:
+ tags:
+  tag: "医嘱管理"
+ batchDelete:
+  summary: "删除一条或多条未签发医嘱"
+ mergeGroup:
+  summary: "将多条未签发医嘱合并为一个医嘱组"
+ splitGroup:
+  summary: "将一条或多条已并组且未签发的医嘱拆组"
+ field:
+  deletePrescriptionIds: "需要删除的医嘱ID集合，仅允许选择未签发医嘱"
+  mergePrescriptionIds: "需要并组的医嘱ID集合，至少选择两条未签发医嘱"
+  splitPrescriptionIds: "需要拆组的医嘱ID集合，仅允许选择已并组且未签发医嘱"
