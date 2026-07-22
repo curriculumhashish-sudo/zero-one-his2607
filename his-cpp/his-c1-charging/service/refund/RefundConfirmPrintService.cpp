@@ -17,10 +17,10 @@
  limitations under the License.
 */
 #include "stdafx.h"
-#include "ConfirmPrintService.h"
-#include "../../dao/refund/ConfirmPrintDAO.h"
+#include "RefundConfirmPrintService.h"
+#include "../../dao/refund/RefundConfirmPrintDAO.h"
 
-ConfirmPrintDTO::Wrapper ConfirmPrintService::confirm(const ConfirmPrintQuery::Wrapper& query)
+RefundConfirmPrintDTO::Wrapper RefundConfirmPrintService::confirm(const RefundConfirmPrintQuery::Wrapper& query)
 {
-    return ConfirmPrintDTO::Wrapper();
+    return RefundConfirmPrintDTO::Wrapper();
 }

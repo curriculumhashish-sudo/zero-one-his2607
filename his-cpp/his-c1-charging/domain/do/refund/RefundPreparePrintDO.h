@@ -17,13 +17,13 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _PREPARE_PRINT_DO_
-#define _PREPARE_PRINT_DO_
+#ifndef _REFUND_PREPARE_PRINT_DO_
+#define _REFUND_PREPARE_PRINT_DO_
 
 #include "../DoInclude.h"
 
-// PreparePrint data object — print job record
-class PreparePrintDO : public BaseDO
+// RefundPreparePrint data object — print job record
+class RefundPreparePrintDO : public BaseDO
 {
     // Print job trace ID
     MYSQL_SYNTHESIZE(string, traceId, TraceId);
@@ -33,7 +33,7 @@ class PreparePrintDO : public BaseDO
     MYSQL_SYNTHESIZE(string, scenarioCode, ScenarioCode);
 
 public:
-    PreparePrintDO() : BaseDO("")
+    RefundPreparePrintDO() : BaseDO("")
     {
         MYSQL_ADD_FIELD("trace_id", "s", traceId);
         MYSQL_ADD_FIELD("bus_no", "s", busNo);
@@ -41,6 +41,6 @@ public:
     }
 };
 
-typedef std::shared_ptr<PreparePrintDO> PtrPreparePrintDO;
+typedef std::shared_ptr<RefundPreparePrintDO> PtrRefundPreparePrintDO;
 
-#endif // !_PREPARE_PRINT_DO_
+#endif // !_REFUND_PREPARE_PRINT_DO_

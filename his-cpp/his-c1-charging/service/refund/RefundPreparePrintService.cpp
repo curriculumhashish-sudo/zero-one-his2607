@@ -17,10 +17,10 @@
  limitations under the License.
 */
 #include "stdafx.h"
-#include "PreparePrintService.h"
-#include "../../dao/refund/PreparePrintDAO.h"
+#include "RefundPreparePrintService.h"
+#include "../../dao/refund/RefundPreparePrintDAO.h"
 
-PreparePrintDTO::Wrapper PreparePrintService::prepare(const PreparePrintQuery::Wrapper& query)
+RefundPreparePrintDTO::Wrapper RefundPreparePrintService::prepare(const RefundPreparePrintQuery::Wrapper& query)
 {
-    return PreparePrintDTO::Wrapper();
+    return RefundPreparePrintDTO::Wrapper();
 }

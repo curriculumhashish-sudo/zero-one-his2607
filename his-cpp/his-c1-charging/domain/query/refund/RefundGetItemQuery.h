@@ -17,8 +17,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _GET_ITEM_QUERY_
-#define _GET_ITEM_QUERY_
+#ifndef _REFUND_GET_ITEM_QUERY_
+#define _REFUND_GET_ITEM_QUERY_
 
 #include "../../GlobalInclude.h"
 #include "domain/query/PageQuery.h"
@@ -27,9 +27,9 @@
 
 // 获取退费项目查询参数
 // 请求体示例: {"encounterId":"337114344591986688","detailViewCode":"PENDING"}
-class GetItemQuery : public PageQuery
+class RefundGetItemQuery : public PageQuery
 {
-    DTO_INIT(GetItemQuery, PageQuery);
+    DTO_INIT(RefundGetItemQuery, PageQuery);
 
     // 就诊ID（必填）
     DTO_FIELD(String, encounterId);
@@ -45,4 +45,4 @@ class GetItemQuery : public PageQuery
 };
 
 #include OATPP_CODEGEN_END(DTO)
-#endif // !_GET_ITEM_QUERY_
+#endif // !_REFUND_GET_ITEM_QUERY_

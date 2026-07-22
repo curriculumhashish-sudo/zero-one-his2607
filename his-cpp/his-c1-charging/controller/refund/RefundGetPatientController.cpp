@@ -17,10 +17,10 @@
  limitations under the License.
 */
 #include "stdafx.h"
-#include "GetPatientController.h"
+#include "RefundGetPatientController.h"
 
 // Stub implementation — returns empty response until Service layer is wired
-GetPatientPageJsonVO::Wrapper GetPatientController::execQueryAll(const GetPatientQuery::Wrapper& query)
+RefundGetPatientPageJsonVO::Wrapper RefundGetPatientController::execQueryAll(const RefundGetPatientQuery::Wrapper& query)
 {
     return {};
 }

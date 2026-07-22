@@ -17,14 +17,14 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _VERIFY_REFUND_DO_
-#define _VERIFY_REFUND_DO_
+#ifndef _REFUND_VERIFY_REFUND_DO_
+#define _REFUND_VERIFY_REFUND_DO_
 
 #include "../DoInclude.h"
 
 // 退费校验数据对象
 // 注: 本接口为业务校验，不直接对应单表，DO 用于承载校验结果
-class VerifyRefundDO : public BaseDO
+class RefundVerifyRefundDO : public BaseDO
 {
     // 是否允许退费
     MYSQL_SYNTHESIZE(string, allowed, Allowed);
@@ -32,13 +32,13 @@ class VerifyRefundDO : public BaseDO
     MYSQL_SYNTHESIZE(string, rejectReasonCode, RejectReasonCode);
 
 public:
-    VerifyRefundDO() : BaseDO("")
+    RefundVerifyRefundDO() : BaseDO("")
     {
         MYSQL_ADD_FIELD("allowed", "s", allowed);
         MYSQL_ADD_FIELD("reject_reason_code", "s", rejectReasonCode);
     }
 };
 
-typedef std::shared_ptr<VerifyRefundDO> PtrVerifyRefundDO;
+typedef std::shared_ptr<RefundVerifyRefundDO> PtrRefundVerifyRefundDO;
 
-#endif // !_VERIFY_REFUND_DO_
+#endif // !_REFUND_VERIFY_REFUND_DO_

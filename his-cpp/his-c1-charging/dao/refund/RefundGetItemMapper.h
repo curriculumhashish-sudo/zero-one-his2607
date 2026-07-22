@@ -1,24 +1,24 @@
 // ============================================================================
-// GetItemMapper.h — 退费项目 — 结果集映射器
+// RefundGetItemMapper.h — 退费项目 — 结果集映射器
 // ============================================================================
 // Mapper 的工作流程：
 //   1. DAO 执行 SQL 产生 ResultSet（N 行）
-//   2. DAO 调用 sqlSession->executeQuery<GetItemDO>(sql, GetItemMapper(), params)
-//   3. 框架对 ResultSet 每行调用 mapper(resultSet) → 产生一个 GetItemDO
-//   4. 所有 DO 收集到 std::list<GetItemDO> 返回给 DAO
+//   2. DAO 调用 sqlSession->executeQuery<RefundGetItemDO>(sql, RefundGetItemMapper(), params)
+//   3. 框架对 ResultSet 每行调用 mapper(resultSet) → 产生一个 RefundGetItemDO
+//   4. 所有 DO 收集到 std::list<RefundGetItemDO> 返回给 DAO
 // ============================================================================
 
 #pragma once
 #include "Mapper.h"
-#include "../../domain/do/refund/GetItemDO.h"
+#include "../../domain/do/refund/RefundGetItemDO.h"
 
-// 值类型 Mapper — 用于列表查询，返回 std::list<GetItemDO>
-class GetItemMapper : public Mapper<GetItemDO>
+// 值类型 Mapper — 用于列表查询，返回 std::list<RefundGetItemDO>
+class RefundGetItemMapper : public Mapper<RefundGetItemDO>
 {
 public:
-    GetItemDO mapper(ResultSet* resultSet) const override
+    RefundGetItemDO mapper(ResultSet* resultSet) const override
     {
-        GetItemDO data;
+        RefundGetItemDO data;
 
         // resultSet->getString("列名") 从当前行读取指定列的值
         // 列名必须与 SQL 中 SELECT ... AS xxx 完全一致（区分大小写）
@@ -44,12 +44,12 @@ public:
 };
 
 // 指针类型 Mapper — 用于需要 shared_ptr 的场景
-class PtrGetItemMapper : public Mapper<PtrGetItemDO>
+class PtrRefundGetItemMapper : public Mapper<PtrRefundGetItemDO>
 {
 public:
-    PtrGetItemDO mapper(ResultSet* resultSet) const override
+    PtrRefundGetItemDO mapper(ResultSet* resultSet) const override
     {
-        auto data = std::make_shared<GetItemDO>();
+        auto data = std::make_shared<RefundGetItemDO>();
         // 就诊 + 支付组层级
         data->setEncounterId(resultSet->getString("encounter_id"));
         data->setPaymentId(resultSet->getString("payment_id"));

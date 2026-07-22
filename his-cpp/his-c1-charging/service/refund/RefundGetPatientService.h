@@ -1,5 +1,5 @@
 // ============================================================================
-// GetPatientService.h — 退费患者队列 · 业务服务
+// RefundGetPatientService.h — 退费患者队列 · 业务服务
 // ============================================================================
 // Service 层的职责：
 //   1. 调用 DAO 获取原始数据
@@ -9,15 +9,15 @@
 // ============================================================================
 
 #pragma once
-#include "domain/vo/refund/GetPatientVO.h"
-#include "domain/query/refund/GetPatientQuery.h"
-#include "domain/dto/refund/GetPatientDTO.h"                                                 
+#include "domain/vo/refund/RefundGetPatientVO.h"
+#include "domain/query/refund/RefundGetPatientQuery.h"
+#include "domain/dto/refund/RefundGetPatientDTO.h"                                                 
 
-class GetPatientService
+class RefundGetPatientService
 {
 public:
     // listAll — 分页查询退费患者队列
     // 参数：前端传来的查询条件（含 keyword、queueTabCode、pageNo、pageSize）
-    // 返回：GetPatientPageDTO，包含 content[]、totalCount、pageNo、pageSize
-    GetPatientPageDTO::Wrapper listAll(const GetPatientQuery::Wrapper& query);
+    // 返回：RefundGetPatientPageDTO，包含 content[]、totalCount、pageNo、pageSize
+    RefundGetPatientPageDTO::Wrapper listAll(const RefundGetPatientQuery::Wrapper& query);
 };

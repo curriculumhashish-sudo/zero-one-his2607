@@ -17,9 +17,9 @@
  limitations under the License.
 */
 #include "stdafx.h"
-#include "PreparePrintController.h"
+#include "RefundPreparePrintController.h"
 
-PreparePrintJsonVO::Wrapper PreparePrintController::execQueryAll(const PreparePrintQuery::Wrapper& query)
+RefundPreparePrintJsonVO::Wrapper RefundPreparePrintController::execQueryAll(const RefundPreparePrintQuery::Wrapper& query)
 {
     return {};
 }

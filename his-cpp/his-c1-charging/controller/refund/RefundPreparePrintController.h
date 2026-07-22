@@ -17,21 +17,21 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _PREPARE_PRINT_CONTROLLER_
-#define _PREPARE_PRINT_CONTROLLER_
+#ifndef _REFUND_REFUND_PREPARE_PRINT_CONTROLLER_
+#define _REFUND_REFUND_PREPARE_PRINT_CONTROLLER_
 
 #include "domain/vo/BaseJsonVO.h"
-#include "domain/query/refund/PreparePrintQuery.h"
-#include "domain/dto/refund/PreparePrintDTO.h"
-#include "domain/vo/refund/PreparePrintVO.h"
+#include "domain/query/refund/RefundPreparePrintQuery.h"
+#include "domain/dto/refund/RefundPreparePrintDTO.h"
+#include "domain/vo/refund/RefundPreparePrintVO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
 #define API_TAG ZH_WORDS_GETTER("charging.refund.tag")
 
-class PreparePrintController : public oatpp::web::server::api::ApiController
+class RefundPreparePrintController : public oatpp::web::server::api::ApiController
 {
-    API_ACCESS_DECLARE(PreparePrintController);
+    API_ACCESS_DECLARE(RefundPreparePrintController);
 
 public:
     // GET /charging/refund/prepare-print
@@ -39,23 +39,23 @@ public:
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(
         ZH_WORDS_GETTER("xbzml.charging.refund.prepare-print.summary"),
         queryAll,
-        PreparePrintQuery,
-        PreparePrintJsonVO::Wrapper,
+        RefundPreparePrintQuery,
+        RefundPreparePrintJsonVO::Wrapper,
         API_TAG);
 
     API_HANDLER_ENDPOINT_QUERY_AUTH(
         API_M_GET,
         "/charging/refund/prepare-print",
         queryAll,
-        PreparePrintQuery,
+        RefundPreparePrintQuery,
         execQueryAll(query));
 
 private:
-    PreparePrintJsonVO::Wrapper execQueryAll(
-        const PreparePrintQuery::Wrapper& query);
+    RefundPreparePrintJsonVO::Wrapper execQueryAll(
+        const RefundPreparePrintQuery::Wrapper& query);
 };
 
 #undef API_TAG
 #include OATPP_CODEGEN_END(ApiController)
 
-#endif // !_PREPARE_PRINT_CONTROLLER_
+#endif // !_REFUND_REFUND_PREPARE_PRINT_CONTROLLER_

@@ -17,10 +17,10 @@
  limitations under the License.
 */
 #include "stdafx.h"
-#include "ExecuteRefundService.h"
-#include "../../dao/refund/ExecuteRefundDAO.h"
+#include "RefundExecuteRefundService.h"
+#include "../../dao/refund/RefundExecuteRefundDAO.h"
 
-ExecuteRefundDTO::Wrapper ExecuteRefundService::execute(const ExecuteRefundRequestDTO::Wrapper& dto)
+RefundExecuteRefundDTO::Wrapper RefundExecuteRefundService::execute(const RefundExecuteRefundRequestDTO::Wrapper& dto)
 {
-    return ExecuteRefundDTO::Wrapper();
+    return RefundExecuteRefundDTO::Wrapper();
 }

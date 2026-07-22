@@ -17,10 +17,10 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _EXECUTE_REFUND_QUERY_
-#define _EXECUTE_REFUND_QUERY_
+#ifndef _REFUND_EXECUTE_REFUND_QUERY_
+#define _REFUND_EXECUTE_REFUND_QUERY_
 
-// 执行退费使用 POST + BODY_DTO（ExecuteRefundRequestDTO），无需 Query 参数
+// 执行退费使用 POST + BODY_DTO（RefundExecuteRefundRequestDTO），无需 Query 参数
 // 本文件保留以满足文件结构规范
 
-#endif // !_EXECUTE_REFUND_QUERY_
+#endif // !_REFUND_EXECUTE_REFUND_QUERY_

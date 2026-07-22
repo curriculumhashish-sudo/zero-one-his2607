@@ -17,9 +17,9 @@
  limitations under the License.
 */
 #include "stdafx.h"
-#include "PreparePrintDAO.h"
+#include "RefundPreparePrintDAO.h"
 
-uint64_t PreparePrintDAO::insertPrintJob(const PreparePrintDO& data)
+uint64_t RefundPreparePrintDAO::insertPrintJob(const RefundPreparePrintDO& data)
 {
     return 0;
 }

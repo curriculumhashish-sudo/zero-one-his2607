@@ -17,18 +17,18 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _EXECUTE_REFUND_VO_
-#define _EXECUTE_REFUND_VO_
+#ifndef _REFUND_EXECUTE_REFUND_VO_
+#define _REFUND_EXECUTE_REFUND_VO_
 
 #include "../../GlobalInclude.h"
-#include "../../dto/refund/ExecuteRefundDTO.h"
+#include "../../dto/refund/RefundExecuteRefundDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 // 响应包装: {code, success, data: {success, reversePaymentId, ...}, message, ...}
-class ExecuteRefundJsonVO : public JsonVO<ExecuteRefundDTO::Wrapper> {
-    DTO_INIT(ExecuteRefundJsonVO, JsonVO<ExecuteRefundDTO::Wrapper>);
+class RefundExecuteRefundJsonVO : public JsonVO<RefundExecuteRefundDTO::Wrapper> {
+    DTO_INIT(RefundExecuteRefundJsonVO, JsonVO<RefundExecuteRefundDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)
-#endif // !_EXECUTE_REFUND_VO_
+#endif // !_REFUND_EXECUTE_REFUND_VO_

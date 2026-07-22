@@ -1,20 +1,20 @@
 #include "stdafx.h"
-#include "GetPatientDAO.h"
-#include "GetPatientMapper.h"
+#include "RefundGetPatientDAO.h"
+#include "RefundGetPatientMapper.h"
 
 
 
-inline std::string GetPatientDAO::queryConditionBuilder(const GetPatientQuery::Wrapper& query, SqlParams& params)
+inline std::string RefundGetPatientDAO::queryConditionBuilder(const RefundGetPatientQuery::Wrapper& query, SqlParams& params)
 {
 	return std::string();
 }
 
-uint64_t GetPatientDAO::count(const GetPatientQuery::Wrapper& query)
+uint64_t RefundGetPatientDAO::count(const RefundGetPatientQuery::Wrapper& query)
 {
 	return 0;
 }
 
-std::list<GetPatientDO> GetPatientDAO::selectWithPage(const GetPatientQuery::Wrapper& query)
+std::list<RefundGetPatientDO> RefundGetPatientDAO::selectWithPage(const RefundGetPatientQuery::Wrapper& query)
 {
-	return std::list<GetPatientDO>();
+	return std::list<RefundGetPatientDO>();
 }

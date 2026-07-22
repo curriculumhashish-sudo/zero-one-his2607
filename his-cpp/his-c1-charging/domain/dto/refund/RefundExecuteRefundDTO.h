@@ -17,8 +17,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _EXECUTE_REFUND_DTO_
-#define _EXECUTE_REFUND_DTO_
+#ifndef _REFUND_EXECUTE_REFUND_DTO_
+#define _REFUND_EXECUTE_REFUND_DTO_
 
 #include "../../GlobalInclude.h"
 
@@ -42,9 +42,9 @@ class RefundPaymentDetailDTO : public oatpp::DTO
 
 // Execute refund request DTO
 // sample-json: {billDate, encounterId, originalPaymentId, refundingChargeItemIds, refundPaymentDetails}
-class ExecuteRefundRequestDTO : public oatpp::DTO
+class RefundExecuteRefundRequestDTO : public oatpp::DTO
 {
-    DTO_INIT(ExecuteRefundRequestDTO, DTO);
+    DTO_INIT(RefundExecuteRefundRequestDTO, DTO);
 
     DTO_FIELD(String, billDate);
     DTO_FIELD_INFO(billDate) {
@@ -70,9 +70,9 @@ class ExecuteRefundRequestDTO : public oatpp::DTO
 
 // Execute refund response DTO
 // sample-json: {success, reversePaymentId, originalPaymentId, halfRefundExecuted, insuranceRevoked}
-class ExecuteRefundDTO : public oatpp::DTO
+class RefundExecuteRefundDTO : public oatpp::DTO
 {
-    DTO_INIT(ExecuteRefundDTO, DTO);
+    DTO_INIT(RefundExecuteRefundDTO, DTO);
 
     DTO_FIELD(Boolean, success);
     DTO_FIELD_INFO(success) {
@@ -97,4 +97,4 @@ class ExecuteRefundDTO : public oatpp::DTO
 };
 
 #include OATPP_CODEGEN_END(DTO)
-#endif // !_EXECUTE_REFUND_DTO_
+#endif // !_REFUND_EXECUTE_REFUND_DTO_

@@ -17,9 +17,9 @@
  limitations under the License.
 */
 #include "stdafx.h"
-#include "ExecuteRefundController.h"
+#include "RefundExecuteRefundController.h"
 
-ExecuteRefundJsonVO::Wrapper ExecuteRefundController::execExecuteRefund(const ExecuteRefundRequestDTO::Wrapper& dto)
+RefundExecuteRefundJsonVO::Wrapper RefundExecuteRefundController::execRefundExecuteRefund(const RefundExecuteRefundRequestDTO::Wrapper& dto)
 {
     return {};
 }

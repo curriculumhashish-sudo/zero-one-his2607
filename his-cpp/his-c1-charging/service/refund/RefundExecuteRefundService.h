@@ -17,16 +17,16 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _EXECUTE_REFUND_SERVICE_
-#define _EXECUTE_REFUND_SERVICE_
+#ifndef _REFUND_EXECUTE_REFUND_SERVICE_
+#define _REFUND_EXECUTE_REFUND_SERVICE_
 
-#include "domain/vo/refund/ExecuteRefundVO.h"
-#include "domain/dto/refund/ExecuteRefundDTO.h"
+#include "domain/vo/refund/RefundExecuteRefundVO.h"
+#include "domain/dto/refund/RefundExecuteRefundDTO.h"
 
-class ExecuteRefundService
+class RefundExecuteRefundService
 {
 public:
-    ExecuteRefundDTO::Wrapper execute(const ExecuteRefundRequestDTO::Wrapper& dto);
+    RefundExecuteRefundDTO::Wrapper execute(const RefundExecuteRefundRequestDTO::Wrapper& dto);
 };
 
-#endif // !_EXECUTE_REFUND_SERVICE_
+#endif // !_REFUND_EXECUTE_REFUND_SERVICE_

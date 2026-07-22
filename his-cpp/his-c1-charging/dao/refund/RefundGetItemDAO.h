@@ -1,5 +1,5 @@
 // ============================================================================
-// GetItemDAO.h — 退费项目 — 数据访问对象
+// RefundGetItemDAO.h — 退费项目 — 数据访问对象
 // ============================================================================
 // 继承 BaseDAO，获得 sqlSession（数据库会话）、executeQuery 等方法
 // 按 DAO 规范只提供查询方法
@@ -8,10 +8,10 @@
 
 #pragma once
 #include "BaseDAO.h"
-#include "../../domain/do/refund/GetItemDO.h"
-#include "../../domain/query/refund/GetItemQuery.h"
+#include "../../domain/do/refund/RefundGetItemDO.h"
+#include "../../domain/query/refund/RefundGetItemQuery.h"
 
-class GetItemDAO : public BaseDAO
+class RefundGetItemDAO : public BaseDAO
 {
 private:
     // ------------------------------------------------------------------
@@ -22,14 +22,14 @@ private:
     // 返回值: " WHERE 1=1 AND (...) AND (...)" 格式的 SQL 片段
     // ------------------------------------------------------------------
     inline std::string queryConditionBuilder(
-        const GetItemQuery::Wrapper& query, SqlParams& params);
+        const RefundGetItemQuery::Wrapper& query, SqlParams& params);
 
 public:
     // 分页查询退费项目明细列表（扁平行）
     // 参数: 前端传入的查询条件（encounterId + detailViewCode）
     // 返回: 扁平 DO 列表，由 Service 层分组为嵌套结构
-    std::list<GetItemDO> selectWithPage(const GetItemQuery::Wrapper& query);
+    std::list<RefundGetItemDO> selectWithPage(const RefundGetItemQuery::Wrapper& query);
 
     // 统计满足条件的记录总数
-    uint64_t count(const GetItemQuery::Wrapper& query);
+    uint64_t count(const RefundGetItemQuery::Wrapper& query);
 };

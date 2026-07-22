@@ -17,18 +17,18 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _CONFIRM_PRINT_MAPPER_
-#define _CONFIRM_PRINT_MAPPER_
+#ifndef _REFUND_CONFIRM_PRINT_MAPPER_
+#define _REFUND_CONFIRM_PRINT_MAPPER_
 
 #include "Mapper.h"
-#include "../../domain/do/refund/ConfirmPrintDO.h"
+#include "../../domain/do/refund/RefundConfirmPrintDO.h"
 
-class ConfirmPrintMapper : public Mapper<ConfirmPrintDO>
+class RefundConfirmPrintMapper : public Mapper<RefundConfirmPrintDO>
 {
 public:
-    ConfirmPrintDO mapper(ResultSet* resultSet) const override
+    RefundConfirmPrintDO mapper(ResultSet* resultSet) const override
     {
-        ConfirmPrintDO data;
+        RefundConfirmPrintDO data;
         data.setTraceId(resultSet->getString("trace_id"));
         data.setBusNo(resultSet->getString("bus_no"));
         data.setScenarioCode(resultSet->getString("scenario_code"));
@@ -39,4 +39,4 @@ public:
     }
 };
 
-#endif // !_CONFIRM_PRINT_MAPPER_
+#endif // !_REFUND_CONFIRM_PRINT_MAPPER_

@@ -17,14 +17,14 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _EXECUTE_REFUND_DO_
-#define _EXECUTE_REFUND_DO_
+#ifndef _REFUND_EXECUTE_REFUND_DO_
+#define _REFUND_EXECUTE_REFUND_DO_
 
 #include "../DoInclude.h"
 
 // 执行退费数据对象
 // 注: 本接口为事务性写操作，DO 用于承载执行结果
-class ExecuteRefundDO : public BaseDO
+class RefundExecuteRefundDO : public BaseDO
 {
     // 是否执行成功
     MYSQL_SYNTHESIZE(string, success, Success);
@@ -38,7 +38,7 @@ class ExecuteRefundDO : public BaseDO
     MYSQL_SYNTHESIZE(string, insuranceRevoked, InsuranceRevoked);
 
 public:
-    ExecuteRefundDO() : BaseDO("")
+    RefundExecuteRefundDO() : BaseDO("")
     {
         MYSQL_ADD_FIELD("success", "s", success);
         MYSQL_ADD_FIELD("reverse_payment_id", "s", reversePaymentId);
@@ -48,6 +48,6 @@ public:
     }
 };
 
-typedef std::shared_ptr<ExecuteRefundDO> PtrExecuteRefundDO;
+typedef std::shared_ptr<RefundExecuteRefundDO> PtrRefundExecuteRefundDO;
 
-#endif // !_EXECUTE_REFUND_DO_
+#endif // !_REFUND_EXECUTE_REFUND_DO_

@@ -17,8 +17,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _CONFIRM_PRINT_QUERY_
-#define _CONFIRM_PRINT_QUERY_
+#ifndef _REFUND_CONFIRM_PRINT_QUERY_
+#define _REFUND_CONFIRM_PRINT_QUERY_
 
 #include "../../GlobalInclude.h"
 
@@ -26,9 +26,9 @@
 
 // Query params for confirmPrint GET endpoint
 // Passed as query string from electron-hiprint client after printing
-class ConfirmPrintQuery : public oatpp::DTO
+class RefundConfirmPrintQuery : public oatpp::DTO
 {
-    DTO_INIT(ConfirmPrintQuery, DTO);
+    DTO_INIT(RefundConfirmPrintQuery, DTO);
 
     // Print job trace ID
     DTO_FIELD(String, traceId);
@@ -86,4 +86,4 @@ class ConfirmPrintQuery : public oatpp::DTO
 };
 
 #include OATPP_CODEGEN_END(DTO)
-#endif // !_CONFIRM_PRINT_QUERY_
+#endif // !_REFUND_CONFIRM_PRINT_QUERY_

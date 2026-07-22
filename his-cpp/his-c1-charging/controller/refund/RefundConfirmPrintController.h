@@ -17,21 +17,21 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _CONFIRM_PRINT_CONTROLLER_
-#define _CONFIRM_PRINT_CONTROLLER_
+#ifndef _REFUND_CONFIRM_PRINT_CONTROLLER_
+#define _REFUND_CONFIRM_PRINT_CONTROLLER_
 
 #include "domain/vo/BaseJsonVO.h"
-#include "domain/query/refund/ConfirmPrintQuery.h"
-#include "domain/dto/refund/ConfirmPrintDTO.h"
-#include "domain/vo/refund/ConfirmPrintVO.h"
+#include "domain/query/refund/RefundConfirmPrintQuery.h"
+#include "domain/dto/refund/RefundConfirmPrintDTO.h"
+#include "domain/vo/refund/RefundConfirmPrintVO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
 #define API_TAG ZH_WORDS_GETTER("charging.refund.tag")
 
-class ConfirmPrintController : public oatpp::web::server::api::ApiController
+class RefundConfirmPrintController : public oatpp::web::server::api::ApiController
 {
-    API_ACCESS_DECLARE(ConfirmPrintController);
+    API_ACCESS_DECLARE(RefundConfirmPrintController);
 
 public:
     // GET /charging/refund/confirm-print
@@ -39,23 +39,23 @@ public:
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(
         ZH_WORDS_GETTER("xbzml.charging.refund.confirm-print.summary"),
         queryAll,
-        ConfirmPrintQuery,
-        ConfirmPrintJsonVO::Wrapper,
+        RefundConfirmPrintQuery,
+        RefundConfirmPrintJsonVO::Wrapper,
         API_TAG);
 
     API_HANDLER_ENDPOINT_QUERY_AUTH(
         API_M_GET,
         "/charging/refund/confirm-print",
         queryAll,
-        ConfirmPrintQuery,
+        RefundConfirmPrintQuery,
         execQueryAll(query));
 
 private:
-    ConfirmPrintJsonVO::Wrapper execQueryAll(
-        const ConfirmPrintQuery::Wrapper& query);
+    RefundConfirmPrintJsonVO::Wrapper execQueryAll(
+        const RefundConfirmPrintQuery::Wrapper& query);
 };
 
 #undef API_TAG
 #include OATPP_CODEGEN_END(ApiController)
 
-#endif // !_CONFIRM_PRINT_CONTROLLER_
+#endif // !_REFUND_CONFIRM_PRINT_CONTROLLER_

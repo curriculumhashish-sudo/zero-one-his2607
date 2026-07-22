@@ -17,18 +17,18 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _PREPARE_PRINT_SERVICE_
-#define _PREPARE_PRINT_SERVICE_
+#ifndef _REFUND_PREPARE_PRINT_SERVICE_
+#define _REFUND_PREPARE_PRINT_SERVICE_
 
-#include "domain/vo/refund/PreparePrintVO.h"
-#include "domain/query/refund/PreparePrintQuery.h"
-#include "domain/dto/refund/PreparePrintDTO.h"
+#include "domain/vo/refund/RefundPreparePrintVO.h"
+#include "domain/query/refund/RefundPreparePrintQuery.h"
+#include "domain/dto/refund/RefundPreparePrintDTO.h"
 
-class PreparePrintService
+class RefundPreparePrintService
 {
 public:
     // Prepare the print template for refund receipt printing
-    PreparePrintDTO::Wrapper prepare(const PreparePrintQuery::Wrapper& query);
+    RefundPreparePrintDTO::Wrapper prepare(const RefundPreparePrintQuery::Wrapper& query);
 };
 
-#endif // !_PREPARE_PRINT_SERVICE_
+#endif // !_REFUND_PREPARE_PRINT_SERVICE_

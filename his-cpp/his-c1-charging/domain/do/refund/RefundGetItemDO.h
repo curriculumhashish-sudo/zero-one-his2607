@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _GETITEMDO_H_
-#define _GETITEMDO_H_
+#ifndef _REFUND_GET_ITEM_DO_H_
+#define _REFUND_GET_ITEM_DO_H_
 
 #include "../DoInclude.h"
 
@@ -9,7 +9,7 @@
  * 退费患者队列数据对象
  * 对应多表 JOIN 查询结果，不是单表映射
  */
-class GetItemDO : public BaseDO
+class RefundGetItemDO : public BaseDO
 {
     // ==================== 就诊 + 支付组层级 ====================
     // 就诊ID
@@ -47,7 +47,7 @@ class GetItemDO : public BaseDO
 
 public:
     // 多表 JOIN 视图，非单表映射，表名为空字符串
-    GetItemDO() : BaseDO("")
+    RefundGetItemDO() : BaseDO("")
     {
         // 就诊 + 支付组层级
         MYSQL_ADD_FIELD("encounter_id", "s", encounterId);
@@ -70,8 +70,8 @@ public:
 };
 
 // 定义智能指针别名
-typedef std::shared_ptr<GetItemDO> PtrGetItemDO;
+typedef std::shared_ptr<RefundGetItemDO> PtrRefundGetItemDO;
 
 
 
-#endif // !_GETPATIENTDO_H_
+#endif // !_REFUND_GET_PATIENT_DO_H_

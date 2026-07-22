@@ -17,18 +17,18 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _VERIFY_REFUND_VO_
-#define _VERIFY_REFUND_VO_
+#ifndef _REFUND_VERIFY_REFUND_VO_
+#define _REFUND_VERIFY_REFUND_VO_
 
 #include "../../GlobalInclude.h"
-#include "../../dto/refund/VerifyRefundDTO.h"
+#include "../../dto/refund/RefundVerifyRefundDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 // 响应包装: {code, success, data: {allowed, rejectReasonCode}, message, ...}
-class VerifyRefundJsonVO : public JsonVO<VerifyRefundDTO::Wrapper> {
-    DTO_INIT(VerifyRefundJsonVO, JsonVO<VerifyRefundDTO::Wrapper>);
+class RefundVerifyRefundJsonVO : public JsonVO<RefundVerifyRefundDTO::Wrapper> {
+    DTO_INIT(RefundVerifyRefundJsonVO, JsonVO<RefundVerifyRefundDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)
-#endif // !_VERIFY_REFUND_VO_
+#endif // !_REFUND_VERIFY_REFUND_VO_

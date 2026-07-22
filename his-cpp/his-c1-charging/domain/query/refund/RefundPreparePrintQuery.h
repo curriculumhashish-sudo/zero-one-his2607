@@ -17,8 +17,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _PREPARE_PRINT_QUERY_
-#define _PREPARE_PRINT_QUERY_
+#ifndef _REFUND_PREPARE_PRINT_QUERY_
+#define _REFUND_PREPARE_PRINT_QUERY_
 
 #include "../../GlobalInclude.h"
 
@@ -26,9 +26,9 @@
 
 // Query params for preparePrint GET endpoint
 // Example: {"scenarioCode": "op-refund-print"}
-class PreparePrintQuery : public oatpp::DTO
+class RefundPreparePrintQuery : public oatpp::DTO
 {
-    DTO_INIT(PreparePrintQuery, DTO);
+    DTO_INIT(RefundPreparePrintQuery, DTO);
 
     // Scenario code identifying which print template to return
     DTO_FIELD(String, scenarioCode);
@@ -38,4 +38,4 @@ class PreparePrintQuery : public oatpp::DTO
 };
 
 #include OATPP_CODEGEN_END(DTO)
-#endif // !_PREPARE_PRINT_QUERY_
+#endif // !_REFUND_PREPARE_PRINT_QUERY_

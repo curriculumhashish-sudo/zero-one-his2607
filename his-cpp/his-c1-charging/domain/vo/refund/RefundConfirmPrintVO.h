@@ -17,18 +17,18 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _CONFIRM_PRINT_VO_
-#define _CONFIRM_PRINT_VO_
+#ifndef _REFUND_CONFIRM_PRINT_VO_
+#define _REFUND_CONFIRM_PRINT_VO_
 
 #include "../../GlobalInclude.h"
-#include "../../dto/refund/ConfirmPrintDTO.h"
+#include "../../dto/refund/RefundConfirmPrintDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 // Response wrapper: {code, success, data: {success}, message, ...}
-class ConfirmPrintJsonVO : public JsonVO<ConfirmPrintDTO::Wrapper> {
-    DTO_INIT(ConfirmPrintJsonVO, JsonVO<ConfirmPrintDTO::Wrapper>);
+class RefundConfirmPrintJsonVO : public JsonVO<RefundConfirmPrintDTO::Wrapper> {
+    DTO_INIT(RefundConfirmPrintJsonVO, JsonVO<RefundConfirmPrintDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)
-#endif // !_CONFIRM_PRINT_VO_
+#endif // !_REFUND_CONFIRM_PRINT_VO_

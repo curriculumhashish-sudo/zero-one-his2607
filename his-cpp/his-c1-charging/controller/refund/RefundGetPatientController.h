@@ -17,23 +17,23 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _GET_PATIENT_CONTROLLER_
-#define _GET_PATIENT_CONTROLLER_
+#ifndef _REFUND_GET_PATIENT_CONTROLLER_
+#define _REFUND_GET_PATIENT_CONTROLLER_
 
 #include "domain/vo/BaseJsonVO.h"
-#include "domain/query/refund/GetPatientQuery.h"
-#include "domain/dto/refund/GetPatientDTO.h"
-#include "domain/vo/refund/GetPatientVO.h"
+#include "domain/query/refund/RefundGetPatientQuery.h"
+#include "domain/dto/refund/RefundGetPatientDTO.h"
+#include "domain/vo/refund/RefundGetPatientVO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
 // API tag for Swagger doc grouping: "Refund Management"
 #define API_TAG ZH_WORDS_GETTER("charging.refund.tag")
 
-class GetPatientController : public oatpp::web::server::api::ApiController
+class RefundGetPatientController : public oatpp::web::server::api::ApiController
 {
     // JWT authorization - auto extracts token from header, verifies, and injects payload
-    API_ACCESS_DECLARE(GetPatientController);
+    API_ACCESS_DECLARE(RefundGetPatientController);
 
 public:
     // Endpoint metadata definition for Swagger documentation
@@ -41,26 +41,26 @@ public:
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(
         ZH_WORDS_GETTER("xbzml.charging.refund.get-patient-list.summary"),
         queryAll,
-        GetPatientQuery,
-        GetPatientPageJsonVO::Wrapper,
+        RefundGetPatientQuery,
+        RefundGetPatientPageJsonVO::Wrapper,
         API_TAG);
 
     // Endpoint route binding
-    // GET method with query params deserialized into GetPatientQuery
+    // GET method with query params deserialized into RefundGetPatientQuery
     API_HANDLER_ENDPOINT_QUERY_AUTH(
         API_M_GET,
         "/charging/refund/get-patient-list",
         queryAll,
-        GetPatientQuery,
+        RefundGetPatientQuery,
         execQueryAll(query));
 
 private:
     // Execute paginated query — delegates to Service layer
-    GetPatientPageJsonVO::Wrapper execQueryAll(
-        const GetPatientQuery::Wrapper& query);
+    RefundGetPatientPageJsonVO::Wrapper execQueryAll(
+        const RefundGetPatientQuery::Wrapper& query);
 };
 
 #undef API_TAG
 #include OATPP_CODEGEN_END(ApiController)
 
-#endif // !_GET_PATIENT_CONTROLLER_
+#endif // !_REFUND_GET_PATIENT_CONTROLLER_

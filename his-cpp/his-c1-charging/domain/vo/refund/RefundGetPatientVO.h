@@ -17,23 +17,23 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _GET_PATIENT_VO_
-#define _GET_PATIENT_VO_
+#ifndef _REFUND_GET_PATIENT_VO_
+#define _REFUND_GET_PATIENT_VO_
 
 #include "../../GlobalInclude.h"
-#include "../../dto/refund/GetPatientDTO.h"
+#include "../../dto/refund/RefundGetPatientDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-// Single-record response wrapper: {code, success, data: GetPatientDTO, ...}
-class GetPatientJsonVO : public JsonVO<GetPatientDTO::Wrapper> {
-    DTO_INIT(GetPatientJsonVO, JsonVO<GetPatientDTO::Wrapper>);
+// Single-record response wrapper: {code, success, data: RefundGetPatientDTO, ...}
+class RefundGetPatientJsonVO : public JsonVO<RefundGetPatientDTO::Wrapper> {
+    DTO_INIT(RefundGetPatientJsonVO, JsonVO<RefundGetPatientDTO::Wrapper>);
 };
 
 // Paginated list response wrapper: {code, success, data: {content[], totalCount, ...}, ...}
-class GetPatientPageJsonVO : public JsonVO<GetPatientPageDTO::Wrapper> {
-    DTO_INIT(GetPatientPageJsonVO, JsonVO<GetPatientPageDTO::Wrapper>);
+class RefundGetPatientPageJsonVO : public JsonVO<RefundGetPatientPageDTO::Wrapper> {
+    DTO_INIT(RefundGetPatientPageJsonVO, JsonVO<RefundGetPatientPageDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)
-#endif // !_GET_PATIENT_VO_
+#endif // !_REFUND_GET_PATIENT_VO_

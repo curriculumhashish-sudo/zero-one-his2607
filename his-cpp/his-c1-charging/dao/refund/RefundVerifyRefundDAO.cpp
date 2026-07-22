@@ -1,8 +1,8 @@
 #include "stdafx.h"
-#include "VerifyRefundDAO.h"
-#include "VerifyRefundMapper.h"
+#include "RefundVerifyRefundDAO.h"
+#include "RefundVerifyRefundMapper.h"
 
-std::list<VerifyRefundDO> VerifyRefundDAO::selectByEncounterId(const VerifyRefundQuery::Wrapper& query)
+std::list<RefundVerifyRefundDO> RefundVerifyRefundDAO::selectByEncounterId(const RefundVerifyRefundQuery::Wrapper& query)
 {
-    return std::list<VerifyRefundDO>();
+    return std::list<RefundVerifyRefundDO>();
 }

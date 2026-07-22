@@ -1,24 +1,24 @@
 // ============================================================================
-// GetPatientMapper.h — 退费患者队列 · 结果集映射器
+// RefundGetPatientMapper.h — 退费患者队列 · 结果集映射器
 // ============================================================================
 // Mapper 的工作流程：
 //   1. DAO 执行 SQL → 获得 ResultSet（含 N 行）
-//   2. DAO 调用 sqlSession->executeQuery<GetPatientDO>(sql, GetPatientMapper(), params)
-//   3. 框架对 ResultSet 每行调用 mapper(resultSet) → 返回一个 GetPatientDO
-//   4. 所有 DO 收集到 std::list<GetPatientDO> 返回给 DAO
+//   2. DAO 调用 sqlSession->executeQuery<RefundGetPatientDO>(sql, RefundGetPatientMapper(), params)
+//   3. 框架对 ResultSet 每行调用 mapper(resultSet) → 返回一个 RefundGetPatientDO
+//   4. 所有 DO 收集到 std::list<RefundGetPatientDO> 返回给 DAO
 // ============================================================================
 
 #pragma once
 #include "Mapper.h"
-#include "../../domain/do/refund/GetPatientDO.h"
+#include "../../domain/do/refund/RefundGetPatientDO.h"
 
-// 值语义 Mapper — 用于列表查询（返回 std::list<GetPatientDO>）
-class GetPatientMapper : public Mapper<GetPatientDO>
+// 值语义 Mapper — 用于列表查询（返回 std::list<RefundGetPatientDO>）
+class RefundGetPatientMapper : public Mapper<RefundGetPatientDO>
 {
 public:
-    GetPatientDO mapper(ResultSet* resultSet) const override
+    RefundGetPatientDO mapper(ResultSet* resultSet) const override
     {
-        GetPatientDO data;
+        RefundGetPatientDO data;
 
         // resultSet->getString("列别名") 从当前行取出指定列的值
         // 列别名必须与 SQL 中 AS xxx 完全一致，区分大小写
@@ -41,12 +41,12 @@ public:
 };
 
 // 指针语义 Mapper — 用于需要 shared_ptr 的场景
-class PtrGetPatientMapper : public Mapper<PtrGetPatientDO>
+class PtrRefundGetPatientMapper : public Mapper<PtrRefundGetPatientDO>
 {
 public:
-    PtrGetPatientDO mapper(ResultSet* resultSet) const override
+    PtrRefundGetPatientDO mapper(ResultSet* resultSet) const override
     {
-        auto data = std::make_shared<GetPatientDO>();
+        auto data = std::make_shared<RefundGetPatientDO>();
         data->setEncounterId(resultSet->getString("encounter_id"));
         data->setEncounterBusNo(resultSet->getString("encounter_bus_no"));
         data->setPatientId(resultSet->getString("patient_id"));

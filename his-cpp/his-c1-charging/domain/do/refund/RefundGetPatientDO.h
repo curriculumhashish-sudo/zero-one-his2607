@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _GETPATIENTDO_H_
-#define _GETPATIENTDO_H_
+#ifndef _REFUND_GET_PATIENT_DO_H_
+#define _REFUND_GET_PATIENT_DO_H_
 
 #include "../DoInclude.h"
 
@@ -9,7 +9,7 @@
  * 退费患者队列数据对象
  * 对应多表 JOIN 查询结果，不是单表映射
  */
-class GetPatientDO : public BaseDO
+class RefundGetPatientDO : public BaseDO
 {
     // 就诊ID
     MYSQL_SYNTHESIZE(string, encounterId, EncounterId);
@@ -42,7 +42,7 @@ class GetPatientDO : public BaseDO
 
 public:
     // 因为是 JOIN 视图，非单表，表名传空字符串
-    GetPatientDO() : BaseDO("")
+    RefundGetPatientDO() : BaseDO("")
     {
         // 注册主键字段（列名, 类型码, 成员变量）
         MYSQL_ADD_FIELD_PK("encounter_id", "s", encounterId);
@@ -64,8 +64,8 @@ public:
 };
 
 // 定义智能指针别名
-typedef std::shared_ptr<GetPatientDO> PtrGetPatientDO;
+typedef std::shared_ptr<RefundGetPatientDO> PtrRefundGetPatientDO;
 
 
 
-#endif // !_GETPATIENTDO_H_
+#endif // !_REFUND_GET_PATIENT_DO_H_

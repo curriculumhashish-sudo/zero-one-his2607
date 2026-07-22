@@ -17,42 +17,42 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _EXECUTE_REFUND_CONTROLLER_
-#define _EXECUTE_REFUND_CONTROLLER_
+#ifndef _REFUND_REFUND_EXECUTE_REFUND_CONTROLLER_
+#define _REFUND_REFUND_EXECUTE_REFUND_CONTROLLER_
 
 #include "domain/vo/BaseJsonVO.h"
-#include "domain/dto/refund/ExecuteRefundDTO.h"
-#include "domain/vo/refund/ExecuteRefundVO.h"
+#include "domain/dto/refund/RefundExecuteRefundDTO.h"
+#include "domain/vo/refund/RefundExecuteRefundVO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
 #define API_TAG ZH_WORDS_GETTER("charging.refund.tag")
 
-class ExecuteRefundController : public oatpp::web::server::api::ApiController
+class RefundExecuteRefundController : public oatpp::web::server::api::ApiController
 {
-    API_ACCESS_DECLARE(ExecuteRefundController);
+    API_ACCESS_DECLARE(RefundExecuteRefundController);
 
 public:
     // POST /charging/refund/execute-refund
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("xbzml.charging.refund.execute-refund.summary"),
         executeRefund,
-        ExecuteRefundJsonVO::Wrapper,
+        RefundExecuteRefundJsonVO::Wrapper,
         API_TAG);
 
     API_HANDLER_ENDPOINT_AUTH(
         API_M_POST,
         "/charging/refund/execute-refund",
         executeRefund,
-        BODY_DTO(ExecuteRefundRequestDTO::Wrapper, dto),
-        execExecuteRefund(dto));
+        BODY_DTO(RefundExecuteRefundRequestDTO::Wrapper, dto),
+        execRefundExecuteRefund(dto));
 
 private:
-    ExecuteRefundJsonVO::Wrapper execExecuteRefund(
-        const ExecuteRefundRequestDTO::Wrapper& dto);
+    RefundExecuteRefundJsonVO::Wrapper execRefundExecuteRefund(
+        const RefundExecuteRefundRequestDTO::Wrapper& dto);
 };
 
 #undef API_TAG
 #include OATPP_CODEGEN_END(ApiController)
 
-#endif // !_EXECUTE_REFUND_CONTROLLER_
+#endif // !_REFUND_REFUND_EXECUTE_REFUND_CONTROLLER_

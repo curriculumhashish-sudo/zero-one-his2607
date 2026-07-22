@@ -17,44 +17,44 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _VERIFY_REFUND_CONTROLLER_
-#define _VERIFY_REFUND_CONTROLLER_
+#ifndef _REFUND_VERIFY_REFUND_CONTROLLER_
+#define _REFUND_VERIFY_REFUND_CONTROLLER_
 
 #include "domain/vo/BaseJsonVO.h"
-#include "domain/query/refund/VerifyRefundQuery.h"
-#include "domain/dto/refund/VerifyRefundDTO.h"
-#include "domain/vo/refund/VerifyRefundVO.h"
+#include "domain/query/refund/RefundVerifyRefundQuery.h"
+#include "domain/dto/refund/RefundVerifyRefundDTO.h"
+#include "domain/vo/refund/RefundVerifyRefundVO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
 #define API_TAG ZH_WORDS_GETTER("charging.refund.tag")
 
-class VerifyRefundController : public oatpp::web::server::api::ApiController
+class RefundVerifyRefundController : public oatpp::web::server::api::ApiController
 {
-    API_ACCESS_DECLARE(VerifyRefundController);
+    API_ACCESS_DECLARE(RefundVerifyRefundController);
 
 public:
     // GET /charging/refund/verify-refund
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(
         ZH_WORDS_GETTER("xbzml.charging.refund.verify-refund.summary"),
         queryAll,
-        VerifyRefundQuery,
-        VerifyRefundJsonVO::Wrapper,
+        RefundVerifyRefundQuery,
+        RefundVerifyRefundJsonVO::Wrapper,
         API_TAG);
 
     API_HANDLER_ENDPOINT_QUERY_AUTH(
         API_M_GET,
         "/charging/refund/verify-refund",
         queryAll,
-        VerifyRefundQuery,
+        RefundVerifyRefundQuery,
         execQueryAll(query));
 
 private:
-    VerifyRefundJsonVO::Wrapper execQueryAll(
-        const VerifyRefundQuery::Wrapper& query);
+    RefundVerifyRefundJsonVO::Wrapper execQueryAll(
+        const RefundVerifyRefundQuery::Wrapper& query);
 };
 
 #undef API_TAG
 #include OATPP_CODEGEN_END(ApiController)
 
-#endif // !_VERIFY_REFUND_CONTROLLER_
+#endif // !_REFUND_VERIFY_REFUND_CONTROLLER_

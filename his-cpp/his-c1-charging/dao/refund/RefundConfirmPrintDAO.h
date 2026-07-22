@@ -17,17 +17,17 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _CONFIRM_PRINT_DAO_
-#define _CONFIRM_PRINT_DAO_
+#ifndef _REFUND_CONFIRM_PRINT_DAO_
+#define _REFUND_CONFIRM_PRINT_DAO_
 
 #include "BaseDAO.h"
-#include "../../domain/do/refund/ConfirmPrintDO.h"
+#include "../../domain/do/refund/RefundConfirmPrintDO.h"
 
-class ConfirmPrintDAO : public BaseDAO
+class RefundConfirmPrintDAO : public BaseDAO
 {
 public:
     // Update print job status after confirmation
-    uint64_t updatePrintStatus(const ConfirmPrintDO& data);
+    uint64_t updatePrintStatus(const RefundConfirmPrintDO& data);
 };
 
-#endif // !_CONFIRM_PRINT_DAO_
+#endif // !_REFUND_CONFIRM_PRINT_DAO_

@@ -17,8 +17,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _PREPARE_PRINT_DTO_
-#define _PREPARE_PRINT_DTO_
+#ifndef _REFUND_PREPARE_PRINT_DTO_
+#define _REFUND_PREPARE_PRINT_DTO_
 
 #include "../../GlobalInclude.h"
 
@@ -26,9 +26,9 @@
 
 // ==================== Print Column DTO ====================
 // Column definition inside a table-type print element
-class PrintColumnDTO : public oatpp::DTO
+class RefundPrintColumnDTO : public oatpp::DTO
 {
-    DTO_INIT(PrintColumnDTO, DTO);
+    DTO_INIT(RefundPrintColumnDTO, DTO);
 
     DTO_FIELD(String, align);
     DTO_FIELD(String, field);
@@ -43,9 +43,9 @@ class PrintColumnDTO : public oatpp::DTO
 
 // ==================== Print Element Type DTO ====================
 // Descriptor for the type of a print element (text / hline / table)
-class PrintElementTypeDTO : public oatpp::DTO
+class RefundPrintElementTypeDTO : public oatpp::DTO
 {
-    DTO_INIT(PrintElementTypeDTO, DTO);
+    DTO_INIT(RefundPrintElementTypeDTO, DTO);
 
     DTO_FIELD(String, type);
     DTO_FIELD(String, title);
@@ -68,9 +68,9 @@ class PrintElementTypeDTO : public oatpp::DTO
 // ==================== Print Element Options DTO ====================
 // Union of all option fields across text / hline / table element types.
 // Unused fields are left unset (null / omitted in JSON) per element type.
-class PrintElementOptionsDTO : public oatpp::DTO
+class RefundPrintElementOptionsDTO : public oatpp::DTO
 {
-    DTO_INIT(PrintElementOptionsDTO, DTO);
+    DTO_INIT(RefundPrintElementOptionsDTO, DTO);
 
     // Common layout
     DTO_FIELD(Float64, top);
@@ -90,7 +90,7 @@ class PrintElementOptionsDTO : public oatpp::DTO
     DTO_FIELD(Float64, borderWidth);
 
     // Table-type fields
-    DTO_FIELD(oatpp::List<oatpp::List<PrintColumnDTO::Wrapper>>, columns);
+    DTO_FIELD(oatpp::List<oatpp::List<RefundPrintColumnDTO::Wrapper>>, columns);
     DTO_FIELD(Float64, lineHeight);
     DTO_FIELD(String, tableBorder);
     DTO_FIELD(String, tableHeaderBorder);
@@ -104,18 +104,18 @@ class PrintElementOptionsDTO : public oatpp::DTO
 
 // ==================== Print Element DTO ====================
 // A single print element (text / hline / table)
-class PrintElementDTO : public oatpp::DTO
+class RefundPrintElementDTO : public oatpp::DTO
 {
-    DTO_INIT(PrintElementDTO, DTO);
+    DTO_INIT(RefundPrintElementDTO, DTO);
 
-    DTO_FIELD(Object<PrintElementOptionsDTO>, options);
-    DTO_FIELD(Object<PrintElementTypeDTO>, printElementType);
+    DTO_FIELD(Object<RefundPrintElementOptionsDTO>, options);
+    DTO_FIELD(Object<RefundPrintElementTypeDTO>, printElementType);
 };
 
 // ==================== Watermark Options DTO ====================
-class WatermarkOptionsDTO : public oatpp::DTO
+class RefundWatermarkOptionsDTO : public oatpp::DTO
 {
-    DTO_INIT(WatermarkOptionsDTO, DTO);
+    DTO_INIT(RefundWatermarkOptionsDTO, DTO);
 
     DTO_FIELD(Float64, width);
     DTO_FIELD(String, format);
@@ -128,9 +128,9 @@ class WatermarkOptionsDTO : public oatpp::DTO
 };
 
 // ==================== Panel Layout Options DTO ====================
-class PanelLayoutOptionsDTO : public oatpp::DTO
+class RefundPanelLayoutOptionsDTO : public oatpp::DTO
 {
-    DTO_INIT(PanelLayoutOptionsDTO, DTO);
+    DTO_INIT(RefundPanelLayoutOptionsDTO, DTO);
 
     DTO_FIELD(String, layoutType);
     DTO_FIELD(String, paperStyle);
@@ -142,9 +142,9 @@ class PanelLayoutOptionsDTO : public oatpp::DTO
 
 // ==================== Print Panel DTO ====================
 // A single panel in the print template
-class PrintPanelDTO : public oatpp::DTO
+class RefundPrintPanelDTO : public oatpp::DTO
 {
-    DTO_INIT(PrintPanelDTO, DTO);
+    DTO_INIT(RefundPrintPanelDTO, DTO);
 
     DTO_FIELD(String, name);
     DTO_FIELD(Int32, index);
@@ -153,37 +153,37 @@ class PrintPanelDTO : public oatpp::DTO
     DTO_FIELD(String, paperType);
     DTO_FIELD(Float64, paperFooter);
     DTO_FIELD(Float64, paperHeader);
-    DTO_FIELD(oatpp::List<PrintElementDTO::Wrapper>, printElements);
+    DTO_FIELD(oatpp::List<RefundPrintElementDTO::Wrapper>, printElements);
     DTO_FIELD(Float64, paperNumberTop);
     DTO_FIELD(Float64, paperNumberLeft);
-    DTO_FIELD(Object<WatermarkOptionsDTO>, watermarkOptions);
-    DTO_FIELD(Object<PanelLayoutOptionsDTO>, panelLayoutOptions);
+    DTO_FIELD(Object<RefundWatermarkOptionsDTO>, watermarkOptions);
+    DTO_FIELD(Object<RefundPanelLayoutOptionsDTO>, panelLayoutOptions);
     DTO_FIELD(Boolean, paperNumberContinue);
     DTO_FIELD(Boolean, paperNumberDisabled);
 };
 
 // ==================== PrintJson DTO ====================
 // Top-level print template
-class PrintJsonDTO : public oatpp::DTO
+class RefundPrintJsonDTO : public oatpp::DTO
 {
-    DTO_INIT(PrintJsonDTO, DTO);
+    DTO_INIT(RefundPrintJsonDTO, DTO);
 
-    DTO_FIELD(oatpp::List<PrintPanelDTO::Wrapper>, panels);
+    DTO_FIELD(oatpp::List<RefundPrintPanelDTO::Wrapper>, panels);
 };
 
-// ==================== PreparePrint Response DTO ====================
+// ==================== RefundPreparePrint Response DTO ====================
 // Response data for preparePrint endpoint
-class PreparePrintDTO : public oatpp::DTO
+class RefundPreparePrintDTO : public oatpp::DTO
 {
-    DTO_INIT(PreparePrintDTO, DTO);
+    DTO_INIT(RefundPreparePrintDTO, DTO);
 
     DTO_FIELD(String, traceId);
     DTO_FIELD(String, busNo);
     DTO_FIELD(String, scenarioCode);
     DTO_FIELD(Int32, templateVersion);
     DTO_FIELD(String, samplePrintData);
-    DTO_FIELD(Object<PrintJsonDTO>, PrintJson);
+    DTO_FIELD(Object<RefundPrintJsonDTO>, PrintJson);
 };
 
 #include OATPP_CODEGEN_END(DTO)
-#endif // !_PREPARE_PRINT_DTO_
+#endif // !_REFUND_PREPARE_PRINT_DTO_

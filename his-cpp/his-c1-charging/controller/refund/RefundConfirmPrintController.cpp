@@ -17,9 +17,9 @@
  limitations under the License.
 */
 #include "stdafx.h"
-#include "ConfirmPrintController.h"
+#include "RefundConfirmPrintController.h"
 
-ConfirmPrintJsonVO::Wrapper ConfirmPrintController::execQueryAll(const ConfirmPrintQuery::Wrapper& query)
+RefundConfirmPrintJsonVO::Wrapper RefundConfirmPrintController::execQueryAll(const RefundConfirmPrintQuery::Wrapper& query)
 {
     return {};
 }

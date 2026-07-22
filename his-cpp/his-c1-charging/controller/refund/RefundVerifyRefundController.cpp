@@ -17,9 +17,9 @@
  limitations under the License.
 */
 #include "stdafx.h"
-#include "VerifyRefundController.h"
+#include "RefundVerifyRefundController.h"
 
-VerifyRefundJsonVO::Wrapper VerifyRefundController::execQueryAll(const VerifyRefundQuery::Wrapper& query)
+RefundVerifyRefundJsonVO::Wrapper RefundVerifyRefundController::execQueryAll(const RefundVerifyRefundQuery::Wrapper& query)
 {
     return {};
 }

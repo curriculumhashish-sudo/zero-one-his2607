@@ -17,8 +17,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _VERIFY_REFUND_DTO_
-#define _VERIFY_REFUND_DTO_
+#ifndef _REFUND_VERIFY_REFUND_DTO_
+#define _REFUND_VERIFY_REFUND_DTO_
 
 #include "../../GlobalInclude.h"
 
@@ -26,9 +26,9 @@
 
 // 确认退费响应 DTO — 字段名与 sample-json 严格一一对应
 // sample-json: {"allowed":true, "rejectReasonCode":null}
-class VerifyRefundDTO : public oatpp::DTO
+class RefundVerifyRefundDTO : public oatpp::DTO
 {
-    DTO_INIT(VerifyRefundDTO, DTO);
+    DTO_INIT(RefundVerifyRefundDTO, DTO);
 
     // 是否允许退费 — 对应 sample-json: "allowed"
     DTO_FIELD(Boolean, allowed);
@@ -44,4 +44,4 @@ class VerifyRefundDTO : public oatpp::DTO
 };
 
 #include OATPP_CODEGEN_END(DTO)
-#endif // !_VERIFY_REFUND_DTO_
+#endif // !_REFUND_VERIFY_REFUND_DTO_

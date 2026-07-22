@@ -17,9 +17,9 @@
  limitations under the License.
 */
 #include "stdafx.h"
-#include "ConfirmPrintDAO.h"
+#include "RefundConfirmPrintDAO.h"
 
-uint64_t ConfirmPrintDAO::updatePrintStatus(const ConfirmPrintDO& data)
+uint64_t RefundConfirmPrintDAO::updatePrintStatus(const RefundConfirmPrintDO& data)
 {
     return 0;
 }

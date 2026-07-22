@@ -17,8 +17,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _VERIFY_REFUND_QUERY_
-#define _VERIFY_REFUND_QUERY_
+#ifndef _REFUND_VERIFY_REFUND_QUERY_
+#define _REFUND_VERIFY_REFUND_QUERY_
 
 #include "../../GlobalInclude.h"
 #include "domain/query/PageQuery.h"
@@ -27,9 +27,9 @@
 
 // 确认退费 — 查询参数
 // GET /charging/refund/verify-refund?encounterId=xxx&refundingChargeItemIds=id1,id2
-class VerifyRefundQuery : public PageQuery
+class RefundVerifyRefundQuery : public PageQuery
 {
-    DTO_INIT(VerifyRefundQuery, PageQuery);
+    DTO_INIT(RefundVerifyRefundQuery, PageQuery);
 
     // 就诊ID（必填）
     DTO_FIELD(String, encounterId);
@@ -46,4 +46,4 @@ class VerifyRefundQuery : public PageQuery
 };
 
 #include OATPP_CODEGEN_END(DTO)
-#endif // !_VERIFY_REFUND_QUERY_
+#endif // !_REFUND_VERIFY_REFUND_QUERY_

@@ -17,17 +17,17 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _PREPARE_PRINT_DAO_
-#define _PREPARE_PRINT_DAO_
+#ifndef _REFUND_PREPARE_PRINT_DAO_
+#define _REFUND_PREPARE_PRINT_DAO_
 
 #include "BaseDAO.h"
-#include "../../domain/do/refund/PreparePrintDO.h"
+#include "../../domain/do/refund/RefundPreparePrintDO.h"
 
-class PreparePrintDAO : public BaseDAO
+class RefundPreparePrintDAO : public BaseDAO
 {
 public:
     // Insert a print job record
-    uint64_t insertPrintJob(const PreparePrintDO& data);
+    uint64_t insertPrintJob(const RefundPreparePrintDO& data);
 };
 
-#endif // !_PREPARE_PRINT_DAO_
+#endif // !_REFUND_PREPARE_PRINT_DAO_

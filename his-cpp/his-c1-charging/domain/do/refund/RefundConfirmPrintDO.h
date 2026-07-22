@@ -17,13 +17,13 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _CONFIRM_PRINT_DO_
-#define _CONFIRM_PRINT_DO_
+#ifndef _REFUND_CONFIRM_PRINT_DO_
+#define _REFUND_CONFIRM_PRINT_DO_
 
 #include "../DoInclude.h"
 
-// ConfirmPrint data object — print confirmation record
-class ConfirmPrintDO : public BaseDO
+// RefundConfirmPrint data object — print confirmation record
+class RefundConfirmPrintDO : public BaseDO
 {
     // Print job trace ID
     MYSQL_SYNTHESIZE(string, traceId, TraceId);
@@ -39,7 +39,7 @@ class ConfirmPrintDO : public BaseDO
     MYSQL_SYNTHESIZE(string, clientType, ClientType);
 
 public:
-    ConfirmPrintDO() : BaseDO("")
+    RefundConfirmPrintDO() : BaseDO("")
     {
         MYSQL_ADD_FIELD("trace_id", "s", traceId);
         MYSQL_ADD_FIELD("bus_no", "s", busNo);
@@ -50,6 +50,6 @@ public:
     }
 };
 
-typedef std::shared_ptr<ConfirmPrintDO> PtrConfirmPrintDO;
+typedef std::shared_ptr<RefundConfirmPrintDO> PtrRefundConfirmPrintDO;
 
-#endif // !_CONFIRM_PRINT_DO_
+#endif // !_REFUND_CONFIRM_PRINT_DO_

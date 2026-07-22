@@ -1,5 +1,5 @@
 // ============================================================================
-// VerifyRefundService.h — 退费校验 — 业务逻辑层
+// RefundVerifyRefundService.h — 退费校验 — 业务逻辑层
 // ============================================================================
 // 校验流程:
 //   1. 查询 adm_charge_item — 检查收费项目是否存在且状态可退
@@ -8,13 +8,13 @@
 // ============================================================================
 
 #pragma once
-#include "domain/vo/refund/VerifyRefundVO.h"
-#include "domain/query/refund/VerifyRefundQuery.h"
-#include "domain/dto/refund/VerifyRefundDTO.h"
+#include "domain/vo/refund/RefundVerifyRefundVO.h"
+#include "domain/query/refund/RefundVerifyRefundQuery.h"
+#include "domain/dto/refund/RefundVerifyRefundDTO.h"
 
-class VerifyRefundService
+class RefundVerifyRefundService
 {
 public:
     // 校验退费是否可执行
-    VerifyRefundDTO::Wrapper verify(const VerifyRefundQuery::Wrapper& query);
+    RefundVerifyRefundDTO::Wrapper verify(const RefundVerifyRefundQuery::Wrapper& query);
 };

@@ -1,5 +1,5 @@
 // ============================================================================
-// GetPatientDAO.h — 退费患者队列 · 数据访问对象
+// RefundGetPatientDAO.h — 退费患者队列 · 数据访问对象
 // ============================================================================
 // 继承 BaseDAO，获得 sqlSession（数据库会话）、executeQuery 等方法
 // 本 DAO 按规范只提供查询方法（count + selectWithPage），
@@ -8,10 +8,10 @@
 
 #pragma once
 #include "BaseDAO.h"
-#include "../../domain/do/refund/GetPatientDO.h"
-#include "../../domain/query/refund/GetPatientQuery.h"
+#include "../../domain/do/refund/RefundGetPatientDO.h"
+#include "../../domain/query/refund/RefundGetPatientQuery.h"
 
-class GetPatientDAO : public BaseDAO
+class RefundGetPatientDAO : public BaseDAO
 {
 private:
     // ------------------------------------------------------------------
@@ -22,12 +22,12 @@ private:
     // 返回值：形如 " WHERE 1=1 AND (...) AND (...)" 的 SQL 片段
     // ------------------------------------------------------------------
     inline std::string queryConditionBuilder(
-        const GetPatientQuery::Wrapper& query, SqlParams& params);
+        const RefundGetPatientQuery::Wrapper& query, SqlParams& params);
 
 public:
     // 查询符合条件的记录总数（用于前端分页组件显示总条数）
-    uint64_t count(const GetPatientQuery::Wrapper& query);
+    uint64_t count(const RefundGetPatientQuery::Wrapper& query);
 
     // 分页查询记录列表（含排序 + LIMIT 分页）
-    std::list<GetPatientDO> selectWithPage(const GetPatientQuery::Wrapper& query);
+    std::list<RefundGetPatientDO> selectWithPage(const RefundGetPatientQuery::Wrapper& query);
 };

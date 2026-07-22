@@ -17,16 +17,16 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _GET_PATIENT_DTO_
-#define _GET_PATIENT_DTO_
+#ifndef _REFUND_GET_PATIENT_DTO_
+#define _REFUND_GET_PATIENT_DTO_
 
 #include "../../GlobalInclude.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class GetPatientDTO : public oatpp::DTO
+class RefundGetPatientDTO : public oatpp::DTO
 {
-    DTO_INIT(GetPatientDTO, DTO);
+    DTO_INIT(RefundGetPatientDTO, DTO);
 
     // 14 fields mapped to the refund patient list response JSON
     // Each field description points to the corresponding zh-dict.yaml entry
@@ -91,12 +91,12 @@ class GetPatientDTO : public oatpp::DTO
 
 // 分页响应 DTO — 字段名与 sample-json 严格一一对应，不使用框架 PageDTO
 // sample-json 响应: {content:[{...}], totalCount:"1", pageNo:1, pageSize:1}
-class GetPatientPageDTO : public oatpp::DTO
+class RefundGetPatientPageDTO : public oatpp::DTO
 {
-    DTO_INIT(GetPatientPageDTO, DTO);
+    DTO_INIT(RefundGetPatientPageDTO, DTO);
 
     // 当前页数据列表 — 对应 sample-json: "content"
-    DTO_FIELD(oatpp::List<GetPatientDTO::Wrapper>, content);
+    DTO_FIELD(oatpp::List<RefundGetPatientDTO::Wrapper>, content);
     DTO_FIELD_INFO(content) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.content");
     };
@@ -118,10 +118,10 @@ class GetPatientPageDTO : public oatpp::DTO
 
 public:
     // 追加一条数据（供 Service 层使用）
-    void addData(GetPatientDTO::Wrapper one) {
+    void addData(RefundGetPatientDTO::Wrapper one) {
         this->content->push_back(one);
     }
 };
 
 #include OATPP_CODEGEN_END(DTO)
-#endif // !_GET_PATIENT_DTO_
+#endif // !_REFUND_GET_PATIENT_DTO_

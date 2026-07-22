@@ -17,17 +17,17 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _GET_PATIENT_QUERY_
-#define _GET_PATIENT_QUERY_
+#ifndef _REFUND_GET_PATIENT_QUERY_
+#define _REFUND_GET_PATIENT_QUERY_
 
 #include "../../GlobalInclude.h"
 #include "domain/query/PageQuery.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class GetPatientQuery : public PageQuery
+class RefundGetPatientQuery : public PageQuery
 {
-    DTO_INIT(GetPatientQuery, PageQuery);
+    DTO_INIT(RefundGetPatientQuery, PageQuery);
 
     // Keyword for fuzzy matching (patient name, encounter ID, etc.)
     DTO_FIELD(String, keyword);
@@ -43,4 +43,4 @@ class GetPatientQuery : public PageQuery
 };
 
 #include OATPP_CODEGEN_END(DTO)
-#endif // !_GET_PATIENT_QUERY_
+#endif // !_REFUND_GET_PATIENT_QUERY_

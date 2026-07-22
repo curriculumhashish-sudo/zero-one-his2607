@@ -17,8 +17,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _GET_ITEM_DTO_
-#define _GET_ITEM_DTO_
+#ifndef _REFUND_GET_ITEM_DTO_
+#define _REFUND_GET_ITEM_DTO_
 
 #include "../../GlobalInclude.h"
 
@@ -28,9 +28,9 @@
 // 对应 JSON: paymentGroups[].refundingLines[] 和 preservedLines[] 的每个元素
 // 示例: {"chargeItemId":"...","paymentId":"...","chargeItemStatusEnum":"REFUNDING",
 //        "chargeItemStatusEnumText":"退款中","itemDisplayName":"黄芪","lineTotalAmount":0.85}
-class ChargeItemLineDTO : public oatpp::DTO
+class RefundChargeItemLineDTO : public oatpp::DTO
 {
-    DTO_INIT(ChargeItemLineDTO, DTO);
+    DTO_INIT(RefundChargeItemLineDTO, DTO);
 
     DTO_FIELD(String, chargeItemId);
     DTO_FIELD_INFO(chargeItemId) {
@@ -65,9 +65,9 @@ class ChargeItemLineDTO : public oatpp::DTO
 //        "entererUserId":"...","collectorName":"admin","halfRefundOnPayment":false,
 //        "refundingLines":[...],"preservedLines":[],
 //        "refundableAmount":24.91,"originalPayChannelCodes":["CASH"]}
-class PaymentGroupDTO : public oatpp::DTO
+class RefundPaymentGroupDTO : public oatpp::DTO
 {
-    DTO_INIT(PaymentGroupDTO, DTO);
+    DTO_INIT(RefundPaymentGroupDTO, DTO);
 
     DTO_FIELD(String, paymentId);
     DTO_FIELD_INFO(paymentId) {
@@ -98,12 +98,12 @@ class PaymentGroupDTO : public oatpp::DTO
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.halfRefundOnPayment");
     };
     // 退费行列表（嵌套数组）
-    DTO_FIELD(oatpp::List<ChargeItemLineDTO::Wrapper>, refundingLines);
+    DTO_FIELD(oatpp::List<RefundChargeItemLineDTO::Wrapper>, refundingLines);
     DTO_FIELD_INFO(refundingLines) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.refundingLines");
     };
     // 保留行列表（嵌套数组，结构同 refundingLines）
-    DTO_FIELD(oatpp::List<ChargeItemLineDTO::Wrapper>, preservedLines);
+    DTO_FIELD(oatpp::List<RefundChargeItemLineDTO::Wrapper>, preservedLines);
     DTO_FIELD_INFO(preservedLines) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.preservedLines");
     };
@@ -121,20 +121,20 @@ class PaymentGroupDTO : public oatpp::DTO
 // ==================== 退费项目顶层响应 DTO ====================
 // 对应 JSON: data 字段
 // 示例: {"encounterId":"...","paymentGroups":[{...},...]}
-class GetItemDTO : public oatpp::DTO
+class RefundGetItemDTO : public oatpp::DTO
 {
-    DTO_INIT(GetItemDTO, DTO);
+    DTO_INIT(RefundGetItemDTO, DTO);
 
     DTO_FIELD(String, encounterId);
     DTO_FIELD_INFO(encounterId) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.encounterId");
     };
     // 支付组列表（嵌套数组）
-    DTO_FIELD(oatpp::List<PaymentGroupDTO::Wrapper>, paymentGroups);
+    DTO_FIELD(oatpp::List<RefundPaymentGroupDTO::Wrapper>, paymentGroups);
     DTO_FIELD_INFO(paymentGroups) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.paymentGroups");
     };
 };
 
 #include OATPP_CODEGEN_END(DTO)
-#endif // !_GET_ITEM_DTO_
+#endif // !_REFUND_GET_ITEM_DTO_

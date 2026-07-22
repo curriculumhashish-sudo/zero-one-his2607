@@ -17,18 +17,18 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _CONFIRM_PRINT_SERVICE_
-#define _CONFIRM_PRINT_SERVICE_
+#ifndef _REFUND_CONFIRM_PRINT_SERVICE_
+#define _REFUND_CONFIRM_PRINT_SERVICE_
 
-#include "domain/vo/refund/ConfirmPrintVO.h"
-#include "domain/query/refund/ConfirmPrintQuery.h"
-#include "domain/dto/refund/ConfirmPrintDTO.h"
+#include "domain/vo/refund/RefundConfirmPrintVO.h"
+#include "domain/query/refund/RefundConfirmPrintQuery.h"
+#include "domain/dto/refund/RefundConfirmPrintDTO.h"
 
-class ConfirmPrintService
+class RefundConfirmPrintService
 {
 public:
     // Confirm the print job result
-    ConfirmPrintDTO::Wrapper confirm(const ConfirmPrintQuery::Wrapper& query);
+    RefundConfirmPrintDTO::Wrapper confirm(const RefundConfirmPrintQuery::Wrapper& query);
 };
 
-#endif // !_CONFIRM_PRINT_SERVICE_
+#endif // !_REFUND_CONFIRM_PRINT_SERVICE_

@@ -17,18 +17,18 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _GET_ITEM_VO_
-#define _GET_ITEM_VO_
+#ifndef _REFUND_GET_ITEM_VO_
+#define _REFUND_GET_ITEM_VO_
 
 #include "../../GlobalInclude.h"
-#include "../../dto/refund/GetItemDTO.h"
+#include "../../dto/refund/RefundGetItemDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-// 单条响应包装: {code, success, data: GetItemDTO, message, ...}
-class GetItemJsonVO : public JsonVO<GetItemDTO::Wrapper> {
-    DTO_INIT(GetItemJsonVO, JsonVO<GetItemDTO::Wrapper>);
+// 单条响应包装: {code, success, data: RefundGetItemDTO, message, ...}
+class RefundGetItemJsonVO : public JsonVO<RefundGetItemDTO::Wrapper> {
+    DTO_INIT(RefundGetItemJsonVO, JsonVO<RefundGetItemDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)
-#endif // !_GET_ITEM_VO_
+#endif // !_REFUND_GET_ITEM_VO_
