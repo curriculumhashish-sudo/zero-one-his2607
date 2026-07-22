@@ -1,4 +1,4 @@
-package com.zero.star.outpharm;
+package com.zero.star.dispense;
 
 
 import org.springframework.boot.SpringApplication;

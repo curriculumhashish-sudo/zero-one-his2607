@@ -1,4 +1,4 @@
-package com.zero.star.outpharm.service;
+package com.zero.star.dispense.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zeroone.star.project.query.j7.outpharm.PatientDrugItemQuery;
