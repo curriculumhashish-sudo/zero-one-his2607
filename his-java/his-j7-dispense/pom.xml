@@ -104,7 +104,7 @@
                             <run>
                                 <namingStrategy>alias</namingStrategy>
                                 <ports>
-                                    <port>10400:10400</port>
+                                    <port>10401:10401</port>
                                 </ports>
                                 <volumes>
                                     <bind>
