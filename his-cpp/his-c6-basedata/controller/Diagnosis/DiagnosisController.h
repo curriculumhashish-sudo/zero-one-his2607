@@ -47,17 +47,17 @@ class DiagnosisController : public oatpp::web::server::api::ApiController
 
 public:
 //1. diagnosis / select - page
-API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("diagnosis.select.summary"), listSelectDiagnosis, DiagnosisSelectJsonVO::Wrapper, API_TAG);
+API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("diagnosis.select.summary"), listSelectDiagnosis, DiagnosisSelectQuery, DiagnosisSelectJsonVO::Wrapper, API_TAG);
 API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/diagnosis/select-page", listSelectDiagnosis, DiagnosisSelectQuery, executeListSelectDiagnosis(query));
-
 //  2.  /diagnosis/page
-API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("diagnosis.page.summary"), listDiagnosis, DiagnosisPageJsonVO::Wrapper, API_TAG);
+API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("diagnosis.page.summary"), listDiagnosis, DiagnosisPageQuery, DiagnosisPageJsonVO::Wrapper, API_TAG);
 API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/diagnosis/page", listDiagnosis, DiagnosisPageQuery, executeListDiagnosis(query));
-	 
+
 // 3.  /diagnosis/detail
-API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnosis.detail.summary"), getDiagnosisDetail, DiagnosisDetailJsonVO::Wrapper, API_TAG);
+API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnosis.detail.summary"), getDiagnosisDetail, DiagnosisDetailJsonVO::Wrapper, API_TAG,
+	API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("diagnosis.field.id"), "ae65c714d48d4f34b52479f5482c0edd", true);
+);
 API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/diagnosis/detail", getDiagnosisDetail, QUERY(String, id), executeGetDiagnosisDetail(id));
-API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("diagnosis.field.id"), "", true);
 
 
 // 3.1 定义新增诊断表接口描述
@@ -81,7 +81,12 @@ API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.field.diag.status"), batchC
 API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/diagnose/batch/status", batchChangeDiagnoseStatus,BODY_DTO(DiagnoseBatchStatusDTO::Wrapper, dto),execBatchChangeDiagnoseStatus(dto, authObject->getPayload()));
 
 private:
-
+// select
+	DiagnosisSelectJsonVO::Wrapper executeListSelectDiagnosis(const DiagnosisSelectQuery::Wrapper& query);
+// 2. page
+	DiagnosisPageJsonVO::Wrapper executeListDiagnosis(const DiagnosisPageQuery::Wrapper& query);
+// 3. detail
+	DiagnosisDetailJsonVO::Wrapper executeGetDiagnosisDetail(const String& id);
 // 新增诊断表数据
 StringJsonVO::Wrapper execAddDiagnose(const DiagnoseAddDTO::Wrapper& dto, const PayloadDTO& payload);
 //  新增诊断目录（分类）数据
@@ -93,12 +98,6 @@ ListJsonVO<String>::Wrapper execRemoveDiagnose(const List<String>& ids);
 //演示批量启用/停用
 StringJsonVO::Wrapper execBatchChangeDiagnoseStatus(const DiagnoseBatchStatusDTO::Wrapper& dto, const PayloadDTO& payload);
 
-// select
-	DiagnosisSelectJsonVO::Wrapper executeListSelectDiagnosis(const DiagnosisSelectQuery::Wrapper& query);
-//page
-	DiagnosisPageJsonVO::Wrapper executeListDiagnosis(const DiagnosisPageQuery::Wrapper& query);
-//detail
-	DiagnosisDetailJsonVO::Wrapper executeGetDiagnosisDetail(const String& id);
 };
 
 #undef API_TAG
