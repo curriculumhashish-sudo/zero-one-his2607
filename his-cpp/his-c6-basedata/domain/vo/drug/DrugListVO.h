@@ -9,5 +9,9 @@ class DrugListPageJsonVO : public JsonVO<DrugListPageDTO::Wrapper>
 {
     DTO_INIT(DrugListPageJsonVO,JsonVO<DrugListPageDTO::Wrapper>);
 };
+class DrugDetailJsonVO : public JsonVO<DrugDetailDTO::Wrapper>
+{
+	DTO_INIT(DrugDetailJsonVO, JsonVO<DrugDetailDTO::Wrapper>);
+};
 #include OATPP_CODEGEN_END(DTO);
 #endif // !
