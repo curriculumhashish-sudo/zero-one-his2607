@@ -1,5 +1,7 @@
 package com.zeroone.star.basedata.entity.medicine;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +30,7 @@ public class AdmChargeItemDefinitionDO implements Serializable {
     /**
      * 主键
      */
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
     private String id;
 
     /**
@@ -96,7 +99,7 @@ public class AdmChargeItemDefinitionDO implements Serializable {
     private String statusEnum;
 
     /**
-     * 所属机构主键（可空表示全局）
+     * 所属科室标识，可空表示全局价格
      */
     private String orgId;
 

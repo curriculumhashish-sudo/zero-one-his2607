@@ -1,7 +1,9 @@
 package com.zeroone.star.basedata.service.impl;
+
 import com.zeroone.star.basedata.entity.medicine.AdmChargeItemDefinitionDO;
 import com.zeroone.star.basedata.entity.medicine.MedMedicationDefinitionDO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineDetailDTO;
+import com.zeroone.star.project.vo.j4.medicine.MedicineAddVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineDetailVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -41,6 +43,7 @@ public interface MsMedicineMapper {
             @Mapping(target = "orgId", source = "medDefinitionDO.orgId"),
             @Mapping(target = "statusEnum", source = "medDefinitionDO.statusEnum"),
     })
+
     MedicineDetailDTO entityToDetailDTO(MedMedicationDefinitionDO medDefinitionDO,
                                         AdmChargeItemDefinitionDO chargeDefinitionDO);
 
@@ -53,4 +56,15 @@ public interface MsMedicineMapper {
      * @return 药品详情VO
      */
     MedicineDetailVO medicineDetailDtoToVo(MedicineDetailDTO dto);
+
+    /**
+     * 新增药品DTO转换为药品实体。
+     */
+    @Mapping(source = "definition", target = "medicationdefinition")
+    MedMedicationDefinitionDO addDtoToEntity(MedicineAddDTO dto);
+
+    /**
+     * 药品实体转换为新增结果VO。
+     */
+    MedicineAddVO entityToAddVO(MedMedicationDefinitionDO entity);
 }

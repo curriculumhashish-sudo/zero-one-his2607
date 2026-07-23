@@ -3,21 +3,26 @@ package com.zeroone.star.basedata.controller;
 
 import com.zeroone.star.basedata.service.IMedicineService;
 import com.zeroone.star.basedata.service.impl.MsMedicineMapper;
+import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j4.medicine.MedicineAddDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineChangeStatusDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineDeleteDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineDetailDTO;
 import com.zeroone.star.project.j4.basedata.MedicineApis;
+import com.zeroone.star.project.query.j4.medicine.MedicinePageQuery;
+import com.zeroone.star.project.query.j4.medicine.MedicineSelectPageQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j4.medicine.MedicineAddVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineDetailVO;
+import com.zeroone.star.project.vo.j4.medicine.MedicineListVO;
+import com.zeroone.star.project.vo.j4.medicine.MedicineSelectVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * <p>
@@ -42,6 +47,25 @@ public class MedicineController implements MedicineApis {
     MsMedicineMapper msMedicineMapper;
 
     @Override
+    @GetMapping("/query-medicine-list")
+    @Operation(summary = "获取药品列表（条件+分页）")
+    public JsonVO<PageDTO<MedicineListVO>> queryMedicineList(MedicinePageQuery query) {
+        return JsonVO.success(medicineService.queryMedicinePage(query));
+    }
+
+    @Override
+    @GetMapping("/query-medicine-select-list")
+    @Operation(summary = "获取选择药品列表（条件+分页）")
+    public JsonVO<PageDTO<MedicineSelectVO>> queryMedicineSelectList(
+            MedicineSelectPageQuery query) {
+
+        PageDTO<MedicineSelectVO> pageResult =
+                medicineService.queryMedicineSelectPage(query);
+
+        return JsonVO.success(pageResult);
+    }
+
+    @Override
     @GetMapping("/query-medicine")
     @Operation(summary = "获取药品详情")
     public JsonVO<MedicineDetailVO> queryMedicineDetail(String id) {
@@ -52,6 +76,7 @@ public class MedicineController implements MedicineApis {
         }
         return JsonVO.fail("获取失败");
     }
+
 
     @PutMapping("/update-medicine")
     @Operation(summary = "修改药品")
@@ -88,4 +113,11 @@ public class MedicineController implements MedicineApis {
         return JsonVO.fail("状态修改存在异常");
     }
 
+    @Override
+    @PostMapping("/add-medicine")
+    @Operation(summary = "新增药品", description = "新增药品主体及价格信息")
+    public JsonVO<MedicineAddVO> addMedicine(@Valid @RequestBody MedicineAddDTO dto) {
+        MedicineAddVO vo = medicineService.addMedicine(dto);
+        return JsonVO.success(vo);
+    }
 }

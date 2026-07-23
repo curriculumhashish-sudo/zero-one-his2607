@@ -1,10 +1,17 @@
 package com.zeroone.star.project.j4.basedata;
 
+import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j4.medicine.MedicineAddDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineChangeStatusDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineDeleteDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineDetailDTO;
+import com.zeroone.star.project.query.j4.medicine.MedicinePageQuery;
+import com.zeroone.star.project.query.j4.medicine.MedicineSelectPageQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j4.medicine.MedicineAddVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineDetailVO;
+import com.zeroone.star.project.vo.j4.medicine.MedicineListVO;
+import com.zeroone.star.project.vo.j4.medicine.MedicineSelectVO;
 
 /**
  * <p>
@@ -16,6 +23,24 @@ import com.zeroone.star.project.vo.j4.medicine.MedicineDetailVO;
  * @version 1.0.0
  */
 public interface MedicineApis {
+    /**
+     * 条件分页查询药品列表。
+     *
+     * @param query 查询条件和分页参数
+     * @return 药品分页列表
+     */
+    JsonVO<PageDTO<MedicineListVO>> queryMedicineList(MedicinePageQuery query);
+
+    /**
+     * 条件分页查询可选择的药品列表
+     *
+     * @param query 查询条件和分页参数
+     * @return 可选择药品分页列表
+     */
+    JsonVO<PageDTO<MedicineSelectVO>> queryMedicineSelectList(
+            MedicineSelectPageQuery query
+    );
+
     /**
      * <p>
      * 描述：获取药品详情接口
@@ -63,5 +88,11 @@ public interface MedicineApis {
     */
     JsonVO<Void> updateChangeMedicineStatus(int status,MedicineChangeStatusDTO dto);
 
-
+    /**
+     * 新增药品。
+     *
+     * @param dto 新增药品信息
+     * @return 新增成功后的药品ID
+     */
+    JsonVO<MedicineAddVO> addMedicine(MedicineAddDTO dto);
 }

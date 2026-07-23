@@ -369,7 +369,7 @@ public class MedMedicationDefinitionDO implements Serializable {
     private String statusEnum;
 
     /**
-     * 机构标识
+     * 所属科室标识
      */
     private String orgId;
 
