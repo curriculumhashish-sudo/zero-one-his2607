@@ -33,9 +33,6 @@ public class MenuVO {
     @Schema(description = "父菜单id")
     private Long parentId;
 
-    @Schema(description = "排序")
-    private Integer sort;
-
     @Schema(description = "序号")
     private Long sortNum;
 
