@@ -23,6 +23,7 @@
 #include "encountermanage/EncounterManageController.h"
 #include "medicationcollection/MedicationCollectionController.h"
 #include "controller/medicalorderexecution/OrderExecuteControlController.h"
+#include "medicationcollection/DispenseController.h"
 
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
@@ -48,4 +49,5 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(EncounterManageController);
 	ROUTER_SIMPLE_BIND(AdmissionTransferController);
 	ROUTER_SIMPLE_BIND(OrderExecuteControlController);
+	ROUTER_SIMPLE_BIND(DispenseController);
 }
