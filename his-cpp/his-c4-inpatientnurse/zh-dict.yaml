@@ -1,4 +1,134 @@
-﻿medical_advice:
+﻿medicationcollection:
+  tag: 汇总领药接口
+  query-summary-order-items:
+    summary: 获取汇总医嘱条目（条件）
+  summary-medication:
+    summary: 汇总领药
+  field:
+    encounterIds: 就诊ID列表（多个ID用英文逗号分隔）
+    medicineCategoryTab: 药品分类（west西药、tcm中药）
+    therapyFilter: 长临筛选（all全部、long长期、temp临时）
+    queryDeadline: 查询截止时间
+    pageIndex: 当前页码
+    pageSize: 每页数量
+    total: 总记录数
+    pages: 总页数
+    rows: 当前页数据
+    keyword: 查询关键字
+    startDate: 时间范围开始
+    endDate: 时间范围结束
+    sortBy: 排序字段
+    sortDirection: 排序方向
+    where: 查询字段白名单（多个字段用英文逗号分隔）
+    patientGroups: 患者分组列表
+    encounterId: 就诊ID
+    patientId: 患者ID
+    patientName: 患者姓名
+    bedDisplay: 床位显示名称
+    orderRows: 医嘱行列表
+    medReqId: 用药医嘱ID
+    medicationId: 药品ID
+    medicationName: 药品名称
+    specificationText: 药品规格
+    groupId: 医嘱组ID
+    therapyEnum: 长临类型编码
+    therapyEnumText: 长临类型名称
+    dosageInstruction: 用药剂量说明
+    methodCode: 给药方式编码
+    methodCodeText: 给药方式名称
+    frequencyCode: 用药频次编码
+    frequencyCodeText: 用药频次名称
+    locationId: 发药库房ID
+    locationName: 发药库房名称
+    timePoints: 待汇总时间点列表
+    dispenseId: 发药记录ID
+    procedureId: 执行记录ID
+    plannedDispenseTime: 计划发药时间
+    quantity: 数量
+    unitCode: 单位编码
+    unitCodeText: 单位名称
+    chargeUnitPrice: 计费单价
+    dispenseItems: 待汇总发药条目
+    summaryNos: 汇总领药单号列表
+    message: 处理结果说明
+
+encountermanage:
+  tag: 患者管理接口
+  query-patient-statistics:
+    summary: 获取患者统计信息
+  query-patient-queue:
+    summary: 获取患者队列（条件+分页）
+  field:
+    pageIndex: 当前页码
+    pageSize: 每页数量
+    keyword: 姓名、病区或床号模糊搜索
+    wardId: 病区ID
+    houseId: 病房ID
+    nurseStationExecutionDate: 护士站任务执行日期
+    nurseStationTaskFilter: 任务筛选（不传为全部；pending-audit待校对、pending-execute待执行、processed已处理）
+    nurseStationStatusFilter: 列表状态筛选（不传为在院；SETTLED_DISCHARGED为已出院结算）
+    totalCount: 总人数
+    total: 总记录数
+    pages: 总页数
+    rows: 患者队列分页数据
+    startDate: 时间范围开始
+    endDate: 时间范围结束
+    sortBy: 排序字段
+    sortDirection: 排序方向
+    where: 查询字段白名单（多个字段用英文逗号分隔）
+    pendingAuditCount: 待校对条数
+    pendingExecuteCount: 待执行条数
+    accountId: 住院账户ID
+    accountBalance: 账户余额
+    accountBalanceDisplayMode: 余额显示模式
+    prepayNetBalance: 预交金净值
+    accountBalanceSubText: 余额辅助说明
+    accountBalanceSummaryText: 余额汇总说明
+    availableBalance: 可用余额
+    admissionTime: 入院时间
+    ageText: 年龄文本
+    arrearsAmount: 欠费金额
+    attendingDoctorName: 主治医生姓名
+    bedId: 床位ID
+    bedName: 床位名称
+    diagnosisSummary: 诊断摘要
+    diagnosisList: 诊断展示列表
+    encounterBusNo: 住院号
+    encounterId: 就诊ID
+    endTime: 就诊结束时间
+    genderEnum: 性别编码
+    genderEnumText: 性别名称
+    houseName: 病房名称
+    lowBalanceWarning: 是否低余额预警
+    organizationId: 科室ID
+    organizationName: 科室名称
+    paidAmount: 已缴金额
+    patientId: 患者ID
+    patientName: 患者姓名
+    pendingSettlementTotal: 待结算金额
+    pinyinCode: 拼音码
+    primaryNurseName: 责任护士姓名
+    priorityEnum: 优先级编码
+    recallEnabled: 是否允许出院召回
+    startTime: 就诊开始时间
+    statusEnum: 就诊状态编码
+    statusEnumText: 就诊状态名称
+    totalAmount: 费用总额
+    wardName: 病区名称
+    wubiCode: 五笔码
+
+admissiontransfer:
+  tag: 入出转管理接口
+  execute-inpatient-discharge:
+    summary: 办理出院
+  clear-discharged-bed:
+    summary: 清床离院
+  field:
+    encounterId: 就诊ID
+    succeeded: 是否处理成功
+
+
+medical_advice:
   tag: 医嘱相关接口
   notexecute:
     summary: 不执行医嘱
@@ -20,4 +150,3 @@
       success: 是否取消成功
       rebuiltSummaryNos: 重新生成的药品汇总单号列表
       message: 处理结果说明
-      
