@@ -37,19 +37,19 @@ DispenseSummaryPageJsonVO::Wrapper DispenseController::execQuerySummaryList(cons
 	return vo;
 }
 
-DispenseDetailListJsonVO::Wrapper DispenseController::execQueryDetail(const String& summaryNo)
+DispenseDetailListJsonVO::Wrapper DispenseController::execQueryDetail(const DispenseDetailQuery::Wrapper& query)
 {
 	auto vo = DispenseDetailListJsonVO::createShared();
 
-	// params validate (flow-chart step: summary bill no is required)
-	if (!summaryNo || summaryNo->empty())
+	// Validate the required summary bill number.
+	if (!query || !query->summaryNo || query->summaryNo->empty())
 	{
 		vo->init(nullptr, RS_PARAMS_INVALID);
 		return vo;
 	}
 
-	// query dispense details through service
+	// Query dispense details through the service.
 	DispenseService service;
-	vo->success(service.listDetail(summaryNo));
+	vo->success(service.listDetail(query->summaryNo));
 	return vo;
 }

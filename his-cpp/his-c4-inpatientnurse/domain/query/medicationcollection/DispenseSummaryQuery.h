@@ -32,17 +32,22 @@
 class DispenseSummaryQuery : public PageQuery
 {
 	DTO_INIT(DispenseSummaryQuery, PageQuery);
-	// bill status enum (WAIT_REVIEW / DISPENSED); optional filter, so NO runtime default
-	// (swagger doc default is provided by API_DEF_ADD_QUERY_PARAMS in the controller)
-	DTO_FIELD(String, statusEnum);
-	DTO_FIELD_INFO(statusEnum) {
-		info->description = ZH_WORDS_GETTER("dispense.field.status-enum");
-	}
-	// dispense date filter (yyyy-MM-dd); optional filter, so NO runtime default
-	DTO_FIELD(String, dispenseDate);
-	DTO_FIELD_INFO(dispenseDate) {
-		info->description = ZH_WORDS_GETTER("dispense.field.dispense-date");
-	}
+
+	API_DTO_FIELD_REQUIRE(String, statusEnum,
+		ZH_WORDS_GETTER("dispense.field.status-enum"), false);
+	API_DTO_FIELD_REQUIRE(String, dispenseDate,
+		ZH_WORDS_GETTER("dispense.field.dispense-date"), false);
+};
+
+/**
+ * Query parameters for a dispense summary detail request.
+ */
+class DispenseDetailQuery : public oatpp::DTO
+{
+	DTO_INIT(DispenseDetailQuery, DTO);
+
+	API_DTO_FIELD_REQUIRE(String, summaryNo,
+		ZH_WORDS_GETTER("dispense.field.summary-no"), true);
 };
 
 #include OATPP_CODEGEN_END(DTO)

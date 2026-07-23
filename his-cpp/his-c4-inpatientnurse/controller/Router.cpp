@@ -19,6 +19,10 @@
 #include "stdafx.h"
 #include "Router.h"
 #include "ApiHelper.h"
+#include "admissiontransfer/AdmissionTransferController.h"
+#include "encountermanage/EncounterManageController.h"
+#include "medicationcollection/MedicationCollectionController.h"
+#include "controller/medicalorderexecution/OrderExecuteControlController.h"
 #include "medicationcollection/DispenseController.h"
 
 // If the macro for disabling Swagger documentation is defined
@@ -41,6 +45,9 @@ Router::Router(Endpoints* docEndpoints, HttpRouter* router)
 void Router::initRouter()
 {
 	// #TIP: Add system extension route definitions below
+	ROUTER_SIMPLE_BIND(MedicationCollectionController);
+	ROUTER_SIMPLE_BIND(EncounterManageController);
+	ROUTER_SIMPLE_BIND(AdmissionTransferController);
+	ROUTER_SIMPLE_BIND(OrderExecuteControlController);
 	ROUTER_SIMPLE_BIND(DispenseController);
-
 }

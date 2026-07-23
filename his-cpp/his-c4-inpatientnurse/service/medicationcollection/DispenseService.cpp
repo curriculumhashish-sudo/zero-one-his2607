@@ -19,9 +19,13 @@
 #include "stdafx.h"
 #include "DispenseService.h"
 #include "../../dao/medicationcollection/DispenseDAO.h"
+#ifdef USE_REDIS
+#include <fstream>
 #include "RedisClient.h"
 #include "YamlHelper.h"
+#endif
 
+#ifdef USE_REDIS
 namespace {
 	// cache expire seconds (flow-chart cache step)
 	constexpr int DISPENSE_CACHE_TTL = 60;
@@ -45,24 +49,48 @@ namespace {
 	// read cached string by key, empty string means miss
 	string cacheGet(const string& key)
 	{
-		return getRedisClient().execute<string>([&](Redis* redis) -> string {
-			auto val = redis->get(key);
-			return val ? *val : string();
-		});
+		if (!std::ifstream("./conf/data-source.yaml").good())
+		{
+			return {};
+		}
+		try
+		{
+			return getRedisClient().execute<string>([&](Redis* redis) -> string {
+				auto val = redis->get(key);
+				return val ? *val : string();
+			});
+		}
+		catch (...)
+		{
+			return {};
+		}
 	}
 
 	// write cached string with ttl
 	void cachePut(const string& key, const string& value)
 	{
-		getRedisClient().execute<bool>([&](Redis* redis) -> bool {
-			redis->setex(key, DISPENSE_CACHE_TTL, value);
-			return true;
-		});
+		if (!std::ifstream("./conf/data-source.yaml").good())
+		{
+			return;
+		}
+		try
+		{
+			getRedisClient().execute<bool>([&](Redis* redis) -> bool {
+				redis->setex(key, DISPENSE_CACHE_TTL, value);
+				return true;
+			});
+		}
+		catch (...)
+		{
+			// Cache failures must not affect the database query response.
+		}
 	}
 }
+#endif
 
 DispenseSummaryPageDTO::Wrapper DispenseService::listSummary(const DispenseSummaryQuery::Wrapper& query)
 {
+#ifdef USE_REDIS
 	auto jsonMapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
 
 	// cache key contains all filter and page dimensions
@@ -80,6 +108,7 @@ DispenseSummaryPageDTO::Wrapper DispenseService::listSummary(const DispenseSumma
 		}
 		catch (...) { /* broken cache content, fall through to database */ }
 	}
+#endif
 
 	// build page result object (clear template demo defaults)
 	auto pages = DispenseSummaryPageDTO::createShared();
@@ -87,6 +116,7 @@ DispenseSummaryPageDTO::Wrapper DispenseService::listSummary(const DispenseSumma
 	pages->pageSize = query->pageSize;
 	pages->total = (v_int64)0;
 	pages->pages = (v_int64)0;
+	pages->rows = oatpp::List<DispenseSummaryDTO::Wrapper>::createShared();
 
 	// cache miss -> query database (med_medication_dispense)
 	DispenseDAO dao;
@@ -114,14 +144,17 @@ DispenseSummaryPageDTO::Wrapper DispenseService::listSummary(const DispenseSumma
 		pages->addData(dto);
 	}
 
-	// add cache (flow-chart step)
+	// Add cache when Redis support and configuration are available.
+#ifdef USE_REDIS
 	cachePut(cacheKey, jsonMapper->writeToString(pages).getValue(""));
+#endif
 
 	return pages;
 }
 
 oatpp::List<oatpp::Object<DispenseDetailDTO>> DispenseService::listDetail(const std::string& summaryNo)
 {
+#ifdef USE_REDIS
 	auto jsonMapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
 
 	// cache key by summary bill no
@@ -136,6 +169,7 @@ oatpp::List<oatpp::Object<DispenseDetailDTO>> DispenseService::listDetail(const 
 		}
 		catch (...) { /* broken cache content, fall through to database */ }
 	}
+#endif
 
 	auto rows = oatpp::List<oatpp::Object<DispenseDetailDTO>>::createShared();
 
@@ -156,8 +190,10 @@ oatpp::List<oatpp::Object<DispenseDetailDTO>> DispenseService::listDetail(const 
 		rows->push_back(dto);
 	}
 
-	// add cache (flow-chart step)
+	// Add cache when Redis support and configuration are available.
+#ifdef USE_REDIS
 	cachePut(cacheKey, jsonMapper->writeToString(rows).getValue(""));
+#endif
 
 	return rows;
 }

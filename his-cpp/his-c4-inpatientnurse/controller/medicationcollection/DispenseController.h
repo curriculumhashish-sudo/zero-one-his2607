@@ -39,42 +39,48 @@ class DispenseController : public oatpp::web::server::api::ApiController
 	// declare controller access
 	API_ACCESS_DECLARE(DispenseController);
 public:
-	// API 1: summary bill list query description
-	ENDPOINT_INFO(querySummaryList) {
-		// title
-		API_DEF_ADD_TITLE(ZH_WORDS_GETTER("dispense.summary-list.summary"));
-		// auth
-		API_DEF_ADD_AUTH();
-		// response wrapper
-		API_DEF_ADD_RSP_JSON_WRAPPER(DispenseSummaryPageJsonVO);
-		// tag
-		API_DEF_ADD_TAG(API_TAG);
-		// page params (pageIndex/pageSize)
+	// Define the summary bill list query.
+	API_DEF_ENDPOINT_INFO_AUTH(
+		ZH_WORDS_GETTER("dispense.summary-list.summary"),
+		querySummaryList,
+		DispenseSummaryPageJsonVO::Wrapper,
+		API_TAG,
 		API_DEF_ADD_PAGE_PARAMS();
-		// filter params: bill status + dispense date
+		info->queryParams["pageIndex"].required = true;
+		info->queryParams["pageSize"].required = true;
 		API_DEF_ADD_QUERY_PARAMS(String, "statusEnum", ZH_WORDS_GETTER("dispense.field.status-enum"), "WAIT_REVIEW", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "dispenseDate", ZH_WORDS_GETTER("dispense.field.dispense-date"), "2026-07-19", false);
-	}
-	// API 1: summary bill list query endpoint
-	ENDPOINT(API_M_GET, "/medicationcollection/summary", querySummaryList, QUERIES(QueryParams, queryParams), API_HANDLER_AUTH_PARAME) {
-		// parse query params into query object
-		API_HANDLER_QUERY_PARAM(query, DispenseSummaryQuery, queryParams);
-		// execute and respond
-		API_HANDLER_RESP_VO(execQuerySummaryList(query));
-	}
-
-	// API 2: dispense detail query description
-	API_DEF_ENDPOINT_INFO_AUTH(
-		ZH_WORDS_GETTER("dispense.detail.summary"), queryDetail, DispenseDetailListJsonVO::Wrapper, API_TAG,
-		API_DEF_ADD_QUERY_PARAMS(String, "summaryNo", ZH_WORDS_GETTER("dispense.field.summary-no"), "SUM20260719001", true);
+		info->responses[Status::CODE_200].addExample(
+			"success", DispenseSummaryPageJsonVO::createShared());
 	);
-	// API 2: dispense detail query endpoint
-	API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/medicationcollection/detail", queryDetail, QUERY(String, summaryNo), execQueryDetail(summaryNo));
+	API_HANDLER_ENDPOINT_QUERY_AUTH(
+		API_M_GET,
+		"/medicationcollection/summary",
+		querySummaryList,
+		DispenseSummaryQuery,
+		execQuerySummaryList(query));
+
+	// Define the dispense detail query.
+	API_DEF_ENDPOINT_INFO_AUTH(
+		ZH_WORDS_GETTER("dispense.detail.summary"),
+		queryDetail,
+		DispenseDetailListJsonVO::Wrapper,
+		API_TAG,
+		API_DEF_ADD_QUERY_PARAMS(String, "summaryNo", ZH_WORDS_GETTER("dispense.field.summary-no"), "SUM20260719001", true);
+		info->responses[Status::CODE_200].addExample(
+			"success", DispenseDetailListJsonVO::createShared());
+	);
+	API_HANDLER_ENDPOINT_QUERY_AUTH(
+		API_M_GET,
+		"/medicationcollection/detail",
+		queryDetail,
+		DispenseDetailQuery,
+		execQueryDetail(query));
 private:
-	// exec summary bill list query (mock data for now, DAO comes later)
+	// Execute the summary bill list query.
 	DispenseSummaryPageJsonVO::Wrapper execQuerySummaryList(const DispenseSummaryQuery::Wrapper& query);
-	// exec dispense detail query (mock data for now, DAO comes later)
-	DispenseDetailListJsonVO::Wrapper execQueryDetail(const String& summaryNo);
+	// Execute the dispense detail query.
+	DispenseDetailListJsonVO::Wrapper execQueryDetail(const DispenseDetailQuery::Wrapper& query);
 };
 
 #undef API_TAG

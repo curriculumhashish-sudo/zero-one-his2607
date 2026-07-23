@@ -28,15 +28,30 @@
 /**
  * Page JsonVO of summary drug-collection bills (response of the list API).
  */
-class DispenseSummaryPageJsonVO : public JsonVO<DispenseSummaryPageDTO::Wrapper> {
+class DispenseSummaryPageJsonVO : public JsonVO<DispenseSummaryPageDTO::Wrapper>
+{
 	DTO_INIT(DispenseSummaryPageJsonVO, JsonVO<DispenseSummaryPageDTO::Wrapper>);
+
+public:
+	DispenseSummaryPageJsonVO()
+	{
+		this->data = DispenseSummaryPageDTO::createShared();
+	}
 };
 
 /**
  * List JsonVO of dispense details (response of the detail API).
  */
-class DispenseDetailListJsonVO : public ListJsonVO<DispenseDetailDTO::Wrapper> {
+class DispenseDetailListJsonVO : public ListJsonVO<DispenseDetailDTO::Wrapper>
+{
 	DTO_INIT(DispenseDetailListJsonVO, ListJsonVO<DispenseDetailDTO::Wrapper>);
+
+public:
+	DispenseDetailListJsonVO()
+	{
+		this->data = List<DispenseDetailDTO::Wrapper>::createShared();
+		this->data->push_back(DispenseDetailDTO::createShared());
+	}
 };
 
 #include OATPP_CODEGEN_END(DTO)

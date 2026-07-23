@@ -30,35 +30,29 @@
 class DispenseSummaryDTO : public oatpp::DTO
 {
 	DTO_INIT(DispenseSummaryDTO, DTO);
-	// summary bill no
-	DTO_FIELD(String, summaryNo) = "SUM20260719001";
-	DTO_FIELD_INFO(summaryNo) {
-		info->description = ZH_WORDS_GETTER("dispense.field.summary-no");
-	}
-	// bill status enum (WAIT_REVIEW / DISPENSED)
-	DTO_FIELD(String, statusEnum) = "WAIT_REVIEW";
-	DTO_FIELD_INFO(statusEnum) {
-		info->description = ZH_WORDS_GETTER("dispense.field.status-enum");
-	}
-	// destination location id (collecting ward)
-	DTO_FIELD(String, desLocationId) = "LOC-WARD-0301";
-	DTO_FIELD_INFO(desLocationId) {
-		info->description = ZH_WORDS_GETTER("dispense.field.des-location-id");
-	}
-	// drug item count of this summary bill
-	DTO_FIELD(Int32, itemCount) = 3;
-	DTO_FIELD_INFO(itemCount) {
-		info->description = ZH_WORDS_GETTER("dispense.field.item-count");
-	}
-	// planned dispense time
-	DTO_FIELD(String, plannedDispenseTime) = "2026-07-19 09:30:00";
-	DTO_FIELD_INFO(plannedDispenseTime) {
-		info->description = ZH_WORDS_GETTER("dispense.field.planned-dispense-time");
-	}
-	// dispense time
-	DTO_FIELD(String, dispenseTime) = "2026-07-19 10:05:21";
-	DTO_FIELD_INFO(dispenseTime) {
-		info->description = ZH_WORDS_GETTER("dispense.field.dispense-time");
+
+	API_DTO_FIELD_REQUIRE(String, summaryNo,
+		ZH_WORDS_GETTER("dispense.field.summary-no"), true);
+	API_DTO_FIELD_REQUIRE(String, statusEnum,
+		ZH_WORDS_GETTER("dispense.field.status-enum"), true);
+	API_DTO_FIELD_REQUIRE(String, desLocationId,
+		ZH_WORDS_GETTER("dispense.field.des-location-id"), true);
+	API_DTO_FIELD_REQUIRE(Int32, itemCount,
+		ZH_WORDS_GETTER("dispense.field.item-count"), true);
+	API_DTO_FIELD_REQUIRE(String, plannedDispenseTime,
+		ZH_WORDS_GETTER("dispense.field.planned-dispense-time"), true);
+	API_DTO_FIELD_REQUIRE(String, dispenseTime,
+		ZH_WORDS_GETTER("dispense.field.dispense-time"), false);
+
+public:
+	DispenseSummaryDTO()
+	{
+		summaryNo = "SUM20260719001";
+		statusEnum = "WAIT_REVIEW";
+		desLocationId = "LOC-WARD-0301";
+		itemCount = 3;
+		plannedDispenseTime = "2026-07-19 09:30:00";
+		dispenseTime = "2026-07-19 10:05:21";
 	}
 };
 
@@ -68,6 +62,17 @@ class DispenseSummaryDTO : public oatpp::DTO
 class DispenseSummaryPageDTO : public PageDTO<DispenseSummaryDTO::Wrapper>
 {
 	DTO_INIT(DispenseSummaryPageDTO, PageDTO<DispenseSummaryDTO::Wrapper>);
+
+public:
+	DispenseSummaryPageDTO()
+	{
+		this->pageIndex = 1;
+		this->pageSize = 10;
+		this->total = 1;
+		this->pages = 1;
+		this->rows = List<DispenseSummaryDTO::Wrapper>::createShared();
+		this->rows->push_back(DispenseSummaryDTO::createShared());
+	}
 };
 
 /**
@@ -77,25 +82,23 @@ class DispenseSummaryPageDTO : public PageDTO<DispenseSummaryDTO::Wrapper>
 class DispenseDetailDTO : public oatpp::DTO
 {
 	DTO_INIT(DispenseDetailDTO, DTO);
-	// detail id (one per drug item)
-	DTO_FIELD(String, id) = "1";
-	DTO_FIELD_INFO(id) {
-		info->description = ZH_WORDS_GETTER("dispense.field.detail-id");
-	}
-	// medication name (joined from med_medication_definition)
-	DTO_FIELD(String, name) = ZH_WORDS_GETTER("dispense.mock.med1-name");
-	DTO_FIELD_INFO(name) {
-		info->description = ZH_WORDS_GETTER("dispense.field.medication-name");
-	}
-	// requested quantity
-	DTO_FIELD(Float64, quantity) = 2.0;
-	DTO_FIELD_INFO(quantity) {
-		info->description = ZH_WORDS_GETTER("dispense.field.quantity");
-	}
-	// unit code (specification)
-	DTO_FIELD(String, unitCode) = ZH_WORDS_GETTER("dispense.mock.med1-unit");
-	DTO_FIELD_INFO(unitCode) {
-		info->description = ZH_WORDS_GETTER("dispense.field.unit-code");
+
+	API_DTO_FIELD_REQUIRE(String, id,
+		ZH_WORDS_GETTER("dispense.field.detail-id"), true);
+	API_DTO_FIELD_REQUIRE(String, name,
+		ZH_WORDS_GETTER("dispense.field.medication-name"), true);
+	API_DTO_FIELD_REQUIRE(Float64, quantity,
+		ZH_WORDS_GETTER("dispense.field.quantity"), true);
+	API_DTO_FIELD_REQUIRE(String, unitCode,
+		ZH_WORDS_GETTER("dispense.field.unit-code"), true);
+
+public:
+	DispenseDetailDTO()
+	{
+		id = "1";
+		name = ZH_WORDS_GETTER("dispense.mock.med1-name");
+		quantity = 2.0;
+		unitCode = ZH_WORDS_GETTER("dispense.mock.med1-unit");
 	}
 };
 
