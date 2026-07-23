@@ -4,6 +4,7 @@
 #define _EQUIPMENTVO_H_
 
 #include "../../dto/equipment/EquipmentDetailDTO.h"
+#include "../../dto/equipment/EquipmentSelectDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
@@ -22,6 +23,14 @@ class EquipmentDetailJsonVO : public JsonVO<EquipmentAddDTO::Wrapper>
 {
 	DTO_INIT(EquipmentDetailJsonVO, JsonVO<EquipmentAddDTO::Wrapper>);
 };
+
+/**
+ * 选择器材下拉列表的分页响应视图模型
+ */
+class EquipmentSelectPageJsonVO : public JsonVO<EquipmentSelectPageDTO::Wrapper> {
+	DTO_INIT(EquipmentSelectPageJsonVO, JsonVO<EquipmentSelectPageDTO::Wrapper>);
+};
+
 
 #include OATPP_CODEGEN_END(DTO)
 

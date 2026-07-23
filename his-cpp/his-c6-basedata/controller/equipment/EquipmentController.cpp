@@ -29,6 +29,12 @@ StringJsonVO::Wrapper EquipmentController::execChangeEquipmentStatus(const Equip
 	return {};
 }
 
+//Ñ¡ÔñÆ÷²Ä
+EquipmentSelectPageJsonVO::Wrapper EquipmentController::execSelectEquipment(const EquipmentQuery::Wrapper& query)
+{
+	return {};
+}
+
 EquipmentDetailJsonVO::Wrapper EquipmentController::executeQueryOne(const String& id)
 {
 	return {};
