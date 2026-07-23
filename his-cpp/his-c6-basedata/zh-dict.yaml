@@ -1,42 +1,61 @@
 treatment:
- tags:
-  tag: 诊疗管理
- query-one:
-  summary: 获取诊疗详情
- query-select:
-  summary: 获取可选诊疗列表
- query-all:
-  summary: 获取诊疗列表
- add:
-  summary: 新增诊疗
- modify:
-  summary: 修改诊疗
- modify-status:
-  summary: 启用或停用诊疗
- field:
-  id: 诊疗ID
-  ids: 诊疗ID列表
-  code: 诊疗编码
-  name: 诊疗名称
-  status: 状态
-  category-code: 目录分类
-  type-enum: 业务类型
-  package-unit-code: 销售/计价单位
-  py-str: 拼音
-  wb-str: 五笔
-  item-type-code: 财务类型
-  purchase-price: 成本价
-  retail-price: 零售价
-  maximum-retail-price: 最高零售价
-  description-text: 描述
-  yb-flag: 医保标志
-  yb-no: 医保编号
-  yb-type: 医保类别
-  yb-match-flag: 医保对码标记
-  chrgitm-lv: 医保等级
-  children: 子项
-  child-id: 子项记录ID
-  children-id: 子项诊疗ID
-  children-name: 名称
-  children-num: 执行次数
-  keywords: 搜索关键词
+  tags:
+    tag: 诊疗管理
+  # 查询类接口文案
+  query-one:
+    summary: 获取诊疗详情
+  query-select:
+    summary: 获取可选诊疗列表
+  query-all:
+    summary: 获取诊疗列表
+  # 增改状态操作接口文案
+  add:
+    summary: 新增诊疗
+  modify:
+    summary: 修改诊疗
+  modify-status:
+    summary: 启用或停用诊疗
+
+  # 字段中英文映射
+  field:
+    # 基础主键、批量操作字段
+    id: 诊疗ID
+    ids: 诊疗ID列表
+    code: 诊疗编码
+    name: 诊疗名称
+    status: 启用状态
+
+    # 分类、计价单位相关
+    category-code: 目录分类编码
+    type-enum: 业务类型
+    package-unit-code: 计价/销售单位编码
+
+    # 检索拼音五笔
+    py-str: 拼音简码
+    wb-str: 五笔简码
+
+    # 财务价格字段
+    item-type-code: 财务分类编码
+    purchase-price: 进货成本价
+    retail-price: 零售售价
+    maximum-retail-price: 最高零售价
+
+    # 备注描述
+    description-text: 详细描述
+
+    # 医保相关整套字段
+    yb-flag: 医保标识
+    yb-no: 医保目录编号
+    yb-type: 医保类别
+    yb-match-flag: 医保对码标记
+    chrgitm-lv: 医保等级
+
+    # 父子级嵌套子诊疗项字段
+    children: 子诊疗项集合
+    child-id: 单条子项记录ID
+    children-id: 子项诊疗ID
+    children-name: 子项诊疗名称
+    children-num: 子项执行次数
+
+    # 全局搜索字段
+    keywords: 检索关键词
