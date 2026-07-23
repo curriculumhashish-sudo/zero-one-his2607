@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
  * @date  2026-07-19
  */
 @RestController
-@RequestMapping("/api/menu")
+@RequestMapping("/menu")
 @Tag(name = "菜单管理")
 public class MenuController implements MenuApis {
 

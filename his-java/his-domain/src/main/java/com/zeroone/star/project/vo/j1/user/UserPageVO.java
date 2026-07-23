@@ -1,4 +1,4 @@
-package com.zeroone.star.project.vo.j1.sysmgr;
+package com.zeroone.star.project.vo.j1.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

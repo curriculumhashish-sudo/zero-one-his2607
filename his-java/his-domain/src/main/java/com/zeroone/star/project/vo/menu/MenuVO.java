@@ -1,4 +1,4 @@
-package com.zerone.star.project.vo.menu;
+package com.zeroone.star.project.vo.menu;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

@@ -3,18 +3,13 @@ package com.zeroone.star.project.j1.user;
 import com.zeroone.star.project.dto.PageDTO;
 
 import com.zeroone.star.project.dto.j1.sysmgr.ChangePasswordDTO;
-import com.zeroone.star.project.dto.j1.sysmgr.TenantQueryDTO;
 import com.zeroone.star.project.dto.j1.sysmgr.UserDTO;
 import com.zeroone.star.project.query.j1.login.TenantQuery;
 import com.zeroone.star.project.query.j1.sysmgr.UserQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j1.sysmgr.UserDetailVO;
-import com.zeroone.star.project.vo.j1.sysmgr.UserListVO;
-import com.zeroone.star.project.vo.j1.sysmgr.UserPageVO;
-import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.web.bind.annotation.GetMapping;
-
-import java.util.Map;
+import com.zeroone.star.project.vo.j1.user.UserDetailVO;
+import com.zeroone.star.project.vo.j1.user.UserListVO;
+import com.zeroone.star.project.vo.j1.user.UserPageVO;
 
 
 /**
