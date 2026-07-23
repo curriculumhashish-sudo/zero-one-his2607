@@ -7,7 +7,14 @@ import com.zeroone.star.project.dto.j6.pharmacy.stocktake.StocktakeSaveDTO;
 import com.zeroone.star.project.query.j6.pharmacy.stocktake.PharmacyInventoryQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stocktake.StocktakeDetailVO;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 @Tag(name = "药库管理")
 public interface WarehouseStocktakeApis {
 
