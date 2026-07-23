@@ -18,11 +18,9 @@
       "configurationType": "Debug",
       "buildRoot": "${projectDir}\\out\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
-<<<<<<< HEAD
       "cmakeCommandArgs": "-DUNIT_TEST=1 -DCMAKE_CXX_FLAGS=\"/std:c++17\"",
-=======
       "cmakeCommandArgs": "-DUNIT_TEST=1 -DCMAKE_C_COMPILER=\"${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\bin\\Hostx64\\x64\\cl.exe\" -DCMAKE_CXX_COMPILER=\"${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\bin\\Hostx64\\x64\\cl.exe\"",
->>>>>>> 332c099177d8e662c3bc7b0a9be29056739325b1
+
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "local_msvc_x64_x64" ]
@@ -35,14 +33,11 @@
       "installRoot": "${projectDir}\\out\\install\\${name}",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-<<<<<<< HEAD
       "inheritEnvironments": [ "msvc_x64_x64" ],
-<<<<<<< HEAD
       "cmakeCommandArgs": "-D_RELEASE_DOC_=1 -DCMAKE_CXX_FLAGS=\"/std:c++17\""
-=======
       "inheritEnvironments": [ "local_msvc_x64_x64" ],
       "cmakeCommandArgs": "-D_RELEASE_DOC_=1 -DCMAKE_C_COMPILER=\"${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\bin\\Hostx64\\x64\\cl.exe\" -DCMAKE_CXX_COMPILER=\"${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\bin\\Hostx64\\x64\\cl.exe\""
->>>>>>> 332c099177d8e662c3bc7b0a9be29056739325b1
+
     },
     {
       "name": "Linux-GCC-Debug",
@@ -81,9 +76,9 @@
       "rsyncCommandArgs": "-t --delete",
       "remoteCopyBuildOutput": false,
       "remoteCopySourcesMethod": "rsync"
-=======
+
       "cmakeCommandArgs": "-D_RELEASE_DOC_=1"
->>>>>>> dd3e1de266cac46cdf0d314f80a138d8f8af14b7
+
     }
   ]
 }
