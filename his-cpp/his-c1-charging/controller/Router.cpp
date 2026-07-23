@@ -49,6 +49,8 @@
 #include"pay_manage/Pay_ManageGetPatientPayRecordsController.h"
 #include"pay_manage/Pay_ManageGetPatientQueueController.h"
 
+#include"pay_manage/PrepaymentController.h"
+
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
 // Simplified controller binding macro
@@ -105,4 +107,5 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(Pay_ManageGetPatientDetailsController);
 	ROUTER_SIMPLE_BIND(Pay_ManageGetPatientPayRecordsController);
 	ROUTER_SIMPLE_BIND(Pay_ManageGetPatientQueueController);
+	ROUTER_SIMPLE_BIND(PrepaymentController);
 }
