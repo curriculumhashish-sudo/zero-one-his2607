@@ -21,8 +21,8 @@ public class SlotReleaseStrategyDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "放号策略主键ID，前端无需展示", example = "1")
-    private Long id;
+    @Schema(description = "放号策略主键ID，前端无需展示", example = "329973511193890816")
+    private String id;
 
     @Schema(description = "放号策略编码", example = "SR000001")
     private String strategyCode;

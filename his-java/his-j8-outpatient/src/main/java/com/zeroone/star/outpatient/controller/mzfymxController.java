@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
  * @author 阿伟学长
  * @version 1.0.0
  */
-@RequestMapping("/api/mzfymx")
+@RequestMapping("/j8/mzfymx")
 @RestController
 @Tag(name = "门诊费用明细")
 public class mzfymxController implements MinXiApis {
