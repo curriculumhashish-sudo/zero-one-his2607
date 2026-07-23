@@ -32,59 +32,32 @@ class MedicalOrderQuery : public PageQuery
 {
     DTO_INIT(MedicalOrderQuery, PageQuery);
 
-    // Workflow status filter (e.g., "pending_verification", "verified")
-    DTO_FIELD(String, statusEnum, "statusEnum");
-    DTO_FIELD_INFO(statusEnum) {
-        info->description = "status enum filter";
-    }
+    // Workflow status filter (e.g., "pending_verification", "verified", "executing", "completed")
+    API_DTO_FIELD_DEFAULT(String, statusEnum, "status filter: pending_verification | verified | returned | executing | completed");
 
     // Patient ID filter
-    DTO_FIELD(String, patientId, "patientId");
-    DTO_FIELD_INFO(patientId) {
-        info->description = "patient identifier";
-    }
+    API_DTO_FIELD_DEFAULT(String, patientId, "patient identifier, e.g. P-20240101-0001");
 
     // Encounter (visit) ID filter
-    DTO_FIELD(String, encounterId, "encounterId");
-    DTO_FIELD_INFO(encounterId) {
-        info->description = "encounter identifier";
-    }
+    API_DTO_FIELD_DEFAULT(String, encounterId, "encounter (visit) identifier, e.g. ENC-001");
 
     // Start date filter (authored_time >= startDate)
-    DTO_FIELD(String, startDate, "startDate");
-    DTO_FIELD_INFO(startDate) {
-        info->description = "order authored start date";
-    }
+    API_DTO_FIELD_DEFAULT(String, startDate, "order authored start date, format: yyyy-MM-dd HH:mm:ss");
 
     // End date filter (authored_time <= endDate)
-    DTO_FIELD(String, endDate, "endDate");
-    DTO_FIELD_INFO(endDate) {
-        info->description = "order authored end date";
-    }
+    API_DTO_FIELD_DEFAULT(String, endDate, "order authored end date, format: yyyy-MM-dd HH:mm:ss");
 
     // Department / location filter
-    DTO_FIELD(String, locationId, "locationId");
-    DTO_FIELD_INFO(locationId) {
-        info->description = "department/location identifier";
-    }
+    API_DTO_FIELD_DEFAULT(String, locationId, "department/location identifier, e.g. WARD-01");
 
     // Category filter (e.g., medication, procedure, lab)
-    DTO_FIELD(String, categoryEnum, "categoryEnum");
-    DTO_FIELD_INFO(categoryEnum) {
-        info->description = "category enum filter";
-    }
+    API_DTO_FIELD_DEFAULT(String, categoryEnum, "category filter: medication | procedure | lab");
 
-    // Priority filter
-    DTO_FIELD(String, priorityEnum, "priorityEnum");
-    DTO_FIELD_INFO(priorityEnum) {
-        info->description = "priority enum filter";
-    }
+    // Priority filter (e.g., routine, urgent, stat)
+    API_DTO_FIELD_DEFAULT(String, priorityEnum, "priority filter: routine | urgent | stat");
 
     // Order type filter (long_term / temporary)
-    DTO_FIELD(String, intentEnum, "intentEnum");
-    DTO_FIELD_INFO(intentEnum) {
-        info->description = "intent enum filter (order type)";
-    }
+    API_DTO_FIELD_DEFAULT(String, intentEnum, "order type filter: long_term | temporary");
 };
 
 #include OATPP_CODEGEN_END(DTO)

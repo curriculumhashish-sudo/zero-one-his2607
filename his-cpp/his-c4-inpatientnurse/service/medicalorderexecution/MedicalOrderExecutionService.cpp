@@ -21,12 +21,12 @@
 #include "dao/medicalorderexecution/MedicalOrderExecutionDAO.h"
 
 // ============================================================================
-// Helper: convert DO to VO (extract only fields needed by frontend).
-// DO has 50+ columns matching the DB table; VO exposes ~20 selected fields.
+// Helper: convert DO to DTO (extract only fields needed by frontend).
+// DO has 50+ columns matching the DB table; DTO exposes ~20 selected fields.
 // ============================================================================
-static MedicalOrderItemVO::Wrapper doToVo(const PtrWkfServiceRequestDO& sr)
+static MedicalOrderItemDTO::Wrapper doToDto(const PtrWkfServiceRequestDO& sr)
 {
-    auto vo = MedicalOrderItemVO::createShared();
+    auto vo = MedicalOrderItemDTO::createShared();
     // Basic
     vo->id = sr->getId();
     vo->busNo = sr->getBusNo();
@@ -64,7 +64,7 @@ static MedicalOrderItemVO::Wrapper doToVo(const PtrWkfServiceRequestDO& sr)
 MedicalOrderPageJsonVO::Wrapper MedicalOrderExecutionService::queryVerificationItems(
     const MedicalOrderQuery::Wrapper& query)
 {
-    auto page = PageDTO<MedicalOrderItemVO::Wrapper>::createShared();
+    auto page = PageDTO<MedicalOrderItemDTO::Wrapper>::createShared();
     MedicalOrderExecutionDAO dao;
 
     // Default to pending_verification status
@@ -76,7 +76,7 @@ MedicalOrderPageJsonVO::Wrapper MedicalOrderExecutionService::queryVerificationI
     auto total = dao.countVerificationItems(query);
 
     for (const auto& sr : doList) {
-        page->addData(doToVo(sr));
+        page->addData(doToDto(sr));
     }
 
     page->pageIndex = query->pageIndex.getValue(1);
@@ -155,7 +155,7 @@ StringJsonVO::Wrapper MedicalOrderExecutionService::execReturnOrder(
 MedicalOrderPageJsonVO::Wrapper MedicalOrderExecutionService::queryExecutionItems(
     const MedicalOrderQuery::Wrapper& query)
 {
-    auto page = PageDTO<MedicalOrderItemVO::Wrapper>::createShared();
+    auto page = PageDTO<MedicalOrderItemDTO::Wrapper>::createShared();
     MedicalOrderExecutionDAO dao;
 
     // Default to verified status (ready to execute)
@@ -167,7 +167,7 @@ MedicalOrderPageJsonVO::Wrapper MedicalOrderExecutionService::queryExecutionItem
     auto total = dao.countExecutionItems(query);
 
     for (const auto& sr : doList) {
-        page->addData(doToVo(sr));
+        page->addData(doToDto(sr));
     }
 
     page->pageIndex = query->pageIndex.getValue(1);

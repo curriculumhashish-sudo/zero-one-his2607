@@ -22,139 +22,56 @@
 
 #include "domain/vo/JsonVO.h"
 #include "domain/dto/PageDTO.h"
-
-#include OATPP_CODEGEN_BEGIN(DTO)
+#include "domain/dto/medicalorderexecution/MedicalOrderItemDTO.h"
 
 /**
- * View Object: single medical order item for verification and execution list rows.
- * Contains only the fields needed by the frontend (subset of wkf_service_request columns).
+ * Response VO types for medical order execution.
+ *
+ * All responses follow the unified envelope:
+ *   { "code": 10000, "message": "success", "data": <payload> }
+ *
+ * Paginated response example:
+ *   {
+ *     "code": 10000,
+ *     "message": "success",
+ *     "data": {
+ *       "pageIndex": 1,
+ *       "pageSize": 10,
+ *       "total": 25,
+ *       "pages": 3,
+ *       "rows": [
+ *         {
+ *           "id": "sr-001",
+ *           "busNo": "BUS-20240101-0001",
+ *           "prescriptionNo": "PRS-001",
+ *           "statusEnum": "pending_verification",
+ *           "categoryEnum": "medication",
+ *           "intentEnum": "long_term",
+ *           "priorityEnum": "routine",
+ *           "patientId": "P-001",
+ *           "encounterId": "ENC-001",
+ *           "authoredTime": "2024-01-01 08:00:00",
+ *           "quantity": 2.0,
+ *           "unitCode": "tab",
+ *           "requesterId": "D-001",
+ *           "performerId": "N-001",
+ *           "performerCheckId": null,
+ *           "checkTime": null,
+ *           "locationId": "WARD-01",
+ *           "executionCount": 0,
+ *           "remark": "take after meals",
+ *           "entrustContent": null,
+ *           "reasonText": null
+ *         }
+ *       ]
+ *     }
+ *   }
  */
-class MedicalOrderItemVO : public oatpp::DTO
-{
-    DTO_INIT(MedicalOrderItemVO, DTO);
 
-    // Basic info
-    DTO_FIELD(String, id, "id");
-    DTO_FIELD_INFO(id) {
-        info->description = "service request ID";
-    }
+// Paginated response: JsonVO<PageDTO<MedicalOrderItemDTO>>
+typedef JsonVO<PageDTO<MedicalOrderItemDTO::Wrapper>::Wrapper> MedicalOrderPageJsonVO;
 
-    DTO_FIELD(String, busNo, "busNo");
-    DTO_FIELD_INFO(busNo) {
-        info->description = "business number";
-    }
-
-    DTO_FIELD(String, prescriptionNo, "prescriptionNo");
-    DTO_FIELD_INFO(prescriptionNo) {
-        info->description = "prescription number";
-    }
-
-    // Status
-    DTO_FIELD(String, statusEnum, "statusEnum");
-    DTO_FIELD_INFO(statusEnum) {
-        info->description = "current workflow status";
-    }
-
-    DTO_FIELD(String, categoryEnum, "categoryEnum");
-    DTO_FIELD_INFO(categoryEnum) {
-        info->description = "order category";
-    }
-
-    DTO_FIELD(String, intentEnum, "intentEnum");
-    DTO_FIELD_INFO(intentEnum) {
-        info->description = "order type (long_term/temporary)";
-    }
-
-    DTO_FIELD(String, priorityEnum, "priorityEnum");
-    DTO_FIELD_INFO(priorityEnum) {
-        info->description = "order priority";
-    }
-
-    // Patient
-    DTO_FIELD(String, patientId, "patientId");
-    DTO_FIELD_INFO(patientId) {
-        info->description = "patient identifier";
-    }
-
-    DTO_FIELD(String, encounterId, "encounterId");
-    DTO_FIELD_INFO(encounterId) {
-        info->description = "encounter identifier";
-    }
-
-    // Time
-    DTO_FIELD(String, authoredTime, "authoredTime");
-    DTO_FIELD_INFO(authoredTime) {
-        info->description = "order creation time";
-    }
-
-    // Quantity
-    DTO_FIELD(Float64, quantity, "quantity");
-    DTO_FIELD_INFO(quantity) {
-        info->description = "quantity";
-    }
-
-    DTO_FIELD(String, unitCode, "unitCode");
-    DTO_FIELD_INFO(unitCode) {
-        info->description = "unit code";
-    }
-
-    // Personnel
-    DTO_FIELD(String, requesterId, "requesterId");
-    DTO_FIELD_INFO(requesterId) {
-        info->description = "requester (doctor) identifier";
-    }
-
-    DTO_FIELD(String, performerId, "performerId");
-    DTO_FIELD_INFO(performerId) {
-        info->description = "performer (nurse) identifier";
-    }
-
-    DTO_FIELD(String, performerCheckId, "performerCheckId");
-    DTO_FIELD_INFO(performerCheckId) {
-        info->description = "verifier identifier";
-    }
-
-    DTO_FIELD(String, checkTime, "checkTime");
-    DTO_FIELD_INFO(checkTime) {
-        info->description = "verification timestamp";
-    }
-
-    // Location
-    DTO_FIELD(String, locationId, "locationId");
-    DTO_FIELD_INFO(locationId) {
-        info->description = "department/location identifier";
-    }
-
-    // Execution
-    DTO_FIELD(Int32, executionCount, "executionCount");
-    DTO_FIELD_INFO(executionCount) {
-        info->description = "execution count";
-    }
-
-    // Notes
-    DTO_FIELD(String, remark, "remark");
-    DTO_FIELD_INFO(remark) {
-        info->description = "remark/notes";
-    }
-
-    DTO_FIELD(String, entrustContent, "entrustContent");
-    DTO_FIELD_INFO(entrustContent) {
-        info->description = "entrust content / nurse instructions";
-    }
-
-    DTO_FIELD(String, reasonText, "reasonText");
-    DTO_FIELD_INFO(reasonText) {
-        info->description = "return/rejection reason";
-    }
-};
-
-// Response type aliases
-// Paginated list: { code, message, data: { pageIndex, pageSize, total, pages, rows: [...] } }
-typedef JsonVO<PageDTO<MedicalOrderItemVO::Wrapper>::Wrapper> MedicalOrderPageJsonVO;
-
-// Single item detail: { code, message, data: { ... } }
-typedef JsonVO<MedicalOrderItemVO::Wrapper> MedicalOrderDetailJsonVO;
-
-#include OATPP_CODEGEN_END(DTO)
+// Single item response: JsonVO<MedicalOrderItemDTO>
+typedef JsonVO<MedicalOrderItemDTO::Wrapper> MedicalOrderDetailJsonVO;
 
 #endif // !_MEDICAL_ORDER_VO_H_
