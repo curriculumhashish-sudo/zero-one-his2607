@@ -10,6 +10,7 @@
 #include "domain/dto/equipment/EquipmentModifyDTO.h"
 #include "domain/dto/equipment/EquipmentDeleteDTO.h"
 #include "domain/dto/equipment/EquipmentStatusDTO.h"
+#include "domain/dto/equipment/EquipmentSelectDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 #define API_TAG ZH_WORDS_GETTER("equipment.tags.tag")
@@ -44,6 +45,11 @@ public: // 定义接口
 	// 3.2 定义批量启停用器材接口描述
 	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/equipment/status", changeEquipmentStatus, BODY_DTO(EquipmentStatusDTO::Wrapper, dto), execChangeEquipmentStatus(dto, authObject->getPayload()));
 
+	// 3.1 定义选择器材接口描述
+	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("equipment.select.summary"), selectEquipment, EquipmentQuery, EquipmentSelectPageJsonVO::Wrapper, API_TAG);
+	// 3.2 定义选择器材接口处理
+	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/equipment/select", selectEquipment, EquipmentQuery, execSelectEquipment(query));
+
 	// 定义获取用户详细信息接口描述
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("equipment.query-one.summary"), queryOneEquipment, EquipmentDetailJsonVO::Wrapper, API_TAG,
 		API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("equipment.field.id"), "ae65c714d48d4f34b52479f5482c0edd", true);
@@ -61,6 +67,8 @@ private: // 定义接口执行函数
 	StringJsonVO::Wrapper execDeleteEquipment(const EquipmentDeleteDTO::Wrapper& dto, const PayloadDTO& payload);
 	// 3.3 定义批量启停用器材接口执行函数
 	StringJsonVO::Wrapper execChangeEquipmentStatus(const EquipmentStatusDTO::Wrapper& dto, const PayloadDTO& payload);
+	// 3.3 定义选择器材执行函数
+	EquipmentSelectPageJsonVO::Wrapper execSelectEquipment(const EquipmentQuery::Wrapper& query);
 	
 	// 查询详情
 	EquipmentDetailJsonVO::Wrapper executeQueryOne(const String& id);

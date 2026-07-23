@@ -55,6 +55,8 @@ equipment:
     summary: 删除器材
   status:
     summary: 启停用器材
+  select:
+    summary: 选择器材
   query-one:
     summary: 器材详情
   field:
