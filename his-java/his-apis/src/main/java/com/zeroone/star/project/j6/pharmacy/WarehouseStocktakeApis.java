@@ -24,11 +24,11 @@ public interface WarehouseStocktakeApis {
 
     /**
      * 新增盘点单据
-     * @param saveDTO 前端提交的表单数据
+     * @param busNo
      * @return JsonVO包裹新增后的单据基础信息
      */
 
-    JsonVO<PharmacyInventorySaveDTO> addInventory(PharmacyInventorySaveDTO saveDTO);
+    JsonVO<Boolean> deleteStocktake(@Parameter(description = "盘点单号") String busNo);
 
 
 
@@ -67,19 +67,35 @@ public interface WarehouseStocktakeApis {
             String busNo, @Parameter StocktakeSaveDTO dto
     );
 
-    default JsonVO<Boolean> submitStocktakeApproval(StocktakeSubmitApprovalDTO dto) {
-        return null;
-    }
+    /**
+     * 提交药库盘点审批
+     *
+     * @param dto 提交审批参数
+     * @return JsonVO<Boolean> 提交结果
+     */
+    JsonVO<Boolean> submitStocktakeApproval(StocktakeSubmitApprovalDTO dto);
 
-    default JsonVO<Boolean> withdrawStocktakeApproval(StocktakeWithdrawApprovalDTO dto) {
-        return null;
-    }
+    /**
+     * 撤回药库盘点审批
+     *
+     * @param dto 撤回审批参数
+     * @return JsonVO<Boolean> 撤回结果
+     */
+    JsonVO<Boolean> withdrawStocktakeApproval(StocktakeWithdrawApprovalDTO dto);
 
-    default JsonVO<Boolean> agreeStocktakeApproval(StocktakeAgreeApprovalDTO dto) {
-        return null;
-    }
+    /**
+     * 通过药库盘点审批
+     *
+     * @param dto 审批通过参数
+     * @return JsonVO<Boolean> 审批结果
+     */
+    JsonVO<Boolean> agreeStocktakeApproval(StocktakeAgreeApprovalDTO dto);
 
-    default JsonVO<Boolean> rejectStocktakeApproval(StocktakeRejectApprovalDTO dto) {
-        return null;
-    }
+    /**
+     * 驳回药库盘点审批
+     *
+     * @param dto 审批驳回参数
+     * @return JsonVO<Boolean> 驳回结果
+     */
+    JsonVO<Boolean> rejectStocktakeApproval(StocktakeRejectApprovalDTO dto);
 }

@@ -38,10 +38,10 @@ public class WarehouseStocktakeController implements WarehouseStocktakeApis {
     }
 
     @Override
-    @PostMapping("/add")
-    @Operation(summary = "新增单据")
-    public JsonVO<PharmacyInventorySaveDTO> addInventory(PharmacyInventorySaveDTO saveDTO) {
-        return JsonVO.success(new PharmacyInventorySaveDTO());
+    @DeleteMapping("/{busNo}")
+    @Operation(summary = "删除单据")
+    public JsonVO<Boolean> deleteStocktake(@PathVariable String busNo) {
+        return JsonVO.success(true);
     }
 
     @Override
