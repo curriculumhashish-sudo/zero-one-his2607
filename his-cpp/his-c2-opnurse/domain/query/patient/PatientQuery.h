@@ -1,5 +1,5 @@
-#ifndef _PATIENTQUEUE_
-#define _PATIENTQUEUE_
+﻿#ifndef _PATIENTQUEUE_H_
+#define _PATIENTQUEUE_H_
 #include"../../GlobalInclude.h"
 #include"domain/query/PageQuery.h"
 
@@ -15,4 +15,4 @@ class PatientQuery :public PageQuery
 
 };
 #include OATPP_CODEGEN_END(DTO)
-#endif // !_PATIENTQUEUE_
+#endif // !_PATIENTQUEUE_H_

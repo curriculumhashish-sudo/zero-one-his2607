@@ -3,8 +3,7 @@
 
 
 
-
-PatientActPageJsonVO::Wrapper PatientController::executeQueryPatient(const PatientQuery::Wrapper& query)
+PatientPageJsonVO::Wrapper PatientController::executeQueryPatient(const PatientQuery::Wrapper& query)
 {
 	return {};
 }
