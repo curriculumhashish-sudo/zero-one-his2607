@@ -1,14 +1,12 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: AI Assistant
- @Date: 2026/07/21 00:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-      https://www.apache.org/licenses/LICENSE-2.0
+	  https://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -44,6 +42,8 @@ namespace
 		return row;
 	}
 }
+
+// ==================== 1. 查询类接口（合并自队友 senma） ====================
 
 ListJsonVO<FrequencyVO::Wrapper>::Wrapper FrequencyController::executeGetFrequencyName(
 	const FrequencyQuery::Wrapper& query)
@@ -112,10 +112,12 @@ FrequencyDetailJsonVO::Wrapper FrequencyController::execQueryOne(const String& i
 	if (id == "1") {
 		dto = buildSampleFrequencyRow(
 			"1", "QD", u8"\u6bcf\u65e5\u4e00\u6b21", "daily", "08:00", "same-day", 10);
-	} else if (id == "2") {
+	}
+	else if (id == "2") {
 		dto = buildSampleFrequencyRow(
 			"2", "BID", u8"\u6bcf\u65e5\u4e24\u6b21", "daily", "08:00,18:00", "same-day", 20);
-	} else if (id == "10") {
+	}
+	else if (id == "10") {
 		dto = FrequencyDTO::createShared();
 		dto->id = "10";
 		dto->code = "QOD";
@@ -127,7 +129,8 @@ FrequencyDetailJsonVO::Wrapper FrequencyController::execQueryOne(const String& i
 		dto->applicableScenes = u8"\u5168\u90e8";
 		dto->allowCrossDay = "same-day";
 		dto->sortNo = 100;
-	} else if (id == "14") {
+	}
+	else if (id == "14") {
 		dto = FrequencyDTO::createShared();
 		dto->id = "14";
 		dto->code = "Q12H";
@@ -139,7 +142,8 @@ FrequencyDetailJsonVO::Wrapper FrequencyController::execQueryOne(const String& i
 		dto->applicableScenes = u8"\u5168\u90e8";
 		dto->allowCrossDay = "cross-day";
 		dto->sortNo = 140;
-	} else {
+	}
+	else {
 		dto = FrequencyDTO::createShared();
 		dto->id = id;
 		dto->code = "CUSTOM";
@@ -154,5 +158,35 @@ FrequencyDetailJsonVO::Wrapper FrequencyController::execQueryOne(const String& i
 
 	auto vo = FrequencyDetailJsonVO::createShared();
 	vo->success(dto);
+	return vo;
+}
+
+// ==================== 2. 增删改接口（yancao 增补实现） ====================
+
+StringJsonVO::Wrapper FrequencyController::execAdd(const FrequencyDTO::Wrapper& dto)
+{
+	auto vo = StringJsonVO::createShared();
+	vo->success(String("10086"));
+	return vo;
+}
+
+BooleanJsonVO::Wrapper FrequencyController::execModify(const FrequencyDTO::Wrapper& dto)
+{
+	auto vo = BooleanJsonVO::createShared();
+	vo->success(true);
+	return vo;
+}
+
+BooleanJsonVO::Wrapper FrequencyController::execModifyStatus(const String& id, const Int32& status)
+{
+	auto vo = BooleanJsonVO::createShared();
+	vo->success(true);
+	return vo;
+}
+
+BooleanJsonVO::Wrapper FrequencyController::execDelete(const String& id)
+{
+	auto vo = BooleanJsonVO::createShared();
+	vo->success(true);
 	return vo;
 }

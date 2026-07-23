@@ -107,6 +107,7 @@ equipment:
     pinyin: 拼音码
     wubi: 五笔码
 
+
 frequency:
   tags:
     tag: 频次管理
@@ -152,6 +153,7 @@ frequency:
     scene: 适用场景
     crossDayPolicy: 跨日策略
     sort: 排序号
+
 
 
 diagnose:
