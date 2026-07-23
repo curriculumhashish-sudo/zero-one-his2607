@@ -14,7 +14,6 @@ import java.util.Date;
  * @version 1.0
  */
 @Data
-@ToString
 @Schema(description = "枚举类型DTO，包含ID、租户ID、创建时间、更新时间、创建人、更新人，用于表示枚举类型的基本信息")
 public class EnumTypeDTO extends EnumTypeModifyDTO {
 

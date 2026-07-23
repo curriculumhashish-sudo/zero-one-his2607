@@ -2,11 +2,10 @@ package com.zeroone.star.sysmgr.controller;
 
 import com.zeroone.star.project.dto.PageDTO;
 
-import com.zeroone.star.project.dto.j2.sysmgr.settingdto.SettingDeleteDTO;
-import com.zeroone.star.project.dto.j2.sysmgr.settingdto.SettingUpdateDTO;
-import com.zeroone.star.project.dto.j2.sysmgr.settingdto.SettingsAddDTO;
-import com.zeroone.star.project.dto.j2.sysmgr.settingdto.SettingsDTO;
+import com.zeroone.star.project.dto.j2.sysmgr.settingdto.*;
+import com.zeroone.star.project.j2.sysmgr.settings.SettingDefinitionApis;
 import com.zeroone.star.project.j2.sysmgr.settings.SettingsApis;
+import com.zeroone.star.project.query.j2.sysmgr.settings.SettingDefinitionQuery;
 import com.zeroone.star.project.query.j2.sysmgr.settings.SettingsQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Tag(name = "设置管理")
-public class SettingsController implements SettingsApis {
+public class SettingsController implements SettingsApis, SettingDefinitionApis {
     @Operation(summary = "获取配置项列表")
     @GetMapping("query-all")
     @Override
@@ -31,6 +30,12 @@ public class SettingsController implements SettingsApis {
         return null;
     }
 
+    @Operation(summary = "获取配置列表",description = "支持通过关键字进行模糊筛选")
+    @GetMapping("query")
+    @Override
+    public JsonVO<PageDTO<SettingDefinitionDTO>> queryAll(SettingDefinitionQuery query){
+        return null;
+    }
     @Operation(summary = "新增配置项")
     @PostMapping("add-settings")
     @Override

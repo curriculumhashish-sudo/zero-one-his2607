@@ -75,6 +75,6 @@ public interface EnumApis {
      * @param dto 枚举删除对象DTO
      * @return 枚举类型id
      */
-    JsonVO<String> deleteEnumType(EnumDeleteDTO dto);
+    JsonVO<Integer> deleteEnumType(EnumDeleteDTO dto);
 
 }

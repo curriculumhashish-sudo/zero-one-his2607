@@ -28,7 +28,7 @@ public class EnumController implements EnumApis {
 
 
     @Override
-    @Operation(summary = "获取所有枚举类型列表(条件+分页)")
+    @Operation(summary = "获取枚举类型列表(条件+分页)")
     @GetMapping("/sys/query-all-enum")
     public JsonVO<PageDTO<EnumDTO>> queryAllEnum(@RequestBody EnumQuery query) {
         return null;
@@ -80,7 +80,7 @@ public class EnumController implements EnumApis {
     @Override
     @Operation(summary = "删除枚举类型")
     @DeleteMapping("/sys/delete-enum")
-    public JsonVO<String> deleteEnumType(@PathVariable EnumDeleteDTO dto) {
+    public JsonVO<Integer> deleteEnumType(@PathVariable EnumDeleteDTO dto) {
         return null;
     }
 }
