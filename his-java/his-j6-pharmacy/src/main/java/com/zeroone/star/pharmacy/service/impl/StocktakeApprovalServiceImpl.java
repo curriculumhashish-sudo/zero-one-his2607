@@ -9,7 +9,10 @@ import com.zeroone.star.pharmacy.mapper.WkfSupplyRequestMapper;
 import com.zeroone.star.pharmacy.service.IStocktakeApprovalService;
 import com.zeroone.star.project.components.user.UserDTO;
 import com.zeroone.star.project.components.user.UserHolder;
-import com.zeroone.star.project.dto.j6.pharmacy.StocktakeApprovalDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.StocktakeAgreeApprovalDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.StocktakeRejectApprovalDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.StocktakeSubmitApprovalDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.StocktakeWithdrawApprovalDTO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +44,7 @@ public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Boolean submit(StocktakeApprovalDTO dto) {
+    public Boolean submit(StocktakeSubmitApprovalDTO dto) {
         List<WkfSupplyRequest> rows = requireWarehouseStocktake(dto.getBusNo());
         requireSameStatus(rows);
         requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_DRAFT, STATUS_WITHDRAW, STATUS_REJECT);
@@ -61,7 +64,7 @@ public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Boolean withdraw(StocktakeApprovalDTO dto) {
+    public Boolean withdraw(StocktakeWithdrawApprovalDTO dto) {
         List<WkfSupplyRequest> rows = requireWarehouseStocktake(dto.getBusNo());
         requireSameStatus(rows);
         requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_PENDING_APPROVAL);
@@ -78,7 +81,7 @@ public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Boolean agree(StocktakeApprovalDTO dto) {
+    public Boolean agree(StocktakeAgreeApprovalDTO dto) {
         List<WkfSupplyRequest> rows = requireWarehouseStocktake(dto.getBusNo());
         requireSameStatus(rows);
         requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_PENDING_APPROVAL);
@@ -96,7 +99,7 @@ public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Boolean reject(StocktakeApprovalDTO dto) {
+    public Boolean reject(StocktakeRejectApprovalDTO dto) {
         if (!StringUtils.hasText(dto.getChangeReason())) {
             throw new IllegalArgumentException("changeReason cannot be blank when rejecting approval");
         }
@@ -193,7 +196,7 @@ public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
         return "system";
     }
 
-    private String buildReason(StocktakeApprovalDTO dto) {
+    private String buildReason(StocktakeRejectApprovalDTO dto) {
         if (StringUtils.hasText(dto.getChangeReasonCode())) {
             return dto.getChangeReasonCode() + ":" + dto.getChangeReason();
         }

@@ -1,13 +1,16 @@
 package com.zeroone.star.pharmacy.service;
 
-import com.zeroone.star.project.dto.j6.pharmacy.StocktakeApprovalDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.StocktakeAgreeApprovalDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.StocktakeRejectApprovalDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.StocktakeSubmitApprovalDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.StocktakeWithdrawApprovalDTO;
 
 public interface IStocktakeApprovalService {
-    Boolean submit(StocktakeApprovalDTO dto);
+    Boolean submit(StocktakeSubmitApprovalDTO dto);
 
-    Boolean withdraw(StocktakeApprovalDTO dto);
+    Boolean withdraw(StocktakeWithdrawApprovalDTO dto);
 
-    Boolean agree(StocktakeApprovalDTO dto);
+    Boolean agree(StocktakeAgreeApprovalDTO dto);
 
-    Boolean reject(StocktakeApprovalDTO dto);
+    Boolean reject(StocktakeRejectApprovalDTO dto);
 }

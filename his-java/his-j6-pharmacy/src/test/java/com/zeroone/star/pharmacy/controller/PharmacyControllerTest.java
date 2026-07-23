@@ -1,7 +1,10 @@
 package com.zeroone.star.pharmacy.controller;
 
 import com.zeroone.star.pharmacy.service.IStocktakeApprovalService;
-import com.zeroone.star.project.dto.j6.pharmacy.StocktakeApprovalDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.StocktakeAgreeApprovalDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.StocktakeRejectApprovalDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.StocktakeSubmitApprovalDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.StocktakeWithdrawApprovalDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -30,7 +33,7 @@ class PharmacyControllerTest {
 
     @Test
     void submitApprovalEndpointReturnsSuccess() throws Exception {
-        when(stocktakeApprovalService.submit(any(StocktakeApprovalDTO.class))).thenReturn(true);
+        when(stocktakeApprovalService.submit(any(StocktakeSubmitApprovalDTO.class))).thenReturn(true);
 
         mockMvc.perform(post("/warehouse/stocktake/submit-approval")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -42,7 +45,7 @@ class PharmacyControllerTest {
 
     @Test
     void withdrawApprovalEndpointReturnsSuccess() throws Exception {
-        when(stocktakeApprovalService.withdraw(any(StocktakeApprovalDTO.class))).thenReturn(true);
+        when(stocktakeApprovalService.withdraw(any(StocktakeWithdrawApprovalDTO.class))).thenReturn(true);
 
         mockMvc.perform(post("/warehouse/stocktake/withdraw-approval")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -54,7 +57,7 @@ class PharmacyControllerTest {
 
     @Test
     void approveEndpointReturnsSuccess() throws Exception {
-        when(stocktakeApprovalService.agree(any(StocktakeApprovalDTO.class))).thenReturn(true);
+        when(stocktakeApprovalService.agree(any(StocktakeAgreeApprovalDTO.class))).thenReturn(true);
 
         mockMvc.perform(post("/warehouse/stocktake/approve")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -66,7 +69,7 @@ class PharmacyControllerTest {
 
     @Test
     void rejectEndpointReturnsSuccess() throws Exception {
-        when(stocktakeApprovalService.reject(any(StocktakeApprovalDTO.class))).thenReturn(true);
+        when(stocktakeApprovalService.reject(any(StocktakeRejectApprovalDTO.class))).thenReturn(true);
 
         mockMvc.perform(post("/warehouse/stocktake/reject")
                         .contentType(MediaType.APPLICATION_JSON)
