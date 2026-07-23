@@ -895,3 +895,169 @@ yiguang:
    feeNature: 费用性质
    admissiondata: 入院日期
    delete: 取消原因
+ovo:
+  charging:
+    settle:
+      GetCostDetail:
+        summary: 获取患者费用明细清单
+      GetSettleHistory:
+        summary: 获取患者历史结算记录
+      Settle:
+        summary: 住院结算
+      GetCostDetailQuery:
+        encounterId:
+          description: 住院就诊主键
+        patientId:
+          description: 患者主键
+        statusEnum:
+          description: 收费明细状态，ALL表示全部
+      GetSettleHistoryQuery:
+        patientId:
+          description: 患者主键
+        encounterId:
+          description: 住院就诊主键，为空时查询患者全部住院记录
+        statusEnum:
+          description: 结算状态，ALL表示包含结算和退结算记录
+      CostDetailItemDTO:
+        chargeItemId:
+          description: 收费明细主键
+        busNo:
+          description: 收费明细业务流水号
+        prescriptionNo:
+          description: 处方号
+        itemName:
+          description: 收费项目名称
+          value: 阿莫西林胶囊
+        chargeCategoryCode:
+          description: 费用类别编码
+        chargeCategoryName:
+          description: 费用类别名称
+          value: 药品费
+        quantityValue:
+          description: 数量
+        quantityUnit:
+          description: 数量单位
+          value: 盒
+        unitPrice:
+          description: 单价
+        totalPrice:
+          description: 明细总价
+        statusEnum:
+          description: 收费明细状态
+        occurrenceTime:
+          description: 费用发生时间
+        performingOrgName:
+          description: 执行科室名称
+          value: 住院药房
+        entererName:
+          description: 录入人姓名
+          value: 张护士
+      GetCostDetailDTO:
+        patientId:
+          description: 患者主键
+        patientName:
+          description: 患者姓名
+          value: 张三
+        encounterId:
+          description: 住院就诊主键
+        encounterBusNo:
+          description: 住院号
+        totalAmount:
+          description: 费用总额
+        settledAmount:
+          description: 已结算金额
+        unsettledAmount:
+          description: 待结算金额
+        items:
+          description: 费用明细列表
+      SettlePaymentDetailDTO:
+        paymentDetailId:
+          description: 支付明细主键
+        payEnum:
+          description: 支付方式，支持CASH、WECHAT、ALIPAY、BANK_CARD、ACCOUNT、INSURANCE
+        amount:
+          description: 支付金额
+        returnAmount:
+          description: 支付明细退款金额
+        payTransNo:
+          description: 第三方支付流水号，现金支付可为空
+        payTransDate:
+          description: 支付时间
+        resultEnum:
+          description: 支付结果
+      SettleHistoryItemDTO:
+        settlementId:
+          description: 结算记录主键
+        paymentNo:
+          description: 支付流水号
+        patientId:
+          description: 患者主键
+        patientName:
+          description: 患者姓名
+          value: 张三
+        encounterId:
+          description: 住院就诊主键
+        encounterBusNo:
+          description: 住院号
+        kindEnum:
+          description: 流水类型，SETTLEMENT为结算，REVERSAL为退结算
+        statusEnum:
+          description: 结算状态
+        displayAmount:
+          description: 应付金额
+        tenderedAmount:
+          description: 实收金额
+        returnedAmount:
+          description: 找零金额
+        billDate:
+          description: 结算时间，格式yyyy-MM-dd HH:mm:ss
+        invoiceId:
+          description: 发票主键
+        setlId:
+          description: 医保结算标识
+        paymentDetails:
+          description: 支付明细列表
+      SettlePaymentDTO:
+        payEnum:
+          description: 支付方式，支持CASH、WECHAT、ALIPAY、BANK_CARD、ACCOUNT、INSURANCE
+        amount:
+          description: 支付金额
+        payTransNo:
+          description: 第三方支付流水号，现金支付可为空
+      SettleRequestDTO:
+        patientId:
+          description: 患者主键
+        encounterId:
+          description: 住院就诊主键
+        accountId:
+          description: 就诊账户主键
+        chargeItemIds:
+          description: 本次结算的收费明细主键列表
+        paymentDetails:
+          description: 支付明细列表
+        displayAmount:
+          description: 应付金额
+        contractNo:
+          description: 费用性质合同编号
+        billDate:
+          description: 结算时间，格式yyyy-MM-dd HH:mm:ss
+        remark:
+          description: 结算备注
+          value: 住院出院结算
+      SettleResultDTO:
+        paymentId:
+          description: 支付流水主键
+        paymentNo:
+          description: 支付流水号
+        preSettleId:
+          description: 预结算记录主键
+        setlId:
+          description: 医保结算标识
+        invoiceId:
+          description: 发票主键
+        displayAmount:
+          description: 应付金额
+        statusEnum:
+          description: 结算结果状态
+        settledAt:
+          description: 结算完成时间

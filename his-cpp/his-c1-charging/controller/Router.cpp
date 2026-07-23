@@ -51,12 +51,17 @@
 
 #include"pay_manage/PrepaymentController.h"
 // If the macro for disabling Swagger documentation is defined
+#include "settle/GetCostDetailController.h"
+#include "settle/GetSettleHistoryController.h"
+#include "settle/SettleController.h"
+
+// 如果定义了关闭 Swagger 文档的宏
 #ifdef CLOSE_SWAGGER_DOC
-// Simplified controller binding macro
+// 简化控制器绑定宏
 #define ROUTER_SIMPLE_BIND(__CLASS__) \
 router->addController(__CLASS__::createShared())
 #else
-// Simplified controller binding macro (with Swagger support)
+// 简化控制器绑定宏（支持 Swagger 文档）
 #define ROUTER_SIMPLE_BIND(__CLASS__) \
 BIND_CONTROLLER(docEndpoints, router, __CLASS__)
 #endif
@@ -69,6 +74,7 @@ Router::Router(Endpoints* docEndpoints, HttpRouter* router)
 
 void Router::initRouter()
 {
+
 	// #TIP: Add system extension route definitions below
 
     ROUTER_SIMPLE_BIND(AdmissionController);
@@ -108,4 +114,8 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(Pay_ManageGetPatientQueueController);
 	ROUTER_SIMPLE_BIND(PrepaymentController);
 
+	// #TIP：在下方添加系统扩展路由定义
+	ROUTER_SIMPLE_BIND(GetCostDetailController);
+	ROUTER_SIMPLE_BIND(GetSettleHistoryController);
+	ROUTER_SIMPLE_BIND(SettleController);
 }
