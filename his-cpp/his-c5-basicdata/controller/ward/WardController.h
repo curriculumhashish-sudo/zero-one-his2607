@@ -1,17 +1,35 @@
-﻿#pragma once
+#pragma once
 /*
-病房病区查询
-*/
-#ifndef _WARD_CONTROLLER_
-#define _WARD_CONTROLLER_
+ Copyright Zero One Star. All rights reserved.
 
+ @Author: Lfff
+ @Date: 2026/07/23 18:58:00
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+*/
+#ifndef _WARD_CONTROLLER_H_
+#define _WARD_CONTROLLER_H_
+
+#include "ApiHelper.h"
 #include "domain/vo/BaseJsonVO.h"
 #include "domain/query/ward/WardQuery.h"
 #include "domain/vo/ward/WardVO.h"
 #include "domain/dto/ward/WardDTO.h"
+#include "domain/dto/ward/WardModifyDTO.h"
+#include "domain/dto/ward/WardStatusDTO.h"
+using namespace oatpp;
 
-// 0 定义API控制器使用宏
-#include OATPP_CODEGEN_BEGIN(ApiController) 
+#include OATPP_CODEGEN_BEGIN(ApiController)
 
 #define API_TAG ZH_WORDS_GETTER("ward.tags")
 
@@ -20,31 +38,91 @@ class WardController : public oatpp::web::server::api::ApiController
 	API_ACCESS_DECLARE(WardController);
 
 public:
-	// 3.1 定义ID查询接口描述
+	// Query room by ID
 	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("ward.query-room-by-id.summary"), queryRoomById, WardRoomJsonVO::Wrapper, API_TAG,
 		API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("ward.field.roomId"), "2233", true);
 	);
-	// 3.2 定义ID查询接口处理
 	API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/patient/query-room-by-id", queryRoomById, QUERY(String, id), execQueryRoomById(id));
 
-	// 3.1 定义ID查询接口描述
+	// Query bed by ID
 	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("ward.query-bed-by-id.summary"), queryBedById, WardBedJsonVO::Wrapper, API_TAG,
 		API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("ward.field.bedId"), "2233", true);
 	);
-	// 3.2 定义ID查询接口处理
 	API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/ward/query-bed-by-id", queryBedById, QUERY(String, id), execQueryBedById(id));
+
+	// Modify ward
+	API_DEF_ENDPOINT_INFO_AUTH("Modify ward", modifyWard, WardJsonVO::Wrapper, API_TAG,
+		info->description = "Modify ward basic information by ID. This endpoint returns mock success data for API documentation.";
+		info->addConsumes<WardModifyDTO::Wrapper>("application/json");
+	)
+	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/ward", modifyWard, BODY_DTO(WardModifyDTO::Wrapper, dto), execModifyWard(dto));
+
+	// Remove ward
+	API_DEF_ENDPOINT_INFO_AUTH("Remove ward", removeWard, BooleanJsonVO::Wrapper, API_TAG,
+		info->description = "Remove ward by ID. This endpoint returns a mock success result for API documentation.";
+		API_DEF_ADD_PATH_PARAMS(String, "id", "Ward ID", "322955305339588608", true);
+	)
+	API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/ward/{id}", removeWard, PATH(String, id, "id"), execRemoveWard(id));
+
+	// Change ward status
+	API_DEF_ENDPOINT_INFO_AUTH("Change ward status", modifyWardStatus, WardJsonVO::Wrapper, API_TAG,
+		info->description = "Enable or disable ward by statusEnum. ACTIVE means enabled and DISABLED means disabled.";
+		info->addConsumes<WardStatusDTO::Wrapper>("application/json");
+	)
+	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/ward/status", modifyWardStatus, BODY_DTO(WardStatusDTO::Wrapper, dto), execModifyWardStatus(dto));
+
 private:
-	// 3.3 演示ID查询数据
+	// Query room by ID implementation
 	WardRoomJsonVO::Wrapper execQueryRoomById(const String& id);
-	// 3.3 演示ID查询数据
+	// Query bed by ID implementation
 	WardBedJsonVO::Wrapper execQueryBedById(const String& id);
+
+	// Modify ward implementation
+	WardJsonVO::Wrapper execModifyWard(const WardModifyDTO::Wrapper& dto)
+	{
+		auto data = WardVO::createShared();
+		if (dto)
+		{
+			data->id = dto->id;
+			data->name = dto->name;
+			data->organizationId = dto->organizationId;
+			data->displayOrder = dto->displayOrder;
+			data->pyStr = dto->pyStr;
+			data->wbStr = dto->wbStr;
+			data->version = dto->version;
+		}
+		auto result = WardJsonVO::createShared();
+		result->success(data);
+		return result;
+	}
+
+	// Remove ward implementation
+	BooleanJsonVO::Wrapper execRemoveWard(const String& id)
+	{
+		auto result = BooleanJsonVO::createShared();
+		result->success(true);
+		return result;
+	}
+
+	// Change ward status implementation
+	WardJsonVO::Wrapper execModifyWardStatus(const WardStatusDTO::Wrapper& dto)
+	{
+		auto data = WardVO::createShared();
+		if (dto)
+		{
+			data->id = dto->id;
+			data->statusEnum = dto->statusEnum;
+			data->version = dto->version;
+		}
+		auto result = WardJsonVO::createShared();
+		result->success(data);
+		return result;
+	}
 };
 
-#undef API_TAG_WARD
-
-// 0 取消API控制器使用宏
+#undef API_TAG
 #include OATPP_CODEGEN_END(ApiController)
 
-#endif // _WARD_CONTROLLER_
+#endif // _WARD_CONTROLLER_H_
