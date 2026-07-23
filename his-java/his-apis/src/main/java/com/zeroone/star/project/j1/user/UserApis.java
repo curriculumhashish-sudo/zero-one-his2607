@@ -1,4 +1,4 @@
-package com.zeroone.star.project.j1.sysmgr;
+package com.zeroone.star.project.j1.user;
 
 import com.zeroone.star.project.dto.PageDTO;
 

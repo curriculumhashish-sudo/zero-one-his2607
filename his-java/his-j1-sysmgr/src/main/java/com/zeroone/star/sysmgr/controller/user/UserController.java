@@ -3,7 +3,7 @@ package com.zeroone.star.sysmgr.controller.user;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j1.sysmgr.ChangePasswordDTO;
 import com.zeroone.star.project.dto.j1.sysmgr.UserDTO;
-import com.zeroone.star.project.j1.sysmgr.UserApis;
+import com.zeroone.star.project.j1.user.UserApis;
 import com.zeroone.star.project.query.j1.login.TenantQuery;
 import com.zeroone.star.project.query.j1.sysmgr.UserQuery;
 import com.zeroone.star.project.vo.JsonVO;
