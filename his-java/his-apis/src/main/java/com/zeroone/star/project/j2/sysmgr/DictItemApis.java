@@ -24,7 +24,7 @@ public interface DictItemApis {
      * 获取字典名称列表
      * @return 字典名称列表
      */
-    JsonVO<List<String>> queryDictNameList();
+    JsonVO<List<String>> queryDictNameList(DictItemQuery query);
     /**
      * 获取字典列表(条件+分页)
      * @param query 字典查询条件

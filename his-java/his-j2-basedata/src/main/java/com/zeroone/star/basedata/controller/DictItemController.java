@@ -29,7 +29,7 @@ public class DictItemController implements DictItemApis {
     @Operation(summary = "获取字典名称列表")
     @GetMapping("/queryDictNameList")
     @Override
-    public JsonVO<List<String>> queryDictNameList() {
+    public JsonVO<List<String>> queryDictNameList(DictItemQuery query) {
         return null;
     }
 
