@@ -18,23 +18,23 @@ class BedController : public oatpp::web::server::api::ApiController
 	API_ACCESS_DECLARE(BedController);
 
 public:
-	API_DEF_ENDPOINT_INFO("Modify bed", modifyBed, BedJsonVO::Wrapper, API_TAG,
+	API_DEF_ENDPOINT_INFO_AUTH("Modify bed", modifyBed, BedJsonVO::Wrapper, API_TAG,
 		info->description = "Modify bed basic information by ID. This endpoint returns mock success data for API documentation.";
 		info->addConsumes<BedModifyDTO::Wrapper>("application/json");
 	)
-	API_HANDLER_ENDPOINT(API_M_PUT, "/bed", modifyBed, BODY_DTO(BedModifyDTO::Wrapper, dto), execModifyBed(dto));
+	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/bed", modifyBed, BODY_DTO(BedModifyDTO::Wrapper, dto), execModifyBed(dto));
 
-	API_DEF_ENDPOINT_INFO("Remove bed", removeBed, BooleanJsonVO::Wrapper, API_TAG,
+	API_DEF_ENDPOINT_INFO_AUTH("Remove bed", removeBed, BooleanJsonVO::Wrapper, API_TAG,
 		info->description = "Remove bed by ID. This endpoint returns a mock success result for API documentation.";
 		API_DEF_ADD_PATH_PARAMS(String, "id", "Bed ID", "322955479021522944", true);
 	)
-	API_HANDLER_ENDPOINT(API_M_DEL, "/bed/{id}", removeBed, PATH(String, id, "id"), execRemoveBed(id));
+	API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/bed/{id}", removeBed, PATH(String, id, "id"), execRemoveBed(id));
 
-	API_DEF_ENDPOINT_INFO("Change bed status", modifyBedStatus, BedJsonVO::Wrapper, API_TAG,
+	API_DEF_ENDPOINT_INFO_AUTH("Change bed status", modifyBedStatus, BedJsonVO::Wrapper, API_TAG,
 		info->description = "Enable or disable bed by statusEnum. ACTIVE means enabled and DISABLED means disabled.";
 		info->addConsumes<BedStatusDTO::Wrapper>("application/json");
 	)
-	API_HANDLER_ENDPOINT(API_M_PUT, "/bed/status", modifyBedStatus, BODY_DTO(BedStatusDTO::Wrapper, dto), execModifyBedStatus(dto));
+	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/bed/status", modifyBedStatus, BODY_DTO(BedStatusDTO::Wrapper, dto), execModifyBedStatus(dto));
 
 private:
 	BedJsonVO::Wrapper execModifyBed(const BedModifyDTO::Wrapper& dto)
