@@ -1,0 +1,80 @@
+﻿patient1:
+ tags:
+  tag: 患者管理
+ query:
+  summary: 分页查询数据示例
+  act: 执行项目查询
+ queryconsum:
+  consum: 耗材项目查询
+ field:
+  status: 状态
+  name: 姓名
+  date: 日期
+  act: 是否执行
+  consum: 患者耗材
+  orderContent: 医嘱内容
+  ConsumableProject: 消费项目
+  OrderContent: 执行项目
+  time: 时间
+patientconsumable:
+ tags:
+  tag: 耗材管理
+ field:
+  consumableName: 耗材名称
+  modelSpec: 型号规格
+  quantity: 数量
+  status: 状态
+  consumableRoom: 耗材室
+  isEmpty: 是否为空
+
+print:
+ print:
+  summary: 执行打印
+ records:
+  summary: 执行记录查询
+ field:
+  id: 编号
+  printJobId: 打印任务ID
+  docType: 单据类型
+  patientName: 患者姓名
+  treatmentItem: 处置项目
+  execDept: 执行科室
+  doctorName: 医生姓名
+  orderTime: 医嘱时间
+  execTime: 执行时间
+  executor: 执行人
+  status: 状态
+  printCount: 打印次数
+  printTime: 打印时间
+  printerName: 打印机名称
+  isReprint: 是否补打
+  operator: 操作人
+  remark: 备注
+  timefrom: 打印时间起
+  timeto: 打印时间止
+  printIds: 要打印的单据ID列表
+  reprint: 是否补打
+  printSuccess: 打印是否成功
+  printMsg: 打印结果消息
+ tag:
+  text: 患者管理
+
+nurse2:
+ tags:
+  tag: 患者管理
+ query:
+  summary: 分页查询数据示例
+ remove:
+  summary: 删除数据示例
+ field:
+  name_code: 姓名/排队号
+  execu_project: 执行项目
+  use_project: 耗材项目
+  state: 状态
+  conten: 医嘱内容
+  amount: 已执行次数
+  person: 执行人
+  operate: 操作
+ modify:
+  operate1: 执行
+  operate2: 取消执行

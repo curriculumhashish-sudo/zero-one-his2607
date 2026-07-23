@@ -12,6 +12,7 @@
 #include "domain/dto/opnurse3/PrintApiDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
+#define API_TAG ZH_WORDS_GETTER("print.tag.text")
 
 class PrintJobController : public oatpp::web::server::api::ApiController
 {
@@ -22,6 +23,7 @@ public:
 		API_DEF_ADD_AUTH();
 		info->summary = ZH_WORDS_GETTER("print.print.summary");
 		API_DEF_ADD_RSP_JSON(oatpp::Object<PrintResultJsonVO>);
+		API_DEF_ADD_TAG(API_TAG);
 	}
 	// POST /print/print
 	ENDPOINT(API_M_POST, "/print/print", printJob, BODY_DTO(PrintRequestDTO::Wrapper, dto), API_HANDLER_AUTH_PARAME) {

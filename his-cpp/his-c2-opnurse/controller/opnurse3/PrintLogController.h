@@ -13,6 +13,9 @@
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
+#define API_TAG ZH_WORDS_GETTER("print.tag.text")
+
+
 class PrintLogController : public oatpp::web::server::api::ApiController
 {
 	API_ACCESS_DECLARE(PrintLogController);
@@ -21,6 +24,7 @@ public:
 		API_DEF_ADD_AUTH();
 		info->summary = ZH_WORDS_GETTER("print.records.summary");
 		API_DEF_ADD_RSP_JSON_WRAPPER(PrintLogPageJsonVO);
+		API_DEF_ADD_TAG(API_TAG);
 		API_DEF_ADD_PAGE_PARAMS();
 		API_DEF_ADD_QUERY_PARAMS(String, "docType", ZH_WORDS_GETTER("print.field.docType"), "", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "pname", ZH_WORDS_GETTER("print.field.patientName"), "", false);
