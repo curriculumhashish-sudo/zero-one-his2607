@@ -1,11 +1,15 @@
 package com.zeroone.star.sysmgr.controller.permission;
 
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.permission.*;
-import com.zeroone.star.project.query.permission.PermissionQuery;
+import com.zeroone.star.project.dto.j1.permission.DeleteResult;
+import com.zeroone.star.project.dto.j1.permission.PermissionCreateDTO;
+import com.zeroone.star.project.dto.j1.permission.PermissionUpdateDTO;
+import com.zeroone.star.project.query.j1.permission.PermissionQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.permission.*;
-import com.zeroone.star.sysmgr.service.IPermissionService;
+
+import com.zeroone.star.project.vo.j1.permission.PermissionTreeVO;
+import com.zeroone.star.project.vo.j1.permission.PermissionVO;
+import com.zeroone.star.sysmgr.service.permission.IPermissionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
