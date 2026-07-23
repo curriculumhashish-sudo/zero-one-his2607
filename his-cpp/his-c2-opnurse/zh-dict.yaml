@@ -16,7 +16,7 @@
   ConsumableProject: 消费项目
   OrderContent: 执行项目
   time: 时间
-patientconsumable:
+patientconsumable1:
  tags:
   tag: 耗材管理
  field:
