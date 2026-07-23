@@ -1,61 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.zeroone.star.sysmgr.mapper.PermissionMapper">
+<mapper namespace="com.zeroone.star.sysmgr.mapper.permission.PermissionMapper">
 
-    <!-- 查子权限名 -->
     <select id="selectChildNames" resultType="java.lang.String">
-        SELECT name
-        FROM whale_permissions
-        WHERE parent_name = #{parentName}
-          AND is_deleted = FALSE
-          AND tenant_id = #{tenantId}
+        SELECT name FROM whale_permissions
+        WHERE parent_name = #{parentName} AND is_deleted = FALSE AND tenant_id = #{tenantId}
     </select>
 
-    <!-- 查权限的 parentName（循环引用校验） -->
     <select id="selectParentName" resultType="java.lang.String">
-        SELECT parent_name
-        FROM whale_permissions
-        WHERE name = #{name}
-          AND is_deleted = FALSE
-          AND tenant_id = #{tenantId}
+        SELECT parent_name FROM whale_permissions
+        WHERE name = #{name} AND is_deleted = FALSE AND tenant_id = #{tenantId}
     </select>
 
-    <!-- 批量软删权限定义 -->
     <update id="batchDeletePermissions">
-        UPDATE whale_permissions
-        SET is_deleted = TRUE,
-            deleted_at = NOW(),
-            deleted_by = #{deletedBy}
+        UPDATE whale_permissions SET is_deleted = TRUE, deleted_at = NOW(), deleted_by = #{deletedBy}
         WHERE name IN
         <foreach collection="names" item="name" open="(" separator="," close=")">
             #{name}
         </foreach>
-          AND is_deleted = FALSE
-          AND tenant_id = #{tenantId}
+        AND is_deleted = FALSE AND tenant_id = #{tenantId}
     </update>
 
-    <!-- 批量软删授权记录 -->
     <update id="batchDeleteGrants">
-        UPDATE whale_permission_grants
-        SET is_deleted = TRUE,
-            deleted_at = NOW(),
-            deleted_by = #{deletedBy}
+        UPDATE whale_permission_grants SET is_deleted = TRUE, deleted_at = NOW(), deleted_by = #{deletedBy}
         WHERE permission_name IN
         <foreach collection="permissionNames" item="name" open="(" separator="," close=")">
             #{name}
         </foreach>
-          AND is_deleted = FALSE
-          AND tenant_id = #{tenantId}
+        AND is_deleted = FALSE AND tenant_id = #{tenantId}
     </update>
 
-    <!-- 统计同租户下同名未删除权限数量 -->
     <select id="countByName" resultType="long">
-        SELECT COUNT(*)
-        FROM whale_permissions
-        WHERE name = #{name}
-          AND tenant_id = #{tenantId}
-          AND is_deleted = FALSE
+        SELECT COUNT(*) FROM whale_permissions
+        WHERE name = #{name} AND tenant_id = #{tenantId} AND is_deleted = FALSE
     </select>
 
 </mapper>
