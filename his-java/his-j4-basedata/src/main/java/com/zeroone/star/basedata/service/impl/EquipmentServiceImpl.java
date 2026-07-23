@@ -1,7 +1,7 @@
 package com.zeroone.star.basedata.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zeroone.star.basedata.entity.EquipmentDO;
+import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinition;
 import com.zeroone.star.basedata.mapper.EquipmentMapper;
 import com.zeroone.star.basedata.service.IEquipmentService;
 import org.springframework.stereotype.Service;
@@ -17,5 +17,5 @@ import org.springframework.stereotype.Service;
  * @version 1.0.0
  */
 @Service
-public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, EquipmentDO> implements IEquipmentService {
+public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDeviceDefinition> implements IEquipmentService {
 }
