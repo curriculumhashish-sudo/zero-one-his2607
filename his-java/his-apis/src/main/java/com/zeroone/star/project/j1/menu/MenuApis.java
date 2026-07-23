@@ -1,4 +1,4 @@
-package com.zeroone.star.project.menu;
+package com.zeroone.star.project.j1.menu;
 
 import com.zeroone.star.project.dto.menu.*;
 import com.zeroone.star.project.query.menu.MenuDetailQuery;

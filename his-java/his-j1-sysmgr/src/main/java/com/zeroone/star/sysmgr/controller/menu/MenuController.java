@@ -1,7 +1,7 @@
 package com.zeroone.star.sysmgr.controller.menu;
 
 import com.zeroone.star.project.dto.menu.*;
-import com.zeroone.star.project.menu.MenuApis;
+import com.zeroone.star.project.j1.menu.MenuApis;
 import com.zeroone.star.project.query.menu.MenuDetailQuery;
 import com.zeroone.star.project.query.menu.MenuListPageQuery;
 import com.zeroone.star.project.dto.PageDTO;
