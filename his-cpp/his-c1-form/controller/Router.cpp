@@ -25,6 +25,9 @@
 #include "cost_info/costInfoController.h"
 #include"data_statistics/OutpatientStatController.h"
 
+#include"data_statistics/MonthVisitController.h"
+#include"data_statistics/TrendController.h"
+
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
 // Simplified controller binding macro
@@ -53,5 +56,8 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(CostInfoController);
 	
 	ROUTER_SIMPLE_BIND(OutpatientStatController);
+
+	ROUTER_SIMPLE_BIND(MonthVisitController);
+	ROUTER_SIMPLE_BIND(FlowTrendController);
 
 }
