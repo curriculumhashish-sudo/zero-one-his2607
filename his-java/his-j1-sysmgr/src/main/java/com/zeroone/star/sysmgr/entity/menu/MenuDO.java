@@ -133,7 +133,7 @@ public class MenuDO {
     private Date deletedAt;
 
     /**
-     * 删除人
+     * 删除人物
      */
     private String deletedBy;
 
