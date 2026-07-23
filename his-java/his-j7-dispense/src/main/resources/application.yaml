@@ -1,2 +1,10 @@
 server:
-  port: ${sp.auth:10400}
+  port: 10400
+  servlet:
+    context-path: /j7-dispense
+
+spring:
+  application:
+    name: his-j7-dispense
+  profiles:
+    active: dev

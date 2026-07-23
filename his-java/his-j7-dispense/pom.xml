@@ -83,7 +83,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.zeroone.star.oauth2.Oauth2Application</mainClass>
+                    <mainClass>com.zeroone.star.j7.dispense.DispenseApplication</mainClass>
                 </configuration>
             </plugin>
             <plugin>

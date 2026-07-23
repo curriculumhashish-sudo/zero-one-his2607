@@ -12,7 +12,8 @@ import org.springframework.context.annotation.Configuration;
         "com.zeroone.star.project.exception",
         "com.zeroone.star.project.components.jwt",
         "com.zeroone.star.project.components.user",
-        "com.zeroone.star.project.components.excel"
+        "com.zeroone.star.project.components.excel",
+        "com.zeroone.star.j7.dispense.controller"
 })
 public class ComponentInit {
 

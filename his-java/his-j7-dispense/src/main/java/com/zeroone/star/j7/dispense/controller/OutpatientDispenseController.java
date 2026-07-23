@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,10 +21,12 @@ import com.zeroone.star.project.vo.j7.dispense.DrugItemVO;
 
 
 @RestController
+@RequestMapping("/outpatient/dispense")
 @Tag(name = "门诊发退药记录", description = "门诊药房发药/退药记录查询与导出")
 public class OutpatientDispenseController implements OutpatientDispenseApis{
 
     @Override
+    @RequestMapping("/page")
     @Operation(summary = "分页查询发退药记录", description = "按处方分组展示门诊发药/退药记录")
     public JsonVO<PageDTO<DispenseGroupVO>> queryPage(
             @Parameter(description = "查询参数", required = true) DispenseQuery query) {
@@ -67,6 +71,7 @@ public class OutpatientDispenseController implements OutpatientDispenseApis{
         return JsonVO.success(pageResult);
     }
 
+    @RequestMapping("/export")
     @Override
     @Operation(summary = "导出发退药记录", description = "将查询结果以平铺格式导出为 Excel")
     public void export(
