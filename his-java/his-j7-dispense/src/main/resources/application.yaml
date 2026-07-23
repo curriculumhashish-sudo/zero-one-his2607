@@ -1,2 +1,2 @@
 server:
-
+  port: ${sp.auth:10400}
