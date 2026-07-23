@@ -29,3 +29,16 @@ PatSelectPageJsonVO::Wrapper PatController::execQuerySelectPatPage(const PatSele
     respVo->message = ZH_WORDS_GETTER("pat.select.page.success");
     return respVo;
 }
+
+ListJsonVO<String>::Wrapper PatController::execRemovePat(const List<String>& ids)
+{
+    // 定义返回数据对象
+    auto jvo = ListJsonVO<String>::createShared();
+    // 参数校验
+    if (ids->empty())
+    {
+        jvo->init(nullptr, RS_PARAMS_INVALID);
+        return jvo;
+    }
+
+}
