@@ -4,13 +4,13 @@
 
 PatPageJsonVO::Wrapper PatController::execQueryPatPage(const PatPageQuery::Wrapper& query, const PayloadDTO& payload)
 {
-    // ������ҳ���壬ģ���� PatDTO::Wrapper
+  
     auto pageData = PageDTO<PatDTO::Wrapper>::createShared();
     pageData->pageIndex = query->pageIndex;
     pageData->pageSize = query->pageSize;
     pageData->calcPages();
 
-    // ����׼��Ӧ
+  
     auto respVo = PatPageJsonVO::createShared();
     respVo->success(pageData);
     respVo->message = ZH_WORDS_GETTER("pat.page.success");
@@ -32,9 +32,9 @@ PatSelectPageJsonVO::Wrapper PatController::execQuerySelectPatPage(const PatSele
 
 ListJsonVO<String>::Wrapper PatController::execRemovePat(const List<String>& ids)
 {
-    // ���巵�����ݶ���
+   
     auto jvo = ListJsonVO<String>::createShared();
-    // ����У��
+    
     if (ids->empty())
     {
         jvo->init(nullptr, RS_PARAMS_INVALID);
