@@ -1,24 +1,8 @@
 server:
-  port: ${sp.j7-dispense}
-
+  port: ${sp.j7-pharmacy}
   servlet:
-    context-path: /j7-dispense
-
+    # 设置应用上下文路径
+    context-path: /j7-pharmacy
 spring:
   application:
-    name: ${sn.j7-dispense}
-
-springdoc:
-  group-configs:
-    - group: 药房管理-采购入库
-      paths-to-match: /api/j7/pharmacy/purchaseInbound/**
-
-knife4j:
-  enable: true
-  setting:
-    language: zh_cn
-
-# PDF组件配置
-pdf:
-  conf: ""  # 请填入实际的PDF配置内容，如果暂时不需要可以留空字符串
-  template: ""   # PDF模板路径配置（如暂时不需要可留空）
+    name: ${sn.j7-pharmacy}
