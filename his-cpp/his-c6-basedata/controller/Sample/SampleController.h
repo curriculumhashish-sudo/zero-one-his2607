@@ -42,7 +42,7 @@ using namespace oatpp;
 
 #include OATPP_CODEGEN_BEGIN(ApiController) //<- Begin Codegen
 
-#define API_TAG ZH_WORDS_GETTER("sample.tag")
+#define API_TAG ZH_WORDS_GETTER("sample.tags.tag")
 
 class SampleController : public oatpp::web::server::api::ApiController
 {
