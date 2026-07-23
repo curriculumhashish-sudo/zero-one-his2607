@@ -4,55 +4,54 @@ import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j1.permission.DeleteResult;
 import com.zeroone.star.project.dto.j1.permission.PermissionCreateDTO;
 import com.zeroone.star.project.dto.j1.permission.PermissionUpdateDTO;
+import com.zeroone.star.project.j1.permission.PermissionApis;
 import com.zeroone.star.project.query.j1.permission.PermissionQuery;
 import com.zeroone.star.project.vo.JsonVO;
-
 import com.zeroone.star.project.vo.j1.permission.PermissionTreeVO;
 import com.zeroone.star.project.vo.j1.permission.PermissionVO;
 import com.zeroone.star.sysmgr.service.permission.IPermissionService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import jakarta.validation.Valid;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("/permission")
-@Tag(name = "权限管理")
-public class PermissionController {
+public class PermissionController implements PermissionApis {
 
     @Resource
     private IPermissionService permissionService;
 
-    @Operation(summary = "获取权限名称树")
+    @Override
     @GetMapping("/tree")
-    public JsonVO<List<PermissionTreeVO>> getTree() {
+    public JsonVO<List<PermissionTreeVO>> getPermissionTree() {
         return JsonVO.success(permissionService.listPermissionTree());
     }
 
-    @Operation(summary = "条件分页查询权限列表")
+    @Override
     @GetMapping("/list")
-    public JsonVO<PageDTO<PermissionVO>> list(@Valid PermissionQuery query) {
+    public JsonVO<PageDTO<PermissionVO>> queryPermissions(PermissionQuery query) {
         return JsonVO.success(permissionService.listPermissions(query));
     }
 
-    @Operation(summary = "新增权限")
+    @Override
     @PostMapping
-    public JsonVO<PermissionVO> create(@Valid @RequestBody PermissionCreateDTO dto) {
+    public JsonVO<PermissionVO> createPermission(@RequestBody PermissionCreateDTO dto) {
         return JsonVO.success(permissionService.createPermission(dto));
     }
 
-    @Operation(summary = "编辑权限")
+    @Override
     @PutMapping("/{id}")
-    public JsonVO<PermissionVO> update(@PathVariable String id,
-                                       @Valid @RequestBody PermissionUpdateDTO dto) {
+    public JsonVO<PermissionVO> modifyPermission(@PathVariable String id,
+                                                  @RequestBody PermissionUpdateDTO dto) {
         return JsonVO.success(permissionService.updatePermission(id, dto));
     }
 
-    @Operation(summary = "删除权限（级联）")
+    @Override
     @DeleteMapping("/{id}")
-    public JsonVO<DeleteResult> delete(@PathVariable String id) {
+    public JsonVO<DeleteResult> removePermission(@PathVariable String id) {
         return JsonVO.success(permissionService.deletePermission(id));
     }
 }
