@@ -61,7 +61,7 @@ class PharmacyControllerTest {
 
         mockMvc.perform(post("/warehouse/stocktake/approve")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"busNo\":\"CST2026-001\"}"))
+                        .content("{\"busNo\":\"CST2026-001\",\"status\":\"AGREE\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(10000))
                 .andExpect(jsonPath("$.data").value(true));

@@ -82,6 +82,7 @@ public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean agree(StocktakeAgreeApprovalDTO dto) {
+        requireAgreeStatus(dto.getStatus());
         List<WkfSupplyRequest> rows = requireWarehouseStocktake(dto.getBusNo());
         requireSameStatus(rows);
         requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_PENDING_APPROVAL);
@@ -146,6 +147,15 @@ public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
             }
         }
         throw new IllegalStateException("current status " + currentStatus + " does not allow this approval action");
+    }
+
+    private void requireAgreeStatus(String status) {
+        if (!StringUtils.hasText(status)) {
+            throw new IllegalArgumentException("status cannot be blank when approving stocktake");
+        }
+        if (!STATUS_AGREE.equals(status)) {
+            throw new IllegalArgumentException("status must be AGREE when approving stocktake");
+        }
     }
 
     private void updateStatus(String busNo, String status, StatusUpdateCustomizer customizer) {

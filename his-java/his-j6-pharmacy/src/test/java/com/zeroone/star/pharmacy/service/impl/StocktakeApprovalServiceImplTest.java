@@ -78,6 +78,17 @@ class StocktakeApprovalServiceImplTest {
     }
 
     @Test
+    void agreeRequiresAgreeStatus() {
+        StocktakeAgreeApprovalDTO dto = agreeDto("CST2026-001");
+        dto.setStatus("PENDING_APPROVAL");
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> service.agree(dto));
+
+        assertEquals("status must be AGREE when approving stocktake", ex.getMessage());
+        verify(supplyRequestMapper, never()).selectList(any(QueryWrapper.class));
+    }
+
+    @Test
     void rejectPendingStocktakeRequiresRejectReason() {
         StocktakeRejectApprovalDTO dto = rejectDto("CST2026-001");
 
@@ -153,6 +164,7 @@ class StocktakeApprovalServiceImplTest {
     private StocktakeAgreeApprovalDTO agreeDto(String busNo) {
         StocktakeAgreeApprovalDTO dto = new StocktakeAgreeApprovalDTO();
         dto.setBusNo(busNo);
+        dto.setStatus("AGREE");
         return dto;
     }
 
