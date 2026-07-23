@@ -6,20 +6,39 @@ import com.zeroone.star.project.dto.j6.pharmacy.StocktakeSubmitApprovalDTO;
 import com.zeroone.star.project.dto.j6.pharmacy.StocktakeWithdrawApprovalDTO;
 import com.zeroone.star.project.vo.JsonVO;
 
+/**
+ * 药库盘点审批接口
+ */
 public interface PharmacyApis {
-    default JsonVO<Boolean> submitStocktakeApproval(StocktakeSubmitApprovalDTO dto) {
-        return null;
-    }
+    /**
+     * 提交药库盘点审批
+     *
+     * @param dto 提交审批参数
+     * @return JsonVO<Boolean> 提交结果
+     */
+    JsonVO<Boolean> submitStocktakeApproval(StocktakeSubmitApprovalDTO dto);
 
-    default JsonVO<Boolean> withdrawStocktakeApproval(StocktakeWithdrawApprovalDTO dto) {
-        return null;
-    }
+    /**
+     * 撤回药库盘点审批
+     *
+     * @param dto 撤回审批参数
+     * @return JsonVO<Boolean> 撤回结果
+     */
+    JsonVO<Boolean> withdrawStocktakeApproval(StocktakeWithdrawApprovalDTO dto);
 
-    default JsonVO<Boolean> agreeStocktakeApproval(StocktakeAgreeApprovalDTO dto) {
-        return null;
-    }
+    /**
+     * 通过药库盘点审批
+     *
+     * @param dto 审批通过参数
+     * @return JsonVO<Boolean> 审批结果
+     */
+    JsonVO<Boolean> agreeStocktakeApproval(StocktakeAgreeApprovalDTO dto);
 
-    default JsonVO<Boolean> rejectStocktakeApproval(StocktakeRejectApprovalDTO dto) {
-        return null;
-    }
+    /**
+     * 驳回药库盘点审批
+     *
+     * @param dto 审批驳回参数
+     * @return JsonVO<Boolean> 驳回结果
+     */
+    JsonVO<Boolean> rejectStocktakeApproval(StocktakeRejectApprovalDTO dto);
 }
