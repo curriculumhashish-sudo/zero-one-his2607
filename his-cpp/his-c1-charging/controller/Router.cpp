@@ -43,7 +43,7 @@
 #include"settle/GetTotalFeesController.h"
 
 #include "enroll/EnrollController.h"
-
+#include"enroll/admission.h"
 
 #include"pay_manage/Pay_ManageGetPatientDetailsController.h"
 #include"pay_manage/Pay_ManageGetPatientPayRecordsController.h"
@@ -69,6 +69,9 @@ Router::Router(Endpoints* docEndpoints, HttpRouter* router)
 void Router::initRouter()
 {
 	// #TIP: Add system extension route definitions below
+
+    ROUTER_SIMPLE_BIND(AdmissionController);
+
 	ROUTER_SIMPLE_BIND(ChargeConfirmController);
 	ROUTER_SIMPLE_BIND(QuitNumberController);
 	ROUTER_SIMPLE_BIND(PrintRegisterReceiptController);
