@@ -1,0 +1,389 @@
+package com.zeroone.star.j3.patient.service.impl;
+
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zeroone.star.j3.patient.entity.PatientDO;
+import com.zeroone.star.j3.patient.exception.PatientBusinessException;
+import com.zeroone.star.j3.patient.mapper.PatientMapper;
+import com.zeroone.star.j3.patient.service.PatientService;
+import com.zeroone.star.j3.patient.util.PatientNameCodeUtils;
+import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j3.patient.PatientCreateDTO;
+import com.zeroone.star.project.dto.j3.patient.PatientUpdateDTO;
+import com.zeroone.star.project.query.j3.patient.PatientQuery;
+import com.zeroone.star.project.vo.j3.patient.PatientListVO;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+
+/**
+ * 患者管理业务实现。
+ *
+ * @author 照夜清
+ */
+@Service
+@RequiredArgsConstructor
+public class PatientServiceImpl implements PatientService {
+
+    private static final String STATUS_ACTIVE = "ACTIVE";
+    private static final Set<String> MODIFIABLE_STATUSES =
+            Set.of("DRAFT", STATUS_ACTIVE);
+    private static final Set<String> GENDER_CODES =
+            Set.of("MALE", "FEMALE", "UNKNOWN");
+    private static final String PATIENT_NUMBER_PREFIX = "PA";
+
+    private final PatientMapper patientMapper;
+
+    @Override
+    public PageDTO<PatientListVO> queryPatientPage(PatientQuery query) {
+        normalizeQuery(query);
+        Page<PatientDO> page = patientMapper.selectPatientPage(
+                new Page<>(query.getPageIndex(), query.getPageSize()),
+                query
+        );
+
+        List<PatientListVO> rows = page.getRecords().stream()
+                .map(this::toListVO)
+                .toList();
+        return new PageDTO<>(
+                page.getCurrent(),
+                page.getSize(),
+                page.getTotal(),
+                page.getPages(),
+                rows
+        );
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public String createPatient(PatientCreateDTO dto) {
+        NormalizedPatient normalized = normalizeAndValidate(dto);
+        String tenantId = requireActiveOrganization(
+                normalized.organizationId()
+        );
+        ensureIdCardAvailable(normalized.idCard(), null);
+
+        LocalDateTime now = LocalDateTime.now();
+        PatientDO patient = new PatientDO();
+        BeanUtils.copyProperties(dto, patient);
+        applyNormalizedValues(patient, normalized);
+        patient.setTenantId(tenantId);
+        patient.setBusNo(nextPatientNumber(tenantId, now));
+        patient.setStatusEnum(STATUS_ACTIVE);
+        patient.setActiveFlag(true);
+        patient.setTempFlag(false);
+        patient.setVersion(0);
+        patient.setIsDeleted(false);
+        patient.setCreatedAt(now);
+        patient.setUpdatedAt(now);
+        patient.setPyStr(PatientNameCodeUtils.toPinyinInitials(
+                normalized.name()
+        ));
+
+        if (patientMapper.insert(patient) != 1) {
+            throw new PatientBusinessException("患者建档失败，请稍后重试");
+        }
+        return patient.getId();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updatePatient(String id, PatientUpdateDTO dto) {
+        if (!StringUtils.hasText(id)) {
+            throw new PatientBusinessException("患者ID不能为空");
+        }
+
+        PatientDO patient = patientMapper.selectById(id.trim());
+        if (patient == null) {
+            throw new PatientBusinessException("患者不存在或已删除");
+        }
+        if (!MODIFIABLE_STATUSES.contains(patient.getStatusEnum())) {
+            throw new PatientBusinessException(
+                    "当前患者状态不允许修改基本资料"
+            );
+        }
+        if (dto.getVersion() == null
+                || !patient.getVersion().equals(dto.getVersion())) {
+            throw new PatientBusinessException(
+                    "患者资料已被其他人修改，请刷新后重试"
+            );
+        }
+
+        NormalizedPatient normalized = normalizeAndValidate(dto);
+        requireUnchangedState(patient, dto, normalized.organizationId());
+        requireActiveOrganization(normalized.organizationId());
+        ensureIdCardAvailable(normalized.idCard(), patient.getId());
+
+        BeanUtils.copyProperties(
+                dto,
+                patient,
+                "statusEnum",
+                "activeFlag",
+                "tempFlag",
+                "version",
+                "organizationId"
+        );
+        applyNormalizedValues(patient, normalized);
+        patient.setUpdatedAt(LocalDateTime.now());
+        patient.setPyStr(PatientNameCodeUtils.toPinyinInitials(
+                normalized.name()
+        ));
+
+        if (patientMapper.updateById(patient) != 1) {
+            throw new PatientBusinessException(
+                    "患者资料版本冲突，请刷新后重试"
+            );
+        }
+    }
+
+    private void normalizeQuery(PatientQuery query) {
+        query.setKeyword(trimToNull(query.getKeyword()));
+        query.setName(trimToNull(query.getName()));
+        query.setBusNo(trimToNull(query.getBusNo()));
+        query.setIdCard(normalizeIdCard(query.getIdCard()));
+        query.setPhone(trimToNull(query.getPhone()));
+        query.setGenderEnum(toUpperCase(query.getGenderEnum()));
+        query.setStatusEnum(toUpperCase(query.getStatusEnum()));
+        query.setOrganizationId(trimToNull(query.getOrganizationId()));
+    }
+
+    private PatientListVO toListVO(PatientDO patient) {
+        PatientListVO result = new PatientListVO();
+        BeanUtils.copyProperties(patient, result);
+        result.setIdCard(maskIdCard(patient.getIdCard()));
+        result.setPhone(maskPhone(patient.getPhone()));
+        return result;
+    }
+
+    private NormalizedPatient normalizeAndValidate(PatientCreateDTO dto) {
+        String name = trimToNull(dto.getName());
+        String genderEnum = toUpperCase(dto.getGenderEnum());
+        String organizationId = trimToNull(dto.getOrganizationId());
+        String idCard = normalizeIdCard(dto.getIdCard());
+        String phone = trimToNull(dto.getPhone());
+        String linkTelcom = trimToNull(dto.getLinkTelcom());
+
+        if (name == null) {
+            throw new PatientBusinessException("患者姓名不能为空");
+        }
+        if (!GENDER_CODES.contains(genderEnum)) {
+            throw new PatientBusinessException("性别编码不合法");
+        }
+        if (organizationId == null) {
+            throw new PatientBusinessException("建档机构ID不能为空");
+        }
+        if (dto.getBirthDate() != null
+                && dto.getBirthDate().isAfter(LocalDate.now())) {
+            throw new PatientBusinessException("出生日期不能晚于当前日期");
+        }
+        validateIdCard(idCard);
+        validateTelephone(phone, "联系电话");
+        validateTelephone(linkTelcom, "联系人电话");
+
+        return new NormalizedPatient(
+                name,
+                genderEnum,
+                organizationId,
+                idCard,
+                phone,
+                linkTelcom
+        );
+    }
+
+    private String requireActiveOrganization(String organizationId) {
+        String tenantId = patientMapper
+                .selectTenantIdByActiveOrganizationId(organizationId);
+        if (tenantId == null) {
+            throw new PatientBusinessException(
+                    "建档机构不存在、已停用或已删除"
+            );
+        }
+        return tenantId;
+    }
+
+    private void ensureIdCardAvailable(
+            String idCard,
+            String excludedPatientId
+    ) {
+        if (idCard == null) {
+            return;
+        }
+        String occupiedPatientId = patientMapper
+                .selectIdByIdCardForUpdate(idCard, excludedPatientId);
+        if (occupiedPatientId != null) {
+            throw new PatientBusinessException(
+                    "该身份证号已存在患者档案"
+            );
+        }
+    }
+
+    private String nextPatientNumber(
+            String tenantId,
+            LocalDateTime now
+    ) {
+        String sequenceKey = StringUtils.hasText(tenantId)
+                ? tenantId + ":" + PATIENT_NUMBER_PREFIX
+                : PATIENT_NUMBER_PREFIX;
+        Long currentValue =
+                patientMapper.selectSequenceValueForUpdate(sequenceKey);
+        long nextValue;
+        if (currentValue == null) {
+            nextValue = 1L;
+            if (patientMapper.insertSequence(sequenceKey, nextValue, now)
+                    != 1) {
+                throw new PatientBusinessException(
+                        "患者编号流水初始化失败"
+                );
+            }
+        } else {
+            nextValue = currentValue + 1L;
+            if (patientMapper.updateSequence(
+                    sequenceKey,
+                    nextValue,
+                    now
+            ) != 1) {
+                throw new PatientBusinessException(
+                        "患者编号流水更新失败"
+                );
+            }
+        }
+        return PATIENT_NUMBER_PREFIX + "%08d".formatted(nextValue);
+    }
+
+    private void requireUnchangedState(
+            PatientDO patient,
+            PatientUpdateDTO dto,
+            String normalizedOrganizationId
+    ) {
+        if (!patient.getOrganizationId().equals(normalizedOrganizationId)) {
+            throw new PatientBusinessException(
+                    "普通资料修改不允许更换建档机构"
+            );
+        }
+        if (dto.getStatusEnum() != null
+                && !patient.getStatusEnum().equals(
+                        toUpperCase(dto.getStatusEnum())
+                )) {
+            throw new PatientBusinessException(
+                    "普通资料修改不允许变更患者状态"
+            );
+        }
+        if (dto.getActiveFlag() != null
+                && !patient.getActiveFlag().equals(dto.getActiveFlag())) {
+            throw new PatientBusinessException(
+                    "普通资料修改不允许变更启用标记"
+            );
+        }
+        if (dto.getTempFlag() != null
+                && !patient.getTempFlag().equals(dto.getTempFlag())) {
+            throw new PatientBusinessException(
+                    "普通资料修改不允许变更临时建档标记"
+            );
+        }
+    }
+
+    private void applyNormalizedValues(
+            PatientDO patient,
+            NormalizedPatient normalized
+    ) {
+        patient.setName(normalized.name());
+        patient.setGenderEnum(normalized.genderEnum());
+        patient.setOrganizationId(normalized.organizationId());
+        patient.setIdCard(normalized.idCard());
+        patient.setPhone(normalized.phone());
+        patient.setLinkTelcom(normalized.linkTelcom());
+        patient.setMaritalStatusEnum(trimToNull(
+                patient.getMaritalStatusEnum()
+        ));
+        patient.setPrfsEnum(trimToNull(patient.getPrfsEnum()));
+        patient.setAddress(trimToNull(patient.getAddress()));
+        patient.setAddressProvince(trimToNull(
+                patient.getAddressProvince()
+        ));
+        patient.setAddressCity(trimToNull(patient.getAddressCity()));
+        patient.setAddressDistrict(trimToNull(
+                patient.getAddressDistrict()
+        ));
+        patient.setAddressStreet(trimToNull(patient.getAddressStreet()));
+        patient.setNationalityCode(trimToNull(
+                patient.getNationalityCode()
+        ));
+        patient.setWorkCompany(trimToNull(patient.getWorkCompany()));
+        patient.setNativePlace(trimToNull(patient.getNativePlace()));
+        patient.setCountryCode(trimToNull(patient.getCountryCode()));
+        patient.setLinkName(trimToNull(patient.getLinkName()));
+    }
+
+    private void validateIdCard(String idCard) {
+        if (idCard != null
+                && !idCard.matches("(?:\\d{15}|\\d{17}[\\dX])")) {
+            throw new PatientBusinessException(
+                    "身份证号格式不正确，应为15位或18位"
+            );
+        }
+    }
+
+    private void validateTelephone(String telephone, String fieldName) {
+        if (telephone != null
+                && !telephone.matches("[0-9+()\\-\\s]{6,32}")) {
+            throw new PatientBusinessException(fieldName + "格式不正确");
+        }
+    }
+
+    private String normalizeIdCard(String idCard) {
+        String normalized = trimToNull(idCard);
+        return normalized == null
+                ? null
+                : normalized.toUpperCase(Locale.ROOT);
+    }
+
+    private String toUpperCase(String value) {
+        String normalized = trimToNull(value);
+        return normalized == null
+                ? null
+                : normalized.toUpperCase(Locale.ROOT);
+    }
+
+    private String trimToNull(String value) {
+        if (value == null) {
+            return null;
+        }
+        String normalized = value.trim();
+        return normalized.isEmpty() ? null : normalized;
+    }
+
+    private String maskIdCard(String idCard) {
+        if (!StringUtils.hasText(idCard) || idCard.length() <= 10) {
+            return idCard;
+        }
+        return idCard.substring(0, 6)
+                + "*".repeat(idCard.length() - 10)
+                + idCard.substring(idCard.length() - 4);
+    }
+
+    private String maskPhone(String phone) {
+        if (!StringUtils.hasText(phone) || phone.length() <= 7) {
+            return phone;
+        }
+        return phone.substring(0, 3)
+                + "*".repeat(phone.length() - 7)
+                + phone.substring(phone.length() - 4);
+    }
+
+    private record NormalizedPatient(
+            String name,
+            String genderEnum,
+            String organizationId,
+            String idCard,
+            String phone,
+            String linkTelcom
+    ) {
+    }
+}

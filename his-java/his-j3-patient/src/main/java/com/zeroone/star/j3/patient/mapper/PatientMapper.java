@@ -1,0 +1,162 @@
+package com.zeroone.star.j3.patient.mapper;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zeroone.star.j3.patient.entity.PatientDO;
+import com.zeroone.star.project.query.j3.patient.PatientQuery;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
+
+import java.time.LocalDateTime;
+
+/**
+ * 患者档案数据访问层。
+ *
+ * @author 照夜清
+ */
+@Mapper
+public interface PatientMapper extends BaseMapper<PatientDO> {
+
+    /**
+     * 按原型筛选条件分页查询患者管理列表。
+     *
+     * @param page  分页参数
+     * @param query 查询条件
+     * @return 患者分页
+     */
+    @Select("""
+            <script>
+            SELECT
+                id,
+                bus_no,
+                name,
+                gender_enum,
+                birth_date,
+                id_card,
+                phone,
+                status_enum,
+                active_flag,
+                temp_flag,
+                organization_id,
+                created_at,
+                updated_at
+            FROM adm_patient
+            WHERE is_deleted = 0
+            <if test="query.keyword != null and query.keyword != ''">
+                AND (
+                    name LIKE CONCAT('%', #{query.keyword}, '%')
+                    OR bus_no LIKE CONCAT('%', #{query.keyword}, '%')
+                    OR id_card LIKE CONCAT('%', #{query.keyword}, '%')
+                    OR py_str LIKE CONCAT('%', #{query.keyword}, '%')
+                    OR wb_str LIKE CONCAT('%', #{query.keyword}, '%')
+                )
+            </if>
+            <if test="query.name != null and query.name != ''">
+                AND name LIKE CONCAT('%', #{query.name}, '%')
+            </if>
+            <if test="query.busNo != null and query.busNo != ''">
+                AND bus_no LIKE CONCAT('%', #{query.busNo}, '%')
+            </if>
+            <if test="query.idCard != null and query.idCard != ''">
+                AND id_card LIKE CONCAT('%', #{query.idCard}, '%')
+            </if>
+            <if test="query.phone != null and query.phone != ''">
+                AND phone LIKE CONCAT('%', #{query.phone}, '%')
+            </if>
+            <if test="query.genderEnum != null and query.genderEnum != ''">
+                AND gender_enum = #{query.genderEnum}
+            </if>
+            <if test="query.statusEnum != null and query.statusEnum != ''">
+                AND status_enum = #{query.statusEnum}
+            </if>
+            <if test="query.activeFlag != null">
+                AND active_flag = #{query.activeFlag}
+            </if>
+            <if test="query.tempFlag != null">
+                AND temp_flag = #{query.tempFlag}
+            </if>
+            <if test="query.organizationId != null and query.organizationId != ''">
+                AND organization_id = #{query.organizationId}
+            </if>
+            ORDER BY created_at DESC, id DESC
+            </script>
+            """)
+    Page<PatientDO> selectPatientPage(
+            Page<PatientDO> page,
+            @Param("query") PatientQuery query
+    );
+
+    /**
+     * 查询包括已软删数据在内的身份证占用记录，并加排他锁。
+     */
+    @Select("""
+            SELECT id
+            FROM adm_patient
+            WHERE id_card = #{idCard}
+              AND (#{excludedId} IS NULL OR id != #{excludedId})
+            LIMIT 1
+            FOR UPDATE
+            """)
+    String selectIdByIdCardForUpdate(
+            @Param("idCard") String idCard,
+            @Param("excludedId") String excludedId
+    );
+
+    /**
+     * 获取有效建档机构所属租户。
+     */
+    @Select("""
+            SELECT COALESCE(tenant_id, '')
+            FROM adm_organization
+            WHERE id = #{organizationId}
+              AND is_deleted = 0
+              AND active_flag = 1
+              AND status_enum = 'ACTIVE'
+            LIMIT 1
+            """)
+    String selectTenantIdByActiveOrganizationId(
+            @Param("organizationId") String organizationId
+    );
+
+    /**
+     * 锁定并读取患者编号流水。
+     */
+    @Select("""
+            SELECT current_value
+            FROM whale_sequence
+            WHERE seq_key = #{seqKey}
+            FOR UPDATE
+            """)
+    Long selectSequenceValueForUpdate(@Param("seqKey") String seqKey);
+
+    /**
+     * 初始化患者编号流水。
+     */
+    @Insert("""
+            INSERT INTO whale_sequence(seq_key, current_value, updated_at)
+            VALUES(#{seqKey}, #{currentValue}, #{updatedAt})
+            """)
+    int insertSequence(
+            @Param("seqKey") String seqKey,
+            @Param("currentValue") long currentValue,
+            @Param("updatedAt") LocalDateTime updatedAt
+    );
+
+    /**
+     * 递增患者编号流水。
+     */
+    @Update("""
+            UPDATE whale_sequence
+            SET current_value = #{currentValue},
+                updated_at = #{updatedAt}
+            WHERE seq_key = #{seqKey}
+            """)
+    int updateSequence(
+            @Param("seqKey") String seqKey,
+            @Param("currentValue") long currentValue,
+            @Param("updatedAt") LocalDateTime updatedAt
+    );
+}
