@@ -30,13 +30,13 @@ public interface PharmacyApis {
      * <p>填入完整实盘数据，快照锁定当前账面数（通过 inventoryItemId 关联 wkf_inventory_item），状态保持草稿</p>
      *
      * @param busNo 盘点单号（路径参数）
-     * @param dto   头信息 + 明细行列表(明细行仅含 inventoryItemId, traceNo, remake, actualQuantity, profitLossQuantity)
+     * @param dto   头信息 + 明细行列表(明细行仅含 inventoryItemId, traceNo, remake, actualQuantity, profitLossQuantity, unitCode, lotNumber)
      * @return 更新后的盘点单详情
      */
     @Operation(summary = "保存盘点单", description = "填入实盘数据 + 快照锁定账面数，状态=草稿")
     @PutMapping("/pharmacy/stocktake/{busNo}/save")
     JsonVO<StocktakeDetailVO> saveStocktake(
-            @Parameter(description = "盘点单号", required = true, example = "PD202607180001")
+            @Parameter(description = "盘点单号", required = true, example = "CST2026-07-200001")
             @PathVariable String busNo,
             @RequestBody StocktakeSaveDTO dto
     );
@@ -46,13 +46,13 @@ public interface PharmacyApis {
      * <p>将盘点明细数据更新到库中，获取申请人和申请时间，将状态从草稿更新为待审批</p>
      *
      * @param busNo 盘点单号（路径参数）
-     * @param dto   头信息 + 明细行列表(明细行仅含 inventoryItemId, traceNo, remake, actualQuantity, profitLossQuantity)
+     * @param dto   头信息 + 明细行列表(明细行含 inventoryItemId, unitCode, lotNumber, actualQuantity, profitLossQuantity, traceNo, remake)
      * @return 更新后的盘点单详情（状态=PENDING_APPROVAL）
      */
     @Operation(summary = "保存盘点单并提交审批", description = "填入实盘数据，状态草稿→待审批")
     @PutMapping("/pharmacy/stocktake/{busNo}/submit")
     JsonVO<StocktakeDetailVO> submitStocktake(
-            @Parameter(description = "盘点单号", required = true, example = "PD202607180001")
+            @Parameter(description = "盘点单号", required = true, example = "CST2026-07-200001")
             @PathVariable String busNo,
             @RequestBody StocktakeSaveDTO dto
     );
