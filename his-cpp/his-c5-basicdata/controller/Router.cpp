@@ -19,6 +19,7 @@
 #include "stdafx.h"
 #include "Router.h"
 #include "ApiHelper.h"
+#include "dept/DeptController.h"
 #include "pat/PatController.h"
 #include "pat/PatientController.h"
 #include "organization/OrganizationController.h"
@@ -46,6 +47,7 @@ Router::Router(Endpoints* docEndpoints, HttpRouter* router)
 void Router::initRouter()
 {
 	// #TIP: Add system extension route definitions below
+	ROUTER_SIMPLE_BIND(DeptController);
 	ROUTER_SIMPLE_BIND(PatController);
 	ROUTER_SIMPLE_BIND(PatientController);
 	ROUTER_SIMPLE_BIND(OrganizationController);

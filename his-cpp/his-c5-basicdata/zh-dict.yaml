@@ -1,4 +1,31 @@
-﻿pat:
+﻿dept:
+  tag: 科室管理
+  add:
+    summary: 新增科室
+  modify:
+    summary: 修改科室
+  remove:
+    summary: 删除科室
+  field:
+    id: 科室编号
+    name: 科室名称
+    type-enum: 类型
+    class-enum: 类别
+    parent-id: 上级组织编号
+    yb-no: 医保编码
+    yb-name: 医保名称
+    medins-id: 机构标识
+    medins-admdvs: 医保区划
+    medins-type: 机构类型
+    medins-lv: 机构等级
+    py-str: 拼音码
+    wb-str: 五笔码
+    def-doctor-id: 默认医生编号
+    caty: 科别
+    display-order: 显示顺序
+    status-enum: 状态
+    active-flag: 是否启用
+pat:
   tag: 患者管理接口
   page:
     success: 患者分页查询接口访问成功
