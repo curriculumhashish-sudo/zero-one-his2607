@@ -1,4 +1,4 @@
-#ifndef _SUPPLIER_ADD_UPDATE_VO_H_
+﻿#ifndef _SUPPLIER_ADD_UPDATE_VO_H_
 #define _SUPPLIER_ADD_UPDATE_VO_H_
 
 #include "../../GlobalInclude.h"

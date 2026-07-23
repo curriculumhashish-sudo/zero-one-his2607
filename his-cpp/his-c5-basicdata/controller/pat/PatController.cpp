@@ -4,13 +4,13 @@
 
 PatPageJsonVO::Wrapper PatController::execQueryPatPage(const PatPageQuery::Wrapper& query, const PayloadDTO& payload)
 {
-    // ´´½¨·ÖÒ³ÔØÌå£¬Ä£°åÌî PatDTO::Wrapper
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò³ï¿½ï¿½ï¿½å£¬Ä£ï¿½ï¿½ï¿½ï¿½ PatDTO::Wrapper
     auto pageData = PageDTO<PatDTO::Wrapper>::createShared();
     pageData->pageIndex = query->pageIndex;
     pageData->pageSize = query->pageSize;
     pageData->calcPages();
 
-    // Íâ²ã±ê×¼ÏìÓ¦
+    // ï¿½ï¿½ï¿½ï¿½×¼ï¿½ï¿½Ó¦
     auto respVo = PatPageJsonVO::createShared();
     respVo->success(pageData);
     respVo->message = ZH_WORDS_GETTER("pat.page.success");
@@ -32,13 +32,14 @@ PatSelectPageJsonVO::Wrapper PatController::execQuerySelectPatPage(const PatSele
 
 ListJsonVO<String>::Wrapper PatController::execRemovePat(const List<String>& ids)
 {
-    // ¶¨Òå·µ»ØÊý¾Ý¶ÔÏó
+    // ï¿½ï¿½ï¿½å·µï¿½ï¿½ï¿½ï¿½ï¿½Ý¶ï¿½ï¿½ï¿½
     auto jvo = ListJsonVO<String>::createShared();
-    // ²ÎÊýÐ£Ñé
+    // ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½
     if (ids->empty())
     {
         jvo->init(nullptr, RS_PARAMS_INVALID);
         return jvo;
     }
 
+    return jvo;
 }

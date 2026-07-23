@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -28,6 +28,9 @@
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
+#ifdef API_TAG
+#undef API_TAG
+#endif
 #define API_TAG ZH_WORDS_GETTER("pharm.tags.name")
 
 /**
