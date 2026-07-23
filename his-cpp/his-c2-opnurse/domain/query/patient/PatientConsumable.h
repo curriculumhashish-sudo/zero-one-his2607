@@ -8,7 +8,7 @@ class PatientConsumQuery : public oatpp::DTO
 {
 	DTO_INIT(PatientConsumQuery, DTO);
 	// Consumable room
-	API_DTO_FIELD_REQUIRE(String, consumableRoom, ZH_WORDS_GETTER("patientconsumable.field.consumableRoom"), false);
+	API_DTO_FIELD_REQUIRE(String, consumableRoom, ZH_WORDS_GETTER("patientconsumable1.field.consumableRoom"), false);
 
 };
 #include OATPP_CODEGEN_END(DTO)
