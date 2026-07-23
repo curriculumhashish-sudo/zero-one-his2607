@@ -9,6 +9,7 @@
 
 #include "ward/WardController.h"
 #include "pat/PatController.h"
+#include "pharm/PharmController.h"
 
 // 如果定义了关闭Swagger文档宏
 #include "sup/SupplierAddUpdateController.h"
@@ -35,6 +36,7 @@ void Router::initRouter()
 	//#TIP :系统扩展路由定义，写在这个后面
 	ROUTER_SIMPLE_BIND(WardController);
 	ROUTER_SIMPLE_BIND(PatController);
+	ROUTER_SIMPLE_BIND(PharmController);
 	// #TIP: Add system extension route definitions below
 	ROUTER_SIMPLE_BIND(DeptController);
 	ROUTER_SIMPLE_BIND(PatController);

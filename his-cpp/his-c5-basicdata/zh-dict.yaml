@@ -1,6 +1,6 @@
-﻿pat:
+pat:
  tags: 患者管理
- delete: 
+ delete:
   summary: 患者删除
  field:
   id: 患者ID
@@ -140,3 +140,22 @@ sup:
     displayOrder: 显示顺序
     statusEnum: 状态枚举值(NORMAL/DISABLED)
     note: 备注说明
+pharm:
+  tags:
+    name: 库房/药房管理
+  select-list:
+    summary: 获取库房/药房下拉选择列表
+  query-all:
+    summary: 分页查询库房/药房列表
+  add:
+    summary: 新增库房/药房
+  field:
+    id: 唯一标识
+    name: 名称
+    type: 类型(WAREHOUSE/PHARMACY)
+    status: 状态(ENABLED/DISABLED)
+    pyStr: 拼音码
+    wbStr: 五笔码
+    displayOrder: 显示顺序
+    note: 备注
+    keyword: 搜索关键词(名称/拼音/五笔)
