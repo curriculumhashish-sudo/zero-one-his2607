@@ -2,18 +2,14 @@ package com.zeroone.star.project.j6.pharmacy;
 
 import com.zeroone.star.project.dto.j6.pharmacy.stocktake.PharmacyInventoryDetailQueryDTO;
 import com.zeroone.star.project.dto.j6.pharmacy.stocktake.PharmacyInventoryQueryDTO;
-import com.zeroone.star.project.dto.j6.pharmacy.stocktake.PharmacyInventorySaveDTO;
 import com.zeroone.star.project.dto.j6.pharmacy.stocktake.StocktakeSaveDTO;
 import com.zeroone.star.project.query.j6.pharmacy.stocktake.PharmacyInventoryQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stocktake.StocktakeDetailVO;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "药库管理")
 public interface WarehouseStocktakeApis {
@@ -41,7 +37,7 @@ public interface WarehouseStocktakeApis {
      */
     @Operation(summary = "新增盘点单", description = "生成空盘点单, 状态=草稿")
     @PostMapping("/pharmacy/stocktake/create")
-    JsonVO<StocktakeDetailVO> createStocktake(@RequestBody StocktakeSaveDTO dto);
+    JsonVO<StocktakeDetailVO> createStocktake(StocktakeSaveDTO dto);
 
     /**
      * 保存盘点单
@@ -53,11 +49,7 @@ public interface WarehouseStocktakeApis {
      */
     @Operation(summary = "保存盘点单", description = "填入实盘数据 + 快照锁定账面数，状态=草稿")
     @PutMapping("/pharmacy/stocktake/{busNo}/save")
-    JsonVO<StocktakeDetailVO> saveStocktake(
-            @Parameter(description = "盘点单号", required = true, example = "CST2026-07-200001")
-            @PathVariable String busNo,
-            @RequestBody StocktakeSaveDTO dto
-    );
+    JsonVO<StocktakeDetailVO> saveStocktake(String busNo, StocktakeSaveDTO dto);
 
     /**
      * 保存盘点单并提交审批
@@ -69,9 +61,5 @@ public interface WarehouseStocktakeApis {
      */
     @Operation(summary = "保存盘点单并提交审批", description = "填入实盘数据，状态草稿→待审批")
     @PutMapping("/pharmacy/stocktake/{busNo}/submit")
-    JsonVO<StocktakeDetailVO> submitStocktake(
-            @Parameter(description = "盘点单号", required = true, example = "CST2026-07-200001")
-            @PathVariable String busNo,
-            @RequestBody StocktakeSaveDTO dto
-    );
+    JsonVO<StocktakeDetailVO> submitStocktake(String busNo, StocktakeSaveDTO dto);
 }
