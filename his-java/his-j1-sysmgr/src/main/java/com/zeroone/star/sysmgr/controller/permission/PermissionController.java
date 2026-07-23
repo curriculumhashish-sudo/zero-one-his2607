@@ -11,6 +11,7 @@ import com.zeroone.star.project.vo.j1.permission.PermissionTreeVO;
 import com.zeroone.star.project.vo.j1.permission.PermissionVO;
 import com.zeroone.star.sysmgr.service.permission.IPermissionService;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,20 +33,20 @@ public class PermissionController implements PermissionApis {
 
     @Override
     @GetMapping("/list")
-    public JsonVO<PageDTO<PermissionVO>> queryPermissions(PermissionQuery query) {
+    public JsonVO<PageDTO<PermissionVO>> queryPermissions(@Valid PermissionQuery query) {
         return JsonVO.success(permissionService.listPermissions(query));
     }
 
     @Override
     @PostMapping
-    public JsonVO<PermissionVO> createPermission(@RequestBody PermissionCreateDTO dto) {
+    public JsonVO<PermissionVO> createPermission(@Valid @RequestBody PermissionCreateDTO dto) {
         return JsonVO.success(permissionService.createPermission(dto));
     }
 
     @Override
     @PutMapping("/{id}")
     public JsonVO<PermissionVO> modifyPermission(@PathVariable String id,
-                                                  @RequestBody PermissionUpdateDTO dto) {
+                                                  @Valid @RequestBody PermissionUpdateDTO dto) {
         return JsonVO.success(permissionService.updatePermission(id, dto));
     }
 
