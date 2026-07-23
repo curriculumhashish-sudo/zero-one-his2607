@@ -10,11 +10,11 @@ class PatientActDTO : public oatpp::DTO
 {
 	DTO_INIT(PatientActDTO, DTO);
 	// Status
-	API_DTO_FIELD_REQUIRE(String, status, ZH_WORDS_GETTER("patient.field.status"), true);
+	API_DTO_FIELD_REQUIRE(String, status, ZH_WORDS_GETTER("patient1.field.status"), true);
 	// Order content
-	API_DTO_FIELD_REQUIRE(String, orderContent, ZH_WORDS_GETTER("patient.field.orderContent"), true);
+	API_DTO_FIELD_REQUIRE(String, orderContent, ZH_WORDS_GETTER("patient1.field.orderContent"), true);
 	// Whether executed
-	API_DTO_FIELD_REQUIRE(Int32, isAct, ZH_WORDS_GETTER("patient.field.act"), false);
+	API_DTO_FIELD_REQUIRE(Int32, isAct, ZH_WORDS_GETTER("patient1.field.act"), false);
 };
 
 /**

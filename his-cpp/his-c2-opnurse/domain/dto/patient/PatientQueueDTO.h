@@ -10,11 +10,11 @@ class PatientQueueDTO : public oatpp::DTO
 {
 	DTO_INIT(PatientQueueDTO, DTO);
 	// 姓名
-	API_DTO_FIELD_REQUIRE(string, name, ZH_WORDS_GETTER("patient.field.status"), true);
+	API_DTO_FIELD_REQUIRE(string, name, ZH_WORDS_GETTER("patient1.field.status"), true);
 	// 性别
-	API_DTO_FIELD_REQUIRE(string, orderContent, ZH_WORDS_GETTER("patient.field.orderContent"), true);
+	API_DTO_FIELD_REQUIRE(string, orderContent, ZH_WORDS_GETTER("patient1.field.orderContent"), true);
 	// 年龄
-	API_DTO_FIELD_REQUIRE(string, age, ZH_WORDS_GETTER("patient.field.age"), true);
+	API_DTO_FIELD_REQUIRE(string, age, ZH_WORDS_GETTER("patient1.field.age"), true);
 	// 就诊时间
 	API_DTO_FIELD_REQUIRE(String, visitTime, ZH_WORDS_GETTER("patientqueue.field.visitTime"), true);
 	// 序号队列
