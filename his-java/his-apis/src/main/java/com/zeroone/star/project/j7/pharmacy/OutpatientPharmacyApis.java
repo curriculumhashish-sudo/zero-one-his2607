@@ -1,11 +1,11 @@
-package com.zeroone.star.project.pharmacy;
+package com.zeroone.star.project.j7.pharmacy;
 
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.pharmacy.ReturnRejectDTO;
-import com.zeroone.star.project.query.pharmacy.PatientQueueQuery;
+import com.zeroone.star.project.dto.j7.pharmacy.ReturnRejectDTO;
+import com.zeroone.star.project.query.j7.pharmacy.PatientQueueQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.pharmacy.DrugItemVO;
-import com.zeroone.star.project.vo.pharmacy.PatientQueueVO;
+import com.zeroone.star.project.vo.j7.pharmacy.DrugItemVO;
+import com.zeroone.star.project.vo.j7.pharmacy.PatientQueueVO;
 
 import java.util.List;
 

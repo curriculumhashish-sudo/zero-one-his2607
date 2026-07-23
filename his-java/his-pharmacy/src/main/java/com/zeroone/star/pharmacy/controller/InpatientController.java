@@ -1,14 +1,14 @@
 package com.zeroone.star.pharmacy.controller;
 
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.pharmacy.DispensingRejectDTO;
-import com.zeroone.star.project.dto.pharmacy.ReturnConfirmDTO;
-import com.zeroone.star.project.pharmacy.InpatientPharmacyApis;
-import com.zeroone.star.project.query.pharmacy.PatientQueueQuery;
+import com.zeroone.star.project.dto.j7.pharmacy.DispensingRejectDTO;
+import com.zeroone.star.project.dto.j7.pharmacy.ReturnConfirmDTO;
+import com.zeroone.star.project.j7.pharmacy.InpatientPharmacyApis;
+import com.zeroone.star.project.query.j7.pharmacy.PatientQueueQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.pharmacy.DrugItemVO;
-import com.zeroone.star.project.vo.pharmacy.PatientQueueVO;
-import com.zeroone.star.project.vo.pharmacy.SummaryVO;
+import com.zeroone.star.project.vo.j7.pharmacy.DrugItemVO;
+import com.zeroone.star.project.vo.j7.pharmacy.PatientQueueVO;
+import com.zeroone.star.project.vo.j7.pharmacy.SummaryVO;
 import com.zeroone.star.pharmacy.service.IInpatientPharmacyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

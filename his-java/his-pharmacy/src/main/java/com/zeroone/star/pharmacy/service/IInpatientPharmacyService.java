@@ -3,12 +3,12 @@ package com.zeroone.star.pharmacy.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zeroone.star.pharmacy.entity.DispensingHeader;
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.pharmacy.DispensingRejectDTO;
-import com.zeroone.star.project.dto.pharmacy.ReturnConfirmDTO;
-import com.zeroone.star.project.query.pharmacy.PatientQueueQuery;
-import com.zeroone.star.project.vo.pharmacy.DrugItemVO;
-import com.zeroone.star.project.vo.pharmacy.PatientQueueVO;
-import com.zeroone.star.project.vo.pharmacy.SummaryVO;
+import com.zeroone.star.project.dto.j7.pharmacy.DispensingRejectDTO;
+import com.zeroone.star.project.dto.j7.pharmacy.ReturnConfirmDTO;
+import com.zeroone.star.project.query.j7.pharmacy.PatientQueueQuery;
+import com.zeroone.star.project.vo.j7.pharmacy.DrugItemVO;
+import com.zeroone.star.project.vo.j7.pharmacy.PatientQueueVO;
+import com.zeroone.star.project.vo.j7.pharmacy.SummaryVO;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.zeroone.star.project.query.pharmacy;
+package com.zeroone.star.project.query.j7.pharmacy;
 
 import com.zeroone.star.project.query.PageQuery;
 import io.swagger.v3.oas.annotations.media.Schema;

@@ -1,4 +1,4 @@
-package com.zeroone.star.project.dto.pharmacy;
+package com.zeroone.star.project.dto.j7.pharmacy;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -10,13 +10,12 @@ import java.util.List;
 
 /**
  * <p>
- * 描述：住院退药确认数据传输对象
+ * 描述：门诊拒绝退药数据传输对象
  * </p>
  * <p>
- * 功能说明：用于接收前端提交的住院退药确认请求参数。
- * 包含退药申请单ID、患者信息、勾选的药品明细ID列表和操作人。
- * 服务层根据该 DTO 更新 return_header 表状态，
- * 并根据勾选的药品列表回补 drug_stock 表库存。
+ * 功能说明：用于接收前端提交的门诊拒绝退药请求参数。
+ * 包含退药申请单ID、患者信息、拒绝原因和驳回的药品明细ID列表。
+ * 服务层根据该 DTO 更新 return_header 表状态为"已拒绝"。
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
@@ -27,8 +26,8 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "住院退药确认DTO")
-public class ReturnConfirmDTO {
+@Schema(description = "门诊拒绝退药DTO")
+public class ReturnRejectDTO {
     @Schema(description = "退药申请单ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String returnId;
 
@@ -38,9 +37,9 @@ public class ReturnConfirmDTO {
     @Schema(description = "患者姓名")
     private String patientName;
 
-    @Schema(description = "确认退药的药品明细ID列表", requiredMode = Schema.RequiredMode.REQUIRED)
-    private List<String> itemIds;
+    @Schema(description = "驳回原因")
+    private String rejectReason;
 
-    @Schema(description = "操作人")
-    private String operator;
+    @Schema(description = "驳回的药品明细ID列表")
+    private List<String> itemIds;
 }
