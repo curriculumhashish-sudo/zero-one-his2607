@@ -13,11 +13,13 @@
         CASE UPPER(d.status_enum)
             WHEN 'COMPLETED' THEN '已完成'
             WHEN 'DONE' THEN '已完成'
+            WHEN 'REFUNDED' THEN '已退药'
+            WHEN 'DECLINED' THEN '已拒绝'
             WHEN 'IN_PROGRESS' THEN '处理中'
             WHEN 'CANCELLED' THEN '已取消'
             ELSE d.status_enum
         END AS dispense_status_name,
-        r.prescription_no,
+        COALESCE(NULLIF(r.prescription_no, ''), r.bus_no, d.bus_no) AS prescription_no,
         p.name AS patient_name,
         e.bus_no AS inpatient_no,
         stay.ward_name,
@@ -100,11 +102,7 @@
             AND d.dispense_time &gt;= #{query.startTime}
         </if>
         <if test="query.endTime != null and query.endTime != ''">
-            AND d.dispense_time &lt;= IF(
-                LENGTH(#{query.endTime}) = 10,
-                CONCAT(#{query.endTime}, ' 23:59:59'),
-                #{query.endTime}
-            )
+            AND d.dispense_time &lt;= #{query.endTime}
         </if>
         <if test="query.drugKeyword != null and query.drugKeyword != ''">
             AND (m.name LIKE CONCAT('%', #{query.drugKeyword}, '%')

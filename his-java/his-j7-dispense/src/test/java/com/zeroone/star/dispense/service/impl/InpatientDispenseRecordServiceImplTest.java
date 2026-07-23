@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -57,6 +58,58 @@ class InpatientDispenseRecordServiceImplTest {
         assertEquals("DISP-001", row.getId());
         assertEquals("张三", row.getPatientName());
         assertEquals("IP-001", row.getInpatientNo());
+    }
+
+    @Test
+    void queryPageNormalizesBusinessFiltersBeforeQuerying() {
+        InpatientDispenseRecordQuery query = new InpatientDispenseRecordQuery();
+        query.setWardId("  WARD-001  ");
+        query.setPatientKeyword("  张三  ");
+        query.setBedNo("  08床 ");
+        query.setStatusEnum(" completed ");
+        query.setDispenseEnum(" dispense ");
+        query.setStartTime("2026-07-01");
+        query.setEndTime("2026-07-31");
+
+        when(mapper.selectInpatientDispensePage(any(Page.class), eq(query)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        service.queryPage(query);
+
+        assertEquals("WARD-001", query.getWardId());
+        assertEquals("张三", query.getPatientKeyword());
+        assertEquals("08床", query.getBedNo());
+        assertEquals("COMPLETED", query.getStatusEnum());
+        assertEquals("INPATIENT", query.getDispenseEnum());
+        assertEquals("2026-07-01 00:00:00", query.getStartTime());
+        assertEquals("2026-07-31 23:59:59", query.getEndTime());
+    }
+
+    @Test
+    void queryPageRejectsReversedTimeRangeBeforeAccessingDatabase() {
+        InpatientDispenseRecordQuery query = new InpatientDispenseRecordQuery();
+        query.setStartTime("2026-08-01");
+        query.setEndTime("2026-07-31");
+
+        IllegalArgumentException error = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.queryPage(query)
+        );
+
+        assertEquals("开始时间不能晚于结束时间", error.getMessage());
+        verifyNoInteractions(mapper);
+    }
+
+    @Test
+    void listForExportMapsReturnAliasToDatabaseEnum() {
+        InpatientDispenseRecordQuery query = new InpatientDispenseRecordQuery();
+        query.setDispenseEnum("return");
+        when(mapper.selectInpatientDispenseList(eq(query), eq(10_001)))
+                .thenReturn(List.of(new InpatientDispenseRecordDTO()));
+
+        service.listForExport(query);
+
+        assertEquals("REFUND", query.getDispenseEnum());
     }
 
     @Test
