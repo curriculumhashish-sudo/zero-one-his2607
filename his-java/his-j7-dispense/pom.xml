@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<<<<<<< HEAD
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-=======
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
->>>>>>> 513c733e37f8c86f6581e6d4b1be4958cbc2e84b
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -13,15 +8,7 @@
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-<<<<<<< HEAD
-    <groupId>com.zeroone.star</groupId>
-    <artifactId>his-j7-dispense</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-=======
-    <artifactId>his-j7-dispense</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-
->>>>>>> 513c733e37f8c86f6581e6d4b1be4958cbc2e84b
+    <artifactId>his-oauth2</artifactId>
     <dependencies>
         <!-- web -->
         <dependency>
@@ -38,47 +25,22 @@
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
         </dependency>
-<<<<<<< HEAD
         <!-- zo oauth2 cloud starter -->
         <dependency>
             <groupId>com.zeroone.star</groupId>
             <artifactId>zero-one-cloud-starter-oauth2</artifactId>
         </dependency>
         <!-- common -->
-=======
-        <!-- zero-one-cloud-starter-oauth2 -->
-<!--        <dependency>-->
-<!--            <groupId>com.zeroone.star</groupId>-->
-<!--            <artifactId>zero-one-cloud-starter-oauth2</artifactId>-->
-<!--        </dependency>-->
-        <!-- his-common -->
->>>>>>> 513c733e37f8c86f6581e6d4b1be4958cbc2e84b
         <dependency>
             <groupId>com.zeroone.star</groupId>
             <artifactId>his-common</artifactId>
         </dependency>
-<<<<<<< HEAD
         <!-- domain -->
-=======
-        <!-- his-domain -->
->>>>>>> 513c733e37f8c86f6581e6d4b1be4958cbc2e84b
         <dependency>
             <groupId>com.zeroone.star</groupId>
             <artifactId>his-domain</artifactId>
         </dependency>
-<<<<<<< HEAD
-=======
-        <!-- his-apis -->
->>>>>>> 513c733e37f8c86f6581e6d4b1be4958cbc2e84b
-        <dependency>
-            <groupId>com.zeroone.star</groupId>
-            <artifactId>his-apis</artifactId>
-        </dependency>
-<<<<<<< HEAD
         <!-- mybatis plus -->
-=======
-        <!-- mybatis-plus starter -->
->>>>>>> 513c733e37f8c86f6581e6d4b1be4958cbc2e84b
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
@@ -87,11 +49,7 @@
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-jsqlparser</artifactId>
         </dependency>
-<<<<<<< HEAD
         <!-- druid starter -->
-=======
-        <!-- druid -->
->>>>>>> 513c733e37f8c86f6581e6d4b1be4958cbc2e84b
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid-spring-boot-starter</artifactId>
@@ -101,20 +59,12 @@
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
         </dependency>
-<<<<<<< HEAD
         <!-- redis starter -->
-=======
-        <!-- redis -->
->>>>>>> 513c733e37f8c86f6581e6d4b1be4958cbc2e84b
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
-<<<<<<< HEAD
         <!-- spring session -->
-=======
-        <!-- spring session redis -->
->>>>>>> 513c733e37f8c86f6581e6d4b1be4958cbc2e84b
         <dependency>
             <groupId>org.springframework.session</groupId>
             <artifactId>spring-session-data-redis</artifactId>
@@ -127,20 +77,15 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-<<<<<<< HEAD
                     <mainClass>com.zeroone.star.oauth2.Oauth2Application</mainClass>
-=======
-                    <mainClass>com.zeroone.star.j7.dispense.DispenseApplication</mainClass>
->>>>>>> 513c733e37f8c86f6581e6d4b1be4958cbc2e84b
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
                 <configuration>
-<<<<<<< HEAD
                     <!-- Docker 远程管理地址-->
-                    <dockerHost>https://192.168.220.128:2375</dockerHost>
+                    <dockerHost>https://192.168.254.128:2375</dockerHost>
                     <!-- CA 证书位置 -->
                     <certPath>/home/docker-ca</certPath>
                     <!-- 镜像设置 -->
@@ -163,38 +108,17 @@
                                     <port>10400:10400</port>
                                 </ports>
                                 <!-- 数据卷 -->
-=======
-                    <dockerHost>https://192.168.220.128:2375</dockerHost>
-                    <certPath>/home/docker-ca</certPath>
-                    <images>
-                        <image>
-                            <name>01star/${project.artifactId}:${project.version}</name>
-                            <build>
-                                <contextDir>${project.basedir}</contextDir>
-                            </build>
-                            <alias>${project.artifactId}</alias>
-                            <run>
-                                <namingStrategy>alias</namingStrategy>
-                                <ports>
-                                    <port>10401:10401</port>
-                                </ports>
->>>>>>> 513c733e37f8c86f6581e6d4b1be4958cbc2e84b
                                 <volumes>
                                     <bind>
                                         <volume>/etc/localtime:/etc/localtime</volume>
                                         <volume>/home/app/${project.artifactId}/logs:/tmp/logs</volume>
                                     </bind>
                                 </volumes>
-<<<<<<< HEAD
                                 <!-- 设置环境变量 -->
                                 <env>
                                     <!-- JVM参数 -->
                                     <JAVA_OPTS>-Xms256m -Xmx256m</JAVA_OPTS>
                                     <!-- 启动替换参数 -->
-=======
-                                <env>
-                                    <JAVA_OPTS>-Xms256m -Xmx256m</JAVA_OPTS>
->>>>>>> 513c733e37f8c86f6581e6d4b1be4958cbc2e84b
                                     <SPRING_ARGS>
                                         --spring.profiles.active=test --spring.cloud.nacos.discovery.ip=192.168.220.128
                                     </SPRING_ARGS>
@@ -208,11 +132,10 @@
                 <groupId>com.zeroone.star</groupId>
                 <artifactId>mp-code-generator-plugin</artifactId>
                 <configuration>
-<<<<<<< HEAD
                     <!-- 数据库连接信息配置 -->
                     <dbConfig>
                         <!-- 数据库主机地址 -->
-                        <host>192.168.254.128</host>
+                        <host>192.168.220.128</host>
                         <!-- 数据库端口 -->
                         <port>3306</port>
                         <!-- 数据库名称 -->
@@ -223,25 +146,10 @@
                         <password>123456</password>
                     </dbConfig>
                     <!-- 生成代码输出根目录 -->
-=======
-                    <dbConfig>
-                        <host>192.168.254.128</host>
-                        <port>3306</port>
-                        <dbname>zo_his</dbname>
-                        <username>root</username>
-                        <password>123456</password>
-                    </dbConfig>
->>>>>>> 513c733e37f8c86f6581e6d4b1be4958cbc2e84b
                     <outDir>${project.basedir}/src/main/java</outDir>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-<<<<<<< HEAD
 
 </project>
-
-
-=======
-</project>
->>>>>>> 513c733e37f8c86f6581e6d4b1be4958cbc2e84b
