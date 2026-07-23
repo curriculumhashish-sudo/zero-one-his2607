@@ -30,8 +30,8 @@ public interface MenuConvertor {
         @Mapping(source = "id", target = "menuId"),
         @Mapping(source = "name", target = "menuName"),
         @Mapping(source = "displayName", target = "showName"),
-        @Mapping(source = "status", target = "isEnabled"),
-        @Mapping(source = "sortNum", target = "sortOrder")
+        @Mapping(source = "isEnabled", target = "status"),
+        @Mapping(source = "sortOrder", target = "sortNum")
     })
     public MenuVO toVO(MenuDO menuDO);
 
@@ -46,8 +46,8 @@ public interface MenuConvertor {
             @Mapping(source = "menuId", target = "id"),
             @Mapping(source = "menuName", target = "name"),
             @Mapping(source = "showName", target = "displayName"),
-            @Mapping(source = "isEnabled", target = "status"),
-            @Mapping(source = "sortOrder", target = "sortNum")
+            @Mapping(source = "status", target = "isEnabled"),
+            @Mapping(source = "sortNum", target = "sortOrder")
     })
     public MenuDO toDO(MenuVO menuVO);
 }
