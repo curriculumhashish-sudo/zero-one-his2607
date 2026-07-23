@@ -27,7 +27,6 @@ public interface MsTreatmentMapper {
     List<TreatmentSelectDTO> toSelectDTOList(List<WkfActivityDefinitionDO> wkfActivityDefinitionDOS);
 
     @Mappings({
-            @Mapping(target = "statusText", ignore = true),
             @Mapping(target = "price", ignore = true)
     })
     TreatmentDTO toDTO(WkfActivityDefinitionDO wkfActivityDefinitionDO);
@@ -35,7 +34,6 @@ public interface MsTreatmentMapper {
     List<TreatmentDTO> toDTOList(List<WkfActivityDefinitionDO> wkfActivityDefinitionDOS);
 
     @Mappings({
-            @Mapping(target = "statusText", ignore = true),
             @Mapping(target = "price", ignore = true)
     })
     TreatmentListVO toListVO(WkfActivityDefinitionDO wkfActivityDefinitionDO);
