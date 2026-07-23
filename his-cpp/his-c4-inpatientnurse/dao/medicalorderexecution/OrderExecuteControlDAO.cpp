@@ -3,57 +3,149 @@
 #include "ClnProcedureMapper.h"
 #include "OriginalOrderRequestMapper.h"
 
-PtrOriginalOrderRequestDO OrderExecuteControlDAO::queryOriginalOrderRequestById(const string& orderId, const string& adviceType)
+namespace
 {
+	std::string buildPlaceholders(size_t count)
+	{
+		std::string placeholders;
+		for (size_t i = 0; i < count; ++i)
+		{
+			if (i > 0)
+				placeholders += ",";
+			placeholders += "?";
+		}
+		return placeholders;
+	}
+
+	std::string buildSlotSecondConditions(size_t count)
+	{
+		std::string conditions;
+		for (size_t i = 0; i < count; ++i)
+		{
+			if (i > 0)
+				conditions += " OR ";
+			conditions += "(request_id = ? AND request_table = ? AND occurrence_time >= ? AND occurrence_time < DATE_ADD(?, INTERVAL 1 SECOND))";
+		}
+		return conditions;
+	}
+
+	std::string buildValuesPlaceholders(size_t rowCount, size_t columnCount)
+	{
+		std::string placeholders;
+		for (size_t row = 0; row < rowCount; ++row)
+		{
+			if (row > 0)
+				placeholders += ", ";
+			placeholders += "(";
+			for (size_t column = 0; column < columnCount; ++column)
+			{
+				if (column > 0)
+					placeholders += ", ";
+				placeholders += "?";
+			}
+			placeholders += ")";
+		}
+		return placeholders;
+	}
+
+}
+
+class EncounterIdMapper : public Mapper<std::string>
+{
+public:
+	std::string mapper(ResultSet* resultSet) const override
+	{
+		return resultSet->getString("encounter_id");
+	}
+};
+
+class OriginalOrderRequestWithIdMapper : public Mapper<std::pair<std::string, PtrOriginalOrderRequestDO>>
+{
+public:
+	std::pair<std::string, PtrOriginalOrderRequestDO> mapper(ResultSet* resultSet) const override
+	{
+		auto data = std::make_shared<OriginalOrderRequestDO>();
+		data->setEncounterId(resultSet->getString("encounter_id"));
+		data->setPatientId(resultSet->getString("patient_id"));
+		data->setCategoryEnum(resultSet->getString("category_enum"));
+		return std::make_pair(resultSet->getString("id"), data);
+	}
+};
+
+std::list<std::pair<std::string, PtrOriginalOrderRequestDO>> OrderExecuteControlDAO::queryOriginalOrderRequestById(
+	const std::list<std::string>& orderIds,
+	const string& adviceType)
+{
+	if (orderIds.empty())
+		return {};
+
 	string table;
 	if (adviceType == "MED_REQUEST")
 		table = "med_medication_request";
 	else if (adviceType == "SERVICE_REQUEST")
 		table = "wkf_service_request";
 	else
-		return nullptr;
+		return {};
 
 	const string querySql = R"SQL(
 		SELECT
+			id,
 			encounter_id,
 			patient_id,
 			category_enum
 		FROM )SQL" +
 		table +
-		" WHERE id = ? AND is_deleted = 0;";
+		" WHERE id IN (" + buildPlaceholders(orderIds.size()) + ") AND is_deleted = 0;";
 
-	return sqlSession->executeQueryOne<PtrOriginalOrderRequestDO>(querySql, OriginalOrderRequestMapper(), "%s", orderId);
+	SqlParams params;
+	for (const auto& orderId : orderIds)
+	{
+		SQLPARAMS_PUSH(params, "s", string, orderId);
+	}
+	return sqlSession->executeQuery<std::pair<std::string, PtrOriginalOrderRequestDO>>(
+		querySql,
+		OriginalOrderRequestWithIdMapper(),
+		params);
 }
 
-PtrClnProcedureDO OrderExecuteControlDAO::queryActiveTerminalProcedureBySlot(
-	const string& requestId,
-	const string& requestTable,
-	const string& occurrenceTime)
+bool OrderExecuteControlDAO::existsActiveTerminalProcedureBySlot(
+	const std::list<std::tuple<std::string, std::string, std::string>>& slots)
 {
+	if (slots.empty())
+		return false;
+
 	const string querySql = R"SQL(
-		SELECT
-			id,
-			status_enum,
-			occurrence_slot_active
-		FROM cln_procedure
-		WHERE request_id = ?
-			AND request_table = ?
-			AND occurrence_time = ?
-			AND is_deleted = 0
-			AND occurrence_slot_active = 1
-			AND status_enum IN ('COMPLETED', 'STOPPED')
-		LIMIT 1;
+		SELECT EXISTS (
+			SELECT 1
+			FROM cln_procedure
+			WHERE (
+			)SQL" +
+				buildSlotSecondConditions(slots.size()) +
+			R"SQL(
+				)
+				AND is_deleted = 0
+				AND occurrence_slot_active = 1
+				AND status_enum IN ('COMPLETED', 'STOPPED')
+			LIMIT 1
+		);
 	)SQL";
 
 	SqlParams params;
-	SQLPARAMS_PUSH(params, "s", string, requestId);
-	SQLPARAMS_PUSH(params, "s", string, requestTable);
-	SQLPARAMS_PUSH(params, "dt", string, occurrenceTime);
-	return sqlSession->executeQueryOne<PtrClnProcedureDO>(querySql, ClnProcedureSlotStateMapper(), params);
+	for (const auto& slot : slots)
+	{
+		SQLPARAMS_PUSH(params, "s", string, std::get<0>(slot));
+		SQLPARAMS_PUSH(params, "s", string, std::get<1>(slot));
+		SQLPARAMS_PUSH(params, "dt", string, std::get<2>(slot));
+		SQLPARAMS_PUSH(params, "dt", string, std::get<2>(slot));
+	}
+	return sqlSession->executeQueryNumerical(querySql, params) > 0;
 }
 
-PtrClnProcedureDO OrderExecuteControlDAO::queryCompletedProcedureById(const string& procedureId)
+std::list<PtrClnProcedureDO> OrderExecuteControlDAO::queryCompletedProcedureById(const std::list<std::string>& procedureIds)
 {
+	if (procedureIds.empty())
+		return {};
+
 	const string querySql = R"SQL(
 		SELECT
 			id,
@@ -73,25 +165,135 @@ PtrClnProcedureDO OrderExecuteControlDAO::queryCompletedProcedureById(const stri
 			refund_id,
 			occurrence_slot_active
 		FROM cln_procedure
-		WHERE id = ?
+		WHERE id IN (
+		)SQL" +
+			buildPlaceholders(procedureIds.size()) +
+		R"SQL(
+			)
 			AND status_enum = 'COMPLETED'
 			AND is_deleted = 0
-			AND occurrence_slot_active = 1
-		LIMIT 1;
+			AND occurrence_slot_active = 1;
 	)SQL";
 
-	return sqlSession->executeQueryOne<PtrClnProcedureDO>(querySql, ClnProcedureCompletedMapper(), "%s", procedureId);
+	SqlParams params;
+	for (const auto& procedureId : procedureIds)
+	{
+		SQLPARAMS_PUSH(params, "s", string, procedureId);
+	}
+	return sqlSession->executeQuery<PtrClnProcedureDO>(querySql, ClnProcedureCompletedMapper(), params);
 }
 
-bool OrderExecuteControlDAO::existsCancelProcedureByRefundId(const string& refundId)
+bool OrderExecuteControlDAO::existsCancelProcedureByRefundIds(const std::list<std::string>& refundIds)
 {
+	if (refundIds.empty())
+		return false;
+
 	const string querySql = R"SQL(
-		SELECT COUNT(1)
-		FROM cln_procedure
-		WHERE refund_id = ?
+		SELECT EXISTS (
+			SELECT 1
+			FROM cln_procedure
+			WHERE refund_id IN (
+		)SQL" +
+			buildPlaceholders(refundIds.size()) +
+		R"SQL(
+			)
 			AND status_enum = 'CANCEL'
-			AND is_deleted = 0;
+			AND is_deleted = 0
+			LIMIT 1
+		);
 	)SQL";
 
-	return sqlSession->executeQueryNumerical(querySql, "%s", refundId) > 0;
+	SqlParams params;
+	for (const auto& refundId : refundIds)
+	{
+		SQLPARAMS_PUSH(params, "s", string, refundId);
+	}
+	return sqlSession->executeQueryNumerical(querySql, params) > 0;
+}
+
+int OrderExecuteControlDAO::insertCancelProceduresNoTransaction(const std::list<ClnProcedureDO>& procedures)
+{
+	if (procedures.empty())
+		return 0;
+
+	const auto& firstProcedure = procedures.front();
+	const size_t columnCount = firstProcedure.getFields().size() + 1;
+
+	std::string columns = "(";
+	columns += firstProcedure.getPrimaryField()->getColumn();
+	for (const auto& field : firstProcedure.getFields())
+	{
+		columns += ", ";
+		columns += field->getColumn();
+	}
+	columns += ")";
+
+	SqlParams params;
+	for (const auto& procedure : procedures)
+	{
+		if (!procedure.getPrimaryField()->get())
+			throw std::runtime_error("Primary field is null.");
+
+		extractFieldValueWithNul(procedure.getPrimaryField(), &params);
+		for (const auto& field : procedure.getFields())
+		{
+			extractFieldValueWithNul(field, &params);
+		}
+	}
+
+	const string insertSql = "INSERT INTO cln_procedure " +
+		columns +
+		" VALUES " +
+		buildValuesPlaceholders(procedures.size(), columnCount) +
+		";";
+
+	return sqlSession->executeUpdate(insertSql, params);
+}
+
+int OrderExecuteControlDAO::releaseCompletedProcedureSlotsNoTransaction(const std::list<std::string>& procedureIds)
+{
+	if (procedureIds.empty())
+		return 0;
+
+	const string updateSql = R"SQL(
+		UPDATE cln_procedure
+		SET occurrence_slot_active = 0
+		WHERE id IN (
+		)SQL" +
+			buildPlaceholders(procedureIds.size()) +
+		R"SQL(
+			)
+		)SQL";
+
+	SqlParams params;
+	for (const auto& procedureId : procedureIds)
+	{
+		SQLPARAMS_PUSH(params, "s", string, procedureId);
+	}
+	return sqlSession->executeUpdate(updateSql, params);
+}
+
+std::list<std::string> OrderExecuteControlDAO::listOperableEncounterIdsByUserId(const std::string& userId)
+{
+	const string querySql = R"SQL(
+		SELECT DISTINCT
+			el.encounter_id
+		FROM adm_practitioner p
+		JOIN adm_pr_assign a
+			ON a.practitioner_id = p.id
+			AND a.is_deleted = 0
+			AND a.active_flag = 1
+		JOIN adm_encounter_location el
+			ON el.location_id = a.location_id
+			AND el.is_deleted = 0
+			AND el.status_enum = 'ACTIVE'
+		JOIN adm_encounter e
+			ON e.id = el.encounter_id
+			AND e.is_deleted = 0
+		WHERE p.user_id = ?
+			AND p.is_deleted = 0
+			AND p.active_flag = 1;
+	)SQL";
+
+	return sqlSession->executeQuery<std::string>(querySql, EncounterIdMapper(), "%s", userId);
 }

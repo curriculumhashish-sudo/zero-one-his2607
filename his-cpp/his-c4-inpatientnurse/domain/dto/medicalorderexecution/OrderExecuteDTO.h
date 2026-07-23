@@ -124,12 +124,6 @@ class CancelExecutionResultDTO : public oatpp::DTO
 		info->description = ZH_WORDS_GETTER("medical_advice.cancelexecute.result.success");
 	}
 
-	/*被取消执行记录id*/
-	DTO_FIELD(List<String>, cancelledProcedureIds);
-	DTO_FIELD_INFO(cancelledProcedureIds) {
-		info->description = ZH_WORDS_GETTER("medical_advice.cancelexecute.result.cancelledProcedureIds");
-	}
-
 	/*如果取消执行的医嘱涉及药品，该字段就是重新生成的药品汇总单id*/
 	DTO_FIELD(List<String>, rebuiltSummaryNos);
 	DTO_FIELD_INFO(rebuiltSummaryNos) {

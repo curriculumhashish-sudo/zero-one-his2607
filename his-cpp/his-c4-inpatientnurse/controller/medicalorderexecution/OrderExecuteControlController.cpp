@@ -29,16 +29,33 @@ StringJsonVO::Wrapper OrderExecuteControlController::execSkipOrderExecution(cons
 	return res;
 }
 
-CancelExecutionJsonVO::Wrapper OrderExecuteControlController::execCancelOrderExecution(const CancelExecutionRequestDTO::Wrapper&, const PayloadDTO&)
+CancelExecutionJsonVO::Wrapper OrderExecuteControlController::execCancelOrderExecution(const CancelExecutionRequestDTO::Wrapper& dto, const PayloadDTO& payload)
 {
 	auto res = CancelExecutionJsonVO::createShared();
-	auto dto = CancelExecutionResultDTO::createShared();
 
-	dto->success = true;
-	dto->cancelledProcedureIds = oatpp::List<oatpp::String>::createShared();
-	dto->rebuiltSummaryNos = oatpp::List<oatpp::String>::createShared();
-	dto->message = "success";
+	//基础数据校验
+	if (!dto)
+	{
+		auto result = CancelExecutionResultDTO::createShared();
+		result->success = false;
+		result->message = "request body is required.";
+		res->init(result, RS_PARAMS_INVALID);
+		return res;
+	}
+	auto checkinfo = dto->validate();
+	if (!checkinfo.empty())
+	{
+		auto result = CancelExecutionResultDTO::createShared();
+		result->success = false;
+		result->message = checkinfo;
+		res->init(result, RS_PARAMS_INVALID);
+		return res;
+	}
 
-	res->success(dto);
+	//调用业务层函数
+	auto result = OrderExecuteControlService().cancelOrderExecution(dto, payload);
+
+
+	res->success(result);
 	return res;
 }

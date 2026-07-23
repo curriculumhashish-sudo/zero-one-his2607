@@ -18,7 +18,6 @@
       statusReasonText: 取消执行原因
     result:
       success: 是否取消成功
-      cancelledProcedureIds: 已取消执行记录ID列表
       rebuiltSummaryNos: 重新生成的药品汇总单号列表
       message: 处理结果说明
       
