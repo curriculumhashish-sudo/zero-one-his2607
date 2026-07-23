@@ -13,7 +13,6 @@ public class TreatmentSelectVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "主键(编码)", example = "123456789", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Schema(description = "主键ID", example = "1873645982637461")
     private String id;
 
     @Schema(description = "项目名称", example = "血常规检查", requiredMode = Schema.RequiredMode.REQUIRED)
