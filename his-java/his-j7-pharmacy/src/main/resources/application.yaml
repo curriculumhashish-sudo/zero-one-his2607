@@ -1,24 +1,20 @@
 server:
-  port: ${sp.j7-dispense}
-
+  port: ${sp.j7-pharmacy}
   servlet:
-    context-path: /j7-dispense
+    context-path: /j7-pharmacy
 
 spring:
+  config:
+    import: nacos:data-source.yaml,nacos:system.yaml
   application:
-    name: ${sn.j7-dispense}
+    name: ${sn.j7-pharmacy}
+  cloud:
+    sentinel:
+      transport:
+        dashboard: ${sentinel.dashboard}
+        port: 8721
+      eager: true
 
-springdoc:
-  group-configs:
-    - group: 药房管理-采购入库
-      paths-to-match: /api/j7/pharmacy/purchaseInbound/**
-
-knife4j:
-  enable: true
-  setting:
-    language: zh_cn
-
-# PDF组件配置
-pdf:
-  conf: ""  # 请填入实际的PDF配置内容，如果暂时不需要可以留空字符串
-  template: ""   # PDF模板路径配置（如暂时不需要可留空）
+feign:
+  sentinel:
+    enabled: true

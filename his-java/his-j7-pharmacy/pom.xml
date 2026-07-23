@@ -79,29 +79,9 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- 邮件服务: Spring Boot Mail -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-mail</artifactId>
-        </dependency>
 
-        <!-- PDF处理组件: Dromara PDF -->
-        <dependency>
-            <groupId>org.dromara</groupId>
-            <artifactId>x-easypdf-fop</artifactId>
-        </dependency>
 
-        <!-- 阿里云号码隐私保护 SDK -->
-        <dependency>
-            <groupId>com.aliyun</groupId>
-            <artifactId>dypnsapi20170525</artifactId>
-        </dependency>
 
-        <!-- 阿里云短信服务 SDK -->
-        <dependency>
-            <groupId>com.aliyun</groupId>
-            <artifactId>dysmsapi20170525</artifactId>
-        </dependency>
 
     </dependencies>
 
