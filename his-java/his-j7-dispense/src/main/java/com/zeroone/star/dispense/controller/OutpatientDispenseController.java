@@ -13,7 +13,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j7.dispense.DispenseQuery;
+import com.zeroone.star.project.query.j7.dispense.DispenseQuery;
 import com.zeroone.star.project.j7.dispense.OutpatientDispenseApis;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j7.dispense.DispenseGroupVO;
