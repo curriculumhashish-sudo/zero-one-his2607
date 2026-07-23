@@ -79,9 +79,9 @@
                 <artifactId>mp-code-generator-plugin</artifactId>
                 <configuration>
                     <dbConfig>
-                        <host>192.168.220.128</host>
+                        <host>192.168.42.100</host>
                         <port>3306</port>
-                        <dbname>test</dbname>
+                        <dbname>zo_his</dbname>
                         <username>root</username>
                         <password>123456</password>
                     </dbConfig>
@@ -93,7 +93,7 @@
                 <artifactId>docker-maven-plugin</artifactId>
                 <configuration>
                     <!-- Docker 远程管理地址-->
-                    <dockerHost>https://192.168.220.128:2375</dockerHost>
+                    <dockerHost>https://192.168.42.100:2375</dockerHost>
                     <!-- CA 证书位置 -->
                     <certPath>/home/docker-ca</certPath>
                     <!-- 镜像设置 -->
