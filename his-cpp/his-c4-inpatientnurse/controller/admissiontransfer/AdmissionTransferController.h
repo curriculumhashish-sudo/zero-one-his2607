@@ -2,7 +2,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: Codex
+ @Author: Swan_Woo
  @Date: 2026/07/21 00:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,9 +20,10 @@
 #ifndef _ADMISSION_TRANSFER_CONTROLLER_
 #define _ADMISSION_TRANSFER_CONTROLLER_
 
-#include "domain/dto/admissiontransfer/DischargeDTO.h"
-#include "domain/query/admissiontransfer/PatientQueueQuery.h"
-#include "domain/vo/admissiontransfer/AdmissionTransferVO.h"
+#include "domain/dto/admissiontransfer/ClearDischargedBedDTO.h"
+#include "domain/dto/admissiontransfer/ExecuteInpatientDischargeDTO.h"
+#include "domain/vo/admissiontransfer/ClearDischargedBedVO.h"
+#include "domain/vo/admissiontransfer/ExecuteInpatientDischargeVO.h"
 
 using namespace oatpp;
 
@@ -35,83 +36,45 @@ class AdmissionTransferController : public oatpp::web::server::api::ApiControlle
 	API_ACCESS_DECLARE(AdmissionTransferController);
 
 public:
-	// Query aggregate counts displayed above the patient queue.
-	API_DEF_ENDPOINT_INFO_AUTH(
-		ZH_WORDS_GETTER("admissiontransfer.query-patient-statistics.summary"),
-		queryPatientStatistics,
-		PatientStatisticsJsonVO::Wrapper,
-		API_TAG,
-		API_DEF_QUERY_PARAM_BUILD(PatientStatisticsQuery);
-		info->responses[Status::CODE_200].addExample(
-			"success", PatientStatisticsJsonVO::createShared());
-	);
-	API_HANDLER_ENDPOINT_QUERY_AUTH(
-		API_M_GET,
-		"/admissiontransfer/query-patient-statistics",
-		queryPatientStatistics,
-		PatientStatisticsQuery,
-		execQueryPatientStatistics(query));
-
-	// Query the inpatient nurse-station patient queue.
-	API_DEF_ENDPOINT_INFO_AUTH(
-		ZH_WORDS_GETTER("admissiontransfer.query-patient-queue.summary"),
-		queryPatientQueue,
-		PatientQueuePageJsonVO::Wrapper,
-		API_TAG,
-		API_DEF_QUERY_PARAM_BUILD(PatientQueueQuery);
-		info->responses[Status::CODE_200].addExample(
-			"success", PatientQueuePageJsonVO::createShared());
-	);
-	API_HANDLER_ENDPOINT_QUERY_AUTH(
-		API_M_GET,
-		"/admissiontransfer/query-patient-queue",
-		queryPatientQueue,
-		PatientQueueQuery,
-		execQueryPatientQueue(query));
-
 	// Change an inpatient encounter to the discharge-processing state.
 	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("admissiontransfer.execute-inpatient-discharge.summary"),
 		executeInpatientDischarge,
-		DischargeJsonVO::Wrapper,
+		ExecuteInpatientDischargeJsonVO::Wrapper,
 		API_TAG,
-		info->body.addExample("default", DischargeDTO::createShared());
+		info->body.addExample("default", ExecuteInpatientDischargeDTO::createShared());
 		info->responses[Status::CODE_200].addExample(
-			"success", DischargeJsonVO::createShared());
+			"success", ExecuteInpatientDischargeJsonVO::createShared());
 	);
 	API_HANDLER_ENDPOINT_AUTH(
 		API_M_POST,
 		"/admissiontransfer/execute-inpatient-discharge",
 		executeInpatientDischarge,
-		BODY_DTO(DischargeDTO::Wrapper, dto),
+		BODY_DTO(ExecuteInpatientDischargeDTO::Wrapper, dto),
 		execExecuteInpatientDischarge(dto));
 
 	// Release the occupied bed after inpatient settlement is completed.
 	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("admissiontransfer.clear-discharged-bed.summary"),
 		clearDischargedBed,
-		DischargeJsonVO::Wrapper,
+		ClearDischargedBedJsonVO::Wrapper,
 		API_TAG,
-		info->body.addExample("default", DischargeDTO::createShared());
+		info->body.addExample("default", ClearDischargedBedDTO::createShared());
 		info->responses[Status::CODE_200].addExample(
-			"success", DischargeJsonVO::createShared());
+			"success", ClearDischargedBedJsonVO::createShared());
 	);
 	API_HANDLER_ENDPOINT_AUTH(
 		API_M_POST,
 		"/admissiontransfer/clear-discharged-bed",
 		clearDischargedBed,
-		BODY_DTO(DischargeDTO::Wrapper, dto),
+		BODY_DTO(ClearDischargedBedDTO::Wrapper, dto),
 		execClearDischargedBed(dto));
 
 private:
-	PatientStatisticsJsonVO::Wrapper execQueryPatientStatistics(
-		const PatientStatisticsQuery::Wrapper& query);
-	PatientQueuePageJsonVO::Wrapper execQueryPatientQueue(
-		const PatientQueueQuery::Wrapper& query);
-	DischargeJsonVO::Wrapper execExecuteInpatientDischarge(
-		const DischargeDTO::Wrapper& dto);
-	DischargeJsonVO::Wrapper execClearDischargedBed(
-		const DischargeDTO::Wrapper& dto);
+	ExecuteInpatientDischargeJsonVO::Wrapper execExecuteInpatientDischarge(
+		const ExecuteInpatientDischargeDTO::Wrapper& dto);
+	ClearDischargedBedJsonVO::Wrapper execClearDischargedBed(
+		const ClearDischargedBedDTO::Wrapper& dto);
 };
 
 #undef API_TAG

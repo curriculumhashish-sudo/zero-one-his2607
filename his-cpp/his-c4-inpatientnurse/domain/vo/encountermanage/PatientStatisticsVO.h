@@ -2,7 +2,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: Codex
+ @Author: Swan_Woo
  @Date: 2026/07/21 00:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,12 +17,11 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _ADMISSION_TRANSFER_VO_
-#define _ADMISSION_TRANSFER_VO_
+#ifndef _PATIENT_STATISTICS_VO_
+#define _PATIENT_STATISTICS_VO_
 
 #include "../../GlobalInclude.h"
-#include "../../dto/admissiontransfer/DischargeDTO.h"
-#include "../../dto/admissiontransfer/PatientQueueDTO.h"
+#include "../../dto/encountermanage/PatientStatisticsDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
@@ -37,28 +36,6 @@ public:
 	}
 };
 
-class PatientQueuePageJsonVO : public JsonVO<PatientQueuePageDTO::Wrapper>
-{
-	DTO_INIT(PatientQueuePageJsonVO, JsonVO<PatientQueuePageDTO::Wrapper>);
-
-public:
-	PatientQueuePageJsonVO()
-	{
-		this->data = PatientQueuePageDTO::createShared();
-	}
-};
-
-class DischargeJsonVO : public JsonVO<DischargeResultDTO::Wrapper>
-{
-	DTO_INIT(DischargeJsonVO, JsonVO<DischargeResultDTO::Wrapper>);
-
-public:
-	DischargeJsonVO()
-	{
-		this->data = DischargeResultDTO::createShared();
-	}
-};
-
 #include OATPP_CODEGEN_END(DTO)
 
-#endif // !_ADMISSION_TRANSFER_VO_
+#endif // !_PATIENT_STATISTICS_VO_

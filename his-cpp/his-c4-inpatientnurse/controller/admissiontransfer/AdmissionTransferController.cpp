@@ -1,7 +1,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: Codex
+ @Author: Swan_Woo
  @Date: 2026/07/21 00:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,26 +19,14 @@
 #include "stdafx.h"
 #include "AdmissionTransferController.h"
 
-PatientStatisticsJsonVO::Wrapper AdmissionTransferController::execQueryPatientStatistics(
-	const PatientStatisticsQuery::Wrapper& query)
+ExecuteInpatientDischargeJsonVO::Wrapper AdmissionTransferController::execExecuteInpatientDischarge(
+	const ExecuteInpatientDischargeDTO::Wrapper& dto)
 {
 	return {};
 }
 
-PatientQueuePageJsonVO::Wrapper AdmissionTransferController::execQueryPatientQueue(
-	const PatientQueueQuery::Wrapper& query)
-{
-	return {};
-}
-
-DischargeJsonVO::Wrapper AdmissionTransferController::execExecuteInpatientDischarge(
-	const DischargeDTO::Wrapper& dto)
-{
-	return {};
-}
-
-DischargeJsonVO::Wrapper AdmissionTransferController::execClearDischargedBed(
-	const DischargeDTO::Wrapper& dto)
+ClearDischargedBedJsonVO::Wrapper AdmissionTransferController::execClearDischargedBed(
+	const ClearDischargedBedDTO::Wrapper& dto)
 {
 	return {};
 }

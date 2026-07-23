@@ -2,7 +2,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: Codex
+ @Author: Swan_Woo
  @Date: 2026/07/21 00:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,33 +17,25 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _DISCHARGE_DTO_
-#define _DISCHARGE_DTO_
+#ifndef _EXECUTE_INPATIENT_DISCHARGE_VO_
+#define _EXECUTE_INPATIENT_DISCHARGE_VO_
 
 #include "../../GlobalInclude.h"
+#include "../../dto/admissiontransfer/ExecuteInpatientDischargeDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class DischargeDTO : public oatpp::DTO
+class ExecuteInpatientDischargeJsonVO : public JsonVO<ExecuteInpatientDischargeResponseDTO::Wrapper>
 {
-	DTO_INIT(DischargeDTO, DTO);
+	DTO_INIT(ExecuteInpatientDischargeJsonVO, JsonVO<ExecuteInpatientDischargeResponseDTO::Wrapper>);
 
-	API_DTO_FIELD(String, encounterId,
-		ZH_WORDS_GETTER("admissiontransfer.field.encounterId"), true,
-		"337907884548657152");
-};
-
-class DischargeResultDTO : public oatpp::DTO
-{
-	DTO_INIT(DischargeResultDTO, DTO);
-
-	API_DTO_FIELD(String, encounterId,
-		ZH_WORDS_GETTER("admissiontransfer.field.encounterId"), true,
-		"337907884548657152");
-	API_DTO_FIELD(Boolean, succeeded,
-		ZH_WORDS_GETTER("admissiontransfer.field.succeeded"), true, true);
+public:
+	ExecuteInpatientDischargeJsonVO()
+	{
+		this->data = ExecuteInpatientDischargeResponseDTO::createShared();
+	}
 };
 
 #include OATPP_CODEGEN_END(DTO)
 
-#endif // !_DISCHARGE_DTO_
+#endif // !_EXECUTE_INPATIENT_DISCHARGE_VO_

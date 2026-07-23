@@ -2,7 +2,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: Codex
+ @Author: Swan_Woo
  @Date: 2026/07/21 00:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,36 +17,34 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _MEDICATION_COLLECTION_VO_
-#define _MEDICATION_COLLECTION_VO_
+#ifndef _PATIENT_STATISTICS_DTO_
+#define _PATIENT_STATISTICS_DTO_
 
 #include "../../GlobalInclude.h"
-#include "../../dto/medicationcollection/MedicationCollectionDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class SummaryOrderItemPageJsonVO : public JsonVO<SummaryOrderItemPageDTO::Wrapper>
+// Project extension: the Java UI derives these values from pagePatientQueue rows.
+class PatientStatisticsDTO : public oatpp::DTO
 {
-	DTO_INIT(SummaryOrderItemPageJsonVO, JsonVO<SummaryOrderItemPageDTO::Wrapper>);
+	DTO_INIT(PatientStatisticsDTO, DTO);
+
+	API_DTO_FIELD_REQUIRE(Int64, totalCount,
+		ZH_WORDS_GETTER("encountermanage.field.totalCount"), true);
+	API_DTO_FIELD_REQUIRE(Int64, pendingAuditCount,
+		ZH_WORDS_GETTER("encountermanage.field.pendingAuditCount"), true);
+	API_DTO_FIELD_REQUIRE(Int64, pendingExecuteCount,
+		ZH_WORDS_GETTER("encountermanage.field.pendingExecuteCount"), true);
 
 public:
-	SummaryOrderItemPageJsonVO()
+	PatientStatisticsDTO()
 	{
-		this->data = SummaryOrderItemPageDTO::createShared();
-	}
-};
-
-class SummaryMedicationJsonVO : public JsonVO<SummaryMedicationResultDTO::Wrapper>
-{
-	DTO_INIT(SummaryMedicationJsonVO, JsonVO<SummaryMedicationResultDTO::Wrapper>);
-
-public:
-	SummaryMedicationJsonVO()
-	{
-		this->data = SummaryMedicationResultDTO::createShared();
+		totalCount = 1;
+		pendingAuditCount = v_int64(0);
+		pendingExecuteCount = v_int64(0);
 	}
 };
 
 #include OATPP_CODEGEN_END(DTO)
 
-#endif // !_MEDICATION_COLLECTION_VO_
+#endif // !_PATIENT_STATISTICS_DTO_

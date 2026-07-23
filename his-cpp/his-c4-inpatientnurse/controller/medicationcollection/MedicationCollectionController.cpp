@@ -1,7 +1,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: Codex
+ @Author: Swan_Woo
  @Date: 2026/07/21 00:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,15 +19,15 @@
 #include "stdafx.h"
 #include "MedicationCollectionController.h"
 
-SummaryOrderItemPageJsonVO::Wrapper
+PagePendingDispenseSummaryLinesJsonVO::Wrapper
 MedicationCollectionController::execQuerySummaryOrderItems(
-	const SummaryOrderItemQuery::Wrapper& query)
+	const PagePendingDispenseSummaryLinesQuery::Wrapper& query)
 {
 	return {};
 }
 
-SummaryMedicationJsonVO::Wrapper MedicationCollectionController::execSummaryMedication(
-	const SummaryMedicationDTO::Wrapper& dto)
+CreateMedicationSummaryJsonVO::Wrapper MedicationCollectionController::execSummaryMedication(
+	const CreateMedicationSummaryDTO::Wrapper& dto)
 {
 	return {};
 }
