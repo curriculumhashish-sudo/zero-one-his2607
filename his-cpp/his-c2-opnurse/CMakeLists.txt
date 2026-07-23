@@ -1,30 +1,30 @@
-ï»¿# CMakeList.txt: his-c2-opnurse çš„ CMake é¡¹ç›®ï¼Œåœ¨æ­¤å¤„åŒ…æ‹¬æºä»£ç å¹¶å®šä¹‰
-# é¡¹ç›®ç‰¹å®šçš„é€»è¾‘ã€‚
+# CMakeList.txt: his-c2-opnurse µÄ CMake ÏîÄ¿£¬ÔÚ´Ë´¦°üÀ¨Ô´´úÂë²¢¶¨Òå
+# ÏîÄ¿ÌØ¶¨µÄÂß¼­¡£
 #
 
 set(CMAKE_CXX_COMPILER_ID_SKIP_TEST ON CACHE BOOL "Skip compiler test file with main()")
 
 cmake_minimum_required (VERSION 3.8)
 
-# è®¾ç½®æ–‡ä»¶åç§°
+# ÉèÖÃÎÄ¼şÃû³Æ
 set (appName his-c2-opnurse)
 
-# åŒ…å«åº“ç›®å½•
+# °üº¬¿âÄ¿Â¼
 include_directories ("./")
 include_directories ("../lib-oatpp/include")
 include_directories ("../lib-mysql/include")
 include_directories ("../lib-common/include")
 
-# é“¾æ¥åº“è·¯å¾„ï¼Œç¨‹åºè¿è¡Œçš„æ—¶å€™ä¹Ÿåœ¨è¿™é‡Œæ‰¾
+# Á´½Ó¿âÂ·¾¶£¬³ÌĞòÔËĞĞµÄÊ±ºòÒ²ÔÚÕâÀïÕÒ
 link_directories (${PROJECT_BINARY_DIR}/lib-oatpp)
 link_directories (${PROJECT_BINARY_DIR}/lib-mysql)
 link_directories (${PROJECT_BINARY_DIR}/lib-common)
-# å¦‚æœæ˜¯Linuxç¯å¢ƒ
+# Èç¹ûÊÇLinux»·¾³
 if(UNIX)
 	link_directories (${PROJECT_SOURCE_DIR}/lib-common/lib64)
 	link_directories (${PROJECT_SOURCE_DIR}/lib-oatpp/lib64)
 	link_directories (${PROJECT_SOURCE_DIR}/lib-dy/lib64)
-# å¦‚æœæ˜¯Windowsç¯å¢ƒ
+# Èç¹ûÊÇWindows»·¾³
 elseif(WIN32)
 	link_directories (${PROJECT_SOURCE_DIR}/lib-common/${ZO_LB_NAME}/${ZO_LBT_NAME})
 	link_directories (${PROJECT_SOURCE_DIR}/lib-oatpp/${ZO_LB_NAME}/openssl)
@@ -32,33 +32,33 @@ elseif(WIN32)
 	link_directories (${PROJECT_SOURCE_DIR}/lib-mysql/${ZO_LB_NAME}/vs14/${ZO_LBT_NAME})
 endif()
 
-# è·å–è¦ç¼–è¯‘çš„æºä»£ç 
+# »ñÈ¡Òª±àÒëµÄÔ´´úÂë
 file (GLOB_RECURSE SC_FILES ./*.cpp)
 list (REMOVE_ITEM SC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/./stdafx.cpp")
 list (FILTER SC_FILES EXCLUDE REGEX ".*/out/.*")
 
-# è®¾ç½®é¢„ç¼–è¯‘æ ‡å¤´
+# ÉèÖÃÔ¤±àÒë±êÍ·
 if(WIN32)
 	ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" SC_FILES)
 endif()
 
-# ç¼–è¯‘å¯æ‰§è¡Œæ–‡ä»¶
+# ±àÒë¿ÉÖ´ĞĞÎÄ¼ş
 add_executable (${appName} ${SC_FILES})
 
-# å‘å¸ƒSwaggeræ–‡æ¡£åŒ…å®å®šä¹‰
+# ·¢²¼SwaggerÎÄµµ°üºê¶¨Òå
 if(DEFINED _RELEASE_DOC_)
 	target_compile_definitions(${appName} PRIVATE _RELEASE_DOC_)
 endif()
 
-# æ·»åŠ /bigobjé€‰é¡¹
+# Ìí¼Ó/bigobjÑ¡Ïî
 if(MSVC)
 	target_compile_options(${appName} PRIVATE /bigobj)
 endif()
 
-# é“¾æ¥è‡ªå®šä¹‰é™æ€åº“æ¨¡å—
+# Á´½Ó×Ô¶¨Òå¾²Ì¬¿âÄ£¿é
 target_link_libraries (${appName} "lib-common" "lib-oatpp" "lib-mysql")
 
-# é“¾æ¥å…¶ä»–åº“ä¾èµ–åº“ï¼Œå¦‚ï¼šä½ è¦é“¾æ¥libpthreadç›´æ¥å†™æˆpthread
+# Á´½ÓÆäËû¿âÒÀÀµ¿â£¬Èç£ºÄãÒªÁ´½ÓlibpthreadÖ±½ÓĞ´³Épthread
 if (UNIX)
 	target_link_libraries (${appName} jsoncpp pthread stdc++fs OpenSSL::SSL CURL::libcurl uuid)
 else()
@@ -66,7 +66,7 @@ else()
 endif()
 target_link_libraries (${appName} oatpp-websocket oatpp-swagger oatpp )
 target_link_libraries (${appName} mysqlcppconn )
-# é“¾æ¥xlnt
+# Á´½Óxlnt
 if(USE_XLNT)
 	if(ZO_BT STREQUAL "r" OR UNIX)
 		target_link_libraries (${appName} xlnt )
@@ -75,14 +75,14 @@ if(USE_XLNT)
 	endif()
 	message (STATUS "${appName}: link xlnt lib")
 endif()
-# é“¾æ¥fastdfs
+# Á´½Ófastdfs
 if(USE_DFS)
 	if (UNIX)
 		target_link_libraries (${appName} fdfsclient fastcommon )
 	endif()
 	message (STATUS "${appName}: link fdfsclient lib")
 endif()
-# é“¾æ¥ymal
+# Á´½Óymal
 if(USE_YML)
 	if(ZO_BT STREQUAL "r" OR UNIX)
 		target_link_libraries (${appName} yaml-cpp )
@@ -91,14 +91,14 @@ if(USE_YML)
 	endif()
 	message (STATUS "${appName}: link yamlcpp lib")
 endif()
-# é“¾æ¥nacos
+# Á´½Ónacos
 if(USE_NACOS)
 	if (UNIX)
 		target_link_libraries (${appName} nacos-cli )
 	endif()
 	message (STATUS "${appName}: link nacos lib")
 endif()
-# é“¾æ¥redis
+# Á´½Óredis
 if(USE_REDIS)
 	if (WIN32)
 		if(ZO_BT STREQUAL "r")
@@ -111,7 +111,7 @@ if(USE_REDIS)
 	endif()
 	message (STATUS "${appName}: link redis lib")
 endif()
-# é“¾æ¥RocketMQ
+# Á´½ÓRocketMQ
 if(USE_ROCKETMQ)
 	if (WIN32)
 		target_link_libraries (${appName} rocketmq-client-cpp )
@@ -120,7 +120,7 @@ if(USE_ROCKETMQ)
 	endif()
 	message (STATUS "${appName}: link rocketmq lib")
 endif()
-# é“¾æ¥MongoDB
+# Á´½ÓMongoDB
 if(USE_MONGO)
 	if (WIN32)
 		if(ZO_BT STREQUAL "r")
@@ -133,14 +133,14 @@ if(USE_MONGO)
 	endif()
 	message (STATUS "${appName}: link mongodb lib")
 endif()
-# é“¾æ¥AliyunSms
+# Á´½ÓAliyunSms
 if(USE_ALISMS)
 	if (UNIX)
 		target_link_libraries (${appName} alibabacloud-sdk-core alibabacloud-sdk-dysmsapi alibabacloud-sdk-dypnsapi )
 	endif()
 	message (STATUS "${appName}: link aliyun sms lib")
 endif()
-# é“¾æ¥PDFåº“
+# Á´½ÓPDF¿â
 if(USE_PDF)
 	if (UNIX)
 		target_link_libraries (${appName} hpdf png16 z ZXing)
@@ -155,64 +155,64 @@ if(USE_PDF)
 	message (STATUS "${appName}: link hpdf lib")
 endif()
 
-# å¤åˆ¶é…ç½®åˆ°è°ƒè¯•æ—¶å¯æ‰§è¡Œæ–‡ä»¶æ‰€åœ¨çš„ç›®å½•
-# RSAå…¬é’¥è¯ä¹¦
+# ¸´ÖÆÅäÖÃµ½µ÷ÊÔÊ±¿ÉÖ´ĞĞÎÄ¼şËùÔÚµÄÄ¿Â¼
+# RSA¹«Ô¿Ö¤Êé
 file (COPY "public.pem" DESTINATION ${PROJECT_BINARY_DIR}/${appName})
-# Swaggerèµ„æº
+# Swagger×ÊÔ´
 if (NOT DEFINED CLOSE_SWAGGER_DOC)
 	file (GLOB swaggerRes "../lib-oatpp/include/oatpp-swagger/res/*")
 	file (COPY ${swaggerRes} DESTINATION ${PROJECT_BINARY_DIR}/${appName}/res)
 endif()
-# ä¸­æ–‡è¯å…¸
+# ÖĞÎÄ´Êµä
 file (COPY "zh-dict.yaml" DESTINATION ${PROJECT_BINARY_DIR}/${appName})
-# æ¨¡æ¿æ–‡ä»¶ç›®å½•
+# Ä£°åÎÄ¼şÄ¿Â¼
 file (GLOB tplDir "tpl/*")
 file (COPY ${tplDir} DESTINATION "${PROJECT_BINARY_DIR}/${appName}/tpl")
-# å­—ä½“æ–‡ä»¶ç›®å½•
+# ×ÖÌåÎÄ¼şÄ¿Â¼
 file (GLOB fontsDir "fonts/*")
 file (COPY ${fontsDir} DESTINATION "${PROJECT_BINARY_DIR}/${appName}/fonts")
-# Ubuntuç³»ç»Ÿç‰¹æ®Šå¤„ç†
+# UbuntuÏµÍ³ÌØÊâ´¦Àí
 if(IS_UBUNTU)
-	# å¤åˆ¶åŠ¨æ€åº“åˆ°å¯æ‰§è¡Œæ–‡ä»¶ç›®å½•
+	# ¸´ÖÆ¶¯Ì¬¿âµ½¿ÉÖ´ĞĞÎÄ¼şÄ¿Â¼
 	file (GLOB dylibdir "${PROJECT_SOURCE_DIR}/lib-dy/lib64/*")
 	file (COPY ${dylibdir} DESTINATION "${PROJECT_BINARY_DIR}/${appName}")
 endif()
-# Windowså¹³å°ç‰¹æ®Šå¤„ç†
+# WindowsÆ½Ì¨ÌØÊâ´¦Àí
 if(WIN32)
-	# å¤åˆ¶dllæ–‡ä»¶åˆ°å¯æ‰§è¡Œæ–‡ä»¶ç›®å½•
+	# ¸´ÖÆdllÎÄ¼şµ½¿ÉÖ´ĞĞÎÄ¼şÄ¿Â¼
 	file (GLOB_RECURSE dycopy ${ZO_DY_DIR}/*.dll)
 	file (COPY ${dycopy} DESTINATION "${PROJECT_BINARY_DIR}/${appName}")
-	# å¤åˆ¶é¡¹ç›®é…ç½®åˆ°å¯æ‰§è¡Œæ–‡ä»¶ç›®å½•
+	# ¸´ÖÆÏîÄ¿ÅäÖÃµ½¿ÉÖ´ĞĞÎÄ¼şÄ¿Â¼
 	file (GLOB conf "conf/*")
 	file (COPY ${conf} DESTINATION ${PROJECT_BINARY_DIR}/${appName}/conf)
 endif()
 
-# å®‰è£…æ–‡ä»¶
-# å¯æ‰§è¡Œæ–‡ä»¶
+# °²×°ÎÄ¼ş
+# ¿ÉÖ´ĞĞÎÄ¼ş
 install (TARGETS ${appName} RUNTIME DESTINATION ${appName})
-# RSAå…¬é’¥è¯ä¹¦
+# RSA¹«Ô¿Ö¤Êé
 install (FILES "public.pem" DESTINATION ${appName})
-# Swaggerèµ„æº
+# Swagger×ÊÔ´
 if (NOT DEFINED CLOSE_SWAGGER_DOC)
 	install (DIRECTORY "${PROJECT_SOURCE_DIR}/lib-oatpp/include/oatpp-swagger/res" DESTINATION ${appName})
 endif()
-# ä¸­æ–‡è¯å…¸
+# ÖĞÎÄ´Êµä
 install (FILES "zh-dict.yaml" DESTINATION ${appName})
-# æ¨¡æ¿æ–‡ä»¶ç›®å½•
+# Ä£°åÎÄ¼şÄ¿Â¼
 install (DIRECTORY "tpl" DESTINATION ${appName})
-# å­—ä½“æ–‡ä»¶ç›®å½•
+# ×ÖÌåÎÄ¼şÄ¿Â¼
 install (DIRECTORY "fonts" DESTINATION ${appName})
-# UNIXå¹³å°ç‰¹æ®Šå¤„ç†
+# UNIXÆ½Ì¨ÌØÊâ´¦Àí
 if(UNIX)
-	# å¤åˆ¶ç¬¬ä¸‰æ–¹åŠ¨æ€é“¾æ¥åº“
+	# ¸´ÖÆµÚÈı·½¶¯Ì¬Á´½Ó¿â
 	install (DIRECTORY "${PROJECT_SOURCE_DIR}/lib-dy/lib64/" DESTINATION lib FILES_MATCHING PATTERN "*.so*")
-	# å¤åˆ¶å¯åŠ¨è„šæœ¬
+	# ¸´ÖÆÆô¶¯½Å±¾
 	install (PROGRAMS ${PROJECT_SOURCE_DIR}/run-front.sh ${PROJECT_SOURCE_DIR}/run-back.sh DESTINATION ${appName})
 endif()
-# Windowså¹³å°ç‰¹æ®Šå¤„ç†
+# WindowsÆ½Ì¨ÌØÊâ´¦Àí
 if(WIN32)
-	# å¤åˆ¶dllæ–‡ä»¶åˆ°å¯æ‰§è¡Œæ–‡ä»¶ç›®å½•
+	# ¸´ÖÆdllÎÄ¼şµ½¿ÉÖ´ĞĞÎÄ¼şÄ¿Â¼
 	install (DIRECTORY "${ZO_DY_DIR}/" DESTINATION ${appName} FILES_MATCHING PATTERN "*.dll")
-	# å¤åˆ¶é¡¹ç›®é…ç½®åˆ°å¯æ‰§è¡Œæ–‡ä»¶ç›®å½•
+	# ¸´ÖÆÏîÄ¿ÅäÖÃµ½¿ÉÖ´ĞĞÎÄ¼şÄ¿Â¼
 	install (DIRECTORY "conf" DESTINATION ${appName})
 endif()

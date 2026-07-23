@@ -1,5 +1,5 @@
-#ifndef _PATIENTQUEUE_
-#define _PATIENTQUEUE_
+﻿#ifndef _PATIENTQUEUE_H_
+#define _PATIENTQUEUE_H_
 #include"../../GlobalInclude.h"
 #include"domain/query/PageQuery.h"
 
@@ -9,10 +9,10 @@ class PatientQuery :public PageQuery
 {
 	DTO_INIT(PatientQuery, PageQuery);
 	// Patient name
-	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("patient.field.name"), false);
+	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("patient1.field.name"), false);
 	// Date
-	API_DTO_FIELD_REQUIRE(String, date, ZH_WORDS_GETTER("patient.field.date"), false);
+	API_DTO_FIELD_REQUIRE(String, date, ZH_WORDS_GETTER("patient1.field.date"), false);
 
 };
 #include OATPP_CODEGEN_END(DTO)
-#endif // !_PATIENTQUEUE_
+#endif // !_PATIENTQUEUE_H_

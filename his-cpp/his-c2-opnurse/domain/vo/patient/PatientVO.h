@@ -1,17 +1,35 @@
 #ifndef _PATIENTVO_H_
 #define _PATIENTVO_H_
 
-#include "../../dto/patient/PatientAct.h"
+#include "domain/vo/BaseJsonVO.h"
+#include "../../dto/patient/PatientActDTO.h"
+#include "../../dto/patient/PatientConsumableDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- *  定义一个病人信息分页显示JsonVO对象，用于响应给客户端
+ * Paginated JSON VO for patient list response.
  */
-class PatientActPageJsonVO : public JsonVO<PatientActPageDTO::Wrapper>
+class PatientPageJsonVO : public JsonVO<PatientActPageDTO::Wrapper>
 {
-	DTO_INIT(PatientActPageJsonVO, JsonVO<PatientActPageDTO::Wrapper>);
+	DTO_INIT(PatientPageJsonVO, JsonVO<PatientActPageDTO::Wrapper>);
+};
+
+/**
+ * Non-paginated JSON VO for patient act list response.
+ */
+class PatientActListJsonVO : public ListJsonVO<PatientActDTO::Wrapper>
+{
+	DTO_INIT(PatientActListJsonVO, ListJsonVO<PatientActDTO::Wrapper>);
+};
+
+/**
+ * Non-paginated JSON VO for patient consumable list response.
+ */
+class PatientConsumListJsonVO : public ListJsonVO<PatientConsumableDTO::Wrapper>
+{
+	DTO_INIT(PatientConsumListJsonVO, ListJsonVO<PatientConsumableDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)
-#endif // _PATIENTVO_H_
+#endif // !_PATIENTVO_H_

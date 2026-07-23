@@ -6,19 +6,18 @@
 #include"domain/vo/patient/PatientVO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
-#define API_TAG ZH_WORDS_GETTER("patient.tags.tag")
+#define API_TAG ZH_WORDS_GETTER("patient1.tags.tag")
 class PatientController :public oatpp::web::server::api::ApiController
 {
 	API_ACCESS_DECLARE(PatientController);
 public:
-	// 定义分页患者查询端点信息
-	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("patient.query.summary"), queryPatient, PatientQuery, PatientActPageJsonVO::Wrapper, API_TAG);
-	// 定义分页患者查询端点处理器
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/patient", queryPatient, PatientQuery, executeQueryPatient(query));
+	// Define paginated patient query endpoint info
+	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("patient1.query.summary"), queryPatient, PatientQuery, PatientPageJsonVO::Wrapper, API_TAG);
+	// Define paginated patient query endpoint handler
+	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/patient/query", queryPatient, PatientQuery, executeQueryPatient(query));
 
-private:
-	// 定义分页患者查询执行器
-	PatientActPageJsonVO::Wrapper executeQueryPatient(const PatientQuery::Wrapper& query);
+	// Define paginated patient query executor
+	PatientPageJsonVO::Wrapper executeQueryPatient(const PatientQuery::Wrapper& query);
 
 };
 #undef API_TAG

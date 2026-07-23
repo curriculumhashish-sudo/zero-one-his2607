@@ -1,4 +1,4 @@
-#ifndef _PATIENTCONSUMABLEDTO_H_
+ï»¿#ifndef _PATIENTCONSUMABLEDTO_H_
 #define _PATIENTCONSUMABLEDTO_H_
 
 #include "../../GlobalInclude.h"
@@ -9,8 +9,18 @@
 class PatientConsumableDTO :public oatpp::DTO
 {
 	DTO_INIT(PatientConsumableDTO, DTO);
-	// ÏûºÄÏîÄ¿ 
-	API_DTO_FIELD_REQUIRE(String, ConsumableProject, ZH_WORDS_GETTER("patient.field.ConsumableProject"), false);
+	// Consumable name
+	API_DTO_FIELD_REQUIRE(String, consumableName, ZH_WORDS_GETTER("patientconsumable.field.consumableName"), true);
+	// Model specification
+	API_DTO_FIELD_REQUIRE(String, modelSpec, ZH_WORDS_GETTER("patientconsumable.field.modelSpec"), true);
+	// Quantity
+	API_DTO_FIELD_REQUIRE(String, quantity, ZH_WORDS_GETTER("patientconsumable.field.quantity"), true);
+	// Status
+	API_DTO_FIELD_REQUIRE(String, status, ZH_WORDS_GETTER("patientconsumable.field.status"), true);
+	// Consumable room
+	API_DTO_FIELD_REQUIRE(String, consumableRoom, ZH_WORDS_GETTER("patientconsumable.field.consumableRoom"), true);
+	// isEmpty
+	API_DTO_FIELD_REQUIRE(Int32, isEmpty, ZH_WORDS_GETTER("patientconsumable.field.isEmpty"), true);
 
 };
 #include OATPP_CODEGEN_END(DTO)
