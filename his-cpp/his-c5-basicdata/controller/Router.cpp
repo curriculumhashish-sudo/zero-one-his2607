@@ -7,6 +7,7 @@
 #include "organization/OrganizationController.h"
 #include "sup/SupplierController.h"
 
+#include "ward/WardController.h"
 #include "pat/PatController.h"
 
 // 如果定义了关闭Swagger文档宏
@@ -32,6 +33,7 @@ Router::Router(Endpoints* docEndpoints, HttpRouter* router)
 void Router::initRouter()
 {
 	//#TIP :系统扩展路由定义，写在这个后面
+	ROUTER_SIMPLE_BIND(WardController);
 	ROUTER_SIMPLE_BIND(PatController);
 	// #TIP: Add system extension route definitions below
 	ROUTER_SIMPLE_BIND(DeptController);
