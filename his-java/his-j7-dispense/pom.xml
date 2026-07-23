@@ -75,6 +75,10 @@
             <groupId>org.springframework.session</groupId>
             <artifactId>spring-session-data-redis</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-openfeign-core</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -90,41 +94,41 @@
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
                 <configuration>
-                    <!-- Docker 远程管理地址-->
+                    <!-- Docker Զ�̹����ַ-->
                     <dockerHost>https://192.168.220.128:2375</dockerHost>
-                    <!-- CA 证书位置 -->
+                    <!-- CA ֤��λ�� -->
                     <certPath>/home/docker-ca</certPath>
-                    <!-- 镜像设置 -->
+                    <!-- �������� -->
                     <images>
                         <image>
-                            <!-- Docker 镜像名称定义 -->
+                            <!-- Docker �������ƶ��� -->
                             <name>01star/${project.artifactId}:${project.version}</name>
-                            <!-- 指定Dockerfile所在目录 -->
+                            <!-- ָ��Dockerfile����Ŀ¼ -->
                             <build>
                                 <contextDir>${project.basedir}</contextDir>
                             </build>
-                            <!-- 别名用于容器命名 -->
+                            <!-- ���������������� -->
                             <alias>${project.artifactId}</alias>
-                            <!-- 容器run相关配置 -->
+                            <!-- ����run������� -->
                             <run>
-                                <!-- 配置运行时容器命名策略为:别名,如果不指定则默认为none,即使用随机分配名称 -->
+                                <!-- ��������ʱ������������Ϊ:����,�����ָ����Ĭ��Ϊnone,��ʹ������������� -->
                                 <namingStrategy>alias</namingStrategy>
-                                <!-- 端口映射 -->
+                                <!-- �˿�ӳ�� -->
                                 <ports>
                                     <port>10400:10400</port>
                                 </ports>
-                                <!-- 数据卷 -->
+                                <!-- ���ݾ� -->
                                 <volumes>
                                     <bind>
                                         <volume>/etc/localtime:/etc/localtime</volume>
                                         <volume>/home/app/${project.artifactId}/logs:/tmp/logs</volume>
                                     </bind>
                                 </volumes>
-                                <!-- 设置环境变量 -->
+                                <!-- ���û������� -->
                                 <env>
-                                    <!-- JVM参数 -->
+                                    <!-- JVM���� -->
                                     <JAVA_OPTS>-Xms256m -Xmx256m</JAVA_OPTS>
-                                    <!-- 启动替换参数 -->
+                                    <!-- �����滻���� -->
                                     <SPRING_ARGS>
                                         --spring.profiles.active=test --spring.cloud.nacos.discovery.ip=192.168.220.128
                                     </SPRING_ARGS>
@@ -138,20 +142,20 @@
                 <groupId>com.zeroone.star</groupId>
                 <artifactId>mp-code-generator-plugin</artifactId>
                 <configuration>
-                    <!-- 数据库连接信息配置 -->
+                    <!-- ���ݿ�������Ϣ���� -->
                     <dbConfig>
-                        <!-- 数据库主机地址 -->
+                        <!-- ���ݿ�������ַ -->
                         <host>192.168.254.128</host>
-                        <!-- 数据库端口 -->
+                        <!-- ���ݿ�˿� -->
                         <port>3306</port>
-                        <!-- 数据库名称 -->
+                        <!-- ���ݿ����� -->
                         <dbname>test</dbname>
-                        <!-- 数据库用户名 -->
+                        <!-- ���ݿ��û��� -->
                         <username>root</username>
-                        <!-- 数据库密码 -->
+                        <!-- ���ݿ����� -->
                         <password>123456</password>
                     </dbConfig>
-                    <!-- 生成代码输出根目录 -->
+                    <!-- ���ɴ��������Ŀ¼ -->
                     <outDir>${project.basedir}/src/main/java</outDir>
                 </configuration>
             </plugin>

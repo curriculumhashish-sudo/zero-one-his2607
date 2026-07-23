@@ -1,4 +1,4 @@
-package com.zeroone.star.j7.dispense.controller;
+package com.zeroone.star.dispense.controller;
 
 
 import java.io.IOException;

@@ -43,3 +43,5 @@ target
 
 # Maven ignore
 .flattened-pom.xml
+
+nacos-install.md
