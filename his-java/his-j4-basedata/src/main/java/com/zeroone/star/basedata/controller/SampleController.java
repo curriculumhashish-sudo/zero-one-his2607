@@ -1,5 +1,6 @@
 package com.zeroone.star.basedata.controller;
 
+import com.zeroone.star.basedata.entity.sample.AdmSpecimenDefinitionDO;
 import com.zeroone.star.project.dto.j4.sample.SpecimenDefinitionDeleteDTO;
 import com.zeroone.star.project.dto.j4.sample.SpecimenDefinitionStatusDTO;
 import com.zeroone.star.project.dto.j4.sample.SpecimenDefinitionUpdateDTO;
@@ -14,17 +15,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import cn.hutool.core.bean.BeanUtil;
-import com.zeroone.star.basedata.entity.Sample;
 import com.zeroone.star.project.dto.ExtendPageDTO;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j4.sample.SpecimenDefinitionAddDTO;
-import com.zeroone.star.project.j4.basedata.SampleApis;
 import com.zeroone.star.project.query.j4.sample.SpecimenDefinitionQuery;
-import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j4.sample.SpecimenDefinitionDetailVO;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -41,7 +37,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/sample")
-@Tag(name = "basedata-sample", description = "样本管理接口")
+@Tag(name = "样本管理", description = "样本管理接口")
 public class SampleController implements SampleApis {
 
     @Operation(summary = "启用/停用样本定义", description = "根据主键与乐观锁版本号，更新样本定义的发布状态")
@@ -78,7 +74,7 @@ public class SampleController implements SampleApis {
             @Parameter(description = "样本定义主键", example = "328090253175296000")
             @RequestParam String id) {
         // TODO: 待实现 Service/Mapper 层逻辑，当前返回 mock 数据
-        Sample sample = buildMockSample();
+        AdmSpecimenDefinitionDO sample = buildMockSample();
         SpecimenDefinitionDetailVO vo = new SpecimenDefinitionDetailVO();
         BeanUtil.copyProperties(sample, vo);
         return JsonVO.success(vo);
@@ -92,7 +88,7 @@ public class SampleController implements SampleApis {
     @Override
     public JsonVO<PageDTO<SpecimenDefinitionDetailVO>> querySampleList(@RequestBody SpecimenDefinitionQuery query) {
         // TODO: 待实现 Service/Mapper 层逻辑，当前返回 mock 数据
-        Sample sample = buildMockSample();
+        AdmSpecimenDefinitionDO sample = buildMockSample();
         SpecimenDefinitionDetailVO vo = new SpecimenDefinitionDetailVO();
         BeanUtil.copyProperties(sample, vo);
         PageDTO<SpecimenDefinitionDetailVO> pageDTO = new ExtendPageDTO<>(List.of(vo), 1L, 10L, 1L);
@@ -108,7 +104,7 @@ public class SampleController implements SampleApis {
     public JsonVO<String> addSample(@RequestBody SpecimenDefinitionAddDTO dto) {
         // TODO: 待实现 Service/Mapper 层逻辑，当前返回 mock 数据
         // 示例：将 DTO 转换为实体对象
-        Sample sample = new Sample();
+        AdmSpecimenDefinitionDO sample = new AdmSpecimenDefinitionDO();
         BeanUtil.copyProperties(dto, sample);
         return JsonVO.success("新增样本定义成功");
     }
@@ -116,8 +112,8 @@ public class SampleController implements SampleApis {
     /**
      * 构建 mock 样本实体数据（基于测试数据 SPD0001-血）
      */
-    private Sample buildMockSample() {
-        Sample sample = new Sample();
+    private AdmSpecimenDefinitionDO buildMockSample() {
+        AdmSpecimenDefinitionDO sample = new AdmSpecimenDefinitionDO();
         sample.setId("328090253175296000");
         sample.setTenantId("1");
         sample.setBusNo("SPD0001");

@@ -38,7 +38,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/diagnosis")
-@Tag(name = "diagnosis", description = "诊断管理")
+@Tag(name = "诊断管理", description = "诊断管理接口")
 public class DiagnosisController implements DiagnosisApis {
 
     @Resource

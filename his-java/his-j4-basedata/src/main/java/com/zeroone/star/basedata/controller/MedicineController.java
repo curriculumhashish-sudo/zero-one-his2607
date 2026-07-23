@@ -30,7 +30,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/medicine")
-@Tag(name = "basedata-medicine", description = "药品管理接口")
+@Tag(name = "药品管理", description = "药品管理接口")
 @Validated
 @Slf4j
 public class MedicineController implements MedicineApis {
