@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 /**
  * 文书类型API接口
  */
-@Tag(name = "文书类型管理", description = "文书类型的增删改操作")
+@Tag(name = "配置管理-文书类型", description = "文书类型接口")
 public interface DocumentTypeApis {
     
     /**

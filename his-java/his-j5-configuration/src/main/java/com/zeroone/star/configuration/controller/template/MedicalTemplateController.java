@@ -6,8 +6,10 @@ import com.zeroone.star.project.j5.emr.template.query.MedicalTemplateQuery;
 import com.zeroone.star.project.j5.emr.template.vo.MedicalTemplateDetailVO;
 import com.zeroone.star.project.j5.emr.template.vo.MedicalTemplateVO;
 import com.zeroone.star.project.vo.JsonVO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 
@@ -70,5 +72,25 @@ public class MedicalTemplateController implements MedicalTemplateApis {
         detail.setUpdateBy("admin");
 
         return JsonVO.success(detail);
+    }
+
+    @Operation(summary = "新增病历模板", description = "创建新的病历模板")
+    @PostMapping("/add")
+    public JsonVO<Void> add(@RequestBody MedicalTemplateVO vo) {
+        return JsonVO.success(null);
+    }
+
+    @Operation(summary = "修改病历模板", description = "更新病历模板信息")
+    @PutMapping("/update")
+    public JsonVO<Void> update(@RequestBody MedicalTemplateVO vo) {
+        return JsonVO.success(null);
+    }
+
+    @Operation(summary = "删除病历模板", description = "删除指定的病历模板")
+    @DeleteMapping("/delete/{id}")
+    public JsonVO<Void> delete(
+            @Parameter(description = "模板ID", required = true, example = "1")
+            @PathVariable("id") Long id) {
+        return JsonVO.success(null);
     }
 }

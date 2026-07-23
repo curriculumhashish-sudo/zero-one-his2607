@@ -24,7 +24,7 @@ import java.util.List;
  * @author yjyl
  * @version 1.0.0
  */
-@Tag(name = "获取文书类型接口")
+@Tag(name = "配置管理-文书类型", description = "文书类型接口")
 @RequestMapping("/emr/document-type")
 public interface EmrDocumentTypeApis {
 
