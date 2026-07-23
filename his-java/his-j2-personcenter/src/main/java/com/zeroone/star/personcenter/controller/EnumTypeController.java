@@ -15,7 +15,7 @@ public class EnumTypeController implements enumTypeApis {
     @Override
     @Operation(summary = "删除枚举类型")
     @DeleteMapping("/sys/delete-enum-type/{enumKey}")
-    public JsonVO<String> deleteEnumType(@PathVariable(value = "BloodTypeAbo", required = true) String enumKey) {
+    public JsonVO<String> deleteEnumType(@PathVariable(value = "enumKey", required = true) String enumKey) {
         return null;
     }
 }
