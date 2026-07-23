@@ -86,17 +86,11 @@ void DrugSwagger::addRemoveExamples(const std::shared_ptr<oatpp::web::server::ap
     info->responses[oatpp::web::protocol::http::Status::CODE_200].addExample("success", successNoData());
 }
 
-void DrugSwagger::addStartExamples(const std::shared_ptr<oatpp::web::server::api::Endpoint::Info> &info)
+void DrugSwagger::addEnableDisableExamples(const std::shared_ptr<oatpp::web::server::api::Endpoint::Info> &info)
 {
-    info->body.description = ZH_WORDS_GETTER("drug.body.start");
-    info->body.addExample("default", sampleStart());
-    info->responses[oatpp::web::protocol::http::Status::CODE_200].addExample("success", successNoData());
-}
-
-void DrugSwagger::addStopExamples(const std::shared_ptr<oatpp::web::server::api::Endpoint::Info> &info)
-{
-    info->body.description = ZH_WORDS_GETTER("drug.body.stop");
-    info->body.addExample("default", sampleStop());
+    info->body.description = ZH_WORDS_GETTER("drug.body.enableDisable");
+    info->body.addExample("enable", sampleEnableDisable(true));
+    info->body.addExample("disable", sampleEnableDisable(false));
     info->responses[oatpp::web::protocol::http::Status::CODE_200].addExample("success", successNoData());
 }
 
@@ -122,17 +116,11 @@ DrugRemoveDTO::Wrapper DrugSwagger::sampleRemove()
     return dto;
 }
 
-DrugStartDTO::Wrapper DrugSwagger::sampleStart()
+DrugEnableDisableDTO::Wrapper DrugSwagger::sampleEnableDisable(bool activeFlag)
 {
-    auto dto = DrugStartDTO::createShared();
+    auto dto = DrugEnableDisableDTO::createShared();
     dto->ids = sampleIds();
-    return dto;
-}
-
-DrugStopDTO::Wrapper DrugSwagger::sampleStop()
-{
-    auto dto = DrugStopDTO::createShared();
-    dto->ids = sampleIds();
+    dto->activeFlag = activeFlag;
     return dto;
 }
 
@@ -242,12 +230,13 @@ NoDataJsonVO::Wrapper DrugController::execRemoveDrug(const DrugRemoveDTO::Wrappe
     return createBatchResult(dto ? dto->ids : nullptr);
 }
 
-NoDataJsonVO::Wrapper DrugController::execStartDrug(const DrugStartDTO::Wrapper &dto)
+NoDataJsonVO::Wrapper DrugController::execEnableDisableDrug(const DrugEnableDisableDTO::Wrapper &dto)
 {
-    return createBatchResult(dto ? dto->ids : nullptr);
-}
-
-NoDataJsonVO::Wrapper DrugController::execStopDrug(const DrugStopDTO::Wrapper &dto)
-{
-    return createBatchResult(dto ? dto->ids : nullptr);
+    if (!dto || dto->activeFlag == nullptr)
+    {
+        auto result = NoDataJsonVO::createShared();
+        result->init(RS_PARAMS_INVALID);
+        return result;
+    }
+    return createBatchResult(dto->ids);
 }
