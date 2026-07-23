@@ -29,11 +29,13 @@
  * Service layer for medical order execution and verification.
  * Core workflow: doctor orders -> nurse verifies -> nurse executes -> complete.
  *
- * Four requirements:
+ * Six requirements:
  *   1. Get verification items (query with filters + pagination)
  *   2. Verify pass (status: pending_verification -> verified)
  *   3. Return order  (status: pending_verification -> returned, with reason)
  *   4. Get execution items (query with filters + pagination)
+ *   5. Start execution (status: verified -> executing)
+ *   6. Complete execution (status: executing -> completed)
  */
 class MedicalOrderExecutionService
 {
@@ -64,6 +66,19 @@ public:
      * Defaults to status_enum = 'verified' if not specified.
      */
     MedicalOrderPageJsonVO::Wrapper queryExecutionItems(const MedicalOrderQuery::Wrapper& query);
+
+    /**
+     * Start executing an order.
+     * Status transitions from verified to executing.
+     * Records the performer and increments execution count.
+     */
+    StringJsonVO::Wrapper execStartExecution(const ExecuteOrderDTO::Wrapper& dto);
+
+    /**
+     * Complete execution of an order.
+     * Status transitions from executing to completed.
+     */
+    StringJsonVO::Wrapper execCompleteExecution(const CompleteOrderDTO::Wrapper& dto);
 };
 
 #endif // !_MEDICAL_ORDER_EXECUTION_SERVICE_H_

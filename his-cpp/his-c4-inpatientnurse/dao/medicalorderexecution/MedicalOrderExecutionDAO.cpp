@@ -226,3 +226,42 @@ int MedicalOrderExecutionDAO::returnOrder(
 
     return sqlSession->executeUpdate(sql, params);
 }
+
+// ============================================================================
+// Requirement 5: start execution
+// ============================================================================
+int MedicalOrderExecutionDAO::startExecution(
+    const std::string& serviceRequestId, const std::string& performerId)
+{
+    std::string sql =
+        "UPDATE wkf_service_request SET "
+        "status_enum = 'executing', "
+        "performer_id = ?, "
+        "execution_count = COALESCE(execution_count, 0) + 1 "
+        "WHERE id = ? AND status_enum = 'verified' AND is_deleted = 0";
+
+    SqlParams params;
+    SQLPARAMS_PUSH(params, "s", std::string, performerId);
+    SQLPARAMS_PUSH(params, "s", std::string, serviceRequestId);
+
+    return sqlSession->executeUpdate(sql, params);
+}
+
+// ============================================================================
+// Requirement 6: complete execution
+// ============================================================================
+int MedicalOrderExecutionDAO::completeExecution(
+    const std::string& serviceRequestId, const std::string& performerId)
+{
+    std::string sql =
+        "UPDATE wkf_service_request SET "
+        "status_enum = 'completed', "
+        "performer_id = ? "
+        "WHERE id = ? AND status_enum = 'executing' AND is_deleted = 0";
+
+    SqlParams params;
+    SQLPARAMS_PUSH(params, "s", std::string, performerId);
+    SQLPARAMS_PUSH(params, "s", std::string, serviceRequestId);
+
+    return sqlSession->executeUpdate(sql, params);
+}

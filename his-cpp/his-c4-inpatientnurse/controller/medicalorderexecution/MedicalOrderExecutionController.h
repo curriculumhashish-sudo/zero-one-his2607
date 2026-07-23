@@ -40,9 +40,11 @@ using namespace oatpp;
  *   2. POST /medical-order/verify-pass          - approve verification
  *   3. POST /medical-order/return-order         - reject/return an order
  *   4. GET  /medical-order/execution-items      - query orders ready for execution
+ *   5. POST /medical-order/execute-order        - start executing an order
+ *   6. POST /medical-order/complete-order       - complete execution of an order
  */
 
-#define API_TAG "medical-order-execution"
+#define API_TAG ZH_WORDS_GETTER("medical-order-execution.tag")
 
 class MedicalOrderExecutionController : public oatpp::web::server::api::ApiController
 {
@@ -55,7 +57,7 @@ public:
     // GET /medical-order/verification-items?pageIndex=1&pageSize=10&patientId=...
     // ========================================================================
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(
-        "Get Medical Order Verification Items",
+        ZH_WORDS_GETTER("medical-order-execution.verification-items.summary"),
         queryVerificationItems,
         MedicalOrderQuery,
         MedicalOrderPageJsonVO::Wrapper,
@@ -73,7 +75,7 @@ public:
     // Body: { "serviceRequestId": "...", "verifierId": "..." }
     // ========================================================================
     API_DEF_ENDPOINT_INFO_AUTH(
-        "Approve Medical Order Verification",
+        ZH_WORDS_GETTER("medical-order-execution.verify-pass.summary"),
         execVerifyPass,
         StringJsonVO::Wrapper,
         API_TAG)
@@ -90,7 +92,7 @@ public:
     // Body: { "serviceRequestId": "...", "returnReason": "..." }
     // ========================================================================
     API_DEF_ENDPOINT_INFO_AUTH(
-        "Return / Reject Medical Order",
+        ZH_WORDS_GETTER("medical-order-execution.return-order.summary"),
         execReturnOrder,
         StringJsonVO::Wrapper,
         API_TAG)
@@ -106,7 +108,7 @@ public:
     // GET /medical-order/execution-items?pageIndex=1&pageSize=10
     // ========================================================================
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(
-        "Get Medical Order Execution Items",
+        ZH_WORDS_GETTER("medical-order-execution.execution-items.summary"),
         queryExecutionItems,
         MedicalOrderQuery,
         MedicalOrderPageJsonVO::Wrapper,
@@ -117,6 +119,40 @@ public:
         queryExecutionItems,
         MedicalOrderQuery,
         execQueryExecutionItems(query))
+
+    // ========================================================================
+    // Requirement 5: Start executing an order
+    // POST /medical-order/execute-order
+    // Body: { "serviceRequestId": "...", "performerId": "..." }
+    // ========================================================================
+    API_DEF_ENDPOINT_INFO_AUTH(
+        ZH_WORDS_GETTER("medical-order-execution.execute-order.summary"),
+        execStartExecution,
+        StringJsonVO::Wrapper,
+        API_TAG)
+    API_HANDLER_ENDPOINT_AUTH(
+        API_M_POST,
+        "/medical-order/execute-order",
+        execStartExecution,
+        BODY_DTO(ExecuteOrderDTO::Wrapper, dto),
+        execStartExecution(dto))
+
+    // ========================================================================
+    // Requirement 6: Complete execution of an order
+    // POST /medical-order/complete-order
+    // Body: { "serviceRequestId": "...", "performerId": "..." }
+    // ========================================================================
+    API_DEF_ENDPOINT_INFO_AUTH(
+        ZH_WORDS_GETTER("medical-order-execution.complete-order.summary"),
+        execCompleteExecution,
+        StringJsonVO::Wrapper,
+        API_TAG)
+    API_HANDLER_ENDPOINT_AUTH(
+        API_M_POST,
+        "/medical-order/complete-order",
+        execCompleteExecution,
+        BODY_DTO(CompleteOrderDTO::Wrapper, dto),
+        execCompleteExecution(dto))
 
 private:
     MedicalOrderPageJsonVO::Wrapper execQueryVerificationItems(
@@ -139,6 +175,16 @@ private:
         const MedicalOrderQuery::Wrapper& query)
     {
         return MedicalOrderExecutionService().queryExecutionItems(query);
+    }
+
+    StringJsonVO::Wrapper execStartExecution(const ExecuteOrderDTO::Wrapper& dto)
+    {
+        return MedicalOrderExecutionService().execStartExecution(dto);
+    }
+
+    StringJsonVO::Wrapper execCompleteExecution(const CompleteOrderDTO::Wrapper& dto)
+    {
+        return MedicalOrderExecutionService().execCompleteExecution(dto);
     }
 };
 

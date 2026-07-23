@@ -35,6 +35,12 @@ class WkfServiceRequestDO : public BaseDO {
     MYSQL_SYNTHESIZE(std::string, busNo, BusNo);
     // Prescription number
     MYSQL_SYNTHESIZE(std::string, prescriptionNo, PrescriptionNo);
+    // Based-on table name
+    MYSQL_SYNTHESIZE(std::string, basedOnTable, BasedOnTable);
+    // Based-on identifier
+    MYSQL_SYNTHESIZE(std::string, basedOnId, BasedOnId);
+    // Requisition identifier
+    MYSQL_SYNTHESIZE(std::string, requisitionId, RequisitionId);
     // Status enum: pending_verification / verified / returned / executing / completed
     MYSQL_SYNTHESIZE(std::string, statusEnum, StatusEnum);
     // Intent enum: long_term / temporary
@@ -126,6 +132,9 @@ public:
         MYSQL_ADD_FIELD("tenant_id", "s", tenantId);
         MYSQL_ADD_FIELD("bus_no", "s", busNo);
         MYSQL_ADD_FIELD("prescription_no", "s", prescriptionNo);
+        MYSQL_ADD_FIELD("based_on_table", "s", basedOnTable);
+        MYSQL_ADD_FIELD("based_on_id", "s", basedOnId);
+        MYSQL_ADD_FIELD("requisition_id", "s", requisitionId);
         MYSQL_ADD_FIELD("status_enum", "s", statusEnum);
         MYSQL_ADD_FIELD("intent_enum", "s", intentEnum);
         MYSQL_ADD_FIELD("category_enum", "s", categoryEnum);

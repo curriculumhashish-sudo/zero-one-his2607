@@ -179,3 +179,63 @@ MedicalOrderPageJsonVO::Wrapper MedicalOrderExecutionService::queryExecutionItem
     result->success(page);
     return result;
 }
+
+// ============================================================================
+// Requirement 5: start execution
+// ============================================================================
+StringJsonVO::Wrapper MedicalOrderExecutionService::execStartExecution(
+    const ExecuteOrderDTO::Wrapper& dto)
+{
+    auto result = StringJsonVO::createShared();
+
+    if (!dto->serviceRequestId || dto->serviceRequestId.getValue("").empty()) {
+        result->fail(String("serviceRequestId is required"));
+        return result;
+    }
+    if (!dto->performerId || dto->performerId.getValue("").empty()) {
+        result->fail(String("performerId is required"));
+        return result;
+    }
+
+    MedicalOrderExecutionDAO dao;
+    int rows = dao.startExecution(
+        dto->serviceRequestId.getValue(""),
+        dto->performerId.getValue(""));
+
+    if (rows > 0) {
+        result->success(String("Execution started"));
+    } else {
+        result->fail(String("Start execution failed: order not found or not in verified status"));
+    }
+    return result;
+}
+
+// ============================================================================
+// Requirement 6: complete execution
+// ============================================================================
+StringJsonVO::Wrapper MedicalOrderExecutionService::execCompleteExecution(
+    const CompleteOrderDTO::Wrapper& dto)
+{
+    auto result = StringJsonVO::createShared();
+
+    if (!dto->serviceRequestId || dto->serviceRequestId.getValue("").empty()) {
+        result->fail(String("serviceRequestId is required"));
+        return result;
+    }
+    if (!dto->performerId || dto->performerId.getValue("").empty()) {
+        result->fail(String("performerId is required"));
+        return result;
+    }
+
+    MedicalOrderExecutionDAO dao;
+    int rows = dao.completeExecution(
+        dto->serviceRequestId.getValue(""),
+        dto->performerId.getValue(""));
+
+    if (rows > 0) {
+        result->success(String("Execution completed"));
+    } else {
+        result->fail(String("Complete execution failed: order not found or not in executing status"));
+    }
+    return result;
+}

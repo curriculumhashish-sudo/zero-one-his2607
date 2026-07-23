@@ -70,6 +70,54 @@ class ReturnOrderDTO : public oatpp::DTO
     }
 };
 
+/**
+ * DTO for the "Start Execution" operation.
+ * Request body: POST /medical-order/execute-order
+ * JSON: { "serviceRequestId": "...", "performerId": "..." }
+ */
+class ExecuteOrderDTO : public oatpp::DTO
+{
+    DTO_INIT(ExecuteOrderDTO, DTO);
+
+    // ID of the order to execute (required)
+    DTO_FIELD(String, serviceRequestId, "serviceRequestId");
+    DTO_FIELD_INFO(serviceRequestId) {
+        info->description = "service request ID to execute";
+        info->required = true;
+    }
+
+    // ID of the nurse performing execution (required)
+    DTO_FIELD(String, performerId, "performerId");
+    DTO_FIELD_INFO(performerId) {
+        info->description = "performer (nurse) identifier";
+        info->required = true;
+    }
+};
+
+/**
+ * DTO for the "Complete Execution" operation.
+ * Request body: POST /medical-order/complete-order
+ * JSON: { "serviceRequestId": "...", "performerId": "..." }
+ */
+class CompleteOrderDTO : public oatpp::DTO
+{
+    DTO_INIT(CompleteOrderDTO, DTO);
+
+    // ID of the order to complete (required)
+    DTO_FIELD(String, serviceRequestId, "serviceRequestId");
+    DTO_FIELD_INFO(serviceRequestId) {
+        info->description = "service request ID to complete";
+        info->required = true;
+    }
+
+    // ID of the nurse completing execution (required)
+    DTO_FIELD(String, performerId, "performerId");
+    DTO_FIELD_INFO(performerId) {
+        info->description = "performer (nurse) identifier";
+        info->required = true;
+    }
+};
+
 #include OATPP_CODEGEN_END(DTO)
 
 #endif // !_MEDICAL_ORDER_EXECUTION_DTO_H_

@@ -77,6 +77,24 @@ public:
      * @return rows affected (1=success, 0=not found/already processed)
      */
     int returnOrder(const std::string& serviceRequestId, const std::string& returnReason);
+
+    /**
+     * Start execution (requirement 5): update status to 'executing', record performer.
+     * Status transitions from 'verified' to 'executing'.
+     * @param serviceRequestId order ID
+     * @param performerId nurse ID who starts execution
+     * @return rows affected (1=success, 0=not found/wrong status)
+     */
+    int startExecution(const std::string& serviceRequestId, const std::string& performerId);
+
+    /**
+     * Complete execution (requirement 6): update status to 'completed'.
+     * Status transitions from 'executing' to 'completed'.
+     * @param serviceRequestId order ID
+     * @param performerId nurse ID who completes execution
+     * @return rows affected (1=success, 0=not found/wrong status)
+     */
+    int completeExecution(const std::string& serviceRequestId, const std::string& performerId);
 };
 
 #endif // !_MEDICAL_ORDER_EXECUTION_DAO_H_
