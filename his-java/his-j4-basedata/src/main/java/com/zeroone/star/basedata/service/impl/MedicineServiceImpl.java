@@ -1,9 +1,13 @@
 package com.zeroone.star.basedata.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zeroone.star.basedata.entity.Medicine;
+
+import com.zeroone.star.basedata.entity.medicine.MedMedicationDefinitionDO;
 import com.zeroone.star.basedata.mapper.MedicineMapper;
 import com.zeroone.star.basedata.service.IMedicineService;
+import com.zeroone.star.project.dto.j4.medicine.MedicineChangeStatusDTO;
+import com.zeroone.star.project.dto.j4.medicine.MedicineDeleteDTO;
+import com.zeroone.star.project.dto.j4.medicine.MedicineDetailDTO;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,5 +20,24 @@ import org.springframework.stereotype.Service;
  * @version 1.0.0
  */
 @Service
-public class MedicineServiceImpl extends ServiceImpl<MedicineMapper, Medicine> implements IMedicineService {
+public class MedicineServiceImpl extends ServiceImpl<MedicineMapper, MedMedicationDefinitionDO> implements IMedicineService {
+    @Override
+    public MedicineDetailDTO queryMedicineDetailById(String id) {
+        return null;
+    }
+
+    @Override
+    public int updateMedicine(MedicineDetailDTO dto) {
+        return 0;
+    }
+
+    @Override
+    public int deleteMedicine(MedicineDeleteDTO dto) {
+        return 0;
+    }
+
+    @Override
+    public int updateChangeMedicineStatus(int status, MedicineChangeStatusDTO dto) {
+        return 0;
+    }
 }
