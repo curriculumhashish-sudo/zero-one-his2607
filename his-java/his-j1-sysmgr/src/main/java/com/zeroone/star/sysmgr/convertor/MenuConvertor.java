@@ -3,6 +3,7 @@ package com.zeroone.star.sysmgr.convertor;
 import com.zeroone.star.project.vo.menu.MenuVO;
 import com.zeroone.star.sysmgr.entity.menu.MenuDO;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.factory.Mappers;
@@ -26,7 +27,11 @@ public interface MenuConvertor {
      * @return VO
      */
     @Mappings({
-
+        @Mapping(source = "id", target = "menuId"),
+        @Mapping(source = "name", target = "menuName"),
+        @Mapping(source = "displayName", target = "showName"),
+        @Mapping(source = "status", target = "isEnabled"),
+        @Mapping(source = "sortNum", target = "sortOrder")
     })
     public MenuVO toVO(MenuDO menuDO);
 
@@ -38,6 +43,11 @@ public interface MenuConvertor {
      * @return DO
      */
     @Mappings({
+            @Mapping(source = "menuId", target = "id"),
+            @Mapping(source = "menuName", target = "name"),
+            @Mapping(source = "showName", target = "displayName"),
+            @Mapping(source = "isEnabled", target = "status"),
+            @Mapping(source = "sortOrder", target = "sortNum")
     })
     public MenuDO toDO(MenuVO menuVO);
 }
