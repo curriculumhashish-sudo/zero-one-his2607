@@ -20,7 +20,6 @@
 #ifndef _RESULT_MAPPER_
 #define _RESULT_MAPPER_
 #include "jdbc/cppconn/resultset.h"
-#include"../../his-c5-basicdata/domain/do/ward/WardDO.h"
 using namespace sql;
 /**
  * 查询结果集匹配接口定义
