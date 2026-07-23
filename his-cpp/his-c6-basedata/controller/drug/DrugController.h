@@ -22,10 +22,9 @@
 
 #include "domain/GlobalInclude.h"
 #include "domain/dto/drug/DrugAddDTO.h"
+#include "domain/dto/drug/DrugEnableDisableDTO.h"
 #include "domain/dto/drug/DrugModifyDTO.h"
 #include "domain/dto/drug/DrugRemoveDTO.h"
-#include "domain/dto/drug/DrugStartDTO.h"
-#include "domain/dto/drug/DrugStopDTO.h"
 #include "domain/query/Drug/DrugQuery.h"
 #include "domain/query/Drug/DrugSelectQuery.h"
 #include "domain/vo/BaseJsonVO.h"
@@ -39,15 +38,13 @@ class DrugSwagger final
   public:
     static void addModifyExamples(const std::shared_ptr<oatpp::web::server::api::Endpoint::Info> &info);
     static void addRemoveExamples(const std::shared_ptr<oatpp::web::server::api::Endpoint::Info> &info);
-    static void addStartExamples(const std::shared_ptr<oatpp::web::server::api::Endpoint::Info> &info);
-    static void addStopExamples(const std::shared_ptr<oatpp::web::server::api::Endpoint::Info> &info);
+    static void addEnableDisableExamples(const std::shared_ptr<oatpp::web::server::api::Endpoint::Info> &info);
 
   private:
     static oatpp::List<oatpp::String> sampleIds();
     static DrugModifyDTO::Wrapper sampleModify();
     static DrugRemoveDTO::Wrapper sampleRemove();
-    static DrugStartDTO::Wrapper sampleStart();
-    static DrugStopDTO::Wrapper sampleStop();
+    static DrugEnableDisableDTO::Wrapper sampleEnableDisable(bool activeFlag);
     static DrugModifyJsonVO::Wrapper successModify();
     static NoDataJsonVO::Wrapper successNoData();
     static void fillRequiredModifyFields(const DrugModifyDTO::Wrapper &dto);
@@ -92,15 +89,10 @@ class DrugController : public oatpp::web::server::api::ApiController
     API_HANDLER_ENDPOINT_AUTH(API_M_DEL, DRUG_PATH "/remove-drug", removeDrug, BODY_DTO(DrugRemoveDTO::Wrapper, dto),
                               execRemoveDrug(dto));
 
-    API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("drug.start.summary"), startDrug, NoDataJsonVO::Wrapper, API_TAG,
-                               DrugSwagger::addStartExamples(info););
-    API_HANDLER_ENDPOINT_AUTH(API_M_PUT, DRUG_PATH "/start-drug", startDrug, BODY_DTO(DrugStartDTO::Wrapper, dto),
-                              execStartDrug(dto));
-
-    API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("drug.stop.summary"), stopDrug, NoDataJsonVO::Wrapper, API_TAG,
-                               DrugSwagger::addStopExamples(info););
-    API_HANDLER_ENDPOINT_AUTH(API_M_PUT, DRUG_PATH "/stop-drug", stopDrug, BODY_DTO(DrugStopDTO::Wrapper, dto),
-                              execStopDrug(dto));
+    API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("drug.enable-disable.summary"), enableDisableDrug,
+                               NoDataJsonVO::Wrapper, API_TAG, DrugSwagger::addEnableDisableExamples(info););
+    API_HANDLER_ENDPOINT_AUTH(API_M_PUT, DRUG_PATH "/enable-disable-drug", enableDisableDrug,
+                              BODY_DTO(DrugEnableDisableDTO::Wrapper, dto), execEnableDisableDrug(dto));
 
   private:
     DrugListPageJsonVO::Wrapper execQueryDrug(const DrugQuery::Wrapper &query);
@@ -109,8 +101,7 @@ class DrugController : public oatpp::web::server::api::ApiController
     DrugDetailJsonVO::Wrapper execQueryOneDrug(const String &id);
     DrugModifyJsonVO::Wrapper execModifyDrug(const DrugModifyDTO::Wrapper &dto);
     NoDataJsonVO::Wrapper execRemoveDrug(const DrugRemoveDTO::Wrapper &dto);
-    NoDataJsonVO::Wrapper execStartDrug(const DrugStartDTO::Wrapper &dto);
-    NoDataJsonVO::Wrapper execStopDrug(const DrugStopDTO::Wrapper &dto);
+    NoDataJsonVO::Wrapper execEnableDisableDrug(const DrugEnableDisableDTO::Wrapper &dto);
 };
 
 #undef DRUG_PATH

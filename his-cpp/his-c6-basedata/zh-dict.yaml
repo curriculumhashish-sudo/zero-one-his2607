@@ -4,15 +4,12 @@ drug:
     summary: 修改药品
   remove:
     summary: 删除药品（支持批量）
-  start:
-    summary: 启用药品（支持批量）
-  stop:
-    summary: 停用药品（支持批量）
+  enable-disable:
+    summary: 启/停用药品（支持批量）
   body:
     modify: 修改药品请求对象
     remove: 删除药品请求对象
-    start: 启用药品请求对象
-    stop: 停用药品请求对象
+    enableDisable: 药品启/停用请求对象，activeFlag为true时启用，为false时停用
   query:
     summary: 药品分页条件查询
   add:
@@ -82,7 +79,7 @@ drug:
     supplyId: 供应商编号
     restrictedFlag: 是否限制使用
     restrictedScope: 限制范围
-    activeFlag: 是否启用
+    activeFlag: 是否启用，true表示启用，false表示停用
     childrenFlag: 是否儿童用药
     characteristic: 药品特征
     itemMinQuantity: 库存下限

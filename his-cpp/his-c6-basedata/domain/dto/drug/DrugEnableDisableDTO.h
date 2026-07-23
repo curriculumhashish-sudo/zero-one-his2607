@@ -17,20 +17,21 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _DRUG_STOP_DTO_H_
-#define _DRUG_STOP_DTO_H_
+#ifndef _DRUG_ENABLE_DISABLE_DTO_H_
+#define _DRUG_ENABLE_DISABLE_DTO_H_
 
 #include "../../GlobalInclude.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class DrugStopDTO : public oatpp::DTO
+class DrugEnableDisableDTO : public oatpp::DTO
 {
-    DTO_INIT(DrugStopDTO, DTO);
+    DTO_INIT(DrugEnableDisableDTO, DTO);
 
     API_DTO_FIELD_REQUIRE(List<String>, ids, ZH_WORDS_GETTER("drug.field.ids"), true);
+    API_DTO_FIELD_REQUIRE(Boolean, activeFlag, ZH_WORDS_GETTER("drug.field.activeFlag"), true);
 };
 
 #include OATPP_CODEGEN_END(DTO)
 
-#endif // !_DRUG_STOP_DTO_H_
+#endif // !_DRUG_ENABLE_DISABLE_DTO_H_
