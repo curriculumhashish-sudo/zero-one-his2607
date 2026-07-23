@@ -36,6 +36,5 @@ public class InventoryDetailQuery extends PageQuery {
     @Schema(description = "库存状态枚举集合（正常/停供等）", example = "[\"NORMAL\",\"STOP_SUPPLY\"]")
     private List<String> inventoryStatusEnums;
 
-    @Schema(description = "备用业务编号", example = "BUS20260719001")
-    private String backupBusNo;
+
 }
