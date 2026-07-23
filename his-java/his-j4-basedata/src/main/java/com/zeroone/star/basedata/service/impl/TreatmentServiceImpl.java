@@ -14,7 +14,6 @@ import com.zeroone.star.project.dto.j4.treatment.TreatmentEditDTO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentStatusDTO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentUpdateDTO;
 import com.zeroone.star.project.query.j4.treatment.TreatmentQuery;
-import com.zeroone.star.project.query.j4.treatment.TreatmentSelectQuery;
 import com.zeroone.star.project.vo.j4.treatment.TreatmentDetailVO;
 import com.zeroone.star.project.vo.j4.treatment.TreatmentListVO;
 import com.zeroone.star.project.vo.j4.treatment.TreatmentSelectVO;
@@ -39,7 +38,7 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
     private MsTreatmentMapper msTreatmentMapper;
 
     @Override
-    public PageDTO<TreatmentSelectVO> listTreatmentOptions(TreatmentSelectQuery query) {
+    public PageDTO<TreatmentSelectVO> listTreatmentOptions(TreatmentQuery query) {
         Page<WkfActivityDefinitionDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
         LambdaQueryWrapper<WkfActivityDefinitionDO> wrapper = new LambdaQueryWrapper<>();
         if (StrUtil.isNotBlank(query.getKeyword())) {
@@ -48,6 +47,9 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
                     .or()
                     .like(WkfActivityDefinitionDO::getBusNo, query.getKeyword())
             );
+        }
+        if (StrUtil.isNotBlank(query.getCategoryCode())) {
+            wrapper.eq(WkfActivityDefinitionDO::getCategoryCode, query.getCategoryCode());
         }
         wrapper.orderByAsc(WkfActivityDefinitionDO::getCreatedAt);
         Page<WkfActivityDefinitionDO> result = baseMapper.selectPage(page, wrapper);
@@ -76,10 +78,16 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
     @Override
     public TreatmentDetailVO getTreatmentById(String id) {
         WkfActivityDefinitionDO wkfActivityDefinitionDO = this.getById(id);
+
         if (wkfActivityDefinitionDO == null) {
             return null;
         }
-        return msTreatmentMapper.toDetailVO(wkfActivityDefinitionDO);
+
+        TreatmentDetailVO detailVO = msTreatmentMapper.toDetailVO(wkfActivityDefinitionDO);
+
+        //TODO 去adm_charge_item_definition表查价格字段
+
+        return detailVO;
     }
 
     @Override

@@ -8,7 +8,6 @@ import com.zeroone.star.project.dto.j4.treatment.TreatmentEditDTO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentStatusDTO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentUpdateDTO;
 import com.zeroone.star.project.query.j4.treatment.TreatmentQuery;
-import com.zeroone.star.project.query.j4.treatment.TreatmentSelectQuery;
 import com.zeroone.star.project.vo.j4.treatment.TreatmentDetailVO;
 import com.zeroone.star.project.vo.j4.treatment.TreatmentListVO;
 import com.zeroone.star.project.vo.j4.treatment.TreatmentSelectVO;
@@ -26,7 +25,7 @@ import java.util.List;
  */
 public interface ITreatmentService extends IService<WkfActivityDefinitionDO> {
 
-    PageDTO<TreatmentSelectVO> listTreatmentOptions(TreatmentSelectQuery query);
+    PageDTO<TreatmentSelectVO> listTreatmentOptions(TreatmentQuery query);
 
     PageDTO<TreatmentListVO> queryTreatmentList(TreatmentQuery query);
 

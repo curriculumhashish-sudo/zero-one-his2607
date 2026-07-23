@@ -40,7 +40,19 @@ public interface MsTreatmentMapper {
 
     List<TreatmentListVO> toListVOList(List<WkfActivityDefinitionDO> wkfActivityDefinitionDOS);
 
-    TreatmentDetailVO toDetailVO(WkfActivityDefinitionDO wkfActivityDefinitionDO);
+    @Mappings({
+            // 字段名不一致映射：DO.isDeleted → VO.deleteFlag
+            @Mapping(source = "isDeleted", target = "deleteFlag"),
+            // DO不存在的字段，直接忽略
+            @Mapping(target = "ruleId_dictText", ignore = true),
+            @Mapping(target = "ybType", ignore = true),
+            @Mapping(target = "ybType_dictText", ignore = true),
+            @Mapping(target = "purchasePrice", ignore = true),
+            @Mapping(target = "retailPrice", ignore = true),
+            @Mapping(target = "maximumRetailPrice", ignore = true),
+            @Mapping(target = "children", ignore = true)
+    })
+    TreatmentDetailVO toDetailVO(WkfActivityDefinitionDO entity);
 
     WkfActivityDefinitionDO addDtoToEntity(TreatmentAddDTO dto);
 
