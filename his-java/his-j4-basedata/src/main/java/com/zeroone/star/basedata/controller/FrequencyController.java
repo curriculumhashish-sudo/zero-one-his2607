@@ -31,7 +31,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/frequency")
-@Tag(name = "basedata-frequency", description = "频次管理接口")
+@Tag(name = "频次管理", description = "频次管理接口")
 public class FrequencyController implements FrequencyApis {
 
     @Resource
@@ -73,9 +73,9 @@ public class FrequencyController implements FrequencyApis {
     }
 
     @Operation(summary = "删除频次")
-    @DeleteMapping("remove-frequency")
+    @DeleteMapping("remove-frequency/{id}")
     @Override
-    public JsonVO<Void> removeFrequency(@RequestBody String id) {
+    public JsonVO<Void> removeFrequency(@PathVariable String id) {
         frequencyService.removeFrequency(id);
         return JsonVO.success(null);
     }
