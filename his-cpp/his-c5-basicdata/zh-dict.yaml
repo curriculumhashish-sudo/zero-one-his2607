@@ -1,7 +1,9 @@
 ward:
+  tags:
+    t1: 病区接口
+  name-list:
+    summary: 获取病区名称列表
   field:
+    organization-id: 机构编号
     id: 病区编号
     name: 病区名称
-
-
-

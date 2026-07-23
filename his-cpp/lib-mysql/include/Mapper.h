@@ -20,7 +20,6 @@
 #ifndef _RESULT_MAPPER_
 #define _RESULT_MAPPER_
 #include "jdbc/cppconn/resultset.h"
-#include"Mapper.h"
 #include"../../his-c5-basicdata/domain/do/ward/WardDO.h"
 using namespace sql;
 /**
@@ -34,17 +33,4 @@ public:
 
 
 };
-class WardMapper :public Mapper<WardDO>
-{
-public:
-	WardDO mapper(ResultSet* resultSet) const override{
-		WardDO data;
-		data.setId(resultSet->getString("id"));
-		data.setName(resultSet->getString("name"));
-		return data;
-	}
-
-
-};
-
 #endif // !_RESULT_MAPPER_

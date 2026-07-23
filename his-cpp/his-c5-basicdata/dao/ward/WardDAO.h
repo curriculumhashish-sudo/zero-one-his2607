@@ -4,14 +4,14 @@
 
 #include<iostream>
 #include"../../lib-mysql/include/BaseDAO.h"
-#include"../../domain/query/ward/WardDO.h"
+#include"../../domain/do/ward/WardDO.h"
 
 class WardDAO : public BaseDAO
 {
 public:
     //std::list<WardDAO> selectNameList(
     //    const std::string& organizationId);
-    std::list<WardDO> WardDAO::selectNameList(
+    std::list<WardDO> selectNameList(
         const std::string& organizationId);
 };
 #endif
