@@ -1,15 +1,15 @@
 package com.zeroone.star.pharmacy.controller;
 
-import com.zeroone.star.project.dto.j6.pharmacy.stocktake.PharmacyInventoryDetailQueryDTO;
-import com.zeroone.star.project.dto.j6.pharmacy.stocktake.PharmacyInventoryQueryDTO;
-import com.zeroone.star.project.dto.j6.pharmacy.stocktake.PharmacyInventorySaveDTO;
-import com.zeroone.star.project.dto.j6.pharmacy.stocktake.StocktakeSaveDTO;
+import com.zeroone.star.pharmacy.service.IStocktakeApprovalService;
+import com.zeroone.star.project.dto.j6.pharmacy.stocktake.*;
 import com.zeroone.star.project.j6.pharmacy.WarehouseStocktakeApis;
 import com.zeroone.star.project.query.j6.pharmacy.stocktake.PharmacyInventoryQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stocktake.StocktakeDetailVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -107,5 +107,49 @@ public class WarehouseStocktakeController implements WarehouseStocktakeApis {
 
         vo.setLines(List.of(line));
         return vo;
+    }
+
+    @Resource
+    private IStocktakeApprovalService stocktakeApprovalService;
+
+    @Override
+    @Operation(summary = "提交审批")
+    @PostMapping("/submit-approval")
+    public JsonVO<Boolean> submitStocktakeApproval(@Valid @RequestBody StocktakeSubmitApprovalDTO dto) {
+        return execute(() -> stocktakeApprovalService.submit(dto));
+    }
+
+    @Override
+    @Operation(summary = "撤回审批")
+    @PostMapping("/withdraw-approval")
+    public JsonVO<Boolean> withdrawStocktakeApproval(@Valid @RequestBody StocktakeWithdrawApprovalDTO dto) {
+        return execute(() -> stocktakeApprovalService.withdraw(dto));
+    }
+
+    @Override
+    @Operation(summary = "审批通过")
+    @PostMapping("/approve")
+    public JsonVO<Boolean> agreeStocktakeApproval(@Valid @RequestBody StocktakeAgreeApprovalDTO dto) {
+        return execute(() -> stocktakeApprovalService.agree(dto));
+    }
+
+    @Override
+    @Operation(summary = "驳回审批")
+    @PostMapping("/reject")
+    public JsonVO<Boolean> rejectStocktakeApproval(@Valid @RequestBody StocktakeRejectApprovalDTO dto) {
+        return execute(() -> stocktakeApprovalService.reject(dto));
+    }
+
+    private JsonVO<Boolean> execute(ApprovalAction action) {
+        try {
+            return JsonVO.success(action.execute());
+        } catch (Exception e) {
+            return JsonVO.fail(e.getMessage());
+        }
+    }
+
+    @FunctionalInterface
+    private interface ApprovalAction {
+        Boolean execute();
     }
 }

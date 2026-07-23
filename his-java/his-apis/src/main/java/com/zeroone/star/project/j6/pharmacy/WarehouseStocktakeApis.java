@@ -1,9 +1,6 @@
 package com.zeroone.star.project.j6.pharmacy;
 
-import com.zeroone.star.project.dto.j6.pharmacy.stocktake.PharmacyInventoryDetailQueryDTO;
-import com.zeroone.star.project.dto.j6.pharmacy.stocktake.PharmacyInventoryQueryDTO;
-import com.zeroone.star.project.dto.j6.pharmacy.stocktake.PharmacyInventorySaveDTO;
-import com.zeroone.star.project.dto.j6.pharmacy.stocktake.StocktakeSaveDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.stocktake.*;
 import com.zeroone.star.project.query.j6.pharmacy.stocktake.PharmacyInventoryQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stocktake.StocktakeDetailVO;
@@ -69,4 +66,20 @@ public interface WarehouseStocktakeApis {
             @Parameter(description = "盘点单号", required = true, example = "PD202607180001")
             String busNo, @Parameter StocktakeSaveDTO dto
     );
+
+    default JsonVO<Boolean> submitStocktakeApproval(StocktakeSubmitApprovalDTO dto) {
+        return null;
+    }
+
+    default JsonVO<Boolean> withdrawStocktakeApproval(StocktakeWithdrawApprovalDTO dto) {
+        return null;
+    }
+
+    default JsonVO<Boolean> agreeStocktakeApproval(StocktakeAgreeApprovalDTO dto) {
+        return null;
+    }
+
+    default JsonVO<Boolean> rejectStocktakeApproval(StocktakeRejectApprovalDTO dto) {
+        return null;
+    }
 }
