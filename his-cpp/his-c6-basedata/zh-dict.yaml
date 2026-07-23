@@ -1,3 +1,34 @@
+
+sample:
+  tags:
+    tag: 样本管理
+
+  select-name:
+    summary: 获取可选样本列表
+  list-page:
+    summary: 获取样本列表
+  add-sample:
+    summary: 新增样本
+  edit-sample:
+    summary: 修改样本
+  remove-sample:
+    summary: 批量删除样本
+  switch-status:
+    summary: 启用或停用样本
+
+  query:
+    keyword: 搜索关键词
+
+  field:
+    id: 样本ID
+    ids: 样本ID列表
+    sampleCode: 样本编码
+    sampleName: 样本名称
+    inputCode: 拼音简码
+    wbCode: 五笔简码
+    status: 启用状态
+    remark: 备注
+
 treatment:
   tags:
     tag: 诊疗管理

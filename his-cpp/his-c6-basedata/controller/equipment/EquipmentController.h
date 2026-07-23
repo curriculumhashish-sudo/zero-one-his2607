@@ -13,6 +13,7 @@
 #include "domain/dto/equipment/EquipmentSelectDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
+
 #define API_TAG ZH_WORDS_GETTER("equipment.tags.tag")
 
 class EquipmentController : public oatpp::web::server::api::ApiController
