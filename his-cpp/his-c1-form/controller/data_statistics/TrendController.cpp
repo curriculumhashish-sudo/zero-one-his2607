@@ -6,9 +6,5 @@ TrafficTrendPageJsonVO::Wrapper FlowTrendController::execQueryFlowTrend(
 	const PayloadDTO& payload
 )
 {
-
-	
-	auto jvo = TrafficTrendPageJsonVO::createShared();
-
-	return jvo;
+	return TrafficTrendPageJsonVO::Wrapper();
 }

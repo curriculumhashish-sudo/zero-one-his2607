@@ -24,7 +24,7 @@ public:
 
 	
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(
-		ZH_WORDS_GETTER("Lin..form.data_statistics.query_flow_trend.summary"),
+		ZH_WORDS_GETTER("Lin.form.data_statistics.query_flow_trend.summary"),
 		queryFlowTrend,
 		TrafficTrendQuery,
 		TrafficTrendPageJsonVO::Wrapper,

@@ -8,7 +8,5 @@ MonthVisitPageJsonVO::Wrapper MonthVisitController::execQueryMonthVisit(
 	const PayloadDTO& payload
 )
 {
-	
-	auto jvo = MonthVisitPageJsonVO::createShared();
-	return jvo;
+	return MonthVisitPageJsonVO::Wrapper();
 }
