@@ -72,26 +72,6 @@ yxy:
    id_number: 身份证号
    birth_date: 出生日期
    age: 年龄
-  settle:
-   hosp_id: 住院号
-   summary: 获取患者费用明细清单
-   summary2: 获取患者历史结算记录
-   summary3: 结算
-   name: 项目名称
-   cost_type: 费用类别
-   unit: 单价
-   num: 数量
-   amount: 金额
-   medicial_type: 医保属性
-   no: 单据号
-   time: 结算时间
-   type: 结算类型
-   total_amount: 结算金额
-   reimburse: 医保报销
-   self_cost: 个人自付
-   operater: 操作员
-   status: 状态
-   method: 结算方法
 lhfc:
   charging:
     charge:

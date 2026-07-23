@@ -50,13 +50,6 @@
 #include"pay_manage/Pay_ManageGetPatientQueueController.h"
 
 #include"pay_manage/PrepaymentController.h"
-
-#include"settle/GetExpenseDetailsListController.h"
-
-#include"settle/GetHistorySettleListController.h"
-
-#include"settle/SettleController.h"
-
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
 // Simplified controller binding macro
@@ -115,8 +108,4 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(Pay_ManageGetPatientQueueController);
 	ROUTER_SIMPLE_BIND(PrepaymentController);
 
-	ROUTER_SIMPLE_BIND(GetExpenseDetailsListController);
-
-	ROUTER_SIMPLE_BIND(GetHistorySettleListController);
-	ROUTER_SIMPLE_BIND(SettleController);
 }
