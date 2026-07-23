@@ -19,12 +19,16 @@ import org.springframework.web.bind.annotation.*;
  * @date  2026-07-19
  */
 @RestController
-@RequestMapping("/menu")
+@RequestMapping("/api/menu")
 @Tag(name = "菜单管理")
 public class MenuController implements MenuApis {
 
     /**
      * 加载菜单树结构
+     * <p>
+     *  注：这里要注意做登录校验，如果获取不到用户登录信息，直接返回空列表
+     * </p>
+     * @see com.zeroone.star.project.components.user.UserHolder#getCurrentUser()
      * @return 菜单树结构VO
      * @author 是丫丫
      */
@@ -37,6 +41,10 @@ public class MenuController implements MenuApis {
 
     /**
      * 获取菜单列表（条件 + 分页）
+     * <p>
+     *  注：这里要注意做登录校验，如果获取不到用户登录信息，直接返回空列表
+     * </p>
+     * @see com.zeroone.star.project.components.user.UserHolder#getCurrentUser()
      * @param query 查询条件
      * @return 菜单分页列表
      * @author 是丫丫
@@ -98,7 +106,7 @@ public class MenuController implements MenuApis {
     @Override
     @PostMapping("update")
     @Operation(summary = "修改菜单")
-    public JsonVO<Boolean> update(@RequestBody @Valid MenuUpdateRequestDTO menuDto) {
+    public JsonVO<Boolean> update(@RequestBody @Valid MenuUpdateDTO menuDto) {
         return JsonVO.success(null);
     }
 
@@ -116,41 +124,15 @@ public class MenuController implements MenuApis {
     }
 
     /**
-     * 启用菜单
+     * 修改菜单状态  启用/停用菜单
      * @param menuDto 菜单启用入参
-     * @return 是否启用成功
+     * @return 是否修改成功
      * @author 是丫丫
      */
     @Override
     @PostMapping("enable")
-    @Operation(summary = "启用菜单")
-    public JsonVO<Boolean> enable(@RequestBody @Valid MenuEnableDTO menuDto) {
-        return JsonVO.success(null);
-    }
-
-    /**
-     * 禁用菜单
-     * @param menuDto 菜单禁用入参
-     * @return 是否禁用成功
-     * @author 是丫丫
-     */
-    @Override
-    @PostMapping("disable")
-    @Operation(summary = "停用菜单")
-    public JsonVO<Boolean> disable(@RequestBody @Valid MenuDisableDTO menuDto) {
-        return JsonVO.success(null);
-    }
-
-    /**
-     * 提交指定角色的菜单权限
-     * @param rolePermissionAssignDTO 权限提交入参
-     * @return 是否添加成功
-     * @author 是丫丫
-     */
-    @Override
-    @PostMapping("assignPermissions")
-    @Operation(summary = "提交指定角色的菜单权限")
-    public JsonVO<Boolean> assignPermissions(@RequestBody RolePermissionAssignDTO rolePermissionAssignDTO) {
+    @Operation(summary = "启用/禁用菜单")
+    public JsonVO<Boolean> editStatus(@RequestBody @Valid MenuEditStatusDto menuDto) {
         return JsonVO.success(null);
     }
 }

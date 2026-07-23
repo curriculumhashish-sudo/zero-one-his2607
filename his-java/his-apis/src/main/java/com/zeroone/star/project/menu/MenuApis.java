@@ -67,7 +67,7 @@ public interface MenuApis {
      * @return 是否修改成功
      * @author 是丫丫
      */
-    public JsonVO<Boolean> update(MenuUpdateRequestDTO menuDto);
+    public JsonVO<Boolean> update(MenuUpdateDTO menuDto);
 
     /**
      * 删除菜单信息
@@ -78,26 +78,10 @@ public interface MenuApis {
     public JsonVO<Boolean> delete(MenuDeleteDTO menuDto);
 
     /**
-     * 启用菜单
+     * 修改菜单状态  启用/停用菜单
      * @param menuDto 菜单启用入参
-     * @return 是否启用成功
+     * @return 是否修改成功
      * @author 是丫丫
      */
-    public JsonVO<Boolean> enable(MenuEnableDTO menuDto);
-
-    /**
-     * 禁用菜单
-     * @param menuDto 菜单禁用入参
-     * @return 是否禁用成功
-     * @author 是丫丫
-     */
-    public JsonVO<Boolean> disable(MenuDisableDTO menuDto);
-
-    /**
-     * 提交指定角色的菜单权限
-     * @param rolePermissionAssignDTO 权限提交入参
-     * @return 是否添加成功
-     * @author 是丫丫
-     */
-    public JsonVO<Boolean> assignPermissions(RolePermissionAssignDTO rolePermissionAssignDTO);
+    public JsonVO<Boolean> editStatus(MenuEditStatusDto menuDto);
 }
