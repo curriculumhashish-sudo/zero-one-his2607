@@ -1,8 +1,7 @@
-package com.zeroone.star.sysmgr.controller.sysmgr;
+package com.zeroone.star.sysmgr.controller.user;
 
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j1.sysmgr.ChangePasswordDTO;
-import com.zeroone.star.project.dto.j1.sysmgr.TenantQueryDTO;
 import com.zeroone.star.project.dto.j1.sysmgr.UserDTO;
 import com.zeroone.star.project.j1.sysmgr.UserApis;
 import com.zeroone.star.project.query.j1.login.TenantQuery;
@@ -67,6 +66,7 @@ public class UserController implements UserApis {
 
     @Operation(summary   = "修改密码")
     @PutMapping("/changePassword")
+    @Override
     public JsonVO<String> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO) {
         return null;
     }
