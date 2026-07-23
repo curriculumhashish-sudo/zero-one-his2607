@@ -28,6 +28,8 @@
 
 #include "frequency/FrequencyController.h"
 #include "equipment/EquipmentController.h"
+
+#include "Sample/SampleController.h"
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
 // Simplified controller binding macro
@@ -56,4 +58,5 @@ void Router::initRouter()
 
 	ROUTER_SIMPLE_BIND(DiagnosisController);
 	ROUTER_SIMPLE_BIND(TreatmentController);
+	ROUTER_SIMPLE_BIND(SampleController);
 }
