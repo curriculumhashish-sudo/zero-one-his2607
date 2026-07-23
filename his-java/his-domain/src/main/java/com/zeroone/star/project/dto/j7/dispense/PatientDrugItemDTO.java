@@ -1,4 +1,4 @@
-package com.zeroone.star.project.dto.j7.outpharm;
+package com.zeroone.star.project.dto.j7.dispense;
 
 import com.zeroone.star.project.dto.PageDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
