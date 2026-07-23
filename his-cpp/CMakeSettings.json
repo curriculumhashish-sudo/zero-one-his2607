@@ -19,7 +19,7 @@
       "buildRoot": "${projectDir}\\out\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
       "cmakeCommandArgs": "-DUNIT_TEST=1 -DCMAKE_CXX_FLAGS=\"/std:c++17\"",
-      "cmakeCommandArgs": "-DUNIT_TEST=1 -DCMAKE_C_COMPILER=\"${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\bin\\Hostx64\\x64\\cl.exe\" -DCMAKE_CXX_COMPILER=\"${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\bin\\Hostx64\\x64\\cl.exe\"",
+      //"cmakeCommandArgs": "-DUNIT_TEST=1 -DCMAKE_C_COMPILER=\"${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\bin\\Hostx64\\x64\\cl.exe\" -DCMAKE_CXX_COMPILER=\"${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\bin\\Hostx64\\x64\\cl.exe\"",
 
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
@@ -35,8 +35,8 @@
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "msvc_x64_x64" ],
       "cmakeCommandArgs": "-D_RELEASE_DOC_=1 -DCMAKE_CXX_FLAGS=\"/std:c++17\""
-      "inheritEnvironments": [ "local_msvc_x64_x64" ],
-      "cmakeCommandArgs": "-D_RELEASE_DOC_=1 -DCMAKE_C_COMPILER=\"${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\bin\\Hostx64\\x64\\cl.exe\" -DCMAKE_CXX_COMPILER=\"${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\bin\\Hostx64\\x64\\cl.exe\""
+    //  "inheritEnvironments": [ "local_msvc_x64_x64" ],
+    //  "cmakeCommandArgs": "-D_RELEASE_DOC_=1 -DCMAKE_C_COMPILER=\"${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\bin\\Hostx64\\x64\\cl.exe\" -DCMAKE_CXX_COMPILER=\"${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\bin\\Hostx64\\x64\\cl.exe\""
 
     },
     {
@@ -77,7 +77,7 @@
       "remoteCopyBuildOutput": false,
       "remoteCopySourcesMethod": "rsync"
 
-      "cmakeCommandArgs": "-D_RELEASE_DOC_=1"
+      //"cmakeCommandArgs": "-D_RELEASE_DOC_=1"
 
     }
   ]
