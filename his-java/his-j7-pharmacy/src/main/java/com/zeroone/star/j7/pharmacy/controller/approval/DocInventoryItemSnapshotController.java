@@ -1,4 +1,4 @@
-package com.zeroone.star.j7.pharmacy.controller;
+package com.zeroone.star.j7.pharmacy.controller.approval;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

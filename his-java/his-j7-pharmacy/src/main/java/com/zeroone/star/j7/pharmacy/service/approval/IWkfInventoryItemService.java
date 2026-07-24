@@ -1,6 +1,6 @@
-package com.zeroone.star.j7.pharmacy.service;
+package com.zeroone.star.j7.pharmacy.service.approval;
 
-import com.zeroone.star.j7.pharmacy.entity.WkfInventoryItem;
+import com.zeroone.star.j7.pharmacy.entity.approval.WkfInventoryItem;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**

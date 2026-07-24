@@ -1,13 +1,13 @@
-package com.zeroone.star.j7.pharmacy.controller;
+package com.zeroone.star.j7.pharmacy.controller.approval;
 
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j7.pharmacy.ApproveDTO;
-import com.zeroone.star.project.dto.j7.pharmacy.OperatorDTO;
-import com.zeroone.star.project.dto.j7.pharmacy.PharmacyStockTakeDTO;
-import com.zeroone.star.project.j7.pharmacy.PharmacyStockTakeApis;
-import com.zeroone.star.project.query.j7.pharmacy.StockTakeQuery;
+import com.zeroone.star.project.dto.j7.pharmacy.approval.ApproveDTO;
+import com.zeroone.star.project.dto.j7.pharmacy.approval.OperatorDTO;
+import com.zeroone.star.project.dto.j7.pharmacy.approval.PharmacyStockTakeDTO;
+import com.zeroone.star.project.j7.pharmacy.approval.PharmacyStockTakeApis;
+import com.zeroone.star.project.query.j7.pharmacy.approval.StockTakeQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j7.pharmacy.StocktakeStatusVO;
+import com.zeroone.star.project.vo.j7.pharmacy.approval.StocktakeStatusVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.validation.annotation.Validated;

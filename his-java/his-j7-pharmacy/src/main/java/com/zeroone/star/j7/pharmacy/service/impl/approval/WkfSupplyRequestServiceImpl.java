@@ -1,8 +1,8 @@
-package com.zeroone.star.j7.pharmacy.service.impl;
+package com.zeroone.star.j7.pharmacy.service.impl.approval;
 
-import com.zeroone.star.j7.pharmacy.entity.WkfSupplyRequest;
-import com.zeroone.star.j7.pharmacy.mapper.WkfSupplyRequestMapper;
-import com.zeroone.star.j7.pharmacy.service.IWkfSupplyRequestService;
+import com.zeroone.star.j7.pharmacy.entity.approval.WkfSupplyRequest;
+import com.zeroone.star.j7.pharmacy.mapper.approval.WkfSupplyRequestMapper;
+import com.zeroone.star.j7.pharmacy.service.approval.IWkfSupplyRequestService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 

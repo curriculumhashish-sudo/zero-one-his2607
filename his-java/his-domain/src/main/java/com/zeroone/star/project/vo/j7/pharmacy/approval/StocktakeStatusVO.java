@@ -1,4 +1,4 @@
-package com.zeroone.star.project.vo.j7.pharmacy;
+package com.zeroone.star.project.vo.j7.pharmacy.approval;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

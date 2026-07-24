@@ -1,11 +1,11 @@
-package com.zeroone.star.project.j7.pharmacy;
+package com.zeroone.star.project.j7.pharmacy.approval;
 
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j7.pharmacy.ApproveDTO;
-import com.zeroone.star.project.dto.j7.pharmacy.OperatorDTO;
-import com.zeroone.star.project.dto.j7.pharmacy.PharmacyStockTakeDTO;
-import com.zeroone.star.project.query.j7.pharmacy.StockTakeQuery;
-import com.zeroone.star.project.vo.j7.pharmacy.StocktakeStatusVO;
+import com.zeroone.star.project.dto.j7.pharmacy.approval.ApproveDTO;
+import com.zeroone.star.project.dto.j7.pharmacy.approval.OperatorDTO;
+import com.zeroone.star.project.dto.j7.pharmacy.approval.PharmacyStockTakeDTO;
+import com.zeroone.star.project.query.j7.pharmacy.approval.StockTakeQuery;
+import com.zeroone.star.project.vo.j7.pharmacy.approval.StocktakeStatusVO;
 import com.zeroone.star.project.vo.JsonVO;
 
 public interface PharmacyStockTakeApis {

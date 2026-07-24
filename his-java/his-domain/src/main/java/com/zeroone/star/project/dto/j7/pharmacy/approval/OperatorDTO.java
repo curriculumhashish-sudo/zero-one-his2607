@@ -1,4 +1,4 @@
-package com.zeroone.star.project.dto.j7.pharmacy;
+package com.zeroone.star.project.dto.j7.pharmacy.approval;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
