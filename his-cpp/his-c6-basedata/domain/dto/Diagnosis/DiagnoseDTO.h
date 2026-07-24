@@ -87,7 +87,6 @@ public:
 		return "";
 	}
 };
-
 /**
  * Transfer object used to update a diagnosis record.
  */
