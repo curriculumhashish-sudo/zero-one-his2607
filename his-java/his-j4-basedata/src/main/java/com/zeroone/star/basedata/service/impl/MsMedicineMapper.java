@@ -6,10 +6,9 @@ import com.zeroone.star.project.dto.j4.medicine.MedicineAddDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineDetailDTO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineAddVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineDetailVO;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
-import org.mapstruct.ReportingPolicy;
+import org.mapstruct.*;
+
+import java.util.List;
 
 /**
  * <p>
@@ -26,27 +25,10 @@ public interface MsMedicineMapper {
      * </p>
      *
      * @param  medDefinitionDO 药品定义实体
-     * @param  chargeDefinitionDO 收费项目定于实体
      * @return 药品详情DTO
      */
-    @Mappings({
-            @Mapping(target = "id", source = "medDefinitionDO.id"),
-            @Mapping(target = "name", source = "medDefinitionDO.name"),
-            @Mapping(target = "medVersion", source = "medDefinitionDO.medVersion"),
-            @Mapping(target = "categoryCode", source = "medDefinitionDO.categoryCode"),
-            @Mapping(target = "manufacturerText", source = "medDefinitionDO.manufacturerText"),
-            @Mapping(target = "doseFormCode", source = "medDefinitionDO.doseFormCode"),
-            @Mapping(target = "totalVolume", source = "medDefinitionDO.totalVolume"),
-            @Mapping(target = "doseUnitCode", source = "medDefinitionDO.doseUnitCode"),
-            @Mapping(target = "purchaseSplitRatio", source = "medDefinitionDO.purchaseUnitRatio"),
-            @Mapping(target = "stockSplitRatio", source = "medDefinitionDO.stockUnitRatio"),
-            @Mapping(target = "packageSplitRatio", source = "medDefinitionDO.packageUnitRatio"),
-            @Mapping(target = "orgId", source = "medDefinitionDO.orgId"),
-            @Mapping(target = "statusEnum", source = "medDefinitionDO.statusEnum"),
-    })
 
-    MedicineDetailDTO entityToDetailDTO(MedMedicationDefinitionDO medDefinitionDO,
-                                        AdmChargeItemDefinitionDO chargeDefinitionDO);
+    MedicineDetailDTO entityToDetailDTO(MedMedicationDefinitionDO medDefinitionDO);
 
     /**
      * <p>

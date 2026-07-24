@@ -86,7 +86,7 @@ public interface MedicineApis {
     * @param dto 药品状态转换DTO
     * @return 药品状态转换VO 包含转换状态成功的药品ids
     */
-    JsonVO<Void> updateChangeMedicineStatus(int status,MedicineChangeStatusDTO dto);
+    JsonVO<Void> updateChangeMedicineStatus(Integer status,MedicineChangeStatusDTO dto);
 
     /**
      * 新增药品。
