@@ -28,5 +28,5 @@ public interface IBodyPartApis {
     JsonVO<List<BodyPartListVO>> getList(@Valid BodyPartPageQuery query);
 
     @Operation(summary = "添加部位")
-    JsonVO<Long> add(@Valid @RequestBody BodyPartAddDTO dto);
+    JsonVO<String> add(@Valid @RequestBody BodyPartAddDTO dto);
 }

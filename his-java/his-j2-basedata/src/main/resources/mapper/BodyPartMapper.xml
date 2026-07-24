@@ -2,55 +2,53 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zeroone.star.basedata.mapper.BodyPartMapper">
 
-    <resultMap id="treeMap" type="com.zeroone.star.project.vo.j2.basedata.bodypart.BodyPartTreeVO">
+    <resultMap id="treeMap" type="com.zeroone.star.project.vo.j2.basedata.BodyPartTreeVO">
         <id column="id" property="id"/>
-        <result column="part_code" property="partCode"/>
-        <result column="part_name" property="partName"/>
-        <result column="sort_order" property="sortOrder"/>
+        <result column="bus_no" property="partCode"/>
+        <result column="name" property="partName"/>
         <collection property="children" column="id" select="selectChildren"/>
     </resultMap>
 
     <select id="selectTree" resultMap="treeMap">
-        SELECT id, part_code, part_name, sort_order
-        FROM his_basedata_body_part
-        WHERE parent_id IS NULL
-        ORDER BY sort_order ASC
+        SELECT id, bus_no, name
+        FROM dia_body_structure
+        WHERE parent_id IS NULL AND is_deleted = 0
+        ORDER BY bus_no ASC
     </select>
 
     <select id="selectChildren" resultMap="treeMap">
-        SELECT id, part_code, part_name, sort_order
-        FROM his_basedata_body_part
-        WHERE parent_id = #{id}
-        ORDER BY sort_order ASC
+        SELECT id, bus_no, name
+        FROM dia_body_structure
+        WHERE parent_id = #{id} AND is_deleted = 0
+        ORDER BY bus_no ASC
     </select>
 
-    <select id="selectList" resultType="com.zeroone.star.project.vo.j2.basedata.bodypart.BodyPartListVO">
+    <select id="selectList"
+            resultType="com.zeroone.star.project.vo.j2.basedata.BodyPartListVO">
         SELECT
         t.id,
-        t.part_code AS partCode,
-        t.part_name AS partName,
+        t.bus_no AS partCode,
+        t.name AS partName,
         t.parent_id AS parentId,
-        t.status,
+        t.status_enum AS status,
         CASE WHEN COUNT(c.id) > 0 THEN 1 ELSE 0 END AS hasChildren
-        FROM his_basedata_body_part t
-        LEFT JOIN his_basedata_body_part c ON c.parent_id = t.id
-        <where>
-            <if test="keyword != null and keyword != ''">
-                AND (t.part_code LIKE CONCAT('%', #{keyword}, '%')
-                OR t.part_name LIKE CONCAT('%', #{keyword}, '%'))
-            </if>
-            <if test="parentId == 0">
-                AND t.parent_id IS NULL
-            </if>
-            <if test="parentId != null and parentId > 0">
-                AND t.parent_id = #{parentId}
-            </if>
-            <if test="status != null">
-                AND t.status = #{status}
-            </if>
-        </where>
-        GROUP BY t.id, t.part_code, t.part_name, t.parent_id, t.status
-        ORDER BY t.sort_order ASC
+        FROM dia_body_structure t
+        LEFT JOIN dia_body_structure c ON c.parent_id = t.id AND c.is_deleted = 0
+        WHERE t.is_deleted = 0
+        <if test="keyword != null and keyword != ''">
+            AND (t.bus_no LIKE CONCAT('%', #{keyword}, '%')
+            OR t.name LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="parentId == 0 or (parentId != null and parentId == '0')">
+            AND t.parent_id IS NULL
+        </if>
+        <if test="parentId != null and parentId != '0'">
+            AND t.parent_id = #{parentId}
+        </if>
+        <if test="status != null and status != ''">
+            AND t.status_enum = #{status}
+        </if>
+        GROUP BY t.id, t.bus_no, t.name, t.parent_id, t.status_enum
+        ORDER BY t.bus_no ASC
     </select>
-
 </mapper>
