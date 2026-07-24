@@ -1,25 +1,24 @@
 package com.zeroone.star.sysmgr.service.menu.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zeroone.star.sysmgr.entity.menu.MenuDO;
-import com.zeroone.star.sysmgr.service.menu.MenusService;
+import com.zeroone.star.project.entity.menu.MenuDO;
+import com.zeroone.star.project.vo.menu.MenuVO;
 import com.zeroone.star.sysmgr.mapper.menu.MenusMapper;
+import com.zeroone.star.sysmgr.service.menu.MenusService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 /**
-* @author xin
-* @description 针对表【whale_menus(菜单)】的数据库操作Service实现
-* @createDate 2026-07-23 22:43:12
-*/
-
-/**
- * 菜单业务实现
+ * @author xin
+ * @description 针对表【whale_menus(菜单)】的数据库操作Service实现
+ * @createDate 2026-07-23 22:43:12
  * @author Drums小白
  * @date 2026-07-24
  */
 @Service
 @RequiredArgsConstructor
-public class MenuServiceImpl implements MenuService {
+public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implements MenusService {
 
     private final MenusMapper menusMapper;
 
@@ -59,7 +58,3 @@ public class MenuServiceImpl implements MenuService {
         return vo;
     }
 }
-
-
-
-
