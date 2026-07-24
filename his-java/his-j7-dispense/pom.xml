@@ -94,41 +94,28 @@
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
                 <configuration>
-                    <!-- Docker Զ�̹����ַ-->
                     <dockerHost>https://192.168.220.128:2375</dockerHost>
-                    <!-- CA ֤��λ�� -->
                     <certPath>/home/docker-ca</certPath>
-                    <!-- �������� -->
                     <images>
                         <image>
-                            <!-- Docker �������ƶ��� -->
                             <name>01star/${project.artifactId}:${project.version}</name>
-                            <!-- ָ��Dockerfile����Ŀ¼ -->
                             <build>
                                 <contextDir>${project.basedir}</contextDir>
                             </build>
-                            <!-- ���������������� -->
                             <alias>${project.artifactId}</alias>
-                            <!-- ����run������� -->
                             <run>
-                                <!-- ��������ʱ������������Ϊ:����,�����ָ����Ĭ��Ϊnone,��ʹ������������� -->
                                 <namingStrategy>alias</namingStrategy>
-                                <!-- �˿�ӳ�� -->
                                 <ports>
                                     <port>10400:10400</port>
                                 </ports>
-                                <!-- ���ݾ� -->
                                 <volumes>
                                     <bind>
                                         <volume>/etc/localtime:/etc/localtime</volume>
                                         <volume>/home/app/${project.artifactId}/logs:/tmp/logs</volume>
                                     </bind>
                                 </volumes>
-                                <!-- ���û������� -->
                                 <env>
-                                    <!-- JVM���� -->
                                     <JAVA_OPTS>-Xms256m -Xmx256m</JAVA_OPTS>
-                                    <!-- �����滻���� -->
                                     <SPRING_ARGS>
                                         --spring.profiles.active=test --spring.cloud.nacos.discovery.ip=192.168.220.128
                                     </SPRING_ARGS>
@@ -142,20 +129,13 @@
                 <groupId>com.zeroone.star</groupId>
                 <artifactId>mp-code-generator-plugin</artifactId>
                 <configuration>
-                    <!-- ���ݿ�������Ϣ���� -->
                     <dbConfig>
-                        <!-- ���ݿ�������ַ -->
                         <host>192.168.254.128</host>
-                        <!-- ���ݿ�˿� -->
                         <port>3306</port>
-                        <!-- ���ݿ����� -->
                         <dbname>test</dbname>
-                        <!-- ���ݿ��û��� -->
                         <username>root</username>
-                        <!-- ���ݿ����� -->
                         <password>123456</password>
                     </dbConfig>
-                    <!-- ���ɴ��������Ŀ¼ -->
                     <outDir>${project.basedir}/src/main/java</outDir>
                 </configuration>
             </plugin>
