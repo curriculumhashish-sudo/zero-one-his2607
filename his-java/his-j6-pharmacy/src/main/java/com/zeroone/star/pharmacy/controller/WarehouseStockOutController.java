@@ -1,5 +1,6 @@
 package com.zeroone.star.pharmacy.controller;
 
+import com.zeroone.star.pharmacy.service.IStockOutService;
 import com.zeroone.star.project.dto.j6.pharmacy.stockout.StockOutSaveDTO;
 import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutSaveResultVO;
 import com.zeroone.star.project.dto.PageDTO;
@@ -25,12 +26,23 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Tag(name = "药库出库单", description = "药库管理相关接口")
 public class WarehouseStockOutController implements WarehouseStockOutApis {
+    // 注入 Service
+    private final IStockOutService stockOutService;
+
     @PostMapping("/save")
     @Operation(summary = "保存出库单")
     @Override
     public JsonVO<StockOutSaveResultVO> saveStockOut(@Valid @RequestBody StockOutSaveDTO dto) {
-        // 最简单的实现：直接返回成功
-        return JsonVO.success(new StockOutSaveResultVO());
+        // 调用 Service
+        return stockOutService.saveStockOut(dto);
+    }
+
+    @PostMapping("/submit-approval")
+    @Operation(summary = "提交审批")
+    @Override
+    public JsonVO<StockOutApprovalResultVO> submitStockOutApproval(@Validated @RequestBody SubmitStockOutApprovalDTO dto) {
+        // 调用 Service
+        return stockOutService.submitApproval(dto);
     }
     @Operation(summary = "删除单据")
     @DeleteMapping("/removeStockOut")
@@ -54,13 +66,6 @@ public class WarehouseStockOutController implements WarehouseStockOutApis {
     }
 
 
-    @PostMapping("/submit-approval")
-    @Operation(summary = "提交审批")
-    @Override
-    public JsonVO<StockOutApprovalResultVO> submitStockOutApproval(@Validated @RequestBody SubmitStockOutApprovalDTO dto) {
-        // TODO: 桩实现，待后续对接Service层
-        return JsonVO.success(new StockOutApprovalResultVO(true, "APPROVAL"));
-    }
 
     @PostMapping("/withdraw-approval")
     @Operation(summary = "撤回审批")
