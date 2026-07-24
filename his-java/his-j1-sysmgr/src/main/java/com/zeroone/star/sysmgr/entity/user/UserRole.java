@@ -1,16 +1,18 @@
 package com.zeroone.star.sysmgr.entity.user;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
+
+import java.time.LocalDateTime;
 import java.io.Serializable;
 
+import com.zeroone.star.project.entity.BaseDO;
 import lombok.*;
 import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 用户-角色关联表
+ * 用户角色关联
  * </p>
  *
  * @author sykesolune
@@ -19,21 +21,73 @@ import lombok.experimental.Accessors;
 @Getter
 @Setter
 @ToString
-@TableName("whale_user_role")
-public class UserRole implements Serializable {
+@TableName("whale_user_roles")
+public class UserRole extends BaseDO {
     /**
-     * 主键ID
+     * 主键
      */
-    @TableId(value = "id", type = IdType.ASSIGN_ID)
+    @TableField("id")
     private String id;
 
     /**
-     * 用户ID
+     * 用户标识
      */
+    @TableField("user_id")
     private String userId;
 
     /**
-     * 角色ID
+     * 角色标识
      */
+    @TableField("role_id")
     private String roleId;
+
+    /**
+     * 租户标识
+     */
+    @TableField("tenant_id")
+    private String tenantId;
+
+    /**
+     * 创建时间
+     */
+    @TableField("created_at")
+    private LocalDateTime createdAt;
+
+    /**
+     * 最后更新时间
+     */
+    @TableField("updated_at")
+    private LocalDateTime updatedAt;
+
+    /**
+     * 创建人
+     */
+    @TableField("created_by")
+    private String createdBy;
+
+    /**
+     * 最后更新人
+     */
+    @TableField("updated_by")
+    private String updatedBy;
+
+    /**
+     * 软删标记
+     */
+    @TableField("is_deleted")
+    private Boolean isDeleted;
+
+    /**
+     * 删除时间
+     */
+    @TableField("deleted_at")
+    private LocalDateTime deletedAt;
+
+    /**
+     * 删除人
+     */
+    @TableField("deleted_by")
+    private String deletedBy;
+
+
 }

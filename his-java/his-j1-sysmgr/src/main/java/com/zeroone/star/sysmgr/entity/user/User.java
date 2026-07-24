@@ -1,19 +1,17 @@
 package com.zeroone.star.sysmgr.entity.user;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
-import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import com.zeroone.star.project.entity.BaseDO;
 import lombok.*;
 import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 用户主表
+ * 系统用户
  * </p>
  *
  * @author sykesolune
@@ -22,34 +20,17 @@ import lombok.experimental.Accessors;
 @Getter
 @Setter
 @ToString
-@TableName("whale_user")
-public class User implements Serializable {
-
+@TableName("whale_users")
+public class User extends BaseDO {
     /**
-     * 主键ID
+     * 主键
      */
-    @TableId(value = "id", type = IdType.ASSIGN_ID)
     private String id;
 
     /**
-     * 用户名
+     * 登录用户名
      */
-    private String username;
-
-    /**
-     * 密码
-     */
-    private String password;
-
-    /**
-     * 用户昵称
-     */
-    private String nickname;
-
-    /**
-     * 手机号码
-     */
-    private String phoneNumber;
+    private String userName;
 
     /**
      * 邮箱
@@ -57,88 +38,94 @@ public class User implements Serializable {
     private String email;
 
     /**
-     * 性别 (2:男, 1:女, 0:未知)
+     * 手机号
      */
-    private Integer gender;
+    private String phoneNumber;
 
     /**
-     * 出生日期
+     * 密码哈希
      */
-    private LocalDate birthDate;
+    private String passwordHash;
 
     /**
-     * 地址
+     * 名
      */
-    private String address;
+    private String name;
 
     /**
-     * 医保码
+     * 姓
      */
-    private String ybNo;
+    private String surname;
 
     /**
-     * 签名图片URL
+     * 是否启用
      */
-    private String signatureImage;
+    private Boolean isActive;
 
     /**
-     * 职称编码
+     * 是否锁定
      */
-    private String drProfiterole;
-
-    /**
-     * 职业资格证编号
-     */
-    private String pharPracCertNo;
-
-    /**
-     * 科室ID
-     */
-    private String defaultOrgId;
-
-    /**
-     * 状态 (1:启用, 0:停用)
-     */
-    private Integer status;
-
-    /**
-     * 备注信息
-     */
-    private String remark;
-
-    /**
-     * 创建人ID
-     */
-    private String createBy;
-
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createTime;
-
-    /**
-     * 更新人ID
-     */
-    private String updateBy;
-
-    /**
-     * 更新时间
-     */
-    private LocalDateTime updateTime;
-
-    /**
-     * 锁定状态(1：锁定 0：解锁)
-     */
-    private Integer lockStatus;
-
-
-    /**
-     * 登录失败次数
-     */
-    private Integer loginFailCount;
+    private Boolean isLockedOut;
 
     /**
      * 锁定结束时间
      */
-    private LocalDateTime lockEndTime;
+    private LocalDateTime lockoutEnd;
+
+    /**
+     * 登录失败次数
+     */
+    private Integer accessFailedCount;
+
+    /**
+     * 扩展属性 JSON
+     */
+    private String extraProperties;
+
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createdAt;
+
+    /**
+     * 最后更新时间
+     */
+    private LocalDateTime updatedAt;
+
+    /**
+     * 创建人
+     */
+    private String createdBy;
+
+    /**
+     * 最后更新人
+     */
+    private String updatedBy;
+
+    /**
+     * 软删标记
+     */
+    private Boolean isDeleted;
+
+    /**
+     * 删除时间
+     */
+    private LocalDateTime deletedAt;
+
+    /**
+     * 删除人
+     */
+    private String deletedBy;
+
+    /**
+     * UKey 标识
+     */
+    private String ukeyId;
+
+    /**
+     * UKey 来源标识
+     */
+    private String ukeySrcId;
+
+
 }

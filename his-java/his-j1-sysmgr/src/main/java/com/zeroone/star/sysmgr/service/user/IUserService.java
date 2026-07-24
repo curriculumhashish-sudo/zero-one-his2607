@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * <p>
- * 用户主表 服务类
+ * 系统用户 服务类
  * </p>
  *
  * @author sykesolune

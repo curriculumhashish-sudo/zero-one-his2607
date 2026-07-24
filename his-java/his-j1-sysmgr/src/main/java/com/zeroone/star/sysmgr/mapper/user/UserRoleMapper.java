@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
  * <p>
- * 用户-角色关联表 Mapper 接口
+ * 用户角色关联 Mapper 接口
  * </p>
  *
  * @author sykesolune

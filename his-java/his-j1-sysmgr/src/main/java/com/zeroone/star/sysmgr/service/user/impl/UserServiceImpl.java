@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * <p>
- * 用户主表 服务实现类
+ * 系统用户 服务实现类
  * </p>
  *
  * @author sykesolune
