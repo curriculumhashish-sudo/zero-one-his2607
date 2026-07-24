@@ -1,20 +1,10 @@
 server:
-  # 本地默认值兜底；正式以 Nacos system.yaml 的 sp.dispense / sn.dispense 为准
-  port: ${sp.dispense:10500}
+  port: ${sp.j7-dispense}
   servlet:
-    context-path: /dispense
-spring:
-  config:
-    import: nacos:data-source.yaml,nacos:system.yaml
-  application:
-    name: ${sn.dispense:DISPENSE}
-  cloud:
-    sentinel:
-      transport:
-        dashboard: ${sentinel.dashboard:127.0.0.1:8718}
-        port: 8721
-      eager: true
+    context-path: /j7-dispense
 
-feign:
-  sentinel:
-    enabled: true
+spring:
+  application:
+    name: ${sn.j7-dispense}
+  profiles:
+    active: dev

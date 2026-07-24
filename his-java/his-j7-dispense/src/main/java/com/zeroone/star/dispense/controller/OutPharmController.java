@@ -2,11 +2,11 @@ package com.zeroone.star.dispense.controller;
 
 
 import com.zeroone.star.project.j7.outpharm.OutPharmApis;
-import com.zeroone.star.project.query.j7.outpharm.PatientDrugItemQuery;
-import com.zeroone.star.project.query.j7.outpharm.PatientQueueQuery;
+import com.zeroone.star.project.query.j7.dispense.PatientDrugItemQuery;
+import com.zeroone.star.project.query.j7.dispense.PatientQueueQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j7.outpharm.PatientDrugItemVO;
-import com.zeroone.star.project.vo.j7.outpharm.PatientQueueVO;
+import com.zeroone.star.project.vo.j7.dispense.PatientDrugItemVO;
+import com.zeroone.star.project.vo.j7.dispense.PatientQueueVO;
 import com.zeroone.star.dispense.service.DrugService;
 import com.zeroone.star.dispense.service.PatientService;
 import io.swagger.v3.oas.annotations.Operation;
