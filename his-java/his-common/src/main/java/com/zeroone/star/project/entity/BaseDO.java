@@ -25,7 +25,7 @@ public abstract class BaseDO implements Serializable {
     /**
      * 主键id，VARCHAR(64) 雪花ID/自定义字符串ID
      */
-    @TableId(type = IdType.ASSIGN_ID)
+    @TableId(type = IdType.INPUT)
     @TableField(fill = FieldFill.INSERT)
     private String id;
 
