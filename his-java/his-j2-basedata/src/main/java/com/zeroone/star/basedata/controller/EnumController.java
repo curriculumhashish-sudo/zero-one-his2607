@@ -29,8 +29,8 @@ public class EnumController implements EnumApis {
 
     @Override
     @Operation(summary = "获取枚举类型列表(条件+分页)")
-    @GetMapping("/sys/query-all-enum")
-    public JsonVO<PageDTO<EnumDTO>> queryAllEnum(@RequestBody EnumQuery query) {
+    @GetMapping("/sys/query-all-enum-type")
+    public JsonVO<PageDTO<EnumTypeDTO>> queryAllEnumType(@RequestBody EnumTypeQuery query) {
         return null;
     }
 

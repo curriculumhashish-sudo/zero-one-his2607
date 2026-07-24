@@ -25,7 +25,7 @@ public interface EnumApis {
      * @param query 枚举查询对象DTO
      * @return 枚举类型分页查询对象DTO
      */
-    JsonVO<PageDTO<EnumDTO>> queryAllEnum(EnumQuery query);
+    JsonVO<PageDTO<EnumTypeDTO>> queryAllEnumType(EnumTypeQuery query);
 
     /**
      * 根据枚举类型查询枚举列表
