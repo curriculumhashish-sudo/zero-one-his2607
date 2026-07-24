@@ -35,8 +35,17 @@ drug:
     dosageInstruction: 饭后服用，每次1粒，每日3次
     restrictedScope: 仅限呼吸内科使用
     statusEnabled: 启用
+    statusDisabled: 停用
     locationText: 门诊药房
     supplierText: 国药控股广州有限公司
+  error:
+    invalidInput: 请求参数不完整或不符合药品业务规则
+    notFound: 未找到待操作的药品，或药品已被删除
+    invalidStatus: 药品当前状态不允许执行该操作
+    referenced: 药品已被医嘱、发药、库存或医嘱模板引用，不能删除
+    crossTenant: 当前用户无权访问药品所属租户，或批量药品跨租户
+    concurrentModification: 药品数据已发生变化，请刷新后重试
+    databaseFailure: 药品数据操作失败，请稍后重试
   field:
     ids: 药品编号数组，单条操作传一个编号，批量操作传多个编号
     authorization: 文档自测模式使用非空 Bearer 测试值，非文档模式使用项目真实鉴权
@@ -53,7 +62,7 @@ drug:
     tenantId: 租户编号
     orgId: 机构编号
     busNo: 药品业务编码
-    name: 药品名称
+    name: 通用名称
     domainEnum: 适用范围枚举
     medVersion: 药品业务版本
     nameEn: 药品英文名称
@@ -71,7 +80,7 @@ drug:
     approvalNumber: 批准文号
     ybMatchFlag: 是否医保匹配
     ybNo: 医保编码
-    pharmacologyCategoryCode: 药理分类编码
+    pharmacologyCategoryCode: 药品性质
     skinTestFlag: 是否需要皮试
     injectFlag: 是否注射药
     manufacturerId: 生产厂家编号
@@ -87,7 +96,7 @@ drug:
     defEncounterUnitCode: 门诊默认单位编码
     defInhospitalUnitCode: 住院默认单位编码
     nationalDrugCode: 国家药品编码
-    partAttributeEnum: 拆分属性枚举
+    partAttributeEnum: 门诊拆分属性
     antibioticCode: 抗菌药物编码
     restrictedEnum: 限制等级枚举
     selfFlag: 是否为自制药品
@@ -95,13 +104,13 @@ drug:
     basicFlag: 是否基本药物
     thoPartAttributeEnum: 住院临时医嘱拆分属性
     chrgitmLv: 医保等级
-    typeCode: 财务类型编码
+    typeCode: 财务类型
     typeCodeText: 财务类型名称
     ybType: 医保类别编码
     rxFlag: 是否处方药
     dosageInstruction: 用法说明
     drug69Code: 药品69码
-    totalVolume: 药品规格
+    totalVolume: 规格
     doseFormCode: 剂型编码
     doseUnitCode: 剂量单位编码
     packageUnitCode: 包装单位编码

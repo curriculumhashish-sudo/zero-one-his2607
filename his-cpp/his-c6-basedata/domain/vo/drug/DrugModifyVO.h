@@ -21,7 +21,7 @@
 #define _DRUG_MODIFY_VO_H_
 
 #include "../../GlobalInclude.h"
-#include "../../dto/drug/DrugModifyDTO.h"
+#include "../../dto/drug/DrugModifyResultDTO.h"
 #include "domain/vo/JsonVO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)

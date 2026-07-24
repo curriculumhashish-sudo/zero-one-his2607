@@ -18,57 +18,284 @@
 */
 #include "stdafx.h"
 #include "DrugController.h"
+#include "../../service/drug/DrugService.h"
 
 #include <algorithm>
 #include <cctype>
+#include <cmath>
 #include <exception>
+#include <initializer_list>
+#include <set>
+#include <utility>
+#include <vector>
 
 namespace
 {
+constexpr size_t MAX_BATCH_SIZE = 100;
+
 bool hasText(const oatpp::String &value)
 {
-    return value && std::any_of(value->cbegin(), value->cend(), [](const char character)
-                                { return std::isspace(static_cast<unsigned char>(character)) == 0; });
+    if (!value)
+    {
+        return false;
+    }
+    const std::string text = value.getValue("");
+    return std::any_of(text.cbegin(), text.cend(), [](const char character)
+                       { return std::isspace(static_cast<unsigned char>(character)) == 0; });
 }
 
-bool isUnsignedIntegerId(const oatpp::String &value)
+bool isValidId(const oatpp::String &value)
 {
-    return hasText(value) && value->find_first_not_of("0123456789") == std::string::npos;
+    if (!hasText(value))
+    {
+        return false;
+    }
+    const std::string text = value.getValue("");
+    return text.size() <= 64 &&
+           std::all_of(text.cbegin(), text.cend(), [](unsigned char character)
+                       { return std::isalnum(character) != 0 || character == '-' || character == '_'; });
+}
+
+bool isValidOptionalId(const oatpp::String &value)
+{
+    return value == nullptr || isValidId(value);
+}
+
+bool hasValidUtf8Length(const oatpp::String &value, size_t maximumLength)
+{
+    if (!value)
+    {
+        return true;
+    }
+
+    const std::string text = value.getValue("");
+    size_t length = 0;
+    const auto *data = reinterpret_cast<const unsigned char *>(text.data());
+    const size_t byteCount = text.size();
+    for (size_t index = 0; index < byteCount;)
+    {
+        const unsigned char lead = data[index];
+        size_t sequenceLength = 0;
+        if (lead <= 0x7F)
+        {
+            sequenceLength = 1;
+        }
+        else if ((lead & 0xE0) == 0xC0)
+        {
+            sequenceLength = 2;
+        }
+        else if ((lead & 0xF0) == 0xE0)
+        {
+            sequenceLength = 3;
+        }
+        else if ((lead & 0xF8) == 0xF0)
+        {
+            sequenceLength = 4;
+        }
+        else
+        {
+            return false;
+        }
+
+        if (index + sequenceLength > byteCount)
+        {
+            return false;
+        }
+        for (size_t offset = 1; offset < sequenceLength; ++offset)
+        {
+            if ((data[index + offset] & 0xC0) != 0x80)
+            {
+                return false;
+            }
+        }
+        index += sequenceLength;
+        if (++length > maximumLength)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool allHaveValidLength(size_t maximumLength, std::initializer_list<oatpp::String> values)
+{
+    return std::all_of(values.begin(), values.end(), [maximumLength](const oatpp::String &value)
+                       { return hasValidUtf8Length(value, maximumLength); });
+}
+
+bool isValidOptionalDecimal(const oatpp::Float64 &value, double maximum)
+{
+    if (!value)
+    {
+        return true;
+    }
+    const double number = value.getValue(0.0);
+    return std::isfinite(number) && number >= 0.0 && number <= maximum;
+}
+
+bool hasValidModifyLengths(const DrugModifyDTO::Wrapper &dto)
+{
+    if (!allHaveValidLength(64, {dto->id, dto->orgId, dto->manufacturerId, dto->supplyId, dto->locationId}) ||
+        !allHaveValidLength(200, {dto->manufacturerText}))
+    {
+        return false;
+    }
+    return allHaveValidLength(
+        255,
+        {dto->busNo, dto->name, dto->domainEnum, dto->version, dto->nameEn, dto->pyStr, dto->wbStr,
+         dto->categoryCode, dto->merchandiseName, dto->merchandisePyStr, dto->merchandiseWbStr,
+         dto->purchaseUnitCode, dto->splitUnitCode, dto->comprisedText, dto->ingredient, dto->approvalNumber,
+         dto->ybNo, dto->pharmacologyCategoryCode, dto->manufacturerText, dto->restrictedScope,
+         dto->nationalDrugCode, dto->partAttributeEnum, dto->antibioticCode, dto->restrictedEnum,
+         dto->thoPartAttributeEnum, dto->typeCode, dto->ybType, dto->dosageInstruction, dto->drug69Code,
+         dto->totalVolume, dto->doseFormCode, dto->doseUnitCode, dto->packageUnitCode, dto->stockUnitCode,
+         dto->methodCode, dto->rateCode, dto->ingredientItem, dto->definition, dto->dddCode, dto->dddUnitCode,
+         dto->minRateCode, dto->maxRateCode});
+}
+
+bool hasValidUnitRatios(const DrugModifyDTO::Wrapper &dto)
+{
+    const std::string splitUnit = dto->splitUnitCode.getValue("");
+    const std::vector<std::pair<std::string, double>> unitRatios = {
+        {dto->doseUnitCode.getValue(""), dto->doseUnitRatio.getValue(0.0)},
+        {dto->purchaseUnitCode.getValue(""), dto->purchaseUnitRatio.getValue(0.0)},
+        {dto->stockUnitCode.getValue(""), dto->stockUnitRatio.getValue(0.0)},
+        {dto->packageUnitCode.getValue(""), dto->packageUnitRatio.getValue(0.0)}};
+
+    for (size_t left = 0; left < unitRatios.size(); ++left)
+    {
+        if (unitRatios[left].first == splitUnit && std::abs(unitRatios[left].second - 1.0) > 0.000001)
+        {
+            return false;
+        }
+        for (size_t right = left + 1; right < unitRatios.size(); ++right)
+        {
+            if (unitRatios[left].first == unitRatios[right].first &&
+                std::abs(unitRatios[left].second - unitRatios[right].second) > 0.000001)
+            {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 bool hasRequiredModifyFields(const DrugModifyDTO::Wrapper &dto)
 {
-    return dto && isUnsignedIntegerId(dto->id) && hasText(dto->name) && hasText(dto->merchandiseName) &&
-           hasText(dto->categoryCode) && hasText(dto->manufacturerText) && hasText(dto->supplyId) &&
-           hasText(dto->typeCode) && hasText(dto->pharmacologyCategoryCode) && hasText(dto->totalVolume) &&
-           hasText(dto->purchaseUnitCode) && hasText(dto->splitUnitCode) && hasText(dto->doseUnitCode) &&
-           hasText(dto->doseFormCode) && hasText(dto->packageUnitCode) && hasText(dto->stockUnitCode) &&
-           hasText(dto->partAttributeEnum) && hasText(dto->thoPartAttributeEnum) &&
-           dto->doseUnitRatio.getValue(0.0) > 0.0 && dto->purchaseUnitRatio.getValue(0.0) > 0.0 &&
-           dto->purchasePrice != nullptr && dto->stockUnitRatio.getValue(0.0) > 0.0 && dto->retailPrice != nullptr &&
-           dto->packageUnitRatio.getValue(0.0) > 0.0;
+    const char *stage = "identity";
+    try
+    {
+        if (!dto || !isValidId(dto->id))
+        {
+            return false;
+        }
+        stage = "required-text";
+        if (!hasText(dto->name) || !hasText(dto->merchandiseName) || !hasText(dto->categoryCode) ||
+            !hasText(dto->manufacturerText) || !hasText(dto->supplyId) || !hasText(dto->typeCode) ||
+            !hasText(dto->pharmacologyCategoryCode) || !hasText(dto->totalVolume) ||
+            !hasText(dto->purchaseUnitCode) || !hasText(dto->splitUnitCode) || !hasText(dto->doseUnitCode) ||
+            !hasText(dto->doseFormCode) || !hasText(dto->packageUnitCode) || !hasText(dto->stockUnitCode) ||
+            !hasText(dto->partAttributeEnum) || !hasText(dto->thoPartAttributeEnum))
+        {
+            return false;
+        }
+        stage = "required-number";
+        if (dto->doseUnitRatio.getValue(0.0) <= 0.0 || dto->purchaseUnitRatio.getValue(0.0) <= 0.0 ||
+            dto->stockUnitRatio.getValue(0.0) <= 0.0 || dto->packageUnitRatio.getValue(0.0) <= 0.0 ||
+            !dto->purchasePrice || !dto->retailPrice)
+        {
+            return false;
+        }
+        stage = "length";
+        if (!hasValidModifyLengths(dto))
+        {
+            return false;
+        }
+        stage = "optional-id";
+        if (!isValidOptionalId(dto->orgId) || !isValidOptionalId(dto->manufacturerId) ||
+            !isValidOptionalId(dto->supplyId) || !isValidOptionalId(dto->locationId))
+        {
+            return false;
+        }
+        stage = "decimal";
+        if (!isValidOptionalDecimal(dto->itemMinQuantity, 9999999999999999.0) ||
+            !isValidOptionalDecimal(dto->itemMaxQuantity, 9999999999999999.0) ||
+            !isValidOptionalDecimal(dto->dose, 9999999999999999.0) ||
+            !isValidOptionalDecimal(dto->maxUnit, 9999999999999999.0) ||
+            !isValidOptionalDecimal(dto->usageLimit, 9999999999999999.0) ||
+            !isValidOptionalDecimal(dto->doseUnitRatio, 999999999999.0) ||
+            !isValidOptionalDecimal(dto->purchaseUnitRatio, 999999999999.0) ||
+            !isValidOptionalDecimal(dto->stockUnitRatio, 999999999999.0) ||
+            !isValidOptionalDecimal(dto->packageUnitRatio, 999999999999.0) ||
+            !isValidOptionalDecimal(dto->purchasePrice, 9999999999999.0) ||
+            !isValidOptionalDecimal(dto->retailPrice, 9999999999999.0) ||
+            !isValidOptionalDecimal(dto->maximumRetailPrice, 9999999999999.0))
+        {
+            return false;
+        }
+        stage = "business-rule";
+        if ((dto->itemMinQuantity && dto->itemMinQuantity.getValue(-1.0) < 0.0) ||
+            (dto->itemMaxQuantity && dto->itemMaxQuantity.getValue(-1.0) < 0.0) ||
+            (dto->itemMinQuantity && dto->itemMaxQuantity &&
+             dto->itemMinQuantity.getValue(0.0) > dto->itemMaxQuantity.getValue(0.0)) ||
+            (dto->maximumRetailPrice &&
+             dto->maximumRetailPrice.getValue(0.0) < dto->retailPrice.getValue(0.0)) ||
+            !hasValidUnitRatios(dto))
+        {
+            return false;
+        }
+        return true;
+    }
+    catch (const std::exception &error)
+    {
+        std::cerr << "DrugController validation failed at " << stage << ": " << error.what() << std::endl;
+        throw;
+    }
 }
 
-NoDataJsonVO::Wrapper createBatchResult(const oatpp::List<oatpp::String> &ids)
+bool hasValidBatchIds(const oatpp::List<oatpp::String> &ids)
 {
-    auto result = NoDataJsonVO::createShared();
-    if (!ids || ids->empty())
+    if (!ids || ids->empty() || ids->size() > MAX_BATCH_SIZE)
     {
-        result->init(RS_PARAMS_INVALID);
-        return result;
+        return false;
     }
-
+    std::set<std::string> unique;
     for (const auto &id : *ids.get())
     {
-        if (!isUnsignedIntegerId(id))
+        if (!isValidId(id))
         {
-            result->init(RS_PARAMS_INVALID);
-            return result;
+            return false;
         }
+        unique.emplace(id.getValue(""));
     }
+    return !unique.empty();
+}
 
-    result->init(RS_SUCCESS);
-    return result;
+ResultStatus serviceErrorStatus(DrugServiceError error)
+{
+    switch (error)
+    {
+    case DrugServiceError::InvalidInput:
+        return ResultStatus(ZH_WORDS_GETTER("drug.error.invalidInput"), 9995);
+    case DrugServiceError::NotFound:
+        return ResultStatus(ZH_WORDS_GETTER("drug.error.notFound"), 9999);
+    case DrugServiceError::InvalidStatus:
+        return ResultStatus(ZH_WORDS_GETTER("drug.error.invalidStatus"), 9999);
+    case DrugServiceError::Referenced:
+        return ResultStatus(ZH_WORDS_GETTER("drug.error.referenced"), 9999);
+    case DrugServiceError::CrossTenant:
+        return ResultStatus(ZH_WORDS_GETTER("drug.error.crossTenant"), 9999);
+    case DrugServiceError::ConcurrentModification:
+        return ResultStatus(ZH_WORDS_GETTER("drug.error.concurrentModification"), 9999);
+    case DrugServiceError::DatabaseFailure:
+    default:
+        return ResultStatus(ZH_WORDS_GETTER("drug.error.databaseFailure"), 9994);
+    }
+}
+
+ResultStatus unexpectedErrorStatus()
+{
+    return ResultStatus(ZH_WORDS_GETTER("drug.error.databaseFailure"), 9994);
 }
 } // namespace
 
@@ -97,15 +324,15 @@ void DrugSwagger::addEnableDisableExamples(const std::shared_ptr<oatpp::web::ser
 oatpp::List<oatpp::String> DrugSwagger::sampleIds()
 {
     auto ids = oatpp::List<oatpp::String>::createShared();
-    ids->push_back("10001");
-    ids->push_back("10002");
+    ids->push_back("322994171216400384");
+    ids->push_back("322994478289784832");
     return ids;
 }
 
 DrugModifyDTO::Wrapper DrugSwagger::sampleModify()
 {
     auto dto = DrugModifyDTO::createShared();
-    fillRequiredModifyFields(dto);
+    fillModifyExample(dto);
     return dto;
 }
 
@@ -138,31 +365,79 @@ NoDataJsonVO::Wrapper DrugSwagger::successNoData()
     return result;
 }
 
-void DrugSwagger::fillRequiredModifyFields(const DrugModifyDTO::Wrapper &dto)
+void DrugSwagger::fillModifyExample(const DrugModifyDTO::Wrapper &dto)
 {
-    dto->id = "10001";
+    dto->id = "322994171216400384";
+    dto->orgId = "30001";
+    dto->busNo = "YP20250409001";
     dto->name = ZH_WORDS_GETTER("drug.example.name");
+    dto->domainEnum = "3";
+    dto->version = "V1.0";
+    dto->nameEn = "Amoxicillin Capsules";
+    dto->pyStr = "AMXLJN";
+    dto->wbStr = "SGRM";
     dto->categoryCode = "FL001";
     dto->merchandiseName = ZH_WORDS_GETTER("drug.example.merchandiseName");
+    dto->merchandisePyStr = "AMX";
+    dto->merchandiseWbStr = "SGR";
     dto->purchaseUnitCode = "DW001";
     dto->splitUnitCode = "DW002";
+    dto->comprisedText = ZH_WORDS_GETTER("drug.example.comprisedText");
+    dto->ingredient = ZH_WORDS_GETTER("drug.example.ingredient");
+    dto->doseFrom = 1;
+    dto->approvalNumber = ZH_WORDS_GETTER("drug.example.approvalNumber");
+    dto->ybMatchFlag = true;
+    dto->ybNo = "YB2025001";
     dto->pharmacologyCategoryCode = "YL001";
+    dto->skinTestFlag = false;
+    dto->injectFlag = false;
+    dto->manufacturerId = "50001";
     dto->manufacturerText = ZH_WORDS_GETTER("drug.example.manufacturerText");
     dto->supplyId = "60001";
+    dto->restrictedFlag = false;
+    dto->restrictedScope = ZH_WORDS_GETTER("drug.example.restrictedScope");
+    dto->childrenFlag = true;
+    dto->characteristic = 1;
+    dto->itemMinQuantity = 10.0;
+    dto->itemMaxQuantity = 100.0;
+    dto->nationalDrugCode = "860000123456789";
     dto->partAttributeEnum = "1";
+    dto->antibioticCode = "KS001";
+    dto->restrictedEnum = "1";
+    dto->selfFlag = false;
+    dto->antibioticFlag = true;
+    dto->basicFlag = true;
     dto->thoPartAttributeEnum = "1";
+    dto->chrgitmLv = 2;
     dto->typeCode = "CW001";
+    dto->ybType = "YB001";
+    dto->rxFlag = true;
+    dto->dosageInstruction = ZH_WORDS_GETTER("drug.example.dosageInstruction");
+    dto->drug69Code = "6901234567890";
     dto->totalVolume = "5ml:0.5g";
     dto->doseFormCode = "JX001";
     dto->doseUnitCode = "DW001";
     dto->packageUnitCode = "DW003";
     dto->stockUnitCode = "DW004";
+    dto->methodCode = "YF001";
+    dto->rateCode = "PC001";
+    dto->dose = 0.5;
+    dto->maxUnit = 1.0;
+    dto->usageLimit = 2.0;
+    dto->locationId = "40001";
+    dto->ingredientItem = ZH_WORDS_GETTER("drug.example.ingredientItem");
+    dto->definition = ZH_WORDS_GETTER("drug.example.definition");
+    dto->dddCode = "DDD001";
+    dto->dddUnitCode = "DW001";
+    dto->minRateCode = "PC001";
+    dto->maxRateCode = "PC002";
     dto->doseUnitRatio = 10.0;
     dto->purchaseUnitRatio = 10.0;
     dto->stockUnitRatio = 10.0;
     dto->packageUnitRatio = 10.0;
     dto->purchasePrice = 10.5;
     dto->retailPrice = 15.8;
+    dto->maximumRetailPrice = 18.0;
 }
 
 DrugListPageJsonVO::Wrapper DrugController::execQueryDrug(const DrugQuery::Wrapper &query)
@@ -185,7 +460,7 @@ DrugDetailJsonVO::Wrapper DrugController::execQueryOneDrug(const String &id)
     return {};
 }
 
-DrugModifyJsonVO::Wrapper DrugController::execModifyDrug(const DrugModifyDTO::Wrapper &dto)
+DrugModifyJsonVO::Wrapper DrugController::execModifyDrug(const DrugModifyDTO::Wrapper &dto, const PayloadDTO &payload)
 {
     auto result = DrugModifyJsonVO::createShared();
     if (!hasRequiredModifyFields(dto))
@@ -196,47 +471,65 @@ DrugModifyJsonVO::Wrapper DrugController::execModifyDrug(const DrugModifyDTO::Wr
 
     try
     {
-        const auto mapper = getDefaultObjectMapper();
-        if (!mapper)
-        {
-            result->init(nullptr, RS_PARAMS_INVALID);
-            return result;
-        }
-
-        auto detail = mapper->readFromString<DrugModifyResultDTO::Wrapper>(mapper->writeToString(dto));
-        if (!detail)
-        {
-            result->init(nullptr, RS_PARAMS_INVALID);
-            return result;
-        }
-
-        detail->specification = dto->totalVolume;
-        if (!hasText(detail->drugDefId))
-        {
-            detail->drugDefId = dto->id;
-        }
-        result->success(detail);
+        result->success(DrugService().updateDrug(dto, payload));
+    }
+    catch (const DrugServiceException &error)
+    {
+        result->init(nullptr, serviceErrorStatus(error.getError()));
     }
     catch (const std::exception &)
     {
-        result->init(nullptr, RS_PARAMS_INVALID);
+        result->init(nullptr, unexpectedErrorStatus());
     }
 
     return result;
 }
 
-NoDataJsonVO::Wrapper DrugController::execRemoveDrug(const DrugRemoveDTO::Wrapper &dto)
+NoDataJsonVO::Wrapper DrugController::execRemoveDrug(const DrugRemoveDTO::Wrapper &dto, const PayloadDTO &payload)
 {
-    return createBatchResult(dto ? dto->ids : nullptr);
-}
-
-NoDataJsonVO::Wrapper DrugController::execEnableDisableDrug(const DrugEnableDisableDTO::Wrapper &dto)
-{
-    if (!dto || dto->activeFlag == nullptr)
+    auto result = NoDataJsonVO::createShared();
+    if (!dto || !hasValidBatchIds(dto->ids))
     {
-        auto result = NoDataJsonVO::createShared();
         result->init(RS_PARAMS_INVALID);
         return result;
     }
-    return createBatchResult(dto->ids);
+    try
+    {
+        DrugService().removeDrugs(dto, payload);
+        result->init(RS_SUCCESS);
+    }
+    catch (const DrugServiceException &error)
+    {
+        result->init(serviceErrorStatus(error.getError()));
+    }
+    catch (const std::exception &)
+    {
+        result->init(unexpectedErrorStatus());
+    }
+    return result;
+}
+
+NoDataJsonVO::Wrapper DrugController::execEnableDisableDrug(const DrugEnableDisableDTO::Wrapper &dto,
+                                                            const PayloadDTO &payload)
+{
+    auto result = NoDataJsonVO::createShared();
+    if (!dto || dto->activeFlag == nullptr || !hasValidBatchIds(dto->ids))
+    {
+        result->init(RS_PARAMS_INVALID);
+        return result;
+    }
+    try
+    {
+        DrugService().enableDisableDrugs(dto, payload);
+        result->init(RS_SUCCESS);
+    }
+    catch (const DrugServiceException &error)
+    {
+        result->init(serviceErrorStatus(error.getError()));
+    }
+    catch (const std::exception &)
+    {
+        result->init(unexpectedErrorStatus());
+    }
+    return result;
 }
