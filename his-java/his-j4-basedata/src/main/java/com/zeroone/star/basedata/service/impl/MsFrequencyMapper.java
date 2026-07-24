@@ -4,7 +4,7 @@ import com.zeroone.star.project.dto.j4.frequency.FrequencySaveDTO;
 import com.zeroone.star.project.dto.j4.frequency.FrequencyUpdateDTO;
 import com.zeroone.star.project.vo.j4.frequency.FrequencyVO;
 import com.zeroone.star.project.vo.j4.frequency.FrequencyOptionVO;
-import com.zeroone.star.basedata.entity.CusFrequencyDO;
+import com.zeroone.star.basedata.entity.frequency.CusFrequencyDO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;

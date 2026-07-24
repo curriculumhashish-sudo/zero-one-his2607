@@ -1,6 +1,6 @@
 package com.zeroone.star.basedata.service.impl;
 
-import com.zeroone.star.basedata.entity.Treatment;
+import com.zeroone.star.basedata.entity.treatment.WkfActivityDefinitionDO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentAddDTO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentDTO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentEditDTO;
@@ -18,35 +18,33 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface MsTreatmentMapper {
 
-    TreatmentSelectVO toSelectVO(Treatment treatment);
+    TreatmentSelectVO toSelectVO(WkfActivityDefinitionDO wkfActivityDefinitionDO);
 
-    List<TreatmentSelectVO> toSelectVOList(List<Treatment> treatments);
+    List<TreatmentSelectVO> toSelectVOList(List<WkfActivityDefinitionDO> wkfActivityDefinitionDOS);
 
-    TreatmentSelectDTO toSelectDTO(Treatment treatment);
+    TreatmentSelectDTO toSelectDTO(WkfActivityDefinitionDO wkfActivityDefinitionDO);
 
-    List<TreatmentSelectDTO> toSelectDTOList(List<Treatment> treatments);
-
-    @Mappings({
-            @Mapping(target = "statusText", ignore = true),
-            @Mapping(target = "price", ignore = true)
-    })
-    TreatmentDTO toDTO(Treatment treatment);
-
-    List<TreatmentDTO> toDTOList(List<Treatment> treatments);
+    List<TreatmentSelectDTO> toSelectDTOList(List<WkfActivityDefinitionDO> wkfActivityDefinitionDOS);
 
     @Mappings({
-            @Mapping(target = "statusText", ignore = true),
             @Mapping(target = "price", ignore = true)
     })
-    TreatmentListVO toListVO(Treatment treatment);
+    TreatmentDTO toDTO(WkfActivityDefinitionDO wkfActivityDefinitionDO);
 
-    List<TreatmentListVO> toListVOList(List<Treatment> treatments);
+    List<TreatmentDTO> toDTOList(List<WkfActivityDefinitionDO> wkfActivityDefinitionDOS);
 
-    TreatmentDetailVO toDetailVO(Treatment treatment);
+    @Mappings({
+            @Mapping(target = "price", ignore = true)
+    })
+    TreatmentListVO toListVO(WkfActivityDefinitionDO wkfActivityDefinitionDO);
 
-    Treatment addDtoToEntity(TreatmentAddDTO dto);
+    List<TreatmentListVO> toListVOList(List<WkfActivityDefinitionDO> wkfActivityDefinitionDOS);
 
-    Treatment editDtoToEntity(TreatmentEditDTO dto);
+    TreatmentDetailVO toDetailVO(WkfActivityDefinitionDO wkfActivityDefinitionDO);
 
-    Treatment updateDtoToEntity(TreatmentUpdateDTO dto);
+    WkfActivityDefinitionDO addDtoToEntity(TreatmentAddDTO dto);
+
+    WkfActivityDefinitionDO editDtoToEntity(TreatmentEditDTO dto);
+
+    WkfActivityDefinitionDO updateDtoToEntity(TreatmentUpdateDTO dto);
 }

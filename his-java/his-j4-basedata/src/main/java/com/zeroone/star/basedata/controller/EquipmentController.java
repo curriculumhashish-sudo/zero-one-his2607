@@ -66,7 +66,7 @@ public class EquipmentController implements EquipmentApis {
      */
     @Override
     @PostMapping("/add-equipment")
-    @Operation(summary = "新增器材", description = "新增器材")
+    @Operation(summary = "新增器材", description = "新增器材接口")
     public JsonVO<Void> addEquipment(@RequestBody @Valid EquipmentAddDTO equipmentAddDTO) {
         return null;
     }
