@@ -273,3 +273,118 @@ bed:
        statusenum: 床位状态
        organizationid: 所属科室id
        intended_admission_date: 预期入院日期
+temperature:
+ tags:
+  tag: 体温单
+ query-by-date:
+  summary: 按日期查询体温记录
+ save:
+  summary: 保存体温记录
+ field:
+  id: 记录编号
+  patientId: 患者标识
+  encounterId: 就诊标识
+  recordedDate: 记录日期
+  typeEnum: 单据类型
+  busNo: 业务单号
+  locationId: 位置/科室标识
+  recorderId: 记录人标识
+  remark: 备注
+  createdBy: 创建人
+  createdAt: 创建时间
+  updatedBy: 更新人
+  updatedAt: 更新时间
+  # 时次测量字段
+  timeSlot: 时次
+  temperature: 体温
+  pulse: 脉搏
+  respiration: 呼吸
+  heartRate: 心率
+  systolicPressure: 收缩压
+  diastolicPressure: 舒张压
+  physicalCooling: 物理降温
+  tempAfterPhysicalCooling: 物理降温后体温
+  drugCooling: 药物降温
+  tempAfterDrugCooling: 药物降温后体温
+  tempNotRising: 体温不升
+  discharge: 出院
+  specialEvent: 特殊事件
+  specialEventTime: 特殊事件时间
+  timeSlots: 时次数据列表
+  supplementary: 补充记录
+  # 补充记录字段
+  weight: 体重(KG)
+  urinationTimes: 小便次数(次)
+  waist: 腰围(cm)
+  defecationTimes: 大便次数(次)
+  height: 身高(cm)
+  intake: 入量(ml)
+  skinTestPositive: 皮试阳性
+  urineVolume: 尿量(ml)
+  other: 其他(ml)
+  # 患者信息 (展示用)
+  patientName: 姓名
+  patientGender: 性别
+  patientAge: 年龄
+  ward: 病室
+  bedNo: 床号
+  medicalRecordNo: 病历号
+  admissionTime: 入院时间
+  dischargeTime: 出院时间
+nursing:
+ tags:
+  tag: 护理记录
+ query:
+  summary: 分页查询护理记录
+ query-one:
+  summary: 通过ID查询护理记录
+ add:
+  summary: 新增护理记录
+ field:
+  id: 记录编号
+  patientId: 患者标识
+  encounterId: 就诊标识
+  recordedAt: 日期时间
+  recordedAtStart: 记录时间起
+  recordedAtEnd: 记录时间止
+  typeEnum: 单据类型
+  busNo: 业务单号
+  locationId: 位置/科室标识
+  babyNo: 婴儿编号
+  recorderId: 记录人标识
+  remark: 备注
+  detailRemark: 明细备注
+  createdBy: 创建人
+  createdAt: 创建时间
+  updatedBy: 更新人
+  updatedAt: 更新时间
+  termCode: 术语体系编码
+  itemCode: 字典项编码
+  itemValue: 字典项值
+  units: 单位
+  detailItems: 明细项列表
+  # 护理测量字段
+  temperature: 体温
+  pulse: 脉搏
+  heartRate: 心率
+  respiration: 呼吸
+  bloodPressure: 血压
+  consciousness: 意识
+  pupilLeft: 瞳孔左
+  pupilRight: 瞳孔右
+  intakeName: 入量名称
+  intakeVolume: 入量(ml)
+  outputName: 出量名称
+  outputVolume: 出量(ml)
+  outputColor: 出量颜色
+  observation: 病情观察及护理
+  nurseSignature: 护士签名
+  # 患者信息 (展示用)
+  patientName: 姓名
+  patientGender: 性别
+  patientAge: 年龄
+  ward: 病室
+  bedNo: 床号
+  medicalRecordNo: 病历号
+  admissionTime: 入院时间
+  dischargeTime: 出院时间

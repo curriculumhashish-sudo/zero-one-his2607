@@ -30,6 +30,8 @@
 #include "medicalorderverification/medicalorderverificationController.h"
 #include "medicalorderexecution/MedicalOrderExecutionController.h"
 #include "controller/admissiontransfer/BedController.h"
+#include "nursing/NursingController.h"
+#include "temperature/TemperatureController.h"
 
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
@@ -62,4 +64,6 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(DispenseController);
 	ROUTER_SIMPLE_BIND(MedicalOrderVerificationController);
 	ROUTER_SIMPLE_BIND(BedController);
+    ROUTER_SIMPLE_BIND(NursingController);
+    ROUTER_SIMPLE_BIND(TemperatureController);
 }
