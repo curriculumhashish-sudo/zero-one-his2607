@@ -1,11 +1,9 @@
 ward:
   tags:
-    t1: 病区接口
+    t1: 鐥呭尯鎺ュ彛
   name-list:
-    summary: 获取病区名称列表
-  list:
-    summary: 获取病区列表
+    summary: 鑾峰彇鐥呭尯鍚嶇О鍒楄〃
   field:
-    organization-id: 机构编号
-    id: 病区编号
-    name: 病区名称
+    organization-id: 鏈烘瀯缂栧彿
+    id: 鐥呭尯缂栧彿
+    name: 鐥呭尯鍚嶇О

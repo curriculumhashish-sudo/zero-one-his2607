@@ -1,21 +1,95 @@
+//#pragma once
+//#ifndef _WARD_CONTROLLER_H_
+//#define _WARD_CONTROLLER_H_
+//
+//#include "ApiHelper.h"
+//#include "domain/query/ward/WardQuery.h"
+//#include "domain/vo/BaseJsonVO.h"
+//#include "domain/vo/ward/WardNameVO.h"
+//
+//#include OATPP_CODEGEN_BEGIN(ApiController)
+//
+//#define API_TAG ZH_WORDS_GETTER("ward.tags.t1")
+//
+//class WardController
+//    : public oatpp::web::server::api::ApiController
+//{
+//    API_ACCESS_DECLARE(WardController);
+//
+//public:
+//    API_DEF_ENDPOINT_INFO_QUERY_AUTH(
+//        ZH_WORDS_GETTER("ward.name-list.summary"),
+//        queryWardNameList,
+//        WardQuery,
+//        ListJsonVO<WardNameVO::Wrapper>::Wrapper,
+//        API_TAG
+//    );
+//
+//    API_HANDLER_ENDPOINT_QUERY_AUTH(
+//        API_M_GET,
+//        "/ward/name-list",
+//        queryWardNameList,
+//        WardQuery,
+//        execWardNameList(query)
+//    );
+//
+//private:
+//    ListJsonVO<WardNameVO::Wrapper>::Wrapper
+//    execWardNameList(
+//        const WardQuery::Wrapper& query
+//    );
+//};
+//
+//#undef API_TAG
+//
+//#include OATPP_CODEGEN_END(ApiController)
+//
+//#endif
+
+
 #pragma once
 #ifndef _WARD_CONTROLLER_H_
 #define _WARD_CONTROLLER_H_
+
 #include "ApiHelper.h"
-#include "domain/query/ward/WardQuery.h"
+#include "domain/query/ward/WardTreeQuery.h"
 #include "domain/vo/BaseJsonVO.h"
-#include "domain/query/ward/WardListQuery.h"
-#include "domain/vo/ward/WardItemVO.h"
-#include "domain/vo/ward/WardNameVO.h"
+#include "domain/vo/ward/WardTreeNodeVO.h"
 #include "domain/dto/ward/WardLocationAddDTO.h"
 #include OATPP_CODEGEN_BEGIN(ApiController)
+
+
 #define API_TAG ZH_WORDS_GETTER("ward.tags.t1")
-// WardController declaration goes here.
-class WardController : public oatpp::web::server::api::ApiController
+
+
+class WardController
+    : public oatpp::web::server::api::ApiController
 {
-	API_ACCESS_DECLARE(WardController);
+
+    API_ACCESS_DECLARE(WardController);
+
 
 public:
+
+    //接口描述
+    API_DEF_ENDPOINT_INFO_QUERY_AUTH(
+        ZH_WORDS_GETTER("ward.tree-list.summary"),
+        queryWardTree,
+        WardTreeQuery,
+        ListJsonVO<WardTreeNodeVO::Wrapper>::Wrapper,
+        API_TAG
+    );
+
+
+    //接口路径
+    API_HANDLER_ENDPOINT_QUERY_AUTH(
+        API_M_GET,
+        "/ward/tree-list",
+        queryWardTree,
+        WardTreeQuery,
+        execWardTree(query)
+    );
+
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("ward.add-location.summary"),
         addWardLocation,
@@ -28,59 +102,25 @@ public:
         "/ward/location",
         addWardLocation,
         BODY_DTO(WardLocationAddDTO::Wrapper, dto),
-        execAddLocation(
-            dto,
-            authObject->getPayload()
-        )
-    );
-
-
-
-    API_DEF_ENDPOINT_INFO_QUERY_AUTH(
-        ZH_WORDS_GETTER("ward.name-list.summary"),
-        queryWardNameList,
-        WardQuery,
-        ListJsonVO<WardNameVO::Wrapper>::Wrapper,
-        API_TAG
-    );
-
-    API_HANDLER_ENDPOINT_QUERY_AUTH(
-        API_M_GET,
-        "/ward/name-list",
-        queryWardNameList,
-        WardQuery,
-        execWardNameList(query)
-        );
-    API_DEF_ENDPOINT_INFO_QUERY_AUTH(
-        ZH_WORDS_GETTER("ward.list.summary"),
-        queryWardList,
-        WardListQuery,
-        ListJsonVO<WardItemVO::Wrapper>::Wrapper,
-        API_TAG
-    );
-
-    API_HANDLER_ENDPOINT_QUERY_AUTH(
-        API_M_GET,
-        "/ward/list",
-        queryWardList,
-        WardListQuery,
-        execWardList(query)
+        execAddLocation(dto, authObject->getPayload())
     );
 private:
 
-    ListJsonVO<WardNameVO::Wrapper>::Wrapper execWardNameList(const WardQuery::Wrapper& query);
-    ListJsonVO<WardItemVO::Wrapper>::Wrapper
-        execWardList(const WardListQuery::Wrapper& query);
-StringJsonVO::Wrapper execAddLocation(
-    const WardLocationAddDTO::Wrapper& dto,
-    const PayloadDTO& payload);
+
+    ListJsonVO<WardTreeNodeVO::Wrapper>::Wrapper
+        WardController ::execWardTree(
+            const WardTreeQuery::Wrapper& query
+        );
+
+    StringJsonVO::Wrapper    WardController::execAddLocation(
+        const WardLocationAddDTO::Wrapper& dto,
+        const PayloadDTO& payload);
 };
 
 
-
-
-
-
 #undef API_TAG
+
+
 #include OATPP_CODEGEN_END(ApiController)
-#endif 
+
+#endif

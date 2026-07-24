@@ -1,90 +1,59 @@
 #include "stdafx.h"
 #include "WardController.h"
+#include "StringUtil.h"
 #include "service/ward/WardService.h"
 
+ListJsonVO<WardTreeNodeVO::Wrapper>::Wrapper
+WardController::execWardTree(
+    const WardTreeQuery::Wrapper& query
+) {
+    if (!query || !query->organizationId) {
+        return nullptr;
+    }
+    auto response =
+        ListJsonVO<WardTreeNodeVO::Wrapper>::createShared();
+	std::string organizationId = query->organizationId.getValue("");
+	StringUtil::trim(&organizationId);
+    
+    if(organizationId.empty()) {
+        response->init(nullptr, RS_PARAMS_INVALID);
+		return response;
+    }
+    auto data = WardService().GetTree(query);
 
-
-ListJsonVO<WardNameVO::Wrapper>::Wrapper
-WardController::execWardNameList(const WardQuery::Wrapper& query)
-{
-
-     auto ljv=ListJsonVO<WardNameVO::Wrapper>::createShared();
-
-     if (!query || !query->organizationId || query->organizationId.getValue("").empty()) {
-         ljv->init(nullptr, RS_PARAMS_INVALID);
-         return ljv;
-     }
-
-     auto data = WardService().listNames(
-         query->organizationId.getValue("")
-         );
-
-     ljv->success(data);
-
-     return ljv;
-
-
-
-
-}
-
-ListJsonVO<WardItemVO::Wrapper>::Wrapper
-WardController::execWardList(
-    const WardListQuery::Wrapper& query)
-{
-    auto result =
-        ListJsonVO<WardItemVO::Wrapper>::createShared();
-
-    if (!query ||
-        !query->organizationId ||
-        query->organizationId.getValue("").empty())
+    if (!data)
     {
-        result->init(nullptr, RS_PARAMS_INVALID);
-        return result;
+        response->init(nullptr, RS_PARAMS_INVALID);
+        return response;
     }
 
-    result->success(WardService().listWards(query));
-    return result;
+    response->success(data);
+    return response;
 }
-
-
-
-
-StringJsonVO::Wrapper execAddLocation(
+StringJsonVO::Wrapper WardController::execAddLocation(
     const WardLocationAddDTO::Wrapper& dto,
     const PayloadDTO& payload)
 {
-    auto result = StringJsonVO::createShared();
+    auto response = StringJsonVO::createShared();
 
     if (!dto)
     {
-        result->init(
+        response->init(
             "Request body is required.",
             RS_PARAMS_INVALID
         );
-        return result;
+        return response;
     }
 
-    const std::string errorMessage = dto->validate();
-
-    if (!errorMessage.empty())
-    {
-        result->init(
-            errorMessage,
-            RS_PARAMS_INVALID
-        );
-        return result;
-    }
-
-const std::string id =
-    WardService().addLocation(dto, payload);
+    const std::string id =
+        WardService().createLocation(dto, payload);
 
     if (id.empty())
     {
-        result->fail("Failed to add location.");
-        return result;
+        response->fail("Failed to create location.");
+        return response;
     }
 
-    result->success(id);
-    return result;
+    response->success(id);
+    return response;
 }

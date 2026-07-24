@@ -39,7 +39,7 @@ if(WIN32)
 endif()
 
 # 编译可执行文件
-add_executable (${appName} ${SC_FILES} "controller/ward/WardController.cpp" "domain/do/ward/WardDO.h" "domain/dto/ward/WardLocationAddDTO.h" "domain/query/ward/WardListQuery.h" "domain/query/ward/HouseBedQuery.h" "domain/vo/ward/WardItemVO.h" "domain/vo/ward/BedItemVO.h" "domain/vo/ward/HouseBedTreeVO.h")
+add_executable (${appName} ${SC_FILES} "domain/query/ward/WardTreeQuery.h" "domain/do/ward/WardTreeDO.h" "domain/vo/ward/WardTreeNodeVO.h" "dao/ward/WardTreeMapper.h" "domain/dto/ward/WardLocationAddDTO.h" "dao/ward/WardLocationMapper.h" "dao/ward/OrganizationTenantIdMapper.h")
 
 # 发布Swagger文档包宏定义
 if(DEFINED _RELEASE_DOC_)

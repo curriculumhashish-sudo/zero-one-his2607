@@ -1,55 +1,39 @@
+#pragma once
+#ifndef _WARD_DAO_H_
+#define _WARD_DAO_H_
 
-
-#include "domain/do/ward/WardLocationDO.h"
 #include <list>
+#include <string>
+
 #include "BaseDAO.h"
-#include "domain/do/ward/WardDO.h"
-#include "domain/query/ward/WardListQuery.h"
-#include "domain/do/ward/WardLocationDO.h"
+#include "domain/do/ward/WardTreeDO.h"
+#include "WardTreeMapper.h"
+#include"domain/dto/ward/WardLocationAddDTO.h"
+#include"domain/do/ward/WardLocationDO.h"
+#include "WardLocationMapper.h"
+#include "OrganizationTenantIdMapper.h"
 class WardDAO : public BaseDAO
 {
 public:
-    std::list<WardDO> selectNameList(
-        const std::string& organizationId);
-
-    std::list<WardDO> selectWardList(
-        const WardListQuery::Wrapper& query);
-
-    int insertLocation(
-        const WardLocationDO& data);
-
-
-
-    std::string selectTenantIdByOrganizationId(
-        const std::string& organizationId);
-
-    PtrWardLocationDO selectLocationById(
-        const std::string& id,
-        const std::string& organizationId);
-
-    std::string generateLocationBusNo(
-        const std::string& tenantId,
-        const std::string& parentBusNo);
-
-    int insertLocation(
-        const WardLocationDO& data);
-
-    PtrWardLocationDO selectLocationById(
-        const std::string& id
+    std::list<WardTreeDO> selectTreeRows(
+        const std::string& organizationId
     );
-    std::string selectOrganizationTenantIdForUpdate(
-        const std::string& organizationId);
+	std::string selectOrganizationTenantIdForUpdate(
+		const std::string& organizationId);
 
-    PtrWardLocationDO selectLocationByIdForUpdate(
-        const std::string& id);
+	// 查询父级完整记录PtrWardLocationDO
+	PtrWardLocationDO selectLocationByIdForUpdate(
+		const std::string& id);
 
-    bool existsSiblingName(
-        const std::string& organizationId,
-        const std::string& formEnum,
-        const std::string& parentId,
-        const std::string& name);
+	// 查询同级同名
+	bool existsSiblingName(
+		const std::string& organizationId,
+		const std::string& formEnum,
+		const std::string& parentId,
+		const std::string& name);
 
-    std::string generateLocationBusNo(
-        const std::string& tenantId,
-        const std::string& parentBusNo);
+	// 插入
+	int insertLocation(const WardLocationDO& data);
 };
+
+#endif
