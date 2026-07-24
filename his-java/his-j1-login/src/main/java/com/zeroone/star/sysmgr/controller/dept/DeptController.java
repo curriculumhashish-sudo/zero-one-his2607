@@ -1,7 +1,7 @@
 package com.zeroone.star.sysmgr.controller.dept;
 
-import com.zeroone.star.project.dto.j1.login.DeptQueryDTO;
 import com.zeroone.star.project.dto.j1.login.DeptSelectDTO;
+import com.zeroone.star.project.query.j1.login.DeptQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j1.login.DepartmentVO;
 import com.zeroone.star.project.vo.j1.login.DeptBindResultVO;
@@ -15,12 +15,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/auth/dept")
 @Tag(name = "科室选择接口", description = "医生登录后科室选择相关接口")
-public class DeptSelectController {
+public class DeptController {
 
     // 科室列表查询接口
     @GetMapping("/list")
     @Operation(summary = "获取科室列表", description = "根据医院ID查询可选科室")
-    public JsonVO<List<DepartmentVO>> listDepts(@Valid DeptQueryDTO dto) {
+    public JsonVO<List<DepartmentVO>> listDepts(@Valid DeptQuery query) {
         // 后续实现业务逻辑
         return JsonVO.success(null);
     }
