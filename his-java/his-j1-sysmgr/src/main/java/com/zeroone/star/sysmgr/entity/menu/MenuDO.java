@@ -1,10 +1,12 @@
 package com.zeroone.star.sysmgr.entity.menu;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
-import java.util.Date;
+import com.zeroone.star.project.entity.BaseDO;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+import java.io.Serial;
 
 /**
  * 菜单实体DO
@@ -12,15 +14,14 @@ import java.util.Date;
  * @author Drums小白
  * @date 2026/07/23
  */
-@Data
+@Getter
+@Setter
+@ToString
 @TableName("whale_menus")
-public class MenuDO {
+public class MenuDO extends BaseDO {
 
-    /**
-     * 主键
-     */
-    @TableId(type = IdType.ASSIGN_ID)
-    private String id;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     /**
      * 菜单编码
@@ -96,46 +97,6 @@ public class MenuDO {
      * 备注
      */
     private String remark;
-
-    /**
-     * 租户标识
-     */
-    private String tenantId;
-
-    /**
-     * 创建时间
-     */
-    private Date createdAt;
-
-    /**
-     * 最后更新时间
-     */
-    private Date updatedAt;
-
-    /**
-     * 创建人
-     */
-    private String createdBy;
-
-    /**
-     * 最后更新人
-     */
-    private String updatedBy;
-
-    /**
-     * 软删标记
-     */
-    private Integer isDeleted;
-
-    /**
-     * 删除时间
-     */
-    private Date deletedAt;
-
-    /**
-     * 删除人物
-     */
-    private String deletedBy;
 
     /**
      * 是否缓存页面
