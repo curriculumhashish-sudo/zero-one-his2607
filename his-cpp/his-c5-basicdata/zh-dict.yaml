@@ -1,4 +1,9 @@
 pharm:
+  statusEnum:
+    modify: 修改
+  list:
+    query: 查询
+  tag: 标签
   field:
     id: 主键编号
     name: 名称

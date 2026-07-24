@@ -20,6 +20,19 @@
  * 这样后续用 ZO_STAR_DOMAIN_DO_TO_DTO 宏做 DO→DTO 转换时，
  * 字段名能自动匹配，不用手动一个个赋值。
  */
+
+class PharmModifyStatusEnumDTO : public oatpp::DTO
+{
+	// 初始化定义
+	DTO_INIT(PharmModifyStatusEnumDTO, DTO);
+	// 字段
+	// 状态 NORMAL启用 DISTANCE停用
+	DTO_FIELD(String, statusEnum);
+	DTO_FIELD_INFO(statusEnum) {
+		info->description = ZH_WORDS_GETTER("pharm.field.statusEnum");
+	}
+};
+
 class PharmDTO : public oatpp::DTO
 {
 	// 初始化定义
@@ -33,7 +46,7 @@ class PharmDTO : public oatpp::DTO
 	}
 
 	// 供应商名称
-	DTO_FIELD(String, name)
+	DTO_FIELD(String, name);
 	DTO_FIELD_INFO(name) {
 		info->description = ZH_WORDS_GETTER("pharm.field.name");
 	}
@@ -70,6 +83,8 @@ class PharmPageDTO : public PageDTO<PharmDTO::Wrapper>
 {
 	DTO_INIT(PharmPageDTO, PageDTO<PharmDTO::Wrapper>);
 };
+
+
 
 #include OATPP_CODEGEN_END(DTO)
 
