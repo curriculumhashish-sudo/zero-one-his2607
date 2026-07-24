@@ -1,6 +1,5 @@
-package com.zeroone.star.j7.pharmacy.controller;
+package com.zeroone.star.j7.pharmacy.controller.inOrderItem;
 
-import com.zeroone.star.j7.pharmacy.entity.Pharmacy;
 import com.zeroone.star.j7.pharmacy.service.IPharmacyService;
 import com.zeroone.star.project.dto.j7.pharmacy.PharmacyStockDTO;
 import com.zeroone.star.project.j7.pharmacy.PharmacyApis;
@@ -18,7 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/j7/pharmacy")
 @Tag(name = "药房管理")
-public class PharmacyController implements PharmacyApis {
+public class InOrderItemController implements PharmacyApis {
 
     @Resource
     private IPharmacyService pharmacyService;
