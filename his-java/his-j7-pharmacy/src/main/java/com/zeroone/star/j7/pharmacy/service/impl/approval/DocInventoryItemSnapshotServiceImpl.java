@@ -1,7 +1,7 @@
 package com.zeroone.star.j7.pharmacy.service.impl.approval;
 
 import com.zeroone.star.j7.pharmacy.entity.approval.DocInventoryItemSnapshot;
-import com.zeroone.star.j7.pharmacy.mapper.approval.DocInventoryItemSnapshotMapper;
+import com.zeroone.star.j7.pharmacy.mapper.DocInventoryItemSnapshotMapper;
 import com.zeroone.star.j7.pharmacy.service.approval.IDocInventoryItemSnapshotService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;

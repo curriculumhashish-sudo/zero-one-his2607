@@ -1,7 +1,7 @@
 package com.zeroone.star.j7.pharmacy.service.impl.approval;
 
 import com.zeroone.star.j7.pharmacy.entity.approval.TerCodeSystem;
-import com.zeroone.star.j7.pharmacy.mapper.approval.TerCodeSystemMapper;
+import com.zeroone.star.j7.pharmacy.mapper.TerCodeSystemMapper;
 import com.zeroone.star.j7.pharmacy.service.approval.ITerCodeSystemService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;

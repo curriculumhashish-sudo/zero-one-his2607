@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
  */
 @Configuration
 @ComponentScan("com.zeroone.star.project.config.mybatis")
-@MapperScan("com.zeroone.star.j7.mapper")
+@MapperScan("com.zeroone.star.j7.pharmacy.mapper")
 public class MyBatisInit {
     @Resource
     UserHolder userHolder;
