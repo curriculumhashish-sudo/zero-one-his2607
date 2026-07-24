@@ -121,8 +121,8 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
     private void fillMedicineFields(MedMedicationDefinitionDO medicine, String medicineId, LocalDateTime now) {
         medicine.setId(medicineId);
         medicine.setBusNo("MD" + medicineId);
-        medicine.setCreatedAt(now);
-        medicine.setUpdatedAt(now);
+        medicine.setCreateTime(now);
+        medicine.setUpdateTime(now);
         medicine.setIsDeleted(false);
         medicine.setVersion(0);
         medicine.setOrgId(TEMP_ORG_ID);
@@ -143,8 +143,8 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
         AdmChargeItemDefinitionDO price = new AdmChargeItemDefinitionDO();
 
         price.setId(IdWorker.getIdStr());
-        price.setCreatedAt(now);
-        price.setUpdatedAt(now);
+        price.setCreateTime(now);
+        price.setUpdateTime(now);
         price.setIsDeleted(false);
         price.setVersion(0);
 

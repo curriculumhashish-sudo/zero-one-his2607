@@ -17,11 +17,11 @@ import com.zeroone.star.project.vo.j4.medicine.MedicineDetailVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineListVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineSelectVO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -69,6 +69,7 @@ public class MedicineController implements MedicineApis {
     @Override
     @GetMapping("/query-medicine")
     @Operation(summary = "获取药品详情")
+    @Parameter(name = "id",example = "1")
     public JsonVO<MedicineDetailVO> queryMedicineDetail(String id) {
         if(id.isBlank()){
             return JsonVO.fail("id不能为空");
@@ -104,8 +105,9 @@ public class MedicineController implements MedicineApis {
 
     @PutMapping("/change-status/{status}")
     @Operation(summary = "启/停用药品(支持批量)",description = "status为1表示启用，为0表示停用")
+    @Parameter(name = "status",example = "1")
     public JsonVO<Void> updateChangeMedicineStatus(
-            @PathVariable int status,
+            @PathVariable Integer status,
             @Validated @RequestBody MedicineChangeStatusDTO dto
     ){
         if(status != 1 && status !=0 ){
