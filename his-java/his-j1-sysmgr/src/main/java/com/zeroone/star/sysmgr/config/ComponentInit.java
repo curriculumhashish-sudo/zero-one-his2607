@@ -16,7 +16,9 @@ import org.springframework.context.annotation.Configuration;
 @ComponentScan({
         "com.zeroone.star.project.config.swagger",
         "com.zeroone.star.project.components.jwt",
-        "com.zeroone.star.project.components.user"
+        "com.zeroone.star.project.components.user",
+        "com.zeroone.star.project.components.work",
+        "com.zeroone.star.project.components.mybaits"
 })
 public class ComponentInit {
 }
