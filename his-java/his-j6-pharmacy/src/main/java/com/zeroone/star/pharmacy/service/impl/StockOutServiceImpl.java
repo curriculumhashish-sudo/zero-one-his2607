@@ -10,6 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 /**
  * 药库出库单服务实现
  */
@@ -17,37 +20,61 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class StockOutServiceImpl implements IStockOutService {
 
-    // 后续注入 Mapper
+    // 状态常量
+    private static final String STATUS_DRAFT = "DRAFT";
+    private static final String STATUS_PENDING_APPROVAL = "PENDING_APPROVAL";
+    private static final String STATUS_APPROVED = "APPROVED";
+    private static final String STATUS_REJECTED = "REJECTED";
+
+    // TODO: 后续注入 Mapper
+    // private final StockOutMapper stockOutMapper;
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public JsonVO<StockOutSaveResultVO> saveStockOut(StockOutSaveDTO dto) {
         StockOutSaveResultVO result = new StockOutSaveResultVO();
-
-        if (dto.getBusNo() == null || dto.getBusNo().isEmpty()) {
-            // 新增：生成单据号
-            String busNo = "CK" + System.currentTimeMillis();
-            result.setBusNo(busNo);
-            // TODO: 插入数据库
-        } else {
-            // 编辑：更新已有单据
-            result.setBusNo(dto.getBusNo());
-            // TODO: 更新数据库
-        }
-
-        result.setStatus("DRAFT");
-        result.setMessage("保存成功");
-        result.setVersion(dto.getRowVersion() != null ? dto.getRowVersion() + 1 : 1);
+        result.setBusNo(generateBusNo());  // 只设置 busNo
+        // 其他字段不设置，默认为 null
 
         return JsonVO.success(result);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public JsonVO<StockOutApprovalResultVO> submitApproval(SubmitStockOutApprovalDTO dto) {
         StockOutApprovalResultVO result = new StockOutApprovalResultVO();
-        result.setSuccess(true);              // 设置操作成功
-        result.setStatusEnum("APPROVAL");     // 设置状态枚举码
+
+        // TODO: 业务验证
+        // 1. 检查单据是否存在
+        // 2. 检查当前状态是否允许提交审批
+        // 3. 检查明细行是否完整
+
+        // TODO: 更新数据库状态
+        // stockOutMapper.updateStatus(dto.getBusNo(), STATUS_PENDING_APPROVAL);
+
+        result.setSuccess(true);
+        result.setStatusEnum("APPROVAL");
 
         return JsonVO.success(result);
+    }
+
+    /**
+     * 生成单据号
+     */
+
+    // 使用静态变量模拟自增（线程不安全，仅供演示）
+    private static int counter = 1;
+
+    private String generateBusNo() {
+        LocalDate today = LocalDate.now();
+
+        // 格式：CSOyyyy-MM-ddXXXX
+        String busNo = String.format("CSO%d-%02d-%02d%04d",
+                today.getYear(),
+                today.getMonthValue(),
+                today.getDayOfMonth(),
+                counter++);
+
+        return busNo;
     }
 }
