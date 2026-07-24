@@ -62,7 +62,7 @@ patient:
     age: 患者年龄
 
 # ============================================================
-# 科室管理 (dept) — 科室 CRUD + 批量启停
+# 科室管理 (dept) — 科室 CRUD + 批量启停 + 组织架构树
 # ============================================================
 dept:
   tag: 科室管理
@@ -79,6 +79,10 @@ dept:
       disable: 批量停用科室成功
     fail:
       empty: 批量操作失败，无匹配科室数据
+  endpoints:
+    nameTree: 获取科室名称树
+    listTree: 获取科室列表树
+    detail: 获取科室详情
   field:
     id: 科室编号
     name: 科室名称
@@ -100,20 +104,6 @@ dept:
     active-flag: 是否启用
     deptIdList: 批量科室ID数组
     targetStatus: 目标启停状态(0停用/1启用)
-
-# ============================================================
-# 组织架构 (organization) — 科室树 + 详情
-# ============================================================
-organization:
-  tag: 组织架构
-  endpoints:
-    nameTree: 获取科室名称树
-    listTree: 获取科室列表树
-    detail: 获取科室详情
-  fields:
-    id: 科室唯一标识
-    name: 科室名称
-    children: 下级科室列表
     typeEnum: 科室类型
     classEnum: 科室类别
     statusEnum: 科室状态
@@ -126,6 +116,7 @@ organization:
     pyStr: 拼音码
     wbStr: 五笔码
     displayOrder: 显示顺序
+    children: 下级科室列表
   queries:
     typeEnum: 按科室类型筛选
     classEnum: 按科室类别筛选

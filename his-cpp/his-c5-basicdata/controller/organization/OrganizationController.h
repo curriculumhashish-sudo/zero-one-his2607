@@ -12,7 +12,7 @@ using namespace oatpp;
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-#define API_TAG ZH_WORDS_GETTER("organization.tag")
+#define API_TAG ZH_WORDS_GETTER("dept.tag")
 
 class OrganizationController
     : public oatpp::web::server::api::ApiController
@@ -21,7 +21,7 @@ class OrganizationController
 
 public:
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(
-        ZH_WORDS_GETTER("organization.endpoints.nameTree"),
+        ZH_WORDS_GETTER("dept.endpoints.nameTree"),
         queryNameTree,
         OrganizationNameTreeQuery,
         OrganizationNameTreeJsonVO::Wrapper,
@@ -37,7 +37,7 @@ public:
     );
 
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(
-        ZH_WORDS_GETTER("organization.endpoints.listTree"),
+        ZH_WORDS_GETTER("dept.endpoints.listTree"),
         queryListTree,
         OrganizationListTreeQuery,
         OrganizationListTreeJsonVO::Wrapper,
@@ -53,14 +53,14 @@ public:
     );
 
     API_DEF_ENDPOINT_INFO_AUTH(
-        ZH_WORDS_GETTER("organization.endpoints.detail"),
+        ZH_WORDS_GETTER("dept.endpoints.detail"),
         queryDetail,
         OrganizationDetailJsonVO::Wrapper,
         API_TAG,
         API_DEF_ADD_QUERY_PARAMS(
             String,
             "id",
-            ZH_WORDS_GETTER("organization.queries.id"),
+            ZH_WORDS_GETTER("dept.queries.id"),
             "322663218269917184",
             true
         );
