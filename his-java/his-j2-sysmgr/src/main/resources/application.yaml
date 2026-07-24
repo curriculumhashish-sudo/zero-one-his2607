@@ -1,15 +1,12 @@
-# 定义占位符默认值（放在文件最前面）
 sn:
-  j2-sysmgr: J2SYSMGR
+  sysmgr: sysmgr
 sp:
-  j2-sysmgr: 20000
-
-# 然后再使用占位符
+  sysmgr: 10300
 server:
-  port: ${sp.j2-sysmgr}
+  port: ${sp.sysmgr}
   servlet:
     context-path: /j2-sysmgr
 
 spring:
   application:
-    name: ${sn.j2-sysmgr}
+    name: ${sn.sysmgr}
