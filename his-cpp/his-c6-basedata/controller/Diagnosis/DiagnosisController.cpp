@@ -115,9 +115,7 @@ DiagnosisDetailJsonVO::Wrapper DiagnosisController::execQueryOneDiagnosis(
 	return response;
 }
 
-StringJsonVO::Wrapper DiagnosisController::execAddDiagnose(
-	const DiagnoseAddDTO::Wrapper& dto,
-	const PayloadDTO& payload)
+StringJsonVO::Wrapper DiagnosisController::execAddDiagnose(const DiagnoseAddDTO::Wrapper& dto,const PayloadDTO& payload)
 {
 	auto response = StringJsonVO::createShared();
 
@@ -141,9 +139,7 @@ StringJsonVO::Wrapper DiagnosisController::execAddDiagnose(
 	return response;
 }
 
-StringJsonVO::Wrapper DiagnosisController::execModifyDiagnose(
-	const DiagnoseDTO::Wrapper& dto,
-	const PayloadDTO& payload)
+StringJsonVO::Wrapper DiagnosisController::execModifyDiagnose(const DiagnoseDTO::Wrapper& dto,const PayloadDTO& payload)
 {
 	auto response = StringJsonVO::createShared();
 	if (!dto->id)
@@ -184,9 +180,7 @@ ListJsonVO<String>::Wrapper DiagnosisController::execRemoveDiagnose(const List<S
 	return response;
 }
 
-StringJsonVO::Wrapper DiagnosisController::execBatchChangeDiagnoseStatus(
-	const DiagnoseBatchStatusDTO::Wrapper& dto,
-	const PayloadDTO& payload)
+StringJsonVO::Wrapper DiagnosisController::execBatchChangeDiagnoseStatus(const DiagnoseBatchStatusDTO::Wrapper& dto,const PayloadDTO& payload)
 {
 	auto response = StringJsonVO::createShared();
 	if (!dto->ids || !dto->status)

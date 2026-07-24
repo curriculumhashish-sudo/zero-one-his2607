@@ -104,6 +104,8 @@ class DiagnoseBatchStatusDTO : public oatpp::DTO
 
 	API_DTO_FIELD_REQUIRE(List<String>, ids, ZH_WORDS_GETTER("diagnose.field.diag.id_list"), true);//ids可以看作指针
 	API_DTO_FIELD_REQUIRE(String, status, ZH_WORDS_GETTER("diagnose.field.diag.status"), true);
+	API_DTO_FIELD_REQUIRE(Int32, version, ZH_WORDS_GETTER("diagnose.field.diag.version"), true);//来源枚举值 source_enum
+
 
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 };
@@ -114,6 +116,7 @@ class DiagnoseRemoveDTO : public oatpp::DTO
 	DTO_INIT(DiagnoseBatchStatusDTO, DTO);
 
 	API_DTO_FIELD_REQUIRE(List<String>, ids, ZH_WORDS_GETTER("diagnose.field.diag.id_list"), true);
+	API_DTO_FIELD_REQUIRE(Int32, version, ZH_WORDS_GETTER("diagnose.field.diag.version"), true);//来源枚举值 source_enum
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 };
 

@@ -214,7 +214,7 @@ bool DiagnoseService::updateData(const DiagnoseDTO::Wrapper& dto)
 
 	data.setUpdateBy(dto->getPayload()->getUsername());
 	data.setUpdateTime(SimpleDateTimeFormat::format());
-
+	data.setVersion(*(dto->version)+1);
 	DiagnosisDAO dao;
 	return dao.update(data) == 1;
 }
@@ -254,6 +254,7 @@ bool DiagnoseService::batchChangeStatus(const DiagnoseBatchStatusDTO::Wrapper& d
 		data.setStatus(*status);
 		data.setUpdateBy(dto->getPayload()->getUsername());
 		data.setUpdateTime(SimpleDateTimeFormat::format());
+		data.setVersion(*(dto->version) + 1);
 		if (dao.update(data) == 1)
 		{
 			++successCount;
@@ -274,6 +275,8 @@ bool DiagnoseService::execRemoveData(const DiagnoseRemoveDTO::Wrapper& dto)
 		data.setDeletedBy(dto->getPayload()->getUsername());
 		data.setDeletedTime(SimpleDateTimeFormat::format());
 		data.setIsDelete(1);
+		data.setVersion(*(dto->version) + 1);
+
 		if (dao.update(data) == 1)
 		{
 			++successCount;
