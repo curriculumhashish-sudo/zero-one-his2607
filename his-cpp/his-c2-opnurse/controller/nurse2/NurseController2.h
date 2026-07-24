@@ -45,10 +45,10 @@ public:  //定义接口   从 arch-demo下的/controller/samplecontroller。h   3.1 定义
 
 private://定义接口执行函数
 	//3.3定义定义分页获取患者队列接口处理
-	NurseDetailPageJsonVO2::Wrapper executeQueryNurse(const NurseQuery2::Wrapper& query);
+	//NurseDetailPageJsonVO2::Wrapper executeQueryNurse(const NurseQuery2::Wrapper& query);
 	
 	//定义删除接口执行函数
-	BooleanJsonVO::Wrapper execRemoveNurse(const String& id);
+	//BooleanJsonVO::Wrapper execRemoveNurse(const String& id);
 
 	// 3.3 演示修改数据  ---> 执行 取消执行
 	StringJsonVO::Wrapper execOperateNurse(const NurseOperateDTO2::Wrapper& dto, const PayloadDTO& payload);

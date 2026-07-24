@@ -1,37 +1,48 @@
-#pragma once
+/*
+ Copyright Zero One Star. All rights reserved.
 
+ @Author: fa-mian-tuan
+ @Date: 2026/07/24
 
-#ifndef  _NURSEOPERATEDTO_H_
-#define  _NURSEOPERATEDTO_H_
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+*/
+#ifndef _NURSEOPERATEDTO_H_
+#define _NURSEOPERATEDTO_H_
 
 #include "../../GlobalInclude.h"
 #include "domain/query/PageQuery.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-
-//执行
-class NurseOperateDTO2: public oatpp::DTO
+// Execute operation DTO
+class NurseOperateDTO2 : public oatpp::DTO
 {
-	//初始化
 	DTO_INIT(NurseOperateDTO2, DTO);
-	//执行人姓名 （隐藏的） 执行谁？？
+
+	// Name / queue number (required)
 	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("nurse2.field.name_code"), true);
-	//状态
+	// Execution state
 	API_DTO_FIELD_REQUIRE(String, state, ZH_WORDS_GETTER("nurse2.field.state"), false);
-	//医嘱内容
+	// Medical order content
 	API_DTO_FIELD_REQUIRE(String, content, ZH_WORDS_GETTER("nurse2.field.content"), false);
-	//已执行次数
-	API_DTO_FIELD_REQUIRE(String, amount, ZH_WORDS_GETTER("nurse2.field.amount"), false);
-	//执行人
+	// Execution count
+	API_DTO_FIELD_REQUIRE(Int32, amount, ZH_WORDS_GETTER("nurse2.field.amount"), false);
+	// Executor
 	API_DTO_FIELD_REQUIRE(String, person, ZH_WORDS_GETTER("nurse2.field.person"), false);
-	//操作
+	// Operation type
 	API_DTO_FIELD_REQUIRE(String, operate, ZH_WORDS_GETTER("nurse2.field.operate"), false);
-
 };
-
-
 
 #include OATPP_CODEGEN_END(DTO)
 
-#endif // ! _NURSEOPERATEDTO_H_
+#endif // !_NURSEOPERATEDTO_H_

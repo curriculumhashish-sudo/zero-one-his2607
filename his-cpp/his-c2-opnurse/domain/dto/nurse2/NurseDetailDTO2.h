@@ -1,6 +1,21 @@
-#pragma once
+/*
+ Copyright Zero One Star. All rights reserved.
 
+ @Author: fa-mian-tuan
+ @Date: 2026/07/24
 
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+*/
 #ifndef _NURSEDETAILDTO_H_
 #define _NURSEDETAILDTO_H_
 
@@ -9,28 +24,26 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-
-//执行后的数据响应  
+// Nurse2 detail DTO (used in page query response)
 class NurseDetailDTO2 : public oatpp::DTO
 {
-	//初始化
 	DTO_INIT(NurseDetailDTO2, DTO);
-	//执行人姓名 （隐藏的） 执行谁？？
-	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("nurse2.field.name_code"), true);
-	//状态
-	API_DTO_FIELD_REQUIRE(String, state, ZH_WORDS_GETTER("nurse2.field.state"), false);
-	//医嘱内容
-	API_DTO_FIELD_REQUIRE(String, content, ZH_WORDS_GETTER("nurse2.field.content"), false);
-	//已执行次数
-	API_DTO_FIELD_REQUIRE(String, amount, ZH_WORDS_GETTER("nurse2.field.amount"), false);
-	//执行人
-	API_DTO_FIELD_REQUIRE(String, person, ZH_WORDS_GETTER("nurse2.field.person"), false);
-	//操作
-	API_DTO_FIELD_REQUIRE(String, operate, ZH_WORDS_GETTER("nurse2.field.operate"), false);
 
+	// Name / queue number
+	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("nurse2.field.name_code"), true);
+	// Execution state
+	API_DTO_FIELD_REQUIRE(String, state, ZH_WORDS_GETTER("nurse2.field.state"), false);
+	// Medical order content
+	API_DTO_FIELD_REQUIRE(String, content, ZH_WORDS_GETTER("nurse2.field.content"), false);
+	// Execution count
+	API_DTO_FIELD_REQUIRE(Int32, amount, ZH_WORDS_GETTER("nurse2.field.amount"), false);
+	// Executor
+	API_DTO_FIELD_REQUIRE(String, person, ZH_WORDS_GETTER("nurse2.field.person"), false);
+	// Operation type
+	API_DTO_FIELD_REQUIRE(String, operate, ZH_WORDS_GETTER("nurse2.field.operate"), false);
 };
 
-// 患者信息分页传输对象
+// Nurse2 paged query response
 class NurseDetailPageDTO : public PageDTO<NurseDetailDTO2::Wrapper>
 {
 	DTO_INIT(NurseDetailPageDTO, PageDTO<NurseDetailDTO2::Wrapper>);
@@ -38,4 +51,4 @@ class NurseDetailPageDTO : public PageDTO<NurseDetailDTO2::Wrapper>
 
 #include OATPP_CODEGEN_END(DTO)
 
-#endif // !_NurseEXECUADDDTO_H_
+#endif // !_NURSEDETAILDTO_H_
