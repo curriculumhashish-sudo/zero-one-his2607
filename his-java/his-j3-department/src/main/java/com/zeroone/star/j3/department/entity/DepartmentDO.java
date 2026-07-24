@@ -1,17 +1,26 @@
 package com.zeroone.star.j3.department.entity;
 
+import com.baomidou.mybatisplus.annotation.*;
+import com.zeroone.star.project.enums.j3.department.ClassEnum;
+import com.zeroone.star.project.enums.j3.department.StatusEnum;
+import com.zeroone.star.project.enums.j3.department.TypeEnum;
+import com.zeroone.star.project.vo.j3.department.DepartmentDetailVO;
+import com.zeroone.star.project.vo.j3.department.DepartmentTreeVO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import org.springframework.beans.BeanUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * <p>
- * 描述：科室对象实体类
+ * 描述：科室DO对象
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
@@ -25,13 +34,15 @@ import java.time.LocalDateTime;
 @Accessors
 @Builder
 @Schema(description = "科室对象实体类", name = "Department")
-public class Department {
+@TableName(value = "adm_organization")
+public class DepartmentDO {
 
     @Schema(
             description = "主键ID",
             example = "322663218269917184",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     @Schema(
@@ -74,6 +85,7 @@ public class Department {
             example = "false",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
+    @TableLogic(value = "false", delval = "true")
     private Boolean isDeleted;
 
     @Schema(
@@ -95,6 +107,7 @@ public class Department {
             example = "0",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
+    @Version
     private Integer version;
 
     @Schema(
@@ -222,4 +235,39 @@ public class Department {
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     private String caty;
+
+    public DepartmentTreeVO toTreeVO() {
+        return DepartmentTreeVO.builder()
+                .id(id)
+                .busNo(busNo)
+                .name(name)
+                .statusEnum(statusEnum)
+                .statusEnumDictText(StatusEnum.getDictTextByDesc(statusEnum))
+                .typeEnum(TypeEnum.getValueByDesc(typeEnum).toString())
+                .typeEnumDictText(TypeEnum.getDictTextByDesc(typeEnum))
+                .classEnum(ClassEnum.getValueByDesc(classEnum).toString())
+                .classEnumDictText(ClassEnum.getDictTextByDesc(classEnum))
+                .pyStr(pyStr)
+                .wbStr(wbStr)
+                .defDoctorId(defDoctorId)
+                .ybNo(ybNo)
+                .ybName(ybName)
+                .medinsId(medinsId)
+                .medinsAdmdvs(medinsAdmdvs)
+                .medinsType(medinsType)
+                .medinsLv(medinsLv)
+                .caty(caty)
+                .displayOrder(displayOrder)
+                .parentId(parentId)
+                .children(new ArrayList<>())
+                .build();
+    }
+
+    public DepartmentDetailVO toDetailVO() {
+        DepartmentTreeVO treeVO = toTreeVO();
+        DepartmentDetailVO detailVO = new DepartmentDetailVO();
+        BeanUtils.copyProperties(treeVO, detailVO);
+        return detailVO;
+    }
+
 }
