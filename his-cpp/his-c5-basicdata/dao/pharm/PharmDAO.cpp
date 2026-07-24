@@ -50,7 +50,6 @@ std::list<PtrPharmDO> PharmDAO::selectPage(const PharmQuery::Wrapper& query)
 	uint64_t size = query->pageSize.getValue(10);
 	sql += " LIMIT " + std::to_string(offset) + ", " + std::to_string(size);
 
-	// 模板参数与 Mapper 返回值对齐，直接返回智能指针对象列表
 	return sqlSession->executeQuery<PtrPharmDO>(sql, PharmMapper(), params);
 }
 
@@ -58,8 +57,8 @@ int PharmDAO::insert(const PharmDO& data)
 {
 	std::string sql =
 		"INSERT INTO sys_pharm "
-		"(name, type, status, sort, remark, create_by, update_by) "
-		"VALUES (?, ?, ?, ?, ?, ?, ?);";
+		"(name, type, status, sort, remark, create_by, update_by, create_time, update_time) "
+		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
 	SqlParams params;
 	SQLPARAMS_PUSH(params, "s", std::string, data.getName());
@@ -69,6 +68,8 @@ int PharmDAO::insert(const PharmDO& data)
 	SQLPARAMS_PUSH(params, "s", std::string, data.getRemark());
 	SQLPARAMS_PUSH(params, "s", std::string, data.getCreate_By());
 	SQLPARAMS_PUSH(params, "s", std::string, data.getUpdate_By());
+	SQLPARAMS_PUSH(params, "s", std::string, data.getCreate_Time());
+	SQLPARAMS_PUSH(params, "s", std::string, data.getUpdate_Time());
 
 	return sqlSession->executeUpdate(sql, params);
 }
@@ -77,7 +78,7 @@ int PharmDAO::update(const PharmDO& data)
 {
 	std::string sql =
 		"UPDATE sys_pharm SET "
-		"name = ?, type = ?, sort = ?, remark = ?, update_by = ? "
+		"name = ?, type = ?, sort = ?, remark = ?, update_by = ?, update_time = ? "
 		"WHERE id = ?;";
 
 	SqlParams params;
@@ -86,6 +87,7 @@ int PharmDAO::update(const PharmDO& data)
 	SQLPARAMS_PUSH(params, "i", int, data.getSort());
 	SQLPARAMS_PUSH(params, "s", std::string, data.getRemark());
 	SQLPARAMS_PUSH(params, "s", std::string, data.getUpdate_By());
+	SQLPARAMS_PUSH(params, "s", std::string, data.getUpdate_Time());
 	SQLPARAMS_PUSH(params, "ull", uint64_t, data.getId());
 
 	return sqlSession->executeUpdate(sql, params);

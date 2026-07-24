@@ -21,7 +21,6 @@
 #include "../../dao/pharm/PharmDAO.h"
 #include "domain/dto/pharm/PharmDTO.h"
 #include "domain/dto/pharm/PharmPageDTO.h"
-// 修正：直接写文件名，项目已配置全局包含路径
 #include "SimpleDateTimeFormat.h"
 
 PharmPageJsonVO::Wrapper PharmService::getPage(const PharmQuery::Wrapper& query)
@@ -31,39 +30,37 @@ PharmPageJsonVO::Wrapper PharmService::getPage(const PharmQuery::Wrapper& query)
 
     // 查询总条数
     uint64_t total = dao.count(query);
-    if (total <= 0)
-    {
-        result->fail(nullptr);
-        return result;
-    }
 
-    // 分页查询数据
-    std::list<PtrPharmDO> dataList = dao.selectPage(query);
-
-    // DO 转 DTO，组装数据列表
-    auto rows = oatpp::List<PharmDTO::Wrapper>::createShared();
-    for (const auto& item : dataList)
-    {
-        auto dto = PharmDTO::createShared();
-        dto->id = item->getId();
-        dto->name = oatpp::String(item->getName());
-        dto->type = oatpp::String(item->getType());
-        dto->status = item->getStatus();
-        dto->sort = item->getSort();
-        dto->remark = oatpp::String(item->getRemark());
-        dto->create_by = oatpp::String(item->getCreate_By());
-        dto->update_by = oatpp::String(item->getUpdate_By());
-        dto->create_time = oatpp::String(item->getCreate_Time());
-        dto->update_time = oatpp::String(item->getUpdate_Time());
-        rows->push_back(dto);
-    }
-
-    // 构造完整分页DTO
+    // 先构造分页DTO，空数据也返回完整结构
     auto pageDto = PharmPageDTO::createShared();
-    pageDto->rows = rows;
     pageDto->pageIndex = query->pageIndex.getValue(1);
     pageDto->pageSize = query->pageSize.getValue(10);
     pageDto->total = total;
+    pageDto->rows = oatpp::List<PharmDTO::Wrapper>::createShared();
+
+    // 有数据时再查询列表并做DO转DTO
+    if (total > 0)
+    {
+        std::list<PtrPharmDO> dataList = dao.selectPage(query);
+        auto rows = oatpp::List<PharmDTO::Wrapper>::createShared();
+        for (const auto& item : dataList)
+        {
+            auto dto = PharmDTO::createShared();
+            dto->id = item->getId();
+            dto->name = oatpp::String(item->getName());
+            dto->type = oatpp::String(item->getType());
+            dto->status = item->getStatus();
+            dto->sort = item->getSort();
+            dto->remark = oatpp::String(item->getRemark());
+            dto->create_by = oatpp::String(item->getCreate_By());
+            dto->update_by = oatpp::String(item->getUpdate_By());
+            dto->create_time = oatpp::String(item->getCreate_Time());
+            dto->update_time = oatpp::String(item->getUpdate_Time());
+            rows->push_back(dto);
+        }
+        pageDto->rows = rows;
+    }
+
     result->success(pageDto);
     return result;
 }
@@ -79,8 +76,12 @@ StringJsonVO::Wrapper PharmService::add(const PharmAddDTO::Wrapper& dto)
     data.setSort(dto->sort.getValue(0));
     data.setRemark(dto->remark.getValue(""));
 
-    // getPayload() 返回指针，用 -> 访问成员
-    std::string username = dto->getPayload()->getUsername();
+    // 获取操作人：payload存在用真实用户名，不存在用默认admin兜底
+    std::string username = "admin";
+    if (dto->getPayload())
+    {
+        username = dto->getPayload()->getUsername();
+    }
     data.setCreate_By(username);
     data.setUpdate_By(username);
     std::string now = SimpleDateTimeFormat::format();
@@ -90,7 +91,7 @@ StringJsonVO::Wrapper PharmService::add(const PharmAddDTO::Wrapper& dto)
     // 新增默认启用状态
     data.setStatus(1);
 
-    // 执行新增
+    // 执行数据库插入
     PharmDAO dao;
     int rows = dao.insert(data);
     if (rows > 0)
@@ -115,7 +116,12 @@ StringJsonVO::Wrapper PharmService::modify(const PharmModifyDTO::Wrapper& dto)
     data.setSort(dto->sort.getValue(0));
     data.setRemark(dto->remark.getValue(""));
 
-    std::string username = dto->getPayload()->getUsername();
+    // 获取操作人：payload存在用真实用户名，不存在用默认admin兜底
+    std::string username = "admin";
+    if (dto->getPayload())
+    {
+        username = dto->getPayload()->getUsername();
+    }
     data.setUpdate_By(username);
     data.setUpdate_Time(SimpleDateTimeFormat::format());
 
