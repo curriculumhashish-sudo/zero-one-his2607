@@ -9,6 +9,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * <p>
+ * 工作台日常功能管理控制器
+ * </p>
+ *
+ * @author 鹿
+ * @since 2026-07-24
+ */
+
 @RestController
 @Tag(name = "工作台日常功能管理控制器")
 public class WorkbenchController implements WorkbenchApis {
