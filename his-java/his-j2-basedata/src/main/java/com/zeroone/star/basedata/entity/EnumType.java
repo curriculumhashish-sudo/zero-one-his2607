@@ -1,34 +1,69 @@
 package com.zeroone.star.basedata.entity;
 
+import lombok.Data;
+import org.springframework.data.annotation.*;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
 import java.util.Date;
 
-
+@Data
+@Document(collection = "enum_type")
+@CompoundIndexes({
+        // 复合索引，确保租户下enumTypeKey唯一
+        @CompoundIndex(name = "idx_tenantId_enumKey", def = "{'tenantId': 1, 'enumTypeKey': 1}", unique = true),
+        // 查询时常用复合索引
+        @CompoundIndex(name = "idx_tenantId_status", def = "{'tenantId': 1, 'status': 1}")
+})
 public class EnumType {
 
+    @Id
     private String id;
 
+    @Indexed
     private String tenantId;
 
+    // 这里希望改名为enumTypeKey，但是为了保持和接口DTO的字段名一致，暂不进行重命名
+    @Indexed
+    @Field("enum_type_key")
     private String enumKey;
 
+    @Field("display_name")
     private String displayName;
 
+    @Field("description")
     private String description;
 
+    @Field("is_system")
     private Boolean isSystem;
 
+    @Field("status")
     private String status;
 
+    // @CreatedBy
+    @Field("created_by")
     private String createdBy;
 
+    // @CreatedDate
+    @Field("created_at")
     private Date createdAt;
 
+    // @LastModifiedBy
+    @Field("updated_by")
     private String updatedBy;
 
+    // @LastModifiedDate
+    @Field("updated_at")
     private Date updatedAt;
 
+    @Version
     private Integer version;
 
+    @Indexed
+    @Field("is_deleted")
     private Boolean isDeleted;
 }
 
@@ -37,7 +72,7 @@ public class EnumType {
  * {
  *   "_id": ObjectId("..."),
  *   "tenantId": "tenant_001",           // 多租户隔离，必填
- *   "enumKey": "order_status",          // 业务唯一键，用于代码中引用
+ *   "enumTypeKey": "order_status",          // 业务唯一键，用于代码中引用
  *   "displayName": "订单状态",           // 显示名称
  *   "description": "订单的生命周期状态",   // 描述
  *   "isSystem": false,                 // 是否系统内置（保护不可删）

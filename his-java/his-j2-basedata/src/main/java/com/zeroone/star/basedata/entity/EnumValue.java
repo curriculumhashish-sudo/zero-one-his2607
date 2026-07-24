@@ -1,35 +1,85 @@
 package com.zeroone.star.basedata.entity;
 
+import lombok.Data;
+import org.springframework.data.annotation.*;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
 import java.util.Date;
 
+@Data
+@Document(collection = "enum_value")
+@CompoundIndexes({
+        // 联合唯一索引：同一个租户下，同一个枚举类型中，enumCode 必须唯一
+        @CompoundIndex(name = "idx_tenant_type_code",
+                def = "{'tenantId': 1, 'enumTypeId': 1, 'enumCode': 1}",
+                unique = true),
+        // 联合唯一索引：同一个租户下，同一个枚举类型中，enumKey 必须唯一
+        @CompoundIndex(name = "idx_tenant_type_key",
+                def = "{'tenantId': 1, 'enumTypeId': 1, 'enumKey': 1}",
+                unique = true),
+        // 查询枚举值列表时常用：租户 + 枚举类型 + 状态 + 排序
+        @CompoundIndex(name = "idx_tenant_type_status_order",
+                def = "{'tenantId': 1, 'enumTypeId': 1, 'status': 1, 'order': 1}"),
+        // 软删除过滤索引
+        @CompoundIndex(name = "idx_tenant_type_deleted",
+                def = "{'tenantId': 1, 'enumTypeId': 1, 'isDeleted': 1}")
+})
 public class EnumValue {
 
+    @Id
     private String id;
 
+    @Indexed
+    @Field("enum_type_id")
     private String enumTypeId;
 
+    @Indexed
+    @Field("tenant_id")
     private String tenantId;
 
+    @Indexed
+    @Field("enum_key")
     private String enumKey;
 
-    private String enumCode;
+    @Indexed
+    @Field("enum_code")
+    private Integer enumCode;
 
+    @Field("display")
     private String display;
 
+    @Field("order")
     private Integer order;
 
+    @Indexed
+    @Field("status")
     private String status;
 
+    @CreatedBy
+    @Field("created_by")
     private String createdBy;
 
+    @CreatedDate
+    @Field("created_at")
     private Date createdAt;
 
+    @LastModifiedBy
+    @Field("updated_by")
     private String updatedBy;
 
+    @LastModifiedDate
+    @Field("updated_at")
     private Date updatedAt;
 
+    @Version
     private Integer version;
 
+    @Indexed
+    @Field("is_deleted")
     private Boolean isDeleted;
 }
 
