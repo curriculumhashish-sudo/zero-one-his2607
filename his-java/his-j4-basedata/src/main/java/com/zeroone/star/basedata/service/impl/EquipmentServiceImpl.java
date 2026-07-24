@@ -1,15 +1,13 @@
 package com.zeroone.star.basedata.service.impl;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinition;
+import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinitionDO;
 import com.zeroone.star.basedata.mapper.EquipmentMapper;
 import com.zeroone.star.basedata.service.IEquipmentService;
-import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentStatusDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentUpdateDTO;
 import com.zeroone.star.project.query.j4.equipment.EquipmentPageQuery;
-import com.zeroone.star.project.vo.j4.equipment.EquipmentUpdateVO;
-import com.zeroone.star.project.vo.j4.equipment.EquipmentVO;
 import org.springframework.stereotype.Service;
 
 /**
@@ -23,7 +21,7 @@ import org.springframework.stereotype.Service;
  * @version 1.0.0
  */
 @Service
-public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDeviceDefinition> implements IEquipmentService {
+public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDeviceDefinitionDO> implements IEquipmentService {
 
 
     /**
@@ -34,7 +32,7 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
      * @throws IllegalArgumentException 分页参数非法
      */
     @Override
-    public PageDTO<EquipmentVO> queryEquipmentPage(EquipmentPageQuery query) {
+    public Page<AdmDeviceDefinitionDO> queryEquipmentPage(EquipmentPageQuery query) {
         return null;
     }
 
@@ -46,7 +44,7 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
      * @throws IllegalArgumentException 器材不存在或参数非法
      */
     @Override
-    public EquipmentUpdateVO updateEquipment(EquipmentUpdateDTO dto) {
+    public AdmDeviceDefinitionDO updateEquipment(EquipmentUpdateDTO dto) {
         return null;
     }
 
@@ -58,7 +56,7 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
      * @throws IllegalArgumentException 器材不存在或状态值非法
      */
     @Override
-    public EquipmentVO modifyEquipmentStatus(EquipmentStatusDTO dto) {
+    public AdmDeviceDefinitionDO modifyEquipmentStatus(EquipmentStatusDTO dto) {
         return null;
     }
 }
