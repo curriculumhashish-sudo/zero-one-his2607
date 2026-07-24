@@ -17,7 +17,7 @@ import lombok.Data;
  */
 @Data
 @Schema(description = "IdRequest")
-public class MenuEditStatusDto {
+public class MenuEditStatusDTO {
 
     /**
      * 菜单ID

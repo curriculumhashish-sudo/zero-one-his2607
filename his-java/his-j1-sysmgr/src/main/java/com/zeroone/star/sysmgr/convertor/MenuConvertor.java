@@ -1,5 +1,7 @@
 package com.zeroone.star.sysmgr.convertor;
 
+import com.zeroone.star.project.dto.menu.MenuCreateDTO;
+import com.zeroone.star.project.dto.menu.MenuUpdateDTO;
 import com.zeroone.star.project.vo.menu.MenuVO;
 import com.zeroone.star.sysmgr.entity.menu.MenuDO;
 import org.mapstruct.Mapper;
@@ -7,6 +9,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.factory.Mappers;
+
+import java.util.List;
 
 /**
  * 菜单VO、DO实体转换器
@@ -17,10 +21,10 @@ import org.mapstruct.factory.Mappers;
 @Mapper(nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
 public interface MenuConvertor {
 
-    public MenuConvertor INSTANCE = Mappers.getMapper(MenuConvertor.class);
+    public static MenuConvertor INSTANCE = Mappers.getMapper(MenuConvertor.class);
 
     /**
-     * 将menuDO转换成menuVO
+     * 将 MenuDO 转换成 MenuVO
      * @author 是丫丫
      * @date 2026/7/23
      * @param menuDO DO
@@ -36,18 +40,36 @@ public interface MenuConvertor {
     public MenuVO toVO(MenuDO menuDO);
 
     /**
-     * 将menuVO转换成menuDO
+     * 将 MenuDO集合 转换成 MenuVO集合
      * @author 是丫丫
      * @date 2026/7/23
-     * @param menuVO VO
+     * @param list DO集合
+     * @return VO
+     */
+    @Mappings({})
+    public List<MenuVO> toListVO(List<MenuDO> list);
+
+    /**
+     * 将 MenuCreateDTO 转换成 MenuDO
+     * @author 是丫丫
+     * @date 2026/7/23
+     * @param dto DTO
      * @return DO
      */
     @Mappings({
-            @Mapping(source = "menuId", target = "id"),
-            @Mapping(source = "menuName", target = "name"),
-            @Mapping(source = "showName", target = "displayName"),
-            @Mapping(source = "status", target = "isEnabled"),
-            @Mapping(source = "sortNum", target = "sortOrder")
+        @Mapping(target = "keepAlive", expression = "java(dto.getKeepAlive() ? 1 : 0)")
     })
-    public MenuDO toDO(MenuVO menuVO);
+    public MenuDO createDO(MenuCreateDTO dto);
+
+    /**
+     * 将 MenuUpdateDTO 转换成 MenuDO
+     * @author 是丫丫
+     * @date 2026/7/23
+     * @param dto DTO
+     * @return DO
+     */
+    @Mappings({
+        @Mapping(target = "keepAlive", expression = "java(dto.getKeepAlive() ? 1 : 0)")
+    })
+    public MenuDO updateDO(MenuUpdateDTO dto);
 }
