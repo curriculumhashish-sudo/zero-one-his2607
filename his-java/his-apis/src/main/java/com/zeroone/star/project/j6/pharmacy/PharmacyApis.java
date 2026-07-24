@@ -1,18 +1,11 @@
 package com.zeroone.star.project.j6.pharmacy;
 
 import com.zeroone.star.project.dto.j6.pharmacy.*;
+import com.zeroone.star.project.dto.j6.pharmacy.InboundReceiptDeleteDTO;
 import com.zeroone.star.project.query.j6.pharmacy.*;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j6.pharmacy.InboundApprovalResultVO;
-import com.zeroone.star.project.vo.j6.pharmacy.StocktakeDetailVO;
+import com.zeroone.star.project.vo.j6.pharmacy.*;
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.vo.j6.pharmacy.StockOutDetailVO;
-import com.zeroone.star.project.vo.j6.pharmacy.StockOutListVO;
-import com.zeroone.star.project.vo.j6.pharmacy.ExcelExportVO;
-import com.zeroone.star.project.vo.j6.pharmacy.InventoryDetailVO;
-import com.zeroone.star.project.vo.j6.pharmacy.InboundReceiptDetailVO;
-import com.zeroone.star.project.vo.j6.pharmacy.InboundReceiptListVO;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,27 +25,24 @@ public interface PharmacyApis {
      * @param query 封装：分页参数 + 筛选条件（单据号、日期、药库、项目类型）
      * @return JsonVO包裹分页数据
      */
-    @GetMapping("/stocktake/list")
     @Operation(summary = "查询盘点单据列表")
     JsonVO<PharmacyInventoryQueryDTO> listInventory(PharmacyInventoryQuery query);
 
     /**
      * 根据id查询盘点单详情
-     * @param queryDetail 封装单据id
+     * @param query 封装单据id
      * @return JsonVO包裹完整单据详情（表头+明细）
      */
-    @GetMapping("/stocktake/detail")
     @Operation(summary = "查询盘点单据详情")
-    JsonVO<PharmacyInventoryDetailQueryDTO> getInventoryDetail(String queryDetail);
+    JsonVO<PharmacyInventoryDetailVO> getInventoryDetail(PharmacyInventoryDetailQuery query);
 
     /**
-     * 新增盘点单据
-     * @param saveDTO 前端提交的表单数据
+     * 删除单据
+     * @param deleteDTO 前端提交的表单数据
      * @return JsonVO包裹新增后的单据基础信息
      */
-    @PostMapping("/stocktake/add")
-    @Operation(summary = "新增盘点单据")
-    JsonVO<PharmacyInventorySaveDTO> addInventory(PharmacyInventorySaveDTO saveDTO);
+    @Operation(summary = "删除单据")
+    JsonVO<PharmacyInventoryDeleteDTO> deleteInventory(PharmacyInventoryDeleteDTO deleteDTO);
 
 
 

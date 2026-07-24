@@ -1,23 +1,17 @@
 package com.zeroone.star.pharmacy.controller;
 
 import com.zeroone.star.project.dto.j6.pharmacy.*;
+import com.zeroone.star.project.dto.j6.pharmacy.InboundReceiptDeleteDTO;
 import com.zeroone.star.project.j6.pharmacy.PharmacyApis;
 import com.zeroone.star.project.query.j6.pharmacy.*;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j6.pharmacy.InboundApprovalResultVO;
-import com.zeroone.star.project.vo.j6.pharmacy.StocktakeDetailVO;
+import com.zeroone.star.project.vo.j6.pharmacy.*;
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.vo.j6.pharmacy.StockOutDetailVO;
-import com.zeroone.star.project.vo.j6.pharmacy.StockOutListVO;
 import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.zeroone.star.project.vo.j6.pharmacy.ExcelExportVO;
-import com.zeroone.star.project.vo.j6.pharmacy.InventoryDetailVO;
-import com.zeroone.star.project.vo.j6.pharmacy.InboundReceiptDetailVO;
-import com.zeroone.star.project.vo.j6.pharmacy.InboundReceiptListVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -41,22 +35,28 @@ public class PharmacyController implements PharmacyApis {
 
 
     @Override
+    @GetMapping("/stocktake/list")
     @Tag(name = "药房盘点单据列表")
     public JsonVO<PharmacyInventoryQueryDTO> listInventory(PharmacyInventoryQuery query) {
-        return JsonVO.success(new PharmacyInventoryQueryDTO());
+        return JsonVO.success(null);
     }
 
     @Override
-    @Tag(name = "药房盘点单详情")
-    public JsonVO<PharmacyInventoryDetailQueryDTO> getInventoryDetail(String queryDetail) {
-        return JsonVO.success(new PharmacyInventoryDetailQueryDTO());
+    @GetMapping("/stocktake/detail")
+    @Tag(name = "药房盘点单据详情")
+    public JsonVO<PharmacyInventoryDetailVO> getInventoryDetail(PharmacyInventoryDetailQuery query) {
+        return JsonVO.success(null);
     }
 
+
     @Override
-    @Tag(name = "新增单据")
-    public JsonVO<PharmacyInventorySaveDTO> addInventory(PharmacyInventorySaveDTO saveDTO) {
-        return JsonVO.success(new PharmacyInventorySaveDTO());
+    @PostMapping("/stocktake/delete")
+    @Tag(name = "删除单据")
+    public JsonVO<PharmacyInventoryDeleteDTO> deleteInventory(PharmacyInventoryDeleteDTO deleteDTO) {
+        return JsonVO.success(null);
     }
+
+
 
 
     @Override

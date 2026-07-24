@@ -6,7 +6,7 @@ import lombok.Data;
 
 /**
  * <p>
- * 描述： 获取单据列表(条件+分页)
+ * 描述： 获取单据详情
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
@@ -14,18 +14,9 @@ import lombok.Data;
  * @version 1.0.0
  */
 @Data
-@Schema(description = "获取单据列表(条件+分页)")
-public class PharmacyInventoryDetailQuery extends PageQuery {
+@Schema(description = "获取单据列表")
+public class PharmacyInventoryDetailQuery{
 
-    @Schema(description = "单据号", example = "CST2026-07-190002", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String stockID;
-
-    @Schema(description = "盘点开始日期", example = "2026-06-01", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String startDate;
-
-    @Schema(description = "盘点结束日期", example = "2026-06-30", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String endDate;
-
-    @Schema(description = "药房ID", example = "西药库", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String pharmacyId;
+    @Schema(description = "单据号ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "CST2026-07-190004")
+    private String busNo;
 }
