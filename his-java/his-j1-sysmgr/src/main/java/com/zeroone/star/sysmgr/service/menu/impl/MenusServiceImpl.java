@@ -2,7 +2,7 @@ package com.zeroone.star.sysmgr.service.menu.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zeroone.star.project.entity.menu.MenuDO;
+import com.zeroone.star.sysmgr.entity.menu.MenuDO;
 import com.zeroone.star.project.vo.menu.MenuVO;
 import com.zeroone.star.sysmgr.mapper.menu.MenusMapper;
 import com.zeroone.star.sysmgr.service.menu.MenusService;
@@ -25,16 +25,13 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
     @Override
     public MenuVO getMenuDetail(Long menuId) {
         LambdaQueryWrapper<MenuDO> wrapper = new LambdaQueryWrapper<>();
-        // 根据菜单ID查询，过滤逻辑删除的数据
         wrapper.eq(MenuDO::getMenuId, menuId);
         wrapper.eq(MenuDO::getDeleted, 0);
         MenuDO menuDO = menusMapper.selectOne(wrapper);
 
-        // 判断菜单是否存在
         if (menuDO == null) {
             throw new RuntimeException("菜单信息不存在");
         }
-        // DO转换为VO返回
         return convertToVO(menuDO);
     }
 
@@ -53,7 +50,6 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
         vo.setSort(menuDO.getSort());
         vo.setSortNum(menuDO.getSortNum());
         vo.setMenuType(menuDO.getMenuType());
-        // 状态转换：DO:1启用 0停用  → VO:"0"启用 "1"停用
         vo.setStatus(menuDO.getEnabled() == 1 ? "0" : "1");
         return vo;
     }
