@@ -1,4 +1,29 @@
-﻿medicationcollection:
+# Chinese dictionary for Swagger/UI labels
+# Module: his-c4-inpatientnurse (Inpatient Nurse Station)
+
+# ============================================================
+# Medical Order Execution (core) - 医嘱执行
+# ============================================================
+medical-order-execution:
+  tag: 医嘱执行(核心)
+  description: 病区护士站医嘱核查与执行接口
+  verification-items:
+    summary: 获取核查条目
+  verify-pass:
+    summary: 核查通过
+  return-order:
+    summary: 退回医嘱
+  execution-items:
+    summary: 获取执行条目
+  execute-order:
+    summary: 开始执行
+  complete-order:
+    summary: 完成执行
+
+# ============================================================
+# Medication Collection - 汇总领药
+# ============================================================
+medicationcollection:
   tag: 汇总领药接口
   query-summary-order-items:
     summary: 获取汇总医嘱条目（条件）
@@ -52,6 +77,9 @@
     summaryNos: 汇总领药单号列表
     message: 处理结果说明
 
+# ============================================================
+# Encounter Manage - 患者管理
+# ============================================================
 encountermanage:
   tag: 患者管理接口
   query-patient-statistics:
@@ -117,6 +145,9 @@ encountermanage:
     wardName: 病区名称
     wubiCode: 五笔码
 
+# ============================================================
+# Admission Transfer - 入出转管理
+# ============================================================
 admissiontransfer:
   tag: 入出转管理接口
   execute-inpatient-discharge:
@@ -127,7 +158,9 @@ admissiontransfer:
     encounterId: 就诊ID
     succeeded: 是否处理成功
 
-
+# ============================================================
+# Medical Advice - 医嘱相关
+# ============================================================
 medical_advice:
   tag: 医嘱相关接口
   notexecute:
@@ -151,6 +184,9 @@ medical_advice:
       rebuiltSummaryNos: 重新生成的药品汇总单号列表
       message: 处理结果说明
 
+# ============================================================
+# Dispense - 汇总领药管理
+# ============================================================
 dispense:
   tags:
     t1: 汇总领药管理
@@ -173,3 +209,38 @@ dispense:
   mock:
     med1-name: 0.9%氯化钠注射液
     med1-unit: 250ml/袋
+
+medicalOrderVerification:
+tags:
+  tag: 医嘱校对
+field:
+  name: 姓名
+  isPassed: 校对是否通过
+  medicalType: 用药类型
+  medicalPeriod: 用药时长
+  type: 类型
+  content: 医嘱内容
+query:
+  summary: 医嘱校对查询
+bedassign:
+    field:
+       patientid: 病人id
+       locationid: 床位id
+       appointmentid: 预约id
+       intended_admission_date: 预期入院日期
+bed:
+    tags:
+       t1: 床位管理接口
+    get:
+       summary: 查询空闲床位（按病区/科室/日期条件）
+    assign:
+       summary: 执行床位分配
+    field:
+       id: 床位id
+       name: 床位名称
+       parentid: 上级病区id
+       parentname: 上级病区名称
+       formenum: 类型(BED)
+       statusenum: 床位状态
+       organizationid: 所属科室id
+       intended_admission_date: 预期入院日期
