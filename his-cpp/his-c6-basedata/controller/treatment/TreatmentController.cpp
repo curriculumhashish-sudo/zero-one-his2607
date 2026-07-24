@@ -70,6 +70,18 @@ StringJsonVO::Wrapper TreatmentController::execModifyStatus(
 	return vo;
 }
 
+ListJsonVO<String>::Wrapper TreatmentController::execRemoveTreatment(const TreatmentRemoveDTO::Wrapper& dto)
+{
+	// Validate ids and return a sample success response until Service/DAO is implemented.
+	auto vo = ListJsonVO<String>::createShared();
+	if (!dto || !dto->ids || dto->ids->empty()) {
+		vo->init(nullptr, RS_PARAMS_INVALID);
+		return vo;
+	}
+	vo->success(dto->ids);
+	return vo;
+}
+
 TreatmentSelectPageJsonVO::Wrapper TreatmentController::execQuerySelect(const TreatmentQuery::Wrapper& query)
 {
 	auto pageDto = TreatmentSelectPageDTO::createShared();

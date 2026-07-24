@@ -15,6 +15,8 @@ treatment:
     summary: 修改诊疗
   modify-status:
     summary: 启用或停用诊疗
+  remove:
+    summary: 删除诊疗
 
   # 字段中英文映射
   field:
