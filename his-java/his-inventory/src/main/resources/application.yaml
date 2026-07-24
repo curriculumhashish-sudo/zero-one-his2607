@@ -5,21 +5,6 @@ server:
 spring:
   application:
     name: ${sn.inventory:his-inventory}
-  cloud:
-    sentinel:
-      transport:
-        dashboard: ${sentinel.dashboard:192.168.220.128:8858}
-        port: 8721
-      eager: true
-
-# knife4j配置
-springdoc:
-  api-docs:
-    enabled: true
-    path: /v3/api-docs
-  swagger-ui:
-    enabled: true
-    path: /swagger-ui.html
 
 # 开启sentinel声明式服务熔断
 feign:
