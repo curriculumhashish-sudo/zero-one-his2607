@@ -31,7 +31,7 @@ public class TreatmentDetailVO implements Serializable {
     private String updatedBy;
 
     @Schema(description = "逻辑删除标记：0未删除/1已删除", example = "0")
-    private Boolean isDeleted;
+    private Integer isDeleted;
 
     @Schema(description = "删除时间", example = "null")
     private LocalDateTime deletedAt;
