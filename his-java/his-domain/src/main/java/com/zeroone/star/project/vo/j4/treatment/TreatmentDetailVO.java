@@ -7,7 +7,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -16,162 +15,112 @@ public class TreatmentDetailVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 【类型修改 Long → String】
-     * DO主键为String，统一改成String，前端序列化依然用ToStringSerializer保持行为一致
-     */
-    @Schema(description = "主键ID")
     @JsonSerialize(using = ToStringSerializer.class)
+    @Schema(description = "主键ID", example = "1890000000000000001", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
-    @Schema(description = "分类编码")
+    @Schema(description = "分类编码", example = "22")
     private String categoryCode;
 
-    /** 业务编号。 */
-    @Schema(description = "业务编号")
+    @Schema(description = "业务编号", example = "AD00000001")
     private String busNo;
 
-    /** 名称。 */
-    @Schema(description = "名称")
+    @Schema(description = "项目名称", example = "肝功13项")
     private String name;
 
-    /** 拼音码。 */
-    @Schema(description = "拼音码")
+    @Schema(description = "拼音检索码", example = "gg13x")
     private String pyStr;
 
-    /** 五笔码。 */
-    @Schema(description = "五笔码")
+    @Schema(description = "五笔检索码", example = "af13c")
     private String wbStr;
 
-    /** 销售/计价单位编码。 */
-    @Schema(description = "销售/计价单位编码")
+    @Schema(description = "销售/计价单位编码", example = "次")
     private String packageUnitCode;
 
-    /** 诊疗业务版本。 */
-    @Schema(description = "诊疗业务版本")
+    @Schema(description = "诊疗业务版本", example = "V1.0")
     private String activityVersion;
 
-    /** 商品名称。 */
-    @Schema(description = "商品名称")
+    @Schema(description = "商品名称", example = "肝功13项套餐")
     private String merchandiseName;
 
-    /** 商品名拼音检索码。 */
-    @Schema(description = "商品名拼音检索码")
+    @Schema(description = "商品名拼音检索码", example = "gg13xtc")
     private String merchandisePyStr;
 
-    /** 商品名五笔检索码。 */
-    @Schema(description = "商品名五笔检索码")
+    @Schema(description = "商品名五笔检索码", example = "af13wdc")
     private String merchandiseWbStr;
 
-    /** 默认门诊单位编码。 */
-    @Schema(description = "默认门诊单位编码")
+    @Schema(description = "默认门诊单位编码", example = "次")
     private String defEncounterUnitCode;
 
-    /** 默认住院单位编码。 */
-    @Schema(description = "默认住院单位编码")
+    @Schema(description = "默认住院单位编码", example = "次")
     private String defInhospitalUnitCode;
 
-    /** 医保标志。 */
-    @Schema(description = "医保标志")
+    @Schema(description = "医保标记 0-否 1-是", example = "1")
     private Integer ybFlag;
 
-    /** 划价标记。 */
-    @Schema(description = "划价标记")
+    @Schema(description = "划价标记 0-否 1-是", example = "1")
     private Integer pricingFlag;
 
-    /** 医保编码。 */
-    @Schema(description = "医保编码")
+    @Schema(description = "医保编码", example = "C010101001")
     private String ybNo;
 
-    /** 医保对码标志。 */
-    @Schema(description = "医保对码标志")
+    @Schema(description = "医保对码标记 0-未对码 1-已对码", example = "1")
     private Integer ybMatchFlag;
 
-    /**
-     * 【类型修改 Integer → String】
-     * DO中typeEnum/statusEnum存储字符串编码
-     */
-    @Schema(description = "状态枚举值")
+    @Schema(description = "状态枚举值（ACTIVE-启用/INACTIVE-停用）", example = "ACTIVE")
     private String statusEnum;
 
-    /** 身体部位编码。 */
-    @Schema(description = "身体部位编码")
+    @Schema(description = "身体部位编码", example = "ARM_VEIN")
     private String bodySiteCode;
 
-    /** 标本编码。 */
-    @Schema(description = "标本编码")
+    @Schema(description = "标本编码", example = "BLOOD")
     private String specimenCode;
 
-    /** 描述信息。 */
-    @Schema(description = "描述信息")
+    @Schema(description = "说明文本", example = "常规肝功能检测项目")
     private String descriptionText;
 
-    /**
-     * 【类型修改 Long → Integer】
-     * DO ruleId 为 Integer
-     */
-    @Schema(description = "规则ID")
+    @Schema(description = "计费规则ID", example = "1")
     private Integer ruleId;
-    /** 计费规则展示名（字典解析）。 */
+
+    @Schema(description = "计费规则展示名", example = "默认计费规则")
     private String ruleId_dictText;
 
-    /**
-     * 【两处调整：
-     * 1. 字段名 deleteFlag 不变；
-     * 2. 类型 String → Integer，和DO.isDeleted类型统一；
-     * 业务层后续展示时再自行转字符串，映射不再需要转换
-     */
-    @Schema(description = "删除标志")
+    @Schema(description = "删除标志 0-未删除 1-已删除", example = "0")
     private Integer deleteFlag;
 
-    /**
-     * 【类型修改 Integer → String】
-     */
-    @Schema(description = "类型枚举值")
+    @Schema(description = "类型枚举值（0-非药品收费/1-检验/2-检查/3-影像/4-治疗/5-手术/6-护理/7-膳食/8-其他）", example = "1")
     private String typeEnum;
 
-    /**
-     * 【类型修改 Long → String】
-     */
-    @Schema(description = "所属科室ID")
+    @Schema(description = "所属机构ID", example = "1001")
     private String orgId;
 
-    /**
-     * 【类型修改 Long → String】
-     */
-    @Schema(description = "所在位置ID")
+    @Schema(description = "所在位置ID", example = "2001")
     private String locationId;
 
-    /** 收费项目医保等级。 */
-    @Schema(description = "收费项目医保等级")
+    @Schema(description = "收费项目医保等级（1-甲类/2-乙类/3-丙类）", example = "1")
     private Integer chrgitmLv;
 
-    /** 允许的角色枚举值。 */
-    @Schema(description = "允许的角色枚举值")
+    @Schema(description = "允许的角色枚举值", example = "1")
     private Integer permittedRoleEnum;
 
-    /** 医保类别编码（med_chrgitm_type 等术语体系）。 */
+    @Schema(description = "医保类别编码", example = "1")
     private String ybType;
-    /** 医保类别展示名。 */
+
+    @Schema(description = "医保类别展示名", example = "甲类")
     private String ybType_dictText;
 
-    /** 财务类别编码。 */
-    @Schema(description = "财务类别编码")
+    @Schema(description = "财务类别编码", example = "1001")
     private String itemTypeCode;
 
-    /** 项目购入价。 */
-    @Schema(description = "项目购入价")
+    @Schema(description = "项目购入价（元）", example = "44.40")
     private BigDecimal purchasePrice;
 
-    /** 项目零售价。 */
-    @Schema(description = "项目零售价")
+    @Schema(description = "项目零售价（元）", example = "44.40")
     private BigDecimal retailPrice;
 
-    /** 项目最高零售价。 */
-    @Schema(description = "项目最高零售价")
+    @Schema(description = "项目最高零售价（元）", example = "44.40")
     private BigDecimal maximumRetailPrice;
 
-    /** 子项。 */
-    @Schema(description = "子项")
+    @Schema(description = "诊疗子项列表")
     private List<WkfActivityDefinitionChildVO> children;
 }

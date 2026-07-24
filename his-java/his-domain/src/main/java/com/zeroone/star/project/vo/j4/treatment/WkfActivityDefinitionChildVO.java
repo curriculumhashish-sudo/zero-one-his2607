@@ -1,34 +1,33 @@
 package com.zeroone.star.project.vo.j4.treatment;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-/**
- * @Description:
- * @Created: with IntelliJ IDEA.
- * @author: yc
- * @createTime: 2026-07-21 19:42
- **/
-public class WkfActivityDefinitionChildVO {
-    /** 父项标识（外键：wkf_activity_definition.id） */
+import java.io.Serializable;
 
-    @Schema(description = "父项标识（外键：wkf_activity_definition.id）", example = "123456", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long activityId;
+@Data
+@Schema(description = "诊疗项目子项显示对象")
+public class WkfActivityDefinitionChildVO implements Serializable {
 
-    /** 子项诊疗项目标识（被引用项目主键） */
+    private static final long serialVersionUID = 1L;
 
-    @Schema(description = "子项诊疗项目标识（被引用项目主键）", example = "654321", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long childrenId;
+    @JsonSerialize(using = ToStringSerializer.class)
+    @Schema(description = "主键", example = "1890000000000000002")
+    private String id;
 
-    /** 子项数量 */
+    @JsonSerialize(using = ToStringSerializer.class)
+    @Schema(description = "父项标识（外键：wkf_activity_definition.id）", example = "1890000000000000001", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String activityId;
 
-    @Schema(description = "子项数量", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @JsonSerialize(using = ToStringSerializer.class)
+    @Schema(description = "子项诊疗项目标识（被引用项目主键）", example = "1890000000000000003", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String childrenId;
+
+    @Schema(description = "子项数量", example = "1")
     private Integer childrenNum;
 
-    /** 子项名称快照 */
-    @Schema(description = "子项名称快照", example = "常规体检子项目", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "子项名称快照", example = "静脉注射")
     private String childrenName;
 }
