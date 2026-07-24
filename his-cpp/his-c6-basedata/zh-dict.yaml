@@ -23,7 +23,8 @@ diagnose:
  put:
   summary: 修改一条数据
  delete:
-  summary: 删除数据支持批量
+  summary: 物理删除数据（支持批量）
+  summarylogic: 逻辑删除数据（支持批量）
  field:
   category: 
     id: 诊断分类ID

@@ -23,9 +23,8 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/**
- * Transfer object used to create a diagnosis record.
- */
+
+//增加诊断条目
 class DiagnoseAddDTO : public oatpp::DTO
 {
 	DTO_INIT(DiagnoseAddDTO, DTO);
@@ -87,9 +86,8 @@ public:
 		return "";
 	}
 };
-/**
- * Transfer object used to update a diagnosis record.
- */
+
+//修改诊断条目
 class DiagnoseDTO : public DiagnoseAddDTO
 {
 	DTO_INIT(DiagnoseDTO, DiagnoseAddDTO);
@@ -99,18 +97,26 @@ class DiagnoseDTO : public DiagnoseAddDTO
 
 };
 
-/**
- * Transfer object used to change diagnosis statuses in a batch.
- */
+//停/启用诊断条目
 class DiagnoseBatchStatusDTO : public oatpp::DTO
 {
 	DTO_INIT(DiagnoseBatchStatusDTO, DTO);
 
-	API_DTO_FIELD_REQUIRE(List<String>, ids, ZH_WORDS_GETTER("diagnose.field.diag.id_list"), true);
+	API_DTO_FIELD_REQUIRE(List<String>, ids, ZH_WORDS_GETTER("diagnose.field.diag.id_list"), true);//ids可以看作指针
 	API_DTO_FIELD_REQUIRE(String, status, ZH_WORDS_GETTER("diagnose.field.diag.status"), true);
 
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 };
+
+//逻辑删除诊断条目
+class DiagnoseRemoveDTO : public oatpp::DTO
+{
+	DTO_INIT(DiagnoseBatchStatusDTO, DTO);
+
+	API_DTO_FIELD_REQUIRE(List<String>, ids, ZH_WORDS_GETTER("diagnose.field.diag.id_list"), true);
+	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
+};
+
 
 #include OATPP_CODEGEN_END(DTO)
 

@@ -201,7 +201,7 @@ StringJsonVO::Wrapper DiagnosisController::execBatchChangeDiagnoseStatus(
 	}
 
 	dto->setPayload(&payload);
-	if (DiagnoseService().batchChangeStatus(dto->ids, dto->status))
+	if (DiagnoseService().batchChangeStatus(dto, dto->status))
 	{
 		response->success(nullptr);
 	}
@@ -210,4 +210,26 @@ StringJsonVO::Wrapper DiagnosisController::execBatchChangeDiagnoseStatus(
 		response->fail(nullptr);
 	}
 	return response;
+}
+//Âß¼­É¾³ı
+DiagnoseRemoveJsonVO::Wrapper DiagnosisController::execRemoveDiagnosis(const DiagnoseRemoveDTO::Wrapper& dto, const PayloadDTO& payload)
+{
+	auto response = DiagnoseRemoveJsonVO::createShared();
+	if (!dto->ids)
+	{
+		response->init(nullptr, RS_PARAMS_INVALID);
+		return response;
+	}
+	dto->setPayload(&payload);
+	if (DiagnoseService().execRemoveData(dto))
+	{
+		response->success(dto);
+	}
+	else
+	{
+		response->fail(nullptr);
+	}
+	return response;
+
+
 }

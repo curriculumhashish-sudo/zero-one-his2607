@@ -28,6 +28,7 @@
 #include "domain/vo/Diagnosis/DiagnosisDetailJsonVO.h"
 #include "domain/vo/Diagnosis/DiagnosisDetailPageJsonVO.h"
 #include "domain/vo/Diagnosis/DiagnosisSelectPageJsonVO.h"
+#include "domain/vo/Diagnosis/DiagnosisJsonVO.h"
 
 using namespace oatpp;
 
@@ -108,6 +109,7 @@ public:
 		BODY_DTO(DiagnoseDTO::Wrapper, dto),
 		execModifyDiagnose(dto, authObject->getPayload()));
 
+	//物理批量删除
 	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("diagnose.delete.summary"),
 		removeDiagnose,
@@ -119,6 +121,21 @@ public:
 		removeDiagnose,
 		BODY_DTO(List<String>, ids),
 		execRemoveDiagnose(ids));
+
+	//逻辑批量删除
+	API_DEF_ENDPOINT_INFO_AUTH(
+		ZH_WORDS_GETTER("diagnose.delete.summarylogic"),
+		removeDiagnosis,
+		DiagnoseRemoveJsonVO::Wrapper,
+		API_TAG);
+	API_HANDLER_ENDPOINT_AUTH(
+		API_M_DEL,
+		"/diagnosis",
+		removeDiagnosis,
+		BODY_DTO(DiagnoseRemoveDTO::Wrapper, dto),
+		execRemoveDiagnosis(dto, authObject->getPayload()));
+
+
 
 	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("diagnose.batch_status.summary"),
@@ -140,6 +157,9 @@ private:
 	StringJsonVO::Wrapper execModifyDiagnose(const DiagnoseDTO::Wrapper& dto, const PayloadDTO& payload);
 	ListJsonVO<String>::Wrapper execRemoveDiagnose(const List<String>& ids);
 	StringJsonVO::Wrapper execBatchChangeDiagnoseStatus(const DiagnoseBatchStatusDTO::Wrapper& dto, const PayloadDTO& payload);
+	//逻辑删除
+	DiagnoseRemoveJsonVO::Wrapper execRemoveDiagnosis(const DiagnoseRemoveDTO::Wrapper&dto,const PayloadDTO&payload);
+
 };
 
 #undef API_TAG

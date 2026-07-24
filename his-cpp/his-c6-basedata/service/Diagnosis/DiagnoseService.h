@@ -36,7 +36,8 @@ public:
 	bool updateData(const DiagnoseDTO::Wrapper& dto);
 	bool removeData(const oatpp::List<oatpp::String>& ids);
 	bool removeOne(const std::string& id);
-	bool batchChangeStatus(const oatpp::List<oatpp::String>& ids, oatpp::String status);
+	bool batchChangeStatus(const DiagnoseBatchStatusDTO::Wrapper& dto, oatpp::String status);
+	bool execRemoveData(const DiagnoseRemoveDTO::Wrapper& dto);
 };
 
 #endif // !_DIAGNOSE_SERVICE_H_

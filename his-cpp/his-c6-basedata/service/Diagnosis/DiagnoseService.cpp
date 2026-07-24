@@ -242,10 +242,9 @@ bool DiagnoseService::removeData(const oatpp::List<oatpp::String>& ids)
 	return dao.deleteByIds<DiagnosisDO>(dataIds) == ids->size();
 }
 
-bool DiagnoseService::batchChangeStatus(
-	const oatpp::List<oatpp::String>& ids,
-	oatpp::String status)
+bool DiagnoseService::batchChangeStatus(const DiagnoseBatchStatusDTO::Wrapper& dto,oatpp::String status)
 {
+	const oatpp::List<oatpp::String> ids = dto->ids;
 	DiagnosisDAO dao;
 	int successCount = 0;
 	for (const auto& idItem : *ids.get())
@@ -253,6 +252,7 @@ bool DiagnoseService::batchChangeStatus(
 		DiagnosisDO data;
 		data.setId(idItem.getValue({}));
 		data.setStatus(*status);
+		data.setUpdateBy(dto->getPayload()->getUsername());
 		data.setUpdateTime(SimpleDateTimeFormat::format());
 		if (dao.update(data) == 1)
 		{
@@ -260,4 +260,25 @@ bool DiagnoseService::batchChangeStatus(
 		}
 	}
 	return successCount > 0;
+}
+//逻辑批量删除
+bool DiagnoseService::execRemoveData(const DiagnoseRemoveDTO::Wrapper& dto)
+{
+	const oatpp::List<oatpp::String> ids = dto->ids;
+	DiagnosisDAO dao;
+	int successCount = 0;
+	for (const auto& idItem : *ids.get())//返回原生的vector并枚举遍历，get获取裸指针
+	{
+		DiagnosisDO data;
+		data.setId(idItem.getValue({}));
+		data.setDeletedBy(dto->getPayload()->getUsername());
+		data.setDeletedTime(SimpleDateTimeFormat::format());
+		data.setIsDelete(1);
+		if (dao.update(data) == 1)
+		{
+			++successCount;
+		}
+	}
+	return successCount > 0;
+
 }
