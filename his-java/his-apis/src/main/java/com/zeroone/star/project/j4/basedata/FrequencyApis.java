@@ -9,6 +9,7 @@ import com.zeroone.star.project.query.j4.frequency.FrequencyPageQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j4.frequency.FrequencyOptionVO;
 import com.zeroone.star.project.vo.j4.frequency.FrequencyVO;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
@@ -28,7 +29,7 @@ public interface FrequencyApis {
      * @param query
      * @return
      */
-    public JsonVO<PageDTO<FrequencyVO>> queryFrequencyList(FrequencyPageQuery query);
+    public JsonVO<PageDTO<FrequencyVO>> queryFrequencyList(@Validated FrequencyPageQuery query);
 
     /**
      * 获取频次详情
@@ -42,14 +43,14 @@ public interface FrequencyApis {
      * @param dto 新增数据
      * @return 展现层数据结果
      */
-    JsonVO<FrequencyVO> addFrequency(FrequencySaveDTO dto);
+    JsonVO<FrequencyVO> addFrequency(@Validated FrequencySaveDTO dto);
 
     /**
      * 修改频次接口
      * @param dto 修改数据
      * @return 展现层数据结果
      */
-    JsonVO<FrequencyVO> modifyFrequency(FrequencyUpdateDTO dto);
+    JsonVO<FrequencyVO> modifyFrequency(@Validated FrequencyUpdateDTO dto);
 
     /**
      * 删除频次接口
@@ -71,5 +72,5 @@ public interface FrequencyApis {
      * @param dto 频次状态参数
      * @return 是否修改成功
      */
-    JsonVO<Boolean> modifyFrequencyStatus(FrequencyStatusDTO dto);
+    JsonVO<Boolean> modifyFrequencyStatus(@Validated FrequencyStatusDTO dto);
 }
