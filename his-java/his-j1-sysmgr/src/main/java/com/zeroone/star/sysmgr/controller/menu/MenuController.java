@@ -8,9 +8,11 @@ import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.login.MenuTreeVO;
 import com.zeroone.star.project.vo.menu.MenuVO;
+import com.zeroone.star.sysmgr.service.menu.MenusService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -21,7 +23,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/menu")
 @Tag(name = "菜单管理")
+@RequiredArgsConstructor
 public class MenuController implements MenuApis {
+
+    private final MenusService menusService;
 
     /**
      * 加载菜单树结构
@@ -70,9 +75,10 @@ public class MenuController implements MenuApis {
     @Operation(summary = "获取指定菜单详情")
     public JsonVO<MenuVO> getMenu(@RequestBody @Valid MenuDetailQuery query) {
         Long menuId = query.getMenuId();
-        MenuVO menuVO = menuService.getMenuDetail(menuId);
+        MenuVO menuVO = menusService.getMenuDetail(menuId);
         return JsonVO.success(menuVO);
     }
+
     /**
      * 创建菜单信息
      * @param menuDto 菜单创建入参
