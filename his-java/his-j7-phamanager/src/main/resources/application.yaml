@@ -1,8 +1,0 @@
-server:
-  port: ${sp.phamanager}
-  servlet:
-    # 设置应用上下文路径
-    context-path: /phamanager
-spring:
-  application:
-    name: ${sn.phamanager}
