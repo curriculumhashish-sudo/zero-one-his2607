@@ -18,10 +18,7 @@
     </aside>
 
     <!-- ==================== 拖拽分隔条 ==================== -->
-    <div
-      class="document-workstation__resizer"
-      @mousedown="onResizeStart"
-    />
+    <div class="document-workstation__resizer" @mousedown="onResizeStart" />
 
     <!-- ==================== Main 区（右侧主区域） ==================== -->
     <main class="document-workstation__main">
@@ -89,9 +86,7 @@ const rootStyle = computed(() => ({
 
 const queueStyle = computed(() => ({
   width:
-    typeof queueWidthValue.value === 'number'
-      ? `${queueWidthValue.value}px`
-      : queueWidthValue.value
+    typeof queueWidthValue.value === 'number' ? `${queueWidthValue.value}px` : queueWidthValue.value
 }))
 
 watch(
@@ -169,7 +164,10 @@ onUnmounted(() => {
 
 .document-workstation__queue-header-content {
   display: flex;
+  font-size: 16px;
+  font-weight: 600;
   align-items: center;
+  color: var(--el-text-color-primary);
   min-width: 0;
   flex: 1;
   overflow: hidden;

@@ -5,7 +5,7 @@
       <slot name="toolbar" />
       <el-button
         v-if="showAdd && !readonly"
-        size="small"
+        size="default"
         type="primary"
         :disabled="maxRows > 0 && modelValue.length >= maxRows"
         @click="addRow"
@@ -14,7 +14,7 @@
       </el-button>
       <el-button
         v-if="showDelete && !readonly"
-        size="small"
+        size="default"
         type="danger"
         :disabled="selectedRows.length === 0"
         @click="deleteRows"
@@ -85,7 +85,7 @@
               >
                 <template v-if="editorTag(col) === 'el-select'" #default>
                   <el-option
-                    v-for="o in (col.options || [])"
+                    v-for="o in col.options || []"
                     :key="o.value"
                     :label="o.label"
                     :value="o.value"
@@ -100,13 +100,7 @@
       </el-table-column>
 
       <!-- 操作列 -->
-      <el-table-column
-        v-if="$slots.actions"
-        label="操作"
-        width="120"
-        fixed="right"
-        align="center"
-      >
+      <el-table-column v-if="$slots.actions" label="操作" width="120" fixed="right" align="center">
         <template #default="{ row, $index }">
           <slot
             name="actions"
@@ -138,21 +132,29 @@ defineOptions({ name: 'DocumentDetailEditableTable' })
 // ==================== 类型定义 ====================
 
 interface EditableColumn {
-  label: string; prop: string
-  width?: string | number; minWidth?: string | number
-  align?: 'left' | 'center' | 'right'; fixed?: 'left' | 'right'
-  editable?: boolean; readonly?: boolean; required?: boolean
+  label: string
+  prop: string
+  width?: string | number
+  minWidth?: string | number
+  align?: 'left' | 'center' | 'right'
+  fixed?: 'left' | 'right'
+  editable?: boolean
+  readonly?: boolean
+  required?: boolean
   editorType?: 'input' | 'number' | 'select' | 'date'
   editorProps?: Record<string, any>
   options?: Array<{ label: string; value: any }>
   formatter?: (v: any, row: any) => string
-  isAmount?: boolean; isQty?: boolean
+  isAmount?: boolean
+  isQty?: boolean
 }
 
 interface EditableTableRule {
-  prop: string; required?: boolean
+  prop: string
+  required?: boolean
   validator?: (v: any, row: any) => string | null
-  min?: number; max?: number
+  min?: number
+  max?: number
 }
 
 // ==================== Props & Emits ====================
@@ -224,7 +226,11 @@ const EDITORS: Record<string, string> = {
 // ==================== 工具函数 ====================
 
 const keyOf = (row: any): string | number =>
-  !row ? '' : typeof props.rowKey === 'function' ? props.rowKey(row) : (row[props.rowKey as string] ?? '')
+  !row
+    ? ''
+    : typeof props.rowKey === 'function'
+      ? props.rowKey(row)
+      : (row[props.rowKey as string] ?? '')
 
 const colConfig = (prop: string) => props.columns?.find((c) => c.prop === prop)
 const editorTag = (col: EditableColumn) => EDITORS[col.editorType || 'input'] || 'el-input'
@@ -233,11 +239,12 @@ const isCellReadonly = (row: any, col: EditableColumn) => isDisabled(row) || !!c
 const err = (rk: string | number, prop: string) => errors.value[rk]?.[prop] || ''
 
 const fmt = (row: any, prop: string) => {
-  const v = row[prop]; const c = colConfig(prop)
-  return c?.formatter ? c.formatter(v, row) : (v == null ? '' : String(v))
+  const v = row[prop]
+  const c = colConfig(prop)
+  return c?.formatter ? c.formatter(v, row) : v == null ? '' : String(v)
 }
 
-const isSelectable = computed(() => (props.showDelete && !props.readonly))
+const isSelectable = computed(() => props.showDelete && !props.readonly)
 
 // ==================== 选中行 ====================
 
@@ -280,9 +287,7 @@ function deleteRows() {
 function onChange(row: any, prop: string, value: any) {
   const rk = keyOf(row)
   const updatedRow = { ...row, [prop]: value }
-  const updatedRows = props.modelValue.map((item) =>
-    keyOf(item) === rk ? updatedRow : item
-  )
+  const updatedRows = props.modelValue.map((item) => (keyOf(item) === rk ? updatedRow : item))
   emit('update:modelValue', updatedRows)
   emit('rowChange', { rowKey: rk, row: updatedRow })
   emit('cellChange', { rowKey: rk, prop, value, row: updatedRow })
@@ -303,13 +308,15 @@ function getRuleMessage(row: any, rule: EditableTableRule): string {
 }
 
 function validateCell(row: any, prop: string) {
-  const rk = keyOf(row); const rule = props.rules?.find((r) => r.prop === prop)
+  const rk = keyOf(row)
+  const rule = props.rules?.find((r) => r.prop === prop)
   if (!rule) return
   const msg = getRuleMessage(row, rule)
 
   if (!errors.value[rk]) errors.value[rk] = {}
-  if (msg) { errors.value[rk][prop] = msg }
-  else {
+  if (msg) {
+    errors.value[rk][prop] = msg
+  } else {
     delete errors.value[rk][prop]
     if (!Object.keys(errors.value[rk]).length) delete errors.value[rk]
   }
@@ -333,7 +340,9 @@ function validate(): Record<string, Record<string, string>> {
   return { ...errors.value }
 }
 
-function clearValidate() { errors.value = {} }
+function clearValidate() {
+  errors.value = {}
+}
 
 function focusCell(_rowKey: string | number, _prop: string) {
   const columnClass = `ddet-col-${CSS.escape(String(_prop))}`
