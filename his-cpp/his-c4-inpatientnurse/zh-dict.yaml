@@ -1,5 +1,29 @@
-﻿
-﻿medicationcollection:
+# Chinese dictionary for Swagger/UI labels
+# Module: his-c4-inpatientnurse (Inpatient Nurse Station)
+
+# ============================================================
+# Medical Order Execution (core) - 医嘱执行
+# ============================================================
+medical-order-execution:
+  tag: 医嘱执行(核心)
+  description: 病区护士站医嘱核查与执行接口
+  verification-items:
+    summary: 获取核查条目
+  verify-pass:
+    summary: 核查通过
+  return-order:
+    summary: 退回医嘱
+  execution-items:
+    summary: 获取执行条目
+  execute-order:
+    summary: 开始执行
+  complete-order:
+    summary: 完成执行
+
+# ============================================================
+# Medication Collection - 汇总领药
+# ============================================================
+medicationcollection:
   tag: 汇总领药接口
   query-summary-order-items:
     summary: 获取汇总医嘱条目（条件）
@@ -53,6 +77,9 @@
     summaryNos: 汇总领药单号列表
     message: 处理结果说明
 
+# ============================================================
+# Encounter Manage - 患者管理
+# ============================================================
 encountermanage:
   tag: 患者管理接口
   query-patient-statistics:
@@ -118,6 +145,9 @@ encountermanage:
     wardName: 病区名称
     wubiCode: 五笔码
 
+# ============================================================
+# Admission Transfer - 入出转管理
+# ============================================================
 admissiontransfer:
   tag: 入出转管理接口
   execute-inpatient-discharge:
@@ -128,7 +158,9 @@ admissiontransfer:
     encounterId: 就诊ID
     succeeded: 是否处理成功
 
-
+# ============================================================
+# Medical Advice - 医嘱相关
+# ============================================================
 medical_advice:
   tag: 医嘱相关接口
   notexecute:
@@ -152,6 +184,9 @@ medical_advice:
       rebuiltSummaryNos: 重新生成的药品汇总单号列表
       message: 处理结果说明
 
+# ============================================================
+# Dispense - 汇总领药管理
+# ============================================================
 dispense:
   tags:
     t1: 汇总领药管理
