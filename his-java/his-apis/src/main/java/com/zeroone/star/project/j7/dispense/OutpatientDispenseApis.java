@@ -1,6 +1,6 @@
 package com.zeroone.star.project.j7.dispense;
 
-import com.zeroone.star.project.dto.j7.dispense.DispenseQuery;
+import com.zeroone.star.project.query.j7.dispense.DispenseQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.vo.j7.dispense.DispenseGroupVO;
