@@ -20,7 +20,7 @@ spring:
         username: nacos
         password: nacos
       discovery:
-        server-addr: 192.168.80.128:8848
+        server-addr: 127.0.0.1:8848
         namespace: his-dev
         username: nacos
         password: nacos
@@ -31,7 +31,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   data:
     redis:
-      host: 127.0.0.1:8848
+      host: 127.0.0.1
       port: 6379
       password: 1234
    
