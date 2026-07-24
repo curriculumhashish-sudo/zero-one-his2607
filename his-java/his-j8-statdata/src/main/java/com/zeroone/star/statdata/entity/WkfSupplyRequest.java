@@ -1,6 +1,6 @@
 package com.zeroone.star.statdata.entity;
 
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -28,6 +28,7 @@ public class WkfSupplyRequest implements Serializable {
     /**
      * 主键
      */
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
     private String id;
 
     /**
@@ -38,21 +39,25 @@ public class WkfSupplyRequest implements Serializable {
     /**
      * 创建时间
      */
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 
     /**
      * 最后更新时间
      */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updatedAt;
 
     /**
      * 创建人
      */
+    @TableField(fill = FieldFill.INSERT)
     private String createdBy;
 
     /**
      * 最后更新人
      */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private String updatedBy;
 
     /**
