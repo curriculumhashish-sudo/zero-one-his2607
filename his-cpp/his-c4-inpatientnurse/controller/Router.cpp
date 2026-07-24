@@ -19,6 +19,7 @@
 #include "stdafx.h"
 #include "Router.h"
 #include "ApiHelper.h"
+#include "controller/chargedetails/CostDetailController.h"
 #include "inpatientbilling/supplementcharge/SupplementChargeController.h"
 #include "inpatientbilling/supplementcharge/SupplementOrderController.h"
 #include "admissiontransfer/AdmissionTransferController.h"
@@ -49,6 +50,8 @@ Router::Router(Endpoints* docEndpoints, HttpRouter* router)
 
 void Router::initRouter()
 {
+	// Cost Detail
+	ROUTER_SIMPLE_BIND(CostDetailController);
 	// Medical Order Execution (core)
 	ROUTER_SIMPLE_BIND(MedicalOrderExecutionController);
 	// Other inpatient nurse modules
