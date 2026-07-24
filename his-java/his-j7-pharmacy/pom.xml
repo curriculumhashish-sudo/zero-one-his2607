@@ -26,6 +26,7 @@
             <artifactId>his-common</artifactId>
         </dependency>
 
+
         <!--nacos discovery-->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
@@ -36,6 +37,7 @@
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
         </dependency>
+
     </dependencies>
     <build>
         <plugins>

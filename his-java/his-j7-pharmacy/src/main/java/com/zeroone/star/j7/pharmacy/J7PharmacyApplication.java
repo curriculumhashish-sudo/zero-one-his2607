@@ -6,11 +6,11 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
  * <p>
- * 描述：j7药房业务模块启动入口（临时模块，后续可按组长规范调整）
+ * 描述：J7 药房管理模块
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
- * @author j7
+ * @author 01star
  * @version 1.0.0
  */
 @SpringBootApplication
