@@ -1,6 +1,8 @@
 package com.zeroone.star.project.dto.j4.frequency;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,6 +26,8 @@ public class FrequencyUpdateDTO extends FrequencySaveDTO {
 
     private static final long serialVersionUID = 1L;
 
+    @NotBlank(message = "主键ID不能为空")
+    @Size(max = 64, message = "主键ID长度不能超过64个字符")
     @Schema(description = "主键ID", example = "320010001000000014", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 }
