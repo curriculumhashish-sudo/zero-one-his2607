@@ -1,5 +1,7 @@
 package com.zeroone.star.pharmacy.controller;
 
+import com.zeroone.star.project.dto.j6.pharmacy.stockout.StockOutSaveDTO;
+import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutSaveResultVO;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j6.pharmacy.stockout.AgreeStockOutDTO;
 import com.zeroone.star.project.dto.j6.pharmacy.stockout.RejectStockOutDTO;
@@ -13,6 +15,7 @@ import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutDetailVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutListVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +25,13 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Tag(name = "药库出库单", description = "药库管理相关接口")
 public class WarehouseStockOutController implements WarehouseStockOutApis {
+    @PostMapping("/save")
+    @Operation(summary = "保存出库单")
+    @Override
+    public JsonVO<StockOutSaveResultVO> saveStockOut(@Valid @RequestBody StockOutSaveDTO dto) {
+        // 最简单的实现：直接返回成功
+        return JsonVO.success(new StockOutSaveResultVO());
+    }
     @Operation(summary = "删除单据")
     @DeleteMapping("/removeStockOut")
     @Override
