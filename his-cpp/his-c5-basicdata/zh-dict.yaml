@@ -39,13 +39,20 @@ pat:
     sex: 性别
 
 dept:
-  tag: 科室管理
+  tag: 科室管理接口
   add:
     summary: 新增科室
   modify:
     summary: 修改科室
   remove:
     summary: 删除科室
+  batch-status:
+    summary: 批量启停科室
+    success:
+      enable: 批量启用科室成功
+      disable: 批量停用科室成功
+    fail:
+      empty: 批量操作失败，无匹配科室数据
   field:
     id: 科室编号
     name: 科室名称
@@ -65,6 +72,8 @@ dept:
     display-order: 显示顺序
     status-enum: 状态
     active-flag: 是否启用
+    deptIdList: 批量科室ID数组
+    targetStatus: 目标启停状态(0停用/1启用)
 
 patient:
   tag: 患者管理接口
