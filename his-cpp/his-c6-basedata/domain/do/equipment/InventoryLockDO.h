@@ -46,7 +46,7 @@ public:
 		MYSQL_ADD_FIELD_PK("id", "s", id);
 		MYSQL_ADD_FIELD_NULLABLE("tenant_id", "s", tenantId, true);
 
-		MYSQL_ADD_FIELD_NULLABLE("created_at", "dt", tenantId, false);
+		MYSQL_ADD_FIELD_NULLABLE("created_at", "dt", createdAt, false);
 
 		MYSQL_ADD_FIELD_NULLABLE("updated_at", "dt", updatedAt, true);
 
