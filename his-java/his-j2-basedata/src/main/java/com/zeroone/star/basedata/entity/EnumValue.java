@@ -59,19 +59,19 @@ public class EnumValue {
     @Field("status")
     private String status;
 
-    @CreatedBy
+    // @CreatedBy
     @Field("created_by")
     private String createdBy;
 
-    @CreatedDate
+    // @CreatedDate
     @Field("created_at")
     private Date createdAt;
 
-    @LastModifiedBy
+    // @LastModifiedBy
     @Field("updated_by")
     private String updatedBy;
 
-    @LastModifiedDate
+    // @LastModifiedDate
     @Field("updated_at")
     private Date updatedAt;
 
