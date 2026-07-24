@@ -15,8 +15,11 @@ public class UserPageVO {
     @Schema(description = "用户名", example = "lianglaoshi")
     private String username;
 
-    @Schema(description = "姓名", example = "梁老师")
-    private String nickname;
+    @Schema(description = "名")
+    private String name;
+
+    @Schema(description = "姓", example = "梁")
+    private String surname;
 
     @Schema(description = "角色名称列表")
     private List<String> roleNames;
@@ -28,20 +31,20 @@ public class UserPageVO {
     private String email;
 
     @Schema(description = "用户状态 (1:正常, 0:停用)", example = "1")
-    private Integer status;
+    private Integer isActive;
 
     @Schema(description = "锁定状态 (1:已锁定, 0:未锁定)", example = "0")
-    private Integer lockStatus;
+    private Integer isLockedOut;
 
     @Schema(description = "登录失败次数", example = "0")
-    private Integer loginFailCount;
+    private Integer accessFailedCount;
 
     @Schema(description = "锁定结束时间", example = "2024-05-20 10:00:00")
-    private LocalDateTime lockEndTime;
+    private LocalDateTime lockoutEnd;
 
     @Schema(description = "创建时间", example = "2023-10-27 10:00:00")
-    private LocalDateTime createTime;
+    private LocalDateTime createdAt;
 
     @Schema(description = "更新时间", example = "2023-10-28 12:00:00")
-    private LocalDateTime updateTime;
+    private LocalDateTime updatedAt;
 }

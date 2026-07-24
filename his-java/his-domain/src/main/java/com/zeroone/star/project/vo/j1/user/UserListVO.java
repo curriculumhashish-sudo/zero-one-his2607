@@ -12,8 +12,11 @@ public class UserListVO {
     @Schema(description = "用户名", example = "lianglaoshi")
     private String username;
 
-    @Schema(description = "姓名", example = "梁老师")
-    private String nickname;
+    @Schema(description = "名")
+    private String name;
+
+    @Schema(description = "姓", example = "梁")
+    private String surname;
 
     @Schema(description = "电子邮箱", example = "lianglaoshi@hospital.com")
     private String email;
@@ -22,5 +25,5 @@ public class UserListVO {
     private String phoneNumber;
 
     @Schema(description = "状态 (1:启用, 0:停用)", example = "1")
-    private Integer status;
+    private Integer isActive;
 }

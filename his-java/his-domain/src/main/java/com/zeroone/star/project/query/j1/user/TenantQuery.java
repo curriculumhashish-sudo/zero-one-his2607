@@ -12,5 +12,5 @@ public class TenantQuery extends PageQuery {
     private String keyword;
 
     @Schema(description = "用户状态 (1:启用, 0:停用)", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private Integer status;
+    private Integer isActive;
 }

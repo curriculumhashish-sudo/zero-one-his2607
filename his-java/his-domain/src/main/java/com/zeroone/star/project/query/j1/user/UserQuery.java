@@ -13,8 +13,8 @@ public class UserQuery extends PageQuery {
     private String keyword;
 
     @Schema(description = "用户状态 (1:启用, 0:停用)", example = "1",requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private Integer status;
+    private Integer isActive;
 
     @Schema(description = "锁定状态 (1:已锁定, 0-未锁定)", example = "0",requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private Integer lockStatus;
+    private Integer isLockedOut;
 }
