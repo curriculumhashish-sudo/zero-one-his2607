@@ -1,4 +1,4 @@
-package com.zeroone.stat.sysmgr.service.impl;
+package com.zeroone.star.sysmgr.service.tenant_user.impl;
 
 import cn.hutool.crypto.digest.BCrypt;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -7,15 +7,15 @@ import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j2.sysmgr.AddTenantUserDTO;
-import com.zeroone.star.project.dto.j2.sysmgr.RemoveTenantUserDTO;
-import com.zeroone.star.project.dto.j2.sysmgr.TenantUserDTO;
-import com.zeroone.star.project.query.j2_sysmgr.TenantUserQuery;
+import com.zeroone.star.project.dto.j2.sysmgr.tenant_userdto.AddTenantUserDTO;
+import com.zeroone.star.project.dto.j2.sysmgr.tenant_userdto.RemoveTenantUserDTO;
+import com.zeroone.star.project.dto.j2.sysmgr.tenant_userdto.TenantUserDTO;
+import com.zeroone.star.project.query.j2.sysmgr.tenant_user_query.TenantUserQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.stat.sysmgr.entity.User;
-import com.zeroone.stat.sysmgr.mapper.UserMapper;
-import com.zeroone.stat.sysmgr.mapper.UserTenantMapper;
-import com.zeroone.stat.sysmgr.service.ITenantUserService;
+import com.zeroone.star.sysmgr.entity.tenant_user.User;
+import com.zeroone.star.sysmgr.mapper.tenant_user.UserMapper;
+import com.zeroone.star.sysmgr.mapper.tenant_user.UserTenantMapper;
+import com.zeroone.star.sysmgr.service.tenant_user.ITenantUserService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 

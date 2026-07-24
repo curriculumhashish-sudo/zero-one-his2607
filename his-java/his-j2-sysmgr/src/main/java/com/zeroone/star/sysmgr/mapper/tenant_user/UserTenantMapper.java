@@ -1,9 +1,9 @@
-package com.zeroone.stat.sysmgr.mapper;
+package com.zeroone.star.sysmgr.mapper.tenant_user;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.zeroone.star.project.dto.j2.sysmgr.TenantUserDTO;
-import com.zeroone.stat.sysmgr.entity.UserTenant;
+import com.zeroone.star.project.dto.j2.sysmgr.tenant_userdto.TenantUserDTO;
+import com.zeroone.star.sysmgr.entity.tenant_user.UserTenant;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

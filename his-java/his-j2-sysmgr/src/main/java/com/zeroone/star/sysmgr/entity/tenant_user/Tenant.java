@@ -1,4 +1,4 @@
-package com.zeroone.stat.sysmgr.entity;
+package com.zeroone.star.sysmgr.entity.tenant_user;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
