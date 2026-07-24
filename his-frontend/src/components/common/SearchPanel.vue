@@ -55,6 +55,7 @@
       <slot name="body">
         <el-button
           v-if="showSearch"
+          class="query-shell__btn query-shell__btn--search"
           type="primary"
           size="default"
           :loading="loading"
@@ -65,6 +66,7 @@
         </el-button>
         <el-button
           v-if="showReset"
+          class="query-shell__btn query-shell__btn--reset"
           size="default"
           @click="handleReset"
         >
@@ -207,7 +209,6 @@ function handleReset() {
 .query-shell__fields.is-collapsed {
   max-height: 48px;
 }
-
 
 /* ==================== 展开/收起 ==================== */
 .query-shell__collapse-bar {

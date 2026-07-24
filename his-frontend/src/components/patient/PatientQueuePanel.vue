@@ -71,20 +71,20 @@ function handleView(patient: PatientSummary) {
   <section class="patient-queue-panel" aria-label="患者队列">
     <div class="patient-queue-panel__search">
       <SearchPanel
-        :model="searchModel"
+        v-model:keyword="searchModel.keyword"
+        keyword-placeholder="姓名/患者号/就诊号"
         :loading="loading"
-        label-width="72px"
+        :field-count="1"
         :submit-on-enter="true"
         @search="handleSearch"
         @reset="handleReset"
       >
-        <el-form-item label="关键词">
-          <el-input v-model="searchModel.keyword" clearable placeholder="姓名/患者号/就诊号" />
-        </el-form-item>
-
-        <el-form-item label="日期">
-          <DateRangeField v-model="dateRange" :show-options="false" @change="handleDateChange" />
-        </el-form-item>
+        <template #header>
+          <div class="query-shell__field">
+            <label class="query-shell__label">日期</label>
+            <DateRangeField v-model="dateRange" :show-options="false" @change="handleDateChange" />
+          </div>
+        </template>
       </SearchPanel>
     </div>
 
@@ -156,6 +156,24 @@ function handleView(patient: PatientSummary) {
 
 .patient-queue-panel__search :deep(.query-shell:hover) {
   box-shadow: none;
+}
+
+/*
+ * 患者队列位于窄侧栏中，查询条件改成单列排列。
+ * max-height: none 用于避免 SearchPanel 的折叠样式裁掉第二行日期字段。
+ */
+.patient-queue-panel__search :deep(.query-shell__fields) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.patient-queue-panel__search :deep(.query-shell__fields.is-collapsed) {
+  max-height: none;
+}
+
+.patient-queue-panel__search :deep(.query-shell__field > .el-input),
+.patient-queue-panel__search :deep(.query-shell__field > .date-range-field) {
+  min-width: 0;
+  flex: 1;
 }
 
 .patient-queue-panel__search :deep(.query-shell__actions) {
