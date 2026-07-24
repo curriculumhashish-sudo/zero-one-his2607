@@ -1,0 +1,12 @@
+medical-advice:
+ tags:
+  tag: 医嘱管理
+ sign:
+  summary: 批量签署医嘱
+ withdraw:
+  summary: 批量撤回医嘱
+ print-application-form:
+  summary: 打印申请单
+ field:
+  medical-advice-ids: 医嘱ID列表
+  service-request-id: 服务申请单ID

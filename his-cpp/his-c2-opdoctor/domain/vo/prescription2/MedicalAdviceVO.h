@@ -21,9 +21,9 @@
 #define _MEDICAL_ADVICE_VO_
 
 #include "../../GlobalInclude.h"
-#include "../../dto/prescription/PrintApplicationFormDTO.h"
-#include "../../dto/prescription/SignMedicalAdviceDTO.h"
-#include "../../dto/prescription/WithdrawMedicalAdviceDTO.h"
+#include "../../dto/prescription2/PrintApplicationFormDTO.h"
+#include "../../dto/prescription2/SignMedicalAdviceDTO.h"
+#include "../../dto/prescription2/WithdrawMedicalAdviceDTO.h"
 
 using namespace oatpp;
 

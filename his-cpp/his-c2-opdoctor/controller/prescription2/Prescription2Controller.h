@@ -1,21 +1,21 @@
 ﻿#pragma once
 
-#ifndef _PRESCRIPTIONCONTROLLER_H_
-#define _PRESCRIPTIONCONTROLLER_H_
+#ifndef _PRESCRIPTION2CONTROLLER_H_
+#define _PRESCRIPTION2CONTROLLER_H_
 
-#include "domain/dto/prescription/PrintApplicationFormDTO.h"
-#include "domain/dto/prescription/SignMedicalAdviceDTO.h"
-#include "domain/dto/prescription/WithdrawMedicalAdviceDTO.h"
-#include "domain/vo/prescription/MedicalAdviceVO.h"
+#include "domain/dto/prescription2/PrintApplicationFormDTO.h"
+#include "domain/dto/prescription2/SignMedicalAdviceDTO.h"
+#include "domain/dto/prescription2/WithdrawMedicalAdviceDTO.h"
+#include "domain/vo/prescription2/MedicalAdviceVO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
 #define API_TAG ZH_WORDS_GETTER("medical-advice.tags.tag")
 
-class PrescriptionController : public oatpp::web::server::api::ApiController
+class Prescription2Controller : public oatpp::web::server::api::ApiController
 {
 	// 定义控制器访问入口
-	API_ACCESS_DECLARE(PrescriptionController);
+	API_ACCESS_DECLARE(Prescription2Controller);
 
 public: // 定义接口端点
 	// 定义批量签署医嘱接口信息
@@ -57,4 +57,4 @@ private: // 定义接口执行函数
 #undef API_TAG
 #include OATPP_CODEGEN_END(ApiController)
 
-#endif // !_PRESCRIPTIONCONTROLLER_H_
+#endif // !_PRESCRIPTION2CONTROLLER_H_
