@@ -6,7 +6,7 @@
 #include "../DoInclude.h"
 
 /**
- * 
+ * ¿â´æËø¶¨ÊµÌå
  */
 class InventoryLockDO : public BaseDO
 {
