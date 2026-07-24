@@ -1,11 +1,15 @@
 /*
  Copyright Zero One Star. All rights reserved.
+
  @Author: your name
  @Date: 2026/7/22
+
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
+
       https://www.apache.org/licenses/LICENSE-2.0
+
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,9 +20,8 @@
 #include "PharmService.h"
 #include "../../dao/pharm/PharmDAO.h"
 #include "domain/dto/pharm/PharmDTO.h"
-// 分页DTO头文件
 #include "domain/dto/pharm/PharmPageDTO.h"
-// 公共库工具类直接引用文件名
+// 修正：直接写文件名，项目已配置全局包含路径
 #include "SimpleDateTimeFormat.h"
 
 PharmPageJsonVO::Wrapper PharmService::getPage(const PharmQuery::Wrapper& query)
@@ -30,15 +33,7 @@ PharmPageJsonVO::Wrapper PharmService::getPage(const PharmQuery::Wrapper& query)
     uint64_t total = dao.count(query);
     if (total <= 0)
     {
-        // 构造空分页DTO，显式创建空列表，避免初始化列表歧义
-        auto pageDto = PharmPageDTO::createShared();
-        pageDto->rows = oatpp::List<PharmDTO::Wrapper>::createShared();
-        pageDto->pageIndex = query->pageIndex.getValue(1);
-        pageDto->pageSize = query->pageSize.getValue(10);
-        // 用原生变量中转0，消除运算符重载歧义
-        uint64_t zeroVal = 0;
-        pageDto->total = zeroVal;
-        result->fail(ZH_WORDS_GETTER("pharm.result.empty"));
+        result->fail(nullptr);
         return result;
     }
 
@@ -51,15 +46,15 @@ PharmPageJsonVO::Wrapper PharmService::getPage(const PharmQuery::Wrapper& query)
     {
         auto dto = PharmDTO::createShared();
         dto->id = item->getId();
-        dto->name = item->getName();
-        dto->type = item->getType();
+        dto->name = oatpp::String(item->getName());
+        dto->type = oatpp::String(item->getType());
         dto->status = item->getStatus();
         dto->sort = item->getSort();
-        dto->remark = item->getRemark();
-        dto->create_by = item->getCreate_By();
-        dto->update_by = item->getUpdate_By();
-        dto->create_time = item->getCreate_Time();
-        dto->update_time = item->getUpdate_Time();
+        dto->remark = oatpp::String(item->getRemark());
+        dto->create_by = oatpp::String(item->getCreate_By());
+        dto->update_by = oatpp::String(item->getUpdate_By());
+        dto->create_time = oatpp::String(item->getCreate_Time());
+        dto->update_time = oatpp::String(item->getUpdate_Time());
         rows->push_back(dto);
     }
 
@@ -100,11 +95,11 @@ StringJsonVO::Wrapper PharmService::add(const PharmAddDTO::Wrapper& dto)
     int rows = dao.insert(data);
     if (rows > 0)
     {
-        result->success(ZH_WORDS_GETTER("pharm.result.add_success"));
+        result->success(oatpp::String(ZH_WORDS_GETTER("pharm.result.add_success")));
     }
     else
     {
-        result->fail(ZH_WORDS_GETTER("pharm.result.add_fail"));
+        result->fail(oatpp::String(ZH_WORDS_GETTER("pharm.result.add_fail")));
     }
     return result;
 }
@@ -120,19 +115,18 @@ StringJsonVO::Wrapper PharmService::modify(const PharmModifyDTO::Wrapper& dto)
     data.setSort(dto->sort.getValue(0));
     data.setRemark(dto->remark.getValue(""));
 
-    // getPayload() 返回引用，用 . 访问成员
-    std::string username = dto->getPayload().getUsername();
+    std::string username = dto->getPayload()->getUsername();
     data.setUpdate_By(username);
     data.setUpdate_Time(SimpleDateTimeFormat::format());
 
     PharmDAO dao;
     if (dao.update(data) == 1)
     {
-        result->success(ZH_WORDS_GETTER("pharm.result.modify_success"));
+        result->success(oatpp::String(ZH_WORDS_GETTER("pharm.result.modify_success")));
     }
     else
     {
-        result->fail(ZH_WORDS_GETTER("pharm.result.modify_fail"));
+        result->fail(oatpp::String(ZH_WORDS_GETTER("pharm.result.modify_fail")));
     }
     return result;
 }
@@ -143,11 +137,11 @@ StringJsonVO::Wrapper PharmService::remove(uint64_t id)
     PharmDAO dao;
     if (dao.remove(id) == 1)
     {
-        result->success(ZH_WORDS_GETTER("pharm.result.remove_success"));
+        result->success(oatpp::String(ZH_WORDS_GETTER("pharm.result.remove_success")));
     }
     else
     {
-        result->fail(ZH_WORDS_GETTER("pharm.result.remove_fail"));
+        result->fail(oatpp::String(ZH_WORDS_GETTER("pharm.result.remove_fail")));
     }
     return result;
 }
@@ -158,11 +152,11 @@ StringJsonVO::Wrapper PharmService::updateStatus(uint64_t id, int status)
     PharmDAO dao;
     if (dao.updateStatus(id, status) == 1)
     {
-        result->success(ZH_WORDS_GETTER("pharm.result.status_success"));
+        result->success(oatpp::String(ZH_WORDS_GETTER("pharm.result.status_success")));
     }
     else
     {
-        result->fail(ZH_WORDS_GETTER("pharm.result.status_fail"));
+        result->fail(oatpp::String(ZH_WORDS_GETTER("pharm.result.status_fail")));
     }
     return result;
 }

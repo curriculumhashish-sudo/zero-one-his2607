@@ -50,14 +50,8 @@ std::list<PtrPharmDO> PharmDAO::selectPage(const PharmQuery::Wrapper& query)
 	uint64_t size = query->pageSize.getValue(10);
 	sql += " LIMIT " + std::to_string(offset) + ", " + std::to_string(size);
 
-	std::list<PharmDO> tempList = sqlSession->executeQuery<PharmDO>(sql, PharmMapper(), params);
-
-	std::list<PtrPharmDO> result;
-	for (auto& item : tempList)
-	{
-		result.push_back(std::make_shared<PharmDO>(std::move(item)));
-	}
-	return result;
+	// 模板参数与 Mapper 返回值对齐，直接返回智能指针对象列表
+	return sqlSession->executeQuery<PtrPharmDO>(sql, PharmMapper(), params);
 }
 
 int PharmDAO::insert(const PharmDO& data)
