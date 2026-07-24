@@ -2,7 +2,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: xinpingqihe
+ @Author: Swan_Woo
  @Date: 2026/07/20 00:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,17 +42,17 @@ class CostDetailDTO : public oatpp::DTO {
 	// type code
 	API_DTO_FIELD(String, typeCode, ZH_WORDS_GETTER("chargedetails.field.typeCode"), true, "");
 	// unit price
-	API_DTO_FIELD(Float64, unitPrice, ZH_WORDS_GETTER("chargedetails.field.unitPrice"), true, 0);
+	API_DTO_FIELD(Float64, unitPrice, ZH_WORDS_GETTER("chargedetails.field.unitPrice"), true, 0.0);
 	// quantity value
-	API_DTO_FIELD(Float64, quantityValue, ZH_WORDS_GETTER("chargedetails.field.quantityValue"), true, 0);
+	API_DTO_FIELD(Float64, quantityValue, ZH_WORDS_GETTER("chargedetails.field.quantityValue"), true, 0.0);
 	// quantity unit
 	API_DTO_FIELD(String, quantityUnit, ZH_WORDS_GETTER("chargedetails.field.quantityUnit"), true, "");
 	// total price
-	API_DTO_FIELD(Float64, totalPrice, ZH_WORDS_GETTER("chargedetails.field.totalPrice"), true, 0);
+	API_DTO_FIELD(Float64, totalPrice, ZH_WORDS_GETTER("chargedetails.field.totalPrice"), true, 0.0);
 	// base amount
-	API_DTO_FIELD(Float64, baseAmount, ZH_WORDS_GETTER("chargedetails.field.baseAmount"), true, 0);
+	API_DTO_FIELD(Float64, baseAmount, ZH_WORDS_GETTER("chargedetails.field.baseAmount"), true, 0.0);
 	// discount amount
-	API_DTO_FIELD(Float64, discountAmount, ZH_WORDS_GETTER("chargedetails.field.discountAmount"), true, 0);
+	API_DTO_FIELD(Float64, discountAmount, ZH_WORDS_GETTER("chargedetails.field.discountAmount"), true, 0.0);
 	// occurrence time
 	API_DTO_FIELD(String, occurrenceTime, ZH_WORDS_GETTER("chargedetails.field.occurrenceTime"), true, "");
 	// performing org id

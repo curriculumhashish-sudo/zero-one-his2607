@@ -21,9 +21,11 @@
 #define _MEDICATION_COLLECTION_CONTROLLER_
 
 #include "domain/dto/medicationcollection/CreateMedicationSummaryDTO.h"
+#include "domain/dto/medicationcollection/SummarySlipDTO.h"
 #include "domain/query/medicationcollection/PagePendingDispenseSummaryLinesQuery.h"
 #include "domain/vo/medicationcollection/CreateMedicationSummaryVO.h"
 #include "domain/vo/medicationcollection/PagePendingDispenseSummaryLinesVO.h"
+#include "domain/vo/medicationcollection/SummarySlipVO.h"
 
 using namespace oatpp;
 
@@ -93,11 +95,49 @@ public:
 		BODY_DTO(CreateMedicationSummaryDTO::Wrapper, dto),
 		execSummaryMedication(dto));
 
+	// Submit summary slips to pharmacy (batch)
+	API_DEF_ENDPOINT_INFO_AUTH(
+		ZH_WORDS_GETTER("medicationcollection.submit-summary.summary"),
+		submitSummary,
+		SubmitSummaryJsonVO::Wrapper,
+		API_TAG,
+		info->body.addExample("default", SubmitSummaryRequestDTO::createShared());
+		info->responses[Status::CODE_200].addExample(
+			"success", SubmitSummaryJsonVO::createShared());
+	);
+	API_HANDLER_ENDPOINT_AUTH(
+		API_M_POST,
+		"/medicationcollection/submit-summary",
+		submitSummary,
+		BODY_DTO(SubmitSummaryRequestDTO::Wrapper, dto),
+		execSubmitSummary(dto));
+
+	// Cancel summary slips (batch revoke)
+	API_DEF_ENDPOINT_INFO_AUTH(
+		ZH_WORDS_GETTER("medicationcollection.cancel-summary.summary"),
+		cancelSummary,
+		CancelSummaryJsonVO::Wrapper,
+		API_TAG,
+		info->body.addExample("default", CancelSummaryRequestDTO::createShared());
+		info->responses[Status::CODE_200].addExample(
+			"success", CancelSummaryJsonVO::createShared());
+	);
+	API_HANDLER_ENDPOINT_AUTH(
+		API_M_POST,
+		"/medicationcollection/cancel-summary",
+		cancelSummary,
+		BODY_DTO(CancelSummaryRequestDTO::Wrapper, dto),
+		execCancelSummary(dto));
+
 private:
 	PagePendingDispenseSummaryLinesJsonVO::Wrapper execQuerySummaryOrderItems(
 		const PagePendingDispenseSummaryLinesQuery::Wrapper& query);
 	CreateMedicationSummaryJsonVO::Wrapper execSummaryMedication(
 		const CreateMedicationSummaryDTO::Wrapper& dto);
+	SubmitSummaryJsonVO::Wrapper execSubmitSummary(
+		const SubmitSummaryRequestDTO::Wrapper& dto);
+	CancelSummaryJsonVO::Wrapper execCancelSummary(
+		const CancelSummaryRequestDTO::Wrapper& dto);
 };
 
 #undef API_TAG

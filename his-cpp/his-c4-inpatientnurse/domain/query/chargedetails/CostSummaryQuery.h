@@ -2,7 +2,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: xinpingqihe
+ @Author: Swan_Woo
  @Date: 2026/07/20 00:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,14 +31,20 @@ using namespace oatpp;
 class CostSummaryQuery : public oatpp::DTO {
 	DTO_INIT(CostSummaryQuery, DTO);
 
-	// id (used by query-one)
-	API_DTO_FIELD(String, id, ZH_WORDS_GETTER("chargedetails.field.id"), false, "");
 	// encounter id
-	API_DTO_FIELD(String, encounterId, ZH_WORDS_GETTER("chargedetails.field.encounterId"), false, "");
+	API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("chargedetails.field.encounterId"), false);
 	// start date
-	API_DTO_FIELD(String, startDate, ZH_WORDS_GETTER("chargedetails.field.startDate"), false, "");
+	API_DTO_FIELD_REQUIRE(String, startDate, ZH_WORDS_GETTER("chargedetails.field.startDate"), false);
 	// end date
-	API_DTO_FIELD(String, endDate, ZH_WORDS_GETTER("chargedetails.field.endDate"), false, "");
+	API_DTO_FIELD_REQUIRE(String, endDate, ZH_WORDS_GETTER("chargedetails.field.endDate"), false);
+
+public:
+	CostSummaryQuery()
+	{
+		encounterId = "337907884548657152";
+		startDate = "2026-07-01";
+		endDate = "2026-07-24";
+	}
 };
 
 #include OATPP_CODEGEN_END(DTO)

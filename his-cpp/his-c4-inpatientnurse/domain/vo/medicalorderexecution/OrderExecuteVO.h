@@ -12,6 +12,11 @@
 class CancelExecutionJsonVO : public JsonVO<CancelExecutionResultDTO::Wrapper>
 {
 	DTO_INIT(CancelExecutionJsonVO, JsonVO<CancelExecutionResultDTO::Wrapper>);
+public:
+	CancelExecutionJsonVO()
+	{
+		data = CancelExecutionResultDTO::createShared();
+	}
 };
 
 #include OATPP_CODEGEN_END(DTO)

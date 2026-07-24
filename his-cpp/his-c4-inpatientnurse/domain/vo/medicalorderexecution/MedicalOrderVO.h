@@ -2,7 +2,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: fanpai
+ @Author: Swan_Woo
  @Date: 2026/07/20 16:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,6 +23,8 @@
 #include "domain/vo/JsonVO.h"
 #include "domain/dto/PageDTO.h"
 #include "domain/dto/medicalorderexecution/MedicalOrderItemDTO.h"
+
+#include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
  * Response VO types for medical order execution.
@@ -68,10 +70,27 @@
  *   }
  */
 
-// Paginated response: JsonVO<PageDTO<MedicalOrderItemDTO>>
-typedef JsonVO<PageDTO<MedicalOrderItemDTO::Wrapper>::Wrapper> MedicalOrderPageJsonVO;
+class MedicalOrderPageJsonVO : public JsonVO<PageDTO<MedicalOrderItemDTO::Wrapper>::Wrapper>
+{
+    DTO_INIT(MedicalOrderPageJsonVO,
+        JsonVO<PageDTO<MedicalOrderItemDTO::Wrapper>::Wrapper>);
+
+public:
+    MedicalOrderPageJsonVO()
+    {
+        auto page = PageDTO<MedicalOrderItemDTO::Wrapper>::createShared();
+        page->pageIndex = 1;
+        page->pageSize = 10;
+        page->total = 1;
+        page->pages = 1;
+        page->rows = {MedicalOrderItemDTO::createShared()};
+        data = page;
+    }
+};
 
 // Single item response: JsonVO<MedicalOrderItemDTO>
 typedef JsonVO<MedicalOrderItemDTO::Wrapper> MedicalOrderDetailJsonVO;
+
+#include OATPP_CODEGEN_END(DTO)
 
 #endif // !_MEDICAL_ORDER_VO_H_

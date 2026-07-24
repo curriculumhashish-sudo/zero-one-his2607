@@ -8,18 +8,30 @@
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-#define API_TAG ZH_WORDS_GETTER("bed.tags.t1")
+#define API_TAG ZH_WORDS_GETTER("admissiontransfer.tag")
 
 class BedController : public oatpp::web::server::api::ApiController
 {
     API_ACCESS_DECLARE(BedController);
 public:
-    // 查询空闲床位
-    API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("bed.get.summary"), queryBed, BedQuery, BedPageJsonVO::Wrapper, API_TAG);
+    // Query available beds.
+    API_DEF_ENDPOINT_INFO_AUTH(
+        ZH_WORDS_GETTER("bed.get.summary"), queryBed,
+        BedPageJsonVO::Wrapper, API_TAG,
+        API_DEF_QUERY_PARAM_BUILD(BedQuery);
+        info->responses[Status::CODE_200].addExample(
+            "success", BedPageJsonVO::createShared());
+    )
     API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/bed", queryBed, BedQuery, execQueryBed(query));
 
-    // 分配床位
-    API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("bed.assign.summary"), assignBed, StringJsonVO::Wrapper, API_TAG);
+    // Assign a bed.
+    API_DEF_ENDPOINT_INFO_AUTH(
+        ZH_WORDS_GETTER("bed.assign.summary"), assignBed,
+        StringJsonVO::Wrapper, API_TAG,
+        info->body.addExample("default", BedAssignAddDTO::createShared());
+        info->responses[Status::CODE_200].addExample(
+            "success", StringJsonVO::createShared());
+    )
     API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/bed/assign", assignBed, BODY_DTO(BedAssignAddDTO::Wrapper, dto), execAssignBed(dto, authObject->getPayload()));
 private:
     BedPageJsonVO::Wrapper execQueryBed(const BedQuery::Wrapper& query);

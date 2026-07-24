@@ -4,31 +4,29 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/*不执行医嘱请求数据DTO对象*/
+// Request item used to skip medical-order execution.
 class OrderNotExecuteDTO : public oatpp::DTO
 {
 	DTO_INIT(OrderNotExecuteDTO, DTO);
 
-	//id
-	DTO_FIELD(String, advice_id);
-	DTO_FIELD_INFO(advice_id) {
-		info->description = ZH_WORDS_GETTER("medical_advice.notexecute.field.advice_id");
-	};
+	API_DTO_FIELD_REQUIRE(String, advice_id,
+		ZH_WORDS_GETTER("medical_advice.notexecute.field.advice_id"), true);
 	
-	//医嘱类型
-	DTO_FIELD(String, advice_type);
-	DTO_FIELD_INFO(advice_type) {
-		info->description = ZH_WORDS_GETTER("medical_advice.notexecute.field.advice_type");
-	};
+	API_DTO_FIELD_REQUIRE(String, advice_type,
+		ZH_WORDS_GETTER("medical_advice.notexecute.field.advice_type"), true);
 
-	//计划时间点
-	DTO_FIELD(String, plan_time);
-	DTO_FIELD_INFO(plan_time) {
-		info->description = ZH_WORDS_GETTER("medical_advice.notexecute.field.plan_time");
-	};
+	API_DTO_FIELD_REQUIRE(String, plan_time,
+		ZH_WORDS_GETTER("medical_advice.notexecute.field.plan_time"), true);
 
 public:
-	// 数据校验
+	OrderNotExecuteDTO()
+	{
+		advice_id = "337907884548657152";
+		advice_type = "MED_REQUEST";
+		plan_time = "2026-07-24 08:00:00";
+	}
+
+	// Validate the request item.
 	std::string validate() const
 	{
 		if (!advice_id || advice_id->empty() || advice_id->size() > 64)
@@ -55,19 +53,22 @@ public:
 	}
 };
 
-/*取消执行医嘱请求DTO中item对象*/
+// Medical-order cancellation item.
 class CancelExecutionItemDTO : public oatpp::DTO 
 {
 	DTO_INIT(CancelExecutionItemDTO, DTO);
 
-	DTO_FIELD(String, encounterId);
-	DTO_FIELD_INFO(encounterId) {
-		info->description = ZH_WORDS_GETTER("medical_advice.cancelexecute.field.items.encounterId");
-	}
+	API_DTO_FIELD_REQUIRE(String, encounterId,
+		ZH_WORDS_GETTER("medical_advice.cancelexecute.field.items.encounterId"), true);
 
-	DTO_FIELD(String, procedureId);
-	DTO_FIELD_INFO(procedureId) {
-		info->description = ZH_WORDS_GETTER("medical_advice.cancelexecute.field.items.procedureId");
+	API_DTO_FIELD_REQUIRE(String, procedureId,
+		ZH_WORDS_GETTER("medical_advice.cancelexecute.field.items.procedureId"), true);
+
+public:
+	CancelExecutionItemDTO()
+	{
+		encounterId = "337907884548657152";
+		procedureId = "PROC202607240001";
 	}
 };
 
@@ -76,16 +77,19 @@ class CancelExecutionRequestDTO : public oatpp::DTO
 {
 	DTO_INIT(CancelExecutionRequestDTO, DTO);
 
-	/*取消执行item列表*/
-	DTO_FIELD(List<CancelExecutionItemDTO::Wrapper>, items);
+	API_DTO_FIELD_REQUIRE(List<CancelExecutionItemDTO::Wrapper>, items,
+		ZH_WORDS_GETTER("medical_advice.cancelexecute.field.items"), true);
 
-	/*1取消执行原因*/
-	DTO_FIELD(String, statusReasonText);
-	DTO_FIELD_INFO(statusReasonText) {
-		info->description = ZH_WORDS_GETTER("medical_advice.cancelexecute.field.statusReasonText");
-	}
+	API_DTO_FIELD_REQUIRE(String, statusReasonText,
+		ZH_WORDS_GETTER("medical_advice.cancelexecute.field.statusReasonText"), true);
 
 public:
+	CancelExecutionRequestDTO()
+	{
+		items = {CancelExecutionItemDTO::createShared()};
+		statusReasonText = "患者暂缓执行";
+	}
+
 	std::string validate()
 	{
 		/*字段非空基本校验，取消执行item列表不能多于50项*/
@@ -134,6 +138,14 @@ class CancelExecutionResultDTO : public oatpp::DTO
 	DTO_FIELD(String, message);
 	DTO_FIELD_INFO(message) {
 		info->description = ZH_WORDS_GETTER("medical_advice.cancelexecute.result.message");
+	}
+
+public:
+	CancelExecutionResultDTO()
+	{
+		success = true;
+		rebuiltSummaryNos = {"SUM202607240001"};
+		message = "取消执行成功";
 	}
 };
 

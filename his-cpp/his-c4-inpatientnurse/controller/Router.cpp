@@ -1,7 +1,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: awei
+ @Author: Swan_Woo
  @Date: 2022/12/03 14:58:34
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,6 +32,7 @@
 #include "controller/admissiontransfer/BedController.h"
 #include "nursing/NursingController.h"
 #include "temperature/TemperatureController.h"
+#include "inpatientbilling/InpatientBillingController.h"
 
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
@@ -66,4 +67,5 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(BedController);
     ROUTER_SIMPLE_BIND(NursingController);
     ROUTER_SIMPLE_BIND(TemperatureController);
+    ROUTER_SIMPLE_BIND(InpatientBillingController);
 }

@@ -2,7 +2,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: xinpingqihe
+ @Author: Swan_Woo
  @Date: 2026/07/20 00:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,49 +34,31 @@ using namespace oatpp;
 class CostDetailController : public oatpp::web::server::api::ApiController {
 	API_ACCESS_DECLARE(CostDetailController);
 public:
-	// 1. Paginated query for cost details
-	API_DEF_ENDPOINT_INFO_QUERY_AUTH(
-		ZH_WORDS_GETTER("chargedetails.query-all.summary"),
-		queryAll, CostDetailQuery, CostDetailPageJsonVO::Wrapper, API_TAG);
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/chargedetails/query-all",
+	// Query cost details by conditions.
+	API_DEF_ENDPOINT_INFO_AUTH(
+		ZH_WORDS_GETTER("chargedetails.query-details.summary"),
+		queryAll, CostDetailPageJsonVO::Wrapper, API_TAG,
+		API_DEF_QUERY_PARAM_BUILD(CostDetailQuery);
+		info->responses[Status::CODE_200].addExample(
+			"success", CostDetailPageJsonVO::createShared());
+	)
+	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/chargedetails/query-details",
 		queryAll, CostDetailQuery, execQueryAll(query));
 
-	// 2. Query single cost detail by ID
+	// Query cost summary by conditions.
 	API_DEF_ENDPOINT_INFO_AUTH(
-		ZH_WORDS_GETTER("chargedetails.query-one.summary"),
-		queryOne, CostDetailJsonVO::Wrapper, API_TAG,
-		API_DEF_ADD_QUERY_PARAMS(String, "id",
-			ZH_WORDS_GETTER("chargedetails.field.id"), "1", true););
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/chargedetails/query-one",
-		queryOne, CostSummaryQuery, execQueryOne(query));
-
-	// 3. Cost summary by encounter
-	API_DEF_ENDPOINT_INFO_AUTH(
-		ZH_WORDS_GETTER("chargedetails.summary-by-encounter.summary"),
+		ZH_WORDS_GETTER("chargedetails.query-summary.summary"),
 		summaryByEncounter, CostSummaryListJsonVO::Wrapper, API_TAG,
-		API_DEF_ADD_QUERY_PARAMS(String, "encounterId",
-			ZH_WORDS_GETTER("chargedetails.field.encounterId"), "E123", true););
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/chargedetails/summary-by-encounter",
+		API_DEF_QUERY_PARAM_BUILD(CostSummaryQuery);
+		info->responses[Status::CODE_200].addExample(
+			"success", CostSummaryListJsonVO::createShared());
+	)
+	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/chargedetails/query-summary",
 		summaryByEncounter, CostSummaryQuery, execSummaryByEncounter(query));
-
-	// 4. Cost summary by date range
-	API_DEF_ENDPOINT_INFO_AUTH(
-		ZH_WORDS_GETTER("chargedetails.summary-by-date.summary"),
-		summaryByDate, CostSummaryListJsonVO::Wrapper, API_TAG,
-		API_DEF_ADD_QUERY_PARAMS(String, "startDate",
-			ZH_WORDS_GETTER("chargedetails.field.startDate"), "2024-01-01", true);
-		API_DEF_ADD_QUERY_PARAMS(String, "endDate",
-			ZH_WORDS_GETTER("chargedetails.field.endDate"), "2024-12-31", true);
-		API_DEF_ADD_QUERY_PARAMS(String, "encounterId",
-			ZH_WORDS_GETTER("chargedetails.field.encounterId"), "E123", false););
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/chargedetails/summary-by-date",
-		summaryByDate, CostSummaryQuery, execSummaryByDate(query));
 
 private:
 	CostDetailPageJsonVO::Wrapper execQueryAll(const CostDetailQuery::Wrapper& query);
-	CostDetailJsonVO::Wrapper execQueryOne(const CostSummaryQuery::Wrapper& query);
 	CostSummaryListJsonVO::Wrapper execSummaryByEncounter(const CostSummaryQuery::Wrapper& query);
-	CostSummaryListJsonVO::Wrapper execSummaryByDate(const CostSummaryQuery::Wrapper& query);
 };
 
 #undef API_TAG

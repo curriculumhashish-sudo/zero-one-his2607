@@ -1,7 +1,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: xinpingqihe
+ @Author: Swan_Woo
  @Date: 2026/07/20 00:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,66 +17,15 @@
  limitations under the License.
 */
 #include "CostDetailController.h"
-#include "service/chargedetails/CostDetailService.h"
-#include <iostream>
 
 CostDetailPageJsonVO::Wrapper CostDetailController::execQueryAll(const CostDetailQuery::Wrapper& query) {
 	auto vo = CostDetailPageJsonVO::createShared();
-	try {
-		CostDetailService service;
-		auto pageDto = service.queryAll(query);
-		vo->success(pageDto);
-	}
-	catch (const std::exception& e) {
-		std::cerr << "execQueryAll error: " << e.what() << std::endl;
-		vo->fail({});
-	}
-	return vo;
-}
-
-CostDetailJsonVO::Wrapper CostDetailController::execQueryOne(const CostSummaryQuery::Wrapper& query) {
-	auto vo = CostDetailJsonVO::createShared();
-	try {
-		CostDetailService service;
-		auto dto = service.queryOne(query->id);
-		if (dto->id) {
-			vo->success(dto);
-		}
-		else {
-			vo->fail({});
-		}
-	}
-	catch (const std::exception& e) {
-		std::cerr << "execQueryOne error: " << e.what() << std::endl;
-		vo->fail({});
-	}
+	vo->setStatus(RS_SUCCESS);
 	return vo;
 }
 
 CostSummaryListJsonVO::Wrapper CostDetailController::execSummaryByEncounter(const CostSummaryQuery::Wrapper& query) {
 	auto vo = CostSummaryListJsonVO::createShared();
-	try {
-		CostDetailService service;
-		auto list = service.summaryByEncounter(query->encounterId);
-		vo->success(list);
-	}
-	catch (const std::exception& e) {
-		std::cerr << "execSummaryByEncounter error: " << e.what() << std::endl;
-		vo->fail({});
-	}
-	return vo;
-}
-
-CostSummaryListJsonVO::Wrapper CostDetailController::execSummaryByDate(const CostSummaryQuery::Wrapper& query) {
-	auto vo = CostSummaryListJsonVO::createShared();
-	try {
-		CostDetailService service;
-		auto list = service.summaryByDate(query->startDate, query->endDate, query->encounterId);
-		vo->success(list);
-	}
-	catch (const std::exception& e) {
-		std::cerr << "execSummaryByDate error: " << e.what() << std::endl;
-		vo->fail({});
-	}
+	vo->setStatus(RS_SUCCESS);
 	return vo;
 }

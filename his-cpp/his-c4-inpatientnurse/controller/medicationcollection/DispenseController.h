@@ -2,7 +2,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: his-c4
+ @Author: Swan_Woo
  @Date: 2026/07/18 22:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +27,7 @@
 
 #include OATPP_CODEGEN_BEGIN(ApiController) //<- Begin Codegen
 
-#define API_TAG ZH_WORDS_GETTER("dispense.tags.t1")
+#define API_TAG ZH_WORDS_GETTER("medicationcollection.tag")
 
 /**
  * Summary drug-collection (dispense bill) controller.

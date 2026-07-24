@@ -2,7 +2,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: fanpai
+ @Author: Swan_Woo
  @Date: 2026/07/20 16:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -80,17 +80,18 @@ class ExecuteOrderDTO : public oatpp::DTO
     DTO_INIT(ExecuteOrderDTO, DTO);
 
     // ID of the order to execute (required)
-    DTO_FIELD(String, serviceRequestId, "serviceRequestId");
-    DTO_FIELD_INFO(serviceRequestId) {
-        info->description = "service request ID to execute";
-        info->required = true;
-    }
+    API_DTO_FIELD_REQUIRE(String, serviceRequestId,
+        "service request ID to execute", true);
 
     // ID of the nurse performing execution (required)
-    DTO_FIELD(String, performerId, "performerId");
-    DTO_FIELD_INFO(performerId) {
-        info->description = "performer (nurse) identifier";
-        info->required = true;
+    API_DTO_FIELD_REQUIRE(String, performerId,
+        "performer (nurse) identifier", true);
+
+public:
+    ExecuteOrderDTO()
+    {
+        serviceRequestId = "337907884548657152";
+        performerId = "326940849401761792";
     }
 };
 

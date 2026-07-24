@@ -22,6 +22,14 @@ class BedAssignAddDTO : public oatpp::DTO
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 
 public:
+	BedAssignAddDTO()
+	{
+		patient_id = "326940849401761792";
+		location_id = "BED30101";
+		appointment_id = "APT202607240001";
+		intended_admission_date = "2026-07-24";
+	}
+
 	//数据校验
 	std::string validate()  {
 		if (!patient_id || patient_id->empty()) return "patient_id invalidate";

@@ -2,7 +2,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: xinpingqihe
+ @Author: Swan_Woo
  @Date: 2026/07/20 00:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,13 +36,13 @@ class CostSummaryDTO : public oatpp::DTO {
 	// type name
 	API_DTO_FIELD(String, typeName, ZH_WORDS_GETTER("chargedetails.field.typeName"), true, "");
 	// total amount
-	API_DTO_FIELD(Float64, totalAmount, ZH_WORDS_GETTER("chargedetails.field.totalAmount"), true, 0);
+	API_DTO_FIELD(Float64, totalAmount, ZH_WORDS_GETTER("chargedetails.field.totalAmount"), true, 0.0);
 	// count
-	API_DTO_FIELD(Int64, count, ZH_WORDS_GETTER("chargedetails.field.count"), true, 0);
+	API_DTO_FIELD(Int64, count, ZH_WORDS_GETTER("chargedetails.field.count"), true, v_int64(0));
 	// insurance amount
-	API_DTO_FIELD(Float64, insuranceAmount, ZH_WORDS_GETTER("chargedetails.field.insuranceAmount"), true, 0);
+	API_DTO_FIELD(Float64, insuranceAmount, ZH_WORDS_GETTER("chargedetails.field.insuranceAmount"), true, 0.0);
 	// self-pay amount
-	API_DTO_FIELD(Float64, selfPayAmount, ZH_WORDS_GETTER("chargedetails.field.selfPayAmount"), true, 0);
+	API_DTO_FIELD(Float64, selfPayAmount, ZH_WORDS_GETTER("chargedetails.field.selfPayAmount"), true, 0.0);
 	// summary date
 	API_DTO_FIELD(String, summaryDate, ZH_WORDS_GETTER("chargedetails.field.summaryDate"), true, "");
 };

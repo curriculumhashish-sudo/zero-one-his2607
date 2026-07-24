@@ -1,31 +1,33 @@
-chargedetails.tag: 费用明细与汇总
-chargedetails.query-all.summary: 分页查询费用明细
-chargedetails.query-one.summary: 查询单个费用明细
-chargedetails.summary-by-encounter.summary: 按就诊汇总费用
-chargedetails.summary-by-date.summary: 按日期汇总费用
-chargedetails.field.id: ID
-chargedetails.field.patientId: 患者ID
-chargedetails.field.encounterId: 就诊ID
-chargedetails.field.chargeName: 收费项目名称
-chargedetails.field.typeCode: 收费类型编码
-chargedetails.field.typeName: 收费类型名称
-chargedetails.field.unitPrice: 单价
-chargedetails.field.quantityValue: 数量
-chargedetails.field.quantityUnit: 数量单位
-chargedetails.field.totalPrice: 总金额
-chargedetails.field.baseAmount: 基本金额
-chargedetails.field.discountAmount: 折扣金额
-chargedetails.field.occurrenceTime: 发生时间
-chargedetails.field.performingOrgId: 执行科室
-chargedetails.field.statusEnum: 状态
-chargedetails.field.busNo: 业务单号
-chargedetails.field.startDate: 开始日期
-chargedetails.field.endDate: 结束日期
-chargedetails.field.totalAmount: 汇总金额
-chargedetails.field.count: 数量
-chargedetails.field.insuranceAmount: 医保金额
-chargedetails.field.selfPayAmount: 自费金额
-chargedetails.field.summaryDate: 汇总日期
+chargedetails:
+  tag: 费用明细接口
+  query-details:
+    summary: 获取费用明细（条件）
+  query-summary:
+    summary: 获取费用汇总（条件）
+  field:
+    id: ID
+    patientId: 患者ID
+    encounterId: 就诊ID
+    chargeName: 收费项目名称
+    typeCode: 收费类型编码
+    typeName: 收费类型名称
+    unitPrice: 单价
+    quantityValue: 数量
+    quantityUnit: 数量单位
+    totalPrice: 总金额
+    baseAmount: 基本金额
+    discountAmount: 折扣金额
+    occurrenceTime: 发生时间
+    performingOrgId: 执行科室
+    statusEnum: 状态
+    busNo: 业务单号
+    startDate: 开始日期
+    endDate: 结束日期
+    totalAmount: 汇总金额
+    count: 数量
+    insuranceAmount: 医保金额
+    selfPayAmount: 自费金额
+    summaryDate: 汇总日期
 
 # Chinese dictionary for Swagger/UI labels
 # Module: his-c4-inpatientnurse (Inpatient Nurse Station)
@@ -34,7 +36,7 @@ chargedetails.field.summaryDate: 汇总日期
 # Medical Order Execution (core) - 医嘱执行
 # ============================================================
 medical-order-execution:
-  tag: 医嘱执行(核心)
+  tag: 医嘱执行接口
   description: 病区护士站医嘱核查与执行接口
   verification-items:
     summary: 获取核查条目
@@ -58,6 +60,10 @@ medicationcollection:
     summary: 获取汇总医嘱条目（条件）
   summary-medication:
     summary: 汇总领药
+  submit-summary:
+    summary: 发送汇总单（支持批量）
+  cancel-summary:
+    summary: 撤销汇总单（支持批量）
   field:
     encounterIds: 就诊ID列表（多个ID用英文逗号分隔）
     medicineCategoryTab: 药品分类（west西药、tcm中药）
@@ -240,17 +246,27 @@ dispense:
     med1-unit: 250ml/袋
 
 medicalOrderVerification:
-tags:
-  tag: 医嘱校对
-field:
-  name: 姓名
-  isPassed: 校对是否通过
-  medicalType: 用药类型
-  medicalPeriod: 用药时长
-  type: 类型
-  content: 医嘱内容
-query:
-  summary: 医嘱校对查询
+  tags:
+    tag: 医嘱校对接口
+  query:
+    summary: 获取校对条目（条件）
+  verify-pass:
+    summary: 校对通过
+  reject-orders:
+    summary: 退回医嘱
+  field:
+    name: 姓名
+    isPassed: 校对是否通过
+    medicalType: 用药类型
+    medicalPeriod: 用药时长
+    type: 类型
+    content: 医嘱内容
+    orderType: 医嘱类型（MED_REQUEST/SERVICE_REQUEST）
+    requestId: 请求ID
+    items: 写操作项目列表
+    success: 是否成功
+    processedCount: 处理条数
+    reason: 退回原因
 bedassign:
     field:
        patientid: 病人id
@@ -275,11 +291,11 @@ bed:
        intended_admission_date: 预期入院日期
 temperature:
  tags:
-  tag: 体温单
+  tag: 体温接口
  query-by-date:
   summary: 按日期查询体温记录
  save:
-  summary: 保存体温记录
+  summary: 保存患者体温单记录
  field:
   id: 记录编号
   patientId: 患者标识
@@ -331,15 +347,37 @@ temperature:
   medicalRecordNo: 病历号
   admissionTime: 入院时间
   dischargeTime: 出院时间
+  recordedAt: 测量时间
+  windowRange: 时间窗口范围（3d/7d/14d）
+  focusRecordDate: 聚焦日期
+  itemCode: 项目编码
+  itemValue: 项目值
+  termCode: 术语编码
+  detailItems: 明细项列表
+  vitalSignId: 生命体征记录ID
+  recordDate: 记录日期
+  slotCells: 时次单元格列表
+  dateFrom: 起始日期
+  dateTo: 截止日期
+  pageIndex: 页码
+  totalPages: 总页数
+  hospitalizationDaysByDate: 住院天数
+  postoperativeDaysByDate: 术后天数
+  fillSlots: 待填时次列表
+  gridRows: 网格行列表
+  pagination: 分页信息
+  temperaturePoints: 体温曲线点列表
+  derivedMeta: 衍生元数据
+  nextTimeSlot: 下个时次
 nursing:
  tags:
-  tag: 护理记录
+  tag: 护理接口
  query:
-  summary: 分页查询护理记录
+  summary: 获取患者护理记录
  query-one:
   summary: 通过ID查询护理记录
  add:
-  summary: 新增护理记录
+  summary: 保存患者护理记录
  field:
   id: 记录编号
   patientId: 患者标识
@@ -388,3 +426,197 @@ nursing:
   medicalRecordNo: 病历号
   admissionTime: 入院时间
   dischargeTime: 出院时间
+  vitalSignId: 生命体征记录ID
+  recordDate: 记录日期
+  recordTime: 记录时间
+  recordedAtFrom: 记录时间起
+  recordedAtTo: 记录时间止
+  sortAsc: 是否升序排列
+  respiratory: 呼吸
+  oxygenSaturation: 血氧饱和度
+  oxygenFlow: 氧流量
+  oxygenMode: 给氧方式
+  oxygenRate: 氧浓度
+  skinStatus: 皮肤状况
+  conditionMeasure: 病情措施
+  tubeCare: 管路护理
+  intakeAmount: 入量
+  intakeRoute: 入量途径
+  outputAmount: 出量
+  outputColorCharacter: 出量颜色性状
+  inpatientNo: 住院号
+  gender: 性别
+  age: 年龄
+  admitAt: 入院时间
+  dischargeAt: 出院时间
+  wardName: 病区名称
+  paperHeader: 纸质单表头
+  rows: 记录行列表
+  records: 保存记录列表
+  savedCount: 保存条数
+  success: 是否成功
+  rowType: 行类型
+# ============================================================
+# Nursing Record - 护理记录 (flat keys for new controller)
+# ============================================================
+nursing.tag: 护理记录接口
+nursing.list-records.summary: 获取患者护理记录
+nursing.save-records.summary: 保存患者护理记录
+nursing.delete-record.summary: 删除护理记录
+nursing.field.vitalSignId: 生命体征记录ID
+nursing.field.recordDate: 记录日期
+nursing.field.recordTime: 记录时间
+nursing.field.recordedAtFrom: 记录时间起
+nursing.field.recordedAtTo: 记录时间止
+nursing.field.sortAsc: 是否升序排列
+nursing.field.temperature: 体温
+nursing.field.pulse: 脉搏
+nursing.field.heartRate: 心率
+nursing.field.respiratory: 呼吸
+nursing.field.bloodPressure: 血压
+nursing.field.oxygenSaturation: 血氧饱和度
+nursing.field.oxygenFlow: 氧流量
+nursing.field.oxygenMode: 给氧方式
+nursing.field.oxygenRate: 氧浓度
+nursing.field.consciousness: 意识
+nursing.field.pupilLeft: 瞳孔左
+nursing.field.pupilRight: 瞳孔右
+nursing.field.skinStatus: 皮肤状况
+nursing.field.conditionMeasure: 病情措施
+nursing.field.tubeCare: 管路护理
+nursing.field.intakeName: 入量名称
+nursing.field.intakeAmount: 入量
+nursing.field.intakeRoute: 入量途径
+nursing.field.outputName: 出量名称
+nursing.field.outputAmount: 出量
+nursing.field.outputColorCharacter: 出量颜色性状
+nursing.field.nurseSignature: 护士签名
+nursing.field.inpatientNo: 住院号
+nursing.field.gender: 性别
+nursing.field.age: 年龄
+nursing.field.admitAt: 入院时间
+nursing.field.dischargeAt: 出院时间
+nursing.field.wardName: 病区名称
+nursing.field.bedNo: 床号
+nursing.field.paperHeader: 纸质单表头
+nursing.field.rows: 记录行列表
+nursing.field.records: 保存记录列表
+nursing.field.savedCount: 保存条数
+nursing.field.success: 是否成功
+nursing.field.rowType: 行类型
+
+# ============================================================
+# Temperature Sheet - 体温单 (flat keys for new controller)
+# ============================================================
+temperature.tag: 体温单接口
+temperature.get-data.summary: 获取患者体温单数据
+temperature.save-record.summary: 保存患者体温单记录
+temperature.field.recordedAt: 测量时间
+temperature.field.windowRange: 时间窗口范围（3d/7d/14d）
+temperature.field.focusRecordDate: 聚焦日期
+temperature.field.itemCode: 项目编码
+temperature.field.itemValue: 项目值
+temperature.field.remark: 备注
+temperature.field.termCode: 术语编码
+temperature.field.detailItems: 明细项列表
+temperature.field.timeSlot: 时次
+temperature.field.vitalSignId: 生命体征记录ID
+temperature.field.recordDate: 记录日期
+temperature.field.slotCells: 时次单元格列表
+temperature.field.dateFrom: 起始日期
+temperature.field.dateTo: 截止日期
+temperature.field.pageIndex: 页码
+temperature.field.totalPages: 总页数
+temperature.field.hospitalizationDaysByDate: 住院天数
+temperature.field.postoperativeDaysByDate: 术后天数
+temperature.field.fillSlots: 待填时次列表
+temperature.field.gridRows: 网格行列表
+temperature.field.pagination: 分页信息
+temperature.field.temperaturePoints: 体温曲线点列表
+temperature.field.derivedMeta: 衍生元数据
+temperature.field.busNo: 业务单号
+temperature.field.nextTimeSlot: 下个时次
+
+# ============================================================
+# Medical Order Verification additions - 医嘱校对追加
+# ============================================================
+
+# ============================================================
+# Medication Collection additions - 汇总领药追加
+# ============================================================
+
+# ============================================================
+# Inpatient Billing - 住院记账
+# ============================================================
+inpatientbilling:
+  tag: 住院记账接口
+  page-pricing-catalog:
+    summary: 获取划价选品目录（分页）
+  confirm-direct-pricing:
+    summary: 批量直接划价确认
+  list-priced-orders:
+    summary: 获取已划价列表
+  list-supplement-parent-orders:
+    summary: 获取医嘱补费父医嘱列表
+  confirm-supplement-pricing:
+    summary: 医嘱补费确认
+  cancel-pricing:
+    summary: 取消划价
+  list-auto-roll-configs:
+    summary: 获取自动计费配置列表
+  create-auto-gen-rule:
+    summary: 新增自动计费配置
+  update-auto-gen-rule:
+    summary: 修改自动计费配置
+  delete-auto-gen-rule:
+    summary: 删除自动计费配置
+  set-auto-gen-rule-status:
+    summary: 启/停用患者床位服务费
+  field:
+    encounterId: 就诊ID
+    patientId: 患者ID
+    accountId: 住院账户ID
+    keyword: 关键字模糊搜索
+    categoryCode: 收费类别编码
+    organizationUnitId: 科室ID
+    productTableName: 产品表名
+    productDefinitionId: 产品定义ID
+    quantity: 数量
+    unitCode: 单位编码
+    unitPrice: 单价
+    totalPrice: 总金额
+    chargeItemDefinitionId: 收费项目定义ID
+    total: 总记录数
+    records: 记录列表
+    name: 名称
+    productId: 产品ID
+    activityId: 活动ID
+    deviceDefId: 设备定义ID
+    performLocation: 执行库房
+    parentRequestAnchor: 补费父医嘱锚点
+    orderType: 订单类型
+    requestId: 请求ID
+    encounterIds: 就诊ID列表（数组）
+    pricedTimeFrom: 划价时间起
+    pricedTimeTo: 划价时间止
+    therapyType: 长临筛选
+    orgId: 科室ID
+    groups: 就诊分组列表
+    pricedOrders: 已划价列表
+    orders: 医嘱列表
+    success: 是否成功
+    processedCount: 处理条数
+    createdServiceRequestIds: 创建的诊疗请求ID列表
+    createdDeviceRequestIds: 创建设备请求ID列表
+    cancelledServiceRequestIds: 取消的诊疗请求ID列表
+    cancelledDeviceRequestIds: 取消的设备请求ID列表
+    ruleId: 规则ID
+    ruleName: 规则名称
+    statusEnum: 状态
+    enabled: 是否启用
+    chargeDefinitionId: 收费定义ID
+    billDate: 计费日期
+    configs: 配置列表
+    nursingLevelReadonly: 护理级别只读区
+    priority: 优先级
+    performingOrgId: 执行科室ID

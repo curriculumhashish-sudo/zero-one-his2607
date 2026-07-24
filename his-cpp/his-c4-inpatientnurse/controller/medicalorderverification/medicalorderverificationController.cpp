@@ -1,7 +1,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author:
+ @Author: Swan_Woo
  @Date: 2026/07/21 00:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,4 +22,20 @@
 medicalOrderVerificationJsonVO::Wrapper MedicalOrderVerificationController::execQueryMedicalOrderVerification(
     const MedicalVerificationQuery::Wrapper& query) {
     return {};
+}
+
+VerifyPassJsonVO::Wrapper MedicalOrderVerificationController::execVerifyPass(
+    const VerifyPassRequestDTO::Wrapper& dto)
+{
+    auto jvo = VerifyPassJsonVO::createShared();
+    jvo->setStatus(RS_SUCCESS);
+    return jvo;
+}
+
+RejectOrdersJsonVO::Wrapper MedicalOrderVerificationController::execRejectOrders(
+    const RejectOrdersRequestDTO::Wrapper& dto)
+{
+    auto jvo = RejectOrdersJsonVO::createShared();
+    jvo->setStatus(RS_SUCCESS);
+    return jvo;
 }

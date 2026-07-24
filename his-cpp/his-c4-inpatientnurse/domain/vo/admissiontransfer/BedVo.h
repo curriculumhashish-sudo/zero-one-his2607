@@ -8,6 +8,11 @@
 
 class BedPageJsonVO : public JsonVO<BedPageDTO::Wrapper> {
     DTO_INIT(BedPageJsonVO, JsonVO<BedPageDTO::Wrapper>);
+public:
+	BedPageJsonVO()
+	{
+		data = BedPageDTO::createShared();
+	}
 };
 
 #include OATPP_CODEGEN_END(DTO)

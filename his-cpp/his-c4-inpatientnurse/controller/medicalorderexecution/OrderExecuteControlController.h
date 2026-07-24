@@ -6,20 +6,25 @@
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-#define API_TAG ZH_WORDS_GETTER("medical_advice.tag")
+#define API_TAG ZH_WORDS_GETTER("medical-order-execution.tag")
 
 class OrderExecuteControlController : public oatpp::web::server::api::ApiController
 {
 	API_ACCESS_DECLARE(OrderExecuteControlController);
 public:
-	/*不执行医嘱接口文档声明*/
+	// Swagger definition for skipping medical-order execution.
 	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("medical_advice.notexecute.summary"),
 		skipOrderExecution,
 		StringJsonVO::Wrapper,
-		API_TAG
+		API_TAG,
+		oatpp::List<OrderNotExecuteDTO::Wrapper> example = {
+			OrderNotExecuteDTO::createShared()};
+		info->body.addExample("default", example);
+		info->responses[Status::CODE_200].addExample(
+			"success", StringJsonVO::createShared());
 	);
-	/*定义不执行医嘱接口*/
+	// Skip medical-order execution.
 	API_HANDLER_ENDPOINT_AUTH(
 		API_M_POST,
 		"/advice/notexecute",
@@ -29,14 +34,17 @@ public:
 	);
 
 
-	/*取消执行医嘱接口文档声明*/
+	// Swagger definition for cancelling medical-order execution.
 	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("medical_advice.cancelexecute.summary"),
 		cancelOrderExecution,
 		CancelExecutionJsonVO::Wrapper,
-		API_TAG
+		API_TAG,
+		info->body.addExample("default", CancelExecutionRequestDTO::createShared());
+		info->responses[Status::CODE_200].addExample(
+			"success", CancelExecutionJsonVO::createShared());
 	);
-	/*定义取消执行医嘱接口*/
+	// Cancel medical-order execution.
 	API_HANDLER_ENDPOINT_AUTH(
 		API_M_POST,
 		"/advice/cancelexecute",

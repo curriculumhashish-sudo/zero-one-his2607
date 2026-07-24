@@ -2,8 +2,8 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: awei
- @Date: 2026/07/19 10:00:00
+ @Author: Swan_Woo
+ @Date: 2026/07/24 00:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,54 +17,76 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _NURSINGCONTROLLER_H_
-    #define _NURSINGCONTROLLER_H_
+#ifndef _NURSING_CONTROLLER_H_
+#define _NURSING_CONTROLLER_H_
 
-    #include "domain/vo/BaseJsonVO.h"
-    #include "domain/query/nursing/NursingQuery.h"
-    #include "domain/dto/nursing/NursingAddDTO.h"
-    #include "domain/dto/nursing/NursingDetailDTO.h"
-    #include "domain/vo/nursing/NursingVO.h"
+#include "domain/query/nursing/NursingRecordQuery.h"
+#include "domain/dto/nursing/NursingRecordDTO.h"
+#include "domain/vo/nursing/NursingRecordVO.h"
 
-    #include OATPP_CODEGEN_BEGIN(ApiController)
-    #define API_TAG ZH_WORDS_GETTER("nursing.tags.tag")
+using namespace oatpp;
 
-/**
- * Nursing record API controller
- */
+#include OATPP_CODEGEN_BEGIN(ApiController)
+
+#define API_TAG ZH_WORDS_GETTER("nursing.tags.tag")
+
 class NursingController : public oatpp::web::server::api::ApiController
 {
-    API_ACCESS_DECLARE(NursingController);
+	API_ACCESS_DECLARE(NursingController);
 
 public:
-    // Page query nursing records
-    API_DEF_ENDPOINT_INFO_QUERY_AUTH(
-        ZH_WORDS_GETTER("nursing.query.summary"), queryAllNursing, NursingQuery, NursingPageJsonVO::Wrapper, API_TAG);
-    API_HANDLER_ENDPOINT_QUERY_AUTH(
-        API_M_GET, "/nursing/query-all", queryAllNursing, NursingQuery, execQueryAll(query));
+	// List nursing records by encounter and date range
+	API_DEF_ENDPOINT_INFO_AUTH(
+		ZH_WORDS_GETTER("nursing.query.summary"),
+		listNursingRecords,
+		NursingRecordListJsonVO::Wrapper,
+		API_TAG,
+		API_DEF_ADD_QUERY_PARAMS(String, "encounterId",
+			ZH_WORDS_GETTER("nursing.field.encounterId"), "337907884548657152", true);
+		API_DEF_ADD_QUERY_PARAMS(String, "patientId",
+			ZH_WORDS_GETTER("nursing.field.patientId"), "326940849401761792", true);
+		API_DEF_ADD_QUERY_PARAMS(String, "recordedAtFrom",
+			ZH_WORDS_GETTER("nursing.field.recordedAtFrom"), "2026-07-01", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "recordedAtTo",
+			ZH_WORDS_GETTER("nursing.field.recordedAtTo"), "2026-07-24", false);
+		API_DEF_ADD_QUERY_PARAMS(Boolean, "sortAsc",
+			ZH_WORDS_GETTER("nursing.field.sortAsc"), false, false);
+		info->responses[Status::CODE_200].addExample(
+			"success", NursingRecordListJsonVO::createShared());
+	);
+	API_HANDLER_ENDPOINT_QUERY_AUTH(
+		API_M_GET,
+		"/nursing/list-records",
+		listNursingRecords,
+		NursingRecordQuery,
+		execListNursingRecords(query));
 
-    // Query single nursing record by ID
-    API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("nursing.query-one.summary"),
-                               queryOneNursing,
-                               NursingJsonVO::Wrapper,
-                               API_TAG,
-                               API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("nursing.field.id"), "", true););
-    API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/nursing/query-one", queryOneNursing, QUERY(String, id), execQueryOne(id));
-
-    // Add nursing record
-    API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("nursing.add.summary"), addNursing, StringJsonVO::Wrapper, API_TAG);
-    API_HANDLER_ENDPOINT_AUTH(API_M_POST,
-                              "/nursing/add-nursing",
-                              addNursing,
-                              BODY_DTO(NursingAddDTO::Wrapper, dto),
-                              execAddNursing(dto, authObject->getPayload()));
+	// Save nursing records in batch
+	API_DEF_ENDPOINT_INFO_AUTH(
+		ZH_WORDS_GETTER("nursing.add.summary"),
+		saveNursingRecords,
+		NursingRecordSaveJsonVO::Wrapper,
+		API_TAG,
+		info->body.addExample("default", NursingRecordSaveRequestDTO::createShared());
+		info->responses[Status::CODE_200].addExample(
+			"success", NursingRecordSaveJsonVO::createShared());
+	);
+	API_HANDLER_ENDPOINT_AUTH(
+		API_M_POST,
+		"/nursing/save-records",
+		saveNursingRecords,
+		BODY_DTO(NursingRecordSaveRequestDTO::Wrapper, dto),
+		execSaveNursingRecords(dto));
 
 private:
-    NursingPageJsonVO::Wrapper execQueryAll(const NursingQuery::Wrapper& query);
-    NursingJsonVO::Wrapper execQueryOne(const String& id);
-    StringJsonVO::Wrapper execAddNursing(const NursingAddDTO::Wrapper& dto, const PayloadDTO& payload);
+	NursingRecordListJsonVO::Wrapper execListNursingRecords(
+		const NursingRecordQuery::Wrapper& query);
+	NursingRecordSaveJsonVO::Wrapper execSaveNursingRecords(
+		const NursingRecordSaveRequestDTO::Wrapper& dto);
 };
 
-    #undef API_TAG
-    #include OATPP_CODEGEN_END(ApiController)
-#endif  // !_NURSINGCONTROLLER_H_
+#undef API_TAG
+
+#include OATPP_CODEGEN_END(ApiController)
+
+#endif // !_NURSING_CONTROLLER_H_

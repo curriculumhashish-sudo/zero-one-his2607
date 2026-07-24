@@ -31,3 +31,19 @@ CreateMedicationSummaryJsonVO::Wrapper MedicationCollectionController::execSumma
 {
 	return {};
 }
+
+SubmitSummaryJsonVO::Wrapper MedicationCollectionController::execSubmitSummary(
+	const SubmitSummaryRequestDTO::Wrapper& dto)
+{
+	auto jvo = SubmitSummaryJsonVO::createShared();
+	jvo->setStatus(RS_SUCCESS);
+	return jvo;
+}
+
+CancelSummaryJsonVO::Wrapper MedicationCollectionController::execCancelSummary(
+	const CancelSummaryRequestDTO::Wrapper& dto)
+{
+	auto jvo = CancelSummaryJsonVO::createShared();
+	jvo->setStatus(RS_SUCCESS);
+	return jvo;
+}

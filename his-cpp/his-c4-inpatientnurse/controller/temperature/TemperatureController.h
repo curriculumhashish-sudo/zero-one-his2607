@@ -2,8 +2,8 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: awei
- @Date: 2026/07/20 10:00:00
+ @Author: Swan_Woo
+ @Date: 2026/07/24 00:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,54 +17,75 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _TEMPERATURECONTROLLER_H_
-    #define _TEMPERATURECONTROLLER_H_
+#ifndef _TEMPERATURE_CONTROLLER_H_
+#define _TEMPERATURE_CONTROLLER_H_
 
-    #include "domain/vo/BaseJsonVO.h"
-    #include "domain/query/temperature/TemperatureQuery.h"
-    #include "domain/dto/temperature/TemperatureDTO.h"
-    #include "domain/vo/temperature/TemperatureVO.h"
+#include "domain/dto/temperature/TemperatureRecordDTO.h"
+#include "domain/vo/temperature/TemperatureRecordVO.h"
 
-    #include OATPP_CODEGEN_BEGIN(ApiController)
-    #define API_TAG ZH_WORDS_GETTER("temperature.tags.tag")
+using namespace oatpp;
 
-/**
- * 体温单 API 控制器。
- *
- * 后端范围（2个端点）：
- *  - 按患者 + 日期查询单日体温单
- *  - 保存/更新整张体温单（7个时间段 + 补充记录）
- */
+#include OATPP_CODEGEN_BEGIN(ApiController)
+
+#define API_TAG ZH_WORDS_GETTER("temperature.tags.tag")
+
 class TemperatureController : public oatpp::web::server::api::ApiController
 {
-    API_ACCESS_DECLARE(TemperatureController);
+	API_ACCESS_DECLARE(TemperatureController);
 
 public:
-    // 按日期查询体温单
-    API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("temperature.query-by-date.summary"),
-                                     queryByDate,
-                                     TemperatureQuery,
-                                     TemperatureJsonVO::Wrapper,
-                                     API_TAG);
-    API_HANDLER_ENDPOINT_QUERY_AUTH(
-        API_M_GET, "/temperature/query-by-date", queryByDate, TemperatureQuery, execQueryByDate(query));
+	// Get temperature sheet data
+	API_DEF_ENDPOINT_INFO_AUTH(
+		ZH_WORDS_GETTER("temperature.query-by-date.summary"),
+		getTemperatureData,
+		TemperatureSheetDataJsonVO::Wrapper,
+		API_TAG,
+		API_DEF_ADD_QUERY_PARAMS(String, "encounterId",
+			ZH_WORDS_GETTER("temperature.field.encounterId"), "337907884548657152", true);
+		API_DEF_ADD_QUERY_PARAMS(String, "patientId",
+			ZH_WORDS_GETTER("temperature.field.patientId"), "326940849401761792", true);
+		API_DEF_ADD_QUERY_PARAMS(String, "windowRange",
+			ZH_WORDS_GETTER("temperature.field.windowRange"), "7d", true);
+		API_DEF_ADD_QUERY_PARAMS(String, "focusRecordDate",
+			ZH_WORDS_GETTER("temperature.field.focusRecordDate"), "2026-07-24", false);
+		API_DEF_ADD_QUERY_PARAMS(Int32, "pageIndex",
+			ZH_WORDS_GETTER("temperature.field.pageIndex"), 1, false);
+		info->responses[Status::CODE_200].addExample(
+			"success", TemperatureSheetDataJsonVO::createShared());
+	);
+	API_HANDLER_ENDPOINT_QUERY_AUTH(
+		API_M_GET,
+		"/temperature/get-data",
+		getTemperatureData,
+		TemperatureSheetGetDataRequestDTO,
+		execGetTemperatureData(query));
 
-    // 保存体温单（插入或更新）
-    API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("temperature.save.summary"),
-                               saveTemperature,
-                               StringJsonVO::Wrapper,
-                               API_TAG);
-    API_HANDLER_ENDPOINT_AUTH(API_M_POST,
-                              "/temperature/save",
-                              saveTemperature,
-                              BODY_DTO(TemperatureSaveDTO::Wrapper, dto),
-                              execSave(dto, authObject->getPayload()));
+	// Save temperature sheet data at a recorded time
+	API_DEF_ENDPOINT_INFO_AUTH(
+		ZH_WORDS_GETTER("temperature.save.summary"),
+		saveTemperatureRecord,
+		TemperatureSheetSaveJsonVO::Wrapper,
+		API_TAG,
+		info->body.addExample("default", TemperatureSheetSaveRequestDTO::createShared());
+		info->responses[Status::CODE_200].addExample(
+			"success", TemperatureSheetSaveJsonVO::createShared());
+	);
+	API_HANDLER_ENDPOINT_AUTH(
+		API_M_POST,
+		"/temperature/save-record",
+		saveTemperatureRecord,
+		BODY_DTO(TemperatureSheetSaveRequestDTO::Wrapper, dto),
+		execSaveTemperatureRecord(dto));
 
 private:
-    TemperatureJsonVO::Wrapper execQueryByDate(const TemperatureQuery::Wrapper& query);
-    StringJsonVO::Wrapper execSave(const TemperatureSaveDTO::Wrapper& dto, const PayloadDTO& payload);
+	TemperatureSheetDataJsonVO::Wrapper execGetTemperatureData(
+		const TemperatureSheetGetDataRequestDTO::Wrapper& query);
+	TemperatureSheetSaveJsonVO::Wrapper execSaveTemperatureRecord(
+		const TemperatureSheetSaveRequestDTO::Wrapper& dto);
 };
 
-    #undef API_TAG
-    #include OATPP_CODEGEN_END(ApiController)
-#endif  // !_TEMPERATURECONTROLLER_H_
+#undef API_TAG
+
+#include OATPP_CODEGEN_END(ApiController)
+
+#endif // !_TEMPERATURE_CONTROLLER_H_

@@ -2,7 +2,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: fanpai
+ @Author: Swan_Woo
  @Date: 2026/07/24 16:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +20,7 @@
 #ifndef _MEDICAL_ORDER_ITEM_DTO_H_
 #define _MEDICAL_ORDER_ITEM_DTO_H_
 
+#include "../../GlobalInclude.h"
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
@@ -128,6 +129,28 @@ class MedicalOrderItemDTO : public oatpp::DTO
 
     // Return/rejection reason text
     API_DTO_FIELD_DEFAULT(String, reasonText, "return/rejection reason");
+
+public:
+    MedicalOrderItemDTO()
+    {
+        id = "337907884548657152";
+        busNo = "MO202607240001";
+        prescriptionNo = "RX202607240001";
+        statusEnum = "verified";
+        categoryEnum = "medication";
+        intentEnum = "temporary";
+        priorityEnum = "routine";
+        patientId = "326940849401761792";
+        encounterId = "337907884548657152";
+        authoredTime = "2026-07-24 08:00:00";
+        quantity = 1.0;
+        unitCode = "tablet";
+        requesterId = "DOCTOR001";
+        performerId = "NURSE001";
+        locationId = "334526752078102528";
+        executionCount = 0;
+        remark = "饭后服用";
+    }
 };
 
 #include OATPP_CODEGEN_END(DTO)
