@@ -1,9 +1,10 @@
 package com.zeroone.star.basedata.service.impl;
 
-import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinition;
+import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinitionDO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentAddDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentUpdateDTO;
 import com.zeroone.star.project.vo.j4.equipment.EquipmentCategoryVo;
+import com.zeroone.star.project.vo.j4.equipment.EquipmentUpdateVO;
 import com.zeroone.star.project.vo.j4.equipment.EquipmentVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -33,7 +34,7 @@ public interface MsEquipmentMapper {
      * @param equipmentAddDTO 新增器材DTo
      * @return 器材实体
      */
-    AdmDeviceDefinition saveDtoToEntity(EquipmentAddDTO equipmentAddDTO);
+    AdmDeviceDefinitionDO saveDtoToEntity(EquipmentAddDTO equipmentAddDTO);
 
     /**
      * <p>
@@ -43,7 +44,7 @@ public interface MsEquipmentMapper {
      * @param equipmentUpdateDTO 更新器材DTo
      * @return 器材实体
      */
-    AdmDeviceDefinition updateDtoToEntity(EquipmentUpdateDTO equipmentUpdateDTO);
+    AdmDeviceDefinitionDO updateDtoToEntity(EquipmentUpdateDTO equipmentUpdateDTO);
 
     /**
      * <p>
@@ -53,7 +54,7 @@ public interface MsEquipmentMapper {
      * @param equipment 器材实体
      * @return 器材VO
      */
-    EquipmentVO entityToVo(AdmDeviceDefinition equipment);
+    EquipmentVO entityToVo(AdmDeviceDefinitionDO equipment);
 
     /**
      * <p>
@@ -63,7 +64,7 @@ public interface MsEquipmentMapper {
      * @param equipmentList 器材实体列表
      * @return 器材VO列表
      */
-    List<EquipmentVO> entityListToVoList(List<AdmDeviceDefinition> equipmentList);
+    List<EquipmentVO> entityListToVoList(List<AdmDeviceDefinitionDO> equipmentList);
 
     /**
      * 将单个数据库实体映射为下拉选项 VO
@@ -73,7 +74,7 @@ public interface MsEquipmentMapper {
      */
     @Mapping(source = "categoryCode", target = "value")
     @Mapping(source = "name", target = "label")
-    EquipmentCategoryVo entityToOptionVo(AdmDeviceDefinition entity);
+    EquipmentCategoryVo entityToOptionVo(AdmDeviceDefinitionDO entity);
 
     /**
      * 将数据库实体列表映射为下拉选项 VO 列表
@@ -81,5 +82,13 @@ public interface MsEquipmentMapper {
      * @param entities 器材实体列表
      * @return 下拉选项VO列表
      */
-    List<EquipmentCategoryVo> entitiesToOptionVos(List<AdmDeviceDefinition> entities);
+    List<EquipmentCategoryVo> entitiesToOptionVos(List<AdmDeviceDefinitionDO> entities);
+
+    /**
+     * 将器材实体转换为修改响应VO
+     *
+     * @param entity 器材实体
+     * @return 修改响应VO
+     */
+    EquipmentUpdateVO entityToUpdateVo(AdmDeviceDefinitionDO entity);
 }

@@ -2,6 +2,7 @@ package com.zeroone.star.project.query.j4.frequency;
 
 import com.zeroone.star.project.query.PageQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -21,6 +22,7 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class FrequencyPageQuery extends PageQuery {
 
+    @Size(max = 255, message = "搜索关键字长度不能超过255个字符")
     @Schema(description = "模糊查询关键字（支持频次名称或频次代号）", example = "每日")
     private String keyword;
 }

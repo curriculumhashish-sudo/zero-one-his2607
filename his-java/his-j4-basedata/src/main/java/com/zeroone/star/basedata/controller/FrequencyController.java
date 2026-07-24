@@ -13,10 +13,10 @@ import com.zeroone.star.project.vo.j4.frequency.FrequencyVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -29,6 +29,7 @@ import java.util.List;
  * @author j4组
  * @version 1.0.0
  */
+@Validated
 @RestController
 @RequestMapping("/frequency")
 @Tag(name = "频次管理", description = "频次管理接口")
@@ -40,7 +41,7 @@ public class FrequencyController implements FrequencyApis {
     @Operation(summary = "查询频次列表(分页+条件)")
     @GetMapping("/query-frequency-list")
     @Override
-    public JsonVO<PageDTO<FrequencyVO>> queryFrequencyList(FrequencyPageQuery query) {
+    public JsonVO<PageDTO<FrequencyVO>> queryFrequencyList(@Valid FrequencyPageQuery query) {
         PageDTO<FrequencyVO> pageResult = frequencyService.queryFrequencyPage(query);
         return JsonVO.success(pageResult);
     }
@@ -48,7 +49,7 @@ public class FrequencyController implements FrequencyApis {
     @Operation(summary = "查询频次详情")
     @GetMapping("/query-frequency-detail")
     @Override
-    public JsonVO<FrequencyVO> queryFrequencyDetail(@RequestParam String id) {
+    public JsonVO<FrequencyVO> queryFrequencyDetail(@RequestParam @NotBlank(message = "频次ID不能为空") String id) {
         FrequencyVO detail = frequencyService.queryFrequencyDetail(id);
         if (detail == null) {
             return JsonVO.fail("频次记录不存在");
