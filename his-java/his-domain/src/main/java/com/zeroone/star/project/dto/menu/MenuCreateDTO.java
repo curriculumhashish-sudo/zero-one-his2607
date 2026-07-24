@@ -34,7 +34,7 @@ public class MenuCreateDTO {
     private Boolean keepAlive;
 
     @Schema(description = "是否外链", example = "false")
-    private Boolean isExternal;
+    private Boolean external;
 
     @Schema(description = "显示名称", example = "系统管理")
     private String displayName;
@@ -43,13 +43,13 @@ public class MenuCreateDTO {
     private String remark;
 
     @Schema(description = "是否隐藏", example = "false")
-    private Boolean isHidden;
+    private Boolean hidden;
 
     @Schema(description = "排序号", example = "1")
     private Integer sortOrder;
 
     @Schema(description = "是否启用", example = "true")
-    private Boolean isEnabled;
+    private Boolean enabled;
 
     @Schema(description = "菜单名称", example = "system", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
