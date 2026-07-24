@@ -78,11 +78,11 @@
                 <artifactId>mp-code-generator-plugin</artifactId>
                 <configuration>
                     <dbConfig>
-                        <host>127.0.0.1</host>
+                        <host>192.168.80.128</host>
                         <port>3306</port>
-                        <dbname>test</dbname>
+                        <dbname>zo_his</dbname>
                         <username>root</username>
-                        <password>1234</password>
+                        <password>123</password>
                     </dbConfig>
                     <outDir>${project.basedir}/src/main/java</outDir>
                 </configuration>

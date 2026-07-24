@@ -1,5 +1,7 @@
 package com.zeroone.star.basedata.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -26,6 +28,7 @@ import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * <p>
@@ -190,8 +193,43 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
 
     @Override
     public MedicineDetailDTO queryMedicineDetailById(String id) {
-        return null;
+        MedMedicationDefinitionDO medicationDefinitionDO = baseMapper.selectById(id);
+        //获取与id值关联的AdmChargeItemDefinitionDO列表
+        QueryWrapper<AdmChargeItemDefinitionDO> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda()
+                .eq(AdmChargeItemDefinitionDO::getInstanceTable,"med_medication_defination")
+                .eq(AdmChargeItemDefinitionDO::getInstanceId,id);
+        List<AdmChargeItemDefinitionDO> chargeItemDefinitionDOS = chargeItemMapper.selectList(queryWrapper);
+        if(medicationDefinitionDO == null||chargeItemDefinitionDOS ==null||chargeItemDefinitionDOS.isEmpty()){
+            return null;
+        }
+        //简单组装MedicineDatailDTO
+        MedicineDetailDTO detailDTO = msMedicineMapper.entityToDetailDTO(medicationDefinitionDO);
+        //组装DTO的charge部分
+        for (AdmChargeItemDefinitionDO definitionDO :chargeItemDefinitionDOS){
+            String code = definitionDO.getPriceTypeCode();
+            if(detailDTO.getInsuranceCategoryCode()==null && definitionDO.getYbType() != null){
+                detailDTO.setInsuranceCategoryCode(definitionDO.getYbType());
+            }
+            if("PURCHASE".equals(code)){
+                detailDTO.setPurchasePrice(definitionDO.getPriceValue());
+                continue;
+            }
+            if ("SALE".equals(code)){
+                detailDTO.setRetailPrice(definitionDO.getPriceValue());
+                continue;
+            }
+            if("LIMIT".equals(code)){
+                detailDTO.setMaxRetailPrice(definitionDO.getPriceValue());
+            }
+        }
+        //TODO 考虑将其存入Redis
+        return detailDTO;
+
+
     }
+    @Resource
+    MedMedicationDefinitionMapper medicationDefinitionMapper;
 
     @Override
     public int updateMedicine(MedicineDetailDTO dto) {
