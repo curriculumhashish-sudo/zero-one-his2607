@@ -38,7 +38,7 @@ public class SlotReleaseStrategyController implements SlotReleaseStrategyApis {
     private final ISlotReleaseStrategyService strategyService;
 
     @Operation(summary = "查询放号策略列表")
-    @GetMapping("j8/setroster/querySlotReleaseStrategies")
+    @GetMapping("/queryAllocationStrategies")
     @Override
     public JsonVO<PageDTO<SlotReleaseStrategyDTO>> querySlotReleaseStrategies(
             @Valid @ModelAttribute SlotReleaseStrategyQuery query) {
@@ -46,21 +46,21 @@ public class SlotReleaseStrategyController implements SlotReleaseStrategyApis {
     }
 
     @Operation(summary = "获取放号策略名称")
-    @GetMapping("j8/setroster/querySlotReleaseStrategyNames")
+    @GetMapping("/queryAllocationStrategyNames")
     @Override
     public JsonVO<List<SlotReleaseStrategyNameDTO>> querySlotReleaseStrategyNames() {
         return JsonVO.success(strategyService.listStrategyNames());
     }
 
     @Operation(summary = "新增放号策略")
-    @PostMapping("j8/setroster/addSlotReleaseStrategy")
+    @PostMapping("/addAllocationStrategy")
     @Override
     public JsonVO<String> addSlotReleaseStrategy(@Valid @RequestBody SlotReleaseStrategyAddDTO addDTO) {
         return JsonVO.success(strategyService.saveStrategy(addDTO));
     }
 
     @Operation(summary = "修改放号策略")
-    @PutMapping("j8/setroster/modifySlotReleaseStrategy")
+    @PutMapping("/modifyAllocationStrategy")
     @Override
     public JsonVO<String> modifySlotReleaseStrategy(@Valid @RequestBody SlotReleaseStrategyModifyDTO modifyDTO) {
         boolean updated = strategyService.updateStrategy(modifyDTO);
@@ -68,7 +68,7 @@ public class SlotReleaseStrategyController implements SlotReleaseStrategyApis {
     }
 
     @Operation(summary = "删除放号策略")
-    @DeleteMapping("j8/setroster/deleteSlotReleaseStrategy/{id}")
+    @DeleteMapping("/deleteAllocationStrategy/{id}")
     @Override
     public JsonVO<String> deleteSlotReleaseStrategy(
             @PathVariable("id") String id) {
