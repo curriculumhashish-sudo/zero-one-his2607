@@ -1,0 +1,15 @@
+server:
+  port: ${sp.j1-sysmgr}
+  servlet:
+    # 设置上下文路径
+    context-path: /sysmgr
+spring:
+  application:
+    name: ${sn.j1-sysmgr}
+  cloud:
+    sentinel:
+      transport:
+        # 控制台地址
+        dashboard: ${sentinel.dashboard}
+        port: 8721
+      eager: true
