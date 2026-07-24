@@ -30,6 +30,7 @@
  *
  * Inherits pageIndex and pageSize from PageQuery.
  * Supports filtering by keyword (name/pinyin/wubi), type, and status.
+ * Also supports name, typeEnum, and statusEnum for POST-based queries.
  */
 class PharmQuery : public PageQuery
 {
@@ -41,16 +42,34 @@ class PharmQuery : public PageQuery
         info->description = ZH_WORDS_GETTER("pharm.field.keyword");
     }
 
+    // Filter by name
+    DTO_FIELD(String, name);
+    DTO_FIELD_INFO(name) {
+        info->description = ZH_WORDS_GETTER("pharm.field.name");
+    }
+
     // Filter by type: WAREHOUSE / PHARMACY
     DTO_FIELD(String, type);
     DTO_FIELD_INFO(type) {
         info->description = ZH_WORDS_GETTER("pharm.field.type");
     }
 
+    // Filter by type enum: REGISTRY (warehouse) / DRUG (pharmacy)
+    DTO_FIELD(String, typeEnum);
+    DTO_FIELD_INFO(typeEnum) {
+        info->description = ZH_WORDS_GETTER("pharm.field.typeEnum");
+    }
+
     // Filter by status: ENABLED / DISABLED
     DTO_FIELD(String, status);
     DTO_FIELD_INFO(status) {
         info->description = ZH_WORDS_GETTER("pharm.field.status");
+    }
+
+    // Filter by status enum: NORMAL / DISABLED
+    DTO_FIELD(String, statusEnum);
+    DTO_FIELD_INFO(statusEnum) {
+        info->description = ZH_WORDS_GETTER("pharm.field.statusEnum");
     }
 };
 

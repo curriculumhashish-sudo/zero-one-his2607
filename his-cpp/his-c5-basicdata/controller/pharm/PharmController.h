@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -36,10 +36,12 @@
 /**
  * PharmController - Pharmacy/warehouse management API controller.
  *
- * Provides 3 core endpoints:
- * 1. GET  /pharm/select-list - Dropdown selection list (lightweight, id + name)
- * 2. GET  /pharm/query-all    - Paginated list query with keyword/type/status filters
- * 3. POST /pharm/add          - Add a new pharmacy/warehouse record
+ * Provides 5 core endpoints:
+ * 1. GET  /pharm/select-list         - Dropdown selection list (lightweight, id + name)
+ * 2. GET  /pharm/query-all            - Paginated list query with keyword/type/status filters
+ * 3. POST /pharm/add                  - Add a new pharmacy/warehouse record
+ * 4. POST /pharm/statusEnum/modify    - Modify pharmacy/warehouse status (enable/disable)
+ * 5. POST /pharm/list/query           - Paginated query via POST body
  */
 class PharmController : public oatpp::web::server::api::ApiController {
     API_ACCESS_DECLARE(PharmController);
@@ -101,13 +103,51 @@ public:
         execAddPharm(dto)
     );
 
+    // ============================================================
+    // 4. POST /pharm/statusEnum/modify — Modify status (enable/disable)
+    // ============================================================
+    API_DEF_ENDPOINT_INFO_AUTH(
+        ZH_WORDS_GETTER("pharm.statusEnum.modify"),
+        modifyPharmStatusEnum,
+        PharmPageJsonVO::Wrapper,
+        API_TAG
+    );
+    API_HANDLER_ENDPOINT_AUTH(
+        API_M_POST,
+        "/pharm/statusEnum/modify",
+        modifyPharmStatusEnum,
+        BODY_DTO(PharmModifyStatusEnumDTO::Wrapper, dto),
+        execModifyPharmStatusEnum(dto)
+    );
+
+    // ============================================================
+    // 5. POST /pharm/list/query — Paginated query via POST body
+    // ============================================================
+    API_DEF_ENDPOINT_INFO_AUTH(
+        ZH_WORDS_GETTER("pharm.list.query"),
+        queryPharmList,
+        PharmPageJsonVO::Wrapper,
+        API_TAG
+    );
+    API_HANDLER_ENDPOINT_AUTH(
+        API_M_POST,
+        "/pharm/list/query",
+        queryPharmList,
+        BODY_DTO(PharmQuery::Wrapper, dto),
+        execQueryPharmList(dto)
+    );
+
 private:
     // Dropdown selection list execution
     PharmSelectListJsonVO::Wrapper execSelectList(const String& type);
-    // Paginated query execution
+    // Paginated query execution (GET)
     PharmPageJsonVO::Wrapper execQueryAll(const PharmQuery::Wrapper& query);
     // Add pharmacy/warehouse execution
     StringJsonVO::Wrapper execAddPharm(const PharmDTO::Wrapper& dto);
+    // Modify pharmacy/warehouse status execution
+    StringJsonVO::Wrapper execModifyPharmStatusEnum(const PharmModifyStatusEnumDTO::Wrapper& dto);
+    // Paginated query execution (POST)
+    PharmPageJsonVO::Wrapper execQueryPharmList(const PharmQuery::Wrapper& query);
 };
 
 #undef API_TAG

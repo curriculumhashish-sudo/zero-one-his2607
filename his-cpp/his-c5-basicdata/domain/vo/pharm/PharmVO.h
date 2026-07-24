@@ -30,19 +30,6 @@
  *
  * Used when querying a single record by ID or returning
  * the result of an add operation.
- *
- * Response example:
- * {
- *   "code": 200,
- *   "message": "success",
- *   "data": {
- *     "id": "xxx",
- *     "name": "Main Warehouse",
- *     "type": "WAREHOUSE",
- *     "status": "ENABLED",
- *     ...
- *   }
- * }
  */
 class PharmJsonVO : public JsonVO<PharmDTO::Wrapper> {
     DTO_INIT(PharmJsonVO, JsonVO<PharmDTO::Wrapper>);
@@ -52,22 +39,6 @@ class PharmJsonVO : public JsonVO<PharmDTO::Wrapper> {
  * PharmPageJsonVO - Paginated pharmacy/warehouse list response.
  *
  * Used for the main table display with pagination support.
- *
- * Response example:
- * {
- *   "code": 200,
- *   "message": "success",
- *   "data": {
- *     "pageIndex": 1,
- *     "pageSize": 10,
- *     "total": 50,
- *     "pages": 5,
- *     "rows": [
- *       { "id": "xxx", "name": "Main Warehouse", ... },
- *       ...
- *     ]
- *   }
- * }
  */
 class PharmPageJsonVO : public JsonVO<PharmPageDTO::Wrapper> {
     DTO_INIT(PharmPageJsonVO, JsonVO<PharmPageDTO::Wrapper>);
@@ -78,16 +49,6 @@ class PharmPageJsonVO : public JsonVO<PharmPageDTO::Wrapper> {
  *
  * Returns a lightweight list with only id and name
  * for frontend dropdown/select components.
- *
- * Response example:
- * {
- *   "code": 200,
- *   "message": "success",
- *   "data": [
- *     { "id": "1", "name": "Main Warehouse" },
- *     { "id": "2", "name": "Outpatient Pharmacy" }
- *   ]
- * }
  */
 class PharmSelectListJsonVO : public JsonVO<List<PharmSelectDTO::Wrapper>> {
     DTO_INIT(PharmSelectListJsonVO, JsonVO<List<PharmSelectDTO::Wrapper>>);

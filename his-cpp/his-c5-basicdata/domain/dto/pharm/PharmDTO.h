@@ -26,10 +26,26 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
+ * PharmModifyStatusEnumDTO - Status modification DTO.
+ *
+ * Used for the statusEnum/modify endpoint to enable or disable
+ * a pharmacy/warehouse by its statusEnum field.
+ */
+class PharmModifyStatusEnumDTO : public oatpp::DTO
+{
+    DTO_INIT(PharmModifyStatusEnumDTO, DTO);
+    // Status: NORMAL (enabled) / DISABLED (disabled)
+    DTO_FIELD(String, statusEnum);
+    DTO_FIELD_INFO(statusEnum) {
+        info->description = ZH_WORDS_GETTER("pharm.field.statusEnum");
+    }
+};
+
+/**
  * PharmDTO - Full pharmacy/warehouse data transfer object.
  *
  * Used for paginated list display and form data binding.
- * Fields map to the storage/warehouse management table.
+ * Fields map to the pharm database table.
  */
 class PharmDTO : public oatpp::DTO {
     DTO_INIT(PharmDTO, DTO);
@@ -52,10 +68,28 @@ class PharmDTO : public oatpp::DTO {
         info->description = ZH_WORDS_GETTER("pharm.field.type");
     }
 
+    // Type enum: REGISTRY (warehouse) / DRUG (pharmacy) / "" (dept pharmacy)
+    DTO_FIELD(String, typeEnum);
+    DTO_FIELD_INFO(typeEnum) {
+        info->description = ZH_WORDS_GETTER("pharm.field.typeEnum");
+    }
+
+    // Parent department / class room
+    DTO_FIELD(String, classRoom);
+    DTO_FIELD_INFO(classRoom) {
+        info->description = ZH_WORDS_GETTER("pharm.field.classRoom");
+    }
+
     // Status: ENABLED / DISABLED
     DTO_FIELD(String, status);
     DTO_FIELD_INFO(status) {
         info->description = ZH_WORDS_GETTER("pharm.field.status");
+    }
+
+    // Status enum: NORMAL (enabled) / DISABLED (disabled)
+    DTO_FIELD(String, statusEnum);
+    DTO_FIELD_INFO(statusEnum) {
+        info->description = ZH_WORDS_GETTER("pharm.field.statusEnum");
     }
 
     // Pinyin code for quick search

@@ -51,3 +51,21 @@ StringJsonVO::Wrapper PharmController::execAddPharm(const PharmDTO::Wrapper& dto
     jvo->fail({});
     return jvo;
 }
+
+// Modify pharmacy/warehouse status (stub - returns empty, replace with Service call)
+StringJsonVO::Wrapper PharmController::execModifyPharmStatusEnum(const PharmModifyStatusEnumDTO::Wrapper& dto)
+{
+    auto jvo = StringJsonVO::createShared();
+    // TODO: Replace with Service layer call to modify status
+    jvo->fail({});
+    return jvo;
+}
+
+// Query pharmacy/warehouse list via POST (stub - returns empty, replace with Service call)
+PharmPageJsonVO::Wrapper PharmController::execQueryPharmList(const PharmQuery::Wrapper& query)
+{
+    auto jvo = PharmPageJsonVO::createShared();
+    // TODO: Replace with Service layer call for paginated query
+    jvo->fail({});
+    return jvo;
+}

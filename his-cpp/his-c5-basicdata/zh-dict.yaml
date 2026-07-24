@@ -147,17 +147,25 @@ sup:
 pharm:
   tags:
     name: 库房/药房管理
+  tag: 标签
   select-list:
     summary: 获取库房/药房下拉选择列表
   query-all:
     summary: 分页查询库房/药房列表
   add:
     summary: 新增库房/药房
+  statusEnum:
+    modify: 修改
+  list:
+    query: 查询
   field:
-    id: 唯一标识
+    id: 主键编号
     name: 名称
     type: 类型(WAREHOUSE/PHARMACY)
+    typeEnum: 类型枚举值
+    classRoom: 上级科室
     status: 状态(ENABLED/DISABLED)
+    statusEnum: 状态
     pyStr: 拼音码
     wbStr: 五笔码
     displayOrder: 显示顺序
