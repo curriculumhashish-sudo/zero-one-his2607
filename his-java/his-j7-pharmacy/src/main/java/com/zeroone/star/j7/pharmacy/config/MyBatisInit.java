@@ -1,4 +1,4 @@
-package com.zeroone.star.j7.config;
+package com.zeroone.star.j7.pharmacy.config;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.zeroone.star.project.components.user.UserHolder;

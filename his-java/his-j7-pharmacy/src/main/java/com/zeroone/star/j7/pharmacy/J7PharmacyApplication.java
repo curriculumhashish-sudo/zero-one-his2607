@@ -1,4 +1,4 @@
-package com.zeroone.star.j7;
+package com.zeroone.star.j7.pharmacy;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

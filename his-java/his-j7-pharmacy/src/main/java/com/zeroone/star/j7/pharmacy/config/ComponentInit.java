@@ -1,4 +1,4 @@
-package com.zeroone.star.j7.config;
+package com.zeroone.star.j7.pharmacy.config;
 
 import com.zeroone.star.project.exception.EhResultWrapper;
 import com.zeroone.star.project.vo.JsonVO;

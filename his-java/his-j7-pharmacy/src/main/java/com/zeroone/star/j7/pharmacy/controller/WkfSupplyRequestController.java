@@ -1,4 +1,4 @@
-package com.zeroone.star.j7.controller;
+package com.zeroone.star.j7.pharmacy.controller;
 
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j7.pharmacy.ApproveDTO;

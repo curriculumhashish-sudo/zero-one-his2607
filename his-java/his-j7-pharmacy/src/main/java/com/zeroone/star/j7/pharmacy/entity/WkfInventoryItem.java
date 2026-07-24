@@ -1,4 +1,4 @@
-package com.zeroone.star.j7.entity;
+package com.zeroone.star.j7.pharmacy.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Getter;

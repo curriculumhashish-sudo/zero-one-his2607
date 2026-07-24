@@ -1,6 +1,6 @@
-package com.zeroone.star.j7.service;
+package com.zeroone.star.j7.pharmacy.service;
 
-import com.zeroone.star.j7.entity.DocInventoryItemSnapshot;
+import com.zeroone.star.j7.pharmacy.entity.DocInventoryItemSnapshot;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**

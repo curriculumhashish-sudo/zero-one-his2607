@@ -1,7 +1,7 @@
-package com.zeroone.star.j7.mapper;
+package com.zeroone.star.j7.pharmacy.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.zeroone.star.j7.entity.DocInventoryItemSnapshot;
+import com.zeroone.star.j7.pharmacy.entity.DocInventoryItemSnapshot;
 
 /**
  * <p>
