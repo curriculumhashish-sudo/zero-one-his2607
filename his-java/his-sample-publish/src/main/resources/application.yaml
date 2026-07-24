@@ -1,0 +1,22 @@
+server:
+  port: ${sp.publish}
+spring:
+  application:
+    name: ${sn.publish}
+  cloud:
+    stream:
+      rocketmq:
+        binder:
+          name-server: ${rocket-mq.name-server}
+        bindings:
+          producer-out-0:
+            producer:
+              group: socket_out_1
+      bindings:
+        producer-out-0:
+          destination: test-topic
+          content-type: application/json
+
+logging:
+  level:
+    org.springframework.context.support: debug
