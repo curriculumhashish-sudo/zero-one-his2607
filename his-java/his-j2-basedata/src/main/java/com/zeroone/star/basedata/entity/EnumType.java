@@ -28,11 +28,10 @@ public class EnumType {
 
     @Indexed
     private String tenantId;
-
-    // 这里希望改名为enumTypeKey，但是为了保持和接口DTO的字段名一致，暂不进行重命名
+    
     @Indexed
     @Field("enum_type_key")
-    private String enumKey;
+    private String enumTypeKey;
 
     @Field("display_name")
     private String displayName;

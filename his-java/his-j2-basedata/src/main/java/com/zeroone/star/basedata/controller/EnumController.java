@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Tag(name = "枚举管理")
@@ -26,18 +27,25 @@ public class EnumController implements EnumApis {
         return null;
     }
 
+    @Override
+    @Operation(summary = "根据枚举类型id查询枚举列表")
+    @GetMapping("/sys/list-enums-by-enum-type/{enumTypeId}")
+    public JsonVO<List<EnumDTO>> listEnumsByEnumType(@PathVariable(value = "enumTypeId", required = true) String enumTypeId) {
+        return null;
+    }
+
+    @Override
+    @Operation(summary = "根据枚举类型key查询枚举列表", description = "注意这里使用的是key")
+    @GetMapping("/sys/init-table-enum")
+    public JsonVO<Map<String, List<EnumDTO>>> initTableEnums(@RequestParam List<String> enumTypeKeys) {
+        return null;
+    }
+
 
     @Override
     @Operation(summary = "获取枚举类型列表(条件+分页)")
     @GetMapping("/sys/query-all-enum-type")
     public JsonVO<PageDTO<EnumTypeDTO>> queryAllEnumType(@RequestBody EnumTypeQuery query) {
-        return null;
-    }
-
-    @Override
-    @Operation(summary = "根据枚举类型查询枚举列表")
-    @GetMapping("/sys/list-enums-by-enum-type/{enumTypeId}")
-    public JsonVO<List<EnumDTO>> listEnumsByEnumType(@PathVariable(value = "enumTypeId", required = true) String enumTypeId) {
         return null;
     }
 

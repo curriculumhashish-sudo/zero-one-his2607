@@ -5,6 +5,7 @@ import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumModifyDTO;
 import com.zeroone.star.project.query.j2.basedata.EnumQuery;
 
 import java.util.List;
+import java.util.Map;
 
 public interface EnumValueService {
 
@@ -16,4 +17,5 @@ public interface EnumValueService {
 
     public List<EnumDTO> listEnumsByEnumType(String enumType);
 
+    public Map<String, List<EnumDTO>> initTableEnums(List<String> enumTypeKeys);
 }

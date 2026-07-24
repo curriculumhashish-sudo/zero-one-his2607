@@ -22,7 +22,7 @@ public class EnumTypeAddDTO {
     @Size(min = 1, max = 100, message = "枚举类型键长度必须在1到100个字符之间")
     @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "枚举类型键必须由字母、数字或下划线组成")
     @Schema(description = "枚举类型键，必须唯一", example = "enumTypeKey", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String enumKey;
+    private String enumTypeKey;
 
     @Size(min = 1, max = 500, message = "枚举类型名称长度必须在1到500个字符之间")
     @Schema(description = "枚举类型名称", example = "enumTypeName", requiredMode = Schema.RequiredMode.REQUIRED)
