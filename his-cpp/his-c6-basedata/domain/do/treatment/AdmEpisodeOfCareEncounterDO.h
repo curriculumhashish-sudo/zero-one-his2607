@@ -8,7 +8,7 @@
  * 诊疗周期就诊
  * 
  */
-class EpisodeOfCareEncounterDO : public BaseDO
+class AdmEpisodeOfCareEncounterDO : public BaseDO
 {
 	// 主键
 	MYSQL_SYNTHESIZE(string, id, Id);
@@ -57,5 +57,5 @@ public:
 		MYSQL_ADD_FIELD_NULLABLE("leave_time", "dt", leaveTime, true);
 	}
 };
-typedef std::shared_ptr<EpisodeOfCareEncounterDO> PtrEpisodeOfCareEncounterDO;
+typedef std::shared_ptr<AdmEpisodeOfCareEncounterDO> PtrAdmEpisodeOfCareEncounterDO;
 #endif // !_EPISODE_OF_CARE_ENCOUNTER_DO_
