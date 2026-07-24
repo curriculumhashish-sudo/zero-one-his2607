@@ -19,19 +19,68 @@
 #include "stdafx.h"
 #include "DiagnosisController.h"
 #include "../../service/Diagnosis/DiagnoseService.h"
+#include <cctype>
+#include <limits>
+
+namespace
+{
+	std::string trimCopy(const std::string& value)
+	{
+		std::size_t begin = 0;
+		while (begin < value.size()
+			&& std::isspace(static_cast<unsigned char>(value[begin])) != 0)
+		{
+			++begin;
+		}
+
+		std::size_t end = value.size();
+		while (end > begin
+			&& std::isspace(static_cast<unsigned char>(value[end - 1])) != 0)
+		{
+			--end;
+		}
+		return value.substr(begin, end - begin);
+	}
+}
 
 DiagnosisSelectPageJsonVO::Wrapper DiagnosisController::execQuerySelectDiagnosis(
 	const DiagnosisSelectQuery::Wrapper& query)
 {
-	auto page = DiagnosisSelectPageDTO::createShared();
-	page->pageIndex = query->pageIndex;
-	page->pageSize = query->pageSize;
-	page->total = 1;
-	page->addData(DiagnosisSelectDTO::createShared());
-	page->calcPages();
-
 	auto response = DiagnosisSelectPageJsonVO::createShared();
-	response->success(page);
+	if (!query || !query->pageIndex || !query->pageSize)
+	{
+		response->init(nullptr, RS_PARAMS_INVALID);
+		return response;
+	}
+
+	const uint64_t pageIndex = query->pageIndex.getValue(0);
+	const uint64_t pageSize = query->pageSize.getValue(0);
+	if (pageIndex == 0 || pageSize == 0 || pageSize > 1000
+		|| pageIndex > std::numeric_limits<uint64_t>::max() / pageSize)
+	{
+		response->init(nullptr, RS_PARAMS_INVALID);
+		return response;
+	}
+
+	const std::string diagnosisKindCode = trimCopy(
+		query->diagnosisKindCode.getValue(""));
+	if (!diagnosisKindCode.empty()
+		&& diagnosisKindCode != "1"
+		&& diagnosisKindCode != "2")
+	{
+		response->init(nullptr, RS_PARAMS_INVALID);
+		return response;
+	}
+	query->diagnosisKindCode = diagnosisKindCode.empty()
+		? oatpp::String(nullptr)
+		: oatpp::String(diagnosisKindCode.c_str());
+
+	const std::string keyword = trimCopy(query->keyword.getValue(""));
+	query->keyword = keyword.empty()
+		? oatpp::String(nullptr)
+		: oatpp::String(keyword.c_str());
+
+	response->success(DiagnoseService().listSelectableDiagnoses(query));
 	return response;
 }
 

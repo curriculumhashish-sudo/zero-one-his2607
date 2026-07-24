@@ -32,8 +32,8 @@ class DiagnosisSelectQuery : public PageQuery
 {
 	DTO_INIT(DiagnosisSelectQuery, PageQuery);
 
-	API_DTO_FIELD(String, keyword, ZH_WORDS_GETTER("diagnose.query.field.keyword"), false, "GM");
-	API_DTO_FIELD(String, diagnosisKindCode, ZH_WORDS_GETTER("diagnose.query.field.diagnosis_kind_code"), false, "1");
+	API_DTO_FIELD_REQUIRE(String, keyword, ZH_WORDS_GETTER("diagnose.query.field.keyword"), false);
+	API_DTO_FIELD_REQUIRE(String, diagnosisKindCode, ZH_WORDS_GETTER("diagnose.query.field.diagnosis_kind_code"), false);
 };
 
 #include OATPP_CODEGEN_END(DTO)

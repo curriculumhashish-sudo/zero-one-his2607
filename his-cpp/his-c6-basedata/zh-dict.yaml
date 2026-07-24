@@ -82,6 +82,20 @@ diagnose:
     status_enum: 状态
     status_enum_text: 状态名称
  type:
+   western: "西医"
+   tcm: "中医"
    western_medicine_diagnosis: "西医诊断"
    chinese_main_disease_diagnosis: "中医主病诊断"
    chinese_main_symptom_diagnosis: "中医主证诊断"
+ source:
+   general_dx: "疾病与诊断"
+   chronic_spec: "特慢病诊断目录"
+   disease_pkg: "按病种目录"
+   paid_dx: "付费诊断"
+   day_surgery_dx: "日间手术治疗病种"
+   tcm_dx: "中医诊断"
+   tcm_syndrome: "中医证候目录"
+   tumor_morph: "肿瘤形态学目录"
+ flag:
+   yes: "是"
+   no: "否"
