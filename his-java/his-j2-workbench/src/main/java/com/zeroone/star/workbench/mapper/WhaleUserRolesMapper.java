@@ -1,7 +1,7 @@
 package com.zeroone.star.workbench.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.zeroone.star.workbench.entity.WhaleUserRoles;
+import com.zeroone.star.project.doo.j2.workbench.WhaleUserRoles;
 
 /**
  * <p>

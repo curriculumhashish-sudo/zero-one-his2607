@@ -1,4 +1,4 @@
-package com.zeroone.star.workbench.entity;
+package com.zeroone.star.project.doo.j2.workbench;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Getter;
