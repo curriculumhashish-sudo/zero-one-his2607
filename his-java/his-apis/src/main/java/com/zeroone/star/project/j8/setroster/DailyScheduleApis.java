@@ -6,6 +6,7 @@ import com.zeroone.star.project.dto.j8.setroster.DailyScheduleDTO;
 import com.zeroone.star.project.query.j8.setroster.DailyScheduleQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j8.setroster.DailyScheduleOptionVO;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -25,28 +26,28 @@ public interface DailyScheduleApis {
      * 获取日排班模板下拉选项（用于周排班选择）
      * @return 日排班模板下拉选项列表
      */
-    JsonVO<List<DailyScheduleOptionVO>> listDailyScheduleOptions();
+    JsonVO<List<DailyScheduleOptionVO>> listDailyScheduleOptions(String organizationId);
 
     /**
      * 获取日排班模板列表(条件+分页)
      * @param query 查询条件
      * @return 日排班模板列表
      */
-    JsonVO<PageDTO<DailyScheduleDTO>> pageDailySchedule(DailyScheduleQuery query);
+    JsonVO<PageDTO<DailyScheduleDTO>> pageDailySchedule(@Valid DailyScheduleQuery query);
 
     /**
      * 新增日排班模板
      * @param dto 新增日排班模板传输对象
      * @return 新增日排班模板ID
      */
-    JsonVO<String> addDailySchedule(AddDailyScheduleDTO dto);
+    JsonVO<String> addDailySchedule(@Valid AddDailyScheduleDTO dto);
 
     /**
      * 编辑日排班模板
      * @param dto 编辑日排班模板传输对象
      * @return 编辑日排班模板ID
      */
-    JsonVO<String> modifyDailySchedule(DailyScheduleDTO dto);
+    JsonVO<String> modifyDailySchedule(@Valid DailyScheduleDTO dto);
 
     /**
      * 删除日排班模板

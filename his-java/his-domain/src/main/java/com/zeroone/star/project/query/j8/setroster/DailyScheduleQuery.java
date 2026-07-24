@@ -19,6 +19,10 @@ import lombok.Data;
 @Schema(description = "日排班模板查询条件")
 public class DailyScheduleQuery extends PageQuery {
 
-    @Schema(description = "关键词（模糊搜索：编码/名称）", example = "张医生")
+    @Schema(description = "关键词（模糊搜索：编码/名称）", example = "门诊医生")
     private String keyword;
+
+    @Schema(description = "机构/科室ID，为空则查询所有+全院共享模板", example = "322663218269917184")
+    private String organizationId;
+
 }
