@@ -4,14 +4,9 @@ import com.zeroone.star.configuration.service.MetadataService;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j5.configuration.MetadataDetailDTO;
 import com.zeroone.star.project.dto.j5.configuration.MetadataListDTO;
-import com.zeroone.star.project.dto.j5.configuration.MetadataDetailDTO;
-import com.zeroone.star.project.dto.j5.configuration.MetadataListDTO;
-import com.zeroone.star.project.j5.configuration.MetadataApis;
-import com.zeroone.star.project.query.j5.configuration.MetadataQuery;
 import com.zeroone.star.project.j5.configuration.MetadataApis;
 import com.zeroone.star.project.query.j5.configuration.MetadataQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.configuration.service.MetadataService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -32,7 +27,7 @@ public class MetadataController implements MetadataApis {
     MetadataService service;
 
     @GetMapping("/field-names")
-    @Operation(summary = "获取元数据字段名称列表")
+    @Operation(summary = "获取元数据字段名称")
     @Override
     public JsonVO<List<String>> listFieldNames() {
         return JsonVO.success(service.listFieldNames());
