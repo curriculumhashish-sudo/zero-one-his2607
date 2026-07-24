@@ -27,7 +27,7 @@
 #include "domain/vo/sup/SupplierVO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
-#define API_TAG ZH_WORDS_GETTER("sup.tags.t1")
+#define API_TAG ZH_WORDS_GETTER("sup.tag")
 /**
  * SupplierController —— 供应商管理控制器
  *

@@ -1,8 +1,15 @@
+# ============================================================
+# 中文词典 — his-c5-basicdata
+# 格式: <模块>.<分类>.<键> — 中文描述
+# ============================================================
+
+# ============================================================
+# 患者管理 (pat) — 患者查询/分页/删除
+# ============================================================
 pat:
-  tag: 患者管理接口
-  tags: 患者管理
+  tag: 患者管理
   delete:
-    summary: 患者删除
+    summary: 删除患者
   page:
     success: 患者分页查询接口访问成功
     summary: 分页查询患者列表
@@ -15,7 +22,7 @@ pat:
         id: 患者主键ID
         name: 患者姓名
         idCard: 身份证号
-        gender: 性别 1男 2女
+        gender: 性别(1男/2女)
         age: 年龄
   select:
     page:
@@ -38,8 +45,27 @@ pat:
     age: 年龄
     sex: 性别
 
+# ============================================================
+# 患者详情管理 (patient) — 单个患者 CRUD
+# ============================================================
+patient:
+  tag: 患者详情
+  query-by-id:
+    summary: 根据ID查询患者详情
+  put:
+    summary: 修改患者信息
+  post:
+    summary: 新增患者
+  field:
+    id: 患者编号
+    name: 患者姓名
+    age: 患者年龄
+
+# ============================================================
+# 科室管理 (dept) — 科室 CRUD + 批量启停
+# ============================================================
 dept:
-  tag: 科室管理接口
+  tag: 科室管理
   add:
     summary: 新增科室
   modify:
@@ -75,51 +101,43 @@ dept:
     deptIdList: 批量科室ID数组
     targetStatus: 目标启停状态(0停用/1启用)
 
-patient:
-  tag: 患者管理接口
-  query-by-id:
-    summary: 获取患者详情
-  put:
-    summary: 修改患者
-  post:
-    summary: 新增患者
-  field:
-    id: 患者编号
-    name: 患者姓名
-    age: 患者年龄
-
+# ============================================================
+# 组织架构 (organization) — 科室树 + 详情
+# ============================================================
 organization:
-  tag: "科室管理"
+  tag: 组织架构
   endpoints:
-    nameTree: "获取科室名称树"
-    listTree: "获取科室列表树"
-    detail: "获取科室详情"
+    nameTree: 获取科室名称树
+    listTree: 获取科室列表树
+    detail: 获取科室详情
   fields:
-    id: "科室唯一标识"
-    name: "科室名称"
-    children: "下级科室列表"
-    typeEnum: "科室类型"
-    classEnum: "科室类别"
-    statusEnum: "科室状态"
-    ybNo: "医保编码"
-    ybName: "医保名称"
-    medinsId: "机构标识"
-    medinsAdmdvs: "医保区划"
-    medinsType: "机构类型"
-    medinsLv: "机构等级"
-    pyStr: "拼音码"
-    wbStr: "五笔码"
-    displayOrder: "显示顺序"
+    id: 科室唯一标识
+    name: 科室名称
+    children: 下级科室列表
+    typeEnum: 科室类型
+    classEnum: 科室类别
+    statusEnum: 科室状态
+    ybNo: 医保编码
+    ybName: 医保名称
+    medinsId: 机构标识
+    medinsAdmdvs: 医保区划
+    medinsType: 机构类型
+    medinsLv: 机构等级
+    pyStr: 拼音码
+    wbStr: 五笔码
+    displayOrder: 显示顺序
   queries:
-    typeEnum: "按科室类型筛选"
-    classEnum: "按科室类别筛选"
-    statusEnum: "按科室状态筛选"
-    keyword: "按科室及医保相关信息进行关键词筛选"
-    id: "科室唯一标识"
+    typeEnum: 按科室类型筛选
+    classEnum: 按科室类别筛选
+    statusEnum: 按科室状态筛选
+    keyword: 按科室及医保相关信息进行关键词筛选
+    id: 科室唯一标识
 
+# ============================================================
+# 供应商管理 (sup) — 供应商 CRUD + 批量操作
+# ============================================================
 sup:
-  tags:
-    t1: 供应商管理接口
+  tag: 供应商管理
   query-one:
     summary: 根据ID查询供应商
   query-all:
@@ -153,10 +171,11 @@ sup:
     statusEnum: 状态枚举值(NORMAL/DISABLED)
     note: 备注说明
 
+# ============================================================
+# 库房药房管理 (pharm)
+# ============================================================
 pharm:
   tag: 库房药房管理
-  tags:
-    name: 库房/药房管理
   endpoints:
     list: 分页查询库房药房列表
     add: 新增库房药房
@@ -164,13 +183,13 @@ pharm:
     remove: 删除库房药房
     status: 切换库房药房状态
   select-list:
-    summary: 获取库房/药房下拉选择列表
+    summary: 获取库房药房下拉选择列表
   query-all:
-    summary: 分页查询库房/药房列表
+    summary: 分页查询库房药房列表(GET参数)
   statusEnum:
-    modify: 修改
+    modify: 修改库房药房启停状态
   list:
-    query: 查询
+    query: 分页查询库房药房列表(POST参数)
   field:
     id: 编号
     name: 药房名称
@@ -180,7 +199,7 @@ pharm:
     sort: 排序号
     remark: 备注
     status: 状态
-    statusEnum: 状态
+    statusEnum: 状态枚举(NORMAL/DISABLED)
     pyStr: 拼音码
     wbStr: 五笔码
     displayOrder: 显示顺序
@@ -205,9 +224,11 @@ pharm:
     status_success: 状态更新成功
     status_fail: 状态更新失败
 
+# ============================================================
+# 病区管理 (ward) — 病区/病房/床位 + 地点管理
+# ============================================================
 ward:
-  tags:
-    t1: 病区接口
+  tag: 病区管理
   name-list:
     summary: 获取病区名称列表
   tree-list:
@@ -218,12 +239,50 @@ ward:
     summary: 根据ID查询病房
   query-bed-by-id:
     summary: 根据ID查询病床
+  modify:
+    summary: 修改病区信息
+  remove:
+    summary: 删除病区
+  status:
+    summary: 切换病区启停状态
   field:
-    organization-id: 机构编号
     id: 病区编号
     name: 病区名称
+    organization-id: 机构编号
     roomId: 病房编号
     bedId: 病床编号
     wardAreaId: 病区编号
     wardRoomId: 病房编号
     status: 状态
+
+# ============================================================
+# 床位管理 (bed)
+# ============================================================
+bed:
+  tag: 床位管理
+  modify:
+    summary: 修改床位信息
+  remove:
+    summary: 删除床位
+  status:
+    summary: 切换床位启停状态
+  field:
+    id: 床位编号
+    name: 床位名称
+    statusEnum: 状态枚举(ACTIVE/DISABLED)
+
+# ============================================================
+# 病房管理 (room)
+# ============================================================
+room:
+  tag: 病房管理
+  modify:
+    summary: 修改病房信息
+  remove:
+    summary: 删除病房
+  status:
+    summary: 切换病房启停状态
+  field:
+    id: 病房编号
+    name: 病房名称
+    statusEnum: 状态枚举(ACTIVE/DISABLED)

@@ -33,7 +33,7 @@
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-#define API_TAG ZH_WORDS_GETTER("ward.tags.t1")
+#define API_TAG ZH_WORDS_GETTER("ward.tag")
 
 /**
  * WardController - Ward/room/bed/location management API controller.
@@ -65,21 +65,21 @@ public:
     API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/ward/query-bed-by-id", queryBedById, QUERY(String, id), execQueryBedById(id));
 
     // Modify ward
-    API_DEF_ENDPOINT_INFO_AUTH("Modify ward", modifyWard, WardJsonVO::Wrapper, API_TAG,
+    API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("ward.modify.summary"), modifyWard, WardJsonVO::Wrapper, API_TAG,
         info->description = "Modify ward basic information by ID. This endpoint returns mock success data for API documentation.";
         info->addConsumes<WardModifyDTO::Wrapper>("application/json");
     )
     API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/ward", modifyWard, BODY_DTO(WardModifyDTO::Wrapper, dto), execModifyWard(dto));
 
     // Remove ward
-    API_DEF_ENDPOINT_INFO_AUTH("Remove ward", removeWard, BooleanJsonVO::Wrapper, API_TAG,
+    API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("ward.remove.summary"), removeWard, BooleanJsonVO::Wrapper, API_TAG,
         info->description = "Remove ward by ID. This endpoint returns a mock success result for API documentation.";
-        API_DEF_ADD_PATH_PARAMS(String, "id", "Ward ID", "322955305339588608", true);
+        API_DEF_ADD_PATH_PARAMS(String, "id", ZH_WORDS_GETTER("ward.field.id"), "322955305339588608", true);
     )
     API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/ward/{id}", removeWard, PATH(String, id, "id"), execRemoveWard(id));
 
     // Change ward status
-    API_DEF_ENDPOINT_INFO_AUTH("Change ward status", modifyWardStatus, WardJsonVO::Wrapper, API_TAG,
+    API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("ward.status.summary"), modifyWardStatus, WardJsonVO::Wrapper, API_TAG,
         info->description = "Enable or disable ward by statusEnum. ACTIVE means enabled and DISABLED means disabled.";
         info->addConsumes<WardStatusDTO::Wrapper>("application/json");
     )

@@ -16,7 +16,7 @@
 // 1. 开启 API 控制器代码生成宏
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-#define API_TAG ZH_WORDS_GETTER("pat.tags")
+#define API_TAG ZH_WORDS_GETTER("pat.tag")
 
 /**
  * 患者管理控制器
