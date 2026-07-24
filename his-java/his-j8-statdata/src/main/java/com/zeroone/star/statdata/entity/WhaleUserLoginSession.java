@@ -1,24 +1,51 @@
 package com.zeroone.star.statdata.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
+
 /**
- * <p>描述: 用户登录会话实体</p>
- * <p>版权: &copy;01星球</p>
- * <p>地址: 01星球总部</p>
+ * <p>
+ * 用户登录后的服务端会话：租户 / 医院 / 科室选择（跨重启持久化）
+ * </p>
  *
  * @author highxin
- * @version 1.0.0
+ * @since 2026-07-24
  */
-@Data
+@Getter
+@Setter
+@ToString
 @TableName("whale_user_login_session")
-public class WhaleUserLoginSession {
+public class WhaleUserLoginSession implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 用户标识
+     */
     private String userId;
+
+    /**
+     * 租户标识
+     */
     private String tenantId;
+
+    /**
+     * hospital机构标识
+     */
     private String hospitalOrganizationId;
+
+    /**
+     * 机构单元标识
+     */
     private String organizationUnitId;
+
+    /**
+     * 最后更新时间
+     */
     private LocalDateTime updatedAt;
 }
