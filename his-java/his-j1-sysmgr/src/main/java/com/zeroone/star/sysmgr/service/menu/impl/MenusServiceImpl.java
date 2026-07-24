@@ -50,6 +50,7 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
         vo.setSort(menuDO.getSort());
         vo.setSortNum(menuDO.getSortNum());
         vo.setMenuType(menuDO.getMenuType());
+        // 状态映射：DO 1启用 0停用 → VO "0"启用 "1"停用
         vo.setStatus(menuDO.getEnabled() == 1 ? "0" : "1");
         return vo;
     }
