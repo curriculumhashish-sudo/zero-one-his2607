@@ -21,24 +21,24 @@
 #define _DIAGNOSIS_SELECT_MAPPER_H_
 
 #include "Mapper.h"
-#include "../../domain/do/Diagnosis/ConditionDefinitionDO.h"
+#include "../../domain/do/Diagnosis/ClnConditionDefinitionDO.h"
 
 /**
  * Maps selectable diagnosis query columns to the database model.
  */
-class DiagnosisSelectMapper : public Mapper<ConditionDefinitionDO>
+class DiagnosisSelectMapper : public Mapper<ClnConditionDefinitionDO>
 {
 public:
-	ConditionDefinitionDO mapper(ResultSet* resultSet) const override
+	ClnConditionDefinitionDO mapper(ResultSet* resultSet) const override
 	{
-		ConditionDefinitionDO data;
+		ClnConditionDefinitionDO data;
 		data.setId(resultSet->getString(1));
 		data.setConditionCode(resultSet->getString(2));
 		data.setName(resultSet->getString(3));
 		data.setPyStr(resultSet->getString(4));
 		data.setWbStr(resultSet->getString(5));
 		data.setSourceEnum(resultSet->getString(6));
-		data.setYbFlag(resultSet->getInt(7));
+		data.setYbFlag(resultSet->getBoolean(7));
 		data.setStatusEnum(resultSet->getString(8));
 		return data;
 	}

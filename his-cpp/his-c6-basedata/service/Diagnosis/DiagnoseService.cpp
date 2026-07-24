@@ -96,8 +96,8 @@ DiagnosisSelectPageDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
 		return page;
 	}
 
-	std::list<ConditionDefinitionDO> records = dao.selectWithPage(query);
-	for (ConditionDefinitionDO& record : records)
+	std::list<ClnConditionDefinitionDO> records = dao.selectWithPage(query);
+	for (ClnConditionDefinitionDO& record : records)
 	{
 		auto dto = DiagnosisSelectDTO::createShared();
 		dto->conditionDefinitionId = record.getId();
