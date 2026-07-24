@@ -8,7 +8,7 @@
 /**
  * 诊疗周期实体
  */
-class InventoryLockDO : public BaseDO
+class AdmEpisodeOfCareDO : public BaseDO
 {
 	// 诊疗ID
 	MYSQL_SYNTHESIZE(string, id, Id);
@@ -52,7 +52,7 @@ class InventoryLockDO : public BaseDO
 	// 
 	MYSQL_SYNTHESIZE(string, endTime, EndTime);
 public:
-	InventoryLockDO() : BaseDO("inventory_lock")
+	AdmEpisodeOfCareDO() : BaseDO("adm_episode_of_care")
 	{
 		MYSQL_ADD_FIELD_PK("id", "s", id);
 		MYSQL_ADD_FIELD_NULLABLE("tenant_id", "s", tenantId, true);
@@ -96,6 +96,6 @@ public:
 };
 
 // 定义一个器材实体的智能指针
-typedef std::shared_ptr<InventoryLockDO> PtrInventoryLockDO;
+typedef std::shared_ptr<InventoryLockDO> PtrAdmEpisodeOfCareDO;
 
 #endif // !_ADMEPISODEOFCARE_H_
