@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.basedata.mapper.DictionaryMapper">
+
+    <update id="updateConcept">
+        UPDATE ter_concept
+        SET code_system_id = #{concept.codeSystemId},
+            code = #{concept.code},
+            display = #{concept.display},
+            definition = #{concept.definition},
+            sort_order = COALESCE(#{concept.sortOrder}, sort_order),
+            updated_at = #{concept.updatedAt},
+            updated_by = #{concept.updatedBy}
+        WHERE id = #{concept.id}
+          AND is_deleted = 0
+    </update>
+
+    <update id="logicallyDelete">
+        UPDATE ter_concept
+        SET is_deleted = 1,
+            deleted_at = CURRENT_TIMESTAMP(6),
+            deleted_by = #{operatorId},
+            updated_at = CURRENT_TIMESTAMP(6),
+            updated_by = #{operatorId}
+        WHERE id = #{id}
+          AND is_deleted = 0
+    </update>
+
+</mapper>
