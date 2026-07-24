@@ -31,6 +31,7 @@ public class MenuController implements MenuApis {
      * @see com.zeroone.star.project.components.user.UserHolder#getCurrentUser()
      * @return 菜单树结构VO
      * @author 是丫丫
+     * @负责人 倾墨
      */
     @Override
     @PostMapping("getTree")
@@ -48,6 +49,7 @@ public class MenuController implements MenuApis {
      * @param query 查询条件
      * @return 菜单分页列表
      * @author 是丫丫
+     * @负责人 倾墨
      */
     @Override
     @PostMapping("getList")
@@ -61,6 +63,7 @@ public class MenuController implements MenuApis {
      * @param query 查询条件
      * @return 菜单详情信息VO
      * @author 是丫丫
+     * @负责人 Drums小白
      */
     @Override
     @PostMapping("getById")
@@ -70,25 +73,11 @@ public class MenuController implements MenuApis {
     }
 
     /**
-     * <p>
-     *     根据当前登录用户来查询可见菜单树结构 <br>
-     *     注：这里要注意做登录校验，如果获取不到用户登录信息，直接返回空列表
-     * </p>
-     * @see com.zeroone.star.project.components.user.UserHolder#getCurrentUser()
-     * @return 菜单树结构VO
-     */
-    @Override
-    @PostMapping("getTreeByLoginUser")
-    @Operation(summary = "根据当前登录用户来查询可见菜单树结构")
-    public JsonVO<MenuTreeVO> getTreeByLoginUser() {
-        return JsonVO.success(null);
-    }
-
-    /**
      * 创建菜单信息
      * @param menuDto 菜单创建入参
      * @return 是否创建成功
      * @author 是丫丫
+     * @负责人 是丫丫
      */
     @Override
     @PostMapping("create")
@@ -102,6 +91,7 @@ public class MenuController implements MenuApis {
      * @param menuDto 菜单修改入参
      * @return 是否修改成功
      * @author 是丫丫
+     * @负责人 Drums小白
      */
     @Override
     @PostMapping("update")
@@ -115,6 +105,7 @@ public class MenuController implements MenuApis {
      * @param menuDto 菜单删除入参
      * @return 是否删除成功
      * @author 是丫丫
+     * @负责人 Drums小白
      */
     @Override
     @PostMapping("delete")
@@ -128,6 +119,7 @@ public class MenuController implements MenuApis {
      * @param menuDto 菜单启用入参
      * @return 是否修改成功
      * @author 是丫丫
+     * @负责人 是丫丫
      */
     @Override
     @PostMapping("enable")
