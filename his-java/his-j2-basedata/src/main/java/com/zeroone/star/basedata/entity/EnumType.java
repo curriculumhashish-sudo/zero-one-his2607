@@ -14,9 +14,12 @@ import java.util.Date;
 @Document(collection = "enum_type")
 @CompoundIndexes({
         // 复合索引，确保租户下enumTypeKey唯一
-        @CompoundIndex(name = "idx_tenantId_enumKey", def = "{'tenantId': 1, 'enumTypeKey': 1}", unique = true),
+        @CompoundIndex(name = "idx_tenantId_enumKey",
+                def = "{'tenantId': 1, 'enumTypeKey': 1}",
+                unique = true),
         // 查询时常用复合索引
-        @CompoundIndex(name = "idx_tenantId_status", def = "{'tenantId': 1, 'status': 1}")
+        @CompoundIndex(name = "idx_tenantId_status",
+                def = "{'tenantId': 1, 'status': 1}")
 })
 public class EnumType {
 
