@@ -19,6 +19,8 @@
 #include "stdafx.h"
 #include "Router.h"
 #include "ApiHelper.h"
+#include "inpatientbilling/supplementcharge/SupplementChargeController.h"
+#include "inpatientbilling/supplementcharge/SupplementOrderController.h"
 #include "admissiontransfer/AdmissionTransferController.h"
 #include "encountermanage/EncounterManageController.h"
 #include "medicationcollection/MedicationCollectionController.h"
@@ -45,6 +47,8 @@ Router::Router(Endpoints* docEndpoints, HttpRouter* router)
 void Router::initRouter()
 {
 	// #TIP: Add system extension route definitions below
+	ROUTER_SIMPLE_BIND(SupplementChargeController);
+	ROUTER_SIMPLE_BIND(SupplementOrderController);
 	ROUTER_SIMPLE_BIND(MedicationCollectionController);
 	ROUTER_SIMPLE_BIND(EncounterManageController);
 	ROUTER_SIMPLE_BIND(AdmissionTransferController);
