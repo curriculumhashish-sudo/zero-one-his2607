@@ -61,10 +61,4 @@ public class UserAddDTO {
 
     @Schema(description = "备注信息")
     private String remark;
-
-//    @Schema(description = "出诊科室ID列表 ")
-//    private List<String> consultDeptIds;
-//
-//    @Schema(description = "可接诊号源ID列表")
-//    private List<String> receptionSourceIds;
 }
