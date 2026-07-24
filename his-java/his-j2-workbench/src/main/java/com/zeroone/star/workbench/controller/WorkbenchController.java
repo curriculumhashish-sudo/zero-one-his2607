@@ -1,9 +1,9 @@
 package com.zeroone.star.workbench.controller;
 
-import com.zeroone.star.project.j2.work.WorkbenchApis;
-import com.zeroone.star.project.query.j2.work.UserWorkbenchQuery;
+import com.zeroone.star.project.j2.workbench.WorkbenchApis;
+import com.zeroone.star.project.query.j2.workbench.UserWorkbenchQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j2.work.UserWorkbenchVO;
+import com.zeroone.star.project.vo.j2.workbench.UserWorkbenchVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -79,11 +79,11 @@
                 <artifactId>mp-code-generator-plugin</artifactId>
                 <configuration>
                     <dbConfig>
-                        <host>192.168.244.137</host>
+                        <host>192.168.220.128</host>
                         <port>3306</port>
                         <dbname>test</dbname>
                         <username>root</username>
-                        <password>111111</password>
+                        <password>123456</password>
                     </dbConfig>
                     <outDir>${project.basedir}/src/main/java</outDir>
                 </configuration>
