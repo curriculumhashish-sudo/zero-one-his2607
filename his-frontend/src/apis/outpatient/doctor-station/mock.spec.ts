@@ -2,12 +2,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   mockAcceptPatient,
+  mockCompletePatient,
   mockGetAdviceOrders,
   mockGetDiagnoses,
   mockGetMedicalRecord,
   mockGetMedicalRecordTemplate,
   mockGetPatientContext,
   mockListMedicalRecordTemplates,
+  mockLeavePatient,
   mockPageAdviceOrderCatalog,
   mockPageDiagnosisDictionary,
   mockPageDoctorPatientQueue,
@@ -54,6 +56,26 @@ describe('doctor-station mock', () => {
     )
 
     expect(inProgressPage.rows?.some((patient) => patient.encounterId === encounterId)).toBe(true)
+  })
+
+  it('暂离后将患者退回候诊队列，并隐藏本轮接诊信息', async () => {
+    const encounterId = 'enc-20260723-002'
+    await resolveMockRequest(mockAcceptPatient(encounterId))
+
+    const left = await resolveMockRequest(mockLeavePatient(encounterId))
+    expect(left.visitStatus).toBe('WAITING')
+    expect(left.visitStatusName).toBe('候诊')
+    expect(left.attendingDoctorName).toBeUndefined()
+    expect(left.acceptedAt).toBeUndefined()
+
+    const waitingPage = await resolveMockRequest(
+      mockPageDoctorPatientQueue({
+        pageIndex: 1,
+        pageSize: 50,
+        visitStatus: 'WAITING'
+      })
+    )
+    expect(waitingPage.rows?.some((patient) => patient.encounterId === encounterId)).toBe(true)
   })
 
   it('加载并保存门诊病历，同时递增版本号', async () => {
@@ -174,5 +196,39 @@ describe('doctor-station mock', () => {
 
     expect(saved.version).toBe(beforeSave.version + 1)
     expect(saved.rows[0]?.quantity).toBe((beforeSave.rows[0]?.quantity ?? 0) + 1)
+  })
+
+  it('拒绝未接诊患者直接完诊', async () => {
+    const completeRequest = mockCompletePatient('enc-20260723-002')
+    const rejection = expect(completeRequest).rejects.toThrow('请先接诊患者')
+
+    await vi.runAllTimersAsync()
+    await rejection
+  })
+
+  it('完成就诊后进入完诊队列，并禁止继续修改诊疗内容', async () => {
+    const encounterId = 'enc-20260723-008'
+    const recordBeforeComplete = await resolveMockRequest(mockGetMedicalRecord(encounterId))
+
+    const completed = await resolveMockRequest(mockCompletePatient(encounterId))
+    expect(completed.visitStatus).toBe('COMPLETED')
+    expect(completed.visitStatusName).toBe('完诊')
+
+    const completedPage = await resolveMockRequest(
+      mockPageDoctorPatientQueue({
+        pageIndex: 1,
+        pageSize: 50,
+        visitStatus: 'COMPLETED'
+      })
+    )
+    expect(completedPage.rows?.some((patient) => patient.encounterId === encounterId)).toBe(true)
+
+    const saveRequest = mockSaveMedicalRecord(encounterId, {
+      content: recordBeforeComplete.content + '<p>不应允许的修改</p>',
+      version: recordBeforeComplete.version
+    })
+    const rejection = expect(saveRequest).rejects.toThrow('患者已完诊')
+    await vi.runAllTimersAsync()
+    await rejection
   })
 })

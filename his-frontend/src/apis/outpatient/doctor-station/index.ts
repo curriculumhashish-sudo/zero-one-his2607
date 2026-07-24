@@ -1,6 +1,7 @@
 import type { PageDTO } from '../../type'
 import {
   mockAcceptPatient,
+  mockCompletePatient,
   mockGetAdviceOrders,
   mockGetDiagnoses,
   mockGetMedicalRecord,
@@ -10,6 +11,7 @@ import {
   mockPageAdviceOrderCatalog,
   mockPageDiagnosisDictionary,
   mockPageDoctorPatientQueue,
+  mockLeavePatient,
   mockSaveDiagnoses,
   mockSaveAdviceOrders,
   mockSaveMedicalRecord
@@ -52,6 +54,16 @@ export function getPatientContext(encounterId: string): Promise<DoctorPatientCon
 /** 接诊患者，并返回状态更新后的就诊上下文 */
 export function acceptPatient(encounterId: string): Promise<DoctorPatientContextVO> {
   return mockAcceptPatient(encounterId)
+}
+
+/** 暂离当前患者；在现有三状态模型中，患者会从“在诊”返回“候诊” */
+export function leavePatient(encounterId: string): Promise<DoctorPatientContextVO> {
+  return mockLeavePatient(encounterId)
+}
+
+/** 完成本次门诊就诊，并返回状态更新后的只读上下文 */
+export function completePatient(encounterId: string): Promise<DoctorPatientContextVO> {
+  return mockCompletePatient(encounterId)
 }
 
 /** 获取当前就诊的门诊病历；尚未保存时返回一份 version 为 0 的空病历 */

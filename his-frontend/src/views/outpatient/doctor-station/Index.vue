@@ -1,18 +1,20 @@
 <script setup lang="ts">
 // computed 创建派生状态，watch 负责在患者 ID 变化时加载上下文。
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { Check, CircleCheck, Clock, Refresh, Select } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 // 复用项目公共组件，页面本身只负责组织数据和处理业务事件。
 import {
   acceptPatient,
+  completePatient,
   getAdviceOrders,
   getDiagnoses,
   getMedicalRecord,
   getMedicalRecordTemplate,
   getPatientContext,
   listMedicalRecordTemplates,
+  leavePatient,
   pageAdviceOrderCatalog,
   pageDiagnosisDictionary,
   pageDoctorPatientQueue,
@@ -65,6 +67,7 @@ import DoctorStationAssistantPanel from './components/DoctorStationAssistantPane
 import DoctorQueueStatusFilter from './components/DoctorQueueStatusFilter.vue'
 import MedicalRecordPanel from './components/MedicalRecordPanel.vue'
 import { DOCTOR_STATION_TABS } from './constants'
+import { saveDirtyStationSections } from './save-workflow'
 import type {
   DoctorQueueStatusFilter as DoctorQueueStatusFilterValue,
   DoctorStationAction,
@@ -110,6 +113,8 @@ const patientContext = ref<DoctorPatientContextVO | null>(null)
 const contextLoading = ref(false)
 const contextError = ref('')
 const accepting = ref(false)
+const leaving = ref(false)
+const completing = ref(false)
 
 // 顶部按钮状态只依赖已加载的上下文，不根据中文显示文字判断。
 const patientAccepted = computed(() => patientContext.value?.visitStatus === 'IN_PROGRESS')
@@ -222,11 +227,18 @@ const unsavedSectionNames = computed(() =>
   ].filter(Boolean)
 )
 
-const currentSaving = computed(() => {
-  if (activeTab.value === 'diagnosis') return diagnosesSaving.value
-  if (activeTab.value === 'orders') return adviceOrdersSaving.value
-  return medicalRecordSaving.value
-})
+// 任意模块正在保存时，都不允许同时暂离、完诊或刷新。
+const stationSaving = computed(
+  () => medicalRecordSaving.value || diagnosesSaving.value || adviceOrdersSaving.value
+)
+const stationDataLoading = computed(
+  () =>
+    contextLoading.value ||
+    medicalRecordLoading.value ||
+    diagnosesLoading.value ||
+    adviceOrdersLoading.value
+)
+const patientTransitioning = computed(() => accepting.value || leaving.value || completing.value)
 
 /**
  * 门诊医生站自己的顶部按钮配置。
@@ -243,7 +255,12 @@ const stationHeaderActions = computed<ActionToolbarItem[]>(() => {
       label: '接诊',
       type: 'primary',
       icon: Select,
-      disabled: !patientSelected || patientAccepted.value || patientReadonly.value,
+      disabled:
+        !patientSelected ||
+        patientAccepted.value ||
+        patientReadonly.value ||
+        leaving.value ||
+        completing.value,
       loading: accepting.value
     },
     {
@@ -251,28 +268,50 @@ const stationHeaderActions = computed<ActionToolbarItem[]>(() => {
       label: '保存',
       type: 'success',
       icon: Check,
-      disabled: !patientSelected || !patientAccepted.value || patientReadonly.value,
-      loading: currentSaving.value
+      disabled:
+        !patientSelected ||
+        !patientAccepted.value ||
+        patientReadonly.value ||
+        patientTransitioning.value ||
+        stationDataLoading.value,
+      loading: stationSaving.value
     },
     {
       key: 'refresh',
       label: '刷新',
       icon: Refresh,
-      disabled: !patientSelected
+      disabled:
+        !patientSelected ||
+        patientTransitioning.value ||
+        stationSaving.value ||
+        stationDataLoading.value
     },
     {
       key: 'leave',
       label: '暂离',
       icon: Clock,
-      disabled: !patientSelected || !patientAccepted.value || patientReadonly.value
+      disabled:
+        !patientSelected ||
+        !patientAccepted.value ||
+        patientReadonly.value ||
+        patientTransitioning.value ||
+        stationSaving.value ||
+        stationDataLoading.value,
+      loading: leaving.value
     },
     {
       key: 'complete',
       label: '完诊',
       type: 'warning',
       icon: CircleCheck,
-      disabled: !patientSelected || !patientAccepted.value || patientReadonly.value,
-      confirmText: '确认完成当前患者的本次就诊吗？'
+      disabled:
+        !patientSelected ||
+        !patientAccepted.value ||
+        patientReadonly.value ||
+        patientTransitioning.value ||
+        stationSaving.value ||
+        stationDataLoading.value,
+      loading: completing.value
     }
   ]
 })
@@ -606,16 +645,165 @@ async function handleAcceptPatient() {
   }
 }
 
+/** 把富文本转换为可判断的纯文字，避免把只有空标签的病历误认为有效内容。 */
+function hasMeaningfulMedicalRecordContent(content: string) {
+  return Boolean(
+    content
+      .replace(/<[^>]*>/g, '')
+      .replace(/&nbsp;|&#160;/gi, '')
+      .trim()
+  )
+}
+
+/** 根据第一个未保存模块跳转页签，让医生可以立即找到需要处理的内容。 */
+function focusFirstUnsavedSection() {
+  if (medicalRecordDirty.value) activeTab.value = 'record'
+  else if (diagnosesDirty.value) activeTab.value = 'diagnosis'
+  else if (ordersDirty.value) activeTab.value = 'orders'
+}
+
+/**
+ * 暂离当前患者。
+ *
+ * 暂离会把患者退回候诊队列。如果存在草稿，医生必须明确选择是否放弃；
+ * 暂离成功后重新加载三个诊疗模块，确保页面不会保留已放弃的内容。
+ */
+async function handleLeavePatient() {
+  const encounterId = selectedPatientId.value
+  if (!encounterId || !patientAccepted.value || patientTransitioning.value || stationSaving.value) {
+    return
+  }
+
+  const encounterIdText = String(encounterId)
+  leaving.value = true
+
+  try {
+    if (unsavedSectionNames.value.length > 0) {
+      try {
+        await ElMessageBox.confirm(
+          '当前患者的' +
+            unsavedSectionNames.value.join('、') +
+            '尚未保存。暂离会放弃这些修改，是否继续？',
+          '存在未保存的诊疗数据',
+          {
+            type: 'warning',
+            confirmButtonText: '放弃修改并暂离',
+            cancelButtonText: '返回保存'
+          }
+        )
+      } catch {
+        return
+      }
+    }
+
+    const result = await leavePatient(encounterIdText)
+    if (String(selectedPatientId.value) !== encounterIdText) return
+
+    patientContext.value = result
+    if (selectedQueueStatus.value === 'IN_PROGRESS') {
+      selectedQueueStatus.value = 'WAITING'
+      queueQuery.visitStatus = 'WAITING'
+    }
+
+    await loadPatients()
+    if (String(selectedPatientId.value) === encounterIdText) {
+      await Promise.all([
+        loadCurrentMedicalRecord(encounterIdText),
+        loadCurrentDiagnoses(encounterIdText),
+        loadCurrentAdviceOrders(encounterIdText)
+      ])
+    }
+    ElMessage.success('患者已暂离并返回候诊队列')
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '暂离失败'
+    ElMessage.error(message)
+  } finally {
+    leaving.value = false
+  }
+}
+
+/**
+ * 完成本次门诊就诊。
+ *
+ * 完诊是不可继续编辑的状态变更，因此不允许像切换患者那样直接丢弃草稿；
+ * 医生必须先保存病历、诊断和医嘱，再执行最终确认。
+ */
+async function handleCompletePatient() {
+  const encounterId = selectedPatientId.value
+  if (!encounterId || !patientAccepted.value || patientTransitioning.value || stationSaving.value) {
+    return
+  }
+
+  completing.value = true
+  try {
+    if (unsavedSectionNames.value.length > 0) {
+      focusFirstUnsavedSection()
+      ElMessage.warning(
+        '请先保存当前患者的' + unsavedSectionNames.value.join('、') + '，再执行完诊'
+      )
+      return
+    }
+
+    if (
+      !medicalRecord.value ||
+      medicalRecord.value.version <= 0 ||
+      !hasMeaningfulMedicalRecordContent(savedMedicalRecordContent.value)
+    ) {
+      activeTab.value = 'record'
+      ElMessage.warning('请先填写并保存门诊病历')
+      return
+    }
+
+    if (!diagnosisList.value || !hasValidPrimaryDiagnosis(diagnoses.value)) {
+      activeTab.value = 'diagnosis'
+      ElMessage.warning('请先保存诊断，并且只能设置一个主诊断')
+      return
+    }
+
+    try {
+      await ElMessageBox.confirm(
+        '完诊后病历、诊断和医嘱将转为只读，确认完成当前患者的本次就诊吗？',
+        '确认完诊',
+        {
+          type: 'warning',
+          confirmButtonText: '确认完诊',
+          cancelButtonText: '取消'
+        }
+      )
+    } catch {
+      return
+    }
+
+    const encounterIdText = String(encounterId)
+    const result = await completePatient(encounterIdText)
+    if (String(selectedPatientId.value) !== encounterIdText) return
+
+    patientContext.value = result
+    if (selectedQueueStatus.value === 'IN_PROGRESS') {
+      selectedQueueStatus.value = 'COMPLETED'
+      queueQuery.visitStatus = 'COMPLETED'
+    }
+
+    await loadPatients()
+    ElMessage.success('患者已完诊，诊疗内容已转为只读')
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '完诊失败'
+    ElMessage.error(message)
+  } finally {
+    completing.value = false
+  }
+}
+
 /**
  * 保存当前病历。
  *
  * version 来自最后一次读取或保存结果，Mock 会像真实后端一样校验版本，
  * 防止当前页面覆盖其他窗口已经更新的病历。
  */
-async function handleSaveMedicalRecord() {
+async function handleSaveMedicalRecord(notifySuccess = true): Promise<boolean> {
   const encounterId = selectedPatientId.value
   if (!encounterId || !patientAccepted.value || !medicalRecord.value || medicalRecordSaving.value) {
-    return
+    return false
   }
 
   const encounterIdText = String(encounterId)
@@ -629,14 +817,16 @@ async function handleSaveMedicalRecord() {
     })
 
     // 保存期间如果用户切换了患者，不把旧患者的响应写入新患者页面。
-    if (String(selectedPatientId.value) !== encounterIdText) return
+    if (String(selectedPatientId.value) !== encounterIdText) return false
 
     medicalRecord.value = result
     savedMedicalRecordContent.value = result.content
-    ElMessage.success('门诊病历保存成功')
+    if (notifySuccess) ElMessage.success('门诊病历保存成功')
+    return true
   } catch (error) {
     const message = error instanceof Error ? error.message : '门诊病历保存失败'
     ElMessage.error(message)
+    return false
   } finally {
     medicalRecordSaving.value = false
   }
@@ -647,15 +837,15 @@ async function handleSaveMedicalRecord() {
  *
  * 公共组件负责编辑交互，页面负责门诊规则校验、DTO 转换和接口调用。
  */
-async function handleSaveDiagnoses() {
+async function handleSaveDiagnoses(notifySuccess = true): Promise<boolean> {
   const encounterId = selectedPatientId.value
   if (!encounterId || !patientAccepted.value || !diagnosisList.value || diagnosesSaving.value) {
-    return
+    return false
   }
 
   if (!hasValidPrimaryDiagnosis(diagnoses.value)) {
     ElMessage.warning('请至少添加一条诊断，并且只能设置一个主诊断')
-    return
+    return false
   }
 
   const encounterIdText = String(encounterId)
@@ -668,7 +858,7 @@ async function handleSaveDiagnoses() {
     })
 
     // 保存期间切换了患者时，丢弃旧患者的响应。
-    if (String(selectedPatientId.value) !== encounterIdText) return
+    if (String(selectedPatientId.value) !== encounterIdText) return false
 
     const clinicalRows = result.rows
       .slice()
@@ -677,17 +867,19 @@ async function handleSaveDiagnoses() {
     diagnosisList.value = result
     diagnoses.value = clinicalRows
     savedDiagnosisSnapshot.value = serializeDiagnoses(clinicalRows)
-    ElMessage.success('门诊诊断保存成功')
+    if (notifySuccess) ElMessage.success('门诊诊断保存成功')
+    return true
   } catch (error) {
     const message = error instanceof Error ? error.message : '门诊诊断保存失败'
     ElMessage.error(message)
+    return false
   } finally {
     diagnosesSaving.value = false
   }
 }
 
 /** 保存当前门诊医嘱，校验和 DTO 映射均委托给门诊场景适配器。 */
-async function handleSaveAdviceOrders() {
+async function handleSaveAdviceOrders(notifySuccess = true): Promise<boolean> {
   const encounterId = selectedPatientId.value
   const context = adviceOrderContext.value
   if (
@@ -697,13 +889,13 @@ async function handleSaveAdviceOrders() {
     !adviceOrderList.value ||
     adviceOrdersSaving.value
   ) {
-    return
+    return false
   }
 
   const validation = outpatientAdviceAdapter.validate(adviceOrders.value, context)
   if (!validation.valid) {
     ElMessage.warning(validation.errors[0]?.message ?? '请完善医嘱内容')
-    return
+    return false
   }
 
   const encounterIdText = String(encounterId)
@@ -716,7 +908,7 @@ async function handleSaveAdviceOrders() {
 
   try {
     const result = await saveAdviceOrders(encounterIdText, request)
-    if (String(selectedPatientId.value) !== encounterIdText) return
+    if (String(selectedPatientId.value) !== encounterIdText) return false
 
     const clinicalRows = result.rows
       .slice()
@@ -725,12 +917,92 @@ async function handleSaveAdviceOrders() {
     adviceOrderList.value = result
     adviceOrders.value = clinicalRows
     savedAdviceOrderSnapshot.value = serializeAdviceOrders(clinicalRows)
-    ElMessage.success('门诊医嘱保存成功')
+    if (notifySuccess) ElMessage.success('门诊医嘱保存成功')
+    return true
   } catch (error) {
     const message = error instanceof Error ? error.message : '门诊医嘱保存失败'
     ElMessage.error(message)
+    return false
   } finally {
     adviceOrdersSaving.value = false
+  }
+}
+
+/**
+ * 一键保存当前患者的全部诊疗修改。
+ *
+ * 先完成所有前端校验，再并行调用病历、诊断和医嘱保存函数。这样可以避免
+ * 病历已经保存后，才发现诊断或医嘱内容不完整的常见操作困扰。
+ */
+async function handleSaveStation() {
+  if (
+    !selectedPatientId.value ||
+    !patientAccepted.value ||
+    patientTransitioning.value ||
+    stationSaving.value ||
+    stationDataLoading.value
+  ) {
+    return
+  }
+
+  if (unsavedSectionNames.value.length === 0) {
+    ElMessage.info('当前病历、诊断和医嘱均已保存')
+    return
+  }
+
+  // 统一校验必须发生在任何保存请求之前，尽量避免出现部分模块已保存的情况。
+  if (diagnosesDirty.value && !hasValidPrimaryDiagnosis(diagnoses.value)) {
+    activeTab.value = 'diagnosis'
+    ElMessage.warning('请至少添加一条诊断，并且只能设置一个主诊断')
+    return
+  }
+
+  if (ordersDirty.value) {
+    const context = adviceOrderContext.value
+    if (!context) {
+      activeTab.value = 'orders'
+      ElMessage.warning('患者医嘱上下文尚未加载完成，请稍后重试')
+      return
+    }
+
+    const validation = outpatientAdviceAdapter.validate(adviceOrders.value, context)
+    if (!validation.valid) {
+      activeTab.value = 'orders'
+      ElMessage.warning(validation.errors[0]?.message ?? '请完善医嘱内容')
+      return
+    }
+  }
+
+  const result = await saveDirtyStationSections([
+    {
+      name: '病历',
+      dirty: medicalRecordDirty.value,
+      save: () => handleSaveMedicalRecord(false)
+    },
+    {
+      name: '诊断',
+      dirty: diagnosesDirty.value,
+      save: () => handleSaveDiagnoses(false)
+    },
+    {
+      name: '医嘱',
+      dirty: ordersDirty.value,
+      save: () => handleSaveAdviceOrders(false)
+    }
+  ])
+
+  if (result.failed.length === 0) {
+    ElMessage.success(result.succeeded.join('、') + '保存成功')
+    return
+  }
+
+  if (result.succeeded.length > 0) {
+    ElMessage.warning(
+      result.succeeded.join('、') +
+        '已保存；' +
+        result.failed.join('、') +
+        '保存失败，请检查提示后重试'
+    )
   }
 }
 
@@ -845,9 +1117,7 @@ function handleHeaderAction(action: ActionToolbarItem) {
 
 /**
  * 医生站所有顶部动作的统一入口。
- *
- * 第四阶段已经接通接诊、病历保存和刷新；
- * 暂离、完诊会在后续阶段补充。
+ * 公共 Header 只发送动作 key，具体门诊流程全部在当前页面处理。
  */
 function handleStationAction(action: DoctorStationAction) {
   if (action === 'accept') {
@@ -856,15 +1126,7 @@ function handleStationAction(action: DoctorStationAction) {
   }
 
   if (action === 'save') {
-    if (activeTab.value === 'record') {
-      void handleSaveMedicalRecord()
-    } else if (activeTab.value === 'diagnosis') {
-      void handleSaveDiagnoses()
-    } else if (activeTab.value === 'orders') {
-      void handleSaveAdviceOrders()
-    } else {
-      ElMessage.info('当前页签的保存功能将在后续阶段接入')
-    }
+    void handleSaveStation()
     return
   }
 
@@ -873,7 +1135,26 @@ function handleStationAction(action: DoctorStationAction) {
     return
   }
 
-  console.debug('[doctor-station] pending action:', action)
+  if (action === 'leave') {
+    void handleLeavePatient()
+    return
+  }
+
+  if (action === 'complete') {
+    void handleCompletePatient()
+  }
+}
+
+/**
+ * 浏览器刷新或关闭页面时保护未保存内容。
+ *
+ * 浏览器出于安全原因只显示系统统一提示，不能自定义这段提示的文字；
+ * 没有实际修改时不会触发，因此正常刷新页面不会出现误报。
+ */
+function handleBeforeUnload(event: BeforeUnloadEvent) {
+  if (unsavedSectionNames.value.length === 0) return
+  event.preventDefault()
+  event.returnValue = ''
 }
 
 // 选中患者时并行加载上下文、病历、诊断和医嘱；清空选择时同步清除旧数据。
@@ -912,8 +1193,14 @@ watch(selectedPatientId, (encounterId) => {
 
 // 页面第一次进入时自动加载患者和模板，不需要用户先点击“查询”。
 onMounted(() => {
+  window.addEventListener('beforeunload', handleBeforeUnload)
   void loadPatients()
   void loadMedicalRecordTemplates()
+})
+
+// 页面组件销毁时移除全局监听，避免重新进入医生站后重复绑定。
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', handleBeforeUnload)
 })
 </script>
 

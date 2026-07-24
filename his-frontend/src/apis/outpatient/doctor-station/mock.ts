@@ -705,7 +705,9 @@ function buildPatientContext(patient: DoctorPatientQueueItemVO): DoctorPatientCo
     visitStatus: patient.visitStatus,
     visitStatusName: patient.visitStatusName,
     attendingDoctorName: patient.visitStatus === 'WAITING' ? undefined : '李尔王',
-    acceptedAt: acceptedAtByEncounterId[patient.encounterId],
+    // 暂离后重新进入候诊，不应继续展示上一轮接诊时间。
+    acceptedAt:
+      patient.visitStatus === 'WAITING' ? undefined : acceptedAtByEncounterId[patient.encounterId],
     chiefComplaint: details?.chiefComplaint ?? '患者到诊，主诉信息待医生补充',
     allergyHistory: details?.allergyHistory ?? patient.riskHint ?? '未发现明确药物过敏',
     pastMedicalHistory: details?.pastMedicalHistory ?? '既往病史待进一步询问',
@@ -786,6 +788,79 @@ export async function mockAcceptPatient(encounterId: string): Promise<DoctorPati
     acceptedAtByEncounterId[encounterId] = '2026-07-23 10:30'
   }
 
+  return buildPatientContext(patient)
+}
+
+/**
+ * 模拟暂离。
+ *
+ * 当前项目只有候诊、在诊、完诊三种状态，因此“暂离”表示结束本轮接诊占用，
+ * 让患者重新回到候诊队列。重复暂离按幂等操作处理。
+ */
+export async function mockLeavePatient(encounterId: string): Promise<DoctorPatientContextVO> {
+  await waitForMockRequest(encounterId)
+  const patient = findPatientOrThrow(encounterId)
+
+  if (patient.visitStatus === 'COMPLETED') {
+    throw new Error('该患者已经完诊，不能执行暂离')
+  }
+
+  if (patient.visitStatus === 'IN_PROGRESS') {
+    patient.visitStatus = 'WAITING'
+    patient.visitStatusName = '候诊'
+  }
+
+  return buildPatientContext(patient)
+}
+
+/**
+ * 判断富文本是否包含医生真正录入的内容。
+ *
+ * 富文本编辑器可能产生只有标签、空格或 &nbsp; 的 HTML，这种内容不能算作
+ * 已完成病历。真实后端接入后，这条规则仍应在后端保留。
+ */
+function hasMeaningfulMedicalRecordContent(content: string) {
+  return content
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;|&#160;/gi, '')
+    .trim()
+}
+
+/**
+ * 模拟完诊，并在 Mock“服务端”再次校验病历和诊断。
+ *
+ * 页面校验负责及时提醒医生；这里的校验负责防止绕过页面直接调用接口。
+ */
+export async function mockCompletePatient(encounterId: string): Promise<DoctorPatientContextVO> {
+  await waitForMockRequest(encounterId)
+  const patient = findPatientOrThrow(encounterId)
+
+  // 完诊接口按幂等方式返回，避免网络重试造成重复业务结果。
+  if (patient.visitStatus === 'COMPLETED') return buildPatientContext(patient)
+  if (patient.visitStatus !== 'IN_PROGRESS') {
+    throw new Error('请先接诊患者再执行完诊')
+  }
+
+  const medicalRecord = medicalRecordByEncounterId[encounterId]
+  if (
+    !medicalRecord ||
+    medicalRecord.version <= 0 ||
+    !hasMeaningfulMedicalRecordContent(medicalRecord.content)
+  ) {
+    throw new Error('请先填写并保存门诊病历')
+  }
+
+  const diagnosisList = diagnosisListByEncounterId[encounterId]
+  if (
+    !diagnosisList ||
+    diagnosisList.rows.length === 0 ||
+    diagnosisList.rows.filter((item) => item.primary).length !== 1
+  ) {
+    throw new Error('请先保存诊断，并且只能设置一个主诊断')
+  }
+
+  patient.visitStatus = 'COMPLETED'
+  patient.visitStatusName = '完诊'
   return buildPatientContext(patient)
 }
 
