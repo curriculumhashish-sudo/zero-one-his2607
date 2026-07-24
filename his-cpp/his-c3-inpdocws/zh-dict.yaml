@@ -219,3 +219,45 @@ prescription:
     summary: 新增处方
   delete:
     summary: 删除处方
+
+# 晚睡觉
+diagnosis-entry:
+ api-name: 诊断录入
+ summary1: 获取诊断使用历史
+ summary2: 获取患者诊断记录（条件+分页）
+ condition_id: 诊断主键
+ definition_name: 诊断症状名称
+ definition_code: 诊断症状编码
+ description: 诊断描述
+ kind_text: 医学类型名称
+ type_name: 诊断类型名称
+ main_flag: 主诊标注
+ patient_id: 患者id
+ tenant_id: 租户id
+enter-orders:
+ api-name: 开立医嘱
+ summary1: 获取医嘱列表（条件+分页）
+ summary2: 新增医嘱
+ summary3: 修改医嘱
+ summary4: 删除医嘱
+ request_id: 医嘱主键
+ status: 医嘱状态
+ medicine_type: 药品类型
+ therapy_type: 医嘱类型
+ medicine_name: 药品名称
+ specification: 药品规格
+ dose: 单次剂量
+ dose_unit: 剂量单位
+ method: 服用方式
+ rate: 服用时间
+ authored_at: 开立时间
+ taotal_price: 总金额
+ authored_by: 开立医生
+ skin_text: 皮试标志
+ patient_id: 患者id
+ description: 诊断描述
+ created_at: 新增时间
+ created_by: 新增人id
+ tenant_id: 租户id
+ encounter_id: 诊断id
+ group_id: 小组id

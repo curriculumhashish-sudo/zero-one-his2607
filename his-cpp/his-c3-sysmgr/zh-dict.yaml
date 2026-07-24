@@ -77,3 +77,13 @@ settings:
     query_list: 查询配置列表
     query_items: 查询配置项列表
     tag: 系统管理-配置管理
+
+# 泰普寇德
+setting:
+  add:
+    summary: 新增配置项
+  modify:
+    summary: 修改配置项
+  remove:
+    summary: 删除配置项
+  tag: 配置相关接口

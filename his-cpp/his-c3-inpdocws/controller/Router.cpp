@@ -26,6 +26,8 @@
 #include "medicalorder/MedOrderController.h"
 #include "medicalorder/MedicalOrderController.h"
 #include "inpatient-record/MedicalRecordController.h"
+#include "diagnosis-entry/DiagnosisEntryController.h"
+#include "enter-orders/EnterOrdersController.h"
 
 
 // If the macro for disabling Swagger documentation is defined
@@ -55,6 +57,7 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(MedOrderController);
 	ROUTER_SIMPLE_BIND(MedicalOrderController);
 	ROUTER_SIMPLE_BIND(MedicalRecordController);
-
+	ROUTER_SIMPLE_BIND(DiagnosisEntryController);
+	ROUTER_SIMPLE_BIND(EnterOrdersController);
 	
 }
