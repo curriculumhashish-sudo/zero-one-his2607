@@ -10,7 +10,7 @@
  */
 class InventoryLockDO : public BaseDO
 {
-	// Æ÷²ÄID
+	// ÕïÁÆID
 	MYSQL_SYNTHESIZE(string, id, Id);
 	// ×¡»§ID
 	MYSQL_SYNTHESIZE(string, tenantId, TenantId);
