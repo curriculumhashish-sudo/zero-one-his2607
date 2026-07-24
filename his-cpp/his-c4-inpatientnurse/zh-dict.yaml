@@ -1,3 +1,32 @@
+chargedetails.tag: 费用明细与汇总
+chargedetails.query-all.summary: 分页查询费用明细
+chargedetails.query-one.summary: 查询单个费用明细
+chargedetails.summary-by-encounter.summary: 按就诊汇总费用
+chargedetails.summary-by-date.summary: 按日期汇总费用
+chargedetails.field.id: ID
+chargedetails.field.patientId: 患者ID
+chargedetails.field.encounterId: 就诊ID
+chargedetails.field.chargeName: 收费项目名称
+chargedetails.field.typeCode: 收费类型编码
+chargedetails.field.typeName: 收费类型名称
+chargedetails.field.unitPrice: 单价
+chargedetails.field.quantityValue: 数量
+chargedetails.field.quantityUnit: 数量单位
+chargedetails.field.totalPrice: 总金额
+chargedetails.field.baseAmount: 基本金额
+chargedetails.field.discountAmount: 折扣金额
+chargedetails.field.occurrenceTime: 发生时间
+chargedetails.field.performingOrgId: 执行科室
+chargedetails.field.statusEnum: 状态
+chargedetails.field.busNo: 业务单号
+chargedetails.field.startDate: 开始日期
+chargedetails.field.endDate: 结束日期
+chargedetails.field.totalAmount: 汇总金额
+chargedetails.field.count: 数量
+chargedetails.field.insuranceAmount: 医保金额
+chargedetails.field.selfPayAmount: 自费金额
+chargedetails.field.summaryDate: 汇总日期
+
 # Chinese dictionary for Swagger/UI labels
 # Module: his-c4-inpatientnurse (Inpatient Nurse Station)
 
