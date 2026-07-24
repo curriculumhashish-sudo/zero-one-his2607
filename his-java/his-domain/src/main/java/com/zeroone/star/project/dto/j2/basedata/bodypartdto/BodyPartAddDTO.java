@@ -12,7 +12,6 @@ import lombok.ToString;
  */
 @Schema(description = "新增部位传输对象")
 @Data
-@ToString
 public class BodyPartAddDTO {
 
     @NotBlank(message = "部位名称不能为空")

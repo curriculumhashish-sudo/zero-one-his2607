@@ -1,11 +1,13 @@
 package com.zeroone.star.project.j2.sysmgr.rent;
 
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentAddDTO;
+import com.zeroone.star.project.dto.j2.sysmgr.rent.RentNameDTO;
+import com.zeroone.star.project.dto.j2.sysmgr.rent.RentDTO2;
 import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentDTO;
-import com.zeroone.star.project.query.j2.sysmgr.rent.RentQuery;
+import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentAddDTO;
+import com.zeroone.star.project.query.j2.sysmgr.rent2.RentNameQuery;
+import com.zeroone.star.project.query.j2.sysmgr.rent2.RentQuery;
 import com.zeroone.star.project.vo.JsonVO;
-
 /**
  * <p>
  * 描述：租户管理接口
@@ -18,11 +20,20 @@ import com.zeroone.star.project.vo.JsonVO;
 
 public interface RentApis {
     /**
-     * 分页查询租户信息
-     * @param query 租户查询条件
+     * 获取租户名称
+     * @param rentNameQuery 查询参数
+     * @return 租户名称列表
+     */
+    JsonVO<PageDTO<RentNameDTO>> queryName(RentNameQuery rentNameQuery);
+
+    /**
+     * 获取租户列表
+     * @param rentQuery 查询参数
      * @return 租户信息分页结果
      */
-    JsonVO<PageDTO<RentDTO>> queryAll(RentQuery query);
+    JsonVO<PageDTO<RentDTO2>> queryAll(RentQuery rentQuery);
+
+
     /**
      * 添加租户信息
      * @param addDTO 租户添加信息

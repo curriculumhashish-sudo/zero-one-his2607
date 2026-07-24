@@ -11,7 +11,6 @@ import lombok.ToString;
  */
 @Schema(description = "部位列表视图对象")
 @Data
-@ToString
 public class BodyPartListVO {
 
     @Schema(description = "部位ID", example = "322663105141149696")

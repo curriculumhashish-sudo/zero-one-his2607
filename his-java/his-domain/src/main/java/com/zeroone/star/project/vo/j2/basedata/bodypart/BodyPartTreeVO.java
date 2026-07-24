@@ -13,7 +13,6 @@ import java.util.List;
  */
 @Schema(description = "部位树节点视图对象")
 @Data
-@ToString
 public class BodyPartTreeVO {
 
     @Schema(description = "部位ID", example = "322663105141149696")

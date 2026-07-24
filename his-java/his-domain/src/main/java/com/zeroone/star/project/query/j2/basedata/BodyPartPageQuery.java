@@ -12,7 +12,6 @@ import lombok.ToString;
  */
 @Schema(description = "部位分页查询对象")
 @Data
-@ToString
 public class BodyPartPageQuery extends PageQuery {
 
     @Schema(description = "关键字（部位编码/名称模糊匹配）", example = "头")
