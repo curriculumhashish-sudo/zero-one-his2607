@@ -66,6 +66,22 @@
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
         </dependency>
+        <!--
+            Knife4j 4.5.0 间接依赖的 springdoc 2.3.0 仅适配 Spring Boot 3.2.x。
+            当前项目固定使用 Spring Boot 3.5.0，因此选择同样以 Boot 3.5.0
+            为构建基线的 springdoc 2.8.9：既解决 /v3/api-docs 的方法兼容错误，
+            又避免更新版 springdoc 在 Spring 6.2.7 上生成不兼容的资源路径。
+        -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.8.9</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
