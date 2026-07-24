@@ -6,13 +6,14 @@ import com.zeroone.star.project.dto.j8.setroster.SlotReleaseStrategyAddDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotReleaseStrategyDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotReleaseStrategyNameDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotReleaseStrategyModifyDTO;
-import com.zeroone.star.project.enums.ResultStatus;
 import com.zeroone.star.project.j8.setroster.SlotReleaseStrategyApis;
 import com.zeroone.star.project.query.j8.setroster.SlotReleaseStrategyQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.setroster.service.ISlotReleaseStrategyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +22,7 @@ import java.util.List;
  * <p>
  * 描述：放号策略控制器
  * </p>
- * <p>版权：&copy;01星球</p>
+ * <p>版权：01星球</p>
  * <p>地址：01星球总部</p>
  *
  * @author 余悸
@@ -31,43 +32,47 @@ import java.util.List;
 @RestController
 @Tag(name = "放号策略管理")
 @RequestMapping("/j8/setroster") // 统一模块路径前缀
+@RequiredArgsConstructor
 public class SlotReleaseStrategyController implements SlotReleaseStrategyApis {
 
+    private final ISlotReleaseStrategyService strategyService;
 
     @Operation(summary = "查询放号策略列表")
-    @GetMapping("j8/setroster/querySlotReleaseStrategies")
+    @GetMapping("/queryAllocationStrategies")
     @Override
     public JsonVO<PageDTO<SlotReleaseStrategyDTO>> querySlotReleaseStrategies(
             @Valid @ModelAttribute SlotReleaseStrategyQuery query) {
-        return JsonVO.create(null, ResultStatus.API_UN_IMPL);
+        return JsonVO.success(strategyService.listStrategies(query));
     }
 
     @Operation(summary = "获取放号策略名称")
-    @GetMapping("j8/setroster/querySlotReleaseStrategyNames")
+    @GetMapping("/queryAllocationStrategyNames")
     @Override
     public JsonVO<List<SlotReleaseStrategyNameDTO>> querySlotReleaseStrategyNames() {
-        return JsonVO.create(null, ResultStatus.API_UN_IMPL);
+        return JsonVO.success(strategyService.listStrategyNames());
     }
 
     @Operation(summary = "新增放号策略")
-    @PostMapping("j8/setroster/addSlotReleaseStrategy")
+    @PostMapping("/addAllocationStrategy")
     @Override
     public JsonVO<String> addSlotReleaseStrategy(@Valid @RequestBody SlotReleaseStrategyAddDTO addDTO) {
-        return JsonVO.create(null, ResultStatus.API_UN_IMPL);
+        return JsonVO.success(strategyService.saveStrategy(addDTO));
     }
 
     @Operation(summary = "修改放号策略")
-    @PutMapping("j8/setroster/modifySlotReleaseStrategy")
+    @PutMapping("/modifyAllocationStrategy")
     @Override
     public JsonVO<String> modifySlotReleaseStrategy(@Valid @RequestBody SlotReleaseStrategyModifyDTO modifyDTO) {
-        return JsonVO.create(null, ResultStatus.API_UN_IMPL);
+        boolean updated = strategyService.updateStrategy(modifyDTO);
+        return updated ? JsonVO.success(modifyDTO.getId()) : JsonVO.fail("更新失败：策略不存在");
     }
 
     @Operation(summary = "删除放号策略")
-    @DeleteMapping("j8/setroster/deleteSlotReleaseStrategy/{id}")
+    @DeleteMapping("/deleteAllocationStrategy/{id}")
     @Override
     public JsonVO<String> deleteSlotReleaseStrategy(
             @PathVariable("id") String id) {
-        return JsonVO.create(null, ResultStatus.API_UN_IMPL);
+        boolean removed = strategyService.removeStrategy(id);
+        return removed ? JsonVO.success(id) : JsonVO.fail("删除失败：策略不存在");
     }
 }
