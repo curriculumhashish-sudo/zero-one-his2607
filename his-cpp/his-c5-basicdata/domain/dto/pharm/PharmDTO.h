@@ -21,20 +21,38 @@
 #define _PHARM_DTO_
 
 #include "../../GlobalInclude.h"
-#include "domain/dto/PageDTO.h"
-
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * PharmModifyStatusEnumDTO - Status modification DTO.
- *
- * Used for the statusEnum/modify endpoint to enable or disable
- * a pharmacy/warehouse by its statusEnum field.
+ * PharmDTO - Full pharmacy/warehouse data transfer object (c5-pharm).
+ * Used for list display and detail responses.
+ */
+class PharmDTO : public oatpp::DTO
+{
+    DTO_INIT(PharmDTO, DTO);
+
+    // Required fields
+    API_DTO_FIELD_REQUIRE(oatpp::UInt64, id, ZH_WORDS_GETTER("pharm.field.id"), true);
+    API_DTO_FIELD_REQUIRE(oatpp::String, name, ZH_WORDS_GETTER("pharm.field.name"), true);
+    API_DTO_FIELD_REQUIRE(oatpp::String, type, ZH_WORDS_GETTER("pharm.field.type"), true);
+    API_DTO_FIELD_REQUIRE(oatpp::Int32, status, ZH_WORDS_GETTER("pharm.field.status"), true);
+
+    // Optional fields
+    API_DTO_FIELD_DEFAULT(oatpp::Int32, sort, ZH_WORDS_GETTER("pharm.field.sort"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, remark, ZH_WORDS_GETTER("pharm.field.remark"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, create_by, ZH_WORDS_GETTER("pharm.field.createBy"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, update_by, ZH_WORDS_GETTER("pharm.field.updateBy"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, create_time, ZH_WORDS_GETTER("pharm.field.createTime"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, update_time, ZH_WORDS_GETTER("pharm.field.updateTime"));
+};
+
+/**
+ * PharmModifyStatusEnumDTO - Status modification DTO (c5 mengsuibizhi).
+ * Used for the /pharm/statusEnum/modify endpoint.
  */
 class PharmModifyStatusEnumDTO : public oatpp::DTO
 {
     DTO_INIT(PharmModifyStatusEnumDTO, DTO);
-    // Status: NORMAL (enabled) / DISABLED (disabled)
     DTO_FIELD(String, statusEnum);
     DTO_FIELD_INFO(statusEnum) {
         info->description = ZH_WORDS_GETTER("pharm.field.statusEnum");
@@ -42,112 +60,19 @@ class PharmModifyStatusEnumDTO : public oatpp::DTO
 };
 
 /**
- * PharmDTO - Full pharmacy/warehouse data transfer object.
- *
- * Used for paginated list display and form data binding.
- * Fields map to the pharm database table.
+ * PharmSelectDTO - Lightweight DTO for dropdown selection lists (c5 mengsuibizhi).
  */
-class PharmDTO : public oatpp::DTO {
-    DTO_INIT(PharmDTO, DTO);
-
-    // Unique identifier
-    DTO_FIELD(String, id);
-    DTO_FIELD_INFO(id) {
-        info->description = ZH_WORDS_GETTER("pharm.field.id");
-    }
-
-    // Pharmacy/warehouse name
-    DTO_FIELD(String, name);
-    DTO_FIELD_INFO(name) {
-        info->description = ZH_WORDS_GETTER("pharm.field.name");
-    }
-
-    // Type: WAREHOUSE / PHARMACY
-    DTO_FIELD(String, type);
-    DTO_FIELD_INFO(type) {
-        info->description = ZH_WORDS_GETTER("pharm.field.type");
-    }
-
-    // Type enum: REGISTRY (warehouse) / DRUG (pharmacy) / "" (dept pharmacy)
-    DTO_FIELD(String, typeEnum);
-    DTO_FIELD_INFO(typeEnum) {
-        info->description = ZH_WORDS_GETTER("pharm.field.typeEnum");
-    }
-
-    // Parent department / class room
-    DTO_FIELD(String, classRoom);
-    DTO_FIELD_INFO(classRoom) {
-        info->description = ZH_WORDS_GETTER("pharm.field.classRoom");
-    }
-
-    // Status: ENABLED / DISABLED
-    DTO_FIELD(String, status);
-    DTO_FIELD_INFO(status) {
-        info->description = ZH_WORDS_GETTER("pharm.field.status");
-    }
-
-    // Status enum: NORMAL (enabled) / DISABLED (disabled)
-    DTO_FIELD(String, statusEnum);
-    DTO_FIELD_INFO(statusEnum) {
-        info->description = ZH_WORDS_GETTER("pharm.field.statusEnum");
-    }
-
-    // Pinyin code for quick search
-    DTO_FIELD(String, pyStr);
-    DTO_FIELD_INFO(pyStr) {
-        info->description = ZH_WORDS_GETTER("pharm.field.pyStr");
-    }
-
-    // Wubi code for quick search
-    DTO_FIELD(String, wbStr);
-    DTO_FIELD_INFO(wbStr) {
-        info->description = ZH_WORDS_GETTER("pharm.field.wbStr");
-    }
-
-    // Display order for list sorting
-    DTO_FIELD(Int32, displayOrder);
-    DTO_FIELD_INFO(displayOrder) {
-        info->description = ZH_WORDS_GETTER("pharm.field.displayOrder");
-    }
-
-    // Remark / note
-    DTO_FIELD(String, note);
-    DTO_FIELD_INFO(note) {
-        info->description = ZH_WORDS_GETTER("pharm.field.note");
-    }
-};
-
-/**
- * PharmSelectDTO - Lightweight DTO for dropdown selection lists.
- *
- * Only contains id and name, used by the frontend
- * dropdown/select component for pharmacy/warehouse selection.
- */
-class PharmSelectDTO : public oatpp::DTO {
-    DTO_INIT(PharmSelectDTO, DTO);
-
-    // Unique identifier
-    DTO_FIELD(String, id);
-    DTO_FIELD_INFO(id) {
-        info->description = ZH_WORDS_GETTER("pharm.field.id");
-    }
-
-    // Pharmacy/warehouse name
-    DTO_FIELD(String, name);
-    DTO_FIELD_INFO(name) {
-        info->description = ZH_WORDS_GETTER("pharm.field.name");
-    }
-};
-
-/**
- * PharmPageDTO - Paginated wrapper for PharmDTO list.
- *
- * Wraps a list of PharmDTO with pagination metadata
- * (pageIndex, pageSize, total, pages) for frontend table rendering.
- */
-class PharmPageDTO : public PageDTO<PharmDTO::Wrapper>
+class PharmSelectDTO : public oatpp::DTO
 {
-    DTO_INIT(PharmPageDTO, PageDTO<PharmDTO::Wrapper>);
+    DTO_INIT(PharmSelectDTO, DTO);
+    DTO_FIELD(String, id);
+    DTO_FIELD_INFO(id) {
+        info->description = ZH_WORDS_GETTER("pharm.field.id");
+    }
+    DTO_FIELD(String, name);
+    DTO_FIELD_INFO(name) {
+        info->description = ZH_WORDS_GETTER("pharm.field.name");
+    }
 };
 
 #include OATPP_CODEGEN_END(DTO)

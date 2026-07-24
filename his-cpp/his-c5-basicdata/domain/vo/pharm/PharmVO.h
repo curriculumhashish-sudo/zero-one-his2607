@@ -22,33 +22,15 @@
 
 #include "../../GlobalInclude.h"
 #include "../../dto/pharm/PharmDTO.h"
+#include "../../dto/pharm/PharmPageDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * PharmJsonVO - Single pharmacy/warehouse record response.
+ * PharmSelectListJsonVO - Dropdown selection list response (c5 mengsuibizhi).
  *
- * Used when querying a single record by ID or returning
- * the result of an add operation.
- */
-class PharmJsonVO : public JsonVO<PharmDTO::Wrapper> {
-    DTO_INIT(PharmJsonVO, JsonVO<PharmDTO::Wrapper>);
-};
-
-/**
- * PharmPageJsonVO - Paginated pharmacy/warehouse list response.
- *
- * Used for the main table display with pagination support.
- */
-class PharmPageJsonVO : public JsonVO<PharmPageDTO::Wrapper> {
-    DTO_INIT(PharmPageJsonVO, JsonVO<PharmPageDTO::Wrapper>);
-};
-
-/**
- * PharmSelectListJsonVO - Dropdown selection list response.
- *
- * Returns a lightweight list with only id and name
- * for frontend dropdown/select components.
+ * Note: PharmJsonVO and PharmPageJsonVO are defined in
+ * PharmDetailVO.h and PharmPageVO.h (c5-pharm) respectively.
  */
 class PharmSelectListJsonVO : public JsonVO<List<PharmSelectDTO::Wrapper>> {
     DTO_INIT(PharmSelectListJsonVO, JsonVO<List<PharmSelectDTO::Wrapper>>);

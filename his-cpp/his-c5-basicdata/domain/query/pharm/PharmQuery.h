@@ -28,45 +28,35 @@
 /**
  * PharmQuery - Pharmacy/warehouse paginated query parameters.
  *
- * Inherits pageIndex and pageSize from PageQuery.
- * Supports filtering by keyword (name/pinyin/wubi), type, and status.
- * Also supports name, typeEnum, and statusEnum for POST-based queries.
+ * Used by both c5-pharm (/pharm/list) and c5 mengsuibizhi
+ * (/pharm/query-all, /pharm/list/query) endpoints.
  */
 class PharmQuery : public PageQuery
 {
     DTO_INIT(PharmQuery, PageQuery);
 
-    // Search keyword (matches name, pinyin code, or wubi code)
-    DTO_FIELD(String, keyword);
-    DTO_FIELD_INFO(keyword) {
-        info->description = ZH_WORDS_GETTER("pharm.field.keyword");
-    }
+    // Keyword search (fuzzy match on name)
+    API_DTO_FIELD_DEFAULT(oatpp::String, keyword, ZH_WORDS_GETTER("pharm.queries.keyword"));
 
-    // Filter by name
+    // Filter by type
+    API_DTO_FIELD_DEFAULT(oatpp::String, type, ZH_WORDS_GETTER("pharm.queries.type"));
+
+    // Filter by status
+    API_DTO_FIELD_DEFAULT(oatpp::Int32, status, ZH_WORDS_GETTER("pharm.queries.status"));
+
+    // Filter by name (c5 mengsuibizhi)
     DTO_FIELD(String, name);
     DTO_FIELD_INFO(name) {
         info->description = ZH_WORDS_GETTER("pharm.field.name");
     }
 
-    // Filter by type: WAREHOUSE / PHARMACY
-    DTO_FIELD(String, type);
-    DTO_FIELD_INFO(type) {
-        info->description = ZH_WORDS_GETTER("pharm.field.type");
-    }
-
-    // Filter by type enum: REGISTRY (warehouse) / DRUG (pharmacy)
+    // Filter by type enum (c5 mengsuibizhi)
     DTO_FIELD(String, typeEnum);
     DTO_FIELD_INFO(typeEnum) {
         info->description = ZH_WORDS_GETTER("pharm.field.typeEnum");
     }
 
-    // Filter by status: ENABLED / DISABLED
-    DTO_FIELD(String, status);
-    DTO_FIELD_INFO(status) {
-        info->description = ZH_WORDS_GETTER("pharm.field.status");
-    }
-
-    // Filter by status enum: NORMAL / DISABLED
+    // Filter by status enum (c5 mengsuibizhi)
     DTO_FIELD(String, statusEnum);
     DTO_FIELD_INFO(statusEnum) {
         info->description = ZH_WORDS_GETTER("pharm.field.statusEnum");

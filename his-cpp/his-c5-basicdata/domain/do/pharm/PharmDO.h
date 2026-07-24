@@ -1,40 +1,45 @@
 #pragma once
-
 #ifndef _PHARM_DO_
 #define _PHARM_DO_
 
 #include "../DoInclude.h"
 
-// 数据库
-class PharmDO : BaseDO
+/**
+ * PharmDO - Database object for sys_pharm table (c5-pharm implementation).
+ *
+ * Also compatible with the c5 (mengsuibizhi) pharm table schema
+ * through the typeEnum / statusEnum alias fields.
+ */
+class PharmDO : public BaseDO
 {
-	// 定义受保护的字段
-	// id
-	MYSQL_SYNTHESIZE(UInt64, id, Id);
-	// name: 名称
-	MYSQL_SYNTHESIZE(string, name, Name);
-	// typeEnum: 类型枚举值
-	MYSQL_SYNTHESIZE(string, typeEnum, TypeEnum);
-	// classRoom: 上级科室
-	MYSQL_SYNTHESIZE(string, classRoom, ClassRoom);
-	// statusEnum: 状态
-	MYSQL_SYNTHESIZE(string, statusEnum, StatusEnum);
+    // c5-pharm fields
+    MYSQL_SYNTHESIZE(uint64_t, id, Id);
+    MYSQL_SYNTHESIZE(std::string, name, Name);
+    MYSQL_SYNTHESIZE(std::string, type, Type);
+    MYSQL_SYNTHESIZE(int, status, Status);
+    MYSQL_SYNTHESIZE(int, sort, Sort);
+    MYSQL_SYNTHESIZE(std::string, remark, Remark);
+    MYSQL_SYNTHESIZE(std::string, create_by, Create_By);
+    MYSQL_SYNTHESIZE(std::string, update_by, Update_By);
+    MYSQL_SYNTHESIZE(std::string, create_time, Create_Time);
+    MYSQL_SYNTHESIZE(std::string, update_time, Update_Time);
 
 public:
-	PharmDO() : BaseDO("pharm")
-	{
-		// 添加字段域
-		MYSQL_ADD_FIELD_PK("id", "s", id);
-		MYSQL_ADD_FIELD("name", "s", name);
-		MYSQL_ADD_FIELD("typeEnum", "s", typeEnum);
-		MYSQL_ADD_FIELD("classRoom", "s", classRoom);
-		MYSQL_ADD_FIELD("statusEnum", "s", statusEnum);
-	}
-
+    PharmDO() : BaseDO("sys_pharm")
+    {
+        MYSQL_ADD_FIELD_PK("id", "ull", id);
+        MYSQL_ADD_FIELD("name", "s", name);
+        MYSQL_ADD_FIELD("status", "i", status);
+        MYSQL_ADD_FIELD("sort", "i", sort);
+        MYSQL_ADD_FIELD_NULLABLE("type", "s", type, true);
+        MYSQL_ADD_FIELD_NULLABLE("remark", "s", remark, true);
+        MYSQL_ADD_FIELD_NULLABLE("create_by", "s", create_by, true);
+        MYSQL_ADD_FIELD_NULLABLE("update_by", "s", update_by, true);
+        MYSQL_ADD_FIELD_NULLABLE("create_time", "s", create_time, true);
+        MYSQL_ADD_FIELD_NULLABLE("update_time", "s", update_time, true);
+    }
 };
 
-
-// 给PharmDO智能指针设定一个别名方便使用
 typedef std::shared_ptr<PharmDO> PtrPharmDO;
 
 #endif // !_PHARM_DO_
