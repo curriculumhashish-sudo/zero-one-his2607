@@ -31,7 +31,8 @@ std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
 		DiagnosisCode, chronicCode,
 		MedicalInsuranceCode, medicalInsuranceCode,
 		Status, status,
-		IsDelete, isDelete);
+		IsDelete, isDelete
+	);
 
 	ZO_STAR_DOMAIN_DTO_TO_DO(
 		data,
@@ -41,13 +42,16 @@ std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
 		PinyinCode, pinyinCode,
 		WubiCode, wubiCode,
 		Remark, remark,
-		CatName, catName);
+		CatName, catName,
+		TenantId,tenantId,
+		Source_enum, source_enum);
 
 	UuidFacade uuidFacade;
 	data.setId(uuidFacade.genUuid());
 	data.setCreateBy(dto->getPayload()->getUsername());
 	data.setCreateTime(SimpleDateTimeFormat::format());
-	data.setIsDelete(0);
+	//data.setIsDelete(0);
+	data.setVersion(1);
 
 	DiagnosisDAO dao;
 	return dao.insert(data) == 1 ? data.getId() : "";
@@ -63,7 +67,10 @@ bool DiagnoseService::updateData(const DiagnoseDTO::Wrapper& dto)
 		DiagnosisType, diagType,
 		DiagnosisCode, chronicCode,
 		MedicalInsuranceCode, medicalInsuranceCode,
-		Status, status);
+		Status, status,
+		TenantId, tenantId,
+		IsDelete, isDelete,
+		Id, id);
 
 	ZO_STAR_DOMAIN_DTO_TO_DO(
 		data,
@@ -72,7 +79,9 @@ bool DiagnoseService::updateData(const DiagnoseDTO::Wrapper& dto)
 		MedicalInsuranceMatch, medicalInsuranceMatch,
 		PinyinCode, pinyinCode,
 		WubiCode, wubiCode,
-		Remark, remark);
+		Remark, remark,
+		Source_enum,source_enum,
+	Version,version);
 
 	data.setUpdateBy(dto->getPayload()->getUsername());
 	data.setUpdateTime(SimpleDateTimeFormat::format());
@@ -81,6 +90,7 @@ bool DiagnoseService::updateData(const DiagnoseDTO::Wrapper& dto)
 	return dao.update(data) == 1;
 }
 
+//删除一条数据（前端有）
 bool DiagnoseService::removeOne(const std::string& id)
 {
 	DiagnosisDO data;
@@ -90,7 +100,7 @@ bool DiagnoseService::removeOne(const std::string& id)
 	DiagnosisDAO dao;
 	return dao.update(data) == 1;
 }
-
+//物理批量删除
 bool DiagnoseService::removeData(const oatpp::List<oatpp::String>& ids)
 {
 	std::list<std::string> dataIds;
@@ -105,7 +115,7 @@ bool DiagnoseService::removeData(const oatpp::List<oatpp::String>& ids)
 
 bool DiagnoseService::batchChangeStatus(
 	const oatpp::List<oatpp::String>& ids,
-	oatpp::Int32 status)
+	oatpp::String status)
 {
 	DiagnosisDAO dao;
 	int successCount = 0;

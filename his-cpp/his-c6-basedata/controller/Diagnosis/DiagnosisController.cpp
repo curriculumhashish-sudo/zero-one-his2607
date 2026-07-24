@@ -145,7 +145,7 @@ StringJsonVO::Wrapper DiagnosisController::execBatchChangeDiagnoseStatus(
 		response->init(nullptr, RS_PARAMS_INVALID);
 		return response;
 	}
-	if (*dto->status != 0 && *dto->status != 1)
+	if (*dto->status!="STOP" && *dto->status != "ACTIVE")
 	{
 		response->init(nullptr, RS_PARAMS_INVALID);
 		return response;
