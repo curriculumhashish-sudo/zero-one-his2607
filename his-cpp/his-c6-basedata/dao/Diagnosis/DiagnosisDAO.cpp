@@ -86,7 +86,7 @@ uint64_t DiagnosisDAO::count(const DiagnosisSelectQuery::Wrapper& query)
 	return sqlSession->executeQueryNumerical(sql, params);
 }
 
-std::list<ConditionDefinitionDO> DiagnosisDAO::selectWithPage(
+std::list<ClnConditionDefinitionDO> DiagnosisDAO::selectWithPage(
 	const DiagnosisSelectQuery::Wrapper& query)
 {
 	SqlParams params;
@@ -101,7 +101,7 @@ std::list<ConditionDefinitionDO> DiagnosisDAO::selectWithPage(
 	const uint64_t pageSize = query->pageSize.getValue(10);
 	const uint64_t offset = (pageIndex - 1) * pageSize;
 	sql += " LIMIT " + std::to_string(offset) + "," + std::to_string(pageSize);
-	return sqlSession->executeQuery<ConditionDefinitionDO>(
+	return sqlSession->executeQuery<ClnConditionDefinitionDO>(
 		sql,
 		DiagnosisSelectMapper(),
 		params);

@@ -17,15 +17,15 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _CONDITION_DEFINITION_DO_H_
-#define _CONDITION_DEFINITION_DO_H_
+#ifndef _CLN_CONDITION_DEFINITION_DO_H_
+#define _CLN_CONDITION_DEFINITION_DO_H_
 
 #include "../DoInclude.h"
 
 /**
  * Database model for the cln_condition_definition table.
  */
-class ConditionDefinitionDO : public BaseDO
+class ClnConditionDefinitionDO : public BaseDO
 {
 	MYSQL_SYNTHESIZE(string, id, Id);
 	MYSQL_SYNTHESIZE(string, tenantId, TenantId);
@@ -33,7 +33,7 @@ class ConditionDefinitionDO : public BaseDO
 	MYSQL_SYNTHESIZE(string, updatedAt, UpdatedAt);
 	MYSQL_SYNTHESIZE(string, createdBy, CreatedBy);
 	MYSQL_SYNTHESIZE(string, updatedBy, UpdatedBy);
-	MYSQL_SYNTHESIZE(int, isDeleted, IsDeleted);
+	MYSQL_SYNTHESIZE(bool, isDeleted, IsDeleted);
 	MYSQL_SYNTHESIZE(string, deletedAt, DeletedAt);
 	MYSQL_SYNTHESIZE(string, deletedBy, DeletedBy);
 	MYSQL_SYNTHESIZE(int, version, Version);
@@ -44,14 +44,14 @@ class ConditionDefinitionDO : public BaseDO
 	MYSQL_SYNTHESIZE(string, wbStr, WbStr);
 	MYSQL_SYNTHESIZE(string, typeCode, TypeCode);
 	MYSQL_SYNTHESIZE(string, description, Description);
-	MYSQL_SYNTHESIZE(int, ybFlag, YbFlag);
+	MYSQL_SYNTHESIZE(bool, ybFlag, YbFlag);
 	MYSQL_SYNTHESIZE(string, diseaseCode, DiseaseCode);
 	MYSQL_SYNTHESIZE(string, ybNo, YbNo);
-	MYSQL_SYNTHESIZE(int, ybMatchFlag, YbMatchFlag);
+	MYSQL_SYNTHESIZE(bool, ybMatchFlag, YbMatchFlag);
 	MYSQL_SYNTHESIZE(string, statusEnum, StatusEnum);
 
 public:
-	ConditionDefinitionDO() : BaseDO("cln_condition_definition")
+	ClnConditionDefinitionDO() : BaseDO("cln_condition_definition")
 	{
 		MYSQL_ADD_FIELD_PK("id", "s", id);
 		MYSQL_ADD_FIELD("tenant_id", "s", tenantId);
@@ -59,7 +59,7 @@ public:
 		MYSQL_ADD_FIELD("updated_at", "dt", updatedAt);
 		MYSQL_ADD_FIELD("created_by", "s", createdBy);
 		MYSQL_ADD_FIELD("updated_by", "s", updatedBy);
-		MYSQL_ADD_FIELD_NULLABLE("is_deleted", "i", isDeleted, false);
+		MYSQL_ADD_FIELD_NULLABLE("is_deleted", "b", isDeleted, false);
 		MYSQL_ADD_FIELD("deleted_at", "dt", deletedAt);
 		MYSQL_ADD_FIELD("deleted_by", "s", deletedBy);
 		MYSQL_ADD_FIELD_NULLABLE("version", "i", version, false);
@@ -70,12 +70,14 @@ public:
 		MYSQL_ADD_FIELD("wb_str", "s", wbStr);
 		MYSQL_ADD_FIELD("type_code", "s", typeCode);
 		MYSQL_ADD_FIELD("description", "s", description);
-		MYSQL_ADD_FIELD("yb_flag", "i", ybFlag);
+		MYSQL_ADD_FIELD("yb_flag", "b", ybFlag);
 		MYSQL_ADD_FIELD("disease_code", "s", diseaseCode);
 		MYSQL_ADD_FIELD("yb_no", "s", ybNo);
-		MYSQL_ADD_FIELD("yb_match_flag", "i", ybMatchFlag);
+		MYSQL_ADD_FIELD("yb_match_flag", "b", ybMatchFlag);
 		MYSQL_ADD_FIELD_NULLABLE("status_enum", "s", statusEnum, false);
 	}
 };
 
-#endif // !_CONDITION_DEFINITION_DO_H_
+typedef std::shared_ptr<ClnConditionDefinitionDO> PtrClnConditionDefinitionDO;
+
+#endif // !_CLN_CONDITION_DEFINITION_DO_H_
