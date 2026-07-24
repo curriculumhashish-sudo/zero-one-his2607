@@ -39,7 +39,7 @@ class AdmEpisodeOfCareEncounterDO : public BaseDO
 	// 离开疗程时间
 	MYSQL_SYNTHESIZE(string, leaveTime, LeaveTime);
 public:
-	EpisodeOfCareEncounterDO() : BaseDO("adm_episode_of_care_encounter")
+	AdmEpisodeOfCareEncounterDO() : BaseDO("adm_episode_of_care_encounter")
 	{
 		MYSQL_ADD_FIELD_PK("id", "s", id);
 		MYSQL_ADD_FIELD_NULLABLE("tenant_id", "s", tenantId, true);
