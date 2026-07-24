@@ -1,8 +1,8 @@
 package com.zeroone.star.personcenter.controller;
 
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j2.sys.EnumDTO;
-import com.zeroone.star.project.dto.j2.sys.EnumDeleteDTO;
+import com.zeroone.star.project.dto.j2.sys.enumdto.EnumDTO;
+import com.zeroone.star.project.dto.j2.sys.enumdto.EnumDeleteDTO;
 import com.zeroone.star.project.j2.sys.enumApis;
 import com.zeroone.star.project.query.j2.sys.EnumListQuery;
 import com.zeroone.star.project.query.j2.sys.EnumQuery;
@@ -19,14 +19,14 @@ public class EnumController implements enumApis {
     @Override
     @Operation(summary = "删除枚举")
     @DeleteMapping("/sys/delete-enum")
-    public JsonVO<Integer> deleteEnumType(@RequestBody EnumDeleteDTO dto) {
+    public JsonVO<Integer> deleteEnum(@RequestBody EnumDeleteDTO dto) {
         return null;
     }
 
     @Override
     @Operation(summary = "获取枚举名称列表")
-    @GetMapping("/sys/get-enum-name")
-    public JsonVO<List<String>> getEnumTypeName(EnumListQuery query) {
+    @GetMapping("/sys/get-enum-name-list")
+    public JsonVO<List<String>> getEnumNameList(EnumListQuery query) {
         return null;
     }
 
