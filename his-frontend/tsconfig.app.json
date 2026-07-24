@@ -9,6 +9,7 @@
       "@/*": ["./src/*"]
     },
     "allowJs": true,
-    "types": ["element-plus/global"]
+    "types": ["element-plus/global"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
   }
 }
