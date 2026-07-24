@@ -13,7 +13,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * @author 阿伟学长
  * @version 1.0.0
  */
-@SpringBootApplication
+@SpringBootApplication  // 启动类
 @EnableDiscoveryClient
 public class SampleApplication {
     public static void main(String[] args) {
