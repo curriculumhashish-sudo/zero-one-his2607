@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.stat.sysmgr.mapper.UserTenantMapper">
+
+    <select id="listTenantUsers" resultType="com.zeroone.star.project.dto.j2.sysmgr.TenantUserDTO">
+        SELECT ut.tenant_id AS tenantId, u.user_name AS username, u.name
+        FROM whale_user_tenants ut
+        JOIN whale_users u ON ut.user_id = u.id
+        WHERE ut.is_deleted = 0 AND u.is_deleted = 0
+        <if test="tenantId != null and tenantId != ''">
+            AND ut.tenant_id = #{tenantId}
+        </if>
+        <if test="userName != null and userName != ''">
+            AND u.user_name LIKE CONCAT('%', #{userName}, '%')
+        </if>
+        <if test="name != null and name != ''">
+            AND u.name LIKE CONCAT('%', #{name}, '%')
+        </if>
+    </select>
+
+    <insert id="addOrReactivateUserTenant">
+        INSERT INTO whale_user_tenants (id, user_id, tenant_id, created_at, created_by, is_deleted)
+        VALUES (#{id}, #{userId}, #{tenantId}, NOW(), #{createdBy}, 0)
+        ON DUPLICATE KEY UPDATE
+            is_deleted = 0,
+            deleted_at = NULL,
+            deleted_by = NULL,
+            updated_at = NOW(),
+            updated_by = #{updatedBy}
+    </insert>
+
+    <update id="softDeleteUserTenants">
+        UPDATE whale_user_tenants
+        SET is_deleted = 1,
+            deleted_at = NOW(),
+            deleted_by = #{deletedBy}
+        WHERE tenant_id = #{tenantId}
+          AND user_id IN (
+              SELECT id FROM whale_users
+              WHERE user_name IN
+              <foreach collection="usernames" item="un" open="(" separator="," close=")">
+                  #{un}
+              </foreach>
+              AND is_deleted = 0
+          )
+          AND is_deleted = 0
+    </update>
+</mapper>

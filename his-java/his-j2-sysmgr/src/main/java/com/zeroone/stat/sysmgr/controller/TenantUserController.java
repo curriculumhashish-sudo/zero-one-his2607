@@ -7,8 +7,10 @@ import com.zeroone.star.project.dto.j2.sysmgr.TenantUserDTO;
 import com.zeroone.star.project.j2.sysmgr.TenantUserApis;
 import com.zeroone.star.project.query.j2_sysmgr.TenantUserQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.stat.sysmgr.service.ITenantUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -25,24 +27,27 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/sysmgr/tenant-user")
 public class TenantUserController implements TenantUserApis {
 
+    @Resource
+    private ITenantUserService tenantUserService;
+
     @Operation(summary = "获取租户用户列表")
     @GetMapping("/list-tenant-users")
     @Override
     public JsonVO<PageDTO<TenantUserDTO>> listTenantUsers(TenantUserQuery query) {
-        return null;
+        return tenantUserService.listTenantUsers(query);
     }
 
     @Operation(summary = "添加租户用户")
     @PostMapping("/add-tenant-users")
     @Override
     public JsonVO<String> addTenantUsers(@RequestBody AddTenantUserDTO data) {
-        return null;
+        return tenantUserService.addTenantUsers(data);
     }
 
     @Operation(summary = "移除租户用户")
     @PostMapping("/remove-tenant-users")
     @Override
-    public JsonVO<String> removeTenantUsers(RemoveTenantUserDTO data) {
-        return null;
+    public JsonVO<String> removeTenantUsers(@RequestBody RemoveTenantUserDTO data) {
+        return tenantUserService.removeTenantUsers(data);
     }
 }
