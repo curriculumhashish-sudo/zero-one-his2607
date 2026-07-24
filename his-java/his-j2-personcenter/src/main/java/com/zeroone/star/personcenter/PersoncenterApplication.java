@@ -13,6 +13,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * @author 阿伟学长
  * @version 1.0.0
  */
+//http://127.0.0.1:10600/personcenter/doc.html#/home
 @SpringBootApplication
 @EnableDiscoveryClient
 public class PersoncenterApplication {

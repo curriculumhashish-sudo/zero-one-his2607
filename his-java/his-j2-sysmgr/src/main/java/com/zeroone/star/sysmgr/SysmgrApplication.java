@@ -4,7 +4,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
-//http://127.0.0.1:10300/j2-sysmgr/doc.html
 /**
  * <p>
  * 描述：系统管理模块
@@ -17,6 +16,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableFeignClients
+//http://127.0.0.1:10300/j2-sysmgr/doc.html
 public class SysmgrApplication {
     public static void main(String[] args) {
         SpringApplication.run(SysmgrApplication.class, args);

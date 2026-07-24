@@ -38,6 +38,7 @@ spring:
               predicates:
                 - Path=/login/**
 
+
 zo:
   cloud:
     starter:

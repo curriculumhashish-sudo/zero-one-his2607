@@ -27,8 +27,6 @@ public interface EnumApis {
      */
     JsonVO<PageDTO<EnumDTO>> queryAllEnum(EnumQuery query);
 
-
-
     /**
      * 根据枚举类型查询枚举列表
       * @param enumTypeId 枚举类型ID
@@ -57,12 +55,6 @@ public interface EnumApis {
      */
     JsonVO<String> deleteEnum(String id);
 
-    /**
-     * 分页查询枚举类型
-     * @param query 查询参数
-     * @return 查询结果
-     */
-    JsonVO<PageDTO<EnumTypeDTO>> queryAllEnumType(EnumTypeQuery query);
 
     /**
      * 添加枚举类型
@@ -83,5 +75,6 @@ public interface EnumApis {
      * @param dto 枚举删除对象DTO
      * @return 枚举类型id
      */
-    JsonVO<String> deleteEnumType(EnumDeleteDTO dto);
+    JsonVO<Integer> deleteEnumType(EnumDeleteDTO dto);
+
 }

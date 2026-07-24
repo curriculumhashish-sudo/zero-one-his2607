@@ -1,7 +1,9 @@
-# his-j2-sysmgr
+# 工程简介
 
-系统管理模块
+系统管理服务模块，提供系统级管理功能
 
-## 主启动类
+# 延伸阅读
 
-`com.zeroone.star.sysmgr.SysmgrApplication`
+## 启动类
+
+主启动类：`com.zeroone.stat.sysmgr.SysmgrApplication`

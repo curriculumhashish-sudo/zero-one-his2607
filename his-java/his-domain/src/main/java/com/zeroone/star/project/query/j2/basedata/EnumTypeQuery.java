@@ -14,7 +14,6 @@ import lombok.ToString;
  * @version 1.0
  */
 @Data
-@ToString
 @Schema(description = "枚举类型查询")
 public class EnumTypeQuery extends PageQuery {
 

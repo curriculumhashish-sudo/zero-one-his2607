@@ -15,7 +15,6 @@ import lombok.ToString;
  * @version 1.0
  */
 @Data
-@ToString
 @Schema(description = "枚举修改DTO")
 public class EnumModifyDTO {
 

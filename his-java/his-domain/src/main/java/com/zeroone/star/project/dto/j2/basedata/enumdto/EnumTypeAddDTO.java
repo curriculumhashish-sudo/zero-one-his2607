@@ -16,7 +16,6 @@ import lombok.ToString;
  * @version 1.0
  */
 @Data
-@ToString
 @Schema(description = "枚举类型添加DTO")
 public class EnumTypeAddDTO {
 

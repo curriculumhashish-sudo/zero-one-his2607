@@ -15,7 +15,6 @@ import lombok.ToString;
  * @version 1.0
  */
 @Data
-@ToString
 @Schema(description = "枚举类型修改DTO，包含ID")
 public class EnumTypeModifyDTO extends EnumTypeAddDTO {
 
