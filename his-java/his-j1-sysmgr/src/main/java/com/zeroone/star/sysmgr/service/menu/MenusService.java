@@ -1,7 +1,7 @@
 package com.zeroone.star.sysmgr.service.menu;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.zeroone.star.project.entity.menu.MenuDO;
+import com.zeroone.star.sysmgr.entity.menu.MenuDO;
 import com.zeroone.star.project.vo.menu.MenuVO;
 
 /**
