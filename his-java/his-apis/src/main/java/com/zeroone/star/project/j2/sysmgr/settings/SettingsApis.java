@@ -2,6 +2,8 @@ package com.zeroone.star.project.j2.sysmgr.settings;
 
 import com.zeroone.star.project.dto.PageDTO;
 
+import com.zeroone.star.project.dto.j2.sysmgr.settingdto.SettingDeleteDTO;
+import com.zeroone.star.project.dto.j2.sysmgr.settingdto.SettingUpdateDTO;
 import com.zeroone.star.project.dto.j2.sysmgr.settingdto.SettingsAddDTO;
 import com.zeroone.star.project.dto.j2.sysmgr.settingdto.SettingsDTO;
 import com.zeroone.star.project.query.j2.sysmgr.settings.SettingsQuery;
@@ -29,4 +31,19 @@ public interface SettingsApis {
      */
     JsonVO<String> addSettings(SettingsAddDTO data);
 
+    /**
+     * 更新配置项
+     *
+     * @param settingUpdateDTO 更新配置项数据
+     * @return 更新结果
+     */
+    JsonVO<String> updateSetting(SettingUpdateDTO settingUpdateDTO);
+
+    /**
+     * 删除配置项
+     *
+     * @param settingDeleteDTO 删除配置项数据
+     * @return 删除结果
+     */
+    JsonVO<String> deleteSetting(SettingDeleteDTO settingDeleteDTO);
     }
