@@ -17,4 +17,8 @@ public class MedicineChangeStatusDTO {
     @NotEmpty(message = "状态值不能为空")
     @Schema(example = "[\"1\"]",defaultValue = "[\"1\"]")
     private List<String> ids;
+
+    public int getSize(){
+        return ids.size();
+    }
 }

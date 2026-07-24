@@ -1,6 +1,6 @@
 package com.zeroone.star.basedata.service.impl;
 
-import com.zeroone.star.basedata.entity.WkfActivityDefinitionDO;
+import com.zeroone.star.basedata.entity.treatment.WkfActivityDefinitionDO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentAddDTO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentDTO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentEditDTO;
@@ -27,7 +27,6 @@ public interface MsTreatmentMapper {
     List<TreatmentSelectDTO> toSelectDTOList(List<WkfActivityDefinitionDO> wkfActivityDefinitionDOS);
 
     @Mappings({
-            @Mapping(target = "statusText", ignore = true),
             @Mapping(target = "price", ignore = true)
     })
     TreatmentDTO toDTO(WkfActivityDefinitionDO wkfActivityDefinitionDO);
@@ -35,7 +34,6 @@ public interface MsTreatmentMapper {
     List<TreatmentDTO> toDTOList(List<WkfActivityDefinitionDO> wkfActivityDefinitionDOS);
 
     @Mappings({
-            @Mapping(target = "statusText", ignore = true),
             @Mapping(target = "price", ignore = true)
     })
     TreatmentListVO toListVO(WkfActivityDefinitionDO wkfActivityDefinitionDO);
