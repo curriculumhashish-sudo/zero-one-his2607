@@ -2,12 +2,12 @@
   <div class="main-pane">
     <DocumentHeadPanel
       :title="title"
-      :status="order ? order.status : 0"
+      :status="order?.status ?? 0"
       :status-map="statusMap"
-      :loading="loading"
+      :loading="loading || actionLoading"
+      :readonly="readonly"
     >
       <template #body>
-        <!-- 检索字段 -->
         <div v-if="extraSearchFields.length" class="main-pane__search">
           <div v-for="field in extraSearchFields" :key="field.prop" class="main-pane__search-field">
             <label class="main-pane__search-label">{{ field.label }}</label>
@@ -15,167 +15,184 @@
               v-if="field.type === 'input'"
               v-model="searchValues[field.prop]"
               :placeholder="field.placeholder"
-              :disabled="field.disabled"
-              size="default"
+              :disabled="field.disabled || readonly"
             />
             <el-select
               v-else
               v-model="searchValues[field.prop]"
               :placeholder="field.placeholder"
-              :disabled="field.disabled"
+              :disabled="field.disabled || readonly"
               clearable
-              size="default"
             >
               <el-option
-                v-for="opt in field.options"
-                :key="opt.value"
-                :label="opt.label"
-                :value="opt.value"
+                v-for="option in field.options"
+                :key="option.value"
+                :label="option.label"
+                :value="option.value"
               />
             </el-select>
           </div>
         </div>
 
-        <!-- 明细表单 -->
         <DocumentDetailEditableTable
+          ref="detailTableRef"
           v-model="details"
           :columns="columns"
           :loading="loading"
+          :readonly="readonly"
           row-key="id"
-          show-add
-          show-delete
+          :show-add="!readonly"
+          :show-delete="!readonly"
           @row-add="handleRowAdd"
         >
-          <!-- 项目名称：编辑icon + 点击输入框弹出 SelectTable -->
           <template #cell-itemName="{ row, rowKey }">
-            <div class="main-pane__cell-edit" @click="openSelectTable(rowKey)">
-              <el-icon><Edit /></el-icon>
+            <div
+              class="main-pane__cell-edit"
+              :class="{ 'is-readonly': readonly }"
+              @click="openSelectTable(rowKey)"
+            >
+              <el-icon v-if="!readonly"><Edit /></el-icon>
               <el-input
                 :model-value="row.itemName"
-                placeholder="请输入关键词检索药品"
-                size="default"
+                placeholder="点击选择药品"
                 readonly
+                :disabled="readonly"
               />
             </div>
           </template>
 
-          <!-- 实盘数量：number输入框 + 单位下拉 -->
+          <template #cell-bookQuantity="{ row }">
+            <div class="main-pane__cell-edit">
+              <el-icon v-if="!readonly"><Edit /></el-icon>
+              <el-input-number
+                :model-value="row.bookQuantity"
+                :min="0"
+                :disabled="readonly"
+                controls-position="right"
+                style="width: 90px"
+                @change="(value: number | undefined) => handleBookQuantityChange(row, value)"
+              />
+            </div>
+          </template>
+
           <template #cell-actualQuantity="{ row }">
             <div class="main-pane__cell-edit">
-              <el-icon><Edit /></el-icon>
               <el-input-number
                 :model-value="row.actualQuantity"
                 :min="0"
-                size="default"
+                :disabled="readonly"
                 controls-position="right"
-                style="width: 80px"
-                @change="(v: number) => handleActualQuantityChange(row, v)"
+                style="width: 90px"
+                @change="(value: number | undefined) => handleActualQuantityChange(row, value)"
               />
               <el-select
                 :model-value="row.actualUnit"
-                size="default"
-                style="width: 70px"
-                @change="(v: string) => (row.actualUnit = v)"
+                :disabled="readonly"
+                style="width: 72px"
+                @change="(value: string) => updateActualUnit(row, value)"
               >
                 <el-option
-                  v-for="u in unitOptions"
-                  :key="u.value"
-                  :label="u.label"
-                  :value="u.value"
+                  v-for="option in unitOptions"
+                  :key="option.value"
+                  :label="option.label"
+                  :value="option.value"
                 />
               </el-select>
             </div>
           </template>
 
-          <!-- 盈亏数量：计算展示 -->
-          <template #cell-profitLoss="{ row }">
-            <span>{{ row.profitLoss }}</span>
-          </template>
-
-          <!-- 单价：格式化展示 -->
-          <template #cell-unitPrice="{ row }">
-            <span>{{ row.unitPrice != null ? row.unitPrice.toFixed(2) + '元' : '' }}</span>
-          </template>
-
-          <!-- 实盘金额：计算展示 -->
-          <template #cell-actualAmount="{ row }">
-            <span>{{ row.actualAmount != null ? row.actualAmount.toFixed(2) : '' }}</span>
-          </template>
-
-          <!-- 盈亏金额：格式化展示 -->
+          <template #cell-profitLoss="{ row }">{{ row.profitLoss }}</template>
+          <template #cell-unitPrice="{ row }">{{ formatAmount(row.unitPrice) }}</template>
+          <template #cell-actualAmount="{ row }">{{ formatAmount(row.actualAmount) }}</template>
           <template #cell-profitLossAmount="{ row }">
-            <span>{{
-              row.profitLossAmount != null ? row.profitLossAmount.toFixed(2) + '元' : ''
-            }}</span>
+            {{ formatAmount(row.profitLossAmount) }}
           </template>
-
-          <!-- 备注：输入框 -->
           <template #cell-remark="{ row }">
             <el-input
               :model-value="row.remark"
-              size="default"
-              @update:model-value="(v: string) => (row.remark = v)"
+              :disabled="readonly"
+              @update:model-value="(value: string) => updateRemark(row, value)"
             />
           </template>
-
-          <!-- 操作：删除链接 -->
-          <template #actions="{ row, index }">
-            <el-link type="danger" :underline="false" @click="deleteRow(index)">删除</el-link>
+          <template #actions="{ index }">
+            <el-link v-if="!readonly" type="danger" :underline="false" @click="deleteRow(index)">
+              删除
+            </el-link>
           </template>
         </DocumentDetailEditableTable>
       </template>
 
-      <!-- Footer：固定在底部，不随表单滚动 -->
       <template #extra>
         <div class="main-pane__footer">
-          <el-button type="primary" size="default" @click="emit('action', 'save')"
-            >保存单据</el-button
-          >
-          <el-button type="success" size="default" @click="emit('action', 'saveAndSubmit')"
-            >保存并提交审批</el-button
-          >
-          <el-button type="danger" size="default" @click="emit('action', 'delete')"
-            >删除单据</el-button
-          >
-          <span class="main-pane__divider" />
-          <el-button type="warning" size="default" @click="emit('action', 'submit')"
-            >提交审批</el-button
-          >
-          <el-button size="default" @click="emit('action', 'withdraw')">撤回</el-button>
-          <span class="main-pane__divider" />
-          <el-button type="success" size="default" @click="emit('action', 'approve')"
-            >审批</el-button
-          >
-          <el-button type="danger" size="default" @click="emit('action', 'reject')">驳回</el-button>
+          <template v-if="canEdit">
+            <el-button type="primary" :loading="actionLoading" @click="handleAction('save')">
+              保存单据
+            </el-button>
+            <el-button
+              type="success"
+              :loading="actionLoading"
+              @click="handleAction('saveAndSubmit')"
+            >
+              保存并提交审批
+            </el-button>
+            <el-button type="danger" :disabled="actionLoading" @click="handleAction('delete')">
+              删除单据
+            </el-button>
+            <el-button type="warning" :loading="actionLoading" @click="handleAction('submit')">
+              提交审批
+            </el-button>
+          </template>
+          <template v-else-if="order?.status === 1">
+            <el-button :loading="actionLoading" @click="handleAction('withdraw')">撤回</el-button>
+            <el-button type="success" :loading="actionLoading" @click="handleAction('approve')">
+              审批通过
+            </el-button>
+            <el-button type="danger" :loading="actionLoading" @click="handleAction('reject')">
+              驳回
+            </el-button>
+          </template>
+          <span v-else class="main-pane__completed-text">盘点单已完成，当前为只读状态</span>
         </div>
       </template>
     </DocumentHeadPanel>
 
-    <!-- SelectTable 药品选择弹窗 -->
     <SelectTable
       v-model:visible="selectTableVisible"
-      title="选择药品"
+      title="选择盘点项目"
       row-key="itemCode"
       :columns="selectTableColumns"
       :load-page="loadSupplierOptions"
-      @confirm="handleSupplierSelect"
+      @confirm="handleProductSelect"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, onMounted } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { Edit } from '@element-plus/icons-vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import DocumentHeadPanel from '@/components/warehouse/DocumentHeadPanel.vue'
 import DocumentDetailEditableTable from '@/components/warehouse/DocumentDetailEditableTable.vue'
 import SelectTable from '@/components/common/SelectTable.vue'
 import type { SelectTableColumn } from '@/components/common/select-type'
-import { loadSupplierOptions, getPurchaseInboundDetail } from '@/apis/warehouse/purchase-inbound'
-import type { PurchaseInboundOrder, SupplierItem } from '@/apis/warehouse/purchase-inbound/type'
+import {
+  approvePurchaseInbound,
+  createPurchaseInbound,
+  getPurchaseInboundDetail,
+  loadSupplierOptions,
+  rejectPurchaseInbound,
+  removePurchaseInbound,
+  submitPurchaseInbound,
+  updatePurchaseInbound,
+  withdrawPurchaseInbound
+} from '@/apis/warehouse/purchase-inbound'
+import type {
+  PurchaseInboundOrder,
+  PurchaseInboundSavePayload,
+  SupplierItem
+} from '@/apis/warehouse/purchase-inbound'
 import type { InventoryLineItem } from '../type'
-import { computeBatchNo, computeActualAmount, computeProfitLossAmount } from '../utils'
-
-// ==================== 类型 ====================
+import { computeActualAmount, computeBatchNo, computeProfitLossAmount } from '../utils'
 
 export interface ExtraSearchField {
   label: string
@@ -187,63 +204,45 @@ export interface ExtraSearchField {
   disabled?: boolean
 }
 
-// ==================== Props ====================
-
 const props = withDefaults(
   defineProps<{
-    orderId?: string
+    selectedOrder?: PurchaseInboundOrder | null
     title?: string
     extraSearchFields?: ExtraSearchField[]
   }>(),
   {
-    orderId: '',
-    title: '右侧标题',
+    selectedOrder: null,
+    title: '药房盘点单',
     extraSearchFields: () => []
   }
 )
 
-// ==================== Emits ====================
-
 const emit = defineEmits<{
-  action: [action: string]
+  changed: [order: PurchaseInboundOrder]
+  removed: [id: string]
 }>()
 
-// ==================== 常量 ====================
-
 const statusMap = [
-  { label: '编辑中', value: 0 },
-  { label: '入库中', value: 1 },
-  { label: '已完成', value: 2 },
-  { label: '已作废', value: 3 }
+  { label: '编辑中', value: 0, type: 'primary' as const },
+  { label: '待审批', value: 1, type: 'warning' as const },
+  { label: '已完成', value: 2, type: 'success' as const },
+  { label: '已驳回', value: 3, type: 'danger' as const }
 ]
 
-const unitOptions = [
-  { label: '支', value: '支' },
-  { label: '瓶', value: '瓶' },
-  { label: '盒', value: '盒' },
-  { label: '袋', value: '袋' }
-]
-
+const unitOptions = ['支', '瓶', '盒', '袋'].map((value) => ({ label: value, value }))
 const columns = [
-  { prop: 'itemName', label: '项目名称', editable: false, width: 200 },
-  { prop: 'specification', label: '规格', editable: false, width: 120 },
-  { prop: 'manufacturer', label: '厂家', editable: false, minWidth: 160 },
-  { prop: 'batchNo', label: '批号', editable: false, width: 120 },
-  {
-    prop: 'bookQuantity',
-    label: '账面数量',
-    editable: true,
-    editorType: 'number' as const,
-    width: 100
-  },
-  { prop: 'actualQuantity', label: '实盘数量', editable: false, width: 180 },
-  { prop: 'profitLoss', label: '盈亏数量', editable: false, width: 90 },
-  { prop: 'unitPrice', label: '单价', editable: false, width: 100 },
-  { prop: 'actualAmount', label: '实盘金额', editable: false, width: 100 },
-  { prop: 'profitLossAmount', label: '盈亏金额', editable: false, width: 100 },
-  { prop: 'remark', label: '备注', editable: false, width: 140 }
+  { prop: 'itemName', label: '项目名称', width: 200 },
+  { prop: 'specification', label: '规格', width: 120 },
+  { prop: 'manufacturer', label: '厂家', minWidth: 160 },
+  { prop: 'batchNo', label: '批号', width: 120 },
+  { prop: 'bookQuantity', label: '账面数量', width: 100 },
+  { prop: 'actualQuantity', label: '实盘数量', width: 180 },
+  { prop: 'profitLoss', label: '盈亏数量', width: 90 },
+  { prop: 'unitPrice', label: '单价', width: 100 },
+  { prop: 'actualAmount', label: '实盘金额', width: 100 },
+  { prop: 'profitLossAmount', label: '盈亏金额', width: 100 },
+  { prop: 'remark', label: '备注', width: 140 }
 ]
-
 const selectTableColumns: SelectTableColumn<SupplierItem>[] = [
   { prop: 'itemCode', label: '项目编码', width: 100 },
   { prop: 'itemName', label: '项目名称', minWidth: 140 },
@@ -253,42 +252,74 @@ const selectTableColumns: SelectTableColumn<SupplierItem>[] = [
   { prop: 'packageUnit', label: '包装单位', width: 90 }
 ]
 
-// ==================== 检索状态 ====================
-
 const searchValues = reactive<Record<string, string>>({})
-
-function buildSearchValues() {
-  props.extraSearchFields.forEach((f) => {
-    if (!(f.prop in searchValues)) {
-      searchValues[f.prop] = f.defaultValue ?? ''
-    }
-  })
-}
-
-// ==================== 明细状态 ====================
-
 const order = ref<PurchaseInboundOrder | null>(null)
 const details = ref<InventoryLineItem[]>([])
 const loading = ref(false)
-
-/** SelectTable 弹窗状态 */
+const actionLoading = ref(false)
+const detailTableRef = ref<InstanceType<typeof DocumentDetailEditableTable> | null>(null)
 const selectTableVisible = ref(false)
-const selectTargetRowId = ref<string>('')
+const selectTargetRowId = ref('')
 
-// ==================== SelectTable ====================
+const canEdit = computed(() => !order.value || order.value.status === 0 || order.value.status === 3)
+const readonly = computed(() => !canEdit.value)
 
-function openSelectTable(rowKey: string) {
+function syncSearchValues() {
+  for (const field of props.extraSearchFields) {
+    searchValues[field.prop] = field.defaultValue ?? ''
+  }
+  searchValues.docNo = order.value?.docNo ?? ''
+  searchValues.pharmacy = order.value?.type ?? ''
+  searchValues.itemType = order.value?.category ?? ''
+}
+
+async function loadDetail() {
+  const selected = props.selectedOrder
+  if (!selected) {
+    order.value = null
+    details.value = []
+    syncSearchValues()
+    return
+  }
+  if (!selected.id) {
+    order.value = { ...selected }
+    details.value = []
+    syncSearchValues()
+    return
+  }
+
+  loading.value = true
+  try {
+    const result = await getPurchaseInboundDetail(selected.id)
+    order.value = result.order
+    // 修复：历史实现获取详情后直接清空数组，导致历史明细永远无法回显。
+    details.value = result.details.map((item) => ({ ...item }))
+    syncSearchValues()
+  } catch (error) {
+    order.value = null
+    details.value = []
+    ElMessage.error(error instanceof Error ? error.message : '盘点单详情加载失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+function asInventoryRow(row: unknown): InventoryLineItem {
+  return row as InventoryLineItem
+}
+
+function openSelectTable(rowKey: string | number) {
+  if (readonly.value) return
   selectTargetRowId.value = String(rowKey)
   selectTableVisible.value = true
 }
 
-function handleSupplierSelect(_value: unknown, rows: SupplierItem[]) {
-  if (!rows.length) return
+function handleProductSelect(_value: unknown, rows: SupplierItem[]) {
   const item = rows[0]
-  const idx = details.value.findIndex((r) => r.id === selectTargetRowId.value)
-  if (idx === -1) return
+  const row = details.value.find((detail) => detail.id === selectTargetRowId.value)
+  if (!item || !row) return
 
-  const row = details.value[idx]
+  row.itemCode = item.itemCode
   row.itemName = item.itemName
   row.specification = item.specification
   row.manufacturer = item.manufacturer
@@ -296,152 +327,237 @@ function handleSupplierSelect(_value: unknown, rows: SupplierItem[]) {
   row.bookQuantity = item.stockQuantity
   row.actualQuantity = item.stockQuantity
   row.actualUnit = item.packageUnit
-  row.profitLoss = 0
   row.unitPrice = item.purchasePrice
-  row.actualAmount = computeActualAmount(item.purchasePrice, item.stockQuantity)
-  row.profitLossAmount = 0
+  recalculateRow(row)
   row.remark = ''
-
   selectTargetRowId.value = ''
 }
 
-// ==================== 实盘数量联动 ====================
-
-function handleActualQuantityChange(row: InventoryLineItem, value: number) {
-  row.actualQuantity = value
-  row.profitLoss = value - row.bookQuantity
-  row.actualAmount = computeActualAmount(row.unitPrice, value)
+function recalculateRow(row: InventoryLineItem) {
+  row.profitLoss = row.actualQuantity - row.bookQuantity
+  row.actualAmount = computeActualAmount(row.unitPrice, row.actualQuantity)
   row.profitLossAmount = computeProfitLossAmount(row.actualAmount, row.unitPrice, row.bookQuantity)
 }
 
-// ==================== 方法 ====================
-
-async function loadDetail() {
-  if (!props.orderId) {
-    order.value = null
-    details.value = []
-    return
-  }
-  loading.value = true
-  try {
-    const data = await getPurchaseInboundDetail(props.orderId)
-    order.value = data.order
-    details.value = []
-  } catch {
-    order.value = null
-    details.value = []
-  } finally {
-    loading.value = false
-  }
+function handleActualQuantityChange(source: unknown, value: number | undefined) {
+  const row = asInventoryRow(source)
+  row.actualQuantity = value ?? 0
+  recalculateRow(row)
 }
 
-function handleRowAdd(row: InventoryLineItem) {
-  row.itemName = ''
-  row.specification = ''
-  row.manufacturer = ''
-  row.batchNo = ''
-  row.bookQuantity = 0
-  row.actualQuantity = 0
-  row.actualUnit = '单位'
-  row.profitLoss = 0
-  row.unitPrice = 0
-  row.actualAmount = 0
-  row.profitLossAmount = 0
-  row.remark = '无'
+function handleBookQuantityChange(source: unknown, value: number | undefined) {
+  const row = asInventoryRow(source)
+  row.bookQuantity = value ?? 0
+  // 账面数量变化后必须同步重算盈亏，避免界面显示值与保存值不一致。
+  recalculateRow(row)
+}
+
+function updateActualUnit(source: unknown, value: string) {
+  asInventoryRow(source).actualUnit = value
+}
+
+function updateRemark(source: unknown, value: string) {
+  asInventoryRow(source).remark = value
+}
+
+function handleRowAdd(source: unknown) {
+  const row = asInventoryRow(source)
+  Object.assign(row, {
+    itemCode: '',
+    itemName: '',
+    specification: '',
+    manufacturer: '',
+    batchNo: '',
+    bookQuantity: 0,
+    actualQuantity: 0,
+    actualUnit: '盒',
+    profitLoss: 0,
+    unitPrice: 0,
+    actualAmount: 0,
+    profitLossAmount: 0,
+    remark: ''
+  })
 }
 
 function deleteRow(index: number) {
-  details.value.splice(index, 1)
+  if (!readonly.value) details.value.splice(index, 1)
 }
 
-// ==================== 监听 ====================
+function formatAmount(value: unknown) {
+  return `${Number(value || 0).toFixed(2)}元`
+}
 
-watch(() => props.orderId, loadDetail)
-watch(() => props.extraSearchFields, buildSearchValues, { immediate: true })
+function buildPayload(): PurchaseInboundSavePayload | null {
+  const pharmacy = searchValues.pharmacy?.trim()
+  const itemType = searchValues.itemType?.trim()
+  if (!pharmacy) {
+    ElMessage.warning('请选择盘点药房')
+    return null
+  }
+  if (!itemType) {
+    ElMessage.warning('请选择项目类型')
+    return null
+  }
+  if (details.value.length === 0) {
+    ElMessage.warning('请至少添加一条盘点明细')
+    return null
+  }
+  if (details.value.some((item) => !item.itemCode || !item.itemName)) {
+    ElMessage.warning('请完成所有盘点项目的选择')
+    return null
+  }
+  if (details.value.some((item) => item.actualQuantity < 0)) {
+    ElMessage.warning('实盘数量不能小于零')
+    return null
+  }
+  if (details.value.some((item) => item.bookQuantity < 0)) {
+    ElMessage.warning('账面数量不能小于零')
+    return null
+  }
+  return {
+    pharmacy,
+    itemType,
+    details: details.value.map((item) => {
+      const next = { ...item }
+      recalculateRow(next)
+      return next
+    })
+  }
+}
 
-onMounted(() => {
-  if (props.orderId) loadDetail()
-})
+async function persist(): Promise<PurchaseInboundOrder | null> {
+  const payload = buildPayload()
+  if (!payload) return null
+  const result = order.value?.id
+    ? await updatePurchaseInbound(order.value.id, payload)
+    : await createPurchaseInbound(payload)
+  order.value = result.order
+  details.value = result.details.map((item) => ({ ...item }))
+  syncSearchValues()
+  emit('changed', result.order)
+  return result.order
+}
+
+async function handleAction(action: string) {
+  if (actionLoading.value) return
+  actionLoading.value = true
+  try {
+    if (action === 'save') {
+      if (await persist()) ElMessage.success('盘点单已保存')
+      return
+    }
+    if (action === 'saveAndSubmit' || action === 'submit') {
+      // 新建单据没有正式 ID，必须先保存，再执行状态流转。
+      const saved = await persist()
+      if (!saved) return
+      order.value = await submitPurchaseInbound(saved.id)
+      emit('changed', order.value)
+      ElMessage.success('盘点单已提交审批')
+      return
+    }
+    if (action === 'delete') {
+      await ElMessageBox.confirm('确认删除当前盘点单？', '删除确认', { type: 'warning' })
+      const id = order.value?.id ?? ''
+      if (id) await removePurchaseInbound(id)
+      emit('removed', id)
+      ElMessage.success('盘点单已删除')
+      return
+    }
+    if (!order.value?.id) return
+    if (action === 'withdraw') {
+      order.value = await withdrawPurchaseInbound(order.value.id)
+      emit('changed', order.value)
+      ElMessage.success('盘点单已撤回')
+    } else if (action === 'approve') {
+      await ElMessageBox.confirm('确认审批通过当前盘点单？', '审批确认', { type: 'warning' })
+      order.value = await approvePurchaseInbound(order.value.id)
+      emit('changed', order.value)
+      ElMessage.success('盘点单已审批通过')
+    } else if (action === 'reject') {
+      const { value } = await ElMessageBox.prompt('请输入驳回原因', '驳回盘点单', {
+        inputPattern: /\S+/,
+        inputErrorMessage: '驳回原因不能为空'
+      })
+      order.value = await rejectPurchaseInbound(order.value.id, value)
+      emit('changed', order.value)
+      ElMessage.success('盘点单已驳回')
+    }
+  } catch (error) {
+    if (error === 'cancel' || error === 'close') return
+    ElMessage.error(error instanceof Error ? error.message : '操作失败')
+  } finally {
+    actionLoading.value = false
+  }
+}
+
+watch(() => props.selectedOrder, loadDetail, { immediate: true })
+watch(() => props.extraSearchFields, syncSearchValues, { deep: true })
 </script>
 
 <style scoped>
-/* 主容器：让 DocumentHeadPanel 的 body 区可滚动，footer 固定 */
 .main-pane {
-  height: 100%;
   display: flex;
   flex-direction: column;
+  height: 100%;
   min-height: 0;
 }
 
 .main-pane :deep(.doc-head-panel) {
-  height: 100%;
   display: flex;
+  flex: 1;
   flex-direction: column;
+  min-height: 0;
 }
 
 .main-pane :deep(.doc-head-panel__body) {
   flex: 1;
   min-height: 0;
-  overflow: hidden auto;
+  overflow: auto;
 }
 
-/* 检索字段行 */
 .main-pane__search {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 16px;
   padding-bottom: 10px;
   margin-bottom: 10px;
   border-bottom: 1px solid var(--el-border-color-lighter);
-  flex-wrap: wrap;
 }
 
-.main-pane__search-field {
+.main-pane__search-field,
+.main-pane__cell-edit,
+.main-pane__footer {
   display: flex;
   align-items: center;
   gap: 8px;
-  min-width: 0;
-}
-
-.main-pane__search-label {
-  flex-shrink: 0;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--el-text-color-regular);
-  white-space: nowrap;
 }
 
 .main-pane__search-field .el-input,
 .main-pane__search-field .el-select {
-  width: 160px;
+  width: 170px;
 }
 
-/* 带编辑icon的单元格 */
-.main-pane__cell-edit {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.main-pane__search-label {
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
-.main-pane__cell-edit .el-icon {
-  flex-shrink: 0;
-  font-size: 14px;
-  color: var(--el-color-primary);
+.main-pane__cell-edit:not(.is-readonly) {
   cursor: pointer;
 }
 
-/* Footer */
-.main-pane__footer {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 15px;
+.main-pane__cell-edit .el-icon {
+  color: var(--el-color-primary);
 }
 
-.main-pane__divider {
-  display: inline-block;
-  width: 1px;
-  height: 20px;
-  background: var(--el-border-color-light);
+.main-pane__footer {
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.main-pane__completed-text {
+  color: var(--el-text-color-secondary);
 }
 </style>

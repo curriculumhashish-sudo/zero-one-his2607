@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import type { Menu, Oauth2TokenDTO, UserInfo } from '@/apis/login/type'
 import { DataUpType, useHttp } from '@/plugins/http'
 import { useAuthManager } from '@/plugins/auth-manager'
+import { createFrontendMenus, mergeFrontendMenus } from '@/config/frontend-menus'
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -14,7 +15,7 @@ export const useUserStore = defineStore('user', {
     // 保存当前用户
     user: null as UserInfo | null,
     // 菜单数据
-    menus: [] as Array<Menu>
+    menus: createFrontendMenus()
   }),
   getters: {
     // 获取token
@@ -39,7 +40,8 @@ export const useUserStore = defineStore('user', {
     // 获取当前用户
     getUser: (state) => state.user,
     // 获取菜单
-    getMenus: (state) => state.menus
+    // getter 始终补齐前端菜单，当前登录会话无需重新请求菜单也能立即显示。
+    getMenus: (state) => mergeFrontendMenus(state.menus)
   },
   actions: {
     // 加载用户
@@ -56,9 +58,15 @@ export const useUserStore = defineStore('user', {
     },
     // 加载菜单
     async loadMenus() {
-      // 发送获取菜单请求
-      const data = await useHttp().get<Array<Menu>>('/login/get-menus')
-      if (data.data) this.menus = data.data
+      try {
+        // 保留后端权限菜单，并补入当前阶段由前端维护的业务页面。
+        const data = await useHttp().get<Array<Menu>>('/login/get-menus')
+        this.menus = mergeFrontendMenus(data.data ?? [])
+      } catch (error) {
+        this.menus = createFrontendMenus()
+        // 开发阶段允许只使用前端菜单；生产环境仍应由后端菜单接口决定权限。
+        if (!import.meta.env.DEV) throw error
+      }
     },
     // 加载刷新凭证
     loadRefreshToken() {
@@ -101,6 +109,7 @@ export const useUserStore = defineStore('user', {
       this.user = null
       this.token = null
       this.refreshToken = null
+      this.menus = createFrontendMenus()
       localStorage.removeItem('token')
       localStorage.removeItem('refreshToken')
     }

@@ -18,7 +18,14 @@
         <template #cell-content="{ row }">
           <AdviceOrderDisplayCell
             :order="row"
-            :fields="{ name: 'name', specification: 'specification', dose: 'dose', unit: 'unit', frequency: 'frequency', route: 'route' }"
+            :fields="{
+              name: 'name',
+              specification: 'specification',
+              dose: 'dose',
+              unit: 'unit',
+              frequency: 'frequency',
+              route: 'route'
+            }"
             compact
           />
         </template>
@@ -31,10 +38,28 @@
             :tag-type-map="PRESCRIPTION_STATUS_TAG_TYPE"
           />
         </template>
+
+        <!-- 修复：发药必须按药品行选择真实的库房和批次，不能使用页面级固定库房。 -->
+        <template #cell-inventoryPick="{ row }">
+          <el-select
+            :model-value="inventoryPickByLineId[String(row.key)]"
+            placeholder="请选择库房/批次"
+            :disabled="queueScope === 'completed' || !getInventoryOptions(row).length"
+            style="width: 100%"
+            @update:model-value="(value: string) => setInventoryPick(String(row.key), value)"
+          >
+            <el-option
+              v-for="option in getInventoryOptions(row)"
+              :key="option.value"
+              :label="option.label"
+              :value="option.value"
+            />
+          </el-select>
+        </template>
       </AdviceOrderTable>
     </div>
 
-    <!-- 底部分汇总 + 药师选择 + 打印 -->
+    <!-- 底部处方汇总 -->
     <div class="dispense-center-panel__footer">
       <div class="dispense-center-panel__footer-left">
         <!-- 处方汇总 -->
@@ -48,19 +73,6 @@
           dense
         />
       </div>
-
-      <div class="dispense-center-panel__footer-right">
-        <!-- 打印 -->
-        <PrintActionPanel
-          :templates="printTemplates"
-          :printers="printers"
-          :print="handlePrint"
-          :context="printContext"
-          :disabled="!hasSelectedPatient || loading"
-          show-template-select
-          show-printer-select
-        />
-      </div>
     </div>
   </div>
 </template>
@@ -70,22 +82,14 @@ import { ref, computed, watch } from 'vue'
 
 import AdviceOrderTable from '@/components/medical/AdviceOrderTable.vue'
 import AdviceOrderDisplayCell from '@/components/medical/AdviceOrderDisplayCell.vue'
-import PrintActionPanel from '@/components/common/PrintActionPanel.vue'
+import type { AdviceOrder } from '@/components/medical/type'
 import StatusDisplay from '@/components/common/StatusDisplay.vue'
 import DescriptionList from '@/components/common/DescriptionList.vue'
-import type { PrintActionContext } from '@/components/common/PrintActionPanel.vue'
 
-import {
-  ORDER_COLUMNS,
-  PRESCRIPTION_STATUS_MAP,
-  PRESCRIPTION_SUMMARY_ITEMS,
-} from '../constants'
+import { ORDER_COLUMNS, PRESCRIPTION_STATUS_MAP, PRESCRIPTION_SUMMARY_ITEMS } from '../constants'
 import { buildPrescriptionSummary } from '../adapter'
 
-import type {
-  DispensePrescriptionBlock,
-  DispensePrescriptionItemRow,
-} from '../type'
+import type { DispensePrescriptionBlock, DispensePrescriptionItemRow } from '../type'
 
 // ============ Props ============
 const props = defineProps<{
@@ -95,33 +99,19 @@ const props = defineProps<{
   dispenserOptions: { label: string; value: string }[]
   selectedDispenserId: string | null
   dispenseLoading?: boolean
-  prescriptionType?: 'western' | 'chinese'
-}>()
-
-// ============ Emits ============
-const emit = defineEmits<{
-  'update:selectedDispenserId': [value: string | null]
-  dispense: [params: { dispenseIds: string[] }]
-  traceScan: []
-  viewPrescription: []
-  print: [context: PrintActionContext]
+  prescriptionType: 'western' | 'herbal'
 }>()
 
 // ============ 状态 ============
 const selectedRowKeys = ref<string[]>([])
 const orderTableRef = ref<InstanceType<typeof AdviceOrderTable> | null>(null)
-
-// 打印相关
-const printTemplates = ref([{ value: 'prescription', label: '处方打印模板' }])
-const printers = ref([{ value: 'default', label: '默认打印机' }])
+const inventoryPickByLineId = ref<Record<string, string>>({})
 
 // ============ 计算属性 ============
-/** 是否有选中的患者 */
-const hasSelectedPatient = computed(() => props.prescriptionBlocks.length > 0)
-
 /** 当前显示的处方块（按中西药过滤） */
 const filteredBlocks = computed(() => {
-  return props.prescriptionBlocks
+  // 修复：原实现直接返回全部数据，导致页签只变色但内容不切换。
+  return props.prescriptionBlocks.filter((block) => block.rxType === props.prescriptionType)
 })
 
 /** 展开的明细行 */
@@ -131,7 +121,7 @@ const displayRows = computed(() => {
     for (const item of block.items) {
       rows.push({
         ...item,
-        checked: selectedRowKeys.value.includes(item.id),
+        checked: selectedRowKeys.value.includes(item.id)
       })
     }
   }
@@ -142,22 +132,16 @@ const displayRows = computed(() => {
 const summary = computed(() => {
   return buildPrescriptionSummary(
     filteredBlocks.value,
-    props.dispenserOptions.find((d) => d.value === props.selectedDispenserId)?.label || '',
+    props.dispenserOptions.find((d) => d.value === props.selectedDispenserId)?.label || ''
   )
 })
-
-/** 打印上下文 */
-const printContext = computed(() => ({
-  prescriptionBlocks: filteredBlocks.value,
-  dispenserName: props.dispenserOptions.find((d) => d.value === props.selectedDispenserId)?.label || '',
-}))
 
 /** 处方状态标签类型映射 */
 const PRESCRIPTION_STATUS_TAG_TYPE = {
   pending: 'warning',
   partial: 'warning',
   completed: 'success',
-  blocking: 'danger',
+  blocking: 'danger'
 }
 
 // ============ 方法 ============
@@ -175,29 +159,50 @@ function clearSelection() {
 
 /** 获取某行的库房选择 */
 function getInventoryPick(lineId: string): string {
-  void lineId
-  return ''
+  return inventoryPickByLineId.value[lineId] ?? ''
 }
 
-/** 处理打印 */
-function handlePrint(context: PrintActionContext) {
-  emit('print', context)
+function setInventoryPick(lineId: string, value: string) {
+  inventoryPickByLineId.value = { ...inventoryPickByLineId.value, [lineId]: value }
+}
+
+function getInventoryOptions(row: AdviceOrder) {
+  return (row as DispensePrescriptionItemRow).inventoryPickOptions ?? []
 }
 
 // ============ 暴露 ============
 defineExpose({
   clearSelection,
   getInventoryPick,
-  getSelectedIds: () => selectedRowKeys.value,
+  getSelectedIds: () => selectedRowKeys.value
 })
 
 // ============ 监听 ============
 watch(
   () => props.prescriptionBlocks,
-  () => {
+  (blocks) => {
     // 处方数据变化时清空勾选
     selectedRowKeys.value = []
+    // 修复：保留仍然有效的选择；只有唯一库存批次时自动选中，减少重复操作。
+    const nextPicks: Record<string, string> = {}
+    for (const block of blocks) {
+      for (const item of block.items) {
+        const current = inventoryPickByLineId.value[item.id]
+        if (current && item.inventoryPickOptions.some((option) => option.value === current)) {
+          nextPicks[item.id] = current
+        } else if (item.inventoryPickOptions.length === 1) {
+          nextPicks[item.id] = item.inventoryPickOptions[0]?.value ?? ''
+        }
+      }
+    }
+    inventoryPickByLineId.value = nextPicks
   },
+  { immediate: true }
+)
+
+watch(
+  () => props.prescriptionType,
+  () => clearSelection()
 )
 </script>
 

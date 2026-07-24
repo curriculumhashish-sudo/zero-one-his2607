@@ -151,7 +151,9 @@
             </el-button>
             <el-button class="toolbar-btn" @click="openTraceDialog"> 扫追溯码 </el-button>
             <el-button class="toolbar-btn" @click="handleViewPrescription"> 处方查看 </el-button>
-            <el-button class="toolbar-btn" @click="handlePrintClick"> 处方打印 </el-button>
+            <el-button class="toolbar-btn" :loading="printLoading" @click="handlePrintClick">
+              处方打印
+            </el-button>
 
             <span class="right-panel__toolbar-sep" />
 
@@ -164,8 +166,8 @@
             </el-button>
             <el-button
               class="toolbar-btn toolbar-btn--prescription-type"
-              :class="{ 'toolbar-btn--prescription-type-active': prescriptionType === 'chinese' }"
-              @click="prescriptionType = 'chinese'"
+              :class="{ 'toolbar-btn--prescription-type-active': prescriptionType === 'herbal' }"
+              @click="prescriptionType = 'herbal'"
             >
               中药饮片
             </el-button>
@@ -184,16 +186,6 @@
                 :label="option.label"
                 :value="option.value"
               />
-            </el-select>
-
-            <el-select
-              v-model="selectedStorehouseId"
-              placeholder="库管"
-              style="width: 120px"
-              size="default"
-            >
-              <el-option label="主库" value="main" />
-              <el-option label="分库" value="branch" />
             </el-select>
           </div>
         </div>
@@ -219,11 +211,6 @@
             :selected-dispenser-id="selectedDispenserId"
             :dispense-loading="dispenseLoading"
             :prescription-type="prescriptionType"
-            @update:selected-dispenser-id="selectedDispenserId = $event"
-            @dispense="handleDispense"
-            @trace-scan="openTraceDialog"
-            @view-prescription="handleViewPrescription"
-            @print="handlePrint"
           />
         </div>
       </section>
@@ -232,10 +219,25 @@
     <!-- 追溯码弹窗 -->
     <TraceCodeDialog
       v-model:visible="traceDialogVisible"
-      :lines="allPrescriptionItems"
+      :lines="traceDialogLines"
       :patient-name="currentPatientInfo?.patientName || ''"
       @confirm="handleTraceConfirm"
     />
+
+    <!-- 修复：原“处方查看”按钮是空函数，这里直接展示当前患者的真实处方数据。 -->
+    <el-dialog v-model="prescriptionDialogVisible" title="处方查看" width="900px">
+      <div v-for="block in prescriptionBlocks" :key="block.id" class="prescription-sheet-block">
+        <div class="prescription-sheet-block__title">处方号：{{ block.rxNo || '-' }}</div>
+        <el-table :data="block.items" border size="small">
+          <el-table-column prop="itemName" label="药品名称" min-width="160" />
+          <el-table-column prop="spec" label="规格" width="130" />
+          <el-table-column prop="dosage" label="剂量" width="100" />
+          <el-table-column prop="frequency" label="频次" width="90" />
+          <el-table-column prop="route" label="用法" width="90" />
+          <el-table-column prop="quantity" label="数量" width="80" />
+        </el-table>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -264,7 +266,6 @@ import type {
   DispensePrescriptionBlock,
   DispensePrescriptionItemRow
 } from './type'
-import type { PrintActionContext } from '@/components/common/PrintActionPanel.vue'
 
 // ============ 状态 ============
 const patients = ref<DispenseQueuePatient[]>([])
@@ -272,11 +273,10 @@ const selectedPatientId = ref<string | number | null>(null)
 const queueLoading = ref(false)
 const detailLoading = ref(false)
 const queueScope = ref<'pending' | 'completed'>('pending')
-const prescriptionType = ref<'western' | 'chinese'>('western')
+const prescriptionType = ref<'western' | 'herbal'>('western')
 const keyword = ref('')
 const dateRange = ref<[string, string] | null>(null)
 const insuranceContract = ref('H220104024')
-const selectedStorehouseId = ref('main')
 
 const prescriptionBlocks = ref<DispensePrescriptionBlock[]>([])
 const dispenserOptions = ref<{ label: string; value: string }[]>([])
@@ -284,8 +284,11 @@ const selectedDispenserId = ref<string | null>(null)
 
 const traceDialogVisible = ref(false)
 const traceCodes = ref<Record<string, string>>({})
+const traceDialogLines = ref<DispensePrescriptionItemRow[]>([])
 
 const dispenseLoading = ref(false)
+const printLoading = ref(false)
+const prescriptionDialogVisible = ref(false)
 
 // ============ 引用 ============
 const centerPanelRef = ref<InstanceType<typeof DispenseCenterPanel> | null>(null)
@@ -375,6 +378,7 @@ function handleSelectPatient(patient: DispenseQueuePatient) {
   selectedPatientId.value = patient.id
   prescriptionBlocks.value = []
   traceCodes.value = {}
+  prescriptionDialogVisible.value = false
   centerPanelRef.value?.clearSelection()
   loadPrescriptions(patient.id)
 }
@@ -396,11 +400,14 @@ function handleBatchDispense() {
 
 /** 打开追溯码弹窗 */
 function openTraceDialog() {
-  const items = allPrescriptionItems.value.filter((item) => item.checked)
+  // 修复：原代码读取原始行上的 checked，但勾选状态实际保存在表格组件中。
+  const selectedIds = new Set(centerPanelRef.value?.getSelectedIds() ?? [])
+  const items = allPrescriptionItems.value.filter((item) => selectedIds.has(item.id))
   if (items.length === 0) {
     ElMessage.warning('请先勾选需要发药的药品')
     return
   }
+  traceDialogLines.value = items
   traceDialogVisible.value = true
 }
 
@@ -410,8 +417,14 @@ function handleTraceConfirm(codes: Record<string, string>) {
   ElMessage.success('追溯码录入完成')
 }
 
-/** 查看处方 */
-function handleViewPrescription() {}
+/** 查看当前患者的全部处方。 */
+function handleViewPrescription() {
+  if (!selectedPatientId.value || prescriptionBlocks.value.length === 0) {
+    ElMessage.warning('暂无处方可展示')
+    return
+  }
+  prescriptionDialogVisible.value = true
+}
 
 /** 执行发药 */
 async function handleDispense(params: { dispenseIds: string[] }) {
@@ -468,6 +481,9 @@ async function handleDispense(params: { dispenseIds: string[] }) {
   }[] = []
 
   for (const item of items) {
+    // 已处于 IN_PROGRESS 的行已完成调配，按原型直接进入确认发药，不重复锁定库存。
+    if (item.sourceStatus === 'IN_PROGRESS') continue
+
     const pickValue = centerPanelRef.value?.getInventoryPick(item.id) || ''
     let dispenseLocationId = ''
     let lotNumber: string | undefined
@@ -496,14 +512,17 @@ async function handleDispense(params: { dispenseIds: string[] }) {
 
   dispenseLoading.value = true
   try {
-    await saveDispensePreparation({
-      encounterId,
-      preparerPractitionerId: selectedDispenserId.value,
-      lines: prepLines
-    })
+    if (prepLines.length > 0) {
+      await saveDispensePreparation({
+        encounterId,
+        preparerPractitionerId: selectedDispenserId.value,
+        lines: prepLines
+      })
+    }
 
     await confirmMedicationDispense({
       encounterId,
+      contractBusNo: insuranceContract.value || undefined,
       lines: params.dispenseIds.map((id) => ({ dispenseId: id }))
     })
 
@@ -521,18 +540,43 @@ async function handleDispense(params: { dispenseIds: string[] }) {
   }
 }
 
-/** 打印点击 */
-function handlePrintClick() {}
+/** 修复：按原型直接打印已勾选的处方，不再额外选择写死的模板和打印机。 */
+async function handlePrintClick() {
+  if (printLoading.value) return
+  const encounterId = selectedPatientId.value
+  const selectedIds = centerPanelRef.value?.getSelectedIds() ?? []
+  if (!encounterId || selectedIds.length === 0) {
+    ElMessage.warning('请先勾选要打印的处方')
+    return
+  }
 
-/** 打印 */
-async function handlePrint(context: PrintActionContext) {
-  return printPrescription(context)
+  const selectedSet = new Set(selectedIds)
+  const prescriptionIds = [
+    ...new Set(
+      allPrescriptionItems.value
+        .filter((item) => selectedSet.has(item.id))
+        .map((item) => item.rxId)
+        .filter(Boolean)
+    )
+  ]
+  if (prescriptionIds.length === 0) {
+    ElMessage.warning('未找到可打印的处方数据')
+    return
+  }
+
+  printLoading.value = true
+  try {
+    await printPrescription({ encounterId: String(encounterId), prescriptionIds })
+    ElMessage.success('处方打印任务已提交')
+  } catch {
+    ElMessage.error('处方打印失败')
+  } finally {
+    printLoading.value = false
+  }
 }
 
 // ============ 生命周期 ============
 onMounted(async () => {
-  console.log('[D组门诊发药] 页面已加载，当前版本：两栏布局')
-  console.log('[D组门诊发药] 当前文件路径:', import.meta.url)
   try {
     const initData = await loadDispensePageInit()
     dispenserOptions.value = initData.dispensers.map((d) => ({
@@ -560,6 +604,8 @@ watch(queueScope, () => {
   selectedPatientId.value = null
   prescriptionBlocks.value = []
   traceCodes.value = {}
+  traceDialogLines.value = []
+  prescriptionDialogVisible.value = false
   centerPanelRef.value?.clearSelection()
   loadPatients()
 })
@@ -954,5 +1000,15 @@ watch(dateRange, () => {
   font-size: 14px;
   color: var(--color-text-placeholder);
   letter-spacing: 0.5px;
+}
+
+.prescription-sheet-block + .prescription-sheet-block {
+  margin-top: 18px;
+}
+
+.prescription-sheet-block__title {
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--color-text-primary);
 }
 </style>

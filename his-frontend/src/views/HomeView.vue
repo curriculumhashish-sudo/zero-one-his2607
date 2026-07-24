@@ -172,7 +172,7 @@ const appName = import.meta.env.VITE_APP_TITLE
 // 当前用户信息
 const ustore = useUserStore()
 // 用户信息提示
-const { user } = storeToRefs(ustore)
+const { user, getMenus: menus } = storeToRefs(ustore)
 const userInfo = ref('欢迎用户：' + (user.value === null ? '游客' : user.value.username))
 
 // 用户设置点击事件
@@ -197,8 +197,6 @@ const handleUserSettings = (command: string | number | object) => {
   }
 }
 
-// 菜单数据
-const menus = ustore.getMenus
 // 菜单是是否折叠
 const isCollapse = ref(false)
 // 路由数据

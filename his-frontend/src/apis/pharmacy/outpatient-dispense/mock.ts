@@ -7,7 +7,7 @@ import type {
   SavePreparationParams,
   ConfirmDispenseParams,
   PractitionerOptionDto,
-  PharmacyOptionDto,
+  PharmacyOptionDto
 } from './type'
 
 /** ===== 模拟患者队列 ===== */
@@ -21,7 +21,7 @@ const mockQueueData: PendingDispenseEncounterQueueRowDto[] = [
     visitNo: 'MZ20260724001',
     prescriptionCount: 2,
     registerTime: '2026-07-24 09:00:00',
-    dispenseStatus: 'PREPARATION',
+    dispenseStatus: 'PREPARATION'
   },
   {
     encounterId: 'enc-002',
@@ -32,7 +32,7 @@ const mockQueueData: PendingDispenseEncounterQueueRowDto[] = [
     visitNo: 'MZ20260724002',
     prescriptionCount: 1,
     registerTime: '2026-07-24 09:30:00',
-    dispenseStatus: 'IN_PROGRESS',
+    dispenseStatus: 'IN_PROGRESS'
   },
   {
     encounterId: 'enc-003',
@@ -43,8 +43,8 @@ const mockQueueData: PendingDispenseEncounterQueueRowDto[] = [
     visitNo: 'MZ20260724003',
     prescriptionCount: 3,
     registerTime: '2026-07-24 10:00:00',
-    dispenseStatus: 'PREPARATION',
-  },
+    dispenseStatus: 'PREPARATION'
+  }
 ]
 
 /** ===== 模拟处方明细 ===== */
@@ -53,6 +53,7 @@ const mockSlipData: Record<string, EncounterMedicationDispenseSlipRowDto[]> = {
     {
       dispenseId: 'disp-001-1',
       prescriptionNo: 'RX20260724001',
+      rxType: 'western',
       medicationName: '阿莫西林胶囊',
       specText: '0.5g*20粒',
       quantity: 20,
@@ -61,7 +62,7 @@ const mockSlipData: Record<string, EncounterMedicationDispenseSlipRowDto[]> = {
       frequencyText: 'tid',
       routeText: '口服',
       days: 3,
-      totalPrice: 25.60,
+      totalPrice: 25.6,
       statusEnum: 'PREPARATION',
       pharmacyName: '门诊药房',
       lotNumber: '20260501',
@@ -72,19 +73,20 @@ const mockSlipData: Record<string, EncounterMedicationDispenseSlipRowDto[]> = {
           pharmacyOrganizationId: 'ph-001',
           pharmacyName: '门诊药房',
           lotNumber: '20260501',
-          availableQuantity: 100,
+          availableQuantity: 100
         },
         {
           pharmacyOrganizationId: 'ph-002',
           pharmacyName: '住院药房',
           lotNumber: '20260510',
-          availableQuantity: 50,
-        },
-      ],
+          availableQuantity: 50
+        }
+      ]
     },
     {
       dispenseId: 'disp-001-2',
       prescriptionNo: 'RX20260724001',
+      rxType: 'western',
       medicationName: '头孢克肟片',
       specText: '0.1g*12粒',
       quantity: 12,
@@ -93,7 +95,7 @@ const mockSlipData: Record<string, EncounterMedicationDispenseSlipRowDto[]> = {
       frequencyText: 'bid',
       routeText: '口服',
       days: 3,
-      totalPrice: 32.80,
+      totalPrice: 32.8,
       statusEnum: 'PREPARATION',
       pharmacyName: '门诊药房',
       lotNumber: '20260515',
@@ -104,76 +106,74 @@ const mockSlipData: Record<string, EncounterMedicationDispenseSlipRowDto[]> = {
           pharmacyOrganizationId: 'ph-001',
           pharmacyName: '门诊药房',
           lotNumber: '20260515',
-          availableQuantity: 80,
-        },
-      ],
-    },
+          availableQuantity: 80
+        }
+      ]
+    }
   ],
   'enc-002': [
     {
       dispenseId: 'disp-002-1',
       prescriptionNo: 'RX20260724002',
-      medicationName: '布洛芬缓释胶囊',
-      specText: '0.3g*10粒',
-      quantity: 10,
-      unitName: '粒',
-      dosageText: '0.3g',
-      frequencyText: 'bid',
-      routeText: '口服',
-      days: 5,
-      totalPrice: 18.50,
+      rxType: 'herbal',
+      medicationName: '当归饮片',
+      specText: '10g/袋',
+      quantity: 7,
+      unitName: '袋',
+      dosageText: '10g',
+      frequencyText: '每日1剂',
+      routeText: '煎服',
+      days: 7,
+      totalPrice: 18.5,
       statusEnum: 'IN_PROGRESS',
       pharmacyName: '门诊药房',
       lotNumber: '20260420',
       traceNo: 'TRACE2024001',
       factoryName: 'ZZ制药',
-      inventoryDetailList: [],
-    },
-  ],
+      inventoryDetailList: []
+    }
+  ]
 }
 
 /** ===== 模拟药师列表 ===== */
 const mockDispensers: PractitionerOptionDto[] = [
   { practitionerId: 'disp-01', displayName: '王药师' },
   { practitionerId: 'disp-02', displayName: '李药师' },
-  { practitionerId: 'disp-03', displayName: '张药师' },
+  { practitionerId: 'disp-03', displayName: '张药师' }
 ]
 
 /** ===== 模拟药房列表 ===== */
 const mockPharmacies: PharmacyOptionDto[] = [
   { pharmacyId: 'ph-001', pharmacyName: '门诊药房' },
-  { pharmacyId: 'ph-002', pharmacyName: '住院药房' },
+  { pharmacyId: 'ph-002', pharmacyName: '住院药房' }
 ]
 
 /** ===== 分页查询患者队列 ===== */
-export function mockPageDispenseQueue(
-  params: PageDispenseQueueParams,
-): { rows: PendingDispenseEncounterQueueRowDto[]; total: number } {
+export function mockPageDispenseQueue(params: PageDispenseQueueParams): {
+  rows: PendingDispenseEncounterQueueRowDto[]
+  total: number
+} {
   let result = [...mockQueueData]
 
   if (params.keyword) {
     result = result.filter(
-      (p) =>
-        p.patientName.includes(params.keyword!) ||
-        p.visitNo.includes(params.keyword!),
+      (p) => p.patientName.includes(params.keyword!) || p.visitNo.includes(params.keyword!)
     )
   }
 
   if (params.dispenseStatusEnumIn?.length) {
-    result = result.filter((p) =>
-      params.dispenseStatusEnumIn!.includes(p.dispenseStatus),
-    )
+    result = result.filter((p) => params.dispenseStatusEnumIn!.includes(p.dispenseStatus))
   }
 
   return {
     rows: result,
-    total: result.length,
+    total: result.length
   }
 }
 
 /** ===== 查询患者处方明细 ===== */
 export function mockListDispenseSlips(
-  encounterId: string,
+  encounterId: string
 ): EncounterMedicationDispenseSlipRowDto[] {
   return mockSlipData[encounterId] || []
 }

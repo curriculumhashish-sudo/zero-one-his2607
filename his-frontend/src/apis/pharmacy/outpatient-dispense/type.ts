@@ -35,6 +35,8 @@ export interface PageDispenseSlipsParams {
 export interface EncounterMedicationDispenseSlipRowDto {
   dispenseId: string
   prescriptionNo: string
+  /** 前端页签使用的处方类型；真实接口对接时在 API 层完成枚举转换。 */
+  rxType?: 'western' | 'herbal'
   medicationName: string
   specText: string
   quantity: number
@@ -44,7 +46,14 @@ export interface EncounterMedicationDispenseSlipRowDto {
   routeText: string
   days: number
   totalPrice: number
-  statusEnum: 'PENDING' | 'PREPARATION' | 'IN_PROGRESS' | 'PARTIAL' | 'COMPLETED' | 'BLOCKED' | 'ERROR'
+  statusEnum:
+    | 'PENDING'
+    | 'PREPARATION'
+    | 'IN_PROGRESS'
+    | 'PARTIAL'
+    | 'COMPLETED'
+    | 'BLOCKED'
+    | 'ERROR'
   pharmacyName: string
   lotNumber?: string
   traceNo?: string
@@ -55,6 +64,12 @@ export interface EncounterMedicationDispenseSlipRowDto {
     lotNumber: string
     availableQuantity: number
   }[]
+}
+
+/** 处方直接打印参数，不在发药页面重复选择模板和打印机。 */
+export interface PrintPrescriptionParams {
+  encounterId: string
+  prescriptionIds: string[]
 }
 
 /** ===== 发药准备参数 ===== */

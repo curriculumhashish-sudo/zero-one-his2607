@@ -1,23 +1,21 @@
-/** 采购入库单 */
+export type PurchaseInboundStatus = 0 | 1 | 2 | 3
+
+/** 当前页面沿用原目录名，实际展示的是药房盘点单。 */
 export interface PurchaseInboundOrder {
   id: string
-  /** 单据号 */
   docNo: string
-  /** 日期 */
   date: string
-  /** 经办人 */
   handler: string
-  /** 往来单位 */
   counterparty: string
-  /** 状态 */
-  status: number
-  /** 类型 */
-  type?: string
-  /** 类别 */
-  category?: string
+  /** 0 编辑中、1 待审批、2 已完成、3 已驳回。 */
+  status: PurchaseInboundStatus
+  /** 当前盘点药房。 */
+  type: string
+  /** 药品或耗材。 */
+  category: string
+  rejectReason?: string
 }
 
-/** 采购入库单查询参数 */
 export interface PurchaseInboundQuery {
   keyword?: string
   dateRange?: [string, string] | null
@@ -25,28 +23,41 @@ export interface PurchaseInboundQuery {
   category?: string | number
 }
 
-/** 分页结果 */
 export interface PageResult<T> {
   rows: T[]
   total: number
 }
 
-/** 采购入库明细行 */
+/** 药房盘点明细。金额由数量与单价计算，不接收页面写死结果。 */
 export interface PurchaseInboundDetail {
   id: string
-  orderId: string
-  drugCode: string
-  drugName: string
+  itemCode: string
+  itemName: string
   specification: string
-  unit: string
-  quantity: number
-  unitPrice: number
-  amount: number
+  manufacturer: string
   batchNo: string
-  expiryDate: string
+  bookQuantity: number
+  actualQuantity: number
+  actualUnit: string
+  profitLoss: number
+  unitPrice: number
+  actualAmount: number
+  profitLossAmount: number
+  remark: string
 }
 
-/** 供应商/药品选项（SelectTable 数据源） */
+export interface PurchaseInboundSavePayload {
+  pharmacy: string
+  itemType: string
+  details: PurchaseInboundDetail[]
+}
+
+export interface PurchaseInboundDetailResult {
+  order: PurchaseInboundOrder
+  details: PurchaseInboundDetail[]
+}
+
+/** 药品选择表格数据源。 */
 export interface SupplierItem extends Record<string, unknown> {
   itemCode: string
   itemName: string
