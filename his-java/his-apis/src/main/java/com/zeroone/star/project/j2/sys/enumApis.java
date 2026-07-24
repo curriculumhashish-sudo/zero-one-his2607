@@ -33,5 +33,11 @@ public interface enumApis {
      */
     JsonVO<PageDTO<EnumDTO>> QueryAllEnum(EnumQuery query);
 
+    /**
+     * 删除枚举类型
+     * @param enumKey 枚举类型唯一键
+     * @return 枚举类型唯一键
+     */
+    JsonVO<String> deleteEnumType(String enumKey);
 
 }
