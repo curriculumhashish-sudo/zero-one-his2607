@@ -1,0 +1,10 @@
+server:
+  port: ${sp.j7-dispense}
+  servlet:
+    context-path: /j7-dispense
+
+spring:
+  application:
+    name: ${sn.j7-dispense}
+  profiles:
+    active: dev
