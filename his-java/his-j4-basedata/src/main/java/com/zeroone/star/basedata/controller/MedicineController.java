@@ -108,6 +108,9 @@ public class MedicineController implements MedicineApis {
             @PathVariable int status,
             @Validated @RequestBody MedicineChangeStatusDTO dto
     ){
+        if(status != 1 && status !=0 ){
+            return JsonVO.fail("status状态值输入不符合规范");
+        }
         //在service里处理复杂逻辑
         int i = medicineService.updateChangeMedicineStatus(status,dto);
 

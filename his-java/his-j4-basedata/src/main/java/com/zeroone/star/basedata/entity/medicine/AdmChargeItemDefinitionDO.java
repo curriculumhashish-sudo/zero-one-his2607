@@ -1,8 +1,6 @@
 package com.zeroone.star.basedata.entity.medicine;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -41,21 +39,25 @@ public class AdmChargeItemDefinitionDO implements Serializable {
     /**
      * 创建时间
      */
-    private LocalDateTime createdAt;
+    @TableField(value = "created_at",fill = FieldFill.INSERT)
+    private LocalDateTime createTime;
 
     /**
      * 最后更新时间
      */
-    private LocalDateTime updatedAt;
+    @TableField(value = "updated_at",fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updateTime;
 
     /**
      * 创建人
      */
+    @TableField(fill = FieldFill.INSERT)
     private String createdBy;
 
     /**
      * 最后更新人
      */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private String updatedBy;
 
     /**
