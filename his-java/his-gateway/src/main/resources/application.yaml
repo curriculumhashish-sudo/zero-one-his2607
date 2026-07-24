@@ -38,12 +38,13 @@ spring:
               predicates:
                 - Path=/login/**
 
+
 zo:
   cloud:
     starter:
       gateway:
         # 配置是否开启鉴权
-        open-authorization: true
+        open-authorization: false
         # 配置白名单路径
         white-paths:
           - "/actuator/**"
