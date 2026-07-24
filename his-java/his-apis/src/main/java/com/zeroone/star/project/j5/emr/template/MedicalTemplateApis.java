@@ -24,6 +24,6 @@ public interface MedicalTemplateApis {
     @Operation(summary = "获取单条病历模板详情", description = "根据模板ID查询病历模板详细信息")
     @GetMapping("/{id}")
     JsonVO<MedicalTemplateDetailVO> getDetail(
-            @Parameter(description = "模板ID", required = true, example = "1")
-            @PathVariable("id") Long id);
+            @Parameter(description = "模板ID", required = true, example = "1816800000000000001")
+            @PathVariable("id") String id);
 }

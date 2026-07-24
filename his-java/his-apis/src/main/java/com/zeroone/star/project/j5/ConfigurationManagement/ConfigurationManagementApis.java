@@ -6,9 +6,9 @@ import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.query.ConfigurationManagement.OrgNameQuery;
 import com.zeroone.star.project.query.ConfigurationManagement.RunProListQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Api(tags = "配置管理")
+@Tag(name = "配置管理")
 public interface ConfigurationManagementApis {
     JsonVO<OrgNameDTO> getOrgName(OrgNameQuery orgNameQuery);
 
