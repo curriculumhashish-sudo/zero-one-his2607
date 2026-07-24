@@ -46,6 +46,8 @@ treatment:
     summary: 修改诊疗
   modify-status:
     summary: 启用或停用诊疗
+  remove:
+    summary: 删除诊疗
 
   # 字段中英文映射
   field:
@@ -456,3 +458,4 @@ drug:
     total: 总记录数
     pages: 总页数
     rows: 当前页药品列表
+    keywords: 检索关键词

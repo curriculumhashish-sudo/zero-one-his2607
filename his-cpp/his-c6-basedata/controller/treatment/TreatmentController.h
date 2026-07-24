@@ -20,6 +20,7 @@
 #ifndef _TREATMENTCONTROLLER_H_
 #define _TREATMENTCONTROLLER_H_
 
+
 #include "domain/vo/BaseJsonVO.h"
 #include "domain/vo/treatment/TreatmentVO.h"
 #include "domain/dto/treatment/TreatmentAddDTO.h"
@@ -28,6 +29,7 @@
 #include "domain/dto/treatment/TreatmentPageDTO.h"
 #include "domain/dto/treatment/TreatmentSelectDTO.h"
 #include "domain/dto/treatment/TreatmentStatusDTO.h"
+#include "domain/dto/treatment/TreatmentRemoveDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 #define API_TAG ZH_WORDS_GETTER("treatment.tags.tag")
@@ -62,6 +64,12 @@ public: // 接口定义
 	API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/treatment/modify-status", modifyTreatmentStatus,
 		BODY_DTO(TreatmentStatusDTO::Wrapper, dto), execModifyStatus(dto, authObject->getPayload()));
 
+	// 删除诊疗（支持批量）：接口信息
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("treatment.remove.summary"), removeTreatment, ListJsonVO<String>::Wrapper, API_TAG);
+	// 删除诊疗（支持批量）：接口绑定
+	API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/treatment/remove-treatment", removeTreatment,
+		BODY_DTO(TreatmentRemoveDTO::Wrapper, dto), execRemoveTreatment(dto));
+
 	// 获取选择诊疗列表（条件+分页）：接口信息
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("treatment.query-select.summary"), querySelectTreatment,
 		TreatmentQuery, TreatmentSelectPageJsonVO::Wrapper, API_TAG);
@@ -85,6 +93,9 @@ private: // 接口执行函数
 
 	// 启/停用诊疗（支持批量）：执行函数
 	StringJsonVO::Wrapper execModifyStatus(const TreatmentStatusDTO::Wrapper& dto, const PayloadDTO& payload);
+
+	// 删除诊疗（支持批量）：执行函数
+	ListJsonVO<String>::Wrapper execRemoveTreatment(const TreatmentRemoveDTO::Wrapper& dto);
 
 	// 获取选择诊疗列表（条件+分页）：执行函数
 	TreatmentSelectPageJsonVO::Wrapper execQuerySelect(const TreatmentQuery::Wrapper& query);
