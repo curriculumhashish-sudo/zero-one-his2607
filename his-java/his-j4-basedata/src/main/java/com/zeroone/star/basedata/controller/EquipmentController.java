@@ -48,7 +48,14 @@ public class EquipmentController implements EquipmentApis {
     @GetMapping("/query-equipment-list")
     @Operation(summary = "获取器材列表（条件+分页）", description = "获取器材列表（条件+分页）")
     public JsonVO<PageDTO<EquipmentVO>> queryPage(@Valid EquipmentPageQuery query) {
-        return null;
+        try {
+            PageDTO<EquipmentVO> equipmentVOPageDTO = equipmentService.queryEquipmentPage(query);
+            return JsonVO.success(equipmentVOPageDTO);
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        } catch (Exception e) {
+            return JsonVO.fail("查询器材列表失败：" + e.getMessage());
+        }
     }
 
     /**
@@ -75,7 +82,17 @@ public class EquipmentController implements EquipmentApis {
     @PostMapping("/update-equipment")
     @Operation(summary = "修改器材", description = "修改器材")
     public JsonVO<EquipmentUpdateVO> updateEquipment(@RequestBody @Valid EquipmentUpdateDTO dto) {
-        return null;
+        try {
+            EquipmentUpdateVO equipmentUpdateVO = equipmentService.updateEquipment(dto);
+            if (equipmentUpdateVO == null) {
+                return JsonVO.fail("修改器材失败");
+            }
+            return JsonVO.success(equipmentUpdateVO);
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        } catch (Exception e) {
+            return JsonVO.fail("修改器材失败：" + e.getMessage());
+        }
     }
 
     /**
@@ -87,8 +104,18 @@ public class EquipmentController implements EquipmentApis {
     @Override
     @PutMapping("/modify-equipment-status")
     @Operation(summary = "启/停用器材（支持批量）", description = "启/停用器材（支持批量）")
-    public JsonVO<EquipmentUpdateVO> modifyStatus(@RequestBody @Valid EquipmentStatusDTO dto) {
-        return null;
+    public JsonVO<EquipmentVO> modifyStatus(@RequestBody @Valid EquipmentStatusDTO dto) {
+        try {
+            EquipmentVO equipmentVO = equipmentService.modifyEquipmentStatus(dto);
+            if (equipmentVO == null) {
+                return JsonVO.fail("切换状态失败");
+            }
+            return JsonVO.success(equipmentVO);
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        } catch (Exception e) {
+            return JsonVO.fail("切换状态失败：" + e.getMessage());
+        }
     }
 
     /**
