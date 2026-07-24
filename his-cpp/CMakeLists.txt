@@ -163,5 +163,6 @@ add_subdirectory ("lib-common")
 if(UNIX)
 	add_subdirectory ("nacos-register")
 endif()
-#测试编写的charging模块
+
 add_subdirectory ("his-c1-charging")
+add_subdirectory ("his-c1-form")
