@@ -8,9 +8,11 @@ import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.login.MenuTreeVO;
 import com.zeroone.star.project.vo.menu.MenuVO;
+import com.zeroone.star.sysmgr.service.menu.MenusService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -21,7 +23,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/menu")
 @Tag(name = "菜单管理")
+@RequiredArgsConstructor
 public class MenuController implements MenuApis {
+
+    private final MenusService menusService;
 
     /**
      * 加载菜单树结构
@@ -31,6 +36,7 @@ public class MenuController implements MenuApis {
      * @see com.zeroone.star.project.components.user.UserHolder#getCurrentUser()
      * @return 菜单树结构VO
      * @author 是丫丫
+     * @负责人 倾墨
      */
     @Override
     @PostMapping("getTree")
@@ -48,6 +54,7 @@ public class MenuController implements MenuApis {
      * @param query 查询条件
      * @return 菜单分页列表
      * @author 是丫丫
+     * @负责人 倾墨
      */
     @Override
     @PostMapping("getList")
@@ -61,27 +68,15 @@ public class MenuController implements MenuApis {
      * @param query 查询条件
      * @return 菜单详情信息VO
      * @author 是丫丫
+     * @负责人 Drums小白
      */
     @Override
     @PostMapping("getById")
     @Operation(summary = "获取指定菜单详情")
     public JsonVO<MenuVO> getMenu(@RequestBody @Valid MenuDetailQuery query) {
-        return JsonVO.success(null);
-    }
-
-    /**
-     * <p>
-     *     根据当前登录用户来查询可见菜单树结构 <br>
-     *     注：这里要注意做登录校验，如果获取不到用户登录信息，直接返回空列表
-     * </p>
-     * @see com.zeroone.star.project.components.user.UserHolder#getCurrentUser()
-     * @return 菜单树结构VO
-     */
-    @Override
-    @PostMapping("getTreeByLoginUser")
-    @Operation(summary = "根据当前登录用户来查询可见菜单树结构")
-    public JsonVO<MenuTreeVO> getTreeByLoginUser() {
-        return JsonVO.success(null);
+        Long menuId = query.getId();
+        MenuVO menuVO = menusService.getMenuDetail(menuId);
+        return JsonVO.success(menuVO);
     }
 
     /**
@@ -89,6 +84,7 @@ public class MenuController implements MenuApis {
      * @param menuDto 菜单创建入参
      * @return 是否创建成功
      * @author 是丫丫
+     * @负责人 是丫丫
      */
     @Override
     @PostMapping("create")
@@ -102,6 +98,7 @@ public class MenuController implements MenuApis {
      * @param menuDto 菜单修改入参
      * @return 是否修改成功
      * @author 是丫丫
+     * @负责人 Drums小白
      */
     @Override
     @PostMapping("update")
@@ -115,6 +112,7 @@ public class MenuController implements MenuApis {
      * @param menuDto 菜单删除入参
      * @return 是否删除成功
      * @author 是丫丫
+     * @负责人 Drums小白
      */
     @Override
     @PostMapping("delete")
@@ -128,11 +126,12 @@ public class MenuController implements MenuApis {
      * @param menuDto 菜单启用入参
      * @return 是否修改成功
      * @author 是丫丫
+     * @负责人 是丫丫
      */
     @Override
     @PostMapping("enable")
     @Operation(summary = "启用/禁用菜单")
-    public JsonVO<Boolean> editStatus(@RequestBody @Valid MenuEditStatusDto menuDto) {
+    public JsonVO<Boolean> editStatus(@RequestBody @Valid MenuEditStatusDTO menuDto) {
         return JsonVO.success(null);
     }
 }
