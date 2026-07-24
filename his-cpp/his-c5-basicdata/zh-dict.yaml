@@ -214,10 +214,10 @@ pharm:
     status_fail: 状态更新失败
 
 # ============================================================
-# 病区管理 (ward) — 病区/病房/床位 + 地点管理
+# 病区病房管理 (ward) — 病区/病房/床位 + 地点管理
 # ============================================================
 ward:
-  tag: 病区管理
+  tag: 病区病房
   name-list:
     summary: 获取病区名称列表
   tree-list:
@@ -234,44 +234,25 @@ ward:
     summary: 删除病区
   status:
     summary: 切换病区启停状态
+  bed-modify:
+    summary: 修改床位信息
+  bed-remove:
+    summary: 删除床位
+  bed-status:
+    summary: 切换床位启停状态
+  room-modify:
+    summary: 修改病房信息
+  room-remove:
+    summary: 删除病房
+  room-status:
+    summary: 切换病房启停状态
   field:
-    id: 病区编号
-    name: 病区名称
+    id: 病区/病房/床位编号
+    name: 名称
     organization-id: 机构编号
     roomId: 病房编号
     bedId: 病床编号
     wardAreaId: 病区编号
     wardRoomId: 病房编号
     status: 状态
-
-# ============================================================
-# 床位管理 (bed)
-# ============================================================
-bed:
-  tag: 床位管理
-  modify:
-    summary: 修改床位信息
-  remove:
-    summary: 删除床位
-  status:
-    summary: 切换床位启停状态
-  field:
-    id: 床位编号
-    name: 床位名称
-    statusEnum: 状态枚举(ACTIVE/DISABLED)
-
-# ============================================================
-# 病房管理 (room)
-# ============================================================
-room:
-  tag: 病房管理
-  modify:
-    summary: 修改病房信息
-  remove:
-    summary: 删除病房
-  status:
-    summary: 切换病房启停状态
-  field:
-    id: 病房编号
-    name: 病房名称
     statusEnum: 状态枚举(ACTIVE/DISABLED)

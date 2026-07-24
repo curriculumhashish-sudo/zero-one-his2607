@@ -10,7 +10,7 @@
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-#define API_TAG ZH_WORDS_GETTER("bed.tag")
+#define API_TAG ZH_WORDS_GETTER("ward.tag")
 
 class BedController : public oatpp::web::server::api::ApiController
 {
@@ -19,7 +19,7 @@ class BedController : public oatpp::web::server::api::ApiController
 public:
     // Modify bed
     API_DEF_ENDPOINT_INFO_AUTH(
-        ZH_WORDS_GETTER("bed.modify.summary"),
+        ZH_WORDS_GETTER("ward.bed-modify.summary"),
         modifyBed,
         BedJsonVO::Wrapper,
         API_TAG,
@@ -30,18 +30,18 @@ public:
 
     // Remove bed
     API_DEF_ENDPOINT_INFO_AUTH(
-        ZH_WORDS_GETTER("bed.remove.summary"),
+        ZH_WORDS_GETTER("ward.bed-remove.summary"),
         removeBed,
         BooleanJsonVO::Wrapper,
         API_TAG,
         info->description = "Remove bed by ID.";
-        API_DEF_ADD_PATH_PARAMS(String, "id", ZH_WORDS_GETTER("bed.field.id"), "322955479021522944", true);
+        API_DEF_ADD_PATH_PARAMS(String, "id", ZH_WORDS_GETTER("ward.field.bedId"), "322955479021522944", true);
     )
     API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/bed/{id}", removeBed, PATH(String, id, "id"), execRemoveBed(id));
 
     // Change bed status
     API_DEF_ENDPOINT_INFO_AUTH(
-        ZH_WORDS_GETTER("bed.status.summary"),
+        ZH_WORDS_GETTER("ward.bed-status.summary"),
         modifyBedStatus,
         BedJsonVO::Wrapper,
         API_TAG,

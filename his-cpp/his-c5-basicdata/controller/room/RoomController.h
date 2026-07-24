@@ -10,7 +10,7 @@
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-#define API_TAG ZH_WORDS_GETTER("room.tag")
+#define API_TAG ZH_WORDS_GETTER("ward.tag")
 
 class RoomController : public oatpp::web::server::api::ApiController
 {
@@ -19,7 +19,7 @@ class RoomController : public oatpp::web::server::api::ApiController
 public:
     // Modify room
     API_DEF_ENDPOINT_INFO_AUTH(
-        ZH_WORDS_GETTER("room.modify.summary"),
+        ZH_WORDS_GETTER("ward.room-modify.summary"),
         modifyRoom,
         RoomJsonVO::Wrapper,
         API_TAG,
@@ -30,18 +30,18 @@ public:
 
     // Remove room
     API_DEF_ENDPOINT_INFO_AUTH(
-        ZH_WORDS_GETTER("room.remove.summary"),
+        ZH_WORDS_GETTER("ward.room-remove.summary"),
         removeRoom,
         BooleanJsonVO::Wrapper,
         API_TAG,
         info->description = "Remove room by ID.";
-        API_DEF_ADD_PATH_PARAMS(String, "id", ZH_WORDS_GETTER("room.field.id"), "322955414072725504", true);
+        API_DEF_ADD_PATH_PARAMS(String, "id", ZH_WORDS_GETTER("ward.field.roomId"), "322955414072725504", true);
     )
     API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/room/{id}", removeRoom, PATH(String, id, "id"), execRemoveRoom(id));
 
     // Change room status
     API_DEF_ENDPOINT_INFO_AUTH(
-        ZH_WORDS_GETTER("room.status.summary"),
+        ZH_WORDS_GETTER("ward.room-status.summary"),
         modifyRoomStatus,
         RoomJsonVO::Wrapper,
         API_TAG,
