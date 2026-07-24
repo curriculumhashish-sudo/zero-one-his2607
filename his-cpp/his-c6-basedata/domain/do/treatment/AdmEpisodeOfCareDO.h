@@ -30,23 +30,34 @@ class InventoryLockDO : public BaseDO
 	MYSQL_SYNTHESIZE(string, deletedBy, DeletedBy);
 	// 乐观锁版本号
 	MYSQL_SYNTHESIZE(int, version, Version);
-	// 库存锁定记录
-	MYSQL_SYNTHESIZE(string, inventoryId, InventoryId);
-	// 锁定标识，ture已锁
-	MYSQL_SYNTHESIZE(bool, lockFlag, lockFlag);
-	// 锁定状态
-	MYSQL_SYNTHESIZE(string, status, Status);
-	// 锁定单号
+	// 患者标识
+	MYSQL_SYNTHESIZE(string, patientId, PatientId);
+	// 机构标识
+	MYSQL_SYNTHESIZE(bool, organizationId, OrganizationId);
+	
+	// bus编号
 	MYSQL_SYNTHESIZE(string, busNo, BusNo);
-	// 同一业务单内顺序号
-	MYSQL_SYNTHESIZE(int, orderFlag, orderFlag);
+	// 
+	MYSQL_SYNTHESIZE(string, careTeamId, CareTeamId);
+	// 
+	MYSQL_SYNTHESIZE(bool, careType, CareType);
+	// 照护目标
+	MYSQL_SYNTHESIZE(string, careGoal, CareGoal);
+	// 枚举值
+	MYSQL_SYNTHESIZE(string, statusEnum, StatusEnum);
+	// 标志位
+	MYSQL_SYNTHESIZE(bool, activeFlag, ActiveFlag);
+	// 
+	MYSQL_SYNTHESIZE(string, startTime, StartTime);
+	// 
+	MYSQL_SYNTHESIZE(string, endTime, EndTime);
 public:
 	InventoryLockDO() : BaseDO("inventory_lock")
 	{
 		MYSQL_ADD_FIELD_PK("id", "s", id);
 		MYSQL_ADD_FIELD_NULLABLE("tenant_id", "s", tenantId, true);
 
-		MYSQL_ADD_FIELD_NULLABLE("created_at", "dt", tenantId, false);
+		MYSQL_ADD_FIELD_NULLABLE("created_at", "dt", createdAt, false);
 
 		MYSQL_ADD_FIELD_NULLABLE("updated_at", "dt", updatedAt, true);
 
@@ -62,15 +73,25 @@ public:
 
 		MYSQL_ADD_FIELD_NULLABLE("version", "i", version, false);
 
-		MYSQL_ADD_FIELD_NULLABLE("inventory_id", "s", inventoryId, false);
+		MYSQL_ADD_FIELD_NULLABLE("patient_id", "s", patientId, false);
 
-		MYSQL_ADD_FIELD_NULLABLE("lock_flag", "b", lockFlag, false);
-
-		MYSQL_ADD_FIELD_NULLABLE("status", "s", status, false);
+		MYSQL_ADD_FIELD_NULLABLE("organization_id", "b", organizationId, false);
 
 		MYSQL_ADD_FIELD_NULLABLE("bus_no", "s", busNo, false);
 
-		MYSQL_ADD_FIELD_NULLABLE("order_flag", "i", orderFlag, false);
+		MYSQL_ADD_FIELD_NULLABLE("care_team_id", "s", careTeamId, true);
+
+		MYSQL_ADD_FIELD_NULLABLE("care_type", "s", careType, true);
+
+		MYSQL_ADD_FIELD_NULLABLE("care_goal", "s", careGoal, true);
+
+		MYSQL_ADD_FIELD_NULLABLE("status_enum", "s", statusEnum, false);
+
+		MYSQL_ADD_FIELD_NULLABLE("active_flag", "b", activeFlag, false);
+
+		MYSQL_ADD_FIELD_NULLABLE("start_time", "dt", startTime, true);
+
+		MYSQL_ADD_FIELD_NULLABLE("end_time", "dt", endTime, true);
 	}
 };
 
