@@ -5,7 +5,7 @@
 #include "domain/vo/ward/WardTreeNodeVO.h"
 #include "../include/id/SnowFlake.h"
 #include "../../lib-common/include/SimpleDateTimeFormat.h"
-#include "C:\Users\ggg\Desktop\pro\zero-one-his2607\his-cpp\lib-common\include\gmock\internal\custom\gmock-generated-actions.h"
+#include "gmock/internal/custom/gmock-generated-actions.h"
 #include"../../lib-mysql/include/TransactionManager.h"
 namespace
 {

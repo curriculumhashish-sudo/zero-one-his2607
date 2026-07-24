@@ -32,7 +32,7 @@ endif()
 # 获取要编译的源代码
 file (GLOB_RECURSE SC_FILES ./*.cpp)
 list (REMOVE_ITEM SC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/./stdafx.cpp")
-
+list(FILTER SC_FILES EXCLUDE REGEX ".*/out/.*")
 # 设置预编译标头
 if(WIN32)
 	ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" SC_FILES)
