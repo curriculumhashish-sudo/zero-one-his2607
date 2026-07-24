@@ -17,15 +17,15 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _DRUG_PRICE_DO_H_
-#define _DRUG_PRICE_DO_H_
+#ifndef _ADM_CHARGE_ITEM_DEFINITION_DO_H_
+#define _ADM_CHARGE_ITEM_DEFINITION_DO_H_
 
 #include "../DoInclude.h"
 
 /**
  * Persistence model for drug prices in adm_charge_item_definition.
  */
-class DrugPriceDO : public BaseDO
+class AdmChargeItemDefinitionDO : public BaseDO
 {
     MYSQL_SYNTHESIZE(string, id, Id);
     MYSQL_SYNTHESIZE(string, tenantId, TenantId);
@@ -50,7 +50,7 @@ class DrugPriceDO : public BaseDO
     MYSQL_SYNTHESIZE(int, priority, Priority);
 
   public:
-    DrugPriceDO() : BaseDO("adm_charge_item_definition")
+    AdmChargeItemDefinitionDO() : BaseDO("adm_charge_item_definition")
     {
         MYSQL_ADD_FIELD_PK("id", "s", id);
         MYSQL_ADD_FIELD("tenant_id", "s", tenantId);
@@ -76,6 +76,6 @@ class DrugPriceDO : public BaseDO
     }
 };
 
-using PtrDrugPriceDO = std::shared_ptr<DrugPriceDO>;
+using PtrAdmChargeItemDefinitionDO = std::shared_ptr<AdmChargeItemDefinitionDO>;
 
-#endif // !_DRUG_PRICE_DO_H_
+#endif // !_ADM_CHARGE_ITEM_DEFINITION_DO_H_

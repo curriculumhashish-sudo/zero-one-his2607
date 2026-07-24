@@ -91,7 +91,7 @@ std::list<std::string> normalizeIds(const oatpp::List<oatpp::String> &source)
     return {unique.begin(), unique.end()};
 }
 
-void ensureSameTenant(const std::list<PtrDrugDO> &drugs)
+void ensureSameTenant(const std::list<PtrMedMedicationDefinitionDO> &drugs)
 {
     if (drugs.empty())
     {
@@ -115,7 +115,8 @@ void ensureTenantAccess(DrugDAO &dao, const PayloadDTO &payload, const std::stri
     }
 }
 
-void fillEditableDrug(DrugDO &data, const DrugModifyDTO::Wrapper &dto, const std::string &updatedBy,
+void fillEditableDrug(MedMedicationDefinitionDO &data, const DrugModifyDTO::Wrapper &dto,
+                      const std::string &updatedBy,
                       const std::string &updatedAt)
 {
     ZO_STAR_DOMAIN_DTO_TO_DO(
@@ -180,7 +181,8 @@ void fillEditableDrug(DrugDO &data, const DrugModifyDTO::Wrapper &dto, const std
     data.setUpdatedAt(updatedAt);
 }
 
-void fillBasePrice(DrugPriceDO &price, const DrugModifyDTO::Wrapper &dto, const PtrDrugDO &drug,
+void fillBasePrice(AdmChargeItemDefinitionDO &price, const DrugModifyDTO::Wrapper &dto,
+                   const PtrMedMedicationDefinitionDO &drug,
                    const std::string &priceType, double priceValue, const std::string &createdBy,
                    const std::string &createdAt, UuidFacade &uuidFacade)
 {
@@ -210,7 +212,8 @@ void fillBasePrice(DrugPriceDO &price, const DrugModifyDTO::Wrapper &dto, const 
     price.setPriceValue(priceValue);
 }
 
-DrugModifyResultDTO::Wrapper toResultDTO(const PtrDrugDO &drug, const std::list<PtrDrugPriceDO> &prices)
+DrugModifyResultDTO::Wrapper toResultDTO(const PtrMedMedicationDefinitionDO &drug,
+                                        const std::list<PtrAdmChargeItemDefinitionDO> &prices)
 {
     auto dto = DrugModifyResultDTO::createShared();
     ZO_STAR_DOMAIN_DO_TO_DTO_1(
@@ -324,7 +327,7 @@ DrugModifyResultDTO::Wrapper DrugService::updateDrug(const DrugModifyDTO::Wrappe
 
         const std::string auditOperator = operatorId(payload);
         const std::string operationTime = SimpleDateTimeFormat::format();
-        DrugDO data;
+        MedMedicationDefinitionDO data;
         stage = "map-request";
         fillEditableDrug(data, dto, auditOperator, operationTime);
         stage = "update-drug";
@@ -343,7 +346,7 @@ DrugModifyResultDTO::Wrapper DrugService::updateDrug(const DrugModifyDTO::Wrappe
             {
                 return;
             }
-            DrugPriceDO price;
+            AdmChargeItemDefinitionDO price;
             stage = "map-price";
             fillBasePrice(price, dto, current, priceType, value.getValue(0.0), auditOperator, operationTime,
                           uuidFacade);

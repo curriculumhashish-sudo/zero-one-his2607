@@ -93,7 +93,7 @@ bool DrugDAO::hasTenantAccess(const std::string &userId, const std::string &user
     return sqlSession->executeQueryNumerical(sql, params) > 0;
 }
 
-PtrDrugDO DrugDAO::selectById(const std::string &id, bool forUpdate)
+PtrMedMedicationDefinitionDO DrugDAO::selectById(const std::string &id, bool forUpdate)
 {
     std::string sql = "SELECT " + fullDrugColumns() +
                       " FROM med_medication_definition WHERE id=? AND is_deleted=0";
@@ -101,10 +101,10 @@ PtrDrugDO DrugDAO::selectById(const std::string &id, bool forUpdate)
     {
         sql += " FOR UPDATE";
     }
-    return sqlSession->executeQueryOne<PtrDrugDO>(sql, PtrDrugMapper(), "%s", id);
+    return sqlSession->executeQueryOne<PtrMedMedicationDefinitionDO>(sql, PtrDrugMapper(), "%s", id);
 }
 
-std::list<PtrDrugDO> DrugDAO::selectStatesForUpdate(const std::list<std::string> &ids)
+std::list<PtrMedMedicationDefinitionDO> DrugDAO::selectStatesForUpdate(const std::list<std::string> &ids)
 {
     if (ids.empty())
     {
@@ -117,10 +117,11 @@ std::list<PtrDrugDO> DrugDAO::selectStatesForUpdate(const std::list<std::string>
         "SELECT id,tenant_id,is_deleted,version,status_enum,active_flag "
         "FROM med_medication_definition WHERE id IN (" +
         placeholders(ids.size()) + ") AND is_deleted=0 FOR UPDATE";
-    return sqlSession->executeQuery<PtrDrugDO>(sql, PtrDrugStateMapper(), params);
+    return sqlSession->executeQuery<PtrMedMedicationDefinitionDO>(sql, PtrDrugStateMapper(), params);
 }
 
-int DrugDAO::updateEditableByVersion(const DrugDO &data, const std::string &tenantId, int expectedVersion)
+int DrugDAO::updateEditableByVersion(const MedMedicationDefinitionDO &data, const std::string &tenantId,
+                                     int expectedVersion)
 {
     if (!data.getPrimaryField()->get())
     {
@@ -174,12 +175,13 @@ int DrugDAO::softDeleteBasePrices(const std::string &drugId, const std::string &
     return sqlSession->executeUpdate(sql, params);
 }
 
-int DrugDAO::insertBasePrice(const DrugPriceDO &price)
+int DrugDAO::insertBasePrice(const AdmChargeItemDefinitionDO &price)
 {
     return insert(price);
 }
 
-std::list<PtrDrugPriceDO> DrugDAO::selectBasePrices(const std::string &drugId, const std::string &tenantId)
+std::list<PtrAdmChargeItemDefinitionDO> DrugDAO::selectBasePrices(const std::string &drugId,
+                                                                 const std::string &tenantId)
 {
     const std::string sql =
         "SELECT price_type_code,price_value,type_code,yb_type FROM adm_charge_item_definition "
@@ -188,7 +190,7 @@ std::list<PtrDrugPriceDO> DrugDAO::selectBasePrices(const std::string &drugId, c
     SqlParams params;
     SQLPARAMS_PUSH(params, "s", std::string, drugId);
     SQLPARAMS_PUSH(params, "s", std::string, tenantId);
-    return sqlSession->executeQuery<PtrDrugPriceDO>(sql, PtrDrugPriceMapper(), params);
+    return sqlSession->executeQuery<PtrAdmChargeItemDefinitionDO>(sql, PtrDrugPriceMapper(), params);
 }
 
 PtrDrugReferenceCheck DrugDAO::selectReferenceCheck(const std::list<std::string> &ids)

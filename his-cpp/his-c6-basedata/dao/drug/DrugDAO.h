@@ -21,8 +21,8 @@
 #define _DRUG_DAO_H_
 
 #include "BaseDAO.h"
-#include "../../domain/do/drug/DrugDO.h"
-#include "../../domain/do/drug/DrugPriceDO.h"
+#include "../../domain/do/drug/MedMedicationDefinitionDO.h"
+#include "../../domain/do/adm/AdmChargeItemDefinitionDO.h"
 #include "DrugMapper.h"
 
 /**
@@ -40,14 +40,16 @@ class DrugDAO : public BaseDAO
 
     bool hasTenantAccess(const std::string &userId, const std::string &username,
                          const std::string &tenantId);
-    PtrDrugDO selectById(const std::string &id, bool forUpdate = false);
-    std::list<PtrDrugDO> selectStatesForUpdate(const std::list<std::string> &ids);
-    int updateEditableByVersion(const DrugDO &data, const std::string &tenantId, int expectedVersion);
+    PtrMedMedicationDefinitionDO selectById(const std::string &id, bool forUpdate = false);
+    std::list<PtrMedMedicationDefinitionDO> selectStatesForUpdate(const std::list<std::string> &ids);
+    int updateEditableByVersion(const MedMedicationDefinitionDO &data, const std::string &tenantId,
+                                int expectedVersion);
 
     int softDeleteBasePrices(const std::string &drugId, const std::string &tenantId, const std::string &operatorId,
                              const std::string &operationTime);
-    int insertBasePrice(const DrugPriceDO &price);
-    std::list<PtrDrugPriceDO> selectBasePrices(const std::string &drugId, const std::string &tenantId);
+    int insertBasePrice(const AdmChargeItemDefinitionDO &price);
+    std::list<PtrAdmChargeItemDefinitionDO> selectBasePrices(const std::string &drugId,
+                                                             const std::string &tenantId);
 
     PtrDrugReferenceCheck selectReferenceCheck(const std::list<std::string> &ids);
     PtrDrugConditionCheck selectEnableReadiness(const std::list<std::string> &ids, const std::string &tenantId);

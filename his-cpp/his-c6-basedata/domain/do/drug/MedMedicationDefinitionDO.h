@@ -17,15 +17,15 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _DRUG_DO_H_
-#define _DRUG_DO_H_
+#ifndef _MED_MEDICATION_DEFINITION_DO_H_
+#define _MED_MEDICATION_DEFINITION_DO_H_
 
 #include "../DoInclude.h"
 
 /**
  * Persistence model for med_medication_definition.
  */
-class DrugDO : public BaseDO
+class MedMedicationDefinitionDO : public BaseDO
 {
     MYSQL_SYNTHESIZE(string, id, Id);
     MYSQL_SYNTHESIZE(string, tenantId, TenantId);
@@ -108,7 +108,7 @@ class DrugDO : public BaseDO
     MYSQL_SYNTHESIZE(double, packageUnitRatio, PackageUnitRatio);
 
   public:
-    DrugDO() : BaseDO("med_medication_definition")
+    MedMedicationDefinitionDO() : BaseDO("med_medication_definition")
     {
         MYSQL_ADD_FIELD_PK("id", "s", id);
         MYSQL_ADD_FIELD("tenant_id", "s", tenantId);
@@ -192,6 +192,6 @@ class DrugDO : public BaseDO
     }
 };
 
-using PtrDrugDO = std::shared_ptr<DrugDO>;
+using PtrMedMedicationDefinitionDO = std::shared_ptr<MedMedicationDefinitionDO>;
 
-#endif // !_DRUG_DO_H_
+#endif // !_MED_MEDICATION_DEFINITION_DO_H_

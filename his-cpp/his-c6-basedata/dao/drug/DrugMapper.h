@@ -21,18 +21,18 @@
 #define _DRUG_MAPPER_H_
 
 #include "Mapper.h"
-#include "../../domain/do/drug/DrugDO.h"
-#include "../../domain/do/drug/DrugPriceDO.h"
+#include "../../domain/do/drug/MedMedicationDefinitionDO.h"
+#include "../../domain/do/adm/AdmChargeItemDefinitionDO.h"
 
 /**
  * Maps the explicit full-column drug query.
  */
-class PtrDrugMapper : public Mapper<PtrDrugDO>
+class PtrDrugMapper : public Mapper<PtrMedMedicationDefinitionDO>
 {
   public:
-    PtrDrugDO mapper(ResultSet *resultSet) const override
+    PtrMedMedicationDefinitionDO mapper(ResultSet *resultSet) const override
     {
-        auto data = std::make_shared<DrugDO>();
+        auto data = std::make_shared<MedMedicationDefinitionDO>();
         data->setId(resultSet->getString(1));
         data->setTenantId(resultSet->getString(2));
         data->setCreatedAt(resultSet->getString(3));
@@ -119,12 +119,12 @@ class PtrDrugMapper : public Mapper<PtrDrugDO>
 /**
  * Maps only the columns needed for batch state transitions.
  */
-class PtrDrugStateMapper : public Mapper<PtrDrugDO>
+class PtrDrugStateMapper : public Mapper<PtrMedMedicationDefinitionDO>
 {
   public:
-    PtrDrugDO mapper(ResultSet *resultSet) const override
+    PtrMedMedicationDefinitionDO mapper(ResultSet *resultSet) const override
     {
-        auto data = std::make_shared<DrugDO>();
+        auto data = std::make_shared<MedMedicationDefinitionDO>();
         data->setId(resultSet->getString(1));
         data->setTenantId(resultSet->getString(2));
         data->setIsDeleted(resultSet->getBoolean(3));
@@ -138,12 +138,12 @@ class PtrDrugStateMapper : public Mapper<PtrDrugDO>
 /**
  * Maps active base-price rows.
  */
-class PtrDrugPriceMapper : public Mapper<PtrDrugPriceDO>
+class PtrDrugPriceMapper : public Mapper<PtrAdmChargeItemDefinitionDO>
 {
   public:
-    PtrDrugPriceDO mapper(ResultSet *resultSet) const override
+    PtrAdmChargeItemDefinitionDO mapper(ResultSet *resultSet) const override
     {
-        auto data = std::make_shared<DrugPriceDO>();
+        auto data = std::make_shared<AdmChargeItemDefinitionDO>();
         data->setPriceTypeCode(resultSet->getString(1));
         data->setPriceValue(resultSet->getDouble(2));
         data->setTypeCode(resultSet->getString(3));
