@@ -9,5 +9,11 @@ import com.zeroone.star.sysmgr.entity.menu.MenuDO;
 * @createDate 2026-07-23 22:43:12
 */
 public interface MenusService extends IService<MenuDO> {
-
+    /**
+     * 获取菜单详情
+     * @author Drums小白
+     * @param menuId 菜单id
+     * @return 菜单VO
+     */
+    MenuVO getMenuDetail(Long menuId);
 }
