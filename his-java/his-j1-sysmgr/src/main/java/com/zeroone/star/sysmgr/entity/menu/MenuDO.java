@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.io.Serial;
+import java.time.LocalDateTime;
 
 /**
  * 菜单实体DO
@@ -102,4 +103,24 @@ public class MenuDO extends BaseDO {
      * 是否缓存页面
      */
     private Integer keepAlive;
+
+    /**
+     * 租户ID，多租户隔离
+     */
+    private String tenantId;
+
+    /**
+     * 软删除标记 0正常 1删除
+     */
+    private Integer isDeleted;
+
+    /**
+     * 删除时间
+     */
+    private LocalDateTime deletedAt;
+
+    /**
+     * 删除操作人
+     */
+    private String deletedBy;
 }

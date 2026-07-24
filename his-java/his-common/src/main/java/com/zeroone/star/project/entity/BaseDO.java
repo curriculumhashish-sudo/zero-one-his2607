@@ -26,12 +26,8 @@ public abstract class BaseDO implements Serializable {
      * 主键id，VARCHAR(64) 雪花ID/自定义字符串ID
      */
     @TableId(type = IdType.ASSIGN_ID)
+    @TableField(fill = FieldFill.INSERT)
     private String id;
-
-    /**
-     * 租户ID，多租户隔离
-     */
-    private String tenantId;
 
     /**
      * 创建时间，DATETIME(6) 自动填充
@@ -56,25 +52,4 @@ public abstract class BaseDO implements Serializable {
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private String updatedBy;
-
-    /**
-     * 软删除标记 0正常 1删除
-     */
-    private Integer isDeleted;
-
-    /**
-     * 删除时间
-     */
-    private LocalDateTime deletedAt;
-
-    /**
-     * 删除操作人
-     */
-    private String deletedBy;
-
-    /**
-     * 乐观锁版本号，int默认0
-     */
-    @Version
-    private Integer version;
 }
