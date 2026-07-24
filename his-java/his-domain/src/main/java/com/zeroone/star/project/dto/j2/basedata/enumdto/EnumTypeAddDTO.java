@@ -40,47 +40,4 @@ public class EnumTypeAddDTO {
     @NotNull(message = "枚举类型状态枚举值不能为空")
     @Schema(description = "枚举类型状态(0-激活, 1-未激活)", example = "0", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer status;
-
-    /**
-     * 这里设计的枚举类型集合结构如下：
-     * {
-     *   "_id": ObjectId("..."),
-     *   "tenantId": "tenant_001",           // 多租户隔离，必填
-     *   "enumKey": "order_status",          // 业务唯一键，用于代码中引用
-     *   "displayName": "订单状态",           // 显示名称
-     *   "description": "订单的生命周期状态",   // 描述
-     *   "isSystem": false,                 // 是否系统内置（保护不可删）
-     *   "status": "active",                // active/archived
-     *   "validationRules": {               // 扩展校验规则
-     *     "min": 1,
-     *     "max": 100,
-     *     "regex": "^[A-Z]+$"
-     *   },
-     *   "createdBy": "1",                  // 创建人，填写的是租户id
-     *   "createdAt": ISODate("2026-07-19T00:00:00Z"),
-     *   "updatedAt": ISODate("2026-07-19T00:00:00Z"),
-     *   “updatedBy": "1"                   // 同理，为租户id
-     *   "version": 1                       // 乐观锁版本号
-     *   “isDeleted”: false                 // 软删除标志，逻辑删除用
-     * }
-     *
-     * // 相较于字典系统，枚举字典更倾向于后端，个人认为其不用添加描述来解释
-     * {
-     *   "_id": ObjectId("..."),
-     *   "enumTypeId": ObjectId("..."),    // 关联 enum_type._id
-     *   "tenantId": "tenant_001",           // 冗余字段，便于按租户分片
-     *   "enumKey": "SHIPPED",                 // 存储字符
-     *   "enumCode": 1                             // 枚举对应的实数值，一个枚举类型的枚举值的code，string互不相同
-     *   "display": "已发货",                  // 显示文本（支持多语言）
-     *   "order": 10,                        // 排序权重，数值越小越靠前
-     *   "status": "active",                // active/inactive/deleted
-     *
-     *   "createdBy": "user_001",
-     *   "createdAt": ISODate("2026-07-19T00:00:00Z"),
-     *   "updatedAt": ISODate("2026-07-19T00:00:00Z"),
-     *   "updatedBy": "user_001"
-     *   "version": 1                        // 乐观锁版本号
-     *   “isDeleted”: false                 // 软删除标志，逻辑删除用
-     * }
-     */
 }
