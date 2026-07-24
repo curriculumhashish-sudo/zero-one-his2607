@@ -18,8 +18,8 @@ public class UserPageVO {
     @Schema(description = "姓名", example = "梁老师")
     private String nickname;
 
-    @Schema(description = "角色Id列表")
-    private List<String> roleIds;
+    @Schema(description = "角色名称列表")
+    private List<String> roleNames;
 
     @Schema(description = "手机号码", example = "13800138000")
     private String phoneNumber;

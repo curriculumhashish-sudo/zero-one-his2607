@@ -18,4 +18,9 @@ public class UserListVO {
     @Schema(description = "电子邮箱", example = "lianglaoshi@hospital.com")
     private String email;
 
+    @Schema(description = "手机号码", example = "13800138000")
+    private String phoneNumber;
+
+    @Schema(description = "状态 (1:启用, 0:停用)", example = "1")
+    private Integer status;
 }

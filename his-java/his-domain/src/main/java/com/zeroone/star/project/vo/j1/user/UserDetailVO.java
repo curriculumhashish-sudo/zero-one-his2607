@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-
 @Schema(description = "用户详情对象")
 public class UserDetailVO {
     @Schema(description = "主键id", example = "336396155648217088")

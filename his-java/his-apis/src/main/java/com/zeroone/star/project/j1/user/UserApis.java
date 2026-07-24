@@ -2,10 +2,11 @@ package com.zeroone.star.project.j1.user;
 
 import com.zeroone.star.project.dto.PageDTO;
 
-import com.zeroone.star.project.dto.j1.sysmgr.ChangePasswordDTO;
-import com.zeroone.star.project.dto.j1.sysmgr.UserDTO;
+import com.zeroone.star.project.dto.j1.user.ChangePasswordDTO;
+import com.zeroone.star.project.dto.j1.user.UserAddDTO;
+import com.zeroone.star.project.dto.j1.user.UserUpdateDTO;
 import com.zeroone.star.project.query.j1.login.TenantQuery;
-import com.zeroone.star.project.query.j1.sysmgr.UserQuery;
+import com.zeroone.star.project.query.j1.user.UserQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j1.user.UserDetailVO;
 import com.zeroone.star.project.vo.j1.user.UserListVO;
@@ -44,17 +45,17 @@ public interface UserApis {
 
     /**
      * 新增用户
-     * @param userDTO 用户信息
+     * @param userAddDTO 用户信息
      * @return 保存结果
      */
-    JsonVO<String> saveUser(UserDTO userDTO);
+    JsonVO<String> saveUser(UserAddDTO userAddDTO);
 
     /**
      * 修改用户
-     * @param userDTO 用户信息
+     * @param userUpdateDTO 用户信息
      * @return 修改结果
      */
-    JsonVO<String> updateUser(UserDTO userDTO);
+    JsonVO<String> updateUser(UserUpdateDTO userUpdateDTO);
 
 
     /**

@@ -1,4 +1,4 @@
-package com.zeroone.star.project.dto.j1.sysmgr;
+package com.zeroone.star.project.dto.j1.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -13,7 +13,7 @@ import java.util.List;
  */
 @Data
 @Schema(description = "新增用户请求参数")
-public class UserDTO {
+public class UserAddDTO {
     @Schema(description = "用户名", requiredMode = Schema.RequiredMode.REQUIRED, example = "zhangsan")
     private String username;
 

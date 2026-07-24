@@ -1,4 +1,4 @@
-package com.zeroone.star.project.query.j1.sysmgr;
+package com.zeroone.star.project.query.j1.user;
 
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.query.PageQuery;

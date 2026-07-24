@@ -1,11 +1,12 @@
 package com.zeroone.star.sysmgr.controller.user;
 
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j1.sysmgr.ChangePasswordDTO;
-import com.zeroone.star.project.dto.j1.sysmgr.UserDTO;
+import com.zeroone.star.project.dto.j1.user.ChangePasswordDTO;
+import com.zeroone.star.project.dto.j1.user.UserUpdateDTO;
+import com.zeroone.star.project.dto.j1.user.UserAddDTO;
 import com.zeroone.star.project.j1.user.UserApis;
 import com.zeroone.star.project.query.j1.login.TenantQuery;
-import com.zeroone.star.project.query.j1.sysmgr.UserQuery;
+import com.zeroone.star.project.query.j1.user.UserQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j1.user.UserDetailVO;
 import com.zeroone.star.project.vo.j1.user.UserListVO;
@@ -45,14 +46,14 @@ public class UserController implements UserApis {
     @Operation(summary   = "新增用户")
     @PostMapping
     @Override
-    public JsonVO<String> saveUser(@RequestBody UserDTO userDTO) {
+    public JsonVO<String> saveUser(@RequestBody UserAddDTO userAddDTO) {
         return null;
     }
 
     @Operation(summary   = "修改用户")
     @PutMapping("/update")
     @Override
-    public JsonVO<String> updateUser(@RequestBody UserDTO userDTO) {
+    public JsonVO<String> updateUser(@RequestBody UserUpdateDTO userUpdateDTO) {
         return null;
     }
 
@@ -83,6 +84,5 @@ public class UserController implements UserApis {
     @Override
     public JsonVO<String> lockUser(@PathVariable String id,@PathVariable Integer lockStatus) {
         return null;
-
     }
 }
