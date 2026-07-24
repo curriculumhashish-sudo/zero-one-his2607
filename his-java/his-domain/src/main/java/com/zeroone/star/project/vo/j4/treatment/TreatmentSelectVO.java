@@ -18,12 +18,6 @@ public class TreatmentSelectVO implements Serializable {
     @Schema(description = "项目名称", example = "血常规检查", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
 
-    @Schema(description = "发布状态枚举编码", example = "PUBLISH", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String statusEnum;
-
-    @Schema(description = "诊疗类型枚举编码", example = "CHECK", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "诊疗分类", example = "CHECK", requiredMode = Schema.RequiredMode.REQUIRED)
     private String typeEnum;
-
-    @Schema(description = "价格(元)", example = "35.00")
-    private BigDecimal price;
 }

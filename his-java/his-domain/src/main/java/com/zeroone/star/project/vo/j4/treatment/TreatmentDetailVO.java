@@ -1,10 +1,13 @@
 package com.zeroone.star.project.vo.j4.treatment;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Schema(description = "诊疗项目详情显示对象")
@@ -12,75 +15,112 @@ public class TreatmentDetailVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "主键ID", example = "1873645982637461")
+    @JsonSerialize(using = ToStringSerializer.class)
+    @Schema(description = "主键ID", example = "1890000000000000001", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
-    @Schema(description = "租户ID", example = "T001")
-    private String tenantId;
-
-    @Schema(description = "创建时间", example = "2026-07-22T10:30:00")
-    private LocalDateTime createdAt;
-
-    @Schema(description = "更新时间", example = "2026-07-22T14:00:00")
-    private LocalDateTime updatedAt;
-
-    @Schema(description = "创建人", example = "张医生")
-    private String createdBy;
-
-    @Schema(description = "更新人", example = "李护士")
-    private String updatedBy;
-
-    @Schema(description = "逻辑删除标记：0未删除/1已删除", example = "0")
-    private Integer isDeleted;
-
-    @Schema(description = "删除时间", example = "null")
-    private LocalDateTime deletedAt;
-
-    @Schema(description = "删除人", example = "null")
-    private String deletedBy;
-
-    @Schema(description = "乐观锁版本号", example = "1")
-    private Integer version;
-
-    @Schema(description = "诊疗项目名称", example = "血常规检查")
-    private String name;
-
-    @Schema(description = "服务类型编码", example = "LAB")
-    private String typeCode;
-
-    @Schema(description = "分类编码", example = "检查")
+    @Schema(description = "分类编码", example = "22")
     private String categoryCode;
 
-    @Schema(description = "提供机构ID", example = "ORG001")
-    private String offeredOrgId;
-
-    @Schema(description = "专业科室编码", example = "DEP01")
-    private String specialtyCode;
-
-    @Schema(description = "执行地点ID", example = "LOC001")
-    private String locationId;
-
-    @Schema(description = "状态枚举：ACTIVE启用/INACTIVE停用", example = "ACTIVE")
-    private String statusEnum;
-
-    @Schema(description = "是否有效标记", example = "true")
-    private Boolean activeFlag;
-
-    @Schema(description = "是否需要预约标记", example = "false")
-    private Boolean appointmentRequiredFlag;
-
-    @Schema(description = "医保编码", example = "YB1234567890")
-    private String ybNo;
-
-    @Schema(description = "业务编号（编码）", example = "XM20260722001")
+    @Schema(description = "业务编号", example = "AD00000001")
     private String busNo;
 
-    @Schema(description = "备注说明", example = "需空腹8小时")
-    private String comment;
+    @Schema(description = "项目名称", example = "肝功13项")
+    private String name;
 
-    @Schema(description = "扩展详情（JSON格式）", example = "{}")
-    private String extraDetails;
+    @Schema(description = "拼音检索码", example = "gg13x")
+    private String pyStr;
 
-    @Schema(description = "联系方式", example = "010-12345678")
-    private String contact;
+    @Schema(description = "五笔检索码", example = "af13c")
+    private String wbStr;
+
+    @Schema(description = "销售/计价单位编码", example = "次")
+    private String packageUnitCode;
+
+    @Schema(description = "诊疗业务版本", example = "V1.0")
+    private String activityVersion;
+
+    @Schema(description = "商品名称", example = "肝功13项套餐")
+    private String merchandiseName;
+
+    @Schema(description = "商品名拼音检索码", example = "gg13xtc")
+    private String merchandisePyStr;
+
+    @Schema(description = "商品名五笔检索码", example = "af13wdc")
+    private String merchandiseWbStr;
+
+    @Schema(description = "默认门诊单位编码", example = "次")
+    private String defEncounterUnitCode;
+
+    @Schema(description = "默认住院单位编码", example = "次")
+    private String defInhospitalUnitCode;
+
+    @Schema(description = "医保标记 0-否 1-是", example = "1")
+    private Integer ybFlag;
+
+    @Schema(description = "划价标记 0-否 1-是", example = "1")
+    private Integer pricingFlag;
+
+    @Schema(description = "医保编码", example = "C010101001")
+    private String ybNo;
+
+    @Schema(description = "医保对码标记 0-未对码 1-已对码", example = "1")
+    private Integer ybMatchFlag;
+
+    @Schema(description = "状态枚举值（ACTIVE-启用/INACTIVE-停用）", example = "ACTIVE")
+    private String statusEnum;
+
+    @Schema(description = "身体部位编码", example = "ARM_VEIN")
+    private String bodySiteCode;
+
+    @Schema(description = "标本编码", example = "BLOOD")
+    private String specimenCode;
+
+    @Schema(description = "说明文本", example = "常规肝功能检测项目")
+    private String descriptionText;
+
+    @Schema(description = "计费规则ID", example = "1")
+    private Integer ruleId;
+
+    @Schema(description = "计费规则展示名", example = "默认计费规则")
+    private String ruleId_dictText;
+
+    @Schema(description = "删除标志 0-未删除 1-已删除", example = "0")
+    private Integer deleteFlag;
+
+    @Schema(description = "类型枚举值（0-非药品收费/1-检验/2-检查/3-影像/4-治疗/5-手术/6-护理/7-膳食/8-其他）", example = "1")
+    private String typeEnum;
+
+    @Schema(description = "所属机构ID", example = "1001")
+    private String orgId;
+
+    @Schema(description = "所在位置ID", example = "2001")
+    private String locationId;
+
+    @Schema(description = "收费项目医保等级（1-甲类/2-乙类/3-丙类）", example = "1")
+    private Integer chrgitmLv;
+
+    @Schema(description = "允许的角色枚举值", example = "1")
+    private Integer permittedRoleEnum;
+
+    @Schema(description = "医保类别编码", example = "1")
+    private String ybType;
+
+    @Schema(description = "医保类别展示名", example = "甲类")
+    private String ybType_dictText;
+
+    @Schema(description = "财务类别编码", example = "1001")
+    private String itemTypeCode;
+
+    @Schema(description = "项目购入价（元）", example = "44.40")
+    private BigDecimal purchasePrice;
+
+    @Schema(description = "项目零售价（元）", example = "44.40")
+    private BigDecimal retailPrice;
+
+    @Schema(description = "项目最高零售价（元）", example = "44.40")
+    private BigDecimal maximumRetailPrice;
+
+    @Schema(description = "诊疗子项列表")
+    private List<WkfActivityDefinitionChildVO> children;
 }

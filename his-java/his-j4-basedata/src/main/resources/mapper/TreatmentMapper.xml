@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.basedata.mapper.TreatmentMapper">
+
+    <select id="selectTreatmentListPage" resultType="com.zeroone.star.project.vo.j4.treatment.TreatmentListVO">
+        SELECT
+            t.id,
+            t.name,
+            t.status_enum AS statusEnum,
+            t.type_enum AS typeEnum,
+            (
+                SELECT c.price_value
+                FROM adm_charge_item_definition c
+                WHERE c.instance_table = 'wkf_activity_definition'
+                  AND c.instance_id = t.id
+                  AND c.price_type_code = 'SALE'
+                  AND c.is_deleted = 0
+                ORDER BY COALESCE(c.priority, 2147483647), c.id
+                LIMIT 1
+            ) AS price
+        FROM wkf_activity_definition t
+        <where>
+            t.is_deleted = 0
+            <if test="query != null and query.keyword != null and query.keyword != ''">
+                AND (t.bus_no LIKE CONCAT('%', #{query.keyword}, '%')
+                  OR t.name LIKE CONCAT('%', #{query.keyword}, '%')
+                  OR t.py_str LIKE CONCAT('%', #{query.keyword}, '%')
+                  OR t.wb_str LIKE CONCAT('%', #{query.keyword}, '%'))
+            </if>
+            <if test="query != null and query.categoryCode != null and query.categoryCode != ''">
+                AND t.category_code = #{query.categoryCode}
+            </if>
+        </where>
+        ORDER BY t.created_at DESC, t.id DESC
+    </select>
+
+</mapper>
