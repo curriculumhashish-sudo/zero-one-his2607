@@ -20,9 +20,9 @@
 #include "SupplierController.h"
 
 // Query single supplier by ID or code (stub — TODO: connect Service)
-SupplierJsonVO::Wrapper SupplierController::execQueryOne(const String& id, const String& code)
+SupplierJsonVO::Wrapper SupplierController::execQueryOne(const SupplierDetailQuery::Wrapper& query)
 {
-    // TODO: Query by id first; if empty and code is provided, query by code
+    // TODO: query->id takes priority; if empty, use query->code
     return {};
 }
 

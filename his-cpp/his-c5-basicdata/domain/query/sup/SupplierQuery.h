@@ -26,6 +26,26 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
+ * SupplierDetailQuery - Query parameters for getting a single supplier by ID or code.
+ */
+class SupplierDetailQuery : public oatpp::DTO
+{
+    DTO_INIT(SupplierDetailQuery, DTO);
+
+    // Supplier ID
+    DTO_FIELD(String, id);
+    DTO_FIELD_INFO(id) {
+        info->description = ZH_WORDS_GETTER("sup.field.id");
+    }
+
+    // Supplier code (alternative to ID)
+    DTO_FIELD(String, code);
+    DTO_FIELD_INFO(code) {
+        info->description = ZH_WORDS_GETTER("sup.field.code");
+    }
+};
+
+/**
  * SupplierQuery - Supplier paginated query parameters.
  *
  * Supports filtering by code, name, type, keyword, and statusEnum.

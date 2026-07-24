@@ -41,21 +41,19 @@ public:
     // ============================================================
     // 1. GET /sup/query-one — Query single supplier by ID or code
     // ============================================================
-    API_DEF_ENDPOINT_INFO_AUTH(
+    API_DEF_ENDPOINT_INFO_QUERY_AUTH(
         ZH_WORDS_GETTER("sup.query-one.summary"),
         queryOne,
+        SupplierDetailQuery,
         SupplierJsonVO::Wrapper,
-        API_TAG,
-        API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("sup.field.id"), "", false);
-        API_DEF_ADD_QUERY_PARAMS(String, "code", ZH_WORDS_GETTER("sup.field.code"), "", false);
+        API_TAG
     );
-    API_HANDLER_ENDPOINT_AUTH(
+    API_HANDLER_ENDPOINT_QUERY_AUTH(
         API_M_GET,
         "/sup/query-one",
         queryOne,
-        QUERY(String, id),
-        QUERY(String, code),
-        execQueryOne(id, code)
+        SupplierDetailQuery,
+        execQueryOne(query)
     );
 
     // ============================================================
@@ -147,7 +145,7 @@ public:
 
 private:
     // Query single supplier by ID or code (stub — TODO: connect Service)
-    SupplierJsonVO::Wrapper execQueryOne(const String& id, const String& code);
+    SupplierJsonVO::Wrapper execQueryOne(const SupplierDetailQuery::Wrapper& query);
     // Paginated query with filters (stub — TODO: connect Service)
     SupplierPageJsonVO::Wrapper execQueryAll(const SupplierQuery::Wrapper& query);
     // Add supplier (stub — TODO: connect Service)
