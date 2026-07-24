@@ -23,103 +23,159 @@
 #include "ApiHelper.h"
 #include "domain/vo/BaseJsonVO.h"
 #include "domain/query/ward/WardQuery.h"
+#include "domain/query/ward/WardTreeQuery.h"
 #include "domain/vo/ward/WardVO.h"
+#include "domain/vo/ward/WardTreeNodeVO.h"
 #include "domain/dto/ward/WardDTO.h"
 #include "domain/dto/ward/WardModifyDTO.h"
 #include "domain/dto/ward/WardStatusDTO.h"
-using namespace oatpp;
+#include "domain/dto/ward/WardLocationAddDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-#define API_TAG ZH_WORDS_GETTER("ward.tags")
+#define API_TAG ZH_WORDS_GETTER("ward.tags.t1")
 
+/**
+ * WardController - Ward/room/bed/location management API controller.
+ *
+ * Provides endpoints for ward tree, room/bed query,
+ * ward CRUD, status management, and location management.
+ */
 class WardController : public oatpp::web::server::api::ApiController
 {
-	API_ACCESS_DECLARE(WardController);
+    API_ACCESS_DECLARE(WardController);
 
 public:
-	// Query room by ID
-	API_DEF_ENDPOINT_INFO_AUTH(
-		ZH_WORDS_GETTER("ward.query-room-by-id.summary"), queryRoomById, WardRoomJsonVO::Wrapper, API_TAG,
-		API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("ward.field.roomId"), "2233", true);
-	);
-	API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/patient/query-room-by-id", queryRoomById, QUERY(String, id), execQueryRoomById(id));
+    // ============================================================
+    // c5 endpoints: room/bed query, ward CRUD, status management
+    // ============================================================
 
-	// Query bed by ID
-	API_DEF_ENDPOINT_INFO_AUTH(
-		ZH_WORDS_GETTER("ward.query-bed-by-id.summary"), queryBedById, WardBedJsonVO::Wrapper, API_TAG,
-		API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("ward.field.bedId"), "2233", true);
-	);
-	API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/ward/query-bed-by-id", queryBedById, QUERY(String, id), execQueryBedById(id));
+    // Query room by ID
+    API_DEF_ENDPOINT_INFO_AUTH(
+        ZH_WORDS_GETTER("ward.query-room-by-id.summary"), queryRoomById, WardRoomJsonVO::Wrapper, API_TAG,
+        API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("ward.field.roomId"), "2233", true);
+    );
+    API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/patient/query-room-by-id", queryRoomById, QUERY(String, id), execQueryRoomById(id));
 
-	// Modify ward
-	API_DEF_ENDPOINT_INFO_AUTH("Modify ward", modifyWard, WardJsonVO::Wrapper, API_TAG,
-		info->description = "Modify ward basic information by ID. This endpoint returns mock success data for API documentation.";
-		info->addConsumes<WardModifyDTO::Wrapper>("application/json");
-	)
-	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/ward", modifyWard, BODY_DTO(WardModifyDTO::Wrapper, dto), execModifyWard(dto));
+    // Query bed by ID
+    API_DEF_ENDPOINT_INFO_AUTH(
+        ZH_WORDS_GETTER("ward.query-bed-by-id.summary"), queryBedById, WardBedJsonVO::Wrapper, API_TAG,
+        API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("ward.field.bedId"), "2233", true);
+    );
+    API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/ward/query-bed-by-id", queryBedById, QUERY(String, id), execQueryBedById(id));
 
-	// Remove ward
-	API_DEF_ENDPOINT_INFO_AUTH("Remove ward", removeWard, BooleanJsonVO::Wrapper, API_TAG,
-		info->description = "Remove ward by ID. This endpoint returns a mock success result for API documentation.";
-		API_DEF_ADD_PATH_PARAMS(String, "id", "Ward ID", "322955305339588608", true);
-	)
-	API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/ward/{id}", removeWard, PATH(String, id, "id"), execRemoveWard(id));
+    // Modify ward
+    API_DEF_ENDPOINT_INFO_AUTH("Modify ward", modifyWard, WardJsonVO::Wrapper, API_TAG,
+        info->description = "Modify ward basic information by ID. This endpoint returns mock success data for API documentation.";
+        info->addConsumes<WardModifyDTO::Wrapper>("application/json");
+    )
+    API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/ward", modifyWard, BODY_DTO(WardModifyDTO::Wrapper, dto), execModifyWard(dto));
 
-	// Change ward status
-	API_DEF_ENDPOINT_INFO_AUTH("Change ward status", modifyWardStatus, WardJsonVO::Wrapper, API_TAG,
-		info->description = "Enable or disable ward by statusEnum. ACTIVE means enabled and DISABLED means disabled.";
-		info->addConsumes<WardStatusDTO::Wrapper>("application/json");
-	)
-	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/ward/status", modifyWardStatus, BODY_DTO(WardStatusDTO::Wrapper, dto), execModifyWardStatus(dto));
+    // Remove ward
+    API_DEF_ENDPOINT_INFO_AUTH("Remove ward", removeWard, BooleanJsonVO::Wrapper, API_TAG,
+        info->description = "Remove ward by ID. This endpoint returns a mock success result for API documentation.";
+        API_DEF_ADD_PATH_PARAMS(String, "id", "Ward ID", "322955305339588608", true);
+    )
+    API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/ward/{id}", removeWard, PATH(String, id, "id"), execRemoveWard(id));
+
+    // Change ward status
+    API_DEF_ENDPOINT_INFO_AUTH("Change ward status", modifyWardStatus, WardJsonVO::Wrapper, API_TAG,
+        info->description = "Enable or disable ward by statusEnum. ACTIVE means enabled and DISABLED means disabled.";
+        info->addConsumes<WardStatusDTO::Wrapper>("application/json");
+    )
+    API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/ward/status", modifyWardStatus, BODY_DTO(WardStatusDTO::Wrapper, dto), execModifyWardStatus(dto));
+
+    // ============================================================
+    // c5_tgg endpoints: ward tree list, location management
+    // ============================================================
+
+    // Query ward tree list
+    API_DEF_ENDPOINT_INFO_QUERY_AUTH(
+        ZH_WORDS_GETTER("ward.tree-list.summary"),
+        queryWardTree,
+        WardTreeQuery,
+        ListJsonVO<WardTreeNodeVO::Wrapper>::Wrapper,
+        API_TAG
+    );
+    API_HANDLER_ENDPOINT_QUERY_AUTH(
+        API_M_GET,
+        "/ward/tree-list",
+        queryWardTree,
+        WardTreeQuery,
+        execWardTree(query)
+    );
+
+    // Add ward location
+    API_DEF_ENDPOINT_INFO_AUTH(
+        ZH_WORDS_GETTER("ward.add-location.summary"),
+        addWardLocation,
+        StringJsonVO::Wrapper,
+        API_TAG
+    );
+    API_HANDLER_ENDPOINT_AUTH(
+        API_M_POST,
+        "/ward/location",
+        addWardLocation,
+        BODY_DTO(WardLocationAddDTO::Wrapper, dto),
+        execAddLocation(dto, authObject->getPayload())
+    );
 
 private:
-	// Query room by ID implementation
-	WardRoomJsonVO::Wrapper execQueryRoomById(const String& id);
-	// Query bed by ID implementation
-	WardBedJsonVO::Wrapper execQueryBedById(const String& id);
+    // ---- c5 method declarations ----
 
-	// Modify ward implementation
-	WardJsonVO::Wrapper execModifyWard(const WardModifyDTO::Wrapper& dto)
-	{
-		auto data = WardVO::createShared();
-		if (dto)
-		{
-			data->id = dto->id;
-			data->name = dto->name;
-			data->organizationId = dto->organizationId;
-			data->displayOrder = dto->displayOrder;
-			data->pyStr = dto->pyStr;
-			data->wbStr = dto->wbStr;
-			data->version = dto->version;
-		}
-		auto result = WardJsonVO::createShared();
-		result->success(data);
-		return result;
-	}
+    WardRoomJsonVO::Wrapper execQueryRoomById(const String& id);
+    WardBedJsonVO::Wrapper execQueryBedById(const String& id);
 
-	// Remove ward implementation
-	BooleanJsonVO::Wrapper execRemoveWard(const String& id)
-	{
-		auto result = BooleanJsonVO::createShared();
-		result->success(true);
-		return result;
-	}
+    // Modify ward implementation (inline)
+    WardJsonVO::Wrapper execModifyWard(const WardModifyDTO::Wrapper& dto)
+    {
+        auto data = WardVO::createShared();
+        if (dto)
+        {
+            data->id = dto->id;
+            data->name = dto->name;
+            data->organizationId = dto->organizationId;
+            data->displayOrder = dto->displayOrder;
+            data->pyStr = dto->pyStr;
+            data->wbStr = dto->wbStr;
+            data->version = dto->version;
+        }
+        auto result = WardJsonVO::createShared();
+        result->success(data);
+        return result;
+    }
 
-	// Change ward status implementation
-	WardJsonVO::Wrapper execModifyWardStatus(const WardStatusDTO::Wrapper& dto)
-	{
-		auto data = WardVO::createShared();
-		if (dto)
-		{
-			data->id = dto->id;
-			data->statusEnum = dto->statusEnum;
-			data->version = dto->version;
-		}
-		auto result = WardJsonVO::createShared();
-		result->success(data);
-		return result;
-	}
+    // Remove ward implementation (inline)
+    BooleanJsonVO::Wrapper execRemoveWard(const String& id)
+    {
+        auto result = BooleanJsonVO::createShared();
+        result->success(true);
+        return result;
+    }
+
+    // Change ward status implementation (inline)
+    WardJsonVO::Wrapper execModifyWardStatus(const WardStatusDTO::Wrapper& dto)
+    {
+        auto data = WardVO::createShared();
+        if (dto)
+        {
+            data->id = dto->id;
+            data->statusEnum = dto->statusEnum;
+            data->version = dto->version;
+        }
+        auto result = WardJsonVO::createShared();
+        result->success(data);
+        return result;
+    }
+
+    // ---- c5_tgg method declarations ----
+
+    ListJsonVO<WardTreeNodeVO::Wrapper>::Wrapper
+        execWardTree(const WardTreeQuery::Wrapper& query);
+
+    StringJsonVO::Wrapper execAddLocation(
+        const WardLocationAddDTO::Wrapper& dto,
+        const PayloadDTO& payload);
 };
 
 #undef API_TAG

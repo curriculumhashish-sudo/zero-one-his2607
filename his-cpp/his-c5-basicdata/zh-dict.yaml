@@ -180,3 +180,26 @@ pharm:
     displayOrder: 显示顺序
     note: 备注
     keyword: 搜索关键词(名称/拼音/五笔)
+
+ward:
+  tags:
+    t1: 病区接口
+  name-list:
+    summary: 获取病区名称列表
+  tree-list:
+    summary: 获取病区树形列表
+  add-location:
+    summary: 新增病区地点
+  query-room-by-id:
+    summary: 根据ID查询病房
+  query-bed-by-id:
+    summary: 根据ID查询病床
+  field:
+    organization-id: 机构编号
+    id: 病区编号
+    name: 病区名称
+    roomId: 病房编号
+    bedId: 病床编号
+    wardAreaId: 病区编号
+    wardRoomId: 病房编号
+    status: 状态

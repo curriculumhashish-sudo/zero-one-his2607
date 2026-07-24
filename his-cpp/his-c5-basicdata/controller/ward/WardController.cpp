@@ -1,9 +1,69 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
 #include "WardController.h"
+#include "StringUtil.h"
+#include "service/ward/WardService.h"
 
-WardRoomJsonVO::Wrapper WardController:: execQueryRoomById(const String& id){
-	return WardRoomJsonVO::createShared();
+// Query room by ID (stub)
+WardRoomJsonVO::Wrapper WardController::execQueryRoomById(const String& id) {
+    return WardRoomJsonVO::createShared();
 }
-WardBedJsonVO::Wrapper WardController:: execQueryBedById(const String & id) {
-	return WardBedJsonVO::createShared();
+
+// Query bed by ID (stub)
+WardBedJsonVO::Wrapper WardController::execQueryBedById(const String& id) {
+    return WardBedJsonVO::createShared();
+}
+
+// Query ward tree list
+ListJsonVO<WardTreeNodeVO::Wrapper>::Wrapper
+WardController::execWardTree(
+    const WardTreeQuery::Wrapper& query
+) {
+    if (!query || !query->organizationId) {
+        return nullptr;
+    }
+    auto response =
+        ListJsonVO<WardTreeNodeVO::Wrapper>::createShared();
+    std::string organizationId = query->organizationId.getValue("");
+    StringUtil::trim(&organizationId);
+
+    if (organizationId.empty()) {
+        response->init(nullptr, RS_PARAMS_INVALID);
+        return response;
+    }
+    auto data = WardService().GetTree(query);
+
+    if (!data) {
+        response->init(nullptr, RS_PARAMS_INVALID);
+        return response;
+    }
+
+    response->success(data);
+    return response;
+}
+
+// Add ward location
+StringJsonVO::Wrapper WardController::execAddLocation(
+    const WardLocationAddDTO::Wrapper& dto,
+    const PayloadDTO& payload)
+{
+    auto response = StringJsonVO::createShared();
+
+    if (!dto) {
+        response->init(
+            "Request body is required.",
+            RS_PARAMS_INVALID
+        );
+        return response;
+    }
+
+    const std::string id =
+        WardService().createLocation(dto, payload);
+
+    if (id.empty()) {
+        response->fail("Failed to create location.");
+        return response;
+    }
+
+    response->success(id);
+    return response;
 }

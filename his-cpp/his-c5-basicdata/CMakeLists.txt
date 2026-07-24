@@ -1,4 +1,4 @@
-﻿# CMakeList.txt: his-c5-basicdata 的 CMake 项目，在此处包括源代码并定义
+# CMakeList.txt: his-c5-basicdata 的 CMake 项目，在此处包括源代码并定义
 # 项目特定的逻辑。
 #
 cmake_minimum_required (VERSION 3.8)
@@ -40,7 +40,7 @@ if(WIN32)
 endif()
 
 # 编译可执行文件
-add_executable (${appName} ${SC_FILES})
+add_executable (${appName} ${SC_FILES} "domain/query/ward/WardTreeQuery.h" "domain/do/ward/WardTreeDO.h" "domain/vo/ward/WardTreeNodeVO.h" "dao/ward/WardTreeMapper.h" "domain/dto/ward/WardLocationAddDTO.h" "dao/ward/WardLocationMapper.h" "dao/ward/OrganizationTenantIdMapper.h")
 
 # 发布Swagger文档包宏定义
 if(DEFINED _RELEASE_DOC_)
