@@ -1,6 +1,5 @@
 package com.zeroone.star.j7.pharmacy.controller.inOrderItem;
 
-import com.zeroone.star.j7.pharmacy.service.IPharmacyService;
 import com.zeroone.star.project.dto.j7.pharmacy.PharmacyStockDTO;
 import com.zeroone.star.project.j7.pharmacy.PharmacyApis;
 import com.zeroone.star.project.vo.JsonVO;
@@ -19,8 +18,6 @@ import java.util.List;
 @Tag(name = "药房管理")
 public class InOrderItemController implements PharmacyApis {
 
-    @Resource
-    private IPharmacyService pharmacyService;
 
     @Override
     @Operation(summary = "新增入库单据")
