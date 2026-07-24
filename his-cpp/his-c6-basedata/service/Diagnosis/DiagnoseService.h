@@ -21,6 +21,8 @@
 
 #include <string>
 #include "../../domain/dto/Diagnosis/DiagnoseDTO.h"
+#include "../../domain/dto/Diagnosis/DiagnosisSelectPageDTO.h"
+#include "../../domain/query/Diagnosis/DiagnosisSelectQuery.h"
 
 /**
  * Business service for diagnosis write operations.
@@ -28,6 +30,8 @@
 class DiagnoseService
 {
 public:
+	DiagnosisSelectPageDTO::Wrapper listSelectableDiagnoses(
+		const DiagnosisSelectQuery::Wrapper& query);
 	std::string saveData(const DiagnoseAddDTO::Wrapper& dto);
 	bool updateData(const DiagnoseDTO::Wrapper& dto);
 	bool removeData(const oatpp::List<oatpp::String>& ids);

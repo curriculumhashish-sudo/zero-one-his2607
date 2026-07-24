@@ -21,6 +21,7 @@
 
 #include "BaseDAO.h"
 #include "../../domain/do/Diagnosis/DiagnosisDO.h"
+#include "../../domain/do/Diagnosis/ConditionDefinitionDO.h"
 #include "../../domain/query/Diagnosis/DiagnosisSelectQuery.h"
 
 /**
@@ -33,7 +34,7 @@ private:
 
 public:
 	uint64_t count(const DiagnosisSelectQuery::Wrapper& query);
-	std::list<DiagnosisDO> selectWithPage(const DiagnosisSelectQuery::Wrapper& query);
+	std::list<ConditionDefinitionDO> selectWithPage(const DiagnosisSelectQuery::Wrapper& query);
 	std::list<DiagnosisDO> selectByName(const std::string& name);
 };
 

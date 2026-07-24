@@ -19,6 +19,135 @@
 #include "../../dao/Diagnosis/DiagnosisDAO.h"
 #include "../../lib-common/include/id/UuidFacade.h"
 #include "SimpleDateTimeFormat.h"
+#include <cerrno>
+#include <climits>
+#include <cstdlib>
+
+namespace
+{
+	bool tryParseInt32(const std::string& value, int& parsedValue)
+	{
+		if (value.empty())
+		{
+			return false;
+		}
+		char* end = nullptr;
+		errno = 0;
+		const long valueAsLong = std::strtol(value.c_str(), &end, 10);
+		if (errno != 0 || end == value.c_str() || *end != '\0'
+			|| valueAsLong < INT_MIN || valueAsLong > INT_MAX)
+		{
+			return false;
+		}
+		parsedValue = static_cast<int>(valueAsLong);
+		return true;
+	}
+
+	bool isTraditionalChineseMedicineSource(const std::string& sourceEnum)
+	{
+		return sourceEnum == "tcm_dx" || sourceEnum == "tcm_syndrome";
+	}
+
+	bool isWesternMedicineSource(const std::string& sourceEnum)
+	{
+		return sourceEnum == "general_dx"
+			|| sourceEnum == "chronic_spec"
+			|| sourceEnum == "disease_pkg"
+			|| sourceEnum == "paid_dx"
+			|| sourceEnum == "day_surgery_dx"
+			|| sourceEnum == "tumor_morph";
+	}
+
+	std::string getSourceEnumText(const std::string& sourceEnum)
+	{
+		if (sourceEnum == "general_dx")
+			return ZH_WORDS_GETTER("diagnose.source.general_dx");
+		if (sourceEnum == "chronic_spec")
+			return ZH_WORDS_GETTER("diagnose.source.chronic_spec");
+		if (sourceEnum == "disease_pkg")
+			return ZH_WORDS_GETTER("diagnose.source.disease_pkg");
+		if (sourceEnum == "paid_dx")
+			return ZH_WORDS_GETTER("diagnose.source.paid_dx");
+		if (sourceEnum == "day_surgery_dx")
+			return ZH_WORDS_GETTER("diagnose.source.day_surgery_dx");
+		if (sourceEnum == "tcm_dx")
+			return ZH_WORDS_GETTER("diagnose.source.tcm_dx");
+		if (sourceEnum == "tcm_syndrome")
+			return ZH_WORDS_GETTER("diagnose.source.tcm_syndrome");
+		if (sourceEnum == "tumor_morph")
+			return ZH_WORDS_GETTER("diagnose.source.tumor_morph");
+		return "";
+	}
+}
+
+DiagnosisSelectPageDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
+	const DiagnosisSelectQuery::Wrapper& query)
+{
+	auto page = DiagnosisSelectPageDTO::createShared();
+	page->pageIndex = query->pageIndex;
+	page->pageSize = query->pageSize;
+
+	DiagnosisDAO dao;
+	const uint64_t total = dao.count(query);
+	page->total = static_cast<int64_t>(total);
+	page->calcPages();
+	if (total == 0)
+	{
+		return page;
+	}
+
+	std::list<ConditionDefinitionDO> records = dao.selectWithPage(query);
+	for (ConditionDefinitionDO& record : records)
+	{
+		auto dto = DiagnosisSelectDTO::createShared();
+		dto->conditionDefinitionId = record.getId();
+		dto->conditionCode = record.getConditionCode();
+		dto->conditionDefinitionName = record.getName();
+		dto->pyStr = record.getPyStr();
+		dto->wbStr = record.getWbStr();
+
+		const std::string sourceEnum = record.getSourceEnum();
+		const bool isTcm = isTraditionalChineseMedicineSource(sourceEnum);
+		if (isTcm)
+		{
+			dto->diagnosisKind = "TCM";
+			dto->diagnosisKindText = ZH_WORDS_GETTER("diagnose.type.tcm");
+		}
+		else if (isWesternMedicineSource(sourceEnum))
+		{
+			dto->diagnosisKind = "WESTERN";
+			dto->diagnosisKindText = ZH_WORDS_GETTER("diagnose.type.western");
+		}
+		else
+		{
+			dto->diagnosisKind = nullptr;
+			dto->diagnosisKindText = nullptr;
+		}
+
+		int sourceEnumValue = 0;
+		if (tryParseInt32(sourceEnum, sourceEnumValue))
+		{
+			dto->sourceEnum = sourceEnumValue;
+		}
+		else
+		{
+			dto->sourceEnum = nullptr;
+		}
+		const std::string sourceEnumText = getSourceEnumText(sourceEnum);
+		dto->sourceEnumText = sourceEnumText.empty()
+			? oatpp::String(nullptr)
+			: oatpp::String(sourceEnumText.c_str());
+
+		const int ybFlag = record.getYbFlag() == 1 ? 1 : 0;
+		dto->ybFlag = ybFlag;
+		dto->ybFlagText = ybFlag == 1
+			? ZH_WORDS_GETTER("diagnose.flag.yes")
+			: ZH_WORDS_GETTER("diagnose.flag.no");
+		dto->statusEnum = 2;
+		page->addData(dto);
+	}
+	return page;
+}
 
 std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
 {

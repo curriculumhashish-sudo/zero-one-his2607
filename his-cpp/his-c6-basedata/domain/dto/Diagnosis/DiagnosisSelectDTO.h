@@ -31,7 +31,7 @@ class DiagnosisSelectDTO : public oatpp::DTO
 {
 	DTO_INIT(DiagnosisSelectDTO, DTO);
 
-	API_DTO_FIELD(Int64, conditionDefinitionId, ZH_WORDS_GETTER("diagnose.field.select.condition_definition_id"), true, 317932056501817344LL);
+	API_DTO_FIELD(String, conditionDefinitionId, ZH_WORDS_GETTER("diagnose.field.select.condition_definition_id"), true, "317932056501817344");
 	API_DTO_FIELD(String, conditionCode, ZH_WORDS_GETTER("diagnose.field.select.condition_code"), true, "CDF00000003");
 	API_DTO_FIELD(String, conditionDefinitionName, ZH_WORDS_GETTER("diagnose.field.select.condition_definition_name"), true, u8"\u611f\u5192");
 	API_DTO_FIELD(String, pyStr, ZH_WORDS_GETTER("diagnose.field.select.py_str"), false, "GM");

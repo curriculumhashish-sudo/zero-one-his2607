@@ -43,12 +43,14 @@ class DiagnosisController : public oatpp::web::server::api::ApiController
 	API_ACCESS_DECLARE(DiagnosisController);
 
 public:
-	API_DEF_ENDPOINT_INFO_QUERY_AUTH(
+	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("diagnose.query_select.summary"),
 		querySelectDiagnosis,
-		DiagnosisSelectQuery,
 		DiagnosisSelectPageJsonVO::Wrapper,
-		API_TAG);
+		API_TAG,
+		API_DEF_QUERY_PARAM_BUILD(DiagnosisSelectQuery);
+		info->queryParams["keyword"].addExample("default", oatpp::String("GM"));
+		info->queryParams["diagnosisKindCode"].addExample("default", oatpp::String("1")););
 	API_HANDLER_ENDPOINT_QUERY_AUTH(
 		API_M_GET,
 		"/diagnosis/query-select",
