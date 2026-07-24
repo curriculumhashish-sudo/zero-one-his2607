@@ -1,5 +1,6 @@
 package com.zeroone.star.pharmacy.controller;
 
+import com.zeroone.star.pharmacy.service.IStockoutApprovalService;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j6.pharmacy.stockout.AgreeStockOutDTO;
 import com.zeroone.star.project.dto.j6.pharmacy.stockout.RejectStockOutDTO;
@@ -44,12 +45,19 @@ public class WarehouseStockOutController implements WarehouseStockOutApis {
     }
 
 
+    private final IStockoutApprovalService stockoutApprovalService;
+
     @PostMapping("/submit-approval")
     @Operation(summary = "提交审批")
     @Override
     public JsonVO<StockOutApprovalResultVO> submitStockOutApproval(@Validated @RequestBody SubmitStockOutApprovalDTO dto) {
-        // TODO: 桩实现，待后续对接Service层
-        return JsonVO.success(new StockOutApprovalResultVO(true, "APPROVAL"));
+        Boolean submitted = stockoutApprovalService.submitStockOutApproval(dto);
+        if(submitted){
+            return JsonVO.success(new StockOutApprovalResultVO(true, "APPROVAL"));
+        }else{
+            return JsonVO.fail("提交审批失败");
+        }
+
     }
 
     @PostMapping("/withdraw-approval")
@@ -57,22 +65,35 @@ public class WarehouseStockOutController implements WarehouseStockOutApis {
     @Override
     public JsonVO<StockOutApprovalResultVO> withdrawStockOutApproval(@Validated @RequestBody WithdrawStockOutApprovalDTO dto) {
         // TODO: 桩实现，待后续对接Service层
-        return JsonVO.success(new StockOutApprovalResultVO(true, "WITHDRAW"));
+        Boolean withdrawn = stockoutApprovalService.withdrawStockOutApproval(dto);
+        if(withdrawn){
+            return JsonVO.success(new StockOutApprovalResultVO(true, "WITHDRAW"));
+        }else{
+            return JsonVO.fail("撤回审批失败");
+        }
     }
 
     @PostMapping("/agree")
     @Operation(summary = "审批通过")
     @Override
     public JsonVO<StockOutApprovalResultVO> agreeStockOut(@Validated @RequestBody AgreeStockOutDTO dto) {
-        // TODO: 桩实现，待后续对接Service层
-        return JsonVO.success(new StockOutApprovalResultVO(true, "AGREE"));
+        Boolean agreed = stockoutApprovalService.agreeStockOut(dto);
+        if (agreed) {
+            return JsonVO.success(new StockOutApprovalResultVO(true, "AGREE"));
+        } else {
+            return JsonVO.fail("审批通过失败");
+        }
     }
 
     @PostMapping("/reject")
     @Operation(summary = "驳回审批")
     @Override
     public JsonVO<StockOutApprovalResultVO> rejectStockOut(@Validated @RequestBody RejectStockOutDTO dto) {
-        // TODO: 桩实现，待后续对接Service层
-        return JsonVO.success(new StockOutApprovalResultVO(true, "REJECT"));
+        Boolean rejected = stockoutApprovalService.rejectStockOut(dto);
+        if(rejected){
+            return JsonVO.success(new StockOutApprovalResultVO(true, "REJECT"));
+        }else{
+            return JsonVO.fail("驳回审批失败");
+        }
     }
 }
