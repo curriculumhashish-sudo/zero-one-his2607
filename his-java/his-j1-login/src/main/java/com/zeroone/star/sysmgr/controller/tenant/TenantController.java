@@ -1,4 +1,4 @@
-package com.zeroone.star.sysmgr.controller;
+package com.zeroone.star.sysmgr.controller.tenant;
 
 import com.zeroone.star.project.j1.login.LoginApi;
 import com.zeroone.star.project.dto.j1.login.SelectHospitalDTO;
@@ -16,7 +16,7 @@ import java.util.List;
 
 @Tag(name = "租户医院选择")
 @RestController
-public class LoginController implements LoginApi {
+public class TenantController implements LoginApi {
 
     @Override
     public JsonVO<List<TenantVO>> getTenantList(TenantQuery query) {

@@ -32,7 +32,8 @@ public class MybaitsHolder implements MetaObjectHandler {
     @Override
     public void insertFill(MetaObject metaObject) {
         // 主键(雪花算法生成主键id)
-        this.setFieldValByNameIfNull("id", IdUtil.getSnowflake(WorkerIdHolder.workerId).nextId(), metaObject);
+        String id = String.valueOf(IdUtil.getSnowflake(WorkerIdHolder.workerId).nextId());
+        this.setFieldValByNameIfNull("id", id, metaObject);
         // 时间字段
         this.setFieldValByNameIfNull("createdAt", LocalDateTime.now(), metaObject);
         this.setFieldValByNameIfNull("updatedAt", LocalDateTime.now(), metaObject);
@@ -49,7 +50,7 @@ public class MybaitsHolder implements MetaObjectHandler {
         }
         String loginUserId = userDTO.getId();
         this.setFieldValByNameIfNull("createdBy", loginUserId, metaObject);
-        this.setFieldValByNameIfNull("updatedAt", loginUserId, metaObject);
+        this.setFieldValByNameIfNull("updatedBy", loginUserId, metaObject);
     }
 
     /**
@@ -69,7 +70,7 @@ public class MybaitsHolder implements MetaObjectHandler {
             throw new RuntimeException("用户信息为空");
         }
         String loginUserId = userDTO.getId();
-        this.setFieldValByNameIfNull("updatedBy", loginUserId,metaObject);
+        this.setFieldValByNameIfNull("updatedBy", loginUserId, metaObject);
     }
 
     /**

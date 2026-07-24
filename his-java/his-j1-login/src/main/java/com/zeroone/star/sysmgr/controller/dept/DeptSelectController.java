@@ -1,4 +1,4 @@
-package com.zeroone.star.sysmgr.controller;
+package com.zeroone.star.sysmgr.controller.dept;
 
 import com.zeroone.star.project.dto.j1.login.DeptQueryDTO;
 import com.zeroone.star.project.dto.j1.login.DeptSelectDTO;

@@ -1,0 +1,17 @@
+server:
+  port: ${sp.j1login:10201}
+  servlet:
+    context-path: /auth
+spring:
+  application:
+    name: ${sn.j1login:J1LOGIN}
+  cloud:
+    sentinel:
+      transport:
+        dashboard: ${sentinel.dashboard}
+        port: 8721
+      eager: true
+
+feign:
+  sentinel:
+    enabled: true
