@@ -8,9 +8,22 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
+class SupNameDTO : public oatpp::DTO
+{
+	DTO_INIT(SupNameDTO, DTO);
+	DTO_FIELD(String, name);
+	DTO_FIELD_INFO(name) {
+		info->description = ZH_WORDS_GETTER("sup.field.name");
+	};
+	DTO_FIELD(UInt64, id);
+	DTO_FIELD_INFO(id) {
+		info->description = ZH_WORDS_GETTER("sup.field.id");
+	};
+};
+
 class SupDTO : public oatpp::DTO
 {
-	DTO_INIT(SupDTO, DTO)
+	DTO_INIT(SupDTO, DTO);
 	DTO_FIELD(UInt64, id);
 	DTO_FIELD_INFO(id) {
 		info->description = ZH_WORDS_GETTER("sup.field.id");

@@ -1,4 +1,7 @@
 sup:
+  name:
+    query: 供应商/生产厂商名称
+  tag: 标签
   field:
     id: 序号
     supId: 供应商编号

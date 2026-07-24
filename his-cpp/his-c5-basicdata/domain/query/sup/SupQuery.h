@@ -7,7 +7,6 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-// 获取名字???什么意思 
 class SupQuery : public oatpp::DTO
 {
 	DTO_INIT(SupQuery, DTO)
@@ -20,7 +19,7 @@ class SupQuery : public oatpp::DTO
 	DTO_FIELD(UInt64, id);
 	DTO_FIELD_INFO(id) {
 		info->description = ZH_WORDS_GETTER("sup.field.id");
-	})
+	}
 	
 
 };
