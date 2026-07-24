@@ -1,8 +1,0 @@
-server:
-  port: ${sp.j7-pharmacy}
-  servlet:
-    # 设置应用上下文路径
-    context-path: /j7-pharmacy
-spring:
-  application:
-    name: ${sn.j7-pharmacy}

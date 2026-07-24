@@ -1,4 +1,4 @@
-package com.zeroone.star.j7.pharmacy.controller.refundmedicine;
+package com.zeroone.star.dispense.controller.refundmedicine;
 
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.j7.refundmedicine.InpatientRefundMedicineApis;
@@ -29,8 +29,8 @@ import java.util.List;
  * @version 1.0.0
  */
 @RestController
-@RequestMapping("/refund-medicine")
-@Tag(name = "住院退药")
+@RequestMapping("/api/j7/refund-medicine")
+@Tag(name = "住院退药", description = "住院退药查询（患者队列、退药明细）")
 @Validated
 public class InpatientRefundMedicineController implements InpatientRefundMedicineApis {
 
