@@ -1,6 +1,21 @@
 #pragma once
-/*@Auther:shelly
-* @Date:2026/7/20
+/*
+ Copyright Zero One Star. All rights reserved.
+
+ @Author: shelly
+ @Date: 2026/7/20
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
 */
 #ifndef _SUPPLIER_DTO_
 #define _SUPPLIER_DTO_
@@ -9,119 +24,119 @@
 #include "domain/dto/PageDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
+
 /**
- * SupplierDTO —— 供应商完整信息的数据传输对象
+ * SupplierDTO - Full supplier data transfer object.
  *
- * 【作用】
- * 当前端查询单条供应商详情时，后端用这个对象返回完整数据。
- * 新增/修改供应商时，前端也用这个对象传表单数据。
- *
- * 【字段设计原则】
- * 所有字段名与数据库 cus_supplier 表的列名保持一致。
- * 这样后续用 ZO_STAR_DOMAIN_DO_TO_DTO 宏做 DO→DTO 转换时，
- * 字段名能自动匹配，不用手动一个个赋值。
+ * Used for paginated list display, detail query, and form data binding.
+ * Fields map to the cus_supplier database table.
  */
 class SupplierDTO : public oatpp::DTO {
-	DTO_INIT(SupplierDTO, DTO);
+    DTO_INIT(SupplierDTO, DTO);
 
-	//id 供应商唯一标识
-	DTO_FIELD(String, id);
-	DTO_FIELD_INFO(id) {
-		info->description = ZH_WORDS_GETTER("sup.field.id");
-	}
+    // Supplier unique identifier
+    DTO_FIELD(String, id);
+    DTO_FIELD_INFO(id) {
+        info->description = ZH_WORDS_GETTER("sup.field.id");
+    }
 
-    // 业务编号 —— 供应商的业务编码/流水号
+    // Supplier code / business number (e.g. "GYS-001")
+    DTO_FIELD(String, code);
+    DTO_FIELD_INFO(code) {
+        info->description = ZH_WORDS_GETTER("sup.field.code");
+    }
+
+    // Business number / serial number
     DTO_FIELD(String, busNo);
     DTO_FIELD_INFO(busNo) {
         info->description = ZH_WORDS_GETTER("sup.field.busNo");
     }
 
-    // 供应商名称
+    // Supplier name
     DTO_FIELD(String, name);
     DTO_FIELD_INFO(name) {
         info->description = ZH_WORDS_GETTER("sup.field.name");
     }
 
-    // 类型枚举值 —— 如 "DRUG"（药品供应商）、"MATERIAL"（物资供应商）
+    // Type enum value (e.g. "DRUG" = drug supplier, "MATERIAL" = material supplier)
     DTO_FIELD(String, typeEnum);
     DTO_FIELD_INFO(typeEnum) {
         info->description = ZH_WORDS_GETTER("sup.field.typeEnum");
     }
 
-    // 统一社会信用代码
+    // Unified social credit code
     DTO_FIELD(String, creditCode);
     DTO_FIELD_INFO(creditCode) {
         info->description = ZH_WORDS_GETTER("sup.field.creditCode");
     }
 
-    // 法定代表人姓名
+    // Legal representative name
     DTO_FIELD(String, legalRepresentative);
     DTO_FIELD_INFO(legalRepresentative) {
         info->description = ZH_WORDS_GETTER("sup.field.legalRepresentative");
     }
 
-    // 地址
+    // Address
     DTO_FIELD(String, address);
     DTO_FIELD_INFO(address) {
         info->description = ZH_WORDS_GETTER("sup.field.address");
     }
 
-    // 拼音码 —— 用于快速检索，如"华瑞"的拼音码为"hr"
+    // Pinyin code for quick search
     DTO_FIELD(String, pyStr);
     DTO_FIELD_INFO(pyStr) {
         info->description = ZH_WORDS_GETTER("sup.field.pyStr");
     }
 
-    // 五笔码 —— 另一种快速检索编码方式
+    // Wubi code for quick search
     DTO_FIELD(String, wbStr);
     DTO_FIELD_INFO(wbStr) {
         info->description = ZH_WORDS_GETTER("sup.field.wbStr");
     }
 
-    // 联系电话
+    // Contact phone number
     DTO_FIELD(String, phone);
     DTO_FIELD_INFO(phone) {
         info->description = ZH_WORDS_GETTER("sup.field.phone");
     }
 
-    // 邮箱
+    // Email address
     DTO_FIELD(String, email);
     DTO_FIELD_INFO(email) {
         info->description = ZH_WORDS_GETTER("sup.field.email");
     }
 
-    // 开户行名称
+    // Bank name for payment
     DTO_FIELD(String, bankName);
     DTO_FIELD_INFO(bankName) {
         info->description = ZH_WORDS_GETTER("sup.field.bankName");
     }
 
-    // 银行账号
+    // Bank account number
     DTO_FIELD(String, bankAccount);
     DTO_FIELD_INFO(bankAccount) {
         info->description = ZH_WORDS_GETTER("sup.field.bankAccount");
     }
 
-    // 所属机构ID —— 供应商隶属于哪个机构
+    // Organization ID (which organization this supplier belongs to)
     DTO_FIELD(String, orgId);
     DTO_FIELD_INFO(orgId) {
         info->description = ZH_WORDS_GETTER("sup.field.orgId");
     }
 
-    // 显示顺序 —— 列表排序用的序号
+    // Display order for list sorting
     DTO_FIELD(Int32, displayOrder);
     DTO_FIELD_INFO(displayOrder) {
         info->description = ZH_WORDS_GETTER("sup.field.displayOrder");
     }
 
-    // 状态枚举值 —— "NORMAL"=启用, "DISABLED"=停用
-    // 这就是启/停用功能要修改的字段
+    // Status enum ("NORMAL" = enabled, "DISABLED" = disabled)
     DTO_FIELD(String, statusEnum);
     DTO_FIELD_INFO(statusEnum) {
         info->description = ZH_WORDS_GETTER("sup.field.statusEnum");
     }
 
-    // 备注说明
+    // Remark / note
     DTO_FIELD(String, note);
     DTO_FIELD_INFO(note) {
         info->description = ZH_WORDS_GETTER("sup.field.note");
@@ -129,12 +144,10 @@ class SupplierDTO : public oatpp::DTO {
 };
 
 /**
- * SupplierPageDTO —— 供应商分页列表的包装
+ * SupplierPageDTO - Paginated wrapper for supplier list.
  *
- * 【作用】
- * 把多条 SupplierDTO 装进 rows 列表里，
- * 加上 total（总条数）、pages（总页数）、pageIndex（当前页）、pageSize（每页条数）等信息。
- * 前端拿到后直接渲染分页表格。
+ * Wraps a list of SupplierDTO with pagination metadata
+ * (pageIndex, pageSize, total, pages) for frontend table rendering.
  */
 class SupplierPageDTO : public PageDTO<SupplierDTO::Wrapper>
 {
@@ -142,27 +155,21 @@ class SupplierPageDTO : public PageDTO<SupplierDTO::Wrapper>
 };
 
 /**
- * SupplierBatchEnableDisableDTO —— 批量启/停用供应商的请求体
+ * SupplierBatchEnableDisableDTO - Batch enable/disable request body.
  *
- * 【作用】
- * 这是"批量启停"功能的核心 DTO。
- * 前端传 JSON: {"ids":["id1","id2"], "statusEnum":"DISABLED"}
- * 后端收到后，把 IDs 对应的所有供应商的 status_enum 统一更新为目标值。
- *
- * 【注意】
- * 批量删除不需要这个 DTO，直接用 List<String> 作为请求体即可。
+ * Frontend sends JSON: {"ids":["id1","id2"], "statusEnum":"DISABLED"}
+ * Backend updates all matching suppliers to the target status.
  */
 class SupplierBatchEnableDisableDTO : public oatpp::DTO {
     DTO_INIT(SupplierBatchEnableDisableDTO, DTO);
 
-    //要操作的供应商列表
+    // List of supplier IDs to modify
     DTO_FIELD(List<String>, ids);
     DTO_FIELD_INFO(ids) {
         info->description = ZH_WORDS_GETTER("sup.field.ids");
     }
 
-    // 目标状态值 —— 传 "NORMAL" 就是启用，传 "DISABLED" 就是停用
-    // 这对应批量启停接口的参数
+    // Target status value ("NORMAL" = enable, "DISABLED" = disable)
     DTO_FIELD(String, statusEnum);
     DTO_FIELD_INFO(statusEnum) {
         info->description = ZH_WORDS_GETTER("sup.field.statusEnum");

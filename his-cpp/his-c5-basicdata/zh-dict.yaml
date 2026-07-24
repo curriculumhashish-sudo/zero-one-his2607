@@ -130,9 +130,9 @@ dept:
 sup:
   tag: 供应商管理
   query-one:
-    summary: 根据ID查询供应商
+    summary: 根据ID或编号查询供应商详情
   query-all:
-    summary: 分页查询供应商列表
+    summary: 条件分页查询供应商列表
   add:
     summary: 新增供应商
   modify:
@@ -143,11 +143,12 @@ sup:
     summary: 批量删除供应商
   field:
     id: 主键编号
+    code: 供应商编号
     ids: 供应商ID列表
     keyword: 搜索关键字(名称)
     busNo: 业务编号
     name: 供应商名称
-    typeEnum: 类型枚举值
+    typeEnum: 供应商类型(生产厂家/供应商等)
     creditCode: 统一信用代码
     legalRepresentative: 法定代表人
     address: 地址
@@ -161,6 +162,12 @@ sup:
     displayOrder: 显示顺序
     statusEnum: 状态枚举值(NORMAL/DISABLED)
     note: 备注说明
+  query:
+    code: 供应商编号
+    name: 供应商名称
+    type: 供应商类型
+    keyword: 搜索关键词
+    statusEnum: 按状态筛选
 
 # ============================================================
 # 库房药房管理 (pharm)
@@ -185,7 +192,7 @@ pharm:
     id: 编号
     name: 药房名称
     type: 药房类型
-    typeEnum: 类型枚举值
+    typeEnum: 供应商类型(生产厂家/供应商等)
     classRoom: 上级科室
     sort: 排序号
     remark: 备注

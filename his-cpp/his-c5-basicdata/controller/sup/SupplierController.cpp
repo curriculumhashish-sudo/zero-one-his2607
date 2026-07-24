@@ -19,37 +19,40 @@
 #include "stdafx.h"
 #include "SupplierController.h"
 
-// Query single supplier by ID (stub - returns empty)
-SupplierJsonVO::Wrapper SupplierController::execQueryOne(const String& id)
+// Query single supplier by ID or code (stub — TODO: connect Service)
+SupplierJsonVO::Wrapper SupplierController::execQueryOne(const String& id, const String& code)
 {
+    // TODO: Query by id first; if empty and code is provided, query by code
     return {};
 }
 
-// Paginated query (stub - returns empty)
+// Paginated query with code/name/type/keyword/statusEnum filters (stub)
 SupplierPageJsonVO::Wrapper SupplierController::execQueryAll(const SupplierQuery::Wrapper& query)
 {
+    // TODO: Build dynamic SQL from query->code, query->name, query->type,
+    //       query->keyword, query->statusEnum; paginate with query->pageIndex/pageSize
     return {};
 }
 
-// Add supplier (stub - returns empty)
+// Add supplier (stub — TODO: connect Service)
 StringJsonVO::Wrapper SupplierController::execAddSupplier(const SupplierDTO::Wrapper& dto)
 {
     return {};
 }
 
-// Modify supplier (stub - returns empty)
+// Modify supplier (stub — TODO: connect Service)
 StringJsonVO::Wrapper SupplierController::execModifySupplier(const SupplierDTO::Wrapper& dto)
 {
     return {};
 }
 
-// Batch enable/disable suppliers (stub - returns empty)
+// Batch enable/disable suppliers (stub — TODO: connect Service)
 StringJsonVO::Wrapper SupplierController::execBatchEnableDisable(const SupplierBatchEnableDisableDTO::Wrapper& dto)
 {
     return {};
 }
 
-// Batch delete suppliers (stub - returns empty)
+// Batch delete suppliers (stub — TODO: connect Service)
 ListJsonVO<String>::Wrapper SupplierController::execBatchRemove(const List<String>& ids)
 {
     return {};
