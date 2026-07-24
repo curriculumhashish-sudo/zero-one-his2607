@@ -61,7 +61,7 @@ public class StorehouseController implements StoreHouseApis {
 
     @Override
     @GetMapping("/names")
-    @Operation(summary = "获取库房药房名称（支持类型筛选）", description = "传type则按类型筛选，传null返回全部")
+    @Operation(summary = "获取库房药房名称", description = "传type则按类型筛选，传null返回全部")
     public JsonVO<List<StoreHouseVO>> getStoreHouseNames(@RequestParam(required = false) Long type) {
         List<StoreHouseVO> all = buildMockData();
         List<StoreHouseVO> result;
@@ -95,18 +95,6 @@ public class StorehouseController implements StoreHouseApis {
                     .collect(Collectors.toList());
         }
 
-        if (query.getType() != null) {
-            String typeStr = switch (query.getType().intValue()) {
-                case 1 -> "仓库";
-                case 2 -> "药房";
-                case 3 -> "科室药房";
-                default -> "未知";
-            };
-            filtered = filtered.stream()
-                    .filter(v -> typeStr.equals(v.getType()))
-                    .collect(Collectors.toList());
-        }
-
         PageDTO<StoreHouseVO> pageDTO = new PageDTO<>();
         pageDTO.setPageIndex(query.getPageIndex() > 0 ? query.getPageIndex() : 1L);
         pageDTO.setPageSize(query.getPageSize() > 0 ? query.getPageSize() : 10L);
@@ -120,17 +108,6 @@ public class StorehouseController implements StoreHouseApis {
     @PostMapping("/add")
     @Operation(summary = "添加库房药房", description = "新增一条库房药房记录")
     public JsonVO<String> add(@Valid @RequestBody StoreHouseDTO dto) {
-        if (dto.getName() == null || dto.getName().isBlank()) {
-            return JsonVO.fail("库房药房名称不能为空");
-        }
-        if (dto.getType() == null) {
-            return JsonVO.fail("仓库类型不能为空");
-        }
-        List<StoreHouseVO> all = buildMockData();
-        boolean exists = all.stream().anyMatch(v -> v.getName().equals(dto.getName()));
-        if (exists) {
-            return JsonVO.fail("库房药房名称已存在，请重新输入");
-        }
         // TODO: 实际实现后续由开发者补充
         return JsonVO.success("添加成功");
     }
@@ -139,14 +116,6 @@ public class StorehouseController implements StoreHouseApis {
     @PutMapping("/update")
     @Operation(summary = "修改库房药房", description = "根据ID修改库房药房信息")
     public JsonVO<String> update(@Valid @RequestBody StoreHouseDTO dto) {
-        if (dto.getId() == null) {
-            return JsonVO.fail("库房药房ID不能为空");
-        }
-        List<StoreHouseVO> all = buildMockData();
-        boolean found = all.stream().anyMatch(v -> v.getId().equals(dto.getId()));
-        if (!found) {
-            return JsonVO.fail("修改失败，记录不存在");
-        }
         // TODO: 实际实现后续由开发者补充
         return JsonVO.success("修改成功");
     }
@@ -155,13 +124,6 @@ public class StorehouseController implements StoreHouseApis {
     @DeleteMapping("/delete/{id}")
     @Operation(summary = "删除库房药房", description = "根据ID删除库房药房记录")
     public JsonVO<String> delete(@PathVariable Long id) {
-        if (id == null || id <= 0) {
-            return JsonVO.fail("ID参数错误");
-        }
-        // 模拟：ID=1 的数据被引用，不能删除
-        if (id == 1L) {
-            return JsonVO.fail("该库房药房已被使用，无法删除");
-        }
         // TODO: 实际实现后续由开发者补充
         return JsonVO.success("删除成功");
     }
@@ -170,14 +132,6 @@ public class StorehouseController implements StoreHouseApis {
     @PutMapping("/toggleEnabled")
     @Operation(summary = "启/停用库房药房", description = "切换库房药房的启用状态")
     public JsonVO<String> toggleEnabled(@RequestParam Long id, @RequestParam Byte isEnabled) {
-        if (isEnabled != 0 && isEnabled != 1) {
-            return JsonVO.fail("状态参数错误，只能为 0（停用）或 1（启用）");
-        }
-        List<StoreHouseVO> all = buildMockData();
-        boolean found = all.stream().anyMatch(v -> v.getId().equals(id));
-        if (!found) {
-            return JsonVO.fail("操作失败，记录不存在");
-        }
         // TODO: 实际实现后续由开发者补充
         String statusText = isEnabled == 1 ? "启用" : "停用";
         return JsonVO.success(statusText + "成功");

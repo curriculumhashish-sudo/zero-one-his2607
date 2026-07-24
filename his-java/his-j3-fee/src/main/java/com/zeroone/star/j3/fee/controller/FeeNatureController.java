@@ -101,7 +101,7 @@ public class FeeNatureController implements FeeNatureApis {
 
     @Override
     @GetMapping("/nameList")
-    @Operation(summary = "获取费用性质名称列表",
+    @Operation(summary = "获取费用性质名称",
             description = "获取所有已启用的费用性质，供门诊/住院收费结算界面下拉框选择，常用于患者缴费时确定费用类别")
     public JsonVO<List<FeeNatureVO>> getNameList() {
         // Mock 数据：返回启用的费用性质用于下拉框

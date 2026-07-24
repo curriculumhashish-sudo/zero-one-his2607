@@ -9,8 +9,11 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j3.patient.PatientListVO;
 import com.zeroone.star.project.vo.j3.patient.PatientOptionVO;
 import com.zeroone.star.project.vo.j3.patient.PatientVO;
+import com.zeroone.star.j3.patient.service.PatientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,7 +37,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/patients")
 @Tag(name = "patient", description = "患者管理")
+@RequiredArgsConstructor
 public class PatientController implements PatientApis {
+
+    private final PatientService patientService;
 
     /**
      * 波小夏负责：获取选择患者列表。
@@ -52,7 +58,7 @@ public class PatientController implements PatientApis {
     }
 
     /**
-     * 夜照清负责：获取患者管理列表。
+     * 照夜清负责：获取患者管理列表。
      */
     @Operation(
             summary = "获取患者管理列表",
@@ -61,9 +67,8 @@ public class PatientController implements PatientApis {
     @GetMapping("page")
     @Override
     public JsonVO<PageDTO<PatientListVO>> queryPatientPage(
-            PatientQuery query) {
-        // TODO: 业务实现阶段查询患者管理列表
-        return JsonVO.success(null);
+            @Valid PatientQuery query) {
+        return JsonVO.success(patientService.queryPatientPage(query));
     }
 
     /**
@@ -82,7 +87,7 @@ public class PatientController implements PatientApis {
     }
 
     /**
-     * 夜照清负责：新增患者。
+     * 照夜清负责：新增患者。
      */
     @Operation(
             summary = "新增患者",
@@ -91,13 +96,13 @@ public class PatientController implements PatientApis {
     @PostMapping
     @Override
     public JsonVO<String> createPatient(
-            @RequestBody PatientCreateDTO dto) {
-        // TODO: 业务实现阶段完成字段校验、患者去重和建档
+            @Valid @RequestBody PatientCreateDTO dto) {
+        patientService.createPatient(dto);
         return JsonVO.success("新增成功");
     }
 
     /**
-     * 夜照清负责：修改患者。
+     * 照夜清负责：修改患者。
      */
     @Operation(
             summary = "修改患者",
@@ -107,8 +112,8 @@ public class PatientController implements PatientApis {
     @Override
     public JsonVO<String> updatePatient(
             @PathVariable("id") String id,
-            @RequestBody PatientUpdateDTO dto) {
-        // TODO: 业务实现阶段完成患者存在性检查、字段校验和版本检查
+            @Valid @RequestBody PatientUpdateDTO dto) {
+        patientService.updatePatient(id, dto);
         return JsonVO.success("修改成功");
     }
 
