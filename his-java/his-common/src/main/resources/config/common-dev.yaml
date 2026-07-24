@@ -5,13 +5,13 @@ spring:
     nacos:
       server-addr: 192.168.15.1:8848
       discovery:
-        namespace: project-dev
+        namespace: his-dev
       config:
-        namespace: project-dev
+        namespace: his-dev
     sentinel:
       transport:
         #本机的IP地址，客户端给sentinel监控使用，不配置可能会识别成其他网卡的ip导致错误
-        client-ip: 192.168.15.1
+        client-ip: 192.168.1.10
 
 #开启MP SQL日志打印
 mybatis-plus:
