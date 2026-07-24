@@ -82,5 +82,5 @@ public interface MenuApis {
      * @author 是丫丫
      * @负责人 是丫丫
      */
-    public JsonVO<Boolean> editStatus(MenuEditStatusDto menuDto);
+    public JsonVO<Boolean> editStatus(MenuEditStatusDTO menuDto);
 }

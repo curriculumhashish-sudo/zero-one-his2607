@@ -124,7 +124,7 @@ public class MenuController implements MenuApis {
     @Override
     @PostMapping("enable")
     @Operation(summary = "启用/禁用菜单")
-    public JsonVO<Boolean> editStatus(@RequestBody @Valid MenuEditStatusDto menuDto) {
+    public JsonVO<Boolean> editStatus(@RequestBody @Valid MenuEditStatusDTO menuDto) {
         return JsonVO.success(null);
     }
 }
