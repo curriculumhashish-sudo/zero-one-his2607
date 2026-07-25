@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zeroone.star.j3.department.mapper.DepartmentMapper">
+    <insert id="insertUnit">
+        INSERT INTO zo_his.whale_organization_units(id, code, display_name, parent_id, sort_order, tenant_id,
+                                                    created_at,
+                                                    updated_at, created_by, updated_by)
+        VALUES (#{id}, #{code}, #{displayName}, #{parentId}, #{sortOrder}, #{tenantId}, #{createdAt}, #{updatedAt},
+                #{createdBy}, #{updatedBy});
+    </insert>
+
+    <insert id="addSeqKeyFromSequence">
+        INSERT INTO zo_his.whale_sequence(seq_key, current_value, updated_at)
+        VALUES (#{seqKey}, #{currentValue}, #{updatedAt});
+    </insert>
+
+    <update id="updateCurrentValue">
+        UPDATE zo_his.whale_sequence
+        SET current_value = #{newValue}
+        WHERE seq_key = #{seqKey};
+    </update>
+
+    <select id="getParentBusNo" resultType="java.lang.String">
+        SELECT bus_no
+        FROM zo_his.adm_organization
+        WHERE id = #{parentId};
+    </select>
+
+    <select id="getCurrentValueFromSequence" resultType="java.lang.Long">
+        SELECT current_value
+        FROM zo_his.whale_sequence
+        WHERE seq_key = #{seqKey};
+    </select>
+
+    <select id="getTenantIdByUserId" resultType="java.lang.Long">
+        SELECT tenant_id
+        FROM zo_his.whale_user_tenants
+        WHERE user_id = #{currentUserId};
+    </select>
+
+    <select id="isDoctorExist" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        FROM zo_his.adm_practitioner
+        WHERE id = #{defDoctorId};
+    </select>
+</mapper>

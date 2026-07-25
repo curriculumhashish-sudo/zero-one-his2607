@@ -13,12 +13,15 @@
 
 ## 接口清单
 
-| 序号 | 接口功能 | 请求方式 | 建议路径 |
-|------|----------|----------|----------|
-| 1 | 获取供应商名称 | GET | `/supplier/options` |
-| 2 | 获取供应商列表（条件+分页） | GET | `/supplier/page` |
-| 3 | 获取供应商详情 | GET | `/supplier/{id}` |
-| 4 | 新增供应商 | POST | `/supplier` |
-| 5 | 修改供应商 | PUT | `/supplier/{id}` |
-| 6 | 删除供应商 | DELETE | `/supplier/{id}` |
-| 7 | 启/停用供应商（支持批量） | PUT | `/supplier/batch-status` |
+| 序号 | 接口功能 | 请求方式 | 建议路径                     |
+|------|----------|----------|--------------------------|
+| 1 | 获取供应商名称 | GET | `/supplier/names`        |
+| 2 | 获取供应商列表（条件+分页） | GET | `/supplier/list`         |
+| 3 | 获取供应商详情 | GET | `/supplier/detail`       |
+| 4 | 新增供应商 | POST | `/supplier/add`             |
+| 5 | 修改供应商 | PUT | `/supplier/update/{id}`         |
+| 6 | 删除供应商 | DELETE | `/supplier/delete/{id}`         |
+| 7 | 启/停用供应商（支持批量） | PUT | `/supplier/batchUpdateStatus` |
+
+
+http://localhost:10206/j3-basedata/doc.html#/home
