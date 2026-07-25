@@ -31,7 +31,7 @@ class GetPatientQueueDO : public BaseDO
     // 科室名称（JOIN adm_organization）
     MYSQL_SYNTHESIZE(string, organizationName, OrganizationName);
 
-    // 接诊医生姓名（两级JOIN adm_encounter_participant → adm_practitioner）
+    // 接诊医生姓名（通过 adm_encounter_participant 关联 adm_practitioner）
     MYSQL_SYNTHESIZE(string, doctorName, DoctorName);
 
     // 费用总额（子查询聚合：SUM(adm_charge_item.total_price)）

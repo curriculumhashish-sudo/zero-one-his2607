@@ -11,14 +11,14 @@
 #include <ctime>
 
 // ============================================================================
-// 私有辅助方法：枚举翻译与计算
+// 辅助方法：枚举值转字典文本、年龄计算、状态聚合
 // ============================================================================
 
 std::string GetPatientQueueService::translateGender(const std::string& code)
 {
     if (code == "MALE")   return ZH_WORDS_GETTER("lhfc.charging.charge.dict.gender.male");
     if (code == "FEMALE") return ZH_WORDS_GETTER("lhfc.charging.charge.dict.gender.female");
-    return code;  // 兜底：返回编码原文
+    return code;
 }
 
 std::string GetPatientQueueService::computeAgeText(const std::string& birthDate)
@@ -29,7 +29,6 @@ std::string GetPatientQueueService::computeAgeText(const std::string& birthDate)
     try { birthYear = std::stoi(birthDate.substr(0, 4)); }
     catch (...) { return ""; }
 
-    // 获取当前年份
     time_t now = time(nullptr);
     struct tm* tmNow = localtime(&now);
     int currentYear = tmNow->tm_year + 1900;
@@ -45,7 +44,7 @@ std::string GetPatientQueueService::translateChargeStatus(const std::string& cod
     if (code == "SETTLED")   return ZH_WORDS_GETTER("lhfc.charging.charge.dict.chargeStatus.settled");
     if (code == "REFUNDING") return ZH_WORDS_GETTER("lhfc.charging.charge.dict.chargeStatus.refunding");
     if (code == "REFUNDED")  return ZH_WORDS_GETTER("lhfc.charging.charge.dict.chargeStatus.refunded");
-    return code;  // 兜底
+    return code;
 }
 
 std::string GetPatientQueueService::computeRollupStatusCode(
@@ -59,7 +58,7 @@ std::string GetPatientQueueService::computeRollupStatusCode(
     for (auto& code : statusCodes)
     {
         if (code == "PENDING") hasPending = true;
-        else hasSettled = true;  // 非 PENDING 状态归入已结算侧
+        else hasSettled = true;
     }
 
     if (hasPending && hasSettled) return "mixed";
@@ -76,27 +75,27 @@ std::string GetPatientQueueService::translateRollupStatus(const std::string& cod
 }
 
 // ============================================================================
-// 主方法：分页查询编排
+// 主方法：分步执行查询、转换、组装
 // ============================================================================
 
 GetPatientQueuePageDTO::Wrapper GetPatientQueueService::listAll(
     const GetPatientQueueQuery::Wrapper& query)
 {
-    // ---------- 第1步：查总数 ----------
+    // 第1步：查询符合条件的总记录数
     GetPatientQueueDAO mainDao;
     uint64_t totalCount = mainDao.count(query);
 
-    // ---------- 第2步：分页查主数据 ----------
+    // 第2步：分页查询当前页的主数据
     auto doList = mainDao.selectWithPage(query);
 
-    // ---------- 第3步：收集就诊ID，供批量子查询 ----------
+    // 第3步：收集当前页所有就诊ID，用于批量加载子数据
     std::list<std::string> encounterIds;
     for (auto& dobj : doList)
     {
         encounterIds.push_back(dobj.getEncounterId());
     }
 
-    // ---------- 第4步：批量查收费项摘要 ----------
+    // 第4步：批量查询收费项摘要，按就诊ID分组
     std::map<std::string, std::list<ChargeItemBriefDO>> chargeItemMap;
     if (!encounterIds.empty())
     {
@@ -108,7 +107,7 @@ GetPatientQueuePageDTO::Wrapper GetPatientQueueService::listAll(
         }
     }
 
-    // ---------- 第5步：组装分页DTO ----------
+    // 第5步：初始化分页DTO，填充页码、总数等元信息
     auto pageDTO = GetPatientQueuePageDTO::createShared();
 
     uint64_t pageIndex = query->pageIndex ? query->pageIndex.getValue(1) : 1;
@@ -128,12 +127,12 @@ GetPatientQueuePageDTO::Wrapper GetPatientQueueService::listAll(
     if (doList.empty())
         return pageDTO;
 
-    // ---------- 第6步：逐行 DO → DTO 转换 ----------
+    // 第6步：逐行把 DO 转换为 DTO，同时计算和翻译字段
     for (auto& dobj : doList)
     {
         auto dto = GetPatientQueueDTO::createShared();
 
-        // --- 直塞字段（string → String，使用 ZO_STAR_DOMAIN_DO_TO_DTO 宏批量映射） ---
+        // 直接映射的字段，类型相同无需转换
         ZO_STAR_DOMAIN_DO_TO_DTO(dto, dobj,
             encounterId, EncounterId,
             encounterBusNo, EncounterBusNo,
@@ -146,19 +145,19 @@ GetPatientQueuePageDTO::Wrapper GetPatientQueueService::listAll(
             paymentId, PaymentId
         );
 
-        // --- 翻译字段 ---
+        // 字典翻译字段
         dto->genderEnumText = translateGender(dobj.getGenderCode());
 
-        // --- 计算字段 ---
+        // 计算字段
         dto->ageText = computeAgeText(dobj.getBirthDate());
 
-        // --- 类型转换字段（string → Float64） ---
+        // 类型转换：string -> Float64
         try { dto->totalAmount = std::stod(dobj.getTotalAmount()); }
         catch (...) { dto->totalAmount = 0.0; }
         try { dto->paidAmount = std::stod(dobj.getPaidAmount()); }
         catch (...) { dto->paidAmount = 0.0; }
 
-        // --- 子列表：收费项摘要 ---
+        // 组装收费项摘要子列表
         auto& ciList = chargeItemMap[dobj.getEncounterId()];
         auto itemVec = oatpp::Vector<oatpp::Object<ChargeItemBriefDTO>>::createShared();
         std::list<std::string> statusCodesForRollup;
@@ -178,21 +177,21 @@ GetPatientQueuePageDTO::Wrapper GetPatientQueueService::listAll(
         }
         dto->cashierChargeItems = itemVec;
 
-        // --- 内存计算：队列标签 ---
+        // 根据收费项状态判定队列标签：有任一待收费则为 PENDING
         bool hasPendingItem = std::any_of(statusCodesForRollup.begin(),
             statusCodesForRollup.end(),
             [](const std::string& s) { return s == "PENDING"; });
         dto->queueLabelCode = hasPendingItem ? "PENDING" : "SETTLED";
 
-        // --- 内存计算：收费汇总状态 ---
+        // 聚合所有收费项状态得出汇总状态码
         dto->cashierChargeRollupStatusCode =
             computeRollupStatusCode(statusCodesForRollup);
 
-        // --- 翻译：汇总状态文案 ---
+        // 汇总状态码转展示文本
         dto->cashierChargeRollupStatusText =
             translateRollupStatus(dto->cashierChargeRollupStatusCode);
 
-        // --- 添加到分页列表 ---
+        // 加入当前页数据列表
         pageDTO->addData(dto);
     }
 

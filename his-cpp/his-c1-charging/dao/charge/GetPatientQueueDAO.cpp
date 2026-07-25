@@ -30,7 +30,7 @@ inline std::string GetPatientQueueDAO::queryConditionBuilder(
             << " OR p.name LIKE CONCAT('%',?,'%')"
             << " OR p.id_card LIKE CONCAT('%',?,'%')"
             << " OR p.phone LIKE CONCAT('%',?,'%') )";
-        // 同一个 keyword 绑定 4 次（每个占位符一次）
+        // keyword 在四个字段上做模糊匹配，需要绑定 4 次
         for (int i = 0; i < 4; i++)
         {
             SQLPARAMS_PUSH(params, "s", std::string, query->keyword);
@@ -43,7 +43,7 @@ inline std::string GetPatientQueueDAO::queryConditionBuilder(
         std::string tab = query->queueTabCode;
         if (tab == "PENDING")
         {
-            // 至少有一条待收费的 encounter
+            // 至少有一条待收费项的 encounter
             sql << " AND EXISTS ("
                 << " SELECT 1 FROM adm_charge_item ci"
                 << " WHERE ci.encounter_id = e.id"
@@ -52,7 +52,7 @@ inline std::string GetPatientQueueDAO::queryConditionBuilder(
         }
         else if (tab == "SETTLED")
         {
-            // 所有收费项均已结算的 encounter
+            // 所有收费项均为已结算状态的 encounter
             sql << " AND EXISTS ("
                 << " SELECT 1 FROM adm_charge_item ci"
                 << " WHERE ci.encounter_id = e.id"
