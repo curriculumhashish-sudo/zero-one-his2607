@@ -26,8 +26,11 @@ public class UserAddDTO {
     @Schema(description = "默认登录科室ID")
     private String defaultOrgId;
 
-    @Schema(description = "用户昵称", requiredMode = Schema.RequiredMode.REQUIRED, example = "张三")
-    private String nickname;
+    @Schema(description = "名")
+    private String name;
+
+    @Schema(description = "姓", example = "梁")
+    private String surname;
 
     @Schema(description = "手机号码")
     private String phoneNumber;
@@ -36,7 +39,7 @@ public class UserAddDTO {
     private String email;
 
     @Schema(description = "性别 (2:男, 1:女, 0:未知)", requiredMode = Schema.RequiredMode.REQUIRED, example = "2")
-    private Integer gender;
+    private Integer genderEnum;
 
     @Schema(description = "出生日期 (yyyy-MM-dd)")
     private LocalDate birthDate;
@@ -48,16 +51,17 @@ public class UserAddDTO {
     private String ybNo;
 
     @Schema(description = "签名图片")
-    private String signatureImage;
+    private String signature;
 
     @Schema(description = "职称编码")
-    private String drProfiterole;
+    private String drProfttlCode;
 
     @Schema(description = "职业资格证编号")
     private String pharPracCertNo;
 
+
     @Schema(description = "状态 (1:启用, 0:停用)", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    private Integer status;
+    private Integer isActive;
 
     @Schema(description = "备注信息")
     private String remark;

@@ -12,6 +12,7 @@ import com.zeroone.star.project.vo.j1.permission.PermissionVO;
 import com.zeroone.star.sysmgr.service.permission.IPermissionService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,14 +46,14 @@ public class PermissionController implements PermissionApis {
 
     @Override
     @PutMapping("/{id}")
-    public JsonVO<PermissionVO> modifyPermission(@PathVariable String id,
+    public JsonVO<PermissionVO> modifyPermission(@PathVariable @NotBlank(message = "权限编号不能为空") String id,
                                                   @Valid @RequestBody PermissionUpdateDTO dto) {
         return JsonVO.success(permissionService.updatePermission(id, dto));
     }
 
     @Override
     @DeleteMapping("/{id}")
-    public JsonVO<DeleteResult> removePermission(@PathVariable String id) {
+    public JsonVO<DeleteResult> removePermission(@PathVariable @NotBlank(message = "权限编号不能为空") String id) {
         return JsonVO.success(permissionService.deletePermission(id));
     }
 }

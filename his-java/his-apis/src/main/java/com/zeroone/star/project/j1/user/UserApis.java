@@ -19,8 +19,6 @@ import com.zeroone.star.project.vo.j1.user.UserPageVO;
  * </p>
  */
 public interface UserApis {
-
-
     /**
      * 分页查询用户信息
      * @param userQuery 用户查询参数
@@ -48,14 +46,14 @@ public interface UserApis {
      * @param userAddDTO 用户信息
      * @return 保存结果
      */
-    JsonVO<String> saveUser(UserAddDTO userAddDTO);
+    JsonVO<Boolean> saveUser(UserAddDTO userAddDTO);
 
     /**
      * 修改用户
      * @param userUpdateDTO 用户信息
      * @return 修改结果
      */
-    JsonVO<String> updateUser(UserUpdateDTO userUpdateDTO);
+    JsonVO<Boolean> updateUser(UserUpdateDTO userUpdateDTO);
 
 
     /**
@@ -63,14 +61,14 @@ public interface UserApis {
      * @param id 用户ID
      * @return 删除结果
      */
-    JsonVO<String> deleteById(String id);
+    JsonVO<Boolean> deleteById(String id);
 
     /**
      * 修改用户密码
      * @param changePasswordDTO 包含用户ID和新密码的参数
      * @return 修改结果
      */
-    JsonVO<String> changePassword(ChangePasswordDTO changePasswordDTO);
+    JsonVO<Boolean> changePassword(ChangePasswordDTO changePasswordDTO);
 
     /**
      * 启用或禁用用户
@@ -78,7 +76,7 @@ public interface UserApis {
      * @param status 用户状态
      * @return 启用或禁用结果
      */
-    JsonVO<String> updateStatus(String id,Integer status);
+    JsonVO<Boolean> updateStatus(String id,Integer status);
 
     /**
      * 锁定/解锁用户
@@ -86,6 +84,6 @@ public interface UserApis {
       * @param lockStatus 锁定状态
       * @return 锁定/解锁结果
      */
-    JsonVO<String> lockUser(String id,Integer lockStatus);
+    JsonVO<Boolean> lockUser(String id,Integer lockStatus);
 
 }

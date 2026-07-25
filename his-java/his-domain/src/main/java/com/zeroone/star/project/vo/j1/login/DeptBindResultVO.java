@@ -1,21 +1,22 @@
 package com.zeroone.star.project.vo.j1.login;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-@Schema(description = "科室绑定结果视图对象")
+@NoArgsConstructor
+@AllArgsConstructor
+@Schema(description = "用户科室绑定结果")
 public class DeptBindResultVO {
 
-    @Schema(description = "是否绑定成功", example = "true")
+    @Schema(description = "是否成功 true成功 false失败")
     private Boolean success;
 
-    @Schema(description = "绑定的科室ID", example = "2005")
-    private String deptId;
+    @Schema(description = "提示信息")
+    private String msg;
 
-    @Schema(description = "绑定的科室名称", example = "内科")
-    private String deptName;
-
-    @Schema(description = "提示信息", example = "科室选择成功")
-    private String message;
+    @Schema(description = "本次绑定科室数量")
+    private Integer bindCount;
 }

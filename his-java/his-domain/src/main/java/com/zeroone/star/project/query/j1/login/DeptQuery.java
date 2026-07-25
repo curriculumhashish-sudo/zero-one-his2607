@@ -7,12 +7,16 @@ import lombok.Data;
 @Schema(description = "科室列表查询条件")
 public class DeptQuery {
 
-    @Schema(description = "医院ID", example = "1001")
-    private String hospitalId;
-
-    @Schema(description = "科室名称（模糊查询）", example = "内科")
-    private String deptName;
+    @Schema(description = "组织单元名称(科室名称)模糊查询", example = "内科")
+    private String displayName;
 
     @Schema(description = "科室编码", example = "NK001")
-    private String deptCode;
+    private String code;
+
+    @Schema(description = "租户ID")
+    private String tenantId;
+
+    @Schema(description = "父级科室ID，树形筛选")
+    private String parentId;
+
 }

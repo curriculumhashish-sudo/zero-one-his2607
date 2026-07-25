@@ -10,5 +10,5 @@ public class ChangePasswordDTO {
     private String id;
 
     @Schema(description = "新密码", requiredMode = Schema.RequiredMode.REQUIRED, example = "123456")
-    private String newPassword;
+    private String passwordHash;
 }

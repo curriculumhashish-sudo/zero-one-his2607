@@ -1,7 +1,8 @@
 package com.zeroone.star.project.dto.menu;
 
+
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
@@ -16,13 +17,13 @@ import lombok.Data;
  * @date 2026/07/18 21:00
  */
 @Data
-@Schema(description = "IdRequest")
+@Schema(description = "菜单删除请求对象")
 public class MenuDeleteDTO {
 
     /**
      * 菜单ID
      */
-    @NotNull(message = "菜单ID不能为空")
+    @NotBlank(message = "菜单ID不能为空")
     @Schema(description = "菜单ID", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long id;
+    private String id;
 }

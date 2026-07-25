@@ -74,7 +74,7 @@ public class MenuController implements MenuApis {
     @PostMapping("getById")
     @Operation(summary = "获取指定菜单详情")
     public JsonVO<MenuVO> getMenu(@RequestBody @Valid MenuDetailQuery query) {
-        Long menuId = query.getId();
+        String menuId = query.getId();
         MenuVO menuVO = menusService.getMenuDetail(menuId);
         return JsonVO.success(menuVO);
     }
@@ -90,7 +90,7 @@ public class MenuController implements MenuApis {
     @PostMapping("create")
     @Operation(summary = "新增菜单")
     public JsonVO<Boolean> create(@RequestBody @Valid MenuCreateDTO menuDto) {
-        return JsonVO.success(null);
+        return JsonVO.success(menusService.create(menuDto));
     }
 
     /**
@@ -101,24 +101,25 @@ public class MenuController implements MenuApis {
      * @负责人 Drums小白
      */
     @Override
-    @PostMapping("update")
-    @Operation(summary = "修改菜单")
+    @PutMapping("update")
+    @Operation(summary = "修改菜单基础信息")
     public JsonVO<Boolean> update(@RequestBody @Valid MenuUpdateDTO menuDto) {
-        return JsonVO.success(null);
+        Boolean success = menusService.editMenu(menuDto);
+        return JsonVO.success(success);
     }
 
     /**
-     * 删除菜单信息
-     * @param menuDto 菜单删除入参
-     * @return 是否删除成功
+     * 删除菜单
      * @author 是丫丫
      * @负责人 Drums小白
+     * @param menuDto 删除参数
+     * @return 删除结果
      */
     @Override
-    @PostMapping("delete")
+    @DeleteMapping("/delete")
     @Operation(summary = "删除菜单")
     public JsonVO<Boolean> delete(@RequestBody @Valid MenuDeleteDTO menuDto) {
-        return JsonVO.success(null);
+        return menusService.delete(menuDto);
     }
 
     /**
@@ -132,6 +133,6 @@ public class MenuController implements MenuApis {
     @PostMapping("enable")
     @Operation(summary = "启用/禁用菜单")
     public JsonVO<Boolean> editStatus(@RequestBody @Valid MenuEditStatusDTO menuDto) {
-        return JsonVO.success(null);
+        return JsonVO.success(menusService.editStatus(menuDto));
     }
 }

@@ -3,8 +3,6 @@ package com.zeroone.star.project.vo.login;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import java.util.List;
-
 /**
  * <p>
  * 描述：登录显示数据对象
@@ -20,12 +18,39 @@ public class LoginVO {
     @Schema(description = "用户唯一编号", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
-    @Schema(description = "用户名", example = "admin", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "登录账号", example = "admin", requiredMode = Schema.RequiredMode.REQUIRED)
     private String username;
+
+    @Schema(description = "用户姓名", example = "张三")
+    private String name;
+
+    @Schema(description = "邮箱", example = "zhangsan@example.com")
+    private String email;
+
+    @Schema(description = "手机号", example = "13800138000")
+    private String phoneNumber;
 
     @Schema(description = "是否启用 1 启用 0 禁用 ", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Byte isEnabled;
 
-    @Schema(description = "用户角色列表", example = "['ADMIN','MANAGER']", requiredMode = Schema.RequiredMode.REQUIRED)
-    private List<String> roles;
+    @Schema(description = "是否锁定", example = "false")
+    private Boolean lockedOut;
+
+    @Schema(description = "已选择的租户ID")
+    private String tenantId;
+
+    @Schema(description = "已选择的医院组织ID")
+    private String hospitalOrganizationId;
+
+    @Schema(description = "已选择的组织单元ID")
+    private String organizationUnitId;
+
+    @Schema(description = "关联医护人员ID")
+    private String practitionerId;
+
+    @Schema(description = "关联医护人员姓名")
+    private String practitionerName;
+
+    @Schema(description = "医护人员状态", example = "ACTIVE")
+    private String practitionerStatus;
 }

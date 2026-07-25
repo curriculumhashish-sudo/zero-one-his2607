@@ -1,5 +1,6 @@
 package com.zeroone.star.sysmgr.controller.user;
 
+
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j1.user.ChangePasswordDTO;
 import com.zeroone.star.project.dto.j1.user.UserUpdateDTO;
@@ -11,7 +12,9 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j1.user.UserDetailVO;
 import com.zeroone.star.project.vo.j1.user.UserListVO;
 import com.zeroone.star.project.vo.j1.user.UserPageVO;
+import com.zeroone.star.sysmgr.service.user.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -19,6 +22,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequestMapping("/user")
 @Tag(name = "用户管理")
 public class UserController implements UserApis {
+
+    @Resource
+    private IUserService userService;
 
     @Operation(summary   = "分页查询用户列表")
     @GetMapping("/page")
@@ -46,14 +52,14 @@ public class UserController implements UserApis {
     @Operation(summary   = "新增用户")
     @PostMapping
     @Override
-    public JsonVO<String> saveUser(@RequestBody UserAddDTO userAddDTO) {
+    public JsonVO<Boolean> saveUser(@RequestBody UserAddDTO userAddDTO) {
         return null;
     }
 
     @Operation(summary   = "修改用户")
     @PutMapping("/update")
     @Override
-    public JsonVO<String> updateUser(@RequestBody UserUpdateDTO userUpdateDTO) {
+    public JsonVO<Boolean> updateUser(@RequestBody UserUpdateDTO userUpdateDTO) {
         return null;
     }
 
@@ -61,28 +67,29 @@ public class UserController implements UserApis {
     @Operation(summary   = "删除用户")
     @DeleteMapping("/{id}")
     @Override
-    public JsonVO<String> deleteById(@PathVariable String id) {
-        return null;
+    public JsonVO<Boolean> deleteById(@PathVariable String id){
+        return JsonVO.success(userService.softDeleteById(id));
     }
 
     @Operation(summary   = "修改密码")
     @PutMapping("/changePassword")
     @Override
-    public JsonVO<String> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO) {
-        return null;
+    public JsonVO<Boolean> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO) {
+        return JsonVO.success(userService.updatePassword(changePasswordDTO.getId(), changePasswordDTO.getPasswordHash()));
     }
 
     @Operation(summary   = "修改用户状态")
     @PutMapping("/updateStatus/{id}/status/{status}")
     @Override
-    public JsonVO<String> updateStatus(@PathVariable String id, @PathVariable Integer status) {
-        return null;
+    public JsonVO<Boolean> updateStatus(@PathVariable String id, @PathVariable Integer status) {
+        return JsonVO.success(userService.updateStatus(id, status));
     }
 
     @Operation(summary   = "锁定用户")
     @PutMapping("/lockUser/{id}/lockStatus/{lockStatus}")
     @Override
-    public JsonVO<String> lockUser(@PathVariable String id,@PathVariable Integer lockStatus) {
-        return null;
+    public JsonVO<Boolean> lockUser(@PathVariable String id, @PathVariable Integer lockStatus) {
+        return JsonVO.success(userService.lockUser(id,lockStatus));
     }
+
 }

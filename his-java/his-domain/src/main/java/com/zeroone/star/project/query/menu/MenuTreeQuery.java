@@ -17,5 +17,5 @@ public class MenuTreeQuery {
      */
     @NotNull(message = "根菜单ID不能为空")
     @Schema(description = "根菜单ID", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long id;
+    private String id;
 }
