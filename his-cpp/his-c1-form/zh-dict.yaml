@@ -23,20 +23,87 @@ Litguidyo:
 rhqm:
  form:
   cost_info:
-   title: "报表明细"
    query:
-    tag: "获取报表明细"
-    start_time: "开始时间"
-    end_time: "结束时间"
-    name: "患者姓名"
-    room: "挂号科室"
-    feeClass: "费用大类"
-    detailClass: "细分类"
-    projectName: "项目名称"
-    hisID: "院内编号"
-    checker: "收银员"
-    feeDir: "收退方向"
+    title: 门诊费用明细(条件+分页)
+    id: 编号
+    start_time: 开始时间
+    end_time: 结束时间
+    name: 患者姓名
+    room: 挂号科室
+    feeClass: 费用大类
+    detailClass: 细分类
+    projectName: 项目名称
+    hisID: 院内编号
+    checker: 收银员
+    feeDir: 收退方向
    export:
     tag: "导出报表"
     fileID: "文件ID"
-    
+    title: 导出报表
+   data:
+    id: 序号
+    clinicNo: 门诊号
+    name: 患者
+    room: 挂号科室
+    date: 就诊日期
+    feeClass: 大类
+    detailClass: 细分类
+    projectName: 项目名称
+    hisID: 院内编码
+    spec: 规格
+    number: 数量
+    unit: 单位
+    doctor: 开单医生
+    checker: 收费人
+    settleTime: 结算时间
+    source: 来源
+    insuranceLevel: 医保等级
+    insuranceType: 医保类型
+    originalPrice: 原价
+    discountAmount: 优惠金额
+    receivableAmount: 应收金额
+    discountedPrice: 折后金额
+    unitPrice: 单价
+    lineAmount: 行金额
+    actualAmount: 实收金额
+    insuranceAmount: 医保金额
+    selfPayAmount: 自费金额
+W:
+  form:
+    data_statistics:
+      tag: "报表中心-数据统计"
+      query_trend:
+        summary: "查询门诊接诊量趋势（周/月）"
+      query_disease_distribution:
+        summary: "查询患者疾病类型分布"
+      field:
+        time_type: "时间维度（1=本周, 2=本月）"
+        start_date: "开始日期"
+        end_date: "结束日期"
+        org_id: "机构ID"
+        x_label: "X轴标签"
+        patient_count: "接诊患者数"
+        disease_name: "疾病名称"
+        percentage: "占比"
+        trend_list: "趋势数据列表"
+        distribution_list: "疾病分布数据列表"
+Lin:
+  form:
+    data_statistics:
+      tag: "报表中心-数据统计"
+      query_flow_trend:
+        summary: "获取流量趋势"
+      query_month_visit:
+        summary: "获取月访问量"
+      field:
+        time_type: "时间维度（1=周, 2=月）"
+        start_date: "开始日期"
+        end_date: "结束日期"
+        org_id: "机构ID"
+        x_label: "X轴标签"
+        visit_count: "访问量"
+        month: "月份"
+        total_visit: "月访问量"
+        trend_list: "流量趋势数据列表"
+        month_visit_list: "月访问量数据列表"
+

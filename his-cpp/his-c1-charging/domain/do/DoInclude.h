@@ -25,6 +25,5 @@
 #include <string>
 #include <list>
 #include <memory>
-using namespace std;
 
 #endif // !_DO_INCLUDE_

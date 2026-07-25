@@ -1,8 +1,8 @@
 #pragma once
 
 
-#ifndef QUERY_DETAIL_QUERY
-#define QUERY_DETAIL_QUERY
+#ifndef COSTINFO_QUERY
+#define COSTINFO_QUERY
 
 #include "../../GlobalInclude.h"
 #include "domain/query/PageQuery.h"
@@ -76,7 +76,6 @@ class CostInfoQuery :public PageQuery
 	DTO_FIELD_INFO(feeDir) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.feeDir");
 	}
-
 };
 
 #include OATPP_CODEGEN_END(DTO)

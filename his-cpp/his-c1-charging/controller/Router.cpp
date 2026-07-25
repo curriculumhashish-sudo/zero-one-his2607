@@ -19,6 +19,12 @@
 #include "stdafx.h"
 #include "Router.h"
 #include "ApiHelper.h"
+#include "refund/RefundGetPatientController.h"
+#include "refund/RefundGetItemController.h"
+#include "refund/RefundVerifyRefundController.h"
+#include "refund/RefundExecuteRefundController.h"
+#include "refund/RefundPreparePrintController.h"
+#include "refund/RefundConfirmPrintController.h"
 
 #include "../controller/register/ChargeConfirmController.h"
 #include "../controller/register/QuitNumberController.h"
@@ -37,15 +43,25 @@
 #include"settle/GetTotalFeesController.h"
 
 #include "enroll/EnrollController.h"
+#include"enroll/admission.h"
 
+#include"pay_manage/Pay_ManageGetPatientDetailsController.h"
+#include"pay_manage/Pay_ManageGetPatientPayRecordsController.h"
+#include"pay_manage/Pay_ManageGetPatientQueueController.h"
 
+#include"pay_manage/PrepaymentController.h"
 // If the macro for disabling Swagger documentation is defined
+#include "settle/GetCostDetailController.h"
+#include "settle/GetSettleHistoryController.h"
+#include "settle/SettleController.h"
+
+// 如果定义了关闭 Swagger 文档的宏
 #ifdef CLOSE_SWAGGER_DOC
-// Simplified controller binding macro
+// 简化控制器绑定宏
 #define ROUTER_SIMPLE_BIND(__CLASS__) \
 router->addController(__CLASS__::createShared())
 #else
-// Simplified controller binding macro (with Swagger support)
+// 简化控制器绑定宏（支持 Swagger 文档）
 #define ROUTER_SIMPLE_BIND(__CLASS__) \
 BIND_CONTROLLER(docEndpoints, router, __CLASS__)
 #endif
@@ -58,8 +74,11 @@ Router::Router(Endpoints* docEndpoints, HttpRouter* router)
 
 void Router::initRouter()
 {
+
 	// #TIP: Add system extension route definitions below
+
     ROUTER_SIMPLE_BIND(AdmissionController);
+
 	ROUTER_SIMPLE_BIND(ChargeConfirmController);
 	ROUTER_SIMPLE_BIND(QuitNumberController);
 	ROUTER_SIMPLE_BIND(PrintRegisterReceiptController);
@@ -81,5 +100,22 @@ void Router::initRouter()
 
 
 	ROUTER_SIMPLE_BIND(EnrollController);
+
 	
+	ROUTER_SIMPLE_BIND(RefundGetPatientController);
+	ROUTER_SIMPLE_BIND(RefundGetItemController);
+	ROUTER_SIMPLE_BIND(RefundVerifyRefundController);
+	ROUTER_SIMPLE_BIND(RefundExecuteRefundController);
+	ROUTER_SIMPLE_BIND(RefundPreparePrintController);
+	ROUTER_SIMPLE_BIND(RefundConfirmPrintController);
+
+	ROUTER_SIMPLE_BIND(Pay_ManageGetPatientDetailsController);
+	ROUTER_SIMPLE_BIND(Pay_ManageGetPatientPayRecordsController);
+	ROUTER_SIMPLE_BIND(Pay_ManageGetPatientQueueController);
+	ROUTER_SIMPLE_BIND(PrepaymentController);
+
+	// #TIP：在下方添加系统扩展路由定义
+	ROUTER_SIMPLE_BIND(GetCostDetailController);
+	ROUTER_SIMPLE_BIND(GetSettleHistoryController);
+	ROUTER_SIMPLE_BIND(SettleController);
 }
