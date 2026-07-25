@@ -1,7 +1,6 @@
 package com.zeroone.star.j3.register.entity;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -15,9 +14,8 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * 描述：挂号类型实体（映射 register_type 表）
+ * 描述：挂号类型实体（映射 adm_charge_item_definition 表，type_code='1012'=挂号费）
  * </p>
- * <p>对应挂号类型：普通号、专家号、特需号等</p>
  *
  * @author j3小组
  * @version 1.0.0
@@ -25,63 +23,69 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
-@TableName("register_type")
+@TableName("adm_charge_item_definition")
 public class RegisterType implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 挂号类型唯一标识
-     */
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+    /** 收费项目定义ID（雪花ID） */
+    @TableId("id")
+    private String id;
 
-    /**
-     * 挂号类型名称
-     */
+    /** 租户ID */
+    private String tenantId;
+
+    @TableField(fill = FieldFill.INSERT)
+    private LocalDateTime createdAt;
+
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updatedAt;
+
+    @TableField(fill = FieldFill.INSERT)
+    private String createdBy;
+
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private String updatedBy;
+
+    /** 是否删除 */
+    private Integer isDeleted;
+
+    /** 关联业务表 */
+    private String instanceTable;
+
+    /** 关联业务ID */
+    private String instanceId;
+
+    /** 挂号类型名称（charge_name） */
+    @TableField("charge_name")
     private String name;
 
-    /**
-     * 医保编码
-     */
-    private String mdtrtCertNo;
+    /** 状态 ACTIVE/INACTIVE */
+    @TableField("status_enum")
+    private String status;
 
-    /**
-     * 业务编码
-     */
+    /** 机构ID */
+    private String orgId;
+
+    /** 业务编码/分类编码（type_code，1012=挂号费） */
+    @TableField("type_code")
     private String businessCode;
 
-    /**
-     * 金额
-     */
+    /** 医保编码（yb_type） */
+    @TableField("yb_type")
+    private String mdtrtCertNo;
+
+    /** 价格类型 */
+    private String priceTypeCode;
+
+    /** 金额（price_value） */
+    @TableField("price_value")
     private BigDecimal amount;
 
-    /**
-     * 状态：1 启用 0 禁用
-     */
-    private Integer status;
+    /** 优先级 */
+    private Integer priority;
 
-    /**
-     * 创建时间
-     */
-    @TableField(fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
-
-    /**
-     * 更新时间
-     */
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
-
-    /**
-     * 创建人
-     */
-    @TableField(fill = FieldFill.INSERT)
-    private String createBy;
-
-    /**
-     * 更新人
-     */
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private String updateBy;
+    /** 业务编码（从 adm_healthcare_service.bus_no JOIN 获取，非持久化） */
+    @TableField(exist = false)
+    private String serviceBusNo;
 }
