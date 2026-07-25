@@ -18,3 +18,7 @@ chinapres2:
   remark: 备注
   medicine: 药材
   preNum: 位数
+  details: 药材列表
+  patientId: 患者ID
+  encounterId: 就诊ID
+  requesterId: 开方医生ID
