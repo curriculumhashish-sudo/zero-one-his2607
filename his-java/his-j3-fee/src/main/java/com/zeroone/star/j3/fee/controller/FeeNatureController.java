@@ -101,13 +101,12 @@ public class FeeNatureController implements FeeNatureApis {
 
     @Override
     @GetMapping("/nameList")
-    @Operation(summary = "获取费用性质名称列表",
+    @Operation(summary = "获取费用性质名称",
             description = "获取所有已启用的费用性质，供门诊/住院收费结算界面下拉框选择，常用于患者缴费时确定费用类别")
     public JsonVO<List<FeeNatureVO>> getNameList() {
         // Mock 数据：返回启用的费用性质用于下拉框
         List<FeeNatureVO> list = new ArrayList<>();
         FeeNatureVO vo1 = new FeeNatureVO();
-        vo1.setId(1L);
         vo1.setName("自费");
         vo1.setCode("1");
         vo1.setIsEnabled(1);
@@ -116,7 +115,6 @@ public class FeeNatureController implements FeeNatureApis {
         list.add(vo1);
 
         FeeNatureVO vo2 = new FeeNatureVO();
-        vo2.setId(2L);
         vo2.setName("省医保");
         vo2.setCode("3");
         vo2.setIsEnabled(1);
@@ -125,7 +123,6 @@ public class FeeNatureController implements FeeNatureApis {
         list.add(vo2);
 
         FeeNatureVO vo3 = new FeeNatureVO();
-        vo3.setId(3L);
         vo3.setName("市医保");
         vo3.setCode("2");
         vo3.setIsEnabled(1);
