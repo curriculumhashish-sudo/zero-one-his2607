@@ -5,7 +5,7 @@ spring:
     nacos:
       server-addr: localhost:8848
       username: nacos
-      password: nacos
+      password: 6qkjwQQTgVXq
       discovery:
         namespace: his-dev
       config:
