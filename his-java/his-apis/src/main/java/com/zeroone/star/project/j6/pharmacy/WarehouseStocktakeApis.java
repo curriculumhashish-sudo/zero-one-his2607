@@ -36,7 +36,7 @@ public interface WarehouseStocktakeApis {
      * @return 含空明细行的盘点单详情
      */
     @Operation(summary = "新增盘点单", description = "生成空盘点单, 状态=草稿")
-    @PostMapping("/pharmacy/stocktake/create")
+    @PostMapping("/warehouse/stocktake/create")
     JsonVO<StocktakeDetailVO> createStocktake(StocktakeSaveDTO dto);
 
     /**
@@ -48,7 +48,7 @@ public interface WarehouseStocktakeApis {
      * @return 更新后的盘点单详情
      */
     @Operation(summary = "保存盘点单", description = "填入实盘数据 + 快照锁定账面数，状态=草稿")
-    @PutMapping("/pharmacy/stocktake/{busNo}/save")
+    @PutMapping("/warehouse/stocktake/{busNo}/save")
     JsonVO<StocktakeDetailVO> saveStocktake(String busNo, StocktakeSaveDTO dto);
 
     /**
@@ -60,6 +60,6 @@ public interface WarehouseStocktakeApis {
      * @return 更新后的盘点单详情（状态=PENDING_APPROVAL）
      */
     @Operation(summary = "保存盘点单并提交审批", description = "填入实盘数据，状态草稿→待审批")
-    @PutMapping("/pharmacy/stocktake/{busNo}/submit")
+    @PutMapping("/warehouse/stocktake/{busNo}/submit")
     JsonVO<StocktakeDetailVO> submitStocktake(String busNo, StocktakeSaveDTO dto);
 }

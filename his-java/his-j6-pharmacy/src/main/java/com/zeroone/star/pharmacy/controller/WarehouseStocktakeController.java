@@ -44,9 +44,9 @@ public class WarehouseStocktakeController implements WarehouseStocktakeApis {
      */
     @Override
     @Operation(summary = "新增单据", description = "生成空盘点单, 状态=草稿")
-    @PostMapping("/create")
+    @PostMapping("/warehouse/stocktake/create")
     public JsonVO<StocktakeDetailVO> createStocktake(@RequestBody StocktakeSaveDTO dto) {
-        // TODO [Dome] Step1: 生成 bus_no = "PD" + yyyyMMdd + 4位流水号(Redis INCR 或 DB 序列)
+        // TODO [Dome] Step1: 生成 bus_no = "CST" + yyyyMMdd + 4位流水号(Redis INCR 或 DB 序列)
 
         // TODO [Dome] Step2: 在 wkf_supply_request 插入头记录:
         //   - bus_no, status_enum=DRAFT, type_enum/category_enum=盘点类型枚举
@@ -66,7 +66,7 @@ public class WarehouseStocktakeController implements WarehouseStocktakeApis {
      */
     @Override
     @Operation(summary = "保存单据", description = "填入实盘数据 + 快照锁定账面数，状态=草稿")
-    @PutMapping("/{busNo}/save")
+    @PutMapping("/warehouse/stocktake/{busNo}/save")
     public JsonVO<StocktakeDetailVO> saveStocktake(@PathVariable String busNo, @RequestBody StocktakeSaveDTO dto) {
         // TODO [Dome] Step1: 校验 busNo 存在且 status_enum=DRAFT，否则抛 BusinessException("盘点单不存在或状态不允许编辑")
 
@@ -95,7 +95,7 @@ public class WarehouseStocktakeController implements WarehouseStocktakeApis {
      */
     @Override
     @Operation(summary = "保存并提交审批", description = "填入实盘数据，状态草稿→待审批")
-    @PutMapping("/{busNo}/submit")
+    @PutMapping("/warehouse/stocktake/{busNo}/submit")
     public JsonVO<StocktakeDetailVO> submitStocktake(@PathVariable String busNo, @RequestBody StocktakeSaveDTO dto) {
         // TODO [Dome] Step1: 同 saveStocktake Step1-5 (快照+补全+先删后插保存所有盘点数据)
 
@@ -114,7 +114,7 @@ public class WarehouseStocktakeController implements WarehouseStocktakeApis {
     /** Knife4j 示例数据 */
     private StocktakeDetailVO buildExampleDetailVO() {
         StocktakeDetailVO vo = new StocktakeDetailVO();
-        vo.setBusNo("PD202607180001");
+        vo.setBusNo("CST2026-07-200001");
         vo.setStatusEnum("DRAFT");
         vo.setPurposeLocationId("284503862625177600");
         vo.setPurposeLocationName("西药库");
