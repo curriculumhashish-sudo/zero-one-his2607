@@ -1,7 +1,11 @@
 package com.zeroone.star.sysmgr.service.menu.impl;
 
+import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zeroone.star.project.dto.menu.MenuCreateDTO;
+import com.zeroone.star.project.dto.menu.MenuEditStatusDTO;
 import com.zeroone.star.sysmgr.convertor.MenuConvertor;
 import com.zeroone.star.sysmgr.entity.menu.MenuDO;
 import com.zeroone.star.project.vo.menu.MenuVO;
@@ -38,6 +42,24 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
             throw new SystemException(MenuStatus.MENU_NOT_FIND);
         }
         return MenuConvertor.INSTANCE.toVO(menuDO);
+    }
+
+    @Override
+    public Boolean create(MenuCreateDTO menuDto) {
+        int result = this.baseMapper.insert(MenuConvertor.INSTANCE.createDO(menuDto));
+        Assert.isTrue(result > 0, () -> new SystemException(MenuStatus.MENU_CREATE_FAIL));
+        return result > 0;
+    }
+
+    @Override
+    public Boolean editStatus(MenuEditStatusDTO menuDto) {
+        LambdaUpdateWrapper<MenuDO> wrapper = new LambdaUpdateWrapper<>();
+        wrapper.eq(MenuDO::getId, menuDto.getId());
+        wrapper.eq(MenuDO::getIsDeleted, 0);
+        wrapper.set(MenuDO::getIsEnabled, menuDto.getStatus());
+        int result = this.baseMapper.update(wrapper);
+        Assert.isTrue(result > 0, () -> new SystemException(MenuStatus.MENU_STATUS_EDIT_FAIL));
+        return result > 0;
     }
 
     /**

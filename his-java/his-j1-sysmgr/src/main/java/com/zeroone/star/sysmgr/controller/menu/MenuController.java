@@ -90,7 +90,7 @@ public class MenuController implements MenuApis {
     @PostMapping("create")
     @Operation(summary = "新增菜单")
     public JsonVO<Boolean> create(@RequestBody @Valid MenuCreateDTO menuDto) {
-        return JsonVO.success(null);
+        return JsonVO.success(menusService.create(menuDto));
     }
 
     /**
@@ -132,6 +132,6 @@ public class MenuController implements MenuApis {
     @PostMapping("enable")
     @Operation(summary = "启用/禁用菜单")
     public JsonVO<Boolean> editStatus(@RequestBody @Valid MenuEditStatusDTO menuDto) {
-        return JsonVO.success(null);
+        return JsonVO.success(menusService.editStatus(menuDto));
     }
 }

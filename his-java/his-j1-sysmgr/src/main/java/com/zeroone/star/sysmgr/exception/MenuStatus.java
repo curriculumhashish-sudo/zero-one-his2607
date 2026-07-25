@@ -9,7 +9,17 @@ public enum MenuStatus implements SystemStatus {
     /**
      * 菜单不存在
      */
-    MENU_NOT_FIND("菜单不存在", 4001);
+    MENU_NOT_FIND("菜单不存在", 4001),
+
+    /**
+     * 菜单创建失败
+     */
+    MENU_CREATE_FAIL("菜单创建失败", 500),
+
+    /**
+     * 菜单状态修改失败
+     */
+    MENU_STATUS_EDIT_FAIL("菜单状态修改失败", 4003);
 
     private final String message;
 

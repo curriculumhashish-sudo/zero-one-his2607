@@ -1,6 +1,8 @@
 package com.zeroone.star.sysmgr.service.menu;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.zeroone.star.project.dto.menu.MenuCreateDTO;
+import com.zeroone.star.project.dto.menu.MenuEditStatusDTO;
 import com.zeroone.star.sysmgr.entity.menu.MenuDO;
 import com.zeroone.star.project.vo.menu.MenuVO;
 
@@ -18,4 +20,20 @@ public interface MenusService extends IService<MenuDO> {
      * @return 菜单VO
      */
     MenuVO getMenuDetail(String menuId);
+
+    /**
+     * 创建菜单
+     * @author 是丫丫
+     * @param menuDto 菜单Dto
+     * @return 是否创建成功
+     */
+    Boolean create(MenuCreateDTO menuDto);
+
+    /**
+     * 修改菜单状态  启用/停用菜单
+     * @param menuDto 菜单启用入参
+     * @return 是否修改成功
+     * @author 是丫丫
+     */
+    Boolean editStatus(MenuEditStatusDTO menuDto);
 }

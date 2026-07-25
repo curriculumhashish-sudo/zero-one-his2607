@@ -1,6 +1,7 @@
 package com.zeroone.star.project.dto.menu;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -22,9 +23,9 @@ public class MenuEditStatusDTO {
     /**
      * 菜单ID
      */
-    @NotNull(message = "菜单ID不能为空")
+    @NotBlank(message = "菜单ID不能为空")
     @Schema(description = "菜单ID", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long id;
+    private String id;
 
     @NotNull(message = "菜单状态不能为空")
     @Schema(description = "菜单状态", example = "1(启用)/0(禁用)", requiredMode = Schema.RequiredMode.REQUIRED)
