@@ -45,8 +45,7 @@ public class PermissionServiceImpl
     @Resource
     private UserHolder userHolder;
 
-    @Resource
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${his.cache.reload-url:http://localhost:8081/open/resources/cache/reload}")
     private String cacheReloadUrl;
