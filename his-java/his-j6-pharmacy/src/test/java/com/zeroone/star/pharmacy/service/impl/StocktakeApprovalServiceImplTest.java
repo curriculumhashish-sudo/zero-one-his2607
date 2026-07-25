@@ -1,7 +1,5 @@
 package com.zeroone.star.pharmacy.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.zeroone.star.pharmacy.entity.WkfSupplyRequest;
 import com.zeroone.star.pharmacy.mapper.WkfInventoryItemMapper;
 import com.zeroone.star.pharmacy.mapper.WkfSupplyRequestMapper;
@@ -11,7 +9,6 @@ import com.zeroone.star.project.dto.j6.pharmacy.stocktake.StocktakeSubmitApprova
 import com.zeroone.star.project.dto.j6.pharmacy.stocktake.StocktakeWithdrawApprovalDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
@@ -21,7 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -43,38 +41,105 @@ class StocktakeApprovalServiceImplTest {
 
     @Test
     void submitDraftStocktakeUpdatesToPendingApproval() {
-        when(supplyRequestMapper.selectList(any(QueryWrapper.class)))
+        when(supplyRequestMapper.selectStocktakeRowsForApproval(anyString(), anyString()))
                 .thenReturn(List.of(stocktakeRow("DRAFT")));
-        when(supplyRequestMapper.update(isNull(), any(UpdateWrapper.class))).thenReturn(1);
+        when(supplyRequestMapper.updateStocktakeToPending(
+                anyString(), anyString(), anyString(), anyString(), any(), any(), anyString()))
+                .thenReturn(1);
 
         assertTrue(service.submit(submitDto("CST2026-001")));
 
-        verify(supplyRequestMapper).update(isNull(), any(UpdateWrapper.class));
-        verify(inventoryItemMapper, never()).update(isNull(), any(UpdateWrapper.class));
+        verify(supplyRequestMapper).updateStocktakeToPending(
+                eq("CST2026-001"), eq("CABINET_STOCKTAKE"), eq("DRAFT"), anyString(), any(), any(), anyString());
+        verify(inventoryItemMapper, never()).updateQuantityForStocktake(
+                any(), any(), any(), any(), any(), any(), any(), any());
+    }
+
+    @Test
+    void submitWithdrawnStocktakeCanBeSubmittedAgain() {
+        when(supplyRequestMapper.selectStocktakeRowsForApproval(anyString(), anyString()))
+                .thenReturn(List.of(stocktakeRow("WITHDRAW")));
+        when(supplyRequestMapper.updateStocktakeToPending(
+                anyString(), anyString(), anyString(), anyString(), any(), any(), anyString()))
+                .thenReturn(1);
+
+        assertTrue(service.submit(submitDto("CST2026-001")));
+
+        verify(supplyRequestMapper).updateStocktakeToPending(
+                eq("CST2026-001"), eq("CABINET_STOCKTAKE"), eq("WITHDRAW"), anyString(), any(), any(), anyString());
+    }
+
+    @Test
+    void submitRejectedStocktakeCanBeSubmittedAgain() {
+        when(supplyRequestMapper.selectStocktakeRowsForApproval(anyString(), anyString()))
+                .thenReturn(List.of(stocktakeRow("REJECT")));
+        when(supplyRequestMapper.updateStocktakeToPending(
+                anyString(), anyString(), anyString(), anyString(), any(), any(), anyString()))
+                .thenReturn(1);
+
+        assertTrue(service.submit(submitDto("CST2026-001")));
+
+        verify(supplyRequestMapper).updateStocktakeToPending(
+                eq("CST2026-001"), eq("CABINET_STOCKTAKE"), eq("REJECT"), anyString(), any(), any(), anyString());
+    }
+
+    @Test
+    void submitFailsWhenAlreadyPendingApproval() {
+        when(supplyRequestMapper.selectStocktakeRowsForApproval(anyString(), anyString()))
+                .thenReturn(List.of(stocktakeRow("PENDING_APPROVAL")));
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> service.submit(submitDto("CST2026-001")));
+
+        assertEquals("current status PENDING_APPROVAL does not allow this approval action", ex.getMessage());
+        verify(supplyRequestMapper, never()).updateStocktakeToPending(
+                anyString(), anyString(), anyString(), anyString(), any(), any(), anyString());
+    }
+
+    @Test
+    void submitFailsWhenStatusUpdateAffectsNoRows() {
+        when(supplyRequestMapper.selectStocktakeRowsForApproval(anyString(), anyString()))
+                .thenReturn(List.of(stocktakeRow("DRAFT")));
+        when(supplyRequestMapper.updateStocktakeToPending(
+                anyString(), anyString(), anyString(), anyString(), any(), any(), anyString()))
+                .thenReturn(0);
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> service.submit(submitDto("CST2026-001")));
+
+        assertEquals("failed to update stocktake approval status", ex.getMessage());
     }
 
     @Test
     void withdrawPendingStocktakeUpdatesToWithdraw() {
-        when(supplyRequestMapper.selectList(any(QueryWrapper.class)))
+        when(supplyRequestMapper.selectStocktakeRowsForApproval(anyString(), anyString()))
                 .thenReturn(List.of(stocktakeRow("PENDING_APPROVAL")));
-        when(supplyRequestMapper.update(isNull(), any(UpdateWrapper.class))).thenReturn(1);
+        when(supplyRequestMapper.updateStocktakeToWithdraw(anyString(), anyString(), anyString(), any(), anyString()))
+                .thenReturn(1);
 
         assertTrue(service.withdraw(withdrawDto("CST2026-001")));
 
-        verify(supplyRequestMapper).update(isNull(), any(UpdateWrapper.class));
+        verify(supplyRequestMapper).updateStocktakeToWithdraw(
+                eq("CST2026-001"), eq("CABINET_STOCKTAKE"), eq("PENDING_APPROVAL"), any(), anyString());
     }
 
     @Test
     void agreePendingStocktakeAdjustsInventoryAndApproves() {
-        when(supplyRequestMapper.selectList(any(QueryWrapper.class)))
+        when(supplyRequestMapper.selectStocktakeRowsForApproval(anyString(), anyString()))
                 .thenReturn(List.of(stocktakeRow("PENDING_APPROVAL")));
-        when(inventoryItemMapper.update(isNull(), any(UpdateWrapper.class))).thenReturn(1);
-        when(supplyRequestMapper.update(isNull(), any(UpdateWrapper.class))).thenReturn(1);
+        when(inventoryItemMapper.updateQuantityForStocktake(any(), any(), any(), any(), any(), any(), any(), any()))
+                .thenReturn(1);
+        when(supplyRequestMapper.updateStocktakeToAgree(
+                anyString(), anyString(), anyString(), anyString(), any(), any(), anyString()))
+                .thenReturn(1);
 
         assertTrue(service.agree(agreeDto("CST2026-001")));
 
-        verify(inventoryItemMapper).update(isNull(), any(UpdateWrapper.class));
-        verify(supplyRequestMapper).update(isNull(), any(UpdateWrapper.class));
+        verify(inventoryItemMapper).updateQuantityForStocktake(
+                eq("med_medication_definition"), eq("drug-1"), eq("warehouse-1"), eq("LOT-1"), eq("box"),
+                eq(BigDecimal.TEN), any(), anyString());
+        verify(supplyRequestMapper).updateStocktakeToAgree(
+                eq("CST2026-001"), eq("CABINET_STOCKTAKE"), eq("PENDING_APPROVAL"), anyString(), any(), any(), anyString());
     }
 
     @Test
@@ -85,7 +150,7 @@ class StocktakeApprovalServiceImplTest {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> service.agree(dto));
 
         assertEquals("status must be AGREE when approving stocktake", ex.getMessage());
-        verify(supplyRequestMapper, never()).selectList(any(QueryWrapper.class));
+        verify(supplyRequestMapper, never()).selectStocktakeRowsForApproval(anyString(), anyString());
     }
 
     @Test
@@ -95,14 +160,16 @@ class StocktakeApprovalServiceImplTest {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> service.reject(dto));
 
         assertEquals("changeReason cannot be blank when rejecting approval", ex.getMessage());
-        verify(supplyRequestMapper, never()).selectList(any(QueryWrapper.class));
+        verify(supplyRequestMapper, never()).selectStocktakeRowsForApproval(anyString(), anyString());
     }
 
     @Test
     void rejectPendingStocktakeUpdatesToReject() {
-        when(supplyRequestMapper.selectList(any(QueryWrapper.class)))
+        when(supplyRequestMapper.selectStocktakeRowsForApproval(anyString(), anyString()))
                 .thenReturn(List.of(stocktakeRow("PENDING_APPROVAL")));
-        when(supplyRequestMapper.update(isNull(), any(UpdateWrapper.class))).thenReturn(1);
+        when(supplyRequestMapper.updateStocktakeToReject(
+                anyString(), anyString(), anyString(), anyString(), any(), anyString(), any(), anyString()))
+                .thenReturn(1);
 
         StocktakeRejectApprovalDTO dto = rejectDto("CST2026-001");
         dto.setChangeReasonCode("DIFF");
@@ -110,12 +177,14 @@ class StocktakeApprovalServiceImplTest {
 
         assertTrue(service.reject(dto));
 
-        verify(supplyRequestMapper).update(isNull(), any(UpdateWrapper.class));
+        verify(supplyRequestMapper).updateStocktakeToReject(
+                eq("CST2026-001"), eq("CABINET_STOCKTAKE"), eq("PENDING_APPROVAL"), anyString(), any(),
+                eq("DIFF:inventory difference needs recheck"), any(), anyString());
     }
 
     @Test
     void submitFailsWhenOrderDoesNotExist() {
-        when(supplyRequestMapper.selectList(any(QueryWrapper.class))).thenReturn(List.of());
+        when(supplyRequestMapper.selectStocktakeRowsForApproval(anyString(), anyString())).thenReturn(List.of());
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> service.submit(submitDto("CST2026-404")));
@@ -125,7 +194,7 @@ class StocktakeApprovalServiceImplTest {
 
     @Test
     void withdrawFailsWhenCurrentStatusIsNotPending() {
-        when(supplyRequestMapper.selectList(any(QueryWrapper.class)))
+        when(supplyRequestMapper.selectStocktakeRowsForApproval(anyString(), anyString()))
                 .thenReturn(List.of(stocktakeRow("DRAFT")));
 
         IllegalStateException ex = assertThrows(IllegalStateException.class,
@@ -136,17 +205,76 @@ class StocktakeApprovalServiceImplTest {
 
     @Test
     void submitQueryIsLimitedToWarehouseStocktakeType() {
-        when(supplyRequestMapper.selectList(any(QueryWrapper.class)))
+        when(supplyRequestMapper.selectStocktakeRowsForApproval(anyString(), anyString()))
                 .thenReturn(List.of(stocktakeRow("DRAFT")));
-        when(supplyRequestMapper.update(isNull(), any(UpdateWrapper.class))).thenReturn(1);
-        ArgumentCaptor<QueryWrapper<WkfSupplyRequest>> captor = ArgumentCaptor.forClass(QueryWrapper.class);
+        when(supplyRequestMapper.updateStocktakeToPending(
+                anyString(), anyString(), anyString(), anyString(), any(), any(), anyString()))
+                .thenReturn(1);
 
         service.submit(submitDto("CST2026-001"));
 
-        verify(supplyRequestMapper).selectList(captor.capture());
-        String sqlSegment = captor.getValue().getSqlSegment();
-        assertTrue(sqlSegment.contains("type_enum"));
-        assertTrue(sqlSegment.contains("bus_no"));
+        verify(supplyRequestMapper).selectStocktakeRowsForApproval("CST2026-001", "CABINET_STOCKTAKE");
+    }
+
+    @Test
+    void submitFailsWhenRowsHaveDifferentStatuses() {
+        when(supplyRequestMapper.selectStocktakeRowsForApproval(anyString(), anyString()))
+                .thenReturn(List.of(stocktakeRow("DRAFT"), stocktakeRow("PENDING_APPROVAL")));
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> service.submit(submitDto("CST2026-001")));
+
+        assertTrue(ex.getMessage().startsWith("stocktake order has inconsistent row statuses"));
+        verify(supplyRequestMapper, never()).updateStocktakeToPending(
+                anyString(), anyString(), anyString(), anyString(), any(), any(), anyString());
+    }
+
+    @Test
+    void agreeFailsWhenInventoryItemDoesNotExist() {
+        when(supplyRequestMapper.selectStocktakeRowsForApproval(anyString(), anyString()))
+                .thenReturn(List.of(stocktakeRow("PENDING_APPROVAL")));
+        when(inventoryItemMapper.updateQuantityForStocktake(any(), any(), any(), any(), any(), any(), any(), any()))
+                .thenReturn(0);
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> service.agree(agreeDto("CST2026-001")));
+
+        assertEquals("inventory item not found for stocktake row id: row-1", ex.getMessage());
+        verify(supplyRequestMapper, never()).updateStocktakeToAgree(
+                anyString(), anyString(), anyString(), anyString(), any(), any(), anyString());
+    }
+
+    @Test
+    void agreeFailsWhenActualQuantityIsNull() {
+        WkfSupplyRequest row = stocktakeRow("PENDING_APPROVAL");
+        row.setTotalQuantity(null);
+        when(supplyRequestMapper.selectStocktakeRowsForApproval(anyString(), anyString()))
+                .thenReturn(List.of(row));
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> service.agree(agreeDto("CST2026-001")));
+
+        assertEquals("stocktake actual quantity cannot be null, row id: row-1", ex.getMessage());
+        verify(inventoryItemMapper, never()).updateQuantityForStocktake(
+                any(), any(), any(), any(), any(), any(), any(), any());
+        verify(supplyRequestMapper, never()).updateStocktakeToAgree(
+                anyString(), anyString(), anyString(), anyString(), any(), any(), anyString());
+    }
+
+    @Test
+    void agreeFailsWhenStatusUpdateAffectsNoRowsAfterInventoryAdjusted() {
+        when(supplyRequestMapper.selectStocktakeRowsForApproval(anyString(), anyString()))
+                .thenReturn(List.of(stocktakeRow("PENDING_APPROVAL")));
+        when(inventoryItemMapper.updateQuantityForStocktake(any(), any(), any(), any(), any(), any(), any(), any()))
+                .thenReturn(1);
+        when(supplyRequestMapper.updateStocktakeToAgree(
+                anyString(), anyString(), anyString(), anyString(), any(), any(), anyString()))
+                .thenReturn(0);
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> service.agree(agreeDto("CST2026-001")));
+
+        assertEquals("failed to update stocktake approval status", ex.getMessage());
     }
 
     private StocktakeSubmitApprovalDTO submitDto(String busNo) {
@@ -186,7 +314,7 @@ class StocktakeApprovalServiceImplTest {
         row.setLotNumber("LOT-1");
         row.setUnitCode("box");
         row.setTotalQuantity(BigDecimal.TEN);
-        row.setIsDeleted(0);
+        row.setIsDeleted(false);
         return row;
     }
 }

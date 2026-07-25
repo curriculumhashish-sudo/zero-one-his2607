@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.pharmacy.mapper.WkfInventoryItemMapper">
+    <update id="updateQuantityForStocktake">
+        update wkf_inventory_item
+        set quantity = #{quantity},
+            updated_at = #{updatedAt},
+            updated_by = #{updatedBy}
+        where item_table = #{itemTable}
+          and item_id = #{itemId}
+          and location_id = #{locationId}
+          <choose>
+              <when test="lotNumber != null and lotNumber != ''">
+                  and lot_number = #{lotNumber}
+              </when>
+              <otherwise>
+                  and lot_number is null
+              </otherwise>
+          </choose>
+          <choose>
+              <when test="unitCode != null and unitCode != ''">
+                  and unit_code = #{unitCode}
+              </when>
+              <otherwise>
+                  and unit_code is null
+              </otherwise>
+          </choose>
+          and is_deleted = 0
+    </update>
+
+</mapper>

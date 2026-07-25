@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -28,7 +29,11 @@ class PharmacyControllerTest {
         WarehouseStocktakeController controller = new WarehouseStocktakeController();
         stocktakeApprovalService = mock(IStocktakeApprovalService.class);
         ReflectionTestUtils.setField(controller, "stocktakeApprovalService", stocktakeApprovalService);
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
+        validator.afterPropertiesSet();
+        mockMvc = MockMvcBuilders.standaloneSetup(controller)
+                .setValidator(validator)
+                .build();
     }
 
     @Test
@@ -77,5 +82,29 @@ class PharmacyControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(10000))
                 .andExpect(jsonPath("$.data").value(true));
+    }
+
+    @Test
+    void submitApprovalEndpointRejectsBlankBusNo() throws Exception {
+        mockMvc.perform(post("/stocktake/submit-approval")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"busNo\":\"\"}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void approveEndpointRejectsMissingStatus() throws Exception {
+        mockMvc.perform(post("/stocktake/approve")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"busNo\":\"CST2026-001\"}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void rejectEndpointRejectsMissingReason() throws Exception {
+        mockMvc.perform(post("/stocktake/reject")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"busNo\":\"CST2026-001\"}"))
+                .andExpect(status().isBadRequest());
     }
 }
