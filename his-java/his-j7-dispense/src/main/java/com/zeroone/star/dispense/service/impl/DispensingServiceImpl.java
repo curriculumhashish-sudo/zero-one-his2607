@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zeroone.star.dispense.entity.InventoryItem;
-import com.zeroone.star.dispense.entity.MedicationDispense;
+import com.zeroone.star.dispense.entity.MedMedicationDispense;
 import com.zeroone.star.dispense.mapper.InventoryItemMapper;
 import com.zeroone.star.dispense.mapper.MedicationDispenseMapper;
 import com.zeroone.star.dispense.service.IDispensingService;
@@ -61,7 +61,7 @@ public class DispensingServiceImpl implements IDispensingService {
                 throw new IllegalArgumentException("实发数量必须大于0，记录ID：" + item.getDispenseId());
             }
 
-            MedicationDispense dispense = medicationDispenseMapper.selectById(item.getDispenseId());
+            MedMedicationDispense dispense = medicationDispenseMapper.selectById(item.getDispenseId());
             if (dispense == null || !"PENDING".equals(dispense.getStatusEnum())) {
                 failedIds.add(item.getDispenseId());
                 continue;
@@ -72,14 +72,14 @@ public class DispensingServiceImpl implements IDispensingService {
             }
 
             int rows = medicationDispenseMapper.update(null,
-                    new LambdaUpdateWrapper<MedicationDispense>()
-                            .eq(MedicationDispense::getId, item.getDispenseId())
-                            .eq(MedicationDispense::getStatusEnum, "PENDING")
-                            .ge(MedicationDispense::getQuantity, item.getDispenseQuantity())
-                            .set(MedicationDispense::getDispenseQuantity, item.getDispenseQuantity())
-                            .set(MedicationDispense::getLotNumber, item.getLotNumber())
-                            .set(MedicationDispense::getStatusEnum, "COMPLETED")
-                            .set(MedicationDispense::getDispenseTime, LocalDateTime.now()));
+                    new LambdaUpdateWrapper<MedMedicationDispense>()
+                            .eq(MedMedicationDispense::getId, item.getDispenseId())
+                            .eq(MedMedicationDispense::getStatusEnum, "PENDING")
+                            .ge(MedMedicationDispense::getQuantity, item.getDispenseQuantity())
+                            .set(MedMedicationDispense::getDispenseQuantity, item.getDispenseQuantity())
+                            .set(MedMedicationDispense::getLotNumber, item.getLotNumber())
+                            .set(MedMedicationDispense::getStatusEnum, "COMPLETED")
+                            .set(MedMedicationDispense::getDispenseTime, LocalDateTime.now()));
             if (rows == 0) {
                 failedIds.add(item.getDispenseId());
                 continue;
