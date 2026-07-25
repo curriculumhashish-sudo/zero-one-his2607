@@ -77,10 +77,10 @@ std::list<PrintChargeReceiptTemplateDO> PrintChargeReceiptDAO::selectTemplateByS
 }
 
 int PrintChargeReceiptDAO::insertPrintLog(const std::string& traceId, const std::string& busNo,
-    const std::string& scenarioCode, int version, const std::string& status,
-    const std::string& printData, const std::string& bizRef,
+    int version, const std::string& status,
     const std::string& printer, int copies, const std::string& clientType,
-    const std::string& errorCode, const std::string& errorMessage)
+    const std::string& errorCode, const std::string& errorMessage,
+    const std::string& bizRef)
 {
     SqlParams params;
     std::ostringstream sql;
