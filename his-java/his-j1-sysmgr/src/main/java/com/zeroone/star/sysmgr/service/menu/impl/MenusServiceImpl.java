@@ -46,6 +46,18 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
 
     @Override
     public Boolean create(MenuCreateDTO menuDto) {
+        // 校验菜单是否已经存在
+        LambdaQueryWrapper<MenuDO> wrapper = new LambdaQueryWrapper<>();
+        // 最终sql： WHERE path = ? AND （code = ? OR name = ? OR display_name = ?）
+        wrapper.eq(MenuDO::getPath, menuDto.getPath())
+            .and(
+                w -> w.eq(MenuDO::getCode, menuDto.getCode()).or()
+                    .eq(MenuDO::getName, menuDto.getName()).or()
+                    .eq(MenuDO::getDisplayName, menuDto.getDisplayName())
+            );
+        if (this.baseMapper.selectCount(wrapper) > 0) {
+            throw new SystemException(MenuStatus.MENU_ALREADY_IS_EXIST);
+        }
         MenuDO menuDO = MenuConvertor.INSTANCE.createDO(menuDto);
         int result = this.baseMapper.insert(menuDO);
         Assert.isTrue(result > 0, () -> new SystemException(MenuStatus.MENU_CREATE_FAIL));

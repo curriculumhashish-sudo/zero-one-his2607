@@ -14,12 +14,17 @@ public enum MenuStatus implements SystemStatus {
     /**
      * 菜单创建失败
      */
-    MENU_CREATE_FAIL("菜单创建失败", 500),
+    MENU_CREATE_FAIL("菜单创建失败", 4002),
+
+    /**
+     * 菜单已经存在
+     */
+    MENU_ALREADY_IS_EXIST("菜单已经存在", 4003),
 
     /**
      * 菜单状态修改失败
      */
-    MENU_STATUS_EDIT_FAIL("菜单状态修改失败", 4003);
+    MENU_STATUS_EDIT_FAIL("菜单状态修改失败", 4004);
 
     private final String message;
 
