@@ -10,10 +10,12 @@ import com.zeroone.star.project.query.j2.sysmgr.rent2.RentNameQuery;
 import com.zeroone.star.project.query.j2.sysmgr.rent2.RentQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.sysmgr.service.IWhaleTenantsService;
+import com.zeroone.star.sysmgr.service.impl.WorkbenchMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
@@ -51,7 +53,7 @@ public class RentController implements RentApis {
     @Operation(summary = "获取租户列表（条件+分页）")
     @GetMapping("/query-all")
     @Override
-    public JsonVO<PageDTO<RentDTO2>> queryAll(RentQuery rentQuery) {
+    public JsonVO<PageDTO<RentDTO2>> queryAll(@Validated RentQuery rentQuery) {
         try {
             PageDTO<RentDTO2> result = whaleTenantsService.queryTenantList(rentQuery);
             return JsonVO.success(result);
