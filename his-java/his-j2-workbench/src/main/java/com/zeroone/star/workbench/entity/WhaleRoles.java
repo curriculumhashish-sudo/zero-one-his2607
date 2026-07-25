@@ -1,5 +1,7 @@
 package com.zeroone.star.workbench.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,6 +29,7 @@ public class WhaleRoles implements Serializable {
     /**
      * 主键
      */
+    @TableField(fill = FieldFill.INSERT)
     private String id;
 
     /**
@@ -67,21 +70,25 @@ public class WhaleRoles implements Serializable {
     /**
      * 创建时间
      */
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 
     /**
      * 最后更新时间
      */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updatedAt;
 
     /**
      * 创建人
      */
+    @TableField(fill = FieldFill.INSERT)
     private String createdBy;
 
     /**
      * 最后更新人
      */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private String updatedBy;
 
     /**

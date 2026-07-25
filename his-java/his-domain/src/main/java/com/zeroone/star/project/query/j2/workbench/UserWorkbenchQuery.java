@@ -1,5 +1,6 @@
 package com.zeroone.star.project.query.j2.workbench;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -16,11 +17,11 @@ import java.io.Serializable;
 @Data
 @Schema(description = "获取用户工作台菜单查询条件")
 public class UserWorkbenchQuery implements Serializable {
-
+    @NotBlank(message = "租户ID不能为空")
     @Schema(description = "租户医院ID", example = "001", requiredMode = Schema.RequiredMode.REQUIRED)
     private String tenantId;
 
-    //whale_users
+    @NotBlank(message = "用户ID不能为空")
     @Schema(description = "登录用户ID", example = "U001", requiredMode = Schema.RequiredMode.REQUIRED)
     private String userId;
 

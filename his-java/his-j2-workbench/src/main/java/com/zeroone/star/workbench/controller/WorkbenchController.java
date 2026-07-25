@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,6 +24,7 @@ import java.util.List;
  * @since 2026-07-24
  */
 @Slf4j
+@Validated
 @RestController
 @Tag(name = "工作台日常功能管理控制器")
 public class WorkbenchController implements WorkbenchApis {
