@@ -1,22 +1,5 @@
-ï»¿#pragma once
-/*
- Copyright Zero One Star. All rights reserved.
+#pragma once
 
- @Author: ovo
- @Date: 2026/07/20
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
-      https://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-*/
 #ifndef _GET_COST_DETAIL_QUERY_H_
 #define _GET_COST_DETAIL_QUERY_H_
 
@@ -28,17 +11,17 @@ class GetCostDetailQuery : public oatpp::DTO
 {
 	DTO_INIT(GetCostDetailQuery, DTO);
 
-	// ä½é™¢å°±è¯Šè®°å½•ä¸»é”®ã€‚
+	// ×¡Ôº¾ÍÕï¼ÇÂ¼Ö÷¼ü¡£
 	API_DTO_FIELD(String, encounterId,
 		ZH_WORDS_GETTER("ovo.charging.settle.GetCostDetailQuery.encounterId.description"),
 		true, "329874660147597312");
 
-	// æ‚£è€…ä¸»é”®ï¼Œç”¨äºæ ¡éªŒè¯¥ä½é™¢è®°å½•æ˜¯å¦å±äºå½“å‰æ‚£è€…ã€‚
+	// »¼ÕßÖ÷¼ü£¬ÓÃÓÚĞ£Ñé¸Ã×¡Ôº¼ÇÂ¼ÊÇ·ñÊôÓÚµ±Ç°»¼Õß¡£
 	API_DTO_FIELD(String, patientId,
 		ZH_WORDS_GETTER("ovo.charging.settle.GetCostDetailQuery.patientId.description"),
 		true, "329874660197928960");
 
-	// æ”¶è´¹æ˜ç»†çŠ¶æ€ç­›é€‰æ¡ä»¶ï¼ŒALL è¡¨ç¤ºæŸ¥è¯¢å…¨éƒ¨çŠ¶æ€ã€‚
+	// ÊÕ·ÑÃ÷Ï¸×´Ì¬É¸Ñ¡Ìõ¼ş£¬ALL ±íÊ¾²éÑ¯È«²¿×´Ì¬¡£
 	API_DTO_FIELD(String, statusEnum,
 		ZH_WORDS_GETTER("ovo.charging.settle.GetCostDetailQuery.statusEnum.description"),
 		false, "ALL");

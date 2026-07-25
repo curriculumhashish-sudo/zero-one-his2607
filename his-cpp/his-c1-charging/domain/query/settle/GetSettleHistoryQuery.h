@@ -1,22 +1,5 @@
-ï»¿#pragma once
-/*
- Copyright Zero One Star. All rights reserved.
+#pragma once
 
- @Author: ovo
- @Date: 2026/07/20
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
-      https://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-*/
 #ifndef _GET_SETTLE_HISTORY_QUERY_H_
 #define _GET_SETTLE_HISTORY_QUERY_H_
 
@@ -29,17 +12,17 @@ class GetSettleHistoryQuery : public PageQuery
 {
 	DTO_INIT(GetSettleHistoryQuery, PageQuery);
 
-	// æ‚£è€…ä¸»é”®ã€‚
+	// »¼ÕßÖ÷¼ü¡£
 	API_DTO_FIELD(String, patientId,
 		ZH_WORDS_GETTER("ovo.charging.settle.GetSettleHistoryQuery.patientId.description"),
 		true, "329874660197928960");
 
-	// å¯é€‰çš„ä½é™¢å°±è¯Šè®°å½•ä¸»é”®ï¼Œä¸ºç©ºæ—¶æŸ¥è¯¢è¯¥æ‚£è€…çš„å…¨éƒ¨ä½é™¢è®°å½•ã€‚
+	// ¿ÉÑ¡µÄ×¡Ôº¾ÍÕï¼ÇÂ¼Ö÷¼ü£¬Îª¿ÕÊ±²éÑ¯¸Ã»¼ÕßµÄÈ«²¿×¡Ôº¼ÇÂ¼¡£
 	API_DTO_FIELD(String, encounterId,
 		ZH_WORDS_GETTER("ovo.charging.settle.GetSettleHistoryQuery.encounterId.description"),
 		false, "");
 
-	// ç»“ç®—çŠ¶æ€ç­›é€‰æ¡ä»¶ï¼ŒALL è¡¨ç¤ºåŒ…å«ç»“ç®—å’Œé€€ç»“ç®—è®°å½•ã€‚
+	// ½áËã×´Ì¬É¸Ñ¡Ìõ¼ş£¬ALL ±íÊ¾°üº¬½áËãºÍÍË½áËã¼ÇÂ¼¡£
 	API_DTO_FIELD(String, statusEnum,
 		ZH_WORDS_GETTER("ovo.charging.settle.GetSettleHistoryQuery.statusEnum.description"),
 		false, "ALL");
