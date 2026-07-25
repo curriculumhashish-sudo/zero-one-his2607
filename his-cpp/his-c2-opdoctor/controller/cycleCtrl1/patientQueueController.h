@@ -41,17 +41,17 @@ public:
 		//定义标签
 		API_DEF_ADD_TAG(API_TAG);
 
-		//用户输入的请求
-		// 1.患者姓名
-		API_DEF_ADD_QUERY_PARAMS(String, "patientName", ZH_WORDS_GETTER("queue.param.patientName"), "", true);
-		// 2.日期
-		API_DEF_ADD_QUERY_PARAMS(String, "startDate", ZH_WORDS_GETTER("queue.param.startDate"), "2026-7-16", true);
-		// 3.待诊、在诊状态
-		API_DEF_ADD_QUERY_PARAMS(Int32, "Status", ZH_WORDS_GETTER("queue.param.Status"), 1, false);
-		// 4.完诊状态
-		API_DEF_ADD_QUERY_PARAMS(Int32, "finishStatus", ZH_WORDS_GETTER("queue.param.finishStatus"), 3, false);
-		// 5.全部状态
-		API_DEF_ADD_QUERY_PARAMS(Int32, "allStatus", ZH_WORDS_GETTER("queue.param.allStatus"), 4, true);
+		// 用户输入的请求参数名称和类型必须与 PatientQueueQuery DTO 字段严格一致
+		// 1. 日期 -> PatientQueueQuery 中字段名为 `date`
+		API_DEF_ADD_QUERY_PARAMS(String, "date", ZH_WORDS_GETTER("queue.param.startDate"), "", true);
+		// 2. 患者姓名 -> `patientName`
+		API_DEF_ADD_QUERY_PARAMS(String, "patientName", ZH_WORDS_GETTER("queue.param.patientName"), "", false);
+		// 3. 待诊/在诊 状态 -> DTO 字段为 `visitStatus`
+		API_DEF_ADD_QUERY_PARAMS(String, "visitStatus", ZH_WORDS_GETTER("queue.param.Status"), "", false);
+		// 4. 完诊状态 -> `finishStatus`
+		API_DEF_ADD_QUERY_PARAMS(String, "finishStatus", ZH_WORDS_GETTER("queue.param.finishStatus"), "", false);
+		// 5. 全部状态 -> `allStatus`
+		API_DEF_ADD_QUERY_PARAMS(String, "allStatus", ZH_WORDS_GETTER("queue.param.allStatus"),"", false);
 	}
 
 private:
