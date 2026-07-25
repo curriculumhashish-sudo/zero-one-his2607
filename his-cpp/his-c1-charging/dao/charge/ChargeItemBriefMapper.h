@@ -4,7 +4,7 @@
 #define _CHARGE_ITEM_BRIEF_MAPPER_H_
 
 #include "Mapper.h"
-#include "../../domain/do/charge/ChargeItemBriefDO.h"
+#include "domain/do/charge/ChargeItemBriefDO.h"
 
 /**
  * ChargeItemBriefDO 的结果集映射器

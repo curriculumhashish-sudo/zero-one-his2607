@@ -3,9 +3,9 @@
 #ifndef _GET_PATIENT_QUEUE_SERVICE_H_
 #define _GET_PATIENT_QUEUE_SERVICE_H_
 
-#include "../../domain/vo/charge/GetPatientQueueJsonVO.h"
-#include "../../domain/query/charge/GetPatientQueueQuery.h"
-#include "../../domain/dto/charge/GetPatientQueueDTO.h"
+#include "domain/vo/charge/GetPatientQueueJsonVO.h"
+#include "domain/query/charge/GetPatientQueueQuery.h"
+#include "domain/dto/charge/GetPatientQueueDTO.h"
 
 /**
  * 患者队列查询服务（接口1）

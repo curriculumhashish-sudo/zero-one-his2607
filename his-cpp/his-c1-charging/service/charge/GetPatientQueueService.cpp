@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "GetPatientQueueService.h"
-#include "../../dao/charge/GetPatientQueueDAO.h"
-#include "../../dao/charge/ChargeItemBriefDAO.h"
+#include "dao/charge/GetPatientQueueDAO.h"
+#include "dao/charge/ChargeItemBriefDAO.h"
 
 // 防止 ODBC/MySQL 类型冲突
 #include "NacosClient.h"
@@ -16,8 +16,8 @@
 
 std::string GetPatientQueueService::translateGender(const std::string& code)
 {
-    if (code == "MALE")   return "男";
-    if (code == "FEMALE") return "女";
+    if (code == "MALE")   return ZH_WORDS_GETTER("lhfc.charging.charge.dict.gender.male");
+    if (code == "FEMALE") return ZH_WORDS_GETTER("lhfc.charging.charge.dict.gender.female");
     return code;  // 兜底：返回编码原文
 }
 
@@ -36,15 +36,15 @@ std::string GetPatientQueueService::computeAgeText(const std::string& birthDate)
     int age = currentYear - birthYear;
     if (age < 0) return "";
 
-    return std::to_string(age) + "岁";
+    return std::to_string(age) + ZH_WORDS_GETTER("lhfc.charging.charge.dict.ageSuffix");
 }
 
 std::string GetPatientQueueService::translateChargeStatus(const std::string& code)
 {
-    if (code == "PENDING")   return "待收费";
-    if (code == "SETTLED")   return "已结算";
-    if (code == "REFUNDING") return "退费中";
-    if (code == "REFUNDED")  return "已退费";
+    if (code == "PENDING")   return ZH_WORDS_GETTER("lhfc.charging.charge.dict.chargeStatus.pending");
+    if (code == "SETTLED")   return ZH_WORDS_GETTER("lhfc.charging.charge.dict.chargeStatus.settled");
+    if (code == "REFUNDING") return ZH_WORDS_GETTER("lhfc.charging.charge.dict.chargeStatus.refunding");
+    if (code == "REFUNDED")  return ZH_WORDS_GETTER("lhfc.charging.charge.dict.chargeStatus.refunded");
     return code;  // 兜底
 }
 
@@ -69,9 +69,9 @@ std::string GetPatientQueueService::computeRollupStatusCode(
 
 std::string GetPatientQueueService::translateRollupStatus(const std::string& code)
 {
-    if (code == "planned") return "计划中";
-    if (code == "settled") return "已结算";
-    if (code == "mixed")   return "混合";
+    if (code == "planned") return ZH_WORDS_GETTER("lhfc.charging.charge.dict.rollupStatus.planned");
+    if (code == "settled") return ZH_WORDS_GETTER("lhfc.charging.charge.dict.rollupStatus.settled");
+    if (code == "mixed")   return ZH_WORDS_GETTER("lhfc.charging.charge.dict.rollupStatus.mixed");
     return code;
 }
 

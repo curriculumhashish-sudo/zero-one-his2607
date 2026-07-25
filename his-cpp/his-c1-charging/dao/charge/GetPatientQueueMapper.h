@@ -4,7 +4,7 @@
 #define _GET_PATIENT_QUEUE_MAPPER_H_
 
 #include "Mapper.h"
-#include "../../domain/do/charge/GetPatientQueueDO.h"
+#include "domain/do/charge/GetPatientQueueDO.h"
 
 /**
  * GetPatientQueueDO 的结果集映射器

@@ -4,8 +4,8 @@
 #define _GET_PATIENT_QUEUE_DAO_H_
 
 #include "BaseDAO.h"
-#include "../../domain/do/charge/GetPatientQueueDO.h"
-#include "../../domain/query/charge/GetPatientQueueQuery.h"
+#include "domain/do/charge/GetPatientQueueDO.h"
+#include "domain/query/charge/GetPatientQueueQuery.h"
 
 /**
  * 患者队列查询 DAO

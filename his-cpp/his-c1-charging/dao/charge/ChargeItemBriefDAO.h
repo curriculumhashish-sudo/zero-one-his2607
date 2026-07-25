@@ -4,7 +4,7 @@
 #define _CHARGE_ITEM_BRIEF_DAO_H_
 
 #include "BaseDAO.h"
-#include "../../domain/do/charge/ChargeItemBriefDO.h"
+#include "domain/do/charge/ChargeItemBriefDO.h"
 
 /**
  * 收费项摘要查询 DAO
