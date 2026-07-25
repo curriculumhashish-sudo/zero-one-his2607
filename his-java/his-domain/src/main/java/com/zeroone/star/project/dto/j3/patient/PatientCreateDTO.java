@@ -1,6 +1,10 @@
 package com.zeroone.star.project.dto.j3.patient;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -24,6 +28,8 @@ public class PatientCreateDTO {
             example = "张三",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
+    @NotBlank(message = "患者姓名不能为空")
+    @Size(max = 255, message = "患者姓名长度不能超过255个字符")
     private String name;
 
     @Schema(
@@ -31,6 +37,8 @@ public class PatientCreateDTO {
             example = "MALE",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
+    @NotBlank(message = "性别编码不能为空")
+    @Pattern(regexp = "MALE|FEMALE|UNKNOWN", message = "性别编码仅支持MALE、FEMALE或UNKNOWN")
     private String genderEnum;
 
     @Schema(
@@ -38,6 +46,7 @@ public class PatientCreateDTO {
             example = "1990-01-01",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
+    @PastOrPresent(message = "出生日期不能晚于当前日期")
     private LocalDate birthDate;
 
     @Schema(
@@ -45,6 +54,7 @@ public class PatientCreateDTO {
             example = "110101199001011234",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
+    @Size(max = 32, message = "身份证号长度不能超过32个字符")
     private String idCard;
 
     @Schema(
@@ -66,6 +76,7 @@ public class PatientCreateDTO {
             example = "13800000000",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
+    @Size(max = 32, message = "联系电话长度不能超过32个字符")
     private String phone;
 
     @Schema(
@@ -73,6 +84,7 @@ public class PatientCreateDTO {
             example = "北京市朝阳区示例路1号",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
+    @Size(max = 255, message = "详细地址长度不能超过255个字符")
     private String address;
 
     @Schema(
@@ -164,6 +176,7 @@ public class PatientCreateDTO {
             example = "13900000000",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
+    @Size(max = 32, message = "联系人电话长度不能超过32个字符")
     private String linkTelcom;
 
     @Schema(
@@ -171,5 +184,6 @@ public class PatientCreateDTO {
             example = "322663105141149696",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
+    @NotBlank(message = "建档机构ID不能为空")
     private String organizationId;
 }

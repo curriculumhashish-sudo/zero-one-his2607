@@ -1,6 +1,9 @@
 package com.zeroone.star.project.dto.j3.patient;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -24,6 +27,10 @@ public class PatientUpdateDTO extends PatientCreateDTO {
             example = "ACTIVE",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
+    @Pattern(
+            regexp = "DRAFT|ACTIVE|INACTIVE|MERGED|CANCELLED",
+            message = "患者状态编码不合法"
+    )
     private String statusEnum;
 
     @Schema(
@@ -45,5 +52,7 @@ public class PatientUpdateDTO extends PatientCreateDTO {
             example = "0",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
+    @NotNull(message = "乐观锁版本号不能为空")
+    @Min(value = 0, message = "乐观锁版本号不能小于0")
     private Integer version;
 }
