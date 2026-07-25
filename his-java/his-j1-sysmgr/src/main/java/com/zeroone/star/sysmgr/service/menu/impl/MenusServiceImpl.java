@@ -2,6 +2,8 @@ package com.zeroone.star.sysmgr.service.menu.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zeroone.star.project.exception.ZoHisException;
+import com.zeroone.star.sysmgr.convertor.MenuConvertor;
 import com.zeroone.star.sysmgr.entity.menu.MenuDO;
 import com.zeroone.star.project.vo.menu.MenuVO;
 import com.zeroone.star.sysmgr.mapper.menu.MenusMapper;
@@ -32,43 +34,29 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
         MenuDO menuDO = menusMapper.selectOne(wrapper);
 
         if (menuDO == null) {
-            throw new RuntimeException("菜单信息不存在");
+            throw new ZoHisException("菜单信息不存在");
         }
-        return convertToVO(menuDO);
+        return MenuConvertor.INSTANCE.toVO(menuDO);
     }
 
     /**
      * DO 对象转为 VO 对象
-     */
-    /**
-     * DO 对象转为 VO 对象
-     */
-    /**
-     * DO 对象转为 VO 对象
-     */
-    /**
-     * DO 对象转为 VO 对象
-     */
-    /**
-     * DO 对象转为 VO 对象
-     */
-    /**
-     * DO 对象转为 VO 对象
+     * @deprecated
      * @param menuDO 查询条件
      * @return 菜单详情信息VO
      */
+    @Deprecated
     private MenuVO convertToVO(MenuDO menuDO) {
         MenuVO vo = new MenuVO();
-        vo.setMenuId(Long.valueOf(menuDO.getId()));
+        vo.setMenuId(menuDO.getId());
         vo.setMenuName(menuDO.getName());
         vo.setShowName(menuDO.getDisplayName());
         vo.setIcon(menuDO.getIcon());
         vo.setPath(menuDO.getPath());
         vo.setComponent(menuDO.getComponent());
 
-        // parentId DO为String，VO为Long
         if (menuDO.getParentId() != null && !menuDO.getParentId().isEmpty()) {
-            vo.setParentId(Long.valueOf(menuDO.getParentId()));
+            vo.setParentId(menuDO.getParentId());
         } else {
             vo.setParentId(null);
         }
