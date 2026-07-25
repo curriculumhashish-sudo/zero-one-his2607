@@ -1,4 +1,4 @@
-package com.zeroone.star.inventory.controller;
+package com.zeroone.star.pharmacy.controller;
 
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.stocktake.StocktakeSubmitDTO;

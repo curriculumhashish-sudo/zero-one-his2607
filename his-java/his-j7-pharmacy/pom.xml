@@ -3,39 +3,12 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.zeroone.star</groupId>
         <artifactId>his-java</artifactId>
+        <groupId>com.zeroone.star</groupId>
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>his-j7-pharmacy</artifactId>
-
-    <dependencyManagement>
-        <dependencies>
-            <!-- 强制统一 MyBatis-Plus 版本 -->
-            <dependency>
-                <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus-boot-starter</artifactId>
-                <version>3.5.7</version>
-            </dependency>
-            <dependency>
-                <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus-core</artifactId>
-                <version>3.5.7</version>
-            </dependency>
-            <dependency>
-                <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus-extension</artifactId>
-                <version>3.5.7</version>
-            </dependency>
-            <dependency>
-                <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus-spring-boot-autoconfigure</artifactId>
-                <version>3.5.7</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
         <!--spring web mvc-->
         <dependency>
@@ -53,7 +26,7 @@
             <artifactId>his-common</artifactId>
         </dependency>
 
-
+        <!--nacos相关-->
         <!--nacos discovery-->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
@@ -65,16 +38,32 @@
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
         </dependency>
 
+        <!--数据库-->
+        <!--mp-->
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-jsqlparser</artifactId>
+        </dependency>
+        <!--druid-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-starter</artifactId>
+        </dependency>
+        <!--jdbc driver-->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
         </dependency>
 
+        <!-- mapstruct -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -82,7 +71,21 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.zeroone.star.j7.pharmacy.J7PharmacyApplication</mainClass>
+                    <mainClass>com.zeroone.star.pharmacy.PharmacyApplication</mainClass>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.zeroone.star</groupId>
+                <artifactId>mp-code-generator-plugin</artifactId>
+                <configuration>
+                    <dbConfig>
+                        <host>192.168.220.128</host>
+                        <port>3306</port>
+                        <dbname>test</dbname>
+                        <username>root</username>
+                        <password>123456</password>
+                    </dbConfig>
+                    <outDir>${project.basedir}/src/main/java</outDir>
                 </configuration>
             </plugin>
             <plugin>
@@ -110,7 +113,7 @@
                                 <namingStrategy>alias</namingStrategy>
                                 <!-- 端口映射 -->
                                 <ports>
-                                    <port>10500:10500</port>
+                                    <port>10300:10300</port>
                                 </ports>
                                 <!-- 数据卷 -->
                                 <volumes>
