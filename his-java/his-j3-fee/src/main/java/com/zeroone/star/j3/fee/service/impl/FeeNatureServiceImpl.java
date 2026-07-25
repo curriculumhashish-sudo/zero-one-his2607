@@ -7,7 +7,7 @@ import com.zeroone.star.j3.fee.entity.FeeNature;
 import com.zeroone.star.j3.fee.mapper.FeeNatureMapper;
 import com.zeroone.star.j3.fee.service.IFeeNatureService;
 import com.zeroone.star.project.dto.j3.fee.FeeNatureDTO;
-import com.zeroone.star.project.enums.j3.FeeCategoryEnum;
+import com.zeroone.star.project.enums.j3.fee.FeeCategoryEnum;
 import com.zeroone.star.project.query.j3.fee.FeeNatureQuery;
 import com.zeroone.star.project.vo.j3.fee.FeeNatureVO;
 import org.springframework.beans.BeanUtils;
@@ -34,10 +34,10 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
             wrapper.and(w -> w
                     .like(FeeNature::getName, query.getKeyword())
                     .or()
-                    .like(FeeNature::getCode, query.getKeyword()));
+                    .like(FeeNature::getBusNo, query.getKeyword()));
         }
         // 按显示顺序升序
-        wrapper.orderByAsc(FeeNature::getSortOrder);
+        wrapper.orderByAsc(FeeNature::getDisplayOrder);
 
         List<FeeNature> entities = baseMapper.selectList(wrapper);
         List<FeeNatureVO> vos = new ArrayList<>();
@@ -48,34 +48,39 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
     }
 
     @Override
-    public boolean updateFeeNature(Long id, FeeNatureDTO dto) {
+    public void updateFeeNature(String id, FeeNatureDTO dto) {
         FeeNature entity = baseMapper.selectById(id);
         if (entity == null) {
-            return false;
+            throw new RuntimeException("费用性质不存在");
         }
         // 编码变更时检查唯一性
-        if (dto.getCode() != null && !dto.getCode().equals(entity.getCode())) {
+        if (dto.getBusNo() != null && !dto.getBusNo().equals(entity.getBusNo())) {
             LambdaQueryWrapper<FeeNature> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(FeeNature::getCode, dto.getCode());
+            wrapper.eq(FeeNature::getBusNo, dto.getBusNo());
             if (baseMapper.selectCount(wrapper) > 0) {
                 throw new RuntimeException("费用性质编码已存在，请重新输入");
             }
         }
         entity.setName(dto.getName());
-        entity.setCode(dto.getCode());
-        entity.setSortOrder(dto.getSortOrder());
-        entity.setCategory(dto.getCategory());
-        return updateById(entity);
+        entity.setBusNo(dto.getBusNo());
+        entity.setDisplayOrder(dto.getDisplayOrder());
+        entity.setCategoryEnum(FeeCategoryEnum.of(dto.getCategoryEnum()));
+        entity.setActiveFlag(dto.getActiveFlag());
+        if (!updateById(entity)) {
+            throw new RuntimeException("修改失败");
+        }
     }
 
     @Override
-    public boolean updateStatus(Long id, Integer isEnabled) {
+    public void updateStatus(String id, Integer isEnabled) {
         FeeNature entity = baseMapper.selectById(id);
         if (entity == null) {
-            return false;
+            throw new RuntimeException("费用性质不存在");
         }
-        entity.setIsEnabled(isEnabled);
-        return updateById(entity);
+        entity.setActiveFlag(isEnabled);
+        if (!updateById(entity)) {
+            throw new RuntimeException("状态更新失败");
+        }
     }
 
     @Override
@@ -136,10 +141,11 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
         FeeNatureVO vo = new FeeNatureVO();
         vo.setId(entity.getId());
         vo.setName(entity.getName());
-        vo.setCode(entity.getCode());
-        vo.setIsEnabled(entity.getIsEnabled());
-        vo.setSortOrder(entity.getSortOrder());
-        vo.setCategory(entity.getCategory());
+        vo.setBusNo(entity.getBusNo());
+        vo.setActiveFlag(entity.getActiveFlag());
+        vo.setDisplayOrder(entity.getDisplayOrder());
+        vo.setCategoryEnum(entity.getCategoryEnum().getDesc());
+        vo.setStatusEnum(entity.getStatusEnum());
         return vo;
     }
 }

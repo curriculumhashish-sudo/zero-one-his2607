@@ -1,7 +1,5 @@
 package com.zeroone.star.j3.fee.controller;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zeroone.star.j3.fee.entity.FeeNature;
 import com.zeroone.star.j3.fee.service.IFeeNatureService;
 import com.zeroone.star.project.dto.j3.fee.FeeNatureDTO;
 import com.zeroone.star.project.dto.PageDTO;
@@ -43,7 +41,7 @@ public class FeeNatureController implements FeeNatureApis {
         pageDTO.setPageIndex(query.getPageIndex());
         pageDTO.setPageSize(query.getPageSize());
         pageDTO.setTotal((long) list.size());
-        pageDTO.setPages(list.isEmpty() ? 0L : (long) Math.ceil((double) list.size() / query.getPageSize()));
+        pageDTO.setPages(list.isEmpty() ? 0L : (list.size() + query.getPageSize() - 1) / query.getPageSize());
         pageDTO.setRows(list);
         return JsonVO.success(pageDTO);
     }
@@ -53,20 +51,10 @@ public class FeeNatureController implements FeeNatureApis {
     @Operation(summary = "修改费用性质",
             description = "根据ID修改费用性质信息。修改后新产生的收费记录将使用更新后的名称/编码，已结算的历史记录不受影响")
     public JsonVO<String> update(
-            @PathVariable("id") Long id,
+            @PathVariable("id") String id,
             @Valid @RequestBody FeeNatureDTO dto) {
-        if (id == null || id <= 0) {
-            return JsonVO.fail("ID参数错误");
-        }
-        if (dto.getCode() == null || dto.getCode().isEmpty()) {
-            return JsonVO.fail("费用性质编码不能为空");
-        }
-        try {
-            boolean success = feeNatureService.updateFeeNature(id, dto);
-            return success ? JsonVO.success("修改成功") : JsonVO.fail("费用性质不存在");
-        } catch (RuntimeException e) {
-            return JsonVO.fail(e.getMessage());
-        }
+        feeNatureService.updateFeeNature(id, dto);
+        return JsonVO.success("修改成功");
     }
 
     @Override
@@ -74,15 +62,12 @@ public class FeeNatureController implements FeeNatureApis {
     @Operation(summary = "停/启用费用性质",
             description = "切换费用性质的启用状态。停用后收费结算下拉框不再显示该项，新收费不可选择；已有结算记录不受影响，仍可正常查询统计")
     public JsonVO<String> updateStatus(
-            @RequestParam("id") Long id,
+            @RequestParam("id") String id,
             @RequestParam("isEnabled") Integer isEnabled) {
         if (isEnabled != 0 && isEnabled != 1) {
             return JsonVO.fail("状态参数错误，只能为 0（停用）或 1（启用）");
         }
-        boolean success = feeNatureService.updateStatus(id, isEnabled);
-        if (!success) {
-            return JsonVO.fail("费用性质不存在");
-        }
+        feeNatureService.updateStatus(id, isEnabled);
         String statusText = isEnabled == 1 ? "启用" : "停用";
         return JsonVO.success(statusText + "成功");
     }

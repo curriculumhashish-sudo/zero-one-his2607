@@ -1,8 +1,7 @@
 package com.zeroone.star.project.vo.j3.fee;
 
-import com.zeroone.star.project.enums.j3.FeeCategoryEnum;
+import com.zeroone.star.project.enums.j3.fee.FeeCategoryEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -16,25 +15,24 @@ import java.io.Serializable;
 @Data
 public class FeeNatureVO implements Serializable {
 
-    @Schema(description = "费用性质ID", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long id;
+    @Schema(description = "费用性质ID", example = "abc123", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String id;
 
     @Schema(description = "费用性质名称", example = "自费", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
 
-    @Schema(description = "费用性质编码", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String code;
+    @Schema(description = "费用性质编码（业务编号）", example = "1001", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String busNo;
 
-    @Schema(description = "是否启用 1 启用 0 禁用", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Integer isEnabled;
-
-    @Schema(description = "费用性质显示顺序", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Integer sortOrder;
+    @Schema(description = "显示顺序", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Integer displayOrder;
 
     @Schema(description = "费用性质分类", example = "自费", requiredMode = Schema.RequiredMode.REQUIRED)
-    private FeeCategoryEnum category;
+    private FeeCategoryEnum categoryEnum;
 
-//    // 不能确定前端传输的是数字还是字符串
-//    @Schema(description = "费用性质分类", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-//    private Integer category;
+    @Schema(description = "是否启用 1 启用 0 禁用", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Integer activeFlag;
+
+    @Schema(description = "状态", example = "ACTIVE", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String statusEnum;
 }

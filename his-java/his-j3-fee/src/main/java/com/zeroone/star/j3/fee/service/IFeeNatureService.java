@@ -29,17 +29,17 @@ public interface IFeeNatureService extends IService<FeeNature> {
      * 修改费用性质
      * @param id  费用性质ID
      * @param dto 费用性质数据
-     * @return 是否成功
+     * @throws RuntimeException 业务失败时抛出
      */
-    boolean updateFeeNature(Long id, FeeNatureDTO dto);
+    void updateFeeNature(String id, FeeNatureDTO dto);
 
     /**
      * 停/启用费用性质
      * @param id        费用性质ID
      * @param isEnabled 是否启用 1启用 0禁用
-     * @return 是否成功
+     * @throws RuntimeException 业务失败时抛出
      */
-    boolean updateStatus(Long id, Integer isEnabled);
+    void updateStatus(String id, Integer isEnabled);
 
     /**
      * 查询费用性质名称
