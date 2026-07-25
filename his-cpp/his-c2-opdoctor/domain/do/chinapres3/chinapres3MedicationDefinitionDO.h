@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _MEDICATIONDEFINITIONDO_H_
-#define _MEDICATIONDEFINITIONDO_H_
+#ifndef _chinapres3MedicationDefinitionDO_H_
+#define _chinapres3MedicationDefinitionDO_H_
 
 #include "../DoInclude.h"
 
@@ -17,7 +17,7 @@
  * 在中医处方签发中：
  * 主要用于查询可添加的中药材信息
  */
-class MedicationDefinitionDO : public BaseDO
+class chinapres3MedicationDefinitionDO : public BaseDO
 {
 	// 药品ID
 	MYSQL_SYNTHESIZE(string, id, Id);
@@ -63,7 +63,7 @@ public:
 	 * 对应数据库：
 	 * med_medication_definition
 	 */
-	MedicationDefinitionDO()
+	chinapres3MedicationDefinitionDO()
 		: BaseDO("med_medication_definition")
 	{
 		MYSQL_ADD_FIELD_PK("id", "s", id);
@@ -82,6 +82,6 @@ public:
 };
 
 // 智能指针别名
-typedef std::shared_ptr<MedicationDefinitionDO> PtrMedicationDefinitionDO;
+typedef std::shared_ptr<chinapres3MedicationDefinitionDO> Ptrchinapres3MedicationDefinitionDO;
 
-#endif // !_MEDICATIONDEFINITIONDO_H_
+#endif // !_chinapres3MedicationDefinitionDO_H_

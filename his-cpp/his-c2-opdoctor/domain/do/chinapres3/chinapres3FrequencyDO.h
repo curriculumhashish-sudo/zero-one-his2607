@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _FREQUENCYDO_H_
-#define _FREQUENCYDO_H_
+#ifndef _chinapres3FrequencyDO_H_
+#define _chinapres3FrequencyDO_H_
 
 #include "../DoInclude.h"
 
@@ -17,7 +17,7 @@
  * 用于：
  * 处方签发时频次下拉选择
  */
-class FrequencyDO : public BaseDO
+class chinapres3FrequencyDO : public BaseDO
 {
 	// 频次ID
 	MYSQL_SYNTHESIZE(string, id, Id);
@@ -34,7 +34,7 @@ class FrequencyDO : public BaseDO
 	MYSQL_SYNTHESIZE(bool, activeFlag, ActiveFlag);
 
 public:
-	FrequencyDO()
+	chinapres3FrequencyDO()
 		: BaseDO("cus_frequency")
 	{
 		// 主键
@@ -52,6 +52,6 @@ public:
 	}
 };
 
-typedef std::shared_ptr<FrequencyDO> PtrFrequencyDO;
+typedef std::shared_ptr<chinapres3FrequencyDO> Ptrchinapres3FrequencyDO;
 
 #endif

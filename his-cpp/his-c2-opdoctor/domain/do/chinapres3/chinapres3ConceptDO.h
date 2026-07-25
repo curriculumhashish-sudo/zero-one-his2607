@@ -1,8 +1,8 @@
 #pragma once
 #pragma once
 
-#ifndef _CONCEPTDO_H_
-#define _CONCEPTDO_H_
+#ifndef _chinapres3ConceptDO_H_
+#define _chinapres3ConceptDO_H_
 
 #include "../DoInclude.h"
 
@@ -33,7 +33,7 @@
  * 3. code用于业务保存
  * 4. display用于页面展示
  */
-class ConceptDO : public BaseDO
+class chinapres3ConceptDO : public BaseDO
 {
 	/**
 	 * 数据库主键
@@ -107,7 +107,7 @@ public:
 	 * 对应数据表：
 	 * ter_concept
 	 */
-	ConceptDO()
+	chinapres3ConceptDO()
 		: BaseDO("ter_concept")
 	{
 		// 主键
@@ -126,6 +126,6 @@ public:
 };
 
 // 智能指针别名
-typedef std::shared_ptr<ConceptDO> PtrConceptDO;
+typedef std::shared_ptr<chinapres3ConceptDO> Ptrchinapres3ConceptDO;
 
-#endif // !_CONCEPTDO_H_
+#endif // !_chinapres3ConceptDO_H_

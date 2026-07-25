@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _CONDITIONDO_H_
-#define _CONDITIONDO_H_
+#ifndef _chinapres3ConditionDO_H_
+#define _chinapres3ConditionDO_H_
 
 #include "../DoInclude.h"
 
@@ -21,7 +21,7 @@
  * 2. 不负责诊断新增和修改
  * 3. id为数据库记录ID，不是处方编号
  */
-class ConditionDO : public BaseDO
+class chinapres3ConditionDO : public BaseDO
 {
 	/**
 	 * 数据库主键
@@ -97,7 +97,7 @@ public:
 	 * 绑定数据库表：
 	 * cln_condition
 	 */
-	ConditionDO() : BaseDO("cln_condition")
+	chinapres3ConditionDO() : BaseDO("cln_condition")
 	{
 		// 主键
 		MYSQL_ADD_FIELD_PK("id", "s", id);
@@ -115,6 +115,6 @@ public:
 };
 
 // 智能指针别名
-typedef std::shared_ptr<ConditionDO> PtrConditionDO;
+typedef std::shared_ptr<chinapres3ConditionDO> Ptrchinapres3ConditionDO;
 
-#endif // !_CONDITIONDO_H_
+#endif // !_chinapres3ConditionDO_H_

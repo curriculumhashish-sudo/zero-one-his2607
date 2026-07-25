@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _MEDICATIONREQUESTDO_H_
-#define _MEDICATIONREQUESTDO_H_
+#ifndef _chinapres3MedicationRequestDO_H_
+#define _chinapres3MedicationRequestDO_H_
 
 #include "../DoInclude.h"
 
@@ -17,7 +17,7 @@
  prescription_no:
       业务处方编号，同一张处方下多个药品记录共享
 **/
-class MedicationRequestDO : public BaseDO
+class chinapres3MedicationRequestDO : public BaseDO
 {
 	// =============================
 	// 基础字段
@@ -80,7 +80,7 @@ public:
 	 * 指定对应数据库表：
 	 * med_medication_request
 	 */
-	MedicationRequestDO() : BaseDO("med_medication_request")
+	chinapres3MedicationRequestDO() : BaseDO("med_medication_request")
 	{
 		// =============================
 		// 主键
@@ -118,6 +118,6 @@ public:
 };
 
 // 智能指针别名
-typedef std::shared_ptr<MedicationRequestDO> PtrMedicationRequestDO;
+typedef std::shared_ptr<chinapres3MedicationRequestDO> Ptrchinapres3MedicationRequestDO;
 
-#endif // !_MEDICATIONREQUESTDO_H_
+#endif // !_chinapres3MedicationRequestDO_H_
