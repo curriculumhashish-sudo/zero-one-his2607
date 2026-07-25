@@ -68,11 +68,7 @@ public class UserController implements UserApis {
     @DeleteMapping("/{id}")
     @Override
     public JsonVO<Boolean> deleteById(@PathVariable String id){
-        try {
-            return JsonVO.success(userService.softDeleteById(id));
-        } catch (Exception e) {
-            return JsonVO.fail("删除失败: " + e.getMessage());
-        }
+        return JsonVO.success(userService.softDeleteById(id));
     }
 
     @Operation(summary   = "修改密码")

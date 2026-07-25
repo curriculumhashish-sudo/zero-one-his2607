@@ -18,7 +18,7 @@ public interface IUserService extends IService<User> {
      * @param id        用户ID
      * @return 是否删除成功
      */
-    boolean softDeleteById(String id) throws Exception;
+    boolean softDeleteById(String id);
 
     /**
      * 修改用户启用状态
