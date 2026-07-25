@@ -19,9 +19,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 /**
  * <p>
@@ -35,7 +33,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/treatment")
 @Tag(name = "诊疗管理", description = "诊疗管理接口")
-@Validated
 public class TreatmentController implements TreatmentApis {
 
     @Resource
@@ -66,7 +63,7 @@ public class TreatmentController implements TreatmentApis {
     @ApiResponse(description = "诊疗详情数据")
     @GetMapping("/get-treatment")
     @Override
-    public JsonVO<TreatmentDetailVO> getTreatment(@RequestParam @NotBlank(message = "诊疗ID不能为空") String id) {
+    public JsonVO<TreatmentDetailVO> getTreatment(@RequestParam String id) {
         return JsonVO.success(treatmentService.getTreatmentById(id));
     }
 
@@ -96,7 +93,7 @@ public class TreatmentController implements TreatmentApis {
     @ApiResponse(description = "无返回值")
     @DeleteMapping("/remove-treatment")
     @Override
-    public JsonVO<Void> removeTreatment(@RequestParam @NotBlank(message = "诊疗ID不能为空") String id) {
+    public JsonVO<Void> removeTreatment(@RequestParam String id) {
         treatmentService.removeTreatment(id);
         return JsonVO.success(null);
     }
