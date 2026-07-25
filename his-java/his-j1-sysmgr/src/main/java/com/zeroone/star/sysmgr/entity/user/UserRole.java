@@ -23,11 +23,6 @@ import lombok.experimental.Accessors;
 @ToString
 @TableName("whale_user_roles")
 public class UserRole extends BaseDO {
-    /**
-     * 主键
-     */
-    @TableField("id")
-    private String id;
 
     /**
      * 用户标识
@@ -46,30 +41,6 @@ public class UserRole extends BaseDO {
      */
     @TableField("tenant_id")
     private String tenantId;
-
-    /**
-     * 创建时间
-     */
-    @TableField("created_at")
-    private LocalDateTime createdAt;
-
-    /**
-     * 最后更新时间
-     */
-    @TableField("updated_at")
-    private LocalDateTime updatedAt;
-
-    /**
-     * 创建人
-     */
-    @TableField("created_by")
-    private String createdBy;
-
-    /**
-     * 最后更新人
-     */
-    @TableField("updated_by")
-    private String updatedBy;
 
     /**
      * 软删标记

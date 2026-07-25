@@ -22,10 +22,6 @@ import lombok.experimental.Accessors;
 @ToString
 @TableName("whale_users")
 public class User extends BaseDO {
-    /**
-     * 主键
-     */
-    private String id;
 
     /**
      * 登录用户名
@@ -81,26 +77,6 @@ public class User extends BaseDO {
      * 扩展属性 JSON
      */
     private String extraProperties;
-
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createdAt;
-
-    /**
-     * 最后更新时间
-     */
-    private LocalDateTime updatedAt;
-
-    /**
-     * 创建人
-     */
-    private String createdBy;
-
-    /**
-     * 最后更新人
-     */
-    private String updatedBy;
 
     /**
      * 软删标记
