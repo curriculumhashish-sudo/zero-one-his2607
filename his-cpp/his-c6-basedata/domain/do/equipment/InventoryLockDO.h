@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _EQUIPMENT_H_
-#define _EQUIPMENT_H_
+#ifndef _INVENTORYLOCKDO_H_
+#define _INVENTORYLOCKDO_H_
 
 #include "../DoInclude.h"
 
@@ -77,4 +77,4 @@ public:
 // 定义一个器材实体的智能指针
 typedef std::shared_ptr<InventoryLockDO> PtrInventoryLockDO;
 
-#endif // !_EQUIPMENT_H_
+#endif // !_INVENTORYLOCKDO_H_
