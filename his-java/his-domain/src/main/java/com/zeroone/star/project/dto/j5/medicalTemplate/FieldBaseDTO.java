@@ -11,6 +11,8 @@ import lombok.Data;
 @Data
 @Schema(description = "写addDTO 与 update 的公共字段")
 public class FieldBaseDTO {
+    @Schema(description = "id/雪花算法自动生成",hidden = true, requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String id;
     @Schema(description = "fieldKey" , example = "patientName", requiredMode = Schema.RequiredMode.REQUIRED)
     private String fieldKey;
 
@@ -41,9 +43,9 @@ public class FieldBaseDTO {
     @Schema(description = "排序" , example = "0", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Integer sortOrder;
 
-    @Schema(description = "启用" , example = "启用", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "启用" , example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Integer isEnabled;
 
-    @Schema(description = "备注" , example = " ", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "备注" , example = "无", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String remark;
 }
