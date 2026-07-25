@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.zeroone.star.project.enums.j3.FeeCategoryEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -46,7 +47,7 @@ public class FeeNature implements Serializable {
     /**
      * 费用性质分类(可选值：自费、公费、省医保、市医保)
      */
-    private String category;
+    private FeeCategoryEnum category;
 
     /**
      * 是否启用 0 禁用 1 启用

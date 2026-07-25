@@ -1,5 +1,6 @@
 package com.zeroone.star.project.vo.j3.fee;
 
+import com.zeroone.star.project.enums.j3.FeeCategoryEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -31,7 +32,7 @@ public class FeeNatureVO implements Serializable {
     private Integer sortOrder;
 
     @Schema(description = "费用性质分类", example = "自费", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String category;
+    private FeeCategoryEnum category;
 
 //    // 不能确定前端传输的是数字还是字符串
 //    @Schema(description = "费用性质分类", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)

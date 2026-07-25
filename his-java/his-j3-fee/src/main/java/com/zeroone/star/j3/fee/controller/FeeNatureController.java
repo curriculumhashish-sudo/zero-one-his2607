@@ -93,31 +93,7 @@ public class FeeNatureController implements FeeNatureApis {
             description = "获取所有已启用的费用性质，供门诊/住院收费结算界面下拉框选择，常用于患者缴费时确定费用类别")
     public JsonVO<List<FeeNatureVO>> getNameList() {
         // Mock 数据：返回启用的费用性质用于下拉框
-        List<FeeNatureVO> list = new ArrayList<>();
-        FeeNatureVO vo1 = new FeeNatureVO();
-        vo1.setName("自费");
-        vo1.setCode("1");
-        vo1.setIsEnabled(1);
-        vo1.setSortOrder(1);
-        vo1.setCategory("自费");
-        list.add(vo1);
-
-        FeeNatureVO vo2 = new FeeNatureVO();
-        vo2.setName("省医保");
-        vo2.setCode("3");
-        vo2.setIsEnabled(1);
-        vo2.setSortOrder(2);
-        vo2.setCategory("医保");
-        list.add(vo2);
-
-        FeeNatureVO vo3 = new FeeNatureVO();
-        vo3.setName("市医保");
-        vo3.setCode("2");
-        vo3.setIsEnabled(1);
-        vo3.setSortOrder(3);
-        vo3.setCategory("医保");
-        list.add(vo3);
-
+        List<FeeNatureVO> list = feeNatureService.getNameList();
         return JsonVO.success(list);
     }
 
@@ -126,15 +102,7 @@ public class FeeNatureController implements FeeNatureApis {
     @Operation(summary = "添加费用性质",
             description = "新增一条费用性质记录（如新增医保类型）。添加后即时生效，收费结算模块可立即选用")
     public JsonVO<String> add(@Valid @RequestBody FeeNatureDTO dto) {
-        // 校验编码是否已存在（Mock）
-        if (dto.getCode() == null || dto.getCode().isEmpty()) {
-            return JsonVO.fail("费用性质编码不能为空");
-        }
-        // 模拟重复编码校验
-        if ("999".equals(dto.getCode())) {
-            return JsonVO.fail("费用性质编码已存在，请重新输入");
-        }
-        // TODO: 实际实现后续由开发者补充
+        feeNatureService.add(dto);
         return JsonVO.success("添加成功");
     }
 
@@ -143,15 +111,7 @@ public class FeeNatureController implements FeeNatureApis {
     @Operation(summary = "删除费用性质",
             description = "根据ID删除费用性质。注意：若该费用性质已被收费结算记录引用（存在关联患者缴费数据），则不允许删除，需先停用或处理关联数据")
     public JsonVO<String> delete(@PathVariable("id") Long id) {
-        // 校验ID是否存在（Mock）
-        if (id == null || id <= 0) {
-            return JsonVO.fail("ID参数错误");
-        }
-        // 模拟删除时检查关联数据（Mock：假设 ID=1 的数据被引用，不能删除）
-        if (id == 1L) {
-            return JsonVO.fail("该费用性质已被使用，无法删除");
-        }
-        // TODO: 实际实现后续由开发者补充
+        feeNatureService.delete(id);
         return JsonVO.success("删除成功");
     }
 }

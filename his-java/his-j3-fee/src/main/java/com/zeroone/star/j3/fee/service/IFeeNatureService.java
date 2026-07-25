@@ -5,6 +5,7 @@ import com.zeroone.star.j3.fee.entity.FeeNature;
 import com.zeroone.star.project.dto.j3.fee.FeeNatureDTO;
 import com.zeroone.star.project.query.j3.fee.FeeNatureQuery;
 import com.zeroone.star.project.vo.j3.fee.FeeNatureVO;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -39,4 +40,21 @@ public interface IFeeNatureService extends IService<FeeNature> {
      * @return 是否成功
      */
     boolean updateStatus(Long id, Integer isEnabled);
+
+    /**
+     * 查询费用性质名称
+     * @return 费用性质的编码和名字
+     */
+    List<FeeNatureVO> getNameList();
+
+
+    /**
+     * 添加费用性质
+     */
+    void add(@Valid FeeNatureDTO dto);
+
+    /**
+     * 删除费用性质
+     */
+    void delete(Long id);
 }

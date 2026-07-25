@@ -1,5 +1,6 @@
 package com.zeroone.star.project.dto.j3.fee;
 
+import com.zeroone.star.project.enums.j3.FeeCategoryEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -31,9 +32,9 @@ public class FeeNatureDTO implements Serializable {
     @Schema(description = "费用性质显示顺序", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer sortOrder;
 
-    @NotBlank(message = "分类不能为空")
+    @NotNull(message = "分类不能为空")
     @Schema(description = "费用性质分类(可选值：自费、公费、省医保、市医保)", example = "自费", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String category;
+    private FeeCategoryEnum category;
 
 //    // 不能确定前端传输的是数字还是字符串
 //    @NotBlank(message = "分类不能为空")
