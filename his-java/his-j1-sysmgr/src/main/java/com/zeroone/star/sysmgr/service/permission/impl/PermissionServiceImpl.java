@@ -105,7 +105,7 @@ public class PermissionServiceImpl
         entity.setParentName(emptyToNull(dto.getParentName()));
         entity.setDescription(dto.getDescription());
         entity.setTenantId(tenantId);
-        entity.setIsDeleted(false);
+        entity.setIsDeleted(0);
         baseMapper.insert(entity);
         refreshCache();
         return BeanUtil.copyProperties(entity, PermissionVO.class);
