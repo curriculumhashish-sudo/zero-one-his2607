@@ -32,6 +32,6 @@ public class FeeNatureVO implements Serializable {
     @Schema(description = "是否启用 1 启用 0 禁用", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer activeFlag;
 
-    @Schema(description = "状态", example = "ACTIVE", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "状态", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private String statusEnum;
 }

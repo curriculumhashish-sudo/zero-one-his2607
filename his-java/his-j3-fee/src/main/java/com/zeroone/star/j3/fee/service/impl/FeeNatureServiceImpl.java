@@ -46,23 +46,45 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
 
     @Override
     public void updateFeeNature(String id, FeeNatureDTO dto) {
+        // 1. 校验必填字段
+        if (dto.getName() == null || dto.getName().isEmpty()) {
+            throw new RuntimeException("名称不能为空");
+        }
+        if (dto.getBusNo() == null || dto.getBusNo().isEmpty()) {
+            throw new RuntimeException("编码不能为空");
+        }
+        if (dto.getCategoryEnum() == null || dto.getCategoryEnum().isEmpty()) {
+            throw new RuntimeException("分类不能为空");
+        }
+        if (dto.getDisplayOrder() == null) {
+            throw new RuntimeException("显示顺序不能为空");
+        }
+        if (dto.getActiveFlag() == null) {
+            throw new RuntimeException("启用状态不能为空");
+        }
+
+        // 2. 校验记录存在
         FeeNature entity = baseMapper.selectById(id);
         if (entity == null) {
             throw new RuntimeException("费用性质不存在");
         }
-        // 编码变更时检查唯一性
-        if (dto.getBusNo() != null && !dto.getBusNo().equals(entity.getBusNo())) {
+
+        // 3. 编码变更时检查唯一性
+        if (!dto.getBusNo().equals(entity.getBusNo())) {
             LambdaQueryWrapper<FeeNature> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(FeeNature::getBusNo, dto.getBusNo());
             if (baseMapper.selectCount(wrapper) > 0) {
                 throw new RuntimeException("费用性质编码已存在，请重新输入");
             }
         }
+
+        // 4. 更新字段
         entity.setName(dto.getName());
         entity.setBusNo(dto.getBusNo());
         entity.setDisplayOrder(dto.getDisplayOrder());
         entity.setCategoryEnum(dto.getCategoryEnum());
         entity.setActiveFlag(dto.getActiveFlag());
+
         if (!updateById(entity)) {
             throw new RuntimeException("修改失败");
         }
