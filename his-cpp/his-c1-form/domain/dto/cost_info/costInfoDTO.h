@@ -57,7 +57,7 @@ class CostInfoDTO : public PageQuery
 	}
 
 	// ÔºÄÚ±àºÅ
-	DTO_FIELD(UInt64, hisID);
+	DTO_FIELD(String, hisID);
 	DTO_FIELD_INFO(hisID) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.hisID");
 	}
@@ -82,7 +82,7 @@ class CostInfoDataDTO : public oatpp::DTO
 {
 	DTO_INIT(CostInfoDataDTO, DTO);
 
-	DTO_FIELD(UInt64, id);
+	DTO_FIELD(String, id);
 	DTO_FIELD_INFO(id) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.id");
 	}
