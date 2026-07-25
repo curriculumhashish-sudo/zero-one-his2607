@@ -8,6 +8,16 @@ import com.zeroone.star.project.vo.j3.department.DepartmentTreeVO;
 
 import java.util.List;
 
+/**
+ * <p>
+ * 描述：科室管理服务层接口
+ * </p>
+ * <p>版权：&copy;01星球</p>
+ * <p>地址：01星球总部</p>
+ *
+ * @author 胡傲宇
+ * @version 1.0.0
+ */
 public interface DepartmentService {
 
     List<DepartmentTreeVO> getDepartmentTree(DepartmentTreeQuery query);

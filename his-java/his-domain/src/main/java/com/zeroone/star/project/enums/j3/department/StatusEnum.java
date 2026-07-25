@@ -4,6 +4,16 @@ import com.zeroone.star.project.enums.BaseEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * <p>
+ * 描述：科室管理状态枚举类
+ * </p>
+ * <p>版权：&copy;01星球</p>
+ * <p>地址：01星球总部</p>
+ *
+ * @author 胡傲宇
+ * @version 1.0.0
+ */
 @Getter
 @AllArgsConstructor
 public enum StatusEnum implements BaseEnum {

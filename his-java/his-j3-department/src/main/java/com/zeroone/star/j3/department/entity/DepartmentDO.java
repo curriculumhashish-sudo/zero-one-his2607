@@ -139,7 +139,7 @@ public class DepartmentDO {
     private String typeEnum;
 
     @Schema(
-            description = "分类枚举值(class_enum)",
+            description = "类别枚举值(class_enum)",
             example = "CLINICAL",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )

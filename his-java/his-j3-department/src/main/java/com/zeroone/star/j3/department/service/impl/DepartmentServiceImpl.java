@@ -28,7 +28,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
+/**
+ * <p>
+ * 描述：科室管理服务层实现类
+ * </p>
+ * <p>版权：&copy;01星球</p>
+ * <p>地址：01星球总部</p>
+ *
+ * @author 胡傲宇
+ * @version 1.0.0
+ */
 @Service
 @Slf4j
 public class DepartmentServiceImpl implements DepartmentService {
@@ -65,6 +76,29 @@ public class DepartmentServiceImpl implements DepartmentService {
             map.put(departmentDO.getId(), departmentDO.toTreeVO());
         }
 
+        if (!childrenDepartmentList.isEmpty()) {
+            Set<Long> missingParentIds = new LinkedHashSet<>();
+            for (DepartmentDO departmentDO : childrenDepartmentList) {
+                if (!map.containsKey(departmentDO.getParentId())) {
+                    missingParentIds.add(departmentDO.getParentId());
+                }
+            }
+
+            while (!missingParentIds.isEmpty()) {
+                List<DepartmentDO> missingDepartmentList = departmentMapper.selectByIds(missingParentIds);
+                Set<Long> nextMissing = new LinkedHashSet<>();
+                for (DepartmentDO missingDepartment : missingDepartmentList) {
+                    if (!map.containsKey(missingDepartment.getId())) {
+                        map.put(missingDepartment.getId(), missingDepartment.toTreeVO());
+                    }
+                    if (missingDepartment.getParentId() != null && !map.containsKey(missingDepartment.getParentId())) {
+                        nextMissing.add(missingDepartment.getParentId());
+                    }
+                }
+                missingParentIds = nextMissing;
+            }
+        }
+
         for (DepartmentDO departmentDO : childrenDepartmentList) {
             DepartmentTreeVO current = map.get(departmentDO.getId());
             DepartmentTreeVO parent = map.get(departmentDO.getParentId());
@@ -73,6 +107,26 @@ public class DepartmentServiceImpl implements DepartmentService {
                     parent.setChildren(new ArrayList<>());
                 }
                 parent.getChildren().add(current);
+            }
+        }
+
+        Set<Long> matchedChildIds = childrenDepartmentList.stream()
+                .map(DepartmentDO::getId)
+                .collect(Collectors.toSet());
+
+        for (Map.Entry<Long, DepartmentTreeVO> entry : map.entrySet()) {
+            DepartmentTreeVO current = entry.getValue();
+            if (current.getParentId() == null || matchedChildIds.contains(entry.getKey())) {
+                continue;
+            }
+            DepartmentTreeVO parent = map.get(current.getParentId());
+            if (parent != null) {
+                if (parent.getChildren() == null) {
+                    parent.setChildren(new ArrayList<>());
+                }
+                if (!parent.getChildren().contains(current)) {
+                    parent.getChildren().add(current);
+                }
             }
         }
 
