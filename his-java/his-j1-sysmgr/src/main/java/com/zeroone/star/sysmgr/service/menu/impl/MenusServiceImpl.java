@@ -5,8 +5,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zeroone.star.sysmgr.convertor.MenuConvertor;
 import com.zeroone.star.sysmgr.entity.menu.MenuDO;
 import com.zeroone.star.project.vo.menu.MenuVO;
+import com.zeroone.star.sysmgr.exception.MenuStatus;
 import com.zeroone.star.sysmgr.exception.SystemException;
-import com.zeroone.star.sysmgr.exception.SystemStatus;
 import com.zeroone.star.sysmgr.mapper.menu.MenusMapper;
 import com.zeroone.star.sysmgr.service.menu.MenusService;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
         MenuDO menuDO = menusMapper.selectOne(wrapper);
 
         if (menuDO == null) {
-            throw new SystemException(SystemStatus.MENU_NOT_FIND);
+            throw new SystemException(MenuStatus.MENU_NOT_FIND);
         }
         return MenuConvertor.INSTANCE.toVO(menuDO);
     }
