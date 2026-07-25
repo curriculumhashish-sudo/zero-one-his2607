@@ -9,6 +9,7 @@ import com.zeroone.star.project.query.j2.sys.EnumQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +17,9 @@ import java.util.List;
 @RestController
 @Tag(name = "枚举管理相关接口")
 public class EnumController implements enumApis {
+    @Resource
+    enumApis enumApis;
+
     @Override
     @Operation(summary = "删除枚举")
     @DeleteMapping("/sys/delete-enum")
@@ -25,15 +29,15 @@ public class EnumController implements enumApis {
 
     @Override
     @Operation(summary = "获取枚举名称列表")
-    @GetMapping("/sys/get-enum-name-list")
-    public JsonVO<List<String>> getEnumNameList(EnumListQuery query) {
-        return null;
+    @GetMapping("/sys/get-enum-name-list/{enumKey}")
+    public JsonVO<List<String>> getEnumNameList(@PathVariable String enumKey) {
+        return enumApis.getEnumNameList(enumKey);
     }
 
     @Override
     @Operation(summary = "获取枚举列表(条件+分页)")
     @GetMapping("/sys/query-all-enum")
-    public JsonVO<PageDTO<EnumDTO>> QueryAllEnum(EnumQuery query) {
+    public JsonVO<PageDTO<List<EnumDTO>>> QueryAllEnum(EnumQuery query) {
         return null;
     }
 
@@ -41,6 +45,6 @@ public class EnumController implements enumApis {
     @Operation(summary = "删除枚举类型")
     @DeleteMapping("/sys/delete-enum-type/{enumKey}")
     public JsonVO<String> deleteEnumType(@PathVariable(value = "enumKey", required = true) String enumKey) {
-        return null;
+        return enumApis.deleteEnumType(enumKey);
     }
 }

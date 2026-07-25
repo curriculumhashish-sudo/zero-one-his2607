@@ -4,7 +4,6 @@ package com.zeroone.star.project.j2.sys;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j2.sys.enumdto.EnumDTO;
 import com.zeroone.star.project.dto.j2.sys.enumdto.EnumDeleteDTO;
-import com.zeroone.star.project.query.j2.sys.EnumListQuery;
 import com.zeroone.star.project.query.j2.sys.EnumQuery;
 import com.zeroone.star.project.vo.JsonVO;
 
@@ -31,7 +30,7 @@ public interface enumApis {
      * @param query 枚举值关键词查询对象
      * @return 枚举值列表
      */
-    JsonVO<PageDTO<EnumDTO>> QueryAllEnum(EnumQuery query);
+    JsonVO<PageDTO<List<EnumDTO>>> QueryAllEnum(EnumQuery query);
 
     /**
      * 删除枚举类型

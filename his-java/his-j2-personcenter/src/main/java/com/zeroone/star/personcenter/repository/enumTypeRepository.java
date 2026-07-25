@@ -19,4 +19,6 @@ public interface enumTypeRepository extends MongoRepository<EnumType, String> {
                     "{$project: {display: 1}}"
     })
     List<EnumValue> findByEnumKey(String enumKey);;
+
+    String deleteByEnumKey(String enumKey);
 }
