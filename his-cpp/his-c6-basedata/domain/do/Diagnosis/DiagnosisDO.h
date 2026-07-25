@@ -17,100 +17,100 @@
 #define _DIAGNOSIS_DO_
 #include "../DoInclude.h"
 /**
- * Õï¶ÏÊı¾İ¿âÊµÌåDO£¬¶ÔÓ¦Êı¾İ±í t_diagnosis
+ * è¯Šæ–­æ•°æ®åº“å®ä½“DOï¼Œå¯¹åº”æ•°æ®è¡¨ t_diagnosis
  */
 class DiagnosisDO : public BaseDO
 {
-	// Ö÷¼üID
-	MYSQL_SYNTHESIZE(string, id, Id);//Ö÷¼üid
-	// Õï¶Ï±àÂë
-	MYSQL_SYNTHESIZE(string, diagnosisCode, DiagnosisCode);//Õï¶Ï±àÂë/ÌØÂı²¡±àÂë disease_code
-	// Õï¶ÏÃû³Æ
-	MYSQL_SYNTHESIZE(string, diagnosisName, DiagnosisName);//Õï¶ÏÃû³Æ name
-	// Õï¶Ï·ÖÀà
-	MYSQL_SYNTHESIZE(string, diagnosisType, DiagnosisType);//Õï¶ÏÀàĞÍÂë type_code
-	// ÆôÓÃ×´Ì¬ 0-Í£ÓÃ 1-ÆôÓÃ
-	MYSQL_SYNTHESIZE(string, status, Status);//×´Ì¬ status_enum
-	// ±¸×¢
+	// ä¸»é”®ID
+	MYSQL_SYNTHESIZE(string, id, Id);//ä¸»é”®id
+	// è¯Šæ–­ç¼–ç 
+	MYSQL_SYNTHESIZE(string, diagnosisCode, DiagnosisCode);//è¯Šæ–­ç¼–ç /ç‰¹æ…¢ç—…ç¼–ç  disease_code
+	// è¯Šæ–­åç§°
+	MYSQL_SYNTHESIZE(string, diagnosisName, DiagnosisName);//è¯Šæ–­åç§° name
+	// è¯Šæ–­åˆ†ç±»
+	MYSQL_SYNTHESIZE(string, diagnosisType, DiagnosisType);//è¯Šæ–­ç±»å‹ç  type_code
+	// å¯ç”¨çŠ¶æ€ 0-åœç”¨ 1-å¯ç”¨
+	MYSQL_SYNTHESIZE(string, status, Status);//çŠ¶æ€ status_enum
+	// å¤‡æ³¨
 	MYSQL_SYNTHESIZE(string, remark, Remark);//description
-	// ´´½¨ÈË
+	// åˆ›å»ºäºº
 	MYSQL_SYNTHESIZE(string, createBy, CreateBy);//created_by
-	// ´´½¨Ê±¼ä
+	// åˆ›å»ºæ—¶é—´
 	MYSQL_SYNTHESIZE(string, createTime, CreateTime);//created_at
-	// ĞŞ¸ÄÈË
+	// ä¿®æ”¹äºº
 	MYSQL_SYNTHESIZE(string, updateBy, UpdateBy);//updated_by
-	// ĞŞ¸ÄÊ±¼ä
+	// ä¿®æ”¹æ—¶é—´
 	MYSQL_SYNTHESIZE(string, updateTime, UpdateTime);//updated_at
-	//É¾³ıÈË
+	//åˆ é™¤äºº
 	MYSQL_SYNTHESIZE(string, deletedBy, DeletedBy);//deleted_by
-	//É¾³ıÊ±¼ä
+	//åˆ é™¤æ—¶é—´
 	MYSQL_SYNTHESIZE(string, deletedTime, DeletedTime);//deleted_at
-	// Ò½±£±àÂë
+	// åŒ»ä¿ç¼–ç 
 	MYSQL_SYNTHESIZE(string, medicalInsuranceCode, MedicalInsuranceCode);//yb_no
-	// Æ´ÒôÖú¼ÇÂë
+	// æ‹¼éŸ³åŠ©è®°ç 
 	MYSQL_SYNTHESIZE(string, pinyinCode, PinyinCode);//py_flag
-	// Îå±ÊÖú¼ÇÂë
+	// äº”ç¬”åŠ©è®°ç 
 	MYSQL_SYNTHESIZE(string, wubiCode, WubiCode);//wb_flag
-	// Ò½±£¶ÔÂë 0-F 1-T
+	// åŒ»ä¿å¯¹ç  0-F 1-T
 	MYSQL_SYNTHESIZE(int8_t, medicalInsuranceMatch, MedicalInsuranceMatch);//yb_match_flag
-	// Ò½±£±ê¼Ç 0-F 1-T
+	// åŒ»ä¿æ ‡è®° 0-F 1-T
 	MYSQL_SYNTHESIZE(int8_t, medicalInsuranceTag, MedicalInsuranceTag);//yb_flag
-	// É¾³ı±ê¼Ç 0-F 1-T
+	// åˆ é™¤æ ‡è®° 0-F 1-T
 	MYSQL_SYNTHESIZE(int8_t, isDelete, IsDelete);// is_deleted
-	// Õï¶ÏÄ¿Â¼
+	// è¯Šæ–­ç›®å½•
 	MYSQL_SYNTHESIZE(string, catName, CatName);//condition_code
-	//×â»§±êÊ¶
+	//ç§Ÿæˆ·æ ‡è¯†
 	MYSQL_SYNTHESIZE(string, tenantId, TenantId);//tenant_id
-	//ÀÖ¹ÛËø°æ±¾
+	//ä¹è§‚é”ç‰ˆæœ¬
 	MYSQL_SYNTHESIZE(int, version, Version);//version
-	//À´Ô´Ã¶¾ÙÖµ
+	//æ¥æºæšä¸¾å€¼
 	MYSQL_SYNTHESIZE(string, source_enum, Source_enum);//source_enum
 public:
-	DiagnosisDO() : BaseDO("t_diagnosis")
+	DiagnosisDO() : BaseDO("cln_condition_definition")
 	{
-		// Ö÷¼üID
+		// ä¸»é”®ID
 		MYSQL_ADD_FIELD_PK("id", "s", id);
-		// Õï¶Ï±àÂë disease_code
+		// è¯Šæ–­ç¼–ç  disease_code
 		MYSQL_ADD_FIELD("disease_code", "s", diagnosisCode);
-		// Õï¶ÏÃû³Æ name
+		// è¯Šæ–­åç§° name
 		MYSQL_ADD_FIELD("name", "s", diagnosisName);
-		// Õï¶Ï·ÖÀà type_code
+		// è¯Šæ–­åˆ†ç±» type_code
 		MYSQL_ADD_FIELD("type_code", "s", diagnosisType);
-		// ÆôÓÃ×´Ì¬ status_enum
+		// å¯ç”¨çŠ¶æ€ status_enum
 		MYSQL_ADD_FIELD("status_enum", "s", status);
-		// ±¸×¢ description
+		// å¤‡æ³¨ description
 		MYSQL_ADD_FIELD("description", "s", remark);
-		// ´´½¨ÈË created_by
+		// åˆ›å»ºäºº created_by
 		MYSQL_ADD_FIELD("created_by", "s", createBy);
-		// ´´½¨Ê±¼ä created_at
+		// åˆ›å»ºæ—¶é—´ created_at
 		MYSQL_ADD_FIELD("created_at", "s", createTime);
-		// ĞŞ¸ÄÈË updated_by
+		// ä¿®æ”¹äºº updated_by
 		MYSQL_ADD_FIELD("updated_by", "s", updateBy);
-		// ĞŞ¸ÄÊ±¼ä updated_at
+		// ä¿®æ”¹æ—¶é—´ updated_at
 		MYSQL_ADD_FIELD("updated_at", "s", updateTime);
-		// É¾³ıÈË deleted_by
+		// åˆ é™¤äºº deleted_by
 		MYSQL_ADD_FIELD("deleted_by", "s", deletedBy);
-		// É¾³ıÊ±¼ä deleted_at
+		// åˆ é™¤æ—¶é—´ deleted_at
 		MYSQL_ADD_FIELD("deleted_at", "s", deletedTime);
-		// Ò½±£±àÂë yb_no
+		// åŒ»ä¿ç¼–ç  yb_no
 		MYSQL_ADD_FIELD("yb_no", "s", medicalInsuranceCode);
-		// Æ´ÒôÖú¼ÇÂë py_flag
+		// æ‹¼éŸ³åŠ©è®°ç  py_flag
 		MYSQL_ADD_FIELD("py_flag", "s", pinyinCode);
-		// Îå±ÊÖú¼ÇÂë wb_flag
+		// äº”ç¬”åŠ©è®°ç  wb_flag
 		MYSQL_ADD_FIELD("wb_flag", "s", wubiCode);
-		// Ò½±£¶ÔÂë yb_match_flag 
+		// åŒ»ä¿å¯¹ç  yb_match_flag 
 		MYSQL_ADD_FIELD("yb_match_flag", "b", medicalInsuranceMatch);
-		// Ò½±£±ê¼Ç yb_flag 
+		// åŒ»ä¿æ ‡è®° yb_flag 
 		MYSQL_ADD_FIELD("yb_flag", "b", medicalInsuranceTag);
-		// É¾³ı±ê¼Ç is_deleted 
+		// åˆ é™¤æ ‡è®° is_deleted 
 		MYSQL_ADD_FIELD("is_deleted", "b", isDelete);
-		// Õï¶ÏÄ¿Â¼ condition_code
+		// è¯Šæ–­ç›®å½• condition_code
 		MYSQL_ADD_FIELD("condition_code", "s", catName);
-		// ×â»§±êÊ¶ tenant_id
+		// ç§Ÿæˆ·æ ‡è¯† tenant_id
 		MYSQL_ADD_FIELD("tenant_id", "s", tenantId);
-		//ÀÖ¹ÛËø°æ±¾version
+		//ä¹è§‚é”ç‰ˆæœ¬version
 		MYSQL_ADD_FIELD("version", "i", version);
-		//À´Ô´Ã¶¾ÙÖµ
+		//æ¥æºæšä¸¾å€¼
 		MYSQL_ADD_FIELD("source_enum", "i", source_enum);
 
 
