@@ -3,6 +3,7 @@ package com.zeroone.star.sysmgr.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j2.sysmgr.rent.RentDTO2;
 import com.zeroone.star.project.dto.j2.sysmgr.rent.RentNameDTO;
@@ -10,8 +11,8 @@ import com.zeroone.star.project.query.j2.sysmgr.rent2.RentNameQuery;
 import com.zeroone.star.project.query.j2.sysmgr.rent2.RentQuery;
 import com.zeroone.star.sysmgr.entity.WhaleTenants;
 import com.zeroone.star.sysmgr.mapper.WhaleTenantsMapper;
-import com.zeroone.star.sysmgr.service.WhaleTenantsService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zeroone.star.sysmgr.service.IWhaleTenantsService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 /**
@@ -23,7 +24,7 @@ import org.springframework.util.StringUtils;
  * @since 2026-07-25
  */
 @Service
-public class WhaleTenantsServiceImpl extends ServiceImpl<WhaleTenantsMapper, WhaleTenants> implements WhaleTenantsService {
+public class WhaleTenantsServiceImpl extends ServiceImpl<WhaleTenantsMapper, WhaleTenants> implements IWhaleTenantsService {
 
     @Override
     public PageDTO<RentNameDTO> queryTenantNames(RentNameQuery rentNameQuery) {

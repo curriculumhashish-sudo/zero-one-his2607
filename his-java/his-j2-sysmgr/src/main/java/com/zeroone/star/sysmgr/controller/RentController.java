@@ -9,7 +9,7 @@ import com.zeroone.star.project.dto.j2.sysmgr.rent.RentNameDTO;
 import com.zeroone.star.project.query.j2.sysmgr.rent2.RentNameQuery;
 import com.zeroone.star.project.query.j2.sysmgr.rent2.RentQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.sysmgr.service.WhaleTenantsService;
+import com.zeroone.star.sysmgr.service.IWhaleTenantsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.*;
 public class RentController implements RentApis {
 
     @Resource
-    private WhaleTenantsService whaleTenantsService;
+    private IWhaleTenantsService whaleTenantsService;
 
     @Operation(summary = "获取租户名称")
     @GetMapping("/query-name")
