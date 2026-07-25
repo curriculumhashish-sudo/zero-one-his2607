@@ -15,6 +15,6 @@ public class TreatmentEditDTO extends TreatmentAddDTO {
     @Schema(description = "诊疗定义主键", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
-    @Schema(description = "编辑业务校验码（由上游业务判定并透传，用于并发编辑保护）", example = "OK", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "编辑业务码（由上游业务判定并透传）", example = "OK")
     private String editabilityCode;
 }

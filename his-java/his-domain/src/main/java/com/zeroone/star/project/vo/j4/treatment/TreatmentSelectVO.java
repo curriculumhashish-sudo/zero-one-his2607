@@ -15,9 +15,15 @@ public class TreatmentSelectVO implements Serializable {
     @Schema(description = "主键(编码)", example = "123456789", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
+    @Schema(description = "业务编码", example = "AD00000001", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String busNo;
+
     @Schema(description = "项目名称", example = "血常规检查", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
 
-    @Schema(description = "诊疗分类", example = "CHECK", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "分类编码", example = "22", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String categoryCode;
+
+    @Schema(description = "诊疗分类", example = "CHECK", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String typeEnum;
 }
