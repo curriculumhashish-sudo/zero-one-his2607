@@ -5,6 +5,7 @@ import com.zeroone.star.project.vo.j2.workbench.UserWorkbenchVO;
 import com.zeroone.star.workbench.mapper.WhaleRolesMapper;
 import com.zeroone.star.workbench.service.WorkbenchService;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -18,6 +19,7 @@ import java.util.List;
  * @author 鹿
  * @since 2026-07-24
  */
+@Slf4j
 @Service
 public class WorkbenchServiceImpl implements WorkbenchService {
 
@@ -26,6 +28,15 @@ public class WorkbenchServiceImpl implements WorkbenchService {
 
     @Override
     public List<UserWorkbenchVO> queryUserWorkbench(UserWorkbenchQuery query) {
-       return null;
+        List<UserWorkbenchVO> result = whaleRolesMapper.selectUserWorkbench(
+                query.getTenantId(),
+                query.getUserId(),
+                query.getKeyword()
+        );
+        if (result == null || result.isEmpty()) {
+            log.info("用户[{}]在租户[{}]下未查询到工作台菜单数据", query.getUserId(), query.getTenantId());
+            return Collections.emptyList();
+        }
+        return result;
     }
 }

@@ -36,6 +36,12 @@ public class WorkbenchController implements WorkbenchApis {
     @Operation(summary = "获取工作台日常功能")
     @Override
     public JsonVO<List<UserWorkbenchVO>> getUserWorkbench(UserWorkbenchQuery query) {
-        return null;
+        try {
+            List<UserWorkbenchVO> result = workbenchService.queryUserWorkbench(query);
+            return JsonVO.success(result);
+        } catch (Exception e) {
+            log.error("获取工作台日常功能异常, userId={}, tenantId={}", query.getUserId(), query.getTenantId(), e);
+            return JsonVO.fail("获取工作台数据失败，请稍后重试");
+        }
     }
 }
