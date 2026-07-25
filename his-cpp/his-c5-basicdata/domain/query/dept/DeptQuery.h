@@ -11,6 +11,7 @@ class DeptDeleteQuery : public oatpp::DTO
 {
 	DTO_INIT(DeptDeleteQuery, DTO);
 
+	// 科室编号
 	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("dept.field.id"), true)
 
 public:
