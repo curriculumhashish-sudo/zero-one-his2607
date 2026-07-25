@@ -36,7 +36,12 @@ std::list<GetChargeItemDO> GetChargeItemDAO::selectByEncounterId(const std::stri
         << " LEFT JOIN adm_practitioner doc ON ci.performer_id = doc.id"
         << " LEFT JOIN adm_account acc ON ci.account_id = acc.id"
         << " LEFT JOIN fin_contract fc ON acc.contract_no = fc.bus_no"
-        << " LEFT JOIN adm_encounter_diagnosis ed ON ci.encounter_id = ed.encounter_id"
+        << " LEFT JOIN ("
+        << "   SELECT encounter_id,"
+        << "     SUBSTRING_INDEX(GROUP_CONCAT(med_type ORDER BY primary_flag DESC, COALESCE(rank, 999) ASC), ',', 1) AS med_type"
+        << "   FROM adm_encounter_diagnosis"
+        << "   GROUP BY encounter_id"
+        << " ) ed ON ci.encounter_id = ed.encounter_id"
         << " WHERE ci.encounter_id = ?"
         << " ORDER BY ci.id";
 
