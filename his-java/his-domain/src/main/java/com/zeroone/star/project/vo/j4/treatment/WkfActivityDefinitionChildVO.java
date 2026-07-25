@@ -14,7 +14,7 @@ public class WkfActivityDefinitionChildVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @JsonSerialize(using = ToStringSerializer.class)
-    @Schema(description = "主键ID", example = "1890000000000000002", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "主键", example = "1890000000000000002")
     private String id;
 
     @JsonSerialize(using = ToStringSerializer.class)
@@ -25,9 +25,9 @@ public class WkfActivityDefinitionChildVO implements Serializable {
     @Schema(description = "子项诊疗项目标识（被引用项目主键）", example = "1890000000000000003", requiredMode = Schema.RequiredMode.REQUIRED)
     private String childrenId;
 
-    @Schema(description = "子项数量", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "子项数量", example = "1")
     private Integer childrenNum;
 
-    @Schema(description = "子项名称快照", example = "静脉注射", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "子项名称快照", example = "静脉注射")
     private String childrenName;
 }
