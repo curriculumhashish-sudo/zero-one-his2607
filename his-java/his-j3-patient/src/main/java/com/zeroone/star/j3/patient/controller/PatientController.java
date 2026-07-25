@@ -126,6 +126,7 @@ public class PatientController implements PatientApis {
     @Override
     public JsonVO<String> deletePatientById(
             @PathVariable("id") String id) {
+        patientService.deletePatientById(id);
         return JsonVO.success("删除成功");
     }
 }
