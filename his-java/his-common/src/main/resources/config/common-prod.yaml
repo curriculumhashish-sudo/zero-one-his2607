@@ -3,7 +3,7 @@ spring:
     #nacos配置
     #https://github.com/alibaba/spring-cloud-alibaba/blob/2025.0.x/spring-cloud-alibaba-examples/nacos-example/readme-zh.md
     nacos:
-      server-addr: 192.168.28.133:8848
+      server-addr: 192.168.147.100:8848
       username: nacos
       password: nacos
       discovery:

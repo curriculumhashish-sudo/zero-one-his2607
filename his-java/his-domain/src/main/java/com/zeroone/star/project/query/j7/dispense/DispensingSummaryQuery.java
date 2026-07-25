@@ -29,7 +29,7 @@ public class DispensingSummaryQuery extends PageQuery {
     @Schema(description = "病区名称", example = "内科一病区")
     private String wardName;
 
-    @Schema(description = "状态: PENDING-待发药, DISPENSED-已发药", example = "PENDING")
+    @Schema(description = "状态: PENDING-待发药, COMPLETED-已发药, REFUNDED-已退药, DECLINED-已拒绝", example = "PENDING")
     private String status;
 
     @Schema(description = "创建时间-开始", example = "2026-07-01 00:00:00")
