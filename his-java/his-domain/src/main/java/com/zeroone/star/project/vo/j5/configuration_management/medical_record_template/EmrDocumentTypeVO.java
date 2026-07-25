@@ -21,7 +21,7 @@ public class EmrDocumentTypeVO {
      * 主键
      */
     @Schema(description = "主键", example = "323100000000000101", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Integer id;
+    private String id;
 
     /**
      * 文书类型编码

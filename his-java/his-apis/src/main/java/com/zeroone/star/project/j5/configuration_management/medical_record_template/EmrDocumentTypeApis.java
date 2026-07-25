@@ -1,6 +1,5 @@
 package com.zeroone.star.project.j5.configuration_management.medical_record_template;
 
-import cn.hutool.db.PageResult;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.query.j5.configuration_management.medical_record_template.EmrDocumentTypeQuery;
 import com.zeroone.star.project.vo.JsonVO;

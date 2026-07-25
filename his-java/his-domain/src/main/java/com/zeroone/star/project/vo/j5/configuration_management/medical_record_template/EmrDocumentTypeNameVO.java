@@ -28,4 +28,6 @@ public class EmrDocumentTypeNameVO {
      */
     @Schema(description = "文书类型名称", example = "门诊病历", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
+
+
 }
