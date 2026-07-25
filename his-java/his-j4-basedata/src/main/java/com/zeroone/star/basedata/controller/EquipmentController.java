@@ -139,7 +139,7 @@ public class EquipmentController implements EquipmentApis {
     @Override
     @GetMapping("/get-by-id")
     @Operation(summary = "查询器材详情", description = "查询器材详情")
-    public JsonVO<EquipmentVO> getEquipmentByEquipmentId(@RequestParam @Valid Long equipmentId) {
+    public JsonVO<EquipmentVO> getEquipmentByEquipmentId(@RequestParam Long equipmentId) {
         return null;
     }
 
@@ -150,7 +150,7 @@ public class EquipmentController implements EquipmentApis {
      */
     @Override
     @GetMapping("/query-equipment-category")
-    @Operation(summary = "查询器材分类列表", description = "查询器材分类列表")
+    @Operation(summary = "获取选择耗材列表(条件+分页)", description = "查询器材分类列表")
     public JsonVO<List<EquipmentCategoryVo>> queryEquipmentCategoryList() {
         return null;
     }
@@ -163,8 +163,8 @@ public class EquipmentController implements EquipmentApis {
      */
     @Override
     @DeleteMapping("/remove-by-ids")
-    @Operation(summary = "批量删除器材", description = "批量删除器材")
-    public JsonVO<Void> removeEquipmentByEquipmentIds(@RequestBody @Valid List<Long> equipmentIds) {
+    @Operation(summary = "删除器材(支持批量)", description = "批量删除器材")
+    public JsonVO<Void> removeEquipmentByEquipmentIds(@RequestBody List<Long> equipmentIds) {
         return null;
     }
 }
