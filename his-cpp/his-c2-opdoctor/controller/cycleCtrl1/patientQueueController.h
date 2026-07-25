@@ -1,8 +1,4 @@
 #pragma once
-#ifndef _PATIENTQUEUECONTROLLER_H
-#define _PATIENTQUEUECONTROLLER_H
-
-
 #include "domain/vo/BaseJsonVO.h"
 #include "domain/query/cycleCtrl1/patientQueueQuery.h"
 #include "domain/dto/cycleCtrl1/patientQueueDTO.h"
@@ -10,10 +6,12 @@
 #include "domain/GlobalInclude.h"
 
 
-#include OATPP_CODEGEN_BEGIN(ApiController)
-
+#ifdef API_TAG
+#undef API_TAG
+#endif
 #define API_TAG ZH_WORDS_GETTER("title.tags.text")
 
+#include OATPP_CODEGEN_BEGIN(ApiController)
 
 class PatientQueueController : public oatpp::web::server::api::ApiController
 {
@@ -62,4 +60,4 @@ private:
 
 #include OATPP_CODEGEN_END(ApiController)
 
-#endif // !_PATIENTQUEUECONTROLLER_H
+#undef API_TAG

@@ -81,7 +81,7 @@ void Router::initRouter()
 
 
 	ROUTER_SIMPLE_BIND(Refund2Controller);
-	ROUTER_SIMPLE_BIND(Prescription2Controller);
+	ROUTER_SIMPLE_BIND(PrescriptionController2);
 	ROUTER_SIMPLE_BIND(Admission2Controller);
 
 

@@ -27,10 +27,10 @@
 #include OATPP_CODEGEN_BEGIN(ApiController)
 #define API_TAG1 ZH_WORDS_GETTER("title.tags.text")
 
-class Prescription2Controller : public oatpp::web::server::api::ApiController
+class PrescriptionController2 : public oatpp::web::server::api::ApiController
 {
 	//添加访问定义
-	API_ACCESS_DECLARE(Prescription2Controller);
+	API_ACCESS_DECLARE(PrescriptionController2);
 public://定义接口
 	// 3.1.1 定义处方单单接口描述
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("cyclectrl2.prescription.query"), query2Prescription, Prescription2Query, Prescription2DetailJsonVO::Wrapper, API_TAG1);
