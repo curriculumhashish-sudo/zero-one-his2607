@@ -23,10 +23,10 @@ public:
 
     // 4C: 插入打印审计日志
     int insertPrintLog(const std::string& traceId, const std::string& busNo,
-        const std::string& scenarioCode, int version, const std::string& status,
-        const std::string& printData, const std::string& bizRef,
+        int version, const std::string& status,
         const std::string& printer, int copies, const std::string& clientType,
-        const std::string& errorCode, const std::string& errorMessage);
+        const std::string& errorCode, const std::string& errorMessage,
+        const std::string& bizRef);
 };
 
 #endif // !_PRINT_CHARGE_RECEIPT_DAO_H_

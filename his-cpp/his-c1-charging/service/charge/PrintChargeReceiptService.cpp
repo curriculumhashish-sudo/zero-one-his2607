@@ -103,10 +103,9 @@ ConfirmPrintResponseDTO::Wrapper PrintChargeReceiptService::confirmPrint(const C
     int rows = PrintChargeReceiptDAO().insertPrintLog(
         dto->traceId,
         dto->busNo ? dto->busNo->c_str() : "",
-        dto->scenarioCode ? dto->scenarioCode->c_str() : "",
         version, status,
-        dto->bizRef ? "{}" : "{}",
-        "{}", printer, copies, clientType, errorCode, errorMessage);
+        printer, copies, clientType, errorCode, errorMessage,
+        dto->bizRef ? "{}" : "{}");
 
     resp->ok = (rows > 0);
     return resp;
