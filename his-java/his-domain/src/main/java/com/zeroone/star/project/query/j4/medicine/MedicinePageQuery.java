@@ -2,6 +2,7 @@ package com.zeroone.star.project.query.j4.medicine;
 
 import com.zeroone.star.project.query.PageQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -20,14 +21,12 @@ import lombok.ToString;
 @ToString(callSuper = true)
 @Schema(description = "药品列表条件分页查询对象")
 public class MedicinePageQuery extends PageQuery {
-
-    @Schema(
-            description = "关键字，支持编码、通用名称、商品名称、拼音码和五笔码",
-            example = "阿莫西林"
-    )
+    @Size(max = 100, message = "关键字长度不能超过100个字符")
+    @Schema(description = "查询关键字")
     private String keyword;
 
-    @Schema(description = "药品分类编码", example = "2")
+    @Size(max = 64, message = "药品分类编码长度不能超过64个字符")
+    @Schema(description = "药品分类编码")
     private String categoryCode;
 
     @Schema(description = "启用状态，true启用、false停用", example = "true")
