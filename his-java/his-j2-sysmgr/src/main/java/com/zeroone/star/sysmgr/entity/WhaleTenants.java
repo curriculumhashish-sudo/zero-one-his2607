@@ -50,7 +50,7 @@ public class WhaleTenants implements Serializable {
     /**
      * 是否启用
      */
-    private Boolean isActive;
+    private Integer isActive;
 
     /**
      * 扩展属性
@@ -84,7 +84,7 @@ public class WhaleTenants implements Serializable {
     /**
      * 软删标记
      */
-    private Boolean isDeleted;
+    private Integer isDeleted;
 
     /**
      * 删除时间
