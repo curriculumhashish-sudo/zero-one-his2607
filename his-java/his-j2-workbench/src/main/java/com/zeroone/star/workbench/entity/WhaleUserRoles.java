@@ -1,4 +1,4 @@
-package com.zeroone.star.project.doo.j2.workbench;
+package com.zeroone.star.workbench.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Getter;
@@ -10,17 +10,17 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * 权限授权
+ * 用户角色关联
  * </p>
  *
  * @author 鹿
- * @since 2026-07-25
+ * @since 2026-07-24
  */
 @Getter
 @Setter
 @ToString
-@TableName("whale_permission_grants")
-public class WhalePermissionGrants implements Serializable {
+@TableName("whale_user_roles")
+public class WhaleUserRoles implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -30,19 +30,14 @@ public class WhalePermissionGrants implements Serializable {
     private String id;
 
     /**
-     * 权限名称
+     * 用户标识
      */
-    private String permissionName;
+    private String userId;
 
     /**
-     * 授权主体类型（R=角色/U=用户）
+     * 角色标识
      */
-    private String providerName;
-
-    /**
-     * 授权主体键
-     */
-    private String providerKey;
+    private String roleId;
 
     /**
      * 租户标识

@@ -1,7 +1,9 @@
 package com.zeroone.star.workbench.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.zeroone.star.project.query.j2.workbench.UserWorkbenchQuery;
 import com.zeroone.star.project.vo.j2.workbench.UserWorkbenchVO;
+import com.zeroone.star.project.vo.j2.workbench.WorkbenchMenuVO;
 
 import java.util.List;
 
@@ -13,7 +15,7 @@ import java.util.List;
  * @author 鹿
  * @since 2026-07-24
  */
-public interface WorkbenchService {
+public interface IWorkbenchService extends IService<UserWorkbenchVO> {
 
     /**
      * 查询用户工作台菜单数据

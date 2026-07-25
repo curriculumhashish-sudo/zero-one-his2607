@@ -1,9 +1,11 @@
 package com.zeroone.star.workbench.service.impl;
 
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zeroone.star.project.query.j2.workbench.UserWorkbenchQuery;
 import com.zeroone.star.project.vo.j2.workbench.UserWorkbenchVO;
+import com.zeroone.star.project.vo.j2.workbench.WorkbenchMenuVO;
 import com.zeroone.star.workbench.mapper.WhaleRolesMapper;
-import com.zeroone.star.workbench.service.WorkbenchService;
+import com.zeroone.star.workbench.service.IWorkbenchService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,7 +23,7 @@ import java.util.List;
  */
 @Slf4j
 @Service
-public class WorkbenchServiceImpl implements WorkbenchService {
+public class WorkbenchServiceImpl extends ServiceImpl<WhaleRolesMapper, UserWorkbenchVO> implements IWorkbenchService {
 
     @Resource
     private WhaleRolesMapper whaleRolesMapper;

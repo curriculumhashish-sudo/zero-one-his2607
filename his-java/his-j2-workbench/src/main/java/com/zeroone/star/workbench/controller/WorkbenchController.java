@@ -4,7 +4,7 @@ import com.zeroone.star.project.j2.workbench.WorkbenchApis;
 import com.zeroone.star.project.query.j2.workbench.UserWorkbenchQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j2.workbench.UserWorkbenchVO;
-import com.zeroone.star.workbench.service.WorkbenchService;
+import com.zeroone.star.workbench.service.IWorkbenchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-
-import static com.baomidou.mybatisplus.extension.ddl.DdlScriptErrorHandler.PrintlnLogErrorHandler.log;
 
 /**
  * <p>
@@ -30,7 +28,7 @@ import static com.baomidou.mybatisplus.extension.ddl.DdlScriptErrorHandler.Print
 public class WorkbenchController implements WorkbenchApis {
 
     @Resource
-    private WorkbenchService workbenchService;
+    private IWorkbenchService workbenchService;
 
     @GetMapping("query-workbench")
     @Operation(summary = "获取工作台日常功能")
