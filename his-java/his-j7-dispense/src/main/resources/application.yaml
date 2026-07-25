@@ -1,19 +1,10 @@
 server:
-  port:  ${sp.dispense}
+  port: ${sp.j7-dispense}
   servlet:
-    context-path: /dispense
-spring:
-  config:
-    import: nacos:data-source.yaml,nacos:system.yaml
-  application:
-    name: ${sn.dispense}
-  cloud:
-    sentinel:
-      transport:
-        dashboard: ${sentinel.dashboard}
-        port: 8721
-      eager: true
+    context-path: /j7-dispense
 
-feign:
-  sentinel:
-    enabled: true
+spring:
+  application:
+    name: ${sn.j7-dispense}
+  profiles:
+    active: dev
