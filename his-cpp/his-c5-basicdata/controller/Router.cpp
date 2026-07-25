@@ -1,33 +1,28 @@
-﻿/*
- Copyright Zero One Star. All rights reserved.
-
- @Author: awei
- @Date: 2022/12/03 14:58:34
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
-	  https://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-*/
 #include "stdafx.h"
 #include "Router.h"
 #include "ApiHelper.h"
+#include "dept/DeptController.h"
+#include "dept/DeptBatchStatusController.h"
 #include "pat/PatController.h"
+#include "pat/PatientController.h"
+#include "organization/OrganizationController.h"
+#include "sup/SupplierController.h"
+
+#include "ward/WardController.h"
+#include "pharm/PharmController.h"
+#include "room/RoomController.h"
+#include "bed/BedController.h"
+
+// If the macro for disabling Swagger documentation is defined
+#include "sup/SupplierAddUpdateController.h"
 
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
-// Simplified controller binding macro
+// Simplified binding controller macro definition
 #define ROUTER_SIMPLE_BIND(__CLASS__) \
 router->addController(__CLASS__::createShared())
 #else
-// Simplified controller binding macro (with Swagger support)
+// Simplified binding controller macro definition
 #define ROUTER_SIMPLE_BIND(__CLASS__) \
 BIND_CONTROLLER(docEndpoints, router, __CLASS__)
 #endif
@@ -41,6 +36,16 @@ Router::Router(Endpoints* docEndpoints, HttpRouter* router)
 void Router::initRouter()
 {
 	// #TIP: Add system extension route definitions below
+	ROUTER_SIMPLE_BIND(DeptController);
+	ROUTER_SIMPLE_BIND(DeptBatchStatusController);
 	ROUTER_SIMPLE_BIND(PatController);
-	
+	ROUTER_SIMPLE_BIND(PatientController);
+	ROUTER_SIMPLE_BIND(OrganizationController);
+	ROUTER_SIMPLE_BIND(SupplierAddUpdateController);
+	// Supplier management routes
+	ROUTER_SIMPLE_BIND(SupplierController);
+	ROUTER_SIMPLE_BIND(WardController);
+	ROUTER_SIMPLE_BIND(PharmController);
+	ROUTER_SIMPLE_BIND(RoomController);
+	ROUTER_SIMPLE_BIND(BedController);
 }
