@@ -46,7 +46,8 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
 
     @Override
     public Boolean create(MenuCreateDTO menuDto) {
-        int result = this.baseMapper.insert(MenuConvertor.INSTANCE.createDO(menuDto));
+        MenuDO menuDO = MenuConvertor.INSTANCE.createDO(menuDto);
+        int result = this.baseMapper.insert(menuDO);
         Assert.isTrue(result > 0, () -> new SystemException(MenuStatus.MENU_CREATE_FAIL));
         return result > 0;
     }
