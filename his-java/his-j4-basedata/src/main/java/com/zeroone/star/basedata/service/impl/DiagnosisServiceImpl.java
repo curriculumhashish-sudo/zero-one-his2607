@@ -7,6 +7,10 @@ import com.zeroone.star.basedata.mapper.DiagnosisMapper;
 import com.zeroone.star.basedata.service.IDiagnosisService;
 
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisDefinitionDTO;
+import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisSaveDTO;
+import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisUpdateDTO;
+import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisIdsDTO;
+import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisStatusDTO;
 
 import com.zeroone.star.project.query.j4.diagnosis.DiagnosisDefinitionQuery;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisDefinitionDetailVO;
@@ -53,26 +57,26 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
 
     @Override
     @Transactional
-    public String saveDefinition(DiagnosisDefinitionDTO dto) {
+    public String saveDefinition(DiagnosisSaveDTO dto) {
           
         return null;
     }
 
     @Override
     @Transactional
-    public void modifyDefinition(DiagnosisDefinitionDTO dto) {
+    public void modifyDefinition(DiagnosisUpdateDTO dto) {
         
     }
 
     @Override
     @Transactional
-    public void modifyBatchStatus(List<String> ids, String status) {
+    public void modifyBatchStatus(DiagnosisStatusDTO dto) {
         
     }
 
     @Override
     @Transactional
-    public void removeBatch(List<String> ids) {
+    public void removeBatch(DiagnosisIdsDTO dto) {
         
     }
 
