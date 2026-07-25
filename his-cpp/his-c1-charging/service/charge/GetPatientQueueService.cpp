@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <map>
 #include <ctime>
+#include <utility>
 
 // ============================================================================
 // 辅助方法：枚举值转字典文本、年龄计算、状态聚合
@@ -103,7 +104,7 @@ GetPatientQueuePageDTO::Wrapper GetPatientQueueService::listAll(
         auto ciList = ciDao.selectByEncounterIds(encounterIds);
         for (auto& ci : ciList)
         {
-            chargeItemMap[ci.getEncounterId()].push_back(ci);
+            chargeItemMap[ci.getEncounterId()].push_back(std::move(ci));
         }
     }
 
