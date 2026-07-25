@@ -13,7 +13,7 @@ import lombok.Data;
 public class MenuVO {
 
     @Schema(description = "菜单id")
-    private Long menuId;
+    private String menuId;
 
     @Schema(description = "菜单英文标识")
     private String menuName;
@@ -31,7 +31,7 @@ public class MenuVO {
     private String component;
 
     @Schema(description = "父菜单id")
-    private Long parentId;
+    private String parentId;
 
     @Schema(description = "序号")
     private Long sortNum;

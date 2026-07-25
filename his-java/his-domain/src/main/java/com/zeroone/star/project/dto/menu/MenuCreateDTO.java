@@ -22,7 +22,7 @@ public class MenuCreateDTO {
      * 父菜单ID，0为一级目录
      */
     @Schema(description = "父菜单ID，0为一级目录", example = "0")
-    private Long parentId;
+    private String parentId;
 
     @Schema(description = "外部链接地址", example = "https://example.com")
     private String externalUrl;

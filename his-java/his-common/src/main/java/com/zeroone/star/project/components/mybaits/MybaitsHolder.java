@@ -37,20 +37,22 @@ public class MybaitsHolder implements MetaObjectHandler {
         // 时间字段
         this.setFieldValByNameIfNull("createdAt", LocalDateTime.now(), metaObject);
         this.setFieldValByNameIfNull("updatedAt", LocalDateTime.now(), metaObject);
-
+        // TODO: 暂时写死，方便大家做测试
         // 操作人，从上下文获取登录用户ID，示例固定写死，需替换成登录上下文获取
-        UserDTO userDTO;
-        try {
-            userDTO = userHolder.getCurrentUser();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        if (userDTO == null) {
-            throw new RuntimeException("用户信息为空");
-        }
-        String loginUserId = userDTO.getId();
-        this.setFieldValByNameIfNull("createdBy", loginUserId, metaObject);
-        this.setFieldValByNameIfNull("updatedBy", loginUserId, metaObject);
+//        UserDTO userDTO;
+//        try {
+//            userDTO = userHolder.getCurrentUser();
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//        if (userDTO == null) {
+//            throw new RuntimeException("用户信息为空");
+//        }
+//        String loginUserId = userDTO.getId();
+//        this.setFieldValByNameIfNull("createdBy", loginUserId, metaObject);
+//        this.setFieldValByNameIfNull("updatedBy", loginUserId, metaObject);
+        this.setFieldValByNameIfNull("createdBy", "1", metaObject);
+        this.setFieldValByNameIfNull("updatedBy", "1", metaObject);
     }
 
     /**
@@ -59,18 +61,20 @@ public class MybaitsHolder implements MetaObjectHandler {
     @Override
     public void updateFill(MetaObject metaObject) {
         this.setFieldValByNameIfNull("updatedAt", LocalDateTime.now(), metaObject);
+        // TODO: 暂时写死，方便大家做测试
         // 操作人，从上下文获取登录用户ID，示例固定写死，需替换成登录上下文获取
-        UserDTO userDTO;
-        try {
-            userDTO = userHolder.getCurrentUser();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        if (userDTO == null) {
-            throw new RuntimeException("用户信息为空");
-        }
-        String loginUserId = userDTO.getId();
-        this.setFieldValByNameIfNull("updatedBy", loginUserId, metaObject);
+//        UserDTO userDTO;
+//        try {
+//            userDTO = userHolder.getCurrentUser();
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//        if (userDTO == null) {
+//            throw new RuntimeException("用户信息为空");
+//        }
+//        String loginUserId = userDTO.getId();
+//        this.setFieldValByNameIfNull("updatedBy", loginUserId, metaObject);
+        this.setFieldValByNameIfNull("updatedBy", "1", metaObject);
     }
 
     /**

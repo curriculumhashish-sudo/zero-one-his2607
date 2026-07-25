@@ -24,5 +24,5 @@ public class MenuDetailQuery {
      */
     @NotNull(message = "菜单ID不能为空")
     @Schema(description = "菜单ID", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long id;
+    private String id;
 }

@@ -1,6 +1,7 @@
 package com.zeroone.star.project.dto.menu;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -17,8 +18,12 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Schema(description = "UpdateMenuRequest")
+@Schema(description = "菜单更新请求数据")
 public class MenuUpdateDTO extends MenuCreateDTO {
+
+    @NotBlank(message = "菜单ID不能为空")
+    @Schema(description = "菜单唯一标识ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String id;
 
     @Schema(description = "是否清空父菜单", example = "false")
     private Boolean clearParent;

@@ -35,7 +35,8 @@ public interface MenuConvertor {
         @Mapping(source = "name", target = "menuName"),
         @Mapping(source = "displayName", target = "showName"),
         @Mapping(source = "isEnabled", target = "status"),
-        @Mapping(source = "sortOrder", target = "sortNum")
+        @Mapping(source = "sortOrder", target = "sortNum"),
+        @Mapping(target = "menuType", expression = "java(menuDO.getMenuType().name())")
     })
     public MenuVO toVO(MenuDO menuDO);
 
@@ -57,7 +58,12 @@ public interface MenuConvertor {
      * @return DO
      */
     @Mappings({
-        @Mapping(target = "keepAlive", expression = "java(dto.getKeepAlive() ? 1 : 0)")
+        @Mapping(target = "keepAlive", expression = "java(dto.getKeepAlive() ? 1 : 0)"),
+        @Mapping(target = "isExternal", expression = "java(dto.getExternal() ? 1 : 0)"),
+        @Mapping(target = "isHidden", expression = "java(dto.getHidden() ? 1 : 0)"),
+        @Mapping(target = "isEnabled", expression = "java(dto.getEnabled() ? 1 : 0)"),
+        @Mapping(target = "parentId", expression = "java(org.apache.commons.lang3.StringUtils." +
+                "isNoneBlank(dto.getParentId()) ? dto.getParentId() : null)")
     })
     public MenuDO createDO(MenuCreateDTO dto);
 
@@ -68,8 +74,7 @@ public interface MenuConvertor {
      * @param dto DTO
      * @return DO
      */
-    @Mappings({
-        @Mapping(target = "keepAlive", expression = "java(dto.getKeepAlive() ? 1 : 0)")
-    })
-    public MenuDO updateDO(MenuUpdateDTO dto);
+    default MenuDO updateDO(MenuUpdateDTO dto) {
+        return createDO(dto);
+    }
 }
