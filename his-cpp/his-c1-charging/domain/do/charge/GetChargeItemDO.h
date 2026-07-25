@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _CHARGE_ITEM_DO_H_
-#define _CHARGE_ITEM_DO_H_
+#ifndef _GET_CHARGE_ITEM_DO_H_
+#define _GET_CHARGE_ITEM_DO_H_
 
 #include "../DoInclude.h"
 
@@ -10,7 +10,7 @@
  * 对应 adm_charge_item 多表 JOIN 查询结果集
  * BaseDO("") 表示只读 DO，不绑定单表
  */
-class ChargeItemDO : public BaseDO
+class GetChargeItemDO : public BaseDO
 {
     // 收费项主键
     MYSQL_SYNTHESIZE(string, chargeItemId, ChargeItemId);
@@ -52,7 +52,7 @@ class ChargeItemDO : public BaseDO
     MYSQL_SYNTHESIZE(string, encounterId, EncounterId);
 
 public:
-    ChargeItemDO() : BaseDO("")
+    GetChargeItemDO() : BaseDO("")
     {
         MYSQL_ADD_FIELD("charge_item_id", "s", chargeItemId);
         MYSQL_ADD_FIELD("service_table", "s", serviceTable);
@@ -76,6 +76,6 @@ public:
     }
 };
 
-typedef std::shared_ptr<ChargeItemDO> PtrChargeItemDO;
+typedef std::shared_ptr<GetChargeItemDO> PtrGetChargeItemDO;
 
-#endif // !_CHARGE_ITEM_DO_H_
+#endif // !_GET_CHARGE_ITEM_DO_H_

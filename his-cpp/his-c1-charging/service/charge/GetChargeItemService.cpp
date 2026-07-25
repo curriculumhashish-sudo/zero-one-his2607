@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "ChargeItemService.h"
-#include "dao/charge/ChargeItemDAO.h"
+#include "GetChargeItemService.h"
+#include "dao/charge/GetChargeItemDAO.h"
 
 // 防止 ODBC/MySQL 类型冲突
 #include "NacosClient.h"
@@ -8,7 +8,7 @@
 #include <sstream>
 #include <iomanip>
 
-GetChargeItemDTO::Wrapper ChargeItemService::listAll(const GetChargeItemsQuery::Wrapper& query)
+GetChargeItemDTO::Wrapper GetChargeItemService::listAll(const GetChargeItemsQuery::Wrapper& query)
 {
     auto dto = GetChargeItemDTO::createShared();
     dto->encounterId = query->encounterId;
@@ -17,7 +17,7 @@ GetChargeItemDTO::Wrapper ChargeItemService::listAll(const GetChargeItemsQuery::
 
     if (query->encounterId && !query->encounterId->empty())
     {
-        ChargeItemDAO dao;
+        GetChargeItemDAO dao;
         auto doList = dao.selectByEncounterId(query->encounterId);
 
         for (auto& item : doList)

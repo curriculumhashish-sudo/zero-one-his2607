@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _SETTLEMENT_SERVICE_H_
-#define _SETTLEMENT_SERVICE_H_
+#ifndef _SETTLE_CHARGE_SERVICE_H_
+#define _SETTLE_CHARGE_SERVICE_H_
 
 #include "domain/vo/charge/SettleChargeVO.h"
 #include "domain/dto/charge/PreSettleChargeDTO.h"
@@ -10,7 +10,7 @@
 /**
  * 结算服务（接口3A预结算 + 接口3C正式结算）
  */
-class SettlementService
+class SettleChargeService
 {
 public:
     /**
@@ -28,4 +28,4 @@ public:
     ConfirmSettleChargeResponseDTO::Wrapper confirmSettle(const ConfirmSettleChargeRequestDTO::Wrapper& dto);
 };
 
-#endif // !_SETTLEMENT_SERVICE_H_
+#endif // !_SETTLE_CHARGE_SERVICE_H_

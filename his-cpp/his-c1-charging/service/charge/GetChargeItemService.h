@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _CHARGE_ITEM_SERVICE_H_
-#define _CHARGE_ITEM_SERVICE_H_
+#ifndef _GET_CHARGE_ITEM_SERVICE_H_
+#define _GET_CHARGE_ITEM_SERVICE_H_
 
 #include "domain/vo/charge/GetChargeItemVO.h"
 #include "domain/query/charge/GetChargeItemsQuery.h"
@@ -10,7 +10,7 @@
 /**
  * 患者缴费项查询服务（接口2）
  */
-class ChargeItemService
+class GetChargeItemService
 {
 public:
     /**
@@ -21,4 +21,4 @@ public:
     GetChargeItemDTO::Wrapper listAll(const GetChargeItemsQuery::Wrapper& query);
 };
 
-#endif // !_CHARGE_ITEM_SERVICE_H_
+#endif // !_GET_CHARGE_ITEM_SERVICE_H_

@@ -1,21 +1,21 @@
 #pragma once
 
-#ifndef _CHARGE_ITEM_MAPPER_H_
-#define _CHARGE_ITEM_MAPPER_H_
+#ifndef _GET_CHARGE_ITEM_MAPPER_H_
+#define _GET_CHARGE_ITEM_MAPPER_H_
 
 #include "Mapper.h"
-#include "domain/do/charge/ChargeItemDO.h"
+#include "domain/do/charge/GetChargeItemDO.h"
 
 /**
- * ChargeItemDO 结果集映射器
+ * GetChargeItemDO 结果集映射器
  * SQL 列别名必须与 getString() 参数名严格一致
  */
-class ChargeItemMapper : public Mapper<ChargeItemDO>
+class GetChargeItemMapper : public Mapper<GetChargeItemDO>
 {
 public:
-    ChargeItemDO mapper(ResultSet* resultSet) const override
+    GetChargeItemDO mapper(ResultSet* resultSet) const override
     {
-        ChargeItemDO data;
+        GetChargeItemDO data;
         data.setChargeItemId(resultSet->getString("charge_item_id"));
         data.setServiceTable(resultSet->getString("service_table"));
         data.setServiceId(resultSet->getString("service_id"));
@@ -39,4 +39,4 @@ public:
     }
 };
 
-#endif // !_CHARGE_ITEM_MAPPER_H_
+#endif // !_GET_CHARGE_ITEM_MAPPER_H_

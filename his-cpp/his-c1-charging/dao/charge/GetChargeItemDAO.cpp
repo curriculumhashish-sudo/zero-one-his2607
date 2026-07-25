@@ -1,11 +1,11 @@
 #include "stdafx.h"
-#include "ChargeItemDAO.h"
-#include "ChargeItemMapper.h"
+#include "GetChargeItemDAO.h"
+#include "GetChargeItemMapper.h"
 
 // 防止 ODBC/MySQL 类型冲突
 #include "NacosClient.h"
 
-std::list<ChargeItemDO> ChargeItemDAO::selectByEncounterId(const std::string& encounterId)
+std::list<GetChargeItemDO> GetChargeItemDAO::selectByEncounterId(const std::string& encounterId)
 {
     SqlParams params;
     SQLPARAMS_PUSH(params, "s", std::string, encounterId);
@@ -35,10 +35,10 @@ std::list<ChargeItemDO> ChargeItemDAO::selectByEncounterId(const std::string& en
         << " LEFT JOIN adm_charge_item_definition cid ON ci.definition_id = cid.id"
         << " LEFT JOIN adm_practitioner doc ON ci.performer_id = doc.id"
         << " LEFT JOIN adm_account acc ON ci.account_id = acc.id"
-        << " LEFT JOIN fin_contract fc ON acc.contract_no = fc.contract_no"
+        << " LEFT JOIN fin_contract fc ON acc.contract_no = fc.bus_no"
         << " LEFT JOIN adm_encounter_diagnosis ed ON ci.encounter_id = ed.encounter_id"
         << " WHERE ci.encounter_id = ?"
         << " ORDER BY ci.id";
 
-    return sqlSession->executeQuery<ChargeItemDO>(sql.str(), ChargeItemMapper(), params);
+    return sqlSession->executeQuery<GetChargeItemDO>(sql.str(), GetChargeItemMapper(), params);
 }

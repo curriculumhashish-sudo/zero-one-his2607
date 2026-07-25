@@ -1,9 +1,13 @@
 #include "PrintController.h"
+#include "service/charge/PrintChargeReceiptService.h"
 
 // 打印门诊收费小票
 PrintChargeReceiptVO::Wrapper PrintController::execPrintChargeReceipt(const PrintChargeReceiptRequestDTO::Wrapper& dto)
 {
     auto vo = PrintChargeReceiptVO::createShared();
+    PrintChargeReceiptService service;
+    auto resp = service.printChargeReceipt(dto);
+    vo->success(resp);
     return vo;
 }
 
@@ -11,6 +15,9 @@ PrintChargeReceiptVO::Wrapper PrintController::execPrintChargeReceipt(const Prin
 PreparePrintVO::Wrapper PrintController::execPreparePrint(const PreparePrintRequestDTO::Wrapper& dto)
 {
     auto vo = PreparePrintVO::createShared();
+    PrintChargeReceiptService service;
+    auto resp = service.preparePrint(dto);
+    vo->success(resp);
     return vo;
 }
 
@@ -18,5 +25,8 @@ PreparePrintVO::Wrapper PrintController::execPreparePrint(const PreparePrintRequ
 ConfirmPrintVO::Wrapper PrintController::execConfirmPrint(const ConfirmPrintRequestDTO::Wrapper& dto)
 {
     auto vo = ConfirmPrintVO::createShared();
+    PrintChargeReceiptService service;
+    auto resp = service.confirmPrint(dto);
+    vo->success(resp);
     return vo;
 }
