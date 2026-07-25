@@ -29,10 +29,10 @@ public interface DispensingApis {
 
     /**
      * 获取患者药品项目（点击汇总单后查看明细）
-     * @param summaryId 汇总单ID
+      * @param summaryNo 汇总单编号
      * @return 患者药品项目列表
      */
-    JsonVO<List<PatientMedicationVO>> queryPatientMedications(Long summaryId);
+    JsonVO<List<PatientMedicationVO>> queryPatientMedications(String summaryNo);
 
     /**
      * 核对发药（确认发药并扣减库存）
