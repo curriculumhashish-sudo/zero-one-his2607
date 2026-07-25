@@ -52,4 +52,11 @@ public abstract class BaseDO implements Serializable {
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private String updatedBy;
+
+    /**
+     * 软删标记
+     */
+    @TableLogic
+    @TableField(fill = FieldFill.INSERT)
+    private Integer isDeleted;
 }

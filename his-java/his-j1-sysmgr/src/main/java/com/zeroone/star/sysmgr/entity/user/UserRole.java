@@ -4,11 +4,9 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.time.LocalDateTime;
-import java.io.Serializable;
 
 import com.zeroone.star.project.entity.BaseDO;
 import lombok.*;
-import lombok.experimental.Accessors;
 
 /**
  * <p>
@@ -41,12 +39,6 @@ public class UserRole extends BaseDO {
      */
     @TableField("tenant_id")
     private String tenantId;
-
-    /**
-     * 软删标记
-     */
-    @TableField("is_deleted")
-    private Boolean isDeleted;
 
     /**
      * 删除时间

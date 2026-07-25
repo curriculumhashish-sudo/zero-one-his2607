@@ -111,11 +111,6 @@ public class MenuDO extends BaseDO {
     private String tenantId;
 
     /**
-     * 软删除标记 0正常 1删除
-     */
-    private Integer isDeleted;
-
-    /**
      * 删除时间
      */
     private LocalDateTime deletedAt;
