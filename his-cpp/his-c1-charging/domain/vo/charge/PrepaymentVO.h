@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef _PREPAYMENT_VO_
 #define _PREPAYMENT_VO_
@@ -27,9 +27,9 @@ class PrepaymentRefundVO : public JsonVO<PrepaymentRefundResponseDTO::Wrapper>
 /*
    预交金分页查询响应视图对象
 */
-class PrepaymentPageJsonVO : public JsonPageVO<PrepaymentRecordDTO::Wrapper>
+class PrepaymentPageJsonVO : public JsonVO<PrepaymentPageDTO::Wrapper>
 {
-    DTO_INIT(PrepaymentPageJsonVO, JsonPageVO<PrepaymentRecordDTO::Wrapper>);
+    DTO_INIT(PrepaymentPageJsonVO, JsonVO<PrepaymentPageDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)

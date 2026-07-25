@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef _PREPAYMENT_DTO_
 #define _PREPAYMENT_DTO_
@@ -190,6 +190,14 @@ class PrepaymentRecordDTO : public oatpp::DTO
     API_DTO_FIELD(String, createTime,
         ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentRecordDTO.createTime.description"),
         true, "2026-07-20 10:30:00");
+};
+
+/*
+   预交金分页DTO（列表查询用）
+*/
+class PrepaymentPageDTO : public PageDTO<PrepaymentRecordDTO::Wrapper>
+{
+    DTO_INIT(PrepaymentPageDTO, PageDTO<PrepaymentRecordDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)
