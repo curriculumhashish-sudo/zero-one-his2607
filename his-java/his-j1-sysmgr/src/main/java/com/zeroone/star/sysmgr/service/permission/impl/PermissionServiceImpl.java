@@ -21,15 +21,19 @@ import com.zeroone.star.sysmgr.exception.SystemException;
 import com.zeroone.star.sysmgr.mapper.permission.PermissionMapper;
 import com.zeroone.star.sysmgr.service.permission.IPermissionService;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class PermissionServiceImpl
         extends ServiceImpl<PermissionMapper, Permission>
@@ -40,6 +44,12 @@ public class PermissionServiceImpl
 
     @Resource
     private UserHolder userHolder;
+
+    @Resource
+    private RestTemplate restTemplate;
+
+    @Value("${his.cache.reload-url:http://localhost:8081/open/resources/cache/reload}")
+    private String cacheReloadUrl;
 
     // ======================== 接口 1：权限名称树 ========================
 
@@ -98,6 +108,7 @@ public class PermissionServiceImpl
         entity.setTenantId(tenantId);
         entity.setIsDeleted(false);
         baseMapper.insert(entity);
+        refreshCache();
         return BeanUtil.copyProperties(entity, PermissionVO.class);
     }
 
@@ -119,6 +130,7 @@ public class PermissionServiceImpl
         existing.setParentName(emptyToNull(dto.getParentName()));
         existing.setDescription(dto.getDescription());
         baseMapper.updateById(existing);
+        refreshCache();
         return BeanUtil.copyProperties(existing, PermissionVO.class);
     }
 
@@ -154,6 +166,7 @@ public class PermissionServiceImpl
         String deletedBy = getCurrentUserId();
         int permCount = permissionMapper.batchDeletePermissions(namesToDelete, deletedBy, tenantId);
         permissionMapper.batchDeleteGrants(namesToDelete, deletedBy, tenantId);
+        refreshCache();
         return new DeleteResult(true, permCount);
     }
 
@@ -215,5 +228,14 @@ public class PermissionServiceImpl
             return null;
         }
         return value;
+    }
+
+    private void refreshCache() {
+        try {
+            restTemplate.put(cacheReloadUrl, null);
+            log.info("权限缓存已刷新");
+        } catch (Exception e) {
+            log.warn("刷新权限缓存失败: {}", e.getMessage());
+        }
     }
 }
