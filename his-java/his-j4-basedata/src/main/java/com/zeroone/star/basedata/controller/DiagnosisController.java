@@ -7,7 +7,6 @@ import com.zeroone.star.project.j4.basedata.DiagnosisApis;
 import com.zeroone.star.project.query.j4.diagnosis.DiagnosisPageQuery;
 import com.zeroone.star.project.query.j4.diagnosis.DiagnosisSelectPageQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisDefinitionDetailVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisDetailVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisListVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisOptionVO;
