@@ -50,8 +50,10 @@ class DeptBatchUpdateDTO : public oatpp::DTO
 
 	// 待更新科室ID数组
 	DTO_FIELD(Vector<Int64>, idList);
-	// 目标启用状态
-	DTO_FIELD(Int32, enableStatus);
+	// 枚举状态字段
+	DTO_FIELD(String, statusEnum);
+	// 布尔启停标记
+	DTO_FIELD(Boolean, activeFlag);
 	// 修改人账号
 	DTO_FIELD(String, updateBy);
 	// 修改时间字符串
