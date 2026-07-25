@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
 #include "BedController.h"
 #include "../../service/admissiontransfer/BedService.h"
 

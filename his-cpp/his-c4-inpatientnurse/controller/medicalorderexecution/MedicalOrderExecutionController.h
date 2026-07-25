@@ -86,16 +86,9 @@ public:
 
 private:
     MedicalOrderPageJsonVO::Wrapper execQueryExecutionItems(
-        const MedicalOrderQuery::Wrapper& query)
-    {
-        return MedicalOrderExecutionService().queryExecutionItems(query);
-    }
-
-    StringJsonVO::Wrapper execStartExecution(const ExecuteOrderDTO::Wrapper& dto)
-    {
-        return MedicalOrderExecutionService().execStartExecution(dto);
-    }
-
+        const MedicalOrderQuery::Wrapper& query);
+    StringJsonVO::Wrapper execStartExecution(
+        const ExecuteOrderDTO::Wrapper& dto);
 };
 
 #undef API_TAG

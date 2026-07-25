@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #ifndef _BED_ASSIGN_DTO_
 #define _BED_ASSIGN_DTO_

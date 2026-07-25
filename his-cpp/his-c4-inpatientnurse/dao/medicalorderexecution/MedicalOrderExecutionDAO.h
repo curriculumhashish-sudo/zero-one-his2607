@@ -21,7 +21,7 @@
 #define _MEDICAL_ORDER_EXECUTION_DAO_H_
 
 #include "BaseDAO.h"
-#include "domain/do/medicalorderexecution/WkfServiceRequestDO.h"
+#include "domain/do/common/ServiceRequestDO.h"
 #include "domain/query/medicalorderexecution/MedicalOrderQuery.h"
 
 /**

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #ifndef _ORDER_EXECUTE_VO_
 #define _ORDER_EXECUTE_VO_

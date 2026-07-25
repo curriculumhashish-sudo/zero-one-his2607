@@ -1,4 +1,4 @@
-﻿// stdafx.h: Precompiled header file.
+// stdafx.h: Precompiled header file.
 // The headers listed below are compiled only once, improving build times for subsequent builds.
 // This also enhances IntelliSense performance, including features such as code completion and navigation.
 // However, if any of these headers are modified between builds, all of them will be rebuilt. 

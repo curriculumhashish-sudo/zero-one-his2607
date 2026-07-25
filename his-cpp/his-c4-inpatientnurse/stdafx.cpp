@@ -1,4 +1,4 @@
-﻿// stdafx.cpp: Source file for the precompiled header.
+// stdafx.cpp: Source file for the precompiled header.
 /*
  Copyright Zero One Star. All rights reserved.
 

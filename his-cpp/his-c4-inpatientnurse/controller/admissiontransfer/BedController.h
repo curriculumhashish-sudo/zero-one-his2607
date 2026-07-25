@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #ifndef _BED_CONTROLLER_
 #define _BED_CONTROLLER_
 #include "domain/vo/BaseJsonVO.h"

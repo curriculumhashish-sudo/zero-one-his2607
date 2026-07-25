@@ -20,8 +20,6 @@
 #include "Router.h"
 #include "ApiHelper.h"
 #include "controller/chargedetails/CostDetailController.h"
-#include "inpatientbilling/supplementcharge/SupplementChargeController.h"
-#include "inpatientbilling/supplementcharge/SupplementOrderController.h"
 #include "admissiontransfer/AdmissionTransferController.h"
 #include "encountermanage/EncounterManageController.h"
 #include "medicationcollection/MedicationCollectionController.h"

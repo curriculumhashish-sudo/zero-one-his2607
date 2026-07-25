@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #ifndef _BED_DTO_
 #define _BED_DTO_
 #include "../../GlobalInclude.h"

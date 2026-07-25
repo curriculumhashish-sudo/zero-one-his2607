@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #ifndef _BED_QUERY_
 #define _BED_QUERY_
