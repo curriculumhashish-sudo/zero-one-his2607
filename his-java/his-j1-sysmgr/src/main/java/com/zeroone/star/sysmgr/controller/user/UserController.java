@@ -1,5 +1,6 @@
 package com.zeroone.star.sysmgr.controller.user;
 
+import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j1.user.ChangePasswordDTO;
 import com.zeroone.star.project.dto.j1.user.UserUpdateDTO;
@@ -11,7 +12,9 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j1.user.UserDetailVO;
 import com.zeroone.star.project.vo.j1.user.UserListVO;
 import com.zeroone.star.project.vo.j1.user.UserPageVO;
+import com.zeroone.star.sysmgr.service.user.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -19,6 +22,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequestMapping("/user")
 @Tag(name = "用户管理")
 public class UserController implements UserApis {
+
+    @Resource
+    private IUserService userService;
+
+    @Resource
+    private UserHolder userHolder;
 
     @Operation(summary   = "分页查询用户列表")
     @GetMapping("/page")
@@ -62,27 +71,42 @@ public class UserController implements UserApis {
     @DeleteMapping("/{id}")
     @Override
     public JsonVO<String> deleteById(@PathVariable String id) {
-        return null;
+        try {
+            //获得登入用户的名称
+            String deletedBy = userHolder.getCurrentUser().getUsername();
+            boolean success = userService.softDeleteById(id, deletedBy);
+            if (success) {
+                return JsonVO.success("删除成功");
+            } else {
+                return JsonVO.fail("用户不存在");
+            }
+        } catch (Exception e) {
+            return JsonVO.fail("删除失败: " + e.getMessage());
+        }
     }
 
     @Operation(summary   = "修改密码")
     @PutMapping("/changePassword")
     @Override
     public JsonVO<String> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO) {
-        return null;
+        boolean success = userService.updatePassword(changePasswordDTO.getId(), changePasswordDTO.getPasswordHash());
+        return success ? JsonVO.success("修改成功") : JsonVO.fail("用户不存在");
     }
 
     @Operation(summary   = "修改用户状态")
     @PutMapping("/updateStatus/{id}/status/{status}")
     @Override
     public JsonVO<String> updateStatus(@PathVariable String id, @PathVariable Integer status) {
-        return null;
+        boolean success = userService.updateStatus(id, status);
+        return success ? JsonVO.success("修改成功") : JsonVO.fail("用户不存在");
     }
 
     @Operation(summary   = "锁定用户")
     @PutMapping("/lockUser/{id}/lockStatus/{lockStatus}")
     @Override
-    public JsonVO<String> lockUser(@PathVariable String id,@PathVariable Integer lockStatus) {
-        return null;
+    public JsonVO<String> lockUser(@PathVariable String id, @PathVariable Integer lockStatus) {
+        boolean success = userService.lockUser(id, lockStatus);
+        return success ? JsonVO.success("操作成功") : JsonVO.fail("用户不存在");
     }
+
 }
