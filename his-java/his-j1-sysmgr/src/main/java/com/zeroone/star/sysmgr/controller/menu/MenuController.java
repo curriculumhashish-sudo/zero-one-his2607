@@ -109,17 +109,17 @@ public class MenuController implements MenuApis {
     }
 
     /**
-     * 删除菜单信息
-     * @param menuDto 菜单删除入参
-     * @return 是否删除成功
+     * 删除菜单
      * @author 是丫丫
      * @负责人 Drums小白
+     * @param menuDto 删除参数
+     * @return 删除结果
      */
     @Override
-    @PostMapping("delete")
+    @DeleteMapping("/delete")
     @Operation(summary = "删除菜单")
     public JsonVO<Boolean> delete(@RequestBody @Valid MenuDeleteDTO menuDto) {
-        return JsonVO.success(null);
+        return menuService.delete(menuDto);
     }
 
     /**

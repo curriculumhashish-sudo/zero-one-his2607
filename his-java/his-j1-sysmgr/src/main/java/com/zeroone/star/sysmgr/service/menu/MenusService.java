@@ -3,9 +3,12 @@ package com.zeroone.star.sysmgr.service.menu;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zeroone.star.project.dto.menu.MenuCreateDTO;
 import com.zeroone.star.project.dto.menu.MenuEditStatusDTO;
-import com.zeroone.star.sysmgr.entity.menu.MenuDO;
-import com.zeroone.star.project.vo.menu.MenuVO;
 import com.zeroone.star.project.dto.menu.MenuUpdateDTO;
+import com.zeroone.star.project.dto.menu.MenuDeleteDTO;
+import com.zeroone.star.project.vo.menu.MenuVO;
+import com.zeroone.star.sysmgr.entity.menu.MenuDO;
+import com.zeroone.star.project.vo.JsonVO;
+
 /**
  * @author xin
  * @description 针对表【whale_menus(菜单)】的数据库操作Service
@@ -44,4 +47,13 @@ public interface MenusService extends IService<MenuDO> {
      * @return 是否修改成功
      */
     Boolean editMenu(MenuUpdateDTO editDTO);
+
+    /**
+     * 删除菜单信息
+     * @param menuDto 菜单删除入参
+     * @return 是否删除成功
+     * @author 是丫丫
+     * @负责人 Drums小白
+     */
+    JsonVO<Boolean> delete(MenuDeleteDTO menuDto);
 }

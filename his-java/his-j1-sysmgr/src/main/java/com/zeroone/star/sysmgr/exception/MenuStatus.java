@@ -29,7 +29,11 @@ public enum MenuStatus implements SystemStatus {
     /**
      * 菜单基础信息修改失败
      */
-    MENU_EDIT_FAIL("菜单修改失败", 4005);
+    MENU_EDIT_FAIL("菜单修改失败", 4005),
+    /**
+     * 菜单存在子节点，禁止删除
+     */
+    MENU_HAS_CHILD("菜单存在子菜单，无法删除", 4006);
 
     private final String message;
     private final int status;

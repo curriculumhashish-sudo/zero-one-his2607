@@ -8,6 +8,7 @@ import com.zeroone.star.project.dto.menu.MenuCreateDTO;
 import com.zeroone.star.project.dto.menu.MenuEditStatusDTO;
 import com.zeroone.star.project.dto.menu.MenuUpdateDTO;
 import com.zeroone.star.sysmgr.convertor.MenuConvertor;
+import com.zeroone.star.project.dto.menu.MenuDeleteDTO;
 import com.zeroone.star.sysmgr.entity.menu.MenuDO;
 import com.zeroone.star.project.vo.menu.MenuVO;
 import com.zeroone.star.sysmgr.exception.MenuStatus;
@@ -16,6 +17,7 @@ import com.zeroone.star.sysmgr.mapper.menu.MenusMapper;
 import com.zeroone.star.sysmgr.service.menu.MenusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.zeroone.star.project.vo.JsonVO;
 
 /**
  * @author xin
@@ -116,5 +118,32 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
         int result = baseMapper.updateById(updateDO);
         Assert.isTrue(result > 0, () -> new SystemException(MenuStatus.MENU_EDIT_FAIL));
         return result > 0;
+    }
+
+    @Override
+    public JsonVO<Boolean> delete(MenuDeleteDTO menuDto) {
+        String menuId = menuDto.getId();
+        // 1. 查询菜单
+        MenuDO menu = baseMapper.selectById(menuId);
+        if (menu == null || Integer.valueOf(1).equals(menu.getIsDeleted())) {
+            throw new SystemException(MenuStatus.MENU_NOT_FIND);
+        }
+
+        // 2. 校验是否存在有效子菜单
+        long childNum = baseMapper.selectCount(
+                new LambdaQueryWrapper<MenuDO>()
+                        .eq(MenuDO::getParentId, menuId)
+                        .eq(MenuDO::getIsDeleted, 0)
+        );
+        if (childNum > 0) {
+            throw new SystemException(MenuStatus.MENU_HAS_CHILD);
+        }
+
+        // 3. 执行软删除
+        MenuDO updateDO = new MenuDO();
+        updateDO.setId(menuId);
+        updateDO.setIsDeleted(1);
+        int rows = baseMapper.updateById(updateDO);
+        return JsonVO.success(rows > 0);
     }
 }
