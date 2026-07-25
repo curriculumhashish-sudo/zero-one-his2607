@@ -1,9 +1,9 @@
 package com.zeroone.star.sysmgr.exception;
 
 /**
- * 菜单状态枚举
- * @author 是丫丫
- * @date 2026/7/25
+ * 菜单模块异常状态枚举
+ * @author Drums小白
+ * @date 2026-07-25
  */
 public enum MenuStatus implements SystemStatus {
     /**
@@ -24,15 +24,19 @@ public enum MenuStatus implements SystemStatus {
     /**
      * 菜单状态修改失败
      */
-    MENU_STATUS_EDIT_FAIL("菜单状态修改失败", 4004);
+    MENU_STATUS_EDIT_FAIL("菜单状态修改失败", 4004),
+
+    /**
+     * 菜单基础信息修改失败
+     */
+    MENU_EDIT_FAIL("菜单修改失败", 4005);
 
     private final String message;
-
     private final int status;
 
-    MenuStatus(String message, int code) {
+    MenuStatus(String message, int status) {
         this.message = message;
-        this.status = code;
+        this.status = status;
     }
 
     @Override

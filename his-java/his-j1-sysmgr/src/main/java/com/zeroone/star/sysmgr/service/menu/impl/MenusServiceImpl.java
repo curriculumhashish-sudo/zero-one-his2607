@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zeroone.star.project.dto.menu.MenuCreateDTO;
 import com.zeroone.star.project.dto.menu.MenuEditStatusDTO;
+import com.zeroone.star.project.dto.menu.MenuUpdateDTO;
 import com.zeroone.star.sysmgr.convertor.MenuConvertor;
 import com.zeroone.star.sysmgr.entity.menu.MenuDO;
 import com.zeroone.star.project.vo.menu.MenuVO;
@@ -50,11 +51,11 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
         LambdaQueryWrapper<MenuDO> wrapper = new LambdaQueryWrapper<>();
         // 最终sql： WHERE path = ? AND （code = ? OR name = ? OR display_name = ?）
         wrapper.eq(MenuDO::getPath, menuDto.getPath())
-            .and(
-                w -> w.eq(MenuDO::getCode, menuDto.getCode()).or()
-                    .eq(MenuDO::getName, menuDto.getName()).or()
-                    .eq(MenuDO::getDisplayName, menuDto.getDisplayName())
-            );
+                .and(
+                        w -> w.eq(MenuDO::getCode, menuDto.getCode()).or()
+                                .eq(MenuDO::getName, menuDto.getName()).or()
+                                .eq(MenuDO::getDisplayName, menuDto.getDisplayName())
+                );
         if (this.baseMapper.selectCount(wrapper) > 0) {
             throw new SystemException(MenuStatus.MENU_ALREADY_IS_EXIST);
         }
@@ -72,6 +73,48 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
         wrapper.set(MenuDO::getIsEnabled, menuDto.getStatus());
         int result = this.baseMapper.update(wrapper);
         Assert.isTrue(result > 0, () -> new SystemException(MenuStatus.MENU_STATUS_EDIT_FAIL));
+        return result > 0;
+    }
+
+    /**
+     * 修改菜单基础信息
+     * @author Drums小白
+     * @param editDTO 修改菜单Dto
+     * @return 是否修改成功
+     */
+    @Override
+    public Boolean editMenu(MenuUpdateDTO editDTO) {
+        // 1. 查询菜单，校验菜单是否存在（过滤已删除数据）
+        LambdaQueryWrapper<MenuDO> existWrapper = new LambdaQueryWrapper<>();
+        existWrapper.eq(MenuDO::getId, editDTO.getId())
+                .eq(MenuDO::getIsDeleted, 0);
+        MenuDO menuDO = baseMapper.selectOne(existWrapper);
+        if (menuDO == null) {
+            throw new SystemException(MenuStatus.MENU_NOT_FIND);
+        }
+
+        // 2. 校验路径、编码、名称冲突，排除自身菜单
+        LambdaQueryWrapper<MenuDO> repeatWrapper = new LambdaQueryWrapper<>();
+        repeatWrapper.eq(MenuDO::getPath, editDTO.getPath())
+                .and(w -> w.eq(MenuDO::getCode, editDTO.getCode())
+                        .or().eq(MenuDO::getName, editDTO.getName())
+                        .or().eq(MenuDO::getDisplayName, editDTO.getDisplayName()))
+                .ne(MenuDO::getId, editDTO.getId());
+        if (baseMapper.selectCount(repeatWrapper) > 0) {
+            throw new SystemException(MenuStatus.MENU_ALREADY_IS_EXIST);
+        }
+
+        // 3. DTO转换DO
+        MenuDO updateDO = MenuConvertor.INSTANCE.updateDO(editDTO);
+
+        // 4. 处理清空父菜单标识
+        if (Boolean.TRUE.equals(editDTO.getClearParent())) {
+            updateDO.setParentId("");
+        }
+
+        // 5. 执行更新
+        int result = baseMapper.updateById(updateDO);
+        Assert.isTrue(result > 0, () -> new SystemException(MenuStatus.MENU_EDIT_FAIL));
         return result > 0;
     }
 }

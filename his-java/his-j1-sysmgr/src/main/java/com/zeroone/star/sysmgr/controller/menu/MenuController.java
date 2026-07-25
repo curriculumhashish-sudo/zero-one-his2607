@@ -101,10 +101,11 @@ public class MenuController implements MenuApis {
      * @负责人 Drums小白
      */
     @Override
-    @PostMapping("update")
-    @Operation(summary = "修改菜单")
+    @PutMapping("update")
+    @Operation(summary = "修改菜单基础信息")
     public JsonVO<Boolean> update(@RequestBody @Valid MenuUpdateDTO menuDto) {
-        return JsonVO.success(null);
+        Boolean success = menusService.editMenu(menuDto);
+        return JsonVO.success(success);
     }
 
     /**

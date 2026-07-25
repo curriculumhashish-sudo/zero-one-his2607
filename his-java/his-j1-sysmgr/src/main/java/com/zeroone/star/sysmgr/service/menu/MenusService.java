@@ -5,7 +5,7 @@ import com.zeroone.star.project.dto.menu.MenuCreateDTO;
 import com.zeroone.star.project.dto.menu.MenuEditStatusDTO;
 import com.zeroone.star.sysmgr.entity.menu.MenuDO;
 import com.zeroone.star.project.vo.menu.MenuVO;
-
+import com.zeroone.star.project.dto.menu.MenuUpdateDTO;
 /**
  * @author xin
  * @description 针对表【whale_menus(菜单)】的数据库操作Service
@@ -36,4 +36,12 @@ public interface MenusService extends IService<MenuDO> {
      * @author 是丫丫
      */
     Boolean editStatus(MenuEditStatusDTO menuDto);
+
+    /**
+     * 修改菜单基础信息
+     * @author Drums小白
+     * @param editDTO 修改菜单Dto
+     * @return 是否修改成功
+     */
+    Boolean editMenu(MenuUpdateDTO editDTO);
 }
