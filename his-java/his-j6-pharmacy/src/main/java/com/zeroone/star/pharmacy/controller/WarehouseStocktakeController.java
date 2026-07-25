@@ -1,15 +1,15 @@
 package com.zeroone.star.pharmacy.controller;
 
-import com.zeroone.star.project.dto.j6.pharmacy.stocktake.PharmacyInventoryDetailQueryDTO;
-import com.zeroone.star.project.dto.j6.pharmacy.stocktake.PharmacyInventoryQueryDTO;
-import com.zeroone.star.project.dto.j6.pharmacy.stocktake.PharmacyInventorySaveDTO;
-import com.zeroone.star.project.dto.j6.pharmacy.stocktake.StocktakeSaveDTO;
+import com.zeroone.star.pharmacy.service.IStocktakeApprovalService;
+import com.zeroone.star.project.dto.j6.pharmacy.stocktake.*;
 import com.zeroone.star.project.j6.pharmacy.WarehouseStocktakeApis;
 import com.zeroone.star.project.query.j6.pharmacy.stocktake.PharmacyInventoryQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stocktake.StocktakeDetailVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +24,7 @@ import java.util.List;
 public class WarehouseStocktakeController implements WarehouseStocktakeApis {
 
     @Override
-    @GetMapping("/list")
+    @GetMapping("list")
     @Operation(summary = "获取单据列表（条件+分页）")
     public JsonVO<PharmacyInventoryQueryDTO> listInventory(PharmacyInventoryQuery query) {
 
@@ -38,13 +38,20 @@ public class WarehouseStocktakeController implements WarehouseStocktakeApis {
         return JsonVO.success(new PharmacyInventoryDetailQueryDTO());
     }
 
+    @Override
+    @DeleteMapping("/{busNo}")
+    @Operation(summary = "删除单据")
+    public JsonVO<Boolean> deleteStocktake(@PathVariable String busNo) {
+        return JsonVO.success(true);
+    }
+
     /**
      * 新增盘点单
      * <p>生成空盘点单头，不生成明细行（明细由前端逐行添加后通过 saveStocktake 保存）</p>
      */
     @Override
     @Operation(summary = "新增单据", description = "生成空盘点单, 状态=草稿")
-    @PostMapping("/warehouse/stocktake/create")
+    @PostMapping("/create")
     public JsonVO<StocktakeDetailVO> createStocktake(@RequestBody StocktakeSaveDTO dto) {
         // TODO [Dome] Step1: 生成 bus_no = "CST" + yyyyMMdd + 4位流水号(Redis INCR 或 DB 序列)
 
@@ -66,7 +73,7 @@ public class WarehouseStocktakeController implements WarehouseStocktakeApis {
      */
     @Override
     @Operation(summary = "保存单据", description = "填入实盘数据 + 快照锁定账面数，状态=草稿")
-    @PutMapping("/warehouse/stocktake/{busNo}/save")
+    @PutMapping("/{busNo}/save")
     public JsonVO<StocktakeDetailVO> saveStocktake(@PathVariable String busNo, @RequestBody StocktakeSaveDTO dto) {
         // TODO [Dome] Step1: 校验 busNo 存在且 status_enum=DRAFT，否则抛 BusinessException("盘点单不存在或状态不允许编辑")
 
@@ -95,7 +102,7 @@ public class WarehouseStocktakeController implements WarehouseStocktakeApis {
      */
     @Override
     @Operation(summary = "保存并提交审批", description = "填入实盘数据，状态草稿→待审批")
-    @PutMapping("/warehouse/stocktake/{busNo}/submit")
+    @PutMapping("/{busNo}/submit")
     public JsonVO<StocktakeDetailVO> submitStocktake(@PathVariable String busNo, @RequestBody StocktakeSaveDTO dto) {
         // TODO [Dome] Step1: 同 saveStocktake Step1-5 (快照+补全+先删后插保存所有盘点数据)
 
@@ -151,5 +158,49 @@ public class WarehouseStocktakeController implements WarehouseStocktakeApis {
 
         vo.setLines(List.of(line));
         return vo;
+    }
+
+    @Resource
+    private IStocktakeApprovalService stocktakeApprovalService;
+
+    @Override
+    @Operation(summary = "提交审批")
+    @PostMapping("/submit-approval")
+    public JsonVO<Boolean> submitStocktakeApproval(@Valid @RequestBody StocktakeSubmitApprovalDTO dto) {
+        return execute(() -> stocktakeApprovalService.submit(dto));
+    }
+
+    @Override
+    @Operation(summary = "撤回审批")
+    @PostMapping("/withdraw-approval")
+    public JsonVO<Boolean> withdrawStocktakeApproval(@Valid @RequestBody StocktakeWithdrawApprovalDTO dto) {
+        return execute(() -> stocktakeApprovalService.withdraw(dto));
+    }
+
+    @Override
+    @Operation(summary = "审批通过")
+    @PostMapping("/approve")
+    public JsonVO<Boolean> agreeStocktakeApproval(@Valid @RequestBody StocktakeAgreeApprovalDTO dto) {
+        return execute(() -> stocktakeApprovalService.agree(dto));
+    }
+
+    @Override
+    @Operation(summary = "驳回审批")
+    @PostMapping("/reject")
+    public JsonVO<Boolean> rejectStocktakeApproval(@Valid @RequestBody StocktakeRejectApprovalDTO dto) {
+        return execute(() -> stocktakeApprovalService.reject(dto));
+    }
+
+    private JsonVO<Boolean> execute(ApprovalAction action) {
+        try {
+            return JsonVO.success(action.execute());
+        } catch (Exception e) {
+            return JsonVO.fail(e.getMessage());
+        }
+    }
+
+    @FunctionalInterface
+    private interface ApprovalAction {
+        Boolean execute();
     }
 }

@@ -1,5 +1,6 @@
 package com.zeroone.star.project.j6.pharmacy;
 
+import com.zeroone.star.project.dto.j6.pharmacy.stocktake.*;
 import com.zeroone.star.project.dto.j6.pharmacy.stocktake.PharmacyInventoryDetailQueryDTO;
 import com.zeroone.star.project.dto.j6.pharmacy.stocktake.PharmacyInventoryQueryDTO;
 import com.zeroone.star.project.dto.j6.pharmacy.stocktake.StocktakeSaveDTO;
@@ -7,6 +8,7 @@ import com.zeroone.star.project.query.j6.pharmacy.stocktake.PharmacyInventoryQue
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stocktake.StocktakeDetailVO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -40,6 +42,14 @@ public interface WarehouseStocktakeApis {
     JsonVO<StocktakeDetailVO> createStocktake(StocktakeSaveDTO dto);
 
     /**
+     * 新增盘点单据
+     * @param busNo
+     * @return JsonVO包裹新增后的单据基础信息
+     */
+
+    JsonVO<Boolean> deleteStocktake(@Parameter(description = "盘点单号") String busNo);
+
+    /**
      * 保存盘点单
      * <p>填入完整实盘数据，快照锁定当前账面数（通过 inventoryItemId 关联 wkf_inventory_item），状态保持草稿</p>
      *
@@ -62,4 +72,37 @@ public interface WarehouseStocktakeApis {
     @Operation(summary = "保存盘点单并提交审批", description = "填入实盘数据，状态草稿→待审批")
     @PutMapping("/warehouse/stocktake/{busNo}/submit")
     JsonVO<StocktakeDetailVO> submitStocktake(String busNo, StocktakeSaveDTO dto);
+
+    /**
+     * 提交药库盘点审批
+     *
+     * @param dto 提交审批参数
+     * @return JsonVO<Boolean> 提交结果
+     */
+    JsonVO<Boolean> submitStocktakeApproval(StocktakeSubmitApprovalDTO dto);
+
+    /**
+     * 撤回药库盘点审批
+     *
+     * @param dto 撤回审批参数
+     * @return JsonVO<Boolean> 撤回结果
+     */
+    JsonVO<Boolean> withdrawStocktakeApproval(StocktakeWithdrawApprovalDTO dto);
+
+    /**
+     * 通过药库盘点审批
+     *
+     * @param dto 审批通过参数
+     * @return JsonVO<Boolean> 审批结果
+     */
+    JsonVO<Boolean> agreeStocktakeApproval(StocktakeAgreeApprovalDTO dto);
+
+    /**
+     * 驳回药库盘点审批
+     *
+     * @param dto 审批驳回参数
+     * @return JsonVO<Boolean> 驳回结果
+     */
+    JsonVO<Boolean> rejectStocktakeApproval(StocktakeRejectApprovalDTO dto);
+
 }

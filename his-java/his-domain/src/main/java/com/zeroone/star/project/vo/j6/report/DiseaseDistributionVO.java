@@ -1,5 +1,4 @@
 package com.zeroone.star.project.vo.j6.report;
-// 患者疾病类型分布数据点：diseaseName, count
 
 import com.zeroone.star.project.dto.j6.report.DiseaseDistributionDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
