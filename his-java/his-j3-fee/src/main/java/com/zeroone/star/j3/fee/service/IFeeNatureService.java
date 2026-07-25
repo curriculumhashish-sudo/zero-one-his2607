@@ -1,0 +1,42 @@
+package com.zeroone.star.j3.fee.service;
+
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.zeroone.star.j3.fee.entity.FeeNature;
+import com.zeroone.star.project.dto.j3.fee.FeeNatureDTO;
+import com.zeroone.star.project.query.j3.fee.FeeNatureQuery;
+import com.zeroone.star.project.vo.j3.fee.FeeNatureVO;
+
+import java.util.List;
+
+/**
+ * <p>
+ * 费用性质 服务类
+ * </p>
+ * @author 白文儿
+ * @version 1.0.0
+ */
+public interface IFeeNatureService extends IService<FeeNature> {
+
+    /**
+     * 分页查询费用性质
+     * @param query 查询条件（含分页、关键词）
+     * @return 费用性质列表
+     */
+    List<FeeNatureVO> listFeeNatures(FeeNatureQuery query);
+
+    /**
+     * 修改费用性质
+     * @param id  费用性质ID
+     * @param dto 费用性质数据
+     * @return 是否成功
+     */
+    boolean updateFeeNature(Long id, FeeNatureDTO dto);
+
+    /**
+     * 停/启用费用性质
+     * @param id        费用性质ID
+     * @param isEnabled 是否启用 1启用 0禁用
+     * @return 是否成功
+     */
+    boolean updateStatus(Long id, Integer isEnabled);
+}
