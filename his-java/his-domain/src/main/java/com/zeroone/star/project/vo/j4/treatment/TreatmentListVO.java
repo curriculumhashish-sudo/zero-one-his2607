@@ -24,6 +24,6 @@ public class TreatmentListVO implements Serializable {
     @Schema(description = "诊疗类型枚举编码", example = "CHECK", requiredMode = Schema.RequiredMode.REQUIRED)
     private String typeEnum;
 
-    @Schema(description = "价格(元)", example = "35.00")
+    @Schema(description = "价格(元)", example = "35.00", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private BigDecimal price;
 }

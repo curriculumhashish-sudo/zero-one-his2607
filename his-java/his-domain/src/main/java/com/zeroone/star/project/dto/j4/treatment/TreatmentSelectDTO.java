@@ -16,9 +16,9 @@ public class TreatmentSelectDTO implements Serializable {
     @Schema(description = "主键ID", example = "1890000000000000001", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
-    @Schema(description = "业务编号（编码）", example = "AD00000001")
+    @Schema(description = "业务编号（编码）", example = "AD00000001", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String busNo;
 
-    @Schema(description = "诊疗项目名称", example = "肝功13项")
+    @Schema(description = "诊疗项目名称", example = "肝功13项", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String name;
 }
