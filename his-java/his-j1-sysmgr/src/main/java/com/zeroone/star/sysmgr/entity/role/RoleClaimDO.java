@@ -57,13 +57,6 @@ public class RoleClaimDO extends BaseDO {
     private String tenantId;
 
     /**
-     * 软删除标记，false 表示正常，true 表示已删除。
-     */
-    @TableField("is_deleted")
-    @Schema(description = "软删除标记，false表示正常，true表示已删除", example = "false", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Boolean isDeleted;
-
-    /**
      * 删除时间。
      */
     @TableField("deleted_at")
