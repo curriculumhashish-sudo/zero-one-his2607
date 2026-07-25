@@ -23,14 +23,14 @@
 
 bool NurseService2::NurseOperate2(const NurseOperateDTO2::Wrapper& dto, const std::string& username)
 {
-	// Convert DTO to DO
+	// 转换 DTO to DO
 	NurseDO2 data;
 	ZO_STAR_DOMAIN_DTO_TO_DO(data, dto, Name, name, State, state,
 		Content, content, Amount, amount, Operate, operate);
-	// Set executor from auth payload (override DTO person field)
+	// 从身份认证载荷（payload）中赋值执行人信息（覆盖DTO里原本的人员字段）
 	data.setPerson(username);
 
-	// Update record matching by bus_no (queue number)
+	// 根据业务编号（排队号）匹配对应记录，并执行更新操作
 	NurseDAO2 dao;
 	std::string where = "`bus_no`='" + dto->name.getValue("") + "'";
 	return dao.update(data, where) == 1;
@@ -38,14 +38,14 @@ bool NurseService2::NurseOperate2(const NurseOperateDTO2::Wrapper& dto, const st
 
 bool NurseService2::NurseCancel2(const NurseCancelDTO2::Wrapper& dto, const std::string& username)
 {
-	// Convert DTO to DO
+	//  DTO to DO
 	NurseDO2 data;
 	ZO_STAR_DOMAIN_DTO_TO_DO(data, dto, Name, name, State, state,
 		Content, content, Amount, amount, Operate, operate);
-	// Set executor from auth payload (override DTO person field)
+	// 从身份认证载荷（payload）中赋值执行人信息（覆盖DTO里原本的人员字段）
 	data.setPerson(username);
 
-	// Update record matching by bus_no (queue number)
+	// 根据排队业务编号（bus_no）匹配目标记录并执行数据更新
 	NurseDAO2 dao;
 	std::string where = "`bus_no`='" + dto->name.getValue("") + "'";
 	return dao.update(data, where) == 1;

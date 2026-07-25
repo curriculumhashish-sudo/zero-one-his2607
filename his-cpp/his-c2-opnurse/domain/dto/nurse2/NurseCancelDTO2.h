@@ -24,22 +24,22 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-// Cancel execution DTO
+// È¡ÏûÖ´ÐÐ DTO
 class NurseCancelDTO2 : public oatpp::DTO
 {
 	DTO_INIT(NurseCancelDTO2, DTO);
 
-	// Name / queue number (required)
+
 	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("nurse2.field.name_code"), true);
-	// Execution state
+
 	API_DTO_FIELD_REQUIRE(String, state, ZH_WORDS_GETTER("nurse2.field.state"), false);
-	// Medical order content
+	
 	API_DTO_FIELD_REQUIRE(String, content, ZH_WORDS_GETTER("nurse2.field.content"), false);
-	// Execution count
+	
 	API_DTO_FIELD_REQUIRE(Int32, amount, ZH_WORDS_GETTER("nurse2.field.amount"), false);
-	// Executor
+
 	API_DTO_FIELD_REQUIRE(String, person, ZH_WORDS_GETTER("nurse2.field.person"), false);
-	// Operation type
+
 	API_DTO_FIELD_REQUIRE(String, operate, ZH_WORDS_GETTER("nurse2.field.operate"), false);
 };
 

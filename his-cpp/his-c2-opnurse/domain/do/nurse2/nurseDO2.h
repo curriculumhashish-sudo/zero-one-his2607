@@ -25,31 +25,31 @@
  */
 class NurseDO2 : public BaseDO
 {
-	// Primary key ID
+	// 主键 ID      
 	MYSQL_SYNTHESIZE(string, id, Id);
-	// Queue number / patient name
+	// 患者姓名
 	MYSQL_SYNTHESIZE(string, name, Name);
-	// Execution status
+	// 执行状态
 	MYSQL_SYNTHESIZE(string, state, State);
-	// Medical order content
+	// 医嘱内容
 	MYSQL_SYNTHESIZE(string, content, Content);
-	// Execution count
+	// 执行次数
 	MYSQL_SYNTHESIZE(int, amount, Amount);
-	// Executor
+	// 执行人
 	MYSQL_SYNTHESIZE(string, person, Person);
-	// Operation category
+	// 操作
 	MYSQL_SYNTHESIZE(string, operate, Operate);
 
 public:
-	NurseDO2() : BaseDO("wkf_service_request")
+	NurseDO2() : BaseDO("wkf_service_request")    //wkf_service_request 这张表
 	{
-		MYSQL_ADD_FIELD_PK("id", "s", id);
-		MYSQL_ADD_FIELD("bus_no", "s", name);
-		MYSQL_ADD_FIELD("status_enum", "s", state);
-		MYSQL_ADD_FIELD("content_json", "s", content);
-		MYSQL_ADD_FIELD("execution_count", "i", amount);
-		MYSQL_ADD_FIELD("performer_id", "s", person);
-		MYSQL_ADD_FIELD("category_enum", "s", operate);
+		MYSQL_ADD_FIELD_PK("id", "s", id);                //id
+		MYSQL_ADD_FIELD("bus_no", "s", name);             //患者姓名
+		MYSQL_ADD_FIELD("status_enum", "s", state);       //执行状态
+		MYSQL_ADD_FIELD("content_json", "s", content);    //医嘱内容
+		MYSQL_ADD_FIELD("execution_count", "i", amount);  //执行次数
+		MYSQL_ADD_FIELD("performer_id", "s", person);     //执行人
+		MYSQL_ADD_FIELD("category_enum", "s", operate);   //操作
 	}
 };
 

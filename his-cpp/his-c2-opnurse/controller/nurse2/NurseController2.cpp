@@ -22,9 +22,9 @@
 
 StringJsonVO::Wrapper NurseController2::execOperateNurse(const NurseOperateDTO2::Wrapper& dto, const PayloadDTO& payload)
 {
-	// Create response object
+	// 定义返回数据对象
 	auto jvo = StringJsonVO::createShared();
-	// Validate required field
+	// 参数校验
 	if (!dto->name)
 	{
 		jvo->init(nullptr, RS_PARAMS_INVALID);
@@ -39,14 +39,15 @@ StringJsonVO::Wrapper NurseController2::execOperateNurse(const NurseOperateDTO2:
 	{
 		jvo->fail(dto->name);
 	}
+
 	return jvo;
 }
 
 StringJsonVO::Wrapper NurseController2::execCancelNurse(const NurseCancelDTO2::Wrapper& dto, const PayloadDTO& payload)
 {
-	// Create response object
+	// 定义返回数据对象
 	auto jvo = StringJsonVO::createShared();
-	// Validate required field
+	// 参数校验
 	if (!dto->name)
 	{
 		jvo->init(nullptr, RS_PARAMS_INVALID);

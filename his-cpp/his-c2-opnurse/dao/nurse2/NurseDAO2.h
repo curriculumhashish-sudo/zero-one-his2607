@@ -1,21 +1,3 @@
-/*
- Copyright Zero One Star. All rights reserved.
-
- @Author: fa-mian-tuan
- @Date: 2026/07/24
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
-      https://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-*/
 #ifndef _NURSE_DAO2_
 #define _NURSE_DAO2_
 #include "BaseDAO.h"
@@ -23,19 +5,19 @@
 #include "domain/query/nurse2/NurseQuery2.h"
 
 /**
- * Nurse2 data access object
- * Query methods only — insert/update/delete are inherited from BaseDAO
+ * Nurse2 数据访问对象
+ * - 仅封装各类查询方法 —— 新增、修改、删除逻辑全部继承自基础父类 BaseDAO
  */
 class NurseDAO2 : public BaseDAO
 {
 private:
-	// Build WHERE clause from query filters
+	// 根据查询筛选条件拼接生成 WHERE 子句
 	inline std::string queryConditionBuilder(const NurseQuery2::Wrapper& query, SqlParams& params);
 
 public:
-	// Count records by query filters
+	// 根据查询过滤条件统计数据条数
 	uint64_t count(const NurseQuery2::Wrapper& query);
-	// Select with pagination
+	//  分页查询数据
 	std::list<NurseDO2> selectWithPage(const NurseQuery2::Wrapper& query);
 };
 
