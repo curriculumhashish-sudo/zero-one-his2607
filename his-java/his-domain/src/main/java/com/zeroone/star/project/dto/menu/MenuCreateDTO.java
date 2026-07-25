@@ -21,7 +21,7 @@ public class MenuCreateDTO {
     /**
      * 父菜单ID，0为一级目录
      */
-    @Schema(description = "父菜单ID，0为一级目录", example = "0")
+    @Schema(description = "父菜单ID，0为一级目录")
     private String parentId;
 
     @Schema(description = "外部链接地址", example = "https://example.com")
@@ -54,7 +54,7 @@ public class MenuCreateDTO {
     @Schema(description = "菜单名称", example = "system", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
 
-    @Schema(description = "菜单类型", example = "M")
+    @Schema(description = "菜单类型(menu/directory)", example = "menu")
     private String menuType;
 
     @Schema(description = "权限名称", example = "system:menu:list")
