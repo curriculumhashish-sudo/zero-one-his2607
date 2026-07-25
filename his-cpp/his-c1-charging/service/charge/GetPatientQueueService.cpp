@@ -6,6 +6,10 @@
 // 防止 ODBC/MySQL 类型冲突
 #include "NacosClient.h"
 
+#include <algorithm>
+#include <map>
+#include <ctime>
+
 // ============================================================================
 // 私有辅助方法：枚举翻译与计算
 // ============================================================================
@@ -29,7 +33,6 @@ std::string GetPatientQueueService::computeAgeText(const std::string& birthDate)
     time_t now = time(nullptr);
     struct tm* tmNow = localtime(&now);
     int currentYear = tmNow->tm_year + 1900;
-
     int age = currentYear - birthYear;
     if (age < 0) return "";
 
