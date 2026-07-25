@@ -56,5 +56,5 @@ public interface IFeeNatureService extends IService<FeeNature> {
     /**
      * 删除费用性质
      */
-    void delete(Long id);
+    void delete(String id);
 }

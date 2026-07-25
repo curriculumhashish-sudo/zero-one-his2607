@@ -95,7 +95,7 @@ public class FeeNatureController implements FeeNatureApis {
     @DeleteMapping("/{id}")
     @Operation(summary = "删除费用性质",
             description = "根据ID删除费用性质。注意：若该费用性质已被收费结算记录引用（存在关联患者缴费数据），则不允许删除，需先停用或处理关联数据")
-    public JsonVO<String> delete(@PathVariable("id") Long id) {
+    public JsonVO<String> delete(@PathVariable("id") String id) {
         feeNatureService.delete(id);
         return JsonVO.success("删除成功");
     }
