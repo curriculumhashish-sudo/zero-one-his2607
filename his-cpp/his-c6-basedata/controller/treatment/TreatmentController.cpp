@@ -50,9 +50,18 @@ namespace
 
 TreatmentDetailJsonVO::Wrapper TreatmentController::execQueryOne(const String& id)
 {
-	// Return sample data until the Service and DAO layers are implemented.
-	auto dto = buildSampleTreatment(id, "AD00000001", u8"\u4ee3\u714e\u4e2d\u836f");
+	// 定义返回数据对象
 	auto vo = TreatmentDetailJsonVO::createShared();
+
+	// 参数校验：详情主键不能为空
+	if (!id || id->empty())
+	{
+		vo->init(nullptr, RS_PARAMS_INVALID);
+		return vo;
+	}
+
+	// Service/DAO 未接通前，校验通过后仍返回示例数据
+	auto dto = buildSampleTreatment(id, "AD00000001", u8"\u4ee3\u714e\u4e2d\u836f");
 	vo->success(dto);
 	return vo;
 }
@@ -135,8 +144,23 @@ TreatmentPageJsonVO::Wrapper TreatmentController::execQueryAll(const TreatmentQu
 StringJsonVO::Wrapper TreatmentController::execAddTreatment(
 	const TreatmentAddDTO::Wrapper& dto, const PayloadDTO& payload)
 {
-	// Return a fabricated identifier in this sample implementation.
+	// 定义返回数据对象
 	auto vo = StringJsonVO::createShared();
+
+	// 参数校验
+	if (!dto)
+	{
+		vo->init(nullptr, RS_PARAMS_INVALID);
+		return vo;
+	}
+	std::string errmsg = dto->validate();
+	if (errmsg != "")
+	{
+		vo->init(errmsg, RS_PARAMS_INVALID);
+		return vo;
+	}
+
+	// Service/DAO 未接通前，校验通过后仍返回示例主键
 	vo->success("184000000000000002");
 	return vo;
 }
@@ -144,8 +168,23 @@ StringJsonVO::Wrapper TreatmentController::execAddTreatment(
 StringJsonVO::Wrapper TreatmentController::execModifyTreatment(
 	const TreatmentModifyDTO::Wrapper& dto, const PayloadDTO& payload)
 {
-	// Echo the record identifier in this sample implementation.
+	// 定义返回数据对象
 	auto vo = StringJsonVO::createShared();
+
+	// 参数校验
+	if (!dto)
+	{
+		vo->init(nullptr, RS_PARAMS_INVALID);
+		return vo;
+	}
+	std::string errmsg = dto->validate();
+	if (errmsg != "")
+	{
+		vo->init(errmsg, RS_PARAMS_INVALID);
+		return vo;
+	}
+
+	// Service/DAO 未接通前，校验通过后回传主键
 	vo->success(dto->id);
 	return vo;
 }

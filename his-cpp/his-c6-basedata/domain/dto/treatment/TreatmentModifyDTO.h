@@ -32,6 +32,15 @@ class TreatmentModifyDTO : public TreatmentAddDTO
 	DTO_INIT(TreatmentModifyDTO, TreatmentAddDTO);
 	// 诊疗项目主键
 	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("treatment.field.id"), true);
+
+public:
+	// 修改参数最小校验：主键 + 新增必填字段
+	std::string validate()
+	{
+		if (!id || id->empty())
+			return "id invalidate.";
+		return TreatmentAddDTO::validate();
+	}
 };
 
 #include OATPP_CODEGEN_END(DTO)

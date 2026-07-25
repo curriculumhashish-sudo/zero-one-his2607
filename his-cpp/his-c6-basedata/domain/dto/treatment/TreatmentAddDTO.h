@@ -70,6 +70,19 @@ class TreatmentAddDTO : public oatpp::DTO
 
 	// 子项
 	API_DTO_FIELD_REQUIRE(List<TreatmentChildDTO::Wrapper>, children, ZH_WORDS_GETTER("treatment.field.children"), false);
+
+public:
+	// 新增参数最小校验：必填字段
+	std::string validate()
+	{
+		if (!name || name->empty())
+			return "name invalidate.";
+		if (!categoryCode || categoryCode->empty())
+			return "categoryCode invalidate.";
+		if (!typeEnum)
+			return "typeEnum invalidate.";
+		return "";
+	}
 };
 
 #include OATPP_CODEGEN_END(DTO)
