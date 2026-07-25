@@ -35,7 +35,8 @@ public interface MenuConvertor {
         @Mapping(source = "name", target = "menuName"),
         @Mapping(source = "displayName", target = "showName"),
         @Mapping(source = "isEnabled", target = "status"),
-        @Mapping(source = "sortOrder", target = "sortNum")
+        @Mapping(source = "sortOrder", target = "sortNum"),
+        @Mapping(target = "menuType", expression = "java(menuDO.getMenuType().name())")
     })
     public MenuVO toVO(MenuDO menuDO);
 

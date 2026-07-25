@@ -74,33 +74,4 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
         Assert.isTrue(result > 0, () -> new SystemException(MenuStatus.MENU_STATUS_EDIT_FAIL));
         return result > 0;
     }
-
-    /**
-     * DO 对象转为 VO 对象
-     * @deprecated
-     * @param menuDO 查询条件
-     * @return 菜单详情信息VO
-     */
-    @Deprecated
-    private MenuVO convertToVO(MenuDO menuDO) {
-        MenuVO vo = new MenuVO();
-        vo.setMenuId(menuDO.getId());
-        vo.setMenuName(menuDO.getName());
-        vo.setShowName(menuDO.getDisplayName());
-        vo.setIcon(menuDO.getIcon());
-        vo.setPath(menuDO.getPath());
-        vo.setComponent(menuDO.getComponent());
-
-        if (menuDO.getParentId() != null && !menuDO.getParentId().isEmpty()) {
-            vo.setParentId(menuDO.getParentId());
-        } else {
-            vo.setParentId(null);
-        }
-
-        vo.setSortNum(Long.valueOf(menuDO.getSortOrder()));
-        vo.setMenuType(menuDO.getMenuType());
-        // 状态映射：DO 1启用 0禁用 → VO "0"启用 "1"禁用
-        vo.setStatus(menuDO.getIsEnabled() == 1 ? "0" : "1");
-        return vo;
-    }
 }

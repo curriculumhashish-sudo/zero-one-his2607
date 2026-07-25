@@ -91,8 +91,9 @@ public class MenuDO extends BaseDO {
 
     /**
      * 菜单类型（menu/directory）
+     * @see com.zeroone.star.sysmgr.entity.menu.MenuType
      */
-    private String menuType;
+    private MenuType menuType;
 
     /**
      * 备注
