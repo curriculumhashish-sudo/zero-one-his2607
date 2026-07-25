@@ -43,7 +43,7 @@ public class FeeNatureController implements FeeNatureApis {
         pageDTO.setPageIndex(query.getPageIndex());
         pageDTO.setPageSize(query.getPageSize());
         pageDTO.setTotal((long) list.size());
-        pageDTO.setPages(list.isEmpty() ? 0L : (long) Math.ceil((double) list.size() / query.getPageSize()));
+        pageDTO.setPages(list.isEmpty() ? 0L : (list.size() + query.getPageSize() - 1) / query.getPageSize());
         pageDTO.setRows(list);
         return JsonVO.success(pageDTO);
     }
@@ -55,18 +55,8 @@ public class FeeNatureController implements FeeNatureApis {
     public JsonVO<String> update(
             @PathVariable("id") Long id,
             @Valid @RequestBody FeeNatureDTO dto) {
-        if (id == null || id <= 0) {
-            return JsonVO.fail("ID参数错误");
-        }
-        if (dto.getCode() == null || dto.getCode().isEmpty()) {
-            return JsonVO.fail("费用性质编码不能为空");
-        }
-        try {
-            boolean success = feeNatureService.updateFeeNature(id, dto);
-            return success ? JsonVO.success("修改成功") : JsonVO.fail("费用性质不存在");
-        } catch (RuntimeException e) {
-            return JsonVO.fail(e.getMessage());
-        }
+        feeNatureService.updateFeeNature(id, dto);
+        return JsonVO.success("修改成功");
     }
 
     @Override
@@ -79,10 +69,7 @@ public class FeeNatureController implements FeeNatureApis {
         if (isEnabled != 0 && isEnabled != 1) {
             return JsonVO.fail("状态参数错误，只能为 0（停用）或 1（启用）");
         }
-        boolean success = feeNatureService.updateStatus(id, isEnabled);
-        if (!success) {
-            return JsonVO.fail("费用性质不存在");
-        }
+        feeNatureService.updateStatus(id, isEnabled);
         String statusText = isEnabled == 1 ? "启用" : "停用";
         return JsonVO.success(statusText + "成功");
     }

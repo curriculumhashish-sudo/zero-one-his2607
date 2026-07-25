@@ -45,10 +45,10 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
     }
 
     @Override
-    public boolean updateFeeNature(Long id, FeeNatureDTO dto) {
+    public void updateFeeNature(Long id, FeeNatureDTO dto) {
         FeeNature entity = baseMapper.selectById(id);
         if (entity == null) {
-            return false;
+            throw new RuntimeException("费用性质不存在");
         }
         // 编码变更时检查唯一性
         if (dto.getCode() != null && !dto.getCode().equals(entity.getCode())) {
@@ -62,17 +62,21 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
         entity.setCode(dto.getCode());
         entity.setSortOrder(dto.getSortOrder());
         entity.setCategory(dto.getCategory());
-        return updateById(entity);
+        if (!updateById(entity)) {
+            throw new RuntimeException("修改失败");
+        }
     }
 
     @Override
-    public boolean updateStatus(Long id, Integer isEnabled) {
+    public void updateStatus(Long id, Integer isEnabled) {
         FeeNature entity = baseMapper.selectById(id);
         if (entity == null) {
-            return false;
+            throw new RuntimeException("费用性质不存在");
         }
         entity.setIsEnabled(isEnabled);
-        return updateById(entity);
+        if (!updateById(entity)) {
+            throw new RuntimeException("状态更新失败");
+        }
     }
 
     /**
