@@ -27,6 +27,12 @@ import org.springframework.util.StringUtils;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 /**
  * @author xin
@@ -130,6 +136,7 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public JsonVO<Boolean> delete(MenuDeleteDTO menuDto) {
         String menuId = menuDto.getId();
         // 1. 查询菜单
@@ -148,11 +155,17 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
             throw new SystemException(MenuStatus.MENU_HAS_CHILD);
         }
 
+        // 修改删除时间
+        LambdaUpdateWrapper<MenuDO> wrapper = new LambdaUpdateWrapper<>();
+        wrapper.eq(MenuDO::getId, menuId);
+        // TODO: 暂时写死
+        wrapper.set(MenuDO::getDeletedBy, "1");
+        wrapper.set(MenuDO::getDeletedAt, LocalDateTime.now());
+        int result = baseMapper.update(wrapper);
+        Assert.isTrue(result > 0, () -> new SystemException(MenuStatus.MENU_EDIT_FAIL));
+
         // 3. 执行软删除
-        MenuDO updateDO = new MenuDO();
-        updateDO.setId(menuId);
-        updateDO.setIsDeleted(1);
-        int rows = baseMapper.updateById(updateDO);
+        int rows = baseMapper.deleteById(menuId);
         return JsonVO.success(rows > 0);
     }
 

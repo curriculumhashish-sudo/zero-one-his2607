@@ -53,6 +53,7 @@ public class MybaitsHolder implements MetaObjectHandler {
 //        this.setFieldValByNameIfNull("updatedBy", loginUserId, metaObject);
         this.setFieldValByNameIfNull("createdBy", "1", metaObject);
         this.setFieldValByNameIfNull("updatedBy", "1", metaObject);
+        this.setFieldValByNameIfNull("isDeleted", 0, metaObject);
     }
 
     /**

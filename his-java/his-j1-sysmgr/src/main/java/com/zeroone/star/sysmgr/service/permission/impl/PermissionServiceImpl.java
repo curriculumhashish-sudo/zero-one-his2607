@@ -47,7 +47,7 @@ public class PermissionServiceImpl
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @Value("${his.cache.reload-url:http://localhost:8081/open/resources/cache/reload}")
+    @Value("${his.cache.reload-url:http://localhost:10400/open/resources/cache/reload}")
     private String cacheReloadUrl;
 
     // ======================== 接口 1：权限名称树 ========================
@@ -105,7 +105,7 @@ public class PermissionServiceImpl
         entity.setParentName(emptyToNull(dto.getParentName()));
         entity.setDescription(dto.getDescription());
         entity.setTenantId(tenantId);
-        entity.setIsDeleted(false);
+        entity.setIsDeleted(0);
         baseMapper.insert(entity);
         refreshCache();
         return BeanUtil.copyProperties(entity, PermissionVO.class);

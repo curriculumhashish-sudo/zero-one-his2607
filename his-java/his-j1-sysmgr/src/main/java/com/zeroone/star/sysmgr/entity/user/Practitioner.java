@@ -30,12 +30,6 @@ public class Practitioner extends BaseDO {
     private String tenantId;
 
     /**
-     * 软删标记
-     */
-    @TableField("is_deleted")
-    private Boolean isDeleted;
-
-    /**
      * 删除时间
      */
     @TableField("deleted_at")

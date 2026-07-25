@@ -19,7 +19,6 @@ public class Permission extends BaseDO implements Serializable  {
     private String parentName;
     private String description;
     private String tenantId;
-    private Boolean isDeleted;
     private LocalDateTime deletedAt;
     private String deletedBy;
 }

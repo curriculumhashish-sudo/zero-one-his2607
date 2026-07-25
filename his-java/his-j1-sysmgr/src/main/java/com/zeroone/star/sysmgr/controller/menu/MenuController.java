@@ -47,7 +47,7 @@ public class MenuController implements MenuApis {
      */
     @Override
     @PostMapping("getTree")
-    @Operation(summary = "获取菜单名称树")
+    @Operation(summary = "获取菜单名称树",method = "POST")
     public JsonVO<List<MenuTreeVO>> getMenuTree() throws Exception {
         // user认证方面的异常由getCurrentUser内部处理,这里直接抛出异常给全局异常处理器处理。
         UserDTO user = userHolder.getCurrentUser();
@@ -74,7 +74,7 @@ public class MenuController implements MenuApis {
      */
     @Override
     @PostMapping("getList")
-    @Operation(summary = "获取菜单列表（条件 + 分页）")
+    @Operation(summary = "获取菜单列表（条件 + 分页）",method = "POST")
     public JsonVO<PageDTO<MenuVO>> getMenuList(@RequestBody @Valid MenuListPageQuery query) throws Exception {
         // user认证方面的异常由getCurrentUser内部处理,这里直接抛出异常给全局异常处理器处理。
         UserDTO user = userHolder.getCurrentUser();
@@ -94,7 +94,7 @@ public class MenuController implements MenuApis {
      */
     @Override
     @PostMapping("getById")
-    @Operation(summary = "获取指定菜单详情")
+    @Operation(summary = "获取指定菜单详情", method = "POST")
     public JsonVO<MenuVO> getMenu(@RequestBody @Valid MenuDetailQuery query) {
         String menuId = query.getId();
         MenuVO menuVO = menusService.getMenuDetail(menuId);
@@ -110,7 +110,7 @@ public class MenuController implements MenuApis {
      */
     @Override
     @PostMapping("create")
-    @Operation(summary = "新增菜单")
+    @Operation(summary = "新增菜单", method = "POST")
     public JsonVO<Boolean> create(@RequestBody @Valid MenuCreateDTO menuDto) {
         return JsonVO.success(menusService.create(menuDto));
     }
@@ -124,7 +124,7 @@ public class MenuController implements MenuApis {
      */
     @Override
     @PutMapping("update")
-    @Operation(summary = "修改菜单基础信息")
+    @Operation(summary = "修改菜单基础信息", method = "PUT")
     public JsonVO<Boolean> update(@RequestBody @Valid MenuUpdateDTO menuDto) {
         Boolean success = menusService.editMenu(menuDto);
         return JsonVO.success(success);
@@ -139,7 +139,7 @@ public class MenuController implements MenuApis {
      */
     @Override
     @DeleteMapping("/delete")
-    @Operation(summary = "删除菜单")
+    @Operation(summary = "删除菜单", method = "DELETE")
     public JsonVO<Boolean> delete(@RequestBody @Valid MenuDeleteDTO menuDto) {
         return menusService.delete(menuDto);
     }
@@ -153,7 +153,7 @@ public class MenuController implements MenuApis {
      */
     @Override
     @PostMapping("enable")
-    @Operation(summary = "启用/禁用菜单")
+    @Operation(summary = "启用/禁用菜单", method = "POST")
     public JsonVO<Boolean> editStatus(@RequestBody @Valid MenuEditStatusDTO menuDto) {
         return JsonVO.success(menusService.editStatus(menuDto));
     }

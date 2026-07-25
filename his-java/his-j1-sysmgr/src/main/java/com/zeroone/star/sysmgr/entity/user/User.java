@@ -3,11 +3,9 @@ package com.zeroone.star.sysmgr.entity.user;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.time.LocalDateTime;
-import java.io.Serializable;
 
 import com.zeroone.star.project.entity.BaseDO;
 import lombok.*;
-import lombok.experimental.Accessors;
 
 /**
  * <p>
@@ -77,11 +75,6 @@ public class User extends BaseDO {
      * 扩展属性 JSON
      */
     private String extraProperties;
-
-    /**
-     * 软删标记
-     */
-    private Boolean isDeleted;
 
     /**
      * 删除时间
