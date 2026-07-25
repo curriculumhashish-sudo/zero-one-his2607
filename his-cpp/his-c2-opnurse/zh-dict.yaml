@@ -1,6 +1,6 @@
 ﻿patient1:
  tags:
-  tag:  患者管理
+  tag: 患者管理
  query:
   summary: 分页查询数据示例
   act: 执行项目查询
@@ -16,10 +16,24 @@
   ConsumableProject: 消费项目
   OrderContent: 执行项目
   time: 时间
+patientact:
+ field:
+  patientId: 患者标识
+  encounterId: 就诊标识
+  amount: 金额
+patientqueue:
+ field:
+  gender: 性别
+  age: 年龄
+  visitTime: 就诊时间
+  queueNumber: 排队号
+  paymentType: 付费类型
 patientconsumable1:
  tags:
   tag: 耗材管理
  field:
+  patientId: 患者标识
+  encounterId: 就诊标识
   consumableName: 耗材名称
   modelSpec: 型号规格
   quantity: 数量
