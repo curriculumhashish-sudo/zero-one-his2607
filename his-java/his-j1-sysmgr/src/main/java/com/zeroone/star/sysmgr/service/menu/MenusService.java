@@ -17,5 +17,5 @@ public interface MenusService extends IService<MenuDO> {
      * @param menuId 菜单id
      * @return 菜单VO
      */
-    MenuVO getMenuDetail(Long menuId);
+    MenuVO getMenuDetail(String menuId);
 }

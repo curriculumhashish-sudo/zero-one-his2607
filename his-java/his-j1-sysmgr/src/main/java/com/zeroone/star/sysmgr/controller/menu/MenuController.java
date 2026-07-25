@@ -74,7 +74,7 @@ public class MenuController implements MenuApis {
     @PostMapping("getById")
     @Operation(summary = "获取指定菜单详情")
     public JsonVO<MenuVO> getMenu(@RequestBody @Valid MenuDetailQuery query) {
-        Long menuId = query.getId();
+        String menuId = query.getId();
         MenuVO menuVO = menusService.getMenuDetail(menuId);
         return JsonVO.success(menuVO);
     }

@@ -26,7 +26,7 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
     private final MenusMapper menusMapper;
 
     @Override
-    public MenuVO getMenuDetail(Long menuId) {
+    public MenuVO getMenuDetail(String menuId) {
         LambdaQueryWrapper<MenuDO> wrapper = new LambdaQueryWrapper<>();
         // 主键id 继承BaseDO
         wrapper.eq(MenuDO::getId, menuId);
