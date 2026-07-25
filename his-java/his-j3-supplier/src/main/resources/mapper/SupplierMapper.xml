@@ -2,4 +2,108 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zeroone.star.j3.supplier.mapper.SupplierMapper">
 
+    <select id="selectSupplierNames" resultType="com.zeroone.star.project.vo.j3.supplier.SupplierNameVO">
+        SELECT
+        id,
+        name
+        FROM cus_supplier
+        WHERE is_deleted = 0
+        <if test="statusEnum == 'ENABLED'">
+            AND UPPER(status_enum) IN ('ENABLED', 'ACTIVE', '1', 'TRUE', '启用')
+        </if>
+        <if test="statusEnum == 'DISABLED'">
+            AND UPPER(status_enum) IN ('DISABLED', 'INACTIVE', '0', 'FALSE', '停用')
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (
+            name LIKE CONCAT('%', #{keyword}, '%')
+            OR py_str LIKE CONCAT('%', #{keyword}, '%')
+            OR wb_str LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        ORDER BY COALESCE(display_order, 999999), name, created_at DESC
+    </select>
+
+    <select id="selectSupplierPage" resultType="com.zeroone.star.project.vo.j3.supplier.SupplierListVO">
+        SELECT
+        id,
+        bus_no,
+        name,
+        type_enum,
+        credit_code,
+        legal_representative,
+        phone,
+        status_enum,
+        display_order,
+        DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') AS updatedAt
+        FROM cus_supplier
+        <where>
+            is_deleted = 0
+            <if test="query.keyword != null and query.keyword != ''">
+                AND (
+                name LIKE CONCAT('%', #{query.keyword}, '%')
+                OR bus_no LIKE CONCAT('%', #{query.keyword}, '%')
+                OR credit_code LIKE CONCAT('%', #{query.keyword}, '%')
+                OR py_str LIKE CONCAT('%', #{query.keyword}, '%')
+                OR wb_str LIKE CONCAT('%', #{query.keyword}, '%')
+                )
+            </if>
+            <if test="query.busNo != null and query.busNo != ''">
+                AND bus_no = #{query.busNo}
+            </if>
+            <if test="query.name != null and query.name != ''">
+                AND name LIKE CONCAT('%', #{query.name}, '%')
+            </if>
+            <if test="query.creditCode != null and query.creditCode != ''">
+                AND credit_code = #{query.creditCode}
+            </if>
+            <if test="query.typeEnum != null and query.typeEnum != ''">
+                AND type_enum = #{query.typeEnum}
+            </if>
+            <if test="query.statusEnum == 'ENABLED'">
+                AND UPPER(status_enum) IN ('ENABLED', 'ACTIVE', '1', 'TRUE', '启用')
+            </if>
+            <if test="query.statusEnum == 'DISABLED'">
+                AND UPPER(status_enum) IN ('DISABLED', 'INACTIVE', '0', 'FALSE', '停用')
+            </if>
+            <if test="query.orgId != null and query.orgId != ''">
+                AND org_id = #{query.orgId}
+            </if>
+            <if test="query.pyStr != null and query.pyStr != ''">
+                AND py_str LIKE CONCAT('%', #{query.pyStr}, '%')
+            </if>
+            <if test="query.wbStr != null and query.wbStr != ''">
+                AND wb_str LIKE CONCAT('%', #{query.wbStr}, '%')
+            </if>
+            <if test="query.phone != null and query.phone != ''">
+                AND phone LIKE CONCAT('%', #{query.phone}, '%')
+            </if>
+        </where>
+        ORDER BY COALESCE(display_order, 999999), updated_at DESC, created_at DESC
+    </select>
+
+    <select id="selectSupplierDetail" resultType="com.zeroone.star.project.vo.j3.supplier.SupplierDetailVO">
+        SELECT
+            id,
+            bus_no,
+            name,
+            type_enum,
+            credit_code,
+            legal_representative,
+            address,
+            py_str,
+            wb_str,
+            phone,
+            email,
+            bank_name,
+            bank_account,
+            org_id,
+            display_order,
+            status_enum,
+            note
+        FROM cus_supplier
+        WHERE id = #{id}
+          AND is_deleted = 0
+        LIMIT 1
+    </select>
 </mapper>

@@ -10,7 +10,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
- * @author 夜照清
+ * @author 照夜清
  * @version 1.0.0
  */
 @SpringBootApplication
