@@ -11,6 +11,8 @@ import com.zeroone.star.project.dto.j3.patient.PatientCreateDTO;
 import com.zeroone.star.project.dto.j3.patient.PatientUpdateDTO;
 import com.zeroone.star.project.query.j3.patient.PatientQuery;
 import com.zeroone.star.project.vo.j3.patient.PatientListVO;
+import com.zeroone.star.project.vo.j3.patient.PatientOptionVO;
+import com.zeroone.star.project.vo.j3.patient.PatientVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -40,6 +42,7 @@ public class PatientServiceImpl implements PatientService {
     private static final String PATIENT_NUMBER_PREFIX = "PA";
 
     private final PatientMapper patientMapper;
+
 
     @Override
     public PageDTO<PatientListVO> queryPatientPage(PatientQuery query) {
@@ -141,6 +144,57 @@ public class PatientServiceImpl implements PatientService {
                     "患者资料版本冲突，请刷新后重试"
             );
         }
+    }
+
+    @Override
+    public PageDTO<PatientOptionVO> queryPatients(PatientQuery query) {
+        normalizeQuery(query);
+        Page<PatientDO> page = patientMapper.selectPatientPage(
+                new Page<>(query.getPageIndex(), query.getPageSize()),
+                query
+        );//根据条件查询患者
+        List<PatientOptionVO> rows = page.getRecords().stream()
+                .map(this::toOptionVO)
+                .toList();//将患者数据转换成患者选择的数据格式
+
+        return new PageDTO<>(
+                page.getCurrent(),
+                page.getSize(),
+                page.getTotal(),
+                page.getPages(),
+                rows
+        );
+    }
+
+    @Override
+    public PatientVO getPatientById(String id) {
+
+        PatientDO patient = patientMapper.selectById(id);
+        if (patient == null) {
+            throw new PatientBusinessException("患者不存在或已删除");
+        }
+        PatientVO result = new PatientVO();
+        BeanUtils.copyProperties(patient, result);
+        return result;
+    }
+
+    @Override
+    public void deletePatientById(String id) {
+        if (!StringUtils.hasText(id)) {
+            throw new PatientBusinessException("患者ID不能为空");
+        }
+        PatientDO patient = patientMapper.selectById(id.trim());
+        if (patient == null) {
+            throw new PatientBusinessException("患者不存在或已删除");
+        }
+        // TODO: 检查挂号、住院等业务引用
+        patientMapper.deleteById(id.trim());
+    }
+
+    private PatientOptionVO toOptionVO(PatientDO patientDO) {
+        PatientOptionVO result = new PatientOptionVO();
+        BeanUtils.copyProperties(patientDO, result);
+        return result;
     }
 
     private void normalizeQuery(PatientQuery query) {
