@@ -23,7 +23,15 @@ import jakarta.validation.constraints.NotBlank;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
+/**
+ * <p>
+ * 描述：诊疗管理控制器
+ * </p>
+ * <p>版权：&copy;01星球</p>
+ * <p>地址：01星球总部</p>
+ * @author j4组
+ * @version 1.0.0
+ */
 @RestController
 @RequestMapping("/treatment")
 @Tag(name = "诊疗管理", description = "诊疗管理接口")
