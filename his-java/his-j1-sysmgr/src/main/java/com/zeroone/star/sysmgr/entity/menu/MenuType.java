@@ -7,11 +7,11 @@ package com.zeroone.star.sysmgr.entity.menu;
  */
 public enum MenuType {
     /**
-     * 根菜单
+     * 根菜单/目录菜单
      */
     directory,
     /**
-     * 普通菜单
+     * 普通可访问页面菜单
      */
     menu
 }
