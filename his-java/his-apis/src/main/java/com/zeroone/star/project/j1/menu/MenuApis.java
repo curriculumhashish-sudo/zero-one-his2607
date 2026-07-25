@@ -5,8 +5,10 @@ import com.zeroone.star.project.query.menu.MenuDetailQuery;
 import com.zeroone.star.project.query.menu.MenuListPageQuery;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.login.MenuTreeVO;
 import com.zeroone.star.project.vo.menu.MenuVO;
+import com.zeroone.star.project.vo.login.MenuTreeVO;
+
+import java.util.List;
 
 /**
  * 菜单管理的api接口
@@ -21,7 +23,7 @@ public interface MenuApis {
      * @author 是丫丫
      * @负责人 倾墨
      */
-    default JsonVO<MenuTreeVO> getMenuTree() {
+    default JsonVO<List<MenuTreeVO>> getMenuTree() throws Exception {
         return JsonVO.success(null);
     }
 
@@ -32,7 +34,7 @@ public interface MenuApis {
      * @author 是丫丫
      * @负责人 倾墨
      */
-    default JsonVO<PageDTO<MenuVO>> getMenuList(MenuListPageQuery query) {
+    default JsonVO<PageDTO<MenuVO>> getMenuList(MenuListPageQuery query) throws Exception {
         return JsonVO.success(null);
     }
 

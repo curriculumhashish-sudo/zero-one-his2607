@@ -33,7 +33,12 @@ public enum MenuStatus implements SystemStatus {
     /**
      * 菜单存在子节点，禁止删除
      */
-    MENU_HAS_CHILD("菜单存在子菜单，无法删除", 4006);
+    MENU_HAS_CHILD("菜单存在子菜单，无法删除", 4006),
+
+    /**
+     * 用户信息缺失,无法获取对应权限下的菜单信息
+     */
+    USER_INFO_MISSING("用户信息缺失,无法获取对应权限下的菜单信息", 4007);
 
     private final String message;
     private final int status;
