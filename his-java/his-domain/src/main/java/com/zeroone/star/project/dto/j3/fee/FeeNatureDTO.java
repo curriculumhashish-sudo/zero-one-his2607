@@ -32,9 +32,9 @@ public class FeeNatureDTO implements Serializable {
     @Schema(description = "显示顺序", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer displayOrder;
 
-    @NotNull(message = "分类不能为空")
+    @NotBlank(message = "分类不能为空")
     @Schema(description = "费用性质分类(0自费、1公费、2省医保、3市医保)", example = "0", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Integer categoryEnum;
+    private String categoryEnum;
 
     @NotNull(message = "启用状态不能为空")
     @Schema(description = "是否启用 1 启用 0 禁用", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)

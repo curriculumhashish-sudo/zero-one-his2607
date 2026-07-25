@@ -6,7 +6,6 @@ import com.zeroone.star.j3.fee.entity.FeeNature;
 import com.zeroone.star.j3.fee.mapper.FeeNatureMapper;
 import com.zeroone.star.j3.fee.service.IFeeNatureService;
 import com.zeroone.star.project.dto.j3.fee.FeeNatureDTO;
-import com.zeroone.star.project.enums.j3.fee.FeeCategoryEnum;
 import com.zeroone.star.project.query.j3.fee.FeeNatureQuery;
 import com.zeroone.star.project.vo.j3.fee.FeeNatureVO;
 import org.springframework.stereotype.Service;
@@ -62,7 +61,7 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
         entity.setName(dto.getName());
         entity.setBusNo(dto.getBusNo());
         entity.setDisplayOrder(dto.getDisplayOrder());
-        entity.setCategoryEnum(FeeCategoryEnum.of(dto.getCategoryEnum()));
+        entity.setCategoryEnum(dto.getCategoryEnum());
         entity.setActiveFlag(dto.getActiveFlag());
         if (!updateById(entity)) {
             throw new RuntimeException("修改失败");
@@ -91,7 +90,7 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
         vo.setBusNo(entity.getBusNo());
         vo.setActiveFlag(entity.getActiveFlag());
         vo.setDisplayOrder(entity.getDisplayOrder());
-        vo.setCategoryEnum(entity.getCategoryEnum().getDesc());
+        vo.setCategoryEnum(entity.getCategoryEnum());
         vo.setStatusEnum(entity.getStatusEnum());
         return vo;
     }
