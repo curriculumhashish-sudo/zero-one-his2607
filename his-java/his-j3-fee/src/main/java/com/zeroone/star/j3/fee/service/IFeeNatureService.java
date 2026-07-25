@@ -30,7 +30,7 @@ public interface IFeeNatureService extends IService<FeeNature> {
      * @param dto 费用性质数据
      * @throws RuntimeException 业务失败时抛出
      */
-    void updateFeeNature(Long id, FeeNatureDTO dto);
+    void updateFeeNature(String id, FeeNatureDTO dto);
 
     /**
      * 停/启用费用性质
@@ -38,5 +38,5 @@ public interface IFeeNatureService extends IService<FeeNature> {
      * @param isEnabled 是否启用 1启用 0禁用
      * @throws RuntimeException 业务失败时抛出
      */
-    void updateStatus(Long id, Integer isEnabled);
+    void updateStatus(String id, Integer isEnabled);
 }

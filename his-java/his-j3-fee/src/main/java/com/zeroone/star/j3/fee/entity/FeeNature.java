@@ -1,10 +1,7 @@
 package com.zeroone.star.j3.fee.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
+import com.zeroone.star.project.enums.j3.fee.FeeCategoryEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,20 +10,57 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * 费用性质实体
+ * 费用性质实体（映射 fin_contract 表）
  * </p>
  * @author 白文儿
  * @version 1.0.0
  */
 @Getter
 @Setter
-@TableName("t_fee_nature")
+@TableName("fin_contract")
 public class FeeNature implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+    /**
+     * 主键（UUID）
+     */
+    @TableId(value = "id", type = IdType.ASSIGN_UUID)
+    private String id;
+
+    // ========== 审计字段 ==========
+
+    @TableField(fill = FieldFill.INSERT)
+    private String tenantId;
+
+    @TableField(fill = FieldFill.INSERT)
+    private LocalDateTime createdAt;
+
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updatedAt;
+
+    @TableField(fill = FieldFill.INSERT)
+    private String createdBy;
+
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private String updatedBy;
+
+    @TableLogic
+    private Integer isDeleted;
+
+    private LocalDateTime deletedAt;
+
+    private String deletedBy;
+
+    @Version
+    private Integer version;
+
+    // ========== 业务字段 ==========
+
+    /**
+     * 费用性质编码（业务编号）
+     */
+    private String busNo;
 
     /**
      * 费用性质名称
@@ -34,34 +68,32 @@ public class FeeNature implements Serializable {
     private String name;
 
     /**
-     * 费用性质编码
+     * 费用性质分类（自费、公费、省医保、市医保）
      */
-    private String code;
+    private FeeCategoryEnum categoryEnum;
+
+    /**
+     * 状态枚举值
+     */
+    private String statusEnum;
+
+    /**
+     * 是否启用 1 启用 0 禁用
+     */
+    private Integer activeFlag;
 
     /**
      * 显示顺序
      */
-    private Integer sortOrder;
+    private Integer displayOrder;
 
     /**
-     * 费用性质分类(可选值：自费、公费、省医保、市医保)
+     * 医保标志位
      */
-    private String category;
+    private Integer ybFlag;
 
     /**
-     * 是否启用 0 禁用 1 启用
+     * 机构标识
      */
-    private Integer isEnabled;
-
-    @TableField(fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
-
-    @TableField(fill = FieldFill.INSERT)
-    private String createBy;
-
-    @TableField(fill = FieldFill.UPDATE)
-    private LocalDateTime updateTime;
-
-    @TableField(fill = FieldFill.UPDATE)
-    private String updateBy;
+    private String orgId;
 }
