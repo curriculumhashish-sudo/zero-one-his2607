@@ -1,6 +1,5 @@
 package com.zeroone.star.configuration.controller;
 
-import com.zeroone.star.configuration.mapper.FieldMapper;
 import com.zeroone.star.configuration.service.FieldService;
 import com.zeroone.star.project.dto.j5.medicalTemplate.FieldAddDTO;
 import com.zeroone.star.project.dto.j5.medicalTemplate.FieldUpdateDTO;
@@ -10,11 +9,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 /**
  * 描述：配置管理-病历模板：元数据字段管理控制器
@@ -26,15 +22,13 @@ public class FieldController implements FieldApis {
 
     @Autowired
     private FieldService fieldService;
-    @Resource
-    private FieldMapper fieldMapper;
 
     @Operation(summary = "添加元数据字段")
     @PostMapping("/field")
     @Override
     public JsonVO<String> addField(@RequestBody FieldAddDTO data) {
         int result = fieldService.addField(data);
-        if(result <= 0){
+        if (result <= 0) {
             return JsonVO.fail("添加失败");
         }
         return JsonVO.success("添加成功");
@@ -49,7 +43,6 @@ public class FieldController implements FieldApis {
             return JsonVO.fail("修改失败");
         }
         return JsonVO.success("修改成功");
-
     }
 
     @Operation(summary = "删除元数据字段")
@@ -58,6 +51,9 @@ public class FieldController implements FieldApis {
     @Override
     public JsonVO<String> delField(@PathVariable String id) {
         int result = fieldService.deleteField(id);
+        if (result <= 0) {
+            return JsonVO.fail("删除失败");
+        }
         return JsonVO.success(id);
     }
 }

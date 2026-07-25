@@ -5,6 +5,9 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+/**
+ * 元数据字段数据类型的实体类
+ */
 @Data
 @TableName("emr_metadata_field_def")
 public class EmrMetadataFieldDef {
@@ -34,7 +37,7 @@ public class EmrMetadataFieldDef {
 
     private Integer sortOrder;
 
-    private Boolean isEnabled;
+    private Integer isEnabled;
 
     private String remark;
 
@@ -51,7 +54,7 @@ public class EmrMetadataFieldDef {
     private String updatedBy;
     
     @TableLogic
-    private Boolean isDeleted;
+    private Integer isDeleted;
 
     private LocalDateTime deletedAt;
     
