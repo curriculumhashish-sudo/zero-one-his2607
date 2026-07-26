@@ -1,6 +1,7 @@
 package com.zeroone.star.basedata.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zeroone.star.basedata.constant.EquipmentCategoryConstants;
 import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinitionDO;
 import com.zeroone.star.basedata.service.IEquipmentService;
 import com.zeroone.star.basedata.service.impl.MsEquipmentMapper;
@@ -58,7 +59,11 @@ public class EquipmentController implements EquipmentApis {
         try {
             Page<AdmDeviceDefinitionDO> entityPage = equipmentService.queryEquipmentPage(query);
             PageDTO<EquipmentVO> result = PageDTO.create(entityPage,
-                    entity -> msEquipmentMapper.entityToVo(entity));
+                    entity -> {
+                        EquipmentVO vo = msEquipmentMapper.entityToVo(entity);
+                        vo.setCategoryName(EquipmentCategoryConstants.getCategoryName(entity.getCategoryCode()));
+                        return vo;
+                    });
             return JsonVO.success(result);
         } catch (IllegalArgumentException e) {
             return JsonVO.fail(e.getMessage());
