@@ -37,7 +37,7 @@
 #include "charge/ChargeItemController.h"
 #include "charge/SettlementController.h"
 #include "charge/PrintController.h"
-#include "charge/PrepaymentController.h"
+
 
 #include"settle/GetPatientListController.h"
 #include"settle/GetCategoryDetailsController.h"
