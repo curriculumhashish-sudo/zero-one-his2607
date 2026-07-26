@@ -105,7 +105,8 @@ public class DepartmentController implements DepartmentApis {
     })
     @Override
     public JsonVO<PageDTO<DepartmentVO>> getDepartmentPage(@Valid DepartmentQuery query) {
-        return JsonVO.success(null);
+        PageDTO<DepartmentVO> departmentPage = departmentService.getDepartmentPage(query);
+        return JsonVO.success(departmentPage);
     }
 
     @PutMapping("/{id}")

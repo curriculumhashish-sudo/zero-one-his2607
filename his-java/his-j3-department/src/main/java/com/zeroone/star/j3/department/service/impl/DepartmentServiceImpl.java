@@ -3,12 +3,14 @@ package com.zeroone.star.j3.department.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zeroone.star.j3.department.entity.DepartmentDO;
 import com.zeroone.star.j3.department.entity.DepartmentUnitDO;
 import com.zeroone.star.j3.department.entity.SequenceDO;
 import com.zeroone.star.j3.department.mapper.DepartmentMapper;
 import com.zeroone.star.j3.department.service.DepartmentService;
 import com.zeroone.star.project.components.user.UserHolder;
+import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j3.department.DepartmentBatchDTO;
 import com.zeroone.star.project.dto.j3.department.DepartmentCreateDTO;
 import com.zeroone.star.project.enums.j3.department.ClassEnum;
@@ -18,13 +20,16 @@ import com.zeroone.star.project.exception.j3.department.DepartmentActiveOrInacti
 import com.zeroone.star.project.exception.j3.department.DepartmentNotFoundException;
 import com.zeroone.star.project.exception.j3.department.DoctorNotFoundException;
 import com.zeroone.star.project.exception.j3.department.EmptyParentDepartmentException;
+import com.zeroone.star.project.query.j3.department.DepartmentQuery;
 import com.zeroone.star.project.query.j3.department.DepartmentTreeQuery;
 import com.zeroone.star.project.vo.j3.department.DepartmentDetailVO;
 import com.zeroone.star.project.vo.j3.department.DepartmentTreeVO;
+import com.zeroone.star.project.vo.j3.department.DepartmentVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -47,6 +52,46 @@ public class DepartmentServiceImpl implements DepartmentService {
     private DepartmentMapper departmentMapper;
     @Resource
     private UserHolder userHolder;
+
+    @Override
+    public PageDTO<DepartmentVO> getDepartmentPage(DepartmentQuery query) {
+        Page<DepartmentDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
+        LambdaQueryWrapper<DepartmentDO> queryWrapper = new LambdaQueryWrapper<>();
+
+        if (StringUtils.hasText(query.getKeyword())) {
+            String keyword = query.getKeyword().trim();
+            queryWrapper.and(wrapper -> wrapper
+                    .like(DepartmentDO::getName, keyword)
+                    .or()
+                    .like(DepartmentDO::getYbNo, keyword)
+                    .or()
+                    .like(DepartmentDO::getYbName, keyword)
+                    .or()
+                    .like(DepartmentDO::getMedinsId, keyword)
+                    .or()
+                    .like(DepartmentDO::getMedinsAdmdvs, keyword)
+                    .or()
+                    .like(DepartmentDO::getPyStr, keyword)
+                    .or()
+                    .like(DepartmentDO::getWbStr, keyword));
+        }
+        if (StringUtils.hasText(query.getTypeEnum())) {
+            queryWrapper.eq(DepartmentDO::getTypeEnum, query.getTypeEnum().trim());
+        }
+        if (StringUtils.hasText(query.getClassEnum())) {
+            queryWrapper.eq(DepartmentDO::getClassEnum, query.getClassEnum().trim());
+        }
+        if (StringUtils.hasText(query.getStatusEnum())) {
+            queryWrapper.eq(DepartmentDO::getStatusEnum, query.getStatusEnum().trim());
+        }
+
+        queryWrapper.orderByAsc(DepartmentDO::getBusNo)
+                .orderByAsc(DepartmentDO::getDisplayOrder)
+                .orderByAsc(DepartmentDO::getId);
+
+        Page<DepartmentDO> result = departmentMapper.selectPage(page, queryWrapper);
+        return PageDTO.create(result, this::toDepartmentVO);
+    }
 
     @Override
     public List<DepartmentTreeVO> getDepartmentTree(DepartmentTreeQuery query) {
@@ -309,6 +354,37 @@ public class DepartmentServiceImpl implements DepartmentService {
                 .set(DepartmentDO::getStatusEnum, StatusEnum.getDescByValue(isEnabled))
                 .set(DepartmentDO::getActiveFlag, isEnabled == 1);
         departmentMapper.update(wrapper);
+    }
+
+    private DepartmentVO toDepartmentVO(DepartmentDO departmentDO) {
+        DepartmentVO departmentVO = new DepartmentVO();
+        departmentVO.setId(departmentDO.getId() == null ? null : departmentDO.getId().toString());
+        departmentVO.setName(departmentDO.getName());
+        departmentVO.setBusNo(departmentDO.getBusNo());
+        departmentVO.setParentId(departmentDO.getParentId() == null ? null : departmentDO.getParentId().toString());
+        departmentVO.setTypeEnum(departmentDO.getTypeEnum());
+        departmentVO.setTypeEnumDictText(TypeEnum.getDictTextByDesc(departmentDO.getTypeEnum()));
+        departmentVO.setClassEnum(departmentDO.getClassEnum());
+        departmentVO.setClassEnumDictText(ClassEnum.getDictTextByDesc(departmentDO.getClassEnum()));
+        departmentVO.setStatusEnum(departmentDO.getStatusEnum());
+        departmentVO.setStatusEnumDictText(StatusEnum.getDictTextByDesc(departmentDO.getStatusEnum()));
+        departmentVO.setActiveFlag(departmentDO.getActiveFlag() == null
+                ? null
+                : (departmentDO.getActiveFlag() ? 1 : 0));
+        departmentVO.setYbNo(departmentDO.getYbNo());
+        departmentVO.setYbName(departmentDO.getYbName());
+        departmentVO.setMedinsId(departmentDO.getMedinsId());
+        departmentVO.setMedinsAdmdvs(departmentDO.getMedinsAdmdvs());
+        departmentVO.setMedinsType(departmentDO.getMedinsType());
+        departmentVO.setMedinsLv(departmentDO.getMedinsLv());
+        departmentVO.setPyStr(departmentDO.getPyStr());
+        departmentVO.setWbStr(departmentDO.getWbStr());
+        departmentVO.setDefDoctorId(departmentDO.getDefDoctorId() == null
+                ? null
+                : departmentDO.getDefDoctorId().toString());
+        departmentVO.setCaty(departmentDO.getCaty());
+        departmentVO.setDisplayOrder(departmentDO.getDisplayOrder());
+        return departmentVO;
     }
 }
 

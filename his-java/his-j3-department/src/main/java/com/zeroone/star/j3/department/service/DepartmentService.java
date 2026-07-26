@@ -1,10 +1,13 @@
 package com.zeroone.star.j3.department.service;
 
+import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j3.department.DepartmentBatchDTO;
 import com.zeroone.star.project.dto.j3.department.DepartmentCreateDTO;
+import com.zeroone.star.project.query.j3.department.DepartmentQuery;
 import com.zeroone.star.project.query.j3.department.DepartmentTreeQuery;
 import com.zeroone.star.project.vo.j3.department.DepartmentDetailVO;
 import com.zeroone.star.project.vo.j3.department.DepartmentTreeVO;
+import com.zeroone.star.project.vo.j3.department.DepartmentVO;
 
 import java.util.List;
 
@@ -19,6 +22,8 @@ import java.util.List;
  * @version 1.0.0
  */
 public interface DepartmentService {
+
+    PageDTO<DepartmentVO> getDepartmentPage(DepartmentQuery query);
 
     List<DepartmentTreeVO> getDepartmentTree(DepartmentTreeQuery query);
 
