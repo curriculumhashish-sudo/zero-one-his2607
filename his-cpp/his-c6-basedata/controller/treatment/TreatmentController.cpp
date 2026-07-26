@@ -18,14 +18,14 @@
 */
 #include "stdafx.h"
 #include "TreatmentController.h"
-#include "../../service/sample/TreatmentService.h"
-//#include "../../domain/bo/PdfReportBO.h"
+#include "../../service/treatment/TreatmentService.h"
+#include "../../domain/bo/PdfReportBO.h"
 #include "../ApiDeclarativeServicesHelper.h"
 #include "ExcelComponent.h"
 #include "SimpleDateTimeFormat.h"
 #include "PdfComponent.h"
-
-TreatmentPageJsonVO::Wrapper TreatmentController::execQueryTreatment(const TreatmentQuery::Wrapper& query)
+// 列表分页
+TreatmentPageJsonVO::Wrapper TreatmentController::execQueryAll(const TreatmentQuery::Wrapper& query)
 {
 	// 查询数据
 	auto result = TreatmentService().listAll(query);
@@ -76,7 +76,7 @@ ListJsonVO<String>::Wrapper TreatmentController::execRemoveTreatment(const List<
 		return jvo;
 	}
 	// 执行数据删除
-	if (SampleService().removeData(ids)) {
+	if (TreatmentService().removeData(ids)) {
 		jvo->success(ids);
 	}
 	else
@@ -110,8 +110,8 @@ TreatmentSelectPageJsonVO::Wrapper TreatmentController::execQuerySelect(const Tr
 	vo->success(pageDto);
 	return vo;
 }
-
-TreatmentPageJsonVO::Wrapper SampleController::execQueryAll(const TreatmentQuery::Wrapper& query, const PayloadDTO& payload)
+// 声明式服务接口2
+TreatmentPageJsonVO::Wrapper TreatmentController::execQueryAll(const TreatmentQuery::Wrapper& query, const PayloadDTO& payload)
 {
 	// 创建客户端对象
 	API_CLIENT_CREATE(ac, om, TreatmentApiClient, "treatment-api");

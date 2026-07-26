@@ -22,7 +22,7 @@
 #include "id/UuidFacade.h"
 //#include "TreatmentDateTimeFormat.h"
 
-TreatmentPageDTO::Wrapper SampleService::listAll(const SampleQuery::Wrapper& query)
+TreatmentPageDTO::Wrapper TreatmentService::listAll(const TreatmentQuery::Wrapper& query)
 {
 	return {};
 }
