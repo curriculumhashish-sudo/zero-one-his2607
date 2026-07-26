@@ -619,4 +619,25 @@ inpatientbilling:
     configs: 配置列表
     nursingLevelReadonly: 护理级别只读区
     priority: 优先级
-    performingOrgId: 执行科室ID
+
+# Missing inpatientbilling field entries
+inpatientbilling.field.activityName: 活动名称
+inpatientbilling.field.categoryCodeText: 收费类别名称
+inpatientbilling.field.dosageInstruction: 用药剂量说明
+inpatientbilling.field.frequencyCode: 用药频次编码
+inpatientbilling.field.frequencyCodeText: 用药频次名称
+inpatientbilling.field.isActive: 是否启用
+inpatientbilling.field.items: 写操作项目列表
+inpatientbilling.field.orderId: 订单ID
+inpatientbilling.field.orderName: 订单名称
+inpatientbilling.field.organizationUnitName: 科室名称
+inpatientbilling.field.pricedTime: 划价时间
+inpatientbilling.field.productName: 产品名称
+inpatientbilling.field.quantityValue: 数量值
+inpatientbilling.field.remark: 备注
+inpatientbilling.field.serviceRequestId: 诊疗请求ID
+inpatientbilling.field.specificationText: 规格说明
+inpatientbilling.field.therapyTypeText: 长临类型名称
+inpatientbilling.field.unitCodeText: 单位名称
+inpatientbilling.field.performingOrgId: 执行科室ID
+medical_advice.cancelexecute.field.items: 取消执行项目列表
