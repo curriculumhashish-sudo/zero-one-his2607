@@ -69,7 +69,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>3.5.0</version>
                 <configuration>
                     <mainClass>com.zeroone.star.basedata.BasedataApplication</mainClass>
                 </configuration>
@@ -77,14 +76,13 @@
             <plugin>
                 <groupId>com.zeroone.star</groupId>
                 <artifactId>mp-code-generator-plugin</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
                 <configuration>
                     <dbConfig>
-                        <host>192.168.171.128</host>
+                        <host>127.0.0.1</host>
                         <port>3306</port>
                         <dbname>test</dbname>
                         <username>root</username>
-                        <password>123456</password>
+                        <password>1234</password>
                     </dbConfig>
                     <outDir>${project.basedir}/src/main/java</outDir>
                 </configuration>
@@ -95,7 +93,7 @@
                 <version>0.40.2</version>
                 <configuration>
                     <!-- Docker 远程管理地址-->
-                    <dockerHost>https://192.168.171.128:2375</dockerHost>
+                    <dockerHost>https://192.168.220.128:2375</dockerHost>
                     <!-- CA 证书位置 -->
                     <certPath>/home/docker-ca</certPath>
                     <!-- 镜像设置 -->
@@ -130,7 +128,7 @@
                                     <JAVA_OPTS>-Xms256m -Xmx256m</JAVA_OPTS>
                                     <!-- 启动替换参数 -->
                                     <SPRING_ARGS>
-                                        --spring.profiles.active=test --spring.cloud.nacos.discovery.ip=192.168.171.128
+                                        --spring.profiles.active=test --spring.cloud.nacos.discovery.ip=192.168.220.128
                                     </SPRING_ARGS>
                                 </env>
                             </run>
