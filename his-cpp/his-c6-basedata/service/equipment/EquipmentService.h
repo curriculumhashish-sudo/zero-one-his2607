@@ -19,7 +19,7 @@ public:
 	// 分页查询所有数据
 	EquipmentDetailDTO::Wrapper listAll(const EquipmentQuery::Wrapper& query);
 	// 通过ID查询单个数据
-	// EquipmentDTO::Wrapper getById(std::string id);
+	EquipmentDTO::Wrapper getById(std::string id);
 	// 保存数据
 	std::string saveData(const EquipmentAddDTO::Wrapper& dto);
 	// 批量保存数据

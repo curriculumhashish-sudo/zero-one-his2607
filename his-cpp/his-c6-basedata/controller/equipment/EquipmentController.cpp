@@ -13,7 +13,7 @@ EquipmentPageJsonVO::Wrapper EquipmentController::execQueryEquipment(const Equip
 	// 查询数据
 	auto result = EquipmentService().listAll(query);
 	// 响应结果
-	auto jvo = EquipmentDetailPageJsonVO::createShared();
+	auto jvo = EquipmentPageJsonVO::createShared();
 	jvo->success(result);
 	return jvo;
 }
@@ -110,5 +110,5 @@ EquipmentPageJsonVO::Wrapper EquipmentController::execQueryAll(const EquipmentQu
 	// 构建凭证
 	std::string token = PayloadDTO::getTokenPrefix() + payload.getToken();
 	// 返回查询结果
-	return ac->queryAll(token, query->pageIndex, query->pageSize, URIUtil::urlEncode(query->name))->readBodyToDto<EquipmentPageJsonVO::Wrapper>(om);
+	return ac->queryAll(token, query->pageIndex, query->pageSize, URIUtil::urlEncode(query->keywords))->readBodyToDto<EquipmentPageJsonVO::Wrapper>(om);
 }
