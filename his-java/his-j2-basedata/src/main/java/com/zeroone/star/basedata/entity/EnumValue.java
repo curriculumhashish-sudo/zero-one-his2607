@@ -1,7 +1,10 @@
 package com.zeroone.star.basedata.entity;
 
+import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumDTO;
 import lombok.Data;
 import org.springframework.data.annotation.*;
+import org.springframework.data.domain.Page;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -57,7 +60,7 @@ public class EnumValue {
 
     @Indexed
     @Field("status")
-    private String status;
+    private Integer status;
 
     // @CreatedBy
     @Field("created_by")
@@ -81,6 +84,33 @@ public class EnumValue {
     @Indexed
     @Field("is_deleted")
     private Boolean isDeleted;
+
+
+    public static EnumDTO toDTO(EnumValue enumValue) {
+        EnumDTO enumDTO = new EnumDTO();
+        enumDTO.setEnumTypeId(enumValue.getEnumTypeId());
+        enumDTO.setStatus(enumValue.getStatus());
+        enumDTO.setEnumCode(enumValue.getEnumCode());
+        enumDTO.setDisplay(enumValue.getDisplay());
+        enumDTO.setOrder(enumValue.getOrder());
+        enumDTO.setEnumKey(enumValue.getEnumKey());
+        enumDTO.setId(enumValue.getId());
+
+        return enumDTO;
+    }
+
+    public static PageDTO<EnumDTO> toPageDTO(Page<EnumValue> enumValuePage) {
+        PageDTO<EnumDTO> pageDTO = new PageDTO<>();
+
+        pageDTO.setTotal(enumValuePage.getTotalElements());
+        pageDTO.setPages((long)enumValuePage.getTotalPages());
+        pageDTO.setPageIndex((long)enumValuePage.getNumber());
+        pageDTO.setPageSize((long)enumValuePage.getSize());
+
+        pageDTO.setRows(enumValuePage.getContent().stream().map(EnumValue::toDTO).toList());
+
+        return pageDTO;
+    }
 }
 
 /**
@@ -93,7 +123,7 @@ public class EnumValue {
  *   "enumCode": 1                             // 枚举对应的实数值，一个枚举类型的枚举值的code，string互不相同
  *   "display": "已发货",                  // 显示文本（支持多语言）
  *   "order": 10,                        // 排序权重，数值越小越靠前
- *   "status": "active",                // active/inactive/deleted
+ *   "status": 1,                // active/inactive/deleted
  *
  *   "createdBy": "user_001",
  *   "createdAt": ISODate("2026-07-19T00:00:00Z"),

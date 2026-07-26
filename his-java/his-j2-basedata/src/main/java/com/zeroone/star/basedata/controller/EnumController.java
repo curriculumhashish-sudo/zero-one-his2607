@@ -1,5 +1,6 @@
 package com.zeroone.star.basedata.controller;
 
+import com.zeroone.star.basedata.service.EnumTypeService;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.*;
 import com.zeroone.star.project.j2.basedata.nulll.EnumApis;
@@ -9,6 +10,7 @@ import com.zeroone.star.project.query.j2.basedata.EnumTypeQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +20,9 @@ import java.util.Map;
 @RestController
 @Tag(name = "枚举管理")
 public class EnumController implements EnumApis {
+
+    @Resource
+    private EnumTypeService enumTypeService;
 
 
     @Override
@@ -46,7 +51,7 @@ public class EnumController implements EnumApis {
     @Operation(summary = "获取枚举类型列表(条件+分页)")
     @GetMapping("/sys/query-all-enum-type")
     public JsonVO<PageDTO<EnumTypeDTO>> queryAllEnumType(@RequestBody EnumTypeQuery query) {
-        return null;
+        return JsonVO.success(enumTypeService.queryAllEnumType(query));
     }
 
     @PostMapping("/sys/add-enum")
@@ -75,14 +80,17 @@ public class EnumController implements EnumApis {
     @Operation(summary = "创建枚举类型", description = "租户等信息由jwt等提供，id自动生成")
     @Override
     public JsonVO<String> addEnumType(@RequestBody @Valid EnumTypeAddDTO data) {
-        return null;
+        enumTypeService.saveEnumType(data);
+        return JsonVO.success("success");
     }
 
     @PutMapping("/sys/modify-enum-type")
     @Operation(summary = "修改枚举类型", description = "对于创建过程，需要额外提供id")
     @Override
     public JsonVO<String> modifyEnumType(@RequestBody @Valid EnumTypeModifyDTO data) {
-        return null;
+        enumTypeService.updateEnumType(data);
+
+        return JsonVO.success("success");
     }
 
     @Override

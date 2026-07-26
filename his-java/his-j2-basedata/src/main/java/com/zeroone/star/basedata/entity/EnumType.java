@@ -1,7 +1,10 @@
 package com.zeroone.star.basedata.entity;
 
+import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumTypeDTO;
 import lombok.Data;
 import org.springframework.data.annotation.*;
+import org.springframework.data.domain.Page;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -43,7 +46,7 @@ public class EnumType {
     private Boolean isSystem;
 
     @Field("status")
-    private String status;
+    private Integer status;
 
     // @CreatedBy
     @Field("created_by")
@@ -67,6 +70,43 @@ public class EnumType {
     @Indexed
     @Field("is_deleted")
     private Boolean isDeleted;
+
+    public static EnumTypeDTO toDTO(EnumType enumType) {
+        if (enumType == null) {
+            return null;
+        }
+        EnumTypeDTO enumTypeDTO = new EnumTypeDTO();
+
+        enumTypeDTO.setId(enumType.getId());
+        enumTypeDTO.setTenantId(enumType.getTenantId());
+        enumTypeDTO.setEnumTypeKey(enumType.getEnumTypeKey());
+        enumTypeDTO.setDisplayName(enumType.getDisplayName());
+        enumTypeDTO.setDescription(enumType.getDescription());
+
+        enumTypeDTO.setIsSystem(enumType.getIsSystem());
+
+        enumTypeDTO.setStatus(enumType.getStatus());
+
+        enumTypeDTO.setCreatedBy(enumType.getCreatedBy());
+        enumTypeDTO.setCreatedAt(enumType.getCreatedAt());
+        enumTypeDTO.setUpdatedBy(enumType.getUpdatedBy());
+        enumTypeDTO.setUpdatedAt(enumType.getUpdatedAt());
+
+        return enumTypeDTO;
+    }
+
+    public static PageDTO<EnumTypeDTO> toPageDTO(Page<EnumType> enumTypePage) {
+        PageDTO<EnumTypeDTO> pageDTO = new PageDTO<>();
+
+        pageDTO.setPageIndex((long) enumTypePage.getNumber());
+        pageDTO.setPageSize((long) enumTypePage.getSize());
+        pageDTO.setTotal(enumTypePage.getTotalElements());
+        pageDTO.setPages((long)enumTypePage.getTotalPages());
+
+        pageDTO.setRows(enumTypePage.getContent().stream().map(EnumType::toDTO).toList());
+
+        return pageDTO;
+    }
 }
 
 /**
