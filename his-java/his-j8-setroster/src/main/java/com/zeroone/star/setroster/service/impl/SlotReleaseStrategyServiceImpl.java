@@ -57,7 +57,7 @@ public class SlotReleaseStrategyServiceImpl implements ISlotReleaseStrategyServi
                         .like(BkgReleasePolicy::getPolicyCode, query.getKeyword().trim())
                         .or()
                         .like(BkgReleasePolicy::getPolicyName, query.getKeyword().trim()))
-                .orderByDesc(BkgReleasePolicy::getCreatedAt);
+                .orderByDesc(BkgReleasePolicy::getCreateTime);
 
         Page<BkgReleasePolicy> result = releasePolicyMapper.selectPage(page, wrapper);
         PageDTO<SlotReleaseStrategyDTO> pageDTO = PageDTO.create(result, this::toListDTO);
