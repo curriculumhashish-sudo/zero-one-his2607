@@ -1,19 +1,28 @@
 package com.zeroone.star.j3.ward.controller;
 
-import com.zeroone.star.project.dto.j3.ward.*;
+import com.zeroone.star.j3.ward.service.WardService;
+import com.zeroone.star.project.dto.j3.ward.BedAddDTO;
+import com.zeroone.star.project.dto.j3.ward.BedDTO;
+import com.zeroone.star.project.dto.j3.ward.RoomAddDTO;
+import com.zeroone.star.project.dto.j3.ward.RoomDTO;
+import com.zeroone.star.project.dto.j3.ward.WardAddDTO;
+import com.zeroone.star.project.dto.j3.ward.WardDTO;
 import com.zeroone.star.project.j3.ward.WardApis;
-import com.zeroone.star.project.query.j3.ward.BedQuery;
-import com.zeroone.star.project.query.j3.ward.RoomQuery;
-import com.zeroone.star.project.query.j3.ward.WardQuery;
 import com.zeroone.star.project.query.j3.ward.WardTreeQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j3.ward.BedOptionVO;
+import com.zeroone.star.project.vo.j3.ward.OptionVO;
+import com.zeroone.star.project.vo.j3.ward.WardTreeVO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,17 +33,21 @@ import java.util.List;
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
- * @author zhu
+ * @author zhujian
  * @version 1.0.0
  */
 @RestController
 @RequestMapping("/wards")
-@Tag(name = "病区病房管理", description = "病区-病房-床位相关操作接口")
+@Slf4j
+@Tag(name = "病区病房管理")
 public class WardController implements WardApis {
+
+    @Resource
+    private WardService wardService;
 
     // ==================== 树形结构 ====================
 
-    @GetMapping("/tree")
+    @PostMapping("/tree")
     @Operation(summary = "获取病区-病房-床位树形列表", description = "根据条件机构名称获取树形结构数据")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "成功",
@@ -43,8 +56,9 @@ public class WardController implements WardApis {
             @ApiResponse(responseCode = "404", description = "数据不存在")
     })
     @Override
-    public JsonVO<List<WardTreeQuery>> getWardTree(WardTreeQuery query) {
-        return null;
+    public JsonVO<List<WardTreeVO>> getWardTree(@RequestBody WardTreeQuery query) {
+        List<WardTreeVO> result = wardService.getWardTree(query);
+        return JsonVO.success(result);
     }
 
     // ==================== 病区管理 ====================
@@ -56,8 +70,9 @@ public class WardController implements WardApis {
                     content = @Content(schema = @Schema(implementation = JsonVO.class)))
     })
     @Override
-    public JsonVO<List<WardQuery>> getWardList() {
-        return null;
+    public JsonVO<List<OptionVO>> getWardList() {
+        List<OptionVO> result = wardService.getWardList();
+        return JsonVO.success(result);
     }
 
     @PostMapping
@@ -69,7 +84,8 @@ public class WardController implements WardApis {
     })
     @Override
     public JsonVO<String> addWard(@Valid @RequestBody WardAddDTO wardAddDTO) {
-        return null;
+        wardService.addWard(wardAddDTO);
+        return JsonVO.success("添加病区成功");
     }
 
     @PutMapping("/{id}")
@@ -82,9 +98,11 @@ public class WardController implements WardApis {
     })
     @Override
     public JsonVO<String> updateWard(
+            @Parameter(description = "病区ID", example = "1", required = true)
             @PathVariable("id") Long id,
             @Valid @RequestBody WardDTO wardDTO) {
-        return null;
+        wardService.updateWard(id, wardDTO);
+        return JsonVO.success("修改病区成功");
     }
 
     @DeleteMapping("/{id}")
@@ -96,22 +114,28 @@ public class WardController implements WardApis {
             @ApiResponse(responseCode = "404", description = "病区不存在")
     })
     @Override
-    public JsonVO<String> deleteWard(@PathVariable("id") Long id) {
-        return null;
+    public JsonVO<String> deleteWard(
+            @Parameter(description = "病区ID", example = "1", required = true)
+            @PathVariable("id") Long id) {
+        wardService.deleteWard(id);
+        return JsonVO.success("删除病区成功");
     }
 
     // ==================== 病房管理 ====================
 
     @GetMapping("/room/list")
-    @Operation(summary = "根据病区获取病房列表", description = "根据病区获取病房名称列表")
+    @Operation(summary = "根据病区获取病房列表", description = "根据病区获取病房名称列表（用于下拉框）")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "成功",
                     content = @Content(schema = @Schema(implementation = JsonVO.class))),
             @ApiResponse(responseCode = "400", description = "参数错误")
     })
     @Override
-    public JsonVO<List<RoomQuery>> getRoomListByWard(@RequestParam("wardId") Long wardId) {
-        return null;
+    public JsonVO<List<OptionVO>> getRoomListByWard(
+            @Parameter(description = "病区ID", example = "1", required = true)
+            @RequestParam("wardId") Long wardId) {
+        List<OptionVO> result = wardService.getRoomListByWard(wardId);
+        return JsonVO.success(result);
     }
 
     @PostMapping("/room")
@@ -123,7 +147,8 @@ public class WardController implements WardApis {
     })
     @Override
     public JsonVO<String> addRoom(@Valid @RequestBody RoomAddDTO roomAddDTO) {
-        return null;
+        wardService.addRoom(roomAddDTO);
+        return JsonVO.success("添加病房成功");
     }
 
     @PutMapping("/room/{id}")
@@ -136,9 +161,11 @@ public class WardController implements WardApis {
     })
     @Override
     public JsonVO<String> updateRoom(
+            @Parameter(description = "病房ID", example = "1", required = true)
             @PathVariable("id") Long id,
             @Valid @RequestBody RoomDTO roomDTO) {
-        return null;
+        wardService.updateRoom(id, roomDTO);
+        return JsonVO.success("修改病房成功");
     }
 
     @DeleteMapping("/room/{id}")
@@ -150,8 +177,11 @@ public class WardController implements WardApis {
             @ApiResponse(responseCode = "404", description = "病房不存在")
     })
     @Override
-    public JsonVO<String> deleteRoom(@PathVariable("id") Long id) {
-        return null;
+    public JsonVO<String> deleteRoom(
+            @Parameter(description = "病房ID", example = "1", required = true)
+            @PathVariable("id") Long id) {
+        wardService.deleteRoom(id);
+        return JsonVO.success("删除病房成功");
     }
 
     // ==================== 床位管理 ====================
@@ -164,8 +194,11 @@ public class WardController implements WardApis {
             @ApiResponse(responseCode = "400", description = "参数错误")
     })
     @Override
-    public JsonVO<List<BedQuery>> getBedListByRoom(@RequestParam("roomId") Long roomId) {
-        return null;
+    public JsonVO<List<BedOptionVO>> getBedListByRoom(
+            @Parameter(description = "病房ID", example = "1", required = true)
+            @RequestParam("roomId") Long roomId) {
+        List<BedOptionVO> result = wardService.getBedListByRoom(roomId);
+        return JsonVO.success(result);
     }
 
     @PostMapping("/bed")
@@ -177,7 +210,8 @@ public class WardController implements WardApis {
     })
     @Override
     public JsonVO<String> addBed(@Valid @RequestBody BedAddDTO bedAddDTO) {
-        return null;
+        wardService.addBed(bedAddDTO);
+        return JsonVO.success("添加床位成功");
     }
 
     @PutMapping("/bed/{id}")
@@ -190,9 +224,11 @@ public class WardController implements WardApis {
     })
     @Override
     public JsonVO<String> updateBed(
+            @Parameter(description = "床位ID", example = "1", required = true)
             @PathVariable("id") Long id,
             @Valid @RequestBody BedDTO bedDTO) {
-        return null;
+        wardService.updateBed(id, bedDTO);
+        return JsonVO.success("修改床位成功");
     }
 
     @DeleteMapping("/bed/{id}")
@@ -204,7 +240,10 @@ public class WardController implements WardApis {
             @ApiResponse(responseCode = "404", description = "床位不存在")
     })
     @Override
-    public JsonVO<String> deleteBed(@PathVariable("id") Long id) {
-        return null;
+    public JsonVO<String> deleteBed(
+            @Parameter(description = "床位ID", example = "1", required = true)
+            @PathVariable("id") Long id) {
+        wardService.deleteBed(id);
+        return JsonVO.success("删除床位成功");
     }
 }

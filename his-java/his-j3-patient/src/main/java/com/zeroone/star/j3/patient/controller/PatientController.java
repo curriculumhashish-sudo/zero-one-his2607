@@ -53,8 +53,7 @@ public class PatientController implements PatientApis {
     @Override
     public JsonVO<PageDTO<PatientOptionVO>> queryPatients(
             PatientQuery query) {
-        // TODO: 业务实现阶段查询患者选择列表
-        return JsonVO.success(null);
+        return JsonVO.success(patientService.queryPatients(query));
     }
 
     /**
@@ -82,8 +81,7 @@ public class PatientController implements PatientApis {
     @Override
     public JsonVO<PatientVO> getPatient(
             @PathVariable("id") String id) {
-        // TODO: 业务实现阶段查询患者详情
-        return JsonVO.success(null);
+        return JsonVO.success(patientService.getPatientById(id));
     }
 
     /**
@@ -126,9 +124,9 @@ public class PatientController implements PatientApis {
     )
     @DeleteMapping("{id}")
     @Override
-    public JsonVO<String> deletePatient(
+    public JsonVO<String> deletePatientById(
             @PathVariable("id") String id) {
-        // TODO: 业务实现阶段检查挂号、住院等业务引用
+        patientService.deletePatientById(id);
         return JsonVO.success("删除成功");
     }
 }

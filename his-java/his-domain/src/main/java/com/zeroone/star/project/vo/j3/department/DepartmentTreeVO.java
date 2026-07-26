@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,6 +30,9 @@ public class DepartmentTreeVO {
 
     @Schema(description = "业务编号", example = "OR0007.OR0008")
     private String busNo;
+
+    @Schema(description = "机构/科室名称", example = "门诊内科")
+    private String name;
 
     @Schema(description = "类型", example = "ACTIVE")
     private String statusEnum;
@@ -91,5 +95,5 @@ public class DepartmentTreeVO {
     private String eleInvoiceDeptCode;
 
     @Schema(description = "子节点列表")
-    private List<DepartmentTreeVO> children;
+    private List<DepartmentTreeVO> children = new ArrayList<>();
 }
