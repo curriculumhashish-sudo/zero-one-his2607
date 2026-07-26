@@ -46,7 +46,7 @@ public class WarehouseStockOutController implements WarehouseStockOutApis {
     private final IStockOutService stockOutService;
 
     @PostMapping("/save")
-    @Operation(summary = "保存出库单")
+    @Operation(summary = "保存单据")
     @Override
     public JsonVO<StockOutSaveResultVO> saveStockOut(@Valid @RequestBody StockOutSaveDTO dto) {
         // 调用 Service
