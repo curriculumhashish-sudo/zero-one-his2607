@@ -1,11 +1,24 @@
 #include "stdafx.h"
 #include "EquipmentController.h"
+#include "../../service/equipment/EquipmentService.h"
+#include "../../domain/bo/PdfReportBO.h"
+#include "../ApiDeclarativeServicesHelper.h"
+#include "ExcelComponent.h"
+#include "SimpleDateTimeFormat.h"
+#include "PdfComponent.h"
 
+// 器材列表分页查询
 EquipmentDetailPageJsonVO::Wrapper EquipmentController::executeQueryEquipment(const EquipmentQuery::Wrapper& query)
 {
-	return {};
+	// 查询数据
+	auto result = EquipmentService().listAll(query);
+	// 响应结果
+	auto jvo = EquipmentPageJsonVO::createShared();
+	jvo->success(result);
+	return jvo;
 }
 
+// 新增器材
 StringJsonVO::Wrapper EquipmentController::execAddEquipment(const EquipmentAddDTO::Wrapper& dto, const PayloadDTO& payload)
 {
 	return {};
