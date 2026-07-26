@@ -15,13 +15,4 @@ import org.springframework.context.annotation.Configuration;
         "com.zeroone.star.project.exception"
 })
 public class ComponentInit {
-
-    /**
-     * 为公共异常处理器提供本服务的统一响应包装方式。
-     */
-    @Bean
-    @ConditionalOnMissingBean(EhResultWrapper.class)
-    public EhResultWrapper ehResultWrapper() {
-        return (message, status) -> JsonVO.create(null, status.getCode(), message);
-    }
 }
