@@ -2,8 +2,6 @@ package com.zeroone.star.project.dto.j3.fee;
 
 import com.zeroone.star.project.enums.j3.fee.FeeCategoryEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -17,8 +15,6 @@ import java.io.Serializable;
 @Schema(description = "费用性质数据对象")
 public class FeeNatureDTO implements Serializable {
 
-    @Schema(description = "费用性质ID（新增时不传，修改时必传）", example = "abc123", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String id;
 
     @Schema(description = "费用性质名称", example = "自费", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
@@ -31,7 +27,4 @@ public class FeeNatureDTO implements Serializable {
 
     @Schema(description = "费用性质分类(可选值：自费、公费、省医保、市医保)", example = "自费", requiredMode = Schema.RequiredMode.REQUIRED)
     private FeeCategoryEnum categoryEnum;
-
-    @Schema(description = "是否启用 1 启用 0 禁用", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Integer activeFlag;
 }

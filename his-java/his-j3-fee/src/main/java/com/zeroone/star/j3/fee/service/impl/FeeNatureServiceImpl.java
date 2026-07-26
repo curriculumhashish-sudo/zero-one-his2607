@@ -3,16 +3,21 @@ package com.zeroone.star.j3.fee.service.impl;
 import com.alibaba.cloud.commons.lang.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zeroone.star.j3.fee.entity.AdmAccount;
 import com.zeroone.star.j3.fee.entity.FeeNature;
+import com.zeroone.star.j3.fee.mapper.AdmAccountMapper;
 import com.zeroone.star.j3.fee.mapper.FeeNatureMapper;
 import com.zeroone.star.j3.fee.service.IFeeNatureService;
+import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.j3.fee.FeeNatureDTO;
 import com.zeroone.star.project.enums.j3.fee.FeeCategoryEnum;
 import com.zeroone.star.project.query.j3.fee.FeeNatureQuery;
 import com.zeroone.star.project.vo.j3.fee.FeeNatureVO;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +29,11 @@ import java.util.List;
  * @version 1.0.0
  */
 @Service
+@RequiredArgsConstructor
 public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature> implements IFeeNatureService {
+
+    private final AdmAccountMapper admAccountMapper;
+    private final UserHolder userHolder;
 
     @Override
     public List<FeeNatureVO> listFeeNatures(FeeNatureQuery query) {
@@ -65,7 +74,7 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
         entity.setBusNo(dto.getBusNo());
         entity.setDisplayOrder(dto.getDisplayOrder());
         entity.setCategoryEnum(dto.getCategoryEnum());
-        entity.setActiveFlag(dto.getActiveFlag());
+        entity.setActiveFlag(1);
         if (!updateById(entity)) {
             throw new RuntimeException("修改失败");
         }
@@ -85,9 +94,10 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
 
     @Override
     public List<FeeNatureVO> getNameList() {
-        // 注意是否启用,按照sortBy字段排序
+        // 注意是否启用,是否被删除,按照sortBy字段排序
         LambdaQueryWrapper<FeeNature> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(FeeNature::getActiveFlag, 1)
+                .eq(FeeNature::getIsDeleted, 0)
                 .orderByAsc(FeeNature::getDisplayOrder)
                 .select(FeeNature::getBusNo, FeeNature::getName);
         List<FeeNature> feeNatures = baseMapper.selectList(wrapper);
@@ -112,6 +122,7 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
         // 1.2  编码不能重复
         LambdaQueryWrapper<FeeNature> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(FeeNature::getBusNo, dto.getBusNo());
+        wrapper.eq(FeeNature::getIsDeleted, 0);
         if (baseMapper.selectCount(wrapper) > 0) {
             throw new RuntimeException("费用性质编码已存在，请重新输入");
         }
@@ -144,7 +155,35 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
 
     @Override
     public void delete(String id) {
+        // 注意是否已经被删除,是否关联了其他表,是否还是启用状态
+        // 1. 数据是否存在
+        FeeNature entity = baseMapper.selectById(id);
+        if (entity == null) {
+            throw new RuntimeException("费用性质不存在");
+        }
 
+        // 2. 删除判断是否已经被删除了
+        if(entity.getIsDeleted() == 1) return;
+
+        // 3. 关联表判断
+        // 3.1 挂号账户判断
+        LambdaQueryWrapper<AdmAccount> wrapper = new LambdaQueryWrapper<AdmAccount>()
+                .eq(AdmAccount::getBusNo, entity.getBusNo())
+                .eq(AdmAccount::getIsDeleted, 0)
+                .eq(AdmAccount::getStatusEnum, "ACTIVE");
+        if(admAccountMapper.selectCount(wrapper) > 0){
+            throw new RuntimeException("费用性质在挂号时被使用,无法删除");
+        }
+
+        // 4.1 更新删除字段
+        entity.setIsDeleted(1);
+        entity.setDeletedAt(LocalDateTime.now());
+        try {
+            entity.setDeletedBy(userHolder.getCurrentUser().getUsername());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        baseMapper.updateById(entity);
     }
 
     /**
