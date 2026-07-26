@@ -6,21 +6,30 @@ import com.zeroone.star.project.query.stocktake.StocktakeQuery;
 import com.zeroone.star.project.stocktake.StocktakeApis;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.stocktake.StocktakeDetailVO;
-import com.zeroone.star.project.vo.stocktake.StocktakeItemVO;
 import com.zeroone.star.project.vo.stocktake.StocktakeListVO;
+import com.zeroone.star.pharmacy.service.IStocktakeService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.*;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * <p>
  * 描述：盘点单查询提交接口
+ * </p>
+ * <p>
+ * 功能说明：基于 {@code wkf_supply_request} 表（{@code type_enum = INVENTORY_CHECK}）
+ * 提供盘点单的三大 RESTful 接口：
+ * 1. G9-01 获取盘点单列表：分页查询，按 bus_no 聚合，支持状态/库房/时间筛选
+ * 2. G9-02 获取盘点单详情：根据盘点单号查询汇总信息及明细列表
+ * 3. G9-03 提交盘点单审批：草稿 → 已提交（待审批），批量更新同一 bus_no 下所有行
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
@@ -32,117 +41,59 @@ import java.util.List;
 @Tag(name = "盘点单管理", description = "盘点单查询提交接口")
 public class StocktakeController implements StocktakeApis {
 
-    @Operation(summary = "获取盘点单列表")
+    @Resource
+    private IStocktakeService stocktakeService;
+
+    /**
+     * G9-01 获取盘点单列表（分页查询）
+     * @param query 查询条件
+     * @return 分页数据
+     */
+    @Operation(summary = "获取盘点单列表", description = "分页查询盘点单列表，按 bus_no 聚合，支持状态/库房/时间筛选")
     @GetMapping("/list")
     @Override
     public JsonVO<PageDTO<StocktakeListVO>> queryStocktakeList(StocktakeQuery query) {
-        PageDTO<StocktakeListVO> pageDTO = new PageDTO<>();
-        pageDTO.setPageIndex(query.getPageIndex());
-        pageDTO.setPageSize(query.getPageSize());
-        pageDTO.setTotal(3L);
-        pageDTO.setPages(1L);
-
-        List<StocktakeListVO> rows = new ArrayList<>();
-
-        StocktakeListVO vo1 = new StocktakeListVO();
-        vo1.setId("1");
-        vo1.setBusNo("PD20260701001");
-        vo1.setStatusEnum("DRAFT");
-        vo1.setWarehouseName("门诊药房");
-        vo1.setProfitLossPrice(new BigDecimal("-125.50"));
-        vo1.setApplicantName("张三");
-        vo1.setApplyTime(LocalDateTime.of(2026, 7, 1, 10, 30, 0));
-        rows.add(vo1);
-
-        StocktakeListVO vo2 = new StocktakeListVO();
-        vo2.setId("2");
-        vo2.setBusNo("PD20260701002");
-        vo2.setStatusEnum("SUBMITTED");
-        vo2.setWarehouseName("住院药房");
-        vo2.setProfitLossPrice(new BigDecimal("250.00"));
-        vo2.setApplicantName("李四");
-        vo2.setApplyTime(LocalDateTime.of(2026, 7, 2, 9, 0, 0));
-        vo2.setApproverName("王主任");
-        rows.add(vo2);
-
-        StocktakeListVO vo3 = new StocktakeListVO();
-        vo3.setId("3");
-        vo3.setBusNo("PD20260701003");
-        vo3.setStatusEnum("APPROVED");
-        vo3.setWarehouseName("药库");
-        vo3.setProfitLossPrice(new BigDecimal("-500.00"));
-        vo3.setApplicantName("王五");
-        vo3.setApplyTime(LocalDateTime.of(2026, 7, 3, 14, 0, 0));
-        vo3.setApproverName("赵院长");
-        vo3.setApprovalTime(LocalDateTime.of(2026, 7, 3, 16, 0, 0));
-        rows.add(vo3);
-
-        pageDTO.setRows(rows);
+        PageDTO<StocktakeListVO> pageDTO = stocktakeService.queryStocktakeList(query);
         return JsonVO.success(pageDTO);
     }
 
-    @Operation(summary = "获取盘点单详情")
+    /**
+     * G9-02 获取盘点单详情（含明细列表）
+     * @param id 盘点单号（bus_no）
+     * @return 盘点单详情
+     */
+    @Operation(summary = "获取盘点单详情", description = "根据盘点单号查询汇总信息及明细列表")
     @GetMapping("/detail/{id}")
     @Override
-    public JsonVO<StocktakeDetailVO> queryStocktakeDetail(@PathVariable String id) {
-        StocktakeDetailVO detailVO = new StocktakeDetailVO();
-        detailVO.setId(id);
-        detailVO.setBusNo("PD20260701001");
-        detailVO.setStatusEnum("DRAFT");
-        detailVO.setStatusDesc("草稿");
-        detailVO.setWarehouseId("1");
-        detailVO.setWarehouseName("门诊药房");
-        detailVO.setStocktakeType("PHARMACY");
-        detailVO.setTotalProfitPrice(new BigDecimal("500.00"));
-        detailVO.setTotalLossPrice(new BigDecimal("625.50"));
-        detailVO.setProfitLossPrice(new BigDecimal("-125.50"));
-        detailVO.setItemCount(2);
-        detailVO.setApplicantId("1");
-        detailVO.setApplicantName("张三");
-        detailVO.setApplyTime(LocalDateTime.of(2026, 7, 1, 10, 30, 0));
-        detailVO.setRemark("月度盘点");
-        detailVO.setCreatedAt(LocalDateTime.of(2026, 7, 1, 9, 0, 0));
-
-        List<StocktakeItemVO> items = new ArrayList<>();
-
-        StocktakeItemVO item1 = new StocktakeItemVO();
-        item1.setId("101");
-        item1.setItemId("1001");
-        item1.setItemName("阿莫西林胶囊");
-        item1.setSpecification("0.25g*24粒");
-        item1.setLotNumber("20260101");
-        item1.setBookQuantity(new BigDecimal("100"));
-        item1.setTotalQuantity(new BigDecimal("95"));
-        item1.setItemQuantity(new BigDecimal("-5"));
-        item1.setUnitCode("box");
-        item1.setUnitName("盒");
-        item1.setPrice(new BigDecimal("12.50"));
-        item1.setProfitLossPrice(new BigDecimal("-62.50"));
-        items.add(item1);
-
-        StocktakeItemVO item2 = new StocktakeItemVO();
-        item2.setId("102");
-        item2.setItemId("1002");
-        item2.setItemName("布洛芬缓释胶囊");
-        item2.setSpecification("0.3g*20粒");
-        item2.setLotNumber("20260201");
-        item2.setBookQuantity(new BigDecimal("50"));
-        item2.setTotalQuantity(new BigDecimal("55"));
-        item2.setItemQuantity(new BigDecimal("5"));
-        item2.setUnitCode("box");
-        item2.setUnitName("盒");
-        item2.setPrice(new BigDecimal("25.00"));
-        item2.setProfitLossPrice(new BigDecimal("125.00"));
-        items.add(item2);
-
-        detailVO.setItems(items);
+    public JsonVO<StocktakeDetailVO> queryStocktakeDetail(
+            @Parameter(description = "盘点单号", example = "PD20260720001")
+            @PathVariable String id) {
+        StocktakeDetailVO detailVO = stocktakeService.queryStocktakeDetail(id);
+        if (detailVO == null) {
+            return JsonVO.fail("盘点单不存在：" + id);
+        }
         return JsonVO.success(detailVO);
     }
 
-    @Operation(summary = "提交盘点单审批")
+    /**
+     * G9-03 提交盘点单审批
+     * <p>
+     * 业务校验：单据必须存在且为盘点单类型、状态为草稿、至少有一条明细行。
+     * 状态变更：DRAFT → SUBMITTED。
+     * </p>
+     * @param dto 提交审批参数
+     * @return 提交结果
+     */
+    @Operation(summary = "提交盘点单审批", description = "将草稿状态的盘点单提交至审批流程，状态变更为已提交")
     @PostMapping("/submit")
     @Override
     public JsonVO<String> submitStocktake(@RequestBody @Valid StocktakeSubmitDTO dto) {
-        return JsonVO.success("提交成功");
+        try {
+            String result = stocktakeService.submitStocktake(dto);
+            return JsonVO.success(result);
+        } catch (IllegalArgumentException e) {
+            // 业务校验失败，返回失败状态码和具体原因
+            return JsonVO.fail(e.getMessage());
+        }
     }
 }
