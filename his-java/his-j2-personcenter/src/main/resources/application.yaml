@@ -1,3 +1,7 @@
+sn:
+  personcenter: personcenter
+sp:
+  personcenter: 10203
 server:
   port: ${sp.personcenter}
   servlet:
