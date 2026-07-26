@@ -9,9 +9,9 @@ import com.zeroone.star.j3.register.entity.RegisterType;
 import com.zeroone.star.j3.register.mapper.RegisterTypeMapper;
 import com.zeroone.star.j3.register.service.IRegisterTypeService;
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.j3.register.dto.RegisterDTO;
-import com.zeroone.star.project.j3.register.query.RegisterQuery;
-import com.zeroone.star.project.j3.register.vo.RegisterVO;
+import com.zeroone.star.project.dto.j3.register.RegisterDTO;
+import com.zeroone.star.project.query.j3.register.RegisterQuery;
+import com.zeroone.star.project.vo.j3.register.RegisterVO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
