@@ -5,7 +5,7 @@ spring:
     nacos:
       server-addr: 192.168.23.136:8848
       username: nacos
-      password: nacos
+      password: root
       discovery:
         namespace: his-dev
       config:

@@ -1,6 +1,7 @@
 package com.zeroone.star.basedata.controller;
 
 
+import com.zeroone.star.basedata.service.IBodyPartService;
 import com.zeroone.star.project.dto.j2.basedata.bodypartdto.BodyPartAddDTO;
 import com.zeroone.star.project.dto.j2.basedata.bodypartdto.BodyPartModifyDTO;
 import com.zeroone.star.project.dto.j2.basedata.bodypartdto.BodyPartStatusDTO;
@@ -38,28 +39,43 @@ import java.util.List;
 @Tag(name = "部位管理")
 @RequiredArgsConstructor
 public class BodyPartController implements BodyPartApis {
+
+    private final IBodyPartService bodyPartService;
+
     @Override
     @Operation(summary = "获取部位名称树")
     @GetMapping("/tree")
     public JsonVO<List<BodyPartTreeVO>> getTree() {
-        // TODO 后续实现从数据库获取部位树
-        return JsonVO.success(new ArrayList<>());
+        try {
+            return JsonVO.success(bodyPartService.getTree());
+        } catch (Exception e) {
+            return JsonVO.fail("查询部位树失败：" + e.getMessage());
+        }
     }
 
     @Override
     @Operation(summary = "获取部位列表（条件+分页）")
     @GetMapping("/list")
     public JsonVO<PageDTO<BodyPartListVO>> getList(@Valid BodyPartPageQuery query) {
-        // TODO 后续实现分页条件查询
-        return JsonVO.success(new PageDTO<>());
+        try {
+            return JsonVO.success(bodyPartService.getList(query));
+        } catch (Exception e) {
+            return JsonVO.fail("查询部位列表失败：" + e.getMessage());
+        }
     }
 
     @Override
     @Operation(summary = "添加部位")
     @PostMapping
     public JsonVO<String> add(@Valid @RequestBody BodyPartAddDTO dto) {
-        // TODO 后续实现新增部位
-        return JsonVO.success(null);
+        if (dto.getPartName() == null || dto.getPartName().trim().isEmpty()) {
+            return JsonVO.fail("部位名称不能为空");
+        }
+        try {
+            return JsonVO.success(bodyPartService.add(dto));
+        } catch (Exception e) {
+            return JsonVO.fail("添加部位失败：" + e.getMessage());
+        }
     }
 
     /**
