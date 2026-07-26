@@ -122,7 +122,16 @@ public class DepartmentController implements DepartmentApis {
             @Parameter(description = "科室ID", example = "322663105141149696", required = true)
             @PathVariable("id") String id,
             @Valid @RequestBody DepartmentUpdateDTO dto) {
-        return JsonVO.success(null);
+        try {
+            departmentService.updateDepartment(id, dto);
+            return JsonVO.success("修改科室成功");
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            log.warn("修改科室业务校验失败: {}", e.getMessage());
+            return JsonVO.fail(e.getMessage());
+        } catch (Exception e) {
+            log.error("修改科室异常", e);
+            return JsonVO.fail("修改科室失败，请联系管理员");
+        }
     }
 
     @DeleteMapping("/{id}")

@@ -3,6 +3,7 @@ package com.zeroone.star.j3.department.service;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j3.department.DepartmentBatchDTO;
 import com.zeroone.star.project.dto.j3.department.DepartmentCreateDTO;
+import com.zeroone.star.project.dto.j3.department.DepartmentUpdateDTO;
 import com.zeroone.star.project.query.j3.department.DepartmentQuery;
 import com.zeroone.star.project.query.j3.department.DepartmentTreeQuery;
 import com.zeroone.star.project.vo.j3.department.DepartmentDetailVO;
@@ -30,6 +31,14 @@ public interface DepartmentService {
     DepartmentDetailVO getDepartmentDetail(Long id);
 
     void createDepartment(DepartmentCreateDTO dto) throws Exception;
+
+    /**
+     * 修改科室信息。
+     *
+     * @param id  科室ID
+     * @param dto 修改内容
+     */
+    void updateDepartment(String id, DepartmentUpdateDTO dto);
 
     void activeOrInactiveDepartment(DepartmentBatchDTO dto);
 }

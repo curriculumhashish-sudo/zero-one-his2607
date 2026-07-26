@@ -1,6 +1,42 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.zeroone.star.j3.department.mapper.DepartmentMapper">
+    <select id="selectUpdateDepartmentById"
+            resultType="com.zeroone.star.j3.department.entity.DepartmentDO">
+        SELECT id,
+               tenant_id AS tenantId,
+               created_at AS createdAt,
+               updated_at AS updatedAt,
+               created_by AS createdBy,
+               updated_by AS updatedBy,
+               is_deleted AS isDeleted,
+               deleted_at AS deletedAt,
+               deleted_by AS deletedBy,
+               version,
+               name,
+               bus_no AS busNo,
+               parent_id AS parentId,
+               type_enum AS typeEnum,
+               class_enum AS classEnum,
+               status_enum AS statusEnum,
+               active_flag AS activeFlag,
+               display_order AS displayOrder,
+               def_doctor_id AS defDoctorId,
+               py_str AS pyStr,
+               wb_str AS wbStr,
+               yb_no AS ybNo,
+               yb_name AS ybName,
+               medins_id AS medinsId,
+               medins_admdvs AS medinsAdmdvs,
+               medins_type AS medinsType,
+               medins_lv AS medinsLv,
+               caty
+        FROM zo_his.adm_organization
+        WHERE id = #{id}
+          AND is_deleted = 0
+        LIMIT 1
+    </select>
+
     <insert id="insertUnit">
         INSERT INTO zo_his.whale_organization_units(id, code, display_name, parent_id, sort_order, tenant_id,
                                                     created_at,
@@ -48,4 +84,58 @@
         FROM zo_his.whale_organization_units
         WHERE code = #{parentBusNO};
     </select>
+
+    <select id="isDoctorAvailable" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        FROM zo_his.adm_practitioner
+        WHERE id = #{defDoctorId}
+          AND is_deleted = 0
+          AND active_flag = 1
+        <choose>
+            <when test="tenantId != null">
+                AND tenant_id = #{tenantId}
+            </when>
+            <otherwise>
+                AND tenant_id IS NULL
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectUnitIdByBusNo" resultType="java.lang.Long">
+        SELECT id
+        FROM zo_his.whale_organization_units
+        WHERE code = #{busNo}
+          AND is_deleted = 0
+        <choose>
+            <when test="tenantId != null">
+                AND tenant_id = #{tenantId}
+            </when>
+            <otherwise>
+                AND tenant_id IS NULL
+            </otherwise>
+        </choose>
+    </select>
+
+    <update id="updateUnitByCode">
+        UPDATE zo_his.whale_organization_units
+        <set>
+            display_name = #{displayName},
+            sort_order = #{sortOrder},
+            updated_at = #{updatedAt},
+            updated_by = #{updatedBy},
+            <if test="parentIdChanged">
+                parent_id = #{parentId},
+            </if>
+        </set>
+        WHERE code = #{code}
+          AND is_deleted = 0
+        <choose>
+            <when test="tenantId != null">
+                AND tenant_id = #{tenantId}
+            </when>
+            <otherwise>
+                AND tenant_id IS NULL
+            </otherwise>
+        </choose>
+    </update>
 </mapper>
