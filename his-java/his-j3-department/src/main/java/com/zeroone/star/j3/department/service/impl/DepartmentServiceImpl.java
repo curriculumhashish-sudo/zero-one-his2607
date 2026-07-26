@@ -52,8 +52,8 @@ public class DepartmentServiceImpl implements DepartmentService {
     public List<DepartmentTreeVO> getDepartmentTree(DepartmentTreeQuery query) {
         LambdaQueryWrapper<DepartmentDO> parentWrapper = new LambdaQueryWrapper<>();
         parentWrapper.like(query.getKeyword() != null, DepartmentDO::getName, query.getKeyword())
-                .eq(query.getTypeEnum() != null, DepartmentDO::getTypeEnum, query.getTypeEnum())
-                .eq(query.getClassEnum() != null, DepartmentDO::getClassEnum, query.getClassEnum())
+                .eq(query.getTypeEnum() != null, DepartmentDO::getTypeEnum, TypeEnum.getDescByValue(query.getTypeEnum()))
+                .eq(query.getClassEnum() != null, DepartmentDO::getClassEnum, ClassEnum.getDescByValue(query.getClassEnum()))
                 .eq(query.getStatusEnum() != null, DepartmentDO::getStatusEnum, query.getStatusEnum())
                 .isNull(DepartmentDO::getParentId)
                 .orderByAsc(DepartmentDO::getCreatedAt);
@@ -61,8 +61,8 @@ public class DepartmentServiceImpl implements DepartmentService {
 
         LambdaQueryWrapper<DepartmentDO> childWrapper = new LambdaQueryWrapper<>();
         childWrapper.like(query.getKeyword() != null, DepartmentDO::getName, query.getKeyword())
-                .eq(query.getTypeEnum() != null, DepartmentDO::getTypeEnum, query.getTypeEnum())
-                .eq(query.getClassEnum() != null, DepartmentDO::getClassEnum, query.getClassEnum())
+                .eq(query.getTypeEnum() != null, DepartmentDO::getTypeEnum, TypeEnum.getDescByValue(query.getTypeEnum()))
+                .eq(query.getClassEnum() != null, DepartmentDO::getClassEnum, ClassEnum.getDescByValue(query.getClassEnum()))
                 .eq(query.getStatusEnum() != null, DepartmentDO::getStatusEnum, query.getStatusEnum())
                 .isNotNull(DepartmentDO::getParentId)
                 .orderByAsc(DepartmentDO::getCreatedAt);
@@ -215,7 +215,7 @@ public class DepartmentServiceImpl implements DepartmentService {
                 .statusEnum(StatusEnum.ACTIVE.getDesc())
                 .activeFlag(true)
                 .displayOrder(dto.getDisplayOrder())
-                .defDoctorId(Long.valueOf(defDoctorId))
+                .defDoctorId(defDoctorId)
                 .pyStr(dto.getPyStr())
                 .wbStr(dto.getWbStr())
                 .ybNo(dto.getYbNo())
@@ -250,6 +250,9 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public void activeOrInactiveDepartment(DepartmentBatchDTO dto) {
         Integer isEnabled = dto.getIsEnabled();
+        if (isEnabled != 1 && isEnabled != 0) {
+            throw new IllegalArgumentException("状态只能为1或0，分别表示启用和禁用");
+        }
         List<Long> ids = dto.getIds();
 
         LambdaQueryWrapper<DepartmentDO> selectWrapper = new LambdaQueryWrapper<>();

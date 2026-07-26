@@ -41,7 +41,6 @@ import java.util.List;
 @RequestMapping("/departments")
 @Slf4j
 @Tag(name = "科室管理")
-// TODO: 后期需调用Service层获得真实数据
 public class DepartmentController implements DepartmentApis {
     @Resource
     private DepartmentService departmentService;
