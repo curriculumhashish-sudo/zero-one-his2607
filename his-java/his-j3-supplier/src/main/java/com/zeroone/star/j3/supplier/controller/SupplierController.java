@@ -80,10 +80,6 @@ public class SupplierController implements SupplierApis {
         return JsonVO.success(detail);
     }
 
-    /**
-     * <p>新增供应商</p>
-     * <p>业务场景：供应商管理页面新增按钮、批量导入后的逐条新增</p>
-     */
     @Override
     @PostMapping("/add")
     @Operation(summary = "新增供应商",
@@ -91,31 +87,17 @@ public class SupplierController implements SupplierApis {
     public JsonVO<String> addSupplier(
             @Parameter(description = "供应商数据", required = true)
             @Valid @RequestBody SupplierFullDTO dto) {
-
-        if (dto.getName() == null || dto.getName().trim().isEmpty()) {
-            return JsonVO.fail("供应商名称不能为空");
+        try {
+            String result = supplierService.addSupplier(dto);
+            if (result != null){
+                return JsonVO.success(result);
+            }
+            return JsonVO.fail("新增供应商失败");
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
         }
-        if (dto.getCreditCode() == null || dto.getCreditCode().trim().isEmpty()) {
-            return JsonVO.fail("统一信用代码不能为空");
-        }
-        if (dto.getPhone() == null || dto.getPhone().trim().isEmpty()) {
-            return JsonVO.fail("联系电话不能为空");
-        }
-        if (!dto.getCreditCode().matches("^[0-9A-Z]{18}$")) {
-            return JsonVO.fail("统一信用代码格式不正确，应为18位数字或大写字母");
-        }
-        if (EXISTING_CODES.contains(dto.getCreditCode())) {
-            return JsonVO.fail("统一信用代码已存在，请检查是否重复录入");
-        }
-
-        String supplierCode = "SUP" + System.currentTimeMillis();
-        return JsonVO.success("新增供应商成功，供应商编号：" + supplierCode);
     }
 
-    /**
-     * <p>修改供应商</p>
-     * <p>业务场景：供应商管理页面编辑按钮、供应商详情页修改信息</p>
-     */
     @Override
     @PutMapping("/update/{id}")
     @Operation(summary = "修改供应商",
@@ -125,52 +107,35 @@ public class SupplierController implements SupplierApis {
             @PathVariable String id,
             @Parameter(description = "供应商数据", required = true)
             @Valid @RequestBody SupplierFullDTO dto) {
-
-        if (id == null || id.trim().isEmpty()) {
-            return JsonVO.fail("供应商ID不能为空");
+        try {
+            String result = supplierService.updateSupplier(id, dto);
+            if(result!=null){
+                return JsonVO.success(result);
+            }
+            return JsonVO.fail("修改供应商失败");
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
         }
-        if (!VALID_IDS.contains(id.trim())) {
-            return JsonVO.fail("供应商不存在，请检查ID是否正确");
-        }
-        if (dto.getName() == null || dto.getName().trim().isEmpty()) {
-            return JsonVO.fail("供应商名称不能为空");
-        }
-        if (dto.getCreditCode() != null && !dto.getCreditCode().equals(EXISTING_CODES.get(0))) {
-            return JsonVO.fail("统一信用代码不允许直接修改，如需修改请联系管理员");
-        }
-
-        return JsonVO.success("修改供应商成功");
     }
 
-    /**
-     * <p>删除供应商</p>
-     * <p>业务场景：供应商管理页面删除按钮、供应商详情页删除操作</p>
-     */
     @Override
     @DeleteMapping("/delete/{id}")
     @Operation(summary = "删除供应商",
-               description = "根据ID删除供应商记录，需检查是否被采购单引用")
+               description = "根据ID删除供应商记录（软删除）")
     public JsonVO<String> deleteSupplier(
-            @Parameter(description = "供应商ID", example = "1", required = true)
+            @Parameter(description = "供应商ID", example = "4100000000000000002", required = true)
             @PathVariable String id) {
-
-        if (id == null || id.trim().isEmpty()) {
-            return JsonVO.fail("供应商ID不能为空");
+        try {
+            String result = supplierService.deleteSupplier(id);
+            if(result!=null){
+                return JsonVO.success(result);
+            }
+            return JsonVO.fail("删除供应商失败");
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
         }
-        if (!VALID_IDS.contains(id.trim())) {
-            return JsonVO.fail("供应商不存在，请检查ID是否正确");
-        }
-        if (REFERENCED_FOR_DELETE.contains(id.trim())) {
-            return JsonVO.fail("该供应商存在关联的采购单记录，无法删除，请先处理相关业务");
-        }
-
-        return JsonVO.success("删除供应商成功");
     }
 
-    /**
-     * <p>批量启/停用供应商</p>
-     * <p>业务场景：供应商管理页面批量操作、供应商状态批量调整</p>
-     */
     @Override
     @PutMapping("/batchUpdateStatus")
     @Operation(summary = "批量启/停用供应商",
@@ -178,36 +143,11 @@ public class SupplierController implements SupplierApis {
     public JsonVO<String> batchUpdateSuppliers(
             @Parameter(description = "批量操作参数", required = true)
             @Valid @RequestBody SupplierBatchDTO batchDTO) {
-
-        if (batchDTO.getIds() == null || batchDTO.getIds().isEmpty()) {
-            return JsonVO.fail("请选择需要操作的供应商");
+        try {
+            String result = supplierService.batchUpdateSuppliers(batchDTO);
+            return JsonVO.success(result);
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
         }
-
-        String status = batchDTO.getStatusEnum();
-        if (status == null || (!"ENABLED".equals(status) && !"DISABLED".equals(status))) {
-            return JsonVO.fail("状态枚举值非法，仅支持 ENABLED 或 DISABLED");
-        }
-
-        List<String> invalidIds = new ArrayList<>();
-        for (String id : batchDTO.getIds()) {
-            if (!VALID_IDS.contains(id)) {
-                invalidIds.add(id);
-            }
-        }
-        if (!invalidIds.isEmpty()) {
-            return JsonVO.fail("以下供应商ID不存在：" + String.join(", ", invalidIds));
-        }
-
-        if ("DISABLED".equals(status)) {
-            for (String id : batchDTO.getIds()) {
-                if (REFERENCED_FOR_DISABLE.contains(id)) {
-                    return JsonVO.fail("供应商ID " + id + " 存在未完成的采购单，无法停用");
-                }
-            }
-        }
-
-        String statusText = "ENABLED".equals(status) ? "启用" : "停用";
-        return JsonVO.success("成功批量" + statusText + " " + batchDTO.getIds().size() + " 个供应商");
     }
-
 }

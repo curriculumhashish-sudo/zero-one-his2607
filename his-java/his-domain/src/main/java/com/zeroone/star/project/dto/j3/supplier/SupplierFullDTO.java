@@ -25,10 +25,10 @@ public class SupplierFullDTO implements Serializable {
 
     // ==================== 基础字段 ====================
 
-    @Schema(description = "主键", example = "1234567890123456789", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "主键", example = "4100000000000000002", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
-    @Schema(description = "租户标识", example = "tenant001")
+    @Schema(description = "租户标识", example = "1")
     private String tenantId;
 
     @Schema(description = "创建时间", example = "2025-01-01 10:00:00", requiredMode = Schema.RequiredMode.REQUIRED)
