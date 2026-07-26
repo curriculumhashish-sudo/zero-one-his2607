@@ -18,8 +18,8 @@ class GetTodayAppointDTO :public oatpp::DTO
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.capacity");
 	}
 
-	DTO_FIELD(UInt32, bookled_count);
-	DTO_FIELD_INFO(bookled_count) {
+	DTO_FIELD(UInt32, booked_count);
+	DTO_FIELD_INFO(booked_count) {
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.bookled_count");
 	}
 
