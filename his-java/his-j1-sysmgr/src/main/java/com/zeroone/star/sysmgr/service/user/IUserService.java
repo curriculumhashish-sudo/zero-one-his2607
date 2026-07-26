@@ -1,5 +1,9 @@
 package com.zeroone.star.sysmgr.service.user;
 
+import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j1.user.UserAddDTO;
+import com.zeroone.star.project.query.j1.user.TenantQuery;
+import com.zeroone.star.project.vo.j1.user.UserListVO;
 import com.zeroone.star.sysmgr.entity.user.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -43,4 +47,18 @@ public interface IUserService extends IService<User> {
      * @return 是否修改成功
      */
     boolean updatePassword(String id, String newPassword);
+
+    /**
+     *
+     * @param tenantQuery
+     * @return
+     */
+    PageDTO<UserListVO> getList(TenantQuery tenantQuery);
+
+    /**
+     *
+     * @param userAddDTO
+     * @return
+     */
+    Boolean saveUser(UserAddDTO userAddDTO);
 }

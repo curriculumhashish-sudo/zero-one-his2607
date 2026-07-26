@@ -54,12 +54,12 @@ public class User extends BaseDO {
     /**
      * 是否启用
      */
-    private Boolean isActive;
+    private Integer isActive;
 
     /**
      * 是否锁定
      */
-    private Boolean isLockedOut;
+    private Integer isLockedOut;
 
     /**
      * 锁定结束时间

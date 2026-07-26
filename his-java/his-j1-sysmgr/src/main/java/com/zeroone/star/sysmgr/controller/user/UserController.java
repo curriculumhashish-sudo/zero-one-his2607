@@ -6,7 +6,7 @@ import com.zeroone.star.project.dto.j1.user.ChangePasswordDTO;
 import com.zeroone.star.project.dto.j1.user.UserUpdateDTO;
 import com.zeroone.star.project.dto.j1.user.UserAddDTO;
 import com.zeroone.star.project.j1.user.UserApis;
-import com.zeroone.star.project.query.j1.login.TenantQuery;
+import com.zeroone.star.project.query.j1.user.TenantQuery;
 import com.zeroone.star.project.query.j1.user.UserQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j1.user.UserDetailVO;
@@ -38,7 +38,7 @@ public class UserController implements UserApis {
     @GetMapping("/list")
     @Override
     public JsonVO<PageDTO<UserListVO>> getList(TenantQuery tenantQuery) {
-        return null;
+        return JsonVO.success(userService.getList(tenantQuery));
     }
 
     @Operation(summary   = "根据用户ID查询用户详情")
@@ -53,7 +53,7 @@ public class UserController implements UserApis {
     @PostMapping
     @Override
     public JsonVO<Boolean> saveUser(@RequestBody UserAddDTO userAddDTO) {
-        return null;
+        return JsonVO.success(userService.saveUser(userAddDTO));
     }
 
     @Operation(summary   = "修改用户")

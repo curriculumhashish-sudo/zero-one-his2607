@@ -5,7 +5,7 @@ import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j1.user.ChangePasswordDTO;
 import com.zeroone.star.project.dto.j1.user.UserAddDTO;
 import com.zeroone.star.project.dto.j1.user.UserUpdateDTO;
-import com.zeroone.star.project.query.j1.login.TenantQuery;
+import com.zeroone.star.project.query.j1.user.TenantQuery;
 import com.zeroone.star.project.query.j1.user.UserQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j1.user.UserDetailVO;

@@ -132,10 +132,10 @@ public class Practitioner extends BaseDO {
     private String statusEnum;
 
     /**
-     * 是否启用（status_enum == ACTIVE 时为 true）
+     * 是否启用（status_enum == ACTIVE 时为 1）
      */
     @TableField("active_flag")
-    private Boolean activeFlag;
+    private Integer activeFlag;
 
     /**
      * 院内工号/业务编号
