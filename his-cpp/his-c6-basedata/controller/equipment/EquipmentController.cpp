@@ -18,6 +18,16 @@ EquipmentDetailPageJsonVO::Wrapper EquipmentController::executeQueryEquipment(co
 	return jvo;
 }
 
+EquipmentDetailPageJsonVO::Wrapper EquipmentController::execQuery(const EquipmentQuery::Wrapper& query, const PayloadDTO& payload)
+{
+	// 创建客户端对象
+	API_CLIENT_CREATE(ac, om, EquipmentApiClient, "Equipment-api");
+	// 构建凭证
+	std::string token = PayloadDTO::getTokenPrefix() + payload.getToken();
+	// 返回查询结果
+	return ac->queryAll(token, query->pageIndex, query->pageSize, URIUtil::urlEncode(query->name))->readBodyToDto<EquipmentDetailPageJsonVO::Wrapper>(om);
+}
+
 // 新增器材
 StringJsonVO::Wrapper EquipmentController::execAddEquipment(const EquipmentAddDTO::Wrapper& dto, const PayloadDTO& payload)
 {
