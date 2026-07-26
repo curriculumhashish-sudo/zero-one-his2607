@@ -58,7 +58,7 @@ public class TreatmentController implements TreatmentApis {
 
     @Operation(summary = "获取诊疗详情", description = "根据诊疗主键ID查询单条数据完整详情")
     @Parameters({
-            @Parameter(name = "id", description = "诊疗数据主键ID", required = true, example = "1890000000000000001", in = ParameterIn.QUERY)
+            @Parameter(name = "id", description = "诊疗数据主键ID", required = true, example = "323001764504670208", in = ParameterIn.QUERY)
     })
     @ApiResponse(description = "诊疗详情数据")
     @GetMapping("/get-treatment")
