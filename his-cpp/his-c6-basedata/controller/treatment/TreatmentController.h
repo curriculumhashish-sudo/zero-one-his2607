@@ -33,7 +33,7 @@
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 #define API_TAG ZH_WORDS_GETTER("treatment.tags.tag")
-
+#define API_TAG2 ZH_WORDS_GETTER("treatment.tags.tag2")
 class TreatmentController : public oatpp::web::server::api::ApiController
 {
 	// 权限相关声明
@@ -83,6 +83,12 @@ public: // 接口定义
 	// 获取诊疗列表（条件+分页）：接口绑定
 	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/treatment/query-all", queryAllTreatment,
 		TreatmentQuery, execQueryAll(query));
+
+	// 3.1 定义测试声明式服务调用的接口2描述
+	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("treatment.query-all.summary"), queryAll, TreatmentQuery, TreatmentPageJsonVO::Wrapper, API_TAG2);
+	// 3.2 定义测试声明式服务调用的接口2处理
+	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/treatment/query-all", queryAll, TreatmentQuery, execQueryAll(query, authObject->getPayload()));
+
 private: // 接口执行函数
 	// 获取诊疗详情：执行函数
 	TreatmentDetailJsonVO::Wrapper execQueryOne(const String& id);
@@ -102,9 +108,13 @@ private: // 接口执行函数
 
 	// 获取诊疗列表（条件+分页）：执行函数
 	TreatmentPageJsonVO::Wrapper execQueryAll(const TreatmentQuery::Wrapper& query);
+
+	// 3.3 测试声明式服务调用2
+	TreatmentPageJsonVO::Wrapper execQueryAll(const TreatmentQuery::Wrapper& query, const PayloadDTO& payload);
 };
 
 #undef API_TAG
+#undef API_TAG2
 #include OATPP_CODEGEN_END(ApiController)
 
 #endif // !_TREATMENTCONTROLLER_H_

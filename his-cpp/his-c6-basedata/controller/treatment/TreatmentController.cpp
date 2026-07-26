@@ -18,35 +18,12 @@
 */
 #include "stdafx.h"
 #include "TreatmentController.h"
-
-namespace
-{
-	TreatmentDetailDTO::Wrapper buildSampleTreatment(const String& id, const String& code, const String& name)
-	{
-		auto dto = TreatmentDetailDTO::createShared();
-		dto->id = id;
-		dto->code = code;
-		dto->status = 1;
-		dto->name = name;
-		dto->categoryCode = "31";
-		dto->typeEnum = 5;
-		dto->packageUnitCode = "6";
-		dto->pyStr = "DJZY";
-		dto->wbStr = "WUKA";
-		dto->itemTypeCode = "1013";
-		dto->purchasePrice = 3.00;
-		dto->retailPrice = 3.00;
-		dto->maximumRetailPrice = nullptr;
-		dto->descriptionText = "";
-		dto->ybFlag = nullptr;
-		dto->ybNo = nullptr;
-		dto->ybType = nullptr;
-		dto->ybMatchFlag = nullptr;
-		dto->chrgitmLv = nullptr;
-		dto->children = oatpp::List<TreatmentChildDTO::Wrapper>::createShared();
-		return dto;
-	}
-}
+#include "../../service/sample/TreatmentService.h"
+//#include "../../domain/bo/PdfReportBO.h"
+#include "../ApiDeclarativeServicesHelper.h"
+#include "ExcelComponent.h"
+#include "SimpleDateTimeFormat.h"
+#include "PdfComponent.h"
 
 TreatmentPageJsonVO::Wrapper TreatmentController::execQueryTreatment(const TreatmentQuery::Wrapper& query)
 {
@@ -76,8 +53,7 @@ TreatmentDetailJsonVO::Wrapper TreatmentController::execQueryOne(const String& i
 	return vo;
 }
 
-StringJsonVO::Wrapper TreatmentController::execModifyStatus(
-	const TreatmentStatusDTO::Wrapper& dto, const PayloadDTO& payload)
+StringJsonVO::Wrapper TreatmentController::execModifyStatus(const TreatmentStatusDTO::Wrapper& dto, const PayloadDTO& payload)
 {
 	// Validate the request and return a sample success response.
 	auto vo = StringJsonVO::createShared();
@@ -89,9 +65,26 @@ StringJsonVO::Wrapper TreatmentController::execModifyStatus(
 	return vo;
 }
 
-ListJsonVO<String>::Wrapper TreatmentController::execRemoveTreatment(const TreatmentRemoveDTO::Wrapper& dto)
+ListJsonVO<String>::Wrapper TreatmentController::execRemoveTreatment(const List<String>& ids)
 {
-	return {};
+	// 定义返回数据对象
+	auto jvo = ListJsonVO<String>::createShared();
+	// 参数校验
+	if (ids->empty())
+	{
+		jvo->init(nullptr, RS_PARAMS_INVALID);
+		return jvo;
+	}
+	// 执行数据删除
+	if (SampleService().removeData(ids)) {
+		jvo->success(ids);
+	}
+	else
+	{
+		jvo->fail(nullptr);
+	}
+	// 响应结果
+	return jvo;
 }
 
 TreatmentSelectPageJsonVO::Wrapper TreatmentController::execQuerySelect(const TreatmentQuery::Wrapper& query)
@@ -118,10 +111,10 @@ TreatmentSelectPageJsonVO::Wrapper TreatmentController::execQuerySelect(const Tr
 	return vo;
 }
 
-TreatmentPageJsonVO::Wrapper TreatmentController::execQueryAll(const TreatmentQuery::Wrapper& query)
+TreatmentPageJsonVO::Wrapper SampleController::execQueryAll(const TreatmentQuery::Wrapper& query, const PayloadDTO& payload)
 {
 	// 创建客户端对象
-	API_CLIENT_CREATE(ac, om, SampleApiClient, "sample-api");
+	API_CLIENT_CREATE(ac, om, TreatmentApiClient, "treatment-api");
 	// 构建凭证
 	std::string token = PayloadDTO::getTokenPrefix() + payload.getToken();
 	// 返回查询结果
