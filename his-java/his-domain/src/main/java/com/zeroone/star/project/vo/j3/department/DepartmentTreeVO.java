@@ -1,5 +1,6 @@
 package com.zeroone.star.project.vo.j3.department;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,6 +25,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema(description = "科室名称树VO")
+@JsonInclude(JsonInclude.Include.ALWAYS)
 public class DepartmentTreeVO {
     @Schema(description = "主键ID", example = "322663105141149696")
     private Long id;
@@ -95,5 +97,5 @@ public class DepartmentTreeVO {
     private String eleInvoiceDeptCode;
 
     @Schema(description = "子节点列表")
-    private List<DepartmentTreeVO> children = new ArrayList<>();
+    private List<DepartmentTreeVO> children;
 }

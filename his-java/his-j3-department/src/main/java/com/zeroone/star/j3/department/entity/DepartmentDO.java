@@ -15,8 +15,6 @@ import lombok.experimental.Accessors;
 import org.springframework.beans.BeanUtils;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
 
 /**
  * <p>
@@ -243,9 +241,9 @@ public class DepartmentDO {
                 .name(name)
                 .statusEnum(statusEnum)
                 .statusEnumDictText(StatusEnum.getDictTextByDesc(statusEnum))
-                .typeEnum(TypeEnum.getValueByDesc(typeEnum).toString())
+                .typeEnum(TypeEnum.getValueByDesc(typeEnum) == null ? null : TypeEnum.getValueByDesc(typeEnum).toString())
                 .typeEnumDictText(TypeEnum.getDictTextByDesc(typeEnum))
-                .classEnum(ClassEnum.getValueByDesc(classEnum).toString())
+                .classEnum(ClassEnum.getValueByDesc(classEnum) == null ? null : ClassEnum.getValueByDesc(classEnum).toString())
                 .classEnumDictText(ClassEnum.getDictTextByDesc(classEnum))
                 .pyStr(pyStr)
                 .wbStr(wbStr)
@@ -259,7 +257,7 @@ public class DepartmentDO {
                 .caty(caty)
                 .displayOrder(displayOrder)
                 .parentId(parentId)
-                .children(new ArrayList<>())
+                .children(null)
                 .build();
     }
 
