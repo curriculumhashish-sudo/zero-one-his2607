@@ -14,4 +14,6 @@ public interface EnumValueRepository extends MongoRepository<EnumValue, String> 
     boolean existsByTenantIdAndEnumTypeIdAndEnumKey(String tenantId, String enumTypeId, String enumKey);
 
     boolean existsByTenantIdAndEnumTypeIdAndEnumCode(String tenantId, String enumTypeId, Integer enumCode);
+
+    boolean existsByTenantIdAndEnumTypeIdAndDisplay(String tenantId, String enumTypeId, String display);
 }

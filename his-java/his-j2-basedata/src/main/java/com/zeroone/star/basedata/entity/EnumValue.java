@@ -25,6 +25,10 @@ import java.util.List;
         @CompoundIndex(name = "idx_tenant_type_key",
                 def = "{'tenantId': 1, 'enumTypeId': 1, 'enumKey': 1}",
                 unique = true),
+        // 联合唯一索引：同一个租户下，同一个枚举类型中，display 必须唯一
+        @CompoundIndex(name = "idx_tenant_type_display",
+                def = "{'tenantId': 1, 'enumTypeId': 1, 'display': 1}",
+                unique = true),
         // 查询枚举值列表时常用：租户 + 枚举类型 + 状态 + 排序
         @CompoundIndex(name = "idx_tenant_type_status_order",
                 def = "{'tenantId': 1, 'enumTypeId': 1, 'status': 1, 'order': 1}"),

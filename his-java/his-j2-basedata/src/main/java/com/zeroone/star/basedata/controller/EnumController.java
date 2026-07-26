@@ -55,7 +55,8 @@ public class EnumController implements EnumApis {
     @Operation(summary = "添加枚举", description = "租户等信息由jwt等提供，id自动生成")
     @Override
     public JsonVO<String> addEnum(@RequestBody @Valid EnumAddDTO data) {
-        return null;
+        enumValueService.saveEnum(data);
+        return JsonVO.success("success");
     }
 
     @PutMapping("/sys/modify-enum")

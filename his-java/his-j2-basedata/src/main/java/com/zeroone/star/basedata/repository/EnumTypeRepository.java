@@ -31,8 +31,7 @@ public interface EnumTypeRepository extends MongoRepository<EnumType, String> {
 
     String findEnumTypeIdByEnumTypeKey(String enumTypeKey);
 
-    @Query(value = "{'enumTypeKey': ?1, 'tenantId': ?0, 'isDeleted': false}",
-            fields = "{'id': 1}")
-    String findActiveEnumTypeIdByEnumTypeKey(String tenantId, String enumTypeKey);
+    @Query("{'enumTypeKey': ?1, 'tenantId': ?0, 'isDeleted': false}")
+    EnumType findActiveByEnumTypeKey(String tenantId, String enumTypeKey);
 
 }
