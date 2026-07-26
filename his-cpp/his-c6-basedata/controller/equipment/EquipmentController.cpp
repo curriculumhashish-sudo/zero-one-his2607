@@ -21,7 +21,29 @@ EquipmentDetailPageJsonVO::Wrapper EquipmentController::executeQueryEquipment(co
 // 新增器材
 StringJsonVO::Wrapper EquipmentController::execAddEquipment(const EquipmentAddDTO::Wrapper& dto, const PayloadDTO& payload)
 {
-	return{};
+	// 定义返回数据对象
+	auto jvo = StringJsonVO::createShared();
+
+	// 参数校验
+	std::string errmsg = dto->validate();
+	if (errmsg != "")
+	{
+		jvo->init(errmsg, RS_PARAMS_INVALID);
+		return jvo;
+	}
+
+	// 执行数据新增
+	dto->setPayload(&payload);
+	std::string id = EquipmentService().saveData(dto);
+	if (id != "") {
+		jvo->success(id);
+	}
+	else
+	{
+		jvo->fail("");
+	}
+	//响应结果
+	return jvo;
 }
 
 //修改设备
