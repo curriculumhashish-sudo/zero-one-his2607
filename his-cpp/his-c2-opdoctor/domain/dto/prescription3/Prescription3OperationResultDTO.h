@@ -7,60 +7,46 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/**
- * 删除医嘱响应数据
- */
 class Prescription3DeleteResultDTO : public oatpp::DTO
 {
     DTO_INIT(Prescription3DeleteResultDTO, DTO);
 
-    DTO_FIELD(Boolean, success);
-    DTO_FIELD(Int32, affectedCount);
-
-public:
-    Prescription3DeleteResultDTO()
-    {
-        success = true;
-        affectedCount = 2;
-    }
+    API_DTO_FIELD(Boolean, success,
+        ZH_WORDS_GETTER("prescription3.field.success"), true, true);
+    API_DTO_FIELD(Int32, affectedCount,
+        ZH_WORDS_GETTER("prescription3.field.affectedCount"), true, 3);
+    API_DTO_FIELD(String, message,
+        ZH_WORDS_GETTER("prescription3.field.message"), true,
+        "Orders deleted successfully");
 };
 
-/**
- * 并组医嘱响应数据
- */
 class Prescription3MergeResultDTO : public oatpp::DTO
 {
     DTO_INIT(Prescription3MergeResultDTO, DTO);
 
-    DTO_FIELD(Boolean, success);
-    DTO_FIELD(Int32, affectedCount);
-    DTO_FIELD(String, groupNo);
-
-public:
-    Prescription3MergeResultDTO()
-    {
-        success = true;
-        affectedCount = 3;
-        groupNo = "GROUP-20260721-001";
-    }
+    API_DTO_FIELD(Boolean, success,
+        ZH_WORDS_GETTER("prescription3.field.success"), true, true);
+    API_DTO_FIELD(Int32, affectedCount,
+        ZH_WORDS_GETTER("prescription3.field.affectedCount"), true, 3);
+    API_DTO_FIELD(String, groupId,
+        ZH_WORDS_GETTER("prescription3.field.groupId"), true,
+        "331234567890123456");
+    API_DTO_FIELD(String, message,
+        ZH_WORDS_GETTER("prescription3.field.message"), true,
+        "Orders merged successfully");
 };
 
-/**
- * 拆组医嘱响应数据
- */
 class Prescription3SplitResultDTO : public oatpp::DTO
 {
     DTO_INIT(Prescription3SplitResultDTO, DTO);
 
-    DTO_FIELD(Boolean, success);
-    DTO_FIELD(Int32, affectedCount);
-
-public:
-    Prescription3SplitResultDTO()
-    {
-        success = true;
-        affectedCount = 2;
-    }
+    API_DTO_FIELD(Boolean, success,
+        ZH_WORDS_GETTER("prescription3.field.success"), true, true);
+    API_DTO_FIELD(Int32, affectedCount,
+        ZH_WORDS_GETTER("prescription3.field.affectedCount"), true, 3);
+    API_DTO_FIELD(String, message,
+        ZH_WORDS_GETTER("prescription3.field.message"), true,
+        "Order group split successfully");
 };
 
 #include OATPP_CODEGEN_END(DTO)
