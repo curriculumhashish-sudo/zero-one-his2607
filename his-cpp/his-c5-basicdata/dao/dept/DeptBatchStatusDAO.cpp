@@ -1,71 +1,67 @@
-#include "DeptBatchStatusDao.h"
+ï»¿#include "DeptBatchStatusDao.h"
 #include "stdafx.h"
 #include "SqlSession.h"
 
 int DeptBatchStatusDAO::batchUpdateStatus(const DeptBatchUpdateDTO::Wrapper& updateDto)
 {
-	if (!updateDto->idList || updateDto->idList->empty())
-	{
-		return 0;
-	}
+    if (!updateDto->idList || updateDto->idList->empty())
+    {
+        return 0;
+    }
 
-	// ³õÊ¼»¯Êı¾İ¿â»á»°
-	SqlSession* session = new SqlSession();
-	setSqlSession(session);
-	setAutoRelease(true);
+    SqlSession* session = new SqlSession();
+    setSqlSession(session);
+    setAutoRelease(true);
 
-	SqlParams params;
-	// MySQLÅúÁ¿¸üĞÂSQL
-	std::string sql = R"(
-		UPDATE adm_organization
-		SET 
-			status_enum = ?,
-			active_flag = ?,
-			updated_by = ?,
-			updated_at = ?,
-			version = version + 1
-		WHERE id IN (?)
-	)";
+    SqlParams params;
+    std::string sql = "UPDATE adm_organization SET status_enum=?,active_flag=?,updated_by=?,updated_at=?,version=version+1 WHERE id IN(";
 
-	try
-	{
-		session->beginTransaction();
+    int idTotal = updateDto->idList->size();
+    for (int i = 0; i < idTotal; i++)
+    {
+        if (i > 0) sql += ",";
+        sql += "?";
+    }
+    sql += ") AND is_deleted = 0";
 
-		// ÒÀ´ÎÌî³ä¹Ì¶¨×Ö¶Î²ÎÊı
-		SQLPARAMS_PUSH(params, "s", std::string, updateDto->statusEnum->c_str());
-		SQLPARAMS_PUSH(params, "b", bool, updateDto->activeFlag);
-		SQLPARAMS_PUSH(params, "s", std::string, updateDto->updateBy->c_str());
-		SQLPARAMS_PUSH(params, "dt", std::string, updateDto->updateTime->c_str());
+    try
+    {
+        session->beginTransaction();
 
-		// Æ´½ÓID×Ö·û´® ·ÅÈëINÌõ¼ş
-		std::string idStr;
-		bool first = true;
-		for (auto id : * (updateDto->idList))
-		{
-			if (!first) idStr += ",";
-			first = false;
-			idStr += std::to_string(id);
-		}
-		SQLPARAMS_PUSH(params, "s", std::string, idStr);
+        std::string statusVal = *(updateDto->statusEnum.get());
+        int flagNum = updateDto->activeFlag.get() ? 1 : 0;
+        std::string updateByVal = *(updateDto->updateBy.get());
+        std::string timeVal = *(updateDto->updateTime.get());
 
-		// Ö´ĞĞ¸üĞÂ
-		int rows = session->executeUpdate(sql, params);
+        SQLPARAMS_PUSH(params, "s", std::string, statusVal);
+        SQLPARAMS_PUSH(params, "i", int, flagNum);
+        SQLPARAMS_PUSH(params, "s", std::string, updateByVal);
+        SQLPARAMS_PUSH(params, "s", std::string, timeVal);
 
-		if (rows == updateDto->idList->size())
-		{
-			session->commitTransaction();
-			return rows;
-		}
-		else
-		{
-			session->rollbackTransaction();
-			return 0;
-		}
-	}
-	catch (const std::exception& e)
-	{
-		session->rollbackTransaction();
-		OATPP_LOGE("DeptDao", "ÅúÁ¿¸üĞÂ¿ÆÊÒÒì³£:%s", e.what());
-		return 0;
-	}
+        // âœ… ä¿®å¤ï¼šä½¿ç”¨ "ll" ç±»å‹ï¼Œç›´æ¥ä¼ é€’ int64_t
+        for (int64_t id : *(updateDto->idList))
+        {
+            SQLPARAMS_PUSH(params, "ll", int64_t, id);
+        }
+
+        int rows = session->executeUpdate(sql, params);
+        std::cout << "å—å½±å“è¡Œæ•°ï¼š" << rows << std::endl;
+
+        if (rows == idTotal)
+        {
+            session->commitTransaction();
+            return rows;
+        }
+        else
+        {
+            session->rollbackTransaction();
+            return 0;
+        }
+    }
+    catch (const std::exception& e)
+    {
+        session->rollbackTransaction();
+        OATPP_LOGE("DeptDao", "æ‰¹é‡æ›´æ–°å¼‚å¸¸ï¼š%s", e.what());
+        return 0;
+    }
 }
