@@ -1,0 +1,37 @@
+services:
+  seata-naming:
+    image: apache/seata-naming-server:2.5.0.jdk17
+    networks:
+      - seata
+    hostname: seata-naming
+    container_name: seata-naming
+    ports:
+      - "8092:8081"
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./naming-config:/seata-naming-server/resources
+      - ./naming-logs:/root/logs
+  seata-server:
+    image: apache/seata-server:2.5.0.jdk17
+    networks:
+      - seata
+    hostname: seata-server
+    container_name: seata-server
+    ports:
+      - "8091:8091"
+    environment:
+      - SEATA_PORT=8091
+      - SEATA_IP=192.168.28.132
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./seata-config:/seata-server/resources
+      - ./libs:/seata-server/libs
+      - ./sessionStore:/seata-server/sessionStore
+      - ./logs:/root/logs
+    depends_on:
+      - seata-naming
+networks:
+  seata:
+    name: seata
+    driver: bridge
