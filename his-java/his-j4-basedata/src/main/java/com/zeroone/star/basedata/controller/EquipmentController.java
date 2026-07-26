@@ -12,7 +12,7 @@ import com.zeroone.star.project.dto.j4.equipment.EquipmentUpdateDTO;
 import com.zeroone.star.project.j4.basedata.EquipmentApis;
 import com.zeroone.star.project.query.j4.equipment.EquipmentPageQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j4.equipment.EquipmentCategoryVo;
+import com.zeroone.star.project.vo.j4.equipment.EquipmentCategoryVO;
 import com.zeroone.star.project.vo.j4.equipment.EquipmentUpdateVO;
 import com.zeroone.star.project.vo.j4.equipment.EquipmentVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -157,8 +157,8 @@ public class EquipmentController implements EquipmentApis {
      */
     @Override
     @GetMapping("/query-equipment-category")
-    @Operation(summary = "查询器材分类列表", description = "查询器材分类列表")
-    public JsonVO<List<EquipmentCategoryVo>> queryEquipmentCategoryList() {
+    @Operation(summary = "获取选择耗材列表(条件+分页)", description = "查询器材分类列表")
+    public JsonVO<List<EquipmentCategoryVO>> queryEquipmentCategoryList() {
         return null;
     }
 

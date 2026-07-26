@@ -63,18 +63,47 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, CusFreque
     @Override
     @Transactional(rollbackFor = Exception.class)
     public FrequencyVO addFrequency(FrequencySaveDTO dto) {
-        return null;
+        // 1. DTO转实体
+        CusFrequencyDO entity = msFrequencyMapper.saveDtoToEntity(dto);
+        // 2. 保存到数据库
+        baseMapper.insert(entity);
+        // 3. 实体转VO返回
+        return msFrequencyMapper.entityToVo(entity);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public FrequencyVO modifyFrequency(FrequencyUpdateDTO dto) {
-        return null;
+        // 1. 检查记录是否存在
+        CusFrequencyDO existing = baseMapper.selectById(dto.getId());
+        if (existing == null) {
+            throw new RuntimeException("频次记录不存在");
+        }
+        // 2. DTO转实体
+        CusFrequencyDO entity = msFrequencyMapper.updateDtoToEntity(dto);
+        // 3. 保留系统字段
+        entity.setCreatedAt(existing.getCreatedAt());
+        entity.setCreatedBy(existing.getCreatedBy());
+        entity.setIsDeleted(existing.getIsDeleted());
+        entity.setDeletedAt(existing.getDeletedAt());
+        entity.setDeletedBy(existing.getDeletedBy());
+        entity.setVersion(existing.getVersion());
+        // 4. 更新数据库
+        baseMapper.updateById(entity);
+        // 5. 查询最新数据并返回
+        return msFrequencyMapper.entityToVo(baseMapper.selectById(dto.getId()));
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void removeFrequency(String id) {
+        // 1. 检查记录是否存在
+        CusFrequencyDO existing = baseMapper.selectById(id);
+        if (existing == null) {
+            throw new RuntimeException("频次记录不存在");
+        }
+        // 2. 逻辑删除（实体有@TableLogic注解，会自动转为update操作）
+        baseMapper.deleteById(id);
     }
 
     @Override
