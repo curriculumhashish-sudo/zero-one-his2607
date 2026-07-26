@@ -1,6 +1,5 @@
 package com.zeroone.star.configuration.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -13,12 +12,12 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 病历模板实体，对应 emr_template 表。
+ * 病历模板数据对象，对应 emr_template 表。
  */
 @Getter
 @Setter
 @TableName("emr_template")
-public class MedicalTemplate implements Serializable {
+public class MedicalTemplateDO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -31,7 +30,6 @@ public class MedicalTemplate implements Serializable {
 
     private String documentTypeCode;
 
-    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private String organizationId;
 
     private Integer encounterClassEnum;
@@ -45,7 +43,6 @@ public class MedicalTemplate implements Serializable {
 
     private String scopeLevel;
 
-    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private String ownerPractitionerId;
 
     private String encounterClassCode;

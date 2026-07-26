@@ -1,7 +1,10 @@
 package com.zeroone.star.project.j5.emr.template.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -50,6 +53,8 @@ public class MedicalTemplateUpdateDTO implements Serializable {
     private Boolean enabled;
 
     @Size(max = 16, message = "使用范围不能超过16个字符")
+    @Pattern(regexp = "(?i)\\s*(PERSONAL|DEPARTMENT|HOSPITAL)\\s*",
+            message = "使用范围必须是 PERSONAL、DEPARTMENT 或 HOSPITAL")
     @Schema(description = "使用范围：PERSONAL/DEPARTMENT/HOSPITAL")
     private String scopeLevel;
 
@@ -60,4 +65,21 @@ public class MedicalTemplateUpdateDTO implements Serializable {
     @Size(max = 16, message = "适用就诊类别不能超过16个字符")
     @Schema(description = "适用就诊类别：AMB/IMP/OBSENC等")
     private String encounterClassCode;
+
+    @AssertTrue(message = "至少提供一个需要修改的字段")
+    @JsonIgnore
+    @Schema(hidden = true)
+    public boolean isUpdateRequested() {
+        return name != null
+                || code != null
+                || documentTypeCode != null
+                || organizationId != null
+                || encounterClassEnum != null
+                || encounterTypeEnum != null
+                || content != null
+                || enabled != null
+                || scopeLevel != null
+                || ownerPractitionerId != null
+                || encounterClassCode != null;
+    }
 }

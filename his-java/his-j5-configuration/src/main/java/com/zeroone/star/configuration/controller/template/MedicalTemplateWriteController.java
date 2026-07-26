@@ -5,12 +5,14 @@ import com.zeroone.star.project.j5.emr.template.MedicalTemplateWriteApis;
 import com.zeroone.star.project.j5.emr.template.dto.MedicalTemplateCreateDTO;
 import com.zeroone.star.project.j5.emr.template.dto.MedicalTemplateUpdateDTO;
 import com.zeroone.star.project.vo.JsonVO;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 病历模板写操作控制器。
  */
 @RestController
+@Validated
 public class MedicalTemplateWriteController implements MedicalTemplateWriteApis {
 
     private final IMedicalTemplateService medicalTemplateService;
@@ -21,29 +23,17 @@ public class MedicalTemplateWriteController implements MedicalTemplateWriteApis 
 
     @Override
     public JsonVO<String> addMedicalTemplate(MedicalTemplateCreateDTO dto) {
-        try {
-            return JsonVO.success(medicalTemplateService.addMedicalTemplate(dto));
-        } catch (IllegalArgumentException ex) {
-            return JsonVO.fail(ex.getMessage());
-        }
+        return JsonVO.success(medicalTemplateService.addMedicalTemplate(dto));
     }
 
     @Override
     public JsonVO<String> modifyMedicalTemplate(String id, MedicalTemplateUpdateDTO dto) {
-        try {
-            return JsonVO.success(medicalTemplateService.modifyMedicalTemplate(id, dto));
-        } catch (IllegalArgumentException ex) {
-            return JsonVO.fail(ex.getMessage());
-        }
+        return JsonVO.success(medicalTemplateService.modifyMedicalTemplate(id, dto));
     }
 
     @Override
     public JsonVO<String> removeMedicalTemplate(String id) {
-        try {
-            medicalTemplateService.removeMedicalTemplate(id);
-            return JsonVO.success(id);
-        } catch (IllegalArgumentException ex) {
-            return JsonVO.fail(ex.getMessage());
-        }
+        medicalTemplateService.removeMedicalTemplate(id);
+        return JsonVO.success(id);
     }
 }

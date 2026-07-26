@@ -1,6 +1,8 @@
 package com.zeroone.star.configuration.service.impl;
 
-import com.zeroone.star.configuration.entity.MedicalTemplate;
+import com.zeroone.star.configuration.converter.MedicalTemplateConverter;
+import com.zeroone.star.configuration.entity.MedicalTemplateDO;
+import com.zeroone.star.configuration.exception.MedicalTemplateBusinessException;
 import com.zeroone.star.configuration.mapper.MedicalTemplateMapper;
 import com.zeroone.star.configuration.service.IMedicalTemplateService;
 import com.zeroone.star.project.components.user.UserDTO;
@@ -40,27 +42,24 @@ public class MedicalTemplateServiceImpl implements IMedicalTemplateService {
     @Transactional(rollbackFor = Exception.class)
     public String addMedicalTemplate(MedicalTemplateCreateDTO dto) {
         if (dto == null) {
-            throw new IllegalArgumentException("新增病历模板参数不能为空");
+            throw new MedicalTemplateBusinessException("新增病历模板参数不能为空");
         }
 
-        String actorId = getCurrentUserId();
-        String code = normalizeOptional(dto.getCode());
-        ensureCodeAvailable(code, null);
-
-        MedicalTemplate template = new MedicalTemplate();
+        MedicalTemplateDO template = MedicalTemplateConverter.toDO(dto);
         template.setName(requireText(dto.getName(), "模板名称不能为空"));
-        template.setCode(code);
+        template.setCode(normalizeOptional(dto.getCode()));
         template.setDocumentTypeCode(requireText(dto.getDocumentTypeCode(), "文书类型编码不能为空"));
-        template.setEncounterClassEnum(dto.getEncounterClassEnum());
-        template.setEncounterTypeEnum(dto.getEncounterTypeEnum());
         template.setContent(requireText(dto.getContent(), "模板内容不能为空"));
         template.setEnabled(dto.getEnabled() == null || dto.getEnabled());
+
+        String actorId = getCurrentUserId();
         applyScope(template,
                 normalizeScope(dto.getScopeLevel(), true),
                 dto.getOrganizationId(),
                 dto.getOwnerPractitionerId(),
                 actorId,
                 dto.getEncounterClassCode());
+        ensureCodeAvailable(template.getCode(), null);
 
         LocalDateTime now = LocalDateTime.now();
         template.setCreatedAt(now);
@@ -71,10 +70,13 @@ public class MedicalTemplateServiceImpl implements IMedicalTemplateService {
 
         try {
             if (medicalTemplateMapper.insert(template) != 1) {
-                throw new IllegalStateException("新增病历模板失败");
+                throw new MedicalTemplateBusinessException("新增病历模板失败");
             }
         } catch (DuplicateKeyException ex) {
-            throw new IllegalArgumentException("模板编码已存在: " + code, ex);
+            throw duplicateCodeException(template.getCode(), ex);
+        }
+        if (!StringUtils.hasText(template.getId())) {
+            throw new MedicalTemplateBusinessException("新增病历模板失败，未生成模板ID");
         }
         return template.getId();
     }
@@ -84,63 +86,53 @@ public class MedicalTemplateServiceImpl implements IMedicalTemplateService {
     public String modifyMedicalTemplate(String id, MedicalTemplateUpdateDTO dto) {
         String templateId = requireText(id, "模板ID不能为空");
         if (dto == null) {
-            throw new IllegalArgumentException("修改病历模板参数不能为空");
+            throw new MedicalTemplateBusinessException("修改病历模板参数不能为空");
+        }
+        if (!hasUpdateField(dto)) {
+            throw new MedicalTemplateBusinessException("至少提供一个需要修改的字段");
         }
 
-        MedicalTemplate template = medicalTemplateMapper.selectById(templateId);
-        if (template == null) {
-            throw new IllegalArgumentException("病历模板不存在: " + templateId);
+        MedicalTemplateDO current = medicalTemplateMapper.selectScopeById(templateId);
+        if (current == null) {
+            throw new MedicalTemplateBusinessException("病历模板不存在: " + templateId);
         }
 
-        if (dto.getName() != null) {
-            template.setName(requireText(dto.getName(), "模板名称不能为空"));
-        }
-        if (dto.getCode() != null) {
-            String code = normalizeOptional(dto.getCode());
-            ensureCodeAvailable(code, templateId);
-            template.setCode(code);
-        }
-        if (dto.getDocumentTypeCode() != null) {
-            template.setDocumentTypeCode(requireText(dto.getDocumentTypeCode(), "文书类型编码不能为空"));
-        }
-        if (dto.getEncounterClassEnum() != null) {
-            template.setEncounterClassEnum(dto.getEncounterClassEnum());
-        }
-        if (dto.getEncounterTypeEnum() != null) {
-            template.setEncounterTypeEnum(dto.getEncounterTypeEnum());
-        }
-        if (dto.getContent() != null) {
-            template.setContent(requireText(dto.getContent(), "模板内容不能为空"));
-        }
-        if (dto.getEnabled() != null) {
-            template.setEnabled(dto.getEnabled());
+        MedicalTemplateDO update = MedicalTemplateConverter.toDO(dto);
+        update.setId(templateId);
+        normalizeBasicUpdateFields(update, dto);
+
+        boolean codeChanged = dto.getCode() != null;
+        if (codeChanged) {
+            update.setCode(normalizeOptional(dto.getCode()));
+            ensureCodeAvailable(update.getCode(), templateId);
         }
 
         String actorId = getCurrentUserId();
-        if (hasScopeUpdate(dto)) {
+        boolean scopeChanged = hasScopeUpdate(dto);
+        if (scopeChanged) {
             String scope = dto.getScopeLevel() == null
-                    ? normalizeScope(template.getScopeLevel(), true)
+                    ? normalizeScope(current.getScopeLevel(), true)
                     : normalizeScope(dto.getScopeLevel(), false);
             String organizationId = dto.getOrganizationId() == null
-                    ? template.getOrganizationId()
+                    ? current.getOrganizationId()
                     : dto.getOrganizationId();
             String ownerPractitionerId = dto.getOwnerPractitionerId() == null
-                    ? template.getOwnerPractitionerId()
+                    ? current.getOwnerPractitionerId()
                     : dto.getOwnerPractitionerId();
             String encounterClassCode = dto.getEncounterClassCode() == null
-                    ? template.getEncounterClassCode()
+                    ? current.getEncounterClassCode()
                     : dto.getEncounterClassCode();
-            applyScope(template, scope, organizationId, ownerPractitionerId, actorId, encounterClassCode);
+            applyScope(update, scope, organizationId, ownerPractitionerId, actorId, encounterClassCode);
         }
 
-        template.setUpdatedAt(LocalDateTime.now());
-        template.setUpdatedBy(actorId);
+        update.setUpdatedAt(LocalDateTime.now());
+        update.setUpdatedBy(actorId);
         try {
-            if (medicalTemplateMapper.updateById(template) != 1) {
-                throw new IllegalStateException("修改病历模板失败，模板可能已被删除");
+            if (medicalTemplateMapper.updateSelectiveById(update, codeChanged, scopeChanged) != 1) {
+                throw new MedicalTemplateBusinessException("修改病历模板失败，模板可能已被删除");
             }
         } catch (DuplicateKeyException ex) {
-            throw new IllegalArgumentException("模板编码已存在: " + template.getCode(), ex);
+            throw duplicateCodeException(update.getCode(), ex);
         }
         return templateId;
     }
@@ -150,17 +142,29 @@ public class MedicalTemplateServiceImpl implements IMedicalTemplateService {
     public void removeMedicalTemplate(String id) {
         String templateId = requireText(id, "模板ID不能为空");
         if (medicalTemplateMapper.softDeleteById(templateId, LocalDateTime.now(), getCurrentUserId()) != 1) {
-            throw new IllegalArgumentException("病历模板不存在或已删除: " + templateId);
+            throw new MedicalTemplateBusinessException("病历模板不存在或已删除: " + templateId);
+        }
+    }
+
+    private void normalizeBasicUpdateFields(MedicalTemplateDO update, MedicalTemplateUpdateDTO dto) {
+        if (dto.getName() != null) {
+            update.setName(requireText(dto.getName(), "模板名称不能为空"));
+        }
+        if (dto.getDocumentTypeCode() != null) {
+            update.setDocumentTypeCode(requireText(dto.getDocumentTypeCode(), "文书类型编码不能为空"));
+        }
+        if (dto.getContent() != null) {
+            update.setContent(requireText(dto.getContent(), "模板内容不能为空"));
         }
     }
 
     private void ensureCodeAvailable(String code, String excludeId) {
-        if (StringUtils.hasText(code) && medicalTemplateMapper.countByCode(code, excludeId) > 0) {
-            throw new IllegalArgumentException("模板编码已存在: " + code);
+        if (StringUtils.hasText(code) && medicalTemplateMapper.existsByCode(code, excludeId)) {
+            throw new MedicalTemplateBusinessException("模板编码已存在: " + code);
         }
     }
 
-    private void applyScope(MedicalTemplate template,
+    private void applyScope(MedicalTemplateDO template,
                             String scope,
                             String organizationId,
                             String ownerPractitionerId,
@@ -176,7 +180,7 @@ public class MedicalTemplateServiceImpl implements IMedicalTemplateService {
             }
             case SCOPE_DEPARTMENT -> {
                 if (!StringUtils.hasText(normalizedOrganizationId)) {
-                    throw new IllegalArgumentException("科室模板必须选择适用科室");
+                    throw new MedicalTemplateBusinessException("科室模板必须选择适用科室");
                 }
                 normalizedOwnerId = null;
             }
@@ -186,10 +190,10 @@ public class MedicalTemplateServiceImpl implements IMedicalTemplateService {
                     normalizedOwnerId = currentUserId;
                 }
                 if (!StringUtils.hasText(normalizedOwnerId)) {
-                    throw new IllegalArgumentException("个人模板必须指定所有者");
+                    throw new MedicalTemplateBusinessException("个人模板必须指定所有者");
                 }
             }
-            default -> throw new IllegalArgumentException("无效的使用范围: " + scope);
+            default -> throw new MedicalTemplateBusinessException("无效的使用范围: " + scope);
         }
 
         template.setScopeLevel(scope);
@@ -205,36 +209,57 @@ public class MedicalTemplateServiceImpl implements IMedicalTemplateService {
                 || dto.getEncounterClassCode() != null;
     }
 
+    private static boolean hasUpdateField(MedicalTemplateUpdateDTO dto) {
+        return dto.getName() != null
+                || dto.getCode() != null
+                || dto.getDocumentTypeCode() != null
+                || dto.getOrganizationId() != null
+                || dto.getEncounterClassEnum() != null
+                || dto.getEncounterTypeEnum() != null
+                || dto.getContent() != null
+                || dto.getEnabled() != null
+                || dto.getScopeLevel() != null
+                || dto.getOwnerPractitionerId() != null
+                || dto.getEncounterClassCode() != null;
+    }
+
     private static String normalizeScope(String raw, boolean useDefault) {
         if (!StringUtils.hasText(raw)) {
             if (useDefault) {
                 return SCOPE_HOSPITAL;
             }
-            throw new IllegalArgumentException("使用范围不能为空");
+            throw new MedicalTemplateBusinessException("使用范围不能为空");
         }
         String scope = raw.trim().toUpperCase(Locale.ROOT);
         if (!VALID_SCOPES.contains(scope)) {
-            throw new IllegalArgumentException("使用范围必须是 PERSONAL、DEPARTMENT 或 HOSPITAL");
+            throw new MedicalTemplateBusinessException("使用范围必须是 PERSONAL、DEPARTMENT 或 HOSPITAL");
         }
         return scope;
     }
 
     private static String normalizeEncounterClassCode(String raw) {
         if (!StringUtils.hasText(raw)) {
-            throw new IllegalArgumentException("适用就诊类别不能为空");
+            throw new MedicalTemplateBusinessException("适用就诊类别不能为空");
         }
         return raw.trim().toUpperCase(Locale.ROOT);
     }
 
     private static String requireText(String raw, String message) {
         if (!StringUtils.hasText(raw)) {
-            throw new IllegalArgumentException(message);
+            throw new MedicalTemplateBusinessException(message);
         }
         return raw.trim();
     }
 
     private static String normalizeOptional(String raw) {
         return StringUtils.hasText(raw) ? raw.trim() : null;
+    }
+
+    private static MedicalTemplateBusinessException duplicateCodeException(String code, DuplicateKeyException cause) {
+        String message = StringUtils.hasText(code)
+                ? "模板编码已存在: " + code
+                : "病历模板数据违反唯一约束";
+        return new MedicalTemplateBusinessException(message, cause);
     }
 
     private String getCurrentUserId() {

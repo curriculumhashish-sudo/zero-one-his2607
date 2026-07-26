@@ -7,6 +7,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * 病历模板写操作接口。
  */
 @Tag(name = "配置管理-病历模板", description = "病历模板配置管理接口")
+@Validated
 @RequestMapping("/medical-template")
 public interface MedicalTemplateWriteApis {
 
@@ -29,6 +33,8 @@ public interface MedicalTemplateWriteApis {
     @PutMapping("/{id}")
     JsonVO<String> modifyMedicalTemplate(
             @Parameter(description = "模板ID", required = true)
+            @NotBlank(message = "模板ID不能为空")
+            @Size(max = 64, message = "模板ID不能超过64个字符")
             @PathVariable("id") String id,
             @Valid @RequestBody MedicalTemplateUpdateDTO dto);
 
@@ -36,5 +42,7 @@ public interface MedicalTemplateWriteApis {
     @DeleteMapping("/{id}")
     JsonVO<String> removeMedicalTemplate(
             @Parameter(description = "模板ID", required = true)
+            @NotBlank(message = "模板ID不能为空")
+            @Size(max = 64, message = "模板ID不能超过64个字符")
             @PathVariable("id") String id);
 }
