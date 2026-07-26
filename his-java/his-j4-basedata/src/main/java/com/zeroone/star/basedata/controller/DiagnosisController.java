@@ -55,21 +55,21 @@ public class DiagnosisController implements DiagnosisApis {
     @GetMapping("/query-select-list")
     public JsonVO<PageDTO<DiagnosisOptionVO>> queryDiagnosisSelectList(
             @Valid DiagnosisSelectPageQuery query) {
-        return JsonVO.success(null);
+        return JsonVO.success(definitionService.queryDiagnosisSelectList(query));
     }
 
     @Override
     @Operation(summary = "获取诊断列表（条件+分页）")
     @GetMapping("/query-list")
     public JsonVO<PageDTO<DiagnosisListVO>> queryDiagnosisList(@Valid DiagnosisPageQuery query) {
-        return JsonVO.success(null);
+        return JsonVO.success(definitionService.queryDiagnosisList(query));
     }
 
     @Override
     @Operation(summary = "获取诊断详情")
     @GetMapping("/get-detail/{id}")
     public JsonVO<DiagnosisDetailVO> queryDiagnosisDetail(@PathVariable @NotBlank(message = "诊断ID不能为空") String id) {
-        return JsonVO.success(null);
+        return JsonVO.success(definitionService.queryDiagnosisDetail(id));
     }
 
     @Operation(summary = "新增诊断")
