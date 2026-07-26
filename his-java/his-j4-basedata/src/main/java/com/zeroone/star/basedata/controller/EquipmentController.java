@@ -102,7 +102,7 @@ public class EquipmentController implements EquipmentApis {
                 return JsonVO.fail("修改器材失败");
             }
             EquipmentUpdateVO vo = msEquipmentMapper.entityToUpdateVo(entity);
-            vo.setRetailPrice(dto.getRetailPrice());
+            vo.setRetailPrice(equipmentService.getRetailPrice(entity.getId()));
             vo.setUpdateTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             return JsonVO.success(vo);
         } catch (IllegalArgumentException e) {

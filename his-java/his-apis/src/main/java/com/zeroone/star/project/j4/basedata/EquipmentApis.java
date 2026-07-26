@@ -6,10 +6,10 @@ import com.zeroone.star.project.dto.j4.equipment.EquipmentStatusDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentUpdateDTO;
 import com.zeroone.star.project.query.j4.equipment.EquipmentPageQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import jakarta.validation.Valid;
-import com.zeroone.star.project.vo.j4.equipment.EquipmentCategoryVo;
+import com.zeroone.star.project.vo.j4.equipment.EquipmentCategoryVO;
 import com.zeroone.star.project.vo.j4.equipment.EquipmentUpdateVO;
 import com.zeroone.star.project.vo.j4.equipment.EquipmentVO;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -71,7 +71,7 @@ public interface EquipmentApis {
      *
      * @return 可选择的器材种类列表
      */
-    JsonVO<List<EquipmentCategoryVo>> queryEquipmentCategoryList();
+    JsonVO<List<EquipmentCategoryVO>> queryEquipmentCategoryList();
 
     /**
      * 批量删除器材信息

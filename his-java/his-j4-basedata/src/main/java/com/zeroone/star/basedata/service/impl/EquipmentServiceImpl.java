@@ -3,7 +3,9 @@ package com.zeroone.star.basedata.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zeroone.star.basedata.entity.equipment.AdmChargeItemDefinitionDO;
 import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinitionDO;
+import com.zeroone.star.basedata.mapper.EquipmentChargeItemMapper;
 import com.zeroone.star.basedata.mapper.EquipmentMapper;
 import com.zeroone.star.basedata.service.IEquipmentService;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentStatusDTO;
@@ -12,6 +14,9 @@ import com.zeroone.star.project.query.j4.equipment.EquipmentPageQuery;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -28,6 +33,8 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
 
     @Resource
     private MsEquipmentMapper msEquipmentMapper;
+    @Resource
+    private EquipmentChargeItemMapper chargeItemMapper;
 
     /**
      * 获取器材列表（条件+分页）
@@ -86,7 +93,57 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
                 cn.hutool.core.bean.copier.CopyOptions.create().ignoreNullValue());
         baseMapper.updateById(existing);
 
+        // 同步价格表
+        Long deviceId = Long.valueOf(id);
+        saveOrUpdatePrice(deviceId, "PURCHASE", dto.getPurchasePrice(), "采购价", dto.getItemTypeCode(), dto.getOrgId(), dto.getYbType());
+        saveOrUpdatePrice(deviceId, "SALE", dto.getRetailPrice(), "零售价", dto.getItemTypeCode(), dto.getOrgId(), dto.getYbType());
+        saveOrUpdatePrice(deviceId, "LIMIT", dto.getMaximumRetailPrice(), "限价", dto.getItemTypeCode(), dto.getOrgId(), dto.getYbType());
+
         return existing;
+    }
+
+    @Override
+    public BigDecimal getRetailPrice(Long deviceId) {
+        LambdaQueryWrapper<AdmChargeItemDefinitionDO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(AdmChargeItemDefinitionDO::getInstanceTable, "adm_device_definition")
+               .eq(AdmChargeItemDefinitionDO::getInstanceId, deviceId)
+               .eq(AdmChargeItemDefinitionDO::getPriceTypeCode, "SALE")
+               .last("LIMIT 1");
+        AdmChargeItemDefinitionDO priceRecord = chargeItemMapper.selectOne(wrapper);
+        return priceRecord != null ? priceRecord.getPriceValue() : null;
+    }
+
+    private void saveOrUpdatePrice(Long instanceId, String priceTypeCode, BigDecimal priceValue,
+                                    String chargeName, String typeCode, Long orgId, String ybType) {
+        if (priceValue == null) {
+            return;
+        }
+        LambdaQueryWrapper<AdmChargeItemDefinitionDO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(AdmChargeItemDefinitionDO::getInstanceTable, "adm_device_definition")
+               .eq(AdmChargeItemDefinitionDO::getInstanceId, instanceId)
+               .eq(AdmChargeItemDefinitionDO::getPriceTypeCode, priceTypeCode)
+               .last("LIMIT 1");
+        AdmChargeItemDefinitionDO existingPrice = chargeItemMapper.selectOne(wrapper);
+
+        if (existingPrice != null) {
+            existingPrice.setPriceValue(priceValue);
+            existingPrice.setUpdatedAt(LocalDateTime.now());
+            chargeItemMapper.updateById(existingPrice);
+        } else {
+            AdmChargeItemDefinitionDO newPrice = new AdmChargeItemDefinitionDO();
+            newPrice.setInstanceTable("adm_device_definition");
+            newPrice.setInstanceId(instanceId);
+            newPrice.setPriceTypeCode(priceTypeCode);
+            newPrice.setPriceValue(priceValue);
+            newPrice.setChargeName(chargeName);
+            newPrice.setStatusEnum("ACTIVE");
+            newPrice.setTypeCode(typeCode);
+            newPrice.setOrgId(orgId);
+            newPrice.setYbType(ybType);
+            newPrice.setCreatedAt(LocalDateTime.now());
+            newPrice.setUpdatedAt(LocalDateTime.now());
+            chargeItemMapper.insert(newPrice);
+        }
     }
 
     /**

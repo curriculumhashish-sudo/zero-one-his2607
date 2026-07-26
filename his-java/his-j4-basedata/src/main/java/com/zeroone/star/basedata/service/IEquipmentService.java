@@ -8,6 +8,8 @@ import com.zeroone.star.project.dto.j4.equipment.EquipmentUpdateDTO;
 import com.zeroone.star.project.query.j4.equipment.EquipmentPageQuery;
 import jakarta.validation.Valid;
 
+import java.math.BigDecimal;
+
 /**
  * <p>
  * 描述：器材管理服务接口
@@ -43,4 +45,12 @@ public interface IEquipmentService extends IService<AdmDeviceDefinitionDO> {
      * @return 成功修改的数量
      */
     int modifyEquipmentStatus(@Valid EquipmentStatusDTO dto);
+
+    /**
+     * 获取器材零售价（从价格表查询）
+     *
+     * @param deviceId 器材主键
+     * @return 零售价，未找到返回 null
+     */
+    BigDecimal getRetailPrice(Long deviceId);
 }
