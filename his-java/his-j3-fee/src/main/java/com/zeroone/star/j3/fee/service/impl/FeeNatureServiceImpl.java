@@ -163,7 +163,9 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
         }
 
         // 2. 删除判断是否已经被删除了
-        if(entity.getIsDeleted() == 1) return;
+        if(entity.getIsDeleted() == 1){
+            throw new RuntimeException("请不要重复删除");
+        }
 
         // 3. 关联表判断
         // 3.1 挂号账户判断
