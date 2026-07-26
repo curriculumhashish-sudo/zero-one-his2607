@@ -11,6 +11,7 @@
 #include "domain/dto/equipment/EquipmentDeleteDTO.h"
 #include "domain/dto/equipment/EquipmentStatusDTO.h"
 #include "domain/dto/equipment/EquipmentSelectDTO.h"
+#include "domain/dto/equipment/EquipmentDetailDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 #define API_TAG ZH_WORDS_GETTER("equipment.tags.tag")

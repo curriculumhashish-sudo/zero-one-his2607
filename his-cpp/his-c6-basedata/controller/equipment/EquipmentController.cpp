@@ -92,16 +92,21 @@ EquipmentSelectPageJsonVO::Wrapper EquipmentController::execSelectEquipment(cons
 }
 
 // 声明式服务接口1
-EquipmentJsonVO::Wrapper EquipmentController::execQueryOne(const String& id)
+EquipmentJsonVO::Wrapper EquipmentController::execQueryOne(const String& id, const PayloadDTO& payload)
 {
-	return {};
+	// 创建客户端对象
+	API_CLIENT_CREATE(ac, om, EquipmentApiClient, "equipment-api");
+	// 构建凭证
+	std::string token = PayloadDTO::getTokenPrefix() + payload.getToken();
+	// 返回查询结果
+	return ac->queryById(token, id)->readBodyToDto<EquipmentJsonVO::Wrapper>(om);
 }
 
 // 声明式服务接口2
 EquipmentPageJsonVO::Wrapper EquipmentController::execQueryAll(const EquipmentQuery::Wrapper& query, const PayloadDTO& payload)
 {
 	// 创建客户端对象
-	API_CLIENT_CREATE(ac, om, EquipmentApiClient, "Equipment-api");
+	API_CLIENT_CREATE(ac, om, EquipmentApiClient, "equipment-api");
 	// 构建凭证
 	std::string token = PayloadDTO::getTokenPrefix() + payload.getToken();
 	// 返回查询结果
