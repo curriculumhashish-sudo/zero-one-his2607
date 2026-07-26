@@ -151,18 +151,26 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Transactional
     public void createDepartment(DepartmentCreateDTO dto) {
         Long parentId = dto.getParentId();
-        if (parentId == null && Objects.equals(TypeEnum.getDescByValue(dto.getTypeEnum()), "DEPARTMENT")) {
-            throw new EmptyParentDepartmentException("科室的上级科室不能为空");
-        }
-        String defDoctorId = dto.getDefDoctorId();
-        if (!defDoctorId.isEmpty()) {
-            if (departmentMapper.isDoctorExist(Long.valueOf(defDoctorId)) == 0) {
-                throw new DoctorNotFoundException("该医务人员不存在，ID: " + defDoctorId);
+        DepartmentDO parentDepartment = null;
+        if (Objects.equals(TypeEnum.getDescByValue(dto.getTypeEnum()), "DEPARTMENT")) {
+            if (parentId == null) {
+                throw new EmptyParentDepartmentException("科室的上级科室不能为空");
+            } else {
+                parentDepartment = departmentMapper.selectById(parentId);
+                if (parentDepartment == null) {
+                    throw new DepartmentNotFoundException("该科室的上级科室不存在，ID: " + parentId);
+                }
+            }
+        } else {
+            if (parentId != null) {
+                throw new EmptyParentDepartmentException("医院的上级科室必须为空");
             }
         }
-        DepartmentDO parentDepartment = departmentMapper.selectById(parentId);
-        if (parentDepartment == null) {
-            throw new DepartmentNotFoundException("该科室的上级科室不存在，ID: " + parentId);
+        Long defDoctorId = dto.getDefDoctorId();
+        if (defDoctorId != null) {
+            if (departmentMapper.isDoctorExist(defDoctorId) == 0) {
+                throw new DoctorNotFoundException("该医务人员不存在，ID: " + defDoctorId);
+            }
         }
 //        TODO：用户功能暂未实现，测试无法通过，先用固定值代替
 //        UserDTO currentUser = userHolder.getCurrentUser();
@@ -181,11 +189,14 @@ public class DepartmentServiceImpl implements DepartmentService {
         }
         Long newValue = currentValue + 1;
         String busNo;
+        String parentBusNO = "";
         String typeEnum = TypeEnum.getDescByValue(dto.getTypeEnum());
         if (typeEnum.equals(TypeEnum.HOSPITAL.getDesc())) {
             busNo = String.format("OR%04d", newValue);
         } else {
-            String parentBusNO = parentDepartment.getBusNo();
+            if (parentDepartment != null) {
+                parentBusNO = parentDepartment.getBusNo();
+            }
             busNo = parentBusNO + "." + String.format("OR%04d", newValue);
         }
         departmentMapper.updateCurrentValue(seqKey, newValue);
@@ -217,11 +228,15 @@ public class DepartmentServiceImpl implements DepartmentService {
                 .build();
         departmentMapper.insert(departmentDO);
 
+        Long parentUnitId = null;
+        if (parentBusNO != null && !parentBusNO.isEmpty()) {
+            parentUnitId = departmentMapper.selectParentUnitIdByBusNo(parentBusNO);
+        }
         DepartmentUnitDO departmentUnitDO = DepartmentUnitDO.builder()
                 .id(IdWorker.getId())
                 .code(busNo)
                 .displayName(dto.getName())
-                .parentId(parentId)
+                .parentId(parentUnitId)
                 .sortOrder(dto.getDisplayOrder())
                 .tenantId(tenantId)
                 .createdAt(LocalDateTime.now())

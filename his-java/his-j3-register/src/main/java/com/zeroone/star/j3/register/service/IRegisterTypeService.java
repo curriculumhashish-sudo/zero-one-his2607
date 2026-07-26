@@ -37,10 +37,11 @@ public interface IRegisterTypeService extends IService<RegisterType> {
     /**
      * 修改挂号类型
      *
-     * @param dto 修改数据（id 必传）
+     * @param id  待修改的挂号类型唯一标识
+     * @param dto 修改数据
      * @return 是否成功
      */
-    boolean modifyRegister(RegisterDTO dto);
+    boolean modifyRegister(Long id, RegisterDTO dto);
 
     /**
      * 删除挂号类型

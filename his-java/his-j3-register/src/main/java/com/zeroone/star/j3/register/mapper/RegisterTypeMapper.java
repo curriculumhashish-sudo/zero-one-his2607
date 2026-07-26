@@ -22,4 +22,11 @@ public interface RegisterTypeMapper extends BaseMapper<RegisterType> {
      */
     IPage<RegisterType> selectRegisterTypePage(IPage<RegisterType> page,
                                                 @Param("keyword") String keyword);
+
+    /**
+     * 根据名称查找 healthcare_service 的 id（新增时自动关联）
+     * @param name 服务名称
+     * @return  healthcare_service.id
+     */
+    String selectHealthcareServiceIdByName(@Param("name") String name);
 }

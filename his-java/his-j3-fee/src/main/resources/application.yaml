@@ -7,3 +7,21 @@ server:
 spring:
   application:
     name: ${sn.j3-database:his-j3-database}
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.150.101:8848
+      config:
+        server-addr: 192.168.150.101:8848
+        file-extension: yaml
+        enabled: true
+  datasource:
+    url: jdbc:mysql://192.168.150.101:3306/his_j3_fee?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: tz
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      max-active: 20
+      min-idle: 5
+      initial-size: 5
