@@ -22,7 +22,7 @@ class PatientDO : public BaseDO
 	MYSQL_SYNTHESIZE(string, updatedBy, UpdatedBy);
 
 	// 删除标记
-	MYSQL_SYNTHESIZE(bool, isDeleted, IsDeleted);
+	MYSQL_SYNTHESIZE(int, isDeleted, IsDeleted);
 	// 删除时间
 	MYSQL_SYNTHESIZE(string, deletedAt, DeletedAt);
 	// 删除人
@@ -47,9 +47,9 @@ class PatientDO : public BaseDO
 	MYSQL_SYNTHESIZE(string, statusEnum, StatusEnum);
 
 	// 启用标记
-	MYSQL_SYNTHESIZE(bool, activeFlag, ActiveFlag);
+	MYSQL_SYNTHESIZE(int, activeFlag, ActiveFlag);
 	// 临时建档标记
-	MYSQL_SYNTHESIZE(bool, tempFlag, TempFlag);
+	MYSQL_SYNTHESIZE(int, tempFlag, TempFlag);
 
 	// 身份证号
 	MYSQL_SYNTHESIZE(string, idCard, IdCard);
@@ -134,7 +134,7 @@ public:
 		MYSQL_ADD_FIELD_NULLABLE("created_by", "s", createdBy, true);
 		MYSQL_ADD_FIELD_NULLABLE("updated_by", "s", updatedBy, true);
 
-		MYSQL_ADD_FIELD("is_deleted", "b", isDeleted);
+		MYSQL_ADD_FIELD("is_deleted", "i", isDeleted);
 
 		MYSQL_ADD_FIELD_NULLABLE("deleted_at", "dt", deletedAt, true);
 		MYSQL_ADD_FIELD_NULLABLE("deleted_by", "s", deletedBy, true);
@@ -147,12 +147,12 @@ public:
 		MYSQL_ADD_FIELD_NULLABLE("name_json", "s", nameJson, true);
 
 		MYSQL_ADD_FIELD("gender_enum", "s", genderEnum);
-		MYSQL_ADD_FIELD_NULLABLE("birth_date", "dt", birthDate, true);
+		MYSQL_ADD_FIELD_NULLABLE("birth_date", "s", birthDate, true);
 
 		MYSQL_ADD_FIELD("status_enum", "s", statusEnum);
 
-		MYSQL_ADD_FIELD("active_flag", "b", activeFlag);
-		MYSQL_ADD_FIELD("temp_flag", "b", tempFlag);
+		MYSQL_ADD_FIELD("active_flag", "i", activeFlag);
+		MYSQL_ADD_FIELD("temp_flag", "i", tempFlag);
 
 		MYSQL_ADD_FIELD_NULLABLE("id_card", "s", idCard, true);
 
