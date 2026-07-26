@@ -74,4 +74,11 @@ public class PatientVO {
 
     @Schema(description = "最后更新时间")
     private LocalDateTime updatedAt;
+
+    @Schema(description = "患者编号")
+    private String busNo;
+
+    @Schema(description = "建档机构ID")
+    private String organizationId;
+
 }

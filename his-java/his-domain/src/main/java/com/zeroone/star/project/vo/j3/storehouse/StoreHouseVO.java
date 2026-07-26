@@ -22,7 +22,7 @@ public class StoreHouseVO implements Serializable {
     @Schema(description = "仓库类型（仓库/药房/科室药房）", example = "仓库", requiredMode = Schema.RequiredMode.REQUIRED)
     private String type;
 
-    @Schema(description = "上级科室名称", example = "住院内科", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "上级科室名称", example = "门诊内科", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String superiorName;
 
     @Schema(description = "是否启用 1启用 0停用", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
