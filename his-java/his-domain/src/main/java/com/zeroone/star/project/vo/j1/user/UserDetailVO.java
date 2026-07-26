@@ -26,9 +26,6 @@ public class UserDetailVO {
     @Schema(description = "名")
     private String name;
 
-    @Schema(description = "姓", example = "梁")
-    private String surname;
-
     @Schema(description = "手机号码", example = "13800138000")
     private String phone;
 
@@ -37,7 +34,6 @@ public class UserDetailVO {
 
     @Schema(description = "性别 (2:男, 1:女, 0:未知)", example = "2")
     private Integer genderEnum;
-
 
     @Schema(description = "出生日期 (yyyy-MM-dd)", example = "1990-01-01")
     private LocalDate birthDate;
@@ -86,20 +82,20 @@ public class UserDetailVO {
     private List<String> roleIds;
 
 
-    @Schema(description = "出诊科室名称列表", example = "[\"内科\", \"外科\"]")
+    @Schema(description = "出诊科室名称列表id", example = "[\"内科\", \"外科\"]")
     private List<String> consultDeptNames;
 
-    @Schema(description = "可接诊号源名称列表", example = "[\"专家门诊\", \"普通门诊\"]")
+    @Schema(description = "可接诊号源名称列表id", example = "[\"专家门诊\", \"普通门诊\"]")
     private List<String> receptionSourceNames;
 
     // ========== 位置信息 ==========
-    @Schema(description = "库房名称列表", example = "[\"西药库\", \"中药库\"]")
+    @Schema(description = "库房名称列表id", example = "[\"西药库\", \"中药库\"]")
     private List<String> warehouseNames;
 
-    @Schema(description = "药房名称列表", example = "[\"门诊药房\"]")
+    @Schema(description = "药房名称列表id", example = "[\"门诊药房\"]")
     private List<String> pharmacyNames;
 
-    @Schema(description = "病区名称列表", example = "[\"内科一病区\", \"外科二病区\"]")
+    @Schema(description = "病区名称列表id", example = "[\"内科一病区\", \"外科二病区\"]")
     private List<String> wardNames;
 
 }

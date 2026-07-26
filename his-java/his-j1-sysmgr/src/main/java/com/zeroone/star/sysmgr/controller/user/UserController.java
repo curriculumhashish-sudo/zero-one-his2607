@@ -15,6 +15,7 @@ import com.zeroone.star.project.vo.j1.user.UserPageVO;
 import com.zeroone.star.sysmgr.service.user.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -52,14 +53,14 @@ public class UserController implements UserApis {
     @Operation(summary   = "新增用户")
     @PostMapping
     @Override
-    public JsonVO<Boolean> saveUser(@RequestBody UserAddDTO userAddDTO) {
+    public JsonVO<Boolean> saveUser(@Valid @RequestBody UserAddDTO userAddDTO) {
         return null;
     }
 
     @Operation(summary   = "修改用户")
     @PutMapping("/update")
     @Override
-    public JsonVO<Boolean> updateUser(@RequestBody UserUpdateDTO userUpdateDTO) {
+    public JsonVO<Boolean> updateUser(@Valid @RequestBody UserUpdateDTO userUpdateDTO) {
         return null;
     }
 

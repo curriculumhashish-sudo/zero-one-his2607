@@ -15,9 +15,6 @@ public class UserListVO {
     @Schema(description = "名")
     private String name;
 
-    @Schema(description = "姓", example = "梁")
-    private String surname;
-
     @Schema(description = "电子邮箱", example = "lianglaoshi@hospital.com")
     private String email;
 
