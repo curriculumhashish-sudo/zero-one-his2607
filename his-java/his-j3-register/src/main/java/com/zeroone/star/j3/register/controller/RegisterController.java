@@ -70,14 +70,16 @@ public class RegisterController implements RegisterApis {
     /**
      * 修改挂号类型
      *
-     * @param dto 修改数据（id 必传）
+     * @param id  待修改的挂号类型唯一标识
+     * @param dto 修改数据
      * @return 修改结果
      */
-    @PutMapping("save-modify")
+    @PutMapping("save-modify/{id}")
     @Operation(summary = "修改挂号类型", description = "根据 id 修改一条挂号类型记录")
+    @Parameter(name = "id", description = "挂号类型唯一标识", example = "1", required = true)
     @Override
-    public JsonVO<Boolean> modifyRegister(@Valid @RequestBody RegisterDTO dto) {
-        boolean success = registerTypeService.modifyRegister(dto);
+    public JsonVO<Boolean> modifyRegister(@PathVariable Long id, @Valid @RequestBody RegisterDTO dto) {
+        boolean success = registerTypeService.modifyRegister(id, dto);
         return JsonVO.success(success);
     }
 

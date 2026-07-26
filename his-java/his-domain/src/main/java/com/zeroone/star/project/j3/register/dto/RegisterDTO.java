@@ -16,24 +16,12 @@ import java.math.BigDecimal;
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
  *
- * <p>
- * 使用说明：
- * 1. 新增时 id 不需要传入，由系统自动生成；
- * 2. 修改时 id 必须传入，用于定位待修改的记录。
- * </p>
- *
  * @author j3小组
  * @version 1.0.0
  */
 @Data
 @Schema(description = "挂号类型传输数据对象")
 public class RegisterDTO implements Serializable {
-
-    /**
-     * 挂号类型唯一标识（修改时必传，新增时不传）
-     */
-    @Schema(description = "挂号类型唯一标识（修改时必填）", example = "1")
-    private Long id;
 
     /**
      * 挂号类型名称
@@ -48,13 +36,6 @@ public class RegisterDTO implements Serializable {
     @NotBlank(message = "医保编码不能为空")
     @Schema(description = "医保编码", example = "001", requiredMode = Schema.RequiredMode.REQUIRED)
     private String mdtrtCertNo;
-
-    /**
-     * 业务编码
-     */
-    @NotBlank(message = "业务编码不能为空")
-    @Schema(description = "业务编码", example = "HS0001", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String businessCode;
 
     /**
      * 金额
