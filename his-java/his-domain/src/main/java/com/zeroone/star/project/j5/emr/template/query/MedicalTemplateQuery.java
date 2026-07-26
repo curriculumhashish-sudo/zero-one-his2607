@@ -14,9 +14,12 @@ import lombok.ToString;
 @ToString
 public class MedicalTemplateQuery extends PageQuery {
 
-    @Schema(description = "模板名称", example = "门诊病历模板")
+    @Schema(description = "模板名称（模糊查询）", example = "门诊")
     private String templateName;
 
-    @Schema(description = "病历类型", example = "1")
-    private String medicalType;
+    @Schema(description = "关联文书类型编码", example = "OUTPATIENT")
+    private String documentTypeCode;
+
+    @Schema(description = "是否启用", example = "true")
+    private Boolean isEnabled;
 }
