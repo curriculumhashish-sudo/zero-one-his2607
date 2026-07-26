@@ -1,9 +1,10 @@
 #pragma once
-#ifndef _AUTOGENRULEDO_
-#define _AUTOGENRULEDO_
+#ifndef _INPATIENT_CHARGE_RECORD_DO_
+#define _INPATIENT_CHARGE_RECORD_DO_
 
 #include "../DoInclude.h"
 
+// ===== cus_charge_item_auto_gen =====
 class AutoGenRuleDO : public BaseDO
 {
 	MYSQL_SYNTHESIZE(string, id, Id);
@@ -55,4 +56,52 @@ public:
 
 typedef std::shared_ptr<AutoGenRuleDO> PtrAutoGenRuleDO;
 
-#endif
+// ===== inpatient_charge_record =====
+class InpatientChargeRecordDO : public BaseDO
+{
+	MYSQL_SYNTHESIZE(long long, id, Id);
+	MYSQL_SYNTHESIZE(string, chargeNo, ChargeNo);
+	MYSQL_SYNTHESIZE(string, inpNo, InpNo);
+	MYSQL_SYNTHESIZE(string, orderId, OrderId);
+	MYSQL_SYNTHESIZE(string, itemCode, ItemCode);
+	MYSQL_SYNTHESIZE(string, itemName, ItemName);
+	MYSQL_SYNTHESIZE(string, spec, Spec);
+	MYSQL_SYNTHESIZE(string, unit, Unit);
+	MYSQL_SYNTHESIZE(double, price, Price);
+	MYSQL_SYNTHESIZE(int, quantity, Quantity);
+	MYSQL_SYNTHESIZE(double, subtotal, Subtotal);
+	MYSQL_SYNTHESIZE(string, chargeType, ChargeType);
+	MYSQL_SYNTHESIZE(string, operatorId, Operator);
+	MYSQL_SYNTHESIZE(string, chargeTime, ChargeTime);
+	MYSQL_SYNTHESIZE(string, chargeDept, ChargeDept);
+	MYSQL_SYNTHESIZE(string, chargeSource, ChargeSource);
+	MYSQL_SYNTHESIZE(string, supplementReason, SupplementReason);
+	MYSQL_SYNTHESIZE(string, status, Status);
+
+public:
+	InpatientChargeRecordDO() : BaseDO("inpatient_charge_record")
+	{
+		MYSQL_ADD_FIELD_PK("id", "ll", id);
+		MYSQL_ADD_FIELD("charge_no", "s", chargeNo);
+		MYSQL_ADD_FIELD("inp_no", "s", inpNo);
+		MYSQL_ADD_FIELD("order_id", "s", orderId);
+		MYSQL_ADD_FIELD("item_code", "s", itemCode);
+		MYSQL_ADD_FIELD("item_name", "s", itemName);
+		MYSQL_ADD_FIELD("spec", "s", spec);
+		MYSQL_ADD_FIELD("unit", "s", unit);
+		MYSQL_ADD_FIELD("price", "d", price);
+		MYSQL_ADD_FIELD("quantity", "i", quantity);
+		MYSQL_ADD_FIELD("subtotal", "d", subtotal);
+		MYSQL_ADD_FIELD("charge_type", "s", chargeType);
+		MYSQL_ADD_FIELD("operator", "s", operatorId);
+		MYSQL_ADD_FIELD("charge_time", "s", chargeTime);
+		MYSQL_ADD_FIELD("charge_dept", "s", chargeDept);
+		MYSQL_ADD_FIELD("charge_source", "s", chargeSource);
+		MYSQL_ADD_FIELD("supplement_reason", "s", supplementReason);
+		MYSQL_ADD_FIELD("status", "s", status);
+	}
+};
+
+typedef std::shared_ptr<InpatientChargeRecordDO> PtrInpatientChargeRecordDO;
+
+#endif // !_INPATIENT_CHARGE_RECORD_DO_

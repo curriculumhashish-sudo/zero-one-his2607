@@ -1,99 +1,104 @@
 #pragma once
-/*
- Copyright Zero One Star. All rights reserved.
-
- @Author: his-c4
- @Date: 2026/07/18 22:00:00
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
-	  https://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-*/
 #ifndef _MEDICATIONDISPENSE_DO_
 #define _MEDICATIONDISPENSE_DO_
 #include "../DoInclude.h"
 
-/**
- * Database entity for table med_medication_dispense.
- * Core fields for the summary drug-collection (dispense) feature.
- * NOTE: the table has more columns; extend on demand.
- */
 class MedicationDispenseDO : public BaseDO
 {
-	// primary key
 	MYSQL_SYNTHESIZE(string, id, Id);
-	// summary bill no (groups multiple dispense records into one collection bill)
-	MYSQL_SYNTHESIZE(string, summaryNo, SummaryNo);
-	// bill status enum (WAIT_REVIEW / DISPENSED)
+	MYSQL_SYNTHESIZE(string, tenantId, TenantId);
+	MYSQL_SYNTHESIZE(string, createdAt, CreatedAt);
+	MYSQL_SYNTHESIZE(string, updatedAt, UpdatedAt);
+	MYSQL_SYNTHESIZE(string, createdBy, CreatedBy);
+	MYSQL_SYNTHESIZE(string, updatedBy, UpdatedBy);
+	MYSQL_SYNTHESIZE(bool, isDeleted, IsDeleted);
+	MYSQL_SYNTHESIZE(string, deletedAt, DeletedAt);
+	MYSQL_SYNTHESIZE(string, deletedBy, DeletedBy);
+	MYSQL_SYNTHESIZE(int, version, Version);
+	MYSQL_SYNTHESIZE(string, busNo, BusNo);
 	MYSQL_SYNTHESIZE(string, statusEnum, StatusEnum);
-	// dispense type enum
+	MYSQL_SYNTHESIZE(string, notPerformedReasonEnum, NotPerformedReasonEnum);
+	MYSQL_SYNTHESIZE(string, statusChangedTime, StatusChangedTime);
 	MYSQL_SYNTHESIZE(string, dispenseEnum, DispenseEnum);
-	// medication id (FK -> med_medication_definition.id)
 	MYSQL_SYNTHESIZE(string, medicationId, MedicationId);
-	// patient id
 	MYSQL_SYNTHESIZE(string, patientId, PatientId);
-	// encounter id
 	MYSQL_SYNTHESIZE(string, encounterId, EncounterId);
-	// pharmacy location id
 	MYSQL_SYNTHESIZE(string, locationId, LocationId);
-	// destination location id (ward that collects the drugs)
-	MYSQL_SYNTHESIZE(string, desLocationId, DesLocationId);
-	// medication request id (FK -> med_medication_request.id)
 	MYSQL_SYNTHESIZE(string, medReqId, MedReqId);
-	// requested quantity
 	MYSQL_SYNTHESIZE(double, quantity, Quantity);
-	// unit code (specification)
 	MYSQL_SYNTHESIZE(string, unitCode, UnitCode);
-	// actually dispensed quantity
 	MYSQL_SYNTHESIZE(double, dispenseQuantity, DispenseQuantity);
-	// lot number
 	MYSQL_SYNTHESIZE(string, lotNumber, LotNumber);
-	// preparer id
+	MYSQL_SYNTHESIZE(string, traceNo, TraceNo);
 	MYSQL_SYNTHESIZE(string, preparerId, PreparerId);
-	// prepare time
 	MYSQL_SYNTHESIZE(string, prepareTime, PrepareTime);
-	// dispenser practitioner id
 	MYSQL_SYNTHESIZE(string, practitionerId, PractitionerId);
-	// dispense time
 	MYSQL_SYNTHESIZE(string, dispenseTime, DispenseTime);
-	// planned dispense time
+	MYSQL_SYNTHESIZE(string, limitTime, LimitTime);
 	MYSQL_SYNTHESIZE(string, plannedDispenseTime, PlannedDispenseTime);
-	// receiver practitioner id (the nurse who collects)
+	MYSQL_SYNTHESIZE(string, procedureId, ProcedureId);
+	MYSQL_SYNTHESIZE(string, summaryNo, SummaryNo);
+	MYSQL_SYNTHESIZE(string, desLocationId, DesLocationId);
 	MYSQL_SYNTHESIZE(string, recPractitionerId, RecPractitionerId);
+	MYSQL_SYNTHESIZE(string, dosageInstruction, DosageInstruction);
+	MYSQL_SYNTHESIZE(string, methodCode, MethodCode);
+	MYSQL_SYNTHESIZE(string, frequencyCode, FrequencyCode);
+	MYSQL_SYNTHESIZE(double, dose, Dose);
+	MYSQL_SYNTHESIZE(string, doseUnitCode, DoseUnitCode);
+	MYSQL_SYNTHESIZE(double, maxUnit, MaxUnit);
+	MYSQL_SYNTHESIZE(string, supportInfo, SupportInfo);
+	MYSQL_SYNTHESIZE(string, partTypeCode, PartTypeCode);
+	MYSQL_SYNTHESIZE(string, dispenseFrequencyCode, DispenseFrequencyCode);
+
 public:
 	MedicationDispenseDO() : BaseDO("med_medication_dispense")
 	{
 		MYSQL_ADD_FIELD_PK("id", "s", id);
-		MYSQL_ADD_FIELD("summary_no", "s", summaryNo);
+		MYSQL_ADD_FIELD_NULLABLE("tenant_id", "s", tenantId);
+		MYSQL_ADD_FIELD("created_at", "s", createdAt);
+		MYSQL_ADD_FIELD_NULLABLE("updated_at", "s", updatedAt);
+		MYSQL_ADD_FIELD_NULLABLE("created_by", "s", createdBy);
+		MYSQL_ADD_FIELD_NULLABLE("updated_by", "s", updatedBy);
+		MYSQL_ADD_FIELD("is_deleted", "b", isDeleted);
+		MYSQL_ADD_FIELD_NULLABLE("deleted_at", "s", deletedAt);
+		MYSQL_ADD_FIELD_NULLABLE("deleted_by", "s", deletedBy);
+		MYSQL_ADD_FIELD("version", "i", version);
+		MYSQL_ADD_FIELD("bus_no", "s", busNo);
 		MYSQL_ADD_FIELD("status_enum", "s", statusEnum);
+		MYSQL_ADD_FIELD_NULLABLE("not_performed_reason_enum", "s", notPerformedReasonEnum);
+		MYSQL_ADD_FIELD_NULLABLE("status_changed_time", "s", statusChangedTime);
 		MYSQL_ADD_FIELD("dispense_enum", "s", dispenseEnum);
 		MYSQL_ADD_FIELD("medication_id", "s", medicationId);
 		MYSQL_ADD_FIELD("patient_id", "s", patientId);
 		MYSQL_ADD_FIELD("encounter_id", "s", encounterId);
 		MYSQL_ADD_FIELD("location_id", "s", locationId);
-		MYSQL_ADD_FIELD("des_location_id", "s", desLocationId);
 		MYSQL_ADD_FIELD("med_req_id", "s", medReqId);
 		MYSQL_ADD_FIELD("quantity", "d", quantity);
 		MYSQL_ADD_FIELD("unit_code", "s", unitCode);
-		MYSQL_ADD_FIELD("dispense_quantity", "d", dispenseQuantity);
-		MYSQL_ADD_FIELD("lot_number", "s", lotNumber);
-		MYSQL_ADD_FIELD("preparer_id", "s", preparerId);
-		MYSQL_ADD_FIELD("prepare_time", "s", prepareTime);
-		MYSQL_ADD_FIELD("practitioner_id", "s", practitionerId);
-		MYSQL_ADD_FIELD("dispense_time", "s", dispenseTime);
-		MYSQL_ADD_FIELD("planned_dispense_time", "s", plannedDispenseTime);
-		MYSQL_ADD_FIELD("rec_practitioner_id", "s", recPractitionerId);
+		MYSQL_ADD_FIELD_NULLABLE("dispense_quantity", "d", dispenseQuantity);
+		MYSQL_ADD_FIELD_NULLABLE("lot_number", "s", lotNumber);
+		MYSQL_ADD_FIELD_NULLABLE("trace_no", "s", traceNo);
+		MYSQL_ADD_FIELD_NULLABLE("preparer_id", "s", preparerId);
+		MYSQL_ADD_FIELD_NULLABLE("prepare_time", "s", prepareTime);
+		MYSQL_ADD_FIELD_NULLABLE("practitioner_id", "s", practitionerId);
+		MYSQL_ADD_FIELD_NULLABLE("dispense_time", "s", dispenseTime);
+		MYSQL_ADD_FIELD_NULLABLE("limit_time", "s", limitTime);
+		MYSQL_ADD_FIELD_NULLABLE("planned_dispense_time", "s", plannedDispenseTime);
+		MYSQL_ADD_FIELD_NULLABLE("procedure_id", "s", procedureId);
+		MYSQL_ADD_FIELD_NULLABLE("summary_no", "s", summaryNo);
+		MYSQL_ADD_FIELD_NULLABLE("des_location_id", "s", desLocationId);
+		MYSQL_ADD_FIELD_NULLABLE("rec_practitioner_id", "s", recPractitionerId);
+		MYSQL_ADD_FIELD_NULLABLE("dosage_instruction", "s", dosageInstruction);
+		MYSQL_ADD_FIELD_NULLABLE("method_code", "s", methodCode);
+		MYSQL_ADD_FIELD_NULLABLE("frequency_code", "s", frequencyCode);
+		MYSQL_ADD_FIELD_NULLABLE("dose", "d", dose);
+		MYSQL_ADD_FIELD_NULLABLE("dose_unit_code", "s", doseUnitCode);
+		MYSQL_ADD_FIELD_NULLABLE("max_unit", "d", maxUnit);
+		MYSQL_ADD_FIELD_NULLABLE("support_info", "s", supportInfo);
+		MYSQL_ADD_FIELD_NULLABLE("part_type_code", "s", partTypeCode);
+		MYSQL_ADD_FIELD_NULLABLE("dispense_frequency_code", "s", dispenseFrequencyCode);
 	}
 };
 
-// shared_ptr alias for MedicationDispenseDO
 typedef std::shared_ptr<MedicationDispenseDO> PtrMedicationDispenseDO;
 #endif // !_MEDICATIONDISPENSE_DO_
