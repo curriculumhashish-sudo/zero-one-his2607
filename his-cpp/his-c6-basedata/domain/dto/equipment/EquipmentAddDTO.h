@@ -68,6 +68,46 @@ class EquipmentAddDTO : public oatpp::DTO
 	API_DTO_FIELD_REQUIRE(String, pinyin, ZH_WORDS_GETTER("equipment.field.pinyin"), false);
 	// 五笔码
 	API_DTO_FIELD_REQUIRE(String, wubi, ZH_WORDS_GETTER("equipment.field.wubi"), false);
+
+	// 关联一个PayloadDTO负载数据对象
+	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
+
+public:
+	// 数据校验
+	std::string validate()
+	{
+		if (!name || name->empty())
+			return "name invalidate.";
+		if (!classification || classification->empty())
+			return "classification invalidate.";
+		if (!specification || specification->empty())
+			return "specification invalidate.";
+		if (!status || (status!=1&&status!=0))
+			return "status invalidate.";
+		if (!price || price->empty())
+			return "price invalidate.";
+		if (!finantype || finantype->empty())
+			return "finantype invalidate.";
+		if (!purchaunit || purchaunit->empty())
+			return "purchaunit invalidate.";
+		if (!purmin || purmin->empty())
+			return "purmin invalidate.";
+		if (!purchase || purchase->empty())
+			return "purchase invalidate.";
+		if (!inventory || inventory->empty())
+			return "inventory invalidate.";
+		if (!invsplit || invsplit->empty())
+			return "invsplit invalidate.";
+		if (!retail || retail->empty())
+			return "retail invalidate.";
+		if (!packaging || packaging->empty())
+			return "packaging invalidate.";
+		if (!packsplit || packsplit->empty())
+			return "packsplit invalidate.";
+		if (!split || split->empty())
+			return "split invalidate.";
+		return "";
+	}
 };
 
 #include OATPP_CODEGEN_END(DTO)
