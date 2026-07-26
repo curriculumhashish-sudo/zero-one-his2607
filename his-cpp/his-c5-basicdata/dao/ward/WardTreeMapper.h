@@ -2,7 +2,7 @@
 #ifndef _WARDTREE_MAPPER_H_
 #define _WARDTREE_MAPPER_H_
 #include"Mapper.h"
-#include"domain\do\ward\WardTreeDO.h"
+#include"domain/do/ward/WardTreeDO.h"
 class WardTreeMapper :public  Mapper<WardTreeDO> {
 public:
 	WardTreeDO mapper(ResultSet* resultSet) const override {
