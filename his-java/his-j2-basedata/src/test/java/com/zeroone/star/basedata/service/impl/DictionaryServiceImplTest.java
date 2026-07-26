@@ -3,8 +3,6 @@ package com.zeroone.star.basedata.service.impl;
 import com.zeroone.star.basedata.entity.DictionaryConceptDO;
 import com.zeroone.star.basedata.exception.DictionaryBusinessException;
 import com.zeroone.star.basedata.mapper.DictionaryMapper;
-import com.zeroone.star.project.components.user.UserDTO;
-import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.j2.basedata.dictionarytypedto.DictionaryAddDTO;
 import com.zeroone.star.project.dto.j2.basedata.dictionarytypedto.DictionaryDeleteDTO;
 import com.zeroone.star.project.dto.j2.basedata.dictionarytypedto.DictionaryModifyDTO;
@@ -28,21 +26,18 @@ class DictionaryServiceImplTest {
 
     @Mock
     private DictionaryMapper dictionaryMapper;
-    @Mock
-    private UserHolder userHolder;
 
     private DictionaryServiceImpl dictionaryService;
 
     @BeforeEach
     void setUp() {
-        dictionaryService = new DictionaryServiceImpl(dictionaryMapper, userHolder);
+        dictionaryService = new DictionaryServiceImpl(dictionaryMapper);
     }
 
     @Test
     void addDictionaryShouldTrimFieldsAndAppendDefaultSortOrder() throws Exception {
         DictionaryAddDTO data = addDTO();
         data.setSortOrder(null);
-        mockOperator();
         when(dictionaryMapper.lockCodeSystem("900010")).thenReturn("900010");
         when(dictionaryMapper.countDuplicateCode("900010", "1", null)).thenReturn(0);
         when(dictionaryMapper.selectMaxSortOrder("900010")).thenReturn(8L);
@@ -60,7 +55,8 @@ class DictionaryServiceImplTest {
         assertEquals("1", captor.getValue().getCode());
         assertEquals("一般医疗服务费", captor.getValue().getDisplay());
         assertEquals(9L, captor.getValue().getSortOrder());
-        assertEquals("operator-1", captor.getValue().getCreatedBy());
+        assertNull(captor.getValue().getCreatedAt());
+        assertNull(captor.getValue().getCreatedBy());
     }
 
     @Test
@@ -84,7 +80,6 @@ class DictionaryServiceImplTest {
         data.setId("900010001");
         copyAddFields(data);
         data.setSortOrder(null);
-        mockOperator();
         when(dictionaryMapper.countConcept("900010001")).thenReturn(1);
         when(dictionaryMapper.lockCodeSystem("900010")).thenReturn("900010");
         when(dictionaryMapper.countDuplicateCode("900010", "1", "900010001")).thenReturn(0);
@@ -102,8 +97,7 @@ class DictionaryServiceImplTest {
     void removeDictionaryShouldRejectMissingOrDeletedConcept() throws Exception {
         DictionaryDeleteDTO data = new DictionaryDeleteDTO();
         data.setId("missing");
-        mockOperator();
-        when(dictionaryMapper.logicallyDelete("missing", "operator-1")).thenReturn(0);
+        when(dictionaryMapper.logicallyDelete(any(DictionaryConceptDO.class))).thenReturn(0);
 
         DictionaryBusinessException exception = assertThrows(
                 DictionaryBusinessException.class,
@@ -111,6 +105,10 @@ class DictionaryServiceImplTest {
         );
 
         assertEquals("字典项不存在或已删除", exception.getMessage());
+        ArgumentCaptor<DictionaryConceptDO> captor = ArgumentCaptor.forClass(DictionaryConceptDO.class);
+        verify(dictionaryMapper).logicallyDelete(captor.capture());
+        assertEquals("missing", captor.getValue().getId());
+        assertEquals(true, captor.getValue().getIsDeleted());
     }
 
     private DictionaryAddDTO addDTO() {
@@ -125,9 +123,5 @@ class DictionaryServiceImplTest {
         data.setCode(" 1 ");
         data.setDisplay(" 一般医疗服务费 ");
         data.setDefinition(" 一般医疗服务费用 ");
-    }
-
-    private void mockOperator() throws Exception {
-        when(userHolder.getCurrentUser()).thenReturn(UserDTO.builder().id("operator-1").build());
     }
 }

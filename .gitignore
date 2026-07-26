@@ -85,3 +85,4 @@ pnpm-lock.yaml
 
 # Local infrastructure secrets
 deploy/local/nacos/.env
+deploy/local/.env

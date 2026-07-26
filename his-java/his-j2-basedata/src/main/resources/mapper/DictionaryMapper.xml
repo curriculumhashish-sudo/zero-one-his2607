@@ -5,25 +5,25 @@
 
     <update id="updateConcept">
         UPDATE ter_concept
-        SET code_system_id = #{concept.codeSystemId},
-            code = #{concept.code},
-            display = #{concept.display},
-            definition = #{concept.definition},
-            sort_order = COALESCE(#{concept.sortOrder}, sort_order),
-            updated_at = #{concept.updatedAt},
-            updated_by = #{concept.updatedBy}
-        WHERE id = #{concept.id}
+        SET code_system_id = #{et.codeSystemId},
+            code = #{et.code},
+            display = #{et.display},
+            definition = #{et.definition},
+            sort_order = COALESCE(#{et.sortOrder}, sort_order),
+            updated_at = #{et.updatedAt},
+            updated_by = #{et.updatedBy}
+        WHERE id = #{et.id}
           AND is_deleted = 0
     </update>
 
     <update id="logicallyDelete">
         UPDATE ter_concept
         SET is_deleted = 1,
-            deleted_at = CURRENT_TIMESTAMP(6),
-            deleted_by = #{operatorId},
-            updated_at = CURRENT_TIMESTAMP(6),
-            updated_by = #{operatorId}
-        WHERE id = #{id}
+            deleted_at = #{et.deletedAt},
+            deleted_by = #{et.deletedBy},
+            updated_at = #{et.updatedAt},
+            updated_by = #{et.updatedBy}
+        WHERE id = #{et.id}
           AND is_deleted = 0
     </update>
 

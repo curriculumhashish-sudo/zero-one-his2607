@@ -4,15 +4,12 @@ import com.zeroone.star.basedata.entity.DictionaryConceptDO;
 import com.zeroone.star.basedata.exception.DictionaryBusinessException;
 import com.zeroone.star.basedata.mapper.DictionaryMapper;
 import com.zeroone.star.basedata.service.IDictionaryService;
-import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.j2.basedata.dictionarytypedto.DictionaryAddDTO;
 import com.zeroone.star.project.dto.j2.basedata.dictionarytypedto.DictionaryDeleteDTO;
 import com.zeroone.star.project.dto.j2.basedata.dictionarytypedto.DictionaryModifyDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 
 /**
  * 字典项业务实现。
@@ -22,7 +19,6 @@ import java.time.LocalDateTime;
 public class DictionaryServiceImpl implements IDictionaryService {
 
     private final DictionaryMapper dictionaryMapper;
-    private final UserHolder userHolder;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -32,8 +28,6 @@ public class DictionaryServiceImpl implements IDictionaryService {
         checkCodeSystem(codeSystemId);
         checkCodeUnique(codeSystemId, code, null);
 
-        LocalDateTime now = LocalDateTime.now();
-        String operatorId = getOperatorId();
         DictionaryConceptDO concept = new DictionaryConceptDO();
         concept.setCodeSystemId(codeSystemId);
         concept.setCode(code);
@@ -42,8 +36,6 @@ public class DictionaryServiceImpl implements IDictionaryService {
         concept.setSortOrder(resolveSortOrder(codeSystemId, data.getSortOrder()));
         concept.setIsActive(true);
         concept.setIsDeleted(false);
-        concept.setCreatedAt(now);
-        concept.setCreatedBy(operatorId);
 
         if (dictionaryMapper.insert(concept) != 1) {
             throw new DictionaryBusinessException("新增字典项失败");
@@ -71,8 +63,6 @@ public class DictionaryServiceImpl implements IDictionaryService {
         concept.setDisplay(data.getDisplay().trim());
         concept.setDefinition(data.getDefinition().trim());
         concept.setSortOrder(data.getSortOrder());
-        concept.setUpdatedAt(LocalDateTime.now());
-        concept.setUpdatedBy(getOperatorId());
 
         if (dictionaryMapper.updateConcept(concept) != 1) {
             throw new DictionaryBusinessException("修改字典项失败，请刷新后重试");
@@ -84,7 +74,10 @@ public class DictionaryServiceImpl implements IDictionaryService {
     @Transactional(rollbackFor = Exception.class)
     public String removeDictionary(DictionaryDeleteDTO data) {
         String id = data.getId().trim();
-        if (dictionaryMapper.logicallyDelete(id, getOperatorId()) != 1) {
+        DictionaryConceptDO concept = new DictionaryConceptDO();
+        concept.setId(id);
+        concept.setIsDeleted(true);
+        if (dictionaryMapper.logicallyDelete(concept) != 1) {
             throw new DictionaryBusinessException("字典项不存在或已删除");
         }
         return id;
@@ -114,13 +107,5 @@ public class DictionaryServiceImpl implements IDictionaryService {
             throw new DictionaryBusinessException("排序号已达到最大值，请手动指定排序号");
         }
         return maxSortOrder + 1;
-    }
-
-    private String getOperatorId() {
-        try {
-            return userHolder.getCurrentUser().getId();
-        } catch (Exception ignored) {
-            return null;
-        }
     }
 }
