@@ -7,6 +7,7 @@ import com.zeroone.star.project.config.DocumentTypeApis;
 import com.zeroone.star.project.vo.JsonVO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/config/document-type")
 @RequiredArgsConstructor
 @Tag(name = "配置管理-文书类型", description = "文书类型接口")
+@Validated
 public class DocumentTypeController implements DocumentTypeApis {
     
     private final DocumentTypeService documentTypeService;
