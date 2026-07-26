@@ -60,7 +60,7 @@ public class DepartmentTreeVO {
     @Schema(description = "五笔码(wb_str)", example = "tntk")
     private String wbStr;
 
-    @Schema(description = "默认医生ID(def_doctor_id)", example = "308791351298756608")
+    @Schema(description = "默认医师ID", example = "308791351298756608")
     private Long defDoctorId;
 
     @Schema(description = "医保编号(yb_no)", example = "YB-3301-001")

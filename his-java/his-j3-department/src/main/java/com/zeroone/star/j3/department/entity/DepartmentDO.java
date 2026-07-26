@@ -165,7 +165,7 @@ public class DepartmentDO {
     private Integer displayOrder;
 
     @Schema(
-            description = "默认医生ID(def_doctor_id)",
+            description = "默认医师ID",
             example = "308791351298756608",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
