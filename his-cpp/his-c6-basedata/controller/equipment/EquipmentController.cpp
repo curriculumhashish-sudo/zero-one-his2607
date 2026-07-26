@@ -8,7 +8,7 @@
 #include "PdfComponent.h"
 
 // 器材列表分页查询
-EquipmentPageJsonVO::Wrapper EquipmentController::executeQueryEquipment(const EquipmentQuery::Wrapper& query)
+EquipmentPageJsonVO::Wrapper EquipmentController::execQueryEquipment(const EquipmentQuery::Wrapper& query)
 {
 	// 查询数据
 	auto result = EquipmentService().listAll(query);
@@ -92,7 +92,7 @@ EquipmentSelectPageJsonVO::Wrapper EquipmentController::execSelectEquipment(cons
 }
 
 // 声明式服务接口1
-EquipmentJsonVO::Wrapper EquipmentController::executeQueryOne(const String& id)
+EquipmentJsonVO::Wrapper EquipmentController::execQueryOne(const String& id)
 {
 	return {};
 }
