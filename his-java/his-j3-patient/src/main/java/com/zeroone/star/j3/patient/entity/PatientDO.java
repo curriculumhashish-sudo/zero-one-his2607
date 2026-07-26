@@ -124,5 +124,8 @@ public class PatientDO {
     @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private String linkTelcom;
 
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
+    private LocalDateTime deceasedDate;
+
     private String organizationId;
 }
