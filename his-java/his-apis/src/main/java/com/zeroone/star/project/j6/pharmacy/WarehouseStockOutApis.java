@@ -10,8 +10,20 @@ import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutListVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutSaveResultVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 public interface WarehouseStockOutApis {
+
+    @PostMapping("/save-and-submit")
+    @Operation(summary = "保存并提交审批")
+    JsonVO<StockOutApprovalResultVO> saveAndSubmitApproval(@Valid @RequestBody StockOutSaveDTO dto);
+
+    @PostMapping("/add")
+    @Operation(summary = "新增单据")
+    JsonVO<StockOutSaveResultVO> addStockOut(@Valid @RequestBody StockOutSaveDTO dto);
+
     /**
      * 保存出库单（新增/编辑）
      *

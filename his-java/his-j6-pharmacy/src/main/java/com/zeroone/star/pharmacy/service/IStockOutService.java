@@ -10,7 +10,10 @@ import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutSaveResultVO;
  * 药库出库单服务接口
  */
 public interface IStockOutService {
-
+    /**
+     * 保存并提交审批
+     */
+    JsonVO<StockOutApprovalResultVO> saveAndSubmitApproval(StockOutSaveDTO dto);
     /**
      * 保存出库单
      */

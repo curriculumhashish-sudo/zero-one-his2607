@@ -26,6 +26,22 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Tag(name = "药库出库单", description = "药库管理相关接口")
 public class WarehouseStockOutController implements WarehouseStockOutApis {
+
+    @PostMapping("/save-and-submit")
+    @Operation(summary = "保存并提交审批")
+    @Override
+    public JsonVO<StockOutApprovalResultVO> saveAndSubmitApproval(@Valid @RequestBody StockOutSaveDTO dto) {
+        return stockOutService.saveAndSubmitApproval(dto);
+    }
+
+    @PostMapping("/add")
+    @Operation(summary = "新增单据")
+    @Override
+    public JsonVO<StockOutSaveResultVO> addStockOut(@Valid @RequestBody StockOutSaveDTO dto) {
+        // 新增时 busNo 为空，系统生成
+        dto.setBusNo(null);
+        return stockOutService.saveStockOut(dto);
+    }
     // 注入 Service
     private final IStockOutService stockOutService;
 

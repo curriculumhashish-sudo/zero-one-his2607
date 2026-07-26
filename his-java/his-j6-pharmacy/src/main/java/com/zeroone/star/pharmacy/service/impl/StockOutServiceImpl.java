@@ -30,6 +30,23 @@ public class StockOutServiceImpl implements IStockOutService {
     // private final StockOutMapper stockOutMapper;
 
     @Override
+    public JsonVO<StockOutApprovalResultVO> saveAndSubmitApproval(StockOutSaveDTO dto) {
+        // 第一步：保存出库单
+        StockOutSaveResultVO saveResult = saveStockOut(dto).getData();
+
+        // 第二步：提交审批
+        SubmitStockOutApprovalDTO approvalDTO = new SubmitStockOutApprovalDTO();
+        approvalDTO.setBusNo(saveResult.getBusNo());
+        // approvalDTO.setApproverId(...); // 如果需要审批人ID
+
+        StockOutApprovalResultVO result = new StockOutApprovalResultVO();
+        result.setSuccess(true);
+        result.setStatusEnum("APPROVAL");
+
+        return JsonVO.success(result);
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public JsonVO<StockOutSaveResultVO> saveStockOut(StockOutSaveDTO dto) {
         StockOutSaveResultVO result = new StockOutSaveResultVO();
