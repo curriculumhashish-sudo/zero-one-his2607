@@ -1,6 +1,6 @@
 chinapres2:
  tags:
-  tag: 中医处方管理
+  tag: 中医处方
  query:
   summary: 获取历史处方
  add:
@@ -22,3 +22,18 @@ chinapres2:
   patientId: 患者ID
   encounterId: 就诊ID
   requesterId: 开方医生ID
+
+outpatientRecord:
+  tags:
+    tag: 门诊病历
+  query:
+    summary: 获取历史病历详情
+  field:
+    id: 就诊编号
+    patientName: 患者姓名
+    gender: 性别
+    visitDate: 就诊日期
+    diagnosis: 诊断
+    doctorName: 医生
+    deptName: 科室
+    remark: 备注
