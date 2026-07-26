@@ -68,10 +68,9 @@ public class MedMedicationDispense implements Serializable {
     private String busNo;
 
     /**
-     * 执行状态 （如 COMPLETED / REFUNDED / DECLINED）
-     *  COMPLETED: 发药完成
-     *  REFUNDED: 退药已确认通过
-     *  DECLINED: 退药被拒绝
+     * 执行状态（语义依赖 dispense_enum）
+     *  发药（如 OUTPATIENT/INPATIENT）：PENDING 待发药 / COMPLETED 发药完成
+     *  退药（REFUND）：PENDING 待退药 / REFUNDED 已退药 / DECLINED 退药拒绝
      */
     private String statusEnum;
 
