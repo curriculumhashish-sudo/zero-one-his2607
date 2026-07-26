@@ -17,14 +17,13 @@ class PrintJobController : public oatpp::web::server::api::ApiController
 {
 	API_ACCESS_DECLARE(PrintJobController);
 public:
-	// ---- print endpoint info ----
 	ENDPOINT_INFO(printJob) {
 		API_DEF_ADD_AUTH();
 		info->summary = ZH_WORDS_GETTER("print.print.summary");
 		API_DEF_ADD_RSP_JSON(oatpp::Object<PrintResultJsonVO>);
 	}
-	// POST /print/print
-	ENDPOINT(API_M_POST, "/print/print", printJob, BODY_DTO(PrintRequestDTO::Wrapper, dto), API_HANDLER_AUTH_PARAME) {
+	// POST /opnurse3/print
+	ENDPOINT(API_M_POST, "/opnurse3/print", printJob, BODY_DTO(PrintRequestDTO::Wrapper, dto), API_HANDLER_AUTH_PARAME) {
 		return createDtoResponse(Status::CODE_200, executePrint(dto));
 	}
 

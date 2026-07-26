@@ -27,3 +27,5 @@ print:
     reprint: 是否补打
     printSuccess: 打印是否成功
     printMsg: 打印结果消息
+    printData: 打印数据
+    pdfBase64: PDF的Base64编码

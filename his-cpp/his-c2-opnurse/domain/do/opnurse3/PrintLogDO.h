@@ -9,8 +9,10 @@
 
 #include "../DoInclude.h"
 
+
 class PrintLogDO : public BaseDO
 {
+	//×Ö¶ÎÉùÃ÷
 	MYSQL_SYNTHESIZE(string, id, Id);
 	MYSQL_SYNTHESIZE(string, printJobId, PrintJobId);
 	MYSQL_SYNTHESIZE(string, docType, DocType);

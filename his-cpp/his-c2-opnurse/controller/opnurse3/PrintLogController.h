@@ -28,8 +28,8 @@ public:
 		API_DEF_ADD_QUERY_PARAMS(String, "timefrom", ZH_WORDS_GETTER("print.field.timefrom"), "", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "timeto", ZH_WORDS_GETTER("print.field.timeto"), "", false);
 	}
-	// GET /print/records — execution records
-	ENDPOINT(API_M_GET, "/print/records", queryRecords, QUERIES(QueryParams, params), API_HANDLER_AUTH_PARAME) {
+	// GET /opnurse3/records
+	ENDPOINT(API_M_GET, "/opnurse3/records", queryRecords, QUERIES(QueryParams, params), API_HANDLER_AUTH_PARAME) {
 		API_HANDLER_QUERY_PARAM(query, PrintLogQuery, params);
 		return createDtoResponse(Status::CODE_200, executeQueryRecords(query));
 	}
