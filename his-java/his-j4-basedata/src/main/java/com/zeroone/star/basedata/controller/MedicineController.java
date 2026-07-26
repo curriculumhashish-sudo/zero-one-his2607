@@ -47,7 +47,7 @@ public class MedicineController implements MedicineApis {
     @Override
     @GetMapping("/query-medicine-list")
     @Operation(summary = "获取药品列表（条件+分页）")
-    public JsonVO<PageDTO<MedicineListVO>> queryMedicineList(MedicinePageQuery query) {
+    public JsonVO<PageDTO<MedicineListVO>> queryMedicineList(@Valid MedicinePageQuery query) {
         return JsonVO.success(medicineService.queryMedicinePage(query));
     }
 
@@ -55,7 +55,7 @@ public class MedicineController implements MedicineApis {
     @GetMapping("/query-medicine-select-list")
     @Operation(summary = "获取选择药品列表（条件+分页）")
     public JsonVO<PageDTO<MedicineSelectVO>> queryMedicineSelectList(
-            MedicineSelectPageQuery query) {
+            @Valid MedicineSelectPageQuery query) {
 
         PageDTO<MedicineSelectVO> pageResult =
                 medicineService.queryMedicineSelectPage(query);

@@ -1,6 +1,9 @@
 package com.zeroone.star.project.dto.j4.equipment;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -17,6 +20,7 @@ public class EquipmentAddDTO {
     private String busNo;
 
     /** 器材名称 */
+    @NotBlank(message = "器材名称不能为空")
     @Schema(description = "器材名称", example = "一次性无菌注射器", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
 
@@ -33,6 +37,7 @@ public class EquipmentAddDTO {
     private String merchandiseName;
 
     /** 器材分类字典编码 */
+    @NotBlank(message = "器材分类字典编码不能为空")
     @Schema(description = "器材分类字典编码", example = "CAT001", requiredMode = Schema.RequiredMode.REQUIRED)
     private String categoryCode;
 
@@ -41,22 +46,27 @@ public class EquipmentAddDTO {
     private String typeCode;
 
     /** 采购单位编码 */
+    @NotBlank(message = "采购单位编码不能为空")
     @Schema(description = "采购单位编码", example = "BOX", requiredMode = Schema.RequiredMode.REQUIRED)
     private String purchaseUnitCode;
 
     /** 包装规格（与药品 totalVolume 对齐） */
+    @NotBlank(message = "包装规格不能为空")
     @Schema(description = "包装规格（与药品 totalVolume 对齐）", example = "10支/盒", requiredMode = Schema.RequiredMode.REQUIRED)
     private String totalVolume;
 
     /** 拆零单位编码 */
+    @NotBlank(message = "拆零单位编码不能为空")
     @Schema(description = "拆零单位编码", example = "PCS", requiredMode = Schema.RequiredMode.REQUIRED)
     private String splitUnitCode;
 
     /** 采购单位历史别名（purchaseUnitCode 为空时回落）；新接口请传 purchaseUnitCode */
+    @NotBlank(message = "采购单位历史别名不能为空")
     @Schema(description = "采购单位历史别名（purchaseUnitCode 为空时回落）；新接口请传 purchaseUnitCode", example = "BOX")
     private String unitCode;
 
     /** 拆零单位历史别名（splitUnitCode 为空时回落）；新接口请传 splitUnitCode */
+    @NotBlank(message = "拆零单位历史别名不能为空")
     @Schema(description = "拆零单位历史别名（splitUnitCode 为空时回落）；新接口请传 splitUnitCode", example = "PCS")
     private String minUnitCode;
 
@@ -69,14 +79,17 @@ public class EquipmentAddDTO {
     private String defInhospitalUnitCode;
 
     /** 包装单位编码（界面命名；持久化列 package_unit_code） */
+    @NotBlank(message = "包装单位编码不能为空")
     @Schema(description = "包装单位编码（界面命名；持久化列 package_unit_code）", example = "BOX", requiredMode = Schema.RequiredMode.REQUIRED)
     private String packageUnitCode;
 
     /** 库存单位编码（持久化列 stock_unit_code） */
+    @NotBlank(message = "库存单位编码不能为空")
     @Schema(description = "库存单位编码（持久化列 stock_unit_code）", example = "BOX", requiredMode = Schema.RequiredMode.REQUIRED)
     private String stockUnitCode;
 
     /** 剂量单位编码（给药/化验口径） */
+    @NotBlank(message = "剂量单位编码不能为空")
     @Schema(description = "剂量单位编码（给药/化验口径）", example = "PCS")
     private String doseUnitCode;
 
@@ -89,6 +102,7 @@ public class EquipmentAddDTO {
     private Long locationId;
 
     /** 设备型号 */
+    @NotBlank(message = "设备型号不能为空")
     @Schema(description = "设备型号", example = "KL-5ML")
     private String modelNumber;
 
@@ -141,6 +155,7 @@ public class EquipmentAddDTO {
     private Boolean allergenFlag;
 
     /** 财务分类编码（收费侧） */
+    @NotBlank(message = "财务分类编码不能为空")
     @Schema(description = "财务分类编码（收费侧）", example = "FIN001", requiredMode = Schema.RequiredMode.REQUIRED)
     private String itemTypeCode;
 
@@ -153,10 +168,14 @@ public class EquipmentAddDTO {
     private String jurisdiction;
 
     /** 采购价（元） */
+    @NotNull(message = "采购价不能为空")
+    @DecimalMin(value = "0.00", message = "采购价不能小于0")
     @Schema(description = "采购价（元）", example = "15.50", requiredMode = Schema.RequiredMode.REQUIRED)
     private BigDecimal purchasePrice;
 
     /** 零售价（元） */
+    @NotNull(message = "零售价不能为空")
+    @DecimalMin(value = "0.00", message = "零售价不能小于0")
     @Schema(description = "零售价（元）", example = "25.00", requiredMode = Schema.RequiredMode.REQUIRED)
     private BigDecimal retailPrice;
 
@@ -181,14 +200,20 @@ public class EquipmentAddDTO {
     private BigDecimal doseUnitRatio;
 
     /** 采购单位相对拆零单位换算比 */
+    @NotNull(message = "采购单位换算比不能为空")
+    @DecimalMin(value = "0.00", message = "采购单位换算比不能小于0")
     @Schema(description = "采购单位相对拆零单位换算比", example = "1.0", requiredMode = Schema.RequiredMode.REQUIRED)
     private BigDecimal purchaseUnitRatio;
 
     /** 库存单位相对拆零单位换算比 */
+    @NotNull(message = "库存单位换算比不能为空")
+    @DecimalMin(value = "0.00", message = "库存单位换算比不能小于0")
     @Schema(description = "库存单位相对拆零单位换算比", example = "1.0", requiredMode = Schema.RequiredMode.REQUIRED)
     private BigDecimal stockUnitRatio;
 
     /** 销售单位相对拆零单位换算比 */
+    @NotNull(message = "销售单位换算比不能为空")
+    @DecimalMin(value = "0.00", message = "销售单位换算比不能小于0")
     @Schema(description = "销售单位相对拆零单位换算比", example = "1.0", requiredMode = Schema.RequiredMode.REQUIRED)
     private BigDecimal packageUnitRatio;
 

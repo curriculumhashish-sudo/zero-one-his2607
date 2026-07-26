@@ -1,6 +1,9 @@
 package com.zeroone.star.basedata.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinitionDO;
 import com.zeroone.star.basedata.service.IEquipmentService;
+import com.zeroone.star.basedata.service.impl.MsEquipmentMapper;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentAddDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentStatusDTO;
@@ -18,6 +21,8 @@ import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -37,6 +42,8 @@ import java.util.List;
 public class EquipmentController implements EquipmentApis {
     @Resource
     private IEquipmentService equipmentService;
+    @Resource
+    private MsEquipmentMapper msEquipmentMapper;
 
     /**
      * 获取器材列表（条件+分页）
@@ -48,7 +55,16 @@ public class EquipmentController implements EquipmentApis {
     @GetMapping("/query-equipment-list")
     @Operation(summary = "获取器材列表（条件+分页）", description = "获取器材列表（条件+分页）")
     public JsonVO<PageDTO<EquipmentVO>> queryPage(@Valid EquipmentPageQuery query) {
-        return null;
+        try {
+            Page<AdmDeviceDefinitionDO> entityPage = equipmentService.queryEquipmentPage(query);
+            PageDTO<EquipmentVO> result = PageDTO.create(entityPage,
+                    entity -> msEquipmentMapper.entityToVo(entity));
+            return JsonVO.success(result);
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        } catch (Exception e) {
+            return JsonVO.fail("查询器材列表失败：" + e.getMessage());
+        }
     }
 
     /**
@@ -75,7 +91,19 @@ public class EquipmentController implements EquipmentApis {
     @PostMapping("/update-equipment")
     @Operation(summary = "修改器材", description = "修改器材")
     public JsonVO<EquipmentUpdateVO> updateEquipment(@RequestBody @Valid EquipmentUpdateDTO dto) {
-        return null;
+        try {
+            AdmDeviceDefinitionDO entity = equipmentService.updateEquipment(dto);
+            if (entity == null) {
+                return JsonVO.fail("修改器材失败");
+            }
+            EquipmentUpdateVO vo = msEquipmentMapper.entityToUpdateVo(entity);
+            vo.setUpdateTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            return JsonVO.success(vo);
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        } catch (Exception e) {
+            return JsonVO.fail("修改器材失败：" + e.getMessage());
+        }
     }
 
     /**
@@ -87,8 +115,19 @@ public class EquipmentController implements EquipmentApis {
     @Override
     @PutMapping("/modify-equipment-status")
     @Operation(summary = "启/停用器材（支持批量）", description = "启/停用器材（支持批量）")
-    public JsonVO<EquipmentUpdateVO> modifyStatus(@RequestBody @Valid EquipmentStatusDTO dto) {
-        return null;
+    public JsonVO<EquipmentVO> modifyStatus(@RequestBody @Valid EquipmentStatusDTO dto) {
+        try {
+            AdmDeviceDefinitionDO entity = equipmentService.modifyEquipmentStatus(dto);
+            if (entity == null) {
+                return JsonVO.fail("切换状态失败");
+            }
+            EquipmentVO vo = msEquipmentMapper.entityToVo(entity);
+            return JsonVO.success(vo);
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        } catch (Exception e) {
+            return JsonVO.fail("切换状态失败：" + e.getMessage());
+        }
     }
 
     /**
@@ -100,7 +139,7 @@ public class EquipmentController implements EquipmentApis {
     @Override
     @GetMapping("/get-by-id")
     @Operation(summary = "查询器材详情", description = "查询器材详情")
-    public JsonVO<EquipmentVO> getEquipmentByEquipmentId(@RequestParam @Valid Long equipmentId) {
+    public JsonVO<EquipmentVO> getEquipmentByEquipmentId(@RequestParam Long equipmentId) {
         return null;
     }
 
@@ -111,7 +150,7 @@ public class EquipmentController implements EquipmentApis {
      */
     @Override
     @GetMapping("/query-equipment-category")
-    @Operation(summary = "查询器材分类列表", description = "查询器材分类列表")
+    @Operation(summary = "获取选择耗材列表(条件+分页)", description = "查询器材分类列表")
     public JsonVO<List<EquipmentCategoryVo>> queryEquipmentCategoryList() {
         return null;
     }
@@ -124,8 +163,8 @@ public class EquipmentController implements EquipmentApis {
      */
     @Override
     @DeleteMapping("/remove-by-ids")
-    @Operation(summary = "批量删除器材", description = "批量删除器材")
-    public JsonVO<Void> removeEquipmentByEquipmentIds(@RequestBody @Valid List<Long> equipmentIds) {
+    @Operation(summary = "删除器材(支持批量)", description = "批量删除器材")
+    public JsonVO<Void> removeEquipmentByEquipmentIds(@RequestBody List<Long> equipmentIds) {
         return null;
     }
 }

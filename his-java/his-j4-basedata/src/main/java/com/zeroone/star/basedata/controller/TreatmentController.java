@@ -7,7 +7,6 @@ import com.zeroone.star.project.dto.j4.treatment.TreatmentEditDTO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentStatusDTO;
 import com.zeroone.star.project.j4.basedata.TreatmentApis;
 import com.zeroone.star.project.query.j4.treatment.TreatmentQuery;
-import com.zeroone.star.project.query.j4.treatment.TreatmentSelectQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j4.treatment.TreatmentDetailVO;
 import com.zeroone.star.project.vo.j4.treatment.TreatmentListVO;
@@ -20,10 +19,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 /**
  * <p>
  * 描述：诊疗管理控制器
@@ -33,8 +30,6 @@ import org.springframework.web.bind.annotation.*;
  * @author j4组
  * @version 1.0.0
  */
-
-@Validated
 @RestController
 @RequestMapping("/treatment")
 @Tag(name = "诊疗管理", description = "诊疗管理接口")
@@ -44,11 +39,11 @@ public class TreatmentController implements TreatmentApis {
     private ITreatmentService treatmentService;
 
     @Operation(summary = "获取选择诊疗列表（条件+分页）", description = "用于其他业务模块选择诊疗项目时的分页查询，返回编码/名称/分类")
-    @ApiResponse(description = "分页数据，每条含id/busNo/name/categoryCode")
+    @ApiResponse(description = "分页数据，每条含id/name/categoryCode")
     @GetMapping("/query-select-treatment-list")
     @Override
-    public JsonVO<PageDTO<TreatmentSelectVO>> listTreatmentOptions(TreatmentSelectQuery query) {
-        return JsonVO.success(null);
+    public JsonVO<PageDTO<TreatmentSelectVO>> listTreatmentOptions(@Valid TreatmentQuery query) {
+        return JsonVO.success(treatmentService.listTreatmentOptions(query));
     }
 
 
@@ -56,10 +51,9 @@ public class TreatmentController implements TreatmentApis {
     @ApiResponse(description = "分页结果数据")
     @GetMapping("/query-treatment-list")
     @Override
-    public JsonVO<PageDTO<TreatmentListVO>> queryTreatmentList(@ParameterObject TreatmentQuery query) {
+    public JsonVO<PageDTO<TreatmentListVO>> queryTreatmentList(@Valid TreatmentQuery query) {
         return JsonVO.success(treatmentService.queryTreatmentList(query));
     }
-
 
 
     @Operation(summary = "获取诊疗详情", description = "根据诊疗主键ID查询单条数据完整详情")
@@ -78,7 +72,7 @@ public class TreatmentController implements TreatmentApis {
     @ApiResponse(description = "无返回值")
     @PostMapping("/add-treatment")
     @Override
-    public JsonVO<Void> addTreatment(@RequestBody @Valid TreatmentAddDTO treatmentAddDTO) {
+    public JsonVO<Void> addTreatment(@Validated @RequestBody TreatmentAddDTO treatmentAddDTO) {
         treatmentService.addTreatment(treatmentAddDTO);
         return JsonVO.success(null);
     }
@@ -87,7 +81,7 @@ public class TreatmentController implements TreatmentApis {
     @ApiResponse(description = "编辑确认结果")
     @PostMapping("/modify-treatment")
     @Override
-    public JsonVO<TreatmentDetailVO> modifyTreatment(@RequestBody @Valid TreatmentEditDTO dto) {
+    public JsonVO<TreatmentDetailVO> modifyTreatment(@Validated @RequestBody TreatmentEditDTO dto) {
         return JsonVO.success(treatmentService.modifyTreatment(dto));
     }
 
@@ -109,7 +103,7 @@ public class TreatmentController implements TreatmentApis {
     @ApiResponse(description = "切换后的诊疗状态信息")
     @PutMapping("/modify-treatment-status")
     @Override
-    public JsonVO<TreatmentDetailVO> modifyStatus(@RequestBody @Valid TreatmentStatusDTO dto) {
+    public JsonVO<TreatmentDetailVO> modifyStatus(@Validated @RequestBody TreatmentStatusDTO dto) {
         return JsonVO.success(treatmentService.modifyStatus(dto));
     }
 }

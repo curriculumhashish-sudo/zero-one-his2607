@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
  * @version 1.0.0
  */
 @Data
+@Schema(description = "诊疗管理响应DTO")
 public class TreatmentResponseDTO {
 
     @Schema(description = "主键", example = "1680000111222333444")
