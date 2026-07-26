@@ -13,7 +13,7 @@ EquipmentDetailPageJsonVO::Wrapper EquipmentController::executeQueryEquipment(co
 	// 查询数据
 	auto result = EquipmentService().listAll(query);
 	// 响应结果
-	auto jvo = EquipmentPageJsonVO::createShared();
+	auto jvo = EquipmentDetailPageJsonVO::createShared();
 	jvo->success(result);
 	return jvo;
 }
@@ -21,7 +21,7 @@ EquipmentDetailPageJsonVO::Wrapper EquipmentController::executeQueryEquipment(co
 // 新增器材
 StringJsonVO::Wrapper EquipmentController::execAddEquipment(const EquipmentAddDTO::Wrapper& dto, const PayloadDTO& payload)
 {
-	return {};
+	return{};
 }
 
 //修改设备
