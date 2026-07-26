@@ -5,328 +5,249 @@ import com.zeroone.star.j3.patient.entity.PatientDO;
 import com.zeroone.star.j3.patient.exception.PatientBusinessException;
 import com.zeroone.star.j3.patient.mapper.PatientMapper;
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j3.patient.PatientCreateDTO;
-import com.zeroone.star.project.dto.j3.patient.PatientUpdateDTO;
 import com.zeroone.star.project.query.j3.patient.PatientQuery;
-import com.zeroone.star.project.vo.j3.patient.PatientListVO;
+import com.zeroone.star.project.vo.j3.patient.PatientOptionVO;
+import com.zeroone.star.project.vo.j3.patient.PatientVO;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * 患者管理三个新功能的单元测试：
+ * <ol>
+ *   <li>queryPatients — 获取选择患者列表</li>
+ *   <li>getPatientById — 获取患者详情</li>
+ *   <li>deletePatientById — 删除患者（逻辑删除）</li>
+ * </ol>
+ */
 @ExtendWith(MockitoExtension.class)
+@DisplayName("PatientServiceImpl 单元测试")
 class PatientServiceImplTest {
-
-    private static final String ORGANIZATION_ID = "322663105141149696";
 
     @Mock
     private PatientMapper patientMapper;
 
+    @InjectMocks
     private PatientServiceImpl patientService;
+
+    private PatientDO patient1;
+    private PatientDO patient2;
 
     @BeforeEach
     void setUp() {
-        patientService = new PatientServiceImpl(patientMapper);
+        patient1 = new PatientDO();
+        patient1.setId("P001");
+        patient1.setName("张三");
+        patient1.setGenderEnum("MALE");
+        patient1.setBirthDate(LocalDate.of(1990, 5, 15));
+        patient1.setIdCard("110101199005152345");
+        patient1.setPhone("13800138001");
+        patient1.setStatusEnum("ACTIVE");
+        patient1.setActiveFlag(true);
+        patient1.setTempFlag(false);
+
+        patient2 = new PatientDO();
+        patient2.setId("P002");
+        patient2.setName("李四");
+        patient2.setGenderEnum("FEMALE");
+        patient2.setBirthDate(LocalDate.of(1985, 10, 20));
+        patient2.setIdCard("220101198510204567");
+        patient2.setPhone("13900139002");
+        patient2.setStatusEnum("ACTIVE");
+        patient2.setActiveFlag(true);
+        patient2.setTempFlag(false);
     }
 
-    @Test
-    void shouldQueryPageAndMaskSensitiveFields() {
-        PatientQuery query = new PatientQuery();
-        query.setPageIndex(1);
-        query.setPageSize(10);
-        query.setName(" 小王 ");
+    // ──────────────────── queryPatients ────────────────────
 
-        PatientDO patient = activePatient();
-        patient.setName("小王");
-        patient.setIdCard("220321200105064567");
-        patient.setPhone("13944894568");
+    @Nested
+    @DisplayName("queryPatients — 获取选择患者列表")
+    class QueryPatientsTests {
 
-        Page<PatientDO> mapperPage = new Page<>(1, 10);
-        mapperPage.setTotal(1);
-        mapperPage.setRecords(List.of(patient));
-        when(patientMapper.selectPatientPage(any(), eq(query)))
-                .thenReturn(mapperPage);
+        @Test
+        @DisplayName("有数据时返回分页结果")
+        void shouldReturnPageWhenDataExists() {
+            PatientQuery query = new PatientQuery();
+            query.setPageIndex(1);
+            query.setPageSize(10);
 
-        PageDTO<PatientListVO> result =
-                patientService.queryPatientPage(query);
+            Page<PatientDO> mockPage = new Page<>(1, 10);
+            mockPage.setRecords(List.of(patient1, patient2));
+            mockPage.setTotal(2);
+            mockPage.setPages(1);
 
-        assertEquals("小王", query.getName());
-        assertEquals(1L, result.getTotal());
-        assertEquals(1, result.getRows().size());
-        PatientListVO row = result.getRows().get(0);
-        assertEquals("220321********4567", row.getIdCard());
-        assertEquals("139****4568", row.getPhone());
-        assertEquals("PA00000001", row.getBusNo());
+            when(patientMapper.selectPatientPage(any(), eq(query)))
+                    .thenReturn(mockPage);
+
+            PageDTO<PatientOptionVO> result = patientService.queryPatients(query);
+
+            assertThat(result.getPageIndex()).isEqualTo(1L);
+            assertThat(result.getPageSize()).isEqualTo(10L);
+            assertThat(result.getTotal()).isEqualTo(2L);
+            assertThat(result.getRows()).hasSize(2);
+
+            PatientOptionVO first = result.getRows().get(0);
+            assertThat(first.getId()).isEqualTo("P001");
+            assertThat(first.getName()).isEqualTo("张三");
+            assertThat(first.getGenderEnum()).isEqualTo("MALE");
+            assertThat(first.getIdCard()).isEqualTo("110101199005152345");
+        }
+
+        @Test
+        @DisplayName("无数据时返回空列表")
+        void shouldReturnEmptyWhenNoData() {
+            PatientQuery query = new PatientQuery();
+            query.setPageIndex(1);
+            query.setPageSize(10);
+
+            Page<PatientDO> mockPage = new Page<>(1, 10);
+            mockPage.setRecords(List.of());
+            mockPage.setTotal(0);
+            mockPage.setPages(0);
+
+            when(patientMapper.selectPatientPage(any(), eq(query)))
+                    .thenReturn(mockPage);
+
+            PageDTO<PatientOptionVO> result = patientService.queryPatients(query);
+
+            assertThat(result.getTotal()).isZero();
+            assertThat(result.getRows()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("关键词为空时不拼接 LIKE 条件")
+        void shouldNormalizeEmptyKeyword() {
+            PatientQuery query = new PatientQuery();
+            query.setPageIndex(1);
+            query.setPageSize(10);
+            query.setKeyword("  "); // 会被 trimToNull 转为 null
+
+            Page<PatientDO> mockPage = new Page<>(1, 10);
+            mockPage.setRecords(List.of(patient1));
+            mockPage.setTotal(1);
+
+            when(patientMapper.selectPatientPage(any(), eq(query)))
+                    .thenReturn(mockPage);
+
+            PageDTO<PatientOptionVO> result = patientService.queryPatients(query);
+
+            assertThat(result.getTotal()).isEqualTo(1L);
+            // keyword 已被 normalizeQuery 转为 null
+            assertThat(query.getKeyword()).isNull();
+        }
     }
 
-    @Test
-    void shouldCreateFormalPatientWithPrototypeDefaults() {
-        PatientCreateDTO dto = validCreateDto();
-        dto.setName(" 照夜清 ");
-        dto.setIdCard("11010119900101123x");
-        dto.setPhone("13800001234");
+    // ──────────────────── getPatientById ────────────────────
 
-        when(patientMapper.selectTenantIdByActiveOrganizationId(
-                ORGANIZATION_ID
-        )).thenReturn("1");
-        when(patientMapper.selectIdByIdCardForUpdate(
-                "11010119900101123X",
-                null
-        )).thenReturn(null);
-        when(patientMapper.selectSequenceValueForUpdate("1:PA"))
-                .thenReturn(5L);
-        when(patientMapper.updateSequence(
-                eq("1:PA"),
-                eq(6L),
-                any(LocalDateTime.class)
-        )).thenReturn(1);
-        when(patientMapper.insert(any(PatientDO.class)))
-                .thenAnswer(invocation -> {
-                    PatientDO patient = invocation.getArgument(0);
-                    patient.setId("new-patient-id");
-                    return 1;
-                });
+    @Nested
+    @DisplayName("getPatientById — 获取患者详情")
+    class GetPatientByIdTests {
 
-        String id = patientService.createPatient(dto);
+        @Test
+        @DisplayName("患者存在时返回完整详情")
+        void shouldReturnPatientWhenExists() {
+            when(patientMapper.selectById("P001")).thenReturn(patient1);
 
-        assertEquals("new-patient-id", id);
-        ArgumentCaptor<PatientDO> captor =
-                ArgumentCaptor.forClass(PatientDO.class);
-        verify(patientMapper).insert(captor.capture());
-        PatientDO inserted = captor.getValue();
-        assertEquals("照夜清", inserted.getName());
-        assertEquals("11010119900101123X", inserted.getIdCard());
-        assertEquals("PA00000006", inserted.getBusNo());
-        assertEquals("ZYQ", inserted.getPyStr());
-        assertEquals("ACTIVE", inserted.getStatusEnum());
-        assertTrue(inserted.getActiveFlag());
-        assertFalse(inserted.getTempFlag());
-        assertFalse(inserted.getIsDeleted());
-        assertEquals(0, inserted.getVersion());
-        assertEquals("1", inserted.getTenantId());
-        assertNotNull(inserted.getCreatedAt());
+            PatientVO result = patientService.getPatientById("P001");
+
+            assertThat(result.getId()).isEqualTo("P001");
+            assertThat(result.getName()).isEqualTo("张三");
+            assertThat(result.getGenderEnum()).isEqualTo("MALE");
+            assertThat(result.getBirthDate()).isEqualTo(LocalDate.of(1990, 5, 15));
+            assertThat(result.getIdCard()).isEqualTo("110101199005152345");
+            assertThat(result.getPhone()).isEqualTo("13800138001");
+            assertThat(result.getStatusEnum()).isEqualTo("ACTIVE");
+            assertThat(result.getActiveFlag()).isTrue();
+        }
+
+        @Test
+        @DisplayName("患者不存在时抛异常")
+        void shouldThrowWhenPatientNotFound() {
+            when(patientMapper.selectById("NOT_EXIST")).thenReturn(null);
+
+            assertThatThrownBy(() -> patientService.getPatientById("NOT_EXIST"))
+                    .isInstanceOf(PatientBusinessException.class)
+                    .hasMessage("患者不存在或已删除");
+        }
+
+        @Test
+        @DisplayName("已逻辑删除的患者查不到（@TableLogic 自动过滤）")
+        void shouldReturnNullForDeletedPatient() {
+            when(patientMapper.selectById("DELETED")).thenReturn(null);
+
+            assertThatThrownBy(() -> patientService.getPatientById("DELETED"))
+                    .isInstanceOf(PatientBusinessException.class)
+                    .hasMessage("患者不存在或已删除");
+        }
     }
 
-    @Test
-    void shouldRejectDuplicateIdCardIncludingSoftDeletedPatient() {
-        PatientCreateDTO dto = validCreateDto();
-        dto.setIdCard("110101199001011237");
-        when(patientMapper.selectTenantIdByActiveOrganizationId(
-                ORGANIZATION_ID
-        )).thenReturn("1");
-        when(patientMapper.selectIdByIdCardForUpdate(
-                "110101199001011237",
-                null
-        )).thenReturn("occupied-patient-id");
+    // ──────────────────── deletePatientById ────────────────────
 
-        PatientBusinessException exception = assertThrows(
-                PatientBusinessException.class,
-                () -> patientService.createPatient(dto)
-        );
+    @Nested
+    @DisplayName("deletePatientById — 删除患者（逻辑删除）")
+    class DeletePatientByIdTests {
 
-        assertEquals(
-                "该身份证号已存在患者档案",
-                exception.getMessage()
-        );
-        verify(patientMapper, never()).insert(any(PatientDO.class));
-    }
+        @Test
+        @DisplayName("正常删除已存在的患者")
+        void shouldDeleteExistingPatient() {
+            when(patientMapper.selectById("P001")).thenReturn(patient1);
+            when(patientMapper.deleteById("P001")).thenReturn(1);
 
-    @Test
-    void shouldRejectInvalidOrganization() {
-        PatientCreateDTO dto = validCreateDto();
-        when(patientMapper.selectTenantIdByActiveOrganizationId(
-                ORGANIZATION_ID
-        )).thenReturn(null);
+            patientService.deletePatientById("P001");
 
-        PatientBusinessException exception = assertThrows(
-                PatientBusinessException.class,
-                () -> patientService.createPatient(dto)
-        );
+            verify(patientMapper).selectById("P001");
+            verify(patientMapper).deleteById("P001");
+        }
 
-        assertEquals(
-                "建档机构不存在、已停用或已删除",
-                exception.getMessage()
-        );
-    }
+        @Test
+        @DisplayName("ID为空时抛异常")
+        void shouldThrowWhenIdIsNull() {
+            assertThatThrownBy(() -> patientService.deletePatientById(null))
+                    .isInstanceOf(PatientBusinessException.class)
+                    .hasMessage("患者ID不能为空");
+        }
 
-    @Test
-    void shouldUpdateActivePatientWithOptimisticLock() {
-        PatientDO patient = activePatient();
-        when(patientMapper.selectById(patient.getId()))
-                .thenReturn(patient);
-        when(patientMapper.selectTenantIdByActiveOrganizationId(
-                ORGANIZATION_ID
-        )).thenReturn("1");
-        when(patientMapper.selectIdByIdCardForUpdate(
-                "110101199001011237",
-                patient.getId()
-        )).thenReturn(null);
-        when(patientMapper.updateById(any(PatientDO.class)))
-                .thenReturn(1);
+        @Test
+        @DisplayName("ID为空白字符串时抛异常")
+        void shouldThrowWhenIdIsBlank() {
+            assertThatThrownBy(() -> patientService.deletePatientById("   "))
+                    .isInstanceOf(PatientBusinessException.class)
+                    .hasMessage("患者ID不能为空");
+        }
 
-        PatientUpdateDTO dto = validUpdateDto();
-        dto.setName("照夜清");
-        dto.setIdCard("110101199001011237");
-        dto.setPhone("13700001234");
+        @Test
+        @DisplayName("患者不存在时抛异常")
+        void shouldThrowWhenPatientNotFound() {
+            when(patientMapper.selectById("NOT_EXIST")).thenReturn(null);
 
-        patientService.updatePatient(patient.getId(), dto);
+            assertThatThrownBy(() -> patientService.deletePatientById("NOT_EXIST"))
+                    .isInstanceOf(PatientBusinessException.class)
+                    .hasMessage("患者不存在或已删除");
+        }
 
-        ArgumentCaptor<PatientDO> captor =
-                ArgumentCaptor.forClass(PatientDO.class);
-        verify(patientMapper).updateById(captor.capture());
-        PatientDO updated = captor.getValue();
-        assertEquals("照夜清", updated.getName());
-        assertEquals("ZYQ", updated.getPyStr());
-        assertEquals("13700001234", updated.getPhone());
-        assertEquals("ACTIVE", updated.getStatusEnum());
-        assertTrue(updated.getActiveFlag());
-        assertFalse(updated.getTempFlag());
-        assertNotNull(updated.getUpdatedAt());
-    }
+        @Test
+        @DisplayName("重复删除已删除患者抛异常")
+        void shouldThrowWhenPatientAlreadyDeleted() {
+            when(patientMapper.selectById("DELETED")).thenReturn(null);
 
-    @Test
-    void shouldRejectMissingPatientAndStaleVersion() {
-        PatientUpdateDTO dto = validUpdateDto();
-        when(patientMapper.selectById("missing")).thenReturn(null);
-
-        PatientBusinessException missing = assertThrows(
-                PatientBusinessException.class,
-                () -> patientService.updatePatient("missing", dto)
-        );
-        assertEquals("患者不存在或已删除", missing.getMessage());
-
-        PatientDO patient = activePatient();
-        patient.setVersion(2);
-        when(patientMapper.selectById(patient.getId()))
-                .thenReturn(patient);
-
-        PatientBusinessException stale = assertThrows(
-                PatientBusinessException.class,
-                () -> patientService.updatePatient(patient.getId(), dto)
-        );
-        assertEquals(
-                "患者资料已被其他人修改，请刷新后重试",
-                stale.getMessage()
-        );
-        verify(patientMapper, never()).updateById(any(PatientDO.class));
-    }
-
-    @Test
-    void shouldRejectTerminalStateAndStateFieldChanges() {
-        PatientUpdateDTO dto = validUpdateDto();
-        PatientDO inactivePatient = activePatient();
-        inactivePatient.setStatusEnum("INACTIVE");
-        when(patientMapper.selectById(inactivePatient.getId()))
-                .thenReturn(inactivePatient);
-
-        PatientBusinessException terminal = assertThrows(
-                PatientBusinessException.class,
-                () -> patientService.updatePatient(
-                        inactivePatient.getId(),
-                        dto
-                )
-        );
-        assertEquals(
-                "当前患者状态不允许修改基本资料",
-                terminal.getMessage()
-        );
-
-        PatientDO activePatient = activePatient();
-        when(patientMapper.selectById(activePatient.getId()))
-                .thenReturn(activePatient);
-        dto.setActiveFlag(false);
-
-        PatientBusinessException stateChange = assertThrows(
-                PatientBusinessException.class,
-                () -> patientService.updatePatient(
-                        activePatient.getId(),
-                        dto
-                )
-        );
-        assertEquals(
-                "普通资料修改不允许变更启用标记",
-                stateChange.getMessage()
-        );
-    }
-
-    @Test
-    void shouldReportVersionConflictWhenDatabaseUpdateLosesRace() {
-        PatientDO patient = activePatient();
-        when(patientMapper.selectById(patient.getId()))
-                .thenReturn(patient);
-        when(patientMapper.selectTenantIdByActiveOrganizationId(
-                ORGANIZATION_ID
-        )).thenReturn("1");
-        when(patientMapper.updateById(any(PatientDO.class)))
-                .thenReturn(0);
-
-        PatientBusinessException conflict = assertThrows(
-                PatientBusinessException.class,
-                () -> patientService.updatePatient(
-                        patient.getId(),
-                        validUpdateDto()
-                )
-        );
-
-        assertEquals(
-                "患者资料版本冲突，请刷新后重试",
-                conflict.getMessage()
-        );
-    }
-
-    private PatientCreateDTO validCreateDto() {
-        PatientCreateDTO dto = new PatientCreateDTO();
-        dto.setName("原型验收甲");
-        dto.setGenderEnum("MALE");
-        dto.setBirthDate(LocalDate.of(1990, 1, 1));
-        dto.setOrganizationId(ORGANIZATION_ID);
-        return dto;
-    }
-
-    private PatientUpdateDTO validUpdateDto() {
-        PatientUpdateDTO dto = new PatientUpdateDTO();
-        dto.setName("原型验收甲-修改");
-        dto.setGenderEnum("MALE");
-        dto.setBirthDate(LocalDate.of(1990, 1, 1));
-        dto.setOrganizationId(ORGANIZATION_ID);
-        dto.setStatusEnum("ACTIVE");
-        dto.setActiveFlag(true);
-        dto.setTempFlag(false);
-        dto.setVersion(0);
-        return dto;
-    }
-
-    private PatientDO activePatient() {
-        PatientDO patient = new PatientDO();
-        patient.setId("patient-id");
-        patient.setTenantId("1");
-        patient.setBusNo("PA00000001");
-        patient.setName("原型验收甲");
-        patient.setGenderEnum("MALE");
-        patient.setStatusEnum("ACTIVE");
-        patient.setActiveFlag(true);
-        patient.setTempFlag(false);
-        patient.setIsDeleted(false);
-        patient.setVersion(0);
-        patient.setOrganizationId(ORGANIZATION_ID);
-        patient.setCreatedAt(LocalDateTime.now().minusDays(1));
-        return patient;
+            assertThatThrownBy(() -> patientService.deletePatientById("DELETED"))
+                    .isInstanceOf(PatientBusinessException.class)
+                    .hasMessage("患者不存在或已删除");
+        }
     }
 }

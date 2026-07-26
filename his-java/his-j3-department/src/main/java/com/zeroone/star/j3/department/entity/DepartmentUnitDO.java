@@ -1,5 +1,9 @@
 package com.zeroone.star.j3.department.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +15,7 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * 描述：科室单元对象实体类
+ * 描述：科室单元DO对象
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
@@ -25,13 +29,15 @@ import java.time.LocalDateTime;
 @Accessors
 @Builder
 @Schema(description = "科室单元对象实体类", name = "DepartmentUnit")
-public class DepartmentUnit {
+@TableName(value = "whale_organization_units")
+public class DepartmentUnitDO {
 
     @Schema(
             description = "主键ID",
             example = "322663218269917184",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     @Schema(
@@ -116,6 +122,7 @@ public class DepartmentUnit {
             example = "false",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
+    @TableLogic(value = "false", delval = "true")
     private Boolean isDeleted;
 
     @Schema(

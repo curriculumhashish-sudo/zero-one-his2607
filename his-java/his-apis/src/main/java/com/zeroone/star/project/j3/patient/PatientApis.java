@@ -69,5 +69,5 @@ public interface PatientApis {
      * @param id 患者ID
      * @return 删除结果
      */
-    JsonVO<String> deletePatient(String id);
+    JsonVO<String> deletePatientById(String id);
 }

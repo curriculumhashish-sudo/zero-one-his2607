@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
  * 患者档案数据访问层。
  *
  * @author 照夜清
+ * @author 波小夏
  */
 @Mapper
 public interface PatientMapper extends BaseMapper<PatientDO> {
@@ -159,4 +160,6 @@ public interface PatientMapper extends BaseMapper<PatientDO> {
             @Param("currentValue") long currentValue,
             @Param("updatedAt") LocalDateTime updatedAt
     );
+
+
 }
