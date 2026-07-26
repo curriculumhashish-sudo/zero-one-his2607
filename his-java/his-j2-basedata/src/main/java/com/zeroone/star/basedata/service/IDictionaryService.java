@@ -1,8 +1,8 @@
 package com.zeroone.star.basedata.service;
 
-import com.zeroone.star.project.dto.j2.basedata.dictionarytypedto.DictionaryAddDTO;
-import com.zeroone.star.project.dto.j2.basedata.dictionarytypedto.DictionaryDeleteDTO;
-import com.zeroone.star.project.dto.j2.basedata.dictionarytypedto.DictionaryModifyDTO;
+import com.zeroone.star.project.dto.j2.basedata.dictionarydto.DictionaryAddDTO;
+import com.zeroone.star.project.dto.j2.basedata.dictionarydto.DictionaryDeleteDTO;
+import com.zeroone.star.project.dto.j2.basedata.dictionarydto.DictionaryModifyDTO;
 
 /**
  * 字典项业务接口。

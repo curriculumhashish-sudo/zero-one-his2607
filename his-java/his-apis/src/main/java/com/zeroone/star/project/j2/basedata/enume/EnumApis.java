@@ -1,4 +1,4 @@
-package com.zeroone.star.project.j2.basedata.nulll;
+package com.zeroone.star.project.j2.basedata.enume;
 
 
 import com.zeroone.star.project.dto.PageDTO;

@@ -30,7 +30,7 @@
         t.part_code AS partCode,
         t.part_name AS partName,
         t.parent_id AS parentId,
-        t.status,
+        t.statusEnum ,
         CASE WHEN COUNT(c.id) > 0 THEN 1 ELSE 0 END AS hasChildren
         FROM his_basedata_body_part t
         LEFT JOIN his_basedata_body_part c ON c.parent_id = t.id
@@ -45,8 +45,8 @@
             <if test="parentId != null and parentId > 0">
                 AND t.parent_id = #{parentId}
             </if>
-            <if test="status != null">
-                AND t.status = #{status}
+            <if test="statusEnum != null">
+                AND t.statusEnum = #{statusEnum}
             </if>
         </where>
         GROUP BY t.id, t.part_code, t.part_name, t.parent_id, t.status

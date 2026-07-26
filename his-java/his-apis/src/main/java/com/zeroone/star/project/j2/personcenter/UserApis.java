@@ -1,8 +1,8 @@
 package com.zeroone.star.project.j2.personcenter;
 
-import com.zeroone.star.project.dto.j2.personcenter.UserDTO.ChangePasswordDTO;
-import com.zeroone.star.project.dto.j2.personcenter.UserDTO.UpdateUserDTO;
-import com.zeroone.star.project.dto.j2.personcenter.UserDTO.UserInfoDTO;
+import com.zeroone.star.project.dto.j2.personcenter.userdto.ChangePasswordDTO;
+import com.zeroone.star.project.dto.j2.personcenter.userdto.UpdateUserDTO;
+import com.zeroone.star.project.dto.j2.personcenter.userdto.UserInfoDTO;
 import com.zeroone.star.project.vo.JsonVO;
 
 public interface UserApis {

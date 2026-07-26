@@ -1,4 +1,4 @@
-package com.zeroone.star.project.j2.basedata.qingzhou;
+package com.zeroone.star.project.j2.basedata.bodypart;
 
 
 import com.zeroone.star.project.dto.j2.basedata.bodypartdto.BodyPartAddDTO;

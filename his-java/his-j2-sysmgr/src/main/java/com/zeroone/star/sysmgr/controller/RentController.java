@@ -1,11 +1,11 @@
 package com.zeroone.star.sysmgr.controller;
 
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j2.sysmgr.rent.RentDTO2;
+import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentDTO2;
 import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentAddDTO;
 import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentDTO;
 import com.zeroone.star.project.j2.sysmgr.rent.RentApis;
-import com.zeroone.star.project.dto.j2.sysmgr.rent.RentNameDTO;
+import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentNameDTO;
 import com.zeroone.star.project.query.j2.sysmgr.rent2.RentNameQuery;
 import com.zeroone.star.project.query.j2.sysmgr.rent2.RentQuery;
 import com.zeroone.star.project.vo.JsonVO;

@@ -37,7 +37,7 @@ public interface SettingsApis {
      * @param settingUpdateDTO 更新配置项数据
      * @return 更新结果
      */
-    JsonVO<String> updateSetting(SettingUpdateDTO settingUpdateDTO);
+    JsonVO<String> updateSetting(SettingUpdateDTO settingUpdateDTO) throws Exception;
 
     /**
      * 删除配置项
@@ -45,5 +45,5 @@ public interface SettingsApis {
      * @param settingDeleteDTO 删除配置项数据
      * @return 删除结果
      */
-    JsonVO<String> deleteSetting(SettingDeleteDTO settingDeleteDTO);
+    JsonVO<String> deleteSetting(SettingDeleteDTO settingDeleteDTO) throws Exception;
     }

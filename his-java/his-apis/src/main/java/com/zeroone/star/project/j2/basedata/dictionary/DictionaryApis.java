@@ -1,11 +1,10 @@
-package com.zeroone.star.project.j2.basedata.dictionarytype;
+package com.zeroone.star.project.j2.basedata.dictionary;
 
-import com.zeroone.star.project.dto.j2.basedata.dictionarytypedto.DictionaryAddDTO;
-import com.zeroone.star.project.dto.j2.basedata.dictionarytypedto.DictionaryDeleteDTO;
-import com.zeroone.star.project.dto.j2.basedata.dictionarytypedto.DictionaryModifyDTO;
+import com.zeroone.star.project.dto.j2.basedata.dictionarydto.DictionaryAddDTO;
+import com.zeroone.star.project.dto.j2.basedata.dictionarydto.DictionaryDeleteDTO;
+import com.zeroone.star.project.dto.j2.basedata.dictionarydto.DictionaryModifyDTO;
 import com.zeroone.star.project.vo.JsonVO;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 /**
  * 字典项管理接口。
  */
-@Tag(name = "字典项管理")
 public interface DictionaryApis {
 
     /**

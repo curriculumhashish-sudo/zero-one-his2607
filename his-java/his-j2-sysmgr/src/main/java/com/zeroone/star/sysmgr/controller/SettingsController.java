@@ -8,8 +8,10 @@ import com.zeroone.star.project.j2.sysmgr.settings.SettingsApis;
 import com.zeroone.star.project.query.j2.sysmgr.settings.SettingDefinitionQuery;
 import com.zeroone.star.project.query.j2.sysmgr.settings.SettingsQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.sysmgr.service.SettingsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -22,7 +24,11 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Tag(name = "设置管理")
+@RequiredArgsConstructor
 public class SettingsController implements SettingsApis, SettingDefinitionApis {
+
+    private final SettingsService settingsService;
+
     @Operation(summary = "获取配置项列表")
     @GetMapping("query-all")
     @Override
@@ -46,14 +52,24 @@ public class SettingsController implements SettingsApis, SettingDefinitionApis {
     @Operation(summary = "更新配置项")
     @PutMapping("setting-update")
     @Override
-    public JsonVO<String> updateSetting(@RequestBody SettingUpdateDTO settingUpdateDTO) {
-        return null;
+    public JsonVO<String> updateSetting(@RequestBody SettingUpdateDTO settingUpdateDTO) throws Exception {
+        Boolean result = settingsService.updateSetting(settingUpdateDTO);
+
+        if(!result){
+            return JsonVO.success("更新失败");
+        }
+        return JsonVO.success("更新成功");
     }
 
     @Operation(summary = "删除配置项")
     @DeleteMapping("setting-delete")
     @Override
-    public JsonVO<String> deleteSetting(@RequestBody SettingDeleteDTO settingDeleteDTO) {
-        return null;
+    public JsonVO<String> deleteSetting(@RequestBody SettingDeleteDTO settingDeleteDTO) throws Exception {
+        Boolean result = settingsService.deleteSetting(settingDeleteDTO);
+
+        if(!result){
+            return JsonVO.success("更新失败");
+        }
+        return JsonVO.success("更新成功");
     }
 }
