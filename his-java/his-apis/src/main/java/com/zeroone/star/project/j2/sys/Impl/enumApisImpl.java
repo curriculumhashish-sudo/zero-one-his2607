@@ -1,8 +1,6 @@
 package com.zeroone.star.project.j2.sys.Impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import com.zeroone.star.personcenter.entity.EnumValue;
-import com.zeroone.star.personcenter.repository.enumRepository;
 import com.zeroone.star.personcenter.repository.enumTypeRepository;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j2.sys.enumdto.EnumDTO;
@@ -12,7 +10,7 @@ import com.zeroone.star.project.query.j2.sys.EnumQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import io.swagger.v3.oas.annotations.servers.Server;
 import jakarta.annotation.Resource;
-import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -30,10 +28,7 @@ public class enumApisImpl implements enumApis {
     @Resource
     enumTypeRepository eTRepository;
 
-    @Resource
-    enumRepository eRepository;
-
-    /**
+    /*
      * 删除枚举
      * @param dto 枚举删除对象DTO
      * @return 枚举序号
@@ -68,14 +63,29 @@ public class enumApisImpl implements enumApis {
      * @return 枚举值列表
      */
     @Override
-    public JsonVO<PageDTO<List<EnumDTO>>> QueryAllEnum(EnumQuery query) {
-        PageRequest pageRequest = PageRequest.of(query.getPageIndex(), query.getPageSize());
+    public JsonVO<PageDTO<EnumDTO>> QueryAllEnum(EnumQuery query) {
+        //分页请求
+        Page<EnumDTO> page = new Page<>(query.getPageIndex(), query.getPageSize());
+        //查询条件
         if(StringUtils.hasText(query.getEnumKey())){
             Criteria c1 = Criteria.where("enum_key").is(query.getEnumKey());
-            Query q1 = new Query().with(pageRequest);
+            Query q1 = new Query(c1).with(pageRequest);
             List<EnumDTO> enumDTOS = template.find(q1, EnumDTO.class);
+            return JsonVO.success(enumDTOS);
         }
-        return null;
+        else if(StringUtils.hasText(query.getDisplay())){
+            Criteria c2 = Criteria.where("display").is(query.getDisplay());
+            Query q2 = new Query(c2).with(pageRequest);
+            List<EnumDTO> enumDTOS = template.find(q2, EnumDTO.class);
+            return JsonVO.success(enumDTOS);
+        }
+        else if(StringUtils.hasText(query.getEnumKey()) && StringUtils.hasText(query.getDisplay())){
+            Criteria c3 = Criteria.where("enum_key").is(query.getEnumKey()).and("display").is(query.getDisplay());
+            Query q3 = new Query(c3).with(pageRequest);
+            List<EnumDTO> enumDTOS = template.find(q3, EnumDTO.class);
+            return JsonVO.success(enumDTOS);
+        }
+        return JsonVO.fail(null);
     }
 
     /**

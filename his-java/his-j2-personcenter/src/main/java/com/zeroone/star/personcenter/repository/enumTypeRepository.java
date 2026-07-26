@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
+
 public interface enumTypeRepository extends MongoRepository<EnumType, String> {
     @Aggregation(pipeline = {
             "{$lookup: {from: 'EnumValue'," +
@@ -20,5 +20,4 @@ public interface enumTypeRepository extends MongoRepository<EnumType, String> {
     })
     List<EnumValue> findByEnumKey(String enumKey);;
 
-    String deleteByEnumKey(String enumKey);
 }

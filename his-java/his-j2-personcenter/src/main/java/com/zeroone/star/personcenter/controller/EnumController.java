@@ -37,8 +37,8 @@ public class EnumController implements enumApis {
     @Override
     @Operation(summary = "获取枚举列表(条件+分页)")
     @GetMapping("/sys/query-all-enum")
-    public JsonVO<PageDTO<List<EnumDTO>>> QueryAllEnum(EnumQuery query) {
-        return null;
+    public JsonVO<PageDTO<EnumDTO>> QueryAllEnum(EnumQuery query) {
+        return enumApis.QueryAllEnum(query);
     }
 
     @Override

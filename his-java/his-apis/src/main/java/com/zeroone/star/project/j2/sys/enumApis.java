@@ -30,7 +30,7 @@ public interface enumApis {
      * @param query 枚举值关键词查询对象
      * @return 枚举值列表
      */
-    JsonVO<PageDTO<List<EnumDTO>>> QueryAllEnum(EnumQuery query);
+    JsonVO<PageDTO<EnumDTO>> QueryAllEnum(EnumQuery query);
 
     /**
      * 删除枚举类型
