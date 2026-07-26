@@ -8,7 +8,7 @@
 #include "PdfComponent.h"
 
 // 器材列表分页查询
-EquipmentDetailPageJsonVO::Wrapper EquipmentController::executeQueryEquipment(const EquipmentQuery::Wrapper& query)
+EquipmentPageJsonVO::Wrapper EquipmentController::executeQueryEquipment(const EquipmentQuery::Wrapper& query)
 {
 	// 查询数据
 	auto result = EquipmentService().listAll(query);
@@ -18,15 +18,26 @@ EquipmentDetailPageJsonVO::Wrapper EquipmentController::executeQueryEquipment(co
 	return jvo;
 }
 
-EquipmentDetailPageJsonVO::Wrapper EquipmentController::execQuery(const EquipmentQuery::Wrapper& query, const PayloadDTO& payload)
+// 器材详情
+EquipmentJsonVO::Wrapper EquipmentController::execQueryById(const String& id)
 {
-	// 创建客户端对象
-	API_CLIENT_CREATE(ac, om, EquipmentApiClient, "Equipment-api");
-	// 构建凭证
-	std::string token = PayloadDTO::getTokenPrefix() + payload.getToken();
-	// 返回查询结果
-	return ac->queryAll(token, query->pageIndex, query->pageSize, URIUtil::urlEncode(query->name))->readBodyToDto<EquipmentDetailPageJsonVO::Wrapper>(om);
+	// 定义返回数据对象
+	auto jvo = EquipmentJsonVO::createShared();
+	// 参数校验
+	// 非空校验
+	if (!id)
+	{
+		jvo->init(nullptr, RS_PARAMS_INVALID);
+		return jvo;
+	}
+	// 执行数据新增
+	auto res = EquipmentService().getById(id.getValue({}));
+	jvo->success(res);
+
+	//响应结果
+	return jvo;
 }
+
 
 // 新增器材
 StringJsonVO::Wrapper EquipmentController::execAddEquipment(const EquipmentAddDTO::Wrapper& dto, const PayloadDTO& payload)
@@ -80,7 +91,19 @@ EquipmentSelectPageJsonVO::Wrapper EquipmentController::execSelectEquipment(cons
 	return {};
 }
 
-EquipmentDetailJsonVO::Wrapper EquipmentController::executeQueryOne(const String& id)
+// 声明式服务接口1
+EquipmentJsonVO::Wrapper EquipmentController::executeQueryOne(const String& id)
 {
 	return {};
+}
+
+// 声明式服务接口2
+EquipmentPageJsonVO::Wrapper EquipmentController::execQueryAll(const EquipmentQuery::Wrapper& query, const PayloadDTO& payload)
+{
+	// 创建客户端对象
+	API_CLIENT_CREATE(ac, om, EquipmentApiClient, "Equipment-api");
+	// 构建凭证
+	std::string token = PayloadDTO::getTokenPrefix() + payload.getToken();
+	// 返回查询结果
+	return ac->queryAll(token, query->pageIndex, query->pageSize, URIUtil::urlEncode(query->name))->readBodyToDto<EquipmentPageJsonVO::Wrapper>(om);
 }

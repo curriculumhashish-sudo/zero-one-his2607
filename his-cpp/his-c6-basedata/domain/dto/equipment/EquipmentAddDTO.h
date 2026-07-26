@@ -110,6 +110,16 @@ public:
 	}
 };
 
+/**
+ * 示例传输对象
+ */
+class EquipmentDTO : public EquipmentAddDTO
+{
+	DTO_INIT(EquipmentDTO, EquipmentAddDTO);
+	// 编号
+	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("equipment.field.id"), true);
+};
+
 #include OATPP_CODEGEN_END(DTO)
 
 #endif // !_EQUIPMENTADDDTO_H_

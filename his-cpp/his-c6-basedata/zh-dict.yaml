@@ -13,7 +13,7 @@
     summary: 启停用器材
   select:
     summary: 选择器材
-  query-one:
+  query-by-id:
     summary: 器材详情
   field:
     # 基础通用字段
