@@ -22,6 +22,9 @@ public class TreatmentDetailVO implements Serializable {
     @Schema(description = "分类编码", example = "22")
     private String categoryCode;
 
+    @Schema(description = "分类名称", example = "检验")
+    private String categoryCode_dictText;
+
     @Schema(description = "业务编号", example = "AD00000001")
     private String busNo;
 
@@ -36,6 +39,9 @@ public class TreatmentDetailVO implements Serializable {
 
     @Schema(description = "销售/计价单位编码", example = "次")
     private String packageUnitCode;
+
+    @Schema(description = "销售/计价单位名称", example = "次")
+    private String packageUnitCode_dictText;
 
     @Schema(description = "诊疗业务版本", example = "V1.0")
     private String activityVersion;
@@ -67,8 +73,11 @@ public class TreatmentDetailVO implements Serializable {
     @Schema(description = "医保对码标记 0-未对码 1-已对码", example = "1")
     private Integer ybMatchFlag;
 
-    @Schema(description = "状态枚举值（ACTIVE-启用/INACTIVE-停用）", example = "ACTIVE")
+    @Schema(description = "状态枚举值（DRAFT-草稿/ACTIVE-已启用/INACTIVE-已停用/DISCARDED-已废弃）", example = "ACTIVE")
     private String statusEnum;
+
+    @Schema(description = "状态名称", example = "已启用")
+    private String statusEnum_dictText;
 
     @Schema(description = "身体部位编码", example = "ARM_VEIN")
     private String bodySiteCode;
@@ -88,8 +97,11 @@ public class TreatmentDetailVO implements Serializable {
     @Schema(description = "删除标志 0-未删除 1-已删除", example = "0")
     private Integer deleteFlag;
 
-    @Schema(description = "类型枚举值（0-非药品收费/1-检验/2-检查/3-影像/4-治疗/5-手术/6-护理/7-膳食/8-其他）", example = "1")
+    @Schema(description = "业务类型枚举值（1-检验/2-检查/3-护理/4-手术/5-其他）", example = "1")
     private String typeEnum;
+
+    @Schema(description = "业务类型名称", example = "检验")
+    private String typeEnum_dictText;
 
     @Schema(description = "所属机构ID", example = "1001")
     private String orgId;
@@ -111,6 +123,9 @@ public class TreatmentDetailVO implements Serializable {
 
     @Schema(description = "财务类别编码", example = "1001")
     private String itemTypeCode;
+
+    @Schema(description = "财务类别名称", example = "治疗费")
+    private String itemTypeCode_dictText;
 
     @Schema(description = "项目购入价（元）", example = "44.40")
     private BigDecimal purchasePrice;

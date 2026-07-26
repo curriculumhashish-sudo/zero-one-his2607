@@ -24,6 +24,9 @@ public class TreatmentSelectVO implements Serializable {
     @Schema(description = "分类编码", example = "22", requiredMode = Schema.RequiredMode.REQUIRED)
     private String categoryCode;
 
-    @Schema(description = "诊疗分类", example = "CHECK", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String typeEnum;
+    @Schema(description = "分类名称", example = "检验")
+    private String categoryCode_dictText;
+
+    @Schema(description = "零售价格(元)", example = "35.00")
+    private BigDecimal retailPrice;
 }
