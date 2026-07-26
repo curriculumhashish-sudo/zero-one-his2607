@@ -1,7 +1,5 @@
 package com.zeroone.star.basedata.service.impl;
 
-import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zeroone.star.basedata.entity.frequency.CusFrequencyDO;
@@ -36,28 +34,14 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, CusFreque
 
     @Override
     public PageDTO<FrequencyVO> queryFrequencyPage(FrequencyPageQuery query) {
-        // 构建分页对象
-        Page<CusFrequencyDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
-        // 构建查询条件
-        LambdaQueryWrapper<CusFrequencyDO> wrapper = new LambdaQueryWrapper<>();
-        if (StrUtil.isNotBlank(query.getKeyword())) {
-            wrapper.and(w -> w
-                    .like(CusFrequencyDO::getName, query.getKeyword())
-                    .or()
-                    .like(CusFrequencyDO::getRateCode, query.getKeyword())
-            );
-        }
-        // 按排序号升序排列
-        wrapper.orderByAsc(CusFrequencyDO::getSortNo);
-        // 执行分页查询
-        Page<CusFrequencyDO> result = baseMapper.selectPage(page, wrapper);
-        // 转换为 PageDTO<FrequencyVO>
-        return PageDTO.create(result, FrequencyVO::new);
+        Page<FrequencyVO> page = new Page<>(query.getPageIndex(), query.getPageSize());
+        Page<FrequencyVO> result = baseMapper.selectFrequencyPage(page, query);
+        return PageDTO.create(result);
     }
 
     @Override
     public FrequencyVO queryFrequencyDetail(String id) {
-        return msFrequencyMapper.entityToVo(baseMapper.selectById(id));
+        return baseMapper.selectFrequencyById(id);
     }
 
     @Override
@@ -108,12 +92,7 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, CusFreque
 
     @Override
     public List<FrequencyOptionVO> listFrequencyNames() {
-        List<CusFrequencyDO> frequencies = lambdaQuery()
-                .eq(CusFrequencyDO::getActiveFlag, (byte) 1)
-                .orderByAsc(CusFrequencyDO::getSortNo)
-                .list();
-
-        return msFrequencyMapper.entitiesToOptionVos(frequencies);
+        return baseMapper.selectActiveFrequencyOptions();
     }
 
     @Override
