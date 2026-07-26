@@ -2,12 +2,13 @@ package com.zeroone.star.personcenter.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zeroone.star.project.dto.j2.personcenter.UserDTO.ChangePasswordDTO;
-import com.zeroone.star.project.dto.j2.personcenter.UserDTO.UpdateUserDTO;
-import com.zeroone.star.project.dto.j2.personcenter.UserDTO.UserInfoDTO;
+
 import com.zeroone.star.personcenter.entity.WhaleUser;
 import com.zeroone.star.personcenter.mapper.WhaleUserMapper;
 import com.zeroone.star.personcenter.service.IWhaleUserService;
+import com.zeroone.star.project.dto.j2.personcenter.userdto.ChangePasswordDTO;
+import com.zeroone.star.project.dto.j2.personcenter.userdto.UpdateUserDTO;
+import com.zeroone.star.project.dto.j2.personcenter.userdto.UserInfoDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
