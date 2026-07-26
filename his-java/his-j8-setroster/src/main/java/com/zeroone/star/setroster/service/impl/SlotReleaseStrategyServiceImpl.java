@@ -86,6 +86,9 @@ public class SlotReleaseStrategyServiceImpl implements ISlotReleaseStrategyServi
         policy.setIsDeleted(0);
         policy.setVersion(0);
 
+        if (existsByPolicyName(policy.getPolicyName(), null)) {
+            throw new IllegalArgumentException("策略名称已存在：" + policy.getPolicyName());
+        }
         if (releasePolicyMapper.insert(policy) != 1) {
             throw new IllegalStateException("新增放号策略失败");
         }
@@ -99,6 +102,9 @@ public class SlotReleaseStrategyServiceImpl implements ISlotReleaseStrategyServi
             return false;
         }
         copyEditableFields(modifyDTO, policy);
+        if (existsByPolicyName(policy.getPolicyName(), policy.getId())) {
+            throw new IllegalArgumentException("策略名称已存在：" + policy.getPolicyName());
+        }
         return releasePolicyMapper.updateById(policy) == 1;
     }
 
@@ -190,5 +196,14 @@ public class SlotReleaseStrategyServiceImpl implements ISlotReleaseStrategyServi
             // 本地无网关请求头时使用系统用户，保证逻辑删除仍可执行。
         }
         return "system";
+    }
+
+    private boolean existsByPolicyName(String policyName, String excludeId) {
+        LambdaQueryWrapper<BkgReleasePolicy> wrapper = Wrappers.lambdaQuery(BkgReleasePolicy.class)
+                .eq(BkgReleasePolicy::getPolicyName, policyName);
+        if (StringUtils.hasText(excludeId)) {
+            wrapper.ne(BkgReleasePolicy::getId, excludeId);
+        }
+        return releasePolicyMapper.selectCount(wrapper) > 0;
     }
 }
