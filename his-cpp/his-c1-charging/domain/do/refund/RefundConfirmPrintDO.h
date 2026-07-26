@@ -22,15 +22,15 @@
 
 #include "../DoInclude.h"
 
-// RefundConfirmPrint data object â€” print confirmation record
+// RefundConfirmPrint data object ¡ª print confirmation record
 class RefundConfirmPrintDO : public BaseDO
 {
     // Print job trace ID
     MYSQL_SYNTHESIZE(string, traceId, TraceId);
     // Business number
     MYSQL_SYNTHESIZE(string, busNo, BusNo);
-    // Scenario code
-    MYSQL_SYNTHESIZE(string, scenarioCode, ScenarioCode);
+    // Print binding code
+    MYSQL_SYNTHESIZE(string, bindingCode, BindingCode);
     // Print status (e.g., "SUCCESS")
     MYSQL_SYNTHESIZE(string, status, Status);
     // Number of copies printed
@@ -43,7 +43,7 @@ public:
     {
         MYSQL_ADD_FIELD("trace_id", "s", traceId);
         MYSQL_ADD_FIELD("bus_no", "s", busNo);
-        MYSQL_ADD_FIELD("scenario_code", "s", scenarioCode);
+        MYSQL_ADD_FIELD("binding_code", "s", bindingCode);
         MYSQL_ADD_FIELD("status", "s", status);
         MYSQL_ADD_FIELD("copies", "i", copies);
         MYSQL_ADD_FIELD("client_type", "s", clientType);

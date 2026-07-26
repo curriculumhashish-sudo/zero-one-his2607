@@ -22,22 +22,22 @@
 
 #include "../DoInclude.h"
 
-// RefundPreparePrint data object â€” print job record
+// RefundPreparePrint data object ¡ª print job record
 class RefundPreparePrintDO : public BaseDO
 {
     // Print job trace ID
     MYSQL_SYNTHESIZE(string, traceId, TraceId);
     // Business number (e.g., "RT202606260005")
     MYSQL_SYNTHESIZE(string, busNo, BusNo);
-    // Scenario code (e.g., "op-refund-print")
-    MYSQL_SYNTHESIZE(string, scenarioCode, ScenarioCode);
+    // Print binding code
+    MYSQL_SYNTHESIZE(string, bindingCode, BindingCode);
 
 public:
     RefundPreparePrintDO() : BaseDO("")
     {
         MYSQL_ADD_FIELD("trace_id", "s", traceId);
         MYSQL_ADD_FIELD("bus_no", "s", busNo);
-        MYSQL_ADD_FIELD("scenario_code", "s", scenarioCode);
+        MYSQL_ADD_FIELD("binding_code", "s", bindingCode);
     }
 };
 
