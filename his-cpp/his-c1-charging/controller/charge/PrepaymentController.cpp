@@ -1,4 +1,4 @@
-ï»¿/*
+/*
  Copyright Zero One Star. All rights reserved.
 
  @Author: Jack
@@ -20,24 +20,24 @@
 #include "stdafx.h"
 #include "PrepaymentController.h"
 
-// æ”¶é¢„äº¤é‡‘
+// ÊÕÔ¤½»½ğ
 PrepaymentAddVO::Wrapper PrepaymentController::execAddPrepayment(const PrepaymentAddDTO::Wrapper& dto)
 {
     auto vo = PrepaymentAddVO::createShared();
     return vo;
 }
 
-// é€€é¢„äº¤é‡‘
+// ÍËÔ¤½»½ğ
 PrepaymentRefundVO::Wrapper PrepaymentController::execRefundPrepayment(const PrepaymentRefundDTO::Wrapper& dto)
 {
     auto vo = PrepaymentRefundVO::createShared();
     return vo;
 }
 
-// æŸ¥è¯¢é¢„äº¤é‡‘æµæ°´
+// ²éÑ¯Ô¤½»½ğÁ÷Ë®
 PrepaymentPageJsonVO::Wrapper PrepaymentController::execQueryPrepayment(const PrepaymentQuery::Wrapper& query)
 {
-    // æ„å»ºç¤ºä¾‹åˆ—è¡¨é¡¹ç”¨äºAPIæ–‡æ¡£
+    // ¹¹½¨Ê¾ÀıÁĞ±íÏîÓÃÓÚAPIÎÄµµ
     auto item = PrepaymentRecordDTO::createShared();
     item->prepaymentId = "demo-prepay-001";
     item->inpatientNo = query->inpatientNo;
@@ -48,7 +48,7 @@ PrepaymentPageJsonVO::Wrapper PrepaymentController::execQueryPrepayment(const Pr
     item->operatorName = "admin";
     item->createTime = "2026-07-20 10:30:00";
 
-    // æ„å»ºåˆ†é¡µç¤ºä¾‹æ•°æ®
+    // ¹¹½¨·ÖÒ³Ê¾ÀıÊı¾İ
     auto rows = oatpp::List<PrepaymentRecordDTO::Wrapper>::createShared();
     rows->push_back(item);
 
@@ -59,7 +59,7 @@ PrepaymentPageJsonVO::Wrapper PrepaymentController::execQueryPrepayment(const Pr
     page->rows = rows;
     page->calcPages();
 
-    // æ„å»ºç»Ÿä¸€JSONå“åº”
+    // ¹¹½¨Í³Ò»JSONÏìÓ¦
     auto result = PrepaymentPageJsonVO::createShared();
     result->success(page);
     return result;
