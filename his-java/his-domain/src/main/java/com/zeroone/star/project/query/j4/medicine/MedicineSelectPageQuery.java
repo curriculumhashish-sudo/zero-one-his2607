@@ -23,10 +23,10 @@ import lombok.ToString;
 public class MedicineSelectPageQuery extends PageQuery {
 
     @Size(max = 100, message = "关键字长度不能超过100个字符")
-    @Schema(description = "查询关键字")
+    @Schema(description = "查询关键字",example="阿莫西林")
     private String keyword;
 
     @Size(max = 64, message = "药品分类编码长度不能超过64个字符")
-    @Schema(description = "药品分类编码")
+    @Schema(description = "药品分类编码",example="2")
     private String categoryCode;
 }
