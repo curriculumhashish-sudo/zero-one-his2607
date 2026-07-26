@@ -3,10 +3,7 @@ package com.zeroone.star.basedata.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zeroone.star.basedata.entity.medicine.MedMedicationDefinitionDO;
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j4.medicine.MedicineAddDTO;
-import com.zeroone.star.project.dto.j4.medicine.MedicineChangeStatusDTO;
-import com.zeroone.star.project.dto.j4.medicine.MedicineDeleteDTO;
-import com.zeroone.star.project.dto.j4.medicine.MedicineDetailDTO;
+import com.zeroone.star.project.dto.j4.medicine.*;
 import com.zeroone.star.project.query.j4.medicine.MedicinePageQuery;
 import com.zeroone.star.project.query.j4.medicine.MedicineSelectPageQuery;
 import com.zeroone.star.project.vo.j4.medicine.MedicineAddVO;
@@ -60,7 +57,7 @@ public interface IMedicineService extends IService<MedMedicationDefinitionDO> {
      * @param dto 待删除的药品ID集合
      * @return 成功删除的记录数
      */
-    int deleteMedicine(MedicineDeleteDTO dto);
+     MedicineDeleteResultDTO deleteMedicine(MedicineDeleteDTO dto);
 
     /**
      * 批量修改药品启停状态

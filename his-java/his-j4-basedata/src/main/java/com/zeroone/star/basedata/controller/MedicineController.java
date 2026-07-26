@@ -4,10 +4,7 @@ package com.zeroone.star.basedata.controller;
 import com.zeroone.star.basedata.service.IMedicineService;
 import com.zeroone.star.basedata.service.impl.MsMedicineMapper;
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j4.medicine.MedicineAddDTO;
-import com.zeroone.star.project.dto.j4.medicine.MedicineChangeStatusDTO;
-import com.zeroone.star.project.dto.j4.medicine.MedicineDeleteDTO;
-import com.zeroone.star.project.dto.j4.medicine.MedicineDetailDTO;
+import com.zeroone.star.project.dto.j4.medicine.*;
 import com.zeroone.star.project.j4.basedata.MedicineApis;
 import com.zeroone.star.project.query.j4.medicine.MedicinePageQuery;
 import com.zeroone.star.project.query.j4.medicine.MedicineSelectPageQuery;
@@ -95,12 +92,10 @@ public class MedicineController implements MedicineApis {
 
     @DeleteMapping("/delete-medicine")
     @Operation(summary = "删除药品（支持批量）")
-    public JsonVO<String> deleteMedicine(@Validated @RequestBody MedicineDeleteDTO dto){
+    public JsonVO<MedicineDeleteResultDTO> deleteMedicine(@Validated @RequestBody MedicineDeleteDTO dto){
 
-        int i = medicineService.deleteMedicine(dto);
-        // 让删除失败的在service层抛异常
-        if(i != 0) return JsonVO.success("删除成功"+ i + "个药品");
-        return JsonVO.fail("删除失败");
+        MedicineDeleteResultDTO deleteResultDTO = medicineService.deleteMedicine(dto);
+        return JsonVO.success(deleteResultDTO);
     }
 
     @PutMapping("/change-status/{status}")
