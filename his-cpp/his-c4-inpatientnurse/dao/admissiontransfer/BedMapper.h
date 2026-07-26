@@ -20,7 +20,7 @@
 #ifndef _BED_MAPPER_
 #define _BED_MAPPER_
 #include "Mapper.h"
-#include "../../domain/do/common/LocationDO.h"
+#include "../../domain/do/admissiontransfer/LocationDO.h"
 
 // Mapper for adm_location free-bed query
 class BedMapper : public Mapper<adm_locationDO>

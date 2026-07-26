@@ -20,8 +20,8 @@
 #ifndef _BED_DAO_
 #define _BED_DAO_
 #include "BaseDAO.h"
-#include "../../domain/do/common/LocationDO.h"
-#include "../../domain/do/common/BedReservationDO.h"
+#include "../../domain/do/admissiontransfer/LocationDO.h"
+#include "../../domain/do/admissiontransfer/BedReservationDO.h"
 #include "../../domain/query/admissiontransfer/BedQuery.h"
 
 // Bed DAO: query free beds + reserve(assign) a bed

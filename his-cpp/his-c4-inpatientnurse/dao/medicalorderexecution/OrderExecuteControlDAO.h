@@ -27,7 +27,7 @@
 #include <utility>
 
 #include "BaseDAO.h"
-#include "domain/do/common/ProcedureDO.h"
+#include "domain/do/medicalorderexecution/ProcedureDO.h"
 #include "domain/do/medicalorderexecution/OriginalOrderRequestDO.h"
 
 class OrderExecuteControlDAO : public BaseDAO

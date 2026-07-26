@@ -22,7 +22,7 @@
 #define _CLN_PROCEDURE_MAPPER_
 
 #include "Mapper.h"
-#include "domain/do/common/ProcedureDO.h"
+#include "domain/do/medicalorderexecution/ProcedureDO.h"
 
 class ClnProcedureSlotStateMapper : public Mapper<PtrClnProcedureDO>
 {
