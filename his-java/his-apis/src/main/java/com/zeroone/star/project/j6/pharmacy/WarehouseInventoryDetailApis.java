@@ -6,6 +6,8 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j6.pharmacy.inventory.ExcelExportVO;
 import com.zeroone.star.project.vo.j6.pharmacy.inventory.InventoryDetailVO;
 
+import java.util.List;
+
 public interface WarehouseInventoryDetailApis {
     /**
      * 获取库存明细列表(分页+条件)
@@ -14,7 +16,7 @@ public interface WarehouseInventoryDetailApis {
      * @param inventoryDetailQueryDTO 分页条件
      * @return 返回查询到的所有数据
      */
-    JsonVO<InventoryDetailVO> pageInventoryDetailCurrent(InventoryDetailQuery inventoryDetailQueryDTO);
+    JsonVO<List<InventoryDetailVO>> pageInventoryDetailCurrent(InventoryDetailQuery inventoryDetailQueryDTO);
 
 
     /**
