@@ -7,6 +7,7 @@ import com.zeroone.star.project.dto.j3.register.RegisterDTO;
 import com.zeroone.star.project.query.j3.register.RegisterQuery;
 import com.zeroone.star.project.vo.j3.register.RegisterVO;
 
+
 /**
  * <p>
  * 描述：挂号类型服务接口

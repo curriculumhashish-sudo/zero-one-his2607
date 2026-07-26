@@ -38,7 +38,7 @@
         WHERE user_id = #{currentUserId};
     </select>
 
-    <select id="isDoctorExist" resultType="java.lang.Boolean">
+    <select id="isDoctorExist" resultType="java.lang.Integer">
         SELECT COUNT(1)
         FROM zo_his.adm_practitioner
         WHERE id = #{defDoctorId};
