@@ -1,45 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>his-java</artifactId>
         <groupId>com.zeroone.star</groupId>
+        <artifactId>his-java</artifactId>
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>his-j7-pharmacy</artifactId>
     <dependencies>
-        <!--spring web mvc-->
+        <!-- spring mvc -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
-        <!--导入系统内置模块-->
+        <!--apis-->
         <dependency>
             <groupId>com.zeroone.star</groupId>
             <artifactId>his-apis</artifactId>
         </dependency>
+        <!--common-->
         <dependency>
             <groupId>com.zeroone.star</groupId>
             <artifactId>his-common</artifactId>
         </dependency>
-
-        <!--nacos相关-->
-        <!--nacos discovery-->
+        <!--alibaba nacos discovery-->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
         </dependency>
-        <!--nacos config-->
+        <!-- alibaba nacos config -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
         </dependency>
-
-        <!--数据库-->
-        <!--mp-->
+        <!-- alibaba sentinel -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+        </dependency>
+        <!-- openfeign -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+        <!-- load balancer -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+        </dependency>
+        <!-- mp -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
@@ -48,21 +59,19 @@
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-jsqlparser</artifactId>
         </dependency>
-        <!--druid-->
+        <!-- druid -->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid-spring-boot-starter</artifactId>
         </dependency>
-        <!--jdbc driver-->
+        <!-- mysql driver -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
         </dependency>
-
-        <!-- mapstruct -->
         <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-commons</artifactId>
         </dependency>
     </dependencies>
     <build>
@@ -71,21 +80,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.zeroone.star.pharmacy.PharmacyApplication</mainClass>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.zeroone.star</groupId>
-                <artifactId>mp-code-generator-plugin</artifactId>
-                <configuration>
-                    <dbConfig>
-                        <host>192.168.220.128</host>
-                        <port>3306</port>
-                        <dbname>test</dbname>
-                        <username>root</username>
-                        <password>123456</password>
-                    </dbConfig>
-                    <outDir>${project.basedir}/src/main/java</outDir>
+                    <mainClass>com.zeroone.star.j7.pharmacy.J7PharmacyApplication</mainClass>
                 </configuration>
             </plugin>
             <plugin>
@@ -113,7 +108,7 @@
                                 <namingStrategy>alias</namingStrategy>
                                 <!-- 端口映射 -->
                                 <ports>
-                                    <port>10300:10300</port>
+                                    <port>10500:10500</port>
                                 </ports>
                                 <!-- 数据卷 -->
                                 <volumes>

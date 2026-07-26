@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.zeroone.star</groupId>
@@ -8,16 +7,26 @@
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <groupId>com.zeroone.star</groupId>
     <artifactId>his-j7-dispense</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <name>Archetype - his-dispense</name>
+    <url>http://maven.apache.org</url>
     <dependencies>
-        <!-- web -->
+        <!-- spring mvc -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        <!-- alibaba nacos discovery -->
+        <!--apis-->
+        <dependency>
+            <groupId>com.zeroone.star</groupId>
+            <artifactId>his-apis</artifactId>
+        </dependency>
+        <!--common-->
+        <dependency>
+            <groupId>com.zeroone.star</groupId>
+            <artifactId>his-common</artifactId>
+        </dependency>
+        <!--alibaba nacos discovery-->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
@@ -27,26 +36,22 @@
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
         </dependency>
-<!--        &lt;!&ndash; zo oauth2 cloud starter &ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>com.zeroone.star</groupId>-->
-<!--            <artifactId>zero-one-cloud-starter-oauth2</artifactId>-->
-<!--        </dependency>-->
-        <!-- common -->
+        <!-- alibaba sentinel -->
         <dependency>
-            <groupId>com.zeroone.star</groupId>
-            <artifactId>his-common</artifactId>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
         </dependency>
-        <!-- domain -->
+        <!-- openfeign -->
         <dependency>
-            <groupId>com.zeroone.star</groupId>
-            <artifactId>his-domain</artifactId>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
+        <!-- load balancer -->
         <dependency>
-            <groupId>com.zeroone.star</groupId>
-            <artifactId>his-apis</artifactId>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
         </dependency>
-        <!-- mybatis plus -->
+        <!-- mp -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
@@ -55,7 +60,7 @@
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-jsqlparser</artifactId>
         </dependency>
-        <!-- druid starter -->
+        <!-- druid -->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid-spring-boot-starter</artifactId>
@@ -65,19 +70,9 @@
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
         </dependency>
-        <!-- redis starter -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
-        <!-- spring session -->
-        <dependency>
-            <groupId>org.springframework.session</groupId>
-            <artifactId>spring-session-data-redis</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
+            <artifactId>spring-cloud-commons</artifactId>
         </dependency>
     </dependencies>
 
@@ -87,81 +82,11 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.zeroone.star.j7.dispense.DispenseApplication</mainClass>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>io.fabric8</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <configuration>
-                    <!-- Docker Զ�̹����ַ-->
-                    <dockerHost>https://192.168.220.128:2375</dockerHost>
-                    <!-- CA ֤��λ�� -->
-                    <certPath>/home/docker-ca</certPath>
-                    <!-- �������� -->
-                    <images>
-                        <image>
-                            <!-- Docker �������ƶ��� -->
-                            <name>01star/${project.artifactId}:${project.version}</name>
-                            <!-- ָ��Dockerfile����Ŀ¼ -->
-                            <build>
-                                <contextDir>${project.basedir}</contextDir>
-                            </build>
-                            <!-- ���������������� -->
-                            <alias>${project.artifactId}</alias>
-                            <!-- ����run������� -->
-                            <run>
-                                <!-- ��������ʱ������������Ϊ:����,�����ָ����Ĭ��Ϊnone,��ʹ������������� -->
-                                <namingStrategy>alias</namingStrategy>
-                                <!-- �˿�ӳ�� -->
-                                <ports>
-                                    <port>10400:10400</port>
-                                </ports>
-                                <!-- ���ݾ� -->
-                                <volumes>
-                                    <bind>
-                                        <volume>/etc/localtime:/etc/localtime</volume>
-                                        <volume>/home/app/${project.artifactId}/logs:/tmp/logs</volume>
-                                    </bind>
-                                </volumes>
-                                <!-- ���û������� -->
-                                <env>
-                                    <!-- JVM���� -->
-                                    <JAVA_OPTS>-Xms256m -Xmx256m</JAVA_OPTS>
-                                    <!-- �����滻���� -->
-                                    <SPRING_ARGS>
-                                        --spring.profiles.active=test --spring.cloud.nacos.discovery.ip=192.168.220.128
-                                    </SPRING_ARGS>
-                                </env>
-                            </run>
-                        </image>
-                    </images>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.zeroone.star</groupId>
-                <artifactId>mp-code-generator-plugin</artifactId>
-                <configuration>
-                    <!-- ���ݿ�������Ϣ���� -->
-                    <dbConfig>
-                        <!-- ���ݿ�������ַ -->
-                        <host>192.168.254.128</host>
-                        <!-- ���ݿ�˿� -->
-                        <port>3306</port>
-                        <!-- ���ݿ����� -->
-                        <dbname>test</dbname>
-                        <!-- ���ݿ��û��� -->
-                        <username>root</username>
-                        <!-- ���ݿ����� -->
-                        <password>123456</password>
-                    </dbConfig>
-                    <!-- ���ɴ��������Ŀ¼ -->
-                    <outDir>${project.basedir}/src/main/java</outDir>
+                    <mainClass>com.zeroone.star.dispense.DispenseApplication</mainClass>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
 </project>
 
 

@@ -1,8 +1,27 @@
 server:
-  port: ${sp.pharmacy}
+  port: ${sp.j7-pharmacy}
   servlet:
     # 设置应用上下文路径
-    context-path: /pharmacy
+    context-path: /j7-pharmacy
 spring:
   application:
-    name: ${sn.pharmacy}
+    name: ${sn.j7-pharmacy}
+  config:
+    import:
+      - optional:nacos:data-source.yaml
+      - optional:nacos:key-config.yaml
+      - optional:nacos:system.yaml
+      - optional:nacos:third-services.yaml
+      - optional:nacos:gateway.yaml
+      - optional:nacos:j7-pharmacy-dev.yaml
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        namespace: his-dev
+        group: DEFAULT_GROUP
+        file-extension: yaml
+        refresh-enabled: true
+      discovery:
+        server-addr: 127.0.0.1:8848
+        namespace: his-dev
