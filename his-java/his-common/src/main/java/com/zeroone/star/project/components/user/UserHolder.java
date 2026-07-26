@@ -71,7 +71,7 @@ public class UserHolder {
                 .isEnabled(Convert.toByte(1))
                 .roles(Convert.toList(String.class, userJsonObject.get("roles")))
                 .name(userJsonObject.getStr("name"))
-                .organizationUnits((List<Map<String, String>>) (List<?>) Convert.toList(Map.class, userJsonObject.get("organizationUnits")))
+                .organizationUnits(Convert.toMap(String.class, String.class, userJsonObject.get("organizationUnits")))
                 .practitionerId(userJsonObject.getStr("practitionerId"))
                 .practitionerName(userJsonObject.getStr("practitionerName"))
                 .titleName(userJsonObject.getStr("titleName"))

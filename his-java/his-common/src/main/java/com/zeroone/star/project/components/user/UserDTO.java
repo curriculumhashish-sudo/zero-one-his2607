@@ -43,7 +43,7 @@ public class UserDTO {
      * 组织单元信息
      * 每个元素：key为组织单元编号，value为组织单元名称
      */
-    private List<Map<String, String>> organizationUnits;
+    private Map<String, String> organizationUnits;
     /**
      * 对应的医务人员编号
      */
