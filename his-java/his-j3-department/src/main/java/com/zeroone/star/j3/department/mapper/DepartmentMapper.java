@@ -31,4 +31,6 @@ public interface DepartmentMapper extends BaseMapper<DepartmentDO> {
     void addSeqKeyFromSequence(SequenceDO sequenceDO);
 
     int isDoctorExist(Long defDoctorId);
+
+    Long selectParentUnitIdByBusNo(String parentBusNO);
 }
