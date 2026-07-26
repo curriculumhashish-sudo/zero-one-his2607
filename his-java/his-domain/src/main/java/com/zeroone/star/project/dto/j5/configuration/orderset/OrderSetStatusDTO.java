@@ -15,7 +15,7 @@ import lombok.Data;
 public class OrderSetStatusDTO {
 
     @NotBlank(message = "组套模板编号不能为空")
-    @Schema(description = "组套模板编号", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "组套模板编号", example = "329888224518344704", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
     @NotNull(message = "版本号不能为空")
@@ -24,7 +24,7 @@ public class OrderSetStatusDTO {
     private Integer version;
 
     @NotBlank(message = "状态操作不能为空")
-    @Pattern(regexp = "ENABLE|DISABLE", message = "状态操作只能是ENABLE或DISABLE")
-    @Schema(description = "状态操作", example = "ENABLE", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Pattern(regexp = "PUBLISH|RETIRE|ENABLE|DISABLE", message = "状态操作只能是PUBLISH、RETIRE、ENABLE或DISABLE")
+    @Schema(description = "生命周期操作；推荐使用PUBLISH或RETIRE，兼容ENABLE或DISABLE", example = "PUBLISH", requiredMode = Schema.RequiredMode.REQUIRED)
     private String operationType;
 }
