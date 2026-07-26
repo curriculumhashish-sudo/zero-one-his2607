@@ -205,7 +205,7 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
         //获取与id值关联的AdmChargeItemDefinitionDO列表
         QueryWrapper<AdmChargeItemDefinitionDO> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda()
-                .eq(AdmChargeItemDefinitionDO::getInstanceTable,"med_medication_defination")
+                .eq(AdmChargeItemDefinitionDO::getInstanceTable,"med_medication_definition")
                 .eq(AdmChargeItemDefinitionDO::getInstanceId,id);
         List<AdmChargeItemDefinitionDO> chargeItemDefinitionDOS = chargeItemMapper.selectList(queryWrapper);
         if(medicationDefinitionDO == null||chargeItemDefinitionDOS ==null||chargeItemDefinitionDOS.isEmpty()){
@@ -289,6 +289,9 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
     @Override
     @Transactional(rollbackFor = Exception.class)
     public MedicineDeleteResultDTO deleteMedicine(MedicineDeleteDTO dto) {
+        //软删除
+
+
         List<String> ids = dto.getIds();
         //查出所有有关联的id
         LambdaQueryWrapper<MedMedicationDispenseDO> dispenseWrapper = new LambdaQueryWrapper<>();
@@ -330,6 +333,7 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int updateChangeMedicineStatus(
             int status,
             MedicineChangeStatusDTO dto) {
@@ -338,7 +342,8 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
 
         LambdaUpdateWrapper<MedMedicationDefinitionDO> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.in(MedMedicationDefinitionDO::getId,ids)
-                .ne(MedMedicationDefinitionDO::getActiveFlag,status);
+                .ne(MedMedicationDefinitionDO::getActiveFlag,status)
+                .set(MedMedicationDefinitionDO::getActiveFlag,status);
 
         return baseMapper.update(updateWrapper);
 
