@@ -19,6 +19,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -31,6 +32,7 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
 
     @Resource
     private UserHolder userHolder;
+    @Resource
     private MsSupplierMapper msSupplierMapper;
 
     /**
@@ -103,6 +105,8 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
 
         // DTO → Entity 转换
         Supplier supplier = msSupplierMapper.SupplierFullDTO2Supplier(dto);
+        // ID后端自增（基于最大ID +1）
+        supplier.setId(generateId());
         // 如果BusNo为空则设置默认值
         if (!StringUtils.hasText(supplier.getBusNo())) {
             supplier.setBusNo(generateBusNo());
@@ -115,9 +119,15 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         supplier.setIsDeleted(0);
         supplier.setDeletedBy(null);
         supplier.setDeletedAt(null);
-        //TODO 创建时间初始化,用户信息
-        //  supplier.setCreatedAt(LocalDateTime.parse(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
-        //  supplier.setCreatedBy();
+        // 设置创建人（从登录用户获取）
+        try {
+            supplier.setCreatedBy(userHolder.getCurrentUser().getUsername());
+        } catch (Exception e) {
+            // TODO 开发阶段可能无token，暂不处理
+            e.printStackTrace();
+        }
+        //supplier.setCreatedAt(LocalDateTime.now());
+        //supplier.setUpdatedAt(LocalDateTime.now());
 
         this.save(supplier);
         return "新增供应商成功，供应商编号：" + supplier.getBusNo();
@@ -135,8 +145,10 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         if (!StringUtils.hasText(id)) {
             throw new IllegalArgumentException("供应商ID不能为空");
         }
-        Long exists = this.lambdaQuery().eq(Supplier::getId, id.trim()).count();
-        if (exists == 0) {
+        Long exists = this.lambdaQuery()
+                .eq(Supplier::getId, id.trim())
+                .count();
+        if (exists == null || exists == 0) {
             throw new IllegalArgumentException("供应商不存在，请检查ID是否正确");
         }
         // 如果需要校验信用代码不可修改，单独查询 credit_code 字段
@@ -151,9 +163,14 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         Supplier supplier = msSupplierMapper.SupplierFullDTO2Supplier(dto);
         BeanUtils.copyProperties(dto, supplier);
         supplier.setId(id.trim());
-        // TODO 设置更新用户时间，信息
-        //  supplier.setUpdatedAt(LocalDateTime.parse(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
-        //  supplier.setUpdatedBy();
+        // 设置更新人/更新时间（从登录用户获取，类似删除处理方式）
+        try {
+            supplier.setUpdatedBy(userHolder.getCurrentUser().getUsername());
+        } catch (Exception e) {
+            // TODO 开发阶段可能无token，暂不处理
+            e.printStackTrace();
+        }
+        //supplier.setUpdatedAt(LocalDateTime.now());
         this.updateById(supplier);
         return "修改供应商成功";
     }
@@ -181,6 +198,7 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
             deletedBy = userHolder.getCurrentUser().getUsername();
         } catch (Exception e) {
             // TODO 开发阶段可能无token，暂不处理
+            e.printStackTrace();
         }
 
         this.lambdaUpdate()
@@ -209,7 +227,6 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         // 查询待操作的供应商
         List<Supplier> suppliers = this.lambdaQuery()
                 .in(Supplier::getId, ids)
-                .eq(Supplier::getIsDeleted, 0)
                 .ne(Supplier::getStatusEnum, normalizedStatus)
                 .list();
         int size = suppliers.size();
@@ -227,14 +244,30 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
     }
 
     /**
-     * 生成业务编号：SUP + yyyy + 4位自增序号
+     * 生成主键ID：基于当前最大ID自增+1
+     * @return 新的主键ID
+     */
+    private String generateId() {
+        Supplier maxSupplier = this.lambdaQuery()
+                .orderByDesc(Supplier::getId)
+                .last("LIMIT 1")
+                .one();
+
+        if (maxSupplier != null && maxSupplier.getId() != null) {
+            return new BigInteger(maxSupplier.getId()).add(BigInteger.ONE).toString();
+        }
+        return "4100000000000000002";
+    }
+
+    /**
+     * 生成业务编号：SUPP + 自增序号
+     * 初始3位数字（SUPP002、SUPP003...），超出999后自动扩大位数
      * @return 业务编号
      */
     private String generateBusNo() {
-        String year = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy"));
-        String prefix = "SUP" + year;
+        String prefix = "SUPP";
 
-        // 查询当年最大业务编号
+        // 查询最大业务编号
         Supplier maxSupplier = this.lambdaQuery()
                 .likeRight(Supplier::getBusNo, prefix)
                 .orderByDesc(Supplier::getBusNo)
@@ -245,8 +278,9 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         if (maxSupplier != null && maxSupplier.getBusNo() != null) {
             sequence = Integer.parseInt(maxSupplier.getBusNo().substring(prefix.length())) + 1;
         }
-
-        return prefix + String.format("%04d", sequence);
+        // 最小3位，超出时按实际位数（如SUPP1000）
+        String format = "%0" + Math.max(3, String.valueOf(sequence).length()) + "d";
+        return prefix + String.format(format, sequence);
     }
 
     /**
