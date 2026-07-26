@@ -6,6 +6,7 @@ import com.zeroone.star.project.dto.j4.equipment.EquipmentStatusDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentUpdateDTO;
 import com.zeroone.star.project.query.j4.equipment.EquipmentPageQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import jakarta.validation.Valid;
 import com.zeroone.star.project.vo.j4.equipment.EquipmentCategoryVo;
 import com.zeroone.star.project.vo.j4.equipment.EquipmentUpdateVO;
 import com.zeroone.star.project.vo.j4.equipment.EquipmentVO;
@@ -30,7 +31,7 @@ public interface EquipmentApis {
      * @param query 分页查询条件
      * @return 分页器材数据
      */
-    JsonVO<PageDTO<EquipmentVO>> queryPage(EquipmentPageQuery query);
+    JsonVO<PageDTO<EquipmentVO>> queryPage(@Valid EquipmentPageQuery query);
 
     /**
      * 添加器材
@@ -38,7 +39,7 @@ public interface EquipmentApis {
      * @param equipmentAddDTO 器材详情信息DTO
      * @return 无返回值
      */
-    JsonVO<Void> addEquipment(EquipmentAddDTO equipmentAddDTO);
+    JsonVO<Void> addEquipment(@Valid EquipmentAddDTO equipmentAddDTO);
 
 
     /**
@@ -47,7 +48,7 @@ public interface EquipmentApis {
      * @param dto 修改器材数据
      * @return 修改确认结果
      */
-    JsonVO<EquipmentUpdateVO> updateEquipment(EquipmentUpdateDTO dto);
+    JsonVO<EquipmentUpdateVO> updateEquipment(@Valid EquipmentUpdateDTO dto);
 
     /**
      * 切换器材状态（启用/禁用取反）
@@ -55,7 +56,7 @@ public interface EquipmentApis {
      * @param dto 切换状态请求
      * @return 切换后结果
      */
-    JsonVO<EquipmentVO> modifyStatus(EquipmentStatusDTO dto);
+    JsonVO<EquipmentVO> modifyStatus(@Valid EquipmentStatusDTO dto);
 
     /**
      * 获取器材详情

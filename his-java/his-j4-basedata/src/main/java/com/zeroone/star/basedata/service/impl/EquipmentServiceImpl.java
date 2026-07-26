@@ -79,8 +79,9 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
         if (existing == null) {
             throw new IllegalArgumentException("器材不存在，主键：" + id);
         }
-
+        // ms转换
         AdmDeviceDefinitionDO dtoEntity = msEquipmentMapper.updateDtoToEntity(dto);
+        // 复制属性
         cn.hutool.core.bean.BeanUtil.copyProperties(dtoEntity, existing,
                 cn.hutool.core.bean.copier.CopyOptions.create().ignoreNullValue());
         baseMapper.updateById(existing);
@@ -91,26 +92,23 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
     /**
      * 启/停用器材（支持批量）
      *
-     * @param dto 切换状态请求（仅主键）
-     * @return 切换后的器材实体
+     * @param dto 切换状态请求（主键列表）
+     * @return 成功修改的数量
      * @throws IllegalArgumentException 器材不存在或参数非法
      */
     @Override
-    public AdmDeviceDefinitionDO modifyEquipmentStatus(EquipmentStatusDTO dto) {
-        String id = dto.getId();
-        if (!StringUtils.hasText(id)) {
-            throw new IllegalArgumentException("切换状态时主键不可为空");
+    public int modifyEquipmentStatus(EquipmentStatusDTO dto) {
+        int count = 0;
+        for (String id : dto.getIds()) {
+            AdmDeviceDefinitionDO existing = baseMapper.selectById(Long.valueOf(id));
+            if (existing == null) {
+                throw new IllegalArgumentException("器材不存在，主键：" + id);
+            }
+            boolean newStatus = existing.getActiveFlag() == null || !existing.getActiveFlag();
+            existing.setActiveFlag(newStatus);
+            baseMapper.updateById(existing);
+            count++;
         }
-
-        AdmDeviceDefinitionDO existing = baseMapper.selectById(Long.valueOf(id));
-        if (existing == null) {
-            throw new IllegalArgumentException("器材不存在，主键：" + id);
-        }
-
-        boolean newStatus = existing.getActiveFlag() == null || !existing.getActiveFlag();
-        existing.setActiveFlag(newStatus);
-        baseMapper.updateById(existing);
-
-        return existing;
+        return count;
     }
 }

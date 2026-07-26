@@ -39,8 +39,8 @@ public interface IEquipmentService extends IService<AdmDeviceDefinitionDO> {
     /**
      * 启/停用器材（支持批量）
      *
-     * @param dto 切换状态请求（仅主键）
-     * @return 切换后的器材实体
+     * @param dto 切换状态请求（主键列表）
+     * @return 成功修改的数量
      */
-    AdmDeviceDefinitionDO modifyEquipmentStatus(@Valid EquipmentStatusDTO dto);
+    int modifyEquipmentStatus(@Valid EquipmentStatusDTO dto);
 }
