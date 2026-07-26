@@ -26,12 +26,6 @@ public class FeeNatureVO implements Serializable {
     @Schema(description = "显示顺序", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer displayOrder;
 
-    @Schema(description = "费用性质分类", example = "自费", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String categoryEnum;
-
     @Schema(description = "是否启用 1 启用 0 禁用", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer activeFlag;
-
-    @Schema(description = "状态", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String statusEnum;
 }

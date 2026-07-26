@@ -26,6 +26,8 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
     @Override
     public List<FeeNatureVO> listFeeNatures(FeeNatureQuery query) {
         LambdaQueryWrapper<FeeNature> wrapper = new LambdaQueryWrapper<>();
+        // 过滤已删除的记录
+        wrapper.eq(FeeNature::getIsDeleted, 0);
         // 关键词模糊搜索（名称或编码）
         if (query.getKeyword() != null && !query.getKeyword().isEmpty()) {
             wrapper.and(w -> w
@@ -59,9 +61,6 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
         if (dto.getDisplayOrder() == null) {
             throw new RuntimeException("显示顺序不能为空");
         }
-        if (dto.getActiveFlag() == null) {
-            throw new RuntimeException("启用状态不能为空");
-        }
 
         // 2. 校验记录存在
         FeeNature entity = baseMapper.selectById(id);
@@ -78,12 +77,11 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
             }
         }
 
-        // 4. 更新字段
+        // 4. 仅更新编辑页面涉及的4个字段
         entity.setName(dto.getName());
         entity.setBusNo(dto.getBusNo());
         entity.setDisplayOrder(dto.getDisplayOrder());
         entity.setCategoryEnum(dto.getCategoryEnum());
-        entity.setActiveFlag(dto.getActiveFlag());
 
         if (!updateById(entity)) {
             throw new RuntimeException("修改失败");
@@ -110,10 +108,8 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
         vo.setId(entity.getId());
         vo.setName(entity.getName());
         vo.setBusNo(entity.getBusNo());
-        vo.setActiveFlag(entity.getActiveFlag());
         vo.setDisplayOrder(entity.getDisplayOrder());
-        vo.setCategoryEnum(entity.getCategoryEnum());
-        vo.setStatusEnum(entity.getStatusEnum());
+        vo.setActiveFlag(entity.getActiveFlag());
         return vo;
     }
 }

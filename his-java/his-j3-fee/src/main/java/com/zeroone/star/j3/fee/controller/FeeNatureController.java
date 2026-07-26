@@ -52,7 +52,7 @@ public class FeeNatureController implements FeeNatureApis {
             description = "根据ID修改费用性质信息。修改后新产生的收费记录将使用更新后的名称/编码，已结算的历史记录不受影响")
     public JsonVO<String> update(
             @PathVariable("id") String id,
-            @Valid @RequestBody FeeNatureDTO dto) {
+            @Valid FeeNatureDTO dto) {
         feeNatureService.updateFeeNature(id, dto);
         return JsonVO.success("修改成功");
     }
@@ -83,30 +83,24 @@ public class FeeNatureController implements FeeNatureApis {
         vo1.setId("1");
         vo1.setName("自费");
         vo1.setBusNo("1");
-        vo1.setActiveFlag(1);
         vo1.setDisplayOrder(1);
-        vo1.setCategoryEnum("自费");
-        vo1.setStatusEnum("ACTIVE");
+        vo1.setActiveFlag(1);
         list.add(vo1);
 
         FeeNatureVO vo2 = new FeeNatureVO();
         vo2.setId("2");
         vo2.setName("省医保");
         vo2.setBusNo("3");
-        vo2.setActiveFlag(1);
         vo2.setDisplayOrder(2);
-        vo2.setCategoryEnum("医保");
-        vo2.setStatusEnum("ACTIVE");
+        vo2.setActiveFlag(1);
         list.add(vo2);
 
         FeeNatureVO vo3 = new FeeNatureVO();
         vo3.setId("3");
         vo3.setName("市医保");
         vo3.setBusNo("2");
-        vo3.setActiveFlag(1);
         vo3.setDisplayOrder(3);
-        vo3.setCategoryEnum("医保");
-        vo3.setStatusEnum("ACTIVE");
+        vo3.setActiveFlag(1);
         list.add(vo3);
 
         return JsonVO.success(list);

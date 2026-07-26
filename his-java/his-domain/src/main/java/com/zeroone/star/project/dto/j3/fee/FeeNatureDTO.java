@@ -15,9 +15,6 @@ import java.io.Serializable;
 @Schema(description = "费用性质数据对象")
 public class FeeNatureDTO implements Serializable {
 
-    @Schema(description = "费用性质ID（新增时不传，修改时必传）", example = "abc123", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String id;
-
     @Schema(description = "费用性质名称", example = "自费")
     private String name;
 
@@ -29,7 +26,4 @@ public class FeeNatureDTO implements Serializable {
 
     @Schema(description = "费用性质分类(0自费、1公费、2省医保、3市医保)", example = "0")
     private String categoryEnum;
-
-    @Schema(description = "是否启用 1 启用 0 禁用", example = "1")
-    private Integer activeFlag;
 }
