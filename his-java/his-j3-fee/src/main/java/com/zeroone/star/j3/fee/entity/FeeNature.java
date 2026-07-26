@@ -1,6 +1,7 @@
 package com.zeroone.star.j3.fee.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.zeroone.star.project.enums.j3.fee.FeeCategoryEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -66,9 +67,9 @@ public class FeeNature implements Serializable {
     private String name;
 
     /**
-     * 费用性质分类（0自费、1公费、2省医保、3市医保）
+     * 费用性质分类（1自费、2公费、3省医保、4市医保）
      */
-    private String categoryEnum;
+    private FeeCategoryEnum categoryEnum;
 
     /**
      * 状态枚举值

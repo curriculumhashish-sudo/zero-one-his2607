@@ -67,7 +67,7 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
         if (dto.getBusNo() == null || dto.getBusNo().isEmpty()) {
             throw new RuntimeException("编码不能为空");
         }
-        if (dto.getCategoryEnum() == null || dto.getCategoryEnum().isEmpty()) {
+        if (dto.getCategoryEnum() == null) {
             throw new RuntimeException("分类不能为空");
         }
         if (dto.getDisplayOrder() == null) {
@@ -93,7 +93,7 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
         entity.setName(dto.getName());
         entity.setBusNo(dto.getBusNo());
         entity.setDisplayOrder(dto.getDisplayOrder());
-        entity.setCategoryEnum(dto.getCategoryEnum());
+        entity.setCategoryEnum(FeeCategoryEnum.of(dto.getCategoryEnum()));
 
         if (!updateById(entity)) {
             throw new RuntimeException("修改失败");
@@ -110,6 +110,102 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
         if (!updateById(entity)) {
             throw new RuntimeException("状态更新失败");
         }
+    }
+    @Override
+    public List<FeeNatureVO> getNameList() {
+        // 注意是否启用,是否被删除,按照sortBy字段排序
+        LambdaQueryWrapper<FeeNature> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(FeeNature::getActiveFlag, 1)
+                .eq(FeeNature::getIsDeleted, 0)
+                .orderByAsc(FeeNature::getDisplayOrder)
+                .select(FeeNature::getBusNo, FeeNature::getName);
+        List<FeeNature> feeNatures = baseMapper.selectList(wrapper);
+        List<FeeNatureVO> vos = new ArrayList<>();
+        for (FeeNature feeNature : feeNatures) {
+            FeeNatureVO feeNatureVO = new FeeNatureVO();
+            feeNatureVO.setName(feeNature.getName());
+            feeNatureVO.setBusNo(feeNature.getBusNo());
+            vos.add(feeNatureVO);
+        }
+        return vos;
+    }
+
+    @Override
+    public void add(FeeNatureDTO dto) {
+        // 1.校验编码
+        // 1.1 编码不能为空
+        String code = dto.getBusNo();
+        if(StringUtils.isEmpty(code)){
+            throw new RuntimeException("费用性质编码不能为空");
+        }
+        // 1.2  编码不能重复
+        LambdaQueryWrapper<FeeNature> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(FeeNature::getBusNo, dto.getBusNo());
+        wrapper.eq(FeeNature::getIsDeleted, 0);
+        if (baseMapper.selectCount(wrapper) > 0) {
+            throw new RuntimeException("费用性质编码已存在，请重新输入");
+        }
+
+        // 2. 判名称,显示顺序,分类不能为空
+        String name = dto.getName();
+        if(StringUtils.isEmpty(name)){
+            throw new RuntimeException("费用性质名称不能为空");
+        }
+
+        Integer displayOrder = dto.getDisplayOrder();
+        if(displayOrder==null){
+            throw new RuntimeException("费用性质显示顺序不能为空");
+        }
+
+        Integer categoryEnum = dto.getCategoryEnum();
+        if (categoryEnum == null) {
+            throw new RuntimeException("费用性质分类不能为空");
+        }
+
+
+        // 3. 填充字段,保存
+        FeeNature entity = new FeeNature();
+        BeanUtils.copyProperties(dto, entity);
+        entity.setCategoryEnum(FeeCategoryEnum.of(categoryEnum));
+        entity.setActiveFlag(1);
+        entity.setStatusEnum("1");
+        entity.setIsDeleted(0);
+        baseMapper.insert(entity);
+    }
+
+    @Override
+    public void delete(String id) {
+        // 注意是否已经被删除,是否关联了其他表,是否还是启用状态
+        // 1. 数据是否存在
+        FeeNature entity = baseMapper.selectById(id);
+        if (entity == null) {
+            throw new RuntimeException("费用性质不存在");
+        }
+
+        // 2. 删除判断是否已经被删除了
+        if(entity.getIsDeleted() == 1){
+            throw new RuntimeException("请不要重复删除");
+        }
+
+        // 3. 关联表判断
+        // 3.1 挂号账户判断
+        LambdaQueryWrapper<AdmAccount> wrapper = new LambdaQueryWrapper<AdmAccount>()
+                .eq(AdmAccount::getBusNo, entity.getBusNo())
+                .eq(AdmAccount::getIsDeleted, 0)
+                .eq(AdmAccount::getStatusEnum, "ACTIVE");
+        if(admAccountMapper.selectCount(wrapper) > 0){
+            throw new RuntimeException("费用性质在挂号时被使用,无法删除");
+        }
+
+        // 4.1 更新删除字段
+        entity.setIsDeleted(1);
+        entity.setDeletedAt(LocalDateTime.now());
+        try {
+            entity.setDeletedBy(userHolder.getCurrentUser().getUsername());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        baseMapper.updateById(entity);
     }
 
     /**

@@ -24,6 +24,6 @@ public class FeeNatureDTO implements Serializable {
     @Schema(description = "显示顺序", example = "1")
     private Integer displayOrder;
 
-    @Schema(description = "费用性质分类(0自费、1公费、2省医保、3市医保)", example = "0")
-    private String categoryEnum;
+    @Schema(description = "费用性质分类(1自费、2公费、3省医保、4市医保)", example = "1")
+    private Integer categoryEnum;
 }
