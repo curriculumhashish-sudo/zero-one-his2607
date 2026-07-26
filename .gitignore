@@ -82,3 +82,6 @@ components.d.ts
 package-lock.json
 node_modules
 pnpm-lock.yaml
+
+# Local infrastructure secrets
+deploy/local/nacos/.env
