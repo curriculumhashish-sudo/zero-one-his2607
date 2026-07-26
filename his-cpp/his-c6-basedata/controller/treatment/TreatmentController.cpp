@@ -48,6 +48,16 @@ namespace
 	}
 }
 
+TreatmentPageJsonVO::Wrapper TreatmentController::execQueryTreatment(const TreatmentQuery::Wrapper& query)
+{
+	// 查询数据
+	auto result = TreatmentService().listAll(query);
+	// 响应结果
+	auto jvo = TreatmentPageJsonVO::createShared();
+	jvo->success(result);
+	return jvo;
+}
+
 TreatmentDetailJsonVO::Wrapper TreatmentController::execQueryOne(const String& id)
 {
 	// 定义返回数据对象
@@ -117,28 +127,12 @@ TreatmentSelectPageJsonVO::Wrapper TreatmentController::execQuerySelect(const Tr
 
 TreatmentPageJsonVO::Wrapper TreatmentController::execQueryAll(const TreatmentQuery::Wrapper& query)
 {
-	auto pageDto = TreatmentPageDTO::createShared();
-	pageDto->addData(buildSampleTreatment("184000000000000001", "AD00000001", u8"\u4ee3\u714e\u4e2d\u836f"));
-
-	auto second = buildSampleTreatment("184000000000000002", "AD00000002", u8"\u6ce8\u5c04\u7528\u836f");
-	second->categoryCode = "32";
-	second->typeEnum = 2;
-	second->packageUnitCode = "2";
-	second->pyStr = "ZSY";
-	second->wbStr = "ZZY";
-	second->itemTypeCode = "1014";
-	second->purchasePrice = 1.50;
-	second->retailPrice = 2.00;
-	pageDto->addData(second);
-
-	pageDto->pageIndex = query->pageIndex;
-	pageDto->pageSize = query->pageSize;
-	pageDto->total = 2;
-	pageDto->calcPages();
-
-	auto vo = TreatmentPageJsonVO::createShared();
-	vo->success(pageDto);
-	return vo;
+	// 创建客户端对象
+	API_CLIENT_CREATE(ac, om, SampleApiClient, "sample-api");
+	// 构建凭证
+	std::string token = PayloadDTO::getTokenPrefix() + payload.getToken();
+	// 返回查询结果
+	return ac->queryAll(token, query->pageIndex, query->pageSize, URIUtil::urlEncode(query->name))->readBodyToDto<TreatmentPageJsonVO::Wrapper>(om);
 }
 
 StringJsonVO::Wrapper TreatmentController::execAddTreatment(
