@@ -14,9 +14,9 @@ class DeptDO : public BaseDO
 	// 租户ID
 	MYSQL_SYNTHESIZE(int64_t, tenant_id, TenantId);
 	// 创建时间
-	MYSQL_SYNTHESIZE(std::string, created_at, CreatedAt);
+	MYSQL_SYNTHESIZE(string, created_at, CreatedAt);
 	// 更新时间
-	MYSQL_SYNTHESIZE(std::string, updated_at, UpdatedAt);
+	MYSQL_SYNTHESIZE(string, updated_at, UpdatedAt);
 	// 创建人ID
 	MYSQL_SYNTHESIZE(int64_t, created_by, CreatedBy);
 	// 最后更新人ID
@@ -24,23 +24,23 @@ class DeptDO : public BaseDO
 	// 软删除标记 bool
 	MYSQL_SYNTHESIZE(bool, is_deleted, IsDeleted);
 	// 删除时间
-	MYSQL_SYNTHESIZE(std::string, deleted_at, DeletedAt);
+	MYSQL_SYNTHESIZE(string, deleted_at, DeletedAt);
 	// 删除人ID
 	MYSQL_SYNTHESIZE(int64_t, deleted_by, DeletedBy);
 	// 乐观锁版本号 int
 	MYSQL_SYNTHESIZE(int32_t, version, Version);
 	// 科室名称
-	MYSQL_SYNTHESIZE(std::string, name, Name);
+	MYSQL_SYNTHESIZE(string, name, Name);
 	// bus编号
-	MYSQL_SYNTHESIZE(std::string, bus_no, BusNo);
+	MYSQL_SYNTHESIZE(string, bus_no, BusNo);
 	// 父级科室ID
 	MYSQL_SYNTHESIZE(int64_t, parent_id, ParentId);
 	// type枚举
-	MYSQL_SYNTHESIZE(std::string, type_enum, TypeEnum);
+	MYSQL_SYNTHESIZE(string, type_enum, TypeEnum);
 	// class分类枚举
-	MYSQL_SYNTHESIZE(std::string, class_enum, ClassEnum);
+	MYSQL_SYNTHESIZE(string, class_enum, ClassEnum);
 	// 启停状态枚举 ACTIVE/INACTIVE
-	MYSQL_SYNTHESIZE(std::string, status_enum, StatusEnum);
+	MYSQL_SYNTHESIZE(string, status_enum, StatusEnum);
 	// 启停布尔标记 true/false
 	MYSQL_SYNTHESIZE(bool, active_flag, ActiveFlag);
 	// 显示排序序号
@@ -48,23 +48,23 @@ class DeptDO : public BaseDO
 	// 默认医生ID
 	MYSQL_SYNTHESIZE(int64_t, def_doctor_id, DefDoctorId);
 	// 拼音码
-	MYSQL_SYNTHESIZE(std::string, py_str, PyStr);
+	MYSQL_SYNTHESIZE(string, py_str, PyStr);
 	// 五笔码
-	MYSQL_SYNTHESIZE(std::string, wb_str, WbStr);
+	MYSQL_SYNTHESIZE(string, wb_str, WbStr);
 	// 医保编号
-	MYSQL_SYNTHESIZE(std::string, yb_no, YbNo);
+	MYSQL_SYNTHESIZE(string, yb_no, YbNo);
 	// 医保名称
-	MYSQL_SYNTHESIZE(std::string, yb_name, YbName);
+	MYSQL_SYNTHESIZE(string, yb_name, YbName);
 	// 医疗机构ID
-	MYSQL_SYNTHESIZE(std::string, medins_id, MedinsId);
+	MYSQL_SYNTHESIZE(string, medins_id, MedinsId);
 	// 医疗机构医保区划
-	MYSQL_SYNTHESIZE(std::string, medins_admdvs, MedinsAdmdvs);
+	MYSQL_SYNTHESIZE(string, medins_admdvs, MedinsAdmdvs);
 	// 医疗机构类型
-	MYSQL_SYNTHESIZE(std::string, medins_type, MedinsType);
+	MYSQL_SYNTHESIZE(string, medins_type, MedinsType);
 	// 医疗机构等级
-	MYSQL_SYNTHESIZE(std::string, medins_lv, MedinsLv);
+	MYSQL_SYNTHESIZE(string, medins_lv, MedinsLv);
 	// 科别
-	MYSQL_SYNTHESIZE(std::string, caty, Caty);
+	MYSQL_SYNTHESIZE(string, caty, Caty);
 
 public:
 	// 构造函数：传入表名 adm_organization，依次绑定所有字段

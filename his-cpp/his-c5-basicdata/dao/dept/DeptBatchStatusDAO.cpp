@@ -17,12 +17,12 @@ int DeptBatchStatusDAO::batchUpdateStatus(const DeptBatchUpdateDTO::Wrapper& upd
 	SqlParams params;
 	// MySQL批量更新SQL
 	std::string sql = R"(
-		UPDATE adm\_organization
+		UPDATE adm_organization
 		SET 
-			status\_enum = ?,
-			active\_flag = ?,
-			updated\_by = ?,
-			updated\_at = ?,
+			status_enum = ?,
+			active_flag = ?,
+			updated_by = ?,
+			updated_at = ?,
 			version = version + 1
 		WHERE id IN (?)
 	)";

@@ -19,8 +19,8 @@ DeptBatchStatusJsonVO::Wrapper DeptController::execBatchToggleDeptStatus(const D
     dto->setPayload(&payload);
 
     // 实例化Service，调用批量启停业务方法
-    auto deptBatchService = DeptBatchStatusService::getInstance();
-    bool opSuccess = deptBatchService->batchToggleDeptStatus(dto);
+    DeptBatchStatusService batchService;
+    bool opSuccess = batchService.batchToggleDeptStatus(dto);
 
     // 组装最终返回响应
     auto respVo = DeptBatchStatusJsonVO::createShared();
