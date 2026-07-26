@@ -93,7 +93,7 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
         entity.setName(dto.getName());
         entity.setBusNo(dto.getBusNo());
         entity.setDisplayOrder(dto.getDisplayOrder());
-        entity.setCategoryEnum(FeeCategoryEnum.of(dto.getCategoryEnum()));
+        entity.setCategoryEnum(dto.getCategoryEnum());
 
         if (!updateById(entity)) {
             throw new RuntimeException("修改失败");
@@ -157,7 +157,7 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
             throw new RuntimeException("费用性质显示顺序不能为空");
         }
 
-        Integer categoryEnum = dto.getCategoryEnum();
+        FeeCategoryEnum categoryEnum = dto.getCategoryEnum();
         if (categoryEnum == null) {
             throw new RuntimeException("费用性质分类不能为空");
         }
@@ -166,7 +166,7 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
         // 3. 填充字段,保存
         FeeNature entity = new FeeNature();
         BeanUtils.copyProperties(dto, entity);
-        entity.setCategoryEnum(FeeCategoryEnum.of(categoryEnum));
+        entity.setCategoryEnum(categoryEnum);
         entity.setActiveFlag(1);
         entity.setStatusEnum("1");
         entity.setIsDeleted(0);
@@ -194,7 +194,7 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
                 .eq(AdmAccount::getIsDeleted, 0)
                 .eq(AdmAccount::getStatusEnum, "ACTIVE");
         if(admAccountMapper.selectCount(wrapper) > 0){
-            throw new RuntimeException("费用性质在挂号时被使用,无法删除");
+            throw new RuntimeException("费用性质在诊断时被使用,无法删除");
         }
 
         // 4.1 更新删除字段

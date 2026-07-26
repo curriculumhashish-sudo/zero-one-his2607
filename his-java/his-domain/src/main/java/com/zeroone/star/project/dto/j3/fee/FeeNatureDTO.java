@@ -1,5 +1,6 @@
 package com.zeroone.star.project.dto.j3.fee;
 
+import com.zeroone.star.project.enums.j3.fee.FeeCategoryEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -25,5 +26,5 @@ public class FeeNatureDTO implements Serializable {
     private Integer displayOrder;
 
     @Schema(description = "费用性质分类(1自费、2公费、3省医保、4市医保)", example = "1")
-    private Integer categoryEnum;
+    private FeeCategoryEnum categoryEnum;
 }
