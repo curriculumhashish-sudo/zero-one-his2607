@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
+import java.util.List;
 
 
 public interface EnumTypeRepository extends MongoRepository<EnumType, String> {
@@ -26,4 +27,12 @@ public interface EnumTypeRepository extends MongoRepository<EnumType, String> {
             String tenatId,
             String keyword,
             Pageable pageable);
+
+
+    String findEnumTypeIdByEnumTypeKey(String enumTypeKey);
+
+    @Query(value = "{'enumTypeKey': ?1, 'tenantId': ?0, 'isDeleted': false}",
+            fields = "{'id': 1}")
+    String findActiveEnumTypeIdByEnumTypeKey(String tenantId, String enumTypeKey);
+
 }

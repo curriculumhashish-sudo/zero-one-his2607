@@ -12,6 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Document(collection = "enum_value")
@@ -97,6 +98,10 @@ public class EnumValue {
         enumDTO.setId(enumValue.getId());
 
         return enumDTO;
+    }
+
+    public static List<EnumDTO> toDTOList(List<EnumValue> enumValues) {
+        return enumValues.stream().map(EnumValue::toDTO).toList();
     }
 
     public static PageDTO<EnumDTO> toPageDTO(Page<EnumValue> enumValuePage) {

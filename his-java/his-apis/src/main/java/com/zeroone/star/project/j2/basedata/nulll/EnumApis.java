@@ -28,13 +28,6 @@ public interface EnumApis {
     JsonVO<PageDTO<EnumTypeDTO>> queryAllEnumType(EnumTypeQuery query);
 
     /**
-     * 根据枚举类型查询枚举列表
-      * @param enumTypeId 枚举类型ID
-     * @return 枚举类型分页查询对象列表DTO
-     */
-    JsonVO<List<EnumDTO>> listEnumsByEnumType(String enumTypeId);
-
-    /**
      * 初始化表单所需要的枚举，前端返回表单所有需要的枚举信息的字符串列表，该方法将其返回对应的映射
      * @param enumTypeKeys 枚举类型列表，这里不同于枚举类型ID，而是枚举类型名称的列表，即EnumTypeKey对应的字符串
      * @return 枚举类型映射列表DTO

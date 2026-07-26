@@ -1,6 +1,7 @@
 package com.zeroone.star.basedata.controller;
 
 import com.zeroone.star.basedata.service.EnumTypeService;
+import com.zeroone.star.basedata.service.EnumValueService;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.*;
 import com.zeroone.star.project.j2.basedata.nulll.EnumApis;
@@ -24,6 +25,9 @@ public class EnumController implements EnumApis {
     @Resource
     private EnumTypeService enumTypeService;
 
+    @Resource
+    private EnumValueService enumValueService;
+
 
     @Override
     @Operation(summary = "获取枚举名称列表")
@@ -33,24 +37,17 @@ public class EnumController implements EnumApis {
     }
 
     @Override
-    @Operation(summary = "根据枚举类型id查询枚举列表")
-    @GetMapping("/sys/list-enums-by-enum-type/{enumTypeId}")
-    public JsonVO<List<EnumDTO>> listEnumsByEnumType(@PathVariable(value = "enumTypeId", required = true) String enumTypeId) {
-        return null;
-    }
-
-    @Override
     @Operation(summary = "根据枚举类型key查询枚举列表", description = "注意这里使用的是key")
     @GetMapping("/sys/init-table-enum")
     public JsonVO<Map<String, List<EnumDTO>>> initTableEnums(@RequestParam List<String> enumTypeKeys) {
-        return null;
+        return JsonVO.success(enumValueService.initTableEnums(enumTypeKeys));
     }
 
 
     @Override
     @Operation(summary = "获取枚举类型列表(条件+分页)")
-    @GetMapping("/sys/query-all-enum-type")
-    public JsonVO<PageDTO<EnumTypeDTO>> queryAllEnumType(@RequestBody EnumTypeQuery query) {
+    @PostMapping("/sys/query-all-enum-type")
+    public JsonVO<PageDTO<EnumTypeDTO>> queryAllEnumType(@RequestBody @Valid EnumTypeQuery query) {
         return JsonVO.success(enumTypeService.queryAllEnumType(query));
     }
 
@@ -65,7 +62,8 @@ public class EnumController implements EnumApis {
     @Operation(summary = "修改枚举", description = "租户等信息由jwt等提供，id自动生成")
     @Override
     public JsonVO<String> modifyEnum(@RequestBody @Valid EnumModifyDTO data) {
-        return null;
+        enumValueService.updateEnum(data);
+        return JsonVO.success("success");
     }
 
     @DeleteMapping("/sys/delete-enum/{id}")
