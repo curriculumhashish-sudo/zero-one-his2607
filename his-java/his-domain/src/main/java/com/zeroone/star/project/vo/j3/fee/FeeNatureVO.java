@@ -1,5 +1,6 @@
 package com.zeroone.star.project.vo.j3.fee;
 
+import com.zeroone.star.project.enums.j3.fee.FeeCategoryEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 

@@ -1,15 +1,23 @@
 package com.zeroone.star.j3.fee.service.impl;
 
+import com.alibaba.cloud.commons.lang.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zeroone.star.j3.fee.entity.AdmAccount;
 import com.zeroone.star.j3.fee.entity.FeeNature;
+import com.zeroone.star.j3.fee.mapper.AdmAccountMapper;
 import com.zeroone.star.j3.fee.mapper.FeeNatureMapper;
 import com.zeroone.star.j3.fee.service.IFeeNatureService;
+import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.j3.fee.FeeNatureDTO;
+import com.zeroone.star.project.enums.j3.fee.FeeCategoryEnum;
 import com.zeroone.star.project.query.j3.fee.FeeNatureQuery;
 import com.zeroone.star.project.vo.j3.fee.FeeNatureVO;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +29,11 @@ import java.util.List;
  * @version 1.0.0
  */
 @Service
+@RequiredArgsConstructor
 public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature> implements IFeeNatureService {
+
+    private final AdmAccountMapper admAccountMapper;
+    private final UserHolder userHolder;
 
     @Override
     public List<FeeNatureVO> listFeeNatures(FeeNatureQuery query) {

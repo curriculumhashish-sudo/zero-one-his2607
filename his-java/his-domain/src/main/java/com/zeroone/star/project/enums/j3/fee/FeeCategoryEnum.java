@@ -1,4 +1,4 @@
-package com.zeroone.star.project.enums.j3;
+package com.zeroone.star.project.enums.j3.fee;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -8,10 +8,10 @@ import lombok.Getter;
 @Getter
 public enum FeeCategoryEnum implements BaseEnum {
 
-    SELF(0, "自费"),
-    PUBLIC(1, "公费"),
-    PROVINCIAL(2, "省医保"),
-    MUNICIPAL(3, "市医保");
+    SELF(1, "自费"),
+    PUBLIC(2, "公费"),
+    PROVINCIAL(3, "省医保"),
+    MUNICIPAL(4, "市医保");
 
     @EnumValue
     @JsonValue

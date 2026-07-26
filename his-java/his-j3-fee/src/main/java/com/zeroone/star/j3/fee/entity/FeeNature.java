@@ -44,7 +44,6 @@ public class FeeNature implements Serializable {
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private String updatedBy;
 
-    @TableLogic
     private Integer isDeleted;
 
     private LocalDateTime deletedAt;
