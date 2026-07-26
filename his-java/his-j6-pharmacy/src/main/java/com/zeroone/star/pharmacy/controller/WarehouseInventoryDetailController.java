@@ -1,5 +1,6 @@
 package com.zeroone.star.pharmacy.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zeroone.star.project.dto.j6.pharmacy.inventory.InventoryStatusDTO;
 import com.zeroone.star.project.j6.pharmacy.WarehouseInventoryDetailApis;
 import com.zeroone.star.project.query.j6.pharmacy.inventory.InventoryDetailQuery;
@@ -34,7 +35,7 @@ public class WarehouseInventoryDetailController implements WarehouseInventoryDet
             responses = @ApiResponse(responseCode = "200", description = "查询成功",
                     content = @Content(schema = @Schema(implementation = JsonVO.class)))
     )
-    public JsonVO<List<InventoryDetailVO>> pageInventoryDetailCurrent(@RequestBody InventoryDetailQuery inventoryDetailQueryDTO) {
+    public JsonVO<IPage<InventoryDetailVO>> pageInventoryDetailCurrent(@RequestBody InventoryDetailQuery inventoryDetailQueryDTO) {
         return JsonVO.fail("接口未完成");
     }
 

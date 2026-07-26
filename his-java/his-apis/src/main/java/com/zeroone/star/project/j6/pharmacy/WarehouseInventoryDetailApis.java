@@ -1,5 +1,6 @@
 package com.zeroone.star.project.j6.pharmacy;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zeroone.star.project.dto.j6.pharmacy.inventory.InventoryStatusDTO;
 import com.zeroone.star.project.query.j6.pharmacy.inventory.InventoryDetailQuery;
 import com.zeroone.star.project.vo.JsonVO;
@@ -16,7 +17,7 @@ public interface WarehouseInventoryDetailApis {
      * @param inventoryDetailQueryDTO 分页条件
      * @return 返回查询到的所有数据
      */
-    JsonVO<List<InventoryDetailVO>> pageInventoryDetailCurrent(InventoryDetailQuery inventoryDetailQueryDTO);
+    JsonVO<IPage<InventoryDetailVO>> pageInventoryDetailCurrent(InventoryDetailQuery inventoryDetailQueryDTO);
 
 
     /**
