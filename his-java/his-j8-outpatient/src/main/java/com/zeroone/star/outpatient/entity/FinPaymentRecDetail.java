@@ -1,4 +1,4 @@
-﻿package com.zeroone.star.outpatient.entity;
+package com.zeroone.star.outpatient.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.FieldFill;

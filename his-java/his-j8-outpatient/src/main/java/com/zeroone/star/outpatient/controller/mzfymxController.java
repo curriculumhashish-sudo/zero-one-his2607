@@ -8,6 +8,8 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j8.mzfymx.ExportFileVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -21,20 +23,21 @@ import org.springframework.web.bind.annotation.*;
  */
 @RequestMapping("/j8/mzfymx")
 @RestController
+@Validated
 @Tag(name = "门诊费用明细")
 public class mzfymxController implements MinXiApis {
 
     @Operation(summary = "获取门诊费用明细列表")
     @GetMapping("/getMinXiList")
     @Override
-    public JsonVO<MinXiDTO> getMinXiList(MinXiQuery query) {
+    public JsonVO<MinXiDTO> getMinXiList(@Validated MinXiQuery query) {
         return null;
     }
 
     @Operation(summary ="导出门诊费用明细" )
     @PostMapping("/exportMinXi")
     @Override
-    public JsonVO<ExportFileVO> exportMinXi(@RequestBody MinXiExportQuery query){
+    public JsonVO<ExportFileVO> exportMinXi(@Validated @RequestBody MinXiExportQuery query){
         return null;
     }
 

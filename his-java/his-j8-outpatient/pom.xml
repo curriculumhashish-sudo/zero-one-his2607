@@ -18,6 +18,10 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.zeroone.star</groupId>
             <artifactId>his-apis</artifactId>
         </dependency>
@@ -121,9 +125,9 @@
                 <artifactId>mp-code-generator-plugin</artifactId>
                 <configuration>
                     <dbConfig>
-                        <host>192.168.220.128</host>
+                        <host>localhost</host>
                         <port>3306</port>
-                        <dbname>test</dbname>
+                        <dbname>zo_his</dbname>
                         <username>root</username>
                         <password>123456</password>
                     </dbConfig>
