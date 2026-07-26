@@ -58,23 +58,19 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
     /** DTO转Entity（新增用） */
     private RegisterType dtoToEntity(RegisterDTO dto) {
         RegisterType entity = new RegisterType();
-        BeanUtil.copyProperties(dto, entity, "id", "status");
+        BeanUtil.copyProperties(dto, entity, "status");
 
-        // id: Long → String
-        if (dto.getId() != null) {
-            entity.setId(String.valueOf(dto.getId()));
-        }
         // status: Integer → String
         entity.setStatus(toDbStatus(dto.getStatus()));
+
+        // 挂号费固定类型编码（type_code）
+        entity.setBusinessCode(REG_TYPE_CODE);
 
         // 默认值
         entity.setTenantId("1");
         entity.setInstanceTable("adm_healthcare_service");
         entity.setPriceTypeCode("SALE");
         entity.setIsDeleted(0);
-        if (entity.getBusinessCode() == null || entity.getBusinessCode().isEmpty()) {
-            entity.setBusinessCode(REG_TYPE_CODE);
-        }
         return entity;
     }
 
@@ -103,19 +99,25 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
     public boolean addRegister(RegisterDTO dto) {
         RegisterType entity = dtoToEntity(dto);
         entity.setId(String.valueOf(IdWorker.getId()));
+
+        // 根据名称自动关联 adm_healthcare_service，获取业务编码 bus_no
+        String serviceId = baseMapper.selectHealthcareServiceIdByName(dto.getName());
+        if (serviceId != null && !serviceId.isEmpty()) {
+            entity.setInstanceId(serviceId);
+        }
         return save(entity);
     }
 
     @Override
-    public boolean modifyRegister(RegisterDTO dto) {
-        if (dto.getId() == null) return false;
+    public boolean modifyRegister(Long id, RegisterDTO dto) {
+        if (id == null) return false;
         RegisterType entity = new RegisterType();
-        entity.setId(String.valueOf(dto.getId()));
+        entity.setId(String.valueOf(id));
         entity.setName(dto.getName());
         entity.setMdtrtCertNo(dto.getMdtrtCertNo());
-        entity.setBusinessCode(dto.getBusinessCode() != null ? dto.getBusinessCode() : REG_TYPE_CODE);
         entity.setAmount(dto.getAmount());
         entity.setStatus(toDbStatus(dto.getStatus()));
+        // 不更新 businessCode/type_code，保持原有 healthcare_service 关联
         return updateById(entity);
     }
 

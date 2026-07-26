@@ -43,4 +43,9 @@
         FROM zo_his.adm_practitioner
         WHERE id = #{defDoctorId};
     </select>
+    <select id="selectParentUnitIdByBusNo" resultType="java.lang.Long">
+        SELECT id
+        FROM zo_his.whale_organization_units
+        WHERE code = #{parentBusNO};
+    </select>
 </mapper>
