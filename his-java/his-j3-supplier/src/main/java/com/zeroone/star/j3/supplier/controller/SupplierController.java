@@ -86,7 +86,7 @@ public class SupplierController implements SupplierApis {
                description = "新增一条供应商记录，包含信用代码、联系方式、资质等信息")
     public JsonVO<String> addSupplier(
             @Parameter(description = "供应商数据", required = true)
-            @Valid @RequestBody SupplierFullDTO dto) {
+            @Valid  SupplierFullDTO dto) {
         try {
             String result = supplierService.addSupplier(dto);
             if (result != null){
@@ -103,10 +103,10 @@ public class SupplierController implements SupplierApis {
     @Operation(summary = "修改供应商",
                description = "根据ID修改供应商信息，部分关键字段有限制")
     public JsonVO<String> updateSupplier(
-            @Parameter(description = "供应商ID", example = "1", required = true)
+            @Parameter(description = "供应商ID", example = "4100000000000000002", required = true)
             @PathVariable String id,
             @Parameter(description = "供应商数据", required = true)
-            @Valid @RequestBody SupplierFullDTO dto) {
+            @Valid  SupplierFullDTO dto) {
         try {
             String result = supplierService.updateSupplier(id, dto);
             if(result!=null){
@@ -142,7 +142,7 @@ public class SupplierController implements SupplierApis {
                description = "支持批量操作供应商的启用状态，影响采购业务")
     public JsonVO<String> batchUpdateSuppliers(
             @Parameter(description = "批量操作参数", required = true)
-            @Valid @RequestBody SupplierBatchDTO batchDTO) {
+            @Valid  @RequestBody SupplierBatchDTO batchDTO) {
         try {
             String result = supplierService.batchUpdateSuppliers(batchDTO);
             return JsonVO.success(result);
