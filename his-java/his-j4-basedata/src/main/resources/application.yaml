@@ -15,23 +15,23 @@ spring:
     # 确保 Nacos 配置正确
     nacos:
       config:
-        server-addr: 127.0.0.1:8848
+        server-addr: 192.168.171.128:8848
         namespace: his-dev  # 与 common-dev.yaml 保持一致
         username: nacos
         password: nacos
       discovery:
-        server-addr: 127.0.0.1:8848
+        server-addr: 192.168.171.128:8848
         namespace: his-dev
         username: nacos
         password: nacos
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/zo_his?useUnicode=true&useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://192.168.171.128:3306/test?useUnicode=true&useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
-    password: 1234
+    password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
   data:
     redis:
-      host: 127.0.0.1
+      host: 192.168.171.128
       port: 6379
-      password: 1234
+      password: 123456
    
