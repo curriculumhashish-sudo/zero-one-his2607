@@ -19,12 +19,37 @@ import java.util.List;
  * @version 1.0.0
  */
 public interface DepartmentService {
-
+    /**
+     * 获取科室名称树（支持门诊/住院筛选）
+     *
+     * @param query 查询参数
+     * @return 科室树列表
+     * @author 胡傲宇
+     */
     List<DepartmentTreeVO> getDepartmentTree(DepartmentTreeQuery query);
 
+    /**
+     * 获取科室详情
+     *
+     * @param id 科室ID
+     * @return 科室详情VO
+     * @author 胡傲宇
+     */
     DepartmentDetailVO getDepartmentDetail(Long id);
 
+    /**
+     * 新增科室
+     *
+     * @param dto 创建科室DTO
+     * @author 胡傲宇
+     */
     void createDepartment(DepartmentCreateDTO dto) throws Exception;
 
+    /**
+     * 启用/停用科室(支持批量)
+     *
+     * @param dto 批量操作科室状态DTO
+     * @author 胡傲宇
+     */
     void activeOrInactiveDepartment(DepartmentBatchDTO dto);
 }
