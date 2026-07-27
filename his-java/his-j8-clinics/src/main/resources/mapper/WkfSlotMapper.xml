@@ -2,4 +2,71 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zeroone.star.clinics.mapper.WkfSlotMapper">
 
+    <!-- 号源VO结果映射 -->
+    <resultMap id="SlotVOMap" type="com.zeroone.star.project.vo.j8.clinics.SlotVO">
+        <id column="slot_id" property="slotId"/>
+        <result column="schedule_id" property="scheduleId"/>
+        <result column="organization_id" property="organizationId"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="status_code" property="statusCode"/>
+        <result column="capacity" property="capacity"/>
+        <result column="booked_count" property="bookedCount"/>
+        <result column="remaining_count" property="remainingCount"/>
+        <result column="display_status" property="displayStatus"/>
+        <result column="overbooked_flag" property="overbookedFlag"/>
+        <result column="practitioner_id" property="practitionerId"/>
+        <result column="healthcare_service_id" property="healthcareServiceId"/>
+        <result column="practitioner_name" property="practitionerName"/>
+        <result column="healthcare_service_name" property="healthcareServiceName"/>
+        <result column="organization_name" property="organizationName"/>
+    </resultMap>
+
+    <!-- 获取已放号源列表 -->
+    <select id="selectRelSlots" resultMap="SlotVOMap">
+        SELECT
+            sl.id                        AS slot_id,
+            sl.schedule_id               AS schedule_id,
+            sl.organization_id           AS organization_id,
+            sl.start_time                AS start_time,
+            sl.end_time                  AS end_time,
+            sl.status_code               AS status_code,
+            sl.capacity                  AS capacity,
+            sl.booked_count              AS booked_count,
+            (sl.capacity - sl.booked_count) AS remaining_count,
+            CASE sl.status_code
+                WHEN 'free' THEN '可约'
+                WHEN 'busy' THEN '已满'
+                WHEN 'busy-unavailable' THEN '不可约'
+                ELSE '未知'
+            END                          AS display_status,
+            sl.overbooked_flag           AS overbooked_flag,
+            actor.actor_id               AS practitioner_id,
+            sch.healthcare_service_id    AS healthcare_service_id,
+            prac.`name`                  AS practitioner_name,
+            hs.`name`                    AS healthcare_service_name,
+            org.`name`                   AS organization_name
+        FROM wkf_slot sl
+            LEFT JOIN wkf_schedule sch
+                  ON sl.schedule_id = sch.id
+            LEFT JOIN wkf_schedule_actor actor
+                  ON sch.id = actor.schedule_id
+                 AND actor.is_deleted = 0
+            LEFT JOIN adm_practitioner prac
+                  ON actor.actor_id = prac.id
+                 AND prac.is_deleted = 0
+            LEFT JOIN adm_healthcare_service hs
+                  ON sch.healthcare_service_id = hs.id
+                 AND hs.is_deleted = 0
+            LEFT JOIN adm_organization org
+                  ON sl.organization_id = org.id
+                 AND org.is_deleted = 0
+        WHERE sl.is_deleted = 0
+          AND sl.schedule_id = #{query.scheduleId}
+          AND sl.organization_id = #{query.organizationId}
+          AND sl.start_time &gt;= CONCAT(#{query.date}, ' 00:00:00')
+          AND sl.start_time &lt;= CONCAT(#{query.date}, ' 23:59:59')
+        ORDER BY sl.start_time ASC
+    </select>
+
 </mapper>

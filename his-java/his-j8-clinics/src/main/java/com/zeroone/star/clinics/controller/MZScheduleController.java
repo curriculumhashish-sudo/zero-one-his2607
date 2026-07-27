@@ -2,6 +2,7 @@ package com.zeroone.star.clinics.controller;
 
 
 
+import com.zeroone.star.clinics.service.IWkfSlotService;
 import com.zeroone.star.project.dto.j8.clinics.SlotBatchReleaseDTO;
 import com.zeroone.star.project.j8.clinics.ScheduleApis;
 import com.zeroone.star.project.query.j8.clinics.RelSlotQuery;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,13 +25,18 @@ import java.util.List;
 @Tag(name = "门诊排班管理")
 @RequestMapping("/j8/clinics")
 @Validated
+@RequiredArgsConstructor
 public class MZScheduleController implements ScheduleApis {
+
+    private final IWkfSlotService wkfSlotService;
+
 
     @Operation(summary = "获取已放号源列表")
     @GetMapping("/get-rel-number-source")
     @Override
     public JsonVO<List<SlotVO>> getRelNumberSource(@Valid RelSlotQuery query) {
-        return null;
+        List<SlotVO> slotVOList = wkfSlotService.getRelNumberSource(query);
+        return JsonVO.success(slotVOList);
     }
 
     @Operation(summary = "删除号源")
