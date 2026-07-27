@@ -31,29 +31,29 @@ uint64_t EquipmentDAO::count(const EquipmentQuery::Wrapper& query)
 	return sqlSession->executeQueryNumerical(sql, params);
 }
 // 列表分页
-std::list<InventoryItemDO> EquipmentDAO::selectWithPage(const EquipmentQuery::Wrapper& query)
+std::list<WkfInventoryItemDO> EquipmentDAO::selectWithPage(const EquipmentQuery::Wrapper& query)
 {
 	SqlParams params;
-	string sql = "SELECT id,name,sex,age FROM inventory_item ";
+	string sql = "SELECT * FROM wkf_inventory_item ";
 	// 构建查询条件
 	sql += queryConditionBuilder(query, params);
 	// 构建排序语句
-	sql += " ORDER BY IFNULL(`update_time`, `create_time`) DESC, `id` DESC ";
+	sql += " ORDER BY IFNULL(`update_at`, `create_at`) DESC, `id` DESC ";
 	// 构建分页条件
 	sql += " LIMIT " + std::to_string(((query->pageIndex - 1) * query->pageSize)) + "," + std::to_string(query->pageSize);
 
 	// 执行查询
-	return sqlSession->executeQuery<InventoryItemDO>(sql, InventoryItemMapper(), params);
+	return sqlSession->executeQuery<WkfInventoryItemDO>(sql, WkfInventoryItemMapper(), params);
 }
 // 通过名字查询
-std::list<InventoryItemDO> EquipmentDAO::selectByName(const string& name)
+std::list<WkfInventoryItemDO> EquipmentDAO::selectByName(const string& name)
 {
-	string sql = "SELECT id,name,sex,age FROM inventory_item WHERE `name` LIKE CONCAT('%',?,'%')";
-	return sqlSession->executeQuery<InventoryItemDO>(sql, InventoryItemMapper(), "%s", name);
+	string sql = "SELECT * FROM wkf_inventory_item WHERE `name` LIKE CONCAT('%',?,'%')";
+	return sqlSession->executeQuery<WkfInventoryItemDO>(sql, WkfInventoryItemMapper(), "%s", name);
 }
 // 通过ID查询
-PtrInventoryItemDO EquipmentDAO::selectById(std::string id)
+PtrWkfInventoryItemDO EquipmentDAO::selectById(std::string id)
 {
-	string sql = "SELECT id,name,sex,age FROM sample WHERE `id`=?";
-	return sqlSession->executeQueryOne<PtrInventoryItemDO>(sql, PtrInventoryItemMapper(), "%s", id);
+	string sql = "SELECT * FROM wkf_inventory_item WHERE `id`=?";
+	return sqlSession->executeQueryOne<PtrWkfInventoryItemDO>(sql, PtrWkfInventoryItemMapper(), "%s", id);
 }

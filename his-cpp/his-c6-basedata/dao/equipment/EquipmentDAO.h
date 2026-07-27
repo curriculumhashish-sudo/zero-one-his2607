@@ -5,7 +5,7 @@
 #include "BaseDAO.h"
 #include "../../domain/do/equipment/InventorySnapshotDO.h"
 #include "../../domain/do/equipment/InventoryLockDO.h"
-#include "../../domain/do/equipment/InventoryItemDO.h"
+#include "../../domain/do/equipment/WkfInventoryItemDO.h"
 #include "../../domain/query/equipment/EquipmentQuery.h"
 
 /**
@@ -28,10 +28,10 @@ public:
 	// 统计数据条数
 	uint64_t count(const EquipmentQuery::Wrapper& query);
 	// 分页查询数据
-	std::list<InventoryItemDO> selectWithPage(const EquipmentQuery::Wrapper& query);
+	std::list<WkfInventoryItemDO> selectWithPage(const EquipmentQuery::Wrapper& query);
 	// 通过姓名查询数据
-	std::list<InventoryItemDO> selectByName(const string& name);
+	std::list<WkfInventoryItemDO> selectByName(const string& name);
 	// 通过ID查询数据
-	PtrInventoryItemDO selectById(std::string id);
+	PtrWkfInventoryItemDO selectById(std::string id);
 };
 #endif // !_RENTCONTROLLER_DAO_

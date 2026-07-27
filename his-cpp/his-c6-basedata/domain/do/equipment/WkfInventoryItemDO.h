@@ -8,7 +8,7 @@
 /**
 	* 库存物品（器材）实体
 	*/
-class InventoryItemDO : public BaseDO
+class WkfInventoryItemDO : public BaseDO
 {
 	// 主键
 	MYSQL_SYNTHESIZE(string, id, Id);
@@ -73,7 +73,7 @@ class InventoryItemDO : public BaseDO
 	MYSQL_SYNTHESIZE(int, packagingLevels, PackagingLevels);
 
 public:
-	InventoryItemDO() : BaseDO("wkf_inventory_item") // 表名
+	WkfInventoryItemDO() : BaseDO("wkf_inventory_item") // 表名
 	{
 		// 基础字段映射
 		MYSQL_ADD_FIELD_PK("id", "s", id);
@@ -112,6 +112,6 @@ public:
 };
 
 // 定义一个库存物品（器材）实体的智能指针
-typedef std::shared_ptr<InventoryItemDO> PtrInventoryItemDO;
+typedef std::shared_ptr<WkfInventoryItemDO> PtrWkfInventoryItemDO;
 
 #endif // !_INVENTORYITEMDO_H_
