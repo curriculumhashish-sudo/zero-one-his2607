@@ -35,13 +35,13 @@ public:  //定义接口   从 arch-demo下的/controller/samplecontroller。h   3.1 定义
 	// 3.1 定义修改接口描述  --->也就是执行接口
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("nurse2.modify.operate1"), operateNurse2, StringJsonVO::Wrapper, API_TAG);
 	// 3.2 定义修改接口处理
-	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/nurse/1", operateNurse2, BODY_DTO(NurseOperateDTO2::Wrapper,dto), execOperateNurse(dto, authObject->getPayload()));
+	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/opnurse/operate1", operateNurse2, BODY_DTO(NurseOperateDTO2::Wrapper,dto), execOperateNurse(dto, authObject->getPayload()));
 	
 
 	// 3.1 定义修改接口描述  --->也就是取消执行接口
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("nurse2.modify.operate2"), cancelNurse2, StringJsonVO::Wrapper, API_TAG);
 	// 3.2 定义修改接口处理
-	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/nurse/2", cancelNurse2, BODY_DTO(NurseCancelDTO2::Wrapper,dto), execCancelNurse(dto,authObject->getPayload()));
+	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/opnurse/operate2", cancelNurse2, BODY_DTO(NurseCancelDTO2::Wrapper,dto), execCancelNurse(dto,authObject->getPayload()));
 
 private://定义接口执行函数
 	//3.3定义定义分页获取患者队列接口处理
