@@ -34,7 +34,7 @@ public interface ScheduleApis {
      * @param slotId 待删除的号源时段主键id
      * @return 响应对象
      */
-    JsonVO<String> deleteRelNumberSource(String slotId);
+    JsonVO<String> deleteNumberSource(String slotId);
 
     /**
      * 批量放号

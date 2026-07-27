@@ -26,35 +26,35 @@ import java.util.List;
 public class MZScheduleController implements ScheduleApis {
 
     @Operation(summary = "获取已放号源列表")
-    @GetMapping("/getRelNumberSource")
+    @GetMapping("/get-rel-number-source")
     @Override
     public JsonVO<List<SlotVO>> getRelNumberSource(@Valid RelSlotQuery query) {
         return null;
     }
 
     @Operation(summary = "删除号源")
-    @DeleteMapping("/{slotId}")
+    @DeleteMapping("/delete-number-source/{slotId}")
     @Override
-    public JsonVO<String> deleteRelNumberSource(@PathVariable @NotBlank(message = "slotId不能为空") String slotId) {
+    public JsonVO<String> deleteNumberSource(@PathVariable @NotBlank(message = "slotId不能为空") String slotId) {
         return null;
     }
 
     @Operation(summary = "批量放号")
-    @PostMapping("/batchReleaseNumberSource")
+    @PostMapping("/batch-release-numberSource")
     @Override
     public JsonVO<SlotBatchReleaseVO> batchReleaseNumberSource(@RequestBody @Valid SlotBatchReleaseDTO numberSourceBatchReleaseDTO) {
         return null;
     }
 
     @Operation(summary = "恢复开诊")
-    @PostMapping("/{scheduleId}")
+    @PostMapping("/reactivate-schedule/{scheduleId}")
     @Override
     public JsonVO<ResumeScheduleVO> reactivateSchedule(@PathVariable @NotBlank(message = "scheduleId不能为空") String scheduleId) {
         return null;
     }
 
     @Operation(summary = "作废日程")
-    @DeleteMapping("/{scheduleId}")
+    @DeleteMapping("/retire-schedule/{scheduleId}")
     @Override
     public JsonVO<String> retireSchedule(@PathVariable @NotBlank(message = "scheduleId不能为空") String scheduleId) {
         return null;
