@@ -80,22 +80,34 @@ public class UserDetailVO {
     // ========== 关联列表 ==========
     @Schema(description = "角色ID列表", example = "[\"10\", \"20\"]")
     private List<String> roleIds;
+    @Schema(description = "角色名称列表",example = "[\"管理员\", \"医生\"]")
+    private List<String> roleNames;
 
 
-    @Schema(description = "出诊科室名称列表id", example = "[\"内科\", \"外科\"]")
+    @Schema(description = "出诊科室名称列表名称", example = "[\"内科\", \"外科\"]")
     private List<String> consultDeptNames;
+    @Schema(description = "出诊科室名称列表id", example = "[\"10\", \"20\"]")
+    private List<String> consultDeptIds;
 
-    @Schema(description = "可接诊号源名称列表id", example = "[\"专家门诊\", \"普通门诊\"]")
+    @Schema(description = "可接诊号源名称列表名称", example = "[\"专家门诊\", \"普通门诊\"]")
     private List<String> receptionSourceNames;
+    @Schema(description = "可接诊号源名称列表id", example = "[\"10\", \"20\"]")
+    private List<String> receptionSourceIds;
 
     // ========== 位置信息 ==========
-    @Schema(description = "库房名称列表id", example = "[\"西药库\", \"中药库\"]")
+    @Schema(description = "库房名称列表名称", example = "[\"西药库\", \"中药库\"]")
     private List<String> warehouseNames;
+    @Schema(description = "库房名称列表id", example = "[\"10\", \"20\"]")
+    private List<String> warehouseIds;
 
-    @Schema(description = "药房名称列表id", example = "[\"门诊药房\"]")
+    @Schema(description = "药房名称列表名称", example = "[\"门诊药房\"]")
     private List<String> pharmacyNames;
+    @Schema(description = "药房名称列表id", example = "[\"10\"]")
+    private List<String> pharmacyIds;
 
-    @Schema(description = "病区名称列表id", example = "[\"内科一病区\", \"外科二病区\"]")
+    @Schema(description = "病区名称列表名称", example = "[\"内科一病区\", \"外科二病区\"]")
     private List<String> wardNames;
+    @Schema(description = "病区名称列表id", example = "[\"10\", \"20\"]")
+    private List<String> wardIds;
 
 }

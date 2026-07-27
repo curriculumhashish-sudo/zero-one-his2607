@@ -9,7 +9,6 @@ import com.zeroone.star.project.dto.menu.MenuCreateDTO;
 import com.zeroone.star.project.dto.menu.MenuEditStatusDTO;
 import com.zeroone.star.project.dto.menu.MenuUpdateDTO;
 import com.zeroone.star.project.query.menu.MenuListPageQuery;
-import com.zeroone.star.project.utils.tree.TreeUtils;
 import com.zeroone.star.project.vo.login.MenuTreeVO;
 import com.zeroone.star.sysmgr.convertor.MenuConvertor;
 import com.zeroone.star.project.dto.menu.MenuDeleteDTO;
@@ -21,15 +20,11 @@ import com.zeroone.star.sysmgr.mapper.menu.MenusMapper;
 import com.zeroone.star.sysmgr.service.menu.MenusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.zeroone.star.project.vo.JsonVO;
 import org.springframework.util.StringUtils;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -137,7 +132,7 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public JsonVO<Boolean> delete(MenuDeleteDTO menuDto) {
+    public Boolean delete(MenuDeleteDTO menuDto) {
         String menuId = menuDto.getId();
         // 1. 查询菜单
         MenuDO menu = baseMapper.selectById(menuId);
@@ -166,7 +161,7 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
 
         // 3. 执行软删除
         int rows = baseMapper.deleteById(menuId);
-        return JsonVO.success(rows > 0);
+        return rows > 0;
     }
 
     /**
@@ -182,7 +177,7 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
             return List.of();
         }
         List<MenuDO> menuList = menusMapper.selectMenusByRoles(roles);
-        return buildMenuTree(menuList);
+        return MenuConvertor.INSTANCE.toListTreeVO(menuList);
     }
 
     @Override
@@ -200,13 +195,13 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
             return pageDTO;
         }
 
-        List<MenuVO> filtered = menusMapper.selectMenusByRoles(roles).stream()
+        List<MenuDO> temp = menusMapper.selectMenusByRoles(roles).stream()
                 .filter(menu -> matchKeyword(menu, query == null ? null : query.getKeyword()))
                 .sorted(Comparator
                         .comparing(MenuDO::getSortOrder, Comparator.nullsLast(Integer::compareTo))
-                        .thenComparing(MenuDO::getId, Comparator.nullsLast(String::compareTo)))
-                .map(this::toMenuVO)
-                .toList();
+                        .thenComparing(MenuDO::getId, Comparator.nullsLast(String::compareTo))
+                ).toList();
+        List<MenuVO> filtered = MenuConvertor.INSTANCE.toListVO(temp);
 
         long total = filtered.size();
         long pages = total == 0 ? 0 : (total + pageSize - 1) / pageSize;
@@ -219,43 +214,11 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
         return pageDTO;
     }
 
-    private List<MenuTreeVO> buildMenuTree(List<MenuDO> menuDOList){
-        if (menuDOList == null || menuDOList.isEmpty()) {
-            return List.of();
-        }
-
-        return TreeUtils.listToTree(menuDOList, menu -> {
-            MenuTreeVO node = new MenuTreeVO();
-            node.setTnId(menu.getId());
-            node.setTnPid(menu.getParentId());
-            node.setId(toInteger(menu.getId()));
-            node.setText(menu.getDisplayName());
-            node.setIcon(menu.getIcon());
-            node.setHref(menu.getPath());
-            node.setPid(toInteger(menu.getParentId()));
-            return node;
-        });
-    }
-
-
     /**
-     * @description
-     * @param value String类
-     * @return Integer包装类
-     * @author osillow
-     * @date 2026/7/25 21:30
+     * 兜底页码，防止传递空值
+     * @param query 分页请求
+     * @return 页码
      */
-    private Integer toInteger(String value) {
-        if (value == null || value.isBlank()) {
-            return null;
-        }
-        try {
-            return Integer.valueOf(value);
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-
     private long resolvePageNo(MenuListPageQuery query) {
         if (query == null) {
             return 1;
@@ -263,6 +226,11 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
         return query.getPageIndex() > 0 ? query.getPageIndex() : 1;
     }
 
+    /**
+     * 兜底页面容量，防止传递空值
+     * @param query 分页请求
+     * @return 页面容量
+     */
     private long resolvePageSize(MenuListPageQuery query) {
         if (query == null || query.getPageSize() <= 0) {
             return 10;
@@ -270,6 +238,12 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
         return query.getPageSize();
     }
 
+    /**
+     * 搜索关键字过滤方法，配合stream流的filter方法使用
+     * @param menu 菜单实体
+     * @param keyword 搜索关键字
+     * @return 是否匹配，只有返回true才保留
+     */
     private boolean matchKeyword(MenuDO menu, String keyword) {
         if (!StringUtils.hasText(keyword)) {
             return true;
@@ -283,28 +257,13 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
                 || containsIgnoreCase(menu.getPermissionName(), normalized);
     }
 
+    /**
+     * 字段转小写之后再进行匹配，为空直接返回false
+     * @param value 字段值
+     * @param normalizedKeyword 转小写后的关键字
+     * @return 是否匹配
+     */
     private boolean containsIgnoreCase(String value, String normalizedKeyword) {
         return value != null && value.toLowerCase(Locale.ROOT).contains(normalizedKeyword);
-    }
-    /**
-     * @description
-     * @param menu menuDO
-     * @return vo
-     * @author osillow
-     * @date 2026/7/25 21:30
-     */
-    private MenuVO toMenuVO(MenuDO menu) {
-        MenuVO vo = new MenuVO();
-        vo.setMenuId(menu.getId());
-        vo.setMenuName(menu.getName());
-        vo.setShowName(menu.getDisplayName());
-        vo.setIcon(menu.getIcon());
-        vo.setPath(menu.getPath());
-        vo.setComponent(menu.getComponent());
-        vo.setParentId(menu.getParentId());
-        vo.setSortNum(menu.getSortOrder() == null ? null : menu.getSortOrder().longValue());
-        vo.setMenuType(menu.getMenuType() == null ? null : menu.getMenuType().name());
-        vo.setStatus(menu.getIsEnabled() == null ? null : menu.getIsEnabled().toString());
-        return vo;
     }
 }

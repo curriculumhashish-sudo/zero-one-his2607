@@ -10,7 +10,6 @@ import com.zeroone.star.project.query.menu.MenuListPageQuery;
 import com.zeroone.star.project.vo.menu.MenuVO;
 import com.zeroone.star.project.vo.login.MenuTreeVO;
 import com.zeroone.star.sysmgr.entity.menu.MenuDO;
-import com.zeroone.star.project.vo.JsonVO;
 
 import java.util.List;
 
@@ -60,7 +59,7 @@ public interface MenusService extends IService<MenuDO> {
      * @author 是丫丫
      * @负责人 Drums小白
      */
-    JsonVO<Boolean> delete(MenuDeleteDTO menuDto);
+    Boolean delete(MenuDeleteDTO menuDto);
 
     /**
      * 获取菜单树

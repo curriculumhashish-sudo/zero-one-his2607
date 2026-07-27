@@ -2,6 +2,8 @@ package com.zeroone.star.sysmgr.convertor;
 
 import com.zeroone.star.project.dto.menu.MenuCreateDTO;
 import com.zeroone.star.project.dto.menu.MenuUpdateDTO;
+import com.zeroone.star.project.utils.tree.TreeUtils;
+import com.zeroone.star.project.vo.login.MenuTreeVO;
 import com.zeroone.star.project.vo.menu.MenuVO;
 import com.zeroone.star.sysmgr.entity.menu.MenuDO;
 import org.mapstruct.Mapper;
@@ -76,5 +78,32 @@ public interface MenuConvertor {
      */
     default MenuDO updateDO(MenuUpdateDTO dto) {
         return createDO(dto);
+    }
+
+    /**
+     * 将 MenuDO 转换成 MenuTreeVO
+     * @param menuDO DO
+     * @return MenuTreeVO
+     */
+    @Mappings({
+        @Mapping(source = "id", target = "tnId"),
+        @Mapping(source = "parentId", target = "tnPid"),
+        @Mapping(source = "id", target = "id"),
+        @Mapping(source = "displayName", target = "text"),
+        @Mapping(source = "path", target = "href"),
+        @Mapping(source = "parentId", target = "pid"),
+    })
+    public MenuTreeVO toTreeVO(MenuDO menuDO);
+
+    /**
+     * 将 List<MenuDO> 转换成 List<MenuTreeVO>
+     * @param list ListDO
+     * @return List<MenuTreeVO>
+     */
+    default List<MenuTreeVO> toListTreeVO(List<MenuDO> list) {
+        if (list == null || list.isEmpty()) {
+            return List.of();
+        }
+        return TreeUtils.listToTree(list, MenuConvertor.INSTANCE::toTreeVO);
     }
 }

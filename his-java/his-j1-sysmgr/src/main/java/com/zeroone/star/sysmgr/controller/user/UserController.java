@@ -6,7 +6,7 @@ import com.zeroone.star.project.dto.j1.user.ChangePasswordDTO;
 import com.zeroone.star.project.dto.j1.user.UserUpdateDTO;
 import com.zeroone.star.project.dto.j1.user.UserAddDTO;
 import com.zeroone.star.project.j1.user.UserApis;
-import com.zeroone.star.project.query.j1.login.TenantQuery;
+import com.zeroone.star.project.query.j1.user.UserListQuery;
 import com.zeroone.star.project.query.j1.user.UserQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j1.user.UserDetailVO;
@@ -30,7 +30,7 @@ public class UserController implements UserApis {
     @Operation(summary   = "分页查询用户列表")
     @GetMapping("/page")
     @Override
-    public JsonVO<PageDTO<UserPageVO>> getPage(UserQuery userQuery) {
+    public JsonVO<PageDTO<UserPageVO>> getPage(@RequestBody @Valid UserQuery query) {
         return null;
     }
 
@@ -38,7 +38,7 @@ public class UserController implements UserApis {
     @Operation(summary   = "查询选择(租户)用户列表")
     @GetMapping("/list")
     @Override
-    public JsonVO<PageDTO<UserListVO>> getList(TenantQuery tenantQuery) {
+    public JsonVO<PageDTO<UserListVO>> getList(@RequestBody @Valid UserListQuery query) {
         return null;
     }
 
@@ -75,7 +75,7 @@ public class UserController implements UserApis {
     @Operation(summary   = "修改密码")
     @PutMapping("/changePassword")
     @Override
-    public JsonVO<Boolean> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO) {
+    public JsonVO<Boolean> changePassword(@Valid @RequestBody ChangePasswordDTO changePasswordDTO) {
         return JsonVO.success(userService.updatePassword(changePasswordDTO.getId(), changePasswordDTO.getPasswordHash()));
     }
 

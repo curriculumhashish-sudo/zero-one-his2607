@@ -1,5 +1,5 @@
 package com.zeroone.star.sysmgr.exception;
-import com.zeroone.star.sysmgr.exception.SystemStatus;
+
 /**
  * 系统管理异常
  * @author 是丫丫

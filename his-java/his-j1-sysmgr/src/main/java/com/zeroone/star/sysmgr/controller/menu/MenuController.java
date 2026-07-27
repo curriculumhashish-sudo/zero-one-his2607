@@ -141,7 +141,7 @@ public class MenuController implements MenuApis {
     @DeleteMapping("/delete")
     @Operation(summary = "删除菜单", method = "DELETE")
     public JsonVO<Boolean> delete(@RequestBody @Valid MenuDeleteDTO menuDto) {
-        return menusService.delete(menuDto);
+        return JsonVO.success(menusService.delete(menuDto));
     }
 
     /**
