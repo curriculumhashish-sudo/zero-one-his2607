@@ -18,7 +18,7 @@
 */
 #include "stdafx.h"
 #include "DrugController.h"
-#include "../../service/drug/DrugService.h"
+#include "../../service/sample/DrugService.h"
 
 #include <algorithm>
 #include <cctype>
@@ -455,7 +455,7 @@ StringJsonVO::Wrapper DrugController::execAddDrug(const DrugAddDTO::Wrapper &dto
     return {};
 }
 
-DrugDetailJsonVO::Wrapper DrugController::execQueryOneDrug(const String &id)
+DrugDetailJsonVO::Wrapper DrugController::execQueryById(const String &id)
 {
     return {};
 }

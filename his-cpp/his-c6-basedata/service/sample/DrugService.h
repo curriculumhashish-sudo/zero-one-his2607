@@ -25,7 +25,7 @@
 #include "domain/dto/drug/DrugModifyDTO.h"
 #include "domain/dto/drug/DrugModifyResultDTO.h"
 #include "domain/dto/drug/DrugRemoveDTO.h"
-
+#include "domain/query/Drug/DrugQuery.h"
 #include <stdexcept>
 
 enum class DrugServiceError
@@ -58,6 +58,8 @@ class DrugService
     DrugModifyResultDTO::Wrapper updateDrug(const DrugModifyDTO::Wrapper &dto, const PayloadDTO &payload);
     void removeDrugs(const DrugRemoveDTO::Wrapper &dto, const PayloadDTO &payload);
     void enableDisableDrugs(const DrugEnableDisableDTO::Wrapper &dto, const PayloadDTO &payload);
+    DrugListPageDTO::Wrapper listAll(const DrugQuery::Wrapper& query);
+    DrugDetailDTO::Wrapper getById(string id);
 };
 
 #endif // !_DRUG_SERVICE_H_

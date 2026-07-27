@@ -77,7 +77,7 @@ class DrugController : public oatpp::web::server::api::ApiController
                                API_TAG,
                                API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("drug.field.id"),
                                                         "ae65c714d48d4f34b52479f5482c0edd", true););
-    API_HANDLER_ENDPOINT_AUTH(API_M_GET, DRUG_PATH "/query-one", queryOneDrug, QUERY(String, id), execQueryOneDrug(id));
+    API_HANDLER_ENDPOINT_AUTH(API_M_GET, DRUG_PATH "/query-one", queryOneDrug, QUERY(String, id), execQueryById(id));
 
     API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("drug.modify.summary"), modifyDrug, DrugModifyJsonVO::Wrapper, API_TAG,
                                DrugSwagger::addModifyExamples(info););
@@ -99,7 +99,7 @@ class DrugController : public oatpp::web::server::api::ApiController
     DrugListPageJsonVO::Wrapper execQueryDrug(const DrugQuery::Wrapper &query);
     DrugSelectPageJsonVO::Wrapper execQuerySelectDrug(const DrugSelectQuery::Wrapper &query);
     StringJsonVO::Wrapper execAddDrug(const DrugAddDTO::Wrapper &dto, const PayloadDTO &payload);
-    DrugDetailJsonVO::Wrapper execQueryOneDrug(const String &id);
+    DrugDetailJsonVO::Wrapper execQueryById(const String &id);
     DrugModifyJsonVO::Wrapper execModifyDrug(const DrugModifyDTO::Wrapper &dto, const PayloadDTO &payload);
     NoDataJsonVO::Wrapper execRemoveDrug(const DrugRemoveDTO::Wrapper &dto, const PayloadDTO &payload);
     NoDataJsonVO::Wrapper execEnableDisableDrug(const DrugEnableDisableDTO::Wrapper &dto, const PayloadDTO &payload);
