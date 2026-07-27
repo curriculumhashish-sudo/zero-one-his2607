@@ -103,6 +103,9 @@ class DrugController : public oatpp::web::server::api::ApiController
     DrugModifyJsonVO::Wrapper execModifyDrug(const DrugModifyDTO::Wrapper &dto, const PayloadDTO &payload);
     NoDataJsonVO::Wrapper execRemoveDrug(const DrugRemoveDTO::Wrapper &dto, const PayloadDTO &payload);
     NoDataJsonVO::Wrapper execEnableDisableDrug(const DrugEnableDisableDTO::Wrapper &dto, const PayloadDTO &payload);
+    DrugDetailJsonVO::Wrapper execQueryOne(const String& id, const PayloadDTO& payload);
+    // 3.3 测试声明式服务调用2
+     DrugListPageJsonVO::Wrapper execQueryAll(const DrugQuery::Wrapper& query, const PayloadDTO& payload);
 };
 
 #undef DRUG_PATH
