@@ -1,6 +1,7 @@
 package com.zeroone.star.pharmacy.controller;
 
 import com.zeroone.star.pharmacy.service.IStocktakeApprovalService;
+import com.zeroone.star.pharmacy.service.IStocktakeService;
 import com.zeroone.star.project.dto.j6.pharmacy.stocktake.*;
 import com.zeroone.star.project.j6.pharmacy.WarehouseStocktakeApis;
 import com.zeroone.star.project.query.j6.pharmacy.stocktake.PharmacyInventoryQuery;
@@ -13,15 +14,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-
 @RestController
 @RequestMapping("/stocktake")
 @RequiredArgsConstructor
 @Tag(name = "药库盘点单", description = "药库管理相关接口")
 public class WarehouseStocktakeController implements WarehouseStocktakeApis {
+
+    @Resource
+    private IStocktakeService stocktakeService;
 
     @Override
     @GetMapping("list")
@@ -53,18 +53,7 @@ public class WarehouseStocktakeController implements WarehouseStocktakeApis {
     @Operation(summary = "新增单据", description = "生成空盘点单, 状态=草稿")
     @PostMapping("/create")
     public JsonVO<StocktakeDetailVO> createStocktake(@RequestBody StocktakeSaveDTO dto) {
-        // TODO [Dome] Step1: 生成 bus_no = "CST" + yyyyMMdd + 4位流水号(Redis INCR 或 DB 序列)
-
-        // TODO [Dome] Step2: 在 wkf_supply_request 插入头记录:
-        //   - bus_no, status_enum=DRAFT, type_enum/category_enum=盘点类型枚举
-        //   - purpose_location_id=dto.purposeLocationId, practitioner_id=dto.practitionerId
-        //   - item_table/unit_code 占位 ""
-        //   - applicant_id=当前用户, created_at=now
-
-        // TODO [Dome] Step3: 不生成明细行，lines 返回空列表
-
-        // TODO [Dome] Step4: 组装 StocktakeDetailVO(头字段 + lines=[])
-        return JsonVO.success(buildExampleDetailVO());
+        return JsonVO.success(stocktakeService.createStocktake(dto));
     }
 
     /**
@@ -75,25 +64,7 @@ public class WarehouseStocktakeController implements WarehouseStocktakeApis {
     @Operation(summary = "保存单据", description = "填入实盘数据 + 快照锁定账面数，状态=草稿")
     @PutMapping("/{busNo}/save")
     public JsonVO<StocktakeDetailVO> saveStocktake(@PathVariable String busNo, @RequestBody StocktakeSaveDTO dto) {
-        // TODO [Dome] Step1: 校验 busNo 存在且 status_enum=DRAFT，否则抛 BusinessException("盘点单不存在或状态不允许编辑")
-
-        // TODO [Dome] Step2: 遍历 dto.lines，通过 inventoryItemId 查询 wkf_inventory_item:
-        //   - 快照锁定账面数 → bookQuantity (取当前库存 item_quantity 作为账面数)
-        //   - 补全展示字段: item_table, item_id, product_name, specification, manufacturer,
-        //                   lot_number, expiration_date, unit_code, price, supplier_id
-
-        // TODO [Dome] Step3: 计算 profitLossAmount = profitLossQuantity × price
-
-        // TODO [Dome] Step4: 先删后插 — DELETE wkf_supply_request WHERE bus_no=? → INSERT 新行
-        //   - 每条行写入: item_quantity=profitLossQuantity, total_quantity=actualQuantity,
-        //     occurrence_time=now, status_enum=DRAFT
-
-        // TODO [Dome] Step5: 更新头: practitioner_id, occurrence_time=now
-
-        // TODO [Dome] Step6: 组装 StocktakeDetailVO(完整补全行, 状态=DRAFT)
-        StocktakeDetailVO vo = buildExampleDetailVO();
-        vo.setBusNo(busNo);
-        return JsonVO.success(vo);
+        return JsonVO.success(stocktakeService.saveStocktake(busNo, dto));
     }
 
     /**
@@ -104,60 +75,7 @@ public class WarehouseStocktakeController implements WarehouseStocktakeApis {
     @Operation(summary = "保存并提交审批", description = "填入实盘数据，状态草稿→待审批")
     @PutMapping("/{busNo}/submit")
     public JsonVO<StocktakeDetailVO> submitStocktake(@PathVariable String busNo, @RequestBody StocktakeSaveDTO dto) {
-        // TODO [Dome] Step1: 同 saveStocktake Step1-5 (快照+补全+先删后插保存所有盘点数据)
-
-        // TODO [Dome] Step2: 更新 wkf_supply_request 头:
-        //   - status_enum=PENDING_APPROVAL
-        //   - applicant_id=当前用户
-        //   - apply_time=now
-
-        // TODO [Dome] Step3: 组装 StocktakeDetailVO(状态=PENDING_APPROVAL)
-        StocktakeDetailVO vo = buildExampleDetailVO();
-        vo.setBusNo(busNo);
-        vo.setStatusEnum("PENDING_APPROVAL");
-        return JsonVO.success(vo);
-    }
-
-    /** Knife4j 示例数据 */
-    private StocktakeDetailVO buildExampleDetailVO() {
-        StocktakeDetailVO vo = new StocktakeDetailVO();
-        vo.setBusNo("CST2026-07-200001");
-        vo.setStatusEnum("DRAFT");
-        vo.setPurposeLocationId("284503862625177600");
-        vo.setPurposeLocationName("西药库");
-        vo.setPractitionerId("322733572165734400");
-        vo.setApplicantId("322733572165734400");
-        vo.setApplyTime(LocalDateTime.of(2026, 7, 18, 14, 0, 0));
-        vo.setApproverId("322733572165734401");
-        vo.setApprovalTime(LocalDateTime.of(2026, 7, 18, 15, 0, 0));
-        vo.setCategoryEnum("WAREHOUSE_STOCKTAKE");
-
-        StocktakeDetailVO.StocktakeDetailLineVO line =
-                new StocktakeDetailVO.StocktakeDetailLineVO();
-        line.setLineId("line_001");
-        line.setItemTable("medication");
-        line.setItemId("med_001");
-        line.setProductName("阿莫西林胶囊");
-        line.setSpecification("0.25g*24粒");
-        line.setManufacturer("华北制药");
-        line.setLotNumber("LOT20260701");
-        line.setExpirationDate("2028-06-30");
-        line.setUnitCode("PCS");
-        line.setUnitName("片");
-        line.setBookQuantity(new BigDecimal("95.00"));
-        line.setProfitLossQuantity(new BigDecimal("5.00"));
-        line.setActualQuantity(new BigDecimal("100.00"));
-        line.setProfitLossAmount(new BigDecimal("125.50"));
-        line.setPrice(new BigDecimal("25.10"));
-        line.setInventoryItemId("inv_001");
-        line.setSupplierId("supplier_001");
-        line.setTraceNo("TRACE001");
-        line.setRemake("盘点正常");
-        line.setActualAmount(new BigDecimal("2510.00"));
-        line.setOccurrenceTime(LocalDateTime.of(2026, 7, 18, 10, 0, 0));
-
-        vo.setLines(List.of(line));
-        return vo;
+        return JsonVO.success(stocktakeService.submitStocktake(busNo, dto));
     }
 
     @Resource
