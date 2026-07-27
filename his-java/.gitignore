@@ -43,3 +43,7 @@ target
 
 # Maven ignore
 .flattened-pom.xml
+
+# Nacos configuration files (local development configs)
+his-common/src/main/resources/config/application.yaml
+his-j4-basedata/src/main/resources/application.yaml
