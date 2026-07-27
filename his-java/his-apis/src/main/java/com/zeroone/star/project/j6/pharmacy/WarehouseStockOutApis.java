@@ -1,17 +1,46 @@
 package com.zeroone.star.project.j6.pharmacy;
 
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j6.pharmacy.stockout.AgreeStockOutDTO;
-import com.zeroone.star.project.dto.j6.pharmacy.stockout.RejectStockOutDTO;
-import com.zeroone.star.project.dto.j6.pharmacy.stockout.SubmitStockOutApprovalDTO;
-import com.zeroone.star.project.dto.j6.pharmacy.stockout.WithdrawStockOutApprovalDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.stockout.*;
 import com.zeroone.star.project.query.j6.pharmacy.stockout.StockOutQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutApprovalResultVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutDetailVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutListVO;
+import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutSaveResultVO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 public interface WarehouseStockOutApis {
+
+    @PostMapping("/save-and-submit")
+    @Operation(summary = "保存并提交审批")
+    JsonVO<StockOutApprovalResultVO> saveAndSubmitApproval(@Valid @RequestBody StockOutSaveDTO dto);
+
+    @PostMapping("/add")
+    @Operation(summary = "新增单据")
+    JsonVO<StockOutSaveResultVO> addStockOut(@Valid @RequestBody StockOutSaveDTO dto);
+
+    /**
+     * 保存出库单（新增/编辑）
+     *
+     * <p>支持新增和编辑两种场景：
+     * <ul>
+     *   <li>新增：busNo为空，系统自动生成单据号，状态为草稿</li>
+     *   <li>编辑：busNo不为空，根据单据号更新数据</li>
+     * </ul>
+     * </p>
+     *
+     * @param dto 出库单数据
+     * @return 保存结果（含单据号和状态）
+     */
+    @Operation(summary = "保存出库单", description = "新增或编辑出库单")
+    JsonVO<StockOutSaveResultVO> saveStockOut(
+            @Parameter(description = "出库单数据", required = true) StockOutSaveDTO dto);
+
     /**
      * 删除出库单
      * @param id 出库单ID
