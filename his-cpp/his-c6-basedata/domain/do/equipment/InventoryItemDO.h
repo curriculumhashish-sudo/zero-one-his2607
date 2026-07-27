@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _INVENTORYLOCKDO_H_
-#define _INVENTORYLOCKDO_H_
+#ifndef _INVENTORYITEMDO_H_
+#define _INVENTORYITEMDO_H_
 
 #include "../DoInclude.h"
 

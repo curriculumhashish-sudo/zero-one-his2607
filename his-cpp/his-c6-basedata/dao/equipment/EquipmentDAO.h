@@ -28,10 +28,10 @@ public:
 	// 统计数据条数
 	uint64_t count(const EquipmentQuery::Wrapper& query);
 	// 分页查询数据
-	// std::list<DO> selectWithPage(const EquipmentQuery::Wrapper& query);
+	std::list<InventoryItemDO> selectWithPage(const EquipmentQuery::Wrapper& query);
 	// 通过姓名查询数据
-	// std::list<DO> selectByName(const string& name);
+	std::list<InventoryItemDO> selectByName(const string& name);
 	// 通过ID查询数据
-	// PtrDO selectById(std::string id);
+	PtrInventoryItemDO selectById(std::string id);
 };
 #endif // !_RENTCONTROLLER_DAO_
