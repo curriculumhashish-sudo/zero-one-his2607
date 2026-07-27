@@ -6,10 +6,13 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * 角色显示对象。
+ * 角色显示对象
+ * <p>
+ * 封装角色列表和详情接口返回的角色信息
+ * </p>
  *
  * @author j1-保温杯热水仙人
- * @version 1.0.0
+ * @since 2026-07-24
  */
 @Data
 @Schema(description = "角色显示对象")

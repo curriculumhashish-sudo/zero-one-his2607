@@ -7,10 +7,13 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 角色分页查询条件。
+ * 角色分页查询条件
+ * <p>
+ * 封装角色列表的分页参数和筛选条件
+ * </p>
  *
  * @author j1-保温杯热水仙人
- * @version 1.0.0
+ * @since 2026-07-24
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

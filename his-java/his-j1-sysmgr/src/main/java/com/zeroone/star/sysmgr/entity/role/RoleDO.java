@@ -12,11 +12,13 @@ import java.io.Serial;
 import java.time.LocalDateTime;
 
 /**
+ * 系统角色数据对象
  * <p>
- * 描述：系统角色数据对象，对应 whale_roles 表
+ * 对应数据库中的 whale_roles 表
  * </p>
+ *
  * @author j1-保温杯热水仙人
- * @date 2026/7/25
+ * @since 2026-07-24
  */
 @Getter
 @Setter

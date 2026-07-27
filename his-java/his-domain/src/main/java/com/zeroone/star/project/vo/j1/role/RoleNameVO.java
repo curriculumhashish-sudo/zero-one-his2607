@@ -4,10 +4,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
- * 角色名称选项显示对象。
+ * 角色名称选项显示对象
+ * <p>
+ * 提供角色选择组件所需的编号和显示名称
+ * </p>
  *
  * @author j1-保温杯热水仙人
- * @version 1.0.0
+ * @since 2026-07-24
  */
 @Data
 @Schema(description = "角色名称选项显示对象")

@@ -23,13 +23,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 
 /**
+ * 角色管理接口
  * <p>
- * 描述：角色管理接口定义
+ * 定义角色查询、新增、修改和删除的统一接口契约
  * </p>
- * <p>版权：&copy;01星球</p>
- * <p>地址：01星球总部</p>
+ *
  * @author j1-保温杯热水仙人
- * @version 1.0.0
+ * @since 2026-07-24
  */
 @Tag(name = "j1-角色管理", description = "角色查询、新增、修改和删除接口")
 @RequestMapping("/role")
@@ -84,7 +84,7 @@ public interface RoleApis {
      * @param dto 修改角色数据
      * @return 修改结果
      */
-    @Operation(summary = "修改角色", description = "角色内部名称和编码不允许修改")
+    @Operation(summary = "修改角色", description = "修改角色基本信息，角色内部名称和编码不允许修改")
     @PutMapping("/modify-role")
     JsonVO<String> modifyRole(
             @Valid @RequestBody RoleModifyDTO dto);
