@@ -1,8 +1,8 @@
 package com.zeroone.star.pharmacy.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.zeroone.star.pharmacy.service.IWkfInventoryItemService;
 import com.zeroone.star.pharmacy.service.InventoryDetailService;
-import com.zeroone.star.pharmacy.service.impl.InventoryDetailServiceImpl;
 import com.zeroone.star.project.dto.j6.pharmacy.inventory.InventoryStatusDTO;
 import com.zeroone.star.project.j6.pharmacy.WarehouseInventoryDetailApis;
 import com.zeroone.star.project.query.j6.pharmacy.inventory.InventoryDetailQuery;
@@ -26,6 +26,9 @@ public class WarehouseInventoryDetailController implements WarehouseInventoryDet
 
     @Autowired
     InventoryDetailService inventoryDetailService;
+
+    @Autowired
+    IWkfInventoryItemService iWkfInventoryItemService;
 
     /**
      * 获取库存明细列表(分页+条件)
@@ -52,7 +55,8 @@ public class WarehouseInventoryDetailController implements WarehouseInventoryDet
                     content = @Content(schema = @Schema(implementation = JsonVO.class)))
     )
     public JsonVO<Integer> updateStatus(@RequestBody InventoryStatusDTO inventoryStatusDTO) {
-        return JsonVO.fail("接口未完成");
+        int row = iWkfInventoryItemService.resumeInventoryItems(inventoryStatusDTO);
+        return JsonVO.success(row);
     }
 
     /**

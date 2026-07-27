@@ -121,8 +121,8 @@ public class InventoryDetailServiceImpl implements InventoryDetailService {
 
     /** 库存状态枚举 → 展示文字 */
     private static final Map<String, String> INVENTORY_STATUS_MAP = Map.of(
-            "NORMAL", "正常",
-            "STOP_SUPPLY", "停供"
+            "ACTIVE", "正常",
+            "INACTIVE", "停供"
     );
 
     /** 医保等级编码 → 展示文字 */
@@ -141,7 +141,6 @@ public class InventoryDetailServiceImpl implements InventoryDetailService {
             // 1. 库存状态文字
             row.setInventoryStatusLabel(
                     INVENTORY_STATUS_MAP.getOrDefault(row.getInventoryStatusEnum(), row.getInventoryStatusEnum()));
-
             // 2. 医保等级文字
             if (row.getChrgitmLv() != null) {
                 row.setChrgitmLvLabel(
