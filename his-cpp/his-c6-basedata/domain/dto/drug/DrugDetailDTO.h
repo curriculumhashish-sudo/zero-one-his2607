@@ -8,6 +8,7 @@ class DrugDetailDTO : public oatpp::DTO
 {
 	DTO_INIT(DrugDetailDTO, DTO);
 	API_DTO_FIELD_DEFAULT(String, tongyongname, ZH_WORDS_GETTER("Drug.field.tongyongname"), true);
+	API_DTO_FIELD_DEFAULT(String, id ,ZH_WORDS_GETTER("Drug.field.id"), true);
 	//关键词
 	API_DTO_FIELD_DEFAULT(String, name, ZH_WORDS_GETTER("Drug.field.shangpinname"), true);
 	//名称

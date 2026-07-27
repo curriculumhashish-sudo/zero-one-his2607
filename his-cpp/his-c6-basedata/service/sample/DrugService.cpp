@@ -529,3 +529,15 @@ void DrugService::enableDisableDrugs(const DrugEnableDisableDTO::Wrapper &dto, c
         std::rethrow_exception(originalError);
     }
 }
+DrugListPageDTO::Wrapper listAll(const DrugQuery::Wrapper& query)
+{
+    return {};
+}
+DrugDetailDTO::Wrapper getById(string id)
+{
+    return {};
+}
+string saveData(const DrugAddDTO::Wrapper& dto)
+{
+    return {};
+}

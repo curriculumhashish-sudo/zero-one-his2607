@@ -28,6 +28,7 @@
 #include "domain/query/Drug/DrugQuery.h"
 #include "domain/dto/drug/DrugDetailDTO.h"
 #include "domain/dto/drug/DrugListDTO.h"
+#include "domain/dto/drug/DrugAddDTO.h"
 #include <stdexcept>
 
 enum class DrugServiceError

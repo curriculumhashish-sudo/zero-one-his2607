@@ -45,10 +45,18 @@ public:
 			return "kucundanwei, invalidate.";
 		if (!kucunbeishu || kucunbeishu->empty())
 			return " kucunbeishu invalidate.";
+		if (!linghsoujia || linghsoujia->empty())
+			return "linghsoujia invalidate.";
+		if (!linshishuxing || linshishuxing->empty())
+			return "linshishuxing invalidate.";
+		if (!baozhuangdanwei || baozhuangdanwei->empty())
+			return "baozhuangdanwei invalidate.";
+		if (!baozhuangbeishu || baozhuangbeishu->empty())
+			return "baozhuangbeishu invalidate.";
 		if (!baozhuangbeishu || baozhuangbeishu->empty())
 			return "baozhuangbeishu invalidate.";
 		if (!chailingdanwei || chailingdanwei->empty())
-			return "linshishuxing invalidate.";
+			return "chailingdanwei invalidate.";
 		return "";
 
 	};
