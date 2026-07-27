@@ -32,6 +32,8 @@
 #include "domain/vo/drug/DrugListVO.h"
 #include "domain/vo/drug/DrugModifyVO.h"
 #include "domain/vo/drug/DrugSelectVO.h"
+#define API_TAG ZH_WORDS_GETTER("drug.tags.tag")
+#define API_TAG2 ZH_WORDS_GETTER("drug.tags.tag2")
 
 class DrugSwagger final
 {
@@ -122,6 +124,7 @@ class DrugController : public oatpp::web::server::api::ApiController
 
 #undef DRUG_PATH
 #undef API_TAG
+#undef API_TAG2
 
 #include OATPP_CODEGEN_END(ApiController)
 
