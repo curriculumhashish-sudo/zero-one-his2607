@@ -18,24 +18,25 @@
 */
 #include "stdafx.h"
 #include "medicalorderverificationController.h"
+#include "service/medicalorderverification/MedicalOrderVerificationService.h"
 
 medicalOrderVerificationJsonVO::Wrapper MedicalOrderVerificationController::execQueryMedicalOrderVerification(
     const MedicalVerificationQuery::Wrapper& query) {
-    return {};
+    auto vo=medicalOrderVerificationJsonVO::createShared(); vo->success(MedicalOrderVerificationService().list(query)); return vo;
 }
 
 VerifyPassJsonVO::Wrapper MedicalOrderVerificationController::execVerifyPass(
-    const VerifyPassRequestDTO::Wrapper& dto)
+    const VerifyPassRequestDTO::Wrapper& dto,const PayloadDTO& payload)
 {
     auto jvo = VerifyPassJsonVO::createShared();
-    jvo->setStatus(RS_SUCCESS);
+    auto result=MedicalOrderVerificationService().verify(dto,payload.getUsername()); result->success ? jvo->success(result) : jvo->fail(result);
     return jvo;
 }
 
 RejectOrdersJsonVO::Wrapper MedicalOrderVerificationController::execRejectOrders(
-    const RejectOrdersRequestDTO::Wrapper& dto)
+    const RejectOrdersRequestDTO::Wrapper& dto,const PayloadDTO& payload)
 {
     auto jvo = RejectOrdersJsonVO::createShared();
-    jvo->setStatus(RS_SUCCESS);
+    auto result=MedicalOrderVerificationService().reject(dto,payload.getUsername()); result->success ? jvo->success(result) : jvo->fail(result);
     return jvo;
 }

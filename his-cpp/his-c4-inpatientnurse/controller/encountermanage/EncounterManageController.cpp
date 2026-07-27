@@ -18,15 +18,18 @@
 */
 #include "stdafx.h"
 #include "EncounterManageController.h"
+#include "service/encountermanage/EncounterManageService.h"
 
 PatientStatisticsJsonVO::Wrapper EncounterManageController::execQueryPatientStatistics(
 	const PatientStatisticsQuery::Wrapper& query)
 {
-	return {};
+	auto vo=PatientStatisticsJsonVO::createShared(); vo->success(EncounterManageService().getStatistics(query)); return vo;
 }
 
 PagePatientQueueJsonVO::Wrapper EncounterManageController::execQueryPatientQueue(
 	const PagePatientQueueQuery::Wrapper& query)
 {
-	return {};
+	auto vo=PagePatientQueueJsonVO::createShared();
+	if (!query || query->pageIndex.getValue(0)<1 || query->pageSize.getValue(0)<1) { vo->init(nullptr,RS_PARAMS_INVALID); return vo; }
+	vo->success(EncounterManageService().listPatients(query)); return vo;
 }

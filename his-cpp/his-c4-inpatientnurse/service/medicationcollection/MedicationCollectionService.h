@@ -19,12 +19,15 @@
 #pragma once
 #ifndef _MEDICATION_COLLECTION_SERVICE_H_
 #define _MEDICATION_COLLECTION_SERVICE_H_
+#include "domain/query/medicationcollection/PagePendingDispenseSummaryLinesQuery.h"
+#include "domain/dto/medicationcollection/PagePendingDispenseSummaryLinesDTO.h"
+#include "domain/dto/medicationcollection/CreateMedicationSummaryDTO.h"
 
 class MedicationCollectionService
 {
 public:
-    MedicationCollectionService() = default;
-    ~MedicationCollectionService() = default;
+	PagePendingDispenseSummaryLinesDTO::Wrapper listPending(const PagePendingDispenseSummaryLinesQuery::Wrapper& query);
+	CreateMedicationSummaryResponseDTO::Wrapper summarize(const CreateMedicationSummaryDTO::Wrapper& dto,const std::string& operatorId);
 };
 
 #endif // !_MEDICATION_COLLECTION_SERVICE_H_
