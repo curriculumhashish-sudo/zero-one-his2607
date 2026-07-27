@@ -13,8 +13,8 @@ class PatSelectDTO : public oatpp::DTO
 {
 	DTO_INIT(PatSelectDTO, DTO);
 
-	DTO_FIELD(String, medicalNo);		// 病历号
-	DTO_FIELD_INFO(medicalNo) {
+	DTO_FIELD(String, busNo);		// 病历号
+	DTO_FIELD_INFO(busNo) {
 		info->description = ZH_WORDS_GETTER("pat.select.dto.field.medicalNo");
 	}
 
@@ -23,13 +23,13 @@ class PatSelectDTO : public oatpp::DTO
 		info->description = ZH_WORDS_GETTER("pat.select.dto.field.name");
 	}
 
-	DTO_FIELD(Int32, gender);			// 性别 1男 2女
+	DTO_FIELD(String, gender);			// 性别 1男 2女
 	DTO_FIELD_INFO(gender) {
 		info->description = ZH_WORDS_GETTER("pat.select.dto.field.gender");
 	}
 
-	DTO_FIELD(String, birthDay);		// 出生日期
-	DTO_FIELD_INFO(birthDay) {
+	DTO_FIELD(String, birthDate);		// 出生日期
+	DTO_FIELD_INFO(birthDate) {
 		info->description = ZH_WORDS_GETTER("pat.select.dto.field.birthDay");
 	}
 
