@@ -73,9 +73,9 @@ public class ReturnDrugRecord {
     private String doctorName;
 
     /**
-     * 退药状态码（PENDING_REFUND / REFUNDED）
+     * 退药状态码（PENDING / REFUNDED / DECLINED；前置条件 dispense_enum=REFUND）
      */
-    @Schema(description = "退药状态码", example = "PENDING_REFUND")
+    @Schema(description = "退药状态码", example = "PENDING")
     private String refundEnum;
 
     /**

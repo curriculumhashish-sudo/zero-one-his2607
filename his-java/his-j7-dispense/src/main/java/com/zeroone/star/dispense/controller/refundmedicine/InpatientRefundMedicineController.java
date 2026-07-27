@@ -26,7 +26,7 @@ import java.util.List;
 
 /**
  * <p>
- * 描述：住院退药控制器（loadInit 真实查询；其余接口暂返回假数据）
+ * 描述：住院退药控制器（loadInit、患者队列真实查询；明细与确认退药暂返回假数据）
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
@@ -54,26 +54,7 @@ public class InpatientRefundMedicineController implements InpatientRefundMedicin
     @Override
     public JsonVO<PageDTO<InpatientRefundPatientVO>> queryPatientQueue(
             @Validated @RequestBody InpatientRefundPatientQuery query) {
-        InpatientRefundPatientVO row = new InpatientRefundPatientVO();
-        row.setEncounterId("329874660147597312");
-        row.setPatientName("张三");
-        row.setGenderEnum("1");
-        row.setGenderEnumText("男");
-        row.setAge("45岁");
-        row.setWardName("内科病区");
-        row.setBedName("08床");
-        row.setEncounterNo("ZY20260719001");
-        boolean pending = query.getQueueTab() == null || "PENDING".equalsIgnoreCase(query.getQueueTab());
-        row.setRefundEnum(pending ? "PENDING_REFUND" : "REFUNDED");
-        row.setRefundEnumText(pending ? "待退药" : "已退药");
-
-        PageDTO<InpatientRefundPatientVO> page = new PageDTO<>();
-        page.setPageIndex(query.getPageIndex() > 0 ? query.getPageIndex() : 1L);
-        page.setPageSize(query.getPageSize() > 0 ? query.getPageSize() : 10L);
-        page.setTotal(1L);
-        page.setPages(1L);
-        page.setRows(Collections.singletonList(row));
-        return JsonVO.success(page);
+        return JsonVO.success(inpatientRefundMedicineService.queryPatientQueue(query));
     }
 
     @PostMapping("/get-refund-detail")
@@ -82,7 +63,7 @@ public class InpatientRefundMedicineController implements InpatientRefundMedicin
     public JsonVO<List<InpatientRefundDetailVO>> queryRefundDetail(
             @Validated @RequestBody InpatientRefundDetailQuery query) {
         boolean pending = query.getRefundStatus() == null
-                || "PENDING_REFUND".equalsIgnoreCase(query.getRefundStatus());
+                || "PENDING".equalsIgnoreCase(query.getRefundStatus());
 
         InpatientRefundDetailVO detail = new InpatientRefundDetailVO();
         detail.setDispenseId("329906419476205568");
@@ -94,7 +75,7 @@ public class InpatientRefundMedicineController implements InpatientRefundMedicin
         detail.setUnitCode("8");
         detail.setUnitText("盒");
         detail.setDoctorName("王医生");
-        detail.setRefundEnum(pending ? "PENDING_REFUND" : "REFUNDED");
+        detail.setRefundEnum(pending ? "PENDING" : "REFUNDED");
         detail.setRefundEnumText(pending ? "待退药" : "已退药");
         detail.setTraceNo("TRACE-001");
         detail.setSelectable(pending);

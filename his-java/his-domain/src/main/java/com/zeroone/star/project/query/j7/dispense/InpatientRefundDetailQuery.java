@@ -12,7 +12,7 @@ import lombok.ToString;
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
- * @author j7
+ * @author jacobzp
  * @version 1.0.0
  */
 @Getter
@@ -29,8 +29,9 @@ public class InpatientRefundDetailQuery {
     private String encounterId;
 
     /**
-     * 退药状态：PENDING_REFUND-待退药 / REFUNDED-已退药
+     * 退药状态：PENDING-待退药 / REFUNDED-已退药（对应 med_medication_dispense.status_enum，
+     * 前置条件 dispense_enum=REFUND）
      */
-    @Schema(description = "退药状态（PENDING_REFUND/REFUNDED）", example = "PENDING_REFUND")
+    @Schema(description = "退药状态（PENDING/REFUNDED）", example = "PENDING")
     private String refundStatus;
 }
