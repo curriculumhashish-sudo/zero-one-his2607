@@ -6,7 +6,7 @@ treatment:
     summary: 获取诊疗详情
   query-select:
     summary: 获取可选诊疗列表
-  query-all:
+  query:
     summary: 获取诊疗列表
   # 增改状态操作接口文案
   add:

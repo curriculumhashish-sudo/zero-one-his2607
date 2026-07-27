@@ -25,7 +25,7 @@
 #include "SimpleDateTimeFormat.h"
 #include "PdfComponent.h"
 // 列表分页
-TreatmentPageJsonVO::Wrapper TreatmentController::execQueryAll(const TreatmentQuery::Wrapper& query)
+TreatmentPageJsonVO::Wrapper TreatmentController::execQueryTreatment(const TreatmentQuery::Wrapper& query)
 {
 	// 查询数据
 	auto result = TreatmentService().listAll(query);
@@ -65,6 +65,7 @@ StringJsonVO::Wrapper TreatmentController::execModifyStatus(const TreatmentStatu
 	return vo;
 }
 
+// 删除（支持批量）
 ListJsonVO<String>::Wrapper TreatmentController::execRemoveTreatment(const List<String>& ids)
 {
 	// 定义返回数据对象
@@ -167,4 +168,65 @@ StringJsonVO::Wrapper TreatmentController::execModifyTreatment(
 	// Service/DAO 未接通前，校验通过后回传主键
 	vo->success(dto->id);
 	return vo;
+}
+
+// 导出pdf
+StringJsonVO::Wrapper TreatmentController::TreatmentPdf(const TreatmentQuery::Wrapper& query)
+{
+	// 查询数据
+	auto result = TreatmentService().listAll(query);
+	// 绘制PDF
+	PdfComponent pdf;
+	OatppAccessor<SampleDTO::Wrapper> dataAccessor(result->rows);
+	pdf.drawWithTemplate("tpl/treatment-pdf-report.yml", "treatment-pdf-report", &dataAccessor);
+	// 保存PDF
+	auto data = pdf.saveDocToMem();
+	// 转换成base64
+	auto base64Str = jwt::base::encode<jwt::alphabet::base64>(std::string(data.begin(), data.end()));
+	// 响应数据
+	auto jvo = StringJsonVO::createShared();
+	jvo->success(base64Str);
+	return jvo;
+}
+// 导出Excel
+std::shared_ptr<oatpp::web::server::api::ApiController::OutgoingResponse> TreatmentController::execExportTreatment(const TreatmentQuery::Wrapper& query)
+{
+	// 查询数据
+	auto result = TreatmentService().listAll(query);
+
+	// 将数据写入到Excel中
+	auto buff = ExcelComponent().writeVectorToBuff("treatment",
+		[result](ExcelComponent* ex) {
+			// 写入表头
+			ex->addHeader({
+				ZH_WORDS_GETTER("sample.field.id") ,
+				ZH_WORDS_GETTER("sample.field.code") ,
+				ZH_WORDS_GETTER("sample.field.name") 
+				});
+			// 写入数据
+			int row = 2;
+			int col = 1;
+			for (auto item : *(result->rows.get())) {
+				col = 1;
+				ex->setCellValue(row, col++, item->id);
+				ex->setCellValue(row, col++, item->code);
+				ex->setCellValue(row, col++, item->name);
+				ex->setRowProperties(row++);
+			}
+		});
+
+	// 组装下发数据
+	const char* charData = reinterpret_cast<const char*>(buff.data());
+	auto fstring = String(charData, buff.size());
+
+	// 创建响应头
+	auto response = createResponse(Status::CODE_200, fstring);
+
+	// 设置响应头信息
+	std::string filename = "rp-treatment-" + SimpleDateTimeFormat::format() + ".xlsx";
+	response->putHeader("Content-Disposition", "attachment; filename=" + filename);
+	response->putHeader(Header::CONTENT_TYPE, " application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+	// 影响成功结果
+	return response;
 }
