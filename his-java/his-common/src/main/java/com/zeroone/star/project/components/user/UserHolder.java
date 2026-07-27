@@ -11,9 +11,6 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.yaml.snakeyaml.util.UriEncoder;
 
-import java.util.List;
-import java.util.Map;
-
 /**
  * <p>
  * 描述：获取登录用户信息
@@ -33,7 +30,7 @@ public class UserHolder {
      * @return 用户信息
      * @throws Exception 解析失败抛出异常
      */
-    @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection", "unchecked"})
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     public UserDTO getCurrentUser() throws Exception {
         // 从Header中获取用户信息
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
@@ -59,10 +56,10 @@ public class UserHolder {
 //        // HARD_CODE 在没有办法使用token时候可以修改这里的代码伪造用户信息，注意伪造用户代码不要提交到仓库中
 //        userJsonObject = new JSONObject();
 //        userJsonObject.putOnce("id", 1);
-//        userJsonObject.putOnce("sub", "王麻子");
+//        userJsonObject.putOnce("user_name", "王麻子");
 //        ArrayList<Object> roles = new ArrayList<>();
 //        roles.add("ROLE_ADMIN");
-//        userJsonObject.putOnce("roles", roles);
+//        userJsonObject.putOnce("authorities", roles);
 
         // FIXME: 如果要扩展用户信息，需要修改这里的代码
         return UserDTO.builder()
@@ -70,12 +67,6 @@ public class UserHolder {
                 .username(userJsonObject.getStr("sub"))
                 .isEnabled(Convert.toByte(1))
                 .roles(Convert.toList(String.class, userJsonObject.get("roles")))
-                .name(userJsonObject.getStr("name"))
-                .organizationUnits(Convert.toMap(String.class, String.class, userJsonObject.get("organizationUnits")))
-                .practitionerId(userJsonObject.getStr("practitionerId"))
-                .practitionerName(userJsonObject.getStr("practitionerName"))
-                .titleName(userJsonObject.getStr("titleName"))
-                .titleCode(userJsonObject.getStr("titleCode"))
                 .build();
     }
 
