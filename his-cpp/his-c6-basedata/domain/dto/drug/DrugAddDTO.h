@@ -6,6 +6,7 @@
 class DrugAddDTO : public DrugDetailDTO
 {
 	DTO_INIT(DrugAddDTO, DrugDetailDTO);
+	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 public:
 	// 杅擂苺桄
 	std::string validate()
