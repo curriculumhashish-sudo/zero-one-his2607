@@ -38,8 +38,8 @@ void Router::initRouter()
 	// #TIP: Add system extension route definitions below
 	ROUTER_SIMPLE_BIND(DeptController);
 	ROUTER_SIMPLE_BIND(DeptBatchStatusController);
-	ROUTER_SIMPLE_BIND(PatController);
-	ROUTER_SIMPLE_BIND(PatientController);
+	//ROUTER_SIMPLE_BIND(PatController);
+	//ROUTER_SIMPLE_BIND(PatientController);
 	ROUTER_SIMPLE_BIND(OrganizationController);
 	ROUTER_SIMPLE_BIND(SupplierAddUpdateController);
 	// Supplier management routes
