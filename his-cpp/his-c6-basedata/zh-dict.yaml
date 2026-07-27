@@ -1,5 +1,7 @@
 drug:
-  tag: 药品管理
+  tags:
+    tag: 药品管理
+    tag2: 药品声明式服务
   modify:
     summary: 修改药品
   remove:
