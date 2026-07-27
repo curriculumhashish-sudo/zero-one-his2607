@@ -20,13 +20,14 @@
 #include "historyOrderDetailDAO.h"
 #include "historyOrderDetailMapper.h"
 
-// Build full UNION query SQL, parameters pushed in same order as ? placeholders
+// 构建完整的 UNION 查询 SQL（修正版）
 std::string HistoryOrderDetailDAO::buildFullQuerySql(const HistoryOrderDetailQuery::Wrapper& query, SqlParams& params)
 {
     std::string visitId = query->visitId.getValue("");
     std::string orderType = query->orderType ? query->orderType.getValue("") : "";
     std::string keyword = query->keyword ? query->keyword.getValue("") : "";
 
+    // 药品子查询（注意：JOIN 使用 org_id 而不是 perform_org_id）
     std::string sqlDrug =
         "SELECT "
         "  mr.id AS order_id, "
@@ -42,11 +43,12 @@ std::string HistoryOrderDetailDAO::buildFullQuerySql(const HistoryOrderDetailQue
         "  mmd.skin_test_flag AS is_skin_test "
         "FROM med_medication_request mr "
         "LEFT JOIN med_medication_definition mmd ON mr.medication_id = mmd.id "
-        "LEFT JOIN adm_organization org ON mr.perform_org_id = org.id "
+        "LEFT JOIN adm_organization org ON mr.org_id = org.id "        // 修正：org_id
         "LEFT JOIN adm_practitioner p ON mr.requester_id = p.id "
         "LEFT JOIN cln_condition cond ON mr.condition_definition_id = cond.id "
         "WHERE mr.encounter_id = ? AND mr.is_deleted = 0";
 
+    // 服务子查询
     std::string sqlService =
         "SELECT "
         "  sr.id AS order_id, "
@@ -68,6 +70,7 @@ std::string HistoryOrderDetailDAO::buildFullQuerySql(const HistoryOrderDetailQue
         "LEFT JOIN adm_specimen_definition spec ON ad.specimen_code = spec.bus_no "
         "WHERE sr.encounter_id = ? AND sr.is_deleted = 0";
 
+    // 耗材子查询（注意：JOIN 使用 org_id）
     std::string sqlDevice =
         "SELECT "
         "  dr.id AS order_id, "
@@ -83,7 +86,7 @@ std::string HistoryOrderDetailDAO::buildFullQuerySql(const HistoryOrderDetailQue
         "  0 AS is_skin_test "
         "FROM wkf_device_request dr "
         "LEFT JOIN adm_device_definition dd ON dr.device_def_id = dd.id "
-        "LEFT JOIN adm_organization org ON dr.perform_org_id = org.id "
+        "LEFT JOIN adm_organization org ON dr.org_id = org.id "        // 修正：org_id
         "LEFT JOIN adm_practitioner p ON dr.requester_id = p.id "
         "LEFT JOIN cln_condition cond ON dr.condition_definition_id = cond.id "
         "WHERE dr.encounter_id = ? AND dr.is_deleted = 0";
@@ -98,9 +101,10 @@ std::string HistoryOrderDetailDAO::buildFullQuerySql(const HistoryOrderDetailQue
         finalSql += " AND (t.order_name LIKE CONCAT('%', ?, '%') OR t.diagnosis LIKE CONCAT('%', ?, '%'))";
     }
 
-    SQLPARAMS_PUSH(params, "s", std::string, visitId);
-    SQLPARAMS_PUSH(params, "s", std::string, visitId);
-    SQLPARAMS_PUSH(params, "s", std::string, visitId);
+    // 参数推送顺序与 SQL 中 ? 的顺序严格一致
+    SQLPARAMS_PUSH(params, "s", std::string, visitId);   // 对应药品子查询的 ?
+    SQLPARAMS_PUSH(params, "s", std::string, visitId);   // 对应服务子查询的 ?
+    SQLPARAMS_PUSH(params, "s", std::string, visitId);   // 对应耗材子查询的 ?
     if (!orderType.empty()) {
         SQLPARAMS_PUSH(params, "s", std::string, orderType);
     }
