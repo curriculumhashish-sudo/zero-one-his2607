@@ -2,9 +2,7 @@ package com.zeroone.star.project.query.j7.dispense;
 
 import com.zeroone.star.project.query.PageQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 /**
  * <p>
@@ -18,6 +16,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString(callSuper = true)
+@Schema(description = "住院发药-发药汇总查询对象")
 public class DispensingSummaryQuery extends PageQuery {
 
     @Schema(description = "汇总单号", example = "HZ20240719001")
