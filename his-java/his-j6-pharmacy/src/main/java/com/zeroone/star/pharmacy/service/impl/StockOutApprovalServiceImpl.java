@@ -283,8 +283,7 @@ public class StockOutApprovalServiceImpl implements IStockoutApprovalService {
     /**
      * 生成药房入库申请单（wkf_supply_request，type_enum = WAREHOUSE_STOCKIN）
      */
-    private void createPharmacyInboundRequest(List<WkfSupplyRequest> rows, String contractBusNo,
-                                               LocalDateTime now, String userId) {
+    private void createPharmacyInboundRequest(List<WkfSupplyRequest> rows, String contractBusNo, LocalDateTime now, String userId) {
         // TODO: 桩实现 — type_enum 和入库单号生成规则待确认
         // 遍历 rows，向 wkf_supply_request 插入入库记录：
         //   - type_enum = "WAREHOUSE_STOCKIN"
