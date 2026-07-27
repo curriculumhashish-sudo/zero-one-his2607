@@ -7,11 +7,11 @@
 class DrugDetailDTO : public oatpp::DTO
 {
 	DTO_INIT(DrugDetailDTO, DTO);
-	API_DTO_FIELD_DEFAULT(String, keywords, ZH_WORDS_GETTER("Drug.field.tongyongname"), true);
+	API_DTO_FIELD_DEFAULT(String, tongyongname, ZH_WORDS_GETTER("Drug.field.tongyongname"), true);
 	//关键词
 	API_DTO_FIELD_DEFAULT(String, name, ZH_WORDS_GETTER("Drug.field.shangpinname"), true);
 	//名称
-	API_DTO_FIELD_DEFAULT(Int32, kind, ZH_WORDS_GETTER("Drug.field.kinds"), true);
+	API_DTO_FIELD_DEFAULT(String, kinds, ZH_WORDS_GETTER("Drug.field.kinds"), true);
 	//分类
 	API_DTO_FIELD_DEFAULT(String, changjia, ZH_WORDS_GETTER("Drug.field.changjia"),true);
 	API_DTO_FIELD_DEFAULT(String, gongyingshang, ZH_WORDS_GETTER("Drug.field.gongyingshang"),true);

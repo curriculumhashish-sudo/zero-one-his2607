@@ -461,7 +461,7 @@ StringJsonVO::Wrapper DrugController::execAddDrug(const DrugAddDTO::Wrapper &dto
         return jvo;
     }
     dto->setPayload(&payload);
-    std::string id = EquipmentService().saveData(dto);
+    std::string id = DrugService().saveData(dto);
     if (id != "") {
         jvo->success(id);
     }

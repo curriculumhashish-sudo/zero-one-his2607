@@ -62,6 +62,7 @@ class DrugService
     void enableDisableDrugs(const DrugEnableDisableDTO::Wrapper &dto, const PayloadDTO &payload);
     DrugListPageDTO::Wrapper listAll(const DrugQuery::Wrapper& query);
     DrugDetailDTO::Wrapper getById(string id);
-};
+    saveData
+}; 
 
 #endif // !_DRUG_SERVICE_H_
