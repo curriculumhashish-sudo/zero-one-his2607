@@ -452,12 +452,45 @@ DrugSelectPageJsonVO::Wrapper DrugController::execQuerySelectDrug(const DrugSele
 
 StringJsonVO::Wrapper DrugController::execAddDrug(const DrugAddDTO::Wrapper &dto, const PayloadDTO &payload)
 {
+    auto jvo = StringJsonVO::createShared();
+
+    std::string errmsg = dto->validate();
+    if (errmsg != "")
+    {
+        jvo->init(errmsg, RS_PARAMS_INVALID);
+        return jvo;
+    }
+    dto->setPayload(&payload);
+    std::string id = EquipmentService().saveData(dto);
+    if (id != "") {
+        jvo->success(id);
+    }
+    else
+    {
+        jvo->fail("");
+    }
+    return jvo;
     return {};
 }
 
 DrugDetailJsonVO::Wrapper DrugController::execQueryById(const String &id)
 {
-    return {};
+    // 定义返回数据对象
+    auto jvo = DrugDetailJsonVO::createShared();
+    // 参数校验
+    // 非空校验
+    if (!id)
+    {
+        jvo->init(nullptr, RS_PARAMS_INVALID);
+        return jvo;
+    }
+    // 执行数据新增
+    auto res = DrugService().getById(id.getValue({}));
+    jvo->success(res);
+
+    //响应结果
+    return jvo;
+
 }
 
 DrugModifyJsonVO::Wrapper DrugController::execModifyDrug(const DrugModifyDTO::Wrapper &dto, const PayloadDTO &payload)
