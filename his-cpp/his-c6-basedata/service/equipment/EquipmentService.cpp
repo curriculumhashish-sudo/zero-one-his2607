@@ -23,9 +23,9 @@ EquipmentDetailPageDTO::Wrapper EquipmentService::listAll(const EquipmentQuery::
 	// 分页查询数据
 	pages->total = count;
 	pages->calcPages();
-	list<InventoryItemDO> result = dao.selectWithPage(query);
+	list<WkfInventoryItemDO> result = dao.selectWithPage(query);
 	// 将DO转换成DTO
-	for (InventoryItemDO& sub : result)
+	for (WkfInventoryItemDO& sub : result)
 	{
 		auto dto = EquipmentDetailDTO::createShared();
 		ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub, id, Id, name, Name);
@@ -47,7 +47,14 @@ EquipmentDTO::Wrapper EquipmentService::getById(std::string id)
 
 	// 查询到数据转换成DTO
 	auto dto = EquipmentDTO::createShared();
-	ZO_STAR_DOMAIN_DO_TO_DTO_1(dto, res, id, Id, name, Name);
+	ZO_STAR_DOMAIN_DO_TO_DTO_1(
+		dto, res,
+		id, Id,
+		name, Name,
+		classification, CategoryCode,
+		pinyin, PyStr,
+		wubi, WbStr
+		);
 	return dto;
 }
 

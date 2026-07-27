@@ -6,7 +6,7 @@
 #include "Mapper.h"
 #include "../../domain/do/equipment/InventorySnapshotDO.h"
 #include "../../domain/do/equipment/InventoryLockDO.h"
-#include "../../domain/do/equipment/InventoryItemDO.h"
+#include "../../domain/do/equipment/WkfInventoryItemDO.h"
 
 
 /**
@@ -195,12 +195,12 @@ public:
 /**
  * 库存物品主表 普通值对象映射
  */
-class InventoryItemMapper : public Mapper<InventoryItemDO>
+class WkfInventoryItemMapper : public Mapper<WkfInventoryItemDO>
 {
 public:
-	InventoryItemDO mapper(ResultSet* resultSet) const override
+	WkfInventoryItemDO mapper(ResultSet* resultSet) const override
 	{
-		InventoryItemDO data;
+		WkfInventoryItemDO data;
 		// 1 主键id
 		data.setId(resultSet->getString(1));
 		// 基础审计、乐观锁字段
@@ -243,12 +243,12 @@ public:
 /**
  * 库存物品主表 智能指针映射（分页列表查询专用）
  */
-class PtrInventoryItemMapper : public Mapper<PtrInventoryItemDO>
+class PtrWkfInventoryItemMapper : public Mapper<PtrWkfInventoryItemDO>
 {
 public:
-	PtrInventoryItemDO mapper(ResultSet* resultSet) const override
+	PtrWkfInventoryItemDO mapper(ResultSet* resultSet) const override
 	{
-		auto data = std::make_shared<InventoryItemDO>();
+		auto data = std::make_shared<WkfInventoryItemDO>();
 		data->setId(resultSet->getString(1));
 		data->setTenantId(resultSet->getString(2));
 		data->setCreatedAt(resultSet->getString(3));
