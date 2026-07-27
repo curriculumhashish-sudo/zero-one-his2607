@@ -53,7 +53,13 @@ public:
 		API_TAG);
 
 	// Route: POST /chinapres3/revoke
-	API_HAND
+	API_HANDLER_ENDPOINT_AUTH(
+		API_M_POST,
+		"/chinapres3/revoke",
+		revokechinapres3,
+		BODY_DTO(chinapres3RevokeDTO::Wrapper, dto),
+		execRevokechinapres3(dto, authObject->getPayload()));
+	*/
 
 private:
 	// ע��ҽ����������ҵ����񣬳��ؿ��������غ���ҵ���߼�
@@ -73,7 +79,8 @@ private:
 		const chinapres3IssueDTO::Wrapper& dto,
 		const PayloadDTO& payload);
 
-	// ---- ��������ִ�к��� ----
+	// ---- revoke-related executor (temporarily disabled) ----
+#if 0
 	/**
 	 * �������ؽӿ�ִ�к���
 	 *
@@ -86,6 +93,7 @@ private:
 	chinapres3RevokeResultVO::Wrapper execRevokechinapres3(
 		const chinapres3RevokeDTO::Wrapper& dto,
 		const PayloadDTO& payload);
+#endif
 };
 
 #undef API_TAG
