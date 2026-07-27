@@ -21,14 +21,15 @@ import java.util.List;
 
 /**
  * <p>
- * 描述：住院退药控制器（患者队列、退药明细）
+ * 描述：住院退药控制器（患者队列、退药明细）——备份。
+ * 已迁移至 {@code com.zeroone.star.dispense.controller.end.zhuyuantuiyao}，本类不注册为 Bean。
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
  * @author jacobzp
  * @version 1.0.0
  */
-@RestController
+@RestController //后面去掉，避免与 end.zhuyuantuiyao 路径冲突；代码仅作备份保留
 @RequestMapping("/api/j7/refund-medicine")
 @Tag(name = "住院退药", description = "住院退药（患者队列、退药明细）")
 @Validated
