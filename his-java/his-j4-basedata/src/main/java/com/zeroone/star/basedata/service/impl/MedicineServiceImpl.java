@@ -2,20 +2,23 @@ package com.zeroone.star.basedata.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+import com.zeroone.star.basedata.entity.medicine.MedMedicationDispenseDO;
+import com.zeroone.star.basedata.entity.medicine.MedMedicationRequestDO;
+import com.zeroone.star.basedata.mapper.MedMedicationDispenseMapper;
+import com.zeroone.star.basedata.mapper.MedMedicationRequestMapper;
 import com.zeroone.star.basedata.service.IMedicineService;
-import com.zeroone.star.project.dto.j4.medicine.MedicineChangeStatusDTO;
-import com.zeroone.star.project.dto.j4.medicine.MedicineDeleteDTO;
-import com.zeroone.star.project.dto.j4.medicine.MedicineDetailDTO;
+import com.zeroone.star.project.dto.j4.medicine.*;
 import com.zeroone.star.basedata.entity.medicine.AdmChargeItemDefinitionDO;
 import com.zeroone.star.basedata.entity.medicine.MedMedicationDefinitionDO;
 import com.zeroone.star.basedata.mapper.AdmChargeItemDefinitionMapper;
 import com.zeroone.star.basedata.mapper.MedMedicationDefinitionMapper;
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j4.medicine.MedicineAddDTO;
 import com.zeroone.star.project.query.j4.medicine.MedicinePageQuery;
 import com.zeroone.star.project.query.j4.medicine.MedicineSelectPageQuery;
 import com.zeroone.star.project.vo.j4.medicine.MedicineAddVO;
@@ -28,7 +31,11 @@ import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -192,12 +199,13 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public MedicineDetailDTO queryMedicineDetailById(String id) {
         MedMedicationDefinitionDO medicationDefinitionDO = baseMapper.selectById(id);
         //获取与id值关联的AdmChargeItemDefinitionDO列表
         QueryWrapper<AdmChargeItemDefinitionDO> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda()
-                .eq(AdmChargeItemDefinitionDO::getInstanceTable,"med_medication_defination")
+                .eq(AdmChargeItemDefinitionDO::getInstanceTable,"med_medication_definition")
                 .eq(AdmChargeItemDefinitionDO::getInstanceId,id);
         List<AdmChargeItemDefinitionDO> chargeItemDefinitionDOS = chargeItemMapper.selectList(queryWrapper);
         if(medicationDefinitionDO == null||chargeItemDefinitionDOS ==null||chargeItemDefinitionDOS.isEmpty()){
@@ -228,23 +236,116 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
 
 
     }
-    @Resource
-    MedMedicationDefinitionMapper medicationDefinitionMapper;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int updateMedicine(MedicineDetailDTO dto) {
-        return 0;
+        MedMedicationDefinitionDO definitionDO = msMedicineMapper.detailDtoToEntity(dto);
+        int i = baseMapper.updateById(definitionDO);
+        if(i==0) log.debug("definition表未更新");
+
+        if (dto.getPurchasePrice() != null) {
+            UpdateWrapper<AdmChargeItemDefinitionDO> purchaseWrapper = new UpdateWrapper<>();
+            purchaseWrapper.lambda()
+                    .eq(AdmChargeItemDefinitionDO::getInstanceTable, "med_medication_defination")
+                    .eq(AdmChargeItemDefinitionDO::getInstanceId, dto.getId())
+                    .eq(AdmChargeItemDefinitionDO::getPriceTypeCode, "PURCHASE")
+                    .set(AdmChargeItemDefinitionDO::getPriceValue, dto.getPurchasePrice());
+            chargeItemMapper.update(null, purchaseWrapper);
+        }
+
+        if (dto.getRetailPrice() != null) {
+            UpdateWrapper<AdmChargeItemDefinitionDO> saleWrapper = new UpdateWrapper<>();
+            saleWrapper.lambda()
+                    .eq(AdmChargeItemDefinitionDO::getInstanceTable, "med_medication_defination")
+                    .eq(AdmChargeItemDefinitionDO::getInstanceId, dto.getId())
+                    .eq(AdmChargeItemDefinitionDO::getPriceTypeCode, "SALE")
+                    .set(AdmChargeItemDefinitionDO::getPriceValue, dto.getRetailPrice());
+            chargeItemMapper.update(null, saleWrapper);
+        }
+
+        if (dto.getMaxRetailPrice() != null) {
+            UpdateWrapper<AdmChargeItemDefinitionDO> limitWrapper = new UpdateWrapper<>();
+            limitWrapper.lambda()
+                    .eq(AdmChargeItemDefinitionDO::getInstanceTable, "med_medication_defination")
+                    .eq(AdmChargeItemDefinitionDO::getInstanceId, dto.getId())
+                    .eq(AdmChargeItemDefinitionDO::getPriceTypeCode, "LIMIT")
+                    .set(AdmChargeItemDefinitionDO::getPriceValue, dto.getMaxRetailPrice());
+            chargeItemMapper.update(null, limitWrapper);
+        }
+
+        // TODO Redis清理旧缓存
+
+
+        return i;
+    }
+
+    @Resource
+    MedMedicationDispenseMapper dispenseMapper;
+
+    @Resource
+    MedMedicationRequestMapper requestMapper;
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public MedicineDeleteResultDTO deleteMedicine(MedicineDeleteDTO dto) {
+        //软删除
+
+
+        List<String> ids = dto.getIds();
+        //查出所有有关联的id
+        LambdaQueryWrapper<MedMedicationDispenseDO> dispenseWrapper = new LambdaQueryWrapper<>();
+        dispenseWrapper.in(MedMedicationDispenseDO::getMedicationId,ids);
+        Set<String> dispenseIds = dispenseMapper.selectList(dispenseWrapper).stream()
+                .map(MedMedicationDispenseDO::getMedicationId)
+                .collect(Collectors.toSet());
+
+        LambdaQueryWrapper<MedMedicationRequestDO> requestWrapper = new LambdaQueryWrapper<>();
+        requestWrapper.in(MedMedicationRequestDO::getMedicationId,ids);
+        Set<String> requestIds = requestMapper.selectList(requestWrapper).stream()
+                .map(MedMedicationRequestDO::getMedicationId)
+                .collect(Collectors.toSet());
+        // 合并有关联的id
+        Set<String> relatedIds = new HashSet<>();
+        relatedIds.addAll(dispenseIds);
+        relatedIds.addAll(requestIds);
+
+        //统计返回数据
+        int successCount = 0;
+        List<String> failIds = new ArrayList<>();
+        List<String> deleteIds = new ArrayList<>();
+
+        for (String id : ids) {
+            if(relatedIds.contains(id)){
+                failIds.add(id);
+            }else {
+                deleteIds.add(id);
+            }
+
+        }
+
+        //删除满足条件的ids
+        if (!deleteIds.isEmpty()){
+            int i = baseMapper.deleteByIds(deleteIds);
+            successCount = i;
+        }
+        return new MedicineDeleteResultDTO(successCount, failIds.size(), failIds);
     }
 
     @Override
-    public int deleteMedicine(MedicineDeleteDTO dto) {
-        return 0;
-    }
-
-    @Override
+    @Transactional(rollbackFor = Exception.class)
     public int updateChangeMedicineStatus(
             int status,
             MedicineChangeStatusDTO dto) {
-        return 0;
+        int count = 0;
+        List<String> ids = dto.getIds();
+
+        LambdaUpdateWrapper<MedMedicationDefinitionDO> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.in(MedMedicationDefinitionDO::getId,ids)
+                .ne(MedMedicationDefinitionDO::getActiveFlag,status)
+                .set(MedMedicationDefinitionDO::getActiveFlag,status);
+
+        return baseMapper.update(updateWrapper);
+
     }
 }

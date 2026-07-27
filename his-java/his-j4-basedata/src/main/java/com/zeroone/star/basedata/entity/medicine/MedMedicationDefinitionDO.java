@@ -63,6 +63,7 @@ public class MedMedicationDefinitionDO implements Serializable {
     /**
      * 软删标记
      */
+    @TableLogic
     private Boolean isDeleted;
 
     /**
