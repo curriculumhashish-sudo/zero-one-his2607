@@ -28,6 +28,15 @@ public:
 	// bool updateData(const SampleDTO::Wrapper& dto);
 	// 通过ID删除数据
 	// bool removeData(const oatpp::List<oatpp::String>& ids);
+
+	// 修改数据
+	bool modifyData(const EquipmentModifyDTO::Wrapper& dto, const PayloadDTO& payload);
+	// 批量删除
+	bool deleteData(const EquipmentDeleteDTO::Wrapper& dto, const PayloadDTO& payload);
+	// 批量启停用
+	bool changeStatus(const EquipmentStatusDTO::Wrapper& dto, const PayloadDTO& payload);
+	// 列表选择查询
+	EquipmentSelectPageDTO::Wrapper selectData(const EquipmentQuery::Wrapper& query);
 };
 
 #endif // !_EQUIPMENT_SERVICE_

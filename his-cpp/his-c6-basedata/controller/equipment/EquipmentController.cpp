@@ -70,25 +70,91 @@ StringJsonVO::Wrapper EquipmentController::execAddEquipment(const EquipmentAddDT
 //修改设备
 StringJsonVO::Wrapper EquipmentController::execModifyEquipment(const EquipmentModifyDTO::Wrapper& dto, const PayloadDTO& payload)
 {
-	return {};
+	auto jvo = StringJsonVO::createShared();
+
+	// 参数校验
+	std::string errmsg = dto->validate();
+	if (errmsg != "")
+	{
+		jvo->init(errmsg, RS_PARAMS_INVALID);
+		return jvo;
+	}
+
+	// 执行修改业务逻辑
+	bool success = EquipmentService().modifyData(dto, payload);
+	if (success)
+	{
+		jvo->success("");
+	}
+	else
+	{
+		jvo->fail("修改失败，器材不存在或数据异常");
+	}
+	return jvo;
 }
 
 //批量批量删除器材
 StringJsonVO::Wrapper EquipmentController::execDeleteEquipment(const EquipmentDeleteDTO::Wrapper& dto, const PayloadDTO& payload)
 {
-	return {};
+	auto jvo = StringJsonVO::createShared();
+
+	// 参数校验
+	std::string errmsg = dto->validate();
+	if (errmsg != "")
+	{
+		jvo->init(errmsg, RS_PARAMS_INVALID);
+		return jvo;
+	}
+
+	// 执行删除逻辑
+	bool success = EquipmentService().deleteData(dto, payload);
+	if (success)
+	{
+		jvo->success("");
+	}
+	else
+	{
+		jvo->fail("删除失败");
+	}
+	return jvo;
 }
 
 //批量启停用器材
 StringJsonVO::Wrapper EquipmentController::execChangeEquipmentStatus(const EquipmentStatusDTO::Wrapper& dto, const PayloadDTO& payload)
 {
-	return {};
+	auto jvo = StringJsonVO::createShared();
+
+	// 参数校验
+	std::string errmsg = dto->validate();
+	if (errmsg != "")
+	{
+		jvo->init(errmsg, RS_PARAMS_INVALID);
+		return jvo;
+	}
+
+	// 执行启停用逻辑
+	bool success = EquipmentService().changeStatus(dto, payload);
+	if (success)
+	{
+		jvo->success("");
+	}
+	else
+	{
+		jvo->fail("更新状态失败");
+	}
+	return jvo;
 }
 
 //选择器材
 EquipmentSelectPageJsonVO::Wrapper EquipmentController::execSelectEquipment(const EquipmentQuery::Wrapper& query)
 {
-	return {};
+	// 查询数据
+	auto result = EquipmentService().selectData(query);
+
+	// 响应结果
+	auto jvo = EquipmentSelectPageJsonVO::createShared();
+	jvo->success(result);
+	return jvo;
 }
 
 // 声明式服务接口1

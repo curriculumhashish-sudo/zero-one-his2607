@@ -66,6 +66,30 @@ class EquipmentModifyDTO : public oatpp::DTO
 	API_DTO_FIELD_REQUIRE(String, pinyin, ZH_WORDS_GETTER("equipment.field.pinyin"), false);
 	// 五笔码
 	API_DTO_FIELD_REQUIRE(String, wubi, ZH_WORDS_GETTER("equipment.field.wubi"), false);
+
+public:
+	// 校验修改数据的必填字段
+	std::string validate() const
+	{
+		if (!id || id->empty()) return "器材ID不能为空";
+		if (!name || name->empty()) return "器材名称不能为空";
+		if (!classification || classification->empty()) return "器材分类不能为空";
+		if (!specification || specification->empty()) return "包装规格不能为空";
+		if (!status) return "状态不能为空";
+		if (!price || price->empty()) return "价格不能为空";
+		if (!finantype || finantype->empty()) return "财务类型不能为空";
+		if (!purchaunit || purchaunit->empty()) return "采购单位不能为空";
+		if (!purmin || purmin->empty()) return "采购/拆零倍数不能为空";
+		if (!purchase || purchase->empty()) return "购入价不能为空";
+		if (!inventory || inventory->empty()) return "库存单位不能为空";
+		if (!invsplit || invsplit->empty()) return "库存/拆零倍数不能为空";
+		if (!retail || retail->empty()) return "零售价不能为空";
+		if (!packaging || packaging->empty()) return "包装单位不能为空";
+		if (!packsplit || packsplit->empty()) return "包装/拆零倍数不能为空";
+		if (!split || split->empty()) return "拆零单位不能为空";
+
+		return ""; // 校验通过返回空字符串
+	}
 };
 
 #include OATPP_CODEGEN_END(DTO)
