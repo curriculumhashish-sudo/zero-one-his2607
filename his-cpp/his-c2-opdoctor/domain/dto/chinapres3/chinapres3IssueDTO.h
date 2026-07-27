@@ -38,13 +38,18 @@ class chinapres3IssueDTO : public oatpp::DTO
 {
     DTO_INIT(chinapres3IssueDTO, DTO);
 
+
+    //这两个用来确定边界 判断这个数据是本次就诊同时判断是该患者
     // 就诊ID，用于标识本次开立操作对应的就诊上下文
     API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("chinapres3.field.encounterId"), true);
 
     // 患者ID，用于标识就诊患者
     API_DTO_FIELD_REQUIRE(String, patientId, ZH_WORDS_GETTER("chinapres3.field.patientId"), true);
 
+
+
     // 待开立处方目标集合，每一项代表一条需要开立的中药处方
+    //OBject是oatpp里面的写法
     API_DTO_FIELD_REQUIRE(Vector<Object<chinapres3SignTargetDTO>>, signTargets, ZH_WORDS_GETTER("chinapres3.field.signTargets"), true);
 };
 

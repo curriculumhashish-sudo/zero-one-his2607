@@ -14,7 +14,8 @@ class chinapres3SignTargetDTO : public oatpp::DTO
     API_DTO_FIELD_REQUIRE(String, medicationRequestId, ZH_WORDS_GETTER("chinapres3.field.medicationRequestId"), true);
 
     // ��������������ڱ�ʶͬһ�ο��ߵĴ�������
-    API_DTO_FIELD_REQUIRE(String, prescriptionGroupKey, ZH_WORDS_GETTER("chinapres3.field.prescriptionGroupKey"), true);
+    //
+   // API_DTO_FIELD_REQUIRE(String, prescriptionGroupKey, ZH_WORDS_GETTER("chinapres3.field.prescriptionGroupKey"), true);
 };
 
 #include OATPP_CODEGEN_END(DTO)

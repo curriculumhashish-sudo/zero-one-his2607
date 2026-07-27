@@ -26,21 +26,19 @@ class chinapres3Controller : public oatpp::web::server::api::ApiController
 	API_ACCESS_DECLARE(chinapres3Controller);
 
 public:
-	// 签发接口元信息：摘要、路由名、返回类型、分组标签
+	// 声明端点元信息（用于 Swagger 文档生成）
 	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("chinapres3.issue.summary"),
-		issuechinapres3,
-		chinapres3IssueResultVO::Wrapper,
+		issuechinapres3,                              // ← 端点内部名称
+		chinapres3IssueResultVO::Wrapper,              // ← 返回类型
 		API_TAG);
 
-	// 签发接口路由定义：POST /chinapres3/issue
-	// 请求体由 chinapres3IssueDTO 自动绑定，通过 BODY_DTO 宏反序列化
-	// authObject->getPayload() 获取JWT中的用户身份信息
+	// 绑定路由：POST /chinapres3/issue
 	API_HANDLER_ENDPOINT_AUTH(
-		API_M_POST,
-		"/chinapres3/issue",
-		issuechinapres3,
-		BODY_DTO(chinapres3IssueDTO::Wrapper, dto),
+		API_M_POST,                                   // ← HTTP 方法
+		"/chinapres3/issue",                          // ← URL 路径
+		issuechinapres3,                              // ← 对应上面的端点名
+		BODY_DTO(chinapres3IssueDTO::Wrapper, dto),   // ← 自动反序列化
 		execIssuechinapres3(dto, authObject->getPayload()));
 
 private:
