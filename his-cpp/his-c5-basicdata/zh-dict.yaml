@@ -84,6 +84,10 @@ dept:
       nameTree: 获取科室名称树
       listTree: 获取科室列表树
       detail: 获取科室详情
+    errors:
+      invalidParameter: 查询参数不合法
+      notFound: 科室不存在
+      serverError: 科室查询失败
     fields:
       id: 科室唯一标识
       name: 科室名称

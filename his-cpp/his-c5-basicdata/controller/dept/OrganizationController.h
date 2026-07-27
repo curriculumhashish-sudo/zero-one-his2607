@@ -8,6 +8,7 @@ using namespace oatpp;
 #include "domain/query/dept/OrganizationListTreeQuery.h"
 #include "domain/vo/dept/OrganizationTreeVO.h"
 #include "domain/vo/dept/OrganizationDetailVO.h"
+#include "domain/vo/dept/OrganizationQueryErrorVO.h"
 #include "service/dept/OrganizationService.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
@@ -28,12 +29,17 @@ public:
         API_TAG
     );
 
-    API_HANDLER_ENDPOINT_QUERY_AUTH(
+    API_HANDLER_ENDPOINT_OPTION_AUTH(
         API_M_GET,
         "/dept/name-tree",
         queryNameTree,
-        OrganizationNameTreeQuery,
-        executeQueryNameTree(query)
+        QUERIES(QueryParams, queryParams),
+        API_HANDLER_QUERY_PARAM(
+            query,
+            OrganizationNameTreeQuery,
+            queryParams
+        );
+        return executeQueryNameTree(query);
     );
 
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(
@@ -44,12 +50,17 @@ public:
         API_TAG
     );
 
-    API_HANDLER_ENDPOINT_QUERY_AUTH(
+    API_HANDLER_ENDPOINT_OPTION_AUTH(
         API_M_GET,
         "/dept/tree",
         queryListTree,
-        OrganizationListTreeQuery,
-        executeQueryListTree(query)
+        QUERIES(QueryParams, queryParams),
+        API_HANDLER_QUERY_PARAM(
+            query,
+            OrganizationListTreeQuery,
+            queryParams
+        );
+        return executeQueryListTree(query);
     );
 
     API_DEF_ENDPOINT_INFO_AUTH(
@@ -66,25 +77,31 @@ public:
         );
     );
 
-    API_HANDLER_ENDPOINT_AUTH(
+    API_HANDLER_ENDPOINT_OPTION_AUTH(
         API_M_GET,
         "/dept/detail",
         queryDetail,
         QUERY(oatpp::String, id),
-        executeQueryDetail(id)
+        return executeQueryDetail(id);
     );
 
 private:
-    OrganizationNameTreeJsonVO::Wrapper executeQueryNameTree(
+    std::shared_ptr<OutgoingResponse> executeQueryNameTree(
         const OrganizationNameTreeQuery::Wrapper& query
     );
 
-    OrganizationListTreeJsonVO::Wrapper executeQueryListTree(
+    std::shared_ptr<OutgoingResponse> executeQueryListTree(
         const OrganizationListTreeQuery::Wrapper& query
     );
 
-    OrganizationDetailJsonVO::Wrapper executeQueryDetail(
+    std::shared_ptr<OutgoingResponse> executeQueryDetail(
         const oatpp::String& id
+    );
+
+    std::shared_ptr<OutgoingResponse> createErrorResponse(
+        const Status& status,
+        int code,
+        const std::string& messageKey
     );
 };
 
