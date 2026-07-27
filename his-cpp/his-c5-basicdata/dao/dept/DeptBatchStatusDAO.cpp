@@ -1,10 +1,11 @@
 ﻿#include "DeptBatchStatusDao.h"
 #include "stdafx.h"
 #include "SqlSession.h"
+#include "DeptBatchStatusMapper.h"
 
-int DeptBatchStatusDAO::batchUpdateStatus(const DeptBatchUpdateDTO::Wrapper& updateDto)
+int DeptBatchStatusDAO::batchUpdateStatus(const std::vector<int64_t>& numIdList, const DeptBatchUpdateDTO::Wrapper& updateDto)
 {
-    if (!updateDto->idList || updateDto->idList->empty())
+    if (numIdList.empty())
     {
         return 0;
     }
@@ -14,9 +15,9 @@ int DeptBatchStatusDAO::batchUpdateStatus(const DeptBatchUpdateDTO::Wrapper& upd
     setAutoRelease(true);
 
     SqlParams params;
-    std::string sql = "UPDATE adm_organization SET status_enum=?,active_flag=?,updated_by=?,updated_at=?,version=version+1 WHERE id IN(";
+    std::string sql = "UPDATE adm_organization SET status_enum=?,updated_by=?,updated_at=? WHERE id IN(";
 
-    int idTotal = updateDto->idList->size();
+    int idTotal = numIdList.size();
     for (int i = 0; i < idTotal; i++)
     {
         if (i > 0) sql += ",";
@@ -29,19 +30,16 @@ int DeptBatchStatusDAO::batchUpdateStatus(const DeptBatchUpdateDTO::Wrapper& upd
         session->beginTransaction();
 
         std::string statusVal = *(updateDto->statusEnum.get());
-        int flagNum = updateDto->activeFlag.get() ? 1 : 0;
         std::string updateByVal = *(updateDto->updateBy.get());
         std::string timeVal = *(updateDto->updateTime.get());
 
         SQLPARAMS_PUSH(params, "s", std::string, statusVal);
-        SQLPARAMS_PUSH(params, "i", int, flagNum);
         SQLPARAMS_PUSH(params, "s", std::string, updateByVal);
         SQLPARAMS_PUSH(params, "s", std::string, timeVal);
 
-        // ✅ 修复：使用 "ll" 类型，直接传递 int64_t
-        for (int64_t id : *(updateDto->idList))
+        for (int64_t numId : numIdList)
         {
-            SQLPARAMS_PUSH(params, "ll", int64_t, id);
+            SQLPARAMS_PUSH(params, "ll", int64_t, numId);
         }
 
         int rows = session->executeUpdate(sql, params);
@@ -64,4 +62,65 @@ int DeptBatchStatusDAO::batchUpdateStatus(const DeptBatchUpdateDTO::Wrapper& upd
         OATPP_LOGE("DeptDao", "批量更新异常：%s", e.what());
         return 0;
     }
+}
+
+// ============================================================
+// 新增查询方法（父子状态校验用）
+// ============================================================
+
+int64_t DeptBatchStatusDAO::getParentDeptId(int64_t deptId)
+{
+    SqlSession* session = new SqlSession();
+    setSqlSession(session);
+    setAutoRelease(true);
+
+    SqlParams params;
+    std::string sql = "SELECT parent_id FROM adm_organization WHERE id = ? AND is_deleted = 0";
+    SQLPARAMS_PUSH(params, "ll", int64_t, deptId);
+
+    ParentIdMapper mapper;
+    return session->executeQueryOne<int64_t>(sql, mapper, params);
+}
+
+bool DeptBatchStatusDAO::hasActiveChildDept(int64_t deptId)
+{
+    SqlSession* session = new SqlSession();
+    setSqlSession(session);
+    setAutoRelease(true);
+
+    SqlParams params;
+    std::string sql = "SELECT COUNT(*) FROM adm_organization WHERE parent_id = ? AND active_flag = 1 AND is_deleted = 0";
+    SQLPARAMS_PUSH(params, "ll", int64_t, deptId);
+
+    ActiveCountMapper mapper;
+    int count = session->executeQueryOne<int>(sql, mapper, params);
+    return count > 0;
+}
+
+std::vector<int64_t> DeptBatchStatusDAO::getChildDeptIds(int64_t deptId)
+{
+    SqlSession* session = new SqlSession();
+    setSqlSession(session);
+    setAutoRelease(true);
+
+    SqlParams params;
+    std::string sql = "SELECT id FROM adm_organization WHERE parent_id = ? AND is_deleted = 0";
+    SQLPARAMS_PUSH(params, "ll", int64_t, deptId);
+
+    ChildIdListMapper mapper;
+    return session->executeQueryOne<std::vector<int64_t>>(sql, mapper, params);
+}
+
+bool DeptBatchStatusDAO::isDeptActive(int64_t deptId)
+{
+    SqlSession* session = new SqlSession();
+    setSqlSession(session);
+    setAutoRelease(true);
+
+    SqlParams params;
+    std::string sql = "SELECT active_flag FROM adm_organization WHERE id = ? AND is_deleted = 0";
+    SQLPARAMS_PUSH(params, "ll", int64_t, deptId);
+
+    ActiveFlagMapper mapper;
+    return session->executeQueryOne<bool>(sql, mapper, params);
 }

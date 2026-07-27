@@ -27,7 +27,7 @@ public:
     );
     API_HANDLER_ENDPOINT_AUTH(
         API_M_POST,
-        "/dept/batch/status",
+        "/dept/batch-status",
         batchToggleDeptStatus,
         BODY_DTO(DeptBatchStatusDTO::Wrapper, dto),
         execBatchToggleDeptStatus(dto, authObject->getPayload())
