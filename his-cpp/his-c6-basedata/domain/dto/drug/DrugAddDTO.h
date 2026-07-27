@@ -56,5 +56,6 @@ public:
 		return "";
 	}
 };
+
 #include OATPP_CODEGEN_END(DTO);
 #endif // !
