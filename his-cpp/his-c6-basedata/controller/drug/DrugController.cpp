@@ -19,7 +19,7 @@
 #include "stdafx.h"
 #include "DrugController.h"
 #include "../../service/sample/DrugService.h"
-
+#include "../../service/sample/declarative/DrugApiClient.h"
 #include <algorithm>
 #include <cctype>
 #include <cmath>
@@ -578,10 +578,21 @@ NoDataJsonVO::Wrapper DrugController::execEnableDisableDrug(const DrugEnableDisa
 }
 DrugDetailJsonVO::Wrapper execQueryOne(const String& id, const PayloadDTO& payload)
 {
-
+    // 创建客户端对象
+    API_CLIENT_CREATE(ac, om, DrugApiClient, "Drug-api");
+    // 构建凭证
+    std::string token = PayloadDTO::getTokenPrefix() + payload.getToken();
+    // 返回查询结果
+    return ac->queryById(token, id)->readBodyToDto<DrugDetailJsonVO::Wrapper>(om);
 }
 // 3.3 测试声明式服务调用2
 DrugListPageJsonVO::Wrapper execQueryAll(const DrugQuery::Wrapper& query, const PayloadDTO& payload)
 {
 
+    // 创建客户端对象
+    API_CLIENT_CREATE(ac, om, DrugApiClient, "Drug-api");
+    // 构建凭证
+    std::string token = PayloadDTO::getTokenPrefix() + payload.getToken();
+    // 返回查询结果
+    return ac->queryAll(token, query->pageIndex, query->pageSize, URIUtil::urlEncode(query->keywords))->readBodyToDto<DrugListPageJsonVO::Wrapper>(om);
 }
