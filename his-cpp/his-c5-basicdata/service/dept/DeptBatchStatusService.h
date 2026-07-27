@@ -8,7 +8,7 @@
 #include <vector>
 
 /**
- * ÅúÁ¿²Ù×÷½á¹û
+ * æ‰¹é‡æ“ä½œç»“æœ
  */
 struct BatchResult
 {
@@ -24,33 +24,33 @@ class DeptBatchStatusService
 {
 public:
     /**
-     * ÅúÁ¿ÆôÍ£¿ÆÊÒÒµÎñÂß¼­Èë¿Ú
-     * @param reqDto Ç°¶ËÌá½»ÇëÇóDTO
-     * @return ÅúÁ¿²Ù×÷½á¹û
+     * æ‰¹é‡å¯åœç§‘å®¤ä¸šåŠ¡é€»è¾‘å…¥å£
+     * @param reqDto å‰ç«¯æäº¤è¯·æ±‚DTO
+     * @return æ‰¹é‡æ“ä½œç»“æœ
      */
     BatchResult batchToggleDeptStatus(const DeptBatchStatusDTO::Wrapper& reqDto);
 
 private:
-    // ========== ¸¸×Ó×´Ì¬Ğ£Ñé·½·¨ ==========
+    // ========== çˆ¶å­çŠ¶æ€æ ¡éªŒæ–¹æ³• ==========
 
     /**
-     * Ğ£Ñé¸¸×Ó¿ÆÊÒ×´Ì¬¹æÔò
-     * ¹æÔò1£º´æÔÚÆôÓÃ×Ó½Úµã£¬²»¿ÉÍ£ÓÃ¸¸½Úµã
-     * ¹æÔò2£º¸¸½ÚµãÎ´ÆôÓÃ£¬×Ó½Úµã²»¿ÉÆôÓÃ
-     * ¹æÔò3£ºÆôÓÃ¸¸½Úµãºó£¬×Ô¶¯¼¶ÁªÆôÓÃËùÓĞ×Ó½Úµã
-     * @param deptIdList ´ı²Ù×÷µÄ¿ÆÊÒIDÁĞ±í
-     * @param targetStatus Ä¿±ê×´Ì¬ 0=Í£ÓÃ 1=ÆôÓÃ
-     * @param errorMsg ´íÎóĞÅÏ¢
-     * @return true-Ğ£ÑéÍ¨¹ı false-Ğ£ÑéÊ§°Ü
+     * æ ¡éªŒçˆ¶å­ç§‘å®¤çŠ¶æ€è§„åˆ™
+     * è§„åˆ™1ï¼šå­˜åœ¨å¯ç”¨å­èŠ‚ç‚¹ï¼Œä¸å¯åœç”¨çˆ¶èŠ‚ç‚¹
+     * è§„åˆ™2ï¼šçˆ¶èŠ‚ç‚¹æœªå¯ç”¨ï¼Œå­èŠ‚ç‚¹ä¸å¯å¯ç”¨
+     * è§„åˆ™3ï¼šå¯ç”¨çˆ¶èŠ‚ç‚¹åï¼Œè‡ªåŠ¨çº§è”å¯ç”¨æ‰€æœ‰å­èŠ‚ç‚¹
+     * @param deptIdList å¾…æ“ä½œçš„ç§‘å®¤IDåˆ—è¡¨
+     * @param targetStatus ç›®æ ‡çŠ¶æ€ 0=åœç”¨ 1=å¯ç”¨
+     * @param errorMsg é”™è¯¯ä¿¡æ¯
+     * @return true-æ ¡éªŒé€šè¿‡ false-æ ¡éªŒå¤±è´¥
      */
     bool validateParentChildStatus(const std::vector<int64_t>& deptIdList, int targetStatus, std::string& errorMsg);
 
     /**
-     * ¼¶ÁªÆôÓÃ×Ó¿ÆÊÒ
-     * @param parentIds ¸¸¿ÆÊÒIDÁĞ±í
-     * @param updateBy ²Ù×÷ÈË
-     * @param updateTime ²Ù×÷Ê±¼ä
-     * @return true-³É¹¦ false-Ê§°Ü
+     * çº§è”å¯ç”¨å­ç§‘å®¤
+     * @param parentIds çˆ¶ç§‘å®¤IDåˆ—è¡¨
+     * @param updateBy æ“ä½œäºº
+     * @param updateTime æ“ä½œæ—¶é—´
+     * @return true-æˆåŠŸ false-å¤±è´¥
      */
     bool cascadeEnableChildren(const std::vector<int64_t>& parentIds, const std::string& updateBy, const std::string& updateTime);
 };

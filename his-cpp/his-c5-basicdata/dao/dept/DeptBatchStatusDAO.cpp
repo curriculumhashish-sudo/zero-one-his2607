@@ -1,4 +1,4 @@
-﻿#include "DeptBatchStatusDao.h"
+﻿#include "DeptBatchStatusDAO.h"
 #include "stdafx.h"
 #include "SqlSession.h"
 #include "DeptBatchStatusMapper.h"
@@ -17,7 +17,7 @@ int DeptBatchStatusDAO::batchUpdateStatus(const std::vector<int64_t>& numIdList,
     SqlParams params;
     std::string sql = "UPDATE adm_organization SET status_enum=?,updated_by=?,updated_at=? WHERE id IN(";
 
-    int idTotal = numIdList.size();
+    int idTotal = static_cast<int>(numIdList.size());
     for (int i = 0; i < idTotal; i++)
     {
         if (i > 0) sql += ",";
@@ -43,7 +43,7 @@ int DeptBatchStatusDAO::batchUpdateStatus(const std::vector<int64_t>& numIdList,
         }
 
         int rows = session->executeUpdate(sql, params);
-        std::cout << "受影响行数：" << rows << std::endl;
+        std::cout << "affected rows: " << rows << std::endl;
 
         if (rows == idTotal)
         {
@@ -59,14 +59,10 @@ int DeptBatchStatusDAO::batchUpdateStatus(const std::vector<int64_t>& numIdList,
     catch (const std::exception& e)
     {
         session->rollbackTransaction();
-        OATPP_LOGE("DeptDao", "批量更新异常：%s", e.what());
+        OATPP_LOGE("DeptDao", "batch update exception: %s", e.what());
         return 0;
     }
 }
-
-// ============================================================
-// 新增查询方法（父子状态校验用）
-// ============================================================
 
 int64_t DeptBatchStatusDAO::getParentDeptId(int64_t deptId)
 {
@@ -89,12 +85,14 @@ bool DeptBatchStatusDAO::hasActiveChildDept(int64_t deptId)
     setAutoRelease(true);
 
     SqlParams params;
-    std::string sql = "SELECT COUNT(*) FROM adm_organization WHERE parent_id = ? AND active_flag = 1 AND is_deleted = 0";
+    // Prefer active_flag; also treat status_enum=ACTIVE as active for legacy inconsistent rows
+    std::string sql =
+        "SELECT COUNT(*) FROM adm_organization "
+        "WHERE parent_id = ? AND is_deleted = 0 "
+        "AND ( status_enum = 'ACTIVE')";
     SQLPARAMS_PUSH(params, "ll", int64_t, deptId);
 
-    ActiveCountMapper mapper;
-    int count = session->executeQueryOne<int>(sql, mapper, params);
-    return count > 0;
+    return session->executeQueryNumerical(sql, params) > 0;
 }
 
 std::vector<int64_t> DeptBatchStatusDAO::getChildDeptIds(int64_t deptId)
@@ -107,8 +105,9 @@ std::vector<int64_t> DeptBatchStatusDAO::getChildDeptIds(int64_t deptId)
     std::string sql = "SELECT id FROM adm_organization WHERE parent_id = ? AND is_deleted = 0";
     SQLPARAMS_PUSH(params, "ll", int64_t, deptId);
 
-    ChildIdListMapper mapper;
-    return session->executeQueryOne<std::vector<int64_t>>(sql, mapper, params);
+    // Multi-row query must use executeQuery, not executeQueryOne
+    auto rows = session->executeQuery<int64_t>(sql, ChildIdMapper(), params);
+    return std::vector<int64_t>(rows.begin(), rows.end());
 }
 
 bool DeptBatchStatusDAO::isDeptActive(int64_t deptId)
@@ -118,7 +117,9 @@ bool DeptBatchStatusDAO::isDeptActive(int64_t deptId)
     setAutoRelease(true);
 
     SqlParams params;
-    std::string sql = "SELECT active_flag FROM adm_organization WHERE id = ? AND is_deleted = 0";
+    std::string sql =
+        "SELECT CASE WHEN (status_enum = 'ACTIVE') THEN 1 ELSE 0 END "
+        "FROM adm_organization WHERE id = ? AND is_deleted = 0";
     SQLPARAMS_PUSH(params, "ll", int64_t, deptId);
 
     ActiveFlagMapper mapper;

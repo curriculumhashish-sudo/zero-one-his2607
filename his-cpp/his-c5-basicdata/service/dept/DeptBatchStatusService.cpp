@@ -1,13 +1,14 @@
 #include "DeptBatchStatusService.h"
 #include "SimpleDateTimeFormat.h"
 #include "stdafx.h"
+#include <algorithm>
 #include <unordered_set>
 
 BatchResult DeptBatchStatusService::batchToggleDeptStatus(const DeptBatchStatusDTO::Wrapper& reqDto)
 {
     BatchResult result;
 
-    // 1. ×ª»»×Ö·û´®IDÎªÊı×ÖID£¨È¥ÖØ£©
+    // 1. è½¬æ¢å­—ç¬¦ä¸²IDä¸ºæ•°å­—IDï¼ˆå»é‡ï¼‰
     std::vector<int64_t> numIdList;
     std::unordered_set<int64_t> uniqueIdSet;
 
@@ -28,13 +29,13 @@ BatchResult DeptBatchStatusService::batchToggleDeptStatus(const DeptBatchStatusD
             catch (...)
             {
                 result.success = false;
-                result.errorMsg = "¿ÆÊÒID¸ñÊ½×ª»»Ê§°Ü: " + std::string(strId->c_str());
+                result.errorMsg = ZH_WORDS_GETTER("dept.batch-status.error.id-convert-fail");
                 return result;
             }
         }
     }
 
-    // 2. Ğ£Ñé¸¸×Ó¿ÆÊÒ×´Ì¬¹æÔò
+    // 2. æ ¡éªŒçˆ¶å­ç§‘å®¤çŠ¶æ€è§„åˆ™
     DeptBatchStatusDAO deptDao;
     std::string validateError;
     if (!validateParentChildStatus(numIdList, reqDto->targetStatus, validateError))
@@ -44,7 +45,7 @@ BatchResult DeptBatchStatusService::batchToggleDeptStatus(const DeptBatchStatusD
         return result;
     }
 
-    // 3. ×é×°¸üĞÂDTO
+    // 3. ç»„è£…æ›´æ–°DTO
     auto updateDto = DeptBatchUpdateDTO::createShared();
     updateDto->numIdList = numIdList;
 
@@ -60,33 +61,34 @@ BatchResult DeptBatchStatusService::batchToggleDeptStatus(const DeptBatchStatusD
     updateDto->updateBy = reqDto->getPayload()->getUsername();
     updateDto->updateTime = SimpleDateTimeFormat::format();
 
-    // 4. Ö´ĞĞÅúÁ¿¸üĞÂ
+    // 4. æ‰§è¡Œæ‰¹é‡æ›´æ–°
     int affectRows = 0;
 
     if (reqDto->targetStatus == 1)
     {
-        // ÆôÓÃ²Ù×÷£ºÏÈ¸üĞÂ¸¸¿ÆÊÒ
+        // ========== å¯ç”¨æ“ä½œ ==========
+        // å…ˆæ›´æ–°çˆ¶ç§‘å®¤
         affectRows = deptDao.batchUpdateStatus(numIdList, updateDto);
 
-        // ÔÙ¼¶ÁªÆôÓÃËùÓĞ×Ó¿ÆÊÒ
+        // å†çº§è”å¯ç”¨æ‰€æœ‰å­ç§‘å®¤ï¼ˆä¸ç®¡ä¹‹å‰çŠ¶æ€å¦‚ä½•ï¼Œå…¨éƒ¨å¯ç”¨ï¼‰
         if (affectRows == static_cast<int>(numIdList.size()))
         {
             bool cascadeSuccess = cascadeEnableChildren(numIdList, updateDto->updateBy, updateDto->updateTime);
             if (!cascadeSuccess)
             {
                 result.success = false;
-                result.errorMsg = "¼¶ÁªÆôÓÃ×Ó¿ÆÊÒÊ§°Ü£¬ÒÑÈ«²¿»Ø¹ö";
+                result.errorMsg = ZH_WORDS_GETTER("dept.batch-status.error.cascade-fail");
                 return result;
             }
         }
     }
     else
     {
-        // Í£ÓÃ²Ù×÷
+        // ========== åœç”¨æ“ä½œ ==========
         affectRows = deptDao.batchUpdateStatus(numIdList, updateDto);
     }
 
-    // 5. ÅĞ¶Ï½á¹û
+    // 5. åˆ¤æ–­ç»“æœ
     if (affectRows == static_cast<int>(numIdList.size()))
     {
         result.success = true;
@@ -96,13 +98,13 @@ BatchResult DeptBatchStatusService::batchToggleDeptStatus(const DeptBatchStatusD
     else if (affectRows == 0)
     {
         result.success = false;
-        result.errorMsg = "ÅúÁ¿²Ù×÷Ê§°Ü£¬ÎŞÆ¥Åä¿ÆÊÒÊı¾İ£¬Çë¼ì²é¿ÆÊÒIDÊÇ·ñÕıÈ·»ò¿ÆÊÒÊÇ·ñÒÑ±»É¾³ı";
+        result.errorMsg = ZH_WORDS_GETTER("dept.batch-status.error.no-match");
         result.failCount = static_cast<int>(numIdList.size());
     }
     else
     {
         result.success = false;
-        result.errorMsg = "ÅúÁ¿²Ù×÷²¿·ÖÊ§°Ü£¬ÒÑÈ«²¿»Ø¹ö";
+        result.errorMsg = ZH_WORDS_GETTER("dept.batch-status.error.partial-fail");
         result.successCount = affectRows;
         result.failCount = static_cast<int>(numIdList.size()) - affectRows;
     }
@@ -113,29 +115,41 @@ BatchResult DeptBatchStatusService::batchToggleDeptStatus(const DeptBatchStatusD
 bool DeptBatchStatusService::validateParentChildStatus(const std::vector<int64_t>& deptIdList, int targetStatus, std::string& errorMsg)
 {
     DeptBatchStatusDAO deptDao;
+    std::unordered_set<int64_t> idSet(deptIdList.begin(), deptIdList.end());
 
+    // å…ˆæ£€æŸ¥æ˜¯å¦å­˜åœ¨çˆ¶å­å…³ç³»å†²çª
     for (int64_t deptId : deptIdList)
     {
-        if (targetStatus == 0)  // Í£ÓÃ²Ù×÷
+        if (targetStatus == 0)
         {
-            // ¹æÔò1£º´æÔÚÆôÓÃ×Ó½Úµã£¬²»¿ÉÍ£ÓÃ¸¸½Úµã
+            // è§„åˆ™1ï¼šå­˜åœ¨å¯ç”¨å­èŠ‚ç‚¹ï¼Œä¸å¯åœç”¨çˆ¶èŠ‚ç‚¹
             if (deptDao.hasActiveChildDept(deptId))
             {
-                errorMsg = "¿ÆÊÒID [" + std::to_string(deptId) + "] ´æÔÚÆôÓÃµÄ×Ó¿ÆÊÒ£¬ÇëÏÈÍ£ÓÃ×Ó¿ÆÊÒ";
-                return false;
+                auto childIds = deptDao.getChildDeptIds(deptId);
+                for (int64_t childId : childIds)
+                {
+                    if (!deptDao.isDeptActive(childId))
+                    {
+                        continue;
+                    }
+                    if (idSet.find(childId) == idSet.end())
+                    {
+                        errorMsg = ZH_WORDS_GETTER("dept.batch-status.error.has-active-child");
+                        return false;
+                    }
+                }
             }
         }
-        else  // ÆôÓÃ²Ù×÷
+        else
         {
-            // ¹æÔò2£º¸¸½ÚµãÎ´ÆôÓÃ£¬×Ó½Úµã²»¿ÉÆôÓÃ£¨Ö»¶Ô·Ç¸ù½ÚµãĞ£Ñé£©
+            // è§„åˆ™2ï¼šçˆ¶èŠ‚ç‚¹æœªå¯ç”¨ï¼Œå­èŠ‚ç‚¹ä¸å¯å¯ç”¨
             int64_t parentId = deptDao.getParentDeptId(deptId);
-            if (parentId != 0)  // ÓĞ¸¸¿ÆÊÒ
+            if (parentId != 0)  // æœ‰çˆ¶ç§‘å®¤
             {
-                // ¼ì²é¸¸¿ÆÊÒÊÇ·ñÒ²ÔÚ±¾´ÎÅúÁ¿ÁĞ±íÖĞ£¨Èç¹ûÔÚ£¬ºóĞø»áÒ»ÆğÆôÓÃ£©
-                bool parentInList = std::find(deptIdList.begin(), deptIdList.end(), parentId) != deptIdList.end();
+                bool parentInList = idSet.find(parentId) != idSet.end();
                 if (!parentInList && !deptDao.isDeptActive(parentId))
                 {
-                    errorMsg = "¿ÆÊÒID [" + std::to_string(deptId) + "] µÄ¸¸¿ÆÊÒÎ´ÆôÓÃ£¬ÇëÏÈÆôÓÃ¸¸¿ÆÊÒ";
+                    errorMsg = ZH_WORDS_GETTER("dept.batch-status.error.parent-inactive");
                     return false;
                 }
             }
@@ -148,26 +162,38 @@ bool DeptBatchStatusService::cascadeEnableChildren(const std::vector<int64_t>& p
 {
     DeptBatchStatusDAO deptDao;
 
-    // »ñÈ¡ËùÓĞĞèÒªÆôÓÃµÄ×Ó¿ÆÊÒID
-    std::vector<int64_t> allChildIds;
+    // Rule 2: enabling parent cascades to all direct children
+    std::vector<int64_t> needEnableIds;
+    std::unordered_set<int64_t> childIdSet;
     for (int64_t parentId : parentIds)
     {
         auto childIds = deptDao.getChildDeptIds(parentId);
-        allChildIds.insert(allChildIds.end(), childIds.begin(), childIds.end());
+        for (int64_t childId : childIds)
+        {
+            if (!childIdSet.insert(childId).second)
+            {
+                continue;
+            }
+            // Skip children already active (e.g. already updated in this batch)
+            if (!deptDao.isDeptActive(childId))
+            {
+                needEnableIds.push_back(childId);
+            }
+        }
     }
 
-    if (allChildIds.empty())
+    if (needEnableIds.empty())
     {
-        return true;  // Ã»ÓĞ×Ó¿ÆÊÒ£¬ÎŞĞè¼¶Áª
+        return true;  // æ²¡æœ‰å­ç§‘å®¤ï¼Œæ— éœ€çº§è”
     }
 
-    // ¼¶ÁªÆôÓÃËùÓĞ×Ó¿ÆÊÒ
+    // çº§è”å¯ç”¨æ‰€æœ‰å­ç§‘å®¤
     auto updateDto = DeptBatchUpdateDTO::createShared();
-    updateDto->numIdList = allChildIds;
+    updateDto->numIdList = needEnableIds;
     updateDto->statusEnum = "ACTIVE";
     updateDto->updateBy = updateBy;
     updateDto->updateTime = updateTime;
 
-    int affectRows = deptDao.batchUpdateStatus(allChildIds, updateDto);
-    return affectRows == static_cast<int>(allChildIds.size());
+    int affectRows = deptDao.batchUpdateStatus(needEnableIds, updateDto);
+    return affectRows == static_cast<int>(needEnableIds.size());
 }
