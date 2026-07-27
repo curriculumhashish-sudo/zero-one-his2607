@@ -19,12 +19,14 @@
 #pragma once
 #ifndef _ADMISSION_TRANSFER_SERVICE_H_
 #define _ADMISSION_TRANSFER_SERVICE_H_
+#include "domain/dto/admissiontransfer/ExecuteInpatientDischargeDTO.h"
+#include "domain/dto/admissiontransfer/ClearDischargedBedDTO.h"
 
 class AdmissionTransferService
 {
 public:
-    AdmissionTransferService() = default;
-    ~AdmissionTransferService() = default;
+	ExecuteInpatientDischargeResponseDTO::Wrapper discharge(const ExecuteInpatientDischargeDTO::Wrapper& dto,const std::string& operatorId);
+	ClearDischargedBedResponseDTO::Wrapper clearBed(const ClearDischargedBedDTO::Wrapper& dto,const std::string& operatorId);
 };
 
 #endif // !_ADMISSION_TRANSFER_SERVICE_H_

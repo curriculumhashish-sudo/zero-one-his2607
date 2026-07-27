@@ -19,12 +19,16 @@
 #pragma once
 #ifndef _MedicalOrderVerification_SERVICE_H_
 #define _MedicalOrderVerification_SERVICE_H_
+#include "domain/query/medicalorderverification/medicalorderverificationQuery.h"
+#include "domain/dto/medicalorderverification/VerificationDTO.h"
+#include "domain/dto/medicalorderverification/medicalOrderVerificationDetailDTO.h"
 
 class MedicalOrderVerificationService
 {
 public:
-    MedicalOrderVerificationService() = default;
-    ~MedicalOrderVerificationService() = default;
+	oatpp::List<medicalOrderVerificationDetailDTO::Wrapper> list(const MedicalVerificationQuery::Wrapper& query);
+	VerifyPassResponseDTO::Wrapper verify(const VerifyPassRequestDTO::Wrapper& dto,const std::string& operatorId);
+	RejectOrdersResponseDTO::Wrapper reject(const RejectOrdersRequestDTO::Wrapper& dto,const std::string& operatorId);
 };
 
 #endif // !_MedicalOrderVerification_SERVICE_H_

@@ -18,3 +18,20 @@
 */
 #include "stdafx.h"
 #include "EncounterManageService.h"
+#include "dao/encountermanage/EncounterManageDAO.h"
+
+PagePatientQueueDTO::Wrapper EncounterManageService::listPatients(const PagePatientQueueQuery::Wrapper& query)
+{
+	auto page=PagePatientQueueDTO::createShared(); page->rows=oatpp::List<PatientQueueItemDTO::Wrapper>::createShared();
+	page->pageIndex=query->pageIndex; page->pageSize=query->pageSize;
+	EncounterManageDAO dao; page->total=dao.countPatients(query); page->calcPages();
+	for (auto& row:dao.selectPatients(query)) page->addData(row);
+	return page;
+}
+
+PatientStatisticsDTO::Wrapper EncounterManageService::getStatistics(const PatientStatisticsQuery::Wrapper& query)
+{
+	auto dto=PatientStatisticsDTO::createShared(); EncounterManageDAO dao;
+	dto->totalCount=dao.countPatients(query); dto->pendingAuditCount=dao.countPendingAudit(query); dto->pendingExecuteCount=dao.countPendingExecute(query);
+	return dto;
+}
