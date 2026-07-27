@@ -18,18 +18,19 @@
 */
 #include "stdafx.h"
 #include "MedicationCollectionController.h"
+#include "service/medicationcollection/MedicationCollectionService.h"
 
 PagePendingDispenseSummaryLinesJsonVO::Wrapper
 MedicationCollectionController::execQuerySummaryOrderItems(
 	const PagePendingDispenseSummaryLinesQuery::Wrapper& query)
 {
-	return {};
+	auto vo=PagePendingDispenseSummaryLinesJsonVO::createShared();if(!query||!query->encounterIds||query->encounterIds->empty()||query->pageIndex.getValue(0)<1||query->pageSize.getValue(0)<1){vo->init(nullptr,RS_PARAMS_INVALID);return vo;}vo->success(MedicationCollectionService().listPending(query));return vo;
 }
 
 CreateMedicationSummaryJsonVO::Wrapper MedicationCollectionController::execSummaryMedication(
-	const CreateMedicationSummaryDTO::Wrapper& dto)
+	const CreateMedicationSummaryDTO::Wrapper& dto,const PayloadDTO& payload)
 {
-	return {};
+	auto vo=CreateMedicationSummaryJsonVO::createShared();auto result=MedicationCollectionService().summarize(dto,payload.getUsername());result->summaryNos&&!result->summaryNos->empty()?vo->success(result):vo->fail(result);return vo;
 }
 
 SubmitSummaryJsonVO::Wrapper MedicationCollectionController::execSubmitSummary(

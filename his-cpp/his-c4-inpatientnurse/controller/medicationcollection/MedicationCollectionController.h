@@ -93,7 +93,7 @@ public:
 		"/medicationcollection/summary-medication",
 		summaryMedication,
 		BODY_DTO(CreateMedicationSummaryDTO::Wrapper, dto),
-		execSummaryMedication(dto));
+		execSummaryMedication(dto, authObject->getPayload()));
 
 	// Submit summary slips to pharmacy (batch)
 	API_DEF_ENDPOINT_INFO_AUTH(
@@ -133,7 +133,7 @@ private:
 	PagePendingDispenseSummaryLinesJsonVO::Wrapper execQuerySummaryOrderItems(
 		const PagePendingDispenseSummaryLinesQuery::Wrapper& query);
 	CreateMedicationSummaryJsonVO::Wrapper execSummaryMedication(
-		const CreateMedicationSummaryDTO::Wrapper& dto);
+		const CreateMedicationSummaryDTO::Wrapper& dto,const PayloadDTO& payload);
 	SubmitSummaryJsonVO::Wrapper execSubmitSummary(
 		const SubmitSummaryRequestDTO::Wrapper& dto);
 	CancelSummaryJsonVO::Wrapper execCancelSummary(

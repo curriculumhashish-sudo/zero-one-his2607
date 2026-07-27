@@ -51,7 +51,7 @@ public:
 		"/admissiontransfer/execute-inpatient-discharge",
 		executeInpatientDischarge,
 		BODY_DTO(ExecuteInpatientDischargeDTO::Wrapper, dto),
-		execExecuteInpatientDischarge(dto));
+		execExecuteInpatientDischarge(dto, authObject->getPayload()));
 
 	// Release the occupied bed after inpatient settlement is completed.
 	API_DEF_ENDPOINT_INFO_AUTH(
@@ -68,13 +68,13 @@ public:
 		"/admissiontransfer/clear-discharged-bed",
 		clearDischargedBed,
 		BODY_DTO(ClearDischargedBedDTO::Wrapper, dto),
-		execClearDischargedBed(dto));
+		execClearDischargedBed(dto, authObject->getPayload()));
 
 private:
 	ExecuteInpatientDischargeJsonVO::Wrapper execExecuteInpatientDischarge(
-		const ExecuteInpatientDischargeDTO::Wrapper& dto);
+		const ExecuteInpatientDischargeDTO::Wrapper& dto,const PayloadDTO& payload);
 	ClearDischargedBedJsonVO::Wrapper execClearDischargedBed(
-		const ClearDischargedBedDTO::Wrapper& dto);
+		const ClearDischargedBedDTO::Wrapper& dto,const PayloadDTO& payload);
 };
 
 #undef API_TAG
