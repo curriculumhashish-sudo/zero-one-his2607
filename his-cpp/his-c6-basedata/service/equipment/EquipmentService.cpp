@@ -4,6 +4,7 @@
 #include "id/UuidFacade.h"
 #include "SimpleDateTimeFormat.h"
 
+// 列表分页
 EquipmentDetailDTO::Wrapper EquipmentService::listAll(const EquipmentQuery::Wrapper& query)
 {
 	// 构建返回对象
@@ -33,6 +34,7 @@ EquipmentDetailDTO::Wrapper EquipmentService::listAll(const EquipmentQuery::Wrap
 	return pages;
 }
 
+// 通过id查询
 EquipmentDTO::Wrapper EquipmentService::getById(std::string id)
 {
 	// 查询数据
