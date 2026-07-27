@@ -23,5 +23,5 @@ public:
 	uint64_t count(const GetCategoryDetailsQuery::Wrapper& query);
 
 	// 查询费用大类分组汇总列表
-	std::list<GetCategoryDetailDO> selectWithPage(const GetCategoryDetailsQuery::Wrapper& query);
+	std::list<GetCategoryDetailsDO> selectWithPage(const GetCategoryDetailsQuery::Wrapper& query);
 };

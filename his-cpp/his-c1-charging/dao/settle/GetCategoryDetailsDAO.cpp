@@ -36,11 +36,12 @@ uint64_t GetCategoryDetailsDAO::count(const GetCategoryDetailsQuery::Wrapper& qu
 		<< " LEFT JOIN adm_encounter e ON e.encounter_id = ci.encounter_id ";
 
 	sql << queryConditionBuilder(query, params);
-	return getSession()->executeQueryNumerical(sql.str(), params);
+	
+	return sqlSession->executeQueryNumerical(sql.str(), params);
 }
 
 // 费用大类分组汇总查询
-std::list<GetCategoryDetailDO> GetCategoryDetailsDAO::selectWithPage(const GetCategoryDetailsQuery::Wrapper& query)
+std::list<GetCategoryDetailsDO> GetCategoryDetailsDAO::selectWithPage(const GetCategoryDetailsQuery::Wrapper& query)
 {
 	SqlParams params;
 	std::ostringstream sql;
@@ -58,5 +59,7 @@ std::list<GetCategoryDetailDO> GetCategoryDetailsDAO::selectWithPage(const GetCa
 		<< " ORDER BY cid.charge_type_name ";
 
 	GetCategoryDetailsMapper mapper;
-	return getSession()->executeQuery<GetCategoryDetailDO>(sql.str(), mapper, params);
+	
+	return sqlSession->executeQuery<GetCategoryDetailsDO>(
+		sql.str(), GetCategoryDetailsMapper(), params);
 }

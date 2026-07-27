@@ -11,12 +11,12 @@
 #include "../../domain/do/settle/GetCategoryDetailsDO.h"
 
 // 值语义Mapper - 用于列表查询，返回 std::list<GetCategoryDetailDO>
-class GetCategoryDetailsMapper : public Mapper<GetCategoryDetailDO>
+class GetCategoryDetailsMapper : public Mapper<GetCategoryDetailsDO>
 {
 public:
-	GetCategoryDetailDO mapper(ResultSet* resultSet) const override
+	GetCategoryDetailsDO mapper(ResultSet* resultSet) const override
 	{
-		GetCategoryDetailDO data;
+		GetCategoryDetailsDO data;
 		data.setCharge_type_name(resultSet->getString("charge_type_name"));
 		data.setType_total_fee(resultSet->getDouble("type_total_fee"));
 		return data;
@@ -29,7 +29,7 @@ class PtrGetCategoryDetailsMapper : public Mapper<PtrGetCategoryDetailDO>
 public:
 	PtrGetCategoryDetailDO mapper(ResultSet* resultSet) const override
 	{
-		auto data = std::make_shared<GetCategoryDetailDO>();
+		auto data = std::make_shared<GetCategoryDetailsDO>();
 		data->setCharge_type_name(resultSet->getString("charge_type_name"));
 		data->setType_total_fee(resultSet->getDouble("type_total_fee"));
 		return data;

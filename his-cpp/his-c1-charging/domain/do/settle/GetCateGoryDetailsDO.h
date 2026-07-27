@@ -1,11 +1,13 @@
-#ifndef _GET_CATEGORY_DETAIL_DO_
-#define _GET_CATEGORY_DETAIL_DO_
-#include "../Dolnclude.h"
+#pragma once
+#ifndef _GET_CATEGORY_DETAILS_DO_
+#define _GET_CATEGORY_DETAILS_DO_
+
+#include "../DoInclude.h"
 
 /**
  * 费用大类明细实体类
  */
-class GetCategoryDetailDO : public BaseDO
+class GetCategoryDetailsDO : public BaseDO
 {
     MYSQL_SYNTHESIZE(long long, encounter_id, Encounter_id);
     // 序号
@@ -16,7 +18,7 @@ class GetCategoryDetailDO : public BaseDO
     MYSQL_SYNTHESIZE(double, type_total_fee, Type_total_fee);
 
 public:
-    GetCategoryDetailDO() : BaseDO("GetCategoryDetail")
+    GetCategoryDetailsDO() : BaseDO("GetCategoryDetails")
     {
         MYSQL_ADD_FIELD_PK("encounter_id", "ll", encounter_id);
         MYSQL_ADD_FIELD("sort_num", "i", sort_num);
@@ -25,6 +27,6 @@ public:
     }
 };
 
-typedef std::shared_ptr<GetCategoryDetailDO> PtrGetCategoryDetailDO;
+typedef std::shared_ptr<GetCategoryDetailsDO> PtrGetCategoryDetailDO;
 
-#endif // !_GET_CATEGORY_DETAIL_DO_
+#endif // !_GET_CATEGORY_DETAILS_DO_

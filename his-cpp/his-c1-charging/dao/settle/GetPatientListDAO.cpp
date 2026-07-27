@@ -41,7 +41,7 @@ uint64_t GetPatientListDAO::count(const GetPatientListQuery::Wrapper& query)
 		<< " LEFT JOIN adm_patient p ON e.patient_id = p.id ";
 	sql << queryConditionBuilder(query, params);
 
-	return getSession()->executeQueryNumerical(sql.str(), params);
+	return sqlSession->executeQueryNumerical(sql.str(), params);
 }
 
 
@@ -68,10 +68,12 @@ std::list<GetPatientListDO> GetPatientListDAO::selectWithPage(const GetPatientLi
 	sql << queryConditionBuilder(query, params);
 
 	sql << " ORDER BY e.admit_date DESC "
-		<< " LIMIT " << std::to_string((int64_t)(query->pageIndex.getGetValue(1) - 1) * query->pageSize.getGetValue(10))
-		<< " ," << std::to_string((int64_t)query->pageSize.getGetValue(10));
+		<< " LIMIT " << std::to_string((int64_t)(query->pageIndex.getValue(1) - 1) * query->pageSize.getValue(10))
+		<< " ," << std::to_string((int64_t)query->pageSize.getValue(10));
 
 	GetPatientListMapper mapper;
-	return getSession()->executeQuery<GetPatientListDO>(sql.str(), mapper, params);
+	return sqlSession->executeQuery<GetPatientListDO>(
+		sql.str(), GetPatientListMapper(), params);
+	
 }
 

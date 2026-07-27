@@ -28,7 +28,7 @@ uint64_t GetTotalFeesDAO::count(const GetTotalFeesQuery::Wrapper& query)
 		<< " LEFT JOIN fin_payment_rec_detail prd ON cs.encounter_id = prd.encounter_id ";
 	sql << queryConditionBuilder(query, params);
 
-	return getSession()->executeQueryNumerical(sql.str(), params);
+	return sqlSession->executeQueryNumerical(sql.str(), params);
 }
 
 // 查询患者费用合计汇总
@@ -48,5 +48,5 @@ std::list<GetTotalFeesDO> GetTotalFeesDAO::selectWithPage(const GetTotalFeesQuer
 	sql << queryConditionBuilder(query, params);
 
 	GetTotalFeesMapper mapper;
-	return getSession()->executeQuery<GetTotalFeesDO>(sql.str(), mapper, params);
+	return sqlSession->executeQuery<GetTotalFeesDO>(sql.str(), GetTotalFeesMapper(), params);
 }

@@ -1,6 +1,7 @@
+#pragma once
 #ifndef _GET_TOTAL_FEES_DO_
 #define _GET_TOTAL_FEES_DO_
-#include "../Dolnclude.h"
+#include "../DoInclude.h"
 
 
 class GetTotalFeesDO : public BaseDO

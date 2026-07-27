@@ -212,3 +212,6 @@ if(WIN32)
 	# 复制项目配置到可执行文件目录
 	install (DIRECTORY "conf" DESTINATION ${appName})
 endif()
+
+
+
