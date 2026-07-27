@@ -4,11 +4,11 @@
 #include "ApiHelper.h"
 #include "Macros.h"
 using namespace oatpp;
-#include "domain/query/organization/OrganizationNameTreeQuery.h"
-#include "domain/query/organization/OrganizationListTreeQuery.h"
-#include "domain/vo/organization/OrganizationTreeVO.h"
-#include "domain/vo/organization/OrganizationDetailVO.h"
-#include "service/organization/OrganizationService.h"
+#include "domain/query/dept/OrganizationNameTreeQuery.h"
+#include "domain/query/dept/OrganizationListTreeQuery.h"
+#include "domain/vo/dept/OrganizationTreeVO.h"
+#include "domain/vo/dept/OrganizationDetailVO.h"
+#include "service/dept/OrganizationService.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
@@ -21,7 +21,7 @@ class OrganizationController
 
 public:
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(
-        ZH_WORDS_GETTER("dept.endpoints.nameTree"),
+        ZH_WORDS_GETTER("dept.organizationQuery.endpoints.nameTree"),
         queryNameTree,
         OrganizationNameTreeQuery,
         OrganizationNameTreeJsonVO::Wrapper,
@@ -30,14 +30,14 @@ public:
 
     API_HANDLER_ENDPOINT_QUERY_AUTH(
         API_M_GET,
-        "/organization/name-tree",
+        "/dept/name-tree",
         queryNameTree,
         OrganizationNameTreeQuery,
         executeQueryNameTree(query)
     );
 
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(
-        ZH_WORDS_GETTER("dept.endpoints.listTree"),
+        ZH_WORDS_GETTER("dept.organizationQuery.endpoints.listTree"),
         queryListTree,
         OrganizationListTreeQuery,
         OrganizationListTreeJsonVO::Wrapper,
@@ -46,21 +46,21 @@ public:
 
     API_HANDLER_ENDPOINT_QUERY_AUTH(
         API_M_GET,
-        "/organization/tree",
+        "/dept/tree",
         queryListTree,
         OrganizationListTreeQuery,
         executeQueryListTree(query)
     );
 
     API_DEF_ENDPOINT_INFO_AUTH(
-        ZH_WORDS_GETTER("dept.endpoints.detail"),
+        ZH_WORDS_GETTER("dept.organizationQuery.endpoints.detail"),
         queryDetail,
         OrganizationDetailJsonVO::Wrapper,
         API_TAG,
         API_DEF_ADD_QUERY_PARAMS(
             String,
             "id",
-            ZH_WORDS_GETTER("dept.queries.id"),
+            ZH_WORDS_GETTER("dept.organizationQuery.queries.id"),
             "322663218269917184",
             true
         );
@@ -68,7 +68,7 @@ public:
 
     API_HANDLER_ENDPOINT_AUTH(
         API_M_GET,
-        "/organization/detail",
+        "/dept/detail",
         queryDetail,
         QUERY(oatpp::String, id),
         executeQueryDetail(id)

@@ -1,11 +1,11 @@
 #ifndef _ORGANIZATIONSERVICE_H_
 #define _ORGANIZATIONSERVICE_H_
 
-#include "domain/query/organization/OrganizationNameTreeQuery.h"
-#include "domain/query/organization/OrganizationListTreeQuery.h"
-#include "domain/vo/organization/OrganizationTreeVO.h"
-#include "domain/vo/organization/OrganizationDetailVO.h"
-#include"domain/do/organization/adm_organizationDO.h"
+#include "domain/query/dept/OrganizationNameTreeQuery.h"
+#include "domain/query/dept/OrganizationListTreeQuery.h"
+#include "domain/vo/dept/OrganizationTreeVO.h"
+#include "domain/vo/dept/OrganizationDetailVO.h"
+#include "domain/do/dept/adm_organizationDO.h"
 
 class OrganizationService
 {

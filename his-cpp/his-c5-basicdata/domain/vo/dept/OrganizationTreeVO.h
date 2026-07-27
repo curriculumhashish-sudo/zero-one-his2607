@@ -2,8 +2,8 @@
 #define _ORGANIZATIONTREEVO_H_
 
 #include "../../GlobalInclude.h"
-#include "../../dto/organization/OrganizationNameTreeDTO.h"
-#include "../../dto/organization/OrganizationListTreeDTO.h"
+#include "../../dto/dept/OrganizationNameTreeDTO.h"
+#include "../../dto/dept/OrganizationListTreeDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 

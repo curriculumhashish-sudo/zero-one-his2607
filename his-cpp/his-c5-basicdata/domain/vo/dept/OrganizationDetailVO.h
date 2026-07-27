@@ -2,7 +2,7 @@
 #define _ORGANIZATIONDETAILVO_H_
 
 #include "../../GlobalInclude.h"
-#include "../../dto/organization/OrganizationDetailDTO.h"
+#include "../../dto/dept/OrganizationDetailDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 

@@ -11,26 +11,26 @@ class OrganizationListTreeQuery : public oatpp::DTO
 
     API_DTO_FIELD_DEFAULT(
         oatpp::String,
-        type_enum,
-        ZH_WORDS_GETTER("organization.queries.typeEnum")
+        typeEnum,
+        ZH_WORDS_GETTER("dept.organizationQuery.queries.typeEnum")
     );
 
     API_DTO_FIELD_DEFAULT(
         oatpp::String,
-        class_enum,
-        ZH_WORDS_GETTER("organization.queries.classEnum")
+        classEnum,
+        ZH_WORDS_GETTER("dept.organizationQuery.queries.classEnum")
     );
 
     API_DTO_FIELD_DEFAULT(
         oatpp::String,
-        status_enum,
-        ZH_WORDS_GETTER("organization.queries.statusEnum")
+        statusEnum,
+        ZH_WORDS_GETTER("dept.organizationQuery.queries.statusEnum")
     );
 
     API_DTO_FIELD_DEFAULT(
         oatpp::String,
         keyword,
-        ZH_WORDS_GETTER("organization.queries.keyword")
+        ZH_WORDS_GETTER("dept.organizationQuery.queries.keyword")
     );
 };
 

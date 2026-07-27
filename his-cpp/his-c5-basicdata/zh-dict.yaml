@@ -79,10 +79,38 @@ dept:
       disable: 批量停用科室成功
     fail:
       empty: 批量操作失败，无匹配科室数据
-  endpoints:
-    nameTree: 获取科室名称树
-    listTree: 获取科室列表树
-    detail: 获取科室详情
+  organizationQuery:
+    endpoints:
+      nameTree: 获取科室名称树
+      listTree: 获取科室列表树
+      detail: 获取科室详情
+    fields:
+      id: 科室唯一标识
+      name: 科室名称
+      parentId: 上级科室唯一标识
+      defDoctorId: 默认医生唯一标识
+      busNo: 科室业务编码
+      caty: 科别
+      typeEnum: 科室类型编码
+      classEnum: 科室类别编码
+      statusEnum: 科室状态编码
+      ybNo: 医保编码
+      ybName: 医保名称
+      medinsId: 机构标识
+      medinsAdmdvs: 医保区划
+      medinsType: 机构类型
+      medinsLv: 机构等级
+      pyStr: 拼音码
+      wbStr: 五笔码
+      displayOrder: 显示顺序
+      children: 下级科室列表
+    queries:
+      typeEnum: 按科室类型编码筛选
+      classEnum: 按科室类别编码筛选
+      statusEnum: 按科室状态编码筛选
+      keyword: 按科室名称、枚举编码及医保信息进行部分匹配，命中节点时保留祖先路径
+      excludeId: 编辑时需要排除的科室唯一标识
+      id: 科室唯一标识
   field:
     id: 科室编号
     name: 科室名称
@@ -104,25 +132,6 @@ dept:
     active-flag: 是否启用
     deptIdList: 批量科室ID数组
     targetStatus: 目标启停状态(0停用/1启用)
-    typeEnum: 科室类型
-    classEnum: 科室类别
-    statusEnum: 科室状态
-    ybNo: 医保编码
-    ybName: 医保名称
-    medinsId: 机构标识
-    medinsAdmdvs: 医保区划
-    medinsType: 机构类型
-    medinsLv: 机构等级
-    pyStr: 拼音码
-    wbStr: 五笔码
-    displayOrder: 显示顺序
-    children: 下级科室列表
-  queries:
-    typeEnum: 按科室类型筛选
-    classEnum: 按科室类别筛选
-    statusEnum: 按科室状态筛选
-    keyword: 按科室及医保相关信息进行关键词筛选
-    id: 科室唯一标识
 
 # ============================================================
 # 供应商管理 (sup) — 供应商 CRUD + 批量操作
