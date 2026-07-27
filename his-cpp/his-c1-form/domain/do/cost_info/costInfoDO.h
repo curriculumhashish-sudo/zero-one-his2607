@@ -6,57 +6,31 @@
 
 class CostInfoDO : public BaseDO
 {
-	// 序号
 	MYSQL_SYNTHESIZE(string, id, Id);
-	// 门诊号
 	MYSQL_SYNTHESIZE(string, clinicNo, ClinicNo);
-	// 患者姓名
 	MYSQL_SYNTHESIZE(string, name, Name);
-	// 就诊日期
 	MYSQL_SYNTHESIZE(string, date, Date);
-	// 大类
 	MYSQL_SYNTHESIZE(string, feeClass, FeeClass);
-	// 细分类
 	MYSQL_SYNTHESIZE(string, detailClass, DetailClass);
-	// 项目名称
 	MYSQL_SYNTHESIZE(string, projectName, ProjectName);
-	// 院内编码
 	MYSQL_SYNTHESIZE(string, hisID, HisID);
-	// 规格
 	MYSQL_SYNTHESIZE(string, spec, Spec);
-	// 数量
 	MYSQL_SYNTHESIZE(double, number, Number);
-	// 单位
 	MYSQL_SYNTHESIZE(string, unit, Unit);
-	// 开单医生
 	MYSQL_SYNTHESIZE(string, doctor, Doctor);
-	// 收费人
 	MYSQL_SYNTHESIZE(string, checker, Checker);
-	// 结算时间
 	MYSQL_SYNTHESIZE(string, settleTime, SettleTime);
-	// 来源
 	MYSQL_SYNTHESIZE(string, source, Source);
-	// 医保等级
 	MYSQL_SYNTHESIZE(string, insuranceLevel, InsuranceLevel);
-	// 医保类型
 	MYSQL_SYNTHESIZE(string, insuranceType, InsuranceType);
-	// 原价
 	MYSQL_SYNTHESIZE(double, originalPrice, OriginalPrice);
-	// 优惠金额
 	MYSQL_SYNTHESIZE(double, discountAmount, DiscountAmount);
-	// 应收金额
 	MYSQL_SYNTHESIZE(double, receivableAmount, ReceivableAmount);
-	// 折后金额
 	MYSQL_SYNTHESIZE(double, discountedPrice, DiscountedPrice);
-	// 单价
 	MYSQL_SYNTHESIZE(double, unitPrice, UnitPrice);
-	// 行金额
 	MYSQL_SYNTHESIZE(double, lineAmount, LineAmount);
-	// 实收金额
 	MYSQL_SYNTHESIZE(double, actualAmount, ActualAmount);
-	// 医保金额
 	MYSQL_SYNTHESIZE(double, insuranceAmount, InsuranceAmount);
-	// 自费金额
 	MYSQL_SYNTHESIZE(double, selfPayAmount, SelfPayAmount);
 public:
 	CostInfoDO() : BaseDO("")

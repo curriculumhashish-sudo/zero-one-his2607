@@ -47,65 +47,53 @@
 	" LEFT JOIN fin_cashier_settlement fcs ON fpr.cashier_settlement_id = fcs.id" \
 	" LEFT JOIN adm_practitioner a_pr_c ON fcs.cashier_id = a_pr_c.id"
 
-// 补充sql条件
 inline std::string CostInfoDAO::queryConditionBuilder(const CostInfoQuery::Wrapper& query, SqlParams& params) {
 	std::stringstream sqlCondition;
 	sqlCondition << " WHERE 1=1";
 
-	// 如果缺少start_time和end_time则返回错误
 	if (!query->start_time || !query->end_time) {
 		sqlCondition.clear();
 		sqlCondition << "error";
 		return sqlCondition.str();
 	}
 
-	// 开始时间
 	if (query->start_time) {
 		sqlCondition << " AND aci.`occurrence_time`>=?";
 		SQLPARAMS_PUSH(params, "ull", uint64_t, query->start_time.getValue(0));
 	}
-	// 结束时间
 	if (query->end_time) {
 		sqlCondition << " AND aci.`occurrence_time`<=?";
 		SQLPARAMS_PUSH(params, "ull", uint64_t, query->end_time.getValue(0));
 	}
-	// 患者姓名
 	if (query->name) {
 		sqlCondition << " AND a_pa.`name` LIKE CONCAT('%',?,'%')";
 		SQLPARAMS_PUSH(params, "s", std::string, query->name.getValue(""));
 	}
-	// 挂号科室
 	if (query->room) {
 		sqlCondition << " AND al.`id`=?";
 		SQLPARAMS_PUSH(params, "s", std::string, query->room.getValue(""));
 	}
-	// 费用大类
 	if (query->feeClass) {
 		sqlCondition << " AND acid.`type_code`=?";
 		SQLPARAMS_PUSH(params, "s", std::string, query->feeClass.getValue(""));
 	}
-	// 细分类
 	if (query->detailClass) {
 		sqlCondition << " AND COALESCE(mmd.`category_code`, add.`category_code`, wad.`category_code`)=?";
 		SQLPARAMS_PUSH(params, "s", std::string, query->detailClass.getValue(""));
 	}
-	// 项目名称
 	if (query->projectName) {
 		sqlCondition << " AND acid.`charge_name` LIKE CONCAT('%',?,'%')";
 		SQLPARAMS_PUSH(params, "s", std::string, query->projectName.getValue(""));
 	}
-	// 院内编号
 	if (query->hisID) {
 		sqlCondition << " AND COALESCE(mmd.`bus_no`, add.`bus_no`, wad.`bus_no`)=?";
 		SQLPARAMS_PUSH(params, "s", std::string, query->hisID.getValue(""));
 	}
-	// 收银员
 	if (query->checker) {
 		sqlCondition << " AND a_pr_c.`name` LIKE CONCAT('%',?,'%')";
 		SQLPARAMS_PUSH(params, "s", std::string, query->checker.getValue(""));
 	}
-	// 收退方向：1=退费(refund_id IS NOT NULL), 0=收费(refund_id IS NULL)
-	// 暂定1为退费、0为收费，后续根据前端传来的query->feedir调整
+	// feedir: 1=refund, 0=charge
 	if (query->feeDir) {
 		std::string feeDirVal = query->feeDir.getValue("");
 		if (feeDirVal == "1") {
@@ -118,7 +106,6 @@ inline std::string CostInfoDAO::queryConditionBuilder(const CostInfoQuery::Wrapp
 	return sqlCondition.str();
 }
 
-// 统计总数量
 uint64_t CostInfoDAO::count(const CostInfoQuery::Wrapper& query) {
 	SqlParams params;
 	string sqlStr = "SELECT COUNT(*) " MAIN_SQL_FROM;
@@ -126,7 +113,6 @@ uint64_t CostInfoDAO::count(const CostInfoQuery::Wrapper& query) {
 	return sqlSession->executeQueryNumerical(sqlStr, params);
 }
 
-// 分页查询数据
 std::list<CostInfoDO> CostInfoDAO::selectWithPage(const CostInfoQuery::Wrapper& query) {
 
 	SqlParams params;
@@ -138,7 +124,6 @@ std::list<CostInfoDO> CostInfoDAO::selectWithPage(const CostInfoQuery::Wrapper& 
 	return sqlSession->executeQuery<CostInfoDO>(sqlStr, CostInfoMapper(), params);
 }
 
-// 导出全部数据（不分页）
 std::list<CostInfoDO> CostInfoDAO::selectAll(const CostInfoQuery::Wrapper& query) {
 
 	SqlParams params;
