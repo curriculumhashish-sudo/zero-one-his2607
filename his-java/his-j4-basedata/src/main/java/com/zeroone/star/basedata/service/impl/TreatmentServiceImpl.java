@@ -62,8 +62,8 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
 
     @Override
     public PageDTO<TreatmentSelectVO> listTreatmentOptions(TreatmentQuery query) {
-        long pageIndex = query.getPageIndex() <= 0 ? DEFAULT_PAGE_INDEX : query.getPageIndex();
-        long pageSize = query.getPageSize() <= 0 ? DEFAULT_PAGE_SIZE : query.getPageSize();
+        long pageIndex = query.getPageIndex() == null || query.getPageIndex() <= 0 ? DEFAULT_PAGE_INDEX : query.getPageIndex();
+        long pageSize = query.getPageSize() == null || query.getPageSize() <= 0 ? DEFAULT_PAGE_SIZE : query.getPageSize();
 
         Page<WkfActivityDefinitionDO> page = new Page<>(pageIndex, pageSize);
         LambdaQueryWrapper<WkfActivityDefinitionDO> wrapper = new LambdaQueryWrapper<>();
@@ -89,8 +89,8 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
 
     @Override
     public PageDTO<TreatmentListVO> queryTreatmentList(TreatmentQuery query) {
-        long pageIndex = query.getPageIndex() <= 0 ? DEFAULT_PAGE_INDEX : query.getPageIndex();
-        long pageSize = query.getPageSize() <= 0 ? DEFAULT_PAGE_SIZE : query.getPageSize();
+        long pageIndex = query.getPageIndex() == null || query.getPageIndex() <= 0 ? DEFAULT_PAGE_INDEX : query.getPageIndex();
+        long pageSize = query.getPageSize() == null || query.getPageSize() <= 0 ? DEFAULT_PAGE_SIZE : query.getPageSize();
 
         Page<TreatmentListVO> page = new Page<>(pageIndex, pageSize);
         Page<TreatmentListVO> result = baseMapper.selectTreatmentListPage(page, query);
@@ -124,6 +124,9 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
     @Override
     public void addTreatment(TreatmentAddDTO treatmentAddDTO) {
         WkfActivityDefinitionDO wkfActivityDefinitionDO = msTreatmentMapper.addDtoToEntity(treatmentAddDTO);
+        if (wkfActivityDefinitionDO.getTypeEnum() == null) {
+            wkfActivityDefinitionDO.setTypeEnum("1");
+        }
         this.save(wkfActivityDefinitionDO);
     }
 

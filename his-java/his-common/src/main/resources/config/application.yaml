@@ -25,11 +25,11 @@ spring:
       # 根据当前激活的profile 动态导入common模块中对应的环境配置
       - optional:classpath:config/common-${spring.profiles.active}.yaml
       # 必须加载的系统配置
-      - nacos:system.yaml?refreshEnabled=true
-      - nacos:data-source.yaml?refreshEnabled=true
-      - nacos:third-services.yaml?refreshEnabled=true
-      - nacos:gateway.yaml?refreshEnabled=true
-      - nacos:key-config.yaml?refreshEnabled=true
+      - optional:nacos:system.yaml?refreshEnabled=true
+      - optional:nacos:data-source.yaml?refreshEnabled=true
+      - optional:nacos:third-services.yaml?refreshEnabled=true
+      - optional:nacos:gateway.yaml?refreshEnabled=true
+      - optional:nacos:key-config.yaml?refreshEnabled=true
 
 management:
   # 端点检查
