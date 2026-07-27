@@ -5,7 +5,7 @@
 #include "SimpleDateTimeFormat.h"
 
 // 列表分页
-EquipmentDetailDTO::Wrapper EquipmentService::listAll(const EquipmentQuery::Wrapper& query)
+EquipmentDetailPageDTO::Wrapper EquipmentService::listAll(const EquipmentQuery::Wrapper& query)
 {
 	// 构建返回对象
 	auto pages = EquipmentDetailPageDTO::createShared();

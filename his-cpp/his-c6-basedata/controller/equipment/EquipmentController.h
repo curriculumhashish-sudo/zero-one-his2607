@@ -54,10 +54,10 @@ public: // 定义接口
 	// 3.1 定义ID查询接口描述
 	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("equipment.query-by-id.summary"), queryEquipmentById, EquipmentJsonVO::Wrapper, API_TAG,
-		API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("sample.field.id"), "d934050a8bb373e8f8eed0bf7507ec17", true);
+		API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("equipment.field.id"), "d934050a8bb373e8f8eed0bf7507ec17", true);
 	);
 	// 3.2 定义ID查询接口处理
-	API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/sample/query-by-id", queryEquipmentById, QUERY(String, id), execQueryById(id));
+	API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/equipment/query-by-id", queryEquipmentById, QUERY(String, id), execQueryById(id));
 
 	// 3.1 定义测试声明式服务调用的接口1描述
 	API_DEF_ENDPOINT_INFO_AUTH(

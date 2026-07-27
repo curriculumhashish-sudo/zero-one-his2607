@@ -17,7 +17,7 @@ class EquipmentService
 {
 public:
 	// 分页查询所有数据
-	EquipmentDetailDTO::Wrapper listAll(const EquipmentQuery::Wrapper& query);
+	EquipmentDetailPageDTO::Wrapper listAll(const EquipmentQuery::Wrapper& query);
 	// 通过ID查询单个数据
 	EquipmentDTO::Wrapper getById(std::string id);
 	// 保存数据
