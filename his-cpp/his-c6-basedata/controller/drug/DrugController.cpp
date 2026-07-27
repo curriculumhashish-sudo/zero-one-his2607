@@ -576,3 +576,12 @@ NoDataJsonVO::Wrapper DrugController::execEnableDisableDrug(const DrugEnableDisa
     }
     return result;
 }
+DrugDetailJsonVO::Wrapper execQueryOne(const String& id, const PayloadDTO& payload)
+{
+
+}
+// 3.3 测试声明式服务调用2
+DrugListPageJsonVO::Wrapper execQueryAll(const DrugQuery::Wrapper& query, const PayloadDTO& payload)
+{
+
+}

@@ -95,6 +95,18 @@ class DrugController : public oatpp::web::server::api::ApiController
                               BODY_DTO(DrugEnableDisableDTO::Wrapper, dto),
                               execEnableDisableDrug(dto, authObject->getPayload()));
 
+    API_DEF_ENDPOINT_INFO_AUTH(
+        ZH_WORDS_GETTER("drug.query-one.summary"), queryOne, DrugDetailJsonVO::Wrapper, API_TAG2,
+        API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("drug.field.id"), "d934050a8bb373e8f8eed0bf7507ec17", true);
+    );
+    // 3.2 定义测试声明式服务调用的接口1处理
+    API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/drug/query-one", queryOne, QUERY(String, id), execQueryOne(id, authObject->getPayload()));
+
+    // 3.1 定义测试声明式服务调用的接口2描述
+    API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("drug.query-all.summary"), queryAll, DrugQuery, DrugListPageJsonVO::Wrapper, API_TAG2);
+    // 3.2 定义测试声明式服务调用的接口2处理
+    API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/drug/query-all", queryAll, DrugQuery, execQueryAll(query, authObject->getPayload()));
+
   private:
     DrugListPageJsonVO::Wrapper execQueryDrug(const DrugQuery::Wrapper &query);
     DrugSelectPageJsonVO::Wrapper execQuerySelectDrug(const DrugSelectQuery::Wrapper &query);
