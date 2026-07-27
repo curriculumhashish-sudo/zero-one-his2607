@@ -442,12 +442,22 @@ void DrugSwagger::fillModifyExample(const DrugModifyDTO::Wrapper &dto)
 
 DrugListPageJsonVO::Wrapper DrugController::execQueryDrug(const DrugQuery::Wrapper &query)
 {
-    return {};
+
+    auto result = DrugService().listAll(query);
+
+    auto jvo = DrugListPageJsonVO::createShared();
+    jvo->success(result);
+    return jvo;
+  
 }
 
 DrugSelectPageJsonVO::Wrapper DrugController::execQuerySelectDrug(const DrugSelectQuery::Wrapper &query)
 {
-    return {};
+    auto result = DrugService().listAll(query);
+
+    auto jvo = DrugSelectPageJsonVO::createShared();
+    jvo->success(result);
+    return jvo;
 }
 
 StringJsonVO::Wrapper DrugController::execAddDrug(const DrugAddDTO::Wrapper &dto, const PayloadDTO &payload)
