@@ -20,7 +20,6 @@ import com.zeroone.star.sysmgr.mapper.menu.MenusMapper;
 import com.zeroone.star.sysmgr.service.menu.MenusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.zeroone.star.project.vo.JsonVO;
 import org.springframework.util.StringUtils;
 
 import java.util.Comparator;
@@ -133,7 +132,7 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public JsonVO<Boolean> delete(MenuDeleteDTO menuDto) {
+    public Boolean delete(MenuDeleteDTO menuDto) {
         String menuId = menuDto.getId();
         // 1. 查询菜单
         MenuDO menu = baseMapper.selectById(menuId);
@@ -162,7 +161,7 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
 
         // 3. 执行软删除
         int rows = baseMapper.deleteById(menuId);
-        return JsonVO.success(rows > 0);
+        return rows > 0;
     }
 
     /**
