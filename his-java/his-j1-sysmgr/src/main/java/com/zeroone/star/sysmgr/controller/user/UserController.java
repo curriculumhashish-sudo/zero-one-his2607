@@ -39,7 +39,7 @@ public class UserController implements UserApis {
     @GetMapping("/list")
     @Override
     public JsonVO<PageDTO<UserListVO>> getList(@RequestBody @Valid UserListQuery query) {
-        return null;
+        return JsonVO.success(userService.getList(query));
     }
 
     @Operation(summary   = "根据用户ID查询用户详情")
@@ -54,7 +54,7 @@ public class UserController implements UserApis {
     @PostMapping
     @Override
     public JsonVO<Boolean> saveUser(@Valid @RequestBody UserAddDTO userAddDTO) {
-        return null;
+        return JsonVO.success(userService.saveUser(userAddDTO));
     }
 
     @Operation(summary   = "修改用户")

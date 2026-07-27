@@ -17,4 +17,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserOrganizationUnitServiceImpl extends ServiceImpl<UserOrganizationUnitMapper, UserOrganizationUnit> implements IUserOrganizationUnitService {
 
+    @Override
+    public void add(String userId, String defaultOrgId) {
+
+    }
 }

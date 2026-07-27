@@ -1,7 +1,12 @@
 package com.zeroone.star.sysmgr.service.user;
 
+import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j1.user.UserAddDTO;
+import com.zeroone.star.project.query.j1.user.UserListQuery;
+import com.zeroone.star.project.vo.j1.user.UserListVO;
 import com.zeroone.star.sysmgr.entity.user.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import jakarta.validation.Valid;
 
 /**
  * <p>
@@ -43,4 +48,18 @@ public interface IUserService extends IService<User> {
      * @return 是否修改成功
      */
     boolean updatePassword(String id, String newPassword);
+
+    /**
+     * 分页查询用户列表
+     * @param query 查询条件+分页
+     * @return 分页结果
+     */
+    PageDTO<UserListVO> getList(UserListQuery query);
+
+    /**
+     * 新增用户
+     * @param userAddDTO 新增用户表单
+     * @return 新增用户结果
+     */
+    Boolean saveUser(@Valid UserAddDTO userAddDTO);
 }

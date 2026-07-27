@@ -1,5 +1,6 @@
 package com.zeroone.star.sysmgr.service.user.impl;
 
+import com.zeroone.star.project.dto.j1.user.UserAddDTO;
 import com.zeroone.star.sysmgr.entity.user.Practitioner;
 import com.zeroone.star.sysmgr.mapper.user.PractitionerMapper;
 import com.zeroone.star.sysmgr.service.user.IPractitionerService;
@@ -17,4 +18,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class PractitionerServiceImpl extends ServiceImpl<PractitionerMapper, Practitioner> implements IPractitionerService {
 
+    @Override
+    public void add(String userId, UserAddDTO userAddDTO) {
+
+    }
 }

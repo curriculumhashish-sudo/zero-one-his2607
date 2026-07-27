@@ -1,5 +1,6 @@
 package com.zeroone.star.sysmgr.service.user;
 
+import com.zeroone.star.project.dto.j1.user.UserAddDTO;
 import com.zeroone.star.sysmgr.entity.user.Practitioner;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -13,4 +14,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IPractitionerService extends IService<Practitioner> {
 
+    /**
+     *
+     * @param userId
+     * @param userAddDTO
+     */
+    void add(String userId, UserAddDTO userAddDTO);
 }

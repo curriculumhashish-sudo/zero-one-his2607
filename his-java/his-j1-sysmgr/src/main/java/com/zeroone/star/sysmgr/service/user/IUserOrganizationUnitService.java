@@ -13,4 +13,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IUserOrganizationUnitService extends IService<UserOrganizationUnit> {
 
+    /**
+     *
+     * @param userId
+     * @param defaultOrgId
+     */
+    void add(String userId, String defaultOrgId);
 }
