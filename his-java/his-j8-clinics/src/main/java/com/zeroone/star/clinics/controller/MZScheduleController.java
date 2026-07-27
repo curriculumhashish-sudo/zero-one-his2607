@@ -14,7 +14,6 @@ import com.zeroone.star.project.vo.j8.clinics.SlotVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -42,7 +41,7 @@ public class MZScheduleController implements ScheduleApis {
     @Operation(summary = "删除号源")
     @DeleteMapping("/delete-number-source/{slotId}")
     @Override
-    public JsonVO<String> deleteNumberSource(@PathVariable @NotBlank(message = "slotId不能为空") String slotId) {
+    public JsonVO<String> deleteNumberSource(@PathVariable String slotId) {
         return null;
     }
 
@@ -56,14 +55,14 @@ public class MZScheduleController implements ScheduleApis {
     @Operation(summary = "恢复开诊")
     @PostMapping("/reactivate-schedule/{scheduleId}")
     @Override
-    public JsonVO<ResumeScheduleVO> reactivateSchedule(@PathVariable @NotBlank(message = "scheduleId不能为空") String scheduleId) {
+    public JsonVO<ResumeScheduleVO> reactivateSchedule(@PathVariable String scheduleId) {
         return null;
     }
 
     @Operation(summary = "作废日程")
     @DeleteMapping("/retire-schedule/{scheduleId}")
     @Override
-    public JsonVO<String> retireSchedule(@PathVariable @NotBlank(message = "scheduleId不能为空") String scheduleId) {
+    public JsonVO<String> retireSchedule(@PathVariable String scheduleId) {
         return null;
     }
 }

@@ -7,6 +7,7 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j8.clinics.ResumeScheduleVO;
 import com.zeroone.star.project.vo.j8.clinics.SlotBatchReleaseVO;
 import com.zeroone.star.project.vo.j8.clinics.SlotVO;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public interface ScheduleApis {
      * @param query 查询参数
      * @return 响应对象
      */
-    JsonVO<List<SlotVO>> getRelNumberSource(RelSlotQuery query);
+    JsonVO<List<SlotVO>> getRelNumberSource(@Valid RelSlotQuery query);
 
 
     /**
@@ -41,7 +42,7 @@ public interface ScheduleApis {
      * @param numberSourceBatchReleaseDTO 批量待放号参数
      * @return 响应对象
      */
-    JsonVO<SlotBatchReleaseVO> batchReleaseNumberSource(SlotBatchReleaseDTO numberSourceBatchReleaseDTO);
+    JsonVO<SlotBatchReleaseVO> batchReleaseNumberSource(@Valid SlotBatchReleaseDTO numberSourceBatchReleaseDTO);
 
 
     /**
