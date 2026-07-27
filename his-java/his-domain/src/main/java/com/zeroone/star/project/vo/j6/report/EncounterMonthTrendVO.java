@@ -1,5 +1,4 @@
 package com.zeroone.star.project.vo.j6.report;
-// 月接诊量趋势数据点：month, count
 
 import com.zeroone.star.project.dto.j6.report.EncounterTrendDTO;
 import io.swagger.v3.oas.annotations.media.Schema;

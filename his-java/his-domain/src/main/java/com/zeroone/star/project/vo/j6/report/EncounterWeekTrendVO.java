@@ -6,7 +6,6 @@ import lombok.Data;
 
 import java.util.List;
 
-// 周接诊量趋势数据点：week, count
 /**
  * <p>
  * 描述：周接诊量门诊趋势图表数据返回对象

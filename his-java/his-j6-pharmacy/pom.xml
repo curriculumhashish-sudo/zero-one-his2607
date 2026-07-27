@@ -79,7 +79,7 @@
                 <artifactId>mp-code-generator-plugin</artifactId>
                 <configuration>
                     <dbConfig>
-                        <host>192.168.42.100</host>
+                        <host>localhost</host>
                         <port>3306</port>
                         <dbname>zo_his</dbname>
                         <username>root</username>
