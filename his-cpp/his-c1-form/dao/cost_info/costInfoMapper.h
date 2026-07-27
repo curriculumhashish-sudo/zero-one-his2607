@@ -22,7 +22,43 @@
 #include "Mapper.h"
 #include "domain/do/cost_info/costInfoDO.h"
 
-class CostInfoMapper : public Mapper<PtrCostInfoDO>
+class CostInfoMapper : public Mapper<CostInfoDO>
+{
+public:
+	CostInfoDO mapper(ResultSet* resultSet) const override
+	{
+		CostInfoDO data;
+		data.setId(resultSet->getString("id"));
+		data.setClinicNo(resultSet->getString("clinicNo"));
+		data.setName(resultSet->getString("name"));
+		data.setDate(resultSet->getString("date"));
+		data.setFeeClass(resultSet->getString("feeClass"));
+		data.setDetailClass(resultSet->getString("detailClass"));
+		data.setProjectName(resultSet->getString("projectName"));
+		data.setHisID(resultSet->getString("hisID"));
+		data.setSpec(resultSet->getString("spec"));
+		data.setNumber(resultSet->getDouble("number"));
+		data.setUnit(resultSet->getString("unit"));
+		data.setDoctor(resultSet->getString("doctor"));
+		data.setChecker(resultSet->getString("checker"));
+		data.setSettleTime(resultSet->getString("settleTime"));
+		data.setSource(resultSet->getString("source"));
+		data.setInsuranceLevel(resultSet->getString("insuranceLevel"));
+		data.setInsuranceType(resultSet->getString("insuranceType"));
+		data.setOriginalPrice(resultSet->getDouble("originalPrice"));
+		data.setDiscountAmount(resultSet->getDouble("discountAmount"));
+		data.setReceivableAmount(resultSet->getDouble("receivableAmount"));
+		data.setDiscountedPrice(resultSet->getDouble("discountedPrice"));
+		data.setUnitPrice(resultSet->getDouble("unitPrice"));
+		data.setLineAmount(resultSet->getDouble("lineAmount"));
+		data.setActualAmount(resultSet->getDouble("actualAmount"));
+		data.setInsuranceAmount(resultSet->getDouble("insuranceAmount"));
+		data.setSelfPayAmount(resultSet->getDouble("selfPayAmount"));
+		return data;
+	}
+};
+
+class PtrCostInfoMapper : public Mapper<PtrCostInfoDO>
 {
 public:
 	PtrCostInfoDO mapper(ResultSet* resultSet) const override
@@ -55,20 +91,6 @@ public:
 		file->setInsuranceAmount(resultSet->getDouble("insuranceAmount"));
 		file->setSelfPayAmount(resultSet->getDouble("selfPayAmount"));
 		return file;
-	}
-};
-
-class PtrCostInfoMapper : public Mapper<PtrSampleDO>
-{
-public:
-	PtrSampleDO mapper(ResultSet* resultSet) const override
-	{
-		auto data = std::make_shared<SampleDO>();
-		data->setId(resultSet->getString(1));
-		data->setName(resultSet->getString(2));
-		data->setSex(resultSet->getString(3));
-		data->setAge(resultSet->getInt(4));
-		return data;
 	}
 };
 

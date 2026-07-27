@@ -2,6 +2,7 @@
 
 #ifndef _COSTINFO_DAO_H
 #define _COSTINFO_DAO_H
+#include <sstream>
 #include "BaseDAO.h"
 #include "domain/do/cost_info/costInfoDO.h"
 #include "domain/dto/cost_info/costInfoDTO.h"
@@ -11,6 +12,7 @@
 class CostInfoDAO : public BaseDAO
 {
 private:
+	// 补充sql条件
 	inline std::string queryConditionBuilder(const CostInfoQuery::Wrapper& query, SqlParams& params);
 public:
 	// 统计总数量

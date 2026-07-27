@@ -4,9 +4,6 @@
 #define _COSTINFO_DO_
 #include "../DoInclude.h"
 
-/**
- * CostInfo数据库实体对象
- */
 class CostInfoDO : public BaseDO
 {
 	// 序号
@@ -93,6 +90,5 @@ public:
 	}
 };
 
-// 为CostInfoDO对象指定一个智能指针别名，方便使用
 typedef std::shared_ptr<CostInfoDO> PtrCostInfoDO;
 #endif // !_COSTINFO_DO_
