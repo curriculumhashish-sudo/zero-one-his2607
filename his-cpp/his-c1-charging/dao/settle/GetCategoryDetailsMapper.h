@@ -8,7 +8,7 @@
 // ======================================================
 #pragma once
 #include "Mapper.h"
-#include "../../domain/do/GetCategoryDetailDO.h"
+#include "../../domain/do/settle/GetCategoryDetailsDO.h"
 
 // 值语义Mapper - 用于列表查询，返回 std::list<GetCategoryDetailDO>
 class GetCategoryDetailsMapper : public Mapper<GetCategoryDetailDO>

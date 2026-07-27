@@ -1,6 +1,6 @@
 #pragma once
 #include "Mapper.h"
-#include "../../domain/do/GetPatientListDO.h"
+#include "../../domain/do/settle/GetPatientListDO.h"
 
 // 值语义Mapper，用于列表查询 (返回 std::list<GetPatientListDO>)
 class GetPatientListMapper : public Mapper<GetPatientListDO>

@@ -6,8 +6,8 @@
 // ======================================================
 #pragma once
 #include "BaseDAO.h"
-#include "../../domain/do/GetTotalFeesDO.h"
-#include "../../domain/query/GetTotalFeesQuery.h"
+#include "../../domain/do/settle/GetTotalFeesDO.h"
+#include "../../domain/query/settle/GetTotalFeesQuery.h"
 
 class GetTotalFeesDAO : public BaseDAO
 {

@@ -6,8 +6,8 @@
 // ======================================================
 #pragma once
 #include "BaseDAO.h"
-#include "../../domain/do/GetCategoryDetailDO.h"
-#include "../../domain/query/GetCategoryDetailsQuery.h"
+#include "../../domain/do/settle/GetCategoryDetailsDO.h"
+#include "../../domain/query/settle/GetCategoryDetailsQuery.h"
 
 class GetCategoryDetailsDAO : public BaseDAO
 {

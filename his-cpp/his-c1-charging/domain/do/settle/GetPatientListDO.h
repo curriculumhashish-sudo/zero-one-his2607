@@ -1,3 +1,4 @@
+#pragma once
 #ifndef _GET_PATIENT_LIST_DO_
 #define _GET_PATIENT_LIST_DO_
 #include "../Dolnclude.h"

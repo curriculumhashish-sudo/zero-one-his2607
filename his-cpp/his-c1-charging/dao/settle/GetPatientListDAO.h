@@ -1,7 +1,7 @@
 #pragma once
 #include "BaseDAO.h"
-#include "../../domain/do/GetPatientListDO.h"
-#include "../../domain/query/GetPatientListQuery.h"
+#include "../../domain/do/settle/GetPatientListDO.h"
+#include "../../domain/query/settle/GetPatientListQuery.h"
 
 /**
  * ªº’ﬂ¡–±ÌDAO

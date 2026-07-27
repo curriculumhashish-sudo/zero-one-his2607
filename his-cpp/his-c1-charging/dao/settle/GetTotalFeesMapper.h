@@ -8,7 +8,7 @@
 // ======================================================
 #pragma once
 #include "Mapper.h"
-#include "../../domain/do/GetTotalFeesDO.h"
+#include "../../domain/do/settle/GetTotalFeesDO.h"
 
 // 值语义Mapper - 用于列表查询，返回 std::list<GetTotalFeesDO>
 class GetTotalFeesMapper : public Mapper<GetTotalFeesDO>
