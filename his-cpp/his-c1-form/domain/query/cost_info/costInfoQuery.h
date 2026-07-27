@@ -60,7 +60,7 @@ class CostInfoQuery :public PageQuery
 	}
 
 	// ÔºÄÚ±àºÅ
-	DTO_FIELD(UInt64, hisID);
+	DTO_FIELD(String, hisID);
 	DTO_FIELD_INFO(hisID) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.hisID");
 	}
