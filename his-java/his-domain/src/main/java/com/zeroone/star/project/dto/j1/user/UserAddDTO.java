@@ -15,9 +15,6 @@ import java.util.List;
 @Data
 @Schema(description = "新增用户请求参数")
 public class UserAddDTO {
-    @Schema(description = "主键id", example = "336396155648217088")
-    private String id;
-
     @NotBlank(message = "用户名不能为空")
     @Schema(description = "用户名", requiredMode = Schema.RequiredMode.REQUIRED, example = "zhangsan")
     private String username;
@@ -28,7 +25,7 @@ public class UserAddDTO {
     private String password;
 
     @NotEmpty(message = "角色不能为空")
-    @Schema(description = "角色ID列表", requiredMode = Schema.RequiredMode.REQUIRED, example = "1,2,3")
+    @Schema(description = "角色ID列表", requiredMode = Schema.RequiredMode.REQUIRED, example = "[\"roleId1\", \"roleId2\"]")
     private List<String> roleIds;
 
     @Schema(description = "默认登录科室ID（可不填）")
@@ -48,7 +45,7 @@ public class UserAddDTO {
 
     @NotNull(message = "性别不能为空")
     @Schema(description = "性别 (2:男, 1:女, 0:未知)", requiredMode = Schema.RequiredMode.REQUIRED, example = "2")
-    private Integer genderEnum;
+    private GenderEnum genderEnum;
 
     @Schema(description = "出生日期 (yyyy-MM-dd)")
     private LocalDate birthDate;

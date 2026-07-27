@@ -10,6 +10,7 @@ import java.util.List;
 @Data
 @Schema(description = "修改用户请求参数")
 public class UserUpdateDTO {
+    @NotBlank(message = "用户id不能为空")
     @Schema(description = "主键id", example = "336396155648217088")
     private String id;
 
@@ -38,7 +39,7 @@ public class UserUpdateDTO {
 
     @NotNull(message = "性别不能为空")
     @Schema(description = "性别 (2:男, 1:女, 0:未知)", requiredMode = Schema.RequiredMode.REQUIRED, example = "2")
-    private Integer genderEnum;
+    private GenderEnum genderEnum;
 
     @Schema(description = "出生日期 (yyyy-MM-dd)")
     private LocalDate birthDate;
@@ -67,20 +68,20 @@ public class UserUpdateDTO {
     @Schema(description = "备注信息")
     private String remark;
 
-    @Schema(description = "出诊科室名称列表id", example = "[\"内科\", \"外科\"]")
-    private List<String> consultDeptNames;
+    @Schema(description = "出诊科室名称列表id", example = "[\"10\", \"20\"]")
+    private List<String> consultDeptIds;
 
-    @Schema(description = "可接诊号源名称列表id", example = "[\"专家门诊\", \"普通门诊\"]")
-    private List<String> receptionSourceNames;
+    @Schema(description = "可接诊号源名称列表id", example = "[\"10\", \"20\"]")
+    private List<String> receptionSourceIds;
 
     // ========== 位置信息 ==========
-    @Schema(description = "库房名称列表id", example = "[\"西药库\", \"中药库\"]")
-    private List<String> warehouseNames;
+    @Schema(description = "库房名称列表id", example = "[\"10\", \"20\"]")
+    private List<String> warehouseIds;
 
-    @Schema(description = "药房名称列表id", example = "[\"门诊药房\"]")
-    private List<String> pharmacyNames;
+    @Schema(description = "药房名称列表id", example = "[\"10\", \"20\"]")
+    private List<String> pharmacyIds;
 
-    @Schema(description = "病区名称列表id", example = "[\"内科一病区\", \"外科二病区\"]")
-    private List<String> wardNames;
+    @Schema(description = "病区名称列表id", example = "[\"10\", \"20\"]")
+    private List<String> wardIds;
 
 }

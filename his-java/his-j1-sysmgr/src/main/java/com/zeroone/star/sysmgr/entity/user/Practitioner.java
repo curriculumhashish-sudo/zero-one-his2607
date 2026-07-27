@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.io.Serializable;
 
+import com.zeroone.star.project.dto.j1.user.GenderEnum;
 import com.zeroone.star.project.entity.BaseDO;
 import lombok.*;
 
@@ -72,10 +73,10 @@ public class Practitioner extends BaseDO {
     private String wbStr;
 
     /**
-     * 行政性别编码
+     * 行政性别编码 UNKNOWN(0)未知 FEMALE(1)女性 MALE(2)男性;
      */
     @TableField("gender_enum")
-    private String genderEnum;
+    private GenderEnum gender;
 
     /**
      * 出生日期

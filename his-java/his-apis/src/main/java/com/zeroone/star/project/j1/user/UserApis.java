@@ -6,6 +6,7 @@ import com.zeroone.star.project.dto.j1.user.ChangePasswordDTO;
 import com.zeroone.star.project.dto.j1.user.UserAddDTO;
 import com.zeroone.star.project.dto.j1.user.UserUpdateDTO;
 import com.zeroone.star.project.query.j1.login.TenantQuery;
+import com.zeroone.star.project.query.j1.user.UserListQuery;
 import com.zeroone.star.project.query.j1.user.UserQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j1.user.UserDetailVO;
@@ -21,17 +22,17 @@ import com.zeroone.star.project.vo.j1.user.UserPageVO;
 public interface UserApis {
     /**
      * 分页查询用户信息
-     * @param userQuery 用户查询参数
+     * @param query 用户查询参数
      * @return 用户信息分页列表
      */
-    JsonVO<PageDTO<UserPageVO>> getPage(UserQuery userQuery);
+    JsonVO<PageDTO<UserPageVO>> getPage(UserQuery query);
 
     /**
      * 列表用户信息
-      * @param tenantQuery 用户查询参数
+      * @param query 用户查询参数
       * @return 用户信息列表
      */
-    JsonVO<PageDTO<UserListVO>> getList(TenantQuery tenantQuery);
+    JsonVO<PageDTO<UserListVO>> getList(UserListQuery query);
 
 
     /**
