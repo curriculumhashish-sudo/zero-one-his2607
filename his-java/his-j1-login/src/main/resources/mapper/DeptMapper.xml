@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xxx.mapper.DeptMapper">
+
+    <select id="selectUserDeptList" resultType="com.zeroone.star.sysmgr.entity.login.WhaleOrganizationUnitDO">
+        SELECT
+            ou.id,
+            ou.display_name AS displayName,
+            ou.code,
+            ou.sort_order AS sortOrder,
+            ou.parent_id AS parentId,
+            ou.tenant_id AS tenantId
+        FROM whale_organization_units ou
+                 INNER JOIN whale_user_organization_units rel ON ou.id = rel.organization_unit_id
+        WHERE
+            rel.user_id = #{userId}
+          AND ou.tenant_id = #{tenantId}
+          AND ou.is_deleted = 0
+          AND rel.is_deleted = 0
+          AND ou.is_enabled = 1
+    </select>
+
+</mapper>
