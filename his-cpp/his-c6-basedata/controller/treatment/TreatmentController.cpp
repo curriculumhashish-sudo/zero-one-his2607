@@ -199,9 +199,9 @@ std::shared_ptr<oatpp::web::server::api::ApiController::OutgoingResponse> Treatm
 		[result](ExcelComponent* ex) {
 			// 写入表头
 			ex->addHeader({
-				ZH_WORDS_GETTER("sample.field.id") ,
-				ZH_WORDS_GETTER("sample.field.code") ,
-				ZH_WORDS_GETTER("sample.field.name") 
+				ZH_WORDS_GETTER("treatment.field.id") ,
+				ZH_WORDS_GETTER("treatment.field.code") ,
+				ZH_WORDS_GETTER("treatment.field.name") 
 				});
 			// 写入数据
 			int row = 2;
