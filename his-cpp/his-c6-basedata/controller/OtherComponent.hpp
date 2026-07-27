@@ -20,15 +20,46 @@
 #ifndef _OTHERCOMMPONENT_H_
 #define _OTHERCOMMPONENT_H_
 #include "AbstractComponentReg.h"
+#include "YamlHelper.h"
+#include "oatpp/network/tcp/client/ConnectionProvider.hpp"
+#include "oatpp/web/client/HttpRequestExecutor.hpp"
+
+#include <stdexcept>
 
 /**
  * Registration of other Oatpp components.
- * External definitions can be added here for future component extensions.
+ * Declarative service executors are registered here.
  */
 class OtherComponent : public AbstractComponentReg
 {
-	// #TIP: Add other component registration code below as needed
-	
+	OATPP_CREATE_COMPONENT(
+		std::shared_ptr<oatpp::web::client::HttpRequestExecutor>,
+		diagnosisApiExecutor)("diagnosis-api", [] {
+			YAML::Node config = YAML::LoadFile("./conf/third-services.yaml");
+			YamlHelper yaml;
+			const std::string host = yaml.getString(
+				&config,
+				"declarative-services.diagnosis-api.host");
+			const std::string portText = yaml.getString(
+				&config,
+				"declarative-services.diagnosis-api.port");
+			const int port = portText.empty() ? 0 : std::stoi(portText);
+			if (host.empty() || port <= 0 || port > 65535)
+			{
+				throw std::runtime_error(
+					"Invalid declarative-services.diagnosis-api configuration.");
+			}
+
+			auto connectionProvider =
+				oatpp::network::tcp::client::ConnectionProvider::createShared(
+					{
+						host.c_str(),
+						static_cast<v_uint16>(port),
+						oatpp::network::Address::IP_4
+					});
+			return oatpp::web::client::HttpRequestExecutor::createShared(
+				connectionProvider);
+		}());
 };
 
 #endif // _OTHERCOMMPONENT_H_

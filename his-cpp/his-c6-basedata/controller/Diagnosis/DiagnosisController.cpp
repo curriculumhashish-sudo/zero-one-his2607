@@ -19,6 +19,8 @@
 #include "stdafx.h"
 #include "DiagnosisController.h"
 #include "../../service/Diagnosis/DiagnoseService.h"
+#include "../ApiDeclarativeServicesHelper.h"
+#include "URIUtil.h"
 #include <cctype>
 #include <limits>
 
@@ -85,22 +87,24 @@ DiagnosisSelectPageJsonVO::Wrapper DiagnosisController::execQuerySelectDiagnosis
 }
 
 DiagnosisDetailPageJsonVO::Wrapper DiagnosisController::execQueryAllDiagnosis(
-	const DiagnosisPageQuery::Wrapper& query)
+	const DiagnosisPageQuery::Wrapper& query,
+	const PayloadDTO& payload)
 {
-	auto page = DiagnosisDetailPageDTO::createShared();
-	page->pageIndex = query->pageIndex;
-	page->pageSize = query->pageSize;
-	page->total = 1;
-	page->addData(DiagnosisDetailDTO::createShared());
-	page->calcPages();
-
-	auto response = DiagnosisDetailPageJsonVO::createShared();
-	response->success(page);
-	return response;
+	API_CLIENT_CREATE(client, objectMapper, DiagnosisApiClient, "diagnosis-api");
+	const std::string token =
+		PayloadDTO::getTokenPrefix() + payload.getToken();
+	return client->queryAll(
+		token,
+		query->pageIndex,
+		query->pageSize,
+		URIUtil::urlEncode(query->keyword.getValue("")),
+		URIUtil::urlEncode(query->sourceEnum.getValue("")))
+		->readBodyToDto<DiagnosisDetailPageJsonVO::Wrapper>(objectMapper);
 }
 
 DiagnosisDetailJsonVO::Wrapper DiagnosisController::execQueryOneDiagnosis(
-	const DiagnosisDetailQuery::Wrapper& query)
+	const DiagnosisDetailQuery::Wrapper& query,
+	const PayloadDTO& payload)
 {
 	auto response = DiagnosisDetailJsonVO::createShared();
 	if (!query->id || query->id.getValue(0) <= 0)
@@ -109,10 +113,11 @@ DiagnosisDetailJsonVO::Wrapper DiagnosisController::execQueryOneDiagnosis(
 		return response;
 	}
 
-	auto detail = DiagnosisDetailDTO::createShared();
-	detail->id = query->id;
-	response->success(detail);
-	return response;
+	API_CLIENT_CREATE(client, objectMapper, DiagnosisApiClient, "diagnosis-api");
+	const std::string token =
+		PayloadDTO::getTokenPrefix() + payload.getToken();
+	return client->queryById(token, query->id)
+		->readBodyToDto<DiagnosisDetailJsonVO::Wrapper>(objectMapper);
 }
 
 StringJsonVO::Wrapper DiagnosisController::execAddDiagnose(const DiagnoseAddDTO::Wrapper& dto,const PayloadDTO& payload)
