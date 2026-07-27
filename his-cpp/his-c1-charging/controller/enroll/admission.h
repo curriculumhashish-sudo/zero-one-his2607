@@ -77,7 +77,7 @@ public:
 		info->summary = ZH_WORDS_GETTER("charging.admission.add_discription");
 		// 定义标签
 		API_DEF_ADD_TAG(API_TAG);
-		// 定义其他查询参数描述
+		// 定义其他参数描述
 
 		API_DEF_ADD_PATH_PARAMS(String, "delete", ZH_WORDS_GETTER("yiguang.charging.admission.delete"), " ", false);
 
