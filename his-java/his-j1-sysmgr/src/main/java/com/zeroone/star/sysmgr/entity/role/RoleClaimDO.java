@@ -12,11 +12,13 @@ import java.io.Serial;
 import java.time.LocalDateTime;
 
 /**
+ * 角色声明数据对象
  * <p>
- * 描述：角色声明数据对象，对应 whale_role_claims 表
+ * 对应数据库中的 whale_role_claims 表
  * </p>
+ *
  * @author j1-保温杯热水仙人
- * @date 2026/7/25
+ * @since 2026-07-24
  */
 @Getter
 @Setter
@@ -39,14 +41,14 @@ public class RoleClaimDO extends BaseDO {
      * 声明类型。
      */
     @TableField("claim_type")
-    @Schema(description = "声明类型", example = "Permission", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "声明类型", example = "StaffScope", requiredMode = Schema.RequiredMode.REQUIRED)
     private String claimType;
 
     /**
      * 声明值。
      */
     @TableField("claim_value")
-    @Schema(description = "声明值", example = "Role.View")
+    @Schema(description = "声明值", example = "DOCTOR_VISIT_ORG")
     private String claimValue;
 
     /**

@@ -6,10 +6,13 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
- * 新增角色数据对象。
+ * 新增角色数据对象
+ * <p>
+ * 封装创建自定义角色时允许提交的基本信息
+ * </p>
  *
  * @author j1-保温杯热水仙人
- * @version 1.0.0
+ * @since 2026-07-24
  */
 @Data
 @Schema(description = "新增角色数据对象")
