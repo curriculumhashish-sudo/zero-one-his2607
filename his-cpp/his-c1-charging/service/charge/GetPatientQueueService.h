@@ -21,7 +21,7 @@ private:
     // 由出生日期计算年龄展示文本，如 "1990-05-15" 计算为 "35岁"
     static std::string computeAgeText(const std::string& birthDate);
 
-    // 收费状态编码转展示文本（PENDING -> 待收费 等）
+    // 收费状态编码转展示文本（DRAFT -> 待收费 等）
     static std::string translateChargeStatus(const std::string& code);
 
     // 根据所有收费项的状态码列表，聚合计算出汇总状态码（planned/settled/mixed）

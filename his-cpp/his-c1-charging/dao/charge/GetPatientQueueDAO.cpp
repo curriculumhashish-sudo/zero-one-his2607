@@ -43,11 +43,11 @@ inline std::string GetPatientQueueDAO::queryConditionBuilder(
         std::string tab = query->queueTabCode;
         if (tab == "PENDING")
         {
-            // 至少有一条待收费项的 encounter
+            // Encounters with at least one pending (unsettled) charge item
             sql << " AND EXISTS ("
                 << " SELECT 1 FROM adm_charge_item ci"
                 << " WHERE ci.encounter_id = e.id"
-                << " AND ci.status_enum = 'PENDING'"
+                << " AND ci.status_enum = 'DRAFT'"
                 << " )";
         }
         else if (tab == "SETTLED")
@@ -91,12 +91,8 @@ std::list<GetPatientQueueDO> GetPatientQueueDAO::selectWithPage(
     std::string where = queryConditionBuilder(query, params);
 
     // 计算分页：pageIndex 从 1 开始
-    uint64_t pageIndex = 1;
-    uint64_t pageSize = 10;
-    if (query->pageIndex)
-        pageIndex = query->pageIndex;
-    if (query->pageSize)
-        pageSize = query->pageSize;
+    uint64_t pageIndex = query->pageIndex.getValue(1);
+    uint64_t pageSize = query->pageSize.getValue(10);
     uint64_t offset = (pageIndex - 1) * pageSize;
 
     std::ostringstream sql;
@@ -116,8 +112,12 @@ std::list<GetPatientQueueDO> GetPatientQueueDAO::selectWithPage(
         << " FROM adm_encounter e"
         << " LEFT JOIN adm_patient p ON e.patient_id = p.id"
         << " LEFT JOIN adm_organization org ON e.organization_id = org.id"
-        << " LEFT JOIN adm_encounter_participant ep"
-        << "   ON e.id = ep.encounter_id AND ep.role_code = 'DOCTOR'"
+        << " LEFT JOIN ("
+        << "   SELECT encounter_id, MIN(practitioner_id) AS practitioner_id"
+        << "   FROM adm_encounter_participant"
+        << "   WHERE role_code = 'ATTENDING_DOCTOR'"
+        << "   GROUP BY encounter_id"
+        << " ) ep ON e.id = ep.encounter_id"
         << " LEFT JOIN adm_practitioner doc ON ep.practitioner_id = doc.id"
         << " LEFT JOIN ("
         << "   SELECT encounter_id, SUM(total_price) AS total_amount"

@@ -41,9 +41,8 @@ std::string GetPatientQueueService::computeAgeText(const std::string& birthDate)
 
 std::string GetPatientQueueService::translateChargeStatus(const std::string& code)
 {
-    if (code == "PENDING")   return ZH_WORDS_GETTER("lhfc.charging.charge.dict.chargeStatus.pending");
+    if (code == "DRAFT")     return ZH_WORDS_GETTER("lhfc.charging.charge.dict.chargeStatus.pending");
     if (code == "SETTLED")   return ZH_WORDS_GETTER("lhfc.charging.charge.dict.chargeStatus.settled");
-    if (code == "REFUNDING") return ZH_WORDS_GETTER("lhfc.charging.charge.dict.chargeStatus.refunding");
     if (code == "REFUNDED")  return ZH_WORDS_GETTER("lhfc.charging.charge.dict.chargeStatus.refunded");
     return code;
 }
@@ -51,27 +50,27 @@ std::string GetPatientQueueService::translateChargeStatus(const std::string& cod
 std::string GetPatientQueueService::computeRollupStatusCode(
     const std::list<std::string>& statusCodes)
 {
-    if (statusCodes.empty()) return "planned";
+    if (statusCodes.empty()) return "PLANNED";
 
     bool hasPending = false;
     bool hasSettled = false;
 
     for (auto& code : statusCodes)
     {
-        if (code == "PENDING") hasPending = true;
+        if (code == "DRAFT") hasPending = true;
         else hasSettled = true;
     }
 
-    if (hasPending && hasSettled) return "mixed";
-    if (hasPending) return "planned";
-    return "settled";
+    if (hasPending && hasSettled) return "MIXED";
+    if (hasPending) return "PLANNED";
+    return "SETTLED";
 }
 
 std::string GetPatientQueueService::translateRollupStatus(const std::string& code)
 {
-    if (code == "planned") return ZH_WORDS_GETTER("lhfc.charging.charge.dict.rollupStatus.planned");
-    if (code == "settled") return ZH_WORDS_GETTER("lhfc.charging.charge.dict.rollupStatus.settled");
-    if (code == "mixed")   return ZH_WORDS_GETTER("lhfc.charging.charge.dict.rollupStatus.mixed");
+    if (code == "PLANNED") return ZH_WORDS_GETTER("lhfc.charging.charge.dict.rollupStatus.planned");
+    if (code == "SETTLED") return ZH_WORDS_GETTER("lhfc.charging.charge.dict.rollupStatus.settled");
+    if (code == "MIXED")   return ZH_WORDS_GETTER("lhfc.charging.charge.dict.rollupStatus.mixed");
     return code;
 }
 
@@ -88,7 +87,7 @@ GetPatientQueuePageDTO::Wrapper GetPatientQueueService::listAll(
 
     // 第2步：分页查询当前页的主数据
     auto doList = mainDao.selectWithPage(query);
-
+    std::cout << "mainDo count "<< doList.size() << std::endl;
     // 第3步：收集当前页所有就诊ID，用于批量加载子数据
     std::list<std::string> encounterIds;
     for (auto& dobj : doList)
@@ -110,20 +109,11 @@ GetPatientQueuePageDTO::Wrapper GetPatientQueueService::listAll(
 
     // 第5步：初始化分页DTO，填充页码、总数等元信息
     auto pageDTO = GetPatientQueuePageDTO::createShared();
-
-    uint64_t pageIndex = query->pageIndex ? query->pageIndex.getValue(1) : 1;
-    uint64_t pageSize  = query->pageSize  ? query->pageSize.getValue(10) : 10;
-    int64_t total = static_cast<int64_t>(totalCount);
-    int64_t pages = (totalCount == 0) ? 0
-        : static_cast<int64_t>((totalCount + pageSize - 1) / pageSize);
-
-    pageDTO->initAll(
-        pageIndex,
-        pageSize,
-        total,
-        pages,
-        oatpp::List<GetPatientQueueDTO::Wrapper>::createShared()
-    );
+    pageDTO->pageIndex = query->pageIndex.getValue(1);
+    pageDTO->pageSize  = query->pageSize.getValue(10);
+    pageDTO->total = static_cast<int64_t>(totalCount);
+    pageDTO->calcPages();
+    pageDTO->rows = oatpp::List<GetPatientQueueDTO::Wrapper>::createShared();
 
     if (doList.empty())
         return pageDTO;
@@ -181,7 +171,7 @@ GetPatientQueuePageDTO::Wrapper GetPatientQueueService::listAll(
         // 根据收费项状态判定队列标签：有任一待收费则为 PENDING
         bool hasPendingItem = std::any_of(statusCodesForRollup.begin(),
             statusCodesForRollup.end(),
-            [](const std::string& s) { return s == "PENDING"; });
+            [](const std::string& s) { return s == "DRAFT"; });
         dto->queueLabelCode = hasPendingItem ? "PENDING" : "SETTLED";
 
         // 聚合所有收费项状态得出汇总状态码

@@ -15,7 +15,7 @@ class ChargeItemBriefDO : public BaseDO
 {
     // 收费项主键
     MYSQL_SYNTHESIZE(string, chargeItemId, ChargeItemId);
-    // 收费状态编码（PENDING / SETTLED / REFUNDING...）
+    // 收费状态编码（DRAFT / SETTLED / REFUNDED...）
     MYSQL_SYNTHESIZE(string, statusCode, StatusCode);
     // 行总价
     MYSQL_SYNTHESIZE(string, totalPrice, TotalPrice);
