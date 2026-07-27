@@ -1,6 +1,7 @@
 package com.zeroone.star.pharmacy.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zeroone.star.pharmacy.service.IWkfInventoryItemService;
 import com.zeroone.star.pharmacy.service.InventoryDetailService;
 import com.zeroone.star.project.dto.j6.pharmacy.inventory.InventoryStatusDTO;
@@ -41,7 +42,8 @@ public class WarehouseInventoryDetailController implements WarehouseInventoryDet
                     content = @Content(schema = @Schema(implementation = JsonVO.class)))
     )
     public JsonVO<IPage<InventoryDetailVO>> pageInventoryDetailCurrent(@RequestBody InventoryDetailQuery inventoryDetailQueryDTO) {
-        return inventoryDetailService.pageInventoryDetailCurrent(inventoryDetailQueryDTO);
+        Page<InventoryDetailVO> inventoryDetailVOPage = inventoryDetailService.pageInventoryDetailCurrent(inventoryDetailQueryDTO);
+        return JsonVO.success(inventoryDetailVOPage);
     }
 
     /**
@@ -70,7 +72,8 @@ public class WarehouseInventoryDetailController implements WarehouseInventoryDet
                     content = @Content(schema = @Schema(implementation = JsonVO.class)))
     )
     public JsonVO<ExcelExportVO> exportInventoryDetailCurrent(@RequestBody InventoryDetailQuery inventoryDetailQueryDTO) {
-        return JsonVO.fail("接口未完成");
+        ExcelExportVO excelExportVO = inventoryDetailService.exportToExcel(inventoryDetailQueryDTO);
+        return JsonVO.success(excelExportVO);
     }
     @GetMapping("/test")
     @Operation(

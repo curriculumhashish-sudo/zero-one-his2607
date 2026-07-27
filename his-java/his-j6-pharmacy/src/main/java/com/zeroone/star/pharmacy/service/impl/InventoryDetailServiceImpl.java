@@ -1,6 +1,7 @@
 package com.zeroone.star.pharmacy.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.date.DateTime;
 import com.alibaba.cloud.commons.lang.StringUtils;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -9,16 +10,21 @@ import com.zeroone.star.pharmacy.mapper.AdmDeviceDefinitionMapper;
 import com.zeroone.star.pharmacy.mapper.MedMedicationDefinitionMapper;
 import com.zeroone.star.pharmacy.mapper.WkfInventoryItemMapper;
 import com.zeroone.star.pharmacy.service.InventoryDetailService;
+import com.zeroone.star.project.components.excel.ExcelComponent;
 import com.zeroone.star.project.query.j6.pharmacy.inventory.InventoryDetailQuery;
-import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j6.pharmacy.inventory.ExcelExportVO;
 import com.zeroone.star.project.vo.j6.pharmacy.inventory.InventoryDetailVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -31,8 +37,10 @@ public class InventoryDetailServiceImpl implements InventoryDetailService {
     AdmDeviceDefinitionMapper deviceDefinitionMapper;
     @Autowired
     WkfInventoryItemMapper inventoryItemMapper;
+    @Autowired
+    ExcelComponent excelComponent;
 
-    public JsonVO<IPage<InventoryDetailVO>> pageInventoryDetailCurrent(InventoryDetailQuery request) {
+    public Page<InventoryDetailVO> pageInventoryDetailCurrent(InventoryDetailQuery request) {
         //创建query对象
         WarehouseInventoryDetailPageQuery query = buildQuery(request);
 
@@ -57,7 +65,40 @@ public class InventoryDetailServiceImpl implements InventoryDetailService {
         pageResult.setCurrent(request.getPageIndex());
         pageResult.setSize(request.getPageSize());
 
-        return JsonVO.success(pageResult);
+        return pageResult;
+    }
+
+
+
+    @Override
+    public ExcelExportVO exportToExcel(InventoryDetailQuery inventoryDetailQueryDTO)  {
+
+        // 条件分页查询需要导出的数据
+        Page<InventoryDetailVO> inventoryDetailVOPage = pageInventoryDetailCurrent(inventoryDetailQueryDTO);
+
+        // 创建输出流
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        // 导出
+        try {
+            excelComponent.export("库存明细", out, InventoryDetailVO.class, inventoryDetailVOPage.getRecords());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        byte[] data = out.toByteArray();
+        try {
+            out.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        String filename = "report" + DateTime.now().toString("yyyyMMddHHmmss") + ".xlsx";
+
+        ExcelExportVO excelExportVO = new ExcelExportVO();
+        excelExportVO.setFileName(filename);
+        excelExportVO.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        excelExportVO.setBody(Arrays.toString(data));
+        excelExportVO.setExportedRowCount(inventoryDetailVOPage.getTotal());
+        excelExportVO.setTruncated(false);
+        return excelExportVO;
     }
 
 
