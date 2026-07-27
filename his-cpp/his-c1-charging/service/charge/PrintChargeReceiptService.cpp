@@ -106,6 +106,7 @@ ConfirmPrintResponseDTO::Wrapper PrintChargeReceiptService::confirmPrint(const C
         version, status,
         printer, copies, clientType, errorCode, errorMessage,
         dto->bizRef ? "{}" : "{}");
+    // TODO: serialize dto->bizRef to JSON string
 
     resp->ok = (rows > 0);
     return resp;

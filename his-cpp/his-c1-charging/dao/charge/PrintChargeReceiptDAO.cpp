@@ -88,7 +88,7 @@ int PrintChargeReceiptDAO::insertPrintLog(const std::string& traceId, const std:
         << " (id, tenant_id, trace_id, bus_no, template_version, status,"
         << " printer_name, copies, error_code, error_message,"
         << " biz_ref_json, client_type, created_at, is_deleted)"
-        << " VALUES (?, 'tenant_default', ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), 0)";
+        << " VALUES (?, 'tenant_default', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), 0)";
 
     std::string logId = traceId + "_log";
     SQLPARAMS_PUSH(params, "s", std::string, logId);
