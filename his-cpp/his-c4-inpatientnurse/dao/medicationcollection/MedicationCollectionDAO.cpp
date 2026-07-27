@@ -1,20 +1,13 @@
-/*
- Copyright Zero One Star. All rights reserved.
-
- @Author: Swan_Woo
- @Date: 2026/07/25 00:00:00
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
-      https://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-*/
 #include "stdafx.h"
 #include "MedicationCollectionDAO.h"
+#include "MedicationCollectionMapper.h"
+namespace{
+std::vector<std::string> splitIds(const oatpp::String& value){std::vector<std::string> out;std::stringstream ss(value.getValue(""));std::string x;while(std::getline(ss,x,','))if(!x.empty())out.push_back(x);return out;}
+void appendPendingFilter(const PagePendingDispenseSummaryLinesQuery::Wrapper&q,std::string&sql,SqlParams&p){auto ids=splitIds(q->encounterIds);if(ids.empty()){sql+=" AND 1=0";return;}sql+=" AND d.encounter_id IN (";for(size_t i=0;i<ids.size();++i){if(i)sql+=",";sql+="?";SQLPARAMS_PUSH(p,"s",std::string,ids[i]);}sql+=")";if(q->therapyFilter&&q->therapyFilter!="all"){sql+=" AND mr.therapy_enum=?";SQLPARAMS_PUSH(p,"s",std::string,q->therapyFilter.getValue(""));}if(q->medicineCategoryTab=="west")sql+=" AND COALESCE(mr.tcm_flag,0)=0";else if(q->medicineCategoryTab=="tcm")sql+=" AND mr.tcm_flag=1";if(q->queryDeadline&&!q->queryDeadline->empty()){sql+=" AND d.planned_dispense_time<=?";SQLPARAMS_PUSH(p,"dt",std::string,q->queryDeadline.getValue(""));}if(q->startDate&&!q->startDate->empty()){sql+=" AND d.planned_dispense_time>=?";SQLPARAMS_PUSH(p,"dt",std::string,q->startDate.getValue(""));}if(q->endDate&&!q->endDate->empty()){sql+=" AND d.planned_dispense_time<=?";SQLPARAMS_PUSH(p,"dt",std::string,q->endDate.getValue(""));}if(q->keyword&&!q->keyword->empty()){sql+=" AND (md.name LIKE CONCAT('%',?,'%') OR p.name LIKE CONCAT('%',?,'%'))";SQLPARAMS_PUSH(p,"s",std::string,q->keyword.getValue(""));SQLPARAMS_PUSH(p,"s",std::string,q->keyword.getValue(""));}}
+const char* FROM_SQL=" FROM med_medication_dispense d JOIN med_medication_request mr ON mr.id=d.med_req_id AND mr.is_deleted=0 JOIN adm_patient p ON p.id=d.patient_id AND p.is_deleted=0 LEFT JOIN med_medication_definition md ON md.id=d.medication_id AND md.is_deleted=0 LEFT JOIN adm_location loc ON loc.id=d.location_id AND loc.is_deleted=0 LEFT JOIN adm_encounter_location el ON el.encounter_id=d.encounter_id AND el.form_enum='BED' AND el.status_enum='ACTIVE' AND el.is_deleted=0 LEFT JOIN adm_location bed ON bed.id=el.location_id AND bed.is_deleted=0 LEFT JOIN adm_charge_item ci ON ci.dispense_id=d.id AND ci.is_deleted=0 AND ci.status_enum='PENDING_SETTLEMENT' WHERE d.is_deleted=0 AND d.status_enum='PREPARATION' AND (d.summary_no IS NULL OR d.summary_no='') AND mr.status_enum IN('VERIFIED','STOPPED')";
+}
+uint64_t MedicationCollectionDAO::countPending(const PagePendingDispenseSummaryLinesQuery::Wrapper&q){std::string sql=std::string("SELECT COUNT(*)")+FROM_SQL;SqlParams p;appendPendingFilter(q,sql,p);return sqlSession->executeQueryNumerical(sql,p);}
+std::list<PendingDispenseRow> MedicationCollectionDAO::selectPending(const PagePendingDispenseSummaryLinesQuery::Wrapper&q){std::string sql="SELECT d.id dispense_id,d.procedure_id,d.planned_dispense_time planned_time,d.quantity,d.unit_code,COALESCE(ci.unit_price,0) price,d.med_req_id,d.medication_id,COALESCE(md.name,'') medication_name,COALESCE(md.total_volume,'') specification,COALESCE(mr.group_id,'') group_id,mr.therapy_enum,COALESCE(d.dosage_instruction,mr.dosage_instruction,'') dosage_instruction,COALESCE(d.method_code,mr.method_code,'') method_code,COALESCE(d.frequency_code,mr.rate_code,'') frequency_code,d.location_id,COALESCE(loc.name,'') location_name,d.encounter_id,d.patient_id,p.name patient_name,COALESCE(bed.name,'') bed_name "+std::string(FROM_SQL);SqlParams p;appendPendingFilter(q,sql,p);sql+=" ORDER BY d.planned_dispense_time "+std::string(q->sortDirection=="ASC"?"ASC":"DESC")+" LIMIT ?,?";SQLPARAMS_PUSH(p,"ull",uint64_t,(q->pageIndex.getValue(1)-1)*q->pageSize.getValue(10));SQLPARAMS_PUSH(p,"ull",uint64_t,q->pageSize.getValue(10));return sqlSession->executeQuery<PendingDispenseRow>(sql,PendingDispenseMapper(),p);}
+std::list<SummarizeDispenseRow> MedicationCollectionDAO::lockSummarizable(const std::vector<std::string>&ids){if(ids.empty())return{};std::string sql="SELECT d.id,d.encounter_id,d.patient_id,d.medication_id,d.location_id,d.unit_code,d.quantity,COALESCE(ci.unit_price,0) price FROM med_medication_dispense d LEFT JOIN adm_charge_item ci ON ci.dispense_id=d.id AND ci.is_deleted=0 AND ci.status_enum='PENDING_SETTLEMENT' WHERE d.is_deleted=0 AND d.status_enum='PREPARATION' AND (d.summary_no IS NULL OR d.summary_no='') AND d.id IN(";SqlParams p;for(size_t i=0;i<ids.size();++i){if(i)sql+=",";sql+="?";SQLPARAMS_PUSH(p,"s",std::string,ids[i]);}sql+=") FOR UPDATE";return sqlSession->executeQuery<SummarizeDispenseRow>(sql,SummarizeDispenseMapper(),p);}
+int MedicationCollectionDAO::attachSummary(const std::string&id,const std::string&no,const std::string&op){return sqlSession->executeUpdate("UPDATE med_medication_dispense SET summary_no=?,updated_at=NOW(),updated_by=?,version=version+1 WHERE id=? AND is_deleted=0 AND status_enum='PREPARATION' AND (summary_no IS NULL OR summary_no='')","%s%s%s",no,op,id);}
+int MedicationCollectionDAO::insertSupplyLine(const std::string&id,const std::string&no,const SummarizeDispenseRow&r,const std::string&op){return sqlSession->executeUpdate("INSERT INTO wkf_supply_request(id,created_at,created_by,is_deleted,version,bus_no,type_enum,status_enum,category_enum,patient_id,item_table,item_quantity,item_id,unit_code,purpose_type_enum,purpose_location_id,applicant_id,price,total_price) VALUES(?,NOW(),?,0,0,?,'27','PENDING_APPROVAL','MEDICATION',?,'med_medication_definition',?,?,?,'LOCATION',?,?,?,?)","%s%s%s%s%d%s%s%s%s%d%d",id,op,no,r.patientId,r.quantity,r.medicationId,r.unitCode,r.locationId,op,r.price,r.price*r.quantity);}

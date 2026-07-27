@@ -20,11 +20,19 @@
 #ifndef _EncounterManage_DAO_H_
 #define _EncounterManage_DAO_H_
 
-class EncounterManageDAO
+#include "BaseDAO.h"
+#include "domain/query/encountermanage/PagePatientQueueQuery.h"
+#include "domain/query/encountermanage/PatientStatisticsQuery.h"
+#include "domain/dto/encountermanage/PagePatientQueueDTO.h"
+
+class EncounterManageDAO : public BaseDAO
 {
 public:
-    EncounterManageDAO() = default;
-    ~EncounterManageDAO() = default;
+	uint64_t countPatients(const PagePatientQueueQuery::Wrapper& query);
+	std::list<PatientQueueItemDTO::Wrapper> selectPatients(const PagePatientQueueQuery::Wrapper& query);
+	uint64_t countPatients(const PatientStatisticsQuery::Wrapper& query);
+	uint64_t countPendingAudit(const PatientStatisticsQuery::Wrapper& query);
+	uint64_t countPendingExecute(const PatientStatisticsQuery::Wrapper& query);
 };
 
 #endif // !_EncounterManage_DAO_H_
