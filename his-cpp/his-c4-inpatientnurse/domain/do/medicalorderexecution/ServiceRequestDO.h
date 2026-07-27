@@ -2,8 +2,8 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: fanpai
- @Date: 2026/07/20 16:00:00
+ @Author: Swan_Woo
+ @Date: 2026/07/27 00:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,168 +17,127 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _WKF_SERVICE_REQUEST_DO_H_
-#define _WKF_SERVICE_REQUEST_DO_H_
+#ifndef _WKFSERVICEREQUESTDO_H_
+#define _WKFSERVICEREQUESTDO_H_
 
 #include "../DoInclude.h"
 
-/**
- * Data Object mapping to table: wkf_service_request
- * Core aggregate for medical order verification and execution workflows.
- */
-class WkfServiceRequestDO : public BaseDO {
-    // Primary key
-    MYSQL_SYNTHESIZE(std::string, id, Id);
-    // Tenant identifier
-    MYSQL_SYNTHESIZE(std::string, tenantId, TenantId);
-    // Business number
-    MYSQL_SYNTHESIZE(std::string, busNo, BusNo);
-    // Prescription number
-    MYSQL_SYNTHESIZE(std::string, prescriptionNo, PrescriptionNo);
-    // Based-on table name
-    MYSQL_SYNTHESIZE(std::string, basedOnTable, BasedOnTable);
-    // Based-on identifier
-    MYSQL_SYNTHESIZE(std::string, basedOnId, BasedOnId);
-    // Requisition identifier
-    MYSQL_SYNTHESIZE(std::string, requisitionId, RequisitionId);
-    // Status enum: pending_verification / verified / returned / executing / completed
-    MYSQL_SYNTHESIZE(std::string, statusEnum, StatusEnum);
-    // Intent enum: long_term / temporary
-    MYSQL_SYNTHESIZE(std::string, intentEnum, IntentEnum);
-    // Category enum: medication / procedure / lab
-    MYSQL_SYNTHESIZE(std::string, categoryEnum, CategoryEnum);
-    // Group identifier (orders in same group verified/executed together)
-    MYSQL_SYNTHESIZE(std::string, groupId, GroupId);
-    // Priority enum
-    MYSQL_SYNTHESIZE(std::string, priorityEnum, PriorityEnum);
-    // Perform flag
-    MYSQL_SYNTHESIZE(int, performFlag, PerformFlag);
-    // Activity identifier (links to treatment item)
-    MYSQL_SYNTHESIZE(std::string, activityId, ActivityId);
-    // Quantity
-    MYSQL_SYNTHESIZE(double, quantity, Quantity);
-    // Unit code
-    MYSQL_SYNTHESIZE(std::string, unitCode, UnitCode);
-    // Patient identifier
-    MYSQL_SYNTHESIZE(std::string, patientId, PatientId);
-    // Encounter (visit) identifier
-    MYSQL_SYNTHESIZE(std::string, encounterId, EncounterId);
-    // Authored time (when doctor created the order)
-    MYSQL_SYNTHESIZE(std::string, authoredTime, AuthoredTime);
-    // Requester identifier (doctor who ordered)
-    MYSQL_SYNTHESIZE(std::string, requesterId, RequesterId);
-    // Performer type code
-    MYSQL_SYNTHESIZE(std::string, performerTypeCode, PerformerTypeCode);
-    // Performer identifier (nurse who executes)
-    MYSQL_SYNTHESIZE(std::string, performerId, PerformerId);
-    // Verification nurse identifier (nurse who verified)
-    MYSQL_SYNTHESIZE(std::string, performerCheckId, PerformerCheckId);
-    // Check time (verification timestamp)
-    MYSQL_SYNTHESIZE(std::string, checkTime, CheckTime);
-    // Location / department identifier
-    MYSQL_SYNTHESIZE(std::string, locationId, LocationId);
-    // Organization identifier
-    MYSQL_SYNTHESIZE(std::string, orgId, OrgId);
-    // Reason text (e.g., return reason for rejected orders)
-    MYSQL_SYNTHESIZE(std::string, reasonText, ReasonText);
-    // Contract identifier
-    MYSQL_SYNTHESIZE(std::string, contractId, ContractId);
-    // Occurrence start time
-    MYSQL_SYNTHESIZE(std::string, occurrenceStartTime, OccurrenceStartTime);
-    // Occurrence end time
-    MYSQL_SYNTHESIZE(std::string, occurrenceEndTime, OccurrenceEndTime);
-    // Relevant history identifier
-    MYSQL_SYNTHESIZE(std::string, relevantHistoryId, RelevantHistoryId);
-    // Refund service identifier
-    MYSQL_SYNTHESIZE(std::string, refundServiceId, RefundServiceId);
-    // Content JSON (extension data)
-    MYSQL_SYNTHESIZE(std::string, contentJson, ContentJson);
-    // Medical insurance class enum
-    MYSQL_SYNTHESIZE(std::string, ybClassEnum, YbClassEnum);
-    // Print count
-    MYSQL_SYNTHESIZE(int, printCount, PrintCount);
-    // Condition definition ID (diagnosis reference)
-    MYSQL_SYNTHESIZE(std::string, conditionDefinitionId, ConditionDefinitionId);
-    // Encounter diagnosis ID
-    MYSQL_SYNTHESIZE(std::string, encounterDiagnosisId, EncounterDiagnosisId);
-    // Therapy enum
-    MYSQL_SYNTHESIZE(std::string, therapyEnum, TherapyEnum);
-    // Rate code (e.g., infusion rate)
-    MYSQL_SYNTHESIZE(std::string, rateCode, RateCode);
-    // Parent identifier (for split child orders)
-    MYSQL_SYNTHESIZE(std::string, parentId, ParentId);
-    // Generate source enum
-    MYSQL_SYNTHESIZE(std::string, generateSourceEnum, GenerateSourceEnum);
-    // Remark / notes
-    MYSQL_SYNTHESIZE(std::string, remark, Remark);
-    // Entrust content (nurse execution instructions)
-    MYSQL_SYNTHESIZE(std::string, entrustContent, EntrustContent);
-    // Sort number for display order
-    MYSQL_SYNTHESIZE(int, sortNumber, SortNumber);
-    // Execution count (for non-medication orders)
-    MYSQL_SYNTHESIZE(int, executionCount, ExecutionCount);
-    // Optimistic lock version
-    MYSQL_SYNTHESIZE(int, version, Version);
-    // Soft delete flag: 0=active, 1=deleted
-    MYSQL_SYNTHESIZE(int, isDeleted, IsDeleted);
+// Complete mapping for database table wkf_service_request.
+class WkfServiceRequestDO : public BaseDO
+{
+	MYSQL_SYNTHESIZE(string, id, Id);
+	MYSQL_SYNTHESIZE(string, tenantId, TenantId);
+	MYSQL_SYNTHESIZE(string, createdAt, CreatedAt);
+	MYSQL_SYNTHESIZE(string, updatedAt, UpdatedAt);
+	MYSQL_SYNTHESIZE(string, createdBy, CreatedBy);
+	MYSQL_SYNTHESIZE(string, updatedBy, UpdatedBy);
+	MYSQL_SYNTHESIZE(bool, isDeleted, IsDeleted);
+	MYSQL_SYNTHESIZE(string, deletedAt, DeletedAt);
+	MYSQL_SYNTHESIZE(string, deletedBy, DeletedBy);
+	MYSQL_SYNTHESIZE(int, version, Version);
+	MYSQL_SYNTHESIZE(string, busNo, BusNo);
+	MYSQL_SYNTHESIZE(string, prescriptionNo, PrescriptionNo);
+	MYSQL_SYNTHESIZE(string, basedOnTable, BasedOnTable);
+	MYSQL_SYNTHESIZE(string, basedOnId, BasedOnId);
+	MYSQL_SYNTHESIZE(string, requisitionId, RequisitionId);
+	MYSQL_SYNTHESIZE(string, statusEnum, StatusEnum);
+	MYSQL_SYNTHESIZE(string, intentEnum, IntentEnum);
+	MYSQL_SYNTHESIZE(string, categoryEnum, CategoryEnum);
+	MYSQL_SYNTHESIZE(string, groupId, GroupId);
+	MYSQL_SYNTHESIZE(string, priorityEnum, PriorityEnum);
+	MYSQL_SYNTHESIZE(bool, performFlag, PerformFlag);
+	MYSQL_SYNTHESIZE(string, activityId, ActivityId);
+	MYSQL_SYNTHESIZE(double, quantity, Quantity);
+	MYSQL_SYNTHESIZE(string, unitCode, UnitCode);
+	MYSQL_SYNTHESIZE(string, patientId, PatientId);
+	MYSQL_SYNTHESIZE(string, encounterId, EncounterId);
+	MYSQL_SYNTHESIZE(string, authoredTime, AuthoredTime);
+	MYSQL_SYNTHESIZE(string, requesterId, RequesterId);
+	MYSQL_SYNTHESIZE(string, performerTypeCode, PerformerTypeCode);
+	MYSQL_SYNTHESIZE(string, performerId, PerformerId);
+	MYSQL_SYNTHESIZE(string, performerCheckId, PerformerCheckId);
+	MYSQL_SYNTHESIZE(string, checkTime, CheckTime);
+	MYSQL_SYNTHESIZE(string, locationId, LocationId);
+	MYSQL_SYNTHESIZE(string, orgId, OrgId);
+	MYSQL_SYNTHESIZE(string, reasonText, ReasonText);
+	MYSQL_SYNTHESIZE(string, contractId, ContractId);
+	MYSQL_SYNTHESIZE(string, occurrenceStartTime, OccurrenceStartTime);
+	MYSQL_SYNTHESIZE(string, occurrenceEndTime, OccurrenceEndTime);
+	MYSQL_SYNTHESIZE(string, relevantHistoryId, RelevantHistoryId);
+	MYSQL_SYNTHESIZE(string, refundServiceId, RefundServiceId);
+	MYSQL_SYNTHESIZE(string, contentJson, ContentJson);
+	MYSQL_SYNTHESIZE(string, ybClassEnum, YbClassEnum);
+	MYSQL_SYNTHESIZE(int, printCount, PrintCount);
+	MYSQL_SYNTHESIZE(string, conditionDefinitionId, ConditionDefinitionId);
+	MYSQL_SYNTHESIZE(string, encounterDiagnosisId, EncounterDiagnosisId);
+	MYSQL_SYNTHESIZE(string, therapyEnum, TherapyEnum);
+	MYSQL_SYNTHESIZE(string, rateCode, RateCode);
+	MYSQL_SYNTHESIZE(string, parentId, ParentId);
+	MYSQL_SYNTHESIZE(string, generateSourceEnum, GenerateSourceEnum);
+	MYSQL_SYNTHESIZE(string, remark, Remark);
+	MYSQL_SYNTHESIZE(string, entrustContent, EntrustContent);
+	MYSQL_SYNTHESIZE(int, sortNumber, SortNumber);
+	MYSQL_SYNTHESIZE(int, executionCount, ExecutionCount);
 
 public:
-    /**
-     * Register table name and field mappings.
-     * Type placeholders: "s"=string, "i"=int, "d"=double, "ull"=uint64_t
-     */
-    WkfServiceRequestDO() : BaseDO("wkf_service_request") {
-        MYSQL_ADD_FIELD_PK("id", "s", id);
-        MYSQL_ADD_FIELD("tenant_id", "s", tenantId);
-        MYSQL_ADD_FIELD("bus_no", "s", busNo);
-        MYSQL_ADD_FIELD("prescription_no", "s", prescriptionNo);
-        MYSQL_ADD_FIELD("based_on_table", "s", basedOnTable);
-        MYSQL_ADD_FIELD("based_on_id", "s", basedOnId);
-        MYSQL_ADD_FIELD("requisition_id", "s", requisitionId);
-        MYSQL_ADD_FIELD("status_enum", "s", statusEnum);
-        MYSQL_ADD_FIELD("intent_enum", "s", intentEnum);
-        MYSQL_ADD_FIELD("category_enum", "s", categoryEnum);
-        MYSQL_ADD_FIELD("group_id", "s", groupId);
-        MYSQL_ADD_FIELD("priority_enum", "s", priorityEnum);
-        MYSQL_ADD_FIELD("perform_flag", "i", performFlag);
-        MYSQL_ADD_FIELD("activity_id", "s", activityId);
-        MYSQL_ADD_FIELD("quantity", "d", quantity);
-        MYSQL_ADD_FIELD("unit_code", "s", unitCode);
-        MYSQL_ADD_FIELD("patient_id", "s", patientId);
-        MYSQL_ADD_FIELD("encounter_id", "s", encounterId);
-        MYSQL_ADD_FIELD("authored_time", "s", authoredTime);
-        MYSQL_ADD_FIELD("requester_id", "s", requesterId);
-        MYSQL_ADD_FIELD("performer_type_code", "s", performerTypeCode);
-        MYSQL_ADD_FIELD("performer_id", "s", performerId);
-        MYSQL_ADD_FIELD("performer_check_id", "s", performerCheckId);
-        MYSQL_ADD_FIELD("check_time", "s", checkTime);
-        MYSQL_ADD_FIELD("location_id", "s", locationId);
-        MYSQL_ADD_FIELD("org_id", "s", orgId);
-        MYSQL_ADD_FIELD("reason_text", "s", reasonText);
-        MYSQL_ADD_FIELD("contract_id", "s", contractId);
-        MYSQL_ADD_FIELD("occurrence_start_time", "s", occurrenceStartTime);
-        MYSQL_ADD_FIELD("occurrence_end_time", "s", occurrenceEndTime);
-        MYSQL_ADD_FIELD("relevant_history_id", "s", relevantHistoryId);
-        MYSQL_ADD_FIELD("refund_service_id", "s", refundServiceId);
-        MYSQL_ADD_FIELD("content_json", "s", contentJson);
-        MYSQL_ADD_FIELD("yb_class_enum", "s", ybClassEnum);
-        MYSQL_ADD_FIELD("print_count", "i", printCount);
-        MYSQL_ADD_FIELD("condition_definition_id", "s", conditionDefinitionId);
-        MYSQL_ADD_FIELD("encounter_diagnosis_id", "s", encounterDiagnosisId);
-        MYSQL_ADD_FIELD("therapy_enum", "s", therapyEnum);
-        MYSQL_ADD_FIELD("rate_code", "s", rateCode);
-        MYSQL_ADD_FIELD("parent_id", "s", parentId);
-        MYSQL_ADD_FIELD("generate_source_enum", "s", generateSourceEnum);
-        MYSQL_ADD_FIELD("remark", "s", remark);
-        MYSQL_ADD_FIELD("entrust_content", "s", entrustContent);
-        MYSQL_ADD_FIELD("sort_number", "i", sortNumber);
-        MYSQL_ADD_FIELD("execution_count", "i", executionCount);
-        MYSQL_ADD_FIELD("version", "i", version);
-        MYSQL_ADD_FIELD("is_deleted", "i", isDeleted);
-    }
+	WkfServiceRequestDO() : BaseDO("wkf_service_request")
+	{
+		MYSQL_ADD_FIELD_PK("id", "s", id);
+		MYSQL_ADD_FIELD_NULLABLE("tenant_id", "s", tenantId, true);
+		MYSQL_ADD_FIELD("created_at", "dt", createdAt);
+		MYSQL_ADD_FIELD_NULLABLE("updated_at", "dt", updatedAt, true);
+		MYSQL_ADD_FIELD_NULLABLE("created_by", "s", createdBy, true);
+		MYSQL_ADD_FIELD_NULLABLE("updated_by", "s", updatedBy, true);
+		MYSQL_ADD_FIELD("is_deleted", "b", isDeleted);
+		MYSQL_ADD_FIELD_NULLABLE("deleted_at", "dt", deletedAt, true);
+		MYSQL_ADD_FIELD_NULLABLE("deleted_by", "s", deletedBy, true);
+		MYSQL_ADD_FIELD("version", "i", version);
+		MYSQL_ADD_FIELD_NULLABLE("bus_no", "s", busNo, true);
+		MYSQL_ADD_FIELD_NULLABLE("prescription_no", "s", prescriptionNo, true);
+		MYSQL_ADD_FIELD_NULLABLE("based_on_table", "s", basedOnTable, true);
+		MYSQL_ADD_FIELD_NULLABLE("based_on_id", "s", basedOnId, true);
+		MYSQL_ADD_FIELD_NULLABLE("requisition_id", "s", requisitionId, true);
+		MYSQL_ADD_FIELD("status_enum", "s", statusEnum);
+		MYSQL_ADD_FIELD_NULLABLE("intent_enum", "s", intentEnum, true);
+		MYSQL_ADD_FIELD("category_enum", "s", categoryEnum);
+		MYSQL_ADD_FIELD_NULLABLE("group_id", "s", groupId, true);
+		MYSQL_ADD_FIELD_NULLABLE("priority_enum", "s", priorityEnum, true);
+		MYSQL_ADD_FIELD_NULLABLE("perform_flag", "b", performFlag, true);
+		MYSQL_ADD_FIELD("activity_id", "s", activityId);
+		MYSQL_ADD_FIELD("quantity", "d", quantity);
+		MYSQL_ADD_FIELD("unit_code", "s", unitCode);
+		MYSQL_ADD_FIELD("patient_id", "s", patientId);
+		MYSQL_ADD_FIELD("encounter_id", "s", encounterId);
+		MYSQL_ADD_FIELD_NULLABLE("authored_time", "dt", authoredTime, true);
+		MYSQL_ADD_FIELD("requester_id", "s", requesterId);
+		MYSQL_ADD_FIELD_NULLABLE("performer_type_code", "s", performerTypeCode, true);
+		MYSQL_ADD_FIELD_NULLABLE("performer_id", "s", performerId, true);
+		MYSQL_ADD_FIELD_NULLABLE("performer_check_id", "s", performerCheckId, true);
+		MYSQL_ADD_FIELD_NULLABLE("check_time", "dt", checkTime, true);
+		MYSQL_ADD_FIELD_NULLABLE("location_id", "s", locationId, true);
+		MYSQL_ADD_FIELD_NULLABLE("org_id", "s", orgId, true);
+		MYSQL_ADD_FIELD_NULLABLE("reason_text", "s", reasonText, true);
+		MYSQL_ADD_FIELD_NULLABLE("contract_id", "s", contractId, true);
+		MYSQL_ADD_FIELD_NULLABLE("occurrence_start_time", "dt", occurrenceStartTime, true);
+		MYSQL_ADD_FIELD_NULLABLE("occurrence_end_time", "dt", occurrenceEndTime, true);
+		MYSQL_ADD_FIELD_NULLABLE("relevant_history_id", "s", relevantHistoryId, true);
+		MYSQL_ADD_FIELD_NULLABLE("refund_service_id", "s", refundServiceId, true);
+		MYSQL_ADD_FIELD_NULLABLE("content_json", "s", contentJson, true);
+		MYSQL_ADD_FIELD_NULLABLE("yb_class_enum", "s", ybClassEnum, true);
+		MYSQL_ADD_FIELD_NULLABLE("print_count", "i", printCount, true);
+		MYSQL_ADD_FIELD_NULLABLE("condition_definition_id", "s", conditionDefinitionId, true);
+		MYSQL_ADD_FIELD_NULLABLE("encounter_diagnosis_id", "s", encounterDiagnosisId, true);
+		MYSQL_ADD_FIELD_NULLABLE("therapy_enum", "s", therapyEnum, true);
+		MYSQL_ADD_FIELD_NULLABLE("rate_code", "s", rateCode, true);
+		MYSQL_ADD_FIELD_NULLABLE("parent_id", "s", parentId, true);
+		MYSQL_ADD_FIELD_NULLABLE("generate_source_enum", "s", generateSourceEnum, true);
+		MYSQL_ADD_FIELD_NULLABLE("remark", "s", remark, true);
+		MYSQL_ADD_FIELD_NULLABLE("entrust_content", "s", entrustContent, true);
+		MYSQL_ADD_FIELD_NULLABLE("sort_number", "i", sortNumber, true);
+		MYSQL_ADD_FIELD_NULLABLE("execution_count", "i", executionCount, true);
+	}
 };
 
-// Shared pointer alias
 typedef std::shared_ptr<WkfServiceRequestDO> PtrWkfServiceRequestDO;
 
-#endif // !_WKF_SERVICE_REQUEST_DO_H_
+#endif // _WKFSERVICEREQUESTDO_H_

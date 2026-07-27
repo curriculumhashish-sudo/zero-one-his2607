@@ -33,27 +33,27 @@ public:
 	EncounterDiagnosisDO() : BaseDO("adm_encounter_diagnosis")
 	{
 		MYSQL_ADD_FIELD_PK("id", "s", id);
-		MYSQL_ADD_FIELD_NULLABLE("tenant_id", "s", tenantId);
+		MYSQL_ADD_FIELD_NULLABLE("tenant_id", "s", tenantId, true);
 		MYSQL_ADD_FIELD("created_at", "s", createdAt);
-		MYSQL_ADD_FIELD_NULLABLE("updated_at", "s", updatedAt);
-		MYSQL_ADD_FIELD_NULLABLE("created_by", "s", createdBy);
-		MYSQL_ADD_FIELD_NULLABLE("updated_by", "s", updatedBy);
+		MYSQL_ADD_FIELD_NULLABLE("updated_at", "s", updatedAt, true);
+		MYSQL_ADD_FIELD_NULLABLE("created_by", "s", createdBy, true);
+		MYSQL_ADD_FIELD_NULLABLE("updated_by", "s", updatedBy, true);
 		MYSQL_ADD_FIELD("is_deleted", "b", isDeleted);
-		MYSQL_ADD_FIELD_NULLABLE("deleted_at", "s", deletedAt);
-		MYSQL_ADD_FIELD_NULLABLE("deleted_by", "s", deletedBy);
+		MYSQL_ADD_FIELD_NULLABLE("deleted_at", "s", deletedAt, true);
+		MYSQL_ADD_FIELD_NULLABLE("deleted_by", "s", deletedBy, true);
 		MYSQL_ADD_FIELD("version", "i", version);
 		MYSQL_ADD_FIELD("encounter_id", "s", encounterId);
 		MYSQL_ADD_FIELD("condition_id", "s", conditionId);
-		MYSQL_ADD_FIELD_NULLABLE("primary_flag", "b", primaryFlag);
-		MYSQL_ADD_FIELD_NULLABLE("rank", "i", rank);
-		MYSQL_ADD_FIELD_NULLABLE("description", "s", description);
-		MYSQL_ADD_FIELD_NULLABLE("diag_type_code", "s", diagTypeCode);
-		MYSQL_ADD_FIELD_NULLABLE("diag_code", "i", diagCode);
-		MYSQL_ADD_FIELD_NULLABLE("condition_code", "i", conditionCode);
-		MYSQL_ADD_FIELD_NULLABLE("med_type", "s", medType);
-		MYSQL_ADD_FIELD_NULLABLE("highest_diag_flag", "b", highestDiagFlag);
-		MYSQL_ADD_FIELD_NULLABLE("tcm_syndrome_group", "s", tcmSyndromeGroup);
-		MYSQL_ADD_FIELD_NULLABLE("tcm_flag", "b", tcmFlag);
+		MYSQL_ADD_FIELD_NULLABLE("primary_flag", "b", primaryFlag, true);
+		MYSQL_ADD_FIELD_NULLABLE("rank", "i", rank, true);
+		MYSQL_ADD_FIELD_NULLABLE("description", "s", description, true);
+		MYSQL_ADD_FIELD_NULLABLE("diag_type_code", "s", diagTypeCode, true);
+		MYSQL_ADD_FIELD_NULLABLE("diag_code", "i", diagCode, true);
+		MYSQL_ADD_FIELD_NULLABLE("condition_code", "i", conditionCode, true);
+		MYSQL_ADD_FIELD_NULLABLE("med_type", "s", medType, true);
+		MYSQL_ADD_FIELD_NULLABLE("highest_diag_flag", "b", highestDiagFlag, true);
+		MYSQL_ADD_FIELD_NULLABLE("tcm_syndrome_group", "s", tcmSyndromeGroup, true);
+		MYSQL_ADD_FIELD_NULLABLE("tcm_flag", "b", tcmFlag, true);
 	}
 };
 

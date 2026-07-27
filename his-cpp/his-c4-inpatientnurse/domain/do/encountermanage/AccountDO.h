@@ -34,28 +34,28 @@ public:
 	AccountDO() : BaseDO("adm_account")
 	{
 		MYSQL_ADD_FIELD_PK("id", "s", id);
-		MYSQL_ADD_FIELD_NULLABLE("tenant_id", "s", tenantId);
+		MYSQL_ADD_FIELD_NULLABLE("tenant_id", "s", tenantId, true);
 		MYSQL_ADD_FIELD("created_at", "s", createdAt);
-		MYSQL_ADD_FIELD_NULLABLE("updated_at", "s", updatedAt);
-		MYSQL_ADD_FIELD_NULLABLE("created_by", "s", createdBy);
-		MYSQL_ADD_FIELD_NULLABLE("updated_by", "s", updatedBy);
+		MYSQL_ADD_FIELD_NULLABLE("updated_at", "s", updatedAt, true);
+		MYSQL_ADD_FIELD_NULLABLE("created_by", "s", createdBy, true);
+		MYSQL_ADD_FIELD_NULLABLE("updated_by", "s", updatedBy, true);
 		MYSQL_ADD_FIELD("is_deleted", "b", isDeleted);
-		MYSQL_ADD_FIELD_NULLABLE("deleted_at", "s", deletedAt);
-		MYSQL_ADD_FIELD_NULLABLE("deleted_by", "s", deletedBy);
+		MYSQL_ADD_FIELD_NULLABLE("deleted_at", "s", deletedAt, true);
+		MYSQL_ADD_FIELD_NULLABLE("deleted_by", "s", deletedBy, true);
 		MYSQL_ADD_FIELD("version", "i", version);
 		MYSQL_ADD_FIELD("patient_id", "s", patientId);
 		MYSQL_ADD_FIELD("encounter_id", "s", encounterId);
 		MYSQL_ADD_FIELD("type_code", "s", typeCode);
-		MYSQL_ADD_FIELD_NULLABLE("bus_no", "s", busNo);
-		MYSQL_ADD_FIELD_NULLABLE("name", "s", name);
-		MYSQL_ADD_FIELD_NULLABLE("balance", "d", balance);
-		MYSQL_ADD_FIELD_NULLABLE("billing_status_enum", "s", billingStatusEnum);
-		MYSQL_ADD_FIELD_NULLABLE("contract_no", "s", contractNo);
-		MYSQL_ADD_FIELD_NULLABLE("yb_area_no", "s", ybAreaNo);
-		MYSQL_ADD_FIELD_NULLABLE("encounter_flag", "b", encounterFlag);
-		MYSQL_ADD_FIELD_NULLABLE("insutype", "s", insutype);
-		MYSQL_ADD_FIELD_NULLABLE("default_flag", "b", defaultFlag);
-		MYSQL_ADD_FIELD_NULLABLE("status_enum", "s", statusEnum);
+		MYSQL_ADD_FIELD_NULLABLE("bus_no", "s", busNo, true);
+		MYSQL_ADD_FIELD_NULLABLE("name", "s", name, true);
+		MYSQL_ADD_FIELD_NULLABLE("balance", "d", balance, true);
+		MYSQL_ADD_FIELD_NULLABLE("billing_status_enum", "s", billingStatusEnum, true);
+		MYSQL_ADD_FIELD_NULLABLE("contract_no", "s", contractNo, true);
+		MYSQL_ADD_FIELD_NULLABLE("yb_area_no", "s", ybAreaNo, true);
+		MYSQL_ADD_FIELD_NULLABLE("encounter_flag", "b", encounterFlag, true);
+		MYSQL_ADD_FIELD_NULLABLE("insutype", "s", insutype, true);
+		MYSQL_ADD_FIELD_NULLABLE("default_flag", "b", defaultFlag, true);
+		MYSQL_ADD_FIELD_NULLABLE("status_enum", "s", statusEnum, true);
 	}
 };
 

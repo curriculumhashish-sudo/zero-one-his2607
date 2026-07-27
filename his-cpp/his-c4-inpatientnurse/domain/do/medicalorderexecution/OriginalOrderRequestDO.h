@@ -6,19 +6,12 @@
 #include "../DoInclude.h"
 
 // 药品医嘱和诊疗医嘱共用的原医嘱查询投影对象
-class OriginalOrderRequestDO : public BaseDO
+class OriginalOrderRequestDO
 {
 	MYSQL_SYNTHESIZE(string, encounterId, EncounterId);
 	MYSQL_SYNTHESIZE(string, patientId, PatientId);
 	MYSQL_SYNTHESIZE(string, categoryEnum, CategoryEnum);
 
-public:
-	OriginalOrderRequestDO() : BaseDO("original_order_request")
-	{
-		MYSQL_ADD_FIELD_NULLABLE("encounter_id", "s", encounterId, false);
-		MYSQL_ADD_FIELD_NULLABLE("patient_id", "s", patientId, false);
-		MYSQL_ADD_FIELD_NULLABLE("category_enum", "s", categoryEnum, false);
-	}
 };
 
 typedef std::shared_ptr<OriginalOrderRequestDO> PtrOriginalOrderRequestDO;

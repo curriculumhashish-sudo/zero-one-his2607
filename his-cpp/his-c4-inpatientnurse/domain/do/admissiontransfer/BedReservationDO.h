@@ -44,20 +44,20 @@ public:
     bkg_bed_reservation_extDO() : BaseDO("bkg_bed_reservation_ext")
     {
         MYSQL_ADD_FIELD_PK("id", "s", id);
-        MYSQL_ADD_FIELD("tenant_id", "s", tenant_id);
+        MYSQL_ADD_FIELD_NULLABLE("tenant_id", "s", tenant_id, true);
         MYSQL_ADD_FIELD("appointment_id", "s", appointment_id);
         MYSQL_ADD_FIELD("location_id", "s", location_id);
-        MYSQL_ADD_FIELD("patient_id", "s", patient_id);
-        MYSQL_ADD_FIELD("ward_location_id", "s", ward_location_id);
-        MYSQL_ADD_FIELD("intended_admission_date", "s", intended_admission_date);
-        MYSQL_ADD_FIELD("remark", "s", remark);
+        MYSQL_ADD_FIELD_NULLABLE("patient_id", "s", patient_id, true);
+        MYSQL_ADD_FIELD_NULLABLE("ward_location_id", "s", ward_location_id, true);
+        MYSQL_ADD_FIELD_NULLABLE("intended_admission_date", "s", intended_admission_date, true);
+        MYSQL_ADD_FIELD_NULLABLE("remark", "s", remark, true);
         MYSQL_ADD_FIELD("created_at", "s", created_at);
-        MYSQL_ADD_FIELD("updated_at", "s", updated_at);
-        MYSQL_ADD_FIELD("created_by", "s", created_by);
-        MYSQL_ADD_FIELD("updated_by", "s", updated_by);
+        MYSQL_ADD_FIELD_NULLABLE("updated_at", "s", updated_at, true);
+        MYSQL_ADD_FIELD_NULLABLE("created_by", "s", created_by, true);
+        MYSQL_ADD_FIELD_NULLABLE("updated_by", "s", updated_by, true);
         MYSQL_ADD_FIELD("is_deleted", "b", is_deleted);
-        MYSQL_ADD_FIELD("deleted_at", "s", deleted_at);
-        MYSQL_ADD_FIELD("deleted_by", "s", deleted_by);
+        MYSQL_ADD_FIELD_NULLABLE("deleted_at", "s", deleted_at, true);
+        MYSQL_ADD_FIELD_NULLABLE("deleted_by", "s", deleted_by, true);
         MYSQL_ADD_FIELD("version", "i", version);
         // safe defaults for NOT NULL columns not set by the service
         setIs_deleted(false);

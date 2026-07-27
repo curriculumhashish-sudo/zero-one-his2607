@@ -53,25 +53,25 @@ class EpisodeOfCareDO : public BaseDO
 public:
     EpisodeOfCareDO() : BaseDO("adm_episode_of_care") {
         MYSQL_ADD_FIELD_PK("id", "s", id);
-        MYSQL_ADD_FIELD("tenant_id", "s", tenant_id);
+        MYSQL_ADD_FIELD_NULLABLE("tenant_id", "s", tenant_id, true);
         MYSQL_ADD_FIELD("created_at", "s", created_at);
-        MYSQL_ADD_FIELD("updated_at", "s", updated_at);
-        MYSQL_ADD_FIELD("created_by", "s", created_by);
-        MYSQL_ADD_FIELD("updated_by", "s", updated_by);
+        MYSQL_ADD_FIELD_NULLABLE("updated_at", "s", updated_at, true);
+        MYSQL_ADD_FIELD_NULLABLE("created_by", "s", created_by, true);
+        MYSQL_ADD_FIELD_NULLABLE("updated_by", "s", updated_by, true);
         MYSQL_ADD_FIELD("is_deleted", "b", is_deleted);
-        MYSQL_ADD_FIELD("deleted_at", "s", deleted_at);
-        MYSQL_ADD_FIELD("deleted_by", "s", deleted_by);
+        MYSQL_ADD_FIELD_NULLABLE("deleted_at", "s", deleted_at, true);
+        MYSQL_ADD_FIELD_NULLABLE("deleted_by", "s", deleted_by, true);
         MYSQL_ADD_FIELD("version", "i", version);
         MYSQL_ADD_FIELD("patient_id", "s", patient_id);
         MYSQL_ADD_FIELD("organization_id", "s", organization_id);
         MYSQL_ADD_FIELD("bus_no", "s", bus_no);
-        MYSQL_ADD_FIELD("care_team_id", "s", care_team_id);
-        MYSQL_ADD_FIELD("care_type", "s", care_type);
-        MYSQL_ADD_FIELD("care_goal", "s", care_goal);
+        MYSQL_ADD_FIELD_NULLABLE("care_team_id", "s", care_team_id, true);
+        MYSQL_ADD_FIELD_NULLABLE("care_type", "s", care_type, true);
+        MYSQL_ADD_FIELD_NULLABLE("care_goal", "s", care_goal, true);
         MYSQL_ADD_FIELD("status_enum", "s", status_enum);
         MYSQL_ADD_FIELD("active_flag", "b", active_flag);
-        MYSQL_ADD_FIELD("start_time", "s", start_time);
-        MYSQL_ADD_FIELD("end_time", "s", end_time);
+        MYSQL_ADD_FIELD_NULLABLE("start_time", "s", start_time, true);
+        MYSQL_ADD_FIELD_NULLABLE("end_time", "s", end_time, true);
         // safe defaults for NOT NULL columns without service-provided values
         setIs_deleted(false);
         setVersion(0);

@@ -27,21 +27,21 @@ public:
 	EncounterParticipantDO() : BaseDO("adm_encounter_participant")
 	{
 		MYSQL_ADD_FIELD_PK("id", "s", id);
-		MYSQL_ADD_FIELD_NULLABLE("tenant_id", "s", tenantId);
+		MYSQL_ADD_FIELD_NULLABLE("tenant_id", "s", tenantId, true);
 		MYSQL_ADD_FIELD("created_at", "s", createdAt);
-		MYSQL_ADD_FIELD_NULLABLE("updated_at", "s", updatedAt);
-		MYSQL_ADD_FIELD_NULLABLE("created_by", "s", createdBy);
-		MYSQL_ADD_FIELD_NULLABLE("updated_by", "s", updatedBy);
+		MYSQL_ADD_FIELD_NULLABLE("updated_at", "s", updatedAt, true);
+		MYSQL_ADD_FIELD_NULLABLE("created_by", "s", createdBy, true);
+		MYSQL_ADD_FIELD_NULLABLE("updated_by", "s", updatedBy, true);
 		MYSQL_ADD_FIELD("is_deleted", "b", isDeleted);
-		MYSQL_ADD_FIELD_NULLABLE("deleted_at", "s", deletedAt);
-		MYSQL_ADD_FIELD_NULLABLE("deleted_by", "s", deletedBy);
+		MYSQL_ADD_FIELD_NULLABLE("deleted_at", "s", deletedAt, true);
+		MYSQL_ADD_FIELD_NULLABLE("deleted_by", "s", deletedBy, true);
 		MYSQL_ADD_FIELD("version", "i", version);
 		MYSQL_ADD_FIELD("encounter_id", "s", encounterId);
 		MYSQL_ADD_FIELD("role_code", "s", roleCode);
 		MYSQL_ADD_FIELD("practitioner_id", "s", practitionerId);
 		MYSQL_ADD_FIELD("status_enum", "s", statusEnum);
-		MYSQL_ADD_FIELD_NULLABLE("start_time", "s", startTime);
-		MYSQL_ADD_FIELD_NULLABLE("end_time", "s", endTime);
+		MYSQL_ADD_FIELD_NULLABLE("start_time", "s", startTime, true);
+		MYSQL_ADD_FIELD_NULLABLE("end_time", "s", endTime, true);
 	}
 };
 

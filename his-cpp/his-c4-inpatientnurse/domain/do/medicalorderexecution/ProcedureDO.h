@@ -71,22 +71,22 @@ public:
 	{
 		MYSQL_ADD_FIELD_PK("id", "s", id);
 		MYSQL_ADD_FIELD_NULLABLE("tenant_id", "s", tenantId, true);
-		MYSQL_ADD_FIELD_NULLABLE("created_at", "dt", createdAt, false);
+		MYSQL_ADD_FIELD("created_at", "dt", createdAt);
 		MYSQL_ADD_FIELD_NULLABLE("updated_at", "dt", updatedAt, true);
 		MYSQL_ADD_FIELD_NULLABLE("created_by", "s", createdBy, true);
 		MYSQL_ADD_FIELD_NULLABLE("updated_by", "s", updatedBy, true);
-		MYSQL_ADD_FIELD_NULLABLE("is_deleted", "b", isDeleted, false);
+		MYSQL_ADD_FIELD("is_deleted", "b", isDeleted);
 		MYSQL_ADD_FIELD_NULLABLE("deleted_at", "dt", deletedAt, true);
 		MYSQL_ADD_FIELD_NULLABLE("deleted_by", "s", deletedBy, true);
-		MYSQL_ADD_FIELD_NULLABLE("version", "i", version, false);
-		MYSQL_ADD_FIELD_NULLABLE("request_id", "s", requestId, false);
-		MYSQL_ADD_FIELD_NULLABLE("request_table", "s", requestTable, false);
-		MYSQL_ADD_FIELD_NULLABLE("status_enum", "s", statusEnum, false);
+		MYSQL_ADD_FIELD("version", "i", version);
+		MYSQL_ADD_FIELD("request_id", "s", requestId);
+		MYSQL_ADD_FIELD("request_table", "s", requestTable);
+		MYSQL_ADD_FIELD("status_enum", "s", statusEnum);
 		MYSQL_ADD_FIELD_NULLABLE("status_reason_text", "s", statusReasonText, true);
-		MYSQL_ADD_FIELD_NULLABLE("category_enum", "s", categoryEnum, false);
+		MYSQL_ADD_FIELD("category_enum", "s", categoryEnum);
 		MYSQL_ADD_FIELD_NULLABLE("procedure_code", "s", procedureCode, true);
-		MYSQL_ADD_FIELD_NULLABLE("encounter_id", "s", encounterId, false);
-		MYSQL_ADD_FIELD_NULLABLE("patient_id", "s", patientId, false);
+		MYSQL_ADD_FIELD("encounter_id", "s", encounterId);
+		MYSQL_ADD_FIELD("patient_id", "s", patientId);
 		MYSQL_ADD_FIELD_NULLABLE("occurrence_time", "dt", occurrenceTime, true);
 		MYSQL_ADD_FIELD_NULLABLE("occurrence_period", "s", occurrencePeriod, true);
 		MYSQL_ADD_FIELD_NULLABLE("occurrence_age", "s", occurrenceAge, true);
@@ -106,7 +106,7 @@ public:
 		MYSQL_ADD_FIELD_NULLABLE("follow_up_json", "s", followUpJson, true);
 		MYSQL_ADD_FIELD_NULLABLE("group_id", "s", groupId, true);
 		MYSQL_ADD_FIELD_NULLABLE("refund_id", "s", refundId, true);
-		MYSQL_ADD_FIELD_NULLABLE("occurrence_slot_active", "b", occurrenceSlotActive, false);
+		MYSQL_ADD_FIELD("occurrence_slot_active", "b", occurrenceSlotActive);
 	}
 
 	// 设置登记不执行医嘱时需要插入的字段

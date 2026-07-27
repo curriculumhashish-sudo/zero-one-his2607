@@ -33,27 +33,27 @@ public:
 	adm_locationDO() : BaseDO("adm_location") 
 	{
 		MYSQL_ADD_FIELD_PK("id", "s", id);
-		MYSQL_ADD_FIELD("tenant_id", "s", tenant_id);
+		MYSQL_ADD_FIELD_NULLABLE("tenant_id", "s", tenant_id, true);
 		MYSQL_ADD_FIELD("created_at", "s", created_at);
-		MYSQL_ADD_FIELD("updated_at", "s", updated_at);
-		MYSQL_ADD_FIELD("created_by", "s", created_by);
-		MYSQL_ADD_FIELD("updated_by", "s", updated_by);
+		MYSQL_ADD_FIELD_NULLABLE("updated_at", "s", updated_at, true);
+		MYSQL_ADD_FIELD_NULLABLE("created_by", "s", created_by, true);
+		MYSQL_ADD_FIELD_NULLABLE("updated_by", "s", updated_by, true);
 		MYSQL_ADD_FIELD("is_deleted", "b", is_deleted);
-		MYSQL_ADD_FIELD("deleted_at", "s", deleted_at);
-		MYSQL_ADD_FIELD("deleted_by", "s", deleted_by);
+		MYSQL_ADD_FIELD_NULLABLE("deleted_at", "s", deleted_at, true);
+		MYSQL_ADD_FIELD_NULLABLE("deleted_by", "s", deleted_by, true);
 		MYSQL_ADD_FIELD("version", "i", version);
 		MYSQL_ADD_FIELD("name", "s", name);
 		MYSQL_ADD_FIELD("bus_no", "s", bus_no);
 		MYSQL_ADD_FIELD("status_enum", "s", status_enum);
-		MYSQL_ADD_FIELD("operational_enum", "s", operational_enum);
+		MYSQL_ADD_FIELD_NULLABLE("operational_enum", "s", operational_enum, true);
 		MYSQL_ADD_FIELD("form_enum", "s", form_enum);
 		MYSQL_ADD_FIELD("mode_enum", "s", mode_enum);
-		MYSQL_ADD_FIELD("type_json", "s", type_json);
+		MYSQL_ADD_FIELD_NULLABLE("type_json", "s", type_json, true);
 		MYSQL_ADD_FIELD("organization_id", "s", organization_id);
-		MYSQL_ADD_FIELD("display_order", "i", display_order);
-		MYSQL_ADD_FIELD("py_str", "s", py_str);
-		MYSQL_ADD_FIELD("wb_str", "s", wb_str);
-		MYSQL_ADD_FIELD("parent_id", "s", parent_id);
+		MYSQL_ADD_FIELD_NULLABLE("display_order", "i", display_order, true);
+		MYSQL_ADD_FIELD_NULLABLE("py_str", "s", py_str, true);
+		MYSQL_ADD_FIELD_NULLABLE("wb_str", "s", wb_str, true);
+		MYSQL_ADD_FIELD_NULLABLE("parent_id", "s", parent_id, true);
 	}
 };
 

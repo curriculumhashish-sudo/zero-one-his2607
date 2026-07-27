@@ -2,7 +2,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: shiye
+ @Author: Swan_Woo
  @Date: 2026/07/26
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -89,34 +89,34 @@ public:
     SupplyDeliveryDO() : BaseDO("wkf_supply_delivery")
     {
         MYSQL_ADD_FIELD_PK("id", "s", id);
-        MYSQL_ADD_FIELD("tenant_id", "s", tenant_id);
+        MYSQL_ADD_FIELD_NULLABLE("tenant_id", "s", tenant_id, true);
         MYSQL_ADD_FIELD("created_at", "s", created_at);
-        MYSQL_ADD_FIELD("updated_at", "s", updated_at);
-        MYSQL_ADD_FIELD("created_by", "s", created_by);
-        MYSQL_ADD_FIELD("updated_by", "s", updated_by);
+        MYSQL_ADD_FIELD_NULLABLE("updated_at", "s", updated_at, true);
+        MYSQL_ADD_FIELD_NULLABLE("created_by", "s", created_by, true);
+        MYSQL_ADD_FIELD_NULLABLE("updated_by", "s", updated_by, true);
         MYSQL_ADD_FIELD("is_deleted", "b", is_deleted);
-        MYSQL_ADD_FIELD("deleted_at", "s", deleted_at);
-        MYSQL_ADD_FIELD("deleted_by", "s", deleted_by);
+        MYSQL_ADD_FIELD_NULLABLE("deleted_at", "s", deleted_at, true);
+        MYSQL_ADD_FIELD_NULLABLE("deleted_by", "s", deleted_by, true);
         MYSQL_ADD_FIELD("version", "i", version);
-        MYSQL_ADD_FIELD("request_id", "s", request_id);
-        MYSQL_ADD_FIELD("summary_id", "s", summary_id);
+        MYSQL_ADD_FIELD_NULLABLE("request_id", "s", request_id, true);
+        MYSQL_ADD_FIELD_NULLABLE("summary_id", "s", summary_id, true);
         MYSQL_ADD_FIELD("status_enum", "s", status_enum);
-        MYSQL_ADD_FIELD("patient_id", "s", patient_id);
+        MYSQL_ADD_FIELD_NULLABLE("patient_id", "s", patient_id, true);
         MYSQL_ADD_FIELD("type_enum", "s", type_enum);
-        MYSQL_ADD_FIELD("item_table", "s", item_table);
-        MYSQL_ADD_FIELD("item_id", "s", item_id);
-        MYSQL_ADD_FIELD("based_on_table", "s", based_on_table);
-        MYSQL_ADD_FIELD("based_on_ids", "s", based_on_ids);
-        MYSQL_ADD_FIELD("unit_code", "s", unit_code);
-        MYSQL_ADD_FIELD("quantity", "d", quantity);
-        MYSQL_ADD_FIELD("condition", "s", condition);
-        MYSQL_ADD_FIELD("lot_number", "s", lot_number);
-        MYSQL_ADD_FIELD("trace_no", "s", trace_no);
-        MYSQL_ADD_FIELD("supplier_id", "s", supplier_id);
-        MYSQL_ADD_FIELD("practitioner_id", "s", practitioner_id);
-        MYSQL_ADD_FIELD("occurrence_time", "s", occurrence_time);
-        MYSQL_ADD_FIELD("receiver_id", "s", receiver_id);
-        MYSQL_ADD_FIELD("receive_time", "s", receive_time);
+        MYSQL_ADD_FIELD_NULLABLE("item_table", "s", item_table, true);
+        MYSQL_ADD_FIELD_NULLABLE("item_id", "s", item_id, true);
+        MYSQL_ADD_FIELD_NULLABLE("based_on_table", "s", based_on_table, true);
+        MYSQL_ADD_FIELD_NULLABLE("based_on_ids", "s", based_on_ids, true);
+        MYSQL_ADD_FIELD_NULLABLE("unit_code", "s", unit_code, true);
+        MYSQL_ADD_FIELD_NULLABLE("quantity", "d", quantity, true);
+        MYSQL_ADD_FIELD_NULLABLE("condition", "s", condition, true);
+        MYSQL_ADD_FIELD_NULLABLE("lot_number", "s", lot_number, true);
+        MYSQL_ADD_FIELD_NULLABLE("trace_no", "s", trace_no, true);
+        MYSQL_ADD_FIELD_NULLABLE("supplier_id", "s", supplier_id, true);
+        MYSQL_ADD_FIELD_NULLABLE("practitioner_id", "s", practitioner_id, true);
+        MYSQL_ADD_FIELD_NULLABLE("occurrence_time", "s", occurrence_time, true);
+        MYSQL_ADD_FIELD_NULLABLE("receiver_id", "s", receiver_id, true);
+        MYSQL_ADD_FIELD_NULLABLE("receive_time", "s", receive_time, true);
         setIs_deleted(false);
         setVersion(0);
     }
