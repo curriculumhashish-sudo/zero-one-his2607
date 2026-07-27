@@ -15,10 +15,10 @@ class BizRefDTO : public oatpp::DTO
     DTO_INIT(BizRefDTO, DTO);
 
     // 就诊主键
-    API_DTO_FIELD(String, encounterId, ZH_WORDS_GETTER("lhfc.charging.charge.BizRefDTO.encounterId.description"), true, "337209205188464640");
+    API_DTO_FIELD(String, encounterId, ZH_WORDS_GETTER("lhfc.charging.charge.BizRefDTO.encounterId.description"), true, "");
 
     // 支付流水主键
-    API_DTO_FIELD(String, paymentId, ZH_WORDS_GETTER("lhfc.charging.charge.BizRefDTO.paymentId.description"), true, "337209423854309376");
+    API_DTO_FIELD(String, paymentId, ZH_WORDS_GETTER("lhfc.charging.charge.BizRefDTO.paymentId.description"), true, "");
 };
 
 /*
@@ -31,12 +31,12 @@ class ConfirmPrintRequestDTO : public oatpp::DTO
     // 打印追踪 ID（4B 返回）
     API_DTO_FIELD(String, traceId,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.traceId.description"),
-        true, "82c04876-49f7-4548-8ba1-6242441372ff");
+        true, "");
 
     // 模板业务号（4B 返回）
     API_DTO_FIELD(String, busNo,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintRequestDTO.busNo.description"),
-        true, "PT202606260005");
+        true, "");
 
     // 场景码（固定值）
     API_DTO_FIELD(String, scenarioCode,
