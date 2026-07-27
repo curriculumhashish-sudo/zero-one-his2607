@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "HistoryOrderDetailController.h"
-#include "../../service/prescription4/HistoryOrderDetailService.h"
+#include "historyOrderDetailController.h"
+#include "../../service/prescription4/historyOrderDetailService.h"
 
 HistoryOrderDetailPageJsonVO::Wrapper HistoryOrderDetailController::execQueryHistoryOrderDetail(const HistoryOrderDetailQuery::Wrapper& query)
 {

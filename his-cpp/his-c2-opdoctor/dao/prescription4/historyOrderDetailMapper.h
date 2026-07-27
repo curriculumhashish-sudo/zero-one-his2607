@@ -8,7 +8,7 @@
 #define _HISTORY_ORDER_DETAIL_MAPPER_
 
 #include "Mapper.h"
-#include "../../domain/do/prescription4/HistoryOrderDetailDO.h"
+#include "../../domain/do/prescription4/historyOrderDetailDO.h"
 
 /**
  * 历史医嘱明细 Mapper（智能指针版本）

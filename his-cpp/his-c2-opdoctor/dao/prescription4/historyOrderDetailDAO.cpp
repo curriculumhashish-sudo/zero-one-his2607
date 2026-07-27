@@ -4,8 +4,8 @@
  @Date: 2026/07/27
 */
 #include "stdafx.h"
-#include "HistoryOrderDetailDAO.h"
-#include "HistoryOrderDetailMapper.h"
+#include "historyOrderDetailDAO.h"
+#include "historyOrderDetailMapper.h"
 
 std::string HistoryOrderDetailDAO::buildFullQuerySql(const HistoryOrderDetailQuery::Wrapper& query, SqlParams& params)
 {

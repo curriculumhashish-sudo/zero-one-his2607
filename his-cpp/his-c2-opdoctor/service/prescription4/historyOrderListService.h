@@ -7,9 +7,9 @@
 #ifndef _HISTORY_ORDER_LIST_SERVICE_
 #define _HISTORY_ORDER_LIST_SERVICE_
 
-#include "../../domain/query/prescription4/HistoryOrderListQuery.h"
-#include "../../domain/dto/prescription4/HistoryOrderListDTO.h"
-#include "../../dao/prescription4/HistoryOrderListDAO.h"
+#include "../../domain/query/prescription4/historyOrderListQuery.h"
+#include "../../domain/dto/prescription4/historyOrderListDTO.h"
+#include "../../dao/prescription4/historyOrderListDAO.h"
 
 /**
  * 历史医嘱列表（就诊记录）Service 层

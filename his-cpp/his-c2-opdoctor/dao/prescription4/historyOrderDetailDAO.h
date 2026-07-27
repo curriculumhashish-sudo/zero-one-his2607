@@ -8,8 +8,8 @@
 #define _HISTORY_ORDER_DETAIL_DAO_
 
 #include "BaseDAO.h"
-#include "../../domain/do/prescription4/HistoryOrderDetailDO.h"
-#include "../../domain/query/prescription4/HistoryOrderDetailQuery.h"
+#include "../../domain/do/prescription4/historyOrderDetailDO.h"
+#include "../../domain/query/prescription4/historyOrderDetailQuery.h"
 
 /**
  * 历史医嘱明细数据访问层

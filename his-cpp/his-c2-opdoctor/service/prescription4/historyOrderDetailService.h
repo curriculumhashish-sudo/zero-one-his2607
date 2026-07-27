@@ -7,9 +7,9 @@
 #ifndef _HISTORY_ORDER_DETAIL_SERVICE_
 #define _HISTORY_ORDER_DETAIL_SERVICE_
 
-#include "../../domain/query/prescription4/HistoryOrderDetailQuery.h"
-#include "../../domain/dto/prescription4/HistoryOrderDetailDTO.h"
-#include "../../dao/prescription4/HistoryOrderDetailDAO.h"
+#include "../../domain/query/prescription4/historyOrderDetailQuery.h"
+#include "../../domain/dto/prescription4/historyOrderDetailDTO.h"
+#include "../../dao/prescription4/historyOrderDetailDAO.h"
 
 /**
  * 历史医嘱明细 Service 层

@@ -8,7 +8,7 @@
 #define _HISTORY_ORDER_LIST_MAPPER_
 
 #include "Mapper.h"
-#include "../../domain/do/prescription4/HistoryOrderListDO.h"
+#include "../../domain/do/prescription4/historyOrderListDO.h"
 
 /**
  * 历史医嘱列表 Mapper（智能指针版本）

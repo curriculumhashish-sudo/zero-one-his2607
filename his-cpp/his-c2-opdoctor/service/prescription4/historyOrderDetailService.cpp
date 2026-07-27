@@ -4,7 +4,7 @@
  @Date: 2026/07/27
 */
 #include "stdafx.h"
-#include "HistoryOrderDetailService.h"
+#include "historyOrderDetailService.h"
 
 // ========== 私有方法：DO → DTO 转换 ==========
 oatpp::List<HistoryOrderDetailDTO::Wrapper> HistoryOrderDetailService::convertToDTOList(const std::list<PtrHistoryOrderDetailDO>& doList)
