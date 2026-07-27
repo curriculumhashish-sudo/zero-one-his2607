@@ -3,9 +3,10 @@ package com.zeroone.star.j3.register.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zeroone.star.j3.register.entity.RegisterType;
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.j3.register.dto.RegisterDTO;
-import com.zeroone.star.project.j3.register.query.RegisterQuery;
-import com.zeroone.star.project.j3.register.vo.RegisterVO;
+import com.zeroone.star.project.dto.j3.register.RegisterDTO;
+import com.zeroone.star.project.query.j3.register.RegisterQuery;
+import com.zeroone.star.project.vo.j3.register.RegisterVO;
+
 
 /**
  * <p>
@@ -36,10 +37,11 @@ public interface IRegisterTypeService extends IService<RegisterType> {
     /**
      * 修改挂号类型
      *
-     * @param dto 修改数据（id 必传）
+     * @param id  待修改的挂号类型唯一标识
+     * @param dto 修改数据
      * @return 是否成功
      */
-    boolean modifyRegister(RegisterDTO dto);
+    boolean modifyRegister(Long id, RegisterDTO dto);
 
     /**
      * 删除挂号类型

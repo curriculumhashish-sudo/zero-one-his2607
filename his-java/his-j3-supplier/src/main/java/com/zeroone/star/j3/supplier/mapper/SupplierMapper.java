@@ -27,4 +27,6 @@ public interface SupplierMapper extends BaseMapper<Supplier> {
     Page<SupplierListVO> selectSupplierPage(Page<SupplierListVO> page, @Param("query") SupplierQuery query);
 
     SupplierDetailVO selectSupplierDetail(@Param("id") String id);
+
+    String selectCreditCodeById(String trim);
 }
