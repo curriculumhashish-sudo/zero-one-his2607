@@ -1,4 +1,6 @@
 package com.zeroone.star.dispense.controller.end;
 
-public class menzhentuiyao {
+import com.zeroone.star.project.j7.DispenseApis;
+
+public class menzhentuiyao implements DispenseApis {
 }

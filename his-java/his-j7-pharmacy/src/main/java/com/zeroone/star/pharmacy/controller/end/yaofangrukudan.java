@@ -1,4 +1,6 @@
 package com.zeroone.star.pharmacy.controller.end;
 
-public class yaofangrukudan {
+import com.zeroone.star.project.j7.DispenseApis;
+
+public class yaofangrukudan implements DispenseApis {
 }
