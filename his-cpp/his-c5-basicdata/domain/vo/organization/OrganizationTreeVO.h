@@ -1,0 +1,42 @@
+#ifndef _ORGANIZATIONTREEVO_H_
+#define _ORGANIZATIONTREEVO_H_
+
+#include "../../GlobalInclude.h"
+#include "../../dto/organization/OrganizationNameTreeDTO.h"
+#include "../../dto/organization/OrganizationListTreeDTO.h"
+
+#include OATPP_CODEGEN_BEGIN(DTO)
+
+class OrganizationNameTreeJsonVO
+    : public JsonVO<oatpp::List<OrganizationNameTreeDTO::Wrapper>>
+{
+    DTO_INIT(
+        OrganizationNameTreeJsonVO,
+        JsonVO<oatpp::List<OrganizationNameTreeDTO::Wrapper>>
+    );
+
+public:
+    OrganizationNameTreeJsonVO()
+    {
+        data = {};
+    }
+};
+
+class OrganizationListTreeJsonVO
+    : public JsonVO<oatpp::List<OrganizationListTreeDTO::Wrapper>>
+{
+    DTO_INIT(
+        OrganizationListTreeJsonVO,
+        JsonVO<oatpp::List<OrganizationListTreeDTO::Wrapper>>
+    );
+
+public:
+    OrganizationListTreeJsonVO()
+    {
+        data = {};
+    }
+};
+
+#include OATPP_CODEGEN_END(DTO)
+
+#endif // !_ORGANIZATIONTREEVO_H_
