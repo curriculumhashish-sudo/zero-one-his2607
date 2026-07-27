@@ -18,17 +18,46 @@
 */
 #include "stdafx.h"
 #include "TreatmentService.h"
-//#include "../../dao/sample/TreatmentDAO.h"
+#include "../../dao/treatment/TreatmentDAO.h"
 #include "id/UuidFacade.h"
-//#include "TreatmentDateTimeFormat.h"
-
+#include "SimpleDateTimeFormat.h"
+// 列表分页
 TreatmentPageDTO::Wrapper TreatmentService::listAll(const TreatmentQuery::Wrapper& query)
 {
-	return {};
+	// 构建返回对象
+	auto pages = TreatmentPageDTO::createShared();
+	pages->pageIndex = query->pageIndex;
+	pages->pageSize = query->pageSize;
+	// 查询数据总条数
+	TreatmentDAO dao;
+	uint64_t count = dao.count(query);
+	if (count <= 0)
+	{
+		return pages;
+	}
+	// 分页查询数据
+		pages->total = count;
+	pages->calcPages();
+	list<TreatmentDO> result = dao.selectWithPage(query);
+	// 将DO转换成DTO
+	for (TreatmentDO& sub : result)
+	{
+		auto dto = TreatmentDTO::createShared();
+		ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub, id, Id);
+		pages->addData(dto);
+	}
+	return pages;
 }
 
-
+// 删除
 bool TreatmentService::removeData(const oatpp::List<oatpp::String>& ids)
 {
-	return {};
+	TreatmentDAO dao;
+	std::list<std::string> datas;
+	for (auto one : *ids.get())
+		datas.emplace_back(one.getValue({}));
+	int rows = dao.deleteByIds<TreatmentDO>(datas);
+	if (rows == ids->size())
+		return true;
+	return false;
 }

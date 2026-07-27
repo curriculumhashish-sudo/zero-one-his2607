@@ -12,6 +12,7 @@
 #include "domain/dto/treatment/TreatmentRemoveDTO.h"
 #include "domain/dto/treatment/TreatmentSelectDTO.h"
 #include "domain/dto/treatment/TreatmentStatusDTO.h"
+#include "domain/dto/treatment/TreatmentDTO.h"
 /**
  * 示例服务实现，演示基础的示例服务实现
  */
@@ -19,7 +20,7 @@ class TreatmentService
 {
 public:
 	// 分页查询所有数据
-	TreatmentPageDTO::Wrapper listAll(const TreatmentQuery::Wrapper& query);
+	TreatmentDTO::Wrapper listAll(const TreatmentQuery::Wrapper& query);
 	// 通过ID查询单个数据
 	// SampleDTO::Wrapper getById(std::string id);
 	// 保存数据
