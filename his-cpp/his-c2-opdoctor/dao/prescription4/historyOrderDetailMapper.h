@@ -32,8 +32,8 @@ public:
         data->setOrderId(resultSet->getString("order_id"));
         data->setOrderType(resultSet->getString("order_type"));
         data->setOrderName(resultSet->getString("order_name"));
-        data->setQuantity(resultSet->getInt("quantity"));
-        data->setExecutedCount(resultSet->getInt("executed_count"));
+        data->setQuantity(resultSet->getDouble("quantity"));
+        data->setExecutedCount(resultSet->getDouble("executed_count"));
         data->setSampleType(resultSet->getString("sample_type"));
         data->setExecuteHospital(resultSet->getString("execute_hospital"));
         data->setCreateTime(resultSet->getString("create_time"));

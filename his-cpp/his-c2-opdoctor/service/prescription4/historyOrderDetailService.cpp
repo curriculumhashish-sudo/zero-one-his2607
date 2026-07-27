@@ -28,8 +28,8 @@ oatpp::List<HistoryOrderDetailDTO::Wrapper> HistoryOrderDetailService::convertTo
         dto->orderId = doItem->getOrderId();
         dto->orderType = doItem->getOrderType();
         dto->orderName = doItem->getOrderName();
-        dto->quantity = v_int32(doItem->getQuantity());
-        dto->executedCount = v_int32(doItem->getExecutedCount());
+        dto->quantity = static_cast<v_int32>(doItem->getQuantity());
+        dto->executedCount = static_cast<v_int32>(doItem->getExecutedCount());
         dto->sampleType = doItem->getSampleType();
         dto->executeHospital = doItem->getExecuteHospital();
         dto->createTime = doItem->getCreateTime();
