@@ -11,13 +11,11 @@ import com.zeroone.star.pharmacy.mapper.MedMedicationDefinitionMapper;
 import com.zeroone.star.pharmacy.mapper.WkfInventoryItemMapper;
 import com.zeroone.star.pharmacy.mapper.WkfSupplyRequestMapper;
 import com.zeroone.star.pharmacy.service.IStocktakeService;
-import com.zeroone.star.pharmacy.service.IWkfInventoryItemService;
 import com.zeroone.star.project.components.user.UserDTO;
 import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.j6.pharmacy.stocktake.StocktakeSaveDTO;
 import com.zeroone.star.project.vo.j6.pharmacy.stocktake.StocktakeDetailVO;
 import jakarta.annotation.Resource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -56,7 +54,7 @@ public class StocktakeServiceImpl implements IStocktakeService {
 
     @Resource
     private UserHolder userHolder;
-   
+
 
     // ==================== 1. 新增盘点单 ====================
 
