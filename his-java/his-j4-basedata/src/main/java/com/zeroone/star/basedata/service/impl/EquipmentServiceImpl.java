@@ -13,6 +13,7 @@ import com.zeroone.star.project.dto.j4.equipment.EquipmentUpdateDTO;
 import com.zeroone.star.project.query.j4.equipment.EquipmentPageQuery;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
@@ -76,6 +77,7 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
      * @throws IllegalArgumentException 器材不存在或参数非法
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public AdmDeviceDefinitionDO updateEquipment(EquipmentUpdateDTO dto) {
         String id = dto.getId();
         if (!StringUtils.hasText(id)) {
