@@ -58,7 +58,6 @@ public class PermissionServiceImpl
         List<Permission> permissions = baseMapper.selectList(
                 new QueryWrapper<Permission>()
                         .eq("tenant_id", tenantId)
-                        .eq("is_deleted", false)
                         .orderByAsc("display_name"));
         return TreeUtils.listToTree(permissions, p -> {
             PermissionTreeVO node = new PermissionTreeVO();
@@ -75,7 +74,7 @@ public class PermissionServiceImpl
     public PageDTO<PermissionVO> listPermissions(PermissionQuery query) {
         String tenantId = getTenantId();
         QueryWrapper<Permission> wrapper = new QueryWrapper<>();
-        wrapper.eq("tenant_id", tenantId).eq("is_deleted", false);
+        wrapper.eq("tenant_id", tenantId);
         if (StringUtils.hasText(query.getKeyword())) {
             wrapper.and(w -> w.like("name", query.getKeyword())
                     .or().like("display_name", query.getKeyword()));
@@ -183,16 +182,14 @@ public class PermissionServiceImpl
         return baseMapper.selectOne(
                 new QueryWrapper<Permission>()
                         .eq("id", id)
-                        .eq("tenant_id", tenantId)
-                        .eq("is_deleted", false));
+                        .eq("tenant_id", tenantId));
     }
 
     private boolean validateParentExists(String parentName, String tenantId) {
         return baseMapper.selectCount(
                 new QueryWrapper<Permission>()
                         .eq("name", parentName)
-                        .eq("tenant_id", tenantId)
-                        .eq("is_deleted", false)) > 0;
+                        .eq("tenant_id", tenantId)) > 0;
     }
 
     private String getTenantId() {
@@ -230,11 +227,13 @@ public class PermissionServiceImpl
     }
 
     private void refreshCache() {
-        try {
-            restTemplate.put(cacheReloadUrl, null);
-            log.info("权限缓存已刷新");
-        } catch (Exception e) {
-            log.warn("刷新权限缓存失败: {}", e.getMessage());
-        }
+        new Thread(() -> {
+            try {
+                restTemplate.put(cacheReloadUrl, null);
+                log.info("权限缓存已刷新");
+            } catch (Exception e) {
+                log.error("刷新权限缓存失败", e);
+            }
+        }, "cache-reload").start();
     }
 }
