@@ -63,6 +63,7 @@ public class InventoryDetailVO {
     @Schema(description = "供应商ID", example = "SUP007")
     private String supplierId;
 
+    //
     @Schema(description = "供应商名称", example = "广州医药有限公司")
     private String supplierName;
 
@@ -78,13 +79,15 @@ public class InventoryDetailVO {
     @Schema(description = "库存状态编码枚举 NORMAL正常 STOP_SUPPLY停供", example = "NORMAL")
     private String inventoryStatusEnum;
 
+    //
     @Schema(description = "库存状态展示文字", example = "正常供货")
     private String inventoryStatusLabel;
 
-    @Schema(description = "院内等级编码", example = "A")
+    @Schema(description = "医保等级编码", example = "A")
     private String chrgitmLv;
 
-    @Schema(description = "院内等级名称", example = "甲类重点药品")
+    //
+    @Schema(description = "医保等级名称", example = "甲类重点药品")
     private String chrgitmLvLabel;
 
     @Schema(description = "药品分类编码", example = "0101")
@@ -93,30 +96,36 @@ public class InventoryDetailVO {
     @Schema(description = "器械分类编码", example = "")
     private String deviceCategoryCode;
 
+    //
     @Schema(description = "分类展示名称", example = "抗感染口服西药")
     private String categoryLabel;
 
     @Schema(description = "剂型编码", example = "JN")
     private String doseFormCode;
 
+    //
     @Schema(description = "剂型名称", example = "胶囊剂")
     private String doseFormLabel;
 
     @Schema(description = "包装单位编码", example = "HE")
     private String packageUnitCode;
 
+    //
     @Schema(description = "大包装单位", example = "盒")
     private String packageUnitName;
 
+    //
     @Schema(description = "拆零单位", example = "粒")
     private String splitUnitName;
 
     @Schema(description = "包装换算比例", example = "24")
     private BigDecimal packageUnitRatio;
 
+    //
     @Schema(description = "包装库存文本展示", example = "41盒")
     private String packageStockText;
 
+    //
     @Schema(description = "拆零库存文本展示", example = "984粒")
     private String splitStockText;
 

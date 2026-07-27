@@ -1,6 +1,8 @@
 package com.zeroone.star.pharmacy.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.zeroone.star.pharmacy.service.InventoryDetailService;
+import com.zeroone.star.pharmacy.service.impl.InventoryDetailServiceImpl;
 import com.zeroone.star.project.dto.j6.pharmacy.inventory.InventoryStatusDTO;
 import com.zeroone.star.project.j6.pharmacy.WarehouseInventoryDetailApis;
 import com.zeroone.star.project.query.j6.pharmacy.inventory.InventoryDetailQuery;
@@ -13,18 +15,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/inventory")
 @RequiredArgsConstructor
 @Tag(name = "库存明细", description = "药库管理相关接口")
 public class WarehouseInventoryDetailController implements WarehouseInventoryDetailApis {
+
+    @Autowired
+    InventoryDetailService inventoryDetailService;
+
     /**
      * 获取库存明细列表(分页+条件)
      */
@@ -36,7 +38,7 @@ public class WarehouseInventoryDetailController implements WarehouseInventoryDet
                     content = @Content(schema = @Schema(implementation = JsonVO.class)))
     )
     public JsonVO<IPage<InventoryDetailVO>> pageInventoryDetailCurrent(@RequestBody InventoryDetailQuery inventoryDetailQueryDTO) {
-        return JsonVO.fail("接口未完成");
+        return inventoryDetailService.pageInventoryDetailCurrent(inventoryDetailQueryDTO);
     }
 
     /**
@@ -65,5 +67,15 @@ public class WarehouseInventoryDetailController implements WarehouseInventoryDet
     )
     public JsonVO<ExcelExportVO> exportInventoryDetailCurrent(@RequestBody InventoryDetailQuery inventoryDetailQueryDTO) {
         return JsonVO.fail("接口未完成");
+    }
+    @GetMapping("/test")
+    @Operation(
+            summary = "测试",
+            description = "测试接口",
+            responses = @ApiResponse(responseCode = "200", description = "测试成功",
+                    content = @Content(schema = @Schema(implementation = String.class)))
+    )
+    public String test() {
+        return "test";
     }
 }

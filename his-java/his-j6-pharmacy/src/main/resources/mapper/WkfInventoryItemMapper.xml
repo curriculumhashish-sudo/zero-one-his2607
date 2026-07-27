@@ -2,4 +2,176 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zeroone.star.pharmacy.mapper.WkfInventoryItemMapper">
 
+    <select id="selectCurrentDetailPage"
+            resultType="com.zeroone.star.project.vo.j6.pharmacy.inventory.InventoryDetailVO">
+        SELECT
+        inv.id,
+        inv.item_table                          AS itemTable,
+        inv.item_id                             AS itemId,
+        inv.name,
+        inv.py_str                              AS pyStr,
+        inv.wb_str                              AS wbStr,
+        inv.lot_number                          AS lotNumber,
+        inv.quantity                            AS totalVolume,
+        inv.location_id                         AS warehouseId,
+        inv.supplier_id                         AS supplierId,
+        inv.expiration_date                     AS expirationDate,
+        inv.production_date                     AS productionDate,
+        inv.inventory_status_enum               AS inventoryStatusEnum,
+        inv.trace_no                            AS traceNo,
+        inv.category_code                       AS medicationCategoryCode,
+        DATEDIFF(inv.expiration_date, CURDATE()) AS remainingDays,
+        loc.name                                AS warehouseName,
+        sup.name                                AS supplierName,
+        /* ---- 药品/器械定义表冗余字段 ---- */
+        COALESCE(med.bus_no, dev.bus_no)                       AS productBusNo,
+        COALESCE(med.merchandise_name, dev.merchandise_name)   AS merchandiseName,
+        COALESCE(med.manufacturer_text, dev.manufacturer_text) AS manufacturer,
+        COALESCE(med.approval_number, dev.approval_number)     AS approvalNumber,
+        COALESCE(med.yb_no, dev.yb_no)                        AS ybNo,
+        COALESCE(med.chrgitm_lv, dev.chrgitm_lv)              AS chrgitmLv,
+        COALESCE(med.category_code, dev.category_code)         AS deviceCategoryCode,
+        med.dose_form_code                                     AS doseFormCode,
+        COALESCE(med.package_unit_code, dev.package_unit_code) AS packageUnitCode,
+        COALESCE(med.split_unit_code, dev.split_unit_code)     AS splitUnitName,
+        COALESCE(med.package_unit_ratio, dev.package_unit_ratio) AS packageUnitRatio,
+        /* ---- 批次进价 / 售价 ---- */
+        cid_cost.price_value AS lotCostPrice,
+        cid_sale.price_value AS lotSalePrice,
+        cid_cost.price_value * inv.quantity AS lineCostTotal,
+        cid_sale.price_value * inv.quantity AS linePriceTotal
+        FROM wkf_inventory_item inv
+        LEFT JOIN adm_location loc
+            ON loc.id = inv.location_id AND loc.is_deleted = 0
+        LEFT JOIN cus_supplier sup
+            ON sup.id = inv.supplier_id AND sup.is_deleted = 0
+        LEFT JOIN med_medication_definition med
+            ON inv.item_table = 'med_medication_definition'
+            AND med.id = inv.item_id AND med.is_deleted = 0
+        LEFT JOIN adm_device_definition dev
+            ON inv.item_table = 'adm_device_definition'
+            AND dev.id = inv.item_id AND dev.is_deleted = 0
+        LEFT JOIN adm_charge_item_definition cid_cost
+            ON cid_cost.instance_table = inv.item_table
+            AND cid_cost.instance_id = inv.item_id
+            AND cid_cost.lot_no = inv.lot_number
+            AND cid_cost.price_type_code = 'LOT_NUMBER_COST'
+            AND cid_cost.is_deleted = 0
+        LEFT JOIN adm_charge_item_definition cid_sale
+            ON cid_sale.instance_table = inv.item_table
+            AND cid_sale.instance_id = inv.item_id
+            AND cid_sale.lot_no = inv.lot_number
+            AND cid_sale.price_type_code = 'LOT_NUMBER_PRICE'
+            AND cid_sale.is_deleted = 0
+        <where>
+            inv.is_deleted = 0
+
+            <if test="query.effectiveWarehouseIds != null and query.effectiveWarehouseIds.size() > 0">
+                AND inv.location_id IN
+                <foreach collection="query.effectiveWarehouseIds" item="wid"
+                         open="(" separator="," close=")">
+                    #{wid}
+                </foreach>
+            </if>
+
+            <if test="query.supplierIds != null and query.supplierIds.size() > 0">
+                AND inv.supplier_id IN
+                <foreach collection="query.supplierIds" item="sid"
+                         open="(" separator="," close=")">
+                    #{sid}
+                </foreach>
+            </if>
+
+            <if test="query.inventoryStatusEnums != null and query.inventoryStatusEnums.size() > 0">
+                AND inv.inventory_status_enum IN
+                <foreach collection="query.inventoryStatusEnums" item="status"
+                         open="(" separator="," close=")">
+                    #{status}
+                </foreach>
+            </if>
+
+            <if test="query.zeroStockOnly != null and query.zeroStockOnly == true">
+                AND inv.quantity = 0
+            </if>
+            <if test="query.zeroStockOnly != null and query.zeroStockOnly == false">
+                AND inv.quantity &gt; 0
+            </if>
+
+            <if test="query.expireWithinDays != null and query.expireWithinDays >= 0">
+                AND inv.expiration_date IS NOT NULL
+                AND inv.expiration_date &lt;= #{query.expireDeadline}
+            </if>
+
+            <!-- 关键字：冗余列 LIKE + 跨表预解析 ID -->
+            <if test="query.keyword != null and query.keyword != ''">
+                AND (
+                LOWER(inv.name) LIKE CONCAT('%', #{query.keywordLower}, '%')
+                OR LOWER(inv.lot_number) LIKE CONCAT('%', #{query.keywordLower}, '%')
+                OR LOWER(inv.py_str) LIKE CONCAT('%', #{query.keywordLower}, '%')
+                OR LOWER(inv.wb_str) LIKE CONCAT('%', #{query.keywordLower}, '%')
+                <if test="query.resolvedMedicationDefinitionIdsForKeyword != null
+                              and query.resolvedMedicationDefinitionIdsForKeyword.size() > 0">
+                    OR (inv.item_table = 'med_medication_definition'
+                    AND inv.item_id IN
+                    <foreach collection="query.resolvedMedicationDefinitionIdsForKeyword"
+                             item="mid" open="(" separator="," close=")">
+                        #{mid}
+                    </foreach>)
+                </if>
+                <if test="query.resolvedDeviceDefinitionIdsForKeyword != null
+                              and query.resolvedDeviceDefinitionIdsForKeyword.size() > 0">
+                    OR (inv.item_table = 'adm_device_definition'
+                    AND inv.item_id IN
+                    <foreach collection="query.resolvedDeviceDefinitionIdsForKeyword"
+                             item="did" open="(" separator="," close=")">
+                        #{did}
+                    </foreach>)
+                </if>
+                )
+            </if>
+
+            <!-- 药品分类筛选（解析后的ID列表为空时跳过，防止生成非法 IN () ） -->
+            <if test="query.resolvedMedicationDefinitionIds != null and query.resolvedMedicationDefinitionIds.size() > 0">
+                AND inv.item_table = 'med_medication_definition'
+                AND inv.item_id IN
+                <foreach collection="query.resolvedMedicationDefinitionIds" item="mid"
+                         open="(" separator="," close=")">
+                    #{mid}
+                </foreach>
+            </if>
+
+            <!-- 耗材分类筛选 -->
+            <if test="query.resolvedDeviceDefinitionIds != null and query.resolvedDeviceDefinitionIds.size() > 0">
+                AND inv.item_table = 'adm_device_definition'
+                AND inv.item_id IN
+                <foreach collection="query.resolvedDeviceDefinitionIds" item="did"
+                         open="(" separator="," close=")">
+                    #{did}
+                </foreach>
+            </if>
+
+            <!-- 医保等级筛选 -->
+            <if test="query.chrgitmLvList != null and query.chrgitmLvList.size() > 0">
+                <trim prefix="AND (" suffix=")" prefixOverrides="OR">
+                    <if test="query.resolvedMedicationDefinitionIds != null and query.resolvedMedicationDefinitionIds.size() > 0">
+                        (inv.item_table = 'med_medication_definition'
+                        AND inv.item_id IN
+                        <foreach collection="query.resolvedMedicationDefinitionIds" item="mid"
+                                 open="(" separator="," close=")">
+                            #{mid}
+                        </foreach>)
+                    </if>
+                    <if test="query.resolvedDeviceDefinitionIds != null and query.resolvedDeviceDefinitionIds.size() > 0">
+                        OR (inv.item_table = 'adm_device_definition'
+                        AND inv.item_id IN
+                        <foreach collection="query.resolvedDeviceDefinitionIds" item="did"
+                                 open="(" separator="," close=")">
+                            #{did}
+                        </foreach>)
+                    </if>
+                </trim>
+            </if>
+        </where>
+        ORDER BY inv.py_str ASC
+    </select>
 </mapper>

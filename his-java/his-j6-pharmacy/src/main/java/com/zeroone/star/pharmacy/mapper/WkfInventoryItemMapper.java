@@ -1,7 +1,12 @@
 package com.zeroone.star.pharmacy.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zeroone.star.pharmacy.entity.WarehouseInventoryDetailPageQuery;
 import com.zeroone.star.pharmacy.entity.WkfInventoryItem;
+import com.zeroone.star.project.vo.j6.pharmacy.inventory.InventoryDetailVO;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * <p>
@@ -13,4 +18,5 @@ import com.zeroone.star.pharmacy.entity.WkfInventoryItem;
  */
 public interface WkfInventoryItemMapper extends BaseMapper<WkfInventoryItem> {
 
+    IPage<InventoryDetailVO> selectCurrentDetailPage(Page<InventoryDetailVO> page, @Param("query") WarehouseInventoryDetailPageQuery query);
 }
