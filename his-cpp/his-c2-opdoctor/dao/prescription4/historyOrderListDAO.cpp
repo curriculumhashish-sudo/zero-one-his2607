@@ -1,26 +1,37 @@
 /*
  Copyright Zero One Star. All rights reserved.
+
  @Author: awei
  @Date: 2026/07/27
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
 */
 #include "stdafx.h"
 #include "historyOrderListDAO.h"
 #include "historyOrderListMapper.h"
 
-// ========== 查询条件构建器 ==========
+// Build query WHERE condition
 std::string HistoryOrderListDAO::queryConditionBuilder(const HistoryOrderListQuery::Wrapper& query, SqlParams& params)
 {
     std::stringstream sqlCondition;
     sqlCondition << " WHERE e.is_deleted = 0 AND e.patient_id = ?";
     SQLPARAMS_PUSH(params, "s", std::string, query->patientId.getValue(""));
 
-    // 就诊类型过滤
     if (query->visitType && !query->visitType->empty()) {
         sqlCondition << " AND e.class_enum = ?";
         SQLPARAMS_PUSH(params, "s", std::string, query->visitType.getValue(""));
     }
 
-    // 关键词模糊匹配（主诊断 或 医生姓名）
     if (query->keyword && !query->keyword->empty()) {
         sqlCondition << " AND ("
             << "EXISTS (SELECT 1 FROM adm_encounter_diagnosis ed "
@@ -39,7 +50,6 @@ std::string HistoryOrderListDAO::queryConditionBuilder(const HistoryOrderListQue
     return sqlCondition.str();
 }
 
-// ========== 统计总数 ==========
 uint64_t HistoryOrderListDAO::count(const HistoryOrderListQuery::Wrapper& query)
 {
     SqlParams params;
@@ -48,7 +58,6 @@ uint64_t HistoryOrderListDAO::count(const HistoryOrderListQuery::Wrapper& query)
     return sqlSession->executeQueryNumerical(sql, params);
 }
 
-// ========== 分页查询 ==========
 std::list<PtrHistoryOrderListDO> HistoryOrderListDAO::selectWithPage(const HistoryOrderListQuery::Wrapper& query)
 {
     SqlParams params;
@@ -75,9 +84,10 @@ std::list<PtrHistoryOrderListDO> HistoryOrderListDAO::selectWithPage(const Histo
     sql += queryConditionBuilder(query, params);
     sql += " ORDER BY COALESCE(e.start_time, e.created_at) DESC, e.id DESC ";
 
-    int pageIndex = query->pageIndex ? query->pageIndex.getValue(1) : 1;
-    int pageSize = query->pageSize ? query->pageSize.getValue(10) : 10;
-    sql += " LIMIT " + std::to_string((pageIndex - 1) * pageSize) + "," + std::to_string(pageSize);
+    uint64_t pageIndex = static_cast<uint64_t>(query->pageIndex.getValue(1));
+    uint64_t pageSize = static_cast<uint64_t>(query->pageSize.getValue(10));
+    uint64_t offset = (pageIndex > 0 ? pageIndex - 1 : 0) * pageSize;
+    sql += " LIMIT " + std::to_string(offset) + "," + std::to_string(pageSize);
 
     return sqlSession->executeQuery<PtrHistoryOrderListDO>(sql, PtrHistoryOrderListMapper(), params);
 }

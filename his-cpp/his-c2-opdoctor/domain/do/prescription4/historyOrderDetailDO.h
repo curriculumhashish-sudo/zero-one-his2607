@@ -1,44 +1,42 @@
 #pragma once
 /*
  Copyright Zero One Star. All rights reserved.
+
  @Author: awei
  @Date: 2026/07/27
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
 */
 #ifndef _HISTORY_ORDER_DETAIL_DO_
 #define _HISTORY_ORDER_DETAIL_DO_
 #include "../DoInclude.h"
 
-/**
- * 历史医嘱明细 DO
- * 对应右侧医嘱表格展示字段，来自多张医嘱表的 UNION 查询
- */
 class HistoryOrderDetailDO : public BaseDO
 {
-    // 医嘱唯一ID
     MYSQL_SYNTHESIZE(string, orderId, OrderId);
-    // 医嘱类型（药品/检验/检查/耗材等）
     MYSQL_SYNTHESIZE(string, orderType, OrderType);
-    // 医嘱名称
     MYSQL_SYNTHESIZE(string, orderName, OrderName);
-    // 开立总次数
     MYSQL_SYNTHESIZE(int, quantity, Quantity);
-    // 已执行次数
     MYSQL_SYNTHESIZE(int, executedCount, ExecutedCount);
-    // 样本类型（仅检验类）
     MYSQL_SYNTHESIZE(string, sampleType, SampleType);
-    // 执行医院
     MYSQL_SYNTHESIZE(string, executeHospital, ExecuteHospital);
-    // 开立时间
     MYSQL_SYNTHESIZE(string, createTime, CreateTime);
-    // 对应诊断
     MYSQL_SYNTHESIZE(string, diagnosis, Diagnosis);
-    // 开立医生姓名
     MYSQL_SYNTHESIZE(string, doctorName, DoctorName);
-    // 是否皮试（仅药品）
-    MYSQL_SYNTHESIZE(int, isSkinTest, IsSkinTest);   // 用int表示布尔（0/1）
+    MYSQL_SYNTHESIZE(int, isSkinTest, IsSkinTest);
 
 public:
-    HistoryOrderDetailDO() : BaseDO("med_medication_request")   // 主表选药品医嘱表，实际查询为UNION，此处仅作标识
+    HistoryOrderDetailDO() : BaseDO("med_medication_request")
     {
         MYSQL_ADD_FIELD_PK("order_id", "s", orderId);
         MYSQL_ADD_FIELD("order_type", "s", orderType);

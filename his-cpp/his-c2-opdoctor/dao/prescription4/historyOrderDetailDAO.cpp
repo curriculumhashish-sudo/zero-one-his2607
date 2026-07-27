@@ -1,23 +1,36 @@
 /*
  Copyright Zero One Star. All rights reserved.
+
  @Author: awei
  @Date: 2026/07/27
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
 */
 #include "stdafx.h"
 #include "historyOrderDetailDAO.h"
 #include "historyOrderDetailMapper.h"
 
+// Build full UNION query SQL, parameters pushed in same order as ? placeholders
 std::string HistoryOrderDetailDAO::buildFullQuerySql(const HistoryOrderDetailQuery::Wrapper& query, SqlParams& params)
 {
     std::string visitId = query->visitId.getValue("");
     std::string orderType = query->orderType ? query->orderType.getValue("") : "";
     std::string keyword = query->keyword ? query->keyword.getValue("") : "";
 
-    // 药品子查询
     std::string sqlDrug =
         "SELECT "
         "  mr.id AS order_id, "
-        "  '药品' AS order_type, "
+        "  'DRUG' AS order_type, "
         "  mmd.name AS order_name, "
         "  mr.execute_num AS quantity, "
         "  (SELECT COUNT(*) FROM med_medication_dispense WHERE med_req_id = mr.id AND is_deleted = 0) AS executed_count, "
@@ -34,11 +47,10 @@ std::string HistoryOrderDetailDAO::buildFullQuerySql(const HistoryOrderDetailQue
         "LEFT JOIN cln_condition cond ON mr.condition_definition_id = cond.id "
         "WHERE mr.encounter_id = ? AND mr.is_deleted = 0";
 
-    // 服务子查询（检验检查）
     std::string sqlService =
         "SELECT "
         "  sr.id AS order_id, "
-        "  '检验检查' AS order_type, "
+        "  'EXAM' AS order_type, "
         "  ad.name AS order_name, "
         "  sr.execution_count AS quantity, "
         "  0 AS executed_count, "
@@ -56,11 +68,10 @@ std::string HistoryOrderDetailDAO::buildFullQuerySql(const HistoryOrderDetailQue
         "LEFT JOIN adm_specimen_definition spec ON ad.specimen_code = spec.bus_no "
         "WHERE sr.encounter_id = ? AND sr.is_deleted = 0";
 
-    // 耗材子查询
     std::string sqlDevice =
         "SELECT "
         "  dr.id AS order_id, "
-        "  '耗材' AS order_type, "
+        "  'MATERIAL' AS order_type, "
         "  dd.name AS order_name, "
         "  dr.quantity AS quantity, "
         "  (SELECT COUNT(*) FROM wkf_device_dispense WHERE device_req_id = dr.id AND is_deleted = 0) AS executed_count, "
@@ -87,16 +98,12 @@ std::string HistoryOrderDetailDAO::buildFullQuerySql(const HistoryOrderDetailQue
         finalSql += " AND (t.order_name LIKE CONCAT('%', ?, '%') OR t.diagnosis LIKE CONCAT('%', ?, '%'))";
     }
 
-    // ========== 关键修正：参数顺序必须与 SQL 中 ? 的顺序一致 ==========
-    // 先推入三个 encounter_id（对应三个子查询中的 ?）
     SQLPARAMS_PUSH(params, "s", std::string, visitId);
     SQLPARAMS_PUSH(params, "s", std::string, visitId);
     SQLPARAMS_PUSH(params, "s", std::string, visitId);
-    // 再推入 orderType（若存在）
     if (!orderType.empty()) {
         SQLPARAMS_PUSH(params, "s", std::string, orderType);
     }
-    // 最后推入 keyword（若存在，两个）
     if (!keyword.empty()) {
         SQLPARAMS_PUSH(params, "s", std::string, keyword);
         SQLPARAMS_PUSH(params, "s", std::string, keyword);
@@ -118,9 +125,10 @@ std::list<PtrHistoryOrderDetailDO> HistoryOrderDetailDAO::selectWithPage(const H
     std::string sql = buildFullQuerySql(query, params);
     sql += " ORDER BY create_time DESC, order_id DESC ";
 
-    int pageIndex = query->pageIndex ? query->pageIndex.getValue(1) : 1;
-    int pageSize = query->pageSize ? query->pageSize.getValue(10) : 10;
-    sql += " LIMIT " + std::to_string((pageIndex - 1) * pageSize) + "," + std::to_string(pageSize);
+    uint64_t pageIndex = static_cast<uint64_t>(query->pageIndex.getValue(1));
+    uint64_t pageSize = static_cast<uint64_t>(query->pageSize.getValue(10));
+    uint64_t offset = (pageIndex > 0 ? pageIndex - 1 : 0) * pageSize;
+    sql += " LIMIT " + std::to_string(offset) + "," + std::to_string(pageSize);
 
     return sqlSession->executeQuery<PtrHistoryOrderDetailDO>(sql, PtrHistoryOrderDetailMapper(), params);
 }

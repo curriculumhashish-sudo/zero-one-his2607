@@ -1,8 +1,21 @@
 #pragma once
 /*
  Copyright Zero One Star. All rights reserved.
+
  @Author: awei
  @Date: 2026/07/27
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
 */
 #ifndef _HISTORY_ORDER_DETAIL_SERVICE_
 #define _HISTORY_ORDER_DETAIL_SERVICE_
@@ -10,28 +23,17 @@
 #include "../../domain/query/prescription4/historyOrderDetailQuery.h"
 #include "../../domain/dto/prescription4/historyOrderDetailDTO.h"
 #include "../../dao/prescription4/historyOrderDetailDAO.h"
+#include "domain/dto/PageDTO.h"
 
-/**
- * 历史医嘱明细 Service 层
- * 负责查询某次就诊下的所有医嘱（药品、检验检查、耗材），并转换为 DTO
- */
 class HistoryOrderDetailService
 {
 private:
     HistoryOrderDetailDAO dao;
 
-    /**
-     * 将 DO 列表转换为 DTO 列表
-     */
     oatpp::List<HistoryOrderDetailDTO::Wrapper> convertToDTOList(const std::list<PtrHistoryOrderDetailDO>& doList);
 
 public:
-    /**
-     * 分页查询医嘱明细
-     * @param query 查询条件（就诊ID、医嘱类型、关键词）
-     * @return 分页结果 DTO
-     */
-    HistoryOrderDetailPageDTO::Wrapper listAll(const HistoryOrderDetailQuery::Wrapper& query);
+    PageDTO<HistoryOrderDetailDTO::Wrapper>::Wrapper listAll(const HistoryOrderDetailQuery::Wrapper& query);
 };
 
 #endif // !_HISTORY_ORDER_DETAIL_SERVICE_

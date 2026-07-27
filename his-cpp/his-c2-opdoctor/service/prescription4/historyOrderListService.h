@@ -1,8 +1,21 @@
 #pragma once
 /*
  Copyright Zero One Star. All rights reserved.
+
  @Author: awei
  @Date: 2026/07/27
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
 */
 #ifndef _HISTORY_ORDER_LIST_SERVICE_
 #define _HISTORY_ORDER_LIST_SERVICE_
@@ -10,28 +23,17 @@
 #include "../../domain/query/prescription4/historyOrderListQuery.h"
 #include "../../domain/dto/prescription4/historyOrderListDTO.h"
 #include "../../dao/prescription4/historyOrderListDAO.h"
+#include "domain/dto/PageDTO.h"
 
-/**
- * 历史医嘱列表（就诊记录）Service 层
- * 负责查询患者历史就诊记录，并转换为 DTO
- */
 class HistoryOrderListService
 {
 private:
     HistoryOrderListDAO dao;
 
-    /**
-     * 将 DO 列表转换为 DTO 列表
-     */
     oatpp::List<HistoryOrderListDTO::Wrapper> convertToDTOList(const std::list<PtrHistoryOrderListDO>& doList);
 
 public:
-    /**
-     * 分页查询就诊记录
-     * @param query 查询条件（患者ID、关键词、就诊类型）
-     * @return 分页结果 DTO
-     */
-    HistoryOrderListPageDTO::Wrapper listAll(const HistoryOrderListQuery::Wrapper& query);
+    PageDTO<HistoryOrderListDTO::Wrapper>::Wrapper listAll(const HistoryOrderListQuery::Wrapper& query);
 };
 
 #endif // !_HISTORY_ORDER_LIST_SERVICE_

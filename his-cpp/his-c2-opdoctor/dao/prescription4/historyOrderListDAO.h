@@ -1,8 +1,21 @@
 #pragma once
 /*
  Copyright Zero One Star. All rights reserved.
+
  @Author: awei
  @Date: 2026/07/27
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
 */
 #ifndef _HISTORY_ORDER_LIST_DAO_
 #define _HISTORY_ORDER_LIST_DAO_
@@ -11,33 +24,13 @@
 #include "../../domain/do/prescription4/historyOrderListDO.h"
 #include "../../domain/query/prescription4/historyOrderListQuery.h"
 
-/**
- * 历史医嘱就诊记录数据访问层
- * 查询某患者的所有就诊记录，并统计各类医嘱数量
- */
 class HistoryOrderListDAO : public BaseDAO
 {
 private:
-    /**
-     * 构建分页查询的 WHERE 条件
-     * @param query 查询条件对象
-     * @param params 输出参数，用于参数化查询
-     * @return WHERE 子句字符串
-     */
     inline std::string queryConditionBuilder(const HistoryOrderListQuery::Wrapper& query, SqlParams& params);
 
 public:
-    // ========== 统计 ==========
-    /**
-     * 统计符合条件的就诊记录总数（用于分页）
-     */
     uint64_t count(const HistoryOrderListQuery::Wrapper& query);
-
-    // ========== 查询 ==========
-    /**
-     * 分页查询就诊记录列表（含主诊断、医生、医嘱计数）
-     * @return 就诊记录 DO 列表（智能指针）
-     */
     std::list<PtrHistoryOrderListDO> selectWithPage(const HistoryOrderListQuery::Wrapper& query);
 };
 
