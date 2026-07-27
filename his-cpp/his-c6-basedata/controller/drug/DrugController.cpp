@@ -28,7 +28,7 @@
 #include <set>
 #include <utility>
 #include <vector>
-
+#include "../ApiDeclarativeServicesHelper.h"
 namespace
 {
 constexpr size_t MAX_BATCH_SIZE = 100;
