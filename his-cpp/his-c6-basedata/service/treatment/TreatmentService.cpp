@@ -18,34 +18,91 @@
 */
 #include "stdafx.h"
 #include "TreatmentService.h"
-//#include "../../dao/sample/TreatmentDAO.h"
+#include "../../dao/treatment/TreatmentDAO.h"
 #include "id/UuidFacade.h"
-//#include "TreatmentDateTimeFormat.h"
+#include "SimpleDateTimeFormat.h"
 
+// ·ÖÒ³ÁĞ±í²éÑ¯
 TreatmentPageDTO::Wrapper TreatmentService::listAll(const TreatmentQuery::Wrapper& query)
 {
-	return {};
+	// ¹¹½¨·µ»Ø¶ÔÏó
+	auto pages = TreatmentPageDTO::createShared();
+	pages->pageIndex = query->pageIndex;
+	pages->pageSize = query->pageSize;
+	// ²éÑ¯Êı¾İ×ÜÌõÊı
+	TreatmentDAO dao;
+	uint64_t count = dao.count(query);
+	if (count <= 0)
+	{
+		return pages;
+	}
+	// ·ÖÒ³²éÑ¯Êı¾İ
+	pages->total = count;
+	pages->calcPages();
+	list<TreatmentDO> result = dao.selectWithPage(query);
+	// ½«DO×ª»»³ÉDTO
+	for (TreatmentDO& sub : result)
+	{
+		auto dto = TreatmentDTO::createShared();
+		ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub, id, Id);
+		pages->addData(dto);
+	}
+	return pages;
+}
+
+// ÏÂÀ­/Ñ¡ÔñÁĞ±í£¨½ö id + name£©
+TreatmentSelectPageDTO::Wrapper TreatmentService::listSelect(const TreatmentQuery::Wrapper& query)
+{
+	auto pages = TreatmentSelectPageDTO::createShared();
+	pages->pageIndex = query->pageIndex;
+	pages->pageSize = query->pageSize;
+
+	TreatmentDAO dao;
+	uint64_t count = dao.count(query);
+	if (count <= 0)
+	{
+		return pages;
+	}
+
+	pages->total = count;
+	pages->calcPages();
+	list<TreatmentDO> result = dao.selectWithPage(query);
+	for (TreatmentDO& sub : result)
+	{
+		auto dto = TreatmentSelectDTO::createShared();
+		ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub, id, Id, name, Name);
+		pages->addData(dto);
+	}
+	return pages;
 }
 
 TreatmentDetailDTO::Wrapper TreatmentService::getById(std::string id)
 {
-	// ç©ºå®ç°ï¼šåç»­æ¥å…¥ DAO/Mapperï¼ŒæŒ‰ id æŸ¥è¯¢å¹¶ç»„è£… TreatmentDetailDTO
+	// ¿ÕÊµÏÖ£ººóĞøÍ¨¹ı DAO/Mapper °´ id ²éÑ¯²¢×é×° TreatmentDetailDTO
 	return nullptr;
 }
 
 std::string TreatmentService::saveData(const TreatmentAddDTO::Wrapper& dto)
 {
-	// ç©ºå®ç°ï¼šåç»­æ¥å…¥ DAOï¼Œå†™å…¥ä¸»è¡¨/å­é¡¹/ä»·æ ¼å¹¶è¿”å›æ–° id
+	// ¿ÕÊµÏÖ£ººóĞøÍ¨¹ı DAO Ğ´ÈëÖ÷±í/×ÓÏî/¼Û¸ñ£¬²¢·µ»Ø id
 	return "";
 }
 
 bool TreatmentService::updateData(const TreatmentModifyDTO::Wrapper& dto)
 {
-	// ç©ºå®ç°ï¼šåç»­æ¥å…¥ DAOï¼Œæ›´æ–°ä¸»è¡¨/å­é¡¹/ä»·æ ¼
+	// ¿ÕÊµÏÖ£ººóĞøÍ¨¹ı DAO ¸üĞÂÖ÷±í/×ÓÏî/¼Û¸ñ
 	return false;
 }
 
+// °´ ID ÅúÁ¿ÈíÉ¾³ı
 bool TreatmentService::removeData(const oatpp::List<oatpp::String>& ids)
 {
-	return {};
+	TreatmentDAO dao;
+	std::list<std::string> datas;
+	for (auto one : *ids.get())
+		datas.emplace_back(one.getValue({}));
+	int rows = dao.deleteByIds<TreatmentDO>(datas);
+	if (rows == ids->size())
+		return true;
+	return false;
 }
