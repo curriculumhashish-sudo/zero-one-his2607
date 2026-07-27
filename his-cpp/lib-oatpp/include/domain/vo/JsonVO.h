@@ -25,15 +25,27 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * 前后端数据对接数据对象
+ * 前端数据交互数据对象（泛型模板类）
+ *
+ * 继承自 NoDataJsonVO，在其基础上新增 data 字段，用于承载业务数据。
+ * 通过模板参数 T 指定 data 字段的数据类型，实现类型安全的 JSON 序列化/反序列化。
+ *
+ * 提供以下便捷方法：
+ *   - success(T data)：快速构造成功响应
+ *   - fail(T data)：快速构造失败响应
+ *   - setStatus(ResultStatus)：设置响应状态
+ *
+ * @tparam T data 字段的数据类型，通常为 DTO::Wrapper 类型
+ *
+ * @see NoDataJsonVO 不含 data 字段的基础版本
  */
 template<class T>
 class JsonVO : public NoDataJsonVO
 {
-	// 初始化定义
+	// 初始化宏，注册 DTO 类型（继承自 NoDataJsonVO）
 	DTO_INIT(JsonVO, NoDataJsonVO);
 
-	// 数据对象
+	// 数据对象，承载业务层返回的实际数据
 	DTO_FIELD(T, data, "data");
 	DTO_FIELD_INFO(data) {
 #ifndef LINUX
@@ -44,22 +56,22 @@ class JsonVO : public NoDataJsonVO
 	}
 
 public:
-	// 设置状态
+	// 设置响应状态码和提示信息
 	void setStatus(ResultStatus resultStatus) {
 		this->message = resultStatus.getMessage();
 		this->code = resultStatus.getCode();
 	}
-	// 初始化
+	// 同时初始化 data 和状态信息
 	void init(T data, ResultStatus resultStatus) {
 		this->data = data;
 		this->setStatus(resultStatus);
 	}
-	// 构建成功消息
+	// 便捷方法：构造成功响应（状态码 = SUCCESS）
 	void success(T data) {
 		this->setStatus(RS_SUCCESS);
 		this->data = data;
 	}
-	// 构建失败消息
+	// 便捷方法：构造失败响应（状态码 = FAIL）
 	void fail(T data) {
 		this->setStatus(RS_FAIL);
 		this->data = data;

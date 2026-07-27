@@ -4,7 +4,7 @@
 
  @Author: awei
  @Date: 2023/02/20 10:27:42
- @description：这里定义基础数据类型对应的响应JsonVO
+ @description: 这里定义了基本数据类型对应的响应JsonVO，用于向前端返回各种基础类型的数据。
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ using namespace oatpp;
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * 字符串显示JsonVO，用于响应给客户端的Json对象
+ * 字符串类型JsonVO，用于响应客户端的字符串类型数据
  */
 class StringJsonVO : public JsonVO<String>
 {
@@ -34,7 +34,7 @@ class StringJsonVO : public JsonVO<String>
 };
 
 /**
- * 整形显示JsonVO，用于响应给客户端的Json对象
+ * 32位整型JsonVO，用于响应客户端的整数类型数据
  */
 class Int32JsonVO : public JsonVO<Int32>
 {
@@ -42,7 +42,7 @@ class Int32JsonVO : public JsonVO<Int32>
 };
 
 /**
- * 无符号整形显示JsonVO，用于响应给客户端的Json对象
+ * 无符号32位整型JsonVO，用于响应客户端的无符号整数类型数据
  */
 class Uint32JsonVO : public JsonVO<UInt32>
 {
@@ -50,7 +50,7 @@ class Uint32JsonVO : public JsonVO<UInt32>
 };
 
 /**
- * 长整形显示JsonVO，用于响应给客户端的Json对象
+ * 64位整型JsonVO，用于响应客户端的长整数类型数据
  */
 class Int64JsonVO : public JsonVO<Int64>
 {
@@ -58,7 +58,7 @@ class Int64JsonVO : public JsonVO<Int64>
 };
 
 /**
- * 无符号长整形显示JsonVO，用于响应给客户端的Json对象
+ * 无符号64位整型JsonVO，用于响应客户端的无符号长整数类型数据
  */
 class Uint64JsonVO : public JsonVO<UInt64>
 {
@@ -66,7 +66,7 @@ class Uint64JsonVO : public JsonVO<UInt64>
 };
 
 /**
- * 单精度浮点数显示JsonVO，用于响应给客户端的Json对象
+ * 单精度浮点型JsonVO，用于响应客户端的浮点数类型数据
  */
 class FloatJsonVO : public JsonVO<Float32>
 {
@@ -74,7 +74,7 @@ class FloatJsonVO : public JsonVO<Float32>
 };
 
 /**
- * 双精度浮点数显示JsonVO，用于响应给客户端的Json对象
+ * 双精度浮点型JsonVO，用于响应客户端的双精度浮点数类型数据
  */
 class DoubleJsonVO : public JsonVO<Float64>
 {
@@ -82,7 +82,7 @@ class DoubleJsonVO : public JsonVO<Float64>
 };
 
 /**
- * 布尔显示JsonVO，用于响应给客户端的Json对象
+ * 布尔类型JsonVO，用于响应客户端的布尔值类型数据
  */
 class BooleanJsonVO : public JsonVO<Boolean>
 {
@@ -90,16 +90,20 @@ class BooleanJsonVO : public JsonVO<Boolean>
 };
 
 /**
- * 列表显示JsonVO，用于响应给客户端的Json对象
+ * 列表类型JsonVO（泛型模板类），用于响应客户端的列表类型数据
+ *
+ * @tparam T 列表元素的数据类型，通常为 DTO::Wrapper 类型
  */
 template<class T>
 class ListJsonVO : public JsonVO<List<T>>
 {
 	DTO_INIT(ListJsonVO, JsonVO<List<T>>);
 public:
+	// 构造函数：初始化为空列表
 	ListJsonVO() {
 		this->data = {};
 	}
+	// 向列表中添加一个元素
 	void addData(T data) {
 		this->data->push_back(data);
 	}
