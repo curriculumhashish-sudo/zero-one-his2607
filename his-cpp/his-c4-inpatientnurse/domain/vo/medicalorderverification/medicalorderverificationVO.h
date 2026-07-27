@@ -8,9 +8,9 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 
-class medicalOrderVerificationJsonVO : public JsonVO<medicalOrderVerificationDetailDTO::Wrapper>
+class medicalOrderVerificationJsonVO : public ListJsonVO<medicalOrderVerificationDetailDTO::Wrapper>
 {
-	DTO_INIT(medicalOrderVerificationJsonVO, JsonVO<medicalOrderVerificationDetailDTO::Wrapper>);
+	DTO_INIT(medicalOrderVerificationJsonVO, ListJsonVO<medicalOrderVerificationDetailDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)
