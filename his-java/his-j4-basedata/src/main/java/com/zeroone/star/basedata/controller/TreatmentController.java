@@ -88,7 +88,7 @@ public class TreatmentController implements TreatmentApis {
 
     @Operation(summary = "删除诊疗（支持批量）", description = "删除诊疗项目")
     @Parameters({
-            @Parameter(name = "id", description = "诊疗项目ID", required = true, example = "1890000000000000001", in = ParameterIn.QUERY)
+            @Parameter(name = "id", description = "诊疗项目ID", required = true, example = "323001764504670208", in = ParameterIn.QUERY)
     })
     @ApiResponse(description = "无返回值")
     @DeleteMapping("/remove-treatment")

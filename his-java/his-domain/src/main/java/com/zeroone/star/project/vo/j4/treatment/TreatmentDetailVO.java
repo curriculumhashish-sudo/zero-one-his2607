@@ -26,7 +26,7 @@ public class TreatmentDetailVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @JsonSerialize(using = ToStringSerializer.class)
-    @Schema(description = "主键ID", example = "1890000000000000001", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "主键ID", example = "323001764504670208", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
     /**
@@ -38,19 +38,19 @@ public class TreatmentDetailVO implements Serializable {
      * 40=体位, 41=陪护, 42=隔离等级, 43=口腔检查, 44=内镜检查, 45=内镜治疗, 46=基础服务,
      * 47=诊断费, 48=预防接种手续费, 49=口腔治疗, 50=护理项目, 51=床位服务
      */
-    @Schema(description = "目录分类编码，前端需字典翻译：21=治疗/22=检验/23=检查/24=手术/25=麻醉/26=护理级别/27=膳食/28=输血/29=输氧/31=其他/32=转科/33=术后/34=出院/35=转院/36=死亡/37=产后/38=病情/39=护理常规/40=体位/41=陪护/42=隔离等级/43=口腔检查/44=内镜检查/45=内镜治疗/46=基础服务/47=诊断费/48=预防接种手续费/49=口腔治疗/50=护理项目/51=床位服务", example = "22")
+    @Schema(description = "目录分类编码，前端需字典翻译：21=治疗/22=检验/23=检查/24=手术/25=麻醉/26=护理级别/27=膳食/28=输血/29=输氧/31=其他/32=转科/33=术后/34=出院/35=转院/36=死亡/37=产后/38=病情/39=护理常规/40=体位/41=陪护/42=隔离等级/43=口腔检查/44=内镜检查/45=内镜治疗/46=基础服务/47=诊断费/48=预防接种手续费/49=口腔治疗/50=护理项目/51=床位服务", example = "21")
     private String categoryCode;
 
-    @Schema(description = "业务编码", example = "AD00000001")
+    @Schema(description = "业务编码", example = "AD00000011")
     private String busNo;
 
-    @Schema(description = "项目名称", example = "肝功13项")
+    @Schema(description = "项目名称", example = "静脉注射")
     private String name;
 
-    @Schema(description = "拼音检索码", example = "gg13x")
+    @Schema(description = "拼音检索码", example = "JMZS")
     private String pyStr;
 
-    @Schema(description = "五笔检索码", example = "af13c")
+    @Schema(description = "五笔检索码", example = "GEIT")
     private String wbStr;
 
     /**
@@ -128,19 +128,19 @@ public class TreatmentDetailVO implements Serializable {
      * 编码对照表（参考后端枚举 ActivityType）：
      * 1=检验, 2=检查, 3=护理, 4=手术, 5=其他
      */
-    @Schema(description = "业务类型编码，前端需字典翻译：1=检验/2=检查/3=护理/4=手术/5=其他", example = "1")
+    @Schema(description = "业务类型编码，前端需字典翻译：1=检验/2=检查/3=护理/4=手术/5=其他", example = "5")
     private String typeEnum;
 
-    @Schema(description = "所属机构ID", example = "1001")
+    @Schema(description = "所属机构ID", example = "1")
     private String orgId;
 
-    @Schema(description = "所在位置ID", example = "2001")
+    @Schema(description = "所在位置ID", example = "1")
     private String locationId;
 
-    @Schema(description = "收费项目医保等级（1-甲类/2-乙类/3-丙类）", example = "1")
+    @Schema(description = "收费项目医保等级（1-甲类/2-乙类/3-丙类）", example = "0")
     private Integer chrgitmLv;
 
-    @Schema(description = "允许的角色枚举值", example = "1")
+    @Schema(description = "允许的角色枚举值", example = "0")
     private Integer permittedRoleEnum;
 
     /**
@@ -163,13 +163,13 @@ public class TreatmentDetailVO implements Serializable {
     @Schema(description = "财务类别编码，前端需字典翻译：1001=西药/1002=外购药品/1003=中草药/1004=化验/1005=手术/1007=诊断/1008=治疗/1009=护理/1010=床位/1011=挂号费/1012=诊察费/1013=其他费/2001=麻醉/2002=膳食/2003=输血费/2004=自备医嘱/2005=医用耗材/2006=循环物质/2007=物资/2008=办公用品/2009=检查/2010=中成药/2011=CT/2012=电诊", example = "1008")
     private String itemTypeCode;
 
-    @Schema(description = "项目购入价（元）", example = "44.40")
+    @Schema(description = "项目购入价（元）", example = "6.00")
     private BigDecimal purchasePrice;
 
-    @Schema(description = "项目零售价（元）", example = "44.40")
+    @Schema(description = "项目零售价（元）", example = "6.00")
     private BigDecimal retailPrice;
 
-    @Schema(description = "项目最高零售价（元）", example = "44.40")
+    @Schema(description = "项目最高零售价（元）", example = "6.00")
     private BigDecimal maximumRetailPrice;
 
     @Schema(description = "诊疗子项列表")
