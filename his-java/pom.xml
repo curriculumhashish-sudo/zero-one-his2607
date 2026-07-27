@@ -37,7 +37,6 @@
         <module>his-mcp-gateway</module>
         <module>his-j7-dispense</module>
         <module>his-j7-pharmacy</module>
-        <module>his-inventory</module>
     </modules>
     <properties>
         <!--  项目版本号  -->
