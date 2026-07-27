@@ -6,5 +6,22 @@ server:
 spring:
   application:
     name: ${sn.j7-dispense}
-  profiles:
-    active: dev
+  config:
+    import:
+      - optional:nacos:data-source.yaml
+      - optional:nacos:key-config.yaml
+      - optional:nacos:system.yaml
+      - optional:nacos:third-services.yaml
+      - optional:nacos:gateway.yaml
+      - optional:nacos:j7-pharmacy-dev.yaml
+  cloud:
+    nacos:
+      config:
+        server-addr: 192.168.147.100:8848
+        namespace: his-dev
+        group: DEFAULT_GROUP
+        file-extension: yaml
+        refresh-enabled: true
+      discovery:
+        server-addr: 192.168.147.100:8848
+        namespace: his-dev
