@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zeroone.star.project.dto.ExtendPageDTO;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j7.dispense.DispenseVerifyDTO;
-import com.zeroone.star.project.dto.j7.dispense.InpatientRefundConfirmDTO;
 import com.zeroone.star.project.query.j7.dispense.*;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j7.dispense.*;
@@ -93,17 +92,12 @@ public interface DispenseApis {
      * @version 1.0.0
      */
 
-        /** 加载页面初始化选项 */
-        JsonVO<InpatientRefundInitVO> loadInit();
 
         /** 分页查询退药患者队列 */
         JsonVO<PageDTO<InpatientRefundPatientVO>> queryPatientQueue(InpatientRefundPatientQuery query);
 
         /** 获取患者退药明细 */
         JsonVO<List<InpatientRefundDetailVO>> queryRefundDetail(InpatientRefundDetailQuery query);
-
-        /** 确认退药（当前阶段假数据） */
-        JsonVO<InpatientRefundConfirmVO> confirmReturn(InpatientRefundConfirmDTO dto);
 
 
 
