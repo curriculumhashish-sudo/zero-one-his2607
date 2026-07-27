@@ -3,19 +3,18 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * Ç©ï¿½ï¿½Ä¿ï¿½ï¿½DTO
- * ï¿½ï¿½ï¿½åµ¥ï¿½ï¿½Ç©ï¿½ï¿½Ä¿ï¿½ï¿½Ä±ï¿½Ê¶ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½Ç©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ * ´¦·½Ä¿±êDTO
+ * ´æ´¢´¦·½±êÊ¶Ïà¹ØÐÅÏ¢£¬ÓÃÓÚÍ¬²½Ç©Êð´¦·½Êý¾Ý
  */
-class chinapres3SignTargetDTO : public oatpp::DTO
+class ChinaPres3SignTargetDTO : public oatpp::DTO
 {
-    DTO_INIT(chinapres3SignTargetDTO, DTO);
+    DTO_INIT(ChinaPres3SignTargetDTO, DTO);
 
-    // ï¿½ï¿½ï¿½ï¿½Ò©Æ·ï¿½ï¿½ï¿½ï¿½IDï¿½ï¿½ï¿½ï¿½Ó¦ med_medication_request.id
+    // Ò©Æ·ÉêÇëµ¥ID ¶ÔÓ¦ med_medication_request.id
     API_DTO_FIELD_REQUIRE(String, medicationRequestId, ZH_WORDS_GETTER("chinapres3.field.medicationRequestId"), true);
 
-    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú±ï¿½Ê¶Í¬Ò»ï¿½Î¿ï¿½ï¿½ßµÄ´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-    //
-   // API_DTO_FIELD_REQUIRE(String, prescriptionGroupKey, ZH_WORDS_GETTER("chinapres3.field.prescriptionGroupKey"), true);
+    // ´¦·½·Ö×é±êÊ¶£¬ÓÃÓÚÇø·ÖÍ¬Ò»Åú´Î¶àÕÅ´¦·½
+    // API_DTO_FIELD_REQUIRE(String, prescriptionGroupKey, ZH_WORDS_GETTER("chinapres3.field.prescriptionGroupKey"), true);
 };
 
 #include OATPP_CODEGEN_END(DTO)

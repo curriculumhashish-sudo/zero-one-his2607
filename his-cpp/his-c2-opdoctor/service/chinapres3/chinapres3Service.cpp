@@ -7,6 +7,153 @@
 #include <set>
 #include <map>
 
+// ===================================================================
+//                         Revoke Implementation
+// ===================================================================
+
+chinapres3RevokeResultVO::Wrapper chinapres3Service::revoke(
+	const chinapres3RevokeDTO::Wrapper& dto,
+	const PayloadDTO& payload)
+{
+	auto resultVo = chinapres3RevokeResultVO::createShared();
+
+	// ---- 1. Parameter Verification ----
+	auto prescriptionNos = dto->prescriptionNos;
+	if (!prescriptionNos || prescriptionNos->size() == 0) {
+		resultVo->code = 400;
+		resultVo->message = "Parameter cannot be empty, please pass prescription numbers";
+		return resultVo;
+	}
+
+	auto now = SimpleDateTimeFormat::format();
+	auto currentUser = payload.getUsername();
+
+	oatpp::Int32 revokedPresCount = 0;
+	oatpp::Int32 revokedMedCount = 0;
+	auto failureList = oatpp::Vector<oatpp::Object<chinapres3RevokeFailureDTO>>::createShared();
+
+	// ---- 2. Process each prescription independently ----
+	for (auto& presNo : *prescriptionNos) {
+		auto presNoStr = std::string(presNo.getValue(""));
+		if (presNoStr.empty()) continue;
+
+		try {
+			// Each prescription gets its own transaction
+			TransactionManager tm(&medReqDAO, &medDispDAO, &chargeDAO);
+
+			// ---- 2a. Query ACTIVE medication requests for this prescription ----
+			auto reqQuery = chinapres3MedicationRequestQuery::createShared();
+			reqQuery->prescriptionNo = presNoStr;
+			reqQuery->statusEnum = "ACTIVE";
+			reqQuery->pageIndex = 1;
+			reqQuery->pageSize = 1000;
+			auto requests = medReqDAO.selectWithPage(reqQuery);
+
+			if (requests.empty()) {
+				tm.rollback();
+				auto failure = chinapres3RevokeFailureDTO::createShared();
+				failure->prescriptionNo = presNoStr;
+				failure->reason = "Prescription not found or not in issued status";
+				failureList->push_back(failure);
+				continue;
+			}
+
+			// ---- 2b. Verify dispense records: must be PREPARATION and not deleted ----
+			std::vector<Ptrchinapres3MedicationDispenseDO> dispensesToUpdate;
+			bool dispenseFailed = false;
+
+			for (auto& req : requests) {
+				auto dispQuery = chinapres3MedicationDispenseQuery::createShared();
+				dispQuery->medReqId = req->getId();
+				dispQuery->statusEnum = "PREPARATION";
+				dispQuery->isDeleted = "0";
+				dispQuery->pageIndex = 1;
+				dispQuery->pageSize = 1000;
+				auto dispList = medDispDAO.selectWithPage(dispQuery);
+
+				if (dispList.empty()) {
+					dispenseFailed = true;
+					break;
+				}
+
+				for (auto& d : dispList) {
+					dispensesToUpdate.push_back(d);
+				}
+			}
+
+			if (dispenseFailed) {
+				tm.rollback();
+				auto failure = chinapres3RevokeFailureDTO::createShared();
+				failure->prescriptionNo = presNoStr;
+				failure->reason = "Some medication has been dispensed or already revoked, cannot revoke";
+				failureList->push_back(failure);
+				continue;
+			}
+
+			// ---- 2c. UPDATE medication_request: status_enum ¡ú DRAFT ----
+			for (auto& req : requests) {
+				req->setStatusEnum("DRAFT");
+				// rx_type_code stays "TCM" unchanged
+				req->setUpdatedBy(currentUser);
+				req->setUpdatedAt(now);
+				medReqDAO.update(*req);
+			}
+
+			// ---- 2d. UPDATE medication_dispense: is_deleted = 1 ----
+			for (auto& d : dispensesToUpdate) {
+				d->setIsDeleted("1");
+				d->setUpdatedBy(currentUser);
+				d->setUpdatedAt(now);
+				medDispDAO.update(*d);
+			}
+
+			// ---- 2e. UPDATE adm_charge_item: is_deleted = 1 ----
+			auto chargeQuery = chinapres3ChargeItemQuery::createShared();
+			chargeQuery->prescriptionNo = presNoStr;
+			chargeQuery->isDeleted = "0";
+			chargeQuery->pageIndex = 1;
+			chargeQuery->pageSize = 1000;
+			auto charges = chargeDAO.selectWithPage(chargeQuery);
+
+			for (auto& c : charges) {
+				c->setIsDeleted("1");
+				c->setUpdatedBy(currentUser);
+				c->setUpdatedAt(now);
+				chargeDAO.update(*c);
+			}
+
+			// ---- Commit this prescription's transaction ----
+			tm.commit();
+
+			revokedPresCount++;
+			revokedMedCount += static_cast<oatpp::Int32>(requests.size());
+
+		}
+		catch (const std::exception& e) {
+			auto failure = chinapres3RevokeFailureDTO::createShared();
+			failure->prescriptionNo = presNoStr;
+			std::stringstream errMsg;
+			errMsg << "Transaction failed: " << e.what();
+			failure->reason = errMsg.str();
+			failureList->push_back(failure);
+		}
+	}
+
+	// ---- 3. Assemble result ----
+	auto resultData = chinapres3RevokeResultDTO::createShared();
+	resultData->revokedPrescriptionCount = revokedPresCount;
+	resultData->revokedMedicationCount = revokedMedCount;
+	resultData->failures = failureList;
+
+	resultVo->success(resultData);
+	resultVo->message = "Revoke completed";
+	return resultVo;
+}
+
+// ===================================================================
+//                         Issue Implementation
+// ===================================================================
+
 chinapres3IssueResultVO::Wrapper chinapres3Service::issue(
 	const chinapres3IssueDTO::Wrapper& dto,
 	const PayloadDTO& payload)
@@ -98,7 +245,7 @@ chinapres3IssueResultVO::Wrapper chinapres3Service::issue(
 		}
 
 		// ----- 3b. INSERT Create new dispense detail record -----
-		// prescriptionNo â†’ first request ID mapping for charge generation
+		// prescriptionNo ¡ú first request ID mapping for charge generation
 		std::map<std::string, std::string> presNoToReqId;
 		for (auto& req : validRequests) {
 			chinapres3MedicationDispenseDO dispDO;

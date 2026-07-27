@@ -78,6 +78,10 @@ class chinapres3MedicationDispenseDO : public BaseDO
 	// Updated at (timestamp)
 	MYSQL_SYNTHESIZE(string, updatedAt, UpdatedAt);
 
+	// ---- revoke-related field ----
+	// Logical delete flag (0 = active, 1 = deleted), used by revoke flow
+	MYSQL_SYNTHESIZE(string, isDeleted, IsDeleted);
+
 public:
 	chinapres3MedicationDispenseDO() : BaseDO("med_medication_dispense")
 	{
@@ -99,6 +103,11 @@ public:
 		MYSQL_ADD_FIELD("unit_code", "s", unitCode);
 		MYSQL_ADD_FIELD("created_by", "s", createdBy);
 		MYSQL_ADD_FIELD("created_at", "s", createdAt);
+
+		// ---- revoke-related DML registration ----
+		MYSQL_ADD_FIELD("updated_by", "s", updatedBy);
+		MYSQL_ADD_FIELD("updated_at", "s", updatedAt);
+		MYSQL_ADD_FIELD("is_deleted", "s", isDeleted);
 	}
 };
 

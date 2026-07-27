@@ -6,6 +6,9 @@
 // 包含签发相关的DTO和VO头文件
 #include "../../domain/dto/chinapres3/chinapres3IssueDTO.h"
 #include "../../domain/vo/chinapres3/chinapres3IssueResultVO.h"
+// ---- revoke-related includes (temporarily disabled for debugging) ----
+//#include "../../domain/dto/chinapres3/chinapres3RevokeDTO.h"
+//#include "../../domain/vo/chinapres3/chinapres3RevokeResultVO.h"
 // 包含三个DAO头文件，分别负责处方药品行、发药记录、收费项目的数据访问
 #include "../../dao/chinapres3/chinapres3MedicationRequestDAO.h"
 #include "../../dao/chinapres3/chinapres3MedicationDispenseDAO.h"
@@ -67,6 +70,29 @@ public:
 	chinapres3IssueResultVO::Wrapper issue(
 		const chinapres3IssueDTO::Wrapper& dto,
 		const PayloadDTO& payload);
+
+	// ---- revoke-related method (temporarily disabled for debugging) ----
+	/**
+	 * Revoke issued TCM prescriptions.
+	 *
+	 * Revocation flow (per prescription, independent transactions):
+	 *   1. Validate prescriptionNos list is not empty
+	 *   2. For each prescription number:
+	 *      a. Query medication_request rows where status_enum = ACTIVE
+	 *      b. Verify corresponding dispense records are PREPARATION and not deleted
+	 *      c. UPDATE medication_request: status_enum → DRAFT, updated_by/at
+	 *      d. UPDATE medication_dispense: is_deleted = 1, updated_by/at
+	 *      e. UPDATE adm_charge_item: is_deleted = 1, updated_by/at
+	 *      f. Commit per-prescription transaction
+	 *   3. Collect successes (counts) and failures (prescriptionNo + reason)
+	 *
+	 * @param dto Revoke request containing prescription numbers to revoke
+	 * @param payload JWT payload providing operator identity (getUsername)
+	 * @return Revoke result with revoked counts and failure details
+	 */
+	//chinapres3RevokeResultVO::Wrapper revoke(
+	//	const chinapres3RevokeDTO::Wrapper& dto,
+	//	const PayloadDTO& payload);
 };
 
 #endif // !_chinapres3Service_H_

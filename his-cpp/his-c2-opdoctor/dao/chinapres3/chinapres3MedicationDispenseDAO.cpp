@@ -6,7 +6,7 @@
 
 #define QUERY_HEAD "SELECT id,med_req_id,patient_id,encounter_id,bus_no,status_enum," \
                     "dispense_enum,location_id,medication_id,quantity,unit_code," \
-                    "created_by,created_at,updated_by,updated_at FROM med_medication_dispense "
+                    "created_by,created_at,updated_by,updated_at,is_deleted FROM med_medication_dispense "
 std::string chinapres3MedicationDispenseDAO::queryConditionBuilder(const chinapres3MedicationDispenseQuery::Wrapper& query, SqlParams& params)
 {
 	std::ostringstream sql;
@@ -39,6 +39,13 @@ std::string chinapres3MedicationDispenseDAO::queryConditionBuilder(const chinapr
 		auto val = query->statusEnum.getValue("");
 		params.push_back(SqlParam("s", std::make_shared<std::string>(val)));
 		if (!val.empty()) sql << " AND status_enum=?";
+	}
+	// ---- revoke-related filter ----
+	// 6 for isDeleted
+	if (query->isDeleted) {
+		auto val = query->isDeleted.getValue("");
+		params.push_back(SqlParam("s", std::make_shared<std::string>(val)));
+		if (!val.empty()) sql << " AND is_deleted=?";
 	}
 	return sql.str();
 }

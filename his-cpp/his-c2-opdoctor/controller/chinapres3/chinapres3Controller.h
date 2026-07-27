@@ -1,62 +1,90 @@
 #ifndef _chinapres3CONTROLLER_H_
 #define _chinapres3CONTROLLER_H_
 
-// °üº¬VOºÍDTOÍ·ÎÄ¼þ
+// ï¿½ï¿½ï¿½ï¿½VOï¿½ï¿½DTOï¿½ï¿½ï¿½Í·ï¿½Ä¼ï¿½
 #include "domain/vo/BaseJsonVO.h"
 #include "domain/dto/chinapres3/chinapres3IssueDTO.h"
 #include "../../domain/vo/chinapres3/chinapres3IssueResultVO.h"
+// ---- revoke-related includes (temporarily disabled for debugging) ----
+//#include "../../domain/dto/chinapres3/chinapres3RevokeDTO.h"
+//#include "../../domain/vo/chinapres3/chinapres3RevokeResultVO.h"
 #include "../../service/chinapres3/chinapres3Service.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-// ½Ó¿Ú±êÇ©£¬ÓÃÓÚAPIÎÄµµ·Ö×é
+// ï¿½Ó¿Ú·ï¿½ï¿½ï¿½ï¿½Ç©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Swaggerï¿½Ó¿ï¿½ï¿½Äµï¿½Õ¹Ê¾
 #define API_TAG ZH_WORDS_GETTER("chinapres3.tags.tag")
 
 /**
- * ÖÐÒ½´¦·½Ç©·¢¿ØÖÆÆ÷
+ * Ò½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
  *
- * ¸ºÔð½ÓÊÕÇ°¶ËÌá½»µÄ´¦·½Ç©·¢ÇëÇó£¬
- * ½âÎöÇëÇóÌåÖÐµÄÇ©·¢Êý¾Ý£¬
- * Î¯ÍÐ chinapres3Service Ö´ÐÐÇ©·¢ÊÂÎñ£¬
- * ½«´¦Àí½á¹ûÒÔ chinapres3IssueResultVO ¸ñÊ½·µ»Ø¡£
+ * ï¿½á¹©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø¶ï¿½ï¿½ï¿½APIï¿½Ó¿ï¿½
+ * ï¿½ï¿½ï¿½ï¿½Ç°ï¿½Ë´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ * ï¿½ï¿½ï¿½ï¿½ chinapres3Service Ö´ï¿½ï¿½Òµï¿½ï¿½ï¿½ß¼ï¿½
+ * Í³Ò»ï¿½ï¿½VOï¿½ï¿½Ê½ï¿½ï¿½ï¿½Ø½Ó¿ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½
  */
 class chinapres3Controller : public oatpp::web::server::api::ApiController
 {
-	// ·ÃÎÊÈ¨ÏÞÉùÃ÷£¬ÓÉ¿ò¼ÜÀ¹½ØÆ÷Ð£ÑéJWTµÈÈÏÖ¤ÐÅÏ¢
+	// ï¿½ï¿½ï¿½ï¿½ï¿½Ó¿Ú¼ï¿½È¨ï¿½ï¿½È«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½JWTï¿½ï¿½Â¼Æ¾Ö¤ï¿½ï¿½Ï¢
 	API_ACCESS_DECLARE(chinapres3Controller);
 
 public:
-	// ÉùÃ÷¶ËµãÔªÐÅÏ¢£¨ÓÃÓÚ Swagger ÎÄµµÉú³É£©
+	// ï¿½ï¿½ï¿½å¿ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¿ï¿½ï¿½Äµï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½È¨ï¿½ï¿½Ê¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½å¡¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½é£¨SwaggerÕ¹Ê¾ï¿½ï¿½
 	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("chinapres3.issue.summary"),
-		issuechinapres3,                              // ¡û ¶ËµãÄÚ²¿Ãû³Æ
-		chinapres3IssueResultVO::Wrapper,              // ¡û ·µ»ØÀàÐÍ
+		issuechinapres3,                              // ï¿½Ó¿ï¿½ï¿½Ú²ï¿½ï¿½ï¿½Ê¶ï¿½ï¿½ï¿½ï¿½
+		chinapres3IssueResultVO::Wrapper,              // ï¿½Ó¿Ú·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½VOï¿½ï¿½ï¿½ï¿½
 		API_TAG);
 
-	// °ó¶¨Â·ÓÉ£ºPOST /chinapres3/issue
+	// ï¿½Ó¿ï¿½Â·ï¿½É¶ï¿½ï¿½å£ºPOST /chinapres3/issue ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¿ï¿½
 	API_HANDLER_ENDPOINT_AUTH(
-		API_M_POST,                                   // ¡û HTTP ·½·¨
-		"/chinapres3/issue",                          // ¡û URL Â·¾¶
-		issuechinapres3,                              // ¡û ¶ÔÓ¦ÉÏÃæµÄ¶ËµãÃû
-		BODY_DTO(chinapres3IssueDTO::Wrapper, dto),   // ¡û ×Ô¶¯·´ÐòÁÐ»¯
+		API_M_POST,                                   // ï¿½ï¿½ï¿½ï¿½Ê½ POST
+		"/chinapres3/issue",                          // ï¿½Ó¿Ú·ï¿½ï¿½ï¿½Â·ï¿½Éµï¿½Ö·
+		issuechinapres3,                              // ï¿½Ó¿Ú±ï¿½Ê¶ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½ï¿½Äµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦
+		BODY_DTO(chinapres3IssueDTO::Wrapper, dto),   // ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½JSONï¿½ï¿½ï¿½ï¿½ï¿½å£¬ï¿½ï¿½Îªdtoï¿½ï¿½ï¿½ï¿½
 		execIssuechinapres3(dto, authObject->getPayload()));
 
+	// ---- revoke-related endpoint (temporarily disabled for debugging) ----
+	/*
+	API_DEF_ENDPOINT_INFO_AUTH(
+		ZH_WORDS_GETTER("chinapres3.recall.summary"),
+		revokechinapres3,
+		chinapres3RevokeResultVO::Wrapper,
+		API_TAG);
+
+	// Route: POST /chinapres3/revoke
+	API_HAND
+
 private:
-	// ÖÐÒ½´¦·½Ç©·¢·þÎñÊµÀý£¬¸ºÔð¾ßÌåÇ©·¢ÒµÎñÂß¼­
+	// ×¢ï¿½ï¿½Ò½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òµï¿½ï¿½ï¿½ï¿½ñ£¬³ï¿½ï¿½Ø¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Øºï¿½ï¿½ï¿½Òµï¿½ï¿½ï¿½ß¼ï¿½
 	chinapres3Service service;
 
 	/**
-	 * Ç©·¢½Ó¿ÚÖ´ÐÐº¯Êý
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¿ï¿½Ö´ï¿½Ðºï¿½ï¿½ï¿½
 	 *
-	 * ½ÓÊÕÇ°¶ËÌá½»µÄÇ©·¢DTOºÍJWTÔØºÉ£¬
-	 * Î¯ÍÐ service.issue() ·½·¨Ö´ÐÐÐ£Ñé¡¢×´Ì¬¸üÐÂ¡¢·¢Ò©¼ÇÂ¼Éú³ÉºÍÊÕ·ÑÍ¬²½µÈÊÂÎñ²Ù×÷¡£
+	 * ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½ï¿½á½»ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½DTOï¿½ï¿½ï¿½ï¿½Â¼ï¿½Ã»ï¿½JWTï¿½Øºï¿½ï¿½ï¿½Ï¢
+	 * ï¿½ï¿½ï¿½ï¿½service.issue()ï¿½ï¿½É´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â´ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½É·ï¿½Ò©ï¿½ï¿½ï¿½Õ·Ñ¼ï¿½Â¼
 	 *
-	 * @param dto Ç©·¢ÇëÇóÊý¾Ý£¬°üº¬ encounterId¡¢patientId ºÍ signTargets ÁÐ±í
-	 * @param payload JWTÔØºÉ£¬°üº¬µ±Ç°µÇÂ¼ÓÃ»§ÐÅÏ¢
-	 * @return chinapres3IssueResultVO Ç©·¢½á¹û£¬°üº¬×´Ì¬Âë¡¢ÌáÊ¾ÐÅÏ¢ºÍÍ³¼ÆÊý¾Ý
+	 * @param dto ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½IDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½IDï¿½ï¿½Ç©ï¿½ï¿½Ä¿ï¿½ê´¦ï¿½ï¿½ï¿½Ð±ï¿½
+	 * @param payload JWTï¿½ØºÉ£ï¿½ï¿½æ´¢ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½Ï¢
+	 * @return chinapres3IssueResultVO ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½Ä°ï¿½ï¿½ï¿½Í³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 */
 	chinapres3IssueResultVO::Wrapper execIssuechinapres3(
 		const chinapres3IssueDTO::Wrapper& dto,
+		const PayloadDTO& payload);
+
+	// ---- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö´ï¿½Ðºï¿½ï¿½ï¿½ ----
+	/**
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø½Ó¿ï¿½Ö´ï¿½Ðºï¿½ï¿½ï¿½
+	 *
+	 * ×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½service.revoke() Ö´ï¿½Ð´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È«ï¿½ï¿½ï¿½ï¿½ï¿½ß¼ï¿½
+	 *
+	 * @param dto ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	 * @param payload JWTï¿½ØºÉ£ï¿½ï¿½ï¿½Åµï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½Ï¢
+	 * @return Revokeï¿½ï¿½ï¿½VOï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É¹ï¿½ï¿½ï¿½ï¿½ï¿½Í³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê§ï¿½Ü´ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸
+	 */
+	chinapres3RevokeResultVO::Wrapper execRevokechinapres3(
+		const chinapres3RevokeDTO::Wrapper& dto,
 		const PayloadDTO& payload);
 };
 

@@ -7,7 +7,7 @@
 #define QUERY_HEAD "SELECT id,service_table,service_id,patient_id,encounter_id,prescription_no," \
                     "definition_id,total_price,quantity_value,quantity_unit,unit_price," \
                     "account_id,org_id,condition_id,encounter_diagnosis_id,generate_source_enum,context_enum," \
-                    "created_by,created_at,updated_by,updated_at FROM adm_charge_item "
+                    "created_by,created_at,updated_by,updated_at,is_deleted FROM adm_charge_item "
 std::string chinapres3ChargeItemDAO::queryConditionBuilder(const chinapres3ChargeItemQuery::Wrapper& query, SqlParams& params)
 {
 	std::ostringstream sql;
@@ -40,6 +40,13 @@ std::string chinapres3ChargeItemDAO::queryConditionBuilder(const chinapres3Charg
 		auto val = query->encounterId.getValue("");
 		params.push_back(SqlParam("s", std::make_shared<std::string>(val)));
 		if (!val.empty()) sql << " AND encounter_id=?";
+	}
+	// ---- revoke-related filter ----
+	// 6 for isDeleted
+	if (query->isDeleted) {
+		auto val = query->isDeleted.getValue("");
+		params.push_back(SqlParam("s", std::make_shared<std::string>(val)));
+		if (!val.empty()) sql << " AND is_deleted=?";
 	}
 	return sql.str();
 }

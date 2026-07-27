@@ -54,6 +54,8 @@ public:
 		data->setCreatedAt(resultSet->getString("created_at"));
 		data->setUpdatedBy(resultSet->getString("updated_by"));
 		data->setUpdatedAt(resultSet->getString("updated_at"));
+		// ---- revoke-related mapping ----
+		data->setIsDeleted(resultSet->getString("is_deleted"));
 		return data;
 	}
 };

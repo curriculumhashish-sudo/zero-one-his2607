@@ -1,4 +1,4 @@
-﻿chinapres3:
+chinapres3:
   tags:
    tag: 中医处方
   issue:
@@ -56,6 +56,12 @@
    processedCount: 处理的药品行数
    prescriptionCount: 涉及的处方数量
    busNos: 发药流水号列表
+   prescriptionNos: 处方号列表
+   revokedPrescriptionCount: 撤回处方数
+   revokedMedicationCount: 撤回药品行数
+   failures: 撤回失败项
+   reason: 失败原因
+   isDeleted: 逻辑删除标记
 
 outpatientrecord:
   field:
