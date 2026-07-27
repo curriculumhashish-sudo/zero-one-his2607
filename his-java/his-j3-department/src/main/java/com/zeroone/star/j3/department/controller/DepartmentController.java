@@ -136,7 +136,7 @@ public class DepartmentController implements DepartmentApis {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "删除科室",
-            description = "根据科室ID删除科室，业务实现阶段需校验子科室及业务引用")
+            description = "根据科室ID逻辑删除科室；存在下级科室或挂号、住院、入出转等业务引用时拒绝删除")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "删除成功",
                     content = @Content(schema = @Schema(implementation = JsonVO.class))),
@@ -147,6 +147,15 @@ public class DepartmentController implements DepartmentApis {
     public JsonVO<String> deleteDepartment(
             @Parameter(description = "科室ID", example = "322663105141149696", required = true)
             @PathVariable("id") String id) {
-        return JsonVO.success(null);
+        try {
+            departmentService.deleteDepartment(id);
+            return JsonVO.success("删除科室成功");
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            log.warn("删除科室业务校验失败: {}", e.getMessage());
+            return JsonVO.fail(e.getMessage());
+        } catch (Exception e) {
+            log.error("删除科室异常", e);
+            return JsonVO.fail("删除科室失败，请联系管理员");
+        }
     }
 }

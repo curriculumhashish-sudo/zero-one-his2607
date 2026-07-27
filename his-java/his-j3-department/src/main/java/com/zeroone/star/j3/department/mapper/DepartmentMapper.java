@@ -45,6 +45,23 @@ public interface DepartmentMapper extends BaseMapper<DepartmentDO> {
     Long selectUnitIdByBusNo(@Param("busNo") String busNo,
                              @Param("tenantId") String tenantId);
 
+    int countUndeletedChildDepartments(@Param("parentId") String parentId,
+                                       @Param("tenantId") String tenantId);
+
+    int existsDeleteBusinessReference(@Param("departmentId") String departmentId,
+                                      @Param("tenantId") String tenantId);
+
+    int softDeleteDepartment(@Param("id") String id,
+                             @Param("tenantId") String tenantId,
+                             @Param("version") Integer version,
+                             @Param("deletedAt") LocalDateTime deletedAt,
+                             @Param("deletedBy") String deletedBy);
+
+    int softDeleteUnitByCode(@Param("code") String code,
+                             @Param("tenantId") String tenantId,
+                             @Param("deletedAt") LocalDateTime deletedAt,
+                             @Param("deletedBy") String deletedBy);
+
     /**
      * 按科室业务编码同步组织单元的可编辑信息。
      *

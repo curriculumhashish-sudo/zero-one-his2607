@@ -40,5 +40,12 @@ public interface DepartmentService {
      */
     void updateDepartment(String id, DepartmentUpdateDTO dto);
 
+    /**
+     * 删除科室（逻辑删除）。
+     *
+     * @param id 科室ID
+     */
+    void deleteDepartment(String id);
+
     void activeOrInactiveDepartment(DepartmentBatchDTO dto);
 }

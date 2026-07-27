@@ -394,6 +394,66 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteDepartment(String id) {
+        Long parsedDepartmentId = parseRequiredId(id, "科室ID");
+        String departmentId = toSqlId(parsedDepartmentId);
+        DepartmentDO existing = departmentMapper.selectUpdateDepartmentById(departmentId);
+        if (existing == null) {
+            throw new IllegalArgumentException("科室不存在或已删除");
+        }
+
+        Long currentUserId = resolveCurrentUserId(null);
+        if (currentUserId != null) {
+            Long currentTenantId = departmentMapper.getTenantIdByUserId(currentUserId);
+            if (currentTenantId != null && !Objects.equals(currentTenantId, existing.getTenantId())) {
+                throw new IllegalArgumentException("无权删除其他租户的科室");
+            }
+        }
+
+        String tenantId = toSqlId(existing.getTenantId());
+        if (departmentMapper.countUndeletedChildDepartments(departmentId, tenantId) > 0) {
+            throw new IllegalStateException("该科室存在下级科室，请先处理关联数据后再删除");
+        }
+        if (departmentMapper.existsDeleteBusinessReference(departmentId, tenantId) > 0) {
+            throw new IllegalStateException("该科室存在业务引用，请先处理关联数据后再删除");
+        }
+        if (existing.getVersion() == null) {
+            throw new IllegalStateException("科室版本信息缺失，无法安全删除");
+        }
+
+        LocalDateTime deletedAt = LocalDateTime.now();
+        Long auditUserId = currentUserId != null
+                ? currentUserId
+                : (existing.getUpdatedBy() != null ? existing.getUpdatedBy() : existing.getCreatedBy());
+        String deletedBy = toSqlId(auditUserId);
+
+        int deleted = departmentMapper.softDeleteDepartment(
+                departmentId,
+                tenantId,
+                existing.getVersion(),
+                deletedAt,
+                deletedBy
+        );
+        if (deleted != 1) {
+            throw new IllegalStateException("科室信息已被其他用户修改，请刷新后重试");
+        }
+
+        Long unitId = departmentMapper.selectUnitIdByBusNo(existing.getBusNo(), tenantId);
+        if (unitId != null) {
+            int unitDeleted = departmentMapper.softDeleteUnitByCode(
+                    existing.getBusNo(),
+                    tenantId,
+                    deletedAt,
+                    deletedBy
+            );
+            if (unitDeleted != 1) {
+                throw new IllegalStateException("关联组织单元删除失败");
+            }
+        }
+    }
+
+    @Override
     public void activeOrInactiveDepartment(DepartmentBatchDTO dto) {
         Integer isEnabled = dto.getIsEnabled();
         List<Long> ids = dto.getIds();
