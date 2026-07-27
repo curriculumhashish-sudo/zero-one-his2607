@@ -26,10 +26,10 @@
 #include "../../domain/query/chinapres3/chinapres3ChargeItemQuery.h"
 
 /**
- * ä¸­è¯å¤„æ–¹æ”¶è´¹é¡¹ç›®æ•°æ®è®¿é—®å¯¹è±¡
+ * ÖĞÒ©´¦·½ÊÕ·ÑÏîÄ¿Êı¾İ·ÃÎÊ¶ÔÏó
  *
- * å¯¹åº” adm_charge_item è¡¨æŸ¥è¯¢é€»è¾‘
- * æ–°å¢/ä¿®æ”¹/åˆ é™¤æ“ä½œç›´æ¥ä½¿ç”¨ BaseDAO æä¾›çš„ insert/update/deleteById æ–¹æ³•
+ * ¶ÔÓ¦ adm_charge_item ±í²éÑ¯Âß¼­
+ * ĞÂÔö/ĞŞ¸Ä/É¾³ı²Ù×÷Ö±½ÓÊ¹ÓÃ BaseDAO Ìá¹©µÄ insert/update/deleteById ·½·¨
  */
 class chinapres3ChargeItemDAO : public BaseDAO
 {
@@ -38,7 +38,7 @@ private:
 
 public:
 	uint64_t count(const chinapres3ChargeItemQuery::Wrapper& query);
-	// BaseDO ä¸ºæ™ºèƒ½æŒ‡é’ˆå°è£…ï¼ŒselectWithPage/selectById è¿”å› shared_ptr å®¹å™¨
+	// BaseDO ÎªÖÇÄÜÖ¸Õë·â×°£¬selectWithPage/selectById ·µ»Ø shared_ptr ÈİÆ÷
 	std::list<Ptrchinapres3ChargeItemDO> selectWithPage(const chinapres3ChargeItemQuery::Wrapper& query);
 	Ptrchinapres3ChargeItemDO selectById(const std::string& id);
 };

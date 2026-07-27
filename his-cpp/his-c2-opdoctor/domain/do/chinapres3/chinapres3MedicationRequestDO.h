@@ -9,7 +9,7 @@
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-	  https://www.apache.org/licenses/LICENSE-2.0
+      https://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,63 +23,79 @@
 #include "../DoInclude.h"
 
 /**
- * 处方单据数据对象
+ * Medication Request Data Object
  *
- * 数据库表：med_medication_request
+ * Database table: med_medication_request
  *
- * 字段注册策略：
- *   - 所有字段通过 MYSQL_SYNTHESIZE 宏声明，用于查询结果集映射。
- *   - 仅数据库操作核心字段在构造函数内注册
- *     （供更新(UPDATE)操作使用）。
+ * Field registration strategy:
+ *   - All fields declared via MYSQL_SYNTHESIZE for result mapping and serialization.
+ *   - DML-relevant fields registered in constructor (used by BaseDAO insert/update).
  */
 class chinapres3MedicationRequestDO : public BaseDO
 {
 	// =============================
-	// 主键字段
+	// Primary Key
 	// =============================
 	MYSQL_SYNTHESIZE(string, id, Id);
 
 	// =============================
-	// 数据库操作核心字段（更新操作必填）
+	// DML Key Fields
 	// =============================
-	// 处方编号，同一张处方下多条药品记录共用同一个处方号
+	// Prescription number shared by multiple medication records under the same prescription
 	MYSQL_SYNTHESIZE(string, prescriptionNo, PrescriptionNo);
-	// 患者ID，关联患者表 adm_patient.id
+	// Patient ID, references adm_patient.id
 	MYSQL_SYNTHESIZE(string, patientId, PatientId);
-	// 就诊ID，关联就诊记录表 adm_encounter.id
+	// Encounter ID, references adm_encounter.id
 	MYSQL_SYNTHESIZE(string, encounterId, EncounterId);
-	// 处方状态枚举（草稿DRAFT、已开立ACTIVE、已作废CANCELLED等）
+	// Status enum (DRAFT, ACTIVE, CANCELLED, etc.)
 	MYSQL_SYNTHESIZE(string, statusEnum, StatusEnum);
 
 	// =============================
-	// 自动填充/非核心字段
+	// Additional Fields Used by Service
 	// =============================
-	// 处方类型编码
+	// Prescription type code, set to "TCM" on issue
 	MYSQL_SYNTHESIZE(string, rxTypeCode, RxTypeCode);
-	// 创建人账号
-	MYSQL_SYNTHESIZE(string, createBy, CreateBy);
-	// 创建时间
-	MYSQL_SYNTHESIZE(string, createAt, CreateAt);
-	// 更新人账号
-	MYSQL_SYNTHESIZE(string, updateBy, UpdateBy);
-	// 更新时间
-	MYSQL_SYNTHESIZE(string, updateAt, UpdateAt);
+	// Medication ID, references med_medication_definition.id
+	MYSQL_SYNTHESIZE(string, medicationId, MedicationId);
+	// Quantity prescribed
+	MYSQL_SYNTHESIZE(double, quantity, Quantity);
+	// Unit code for medication
+	MYSQL_SYNTHESIZE(string, unitCode, UnitCode);
+	// Location ID (department), references adm_location.id
+	MYSQL_SYNTHESIZE(string, locationId, LocationId);
+
+	// =============================
+	// Audit Fields
+	// =============================
+	// Created by (operator)
+	MYSQL_SYNTHESIZE(string, createdBy, CreatedBy);
+	// Created at (timestamp)
+	MYSQL_SYNTHESIZE(string, createdAt, CreatedAt);
+	// Updated by (operator)
+	MYSQL_SYNTHESIZE(string, updatedBy, UpdatedBy);
+	// Updated at (timestamp)
+	MYSQL_SYNTHESIZE(string, updatedAt, UpdatedAt);
 
 public:
 	chinapres3MedicationRequestDO() : BaseDO("med_medication_request")
 	{
-		// 主键
+		// Primary Key
 		MYSQL_ADD_FIELD_PK("id", "s", id);
 
-		// 数据库操作核心字段（更新操作必填）
+		// DML Key Fields (required for UPDATE)
 		MYSQL_ADD_FIELD("prescription_no", "s", prescriptionNo);
 		MYSQL_ADD_FIELD("patient_id", "s", patientId);
 		MYSQL_ADD_FIELD("encounter_id", "s", encounterId);
 		MYSQL_ADD_FIELD("status_enum", "s", statusEnum);
+
+		// Additional Fields for UPDATE (set by Service on issue)
+		MYSQL_ADD_FIELD("rx_type_code", "s", rxTypeCode);
+		MYSQL_ADD_FIELD("updated_by", "s", updatedBy);
+		MYSQL_ADD_FIELD("updated_at", "s", updatedAt);
 	}
 };
 
-// 智能指针类型别名
+// Shared pointer type alias
 typedef std::shared_ptr<chinapres3MedicationRequestDO> Ptrchinapres3MedicationRequestDO;
 
 #endif // !_chinapres3MedicationRequestDO_H_

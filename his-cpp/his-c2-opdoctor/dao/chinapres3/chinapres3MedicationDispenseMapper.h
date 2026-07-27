@@ -24,10 +24,10 @@
 #include "../../domain/do/chinapres3/chinapres3MedicationDispenseDO.h"
 
 /**
- * 中药发药记录映射器
+ * Medication Dispense Mapper
  *
- * 数据库查询结果集 ResultSet 转换为 chinapres3MedicationDispenseDO 对象
- * 对应数据库表med_medication_dispense
+ * Maps database ResultSet to chinapres3MedicationDispenseDO objects.
+ * Corresponds to database table: med_medication_dispense
  */
 class chinapres3MedicationDispenseMapper : public Mapper<Ptrchinapres3MedicationDispenseDO>
 {
@@ -35,21 +35,25 @@ public:
 	Ptrchinapres3MedicationDispenseDO mapper(ResultSet* resultSet) const override
 	{
 		auto data = std::make_shared<chinapres3MedicationDispenseDO>();
-		// 主键ID
+		// Primary Key
 		data->setId(resultSet->getString("id"));
-		// DML业务关联字段
+		// DML Business Key Fields
 		data->setMedReqId(resultSet->getString("med_req_id"));
 		data->setPatientId(resultSet->getString("patient_id"));
 		data->setEncounterId(resultSet->getString("encounter_id"));
 		data->setBusNo(resultSet->getString("bus_no"));
 		data->setStatusEnum(resultSet->getString("status_enum"));
-		// 发药类型、库房及操作人时间字段
+		// Additional Fields
 		data->setDispenseEnum(resultSet->getString("dispense_enum"));
 		data->setLocationId(resultSet->getString("location_id"));
-		data->setCreateBy(resultSet->getString("create_by"));
-		data->setCreateAt(resultSet->getString("create_at"));
-		data->setUpdateBy(resultSet->getString("update_by"));
-		data->setUpdateAt(resultSet->getString("update_at"));
+		data->setMedicationId(resultSet->getString("medication_id"));
+		data->setQuantity(resultSet->getDouble("quantity"));
+		data->setUnitCode(resultSet->getString("unit_code"));
+		// Audit Fields
+		data->setCreatedBy(resultSet->getString("created_by"));
+		data->setCreatedAt(resultSet->getString("created_at"));
+		data->setUpdatedBy(resultSet->getString("updated_by"));
+		data->setUpdatedAt(resultSet->getString("updated_at"));
 		return data;
 	}
 };

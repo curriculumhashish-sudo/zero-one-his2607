@@ -24,10 +24,10 @@
 #include "../../domain/do/chinapres3/chinapres3ChargeItemDO.h"
 
 /**
- * 中药处方收费记录映射器
+ * Charge Item Mapper
  *
- * 数据库查询结果集 ResultSet 转换为 chinapres3ChargeItemDO 对象
- * 对应数据库表adm_charge_item
+ * Maps database ResultSet to chinapres3ChargeItemDO objects.
+ * Corresponds to database table: adm_charge_item
  */
 class chinapres3ChargeItemMapper : public Mapper<Ptrchinapres3ChargeItemDO>
 {
@@ -35,15 +35,15 @@ public:
 	Ptrchinapres3ChargeItemDO mapper(ResultSet* resultSet) const override
 	{
 		auto data = std::make_shared<chinapres3ChargeItemDO>();
-		// 主键ID
+		// Primary Key
 		data->setId(resultSet->getString("id"));
-		// DML业务关联字段
+		// DML Business Key Fields
 		data->setServiceTable(resultSet->getString("service_table"));
 		data->setServiceId(resultSet->getString("service_id"));
 		data->setPatientId(resultSet->getString("patient_id"));
 		data->setEncounterId(resultSet->getString("encounter_id"));
 		data->setPrescriptionNo(resultSet->getString("prescription_no"));
-		// 收费金额、数量相关字段
+		// Charge Definition Fields
 		data->setDefinitionId(resultSet->getString("definition_id"));
 		data->setTotalPrice(resultSet->getDouble("total_price"));
 		data->setQuantityValue(resultSet->getDouble("quantity_value"));
@@ -55,10 +55,11 @@ public:
 		data->setEncounterDiagnosisId(resultSet->getString("encounter_diagnosis_id"));
 		data->setGenerateSourceEnum(resultSet->getString("generate_source_enum"));
 		data->setContextEnum(resultSet->getString("context_enum"));
-		data->setCreateBy(resultSet->getString("create_by"));
-		data->setCreateAt(resultSet->getString("create_at"));
-		data->setUpdateBy(resultSet->getString("update_by"));
-		data->setUpdateAt(resultSet->getString("update_at"));
+		// Audit Fields
+		data->setCreatedBy(resultSet->getString("created_by"));
+		data->setCreatedAt(resultSet->getString("created_at"));
+		data->setUpdatedBy(resultSet->getString("updated_by"));
+		data->setUpdatedAt(resultSet->getString("updated_at"));
 		return data;
 	}
 };

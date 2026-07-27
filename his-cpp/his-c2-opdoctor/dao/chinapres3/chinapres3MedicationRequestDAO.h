@@ -26,10 +26,10 @@
 #include "../../domain/query/chinapres3/chinapres3MedicationRequestQuery.h"
 
 /**
- * ä¸­è¯å¤„æ–¹å•æ®æ•°æ®è®¿é—®å¯¹è±¡
+ * ÖĞÒ©´¦·½µ¥¾İÊı¾İ·ÃÎÊ¶ÔÏó
  *
- * å¯¹åº” med_medication_request è¡¨æŸ¥è¯¢é€»è¾‘
- * æ–°å¢/ä¿®æ”¹/åˆ é™¤æ“ä½œç›´æ¥ä½¿ç”¨ BaseDAO æä¾›çš„ insert/update/deleteById æ–¹æ³•
+ * ¶ÔÓ¦ med_medication_request ±í²éÑ¯Âß¼­
+ * ĞÂÔö/ĞŞ¸Ä/É¾³ı²Ù×÷Ö±½ÓÊ¹ÓÃ BaseDAO Ìá¹©µÄ insert/update/deleteById ·½·¨
  */
 class chinapres3MedicationRequestDAO : public BaseDAO
 {
@@ -38,7 +38,7 @@ private:
 
 public:
 	uint64_t count(const chinapres3MedicationRequestQuery::Wrapper& query);
-	// BaseDO ä¸ºæ™ºèƒ½æŒ‡é’ˆå°è£…ï¼ŒselectWithPage/selectById è¿”å› shared_ptr å®¹å™¨
+	// BaseDO ÎªÖÇÄÜÖ¸Õë·â×°£¬selectWithPage/selectById ·µ»Ø shared_ptr ÈİÆ÷
 	std::list<Ptrchinapres3MedicationRequestDO> selectWithPage(const chinapres3MedicationRequestQuery::Wrapper& query);
 	Ptrchinapres3MedicationRequestDO selectById(const std::string& id);
 };

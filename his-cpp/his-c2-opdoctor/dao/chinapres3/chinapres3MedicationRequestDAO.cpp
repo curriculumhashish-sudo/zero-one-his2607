@@ -1,87 +1,82 @@
-/*
- Copyright Zero One Star. All rights reserved.
-
- @Author: his-c2-opdoctor
- @Date: 2025/07/26
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
-	  https://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-*/
 #include "stdafx.h"
 #include "chinapres3MedicationRequestDAO.h"
+#include "chinapres3MedicationRequestMapper.h"
+#include "SqlSession.h"
+#include <sstream>
 
-std::string chinapres3MedicationRequestDAO::queryConditionBuilder(
-	const chinapres3MedicationRequestQuery::Wrapper& query, SqlParams& params)
+#define QUERY_HEAD "SELECT id,prescription_no,patient_id,encounter_id,status_enum,rx_type_code," \
+                    "medication_id,quantity,unit_code,location_id," \
+                    "created_by,created_at,updated_by,updated_at FROM med_medication_request "
+std::string chinapres3MedicationRequestDAO::queryConditionBuilder(const chinapres3MedicationRequestQuery::Wrapper& query, SqlParams& params)
 {
-	std::stringstream sqlCondition;
-	sqlCondition << " WHERE 1=1";
-
-	// 处方号模糊查询
+	std::ostringstream sql;
+	// 1 for prescriptionNo
 	if (query->prescriptionNo) {
-		sqlCondition << " AND `prescription_no` LIKE CONCAT('%',?,'%')";
-		SQLPARAMS_PUSH(params, "s", std::string, query->prescriptionNo.getValue(""));
+		auto val = query->prescriptionNo.getValue("");
+		params.push_back(SqlParam("s", std::make_shared<std::string>(val)));
+		if (!val.empty()) sql << " AND prescription_no LIKE CONCAT('%',?,'%')";
 	}
-
-	// 患者ID精准匹配
+	// 2 for patientId
 	if (query->patientId) {
-		sqlCondition << " AND patient_id=?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->patientId.getValue(""));
+		auto val = query->patientId.getValue("");
+		params.push_back(SqlParam("s", std::make_shared<std::string>(val)));
+		if (!val.empty()) sql << " AND patient_id=?";
 	}
-
-	// 就诊ID精准匹配
+	// 3 for encounterId
 	if (query->encounterId) {
-		sqlCondition << " AND encounter_id=?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->encounterId.getValue(""));
+		auto val = query->encounterId.getValue("");
+		params.push_back(SqlParam("s", std::make_shared<std::string>(val)));
+		if (!val.empty()) sql << " AND encounter_id=?";
 	}
-
-	// 处方状态筛选
+	// 4 for statusEnum
 	if (query->statusEnum) {
-		sqlCondition << " AND status_enum=?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->statusEnum.getValue(""));
+		auto val = query->statusEnum.getValue("");
+		params.push_back(SqlParam("s", std::make_shared<std::string>(val)));
+		if (!val.empty()) sql << " AND status_enum=?";
 	}
-
-	return sqlCondition.str();
+	return sql.str();
 }
 
 uint64_t chinapres3MedicationRequestDAO::count(const chinapres3MedicationRequestQuery::Wrapper& query)
 {
-	SqlParams params;
-	std::string sql = "SELECT COUNT(*) FROM med_medication_request";
-	sql += queryConditionBuilder(query, params);
-	return sqlSession->executeQueryNumerical(sql, params);
+	std::ostringstream sql;
+	if (!query) {
+		sql << "SELECT COUNT(*) FROM med_medication_request;";
+	}
+	else {
+		SqlParams params;
+		sql << "SELECT COUNT(*) FROM med_medication_request ";
+		std::string condition = queryConditionBuilder(query, params);
+		sql << "WHERE 1=1" << condition;
+		std::string countSql = sql.str();
+		return sqlSession->executeQueryNumerical(countSql, params);
+	}
+	std::string countSql = sql.str();
+	return sqlSession->executeQueryNumerical(countSql);
 }
 
-std::list<Ptrchinapres3MedicationRequestDO> chinapres3MedicationRequestDAO::selectWithPage(
-	const chinapres3MedicationRequestQuery::Wrapper& query)
+std::list<Ptrchinapres3MedicationRequestDO> chinapres3MedicationRequestDAO::selectWithPage(const chinapres3MedicationRequestQuery::Wrapper& query)
 {
+	std::ostringstream sql;
 	SqlParams params;
-	std::string sql = "SELECT id,prescription_no,patient_id,encounter_id,status_enum,"
-		"rx_type_code,create_by,create_at,update_by,update_at FROM med_medication_request";
-	sql += queryConditionBuilder(query, params);
-	sql += " ORDER BY IFNULL(`update_at`, `create_at`) DESC, `id` DESC";
-	sql += " LIMIT " + std::to_string((query->pageIndex - 1) * query->pageSize)
-		+ "," + std::to_string(query->pageSize);
+	sql << QUERY_HEAD;
+	std::string condition = queryConditionBuilder(query, params);
+	sql << "WHERE 1=1" << condition;
+	sql << " ORDER BY IFNULL(updated_at, created_at) DESC, id DESC ";
+	sql << "LIMIT " << ((query->pageIndex - 1) * query->pageSize) << "," << query->pageSize;
 	chinapres3MedicationRequestMapper mapper;
-	return sqlSession->executeQuery<Ptrchinapres3MedicationRequestDO>(sql, mapper, params);
+	return sqlSession->executeQuery<Ptrchinapres3MedicationRequestDO>(sql.str(), mapper, params);
 }
 
 Ptrchinapres3MedicationRequestDO chinapres3MedicationRequestDAO::selectById(const std::string& id)
 {
-	SqlParams params;
-	std::string sql = "SELECT id,prescription_no,patient_id,encounter_id,status_enum,"
-		"rx_type_code,create_by,create_at,update_by,update_at FROM med_medication_request WHERE id=?";
-	SQLPARAMS_PUSH(params, "s", std::string, id);
+	std::ostringstream sql;
+	sql << QUERY_HEAD;
+	sql << "WHERE id=?";
 	chinapres3MedicationRequestMapper mapper;
-	auto list = sqlSession->executeQuery<Ptrchinapres3MedicationRequestDO>(sql, mapper, params);
-	if (list.empty()) return nullptr;
+	SqlParams params = { SqlParam("s", std::make_shared<std::string>(id)) };
+	auto list = sqlSession->executeQuery<Ptrchinapres3MedicationRequestDO>(sql.str(), mapper, params);
+	if (list.empty())
+		return nullptr;
 	return list.front();
 }

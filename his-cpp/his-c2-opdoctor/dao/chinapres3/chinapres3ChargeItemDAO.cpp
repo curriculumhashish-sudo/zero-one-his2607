@@ -1,88 +1,89 @@
-/*
- Copyright Zero One Star. All rights reserved.
-
- @Author: his-c2-opdoctor
- @Date: 2025/07/26
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
-	  https://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-*/
 #include "stdafx.h"
 #include "chinapres3ChargeItemDAO.h"
+#include "chinapres3ChargeItemMapper.h"
+#include "SqlSession.h"
+#include <sstream>
 
-std::string chinapres3ChargeItemDAO::queryConditionBuilder(
-	const chinapres3ChargeItemQuery::Wrapper& query, SqlParams& params)
+#define QUERY_HEAD "SELECT id,service_table,service_id,patient_id,encounter_id,prescription_no," \
+                    "definition_id,total_price,quantity_value,quantity_unit,unit_price," \
+                    "account_id,org_id,condition_id,encounter_diagnosis_id,generate_source_enum,context_enum," \
+                    "created_by,created_at,updated_by,updated_at FROM adm_charge_item "
+std::string chinapres3ChargeItemDAO::queryConditionBuilder(const chinapres3ChargeItemQuery::Wrapper& query, SqlParams& params)
 {
-	std::stringstream sqlCondition;
-	sqlCondition << " WHERE 1=1";
-
+	std::ostringstream sql;
+	// 1 for serviceTable
 	if (query->serviceTable) {
-		sqlCondition << " AND service_table=?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->serviceTable.getValue(""));
+		auto val = query->serviceTable.getValue("");
+		params.push_back(SqlParam("s", std::make_shared<std::string>(val)));
+		if (!val.empty()) sql << " AND service_table=?";
 	}
+	// 2 for serviceId
 	if (query->serviceId) {
-		sqlCondition << " AND service_id=?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->serviceId.getValue(""));
+		auto val = query->serviceId.getValue("");
+		params.push_back(SqlParam("s", std::make_shared<std::string>(val)));
+		if (!val.empty()) sql << " AND service_id=?";
 	}
+	// 3 for prescriptionNo
 	if (query->prescriptionNo) {
-		sqlCondition << " AND prescription_no=?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->prescriptionNo.getValue(""));
+		auto val = query->prescriptionNo.getValue("");
+		params.push_back(SqlParam("s", std::make_shared<std::string>(val)));
+		if (!val.empty()) sql << " AND prescription_no=?";
 	}
+	// 4 for patientId
 	if (query->patientId) {
-		sqlCondition << " AND patient_id=?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->patientId.getValue(""));
+		auto val = query->patientId.getValue("");
+		params.push_back(SqlParam("s", std::make_shared<std::string>(val)));
+		if (!val.empty()) sql << " AND patient_id=?";
 	}
+	// 5 for encounterId
 	if (query->encounterId) {
-		sqlCondition << " AND encounter_id=?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->encounterId.getValue(""));
+		auto val = query->encounterId.getValue("");
+		params.push_back(SqlParam("s", std::make_shared<std::string>(val)));
+		if (!val.empty()) sql << " AND encounter_id=?";
 	}
-
-	return sqlCondition.str();
+	return sql.str();
 }
 
 uint64_t chinapres3ChargeItemDAO::count(const chinapres3ChargeItemQuery::Wrapper& query)
 {
-	SqlParams params;
-	std::string sql = "SELECT COUNT(*) FROM adm_charge_item";
-	sql += queryConditionBuilder(query, params);
-	return sqlSession->executeQueryNumerical(sql, params);
+	std::ostringstream sql;
+	if (!query) {
+		sql << "SELECT COUNT(*) FROM adm_charge_item;";
+	}
+	else {
+		SqlParams params;
+		sql << "SELECT COUNT(*) FROM adm_charge_item ";
+		std::string condition = queryConditionBuilder(query, params);
+		sql << "WHERE 1=1" << condition;
+		std::string countSql = sql.str();
+		return sqlSession->executeQueryNumerical(countSql, params);
+	}
+	std::string countSql = sql.str();
+	return sqlSession->executeQueryNumerical(countSql);
 }
 
-std::list<Ptrchinapres3ChargeItemDO> chinapres3ChargeItemDAO::selectWithPage(
-	const chinapres3ChargeItemQuery::Wrapper& query)
+std::list<Ptrchinapres3ChargeItemDO> chinapres3ChargeItemDAO::selectWithPage(const chinapres3ChargeItemQuery::Wrapper& query)
 {
+	std::ostringstream sql;
 	SqlParams params;
-	std::string sql = "SELECT id,service_table,service_id,definition_id,patient_id,encounter_id,"
-		"prescription_no,total_price,quantity_value,quantity_unit,unit_price,account_id,org_id,"
-		"condition_id,encounter_diagnosis_id,generate_source_enum,context_enum,"
-		"create_by,create_at,update_by,update_at FROM adm_charge_item";
-	sql += queryConditionBuilder(query, params);
-	sql += " ORDER BY IFNULL(`update_at`, `create_at`) DESC, `id` DESC";
-	sql += " LIMIT " + std::to_string((query->pageIndex - 1) * query->pageSize)
-		+ "," + std::to_string(query->pageSize);
+	sql << QUERY_HEAD;
+	std::string condition = queryConditionBuilder(query, params);
+	sql << "WHERE 1=1" << condition;
+	sql << " ORDER BY IFNULL(updated_at, created_at) DESC, id DESC ";
+	sql << "LIMIT " << ((query->pageIndex - 1) * query->pageSize) << "," << query->pageSize;
 	chinapres3ChargeItemMapper mapper;
-	return sqlSession->executeQuery<Ptrchinapres3ChargeItemDO>(sql, mapper, params);
+	return sqlSession->executeQuery<Ptrchinapres3ChargeItemDO>(sql.str(), mapper, params);
 }
 
 Ptrchinapres3ChargeItemDO chinapres3ChargeItemDAO::selectById(const std::string& id)
 {
-	SqlParams params;
-	std::string sql = "SELECT id,service_table,service_id,definition_id,patient_id,encounter_id,"
-		"prescription_no,total_price,quantity_value,quantity_unit,unit_price,account_id,org_id,"
-		"condition_id,encounter_diagnosis_id,generate_source_enum,context_enum,"
-		"create_by,create_at,update_by,update_at FROM adm_charge_item WHERE id=?";
-	SQLPARAMS_PUSH(params, "s", std::string, id);
+	std::ostringstream sql;
+	sql << QUERY_HEAD;
+	sql << "WHERE id=?";
 	chinapres3ChargeItemMapper mapper;
-	auto list = sqlSession->executeQuery<Ptrchinapres3ChargeItemDO>(sql, mapper, params);
-	if (list.empty()) return nullptr;
+	SqlParams params = { SqlParam("s", std::make_shared<std::string>(id)) };
+	auto list = sqlSession->executeQuery<Ptrchinapres3ChargeItemDO>(sql.str(), mapper, params);
+	if (list.empty())
+		return nullptr;
 	return list.front();
 }

@@ -1,84 +1,88 @@
-/*
- Copyright Zero One Star. All rights reserved.
-
- @Author: his-c2-opdoctor
- @Date: 2025/07/26
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
-	  https://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-*/
 #include "stdafx.h"
 #include "chinapres3MedicationDispenseDAO.h"
+#include "chinapres3MedicationDispenseMapper.h"
+#include "SqlSession.h"
+#include <sstream>
 
-std::string chinapres3MedicationDispenseDAO::queryConditionBuilder(
-	const chinapres3MedicationDispenseQuery::Wrapper& query, SqlParams& params)
+#define QUERY_HEAD "SELECT id,med_req_id,patient_id,encounter_id,bus_no,status_enum," \
+                    "dispense_enum,location_id,medication_id,quantity,unit_code," \
+                    "created_by,created_at,updated_by,updated_at FROM med_medication_dispense "
+std::string chinapres3MedicationDispenseDAO::queryConditionBuilder(const chinapres3MedicationDispenseQuery::Wrapper& query, SqlParams& params)
 {
-	std::stringstream sqlCondition;
-	sqlCondition << " WHERE 1=1";
-
+	std::ostringstream sql;
+	// 1 for medReqId
 	if (query->medReqId) {
-		sqlCondition << " AND med_req_id=?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->medReqId.getValue(""));
+		auto val = query->medReqId.getValue("");
+		params.push_back(SqlParam("s", std::make_shared<std::string>(val)));
+		if (!val.empty()) sql << " AND med_req_id=?";
 	}
+	// 2 for patientId
 	if (query->patientId) {
-		sqlCondition << " AND patient_id=?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->patientId.getValue(""));
+		auto val = query->patientId.getValue("");
+		params.push_back(SqlParam("s", std::make_shared<std::string>(val)));
+		if (!val.empty()) sql << " AND patient_id=?";
 	}
+	// 3 for encounterId
 	if (query->encounterId) {
-		sqlCondition << " AND encounter_id=?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->encounterId.getValue(""));
+		auto val = query->encounterId.getValue("");
+		params.push_back(SqlParam("s", std::make_shared<std::string>(val)));
+		if (!val.empty()) sql << " AND encounter_id=?";
 	}
+	// 4 for busNo
 	if (query->busNo) {
-		sqlCondition << " AND bus_no=?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->busNo.getValue(""));
+		auto val = query->busNo.getValue("");
+		params.push_back(SqlParam("s", std::make_shared<std::string>(val)));
+		if (!val.empty()) sql << " AND bus_no=?";
 	}
+	// 5 for statusEnum
 	if (query->statusEnum) {
-		sqlCondition << " AND status_enum=?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->statusEnum.getValue(""));
+		auto val = query->statusEnum.getValue("");
+		params.push_back(SqlParam("s", std::make_shared<std::string>(val)));
+		if (!val.empty()) sql << " AND status_enum=?";
 	}
-
-	return sqlCondition.str();
+	return sql.str();
 }
 
 uint64_t chinapres3MedicationDispenseDAO::count(const chinapres3MedicationDispenseQuery::Wrapper& query)
 {
-	SqlParams params;
-	std::string sql = "SELECT COUNT(*) FROM med_medication_dispense";
-	sql += queryConditionBuilder(query, params);
-	return sqlSession->executeQueryNumerical(sql, params);
+	std::ostringstream sql;
+	if (!query) {
+		sql << "SELECT COUNT(*) FROM med_medication_dispense;";
+	}
+	else {
+		SqlParams params;
+		sql << "SELECT COUNT(*) FROM med_medication_dispense ";
+		std::string condition = queryConditionBuilder(query, params);
+		sql << "WHERE 1=1" << condition;
+		std::string countSql = sql.str();
+		return sqlSession->executeQueryNumerical(countSql, params);
+	}
+	std::string countSql = sql.str();
+	return sqlSession->executeQueryNumerical(countSql);
 }
 
-std::list<Ptrchinapres3MedicationDispenseDO> chinapres3MedicationDispenseDAO::selectWithPage(
-	const chinapres3MedicationDispenseQuery::Wrapper& query)
+std::list<Ptrchinapres3MedicationDispenseDO> chinapres3MedicationDispenseDAO::selectWithPage(const chinapres3MedicationDispenseQuery::Wrapper& query)
 {
+	std::ostringstream sql;
 	SqlParams params;
-	std::string sql = "SELECT id,med_req_id,patient_id,encounter_id,bus_no,status_enum,"
-		"dispense_enum,location_id,create_by,create_at,update_by,update_at FROM med_medication_dispense";
-	sql += queryConditionBuilder(query, params);
-	sql += " ORDER BY IFNULL(`update_at`, `create_at`) DESC, `id` DESC";
-	sql += " LIMIT " + std::to_string((query->pageIndex - 1) * query->pageSize)
-		+ "," + std::to_string(query->pageSize);
+	sql << QUERY_HEAD;
+	std::string condition = queryConditionBuilder(query, params);
+	sql << "WHERE 1=1" << condition;
+	sql << " ORDER BY IFNULL(updated_at, created_at) DESC, id DESC ";
+	sql << "LIMIT " << ((query->pageIndex - 1) * query->pageSize) << "," << query->pageSize;
 	chinapres3MedicationDispenseMapper mapper;
-	return sqlSession->executeQuery<Ptrchinapres3MedicationDispenseDO>(sql, mapper, params);
+	return sqlSession->executeQuery<Ptrchinapres3MedicationDispenseDO>(sql.str(), mapper, params);
 }
 
 Ptrchinapres3MedicationDispenseDO chinapres3MedicationDispenseDAO::selectById(const std::string& id)
 {
-	SqlParams params;
-	std::string sql = "SELECT id,med_req_id,patient_id,encounter_id,bus_no,status_enum,"
-		"dispense_enum,location_id,create_by,create_at,update_by,update_at FROM med_medication_dispense WHERE id=?";
-	SQLPARAMS_PUSH(params, "s", std::string, id);
+	std::ostringstream sql;
+	sql << QUERY_HEAD;
+	sql << "WHERE id=?";
 	chinapres3MedicationDispenseMapper mapper;
-	auto list = sqlSession->executeQuery<Ptrchinapres3MedicationDispenseDO>(sql, mapper, params);
-	if (list.empty()) return nullptr;
+	SqlParams params = { SqlParam("s", std::make_shared<std::string>(id)) };
+	auto list = sqlSession->executeQuery<Ptrchinapres3MedicationDispenseDO>(sql.str(), mapper, params);
+	if (list.empty())
+		return nullptr;
 	return list.front();
 }

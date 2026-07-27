@@ -5,6 +5,7 @@
 #include "SimpleDateTimeFormat.h"
 #include <sstream>
 #include <set>
+#include <map>
 
 chinapres3IssueResultVO::Wrapper chinapres3Service::issue(
 	const chinapres3IssueDTO::Wrapper& dto,
@@ -91,14 +92,14 @@ chinapres3IssueResultVO::Wrapper chinapres3Service::issue(
 		for (auto& req : validRequests) {
 			req->setStatusEnum("ACTIVE");
 			req->setRxTypeCode("TCM");
-			// Map database field MYSQL_SYNTHESIZE(string, updateBy, UpdateBy) assign modifier
-			req->setUpdateBy(currentUser);
-			// Map database field MYSQL_SYNTHESIZE(string, updateAt, UpdateAt) assign update time
-			req->setUpdateAt(now);
+			req->setUpdatedBy(currentUser);
+			req->setUpdatedAt(now);
 			medReqDAO.update(*req);
 		}
 
 		// ----- 3b. INSERT Create new dispense detail record -----
+		// prescriptionNo → first request ID mapping for charge generation
+		std::map<std::string, std::string> presNoToReqId;
 		for (auto& req : validRequests) {
 			chinapres3MedicationDispenseDO dispDO;
 			dispDO.setId(std::to_string(snowFlake->nextId()));
@@ -110,25 +111,31 @@ chinapres3IssueResultVO::Wrapper chinapres3Service::issue(
 			dispDO.setMedReqId(req->getId());
 			dispDO.setPatientId(patientId.getValue(""));
 			dispDO.setEncounterId(encounterId.getValue(""));
-			// Map database field MYSQL_SYNTHESIZE(string, createBy, CreateBy) assign creator
-			dispDO.setCreateBy(currentUser);
-			dispDO.setCreateAt(now);
+			// Copy medication detail from request for NOT NULL fields
+			dispDO.setMedicationId(req->getMedicationId());
+			dispDO.setQuantity(req->getQuantity());
+			dispDO.setUnitCode(req->getUnitCode());
+			dispDO.setLocationId(req->getLocationId());
+			dispDO.setCreatedBy(currentUser);
+			dispDO.setCreatedAt(now);
 			medDispDAO.insert(dispDO);
 
 			auto presNo = req->getPrescriptionNo();
 			if (!presNo.empty()) {
 				processedPrescriptions.insert(presNo);
+				// Record first request for each prescription for charge generation
+				if (presNoToReqId.find(presNo) == presNoToReqId.end()) {
+					presNoToReqId[presNo] = req->getId();
+				}
 			}
 		}
 
 		// ----- 3c. Generate outpatient charge items -----
-		// chinapres3ChargeItemDO assign fields: serviceTable, serviceId, patientId, encounterId,
-		//   prescriptionNo, generateSourceEnum, contextEnum, orgId, createBy, createAt
 		for (auto& presNo : processedPrescriptions) {
 			chinapres3ChargeItemDO newCharge;
 			newCharge.setId(std::to_string(snowFlake->nextId()));
 			newCharge.setServiceTable("med_medication_request");
-			newCharge.setServiceId(validRequests.front()->getId());
+			newCharge.setServiceId(presNoToReqId[presNo]);
 			newCharge.setPrescriptionNo(presNo);
 			newCharge.setPatientId(patientId.getValue(""));
 			newCharge.setEncounterId(encounterId.getValue(""));
@@ -138,8 +145,8 @@ chinapres3IssueResultVO::Wrapper chinapres3Service::issue(
 			newCharge.setQuantityValue(1.0);
 			newCharge.setUnitPrice(0.0);
 			newCharge.setOrgId(orgId);
-			newCharge.setCreateBy(currentUser);
-			newCharge.setCreateAt(now);
+			newCharge.setCreatedBy(currentUser);
+			newCharge.setCreatedAt(now);
 			chargeDAO.insert(newCharge);
 		}
 
