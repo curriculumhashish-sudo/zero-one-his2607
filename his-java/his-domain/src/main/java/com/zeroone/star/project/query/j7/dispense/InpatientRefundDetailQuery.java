@@ -29,9 +29,9 @@ public class InpatientRefundDetailQuery {
     private String encounterId;
 
     /**
-     * 退药状态：PENDING-待退药 / REFUNDED-已退药（对应 med_medication_dispense.status_enum，
-     * 前置条件 dispense_enum=REFUND）
+     * 退药状态：PENDING_REFUND-待退药 / REFUNDED-已退药（展示态；前置条件 dispense_enum=REFUND。
+     * 兼容传入 PENDING；库表 status_enum 待退药存 PENDING）
      */
-    @Schema(description = "退药状态（PENDING/REFUNDED）", example = "PENDING")
+    @Schema(description = "退药状态（PENDING_REFUND/REFUNDED，兼容 PENDING）", example = "PENDING_REFUND")
     private String refundStatus;
 }

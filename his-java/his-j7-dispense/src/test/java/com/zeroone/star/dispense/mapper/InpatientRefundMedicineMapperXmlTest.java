@@ -24,7 +24,22 @@ class InpatientRefundMedicineMapperXmlTest {
         assertTrue(mapperXml.contains("UPPER(d.status_enum) = 'PENDING'"));
         assertTrue(mapperXml.contains("UPPER(d.status_enum) = 'REFUNDED'"));
         assertTrue(mapperXml.contains("UPPER(e.class_enum) IN ('INPATIENT', 'IMP')"));
-        assertTrue(mapperXml.contains("ELSE 'PENDING'"));
+        assertTrue(mapperXml.contains("ELSE 'PENDING_REFUND'"));
+    }
+
+    @Test
+    void mapperSelectsRefundDetailByEncounter() throws IOException {
+        String mapperXml = readMapperXml();
+
+        assertTrue(mapperXml.contains("selectRefundDetailList"));
+        assertTrue(mapperXml.contains("d.encounter_id = #{query.encounterId}"));
+        assertTrue(mapperXml.contains("UPPER(d.dispense_enum) IN ('REFUND', 'RETURN')"));
+        assertTrue(mapperXml.contains("ELSE 'PENDING_REFUND'"));
+        assertTrue(mapperXml.contains("LEFT JOIN med_medication_definition md"));
+        assertTrue(mapperXml.contains("LEFT JOIN med_medication_request mr"));
+        assertTrue(mapperXml.contains("LEFT JOIN adm_practitioner doc"));
+        assertTrue(mapperXml.contains("LEFT JOIN ter_concept uc"));
+        assertTrue(mapperXml.contains("COALESCE(uc.display, d.unit_code) AS unitText"));
     }
 
     private String readMapperXml() throws IOException {
