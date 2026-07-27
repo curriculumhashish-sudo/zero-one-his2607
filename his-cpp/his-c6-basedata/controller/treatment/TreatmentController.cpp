@@ -38,19 +38,21 @@ TreatmentPageJsonVO::Wrapper TreatmentController::execQueryTreatment(const Treat
 TreatmentDetailJsonVO::Wrapper TreatmentController::execQueryOne(const String& id)
 {
 	// 定义返回数据对象
-	auto vo = TreatmentDetailJsonVO::createShared();
+	auto jvo = TreatmentDetailJsonVO::createShared();
 
-	// 参数校验：详情主键不能为空
+	// 参数校验：非空校验
 	if (!id || id->empty())
 	{
-		vo->init(nullptr, RS_PARAMS_INVALID);
-		return vo;
+		jvo->init(nullptr, RS_PARAMS_INVALID);
+		return jvo;
 	}
 
-	// Service/DAO 未接通前，校验通过后仍返回示例数据
-	auto dto = buildSampleTreatment(id, "AD00000001", u8"\u4ee3\u714e\u4e2d\u836f");
-	vo->success(dto);
-	return vo;
+	// 执行数据查询
+	auto res = TreatmentService().getById(id.getValue({}));
+	jvo->success(res);
+
+	// 响应结果
+	return jvo;
 }
 
 StringJsonVO::Wrapper TreatmentController::execModifyStatus(const TreatmentStatusDTO::Wrapper& dto, const PayloadDTO& payload)
@@ -126,48 +128,65 @@ StringJsonVO::Wrapper TreatmentController::execAddTreatment(
 	const TreatmentAddDTO::Wrapper& dto, const PayloadDTO& payload)
 {
 	// 定义返回数据对象
-	auto vo = StringJsonVO::createShared();
+	auto jvo = StringJsonVO::createShared();
 
 	// 参数校验
 	if (!dto)
 	{
-		vo->init(nullptr, RS_PARAMS_INVALID);
-		return vo;
+		jvo->init(nullptr, RS_PARAMS_INVALID);
+		return jvo;
 	}
 	std::string errmsg = dto->validate();
 	if (errmsg != "")
 	{
-		vo->init(errmsg, RS_PARAMS_INVALID);
-		return vo;
+		jvo->init(errmsg, RS_PARAMS_INVALID);
+		return jvo;
 	}
 
-	// Service/DAO 未接通前，校验通过后仍返回示例主键
-	vo->success("184000000000000002");
-	return vo;
+	// 执行数据新增
+	dto->setPayload(&payload);
+	std::string id = TreatmentService().saveData(dto);
+	if (id != "") {
+		jvo->success(id);
+	}
+	else
+	{
+		jvo->fail("");
+	}
+	// 响应结果
+	return jvo;
 }
 
 StringJsonVO::Wrapper TreatmentController::execModifyTreatment(
 	const TreatmentModifyDTO::Wrapper& dto, const PayloadDTO& payload)
 {
 	// 定义返回数据对象
-	auto vo = StringJsonVO::createShared();
+	auto jvo = StringJsonVO::createShared();
 
 	// 参数校验
 	if (!dto)
 	{
-		vo->init(nullptr, RS_PARAMS_INVALID);
-		return vo;
+		jvo->init(nullptr, RS_PARAMS_INVALID);
+		return jvo;
 	}
 	std::string errmsg = dto->validate();
 	if (errmsg != "")
 	{
-		vo->init(errmsg, RS_PARAMS_INVALID);
-		return vo;
+		jvo->init(errmsg, RS_PARAMS_INVALID);
+		return jvo;
 	}
 
-	// Service/DAO 未接通前，校验通过后回传主键
-	vo->success(dto->id);
-	return vo;
+	// 执行数据修改
+	dto->setPayload(&payload);
+	if (TreatmentService().updateData(dto)) {
+		jvo->success(dto->id);
+	}
+	else
+	{
+		jvo->fail(dto->id);
+	}
+	// 响应结果
+	return jvo;
 }
 
 // 导出pdf

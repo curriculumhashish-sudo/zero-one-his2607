@@ -27,6 +27,23 @@ TreatmentPageDTO::Wrapper TreatmentService::listAll(const TreatmentQuery::Wrappe
 	return {};
 }
 
+TreatmentDetailDTO::Wrapper TreatmentService::getById(std::string id)
+{
+	// 空实现：后续接入 DAO/Mapper，按 id 查询并组装 TreatmentDetailDTO
+	return nullptr;
+}
+
+std::string TreatmentService::saveData(const TreatmentAddDTO::Wrapper& dto)
+{
+	// 空实现：后续接入 DAO，写入主表/子项/价格并返回新 id
+	return "";
+}
+
+bool TreatmentService::updateData(const TreatmentModifyDTO::Wrapper& dto)
+{
+	// 空实现：后续接入 DAO，更新主表/子项/价格
+	return false;
+}
 
 bool TreatmentService::removeData(const oatpp::List<oatpp::String>& ids)
 {

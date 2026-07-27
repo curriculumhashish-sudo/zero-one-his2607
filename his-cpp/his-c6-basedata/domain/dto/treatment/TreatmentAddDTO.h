@@ -71,6 +71,9 @@ class TreatmentAddDTO : public oatpp::DTO
 	// 子项
 	API_DTO_FIELD_REQUIRE(List<TreatmentChildDTO::Wrapper>, children, ZH_WORDS_GETTER("treatment.field.children"), false);
 
+	// 关联 PayloadDTO 负载数据对象（与 Sample 一致，供 Service 取当前用户）
+	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
+
 public:
 	// 新增参数最小校验：必填字段
 	std::string validate()
