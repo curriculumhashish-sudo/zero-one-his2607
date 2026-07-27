@@ -1,16 +1,11 @@
 package com.zeroone.star.dispense.controller.end;
 
 import com.zeroone.star.project.j7.DispenseApis;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.RestController;
 
-/**
- * <p>
- * 描述：住院发药管理接口
- * </p>
- * <p>版权：&copy;01星球</p>
- * <p>地址：01星球总部</p>
- * @author zg
- * @version 1.0.0
- */
 
+@RestController
+@Tag(name = "门诊发退药记录", description = "门诊发退药记录基础流程")
 public class menzhenfatuiyaojilu implements DispenseApis {
 }
