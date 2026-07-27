@@ -1,6 +1,6 @@
 prescription3:
   tags:
-    tag: 医嘱管理
+    tag: 开立医嘱
 
   batchDelete:
     summary: 删除待签发医嘱
