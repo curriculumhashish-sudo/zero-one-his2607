@@ -1,5 +1,68 @@
-﻿dept:
-  tag: 科室管理接口
+# ============================================================
+# 中文词典 — his-c5-basicdata
+# 格式: <模块>.<分类>.<键> — 中文描述
+# ============================================================
+
+# ============================================================
+# 患者管理 (pat) — 患者查询/分页/删除/CRUD
+# ============================================================
+pat:
+  tag: 患者管理
+  delete:
+    summary: 删除患者
+  page:
+    success: 患者分页查询接口访问成功
+    summary: 分页查询患者列表
+    query:
+      field:
+        name: 患者姓名(模糊查询)
+        idCard: 患者证件号码
+    dto:
+      field:
+        id: 患者主键ID
+        name: 患者姓名
+        idCard: 身份证号
+        gender: 性别(1男/2女)
+        age: 年龄
+  select:
+    page:
+      summary: 分页查询弹窗可选患者列表
+      success: 查询可选患者列表成功
+    query:
+      field:
+        keyword: 搜索关键词(姓名/病历号/证件号)
+    dto:
+      field:
+        medicalNo: 病历号
+        name: 患者姓名
+        gender: 性别
+        birthDay: 出生日期
+        age: 年龄
+        phone: 联系电话
+        idCard: 身份证号
+  query-by-id:
+    summary: 根据ID查询患者详情
+  add:
+    summary: 新增患者
+  modify:
+    summary: 修改患者信息
+  field:
+    id: 患者ID
+    name: 患者姓名
+    age: 年龄
+    sex: 性别
+
+# ============================================================
+# 科室管理 (dept) — 科室 CRUD + 批量启停 + 组织架构树
+# ============================================================
+dept:
+  tag: 科室管理
+  add:
+    summary: 新增科室
+  modify:
+    summary: 修改科室
+  remove:
+    summary: 删除科室
   batch-status:
     summary: 批量启停科室
     success:
@@ -7,6 +70,189 @@
       disable: 批量停用科室成功
     fail:
       empty: 批量操作失败，无匹配科室数据
+  endpoints:
+    nameTree: 获取科室名称树
+    listTree: 获取科室列表树
+    detail: 获取科室详情
   field:
+    id: 科室编号
+    name: 科室名称
+    type-enum: 类型
+    class-enum: 类别
+    parent-id: 上级组织编号
+    yb-no: 医保编码
+    yb-name: 医保名称
+    medins-id: 机构标识
+    medins-admdvs: 医保区划
+    medins-type: 机构类型
+    medins-lv: 机构等级
+    py-str: 拼音码
+    wb-str: 五笔码
+    def-doctor-id: 默认医生编号
+    caty: 科别
+    display-order: 显示顺序
+    status-enum: 状态
+    active-flag: 是否启用
     deptIdList: 批量科室ID数组
     targetStatus: 目标启停状态(0停用/1启用)
+    typeEnum: 科室类型
+    classEnum: 科室类别
+    statusEnum: 科室状态
+    ybNo: 医保编码
+    ybName: 医保名称
+    medinsId: 机构标识
+    medinsAdmdvs: 医保区划
+    medinsType: 机构类型
+    medinsLv: 机构等级
+    pyStr: 拼音码
+    wbStr: 五笔码
+    displayOrder: 显示顺序
+    children: 下级科室列表
+  queries:
+    typeEnum: 按科室类型筛选
+    classEnum: 按科室类别筛选
+    statusEnum: 按科室状态筛选
+    keyword: 按科室及医保相关信息进行关键词筛选
+    id: 科室唯一标识
+
+# ============================================================
+# 供应商管理 (sup) — 供应商 CRUD + 批量操作
+# ============================================================
+sup:
+  tag: 供应商管理
+  query-one:
+    summary: 根据ID或编号查询供应商详情
+  query-all:
+    summary: 条件分页查询供应商列表
+  add:
+    summary: 新增供应商
+  modify:
+    summary: 修改供应商
+  batch-enable-disable:
+    summary: 批量启/停用供应商
+  batch-remove:
+    summary: 批量删除供应商
+  field:
+    id: 主键编号
+    code: 供应商编号
+    ids: 供应商ID列表
+    keyword: 搜索关键字(名称)
+    busNo: 业务编号
+    name: 供应商名称
+    typeEnum: 供应商类型(生产厂家/供应商等)
+    creditCode: 统一信用代码
+    legalRepresentative: 法定代表人
+    address: 地址
+    pyStr: 拼音码
+    wbStr: 五笔码
+    phone: 电话
+    email: 邮箱
+    bankName: 开户银行
+    bankAccount: 银行账号
+    orgId: 所属机构ID
+    displayOrder: 显示顺序
+    statusEnum: 状态枚举值(NORMAL/DISABLED)
+    note: 备注说明
+  query:
+    code: 供应商编号
+    name: 供应商名称
+    type: 供应商类型
+    keyword: 搜索关键词
+    statusEnum: 按状态筛选
+
+# ============================================================
+# 库房药房管理 (pharm)
+# ============================================================
+pharm:
+  tag: 库房药房管理
+  endpoints:
+    list: 分页查询库房药房列表
+    add: 新增库房药房
+    modify: 修改库房药房
+    remove: 删除库房药房
+    status: 切换库房药房状态
+  select-list:
+    summary: 获取库房药房下拉选择列表
+  query-all:
+    summary: 分页查询库房药房列表(GET参数)
+  statusEnum:
+    modify: 修改库房药房启停状态
+  list:
+    query: 分页查询库房药房列表(POST参数)
+  field:
+    id: 编号
+    name: 药房名称
+    type: 药房类型
+    typeEnum: 供应商类型(生产厂家/供应商等)
+    classRoom: 上级科室
+    sort: 排序号
+    remark: 备注
+    status: 状态
+    statusEnum: 状态枚举(NORMAL/DISABLED)
+    pyStr: 拼音码
+    wbStr: 五笔码
+    displayOrder: 显示顺序
+    note: 备注
+    keyword: 搜索关键词(名称/拼音/五笔)
+    createBy: 创建人
+    updateBy: 修改人
+    createTime: 创建时间
+    updateTime: 修改时间
+  queries:
+    keyword: 搜索关键词
+    type: 按类型筛选
+    status: 按状态筛选
+  result:
+    empty: 暂无数据
+    add_success: 新增成功
+    add_fail: 新增失败
+    modify_success: 修改成功
+    modify_fail: 修改失败
+    remove_success: 删除成功
+    remove_fail: 删除失败
+    status_success: 状态更新成功
+    status_fail: 状态更新失败
+
+# ============================================================
+# 病区病房管理 (ward) — 病区/病房/床位 + 地点管理
+# ============================================================
+ward:
+  tag: 病区病房
+  name-list:
+    summary: 获取病区名称列表
+  tree-list:
+    summary: 获取病区树形列表
+  add-location:
+    summary: 新增病区地点
+  query-room-by-id:
+    summary: 根据ID查询病房
+  query-bed-by-id:
+    summary: 根据ID查询病床
+  modify:
+    summary: 修改病区信息
+  remove:
+    summary: 删除病区
+  status:
+    summary: 切换病区启停状态
+  bed-modify:
+    summary: 修改床位信息
+  bed-remove:
+    summary: 删除床位
+  bed-status:
+    summary: 切换床位启停状态
+  room-modify:
+    summary: 修改病房信息
+  room-remove:
+    summary: 删除病房
+  room-status:
+    summary: 切换病房启停状态
+  field:
+    id: 病区/病房/床位编号
+    name: 名称
+    organization-id: 机构编号
+    roomId: 病房编号
+    bedId: 病床编号
+    wardAreaId: 病区编号
+    wardRoomId: 病房编号
+    status: 状态
+    statusEnum: 状态枚举(ACTIVE/DISABLED)

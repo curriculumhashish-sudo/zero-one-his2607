@@ -56,6 +56,11 @@ std::shared_ptr<oatpp::web::server::interceptor::ResponseInterceptor::OutgoingRe
 #ifndef CLOSE_CROS_SUPPORT
 	CROS_FIELD_SETTING(response)
 #endif
+	auto path = request->getStartingLine().path.toString().getValue("");
+	if (path.find("/swagger/") == 0 || path.find("/api-docs/") == 0)
+	{
+		response->putHeaderIfNotExists("Connection", "close");
+	}
 	return response;
 }
 
