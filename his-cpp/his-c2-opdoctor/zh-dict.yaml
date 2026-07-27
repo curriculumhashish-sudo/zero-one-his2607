@@ -1,4 +1,4 @@
-﻿prescription1:
+﻿createOrder:
   test:
     get:
       summary: 查询测试接口
@@ -9,7 +9,7 @@
 
   order:
     tags:
-      tag: 医嘱管理
+      tag: 开立医嘱
     query:
       summary: 分页查询医嘱
     add:

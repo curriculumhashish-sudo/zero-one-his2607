@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _ORDER_QUERY_H_
-#define _ORDER_QUERY_H_
+#ifndef _ORDER_QUERY_1_H_
+#define _ORDER_QUERY_1_H_
 
 #include "../../GlobalInclude.h"
 #include "domain/query/PageQuery.h"
@@ -15,9 +15,9 @@ class OrderQuery1 : public PageQuery
 {
 	DTO_INIT(OrderQuery1, PageQuery);
 	// æÕ’ÔID
-	API_DTO_FIELD_REQUIRE(String, visitId, ZH_WORDS_GETTER("prescription1.order.field.visitid"), true);
+	API_DTO_FIELD_REQUIRE(String, visitId, ZH_WORDS_GETTER("createOrder.order.field.visitid"), true);
 	// ªº’ﬂID
-	API_DTO_FIELD_REQUIRE(String, patientId, ZH_WORDS_GETTER("prescription1.order.field.patientid"), true);
+	API_DTO_FIELD_REQUIRE(String, patientId, ZH_WORDS_GETTER("createOrder.order.field.patientid"), true);
 };
 
 #include OATPP_CODEGEN_END(DTO) //<- End DTO codegen section

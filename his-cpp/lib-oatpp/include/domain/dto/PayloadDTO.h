@@ -75,6 +75,10 @@ private:
 	// 用户拥有的权限
 	std::list<std::string> authorities;
 	// TIP：新增属性字段在后面添加即可
+	// 租户标识
+	std::string tenantId;
+	// 机构标识
+	std::string orgId;
 public:
 	PayloadDTO();
 	/**
@@ -116,7 +120,12 @@ public:
 	void setId(std::string val) { id = val; }
 	const std::list<std::string>& getAuthorities() const { return authorities; }
 	void setAuthorities(std::list<std::string> val) { authorities = val; }
+	
 	// 注意：新增属性字段后需要补充getter/setter
+	std::string getTenantId() const { return tenantId; }
+	void setTenantId(const std::string& val) { tenantId = val; }
+	std::string getOrgId() const { return orgId; }
+	void setOrgId(const std::string& val) { orgId = val; }
 
 	// 添加权限
 	void putAuthority(std::string authstr);
