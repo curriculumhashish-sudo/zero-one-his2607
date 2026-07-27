@@ -20,6 +20,10 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface MsTreatmentMapper {
 
+    @Mappings({
+            @Mapping(target = "categoryCode_dictText", ignore = true),
+            @Mapping(target = "retailPrice", ignore = true)
+    })
     TreatmentSelectVO toSelectVO(WkfActivityDefinitionDO wkfActivityDefinitionDO);
 
     List<TreatmentSelectVO> toSelectVOList(List<WkfActivityDefinitionDO> wkfActivityDefinitionDOS);
@@ -36,6 +40,9 @@ public interface MsTreatmentMapper {
     List<TreatmentDTO> toDTOList(List<WkfActivityDefinitionDO> wkfActivityDefinitionDOS);
 
     @Mappings({
+            @Mapping(target = "categoryCode_dictText", ignore = true),
+            @Mapping(target = "statusEnum_dictText", ignore = true),
+            @Mapping(target = "typeEnum_dictText", ignore = true),
             @Mapping(target = "price", ignore = true)
     })
     TreatmentListVO toListVO(WkfActivityDefinitionDO wkfActivityDefinitionDO);
@@ -44,6 +51,11 @@ public interface MsTreatmentMapper {
 
     @Mappings({
             @Mapping(source = "isDeleted", target = "deleteFlag"),
+            @Mapping(target = "categoryCode_dictText", ignore = true),
+            @Mapping(target = "packageUnitCode_dictText", ignore = true),
+            @Mapping(target = "statusEnum_dictText", ignore = true),
+            @Mapping(target = "typeEnum_dictText", ignore = true),
+            @Mapping(target = "itemTypeCode_dictText", ignore = true),
             @Mapping(target = "ruleId_dictText", ignore = true),
             @Mapping(target = "ybType", ignore = true),
             @Mapping(target = "ybType_dictText", ignore = true),
