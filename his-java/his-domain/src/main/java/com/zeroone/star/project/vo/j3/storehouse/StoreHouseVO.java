@@ -4,76 +4,27 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
- * 库房药房显示对象
+ * 描述：仓库列表显示数据对象
  * @author mie
  * @version 1.0.0
  */
-@Schema(description = "库房药房显示对象")
+@Schema(description = "仓库列表显示对象")
 @Data
 public class StoreHouseVO implements Serializable {
+    @Schema(description = "仓库ID", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Long id;
 
-    @Schema(description = "主键ID")
-    private String id;
-
-    @Schema(description = "业务编号")
-    private String busNo;
-
-    @Schema(description = "名称")
+    @Schema(description = "仓库名称", example = "西药库", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
 
-    @Schema(description = "状态枚举值")
-    private String statusEnum;
+    @Schema(description = "仓库类型（仓库/药房/科室药房）", example = "仓库", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String type;
 
-    @Schema(description = "状态文本")
-    private String statusEnumText;
+    @Schema(description = "上级科室名称", example = "门诊内科", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String superiorName;
 
-    @Schema(description = "运营状态枚举值")
-    private String operationalEnum;
-
-    @Schema(description = "运营状态文本")
-    private String operationalEnumText;
-
-    @Schema(description = "模式枚举值")
-    private String modeEnum;
-
-    @Schema(description = "模式文本")
-    private String modeEnumText;
-
-    @Schema(description = "类型扩展信息")
-    private Map<String, Object> typeExtensions;
-
-    @Schema(description = "拼音码")
-    private String pyStr;
-
-    @Schema(description = "五笔码")
-    private String wbStr;
-
-    @Schema(description = "形态枚举值")
-    private String formEnum;
-
-    @Schema(description = "形态文本")
-    private String formEnumText;
-
-    @Schema(description = "机构ID")
-    private String organizationId;
-
-    @Schema(description = "机构名称")
-    private String organizationName;
-
-    @Schema(description = "显示顺序")
-    private Integer displayOrder;
-
-    @Schema(description = "上级科室ID")
-    private String parentId;
-
-    @Schema(description = "上级科室名称")
-    private String parentName;
-
-    @Schema(description = "子节点")
-    private List<StoreHouseVO> children = new ArrayList<>();
+    @Schema(description = "是否启用 1启用 0停用", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Byte isEnabled;
 }
