@@ -7,21 +7,30 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Schema(description = "患者队列查询条件")
+@Schema(description = "预约队列查询条件")
 public class PatientQueueQuery extends PageQuery {
 
-    @Schema(description = "科室ID", example = "1")
-    private String department_id;
+    @Schema(description = "机构ID", example = "1")
+    private String organization_id;
 
-    @Schema(description = "医生ID", example = "1")
-    private String doctor_id;
+    @Schema(description = "患者ID", example = "1")
+    private String patient_id;
 
-    @Schema(description = "患者姓名", example = "张三")
-    private String patient_name;
+    @Schema(description = "就诊标识", example = "1")
+    private String encounter_id;
 
-    @Schema(description = "就诊状态（0-待就诊，1-就诊中，2-已完成）", example = "0")
-    private Integer status;
+    @Schema(description = "预约分类", example = "OUTPATIENT_BOOKING")
+    private String appointment_kind;
 
-    @Schema(description = "就诊日期", example = "2024-01-15")
-    private String visit_date;
+    @Schema(description = "服务类型编码", example = "GENERAL")
+    private String service_type_code;
+
+    @Schema(description = "去向诊室ID", example = "1")
+    private String destination_location_id;
+
+    @Schema(description = "预约日期", example = "2024-01-15")
+    private String booking_date;
+
+    @Schema(description = "分诊等级", example = "LEVEL1")
+    private String triage_level;
 }
