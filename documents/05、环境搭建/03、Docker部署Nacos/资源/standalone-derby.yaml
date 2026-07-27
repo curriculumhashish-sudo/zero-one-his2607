@@ -1,0 +1,29 @@
+services:
+  nacos:
+    image: nacos/nacos-server:v3.1.1
+    networks:
+      - nacos
+    container_name: nacos-standalone-v31
+    environment:
+      - PREFER_HOST_MODE=hostname
+      - MODE=standalone
+      - NACOS_AUTH_ENABLE=true
+      - NACOS_AUTH_IDENTITY_KEY=01xqkey
+      - NACOS_AUTH_IDENTITY_VALUE=01xqval
+      - NACOS_AUTH_TOKEN=U0hWelZreHdaR05yTVRWelpuZzVZM1Z6TjB4cE1VMDVNRHB6TWpFeU16UT0=
+      - JVM_XMS=256m
+      - JVM_XMX=256m
+      - JVM_XMN=80m
+      - JVM_MS=128m
+      - JVM_MMS=256m
+    volumes:
+      - ./standalone-logs/:/home/nacos/logs
+      - ./nacos-data/:/home/nacos/data
+    ports:
+    - "9080:8080"
+    - "8848:8848"
+    - "9848:9848"
+networks:
+  nacos:
+    name: nacos
+    driver: bridge
