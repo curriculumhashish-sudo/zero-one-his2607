@@ -11,7 +11,7 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-// POST /opnurse3/print request
+// POST /opnurse/print request
 class PrintRequestDTO : public oatpp::DTO
 {
 	DTO_INIT(PrintRequestDTO, DTO);
@@ -25,7 +25,7 @@ class PrintRequestDTO : public oatpp::DTO
 	DTO_FIELD_INFO(data) { info->description = ZH_WORDS_GETTER("print.field.printData"); }
 };
 
-// POST /opnurse3/print response
+// POST /opnurse/print response
 class PrintResultDTO : public oatpp::DTO
 {
 	DTO_INIT(PrintResultDTO, DTO);

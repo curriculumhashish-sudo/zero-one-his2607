@@ -8,7 +8,7 @@
 #define _PRINT_JOB_MAPPER_
 
 #include "Mapper.h"
-#include "../../domain/do/opnurse3/PrintJobDO.h"
+#include "../../domain/do/opnurse/PrintJobDO.h"
 
 class PrintJobMapper : public Mapper<PrintJobDO>
 {

@@ -5,9 +5,9 @@
 */
 #include "stdafx.h"
 #include "PrintJobController.h"
-#include "../../service/opnurse3/PrintTplRender.h"
-#include "../../dao/opnurse3/PrintLogDAO.h"
-#include "domain/do/opnurse3/PrintLogDO.h"
+#include "../../service/opnurse/PrintTplRender.h"
+#include "../../dao/opnurse/PrintLogDAO.h"
+#include "domain/do/opnurse/PrintLogDO.h"
 #include "PdfComponent.h"
 #include "domain/bo/PdfReportBO.h"
 #include "SimpleDateTimeFormat.h"

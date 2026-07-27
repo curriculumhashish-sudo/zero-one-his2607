@@ -1,4 +1,7 @@
 print:
+  tags:
+    job: 患者管理
+    log: 患者管理
   print:
     summary: 执行打印
   records:

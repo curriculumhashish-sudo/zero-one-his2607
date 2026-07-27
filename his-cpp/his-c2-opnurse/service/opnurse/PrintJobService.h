@@ -7,9 +7,9 @@
 #ifndef _PRINT_JOB_SERVICE_
 #define _PRINT_JOB_SERVICE_
 
-#include "../../domain/dto/opnurse3/PrintJobDTO.h"
-#include "../../domain/query/opnurse3/PrintJobQuery.h"
-#include "../../dao/opnurse3/PrintJobDAO.h"
+#include "../../domain/dto/opnurse/PrintJobDTO.h"
+#include "../../domain/query/opnurse/PrintJobQuery.h"
+#include "../../dao/opnurse/PrintJobDAO.h"
 
 class PrintJobService
 {

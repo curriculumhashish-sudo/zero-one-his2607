@@ -7,8 +7,8 @@
 #ifndef _PRINT_LOG_DAO_
 #define _PRINT_LOG_DAO_
 #include "BaseDAO.h"
-#include "../../domain/do/opnurse3/PrintLogDO.h"
-#include "../../domain/query/opnurse3/PrintLogQuery.h"
+#include "../../domain/do/opnurse/PrintLogDO.h"
+#include "../../domain/query/opnurse/PrintLogQuery.h"
 
 class PrintLogDAO : public BaseDAO
 {

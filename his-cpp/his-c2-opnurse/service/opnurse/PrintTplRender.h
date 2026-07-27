@@ -8,7 +8,7 @@
 #define _PRINT_TPL_RENDER_
 #include "PdfComponent.h"
 #include "domain/bo/PdfReportBO.h"
-#include "domain/dto/opnurse3/PrintDataDTO.h"
+#include "domain/dto/opnurse/PrintDataDTO.h"
 
 class PrintTplRender
 {

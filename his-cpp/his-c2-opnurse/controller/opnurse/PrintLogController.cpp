@@ -5,7 +5,7 @@
 */
 #include "stdafx.h"
 #include "PrintLogController.h"
-#include "../../service/opnurse3/PrintLogService.h"
+#include "../../service/opnurse/PrintLogService.h"
 
 PrintLogPageJsonVO::Wrapper PrintLogController::executeQueryRecords(const PrintLogQuery::Wrapper& query)
 {
