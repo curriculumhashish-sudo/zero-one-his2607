@@ -14,10 +14,10 @@ class PrintChargeReceiptRequestDTO : public oatpp::DTO
     DTO_INIT(PrintChargeReceiptRequestDTO, DTO);
 
     // 就诊主键（与 paymentId 至少传一个）
-    API_DTO_FIELD(String, encounterId, ZH_WORDS_GETTER("lhfc.charging.charge.PrintChargeReceiptRequestDTO.encounterId.description"), false, "337209205188464640");
+    API_DTO_FIELD(String, encounterId, ZH_WORDS_GETTER("lhfc.charging.charge.PrintChargeReceiptRequestDTO.encounterId.description"), false, "");
 
-    // 支付流水主键（场景 A/B 都传；为空时自动取该就诊最近一次成功支付）
-    API_DTO_FIELD(String, paymentId, ZH_WORDS_GETTER("lhfc.charging.charge.PrintChargeReceiptRequestDTO.paymentId.description"), false, "337209423854309376");
+    // 支付流水主键（与 encounterId 至少传一个；为空时自动取该就诊最近一次成功支付）
+    API_DTO_FIELD(String, paymentId, ZH_WORDS_GETTER("lhfc.charging.charge.PrintChargeReceiptRequestDTO.paymentId.description"), false, "");
 };
 
 /*

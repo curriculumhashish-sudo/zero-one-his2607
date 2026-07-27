@@ -26,7 +26,7 @@ std::list<PrintChargeReceiptSlipDO> PrintChargeReceiptDAO::selectSlipByPaymentId
         << " JOIN adm_encounter e ON fpr.encounter_id = e.id"
         << " JOIN adm_patient p ON e.patient_id = p.id"
         << " LEFT JOIN adm_organization org ON e.organization_id = org.id"
-        << " LEFT JOIN adm_practitioner doc ON fpr.enterer_id = doc.user_id"
+        << " LEFT JOIN adm_practitioner doc ON fpr.enterer_id = doc.id"
         << " WHERE fpr.id = ?";
 
     return sqlSession->executeQuery<PrintChargeReceiptSlipDO>(sql.str(), PrintChargeReceiptSlipMapper(), params);
@@ -53,7 +53,7 @@ std::list<PrintChargeReceiptSlipDO> PrintChargeReceiptDAO::selectSlipByEncounter
         << " JOIN adm_encounter e ON fpr.encounter_id = e.id"
         << " JOIN adm_patient p ON e.patient_id = p.id"
         << " LEFT JOIN adm_organization org ON e.organization_id = org.id"
-        << " LEFT JOIN adm_practitioner doc ON fpr.enterer_id = doc.user_id"
+        << " LEFT JOIN adm_practitioner doc ON fpr.enterer_id = doc.id"
         << " WHERE fpr.encounter_id = ? AND fpr.status_enum = 'SUCCESS'"
         << " ORDER BY fpr.created_at DESC LIMIT 1";
 
