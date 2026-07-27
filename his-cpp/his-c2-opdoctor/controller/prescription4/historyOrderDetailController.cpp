@@ -1,7 +1,21 @@
 #include "stdafx.h"
-#include "historyOrderDetailController.h"
+#include "HistoryOrderDetailController.h"
+#include "../../service/prescription4/HistoryOrderDetailService.h"
 
 HistoryOrderDetailPageJsonVO::Wrapper HistoryOrderDetailController::execQueryHistoryOrderDetail(const HistoryOrderDetailQuery::Wrapper& query)
 {
-	return {};
+    auto jvo = HistoryOrderDetailPageJsonVO::createShared();
+
+    // 参数校验：visitId 必传
+    if (!query || !query->visitId || query->visitId->empty()) {
+        jvo->fail("visitId is required");
+        return jvo;
+    }
+
+    // 调用 Service 查询
+    HistoryOrderDetailService service;
+    auto pageDto = service.listAll(query);
+
+    jvo->success(pageDto);
+    return jvo;
 }
