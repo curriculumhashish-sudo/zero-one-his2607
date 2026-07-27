@@ -2,7 +2,7 @@
  Copyright Zero One Star. All rights reserved.
 
  @Author: xbzml
- @Date: 2026/07/20 00:00:00
+ @Date: 2026/07/26 00:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -18,8 +18,15 @@
 */
 #include "stdafx.h"
 #include "RefundExecuteRefundController.h"
+#include "../../service/refund/RefundExecuteRefundService.h"
 
+// Handle POST /charging/refund/execute-refund
+// Executes refund as a transactional operation (INSERT + UPDATE)
 RefundExecuteRefundJsonVO::Wrapper RefundExecuteRefundController::execRefundExecuteRefund(const RefundExecuteRefundRequestDTO::Wrapper& dto)
 {
-    return {};
+    auto vo = RefundExecuteRefundJsonVO::createShared();
+    RefundExecuteRefundService service;
+    auto result = service.execute(dto);
+    vo->success(result);
+    return vo;
 }

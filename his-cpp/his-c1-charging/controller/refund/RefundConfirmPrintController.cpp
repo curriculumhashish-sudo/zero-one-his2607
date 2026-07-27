@@ -2,7 +2,7 @@
  Copyright Zero One Star. All rights reserved.
 
  @Author: xbzml
- @Date: 2026/07/20 00:00:00
+ @Date: 2026/07/26 00:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -18,8 +18,15 @@
 */
 #include "stdafx.h"
 #include "RefundConfirmPrintController.h"
+#include "../../service/refund/RefundConfirmPrintService.h"
 
+// Handle GET /charging/refund/confirm-print
+// Confirms print job status after printing
 RefundConfirmPrintJsonVO::Wrapper RefundConfirmPrintController::execQueryAll(const RefundConfirmPrintQuery::Wrapper& query)
 {
-    return {};
+    auto vo = RefundConfirmPrintJsonVO::createShared();
+    RefundConfirmPrintService service;
+    auto dto = service.confirm(query);
+    vo->success(dto);
+    return vo;
 }
