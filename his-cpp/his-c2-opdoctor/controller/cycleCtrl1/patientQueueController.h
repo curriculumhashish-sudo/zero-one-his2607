@@ -8,7 +8,7 @@
 #include "domain/dto/cycleCtrl1/patientQueueDTO.h"
 #include "domain/vo/cycleCtrl1/patientQueueVo.h"
 #include "domain/GlobalInclude.h"
-
+#include "service/cycleCtrl1/PatientQueueService.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
@@ -50,8 +50,6 @@ public:
 		API_DEF_ADD_QUERY_PARAMS(String, "visitStatus", ZH_WORDS_GETTER("queue.param.Status"), "", false);
 		// 4. ÍêÕï×´Ì¬ -> `finishStatus`
 		API_DEF_ADD_QUERY_PARAMS(String, "finishStatus", ZH_WORDS_GETTER("queue.param.finishStatus"), "", false);
-		// 5. È«²¿×´Ì¬ -> `allStatus`
-		API_DEF_ADD_QUERY_PARAMS(String, "allStatus", ZH_WORDS_GETTER("queue.param.allStatus"),"", false);
 	}
 
 private:

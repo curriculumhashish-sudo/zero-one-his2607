@@ -1,75 +1,74 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
+#include "PatientQueueDAO.h"
 
-#include "patientQueueDAO.h"
-#include "patientQueueMapper.h"
-#include <iostream>
-
-std::list<PtrBkgWaitlistEntryDO> PatientQueueDAO::getPatientQueueList(const PatientQueueQuery::Wrapper& query)
+std::list<PtrPatientQueueCombineDO> PatientQueueDAO::queryPatientQueue(
+    const PatientQueueQuery::Wrapper& query,
+    const std::string& tenantId,
+    const std::string& practitionerId)
 {
-    //我需要患者的姓名、性别、出生日期、病历号，挂号的号类型名称，候诊状态，创建时间
-    string sql = R"(SELECT
-                            p.name,
-                            p.gender_enum,
-                            p.birth_date,
-                            p.bus_no,
-                            serv.name AS service_name,
-                            w.created_at,
-                            w.status,
-                            w.id,
-                            w.patient_id,
-                            w.schedule_id
-                    FROM bkg_waitlist_entry w
-                    LEFT JOIN adm_patient p ON w.patient_id = p.id
-                    LEFT JOIN bkg_schedule_template sch ON w.schedule_id = sch.id
-                    LEFT JOIN adm_healthcare_service serv ON sch.healthcare_service_id = serv.id
-                    WHERE 1=1
+    std::string sql = R"(
+                    SELECT
+                    enc.id AS enc_id,
+                    enc.tenant_id AS tenant_id,
+                    pat.id AS patient_id,
+                    pat.name AS patient_name,
+                    pat.gender_enum,
+                    pat.birth_date,
+                    enc.bus_no,
+                    enc.status_enum,
+                    UNIX_TIMESTAMP(DATE(enc.reception_time)) AS reception_time,
+                    enc.service_type_id,
+                    serv.name AS service_name,
+                    acc.type_code
+                    FROM adm_encounter enc
+                    INNER JOIN adm_patient pat ON enc.patient_id = pat.id
+                    INNER JOIN adm_encounter_location enc_loc ON enc.id = enc_loc.encounter_id
+                    LEFT JOIN adm_encounter_participant part ON enc.id = part.encounter_id
+                    LEFT JOIN adm_account acc ON enc.id = acc.encounter_id AND acc.default_flag = 1
+                    LEFT JOIN adm_healthcare_service serv ON enc.service_type_id = serv.id
+                    WHERE enc.is_deleted = 0
                     )";
+
     SqlParams params;
 
-    // 为调试收集参数，便于打印
-    std::string dbg_date;
-    std::string dbg_patientName;
-    std::string dbg_status;
-
-    //就诊日期：支持传入 YYYY-MM-DD 或带时间戳的字符串
-    if (!query->date.getValue("").empty())
+    // ��ѡ�� tenantId / practitionerId��ֻ�зǿղż�����������Ͳ���
+    if (!tenantId.empty())
     {
-        std::string raw = query->date.getValue("");
-        std::string dateOnly = raw.size() >= 10 ? raw.substr(0, 10) : raw; // YYYY-MM-DD
-        // 使用半开区间匹配： >= 'YYYY-MM-DD 00:00:00' AND < 'YYYY-MM-DD' + INTERVAL 1 DAY
-        sql += "AND w.created_at >= CONCAT(?, ' 00:00:00') AND w.created_at < DATE_ADD(CONCAT(?, ' 00:00:00'), INTERVAL 1 DAY) ";
-        SQLPARAMS_PUSH(params, "s", std::string, dateOnly);
-        SQLPARAMS_PUSH(params, "s", std::string, dateOnly);
-        dbg_date = dateOnly;
-    }
-    //患者姓名模糊搜索/直接指定搜索
-    if (!query->patientName.getValue("").empty())
-    {
-        sql += "AND p.name LIKE CONCAT('%', ?, '%') ";
-        SQLPARAMS_PUSH(params, "s", std::string, query->patientName.getValue(""));
-        dbg_patientName = query->patientName.getValue("");
+        sql += " AND enc.tenant_id = ? ";
+        SQLPARAMS_PUSH(params, "s", std::string, tenantId);
     }
 
-    //状态
-    if (!query->allStatus.getValue("全部").empty())
+    if (!practitionerId.empty())
     {
-        if (!query->visitStatus.getValue("").empty())
+        sql += " AND part.practitioner_id = ? ";
+        SQLPARAMS_PUSH(params, "s", std::string, practitionerId);
+    }
+
+    // �����Ǳ���ģ���˵ֻ�����ڣ���������������
+    sql += " AND DATE(enc.reception_time) = ? ";
+    SQLPARAMS_PUSH(params, "s", std::string, query->date->c_str());
+
+    // ��������ģ����ѯ
+    if (query->patientName && !query->patientName->empty())
+    {
+        sql += " AND pat.name LIKE CONCAT('%', ?, '%') ";
+        SQLPARAMS_PUSH(params, "s", std::string, query->patientName->c_str());
+    }
+
+    // allStatus=false �Ž���״̬ɸѡ
+    
+        if (query->visitStatus && !query->visitStatus->empty())
         {
-            sql += "AND w.status = ?";
-            SQLPARAMS_PUSH(params, "s", std::string, query->visitStatus.getValue(""));
-            dbg_status = query->visitStatus.getValue("");
+            sql += " AND enc.status_enum = ? ";
+            SQLPARAMS_PUSH(params, "s", std::string, query->visitStatus->c_str());
         }
-        else if(!query->finishStatus.getValue("").empty())
+        if (query->finishStatus && !query->finishStatus->empty())
         {
-            sql += "AND w.status = ?";
-            SQLPARAMS_PUSH(params, "s", std::string, query->finishStatus.getValue(""));
-            dbg_status = query->finishStatus.getValue("");
+            sql += " AND enc.status_enum = ? ";
+            SQLPARAMS_PUSH(params, "s", std::string, query->finishStatus->c_str());
         }
-    }
+    
 
-
-
-    // 执行查询并打印返回行数，便于判断是 DB 无数据 还是 Mapper 问题
-    auto result = sqlSession->executeQuery<PtrBkgWaitlistEntryDO>(sql, PatientQueueMapper(), params);
-    return result;
+    PatientQueueMapper mapper;
+    return sqlSession->executeQuery<PtrPatientQueueCombineDO>(sql, mapper, params);
 }

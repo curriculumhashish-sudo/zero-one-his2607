@@ -4,21 +4,19 @@
 
 #include "domain/query/cycleCtrl1/patientQueueQuery.h"
 #include "domain/dto/cycleCtrl1/patientQueueDTO.h"
-#include "domain/do/cycleCtrl1/BkgWaitlistEntryDO.h"
-#include "dao/cycleCtrl1/patientQueueDAO.h"
+#include "dao/cycleCtrl1/PatientQueueDAO.h"
 
 class PatientQueueService
 {
 public:
-	oatpp::Vector<PatientQueueDTO::Wrapper> getPatientQueueList(const PatientQueueQuery::Wrapper& query);
+    //返回患者队列列表
+        oatpp::Vector<PatientQueueDTO::Wrapper> getPatientQueueList(const PatientQueueQuery::Wrapper& query,
+        const std::string& tenantId,
+        const std::string& practitionerId);
+
 
 private:
-	inline int calcAge(const std::string& birthDate);
-	PatientQueueDAO dao;
-
+    PatientQueueDAO m_patientQueueDAO;
 };
-
-
-
 
 #endif // !_PATIENTQUEUESERVICE_H_

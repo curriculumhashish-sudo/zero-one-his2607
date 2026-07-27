@@ -9,9 +9,10 @@ queue:
   age: "年龄"
   registerType: "挂号类型"
   visitTime: "就诊时间"
-  visitNum: "病历号（唯一标识）"
+  visitNum: "病历号"
   payType: "支付类型"
   visitStatus: "就诊状态"
+  encounterId: "就诊号"
  query:
   date: "日期"
   patient: "患者"
@@ -40,6 +41,7 @@ rece:
   registerDept: "挂号科室"
   phoneNum: "电话号"
   allergyHistory: "过敏史"
+  encounterId: "就诊号"
  query:
   data: "日期"
  param:
@@ -58,6 +60,7 @@ rece:
 finish:
  dto:
   newVisitStatus: "完诊"
+  encounterId: "就诊号"
  query:
   visitStatus: "其他状态"
  get:
@@ -66,6 +69,7 @@ finish:
 leave:
  dto:
   newVisitStatus: "暂离"
+  encounterId: "就诊号"
  query:
   visitStatus: "其他状态"
  get:
