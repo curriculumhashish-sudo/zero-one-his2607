@@ -74,6 +74,39 @@
     </dependencies>
     <build>
         <plugins>
+            <!-- ========== maven-compiler-plugin：配置 MapStruct + Lombok 注解处理器 ==========
+                 ⚠️ 必须显式声明 annotationProcessorPaths，否则 mapstruct-processor 不生效，
+                    运行时会报：BeanCreationException: Injection of resource dependencies failed
+                    （原因：MinXiStructMapperImpl 实现类没生成，Spring 找不到 Bean 注入失败）
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                    <annotationProcessorPaths>
+                        <!-- 1. Lombok（先执行，生成 getter/setter/@Data 等） -->
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.32</version>
+                        </path>
+                        <!-- 2. Lombok-MapStruct 桥（让 MapStruct 能看到 Lombok 生成的方法） -->
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>0.2.0</version>
+                        </path>
+                        <!-- 3. MapStruct 注解处理器（后执行，生成 *MapperImpl 实现类） -->
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>1.5.5.Final</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
