@@ -1,9 +1,10 @@
 treatment:
   tags:
     tag: 诊疗管理
+    tag2: 声明式服务
   # 查询类接口文案
-  query-one:
-    summary: 获取诊疗详情
+  query-by-id:
+    summary: 通过ID获取单条数据
   query-select:
     summary: 获取可选诊疗列表
   query:
@@ -17,6 +18,12 @@ treatment:
     summary: 启用或停用诊疗
   remove:
     summary: 删除诊疗
+  query-all:
+    summary: 使用声明式服务查询多条数据
+  export:
+    summary: 导出示例数据(响应Excel文件)
+  export-pdf:
+    summary: 导出示例数据(响应PdfBase64字符串)
 
   # 字段中英文映射
   field:

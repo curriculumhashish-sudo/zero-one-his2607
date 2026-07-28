@@ -12,7 +12,6 @@
 #include "domain/dto/treatment/TreatmentRemoveDTO.h"
 #include "domain/dto/treatment/TreatmentSelectDTO.h"
 #include "domain/dto/treatment/TreatmentStatusDTO.h"
-#include "domain/dto/treatment/TreatmentDTO.h"
 /**
  * 示例服务实现，演示基础的示例服务实现
  */

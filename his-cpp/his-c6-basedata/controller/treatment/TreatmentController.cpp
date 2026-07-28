@@ -107,7 +107,7 @@ TreatmentPageJsonVO::Wrapper TreatmentController::execQueryAll(const TreatmentQu
 	// 构建凭证
 	std::string token = PayloadDTO::getTokenPrefix() + payload.getToken();
 	// 返回查询结果
-	return ac->queryAll(token, query->pageIndex, query->pageSize, URIUtil::urlEncode(query->name))->readBodyToDto<TreatmentPageJsonVO::Wrapper>(om);
+	return ac->queryAll(token, query->pageIndex, query->pageSize, URIUtil::urlEncode(query->keywords))->readBodyToDto<TreatmentPageJsonVO::Wrapper>(om);
 }
 
 StringJsonVO::Wrapper TreatmentController::execAddTreatment(
@@ -176,13 +176,13 @@ StringJsonVO::Wrapper TreatmentController::execModifyTreatment(
 }
 
 // 导出pdf
-StringJsonVO::Wrapper TreatmentController::TreatmentPdf(const TreatmentQuery::Wrapper& query)
+StringJsonVO::Wrapper TreatmentController::execExportTreatmentPdf(const TreatmentQuery::Wrapper& query)
 {
 	// 查询数据
 	auto result = TreatmentService().listAll(query);
 	// 绘制PDF
 	PdfComponent pdf;
-	OatppAccessor<SampleDTO::Wrapper> dataAccessor(result->rows);
+	OatppAccessor<TreatmentDetailDTO::Wrapper> dataAccessor(result->rows);
 	pdf.drawWithTemplate("tpl/treatment-pdf-report.yml", "treatment-pdf-report", &dataAccessor);
 	// 保存PDF
 	auto data = pdf.saveDocToMem();
@@ -205,8 +205,6 @@ std::shared_ptr<oatpp::web::server::api::ApiController::OutgoingResponse> Treatm
 			// 写入表头
 			ex->addHeader({
 				ZH_WORDS_GETTER("treatment.field.id") ,
-				ZH_WORDS_GETTER("treatment.field.code") ,
-				ZH_WORDS_GETTER("treatment.field.name") 
 				});
 			// 写入数据
 			int row = 2;
@@ -214,8 +212,6 @@ std::shared_ptr<oatpp::web::server::api::ApiController::OutgoingResponse> Treatm
 			for (auto item : *(result->rows.get())) {
 				col = 1;
 				ex->setCellValue(row, col++, item->id);
-				ex->setCellValue(row, col++, item->code);
-				ex->setCellValue(row, col++, item->name);
 				ex->setRowProperties(row++);
 			}
 		});

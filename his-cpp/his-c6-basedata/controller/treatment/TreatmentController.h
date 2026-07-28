@@ -40,11 +40,11 @@ class TreatmentController : public oatpp::web::server::api::ApiController
 	API_ACCESS_DECLARE(TreatmentController);
 public: // 接口定义
 	// 获取诊疗详情：接口信息
-	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("treatment.query-one.summary"), queryOneTreatment,
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("treatment.query-by-id.summary"), queryOneTreatment,
 		TreatmentDetailJsonVO::Wrapper, API_TAG,
 		API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("treatment.field.id"), "184000000000000001", true););
 	// 获取诊疗详情：接口绑定
-	API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/treatment/query-one", queryOneTreatment, QUERY(String, id), execQueryOne(id));
+	API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/treatment/query-by-id", queryOneTreatment, QUERY(String, id), execQueryOne(id));
 
 	// 新增诊疗：接口信息
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("treatment.add.summary"), addTreatment, StringJsonVO::Wrapper, API_TAG);
@@ -67,8 +67,7 @@ public: // 接口定义
 	// 删除诊疗（支持批量）：接口信息
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("treatment.remove.summary"), removeTreatment, ListJsonVO<String>::Wrapper, API_TAG);
 	// 删除诊疗（支持批量）：接口绑定
-	API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/treatment/remove-treatment", removeTreatment,
-		BODY_DTO(TreatmentRemoveDTO::Wrapper, dto), execRemoveTreatment(dto));
+	API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/treatment/remove-treatment", removeTreatment,BODY_DTO(List<String>, ids), execRemoveTreatment(ids));
 
 	// 获取选择诊疗列表（条件+分页）：接口信息
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("treatment.query-select.summary"), querySelectTreatment,
@@ -112,8 +111,8 @@ private: // 接口执行函数
 	// 启/停用诊疗（支持批量）：执行函数
 	StringJsonVO::Wrapper execModifyStatus(const TreatmentStatusDTO::Wrapper& dto, const PayloadDTO& payload);
 
-	// 删除诊疗（支持批量）：执行函数
-	ListJsonVO<String>::Wrapper execRemoveTreatment(const TreatmentRemoveDTO::Wrapper& dto);
+	// 3.3 演示删除数据
+	ListJsonVO<String>::Wrapper execRemoveTreatment(const List<String>& ids);
 
 	// 获取选择诊疗列表（条件+分页）：执行函数
 	TreatmentSelectPageJsonVO::Wrapper execQuerySelect(const TreatmentQuery::Wrapper& query);

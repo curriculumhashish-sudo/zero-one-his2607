@@ -43,7 +43,7 @@ TreatmentPageDTO::Wrapper TreatmentService::listAll(const TreatmentQuery::Wrappe
 	// ½«DO×ª»»³ÉDTO
 	for (TreatmentDO& sub : result)
 	{
-		auto dto = TreatmentDTO::createShared();
+		auto dto = TreatmentDetailDTO::createShared();
 		ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub, id, Id);
 		pages->addData(dto);
 	}

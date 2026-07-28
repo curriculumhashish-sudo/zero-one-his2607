@@ -96,6 +96,6 @@ public:
 };
 
 // 定义一个器材实体的智能指针
-typedef std::shared_ptr<InventoryLockDO> PtrAdmEpisodeOfCareDO;
+typedef std::shared_ptr<AdmEpisodeOfCareDO> PtrAdmEpisodeOfCareDO;
 
 #endif // !_ADMEPISODEOFCARE_H_

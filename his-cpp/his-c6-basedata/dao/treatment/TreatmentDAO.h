@@ -29,7 +29,7 @@ public:
 	// 统计数据条数
 	uint64_t count(const TreatmentQuery::Wrapper& query);
 	// 分页查询数据
-	std::list<TreatmentDO> selectWithPage(const TreatmentPageQuery::Wrapper& query);
+	std::list<TreatmentDO> selectWithPage(const TreatmentQuery::Wrapper& query);
 	// 通过姓名查询数据
 	std::list<TreatmentDO> selectByName(const string& name);
 	// 通过ID查询数据

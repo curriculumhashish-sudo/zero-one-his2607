@@ -24,10 +24,10 @@ std::string TreatmentDAO::queryConditionBuilder(const TreatmentQuery::Wrapper& q
 {
 	stringstream sqlCondition;
 	sqlCondition << " WHERE 1=1";
-	if (query->name) {
+	if (query->keywords) {
 
-		sqlCondition << " AND `name`=?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->name.getValue(""));
+		sqlCondition << " AND `keywords`=?";
+		SQLPARAMS_PUSH(params, "s", std::string, query->keywords.getValue(""));
 	}
 	return sqlCondition.str();
 }
@@ -35,7 +35,7 @@ std::string TreatmentDAO::queryConditionBuilder(const TreatmentQuery::Wrapper& q
 uint64_t TreatmentDAO::count(const TreatmentQuery::Wrapper& query)
 {
 	SqlParams params;
-	string sql = "SELECT COUNT(*) FROM  wkfActivity_definition";
+	string sql = "SELECT COUNT(*) FROM  wkf_activity_definition";
 	// 构建查询条件
 	sql += queryConditionBuilder(query, params);
 	// 执行查询
@@ -45,7 +45,7 @@ uint64_t TreatmentDAO::count(const TreatmentQuery::Wrapper& query)
 std::list<TreatmentDO> TreatmentDAO::selectWithPage(const TreatmentQuery::Wrapper& query)
 {
 	SqlParams params;
-	string sql = "SELECT id,name,sex,age FROM wkfActivity_definition ";
+	string sql = "SELECT * FROM wkf_activity_definition ";
 	// 构建查询条件
 	sql += queryConditionBuilder(query, params);
 	// 构建排序语句
@@ -56,26 +56,24 @@ std::list<TreatmentDO> TreatmentDAO::selectWithPage(const TreatmentQuery::Wrappe
 	// 执行查询
 	return sqlSession->executeQuery<TreatmentDO>(sql, TreatmentMapper(), params);
 }
-
 // 删除
-int32_t removeData(std::list<std::string>& ids)
+int32_t TreatmentDAO::removeData(std::list<std::string>& ids)
 {
 	if (ids.empty()) return 0;
 
-	// 1. 拼接 IN(?,?,?) 占位符
-	std::string sql = "UPDATE wkfActivity_definition SET is_deleted = 1, deleted_at = NOW() WHERE id IN (";
+	std::string sql = "UPDATE wkf_activity_definition SET is_deleted = 1, deleted_at = NOW() WHERE id IN (";
 	SqlParams params;
-
 	bool first = true;
+
 	for (const auto& item : ids)
 	{
 		if (!first) sql += ",";
 		first = false;
 		sql += "?";
-		params.addString(item); // 逐个添加字符串参数
+		// 添加字符串参数
+		SQLPARAMS_PUSH(params, "s", std::string, item);
 	}
 	sql += ") AND is_deleted = 0";
 
-	// 传入SqlParams容器执行
 	return sqlSession->executeUpdate(sql, params);
 }

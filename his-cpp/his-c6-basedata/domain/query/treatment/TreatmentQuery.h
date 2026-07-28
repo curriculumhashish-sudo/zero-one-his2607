@@ -39,7 +39,7 @@
 // 列表分页用
 class TreatmentQuery : public PageQuery
 {
-    DTO_INIT(TreatmentPageQuery, PageQuery);
+    DTO_INIT(TreatmentQuery, PageQuery);
     // 关键字，按诊疗名称或编码模糊匹配
     API_DTO_FIELD_REQUIRE(String, keywords, ZH_WORDS_GETTER("treatment.field.keywords"), false);
     // 分类
