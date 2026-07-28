@@ -7,3 +7,5 @@ server:
 spring:
   application:
     name: ${sn.j3-database:his-j3-database}
+  config:
+    import: classpath:storehouse-datasource-override.yaml
