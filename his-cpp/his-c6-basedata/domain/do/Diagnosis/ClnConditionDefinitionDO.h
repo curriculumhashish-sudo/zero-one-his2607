@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -22,9 +22,7 @@
 
 #include "../DoInclude.h"
 
-/**
- * Database model for the cln_condition_definition table.
- */
+/** cln_condition_definition 表领域模型。 */
 class ClnConditionDefinitionDO : public BaseDO
 {
 	MYSQL_SYNTHESIZE(string, id, Id);

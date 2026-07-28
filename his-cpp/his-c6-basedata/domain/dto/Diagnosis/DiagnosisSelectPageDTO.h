@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -25,9 +25,7 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/**
- * Paged transfer object for selectable diagnoses.
- */
+/** 可选诊疗分页结果。 */
 class DiagnosisSelectPageDTO : public PageDTO<DiagnosisSelectDTO::Wrapper>
 {
 	DTO_INIT(DiagnosisSelectPageDTO, PageDTO<DiagnosisSelectDTO::Wrapper>);

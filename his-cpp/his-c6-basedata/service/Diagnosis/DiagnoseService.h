@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -20,18 +20,18 @@
 #define _DIAGNOSE_SERVICE_H_
 
 #include <string>
+#include "domain/dto/PayloadDTO.h"
 #include "../../domain/dto/Diagnosis/DiagnoseDTO.h"
 #include "../../domain/dto/Diagnosis/DiagnosisSelectPageDTO.h"
 #include "../../domain/query/Diagnosis/DiagnosisSelectQuery.h"
 
-/**
- * Business service for diagnosis write operations.
- */
+/** 诊断业务服务。 */
 class DiagnoseService
 {
 public:
 	DiagnosisSelectPageDTO::Wrapper listSelectableDiagnoses(
-		const DiagnosisSelectQuery::Wrapper& query);
+		const DiagnosisSelectQuery::Wrapper& query,
+		const PayloadDTO& payload);
 	std::string saveData(const DiagnoseAddDTO::Wrapper& dto);
 	bool updateData(const DiagnoseDTO::Wrapper& dto);
 	bool removeData(const oatpp::List<oatpp::String>& ids);

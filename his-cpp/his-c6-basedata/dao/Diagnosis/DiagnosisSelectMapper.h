@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -23,9 +23,7 @@
 #include "Mapper.h"
 #include "../../domain/do/Diagnosis/ClnConditionDefinitionDO.h"
 
-/**
- * Maps selectable diagnosis query columns to the database model.
- */
+/** 映射可选诊疗查询结果。 */
 class DiagnosisSelectMapper : public Mapper<ClnConditionDefinitionDO>
 {
 public:
@@ -41,6 +39,16 @@ public:
 		data.setYbFlag(resultSet->getBoolean(7));
 		data.setStatusEnum(resultSet->getString(8));
 		return data;
+	}
+};
+
+/** 映射当前登录租户。 */
+class DiagnosisTenantMapper : public Mapper<std::string>
+{
+public:
+	std::string mapper(ResultSet* resultSet) const override
+	{
+		return resultSet->getString(1);
 	}
 };
 

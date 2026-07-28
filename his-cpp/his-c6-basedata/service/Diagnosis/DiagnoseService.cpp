@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  Copyright Zero One Star. All rights reserved.
 
  @Author: awei
@@ -17,78 +17,81 @@
 */
 #include "DiagnoseService.h"
 #include "../../dao/Diagnosis/DiagnosisDAO.h"
-#include "../../lib-common/include/id/UuidFacade.h"
+#include "id/UuidFacade.h"
 #include "SimpleDateTimeFormat.h"
-#include <cerrno>
-#include <climits>
-#include <cstdlib>
 
-namespace
+#include <charconv>
+static const std::string SOURCE_GENERAL_DIAGNOSIS = "general_dx";
+static const std::string SOURCE_CHRONIC_SPECIAL = "chronic_spec";
+static const std::string SOURCE_DISEASE_PACKAGE = "disease_pkg";
+static const std::string SOURCE_PAID_DIAGNOSIS = "paid_dx";
+static const std::string SOURCE_DAY_SURGERY = "day_surgery_dx";
+static const std::string SOURCE_TCM_DIAGNOSIS = "tcm_dx";
+static const std::string SOURCE_TCM_SYNDROME = "tcm_syndrome";
+static const std::string SOURCE_TUMOR_MORPHOLOGY = "tumor_morph";
+static const std::string DIAGNOSIS_KIND_TCM = "TCM";
+static const std::string DIAGNOSIS_KIND_WESTERN = "WESTERN";
+static const std::string STATUS_ACTIVE = "ACTIVE";
+static constexpr int STATUS_ACTIVE_SORT_ORDER = 2;
+
+static bool tryParseInt32(const std::string& value, int32_t& result)
 {
-	bool tryParseInt32(const std::string& value, int& parsedValue)
+	if (value.empty())
 	{
-		if (value.empty())
-		{
-			return false;
-		}
-		char* end = nullptr;
-		errno = 0;
-		const long valueAsLong = std::strtol(value.c_str(), &end, 10);
-		if (errno != 0 || end == value.c_str() || *end != '\0'
-			|| valueAsLong < INT_MIN || valueAsLong > INT_MAX)
-		{
-			return false;
-		}
-		parsedValue = static_cast<int>(valueAsLong);
-		return true;
+		return false;
 	}
+	const char* begin = value.data();
+	const char* end = begin + value.size();
+	const auto parsed = std::from_chars(begin, end, result);
+	return parsed.ec == std::errc() && parsed.ptr == end;
+}
 
-	bool isTraditionalChineseMedicineSource(const std::string& sourceEnum)
-	{
-		return sourceEnum == "tcm_dx" || sourceEnum == "tcm_syndrome";
-	}
+static bool isTraditionalChineseMedicineSource(const std::string& sourceEnum)
+{
+	return sourceEnum == SOURCE_TCM_DIAGNOSIS || sourceEnum == SOURCE_TCM_SYNDROME;
+}
 
-	bool isWesternMedicineSource(const std::string& sourceEnum)
-	{
-		return sourceEnum == "general_dx"
-			|| sourceEnum == "chronic_spec"
-			|| sourceEnum == "disease_pkg"
-			|| sourceEnum == "paid_dx"
-			|| sourceEnum == "day_surgery_dx"
-			|| sourceEnum == "tumor_morph";
-	}
+static bool isWesternMedicineSource(const std::string& sourceEnum)
+{
+	return sourceEnum == SOURCE_GENERAL_DIAGNOSIS
+		|| sourceEnum == SOURCE_CHRONIC_SPECIAL
+		|| sourceEnum == SOURCE_DISEASE_PACKAGE
+		|| sourceEnum == SOURCE_PAID_DIAGNOSIS
+		|| sourceEnum == SOURCE_DAY_SURGERY
+		|| sourceEnum == SOURCE_TUMOR_MORPHOLOGY;
+}
 
-	std::string getSourceEnumText(const std::string& sourceEnum)
+static std::string getSourceEnumText(const std::string& sourceEnum)
+{
+	if (!isWesternMedicineSource(sourceEnum) &&
+		!isTraditionalChineseMedicineSource(sourceEnum))
 	{
-		if (sourceEnum == "general_dx")
-			return ZH_WORDS_GETTER("diagnose.source.general_dx");
-		if (sourceEnum == "chronic_spec")
-			return ZH_WORDS_GETTER("diagnose.source.chronic_spec");
-		if (sourceEnum == "disease_pkg")
-			return ZH_WORDS_GETTER("diagnose.source.disease_pkg");
-		if (sourceEnum == "paid_dx")
-			return ZH_WORDS_GETTER("diagnose.source.paid_dx");
-		if (sourceEnum == "day_surgery_dx")
-			return ZH_WORDS_GETTER("diagnose.source.day_surgery_dx");
-		if (sourceEnum == "tcm_dx")
-			return ZH_WORDS_GETTER("diagnose.source.tcm_dx");
-		if (sourceEnum == "tcm_syndrome")
-			return ZH_WORDS_GETTER("diagnose.source.tcm_syndrome");
-		if (sourceEnum == "tumor_morph")
-			return ZH_WORDS_GETTER("diagnose.source.tumor_morph");
 		return "";
 	}
+	return ZH_WORDS_GETTER("diagnose.source." + sourceEnum);
 }
 
 DiagnosisSelectPageDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
-	const DiagnosisSelectQuery::Wrapper& query)
+	const DiagnosisSelectQuery::Wrapper& query,
+	const PayloadDTO& payload)
 {
+	if (!query || !query->validate().empty() || payload.getId().empty())
+	{
+		return nullptr;
+	}
+
+	DiagnosisDAO dao;
+	const std::string tenantId = dao.selectCurrentTenantId(payload.getId());
+	if (tenantId.empty())
+	{
+		return nullptr;
+	}
+
 	auto page = DiagnosisSelectPageDTO::createShared();
 	page->pageIndex = query->pageIndex;
 	page->pageSize = query->pageSize;
 
-	DiagnosisDAO dao;
-	const uint64_t total = dao.count(query);
+	const uint64_t total = dao.count(query, tenantId);
 	page->total = static_cast<int64_t>(total);
 	page->calcPages();
 	if (total == 0)
@@ -96,26 +99,29 @@ DiagnosisSelectPageDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
 		return page;
 	}
 
-	std::list<ClnConditionDefinitionDO> records = dao.selectWithPage(query);
+	std::list<ClnConditionDefinitionDO> records = dao.selectWithPage(query, tenantId);
 	for (ClnConditionDefinitionDO& record : records)
 	{
 		auto dto = DiagnosisSelectDTO::createShared();
-		dto->conditionDefinitionId = record.getId();
-		dto->conditionCode = record.getConditionCode();
-		dto->conditionDefinitionName = record.getName();
-		dto->pyStr = record.getPyStr();
-		dto->wbStr = record.getWbStr();
+		ZO_STAR_DOMAIN_DO_TO_DTO(
+			dto,
+			record,
+			conditionDefinitionId, Id,
+			conditionCode, ConditionCode,
+			conditionDefinitionName, Name,
+			pyStr, PyStr,
+			wbStr, WbStr);
 
 		const std::string sourceEnum = record.getSourceEnum();
 		const bool isTcm = isTraditionalChineseMedicineSource(sourceEnum);
 		if (isTcm)
 		{
-			dto->diagnosisKind = "TCM";
+			dto->diagnosisKind = DIAGNOSIS_KIND_TCM;
 			dto->diagnosisKindText = ZH_WORDS_GETTER("diagnose.type.tcm");
 		}
 		else if (isWesternMedicineSource(sourceEnum))
 		{
-			dto->diagnosisKind = "WESTERN";
+			dto->diagnosisKind = DIAGNOSIS_KIND_WESTERN;
 			dto->diagnosisKindText = ZH_WORDS_GETTER("diagnose.type.western");
 		}
 		else
@@ -124,15 +130,10 @@ DiagnosisSelectPageDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
 			dto->diagnosisKindText = nullptr;
 		}
 
-		int sourceEnumValue = 0;
-		if (tryParseInt32(sourceEnum, sourceEnumValue))
-		{
-			dto->sourceEnum = sourceEnumValue;
-		}
-		else
-		{
-			dto->sourceEnum = nullptr;
-		}
+		int32_t sourceEnumValue = 0;
+		dto->sourceEnum = tryParseInt32(sourceEnum, sourceEnumValue)
+			? oatpp::Int32(sourceEnumValue)
+			: oatpp::Int32(nullptr);
 		const std::string sourceEnumText = getSourceEnumText(sourceEnum);
 		dto->sourceEnumText = sourceEnumText.empty()
 			? oatpp::String(nullptr)
@@ -143,7 +144,9 @@ DiagnosisSelectPageDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
 		dto->ybFlagText = ybFlag == 1
 			? ZH_WORDS_GETTER("diagnose.flag.yes")
 			: ZH_WORDS_GETTER("diagnose.flag.no");
-		dto->statusEnum = 2;
+		dto->statusEnum = record.getStatusEnum() == STATUS_ACTIVE
+			? oatpp::Int32(STATUS_ACTIVE_SORT_ORDER)
+			: oatpp::Int32(nullptr);
 		page->addData(dto);
 	}
 	return page;
@@ -219,7 +222,7 @@ bool DiagnoseService::updateData(const DiagnoseDTO::Wrapper& dto)
 	return dao.update(data) == 1;
 }
 
-//É¾³ýÒ»ÌõÊý¾Ý£¨Ç°¶ËÓÐ£©
+// Logically deletes one diagnosis record.
 bool DiagnoseService::removeOne(const std::string& id)
 {
 	DiagnosisDO data;
@@ -229,7 +232,7 @@ bool DiagnoseService::removeOne(const std::string& id)
 	DiagnosisDAO dao;
 	return dao.update(data) == 1;
 }
-//ÎïÀíÅúÁ¿É¾³ý
+// Physically deletes a diagnosis batch.
 bool DiagnoseService::removeData(const oatpp::List<oatpp::String>& ids)
 {
 	std::list<std::string> dataIds;
@@ -262,13 +265,13 @@ bool DiagnoseService::batchChangeStatus(const DiagnoseBatchStatusDTO::Wrapper& d
 	}
 	return successCount > 0;
 }
-//Âß¼­ÅúÁ¿É¾³ý
+// Logically deletes a diagnosis batch.
 bool DiagnoseService::execRemoveData(const DiagnoseRemoveDTO::Wrapper& dto)
 {
 	const oatpp::List<oatpp::String> ids = dto->ids;
 	DiagnosisDAO dao;
 	int successCount = 0;
-	for (const auto& idItem : *ids.get())//·µ»ØÔ­ÉúµÄvector²¢Ã¶¾Ù±éÀú£¬get»ñÈ¡ÂãÖ¸Õë
+	for (const auto& idItem : *ids.get())
 	{
 		DiagnosisDO data;
 		data.setId(idItem.getValue({}));

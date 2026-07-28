@@ -1,4 +1,4 @@
-/*
+﻿/*
  Copyright Zero One Star. All rights reserved.
 
  @Author: awei
@@ -19,68 +19,66 @@
 #include "stdafx.h"
 #include "DiagnosisController.h"
 #include "../../service/Diagnosis/DiagnoseService.h"
+#include <algorithm>
 #include <cctype>
-#include <limits>
+#include <exception>
 
-namespace
+bool DiagnosisController::hasValidQueryParameters(const QueryParams& queryParams)
 {
-	std::string trimCopy(const std::string& value)
+	for (const auto& parameter : queryParams.getAll())
 	{
-		std::size_t begin = 0;
-		while (begin < value.size()
-			&& std::isspace(static_cast<unsigned char>(value[begin])) != 0)
+		const std::string name = parameter.first.toString();
+		if (name != "keyword" && name != "diagnosisKindCode"
+			&& name != "pageIndex" && name != "pageSize")
 		{
-			++begin;
+			return false;
 		}
-
-		std::size_t end = value.size();
-		while (end > begin
-			&& std::isspace(static_cast<unsigned char>(value[end - 1])) != 0)
-		{
-			--end;
-		}
-		return value.substr(begin, end - begin);
 	}
+
+	const auto isUnsignedInteger = [&queryParams](const char* name)
+	{
+		const auto value = queryParams.get(name);
+		if (!value)
+		{
+			return false;
+		}
+		const std::string text = value.getValue("");
+		return !text.empty()
+			&& std::all_of(
+				text.begin(),
+				text.end(),
+				[](unsigned char character)
+				{
+					return std::isdigit(character) != 0;
+				});
+	};
+
+	return isUnsignedInteger("pageIndex") && isUnsignedInteger("pageSize");
 }
 
 DiagnosisSelectPageJsonVO::Wrapper DiagnosisController::execQuerySelectDiagnosis(
-	const DiagnosisSelectQuery::Wrapper& query)
+	const DiagnosisSelectQuery::Wrapper& query,
+	const PayloadDTO& payload)
 {
+	// 定义返回数据对象。
 	auto response = DiagnosisSelectPageJsonVO::createShared();
-	if (!query || !query->pageIndex || !query->pageSize)
+	// 参数校验。
+	if (!query || !query->validate().empty() || payload.getId().empty())
 	{
 		response->init(nullptr, RS_PARAMS_INVALID);
 		return response;
 	}
 
-	const uint64_t pageIndex = query->pageIndex.getValue(0);
-	const uint64_t pageSize = query->pageSize.getValue(0);
-	if (pageIndex == 0 || pageSize == 0 || pageSize > 1000
-		|| pageIndex > std::numeric_limits<uint64_t>::max() / pageSize)
+	// 执行分页查询。
+	auto result = DiagnoseService().listSelectableDiagnoses(query, payload);
+	if (!result)
 	{
-		response->init(nullptr, RS_PARAMS_INVALID);
+		response->init(nullptr, RS_FORBIDDEN);
 		return response;
 	}
 
-	const std::string diagnosisKindCode = trimCopy(
-		query->diagnosisKindCode.getValue(""));
-	if (!diagnosisKindCode.empty()
-		&& diagnosisKindCode != "1"
-		&& diagnosisKindCode != "2")
-	{
-		response->init(nullptr, RS_PARAMS_INVALID);
-		return response;
-	}
-	query->diagnosisKindCode = diagnosisKindCode.empty()
-		? oatpp::String(nullptr)
-		: oatpp::String(diagnosisKindCode.c_str());
-
-	const std::string keyword = trimCopy(query->keyword.getValue(""));
-	query->keyword = keyword.empty()
-		? oatpp::String(nullptr)
-		: oatpp::String(keyword.c_str());
-
-	response->success(DiagnoseService().listSelectableDiagnoses(query));
+	// 响应结果。
+	response->success(result);
 	return response;
 }
 
@@ -205,7 +203,7 @@ StringJsonVO::Wrapper DiagnosisController::execBatchChangeDiagnoseStatus(const D
 	}
 	return response;
 }
-//�߼�ɾ��
+//逻辑删除
 DiagnoseRemoveJsonVO::Wrapper DiagnosisController::execRemoveDiagnosis(const DiagnoseRemoveDTO::Wrapper& dto, const PayloadDTO& payload)
 {
 	auto response = DiagnoseRemoveJsonVO::createShared();
