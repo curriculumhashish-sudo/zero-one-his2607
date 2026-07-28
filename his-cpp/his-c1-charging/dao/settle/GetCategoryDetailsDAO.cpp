@@ -32,11 +32,9 @@ uint64_t GetCategoryDetailsDAO::count(const GetCategoryDetailsQuery::Wrapper& qu
 	sql << " SELECT COUNT(DISTINCT cid.charge_type_name) "
 		<< " FROM adm_charge_item ci "
 		<< " LEFT JOIN adm_charge_item_definition cid ON ci.definition_id = cid.id "
-		// 需要关联就诊表用来支持inpatient_no条件
 		<< " LEFT JOIN adm_encounter e ON e.encounter_id = ci.encounter_id ";
 
 	sql << queryConditionBuilder(query, params);
-	
 	return sqlSession->executeQueryNumerical(sql.str(), params);
 }
 
@@ -47,6 +45,8 @@ std::list<GetCategoryDetailsDO> GetCategoryDetailsDAO::selectWithPage(const GetC
 	std::ostringstream sql;
 
 	sql << " SELECT "
+		<< " ci.encounter_id,"
+		<< " cid.sort_num,"
 		<< " cid.charge_type_name, "
 		<< " SUM(ci.total_price) AS type_total_fee "
 		<< " FROM adm_charge_item ci "
@@ -55,11 +55,10 @@ std::list<GetCategoryDetailsDO> GetCategoryDetailsDAO::selectWithPage(const GetC
 
 	sql << queryConditionBuilder(query, params);
 
-	sql << " GROUP BY cid.charge_type_name "
-		<< " ORDER BY cid.charge_type_name ";
+	sql << " GROUP BY ci.encounter_id, cid.sort_num, cid.charge_type_name "
+		<< " ORDER BY cid.sort_num ";
 
 	GetCategoryDetailsMapper mapper;
-	
 	return sqlSession->executeQuery<GetCategoryDetailsDO>(
 		sql.str(), GetCategoryDetailsMapper(), params);
 }

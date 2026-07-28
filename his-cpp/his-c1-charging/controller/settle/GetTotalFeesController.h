@@ -16,7 +16,7 @@ class GetTotalFeesController : public oatpp::web::server::api::ApiController
 {
     API_ACCESS_DECLARE(GetTotalFeesController);
 public:
-   
+
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(
         ZH_WORDS_GETTER("qi.charging.settle.summary2"),
         queryGetTotalFees,
@@ -34,7 +34,7 @@ public:
     );
 
 private:
-    
+
     GetTotalFeesJsonVO::Wrapper execQueryGetTotalFees(const GetTotalFeesQuery::Wrapper& query);
 };
 

@@ -60,10 +60,13 @@ class GetPatientListDTO : public oatpp::DTO
 		info->description = ZH_WORDS_GETTER("qi.charging.settle.insurance_type");
 	}
 
-	DTO_FIELD(UInt8, encounter_status);
-	DTO_FIELD_INFO(encounter_status) {
-		info->description = ZH_WORDS_GETTER("qi.charging.settle.encounter_status");
+
+	DTO_FIELD(String, doctor_name);
+	DTO_FIELD_INFO(doctor_name) {
+		info->description = ZH_WORDS_GETTER("qi.charging.settle.doctor_name");
 	}
+
+
 };
 
 class GetPatientListPageDTO : public PageDTO<GetPatientListDTO::Wrapper>

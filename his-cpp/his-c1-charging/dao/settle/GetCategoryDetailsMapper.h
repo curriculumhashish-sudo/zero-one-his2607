@@ -10,13 +10,15 @@
 #include "Mapper.h"
 #include "../../domain/do/settle/GetCategoryDetailsDO.h"
 
-// 值语义Mapper - 用于列表查询，返回 std::list<GetCategoryDetailDO>
+// 值语义Mapper - 用于列表查询，返回 std::list<GetCategoryDetailsDO>
 class GetCategoryDetailsMapper : public Mapper<GetCategoryDetailsDO>
 {
 public:
 	GetCategoryDetailsDO mapper(ResultSet* resultSet) const override
 	{
 		GetCategoryDetailsDO data;
+		data.setEncounter_id(resultSet->getString("encounter_id"));
+		data.setSort_num(resultSet->getInt("sort_num"));
 		data.setCharge_type_name(resultSet->getString("charge_type_name"));
 		data.setType_total_fee(resultSet->getDouble("type_total_fee"));
 		return data;
@@ -24,12 +26,14 @@ public:
 };
 
 // 指针语义Mapper – 用于需要 shared_ptr 的场景
-class PtrGetCategoryDetailsMapper : public Mapper<PtrGetCategoryDetailDO>
+class PtrGetCategoryDetailsMapper : public Mapper<PtrGetCategoryDetailsDO>
 {
 public:
-	PtrGetCategoryDetailDO mapper(ResultSet* resultSet) const override
+	PtrGetCategoryDetailsDO mapper(ResultSet* resultSet) const override
 	{
 		auto data = std::make_shared<GetCategoryDetailsDO>();
+		data->setEncounter_id(resultSet->getString("encounter_id"));
+		data->setSort_num(resultSet->getInt("sort_num"));
 		data->setCharge_type_name(resultSet->getString("charge_type_name"));
 		data->setType_total_fee(resultSet->getDouble("type_total_fee"));
 		return data;

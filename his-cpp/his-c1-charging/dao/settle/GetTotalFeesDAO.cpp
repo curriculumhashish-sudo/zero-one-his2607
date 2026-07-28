@@ -8,7 +8,13 @@ inline std::string GetTotalFeesDAO::queryConditionBuilder(const GetTotalFeesQuer
 	std::ostringstream sqlCondition;
 	sqlCondition << " WHERE 1=1 ";
 
-	// 住院号筛选
+	// 就诊ID
+	if (query->encounter_id && !query->encounter_id->empty())
+	{
+		sqlCondition << " AND cs.encounter_id = ? ";
+		SQLPARAMS_PUSH(params, "s", std::string, query->encounter_id);
+	}
+	// 住院号
 	if (query->inpatient_no && !query->inpatient_no->empty())
 	{
 		sqlCondition << " AND cs.inpatient_no = ? ";
@@ -38,15 +44,20 @@ std::list<GetTotalFeesDO> GetTotalFeesDAO::selectWithPage(const GetTotalFeesQuer
 	std::ostringstream sql;
 
 	sql << " SELECT "
+		<< " cs.encounter_id,"
 		<< " COALESCE(SUM(cs.total_hospital_fee),0) AS total_hospital_fee, "
+		<< " COALESCE(SUM(cs.insurance_pay_fee),0) AS insurance_pay_fee, "
 		<< " COALESCE(SUM(cs.personal_pay_fee),0) AS personal_pay_fee, "
 		<< " COALESCE(SUM(prd.prepay_total_fee),0) AS prepay_total_fee, "
-		<< " COALESCE(SUM(cs.final_balance_fee),0) AS final_balance_fee "
+		<< " COALESCE(SUM(cs.final_balance_fee),0) AS final_balance_fee, "
+		<< " COALESCE(SUM(cs.account_balance),0) AS account_balance "
 		<< " FROM fin_cashier_settlement cs "
 		<< " LEFT JOIN fin_payment_rec_detail prd ON cs.encounter_id = prd.encounter_id ";
 
 	sql << queryConditionBuilder(query, params);
 
 	GetTotalFeesMapper mapper;
-	return sqlSession->executeQuery<GetTotalFeesDO>(sql.str(), GetTotalFeesMapper(), params);
+	return sqlSession->executeQuery<GetTotalFeesDO>(
+		sql.str(), GetTotalFeesMapper(), params);
 }
+
