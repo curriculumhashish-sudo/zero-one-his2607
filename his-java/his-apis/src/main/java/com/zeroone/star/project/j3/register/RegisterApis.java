@@ -4,7 +4,10 @@ import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j3.register.RegisterDTO;
 import com.zeroone.star.project.query.j3.register.RegisterQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j3.register.RegisterNameVO;
 import com.zeroone.star.project.vo.j3.register.RegisterVO;
+
+import java.util.List;
 
 /**
  * <p>
@@ -16,6 +19,13 @@ import com.zeroone.star.project.vo.j3.register.RegisterVO;
  * @version 1.0.0
  */
 public interface RegisterApis {
+
+    /**
+     * 获取挂号类型名称列表（不分页，用于下拉选择号源类型）
+     *
+     * @return 名称列表（每条包含唯一标识、名称）
+     */
+    JsonVO<List<RegisterNameVO>> queryRegisterNames();
 
     /**
      * 获取挂号类型列表（条件+分页）

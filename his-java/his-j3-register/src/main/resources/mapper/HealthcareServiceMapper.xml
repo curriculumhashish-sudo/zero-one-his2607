@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.j3.register.mapper.HealthcareServiceMapper">
+
+    <!-- 分页查询挂号类型：医疗服务联查收费定义（type_code=1012 号源落诊察费）取金额 -->
+    <select id="selectRegisterPage" resultType="com.zeroone.star.project.vo.j3.register.RegisterVO">
+        SELECT
+            hs.id            AS id,
+            hs.name          AS name,
+            hs.yb_no         AS mdtrtCertNo,
+            hs.bus_no        AS businessCode,
+            cid.price_value  AS amount,
+            hs.active_flag   AS status
+        FROM adm_healthcare_service hs
+        LEFT JOIN adm_charge_item_definition cid
+            ON cid.instance_table = 'adm_healthcare_service'
+            AND cid.instance_id = hs.id
+            AND cid.type_code = '1012'
+            AND cid.is_deleted = 0
+        WHERE hs.is_deleted = 0
+          AND hs.category_code = 'REGISTRATION'
+        <if test="keyword != null and keyword != ''">
+            AND (hs.name LIKE CONCAT('%', #{keyword}, '%')
+              OR hs.yb_no LIKE CONCAT('%', #{keyword}, '%')
+              OR hs.id LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        ORDER BY hs.created_at DESC
+    </select>
+
+</mapper>

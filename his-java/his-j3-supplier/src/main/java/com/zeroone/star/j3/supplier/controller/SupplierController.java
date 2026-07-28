@@ -80,6 +80,7 @@ public class SupplierController implements SupplierApis {
         return JsonVO.success(detail);
     }
 
+
     @Override
     @PostMapping("/add")
     @Operation(summary = "新增供应商",
