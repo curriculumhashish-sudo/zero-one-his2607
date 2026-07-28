@@ -182,9 +182,7 @@ static void fillEditableDrug(MedMedicationDefinitionDO &data, const DrugModifyDT
     {
         data.setRxFlag(dto->rxFlag.getValue(false));
     }
-    // 由拆分属性生成默认单位。
-    data.setDefEncounterUnitCode(dto->partAttributeEnum.getValue(""));
-    data.setDefInhospitalUnitCode(dto->thoPartAttributeEnum.getValue(""));
+    // Keep stored default unit codes because this request does not carry them.
     data.setId(dto->id.getValue(""));
     data.setUpdatedBy(updatedBy);
     data.setUpdatedAt(updatedAt);
