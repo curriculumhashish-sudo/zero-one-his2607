@@ -4,6 +4,8 @@
 <mapper namespace="com.zeroone.star.dispense.mapper.OutpatientDispenseRecordMapper">
 
     <sql id="outpatientDispenseColumns">
+        d.bus_no AS record_no,
+        d.status_enum AS status_enum,
         COALESCE(NULLIF(r.prescription_no, ''), r.bus_no, d.bus_no) AS prescription_no,
         CASE UPPER(d.dispense_enum)
             WHEN 'REFUND' THEN '退药'
@@ -19,7 +21,13 @@
         m.name AS drug_name,
         m.total_volume AS spec,
         COALESCE(d.dispense_quantity, d.quantity) AS quantity,
-        d.unit_code AS unit
+        d.unit_code AS unit,
+        d.lot_number AS lot_number,
+        COALESCE(d.dosage_instruction, r.dosage_instruction) AS dosage_instruction,
+        d.dose AS dose,
+        d.dose_unit_code AS dose_unit_code,
+        COALESCE(d.frequency_code, r.rate_code) AS frequency_code,
+        m.manufacturer_text AS manufacturer_text
     </sql>
 
     <sql id="outpatientDispenseFrom">
@@ -48,17 +56,10 @@
         <if test="query.locationId != null and query.locationId != ''">
             AND d.location_id = #{query.locationId}
         </if>
-        <if test="query.practitionerId != null and query.practitionerId != ''">
-            AND d.practitioner_id = #{query.practitionerId}
-        </if>
         <if test="query.drugKeyword != null and query.drugKeyword != ''">
             AND (m.name LIKE CONCAT('%', #{query.drugKeyword}, '%')
                  OR m.py_str LIKE CONCAT('%', #{query.drugKeyword}, '%')
                  OR m.wb_str LIKE CONCAT('%', #{query.drugKeyword}, '%'))
-        </if>
-        <if test="query.patientKeyword != null and query.patientKeyword != ''">
-            AND (p.name LIKE CONCAT('%', #{query.patientKeyword}, '%')
-                 OR e.bus_no LIKE CONCAT('%', #{query.patientKeyword}, '%'))
         </if>
         <if test="query.projectType != null and query.projectType != ''">
             AND r.rx_type_code = #{query.projectType}

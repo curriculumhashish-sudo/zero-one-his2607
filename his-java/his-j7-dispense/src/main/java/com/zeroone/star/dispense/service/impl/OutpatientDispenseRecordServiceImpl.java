@@ -68,6 +68,8 @@ public class OutpatientDispenseRecordServiceImpl implements IOutpatientDispenseR
         for (List<DispenseFlatDTO> group : grouped.values()) {
             DispenseFlatDTO head = group.get(0);
             DispenseGroupVO vo = new DispenseGroupVO();
+            vo.setRecordNo(head.getRecordNo());
+            vo.setStatusEnum(head.getStatusEnum());
             vo.setPrescriptionNo(head.getPrescriptionNo());
             vo.setRecordTypeName(head.getRecordTypeName());
             vo.setPatientName(head.getPatientName());
@@ -84,6 +86,12 @@ public class OutpatientDispenseRecordServiceImpl implements IOutpatientDispenseR
                 item.setSpec(f.getSpec());
                 item.setQuantity(f.getQuantity());
                 item.setUnit(f.getUnit());
+                item.setLotNumber(f.getLotNumber());
+                item.setDosageInstruction(f.getDosageInstruction());
+                item.setDose(f.getDose());
+                item.setDoseUnitCode(f.getDoseUnitCode());
+                item.setFrequencyCode(f.getFrequencyCode());
+                item.setManufacturerText(f.getManufacturerText());
                 return item;
             }).collect(Collectors.toList());
             vo.setDrugItems(items);
@@ -113,14 +121,24 @@ public class OutpatientDispenseRecordServiceImpl implements IOutpatientDispenseR
         return flatRows.stream().map(f -> {
             OutpatientDispenseRecordDTO dto = new OutpatientDispenseRecordDTO();
             dto.setId(null);
-            dto.setRecordNo(f.getPrescriptionNo());
+            dto.setRecordNo(f.getRecordNo());
             dto.setOpTypeName(f.getRecordTypeName());
+            dto.setStatusEnum(f.getStatusEnum());
             dto.setPatientName(f.getPatientName());
             dto.setClinicNo(f.getClinicNo());
             dto.setOpTime(f.getDispenseTime());
             dto.setPharmacyName(f.getPharmacyName());
             dto.setOperatorAccount(f.getOperatorAccount());
             dto.setDrugName(f.getDrugName());
+            dto.setSpec(f.getSpec());
+            dto.setQuantity(f.getQuantity());
+            dto.setUnit(f.getUnit());
+            dto.setLotNumber(f.getLotNumber());
+            dto.setDosageInstruction(f.getDosageInstruction());
+            dto.setDose(f.getDose());
+            dto.setDoseUnitCode(f.getDoseUnitCode());
+            dto.setFrequencyCode(f.getFrequencyCode());
+            dto.setManufacturerText(f.getManufacturerText());
             return dto;
         }).collect(Collectors.toList());
     }

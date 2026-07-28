@@ -9,6 +9,12 @@ import java.time.LocalDateTime;
 @Data
 public class DispenseFlatDTO {
 
+    /** 发药记录编号（业务编号） */
+    private String recordNo;
+
+    /** 执行状态 */
+    private String statusEnum;
+
     /** 处方号 */
     private String prescriptionNo;
 
@@ -47,4 +53,22 @@ public class DispenseFlatDTO {
 
     /** 单位 */
     private String unit;
+
+    /** 批号 */
+    private String lotNumber;
+
+    /** 用法说明 */
+    private String dosageInstruction;
+
+    /** 单次剂量 */
+    private BigDecimal dose;
+
+    /** 剂量单位 */
+    private String doseUnitCode;
+
+    /** 频次编码 */
+    private String frequencyCode;
+
+    /** 生产厂家 */
+    private String manufacturerText;
 }

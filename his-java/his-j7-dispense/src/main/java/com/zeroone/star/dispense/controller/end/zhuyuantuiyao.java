@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/j7/refund-medicine")
+@RequestMapping("/api/j7/refund-medicine1")
 @Tag(name = "住院退药", description = "住院退药（患者队列、退药明细）")
 @Validated
 public class zhuyuantuiyao implements DispenseApis {

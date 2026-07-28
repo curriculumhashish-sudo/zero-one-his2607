@@ -20,4 +20,22 @@ public class DrugItemVO {
 
     @Schema(description = "单位", example = "盒")
     private String unit;
+
+    @Schema(description = "批号", example = "B20260701001")
+    private String lotNumber;
+
+    @Schema(description = "用法", example = "口服")
+    private String dosageInstruction;
+
+    @Schema(description = "单次剂量", example = "10")
+    private BigDecimal dose;
+
+    @Schema(description = "剂量单位", example = "mg")
+    private String doseUnitCode;
+
+    @Schema(description = "频次", example = "每日三次")
+    private String frequencyCode;
+
+    @Schema(description = "生产厂家", example = "辉瑞制药")
+    private String manufacturerText;
 }

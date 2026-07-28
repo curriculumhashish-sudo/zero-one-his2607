@@ -1,6 +1,9 @@
 package com.zeroone.star.dispense.controller.end;
 
+import com.zeroone.star.dispense.service.IOutpatientDispenseRecordService;
+import com.zeroone.star.project.components.excel.ExcelComponent;
 import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j7.dispense.OutpatientDispenseRecordDTO;
 import com.zeroone.star.project.j7.DispenseApis;
 import com.zeroone.star.project.j7.dispense.OutpatientDispenseApis;
 import com.zeroone.star.project.query.j7.dispense.DispenseQuery;
@@ -9,15 +12,21 @@ import com.zeroone.star.project.vo.j7.dispense.DispenseGroupVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.util.List;
 
 
 @RestController
-@Tag(name = "门诊发退药记录", description = "门诊发退药记录基础流程")
+@Tag(name = "门诊发退药记录", description = "门诊药房发药/退药记录查询与导出")
 public class menzhenfatuiyaojilu implements OutpatientDispenseApis {
      @Resource
     private IOutpatientDispenseRecordService service;
