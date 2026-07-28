@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -29,12 +29,6 @@
 class DrugModifyJsonVO : public JsonVO<DrugModifyResultDTO::Wrapper>
 {
     DTO_INIT(DrugModifyJsonVO, JsonVO<DrugModifyResultDTO::Wrapper>);
-
-  public:
-    DrugModifyJsonVO()
-    {
-        this->success(DrugModifyResultDTO::createShared());
-    }
 };
 
 #include OATPP_CODEGEN_END(DTO)

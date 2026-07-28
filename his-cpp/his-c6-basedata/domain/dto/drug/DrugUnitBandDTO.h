@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -28,12 +28,23 @@ class DrugUnitBandDTO : public oatpp::DTO
 {
     DTO_INIT(DrugUnitBandDTO, DTO);
 
-    API_DTO_FIELD(String, bandKind, ZH_WORDS_GETTER("drug.field.bandKind"), true, "PACKAGE");
-    API_DTO_FIELD(String, unitCode, ZH_WORDS_GETTER("drug.field.unitCode"), true, "DW003");
-    API_DTO_FIELD(String, unitName, ZH_WORDS_GETTER("drug.field.unitName"), true,
-                  ZH_WORDS_GETTER("drug.example.purchaseUnitText"));
-    API_DTO_FIELD(Float64, ratioToSplit, ZH_WORDS_GETTER("drug.field.ratioToSplit"), true, 10.0);
-    API_DTO_FIELD(Float64, unitPrice, ZH_WORDS_GETTER("drug.field.unitPrice"), true, 15.8);
+    API_DTO_FIELD_REQUIRE(String, bandKind, ZH_WORDS_GETTER("drug.field.bandKind"), true);
+    API_DTO_FIELD_REQUIRE(String, unitCode, ZH_WORDS_GETTER("drug.field.unitCode"), true);
+    API_DTO_FIELD_REQUIRE(String, unitName, ZH_WORDS_GETTER("drug.field.unitName"), false);
+    API_DTO_FIELD_REQUIRE(Float64, ratioToSplit, ZH_WORDS_GETTER("drug.field.ratioToSplit"), true);
+    API_DTO_FIELD_REQUIRE(Float64, unitPrice, ZH_WORDS_GETTER("drug.field.unitPrice"), false);
+
+  public:
+    static Wrapper createExample()
+    {
+        auto dto = createShared();
+        dto->bandKind = "PACKAGE";
+        dto->unitCode = "DW003";
+        dto->unitName = ZH_WORDS_GETTER("drug.example.purchaseUnitText");
+        dto->ratioToSplit = 10.0;
+        dto->unitPrice = 15.8;
+        return dto;
+    }
 };
 
 #include OATPP_CODEGEN_END(DTO)

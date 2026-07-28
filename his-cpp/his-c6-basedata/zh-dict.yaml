@@ -40,6 +40,9 @@ drug:
     statusDisabled: 停用
     locationText: 门诊药房
     supplierText: 国药控股广州有限公司
+  status:
+    enabled: 启用
+    disabled: 停用
   error:
     invalidInput: 请求参数不完整或不符合药品业务规则
     notFound: 未找到待操作的药品，或药品已被删除
