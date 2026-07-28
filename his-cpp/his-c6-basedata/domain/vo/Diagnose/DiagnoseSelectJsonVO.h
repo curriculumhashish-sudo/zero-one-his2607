@@ -2,7 +2,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
  @Author: awei
- @Date: 2026/07/20 11:00:34
+ @Date: 2026/07/28
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -13,18 +13,17 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _diagnose_SELECT_JSONVO_H_
-#define _diagnose_SELECT_JSONVO_H_
+#ifndef _DIAGNOSE_CATALOG_VO_H_
+#define _DIAGNOSE_CATALOG_VO_H_
 #include "../../GlobalInclude.h"
-#include "../dto/Diagnose/DiagnoseSelectDTO.h"
+#include "../../dto/diagnose/DiagnoseSelectDTO.h"
 #include OATPP_CODEGEN_BEGIN(DTO)
-/**
- * 诊断下拉选择分页响应VO
- * 接口：/diagnose/select-page
- */
+
+
 class DiagnoseSelectJsonVO : public JsonVO<DiagnoseSelectDTO::Wrapper>
 {
 	DTO_INIT(DiagnoseSelectJsonVO, JsonVO<DiagnoseSelectDTO::Wrapper>);
 };
+
 #include OATPP_CODEGEN_END(DTO)
-#endif // !_diagnose_SELECT_JSONVO_H_
+#endif // !_DIAGNOSE_CATALOG_VO_H_
