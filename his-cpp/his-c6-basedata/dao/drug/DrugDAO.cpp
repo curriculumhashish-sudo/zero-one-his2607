@@ -18,16 +18,15 @@
 */
 #include "stdafx.h"
 #include "DrugDAO.h"
+#include "../../domain/DrugConstants.h"
 
 #include <sstream>
 
-static const std::string STATUS_ACTIVE = "ACTIVE";
-static const std::string STATUS_INACTIVE = "INACTIVE";
-static const std::string STATUS_DISCARDED = "DISCARDED";
-static const std::string PRICE_PURCHASE = "PURCHASE";
-static const std::string PRICE_SALE = "SALE";
-static const std::string PRICE_LIMIT = "LIMIT";
-static const std::string DRUG_TABLE = "med_medication_definition";
+static const std::string &drugTableName()
+{
+    static const std::string tableName = MedMedicationDefinitionDO().getTable();
+    return tableName;
+}
 
 void DrugDAO::releaseSqlSession() noexcept
 {
@@ -161,7 +160,7 @@ int DrugDAO::updateEditableByVersion(const MedMedicationDefinitionDO &data, cons
     SQLPARAMS_PUSH(params, "s", std::string, data.getId());
     SQLPARAMS_PUSH(params, "s", std::string, tenantId);
     SQLPARAMS_PUSH(params, "i", int, expectedVersion);
-    SQLPARAMS_PUSH(params, "s", std::string, STATUS_DISCARDED);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::STATUS_DISCARDED);
     return sqlSession->executeUpdate(sql.str(), params);
 }
 
@@ -179,12 +178,12 @@ int DrugDAO::softDeleteBasePrices(const std::string &drugId, const std::string &
     SQLPARAMS_PUSH(params, "s", std::string, operatorId);
     SQLPARAMS_PUSH(params, "dt", std::string, operationTime);
     SQLPARAMS_PUSH(params, "s", std::string, operatorId);
-    SQLPARAMS_PUSH(params, "s", std::string, DRUG_TABLE);
+    SQLPARAMS_PUSH(params, "s", std::string, drugTableName());
     SQLPARAMS_PUSH(params, "s", std::string, drugId);
     SQLPARAMS_PUSH(params, "s", std::string, tenantId);
-    SQLPARAMS_PUSH(params, "s", std::string, PRICE_PURCHASE);
-    SQLPARAMS_PUSH(params, "s", std::string, PRICE_SALE);
-    SQLPARAMS_PUSH(params, "s", std::string, PRICE_LIMIT);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::PRICE_TYPE_PURCHASE);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::PRICE_TYPE_SALE);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::PRICE_TYPE_LIMIT);
     return sqlSession->executeUpdate(sql, params);
 }
 
@@ -201,12 +200,12 @@ std::list<PtrAdmChargeItemDefinitionDO> DrugDAO::selectBasePrices(const std::str
         "WHERE instance_table=? AND instance_id=? AND tenant_id=? AND is_deleted=0 "
         "AND lot_no IS NULL AND price_type_code IN (?,?,?)";
     SqlParams params;
-    SQLPARAMS_PUSH(params, "s", std::string, DRUG_TABLE);
+    SQLPARAMS_PUSH(params, "s", std::string, drugTableName());
     SQLPARAMS_PUSH(params, "s", std::string, drugId);
     SQLPARAMS_PUSH(params, "s", std::string, tenantId);
-    SQLPARAMS_PUSH(params, "s", std::string, PRICE_PURCHASE);
-    SQLPARAMS_PUSH(params, "s", std::string, PRICE_SALE);
-    SQLPARAMS_PUSH(params, "s", std::string, PRICE_LIMIT);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::PRICE_TYPE_PURCHASE);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::PRICE_TYPE_SALE);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::PRICE_TYPE_LIMIT);
     return sqlSession->executeQuery<PtrAdmChargeItemDefinitionDO>(sql, PtrDrugPriceMapper(), params);
 }
 
@@ -243,9 +242,9 @@ PtrDrugReferenceCheck DrugDAO::selectReferenceCheck(const std::list<std::string>
     appendIds(params, ids);
     appendIds(params, ids);
     appendIds(params, ids);
-    SQLPARAMS_PUSH(params, "s", std::string, DRUG_TABLE);
+    SQLPARAMS_PUSH(params, "s", std::string, drugTableName());
     appendIds(params, ids);
-    SQLPARAMS_PUSH(params, "s", std::string, STATUS_ACTIVE);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::STATUS_ACTIVE);
     return sqlSession->executeQueryOne<PtrDrugReferenceCheck>(sql, PtrDrugReferenceCheckMapper(), params);
 }
 
@@ -292,13 +291,13 @@ PtrDrugConditionCheck DrugDAO::selectEnableReadiness(const std::list<std::string
 
     SqlParams params;
     SQLPARAMS_PUSH(params, "i", int, static_cast<int>(ids.size()));
-    SQLPARAMS_PUSH(params, "s", std::string, DRUG_TABLE);
-    SQLPARAMS_PUSH(params, "s", std::string, STATUS_ACTIVE);
-    SQLPARAMS_PUSH(params, "s", std::string, PRICE_SALE);
+    SQLPARAMS_PUSH(params, "s", std::string, drugTableName());
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::STATUS_ACTIVE);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::PRICE_TYPE_SALE);
     SQLPARAMS_PUSH(params, "i", int, static_cast<int>(ids.size()));
     appendIds(params, ids);
     SQLPARAMS_PUSH(params, "s", std::string, tenantId);
-    SQLPARAMS_PUSH(params, "s", std::string, STATUS_INACTIVE);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::STATUS_INACTIVE);
     return sqlSession->executeQueryOne<PtrDrugConditionCheck>(sql, PtrDrugConditionCheckMapper(), params);
 }
 
@@ -316,7 +315,7 @@ PtrDrugConditionCheck DrugDAO::selectActivePricePresence(const std::list<std::st
         placeholders(ids.size()) +
         ") AND tenant_id=? AND is_deleted=0 LIMIT 1) THEN 1 ELSE 0 END";
     SqlParams params;
-    SQLPARAMS_PUSH(params, "s", std::string, DRUG_TABLE);
+    SQLPARAMS_PUSH(params, "s", std::string, drugTableName());
     appendIds(params, ids);
     SQLPARAMS_PUSH(params, "s", std::string, tenantId);
     return sqlSession->executeQueryOne<PtrDrugConditionCheck>(sql, PtrDrugConditionCheckMapper(), params);
@@ -336,12 +335,12 @@ int DrugDAO::softDeleteAllPrices(const std::list<std::string> &ids, const std::s
         "AND instance_id IN (" +
         placeholders(ids.size()) + ") AND tenant_id=? AND is_deleted=0";
     SqlParams params;
-    SQLPARAMS_PUSH(params, "s", std::string, STATUS_INACTIVE);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::STATUS_INACTIVE);
     SQLPARAMS_PUSH(params, "dt", std::string, operationTime);
     SQLPARAMS_PUSH(params, "s", std::string, operatorId);
     SQLPARAMS_PUSH(params, "dt", std::string, operationTime);
     SQLPARAMS_PUSH(params, "s", std::string, operatorId);
-    SQLPARAMS_PUSH(params, "s", std::string, DRUG_TABLE);
+    SQLPARAMS_PUSH(params, "s", std::string, drugTableName());
     appendIds(params, ids);
     SQLPARAMS_PUSH(params, "s", std::string, tenantId);
     return sqlSession->executeUpdate(sql, params);
@@ -363,14 +362,14 @@ int DrugDAO::softDeleteDrugs(const std::list<std::string> &ids, const std::strin
         placeholders(ids.size()) + ") AND tenant_id=? AND is_deleted=0 AND status_enum=?";
     SqlParams params;
     SQLPARAMS_PUSH(params, "b", bool, false);
-    SQLPARAMS_PUSH(params, "s", std::string, STATUS_DISCARDED);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::STATUS_DISCARDED);
     SQLPARAMS_PUSH(params, "dt", std::string, operationTime);
     SQLPARAMS_PUSH(params, "s", std::string, operatorId);
     SQLPARAMS_PUSH(params, "dt", std::string, operationTime);
     SQLPARAMS_PUSH(params, "s", std::string, operatorId);
     appendIds(params, ids);
     SQLPARAMS_PUSH(params, "s", std::string, tenantId);
-    SQLPARAMS_PUSH(params, "s", std::string, STATUS_INACTIVE);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::STATUS_INACTIVE);
     return sqlSession->executeUpdate(sql, params);
 }
 

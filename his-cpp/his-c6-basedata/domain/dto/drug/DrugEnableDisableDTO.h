@@ -21,6 +21,7 @@
 #define _DRUG_ENABLE_DISABLE_DTO_H_
 
 #include "../../GlobalInclude.h"
+#include "../../DrugConstants.h"
 #include "domain/dto/PayloadDTO.h"
 
 #include <algorithm>
@@ -54,7 +55,7 @@ class DrugEnableDisableDTO : public oatpp::DTO
     // 校验目标状态和批次。
     std::string validate() const
     {
-        if (activeFlag == nullptr || !ids || ids->empty() || ids->size() > MAX_BATCH_SIZE)
+        if (activeFlag == nullptr || !ids || ids->empty() || ids->size() > DrugConstants::MAX_BATCH_SIZE)
         {
             return "batch status request invalid.";
         }
@@ -69,7 +70,6 @@ class DrugEnableDisableDTO : public oatpp::DTO
     }
 
   private:
-    static constexpr size_t MAX_BATCH_SIZE = 100;
     static constexpr size_t MAX_ID_LENGTH = 64;
 
     // 校验编号格式。

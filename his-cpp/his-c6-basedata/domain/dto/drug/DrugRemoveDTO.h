@@ -21,6 +21,7 @@
 #define _DRUG_REMOVE_DTO_H_
 
 #include "../../GlobalInclude.h"
+#include "../../DrugConstants.h"
 #include "domain/dto/PayloadDTO.h"
 
 #include <algorithm>
@@ -52,7 +53,7 @@ class DrugRemoveDTO : public oatpp::DTO
     // 校验批次和编号。
     std::string validate() const
     {
-        if (!ids || ids->empty() || ids->size() > MAX_BATCH_SIZE)
+        if (!ids || ids->empty() || ids->size() > DrugConstants::MAX_BATCH_SIZE)
         {
             return "ids invalid.";
         }
@@ -67,7 +68,6 @@ class DrugRemoveDTO : public oatpp::DTO
     }
 
   private:
-    static constexpr size_t MAX_BATCH_SIZE = 100;
     static constexpr size_t MAX_ID_LENGTH = 64;
 
     // 校验编号格式。
