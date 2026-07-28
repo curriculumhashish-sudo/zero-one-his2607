@@ -20,28 +20,28 @@ class InOutboundAddDto : public oatpp::DTO {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.name");
 	}
 
-	// 单价
+	// 入库单价
 	DTO_FIELD(Int32, onemoney);
 	DTO_FIELD_INFO(onemoney) {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.onemoney");
 	}
 
-	// 总金额
+	// 入库总金额
 	DTO_FIELD(Int32, allmoney);
 	DTO_FIELD_INFO(allmoney) {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.allmoney");
 	}
 
-	// 数量
-	DTO_FIELD(Int32, number);
-	DTO_FIELD_INFO(number) {
-		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.number");
+	// 出库单价
+	DTO_FIELD(Int32, outmoney);
+	DTO_FIELD_INFO(outmoney) {
+		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.outmoney");
 	}
 
-	// 厂家
-	DTO_FIELD(String, origin);
-	DTO_FIELD_INFO(origin) {
-		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.origin");
+	// 出库总金额
+	DTO_FIELD(Int32, alloutmoney);
+	DTO_FIELD_INFO(alloutmoney) {
+		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.alloutmoney");
 	}
 
 	// 批号
@@ -62,14 +62,14 @@ public:
 		if (!allmoney || allmoney < 0) {
 			return "allmoney is invalid";
 		}
-		if (!number || number < 0) {
-			return "number is invalid";
-		}
-		if (!origin || origin->empty()) {
-			return "origin is invalid";
-		}
 		if (!batch_number || batch_number->empty()) {
 			return "batch_number is invalid";
+		}
+		if (!outmoney || outmoney < 0) {
+			return "outmoney is invalid";
+		}
+		if (!alloutmoney || outmoney < 0) {
+			return "alloutmoney is invalid";
 		}
 		return "";
 	}

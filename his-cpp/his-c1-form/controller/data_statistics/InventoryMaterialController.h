@@ -5,43 +5,66 @@
 #include "domain/vo/BaseJsonVO.h"
 #include "domain/query/data_statistics/InventoryMaterialQuery.h"
 #include "domain/vo/data_statistics/InventoryMaterialVo.h"
+#include "domain/dto/data_statistics/InventoryMaterialDto.h"
+#include "ApiHelper.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController) //<- Begin Codegen
 
 #define API_TAG ZH_WORDS_GETTER("form.data_statistics.tag")
 
 class InventoryMaterialController : public oatpp::web::server::api::ApiController {
-	// ¶¨ÒåÊÚÈ¨´¦ÀíÆ÷Èë¿Ú
+	// å®šä¹‰æŽˆæƒå¤„ç†å™¨å…¥å£
 	API_ACCESS_DECLARE(InventoryMaterialController);
 
 public:
 	ENDPOINT_INFO(queryObject1) {
-		// ÉèÖÃ½Ó¿Ú±êÌâ
+		// è®¾ç½®æŽ¥å£æ ‡é¢˜
 		API_DEF_ADD_TITLE(ZH_WORDS_GETTER("Litguidyo.form.inoutbound.summary2"));
-		// ¶¨ÒåÄ¬ÈÏÊÚÈ¨²ÎÊý
+		// å®šä¹‰é»˜è®¤æŽˆæƒå‚æ•°
 		API_DEF_ADD_AUTH();
-		// ¶¨ÒåÏàÓ¦²ÎÊý¸ñÊ½
+		// å®šä¹‰ç›¸åº”å‚æ•°æ ¼å¼
 		API_DEF_ADD_RSP_JSON_WRAPPER(InventoryMaterialPageJsonVo);
-		// ¶¨Òå±êÇ©
+		// å®šä¹‰æ ‡ç­¾
 		API_DEF_ADD_TAG(API_TAG);
-		// ¶¨Òå·ÖÒ³²éÑ¯²ÎÊýÃèÊö
+		// å®šä¹‰åˆ†é¡µæŸ¥è¯¢å‚æ•°æè¿°
 		API_DEF_ADD_PAGE_PARAMS();
-		// ¶¨Òå²éÑ¯²ÎÊý
-		API_DEF_ADD_QUERY_PARAMS(String, "name", ZH_WORDS_GETTER("Litguidyo.form.inoutbound.name"), "medicine", false);
-		API_DEF_ADD_QUERY_PARAMS(Int32, "time", ZH_WORDS_GETTER("Litguidyo.form.inoutbound.time"), 0, false);
+		// å®šä¹‰æŸ¥è¯¢å‚æ•°
+		API_DEF_ADD_QUERY_PARAMS(String, "bus_no", ZH_WORDS_GETTER("Litguidyo.form.inoutbound.bus_no"), "medicine", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "time", ZH_WORDS_GETTER("Litguidyo.form.inoutbound.time"), 0, false);
+		API_DEF_ADD_QUERY_PARAMS(Int32, "numbers", ZH_WORDS_GETTER("Litguidyo.form.inoutbound.numbers"), 0, false);
 	}
 
-	// ¶¨Òå²éÑ¯½Ó¿Ú´¦Àíµã
+	// å®šä¹‰æŸ¥è¯¢æŽ¥å£å¤„ç†ç‚¹
 	ENDPOINT(API_M_GET, "/form/data_statistics/InventoryMaterial", queryObject1, QUERIES(QueryParams, queryParams), API_HANDLER_AUTH_PARAME) {
-		// ½âÎö²éÑ¯²ÎÊýµ½²éÑ¯¶ÔÏó
+		// è§£æžæŸ¥è¯¢å‚æ•°åˆ°æŸ¥è¯¢å¯¹è±¡
 		API_HANDLER_QUERY_PARAM(objectQuery1, InventoryMaterialQuery, queryParams);
-		// µ÷ÓÃÖ´ÐÐº¯ÊýÏàÓ¦½á¹û
+		// è°ƒç”¨æ‰§è¡Œå‡½æ•°ç›¸åº”ç»“æžœ
 		API_HANDLER_RESP_VO(execQueryObject1(objectQuery1));
 	}
 
+	ENDPOINT_INFO(queryInventoryMaterialId)
+	{
+		API_DEF_ADD_TITLE(ZH_WORDS_GETTER("Litguidyo.form.query-by-id"));
+		API_DEF_ADD_AUTH();
+		API_DEF_ADD_RSP_JSON_WRAPPER(InventoryMaterialVo);
+		API_DEF_ADD_TAG(API_TAG);
+
+		API_DEF_ADD_QUERY_PARAMS(
+			String,
+			"id",
+			ZH_WORDS_GETTER("Litguidyo.form.id"),
+			"d934050a8bb373e8f8eed0bf7507ec17",
+			true
+		);
+	}
+	// å®šä¹‰Idçš„æŸ¥è¯¢æŽ¥å£
+	API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/form/data_statistics/InventoryMaterial/query-by-id", queryInventoryMaterialId, QUERY(String, id), execQueryById(id));
+
 private:
-	// ·ÖÒ³²éÑ¯Êý¾Ý
+	// åˆ†é¡µæŸ¥è¯¢æ•°æ®
 	InventoryMaterialPageDto::Wrapper execQueryObject1(const InventoryMaterialQuery::Wrapper& query);
+	// Execute the detail query.
+	InventoryMaterialVo::Wrapper execQueryById(const String& id);
 };
 
 #include OATPP_CODEGEN_END(ApiController) //<- End Codegen

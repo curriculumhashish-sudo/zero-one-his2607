@@ -22,10 +22,10 @@ class InventoryMaterialQuery : public PageQuery {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.numbers");
 	}
 
-	// ÅúºÅ
-	DTO_FIELD(String, batch_number);
-	DTO_FIELD_INFO(batch_number) {
-		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.batch_number");
+	// ¿â´æID
+	DTO_FIELD(String, bus_no);
+	DTO_FIELD_INFO(bus_no) {
+		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.bus_no");
 	}
 };
 
