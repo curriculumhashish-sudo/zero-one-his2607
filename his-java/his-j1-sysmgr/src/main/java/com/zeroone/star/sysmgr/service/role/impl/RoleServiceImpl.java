@@ -17,7 +17,7 @@ import com.zeroone.star.project.vo.j1.role.RoleNameVO;
 import com.zeroone.star.project.vo.j1.role.RoleVO;
 import com.zeroone.star.sysmgr.entity.role.RoleDO;
 import com.zeroone.star.sysmgr.exception.RoleStatus;
-import com.zeroone.star.sysmgr.exception.SystemException;
+import com.zeroone.star.project.exception.SystemException;
 import com.zeroone.star.sysmgr.mapper.role.RoleClaimMapper;
 import com.zeroone.star.sysmgr.mapper.role.RoleMapper;
 import com.zeroone.star.sysmgr.service.role.IRoleService;
