@@ -28,6 +28,9 @@ public class DispenseQuery extends PageQuery {
     @Schema(description = "药品关键字 (名称/编码/拼音)", example = "阿托伐他汀")
     private String drugKeyword;
 
+    @Schema(description = "项目类型", example = "西药")
+    private String projectType;
+
     @Schema(description = "患者关键字 (姓名/门诊号)", example = "马化腾")
     private String patientKeyword;
 }
