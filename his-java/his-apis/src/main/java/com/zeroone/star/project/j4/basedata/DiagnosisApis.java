@@ -1,7 +1,6 @@
 package com.zeroone.star.project.j4.basedata;
 
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisDefinitionDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisSaveDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisUpdateDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisIdsDTO;
@@ -13,7 +12,6 @@ import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisDetailVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisListVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisOptionVO;
 
-import java.util.List;
 
 /**
  * <p>

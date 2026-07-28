@@ -1,5 +1,6 @@
 package com.zeroone.star.basedata.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -26,10 +27,11 @@ import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisDetailVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisListVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisOptionVO;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -45,59 +47,154 @@ import java.util.List;
 public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnConditionDefinitionDO> 
     implements IDiagnosisService {
 
-    @Autowired
+    @Resource
     private MsDiagnosisMapper msDiagnosisMapper;
 
-    @Autowired
+    @Resource
     private DiagnosisCatalogMapper diagnosisCatalogMapper;
 
     @Override
     public Page<ClnConditionDefinitionDO> pageQuery(DiagnosisDefinitionQuery query) {
-          
-        return null;
+        Page<ClnConditionDefinitionDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
+        LambdaQueryWrapper<ClnConditionDefinitionDO> wrapper = new LambdaQueryWrapper<>();
+        
+        if (StrUtil.isNotBlank(query.getName())) {
+            wrapper.like(ClnConditionDefinitionDO::getName, query.getName());
+        }
+        if (StrUtil.isNotBlank(query.getPyStr())) {
+            wrapper.like(ClnConditionDefinitionDO::getPyStr, query.getPyStr());
+        }
+        if (StrUtil.isNotBlank(query.getWbStr())) {
+            wrapper.like(ClnConditionDefinitionDO::getWbStr, query.getWbStr());
+        }
+        
+        return baseMapper.selectPage(page, wrapper);
     }
 
     @Override
     public ClnConditionDefinitionDO getById(String id) {
-          
-        return null;
+        return baseMapper.selectById(id);
     }
 
     @Override
     public List<DiagnosisDefinitionDetailVO.ReferenceDetail> getReferences(String id) {
-          
-        return null;
+        // 暂时返回空列表，实际业务中需要实现引用关系查询逻辑
+        return List.of();
     }
 
     @Override
     @Transactional
     public String saveDefinition(DiagnosisSaveDTO dto) {
-          
-        return null;
+        // 1. DTO转实体
+        ClnConditionDefinitionDO entity = new ClnConditionDefinitionDO();
+        BeanUtil.copyProperties(dto, entity);
+        
+        // 生成病情编码（格式：CDF + 8位数字序号）
+        entity.setConditionCode(generateConditionCode());
+        
+        // 设置创建时间
+        entity.setCreatedAt(LocalDateTime.now());
+        entity.setUpdatedAt(LocalDateTime.now());
+        
+        // 2. 保存到数据库
+        baseMapper.insert(entity);
+        
+        // 3. 返回新增记录ID
+        return entity.getId();
+    }
+    
+    /**
+     * 生成病情编码，格式为 CDF + 8位数字
+     */
+    private String generateConditionCode() {
+        // 简单实现：使用当前时间戳的一部分作为唯一编码
+        // 实际项目中可能需要更复杂的逻辑来确保全局唯一性
+        return "CDF" + System.currentTimeMillis() % 100000000L;
     }
 
     @Override
     @Transactional
     public void modifyDefinition(DiagnosisUpdateDTO dto) {
-        
+        // 1. 检查记录是否存在
+        ClnConditionDefinitionDO existing = baseMapper.selectById(dto.getId());
+        if (existing == null) {
+            throw new RuntimeException("诊断记录不存在");
+        }
+        // 2. DTO转实体
+        ClnConditionDefinitionDO entity = new ClnConditionDefinitionDO();
+        BeanUtil.copyProperties(dto, entity);
+        // 3. 保留系统字段
+        entity.setCreatedAt(existing.getCreatedAt());
+        entity.setCreatedBy(existing.getCreatedBy());
+        entity.setIsDeleted(existing.getIsDeleted());
+        entity.setDeletedAt(existing.getDeletedAt());
+        entity.setDeletedBy(existing.getDeletedBy());
+        entity.setVersion(existing.getVersion());
+        entity.setConditionCode(existing.getConditionCode()); // 保留原编码
+        entity.setTenantId(existing.getTenantId()); // 保留租户ID
+        entity.setUpdatedAt(LocalDateTime.now()); // 更新时间
+        // 4. 更新数据库
+        baseMapper.updateById(entity);
     }
 
     @Override
     @Transactional
     public void modifyBatchStatus(DiagnosisStatusDTO dto) {
+        // 1. 检查ID列表是否为空
+        if (dto.getIds() == null || dto.getIds().isEmpty()) {
+            throw new IllegalArgumentException("诊断ID列表不能为空");
+        }
+        // 2. 检查状态值是否有效
+        if (!"ACTIVE".equals(dto.getStatus()) && !"INACTIVE".equals(dto.getStatus())) {
+            throw new IllegalArgumentException("状态值必须为ACTIVE或INACTIVE");
+        }
+        // 3. 批量更新状态
+        LambdaUpdateWrapper<ClnConditionDefinitionDO> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.in(ClnConditionDefinitionDO::getId, dto.getIds())
+                .set(ClnConditionDefinitionDO::getStatusEnum, dto.getStatus());
+        int rowsAffected = baseMapper.update(null, updateWrapper);
         
+        if (rowsAffected != dto.getIds().size()) {
+            throw new RuntimeException("部分诊断记录更新失败");
+        }
     }
 
     @Override
     @Transactional
     public void removeBatch(DiagnosisIdsDTO dto) {
-        
+        // 1. 检查ID列表是否为空
+        if (dto.getIds() == null || dto.getIds().isEmpty()) {
+            throw new IllegalArgumentException("诊断ID列表不能为空");
+        }
+        // 2. 逻辑删除（实体有@TableLogic注解，会自动转为update操作）
+        List<String> ids = dto.getIds();
+        for (String id : ids) {
+            // 检查记录是否存在
+            ClnConditionDefinitionDO existing = baseMapper.selectById(id);
+            if (existing == null) {
+                throw new RuntimeException("诊断记录不存在，ID: " + id);
+            }
+            // 执行逻辑删除
+            baseMapper.deleteById(id);
+        }
     }
 
     @Override
     public Page<ClnConditionDefinitionDO> getSelectList(DiagnosisDefinitionQuery query) {
+        Page<ClnConditionDefinitionDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
+        LambdaQueryWrapper<ClnConditionDefinitionDO> wrapper = new LambdaQueryWrapper<>();
         
-        return null;
+        if (StrUtil.isNotBlank(query.getName())) {
+            wrapper.like(ClnConditionDefinitionDO::getName, query.getName());
+        }
+        if (StrUtil.isNotBlank(query.getPyStr())) {
+            wrapper.like(ClnConditionDefinitionDO::getPyStr, query.getPyStr());
+        }
+        if (StrUtil.isNotBlank(query.getWbStr())) {
+            wrapper.like(ClnConditionDefinitionDO::getWbStr, query.getWbStr());
+        }
+        
+        return baseMapper.selectPage(page, wrapper);
     }
 
     @Override
@@ -158,7 +255,5 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
         }
         return wrapper;
     }
-
-
 
 }
