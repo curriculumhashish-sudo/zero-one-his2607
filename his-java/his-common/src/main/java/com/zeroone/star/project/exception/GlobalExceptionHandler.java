@@ -14,7 +14,9 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.StreamSupport;
 
 /**
@@ -33,6 +35,20 @@ public class GlobalExceptionHandler {
      * 响应数据包装器
      */
     private EhResultWrapper wrapper;
+
+    /**
+     * 业务异常处理（SystemException），返回模块自定义业务错误码
+     * @param e 业务异常对象
+     * @return 包含业务错误码的响应数据
+     */
+    @ExceptionHandler(value = SystemException.class)
+    public Object systemExceptionHandler(SystemException e) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("code", e.getCode());
+        result.put("message", e.getMessage());
+        result.put("data", null);
+        return result;
+    }
 
     /**
      * 系统通用异常处理

@@ -5,7 +5,7 @@ import com.zeroone.star.project.query.j1.login.DeptQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j1.login.DepartmentVO;
 import com.zeroone.star.project.vo.j1.login.DeptBindResultVO;
-import com.zeroone.star.sysmgr.service.login.DeptService;
+import com.zeroone.star.sysmgr.service.dept.DeptService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -33,6 +33,6 @@ public class DeptController {
     @PostMapping("/select")
     @Operation(summary = "提交科室选择", description = "绑定用户当前科室")
     public JsonVO<DeptBindResultVO> selectDept(@Valid @RequestBody DeptSelectDTO dto) {
-        return JsonVO.success(null);
+        return JsonVO.success(deptService.selectDept(dto));
     }
 }

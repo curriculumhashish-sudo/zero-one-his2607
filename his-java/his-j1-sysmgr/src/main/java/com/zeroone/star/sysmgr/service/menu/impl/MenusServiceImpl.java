@@ -15,7 +15,7 @@ import com.zeroone.star.project.dto.menu.MenuDeleteDTO;
 import com.zeroone.star.sysmgr.entity.menu.MenuDO;
 import com.zeroone.star.project.vo.menu.MenuVO;
 import com.zeroone.star.sysmgr.exception.MenuStatus;
-import com.zeroone.star.sysmgr.exception.SystemException;
+import com.zeroone.star.project.exception.SystemException;
 import com.zeroone.star.sysmgr.mapper.menu.MenusMapper;
 import com.zeroone.star.sysmgr.service.menu.MenusService;
 import lombok.RequiredArgsConstructor;
@@ -62,12 +62,9 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
         // 校验菜单是否已经存在
         LambdaQueryWrapper<MenuDO> wrapper = new LambdaQueryWrapper<>();
         // 最终sql： WHERE path = ? AND （code = ? OR name = ? OR display_name = ?）
-        wrapper.eq(MenuDO::getPath, menuDto.getPath())
-                .and(
-                        w -> w.eq(MenuDO::getCode, menuDto.getCode()).or()
-                                .eq(MenuDO::getName, menuDto.getName()).or()
-                                .eq(MenuDO::getDisplayName, menuDto.getDisplayName())
-                );
+        wrapper.eq(MenuDO::getCode, menuDto.getCode()).or()
+                .eq(MenuDO::getName, menuDto.getName()).or()
+                .eq(MenuDO::getDisplayName, menuDto.getDisplayName());
         if (this.baseMapper.selectCount(wrapper) > 0) {
             throw new SystemException(MenuStatus.MENU_ALREADY_IS_EXIST);
         }
@@ -107,11 +104,12 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, MenuDO> implement
 
         // 2. 校验路径、编码、名称冲突，排除自身菜单
         LambdaQueryWrapper<MenuDO> repeatWrapper = new LambdaQueryWrapper<>();
-        repeatWrapper.eq(MenuDO::getPath, editDTO.getPath())
-                .and(w -> w.eq(MenuDO::getCode, editDTO.getCode())
-                        .or().eq(MenuDO::getName, editDTO.getName())
-                        .or().eq(MenuDO::getDisplayName, editDTO.getDisplayName()))
-                .ne(MenuDO::getId, editDTO.getId());
+        repeatWrapper.ne(MenuDO::getId, editDTO.getId())
+                .and(w -> w
+                        .eq(MenuDO::getCode, editDTO.getCode()).or()
+                        .eq(MenuDO::getName, editDTO.getName()).or()
+                        .eq(MenuDO::getDisplayName, editDTO.getDisplayName())
+                );
         if (baseMapper.selectCount(repeatWrapper) > 0) {
             throw new SystemException(MenuStatus.MENU_ALREADY_IS_EXIST);
         }
