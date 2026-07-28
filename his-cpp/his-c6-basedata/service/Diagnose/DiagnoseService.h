@@ -4,37 +4,35 @@
 
 #include <string>
 #include "../../domain/dto/Diagnose/DiagnoseDTO.h"
-//<<<<<<< HEAD
 #include "../../domain/dto/Diagnose/DiagnoseSelectPageDTO.h"
 #include "../../domain/query/Diagnose/DiagnoseSelectQuery.h"
-//=======
-#include "dto/diagnose/DiagnoseEditDTO.h"
-#include "dto/PayloadDTO.hpp"
+//#include "dto/Diagnose/DiagnoseEditDTO.h"
+#include "domain/dto/PayloadDTO.h"
 
 class DiagnoseService
 {
 public:
-//<<<<<<< HEAD
-	DiagnoseSelectPageDTO::Wrapper listSelectableDiagnoses(
-		const DiagnoseSelectQuery::Wrapper& query);
-//=======
-	// 单条新增诊断记录
+	//这个可能是你写的，他写的带鉴权了，暂时先注释你的
+	/*DiagnoseSelectPageDTO::Wrapper listSelectableDiagnoses(
+		const DiagnoseSelectQuery::Wrapper& query);*/
+
+	DiagnoseSelectPageDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
+		const DiagnoseSelectQuery::Wrapper& query,
+		const PayloadDTO& payload);
+	//新增
 	std::string saveData(const DiagnoseAddDTO::Wrapper& dto);
-
-	// 根据ID修改诊断记录
+	//更新
 	bool updateData(const DiagnoseDTO::Wrapper& dto);
-
-	// 逻辑批量删除（停用）诊断记录
+	//逻辑批量删不带鉴权
 	bool removeData(const oatpp::List<oatpp::String>& ids);
-//<<<<<<< HEAD
-//	bool removeOne(const std::string& id);
+	//物理删除单条（前端有，不知道要不要，先写上）
+	bool removeOne(const std::string& id);
+	//停启用
 	bool batchChangeStatus(const DiagnoseBatchStatusDTO::Wrapper& dto, oatpp::String status);
+	//带鉴权逻辑批量删除
 	bool execRemoveData(const DiagnoseRemoveDTO::Wrapper& dto);
-//=======
-//逻辑单条删除
-	bool removeOne(const string& ids);
-	//批量停用和启用
-	bool batchChangeStatus(const oatpp::List<oatpp::String>& ids, oatpp::Int32 status);
+	//物理批量删除
+	bool DiagnoseService::RemoveData(const oatpp::List<oatpp::String>& ids);
 
 };
 

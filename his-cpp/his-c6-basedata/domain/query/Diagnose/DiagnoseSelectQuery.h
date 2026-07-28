@@ -25,22 +25,17 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-<<<<<<< HEAD:his-cpp/his-c6-basedata/domain/query/Diagnose/DiagnoseSelectQuery.h
 /**
  * Query conditions for the paged diagnose picker.
  */
 class DiagnoseSelectQuery : public PageQuery
-=======
 /** 选择诊疗分页查询条件。 */
-class DiagnosisSelectQuery : public PageQuery
->>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/domain/query/Diagnosis/DiagnosisSelectQuery.h
+//class DiagnosisSelectQuery : public PageQuery
 {
 	DTO_INIT(DiagnoseSelectQuery, PageQuery);
 
 	API_DTO_FIELD_REQUIRE(String, keyword, ZH_WORDS_GETTER("diagnose.query.field.keyword"), false);
-<<<<<<< HEAD:his-cpp/his-c6-basedata/domain/query/Diagnose/DiagnoseSelectQuery.h
-	API_DTO_FIELD_REQUIRE(String, diagnoseKindCode, ZH_WORDS_GETTER("diagnose.query.field.diagnose_kind_code"), false);
-=======
+	//API_DTO_FIELD_REQUIRE(String, diagnoseKindCode, ZH_WORDS_GETTER("diagnose.query.field.diagnose_kind_code"), false);
 	API_DTO_FIELD_REQUIRE(String, diagnosisKindCode, ZH_WORDS_GETTER("diagnose.query.field.diagnosis_kind_code"), false);
 
 public:
@@ -136,7 +131,6 @@ private:
 		}
 		return true;
 	}
->>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/domain/query/Diagnosis/DiagnosisSelectQuery.h
 };
 
 #include OATPP_CODEGEN_END(DTO)

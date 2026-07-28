@@ -24,15 +24,12 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-<<<<<<< HEAD:his-cpp/his-c6-basedata/domain/dto/Diagnose/DiagnoseSelectDTO.h
 /**
  * One selectable diagnose item returned by the diagnose picker.
  */
 class DiagnoseSelectDTO : public oatpp::DTO
-=======
 /** 可选诊疗列表项。 */
-class DiagnosisSelectDTO : public oatpp::DTO
->>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/domain/dto/Diagnosis/DiagnosisSelectDTO.h
+//class DiagnosisSelectDTO : public oatpp::DTO
 {
 	DTO_INIT(DiagnoseSelectDTO, DTO);
 
@@ -44,21 +41,21 @@ class DiagnosisSelectDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("diagnose.field.select.condition_definition_name"), true, u8"\u611f\u5192");
 	API_DTO_FIELD(String, pyStr, ZH_WORDS_GETTER("diagnose.field.select.py_str"), false, "GM");
 	API_DTO_FIELD(String, wbStr, ZH_WORDS_GETTER("diagnose.field.select.wb_str"), false, "DJ");
-<<<<<<< HEAD:his-cpp/his-c6-basedata/domain/dto/Diagnose/DiagnoseSelectDTO.h
+//<<<<<<< HEAD:his-cpp/his-c6-basedata/domain/dto/Diagnose/DiagnoseSelectDTO.h
 	API_DTO_FIELD(String, diagnoseKind, ZH_WORDS_GETTER("diagnose.field.select.diagnose_kind"), true, "WESTERN");
 	API_DTO_FIELD(String, diagnoseKindText, ZH_WORDS_GETTER("diagnose.field.select.diagnose_kind_text"), true, u8"\u897f\u533b");
 	API_DTO_FIELD(Int32, sourceEnum, ZH_WORDS_GETTER("diagnose.field.select.source_enum"), false, 1);
 	API_DTO_FIELD(String, sourceEnumText, ZH_WORDS_GETTER("diagnose.field.select.source_enum_text"), true, u8"\u75be\u75c5\u4e0e\u8bca\u65ad");
-=======
-	API_DTO_FIELD(String, diagnosisKind,
-		ZH_WORDS_GETTER("diagnose.field.select.diagnosis_kind"), true, "WESTERN");
-	API_DTO_FIELD(String, diagnosisKindText,
-		ZH_WORDS_GETTER("diagnose.field.select.diagnosis_kind_text"), true, u8"\u897f\u533b");
-	API_DTO_FIELD(Int32, sourceEnum,
-		ZH_WORDS_GETTER("diagnose.field.select.source_enum"), false, 1);
-	API_DTO_FIELD(String, sourceEnumText,
-		ZH_WORDS_GETTER("diagnose.field.select.source_enum_text"), false, u8"\u666e\u901a\u8bca\u65ad");
->>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/domain/dto/Diagnosis/DiagnosisSelectDTO.h
+//=======
+//	API_DTO_FIELD(String, diagnosisKind,
+//		ZH_WORDS_GETTER("diagnose.field.select.diagnosis_kind"), true, "WESTERN");
+//	API_DTO_FIELD(String, diagnosisKindText,
+//		ZH_WORDS_GETTER("diagnose.field.select.diagnosis_kind_text"), true, u8"\u897f\u533b");
+//	API_DTO_FIELD(Int32, sourceEnum,
+//		ZH_WORDS_GETTER("diagnose.field.select.source_enum"), false, 1);
+//	API_DTO_FIELD(String, sourceEnumText,
+//		ZH_WORDS_GETTER("diagnose.field.select.source_enum_text"), false, u8"\u666e\u901a\u8bca\u65ad");
+//>>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/domain/dto/Diagnosis/DiagnosisSelectDTO.h
 	API_DTO_FIELD(Int32, ybFlag, ZH_WORDS_GETTER("diagnose.field.select.yb_flag"), true, 0);
 	API_DTO_FIELD(String, ybFlagText,
 		ZH_WORDS_GETTER("diagnose.field.select.yb_flag_text"), true, u8"\u5426");

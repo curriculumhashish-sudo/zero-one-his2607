@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -19,7 +19,7 @@
 */
 #ifndef _DIAGNOSISCONTROLLER_H_
 #define _DIAGNOSISCONTROLLER_H_
-#include "GlobalInclude.h"
+//#include "GlobalInclude.h"
 
 
 // Query
@@ -27,7 +27,7 @@
 #include "domain/query/Diagnose/DiagnoseDetailQuery.h"
 #include "domain/query/Diagnose/DiagnoseSelectQuery.h"
 //DTO
-#include "domain/dto/Diagnose/DiagnosePageDTO.h"
+//#include "../../domain/dto/Diagnose/DiagnosePageDTO.h"
 #include "domain/dto/Diagnose/DiagnoseDetailDTO.h"
 #include "domain/dto/Diagnose/DiagnoseSelectDTO.h"
 //Json
@@ -50,55 +50,65 @@ class DiagnoseController : public oatpp::web::server::api::ApiController
 
 public:
 	//1. diagnose / select - page
-	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("diagnose.select.summary"), listSelectDiagnose, DiagnoseSelectQuery, DiagnoseSelectJsonVO::Wrapper, API_TAG);
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/diagnose/select-page", listSelectDiagnose, DiagnoseSelectQuery, executeListSelectDiagnose(query));
+	//API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("diagnose.select.summary"), listSelectDiagnose, DiagnoseSelectQuery, DiagnoseSelectJsonVO::Wrapper, API_TAG);
+	//API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/diagnose/select-page", listSelectDiagnose, DiagnoseSelectQuery, executeListSelectDiagnose(query));
 	
 	// 2. diagnose/page
-	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("diagnose.page.summary"), listDiagnose, DiagnosePageQuery, DiagnosePageJsonVO::Wrapper, API_TAG);
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/diagnose/page", listDiagnose, DiagnosePageQuery, executeListDiagnose(query));
+	//API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("diagnose.page.summary"), listDiagnose, DiagnosePageQuery, DiagnosePageJsonVO::Wrapper, API_TAG);
+	//API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/diagnose/page", listDiagnose, DiagnosePageQuery, executeListDiagnose(query));
    
 	// 3. diagnose/detail
-	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.detail.summary"), getDiagnoseDetail, DiagnoseDetailJsonVO::Wrapper, API_TAG,
-		API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("diagnose.field.id"), "ae65c714d48d4f34b52479f5482c0edd", true);
-    );
-	API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/diagnose/detail", getDiagnoseDetail, QUERY(String, id), executeGetDiagnoseDetail(id));
+	//API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.detail.summary"), getDiagnoseDetail, DiagnoseDetailJsonVO::Wrapper, API_TAG,
+	//	API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("diagnose.field.id"), "ae65c714d48d4f34b52479f5482c0edd", true);
+ //   );
+	//API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/diagnose/detail", getDiagnoseDetail, QUERY(String, id), executeGetDiagnoseDetail(id));
 
-    // ¶¨ÒåĞÂÔöÕï¶Ï±í½Ó¿ÚÃèÊö
+    // å®šä¹‰æ–°å¢è¯Šæ–­è¡¨æ¥å£æè¿°
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.post.summary"), addDiagnose, StringJsonVO::Wrapper, API_TAG);
-	// ¶¨ÒåĞÂÔöÕï¶Ï±í½Ó¿Ú´¦Àí
+	// å®šä¹‰æ–°å¢è¯Šæ–­è¡¨æ¥å£å¤„ç†
 	API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/diagnose", addDiagnose, BODY_DTO(DiagnoseAddDTO::Wrapper, dto), execAddDiagnose(dto, authObject->getPayload()));
 
-	//  ¶¨ÒåĞŞ¸Ä½Ó¿ÚÃèÊö
+	//  å®šä¹‰ä¿®æ”¹æ¥å£æè¿°
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.put.summary"), modifyDiagnose, StringJsonVO::Wrapper, API_TAG);
-	// ¶¨ÒåĞŞ¸Ä½Ó¿Ú´¦Àí
+	// å®šä¹‰ä¿®æ”¹æ¥å£å¤„ç†
 	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/diagnose", modifyDiagnose, BODY_DTO(DiagnoseDTO::Wrapper, dto), execModifyDiagnose(dto, authObject->getPayload()));
 
-	//  ¶¨ÒåÉ¾³ı½Ó¿ÚÃèÊö
-	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.delete.summary"), removeDiagnose, ListJsonVO<String>::Wrapper, API_TAG);
-	//  ¶¨ÒåÉ¾³ı½Ó¿Ú´¦Àí
-	API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/diagnose", removeDiagnose, BODY_DTO(List<String>, ids), execRemoveDiagnose(ids));
+	//é€»è¾‘æ‰¹é‡åˆ ï¼Œå¸¦é‰´æƒ
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.delete.summarylogicAuth"),removeDiagnosis,DiagnoseRemoveJsonVO::Wrapper,API_TAG);
+	API_HANDLER_ENDPOINT_AUTH(API_M_DEL,"/diagnosis",removeDiagnosis,BODY_DTO(DiagnoseRemoveDTO::Wrapper, dto),execRemoveDiagnosis(dto, authObject->getPayload()));
 
-	// ¶¨ÒåÅúÁ¿ÆôÓÃ/Í£ÓÃ½Ó¿ÚÃèÊö
+	//ç‰©ç†æ‰¹é‡åˆ é™¤ï¼ˆçœŸå®åˆ é™¤ï¼‰
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.delete.summary1"),RemoveDiagnose,ListJsonVO<String>::Wrapper,API_TAG);
+	API_HANDLER_ENDPOINT_AUTH(API_M_DEL,"/diagnose",RemoveDiagnose,BODY_DTO(List<String>, ids),execRemoveDiagnose(ids));
+	
+	//é€»è¾‘æ‰¹é‡åˆ ï¼ˆä¸å¸¦é‰´æƒï¼‰
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.delete.summarylogic"),removeDiagnose,ListJsonVO<String>::Wrapper,API_TAG);
+	API_HANDLER_ENDPOINT_AUTH(API_M_DEL,"/diagnose",removeDiagnose,BODY_DTO(List<String>, ids),execremoveDiagnose(ids));
+
+
+	// å®šä¹‰æ‰¹é‡å¯ç”¨/åœç”¨æ¥å£æè¿°
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.field.diag.status"), batchChangeDiagnoseStatus, StringJsonVO::Wrapper, API_TAG);
-	// ¶¨ÒåÅúÁ¿ÆôÓÃ/Í£ÓÃ½Ó¿Ú´¦Àí
+	// å®šä¹‰æ‰¹é‡å¯ç”¨/åœç”¨æ¥å£å¤„ç†
 	API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/diagnose/batch/status", batchChangeDiagnoseStatus, BODY_DTO(DiagnoseBatchStatusDTO::Wrapper, dto), execBatchChangeDiagnoseStatus(dto, authObject->getPayload()));
 private:
+
+	//å…„å¼Ÿè¿™é‡Œçš„éƒ¨åˆ†æ˜¯é”™çš„ï¼Œä½ çš„VOå±‚æ²¡æœ‰å¯¹åº”çš„ç±»å‹ï¼Œæ‰€ä»¥çˆ†çº¢ï¼Œæˆ‘å…ˆç»™ä½ æ³¨é‡Šäº†ï¼Œä½ ååºçœ‹ä¸€ä¸‹è¿™éƒ¨åˆ†çš„VOæ˜¯å“ªä¸ª
 	// select
-	DiagnoseSelectJsonVO::Wrapper executeListSelectDiagnose(const DiagnoseSelectQuery::Wrapper& query);
+	//DiagnoseSelectJsonVO::Wrapper executeListSelectDiagnose(const DiagnoseSelectQuery::Wrapper& query);
 	// 2. page
-	DiagnosePageJsonVO::Wrapper executeListDiagnose(const DiagnosePageQuery::Wrapper& query);
+	//DiagnosePageJsonVO::Wrapper executeListDiagnose(const DiagnosePageQuery::Wrapper& query);
 	// 3. detail
-	DiagnoseDetailJsonVO::Wrapper executeGetDiagnoseDetail(const String& id);
-	// ĞÂÔöÕï¶Ï±íÊı¾İ
+	//DiagnoseDetailJsonVO::Wrapper executeGetDiagnoseDetail(const String& id);
+
 	StringJsonVO::Wrapper execAddDiagnose(const DiagnoseAddDTO::Wrapper& dto, const PayloadDTO& payload);
-	//  ĞÂÔöÕï¶ÏÄ¿Â¼£¨·ÖÀà£©Êı¾İ
-	//StringJsonVO::Wrapper execAddDiagcategory(const DiagnoseAddDTO::Wrapper& dto, const PayloadDTO& payload);
-	// ÑİÊ¾ĞŞ¸ÄÊı¾İ
 	StringJsonVO::Wrapper execModifyDiagnose(const DiagnoseDTO::Wrapper& dto, const PayloadDTO& payload);
-	// ÑİÊ¾É¾³ıÊı¾İ
+	//ç‰©ç†æ‰¹é‡åˆ é™¤
 	ListJsonVO<String>::Wrapper execRemoveDiagnose(const List<String>& ids);
-	//ÑİÊ¾ÅúÁ¿ÆôÓÃ/Í£ÓÃ
 	StringJsonVO::Wrapper execBatchChangeDiagnoseStatus(const DiagnoseBatchStatusDTO::Wrapper& dto, const PayloadDTO& payload);
+	//é€»è¾‘åˆ é™¤å¸¦é‰´æƒ
+	DiagnoseRemoveJsonVO::Wrapper execRemoveDiagnosis(const DiagnoseRemoveDTO::Wrapper& dto, const PayloadDTO& payload);
+	//é€»è¾‘åˆ é™¤å¸¦é‰´æƒ
+	ListJsonVO<String>::Wrapper execremoveDiagnose(const List<String>& ids);
 };
 
 #undef API_TAG

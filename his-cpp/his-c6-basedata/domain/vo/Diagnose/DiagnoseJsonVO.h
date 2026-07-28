@@ -1,4 +1,4 @@
-#ifndef _DIAGNOSIS_JSON_VO_H_
+﻿#ifndef _DIAGNOSIS_JSON_VO_H_
 #define _DIAGNOSIS_JSON_VO_H_
 
 #include "../../GlobalInclude.h"

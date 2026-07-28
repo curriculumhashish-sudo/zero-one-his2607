@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -8,7 +8,7 @@
  you may not use this file except in compliance with the License.
  You may obtaDiagnoseAddDTOin a copy of the License at
 
-      https://www.apache.org/licenses/LICENSE-2.0
+	  https://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,27 +24,27 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 
-//Ôö¼ÓÕï¶ÏÌõÄ¿
+//å¢åŠ è¯Šæ–­æ¡ç›®
 class DiagnoseAddDTO : public oatpp::DTO
 {
 	DTO_INIT(DiagnoseAddDTO, DTO);
 
-	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("diagnose.field.diag.name"), true);//Õï¶ÏÃû³Æ£¨·Ç¿Õ£© name
-	API_DTO_FIELD_DEFAULT(String, diagType, ZH_WORDS_GETTER("diagnose.field.diag.diag_type"));//Õï¶ÏÀàĞÍÂë   type_code
-	API_DTO_FIELD_DEFAULT(String, chronicCode, ZH_WORDS_GETTER("diagnose.field.diag.chronic_code"));//Õï¶Ï±àÂë/ÌØÂı²¡±àÂë disease_code
-	API_DTO_FIELD_DEFAULT(String, medicalInsuranceCode, ZH_WORDS_GETTER("diagnose.field.diag.medical_insurance_code"));//Ò½±£±àÂë yb_no
-	API_DTO_FIELD_DEFAULT(String, status, ZH_WORDS_GETTER("diagnose.field.diag.status"));//×´Ì¬Ã¶¾ÙÖµ¡¾·Ç¿Õ¡¿£¨ACTIVE/STOP£©  status_enum
-	API_DTO_FIELD_DEFAULT(Int32, medicalInsuranceTag, ZH_WORDS_GETTER("diagnose.field.diag.medical_insurance_tag"));//Ò½±£±êÇ© yb_flag
-	API_DTO_FIELD_DEFAULT(Int32, medicalInsuranceMatch, ZH_WORDS_GETTER("diagnose.field.diag.medical_insurance_match"));//Ò½±£¶ÔÂë yb_match_flag
-	API_DTO_FIELD_DEFAULT(String, pinyinCode, ZH_WORDS_GETTER("diagnose.field.diag.pinyin_code"));//Æ´ÒôÖú¼Ç  py_str
-	API_DTO_FIELD_DEFAULT(String, wubiCode, ZH_WORDS_GETTER("diagnose.field.diag.wubi_code"));//Îå±ÊÖú¼Ç wb_str
-	API_DTO_FIELD_DEFAULT(Int32, isDelete, ZH_WORDS_GETTER("diagnose.field.diag.is_delete"));//¡¾·Ç¿Õ¡¿Âß¼­É¾³ı is_deleted
-	API_DTO_FIELD_DEFAULT(String, remark, ZH_WORDS_GETTER("diagnose.field.diag.remark"));//ÃèÊöÏêÇé description
-	API_DTO_FIELD_REQUIRE(String, catName, ZH_WORDS_GETTER("diagnose.field.category.cat_name"), true);//Õï¶ÏÄ¿Â¼/²¡Çé±àÂë£¨·Ç¿Õ£©condition_code
-	API_DTO_FIELD_REQUIRE(String, tenantId, ZH_WORDS_GETTER("diagnose.field.diag.tenant_id"), true);//×â»§±êÊ¶ tenant_id
-	API_DTO_FIELD_REQUIRE(String, source_enum, ZH_WORDS_GETTER("diagnose.field.diag.source_enum"), true);//À´Ô´Ã¶¾ÙÖµ source_enum
+	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("diagnose.field.diag.name"), true);//è¯Šæ–­åç§°ï¼ˆéç©ºï¼‰ name
+	API_DTO_FIELD_DEFAULT(String, diagType, ZH_WORDS_GETTER("diagnose.field.diag.diag_type"));//è¯Šæ–­ç±»å‹ç    type_code
+	API_DTO_FIELD_DEFAULT(String, chronicCode, ZH_WORDS_GETTER("diagnose.field.diag.chronic_code"));//è¯Šæ–­ç¼–ç /ç‰¹æ…¢ç—…ç¼–ç  disease_code
+	API_DTO_FIELD_DEFAULT(String, medicalInsuranceCode, ZH_WORDS_GETTER("diagnose.field.diag.medical_insurance_code"));//åŒ»ä¿ç¼–ç  yb_no
+	API_DTO_FIELD_DEFAULT(String, status, ZH_WORDS_GETTER("diagnose.field.diag.status"));//çŠ¶æ€æšä¸¾å€¼ã€éç©ºã€‘ï¼ˆACTIVE/STOPï¼‰  status_enum
+	API_DTO_FIELD_DEFAULT(Int32, medicalInsuranceTag, ZH_WORDS_GETTER("diagnose.field.diag.medical_insurance_tag"));//åŒ»ä¿æ ‡ç­¾ yb_flag
+	API_DTO_FIELD_DEFAULT(Int32, medicalInsuranceMatch, ZH_WORDS_GETTER("diagnose.field.diag.medical_insurance_match"));//åŒ»ä¿å¯¹ç  yb_match_flag
+	API_DTO_FIELD_DEFAULT(String, pinyinCode, ZH_WORDS_GETTER("diagnose.field.diag.pinyin_code"));//æ‹¼éŸ³åŠ©è®°  py_str
+	API_DTO_FIELD_DEFAULT(String, wubiCode, ZH_WORDS_GETTER("diagnose.field.diag.wubi_code"));//äº”ç¬”åŠ©è®° wb_str
+	API_DTO_FIELD_DEFAULT(Int32, isDelete, ZH_WORDS_GETTER("diagnose.field.diag.is_delete"));//ã€éç©ºã€‘é€»è¾‘åˆ é™¤ is_deleted
+	API_DTO_FIELD_DEFAULT(String, remark, ZH_WORDS_GETTER("diagnose.field.diag.remark"));//æè¿°è¯¦æƒ… description
+	API_DTO_FIELD_REQUIRE(String, catName, ZH_WORDS_GETTER("diagnose.field.category.cat_name"), true);//è¯Šæ–­ç›®å½•/ç—…æƒ…ç¼–ç ï¼ˆéç©ºï¼‰condition_code
+	API_DTO_FIELD_REQUIRE(String, tenantId, ZH_WORDS_GETTER("diagnose.field.diag.tenant_id"), true);//ç§Ÿæˆ·æ ‡è¯† tenant_id
+	API_DTO_FIELD_REQUIRE(String, source_enum, ZH_WORDS_GETTER("diagnose.field.diag.source_enum"), true);//æ¥æºæšä¸¾å€¼ source_enum
 
-	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);//ÇëÇóÍ·tokenÖ¸Õë
+	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);//è¯·æ±‚å¤´tokenæŒ‡é’ˆ
 
 public:
 	std::string validate()
@@ -64,7 +64,7 @@ public:
 			&& *diagType != "3"//chinese_main_symptom_diagnosis
 			)
 		{
-			return "The diagnose type is invalid";
+			return "The diagnosis type is invalid";
 		}
 
 		if (!status->empty() && *status != "ACTIVE" && *status != "STOP")
@@ -75,7 +75,7 @@ public:
 		{
 			return "The medical insurance flag only allows 0 or 1";
 		}
-		if (medicalInsuranceMatch &&*medicalInsuranceMatch != 0 && *medicalInsuranceMatch != 1)
+		if (medicalInsuranceMatch && *medicalInsuranceMatch != 0 && *medicalInsuranceMatch != 1)
 		{
 			return "The medical insurance match flag only allows 0 or 1";
 		}
@@ -88,23 +88,23 @@ public:
 	}
 };
 
-//ĞŞ¸ÄÕï¶ÏÌõÄ¿
+//ä¿®æ”¹è¯Šæ–­æ¡ç›®
 class DiagnoseDTO : public DiagnoseAddDTO
 {
 	DTO_INIT(DiagnoseDTO, DiagnoseAddDTO);
 
-	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("diagnose.field.diag.id"), true);//Ö÷¼üid  id
-	API_DTO_FIELD_REQUIRE(Int32, version, ZH_WORDS_GETTER("diagnose.field.diag.version"), true);//À´Ô´Ã¶¾ÙÖµ source_enum
+	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("diagnose.field.diag.id"), true);//ä¸»é”®id  id
+	API_DTO_FIELD_REQUIRE(Int32, version, ZH_WORDS_GETTER("diagnose.field.diag.version"), true);//æ¥æºæšä¸¾å€¼ source_enum
 
 };
 
-//Í£/ÆôÓÃÕï¶ÏÌõÄ¿
+//åœ/å¯ç”¨è¯Šæ–­æ¡ç›®
 class DiagnoseBatchDTO : public oatpp::DTO
 {
 	DTO_INIT(DiagnoseBatchDTO, DTO);
 
-	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("diagnose.field.diag.id_list"), true);//ids¿ÉÒÔ¿´×÷Ö¸Õë
-	API_DTO_FIELD_REQUIRE(Int32, version, ZH_WORDS_GETTER("diagnose.field.diag.version"), true);//ÀÖ¹ÛËø°æ±¾
+	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("diagnose.field.diag.id_list"), true);//idså¯ä»¥çœ‹ä½œæŒ‡é’ˆ
+	API_DTO_FIELD_REQUIRE(Int32, version, ZH_WORDS_GETTER("diagnose.field.diag.version"), true);//ä¹è§‚é”ç‰ˆæœ¬
 
 
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
@@ -114,13 +114,13 @@ class DiagnoseBatchStatusDTO : public oatpp::DTO
 {
 	DTO_INIT(DiagnoseBatchStatusDTO, DTO);
 
-	API_DTO_FIELD_REQUIRE(List<DiagnoseBatchDTO::Wrapper>, ids, ZH_WORDS_GETTER("diagnose.field.diag.id_list"), true);//ids¿ÉÒÔ¿´×÷Ö¸Õë
+	API_DTO_FIELD_REQUIRE(List<DiagnoseBatchDTO::Wrapper>, ids, ZH_WORDS_GETTER("diagnose.field.diag.id_list"), true);//idså¯ä»¥çœ‹ä½œæŒ‡é’ˆ
 	API_DTO_FIELD_REQUIRE(String, status, ZH_WORDS_GETTER("diagnose.field.diag.status"), true);
 
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 };
 
-//Âß¼­É¾³ıÕï¶ÏÌõÄ¿
+//é€»è¾‘åˆ é™¤è¯Šæ–­æ¡ç›®
 class DiagnoseRemoveDTO : public oatpp::DTO
 {
 	DTO_INIT(DiagnoseRemoveDTO, DTO);

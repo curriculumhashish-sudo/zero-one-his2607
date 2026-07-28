@@ -45,10 +45,7 @@ static void appendSourceFilter(
 
 //std::string DiagnoseDAO::queryConditionBuilder(
 //	const DiagnoseSelectQuery::Wrapper& query,
-std::string DiagnosisDAO::queryConditionBuilder(
-	const DiagnosisSelectQuery::Wrapper& query,
-	const std::string& tenantId,
-	SqlParams& params)
+std::string DiagnoseDAO::queryConditionBuilder(const DiagnoseSelectQuery::Wrapper& query, const std::string& tenantId, SqlParams& params)
 {
 	std::stringstream sqlCondition;
 	sqlCondition << " WHERE d.`is_deleted`=? AND d.`status_enum`=? AND d.`tenant_id`=?";
@@ -75,14 +72,14 @@ std::string DiagnosisDAO::queryConditionBuilder(
 //	if (diagnoseKindCode == "1")
 //=======
 	const std::string diagnosisKindCode = query->diagnosisKindCode.getValue("");
-	if (diagnosisKindCode == DiagnosisSelectQuery::DIAGNOSIS_KIND_WESTERN)
+	if (diagnosisKindCode == DiagnoseSelectQuery::DIAGNOSIS_KIND_WESTERN)
 	{
 		appendSourceFilter(sqlCondition, params, WESTERN_SOURCE_CODES);
 	}
 //<<<<<<< HEAD:his-cpp/his-c6-basedata/dao/Diagnose/DiagnoseDAO.cpp
 //	else if (diagnoseKindCode == "2")
 //=======
-	else if (diagnosisKindCode == DiagnosisSelectQuery::DIAGNOSIS_KIND_TRADITIONAL_CHINESE)
+	else if (diagnosisKindCode == DiagnoseSelectQuery::DIAGNOSIS_KIND_TRADITIONAL_CHINESE)
 	{
 		appendSourceFilter(sqlCondition, params, TCM_SOURCE_CODES);
 	}
@@ -92,7 +89,7 @@ std::string DiagnosisDAO::queryConditionBuilder(
 //<<<<<<< HEAD:his-cpp/his-c6-basedata/dao/Diagnose/DiagnoseDAO.cpp
 //uint64_t DiagnoseDAO::count(const DiagnoseSelectQuery::Wrapper& query)
 //=======
-std::string DiagnosisDAO::selectCurrentTenantId(const std::string& userId)
+std::string DiagnoseDAO::selectCurrentTenantId(const std::string& userId)
 {
 	if (userId.empty())
 	{
@@ -114,8 +111,8 @@ std::string DiagnosisDAO::selectCurrentTenantId(const std::string& userId)
 		userId);
 }
 
-uint64_t DiagnosisDAO::count(
-	const DiagnosisSelectQuery::Wrapper& query,
+uint64_t DiagnoseDAO::count(
+	const DiagnoseSelectQuery::Wrapper& query,
 	const std::string& tenantId)
 {
 	SqlParams params;
@@ -128,9 +125,10 @@ uint64_t DiagnosisDAO::count(
 //std::list<ClnConditionDefinitionDO> DiagnoseDAO::selectWithPage(
 //	const DiagnoseSelectQuery::Wrapper& query)
 //=======
-std::list<ClnConditionDefinitionDO> DiagnosisDAO::selectWithPage(
-	const DiagnosisSelectQuery::Wrapper& query,
+std::list<ClnConditionDefinitionDO> DiagnoseDAO::selectWithPage(
+	const DiagnoseSelectQuery::Wrapper& query,
 	const std::string& tenantId)
+
 {
 	SqlParams params;
 	std::string sql =
@@ -148,6 +146,6 @@ std::list<ClnConditionDefinitionDO> DiagnosisDAO::selectWithPage(
 	SQLPARAMS_PUSH(params, "ull", uint64_t, pageSize);
 	return sqlSession->executeQuery<ClnConditionDefinitionDO>(
 		sql,
-		DiagnoseSelectMapper(),
+		DiagnosisSelectMapper(),
 		params);
 }

@@ -1,4 +1,4 @@
-diagnose:
+﻿diagnose:
  tags:
   t1: 诊疗管理
   t2: 声明式服务接口
@@ -23,8 +23,9 @@ diagnose:
  put:
   summary: 修改一条数据
  delete:
-  summary: 物理删除数据（支持批量）
-  summarylogic: 逻辑删除数据（支持批量）
+  summary1: 物理删除数据（支持批量）
+  summarylogicAuth: 逻辑删除数据（支持批量且记录删除人）
+  summarylogic: 逻辑删除数据（支持批量且不记录删除人）
  field:
   category: 
     id: 诊断分类ID
