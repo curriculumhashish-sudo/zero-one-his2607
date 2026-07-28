@@ -5,6 +5,15 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
+/**
+ * Optional filters for GET /dept/tree.
+ *
+ * Empty or omitted fields do not participate in filtering. typeEnum,
+ * classEnum, and statusEnum use exact matching. keyword uses partial matching
+ * against organization name, enum-code fields, and the supported insurance
+ * fields. All supplied conditions are combined with AND. Each enum-code filter
+ * allows at most 255 characters, and keyword allows at most 500 characters.
+ */
 class OrganizationListTreeQuery : public oatpp::DTO
 {
     DTO_INIT(OrganizationListTreeQuery, DTO);

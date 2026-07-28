@@ -5,6 +5,15 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
+/**
+ * Optional filters for GET /dept/name-tree.
+ *
+ * Empty or omitted fields do not participate in filtering. Supplied typeEnum
+ * and classEnum values are matched exactly and combined with AND. excludeId
+ * is intended for an edit form that must not offer the current organization
+ * or any of its descendants as a possible parent. Enum-code filters allow at
+ * most 255 characters, and excludeId allows at most 64 characters.
+ */
 class OrganizationNameTreeQuery : public oatpp::DTO
 {
     DTO_INIT(OrganizationNameTreeQuery, DTO);

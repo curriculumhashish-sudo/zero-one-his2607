@@ -21,6 +21,23 @@ class OrganizationController
     API_ACCESS_DECLARE(OrganizationController);
 
 public:
+    /**
+     * Returns the selectable organization name tree.
+     *
+     * Query contract:
+     * - typeEnum and classEnum are optional exact-match filters.
+     * - When both filters are present, they are combined with AND.
+     * - typeEnum and classEnum allow at most 255 characters each.
+     * - excludeId allows at most 64 characters.
+     * - Only ACTIVE nodes whose complete ancestor path is ACTIVE are returned.
+     * - excludeId removes the specified node and all of its descendants.
+     *
+     * Response contract:
+     * - HTTP 200: the query succeeded; no matching node is represented by data: [].
+     * - HTTP 400 / code 9995: an optional parameter exceeds its length limit.
+     * - HTTP 500 / code 9994: database access, mapping, or tree assembly failed.
+     * - Authentication failures are handled by the global authentication layer.
+     */
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(
         ZH_WORDS_GETTER("dept.organizationQuery.endpoints.nameTree"),
         queryNameTree,
@@ -42,6 +59,26 @@ public:
         return executeQueryNameTree(query);
     );
 
+    /**
+     * Returns the organization management tree.
+     *
+     * Query contract:
+     * - typeEnum, classEnum, and statusEnum are optional exact-match filters.
+     * - keyword is optional and uses partial matching.
+     * - All supplied filters are combined with AND.
+     * - Each enum-code filter allows at most 255 characters.
+     * - keyword allows at most 500 characters.
+     * - keyword searches name, typeEnum, classEnum, statusEnum, ybNo, ybName,
+     *   medinsId, medinsAdmdvs, medinsType, and medinsLv.
+     * - A matching descendant is returned with its complete ancestor path.
+     * - Nonmatching descendants are not added unless they match independently.
+     *
+     * Response contract:
+     * - HTTP 200: the query succeeded; no match is represented by data: [].
+     * - HTTP 400 / code 9995: an optional parameter exceeds its length limit.
+     * - HTTP 500 / code 9994: database access, mapping, or tree assembly failed.
+     * - Authentication failures are handled by the global authentication layer.
+     */
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(
         ZH_WORDS_GETTER("dept.organizationQuery.endpoints.listTree"),
         queryListTree,
@@ -63,6 +100,22 @@ public:
         return executeQueryListTree(query);
     );
 
+    /**
+     * Returns one non-deleted organization by its string ID.
+     *
+     * Query contract:
+     * - id is required and must contain at most 64 characters.
+     * - Leading and trailing whitespace is removed before querying.
+     * - A logically deleted record is treated as nonexistent.
+     *
+     * Response contract:
+     * - HTTP 200: the organization was found.
+     * - HTTP 400 / code 9995: id is missing, blank, or too long.
+     * - HTTP 404 / code 9999: the organization does not exist.
+     * - HTTP 500 / code 9994: database access or response mapping failed.
+     * - Error responses use code/message/data and set data to null.
+     * - Authentication failures are handled by the global authentication layer.
+     */
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("dept.organizationQuery.endpoints.detail"),
         queryDetail,

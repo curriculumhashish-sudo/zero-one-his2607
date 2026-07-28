@@ -6,6 +6,14 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
+/**
+ * One node in the organization management tree.
+ *
+ * id is serialized as a JSON string. busNo is the organization business
+ * code, and displayOrder is an integer used for ascending sibling order.
+ * children contains direct child nodes; a leaf node exposes an empty array.
+ * The top-level response may contain multiple root nodes.
+ */
 class OrganizationListTreeDTO : public oatpp::DTO, public TreeNode
 {
     DTO_INIT(OrganizationListTreeDTO, DTO);

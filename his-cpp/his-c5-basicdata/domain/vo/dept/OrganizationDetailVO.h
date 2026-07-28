@@ -6,6 +6,11 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
+/**
+ * Success envelope for one organization detail object.
+ * A missing organization is returned by the controller as HTTP 404 with the
+ * dedicated error envelope instead of a successful response with null data.
+ */
 class OrganizationDetailJsonVO
     : public JsonVO<OrganizationDetailDTO::Wrapper>
 {

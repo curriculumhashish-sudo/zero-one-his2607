@@ -5,6 +5,14 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
+/**
+ * Complete read model returned by GET /dept/detail.
+ *
+ * All identifier fields are serialized as JSON strings. parentId is null for
+ * a root organization, and defDoctorId is null when no default doctor is
+ * configured. displayOrder is serialized as an integer. The remaining fields
+ * mirror the current non-deleted adm_organization record.
+ */
 class OrganizationDetailDTO : public oatpp::DTO
 {
     DTO_INIT(OrganizationDetailDTO, DTO);

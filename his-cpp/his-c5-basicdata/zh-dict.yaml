@@ -89,32 +89,32 @@ dept:
       notFound: 科室不存在
       serverError: 科室查询失败
     fields:
-      id: 科室唯一标识
+      id: 科室唯一标识，JSON类型为字符串，禁止按数字处理
       name: 科室名称
-      parentId: 上级科室唯一标识
-      defDoctorId: 默认医生唯一标识
+      parentId: 上级机构或科室唯一标识，根节点返回null，JSON类型为字符串
+      defDoctorId: 默认医生唯一标识，未配置默认医生时返回null，JSON类型为字符串
       busNo: 科室业务编码
-      caty: 科别
-      typeEnum: 科室类型编码
-      classEnum: 科室类别编码
-      statusEnum: 科室状态编码
+      caty: 科别名称
+      typeEnum: 科室类型编码，返回数据库保存的编码原值
+      classEnum: 科室类别编码，返回数据库保存的编码原值
+      statusEnum: 科室状态编码，返回数据库保存的编码原值
       ybNo: 医保编码
       ybName: 医保名称
-      medinsId: 机构标识
-      medinsAdmdvs: 医保区划
-      medinsType: 机构类型
-      medinsLv: 机构等级
-      pyStr: 拼音码
-      wbStr: 五笔码
-      displayOrder: 显示顺序
-      children: 下级科室列表
+      medinsId: 医疗机构标识
+      medinsAdmdvs: 医保区划编码
+      medinsType: 医疗机构类型编码
+      medinsLv: 医疗机构等级编码
+      pyStr: 科室名称拼音检索码
+      wbStr: 科室名称五笔检索码
+      displayOrder: 显示顺序，JSON类型为整数，同级节点按此字段升序排列
+      children: 直接下级科室数组，叶子节点返回空数组
     queries:
-      typeEnum: 按科室类型编码筛选
-      classEnum: 按科室类别编码筛选
-      statusEnum: 按科室状态编码筛选
-      keyword: 按科室名称、枚举编码及医保信息进行部分匹配，命中节点时保留祖先路径
-      excludeId: 编辑时需要排除的科室唯一标识
-      id: 科室唯一标识
+      typeEnum: 科室类型编码，可选，最长255个字符，使用精确匹配，与其他筛选条件按AND组合
+      classEnum: 科室类别编码，可选，最长255个字符，使用精确匹配，与其他筛选条件按AND组合
+      statusEnum: 科室状态编码，可选，最长255个字符，仅科室列表树使用精确匹配，与其他筛选条件按AND组合
+      keyword: 关键词，可选，最长500个字符，部分匹配科室名称、类型编码、类别编码、状态编码、医保编码、医保名称、机构标识、医保区划、机构类型和机构等级；命中节点时保留完整祖先路径，不自动返回未命中的后代
+      excludeId: 编辑上级科室时需要排除的科室唯一标识，可选，最长64个字符，同时排除该节点及其全部后代，JSON类型为字符串
+      id: 科室唯一标识，详情接口必填，去除首尾空白后查询，最长64个字符，JSON类型为字符串
   field:
     id: 科室编号
     name: 科室名称

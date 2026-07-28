@@ -7,6 +7,10 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
+/**
+ * Success envelope for the selectable name tree.
+ * data is always initialized as an array, so a successful empty query is [].
+ */
 class OrganizationNameTreeJsonVO
     : public JsonVO<oatpp::List<OrganizationNameTreeDTO::Wrapper>>
 {
@@ -22,6 +26,10 @@ public:
     }
 };
 
+/**
+ * Success envelope for the organization management tree.
+ * data is always initialized as an array, so a successful empty query is [].
+ */
 class OrganizationListTreeJsonVO
     : public JsonVO<oatpp::List<OrganizationListTreeDTO::Wrapper>>
 {

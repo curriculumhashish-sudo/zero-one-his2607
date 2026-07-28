@@ -6,6 +6,13 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
+/**
+ * One node in the selectable organization name tree.
+ *
+ * id is serialized as a JSON string to preserve large identifiers. children
+ * contains direct child nodes; a leaf node exposes an empty children array.
+ * The endpoint may return multiple root nodes in its top-level data array.
+ */
 class OrganizationNameTreeDTO : public oatpp::DTO, public TreeNode
 {
     DTO_INIT(OrganizationNameTreeDTO, DTO);
