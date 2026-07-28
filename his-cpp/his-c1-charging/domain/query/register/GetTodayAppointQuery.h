@@ -14,8 +14,8 @@ class GetTodayAppointQuery :public PageQuery
 	DTO_INIT(GetTodayAppointQuery, PageQuery);
 
 
-	DTO_FIELD(String, docker);
-	DTO_FIELD_INFO(docker) {
+	DTO_FIELD(String, doctor);
+	DTO_FIELD_INFO(doctor) {
 		info->description = ZH_WORDS_GETTER("yxy.charging.reister.docker");
 	}
 

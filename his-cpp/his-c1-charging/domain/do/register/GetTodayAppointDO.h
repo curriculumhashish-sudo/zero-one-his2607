@@ -17,11 +17,11 @@ class GetTodayAppointDO:public BaseDO
 	//号源类型
 	MYSQL_SYNTHESIZE(string, register_type, Register_type);
 	//科室
-	MYSQL_SYNTHESIZE(string, oganization, Oganization);
+	MYSQL_SYNTHESIZE(string, organization, Organization);
 	//开始时间
-	MYSQL_SYNTHESIZE(long long, start_time, Start_time);
+	MYSQL_SYNTHESIZE(unsigned long long, start_time, Start_time);
 	//结束时间
-	MYSQL_SYNTHESIZE(long long,end_time,End_time)
+	MYSQL_SYNTHESIZE(unsigned long long,end_time,End_time)
 
 public:
 	GetTodayAppointDO() : BaseDO("GetTodauApoint")
@@ -31,7 +31,7 @@ public:
 		MYSQL_ADD_FIELD("capacity", "i", capacity);
 		MYSQL_ADD_FIELD("booked_count", "i", booked_count);
 		MYSQL_ADD_FIELD("register_type", "s", register_type);
-		MYSQL_ADD_FIELD("oganization", "s", oganization);
+		MYSQL_ADD_FIELD("organization", "s", organization);
 		MYSQL_ADD_FIELD("start_time", "dt", start_time);
 		MYSQL_ADD_FIELD("end_time", "dt", end_time);
 	}

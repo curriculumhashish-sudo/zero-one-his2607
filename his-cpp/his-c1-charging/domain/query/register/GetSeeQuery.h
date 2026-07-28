@@ -20,9 +20,20 @@ class GetSeeQuery:public PageQuery
 	}
 
 	//»¼ÕßÐÕÃû
-	DTO_FIELD(String, register_type);
-	DTO_FIELD_INFO(register_type) {
-		info->description = ZH_WORDS_GETTER("yxy.charging.reister.register_type");
+	DTO_FIELD(String, name);
+	DTO_FIELD_INFO(name) {
+		info->description = ZH_WORDS_GETTER("yxy.charging.reister.name");
+	}
+
+	DTO_FIELD(UInt64, start_time);
+	DTO_FIELD_INFO(start_time) {
+		info->description = ZH_WORDS_GETTER("yxy.charging.reister.start_time");
+	}
+
+
+	DTO_FIELD(UInt64, end_time);
+	DTO_FIELD_INFO(end_time) {
+		info->description = ZH_WORDS_GETTER("yxy.charging.reister.end_time");
 	}
 };
 

@@ -53,13 +53,15 @@ yxy:
    summary1: 获取就诊记录（条件+分页）
    summary2: 获取当日号源（条件+分页）
    summary3: 新增挂号
+   getsee_id: 就诊表id
+   today_id: 时刻表id
    number: 就诊号
    name: 患者姓名
    start_time: 开始时间
    end_time: 结束时间
    sex: 患者性别
    phone: 患者联系方式
-   oganization: 科室
+   organization: 科室
    doctor: 医生
    cost_type: 费用性质
    addr: 参保地
@@ -72,6 +74,14 @@ yxy:
    id_number: 身份证号
    birth_date: 出生日期
    age: 年龄
+   patient_id: 患者表id
+   doctor_id: 医生id
+   organization_id: 科室id
+   cost_type_id: 费用id
+   register_type_id: 挂号类型id
+   operator_id: 操作者id
+   tenant_id: 租户id
+   register_def_id: 收费项目定义id
 lhfc:
   charging:
     charge:

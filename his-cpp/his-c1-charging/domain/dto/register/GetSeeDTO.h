@@ -8,6 +8,11 @@ class GetSeeDTO:public oatpp::DTO
 {
 	DTO_INIT(GetSeeDTO, DTO);
 
+	DTO_FIELD(String, id);
+	DTO_FIELD_INFO(id) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.getsee_id");
+	}
+
 	DTO_FIELD(String, number);
 	DTO_FIELD_INFO(number) {
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.number");
@@ -23,14 +28,14 @@ class GetSeeDTO:public oatpp::DTO
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.sex");
 	}
 
-	DTO_FIELD(UInt32, phone);
+	DTO_FIELD(String, phone);
 	DTO_FIELD_INFO(phone) {
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.phone");
 	}
 
-	DTO_FIELD(String, oganization);
-	DTO_FIELD_INFO(oganization) {
-		info->description = ZH_WORDS_GETTER("yxy.charging,register.oganization");
+	DTO_FIELD(String, organization);
+	DTO_FIELD_INFO(organization) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.organization");
 	}
 
 	DTO_FIELD(String, doctor);
@@ -62,7 +67,21 @@ class GetSeeDTO:public oatpp::DTO
 	DTO_FIELD_INFO(time) {
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.time");
 	}
-		
+	DTO_FIELD(String, patient_id);
+	DTO_FIELD_INFO(patient_id) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.patient_id");
+	}
+	DTO_FIELD(String, doctor_id);
+	DTO_FIELD_INFO(doctor_id) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.patient_id");
+	}
+	DTO_FIELD(String, organization_id);
+	DTO_FIELD(String, cost_type_id);
+	DTO_FIELD(String, register_type_id);
+	DTO_FIELD(String, register_def_id);
+	DTO_FIELD(String, operator_id);
+	DTO_FIELD(String, tenant_id);
+
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 };
 
