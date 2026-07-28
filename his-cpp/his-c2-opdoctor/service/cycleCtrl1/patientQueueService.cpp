@@ -1,4 +1,4 @@
-#include "PatientQueueService.h"
+ï»¿#include "PatientQueueService.h"
 #include "dao/cycleCtrl1/PatientQueueDAO.h"
 #include <ctime>
 
@@ -22,12 +22,12 @@ oatpp::Vector<PatientQueueDTO::Wrapper> PatientQueueService::getPatientQueueList
 
         item->patientName = patDO->getName();
 
-        if (patDO->getGenderEnum() == "M")
-            item->gender = "ÄÐÐÔ";
-        else if (patDO->getGenderEnum() == "F")
-            item->gender = "Å®ÐÔ";
+        if (patDO->getGenderEnum() == "MALE")
+            item->gender = "ç”·æ€§";
+        else if (patDO->getGenderEnum() == "FEMALE")
+            item->gender = "å¥³æ€§";
         else
-            item->gender = "Î´Öª";
+            item->gender = "æœªçŸ¥";
 
         item->age = 0;
         item->registerType = servDO->getName();

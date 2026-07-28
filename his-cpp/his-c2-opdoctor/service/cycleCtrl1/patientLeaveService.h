@@ -1,0 +1,20 @@
+#pragma once
+#ifndef _PATIENT_LEAVE_SERVICE_
+#define _PATIENT_LEAVE_SERVICE_
+
+#include "dao/cycleCtrl1/patientLeaveDAO.h"
+#include "domain/dto/cycleCtrl1/patientLeaveDTO.h"
+#include "domain/vo/cycleCtrl1/patientLeaveVo.h"
+
+
+class PatientLeaveService
+{
+public:
+    // 暂离业务入口
+    PatientLeaveJsonVO::Wrapper execLeavePatient(const oatpp::String& tenantId, const oatpp::String& encounterId);
+
+private:
+    PatientLeaveDAO dao; 
+};
+
+#endif // !_PATIENT_LEAVE_SERVICE_

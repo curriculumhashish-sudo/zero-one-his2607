@@ -13,8 +13,7 @@ RecePatientJsonVO::Wrapper RecePatientController::execQueryRece(const RecePatien
         return jvo;
     }
 
-    // 临时测试用：强制使用你在 Navicat 中验证能查到的 tenant/practitioner
-    // TODO：排查通过后请改回从鉴权上下文读取
+    //测试
     std::string tenantId = "1";
     std::string practitionerId = "322963602326687744";
 

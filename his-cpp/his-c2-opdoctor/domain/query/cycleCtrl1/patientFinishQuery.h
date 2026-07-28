@@ -10,9 +10,8 @@ class PatientFinishQuery : public oatpp::DTO
 {
 	DTO_INIT(PatientFinishQuery, DTO);
 
-    
-    // 完诊
-    API_DTO_FIELD_REQUIRE(String, visitStatus, ZH_WORDS_GETTER("finish.query.visitStatus"), true);
+    //前端传入 encounterId唯一标识
+    API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("finish.query.encounterId"), true);
 
 };
 

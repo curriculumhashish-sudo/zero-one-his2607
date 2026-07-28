@@ -20,13 +20,11 @@ queue:
  param:
   patientName: "姓名"
   startDate: "就诊时间"
-  Status: "待诊/在诊"
+  Status: "待诊/在诊/完诊"
   finishStatus: "完诊"
   allStatus: "全部状态"
  get:
   summary: "获取患者队列"
-
-
 
 rece:
  dto:
@@ -55,7 +53,6 @@ rece:
   visitStatus: "就诊状态"
  get:
   summary: "在诊患者"
-
 
 finish:
  dto:

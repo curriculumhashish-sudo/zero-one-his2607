@@ -5,7 +5,7 @@
 #include "domain/do/cycleCtrl1/AdmHealthcareServiceDO.h"
 #include "domain/do/cycleCtrl1/AdmAccountDO.h"
 
-// 患者队列组合映射对象，多表JOIN专用
+// 患者队列组合映射对象，多表JOIN时可以用于不同字段查询
 class PatientQueueCombineDO
 {
 public:

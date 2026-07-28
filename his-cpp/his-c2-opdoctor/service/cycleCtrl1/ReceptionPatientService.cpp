@@ -12,8 +12,10 @@ RecePatientDTO::Wrapper ReceptionPatientService::getRecePatient(const RecePatien
         return dto;
     }
 
+    // 填充 DTO 字段
     dto->patientName = data->getPatientDO()->getName();
     dto->gender = data->getPatientDO()->getGenderEnum();
+    // age 
     dto->age = 0;
     dto->registerType = data->getServiceDO()->getName();
     dto->medicalRecordNum = data->getEncounterDO()->getBusNo();
@@ -22,6 +24,9 @@ RecePatientDTO::Wrapper ReceptionPatientService::getRecePatient(const RecePatien
     dto->registerDept = data->getOrgDO()->getName();
     dto->phoneNum = data->getPatientDO()->getPhone();
     dto->allergyHistory = data->getAllergyDO()->getAllergyText();
+
+    // 如果需要返回 encounterId
+    dto->encounterId = data->getEncounterDO()->getId();
 
     return dto;
 }

@@ -25,7 +25,7 @@ PtrCurrentReceptionCombineDO ReceptionPatientDAO::queryReceptionPatient(
             hs.name AS service_name,
             org.name AS org_name,
             a.type_code AS pay_type,
-            IFNULL(GROUP_CONCAT(ai.description SEPARATOR ';'), 'none') AS allergy_content
+            IFNULL(GROUP_CONCAT(ai.description SEPARATOR '；'), '无') AS allergy_content
 
         FROM adm_encounter e
         INNER JOIN adm_patient p ON e.patient_id = p.id AND p.is_deleted = 0
@@ -37,10 +37,10 @@ PtrCurrentReceptionCombineDO ReceptionPatientDAO::queryReceptionPatient(
         LEFT JOIN cln_allergy_intolerance ai ON ai.patient_id = p.id AND ai.is_deleted = 0
 
         WHERE e.is_deleted = 0
-          AND e.tenant_id = ?
-          AND part.practitioner_id = ?
-          AND DATE(e.reception_time) = ?
-          AND e.status_enum = ?
+            AND e.tenant_id = ?
+            AND part.practitioner_id = ?
+            AND DATE(e.reception_time) = ?
+            AND e.status_enum = ?
         GROUP BY 
             e.id, e.tenant_id, e.bus_no, e.status_enum, e.reception_time, e.service_type_id,
             p.id, p.name, p.gender_enum, p.birth_date, p.phone,
@@ -53,15 +53,9 @@ PtrCurrentReceptionCombineDO ReceptionPatientDAO::queryReceptionPatient(
     SQLPARAMS_PUSH(params, "s", std::string, tenantId);
     SQLPARAMS_PUSH(params, "s", std::string, practitionerId);
     SQLPARAMS_PUSH(params, "s", std::string, query->visitTime->c_str());
-    
     SQLPARAMS_PUSH(params, "s", std::string, std::string("TREATING"));
 
     ReceptionPatientMapper mapper;
-
-    // 打印 SQL 与参数（排查用）
-    std::cout << "[DAO] Executing SQL:\n" << sql << std::endl;
-    std::cout << "[DAO] Params: tenantId=" << tenantId << " practitionerId=" << practitionerId
-        << " visitTime=" << (query->visitTime ? query->visitTime->c_str() : "") << " status=TREATING" << std::endl;
 
     try {
         auto result = sqlSession->executeQuery<PtrCurrentReceptionCombineDO>(sql, mapper, params);

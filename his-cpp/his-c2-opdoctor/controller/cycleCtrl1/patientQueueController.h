@@ -41,15 +41,13 @@ public:
 		//定义标签
 		API_DEF_ADD_TAG(API_TAG);
 
-		// 用户输入的请求参数名称和类型必须与 PatientQueueQuery DTO 字段严格一致
+		
 		// 1. 日期 -> PatientQueueQuery 中字段名为 `date`
 		API_DEF_ADD_QUERY_PARAMS(String, "date", ZH_WORDS_GETTER("queue.param.startDate"), "", true);
 		// 2. 患者姓名 -> `patientName`
 		API_DEF_ADD_QUERY_PARAMS(String, "patientName", ZH_WORDS_GETTER("queue.param.patientName"), "", false);
-		// 3. 待诊/在诊 状态 -> DTO 字段为 `visitStatus`
+		// 3. 待诊/在诊/完诊 -> DTO 字段为 `visitStatus` 状态 -> DTO 字段为 `visitStatus`
 		API_DEF_ADD_QUERY_PARAMS(String, "visitStatus", ZH_WORDS_GETTER("queue.param.Status"), "", false);
-		// 4. 完诊状态 -> `finishStatus`
-		API_DEF_ADD_QUERY_PARAMS(String, "finishStatus", ZH_WORDS_GETTER("queue.param.finishStatus"), "", false);
 	}
 
 private:
