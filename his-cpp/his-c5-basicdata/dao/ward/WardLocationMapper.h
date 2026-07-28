@@ -60,8 +60,24 @@ public:
             resultSet->getInt("display_order")
         );
 
+        data->setTypeJson(
+            resultSet->getString("type_json")
+        );
+
+        data->setPyStr(
+            resultSet->getString("py_str")
+        );
+
+        data->setWbStr(
+            resultSet->getString("wb_str")
+        );
+
         data->setParentId(
             resultSet->getString("parent_id")
+        );
+
+        data->setVersion(
+            resultSet->getInt("version")
         );
 
         return data;

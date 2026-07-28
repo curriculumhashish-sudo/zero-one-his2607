@@ -69,21 +69,21 @@ public:
         info->description = "Modify ward basic information by ID. This endpoint returns mock success data for API documentation.";
         info->addConsumes<WardModifyDTO::Wrapper>("application/json");
     )
-    API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/ward", modifyWard, BODY_DTO(WardModifyDTO::Wrapper, dto), execModifyWard(dto));
+    API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/ward", modifyWard, BODY_DTO(WardModifyDTO::Wrapper, dto), execModifyWard(dto, authObject->getPayload()));
 
     // Remove ward
     API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("ward.remove.summary"), removeWard, BooleanJsonVO::Wrapper, API_TAG,
         info->description = "Remove ward by ID. This endpoint returns a mock success result for API documentation.";
         API_DEF_ADD_PATH_PARAMS(String, "id", ZH_WORDS_GETTER("ward.field.id"), "322955305339588608", true);
     )
-    API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/ward/{id}", removeWard, PATH(String, id, "id"), execRemoveWard(id));
+    API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/ward/{id}", removeWard, PATH(String, id, "id"), execRemoveWard(id, authObject->getPayload()));
 
     // Change ward status
     API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("ward.status.summary"), modifyWardStatus, WardJsonVO::Wrapper, API_TAG,
         info->description = "Enable or disable ward by statusEnum. ACTIVE means enabled and DISABLED means disabled.";
         info->addConsumes<WardStatusDTO::Wrapper>("application/json");
     )
-    API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/ward/status", modifyWardStatus, BODY_DTO(WardStatusDTO::Wrapper, dto), execModifyWardStatus(dto));
+    API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/ward/status", modifyWardStatus, BODY_DTO(WardStatusDTO::Wrapper, dto), execModifyWardStatus(dto, authObject->getPayload()));
 
     // ============================================================
     // c5_tgg endpoints: ward tree list, location management
@@ -126,47 +126,17 @@ private:
     WardRoomJsonVO::Wrapper execQueryRoomById(const String& id);
     WardBedJsonVO::Wrapper execQueryBedById(const String& id);
 
-    // Modify ward implementation (inline)
-    WardJsonVO::Wrapper execModifyWard(const WardModifyDTO::Wrapper& dto)
-    {
-        auto data = WardVO::createShared();
-        if (dto)
-        {
-            data->id = dto->id;
-            data->name = dto->name;
-            data->organizationId = dto->organizationId;
-            data->displayOrder = dto->displayOrder;
-            data->pyStr = dto->pyStr;
-            data->wbStr = dto->wbStr;
-            data->version = dto->version;
-        }
-        auto result = WardJsonVO::createShared();
-        result->success(data);
-        return result;
-    }
+    WardJsonVO::Wrapper execModifyWard(
+        const WardModifyDTO::Wrapper& dto,
+        const PayloadDTO& payload);
 
-    // Remove ward implementation (inline)
-    BooleanJsonVO::Wrapper execRemoveWard(const String& id)
-    {
-        auto result = BooleanJsonVO::createShared();
-        result->success(true);
-        return result;
-    }
+    BooleanJsonVO::Wrapper execRemoveWard(
+        const String& id,
+        const PayloadDTO& payload);
 
-    // Change ward status implementation (inline)
-    WardJsonVO::Wrapper execModifyWardStatus(const WardStatusDTO::Wrapper& dto)
-    {
-        auto data = WardVO::createShared();
-        if (dto)
-        {
-            data->id = dto->id;
-            data->statusEnum = dto->statusEnum;
-            data->version = dto->version;
-        }
-        auto result = WardJsonVO::createShared();
-        result->success(data);
-        return result;
-    }
+    WardJsonVO::Wrapper execModifyWardStatus(
+        const WardStatusDTO::Wrapper& dto,
+        const PayloadDTO& payload);
 
     // ---- c5_tgg method declarations ----
 
