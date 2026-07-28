@@ -3,8 +3,6 @@ package com.zeroone.star.basedata.service.impl;
 import com.zeroone.star.basedata.entity.DictionaryConceptDO;
 import com.zeroone.star.basedata.exception.DictionaryBusinessException;
 import com.zeroone.star.basedata.mapper.DictionaryMapper;
-import com.zeroone.star.project.components.user.UserDTO;
-import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.j2.basedata.dictionarydto.DictionaryAddDTO;
 import com.zeroone.star.project.dto.j2.basedata.dictionarydto.DictionaryDeleteDTO;
 import com.zeroone.star.project.dto.j2.basedata.dictionarydto.DictionaryModifyDTO;
@@ -33,14 +31,13 @@ class DictionaryServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        dictionaryService = new DictionaryServiceImpl(dictionaryMapper, userHolder);
+        dictionaryService = new DictionaryServiceImpl(dictionaryMapper);
     }
 
     @Test
     void addDictionaryShouldTrimFieldsAndAppendDefaultSortOrder() throws Exception {
         DictionaryAddDTO data = addDTO();
         data.setSortOrder(null);
-        mockOperator();
         when(dictionaryMapper.lockCodeSystem("900010")).thenReturn("900010");
         when(dictionaryMapper.countDuplicateCode("900010", "1", null)).thenReturn(0);
         when(dictionaryMapper.selectMaxSortOrder("900010")).thenReturn(8L);
@@ -83,7 +80,6 @@ class DictionaryServiceImplTest {
         data.setId("900010001");
         copyAddFields(data);
         data.setSortOrder(null);
-        mockOperator();
         when(dictionaryMapper.countConcept("900010001")).thenReturn(1);
         when(dictionaryMapper.lockCodeSystem("900010")).thenReturn("900010");
         when(dictionaryMapper.countDuplicateCode("900010", "1", "900010001")).thenReturn(0);

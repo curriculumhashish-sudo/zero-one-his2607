@@ -17,10 +17,12 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @RequiredArgsConstructor
+
 public class DictionaryServiceImpl implements IDictionaryService {
 
     private final DictionaryMapper dictionaryMapper;
-    private final UserHolder userHolder;
+
+    private DictionaryServiceImpl dictionaryService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
