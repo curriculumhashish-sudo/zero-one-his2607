@@ -5,16 +5,16 @@
 #include "../DoInclude.h"
 
 /**
- * ·ÑÓÃ´óÀàÃ÷Ï¸ÊµÌåÀà
+ * è´¹ç”¨å¤§ç±»æ˜ç»†å®ä½“ç±»
  */
 class GetCategoryDetailsDO : public BaseDO
 {
     MYSQL_SYNTHESIZE(string, encounter_id, Encounter_id);
-    // ĞòºÅ
+    // åºå·
     MYSQL_SYNTHESIZE(int, sort_num, Sort_num);
-    // ·ÑÓÃ´óÀàÃû³Æ
+    // è´¹ç”¨å¤§ç±»åç§°
     MYSQL_SYNTHESIZE(string, charge_type_name, Charge_type_name);
-    // ´óÀà·ÑÓÃ½ğ¶î
+    // å¤§ç±»è´¹ç”¨é‡‘é¢
     MYSQL_SYNTHESIZE(double, type_total_fee, Type_total_fee);
 
 public:
