@@ -35,7 +35,6 @@ using namespace oatpp;
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
 #define API_TAG ZH_WORDS_GETTER("diagnose.tags.t1")
-#define API_TAG2 ZH_WORDS_GETTER("diagnose.tags.t2")
 
 /**
  * HTTP endpoints for diagnosis catalog management.
@@ -65,26 +64,26 @@ public:
 		queryAllDiagnosis,
 		DiagnosisPageQuery,
 		DiagnosisDetailPageJsonVO::Wrapper,
-		API_TAG2);
+		API_TAG);
 	API_HANDLER_ENDPOINT_QUERY_AUTH(
 		API_M_GET,
 		"/diagnosis/query-all",
 		queryAllDiagnosis,
 		DiagnosisPageQuery,
-		execQueryAllDiagnosis(query, authObject->getPayload()));
+		execQueryAllDiagnosis(query));
 
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(
 		ZH_WORDS_GETTER("diagnose.query_one.summary"),
 		queryOneDiagnosis,
 		DiagnosisDetailQuery,
 		DiagnosisDetailJsonVO::Wrapper,
-		API_TAG2);
+		API_TAG);
 	API_HANDLER_ENDPOINT_QUERY_AUTH(
 		API_M_GET,
 		"/diagnosis/query-one",
 		queryOneDiagnosis,
 		DiagnosisDetailQuery,
-		execQueryOneDiagnosis(query, authObject->getPayload()));
+		execQueryOneDiagnosis(query));
 
 	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("diagnose.post.summary"),
@@ -152,12 +151,8 @@ public:
 
 private:
 	DiagnosisSelectPageJsonVO::Wrapper execQuerySelectDiagnosis(const DiagnosisSelectQuery::Wrapper& query);
-	DiagnosisDetailPageJsonVO::Wrapper execQueryAllDiagnosis(
-		const DiagnosisPageQuery::Wrapper& query,
-		const PayloadDTO& payload);
-	DiagnosisDetailJsonVO::Wrapper execQueryOneDiagnosis(
-		const DiagnosisDetailQuery::Wrapper& query,
-		const PayloadDTO& payload);
+	DiagnosisDetailPageJsonVO::Wrapper execQueryAllDiagnosis(const DiagnosisPageQuery::Wrapper& query);
+	DiagnosisDetailJsonVO::Wrapper execQueryOneDiagnosis(const DiagnosisDetailQuery::Wrapper& query);
 	StringJsonVO::Wrapper execAddDiagnose(const DiagnoseAddDTO::Wrapper& dto, const PayloadDTO& payload);
 	StringJsonVO::Wrapper execModifyDiagnose(const DiagnoseDTO::Wrapper& dto, const PayloadDTO& payload);
 	ListJsonVO<String>::Wrapper execRemoveDiagnose(const List<String>& ids);
@@ -168,7 +163,6 @@ private:
 };
 
 #undef API_TAG
-#undef API_TAG2
 
 #include OATPP_CODEGEN_END(ApiController)
 
