@@ -20,11 +20,20 @@
 #ifndef _CostDetail_DAO_H_
 #define _CostDetail_DAO_H_
 
-class CostDetailDAO
+#include "BaseDAO.h"
+#include "domain/query/chargedetails/CostDetailQuery.h"
+#include "domain/query/chargedetails/CostSummaryQuery.h"
+#include "domain/dto/chargedetails/CostDetailDTO.h"
+#include "domain/dto/chargedetails/CostSummaryDTO.h"
+
+class CostDetailDAO : public BaseDAO
 {
+private:
+	std::string queryConditionBuilder(const CostDetailQuery::Wrapper& query, SqlParams& params);
 public:
-    CostDetailDAO() = default;
-    ~CostDetailDAO() = default;
+	uint64_t count(const CostDetailQuery::Wrapper& query);
+	std::list<CostDetailDTO::Wrapper> selectWithPage(const CostDetailQuery::Wrapper& query);
+	std::list<CostSummaryDTO::Wrapper> selectSummary(const CostSummaryQuery::Wrapper& query);
 };
 
 #endif // !_CostDetail_DAO_H_
