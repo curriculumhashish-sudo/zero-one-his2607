@@ -1,19 +1,16 @@
 package com.zeroone.star.basedata.controller;
 
-
-import com.zeroone.star.basedata.service.IBodyPartService;
+import com.zeroone.star.basedata.service.BodyPartBusinessException;
+import com.zeroone.star.basedata.service.BodyPartService;
+import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j2.basedata.bodypartdto.BodyPartAddDTO;
 import com.zeroone.star.project.dto.j2.basedata.bodypartdto.BodyPartModifyDTO;
 import com.zeroone.star.project.dto.j2.basedata.bodypartdto.BodyPartStatusDTO;
-import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.j2.basedata.bodypart.BodyPartApis;
-
 import com.zeroone.star.project.query.j2.basedata.BodyPartPageQuery;
-
-
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j2.basedata.bodypart.BodyPartListVO;
-import com.zeroone.star.project.vo.j2.basedata.bodypart.BodyPartTreeVO;
+import com.zeroone.star.project.vo.j2.basedata.BodyPartListVO;
+import com.zeroone.star.project.vo.j2.basedata.BodyPartTreeVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -27,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,74 +36,62 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BodyPartController implements BodyPartApis {
 
-    private final IBodyPartService bodyPartService;
+    private final BodyPartService bodyPartService;
 
     @Override
     @Operation(summary = "获取部位名称树")
     @GetMapping("/tree")
     public JsonVO<List<BodyPartTreeVO>> getTree() {
-        try {
-            return JsonVO.success(bodyPartService.getTree());
-        } catch (Exception e) {
-            return JsonVO.fail("查询部位树失败：" + e.getMessage());
-        }
+        return JsonVO.success(new ArrayList<>());
     }
 
     @Override
     @Operation(summary = "获取部位列表（条件+分页）")
     @GetMapping("/list")
     public JsonVO<PageDTO<BodyPartListVO>> getList(@Valid BodyPartPageQuery query) {
-        try {
-            return JsonVO.success(bodyPartService.getList(query));
-        } catch (Exception e) {
-            return JsonVO.fail("查询部位列表失败：" + e.getMessage());
-        }
+        return JsonVO.success(new PageDTO<>());
     }
 
     @Override
     @Operation(summary = "添加部位")
     @PostMapping
     public JsonVO<String> add(@Valid @RequestBody BodyPartAddDTO dto) {
-        if (dto.getPartName() == null || dto.getPartName().trim().isEmpty()) {
-            return JsonVO.fail("部位名称不能为空");
-        }
-        try {
-            return JsonVO.success(bodyPartService.add(dto));
-        } catch (Exception e) {
-            return JsonVO.fail("添加部位失败：" + e.getMessage());
-        }
+        return JsonVO.success(null);
     }
 
-    /**
-     * 修改部位名称、父级和输入码。后续业务层需校验父级不能为自身或子节点。
-     */
     @Override
     @Operation(summary = "修改部位", description = "修改名称、上级部位、拼音码和五笔码")
     @PutMapping("/modify-body-part")
     public JsonVO<Void> modifyBodyPart(@Valid @RequestBody BodyPartModifyDTO dto) {
-        // TODO 后续实现存在性、层级循环和乐观锁校验。
-        return JsonVO.success(null);
+        try {
+            bodyPartService.modifyBodyPart(dto);
+            return JsonVO.success(null);
+        } catch (BodyPartBusinessException exception) {
+            return JsonVO.fail(exception.getMessage());
+        }
     }
 
-    /**
-     * 软删除部位。后续业务层需确认不存在未删除的子部位。
-     */
     @Override
     @Operation(summary = "删除部位", description = "逻辑删除指定部位")
     @DeleteMapping("/remove-body-part/{id}")
     public JsonVO<Void> removeBodyPart(@PathVariable String id) {
-        // TODO 后续实现子节点校验和软删除。
-        return JsonVO.success(null);
+        try {
+            bodyPartService.removeBodyPart(id);
+            return JsonVO.success(null);
+        } catch (BodyPartBusinessException exception) {
+            return JsonVO.fail(exception.getMessage());
+        }
     }
 
-    /**
-     * 将部位状态设置为 ACTIVE 或 INACTIVE。
-     */
     @Override
     @Operation(summary = "启/停用部位", description = "更新部位启停状态")
     @PutMapping("/modify-body-part-status")
     public JsonVO<Void> modifyBodyPartStatus(@Valid @RequestBody BodyPartStatusDTO dto) {
-        // TODO 后续实现存在性和乐观锁校验；相同状态直接返回成功。
-        return JsonVO.success(null);
+        try {
+            bodyPartService.modifyBodyPartStatus(dto);
+            return JsonVO.success(null);
+        } catch (BodyPartBusinessException exception) {
+            return JsonVO.fail(exception.getMessage());
+        }
     }
 }

@@ -1,25 +1,28 @@
 package com.zeroone.star.basedata.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.zeroone.star.project.doo.BodyPartDO;
-import com.zeroone.star.project.query.j2.basedata.BodyPartPageQuery;
-import com.zeroone.star.project.vo.j2.basedata.bodypart.BodyPartListVO;
-import com.zeroone.star.project.vo.j2.basedata.bodypart.BodyPartTreeVO;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
+import com.zeroone.star.basedata.entity.BodyPart;
+import org.apache.ibatis.annotations.Select;
 
-import java.util.List;
+/**
+ * 部位数据访问接口。
+ */
+public interface BodyPartMapper extends BaseMapper<BodyPart> {
 
-@Mapper
-public interface BodyPartMapper extends BaseMapper<BodyPartDO> {
-
-    List<BodyPartTreeVO> selectTree();
-
-    Long selectListCount(@Param("query") BodyPartPageQuery query);
-
-    List<BodyPartListVO> selectList(
-            @Param("query") BodyPartPageQuery query,
-            @Param("offset") int offset,
-            @Param("limit") int limit
-    );
+    /**
+     * 判断部位是否仍被临床病情或临床处置使用。
+     *
+     * @param bodyStructureId 部位标识
+     * @return 存在未删除的业务引用时为 true
+     */
+    @Select("""
+            SELECT CASE WHEN EXISTS (
+                SELECT 1 FROM cln_condition
+                WHERE body_structure_id = #{bodyStructureId} AND is_deleted = 0
+            ) OR EXISTS (
+                SELECT 1 FROM cln_procedure
+                WHERE body_structure_id = #{bodyStructureId} AND is_deleted = 0
+            ) THEN 1 ELSE 0 END
+            """)
+    boolean existsClinicalReference(String bodyStructureId);
 }
