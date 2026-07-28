@@ -68,9 +68,9 @@ public interface WkfSupplyRequestMapper extends BaseMapper<WkfSupplyRequest> {
             WHERE bus_no = #{busNo}
               AND is_deleted = 0
             """)
-    int softDeleteActiveRowsByBusNo(@Param("busNo") String busNo,
-                                    @Param("deletedAt") LocalDateTime deletedAt,
-                                    @Param("deletedBy") String deletedBy,
-                                    @Param("updatedAt") LocalDateTime updatedAt,
-                                    @Param("updatedBy") String updatedBy);
+    int updateActiveRowsDeletedByBusNo(@Param("busNo") String busNo,
+                                       @Param("deletedAt") LocalDateTime deletedAt,
+                                       @Param("deletedBy") String deletedBy,
+                                       @Param("updatedAt") LocalDateTime updatedAt,
+                                       @Param("updatedBy") String updatedBy);
 }

@@ -167,7 +167,7 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
     }
 
     private void softDeleteRows(String busNo, LocalDateTime now, String userId) {
-        int affectedRows = baseMapper.softDeleteActiveRowsByBusNo(busNo, now, userId, now, userId);
+        int affectedRows = baseMapper.updateActiveRowsDeletedByBusNo(busNo, now, userId, now, userId);
         if (affectedRows <= 0) {
             throw new IllegalStateException("保存药库进货单失败，旧明细未更新");
         }
