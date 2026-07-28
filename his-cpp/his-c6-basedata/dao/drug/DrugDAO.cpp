@@ -177,7 +177,7 @@ int DrugDAO::softDeleteBasePrices(const std::string &drugId, const std::string &
 
 int DrugDAO::insertBasePrice(const AdmChargeItemDefinitionDO &price)
 {
-    return insert(price);
+    return insert();
 }
 
 std::list<PtrAdmChargeItemDefinitionDO> DrugDAO::selectBasePrices(const std::string &drugId,
@@ -371,6 +371,14 @@ int DrugDAO::updateActiveStatus(const std::list<std::string> &ids, const std::st
 }
 uint64_t count(const DrugQuery::Wrapper& query)
 {
+    SqlParams params;
+    std::string sql = "SELECT COUNT(*) FROM wkf_inventory_item ";
+
+    // 拼接条件
+    sql += queryConditionBuilder(query, params);
+
+    // 执行查询并返回数字
+    return sqlSession->executeQueryNumerical(sql, params);
 
 }
 std::list<MedMedicationDefinitionDO> selectWithPage(const DrugQuery::Wrapper& query)
