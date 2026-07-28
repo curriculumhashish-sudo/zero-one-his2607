@@ -1,17 +1,14 @@
 package com.zeroone.star.j3.register.controller;
 
-import com.zeroone.star.j3.register.service.IRegisterTypeService;
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j3.register.RegisterDTO;
 import com.zeroone.star.project.j3.register.RegisterApis;
-import com.zeroone.star.project.query.j3.register.RegisterQuery;
+import com.zeroone.star.project.j3.register.dto.RegisterDTO;
+import com.zeroone.star.project.j3.register.query.RegisterQuery;
+import com.zeroone.star.project.j3.register.vo.RegisterVO;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j3.register.RegisterNameVO;
-import com.zeroone.star.project.vo.j3.register.RegisterVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,8 +17,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 /**
  * <p>
@@ -34,24 +29,9 @@ import java.util.List;
  * @version 1.0.0
  */
 @RestController
-@RequestMapping("/register-types")
+@RequestMapping("/j3-register")
 @Tag(name = "挂号类型管理", description = "挂号类型（普通号、专家号、特需号等）相关接口")
 public class RegisterController implements RegisterApis {
-
-    @Resource
-    IRegisterTypeService registerTypeService;
-
-    /**
-     * 获取挂号类型名称列表（不分页）
-     *
-     * @return 名称列表（每条包含唯一标识、名称）
-     */
-    @GetMapping("query-names")
-    @Operation(summary = "获取挂号类型名称", description = "返回启用的挂号类型 id + 名称，用于门诊挂号页「号源类型」下拉选择")
-    @Override
-    public JsonVO<List<RegisterNameVO>> queryRegisterNames() {
-        return JsonVO.success(registerTypeService.queryRegisterNames());
-    }
 
     /**
      * 获取挂号类型列表（条件+分页）
@@ -63,7 +43,8 @@ public class RegisterController implements RegisterApis {
     @Operation(summary = "获取挂号类型列表", description = "支持按名称、医保编码、id进行模糊查询，分页返回数据")
     @Override
     public JsonVO<PageDTO<RegisterVO>> queryRegisterList(RegisterQuery query) {
-        return JsonVO.success(registerTypeService.queryRegisterList(query));
+        // TODO: 后续由 service 层实现
+        return JsonVO.success(null);
     }
 
     /**
