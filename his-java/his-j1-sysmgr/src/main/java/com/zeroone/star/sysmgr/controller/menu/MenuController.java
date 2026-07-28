@@ -11,7 +11,7 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.menu.MenuVO;
 import com.zeroone.star.project.vo.login.MenuTreeVO;
 import com.zeroone.star.sysmgr.exception.MenuStatus;
-import com.zeroone.star.sysmgr.exception.SystemException;
+import com.zeroone.star.project.exception.SystemException;
 import com.zeroone.star.sysmgr.service.menu.MenusService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
