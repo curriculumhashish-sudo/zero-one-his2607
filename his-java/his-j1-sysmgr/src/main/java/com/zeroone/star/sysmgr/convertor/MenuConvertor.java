@@ -12,6 +12,7 @@ import org.mapstruct.Mappings;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.factory.Mappers;
 
+import java.awt.*;
 import java.util.List;
 
 /**
@@ -77,7 +78,9 @@ public interface MenuConvertor {
      * @return DO
      */
     default MenuDO updateDO(MenuUpdateDTO dto) {
-        return createDO(dto);
+        MenuDO menuDO = createDO(dto);
+        menuDO.setId(dto.getId());
+        return menuDO;
     }
 
     /**
