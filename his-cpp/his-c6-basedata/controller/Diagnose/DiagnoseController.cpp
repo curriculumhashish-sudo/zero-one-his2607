@@ -21,19 +21,19 @@
 #include "DiagnoseController.h"
 #include "../../service/Diagnose/DiagnoseService.h"
 =======
-#include "DiagnosisController.h"
-#include "../../service/Diagnosis/DiagnoseService.h"
+#include "DiagnoseController.h"
+#include "../../service/Diagnose/DiagnoseService.h"
 #include <algorithm>
->>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/controller/Diagnosis/DiagnosisController.cpp
+>>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/controller/Diagnose/DiagnoseController.cpp
 #include <cctype>
 #include <exception>
 
-bool DiagnosisController::hasValidQueryParameters(const QueryParams& queryParams)
+bool DiagnoseController::hasValidQueryParameters(const QueryParams& queryParams)
 {
 	for (const auto& parameter : queryParams.getAll())
 	{
 		const std::string name = parameter.first.toString();
-		if (name != "keyword" && name != "diagnosisKindCode"
+		if (name != "keyword" && name != "diagnoseKindCode"
 			&& name != "pageIndex" && name != "pageSize")
 		{
 			return false;
@@ -68,15 +68,15 @@ DiagnoseSelectPageJsonVO::Wrapper DiagnoseController::execQuerySelectDiagnose(
 	auto response = DiagnoseSelectPageJsonVO::createShared();
 	if (!query || !query->pageIndex || !query->pageSize)
 =======
-DiagnosisSelectPageJsonVO::Wrapper DiagnosisController::execQuerySelectDiagnosis(
-	const DiagnosisSelectQuery::Wrapper& query,
+DiagnoseSelectPageJsonVO::Wrapper DiagnoseController::execQuerySelectDiagnose(
+	const DiagnoseSelectQuery::Wrapper& query,
 	const PayloadDTO& payload)
 {
 	// 定义返回数据对象。
-	auto response = DiagnosisSelectPageJsonVO::createShared();
+	auto response = DiagnoseSelectPageJsonVO::createShared();
 	// 参数校验。
 	if (!query || !query->validate().empty() || payload.getId().empty())
->>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/controller/Diagnosis/DiagnosisController.cpp
+>>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/controller/Diagnose/DiagnoseController.cpp
 	{
 		response->init(nullptr, RS_PARAMS_INVALID);
 		return response;
@@ -113,7 +113,7 @@ DiagnosisSelectPageJsonVO::Wrapper DiagnosisController::execQuerySelectDiagnosis
 =======
 	// 响应结果。
 	response->success(result);
->>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/controller/Diagnosis/DiagnosisController.cpp
+>>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/controller/Diagnose/DiagnoseController.cpp
 	return response;
 }
 
@@ -243,8 +243,8 @@ StringJsonVO::Wrapper DiagnoseController::execBatchChangeDiagnoseStatus(const Di
 DiagnoseRemoveJsonVO::Wrapper DiagnoseController::execRemoveDiagnose(const DiagnoseRemoveDTO::Wrapper& dto, const PayloadDTO& payload)
 =======
 //逻辑删除
-DiagnoseRemoveJsonVO::Wrapper DiagnosisController::execRemoveDiagnosis(const DiagnoseRemoveDTO::Wrapper& dto, const PayloadDTO& payload)
->>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/controller/Diagnosis/DiagnosisController.cpp
+DiagnoseRemoveJsonVO::Wrapper DiagnoseController::execRemoveDiagnose(const DiagnoseRemoveDTO::Wrapper& dto, const PayloadDTO& payload)
+>>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/controller/Diagnose/DiagnoseController.cpp
 {
 	auto response = DiagnoseRemoveJsonVO::createShared();
 	if (!dto->ids)

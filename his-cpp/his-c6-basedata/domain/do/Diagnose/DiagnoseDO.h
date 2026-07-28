@@ -13,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //*/
-//#ifndef _DIAGNOSIS_DO_
-//#define _DIAGNOSIS_DO_
+//#ifndef _diagnose_DO_
+//#define _diagnose_DO_
 //#include "../DoInclude.h"
 ///**
 // * 诊断数据库实体DO，对应数据表 t_diagnose
@@ -117,4 +117,4 @@
 //	}
 //};
 //typedef std::shared_ptr<DiagnoseDO> PtrDiagnoseDO;
-//#endif // !_DIAGNOSIS_DO_
+//#endif // !_diagnose_DO_

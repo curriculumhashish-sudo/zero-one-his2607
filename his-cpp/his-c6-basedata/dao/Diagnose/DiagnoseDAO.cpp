@@ -47,10 +47,10 @@ static void appendSourceFilter(
 std::string DiagnoseDAO::queryConditionBuilder(
 	const DiagnoseSelectQuery::Wrapper& query,
 =======
-std::string DiagnosisDAO::queryConditionBuilder(
-	const DiagnosisSelectQuery::Wrapper& query,
+std::string DiagnoseDAO::queryConditionBuilder(
+	const DiagnoseSelectQuery::Wrapper& query,
 	const std::string& tenantId,
->>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/dao/Diagnosis/DiagnosisDAO.cpp
+>>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/dao/Diagnose/DiagnoseDAO.cpp
 	SqlParams& params)
 {
 	std::stringstream sqlCondition;
@@ -77,17 +77,17 @@ std::string DiagnosisDAO::queryConditionBuilder(
 	const std::string diagnoseKindCode = query->diagnoseKindCode.getValue("");
 	if (diagnoseKindCode == "1")
 =======
-	const std::string diagnosisKindCode = query->diagnosisKindCode.getValue("");
-	if (diagnosisKindCode == DiagnosisSelectQuery::DIAGNOSIS_KIND_WESTERN)
->>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/dao/Diagnosis/DiagnosisDAO.cpp
+	const std::string diagnoseKindCode = query->diagnoseKindCode.getValue("");
+	if (diagnoseKindCode == DiagnoseSelectQuery::diagnose_KIND_WESTERN)
+>>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/dao/Diagnose/DiagnoseDAO.cpp
 	{
 		appendSourceFilter(sqlCondition, params, WESTERN_SOURCE_CODES);
 	}
 <<<<<<< HEAD:his-cpp/his-c6-basedata/dao/Diagnose/DiagnoseDAO.cpp
 	else if (diagnoseKindCode == "2")
 =======
-	else if (diagnosisKindCode == DiagnosisSelectQuery::DIAGNOSIS_KIND_TRADITIONAL_CHINESE)
->>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/dao/Diagnosis/DiagnosisDAO.cpp
+	else if (diagnoseKindCode == DiagnoseSelectQuery::diagnose_KIND_TRADITIONAL_CHINESE)
+>>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/dao/Diagnose/DiagnoseDAO.cpp
 	{
 		appendSourceFilter(sqlCondition, params, TCM_SOURCE_CODES);
 	}
@@ -97,7 +97,7 @@ std::string DiagnosisDAO::queryConditionBuilder(
 <<<<<<< HEAD:his-cpp/his-c6-basedata/dao/Diagnose/DiagnoseDAO.cpp
 uint64_t DiagnoseDAO::count(const DiagnoseSelectQuery::Wrapper& query)
 =======
-std::string DiagnosisDAO::selectCurrentTenantId(const std::string& userId)
+std::string DiagnoseDAO::selectCurrentTenantId(const std::string& userId)
 {
 	if (userId.empty())
 	{
@@ -114,15 +114,15 @@ std::string DiagnosisDAO::selectCurrentTenantId(const std::string& userId)
 		"ORDER BY s.`updated_at` DESC LIMIT 1";
 	return sqlSession->executeQueryOne<std::string>(
 		sql,
-		DiagnosisTenantMapper(),
+		DiagnoseTenantMapper(),
 		"%s",
 		userId);
 }
 
-uint64_t DiagnosisDAO::count(
-	const DiagnosisSelectQuery::Wrapper& query,
+uint64_t DiagnoseDAO::count(
+	const DiagnoseSelectQuery::Wrapper& query,
 	const std::string& tenantId)
->>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/dao/Diagnosis/DiagnosisDAO.cpp
+>>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/dao/Diagnose/DiagnoseDAO.cpp
 {
 	SqlParams params;
 	std::string sql = "SELECT COUNT(*) FROM `cln_condition_definition` d";
@@ -134,10 +134,10 @@ uint64_t DiagnosisDAO::count(
 std::list<ClnConditionDefinitionDO> DiagnoseDAO::selectWithPage(
 	const DiagnoseSelectQuery::Wrapper& query)
 =======
-std::list<ClnConditionDefinitionDO> DiagnosisDAO::selectWithPage(
-	const DiagnosisSelectQuery::Wrapper& query,
+std::list<ClnConditionDefinitionDO> DiagnoseDAO::selectWithPage(
+	const DiagnoseSelectQuery::Wrapper& query,
 	const std::string& tenantId)
->>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/dao/Diagnosis/DiagnosisDAO.cpp
+>>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/dao/Diagnose/DiagnoseDAO.cpp
 {
 	SqlParams params;
 	std::string sql =

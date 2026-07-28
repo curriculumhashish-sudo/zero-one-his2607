@@ -21,22 +21,22 @@
  limitations under the License.
 */
 #include "DiagnoseService.h"
-#include "../../dao/Diagnosis/DiagnosisDAO.h"
+#include "../../dao/Diagnose/DiagnoseDAO.h"
 #include "id/UuidFacade.h"
 >>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b
 #include "SimpleDateTimeFormat.h"
 
 #include <charconv>
-static const std::string SOURCE_GENERAL_DIAGNOSIS = "general_dx";
+static const std::string SOURCE_GENERAL_diagnose = "general_dx";
 static const std::string SOURCE_CHRONIC_SPECIAL = "chronic_spec";
 static const std::string SOURCE_DISEASE_PACKAGE = "disease_pkg";
-static const std::string SOURCE_PAID_DIAGNOSIS = "paid_dx";
+static const std::string SOURCE_PAID_diagnose = "paid_dx";
 static const std::string SOURCE_DAY_SURGERY = "day_surgery_dx";
-static const std::string SOURCE_TCM_DIAGNOSIS = "tcm_dx";
+static const std::string SOURCE_TCM_diagnose = "tcm_dx";
 static const std::string SOURCE_TCM_SYNDROME = "tcm_syndrome";
 static const std::string SOURCE_TUMOR_MORPHOLOGY = "tumor_morph";
-static const std::string DIAGNOSIS_KIND_TCM = "TCM";
-static const std::string DIAGNOSIS_KIND_WESTERN = "WESTERN";
+static const std::string diagnose_KIND_TCM = "TCM";
+static const std::string diagnose_KIND_WESTERN = "WESTERN";
 static const std::string STATUS_ACTIVE = "ACTIVE";
 static constexpr int STATUS_ACTIVE_SORT_ORDER = 2;
 
@@ -54,15 +54,15 @@ static bool tryParseInt32(const std::string& value, int32_t& result)
 
 static bool isTraditionalChineseMedicineSource(const std::string& sourceEnum)
 {
-	return sourceEnum == SOURCE_TCM_DIAGNOSIS || sourceEnum == SOURCE_TCM_SYNDROME;
+	return sourceEnum == SOURCE_TCM_diagnose || sourceEnum == SOURCE_TCM_SYNDROME;
 }
 
 static bool isWesternMedicineSource(const std::string& sourceEnum)
 {
-	return sourceEnum == SOURCE_GENERAL_DIAGNOSIS
+	return sourceEnum == SOURCE_GENERAL_diagnose
 		|| sourceEnum == SOURCE_CHRONIC_SPECIAL
 		|| sourceEnum == SOURCE_DISEASE_PACKAGE
-		|| sourceEnum == SOURCE_PAID_DIAGNOSIS
+		|| sourceEnum == SOURCE_PAID_diagnose
 		|| sourceEnum == SOURCE_DAY_SURGERY
 		|| sourceEnum == SOURCE_TUMOR_MORPHOLOGY;
 }
@@ -88,8 +88,8 @@ DiagnoseSelectPageDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
 	DiagnoseDAO dao;
 	const uint64_t total = dao.count(query);
 =======
-DiagnosisSelectPageDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
-	const DiagnosisSelectQuery::Wrapper& query,
+DiagnoseSelectPageDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
+	const DiagnoseSelectQuery::Wrapper& query,
 	const PayloadDTO& payload)
 {
 	if (!query || !query->validate().empty() || payload.getId().empty())
@@ -97,14 +97,14 @@ DiagnosisSelectPageDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
 		return nullptr;
 	}
 
-	DiagnosisDAO dao;
+	DiagnoseDAO dao;
 	const std::string tenantId = dao.selectCurrentTenantId(payload.getId());
 	if (tenantId.empty())
 	{
 		return nullptr;
 	}
 
-	auto page = DiagnosisSelectPageDTO::createShared();
+	auto page = DiagnoseSelectPageDTO::createShared();
 	page->pageIndex = query->pageIndex;
 	page->pageSize = query->pageSize;
 
@@ -128,7 +128,7 @@ DiagnosisSelectPageDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
 		dto->pyStr = record.getPyStr();
 		dto->wbStr = record.getWbStr();
 =======
-		auto dto = DiagnosisSelectDTO::createShared();
+		auto dto = DiagnoseSelectDTO::createShared();
 		ZO_STAR_DOMAIN_DO_TO_DTO(
 			dto,
 			record,
@@ -152,13 +152,13 @@ DiagnosisSelectPageDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
 			dto->diagnoseKind = "WESTERN";
 			dto->diagnoseKindText = ZH_WORDS_GETTER("diagnose.type.western");
 =======
-			dto->diagnosisKind = DIAGNOSIS_KIND_TCM;
-			dto->diagnosisKindText = ZH_WORDS_GETTER("diagnose.type.tcm");
+			dto->diagnoseKind = diagnose_KIND_TCM;
+			dto->diagnoseKindText = ZH_WORDS_GETTER("diagnose.type.tcm");
 		}
 		else if (isWesternMedicineSource(sourceEnum))
 		{
-			dto->diagnosisKind = DIAGNOSIS_KIND_WESTERN;
-			dto->diagnosisKindText = ZH_WORDS_GETTER("diagnose.type.western");
+			dto->diagnoseKind = diagnose_KIND_WESTERN;
+			dto->diagnoseKindText = ZH_WORDS_GETTER("diagnose.type.western");
 >>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b
 		}
 		else
@@ -336,7 +336,7 @@ bool DiagnoseService::updateData(const DiagnoseDTO::Wrapper& dto)
 // 逻辑单条删除
 >>>>>>> parent of d02f5cf44 (axiao完成诊疗列表查询功能)
 =======
-// Logically deletes one diagnosis record.
+// Logically deletes one diagnose record.
 >>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b
 bool DiagnoseService::removeOne(const std::string& id)
 {
@@ -367,7 +367,7 @@ bool DiagnoseService::removeOne(const std::string& id)
 // 逻辑批量删除（停用）诊断记录
 >>>>>>> parent of d02f5cf44 (axiao完成诊疗列表查询功能)
 =======
-// Physically deletes a diagnosis batch.
+// Physically deletes a diagnose batch.
 >>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b
 bool DiagnoseService::removeData(const oatpp::List<oatpp::String>& ids)
 {
@@ -423,7 +423,7 @@ bool DiagnoseService::batchChangeStatus(const DiagnoseBatchStatusDTO::Wrapper& d
 	}
 	return successCount > 0;
 }
-// Logically deletes a diagnosis batch.
+// Logically deletes a diagnose batch.
 bool DiagnoseService::execRemoveData(const DiagnoseRemoveDTO::Wrapper& dto)
 {
 	const oatpp::List<oatpp::String> ids = dto->ids;

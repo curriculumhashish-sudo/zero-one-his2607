@@ -16,8 +16,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _DIAGNOSIS_DAO_H_
-#define _DIAGNOSIS_DAO_H_
+#ifndef _diagnose_DAO_H_
+#define _diagnose_DAO_H_
 
 #include "BaseDAO.h"
 #include "../../domain/do/Diagnose/DiagnoseDO.h"
@@ -39,22 +39,22 @@ public:
 	std::list<DiagnoseDO> selectByName(const std::string& name);
 =======
 /** 诊断数据访问对象。 */
-class DiagnosisDAO : public BaseDAO
+class DiagnoseDAO : public BaseDAO
 {
 private:
 	std::string queryConditionBuilder(
-		const DiagnosisSelectQuery::Wrapper& query,
+		const DiagnoseSelectQuery::Wrapper& query,
 		const std::string& tenantId,
 		SqlParams& params);
 
 public:
 	std::string selectCurrentTenantId(const std::string& userId);
-	uint64_t count(const DiagnosisSelectQuery::Wrapper& query, const std::string& tenantId);
+	uint64_t count(const DiagnoseSelectQuery::Wrapper& query, const std::string& tenantId);
 	std::list<ClnConditionDefinitionDO> selectWithPage(
-		const DiagnosisSelectQuery::Wrapper& query,
+		const DiagnoseSelectQuery::Wrapper& query,
 		const std::string& tenantId);
-	std::list<DiagnosisDO> selectByName(const std::string& name);
->>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/dao/Diagnosis/DiagnosisDAO.h
+	std::list<DiagnoseDO> selectByName(const std::string& name);
+>>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/dao/Diagnose/DiagnoseDAO.h
 };
 
-#endif // !_DIAGNOSIS_DAO_H_
+#endif // !_diagnose_DAO_H_

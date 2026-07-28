@@ -17,8 +17,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _DIAGNOSISCONTROLLER_H_
-#define _DIAGNOSISCONTROLLER_H_
+#ifndef _diagnoseCONTROLLER_H_
+#define _diagnoseCONTROLLER_H_
 #include "GlobalInclude.h"
 
 
@@ -33,8 +33,8 @@
 //Json
 #include "domain/vo/BaseJsonVO.h"
 #include "domain/vo/Diagnose/DiagnoseDetailJsonVO.h"
-#include "domain/vo/Diagnose/DiagnoseDetailPageJsonVO.h"
-#include "domain/vo/Diagnose/DiagnoseSelectPageJsonVO.h"
+#include "domain/vo/Diagnose/DiagnosePageJsonVO.h"
+#include "domain/vo/Diagnose/DiagnoseSelectJsonVO.h"
 #include "domain/vo/Diagnose/DiagnoseJsonVO.h"
 
 using namespace oatpp;
@@ -92,7 +92,7 @@ private:
 	// 新增诊断表数据
 	StringJsonVO::Wrapper execAddDiagnose(const DiagnoseAddDTO::Wrapper& dto, const PayloadDTO& payload);
 	//  新增诊断目录（分类）数据
-	//StringJsonVO::Wrapper execAddDiagcategory(const DiagnoseAddDTO::Wrapper& dto, const PayloadDTO& payload);
+	StringJsonVO::Wrapper execAddDiagcategory(const DiagnoseAddDTO::Wrapper& dto, const PayloadDTO& payload);
 	// 演示修改数据
 	StringJsonVO::Wrapper execModifyDiagnose(const DiagnoseDTO::Wrapper& dto, const PayloadDTO& payload);
 	// 演示删除数据
@@ -105,4 +105,4 @@ private:
 
 #include OATPP_CODEGEN_END(ApiController)
 
-#endif //  _DIAGNOSISCONTROLLER_H_ No newline at end of file
+#endif //  _diagnoseCONTROLLER_H_ No newline at end of file
