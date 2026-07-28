@@ -6,6 +6,7 @@ import jakarta.validation.constraints.AssertTrue;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 /**
  * <p>
@@ -29,6 +30,14 @@ public class EncounterWeekTrendQuery {
     public boolean isDateRangeValid() {
         if (startDate != null && endDate != null) {
             return !startDate.isAfter(endDate);
+        }
+        return true;
+    }
+    @AssertTrue(message = "查询区间不能超过7天（含当天）")
+    public boolean isDateRangeWithinSevenDays() {
+        if (startDate != null && endDate != null) {
+            long days = ChronoUnit.DAYS.between(startDate, endDate) + 1;
+            return days <= 7;
         }
         return true;
     }

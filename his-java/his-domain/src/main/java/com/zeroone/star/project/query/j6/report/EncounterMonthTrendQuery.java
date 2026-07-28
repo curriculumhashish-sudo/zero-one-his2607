@@ -32,4 +32,12 @@ public class EncounterMonthTrendQuery {
         }
         return true;
     }
+    @AssertTrue(message = "开始日期和结束日期必须在同一个月")
+    public boolean isSameMonth() {
+        if (startDate != null && endDate != null) {
+            return startDate.getYear() == endDate.getYear()
+                    && startDate.getMonth() == endDate.getMonth();
+        }
+        return true;
+    }
 }
