@@ -9,7 +9,14 @@
       "cmakeCommandArgs": "-DUNIT_TEST=1",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [ "msvc_x64_x64" ]
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "variables": [
+        {
+          "name": "CMAKE_CXX_FLAGS",
+          "value": "/std:c++17 /Zc:__cplusplus",
+          "type": "STRING"
+        }
+      ]
     },
     {
       "name": "x64-Release",
@@ -20,7 +27,14 @@
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "msvc_x64_x64" ],
-      "cmakeCommandArgs": "-D_RELEASE_DOC_=1"
+      "cmakeCommandArgs": "-D_RELEASE_DOC_=1",
+      "variables": [
+        {
+          "name": "CMAKE_CXX_FLAGS",
+          "value": "/std:c++17 /Zc:__cplusplus",
+          "type": "STRING"
+        }
+      ]
     },
     {
       "name": "Linux-GCC-Debug",

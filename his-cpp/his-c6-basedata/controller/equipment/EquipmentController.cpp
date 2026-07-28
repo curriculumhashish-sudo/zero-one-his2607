@@ -81,7 +81,7 @@ StringJsonVO::Wrapper EquipmentController::execModifyEquipment(const EquipmentMo
 	}
 
 	// Ö´ÐÐÐÞ¸ÄÒµÎñÂß¼­
-	bool success = EquipmentService().modifyData(dto);
+	bool success = EquipmentService().modifyData(dto,payload);
 	if (success)
 	{
 		jvo->success("");
@@ -107,7 +107,7 @@ StringJsonVO::Wrapper EquipmentController::execDeleteEquipment(const EquipmentDe
 	}
 
 	// Ö´ÐÐÉ¾³ýÂß¼­
-	bool success = EquipmentService().deleteData(dto);
+	bool success = EquipmentService().deleteData(dto,payload);
 	if (success)
 	{
 		jvo->success("");
@@ -133,7 +133,7 @@ StringJsonVO::Wrapper EquipmentController::execChangeEquipmentStatus(const Equip
 	}
 
 	// Ö´ÐÐÆôÍ£ÓÃÂß¼­
-	bool success = EquipmentService().changeStatus(dto);
+	bool success = EquipmentService().changeStatus(dto,payload);
 	if (success)
 	{
 		jvo->success("");
