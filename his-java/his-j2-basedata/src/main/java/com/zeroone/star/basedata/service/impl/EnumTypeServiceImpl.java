@@ -23,6 +23,7 @@ import java.util.List;
 @Service
 public class EnumTypeServiceImpl implements EnumTypeService {
 
+    // 默认系统租户ID，各个租户公用
     private static final String TENANT_ID = "1";
 
     @Resource
@@ -36,6 +37,7 @@ public class EnumTypeServiceImpl implements EnumTypeService {
                 (int) query.getPageSize(),
                 Sort.by(Sort.Direction.DESC, "updatedAt")
         );
+
 
         Page<EnumType> page = enumTypeRepository.findByKeyword(
                 TENANT_ID,

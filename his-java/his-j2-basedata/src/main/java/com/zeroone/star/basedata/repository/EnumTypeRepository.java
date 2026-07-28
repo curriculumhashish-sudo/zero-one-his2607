@@ -14,13 +14,19 @@ public interface EnumTypeRepository extends MongoRepository<EnumType, String> {
 
     boolean existsByTenantIdAndEnumTypeKey(String tenantId, String enumTypeKey);
 
+    /**
+     * 根据关键字查询枚举类型，这里会额外查询默认系统租户的枚举类型
+     * @param tenatId 枚举类型所属租户ID
+     * @param keyword 关键字
+     * @param pageable 分页信息
+     * @return 枚举类型列表
+     */
     @Query("{$and: ["
-            + "{'tenantId': ?0}, "
+            + "{'tenantId': {$in: ['1', ?0]}}, "
             + "{'isDeleted': false}, "
             + "{$or: ["
             + "{'enumTypeKey': {$regex: ?1, $options: 'i'}}, "
             + "{'displayName': {$regex: ?1, $options: 'i'}}, "
-            + "{'description': {$regex: ?1, $options: 'i'}}"
             + "]}"
             + "]}")
     Page<EnumType> findByKeyword(
@@ -31,7 +37,13 @@ public interface EnumTypeRepository extends MongoRepository<EnumType, String> {
 
     String findEnumTypeIdByEnumTypeKey(String enumTypeKey);
 
-    @Query("{'enumTypeKey': ?1, 'tenantId': ?0, 'isDeleted': false}")
+    /**
+     * 根据枚举类型关键字查询枚举类型ID，包含默认系统租户的枚举类型
+     * @param tenantId 枚举类型所属租户ID
+     * @param enumTypeKey 枚举类型关键字
+     * @return 枚举类型ID
+     */
+    @Query("{'enumTypeKey': ?1, 'tenantId': {$in: ['1', ?0]}, 'isDeleted': false}")
     EnumType findActiveByEnumTypeKey(String tenantId, String enumTypeKey);
 
 }
