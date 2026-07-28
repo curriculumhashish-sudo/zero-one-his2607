@@ -31,6 +31,7 @@ public:
 		data.setId(resultSet->getString("id"));
 		data.setClinicNo(resultSet->getString("clinicNo"));
 		data.setName(resultSet->getString("name"));
+		data.setRoom(resultSet->getString("room"));
 		data.setDate(resultSet->getString("date"));
 		data.setFeeClass(resultSet->getString("feeClass"));
 		data.setDetailClass(resultSet->getString("detailClass"));
@@ -67,6 +68,7 @@ public:
 		file->setId(resultSet->getString("id"));
 		file->setClinicNo(resultSet->getString("clinicNo"));
 		file->setName(resultSet->getString("name"));
+		file->setRoom(resultSet->getString("room"));
 		file->setDate(resultSet->getString("date"));
 		file->setFeeClass(resultSet->getString("feeClass"));
 		file->setDetailClass(resultSet->getString("detailClass"));

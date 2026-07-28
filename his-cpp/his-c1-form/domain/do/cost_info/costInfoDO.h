@@ -9,6 +9,7 @@ class CostInfoDO : public BaseDO
 	MYSQL_SYNTHESIZE(string, id, Id);
 	MYSQL_SYNTHESIZE(string, clinicNo, ClinicNo);
 	MYSQL_SYNTHESIZE(string, name, Name);
+	MYSQL_SYNTHESIZE(string, room, Room);
 	MYSQL_SYNTHESIZE(string, date, Date);
 	MYSQL_SYNTHESIZE(string, feeClass, FeeClass);
 	MYSQL_SYNTHESIZE(string, detailClass, DetailClass);
@@ -38,6 +39,7 @@ public:
 		MYSQL_ADD_FIELD_PK("id", "s", id);
 		MYSQL_ADD_FIELD("clinicNo", "s", clinicNo);
 		MYSQL_ADD_FIELD("name", "s", name);
+		MYSQL_ADD_FIELD("room", "s", room);
 		MYSQL_ADD_FIELD("date", "s", date);
 		MYSQL_ADD_FIELD("feeClass", "s", feeClass);
 		MYSQL_ADD_FIELD("detailClass", "s", detailClass);

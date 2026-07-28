@@ -7,6 +7,7 @@
 	" aci.`id` AS id," \
 	" ae.`bus_no` AS clinicNo," \
 	" a_pa.`name` AS name," \
+	" al.`name` AS room," \
 	" ae.`start_time` AS date," \
 	" tc.`display` AS feeClass," \
 	" COALESCE(mmd.`category_code`, add.`category_code`, wad.`category_code`) AS detailClass," \
