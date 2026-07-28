@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 # 中文词典 — his-c5-basicdata
 # 格式: <模块>.<分类>.<键> — 中文描述
 # ============================================================
@@ -70,13 +70,23 @@ dept:
       disable: 批量停用科室成功
     fail:
       empty: 批量操作失败，无匹配科室数据
+    validate:
+      body-invalid: 请求体JSON格式错误
+      id-list-required: deptIdList不能为空
+      id-list-empty: deptIdList不能为空
+      id-empty: 科室ID不能为空字符串
+      id-not-digit: 科室ID仅允许数字字符
+      id-type-string: 科室ID必须为字符串类型
+      id-duplicate: 存在重复的科室ID
+      status-required: targetStatus不能为空
+      status-invalid: targetStatus仅支持0(停用)或1(启用)
     error:
-      id-convert-fail: "科室ID格式转换失败"
-      no-match: "批量操作失败，无匹配科室数据"
-      partial-fail: "批量操作部分失败，已全部回滚"
-      cascade-fail: "级联启用子科室失败，已全部回滚"
-      has-active-child: "存在启用的子科室，请先停用子科室"
-      parent-inactive: "父科室未启用，请先启用父科室"
+      id-convert-fail: 科室ID格式转换失败
+      no-match: 批量操作失败，无匹配科室数据
+      partial-fail: 批量操作部分失败，已全部回滚
+      cascade-fail: 级联启用子科室失败，已全部回滚
+      has-active-child: 存在启用的子科室，请先停用子科室
+      parent-inactive: 父科室未启用，请先启用父科室
   endpoints:
     nameTree: 获取科室名称树
     listTree: 获取科室列表树

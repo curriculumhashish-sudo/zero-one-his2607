@@ -1,52 +1,104 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "DeptBatchStatusController.h"
 #include "../../service/dept/DeptBatchStatusService.h"
+#include "oatpp/core/parser/ParsingError.hpp"
 
-DeptBatchStatusJsonVO::Wrapper DeptBatchStatusController::execBatchToggleDeptStatus(const DeptBatchStatusDTO::Wrapper& dto, const PayloadDTO& payload)
+std::string DeptBatchStatusController::mapDeserializeError(const std::string& rawMsg)
 {
-    auto respVo = DeptBatchStatusJsonVO::createShared();
+	// æ•°å­—æœªåŠ å¼•å·ï¼šæœŸæœ›å­—ç¬¦ä¸² "
+	if (rawMsg.find("preparseString") != std::string::npos ||
+		rawMsg.find("'\"' - expected") != std::string::npos)
+	{
+		return ZH_WORDS_GETTER("dept.batch-status.validate.id-not-digit");
+	}
 
-    // µÚÒ»²½£ºÖ´ÐÐÈë²Î×Ô¶¨ÒåÐ£Ñé
-    std::string errMsg = dto->validate();
-    if (!errMsg.empty())
-    {
-        respVo->init(RS_PARAMS_INVALID);
-        respVo->message = errMsg;
-        return respVo;
-    }
+	// deptIdList ç¼ºå¤±å€¼ / ä¸æ˜¯æ•°ç»„ï¼šæœŸæœ› [
+	if (rawMsg.find("deserializeCollection") != std::string::npos ||
+		rawMsg.find("'[' - expected") != std::string::npos)
+	{
+		return ZH_WORDS_GETTER("dept.batch-status.validate.id-list-required");
+	}
 
-    // ½«µ±Ç°µÇÂ¼ÓÃ»§ÔØºÉ°ó¶¨µ½ÇëÇóDTOÄÚ²¿
-    dto->setPayload(&payload);
+	// targetStatus éžæ³•æ•´æ•°
+	if (rawMsg.find("ERROR_INVALID_INTEGER") != std::string::npos ||
+		rawMsg.find("Invalid Integer") != std::string::npos)
+	{
+		return ZH_WORDS_GETTER("dept.batch-status.validate.status-required");
+	}
 
-    // ÊµÀý»¯Service£¬µ÷ÓÃÅúÁ¿ÆôÍ£ÒµÎñ·½·¨
-    DeptBatchStatusService batchService;
-    BatchResult result = batchService.batchToggleDeptStatus(dto);
+	return ZH_WORDS_GETTER("dept.batch-status.validate.body-invalid");
+}
 
-    // ¸ù¾Ý½á¹û×é×°ÏìÓ¦
-    if (result.success)
-    {
-        respVo->init(RS_SUCCESS);
-        if (dto->targetStatus == 1)
-        {
-            respVo->message = ZH_WORDS_GETTER("dept.batch-status.success.enable");
-        }
-        else
-        {
-            respVo->message = ZH_WORDS_GETTER("dept.batch-status.success.disable");
-        }
-    }
-    else
-    {
-        respVo->init(RS_FAIL);
-        if (!result.errorMsg.empty())
-        {
-            respVo->message = result.errorMsg;
-        }
-        else
-        {
-            respVo->message = ZH_WORDS_GETTER("dept.batch-status.fail.empty");
-        }
-    }
+DeptBatchStatusJsonVO::Wrapper DeptBatchStatusController::execBatchToggleDeptStatus(
+	const oatpp::String& body,
+	const PayloadDTO& payload)
+{
+	auto respVo = DeptBatchStatusJsonVO::createShared();
 
-    return respVo;
+	// 1. è¯·æ±‚ä½“ä¸ºç©º
+	if (!body || body->empty())
+	{
+		respVo->init(RS_PARAMS_INVALID);
+		respVo->message = ZH_WORDS_GETTER("dept.batch-status.validate.id-list-required");
+		return respVo;
+	}
+
+	// 2. å®‰å…¨ååºåˆ—åŒ–ï¼šç±»åž‹é”™è¯¯åœ¨æ­¤æ•èŽ·ï¼Œä¸å†æŠ›æˆ 500/9994
+	DeptBatchStatusDTO::Wrapper dto = nullptr;
+	try
+	{
+		dto = getDefaultObjectMapper()->readFromString<DeptBatchStatusDTO::Wrapper>(body);
+	}
+	catch (const oatpp::parser::ParsingError& e)
+	{
+		std::string raw = e.getMessage() ? e.getMessage()->c_str() : e.what();
+		respVo->init(RS_PARAMS_INVALID);
+		respVo->message = mapDeserializeError(raw);
+		return respVo;
+	}
+	catch (const std::exception& e)
+	{
+		respVo->init(RS_PARAMS_INVALID);
+		respVo->message = mapDeserializeError(e.what());
+		return respVo;
+	}
+
+	if (!dto)
+	{
+		respVo->init(RS_PARAMS_INVALID);
+		respVo->message = ZH_WORDS_GETTER("dept.batch-status.validate.body-invalid");
+		return respVo;
+	}
+
+	// 3. ä¸šåŠ¡æ ¡éªŒï¼ˆå¿…å¡«ã€æžšä¸¾ã€é‡å¤IDç­‰ï¼‰
+	std::string errMsg = dto->validate();
+	if (!errMsg.empty())
+	{
+		respVo->init(RS_PARAMS_INVALID);
+		respVo->message = errMsg;
+		return respVo;
+	}
+
+	// 4. ç»‘å®šç™»å½•ç”¨æˆ·å¹¶æ‰§è¡Œä¸šåŠ¡
+	dto->setPayload(&payload);
+	DeptBatchStatusService batchService;
+	BatchResult result = batchService.batchToggleDeptStatus(dto);
+
+	// 5. ç»„è£…å“åº”
+	if (result.success)
+	{
+		respVo->init(RS_SUCCESS);
+		respVo->message = (dto->targetStatus == 1)
+			? ZH_WORDS_GETTER("dept.batch-status.success.enable")
+			: ZH_WORDS_GETTER("dept.batch-status.success.disable");
+	}
+	else
+	{
+		respVo->init(RS_FAIL);
+		respVo->message = result.errorMsg.empty()
+			? ZH_WORDS_GETTER("dept.batch-status.fail.empty")
+			: result.errorMsg;
+	}
+
+	return respVo;
 }

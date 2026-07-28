@@ -1,56 +1,48 @@
-#pragma once
+ï»¿#pragma once
 #ifndef _DEPT_BATCH_STATUS_DAO_H_
 #define _DEPT_BATCH_STATUS_DAO_H_
 
 #include "BaseDAO.h"
 #include "../../domain/dto/dept/DeptBatchStatusDTO.h"
+#include <vector>
 
+/**
+ * ç§‘å®¤æ‰¹é‡å¯åœæ•°æ®è®¿é—®å±‚
+ * çŠ¶æ€å­—æ®µç»Ÿä¸€ä½¿ç”¨ status_enumï¼ˆACTIVE / INACTIVEï¼‰ï¼Œä¸æ¶‰åŠ active_flag
+ */
 class DeptBatchStatusDAO : public BaseDAO
 {
 public:
-	// É¾µô×Ô¶¨Òå¹¹Ôì¡¢Îö¹¹£¬ÍêÈ«¼Ì³ĞBaseDAOÄ¬ÈÏ¹¹Ôì
 	~DeptBatchStatusDAO() override = default;
 
+	/**
+	 * æ‰¹é‡æ›´æ–°ç§‘å®¤çŠ¶æ€ï¼ˆäº‹åŠ¡ï¼šå…¨æˆåŠŸæäº¤ï¼Œå¦åˆ™å›æ»šï¼‰
+	 * @param numIdList æ•°å­—IDåˆ—è¡¨
+	 * @param updateDto æ›´æ–°æ•°æ®ï¼ˆstatusEnum / updateBy / updateTimeï¼‰
+	 * @return å½±å“è¡Œæ•°ï¼›å¤±è´¥è¿”å› 0
+	 */
+	int batchUpdateStatus(const std::vector<int64_t>& numIdList, const DeptBatchUpdateDTO::Wrapper& updateDto);
 
-    // ========== ¸üĞÂ·½·¨ ==========
+	/**
+	 * æŸ¥è¯¢çˆ¶ç§‘å®¤ID
+	 * @return çˆ¶ç§‘å®¤IDï¼›æ— çˆ¶ç§‘å®¤æˆ– parent_id ä¸ºç©ºæ—¶è¿”å› 0
+	 */
+	int64_t getParentDeptId(int64_t deptId);
 
-    /**
-     * ÅúÁ¿¸üĞÂ¿ÆÊÒ×´Ì¬
-     * @param numIdList Êı×ÖIDÁĞ±í
-     * @param updateDto ¸üĞÂÊı¾İ
-     * @return Ó°ÏìĞĞÊı
-     */
-    int batchUpdateStatus(const std::vector<int64_t>& numIdList, const DeptBatchUpdateDTO::Wrapper& updateDto);
+	/**
+	 * æ˜¯å¦å­˜åœ¨å¯ç”¨çŠ¶æ€çš„å­ç§‘å®¤ï¼ˆstatus_enum = ACTIVEï¼‰
+	 */
+	bool hasActiveChildDept(int64_t deptId);
 
-    // ========== ĞÂÔö²éÑ¯·½·¨£¨¸¸×Ó×´Ì¬Ğ£ÑéÓÃ£© ==========
+	/**
+	 * æŸ¥è¯¢ç›´æ¥å­ç§‘å®¤IDåˆ—è¡¨
+	 */
+	std::vector<int64_t> getChildDeptIds(int64_t deptId);
 
-    /**
-     * ²éÑ¯¿ÆÊÒµÄ¸¸¿ÆÊÒID
-     * @param deptId ¿ÆÊÒID
-     * @return ¸¸¿ÆÊÒID£¬0±íÊ¾ÎŞ¸¸¿ÆÊÒ
-     */
-    int64_t getParentDeptId(int64_t deptId);
-
-    /**
-     * ¼ì²é¿ÆÊÒÊÇ·ñÓĞÆôÓÃµÄ×Ó¿ÆÊÒ
-     * @param deptId ¿ÆÊÒID
-     * @return true-ÓĞÆôÓÃ×Ó¿ÆÊÒ false-ÎŞ
-     */
-    bool hasActiveChildDept(int64_t deptId);
-
-    /**
-     * ²éÑ¯¿ÆÊÒµÄËùÓĞ×Ó¿ÆÊÒIDÁĞ±í
-     * @param deptId ¿ÆÊÒID
-     * @return ×Ó¿ÆÊÒIDÁĞ±í
-     */
-    std::vector<int64_t> getChildDeptIds(int64_t deptId);
-
-    /**
-     * ²éÑ¯¿ÆÊÒÊÇ·ñÆôÓÃ
-     * @param deptId ¿ÆÊÒID
-     * @return true-ÆôÓÃ false-Í£ÓÃ
-     */
-    bool isDeptActive(int64_t deptId);
+	/**
+	 * ç§‘å®¤æ˜¯å¦ä¸ºå¯ç”¨çŠ¶æ€ï¼ˆstatus_enum = ACTIVEï¼‰
+	 */
+	bool isDeptActive(int64_t deptId);
 };
 
 #endif

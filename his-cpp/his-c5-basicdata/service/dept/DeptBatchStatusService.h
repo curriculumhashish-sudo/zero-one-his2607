@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef _DEPT_BATCH_STATUS_SERVICE_H_
 #define _DEPT_BATCH_STATUS_SERVICE_H_
 
@@ -8,51 +8,44 @@
 #include <vector>
 
 /**
- * 批量操作结果
+ * 批量启停操作结果
  */
 struct BatchResult
 {
-    bool success;
-    std::string errorMsg;
-    int successCount;
-    int failCount;
+	bool success;
+	std::string errorMsg;
+	int successCount;
+	int failCount;
 
-    BatchResult() : success(false), successCount(0), failCount(0) {}
+	BatchResult() : success(false), successCount(0), failCount(0) {}
 };
 
+/**
+ * 科室批量启停业务层
+ */
 class DeptBatchStatusService
 {
 public:
-    /**
-     * 批量启停科室业务逻辑入口
-     * @param reqDto 前端提交请求DTO
-     * @return 批量操作结果
-     */
-    BatchResult batchToggleDeptStatus(const DeptBatchStatusDTO::Wrapper& reqDto);
+	/**
+	 * 批量启停科室
+	 * @param reqDto 前端请求DTO
+	 * @return 批量操作结果（失败时整批回滚，不支持部分成功）
+	 */
+	BatchResult batchToggleDeptStatus(const DeptBatchStatusDTO::Wrapper& reqDto);
 
 private:
-    // ========== 父子状态校验方法 ==========
+	/**
+	 * 校验父子科室状态规则
+	 * 规则1：存在启用子科室时不可停用父科室（同批一并停用的子科室除外）
+	 * 规则2：启用父科室后级联启用直接子科室（见 cascadeEnableChildren）
+	 * 规则3：父科室未启用时不可启用子科室（同批一并启用的父科室除外）
+	 */
+	bool validateParentChildStatus(const std::vector<int64_t>& deptIdList, int targetStatus, std::string& errorMsg);
 
-    /**
-     * 校验父子科室状态规则
-     * 规则1：存在启用子节点，不可停用父节点
-     * 规则2：父节点未启用，子节点不可启用
-     * 规则3：启用父节点后，自动级联启用所有子节点
-     * @param deptIdList 待操作的科室ID列表
-     * @param targetStatus 目标状态 0=停用 1=启用
-     * @param errorMsg 错误信息
-     * @return true-校验通过 false-校验失败
-     */
-    bool validateParentChildStatus(const std::vector<int64_t>& deptIdList, int targetStatus, std::string& errorMsg);
-
-    /**
-     * 级联启用子科室
-     * @param parentIds 父科室ID列表
-     * @param updateBy 操作人
-     * @param updateTime 操作时间
-     * @return true-成功 false-失败
-     */
-    bool cascadeEnableChildren(const std::vector<int64_t>& parentIds, const std::string& updateBy, const std::string& updateTime);
+	/**
+	 * 级联启用直接子科室
+	 */
+	bool cascadeEnableChildren(const std::vector<int64_t>& parentIds, const std::string& updateBy, const std::string& updateTime);
 };
 
 #endif

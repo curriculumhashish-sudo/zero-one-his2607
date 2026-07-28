@@ -1,142 +1,111 @@
-#pragma once
+ï»¿#pragma once
 #ifndef _DEPT_BATCH_STATUS_DTO_
 #define _DEPT_BATCH_STATUS_DTO_
 #include "../../GlobalInclude.h"
+#include <cctype>
+#include <unordered_set>
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * Ç°¶ËÈë²ÎDTO£ºÅúÁ¿ÆôÍ£¿ÆÊÒÇëÇó¶ÔÏó
+ * å‰ç«¯å…¥å‚DTOï¼šæ‰¹é‡å¯åœç§‘å®¤è¯·æ±‚å¯¹è±¡
+ * deptIdList / targetStatus å‡æ ‡è®°ä¸ºå¿…å¡«ï¼ˆSwagger required=trueï¼‰
+ * deptIdList å…ƒç´ å¿…é¡»æ˜¯å­—ç¬¦ä¸²ï¼ˆé›ªèŠ±IDè¶…å‡º JS Number å®‰å…¨èŒƒå›´ï¼‰
+ * targetStatusï¼š0=åœç”¨ï¼Œ1=å¯ç”¨
  */
 class DeptBatchStatusDTO : public oatpp::DTO
 {
 	DTO_INIT(DeptBatchStatusDTO, DTO);
 
-	// ÅúÁ¿¿ÆÊÒID¼¯ºÏ - ±ØÌî
-	DTO_FIELD(Vector<String>, deptIdList);
-	DTO_FIELD_INFO(deptIdList) {
-		info->description = ZH_WORDS_GETTER("dept.field.deptIdList");
-		info->required = true;  // ±ê¼ÇÎª±ØÌî
-	}
+	// æ‰¹é‡ç§‘å®¤IDé›†åˆï¼ˆå¿…å¡«ï¼‰
+	API_DTO_FIELD_REQUIRE(Vector<String>, deptIdList, ZH_WORDS_GETTER("dept.field.deptIdList"), true)
 
-	// Ä¿±êÆôÍ£×´Ì¬ 0=Í£ÓÃ 1=ÆôÓÃ - ±ØÌî
-	DTO_FIELD(Int32, targetStatus);
-	DTO_FIELD_INFO(targetStatus) {
-		info->description = ZH_WORDS_GETTER("dept.field.targetStatus");
-		info->required = true;  // ±ê¼ÇÎª±ØÌî
-	}
+	// ç›®æ ‡å¯åœçŠ¶æ€ï¼ˆå¿…å¡«ï¼‰
+	API_DTO_FIELD_REQUIRE(Int32, targetStatus, ZH_WORDS_GETTER("dept.field.targetStatus"), true)
 
-
-	// ¸ºÔØ¶ÔÏó£¬´æ·Åµ±Ç°µÇÂ¼²Ù×÷ÈË
+	// å½“å‰ç™»å½•æ“ä½œäººè½½è·
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
+
 public:
-	// ²ÎÊıºÏ·¨ĞÔĞ£Ñé
-    std::string validate()
-    {
-        // 1. Ğ£Ñé deptIdList ÊÇ·ñ´æÔÚ
-        if (!deptIdList)
-        {
-            return "deptIdList²»ÄÜÎª¿Õ";
-        }
+	/**
+	 * ä¸šåŠ¡å±‚å…¥å‚æ ¡éªŒï¼ˆåœ¨ JSON ååºåˆ—åŒ–æˆåŠŸåæ‰§è¡Œï¼‰
+	 * @return ç©ºå­—ç¬¦ä¸²è¡¨ç¤ºé€šè¿‡ï¼Œå¦åˆ™è¿”å›é”™è¯¯æ–‡æ¡ˆ
+	 */
+	std::string validate()
+	{
+		// 1. deptIdList å¿…å¡«ä¸”ä¸èƒ½ä¸ºç©ºæ•°ç»„
+		if (!deptIdList || deptIdList->empty())
+		{
+			return ZH_WORDS_GETTER("dept.batch-status.validate.id-list-required");
+		}
 
-        // 2. Ğ£Ñé deptIdList ÊÇ·ñÎª¿ÕÊı×é
-        if (deptIdList->empty())
-        {
-            return "deptIdListÖÁÉÙ°üº¬Ò»¸ö¿ÆÊÒID";
-        }
+		// 2. é€ä¸ªæ ¡éªŒIDæ ¼å¼å¹¶æŸ¥é‡
+		std::unordered_set<std::string> idSet;
+		for (auto& strId : *(deptIdList))
+		{
+			if (!strId)
+			{
+				return ZH_WORDS_GETTER("dept.batch-status.validate.id-empty");
+			}
 
-        // 3. Ğ£Ñé deptIdList È¥ÖØ£¨±ÜÃâÖØ¸´ID£©
-        std::unordered_set<std::string> idSet;
-        for (auto& strId : *(deptIdList))
-        {
-            std::string idStr(strId->c_str());
+			std::string idStr(strId->c_str());
+			if (idStr.empty())
+			{
+				return ZH_WORDS_GETTER("dept.batch-status.validate.id-empty");
+			}
 
-            // 3.1 Ğ£ÑéÊÇ·ñÎª¿Õ×Ö·û´®
-            if (idStr.empty())
-            {
-                return "¿ÆÊÒID²»ÄÜÎª¿Õ×Ö·û´®";
-            }
+			for (char c : idStr)
+			{
+				if (!std::isdigit(static_cast<unsigned char>(c)))
+				{
+					return std::string(ZH_WORDS_GETTER("dept.batch-status.validate.id-not-digit")) + ": " + idStr;
+				}
+			}
 
-            // 3.2 Ğ£ÑéÊÇ·ñ´¿Êı×Ö
-            for (char c : idStr)
-            {
-                if (!isdigit(static_cast<unsigned char>(c)))
-                {
-                    return "¿ÆÊÒID½öÔÊĞíÊı×Ö×Ö·û: " + idStr;
-                }
-            }
+			if (idSet.find(idStr) != idSet.end())
+			{
+				return std::string(ZH_WORDS_GETTER("dept.batch-status.validate.id-duplicate")) + ": " + idStr;
+			}
+			idSet.insert(idStr);
+		}
 
-            // 3.3 ¼ì²âÖØ¸´ID
-            if (idSet.find(idStr) != idSet.end())
-            {
-                return "´æÔÚÖØ¸´µÄ¿ÆÊÒID: " + idStr;
-            }
-            idSet.insert(idStr);
-        }
+		// 3. targetStatus å¿…å¡«
+		if (!targetStatus)
+		{
+			return ZH_WORDS_GETTER("dept.batch-status.validate.status-required");
+		}
 
-        // 4. Ğ£Ñé targetStatus ÊÇ·ñ´æÔÚ
-        if (!targetStatus)
-        {
-            return "targetStatus²»ÄÜÎª¿Õ";
-        }
+		// 4. ä»…å…è®¸ 0 / 1
+		if (targetStatus != 0 && targetStatus != 1)
+		{
+			return ZH_WORDS_GETTER("dept.batch-status.validate.status-invalid");
+		}
 
-        // 5. Ğ£Ñé targetStatus Ö»ÔÊĞí0»ò1
-        if (targetStatus != 0 && targetStatus != 1)
-        {
-            return "targetStatus½öÖ§³Ö0(Í£ÓÃ)»ò1(ÆôÓÃ)";
-        }
-
-        return "";  // Ğ£ÑéÍ¨¹ı
-    }
-
-    /**
-     * »ñÈ¡È¥ÖØºóµÄIDÁĞ±í
-     */
-    std::unordered_set<std::string> getUniqueIdSet() const
-    {
-        std::unordered_set<std::string> idSet;
-        if (deptIdList)
-        {
-            for (auto& strId : *(deptIdList))
-            {
-                idSet.insert(std::string(strId->c_str()));
-            }
-        }
-        return idSet;
-    }
-
+		return "";
+	}
 };
 
 /**
- * Service´«¸øDAOµÄÅúÁ¿¸üĞÂÔØÌåDTO£¨ÄÚ²¿Ê¹ÓÃ£¬²»¶ÔÍâ½Ó¿Ú£©
- * ½ö°üº¬ÅúÁ¿¸üĞÂSQL±ØĞè×Ö¶Î£ºIDÊı×é¡¢Ä¿±ê×´Ì¬¡¢²Ù×÷ÈË¡¢¸üĞÂÊ±¼ä
+ * Service ä¼ ç»™ DAO çš„æ‰¹é‡æ›´æ–°è½½ä½“ï¼ˆå†…éƒ¨ä½¿ç”¨ï¼‰
  */
 class DeptBatchUpdateDTO : public oatpp::DTO
 {
 	DTO_INIT(DeptBatchUpdateDTO, DTO);
 
-	// ´ı¸üĞÂ¿ÆÊÒIDÊı×é
 	DTO_FIELD(Vector<String>, idList);
-	// ĞÂÔö£ºÊı×ÖIDÊı×é£¨DAO²éÑ¯Ê¹ÓÃ£¬Æ¥ÅäbigintÖ÷¼ü£©
 	std::vector<int64_t> numIdList;
-	// Ã¶¾Ù×´Ì¬×Ö¶Î
 	DTO_FIELD(String, statusEnum);
-	// ĞŞ¸ÄÈËÕËºÅ
 	DTO_FIELD(String, updateBy);
-	// ĞŞ¸ÄÊ±¼ä×Ö·û´®
 	DTO_FIELD(String, updateTime);
 
 public:
-    /**
-     * Ğ£Ñé¸üĞÂDTOÊÇ·ñÍêÕû
-     */
-    bool isValid() const
-    {
-        return idList != nullptr && !idList->empty() &&
-            statusEnum && !statusEnum->empty() &&
-            updateBy && !updateBy->empty() &&
-            updateTime && !updateTime->empty();
-    }
+	bool isValid() const
+	{
+		return !numIdList.empty() &&
+			statusEnum && !statusEnum->empty() &&
+			updateBy && !updateBy->empty() &&
+			updateTime && !updateTime->empty();
+	}
 };
 
 #include OATPP_CODEGEN_END(DTO)
