@@ -239,7 +239,7 @@ StringJsonVO::Wrapper DiagnoseController::execBatchChangeDiagnoseStatus(const Di
 	return response;
 }
 <<<<<<< HEAD:his-cpp/his-c6-basedata/controller/Diagnose/DiagnoseController.cpp
-//�߼�ɾ��
+//�߼�ɾ��
 DiagnoseRemoveJsonVO::Wrapper DiagnoseController::execRemoveDiagnose(const DiagnoseRemoveDTO::Wrapper& dto, const PayloadDTO& payload)
 =======
 //逻辑删除
