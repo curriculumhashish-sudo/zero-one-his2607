@@ -24,6 +24,7 @@
 #include "domain/do/nursing/VitalSignDetailDO.h"
 
 // Temperature sheet DAO — queries dia_vital_sign with type_enum = 'TEMPERATURE_SHEET'
+// Follows skill convention: query-only; insert/update/delete use BaseDAO directly.
 class TemperatureDAO : public BaseDAO
 {
 private:
@@ -48,13 +49,11 @@ public:
     // Find records by encounter+patient+date+timeslot
     std::list<VitalSignDO> selectBySlot(const std::string& encounterId, const std::string& patientId,
                                          const std::string& recordDate, const std::string& timeSlot);
-    // Generate a bus number for temperature sheet records
-    std::string generateBusNo();
-    // Batch insert detail rows
-    int insertDetails(const std::list<VitalSignDetailDO>& details);
+    // Count records matching a bus_no prefix (used by Service for sequence generation)
+    uint64_t countByBusNoPrefix(const std::string& prefix);
     // Batch query detail rows by parent vital-sign IDs
     std::list<VitalSignDetailDO> selectByVitalSignIds(const std::list<std::string>& ids);
-    // Delete details by vital sign ID
+    // Delete details by vital sign ID (FK-based delete — BaseDAO only supports PK deletes)
     int deleteByVitalSignId(const std::string& vitalSignId);
 };
 

@@ -18,11 +18,11 @@
  limitations under the License.
 */
 #ifndef _TEMPERATURE_MAPPER_
-#define _TEMPERATURE_MAPPER_
+    #define _TEMPERATURE_MAPPER_
 
-#include "Mapper.h"
-#include "domain/do/nursing/VitalSignDO.h"
-#include "domain/do/nursing/VitalSignDetailDO.h"
+    #include "Mapper.h"
+    #include "domain/do/nursing/VitalSignDO.h"
+    #include "domain/do/nursing/VitalSignDetailDO.h"
 
 // Value-type mapper for temperature sheet list queries
 class TemperatureMapper : public Mapper<VitalSignDO>
@@ -54,6 +54,36 @@ public:
     }
 };
 
+// Pointer-type mapper for single-record queries
+class PtrTemperatureMapper : public Mapper<PtrVitalSignDO>
+{
+public:
+    PtrVitalSignDO mapper(ResultSet* resultSet) const override
+    {
+        auto data = std::make_shared<VitalSignDO>();
+        data->setId(resultSet->getString("id"));
+        data->setTenantId(resultSet->getString("tenant_id"));
+        data->setCreatedAt(resultSet->getString("created_at"));
+        data->setUpdatedAt(resultSet->getString("updated_at"));
+        data->setCreatedBy(resultSet->getString("created_by"));
+        data->setUpdatedBy(resultSet->getString("updated_by"));
+        data->setIsDeleted(resultSet->getInt("is_deleted"));
+        data->setDeletedAt(resultSet->getString("deleted_at"));
+        data->setDeletedBy(resultSet->getString("deleted_by"));
+        data->setVersion(resultSet->getInt("version"));
+        data->setPatientId(resultSet->getString("patient_id"));
+        data->setEncounterId(resultSet->getString("encounter_id"));
+        data->setRecordedAt(resultSet->getString("recorded_at"));
+        data->setTypeEnum(resultSet->getString("type_enum"));
+        data->setBusNo(resultSet->getString("bus_no"));
+        data->setLocationId(resultSet->getString("location_id"));
+        data->setBabyNo(resultSet->getInt("baby_no"));
+        data->setRecorderId(resultSet->getString("recorder_id"));
+        data->setRemark(resultSet->getString("remark"));
+        return data;
+    }
+};
+
 // Value-type mapper for detail list queries
 class TemperatureDetailMapper : public Mapper<VitalSignDetailDO>
 {
@@ -81,4 +111,4 @@ public:
     }
 };
 
-#endif // !_TEMPERATURE_MAPPER_
+#endif  // !_TEMPERATURE_MAPPER_

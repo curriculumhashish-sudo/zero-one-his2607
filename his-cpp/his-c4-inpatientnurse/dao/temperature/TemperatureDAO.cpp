@@ -19,7 +19,6 @@
 #include "stdafx.h"
 #include "TemperatureDAO.h"
 #include "TemperatureMapper.h"
-#include "SimpleDateTimeFormat.h"
 
 // Column list matching VitalSignDO field order (same table as nursing: dia_vital_sign)
 #define TS_COLUMNS \
@@ -156,31 +155,15 @@ std::list<VitalSignDO> TemperatureDAO::selectBySlot(const std::string& encounter
 }
 
 // ---------------------------------------------------------------------------
-// generateBusNo — TS + yyyyMMdd + 3-digit sequence
+// countByBusNoPrefix — atomic query used by Service layer for bus_no sequence
 // ---------------------------------------------------------------------------
-std::string TemperatureDAO::generateBusNo()
+uint64_t TemperatureDAO::countByBusNoPrefix(const std::string& prefix)
 {
-    std::string today = SimpleDateTimeFormat::format();
-    std::string datePart = today.substr(0, 10);
-    // Remove dashes: "2026-07-28" → "20260728"
-    datePart.erase(std::remove(datePart.begin(), datePart.end(), '-'), datePart.end());
-
-    // Count today's records to derive the sequence number
     SqlParams params;
     std::string sql = "SELECT COUNT(*) FROM dia_vital_sign "
                       "WHERE type_enum = 'TEMPERATURE_SHEET' AND bus_no LIKE ?";
-    SQLPARAMS_PUSH(params, "s", std::string, "TS" + datePart + "%");
-    uint64_t cnt = sqlSession->executeQueryNumerical(sql, params);
-
-    std::stringstream busNo;
-    busNo << "TS" << datePart << std::setw(3) << std::setfill('0') << (cnt + 1);
-    return busNo.str();
-}
-
-int TemperatureDAO::insertDetails(const std::list<VitalSignDetailDO>& details)
-{
-    if (details.empty()) return 0;
-    return insertBatch(details);
+    SQLPARAMS_PUSH(params, "s", std::string, prefix + "%");
+    return sqlSession->executeQueryNumerical(sql, params);
 }
 
 std::list<VitalSignDetailDO> TemperatureDAO::selectByVitalSignIds(const std::list<std::string>& ids)
@@ -203,6 +186,10 @@ std::list<VitalSignDetailDO> TemperatureDAO::selectByVitalSignIds(const std::lis
     return sqlSession->executeQuery<VitalSignDetailDO>(sql, TemperatureDetailMapper(), params);
 }
 
+// ---------------------------------------------------------------------------
+// deleteByVitalSignId — FK-based delete not covered by BaseDAO (PK-only).
+// Kept in DAO as a justified extension per skill convention.
+// ---------------------------------------------------------------------------
 int TemperatureDAO::deleteByVitalSignId(const std::string& vitalSignId)
 {
     std::string sql = "DELETE FROM dia_vital_sign_detail WHERE vital_sign_id = ?";

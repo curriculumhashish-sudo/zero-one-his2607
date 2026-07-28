@@ -38,23 +38,19 @@ struct PaperHeaderData
     std::string bedNo;
 };
 
-// Nursing record DAO -- queries dia_vital_sign table
+// Nursing record DAO — queries dia_vital_sign table (query-only per skill convention)
 class NursingDAO : public BaseDAO
 {
 public:
-
+    // Build WHERE clause from query parameters
     std::string queryConditionBuilder(const NursingRecordQuery::Wrapper& query, SqlParams& params);
-
+    // Count nursing records matching filters
     uint64_t count(const NursingRecordQuery::Wrapper& query);
-
+    // Query vital sign records by condition (ordered by recorded_at)
     std::list<VitalSignDO> selectByCondition(const NursingRecordQuery::Wrapper& query);
-
+    // Query patient/encounter info for paper header; returns raw data struct
     std::shared_ptr<PaperHeaderData> selectPaperHeader(const std::string& encounterId, const std::string& patientId);
-
-    int deleteByEncounterAndPatient(const std::string& encounterId, const std::string& patientId);
-
-    int insertDetails(const std::list<VitalSignDetailDO>& details);
-
+    // Batch query detail rows by parent vital-sign IDs
     std::list<VitalSignDetailDO> selectByVitalSignIds(const std::list<std::string>& ids);
 };
 

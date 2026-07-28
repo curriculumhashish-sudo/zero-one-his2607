@@ -21,6 +21,7 @@
 #define _NURSING_MAPPER_
 
 #include "Mapper.h"
+#include "NursingDAO.h"
 #include "domain/do/nursing/VitalSignDO.h"
 #include "domain/do/nursing/VitalSignDetailDO.h"
 
@@ -110,6 +111,25 @@ public:
         data.setUnits(resultSet->getString("units"));
         data.setRemark(resultSet->getString("remark"));
         return data;
+    }
+};
+
+// Mapper for paper-header cross-table query results
+class PaperHeaderMapper : public Mapper<std::shared_ptr<PaperHeaderData>>
+{
+public:
+    std::shared_ptr<PaperHeaderData> mapper(ResultSet* rs) const override
+    {
+        auto d = std::make_shared<PaperHeaderData>();
+        d->inpatientNo = rs->getString("inpatient_no").c_str();
+        d->patientName = rs->getString("patient_name").c_str();
+        d->gender = rs->getString("gender").c_str();
+        d->age = rs->getInt("age");
+        d->admitAt = rs->getString("admit_at").c_str();
+        d->dischargeAt = rs->getString("discharge_at").c_str();
+        d->wardName = rs->getString("ward_name").c_str();
+        d->bedNo = rs->getString("bed_no").c_str();
+        return d;
     }
 };
 

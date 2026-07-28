@@ -32,27 +32,6 @@
     "updated_by, is_deleted, deleted_at, deleted_by, version, " \
     "vital_sign_id, term_code, item_code, item_value, units, remark"
 
-// Minimal mapper for paper-header query results; returns raw data struct
-namespace {
-    class PaperHeaderMapper : public Mapper<std::shared_ptr<PaperHeaderData>>
-    {
-    public:
-        std::shared_ptr<PaperHeaderData> mapper(ResultSet* rs) const override
-        {
-            auto d = std::make_shared<PaperHeaderData>();
-            d->inpatientNo = rs->getString("inpatient_no").c_str();
-            d->patientName = rs->getString("patient_name").c_str();
-            d->gender = rs->getString("gender").c_str();
-            d->age = rs->getInt("age");
-            d->admitAt = rs->getString("admit_at").c_str();
-            d->dischargeAt = rs->getString("discharge_at").c_str();
-            d->wardName = rs->getString("ward_name").c_str();
-            d->bedNo = rs->getString("bed_no").c_str();
-            return d;
-        }
-    };
-}
-
 std::string NursingDAO::queryConditionBuilder(const NursingRecordQuery::Wrapper& query, SqlParams& params)
 {
     std::stringstream sqlCondition;
@@ -152,28 +131,6 @@ std::shared_ptr<PaperHeaderData> NursingDAO::selectPaperHeader(const std::string
         return results.front();
     }
     return std::make_shared<PaperHeaderData>();
-}
-
-int NursingDAO::deleteByEncounterAndPatient(const std::string& encounterId, const std::string& patientId)
-{
-    // First delete detail rows for matching vital sign records
-    std::string sqlDetail =
-        "DELETE d FROM dia_vital_sign_detail d "
-        "INNER JOIN dia_vital_sign v ON d.vital_sign_id = v.id "
-        "WHERE v.encounter_id = ? AND v.patient_id = ?";
-    sqlSession->executeUpdate(sqlDetail, "%s%s", encounterId, patientId);
-
-    // Then delete main vital sign records
-    std::string sqlMain =
-        "DELETE FROM dia_vital_sign "
-        "WHERE encounter_id = ? AND patient_id = ?";
-    return sqlSession->executeUpdate(sqlMain, "%s%s", encounterId, patientId);
-}
-
-int NursingDAO::insertDetails(const std::list<VitalSignDetailDO>& details)
-{
-    if (details.empty()) return 0;
-    return insertBatch(details);
 }
 
 std::list<VitalSignDetailDO> NursingDAO::selectByVitalSignIds(const std::list<std::string>& ids)
