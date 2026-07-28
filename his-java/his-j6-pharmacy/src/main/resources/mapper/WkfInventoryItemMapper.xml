@@ -2,4 +2,21 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zeroone.star.pharmacy.mapper.WkfInventoryItemMapper">
 
+    <!-- 累加库存数量（按五元组匹配已有库存行，同时刷新供应商和效期） -->
+    <update id="addQuantity">
+        UPDATE wkf_inventory_item
+        SET quantity = quantity + #{quantity},
+            supplier_id = #{supplierId},
+            expiration_date = #{expirationDate},
+            updated_at = #{updatedAt},
+            updated_by = #{updatedBy}
+        WHERE item_table = #{itemTable}
+          AND item_id = #{itemId}
+          AND location_id = #{locationId}
+          AND lot_number = #{lotNumber}
+          AND unit_code = #{unitCode}
+          AND is_deleted = 0
+          AND inventory_status_enum = 'ACTIVE'
+    </update>
+
 </mapper>
