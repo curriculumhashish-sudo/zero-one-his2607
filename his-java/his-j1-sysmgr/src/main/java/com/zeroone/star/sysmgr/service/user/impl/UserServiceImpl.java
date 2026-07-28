@@ -1,6 +1,7 @@
 package com.zeroone.star.sysmgr.service.user.impl;
 
 import cn.hutool.crypto.digest.BCrypt;
+import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -15,7 +16,6 @@ import com.zeroone.star.project.vo.j1.user.UserDetailVO;
 import com.zeroone.star.project.vo.j1.user.UserListVO;
 import com.zeroone.star.project.vo.j1.user.UserPageVO;
 import com.zeroone.star.sysmgr.entity.resource.AdmHealthcareService;
-import com.zeroone.star.sysmgr.entity.resource.AdmLocation;
 import com.zeroone.star.sysmgr.entity.resource.AdmOrganization;
 import com.zeroone.star.sysmgr.entity.role.RoleDO;
 import com.zeroone.star.sysmgr.entity.user.*;
@@ -31,8 +31,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -51,13 +52,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Resource
     private UserHolder userHolder;
     @Resource
-    private IPractitionerService practitionerService;
-    @Resource
-    private IUserOrganizationUnitService userOrganizationUnitService;
-    @Resource
     private IUserRoleService userRoleService;
-    @Resource
-    private IUserTenantService userTenantService;
     @Resource
     private PractitionerMapper practitionerMapper;
     @Resource
@@ -72,6 +67,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     private AdmHealthcareServiceMapper healthcareServiceMapper;
     @Resource
     private RoleMapper roleMapper;
+    @Resource
+    private UserOrganizationUnitMapper userOrganizationUnitMapper;
+    @Resource
+    private UserTenantMapper userTenantMapper;
 
     @Override
     public boolean softDeleteById(String id){
@@ -140,7 +139,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         });
     }
 
-    @Transactional(rollbackFor = Exception.class)
     @Override
     public Boolean saveUser(UserAddDTO userAddDTO) {
         // 1.校验用户名唯一
@@ -164,6 +162,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         baseMapper.insert(user);
         String userId = user.getId();
 
+        String defaultDeptId = "";
+        if(userAddDTO.getDefaultOrgId() != null) {
+            defaultDeptId=userAddDTO.getDefaultOrgId();
+        }else {
+            String currentUserId = getCurrentUserId();
+            Practitioner currentPractitioner = practitionerMapper.selectOne(
+                    new LambdaQueryWrapper<Practitioner>().eq(Practitioner::getUserId, currentUserId));
+            if (currentPractitioner.getOrgId() != null) {
+                AdmOrganization org = orgMapper.selectById(currentPractitioner.getOrgId());
+                if (org != null) defaultDeptId = org.getName();
+            }
+        }
+
         // 4.插入 adm_practitioner
         Practitioner practitioner = new Practitioner();
         practitioner.setStatusEnum("ACTIVE");
@@ -177,7 +188,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         practitioner.setSignature(userAddDTO.getSignature());
         practitioner.setDrProfttlCode(userAddDTO.getDrProfttlCode() != null ? Integer.valueOf(userAddDTO.getDrProfttlCode()) : null);
         practitioner.setPharPracCertNo(userAddDTO.getPharPracCertNo());
-        practitioner.setOrgId(userAddDTO.getDefaultOrgId());
+        practitioner.setOrgId(defaultDeptId);
         practitionerMapper.insert(practitioner);
 
         // 5.插入 whale_user_roles
@@ -248,9 +259,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             }
         }
         // 7.关联科室
-        userOrganizationUnitService.add(userId, userAddDTO.getDefaultOrgId());
+        UserOrganizationUnit unit = new UserOrganizationUnit();
+        unit.setUserId(userId);
+        unit.setOrganizationUnitId(defaultDeptId);
+        userOrganizationUnitMapper.insert(unit);
+
         // 8.关联租户
-        userTenantService.add(userId);
+        UserTenant userTenant = new UserTenant();
+        userTenant.setUserId(userId);
+        userTenant.setTenantId(getTenantId());
+        userTenantMapper.insert(userTenant);
         return true;
     }
 
@@ -262,6 +280,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
         // 2.构建查询条件：查询 whale_users 表（is_deleted 由 @TableLogic 自动过滤）
         QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.eq("tenant_id", getTenantId()); // 租户过滤
         if (StringUtils.hasText(query.getKeyword())) {
             wrapper.and(w -> w                                  // 关键词：用户名 或 姓名
                     .like("user_name", query.getKeyword())
@@ -321,7 +340,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                 new LambdaQueryWrapper<UserRole>().eq(UserRole::getUserId, id));
         Set<String> roleIds = userRoles.stream().map(UserRole::getRoleId).collect(Collectors.toSet());
         List<RoleDO> roles = roleIds.isEmpty() ? Collections.emptyList()
-                : roleMapper.selectBatchIds(roleIds).stream().filter(r -> r.getIsDeleted() == 0).collect(Collectors.toList());
+                : roleMapper.selectBatchIds(roleIds).stream().filter(r -> r.getIsDeleted() == 0).toList();
         // 4.默认科室名称
         String defaultDeptNames = "";
         if (practitioner != null && practitioner.getOrgId() != null) {
@@ -523,6 +542,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     private String getKeyByValue(Map<String, String> map, String value) {
         return map.entrySet().stream().filter(e -> value.equals(e.getValue())).map(Map.Entry::getKey).findFirst().orElse(null);
+    }
+
+    private String getTenantId() {
+        ServletRequestAttributes attrs =
+                (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attrs == null) {
+            return "1";
+        }
+        String userStr = attrs.getRequest().getHeader("user");
+        if (!StringUtils.hasText(userStr)) {
+            return "1";
+        }
+        JSONObject userJson = new JSONObject(userStr);
+        String tenantId = userJson.getStr("tenant_id");
+        if (!StringUtils.hasText(tenantId)) {
+            return "1";
+        }
+        return tenantId;
     }
 
     private String getCurrentUserId() {
