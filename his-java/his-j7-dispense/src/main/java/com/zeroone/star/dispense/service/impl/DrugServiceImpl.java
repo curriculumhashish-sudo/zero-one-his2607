@@ -9,6 +9,15 @@ import com.zeroone.star.project.vo.j7.dispense.PatientDrugItemVO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
+
+/**
+ * <p>
+ * 获取患者药品项目
+ * </p>
+ *
+ * @author xingfu
+ *
+ */
 @Service
 public class DrugServiceImpl implements DrugService {
 
