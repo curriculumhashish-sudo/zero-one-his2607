@@ -24,19 +24,86 @@ PagePendingDispenseSummaryLinesJsonVO::Wrapper
 MedicationCollectionController::execQuerySummaryOrderItems(
 	const PagePendingDispenseSummaryLinesQuery::Wrapper& query)
 {
-	auto vo=PagePendingDispenseSummaryLinesJsonVO::createShared();if(!query||!query->encounterIds||query->encounterIds->empty()||query->pageIndex.getValue(0)<1||query->pageSize.getValue(0)<1){vo->init(nullptr,RS_PARAMS_INVALID);return vo;}vo->success(MedicationCollectionService().listPending(query));return vo;
+	auto vo = PagePendingDispenseSummaryLinesJsonVO::createShared();
+	if (!query || !query->encounterIds || query->encounterIds->empty()
+		|| !query->medicineCategoryTab || query->medicineCategoryTab->empty()
+		|| !query->therapyFilter || query->therapyFilter->empty()
+		|| query->pageIndex.getValue(0) < 1 || query->pageSize.getValue(0) < 1)
+	{
+		vo->init(nullptr, RS_PARAMS_INVALID);
+		return vo;
+	}
+
+	try
+	{
+		vo->success(MedicationCollectionService().listPending(query));
+	}
+	catch (const std::exception&)
+	{
+		vo->init(nullptr, RS_FAIL);
+	}
+	return vo;
 }
 
 CreateMedicationSummaryJsonVO::Wrapper MedicationCollectionController::execSummaryMedication(
 	const CreateMedicationSummaryDTO::Wrapper& dto,const PayloadDTO& payload)
 {
-	auto vo=CreateMedicationSummaryJsonVO::createShared();auto result=MedicationCollectionService().summarize(dto,payload.getUsername());result->summaryNos&&!result->summaryNos->empty()?vo->success(result):vo->fail(result);return vo;
+	auto vo = CreateMedicationSummaryJsonVO::createShared();
+	if (!dto || !dto->dispenseItems || dto->dispenseItems->empty()
+		|| dto->dispenseItems->size() > 500)
+	{
+		vo->init(nullptr, RS_PARAMS_INVALID);
+		return vo;
+	}
+
+	for (const auto& item : *dto->dispenseItems)
+	{
+		if (!item || !item->dispenseId || item->dispenseId->empty()
+			|| !item->encounterId || item->encounterId->empty())
+		{
+			vo->init(nullptr, RS_PARAMS_INVALID);
+			return vo;
+		}
+	}
+
+	try
+	{
+		auto result = MedicationCollectionService().summarize(dto, payload.getUsername());
+		if (result && result->summaryNos && !result->summaryNos->empty())
+		{
+			vo->success(result);
+		}
+		else
+		{
+			vo->fail(result);
+		}
+	}
+	catch (const std::exception&)
+	{
+		vo->init(nullptr, RS_FAIL);
+	}
+	return vo;
 }
 
 SubmitSummaryJsonVO::Wrapper MedicationCollectionController::execSubmitSummary(
 	const SubmitSummaryRequestDTO::Wrapper& dto)
 {
 	auto jvo = SubmitSummaryJsonVO::createShared();
+	if (!dto || !dto->summaryNos || dto->summaryNos->empty())
+	{
+		jvo->init(nullptr, RS_PARAMS_INVALID);
+		return jvo;
+	}
+
+	for (const auto& summaryNo : *dto->summaryNos)
+	{
+		if (!summaryNo || summaryNo->empty())
+		{
+			jvo->init(nullptr, RS_PARAMS_INVALID);
+			return jvo;
+		}
+	}
+
 	jvo->setStatus(RS_SUCCESS);
 	return jvo;
 }
@@ -45,6 +112,21 @@ CancelSummaryJsonVO::Wrapper MedicationCollectionController::execCancelSummary(
 	const CancelSummaryRequestDTO::Wrapper& dto)
 {
 	auto jvo = CancelSummaryJsonVO::createShared();
+	if (!dto || !dto->summaryNos || dto->summaryNos->empty())
+	{
+		jvo->init(nullptr, RS_PARAMS_INVALID);
+		return jvo;
+	}
+
+	for (const auto& summaryNo : *dto->summaryNos)
+	{
+		if (!summaryNo || summaryNo->empty())
+		{
+			jvo->init(nullptr, RS_PARAMS_INVALID);
+			return jvo;
+		}
+	}
+
 	jvo->setStatus(RS_SUCCESS);
 	return jvo;
 }
