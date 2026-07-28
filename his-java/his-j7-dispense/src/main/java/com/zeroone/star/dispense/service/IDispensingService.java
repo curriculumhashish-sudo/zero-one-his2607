@@ -28,10 +28,10 @@ public interface IDispensingService {
 
     /**
      * 获取患者药品明细
-     * @param summaryId 汇总单ID
+      * @param summaryNo 汇总单编号
      * @return 患者药品项目列表
      */
-    List<PatientMedicationVO> queryPatientMedications(Long summaryId);
+    List<PatientMedicationVO> queryPatientMedications(String summaryNo);
 
     /**
      * 核对发药（确认发药并扣减库存）
@@ -39,11 +39,4 @@ public interface IDispensingService {
      * @return 操作结果
      */
     String verifyDispense(DispenseVerifyDTO verifyDTO);
-
-    /**
-     * 发药后截单（关闭汇总单，防止后续修改）
-     * @param summaryNo 汇总单号
-     * @return 操作结果
-     */
-    String closeSummary(String summaryNo);
 }
