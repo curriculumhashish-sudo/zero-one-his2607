@@ -3,7 +3,7 @@
 #ifndef _RENTCONTROLLER_DAO_
 #define _RENTCONTROLLER_DAO_
 #include "BaseDAO.h"
-#include "../../domain/do/equipment/InventorySnapshotDO.h"
+#include "../../domain/do/equipment/DocInventoryItemSnapshotDO.h"
 #include "../../domain/do/equipment/InventoryLockDO.h"
 #include "../../domain/do/equipment/WkfInventoryItemDO.h"
 #include "../../domain/query/equipment/EquipmentQuery.h"
@@ -33,5 +33,17 @@ public:
 	std::list<WkfInventoryItemDO> selectByName(const string& name);
 	// 通过ID查询数据
 	PtrWkfInventoryItemDO selectById(std::string id);
+
+	// 新增的数据插入 (供 saveData 调用)
+	int insert(const WkfInventoryItemDO& entity);
+
+	// 修改数据 (供 modifyData 调用)
+	int update(const WkfInventoryItemDO& entity);
+
+	// 批量逻辑删除
+	int softDeleteByIds(const std::list<std::string>& ids, const std::string& deletedBy, const std::string& deletedAt);
+
+	// 批量修改状态
+	int updateStatusByIds(const std::list<std::string>& ids, const std::string& statusEnum, const std::string& updatedBy, const std::string& updatedAt);
 };
 #endif // !_RENTCONTROLLER_DAO_

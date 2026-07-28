@@ -4,7 +4,7 @@
 #define _RENTCONTROLLER_MAPPER_
 
 #include "Mapper.h"
-#include "../../domain/do/equipment/InventorySnapshotDO.h"
+#include "../../domain/do/equipment/DocInventoryItemSnapshotDO.h"
 #include "../../domain/do/equipment/InventoryLockDO.h"
 #include "../../domain/do/equipment/WkfInventoryItemDO.h"
 

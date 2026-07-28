@@ -21,7 +21,7 @@ public:
 	// 通过ID查询单个数据
 	EquipmentDTO::Wrapper getById(std::string id);
 	// 保存数据
-	std::string saveData(const EquipmentAddDTO::Wrapper& dto);
+	std::string saveData(const EquipmentAddDTO::Wrapper& dto, const PayloadDTO& payload);
 	// 批量保存数据
 	// bool saveDataBatch(const oatpp::List<SampleAddDTO::Wrapper>& datas);
 	// 修改数据

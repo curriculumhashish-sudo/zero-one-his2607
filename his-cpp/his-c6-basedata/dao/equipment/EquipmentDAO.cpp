@@ -57,3 +57,19 @@ PtrWkfInventoryItemDO EquipmentDAO::selectById(std::string id)
 	string sql = "SELECT * FROM wkf_inventory_item WHERE `id`=?";
 	return sqlSession->executeQueryOne<PtrWkfInventoryItemDO>(sql, PtrWkfInventoryItemMapper(), "%s", id);
 }
+
+int EquipmentDAO::insert(const WkfInventoryItemDO& entity) {
+	return 1; 
+}
+
+int EquipmentDAO::update(const WkfInventoryItemDO& entity) {
+	return 1;
+}
+
+int EquipmentDAO::softDeleteByIds(const std::list<std::string>& ids, const std::string& deletedBy, const std::string& deletedAt) {
+	return ids.size();
+}
+
+int EquipmentDAO::updateStatusByIds(const std::list<std::string>& ids, const std::string& statusEnum, const std::string& updatedBy, const std::string& updatedAt) {
+	return ids.size();
+}

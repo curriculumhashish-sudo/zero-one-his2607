@@ -58,7 +58,120 @@ EquipmentDTO::Wrapper EquipmentService::getById(std::string id)
 	return dto;
 }
 
-std::string EquipmentService::saveData(const EquipmentAddDTO::Wrapper& dto)
+// 新增器材
+std::string EquipmentService::saveData(const EquipmentAddDTO::Wrapper& dto, const PayloadDTO& payload)
 {
-	return {};
+	EquipmentDAO dao;
+	WkfInventoryItemDO entity;
+
+	UuidFacade uuidFacade;
+	std::string newId = uuidFacade.genUuid();
+	entity.setId(newId);
+
+	// 注意这里用的是
+	entity.setName(dto->name.getValue(""));
+	// entity.setCategoryCode(dto->classification.getValue(""));
+
+	entity.setCreatedBy(payload.getId());
+	entity.setCreatedAt(SimpleDateTimeFormat::format());
+
+	// 假设默认启用
+	entity.setInventoryStatusEnum("ACTIVE");
+
+	if (dao.insert(entity) > 0) {
+		return newId;
+	}
+	return "";
+}
+
+// 修改器材
+bool EquipmentService::modifyData(const EquipmentModifyDTO::Wrapper& dto, const PayloadDTO& payload)
+{
+	EquipmentDAO dao;
+	WkfInventoryItemDO entity;
+
+	// 使用 .getValue 获取值
+	entity.setId(dto->id.getValue(""));
+	entity.setName(dto->name.getValue(""));
+
+	// 状态转换：前端传1(启用)，数据库存 "ACTIVE"
+	if (dto->status.getValue(1) == 1) {
+		entity.setInventoryStatusEnum("ACTIVE");
+	}
+	else {
+		entity.setInventoryStatusEnum("INACTIVE");
+	}
+
+	entity.setUpdatedBy(payload.getId());
+	entity.setUpdatedAt(SimpleDateTimeFormat::format());
+
+	return dao.update(entity) > 0;
+}
+
+// 批量删除器材 (软删除)
+bool EquipmentService::deleteData(const EquipmentDeleteDTO::Wrapper& dto, const PayloadDTO& payload)
+{
+	EquipmentDAO dao;
+
+	if (!dto->ids || dto->ids->empty()) {
+		return false;
+	}
+
+	std::list<std::string> idList;
+	for (auto& idItem : *(dto->ids)) {
+		// idItem 也是 oatpp::String，取值用 .getValue
+		idList.push_back(idItem.getValue(""));
+	}
+
+	std::string deletedBy = payload.getId();
+	std::string deletedAt = SimpleDateTimeFormat::format();
+
+	return dao.softDeleteByIds(idList, deletedBy, deletedAt) > 0;
+}
+
+// 批量启停用器材
+bool EquipmentService::changeStatus(const EquipmentStatusDTO::Wrapper& dto, const PayloadDTO& payload)
+{
+	EquipmentDAO dao;
+	if (!dto->ids || dto->ids->empty()) {
+		return false;
+	}
+
+	std::list<std::string> idList;
+	for (auto& idItem : *(dto->ids)) {
+		idList.push_back(idItem.getValue(""));
+	}
+
+	// 状态转换
+	std::string targetStatus = (dto->status.getValue(1) == 1) ? "ACTIVE" : "INACTIVE";
+	std::string updatedBy = payload.getId();
+	std::string updatedAt = SimpleDateTimeFormat::format();
+
+	return dao.updateStatusByIds(idList, targetStatus, updatedBy, updatedAt) > 0;
+}
+
+// 选择器材 (下拉框精简版)
+EquipmentSelectPageDTO::Wrapper EquipmentService::selectData(const EquipmentQuery::Wrapper& query)
+{
+	auto pages = EquipmentSelectPageDTO::createShared();
+	pages->pageIndex = query->pageIndex;
+	pages->pageSize = query->pageSize;
+
+	EquipmentDAO dao;
+	uint64_t count = dao.count(query);
+	if (count <= 0) return pages;
+
+	pages->total = count;
+	pages->calcPages();
+
+	list<WkfInventoryItemDO> result = dao.selectWithPage(query);
+	for (WkfInventoryItemDO& sub : result)
+	{
+		auto dto = EquipmentSelectDTO::createShared();
+		dto->id = sub.getId();
+		dto->name = sub.getName();
+		// dto->specification = sub.getSpecification();
+		pages->addData(dto);
+	}
+	return pages;
 }

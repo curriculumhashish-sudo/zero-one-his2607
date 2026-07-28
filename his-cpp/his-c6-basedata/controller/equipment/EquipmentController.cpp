@@ -55,7 +55,7 @@ StringJsonVO::Wrapper EquipmentController::execAddEquipment(const EquipmentAddDT
 
 	// 执行数据新增
 	dto->setPayload(&payload);
-	std::string id = EquipmentService().saveData(dto);
+	std::string id = EquipmentService().saveData(dto, payload);
 	if (id != "") {
 		jvo->success(id);
 	}

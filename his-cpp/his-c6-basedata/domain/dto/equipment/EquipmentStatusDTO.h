@@ -26,7 +26,7 @@ public:
 			return "目标状态不能为空";
 		}
 		// 还可以进一步校验状态值是否合法
-		if (status->getValue(0) != 0 && status->getValue(0) != 1) {
+		if (status.getValue(0) != 0 && status.getValue(0) != 1) {
 			return "目标状态必须是0或1";
 		}
 		return "";
