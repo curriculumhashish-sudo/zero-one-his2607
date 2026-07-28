@@ -17,7 +17,7 @@ class CostInfoController : public oatpp::web::server::api::ApiController
 	API_ACCESS_DECLARE(CostInfoController)
 public:
 
-	// 查询报表明细
+	// 鑾峰彇鎶ヨ〃鏄庣粏
 	ENDPOINT_INFO(queryCostInfo) {
 		API_DEF_ADD_TITLE(ZH_WORDS_GETTER("rhqm.form.cost_info.query.title"));
 		API_DEF_ADD_AUTH();
@@ -41,7 +41,7 @@ public:
 	}
 
 	
-	// 导出报表
+	// 瀵煎嚭鎶ヨ〃
 	ENDPOINT_INFO(exportCostInfo) {
 		API_DEF_ADD_TITLE(ZH_WORDS_GETTER("rhqm.form.cost_info.export.title"));
 		API_DEF_ADD_AUTH();
@@ -61,12 +61,12 @@ public:
 	}
 	ENDPOINT(API_M_GET, "/form/cost_info/export", exportCostInfo, QUERIES(QueryParams, queryParams), API_HANDLER_AUTH_PARAME) {
 		API_HANDLER_QUERY_PARAM(costInfoExport, CostInfoQuery, queryParams);
-		API_HANDLER_RESP_VO(execExport(costInfoExport));
+		return execExport(costInfoExport);
 	}
 
 private:
 	CostInfoJsonVO::Wrapper execQuery(const CostInfoQuery::Wrapper& query);
-	StringJsonVO::Wrapper execExport(const CostInfoQuery::Wrapper& query);
+	std::shared_ptr<OutgoingResponse> execExport(const CostInfoQuery::Wrapper& query);
 
 };
 
