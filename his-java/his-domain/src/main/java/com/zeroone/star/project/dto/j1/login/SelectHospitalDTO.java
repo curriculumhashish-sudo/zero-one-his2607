@@ -1,17 +1,13 @@
 package com.zeroone.star.project.dto.j1.login;
+
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-/**
- * 选择医院请求DTO
- */
 @Data
-@Schema(description = "选择医院请求")
+@Schema(description = "选择医院入参")
 public class SelectHospitalDTO {
-
-    @Schema(description = "医院ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    private Long hospitalId;
-
-    @Schema(description = "医院编码", requiredMode = Schema.RequiredMode.REQUIRED, example = "H001")
-    private String hospitalCode;
+    @Schema(description = "医院/机构ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "h001")
+    @NotBlank(message = "医院ID不能为空")
+    private String hospitalId;
 }

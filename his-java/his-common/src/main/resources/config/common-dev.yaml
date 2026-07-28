@@ -7,9 +7,9 @@ spring:
       username: nacos
       password: nacos
       discovery:
-        namespace: project-dev
+        namespace: his-dev
       config:
-        namespace: project-dev
+        namespace: his-dev
     sentinel:
       transport:
         #本机的IP地址，客户端给sentinel监控使用，不配置可能会识别成其他网卡的ip导致错误
