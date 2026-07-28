@@ -1,5 +1,7 @@
 package com.zeroone.star.sysmgr.exception;
 
+import com.zeroone.star.project.exception.SystemStatus;
+
 /**
  * 菜单模块异常状态枚举
  * @author Drums小白
