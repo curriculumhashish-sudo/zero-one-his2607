@@ -68,9 +68,8 @@ std::string EquipmentService::saveData(const EquipmentAddDTO::Wrapper& dto, cons
 	std::string newId = uuidFacade.genUuid();
 	entity.setId(newId);
 
-	// 注意这里用的是
 	entity.setName(dto->name.getValue(""));
-	// entity.setCategoryCode(dto->classification.getValue(""));
+	entity.setCategoryCode(dto->classification.getValue(""));
 
 	entity.setCreatedBy(payload.getId());
 	entity.setCreatedAt(SimpleDateTimeFormat::format());
