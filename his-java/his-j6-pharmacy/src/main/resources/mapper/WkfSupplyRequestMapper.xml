@@ -1,6 +1,81 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zeroone.star.pharmacy.mapper.WkfSupplyRequestMapper">
+    <select id="selectStocktakeRowsForApproval"
+            resultType="com.zeroone.star.pharmacy.entity.WkfSupplyRequest">
+        select
+            id,
+            bus_no,
+            type_enum,
+            status_enum,
+            item_table,
+            item_id,
+            purpose_location_id,
+            lot_number,
+            unit_code,
+            total_quantity,
+            is_deleted
+        from wkf_supply_request
+        where bus_no = #{busNo}
+          and type_enum = #{typeEnum}
+          and is_deleted = 0
+    </select>
+
+    <update id="updateStocktakeToPending">
+        update wkf_supply_request
+        set status_enum = 'PENDING_APPROVAL',
+            applicant_id = #{applicantId},
+            apply_time = #{applyTime},
+            approver_id = null,
+            approval_time = null,
+            reason = null,
+            updated_at = #{updatedAt},
+            updated_by = #{updatedBy}
+        where bus_no = #{busNo}
+          and type_enum = #{typeEnum}
+          and status_enum = #{currentStatus}
+          and is_deleted = 0
+    </update>
+
+    <update id="updateStocktakeToWithdraw">
+        update wkf_supply_request
+        set status_enum = 'WITHDRAW',
+            approver_id = null,
+            approval_time = null,
+            updated_at = #{updatedAt},
+            updated_by = #{updatedBy}
+        where bus_no = #{busNo}
+          and type_enum = #{typeEnum}
+          and status_enum = #{currentStatus}
+          and is_deleted = 0
+    </update>
+
+    <update id="updateStocktakeToAgree">
+        update wkf_supply_request
+        set status_enum = 'AGREE',
+            approver_id = #{approverId},
+            approval_time = #{approvalTime},
+            updated_at = #{updatedAt},
+            updated_by = #{updatedBy}
+        where bus_no = #{busNo}
+          and type_enum = #{typeEnum}
+          and status_enum = #{currentStatus}
+          and is_deleted = 0
+    </update>
+
+    <update id="updateStocktakeToReject">
+        update wkf_supply_request
+        set status_enum = 'REJECT',
+            approver_id = #{approverId},
+            approval_time = #{approvalTime},
+            reason = #{reason},
+            updated_at = #{updatedAt},
+            updated_by = #{updatedBy}
+        where bus_no = #{busNo}
+          and type_enum = #{typeEnum}
+          and status_enum = #{currentStatus}
+          and is_deleted = 0
+    </update>
 
     <!-- 查询进货单审批所需字段 -->
     <select id="selectInboundRowsForApproval" resultType="com.zeroone.star.pharmacy.entity.WkfSupplyRequest">

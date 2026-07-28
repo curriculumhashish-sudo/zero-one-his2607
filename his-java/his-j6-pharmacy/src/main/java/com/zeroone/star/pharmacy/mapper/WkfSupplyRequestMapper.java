@@ -14,6 +14,23 @@ import java.util.List;
  * @since 2026-07-27
  */
 public interface WkfSupplyRequestMapper extends BaseMapper<WkfSupplyRequest> {
+    /**
+     * 查询药库盘点单审批所需行数据。
+     *
+     * @param busNo    盘点单号
+     * @param typeEnum 单据类型
+     * @return 盘点单明细行
+     */
+    List<WkfSupplyRequest> selectStocktakeRowsForApproval(@Param("busNo") String busNo,
+                                                          @Param("typeEnum") String typeEnum);
+
+    int updateStocktakeToPending(@Param("busNo") String busNo,
+                                 @Param("typeEnum") String typeEnum,
+                                 @Param("currentStatus") String currentStatus,
+                                 @Param("applicantId") String applicantId,
+                                 @Param("applyTime") LocalDateTime applyTime,
+                                 @Param("updatedAt") LocalDateTime updatedAt,
+                                 @Param("updatedBy") String updatedBy);
 
     /**
      * 查询进货单审批所需行数据（按 busNo + typeEnum，排除已删行）
@@ -64,4 +81,26 @@ public interface WkfSupplyRequestMapper extends BaseMapper<WkfSupplyRequest> {
                               @Param("reason") String reason,
                               @Param("updatedAt") LocalDateTime updatedAt,
                               @Param("updatedBy") String updatedBy);
+    int updateStocktakeToWithdraw(@Param("busNo") String busNo,
+                                  @Param("typeEnum") String typeEnum,
+                                  @Param("currentStatus") String currentStatus,
+                                  @Param("updatedAt") LocalDateTime updatedAt,
+                                  @Param("updatedBy") String updatedBy);
+
+    int updateStocktakeToAgree(@Param("busNo") String busNo,
+                               @Param("typeEnum") String typeEnum,
+                               @Param("currentStatus") String currentStatus,
+                               @Param("approverId") String approverId,
+                               @Param("approvalTime") LocalDateTime approvalTime,
+                               @Param("updatedAt") LocalDateTime updatedAt,
+                               @Param("updatedBy") String updatedBy);
+
+    int updateStocktakeToReject(@Param("busNo") String busNo,
+                                @Param("typeEnum") String typeEnum,
+                                @Param("currentStatus") String currentStatus,
+                                @Param("approverId") String approverId,
+                                @Param("approvalTime") LocalDateTime approvalTime,
+                                @Param("reason") String reason,
+                                @Param("updatedAt") LocalDateTime updatedAt,
+                                @Param("updatedBy") String updatedBy);
 }

@@ -9,4 +9,3 @@ public class MonthlyAccessQuery {
     @Schema(description = "查询年份", example = "2026", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer year;
 }
-

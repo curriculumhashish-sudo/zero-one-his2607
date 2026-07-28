@@ -12,6 +12,10 @@ import java.util.List;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import org.apache.ibatis.annotations.Param;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * <p>工作流 inventory item Mapper 接口</p>
@@ -20,6 +24,14 @@ import java.time.LocalDateTime;
  * @since 2026-07-27
  */
 public interface WkfInventoryItemMapper extends BaseMapper<WkfInventoryItem> {
+    int updateQuantityForStocktake(@Param("itemTable") String itemTable,
+                                   @Param("itemId") String itemId,
+                                   @Param("locationId") String locationId,
+                                   @Param("lotNumber") String lotNumber,
+                                   @Param("unitCode") String unitCode,
+                                   @Param("quantity") BigDecimal quantity,
+                                   @Param("updatedAt") LocalDateTime updatedAt,
+                                   @Param("updatedBy") String updatedBy);
 
 
     /**

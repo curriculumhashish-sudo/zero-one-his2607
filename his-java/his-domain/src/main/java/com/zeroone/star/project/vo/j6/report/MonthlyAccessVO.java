@@ -16,4 +16,3 @@ public class MonthlyAccessVO {
     @Schema(description = "访问次数(登录成功量)", example = "1500")
     private Long count;
 }
-

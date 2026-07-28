@@ -20,4 +20,3 @@ public class SupplyAmountCompareVO {
     @Schema(description = "统计期间(格式：yyyy-MM)", example = "2026-06")
     private String period;
 }
-

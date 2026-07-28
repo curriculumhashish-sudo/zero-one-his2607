@@ -18,4 +18,3 @@ public class StocktakeRejectApprovalDTO {
     @NotBlank(message = "changeReason cannot be blank when rejecting approval")
     private String changeReason;
 }
-

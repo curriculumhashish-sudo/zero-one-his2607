@@ -12,4 +12,3 @@ public class SupplyAmountCompareQuery {
     @Schema(description = "查询结束日期", example = "2026-06-30", requiredMode = Schema.RequiredMode.REQUIRED)
     private String end;
 }
-

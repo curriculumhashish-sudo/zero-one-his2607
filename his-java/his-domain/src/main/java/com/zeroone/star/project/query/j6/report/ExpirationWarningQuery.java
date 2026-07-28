@@ -13,4 +13,3 @@ public class ExpirationWarningQuery {
     @Schema(description = "仓库ID列表筛选", example = "[\"322954885380706304\"]")
     private List<String> warehouseIds;
 }
-

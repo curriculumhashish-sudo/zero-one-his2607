@@ -32,4 +32,3 @@ public class ExpirationWarningVO {
     @Schema(description = "供应商名称", example = "国药控股股份有限公司")
     private String supplierName;
 }
-
