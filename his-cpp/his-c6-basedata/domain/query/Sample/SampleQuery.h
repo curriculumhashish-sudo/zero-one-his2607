@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -32,9 +32,11 @@ class SampleQuery : public PageQuery
 {
 	DTO_INIT(SampleQuery, PageQuery);
 
-	// ×ÛºÏ¹Ø¼ü´Ê£¬Æ¥ÅäÑù±¾ÒµÎñ±àÂë¡¢Ñù±¾Ãû³Æ¡¢Æ´ÒôÂë¡¢Îå±ÊÂë
+	// ç»¼åˆå…³é”®è¯ï¼ŒåŒ¹é…æ ·æœ¬ä¸šåŠ¡ç¼–ç ã€æ ·æœ¬åç§°ã€æ‹¼éŸ³ç ã€äº”ç¬”ç 
 	API_DTO_FIELD_DEFAULT(String, keyword, ZH_WORDS_GETTER("sample.query.keyword"));
 };
+
+using SampleFullSelectQuery = SampleQuery;
 
 #include OATPP_CODEGEN_END(DTO)
 #endif // !_SAMPLE_FULL_SELECT_QUERY_

@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -25,25 +25,32 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * Ñù±¾ÍêÕûÊı¾İÑ¡Ôñµ¯´°DTO
- * Ò³ÃæËµÃ÷£ºÁĞ±íĞ¯´øÍêÕûÑù±¾Êı¾İ£¬¿ÉÖ±½ÓÓÃÓÚĞŞ¸Ä±íµ¥»ØÌî
+ * æ ·æœ¬å®Œæ•´æ•°æ®é€‰æ‹©å¼¹çª—DTO
+ * é¡µé¢è¯´æ˜ï¼šåˆ—è¡¨æºå¸¦å®Œæ•´æ ·æœ¬æ•°æ®ï¼Œå¯ç›´æ¥ç”¨äºä¿®æ”¹è¡¨å•å›å¡«
  */
 class SampleDTO : public oatpp::DTO
 {
 	DTO_INIT(SampleDTO, DTO);
 
-	// Ö÷¼üID
-	API_DTO_FIELD_REQUIRE(Int32, id, ZH_WORDS_GETTER("sample.field.id"), true);
-	// ÒµÎñ±àÂë
+	// ä¸»é”®ID
+	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("sample.field.id"), true);
+	// ä¸šåŠ¡ç¼–ç 
 	API_DTO_FIELD_REQUIRE(String, sampleCode, ZH_WORDS_GETTER("sample.field.sampleCode"), true);
-	// Ñù±¾Ãû³Æ
+	// æ ·æœ¬åç§°
 	API_DTO_FIELD_REQUIRE(String, sampleName, ZH_WORDS_GETTER("sample.field.sampleName"), true);
-	// Æ´ÒôÖú¼ÇÂë
+	// æ‹¼éŸ³åŠ©è®°ç 
 	API_DTO_FIELD_DEFAULT(String, inputCode, ZH_WORDS_GETTER("sample.field.inputCode"));
-	// Îå±ÊÖú¼ÇÂë
+	// äº”ç¬”åŠ©è®°ç 
 	API_DTO_FIELD_DEFAULT(String, wbCode, ZH_WORDS_GETTER("sample.field.wbCode"));
-	// ±¸×¢
+	// å¤‡æ³¨
 	API_DTO_FIELD_DEFAULT(String, remark, ZH_WORDS_GETTER("sample.field.remark"));
+};
+
+using SampleFullSelectDTO = SampleDTO;
+
+class SamplePageDTO : public PageDTO<SampleDTO::Wrapper>
+{
+	DTO_INIT(SamplePageDTO, PageDTO<SampleDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)

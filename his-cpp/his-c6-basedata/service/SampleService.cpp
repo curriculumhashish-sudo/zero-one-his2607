@@ -1,0 +1,200 @@
+#include "stdafx.h"
+#include "SampleService.h"
+#include "SimpleDateTimeFormat.h"
+#include <chrono>
+#include <random>
+#include <sstream>
+
+namespace
+{
+	constexpr const char* DEFAULT_OPERATOR = "system";
+	constexpr const char* DEFAULT_SAMPLE_TYPE = "BLOOD";
+}
+
+oatpp::List<SampleFullSelectDTO::Wrapper> SampleService::listSampleName(const SampleFullSelectQuery::Wrapper& query) const
+{
+	SampleDAO dao;
+	const auto pageIndex = query && query->pageIndex ? query->pageIndex.getValue(1) : 1;
+	const auto pageSize = query && query->pageSize ? query->pageSize.getValue(10) : 10;
+	const auto offset = (pageIndex - 1) * pageSize;
+	const auto records = dao.selectByKeyword(toStdString(query ? query->keyword : nullptr), offset, pageSize);
+
+	auto rows = oatpp::List<SampleFullSelectDTO::Wrapper>::createShared();
+	for (const auto& record : records)
+	{
+		rows->push_back(toDTO(record));
+	}
+	return rows;
+}
+
+SamplePageDTO::Wrapper SampleService::listSamplePage(const SampleFullSelectQuery::Wrapper& query) const
+{
+	SampleDAO dao;
+	const auto keyword = toStdString(query ? query->keyword : nullptr);
+	const auto pageIndex = query && query->pageIndex ? query->pageIndex.getValue(1) : 1;
+	const auto pageSize = query && query->pageSize ? query->pageSize.getValue(10) : 10;
+	const auto offset = (pageIndex - 1) * pageSize;
+	const auto total = static_cast<v_int64>(dao.countByKeyword(keyword));
+	const auto records = dao.selectByKeyword(keyword, offset, pageSize);
+
+	auto page = SamplePageDTO::createShared();
+	page->pageIndex = pageIndex;
+	page->pageSize = pageSize;
+	page->total = total;
+	page->rows = oatpp::List<SampleFullSelectDTO::Wrapper>::createShared();
+	for (const auto& record : records)
+	{
+		page->rows->push_back(toDTO(record));
+	}
+	page->calcPages();
+	return page;
+}
+
+void SampleService::addSample(const SampleAddDTO::Wrapper& dto) const
+{
+	SampleDAO dao;
+	const auto sampleCode = toStdString(dto->sampleCode);
+	if (dao.existsByCode(sampleCode))
+	{
+		throw std::runtime_error("sampleCode already exists.");
+	}
+
+	SampleDO sample;
+	sample.setId(buildSampleId());
+	sample.setSampleCode(sampleCode);
+	sample.setSampleName(toStdString(dto->sampleName));
+	if (dto->inputCode) sample.setInputCode(toStdString(dto->inputCode));
+	if (dto->wbCode) sample.setWbCode(toStdString(dto->wbCode));
+	sample.setStatus(dto->status ? dto->status.getValue(1) : 1);
+	sample.setTypeEnum(DEFAULT_SAMPLE_TYPE);
+	if (dto->remark) sample.setRemark(toStdString(dto->remark));
+
+	const auto now = currentTime();
+	sample.setCreateBy(DEFAULT_OPERATOR);
+	sample.setCreateTime(now);
+	sample.setUpdateBy(DEFAULT_OPERATOR);
+	sample.setUpdateTime(now);
+
+	if (dao.insertSample(sample) <= 0)
+	{
+		throw std::runtime_error("failed to add sample.");
+	}
+}
+
+void SampleService::editSample(const SampleEditDTO::Wrapper& dto) const
+{
+	SampleDAO dao;
+	const auto id = toStdString(dto->id);
+	auto existing = dao.selectById(id);
+	if (!existing)
+	{
+		throw std::runtime_error("sample not found.");
+	}
+
+	const auto sampleCode = toStdString(dto->sampleCode);
+	if (dao.existsByCode(sampleCode, id))
+	{
+		throw std::runtime_error("sampleCode already exists.");
+	}
+
+	SampleDO sample;
+	sample.setId(id);
+	sample.setSampleCode(sampleCode);
+	sample.setSampleName(toStdString(dto->sampleName));
+	if (dto->inputCode) sample.setInputCode(toStdString(dto->inputCode));
+	if (dto->wbCode) sample.setWbCode(toStdString(dto->wbCode));
+	if (dto->status) sample.setStatus(dto->status.getValue(0));
+	if (dto->remark) sample.setRemark(toStdString(dto->remark));
+	sample.setUpdateBy(DEFAULT_OPERATOR);
+	sample.setUpdateTime(currentTime());
+
+	if (dao.updateSample(sample) <= 0)
+	{
+		throw std::runtime_error("failed to edit sample.");
+	}
+}
+
+void SampleService::removeSample(const std::string& id) const
+{
+	SampleDAO dao;
+	if (!dao.selectById(id))
+	{
+		throw std::runtime_error("sample not found.");
+	}
+
+	if (dao.removeSampleById(id) <= 0)
+	{
+		throw std::runtime_error("failed to remove sample.");
+	}
+}
+
+void SampleService::switchSampleStatus(const SampleStatusDTO::Wrapper& dto) const
+{
+	SampleDAO dao;
+	std::list<std::string> ids;
+	for (const auto& id : *dto->ids)
+	{
+		if (id && !id->empty())
+		{
+			ids.push_back(toStdString(id));
+		}
+	}
+
+	if (ids.empty())
+	{
+		throw std::runtime_error("ids is required.");
+	}
+
+	const auto affected = dao.updateStatusByIds(
+		ids,
+		dto->status.getValue(0),
+		DEFAULT_OPERATOR,
+		currentTime());
+
+	if (affected <= 0)
+	{
+		throw std::runtime_error("failed to switch sample status.");
+	}
+}
+
+SampleFullSelectDTO::Wrapper SampleService::toDTO(const PtrSampleDO& sample) const
+{
+	auto dto = SampleFullSelectDTO::createShared();
+	if (!sample)
+	{
+		return dto;
+	}
+
+	ZO_STAR_DOMAIN_DO_TO_DTO_1(
+		dto,
+		sample,
+		id, Id,
+		sampleCode, SampleCode,
+		sampleName, SampleName,
+		inputCode, InputCode,
+		wbCode, WbCode,
+		remark, Remark);
+	return dto;
+}
+
+std::string SampleService::buildSampleId() const
+{
+	const auto now = std::chrono::system_clock::now().time_since_epoch();
+	const auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
+	static thread_local std::mt19937_64 engine(std::random_device{}());
+	std::uniform_int_distribution<int> dist(1000, 9999);
+
+	std::ostringstream oss;
+	oss << "SAMPLE" << millis << dist(engine);
+	return oss.str();
+}
+
+std::string SampleService::currentTime() const
+{
+	return SimpleDateTimeFormat::format();
+}
+
+std::string SampleService::toStdString(const oatpp::String& value)
+{
+	return value ? value.getValue("") : std::string();
+}
