@@ -400,3 +400,27 @@ int insert(const MedMedicationDefinitionDO& entity)
 {
 
 }
+
+std::string DrugDAO::queryConditionBuilder(const DrugQuery::Wrapper& query, SqlParams& params)
+{
+    std::stringstream sqlCondition;
+
+    // 基础条件：只查询未删除的数据 (is_deleted = 0)
+    sqlCondition << " WHERE `is_deleted` = 0 ";
+
+    // 条件1：关键词模糊查询 
+    if (query->keywords && !query->keywords->empty()) {
+        sqlCondition << " AND (`name` LIKE CONCAT('%',?,'%') OR `py_str` LIKE CONCAT('%',?,'%')) ";
+        SQLPARAMS_PUSH(params, "s", std::string, query->keywords.getValue(""));
+        SQLPARAMS_PUSH(params, "s", std::string, query->keywords.getValue(""));
+    }
+
+    // 条件2：器材分类精准查询
+    if (query->classification && !query->classification->empty()) {
+        sqlCondition << " AND `category_code` = ? ";
+        SQLPARAMS_PUSH(params, "s", std::string, query->classification.getValue(""));
+    }
+
+    return sqlCondition.str();
+
+  }

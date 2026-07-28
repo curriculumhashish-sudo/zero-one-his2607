@@ -34,6 +34,7 @@ class DrugDAO : public BaseDAO
     static std::string fullDrugColumns();
     static std::string placeholders(size_t count);
     static void appendIds(SqlParams &params, const std::list<std::string> &ids);
+    inline std::string queryConditionBuilder(const DrugQuery::Wrapper& query, SqlParams& params);
 
   public:
     void releaseSqlSession() noexcept;
