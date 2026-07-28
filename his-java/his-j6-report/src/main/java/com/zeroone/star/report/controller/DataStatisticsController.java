@@ -10,6 +10,7 @@ import com.zeroone.star.project.vo.j6.report.MonthlyAccessVO;
 import com.zeroone.star.project.vo.j6.report.SupplyAmountCompareVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -95,14 +96,15 @@ public class DataStatisticsController implements DataStatisticsApis {
     @Operation(summary = "周接诊量门诊趋势")
     @GetMapping("/week-trend")
     @Override
-    public JsonVO<EncounterWeekTrendVO> queryWeekTrend(EncounterWeekTrendQuery query) {
+    @Validated
+    public JsonVO<EncounterWeekTrendVO> queryWeekTrend(@Validated EncounterWeekTrendQuery query) {
         return null;
     }
 
     @Operation(summary = "月接诊量门诊趋势")
     @GetMapping("/month-trend")
     @Override
-    public JsonVO<EncounterMonthTrendVO> queryMonthTrend(EncounterMonthTrendQuery query) {
+    public JsonVO<EncounterMonthTrendVO> queryMonthTrend(@Validated EncounterMonthTrendQuery query) {
         return null;
     }
 
