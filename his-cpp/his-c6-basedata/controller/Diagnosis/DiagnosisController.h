@@ -1,4 +1,4 @@
-#pragma once
+Ôªø#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -29,6 +29,7 @@
 #include "domain/vo/Diagnosis/DiagnosisDetailPageJsonVO.h"
 #include "domain/vo/Diagnosis/DiagnosisSelectPageJsonVO.h"
 #include "domain/vo/Diagnosis/DiagnosisJsonVO.h"
+#include <exception>
 
 using namespace oatpp;
 
@@ -43,6 +44,9 @@ class DiagnosisController : public oatpp::web::server::api::ApiController
 {
 	API_ACCESS_DECLARE(DiagnosisController);
 
+	// Ê†°È™åÊü•ËØ¢ÂèÇÊï∞ÂêçÁß∞ÂíåÊó†Á¨¶Âè∑ÂàÜÈ°µÂÄº„ÄÇ
+	static bool hasValidQueryParameters(const QueryParams& queryParams);
+
 public:
 	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("diagnose.query_select.summary"),
@@ -52,12 +56,28 @@ public:
 		API_DEF_QUERY_PARAM_BUILD(DiagnosisSelectQuery);
 		info->queryParams["keyword"].addExample("default", oatpp::String("GM"));
 		info->queryParams["diagnosisKindCode"].addExample("default", oatpp::String("1")););
-	API_HANDLER_ENDPOINT_QUERY_AUTH(
+	API_HANDLER_ENDPOINT_OPTION_AUTH(
 		API_M_GET,
 		"/diagnosis/query-select",
 		querySelectDiagnosis,
-		DiagnosisSelectQuery,
-		execQuerySelectDiagnosis(query));
+		QUERIES(QueryParams, queryParams),
+		if (!hasValidQueryParameters(queryParams))
+		{
+			auto response = DiagnosisSelectPageJsonVO::createShared();
+			response->init(nullptr, RS_PARAMS_INVALID);
+			API_HANDLER_RESP_VO(response);
+		}
+		try
+		{
+			API_HANDLER_QUERY_PARAM(query, DiagnosisSelectQuery, queryParams);
+			API_HANDLER_RESP_VO(execQuerySelectDiagnosis(query, authObject->getPayload()));
+		}
+		catch (const std::exception&)
+		{
+			auto response = DiagnosisSelectPageJsonVO::createShared();
+			response->init(nullptr, RS_PARAMS_INVALID);
+			API_HANDLER_RESP_VO(response);
+		});
 
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(
 		ZH_WORDS_GETTER("diagnose.query_all.summary"),
@@ -109,7 +129,7 @@ public:
 		BODY_DTO(DiagnoseDTO::Wrapper, dto),
 		execModifyDiagnose(dto, authObject->getPayload()));
 
-	//ŒÔ¿Ì≈˙¡ø…æ≥˝
+	//Áâ©ÁêÜÊâπÈáèÂà†Èô§
 	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("diagnose.delete.summary"),
 		removeDiagnose,
@@ -122,7 +142,7 @@ public:
 		BODY_DTO(List<String>, ids),
 		execRemoveDiagnose(ids));
 
-	//¬ﬂº≠≈˙¡ø…æ≥˝
+	//ÈÄªËæëÊâπÈáèÂà†Èô§
 	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("diagnose.delete.summarylogic"),
 		removeDiagnosis,
@@ -150,14 +170,16 @@ public:
 		execBatchChangeDiagnoseStatus(dto, authObject->getPayload()));
 
 private:
-	DiagnosisSelectPageJsonVO::Wrapper execQuerySelectDiagnosis(const DiagnosisSelectQuery::Wrapper& query);
+	DiagnosisSelectPageJsonVO::Wrapper execQuerySelectDiagnosis(
+		const DiagnosisSelectQuery::Wrapper& query,
+		const PayloadDTO& payload);
 	DiagnosisDetailPageJsonVO::Wrapper execQueryAllDiagnosis(const DiagnosisPageQuery::Wrapper& query);
 	DiagnosisDetailJsonVO::Wrapper execQueryOneDiagnosis(const DiagnosisDetailQuery::Wrapper& query);
 	StringJsonVO::Wrapper execAddDiagnose(const DiagnoseAddDTO::Wrapper& dto, const PayloadDTO& payload);
 	StringJsonVO::Wrapper execModifyDiagnose(const DiagnoseDTO::Wrapper& dto, const PayloadDTO& payload);
 	ListJsonVO<String>::Wrapper execRemoveDiagnose(const List<String>& ids);
 	StringJsonVO::Wrapper execBatchChangeDiagnoseStatus(const DiagnoseBatchStatusDTO::Wrapper& dto, const PayloadDTO& payload);
-	//¬ﬂº≠…æ≥˝
+	//ÈÄªËæëÂà†Èô§
 	DiagnoseRemoveJsonVO::Wrapper execRemoveDiagnosis(const DiagnoseRemoveDTO::Wrapper&dto,const PayloadDTO&payload);
 
 };

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -25,9 +25,7 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/**
- * JSON response wrapper for query-select.
- */
+/** 选择诊疗分页响应。 */
 class DiagnosisSelectPageJsonVO : public JsonVO<DiagnosisSelectPageDTO::Wrapper>
 {
 	DTO_INIT(DiagnosisSelectPageJsonVO, JsonVO<DiagnosisSelectPageDTO::Wrapper>);

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -24,17 +24,21 @@
 #include "../../domain/do/Diagnosis/ClnConditionDefinitionDO.h"
 #include "../../domain/query/Diagnosis/DiagnosisSelectQuery.h"
 
-/**
- * Data access object for diagnosis records.
- */
+/** 诊断数据访问对象。 */
 class DiagnosisDAO : public BaseDAO
 {
 private:
-	std::string queryConditionBuilder(const DiagnosisSelectQuery::Wrapper& query, SqlParams& params);
+	std::string queryConditionBuilder(
+		const DiagnosisSelectQuery::Wrapper& query,
+		const std::string& tenantId,
+		SqlParams& params);
 
 public:
-	uint64_t count(const DiagnosisSelectQuery::Wrapper& query);
-	std::list<ClnConditionDefinitionDO> selectWithPage(const DiagnosisSelectQuery::Wrapper& query);
+	std::string selectCurrentTenantId(const std::string& userId);
+	uint64_t count(const DiagnosisSelectQuery::Wrapper& query, const std::string& tenantId);
+	std::list<ClnConditionDefinitionDO> selectWithPage(
+		const DiagnosisSelectQuery::Wrapper& query,
+		const std::string& tenantId);
 	std::list<DiagnosisDO> selectByName(const std::string& name);
 };
 
