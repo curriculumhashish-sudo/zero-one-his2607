@@ -1,5 +1,7 @@
 package com.zeroone.star.sysmgr.exception;
 
+import com.zeroone.star.project.exception.SystemStatus;
+
 public enum UserStatus implements SystemStatus{
 
     USER_NOT_FIND("用户不存在", 4201),
