@@ -2,8 +2,12 @@ package com.zeroone.star.sysmgr.service.user;
 
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j1.user.UserAddDTO;
+import com.zeroone.star.project.dto.j1.user.UserUpdateDTO;
 import com.zeroone.star.project.query.j1.user.UserListQuery;
+import com.zeroone.star.project.query.j1.user.UserQuery;
+import com.zeroone.star.project.vo.j1.user.UserDetailVO;
 import com.zeroone.star.project.vo.j1.user.UserListVO;
+import com.zeroone.star.project.vo.j1.user.UserPageVO;
 import com.zeroone.star.sysmgr.entity.user.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import jakarta.validation.Valid;
@@ -62,4 +66,25 @@ public interface IUserService extends IService<User> {
      * @return 新增用户结果
      */
     Boolean saveUser(@Valid UserAddDTO userAddDTO);
+
+    /**
+     * 分页查询用户列表（含角色信息）
+     * @param query 查询条件 + 分页参数
+     * @return 分页结果，每行含角色名称列表
+     */
+    PageDTO<UserPageVO> getPage(UserQuery query);
+
+    /**
+     * 根据用户ID查询用户详情
+     * @param id 用户ID
+     * @return 用户详情
+     */
+    UserDetailVO getById(String id);
+
+    /**
+     * 修改用户
+     * @param dto 修改用户表单
+     * @return 是否修改成功
+     */
+    Boolean updateUser(UserUpdateDTO dto);
 }

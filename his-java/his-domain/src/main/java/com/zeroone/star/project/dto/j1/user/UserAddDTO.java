@@ -73,4 +73,20 @@ public class UserAddDTO {
 
     @Schema(description = "备注信息")
     private String remark;
+
+    @Schema(description = "出诊科室名称列表id", example = "[\"10\", \"20\"]")
+    private List<String> consultDeptIds;
+
+    @Schema(description = "可接诊号源名称列表id", example = "[\"10\", \"20\"]")
+    private List<String> receptionSourceIds;
+
+    // ========== 位置信息 ==========
+    @Schema(description = "库房名称列表id", example = "[\"10\", \"20\"]")
+    private List<String> warehouseIds;
+
+    @Schema(description = "药房名称列表id", example = "[\"10\", \"20\"]")
+    private List<String> pharmacyIds;
+
+    @Schema(description = "病区名称列表id", example = "[\"10\", \"20\"]")
+    private List<String> wardIds;
 }

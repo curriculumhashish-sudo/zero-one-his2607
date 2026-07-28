@@ -31,7 +31,7 @@ public class UserController implements UserApis {
     @GetMapping("/page")
     @Override
     public JsonVO<PageDTO<UserPageVO>> getPage(@RequestBody @Valid UserQuery query) {
-        return null;
+        return JsonVO.success(userService.getPage(query));
     }
 
 
@@ -46,7 +46,7 @@ public class UserController implements UserApis {
     @GetMapping("/{id}")
     @Override
     public JsonVO<UserDetailVO> getById(@PathVariable String id) {
-        return null;
+        return JsonVO.success(userService.getById(id));
     }
 
 
@@ -61,7 +61,7 @@ public class UserController implements UserApis {
     @PutMapping("/update")
     @Override
     public JsonVO<Boolean> updateUser(@Valid @RequestBody UserUpdateDTO userUpdateDTO) {
-        return null;
+        return JsonVO.success(userService.updateUser(userUpdateDTO));
     }
 
 
