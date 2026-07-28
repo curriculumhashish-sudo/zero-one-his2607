@@ -126,7 +126,6 @@ class DiagnoseRemoveDTO : public oatpp::DTO
 	DTO_INIT(DiagnoseRemoveDTO, DTO);
 
 	API_DTO_FIELD_REQUIRE(List<String>, ids, ZH_WORDS_GETTER("diagnose.field.diag.id_list"), true);
-	API_DTO_FIELD_REQUIRE(Int32, version, ZH_WORDS_GETTER("diagnose.field.diag.version"), true);//来源枚举值 source_enum
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 };
 
