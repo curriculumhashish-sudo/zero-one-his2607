@@ -3,6 +3,7 @@ package com.zeroone.star.project.vo.j6.pharmacy.stockout;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -35,6 +36,15 @@ public class StockOutDetailVO {
 
     @Schema(description = "分类枚举", example = "DRUG", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String categoryEnum;
+
+    @Schema(description = "备注", example = "需冷藏保存", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String remark;
+
+    @Schema(description = "单价", example = "25.50", requiredMode = Schema.RequiredMode.REQUIRED)
+    private BigDecimal unitPrice;
+
+    @Schema(description = "总金额", example = "127.50", requiredMode = Schema.RequiredMode.REQUIRED)
+    private BigDecimal totalAmount;
 
     @Schema(description = "出库单明细行", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private List<StockOutLineVO> lines;
