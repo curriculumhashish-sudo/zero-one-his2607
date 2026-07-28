@@ -1,6 +1,7 @@
 package com.zeroone.star.basedata.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.zeroone.star.basedata.entity.DictionaryConceptDO;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -47,7 +48,7 @@ public interface DictionaryMapper extends BaseMapper<DictionaryConceptDO> {
             """)
     Long selectMaxSortOrder(@Param("codeSystemId") String codeSystemId);
 
-    int updateConcept(@Param("concept") DictionaryConceptDO concept);
+    int updateConcept(@Param(Constants.ENTITY) DictionaryConceptDO concept);
 
-    int logicallyDelete(@Param("id") String id, @Param("operatorId") String operatorId);
+    int logicallyDelete(@Param(Constants.ENTITY) DictionaryConceptDO concept);
 }

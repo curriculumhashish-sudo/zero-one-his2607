@@ -28,8 +28,6 @@ class DictionaryServiceImplTest {
 
     @Mock
     private DictionaryMapper dictionaryMapper;
-    @Mock
-    private UserHolder userHolder;
 
     private DictionaryServiceImpl dictionaryService;
 
@@ -60,7 +58,8 @@ class DictionaryServiceImplTest {
         assertEquals("1", captor.getValue().getCode());
         assertEquals("一般医疗服务费", captor.getValue().getDisplay());
         assertEquals(9L, captor.getValue().getSortOrder());
-        assertEquals("operator-1", captor.getValue().getCreatedBy());
+        assertNull(captor.getValue().getCreatedAt());
+        assertNull(captor.getValue().getCreatedBy());
     }
 
     @Test
@@ -102,8 +101,7 @@ class DictionaryServiceImplTest {
     void removeDictionaryShouldRejectMissingOrDeletedConcept() throws Exception {
         DictionaryDeleteDTO data = new DictionaryDeleteDTO();
         data.setId("missing");
-        mockOperator();
-        when(dictionaryMapper.logicallyDelete("missing", "operator-1")).thenReturn(0);
+        when(dictionaryMapper.logicallyDelete(any(DictionaryConceptDO.class))).thenReturn(0);
 
         DictionaryBusinessException exception = assertThrows(
                 DictionaryBusinessException.class,
@@ -111,6 +109,10 @@ class DictionaryServiceImplTest {
         );
 
         assertEquals("字典项不存在或已删除", exception.getMessage());
+        ArgumentCaptor<DictionaryConceptDO> captor = ArgumentCaptor.forClass(DictionaryConceptDO.class);
+        verify(dictionaryMapper).logicallyDelete(captor.capture());
+        assertEquals("missing", captor.getValue().getId());
+        assertEquals(true, captor.getValue().getIsDeleted());
     }
 
     private DictionaryAddDTO addDTO() {
@@ -125,9 +127,5 @@ class DictionaryServiceImplTest {
         data.setCode(" 1 ");
         data.setDisplay(" 一般医疗服务费 ");
         data.setDefinition(" 一般医疗服务费用 ");
-    }
-
-    private void mockOperator() throws Exception {
-        when(userHolder.getCurrentUser()).thenReturn(UserDTO.builder().id("operator-1").build());
     }
 }
