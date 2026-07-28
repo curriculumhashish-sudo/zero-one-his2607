@@ -35,11 +35,11 @@ public class DiagnosisDetailVO implements Serializable {
     @Schema(description = "医保编码", example = "YB-I10")
     private String ybNo;
 
-    @Schema(description = "医保标记，1表示是，0表示否", example = "1")
-    private Integer ybFlag;
+    @Schema(description = "是否医保诊断", example = "true")
+    private Boolean ybFlag;
 
-    @Schema(description = "医保对码，1表示已对码，0表示未对码", example = "1")
-    private Integer ybMatchFlag;
+    @Schema(description = "是否已完成医保对码", example = "true")
+    private Boolean ybMatchFlag;
 
     @Schema(description = "拼音助记", example = "YFXGXY")
     private String pyStr;
