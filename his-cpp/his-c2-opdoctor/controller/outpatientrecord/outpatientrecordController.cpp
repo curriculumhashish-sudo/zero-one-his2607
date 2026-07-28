@@ -6,5 +6,5 @@ outpatientrecordController::execSaveoutpatientrecord(
 	const outpatientrecordSaveDTO::Wrapper& dto,
 	const PayloadDTO& payload)
 {
-	return {};
+	return service.save(dto, payload);
 }

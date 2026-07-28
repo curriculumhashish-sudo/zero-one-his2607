@@ -2,34 +2,34 @@
 #include "chinapres3Controller.h"
 
 /**
- * ç­¾å‘å¤„æ–¹æ¥å£æ‰§è¡Œé€»è¾‘
+ * Ç©·¢´¦·½½Ó¿ÚÖ´ĞĞÂß¼­
  *
- * æ¥æ”¶å‰ç«¯ä¼ å…¥çš„å¤„æ–¹ç­¾å‘DTOä¸å½“å‰ç™»å½•ç”¨æˆ·JWTè½½è·ä¿¡æ¯
- * è°ƒç”¨ chinapres3Service.issue å®Œæˆå¤„æ–¹ç­¾å‘ä¸šåŠ¡é€»è¾‘
- * Serviceå±‚å†…éƒ¨å¤„ç†å¤„æ–¹æ•°æ®æ ¡éªŒã€æ•°æ®åº“å†™å…¥ã€å¤„æ–¹ç­¾åæµç¨‹
+ * ½ÓÊÕÇ°¶Ë´«ÈëµÄ´¦·½Ç©·¢DTOÓëµ±Ç°µÇÂ¼ÓÃ»§JWTÔØºÉĞÅÏ¢
+ * µ÷ÓÃ chinapres3Service.issue Íê³É´¦·½Ç©·¢ÒµÎñÂß¼­
+ * Service²ãÄÚ²¿´¦Àí´¦·½Êı¾İĞ£Ñé¡¢Êı¾İ¿âĞ´Èë¡¢´¦·½Ç©ÃûÁ÷³Ì
  *
- * @param dto ç­¾å‘å…¥å‚DTOï¼ŒåŒ…å«å°±è¯ŠIDã€æ‚£è€…IDã€å¾…ç­¾å‘å¤„æ–¹æ•°ç»„
- * @param payload JWTè½½è·å¯¹è±¡ï¼Œæºå¸¦å½“å‰æ“ä½œåŒ»ç”Ÿã€ç§‘å®¤ã€åŒ»é™¢èº«ä»½ä¿¡æ¯
- * @return chinapres3IssueResultVO ç­¾å‘ç»“æœVOï¼ŒåŒ…å«ç­¾å‘æˆåŠŸ/å¤±è´¥çŠ¶æ€ã€å¤„æ–¹å›æ‰§ä¿¡æ¯
+ * @param dto Ç©·¢Èë²ÎDTO£¬°üº¬¾ÍÕïID¡¢»¼ÕßID¡¢´ıÇ©·¢´¦·½Êı×é
+ * @param payload JWTÔØºÉ¶ÔÏó£¬Ğ¯´øµ±Ç°²Ù×÷Ò½Éú¡¢¿ÆÊÒ¡¢Ò½ÔºÉí·İĞÅÏ¢
+ * @return chinapres3IssueResultVO Ç©·¢½á¹ûVO£¬°üº¬Ç©·¢³É¹¦/Ê§°Ü×´Ì¬¡¢´¦·½»ØÖ´ĞÅÏ¢
  */
 chinapres3IssueResultVO::Wrapper chinapres3Controller::execIssuechinapres3(
 	const chinapres3IssueDTO::Wrapper& dto,
 	const PayloadDTO& payload)
 {
-	// è°ƒç”¨ä¸šåŠ¡æœåŠ¡å±‚æ‰§è¡Œå¤„æ–¹ç­¾å‘é€»è¾‘
+	// µ÷ÓÃÒµÎñ·şÎñ²ãÖ´ĞĞ´¦·½Ç©·¢Âß¼­
 	return service.issue(dto, payload);
 }
 
-// ---- å¤„æ–¹æ’¤å›ç›¸å…³æ‰§è¡Œå‡½æ•° ----
+// ---- ´¦·½³·»ØÏà¹ØÖ´ĞĞº¯Êı ----
 /**
- * æ’¤å›å¤„æ–¹æ¥å£æ‰§è¡Œé€»è¾‘
+ * ³·»Ø´¦·½½Ó¿ÚÖ´ĞĞÂß¼­
  *
- * æ¥æ”¶å‰ç«¯ä¼ å…¥çš„æ’¤å›DTOä¸ç™»å½•ç”¨æˆ·JWTè½½è·
- * è°ƒç”¨ service.revoke æ‰§è¡Œå¤„æ–¹æ’¤å›ã€æ•°æ®åº“çŠ¶æ€æ›´æ–°
+ * ½ÓÊÕÇ°¶Ë´«ÈëµÄ³·»ØDTOÓëµÇÂ¼ÓÃ»§JWTÔØºÉ
+ * µ÷ÓÃ service.revoke Ö´ĞĞ´¦·½³·»Ø¡¢Êı¾İ¿â×´Ì¬¸üĞÂ
  *
- * @param dto æ’¤å›å…¥å‚DTOï¼ŒåŒ…å«éœ€è¦æ’¤é”€çš„å¤„æ–¹ç¼–å·æ•°ç»„
- * @param payload JWTè½½è·å¯¹è±¡ï¼Œæ ¡éªŒæ“ä½œåŒ»ç”Ÿæƒé™
- * @return chinapres3RevokeResultVO æ’¤å›ç»“æœVOï¼Œæ ‡è®°æ¯æ¡å¤„æ–¹æ’¤å›æˆåŠŸ/å¤±è´¥
+ * @param dto ³·»ØÈë²ÎDTO£¬°üº¬ĞèÒª³·ÏúµÄ´¦·½±àºÅÊı×é
+ * @param payload JWTÔØºÉ¶ÔÏó£¬Ğ£Ñé²Ù×÷Ò½ÉúÈ¨ÏŞ
+ * @return chinapres3RevokeResultVO ³·»Ø½á¹ûVO£¬±ê¼ÇÃ¿Ìõ´¦·½³·»Ø³É¹¦/Ê§°Ü
  */
 chinapres3RevokeResultVO::Wrapper chinapres3Controller::execRevokechinapres3(
 	const chinapres3RevokeDTO::Wrapper& dto,
