@@ -19,7 +19,7 @@ import com.zeroone.star.sysmgr.entity.resource.AdmLocation;
 import com.zeroone.star.sysmgr.entity.resource.AdmOrganization;
 import com.zeroone.star.sysmgr.entity.role.RoleDO;
 import com.zeroone.star.sysmgr.entity.user.*;
-import com.zeroone.star.sysmgr.exception.SystemException;
+import com.zeroone.star.project.exception.SystemException;
 import com.zeroone.star.sysmgr.exception.UserStatus;
 import com.zeroone.star.sysmgr.mapper.resource.AdmHealthcareServiceMapper;
 import com.zeroone.star.sysmgr.mapper.resource.AdmLocationMapper;
@@ -31,6 +31,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -139,6 +140,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         });
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Boolean saveUser(UserAddDTO userAddDTO) {
         // 1.校验用户名唯一
@@ -164,6 +166,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
         // 4.插入 adm_practitioner
         Practitioner practitioner = new Practitioner();
+        practitioner.setStatusEnum("ACTIVE");
         practitioner.setUserId(userId);
         practitioner.setName(userAddDTO.getName());
         practitioner.setPhone(userAddDTO.getPhoneNumber());
@@ -202,8 +205,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                     }
                 }
                 if (userAddDTO.getReceptionSourceIds() != null) {
+                    String orgId = (userAddDTO.getConsultDeptIds() != null && !userAddDTO.getConsultDeptIds().isEmpty())
+                            ? userAddDTO.getConsultDeptIds().get(0)
+                            : null;
                     for (String svcId : userAddDTO.getReceptionSourceIds()) {
-                        PrAssign pa = newPrAssign(practitioner.getId(), roleId, null, null);
+                        PrAssign pa = newPrAssign(practitioner.getId(), roleId, orgId, null);
                         prAssignMapper.insert(pa);
                         PrAssignService pas = new PrAssignService();
                         pas.setAssignmentId(pa.getId());
@@ -461,8 +467,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                     }
                 }
                 if (dto.getReceptionSourceIds() != null) {
+                    String orgId = (dto.getConsultDeptIds() != null && !dto.getConsultDeptIds().isEmpty())
+                            ? dto.getConsultDeptIds().get(0)
+                            : practitioner.getOrgId();
                     for (String svcId : dto.getReceptionSourceIds()) {
-                        PrAssign pa = newPrAssign(practitioner.getId(), roleId, null, null);
+                        PrAssign pa = newPrAssign(practitioner.getId(), roleId, orgId, null);
                         prAssignMapper.insert(pa);
                         PrAssignService pas = new PrAssignService();
                         pas.setAssignmentId(pa.getId());

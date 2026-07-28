@@ -28,7 +28,7 @@ public class UserController implements UserApis {
     private IUserService userService;
 
     @Operation(summary   = "分页查询用户列表")
-    @GetMapping("/page")
+    @PostMapping("/page")
     @Override
     public JsonVO<PageDTO<UserPageVO>> getPage(@RequestBody @Valid UserQuery query) {
         return JsonVO.success(userService.getPage(query));
@@ -36,7 +36,7 @@ public class UserController implements UserApis {
 
 
     @Operation(summary   = "查询选择(租户)用户列表")
-    @GetMapping("/list")
+    @PostMapping("/list")
     @Override
     public JsonVO<PageDTO<UserListVO>> getList(@RequestBody @Valid UserListQuery query) {
         return JsonVO.success(userService.getList(query));
