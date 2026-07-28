@@ -26,10 +26,10 @@ class InventoryMaterialAddDto : public oatpp::DTO {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.numbers");
 	}
 
-	// ÅúºÅ
-	DTO_FIELD(String, batch_number);
-	DTO_FIELD_INFO(batch_number) {
-		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.batch_number");
+	// ¿â´æID
+	DTO_FIELD(String, bus_no);
+	DTO_FIELD_INFO(bus_no) {
+		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.bus_no");
 	}
 
 public:
@@ -38,11 +38,14 @@ public:
 		if (!time || time->empty()) {
 			return "time is invalid";
 		}
+		if (!time || time->empty()) {
+			return "time is invalid";
+		}
 		if (!numbers || numbers < 0) {
 			return "numbers is invalid";
 		}
-		if (!batch_number || batch_number->empty()) {
-			return "batch_number is invalid";
+		if (!bus_no || bus_no->empty()) {
+			return "bus_no is invalid";
 		}
 		return "";
 	}

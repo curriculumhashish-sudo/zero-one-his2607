@@ -16,7 +16,7 @@ class GetPatientQueueQuery : public PageQuery {
 	//关键字:姓名/就诊号
 	API_DTO_FIELD(String, keyword,
 		ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueQuery.keyword.description"),
-		false, "li ming");
+		false, "");
 
 	//开始日期
 	API_DTO_FIELD(String, startDate,
