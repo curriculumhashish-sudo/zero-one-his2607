@@ -23,6 +23,10 @@
         </dependency>
         <dependency>
             <groupId>com.zeroone.star</groupId>
+            <artifactId>his-domain</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.zeroone.star</groupId>
             <artifactId>his-common</artifactId>
         </dependency>
 

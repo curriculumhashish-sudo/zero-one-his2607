@@ -5,29 +5,35 @@ import com.zeroone.star.j3.supplier.entity.Supplier;
 import com.zeroone.star.j3.supplier.mapper.SupplierMapper;
 import com.zeroone.star.j3.supplier.service.ISupplierService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zeroone.star.j3.supplier.utils.MsSupplierMapper;
+import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j3.supplier.SupplierBatchDTO;
+import com.zeroone.star.project.dto.j3.supplier.SupplierFullDTO;
 import com.zeroone.star.project.query.j3.supplier.SupplierQuery;
 import com.zeroone.star.project.vo.j3.supplier.SupplierDetailVO;
 import com.zeroone.star.project.vo.j3.supplier.SupplierListVO;
 import com.zeroone.star.project.vo.j3.supplier.SupplierNameVO;
+import jakarta.annotation.Resource;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.math.BigInteger;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-/**
- * <p>
- * 供应商表 服务实现类
- * </p>
- *
- * @author 业之
- * @since 2026-07-20
- */
 @Service
 public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> implements ISupplierService {
 
     private static final String ENABLED = "ENABLED";
     private static final String DISABLED = "DISABLED";
+
+    @Resource
+    private UserHolder userHolder;
+    @Resource
+    private MsSupplierMapper msSupplierMapper;
 
     /**
      * 查询供应商名称下拉列表
@@ -73,15 +79,219 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
     }
 
     /**
+     * 新增供应商
+     * 校验必填字段、信用代码格式与唯一性，生成业务编号后入库
+     * @param dto 供应商完整数据
+     * @return 操作结果提示
+     */
+    @Override
+    public String addSupplier(SupplierFullDTO dto) {
+        // 校验必填字段
+        if (!StringUtils.hasText(dto.getName())) {
+            throw new IllegalArgumentException("供应商名称不能为空");
+        }
+        if (!StringUtils.hasText(dto.getCreditCode())) {
+            throw new IllegalArgumentException("统一信用代码不能为空");
+        }
+        // 校验信用代码格式：18位数字或大写字母
+        if (!dto.getCreditCode().matches("^[0-9A-Z]{18}$")) {
+            throw new IllegalArgumentException("统一信用代码格式不正确，应为18位数字或大写字母");
+        }
+        // 校验信用代码唯一性
+        long count = this.lambdaQuery().eq(Supplier::getCreditCode, dto.getCreditCode()).count();
+        if (count > 0) {
+            throw new IllegalArgumentException("统一信用代码已存在，请检查是否重复录入");
+        }
+
+        // DTO → Entity 转换
+        Supplier supplier = msSupplierMapper.SupplierFullDTO2Supplier(dto);
+        // ID后端自增（基于最大ID +1）
+        supplier.setId(generateId());
+        // 如果BusNo为空则设置默认值
+        if (!StringUtils.hasText(supplier.getBusNo())) {
+            supplier.setBusNo(generateBusNo());
+        }
+        if (!StringUtils.hasText(supplier.getStatusEnum())) {
+            supplier.setStatusEnum(ENABLED);
+        }
+        supplier.setVersion(0);
+        // 软删除字段初始化
+        supplier.setIsDeleted(0);
+        supplier.setDeletedBy(null);
+        supplier.setDeletedAt(null);
+        // 设置创建人（从登录用户获取）
+        try {
+            supplier.setCreatedBy(userHolder.getCurrentUser().getUsername());
+        } catch (Exception e) {
+            // TODO 开发阶段可能无token，暂不处理
+            e.printStackTrace();
+        }
+        //supplier.setCreatedAt(LocalDateTime.now());
+        //supplier.setUpdatedAt(LocalDateTime.now());
+
+        this.save(supplier);
+        return "新增供应商成功，供应商编号：" + supplier.getBusNo();
+    }
+
+    /**
+     * 修改供应商
+     * 校验供应商存在性，统一信用代码不允许直接修改
+     * @param id  供应商ID
+     * @param dto 供应商完整数据
+     * @return 操作结果提示
+     */
+    @Override
+    public String updateSupplier(String id, SupplierFullDTO dto) {
+        if (!StringUtils.hasText(id)) {
+            throw new IllegalArgumentException("供应商ID不能为空");
+        }
+        Long exists = this.lambdaQuery()
+                .eq(Supplier::getId, id.trim())
+                .count();
+        if (exists == null || exists == 0) {
+            throw new IllegalArgumentException("供应商不存在，请检查ID是否正确");
+        }
+        // 如果需要校验信用代码不可修改，单独查询 credit_code 字段
+        if (StringUtils.hasText(dto.getCreditCode())) {
+            String originalCreditCode = baseMapper.selectCreditCodeById(id.trim());
+            if (originalCreditCode != null && !dto.getCreditCode().equals(originalCreditCode)) {
+                throw new IllegalArgumentException("统一信用代码不允许直接修改，如需修改请联系管理员");
+            }
+        }
+
+        // DTO → Entity
+        Supplier supplier = msSupplierMapper.SupplierFullDTO2Supplier(dto);
+        BeanUtils.copyProperties(dto, supplier);
+        supplier.setId(id.trim());
+        // 设置更新人/更新时间（从登录用户获取，类似删除处理方式）
+        try {
+            supplier.setUpdatedBy(userHolder.getCurrentUser().getUsername());
+        } catch (Exception e) {
+            // TODO 开发阶段可能无token，暂不处理
+            e.printStackTrace();
+        }
+        //supplier.setUpdatedAt(LocalDateTime.now());
+        this.updateById(supplier);
+        return "修改供应商成功";
+    }
+
+    /**
+     * 删除供应商（软删除）
+     * @param id 供应商ID
+     * @return 操作结果提示
+     */
+    @Override
+    public String deleteSupplier(String id) {
+        if (!StringUtils.hasText(id)) {
+            throw new IllegalArgumentException("供应商ID不能为空");
+        }
+        Long count = this.lambdaQuery()
+                .eq(Supplier::getId, id.trim())
+                .eq(Supplier::getIsDeleted, 0)
+                .count();
+        if (count == null || count == 0) {
+            throw new IllegalArgumentException("供应商不存在，请检查ID是否正确");
+        }
+
+        String deletedBy = null;
+        try {
+            deletedBy = userHolder.getCurrentUser().getUsername();
+        } catch (Exception e) {
+            // TODO 开发阶段可能无token，暂不处理
+            e.printStackTrace();
+        }
+
+        this.lambdaUpdate()
+                .eq(Supplier::getId, id.trim())
+                .set(Supplier::getIsDeleted, 1)
+                .set(Supplier::getDeletedAt, LocalDateTime.now())
+                .set(deletedBy != null, Supplier::getDeletedBy, deletedBy)
+                .update();
+        return "删除供应商成功";
+    }
+
+    /**
+     * 批量启/停用供应商
+     * @param batchDTO 批量操作参数（ID列表 + 目标状态）
+     * @return 操作结果提示
+     */
+    @Override
+    public String batchUpdateSuppliers(SupplierBatchDTO batchDTO) {
+        List<String> ids = batchDTO.getIds();
+        String status = batchDTO.getStatusEnum();
+        if (ids == null || ids.isEmpty()) {
+            throw new IllegalArgumentException("请选择需要操作的供应商");
+        }
+        // 规范化状态参数
+        String normalizedStatus = normalizeStatus(status, ENABLED);
+        // 查询待操作的供应商
+        List<Supplier> suppliers = this.lambdaQuery()
+                .in(Supplier::getId, ids)
+                .ne(Supplier::getStatusEnum, normalizedStatus)
+                .list();
+        int size = suppliers.size();
+        if (size == 0) {
+            return normalizedStatus.equals(ENABLED)?"所选供应商中已全部启用，无需重复操作":"所选供应商中已全部停用，无需重复操作";
+        }
+        // 批量更改状态
+        this.lambdaUpdate()
+                .in(Supplier::getId, ids)
+                .set(Supplier::getStatusEnum, normalizedStatus)
+                .update();
+
+        String statusText = ENABLED.equals(normalizedStatus) ? "启用" : "停用";
+        return "成功批量" + statusText + " " + size + " 个供应商";
+    }
+
+    /**
+     * 生成主键ID：基于当前最大ID自增+1
+     * @return 新的主键ID
+     */
+    private String generateId() {
+        Supplier maxSupplier = this.lambdaQuery()
+                .orderByDesc(Supplier::getId)
+                .last("LIMIT 1")
+                .one();
+
+        if (maxSupplier != null && maxSupplier.getId() != null) {
+            return new BigInteger(maxSupplier.getId()).add(BigInteger.ONE).toString();
+        }
+        return "4100000000000000002";
+    }
+
+    /**
+     * 生成业务编号：SUPP + 自增序号
+     * 初始3位数字（SUPP002、SUPP003...），超出999后自动扩大位数
+     * @return 业务编号
+     */
+    private String generateBusNo() {
+        String prefix = "SUPP";
+
+        // 查询最大业务编号
+        Supplier maxSupplier = this.lambdaQuery()
+                .likeRight(Supplier::getBusNo, prefix)
+                .orderByDesc(Supplier::getBusNo)
+                .last("LIMIT 1")
+                .one();
+
+        int sequence = 1;
+        if (maxSupplier != null && maxSupplier.getBusNo() != null) {
+            sequence = Integer.parseInt(maxSupplier.getBusNo().substring(prefix.length())) + 1;
+        }
+        // 最小3位，超出时按实际位数（如SUPP1000）
+        String format = "%0" + Math.max(3, String.valueOf(sequence).length()) + "d";
+        return prefix + String.format(format, sequence);
+    }
+
+    /**
      * 规范化状态参数
      * 校验状态枚举合法性，非法参数直接抛出异常；无入参时使用传入默认值
-     * @param statusEnum 原始状态字符串
+     * @param statusEnum  原始状态字符串
      * @param defaultValue 为空时使用的默认值
      * @return 清洗后的合法状态值 ENABLED / DISABLED
      * @throws IllegalArgumentException 传入非法状态值抛出异常
      */
     private String normalizeStatus(String statusEnum, String defaultValue) {
-        // 状态枚举提前收口，避免非法值直接进入动态 SQL。
         if (!StringUtils.hasText(statusEnum)) {
             return defaultValue;
         }
@@ -99,7 +309,6 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
      * @return 清洗完成的查询对象
      */
     private SupplierQuery normalizeQuery(SupplierQuery query) {
-        // Knife4j 手动测试可能不传分页参数，这里给查询接口兜底。
         SupplierQuery target = query == null ? new SupplierQuery() : query;
         if (target.getPageIndex() < 1) {
             target.setPageIndex(1);

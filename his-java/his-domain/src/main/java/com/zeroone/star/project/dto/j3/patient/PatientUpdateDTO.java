@@ -2,7 +2,6 @@ package com.zeroone.star.project.dto.j3.patient;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -50,9 +49,8 @@ public class PatientUpdateDTO extends PatientCreateDTO {
     @Schema(
             description = "乐观锁版本号",
             example = "0",
-            requiredMode = Schema.RequiredMode.REQUIRED
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    @NotNull(message = "乐观锁版本号不能为空")
     @Min(value = 0, message = "乐观锁版本号不能小于0")
     private Integer version;
 }

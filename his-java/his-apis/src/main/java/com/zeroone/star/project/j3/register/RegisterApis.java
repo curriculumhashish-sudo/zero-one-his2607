@@ -3,7 +3,6 @@ package com.zeroone.star.project.j3.register;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j3.register.RegisterDTO;
 import com.zeroone.star.project.query.j3.register.RegisterQuery;
-import com.zeroone.star.project.vo.j3.register.RegisterVO;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j3.register.RegisterVO;
 
@@ -37,10 +36,11 @@ public interface RegisterApis {
     /**
      * 修改挂号类型
      *
-     * @param dto 修改数据（id 必传）
+     * @param id  待修改的挂号类型唯一标识（路径参数）
+     * @param dto 修改数据
      * @return 修改结果
      */
-    JsonVO<Boolean> modifyRegister(RegisterDTO dto);
+    JsonVO<Boolean> modifyRegister(Long id, RegisterDTO dto);
 
     /**
      * 删除挂号类型

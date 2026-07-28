@@ -21,7 +21,7 @@ public class DepartmentCreateDTO {
     @NotNull(message = "机构名称不能为空")
     private String name;
 
-    @Schema(description = "类型", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "类型", example = "2", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "机构类型不能为空")
     private Integer typeEnum;
 
@@ -55,8 +55,8 @@ public class DepartmentCreateDTO {
     @Schema(description = "五笔", example = "tntk", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String wbStr;
 
-    @Schema(description = "默认医师", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String defDoctorId;
+    @Schema(description = "默认医师ID", example = "308791351298756608", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private Long defDoctorId;
 
     @Schema(description = "科别", example = "内科", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String caty;

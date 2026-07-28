@@ -20,11 +20,11 @@ public class DepartmentTreeQuery {
     private String keyword;
 
     @Schema(description = "类型", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String typeEnum;
+    private Integer typeEnum;
 
     @Schema(description = "类别", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String classEnum;
+    private Integer classEnum;
 
     @Schema(description = "状态", example = "ACTIVE", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String statusEnum;
+    private Integer statusEnum;
 }
