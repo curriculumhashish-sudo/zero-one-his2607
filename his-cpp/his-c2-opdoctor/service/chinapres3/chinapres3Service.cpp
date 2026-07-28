@@ -28,8 +28,8 @@ chinapres3RevokeResultVO::Wrapper chinapres3Service::revoke(
 	auto now = SimpleDateTimeFormat::format();
 	auto currentUser = payload.getUsername();
 
-	oatpp::Int32 revokedPresCount = 0;
-	oatpp::Int32 revokedMedCount = 0;
+	v_int32 revokedPresCount = 0;
+	v_int32 revokedMedCount = 0;
 	auto failureList = oatpp::Vector<oatpp::Object<chinapres3RevokeFailureDTO>>::createShared();
 
 	// ---- 2. Process each prescription independently ----
@@ -90,7 +90,7 @@ chinapres3RevokeResultVO::Wrapper chinapres3Service::revoke(
 				continue;
 			}
 
-			// ---- 2c. UPDATE medication_request: status_enum ¡ú DRAFT ----
+			// ---- 2c. UPDATE medication_request: status_enum ï¿½ï¿½ DRAFT ----
 			for (auto& req : requests) {
 				req->setStatusEnum("DRAFT");
 				// rx_type_code stays "TCM" unchanged
@@ -126,7 +126,7 @@ chinapres3RevokeResultVO::Wrapper chinapres3Service::revoke(
 			tm.commit();
 
 			revokedPresCount++;
-			revokedMedCount += static_cast<oatpp::Int32>(requests.size());
+			revokedMedCount += static_cast<v_int32>(requests.size());
 
 		}
 		catch (const std::exception& e) {
@@ -245,7 +245,7 @@ chinapres3IssueResultVO::Wrapper chinapres3Service::issue(
 		}
 
 		// ----- 3b. INSERT Create new dispense detail record -----
-		// prescriptionNo ¡ú first request ID mapping for charge generation
+		// prescriptionNo ï¿½ï¿½ first request ID mapping for charge generation
 		std::map<std::string, std::string> presNoToReqId;
 		for (auto& req : validRequests) {
 			chinapres3MedicationDispenseDO dispDO;

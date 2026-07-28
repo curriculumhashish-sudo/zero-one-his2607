@@ -3,96 +3,93 @@
 #ifndef _chinapres3Service_H_
 #define _chinapres3Service_H_
 
-// °üº¬Ç©·¢Ïà¹ØµÄDTOºÍVOÍ·ÎÄ¼ş
+// å¤„æ–¹ç­¾å‘ã€æ’¤å›DTOä¸VOå¤´æ–‡ä»¶
 #include "../../domain/dto/chinapres3/chinapres3IssueDTO.h"
 #include "../../domain/vo/chinapres3/chinapres3IssueResultVO.h"
-// ---- revoke-related includes (temporarily disabled for debugging) ----
-//#include "../../domain/dto/chinapres3/chinapres3RevokeDTO.h"
-//#include "../../domain/vo/chinapres3/chinapres3RevokeResultVO.h"
-// °üº¬Èı¸öDAOÍ·ÎÄ¼ş£¬·Ö±ğ¸ºÔğ´¦·½Ò©Æ·ĞĞ¡¢·¢Ò©¼ÇÂ¼¡¢ÊÕ·ÑÏîÄ¿µÄÊı¾İ·ÃÎÊ
+// æ’¤å›æ¥å£ç›¸å…³å¤´æ–‡ä»¶
+#include "../../domain/dto/chinapres3/chinapres3RevokeDTO.h"
+#include "../../domain/vo/chinapres3/chinapres3RevokeResultVO.h"
+// DAOæ•°æ®è®¿é—®å±‚å¤´æ–‡ä»¶ï¼šå¤„æ–¹ä¸»è¡¨ã€å‘è¯è®°å½•è¡¨ã€æ”¶è´¹é¡¹è¡¨
 #include "../../dao/chinapres3/chinapres3MedicationRequestDAO.h"
 #include "../../dao/chinapres3/chinapres3MedicationDispenseDAO.h"
 #include "../../dao/chinapres3/chinapres3ChargeItemDAO.h"
 
 /**
- * ÖĞÒ½´¦·½Ç©·¢·şÎñ
+ * ä¸­åŒ»å¤„æ–¹ä¸šåŠ¡æœåŠ¡å±‚
  *
- * Ö°Ôğ£º
- *   1. ¶ÔÇ©·¢Èë²Î½øĞĞÒµÎñĞ£Ñé£¨¾ÍÕïID¡¢»¼ÕßID¡¢Ç©·¢Ä¿±êÁĞ±í·Ç¿Õ£©
- *   2. ²éÑ¯´¦·½Ò©Æ·ĞĞ£¬ÖğÌõĞ£Ñé´æÔÚĞÔºÍ×´Ì¬£¨±ØĞëÎªDRAFT²İ¸å×´Ì¬£©
- *   3. ÔÚÊÂÎñÖĞÒÀ´ÎÖ´ĞĞ£ºUPDATE´¦·½×´Ì¬ ¡ú INSERT·¢Ò©¼ÇÂ¼ ¡ú Í¬²½ÊÕ·ÑÏîÄ¿
- *   4. ¹¹Ôì²¢·µ»ØÇ©·¢½á¹û£¨processedCount / prescriptionCount / busNos£©
+ * ç­¾å‘å¤„æ–¹æ ¸å¿ƒæµç¨‹ï¼š
+ *   1. æ ¡éªŒå…¥å‚å°±è¯ŠIDã€æ‚£è€…IDã€å¾…ç­¾å‘å¤„æ–¹åˆ—è¡¨éç©º
+ *   2. æŸ¥è¯¢å¾…ç­¾å‘å¤„æ–¹ä¸»è¡¨æ•°æ®ï¼Œæ ¡éªŒå¤„æ–¹çŠ¶æ€ä¸ºè‰ç¨¿DRAFTã€å°±è¯Š/æ‚£è€…èº«ä»½åŒ¹é…
+ *   3. å¼€å¯æ•°æ®åº“äº‹åŠ¡ï¼Œæ‰§è¡Œå¤šè¡¨æ›´æ–°/æ’å…¥æ“ä½œ
+ *   4. æ›´æ–°å¤„æ–¹ä¸»è¡¨çŠ¶æ€ä¸ºå·²ç­¾å‘ACTIVEã€ç”Ÿæˆå‘è¯è®°å½•ã€åŒæ­¥æ›´æ–°æ”¶è´¹é¡¹
+ *   5. äº‹åŠ¡ç»Ÿä¸€æäº¤ï¼Œå‡ºç°ä»»æ„å¼‚å¸¸å…¨éƒ¨å›æ»š
+ *   6. å°è£…ç­¾å‘ç»“æœVOï¼Œè¿”å›æˆåŠŸæ¡æ•°ã€å¤„æ–¹ç¼–å·åˆ—è¡¨ç­‰ç»Ÿè®¡ä¿¡æ¯
  *
- * Ç©·¢Á÷³Ì£¨ÊÂÎñÄÚ£¬ÈÎÒ»Ê§°ÜÔò»Ø¹ö£©£º
- *   Ğ£Ñé ¡ú ²éÑ¯´¦·½ĞĞ ¡ú UPDATE×´Ì¬ ¡ú INSERT·¢Ò©¼ÇÂ¼ ¡ú Í¬²½ÊÕ·Ñ ¡ú Ìá½»ÊÂÎñ
- *
- * ÒÀÀµ£º
- *   - chinapres3MedicationRequestDAO    : ´¦·½Ò©Æ·ĞĞ²éÑ¯Óë¸üĞÂ
- *   - chinapres3MedicationDispenseDAO   : ·¢Ò©¼ÇÂ¼ĞÂÔö
- *   - chinapres3ChargeItemDAO           : ÊÕ·ÑÏîÄ¿²éÑ¯ÓëÍ¬²½
- *   - TransactionManager                : Êı¾İ¿âÊÂÎñ¹ÜÀí
- *   - SnowFlake                         : ·Ö²¼Ê½IDÉú³É
- *   - SimpleDateTimeFormat              : Ê±¼ä¸ñÊ½»¯
+ * ä¾èµ–ç»„ä»¶è¯´æ˜ï¼š
+ *   - chinapres3MedicationRequestDAO    : å¤„æ–¹ä¸»è¡¨æŸ¥è¯¢ä¸æ›´æ–°
+ *   - chinapres3MedicationDispenseDAO   : å¤„æ–¹å‘è¯è®°å½•æ–°å¢
+ *   - chinapres3ChargeItemDAO           : é—¨è¯Šæ”¶è´¹é¡¹åŒæ­¥æ›´æ–°
+ *   - TransactionManager                : æ•°æ®åº“äº‹åŠ¡ç®¡ç†å™¨
+ *   - SnowFlake                         : åˆ†å¸ƒå¼é›ªèŠ±IDç”Ÿæˆå™¨
+ *   - SimpleDateTimeFormat              : ç»Ÿä¸€æ—¶é—´æ ¼å¼åŒ–å·¥å…·
  */
 class chinapres3Service
 {
-	// ´¦·½Ò©Æ·ĞĞÊı¾İ·ÃÎÊ¶ÔÏó¡ª¡ª²éÑ¯´ıÇ©·¢Ò©Æ·ĞĞ£¬¸üĞÂ×´Ì¬ÎªACTIVE
+	// å¤„æ–¹ä¸»è¡¨DAOï¼šæŸ¥è¯¢å¤„æ–¹è‰ç¨¿ã€æ›´æ–°ç­¾å‘çŠ¶æ€
 	chinapres3MedicationRequestDAO medReqDAO;
-	// ·¢Ò©¼ÇÂ¼Êı¾İ·ÃÎÊ¶ÔÏó¡ª¡ªÎªÃ¿¸öÇ©·¢Ä¿±ê²åÈëÒ»Ìõ·¢Ò©¼ÇÂ¼
+	// å¤„æ–¹å‘è¯è®°å½•DAOï¼šæ¯å¼ ç­¾å‘å¤„æ–¹ç”Ÿæˆä¸€æ¡å‘è¯è®°å½•
 	chinapres3MedicationDispenseDAO medDispDAO;
-	// ÊÕ·ÑÏîÄ¿Êı¾İ·ÃÎÊ¶ÔÏó¡ª¡ª°´ÃªµãÍ¬²½ÊÕ·ÑÊı¾İ£¬ÅĞ¶ÏINSERT»òUPDATE
+	// æ”¶è´¹é¡¹DAOï¼šåŒæ­¥æ›´æ–°é—¨è¯Šæ”¶è´¹å•æ®ï¼Œæ”¯æŒæ–°å¢/ä¿®æ”¹
 	chinapres3ChargeItemDAO chargeDAO;
 
 public:
 	/**
-	 * Ö´ĞĞÖĞÒ½´¦·½Ç©·¢ÊÂÎñ
+	 * æ‰§è¡Œä¸­åŒ»å¤„æ–¹ç­¾å‘ä¸šåŠ¡é€»è¾‘
 	 *
-	 * Ç©·¢Á÷³Ì£¨ÊÂÎñĞÔ£©£º
-	 *   1. Èë²ÎĞ£Ñé£ºencounterId·Ç¿Õ¡¢patientId·Ç¿Õ¡¢signTargets·Ç¿Õ
-	 *   2. ±éÀú signTargets£¬¸ù¾İ medicationRequestId ²éÑ¯´¦·½Ò©Æ·ĞĞ£º
-	 *      - Ğ£Ñé¼ÇÂ¼ÊÇ·ñ´æÔÚ
-	 *      - Ğ£Ñé statusEnum == "DRAFT"£¨½ö²İ¸å×´Ì¬ÔÊĞíÇ©·¢£©
-	 *      - Ğ£Ñé encounterId ºÍ patientId ÓëÇëÇóÒ»ÖÂ
-	 *   3. Í¨¹ı TransactionManager::getSqlSession() »ñÈ¡¹²ÏíSqlSession¿ªÆôÊÂÎñ
-	 *   4. UPDATE med_medication_request£ºÉèÖÃ statusEnum="ACTIVE"¡¢rxTypeCode¡¢
-	 *      updatedBy¡¢updatedAt
-	 *   5. INSERT med_medication_dispense£ºÎªÃ¿¸öÇ©·¢Ä¿±êÉú³É·¢Ò©¼ÇÂ¼
-	 *      £¨SnowFlakeÉú³ÉID£¬SimpleDateTimeFormatÉú³ÉÊ±¼ä£¬statusEnum="PREPARATION"£©
-	 *   6. Í¬²½ adm_charge_item£º°´Ãªµã(serviceTable + "_" + serviceId)ÅĞ¶ÏINSERT»òUPDATE
-	 *   7. Ìá½»ÊÂÎñ£ºËùÓĞ²Ù×÷³É¹¦Ôòcommit£¬ÈÎÒ»Òì³£Ôòrollback
-	 *   8. ¹¹Ôì chinapres3IssueResultDTO£¬Ìî³ä processedCount¡¢prescriptionCount¡¢busNos
-	 *   9. Í¨¹ı chinapres3IssueResultVO::createShared() ´´½¨ÏìÓ¦¶ÔÏó£¬µ÷ÓÃ success(data) ÉèÖÃ³É¹¦
+	 * å®Œæ•´ä¸šåŠ¡æ­¥éª¤ï¼š
+	 *   1. å…¥å‚æ ¡éªŒï¼šå°±è¯ŠencounterIdã€æ‚£è€…patientIdã€å¾…ç­¾å‘åˆ—è¡¨signTargetsä¸èƒ½ä¸ºç©º
+	 *   2. éå†signTargetså†…æ¯æ¡medicationRequestIdæŸ¥è¯¢å¤„æ–¹ä¸»è¡¨
+	 *      - æ ¡éªŒå¤„æ–¹è®°å½•æ˜¯å¦å­˜åœ¨
+	 *      - æ ¡éªŒå¤„æ–¹çŠ¶æ€ä¸ºè‰ç¨¿DRAFTï¼Œä»…è‰ç¨¿å¤„æ–¹å…è®¸ç­¾å‘
+	 *      - æ ¡éªŒå¤„æ–¹å½’å±å°±è¯ŠIDã€æ‚£è€…IDå’Œå…¥å‚ä¸€è‡´
+	 *   3. é€šè¿‡äº‹åŠ¡ç®¡ç†å™¨è·å–SqlSessionï¼Œå¼€å¯äº‹åŠ¡
+	 *   4. æ›´æ–°med_medication_requestå¤„æ–¹ä¸»è¡¨ï¼šçŠ¶æ€æ”¹ä¸ºACTIVEã€æ›´æ–°æ“ä½œäºº/æ—¶é—´
+	 *   5. å‘med_medication_dispenseæ’å…¥å‘è¯è®°å½•ï¼šé›ªèŠ±IDã€å½“å‰æ—¶é—´ã€å‘è¯çŠ¶æ€PREPARATION
+	 *   6. åŒæ­¥æ“ä½œadm_charge_itemæ”¶è´¹è¡¨ï¼ŒåŒ¹é…ä¸šåŠ¡å•æ®æ‰§è¡Œæ–°å¢/æ›´æ–°
+	 *   7. å…¨éƒ¨æ“ä½œæ— å¼‚å¸¸åˆ™ç»Ÿä¸€commitï¼Œå‡ºç°ä»»æ„å¼‚å¸¸æ‰§è¡Œrollbackäº‹åŠ¡å›æ»š
+	 *   8. ç»Ÿè®¡æˆåŠŸç­¾å‘æ•°é‡ã€å¤„æ–¹ç¼–å·é›†åˆï¼Œå°è£…è¿”å›æ•°æ®
+	 *   9. é€šè¿‡OATPPå…±äº«æŒ‡é’ˆæ„é€ è¿”å›VOï¼Œç»Ÿä¸€è¿”å›æˆåŠŸå“åº”ä½“
 	 *
-	 * @param dto Ç©·¢ÇëÇóÊı¾İ£¬°üº¬ encounterId¡¢patientId¡¢signTargets µÈ×Ö¶Î
-	 * @param payload JWTÔØºÉ£¬Í¨¹ı getUsername() »ñÈ¡ÓÃ»§Ãû¡¢getId() »ñÈ¡»ú¹¹ID
-	 * @return chinapres3IssueResultVO::Wrapper Ç©·¢½á¹û£¬°üº¬³É¹¦/Ê§°Ü×´Ì¬ºÍÍ³¼ÆĞÅÏ¢
+	 * @param dto ç­¾å‘è¯·æ±‚å…¥å‚DTOï¼Œæºå¸¦å°±è¯ŠIDã€æ‚£è€…IDã€å¾…ç­¾å‘å¤„æ–¹IDæ•°ç»„
+	 * @param payload JWTè½½è·å¯¹è±¡ï¼Œè·å–æ“ä½œåŒ»ç”Ÿç”¨æˆ·åã€è´¦å·ID
+	 * @return chinapres3IssueResultVO::Wrapper ç­¾å‘ç»“æœVOï¼ŒåŒ…å«æˆåŠŸ/å¤±è´¥çŠ¶æ€ã€ç»Ÿè®¡ä¿¡æ¯
 	 */
 	chinapres3IssueResultVO::Wrapper issue(
 		const chinapres3IssueDTO::Wrapper& dto,
 		const PayloadDTO& payload);
 
-	// ---- revoke-related method (temporarily disabled for debugging) ----
+	// ---- å¤„æ–¹æ’¤å›ä¸šåŠ¡æ–¹æ³• ----
 	/**
-	 * Revoke issued TCM prescriptions.
+	 * æ’¤å›å·²ç­¾å‘çš„ä¸­åŒ»å¤„æ–¹
 	 *
-	 * Revocation flow (per prescription, independent transactions):
-	 *   1. Validate prescriptionNos list is not empty
-	 *   2. For each prescription number:
-	 *      a. Query medication_request rows where status_enum = ACTIVE
-	 *      b. Verify corresponding dispense records are PREPARATION and not deleted
-	 *      c. UPDATE medication_request: status_enum ¡ú DRAFT, updated_by/at
-	 *      d. UPDATE medication_dispense: is_deleted = 1, updated_by/at
-	 *      e. UPDATE adm_charge_item: is_deleted = 1, updated_by/at
-	 *      f. Commit per-prescription transaction
-	 *   3. Collect successes (counts) and failures (prescriptionNo + reason)
+	 * å•å¼ å¤„æ–¹ç‹¬ç«‹äº‹åŠ¡æ’¤å›æµç¨‹ï¼š
+	 *   1. æ ¡éªŒå…¥å‚å¤„æ–¹ç¼–å·åˆ—è¡¨prescriptionNosä¸ä¸ºç©º
+	 *   2. å¾ªç¯å¤„ç†æ¯ä¸€æ¡å¤„æ–¹å·ï¼š
+	 *      a. æŸ¥è¯¢medication_requestå¤„æ–¹ä¸»è¡¨ï¼Œä»…çŠ¶æ€ACTIVEå·²ç­¾å‘å¤„æ–¹å…è®¸æ’¤å›
+	 *      b. æ ¡éªŒå¯¹åº”å‘è¯è®°å½•çŠ¶æ€ä¸ºå¾…è°ƒé…PREPARATIONä¸”æœªé€»è¾‘åˆ é™¤
+	 *      c. æ›´æ–°å¤„æ–¹ä¸»è¡¨çŠ¶æ€å›é€€è‡³DRAFTï¼Œæ›´æ–°æ“ä½œäººã€æ“ä½œæ—¶é—´
+	 *      d. å‘è¯è®°å½•æ‰§è¡Œé€»è¾‘åˆ é™¤is_deleted=1ï¼Œæ›´æ–°æ“ä½œä¿¡æ¯
+	 *      e. åŒæ­¥æ”¶è´¹é¡¹adm_charge_itemé€»è¾‘åˆ é™¤is_deleted=1
+	 *      f. å•å¼ å¤„æ–¹æ“ä½œå®Œæˆåç‹¬ç«‹æäº¤äº‹åŠ¡ï¼Œäº’ä¸å½±å“
+	 *   3. æ”¶é›†å…¨éƒ¨æ’¤å›æˆåŠŸæ•°é‡ã€å¤±è´¥å¤„æ–¹å·åŠå¤±è´¥åŸå› 
 	 *
-	 * @param dto Revoke request containing prescription numbers to revoke
-	 * @param payload JWT payload providing operator identity (getUsername)
-	 * @return Revoke result with revoked counts and failure details
+	 * @param dto æ’¤å›è¯·æ±‚DTOï¼Œæºå¸¦éœ€è¦æ’¤é”€çš„å¤„æ–¹ç¼–å·æ•°ç»„
+	 * @param payload JWTè½½è·ï¼Œæä¾›å½“å‰æ“ä½œäººè´¦å·ä¿¡æ¯
+	 * @return chinapres3RevokeResultVO::Wrapper æ’¤å›ç»“æœï¼ŒåŒ…å«æ’¤å›è®¡æ•°ã€å¤±è´¥æ˜ç»†
 	 */
-	//chinapres3RevokeResultVO::Wrapper revoke(
-	//	const chinapres3RevokeDTO::Wrapper& dto,
-	//	const PayloadDTO& payload);
+	chinapres3RevokeResultVO::Wrapper revoke(
+		const chinapres3RevokeDTO::Wrapper& dto,
+		const PayloadDTO& payload);
 };
 
 #endif // !_chinapres3Service_H_

@@ -1,99 +1,95 @@
 #ifndef _chinapres3CONTROLLER_H_
 #define _chinapres3CONTROLLER_H_
 
-// ����VO��DTO���ͷ�ļ�
+// VO、DTO 数据结构头文件引入
 #include "domain/vo/BaseJsonVO.h"
 #include "domain/dto/chinapres3/chinapres3IssueDTO.h"
 #include "../../domain/vo/chinapres3/chinapres3IssueResultVO.h"
-// ---- revoke-related includes (temporarily disabled for debugging) ----
-//#include "../../domain/dto/chinapres3/chinapres3RevokeDTO.h"
-//#include "../../domain/vo/chinapres3/chinapres3RevokeResultVO.h"
+// 撤回处方相关结构体头文件
+#include "../../domain/dto/chinapres3/chinapres3RevokeDTO.h"
+#include "../../domain/vo/chinapres3/chinapres3RevokeResultVO.h"
 #include "../../service/chinapres3/chinapres3Service.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-// �ӿڷ����ǩ������Swagger�ӿ��ĵ�չʾ
+// Swagger接口分组标签多语言词条
 #define API_TAG ZH_WORDS_GETTER("chinapres3.tags.tag")
 
 /**
- * ҽ����������������
+ * 中医处方控制器
  *
- * �ṩ�����������������ض���API�ӿ�
- * ����ǰ�˴�������������
- * ���� chinapres3Service ִ��ҵ���߼�
- * ͳһ��VO��ʽ���ؽӿ���Ӧ����
+ * 提供中医处方签发、撤回对外API接口
+ * 所有接口均携带JWT身份鉴权
+ * 内部依赖 chinapres3Service 处理业务逻辑
+ * 入参DTO、出参VO统一封装请求与返回数据
  */
 class chinapres3Controller : public oatpp::web::server::api::ApiController
 {
-	// �����ӿڼ�Ȩ��ȫ������У��JWT��¼ƾ֤��Ϣ
+	// 声明JWT权限拦截器
 	API_ACCESS_DECLARE(chinapres3Controller);
 
 public:
-	// ���忪�������ӿ��ĵ���Ϣ����Ȩ��ʶ�������塢�������飨Swaggerչʾ��
+	// 处方签发接口Swagger文档定义（带鉴权）
 	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("chinapres3.issue.summary"),
-		issuechinapres3,                              // �ӿ��ڲ���ʶ����
-		chinapres3IssueResultVO::Wrapper,              // �ӿڷ�������VO����
+		issuechinapres3,                              // 接口内部函数标识
+		chinapres3IssueResultVO::Wrapper,              // 接口返回VO包装类型
 		API_TAG);
 
-	// �ӿ�·�ɶ��壺POST /chinapres3/issue ���������ӿ�
+	// POST /chinapres3/issue 处方签发路由绑定
 	API_HANDLER_ENDPOINT_AUTH(
-		API_M_POST,                                   // ����ʽ POST
-		"/chinapres3/issue",                          // �ӿڷ���·�ɵ�ַ
-		issuechinapres3,                              // �ӿڱ�ʶ�����Ϸ��ĵ������Ӧ
-		BODY_DTO(chinapres3IssueDTO::Wrapper, dto),   // ����ǰ��JSON�����壬��Ϊdto����
+		API_M_POST,                                   // 请求方法 POST
+		"/chinapres3/issue",                          // 接口路径
+		issuechinapres3,                              // 关联文档定义标识
+		BODY_DTO(chinapres3IssueDTO::Wrapper, dto),   // 接收JSON请求体并绑定dto变量
 		execIssuechinapres3(dto, authObject->getPayload()));
 
-	// ---- revoke-related endpoint (temporarily disabled for debugging) ----
-	/*
+	// ---- 处方撤回接口文档定义 ----
 	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("chinapres3.recall.summary"),
 		revokechinapres3,
 		chinapres3RevokeResultVO::Wrapper,
 		API_TAG);
 
-	// Route: POST /chinapres3/revoke
+	// POST /chinapres3/revoke 处方撤回路由绑定
 	API_HANDLER_ENDPOINT_AUTH(
 		API_M_POST,
 		"/chinapres3/revoke",
 		revokechinapres3,
 		BODY_DTO(chinapres3RevokeDTO::Wrapper, dto),
 		execRevokechinapres3(dto, authObject->getPayload()));
-	*/
 
 private:
-	// ע��ҽ����������ҵ����񣬳��ؿ��������غ���ҵ���߼�
+	// 处方业务服务实例
 	chinapres3Service service;
 
 	/**
-	 * ���������ӿ�ִ�к���
+	 * 处方签发执行函数
 	 *
-	 * ����ǰ���ύ�Ŀ�������DTO����¼�û�JWT�غ���Ϣ
-	 * ����service.issue()��ɴ������������´���״̬�����ɷ�ҩ���շѼ�¼
+	 * 接收前端传入的签发DTO与JWT身份载荷
+	 * 调用service.issue完成处方签发全业务流程
 	 *
-	 * @param dto �������������������������ID������ID��ǩ��Ŀ�괦���б�
-	 * @param payload JWT�غɣ��洢��ǰ������¼���˺���Ϣ
-	 * @return chinapres3IssueResultVO �����������������ִ��״̬����ʾ�İ���ͳ������
+	 * @param dto 签发请求DTO，包含就诊ID、患者ID、待签署处方列表
+	 * @param payload JWT载荷，存储当前操作医生、科室、医院身份信息
+	 * @return chinapres3IssueResultVO 签发结果封装对象，返回成功/失败状态与回执
 	 */
 	chinapres3IssueResultVO::Wrapper execIssuechinapres3(
 		const chinapres3IssueDTO::Wrapper& dto,
 		const PayloadDTO& payload);
 
-	// ---- revoke-related executor (temporarily disabled) ----
-#if 0
+	// ---- 处方撤回执行函数 ----
 	/**
-	 * �������ؽӿ�ִ�к���
+	 * 处方撤回执行函数
 	 *
-	 * ת��������service.revoke() ִ�д�������ȫ�����߼�
+	 * 调用service.revoke执行处方撤回、数据库状态变更逻辑
 	 *
-	 * @param dto �������������Я�������ش�����������
-	 * @param payload JWT�غɣ���ŵ�ǰ�����û���Ϣ
-	 * @return Revoke���VO�������ɹ�����ͳ��������ʧ�ܴ�����ϸ
+	 * @param dto 撤回请求DTO，包含需要撤销的处方编号数组
+	 * @param payload JWT身份载荷，用于校验操作权限
+	 * @return chinapres3RevokeResultVO 撤回结果VO，标记每条处方撤回执行结果
 	 */
 	chinapres3RevokeResultVO::Wrapper execRevokechinapres3(
 		const chinapres3RevokeDTO::Wrapper& dto,
 		const PayloadDTO& payload);
-#endif
 };
 
 #undef API_TAG
