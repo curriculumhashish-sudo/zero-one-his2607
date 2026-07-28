@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -24,6 +24,7 @@
 #include "../../domain/do/Diagnose/ClnConditionDefinitionDO.h"
 #include "../../domain/query/Diagnose/DiagnoseSelectQuery.h"
 
+<<<<<<< HEAD:his-cpp/his-c6-basedata/dao/Diagnose/DiagnoseDAO.h
 /**
  * Data access object for diagnose records.
  */
@@ -36,6 +37,24 @@ public:
 	uint64_t count(const DiagnoseSelectQuery::Wrapper& query);
 	std::list<ClnConditionDefinitionDO> selectWithPage(const DiagnoseSelectQuery::Wrapper& query);
 	std::list<DiagnoseDO> selectByName(const std::string& name);
+=======
+/** 诊断数据访问对象。 */
+class DiagnosisDAO : public BaseDAO
+{
+private:
+	std::string queryConditionBuilder(
+		const DiagnosisSelectQuery::Wrapper& query,
+		const std::string& tenantId,
+		SqlParams& params);
+
+public:
+	std::string selectCurrentTenantId(const std::string& userId);
+	uint64_t count(const DiagnosisSelectQuery::Wrapper& query, const std::string& tenantId);
+	std::list<ClnConditionDefinitionDO> selectWithPage(
+		const DiagnosisSelectQuery::Wrapper& query,
+		const std::string& tenantId);
+	std::list<DiagnosisDO> selectByName(const std::string& name);
+>>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/dao/Diagnosis/DiagnosisDAO.h
 };
 
 #endif // !_DIAGNOSIS_DAO_H_

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -23,10 +23,15 @@
 #include "Mapper.h"
 #include "../../domain/do/Diagnose/ClnConditionDefinitionDO.h"
 
+<<<<<<< HEAD:his-cpp/his-c6-basedata/dao/Diagnose/DiagnoseSelectMapper.h
 /**
  * Maps selectable diagnose query columns to the database model.
  */
 class DiagnoseSelectMapper : public Mapper<ClnConditionDefinitionDO>
+=======
+/** 映射可选诊疗查询结果。 */
+class DiagnosisSelectMapper : public Mapper<ClnConditionDefinitionDO>
+>>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/dao/Diagnosis/DiagnosisSelectMapper.h
 {
 public:
 	ClnConditionDefinitionDO mapper(ResultSet* resultSet) const override
@@ -41,6 +46,16 @@ public:
 		data.setYbFlag(resultSet->getBoolean(7));
 		data.setStatusEnum(resultSet->getString(8));
 		return data;
+	}
+};
+
+/** 映射当前登录租户。 */
+class DiagnosisTenantMapper : public Mapper<std::string>
+{
+public:
+	std::string mapper(ResultSet* resultSet) const override
+	{
+		return resultSet->getString(1);
 	}
 };
 

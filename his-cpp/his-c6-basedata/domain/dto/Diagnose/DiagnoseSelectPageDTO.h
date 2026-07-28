@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -25,10 +25,15 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
+<<<<<<< HEAD:his-cpp/his-c6-basedata/domain/dto/Diagnose/DiagnoseSelectPageDTO.h
 /**
  * Paged transfer object for selectable diagnoses.
  */
 class DiagnoseSelectPageDTO : public PageDTO<DiagnoseSelectDTO::Wrapper>
+=======
+/** 可选诊疗分页结果。 */
+class DiagnosisSelectPageDTO : public PageDTO<DiagnosisSelectDTO::Wrapper>
+>>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/domain/dto/Diagnosis/DiagnosisSelectPageDTO.h
 {
 	DTO_INIT(DiagnoseSelectPageDTO, PageDTO<DiagnoseSelectDTO::Wrapper>);
 };

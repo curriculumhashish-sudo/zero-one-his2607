@@ -1,4 +1,4 @@
-/*
+﻿/*
  Copyright Zero One Star. All rights reserved.
 
  @Author: awei
@@ -17,51 +17,80 @@
  limitations under the License.
 */
 #include "stdafx.h"
+<<<<<<< HEAD:his-cpp/his-c6-basedata/controller/Diagnose/DiagnoseController.cpp
 #include "DiagnoseController.h"
 #include "../../service/Diagnose/DiagnoseService.h"
+=======
+#include "DiagnosisController.h"
+#include "../../service/Diagnosis/DiagnoseService.h"
+#include <algorithm>
+>>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/controller/Diagnosis/DiagnosisController.cpp
 #include <cctype>
-#include <limits>
+#include <exception>
 
-namespace
+bool DiagnosisController::hasValidQueryParameters(const QueryParams& queryParams)
 {
-	std::string trimCopy(const std::string& value)
+	for (const auto& parameter : queryParams.getAll())
 	{
-		std::size_t begin = 0;
-		while (begin < value.size()
-			&& std::isspace(static_cast<unsigned char>(value[begin])) != 0)
+		const std::string name = parameter.first.toString();
+		if (name != "keyword" && name != "diagnosisKindCode"
+			&& name != "pageIndex" && name != "pageSize")
 		{
-			++begin;
+			return false;
 		}
-
-		std::size_t end = value.size();
-		while (end > begin
-			&& std::isspace(static_cast<unsigned char>(value[end - 1])) != 0)
-		{
-			--end;
-		}
-		return value.substr(begin, end - begin);
 	}
+
+	const auto isUnsignedInteger = [&queryParams](const char* name)
+	{
+		const auto value = queryParams.get(name);
+		if (!value)
+		{
+			return false;
+		}
+		const std::string text = value.getValue("");
+		return !text.empty()
+			&& std::all_of(
+				text.begin(),
+				text.end(),
+				[](unsigned char character)
+				{
+					return std::isdigit(character) != 0;
+				});
+	};
+
+	return isUnsignedInteger("pageIndex") && isUnsignedInteger("pageSize");
 }
 
+<<<<<<< HEAD:his-cpp/his-c6-basedata/controller/Diagnose/DiagnoseController.cpp
 DiagnoseSelectPageJsonVO::Wrapper DiagnoseController::execQuerySelectDiagnose(
 	const DiagnoseSelectQuery::Wrapper& query)
 {
 	auto response = DiagnoseSelectPageJsonVO::createShared();
 	if (!query || !query->pageIndex || !query->pageSize)
+=======
+DiagnosisSelectPageJsonVO::Wrapper DiagnosisController::execQuerySelectDiagnosis(
+	const DiagnosisSelectQuery::Wrapper& query,
+	const PayloadDTO& payload)
+{
+	// 定义返回数据对象。
+	auto response = DiagnosisSelectPageJsonVO::createShared();
+	// 参数校验。
+	if (!query || !query->validate().empty() || payload.getId().empty())
+>>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/controller/Diagnosis/DiagnosisController.cpp
 	{
 		response->init(nullptr, RS_PARAMS_INVALID);
 		return response;
 	}
 
-	const uint64_t pageIndex = query->pageIndex.getValue(0);
-	const uint64_t pageSize = query->pageSize.getValue(0);
-	if (pageIndex == 0 || pageSize == 0 || pageSize > 1000
-		|| pageIndex > std::numeric_limits<uint64_t>::max() / pageSize)
+	// 执行分页查询。
+	auto result = DiagnoseService().listSelectableDiagnoses(query, payload);
+	if (!result)
 	{
-		response->init(nullptr, RS_PARAMS_INVALID);
+		response->init(nullptr, RS_FORBIDDEN);
 		return response;
 	}
 
+<<<<<<< HEAD:his-cpp/his-c6-basedata/controller/Diagnose/DiagnoseController.cpp
 	const std::string diagnoseKindCode = trimCopy(
 		query->diagnoseKindCode.getValue(""));
 	if (!diagnoseKindCode.empty()
@@ -81,6 +110,10 @@ DiagnoseSelectPageJsonVO::Wrapper DiagnoseController::execQuerySelectDiagnose(
 		: oatpp::String(keyword.c_str());
 
 	response->success(DiagnoseService().listSelectableDiagnoses(query));
+=======
+	// 响应结果。
+	response->success(result);
+>>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/controller/Diagnosis/DiagnosisController.cpp
 	return response;
 }
 
@@ -205,8 +238,13 @@ StringJsonVO::Wrapper DiagnoseController::execBatchChangeDiagnoseStatus(const Di
 	}
 	return response;
 }
+<<<<<<< HEAD:his-cpp/his-c6-basedata/controller/Diagnose/DiagnoseController.cpp
 //�߼�ɾ��
 DiagnoseRemoveJsonVO::Wrapper DiagnoseController::execRemoveDiagnose(const DiagnoseRemoveDTO::Wrapper& dto, const PayloadDTO& payload)
+=======
+//逻辑删除
+DiagnoseRemoveJsonVO::Wrapper DiagnosisController::execRemoveDiagnosis(const DiagnoseRemoveDTO::Wrapper& dto, const PayloadDTO& payload)
+>>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/controller/Diagnosis/DiagnosisController.cpp
 {
 	auto response = DiagnoseRemoveJsonVO::createShared();
 	if (!dto->ids)
