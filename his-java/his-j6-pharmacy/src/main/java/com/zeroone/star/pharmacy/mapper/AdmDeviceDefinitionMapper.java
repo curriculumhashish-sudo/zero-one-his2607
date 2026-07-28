@@ -3,6 +3,8 @@ package com.zeroone.star.pharmacy.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.zeroone.star.pharmacy.entity.AdmDeviceDefinition;
 
+import java.util.List;
+
 /**
  * <p>
  * 管理域 设备定义 Mapper 接口
@@ -13,4 +15,7 @@ import com.zeroone.star.pharmacy.entity.AdmDeviceDefinition;
  */
 public interface AdmDeviceDefinitionMapper extends BaseMapper<AdmDeviceDefinition> {
 
+    List<Long> selectIdsByCategoryCodes(List<String> deviceCategoryCodes);
+
+    List<Long> selectIdsByKeyword(String kw);
 }
