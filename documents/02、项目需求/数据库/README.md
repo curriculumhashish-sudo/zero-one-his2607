@@ -8,6 +8,7 @@
 - `zo_his_init*.sql`：定义系统初始化必须要创建的数据，<b style="color:red">必须执行</b>
 - `zo_his_idx.sql`：定义表索引约束，<b style="color:blue">可选执行</b>
 - `zo_his_test*.sql`：定义开发测试数据，<b style="color:blue">可选执行</b>
+- `zo_his_test_inpatient_refund_queue.sql`：住院退药患者队列联调造数（依赖 `zo_his_test_data.sql`），<b style="color:blue">可选执行</b>
 
 在执行 `SQL` 文件的时候如果运行报错的话，检查你的 `sql_mode` 是否删除了下面的选项：
 

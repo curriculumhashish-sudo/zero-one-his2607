@@ -1,6 +1,12 @@
 package com.zeroone.star.dispense.service;
 
-import com.zeroone.star.project.vo.j7.dispense.InpatientRefundInitVO;
+import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.query.j7.dispense.InpatientRefundDetailQuery;
+import com.zeroone.star.project.query.j7.dispense.InpatientRefundPatientQuery;
+import com.zeroone.star.project.vo.j7.dispense.InpatientRefundDetailVO;
+import com.zeroone.star.project.vo.j7.dispense.InpatientRefundPatientVO;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,7 +19,12 @@ import com.zeroone.star.project.vo.j7.dispense.InpatientRefundInitVO;
 public interface IInpatientRefundMedicineService {
 
     /**
-     * 加载页面初始化选项（病区、退药状态）
+     * 分页查询退药患者队列
      */
-    InpatientRefundInitVO loadInit();
+    PageDTO<InpatientRefundPatientVO> queryPatientQueue(InpatientRefundPatientQuery query);
+
+    /**
+     * 查询患者退药明细
+     */
+    List<InpatientRefundDetailVO> queryRefundDetail(InpatientRefundDetailQuery query);
 }

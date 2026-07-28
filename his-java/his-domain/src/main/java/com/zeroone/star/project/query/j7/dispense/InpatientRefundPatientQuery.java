@@ -22,19 +22,22 @@ import lombok.ToString;
 public class InpatientRefundPatientQuery extends PageQuery {
 
     /**
-     * 病区ID
+     * 病区ID（对应 adm_location.id，form_enum=WARD；经 adm_encounter_location.location_id 关联就诊病区）
      */
     @Schema(description = "病区ID", example = "322963602326687744")
     private String wardId;
 
     /**
      * 队列页签：PENDING-待退药 / COMPLETED-已退药
+     * （前置条件 med_medication_dispense.dispense_enum=REFUND；
+     *  页签 PENDING 映射库表 status_enum=PENDING，展示态 refundEnum=PENDING_REFUND；
+     *  页签 COMPLETED 映射 status_enum=REFUNDED）
      */
     @Schema(description = "队列页签（PENDING/COMPLETED）", example = "PENDING")
     private String queueTab;
 
     /**
-     * 患者关键字（姓名/住院号/床号）
+     * 患者关键字（姓名/住院号/床号）（对应 adm_patient.name / adm_encounter.bus_no / adm_location.name(form_enum=BED)）
      */
     @Schema(description = "患者关键字（姓名/住院号/床号）", example = "张三")
     private String keyword;
