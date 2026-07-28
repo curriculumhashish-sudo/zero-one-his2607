@@ -35,6 +35,20 @@ public class GlobalExceptionHandler {
     private EhResultWrapper wrapper;
 
     /**
+     * 业务异常处理（SystemException），返回模块自定义业务错误码
+     * @param e 业务异常对象
+     * @return 包含业务错误码的响应数据
+     */
+    @ExceptionHandler(value = SystemException.class)
+    public Object systemExceptionHandler(SystemException e) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("code", e.getCode());
+        result.put("message", e.getMessage());
+        result.put("data", null);
+        return result;
+    }
+
+    /**
      * 系统通用异常处理
      * @param e 异常数据对象
      * @return 返回异常信息回显数据
