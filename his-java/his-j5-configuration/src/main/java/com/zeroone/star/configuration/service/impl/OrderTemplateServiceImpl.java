@@ -1,7 +1,6 @@
 package com.zeroone.star.configuration.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zeroone.star.configuration.entity.OrderTemplate;
@@ -21,6 +20,15 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * <p>
+ * 组套模板 服务实现类 —— 全部使用显式 SQL 列，禁用 SELECT *
+ * </p>
+ * <p>版权：&copy;01星球</p>
+ * <p>地址：01星球总部</p>
+ * @author keepasdd
+ * @version 1.0.0
+ */
 @Service
 public class OrderTemplateServiceImpl
         extends ServiceImpl<OrderTemplateMapper, OrderTemplate>
@@ -31,58 +39,30 @@ public class OrderTemplateServiceImpl
 
     @Override
     public List<OrderTemplateNameVO> listNames(OrderTemplateNameQuery query) {
-        LambdaQueryWrapper<OrderTemplate> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(OrderTemplate::getStatusEnum, "ACTIVE")
-               .eq(OrderTemplate::getSceneEnum, query.getSceneEnum())
-               .eq(OrderTemplate::getTemplateKindEnum, query.getTemplateKindEnum());
+        // 使用显式 SQL 查询，仅返回 nameColumns 指定的 5 列
+        List<OrderTemplate> entities = baseMapper.selectNames(
+                "ACTIVE",
+                query.getSceneEnum(),
+                query.getTemplateKindEnum(),
+                query.getPractitionerId(),
+                query.getDeptId());
 
-        if (query.getPractitionerId() != null && query.getDeptId() != null) {
-            wrapper.and(w -> w
-                .eq(OrderTemplate::getBindingEnum, "GLOBAL")
-                .or().eq(OrderTemplate::getBindingEnum, "DEPT")
-                      .eq(OrderTemplate::getObjectId, query.getDeptId())
-                .or().eq(OrderTemplate::getBindingEnum, "PERSONAL")
-                      .eq(OrderTemplate::getObjectId, query.getPractitionerId()));
-        } else {
-            wrapper.eq(OrderTemplate::getBindingEnum, "GLOBAL");
-        }
-
-        wrapper.select(OrderTemplate::getId, OrderTemplate::getName,
-                       OrderTemplate::getBindingEnum, OrderTemplate::getTemplateKindEnum,
-                       OrderTemplate::getSceneEnum);
-
-        List<OrderTemplate> entities = baseMapper.selectList(wrapper);
-
-        List<OrderTemplateNameVO> vos = new ArrayList<>();
+        List<OrderTemplateNameVO> vos = new ArrayList<>(entities.size());
         entities.forEach(e -> vos.add(BeanUtil.copyProperties(e, OrderTemplateNameVO.class)));
         return vos;
     }
 
     @Override
     public Page<OrderTemplateListVO> list(OrderTemplateQuery query) {
-        LambdaQueryWrapper<OrderTemplate> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(OrderTemplate::getTemplateKindEnum, query.getTemplateKindEnum());
+        Page<OrderTemplate> entityPage = baseMapper.selectPageExplicit(
+                new Page<>(query.getPageIndex(), query.getPageSize()),
+                query.getTemplateKindEnum(),
+                query.getKeyword(),
+                query.getBindingEnum(),
+                query.getSceneEnum(),
+                query.getStatusEnum());
 
-        if (query.getKeyword() != null && !query.getKeyword().isBlank()) {
-            wrapper.like(OrderTemplate::getName, query.getKeyword());
-        }
-        if (query.getBindingEnum() != null && !query.getBindingEnum().isBlank()) {
-            wrapper.eq(OrderTemplate::getBindingEnum, query.getBindingEnum());
-        }
-        if (query.getSceneEnum() != null && !query.getSceneEnum().isBlank()) {
-            wrapper.eq(OrderTemplate::getSceneEnum, query.getSceneEnum());
-        }
-        if (query.getStatusEnum() != null && !query.getStatusEnum().isBlank()) {
-            wrapper.eq(OrderTemplate::getStatusEnum, query.getStatusEnum());
-        }
-
-        wrapper.eq(OrderTemplate::getIsDeleted, false);
-        wrapper.orderByAsc(OrderTemplate::getSortWeight);
-
-        Page<OrderTemplate> entityPage = baseMapper.selectPage(
-                new Page<>(query.getPageIndex(), query.getPageSize()), wrapper);
-
-        List<OrderTemplateListVO> vos = new ArrayList<>();
+        List<OrderTemplateListVO> vos = new ArrayList<>(entityPage.getRecords().size());
         entityPage.getRecords().forEach(e -> {
             OrderTemplateListVO vo = new OrderTemplateListVO();
             BeanUtil.copyProperties(e, vo);
@@ -98,15 +78,16 @@ public class OrderTemplateServiceImpl
     @Override
     public OrderTemplateDetailVO getDetail(String id) {
         OrderTemplate header = baseMapper.selectById(id);
-        if (header == null) {
+        if (header == null || Boolean.TRUE.equals(header.getIsDeleted())) {
             return null;
         }
 
         OrderTemplateDetailVO vo = new OrderTemplateDetailVO();
         BeanUtil.copyProperties(header, vo);
 
+        // 使用显式 SQL 查询明细行，排除软删行
         List<OrderTemplateLine> lines = orderTemplateLineMapper.selectByTemplateId(id);
-        List<OrderTemplateLineVO> itemVOs = new ArrayList<>();
+        List<OrderTemplateLineVO> itemVOs = new ArrayList<>(lines.size());
         lines.forEach(line -> {
             OrderTemplateLineVO lineVO = new OrderTemplateLineVO();
             BeanUtil.copyProperties(line, lineVO);

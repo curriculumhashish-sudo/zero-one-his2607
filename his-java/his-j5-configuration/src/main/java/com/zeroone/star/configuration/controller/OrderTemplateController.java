@@ -14,12 +14,24 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * <p>
+ * 组套模板控制器
+ * </p>
+ * <p>版权：&copy;01星球</p>
+ * <p>地址：01星球总部</p>
+ * @author keepasdd
+ * @version 1.0.0
+ */
 @RestController
 @RequestMapping("/config/order-template")
+@Validated
 @Tag(name = "配置管理-组套模板", description = "组套模板接口")
 public class OrderTemplateController {
 
@@ -28,14 +40,14 @@ public class OrderTemplateController {
 
     @Operation(summary = "获取组套名称列表")
     @GetMapping("/names")
-    public JsonVO<List<OrderTemplateNameVO>> listNames(OrderTemplateNameQuery query) {
+    public JsonVO<List<OrderTemplateNameVO>> listNames(@Valid OrderTemplateNameQuery query) {
         List<OrderTemplateNameVO> result = orderTemplateService.listNames(query);
         return JsonVO.success(result);
     }
 
     @Operation(summary = "获取组套列表（分页）")
     @GetMapping("/list")
-    public JsonVO<PageDTO<OrderTemplateListVO>> list(OrderTemplateQuery query) {
+    public JsonVO<PageDTO<OrderTemplateListVO>> list(@Valid OrderTemplateQuery query) {
         return JsonVO.success(PageDTO.create(orderTemplateService.list(query)));
     }
 
