@@ -1,8 +1,11 @@
 package com.zeroone.star.project.j6.pharmacy;
 
 import com.zeroone.star.project.dto.j6.pharmacy.stocktake.*;
+import com.zeroone.star.project.query.j6.pharmacy.PharmacyInventoryDetailQuery;
 import com.zeroone.star.project.query.j6.pharmacy.stocktake.PharmacyInventoryQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j6.pharmacy.PharmacyInventoryDetailVO;
+import com.zeroone.star.project.vo.j6.pharmacy.stocktake.PharmacyInventoryVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stocktake.StocktakeDetailVO;
 import io.swagger.v3.oas.annotations.Parameter;
 
@@ -13,19 +16,19 @@ public interface WarehouseStocktakeApis {
      * @param query 封装：分页参数 + 筛选条件（单据号、日期、药库、项目类型）
      * @return JsonVO包裹分页数据
      */
-    JsonVO<PharmacyInventoryQueryDTO> listInventory(PharmacyInventoryQuery query);
+    JsonVO<PharmacyInventoryVO> listInventory(PharmacyInventoryQuery query);
 
     /**
      * 根据id查询盘点单详情
-     * @param queryDetail 封装单据id
+     * @param query 封装单据id
      * @return JsonVO包裹完整单据详情（表头+明细）
      */
-    JsonVO<PharmacyInventoryDetailQueryDTO> getInventoryDetail(String queryDetail);
+    JsonVO<PharmacyInventoryDetailVO> getInventoryDetail(PharmacyInventoryDetailQuery query);
 
     /**
-     * 新增盘点单据
+     * 删除盘点单据
      * @param busNo
-     * @return JsonVO包裹新增后的单据基础信息
+     * @return JsonVO包裹删除后的单据基础信息
      */
 
     JsonVO<Boolean> deleteStocktake(@Parameter(description = "盘点单号") String busNo);

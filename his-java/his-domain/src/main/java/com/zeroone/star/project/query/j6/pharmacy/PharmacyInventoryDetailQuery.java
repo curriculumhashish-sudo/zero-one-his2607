@@ -14,9 +14,11 @@ import lombok.Data;
  * @version 1.0.0
  */
 @Data
-@Schema(description = "获取单据列表")
-public class PharmacyInventoryDetailQuery{
+@Schema(description = "药库盘点单据详情查询条件")
+public class PharmacyInventoryDetailQuery {
+    @Schema(description = "盘点单据ID", requiredMode = Schema.RequiredMode.REQUIRED,example = "CST2026-07-190004")
+    private String stocktakeNo;
 
-    @Schema(description = "单据号ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "CST2026-07-190004")
-    private String busNo;
 }
+
+

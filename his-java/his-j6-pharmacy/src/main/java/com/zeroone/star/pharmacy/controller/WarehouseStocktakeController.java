@@ -3,8 +3,11 @@ package com.zeroone.star.pharmacy.controller;
 import com.zeroone.star.pharmacy.service.IStocktakeApprovalService;
 import com.zeroone.star.project.dto.j6.pharmacy.stocktake.*;
 import com.zeroone.star.project.j6.pharmacy.WarehouseStocktakeApis;
+import com.zeroone.star.project.query.j6.pharmacy.PharmacyInventoryDetailQuery;
 import com.zeroone.star.project.query.j6.pharmacy.stocktake.PharmacyInventoryQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j6.pharmacy.PharmacyInventoryDetailVO;
+import com.zeroone.star.project.vo.j6.pharmacy.stocktake.PharmacyInventoryVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stocktake.StocktakeDetailVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,16 +29,19 @@ public class WarehouseStocktakeController implements WarehouseStocktakeApis {
     @Override
     @GetMapping("list")
     @Operation(summary = "获取单据列表（条件+分页）")
-    public JsonVO<PharmacyInventoryQueryDTO> listInventory(PharmacyInventoryQuery query) {
-        return JsonVO.success(new PharmacyInventoryQueryDTO());
+    public JsonVO<PharmacyInventoryVO> listInventory(PharmacyInventoryQuery query) {
+        return JsonVO.success(new PharmacyInventoryVO());
     }
+
+
 
     @Override
     @GetMapping("/detail")
     @Operation(summary = "获取单据详情")
-    public JsonVO<PharmacyInventoryDetailQueryDTO> getInventoryDetail(String queryDetail) {
-        return JsonVO.success(new PharmacyInventoryDetailQueryDTO());
+    public JsonVO<PharmacyInventoryDetailVO> getInventoryDetail(PharmacyInventoryDetailQuery query) {
+        return JsonVO.success(new PharmacyInventoryDetailVO());
     }
+
 
     @Override
     @DeleteMapping("/{busNo}")

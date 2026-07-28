@@ -17,18 +17,15 @@ import lombok.Data;
 @Schema(description = "单据列表(条件+分页)")
 public class PharmacyInventoryQuery extends PageQuery {
 
-    @Schema(description = "盘点单据号", example = "CST2026-07-230004")
-    private String busNo;
+    @Schema(description = "盘点单据号检索", example = "CST2026-07-190004")
+    private String stocktakeNo;
 
-    @Schema(description = "单据状态", example = "AGREE")
-    private String statusEnum;
+    @Schema(description = "开始日期", example = "2026-07-01")
+    private String startDate;
 
-    @Schema(description = "库房ID")
-    private String purposeLocationId;
+    @Schema(description = "结束日期", example = "2026-07-27")
+    private String endDate;
 
-    @Schema(description = "申请开始时间")
-    private String applyTimeStart;
-
-    @Schema(description = "申请结束时间")
-    private String applyTimeEnd;
+    @Schema(description = "盘点药库", example = "西药库")
+    private String pharmacy;
 }

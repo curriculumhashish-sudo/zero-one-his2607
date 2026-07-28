@@ -1,54 +1,70 @@
 package com.zeroone.star.project.vo.j6.pharmacy;
 
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import java.math.BigDecimal;
 
+/**
+ * <p>
+ * 描述：药库盘点单明细行VO
+ * </p>
+ * @author 01星球
+ */
 @Data
-@Schema(description = "药房盘点单据列表条目VO")
+@Schema(description = "药库盘点单明细行")
 public class PharmacyInventoryItemVO {
-    @Schema(description = "单据号", example = "CST2026-07-230004")
-    private String busNo;
+    @Schema(description = "明细ID")
+    private String lineId;
 
-    @Schema(description = "状态编码", example = "AGREE")
-    private String statusEnum;
+    @Schema(description = "药品主表名称")
+    private String itemTable;
 
-    @Schema(description = "状态名称", example = "同意")
-    private String statusEnumText;
+    @Schema(description = "药品ID")
+    private String itemId;
 
-    @Schema(description = "目标库房ID")
-    private String purposeLocationId;
+    @Schema(description = "药品名称", example = "黄芪")
+    private String productName;
 
-    @Schema(description = "目标库房名称", example = "中药库")
-    private String purposeLocationName;
+    @Schema(description = "规格", example = "饮片")
+    private String specification;
 
-    @Schema(description = "明细条目数量", example = "1")
-    private Integer itemCount;
+    @Schema(description = "生产厂家", example = "安国市中药材市场")
+    private String manufacturer;
 
-    @Schema(description = "损益总数量")
-    private BigDecimal profitLossQuantitySum;
+    @Schema(description = "批号", example = "999-010")
+    private String lotNumber;
 
-    @Schema(description = "实际总金额")
-    private BigDecimal actualAmountSum;
+    @Schema(description = "有效期")
+    private String expirationDate;
 
-    @Schema(description = "申请人ID")
-    private String applicantId;
+    @Schema(description = "单位编码")
+    private String unitCode;
 
-    @Schema(description = "申请人名称", example = "admin")
-    private String applicantName;
+    @Schema(description = "账面数量")
+    private BigDecimal bookQuantity;
 
-    @Schema(description = "申请时间", example = "2026-07-23 16:16:57")
-    private String applyTime;
+    @Schema(description = "盈亏数量")
+    private BigDecimal profitLossQuantity;
 
-    @Schema(description = "审批人ID")
-    private String approverId;
+    @Schema(description = "实际盘点数量")
+    private BigDecimal actualQuantity;
 
-    @Schema(description = "审批人名称", example = "admin")
-    private String approverName;
+    @Schema(description = "实际金额")
+    private BigDecimal actualAmount;
 
-    @Schema(description = "审批时间")
-    private String approvalTime;
+    @Schema(description = "盈亏金额")
+    private BigDecimal profitLossAmount;
 
-    @Schema(description = "业务发生时间")
+    @Schema(description = "单价")
+    private BigDecimal price;
+
+    @Schema(description = "备注")
+    private String remake;
+
+    @Schema(description = "发生时间", example = "2026-07-19 20:57:00")
     private String occurrenceTime;
+
+    @Schema(description = "药品品类信息")
+    private ProductCatalogVO productCatalog;
 }
