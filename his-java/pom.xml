@@ -39,7 +39,6 @@ d<?xml version="1.0" encoding="UTF-8"?>
         <module>his-mcp-gateway</module>
         <module>his-j5-ons</module>
         <module>his-j5-configuration</module>
-        <module>his-j5-basedata</module>
     </modules>
     <properties>
         <!-- 项目版本号 -->
