@@ -13,12 +13,12 @@ class DiagnoseService
 {
 public:
 	//这个可能是你写的，他写的带鉴权了，暂时先注释你的
-	/*DiagnoseSelectPageDTO::Wrapper listSelectableDiagnoses(
-		const DiagnoseSelectQuery::Wrapper& query);*/
+	DiagnoseSelectPageDTO::Wrapper listSelectableDiagnoses(
+		const DiagnoseSelectQuery::Wrapper& query);
 
-	DiagnoseSelectPageDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
-		const DiagnoseSelectQuery::Wrapper& query,
-		const PayloadDTO& payload);
+	//DiagnoseSelectPageDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
+	//	const DiagnoseSelectQuery::Wrapper& query,
+	//	const PayloadDTO& payload);
 	//新增
 	std::string saveData(const DiagnoseAddDTO::Wrapper& dto);
 	//更新

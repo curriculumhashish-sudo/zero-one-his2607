@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -17,14 +17,14 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _diagnose_DETAIL_DTO_H_
-#define _diagnose_DETAIL_DTO_H_
+#ifndef _DIAGNOSE_DETAIL_DTO_H_
+#define _DIAGNOSE_DETAIL_DTO_H_
 #include "../../GlobalInclude.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * Õï¶ÏÏêÇéDTO
+ * è¯Šæ–­è¯¦æƒ…DTO
  */
 class diagnoseDetailDTO : public oatpp::DTO
 {

@@ -71,11 +71,13 @@ class DiagnoseSelectDTO : public oatpp::DTO
 //		ZH_WORDS_GETTER("diagnose.field.select.yb_flag_text"), true, u8"\u5426");
 //	API_DTO_FIELD(Int32, statusEnum, ZH_WORDS_GETTER("diagnose.field.select.status_enum"), true, 2);
 
-};
-class DiagnoseSelectDTO : public PageDTO<DiagnoseSelectDTO::Wrapper>
-{
-	DTO_INIT(DiagnoseSelectDTO, PageDTO<DiagnoseSelectDTO::Wrapper>);
-};
+//};
+
+//这个不对，给你注释了
+//class DiagnoseSelectDTO : public PageDTO<DiagnoseSelectDTO::Wrapper>
+//{
+//	DTO_INIT(DiagnoseSelectDTO, PageDTO<DiagnoseSelectDTO::Wrapper>);
+//};
 
 #include OATPP_CODEGEN_END(DTO)
 #endif // !_DIAGNOSE_CATALOG_DTO_H_

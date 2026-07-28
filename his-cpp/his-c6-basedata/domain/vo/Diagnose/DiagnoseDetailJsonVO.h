@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
  @Author: awei
@@ -16,15 +16,15 @@
 #ifndef _diagnose_DETAIL_JSONVO_H_
 #define _diagnose_DETAIL_JSONVO_H_
 #include "../../GlobalInclude.h"
-#include "../dto/Diagnose/DiagnoseDetailDTO.h"
+#include "../../dto/Diagnose/DiagnoseDetailDTO.h"
 #include OATPP_CODEGEN_BEGIN(DTO)
 /**
- * Õï¶ÏÏêÇéµ¥ÌõÏìÓ¦VO
- * ½Ó¿Ú£º/diagnose/detail
+ * è¯Šæ–­è¯¦æƒ…å•æ¡å“åº”VO
+ * æ¥å£ï¼š/diagnose/detail
  */
-class DiagnoseDetailJsonVO : public JsonVO<DiagnoseDetailDTO::Wrapper>
-{
-	DTO_INIT(DiagnoseDetailJsonVO, JsonVO<DiagnoseDetailDTO::Wrapper>);
-};
-#include OATPP_CODEGEN_END(DTO)
+//class DiagnoseDetailJsonVO : public JsonVO<diagnosePageDTO::Wrapper>
+//{
+//	DTO_INIT(DiagnoseDetailJsonVO, JsonVO<diagnosePageDTO::Wrapper>);
+//};
+//#include OATPP_CODEGEN_END(DTO)
 #endif // !_diagnose_DETAIL_JSONVO_H_

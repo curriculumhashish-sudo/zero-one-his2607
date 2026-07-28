@@ -20,8 +20,7 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 //select right
- */
->>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/domain/query/Diagnosis/DiagnosisSelectQuery.h
+class DiagnoseSelectQuery : public PageQuery
 {
 	DTO_INIT(DiagnoseSelectQuery, PageQuery);
 	// 

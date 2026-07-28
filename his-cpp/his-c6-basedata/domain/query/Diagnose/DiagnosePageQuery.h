@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
  @Author: awei
@@ -18,22 +18,23 @@
 #include "../../GlobalInclude.h"
 #include OATPP_CODEGEN_BEGIN(DTO)
 /**
- * Õï¶Ï¹ÜÀíÁĞ±íÊı¾İDTO
- * ¶ÔÓ¦Ò³Ãæ£ºÕï¶ÏºóÌ¨¹ÜÀíÖ÷ÁĞ±í
+ * è¯Šæ–­ç®¡ç†åˆ—è¡¨æ•°æ®DTO
+ * å¯¹åº”é¡µé¢ï¼šè¯Šæ–­åå°ç®¡ç†ä¸»åˆ—è¡¨
  */
-class diagnosePageDTO : public oatpp::DTO
-{
-	DTO_INIT(diagnosePageDTO, DTO);
-	// Î¨Ò»Ö÷¼ü±êÊ¶
-	API_DTO_FIELD_REQUIRE(Int32, id, ZH_WORDS_GETTER("diagnose.field.id"), true);
-	// Õï¶Ï±àÂë
-	API_DTO_FIELD_REQUIRE(String, diagnoseCode, ZH_WORDS_GETTER("diagnose.field.code"), true);
-	// Õï¶ÏÃû³Æ
-	API_DTO_FIELD_REQUIRE(String, diagnoseName, ZH_WORDS_GETTER("diagnose.field.name"), true);
-	// ËùÊôÕï¶ÏÄ¿Â¼
-	API_DTO_FIELD_DEFAULT(String, catalogName, ZH_WORDS_GETTER("diagnose.field.catalogName"));
-	// ÆôÓÃ×´Ì¬ 0-Í£ÓÃ 1-ÆôÓÃ
-	API_DTO_FIELD_REQUIRE(Int32, status, ZH_WORDS_GETTER("diagnose.field.status"), true);
-};
+//ä¸ºä»€ä¹ˆåœ¨QUERYå±‚å®šä¹‰DTO?è€Œä¸”è¿˜è·ŸDTOå±‚çš„çš„åŒå.é‡å®šä¹‰é”™è¯¯äº†,æ³¨é‡Šäº†ç»™ä½ 
+//class diagnosePageDTO : public oatpp::DTO
+//{
+//	DTO_INIT(diagnosePageDTO, DTO);
+//	// å”¯ä¸€ä¸»é”®æ ‡è¯†
+//	API_DTO_FIELD_REQUIRE(Int32, id, ZH_WORDS_GETTER("diagnose.field.id"), true);
+//	// è¯Šæ–­ç¼–ç 
+//	API_DTO_FIELD_REQUIRE(String, diagnoseCode, ZH_WORDS_GETTER("diagnose.field.code"), true);
+//	// è¯Šæ–­åç§°
+//	API_DTO_FIELD_REQUIRE(String, diagnoseName, ZH_WORDS_GETTER("diagnose.field.name"), true);
+//	// æ‰€å±è¯Šæ–­ç›®å½•
+//	API_DTO_FIELD_DEFAULT(String, catalogName, ZH_WORDS_GETTER("diagnose.field.catalogName"));
+//	// å¯ç”¨çŠ¶æ€ 0-åœç”¨ 1-å¯ç”¨
+//	API_DTO_FIELD_REQUIRE(Int32, status, ZH_WORDS_GETTER("diagnose.field.status"), true);
+//};
 #include OATPP_CODEGEN_END(DTO)
 #endif // !_diagnose_PAGE_DTO_H_

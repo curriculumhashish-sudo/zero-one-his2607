@@ -78,18 +78,20 @@ std::string DiagnoseDAO::queryConditionBuilder(const DiagnoseSelectQuery::Wrappe
 //	const std::string diagnoseKindCode = query->diagnoseKindCode.getValue("");
 //	if (diagnoseKindCode == "1")
 //=======
+	/*这是你的新推送代码
 	const std::string diagnosisKindCode = query->diagnosisKindCode.getValue("");
 	if (diagnosisKindCode == DiagnoseSelectQuery::DIAGNOSIS_KIND_WESTERN)
 	{
 		appendSourceFilter(sqlCondition, params, WESTERN_SOURCE_CODES);
-	}
+	}*/
 //<<<<<<< HEAD:his-cpp/his-c6-basedata/dao/Diagnose/DiagnoseDAO.cpp
 //	else if (diagnoseKindCode == "2")
 //=======
-	else if (diagnosisKindCode == DiagnoseSelectQuery::DIAGNOSIS_KIND_TRADITIONAL_CHINESE)
+	//这是你的新推送的代码
+	/*else if (diagnosisKindCode == DiagnoseSelectQuery::DIAGNOSIS_KIND_TRADITIONAL_CHINESE)
 	{
 		appendSourceFilter(sqlCondition, params, TCM_SOURCE_CODES);
-	}
+	}*/
 	return sqlCondition.str();
 }
 
