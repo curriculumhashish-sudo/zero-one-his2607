@@ -68,19 +68,19 @@ StringJsonVO::Wrapper TreatmentController::execModifyStatus(const TreatmentStatu
 }
 
 // 删除（支持批量）
-ListJsonVO<String>::Wrapper TreatmentController::execRemoveTreatment(const List<String>& ids)
+ListJsonVO<String>::Wrapper TreatmentController::execRemoveTreatment(const TreatmentRemoveDTO::Wrapper& dto)
 {
 	// 定义返回数据对象
 	auto jvo = ListJsonVO<String>::createShared();
 	// 参数校验
-	if (ids->empty())
+	if (!dto || !dto->ids || dto->ids->empty())
 	{
 		jvo->init(nullptr, RS_PARAMS_INVALID);
 		return jvo;
 	}
 	// 执行数据删除
-	if (TreatmentService().removeData(ids)) {
-		jvo->success(ids);
+	if (TreatmentService().removeData(dto->ids)) {
+		jvo->success(dto->ids);
 	}
 	else
 	{
@@ -107,7 +107,7 @@ TreatmentPageJsonVO::Wrapper TreatmentController::execQueryAll(const TreatmentQu
 	// 构建凭证
 	std::string token = PayloadDTO::getTokenPrefix() + payload.getToken();
 	// 返回查询结果
-	return ac->queryAll(token, query->pageIndex, query->pageSize, URIUtil::urlEncode(query->name))->readBodyToDto<TreatmentPageJsonVO::Wrapper>(om);
+	return ac->queryAll(token, query->pageIndex, query->pageSize, URIUtil::urlEncode(query->keywords))->readBodyToDto<TreatmentPageJsonVO::Wrapper>(om);
 }
 
 StringJsonVO::Wrapper TreatmentController::execAddTreatment(
@@ -176,13 +176,13 @@ StringJsonVO::Wrapper TreatmentController::execModifyTreatment(
 }
 
 // 导出pdf
-StringJsonVO::Wrapper TreatmentController::TreatmentPdf(const TreatmentQuery::Wrapper& query)
+StringJsonVO::Wrapper TreatmentController::execExportTreatmentPdf(const TreatmentQuery::Wrapper& query)
 {
 	// 查询数据
 	auto result = TreatmentService().listAll(query);
 	// 绘制PDF
 	PdfComponent pdf;
-	OatppAccessor<SampleDTO::Wrapper> dataAccessor(result->rows);
+	OatppAccessor<TreatmentDetailDTO::Wrapper> dataAccessor(result->rows);
 	pdf.drawWithTemplate("tpl/treatment-pdf-report.yml", "treatment-pdf-report", &dataAccessor);
 	// 保存PDF
 	auto data = pdf.saveDocToMem();

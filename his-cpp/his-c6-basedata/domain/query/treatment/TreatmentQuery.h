@@ -28,18 +28,10 @@
 /**
  * 诊疗分页查询条件，继承分页基类
  */
-//class TreatmentQuery : public PageQuery
-//{
-//    DTO_INIT(TreatmentQuery, PageQuery);
-//    // 关键字，按诊疗名称或编码模糊匹配
-//    API_DTO_FIELD_REQUIRE(String, keywords, ZH_WORDS_GETTER("treatment.field.keywords"), false);
-//    // 启用/停用状态过滤（1/0），不传表示不过滤
-//    API_DTO_FIELD_REQUIRE(Int32, status, ZH_WORDS_GETTER("treatment.field.status"), false);
-//};
 // 列表分页用
 class TreatmentQuery : public PageQuery
 {
-    DTO_INIT(TreatmentPageQuery, PageQuery);
+    DTO_INIT(TreatmentQuery, PageQuery);
     // 关键字，按诊疗名称或编码模糊匹配
     API_DTO_FIELD_REQUIRE(String, keywords, ZH_WORDS_GETTER("treatment.field.keywords"), false);
     // 分类
