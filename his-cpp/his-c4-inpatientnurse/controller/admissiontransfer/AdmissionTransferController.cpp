@@ -18,15 +18,16 @@
 */
 #include "stdafx.h"
 #include "AdmissionTransferController.h"
+#include "service/admissiontransfer/AdmissionTransferService.h"
 
 ExecuteInpatientDischargeJsonVO::Wrapper AdmissionTransferController::execExecuteInpatientDischarge(
-	const ExecuteInpatientDischargeDTO::Wrapper& dto)
+	const ExecuteInpatientDischargeDTO::Wrapper& dto,const PayloadDTO& payload)
 {
-	return {};
+	auto vo=ExecuteInpatientDischargeJsonVO::createShared();auto result=AdmissionTransferService().discharge(dto,payload.getUsername());result->succeeded?vo->success(result):vo->fail(result);return vo;
 }
 
 ClearDischargedBedJsonVO::Wrapper AdmissionTransferController::execClearDischargedBed(
-	const ClearDischargedBedDTO::Wrapper& dto)
+	const ClearDischargedBedDTO::Wrapper& dto,const PayloadDTO& payload)
 {
-	return {};
+	auto vo=ClearDischargedBedJsonVO::createShared();auto result=AdmissionTransferService().clearBed(dto,payload.getUsername());result->succeeded?vo->success(result):vo->fail(result);return vo;
 }

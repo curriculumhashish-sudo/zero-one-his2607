@@ -69,7 +69,7 @@ public:
         "/medicalOrderVerification/verify-pass",
         verifyPass,
         BODY_DTO(VerifyPassRequestDTO::Wrapper, dto),
-        execVerifyPass(dto));
+                                    execVerifyPass(dto, authObject->getPayload()));
 
     // Batch reject orders
     API_DEF_ENDPOINT_INFO_AUTH(
@@ -86,14 +86,14 @@ public:
         "/medicalOrderVerification/reject-orders",
         rejectOrders,
         BODY_DTO(RejectOrdersRequestDTO::Wrapper, dto),
-        execRejectOrders(dto));
+        execRejectOrders(dto, authObject->getPayload()));
 
 private:
     // Endpoint execution function
     medicalOrderVerificationJsonVO::Wrapper execQueryMedicalOrderVerification(
         const MedicalVerificationQuery::Wrapper& query);
-    VerifyPassJsonVO::Wrapper execVerifyPass(const VerifyPassRequestDTO::Wrapper& dto);
-    RejectOrdersJsonVO::Wrapper execRejectOrders(const RejectOrdersRequestDTO::Wrapper& dto);
+    VerifyPassJsonVO::Wrapper execVerifyPass(const VerifyPassRequestDTO::Wrapper& dto,const PayloadDTO& payload);
+    RejectOrdersJsonVO::Wrapper execRejectOrders(const RejectOrdersRequestDTO::Wrapper& dto,const PayloadDTO& payload);
 };
 
 #undef API_TAG

@@ -20,11 +20,16 @@
 #ifndef _EncounterManage_SERVICE_H_
 #define _EncounterManage_SERVICE_H_
 
+#include "domain/query/encountermanage/PagePatientQueueQuery.h"
+#include "domain/query/encountermanage/PatientStatisticsQuery.h"
+#include "domain/dto/encountermanage/PagePatientQueueDTO.h"
+#include "domain/dto/encountermanage/PatientStatisticsDTO.h"
+
 class EncounterManageService
 {
 public:
-    EncounterManageService() = default;
-    ~EncounterManageService() = default;
+	PagePatientQueueDTO::Wrapper listPatients(const PagePatientQueueQuery::Wrapper& query);
+	PatientStatisticsDTO::Wrapper getStatistics(const PatientStatisticsQuery::Wrapper& query);
 };
 
 #endif // !_EncounterManage_SERVICE_H_

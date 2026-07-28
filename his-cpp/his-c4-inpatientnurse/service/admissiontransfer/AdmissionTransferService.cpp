@@ -18,3 +18,17 @@
 */
 #include "stdafx.h"
 #include "AdmissionTransferService.h"
+#include "dao/admissiontransfer/AdmissionTransferDAO.h"
+ExecuteInpatientDischargeResponseDTO::Wrapper AdmissionTransferService::discharge(const ExecuteInpatientDischargeDTO::Wrapper& dto,const std::string& op)
+{
+	auto out=ExecuteInpatientDischargeResponseDTO::createShared();out->encounterId=dto?dto->encounterId:"";out->succeeded=false;if(!dto||!dto->encounterId||dto->encounterId->empty())return out;
+	AdmissionTransferDAO dao;auto status=dao.selectEncounterStatus(dto->encounterId);if(status=="PENDING"){out->succeeded=true;return out;}if(status!="ON_HOLD")return out;
+	if(dao.countUnstoppedLongOrders(dto->encounterId)>0||dao.countUnfinishedTemporaryOrders(dto->encounterId)>0||dao.countPendingMedicationDispenses(dto->encounterId)>0)return out;
+	out->succeeded=dao.markPendingDischarge(dto->encounterId,op)==1;return out;
+}
+ClearDischargedBedResponseDTO::Wrapper AdmissionTransferService::clearBed(const ClearDischargedBedDTO::Wrapper& dto,const std::string& op)
+{
+	auto out=ClearDischargedBedResponseDTO::createShared();out->encounterId=dto?dto->encounterId:"";out->succeeded=false;if(!dto||!dto->encounterId||dto->encounterId->empty())return out;
+	AdmissionTransferDAO dao;if(dao.selectEncounterStatus(dto->encounterId)!="COMPLETED"||dao.selectDisplayBalance(dto->encounterId)>0.000001)return out;auto bed=dao.selectActiveBedId(dto->encounterId);if(bed.empty())return out;
+	dao.getSqlSession()->beginTransaction();try{if(dao.closeBedTrack(dto->encounterId,bed,op)!=1||dao.releaseBed(bed,op)!=1||dao.markDischarged(dto->encounterId,op)!=1)throw std::runtime_error("clear bed failed");dao.getSqlSession()->commitTransaction();out->succeeded=true;}catch(...){dao.getSqlSession()->rollbackTransaction();}return out;
+}
