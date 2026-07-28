@@ -44,12 +44,12 @@ public class WkfActivityDefinitionDO implements Serializable {
     private LocalDateTime updatedAt;
 
     /** 创建人 */
-    @TableField("created_by")
+    @TableField(value = "created_by", fill = FieldFill.INSERT)
     @Schema(description = "创建人", example = "admin", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String createdBy;
 
     /** 最后更新人 */
-    @TableField("updated_by")
+    @TableField(value = "updated_by", fill = FieldFill.INSERT_UPDATE)
     @Schema(description = "最后更新人", example = "admin", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String updatedBy;
 
