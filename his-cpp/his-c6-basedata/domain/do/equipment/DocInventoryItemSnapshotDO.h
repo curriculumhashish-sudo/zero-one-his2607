@@ -8,7 +8,7 @@
 /**
  * 库存快照/批次明细实体
  */
-class InventorySnapshotDO : public BaseDO
+class DocInventoryItemSnapshotDO : public BaseDO
 {
 	// 主键
 	MYSQL_SYNTHESIZE(string, id, Id);
@@ -100,7 +100,7 @@ class InventorySnapshotDO : public BaseDO
 
 public:
 
-	InventorySnapshotDO() : BaseDO("doc_inventory_item_snapshot") //表名
+	DocInventoryItemSnapshotDO() : BaseDO("doc_inventory_item_snapshot") //表名
 	{
 		// 主键
 		MYSQL_ADD_FIELD_PK("id", "s", id);
@@ -157,6 +157,6 @@ public:
 };
 
 // 定义一个智能指针
-typedef std::shared_ptr<InventorySnapshotDO> PtrInventorySnapshotDO;
+typedef std::shared_ptr<DocInventoryItemSnapshotDO> PtrDocInventorySnapshotDO;
 
 #endif // !_INVENTORYITEMDO_H_

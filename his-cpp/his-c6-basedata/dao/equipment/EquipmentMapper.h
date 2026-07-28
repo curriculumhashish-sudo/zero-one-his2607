@@ -70,12 +70,12 @@ public:
 /**
  * 库存快照表 普通值对象映射
  */
-class InventorySnapshotMapper : public Mapper<InventorySnapshotDO>
+class DocInventoryItemSnapshotMapper : public Mapper<DocInventoryItemSnapshotDO>
 {
 public:
-	InventorySnapshotDO mapper(ResultSet* resultSet) const override
+	DocInventoryItemSnapshotDO mapper(ResultSet* resultSet) const override
 	{
-		InventorySnapshotDO data;
+		DocInventoryItemSnapshotDO data;
 		// 1.主键id
 		data.setId(resultSet->getString(1));
 		// 业务字段依次按添加顺序赋值
@@ -133,12 +133,12 @@ public:
 /**
  * 库存快照表 智能指针共享对象映射（分页列表查询专用）
  */
-class PtrInventorySnapshotMapper : public Mapper<PtrInventorySnapshotDO>
+class PtrDocInventorySnapshotMapper : public Mapper<PtrDocInventorySnapshotDO>
 {
 public:
-	PtrInventorySnapshotDO mapper(ResultSet* resultSet) const override
+	PtrDocInventorySnapshotDO mapper(ResultSet* resultSet) const override
 	{
-		auto data = std::make_shared<InventorySnapshotDO>();
+		auto data = std::make_shared<DocInventoryItemSnapshotDO>();
 		// 顺序和上面完全一致，使用 -> 箭头访问成员
 		data->setId(resultSet->getString(1));
 		data->setTenantId(resultSet->getString(2));
