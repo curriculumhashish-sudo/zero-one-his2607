@@ -29,6 +29,9 @@ class EquipmentDetailDTO : public oatpp::DTO
 	API_DTO_FIELD_REQUIRE(String, manufacturer, ZH_WORDS_GETTER("equipment.field.manufacturer"), false);
 	// 价格
 	API_DTO_FIELD_REQUIRE(String, price, ZH_WORDS_GETTER("equipment.field.price"), true);
+
+	// 关联一个PayloadDTO负载数据对象
+	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 };
 
 /**

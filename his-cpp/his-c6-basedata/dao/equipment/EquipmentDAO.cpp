@@ -66,11 +66,11 @@ std::list<WkfInventoryItemDO> EquipmentDAO::selectWithPage(const EquipmentQuery:
 
 //这个真的有必要保留吗？
 // 通过名字查询
-std::list<WkfInventoryItemDO> EquipmentDAO::selectByName(const string& name)
-{
-	string sql = "SELECT * FROM wkf_inventory_item WHERE `name` LIKE CONCAT('%',?,'%')";
-	return sqlSession->executeQuery<WkfInventoryItemDO>(sql, WkfInventoryItemMapper(), "%s", name);
-}
+//std::list<WkfInventoryItemDO> EquipmentDAO::selectByName(const string& name)
+//{
+//	string sql = "SELECT * FROM wkf_inventory_item WHERE `name` LIKE CONCAT('%',?,'%')";
+//	return sqlSession->executeQuery<WkfInventoryItemDO>(sql, WkfInventoryItemMapper(), "%s", name);
+//}
 
 
 // ============================================================================
@@ -78,7 +78,7 @@ std::list<WkfInventoryItemDO> EquipmentDAO::selectByName(const string& name)
 // ============================================================================
 PtrWkfInventoryItemDO EquipmentDAO::selectById(std::string id)
 {
-	std::string sql = "SELECT * FROM wkf_inventory_item WHERE `id` = ? AND `is_deleted` = 0";
+	std::string sql = "SELECT * FROM wkf_inventory_item WHERE `id` = ?";
 	return sqlSession->executeQueryOne<PtrWkfInventoryItemDO>(sql, PtrWkfInventoryItemMapper(), "%s", id);
 }
 
