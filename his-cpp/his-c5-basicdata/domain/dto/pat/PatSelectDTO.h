@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #ifndef _PAT_SELECT_DTO_H_
 #define _PAT_SELECT_DTO_H_
 
@@ -7,43 +7,45 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * µ¯´°Ñ¡Ôñ»¼Õßµ¥ÐÐÊý¾Ý£¨¾«¼ò×Ö¶Î£¬ÊÊÅäµ¯´°±í¸ñ£©
+ * One row in select-patient popup table.
  */
 class PatSelectDTO : public oatpp::DTO
 {
 	DTO_INIT(PatSelectDTO, DTO);
 
-	DTO_FIELD(String, busNo);		// ²¡ÀúºÅ
+	// Medical record number (bus_no)
+	DTO_FIELD(String, busNo);
 	DTO_FIELD_INFO(busNo) {
 		info->description = ZH_WORDS_GETTER("pat.select.dto.field.medicalNo");
 	}
 
-	DTO_FIELD(String, name);			// ÐÕÃû
+	DTO_FIELD(String, name);
 	DTO_FIELD_INFO(name) {
 		info->description = ZH_WORDS_GETTER("pat.select.dto.field.name");
 	}
 
-	DTO_FIELD(String, gender);			// ÐÔ±ð 1ÄÐ 2Å®
+	// Display gender text, e.g. ç”·æ€§ / å¥³æ€§
+	DTO_FIELD(String, gender);
 	DTO_FIELD_INFO(gender) {
 		info->description = ZH_WORDS_GETTER("pat.select.dto.field.gender");
 	}
 
-	DTO_FIELD(String, birthDate);		// ³öÉúÈÕÆÚ
+	DTO_FIELD(String, birthDate);
 	DTO_FIELD_INFO(birthDate) {
 		info->description = ZH_WORDS_GETTER("pat.select.dto.field.birthDay");
 	}
 
-	DTO_FIELD(Int32, age);				// ÄêÁä
+	DTO_FIELD(Int32, age);
 	DTO_FIELD_INFO(age) {
 		info->description = ZH_WORDS_GETTER("pat.select.dto.field.age");
 	}
 
-	DTO_FIELD(String, phone);			// ÁªÏµµç»°
+	DTO_FIELD(String, phone);
 	DTO_FIELD_INFO(phone) {
 		info->description = ZH_WORDS_GETTER("pat.select.dto.field.phone");
 	}
 
-	DTO_FIELD(String, idCard);			// Éí·ÝÖ¤ºÅ
+	DTO_FIELD(String, idCard);
 	DTO_FIELD_INFO(idCard) {
 		info->description = ZH_WORDS_GETTER("pat.select.dto.field.idCard");
 	}

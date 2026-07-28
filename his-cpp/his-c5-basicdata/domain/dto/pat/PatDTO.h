@@ -8,7 +8,7 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * 患者列表单行数据DTO
+ * 鎮ｈ�呯鐞嗗垪琛ㄦ暟鎹紶杈撳璞TO
  */
 class PatDTO : public oatpp::DTO
 {
@@ -37,6 +37,11 @@ class PatDTO : public oatpp::DTO
 	DTO_FIELD(Int32, age);
 	DTO_FIELD_INFO(age) {
 		info->description = ZH_WORDS_GETTER("pat.dto.field.age");
+	}
+
+	DTO_FIELD(String, phone);
+	DTO_FIELD_INFO(phone) {
+		info->description = ZH_WORDS_GETTER("pat.dto.field.phone");
 	}
 };
 
