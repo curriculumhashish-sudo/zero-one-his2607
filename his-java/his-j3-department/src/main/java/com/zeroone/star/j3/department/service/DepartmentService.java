@@ -1,10 +1,14 @@
 package com.zeroone.star.j3.department.service;
 
+import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j3.department.DepartmentBatchDTO;
 import com.zeroone.star.project.dto.j3.department.DepartmentCreateDTO;
+import com.zeroone.star.project.dto.j3.department.DepartmentUpdateDTO;
+import com.zeroone.star.project.query.j3.department.DepartmentQuery;
 import com.zeroone.star.project.query.j3.department.DepartmentTreeQuery;
 import com.zeroone.star.project.vo.j3.department.DepartmentDetailVO;
 import com.zeroone.star.project.vo.j3.department.DepartmentTreeVO;
+import com.zeroone.star.project.vo.j3.department.DepartmentVO;
 
 import java.util.List;
 
@@ -19,13 +23,9 @@ import java.util.List;
  * @version 1.0.0
  */
 public interface DepartmentService {
-    /**
-     * 获取科室名称树（支持门诊/住院筛选）
-     *
-     * @param query 查询参数
-     * @return 科室树列表
-     * @author 胡傲宇
-     */
+
+    PageDTO<DepartmentVO> getDepartmentPage(DepartmentQuery query);
+
     List<DepartmentTreeVO> getDepartmentTree(DepartmentTreeQuery query);
 
     /**
@@ -46,10 +46,19 @@ public interface DepartmentService {
     void createDepartment(DepartmentCreateDTO dto) throws Exception;
 
     /**
-     * 启用/停用科室(支持批量)
+     * 修改科室信息。
      *
-     * @param dto 批量操作科室状态DTO
-     * @author 胡傲宇
+     * @param id  科室ID
+     * @param dto 修改内容
      */
+    void updateDepartment(String id, DepartmentUpdateDTO dto);
+
+    /**
+     * 删除科室（逻辑删除）。
+     *
+     * @param id 科室ID
+     */
+    void deleteDepartment(String id);
+
     void activeOrInactiveDepartment(DepartmentBatchDTO dto);
 }

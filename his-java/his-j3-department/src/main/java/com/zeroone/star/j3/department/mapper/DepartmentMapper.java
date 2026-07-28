@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.zeroone.star.j3.department.entity.DepartmentDO;
 import com.zeroone.star.j3.department.entity.DepartmentUnitDO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -17,13 +20,8 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface DepartmentMapper extends BaseMapper<DepartmentDO> {
-    /**
-     * 根据父ID查询父部门的业务编号
-     *
-     * @param parentId 父部门ID
-     * @return 父部门的业务编号
-     * @author 胡傲宇
-     */
+    DepartmentDO selectUpdateDepartmentById(@Param("id") String id);
+
     String getParentBusNo(Long parentId);
 
     /**
@@ -61,19 +59,40 @@ public interface DepartmentMapper extends BaseMapper<DepartmentDO> {
      */
     Long selectParentUnitIdByBusNo(String parentBusNO);
 
-    /**
-     * 增加序列值
-     *
-     * @param seqKey 序列键
-     * @author 胡傲宇
-     */
-    void incrementSequence(String seqKey);
+    int isDoctorAvailable(@Param("defDoctorId") String defDoctorId,
+                          @Param("tenantId") String tenantId);
+
+    Long selectUnitIdByBusNo(@Param("busNo") String busNo,
+                             @Param("tenantId") String tenantId);
+
+    int countUndeletedChildDepartments(@Param("parentId") String parentId,
+                                       @Param("tenantId") String tenantId);
+
+    int existsDeleteBusinessReference(@Param("departmentId") String departmentId,
+                                      @Param("tenantId") String tenantId);
+
+    int softDeleteDepartment(@Param("id") String id,
+                             @Param("tenantId") String tenantId,
+                             @Param("version") Integer version,
+                             @Param("deletedAt") LocalDateTime deletedAt,
+                             @Param("deletedBy") String deletedBy);
+
+    int softDeleteUnitByCode(@Param("code") String code,
+                             @Param("tenantId") String tenantId,
+                             @Param("deletedAt") LocalDateTime deletedAt,
+                             @Param("deletedBy") String deletedBy);
 
     /**
-     * 获取当前序列值
+     * 按科室业务编码同步组织单元的可编辑信息。
      *
-     * @return 当前序列值
-     * @author 胡傲宇
+     * @return 更新行数
      */
-    Long getCurrentValueAfterIncrement();
+    int updateUnitByCode(@Param("code") String code,
+                         @Param("displayName") String displayName,
+                         @Param("sortOrder") Integer sortOrder,
+                         @Param("parentIdChanged") boolean parentIdChanged,
+                         @Param("parentId") Long parentId,
+                         @Param("updatedAt") LocalDateTime updatedAt,
+                         @Param("updatedBy") Long updatedBy,
+                         @Param("tenantId") String tenantId);
 }
