@@ -1,44 +1,59 @@
-#pragma once
+ï»¿#pragma once
+/*
+ Copyright Zero One Star. All rights reserved.
 
+ @Author: awei
+ @Date: 2022/10/25 14:23:49
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+	  https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+*/
 #ifndef _TREATMENT_DAO_
 #define _TREATMENT_DAO_
 #include "BaseDAO.h"
 #include "../../domain/do/treatment/WkfActivityDefinitionDo.h"
 #include "../../domain/do/treatment/WkfActivityDefinitionChildrenDo.h"
-#include "../../domain/do/treatment/AdmEpisodeOfCareEncounterDO.h"
-#include "../../domain/do/treatment/AdmEpisodeOfCareDO.h"
 #include "../../domain/query/treatment/TreatmentQuery.h"
 
 /**
- * Ê¾Àı±íÊı¾İ¿â²Ù×÷ÊµÏÖ
+ * è¯Šç–—è¡¨æ•°æ®åº“æ“ä½œå®ç°
  */
 class TreatmentDAO : public BaseDAO
 {
 private:
 	//************************************
 	// Method:      queryConditionBuilder
-	// FullName:    SampleDAO::queryConditionBuilder
-	// Access:      private 
-	// Returns:     std::string ·µ»ØÌõ¼şSQLÓï¾ä£¬¼´WHERE²¿·ÖµÄÓï¾ä
-	// Parameter:   const SampleQuery::Wrapper& query ²éÑ¯Êı¾İ¶ÔÏó
-	// Parameter:   SqlParams& params ´æ·Å²éÑ¯Êı¾İµÄ²ÎÊı¶ÔÏó
-	// Description: ²éÑ¯Ìõ¼ş¹¹½¨Æ÷£¬¸ù¾İSampleQuery¶ÔÏó¶¯Ì¬¹¹½¨²éÑ¯Ìõ¼şÏà¹Ø²ÎÊı
+	// FullName:    TreatmentDAO::queryConditionBuilder
+	// Access:      private
+	// Returns:     std::string è¿”å›æ¡ä»¶SQLè¯­å¥ï¼Œå³WHEREéƒ¨åˆ†çš„è¯­å¥
+	// Parameter:   const TreatmentQuery::Wrapper& query æŸ¥è¯¢æ•°æ®å¯¹è±¡
+	// Parameter:   SqlParams& params å­˜æ”¾æŸ¥è¯¢æ•°æ®çš„å‚æ•°å¯¹è±¡
+	// Description: æŸ¥è¯¢æ¡ä»¶æ„å»ºå™¨ï¼Œæ ¹æ®TreatmentQueryå¯¹è±¡åŠ¨æ€æ„å»ºæŸ¥è¯¢æ¡ä»¶ç›¸å…³å‚æ•°
 	//************************************
 	inline std::string queryConditionBuilder(const TreatmentQuery::Wrapper& query, SqlParams& params);
 public:
-	// Í³¼ÆÊı¾İÌõÊı
+	// ç»Ÿè®¡æ•°æ®æ¡æ•°
 	uint64_t count(const TreatmentQuery::Wrapper& query);
-	// ·ÖÒ³²éÑ¯Êı¾İ
+	// åˆ†é¡µæŸ¥è¯¢æ•°æ®
 	std::list<TreatmentDO> selectWithPage(const TreatmentQuery::Wrapper& query);
-	// Í¨¹ıĞÕÃû²éÑ¯Êı¾İ
+	// é€šè¿‡åç§°æ¨¡ç³ŠæŸ¥è¯¢æ•°æ®
 	std::list<TreatmentDO> selectByName(const string& name);
-	// Í¨¹ıID²éÑ¯Êı¾İ
+	// é€šè¿‡IDæŸ¥è¯¢æ•°æ®
 	PtrTreatmentDO selectById(std::string id);
-	// °´ activity_id ²éÑ¯×ÓÏî
+	// æŒ‰ activity_id æŸ¥è¯¢å­é¡¹
 	std::list<TreatmentChildDO> selectChildrenByActivityId(const std::string& activityId);
-	// °´ activity_id ÈíÉ¾³ı×ÓÏî
+	// æŒ‰ activity_id è½¯åˆ é™¤å­é¡¹
 	int32_t softDeleteChildrenByActivityId(const std::string& activityId, const std::string& deletedBy, const std::string& deletedAt);
-	// ÅúÁ¿IDÈíÉ¾³ı£º±ê×¼ÈİÆ÷std::listÇ¶Ì×std::string
+	// æŒ‰ä¸»é”®åˆ—è¡¨è½¯åˆ é™¤
 	int32_t removeData(std::list<std::string>& ids);
 };
 #endif // !_TREATMENT_DAO_

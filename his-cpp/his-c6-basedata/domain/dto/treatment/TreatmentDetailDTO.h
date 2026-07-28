@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -20,30 +20,26 @@
 #ifndef _TREATMENTDETAILDTO_H_
 #define _TREATMENTDETAILDTO_H_
 
-#include "../../GlobalInclude.h"
-#include "TreatmentChildDTO.h"
+#include "TreatmentAddDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-
-class TreatmentDetailDTO : public oatpp::DTO
+/**
+ * 诊疗详情数据传输对象
+ * 对齐编辑诊疗原型：基础信息 + 医保信息 + 子项
+ */
+class TreatmentDetailDTO : public TreatmentAddDTO
 {
-	DTO_INIT(TreatmentDetailDTO, DTO);
+	DTO_INIT(TreatmentDetailDTO, TreatmentAddDTO);
 
 	// 主键
 	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("treatment.field.id"), true);
-	// 编码
+	// 业务编码
 	API_DTO_FIELD_REQUIRE(String, code, ZH_WORDS_GETTER("treatment.field.code"), true);
-	// 项目名
-	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("treatment.field.name"), true);
 	// 状态
 	API_DTO_FIELD_REQUIRE(String, status, ZH_WORDS_GETTER("treatment.field.status"), true);
-	// 分类
-	API_DTO_FIELD_REQUIRE(String, classification, ZH_WORDS_GETTER("treatment.field.classification"), true);
-	// 价格
-	API_DTO_FIELD_REQUIRE(String, price, ZH_WORDS_GETTER("treatment.field.price"), true);
 };
 
 #include OATPP_CODEGEN_END(DTO)
 
-#endif 
+#endif // !_TREATMENTDETAILDTO_H_

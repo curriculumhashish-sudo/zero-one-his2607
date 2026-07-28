@@ -36,96 +36,112 @@
 #define API_TAG2 ZH_WORDS_GETTER("treatment.tags.tag2")
 class TreatmentController : public oatpp::web::server::api::ApiController
 {
-	// æƒé™ç›¸å…³å£°æ˜
+	// È¨ÏŞÏà¹ØÉùÃ÷
 	API_ACCESS_DECLARE(TreatmentController);
-public: // æ¥å£å®šä¹‰
-	// è·å–è¯Šç–—è¯¦æƒ…ï¼šæ¥å£ä¿¡æ¯
-	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("treatment.query-by-id.summary"), queryOneTreatment,
+public: // ½Ó¿Ú¶¨Òå
+	// Í¨¹ıID»ñÈ¡ÕïÁÆÏêÇé£º½Ó¿ÚĞÅÏ¢
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("treatment.query-by-id.summary"), queryTreatmentById,
 		TreatmentDetailJsonVO::Wrapper, API_TAG,
 		API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("treatment.field.id"), "184000000000000001", true););
-	// è·å–è¯Šç–—è¯¦æƒ…ï¼šæ¥å£ç»‘å®š
-	API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/treatment/query-by-id", queryOneTreatment, QUERY(String, id), execQueryOne(id));
+	// Í¨¹ıID»ñÈ¡ÕïÁÆÏêÇé£º½Ó¿Ú°ó¶¨
+	API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/treatment/query-by-id", queryTreatmentById, QUERY(String, id), execQueryById(id));
 
-	// æ–°å¢è¯Šç–—ï¼šæ¥å£ä¿¡æ¯
+	// ĞÂÔöÕïÁÆ£º½Ó¿ÚĞÅÏ¢
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("treatment.add.summary"), addTreatment, StringJsonVO::Wrapper, API_TAG);
-	// æ–°å¢è¯Šç–—ï¼šæ¥å£ç»‘å®š
+	// ĞÂÔöÕïÁÆ£º½Ó¿Ú°ó¶¨
 	API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/treatment/add-treatment", addTreatment,
 		BODY_DTO(TreatmentAddDTO::Wrapper, dto), execAddTreatment(dto, authObject->getPayload()));
 
-	// ä¿®æ”¹è¯Šç–—ï¼šæ¥å£ä¿¡æ¯
+	// ĞŞ¸ÄÕïÁÆ£º½Ó¿ÚĞÅÏ¢
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("treatment.modify.summary"), modifyTreatment, StringJsonVO::Wrapper, API_TAG);
-	// ä¿®æ”¹è¯Šç–—ï¼šæ¥å£ç»‘å®š
+	// ĞŞ¸ÄÕïÁÆ£º½Ó¿Ú°ó¶¨
 	API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/treatment/modify-treatment", modifyTreatment,
 		BODY_DTO(TreatmentModifyDTO::Wrapper, dto), execModifyTreatment(dto, authObject->getPayload()));
 
-	// å¯/åœç”¨è¯Šç–—ï¼ˆæ”¯æŒæ‰¹é‡ï¼‰ï¼šæ¥å£ä¿¡æ¯
+	// Æô/Í£ÓÃÕïÁÆ£¨Ö§³ÖÅúÁ¿£©£º½Ó¿ÚĞÅÏ¢
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("treatment.modify-status.summary"), modifyTreatmentStatus, StringJsonVO::Wrapper, API_TAG);
-	// å¯/åœç”¨è¯Šç–—ï¼ˆæ”¯æŒæ‰¹é‡ï¼‰ï¼šæ¥å£ç»‘å®š
+	// Æô/Í£ÓÃÕïÁÆ£¨Ö§³ÖÅúÁ¿£©£º½Ó¿Ú°ó¶¨
 	API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/treatment/modify-status", modifyTreatmentStatus,
 		BODY_DTO(TreatmentStatusDTO::Wrapper, dto), execModifyStatus(dto, authObject->getPayload()));
 
-	// åˆ é™¤è¯Šç–—ï¼ˆæ”¯æŒæ‰¹é‡ï¼‰ï¼šæ¥å£ä¿¡æ¯
+	// É¾³ıÕïÁÆ£¨Ö§³ÖÅúÁ¿£©£º½Ó¿ÚĞÅÏ¢
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("treatment.remove.summary"), removeTreatment, ListJsonVO<String>::Wrapper, API_TAG);
-	// åˆ é™¤è¯Šç–—ï¼ˆæ”¯æŒæ‰¹é‡ï¼‰ï¼šæ¥å£ç»‘å®š
-	API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/treatment/remove-treatment", removeTreatment,BODY_DTO(List<String>, ids), execRemoveTreatment(ids));
+	// É¾³ıÕïÁÆ£¨Ö§³ÖÅúÁ¿£©£º½Ó¿Ú°ó¶¨
+	API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/treatment/remove-treatment", removeTreatment, BODY_DTO(List<String>, ids), execRemoveTreatment(ids));
 
-	// è·å–é€‰æ‹©è¯Šç–—åˆ—è¡¨ï¼ˆæ¡ä»¶+åˆ†é¡µï¼‰ï¼šæ¥å£ä¿¡æ¯
+	// »ñÈ¡Ñ¡ÔñÕïÁÆÁĞ±í£¨Ìõ¼ş+·ÖÒ³£©£º½Ó¿ÚĞÅÏ¢
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("treatment.query-select.summary"), querySelectTreatment,
 		TreatmentQuery, TreatmentSelectPageJsonVO::Wrapper, API_TAG);
-	// è·å–é€‰æ‹©è¯Šç–—åˆ—è¡¨ï¼ˆæ¡ä»¶+åˆ†é¡µï¼‰ï¼šæ¥å£ç»‘å®š
+	// »ñÈ¡Ñ¡ÔñÕïÁÆÁĞ±í£¨Ìõ¼ş+·ÖÒ³£©£º½Ó¿Ú°ó¶¨
 	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/treatment/query-select", querySelectTreatment,
 		TreatmentQuery, execQuerySelect(query));
 
-	// è·å–è¯Šç–—åˆ—è¡¨ï¼ˆæ¡ä»¶+åˆ†é¡µï¼‰ï¼šæ¥å£ä¿¡æ¯
+	// »ñÈ¡ÕïÁÆÁĞ±í£¨Ìõ¼ş+·ÖÒ³£©£º½Ó¿ÚĞÅÏ¢
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("treatment.query.summary"), queryTreatment,
 		TreatmentQuery, TreatmentPageJsonVO::Wrapper, API_TAG);
-	// è·å–è¯Šç–—åˆ—è¡¨ï¼ˆæ¡ä»¶+åˆ†é¡µï¼‰ï¼šæ¥å£ç»‘å®š
+	// »ñÈ¡ÕïÁÆÁĞ±í£¨Ìõ¼ş+·ÖÒ³£©£º½Ó¿Ú°ó¶¨
 	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/treatment/query", queryTreatment,
 		TreatmentQuery, execQueryTreatment(query));
 
-	// 3.1 å®šä¹‰æµ‹è¯•å£°æ˜å¼æœåŠ¡è°ƒç”¨çš„æ¥å£2æè¿°
+	// µ¼ÈëÕïÁÆ£º½Ó¿ÚĞÅÏ¢
+	API_DEF_ENDPOINT_INFO_FILE_AUTH(ZH_WORDS_GETTER("treatment.import.summary"), importTreatment, TreatmentImportDTO::Wrapper, StringJsonVO::Wrapper, API_TAG);
+	// µ¼ÈëÕïÁÆ£º½Ó¿Ú°ó¶¨
+	API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/treatment/import", importTreatment, REQUEST(std::shared_ptr<IncomingRequest>, request), execImportTreatment(request, authObject->getPayload()));
+
+	// 3.1 ¶¨Òå²âÊÔÉùÃ÷Ê½·şÎñµ÷ÓÃµÄ½Ó¿Ú1ÃèÊö
+	API_DEF_ENDPOINT_INFO_AUTH(
+		ZH_WORDS_GETTER("treatment.query-one.summary"), queryOne, TreatmentDetailJsonVO::Wrapper, API_TAG2,
+		API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("treatment.field.id"), "184000000000000001", true););
+	// 3.2 ¶¨Òå²âÊÔÉùÃ÷Ê½·şÎñµ÷ÓÃµÄ½Ó¿Ú1´¦Àí
+	API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/treatment/query-one", queryOne, QUERY(String, id), execQueryOne(id, authObject->getPayload()));
+
+	// 3.1 ¶¨Òå²âÊÔÉùÃ÷Ê½·şÎñµ÷ÓÃµÄ½Ó¿Ú2ÃèÊö
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("treatment.query-all.summary"), queryAll, TreatmentQuery, TreatmentPageJsonVO::Wrapper, API_TAG2);
-	// 3.2 å®šä¹‰æµ‹è¯•å£°æ˜å¼æœåŠ¡è°ƒç”¨çš„æ¥å£2å¤„ç†
+	// 3.2 ¶¨Òå²âÊÔÉùÃ÷Ê½·şÎñµ÷ÓÃµÄ½Ó¿Ú2´¦Àí
 	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/treatment/query-all", queryAll, TreatmentQuery, execQueryAll(query, authObject->getPayload()));
 
-	// 3.1 å®šä¹‰å¯¼å‡ºæ¥å£æè¿°Excel
+	// 3.1 ¶¨Òåµ¼³ö½Ó¿ÚÃèÊöExcel
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("treatment.export.summary"), exportTreatment, TreatmentQuery, Void, API_TAG);
-	// 3.2 å®šä¹‰å¯¼å‡ºæ¥å£å¤„ç†
+	// 3.2 ¶¨Òåµ¼³ö½Ó¿Ú´¦Àí
 	API_HANDLER_ENDPOINT_OPTION_AUTH(API_M_GET, "/treatment/export", exportTreatment, QUERIES(QueryParams, queryParams),
 		API_HANDLER_QUERY_PARAM(query, TreatmentQuery, queryParams); return execExportTreatment(query););
 
-	// 3.1 å®šä¹‰å¯¼å‡ºæ¥å£æè¿°pdf
+	// 3.1 ¶¨Òåµ¼³ö½Ó¿ÚÃèÊöpdf
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("treatment.export-pdf.summary"), exportTreatmentPdf, TreatmentQuery, StringJsonVO::Wrapper, API_TAG);
-	// 3.2 å®šä¹‰å¯¼å‡ºæ¥å£å¤„ç†
+	// 3.2 ¶¨Òåµ¼³ö½Ó¿Ú´¦Àí
 	API_HANDLER_ENDPOINT_OPTION_AUTH(API_M_GET, "/treatment/export-pdf", exportTreatmentPdf, QUERIES(QueryParams, queryParams),
 		API_HANDLER_QUERY_PARAM(query, TreatmentQuery, queryParams); API_HANDLER_RESP_VO(execExportTreatmentPdf(query)););
 
-private: // æ¥å£æ‰§è¡Œå‡½æ•°
-	// è·å–è¯Šç–—è¯¦æƒ…ï¼šæ‰§è¡Œå‡½æ•°
-	TreatmentDetailJsonVO::Wrapper execQueryOne(const String& id);
-	// æ–°å¢è¯Šç–—ï¼šæ‰§è¡Œå‡½æ•°
+private: // ½Ó¿ÚÖ´ĞĞº¯Êı
+	// Í¨¹ıID»ñÈ¡ÕïÁÆÏêÇé
+	TreatmentDetailJsonVO::Wrapper execQueryById(const String& id);
+	// ÉùÃ÷Ê½·şÎñ²éÑ¯Ò»Ìõ
+	TreatmentDetailJsonVO::Wrapper execQueryOne(const String& id, const PayloadDTO& payload);
+	// µ¼ÈëÕïÁÆ
+	StringJsonVO::Wrapper execImportTreatment(std::shared_ptr<IncomingRequest> request, const PayloadDTO& payload);
+	// ĞÂÔöÕïÁÆ£ºÖ´ĞĞº¯Êı
 	StringJsonVO::Wrapper execAddTreatment(const TreatmentAddDTO::Wrapper& dto, const PayloadDTO& payload);
-	// ä¿®æ”¹è¯Šç–—ï¼šæ‰§è¡Œå‡½æ•°
+	// ĞŞ¸ÄÕïÁÆ£ºÖ´ĞĞº¯Êı
 	StringJsonVO::Wrapper execModifyTreatment(const TreatmentModifyDTO::Wrapper& dto, const PayloadDTO& payload);
 
-	// å¯/åœç”¨è¯Šç–—ï¼ˆæ”¯æŒæ‰¹é‡ï¼‰ï¼šæ‰§è¡Œå‡½æ•°
+	// Æô/Í£ÓÃÕïÁÆ£¨Ö§³ÖÅúÁ¿£©£ºÖ´ĞĞº¯Êı
 	StringJsonVO::Wrapper execModifyStatus(const TreatmentStatusDTO::Wrapper& dto, const PayloadDTO& payload);
 
-	// 3.3 æ¼”ç¤ºåˆ é™¤æ•°æ®
+	// ÑİÊ¾É¾³ıÊı¾İ
 	ListJsonVO<String>::Wrapper execRemoveTreatment(const List<String>& ids);
 
-	// è·å–é€‰æ‹©è¯Šç–—åˆ—è¡¨ï¼ˆæ¡ä»¶+åˆ†é¡µï¼‰ï¼šæ‰§è¡Œå‡½æ•°
+	// »ñÈ¡Ñ¡ÔñÕïÁÆÁĞ±í£¨Ìõ¼ş+·ÖÒ³£©£ºÖ´ĞĞº¯Êı
 	TreatmentSelectPageJsonVO::Wrapper execQuerySelect(const TreatmentQuery::Wrapper& query);
 
-	// è·å–è¯Šç–—åˆ—è¡¨ï¼ˆæ¡ä»¶+åˆ†é¡µï¼‰ï¼šæ‰§è¡Œå‡½æ•°
+	// »ñÈ¡ÕïÁÆÁĞ±í£¨Ìõ¼ş+·ÖÒ³£©£ºÖ´ĞĞº¯Êı
 	TreatmentPageJsonVO::Wrapper execQueryTreatment(const TreatmentQuery::Wrapper& query);
 
-	// 3.3 æµ‹è¯•å£°æ˜å¼æœåŠ¡è°ƒç”¨2
+	// ²âÊÔÉùÃ÷Ê½·şÎñµ÷ÓÃ2
 	TreatmentPageJsonVO::Wrapper execQueryAll(const TreatmentQuery::Wrapper& query, const PayloadDTO& payload);
 
-	// 3.3 æ¼”ç¤ºå¯¼å‡ºæ•°æ®
+	// ÑİÊ¾µ¼³öÊı¾İ
 	std::shared_ptr<OutgoingResponse> execExportTreatment(const TreatmentQuery::Wrapper& query);
-	// 3.3 æ¼”ç¤ºå¯¼å‡ºæ•°æ®(PDF)
+	// ÑİÊ¾µ¼³öÊı¾İ(PDF)
 	StringJsonVO::Wrapper execExportTreatmentPdf(const TreatmentQuery::Wrapper& query);
 };
 

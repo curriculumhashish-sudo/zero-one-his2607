@@ -24,35 +24,49 @@
 #include "ExcelComponent.h"
 #include "SimpleDateTimeFormat.h"
 #include "PdfComponent.h"
-// åˆ—è¡¨åˆ†é¡µ
+
+// ÁĞ±í·ÖÒ³
 TreatmentPageJsonVO::Wrapper TreatmentController::execQueryTreatment(const TreatmentQuery::Wrapper& query)
 {
-	// æŸ¥è¯¢æ•°æ®
+	// ²éÑ¯Êı¾İ
 	auto result = TreatmentService().listAll(query);
-	// å“åº”ç»“æœ
+	// ÏìÓ¦½á¹û
 	auto jvo = TreatmentPageJsonVO::createShared();
 	jvo->success(result);
 	return jvo;
 }
 
-TreatmentDetailJsonVO::Wrapper TreatmentController::execQueryOne(const String& id)
+// Í¨¹ıID²éÑ¯
+TreatmentDetailJsonVO::Wrapper TreatmentController::execQueryById(const String& id)
 {
-	// å®šä¹‰è¿”å›æ•°æ®å¯¹è±¡
+	// ¶¨Òå·µ»ØÊı¾İ¶ÔÏó
 	auto jvo = TreatmentDetailJsonVO::createShared();
 
-	// å‚æ•°æ ¡éªŒï¼šéç©ºæ ¡éªŒ
-	if (!id || id->empty())
+	// ²ÎÊıĞ£Ñé
+	// ·Ç¿ÕĞ£Ñé
+	if (!id)
 	{
 		jvo->init(nullptr, RS_PARAMS_INVALID);
 		return jvo;
 	}
 
-	// æ‰§è¡Œæ•°æ®æŸ¥è¯¢
+	// Ö´ĞĞÊı¾İ²éÑ¯
 	auto res = TreatmentService().getById(id.getValue({}));
 	jvo->success(res);
 
-	// å“åº”ç»“æœ
+	// ÏìÓ¦½á¹û
 	return jvo;
+}
+
+// ÉùÃ÷Ê½·şÎñ1
+TreatmentDetailJsonVO::Wrapper TreatmentController::execQueryOne(const String& id, const PayloadDTO& payload)
+{
+	// ´´½¨¿Í»§¶Ë¶ÔÏó
+	API_CLIENT_CREATE(ac, om, TreatmentApiClient, "treatment-api");
+	// ¹¹½¨Æ¾Ö¤
+	std::string token = PayloadDTO::getTokenPrefix() + payload.getToken();
+	// ·µ»Ø²éÑ¯½á¹û
+	return ac->queryById(token, id)->readBodyToDto<TreatmentDetailJsonVO::Wrapper>(om);
 }
 
 StringJsonVO::Wrapper TreatmentController::execModifyStatus(const TreatmentStatusDTO::Wrapper& dto, const PayloadDTO& payload)
@@ -67,19 +81,18 @@ StringJsonVO::Wrapper TreatmentController::execModifyStatus(const TreatmentStatu
 	return vo;
 }
 
-
-// åˆ é™¤ï¼ˆæ”¯æŒæ‰¹é‡ï¼‰
+// É¾³ı£¨Ö§³ÖÅúÁ¿£©
 ListJsonVO<String>::Wrapper TreatmentController::execRemoveTreatment(const List<String>& ids)
 {
-	// å®šä¹‰è¿”å›æ•°æ®å¯¹è±¡
+	// ¶¨Òå·µ»ØÊı¾İ¶ÔÏó
 	auto jvo = ListJsonVO<String>::createShared();
-	// å‚æ•°æ ¡éªŒ
+	// ²ÎÊıĞ£Ñé
 	if (ids->empty())
 	{
 		jvo->init(nullptr, RS_PARAMS_INVALID);
 		return jvo;
 	}
-	// æ‰§è¡Œæ•°æ®åˆ é™¤
+	// Ö´ĞĞÊı¾İÉ¾³ı
 	if (TreatmentService().removeData(ids)) {
 		jvo->success(ids);
 	}
@@ -87,7 +100,7 @@ ListJsonVO<String>::Wrapper TreatmentController::execRemoveTreatment(const List<
 	{
 		jvo->fail(nullptr);
 	}
-	// å“åº”ç»“æœ
+	// ÏìÓ¦½á¹û
 	return jvo;
 }
 
@@ -100,29 +113,92 @@ TreatmentSelectPageJsonVO::Wrapper TreatmentController::execQuerySelect(const Tr
 	jvo->success(result);
 	return jvo;
 }
-// å£°æ˜å¼æœåŠ¡æ¥å£2
+
+// ÉùÃ÷Ê½·şÎñ½Ó¿Ú2
 TreatmentPageJsonVO::Wrapper TreatmentController::execQueryAll(const TreatmentQuery::Wrapper& query, const PayloadDTO& payload)
 {
-	// åˆ›å»ºå®¢æˆ·ç«¯å¯¹è±¡
+	// ´´½¨¿Í»§¶Ë¶ÔÏó
 	API_CLIENT_CREATE(ac, om, TreatmentApiClient, "treatment-api");
-	// æ„å»ºå‡­è¯
+	// ¹¹½¨Æ¾Ö¤
 	std::string token = PayloadDTO::getTokenPrefix() + payload.getToken();
-	// è¿”å›æŸ¥è¯¢ç»“æœ
+	// ·µ»Ø²éÑ¯½á¹û
 	return ac->queryAll(token, query->pageIndex, query->pageSize, URIUtil::urlEncode(query->keywords))->readBodyToDto<TreatmentPageJsonVO::Wrapper>(om);
+}
+
+// µ¼ÈëÕïÁÆ
+StringJsonVO::Wrapper TreatmentController::execImportTreatment(std::shared_ptr<IncomingRequest> request, const PayloadDTO& payload)
+{
+	// 0 ¶¨Òå·µ»ØÊı¾İ¶ÔÏó
+	auto jvo = StringJsonVO::createShared();
+	// 1 ³õÊ¼»¯
+	API_MULTIPART_INIT(container, reader);
+	// 2 ÅäÖÃ¶ÁÈ¡Æ÷
+	API_MULTIPART_CONFIG_MEMO_DEFAULT(reader, -1);
+	// 3 ¶ÁÈ¡Êı¾İ
+	request->transferBody(&reader);
+	// 4 »ñÈ¡ÎÄ¼şÊı¾İ
+	API_MULTIPART_PARSE_FILE_FIELD(container, "excel", file);
+	if (!file)
+	{
+		jvo->init("not set excel file.", RS_PARAMS_INVALID);
+		return jvo;
+	}
+	// 5 ½âÎöÓëĞ£ÑéÊı¾İ
+	std::string errmsg = "";
+	oatpp::List<TreatmentAddDTO::Wrapper> exceldata = oatpp::List<TreatmentAddDTO::Wrapper>::createShared();
+	ExcelComponent::read(file->data(), file->size(), "treatment", [exceldata, &errmsg, &payload](xlnt::worksheet* sheet) {
+		// ÖğĞĞ½âÎöÊı¾İ
+		int rn = 0;
+		for (auto row : sheet->rows())
+		{
+			// Ìø¹ı±íÍ·
+			if (rn++ == 0) continue;
+			// ½âÎöÊı¾İµ½DTO£¨ÁĞ£ºname, categoryCode, typeEnum, packageUnitCode, pyStr, wbStr, descriptionText£©
+			auto dto = TreatmentAddDTO::createShared();
+			dto->name = row[0].to_string();
+			dto->categoryCode = row[1].to_string();
+			dto->typeEnum = std::atoi(row[2].to_string().c_str());
+			// Ğ£ÑéÊı¾İ
+			errmsg = dto->validate();
+			if (errmsg != "")
+			{
+				errmsg = "row(" + std::to_string(rn) + ") data error, " + errmsg;
+				return;
+			}
+			// Êı¾İ´æ´¢µ½Ìí¼ÓÁĞ±íÖĞ
+			dto->setPayload(&payload);
+			exceldata->push_back(dto);
+		}
+		});
+	if (errmsg != "")
+	{
+		jvo->init(errmsg, RS_PARAMS_INVALID);
+		return jvo;
+	}
+	if (exceldata->size() == 0)
+	{
+		jvo->init("excel file no data or not excel file.", RS_PARAMS_INVALID);
+		return jvo;
+	}
+
+	// 6 ±£´æÊı¾İ
+	bool res = TreatmentService().saveDataBatch(exceldata);
+	if (res)
+	{
+		jvo->success(nullptr);
+		return jvo;
+	}
+	jvo->fail(nullptr);
+	return jvo;
 }
 
 StringJsonVO::Wrapper TreatmentController::execAddTreatment(
 	const TreatmentAddDTO::Wrapper& dto, const PayloadDTO& payload)
 {
-	// å®šä¹‰è¿”å›æ•°æ®å¯¹è±¡
+	// ¶¨Òå·µ»ØÊı¾İ¶ÔÏó
 	auto jvo = StringJsonVO::createShared();
 
-	// å‚æ•°æ ¡éªŒ
-	if (!dto)
-	{
-		jvo->init(nullptr, RS_PARAMS_INVALID);
-		return jvo;
-	}
+	// ²ÎÊıĞ£Ñé
 	std::string errmsg = dto->validate();
 	if (errmsg != "")
 	{
@@ -130,7 +206,7 @@ StringJsonVO::Wrapper TreatmentController::execAddTreatment(
 		return jvo;
 	}
 
-	// æ‰§è¡Œæ•°æ®æ–°å¢
+	// Ö´ĞĞÊı¾İĞÂÔö
 	dto->setPayload(&payload);
 	std::string id = TreatmentService().saveData(dto);
 	if (id != "") {
@@ -140,22 +216,17 @@ StringJsonVO::Wrapper TreatmentController::execAddTreatment(
 	{
 		jvo->fail("");
 	}
-	// å“åº”ç»“æœ
+	// ÏìÓ¦½á¹û
 	return jvo;
 }
 
 StringJsonVO::Wrapper TreatmentController::execModifyTreatment(
 	const TreatmentModifyDTO::Wrapper& dto, const PayloadDTO& payload)
 {
-	// å®šä¹‰è¿”å›æ•°æ®å¯¹è±¡
+	// ¶¨Òå·µ»ØÊı¾İ¶ÔÏó
 	auto jvo = StringJsonVO::createShared();
 
-	// å‚æ•°æ ¡éªŒ
-	if (!dto)
-	{
-		jvo->init(nullptr, RS_PARAMS_INVALID);
-		return jvo;
-	}
+	// ²ÎÊıĞ£Ñé
 	std::string errmsg = dto->validate();
 	if (errmsg != "")
 	{
@@ -163,7 +234,7 @@ StringJsonVO::Wrapper TreatmentController::execModifyTreatment(
 		return jvo;
 	}
 
-	// æ‰§è¡Œæ•°æ®ä¿®æ”¹
+	// Ö´ĞĞÊı¾İĞŞ¸Ä
 	dto->setPayload(&payload);
 	if (TreatmentService().updateData(dto)) {
 		jvo->success(dto->id);
@@ -172,42 +243,43 @@ StringJsonVO::Wrapper TreatmentController::execModifyTreatment(
 	{
 		jvo->fail(dto->id);
 	}
-	// å“åº”ç»“æœ
+	// ÏìÓ¦½á¹û
 	return jvo;
 }
 
-// å¯¼å‡ºpdf
+// µ¼³öpdf
 StringJsonVO::Wrapper TreatmentController::execExportTreatmentPdf(const TreatmentQuery::Wrapper& query)
 {
-	// æŸ¥è¯¢æ•°æ®
+	// ²éÑ¯Êı¾İ
 	auto result = TreatmentService().listAll(query);
-	// ç»˜åˆ¶PDF
+	// »æÖÆPDF
 	PdfComponent pdf;
 	OatppAccessor<TreatmentDetailDTO::Wrapper> dataAccessor(result->rows);
 	pdf.drawWithTemplate("tpl/treatment-pdf-report.yml", "treatment-pdf-report", &dataAccessor);
-	// ä¿å­˜PDF
+	// ±£´æPDF
 	auto data = pdf.saveDocToMem();
-	// è½¬æ¢æˆbase64
+	// ×ª»»³Ébase64
 	auto base64Str = jwt::base::encode<jwt::alphabet::base64>(std::string(data.begin(), data.end()));
-	// å“åº”æ•°æ®
+	// ÏìÓ¦Êı¾İ
 	auto jvo = StringJsonVO::createShared();
 	jvo->success(base64Str);
 	return jvo;
 }
-// å¯¼å‡ºExcel
+
+// µ¼³öExcel
 std::shared_ptr<oatpp::web::server::api::ApiController::OutgoingResponse> TreatmentController::execExportTreatment(const TreatmentQuery::Wrapper& query)
 {
-	// æŸ¥è¯¢æ•°æ®
+	// ²éÑ¯Êı¾İ
 	auto result = TreatmentService().listAll(query);
 
-	// å°†æ•°æ®å†™å…¥åˆ°Excelä¸­
+	// ½«Êı¾İĞ´Èëµ½ExcelÖĞ
 	auto buff = ExcelComponent().writeVectorToBuff("treatment",
 		[result](ExcelComponent* ex) {
-			// å†™å…¥è¡¨å¤´
+			// Ğ´Èë±íÍ·
 			ex->addHeader({
 				ZH_WORDS_GETTER("treatment.field.id") ,
 				});
-			// å†™å…¥æ•°æ®
+			// Ğ´ÈëÊı¾İ
 			int row = 2;
 			int col = 1;
 			for (auto item : *(result->rows.get())) {
@@ -217,18 +289,18 @@ std::shared_ptr<oatpp::web::server::api::ApiController::OutgoingResponse> Treatm
 			}
 		});
 
-	// ç»„è£…ä¸‹å‘æ•°æ®
+	// ×é×°ÏÂ·¢Êı¾İ
 	const char* charData = reinterpret_cast<const char*>(buff.data());
 	auto fstring = String(charData, buff.size());
 
-	// åˆ›å»ºå“åº”å¤´
+	// ´´½¨ÏìÓ¦Í·
 	auto response = createResponse(Status::CODE_200, fstring);
 
-	// è®¾ç½®å“åº”å¤´ä¿¡æ¯
+	// ÉèÖÃÏìÓ¦Í·ĞÅÏ¢
 	std::string filename = "rp-treatment-" + SimpleDateTimeFormat::format() + ".xlsx";
 	response->putHeader("Content-Disposition", "attachment; filename=" + filename);
 	response->putHeader(Header::CONTENT_TYPE, " application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
-	// å½±å“æˆåŠŸç»“æœ
+	// Ó°Ïì³É¹¦½á¹û
 	return response;
 }

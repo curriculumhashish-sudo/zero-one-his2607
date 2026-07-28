@@ -23,61 +23,9 @@
 #include "SimpleDateTimeFormat.h"
 #include "TransactionManager.h"
 
-// 分页列表查询
-TreatmentPageDTO::Wrapper TreatmentService::listAll(const TreatmentQuery::Wrapper& query)
-{
-	// 构建返回对象
-	auto pages = TreatmentPageDTO::createShared();
-	pages->pageIndex = query->pageIndex;
-	pages->pageSize = query->pageSize;
-	// 查询数据总条数
-	TreatmentDAO dao;
-	uint64_t count = dao.count(query);
-	if (count <= 0)
-	{
-		return pages;
-	}
-	// 分页查询数据
-	pages->total = count;
-	pages->calcPages();
-	list<TreatmentDO> result = dao.selectWithPage(query);
-	// 将DO转换成DTO
-	for (TreatmentDO& sub : result)
-	{
-		auto dto = TreatmentDetailDTO::createShared();
-		ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub, id, Id, code, BusNo, status, StatusEnum, classification, CategoryCode);
-	}
-	return pages;
-}
-
-// 下拉/选择列表查询（仅 id + name）
-TreatmentSelectPageDTO::Wrapper TreatmentService::listSelect(const TreatmentQuery::Wrapper& query)
-{
-	auto pages = TreatmentSelectPageDTO::createShared();
-	pages->pageIndex = query->pageIndex;
-	pages->pageSize = query->pageSize;
-
-	TreatmentDAO dao;
-	uint64_t count = dao.count(query);
-	if (count <= 0)
-	{
-		return pages;
-	}
-
-	pages->total = count;
-	pages->calcPages();
-	list<TreatmentDO> result = dao.selectWithPage(query);
-	for (TreatmentDO& sub : result)
-	{
-		auto dto = TreatmentSelectDTO::createShared();
-		ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub, id, Id, name, Name);
-		pages->addData(dto);
-	}
-	return pages;
-}
-
-// 从新增DTO填充主表业务字段（不含主键/审计）
-static void fillMainFromAddDto(TreatmentDO& data, const TreatmentAddDTO::Wrapper& dto)
+// 从新增/修改 DTO 填充主表业务字段（不含主键、审计字段）
+template<typename TDto>
+static void fillMainFromAddDto(TreatmentDO& data, const TDto& dto)
 {
 	if (dto->name) data.setName(dto->name.getValue(""));
 	if (dto->categoryCode) data.setCategoryCode(dto->categoryCode.getValue(""));
@@ -122,45 +70,96 @@ static bool insertChildren(TreatmentDAO& dao, const std::string& activityId,
 	return true;
 }
 
-// 通过ID查询诊疗详情（对齐 SampleService::getById）
-TreatmentDetailDTO::Wrapper TreatmentService::getById(std::string id)
+// 主表 DO 转详情 DTO（不含子项）
+static TreatmentDetailDTO::Wrapper toDetailDto(const TreatmentDO& src)
 {
-	TreatmentDAO dao;
-	auto res = dao.selectById(id);
-	if (!res)
-		return nullptr;
-
 	auto dto = TreatmentDetailDTO::createShared();
-	dto->id = res->getId();
-	dto->code = res->getBusNo();
-	dto->name = res->getName();
-	dto->status = res->getStatusEnum();
-	dto->classification = res->getCategoryCode();
-	// 价格表 DO 尚未接入，先返回空字符串
-	dto->price = "";
+	dto->id = src.getId();
+	dto->code = src.getBusNo();
+	dto->name = src.getName();
+	dto->status = src.getStatusEnum();
+	dto->categoryCode = src.getCategoryCode();
+	dto->packageUnitCode = src.getPackageUnitCode();
+	dto->pyStr = src.getPyStr();
+	dto->wbStr = src.getWbStr();
+	dto->descriptionText = src.getDescriptionText();
+	dto->ybFlag = src.getYbFlag();
+	dto->ybNo = src.getYbNo();
+	dto->ybMatchFlag = src.getYbMatchFlag();
+	dto->chrgitmLv = src.getChrgitmLv();
+
+	// type_enum 在库中按字符串存储，DTO 使用 Int32
+	const std::string& typeEnumStr = src.getTypeEnum();
+	if (!typeEnumStr.empty())
+	{
+		try
+		{
+			dto->typeEnum = std::stoi(typeEnumStr);
+		}
+		catch (...)
+		{
+			// 非法枚举值时不赋值
+		}
+	}
 	return dto;
 }
 
-// 新增诊疗：主表 + 子项（价格表后续补）
+// 回填子项列表到详情 DTO
+static void fillChildren(TreatmentDetailDTO::Wrapper& dto, TreatmentDAO& dao, const std::string& activityId)
+{
+	auto childRows = dao.selectChildrenByActivityId(activityId);
+	auto children = oatpp::List<TreatmentChildDTO::Wrapper>::createShared();
+	for (auto& row : childRows)
+	{
+		auto childDto = TreatmentChildDTO::createShared();
+		childDto->id = row.getId();
+		childDto->childrenId = row.getChildrenId();
+		childDto->childrenName = row.getChildrenName();
+		childDto->childrenNum = row.getChildrenNum();
+		children->push_back(childDto);
+	}
+	dto->children = children;
+}
+
+TreatmentDetailDTO::Wrapper TreatmentService::getById(std::string id)
+{
+	// 查询数据
+	TreatmentDAO dao;
+	auto res = dao.selectById(id);
+
+	// 没有查询到数据
+	if (!res)
+		return nullptr;
+
+	// 查询到数据转换成详情 DTO，并回填子项
+	auto dto = toDetailDto(*res);
+	fillChildren(dto, dao, res->getId());
+	return dto;
+}
+
 std::string TreatmentService::saveData(const TreatmentAddDTO::Wrapper& dto)
 {
-	TreatmentDAO dao;
+	// 组装主表 DO 数据
+	TreatmentDO data;
 	UuidFacade uf;
 	std::string id = uf.genUuid();
 	std::string now = SimpleDateTimeFormat::format();
 	std::string username = dto->getPayload() ? dto->getPayload()->getUsername() : "";
 
-	TreatmentDO data;
 	data.setId(id);
 	// 业务编码暂用主键，后续若有独立编码规则再改
 	data.setBusNo(id);
 	data.setStatusEnum("ACTIVE");
 	data.setIsDeleted(0);
 	data.setVersion(0);
+	// 设置创建人
 	data.setCreatedBy(username);
+	// 设置创建时间
 	data.setCreatedAt(now);
 	fillMainFromAddDto(data, dto);
 
+	// 执行数据添加（事务：主表 + 子项）
+	TreatmentDAO dao;
 	TransactionManager tm(&dao);
 	if (dao.insert(data) != 1)
 	{
@@ -176,20 +175,34 @@ std::string TreatmentService::saveData(const TreatmentAddDTO::Wrapper& dto)
 	return id;
 }
 
-// 修改诊疗：更新主表，子项先软删再插
+bool TreatmentService::saveDataBatch(const oatpp::List<TreatmentAddDTO::Wrapper>& datas)
+{
+	// 逐条复用 saveData（含事务与子项），全部成功才返回 true
+	for (auto dto : *datas.get())
+	{
+		if (saveData(dto).empty())
+			return false;
+	}
+	return true;
+}
+
 bool TreatmentService::updateData(const TreatmentModifyDTO::Wrapper& dto)
 {
-	TreatmentDAO dao;
+	// 组装主表 DO 数据
+	TreatmentDO data;
 	std::string id = dto->id.getValue("");
 	std::string now = SimpleDateTimeFormat::format();
 	std::string username = dto->getPayload() ? dto->getPayload()->getUsername() : "";
 
-	TreatmentDO data;
 	data.setId(id);
+	// 设置修改人
 	data.setUpdatedBy(username);
+	// 设置修改时间
 	data.setUpdatedAt(now);
 	fillMainFromAddDto(data, dto);
 
+	// 执行数据修改（事务：更新主表，子项先软删再插入）
+	TreatmentDAO dao;
 	TransactionManager tm(&dao);
 	if (dao.update(data) != 1)
 	{
@@ -206,7 +219,62 @@ bool TreatmentService::updateData(const TreatmentModifyDTO::Wrapper& dto)
 	return true;
 }
 
-// 按 ID 批量软删除
+TreatmentPageDTO::Wrapper TreatmentService::listAll(const TreatmentQuery::Wrapper& query)
+{
+	// 构建返回对象
+	auto pages = TreatmentPageDTO::createShared();
+	pages->pageIndex = query->pageIndex;
+	pages->pageSize = query->pageSize;
+
+	// 查询数据总条数
+	TreatmentDAO dao;
+	uint64_t count = dao.count(query);
+	if (count <= 0)
+	{
+		return pages;
+	}
+
+	// 分页查询数据
+	pages->total = count;
+	pages->calcPages();
+	list<TreatmentDO> result = dao.selectWithPage(query);
+	// 将DO转换成DTO（列表不加载子项）
+	for (TreatmentDO& sub : result)
+	{
+		pages->addData(toDetailDto(sub));
+	}
+	return pages;
+}
+
+TreatmentSelectPageDTO::Wrapper TreatmentService::listSelect(const TreatmentQuery::Wrapper& query)
+{
+	// 构建返回对象
+	auto pages = TreatmentSelectPageDTO::createShared();
+	pages->pageIndex = query->pageIndex;
+	pages->pageSize = query->pageSize;
+
+	// 查询数据总条数
+	TreatmentDAO dao;
+	uint64_t count = dao.count(query);
+	if (count <= 0)
+	{
+		return pages;
+	}
+
+	// 分页查询数据
+	pages->total = count;
+	pages->calcPages();
+	list<TreatmentDO> result = dao.selectWithPage(query);
+	// 将DO转换成下拉选项DTO（仅 id + name）
+	for (TreatmentDO& sub : result)
+	{
+		auto dto = TreatmentSelectDTO::createShared();
+		ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub, id, Id, name, Name);
+		pages->addData(dto);
+	}
+	return pages;
+}
+
 bool TreatmentService::removeData(const oatpp::List<oatpp::String>& ids)
 {
 	TreatmentDAO dao;
