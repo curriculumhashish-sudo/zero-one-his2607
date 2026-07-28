@@ -8,17 +8,22 @@ class AddRegisterDTO :public oatpp::DTO
 {
 	DTO_INIT(AddRegisterDTO, DTO);
 
+	DTO_FIELD(String, id);
+	DTO_FIELD_INFO(id) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.getsee_id");
+	}
+
 	DTO_FIELD(String, name);
 	DTO_FIELD_INFO(name) {
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.name");
 	}
 
-	DTO_FIELD(UInt32, id_number);
+	DTO_FIELD(String, id_number);
 	DTO_FIELD_INFO(id_number) {
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.id_number");
 	}
 
-	DTO_FIELD(UInt32, phone);
+	DTO_FIELD(String, phone);
 	DTO_FIELD_INFO(phone) {
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.phone");
 	}
@@ -38,13 +43,13 @@ class AddRegisterDTO :public oatpp::DTO
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.age");
 	}
 
-	DTO_FIELD(String, oganization);
-	DTO_FIELD_INFO(oganization) {
-		info->description = ZH_WORDS_GETTER("yxy.charging,register.oganization");
+	DTO_FIELD(String, organization);
+	DTO_FIELD_INFO(organization) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.organization");
 	}
 
-	DTO_FIELD(String, docker);
-	DTO_FIELD_INFO(docker) {
+	DTO_FIELD(String, doctor);
+	DTO_FIELD_INFO(doctor) {
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.docker");
 	}
 
@@ -57,9 +62,46 @@ class AddRegisterDTO :public oatpp::DTO
 	DTO_FIELD_INFO(register_type) {
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.register_type");
 	}
-
-
+	DTO_FIELD(String, patient_id);
+	DTO_FIELD_INFO(patient_id) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.patient_id");
+	}
+	DTO_FIELD(String, doctor_id);
+	DTO_FIELD_INFO(doctor_id) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.doctor_id");
+	}
+	DTO_FIELD(String, organization_id);
+	DTO_FIELD_INFO(organization_id) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.organization_id");
+	}
+	DTO_FIELD(String, cost_type_id);
+	DTO_FIELD_INFO(cost_type_id) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.cost_type_id");
+	}
+	DTO_FIELD(String, register_type_id);
+	DTO_FIELD_INFO(register_type_id) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.register_type_id");
+	}
+	DTO_FIELD(String, register_def_id);
+	DTO_FIELD_INFO(register_def_id) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.register_def_id");
+	}
+	DTO_FIELD(String, operator_id);
+	DTO_FIELD_INFO(operator_id) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.operator_id");
+	}
+	DTO_FIELD(String, tenant_id);
+	DTO_FIELD_INFO(tenant_id) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.tenant_id");
+	}
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
+public:
+std::string validate()
+	{
+		if (age<=0)
+			return "age invalidate.";
+		return "";
+	}
 };
 
 #include OATPP_CODEGEN_END(DTO)
