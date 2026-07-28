@@ -3,7 +3,7 @@ package com.zeroone.star.dispense.controller.end;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zeroone.star.dispense.service.DrugService;
 import com.zeroone.star.dispense.service.PatientService;
-import com.zeroone.star.project.j7.DispenseApis;
+import com.zeroone.star.project.j7.outpharm.OutPharmApis;
 import com.zeroone.star.project.query.j7.dispense.PatientDrugItemQuery;
 import com.zeroone.star.project.query.j7.dispense.PatientQueueQuery;
 import com.zeroone.star.project.vo.JsonVO;
@@ -12,12 +12,16 @@ import com.zeroone.star.project.vo.j7.dispense.PatientQueueVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/api/j7/outpharm")
+@Validated
 @Tag(name = "门诊发药", description = "门诊发药基础流程")
-public class menzhenfayao implements DispenseApis {
+public class menzhenfayao implements OutPharmApis {
 
 
     /**

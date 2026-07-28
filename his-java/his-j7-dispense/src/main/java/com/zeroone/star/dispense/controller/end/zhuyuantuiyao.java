@@ -2,7 +2,7 @@ package com.zeroone.star.dispense.controller.end;
 
 import com.zeroone.star.dispense.service.IInpatientRefundMedicineService;
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.j7.DispenseApis;
+import com.zeroone.star.project.j7.dispense.InpatientRefundMedicineApis;
 import com.zeroone.star.project.query.j7.dispense.InpatientRefundDetailQuery;
 import com.zeroone.star.project.query.j7.dispense.InpatientRefundPatientQuery;
 import com.zeroone.star.project.vo.JsonVO;
@@ -23,7 +23,7 @@ import java.util.List;
 @RequestMapping("/api/j7/refund-medicine")
 @Tag(name = "住院退药", description = "住院退药（患者队列、退药明细）")
 @Validated
-public class zhuyuantuiyao implements DispenseApis {
+public class zhuyuantuiyao implements InpatientRefundMedicineApis {
 
     @Resource
     private IInpatientRefundMedicineService inpatientRefundMedicineService;

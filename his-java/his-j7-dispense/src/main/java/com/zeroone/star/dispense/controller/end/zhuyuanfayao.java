@@ -3,7 +3,7 @@ package com.zeroone.star.dispense.controller.end;
 import com.zeroone.star.dispense.service.IDispensingService;
 import com.zeroone.star.project.dto.ExtendPageDTO;
 import com.zeroone.star.project.dto.j7.dispense.DispenseVerifyDTO;
-import com.zeroone.star.project.j7.DispenseApis;
+import com.zeroone.star.project.j7.dispense.DispensingApis;
 import com.zeroone.star.project.query.j7.dispense.DispensingSummaryQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j7.dispense.DispensingSummaryVO;
@@ -18,7 +18,7 @@ import java.util.List;
 
 @RestController
 @Tag(name = "住院发药记录", description = "住院发药记录基础流程")
-public class zhuyuanfayao implements DispenseApis {
+public class zhuyuanfayao implements DispensingApis {
     @Resource
     private IDispensingService dispensingService;
 
