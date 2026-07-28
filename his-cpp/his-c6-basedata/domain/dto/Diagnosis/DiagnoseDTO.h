@@ -59,16 +59,17 @@ public:
 		}
 
 		if (diagType && !diagType->empty()
-			&& *diagType != "western_medicine_diagnosis"
-			&& *diagType != "chinese_main_disease_diagnosis"
-			&& *diagType != "chinese_main_symptom_diagnosis")
+			&& *diagType != "1"//western_medicine_diagnosis
+			&& *diagType != "2"//chinese_main_disease_diagnosis
+			&& *diagType != "3"//chinese_main_symptom_diagnosis
+			)
 		{
 			return "The diagnosis type is invalid";
 		}
 
 		if (!status->empty() && *status != "ACTIVE" && *status != "STOP")
 		{
-			return "The status only allows 0 or 1";
+			return "The status only allows ACTIVE or STOP";
 		}
 		if (medicalInsuranceTag && *medicalInsuranceTag != 0 && *medicalInsuranceTag != 1)
 		{
@@ -98,14 +99,23 @@ class DiagnoseDTO : public DiagnoseAddDTO
 };
 
 //停/启用诊断条目
+class DiagnoseBatchDTO : public oatpp::DTO
+{
+	DTO_INIT(DiagnoseBatchDTO, DTO);
+
+	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("diagnose.field.diag.id_list"), true);//ids可以看作指针
+	API_DTO_FIELD_REQUIRE(Int32, version, ZH_WORDS_GETTER("diagnose.field.diag.version"), true);//乐观锁版本
+
+
+	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
+};
+
 class DiagnoseBatchStatusDTO : public oatpp::DTO
 {
 	DTO_INIT(DiagnoseBatchStatusDTO, DTO);
 
-	API_DTO_FIELD_REQUIRE(List<String>, ids, ZH_WORDS_GETTER("diagnose.field.diag.id_list"), true);//ids可以看作指针
+	API_DTO_FIELD_REQUIRE(List<DiagnoseBatchDTO::Wrapper>, ids, ZH_WORDS_GETTER("diagnose.field.diag.id_list"), true);//ids可以看作指针
 	API_DTO_FIELD_REQUIRE(String, status, ZH_WORDS_GETTER("diagnose.field.diag.status"), true);
-	API_DTO_FIELD_REQUIRE(Int32, version, ZH_WORDS_GETTER("diagnose.field.diag.version"), true);//来源枚举值 source_enum
-
 
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 };
@@ -113,7 +123,7 @@ class DiagnoseBatchStatusDTO : public oatpp::DTO
 //逻辑删除诊断条目
 class DiagnoseRemoveDTO : public oatpp::DTO
 {
-	DTO_INIT(DiagnoseBatchStatusDTO, DTO);
+	DTO_INIT(DiagnoseRemoveDTO, DTO);
 
 	API_DTO_FIELD_REQUIRE(List<String>, ids, ZH_WORDS_GETTER("diagnose.field.diag.id_list"), true);
 	API_DTO_FIELD_REQUIRE(Int32, version, ZH_WORDS_GETTER("diagnose.field.diag.version"), true);//来源枚举值 source_enum

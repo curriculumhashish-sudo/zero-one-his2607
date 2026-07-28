@@ -244,17 +244,17 @@ bool DiagnoseService::removeData(const oatpp::List<oatpp::String>& ids)
 
 bool DiagnoseService::batchChangeStatus(const DiagnoseBatchStatusDTO::Wrapper& dto,oatpp::String status)
 {
-	const oatpp::List<oatpp::String> ids = dto->ids;
+	const oatpp::List<DiagnoseBatchDTO::Wrapper> ids = dto->ids;
 	DiagnosisDAO dao;
 	int successCount = 0;
 	for (const auto& idItem : *ids.get())
 	{
 		DiagnosisDO data;
-		data.setId(idItem.getValue({}));
+		data.setId(idItem->id);
 		data.setStatus(*status);
 		data.setUpdateBy(dto->getPayload()->getUsername());
 		data.setUpdateTime(SimpleDateTimeFormat::format());
-		data.setVersion(*(dto->version) + 1);
+		data.setVersion((idItem->version)+ 1);
 		if (dao.update(data) == 1)
 		{
 			++successCount;

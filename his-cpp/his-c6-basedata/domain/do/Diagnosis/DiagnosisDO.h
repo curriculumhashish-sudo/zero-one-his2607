@@ -28,7 +28,7 @@ class DiagnosisDO : public BaseDO
 	// 诊断名称
 	MYSQL_SYNTHESIZE(string, diagnosisName, DiagnosisName);//诊断名称 name
 	// 诊断分类
-	MYSQL_SYNTHESIZE(string, diagnosisType, DiagnosisType);//诊断类型码 type_code
+	MYSQL_SYNTHESIZE(string, diagnosisType, DiagnosisType);//诊断类型码 type_code:1,2,3,对应西医诊断，中医主证诊断，中医主治诊断三个
 	// 启用状态 0-停用 1-启用
 	MYSQL_SYNTHESIZE(string, status, Status);//状态 status_enum
 	// 备注
@@ -66,7 +66,7 @@ class DiagnosisDO : public BaseDO
 	//来源枚举值
 	MYSQL_SYNTHESIZE(string, source_enum, Source_enum);//source_enum
 public:
-	DiagnosisDO() : BaseDO("t_diagnosis")
+	DiagnosisDO() : BaseDO("cln_condition_definition")
 	{
 		// 主键ID
 		MYSQL_ADD_FIELD_PK("id", "s", id);
@@ -95,9 +95,9 @@ public:
 		// 医保编码 yb_no
 		MYSQL_ADD_FIELD("yb_no", "s", medicalInsuranceCode);
 		// 拼音助记码 py_flag
-		MYSQL_ADD_FIELD("py_flag", "s", pinyinCode);
+		MYSQL_ADD_FIELD("py_str", "s", pinyinCode);
 		// 五笔助记码 wb_flag
-		MYSQL_ADD_FIELD("wb_flag", "s", wubiCode);
+		MYSQL_ADD_FIELD("wb_str", "s", wubiCode);
 		// 医保对码 yb_match_flag 
 		MYSQL_ADD_FIELD("yb_match_flag", "b", medicalInsuranceMatch);
 		// 医保标记 yb_flag 

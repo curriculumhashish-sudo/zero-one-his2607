@@ -28,11 +28,11 @@ diagnose:
  field:
   category: 
     id: 诊断分类ID
-    cat_name: 分类名称
+    cat_name: 诊断目录/病情编码（非空）
   diag:
     id: 诊断主键ID
     diag_code: 诊断编码
-    name: 疾病名称
+    name: 疾病名称（非空）
     category_id: 所属分类ID
     diag_type: 诊断类型码
     chronic_code: 特慢病编码

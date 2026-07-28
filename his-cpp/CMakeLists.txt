@@ -167,3 +167,4 @@ if(UNIX)
 endif()
 # 在后面添加你的模块
 add_subdirectory("his-c6-basedata")
+add_subdirectory("arch-tests")
