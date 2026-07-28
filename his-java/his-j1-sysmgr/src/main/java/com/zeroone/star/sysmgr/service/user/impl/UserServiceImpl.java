@@ -19,7 +19,7 @@ import com.zeroone.star.sysmgr.entity.resource.AdmLocation;
 import com.zeroone.star.sysmgr.entity.resource.AdmOrganization;
 import com.zeroone.star.sysmgr.entity.role.RoleDO;
 import com.zeroone.star.sysmgr.entity.user.*;
-import com.zeroone.star.sysmgr.exception.SystemException;
+import com.zeroone.star.project.exception.SystemException;
 import com.zeroone.star.sysmgr.exception.UserStatus;
 import com.zeroone.star.sysmgr.mapper.resource.AdmHealthcareServiceMapper;
 import com.zeroone.star.sysmgr.mapper.resource.AdmLocationMapper;
