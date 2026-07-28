@@ -336,4 +336,8 @@
             </otherwise>
         </choose>
     </update>
+
+    <select id="getCurrentValueAfterIncrement" resultType="java.lang.Long">
+        SELECT @new_val
+    </select>
 </mapper>

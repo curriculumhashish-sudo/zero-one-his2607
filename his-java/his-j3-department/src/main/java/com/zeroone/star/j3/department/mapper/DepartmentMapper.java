@@ -59,6 +59,22 @@ public interface DepartmentMapper extends BaseMapper<DepartmentDO> {
      */
     Long selectParentUnitIdByBusNo(String parentBusNO);
 
+    /**
+     * 增加序列值
+     *
+     * @param seqKey 序列键
+     * @author 胡傲宇
+     */
+    void incrementSequence(String seqKey);
+
+    /**
+     * 获取当前序列值
+     *
+     * @return 当前序列值
+     * @author 胡傲宇
+     */
+    Long getCurrentValueAfterIncrement();
+
     int isDoctorAvailable(@Param("defDoctorId") String defDoctorId,
                           @Param("tenantId") String tenantId);
 

@@ -18,10 +18,7 @@ import com.zeroone.star.project.dto.j3.department.DepartmentUpdateDTO;
 import com.zeroone.star.project.enums.j3.department.ClassEnum;
 import com.zeroone.star.project.enums.j3.department.StatusEnum;
 import com.zeroone.star.project.enums.j3.department.TypeEnum;
-import com.zeroone.star.project.exception.j3.department.DepartmentActiveOrInactiveStatusException;
-import com.zeroone.star.project.exception.j3.department.DepartmentNotFoundException;
-import com.zeroone.star.project.exception.j3.department.DoctorNotFoundException;
-import com.zeroone.star.project.exception.j3.department.EmptyParentDepartmentException;
+import com.zeroone.star.project.exception.j3.department.*;
 import com.zeroone.star.project.query.j3.department.DepartmentQuery;
 import com.zeroone.star.project.query.j3.department.DepartmentTreeQuery;
 import com.zeroone.star.project.vo.j3.department.DepartmentDetailVO;
@@ -240,6 +237,8 @@ public class DepartmentServiceImpl implements DepartmentService {
         if (newValue == null) {
             throw new BusNoGenerationException("序列号生成失败");
         }
+
+
 
         String formattedSeq = String.format("OR%04d", newValue);
         if (Objects.equals(TypeEnum.HOSPITAL.getDesc(), TypeEnum.getDescByValue(dto.getTypeEnum())) || parentDepartment == null) {
