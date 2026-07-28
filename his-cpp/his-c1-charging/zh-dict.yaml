@@ -1,4 +1,4 @@
-﻿charging:
+charging:
  register:
   tag: 收费工作站-门诊挂号
  settle:
@@ -38,12 +38,31 @@ macchiato:
    status: 当前状态
    printType: 打印类型
    isDefault: 是否设为默认
-   tag1: 确认收费接口
-   tag2: 确认退号接口
-   tag3: 打印挂号小票接口
    summary1: 确认收费
    summary2: 确认退号
    summary3: 打印挂号小票
+   traceId: 打印追踪ID
+   bindingCode: 打印绑定代码
+   templateVersion: 打印模板版本
+   printerName: 打印机名称
+   copies: 打印份数
+   operatorId: 操作员ID
+   operatorName: 操作员名称
+   clientType: 客户端类型
+   bizRefJson: 业务参考JSON
+   encounterId: 就诊ID
+   version: 版本号
+   slotId: 时段ID
+   chargeItemId: 收费项目ID
+   refundId: 退费ID
+   accountId: 账户ID
+   entererId: 录入人ID
+   payEnum: 支付方式枚举
+   patientId: 患者ID
+   paymentNo: 支付流水号
+   chargeItemIds: 收费项目ID集合
+   detailId: 支付明细记录ID
+   invoiceId: 发票ID
 yxy:
  charging:
   register:
@@ -53,15 +72,13 @@ yxy:
    summary1: 获取就诊记录（条件+分页）
    summary2: 获取当日号源（条件+分页）
    summary3: 新增挂号
-   getsee_id: 就诊表id
-   today_id: 时刻表id
    number: 就诊号
    name: 患者姓名
    start_time: 开始时间
    end_time: 结束时间
    sex: 患者性别
    phone: 患者联系方式
-   organization: 科室
+   oganization: 科室
    doctor: 医生
    cost_type: 费用性质
    addr: 参保地
@@ -74,14 +91,6 @@ yxy:
    id_number: 身份证号
    birth_date: 出生日期
    age: 年龄
-   patient_id: 患者表id
-   doctor_id: 医生id
-   organization_id: 科室id
-   cost_type_id: 费用id
-   register_type_id: 挂号类型id
-   operator_id: 操作者id
-   tenant_id: 租户id
-   register_def_id: 收费项目定义id
 lhfc:
   charging:
     charge:
@@ -648,18 +657,18 @@ qi:
       dept_name: 科室
       ward_name: 病区
       bed_no: 床位号
-      admit_date: 入院日期        
+      admit_date: 入院日期
+      admit_start_date: 入院开始日期  
+      admit_end_date: 入院结束日期 
       insurance_type: 医保类型
-      doctor_name: 主治医生
+      encounter_status: 就诊状态
       total_hospital_fee: 住院总费用
-      insurance_pay_fee: 医保报销金额
-      personal_pay_fee: 个人自费金额
+      personal_pay_fee: 个人自付金额
       prepay_total_fee: 预交押金总额
-      final_balance_fee: 应补金额/应退金额
-      account_balance: 账户余额
+      final_balance_fee: 应补/应退金额
       sort_num: 序号
       charge_type_name: 费用大类
-      type_total_fee: 费用金额
+      type_total_fee: 大类费用金额
 QQQQ:
   field:
     keyword: 患者姓名或住院号
