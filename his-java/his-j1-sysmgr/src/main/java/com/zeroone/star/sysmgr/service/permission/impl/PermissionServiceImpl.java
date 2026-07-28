@@ -17,7 +17,7 @@ import com.zeroone.star.project.vo.j1.permission.PermissionTreeVO;
 import com.zeroone.star.project.vo.j1.permission.PermissionVO;
 import com.zeroone.star.sysmgr.entity.permission.Permission;
 import com.zeroone.star.sysmgr.exception.PermissionStatus;
-import com.zeroone.star.sysmgr.exception.SystemException;
+import com.zeroone.star.project.exception.SystemException;
 import com.zeroone.star.sysmgr.mapper.permission.PermissionMapper;
 import com.zeroone.star.sysmgr.service.permission.IPermissionService;
 import jakarta.annotation.Resource;
