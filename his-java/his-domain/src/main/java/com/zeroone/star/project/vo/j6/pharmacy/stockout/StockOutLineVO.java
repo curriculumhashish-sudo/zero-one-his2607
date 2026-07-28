@@ -66,10 +66,4 @@ public class StockOutLineVO {
     @Schema(description = "原因", example = "门诊发药", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String reason;
 
-
-
-
-
-
-
 }
