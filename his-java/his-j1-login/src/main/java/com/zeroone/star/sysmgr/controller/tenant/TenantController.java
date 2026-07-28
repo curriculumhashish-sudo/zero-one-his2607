@@ -11,26 +11,30 @@ import com.zeroone.star.project.vo.j1.login.HospitalVO;
 import com.zeroone.star.project.vo.j1.login.SelectResultVO;
 import com.zeroone.star.project.vo.j1.login.TenantVO;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.sysmgr.service.tenant.TenantService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Tag(name = "租户医院选择")
 @RestController
 @RequestMapping("/auth")
 public class TenantController {
-
-    private static final Logger log = LoggerFactory.getLogger(TenantController.class);
 
     @Resource
     private UserHolder userHolder;
@@ -38,58 +42,140 @@ public class TenantController {
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
 
+    @Resource
+    private Validator validator;
+
+    @Resource
+    private TenantService tenantService;
+
+    // ==================== 接口 1：获取可选租户列表 ====================
+
+    @Operation(summary = "获取可选租户列表")
     @GetMapping("tenants")
     public JsonVO<List<TenantVO>> getTenantList(TenantQuery query) {
-        return JsonVO.success(null);
+        String userId = getCurrentUserId();
+        if (userId == null) {
+            return JsonVO.fail("未登录");
+        }
+        Long uid = parseUserId(userId);
+        if (uid == null) {
+            return JsonVO.fail("用户ID格式异常");
+        }
+        // Query 里的 userId 仅做校验，实际以登录态为准
+        if (query.getUserId() != null && !query.getUserId().equals(uid)) {
+            return JsonVO.fail("请求用户ID与登录态不一致");
+        }
+
+        List<TenantVO> list = tenantService.getTenantList(uid);
+        return JsonVO.success(list);
     }
 
+    // ==================== 接口 2：获取可选医院列表 ====================
+
+    @Operation(summary = "获取可选医院列表")
     @GetMapping("hospitals")
     public JsonVO<List<HospitalVO>> getHospitalList(HospitalQuery query) {
-        return JsonVO.success(null);
+        String userId = getCurrentUserId();
+        if (userId == null) {
+            return JsonVO.fail("未登录");
+        }
+        Long currentTenantId = getCurrentTenantId(userId);
+        if (currentTenantId == null) {
+            return JsonVO.fail("请先选择租户");
+        }
+        // 如果 Query 传了 tenantId，必须和当前选中租户一致（防篡改）
+        if (query.getTenantId() != null && !query.getTenantId().equals(currentTenantId)) {
+            return JsonVO.fail("租户选择异常");
+        }
+
+        List<HospitalVO> list = tenantService.getHospitalList(currentTenantId, query);
+        return JsonVO.success(list);
     }
 
+    // ==================== 接口 3：选择租户 ====================
+
+    @Operation(summary = "选择租户")
     @PostMapping("select")
     public JsonVO<SelectResultVO> selectTenant(@RequestBody SelectTenantDTO dto) {
-        if (dto == null || dto.getTenantId() == null) {
-            return JsonVO.fail("租户ID不能为空");
+        String validErr = validate(dto);
+        if (validErr != null) {
+            return JsonVO.fail(validErr);
         }
+
         String userId = getCurrentUserId();
         if (userId == null) {
             return JsonVO.fail("未登录");
         }
-        try {
-            String key = RedisConstant.USER_SESSION_PREFIX + userId;
-            redisTemplate.opsForHash().put(key, "tenant_id", dto.getTenantId().toString());
-            SelectResultVO result = new SelectResultVO();
-            result.setSuccess(true);
-            result.setCurrentTenantId(dto.getTenantId());
-            return JsonVO.success(result);
-        } catch (Exception e) {
-            log.warn("更新 Redis 租户选择失败: {}", e.getMessage());
-            return JsonVO.fail("更新租户选择失败");
+        Long uid = parseUserId(userId);
+        if (uid == null) {
+            return JsonVO.fail("用户ID格式异常");
         }
+
+        boolean hasPermission = tenantService.checkUserTenant(uid, dto.getTenantId());
+        if (!hasPermission) {
+            return JsonVO.fail("无权访问该租户");
+        }
+
+        tenantService.cacheSelectedTenant(userId, dto.getTenantId());
+
+        SelectResultVO result = new SelectResultVO();
+        result.setSuccess(true);
+        result.setCurrentTenantId(dto.getTenantId());
+        return JsonVO.success(result);
     }
 
+    // ==================== 接口 4：选择医院 ====================
+
+    @Operation(summary = "选择医院")
     @PostMapping("hospital/select")
     public JsonVO<SelectResultVO> selectHospital(@RequestBody SelectHospitalDTO dto) {
-        if (dto == null || dto.getHospitalId() == null) {
-            return JsonVO.fail("医院ID不能为空");
+        String validErr = validate(dto);
+        if (validErr != null) {
+            return JsonVO.fail(validErr);
         }
+
         String userId = getCurrentUserId();
         if (userId == null) {
             return JsonVO.fail("未登录");
         }
-        try {
-            String key = RedisConstant.USER_SESSION_PREFIX + userId;
-            redisTemplate.opsForHash().put(key, "hospital_organization_id", dto.getHospitalId().toString());
-            SelectResultVO result = new SelectResultVO();
-            result.setSuccess(true);
-            result.setCurrentHospitalId(dto.getHospitalId());
-            return JsonVO.success(result);
-        } catch (Exception e) {
-            log.warn("更新 Redis 医院选择失败: {}", e.getMessage());
-            return JsonVO.fail("更新医院选择失败");
+        Long currentTenantId = getCurrentTenantId(userId);
+        if (currentTenantId == null) {
+            return JsonVO.fail("请先选择租户");
         }
+
+        boolean valid = tenantService.checkHospitalBelongsToTenant(dto.getHospitalId(), currentTenantId);
+        if (!valid) {
+            return JsonVO.fail("该医院不在当前租户下或已停用");
+        }
+
+        tenantService.cacheSelectedHospital(userId, dto.getHospitalId());
+
+        SelectResultVO result = new SelectResultVO();
+        result.setSuccess(true);
+        // adm_organization.id 是 String，VO 是 Long，做安全转换
+        try {
+            result.setCurrentHospitalId(Long.valueOf(dto.getHospitalId()));
+        } catch (NumberFormatException e) {
+            log.warn("医院ID转Long失败: {}", dto.getHospitalId());
+            result.setCurrentHospitalId(null);
+        }
+        return JsonVO.success(result);
+    }
+
+    // ==================== 私有工具方法 ====================
+
+    private <T> String validate(T obj) {
+        if (obj == null) {
+            return "请求参数不能为空";
+        }
+        Set<ConstraintViolation<T>> violations = validator.validate(obj);
+        if (!violations.isEmpty()) {
+            return violations.stream()
+                    .sorted(Comparator.comparing(v -> v.getPropertyPath().toString()))
+                    .map(v -> "[" + v.getPropertyPath() + "]" + v.getMessage())
+                    .collect(Collectors.joining("; "));
+        }
+        return null;
     }
 
     private String getCurrentUserId() {
@@ -97,6 +183,33 @@ public class TenantController {
             UserDTO user = userHolder.getCurrentUser();
             return user != null ? user.getId() : null;
         } catch (Exception e) {
+            log.warn("获取当前用户失败: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    private Long parseUserId(String userId) {
+        try {
+            return Long.valueOf(userId);
+        } catch (NumberFormatException e) {
+            log.warn("用户ID转Long失败: {}", userId);
+            return null;
+        }
+    }
+
+    /**
+     * 从 Redis user:session:{userId} 取当前已选租户
+     */
+    private Long getCurrentTenantId(String userId) {
+        String key = RedisConstant.USER_SESSION_PREFIX + userId;
+        Object tenantId = redisTemplate.opsForHash().get(key, "tenant_id");
+        if (tenantId == null) {
+            return null;
+        }
+        try {
+            return Long.valueOf(tenantId.toString());
+        } catch (NumberFormatException e) {
+            log.warn("Redis 中 tenant_id 格式异常: {}", tenantId);
             return null;
         }
     }

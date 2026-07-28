@@ -3,9 +3,6 @@ package com.zeroone.star.project.vo.j1.login;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-/**
- * 租户信息VO
- */
 @Data
 @Schema(description = "租户信息")
 public class TenantVO {

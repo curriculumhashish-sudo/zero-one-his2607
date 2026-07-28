@@ -3,9 +3,6 @@ package com.zeroone.star.project.vo.j1.login;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-/**
- * 医院信息VO
- */
 @Data
 @Schema(description = "医院信息")
 public class HospitalVO {
