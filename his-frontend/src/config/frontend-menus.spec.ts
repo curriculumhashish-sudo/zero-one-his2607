@@ -11,6 +11,12 @@ describe('前端业务菜单', () => {
       expect.arrayContaining([
         '/system/user',
         '/basic/department',
+        '/basic/patient',
+        '/basic/ward-bed',
+        '/basic/warehouse-pharmacy',
+        '/basic/supplier',
+        '/basic/charge-type',
+        '/basic/registration-type',
         '/booking/outpatient-schedule',
         '/booking/slot-calendar',
         '/warehouse/purchase-inbound',

@@ -30,6 +30,48 @@ const FRONTEND_MENUS: Menu[] = [
         text: '科室管理',
         icon: 'IconTickets',
         href: '/basic/department'
+      },
+      {
+        id: 'frontend-basic-patient',
+        pid: 'frontend-basic',
+        text: '患者管理',
+        icon: 'IconUser',
+        href: '/basic/patient'
+      },
+      {
+        id: 'frontend-basic-ward-bed',
+        pid: 'frontend-basic',
+        text: '病区病房',
+        icon: 'IconTickets',
+        href: '/basic/ward-bed'
+      },
+      {
+        id: 'frontend-basic-warehouse-pharmacy',
+        pid: 'frontend-basic',
+        text: '库房药房',
+        icon: 'IconMenu',
+        href: '/basic/warehouse-pharmacy'
+      },
+      {
+        id: 'frontend-basic-supplier',
+        pid: 'frontend-basic',
+        text: '供应商管理',
+        icon: 'IconTickets',
+        href: '/basic/supplier'
+      },
+      {
+        id: 'frontend-basic-charge-type',
+        pid: 'frontend-basic',
+        text: '费用性质',
+        icon: 'IconTickets',
+        href: '/basic/charge-type'
+      },
+      {
+        id: 'frontend-basic-registration-type',
+        pid: 'frontend-basic',
+        text: '挂号类型',
+        icon: 'IconTickets',
+        href: '/basic/registration-type'
       }
     ]
   },
