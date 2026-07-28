@@ -19,48 +19,50 @@
 #include "stdafx.h"
 #include "DiagnoseDAO.h"
 #include "DiagnoseSelectMapper.h"
+#include "../../domain/DiagnoseConstants.h"
+#include "StringUtil.h"
 
-static const std::string STATUS_ACTIVE = "ACTIVE";
-static const std::vector<std::string> WESTERN_SOURCE_CODES = {
-	"general_dx", "chronic_spec", "disease_pkg", "paid_dx", "day_surgery_dx", "tumor_morph"};
-static const std::vector<std::string> TCM_SOURCE_CODES = {"tcm_dx", "tcm_syndrome"};
-
-static void appendSourceFilter(
-	std::stringstream& sqlCondition,
-	SqlParams& params,
-	const std::vector<std::string>& sourceCodes)
-{
-	sqlCondition << " AND d.`source_enum` IN (";
-	for (std::size_t index = 0; index < sourceCodes.size(); ++index)
-	{
-		if (index != 0)
-		{
-			sqlCondition << ",";
-		}
-		sqlCondition << "?";
-		SQLPARAMS_PUSH(params, "s", std::string, sourceCodes[index]);
-	}
-	sqlCondition << ")";
-}
-
-//<<<<<<< HEAD:his-cpp/his-c6-basedata/dao/Diagnose/DiagnoseDAO.cpp
-//std::string DiagnoseDAO::queryConditionBuilder(
-//	const DiagnoseSelectQuery::Wrapper& query,
-//=======
-//std::string DiagnoseDAO::queryConditionBuilder(
-	//const DiagnoseSelectQuery::Wrapper& query,
-	//const std::string& tenantId,
-//>>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/dao/Diagnose/DiagnoseDAO.cpp
-	//SqlParams& params)
-std::string DiagnoseDAO::queryConditionBuilder(const DiagnoseSelectQuery::Wrapper& query, const std::string& tenantId, SqlParams& params)
+std::string DiagnoseDAO::buildSelectableDiagnosisCondition(
+	const DiagnoseSelectQuery::Wrapper& query,
+	const std::string& tenantId,
+	SqlParams& params)
 {
 	std::stringstream sqlCondition;
+	// 追加中医或西医来源的参数化 IN 条件。
+	auto appendSourceFilter = [&sqlCondition, &params](
+		const char* const* sourceCodes,
+		std::size_t sourceCodeCount)
+	{
+		sqlCondition << " AND d.`source_enum` IN (";
+		for (std::size_t index = 0; index < sourceCodeCount; ++index)
+		{
+			if (index != 0)
+			{
+				sqlCondition << ",";
+			}
+			sqlCondition << "?";
+			SQLPARAMS_PUSH(
+				params,
+				"s",
+				std::string,
+				std::string(sourceCodes[index]));
+		}
+		sqlCondition << ")";
+	};
+
+	// 基础条件：未删除、已启用且属于当前租户。
 	sqlCondition << " WHERE d.`is_deleted`=? AND d.`status_enum`=? AND d.`tenant_id`=?";
 	SQLPARAMS_PUSH(params, "b", bool, false);
-	SQLPARAMS_PUSH(params, "s", std::string, STATUS_ACTIVE);
+	SQLPARAMS_PUSH(
+		params,
+		"s",
+		std::string,
+		std::string(DiagnoseConstants::STATUS_ACTIVE));
 	SQLPARAMS_PUSH(params, "s", std::string, tenantId);
 
-	const std::string keyword = query->keyword.getValue("");
+	std::string keyword = query->keyword.getValue("");
+	StringUtil::trim(&keyword);
+	// 关键字匹配名称、编码、拼音码和五笔码。
 	if (!keyword.empty())
 	{
 		sqlCondition
@@ -74,90 +76,95 @@ std::string DiagnoseDAO::queryConditionBuilder(const DiagnoseSelectQuery::Wrappe
 		}
 	}
 
-//<<<<<<< HEAD:his-cpp/his-c6-basedata/dao/Diagnose/DiagnoseDAO.cpp
-//	const std::string diagnoseKindCode = query->diagnoseKindCode.getValue("");
-//	if (diagnoseKindCode == "1")
-//=======
-	/*这是你的新推送代码
-	const std::string diagnosisKindCode = query->diagnosisKindCode.getValue("");
-	if (diagnosisKindCode == DiagnoseSelectQuery::DIAGNOSIS_KIND_WESTERN)
+	std::string diagnosisKindCode = query->diagnosisKindCode.getValue("");
+	StringUtil::trim(&diagnosisKindCode);
+	// 根据诊疗类型限制可选来源。
+	if (diagnosisKindCode == DiagnoseConstants::KIND_FILTER_WESTERN)
 	{
-		appendSourceFilter(sqlCondition, params, WESTERN_SOURCE_CODES);
-	}*/
-//<<<<<<< HEAD:his-cpp/his-c6-basedata/dao/Diagnose/DiagnoseDAO.cpp
-//	else if (diagnoseKindCode == "2")
-//=======
-	//这是你的新推送的代码
-	/*else if (diagnosisKindCode == DiagnoseSelectQuery::DIAGNOSIS_KIND_TRADITIONAL_CHINESE)
+		appendSourceFilter(
+			DiagnoseConstants::WESTERN_SOURCE_CODES.data(),
+			DiagnoseConstants::WESTERN_SOURCE_CODES.size());
+	}
+	else if (diagnosisKindCode == DiagnoseConstants::KIND_FILTER_TCM)
 	{
-		appendSourceFilter(sqlCondition, params, TCM_SOURCE_CODES);
-	}*/
+		appendSourceFilter(
+			DiagnoseConstants::TCM_SOURCE_CODES.data(),
+			DiagnoseConstants::TCM_SOURCE_CODES.size());
+	}
 	return sqlCondition.str();
 }
 
-//<<<<<<< HEAD:his-cpp/his-c6-basedata/dao/Diagnose/DiagnoseDAO.cpp
-//uint64_t DiagnoseDAO::count(const DiagnoseSelectQuery::Wrapper& query)
-//=======
 std::string DiagnoseDAO::selectCurrentTenantId(const std::string& userId)
 {
+	// 用户标识为空时不执行数据库查询。
 	if (userId.empty())
 	{
 		return "";
 	}
 
+	// 优先取最近登录租户；仅有一个有效租户时安全回退。
 	const std::string sql =
-		"SELECT s.`tenant_id` FROM `whale_user_login_session` s "
+		"SELECT COALESCE("
+		"(SELECT s.`tenant_id` FROM `whale_user_login_session` s "
 		"INNER JOIN `whale_users` u ON u.`id`=s.`user_id` "
 		"AND u.`is_deleted`=0 AND u.`is_active`=1 AND u.`is_locked_out`=0 "
 		"INNER JOIN `whale_user_tenants` ut ON ut.`user_id`=s.`user_id` "
 		"AND ut.`tenant_id`=s.`tenant_id` AND ut.`is_deleted`=0 "
-		"WHERE s.`user_id`=? AND s.`tenant_id` IS NOT NULL AND s.`tenant_id`<>'' "
-		"ORDER BY s.`updated_at` DESC LIMIT 1";
+		"INNER JOIN `whale_tenants` t ON t.`id`=s.`tenant_id` "
+		"AND t.`is_deleted`=0 AND t.`is_active`=1 "
+		"WHERE s.`user_id`=? AND s.`tenant_id` IS NOT NULL "
+		"AND s.`tenant_id`<>'' ORDER BY s.`updated_at` DESC LIMIT 1),"
+		"(SELECT CASE WHEN COUNT(DISTINCT ut.`tenant_id`)=1 "
+		"THEN MIN(ut.`tenant_id`) ELSE NULL END "
+		"FROM `whale_user_tenants` ut "
+		"INNER JOIN `whale_users` u ON u.`id`=ut.`user_id` "
+		"AND u.`is_deleted`=0 AND u.`is_active`=1 AND u.`is_locked_out`=0 "
+		"INNER JOIN `whale_tenants` t ON t.`id`=ut.`tenant_id` "
+		"AND t.`is_deleted`=0 AND t.`is_active`=1 "
+		"WHERE ut.`user_id`=? AND ut.`is_deleted`=0)"
+		")";
+	SqlParams params;
+	SQLPARAMS_PUSH(params, "s", std::string, userId);
+	SQLPARAMS_PUSH(params, "s", std::string, userId);
 	return sqlSession->executeQueryOne<std::string>(
 		sql,
 		DiagnoseTenantMapper(),
-		"%s",
-		userId);
+		params);
 }
 
-uint64_t DiagnoseDAO::count(
+uint64_t DiagnoseDAO::countSelectableDiagnoses(
 	const DiagnoseSelectQuery::Wrapper& query,
 	const std::string& tenantId)
 {
+	// 统计查询与分页查询复用完全相同的条件。
 	SqlParams params;
 	std::string sql = "SELECT COUNT(*) FROM `cln_condition_definition` d";
-	sql += queryConditionBuilder(query, tenantId, params);
+	sql += buildSelectableDiagnosisCondition(query, tenantId, params);
 	return sqlSession->executeQueryNumerical(sql, params);
 }
 
-//<<<<<<< HEAD:his-cpp/his-c6-basedata/dao/Diagnose/DiagnoseDAO.cpp
-//std::list<ClnConditionDefinitionDO> DiagnoseDAO::selectWithPage(
-//	const DiagnoseSelectQuery::Wrapper& query)
-//=======
-std::list<ClnConditionDefinitionDO> DiagnoseDAO::selectWithPage(
-//	const DiagnoseSelectQuery::Wrapper& query)
-//=======
-//std::list<ClnConditionDefinitionDO> DiagnoseDAO::selectWithPage(
+std::list<ClnConditionDefinitionDO> DiagnoseDAO::selectSelectableDiagnosesWithPage(
 	const DiagnoseSelectQuery::Wrapper& query,
 	const std::string& tenantId)
-
 {
 	SqlParams params;
+	// 只查询接口需要的列，避免使用 SELECT *。
 	std::string sql =
 		"SELECT d.`id`,d.`condition_code`,d.`name`,d.`py_str`,d.`wb_str`,"
 		"d.`source_enum`,COALESCE(d.`yb_flag`,0),d.`status_enum` "
 		"FROM `cln_condition_definition` d";
-	sql += queryConditionBuilder(query, tenantId, params);
-	sql += " ORDER BY COALESCE(d.`updated_at`,d.`created_at`) DESC,d.`id` DESC";
+	sql += buildSelectableDiagnosisCondition(query, tenantId, params);
+	sql += " ORDER BY d.`updated_at` DESC,d.`id` DESC";
 
 	const uint64_t pageIndex = query->pageIndex.getValue(1);
 	const uint64_t pageSize = query->pageSize.getValue(10);
 	const uint64_t offset = (pageIndex - 1) * pageSize;
+	// 分页偏移和条数均使用参数绑定。
 	sql += " LIMIT ?,?";
 	SQLPARAMS_PUSH(params, "ull", uint64_t, offset);
 	SQLPARAMS_PUSH(params, "ull", uint64_t, pageSize);
 	return sqlSession->executeQuery<ClnConditionDefinitionDO>(
 		sql,
-		DiagnosisSelectMapper(),
+		DiagnoseSelectMapper(),
 		params);
 }

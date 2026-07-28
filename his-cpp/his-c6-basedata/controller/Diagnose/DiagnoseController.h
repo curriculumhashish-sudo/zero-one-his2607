@@ -19,7 +19,7 @@
 */
 #ifndef _DIAGNOSISCONTROLLER_H_
 #define _DIAGNOSISCONTROLLER_H_
-//#include "GlobalInclude.h"
+#include "domain/GlobalInclude.h"
 
 // Query
 #include "domain/query/Diagnose/DiagnosePageQuery.h"
@@ -34,7 +34,11 @@
 #include "domain/vo/Diagnose/DiagnoseDetailJsonVO.h"
 #include "domain/vo/Diagnose/DiagnosePageJsonVO.h"
 #include "domain/vo/Diagnose/DiagnoseSelectJsonVO.h"
+#include "domain/vo/Diagnose/DiagnoseSelectPageJsonVO.h"
 #include "domain/vo/Diagnose/DiagnoseJsonVO.h"
+#include <algorithm>
+#include <cctype>
+#include <exception>
 
 using namespace oatpp;
 
@@ -48,6 +52,59 @@ class DiagnoseController : public oatpp::web::server::api::ApiController
 	API_ACCESS_DECLARE(DiagnoseController);
 
 public:
+	// 定义获取选择诊疗列表接口及 Swagger 参数。
+	API_DEF_ENDPOINT_INFO_AUTH(
+		ZH_WORDS_GETTER("diagnose.query_select.summary"),
+		querySelectDiagnosis,
+		DiagnoseSelectPageJsonVO::Wrapper,
+		API_TAG,
+		API_DEF_QUERY_PARAM_BUILD(DiagnoseSelectQuery);
+		info->queryParams["keyword"].addExample("default", oatpp::String("GM"));
+		info->queryParams["diagnosisKindCode"].addExample(
+			"default", oatpp::String("1"));
+	);
+	API_HANDLER_ENDPOINT_OPTION_AUTH(
+		API_M_GET,
+		"/diagnosis/query-select",
+		querySelectDiagnosis,
+		QUERIES(QueryParams, queryParams),
+		// 先校验必填分页参数的原始文本。
+		auto query = DiagnoseSelectQuery::createShared();
+		const auto pageIndexParam = queryParams.get("pageIndex");
+		const auto pageSizeParam = queryParams.get("pageSize");
+		const std::string pageIndexText = pageIndexParam.getValue("");
+		const std::string pageSizeText = pageSizeParam.getValue("");
+		if (pageIndexText.empty() ||
+			pageSizeText.empty() ||
+			!std::all_of(
+				pageIndexText.begin(),
+				pageIndexText.end(),
+				[](unsigned char character) { return std::isdigit(character) != 0; }) ||
+			!std::all_of(
+				pageSizeText.begin(),
+				pageSizeText.end(),
+				[](unsigned char character) { return std::isdigit(character) != 0; }))
+		{
+			auto response = DiagnoseSelectPageJsonVO::createShared();
+			response->init(nullptr, RS_PARAMS_INVALID);
+			API_HANDLER_RESP_VO(response);
+		}
+		try
+		{
+			// 使用公共宏将 Query 参数转换为领域模型。
+			API_HANDLER_QUERY_PARAM(parsedQuery, DiagnoseSelectQuery, queryParams);
+			query = parsedQuery;
+		}
+		catch (const std::exception&)
+		{
+			auto response = DiagnoseSelectPageJsonVO::createShared();
+			response->init(nullptr, RS_PARAMS_INVALID);
+			API_HANDLER_RESP_VO(response);
+		}
+		API_HANDLER_RESP_VO(
+			execQuerySelectDiagnosis(query, authObject->getPayload()));
+	);
+
 	//1. diagnose / select - page
 	//API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("diagnose.select.summary"), listSelectDiagnose, DiagnoseSelectQuery, DiagnoseSelectJsonVO::Wrapper, API_TAG);
 	//API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/diagnose/select-page", listSelectDiagnose, DiagnoseSelectQuery, executeListSelectDiagnose(query));
@@ -90,6 +147,10 @@ public:
 	// 定义批量启用/停用接口处理
 	API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/diagnose/batch/status", batchChangeDiagnoseStatus, BODY_DTO(DiagnoseBatchStatusDTO::Wrapper, dto), execBatchChangeDiagnoseStatus(dto, authObject->getPayload()));
 private:
+	// 执行选择诊疗条件分页查询。
+	DiagnoseSelectPageJsonVO::Wrapper execQuerySelectDiagnosis(
+		const DiagnoseSelectQuery::Wrapper& query,
+		const PayloadDTO& payload);
 
 	//兄弟这里的部分是错的，你的VO层没有对应的类型，所以爆红，我先给你注释了，你后序看一下这部分的VO是哪个
 	// select

@@ -22,9 +22,14 @@
 */
 #include "DiagnoseService.h"
 #include "../../dao/Diagnose/DiagnoseDAO.h"
+#include "../../domain/DiagnoseConstants.h"
 
 #include "id/UuidFacade.h"
 #include "SimpleDateTimeFormat.h"
+#include "StringUtil.h"
+
+#include <algorithm>
+#include <charconv>
 
 //#include <charconv>
 //static const std::string SOURCE_GENERAL_diagnose = "general_dx";
@@ -194,6 +199,118 @@
 //
 //	}
 //  
+DiagnoseSelectPageDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
+	const DiagnoseSelectQuery::Wrapper& query,
+	const PayloadDTO& payload)
+{
+	// 校验查询参数和 JWT 用户标识。
+	if (!query || !query->validate().empty() || payload.getId().empty())
+	{
+		return nullptr;
+	}
+
+	DiagnoseDAO dao;
+	// 解析当前用户所属的有效租户。
+	const std::string tenantId = dao.selectCurrentTenantId(payload.getId());
+	if (tenantId.empty())
+	{
+		return nullptr;
+	}
+
+	// 初始化分页结果并统计总数。
+	auto page = DiagnoseSelectPageDTO::createShared();
+	page->pageIndex = query->pageIndex;
+	page->pageSize = query->pageSize;
+	const uint64_t total = dao.countSelectableDiagnoses(query, tenantId);
+	page->total = static_cast<int64_t>(total);
+	page->calcPages();
+	if (total == 0)
+	{
+		return page;
+	}
+
+	// 分页读取诊疗定义 DO。
+	std::list<ClnConditionDefinitionDO> records =
+		dao.selectSelectableDiagnosesWithPage(query, tenantId);
+	for (ClnConditionDefinitionDO& record : records)
+	{
+		auto dto = DiagnoseSelectDTO::createShared();
+		// 使用公共宏转换同义字段。
+		ZO_STAR_DOMAIN_DO_TO_DTO(
+			dto,
+			record,
+			conditionDefinitionId, Id,
+			conditionCode, ConditionCode,
+			conditionDefinitionName, Name,
+			pyStr, PyStr,
+			wbStr, WbStr);
+
+		std::string sourceEnum = record.getSourceEnum();
+		StringUtil::trim(&sourceEnum);
+		dto->sourceEnum = nullptr;
+		int sourceValue = 0;
+		// 参考项目对数字来源枚举进行安全解析。
+		const auto parseResult = std::from_chars(
+			sourceEnum.data(),
+			sourceEnum.data() + sourceEnum.size(),
+			sourceValue);
+		if (parseResult.ec == std::errc() &&
+			parseResult.ptr == sourceEnum.data() + sourceEnum.size())
+		{
+			dto->sourceEnum = sourceValue;
+		}
+
+		// 根据来源编码区分中医和西医。
+		const bool isTraditionalChineseMedicineSource =
+			std::find(
+				DiagnoseConstants::TCM_SOURCE_CODES.begin(),
+				DiagnoseConstants::TCM_SOURCE_CODES.end(),
+				sourceEnum) != DiagnoseConstants::TCM_SOURCE_CODES.end();
+		const bool isWesternMedicineSource =
+			std::find(
+				DiagnoseConstants::WESTERN_SOURCE_CODES.begin(),
+				DiagnoseConstants::WESTERN_SOURCE_CODES.end(),
+				sourceEnum) != DiagnoseConstants::WESTERN_SOURCE_CODES.end();
+
+		if (isTraditionalChineseMedicineSource)
+		{
+			dto->diagnosisKind = DiagnoseConstants::KIND_TCM;
+			dto->diagnosisKindText = ZH_WORDS_GETTER("diagnose.type.tcm");
+		}
+		else if (isWesternMedicineSource)
+		{
+			dto->diagnosisKind = DiagnoseConstants::KIND_WESTERN;
+			dto->diagnosisKindText = ZH_WORDS_GETTER("diagnose.type.western");
+		}
+		else
+		{
+			dto->diagnosisKind = nullptr;
+			dto->diagnosisKindText = nullptr;
+		}
+
+		// 从 UTF-8 中文词典读取来源名称。
+		const std::string sourceEnumText =
+			isTraditionalChineseMedicineSource || isWesternMedicineSource
+			? ZH_WORDS_GETTER("diagnose.source." + sourceEnum)
+			: "";
+		dto->sourceEnumText = sourceEnumText.empty()
+			? oatpp::String(nullptr)
+			: oatpp::String(sourceEnumText.c_str());
+
+		// 转换医保标记和启用状态。
+		const int ybFlag = record.getYbFlag() == 1 ? 1 : 0;
+		dto->ybFlag = ybFlag;
+		dto->ybFlagText = ybFlag == 1
+			? ZH_WORDS_GETTER("diagnose.flag.yes")
+			: ZH_WORDS_GETTER("diagnose.flag.no");
+		dto->statusEnum =
+			record.getStatusEnum() == DiagnoseConstants::STATUS_ACTIVE
+			? oatpp::Int32(DiagnoseConstants::STATUS_ACTIVE_SORT_ORDER)
+			: oatpp::Int32(nullptr);
+		page->addData(dto);
+	}
+	return page;
+}
 
 
 //std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)

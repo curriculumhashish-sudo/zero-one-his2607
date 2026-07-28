@@ -23,18 +23,13 @@
 #include "Mapper.h"
 #include "../../domain/do/Diagnose/ClnConditionDefinitionDO.h"
 
-//<<<<<<< HEAD:his-cpp/his-c6-basedata/dao/Diagnose/DiagnoseSelectMapper.h
-///**
-// * Maps selectable diagnose query columns to the database model.
-// */
-//class DiagnoseSelectMapper : public Mapper<ClnConditionDefinitionDO>
-//=======
-/** 映射可选诊疗查询结果。 */
-class DiagnosisSelectMapper : public Mapper<ClnConditionDefinitionDO>
+/** 将查询结果映射为诊疗定义 DO。 */
+class DiagnoseSelectMapper : public Mapper<ClnConditionDefinitionDO>
 {
 public:
 	ClnConditionDefinitionDO mapper(ResultSet* resultSet) const override
 	{
+		// 按 SELECT 字段顺序读取诊疗数据。
 		ClnConditionDefinitionDO data;
 		data.setId(resultSet->getString(1));
 		data.setConditionCode(resultSet->getString(2));
@@ -48,12 +43,13 @@ public:
 	}
 };
 
-/** 映射当前登录租户。 */
+/** 将单列查询结果映射为租户 ID。 */
 class DiagnoseTenantMapper : public Mapper<std::string>
 {
 public:
 	std::string mapper(ResultSet* resultSet) const override
 	{
+		// 读取单列租户标识。
 		return resultSet->getString(1);
 	}
 };

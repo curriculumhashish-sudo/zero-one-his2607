@@ -48,7 +48,7 @@ endif()
 
 # 添加/bigobj选项
 if(MSVC)
-	target_compile_options(${appName} PRIVATE /bigobj)
+	target_compile_options(${appName} PRIVATE /bigobj /EHsc)
 endif()
 
 # 链接自定义静态库模块

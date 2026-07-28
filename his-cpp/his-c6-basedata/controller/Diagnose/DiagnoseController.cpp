@@ -26,6 +26,35 @@
 #include <cctype>
 #include <exception>
 
+DiagnoseSelectPageJsonVO::Wrapper DiagnoseController::execQuerySelectDiagnosis(
+	const DiagnoseSelectQuery::Wrapper& query,
+	const PayloadDTO& payload)
+{
+	// 创建统一分页响应对象。
+	auto response = DiagnoseSelectPageJsonVO::createShared();
+	if (!query || !query->validate().empty())
+	{
+		response->init(nullptr, RS_PARAMS_INVALID);
+		return response;
+	}
+	// JWT 必须包含有效用户标识。
+	if (payload.getId().empty())
+	{
+		response->init(nullptr, RS_FORBIDDEN);
+		return response;
+	}
+
+	// 调用业务层并包装查询结果。
+	auto result = DiagnoseService().listSelectableDiagnoses(query, payload);
+	if (!result)
+	{
+		response->init(nullptr, RS_FORBIDDEN);
+		return response;
+	}
+	response->success(result);
+	return response;
+}
+
 //bool DiagnoseController::hasValidQueryParameters(const QueryParams& queryParams)
 //{
 //	for (const auto& parameter : queryParams.getAll())

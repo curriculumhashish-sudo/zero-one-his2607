@@ -12,13 +12,10 @@
 class DiagnoseService
 {
 public:
-	//这个可能是你写的，他写的带鉴权了，暂时先注释你的
+	// 查询当前用户可选择的诊疗分页列表。
 	DiagnoseSelectPageDTO::Wrapper listSelectableDiagnoses(
-		const DiagnoseSelectQuery::Wrapper& query);
-
-	//DiagnoseSelectPageDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
-	//	const DiagnoseSelectQuery::Wrapper& query,
-	//	const PayloadDTO& payload);
+		const DiagnoseSelectQuery::Wrapper& query,
+		const PayloadDTO& payload);
 	//新增
 	std::string saveData(const DiagnoseAddDTO::Wrapper& dto);
 	//更新

@@ -24,36 +24,28 @@
 #include "../../domain/do/Diagnose/ClnConditionDefinitionDO.h"
 #include "../../domain/query/Diagnose/DiagnoseSelectQuery.h"
 
-/**
- * Data access object for diagnose records.
- */
+/** 选择诊疗的数据访问对象。 */
 class DiagnoseDAO : public BaseDAO
 {
 private:
-	std::string queryConditionBuilder(const DiagnoseSelectQuery::Wrapper& query, const std::string& tenantId,SqlParams& params);
+	// 构造统计和分页查询共用的筛选条件。
+	std::string buildSelectableDiagnosisCondition(
+		const DiagnoseSelectQuery::Wrapper& query,
+		const std::string& tenantId,
+		SqlParams& params);
 
 public:
-	uint64_t count(const DiagnoseSelectQuery::Wrapper& query);
-	std::list<ClnConditionDefinitionDO> DiagnoseDAO::selectWithPage(
+	// 根据登录用户解析当前有效租户。
+	std::string selectCurrentTenantId(const std::string& userId);
+	// 统计符合条件的诊疗数量。
+	uint64_t countSelectableDiagnoses(
 		const DiagnoseSelectQuery::Wrapper& query,
 		const std::string& tenantId);
-		std::list<DiagnoseDO> selectByName(const std::string& name);
-/** 诊断数据访问对象。 */
-//class DiagnosisDAO : public BaseDAO
-//{
-//private:
-//	std::string queryConditionBuilder(
-//		const DiagnoseSelectQuery::Wrapper& query,
-//		const std::string& tenantId,
-//		SqlParams& params);
-//
-//public:
-	std::string selectCurrentTenantId(const std::string& userId);
-	uint64_t count(const DiagnoseSelectQuery::Wrapper& query, const std::string& tenantId);
-//	std::list<ClnConditionDefinitionDO> selectWithPage(
-//		const DiagnoseSelectQuery::Wrapper& query,
-//		const std::string& tenantId);
-//	std::list<DiagnosisDO> selectByName(const std::string& name);
+	// 查询当前页的选择诊疗数据。
+	std::list<ClnConditionDefinitionDO> selectSelectableDiagnosesWithPage(
+		const DiagnoseSelectQuery::Wrapper& query,
+		const std::string& tenantId);
+	std::list<DiagnoseDO> selectByName(const std::string& name);
 };
 
 class DiagnosisDAO : public BaseDAO
