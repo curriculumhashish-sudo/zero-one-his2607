@@ -24,7 +24,7 @@ public class InventoryDetailQuery extends PageQuery {
     @Schema(description = "供应商ID集合", example = "[\"2001\"]")
     private List<String> supplierIds;
 
-    @Schema(description = "院内等级编码集合", example = "[\"A\",\"B\"]")
+    @Schema(description = "医保等级编码集合", example = "[\"1\",\"2\"]")
     private List<String> chrgitmLvList;
 
     @Schema(description = "是否仅零库存 true=只查零库存，false=全部", example = "false")

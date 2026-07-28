@@ -1,6 +1,10 @@
 package com.zeroone.star.pharmacy.controller;
 
+<<<<<<< HEAD
 import com.zeroone.star.pharmacy.service.IWkfSupplyRequestService;
+=======
+import com.zeroone.star.pharmacy.service.IInboundReceiptApprovalService;
+>>>>>>> 776c6b3dd9aed85a0b73156f0f483a61b598ba98
 import com.zeroone.star.project.dto.j6.pharmacy.inbound.*;
 import com.zeroone.star.project.j6.pharmacy.WarehouseInboundApis;
 import com.zeroone.star.project.query.j6.pharmacy.inbound.InboundReceiptDetailQuery;
@@ -13,18 +17,20 @@ import com.zeroone.star.project.vo.j6.pharmacy.inbound.InboundReceiptSaveResultV
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/inbound")
-@RequiredArgsConstructor
 @Tag(name = "药库进货单", description = "药库管理相关接口")
 public class WarehouseInboundController implements WarehouseInboundApis {
     private final IWkfSupplyRequestService supplyRequestService;
+
+    @Resource
+    private IInboundReceiptApprovalService inboundApprovalService;
 
     @Override
     @GetMapping("/list")
@@ -93,7 +99,7 @@ public class WarehouseInboundController implements WarehouseInboundApis {
     public JsonVO<InboundApprovalResultVO> submitInboundReceiptApproval(
             @Parameter(description = "提交审批入参", required = true)
             @RequestBody @Valid SubmitInboundReceiptApprovalDTO dto) {
-        return JsonVO.success(new InboundApprovalResultVO(true, "APPROVAL"));
+        return JsonVO.success(inboundApprovalService.submit(dto));
     }
 
     @Override
@@ -105,19 +111,19 @@ public class WarehouseInboundController implements WarehouseInboundApis {
     public JsonVO<InboundApprovalResultVO> withdrawInboundReceiptApproval(
             @Parameter(description = "撤回审批入参", required = true)
             @RequestBody @Valid WithdrawInboundReceiptApprovalDTO dto) {
-        return JsonVO.success(new InboundApprovalResultVO(true, "WITHDRAW"));
+        return JsonVO.success(inboundApprovalService.withdraw(dto));
     }
 
     @Override
     @PostMapping("/agreeInboundReceipt")
     @Operation(
             summary = "审批通过",
-            description = "审批人通过进货单，状态变更为已通过（AGREE）。服务端写入 approverId 和 approvalTime。如需上传医保，可传入 contractBusNo。"
+            description = "审批人通过进货单，状态变更为已通过（AGREE）。服务端执行库存入库并写入 approverId 和 approvalTime。"
     )
     public JsonVO<InboundApprovalResultVO> agreeInboundReceipt(
             @Parameter(description = "审批通过入参", required = true)
             @RequestBody @Valid AgreeInboundReceiptDTO dto) {
-        return JsonVO.success(new InboundApprovalResultVO(true, "AGREE"));
+        return JsonVO.success(inboundApprovalService.agree(dto));
     }
 
     @Override
@@ -129,6 +135,6 @@ public class WarehouseInboundController implements WarehouseInboundApis {
     public JsonVO<InboundApprovalResultVO> rejectInboundReceipt(
             @Parameter(description = "驳回审批入参", required = true)
             @RequestBody @Valid RejectInboundReceiptDTO dto) {
-        return JsonVO.success(new InboundApprovalResultVO(true, "REJECT"));
+        return JsonVO.success(inboundApprovalService.reject(dto));
     }
 }
