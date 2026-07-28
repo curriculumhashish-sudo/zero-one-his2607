@@ -7,7 +7,9 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j8.clinics.ResumeScheduleVO;
 import com.zeroone.star.project.vo.j8.clinics.SlotBatchReleaseVO;
 import com.zeroone.star.project.vo.j8.clinics.SlotVO;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 
 import java.util.List;
 
@@ -35,7 +37,7 @@ public interface ScheduleApis {
      * @param slotId 待删除的号源时段主键id
      * @return 响应对象
      */
-    JsonVO<String> deleteNumberSource(String slotId);
+    JsonVO<String> deleteNumberSource(@Schema(description = "号源时段主键id", example = "335659579333414912")String slotId);
 
     /**
      * 批量放号

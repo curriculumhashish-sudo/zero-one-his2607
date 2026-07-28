@@ -33,10 +33,4 @@ public class RelSlotQuery{
     @Schema(description = "排班ID", example = "329700000000000001",requiredMode = Schema.RequiredMode.REQUIRED)
     private String scheduleId;
 
-    @Schema(description = "页码，起始值为1", example = "1",requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private long pageNo = 1;
-
-    @Schema(description = "每页查询条数", example = "200",requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private long pageSize = 200;
-
 }

@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -42,14 +43,16 @@ public class MZScheduleController implements ScheduleApis {
     @DeleteMapping("/delete-number-source/{slotId}")
     @Override
     public JsonVO<String> deleteNumberSource(@PathVariable String slotId) {
-        return null;
+        wkfSlotService.deleteNumberSource(slotId);
+        return JsonVO.success(null);
     }
 
     @Operation(summary = "批量放号")
     @PostMapping("/batch-release-numberSource")
     @Override
     public JsonVO<SlotBatchReleaseVO> batchReleaseNumberSource(@RequestBody @Valid SlotBatchReleaseDTO numberSourceBatchReleaseDTO) {
-        return null;
+        SlotBatchReleaseVO result = wkfSlotService.batchReleaseNumberSource(numberSourceBatchReleaseDTO);
+        return JsonVO.success(result);
     }
 
     @Operation(summary = "恢复开诊")
