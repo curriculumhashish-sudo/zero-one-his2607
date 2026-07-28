@@ -19,7 +19,7 @@ import java.util.List;
 @Schema(description = "科室DTO")
 public class DepartmentDTO extends DepartmentCreateDTO {
     @Schema(description = "主键ID", example = "322663105141149696", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String id;
+    private Long id;
 
     @Schema(description = "业务编号", example = "OR0007.OR0008", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String busNo;

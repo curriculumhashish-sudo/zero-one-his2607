@@ -23,6 +23,16 @@
             <organization>Zero One Star</organization>
         </developer>
     </developers>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.zeroone.star</groupId>
+            <artifactId>his-common</artifactId>
+        </dependency>
+    </dependencies>
     <repositories>
         <repository>
             <id>aliyun</id>

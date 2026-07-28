@@ -46,10 +46,11 @@ public interface RegisterApis {
     /**
      * 修改挂号类型
      *
-     * @param dto 修改数据（id 必传）
+     * @param id  待修改的挂号类型唯一标识（路径参数）
+     * @param dto 修改数据
      * @return 修改结果
      */
-    JsonVO<Boolean> modifyRegister(RegisterDTO dto);
+    JsonVO<Boolean> modifyRegister(Long id, RegisterDTO dto);
 
     /**
      * 删除挂号类型

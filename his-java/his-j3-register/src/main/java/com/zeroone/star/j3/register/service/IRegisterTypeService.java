@@ -30,6 +30,30 @@ public interface IRegisterTypeService extends IService<HealthcareService> {
     PageDTO<RegisterVO> queryRegisterList(RegisterQuery query);
 
     /**
+     * 新增挂号类型
+     *
+     * @param dto 新增数据
+     * @return 是否成功
+     */
+    boolean addRegister(RegisterDTO dto);
+
+    /**
+     * 修改挂号类型
+     *
+     * @param id  待修改的挂号类型唯一标识
+     * @param dto 修改数据
+     * @return 是否成功
+     */
+    boolean modifyRegister(Long id, RegisterDTO dto);
+
+    /**
+     * 删除挂号类型
+     *
+     * @param id 挂号类型唯一标识
+     * @return 是否成功
+     */
+    boolean removeRegister(Long id);
+    /*
      * 获取挂号类型名称列表（不分页，仅启用的，用于下拉选择号源类型）
      *
      * @return 名称列表（id + name）
