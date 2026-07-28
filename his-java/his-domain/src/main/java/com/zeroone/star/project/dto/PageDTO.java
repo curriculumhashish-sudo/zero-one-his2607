@@ -79,7 +79,7 @@ public class PageDTO<T> implements Serializable {
      * @param <D>      数据表数据类型模板一般是DO
      * @return 返回分页数据对象
      */
-    public static <T, D> PageDTO<T> create(Page<D> page, DataTransCallBack<T, D> callback) {
+    public static <T, D> PageDTO<T>  create(Page<D> page, DataTransCallBack<T, D> callback) {
         //初始化分页信息
         PageDTO<T> pageResult = new PageDTO<>();
         pageResult.setTotal(page.getTotal());
