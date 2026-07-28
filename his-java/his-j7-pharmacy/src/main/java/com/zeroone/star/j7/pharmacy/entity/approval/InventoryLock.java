@@ -1,6 +1,6 @@
 package com.zeroone.star.j7.pharmacy.entity.approval;
 
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -10,49 +10,25 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * 编码系统
+ * 库存锁定
  * </p>
  *
  * @author tsfmn
- * @since 2026-07-22
+ * @since 2026-07-27
  */
 @Getter
 @Setter
 @ToString
-@TableName("ter_code_system")
-public class TerCodeSystem implements Serializable {
+@TableName("inventory_lock")
+public class InventoryLock implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     /**
      * 主键
      */
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
     private String id;
-
-    /**
-     * 编码系统
-     */
-    private String name;
-
-    /**
-     * 编码系统标题
-     */
-    private String title;
-
-    /**
-     * 描述
-     */
-    private String description;
-
-    /**
-     * 乐观锁版本号
-     */
-    private String version;
-
-    /**
-     * 状态：draft
-     */
-    private String status;
 
     /**
      * 租户标识
@@ -62,11 +38,13 @@ public class TerCodeSystem implements Serializable {
     /**
      * 创建时间
      */
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 
     /**
      * 最后更新时间
      */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updatedAt;
 
     /**
@@ -82,6 +60,7 @@ public class TerCodeSystem implements Serializable {
     /**
      * 软删标记
      */
+    @TableLogic
     private Boolean isDeleted;
 
     /**
@@ -93,4 +72,35 @@ public class TerCodeSystem implements Serializable {
      * 删除人
      */
     private String deletedBy;
+
+    /**
+     * 乐观锁版本号
+     */
+    @Version
+    private Integer version;
+
+    /**
+     * 库存锁定记录（DM-WKF-008 §3.2）
+     */
+    private String inventoryId;
+
+    /**
+     * 锁定标识：true 已锁定、false 未锁定
+     */
+    private Boolean lockFlag;
+
+    /**
+     * 锁定状态：见 LockStatus
+     */
+    private String status;
+
+    /**
+     * 业务单号
+     */
+    private String busNo;
+
+    /**
+     * 同一业务单内的顺序号
+     */
+    private Integer orderFlag;
 }

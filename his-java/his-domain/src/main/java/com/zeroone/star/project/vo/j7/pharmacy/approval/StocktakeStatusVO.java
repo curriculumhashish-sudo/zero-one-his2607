@@ -1,8 +1,11 @@
 package com.zeroone.star.project.vo.j7.pharmacy.approval;
 
+import lombok.Data;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Data
 public class StocktakeStatusVO {
     /**
      * 盘点单号

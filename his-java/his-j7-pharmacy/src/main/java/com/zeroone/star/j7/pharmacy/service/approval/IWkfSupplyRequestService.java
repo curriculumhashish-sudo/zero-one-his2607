@@ -2,6 +2,10 @@ package com.zeroone.star.j7.pharmacy.service.approval;
 
 import com.zeroone.star.j7.pharmacy.entity.approval.WkfSupplyRequest;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.zeroone.star.project.dto.j7.pharmacy.approval.ApproveDTO;
+import com.zeroone.star.project.dto.j7.pharmacy.approval.OperatorDTO;
+import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j7.pharmacy.approval.StocktakeStatusVO;
 
 /**
  * <p>
@@ -13,4 +17,11 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IWkfSupplyRequestService extends IService<WkfSupplyRequest> {
 
+    StocktakeStatusVO submit(OperatorDTO dto);
+
+    StocktakeStatusVO approve(ApproveDTO dto);
+
+    StocktakeStatusVO reject(ApproveDTO dto);
+
+    StocktakeStatusVO withdraw(OperatorDTO dto);
 }

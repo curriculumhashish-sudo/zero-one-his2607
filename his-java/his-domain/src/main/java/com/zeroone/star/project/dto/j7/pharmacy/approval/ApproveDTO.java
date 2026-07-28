@@ -2,8 +2,10 @@ package com.zeroone.star.project.dto.j7.pharmacy.approval;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 
 @Schema(description = "审批DTO")
+@Data
 public class ApproveDTO {
 
     /**

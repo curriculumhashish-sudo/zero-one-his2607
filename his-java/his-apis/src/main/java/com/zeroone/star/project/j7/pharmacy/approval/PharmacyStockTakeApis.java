@@ -11,20 +11,20 @@ import com.zeroone.star.project.vo.JsonVO;
 public interface PharmacyStockTakeApis {
 
     /**
-     * 根据聚合单号查询所有盘点单明细列表
+     * 提交审批
      */
-    JsonVO<PageDTO<PharmacyStockTakeDTO>> getPharmacyStockTakeList(StockTakeQuery query);
+    JsonVO<StocktakeStatusVO> submit(OperatorDTO dto);
 
     /**
      * 审批状态通过
      */
-    JsonVO<StocktakeStatusVO> approvePharmacyStockTake(ApproveDTO dto);
+    JsonVO<StocktakeStatusVO> approve(ApproveDTO dto);
     /**
      * 驳回审批
      */
-    JsonVO<StocktakeStatusVO> rejectPharmacyStockTake(ApproveDTO dto);
+    JsonVO<StocktakeStatusVO> reject(ApproveDTO dto);
     /**
      * 撤回审批
      */
-    JsonVO<StocktakeStatusVO> withdrawPharmacyStockTake(OperatorDTO dto);
+    JsonVO<StocktakeStatusVO> withdraw(OperatorDTO dto);
 }
