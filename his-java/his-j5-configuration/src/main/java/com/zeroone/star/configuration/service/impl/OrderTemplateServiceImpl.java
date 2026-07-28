@@ -1,6 +1,7 @@
 package com.zeroone.star.configuration.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zeroone.star.configuration.entity.OrderTemplate;
@@ -20,15 +21,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * <p>
- * 组套模板 服务实现类 —— 全部使用显式 SQL 列，禁用 SELECT *
- * </p>
- * <p>版权：&copy;01星球</p>
- * <p>地址：01星球总部</p>
- * @author keepasdd
- * @version 1.0.0
- */
 @Service
 public class OrderTemplateServiceImpl
         extends ServiceImpl<OrderTemplateMapper, OrderTemplate>
@@ -39,14 +31,28 @@ public class OrderTemplateServiceImpl
 
     @Override
     public List<OrderTemplateNameVO> listNames(OrderTemplateNameQuery query) {
-        // 使用显式 SQL 查询，仅返回 nameColumns 指定的 5 列
-        List<OrderTemplate> entities = baseMapper.selectNames(
-                "ACTIVE",
-                query.getSceneEnum(),
-                query.getTemplateKindEnum(),
-                query.getPractitionerId(),
-                query.getDeptId());
+        LambdaQueryWrapper<OrderTemplate> wrapper = new LambdaQueryWrapper<>();
+        wrapper.select(OrderTemplate::getId, OrderTemplate::getName,
+                       OrderTemplate::getBindingEnum, OrderTemplate::getTemplateKindEnum,
+                       OrderTemplate::getSceneEnum)
+               .eq(OrderTemplate::getStatusEnum, "ACTIVE")
+               .eq(OrderTemplate::getSceneEnum, query.getSceneEnum())
+               .eq(OrderTemplate::getTemplateKindEnum, query.getTemplateKindEnum());
 
+        if (query.getPractitionerId() != null && query.getDeptId() != null) {
+            wrapper.and(w -> w
+                .eq(OrderTemplate::getBindingEnum, "GLOBAL")
+                .or().eq(OrderTemplate::getBindingEnum, "DEPT")
+                      .eq(OrderTemplate::getObjectId, query.getDeptId())
+                .or().eq(OrderTemplate::getBindingEnum, "PERSONAL")
+                      .eq(OrderTemplate::getObjectId, query.getPractitionerId()));
+        } else {
+            wrapper.eq(OrderTemplate::getBindingEnum, "GLOBAL");
+        }
+
+        wrapper.orderByAsc(OrderTemplate::getSortWeight, OrderTemplate::getName);
+
+        List<OrderTemplate> entities = baseMapper.selectList(wrapper);
         List<OrderTemplateNameVO> vos = new ArrayList<>(entities.size());
         entities.forEach(e -> vos.add(BeanUtil.copyProperties(e, OrderTemplateNameVO.class)));
         return vos;
@@ -54,13 +60,33 @@ public class OrderTemplateServiceImpl
 
     @Override
     public Page<OrderTemplateListVO> list(OrderTemplateQuery query) {
-        Page<OrderTemplate> entityPage = baseMapper.selectPageExplicit(
-                new Page<>(query.getPageIndex(), query.getPageSize()),
-                query.getTemplateKindEnum(),
-                query.getKeyword(),
-                query.getBindingEnum(),
-                query.getSceneEnum(),
-                query.getStatusEnum());
+        LambdaQueryWrapper<OrderTemplate> wrapper = new LambdaQueryWrapper<>();
+        wrapper.select(OrderTemplate::getId, OrderTemplate::getName,
+                       OrderTemplate::getTemplateCode, OrderTemplate::getBindingEnum,
+                       OrderTemplate::getSceneEnum, OrderTemplate::getTemplateKindEnum,
+                       OrderTemplate::getStatusEnum, OrderTemplate::getSortWeight,
+                       OrderTemplate::getCreatedAt, OrderTemplate::getUpdatedAt)
+               .eq(OrderTemplate::getIsDeleted, false)
+               .eq(OrderTemplate::getTemplateKindEnum, query.getTemplateKindEnum());
+
+        if (query.getKeyword() != null && !query.getKeyword().isBlank()) {
+            wrapper.like(OrderTemplate::getName, query.getKeyword());
+        }
+        if (query.getBindingEnum() != null && !query.getBindingEnum().isBlank()) {
+            wrapper.eq(OrderTemplate::getBindingEnum, query.getBindingEnum());
+        }
+        if (query.getSceneEnum() != null && !query.getSceneEnum().isBlank()) {
+            wrapper.eq(OrderTemplate::getSceneEnum, query.getSceneEnum());
+        }
+        if (query.getStatusEnum() != null && !query.getStatusEnum().isBlank()) {
+            wrapper.eq(OrderTemplate::getStatusEnum, query.getStatusEnum());
+        }
+
+        wrapper.orderByAsc(OrderTemplate::getSortWeight)
+               .orderByDesc(OrderTemplate::getUpdatedAt);
+
+        Page<OrderTemplate> entityPage = baseMapper.selectPage(
+                new Page<>(query.getPageIndex(), query.getPageSize()), wrapper);
 
         List<OrderTemplateListVO> vos = new ArrayList<>(entityPage.getRecords().size());
         entityPage.getRecords().forEach(e -> {
@@ -81,19 +107,32 @@ public class OrderTemplateServiceImpl
         if (header == null || Boolean.TRUE.equals(header.getIsDeleted())) {
             return null;
         }
-
         OrderTemplateDetailVO vo = new OrderTemplateDetailVO();
         BeanUtil.copyProperties(header, vo);
 
-        // 使用显式 SQL 查询明细行，排除软删行
-        List<OrderTemplateLine> lines = orderTemplateLineMapper.selectByTemplateId(id);
+        LambdaQueryWrapper<OrderTemplateLine> lineWrapper = new LambdaQueryWrapper<>();
+        lineWrapper.select(OrderTemplateLine::getId, OrderTemplateLine::getLineKindEnum,
+                           OrderTemplateLine::getMedicationDefinitionId,
+                           OrderTemplateLine::getActivityDefinitionId,
+                           OrderTemplateLine::getDeviceDefinitionId,
+                           OrderTemplateLine::getGroupKey, OrderTemplateLine::getSortOrder,
+                           OrderTemplateLine::getDefaultQuantity, OrderTemplateLine::getDefaultUnitCode,
+                           OrderTemplateLine::getDefaultDays, OrderTemplateLine::getFrequencyId,
+                           OrderTemplateLine::getRouteCode, OrderTemplateLine::getDosageText,
+                           OrderTemplateLine::getDefaultPerformOrgId, OrderTemplateLine::getLineRemark,
+                           OrderTemplateLine::getChineseHerbsDoseQuantity,
+                           OrderTemplateLine::getSufferingFlag)
+                   .eq(OrderTemplateLine::getOrderTemplateId, id)
+                   .eq(OrderTemplateLine::getIsDeleted, false)
+                   .orderByAsc(OrderTemplateLine::getSortOrder, OrderTemplateLine::getId);
+
+        List<OrderTemplateLine> lines = orderTemplateLineMapper.selectList(lineWrapper);
         List<OrderTemplateLineVO> itemVOs = new ArrayList<>(lines.size());
         lines.forEach(line -> {
             OrderTemplateLineVO lineVO = new OrderTemplateLineVO();
             BeanUtil.copyProperties(line, lineVO);
             itemVOs.add(lineVO);
         });
-
         vo.setItems(itemVOs);
         return vo;
     }
