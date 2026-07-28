@@ -16,7 +16,4 @@ public class DeptQuery {
     @Schema(description = "租户ID")
     private String tenantId;
 
-    @Schema(description = "父级科室ID，树形筛选")
-    private String parentId;
-
 }

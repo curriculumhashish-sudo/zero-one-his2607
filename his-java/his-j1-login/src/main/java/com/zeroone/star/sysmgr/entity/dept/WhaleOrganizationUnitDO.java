@@ -1,4 +1,4 @@
-package com.zeroone.star.sysmgr.entity.login;
+package com.zeroone.star.sysmgr.entity.dept;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.zeroone.star.project.entity.BaseDO;

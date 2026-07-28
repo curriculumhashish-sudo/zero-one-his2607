@@ -1,7 +1,7 @@
-package com.zeroone.star.sysmgr.mapper.login;
+package com.zeroone.star.sysmgr.mapper.dept;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.zeroone.star.sysmgr.entity.login.WhaleOrganizationUnitDO;
+import com.zeroone.star.sysmgr.entity.dept.WhaleOrganizationUnitDO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
