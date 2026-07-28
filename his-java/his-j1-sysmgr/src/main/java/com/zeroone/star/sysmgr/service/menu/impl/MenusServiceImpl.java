@@ -15,7 +15,7 @@ import com.zeroone.star.project.dto.menu.MenuDeleteDTO;
 import com.zeroone.star.sysmgr.entity.menu.MenuDO;
 import com.zeroone.star.project.vo.menu.MenuVO;
 import com.zeroone.star.sysmgr.exception.MenuStatus;
-import com.zeroone.star.sysmgr.exception.SystemException;
+import com.zeroone.star.project.exception.SystemException;
 import com.zeroone.star.sysmgr.mapper.menu.MenusMapper;
 import com.zeroone.star.sysmgr.service.menu.MenusService;
 import lombok.RequiredArgsConstructor;
