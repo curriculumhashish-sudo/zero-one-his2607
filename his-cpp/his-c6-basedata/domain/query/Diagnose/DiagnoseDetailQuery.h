@@ -3,7 +3,7 @@
  Copyright Zero One Star. All rights reserved.
 
  @Author: awei
- @Date: 2026/07/20 11:36:29
+ @Date: 2026/07/22 10:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,25 +17,23 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _DIAGNOSIS_SELECT_QUERY_H_
-#define _DIAGNOSIS_SELECT_QUERY_H_
+#ifndef _DIAGNOSIS_DETAIL_QUERY_H_
+#define _DIAGNOSIS_DETAIL_QUERY_H_
 
 #include "../../GlobalInclude.h"
-#include "domain/query/PageQuery.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * Query conditions for the paged diagnosis picker.
+ * Query condition for one diagnose catalog detail.
  */
-class DiagnosisSelectQuery : public PageQuery
+class DiagnoseDetailQuery : public oatpp::DTO
 {
-	DTO_INIT(DiagnosisSelectQuery, PageQuery);
+	DTO_INIT(DiagnoseDetailQuery, DTO);
 
-	API_DTO_FIELD_REQUIRE(String, keyword, ZH_WORDS_GETTER("diagnose.query.field.keyword"), false);
-	API_DTO_FIELD_REQUIRE(String, diagnosisKindCode, ZH_WORDS_GETTER("diagnose.query.field.diagnosis_kind_code"), false);
+	API_DTO_FIELD(Int64, id, ZH_WORDS_GETTER("diagnose.field.catalog.id"), true, 317932056501817344LL);
 };
 
 #include OATPP_CODEGEN_END(DTO)
 
-#endif // !_DIAGNOSIS_SELECT_QUERY_H_
+#endif // !_DIAGNOSIS_DETAIL_QUERY_H_

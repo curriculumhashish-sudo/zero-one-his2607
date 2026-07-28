@@ -17,22 +17,22 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _DIAGNOSIS_DETAIL_PAGE_DTO_H_
-#define _DIAGNOSIS_DETAIL_PAGE_DTO_H_
+#ifndef _DIAGNOSIS_SELECT_PAGE_DTO_H_
+#define _DIAGNOSIS_SELECT_PAGE_DTO_H_
 
 #include "../../GlobalInclude.h"
-#include "DiagnosisDetailDTO.h"
+#include "DiagnoseSelectDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * Paged transfer object for diagnosis catalog details.
+ * Paged transfer object for selectable diagnoses.
  */
-class DiagnosisDetailPageDTO : public PageDTO<DiagnosisDetailDTO::Wrapper>
+class DiagnoseSelectPageDTO : public PageDTO<DiagnoseSelectDTO::Wrapper>
 {
-	DTO_INIT(DiagnosisDetailPageDTO, PageDTO<DiagnosisDetailDTO::Wrapper>);
+	DTO_INIT(DiagnoseSelectPageDTO, PageDTO<DiagnoseSelectDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)
 
-#endif // !_DIAGNOSIS_DETAIL_PAGE_DTO_H_
+#endif // !_DIAGNOSIS_SELECT_PAGE_DTO_H_

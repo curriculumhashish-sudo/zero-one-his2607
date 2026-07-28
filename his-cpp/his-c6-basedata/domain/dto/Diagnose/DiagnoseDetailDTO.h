@@ -25,11 +25,11 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * Diagnosis catalog detail used by both query-one and query-all.
+ * Diagnose catalog detail used by both query-one and query-all.
  */
-class DiagnosisDetailDTO : public oatpp::DTO
+class DiagnoseDetailDTO : public oatpp::DTO
 {
-	DTO_INIT(DiagnosisDetailDTO, DTO);
+	DTO_INIT(DiagnoseDetailDTO, DTO);
 
 	API_DTO_FIELD(Int64, id, ZH_WORDS_GETTER("diagnose.field.catalog.id"), true, 317932056501817344LL);
 	API_DTO_FIELD(String, sourceEnum, ZH_WORDS_GETTER("diagnose.field.catalog.source_enum"), true, "general_dx");

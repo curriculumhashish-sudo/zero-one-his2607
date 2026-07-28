@@ -20,22 +20,22 @@
 #define _DIAGNOSIS_DAO_H_
 
 #include "BaseDAO.h"
-#include "../../domain/do/Diagnosis/DiagnosisDO.h"
-#include "../../domain/do/Diagnosis/ClnConditionDefinitionDO.h"
-#include "../../domain/query/Diagnosis/DiagnosisSelectQuery.h"
+#include "../../domain/do/Diagnose/DiagnoseDO.h"
+#include "../../domain/do/Diagnose/ClnConditionDefinitionDO.h"
+#include "../../domain/query/Diagnose/DiagnoseSelectQuery.h"
 
 /**
- * Data access object for diagnosis records.
+ * Data access object for diagnose records.
  */
-class DiagnosisDAO : public BaseDAO
+class DiagnoseDAO : public BaseDAO
 {
 private:
-	std::string queryConditionBuilder(const DiagnosisSelectQuery::Wrapper& query, SqlParams& params);
+	std::string queryConditionBuilder(const DiagnoseSelectQuery::Wrapper& query, SqlParams& params);
 
 public:
-	uint64_t count(const DiagnosisSelectQuery::Wrapper& query);
-	std::list<ClnConditionDefinitionDO> selectWithPage(const DiagnosisSelectQuery::Wrapper& query);
-	std::list<DiagnosisDO> selectByName(const std::string& name);
+	uint64_t count(const DiagnoseSelectQuery::Wrapper& query);
+	std::list<ClnConditionDefinitionDO> selectWithPage(const DiagnoseSelectQuery::Wrapper& query);
+	std::list<DiagnoseDO> selectByName(const std::string& name);
 };
 
 #endif // !_DIAGNOSIS_DAO_H_

@@ -17,8 +17,8 @@
  limitations under the License.
 */
 #include "stdafx.h"
-#include "DiagnosisDAO.h"
-#include "DiagnosisSelectMapper.h"
+#include "DiagnoseDAO.h"
+#include "DiagnoseSelectMapper.h"
 
 namespace
 {
@@ -41,8 +41,8 @@ namespace
 	}
 }
 
-std::string DiagnosisDAO::queryConditionBuilder(
-	const DiagnosisSelectQuery::Wrapper& query,
+std::string DiagnoseDAO::queryConditionBuilder(
+	const DiagnoseSelectQuery::Wrapper& query,
 	SqlParams& params)
 {
 	std::stringstream sqlCondition;
@@ -62,8 +62,8 @@ std::string DiagnosisDAO::queryConditionBuilder(
 		}
 	}
 
-	const std::string diagnosisKindCode = query->diagnosisKindCode.getValue("");
-	if (diagnosisKindCode == "1")
+	const std::string diagnoseKindCode = query->diagnoseKindCode.getValue("");
+	if (diagnoseKindCode == "1")
 	{
 		appendSourceFilter(
 			sqlCondition,
@@ -71,14 +71,14 @@ std::string DiagnosisDAO::queryConditionBuilder(
 			{"general_dx", "chronic_spec", "disease_pkg", "paid_dx",
 			 "day_surgery_dx", "tumor_morph"});
 	}
-	else if (diagnosisKindCode == "2")
+	else if (diagnoseKindCode == "2")
 	{
 		appendSourceFilter(sqlCondition, params, {"tcm_dx", "tcm_syndrome"});
 	}
 	return sqlCondition.str();
 }
 
-uint64_t DiagnosisDAO::count(const DiagnosisSelectQuery::Wrapper& query)
+uint64_t DiagnoseDAO::count(const DiagnoseSelectQuery::Wrapper& query)
 {
 	SqlParams params;
 	std::string sql = "SELECT COUNT(*) FROM `cln_condition_definition`";
@@ -86,8 +86,8 @@ uint64_t DiagnosisDAO::count(const DiagnosisSelectQuery::Wrapper& query)
 	return sqlSession->executeQueryNumerical(sql, params);
 }
 
-std::list<ClnConditionDefinitionDO> DiagnosisDAO::selectWithPage(
-	const DiagnosisSelectQuery::Wrapper& query)
+std::list<ClnConditionDefinitionDO> DiagnoseDAO::selectWithPage(
+	const DiagnoseSelectQuery::Wrapper& query)
 {
 	SqlParams params;
 	std::string sql =
@@ -103,6 +103,6 @@ std::list<ClnConditionDefinitionDO> DiagnosisDAO::selectWithPage(
 	sql += " LIMIT " + std::to_string(offset) + "," + std::to_string(pageSize);
 	return sqlSession->executeQuery<ClnConditionDefinitionDO>(
 		sql,
-		DiagnosisSelectMapper(),
+		DiagnoseSelectMapper(),
 		params);
 }

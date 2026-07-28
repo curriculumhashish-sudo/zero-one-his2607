@@ -21,12 +21,12 @@
 #define _DIAGNOSIS_SELECT_MAPPER_H_
 
 #include "Mapper.h"
-#include "../../domain/do/Diagnosis/ClnConditionDefinitionDO.h"
+#include "../../domain/do/Diagnose/ClnConditionDefinitionDO.h"
 
 /**
- * Maps selectable diagnosis query columns to the database model.
+ * Maps selectable diagnose query columns to the database model.
  */
-class DiagnosisSelectMapper : public Mapper<ClnConditionDefinitionDO>
+class DiagnoseSelectMapper : public Mapper<ClnConditionDefinitionDO>
 {
 public:
 	ClnConditionDefinitionDO mapper(ResultSet* resultSet) const override

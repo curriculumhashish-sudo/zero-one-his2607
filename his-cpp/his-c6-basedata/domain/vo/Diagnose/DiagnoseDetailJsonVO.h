@@ -3,7 +3,7 @@
  Copyright Zero One Star. All rights reserved.
 
  @Author: awei
- @Date: 2026/07/22 10:00:00
+ @Date: 2026/07/20 11:00:34
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,23 +17,22 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _DIAGNOSIS_DETAIL_QUERY_H_
-#define _DIAGNOSIS_DETAIL_QUERY_H_
+#ifndef _DIAGNOSIS_DETAIL_JSON_VO_H_
+#define _DIAGNOSIS_DETAIL_JSON_VO_H_
 
 #include "../../GlobalInclude.h"
+#include "../../dto/Diagnose/DiagnoseDetailDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * Query condition for one diagnosis catalog detail.
+ * JSON response wrapper for query-one.
  */
-class DiagnosisDetailQuery : public oatpp::DTO
+class DiagnoseDetailJsonVO : public JsonVO<DiagnoseDetailDTO::Wrapper>
 {
-	DTO_INIT(DiagnosisDetailQuery, DTO);
-
-	API_DTO_FIELD(Int64, id, ZH_WORDS_GETTER("diagnose.field.catalog.id"), true, 317932056501817344LL);
+	DTO_INIT(DiagnoseDetailJsonVO, JsonVO<DiagnoseDetailDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)
 
-#endif // !_DIAGNOSIS_DETAIL_QUERY_H_
+#endif // !_DIAGNOSIS_DETAIL_JSON_VO_H_

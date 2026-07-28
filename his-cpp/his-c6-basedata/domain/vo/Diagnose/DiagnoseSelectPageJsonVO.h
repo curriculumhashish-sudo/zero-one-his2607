@@ -17,22 +17,22 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _DIAGNOSIS_DETAIL_PAGE_JSON_VO_H_
-#define _DIAGNOSIS_DETAIL_PAGE_JSON_VO_H_
+#ifndef _DIAGNOSIS_SELECT_PAGE_JSON_VO_H_
+#define _DIAGNOSIS_SELECT_PAGE_JSON_VO_H_
 
 #include "../../GlobalInclude.h"
-#include "../../dto/Diagnosis/DiagnosisDetailPageDTO.h"
+#include "../../dto/Diagnose/DiagnoseSelectPageDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * JSON response wrapper for query-all.
+ * JSON response wrapper for query-select.
  */
-class DiagnosisDetailPageJsonVO : public JsonVO<DiagnosisDetailPageDTO::Wrapper>
+class DiagnoseSelectPageJsonVO : public JsonVO<DiagnoseSelectPageDTO::Wrapper>
 {
-	DTO_INIT(DiagnosisDetailPageJsonVO, JsonVO<DiagnosisDetailPageDTO::Wrapper>);
+	DTO_INIT(DiagnoseSelectPageJsonVO, JsonVO<DiagnoseSelectPageDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)
 
-#endif // !_DIAGNOSIS_DETAIL_PAGE_JSON_VO_H_
+#endif // !_DIAGNOSIS_SELECT_PAGE_JSON_VO_H_

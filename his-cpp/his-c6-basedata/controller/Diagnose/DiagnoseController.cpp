@@ -17,8 +17,8 @@
  limitations under the License.
 */
 #include "stdafx.h"
-#include "DiagnosisController.h"
-#include "../../service/Diagnosis/DiagnoseService.h"
+#include "DiagnoseController.h"
+#include "../../service/Diagnose/DiagnoseService.h"
 #include <cctype>
 #include <limits>
 
@@ -43,10 +43,10 @@ namespace
 	}
 }
 
-DiagnosisSelectPageJsonVO::Wrapper DiagnosisController::execQuerySelectDiagnosis(
-	const DiagnosisSelectQuery::Wrapper& query)
+DiagnoseSelectPageJsonVO::Wrapper DiagnoseController::execQuerySelectDiagnose(
+	const DiagnoseSelectQuery::Wrapper& query)
 {
-	auto response = DiagnosisSelectPageJsonVO::createShared();
+	auto response = DiagnoseSelectPageJsonVO::createShared();
 	if (!query || !query->pageIndex || !query->pageSize)
 	{
 		response->init(nullptr, RS_PARAMS_INVALID);
@@ -62,18 +62,18 @@ DiagnosisSelectPageJsonVO::Wrapper DiagnosisController::execQuerySelectDiagnosis
 		return response;
 	}
 
-	const std::string diagnosisKindCode = trimCopy(
-		query->diagnosisKindCode.getValue(""));
-	if (!diagnosisKindCode.empty()
-		&& diagnosisKindCode != "1"
-		&& diagnosisKindCode != "2")
+	const std::string diagnoseKindCode = trimCopy(
+		query->diagnoseKindCode.getValue(""));
+	if (!diagnoseKindCode.empty()
+		&& diagnoseKindCode != "1"
+		&& diagnoseKindCode != "2")
 	{
 		response->init(nullptr, RS_PARAMS_INVALID);
 		return response;
 	}
-	query->diagnosisKindCode = diagnosisKindCode.empty()
+	query->diagnoseKindCode = diagnoseKindCode.empty()
 		? oatpp::String(nullptr)
-		: oatpp::String(diagnosisKindCode.c_str());
+		: oatpp::String(diagnoseKindCode.c_str());
 
 	const std::string keyword = trimCopy(query->keyword.getValue(""));
 	query->keyword = keyword.empty()
@@ -84,38 +84,38 @@ DiagnosisSelectPageJsonVO::Wrapper DiagnosisController::execQuerySelectDiagnosis
 	return response;
 }
 
-DiagnosisDetailPageJsonVO::Wrapper DiagnosisController::execQueryAllDiagnosis(
-	const DiagnosisPageQuery::Wrapper& query)
+DiagnoseDetailPageJsonVO::Wrapper DiagnoseController::execQueryAllDiagnose(
+	const DiagnosePageQuery::Wrapper& query)
 {
-	auto page = DiagnosisDetailPageDTO::createShared();
+	auto page = DiagnoseDetailPageDTO::createShared();
 	page->pageIndex = query->pageIndex;
 	page->pageSize = query->pageSize;
 	page->total = 1;
-	page->addData(DiagnosisDetailDTO::createShared());
+	page->addData(DiagnoseDetailDTO::createShared());
 	page->calcPages();
 
-	auto response = DiagnosisDetailPageJsonVO::createShared();
+	auto response = DiagnoseDetailPageJsonVO::createShared();
 	response->success(page);
 	return response;
 }
 
-DiagnosisDetailJsonVO::Wrapper DiagnosisController::execQueryOneDiagnosis(
-	const DiagnosisDetailQuery::Wrapper& query)
+DiagnoseDetailJsonVO::Wrapper DiagnoseController::execQueryOneDiagnose(
+	const DiagnoseDetailQuery::Wrapper& query)
 {
-	auto response = DiagnosisDetailJsonVO::createShared();
+	auto response = DiagnoseDetailJsonVO::createShared();
 	if (!query->id || query->id.getValue(0) <= 0)
 	{
 		response->init(nullptr, RS_PARAMS_INVALID);
 		return response;
 	}
 
-	auto detail = DiagnosisDetailDTO::createShared();
+	auto detail = DiagnoseDetailDTO::createShared();
 	detail->id = query->id;
 	response->success(detail);
 	return response;
 }
 
-StringJsonVO::Wrapper DiagnosisController::execAddDiagnose(const DiagnoseAddDTO::Wrapper& dto,const PayloadDTO& payload)
+StringJsonVO::Wrapper DiagnoseController::execAddDiagnose(const DiagnoseAddDTO::Wrapper& dto,const PayloadDTO& payload)
 {
 	auto response = StringJsonVO::createShared();
 
@@ -139,7 +139,7 @@ StringJsonVO::Wrapper DiagnosisController::execAddDiagnose(const DiagnoseAddDTO:
 	return response;
 }
 
-StringJsonVO::Wrapper DiagnosisController::execModifyDiagnose(const DiagnoseDTO::Wrapper& dto,const PayloadDTO& payload)
+StringJsonVO::Wrapper DiagnoseController::execModifyDiagnose(const DiagnoseDTO::Wrapper& dto,const PayloadDTO& payload)
 {
 	auto response = StringJsonVO::createShared();
 	if (!dto->id)
@@ -160,7 +160,7 @@ StringJsonVO::Wrapper DiagnosisController::execModifyDiagnose(const DiagnoseDTO:
 	return response;
 }
 
-ListJsonVO<String>::Wrapper DiagnosisController::execRemoveDiagnose(const List<String>& ids)
+ListJsonVO<String>::Wrapper DiagnoseController::execRemoveDiagnose(const List<String>& ids)
 {
 	auto response = ListJsonVO<String>::createShared();
 	if (!ids || ids->empty())
@@ -180,7 +180,7 @@ ListJsonVO<String>::Wrapper DiagnosisController::execRemoveDiagnose(const List<S
 	return response;
 }
 
-StringJsonVO::Wrapper DiagnosisController::execBatchChangeDiagnoseStatus(const DiagnoseBatchStatusDTO::Wrapper& dto,const PayloadDTO& payload)
+StringJsonVO::Wrapper DiagnoseController::execBatchChangeDiagnoseStatus(const DiagnoseBatchStatusDTO::Wrapper& dto,const PayloadDTO& payload)
 {
 	auto response = StringJsonVO::createShared();
 	if (!dto->ids || !dto->status)
@@ -206,7 +206,7 @@ StringJsonVO::Wrapper DiagnosisController::execBatchChangeDiagnoseStatus(const D
 	return response;
 }
 //Âß¼­É¾³ý
-DiagnoseRemoveJsonVO::Wrapper DiagnosisController::execRemoveDiagnosis(const DiagnoseRemoveDTO::Wrapper& dto, const PayloadDTO& payload)
+DiagnoseRemoveJsonVO::Wrapper DiagnoseController::execRemoveDiagnose(const DiagnoseRemoveDTO::Wrapper& dto, const PayloadDTO& payload)
 {
 	auto response = DiagnoseRemoveJsonVO::createShared();
 	if (!dto->ids)

@@ -3,7 +3,7 @@
  Copyright Zero One Star. All rights reserved.
 
  @Author: awei
- @Date: 2026/07/20 11:00:34
+ @Date: 2026/07/20 11:36:29
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,22 +17,25 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _DIAGNOSIS_DETAIL_JSON_VO_H_
-#define _DIAGNOSIS_DETAIL_JSON_VO_H_
+#ifndef _DIAGNOSIS_SELECT_QUERY_H_
+#define _DIAGNOSIS_SELECT_QUERY_H_
 
 #include "../../GlobalInclude.h"
-#include "../../dto/Diagnosis/DiagnosisDetailDTO.h"
+#include "domain/query/PageQuery.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * JSON response wrapper for query-one.
+ * Query conditions for the paged diagnose picker.
  */
-class DiagnosisDetailJsonVO : public JsonVO<DiagnosisDetailDTO::Wrapper>
+class DiagnoseSelectQuery : public PageQuery
 {
-	DTO_INIT(DiagnosisDetailJsonVO, JsonVO<DiagnosisDetailDTO::Wrapper>);
+	DTO_INIT(DiagnoseSelectQuery, PageQuery);
+
+	API_DTO_FIELD_REQUIRE(String, keyword, ZH_WORDS_GETTER("diagnose.query.field.keyword"), false);
+	API_DTO_FIELD_REQUIRE(String, diagnoseKindCode, ZH_WORDS_GETTER("diagnose.query.field.diagnose_kind_code"), false);
 };
 
 #include OATPP_CODEGEN_END(DTO)
 
-#endif // !_DIAGNOSIS_DETAIL_JSON_VO_H_
+#endif // !_DIAGNOSIS_SELECT_QUERY_H_

@@ -2,7 +2,7 @@
 #define _DIAGNOSIS_JSON_VO_H_
 
 #include "../../GlobalInclude.h"
-#include "../../dto/Diagnosis/DiagnoseDTO.h"
+#include "../../dto/Diagnose/DiagnoseDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 

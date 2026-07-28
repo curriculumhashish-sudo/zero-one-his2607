@@ -1,43 +1,44 @@
-#pragma once
-/*
- Copyright Zero One Star. All rights reserved.
 
- @Author: awei
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
-      https://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-*/
-#ifndef _DIAGNOSE_SERVICE_H_
-#define _DIAGNOSE_SERVICE_H_
+#ifndef DIAGNOSE_SERVICE_H
+#define DIAGNOSE_SERVICE_H
 
 #include <string>
-#include "../../domain/dto/Diagnosis/DiagnoseDTO.h"
-#include "../../domain/dto/Diagnosis/DiagnosisSelectPageDTO.h"
-#include "../../domain/query/Diagnosis/DiagnosisSelectQuery.h"
+#include "../../domain/dto/Diagnose/DiagnoseDTO.h"
+<<<<<<< HEAD
+#include "../../domain/dto/Diagnose/DiagnoseSelectPageDTO.h"
+#include "../../domain/query/Diagnose/DiagnoseSelectQuery.h"
+=======
+//#include "dto/diagnose/DiagnoseEditDTO.h"
+//#include "dto/PayloadDTO.hpp"
+>>>>>>> parent of d02f5cf44 (axiao完成诊疗列表查询功能)
 
-/**
- * Business service for diagnosis write operations.
- */
 class DiagnoseService
 {
 public:
-	DiagnosisSelectPageDTO::Wrapper listSelectableDiagnoses(
-		const DiagnosisSelectQuery::Wrapper& query);
+<<<<<<< HEAD
+	DiagnoseSelectPageDTO::Wrapper listSelectableDiagnoses(
+		const DiagnoseSelectQuery::Wrapper& query);
+=======
+	// 单条新增诊断记录
+>>>>>>> parent of d02f5cf44 (axiao完成诊疗列表查询功能)
 	std::string saveData(const DiagnoseAddDTO::Wrapper& dto);
+
+	// 根据ID修改诊断记录
 	bool updateData(const DiagnoseDTO::Wrapper& dto);
+
+	// 逻辑批量删除（停用）诊断记录
 	bool removeData(const oatpp::List<oatpp::String>& ids);
+<<<<<<< HEAD
 	bool removeOne(const std::string& id);
 	bool batchChangeStatus(const DiagnoseBatchStatusDTO::Wrapper& dto, oatpp::String status);
 	bool execRemoveData(const DiagnoseRemoveDTO::Wrapper& dto);
+=======
+//逻辑单条删除
+	bool removeOne(const string& ids);
+	//批量停用和启用
+	bool batchChangeStatus(const oatpp::List<oatpp::String>& ids, oatpp::Int32 status);
+
+>>>>>>> parent of d02f5cf44 (axiao完成诊疗列表查询功能)
 };
 
-#endif // !_DIAGNOSE_SERVICE_H_
+#endif

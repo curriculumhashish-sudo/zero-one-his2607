@@ -3,7 +3,7 @@
  Copyright Zero One Star. All rights reserved.
 
  @Author: awei
- @Date: 2026/07/22 10:00:00
+ @Date: 2026/07/20 11:36:29
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,22 +17,25 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _DIAGNOSIS_SELECT_PAGE_DTO_H_
-#define _DIAGNOSIS_SELECT_PAGE_DTO_H_
+#ifndef _DIAGNOSIS_PAGE_QUERY_H_
+#define _DIAGNOSIS_PAGE_QUERY_H_
 
 #include "../../GlobalInclude.h"
-#include "DiagnosisSelectDTO.h"
+#include "domain/query/PageQuery.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * Paged transfer object for selectable diagnoses.
+ * Query conditions for the paged diagnose catalog.
  */
-class DiagnosisSelectPageDTO : public PageDTO<DiagnosisSelectDTO::Wrapper>
+class DiagnosePageQuery : public PageQuery
 {
-	DTO_INIT(DiagnosisSelectPageDTO, PageDTO<DiagnosisSelectDTO::Wrapper>);
+	DTO_INIT(DiagnosePageQuery, PageQuery);
+
+	API_DTO_FIELD(String, keyword, ZH_WORDS_GETTER("diagnose.query.field.keyword"), false, "GM");
+	API_DTO_FIELD(String, sourceEnum, ZH_WORDS_GETTER("diagnose.query.field.source_enum"), false, "general_dx");
 };
 
 #include OATPP_CODEGEN_END(DTO)
 
-#endif // !_DIAGNOSIS_SELECT_PAGE_DTO_H_
+#endif // !_DIAGNOSIS_PAGE_QUERY_H_

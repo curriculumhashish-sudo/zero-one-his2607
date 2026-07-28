@@ -25,19 +25,19 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * One selectable diagnosis item returned by the diagnosis picker.
+ * One selectable diagnose item returned by the diagnose picker.
  */
-class DiagnosisSelectDTO : public oatpp::DTO
+class DiagnoseSelectDTO : public oatpp::DTO
 {
-	DTO_INIT(DiagnosisSelectDTO, DTO);
+	DTO_INIT(DiagnoseSelectDTO, DTO);
 
 	API_DTO_FIELD(String, conditionDefinitionId, ZH_WORDS_GETTER("diagnose.field.select.condition_definition_id"), true, "317932056501817344");
 	API_DTO_FIELD(String, conditionCode, ZH_WORDS_GETTER("diagnose.field.select.condition_code"), true, "CDF00000003");
 	API_DTO_FIELD(String, conditionDefinitionName, ZH_WORDS_GETTER("diagnose.field.select.condition_definition_name"), true, u8"\u611f\u5192");
 	API_DTO_FIELD(String, pyStr, ZH_WORDS_GETTER("diagnose.field.select.py_str"), false, "GM");
 	API_DTO_FIELD(String, wbStr, ZH_WORDS_GETTER("diagnose.field.select.wb_str"), false, "DJ");
-	API_DTO_FIELD(String, diagnosisKind, ZH_WORDS_GETTER("diagnose.field.select.diagnosis_kind"), true, "WESTERN");
-	API_DTO_FIELD(String, diagnosisKindText, ZH_WORDS_GETTER("diagnose.field.select.diagnosis_kind_text"), true, u8"\u897f\u533b");
+	API_DTO_FIELD(String, diagnoseKind, ZH_WORDS_GETTER("diagnose.field.select.diagnose_kind"), true, "WESTERN");
+	API_DTO_FIELD(String, diagnoseKindText, ZH_WORDS_GETTER("diagnose.field.select.diagnose_kind_text"), true, u8"\u897f\u533b");
 	API_DTO_FIELD(Int32, sourceEnum, ZH_WORDS_GETTER("diagnose.field.select.source_enum"), false, 1);
 	API_DTO_FIELD(String, sourceEnumText, ZH_WORDS_GETTER("diagnose.field.select.source_enum_text"), true, u8"\u75be\u75c5\u4e0e\u8bca\u65ad");
 	API_DTO_FIELD(Int32, ybFlag, ZH_WORDS_GETTER("diagnose.field.select.yb_flag"), true, 0);
