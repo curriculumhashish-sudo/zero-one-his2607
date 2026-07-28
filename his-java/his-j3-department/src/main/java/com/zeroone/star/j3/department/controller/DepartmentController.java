@@ -41,11 +41,17 @@ import java.util.List;
 @RequestMapping("/departments")
 @Slf4j
 @Tag(name = "科室管理")
-// TODO: 后期需调用Service层获得真实数据
 public class DepartmentController implements DepartmentApis {
     @Resource
     private DepartmentService departmentService;
 
+    /**
+     * 获取科室名称树（支持门诊/住院筛选)
+     *
+     * @param query 查询参数
+     * @return 科室树结构
+     * @author 胡傲宇
+     */
     @PostMapping("/tree")
     @Operation(summary = "获取科室名称树（支持门诊/住院筛选)")
     @ApiResponses({@ApiResponse(responseCode = "200", description = "成功",
@@ -57,6 +63,14 @@ public class DepartmentController implements DepartmentApis {
         return JsonVO.success(departmentTree);
     }
 
+    /**
+     *
+     * 获取科室详情
+     *
+     * @param id 科室对象ID
+     * @return 科室详情结果
+     * @author 胡傲宇
+     */
     @GetMapping("/{id}")
     @Operation(summary = "获取科室详情")
     @ApiResponses({@ApiResponse(responseCode = "200", description = "成功",
@@ -68,6 +82,13 @@ public class DepartmentController implements DepartmentApis {
         return JsonVO.success(departmentDetail);
     }
 
+    /**
+     * 新增科室
+     *
+     * @param dto 新增科室对象
+     * @return 提示信息
+     * @author 胡傲宇
+     */
     @PostMapping
     @Operation(summary = "新增科室")
     @ApiResponses({
@@ -81,6 +102,13 @@ public class DepartmentController implements DepartmentApis {
         return JsonVO.success("新增科室成功");
     }
 
+    /**
+     * 启用/停用科室(支持批量)
+     *
+     * @param dto 批量操作参数（含id列表+状态枚举）
+     * @return 提示信息
+     * @author 胡傲宇
+     */
     @PutMapping("/batch-status")
     @Operation(summary = "启用/停用科室(支持批量)")
     @ApiResponses({
