@@ -1,8 +1,15 @@
-#include "stdafx.h"
 #include "GetCategoryDetailsController.h"
+#include "../../service/settle/GetCategoryDetailsService.h"
 
 
-GetCategoryDetailsJsonVO::Wrapper GetCategoryDetailsController::execQueryGetCategoryDetails(const GetCategoryDetailsQuery::Wrapper& query) {
+GetCategoryDetailsJsonVO::Wrapper GetCategoryDetailsController::execQueryGetCategoryDetails(const GetCategoryDetailsQuery::Wrapper& query)
+{
 
-    return GetCategoryDetailsJsonVO::Wrapper();
+    auto vo = GetCategoryDetailsJsonVO::createShared();
+    GetCategoryDetailsService service;
+    auto dtoList = service.listAll(query);
+    vo->success(dtoList);
+
+    return vo;
 }
+
