@@ -1,4 +1,4 @@
-package com.zeroone.star.clinics.contoller;
+package com.zeroone.star.clinics.controller;
 
 
 

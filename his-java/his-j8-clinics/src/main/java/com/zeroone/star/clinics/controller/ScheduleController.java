@@ -1,4 +1,4 @@
-package com.zeroone.star.clinics.contoller;
+package com.zeroone.star.clinics.controller;
 
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j8.clinics.FormalRosterDTO;
