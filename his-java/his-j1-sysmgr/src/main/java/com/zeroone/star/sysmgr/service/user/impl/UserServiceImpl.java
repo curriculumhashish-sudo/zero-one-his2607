@@ -141,45 +141,110 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     @Override
     public Boolean saveUser(UserAddDTO userAddDTO) {
-        //1.效验用户名是否重复
-        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(User::getUserName,userAddDTO.getUsername());
-        if(baseMapper.selectCount(wrapper)>0){
+        // 1.校验用户名唯一
+        if (baseMapper.selectCount(new LambdaQueryWrapper<User>().eq(User::getUserName, userAddDTO.getUsername())) > 0) {
             throw new SystemException(UserStatus.USERNAME_DUPLICATE);
         }
-        //2.如果存在邮箱信息 效验邮箱是否重复
-        if(StringUtils.hasText(userAddDTO.getEmail())){
-            LambdaQueryWrapper<User> emailWrapper = new LambdaQueryWrapper<User>().eq(User::getEmail, userAddDTO.getEmail());
-            if(baseMapper.selectCount(emailWrapper)>0){
-                throw  new SystemException(UserStatus.EMAIL_DUPLICATE);
+        // 2.校验邮箱唯一
+        if (StringUtils.hasText(userAddDTO.getEmail())) {
+            if (baseMapper.selectCount(new LambdaQueryWrapper<User>().eq(User::getEmail, userAddDTO.getEmail())) > 0) {
+                throw new SystemException(UserStatus.EMAIL_DUPLICATE);
             }
         }
-
-        //TODO：效验角色是否存在
-
-        //3.转换类型
+        // 3.插入 whale_users
         User user = new User();
-        BeanUtils.copyProperties(userAddDTO,user);
+        user.setUserName(userAddDTO.getUsername());
+        user.setEmail(userAddDTO.getEmail());
+        user.setPhoneNumber(userAddDTO.getPhoneNumber());
+        user.setName(userAddDTO.getName());
         user.setPasswordHash(BCrypt.hashpw(userAddDTO.getPassword()));
-
-        //4.插入数据库
+        user.setIsActive(userAddDTO.getIsActive() != null ? userAddDTO.getIsActive() == 1 : null);
         baseMapper.insert(user);
-
-        //5.获取用户id
         String userId = user.getId();
 
-        //6.用户关联医务人员
-        practitionerService.add(userId,userAddDTO);
+        // 4.插入 adm_practitioner
+        Practitioner practitioner = new Practitioner();
+        practitioner.setUserId(userId);
+        practitioner.setName(userAddDTO.getName());
+        practitioner.setPhone(userAddDTO.getPhoneNumber());
+        practitioner.setGender(userAddDTO.getGenderEnum());
+        practitioner.setBirthDate(userAddDTO.getBirthDate());
+        practitioner.setAddressStreet(userAddDTO.getAddress());
+        practitioner.setYbNo(userAddDTO.getYbNo());
+        practitioner.setSignature(userAddDTO.getSignature());
+        practitioner.setDrProfttlCode(userAddDTO.getDrProfttlCode() != null ? Integer.valueOf(userAddDTO.getDrProfttlCode()) : null);
+        practitioner.setPharPracCertNo(userAddDTO.getPharPracCertNo());
+        practitioner.setOrgId(userAddDTO.getDefaultOrgId());
+        practitionerMapper.insert(practitioner);
 
-        //7.用户关联科室
-        userOrganizationUnitService.add(userId,userAddDTO.getDefaultOrgId());
-
-        //8.用户关联角色
-        userRoleService.add(userId,userAddDTO.getRoleIds());
-
-        //9.用户关联租户
+        // 5.插入 whale_user_roles
+        if (userAddDTO.getRoleIds() != null) {
+            for (String roleId : userAddDTO.getRoleIds()) {
+                UserRole ur = new UserRole();
+                ur.setUserId(userId);
+                ur.setRoleId(roleId);
+                userRoleService.save(ur);
+            }
+        }
+        // 6.查询角色 code 映射，按角色插入 adm_pr_assign
+        Map<String, String> codeMap = userAddDTO.getRoleIds() == null || userAddDTO.getRoleIds().isEmpty()
+                ? Collections.emptyMap()
+                : roleMapper.selectBatchIds(userAddDTO.getRoleIds()).stream()
+                        .filter(r -> r.getIsDeleted() == 0)
+                        .collect(Collectors.toMap(RoleDO::getId, r -> r.getCode() != null ? r.getCode() : ""));
+        if (!codeMap.isEmpty()) {
+            // 医生 → 出诊科室 + 号源
+            if (codeMap.containsValue("ROLE_DOCTOR")) {
+                String roleId = getKeyByValue(codeMap, "ROLE_DOCTOR");
+                if (userAddDTO.getConsultDeptIds() != null) {
+                    for (String orgId : userAddDTO.getConsultDeptIds()) {
+                        prAssignMapper.insert(newPrAssign(practitioner.getId(), roleId, orgId, null));
+                    }
+                }
+                if (userAddDTO.getReceptionSourceIds() != null) {
+                    for (String svcId : userAddDTO.getReceptionSourceIds()) {
+                        PrAssign pa = newPrAssign(practitioner.getId(), roleId, null, null);
+                        prAssignMapper.insert(pa);
+                        PrAssignService pas = new PrAssignService();
+                        pas.setAssignmentId(pa.getId());
+                        pas.setHealthcareServiceId(svcId);
+                        prAssignServiceMapper.insert(pas);
+                    }
+                }
+            }
+            // 护士 → 病区
+            if (codeMap.containsValue("ROLE_NURSE") && userAddDTO.getWardIds() != null) {
+                String roleId = getKeyByValue(codeMap, "ROLE_NURSE");
+                for (String locId : userAddDTO.getWardIds()) {
+                    prAssignMapper.insert(newPrAssign(practitioner.getId(), roleId, null, locId));
+                }
+            }
+            // 药师 → 药房
+            if (codeMap.containsValue("ROLE_PHARMACIST") && userAddDTO.getPharmacyIds() != null) {
+                String roleId = getKeyByValue(codeMap, "ROLE_PHARMACIST");
+                for (String locId : userAddDTO.getPharmacyIds()) {
+                    prAssignMapper.insert(newPrAssign(practitioner.getId(), roleId, null, locId));
+                }
+            }
+            // 库管 → 库房 + 药房
+            if (codeMap.containsValue("ROLE_WAREHOUSE")) {
+                String roleId = getKeyByValue(codeMap, "ROLE_WAREHOUSE");
+                if (userAddDTO.getWarehouseIds() != null) {
+                    for (String locId : userAddDTO.getWarehouseIds()) {
+                        prAssignMapper.insert(newPrAssign(practitioner.getId(), roleId, null, locId));
+                    }
+                }
+                if (userAddDTO.getPharmacyIds() != null) {
+                    for (String locId : userAddDTO.getPharmacyIds()) {
+                        prAssignMapper.insert(newPrAssign(practitioner.getId(), roleId, null, locId));
+                    }
+                }
+            }
+        }
+        // 7.关联科室
+        userOrganizationUnitService.add(userId, userAddDTO.getDefaultOrgId());
+        // 8.关联租户
         userTenantService.add(userId);
-
         return true;
     }
 
@@ -378,17 +443,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                         .filter(r -> r.getIsDeleted() == 0)
                         .collect(Collectors.toMap(RoleDO::getId, r -> r.getCode() != null ? r.getCode() : ""));
 
-        // 6.有角色才更新对应的 adm_pr_assign（按 roleId 删旧，按 roleCode 决定插什么）
+        // 6.全删旧 adm_pr_assign + adm_pr_assign_service，按新角色重建
+        List<PrAssign> oldAssigns = prAssignMapper.selectList(
+                new LambdaQueryWrapper<PrAssign>().eq(PrAssign::getPractitionerId, practitioner.getId()));
+        for (PrAssign old : oldAssigns) {
+            prAssignServiceMapper.delete(new LambdaQueryWrapper<PrAssignService>().eq(PrAssignService::getAssignmentId, old.getId()));
+            prAssignMapper.deleteById(old.getId());
+        }
         if (!roleCodeMap.isEmpty()) {
-            List<PrAssign> oldAssigns = prAssignMapper.selectList(
-                    new LambdaQueryWrapper<PrAssign>().eq(PrAssign::getPractitionerId, practitioner.getId()));
-            // 删掉新角色列表中已有的旧分配记录
-            for (PrAssign old : oldAssigns) {
-                if (roleCodeMap.containsKey(old.getRoleId())) {
-                    prAssignServiceMapper.delete(new LambdaQueryWrapper<PrAssignService>().eq(PrAssignService::getAssignmentId, old.getId()));
-                    prAssignMapper.deleteById(old.getId());
-                }
-            }
             // 医生 → 出诊科室 + 号源
             if (roleCodeMap.containsValue("ROLE_DOCTOR")) {
                 String roleId = getKeyByValue(roleCodeMap, "ROLE_DOCTOR");
