@@ -8,8 +8,10 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j6.report.ExpirationWarningVO;
 import com.zeroone.star.project.vo.j6.report.MonthlyAccessVO;
 import com.zeroone.star.project.vo.j6.report.SupplyAmountCompareVO;
+import com.zeroone.star.report.service.IDataStatisticsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,8 +31,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/data-statistics")
+@RequiredArgsConstructor
 @Tag(name = "数据统计")
 public class DataStatisticsController implements DataStatisticsApis {
+
+    private final IDataStatisticsService dataStatisticsService;
 
     @Operation(summary = "获取月访问量")
     @GetMapping("monthly-access")
@@ -98,21 +103,27 @@ public class DataStatisticsController implements DataStatisticsApis {
     @Override
     @Validated
     public JsonVO<EncounterWeekTrendVO> queryWeekTrend(@Validated EncounterWeekTrendQuery query) {
-        return null;
+        EncounterWeekTrendVO vo = new EncounterWeekTrendVO();
+        vo.setData(dataStatisticsService.queryWeekTrend(query));
+        return JsonVO.success(vo);
     }
 
     @Operation(summary = "月接诊量门诊趋势")
     @GetMapping("/month-trend")
     @Override
     public JsonVO<EncounterMonthTrendVO> queryMonthTrend(@Validated EncounterMonthTrendQuery query) {
-        return null;
+        EncounterMonthTrendVO vo = new EncounterMonthTrendVO();
+        vo.setData(dataStatisticsService.queryMonthTrend(query));
+        return JsonVO.success(vo);
     }
 
     @Operation(summary = "患者疾病类型分布")
     @GetMapping("/disease-statistic")
     @Override
     public JsonVO<DiseaseDistributionVO> queryDiseaseStatistic() {
-        return null;
+        DiseaseDistributionVO vo = new DiseaseDistributionVO();
+        vo.setData(dataStatisticsService.queryDiseaseStatistic());
+        return JsonVO.success(vo);
     }
 
 

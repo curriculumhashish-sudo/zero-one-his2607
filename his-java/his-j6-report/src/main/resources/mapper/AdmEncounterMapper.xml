@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.report.mapper.AdmEncounterMapper">
+
+    <!-- 按日期范围统计每日接诊量 -->
+    <select id="selectDailyEncounterCount" resultType="java.util.Map">
+        SELECT DATE_FORMAT(start_time, '%Y-%m-%d') AS date, COUNT(*) AS value
+        FROM adm_encounter
+        WHERE is_deleted = 0
+          AND start_time IS NOT NULL
+          AND start_time &gt;= #{startDate}
+          AND start_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 DAY)
+        GROUP BY DATE_FORMAT(start_time, '%Y-%m-%d')
+        ORDER BY date
+    </select>
+
+    <!-- 统计总就诊人数 -->
+    <select id="selectTotalEncounterCount" resultType="int">
+        SELECT COUNT(*)
+        FROM adm_encounter
+        WHERE is_deleted = 0
+    </select>
+
+</mapper>

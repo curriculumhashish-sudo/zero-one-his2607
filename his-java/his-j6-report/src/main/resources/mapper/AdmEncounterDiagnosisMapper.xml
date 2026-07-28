@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.report.mapper.AdmEncounterDiagnosisMapper">
+
+    <!--
+        统计患者疾病类型分布
+        关联链路：adm_encounter → adm_encounter_diagnosis → cln_condition → cln_condition_definition
+        仅查询疾病名称和就诊人数
+    -->
+    <select id="selectDiseaseDistribution" resultType="java.util.Map">
+        SELECT cd.name AS diseaseName, COUNT(DISTINCT e.id) AS count
+        FROM adm_encounter e
+        INNER JOIN adm_encounter_diagnosis ed ON e.id = ed.encounter_id AND ed.is_deleted = 0
+        INNER JOIN cln_condition c ON ed.condition_id = c.id AND c.is_deleted = 0
+        INNER JOIN cln_condition_definition cd ON c.definition_id = cd.id AND cd.is_deleted = 0
+        WHERE e.is_deleted = 0
+        GROUP BY cd.name
+        ORDER BY count DESC
+    </select>
+
+</mapper>
