@@ -1,5 +1,7 @@
 package com.zeroone.star.sysmgr.exception;
 
+import com.zeroone.star.project.exception.SystemStatus;
+
 /**
  * 权限管理状态枚举
  * @author j1-权限管理组
