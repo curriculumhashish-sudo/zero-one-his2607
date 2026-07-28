@@ -1,4 +1,6 @@
 cyclectrl2:
+ test:
+  tag: 周期循环    
  refund:
   tag: 退费
   apply: 提交退费申请
