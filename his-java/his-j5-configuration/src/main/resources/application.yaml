@@ -5,7 +5,7 @@ spring:
   application:
     name: his-j5-configuration
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/example_db?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://127.0.0.1:3306/zo_his?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver

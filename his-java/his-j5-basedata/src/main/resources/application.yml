@@ -21,6 +21,18 @@ spring:
         server-addr: 127.0.0.1:8848
         group: DEFAULT_GROUP
 
+# MyBatis-Plus —— 启用显式 SQL 列 + 关闭 SQL 日志以提升性能
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-field: is_deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
 # springdoc & knife4j
 springdoc:
   swagger-ui:

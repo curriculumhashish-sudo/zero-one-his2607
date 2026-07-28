@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,9 +27,10 @@ import java.util.List;
  * <p>地址：01星球总部</p>
  * @author keepasdd
  * @version 1.0.0
- * hello
  */
-@RestController("/template")
+@RestController
+@RequestMapping("/template")
+@Validated
 @Tag(name = "order-template", description = "组套模板接口")
 public class TemplateController {
 
@@ -36,14 +39,14 @@ public class TemplateController {
 
     @Operation(summary = "获取组套名称列表")
     @GetMapping("/names")
-    public JsonVO<List<OrderTemplateNameVO>> listNames(OrderTemplateNameQuery query) {
+    public JsonVO<List<OrderTemplateNameVO>> listNames(@Valid OrderTemplateNameQuery query) {
         List<OrderTemplateNameVO> result = orderTemplateService.listNames(query);
         return JsonVO.success(result);
     }
 
     @Operation(summary = "获取组套列表（分页）")
     @GetMapping("/list")
-    public JsonVO<PageDTO<OrderTemplateListVO>> list(OrderTemplateQuery query) {
+    public JsonVO<PageDTO<OrderTemplateListVO>> list(@Valid OrderTemplateQuery query) {
         return JsonVO.success(PageDTO.create(orderTemplateService.list(query)));
     }
 

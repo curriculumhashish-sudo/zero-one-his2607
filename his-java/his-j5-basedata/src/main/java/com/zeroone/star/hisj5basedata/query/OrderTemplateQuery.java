@@ -2,20 +2,29 @@ package com.zeroone.star.hisj5basedata.query;
 
 import com.zeroone.star.project.query.PageQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 /**
  * <p>
  * 组套模板列表查询条件（接口 2）
  * </p>
+ * <p>版权：&copy;01星球</p>
+ * <p>地址：01星球总部</p>
  * @author keepasdd
+ * @version 1.0.0
  */
-@AllArgsConstructor
 @Data
-@ToString(callSuper = true)
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class OrderTemplateQuery extends PageQuery {
 
-    @Schema(description = "组套种类（tab 切换：GENERAL/TCM/PRICING）")
+    @NotBlank(message = "组套种类不能为空")
+    @Schema(description = "组套种类（tab 切换：GENERAL/TCM/PRICING）", example = "GENERAL")
     private String templateKindEnum = "GENERAL";
 
     @Schema(description = "关键词（按名称模糊搜索）")
