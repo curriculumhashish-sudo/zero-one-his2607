@@ -10,4 +10,8 @@ public class StocktakeSubmitApprovalDTO {
     @Schema(description = "Stocktake order business number", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "busNo cannot be blank")
     private String busNo;
+
+    @Schema(description = "Approver user id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "approverId cannot be blank")
+    private String approverId;
 }

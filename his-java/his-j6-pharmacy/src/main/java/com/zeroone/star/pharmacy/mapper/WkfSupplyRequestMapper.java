@@ -30,6 +30,7 @@ public interface WkfSupplyRequestMapper extends BaseMapper<WkfSupplyRequest> {
                                  @Param("typeEnum") String typeEnum,
                                  @Param("currentStatus") String currentStatus,
                                  @Param("applicantId") String applicantId,
+                                 @Param("approverId") String approverId,
                                  @Param("applyTime") LocalDateTime applyTime,
                                  @Param("updatedAt") LocalDateTime updatedAt,
                                  @Param("updatedBy") String updatedBy);

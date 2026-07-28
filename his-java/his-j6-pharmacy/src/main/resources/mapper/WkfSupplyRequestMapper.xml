@@ -26,7 +26,7 @@
         set status_enum = 'PENDING_APPROVAL',
             applicant_id = #{applicantId},
             apply_time = #{applyTime},
-            approver_id = null,
+            approver_id = #{approverId},
             approval_time = null,
             reason = null,
             updated_at = #{updatedAt},

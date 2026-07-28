@@ -42,7 +42,7 @@ class PharmacyControllerTest {
 
         mockMvc.perform(post("/stocktake/submit-approval")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"busNo\":\"CST2026-001\"}"))
+                        .content("{\"busNo\":\"CST2026-001\",\"approverId\":\"1001\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(10000))
                 .andExpect(jsonPath("$.data").value(true));
@@ -66,10 +66,18 @@ class PharmacyControllerTest {
 
         mockMvc.perform(post("/stocktake/approve")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"busNo\":\"CST2026-001\",\"status\":\"AGREE\"}"))
+                        .content("{\"busNo\":\"CST2026-001\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(10000))
                 .andExpect(jsonPath("$.data").value(true));
+    }
+
+    @Test
+    void submitApprovalEndpointRejectsBlankApproverId() throws Exception {
+        mockMvc.perform(post("/stocktake/submit-approval")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"busNo\":\"CST2026-001\",\"approverId\":\"\"}"))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -88,16 +96,20 @@ class PharmacyControllerTest {
     void submitApprovalEndpointRejectsBlankBusNo() throws Exception {
         mockMvc.perform(post("/stocktake/submit-approval")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"busNo\":\"\"}"))
+                        .content("{\"busNo\":\"\",\"approverId\":\"1001\"}"))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    void approveEndpointRejectsMissingStatus() throws Exception {
+    void approveEndpointAcceptsMissingStatus() throws Exception {
+        when(stocktakeApprovalService.agree(any(StocktakeAgreeApprovalDTO.class))).thenReturn(true);
+
         mockMvc.perform(post("/stocktake/approve")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"busNo\":\"CST2026-001\"}"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(10000))
+                .andExpect(jsonPath("$.data").value(true));
     }
 
     @Test
@@ -106,5 +118,19 @@ class PharmacyControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"busNo\":\"CST2026-001\"}"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void submitApprovalEndpointHandlesBusinessException() throws Exception {
+        String message = "current status AGREE does not allow this approval action";
+        when(stocktakeApprovalService.submit(any(StocktakeSubmitApprovalDTO.class)))
+                .thenThrow(new IllegalStateException(message));
+
+        mockMvc.perform(post("/stocktake/submit-approval")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"busNo\":\"CST2026-001\",\"approverId\":\"1001\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(9999))
+                .andExpect(jsonPath("$.message").value(message));
     }
 }

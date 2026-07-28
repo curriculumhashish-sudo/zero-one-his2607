@@ -27,7 +27,7 @@ spring:
       # 必须加载的系统配置
       - nacos:system.yaml?refreshEnabled=true
       - nacos:data-source.yaml?refreshEnabled=true
-      - nacos:third-services.yaml?refreshEnabled=true
+      - optional:nacos:third-services.yaml?refreshEnabled=true
       - nacos:gateway.yaml?refreshEnabled=true
       - nacos:key-config.yaml?refreshEnabled=true
 
