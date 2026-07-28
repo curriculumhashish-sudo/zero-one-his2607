@@ -2,6 +2,7 @@ package com.zeroone.star.pharmacy.service;
 
 import com.zeroone.star.pharmacy.entity.WkfInventoryItem;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.zeroone.star.project.dto.j6.pharmacy.inventory.InventoryStatusDTO;
 
 /**
  * <p>
@@ -13,4 +14,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IWkfInventoryItemService extends IService<WkfInventoryItem> {
 
+    Integer resumeInventoryItems(InventoryStatusDTO ids);
 }

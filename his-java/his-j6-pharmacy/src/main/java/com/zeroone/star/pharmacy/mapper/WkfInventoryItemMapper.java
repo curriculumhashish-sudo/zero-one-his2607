@@ -1,8 +1,14 @@
 package com.zeroone.star.pharmacy.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zeroone.star.pharmacy.entity.WarehouseInventoryDetailPageQuery;
 import com.zeroone.star.pharmacy.entity.WkfInventoryItem;
+import com.zeroone.star.project.vo.j6.pharmacy.inventory.InventoryDetailVO;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -10,10 +16,11 @@ import java.time.LocalDateTime;
 /**
  * <p>工作流 inventory item Mapper 接口</p>
  *
- * @author AB
+ * @author leisurely,AB
  * @since 2026-07-27
  */
 public interface WkfInventoryItemMapper extends BaseMapper<WkfInventoryItem> {
+
 
     /**
      * 累加库存数量（按 itemTable + itemId + locationId + lotNumber + unitCode 五元组匹配已有行）。
@@ -30,4 +37,8 @@ public interface WkfInventoryItemMapper extends BaseMapper<WkfInventoryItem> {
                     @Param("expirationDate") LocalDateTime expirationDate,
                     @Param("updatedAt") LocalDateTime updatedAt,
                     @Param("updatedBy") String updatedBy);
+
+    IPage<InventoryDetailVO> selectCurrentDetailPage(Page<InventoryDetailVO> page, @Param("query") WarehouseInventoryDetailPageQuery query);
+
+    Integer updateInventoryStatus(List<String> ids);
 }
