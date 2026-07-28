@@ -19,24 +19,32 @@ import java.io.IOException;
 @RestController
 @Tag(name = "门诊发退药记录", description = "门诊发退药记录基础流程")
 public class menzhenfatuiyaojilu implements OutpatientDispenseApis {
+     @Resource
+    private IOutpatientDispenseRecordService service;
+
+    @Resource
+    private ExcelComponent excelComponent;
+
     @Override
     @GetMapping("/page")
     @Operation(summary = "分页查询发退药记录", description = "按处方分组展示门诊发药/退药记录")
     public JsonVO<PageDTO<DispenseGroupVO>> queryPage(
             @Parameter(description = "查询参数", required = true) DispenseQuery query) {
-        return JsonVO.success(null);
+        return JsonVO.success(service.queryPage(query));
     }
 
-    @GetMapping("/export")
     @Override
+    @GetMapping("/export")
     @Operation(summary = "导出发退药记录", description = "将查询结果以平铺格式导出为 Excel")
     public void export(
             @Parameter(description = "查询参数") DispenseQuery query,
             HttpServletResponse response) throws IOException {
-        // TODO: 后续实现导出逻辑
+        List<OutpatientDispenseRecordDTO> records = service.listForExport(query);
+        String filename = URLEncoder.encode("门诊发退药记录-" + LocalDate.now() + ".xlsx", StandardCharsets.UTF_8)
+                .replace("+", "%20");
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setCharacterEncoding("UTF-8");
-        response.setHeader("Content-Disposition", "attachment;filename=dispense_export.xlsx");
-        response.getWriter().write("导出功能开发中...");
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        response.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + filename);
+        excelComponent.export("门诊发退药记录", response.getOutputStream(), OutpatientDispenseRecordDTO.class, records);
     }
 }
