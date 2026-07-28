@@ -24,7 +24,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -95,7 +95,7 @@ public class InventoryDetailServiceImpl implements InventoryDetailService {
         ExcelExportVO excelExportVO = new ExcelExportVO();
         excelExportVO.setFileName(filename);
         excelExportVO.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-        excelExportVO.setBody(Arrays.toString(data));
+        excelExportVO.setBody(Base64.getEncoder().encodeToString(data));
         excelExportVO.setExportedRowCount(inventoryDetailVOPage.getTotal());
         excelExportVO.setTruncated(false);
         return excelExportVO;
