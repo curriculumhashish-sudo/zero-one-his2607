@@ -24,7 +24,7 @@
 #include "../../domain/do/drug/MedMedicationDefinitionDO.h"
 #include "../../domain/do/adm/AdmChargeItemDefinitionDO.h"
 #include "DrugMapper.h"
-
+#include "domain/query/Drug/DrugQuery.h"
 /**
  * Persistence operations for the drug aggregate and its base prices.
  */
@@ -64,6 +64,20 @@ class DrugDAO : public BaseDAO
                            const std::string &expectedStatus,
                            const std::string &targetStatus, bool activeFlag, const std::string &operatorId,
                            const std::string &operationTime);
+    uint64_t count(const DrugQuery::Wrapper& query);
+    // 分页查询数据
+    std::list<MedMedicationDefinitionDO> selectWithPage(const DrugQuery::Wrapper& query);
+    // 通过姓名查询数据
+    std::list<MedMedicationDefinitionDO> selectByName(const string& name);
+    // 通过ID查询数据
+    MedMedicationDefinitionDO selectById(std::string id);
+    // 新增的数据插入 (供 saveData 调用)
+    int insert(const MedMedicationDefinitionDO& entity);
+
+
+
+
+
 };
 
 #endif // !_DRUG_DAO_H_

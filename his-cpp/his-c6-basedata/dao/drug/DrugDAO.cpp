@@ -369,3 +369,26 @@ int DrugDAO::updateActiveStatus(const std::list<std::string> &ids, const std::st
     SQLPARAMS_PUSH(params, "s", std::string, expectedStatus);
     return sqlSession->executeUpdate(sql, params);
 }
+uint64_t count(const DrugQuery::Wrapper& query)
+{
+
+}
+std::list<MedMedicationDefinitionDO> selectWithPage(const DrugQuery::Wrapper& query)
+{
+
+}
+// 通过姓名查询数据
+std::list<MedMedicationDefinitionDO> selectByName(const string& name)
+{
+
+}
+// 通过ID查询数据
+MedMedicationDefinitionDO selectById(std::string id)
+{
+
+}
+// 新增的数据插入 (供 saveData 调用)
+int insert(const MedMedicationDefinitionDO& entity)
+{
+
+}
