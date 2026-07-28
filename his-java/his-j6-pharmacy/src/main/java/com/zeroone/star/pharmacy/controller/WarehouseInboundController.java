@@ -1,11 +1,13 @@
 package com.zeroone.star.pharmacy.controller;
 
-<<<<<<< HEAD
-import com.zeroone.star.pharmacy.service.IWkfSupplyRequestService;
-=======
 import com.zeroone.star.pharmacy.service.IInboundReceiptApprovalService;
->>>>>>> 776c6b3dd9aed85a0b73156f0f483a61b598ba98
-import com.zeroone.star.project.dto.j6.pharmacy.inbound.*;
+import com.zeroone.star.pharmacy.service.IWkfSupplyRequestService;
+import com.zeroone.star.project.dto.j6.pharmacy.inbound.AgreeInboundReceiptDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.inbound.InboundReceiptDeleteDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.inbound.InboundReceiptSaveDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.inbound.RejectInboundReceiptDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.inbound.SubmitInboundReceiptApprovalDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.inbound.WithdrawInboundReceiptApprovalDTO;
 import com.zeroone.star.project.j6.pharmacy.WarehouseInboundApis;
 import com.zeroone.star.project.query.j6.pharmacy.inbound.InboundReceiptDetailQuery;
 import com.zeroone.star.project.query.j6.pharmacy.inbound.InboundReceiptQuery;
@@ -19,7 +21,13 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -27,14 +35,16 @@ import java.util.List;
 @RequestMapping("/inbound")
 @Tag(name = "药库进货单", description = "药库管理相关接口")
 public class WarehouseInboundController implements WarehouseInboundApis {
-    private final IWkfSupplyRequestService supplyRequestService;
+
+    @Resource
+    private IWkfSupplyRequestService supplyRequestService;
 
     @Resource
     private IInboundReceiptApprovalService inboundApprovalService;
 
     @Override
     @GetMapping("/list")
-    @Operation(summary = "获取单据列表（条件+分页）")
+    @Operation(summary = "获取单据列表")
     public JsonVO<List<InboundReceiptListVO>> queryAllInboundReceipt(@Valid InboundReceiptQuery query) {
         // TODO 调用 Service 查询数据库，返回列表
         return null;
@@ -44,7 +54,7 @@ public class WarehouseInboundController implements WarehouseInboundApis {
     @GetMapping("/detail")
     @Operation(summary = "获取单据详情")
     public JsonVO<InboundReceiptDetailVO> getInboundReceiptDetail(@Valid InboundReceiptDetailQuery query) {
-        // TODO 调用 Service 查详情，返回头+明细行
+        // TODO 调用 Service 查询详情，返回头和明细行
         return null;
     }
 
@@ -57,24 +67,63 @@ public class WarehouseInboundController implements WarehouseInboundApis {
     }
 
     @Override
-    @Operation(summary = "新增单据", description = "新增一张药库进货单草稿，按明细行写入 wkf_supply_request。")
     @PostMapping("/add")
+    @Operation(summary = "新增单据", description = "新增一张药库进货单草稿，按明细行写入 wkf_supply_request。")
     public JsonVO<InboundReceiptSaveResultVO> addInboundReceipt(@Valid @RequestBody InboundReceiptSaveDTO dto) {
         return executeSave(() -> supplyRequestService.addInboundReceipt(dto));
     }
 
     @Override
-    @Operation(summary = "保存单据", description = "保存已存在的药库进货单草稿，校验版本后重建单据明细。")
     @PutMapping("/save")
+    @Operation(summary = "保存单据", description = "保存已存在的药库进货单草稿，校验版本后重建单据明细。")
     public JsonVO<InboundReceiptSaveResultVO> saveInboundReceipt(@Valid @RequestBody InboundReceiptSaveDTO dto) {
         return executeSave(() -> supplyRequestService.saveInboundReceipt(dto));
     }
 
     @Override
-    @Operation(summary = "保存并提交审批", description = "保存单据并提交审批，提交后进入待审批状态并写入申请人、申请时间。")
     @PostMapping("/submit")
+    @Operation(summary = "保存并提交审批", description = "保存单据并提交审批，提交后进入待审批状态并写入申请人、申请时间。")
     public JsonVO<InboundReceiptSaveResultVO> saveAndSubmitInboundReceipt(@Valid @RequestBody InboundReceiptSaveDTO dto) {
         return executeSave(() -> supplyRequestService.saveAndSubmitInboundReceipt(dto));
+    }
+
+    @Override
+    @PostMapping("/submitInboundReceiptApproval")
+    @Operation(
+            summary = "提交审批",
+            description = "将草稿状态的进货单提交至审批流程，状态变更为待审批。"
+    )
+    public JsonVO<InboundApprovalResultVO> submitInboundReceiptApproval(
+            @Parameter(description = "提交审批入参", required = true)
+            @RequestBody @Valid SubmitInboundReceiptApprovalDTO dto) {
+        return JsonVO.success(inboundApprovalService.submit(dto));
+    }
+
+    @Override
+    @PostMapping("/withdrawInboundReceiptApproval")
+    @Operation(summary = "撤回审批", description = "撤回待审批状态的进货单。")
+    public JsonVO<InboundApprovalResultVO> withdrawInboundReceiptApproval(
+            @Parameter(description = "撤回审批入参", required = true)
+            @RequestBody @Valid WithdrawInboundReceiptApprovalDTO dto) {
+        return JsonVO.success(inboundApprovalService.withdraw(dto));
+    }
+
+    @Override
+    @PostMapping("/agreeInboundReceipt")
+    @Operation(summary = "审批通过", description = "审批通过进货单，并执行库存入库。")
+    public JsonVO<InboundApprovalResultVO> agreeInboundReceipt(
+            @Parameter(description = "审批通过入参", required = true)
+            @RequestBody @Valid AgreeInboundReceiptDTO dto) {
+        return JsonVO.success(inboundApprovalService.agree(dto));
+    }
+
+    @Override
+    @PostMapping("/rejectInboundReceipt")
+    @Operation(summary = "驳回审批", description = "驳回进货单审批。")
+    public JsonVO<InboundApprovalResultVO> rejectInboundReceipt(
+            @Parameter(description = "驳回审批入参", required = true)
+            @RequestBody @Valid RejectInboundReceiptDTO dto) {
+        return JsonVO.success(inboundApprovalService.reject(dto));
     }
 
     private JsonVO<InboundReceiptSaveResultVO> executeSave(InboundReceiptSaveAction action) {
@@ -88,53 +137,5 @@ public class WarehouseInboundController implements WarehouseInboundApis {
     @FunctionalInterface
     private interface InboundReceiptSaveAction {
         InboundReceiptSaveResultVO execute();
-    }
-
-    @Override
-    @PostMapping("/submitInboundReceiptApproval")
-    @Operation(
-            summary = "提交审批",
-            description = "将草稿（DRAFT）状态的进货单提交至审批流程，状态变更为待审批（PENDING_APPROVAL）。可指定审批人（approverId）。服务端写入 applicantId 和 applyTime。"
-    )
-    public JsonVO<InboundApprovalResultVO> submitInboundReceiptApproval(
-            @Parameter(description = "提交审批入参", required = true)
-            @RequestBody @Valid SubmitInboundReceiptApprovalDTO dto) {
-        return JsonVO.success(inboundApprovalService.submit(dto));
-    }
-
-    @Override
-    @PostMapping("/withdrawInboundReceiptApproval")
-    @Operation(
-            summary = "撤回审批",
-            description = "仅单据提交人可执行此操作。"
-    )
-    public JsonVO<InboundApprovalResultVO> withdrawInboundReceiptApproval(
-            @Parameter(description = "撤回审批入参", required = true)
-            @RequestBody @Valid WithdrawInboundReceiptApprovalDTO dto) {
-        return JsonVO.success(inboundApprovalService.withdraw(dto));
-    }
-
-    @Override
-    @PostMapping("/agreeInboundReceipt")
-    @Operation(
-            summary = "审批通过",
-            description = "审批人通过进货单，状态变更为已通过（AGREE）。服务端执行库存入库并写入 approverId 和 approvalTime。"
-    )
-    public JsonVO<InboundApprovalResultVO> agreeInboundReceipt(
-            @Parameter(description = "审批通过入参", required = true)
-            @RequestBody @Valid AgreeInboundReceiptDTO dto) {
-        return JsonVO.success(inboundApprovalService.agree(dto));
-    }
-
-    @Override
-    @PostMapping("/rejectInboundReceipt")
-    @Operation(
-            summary = "驳回审批",
-            description = "审批人驳回进货单，状态变更为已驳回（REJECT）。必须填写驳回原因（rejectReason）。"
-    )
-    public JsonVO<InboundApprovalResultVO> rejectInboundReceipt(
-            @Parameter(description = "驳回审批入参", required = true)
-            @RequestBody @Valid RejectInboundReceiptDTO dto) {
-        return JsonVO.success(inboundApprovalService.reject(dto));
     }
 }
