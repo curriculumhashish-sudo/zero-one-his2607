@@ -30,11 +30,11 @@ public:
 	// bool removeData(const oatpp::List<oatpp::String>& ids);
 
 	// 修改数据
-	bool modifyData(const EquipmentModifyDTO::Wrapper& dto, const PayloadDTO& payload);
+	bool modifyData(const EquipmentModifyDTO::Wrapper& dto);
 	// 批量删除
-	bool deleteData(const EquipmentDeleteDTO::Wrapper& dto, const PayloadDTO& payload);
+	bool deleteData(const EquipmentDeleteDTO::Wrapper& dto);
 	// 批量启停用
-	bool changeStatus(const EquipmentStatusDTO::Wrapper& dto, const PayloadDTO& payload);
+	bool changeStatus(const EquipmentStatusDTO::Wrapper& dto);
 	// 列表选择查询
 	EquipmentSelectPageDTO::Wrapper selectData(const EquipmentQuery::Wrapper& query);
 };

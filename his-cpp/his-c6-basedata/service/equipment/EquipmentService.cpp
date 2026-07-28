@@ -62,3 +62,24 @@ std::string EquipmentService::saveData(const EquipmentAddDTO::Wrapper& dto)
 {
 	return {};
 }
+
+// 修改数据
+bool modifyData(const EquipmentModifyDTO::Wrapper& dto)
+{
+	return {};
+}
+// 批量删除
+bool deleteData(const EquipmentDeleteDTO::Wrapper& dto)
+{
+	return {};
+}
+// 批量启停用
+bool changeStatus(const EquipmentStatusDTO::Wrapper& dto)
+{
+	return {};
+}
+// 列表选择查询
+EquipmentSelectPageDTO::Wrapper selectData(const EquipmentQuery::Wrapper& query)
+{
+	return{};
+}

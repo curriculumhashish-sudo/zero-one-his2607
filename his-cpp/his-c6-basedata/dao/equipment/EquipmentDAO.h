@@ -3,7 +3,7 @@
 #ifndef _RENTCONTROLLER_DAO_
 #define _RENTCONTROLLER_DAO_
 #include "BaseDAO.h"
-#include "../../domain/do/equipment/InventorySnapshotDO.h"
+#include "../../domain/do/equipment/DocInventoryItemSnapshotDO.h"
 #include "../../domain/do/equipment/InventoryLockDO.h"
 #include "../../domain/do/equipment/WkfInventoryItemDO.h"
 #include "../../domain/query/equipment/EquipmentQuery.h"
