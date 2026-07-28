@@ -67,6 +67,7 @@ StringJsonVO::Wrapper TreatmentController::execModifyStatus(const TreatmentStatu
 	return vo;
 }
 
+
 // 删除（支持批量）
 ListJsonVO<String>::Wrapper TreatmentController::execRemoveTreatment(const List<String>& ids)
 {

@@ -26,7 +26,7 @@ class TreatmentApiClient : public oatpp::web::client::ApiClient // 2 继承这个类
 	// 通过ID查询
 	API_CALL(API_M_GET, "treatment/query-one", queryById, API_HANDLER_AUTN_HEADER, QUERY(String, id));
 	// 多条件查询
-	API_CALL(API_M_GET, "treatment/query-all", queryAll, API_HANDLER_AUTN_HEADER, API_HANDLER_PAGE_PARAME, QUERY(String, name));
+	API_CALL(API_M_GET, "treatment/query-all", queryAll, API_HANDLER_AUTN_HEADER, API_HANDLER_PAGE_PARAME, QUERY(String, keywords));
 
 	// 新增诊疗
 	API_CALL(API_M_POST, "treatment/add-treatment", addTreatment, API_HANDLER_AUTN_HEADER, BODY_DTO(TreatmentAddDTO::Wrapper, dto));

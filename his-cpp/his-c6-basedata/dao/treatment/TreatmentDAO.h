@@ -34,6 +34,10 @@ public:
 	std::list<TreatmentDO> selectByName(const string& name);
 	// 通过ID查询数据
 	PtrTreatmentDO selectById(std::string id);
+	// 按 activity_id 查询子项
+	std::list<TreatmentChildDO> selectChildrenByActivityId(const std::string& activityId);
+	// 按 activity_id 软删除子项
+	int32_t softDeleteChildrenByActivityId(const std::string& activityId, const std::string& deletedBy, const std::string& deletedAt);
 	// 批量ID软删除：标准容器std::list嵌套std::string
 	int32_t removeData(std::list<std::string>& ids);
 };
