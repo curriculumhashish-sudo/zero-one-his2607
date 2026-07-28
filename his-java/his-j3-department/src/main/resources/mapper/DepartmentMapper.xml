@@ -56,6 +56,13 @@
         WHERE seq_key = #{seqKey};
     </update>
 
+    <update id="incrementSequence">
+        UPDATE zo_his.whale_sequence
+        SET current_value = (@new_val := current_value + 1),
+            updated_at    = NOW()
+        WHERE seq_key = #{seqKey}
+    </update>
+
     <select id="getParentBusNo" resultType="java.lang.String">
         SELECT bus_no
         FROM zo_his.adm_organization
@@ -79,6 +86,7 @@
         FROM zo_his.adm_practitioner
         WHERE id = #{defDoctorId};
     </select>
+
     <select id="selectParentUnitIdByBusNo" resultType="java.lang.Long">
         SELECT id
         FROM zo_his.whale_organization_units

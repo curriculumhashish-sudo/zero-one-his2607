@@ -28,8 +28,21 @@ public interface DepartmentService {
 
     List<DepartmentTreeVO> getDepartmentTree(DepartmentTreeQuery query);
 
+    /**
+     * 获取科室详情
+     *
+     * @param id 科室ID
+     * @return 科室详情VO
+     * @author 胡傲宇
+     */
     DepartmentDetailVO getDepartmentDetail(Long id);
 
+    /**
+     * 新增科室
+     *
+     * @param dto 创建科室DTO
+     * @author 胡傲宇
+     */
     void createDepartment(DepartmentCreateDTO dto) throws Exception;
 
     /**

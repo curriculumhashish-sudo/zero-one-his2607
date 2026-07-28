@@ -26,5 +26,5 @@ public class DepartmentTreeQuery {
     private Integer classEnum;
 
     @Schema(description = "状态", example = "ACTIVE", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private Integer statusEnum;
+    private String statusEnum;
 }
