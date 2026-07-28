@@ -17,8 +17,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _DIAGNOSIS_DETAIL_QUERY_H_
-#define _DIAGNOSIS_DETAIL_QUERY_H_
+#ifndef _diagnose_DETAIL_QUERY_H_
+#define _diagnose_DETAIL_QUERY_H_
 
 #include "../../GlobalInclude.h"
 
@@ -36,4 +36,4 @@ class DiagnoseDetailQuery : public oatpp::DTO
 
 #include OATPP_CODEGEN_END(DTO)
 
-#endif // !_DIAGNOSIS_DETAIL_QUERY_H_
+#endif // !_diagnose_DETAIL_QUERY_H_

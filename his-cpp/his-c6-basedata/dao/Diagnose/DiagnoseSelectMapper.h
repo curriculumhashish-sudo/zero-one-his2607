@@ -17,8 +17,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _DIAGNOSIS_SELECT_MAPPER_H_
-#define _DIAGNOSIS_SELECT_MAPPER_H_
+#ifndef _diagnose_SELECT_MAPPER_H_
+#define _diagnose_SELECT_MAPPER_H_
 
 #include "Mapper.h"
 #include "../../domain/do/Diagnose/ClnConditionDefinitionDO.h"
@@ -49,7 +49,7 @@ public:
 };
 
 /** 映射当前登录租户。 */
-class DiagnosisTenantMapper : public Mapper<std::string>
+class DiagnoseTenantMapper : public Mapper<std::string>
 {
 public:
 	std::string mapper(ResultSet* resultSet) const override
@@ -58,4 +58,4 @@ public:
 	}
 };
 
-#endif // !_DIAGNOSIS_SELECT_MAPPER_H_
+#endif // !_diagnose_SELECT_MAPPER_H_

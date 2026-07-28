@@ -33,8 +33,8 @@
 //Json
 #include "domain/vo/BaseJsonVO.h"
 #include "domain/vo/Diagnose/DiagnoseDetailJsonVO.h"
-#include "domain/vo/Diagnose/DiagnoseDetailPageJsonVO.h"
-#include "domain/vo/Diagnose/DiagnoseSelectPageJsonVO.h"
+#include "domain/vo/Diagnose/DiagnosePageJsonVO.h"
+#include "domain/vo/Diagnose/DiagnoseSelectJsonVO.h"
 #include "domain/vo/Diagnose/DiagnoseJsonVO.h"
 
 using namespace oatpp;
@@ -63,36 +63,36 @@ public:
  //   );
 	//API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/diagnose/detail", getDiagnoseDetail, QUERY(String, id), executeGetDiagnoseDetail(id));
 
-    // 定义新增诊断表接口描述
+    // ����������ϱ�ӿ�����
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.post.summary"), addDiagnose, StringJsonVO::Wrapper, API_TAG);
-	// 定义新增诊断表接口处理
+	// ����������ϱ�ӿڴ���
 	API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/diagnose", addDiagnose, BODY_DTO(DiagnoseAddDTO::Wrapper, dto), execAddDiagnose(dto, authObject->getPayload()));
 
-	//  定义修改接口描述
+	//  �����޸Ľӿ�����
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.put.summary"), modifyDiagnose, StringJsonVO::Wrapper, API_TAG);
-	// 定义修改接口处理
+	// �����޸Ľӿڴ���
 	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/diagnose", modifyDiagnose, BODY_DTO(DiagnoseDTO::Wrapper, dto), execModifyDiagnose(dto, authObject->getPayload()));
 
-	//逻辑批量删，带鉴权
+	//�߼�����ɾ������Ȩ
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.delete.summarylogicAuth"),removeDiagnosis,DiagnoseRemoveJsonVO::Wrapper,API_TAG);
 	API_HANDLER_ENDPOINT_AUTH(API_M_DEL,"/diagnosis",removeDiagnosis,BODY_DTO(DiagnoseRemoveDTO::Wrapper, dto),execRemoveDiagnosis(dto, authObject->getPayload()));
 
-	//物理批量删除（真实删除）
+	//��������ɾ������ʵɾ����
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.delete.summary1"),RemoveDiagnose,ListJsonVO<String>::Wrapper,API_TAG);
 	API_HANDLER_ENDPOINT_AUTH(API_M_DEL,"/diagnose",RemoveDiagnose,BODY_DTO(List<String>, ids),execRemoveDiagnose(ids));
 	
-	//逻辑批量删（不带鉴权）
+	//�߼�����ɾ��������Ȩ��
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.delete.summarylogic"),removeDiagnose,ListJsonVO<String>::Wrapper,API_TAG);
 	API_HANDLER_ENDPOINT_AUTH(API_M_DEL,"/diagnose",removeDiagnose,BODY_DTO(List<String>, ids),execremoveDiagnose(ids));
 
 
-	// 定义批量启用/停用接口描述
+	// ������������/ͣ�ýӿ�����
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.field.diag.status"), batchChangeDiagnoseStatus, StringJsonVO::Wrapper, API_TAG);
-	// 定义批量启用/停用接口处理
+	// ������������/ͣ�ýӿڴ���
 	API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/diagnose/batch/status", batchChangeDiagnoseStatus, BODY_DTO(DiagnoseBatchStatusDTO::Wrapper, dto), execBatchChangeDiagnoseStatus(dto, authObject->getPayload()));
 private:
 
-	//兄弟这里的部分是错的，你的VO层没有对应的类型，所以爆红，我先给你注释了，你后序看一下这部分的VO是哪个
+	//�ֵ�����Ĳ����Ǵ�ģ����VO��û�ж�Ӧ�����ͣ����Ա��죬���ȸ���ע���ˣ������һ���ⲿ�ֵ�VO���ĸ�
 	// select
 	//DiagnoseSelectJsonVO::Wrapper executeListSelectDiagnose(const DiagnoseSelectQuery::Wrapper& query);
 	// 2. page
@@ -101,13 +101,16 @@ private:
 	//DiagnoseDetailJsonVO::Wrapper executeGetDiagnoseDetail(const String& id);
 
 	StringJsonVO::Wrapper execAddDiagnose(const DiagnoseAddDTO::Wrapper& dto, const PayloadDTO& payload);
+	//  新增诊断目录（分类）数据
+	//StringJsonVO::Wrapper execAddDiagcategory(const DiagnoseAddDTO::Wrapper& dto, const PayloadDTO& payload);
+	// 演示修改数据
 	StringJsonVO::Wrapper execModifyDiagnose(const DiagnoseDTO::Wrapper& dto, const PayloadDTO& payload);
-	//物理批量删除
+	//��������ɾ��
 	ListJsonVO<String>::Wrapper execRemoveDiagnose(const List<String>& ids);
 	StringJsonVO::Wrapper execBatchChangeDiagnoseStatus(const DiagnoseBatchStatusDTO::Wrapper& dto, const PayloadDTO& payload);
-	//逻辑删除带鉴权
+	//�߼�ɾ������Ȩ
 	DiagnoseRemoveJsonVO::Wrapper execRemoveDiagnosis(const DiagnoseRemoveDTO::Wrapper& dto, const PayloadDTO& payload);
-	//逻辑删除带鉴权
+	//�߼�ɾ������Ȩ
 	ListJsonVO<String>::Wrapper execremoveDiagnose(const List<String>& ids);
 };
 
@@ -115,4 +118,4 @@ private:
 
 #include OATPP_CODEGEN_END(ApiController)
 
-#endif //  _DIAGNOSISCONTROLLER_H_ No newline at end of file
+#endif //  _diagnoseCONTROLLER_H_ No newline at end of file

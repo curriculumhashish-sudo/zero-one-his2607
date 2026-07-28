@@ -43,8 +43,15 @@ static void appendSourceFilter(
 	sqlCondition << ")";
 }
 
+//<<<<<<< HEAD:his-cpp/his-c6-basedata/dao/Diagnose/DiagnoseDAO.cpp
 //std::string DiagnoseDAO::queryConditionBuilder(
 //	const DiagnoseSelectQuery::Wrapper& query,
+//=======
+//std::string DiagnoseDAO::queryConditionBuilder(
+	//const DiagnoseSelectQuery::Wrapper& query,
+	//const std::string& tenantId,
+//>>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/dao/Diagnose/DiagnoseDAO.cpp
+	//SqlParams& params)
 std::string DiagnoseDAO::queryConditionBuilder(const DiagnoseSelectQuery::Wrapper& query, const std::string& tenantId, SqlParams& params)
 {
 	std::stringstream sqlCondition;
@@ -106,7 +113,7 @@ std::string DiagnoseDAO::selectCurrentTenantId(const std::string& userId)
 		"ORDER BY s.`updated_at` DESC LIMIT 1";
 	return sqlSession->executeQueryOne<std::string>(
 		sql,
-		DiagnosisTenantMapper(),
+		DiagnoseTenantMapper(),
 		"%s",
 		userId);
 }
@@ -126,6 +133,9 @@ uint64_t DiagnoseDAO::count(
 //	const DiagnoseSelectQuery::Wrapper& query)
 //=======
 std::list<ClnConditionDefinitionDO> DiagnoseDAO::selectWithPage(
+//	const DiagnoseSelectQuery::Wrapper& query)
+//=======
+//std::list<ClnConditionDefinitionDO> DiagnoseDAO::selectWithPage(
 	const DiagnoseSelectQuery::Wrapper& query,
 	const std::string& tenantId)
 

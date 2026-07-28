@@ -16,8 +16,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _DIAGNOSIS_DAO_H_
-#define _DIAGNOSIS_DAO_H_
+#ifndef _diagnose_DAO_H_
+#define _diagnose_DAO_H_
 
 #include "BaseDAO.h"
 #include "../../domain/do/Diagnose/DiagnoseDO.h"
@@ -58,5 +58,19 @@ public:
 
 class DiagnosisDAO : public BaseDAO
 {
+//private:
+//	std::string queryConditionBuilder(
+//		const DiagnoseSelectQuery::Wrapper& query,
+//		const std::string& tenantId,
+//		SqlParams& params);
+//
+//public:
+//	std::string selectCurrentTenantId(const std::string& userId);
+//	uint64_t count(const DiagnoseSelectQuery::Wrapper& query, const std::string& tenantId);
+//	std::list<ClnConditionDefinitionDO> selectWithPage(
+//		const DiagnoseSelectQuery::Wrapper& query,
+//		const std::string& tenantId);
+//	std::list<DiagnoseDO> selectByName(const std::string& name);
+//>>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/dao/Diagnose/DiagnoseDAO.h
 };
 #endif // !_DIAGNOSIS_DAO_H_

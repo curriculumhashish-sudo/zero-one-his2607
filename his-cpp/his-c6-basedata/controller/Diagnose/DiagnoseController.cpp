@@ -22,9 +22,21 @@
 //#include "DiagnoseController.h"
 //#include "../../service/Diagnose/DiagnoseService.h"
 #include <algorithm>
+>>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/controller/Diagnosis/DiagnosisController.cpp
 #include <cctype>
 #include <exception>
 
+bool DiagnoseController::hasValidQueryParameters(const QueryParams& queryParams)
+{
+	for (const auto& parameter : queryParams.getAll())
+	{
+		const std::string name = parameter.first.toString();
+		if (name != "keyword" && name != "diagnoseKindCode"
+			&& name != "pageIndex" && name != "pageSize")
+		{
+			return false;
+		}
+	}
 
 //你修改一下controller层的接口吧，这里的接口和controller.h层的接口根本对不上，每个函数都爆红，改不了
 //bool DiagnosisController::hasValidQueryParameters(const QueryParams& queryParams)
@@ -186,28 +198,8 @@ StringJsonVO::Wrapper DiagnoseController::execModifyDiagnose(const DiagnoseDTO::
 	}
 	return response;
 }
-//物理批量删
-ListJsonVO<String>::Wrapper DiagnoseController::execRemoveDiagnose(const List<String>& ids)
-{
-	auto response = ListJsonVO<String>::createShared();
-	if (!ids || ids->empty())
-	{
-		response->init(nullptr, RS_PARAMS_INVALID);
-		return response;
-	}
 
-	if (DiagnoseService().RemoveData(ids))
-	{
-		response->success(ids);
-	}
-	else
-	{
-		response->fail(nullptr);
-	}
-	return response;
-}
-//逻辑批量删不带鉴权
-ListJsonVO<String>::Wrapper DiagnoseController::execremoveDiagnose(const List<String>& ids)
+ListJsonVO<String>::Wrapper DiagnoseController::execRemoveDiagnose(const List<String>& ids)
 {
 	auto response = ListJsonVO<String>::createShared();
 	if (!ids || ids->empty())
