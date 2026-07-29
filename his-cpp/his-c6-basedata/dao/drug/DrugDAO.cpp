@@ -421,11 +421,6 @@ std::list<MedMedicationDefinitionDO> selectWithPage(const DrugQuery::Wrapper& qu
     // 执行查询并通过 Mapper 映射结果
     return sqlSession->executeQuery<MedMedicationDefinitionDO>(sql, PtrDrugMapper(), params);
 }
-// 通过姓名查询数据
-std::list<MedMedicationDefinitionDO> selectByName(const string& name)
-{
-
-}
 // 通过ID查询数据
 MedMedicationDefinitionDO selectById(std::string id)
 {
