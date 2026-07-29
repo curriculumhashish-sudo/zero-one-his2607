@@ -2,6 +2,7 @@ package com.zeroone.star.basedata.repository;
 
 import com.zeroone.star.basedata.entity.EnumValue;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 
 import java.util.List;
 
@@ -9,11 +10,21 @@ public interface EnumValueRepository extends MongoRepository<EnumValue, String> 
 
     List<EnumValue> findByEnumTypeId(String enumTypeId);
 
-    List<EnumValue> findByEnumTypeIdAndIsDeletedFalse(String enumTypeId);
+    @Query("{ 'enumTypeId': ?1, 'isDeleted': false, $or: [ { 'tenantId': ?0 }, { 'tenantId': '1' } ] }")
+    List<EnumValue> findByEnumTypeIdAndIsDeletedFalse(String tenantId, String enumTypeId);
 
-    boolean existsByTenantIdAndEnumTypeIdAndEnumKey(String tenantId, String enumTypeId, String enumKey);
+    @Query(value = "{ 'enumTypeId': ?1, 'enumKey': ?2, $or: [ { 'tenantId': ?0 }, { 'tenantId': '1' } ] }", exists = true)
+    boolean existsByEnumTypeIdAndEnumKey(String tenantId, String enumTypeId, String enumKey);
 
-    boolean existsByTenantIdAndEnumTypeIdAndEnumCode(String tenantId, String enumTypeId, Integer enumCode);
+    @Query(value = "{ 'enumTypeId': ?1, 'enumCode': ?2, $or: [ { 'tenantId': ?0 }, { 'tenantId': '1' } ] }", exists = true)
+    boolean existsByEnumTypeIdAndEnumCode(String tenantId, String enumTypeId, Integer enumCode);
 
-    boolean existsByTenantIdAndEnumTypeIdAndDisplay(String tenantId, String enumTypeId, String display);
+    @Query(value = "{ 'enumTypeId': ?1, 'display': ?2, $or: [ { 'tenantId': ?0 }, { 'tenantId': '1' } ] }", exists = true)
+    boolean existsByEnumTypeIdAndDisplay(String tenantId, String enumTypeId, String display);
+
+    @Query("{ 'enumTypeId': ?1, 'isDeleted': false, 'tenantId': ?0 }")
+    List<EnumValue> findByTenantIdAndEnumTypeIdAndIsDeletedFalse(String tenantId, String enumTypeId);
+
+    @Query("{ 'enumTypeId': ?0, 'isDeleted': false, 'tenantId': '1' }")
+    List<EnumValue> findSystemEnumValuesByEnumTypeId(String enumTypeId);
 }

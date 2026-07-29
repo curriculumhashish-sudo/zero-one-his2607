@@ -7,12 +7,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
-import java.util.List;
-
 
 public interface EnumTypeRepository extends MongoRepository<EnumType, String> {
 
-    boolean existsByTenantIdAndEnumTypeKey(String tenantId, String enumTypeKey);
+    @Query(value = "{ 'enumTypeKey': ?1, $or: [ { 'tenantId': ?0 }, { 'tenantId': '1' } ] }", exists = true)
+    boolean existsByEnumTypeKey(String tenantId, String enumTypeKey);
 
     /**
      * 根据关键字查询枚举类型，这里会额外查询默认系统租户的枚举类型

@@ -16,15 +16,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @Service
 public class EnumTypeServiceImpl implements EnumTypeService {
 
     // TODO: 临时设定，后续需要从jwt中获取
-    private static final String TENANT_ID = "2";
+    private static final String TENANT_ID = "1";
 
     @Resource
     private EnumTypeRepository enumTypeRepository;
@@ -50,8 +48,7 @@ public class EnumTypeServiceImpl implements EnumTypeService {
     @Override
     public void saveEnumType(EnumTypeAddDTO dto) {
 
-        if (enumTypeRepository.existsByTenantIdAndEnumTypeKey(TENANT_ID, dto.getEnumTypeKey())
-                && enumTypeRepository.existsByTenantIdAndEnumTypeKey("1", dto.getEnumTypeKey())) {
+        if (enumTypeRepository.existsByEnumTypeKey(TENANT_ID, dto.getEnumTypeKey())) {
             throw new RuntimeException("枚举类型键已经存在");
         }
 
@@ -83,7 +80,7 @@ public class EnumTypeServiceImpl implements EnumTypeService {
 
         // 如果枚举类型键修改了，并且新的枚举类型键已经存在，则抛出异常
         if (!existing.getEnumTypeKey().equals(dto.getEnumTypeKey())
-                && enumTypeRepository.existsByTenantIdAndEnumTypeKey(TENANT_ID, dto.getEnumTypeKey())) {
+                && enumTypeRepository.existsByEnumTypeKey(TENANT_ID, dto.getEnumTypeKey())) {
             throw new RuntimeException("枚举类型键已经存在");
         }
 
