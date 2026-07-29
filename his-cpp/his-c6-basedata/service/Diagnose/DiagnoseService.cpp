@@ -51,10 +51,10 @@ DiagnoseSelectDTO::Wrapper DiagnoseService::listDiagnoseSelect(const DiagnoseSel
 	auto list = dao.selectAll(query);
 	for (auto one : list)
 	{
-		/*auto dto = DiagnoseSelectDTO::createShared();*/
-		diagnoseDO data;
+		auto dto = DiagnoseSelectDTO::createShared();
 		
-		ZO_STAR_DOMAIN_DTO_TO_DO(
+		
+		ZO_STAR_DOMAIN_DO_TO_DTO_1(
 			dto, one,
 			id, id,
 			chronicCode, conditionCode,
@@ -64,7 +64,7 @@ DiagnoseSelectDTO::Wrapper DiagnoseService::listDiagnoseSelect(const DiagnoseSel
 			status, statusEnum,
 			remark, description
 		);
-		page->addData(data);
+		page->addData(dto);
 	}
 	return page;
 }
@@ -89,10 +89,10 @@ DiagnosePageDTO::Wrapper DiagnoseService::listDiagnosePage(const DiagnosePageQue
 	
 	for (auto one : list)
 	{
-		/*auto dto = DiagnosePageDTO::createShared();*/
-		diagnoseDO data;
-		ZO_STAR_DOMAIN_DTO_TO_DO(
-			data,dto, 
+		auto dto = DiagnosePageDTO::createShared();
+		
+		ZO_STAR_DOMAIN_DO_TO_DTO_1(
+			dto, one,
 			id, id,
 			chronicCode, diseaseCode,
 			name, name,
@@ -102,7 +102,7 @@ DiagnosePageDTO::Wrapper DiagnoseService::listDiagnosePage(const DiagnosePageQue
 			remark, description,
 			
 		);
-		page->addData(data);
+		page->addData(dto);
 	}
 	return page;
 }
@@ -111,15 +111,15 @@ DiagnosePageDTO::Wrapper DiagnoseService::listDiagnosePage(const DiagnosePageQue
 DiagnoseDetailDTO::Wrapper DiagnoseService::getDiagnoseDetail(const oatpp::String& id)
 {
 	// 获取单条主数据
-	/*DiagnoseDAO dao;
+	DiagnoseDAO dao;
 	auto data = dao.selectById(id.getValue(""));
 	if (!data)
 		return nullptr;
 
-	auto dto = DiagnoseDetailDTO::createShared();*/
-	diagnoseDO data;
-	ZO_STAR_DOMAIN_DTO_TO_DO(
-		data, dto,
+	auto dto = DiagnoseDetailDTO::createShared();
+	
+	ZO_STAR_DOMAIN_DO_TO_DTO_1(
+		dto, one,
 		id, id,
 		chronicCode, diseaseCode,
 		name, name,
@@ -129,7 +129,7 @@ DiagnoseDetailDTO::Wrapper DiagnoseService::getDiagnoseDetail(const oatpp::Strin
 		remark, description,
 		
 	);
-	return data;
+	return dto;
 }
 //std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
 //{
