@@ -1,8 +1,5 @@
 package com.zeroone.star.pharmacy.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.zeroone.star.pharmacy.entity.WkfInventoryItem;
 import com.zeroone.star.pharmacy.entity.WkfSupplyRequest;
 import com.zeroone.star.pharmacy.mapper.WkfInventoryItemMapper;
 import com.zeroone.star.pharmacy.mapper.WkfSupplyRequestMapper;
@@ -51,14 +48,9 @@ public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
 
         LocalDateTime now = LocalDateTime.now();
         String userId = currentUserId();
-        updateStatus(dto.getBusNo(), STATUS_PENDING_APPROVAL, wrapper -> wrapper
-                .set("applicant_id", userId)
-                .set("apply_time", now)
-                .set("approver_id", null)
-                .set("approval_time", null)
-                .set("reason", null)
-                .set("updated_at", now)
-                .set("updated_by", userId));
+        int affectedRows = supplyRequestMapper.updateStocktakeToPending(
+                dto.getBusNo(), TYPE_WAREHOUSE_STOCKTAKE, rows.get(0).getStatusEnum(), userId, now, now, userId);
+        requireUpdated(affectedRows);
         return true;
     }
 
@@ -71,17 +63,16 @@ public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
 
         LocalDateTime now = LocalDateTime.now();
         String userId = currentUserId();
-        updateStatus(dto.getBusNo(), STATUS_WITHDRAW, wrapper -> wrapper
-                .set("approver_id", null)
-                .set("approval_time", null)
-                .set("updated_at", now)
-                .set("updated_by", userId));
+        int affectedRows = supplyRequestMapper.updateStocktakeToWithdraw(
+                dto.getBusNo(), TYPE_WAREHOUSE_STOCKTAKE, rows.get(0).getStatusEnum(), now, userId);
+        requireUpdated(affectedRows);
         return true;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean agree(StocktakeAgreeApprovalDTO dto) {
+        requireAgreeStatus(dto.getStatus());
         List<WkfSupplyRequest> rows = requireWarehouseStocktake(dto.getBusNo());
         requireSameStatus(rows);
         requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_PENDING_APPROVAL);
@@ -89,11 +80,9 @@ public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
         LocalDateTime now = LocalDateTime.now();
         String userId = currentUserId();
         adjustInventory(rows, now, userId);
-        updateStatus(dto.getBusNo(), STATUS_AGREE, wrapper -> wrapper
-                .set("approver_id", userId)
-                .set("approval_time", now)
-                .set("updated_at", now)
-                .set("updated_by", userId));
+        int affectedRows = supplyRequestMapper.updateStocktakeToAgree(
+                dto.getBusNo(), TYPE_WAREHOUSE_STOCKTAKE, rows.get(0).getStatusEnum(), userId, now, now, userId);
+        requireUpdated(affectedRows);
         return true;
     }
 
@@ -110,20 +99,14 @@ public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
         LocalDateTime now = LocalDateTime.now();
         String userId = currentUserId();
         String reason = buildReason(dto);
-        updateStatus(dto.getBusNo(), STATUS_REJECT, wrapper -> wrapper
-                .set("approver_id", userId)
-                .set("approval_time", now)
-                .set("reason", reason)
-                .set("updated_at", now)
-                .set("updated_by", userId));
+        int affectedRows = supplyRequestMapper.updateStocktakeToReject(
+                dto.getBusNo(), TYPE_WAREHOUSE_STOCKTAKE, rows.get(0).getStatusEnum(), userId, now, reason, now, userId);
+        requireUpdated(affectedRows);
         return true;
     }
 
     private List<WkfSupplyRequest> requireWarehouseStocktake(String busNo) {
-        List<WkfSupplyRequest> rows = supplyRequestMapper.selectList(new QueryWrapper<WkfSupplyRequest>()
-                .eq("bus_no", busNo)
-                .eq("type_enum", TYPE_WAREHOUSE_STOCKTAKE)
-                .eq("is_deleted", 0));
+        List<WkfSupplyRequest> rows = supplyRequestMapper.selectStocktakeRowsForApproval(busNo, TYPE_WAREHOUSE_STOCKTAKE);
         if (rows.isEmpty()) {
             throw new IllegalArgumentException("warehouse stocktake order does not exist: " + busNo);
         }
@@ -148,14 +131,16 @@ public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
         throw new IllegalStateException("current status " + currentStatus + " does not allow this approval action");
     }
 
-    private void updateStatus(String busNo, String status, StatusUpdateCustomizer customizer) {
-        UpdateWrapper<WkfSupplyRequest> wrapper = new UpdateWrapper<WkfSupplyRequest>()
-                .eq("bus_no", busNo)
-                .eq("type_enum", TYPE_WAREHOUSE_STOCKTAKE)
-                .eq("is_deleted", 0)
-                .set("status_enum", status);
-        customizer.customize(wrapper);
-        int affectedRows = supplyRequestMapper.update(null, wrapper);
+    private void requireAgreeStatus(String status) {
+        if (!StringUtils.hasText(status)) {
+            throw new IllegalArgumentException("status cannot be blank when approving stocktake");
+        }
+        if (!STATUS_AGREE.equals(status)) {
+            throw new IllegalArgumentException("status must be AGREE when approving stocktake");
+        }
+    }
+
+    private void requireUpdated(int affectedRows) {
         if (affectedRows <= 0) {
             throw new IllegalStateException("failed to update stocktake approval status");
         }
@@ -167,17 +152,15 @@ public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
             if (actualQuantity == null) {
                 throw new IllegalStateException("stocktake actual quantity cannot be null, row id: " + row.getId());
             }
-            UpdateWrapper<WkfInventoryItem> wrapper = new UpdateWrapper<WkfInventoryItem>()
-                    .eq("item_table", row.getItemTable())
-                    .eq("item_id", row.getItemId())
-                    .eq("location_id", row.getPurposeLocationId())
-                    .eq("lot_number", row.getLotNumber())
-                    .eq("unit_code", row.getUnitCode())
-                    .eq("is_deleted", 0)
-                    .set("quantity", actualQuantity)
-                    .set("updated_at", now)
-                    .set("updated_by", userId);
-            int affectedRows = inventoryItemMapper.update(null, wrapper);
+            int affectedRows = inventoryItemMapper.updateQuantityForStocktake(
+                    row.getItemTable(),
+                    row.getItemId(),
+                    row.getPurposeLocationId(),
+                    row.getLotNumber(),
+                    row.getUnitCode(),
+                    actualQuantity,
+                    now,
+                    userId);
             if (affectedRows <= 0) {
                 throw new IllegalStateException("inventory item not found for stocktake row id: " + row.getId());
             }
@@ -201,10 +184,5 @@ public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
             return dto.getChangeReasonCode() + ":" + dto.getChangeReason();
         }
         return dto.getChangeReason();
-    }
-
-    @FunctionalInterface
-    private interface StatusUpdateCustomizer {
-        void customize(UpdateWrapper<WkfSupplyRequest> wrapper);
     }
 }
