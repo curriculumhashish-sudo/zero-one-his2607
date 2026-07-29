@@ -57,7 +57,6 @@ public:
 	std::list<PtrClnConditionDefinitionDO> DiagnoseDAO::selectAll(const DiagnoseSelectQuery::Wrapper& query);
 
 
-
 };
 
 

@@ -80,7 +80,7 @@ public:
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.delete.summarylogicAuth"),removediagnose,DiagnoseRemoveJsonVO::Wrapper,API_TAG);
 	API_HANDLER_ENDPOINT_AUTH(API_M_DEL,"/diagnose",removediagnose,BODY_DTO(DiagnoseRemoveDTO::Wrapper, dto),execRemovediagnose(dto, authObject->getPayload()));
 
-	////物理批量删除（真实删除）
+	//物理批量删除（真实删除）
 	//API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.delete.summary1"),RemoveDiagnose,ListJsonVO<String>::Wrapper,API_TAG);
 	//API_HANDLER_ENDPOINT_AUTH(API_M_DEL,"/diagnose",RemoveDiagnose,BODY_DTO(List<String>, ids),execRemoveDiagnose(ids));
 	//
