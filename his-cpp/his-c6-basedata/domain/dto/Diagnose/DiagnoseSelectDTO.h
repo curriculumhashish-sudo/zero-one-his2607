@@ -30,11 +30,11 @@ class DSelectDTO : public oatpp::DTO
 	API_DTO_FIELD_REQUIRE(String, diagnoseName, ZH_WORDS_GETTER("diagnose.field.name"), true);
 	// dictType:0,1,2
 	API_DTO_FIELD_REQUIRE(Int32, dictType, ZH_WORDS_GETTER("diagnose.field.dictType"), true);
-	// 是否主诊:0,1
-	API_DTO_FIELD_DEFAULT(Int32, isMain, ZH_WORDS_GETTER("diagnose.field.isMain"));
-	// 是否存为常用:0,1
-	API_DTO_FIELD_DEFAULT(Int32, saveToCommon, ZH_WORDS_GETTER("diagnose.field.saveToCommon"));
-	
+	//// 是否主诊:0,1
+	//API_DTO_FIELD_DEFAULT(Int32, isMain, ZH_WORDS_GETTER("diagnose.field.isMain"));
+	//// 是否存为常用:0,1
+	//API_DTO_FIELD_DEFAULT(Int32, saveToCommon, ZH_WORDS_GETTER("diagnose.field.saveToCommon"));
+	//
 
 };
 
