@@ -18,8 +18,31 @@
 */
 #include "stdafx.h"
 #include "DrugDAO.h"
-
+#include "DrugMapper.h"
 #include <sstream>
+std::string DrugDAO::queryConditionBuilder(const DrugQuery::Wrapper& query, SqlParams& params)
+{
+    std::stringstream sqlCondition;
+
+    // 基础条件：只查询未删除的数据 (is_deleted = 0)
+    sqlCondition << " WHERE `is_deleted` = 0 ";
+
+    // 条件1：关键词模糊查询 
+    if (query->keywords && !query->keywords->empty()) {
+        sqlCondition << " AND (`name` LIKE CONCAT('%',?,'%') OR `py_str` LIKE CONCAT('%',?,'%')) ";
+        SQLPARAMS_PUSH(params, "s", std::string, query->keywords.getValue(""));
+        SQLPARAMS_PUSH(params, "s", std::string, query->keywords.getValue(""));
+    }
+
+    // 条件2：器材分类精准查询
+    if (query->kind && !query->kind->empty()) {
+        sqlCondition << " AND `category_code` = ? ";
+        SQLPARAMS_PUSH(params, "s", std::string, query->kind.getValue(""));
+    }
+
+    return sqlCondition.str();
+
+}
 
 void DrugDAO::releaseSqlSession() noexcept
 {
@@ -383,7 +406,20 @@ uint64_t count(const DrugQuery::Wrapper& query)
 }
 std::list<MedMedicationDefinitionDO> selectWithPage(const DrugQuery::Wrapper& query)
 {
+    SqlParams params;
+    std::string sql = "SELECT * FROM Med_Medication_Defintion ";
 
+    // 拼接条件
+    sql += queryConditionBuilder(query, params);
+
+    // 拼接排序：优先按更新时间降序，其次按创建时间，最后按ID
+    sql += " ORDER BY IFNULL(`updated_at`, `created_at`) DESC, `id` DESC ";
+
+    // 拼接分页
+    sql += " LIMIT " + std::to_string(((query->pageIndex - 1) * query->pageSize)) + "," + std::to_string(query->pageSize);
+
+    // 执行查询并通过 Mapper 映射结果
+    return sqlSession->executeQuery<MedMedicationDefinitionDO>(sql, PtrDrugMapper(), params);
 }
 // 通过姓名查询数据
 std::list<MedMedicationDefinitionDO> selectByName(const string& name)
@@ -487,26 +523,3 @@ int insert(const MedMedicationDefinitionDO& entity)
 
 }
 
-std::string DrugDAO::queryConditionBuilder(const DrugQuery::Wrapper& query, SqlParams& params)
-{
-    std::stringstream sqlCondition;
-
-    // 基础条件：只查询未删除的数据 (is_deleted = 0)
-    sqlCondition << " WHERE `is_deleted` = 0 ";
-
-    // 条件1：关键词模糊查询 
-    if (query->keywords && !query->keywords->empty()) {
-        sqlCondition << " AND (`name` LIKE CONCAT('%',?,'%') OR `py_str` LIKE CONCAT('%',?,'%')) ";
-        SQLPARAMS_PUSH(params, "s", std::string, query->keywords.getValue(""));
-        SQLPARAMS_PUSH(params, "s", std::string, query->keywords.getValue(""));
-    }
-
-    // 条件2：器材分类精准查询
-    if (query->kind&& !query->kind->empty()) {
-        sqlCondition << " AND `category_code` = ? ";
-        SQLPARAMS_PUSH(params, "s", std::string, query->kind.getValue(""));
-    }
-
-    return sqlCondition.str();
-
-  }
