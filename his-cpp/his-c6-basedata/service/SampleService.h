@@ -2,7 +2,7 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: Codex
+ @Author: ку╡с
  @Date: 2026/07/25 10:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,24 +22,22 @@
 
 #include "dao/SampleDAO.h"
 #include "domain/dto/Sample/SampleAddDTO.h"
-#include "domain/dto/Sample/SampleDTO.h"
 #include "domain/dto/Sample/SampleEditDTO.h"
 #include "domain/dto/Sample/SampleStatusDTO.h"
-#include "domain/query/Sample/SampleQuery.h"
 #include <string>
 
 class SampleService
 {
 public:
-	oatpp::List<SampleFullSelectDTO::Wrapper> listSampleName(const SampleFullSelectQuery::Wrapper& query) const;
-	SamplePageDTO::Wrapper listSamplePage(const SampleFullSelectQuery::Wrapper& query) const;
 	void addSample(const SampleAddDTO::Wrapper& dto) const;
 	void editSample(const SampleEditDTO::Wrapper& dto) const;
 	void removeSample(const std::string& id) const;
 	void switchSampleStatus(const SampleStatusDTO::Wrapper& dto) const;
 
 private:
-	SampleFullSelectDTO::Wrapper toDTO(const PtrSampleDO& sample) const;
+	inline static constexpr const char* DEFAULT_OPERATOR = "system";
+	inline static constexpr const char* DEFAULT_SAMPLE_TYPE = "BLOOD";
+
 	std::string buildSampleId() const;
 	std::string currentTime() const;
 	static std::string toStdString(const oatpp::String& value);

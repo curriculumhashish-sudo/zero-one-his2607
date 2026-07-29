@@ -61,7 +61,6 @@ public:
 		MYSQL_ADD_FIELD("wb_str", "s", wbStr);
 		MYSQL_ADD_FIELD_NULLABLE("type_enum", "s", typeEnum, false);
 		MYSQL_ADD_FIELD_NULLABLE("status_enum", "s", statusEnum, false);
-		MYSQL_ADD_FIELD("remark", "s", remark);
 	}
 
 public:

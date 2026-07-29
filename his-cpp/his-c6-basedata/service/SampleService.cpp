@@ -5,51 +5,6 @@
 #include <random>
 #include <sstream>
 
-namespace
-{
-	constexpr const char* DEFAULT_OPERATOR = "system";
-	constexpr const char* DEFAULT_SAMPLE_TYPE = "BLOOD";
-}
-
-oatpp::List<SampleFullSelectDTO::Wrapper> SampleService::listSampleName(const SampleFullSelectQuery::Wrapper& query) const
-{
-	SampleDAO dao;
-	const auto pageIndex = query && query->pageIndex ? query->pageIndex.getValue(1) : 1;
-	const auto pageSize = query && query->pageSize ? query->pageSize.getValue(10) : 10;
-	const auto offset = (pageIndex - 1) * pageSize;
-	const auto records = dao.selectByKeyword(toStdString(query ? query->keyword : nullptr), offset, pageSize);
-
-	auto rows = oatpp::List<SampleFullSelectDTO::Wrapper>::createShared();
-	for (const auto& record : records)
-	{
-		rows->push_back(toDTO(record));
-	}
-	return rows;
-}
-
-SamplePageDTO::Wrapper SampleService::listSamplePage(const SampleFullSelectQuery::Wrapper& query) const
-{
-	SampleDAO dao;
-	const auto keyword = toStdString(query ? query->keyword : nullptr);
-	const auto pageIndex = query && query->pageIndex ? query->pageIndex.getValue(1) : 1;
-	const auto pageSize = query && query->pageSize ? query->pageSize.getValue(10) : 10;
-	const auto offset = (pageIndex - 1) * pageSize;
-	const auto total = static_cast<v_int64>(dao.countByKeyword(keyword));
-	const auto records = dao.selectByKeyword(keyword, offset, pageSize);
-
-	auto page = SamplePageDTO::createShared();
-	page->pageIndex = pageIndex;
-	page->pageSize = pageSize;
-	page->total = total;
-	page->rows = oatpp::List<SampleFullSelectDTO::Wrapper>::createShared();
-	for (const auto& record : records)
-	{
-		page->rows->push_back(toDTO(record));
-	}
-	page->calcPages();
-	return page;
-}
-
 void SampleService::addSample(const SampleAddDTO::Wrapper& dto) const
 {
 	SampleDAO dao;
@@ -155,26 +110,6 @@ void SampleService::switchSampleStatus(const SampleStatusDTO::Wrapper& dto) cons
 	{
 		throw std::runtime_error("failed to switch sample status.");
 	}
-}
-
-SampleFullSelectDTO::Wrapper SampleService::toDTO(const PtrSampleDO& sample) const
-{
-	auto dto = SampleFullSelectDTO::createShared();
-	if (!sample)
-	{
-		return dto;
-	}
-
-	ZO_STAR_DOMAIN_DO_TO_DTO_1(
-		dto,
-		sample,
-		id, Id,
-		sampleCode, SampleCode,
-		sampleName, SampleName,
-		inputCode, InputCode,
-		wbCode, WbCode,
-		remark, Remark);
-	return dto;
 }
 
 std::string SampleService::buildSampleId() const
