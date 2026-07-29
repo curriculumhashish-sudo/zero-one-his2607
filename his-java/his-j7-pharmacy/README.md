@@ -4,7 +4,7 @@ j7 组药房相关业务模块（临时命名，后续按组长规范对齐）�
 
 当前阶段用于住院退药查询等接口文档自测，暂不接入数据库。
 
-主启动类：`com.zeroone.star.j7.pharmacy.J7PharmacyApplication`
+主启动类：`com.zeroone.star.pharmacy.J7PharmacyApplication`
 
 # 配置说明
 

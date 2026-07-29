@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.zeroone.star.j7.pharmacy.mapper.WkfSupplyRequestMapper">
+<mapper namespace="com.zeroone.star.pharmacy.mapper.WkfSupplyRequestMapper">
 
-    <select id="getPharmacyStockTakeList" resultType="com.zeroone.star.j7.pharmacy.entity.approval.WkfSupplyRequest">
+    <select id="getPharmacyStockTakeList" resultType="com.zeroone.star.pharmacy.entity.WkfSupplyRequest">
         SELECT * FROM wkf_supply_request
         <where>
             is_deleted = 0
