@@ -9,7 +9,7 @@ std::string EquipmentDAO::queryConditionBuilder(const EquipmentQuery::Wrapper& q
 	std::stringstream sqlCondition;
 
 	// 基础条件：只查询未删除的数据 (is_deleted = 0)
-	sqlCondition << " WHERE `is_deleted` = 0 ";
+	sqlCondition << " WHERE wii.`is_deleted` = 0 ";
 
 	// 条件1：关键词模糊查询 
 	if (query->keywords && !query->keywords->empty()) {
@@ -33,7 +33,7 @@ std::string EquipmentDAO::queryConditionBuilder(const EquipmentQuery::Wrapper& q
 uint64_t EquipmentDAO::count(const EquipmentQuery::Wrapper& query)
 {
 	SqlParams params;
-	std::string sql = "SELECT COUNT(*) FROM wkf_inventory_item ";
+	std::string sql = "SELECT COUNT(*) FROM wkf_inventory_item wii JOIN doc_inventory_item_snapshot diis";
 
 	// 拼接条件
 	sql += queryConditionBuilder(query, params);
@@ -42,14 +42,21 @@ uint64_t EquipmentDAO::count(const EquipmentQuery::Wrapper& query)
 	return sqlSession->executeQueryNumerical(sql, params);
 }
 
-
+const std::string& listCols =
+"wii.id, diis.product_bus_no, wii.name, diis.total_volume,"
+"CASE wii.inventory_status_enum WHEN 'ACTIVE' THEN 1 WHEN 'INACTIVE' THEN 0 END AS inventory_status_enum,"
+"diis.device_category_code, diis.manufacturer, "
+"wii.tenant_id, wii.created_at, wii.updated_at, wii.created_by, wii.updated_by, wii.is_deleted, wii.deleted_at, wii.deleted_by, wii.version, "
+"wii.category_code, wii.item_table, wii.item_id, wii.py_str, wii.wb_str, wii.supplier_id, wii.description_text, wii.unit_code, wii.quantity, "
+"wii.characteristic_json, wii.lot_number, wii.production_date, wii.expiration_date, wii.validity_mon, wii.location_store_id, wii.location_id, "
+"wii.trace_no, wii.packaging_levels";
 // ============================================================================
 // 3. 列表分页查询
 // ============================================================================
-std::list<WkfInventoryItemDO> EquipmentDAO::selectWithPage(const EquipmentQuery::Wrapper& query)
+std::list<WkfInventoryItemViewDO> EquipmentDAO::selectWithPage(const EquipmentQuery::Wrapper& query)
 {
 	SqlParams params;
-	std::string sql = "SELECT * FROM wkf_inventory_item ";
+	std::string sql = "SELECT  "+ listCols +" FROM wkf_inventory_item wii JOIN doc_inventory_item_snapshot diis ON id=inventory_item_id";
 
 	// 拼接条件
 	sql += queryConditionBuilder(query, params);
@@ -61,7 +68,7 @@ std::list<WkfInventoryItemDO> EquipmentDAO::selectWithPage(const EquipmentQuery:
 	sql += " LIMIT " + std::to_string(((query->pageIndex - 1) * query->pageSize)) + "," + std::to_string(query->pageSize);
 
 	// 执行查询并通过 Mapper 映射结果
-	return sqlSession->executeQuery<WkfInventoryItemDO>(sql, WkfInventoryItemMapper(), params);
+	return sqlSession->executeQuery<WkfInventoryItemViewDO>(sql, WkfInventoryItemMapper(), params);
 }
 
 //这个真的有必要保留吗？

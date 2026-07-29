@@ -195,46 +195,60 @@ public:
 /**
  * 库存物品主表 普通值对象映射
  */
-class WkfInventoryItemMapper : public Mapper<WkfInventoryItemDO>
+class WkfInventoryItemMapper : public Mapper<WkfInventoryItemViewDO>
 {
 public:
-	WkfInventoryItemDO mapper(ResultSet* resultSet) const override
+	WkfInventoryItemViewDO mapper(ResultSet* resultSet) const override
 	{
-		WkfInventoryItemDO data;
-		// 1 主键id
-		data.setId(resultSet->getString(1));
+		WkfInventoryItemViewDO data;
+		
 		// 基础审计、乐观锁字段
-		data.setTenantId(resultSet->getString(2));
-		data.setCreatedAt(resultSet->getString(3));
-		data.setUpdatedAt(resultSet->getString(4));
-		data.setCreatedBy(resultSet->getString(5));
-		data.setUpdatedBy(resultSet->getString(6));
-		data.setIsDeleted(resultSet->getBoolean(7));
-		data.setDeletedAt(resultSet->getString(8));
-		data.setDeletedBy(resultSet->getString(9));
-		data.setVersion(resultSet->getInt(10));
+		data.setTenantId(resultSet->getString(8));
+		data.setCreatedAt(resultSet->getString(9));
+		data.setUpdatedAt(resultSet->getString(10));
+		data.setCreatedBy(resultSet->getString(11));
+		data.setUpdatedBy(resultSet->getString(12));
+		data.setIsDeleted(resultSet->getBoolean(13));
+		data.setDeletedAt(resultSet->getString(14));
+		data.setDeletedBy(resultSet->getString(15));
+		data.setVersion(resultSet->getInt(16));
 
 		// 业务库存字段依次赋值
-		data.setCategoryCode(resultSet->getString(11));
-		data.setItemTable(resultSet->getString(12));
-		data.setItemId(resultSet->getString(13));
-		data.setName(resultSet->getString(14));
-		data.setPyStr(resultSet->getString(15));
-		data.setWbStr(resultSet->getString(16));
-		data.setInventoryStatusEnum(resultSet->getString(17));
-		data.setSupplierId(resultSet->getString(18));
-		data.setDescriptionText(resultSet->getString(19));
-		data.setUnitCode(resultSet->getString(20));
-		data.setQuantity(resultSet->getDouble(21));
-		data.setCharacteristicJson(resultSet->getString(22));
-		data.setLotNumber(resultSet->getString(23));
-		data.setProductionDate(resultSet->getString(24));
-		data.setExpirationDate(resultSet->getString(25));
-		data.setValidityMon(resultSet->getInt(26));
-		data.setLocationStoreId(resultSet->getString(27));
-		data.setLocationId(resultSet->getString(28));
-		data.setTraceNo(resultSet->getString(29));
-		data.setPackagingLevels(resultSet->getInt(30));
+		data.setCategoryCode(resultSet->getString(17));
+		data.setItemTable(resultSet->getString(18));
+		data.setItemId(resultSet->getString(19));
+		
+		data.setPyStr(resultSet->getString(20));
+		data.setWbStr(resultSet->getString(21));
+		
+		data.setSupplierId(resultSet->getString(22));
+		data.setDescriptionText(resultSet->getString(23));
+		data.setUnitCode(resultSet->getString(24));
+		data.setQuantity(resultSet->getDouble(25));
+		data.setCharacteristicJson(resultSet->getString(26));
+		data.setLotNumber(resultSet->getString(27));
+		data.setProductionDate(resultSet->getString(28));
+		data.setExpirationDate(resultSet->getString(29));
+		data.setValidityMon(resultSet->getInt(30));
+		data.setLocationStoreId(resultSet->getString(31));
+		data.setLocationId(resultSet->getString(32));
+		data.setTraceNo(resultSet->getString(33));
+		data.setPackagingLevels(resultSet->getInt(34));
+
+		// 主键id
+		data.setId(resultSet->getString(1));
+		// 项目编码
+		data.setProductBusNo(resultSet->getString(2));
+		// 项目名
+		data.setName(resultSet->getString(3));
+		// 规格
+		data.setTotalVolume(resultSet->getString(4));
+		// 状态
+		data.setInventoryStatusEnum(resultSet->getString(5));
+		// 耗材分类编码
+		data.setDeviceCategoryCode(resultSet->getString(6));
+		// 厂家/产地
+		data.setManufacturer(resultSet->getString(7));
 
 		return data;
 	}
