@@ -26,7 +26,7 @@ public class OutpatientDispenseRecordDTO {
     @ExcelProperty("状态")
     private String statusEnum;
 
-    @ExcelProperty("操作人")
+    @ExcelProperty("患者姓名")
     private String patientName;
 
     @ExcelProperty("项目编号")
@@ -39,7 +39,7 @@ public class OutpatientDispenseRecordDTO {
     @ExcelProperty("药房位置")
     private String pharmacyName;
 
-    @ExcelProperty("操作账号")
+    @ExcelProperty("发药人")
     private String operatorAccount;
 
     @ExcelProperty("药品名称")

@@ -7,9 +7,8 @@
         d.bus_no AS record_no,
         d.status_enum AS status_enum,
         COALESCE(NULLIF(r.prescription_no, ''), r.bus_no, d.bus_no) AS prescription_no,
-        CASE UPPER(d.dispense_enum)
-            WHEN 'REFUND' THEN '退药'
-            ELSE '发药'
+        CASE WHEN UPPER(d.dispense_enum) IN ('REFUND', 'RETURN') THEN '退药'
+             ELSE '发药'
         END AS record_type_name,
         p.name AS patient_name,
         e.bus_no AS clinic_no,
