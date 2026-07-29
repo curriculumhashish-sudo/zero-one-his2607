@@ -58,7 +58,8 @@ DiagnoseSelectDTO::Wrapper DiagnoseService::listDiagnoseSelect(const DiagnoseSel
 			dto, one,
 			id, Id,
 			diagnoseCode, ConditionCode,
-			diagnoseName, Name
+			diagnoseName, Name,
+			dictType, TenantId
 		);
 		page->addData(dto);
 	}
@@ -109,26 +110,27 @@ DiagnoseDetailDTO::Wrapper DiagnoseService::getDiagnoseDetail(const oatpp::Strin
 	// 获取单条主数据
 	DiagnoseDAO dao;
 	auto data = dao.selectById(id.getValue(""));
+
+	// 如果数据不存在，直接返回空
 	if (!data)
 		return nullptr;
-	for (auto one : list)
-	{
-		auto dto = DiagnoseDetailDTO::createShared();
 
-		ZO_STAR_DOMAIN_DO_TO_DTO_1(
-			dto, one,
-			id, Id,
-			diagnoseCode, ConditionCode,
-			diagnoseName, Name,
-			diagnoseType, TypeCode,
+	// 创建 DTO 对象并进行字段映射
+	auto dto = DiagnoseDetailDTO::createShared();
+	ZO_STAR_DOMAIN_DO_TO_DTO_1(
+		dto, data,
+		id, Id,
+		diagnoseCode, ConditionCode,
+		diagnoseName, Name,
+		diagnoseType, TypeCode,
+		medicalInsuranceCode, YbNo,
+		status, StatusEnum,
+		remark, Description
+	);
 
-			medicalInsuranceCode, YbNo,
-			status, StatusEnum,
-			remark, Description
-
-		);
-		return dto;
-	}
+	// 返回详情数据
+	return dto;
+	
 	
 }
 
