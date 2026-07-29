@@ -1,7 +1,7 @@
-package com.zeroone.star.configuration.orderset.mapper;
+package com.zeroone.star.configuration.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.zeroone.star.configuration.orderset.domain.OrderSetDO;
+import com.zeroone.star.configuration.domain.OrderSetDO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

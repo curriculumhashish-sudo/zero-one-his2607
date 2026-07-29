@@ -1,4 +1,4 @@
-package com.zeroone.star.configuration.orderset.enums;
+package com.zeroone.star.configuration.enums;
 
 /**
  * 组套模板适用场景。
