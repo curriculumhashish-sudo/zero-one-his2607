@@ -111,4 +111,21 @@ public interface DepartmentMapper extends BaseMapper<DepartmentDO> {
                          @Param("updatedAt") LocalDateTime updatedAt,
                          @Param("updatedBy") Long updatedBy,
                          @Param("tenantId") String tenantId);
+
+    /**
+     * 检查序列键是否存在
+     *
+     * @param seqKey 序列键
+     * @return 序列键是否存在
+     * @author 胡傲宇
+     */
+    boolean isSeqKeyExist(String seqKey);
+
+    /**
+     * 创建序列
+     *
+     * @param seqKey 序列键
+     * @author 胡傲宇
+     */
+    void createSequence(String seqKey);
 }
