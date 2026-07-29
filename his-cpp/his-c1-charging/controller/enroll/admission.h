@@ -1,5 +1,5 @@
-#ifndef _SAMPLE_CONTROLLER_
-#define _SAMPLE_CONTROLLER_
+#ifndef _ADMISSION_CONTROLLER_
+#define _ADMISSION_CONTROLLER_
 
 #include "domain/vo/BaseJsonVO.h"
 #include "domain/dto/enroll/admissionDTO.h"
@@ -9,9 +9,6 @@
 #define API_TAG ZH_WORDS_GETTER("charging.enroll.tag")
 //#define API_TAG2 ZH_WORDS_GETTER("charging.admission.tag1")
 
-/*
- * 示例控制器，演示基础接口的使用
- */
 class AdmissionController : public oatpp::web::server::api::ApiController // 1 继承控制器
 {
 	// 2 定义控制器访问入口

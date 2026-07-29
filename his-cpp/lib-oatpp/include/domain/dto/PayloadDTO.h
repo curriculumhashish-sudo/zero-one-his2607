@@ -17,83 +17,81 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _PAYLOADDTO_H_
-#define _PAYLOADDTO_H_
 #include "jwt-cpp/jwt.h"
 #include <list>
 
 /**
- * ¸ºÔØĞÅÏ¢»ñÈ¡×´Ì¬±àÂë
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½È¡×´Ì¬ï¿½ï¿½ï¿½ï¿½
  */
 enum class PayloadCode
 {
-	// ĞÅÏ¢ÑéÖ¤´¦Àí³É¹¦
+	// ï¿½ï¿½Ï¢ï¿½ï¿½Ö¤ï¿½ï¿½ï¿½ï¿½ï¿½É¹ï¿½
 	SUCCESS,
-	// TokenÒÑ¹ıÆÚ
+	// Tokenï¿½Ñ¹ï¿½ï¿½ï¿½
 	TOKEN_EXPIRED_ERROR,
-	// Ç©Ãû¸ñÊ½´íÎó
+	// Ç©ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½
 	SIGNATUREFORMAT_ERROR,
-	// ½âÃÜ´íÎó
+	// ï¿½ï¿½ï¿½Ü´ï¿½ï¿½ï¿½
 	DECODE_ERROR,
-	// ÑéÖ¤´íÎó
+	// ï¿½ï¿½Ö¤ï¿½ï¿½ï¿½ï¿½
 	VERIFICATION_ERROR,
-	// ÆäËû´íÎó
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	OTHER_ERROR
 };
 
 /**
- * ¸ºÔØĞÅÏ¢ÊµÌåÀà
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢Êµï¿½ï¿½ï¿½ï¿½
  */
 class PayloadDTO
 {
 public:
-	// »ñÈ¡×´Ì¬Âë¶ÔÓ¦µÄÃ¶¾ÙÖµÃû³Æ
+	// ï¿½ï¿½È¡×´Ì¬ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½Ã¶ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½
 	static std::string getCodeName(PayloadCode code);
-	// »ñÈ¡Æ¾Ö¤Ç°×º
+	// ï¿½ï¿½È¡Æ¾Ö¤Ç°×º
 	static std::string getTokenPrefix();
 private:
-	// Token×Ö·û´®¶ÔÓ¦µÄÖµ
+	// Tokenï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½Öµ
 	std::string token;
-	// ÊÜÖÚ£¬Ò»°ã´æ¿Í»§¶ËidÃû³Æ
+	// ï¿½ï¿½ï¿½Ú£ï¿½Ò»ï¿½ï¿½ï¿½Í»ï¿½ï¿½ï¿½idï¿½ï¿½ï¿½ï¿½
 	std::string aud;
-	// Ç©·¢Õß
+	// Ç©ï¿½ï¿½ï¿½ï¿½
 	std::string iss;
-	// Ö÷Ìâ,Ò»°ã´æÓÃ»§Ãû
+	// ï¿½ï¿½ï¿½ï¿½,Ò»ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½
 	std::string sub;
-	// ¹ıÆÚÊ±¼ä£¨×¢Òâ£ºÉú³ÉÆ¾Ö¤µÄÊ±ºòÓÃËüÀ´Ö¸¶¨ÓĞĞ§ÃëÊı£©£¬ÊÇÒ»¸öUnixÊ±¼ä´Á
+	// ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ä£¨×¢ï¿½â£ºï¿½ï¿½ï¿½ï¿½Æ¾Ö¤ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½Ğ§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½UnixÊ±ï¿½ï¿½ï¿½
 	int64_t exp;
-	// Ç©·¢Ê±¼ä£¬ÊÇÒ»¸öUnixÊ±¼ä´Á
+	// Ç©ï¿½ï¿½Ê±ï¿½ä£¬ï¿½ï¿½Ò»ï¿½ï¿½UnixÊ±ï¿½ï¿½ï¿½
 	int64_t iat;
-	// ÉúĞ§Ê±¼ä£¬ÊÇÒ»¸öUnixÊ±¼ä´Á
+	// ï¿½ï¿½Ğ§Ê±ï¿½ä£¬ï¿½ï¿½Ò»ï¿½ï¿½UnixÊ±ï¿½ï¿½ï¿½
 	int64_t nbf;
-	// jwt id Î¨Ò»±êÊ¶
+	// jwt id Î¨Ò»ï¿½ï¿½Ê¶
 	std::string jti;
-	// Êı¾İ×´Ì¬ÏµĞÅÏ¢
+	// ï¿½ï¿½ï¿½ï¿½×´Ì¬Ïµï¿½ï¿½Ï¢
 	PayloadCode code;
-	// ÓÃ»§±àºÅ
+	// ï¿½Ã»ï¿½ï¿½ï¿½ï¿½
 	std::string id;
-	// ÓÃ»§ÓµÓĞµÄÈ¨ÏŞ
+	// ï¿½Ã»ï¿½Óµï¿½Ğµï¿½È¨ï¿½ï¿½
 	std::list<std::string> authorities;
-	// TIP£ºĞÂÔöÊôĞÔ×Ö¶ÎÔÚºóÃæÌí¼Ó¼´¿É
+	// TIPï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¶ï¿½ï¿½Úºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¼ï¿½ï¿½ï¿½
 public:
 	PayloadDTO();
 	/**
-	 * ¹¹Ôì³õÊ¼»¯
-	 * @param username ÓÃ»§Ãû
-	 * @param exp ¹ıÆÚÊ±¼ä£¬µ¥Î»ÎªÃë
-	 * @param _authorities È¨ÏŞÁĞ±í
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½
+	 * @param username ï¿½Ã»ï¿½ï¿½ï¿½
+	 * @param exp ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ä£¬ï¿½ï¿½Î»Îªï¿½ï¿½
+	 * @param _authorities È¨ï¿½ï¿½ï¿½Ğ±ï¿½
 	 */
 	PayloadDTO(std::string username, int64_t exp, std::list<std::string> _authorities);
-	// »ñÈ¡Token×Ö·û´®
+	// ï¿½ï¿½È¡Tokenï¿½Ö·ï¿½ï¿½ï¿½
 	std::string getToken() const { return token; }
-	// ÉèÖÃToken×Ö·û´®
+	// ï¿½ï¿½ï¿½ï¿½Tokenï¿½Ö·ï¿½ï¿½ï¿½
 	void setToken(std::string val) { token = val; }
-	// »ñÈ¡Êı¾İ×´Ì¬ÂëĞÅÏ¢
+	// ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½Ï¢
 	PayloadCode getCode() const { return code; }
-	// ÉèÖÃÊı¾İ×´Ì¬ÂëĞÅÏ¢
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½Ï¢
 	void setCode(PayloadCode val) { code = val; }
 	
-	// ±ê×¼ÊôĞÔ×Ö¶ÎµÄgetter/setter
+	// ï¿½ï¿½×¼ï¿½ï¿½ï¿½ï¿½ï¿½Ö¶Îµï¿½getter/setter
 	std::string Aud() const { return aud; }
 	void Aud(std::string val) { aud = val; }
 	std::string Iss() const { return iss; }
@@ -109,25 +107,24 @@ public:
 	std::string Jti() const { return jti; }
 	void Jti(std::string val) { jti = val; }
 
-	// ×Ô¶¨ÒåÊôĞÔ×Ö¶ÎµÄgetter/setter
+	// ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¶Îµï¿½getter/setter
 	std::string getUsername() const { return Sub(); }
 	void setUsername(std::string val) { Sub(val); }
 	std::string getId() const { return id; }
 	void setId(std::string val) { id = val; }
 	const std::list<std::string>& getAuthorities() const { return authorities; }
 	void setAuthorities(std::list<std::string> val) { authorities = val; }
-	// ×¢Òâ£ºĞÂÔöÊôĞÔ×Ö¶ÎºóĞèÒª²¹³ägetter/setter
+	// ×¢ï¿½â£ºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¶Îºï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½getter/setter
 
-	// Ìí¼ÓÈ¨ÏŞ
+	// ï¿½ï¿½ï¿½ï¿½È¨ï¿½ï¿½
 	void putAuthority(std::string authstr);
 	
-	// ½«PayloadµÄÊôĞÔ×ª»»µ½jwt builderÖĞ
-	// ×¢Òâ£ºĞÂÔöÊôĞÔ×Ö¶ÎºóĞèÒªÎ¬»¤´Ë·½·¨µÄ¶¨Òå
+	// ï¿½ï¿½Payloadï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½jwt builderï¿½ï¿½
+	// ×¢ï¿½â£ºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¶Îºï¿½ï¿½ï¿½ÒªÎ¬ï¿½ï¿½ï¿½Ë·ï¿½ï¿½ï¿½ï¿½Ä¶ï¿½ï¿½ï¿½
 	void propToJwt(jwt::builder<jwt::default_clock, jwt::traits::kazuho_picojson>& builder) const;
 
-	// ½«jwt decoded_jwtµÄÊôĞÔ×ª»»µ½PayloadÖĞ
-	// ×¢Òâ£ºĞÂÔöÊôĞÔ×Ö¶ÎºóĞèÒªÎ¬»¤´Ë·½·¨µÄ¶¨Òå
+	// ï¿½ï¿½jwt decoded_jwtï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½Payloadï¿½ï¿½
+	// ×¢ï¿½â£ºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¶Îºï¿½ï¿½ï¿½ÒªÎ¬ï¿½ï¿½ï¿½Ë·ï¿½ï¿½ï¿½ï¿½Ä¶ï¿½ï¿½ï¿½
 	void propToPayload(const jwt::decoded_jwt<jwt::traits::kazuho_picojson>& decoded);
 };
 
-#endif // !_PAYLOADDTO_H_

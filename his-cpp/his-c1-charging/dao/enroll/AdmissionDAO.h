@@ -1,15 +1,22 @@
 #pragma once
-#pragma once
+
 #ifndef _ADMISSION_DAO_
 #define _ADMISSION_DAO_
 
 #include "BaseDAO.h"
 #include "ApiHelper.h"
 
+/*
+ * 入院数据访问对象。
+ * 处理住院入院登记的多表插入/删除操作。
+ */
 class AdmissionDAO : public BaseDAO
 {
 public:
-	bool insertadmission(const oatpp::String& name,
+	// 插入新的住院入院记录（多表事务）。
+	// 成功返回 true；outPatientId/outEncounterId/outBusNo 接收生成的ID。
+	bool insertAdmission(
+		const oatpp::String& name,
 		const oatpp::String& idCard,
 		const oatpp::String& birthTime,
 		const oatpp::Int32& age,
@@ -35,11 +42,21 @@ public:
 		oatpp::String& outBusNo
 	);
 
-	bool deleteadmission(
+	// 取消住院入院（软删除：设置 is_deleted = 1）。
+	// 成功返回 true。
+	bool deleteAdmission(
 		const oatpp::String& encounterId,
 		const oatpp::String& cancelReason,
 		const oatpp::String& operUserId,
 		const oatpp::String& tenantId
 	);
+
+private:
+	// 生成不含分隔符的UUID字符串
+	std::string generateUuid();
+
+	// 生成业务编号，如"ZY202607280001"
+	std::string generateBusNo(const oatpp::String& prefix);
 };
-#endif 
+
+#endif // !_ADMISSION_DAO_
