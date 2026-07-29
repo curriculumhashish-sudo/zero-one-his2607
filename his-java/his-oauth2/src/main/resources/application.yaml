@@ -75,3 +75,4 @@ spring:
             require-authorization-consent: false
             require-proof-key: true
 
+
