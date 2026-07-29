@@ -1,30 +1,24 @@
-/*
- Copyright Zero One Star. All rights reserved.
-
- @Author: Swan_Woo
- @Date: 2026/07/25 00:00:00
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
-      https://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-*/
 #pragma once
-#ifndef _InpatientBilling_SERVICE_H_
-#define _InpatientBilling_SERVICE_H_
+#ifndef _InpatientBillingService_H_
+#define _InpatientBillingService_H_
+#include "domain/vo/inpatientbilling/InpatientBillingVO.h"
+#include "domain/dto/inpatientbilling/InpatientBillingDTO.h"
 
 class InpatientBillingService
 {
 public:
-    InpatientBillingService() = default;
-    ~InpatientBillingService() = default;
+	// 查询自动计费配置列表
+	ListAutoRollConfigsDTO::Wrapper listAutoRollConfigs(const ListAutoRollConfigsQuery::Wrapper& query);
+	// 新增自动计费规则
+	CreateAutoGenRuleResponseDTO::Wrapper createAutoGenRule(const CreateAutoGenRuleDTO::Wrapper& dto);
+	// 修改自动计费规则（仅覆盖非空字段）
+	UpdateAutoGenRuleResponseDTO::Wrapper updateAutoGenRule(const UpdateAutoGenRuleDTO::Wrapper& dto);
+	// 软删除自动计费规则
+	DeleteAutoGenRuleResponseDTO::Wrapper deleteAutoGenRule(const DeleteAutoGenRuleDTO::Wrapper& dto);
+	// 启用自动计费规则
+	ActivateAutoGenRuleResponseDTO::Wrapper activateAutoGenRule(const ActivateAutoGenRuleDTO::Wrapper& dto);
+	// 停用自动计费规则
+	ActivateAutoGenRuleResponseDTO::Wrapper suspendAutoGenRule(const ActivateAutoGenRuleDTO::Wrapper& dto);
 };
 
-#endif // !_InpatientBilling_SERVICE_H_
+#endif // !_InpatientBillingService_H_
