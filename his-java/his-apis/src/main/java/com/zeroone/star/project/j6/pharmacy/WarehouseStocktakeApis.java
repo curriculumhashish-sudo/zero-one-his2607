@@ -5,6 +5,7 @@ import com.zeroone.star.project.query.j6.pharmacy.PharmacyInventoryDetailQuery;
 import com.zeroone.star.project.query.j6.pharmacy.stocktake.PharmacyInventoryQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j6.pharmacy.PharmacyInventoryDetailVO;
+import com.zeroone.star.project.vo.j6.pharmacy.PharmacyInventoryListVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stocktake.PharmacyInventoryVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stocktake.StocktakeDetailVO;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,7 +17,7 @@ public interface WarehouseStocktakeApis {
      * @param query 封装：分页参数 + 筛选条件（单据号、日期、药库、项目类型）
      * @return JsonVO包裹分页数据
      */
-    JsonVO<PharmacyInventoryVO> listInventory(PharmacyInventoryQuery query);
+    JsonVO<PharmacyInventoryListVO> listInventory(PharmacyInventoryQuery query);
 
     /**
      * 根据id查询盘点单详情

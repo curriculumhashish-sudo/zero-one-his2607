@@ -1,5 +1,6 @@
 package com.zeroone.star.project.vo.j6.pharmacy;
 
+import com.zeroone.star.project.vo.j6.pharmacy.stocktake.PharmacyInventoryVO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import java.util.List;
@@ -8,7 +9,7 @@ import java.util.List;
 @Schema(description = "药房盘点单据分页列表VO")
 public class PharmacyInventoryListVO {
     @Schema(description = "分页数据集合")
-    private List<PharmacyInventoryItemVO> content;
+    private List<PharmacyInventoryVO> content;
 
     @Schema(description = "总条数", example = "3")
     private Long totalCount;

@@ -1,12 +1,15 @@
 package com.zeroone.star.pharmacy.controller;
 
 import com.zeroone.star.pharmacy.service.IStocktakeApprovalService;
+import com.zeroone.star.pharmacy.service.IWkfSupplyRequestService;
 import com.zeroone.star.project.dto.j6.pharmacy.stocktake.*;
 import com.zeroone.star.project.j6.pharmacy.WarehouseStocktakeApis;
 import com.zeroone.star.project.query.j6.pharmacy.PharmacyInventoryDetailQuery;
 import com.zeroone.star.project.query.j6.pharmacy.stocktake.PharmacyInventoryQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j6.pharmacy.PharmacyInventoryDeleteVO;
 import com.zeroone.star.project.vo.j6.pharmacy.PharmacyInventoryDetailVO;
+import com.zeroone.star.project.vo.j6.pharmacy.PharmacyInventoryListVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stocktake.PharmacyInventoryVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stocktake.StocktakeDetailVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,11 +29,15 @@ import java.util.List;
 @Tag(name = "药库盘点单", description = "药库管理相关接口")
 public class WarehouseStocktakeController implements WarehouseStocktakeApis {
 
+    @Resource
+    private final IWkfSupplyRequestService IwkfSupplyRequestService;
+
     @Override
     @GetMapping("list")
     @Operation(summary = "获取单据列表（条件+分页）")
-    public JsonVO<PharmacyInventoryVO> listInventory(PharmacyInventoryQuery query) {
-        return JsonVO.success(new PharmacyInventoryVO());
+    public JsonVO<PharmacyInventoryListVO> listInventory(PharmacyInventoryQuery query) {
+        PharmacyInventoryListVO pageResult=IwkfSupplyRequestService.listInventory(query);
+        return JsonVO.success(pageResult);
     }
 
 
@@ -47,7 +54,8 @@ public class WarehouseStocktakeController implements WarehouseStocktakeApis {
     @DeleteMapping("/{busNo}")
     @Operation(summary = "删除单据")
     public JsonVO<Boolean> deleteStocktake(@PathVariable String busNo) {
-        return JsonVO.success(true);
+        PharmacyInventoryDeleteVO vo=IwkfSupplyRequestService.deleteStocktake(busNo);
+        return JsonVO.success(vo.getSuccess());
     }
 
     @Override
