@@ -7,53 +7,47 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class SettlePaymentDTO : public oatpp::DTO
-{
+class SettlePaymentDTO : public oatpp::DTO {
 	DTO_INIT(SettlePaymentDTO, DTO);
 
-	API_DTO_FIELD(String, payEnum, ZH_WORDS_GETTER("ovo.charging.settle.SettlePaymentDTO.payEnum.description"), true, "CASH");
-	API_DTO_FIELD(Float64, amount, ZH_WORDS_GETTER("ovo.charging.settle.SettlePaymentDTO.amount.description"), true, 480.5);
-	API_DTO_FIELD(String, payTransNo, ZH_WORDS_GETTER("ovo.charging.settle.SettlePaymentDTO.payTransNo.description"), false, "CASH202607200001");
+	API_DTO_FIELD_REQUIRE(String, payEnum, ZH_WORDS_GETTER("ovo.charging.settle.pay_enum"), true);
+	API_DTO_FIELD_REQUIRE(Float64, amount, ZH_WORDS_GETTER("ovo.charging.settle.payment_amount"), true);
+	API_DTO_FIELD_DEFAULT(String, payTransNo, ZH_WORDS_GETTER("ovo.charging.settle.pay_trans_no"));
 };
 
-class SettleRequestDTO : public oatpp::DTO
-{
+class SettleRequestDTO : public oatpp::DTO {
 	DTO_INIT(SettleRequestDTO, DTO);
 
-	API_DTO_FIELD(String, patientId, ZH_WORDS_GETTER("ovo.charging.settle.SettleRequestDTO.patientId.description"), true, "329874660197928960");
-	API_DTO_FIELD(String, encounterId, ZH_WORDS_GETTER("ovo.charging.settle.SettleRequestDTO.encounterId.description"), true, "329874660147597312");
-	API_DTO_FIELD(String, accountId, ZH_WORDS_GETTER("ovo.charging.settle.SettleRequestDTO.accountId.description"), true, "330100000000000301");
-	API_DTO_FIELD(Vector<String>, chargeItemIds, ZH_WORDS_GETTER("ovo.charging.settle.SettleRequestDTO.chargeItemIds.description"), true, {});
-	API_DTO_FIELD(Vector<Object<SettlePaymentDTO>>, paymentDetails, ZH_WORDS_GETTER("ovo.charging.settle.SettleRequestDTO.paymentDetails.description"), true, {});
-	API_DTO_FIELD(Float64, displayAmount, ZH_WORDS_GETTER("ovo.charging.settle.SettleRequestDTO.displayAmount.description"), true, 480.5);
-	API_DTO_FIELD(String, contractNo, ZH_WORDS_GETTER("ovo.charging.settle.SettleRequestDTO.contractNo.description"), false, "SELF_PAY");
-	API_DTO_FIELD(String, billDate, ZH_WORDS_GETTER("ovo.charging.settle.SettleRequestDTO.billDate.description"), true, "2026-07-20 11:00:00");
-	API_DTO_FIELD(String, remark, ZH_WORDS_GETTER("ovo.charging.settle.SettleRequestDTO.remark.description"), false, ZH_WORDS_GETTER("ovo.charging.settle.SettleRequestDTO.remark.value"));
+	API_DTO_FIELD_REQUIRE(String, patientId, ZH_WORDS_GETTER("ovo.charging.settle.patient_id"), true);
+	API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("ovo.charging.settle.encounter_id"), true);
+	API_DTO_FIELD_REQUIRE(String, accountId, ZH_WORDS_GETTER("ovo.charging.settle.account_id"), true);
+	API_DTO_FIELD_REQUIRE(Vector<String>, chargeItemIds, ZH_WORDS_GETTER("ovo.charging.settle.charge_item_ids"), true);
+	API_DTO_FIELD_REQUIRE(Vector<Object<SettlePaymentDTO>>, paymentDetails, ZH_WORDS_GETTER("ovo.charging.settle.payment_details"), true);
+	API_DTO_FIELD_REQUIRE(Float64, displayAmount, ZH_WORDS_GETTER("ovo.charging.settle.display_amount"), true);
+	API_DTO_FIELD_DEFAULT(String, contractNo, ZH_WORDS_GETTER("ovo.charging.settle.contract_no"));
+	API_DTO_FIELD_REQUIRE(String, billDate, ZH_WORDS_GETTER("ovo.charging.settle.bill_date"), true);
+	API_DTO_FIELD_DEFAULT(String, remark, ZH_WORDS_GETTER("ovo.charging.settle.remark"));
 
 public:
-	SettleRequestDTO()
-	{
+	SettleRequestDTO() {
 		chargeItemIds = Vector<String>::createShared();
-		chargeItemIds->push_back("329906419492982785");
 		paymentDetails = Vector<Object<SettlePaymentDTO>>::createShared();
-		paymentDetails->push_back(SettlePaymentDTO::createShared());
 	}
 };
 
-class SettleResultDTO : public oatpp::DTO
-{
+class SettleResultDTO : public oatpp::DTO {
 	DTO_INIT(SettleResultDTO, DTO);
 
-	API_DTO_FIELD(String, paymentId, ZH_WORDS_GETTER("ovo.charging.settle.SettleResultDTO.paymentId.description"), true, "330100000000000001");
-	API_DTO_FIELD(String, paymentNo, ZH_WORDS_GETTER("ovo.charging.settle.SettleResultDTO.paymentNo.description"), true, "IPAY202607200001");
-	API_DTO_FIELD(String, preSettleId, ZH_WORDS_GETTER("ovo.charging.settle.SettleResultDTO.preSettleId.description"), false, "330100000000000401");
-	API_DTO_FIELD(String, setlId, ZH_WORDS_GETTER("ovo.charging.settle.SettleResultDTO.setlId.description"), false, "SETL202607200001");
-	API_DTO_FIELD(String, invoiceId, ZH_WORDS_GETTER("ovo.charging.settle.SettleResultDTO.invoiceId.description"), false, "330100000000000201");
-	API_DTO_FIELD(Float64, displayAmount, ZH_WORDS_GETTER("ovo.charging.settle.SettleResultDTO.displayAmount.description"), true, 480.5);
-	API_DTO_FIELD(String, statusEnum, ZH_WORDS_GETTER("ovo.charging.settle.SettleResultDTO.statusEnum.description"), true, "CONFIRMED");
-	API_DTO_FIELD(String, settledAt, ZH_WORDS_GETTER("ovo.charging.settle.SettleResultDTO.settledAt.description"), true, "2026-07-20 11:00:01");
+	API_DTO_FIELD(String, paymentId, ZH_WORDS_GETTER("ovo.charging.settle.payment_id"), true, "330100000000000001");
+	API_DTO_FIELD(String, paymentNo, ZH_WORDS_GETTER("ovo.charging.settle.payment_no"), true, "IPAY202607200001");
+	API_DTO_FIELD_DEFAULT(String, preSettleId, ZH_WORDS_GETTER("ovo.charging.settle.pre_settle_id"));
+	API_DTO_FIELD_DEFAULT(String, setlId, ZH_WORDS_GETTER("ovo.charging.settle.setl_id"));
+	API_DTO_FIELD_DEFAULT(String, invoiceId, ZH_WORDS_GETTER("ovo.charging.settle.invoice_id"));
+	API_DTO_FIELD(Float64, displayAmount, ZH_WORDS_GETTER("ovo.charging.settle.display_amount"), true, 480.5);
+	API_DTO_FIELD(String, statusEnum, ZH_WORDS_GETTER("ovo.charging.settle.settle_result_status"), true, "CONFIRMED");
+	API_DTO_FIELD(String, settledAt, ZH_WORDS_GETTER("ovo.charging.settle.settled_at"), true, "2026-07-20 11:00:01");
 };
 
 #include OATPP_CODEGEN_END(DTO)
 
-#endif // !_SETTLE_DTO_H_
+#endif

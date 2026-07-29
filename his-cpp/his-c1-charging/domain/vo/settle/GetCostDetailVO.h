@@ -8,13 +8,11 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class GetCostDetailJsonVO : public JsonVO<GetCostDetailDTO::Wrapper>
-{
+class GetCostDetailJsonVO : public JsonVO<GetCostDetailDTO::Wrapper> {
 	DTO_INIT(GetCostDetailJsonVO, JsonVO<GetCostDetailDTO::Wrapper>);
 
 public:
-	GetCostDetailJsonVO()
-	{
+	GetCostDetailJsonVO() {
 		this->data = GetCostDetailDTO::createShared();
 	}
 };

@@ -5,14 +5,9 @@
 
 #include "../DoInclude.h"
 
-/**
- * 患者本次住院费用汇总只读投影。
- *
- * 数据由 adm_patient、adm_encounter 和 adm_charge_item 联合查询得到，
- * 因此不绑定单张数据库表。
- */
-class GetCostDetailDO : public BaseDO
-{
+// 患者本次住院费用汇总只读投影
+// 数据由 adm_patient、adm_encounter 和 adm_charge_item 联合查询得到，因此不绑定单张数据库表
+class GetCostDetailDO : public BaseDO {
 	MYSQL_SYNTHESIZE(std::string, patientId, PatientId);
 	MYSQL_SYNTHESIZE(std::string, patientName, PatientName);
 	MYSQL_SYNTHESIZE(std::string, encounterId, EncounterId);
@@ -22,8 +17,7 @@ class GetCostDetailDO : public BaseDO
 	MYSQL_SYNTHESIZE(std::string, unsettledAmount, UnsettledAmount);
 
 public:
-	GetCostDetailDO() : BaseDO("")
-	{
+	GetCostDetailDO() : BaseDO("") {
 		MYSQL_ADD_FIELD("patient_id", "s", patientId);
 		MYSQL_ADD_FIELD("patient_name", "s", patientName);
 		MYSQL_ADD_FIELD("encounter_id", "s", encounterId);
@@ -36,14 +30,9 @@ public:
 
 typedef std::shared_ptr<GetCostDetailDO> PtrGetCostDetailDO;
 
-/**
- * 单条住院费用明细只读投影。
- *
- * 数据由 adm_charge_item、adm_charge_item_definition、
- * adm_organization 和 adm_practitioner 联合查询得到。
- */
-class CostDetailItemDO : public BaseDO
-{
+// 单条住院费用明细只读投影
+// 数据由 adm_charge_item、adm_charge_item_definition、adm_organization 和 adm_practitioner 联合查询得到
+class CostDetailItemDO : public BaseDO {
 	MYSQL_SYNTHESIZE(std::string, chargeItemId, ChargeItemId);
 	MYSQL_SYNTHESIZE(std::string, busNo, BusNo);
 	MYSQL_SYNTHESIZE(std::string, prescriptionNo, PrescriptionNo);
@@ -60,8 +49,7 @@ class CostDetailItemDO : public BaseDO
 	MYSQL_SYNTHESIZE(std::string, entererName, EntererName);
 
 public:
-	CostDetailItemDO() : BaseDO("")
-	{
+	CostDetailItemDO() : BaseDO("") {
 		MYSQL_ADD_FIELD("charge_item_id", "s", chargeItemId);
 		MYSQL_ADD_FIELD("bus_no", "s", busNo);
 		MYSQL_ADD_FIELD("prescription_no", "s", prescriptionNo);
@@ -81,4 +69,4 @@ public:
 
 typedef std::shared_ptr<CostDetailItemDO> PtrCostDetailItemDO;
 
-#endif // !_GET_COST_DETAIL_DO_H_
+#endif

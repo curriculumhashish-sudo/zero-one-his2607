@@ -5,11 +5,8 @@
 
 #include "../DoInclude.h"
 
-/**
- * 住院结算生成的支付流水。
- */
-class SettlementPaymentDO : public BaseDO
-{
+// 住院结算生成的支付流水
+class SettlementPaymentDO : public BaseDO {
 	MYSQL_SYNTHESIZE(std::string, id, Id);
 	MYSQL_SYNTHESIZE(std::string, tenantId, TenantId);
 	MYSQL_SYNTHESIZE(std::string, createdAt, CreatedAt);
@@ -46,8 +43,7 @@ class SettlementPaymentDO : public BaseDO
 	MYSQL_SYNTHESIZE(std::string, cashierSettlementId, CashierSettlementId);
 
 public:
-	SettlementPaymentDO() : BaseDO("fin_payment_reconciliation")
-	{
+	SettlementPaymentDO() : BaseDO("fin_payment_reconciliation") {
 		MYSQL_ADD_FIELD_PK("id", "s", id);
 		MYSQL_ADD_FIELD("tenant_id", "s", tenantId);
 		MYSQL_ADD_FIELD_NULLABLE("created_at", "s", createdAt, false);
@@ -87,11 +83,8 @@ public:
 
 typedef std::shared_ptr<SettlementPaymentDO> PtrSettlementPaymentDO;
 
-/**
- * 住院结算生成的支付渠道明细。
- */
-class SettlementPaymentDetailDO : public BaseDO
-{
+// 住院结算生成的支付渠道明细
+class SettlementPaymentDetailDO : public BaseDO {
 	MYSQL_SYNTHESIZE(std::string, id, Id);
 	MYSQL_SYNTHESIZE(std::string, tenantId, TenantId);
 	MYSQL_SYNTHESIZE(std::string, createdAt, CreatedAt);
@@ -120,8 +113,7 @@ class SettlementPaymentDetailDO : public BaseDO
 	MYSQL_SYNTHESIZE(std::string, resultEnum, ResultEnum);
 
 public:
-	SettlementPaymentDetailDO() : BaseDO("fin_payment_rec_detail")
-	{
+	SettlementPaymentDetailDO() : BaseDO("fin_payment_rec_detail") {
 		MYSQL_ADD_FIELD_PK("id", "s", id);
 		MYSQL_ADD_FIELD("tenant_id", "s", tenantId);
 		MYSQL_ADD_FIELD_NULLABLE("created_at", "s", createdAt, false);
@@ -153,11 +145,8 @@ public:
 
 typedef std::shared_ptr<SettlementPaymentDetailDO> PtrSettlementPaymentDetailDO;
 
-/**
- * 住院结算生成的发票。
- */
-class SettlementInvoiceDO : public BaseDO
-{
+// 住院结算生成的发票
+class SettlementInvoiceDO : public BaseDO {
 	MYSQL_SYNTHESIZE(std::string, id, Id);
 	MYSQL_SYNTHESIZE(std::string, tenantId, TenantId);
 	MYSQL_SYNTHESIZE(std::string, createdAt, CreatedAt);
@@ -182,8 +171,7 @@ class SettlementInvoiceDO : public BaseDO
 	MYSQL_SYNTHESIZE(std::string, issuedAt, IssuedAt);
 
 public:
-	SettlementInvoiceDO() : BaseDO("adm_invoice")
-	{
+	SettlementInvoiceDO() : BaseDO("adm_invoice") {
 		MYSQL_ADD_FIELD_PK("id", "s", id);
 		MYSQL_ADD_FIELD("tenant_id", "s", tenantId);
 		MYSQL_ADD_FIELD_NULLABLE("created_at", "s", createdAt, false);
@@ -211,11 +199,8 @@ public:
 
 typedef std::shared_ptr<SettlementInvoiceDO> PtrSettlementInvoiceDO;
 
-/**
- * 用于结算校验及状态更新的收费项目实体。
- */
-class SettlementChargeItemDO : public BaseDO
-{
+// 用于结算校验及状态更新的收费项目实体
+class SettlementChargeItemDO : public BaseDO {
 	MYSQL_SYNTHESIZE(std::string, id, Id);
 	MYSQL_SYNTHESIZE(std::string, tenantId, TenantId);
 	MYSQL_SYNTHESIZE(std::string, updatedAt, UpdatedAt);
@@ -229,8 +214,7 @@ class SettlementChargeItemDO : public BaseDO
 	MYSQL_SYNTHESIZE(std::string, totalPrice, TotalPrice);
 
 public:
-	SettlementChargeItemDO() : BaseDO("adm_charge_item")
-	{
+	SettlementChargeItemDO() : BaseDO("adm_charge_item") {
 		MYSQL_ADD_FIELD_PK("id", "s", id);
 		MYSQL_ADD_FIELD("tenant_id", "s", tenantId);
 		MYSQL_ADD_FIELD("updated_at", "s", updatedAt);
@@ -247,11 +231,8 @@ public:
 
 typedef std::shared_ptr<SettlementChargeItemDO> PtrSettlementChargeItemDO;
 
-/**
- * 用于校验结算归属关系及结账状态的就诊账户实体。
- */
-class SettlementAccountDO : public BaseDO
-{
+// 用于校验结算归属关系及结账状态的就诊账户实体
+class SettlementAccountDO : public BaseDO {
 	MYSQL_SYNTHESIZE(std::string, id, Id);
 	MYSQL_SYNTHESIZE(std::string, tenantId, TenantId);
 	MYSQL_SYNTHESIZE(std::string, updatedAt, UpdatedAt);
@@ -267,8 +248,7 @@ class SettlementAccountDO : public BaseDO
 	MYSQL_SYNTHESIZE(std::string, statusEnum, StatusEnum);
 
 public:
-	SettlementAccountDO() : BaseDO("adm_account")
-	{
+	SettlementAccountDO() : BaseDO("adm_account") {
 		MYSQL_ADD_FIELD_PK("id", "s", id);
 		MYSQL_ADD_FIELD("tenant_id", "s", tenantId);
 		MYSQL_ADD_FIELD("updated_at", "s", updatedAt);
@@ -287,11 +267,8 @@ public:
 
 typedef std::shared_ptr<SettlementAccountDO> PtrSettlementAccountDO;
 
-/**
- * 支付流水与医保正式结算记录的关联实体。
- */
-class SettlementYbLinkDO : public BaseDO
-{
+// 支付流水与医保正式结算记录的关联实体
+class SettlementYbLinkDO : public BaseDO {
 	MYSQL_SYNTHESIZE(std::string, id, Id);
 	MYSQL_SYNTHESIZE(std::string, reconciliationId, ReconciliationId);
 	MYSQL_SYNTHESIZE(std::string, setlId, SetlId);
@@ -308,8 +285,7 @@ class SettlementYbLinkDO : public BaseDO
 	MYSQL_SYNTHESIZE(std::string, tenantId, TenantId);
 
 public:
-	SettlementYbLinkDO() : BaseDO("fin_payment_yb_settlement")
-	{
+	SettlementYbLinkDO() : BaseDO("fin_payment_yb_settlement") {
 		MYSQL_ADD_FIELD_PK("id", "s", id);
 		MYSQL_ADD_FIELD_NULLABLE("reconciliation_id", "s", reconciliationId, false);
 		MYSQL_ADD_FIELD_NULLABLE("setl_id", "s", setlId, false);
@@ -329,11 +305,8 @@ public:
 
 typedef std::shared_ptr<SettlementYbLinkDO> PtrSettlementYbLinkDO;
 
-/**
- * 正式结算使用的住院医保预结算记录。
- */
-class InpatientPreSettleDO : public BaseDO
-{
+// 正式结算使用的住院医保预结算记录
+class InpatientPreSettleDO : public BaseDO {
 	MYSQL_SYNTHESIZE(std::string, id, Id);
 	MYSQL_SYNTHESIZE(std::string, paymentDraftId, PaymentDraftId);
 	MYSQL_SYNTHESIZE(std::string, encounterId, EncounterId);
@@ -370,8 +343,7 @@ class InpatientPreSettleDO : public BaseDO
 	MYSQL_SYNTHESIZE(std::string, inscpScpAmt, InscpScpAmt);
 
 public:
-	InpatientPreSettleDO() : BaseDO("yb_inpatient_pre_settle")
-	{
+	InpatientPreSettleDO() : BaseDO("yb_inpatient_pre_settle") {
 		MYSQL_ADD_FIELD_PK("id", "s", id);
 		MYSQL_ADD_FIELD_NULLABLE("payment_draft_id", "s", paymentDraftId, false);
 		MYSQL_ADD_FIELD_NULLABLE("encounter_id", "s", encounterId, false);
@@ -411,11 +383,8 @@ public:
 
 typedef std::shared_ptr<InpatientPreSettleDO> PtrInpatientPreSettleDO;
 
-/**
- * 住院医保正式结算记录。
- */
-class InpatientYbSettlementRecordDO : public BaseDO
-{
+// 住院医保正式结算记录
+class InpatientYbSettlementRecordDO : public BaseDO {
 	MYSQL_SYNTHESIZE(std::string, id, Id);
 	MYSQL_SYNTHESIZE(std::string, contractId, ContractId);
 	MYSQL_SYNTHESIZE(std::string, encounterId, EncounterId);
@@ -472,8 +441,7 @@ class InpatientYbSettlementRecordDO : public BaseDO
 	MYSQL_SYNTHESIZE(std::string, fundBreakdownJson, FundBreakdownJson);
 
 public:
-	InpatientYbSettlementRecordDO() : BaseDO("yb_settlement_record")
-	{
+	InpatientYbSettlementRecordDO() : BaseDO("yb_settlement_record") {
 		MYSQL_ADD_FIELD_PK("id", "s", id);
 		MYSQL_ADD_FIELD_NULLABLE("contract_id", "s", contractId, false);
 		MYSQL_ADD_FIELD_NULLABLE("encounter_id", "s", encounterId, false);
@@ -533,4 +501,4 @@ public:
 
 typedef std::shared_ptr<InpatientYbSettlementRecordDO> PtrInpatientYbSettlementRecordDO;
 
-#endif // !_SETTLE_DO_H_
+#endif

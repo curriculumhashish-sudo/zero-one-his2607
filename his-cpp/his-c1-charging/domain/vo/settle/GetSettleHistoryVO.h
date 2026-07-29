@@ -8,13 +8,11 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class GetSettleHistoryJsonVO : public JsonVO<GetSettleHistoryPageDTO::Wrapper>
-{
+class GetSettleHistoryJsonVO : public JsonVO<GetSettleHistoryPageDTO::Wrapper> {
 	DTO_INIT(GetSettleHistoryJsonVO, JsonVO<GetSettleHistoryPageDTO::Wrapper>);
 
 public:
-	GetSettleHistoryJsonVO()
-	{
+	GetSettleHistoryJsonVO() {
 		this->data = GetSettleHistoryPageDTO::createShared();
 	}
 };

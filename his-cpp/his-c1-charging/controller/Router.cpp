@@ -29,39 +29,39 @@
 #include "../controller/register/ChargeConfirmController.h"
 #include "../controller/register/QuitNumberController.h"
 #include "../controller/register/PrintRegisterReceiptController.h"
-#include"register/GetSeeController.h"
-#include"register/GetTodayAppointController.h"
-#include"register/AddRegisterContorller.h"
+#include "register/GetSeeController.h"
+#include "register/GetTodayAppointController.h"
+#include "register/AddRegisterContorller.h"
 
 #include "charge/PatientQueueController.h"
 #include "charge/ChargeItemController.h"
 #include "charge/SettlementController.h"
 #include "charge/PrintController.h"
 
-#include"settle/GetPatientListController.h"
-#include"settle/GetCategoryDetailsController.h"
-#include"settle/GetTotalFeesController.h"
+#include "settle/GetPatientListController.h"
+#include "settle/GetCategoryDetailsController.h"
+#include "settle/GetTotalFeesController.h"
 
 #include "enroll/EnrollController.h"
-#include"enroll/admission.h"
+#include "enroll/admission.h"
 
-#include"pay_manage/Pay_ManageGetPatientDetailsController.h"
-#include"pay_manage/Pay_ManageGetPatientPayRecordsController.h"
-#include"pay_manage/Pay_ManageGetPatientQueueController.h"
+#include "pay_manage/Pay_ManageGetPatientDetailsController.h"
+#include "pay_manage/Pay_ManageGetPatientPayRecordsController.h"
+#include "pay_manage/Pay_ManageGetPatientQueueController.h"
 
-#include"pay_manage/PrepaymentController.h"
+#include "pay_manage/PrepaymentController.h"
 // If the macro for disabling Swagger documentation is defined
 #include "settle/GetCostDetailController.h"
 #include "settle/GetSettleHistoryController.h"
 #include "settle/SettleController.h"
 
-// 如果定义了关闭 Swagger 文档的宏
+// If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
-// 简化控制器绑定宏
+// Simplified controller binding macro
 #define ROUTER_SIMPLE_BIND(__CLASS__) \
 router->addController(__CLASS__::createShared())
 #else
-// 简化控制器绑定宏（支持 Swagger 文档）
+// Simplified controller binding macro (with Swagger support)
 #define ROUTER_SIMPLE_BIND(__CLASS__) \
 BIND_CONTROLLER(docEndpoints, router, __CLASS__)
 #endif
@@ -114,7 +114,7 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(Pay_ManageGetPatientQueueController);
 	ROUTER_SIMPLE_BIND(PrepaymentController);
 
-	// #TIP：在下方添加系统扩展路由定义
+	// #TIP: Add system extension route definitions below
 	ROUTER_SIMPLE_BIND(GetCostDetailController);
 	ROUTER_SIMPLE_BIND(GetSettleHistoryController);
 	ROUTER_SIMPLE_BIND(SettleController);
