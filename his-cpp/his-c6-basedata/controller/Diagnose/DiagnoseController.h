@@ -111,6 +111,7 @@ private:
 	DiagnoseRemoveJsonVO::Wrapper execRemovediagnose(const DiagnoseRemoveDTO::Wrapper& dto, const PayloadDTO& payload);
 	//逻辑删除不带鉴权
 	ListJsonVO<String>::Wrapper execremoveDiagnose(const List<String>& ids);
+
 };
 
 #undef API_TAG
