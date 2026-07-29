@@ -17,15 +17,12 @@
 #define _diagnose_PAGE_JSONVO_H_
 #include "../../GlobalInclude.h"
 #include "../../dto/Diagnose/DiagnosePageDTO.h"
-#include "../../dto/Diagnose/DiagnoseDetailDTO.h"
+
 #include OATPP_CODEGEN_BEGIN(DTO)
-/**
- * 诊断管理分页响应VO
- * 接口：/diagnose/page
- */
-class DiagnosePageJsonVO : public JsonVO<diagnoseDetailDTO::Wrapper>
+
+class DiagnosePageJsonVO : public JsonVO<DiagnosePageDTO::Wrapper>
 {
-	DTO_INIT(diagnoseDetailDTO, JsonVO<diagnosePageDTO::Wrapper>);
+	DTO_INIT(DiagnosePageDTO, JsonVO<DiagnosePageDTO::Wrapper>);
 };
 #include OATPP_CODEGEN_END(DTO)
 #endif // !_diagnose_PAGE_JSONVO_H_

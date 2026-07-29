@@ -22,9 +22,9 @@
  * 诊断详情单条响应VO
  * 接口：/diagnose/detail
  */
-//class DiagnoseDetailJsonVO : public JsonVO<diagnosePageDTO::Wrapper>
-//{
-//	DTO_INIT(DiagnoseDetailJsonVO, JsonVO<diagnosePageDTO::Wrapper>);
-//};
-//#include OATPP_CODEGEN_END(DTO)
+class DiagnoseDetailJsonVO : public JsonVO<DiagnoseDetailDTO::Wrapper>
+{
+	DTO_INIT(DiagnoseDetailJsonVO, JsonVO<DiagnoseDetailDTO::Wrapper>);
+};
+#include OATPP_CODEGEN_END(DTO)
 #endif // !_diagnose_DETAIL_JSONVO_H_

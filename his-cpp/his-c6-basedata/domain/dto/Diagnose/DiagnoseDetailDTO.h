@@ -23,9 +23,7 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/**
- * 诊断详情DTO
- */
+
 class diagnoseDetailDTO : public oatpp::DTO
 {
 	DTO_INIT(diagnoseDetailDTO, DTO);
