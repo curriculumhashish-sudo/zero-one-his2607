@@ -2,8 +2,12 @@ package com.zeroone.star.project.dto.j3.supplier;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -17,9 +21,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Schema(description = "供应商数据库完整映射DTO")
 public class SupplierFullDTO implements Serializable {
-
-    @Schema(description = "供应商ID", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private Long id;
 
     @Schema(description = "主键", example = "4100000000000000002")
     private String id;
