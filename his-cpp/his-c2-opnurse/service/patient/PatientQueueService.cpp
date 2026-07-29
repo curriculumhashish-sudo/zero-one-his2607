@@ -17,17 +17,28 @@
  limitations under the License.
 */
 #include "PatientQueueService.h"
+#include "Macros.h"
+#include "NacosClient.h"
+#include "RedisClient.h"
 #include <ctime>
 #include <sstream>
+#include <stdexcept>
 
 PatientQueuePageDTO::Wrapper PatientQueueService::queryPatientQueue(
 	const std::string& name, const std::string& date,
+	const std::string& userId,
 	int pageIndex, int pageSize)
 {
+	// Get tenant ID from Redis by current user ID
+	std::string tenantId = getTenantIdFromRedis(userId);
+	if (tenantId.empty()) {
+		throw std::runtime_error("tenant not found in redis");
+	}
+
 	PatientQueueDAO dao;
-	// Query data
-	auto results = dao.queryPatientQueue(name, date, pageIndex, pageSize);
-	auto total = dao.countPatientQueue(name, date);
+	// Query data with tenant isolation
+	auto results = dao.queryPatientQueue(name, date, tenantId, pageIndex, pageSize);
+	auto total = dao.countPatientQueue(name, date, tenantId);
 
 	// Convert DO to DTO
 	auto dtos = oatpp::List<PatientQueueDTO::Wrapper>::createShared();
@@ -82,4 +93,20 @@ std::string PatientQueueService::convertGender(const std::string& genderEnum)
 	if (genderEnum == "M" || genderEnum == "male") return "\xE7\x94\xB7";
 	if (genderEnum == "F" || genderEnum == "female") return "\xE5\xA5\xB3";
 	return genderEnum;
+}
+
+std::string PatientQueueService::getTenantIdFromRedis(const std::string& userId)
+{
+	// Redis key: user:session:{userId}, Hash type
+	// Field: tenant_id - currently selected tenant ID
+	// Ref: Redis data design doc section 4
+	ZO_CREATE_REDIS_CLIENT(redisClient);
+	std::string key = "user:session:" + userId;
+	return redisClient.execute<std::string>([&key](Redis* redis) -> std::string {
+		auto val = redis->hget(key, "tenant_id");
+		if (val) {
+			return *val;
+		}
+		return std::string("");
+	});
 }

@@ -60,6 +60,7 @@ public:
 	std::list<PatientQueueResult> queryPatientQueue(
 		const std::string& name,
 		const std::string& date,
+		const std::string& tenantId,
 		int pageIndex,
 		int pageSize);
 
@@ -67,9 +68,10 @@ public:
 	 * Count total patient queue records.
 	 * @param name optional patient name filter
 	 * @param date optional visit date filter
+	 * @param tenantId tenant ID filter
 	 * @return total count
 	 */
-	uint64_t countPatientQueue(const std::string& name, const std::string& date);
+	uint64_t countPatientQueue(const std::string& name, const std::string& date, const std::string& tenantId);
 };
 
 #endif // !_PATIENTQUEUEDAO_H_

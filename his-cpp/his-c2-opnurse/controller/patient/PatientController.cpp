@@ -24,7 +24,7 @@
 #define MAX_PAGE_SIZE 100
 
 PatientQueuePageJsonVO::Wrapper PatientController::execQueryPatient(
-	const PatientQuery::Wrapper& query)
+	const PatientQuery::Wrapper& query, const std::string& userId)
 {
 	// --- Extract parameters (with defaults) ---
 	std::string name = query->name ? query->name.getValue("") : "";
@@ -63,7 +63,7 @@ PatientQueuePageJsonVO::Wrapper PatientController::execQueryPatient(
 	try {
 		// Call service layer
 		PatientQueueService service;
-		auto pageData = service.queryPatientQueue(name, date, pageIndex, pageSize);
+		auto pageData = service.queryPatientQueue(name, date, userId, pageIndex, pageSize);
 
 		// Build JSON response
 		auto vo = PatientQueuePageJsonVO::createShared();

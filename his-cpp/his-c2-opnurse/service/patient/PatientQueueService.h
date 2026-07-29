@@ -40,6 +40,7 @@ public:
 	PatientQueuePageDTO::Wrapper queryPatientQueue(
 		const std::string& name,
 		const std::string& date,
+		const std::string& userId,
 		int pageIndex,
 		int pageSize);
 
@@ -53,6 +54,11 @@ private:
 	 * Convert gender enum code to display text.
 	 */
 	std::string convertGender(const std::string& genderEnum);
+
+	/*
+	 * Get tenant ID from Redis by user ID.
+	 */
+	std::string getTenantIdFromRedis(const std::string& userId);
 };
 
 #endif // !_PATIENTQUEUESERVICE_H_

@@ -24,6 +24,8 @@ PatientQueueResult PatientQueueMapper::mapper(ResultSet* rs) const
 	PatientQueueResult result;
 	// Map AppointmentQueueDO fields
 	result.queue.setId(rs->getString("id"));
+	if (!rs->isNull("tenant_id"))
+		result.queue.setTenantId(rs->getString("tenant_id"));
 	if (!rs->isNull("patient_id"))
 		result.queue.setPatientId(rs->getString("patient_id"));
 	if (!rs->isNull("encounter_id"))
@@ -52,19 +54,22 @@ PatientQueueResult PatientQueueMapper::mapper(ResultSet* rs) const
 
 std::list<PatientQueueResult> PatientQueueDAO::queryPatientQueue(
 	const std::string& name, const std::string& date,
+	const std::string& tenantId,
 	int pageIndex, int pageSize)
 {
 	std::ostringstream sql;
-	sql << "SELECT q.id, q.patient_id, q.encounter_id, q.bus_no, q.display_order, "
+	sql << "SELECT q.id, q.tenant_id, q.patient_id, q.encounter_id, q.bus_no, q.display_order, "
 		<< "q.start_instant, q.booking_date, q.triage_level, "
 		<< "p.name, p.gender_enum, p.birth_date, "
 		<< "e.yb_class_text AS payment_type "
 		<< "FROM wkf_appointment_queue q "
 		<< "JOIN adm_patient p ON q.patient_id = p.id "
 		<< "JOIN adm_encounter e ON q.encounter_id = e.id "
-		<< "WHERE q.is_deleted = 0 ";
+		<< "WHERE q.is_deleted = 0 "
+		<< "AND q.tenant_id = ? ";
 
 	SqlParams params;
+	SQLPARAMS_PUSH(params, "s", std::string, tenantId);
 	if (!name.empty()) {
 		sql << "AND p.name LIKE ? ";
 		SQLPARAMS_PUSH(params, "s", std::string, "%" + name + "%");
@@ -83,15 +88,17 @@ std::list<PatientQueueResult> PatientQueueDAO::queryPatientQueue(
 	return sqlSession->executeQuery<PatientQueueResult>(sql.str(), mapper, params);
 }
 
-uint64_t PatientQueueDAO::countPatientQueue(const std::string& name, const std::string& date)
+uint64_t PatientQueueDAO::countPatientQueue(const std::string& name, const std::string& date, const std::string& tenantId)
 {
 	std::ostringstream sql;
 	sql << "SELECT COUNT(*) FROM wkf_appointment_queue q "
 		<< "JOIN adm_patient p ON q.patient_id = p.id "
 		<< "JOIN adm_encounter e ON q.encounter_id = e.id "
-		<< "WHERE q.is_deleted = 0 ";
+		<< "WHERE q.is_deleted = 0 "
+		<< "AND q.tenant_id = ? ";
 
 	SqlParams params;
+	SQLPARAMS_PUSH(params, "s", std::string, tenantId);
 	if (!name.empty()) {
 		sql << "AND p.name LIKE ? ";
 		SQLPARAMS_PUSH(params, "s", std::string, "%" + name + "%");

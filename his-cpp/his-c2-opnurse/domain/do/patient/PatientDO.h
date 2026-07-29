@@ -31,6 +31,8 @@ class PatientDO : public BaseDO {
     MYSQL_SYNTHESIZE(std::string, genderEnum, GenderEnum);
     // Birth date (used to calculate age)
     MYSQL_SYNTHESIZE(std::string, birthDate, BirthDate);
+    // Tenant ID
+    MYSQL_SYNTHESIZE(std::string, tenantId, TenantId);
 
 public:
     PatientDO() : BaseDO("adm_patient") {
@@ -38,6 +40,7 @@ public:
         MYSQL_ADD_FIELD("name", "s", name);
         MYSQL_ADD_FIELD("gender_enum", "s", genderEnum);
         MYSQL_ADD_FIELD("birth_date", "s", birthDate);
+        MYSQL_ADD_FIELD("tenant_id", "s", tenantId);
     }
 };
 
