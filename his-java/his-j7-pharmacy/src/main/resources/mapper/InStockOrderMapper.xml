@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.pharmacy.mapper.InStockOrderMapper">
+
+    <!-- ==================== 插入入库单主表 ==================== -->
+    <insert id="insertOrder" parameterType="com.zeroone.star.pharmacy.entity.InStockOrder"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO pharmacy_in_order (order_no, supplier_id, in_date, warehouse_id,
+                                       total_amount, status, remark, create_time, update_time)
+        VALUES (#{orderNo}, #{supplierId}, #{inDate}, #{warehouseId},
+                #{totalAmount}, #{status}, #{remark}, NOW(), NOW())
+    </insert>
+
+    <!-- ==================== 更新入库单主表（动态字段） ==================== -->
+    <update id="updateOrderById" parameterType="com.zeroone.star.pharmacy.entity.InStockOrderDetail">
+        UPDATE pharmacy_in_order
+        <set>
+            <if test="orderNo != null">order_no = #{orderNo},</if>
+            <if test="supplierId != null">supplier_id = #{supplierId},</if>
+            <if test="inDate != null">in_date = #{inDate},</if>
+            <if test="warehouseId != null">warehouse_id = #{warehouseId},</if>
+            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- ==================== 更新入库单状态 ==================== -->
+    <update id="updateOrderStatus">
+        UPDATE pharmacy_in_order
+        SET status = #{status}, update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- ==================== 根据ID查询入库单 ==================== -->
+    <select id="selectOrderById" resultType="com.zeroone.star.pharmacy.entity.InStockOrder">
+        SELECT id, order_no, supplier_id, in_date, warehouse_id, total_amount, status, remark,
+               create_time, update_time
+        FROM pharmacy_in_order
+        WHERE id = #{id}
+    </select>
+
+    <!-- ==================== 根据单号查询入库单 ==================== -->
+    <select id="selectOrderByOrderNo" resultType="com.zeroone.star.pharmacy.entity.InStockOrder">
+        SELECT id, order_no, supplier_id, in_date, warehouse_id, total_amount, status, remark,
+               create_time, update_time
+        FROM pharmacy_in_order
+        WHERE order_no = #{orderNo}
+    </select>
+
+    <!-- ==================== 分页查询入库单列表 ==================== -->
+    <select id="selectOrdersPage" resultType="com.zeroone.star.pharmacy.entity.InStockOrder">
+        SELECT id, order_no, supplier_id, in_date, warehouse_id, total_amount, status, remark,
+               create_time, update_time
+        FROM pharmacy_in_order
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <!-- ==================== 统计入库单总数 ==================== -->
+    <select id="countOrders" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM pharmacy_in_order
+    </select>
+
+    <!-- ==================== 物理删除入库单（谨慎使用） ==================== -->
+    <delete id="deleteOrderById">
+        DELETE FROM pharmacy_in_order WHERE id = #{id}
+    </delete>
+
+</mapper>
