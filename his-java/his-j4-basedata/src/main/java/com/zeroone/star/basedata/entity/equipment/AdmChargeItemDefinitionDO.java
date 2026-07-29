@@ -6,7 +6,6 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 
 @Data
 @TableName("adm_charge_item_definition")
@@ -49,6 +48,10 @@ public class AdmChargeItemDefinitionDO {
     @TableField("deleted_by")
     @Schema(description = "删除人")
     private Long deletedBy;
+
+    @TableField("version")
+    @Schema(description = "乐观锁版本号")
+    private String version;
 
     @TableField("instance_table")
     @Schema(description = "实例来源表标识（如 adm_device_definition）")
