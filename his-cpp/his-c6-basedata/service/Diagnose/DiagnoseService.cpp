@@ -118,7 +118,10 @@ DiagnoseDetailDTO::Wrapper DiagnoseService::getDiagnoseDetail(const oatpp::Strin
 		return nullptr;
 
 	// 创建 DTO 对象并进行字段映射
+<<<<<<< HEAD
 	//auto dto = DiagnoseDetailDTO::createShared();            修正
+=======
+>>>>>>> 34900dec4ac22af069c3b26306207dadc58daa61
 	auto dto = DiagnoseDetailDTO::createShared();
 	ZO_STAR_DOMAIN_DO_TO_DTO_1(
 		dto, data,
@@ -131,7 +134,11 @@ DiagnoseDetailDTO::Wrapper DiagnoseService::getDiagnoseDetail(const oatpp::Strin
 		remark, Description
 	);
 
+<<<<<<< HEAD
 	 //返回详情数据
+=======
+	// 返回详情数据
+>>>>>>> 34900dec4ac22af069c3b26306207dadc58daa61
 	return dto;
 	
 	
