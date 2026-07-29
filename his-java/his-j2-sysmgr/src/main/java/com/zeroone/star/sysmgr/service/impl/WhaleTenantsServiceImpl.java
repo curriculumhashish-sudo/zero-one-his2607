@@ -7,8 +7,8 @@ import com.zeroone.star.project.components.user.UserDTO;
 import com.zeroone.star.project.components.user.UserHolder;
 // import com.zeroone.star.project.constant.RedisConstant;
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j2.sysmgr.rent.RentDTO2;
-import com.zeroone.star.project.dto.j2.sysmgr.rent.RentNameDTO;
+import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentNameDTO;
+import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentDTO2;
 import com.zeroone.star.project.query.j2.sysmgr.rent2.RentNameQuery;
 import com.zeroone.star.project.query.j2.sysmgr.rent2.RentQuery;
 import com.zeroone.star.sysmgr.entity.WhaleTenants;
@@ -17,7 +17,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zeroone.star.sysmgr.service.IWhaleTenantsService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-// import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -34,9 +33,6 @@ import org.springframework.util.StringUtils;
 @Slf4j
 @Service
 public class WhaleTenantsServiceImpl extends ServiceImpl<WhaleTenantsMapper, WhaleTenants> implements IWhaleTenantsService {
-
-    @Resource
-    private WorkbenchMapper workbenchMapper;
 
     @Resource
     private UserHolder userHolder;
@@ -73,7 +69,7 @@ public class WhaleTenantsServiceImpl extends ServiceImpl<WhaleTenantsMapper, Wha
                 .eq(WhaleTenants::getIsDeleted, false)
                 .orderByAsc(WhaleTenants::getCode);
         Page<WhaleTenants> result = baseMapper.selectPage(page, wrapper);
-        PageDTO<RentNameDTO> pageDTO = PageDTO.create(result, workbenchMapper::toRentNameDTO);
+        PageDTO<RentNameDTO> pageDTO = PageDTO.create(result, RentNameDTO::new);
 
         // Redis缓存：未命中则写入缓存
         // redisTemplate.opsForValue().set(TENANT_NAMES_CACHE_KEY, pageDTO, CACHE_TTL_MINUTES, TimeUnit.MINUTES);
@@ -119,7 +115,7 @@ public class WhaleTenantsServiceImpl extends ServiceImpl<WhaleTenantsMapper, Wha
                         .like(WhaleTenants::getDescription, rentQuery.getRentKeywords()))
                 .orderByAsc(WhaleTenants::getCode);
         Page<WhaleTenants> result = baseMapper.selectPage(page, wrapper);
-        PageDTO<RentDTO2> pageDTO = PageDTO.create(result, workbenchMapper::toRentDTO2);
+        PageDTO<RentDTO2> pageDTO = PageDTO.create(result, RentDTO2::new);
 
         // Redis缓存：未命中则写入缓存
         // redisTemplate.opsForValue().set(cacheKey, pageDTO, CACHE_TTL_MINUTES, TimeUnit.MINUTES);

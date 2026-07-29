@@ -1,6 +1,5 @@
 package com.zeroone.star.project.dto.j2.personcenter.userdto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -14,8 +13,7 @@ public class ChangePasswordDTO {
 
     @Schema(description = "用户ID", example = "1234567890123456789")
     @NotBlank(message = "用户ID不能为空")
-    @JsonProperty("id")
-    private String userId;
+    private String id;
 
     @Schema(description = "旧密码", example = "oldPassword123")
     @NotBlank(message = "旧密码不能为空")

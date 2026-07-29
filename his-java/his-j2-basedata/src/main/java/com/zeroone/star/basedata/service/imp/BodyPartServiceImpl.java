@@ -64,8 +64,9 @@ public class BodyPartServiceImpl implements IBodyPartService {
         doObj.setStatusEnum("ACTIVE");
         doObj.setIsDeleted(0);
         doObj.setVersion(0);
-        doObj.setCreatedAt(LocalDateTime.now());
-        doObj.setUpdatedAt(LocalDateTime.now());
+        LocalDateTime now = LocalDateTime.now();
+        doObj.setCreatedAt(now);
+        doObj.setUpdatedAt(now);
         doObj.setCreatedBy("1");
         doObj.setUpdatedBy("1");
         mapper.insert(doObj);

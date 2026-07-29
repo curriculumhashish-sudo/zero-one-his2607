@@ -1,6 +1,5 @@
 package com.zeroone.star.project.dto.j2.personcenter.userdto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import lombok.Data;
@@ -12,8 +11,7 @@ import lombok.experimental.Accessors;
 public class UpdateUserDTO {
 
     @Schema(description = "用户ID", example = "1234567890123456789")
-    @JsonProperty("id")
-    private String userId;
+    private String id;
 
     @Schema(description = "真实姓名", example = "张三")
     private String realName;

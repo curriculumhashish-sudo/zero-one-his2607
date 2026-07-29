@@ -1,8 +1,8 @@
 package com.zeroone.star.sysmgr.service;
 
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j2.sysmgr.rent.RentDTO2;
-import com.zeroone.star.project.dto.j2.sysmgr.rent.RentNameDTO;
+import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentNameDTO;
+import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentDTO2;
 import com.zeroone.star.project.query.j2.sysmgr.rent2.RentNameQuery;
 import com.zeroone.star.project.query.j2.sysmgr.rent2.RentQuery;
 import com.zeroone.star.sysmgr.entity.WhaleTenants;

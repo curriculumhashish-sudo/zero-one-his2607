@@ -12,7 +12,7 @@ public class UserInfoDTO {
 
     @Schema(description = "用户ID", example = "1234567890123456789")
     @JsonSerialize(using = ToStringSerializer.class)
-    private Long userId;
+    private Long id;
 
     @Schema(description = "用户名", example = "admin")
     private String userName;
