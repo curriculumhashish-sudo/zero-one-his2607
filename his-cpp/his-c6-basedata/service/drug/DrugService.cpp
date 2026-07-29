@@ -563,16 +563,70 @@ bool DrugService::enableDisableDrugs(const DrugEnableDisableDTO::Wrapper &dto)
 }
 DrugListPageDTO::Wrapper DrugService::listAll(const DrugQuery::Wrapper& query)
 {
-    (void)query;
-    return {};
+    auto pages = DrugListPageDTO::createShared();
+    pages->pageIndex = query->pageIndex;
+    pages->pageSize = query->pageSize;
+
+    // 脤戙杅擂軞沭杅
+    DrugDAO dao;
+    uint64_t count = dao.count(query);
+    if (count <= 0)
+    {
+        return pages;
+    }
+
+    // 煦珜脤戙杅擂
+    pages->total = count;
+    pages->calcPages();
+    list<MedMedicationDefinitionDO> result = dao.selectWithPage(query);
+    // 蔚DO蛌遙傖DTO
+    for (MedMedicationDefinitionDO& sub : result)
+    {
+        auto dto = DrugDetailDTO::createShared();
+        ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub, id, Id, name, Name);
+        pages->addData(dto);
+    }
+    return pages;
+
 }
 DrugDetailDTO::Wrapper DrugService::getById(string id)
 {
-    (void)id;
-    return {};
+    DrugDAO dao;
+    auto res = dao.selectById2(id);
+
+    // 羶衄脤戙善杅擂
+    if (!res)
+        return nullptr;
+
+    // 脤戙善杅擂蛌遙傖DTO
+    auto dto = DrugDetailDTO::createShared();
+    ZO_STAR_DOMAIN_DO_TO_DTO_1(
+        dto, res,
+    );
+    return dto;
+
 }
 string DrugService::saveData(const DrugAddDTO::Wrapper& dto)
 {
-    (void)dto;
-    return {};
+    DrugDAO dao;
+    MedMedicationDefinitionDO entity;
+
+    UuidFacade uuidFacade;
+    std::string newId = uuidFacade.genUuid();
+    entity.setId(newId);
+
+    entity.setName(dto->name.getValue(""));
+    entity.setCategoryCode(dto->kinds.getValue(""));
+
+    entity.setCreatedBy(payload.getId());
+    entity.setCreatedAt(SimpleDateTimeFormat::format());
+
+    // 樑扢蘇蚚
+    entity.setInventoryStatusEnum("ACTIVE");
+
+    if (dao.insert(entity) > 0) {
+        return newId;
+    }
+    return "";
+
 }

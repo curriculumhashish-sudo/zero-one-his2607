@@ -19,7 +19,9 @@
 */
 #ifndef _DRUG_SERVICE_H_
 #define _DRUG_SERVICE_H_
-
+#include "stdafx.h"
+#include "id/UuidFacade.h"
+#include "SimpleDateTimeFormat.h"
 #include "domain/dto/drug/DrugEnableDisableDTO.h"
 #include "domain/dto/drug/DrugModifyDTO.h"
 #include "domain/dto/drug/DrugModifyResultDTO.h"

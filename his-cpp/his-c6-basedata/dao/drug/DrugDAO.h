@@ -69,9 +69,8 @@ class DrugDAO : public BaseDAO
     // 分页查询数据
     std::list<MedMedicationDefinitionDO> selectWithPage(const DrugQuery::Wrapper& query);
     // 通过姓名查询数据
-    std::list<MedMedicationDefinitionDO> selectByName(const string& name);
     // 通过ID查询数据
-    MedMedicationDefinitionDO selectById(std::string id);
+    MedMedicationDefinitionDO selectById2(std::string id);
     // 新增的数据插入 (供 saveData 调用)
     int insert(const MedMedicationDefinitionDO& entity);
 
