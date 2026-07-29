@@ -162,5 +162,9 @@ add_subdirectory ("lib-common")
 if(UNIX)
 	add_subdirectory ("nacos-register")
 endif()
+# Unit test module
+if(DEFINED UNIT_TEST)
+	add_subdirectory ("arch-tests")
+endif()
 # 在后面添加你的模块
 add_subdirectory ("his-c6-basedata")

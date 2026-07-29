@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -20,7 +20,6 @@
 #ifndef _DRUG_SERVICE_H_
 #define _DRUG_SERVICE_H_
 
-#include "domain/dto/PayloadDTO.h"
 #include "domain/dto/drug/DrugEnableDisableDTO.h"
 #include "domain/dto/drug/DrugModifyDTO.h"
 #include "domain/dto/drug/DrugModifyResultDTO.h"
@@ -52,18 +51,16 @@ class DrugServiceException : public std::runtime_error
     DrugServiceError getError() const noexcept;
 };
 
-/**
- * Coordinates drug aggregate validation, persistence and transactions.
- */
+/** 药品业务服务。 */
 class DrugService
 {
   public:
-    DrugModifyResultDTO::Wrapper updateDrug(const DrugModifyDTO::Wrapper &dto, const PayloadDTO &payload);
-    void removeDrugs(const DrugRemoveDTO::Wrapper &dto, const PayloadDTO &payload);
-    void enableDisableDrugs(const DrugEnableDisableDTO::Wrapper &dto, const PayloadDTO &payload);
+    DrugModifyResultDTO::Wrapper updateDrug(const DrugModifyDTO::Wrapper &dto);
+    bool removeDrugs(const DrugRemoveDTO::Wrapper &dto);
+    bool enableDisableDrugs(const DrugEnableDisableDTO::Wrapper &dto);
     DrugListPageDTO::Wrapper listAll(const DrugQuery::Wrapper& query);
     DrugDetailDTO::Wrapper getById(string id);
     string saveData(const DrugAddDTO::Wrapper& dto);
-}; 
+};
 
 #endif // !_DRUG_SERVICE_H_

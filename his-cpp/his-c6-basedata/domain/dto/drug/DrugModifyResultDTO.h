@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -29,78 +29,75 @@ class DrugModifyResultDTO : public oatpp::DTO
 {
     DTO_INIT(DrugModifyResultDTO, DTO);
 
-    API_DTO_FIELD(String, orgId, ZH_WORDS_GETTER("drug.field.orgId"), false, "30001");
-    API_DTO_FIELD(String, busNo, ZH_WORDS_GETTER("drug.field.busNo"), false, "YP20250409001");
+    API_DTO_FIELD_REQUIRE(String, orgId, ZH_WORDS_GETTER("drug.field.orgId"), false);
+    API_DTO_FIELD_REQUIRE(String, busNo, ZH_WORDS_GETTER("drug.field.busNo"), false);
     API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("drug.field.name"), true);
-    API_DTO_FIELD(String, domainEnum, ZH_WORDS_GETTER("drug.field.domainEnum"), false, "3");
-    API_DTO_FIELD(String, version, ZH_WORDS_GETTER("drug.field.medVersion"), false, "V1.0");
-    API_DTO_FIELD(String, nameEn, ZH_WORDS_GETTER("drug.field.nameEn"), false, "Amoxicillin Capsules");
-    API_DTO_FIELD(String, pyStr, ZH_WORDS_GETTER("drug.field.pyStr"), false, "AMXLJN");
-    API_DTO_FIELD(String, wbStr, ZH_WORDS_GETTER("drug.field.wbStr"), false, "SGRM");
+    API_DTO_FIELD_REQUIRE(String, domainEnum, ZH_WORDS_GETTER("drug.field.domainEnum"), false);
+    DTO_FIELD(String, medVersion, "version");
+    DTO_FIELD_INFO(medVersion)
+    {
+        info->description = ZH_WORDS_GETTER("drug.field.medVersion");
+        info->required = false;
+    }
+    API_DTO_FIELD_REQUIRE(String, nameEn, ZH_WORDS_GETTER("drug.field.nameEn"), false);
+    API_DTO_FIELD_REQUIRE(String, pyStr, ZH_WORDS_GETTER("drug.field.pyStr"), false);
+    API_DTO_FIELD_REQUIRE(String, wbStr, ZH_WORDS_GETTER("drug.field.wbStr"), false);
     API_DTO_FIELD_REQUIRE(String, categoryCode, ZH_WORDS_GETTER("drug.field.categoryCode"), true);
     API_DTO_FIELD_REQUIRE(String, merchandiseName, ZH_WORDS_GETTER("drug.field.merchandiseName"), true);
-    API_DTO_FIELD(String, merchandisePyStr, ZH_WORDS_GETTER("drug.field.merchandisePyStr"), false, "AMX");
-    API_DTO_FIELD(String, merchandiseWbStr, ZH_WORDS_GETTER("drug.field.merchandiseWbStr"), false, "SGR");
+    API_DTO_FIELD_REQUIRE(String, merchandisePyStr, ZH_WORDS_GETTER("drug.field.merchandisePyStr"), false);
+    API_DTO_FIELD_REQUIRE(String, merchandiseWbStr, ZH_WORDS_GETTER("drug.field.merchandiseWbStr"), false);
     API_DTO_FIELD_REQUIRE(String, purchaseUnitCode, ZH_WORDS_GETTER("drug.field.purchaseUnitCode"), true);
     API_DTO_FIELD_REQUIRE(String, splitUnitCode, ZH_WORDS_GETTER("drug.field.splitUnitCode"), true);
-    API_DTO_FIELD(String, comprisedText, ZH_WORDS_GETTER("drug.field.comprisedText"), false,
-                  ZH_WORDS_GETTER("drug.example.comprisedText"));
-    API_DTO_FIELD(String, ingredient, ZH_WORDS_GETTER("drug.field.ingredient"), false,
-                  ZH_WORDS_GETTER("drug.example.ingredient"));
-    API_DTO_FIELD(Int32, doseFrom, ZH_WORDS_GETTER("drug.field.doseFrom"), false, 1);
-    API_DTO_FIELD(String, approvalNumber, ZH_WORDS_GETTER("drug.field.approvalNumber"), false,
-                  ZH_WORDS_GETTER("drug.example.approvalNumber"));
-    API_DTO_FIELD(Boolean, ybMatchFlag, ZH_WORDS_GETTER("drug.field.ybMatchFlag"), false, true);
-    API_DTO_FIELD(String, ybNo, ZH_WORDS_GETTER("drug.field.ybNo"), false, "YB2025001");
+    API_DTO_FIELD_REQUIRE(String, comprisedText, ZH_WORDS_GETTER("drug.field.comprisedText"), false);
+    API_DTO_FIELD_REQUIRE(String, ingredient, ZH_WORDS_GETTER("drug.field.ingredient"), false);
+    API_DTO_FIELD_REQUIRE(Int32, doseFrom, ZH_WORDS_GETTER("drug.field.doseFrom"), false);
+    API_DTO_FIELD_REQUIRE(String, approvalNumber, ZH_WORDS_GETTER("drug.field.approvalNumber"), false);
+    API_DTO_FIELD_REQUIRE(Boolean, ybMatchFlag, ZH_WORDS_GETTER("drug.field.ybMatchFlag"), false);
+    API_DTO_FIELD_REQUIRE(String, ybNo, ZH_WORDS_GETTER("drug.field.ybNo"), false);
     API_DTO_FIELD_REQUIRE(String, pharmacologyCategoryCode, ZH_WORDS_GETTER("drug.field.pharmacologyCategoryCode"),
                           true);
-    API_DTO_FIELD(Boolean, skinTestFlag, ZH_WORDS_GETTER("drug.field.skinTestFlag"), false, false);
-    API_DTO_FIELD(Boolean, injectFlag, ZH_WORDS_GETTER("drug.field.injectFlag"), false, false);
-    API_DTO_FIELD(String, manufacturerId, ZH_WORDS_GETTER("drug.field.manufacturerId"), false, "50001");
+    API_DTO_FIELD_REQUIRE(Boolean, skinTestFlag, ZH_WORDS_GETTER("drug.field.skinTestFlag"), false);
+    API_DTO_FIELD_REQUIRE(Boolean, injectFlag, ZH_WORDS_GETTER("drug.field.injectFlag"), false);
+    API_DTO_FIELD_REQUIRE(String, manufacturerId, ZH_WORDS_GETTER("drug.field.manufacturerId"), false);
     API_DTO_FIELD_REQUIRE(String, manufacturerText, ZH_WORDS_GETTER("drug.field.manufacturerText"), true);
     API_DTO_FIELD_REQUIRE(String, supplyId, ZH_WORDS_GETTER("drug.field.supplyId"), true);
-    API_DTO_FIELD(Boolean, restrictedFlag, ZH_WORDS_GETTER("drug.field.restrictedFlag"), false, false);
-    API_DTO_FIELD(String, restrictedScope, ZH_WORDS_GETTER("drug.field.restrictedScope"), false,
-                  ZH_WORDS_GETTER("drug.example.restrictedScope"));
-    API_DTO_FIELD(Boolean, childrenFlag, ZH_WORDS_GETTER("drug.field.childrenFlag"), false, true);
-    API_DTO_FIELD(Int32, characteristic, ZH_WORDS_GETTER("drug.field.characteristic"), false, 1);
-    API_DTO_FIELD(Float64, itemMinQuantity, ZH_WORDS_GETTER("drug.field.itemMinQuantity"), false, 10.0);
-    API_DTO_FIELD(Float64, itemMaxQuantity, ZH_WORDS_GETTER("drug.field.itemMaxQuantity"), false, 100.0);
-    API_DTO_FIELD(String, nationalDrugCode, ZH_WORDS_GETTER("drug.field.nationalDrugCode"), false,
-                  "860000123456789");
+    API_DTO_FIELD_REQUIRE(Boolean, restrictedFlag, ZH_WORDS_GETTER("drug.field.restrictedFlag"), false);
+    API_DTO_FIELD_REQUIRE(String, restrictedScope, ZH_WORDS_GETTER("drug.field.restrictedScope"), false);
+    API_DTO_FIELD_REQUIRE(Boolean, childrenFlag, ZH_WORDS_GETTER("drug.field.childrenFlag"), false);
+    API_DTO_FIELD_REQUIRE(Int32, characteristic, ZH_WORDS_GETTER("drug.field.characteristic"), false);
+    API_DTO_FIELD_REQUIRE(Float64, itemMinQuantity, ZH_WORDS_GETTER("drug.field.itemMinQuantity"), false);
+    API_DTO_FIELD_REQUIRE(Float64, itemMaxQuantity, ZH_WORDS_GETTER("drug.field.itemMaxQuantity"), false);
+    API_DTO_FIELD_REQUIRE(String, nationalDrugCode, ZH_WORDS_GETTER("drug.field.nationalDrugCode"), false);
     API_DTO_FIELD_REQUIRE(String, partAttributeEnum, ZH_WORDS_GETTER("drug.field.partAttributeEnum"), true);
-    API_DTO_FIELD(String, antibioticCode, ZH_WORDS_GETTER("drug.field.antibioticCode"), false, "KS001");
-    API_DTO_FIELD(String, restrictedEnum, ZH_WORDS_GETTER("drug.field.restrictedEnum"), false, "1");
-    API_DTO_FIELD(Boolean, selfFlag, ZH_WORDS_GETTER("drug.field.selfFlag"), false, false);
-    API_DTO_FIELD(Boolean, antibioticFlag, ZH_WORDS_GETTER("drug.field.antibioticFlag"), false, true);
-    API_DTO_FIELD(Boolean, basicFlag, ZH_WORDS_GETTER("drug.field.basicFlag"), false, true);
+    API_DTO_FIELD_REQUIRE(String, antibioticCode, ZH_WORDS_GETTER("drug.field.antibioticCode"), false);
+    API_DTO_FIELD_REQUIRE(String, restrictedEnum, ZH_WORDS_GETTER("drug.field.restrictedEnum"), false);
+    API_DTO_FIELD_REQUIRE(Boolean, selfFlag, ZH_WORDS_GETTER("drug.field.selfFlag"), false);
+    API_DTO_FIELD_REQUIRE(Boolean, antibioticFlag, ZH_WORDS_GETTER("drug.field.antibioticFlag"), false);
+    API_DTO_FIELD_REQUIRE(Boolean, basicFlag, ZH_WORDS_GETTER("drug.field.basicFlag"), false);
     API_DTO_FIELD_REQUIRE(String, thoPartAttributeEnum, ZH_WORDS_GETTER("drug.field.thoPartAttributeEnum"), true);
-    API_DTO_FIELD(Int32, chrgitmLv, ZH_WORDS_GETTER("drug.field.chrgitmLv"), false, 2);
+    API_DTO_FIELD_REQUIRE(Int32, chrgitmLv, ZH_WORDS_GETTER("drug.field.chrgitmLv"), false);
     API_DTO_FIELD_REQUIRE(String, typeCode, ZH_WORDS_GETTER("drug.field.typeCode"), true);
-    API_DTO_FIELD(String, ybType, ZH_WORDS_GETTER("drug.field.ybType"), false, "YB001");
-    API_DTO_FIELD(Boolean, rxFlag, ZH_WORDS_GETTER("drug.field.rxFlag"), false, true);
-    API_DTO_FIELD(String, dosageInstruction, ZH_WORDS_GETTER("drug.field.dosageInstruction"), false,
-                  ZH_WORDS_GETTER("drug.example.dosageInstruction"));
-    API_DTO_FIELD(String, drug69Code, ZH_WORDS_GETTER("drug.field.drug69Code"), false, "6901234567890");
+    API_DTO_FIELD_REQUIRE(String, ybType, ZH_WORDS_GETTER("drug.field.ybType"), false);
+    API_DTO_FIELD_REQUIRE(Boolean, rxFlag, ZH_WORDS_GETTER("drug.field.rxFlag"), false);
+    API_DTO_FIELD_REQUIRE(String, dosageInstruction, ZH_WORDS_GETTER("drug.field.dosageInstruction"), false);
+    API_DTO_FIELD_REQUIRE(String, drug69Code, ZH_WORDS_GETTER("drug.field.drug69Code"), false);
     API_DTO_FIELD_REQUIRE(String, totalVolume, ZH_WORDS_GETTER("drug.field.totalVolume"), true);
     API_DTO_FIELD_REQUIRE(String, doseFormCode, ZH_WORDS_GETTER("drug.field.doseFormCode"), true);
     API_DTO_FIELD_REQUIRE(String, doseUnitCode, ZH_WORDS_GETTER("drug.field.doseUnitCode"), true);
     API_DTO_FIELD_REQUIRE(String, packageUnitCode, ZH_WORDS_GETTER("drug.field.packageUnitCode"), true);
     API_DTO_FIELD_REQUIRE(String, stockUnitCode, ZH_WORDS_GETTER("drug.field.stockUnitCode"), true);
-    API_DTO_FIELD(String, methodCode, ZH_WORDS_GETTER("drug.field.methodCode"), false, "YF001");
-    API_DTO_FIELD(String, rateCode, ZH_WORDS_GETTER("drug.field.rateCode"), false, "PC001");
-    API_DTO_FIELD(Float64, dose, ZH_WORDS_GETTER("drug.field.dose"), false, 0.5);
-    API_DTO_FIELD(Float64, maxUnit, ZH_WORDS_GETTER("drug.field.maxUnit"), false, 1.0);
-    API_DTO_FIELD(Float64, usageLimit, ZH_WORDS_GETTER("drug.field.usageLimit"), false, 2.0);
-    API_DTO_FIELD(String, locationId, ZH_WORDS_GETTER("drug.field.locationId"), false, "40001");
-    API_DTO_FIELD(String, ingredientItem, ZH_WORDS_GETTER("drug.field.ingredientItem"), false,
-                  ZH_WORDS_GETTER("drug.example.ingredientItem"));
-    API_DTO_FIELD(String, definition, ZH_WORDS_GETTER("drug.field.definition"), false,
-                  ZH_WORDS_GETTER("drug.example.definition"));
-    API_DTO_FIELD(String, dddCode, ZH_WORDS_GETTER("drug.field.dddCode"), false, "DDD001");
-    API_DTO_FIELD(String, dddUnitCode, ZH_WORDS_GETTER("drug.field.dddUnitCode"), false, "DW001");
-    API_DTO_FIELD(String, minRateCode, ZH_WORDS_GETTER("drug.field.minRateCode"), false, "PC001");
-    API_DTO_FIELD(String, maxRateCode, ZH_WORDS_GETTER("drug.field.maxRateCode"), false, "PC002");
+    API_DTO_FIELD_REQUIRE(String, methodCode, ZH_WORDS_GETTER("drug.field.methodCode"), false);
+    API_DTO_FIELD_REQUIRE(String, rateCode, ZH_WORDS_GETTER("drug.field.rateCode"), false);
+    API_DTO_FIELD_REQUIRE(Float64, dose, ZH_WORDS_GETTER("drug.field.dose"), false);
+    API_DTO_FIELD_REQUIRE(Float64, maxUnit, ZH_WORDS_GETTER("drug.field.maxUnit"), false);
+    API_DTO_FIELD_REQUIRE(Float64, usageLimit, ZH_WORDS_GETTER("drug.field.usageLimit"), false);
+    API_DTO_FIELD_REQUIRE(String, locationId, ZH_WORDS_GETTER("drug.field.locationId"), false);
+    API_DTO_FIELD_REQUIRE(String, ingredientItem, ZH_WORDS_GETTER("drug.field.ingredientItem"), false);
+    API_DTO_FIELD_REQUIRE(String, definition, ZH_WORDS_GETTER("drug.field.definition"), false);
+    API_DTO_FIELD_REQUIRE(String, dddCode, ZH_WORDS_GETTER("drug.field.dddCode"), false);
+    API_DTO_FIELD_REQUIRE(String, dddUnitCode, ZH_WORDS_GETTER("drug.field.dddUnitCode"), false);
+    API_DTO_FIELD_REQUIRE(String, minRateCode, ZH_WORDS_GETTER("drug.field.minRateCode"), false);
+    API_DTO_FIELD_REQUIRE(String, maxRateCode, ZH_WORDS_GETTER("drug.field.maxRateCode"), false);
     API_DTO_FIELD_REQUIRE(Float64, doseUnitRatio, ZH_WORDS_GETTER("drug.field.doseUnitRatio"), true);
     API_DTO_FIELD_REQUIRE(Float64, purchaseUnitRatio, ZH_WORDS_GETTER("drug.field.purchaseUnitRatio"), true);
     API_DTO_FIELD_REQUIRE(Float64, stockUnitRatio, ZH_WORDS_GETTER("drug.field.stockUnitRatio"), true);
@@ -109,113 +106,173 @@ class DrugModifyResultDTO : public oatpp::DTO
     API_DTO_FIELD_REQUIRE(Float64, retailPrice, ZH_WORDS_GETTER("drug.field.retailPrice"), true);
     API_DTO_FIELD_DEFAULT(Float64, maximumRetailPrice, ZH_WORDS_GETTER("drug.field.maximumRetailPrice"));
     API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("drug.field.id"), true);
-    DTO_FIELD(String, drugDefId, "medicationDefId") = "20001";
-    DTO_FIELD_INFO(drugDefId)
+    DTO_FIELD(String, medicationDefId, "medicationDefId");
+    DTO_FIELD_INFO(medicationDefId)
     {
         info->description = ZH_WORDS_GETTER("drug.field.drugDefId");
         info->required = false;
     }
-    DTO_FIELD(String, purchaseUnitCodeDictText,
-              "purchaseUnitCode_dictText") = ZH_WORDS_GETTER("drug.example.purchaseUnitText");
+    DTO_FIELD(String, purchaseUnitCodeDictText, "purchaseUnitCode_dictText");
     DTO_FIELD_INFO(purchaseUnitCodeDictText)
     {
         info->description = ZH_WORDS_GETTER("drug.field.purchaseUnitCodeText");
         info->required = false;
     }
-    DTO_FIELD(String, doseFromDictText, "doseFrom_dictText") = ZH_WORDS_GETTER("drug.example.doseFormText");
+    DTO_FIELD(String, doseFromDictText, "doseFrom_dictText");
     DTO_FIELD_INFO(doseFromDictText)
     {
         info->description = ZH_WORDS_GETTER("drug.field.doseFromText");
         info->required = false;
     }
-    DTO_FIELD(String, antibioticCodeDictText,
-              "antibioticCode_dictText") = ZH_WORDS_GETTER("drug.example.antibioticText");
+    DTO_FIELD(String, antibioticCodeDictText, "antibioticCode_dictText");
     DTO_FIELD_INFO(antibioticCodeDictText)
     {
         info->description = ZH_WORDS_GETTER("drug.field.antibioticCodeText");
         info->required = false;
     }
-    DTO_FIELD(String, typeCodeDictText, "typeCode_dictText") = ZH_WORDS_GETTER("drug.example.typeText");
+    DTO_FIELD(String, typeCodeDictText, "typeCode_dictText");
     DTO_FIELD_INFO(typeCodeDictText)
     {
         info->description = ZH_WORDS_GETTER("drug.field.typeCodeText");
         info->required = false;
     }
-    DTO_FIELD(String, doseUnitCodeDictText, "doseUnitCode_dictText") = ZH_WORDS_GETTER("drug.example.doseUnitText");
+    DTO_FIELD(String, doseUnitCodeDictText, "doseUnitCode_dictText");
     DTO_FIELD_INFO(doseUnitCodeDictText)
     {
         info->description = ZH_WORDS_GETTER("drug.field.doseUnitCodeText");
         info->required = false;
     }
-    API_DTO_FIELD(String, statusEnum, ZH_WORDS_GETTER("drug.field.statusEnum"), false, "ACTIVE");
-    DTO_FIELD(String, statusEnumText, "statusEnum_enumText") = ZH_WORDS_GETTER("drug.example.statusEnabled");
+    API_DTO_FIELD_REQUIRE(String, statusEnum, ZH_WORDS_GETTER("drug.field.statusEnum"), false);
+    DTO_FIELD(String, statusEnumText, "statusEnum_enumText");
     DTO_FIELD_INFO(statusEnumText)
     {
         info->description = ZH_WORDS_GETTER("drug.field.statusEnumText");
         info->required = false;
     }
-    API_DTO_FIELD(Boolean, activeFlag, ZH_WORDS_GETTER("drug.field.activeFlag"), false, true);
-    API_DTO_FIELD(String, specification, ZH_WORDS_GETTER("drug.field.specification"), true, "5ml:0.5g");
-    API_DTO_FIELD(String, activeFlagText, ZH_WORDS_GETTER("drug.field.activeFlagText"), true,
-                  ZH_WORDS_GETTER("drug.example.statusEnabled"));
-    DTO_FIELD(String, categoryCodeDictText, "categoryCode_dictText") = ZH_WORDS_GETTER("drug.example.typeText");
+    API_DTO_FIELD_REQUIRE(Boolean, activeFlag, ZH_WORDS_GETTER("drug.field.activeFlag"), false);
+    API_DTO_FIELD_REQUIRE(String, specification, ZH_WORDS_GETTER("drug.field.specification"), false);
+    API_DTO_FIELD_REQUIRE(String, activeFlagText, ZH_WORDS_GETTER("drug.field.activeFlagText"), false);
+    DTO_FIELD(String, categoryCodeDictText, "categoryCode_dictText");
     DTO_FIELD_INFO(categoryCodeDictText)
     {
         info->description = ZH_WORDS_GETTER("drug.field.categoryCodeText");
         info->required = false;
     }
-    DTO_FIELD(String, packageUnitCodeDictText,
-              "packageUnitCode_dictText") = ZH_WORDS_GETTER("drug.example.purchaseUnitText");
+    DTO_FIELD(String, packageUnitCodeDictText, "packageUnitCode_dictText");
     DTO_FIELD_INFO(packageUnitCodeDictText)
     {
         info->description = ZH_WORDS_GETTER("drug.field.packageUnitCodeText");
         info->required = false;
     }
-    DTO_FIELD(String, locationIdDictText, "locationId_dictText") = ZH_WORDS_GETTER("drug.example.locationText");
+    DTO_FIELD(String, locationIdDictText, "locationId_dictText");
     DTO_FIELD_INFO(locationIdDictText)
     {
         info->description = ZH_WORDS_GETTER("drug.field.locationIdText");
         info->required = false;
     }
-    DTO_FIELD(String, supplyIdDictText, "supplyId_dictText") = ZH_WORDS_GETTER("drug.example.supplierText");
+    DTO_FIELD(String, supplyIdDictText, "supplyId_dictText");
     DTO_FIELD_INFO(supplyIdDictText)
     {
         info->description = ZH_WORDS_GETTER("drug.field.supplyIdText");
         info->required = false;
     }
-    API_DTO_FIELD(Boolean, potencyFlag, ZH_WORDS_GETTER("drug.field.potencyFlag"), false, false);
-    API_DTO_FIELD(List<DrugUnitBandDTO::Wrapper>, unitBands, ZH_WORDS_GETTER("drug.field.unitBands"), false,
-                  List<DrugUnitBandDTO::Wrapper>::createShared());
+    API_DTO_FIELD_REQUIRE(Boolean, potencyFlag, ZH_WORDS_GETTER("drug.field.potencyFlag"), false);
+    API_DTO_FIELD_REQUIRE(List<DrugUnitBandDTO::Wrapper>, unitBands, ZH_WORDS_GETTER("drug.field.unitBands"), false);
 
   public:
-    DrugModifyResultDTO()
+    static Wrapper createExample()
     {
-        id = "10001";
-        name = ZH_WORDS_GETTER("drug.example.name");
-        categoryCode = "FL001";
-        merchandiseName = ZH_WORDS_GETTER("drug.example.merchandiseName");
-        purchaseUnitCode = "DW001";
-        splitUnitCode = "DW002";
-        pharmacologyCategoryCode = "YL001";
-        manufacturerText = ZH_WORDS_GETTER("drug.example.manufacturerText");
-        supplyId = "60001";
-        partAttributeEnum = "1";
-        thoPartAttributeEnum = "1";
-        typeCode = "CW001";
-        totalVolume = "5ml:0.5g";
-        doseFormCode = "JX001";
-        doseUnitCode = "DW001";
-        packageUnitCode = "DW003";
-        stockUnitCode = "DW004";
-        doseUnitRatio = 10.0;
-        purchaseUnitRatio = 10.0;
-        stockUnitRatio = 10.0;
-        packageUnitRatio = 10.0;
-        purchasePrice = 10.5;
-        retailPrice = 15.8;
-        maximumRetailPrice = 18.0;
-        specification = totalVolume;
-        unitBands->push_back(DrugUnitBandDTO::createShared());
+        auto dto = createShared();
+        dto->orgId = "30001";
+        dto->medicationDefId = "20001";
+        dto->busNo = "YP20250409001";
+        dto->name = ZH_WORDS_GETTER("drug.example.name");
+        dto->domainEnum = "3";
+        dto->medVersion = "V1.0";
+        dto->nameEn = "Amoxicillin Capsules";
+        dto->pyStr = "AMXLJN";
+        dto->wbStr = "SGRM";
+        dto->categoryCode = "FL001";
+        dto->merchandiseName = ZH_WORDS_GETTER("drug.example.merchandiseName");
+        dto->merchandisePyStr = "AMX";
+        dto->merchandiseWbStr = "SGR";
+        dto->purchaseUnitCode = "DW001";
+        dto->purchaseUnitCodeDictText = ZH_WORDS_GETTER("drug.example.purchaseUnitText");
+        dto->splitUnitCode = "DW002";
+        dto->comprisedText = ZH_WORDS_GETTER("drug.example.comprisedText");
+        dto->ingredient = ZH_WORDS_GETTER("drug.example.ingredient");
+        dto->doseFrom = 1;
+        dto->doseFromDictText = ZH_WORDS_GETTER("drug.example.doseFormText");
+        dto->approvalNumber = ZH_WORDS_GETTER("drug.example.approvalNumber");
+        dto->ybMatchFlag = true;
+        dto->ybNo = "YB2025001";
+        dto->pharmacologyCategoryCode = "YL001";
+        dto->skinTestFlag = false;
+        dto->injectFlag = false;
+        dto->manufacturerId = "50001";
+        dto->manufacturerText = ZH_WORDS_GETTER("drug.example.manufacturerText");
+        dto->supplyId = "60001";
+        dto->restrictedFlag = false;
+        dto->restrictedScope = ZH_WORDS_GETTER("drug.example.restrictedScope");
+        dto->childrenFlag = true;
+        dto->characteristic = 1;
+        dto->itemMinQuantity = 10.0;
+        dto->itemMaxQuantity = 100.0;
+        dto->nationalDrugCode = "860000123456789";
+        dto->partAttributeEnum = "1";
+        dto->antibioticCode = "KS001";
+        dto->antibioticCodeDictText = ZH_WORDS_GETTER("drug.example.antibioticText");
+        dto->restrictedEnum = "1";
+        dto->selfFlag = false;
+        dto->antibioticFlag = true;
+        dto->basicFlag = true;
+        dto->thoPartAttributeEnum = "1";
+        dto->chrgitmLv = 2;
+        dto->typeCode = "CW001";
+        dto->typeCodeDictText = ZH_WORDS_GETTER("drug.example.typeText");
+        dto->ybType = "YB001";
+        dto->rxFlag = true;
+        dto->dosageInstruction = ZH_WORDS_GETTER("drug.example.dosageInstruction");
+        dto->drug69Code = "6901234567890";
+        dto->totalVolume = "5ml:0.5g";
+        dto->doseFormCode = "JX001";
+        dto->doseUnitCode = "DW001";
+        dto->doseUnitCodeDictText = ZH_WORDS_GETTER("drug.example.doseUnitText");
+        dto->packageUnitCode = "DW003";
+        dto->stockUnitCode = "DW004";
+        dto->methodCode = "YF001";
+        dto->rateCode = "PC001";
+        dto->dose = 0.5;
+        dto->maxUnit = 1.0;
+        dto->usageLimit = 2.0;
+        dto->locationId = "40001";
+        dto->ingredientItem = ZH_WORDS_GETTER("drug.example.ingredientItem");
+        dto->definition = ZH_WORDS_GETTER("drug.example.definition");
+        dto->dddCode = "DDD001";
+        dto->dddUnitCode = "DW001";
+        dto->minRateCode = "PC001";
+        dto->maxRateCode = "PC002";
+        dto->doseUnitRatio = 10.0;
+        dto->purchaseUnitRatio = 10.0;
+        dto->stockUnitRatio = 10.0;
+        dto->packageUnitRatio = 10.0;
+        dto->statusEnum = "1";
+        dto->statusEnumText = ZH_WORDS_GETTER("drug.example.statusEnabled");
+        dto->activeFlag = true;
+        dto->purchasePrice = 10.5;
+        dto->retailPrice = 15.8;
+        dto->maximumRetailPrice = 18.0;
+        dto->id = "10001";
+        dto->specification = dto->totalVolume;
+        dto->activeFlagText = ZH_WORDS_GETTER("drug.example.statusEnabled");
+        dto->categoryCodeDictText = ZH_WORDS_GETTER("drug.example.typeText");
+        dto->packageUnitCodeDictText = ZH_WORDS_GETTER("drug.example.purchaseUnitText");
+        dto->locationIdDictText = ZH_WORDS_GETTER("drug.example.locationText");
+        dto->supplyIdDictText = ZH_WORDS_GETTER("drug.example.supplierText");
+        dto->potencyFlag = false;
+        dto->unitBands = oatpp::List<DrugUnitBandDTO::Wrapper>::createShared();
+        dto->unitBands->push_back(DrugUnitBandDTO::createExample());
+        return dto;
     }
 };
 

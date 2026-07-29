@@ -1,4 +1,4 @@
-/*
+Ôªø/*
  Copyright Zero One Star. All rights reserved.
 
  @Author: axiao
@@ -18,30 +18,17 @@
 */
 #include "stdafx.h"
 #include "DrugDAO.h"
-#include "DrugMapper.h"
+#include "../../domain/DrugConstants.h"
+
 #include <sstream>
 std::string DrugDAO::queryConditionBuilder(const DrugQuery::Wrapper& query, SqlParams& params)
 {
     std::stringstream sqlCondition;
 
-    // ª˘¥°Ãıº˛£∫÷ª≤È—ØŒ¥…æ≥˝µƒ ˝æ› (is_deleted = 0)
-    sqlCondition << " WHERE `is_deleted` = 0 ";
-
-    // Ãıº˛1£∫πÿº¸¥ ƒ£∫˝≤È—Ø 
-    if (query->keywords && !query->keywords->empty()) {
-        sqlCondition << " AND (`name` LIKE CONCAT('%',?,'%') OR `py_str` LIKE CONCAT('%',?,'%')) ";
-        SQLPARAMS_PUSH(params, "s", std::string, query->keywords.getValue(""));
-        SQLPARAMS_PUSH(params, "s", std::string, query->keywords.getValue(""));
-    }
-
-    // Ãıº˛2£∫∆˜≤ƒ∑÷¿‡æ´◊º≤È—Ø
-    if (query->kind && !query->kind->empty()) {
-        sqlCondition << " AND `category_code` = ? ";
-        SQLPARAMS_PUSH(params, "s", std::string, query->kind.getValue(""));
-    }
-
-    return sqlCondition.str();
-
+static const std::string &drugTableName()
+{
+    static const std::string tableName = MedMedicationDefinitionDO().getTable();
+    return tableName;
 }
 
 void DrugDAO::releaseSqlSession() noexcept
@@ -139,7 +126,7 @@ std::list<PtrMedMedicationDefinitionDO> DrugDAO::selectStatesForUpdate(const std
     const std::string sql =
         "SELECT id,tenant_id,is_deleted,version,status_enum,active_flag "
         "FROM med_medication_definition WHERE id IN (" +
-        placeholders(ids.size()) + ") AND is_deleted=0 FOR UPDATE";
+        placeholders(ids.size()) + ") AND is_deleted=0 ORDER BY id FOR UPDATE";
     return sqlSession->executeQuery<PtrMedMedicationDefinitionDO>(sql, PtrDrugStateMapper(), params);
 }
 
@@ -172,10 +159,11 @@ int DrugDAO::updateEditableByVersion(const MedMedicationDefinitionDO &data, cons
         return 0;
     }
     sql << ",version=version+1 WHERE id=? AND tenant_id=? AND version=? AND is_deleted=0 "
-           "AND status_enum<>'DISCARDED'";
+           "AND status_enum<>?";
     SQLPARAMS_PUSH(params, "s", std::string, data.getId());
     SQLPARAMS_PUSH(params, "s", std::string, tenantId);
     SQLPARAMS_PUSH(params, "i", int, expectedVersion);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::STATUS_DISCARDED);
     return sqlSession->executeUpdate(sql.str(), params);
 }
 
@@ -185,16 +173,20 @@ int DrugDAO::softDeleteBasePrices(const std::string &drugId, const std::string &
 {
     const std::string sql =
         "UPDATE adm_charge_item_definition SET is_deleted=1,deleted_at=?,deleted_by=?,updated_at=?,updated_by=?,"
-        "version=version+1 WHERE instance_table='med_medication_definition' AND instance_id=? AND tenant_id=? "
+        "version=version+1 WHERE instance_table=? AND instance_id=? AND tenant_id=? "
         "AND is_deleted=0 "
-        "AND lot_no IS NULL AND price_type_code IN ('PURCHASE','SALE','LIMIT')";
+        "AND lot_no IS NULL AND price_type_code IN (?,?,?)";
     SqlParams params;
     SQLPARAMS_PUSH(params, "dt", std::string, operationTime);
     SQLPARAMS_PUSH(params, "s", std::string, operatorId);
     SQLPARAMS_PUSH(params, "dt", std::string, operationTime);
     SQLPARAMS_PUSH(params, "s", std::string, operatorId);
+    SQLPARAMS_PUSH(params, "s", std::string, drugTableName());
     SQLPARAMS_PUSH(params, "s", std::string, drugId);
     SQLPARAMS_PUSH(params, "s", std::string, tenantId);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::PRICE_TYPE_PURCHASE);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::PRICE_TYPE_SALE);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::PRICE_TYPE_LIMIT);
     return sqlSession->executeUpdate(sql, params);
 }
 
@@ -208,11 +200,15 @@ std::list<PtrAdmChargeItemDefinitionDO> DrugDAO::selectBasePrices(const std::str
 {
     const std::string sql =
         "SELECT price_type_code,price_value,type_code,yb_type FROM adm_charge_item_definition "
-        "WHERE instance_table='med_medication_definition' AND instance_id=? AND tenant_id=? AND is_deleted=0 "
-        "AND lot_no IS NULL AND price_type_code IN ('PURCHASE','SALE','LIMIT')";
+        "WHERE instance_table=? AND instance_id=? AND tenant_id=? AND is_deleted=0 "
+        "AND lot_no IS NULL AND price_type_code IN (?,?,?)";
     SqlParams params;
+    SQLPARAMS_PUSH(params, "s", std::string, drugTableName());
     SQLPARAMS_PUSH(params, "s", std::string, drugId);
     SQLPARAMS_PUSH(params, "s", std::string, tenantId);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::PRICE_TYPE_PURCHASE);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::PRICE_TYPE_SALE);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::PRICE_TYPE_LIMIT);
     return sqlSession->executeQuery<PtrAdmChargeItemDefinitionDO>(sql, PtrDrugPriceMapper(), params);
 }
 
@@ -238,10 +234,10 @@ PtrDrugReferenceCheck DrugDAO::selectReferenceCheck(const std::list<std::string>
         "EXISTS(SELECT id FROM cus_order_template_line WHERE medication_definition_id IN (" +
         idPlaceholders +
         ") AND is_deleted=0 LIMIT 1) OR "
-        "EXISTS(SELECT id FROM wkf_inventory_item WHERE item_table='med_medication_definition' "
+        "EXISTS(SELECT id FROM wkf_inventory_item WHERE item_table=? "
         "AND item_id IN (" +
         idPlaceholders +
-        ") AND is_deleted=0 AND inventory_status_enum='ACTIVE' AND quantity<>0 LIMIT 1) "
+        ") AND is_deleted=0 AND inventory_status_enum=? AND quantity<>0 LIMIT 1) "
         "THEN 1 ELSE 0 END";
 
     SqlParams params;
@@ -249,7 +245,9 @@ PtrDrugReferenceCheck DrugDAO::selectReferenceCheck(const std::list<std::string>
     appendIds(params, ids);
     appendIds(params, ids);
     appendIds(params, ids);
+    SQLPARAMS_PUSH(params, "s", std::string, drugTableName());
     appendIds(params, ids);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::STATUS_ACTIVE);
     return sqlSession->executeQueryOne<PtrDrugReferenceCheck>(sql, PtrDrugReferenceCheckMapper(), params);
 }
 
@@ -286,19 +284,23 @@ PtrDrugConditionCheck DrugDAO::selectEnableReadiness(const std::list<std::string
         "AND (d.purchase_unit_code<>d.package_unit_code OR d.purchase_unit_ratio=d.package_unit_ratio) "
         "AND (d.stock_unit_code<>d.package_unit_code OR d.stock_unit_ratio=d.package_unit_ratio) "
         "AND EXISTS(SELECT p.id FROM adm_charge_item_definition p "
-        "WHERE p.instance_table='med_medication_definition' AND p.instance_id=d.id "
-        "AND p.tenant_id=d.tenant_id AND p.is_deleted=0 AND p.status_enum='ACTIVE' AND p.lot_no IS NULL "
-        "AND p.price_type_code='SALE' AND p.price_value>=0 AND TRIM(COALESCE(p.type_code,''))<>'' LIMIT 1) "
+        "WHERE p.instance_table=? AND p.instance_id=d.id "
+        "AND p.tenant_id=d.tenant_id AND p.is_deleted=0 AND p.status_enum=? AND p.lot_no IS NULL "
+        "AND p.price_type_code=? AND p.price_value>=0 AND TRIM(COALESCE(p.type_code,''))<>'' LIMIT 1) "
         "THEN 1 ELSE 0 END)=? THEN 1 ELSE 0 END "
         "FROM med_medication_definition d WHERE d.id IN (" +
         placeholders(ids.size()) +
-        ") AND d.tenant_id=? AND d.is_deleted=0 AND d.status_enum='INACTIVE'";
+        ") AND d.tenant_id=? AND d.is_deleted=0 AND d.status_enum=?";
 
     SqlParams params;
     SQLPARAMS_PUSH(params, "i", int, static_cast<int>(ids.size()));
+    SQLPARAMS_PUSH(params, "s", std::string, drugTableName());
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::STATUS_ACTIVE);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::PRICE_TYPE_SALE);
     SQLPARAMS_PUSH(params, "i", int, static_cast<int>(ids.size()));
     appendIds(params, ids);
     SQLPARAMS_PUSH(params, "s", std::string, tenantId);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::STATUS_INACTIVE);
     return sqlSession->executeQueryOne<PtrDrugConditionCheck>(sql, PtrDrugConditionCheckMapper(), params);
 }
 
@@ -312,10 +314,11 @@ PtrDrugConditionCheck DrugDAO::selectActivePricePresence(const std::list<std::st
 
     const std::string sql =
         "SELECT CASE WHEN EXISTS(SELECT id FROM adm_charge_item_definition "
-        "WHERE instance_table='med_medication_definition' AND instance_id IN (" +
+        "WHERE instance_table=? AND instance_id IN (" +
         placeholders(ids.size()) +
         ") AND tenant_id=? AND is_deleted=0 LIMIT 1) THEN 1 ELSE 0 END";
     SqlParams params;
+    SQLPARAMS_PUSH(params, "s", std::string, drugTableName());
     appendIds(params, ids);
     SQLPARAMS_PUSH(params, "s", std::string, tenantId);
     return sqlSession->executeQueryOne<PtrDrugConditionCheck>(sql, PtrDrugConditionCheckMapper(), params);
@@ -330,15 +333,17 @@ int DrugDAO::softDeleteAllPrices(const std::list<std::string> &ids, const std::s
     }
 
     const std::string sql =
-        "UPDATE adm_charge_item_definition SET is_deleted=1,status_enum='INACTIVE',deleted_at=?,deleted_by=?,"
-        "updated_at=?,updated_by=?,version=version+1 WHERE instance_table='med_medication_definition' "
+        "UPDATE adm_charge_item_definition SET is_deleted=1,status_enum=?,deleted_at=?,deleted_by=?,"
+        "updated_at=?,updated_by=?,version=version+1 WHERE instance_table=? "
         "AND instance_id IN (" +
         placeholders(ids.size()) + ") AND tenant_id=? AND is_deleted=0";
     SqlParams params;
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::STATUS_INACTIVE);
     SQLPARAMS_PUSH(params, "dt", std::string, operationTime);
     SQLPARAMS_PUSH(params, "s", std::string, operatorId);
     SQLPARAMS_PUSH(params, "dt", std::string, operationTime);
     SQLPARAMS_PUSH(params, "s", std::string, operatorId);
+    SQLPARAMS_PUSH(params, "s", std::string, drugTableName());
     appendIds(params, ids);
     SQLPARAMS_PUSH(params, "s", std::string, tenantId);
     return sqlSession->executeUpdate(sql, params);
@@ -354,17 +359,20 @@ int DrugDAO::softDeleteDrugs(const std::list<std::string> &ids, const std::strin
     }
 
     const std::string sql =
-        "UPDATE med_medication_definition SET is_deleted=1,active_flag=0,status_enum='DISCARDED',"
+        "UPDATE med_medication_definition SET is_deleted=1,active_flag=?,status_enum=?,"
         "deleted_at=?,deleted_by=?,updated_at=?,updated_by=?,version=version+1 "
         "WHERE id IN (" +
-        placeholders(ids.size()) + ") AND tenant_id=? AND is_deleted=0 AND status_enum='INACTIVE'";
+        placeholders(ids.size()) + ") AND tenant_id=? AND is_deleted=0 AND status_enum=?";
     SqlParams params;
+    SQLPARAMS_PUSH(params, "b", bool, false);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::STATUS_DISCARDED);
     SQLPARAMS_PUSH(params, "dt", std::string, operationTime);
     SQLPARAMS_PUSH(params, "s", std::string, operatorId);
     SQLPARAMS_PUSH(params, "dt", std::string, operationTime);
     SQLPARAMS_PUSH(params, "s", std::string, operatorId);
     appendIds(params, ids);
     SQLPARAMS_PUSH(params, "s", std::string, tenantId);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::STATUS_INACTIVE);
     return sqlSession->executeUpdate(sql, params);
 }
 
@@ -397,10 +405,10 @@ uint64_t count(const DrugQuery::Wrapper& query)
     SqlParams params;
     std::string sql = "SELECT COUNT(*) FROM wkf_inventory_item ";
 
-    // ∆¥Ω”Ãıº˛
+    // ÔõÑË´âÊ≤≠ÁíÉ
     sql += queryConditionBuilder(query, params);
 
-    // ÷¥––≤È—Ø≤¢∑µªÿ ˝◊÷
+    // Á°í‰ø¥ËÑ§ÊàôÁîúÊÆøÈöôÊùÖË∂º
     return sqlSession->executeQueryNumerical(sql, params);
 
 }
@@ -409,25 +417,25 @@ std::list<MedMedicationDefinitionDO> selectWithPage(const DrugQuery::Wrapper& qu
     SqlParams params;
     std::string sql = "SELECT * FROM Med_Medication_Defintion ";
 
-    // ∆¥Ω”Ãıº˛
+    // ÔõÑË´âÊ≤≠ÁíÉ
     sql += queryConditionBuilder(query, params);
 
-    // ∆¥Ω”≈≈–Ú£∫”≈œ»∞¥∏¸–¬ ±º‰Ωµ–Ú£¨∆‰¥Œ∞¥¥¥Ω® ±º‰£¨◊Ó∫Û∞¥ID
+    // ÔõÑË´âÈΩ¨Âîó„Ñ©Ëö•ÁèÇÂÅåËºâÈôîÂ•ÄÊΩîËî•Âîó„ÑõÔõ¥Ê£íÂÅåÊñêËÜòÂ•ÄÊΩî„ÑõÈÉîÁ∂¥ÂÅåID
     sql += " ORDER BY IFNULL(`updated_at`, `created_at`) DESC, `id` DESC ";
 
-    // ∆¥Ω”∑÷“≥
+    // ÔõÑË´âÁÖ¶Áèú
     sql += " LIMIT " + std::to_string(((query->pageIndex - 1) * query->pageSize)) + "," + std::to_string(query->pageSize);
 
-    // ÷¥––≤È—Ø≤¢Õ®π˝ Mapper ”≥…‰Ω·π˚
+    // Á°í‰ø¥ËÑ§ÊàôÁîúÁ±µÂæπ Mapper Ëå¨ÊâûË≥¶ÂΩÜ
     return sqlSession->executeQuery<MedMedicationDefinitionDO>(sql, PtrDrugMapper(), params);
 }
-// Õ®π˝ID≤È—Ø ˝æ›
+// Á±µÂæπIDËÑ§ÊàôÊùÖÊìÇ
 MedMedicationDefinitionDO selectById(std::string id)
 {
     std::string sql = "SELECT * FROM wkf_inventory_item WHERE `id` = ? AND `is_deleted` = 0";
     return sqlSession->executeQueryOne<MedMedicationDefinitionDO>(sql, PtrDrugMapper(), "%s", id);
 }
-// –¬‘ˆµƒ ˝æ›≤Â»Î (π© saveData µ˜”√)
+// ÈôîÂ¥ùËÖîÊùÖÊìÇËÑ£Ô†µ (Èºé saveData Ë¶ÉËöö)
 int insert(const MedMedicationDefinitionDO& entity)
 {
     std::string sql = "INSERT INTO Med_Medication_Definition"

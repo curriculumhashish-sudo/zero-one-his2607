@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -32,31 +32,13 @@
 #include "domain/vo/drug/DrugListVO.h"
 #include "domain/vo/drug/DrugModifyVO.h"
 #include "domain/vo/drug/DrugSelectVO.h"
-#define API_TAG ZH_WORDS_GETTER("drug.tags.tag")
-#define API_TAG2 ZH_WORDS_GETTER("drug.tags.tag2")
-
-class DrugSwagger final
-{
-  public:
-    static void addModifyExamples(const std::shared_ptr<oatpp::web::server::api::Endpoint::Info> &info);
-    static void addRemoveExamples(const std::shared_ptr<oatpp::web::server::api::Endpoint::Info> &info);
-    static void addEnableDisableExamples(const std::shared_ptr<oatpp::web::server::api::Endpoint::Info> &info);
-
-  private:
-    static oatpp::List<oatpp::String> sampleIds();
-    static DrugModifyDTO::Wrapper sampleModify();
-    static DrugRemoveDTO::Wrapper sampleRemove();
-    static DrugEnableDisableDTO::Wrapper sampleEnableDisable(bool activeFlag);
-    static DrugModifyJsonVO::Wrapper successModify();
-    static NoDataJsonVO::Wrapper successNoData();
-    static void fillModifyExample(const DrugModifyDTO::Wrapper &dto);
-};
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
 #define API_TAG ZH_WORDS_GETTER("drug.tag")
-#define DRUG_PATH "/drug"
+#define API_TAG2 ZH_WORDS_GETTER("drug.tags.tag2")
 
+/** è¯å“ç®¡ç†æ§åˆ¶å™¨ã€‚ */
 class DrugController : public oatpp::web::server::api::ApiController
 {
     API_ACCESS_DECLARE(DrugController);
@@ -75,54 +57,75 @@ class DrugController : public oatpp::web::server::api::ApiController
     API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/Drug/add", addDrug, BODY_DTO(DrugAddDTO::Wrapper, dto),
                               execAddDrug(dto, authObject->getPayload()));
 
-    API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("drug.query-one.summary"), queryOneDrug, DrugDetailJsonVO::Wrapper,
+    API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("drug.query-one.summary"), queryDrugById, DrugDetailJsonVO::Wrapper,
                                API_TAG,
                                API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("drug.field.id"),
                                                         "ae65c714d48d4f34b52479f5482c0edd", true););
-    API_HANDLER_ENDPOINT_AUTH(API_M_GET, DRUG_PATH "/query-one", queryOneDrug, QUERY(String, id), execQueryById(id));
+    API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/drug/query-by-id", queryDrugById, QUERY(String, id), execQueryById(id));
 
     API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("drug.modify.summary"), modifyDrug, DrugModifyJsonVO::Wrapper, API_TAG,
-                               DrugSwagger::addModifyExamples(info););
-    API_HANDLER_ENDPOINT_AUTH(API_M_PUT, DRUG_PATH "/modify-drug", modifyDrug, BODY_DTO(DrugModifyDTO::Wrapper, dto),
+                               info->body.description = ZH_WORDS_GETTER("drug.body.modify");
+                               info->body.addExample("default", DrugModifyDTO::createExample());
+                               auto responseExample = DrugModifyJsonVO::createShared();
+                               responseExample->success(DrugModifyResultDTO::createExample());
+                               info->responses[Status::CODE_200].addExample("default", responseExample););
+    API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/drug/modify-drug", modifyDrug, BODY_DTO(DrugModifyDTO::Wrapper, dto),
                               execModifyDrug(dto, authObject->getPayload()));
 
     API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("drug.remove.summary"), removeDrug, NoDataJsonVO::Wrapper, API_TAG,
-                               DrugSwagger::addRemoveExamples(info););
-    API_HANDLER_ENDPOINT_AUTH(API_M_DEL, DRUG_PATH "/remove-drug", removeDrug, BODY_DTO(DrugRemoveDTO::Wrapper, dto),
+                               info->body.description = ZH_WORDS_GETTER("drug.body.remove");
+                               info->body.addExample("default", DrugRemoveDTO::createExample());
+                               auto responseExample = NoDataJsonVO::createShared();
+                               responseExample->init(RS_SUCCESS);
+                               info->responses[Status::CODE_200].addExample("default", responseExample););
+    API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/drug/remove-drug", removeDrug, BODY_DTO(DrugRemoveDTO::Wrapper, dto),
                               execRemoveDrug(dto, authObject->getPayload()));
 
     API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("drug.enable-disable.summary"), enableDisableDrug,
-                               NoDataJsonVO::Wrapper, API_TAG, DrugSwagger::addEnableDisableExamples(info););
-    API_HANDLER_ENDPOINT_AUTH(API_M_PUT, DRUG_PATH "/enable-disable-drug", enableDisableDrug,
-                              BODY_DTO(DrugEnableDisableDTO::Wrapper, dto),
-                              execEnableDisableDrug(dto, authObject->getPayload()));
+                               NoDataJsonVO::Wrapper, API_TAG,
+                               info->body.description = ZH_WORDS_GETTER("drug.body.enableDisable");
+                               info->body.addExample("default", DrugEnableDisableDTO::createExample(true));
+                               info->body.addExample("disable", DrugEnableDisableDTO::createExample(false));
+                               auto responseExample = NoDataJsonVO::createShared();
+                               responseExample->init(RS_SUCCESS);
+                               info->responses[Status::CODE_200].addExample("default", responseExample););
+    API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/drug/enable-disable-drug", enableDisableDrug,
+                               BODY_DTO(DrugEnableDisableDTO::Wrapper, dto),
+                               execEnableDisableDrug(dto, authObject->getPayload()));
 
+    // å£°æ˜å¼å•æ¡æŸ¥è¯¢ã€‚
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("drug.query-one.summary"), queryOne, DrugDetailJsonVO::Wrapper, API_TAG2,
-        API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("drug.field.id"), "d934050a8bb373e8f8eed0bf7507ec17", true);
-    );
-    // 3.2 ¶¨Òå²âÊÔÉùÃ÷Ê½·şÎñµ÷ÓÃµÄ½Ó¿Ú1´¦Àí
-    API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/drug/query-one", queryOne, QUERY(String, id), execQueryOne(id, authObject->getPayload()));
+        API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("drug.field.id"),
+                                 "d934050a8bb373e8f8eed0bf7507ec17", true););
+    API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/drug/query-one", queryOne, QUERY(String, id),
+                              execQueryOne(id, authObject->getPayload()));
 
-    // 3.1 ¶¨Òå²âÊÔÉùÃ÷Ê½·şÎñµ÷ÓÃµÄ½Ó¿Ú2ÃèÊö
-    API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("drug.query-all.summary"), queryAll, DrugQuery, DrugListPageJsonVO::Wrapper, API_TAG2);
-    // 3.2 ¶¨Òå²âÊÔÉùÃ÷Ê½·şÎñµ÷ÓÃµÄ½Ó¿Ú2´¦Àí
-    API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/drug/query-all", queryAll, DrugQuery, execQueryAll(query, authObject->getPayload()));
+    // å£°æ˜å¼åˆ†é¡µæŸ¥è¯¢ã€‚
+    API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("drug.query-all.summary"), queryAll, DrugQuery,
+                                     DrugListPageJsonVO::Wrapper, API_TAG2);
+    API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/drug/query-all", queryAll, DrugQuery,
+                                    execQueryAll(query, authObject->getPayload()));
 
   private:
     DrugListPageJsonVO::Wrapper execQueryDrug(const DrugQuery::Wrapper &query);
     DrugSelectPageJsonVO::Wrapper execQuerySelectDrug(const DrugSelectQuery::Wrapper &query);
     StringJsonVO::Wrapper execAddDrug(const DrugAddDTO::Wrapper &dto, const PayloadDTO &payload);
     DrugDetailJsonVO::Wrapper execQueryById(const String &id);
+
+    // ä¿®æ”¹è¯å“ã€‚
     DrugModifyJsonVO::Wrapper execModifyDrug(const DrugModifyDTO::Wrapper &dto, const PayloadDTO &payload);
+
+    // æ‰¹é‡åˆ é™¤è¯å“ã€‚
     NoDataJsonVO::Wrapper execRemoveDrug(const DrugRemoveDTO::Wrapper &dto, const PayloadDTO &payload);
+
+    // æ‰¹é‡å¯ç”¨æˆ–åœç”¨è¯å“ã€‚
     NoDataJsonVO::Wrapper execEnableDisableDrug(const DrugEnableDisableDTO::Wrapper &dto, const PayloadDTO &payload);
-    DrugDetailJsonVO::Wrapper execQueryOne(const String& id, const PayloadDTO& payload);
-    // 3.3 ²âÊÔÉùÃ÷Ê½·şÎñµ÷ÓÃ2
-     DrugListPageJsonVO::Wrapper execQueryAll(const DrugQuery::Wrapper& query, const PayloadDTO& payload);
+
+    DrugDetailJsonVO::Wrapper execQueryOne(const String &id, const PayloadDTO &payload);
+    DrugListPageJsonVO::Wrapper execQueryAll(const DrugQuery::Wrapper &query, const PayloadDTO &payload);
 };
 
-#undef DRUG_PATH
 #undef API_TAG
 #undef API_TAG2
 

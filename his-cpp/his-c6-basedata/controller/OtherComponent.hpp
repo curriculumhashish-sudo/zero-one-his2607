@@ -20,6 +20,8 @@
 #ifndef _OTHERCOMMPONENT_H_
 #define _OTHERCOMMPONENT_H_
 #include "AbstractComponentReg.h"
+#include "oatpp/network/tcp/client/ConnectionProvider.hpp"
+#include "oatpp/web/client/HttpRequestExecutor.hpp"
 
 /**
  * Registration of other Oatpp components.
@@ -27,8 +29,14 @@
  */
 class OtherComponent : public AbstractComponentReg
 {
-	// #TIP: Add other component registration code below as needed
-	
+	// 注册药品声明式服务调用组件。
+	OATPP_CREATE_COMPONENT(
+		std::shared_ptr<oatpp::web::client::HttpRequestExecutor>,
+		drugApiExecutor)("drug-api", [] {
+			auto provider = oatpp::network::tcp::client::ConnectionProvider::createShared(
+				{"192.168.28.132", 10000});
+			return oatpp::web::client::HttpRequestExecutor::createShared(provider);
+		}());
 };
 
 #endif // _OTHERCOMMPONENT_H_
