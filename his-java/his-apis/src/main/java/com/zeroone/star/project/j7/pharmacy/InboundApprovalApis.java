@@ -32,4 +32,3 @@ public interface InboundApprovalApis {
      */
     JsonVO<InboundApprovalVO> rejectApproval(InboundApprovalDTO dto);
 }
-
