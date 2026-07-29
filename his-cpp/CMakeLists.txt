@@ -15,6 +15,11 @@ endif()
 set (CMAKE_CXX_STANDARD 17)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Windows 下统一按 UTF-8 读取源文件，避免中文注释导致编译器错误解析。
+if (MSVC)
+    add_compile_options(/utf-8)
+endif()
+
 # 判断构建类型
 if ((NOT CMAKE_BUILD_TYPE) 
 	OR (CMAKE_BUILD_TYPE STREQUAL "") 

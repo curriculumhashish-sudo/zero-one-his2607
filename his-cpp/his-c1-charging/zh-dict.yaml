@@ -688,6 +688,24 @@ QQQQ:
     priority_enum_text: 患者病情
     contract_id: 费用性质ID
     contract_name: 费用性质
+  status:
+    planned: 待登记
+    registered: 已登记
+    in_progress: 住院中
+    canceled: 已取消
+    cancelled: 已取消
+    completed: 已完成
+    discharged: 已出院
+    on_hold: 暂停
+  page:
+    index: 当前页码
+    size: 每页数据条数
+  message:
+    success: 操作成功
+  gender:
+    male: 男
+    female: 女
+    unknown: 未知
 
 Jack:
   charging:

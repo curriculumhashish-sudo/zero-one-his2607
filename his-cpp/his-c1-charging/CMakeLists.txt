@@ -39,7 +39,16 @@ if(WIN32)
 endif()
 
 # 编译可执行文件
-add_executable (${appName} ${SC_FILES} "domain/query/pay_manage/Pay_ManageGetPatientQueueQuery.h" "domain/query/pay_manage/Pay_ManageGetPatientDetailsQuery.h" "domain/query/pay_manage/Pay_ManageGetPatientPayRecordsQuery.h"  "domain/vo/pay_manage/Pay_ManageGetPatientPayRecordsVO.h" "domain/vo/pay_manage/Pay_ManageGetPatientQueueVO.h" "domain/dto/pay_manage/Pay_ManageGetPatientDetailsDTO.h" "domain/dto/pay_manage/Pay_ManageGetPatientPayRecordsDTO.h" "domain/dto/pay_manage/Pay_ManageGetPatientQueueDTO.h" "controller/pay_manage/Pay_ManageGetPatientDetailsController.h" "controller/pay_manage/Pay_ManageGetPatientPayRecordsController.h" "controller/pay_manage/Pay_ManageGetPatientQueueController.h" "controller/pay_manage/Pay_ManageGetPatientDetailsController.cpp" "controller/pay_manage/Pay_ManageGetPatientPayRecordsController.cpp" "controller/pay_manage/Pay_ManageGetPatientQueueController.cpp")
+add_executable (${appName} ${SC_FILES} "domain/query/pay_manage/Pay_ManageGetPatientQueueQuery.h" "domain/query/pay_manage/Pay_ManageGetPatientDetailsQuery.h" "domain/query/pay_manage/Pay_ManageGetPatientPayRecordsQuery.h"  "domain/vo/pay_manage/Pay_ManageGetPatientPayRecordsVO.h" "domain/vo/pay_manage/Pay_ManageGetPatientQueueVO.h" "domain/dto/pay_manage/Pay_ManageGetPatientDetailsDTO.h" "domain/dto/pay_manage/Pay_ManageGetPatientPayRecordsDTO.h" "domain/dto/pay_manage/Pay_ManageGetPatientQueueDTO.h" "controller/pay_manage/Pay_ManageGetPatientDetailsController.h" "controller/pay_manage/Pay_ManageGetPatientPayRecordsController.h" "controller/pay_manage/Pay_ManageGetPatientQueueController.h" "controller/pay_manage/Pay_ManageGetPatientDetailsController.cpp" "controller/pay_manage/Pay_ManageGetPatientPayRecordsController.cpp" "controller/pay_manage/Pay_ManageGetPatientQueueController.cpp"
+        dao/enroll/EnrollListMapper.h
+        dao/enroll/EnrollDAO.h
+        dao/enroll/EnrollDAO.cpp
+        service/enroll/EnrollService.h
+        service/enroll/EnrollService.cpp
+        domain/do/enroll/EnrollDetailDO.h
+        dao/enroll/EnrollDetailMapper.h
+        domain/dto/enroll/EnrollDTO.h
+        domain/vo/enroll/EnrollVO.h)
 
 # 发布Swagger文档包宏定义
 if(DEFINED _RELEASE_DOC_)
@@ -160,7 +169,11 @@ if (NOT DEFINED CLOSE_SWAGGER_DOC)
 	file (COPY ${swaggerRes} DESTINATION ${PROJECT_BINARY_DIR}/${appName}/res)
 endif()
 # 中文词典
-file (COPY "zh-dict.yaml" DESTINATION ${PROJECT_BINARY_DIR}/${appName})
+configure_file(
+	"zh-dict.yaml"
+	"${PROJECT_BINARY_DIR}/${appName}/zh-dict.yaml"
+	COPYONLY
+)
 # 模板文件目录
 file (GLOB tplDir "tpl/*")
 file (COPY ${tplDir} DESTINATION "${PROJECT_BINARY_DIR}/${appName}/tpl")
