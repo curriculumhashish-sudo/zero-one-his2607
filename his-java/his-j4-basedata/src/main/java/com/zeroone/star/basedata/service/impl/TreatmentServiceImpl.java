@@ -25,18 +25,10 @@ import com.zeroone.star.project.vo.j4.treatment.WkfActivityDefinitionChildVO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * <p>
- * 描述：诊疗管理服务实现
- * </p>
- * <p>版权：&copy;01星球</p>
- * <p>地址：01星球总部</p>
- * @author j4组
- * @version 1.0.0
- */
 @Service
 public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivityDefinitionDO> implements ITreatmentService {
 
@@ -62,8 +54,8 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
 
     @Override
     public PageDTO<TreatmentSelectVO> listTreatmentOptions(TreatmentQuery query) {
-        long pageIndex = query.getPageIndex() <= 0 ? DEFAULT_PAGE_INDEX : query.getPageIndex();
-        long pageSize = query.getPageSize() <= 0 ? DEFAULT_PAGE_SIZE : query.getPageSize();
+        long pageIndex = query.getPageIndex() == null || query.getPageIndex() <= 0 ? DEFAULT_PAGE_INDEX : query.getPageIndex();
+        long pageSize = query.getPageSize() == null || query.getPageSize() <= 0 ? DEFAULT_PAGE_SIZE : query.getPageSize();
 
         Page<WkfActivityDefinitionDO> page = new Page<>(pageIndex, pageSize);
         LambdaQueryWrapper<WkfActivityDefinitionDO> wrapper = new LambdaQueryWrapper<>();
@@ -84,13 +76,25 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
         }
         wrapper.orderByDesc(WkfActivityDefinitionDO::getCreatedAt);
         Page<WkfActivityDefinitionDO> result = baseMapper.selectPage(page, wrapper);
-        return PageDTO.create(result, msTreatmentMapper::toSelectVO);
+
+        List<TreatmentSelectVO> voList = msTreatmentMapper.toSelectVOList(result.getRecords());
+        for (TreatmentSelectVO vo : voList) {
+            List<AdmChargeItemDefinitionDO> priceLines = loadPriceLines(vo.getId());
+            vo.setRetailPrice(extractRetailPrice(priceLines));
+        }
+        PageDTO<TreatmentSelectVO> pageDTO = new PageDTO<>();
+        pageDTO.setTotal(result.getTotal());
+        pageDTO.setPageIndex(result.getCurrent());
+        pageDTO.setPageSize(result.getSize());
+        pageDTO.setPages(result.getPages());
+        pageDTO.setRows(voList);
+        return pageDTO;
     }
 
     @Override
     public PageDTO<TreatmentListVO> queryTreatmentList(TreatmentQuery query) {
-        long pageIndex = query.getPageIndex() <= 0 ? DEFAULT_PAGE_INDEX : query.getPageIndex();
-        long pageSize = query.getPageSize() <= 0 ? DEFAULT_PAGE_SIZE : query.getPageSize();
+        long pageIndex = query.getPageIndex() == null || query.getPageIndex() <= 0 ? DEFAULT_PAGE_INDEX : query.getPageIndex();
+        long pageSize = query.getPageSize() == null || query.getPageSize() <= 0 ? DEFAULT_PAGE_SIZE : query.getPageSize();
 
         Page<TreatmentListVO> page = new Page<>(pageIndex, pageSize);
         Page<TreatmentListVO> result = baseMapper.selectTreatmentListPage(page, query);
@@ -124,6 +128,9 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
     @Override
     public void addTreatment(TreatmentAddDTO treatmentAddDTO) {
         WkfActivityDefinitionDO wkfActivityDefinitionDO = msTreatmentMapper.addDtoToEntity(treatmentAddDTO);
+        if (wkfActivityDefinitionDO.getTypeEnum() == null) {
+            wkfActivityDefinitionDO.setTypeEnum("1");
+        }
         this.save(wkfActivityDefinitionDO);
     }
 
@@ -187,6 +194,18 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
                 .eq(AdmChargeItemDefinitionDO::getInstanceId, instanceId)
                 .eq(AdmChargeItemDefinitionDO::getIsDeleted, false);
         return chargeItemMapper.selectList(wrapper);
+    }
+
+    private BigDecimal extractRetailPrice(List<AdmChargeItemDefinitionDO> rows) {
+        if (rows == null || rows.isEmpty()) {
+            return null;
+        }
+        for (AdmChargeItemDefinitionDO row : rows) {
+            if (row != null && PRICE_TYPE_SALE.equals(row.getPriceTypeCode())) {
+                return row.getPriceValue();
+            }
+        }
+        return null;
     }
 
     private void enrichPriceFields(TreatmentDetailVO dto, List<AdmChargeItemDefinitionDO> rows) {

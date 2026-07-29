@@ -1,13 +1,12 @@
 package com.zeroone.star.basedata.entity.equipment;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 /**
  * <p>
@@ -27,10 +26,42 @@ public class AdmDeviceDefinitionDO {
     /**
      * 主键标识
      */
-    //TODO 主键是自增长还是基于雪花算法之类的还待商榷
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     @Schema(description = "主键标识")
     private Long id;
+
+    @TableField("tenant_id")
+    @Schema(description = "租户标识")
+    private Long tenantId;
+
+    @TableField(value = "created_at", fill = FieldFill.INSERT)
+    @Schema(description = "创建时间")
+    private LocalDateTime createdAt;
+
+    @TableField(value = "updated_at", fill = FieldFill.INSERT_UPDATE)
+    @Schema(description = "最后更新时间")
+    private LocalDateTime updatedAt;
+
+    @TableField(value = "created_by", fill = FieldFill.INSERT)
+    @Schema(description = "创建人")
+    private Long createdBy;
+
+    @TableField(value = "updated_by", fill = FieldFill.INSERT_UPDATE)
+    @Schema(description = "最后更新人")
+    private Long updatedBy;
+
+    @TableField("is_deleted")
+    @TableLogic(value = "0", delval = "1")
+    @Schema(description = "软删标记")
+    private Boolean isDeleted;
+
+    @TableField("deleted_at")
+    @Schema(description = "删除时间")
+    private LocalDateTime deletedAt;
+
+    @TableField("deleted_by")
+    @Schema(description = "删除人")
+    private Long deletedBy;
 
     /**
      * 器材名称

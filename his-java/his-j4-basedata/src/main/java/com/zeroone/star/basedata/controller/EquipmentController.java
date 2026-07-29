@@ -1,6 +1,7 @@
 package com.zeroone.star.basedata.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zeroone.star.basedata.constant.EquipmentCategoryConstants;
 import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinitionDO;
 import com.zeroone.star.basedata.service.IEquipmentService;
 import com.zeroone.star.basedata.service.impl.MsEquipmentMapper;
@@ -11,7 +12,7 @@ import com.zeroone.star.project.dto.j4.equipment.EquipmentUpdateDTO;
 import com.zeroone.star.project.j4.basedata.EquipmentApis;
 import com.zeroone.star.project.query.j4.equipment.EquipmentPageQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j4.equipment.EquipmentCategoryVo;
+import com.zeroone.star.project.vo.j4.equipment.EquipmentCategoryVO;
 import com.zeroone.star.project.vo.j4.equipment.EquipmentUpdateVO;
 import com.zeroone.star.project.vo.j4.equipment.EquipmentVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -58,7 +59,11 @@ public class EquipmentController implements EquipmentApis {
         try {
             Page<AdmDeviceDefinitionDO> entityPage = equipmentService.queryEquipmentPage(query);
             PageDTO<EquipmentVO> result = PageDTO.create(entityPage,
-                    entity -> msEquipmentMapper.entityToVo(entity));
+                    entity -> {
+                        EquipmentVO vo = msEquipmentMapper.entityToVo(entity);
+                        vo.setCategoryName(EquipmentCategoryConstants.getCategoryName(entity.getCategoryCode()));
+                        return vo;
+                    });
             return JsonVO.success(result);
         } catch (IllegalArgumentException e) {
             return JsonVO.fail(e.getMessage());
@@ -97,6 +102,7 @@ public class EquipmentController implements EquipmentApis {
                 return JsonVO.fail("修改器材失败");
             }
             EquipmentUpdateVO vo = msEquipmentMapper.entityToUpdateVo(entity);
+            vo.setRetailPrice(equipmentService.getRetailPrice(entity.getId()));
             vo.setUpdateTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             return JsonVO.success(vo);
         } catch (IllegalArgumentException e) {
@@ -117,12 +123,13 @@ public class EquipmentController implements EquipmentApis {
     @Operation(summary = "启/停用器材（支持批量）", description = "启/停用器材（支持批量）")
     public JsonVO<EquipmentVO> modifyStatus(@RequestBody @Valid EquipmentStatusDTO dto) {
         try {
-            AdmDeviceDefinitionDO entity = equipmentService.modifyEquipmentStatus(dto);
-            if (entity == null) {
-                return JsonVO.fail("切换状态失败");
+            // 得到修改成功的数量
+            int count = equipmentService.modifyEquipmentStatus(dto);
+            // 如果修改数量与传入数量不一致，说明存在异常
+            if (count != dto.getIds().size()) {
+                return JsonVO.fail("切换状态存在异常");
             }
-            EquipmentVO vo = msEquipmentMapper.entityToVo(entity);
-            return JsonVO.success(vo);
+            return JsonVO.success(null);
         } catch (IllegalArgumentException e) {
             return JsonVO.fail(e.getMessage());
         } catch (Exception e) {
@@ -151,7 +158,7 @@ public class EquipmentController implements EquipmentApis {
     @Override
     @GetMapping("/query-equipment-category")
     @Operation(summary = "获取选择耗材列表(条件+分页)", description = "查询器材分类列表")
-    public JsonVO<List<EquipmentCategoryVo>> queryEquipmentCategoryList() {
+    public JsonVO<List<EquipmentCategoryVO>> queryEquipmentCategoryList() {
         return null;
     }
 
@@ -163,7 +170,7 @@ public class EquipmentController implements EquipmentApis {
      */
     @Override
     @DeleteMapping("/remove-by-ids")
-    @Operation(summary = "删除器材(支持批量)", description = "批量删除器材")
+    @Operation(summary = "批量删除器材", description = "批量删除器材")
     public JsonVO<Void> removeEquipmentByEquipmentIds(@RequestBody List<Long> equipmentIds) {
         return null;
     }
