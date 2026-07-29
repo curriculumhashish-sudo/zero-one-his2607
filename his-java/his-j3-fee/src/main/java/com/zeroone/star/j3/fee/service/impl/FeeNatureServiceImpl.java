@@ -49,10 +49,21 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
         }
         // 按显示顺序升序
         wrapper.orderByAsc(FeeNature::getDisplayOrder);
-
         List<FeeNature> entities = baseMapper.selectList(wrapper);
+
+        // 内存分页截取（注意使用 long 类型）
+        int fromIndex = (int) ((query.getPageIndex() - 1) * query.getPageSize());
+        int toIndex = (int) Math.min(fromIndex + query.getPageSize(), entities.size());
+
+        // 防止越界
+        if (fromIndex >= entities.size()) {
+            return new ArrayList<>();
+        }
+
+        List<FeeNature> pagedEntities = entities.subList(fromIndex, toIndex);
+
         List<FeeNatureVO> vos = new ArrayList<>();
-        for (FeeNature entity : entities) {
+        for (FeeNature entity : pagedEntities) {
             vos.add(toVO(entity));
         }
         return vos;
@@ -93,7 +104,7 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
         entity.setName(dto.getName());
         entity.setBusNo(dto.getBusNo());
         entity.setDisplayOrder(dto.getDisplayOrder());
-        entity.setCategoryEnum(dto.getCategoryEnum());
+        entity.setCategoryEnum(FeeCategoryEnum.of(dto.getCategoryEnum()));
 
         if (!updateById(entity)) {
             throw new RuntimeException("修改失败");
@@ -157,7 +168,7 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
             throw new RuntimeException("费用性质显示顺序不能为空");
         }
 
-        FeeCategoryEnum categoryEnum = dto.getCategoryEnum();
+        Integer categoryEnum = dto.getCategoryEnum();
         if (categoryEnum == null) {
             throw new RuntimeException("费用性质分类不能为空");
         }
@@ -166,7 +177,7 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
         // 3. 填充字段,保存
         FeeNature entity = new FeeNature();
         BeanUtils.copyProperties(dto, entity);
-        entity.setCategoryEnum(categoryEnum);
+        entity.setCategoryEnum(FeeCategoryEnum.of(categoryEnum));
         entity.setActiveFlag(1);
         entity.setStatusEnum("1");
         entity.setIsDeleted(0);
