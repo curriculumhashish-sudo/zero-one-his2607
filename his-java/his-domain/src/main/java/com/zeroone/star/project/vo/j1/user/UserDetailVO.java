@@ -17,11 +17,8 @@ public class UserDetailVO {
     @Schema(description = "用户名", example = "lianglaoshi")
     private String username;
 
-    @Schema(description = "角色", example = "13800138000")
-    private String roleName;
-
-    @Schema(description = "默认科室", example = "[\"内科\", \"外科\"]")
-    private String defaultDeptNames;
+    @Schema(description = "默认科室", example = "内科")
+    private String defaultDeptName;
 
     @Schema(description = "名")
     private String name;

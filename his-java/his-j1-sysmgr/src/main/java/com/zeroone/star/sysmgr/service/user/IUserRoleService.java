@@ -2,7 +2,6 @@ package com.zeroone.star.sysmgr.service.user;
 
 import com.zeroone.star.sysmgr.entity.user.UserRole;
 import com.baomidou.mybatisplus.extension.service.IService;
-import jakarta.validation.constraints.NotEmpty;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,12 +27,6 @@ public interface IUserRoleService extends IService<UserRole> {
         private String roleName;
     }
 
-    /**
-     * 新增用户角色关联
-     * @param userId  用户ID
-     * @param roleIds 角色ID列表
-     */
-    void add(String userId, @NotEmpty(message = "角色不能为空") List<String> roleIds);
 
     /**
      * 批量查询用户的角色信息

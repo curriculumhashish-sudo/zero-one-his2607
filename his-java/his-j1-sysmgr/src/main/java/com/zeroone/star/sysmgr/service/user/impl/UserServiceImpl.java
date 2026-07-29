@@ -31,10 +31,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -71,18 +73,136 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     private UserOrganizationUnitMapper userOrganizationUnitMapper;
     @Resource
     private UserTenantMapper userTenantMapper;
+    @Resource
+    private UserRoleMapper userRoleMapper;
 
     @Override
-    public boolean softDeleteById(String id){
-        //1.查询用户
+    @Transactional(rollbackFor = Exception.class)
+    public boolean softDeleteById(String id) {
+        // 1. 检查用户是否存在（自动过滤 is_deleted=0）
         User user = baseMapper.selectById(id);
-        if(user==null){
+        if (user == null) {
             throw new SystemException(UserStatus.USER_NOT_FIND);
         }
-        //2.获取删除用户用户id
-        String deletedBy=getCurrentUserId();
-        //3.删除用户
-        return baseMapper.softDeleteById(id, deletedBy) > 0;
+
+        String deletedBy = getCurrentUserId();
+        LocalDateTime deletedAt = LocalDateTime.now();
+
+        // ========== 2. 软删除用户主表 ==========
+        // 2.1 先更新删除信息
+        User userUpdate = new User();
+        userUpdate.setId(id);
+        userUpdate.setDeletedBy(deletedBy);
+        userUpdate.setDeletedAt(deletedAt);
+        baseMapper.updateById(userUpdate);   // 只更新 deleted_by 和 deleted_at，is_deleted 仍为 0
+        // 2.2 再调用逻辑删除（将 is_deleted 置为 1）
+        baseMapper.deleteById(id);
+
+        // ========== 3. 软删除用户角色关联 ==========
+        // 查询该用户的所有角色关联（未删除的）
+        List<UserRole> userRoles = userRoleMapper.selectList(
+                new LambdaQueryWrapper<UserRole>()
+                        .eq(UserRole::getUserId, id)
+                        .eq(UserRole::getIsDeleted, 0)
+        );
+        if (!userRoles.isEmpty()) {
+            // 批量更新删除信息
+            for (UserRole ur : userRoles) {
+                ur.setDeletedBy(deletedBy);
+                ur.setDeletedAt(deletedAt);
+                userRoleMapper.updateById(ur);
+            }
+            // 批量逻辑删除
+            List<String> roleIds = userRoles.stream().map(UserRole::getId).collect(Collectors.toList());
+            userRoleMapper.deleteBatchIds(roleIds);
+        }
+
+        // ========== 4. 处理 practitioner 及相关联表 ==========
+        Practitioner practitioner = practitionerMapper.selectOne(
+                new LambdaQueryWrapper<Practitioner>()
+                        .eq(Practitioner::getUserId, id)
+                        .eq(Practitioner::getIsDeleted, 0)
+        );
+        if (practitioner != null) {
+            String practitionerId = practitioner.getId();
+
+            // 4.1 软删除 practitioner
+            Practitioner practitionerUpdate = new Practitioner();
+            practitionerUpdate.setId(practitionerId);
+            practitionerUpdate.setDeletedBy(deletedBy);
+            practitionerUpdate.setDeletedAt(deletedAt);
+            practitionerMapper.updateById(practitionerUpdate);
+            practitionerMapper.deleteById(practitionerId);
+
+            // 4.2 查询该 practitioner 下的所有 pr_assign（未删除的）
+            List<PrAssign> prAssigns = prAssignMapper.selectList(
+                    new LambdaQueryWrapper<PrAssign>()
+                            .eq(PrAssign::getPractitionerId, practitionerId)
+                            .eq(PrAssign::getIsDeleted, 0)
+            );
+            if (!prAssigns.isEmpty()) {
+                // 收集 assignment_id 列表（用于删除 pr_assign_service）
+                List<String> assignIds = prAssigns.stream().map(PrAssign::getId).collect(Collectors.toList());
+
+                // 4.2.1 先删子表 pr_assign_service
+                // 查询所有关联的 pr_assign_service（未删除的）
+                List<PrAssignService> services = prAssignServiceMapper.selectList(
+                        new LambdaQueryWrapper<PrAssignService>()
+                                .in(PrAssignService::getAssignmentId, assignIds)
+                                .eq(PrAssignService::getIsDeleted, 0)
+                );
+                if (!services.isEmpty()) {
+                    for (PrAssignService service : services) {
+                        service.setDeletedBy(deletedBy);
+                        service.setDeletedAt(deletedAt);
+                        prAssignServiceMapper.updateById(service);
+                    }
+                    List<String> serviceIds = services.stream().map(PrAssignService::getId).collect(Collectors.toList());
+                    prAssignServiceMapper.deleteBatchIds(serviceIds);
+                }
+
+                // 4.2.2 再删父表 pr_assign
+                for (PrAssign pa : prAssigns) {
+                    pa.setDeletedBy(deletedBy);
+                    pa.setDeletedAt(deletedAt);
+                    prAssignMapper.updateById(pa);
+                }
+                prAssignMapper.deleteBatchIds(assignIds);
+            }
+        }
+
+        // ========== 5. 软删除用户-组织单元关联 ==========
+        List<UserOrganizationUnit> units = userOrganizationUnitMapper.selectList(
+                new LambdaQueryWrapper<UserOrganizationUnit>()
+                        .eq(UserOrganizationUnit::getUserId, id)
+                        .eq(UserOrganizationUnit::getIsDeleted, 0)
+        );
+        if (!units.isEmpty()) {
+            for (UserOrganizationUnit unit : units) {
+                unit.setDeletedBy(deletedBy);
+                unit.setDeletedAt(deletedAt);
+                userOrganizationUnitMapper.updateById(unit);
+            }
+            List<String> unitIds = units.stream().map(UserOrganizationUnit::getId).collect(Collectors.toList());
+            userOrganizationUnitMapper.deleteBatchIds(unitIds);
+        }
+
+        // ========== 6. 软删除用户-租户关联 ==========
+        List<UserTenant> tenants = userTenantMapper.selectList(
+                new LambdaQueryWrapper<UserTenant>()
+                        .eq(UserTenant::getUserId, id)
+                        .eq(UserTenant::getIsDeleted, 0)
+        );
+        if (!tenants.isEmpty()) {
+            for (UserTenant tenant : tenants) {
+                tenant.setDeletedBy(deletedBy);
+                tenant.setDeletedAt(deletedAt);
+                userTenantMapper.updateById(tenant);
+            }
+            List<String> tenantIds = tenants.stream().map(UserTenant::getId).collect(Collectors.toList());
+            userTenantMapper.deleteBatchIds(tenantIds);
+        }
+        return true;
     }
 
     @Override
@@ -140,6 +260,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Boolean saveUser(UserAddDTO userAddDTO) {
         // 1.校验用户名唯一
         if (baseMapper.selectCount(new LambdaQueryWrapper<User>().eq(User::getUserName, userAddDTO.getUsername())) > 0) {
@@ -170,8 +291,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             Practitioner currentPractitioner = practitionerMapper.selectOne(
                     new LambdaQueryWrapper<Practitioner>().eq(Practitioner::getUserId, currentUserId));
             if (currentPractitioner.getOrgId() != null) {
-                AdmOrganization org = orgMapper.selectById(currentPractitioner.getOrgId());
-                if (org != null) defaultDeptId = org.getName();
+                defaultDeptId = currentPractitioner.getOrgId();
             }
         }
 
@@ -342,10 +462,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         List<RoleDO> roles = roleIds.isEmpty() ? Collections.emptyList()
                 : roleMapper.selectBatchIds(roleIds).stream().filter(r -> r.getIsDeleted() == 0).toList();
         // 4.默认科室名称
-        String defaultDeptNames = "";
+        String defaultDeptName = "";
         if (practitioner != null && practitioner.getOrgId() != null) {
             AdmOrganization org = orgMapper.selectById(practitioner.getOrgId());
-            if (org != null) defaultDeptNames = org.getName();
+            if (org != null) defaultDeptName = org.getName();
         }
         // 5.组装返回
         UserDetailVO vo = new UserDetailVO();
@@ -353,7 +473,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         vo.setUsername(user.getUserName());
         vo.setName(user.getName());
         vo.setEmail(user.getEmail());
-        vo.setRoleName(roles.stream().map(RoleDO::getDisplayName).collect(Collectors.joining(",")));
         vo.setRoleIds(new ArrayList<>(roleIds));
         vo.setRoleNames(roles.stream().map(RoleDO::getDisplayName).collect(Collectors.toList()));
         vo.setIsActive(user.getIsActive() != null ? (user.getIsActive() ? 1 : 0) : null);
@@ -371,7 +490,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             vo.setSignature(practitioner.getSignature());
             vo.setDrProfttlCode(practitioner.getDrProfttlCode() != null ? practitioner.getDrProfttlCode().toString() : null);
             vo.setPharPracCertNo(practitioner.getPharPracCertNo());
-            vo.setDefaultDeptNames(defaultDeptNames);
+            vo.setDefaultDeptName(defaultDeptName);
             // 查 adm_pr_assign → 出诊科室 / 号源 / 病区 / 药房 / 库房
             List<PrAssign> assignments = prAssignMapper.selectList(
                     new LambdaQueryWrapper<PrAssign>().eq(PrAssign::getPractitionerId, practitioner.getId()));
@@ -414,13 +533,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Boolean updateUser(UserUpdateDTO dto) {
-        // 1.校验用户存在
+        // ========== 1. 校验用户存在 ==========
+        // 由于 @TableLogic 会自动过滤 is_deleted=0，selectById 只会查未删除记录
         User user = baseMapper.selectById(dto.getId());
         if (user == null) {
             throw new SystemException(UserStatus.USER_NOT_FIND);
         }
-        // 2.更新 whale_users
+
+        // 获取当前操作人及时间
+        String currentUserId = getCurrentUserId();
+        LocalDateTime now = LocalDateTime.now();
+
+        // ========== 2. 更新 whale_users 主表 ==========
         user.setUserName(dto.getUsername());
         user.setEmail(dto.getEmail());
         user.setPhoneNumber(dto.getPhoneNumber());
@@ -428,13 +554,32 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         user.setIsActive(dto.getIsActive() != null ? dto.getIsActive() == 1 : null);
         baseMapper.updateById(user);
 
-        // 3.更新 adm_practitioner
+        // ========== 3. 更新 adm_practitioner ==========
         Practitioner practitioner = practitionerMapper.selectOne(
-                new LambdaQueryWrapper<Practitioner>().eq(Practitioner::getUserId, dto.getId()));
+                new LambdaQueryWrapper<Practitioner>()
+                        .eq(Practitioner::getUserId, dto.getId())
+                        .eq(Practitioner::getIsDeleted, 0) // 只查未删除
+        );
         if (practitioner == null) {
             practitioner = new Practitioner();
             practitioner.setUserId(dto.getId());
         }
+
+        // 处理默认科室
+        String defaultDeptId = "";
+        if (dto.getDefaultOrgId() != null) {
+            defaultDeptId = dto.getDefaultOrgId();
+        } else {
+            Practitioner currentPractitioner = practitionerMapper.selectOne(
+                    new LambdaQueryWrapper<Practitioner>()
+                            .eq(Practitioner::getUserId, currentUserId)
+                            .eq(Practitioner::getIsDeleted, 0)
+            );
+            if (currentPractitioner != null && currentPractitioner.getOrgId() != null) {
+                defaultDeptId=currentPractitioner.getOrgId();
+            }
+        }
+
         practitioner.setPhone(dto.getPhoneNumber());
         practitioner.setGender(dto.getGenderEnum());
         practitioner.setBirthDate(dto.getBirthDate());
@@ -443,38 +588,88 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         practitioner.setSignature(dto.getSignature());
         practitioner.setDrProfttlCode(dto.getDrProfttlCode() != null ? Integer.valueOf(dto.getDrProfttlCode()) : null);
         practitioner.setPharPracCertNo(dto.getPharPracCertNo());
-        practitioner.setOrgId(dto.getDefaultOrgId());
+        practitioner.setOrgId(defaultDeptId);
+
         if (practitioner.getId() == null) {
             practitionerMapper.insert(practitioner);
         } else {
             practitionerMapper.updateById(practitioner);
         }
 
-        // 4.更新角色关联：删旧插新
-        userRoleService.remove(new LambdaQueryWrapper<UserRole>().eq(UserRole::getUserId, dto.getId()));
+        // ========== 4. 更新用户角色关联：软删除旧角色，插入新角色 ==========
+        // 4.1 查询该用户的所有旧角色（未删除）
+        List<UserRole> oldUserRoles = userRoleMapper.selectList(
+                new LambdaQueryWrapper<UserRole>()
+                        .eq(UserRole::getUserId, dto.getId())
+                        .eq(UserRole::getIsDeleted, 0)
+        );
+        if (!oldUserRoles.isEmpty()) {
+            // 4.2 先填充删除信息（deleted_by, deleted_at）
+            for (UserRole ur : oldUserRoles) {
+                ur.setDeletedBy(currentUserId);
+                ur.setDeletedAt(now);
+                userRoleMapper.updateById(ur);   // 此时 is_deleted 仍为 0
+            }
+            // 4.3 批量逻辑删除（将 is_deleted 置为 1）
+            List<String> oldRoleIds = oldUserRoles.stream().map(UserRole::getId).collect(Collectors.toList());
+            userRoleMapper.deleteBatchIds(oldRoleIds);
+        }
+
+        // 4.4 插入新角色（is_deleted 默认为 0）
         if (dto.getRoleIds() != null && !dto.getRoleIds().isEmpty()) {
             for (String roleId : dto.getRoleIds()) {
                 UserRole ur = new UserRole();
                 ur.setUserId(dto.getId());
                 ur.setRoleId(roleId);
-                userRoleService.save(ur);
+                userRoleMapper.insert(ur);
             }
         }
 
-        // 5.查询新角色的 code 和 roleId 映射
+        // ========== 5. 查询新角色的 code 映射 ==========
         Map<String, String> roleCodeMap = dto.getRoleIds() == null || dto.getRoleIds().isEmpty()
                 ? Collections.emptyMap()
                 : roleMapper.selectBatchIds(dto.getRoleIds()).stream()
-                        .filter(r -> r.getIsDeleted() == 0)
-                        .collect(Collectors.toMap(RoleDO::getId, r -> r.getCode() != null ? r.getCode() : ""));
+                .filter(r -> r.getIsDeleted() == 0)
+                .collect(Collectors.toMap(RoleDO::getId, r -> r.getCode() != null ? r.getCode() : ""));
 
-        // 6.全删旧 adm_pr_assign + adm_pr_assign_service，按新角色重建
+        // ========== 6. 处理权限分配（pr_assign 及 pr_assign_service） ==========
+        // 6.1 查询该 practitioner 下所有未删除的旧权限分配
         List<PrAssign> oldAssigns = prAssignMapper.selectList(
-                new LambdaQueryWrapper<PrAssign>().eq(PrAssign::getPractitionerId, practitioner.getId()));
-        for (PrAssign old : oldAssigns) {
-            prAssignServiceMapper.delete(new LambdaQueryWrapper<PrAssignService>().eq(PrAssignService::getAssignmentId, old.getId()));
-            prAssignMapper.deleteById(old.getId());
+                new LambdaQueryWrapper<PrAssign>()
+                        .eq(PrAssign::getPractitionerId, practitioner.getId())
+                        .eq(PrAssign::getIsDeleted, 0)
+        );
+        if (!oldAssigns.isEmpty()) {
+            // 收集所有 assignment_id
+            List<String> assignIds = oldAssigns.stream().map(PrAssign::getId).collect(Collectors.toList());
+
+            // 6.2 先处理子表 pr_assign_service
+            List<PrAssignService> oldServices = prAssignServiceMapper.selectList(
+                    new LambdaQueryWrapper<PrAssignService>()
+                            .in(PrAssignService::getAssignmentId, assignIds)
+                            .eq(PrAssignService::getIsDeleted, 0)
+            );
+            if (!oldServices.isEmpty()) {
+                // 填充删除信息
+                for (PrAssignService service : oldServices) {
+                    service.setDeletedBy(currentUserId);
+                    service.setDeletedAt(now);
+                    prAssignServiceMapper.updateById(service);
+                }
+                List<String> serviceIds = oldServices.stream().map(PrAssignService::getId).collect(Collectors.toList());
+                prAssignServiceMapper.deleteBatchIds(serviceIds);
+            }
+
+            // 6.3 再处理父表 pr_assign
+            for (PrAssign pa : oldAssigns) {
+                pa.setDeletedBy(currentUserId);
+                pa.setDeletedAt(now);
+                prAssignMapper.updateById(pa);
+            }
+            prAssignMapper.deleteBatchIds(assignIds);
         }
+
+        // ========== 7. 按新角色重建权限分配 ==========
         if (!roleCodeMap.isEmpty()) {
             // 医生 → 出诊科室 + 号源
             if (roleCodeMap.containsValue("ROLE_DOCTOR")) {
@@ -499,21 +694,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                     }
                 }
             }
-            // 护士 → 病区 (WARD)
+            // 护士 → 病区
             if (roleCodeMap.containsValue("ROLE_NURSE") && dto.getWardIds() != null) {
                 String roleId = getKeyByValue(roleCodeMap, "ROLE_NURSE");
                 for (String locId : dto.getWardIds()) {
                     prAssignMapper.insert(newPrAssign(practitioner.getId(), roleId, null, locId));
                 }
             }
-            // 药师 → 药房 (PHARMACY)
+            // 药师 → 药房
             if (roleCodeMap.containsValue("ROLE_PHARMACIST") && dto.getPharmacyIds() != null) {
                 String roleId = getKeyByValue(roleCodeMap, "ROLE_PHARMACIST");
                 for (String locId : dto.getPharmacyIds()) {
                     prAssignMapper.insert(newPrAssign(practitioner.getId(), roleId, null, locId));
                 }
             }
-            // 库管 → 库房 (WAREHOUSE) + 药房 (PHARMACY)
+            // 库管 → 库房 + 药房
             if (roleCodeMap.containsValue("ROLE_WAREHOUSE")) {
                 String roleId = getKeyByValue(roleCodeMap, "ROLE_WAREHOUSE");
                 if (dto.getWarehouseIds() != null) {
@@ -527,6 +722,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                     }
                 }
             }
+        }
+
+        // ========== 8. 更新用户-组织单元关联 ==========
+        UserOrganizationUnit existingUnit = userOrganizationUnitMapper.selectOne(
+                new LambdaQueryWrapper<UserOrganizationUnit>()
+                        .eq(UserOrganizationUnit::getUserId, dto.getId())
+                        .eq(UserOrganizationUnit::getIsDeleted, 0)
+        );
+        if (existingUnit != null) {
+            // 如果科室ID发生变化，则更新；否则不变
+            if (!existingUnit.getOrganizationUnitId().equals(defaultDeptId)) {
+                existingUnit.setOrganizationUnitId(defaultDeptId);
+                userOrganizationUnitMapper.updateById(existingUnit);
+            }
+        } else {
+            UserOrganizationUnit newUnit = new UserOrganizationUnit();
+            newUnit.setUserId(dto.getId());
+            newUnit.setOrganizationUnitId(defaultDeptId);
+            userOrganizationUnitMapper.insert(newUnit);
         }
         return true;
     }

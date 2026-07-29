@@ -28,11 +28,6 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
     private RoleMapper roleMapper;
 
     @Override
-    public void add(String userId, List<String> roleIds) {
-
-    }
-
-    @Override
     public Map<String, List<RoleInfo>> getRoleInfoByUserIds(List<String> userIds) {
         if (userIds == null || userIds.isEmpty()) {
             return Collections.emptyMap();
