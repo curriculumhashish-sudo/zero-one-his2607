@@ -15,8 +15,10 @@ import com.zeroone.star.project.vo.j3.supplier.SupplierDetailVO;
 import com.zeroone.star.project.vo.j3.supplier.SupplierListVO;
 import com.zeroone.star.project.vo.j3.supplier.SupplierNameVO;
 import jakarta.annotation.Resource;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.math.BigInteger;
@@ -80,11 +82,12 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
 
     /**
      * 新增供应商
-     * 校验必填字段、信用代码格式与唯一性，生成业务编号后入库
+     * 校验必填字段、信用代码格式与唯一性，在事务中通过悲观锁生成ID，保证并发安全
      * @param dto 供应商完整数据
      * @return 操作结果提示
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public String addSupplier(SupplierFullDTO dto) {
         // 校验必填字段
         if (!StringUtils.hasText(dto.getName())) {
@@ -105,7 +108,7 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
 
         // DTO → Entity 转换
         Supplier supplier = msSupplierMapper.SupplierFullDTO2Supplier(dto);
-        // ID后端自增（基于最大ID +1）
+        // ID后端自增（基于最大ID +1），在事务中使用悲观锁保证并发安全
         supplier.setId(generateId());
         // 如果BusNo为空则设置默认值
         if (!StringUtils.hasText(supplier.getBusNo())) {
@@ -119,6 +122,7 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         supplier.setIsDeleted(0);
         supplier.setDeletedBy(null);
         supplier.setDeletedAt(null);
+        supplier.setUpdatedBy(null);
         // 设置创建人（从登录用户获取）
         try {
             supplier.setCreatedBy(userHolder.getCurrentUser().getUsername());
@@ -244,19 +248,16 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
     }
 
     /**
-     * 生成主键ID：基于当前最大ID自增+1
+     * 生成主键ID：基于当前最大ID自增+1，使用数据库悲观锁保证并发安全
+     * 必须在 @Transactional 事务中调用，FOR UPDATE 锁在事务提交时释放
      * @return 新的主键ID
      */
     private String generateId() {
-        Supplier maxSupplier = this.lambdaQuery()
-                .orderByDesc(Supplier::getId)
-                .last("LIMIT 1")
-                .one();
-
-        if (maxSupplier != null && maxSupplier.getId() != null) {
-            return new BigInteger(maxSupplier.getId()).add(BigInteger.ONE).toString();
-        }
-        return "4100000000000000002";
+        // 使用 SELECT COALESCE(MAX(id), '4100000000000000001') ... FOR UPDATE
+        // 悲观锁锁定行，防止并发请求读到相同最大值
+        // COALESCE 处理空表场景，返回初始值前一位，+1 后得到 '4100000000000000002'
+        String maxId = baseMapper.selectMaxIdForUpdate();
+        return new BigInteger(maxId).add(BigInteger.ONE).toString();
     }
 
     /**

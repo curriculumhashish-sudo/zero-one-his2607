@@ -1,7 +1,6 @@
 package com.zeroone.star.project.dto.j3.supplier;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,9 +10,11 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * 描述：供应商数据传输对象
+ * 描述：供应商数据库完整实体映射DTO（字段与 cus_supplier 表完全对齐）
  * </p>
- * @author 业之
+ * <p>版权：&copy;01星球</p>
+ * <p>地址：01星球总部</p>
+ * @author zzcsz
  * @version 1.0.0
  */
 @Data
@@ -21,6 +22,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Schema(description = "供应商数据库完整映射DTO")
 public class SupplierFullDTO implements Serializable {
+
+    // ==================== 基础字段 ====================
 
     @Schema(description = "主键", example = "4100000000000000002")
     private String id;
@@ -66,15 +69,39 @@ public class SupplierFullDTO implements Serializable {
     @Schema(description = "统一社会信用代码", example = "91110000100000XXXX", requiredMode = Schema.RequiredMode.REQUIRED)
     private String creditCode;
 
-    @Schema(description = "联系人", example = "张三")
-    private String contactPerson;
+    @Schema(description = "法定代表人", example = "张三")
+    private String legalRepresentative;
 
-    @Schema(description = "联系电话", example = "13800138000")
-    private String contactPhone;
-
-    @Schema(description = "地址", example = "上海市浦东新区")
+    @Schema(description = "地址", example = "北京市朝阳区XX路XX号")
     private String address;
 
-    @Schema(description = "资质信息", example = "医疗器械经营许可证")
-    private String qualificationInfo;
+    @Schema(description = "拼音码", example = "HRYY", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String pyStr;
+
+    @Schema(description = "五笔码", example = "WXDG", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String wbStr;
+
+    @Schema(description = "联系电话", example = "010-88888888")
+    private String phone;
+
+    @Schema(description = "邮箱", example = "contact@huarun.com")
+    private String email;
+
+    @Schema(description = "开户行", example = "中国工商银行北京分行")
+    private String bankName;
+
+    @Schema(description = "银行账户", example = "6222000000000000000")
+    private String bankAccount;
+
+    @Schema(description = "机构标识", example = "ORG001", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String orgId;
+
+    @Schema(description = "显示顺序", example = "1")
+    private Integer displayOrder;
+
+    @Schema(description = "状态枚举值（ENABLED-启用/DISABLED-停用）", example = "ENABLED", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String statusEnum;
+
+    @Schema(description = "备注说明", example = "优质供应商，年合作额超百万")
+    private String note;
 }
