@@ -22,7 +22,7 @@
 
 class DiagnosePageJsonVO : public JsonVO<DiagnosePageDTO::Wrapper>
 {
-	DTO_INIT(DiagnosePageDTO, JsonVO<DiagnosePageDTO::Wrapper>);
+	DTO_INIT(DiagnosePageJsonVO, JsonVO<DiagnosePageDTO::Wrapper>);
 };
 #include OATPP_CODEGEN_END(DTO)
 #endif // !_diagnose_PAGE_JSONVO_H_
