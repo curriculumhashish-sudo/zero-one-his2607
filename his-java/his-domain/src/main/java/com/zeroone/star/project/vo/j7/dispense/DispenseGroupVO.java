@@ -9,6 +9,12 @@ import java.util.List;
 @Schema(description = "门诊发退药记录（按处方分组）")
 public class DispenseGroupVO {
 
+    @Schema(description = "记录编号", example = "DP2026-07-010001")
+    private String recordNo;
+
+    @Schema(description = "状态", example = "COMPLETED")
+    private String statusEnum;
+
     @Schema(description = "处方号", example = "CP2026-07-010003")
     private String prescriptionNo;
 
