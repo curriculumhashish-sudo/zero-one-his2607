@@ -23,7 +23,8 @@
 #include "../../domain/do/Diagnose/DiagnoseDO.h"
 #include "../../domain/do/Diagnose/ClnConditionDefinitionDO.h"
 #include "../../domain/query/Diagnose/DiagnoseSelectQuery.h"
-
+#include "../../domain/query/Diagnose/DiagnosePageQuery.h"
+#include "../../domain/query/Diagnose/DiagnoseCatalogQuery.h"
 /** 选择诊疗的数据访问对象。 */
 class DiagnoseDAO : public BaseDAO
 {
@@ -48,21 +49,5 @@ public:
 	std::list<DiagnoseDO> selectByName(const std::string& name);
 };
 
-class DiagnosisDAO : public BaseDAO
-{
-//private:
-//	std::string queryConditionBuilder(
-//		const DiagnoseSelectQuery::Wrapper& query,
-//		const std::string& tenantId,
-//		SqlParams& params);
-//
-//public:
-//	std::string selectCurrentTenantId(const std::string& userId);
-//	uint64_t count(const DiagnoseSelectQuery::Wrapper& query, const std::string& tenantId);
-//	std::list<ClnConditionDefinitionDO> selectWithPage(
-//		const DiagnoseSelectQuery::Wrapper& query,
-//		const std::string& tenantId);
-//	std::list<DiagnoseDO> selectByName(const std::string& name);
-//>>>>>>> 7a964f5c8d17ed83b384e758fad9c7e6fabfd56b:his-cpp/his-c6-basedata/dao/Diagnose/DiagnoseDAO.h
-};
+
 #endif // !_DIAGNOSIS_DAO_H_
