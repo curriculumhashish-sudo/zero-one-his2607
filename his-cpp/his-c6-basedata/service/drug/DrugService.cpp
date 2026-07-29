@@ -24,7 +24,6 @@
 #include "SimpleDateTimeFormat.h"
 #include "TransactionManager.h"
 #include "id/UuidFacade.h"
-
 #include <algorithm>
 #include <cctype>
 #include <exception>
@@ -618,11 +617,11 @@ string DrugService::saveData(const DrugAddDTO::Wrapper& dto)
     entity.setName(dto->name.getValue(""));
     entity.setCategoryCode(dto->kinds.getValue(""));
 
-    entity.setCreatedBy(payload.getId());
+    entity.setCreatedBy("");
     entity.setCreatedAt(SimpleDateTimeFormat::format());
 
     // 樑扢蘇蚚
-    entity.setInventoryStatusEnum("ACTIVE");
+    entity.setActiveFlag(true);
 
     if (dao.insert(entity) > 0) {
         return newId;
