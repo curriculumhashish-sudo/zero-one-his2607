@@ -25,7 +25,7 @@ import java.util.List;
  * @version 1.0.0
  */
 @RestController
-@RequestMapping("/stock-chart")
+@RequestMapping("/j8/statdata") // 统一模块路径前缀
 @Tag(name = "库存统计图表")
 public class StockChartController implements StockChartApis {
 

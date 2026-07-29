@@ -24,6 +24,7 @@ import java.util.List;
  * @version 1.0.0
  */
 @RestController
+@RequestMapping("/j8/statdata") // 统一模块路径前缀
 @Tag(name = "流量统计")
 public class VisitAppController implements VisitAppApis {
 

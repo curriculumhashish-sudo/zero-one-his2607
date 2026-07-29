@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -23,7 +24,7 @@ public class UserDTO {
      */
     private String id;
     /**
-     * 用户名称
+     * 用户名称(登录账号)
      */
     private String username;
     /**
@@ -34,4 +35,29 @@ public class UserDTO {
      * 用户拥有角色列表
      */
     private List<String> roles;
+    /**
+     * 用户名称（真实姓名）
+     */
+    private String name;
+    /**
+     * 组织单元信息
+     * 每个元素：key为组织单元编号，value为组织单元名称
+     */
+    private Map<String, String> organizationUnits;
+    /**
+     * 对应的医务人员编号
+     */
+    private String practitionerId;
+    /**
+     * 对应的医务人员名称
+     */
+    private String practitionerName;
+    /**
+     * 职称名称，如：主任医师、护士、药师、技师等
+     */
+    private String titleName;
+    /**
+     * 职称编码，职称名称对应的编码值
+     */
+    private String titleCode;
 }

@@ -1,0 +1,7 @@
+server:
+  port: ${sp.outpatient}
+  servlet:
+    context-path: /outpatient
+spring:
+  application:
+    name: ${sn.outpatient}
