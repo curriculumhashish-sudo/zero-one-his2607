@@ -26,7 +26,6 @@
 #include "domain/query/Diagnose/DiagnosePageQuery.h"
 //#include "domain/query/Diagnose/DiagnoseDetailQuery.h"
 #include "domain/query/Diagnose/DiagnoseSelectQuery.h"
-#include "domain/query/Diagnose/DiagnosisSelectQuery.h"
 //DTO
 #include "domain/dto/Diagnose/DiagnosePageDTO.h"
 #include "domain/dto/Diagnose/DiagnoseDetailDTO.h"
@@ -36,12 +35,9 @@
 #include "domain/vo/Diagnose/DiagnoseDetailJsonVO.h"
 #include "domain/vo/Diagnose/DiagnosePageJsonVO.h"
 #include "domain/vo/Diagnose/DiagnoseSelectJsonVO.h"
-#include "domain/vo/Diagnose/DiagnosisSelectPageJsonVO.h"
 #include "domain/vo/Diagnose/DiagnoseJsonVO.h"
 
-#include <algorithm>
-#include <cctype>
-#include <exception>
+
 
 using namespace oatpp;
 
@@ -55,59 +51,6 @@ class DiagnoseController : public oatpp::web::server::api::ApiController
 	API_ACCESS_DECLARE(DiagnoseController);
 
 public:
-	// 获取选择诊疗列表，并在入口完成 JWT 和分页参数校验。
-	API_DEF_ENDPOINT_INFO_AUTH(
-		ZH_WORDS_GETTER("diagnose.query_select.summary"),
-		querySelectDiagnosis,
-		DiagnosisSelectPageJsonVO::Wrapper,
-		API_TAG,
-		API_DEF_QUERY_PARAM_BUILD(DiagnosisSelectQuery);
-		info->queryParams["keyword"].addExample("default", oatpp::String("GM"));
-		info->queryParams["diagnosisKindCode"].addExample(
-			"default", oatpp::String("1"));
-	);
-	API_HANDLER_ENDPOINT_OPTION_AUTH(
-		API_M_GET,
-		"/diagnosis/query-select",
-		querySelectDiagnosis,
-		QUERIES(QueryParams, queryParams),
-		auto query = DiagnosisSelectQuery::createShared();
-		const auto pageIndexParam = queryParams.get("pageIndex");
-		const auto pageSizeParam = queryParams.get("pageSize");
-		const std::string pageIndexText = pageIndexParam.getValue("");
-		const std::string pageSizeText = pageSizeParam.getValue("");
-		if (pageIndexText.empty() ||
-			pageSizeText.empty() ||
-			!std::all_of(
-				pageIndexText.begin(),
-				pageIndexText.end(),
-				[](unsigned char character) { return std::isdigit(character) != 0; }) ||
-			!std::all_of(
-				pageSizeText.begin(),
-				pageSizeText.end(),
-				[](unsigned char character) { return std::isdigit(character) != 0; }))
-		{
-			auto response = DiagnosisSelectPageJsonVO::createShared();
-			response->init(nullptr, RS_PARAMS_INVALID);
-			API_HANDLER_RESP_VO(response);
-		}
-		try
-		{
-			API_HANDLER_QUERY_PARAM(
-				parsedQuery,
-				DiagnosisSelectQuery,
-				queryParams);
-			query = parsedQuery;
-		}
-		catch (const std::exception&)
-		{
-			auto response = DiagnosisSelectPageJsonVO::createShared();
-			response->init(nullptr, RS_PARAMS_INVALID);
-			API_HANDLER_RESP_VO(response);
-		}
-		API_HANDLER_RESP_VO(
-			execQuerySelectDiagnosis(query, authObject->getPayload()));
-	);
 	
 	//1. diagnose / select 
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("diagnose.select.summary"), listDiagnoseSelect, DiagnoseSelectQuery, DiagnoseSelectJsonVO::Wrapper, API_TAG);
@@ -150,9 +93,6 @@ public:
 	// 定义批量启用/停用接口处理
 	API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/diagnose/batch/status", batchChangeDiagnoseStatus, BODY_DTO(DiagnoseBatchStatusDTO::Wrapper, dto), execBatchChangeDiagnoseStatus(dto, authObject->getPayload()));
 private:
-	DiagnosisSelectPageJsonVO::Wrapper execQuerySelectDiagnosis(
-		const DiagnosisSelectQuery::Wrapper& query,
-		const PayloadDTO& payload);
 	
 	 //1.select
 	DiagnoseSelectJsonVO::Wrapper executeListSelectDiagnose(const DiagnoseSelectQuery::Wrapper& query);
