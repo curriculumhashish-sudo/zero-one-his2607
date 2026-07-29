@@ -42,13 +42,12 @@ std::shared_ptr<DeptController::OutgoingResponse> DeptController::execAddDept(
 
     // 执行数据新增
     dto->setPayload(&payload);
-    //auto result = DeptService().add(dto);
-    //// 返回结果
-    //vo->init(
-    //    result.success ? oatpp::String(result.id.c_str()) : oatpp::String(nullptr),
-    //    result.status);
-    //return createDtoResponse(toHttpStatus(result.httpStatus), vo);
-    return createDtoResponse(toHttpStatus(200), vo);
+    auto result = DeptService().add(dto);
+    // 返回结果
+    vo->init(
+        result.success ? oatpp::String(result.id.c_str()) : oatpp::String(nullptr),
+        result.status);
+    return createDtoResponse(toHttpStatus(result.httpStatus), vo);
 }
 
 std::shared_ptr<DeptController::OutgoingResponse> DeptController::execModifyDept(
@@ -73,13 +72,12 @@ std::shared_ptr<DeptController::OutgoingResponse> DeptController::execModifyDept
 
     // 执行数据修改
     dto->setPayload(&payload);
-    //auto result = DeptService().modify(dto);
-    //// 返回结果
-    //vo->init(
-    //    result.success ? oatpp::String(result.id.c_str()) : oatpp::String(nullptr),
-    //    result.status);
-    //return createDtoResponse(toHttpStatus(result.httpStatus), vo);
-    return createDtoResponse(toHttpStatus(200), vo);
+    auto result = DeptService().modify(dto);
+    // 返回结果
+    vo->init(
+        result.success ? oatpp::String(result.id.c_str()) : oatpp::String(nullptr),
+        result.status);
+    return createDtoResponse(toHttpStatus(result.httpStatus), vo);
 }
 
 std::shared_ptr<DeptController::OutgoingResponse> DeptController::execRemoveDept(
@@ -104,11 +102,10 @@ std::shared_ptr<DeptController::OutgoingResponse> DeptController::execRemoveDept
 
     // 执行数据删除
     query->setPayload(&payload);
-    //auto result = DeptService().remove(query);
-    //// 返回结果
-    //vo->init(
-    //    result.success ? oatpp::String(result.id.c_str()) : oatpp::String(nullptr),
-    //    result.status);
-    //return createDtoResponse(toHttpStatus(result.httpStatus), vo);
-    return createDtoResponse(toHttpStatus(200), vo);
+    auto result = DeptService().remove(query);
+    // 返回结果
+    vo->init(
+        result.success ? oatpp::String(result.id.c_str()) : oatpp::String(nullptr),
+        result.status);
+    return createDtoResponse(toHttpStatus(result.httpStatus), vo);
 }
