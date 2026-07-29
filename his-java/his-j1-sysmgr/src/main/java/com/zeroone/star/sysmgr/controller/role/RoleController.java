@@ -47,14 +47,13 @@ public class RoleController implements RoleApis {
     }
 
     @Override
-    public JsonVO<String> addRole(RoleAddDTO dto) {
+    public JsonVO<RoleVO> addRole(RoleAddDTO dto) {
         return JsonVO.success(roleService.addRole(dto));
     }
 
     @Override
-    public JsonVO<String> modifyRole(RoleModifyDTO dto) {
-        roleService.modifyRole(dto);
-        return JsonVO.success("修改成功");
+    public JsonVO<RoleVO> modifyRole(RoleModifyDTO dto) {
+        return JsonVO.success(roleService.modifyRole(dto));
     }
 
     @Override

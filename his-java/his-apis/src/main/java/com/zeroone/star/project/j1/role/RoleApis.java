@@ -71,22 +71,22 @@ public interface RoleApis {
      * 新增角色。
      *
      * @param dto 新增角色数据
-     * @return 新增角色编号
+     * @return 新增后的角色详情
      */
-    @Operation(summary = "新增角色", description = "角色内部名称和编码由服务端生成")
+    @Operation(summary = "新增角色", description = "角色内部名称和编码由服务端生成，成功后返回完整角色信息")
     @PostMapping("/add-role")
-    JsonVO<String> addRole(
+    JsonVO<RoleVO> addRole(
             @Valid @RequestBody RoleAddDTO dto);
 
     /**
      * 修改角色。
      *
      * @param dto 修改角色数据
-     * @return 修改结果
+     * @return 修改后的角色详情
      */
-    @Operation(summary = "修改角色", description = "修改角色基本信息，角色内部名称和编码不允许修改")
+    @Operation(summary = "修改角色", description = "修改角色基本信息，角色内部名称和编码不允许修改，成功后返回完整角色信息")
     @PutMapping("/modify-role")
-    JsonVO<String> modifyRole(
+    JsonVO<RoleVO> modifyRole(
             @Valid @RequestBody RoleModifyDTO dto);
 
     /**

@@ -133,12 +133,12 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RoleDO> implements 
      * </p>
      *
      * @param dto 新增角色数据
-     * @return 新增角色编号
+     * @return 新增后的角色详情
      * @throws SystemException 唯一标识生成失败或角色写入失败时抛出
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String addRole(RoleAddDTO dto) {
+    public RoleVO addRole(RoleAddDTO dto) {
         // 为内部名称和角色编码生成同源随机后缀，避免由前端维护系统标识。
         String suffix = generateUniqueSuffix();
 
@@ -157,7 +157,10 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RoleDO> implements 
         if (baseMapper.insert(role) != 1 || !StringUtils.hasText(role.getId())) {
             throw new SystemException(RoleStatus.ROLE_CREATE_FAILED);
         }
-        return role.getId();
+
+        // 重新读取持久化结果，完整返回服务端生成字段和审计字段。
+        RoleDO createdRole = requireVisibleRole(role.getId(), role.getTenantId());
+        return BeanUtil.copyProperties(createdRole, RoleVO.class);
     }
 
     /**
@@ -169,11 +172,12 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RoleDO> implements 
      * </p>
      *
      * @param dto 角色修改数据
+     * @return 修改后的角色详情
      * @throws SystemException 角色不可见或更新失败时抛出
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void modifyRole(RoleModifyDTO dto) {
+    public RoleVO modifyRole(RoleModifyDTO dto) {
         String tenantId = getTenantId();
 
         // 修改前先确认角色对当前租户可见；内置角色与自定义角色均允许修改基本信息。
@@ -193,6 +197,10 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RoleDO> implements 
         if (updated != 1) {
             throw new SystemException(RoleStatus.ROLE_UPDATE_FAILED);
         }
+
+        // 重新读取数据库最终状态，返回最新基本信息和审计字段。
+        RoleDO updatedRole = requireVisibleRole(role.getId(), tenantId);
+        return BeanUtil.copyProperties(updatedRole, RoleVO.class);
     }
 
     /**

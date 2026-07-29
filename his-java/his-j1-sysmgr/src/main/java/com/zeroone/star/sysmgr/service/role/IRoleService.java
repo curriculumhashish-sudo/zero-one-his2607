@@ -49,9 +49,9 @@ public interface IRoleService extends IService<RoleDO> {
      * 新增当前租户的自定义角色。
      *
      * @param dto 新增角色数据
-     * @return 新增角色编号
+     * @return 新增后的角色详情
      */
-    String addRole(RoleAddDTO dto);
+    RoleVO addRole(RoleAddDTO dto);
 
     /**
      * 修改角色基本信息。
@@ -60,8 +60,9 @@ public interface IRoleService extends IService<RoleDO> {
      * </p>
      *
      * @param dto 修改角色数据
+     * @return 修改后的角色详情
      */
-    void modifyRole(RoleModifyDTO dto);
+    RoleVO modifyRole(RoleModifyDTO dto);
 
     /**
      * 删除当前租户的自定义角色。
