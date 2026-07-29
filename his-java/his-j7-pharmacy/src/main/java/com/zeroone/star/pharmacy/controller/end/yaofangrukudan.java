@@ -1,18 +1,18 @@
 package com.zeroone.star.pharmacy.controller.end;
 
+
+import com.zeroone.star.pharmacy.service.InStockOrderService;
+import com.zeroone.star.project.dto.j7.pharmacy.InStockOrderDTO;
 import com.zeroone.star.project.dto.j7.pharmacy.InboundApprovalDTO;
-import com.zeroone.star.project.j7.pharmacy.InboundApprovalApis;
+import com.zeroone.star.project.j7.PharmacyApis;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.pharmacy.service.IInboundApprovalService;
 import com.zeroone.star.project.vo.j7.pharmacy.InboundApprovalVO;
+import com.zeroone.star.pharmacy.service.IInboundApprovalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * G7 入库单审批流转控制器。
@@ -23,10 +23,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/j7/inbound-approval")
 @Tag(name = "G7 入库单审批流转", description = "撤回审批、审批通过、驳回审批")
-public class yaofangrukudan implements InboundApprovalApis {
+public class yaofangrukudan implements PharmacyApis {
 
     @Resource
     private IInboundApprovalService inboundApprovalService;
+
+    @Resource
+    private InStockOrderService inStockOrderService;
 
     /**
      * lvv：撤回处于待审批状态的入库单。
@@ -69,4 +72,31 @@ public class yaofangrukudan implements InboundApprovalApis {
             return JsonVO.fail(e.getMessage());
         }
     }
+
+    /**
+     * G5 入库单管理接口定义
+     */
+
+    // 新增入库单据
+    @Operation(summary = "新增入库单据", description = "创建一张新的入库单，状态为草稿。返回入库单主表ID。")
+    @PostMapping("/addInStockOrder")
+    public JsonVO<String> addInOrder(@RequestBody InStockOrderDTO dto) {
+        String orderId = inStockOrderService.create(dto);
+        return JsonVO.success(orderId);
+    }
+    // 保存入库单据（编辑）
+    @Operation(summary = "保存入库单据", description = "修改草稿态的入库单，支持对明细的全量增删改。")
+    @PutMapping("/{orderId}/saveInStockOrder")
+    public JsonVO<String> updateInOrder(@PathVariable String orderId, @RequestBody InStockOrderDTO dto) {
+        inStockOrderService.update(orderId, dto);
+        return JsonVO.success("保存入库单据成功");
+    }
+    // 保存并提交审批
+    @Operation(summary = "保存并提交审批", description = "保存草稿并立即提交审批，状态变更为“待审批”。")
+    @PutMapping("/{orderId}/submitInStockOrder")
+    public JsonVO<String> submitInOrder(@PathVariable String orderId, @RequestBody InStockOrderDTO dto) {
+        inStockOrderService.submit(orderId, dto);
+        return JsonVO.success("保存并提交审批成功");
+    }
+}
 }
