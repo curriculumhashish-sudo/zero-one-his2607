@@ -23,12 +23,15 @@
 #include "Mapper.h"
 #include "../../domain/do/Diagnose/ClnConditionDefinitionDO.h"
 
+//其实这个表对应的是page
 /** 将查询结果映射为诊疗定义 DO。 */
-class DiagnoseSelectMapper : public Mapper<PtrClnConditionDefinitionDO>
+class DiagnoseMapper : public Mapper<PtrClnConditionDefinitionDO>
 {
 public:
 	PtrClnConditionDefinitionDO mapper(ResultSet* resultSet) const override
 	{
+
+
 		//// 按 SELECT 字段顺序读取诊疗数据。
 		//PtrClnConditionDefinitionDO data;
 		//data.setId(resultSet->getString(1));

@@ -29,24 +29,30 @@
 class DiagnoseDAO : public BaseDAO
 {
 private:
-	// 构造统计和分页查询共用的筛选条件。
-	std::string buildSelectableDiagnosisCondition(
-		const DiagnoseSelectQuery::Wrapper& query,
-		const std::string& tenantId,
-		SqlParams& params);
+	//// 构造统计和分页查询共用的筛选条件。
+	//std::string buildSelectableDiagnosisCondition(
+	//	const DiagnoseSelectQuery::Wrapper& query,
+	//	const std::string& tenantId,
+	//	SqlParams& params);
 
 public:
-	// 根据登录用户解析当前有效租户。
-	std::string selectCurrentTenantId(const std::string& userId);
-	// 统计符合条件的诊疗数量。
-	uint64_t countSelectableDiagnoses(
-		const DiagnoseSelectQuery::Wrapper& query,
-		const std::string& tenantId);
-	// 查询当前页的选择诊疗数据。
-	std::list<ClnConditionDefinitionDO> selectSelectableDiagnosesWithPage(
-		const DiagnoseSelectQuery::Wrapper& query,
-		const std::string& tenantId);
-	std::list<DiagnoseDO> selectByName(const std::string& name);
+	// 获取数据条数
+	uint64_t count(const DiagnosePageQuery::Wrapper& query);
+	// 获取诊断列表
+	std::list<PtrClnConditionDefinitionDO> selectAll(const DiagnosePageQuery::Wrapper& query);
+	// 通过编号获取指定诊断
+	PtrClnConditionDefinitionDO selectById(const std::string& id);
+	//// 根据登录用户解析当前有效租户。
+	//std::string selectCurrentTenantId(const std::string& userId);
+	//// 统计符合条件的诊疗数量。
+	//uint64_t countSelectableDiagnoses(
+	//	const DiagnoseSelectQuery::Wrapper& query,
+	//	const std::string& tenantId);
+	//// 查询当前页的选择诊疗数据。
+	//std::list<ClnConditionDefinitionDO> selectSelectableDiagnosesWithPage(
+	//	const DiagnoseSelectQuery::Wrapper& query,
+	//	const std::string& tenantId);
+	//std::list<DiagnoseDO> selectByName(const std::string& name);
 };
 
 

@@ -26,7 +26,7 @@ class DiagnoseSelectQuery : public PageQuery
 	// keyword
 	API_DTO_FIELD_DEFAULT(String, keyword, ZH_WORDS_GETTER("diagnose.field.keyword"));
 	// dictType
-	API_DTO_FIELD_REQUIRE(Int32, dictType, ZH_WORDS_GETTER("diagnose.field.dictType"), true);
+	API_DTO_FIELD_REQUIRE(String, dictType, ZH_WORDS_GETTER("diagnose.field.dictType"), true);
 
 };
 
