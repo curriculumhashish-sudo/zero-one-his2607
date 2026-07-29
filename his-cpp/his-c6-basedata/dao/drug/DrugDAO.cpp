@@ -424,7 +424,8 @@ std::list<MedMedicationDefinitionDO> selectWithPage(const DrugQuery::Wrapper& qu
 // 通过ID查询数据
 MedMedicationDefinitionDO selectById(std::string id)
 {
-
+    std::string sql = "SELECT * FROM wkf_inventory_item WHERE `id` = ? AND `is_deleted` = 0";
+    return sqlSession->executeQueryOne<MedMedicationDefinitionDO>(sql, PtrDrugMapper(), "%s", id);
 }
 // 新增的数据插入 (供 saveData 调用)
 int insert(const MedMedicationDefinitionDO& entity)
