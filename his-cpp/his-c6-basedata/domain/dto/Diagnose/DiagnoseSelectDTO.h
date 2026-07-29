@@ -34,45 +34,8 @@ class DSelectDTO : public oatpp::DTO
 	API_DTO_FIELD_DEFAULT(Int32, isMain, ZH_WORDS_GETTER("diagnose.field.isMain"));
 	// 是否存为常用:0,1
 	API_DTO_FIELD_DEFAULT(Int32, saveToCommon, ZH_WORDS_GETTER("diagnose.field.saveToCommon"));
-	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);//请求头token指针
-
-public:
-	std::string validate()
-	{
-		
-		if (!id || id->empty())
-		{
-			return "The  id cannot be empty";
-		}
-		if (!diagnoseCode || diagnoseCode->empty())
-		{
-			return "The diagnose code cannot be empty";
-		}
-		if (!diagnoseName || diagnoseName->empty())
-		{
-			return "The diagnose name cannot be empty";
-		}
-		if (!dictType)
-		{
-			return "The dictType  cannot be empty";
-		}
-		
 	
-		if ( *dictType != 0 && *dictType != 1 && *dictType != 2)
-		{
-			return "The dictType only allows 0, 1 or 2";
-		}
-		if (isMain && *isMain != 0 && *isMain != 1)
-		{
-			return "The main diagnosis flag only allows 0 or 1";
-		}
-		if (saveToCommon && *saveToCommon != 0 && *saveToCommon != 1)
-		{
-			return "The save to common flag only allows 0 or 1";
-		}
 
-		return "";
-	}
 };
 
 
