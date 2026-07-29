@@ -5,9 +5,7 @@
     <select id="selectTreatmentListPage" resultType="com.zeroone.star.project.vo.j4.treatment.TreatmentListVO">
         SELECT
             t.id,
-            t.bus_no AS busNo,
             t.name,
-            t.category_code AS categoryCode,
             t.status_enum AS statusEnum,
             t.type_enum AS typeEnum,
             (

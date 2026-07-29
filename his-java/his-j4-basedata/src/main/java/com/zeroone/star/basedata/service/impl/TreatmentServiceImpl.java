@@ -25,10 +25,18 @@ import com.zeroone.star.project.vo.j4.treatment.WkfActivityDefinitionChildVO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * <p>
+ * 描述：诊疗管理服务实现
+ * </p>
+ * <p>版权：&copy;01星球</p>
+ * <p>地址：01星球总部</p>
+ * @author j4组
+ * @version 1.0.0
+ */
 @Service
 public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivityDefinitionDO> implements ITreatmentService {
 
@@ -76,19 +84,7 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
         }
         wrapper.orderByDesc(WkfActivityDefinitionDO::getCreatedAt);
         Page<WkfActivityDefinitionDO> result = baseMapper.selectPage(page, wrapper);
-
-        List<TreatmentSelectVO> voList = msTreatmentMapper.toSelectVOList(result.getRecords());
-        for (TreatmentSelectVO vo : voList) {
-            List<AdmChargeItemDefinitionDO> priceLines = loadPriceLines(vo.getId());
-            vo.setRetailPrice(extractRetailPrice(priceLines));
-        }
-        PageDTO<TreatmentSelectVO> pageDTO = new PageDTO<>();
-        pageDTO.setTotal(result.getTotal());
-        pageDTO.setPageIndex(result.getCurrent());
-        pageDTO.setPageSize(result.getSize());
-        pageDTO.setPages(result.getPages());
-        pageDTO.setRows(voList);
-        return pageDTO;
+        return PageDTO.create(result, msTreatmentMapper::toSelectVO);
     }
 
     @Override
@@ -191,18 +187,6 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
                 .eq(AdmChargeItemDefinitionDO::getInstanceId, instanceId)
                 .eq(AdmChargeItemDefinitionDO::getIsDeleted, false);
         return chargeItemMapper.selectList(wrapper);
-    }
-
-    private BigDecimal extractRetailPrice(List<AdmChargeItemDefinitionDO> rows) {
-        if (rows == null || rows.isEmpty()) {
-            return null;
-        }
-        for (AdmChargeItemDefinitionDO row : rows) {
-            if (row != null && PRICE_TYPE_SALE.equals(row.getPriceTypeCode())) {
-                return row.getPriceValue();
-            }
-        }
-        return null;
     }
 
     private void enrichPriceFields(TreatmentDetailVO dto, List<AdmChargeItemDefinitionDO> rows) {

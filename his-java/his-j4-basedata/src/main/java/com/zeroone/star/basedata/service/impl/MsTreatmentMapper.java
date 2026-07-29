@@ -20,7 +20,6 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface MsTreatmentMapper {
 
-    @Mapping(target = "retailPrice", ignore = true)
     TreatmentSelectVO toSelectVO(WkfActivityDefinitionDO wkfActivityDefinitionDO);
 
     List<TreatmentSelectVO> toSelectVOList(List<WkfActivityDefinitionDO> wkfActivityDefinitionDOS);
@@ -36,14 +35,19 @@ public interface MsTreatmentMapper {
 
     List<TreatmentDTO> toDTOList(List<WkfActivityDefinitionDO> wkfActivityDefinitionDOS);
 
+    @Mappings({
+            @Mapping(target = "price", ignore = true)
+    })
     TreatmentListVO toListVO(WkfActivityDefinitionDO wkfActivityDefinitionDO);
 
     List<TreatmentListVO> toListVOList(List<WkfActivityDefinitionDO> wkfActivityDefinitionDOS);
 
     @Mappings({
             @Mapping(source = "isDeleted", target = "deleteFlag"),
-            @Mapping(target = "itemTypeCode", ignore = true),
+            @Mapping(target = "ruleId_dictText", ignore = true),
             @Mapping(target = "ybType", ignore = true),
+            @Mapping(target = "ybType_dictText", ignore = true),
+            @Mapping(target = "itemTypeCode", ignore = true),
             @Mapping(target = "purchasePrice", ignore = true),
             @Mapping(target = "retailPrice", ignore = true),
             @Mapping(target = "maximumRetailPrice", ignore = true),
