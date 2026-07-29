@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +27,7 @@ public class FieldController implements FieldApis {
     @Operation(summary = "添加元数据字段")
     @PostMapping("/field")
     @Override
-    public JsonVO<String> addField(@RequestBody FieldAddDTO data) {
+    public JsonVO<String> addField(@Valid @RequestBody FieldAddDTO data) {
         int result = fieldService.addField(data);
         if (result <= 0) {
             return JsonVO.fail("添加失败");
@@ -37,7 +38,7 @@ public class FieldController implements FieldApis {
     @Operation(summary = "修改元数据字段")
     @PutMapping("/field")
     @Override
-    public JsonVO<String> updateField(@RequestBody FieldUpdateDTO data) {
+    public JsonVO<String> updateField(@Valid @RequestBody FieldUpdateDTO data) {
         int result = fieldService.updateField(data);
         if (result <= 0) {
             return JsonVO.fail("修改失败");
