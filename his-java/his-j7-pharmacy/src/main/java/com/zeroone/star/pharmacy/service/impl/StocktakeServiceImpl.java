@@ -55,9 +55,9 @@ public class StocktakeServiceImpl
     private static final String STATUS_DRAFT = "DRAFT";
 
     /**
-     * 盘点单状态枚举：已提交（待审批）
+     * 盘点单状态枚举：待审批（已提交审批，与 SupplyStatus.PENDING_APPROVAL 一致）
      */
-    private static final String STATUS_SUBMITTED = "SUBMITTED";
+    private static final String STATUS_PENDING_APPROVAL = "PENDING_APPROVAL";
 
     /**
      * 时间格式化器（用于 Mapper 参数传递）
@@ -143,7 +143,7 @@ public class StocktakeServiceImpl
      * 3. 至少有一条明细行
      * </p>
      * <p>
-     * 状态变更：DRAFT → SUBMITTED，同时写入申请人、申请时间、备注
+     * 状态变更：DRAFT → PENDING_APPROVAL，同时写入申请人、申请时间、备注
      * </p>
      *
      * @param dto 提交审批参数
@@ -193,7 +193,7 @@ public class StocktakeServiceImpl
         LocalDateTime now = LocalDateTime.now();
         int rows = stocktakeMapper.updateStatusByBusNo(
                 busNo,
-                STATUS_SUBMITTED,
+                STATUS_PENDING_APPROVAL,
                 applicantId,
                 now.format(DATE_TIME_FORMATTER),
                 updatedBy,

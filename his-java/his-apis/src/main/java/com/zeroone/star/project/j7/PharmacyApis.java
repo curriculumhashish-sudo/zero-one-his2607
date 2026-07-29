@@ -2,27 +2,52 @@ package com.zeroone.star.project.j7;
 
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j7.pharmacy.*;
+import com.zeroone.star.project.dto.j7.pharmacy.approval.ApproveDTO;
+import com.zeroone.star.project.dto.j7.pharmacy.approval.OperatorDTO;
 import com.zeroone.star.project.query.j7.pharmacy.PatientQueueQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j7.pharmacy.DrugItemVO;
 import com.zeroone.star.project.vo.j7.pharmacy.InboundApprovalVO;
 import com.zeroone.star.project.vo.j7.pharmacy.PatientQueueVO;
+import com.zeroone.star.project.vo.j7.pharmacy.StocktakeStatusVO;
 import com.zeroone.star.project.vo.j7.pharmacy.SummaryVO;
 
 import java.util.List;
 
 public interface PharmacyApis {
 
+        /**
+         * G10 盘点单审批接口
+         * @author tsfmn
+         * @version 1.0.0
+         * a
+         */
+        /**
+         * 盘点单提交审批
+         */
+        JsonVO<StocktakeStatusVO> submit(OperatorDTO dto);
+
+        /**
+         * 盘点单审批状态通过
+         */
+        JsonVO<StocktakeStatusVO> approve(ApproveDTO dto);
+        /**
+         * 盘点单驳回审批
+         */
+        JsonVO<StocktakeStatusVO> reject(ApproveDTO dto);
+        /**
+         * 盘点单撤回审批
+         */
+        JsonVO<StocktakeStatusVO> withdraw(OperatorDTO dto);
 
 
 
-
-    /**
-     * G7 入库单审批流转接口。
-     *
-     * @author lvv
-     * @version 1.0.0
-     */
+        /**
+         * G7 入库单审批流转接口。
+         *
+         * @author lvv
+         * @version 1.0.0
+         */
 
         /**
          * 撤回待审批的入库单。
@@ -45,12 +70,6 @@ public interface PharmacyApis {
          * @return 操作结果
          */
         JsonVO<InboundApprovalVO> rejectApproval(InboundApprovalDTO dto);
-
-
-
-
-
-
 
 
 
