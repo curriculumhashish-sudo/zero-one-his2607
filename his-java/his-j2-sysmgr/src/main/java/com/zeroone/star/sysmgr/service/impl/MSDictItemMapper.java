@@ -1,6 +1,6 @@
 package com.zeroone.star.sysmgr.service.impl;
 
-import com.zeroone.star.project.dto.j2.sysmgr.DictItemUpdateDTO;
+import com.zeroone.star.project.dto.j2.basedata.DictItemUpdateDTO;
 import com.zeroone.star.sysmgr.entity.TerConcept;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;

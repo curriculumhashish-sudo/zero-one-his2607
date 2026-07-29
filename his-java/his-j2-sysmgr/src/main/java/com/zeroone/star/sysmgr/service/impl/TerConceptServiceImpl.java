@@ -2,7 +2,7 @@ package com.zeroone.star.sysmgr.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zeroone.star.project.dto.j2.sysmgr.DictItemUpdateDTO;
+import com.zeroone.star.project.dto.j2.basedata.DictItemUpdateDTO;
 import com.zeroone.star.sysmgr.entity.TerConcept;
 import com.zeroone.star.sysmgr.mapper.TerConceptMapper;
 import com.zeroone.star.sysmgr.service.ITerConceptService;

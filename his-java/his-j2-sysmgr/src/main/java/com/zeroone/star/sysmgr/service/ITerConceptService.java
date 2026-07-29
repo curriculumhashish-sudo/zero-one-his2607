@@ -1,7 +1,7 @@
 package com.zeroone.star.sysmgr.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.zeroone.star.project.dto.j2.sysmgr.DictItemUpdateDTO;
+import com.zeroone.star.project.dto.j2.basedata.DictItemUpdateDTO;
 import com.zeroone.star.sysmgr.entity.TerConcept;
 
 /**

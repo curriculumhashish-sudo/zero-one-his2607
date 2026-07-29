@@ -1,6 +1,8 @@
 package com.zeroone.star.sysmgr.service;
 
 import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentAddDTO;
+import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentDTO;
 import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentNameDTO;
 import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentDTO2;
 import com.zeroone.star.project.query.j2.sysmgr.rent2.RentNameQuery;
@@ -30,4 +32,22 @@ public interface IWhaleTenantsService extends IService<WhaleTenants> {
      * @return 租户信息分页数据
      */
     PageDTO<RentDTO2> queryTenantList(RentQuery rentQuery);
+
+    /**
+     * 新增租户
+     * @param addDTO 新增租户DTO
+     */
+    void addRent(RentAddDTO addDTO);
+
+    /**
+     * 修改租户
+     * @param updateDTO 修改租户DTO
+     */
+    void updateRent(RentDTO updateDTO);
+
+    /**
+     * 逻辑删除租户
+     * @param id 租户主键ID
+     */
+    void deleteRent(String id);
 }
