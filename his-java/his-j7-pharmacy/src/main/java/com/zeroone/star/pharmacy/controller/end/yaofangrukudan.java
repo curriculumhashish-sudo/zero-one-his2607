@@ -4,7 +4,6 @@ package com.zeroone.star.pharmacy.controller.end;
 import com.zeroone.star.pharmacy.service.InStockOrderService;
 import com.zeroone.star.project.dto.j7.pharmacy.InStockOrderDTO;
 import com.zeroone.star.project.dto.j7.pharmacy.InboundApprovalDTO;
-import com.zeroone.star.project.j7.PharmacyApis;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j7.pharmacy.InboundApprovalVO;
 import com.zeroone.star.pharmacy.service.IInboundApprovalService;
@@ -23,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/j7/inbound-approval")
 @Tag(name = "G7 入库单审批流转", description = "撤回审批、审批通过、驳回审批")
-public class yaofangrukudan implements PharmacyApis {
+public class yaofangrukudan {
 
     @Resource
     private IInboundApprovalService inboundApprovalService;
@@ -34,7 +33,6 @@ public class yaofangrukudan implements PharmacyApis {
     /**
      * lvv：撤回处于待审批状态的入库单。
      */
-    @Override
     @PostMapping("/withdraw")
     @Operation(summary = "撤回审批", description = "申请人撤回处于待审批状态的入库单")
     public JsonVO<InboundApprovalVO> withdrawApproval(@Valid @RequestBody InboundApprovalDTO dto) {
@@ -48,7 +46,6 @@ public class yaofangrukudan implements PharmacyApis {
     /**
      * lvv：审批通过处于待审批状态的入库单。
      */
-    @Override
     @PostMapping("/approve")
     @Operation(summary = "审批通过", description = "审批人通过处于待审批状态的入库单")
     public JsonVO<InboundApprovalVO> approveApproval(@Valid @RequestBody InboundApprovalDTO dto) {
@@ -62,7 +59,6 @@ public class yaofangrukudan implements PharmacyApis {
     /**
      * lvv：驳回处于待审批状态的入库单。
      */
-    @Override
     @PostMapping("/reject")
     @Operation(summary = "驳回审批", description = "审批人驳回处于待审批状态的入库单，remark 填写驳回原因")
     public JsonVO<InboundApprovalVO> rejectApproval(@Valid @RequestBody InboundApprovalDTO dto) {
@@ -98,5 +94,4 @@ public class yaofangrukudan implements PharmacyApis {
         inStockOrderService.submit(orderId, dto);
         return JsonVO.success("保存并提交审批成功");
     }
-}
 }
