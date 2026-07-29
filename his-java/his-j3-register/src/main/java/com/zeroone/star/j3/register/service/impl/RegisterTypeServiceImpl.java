@@ -1,16 +1,23 @@
 package com.zeroone.star.j3.register.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zeroone.star.j3.register.entity.HealthcareService;
+import com.zeroone.star.j3.register.entity.RegisterType;
 import com.zeroone.star.j3.register.mapper.HealthcareServiceMapper;
+import com.zeroone.star.j3.register.mapper.RegisterTypeMapper;
 import com.zeroone.star.j3.register.service.IRegisterTypeService;
 import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j3.register.RegisterDTO;
 import com.zeroone.star.project.query.j3.register.RegisterQuery;
 import com.zeroone.star.project.vo.j3.register.RegisterNameVO;
 import com.zeroone.star.project.vo.j3.register.RegisterVO;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,6 +33,9 @@ import java.util.stream.Collectors;
  */
 @Service
 public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, RegisterType> implements IRegisterTypeService {
+
+    @Resource
+    private HealthcareServiceMapper healthcareServiceMapper;
 
     /** 挂号费类型编码 */
     private static final String REG_TYPE_CODE = "1012";
@@ -127,6 +137,7 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
         entity.setId(String.valueOf(id));
         entity.setIsDeleted(1);
         return updateById(entity);
+    }
 
     /**
      * 挂号类型在医疗服务表中的类别标记
@@ -136,7 +147,7 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
     @Override
     public List<RegisterNameVO> queryRegisterNames() {
         // 只查启用的挂号类型，仅取 id + name 两列（@TableLogic 自动过滤软删）
-        return list(new LambdaQueryWrapper<HealthcareService>()
+        return healthcareServiceMapper.selectList(new LambdaQueryWrapper<HealthcareService>()
                 .select(HealthcareService::getId, HealthcareService::getName)
                 .eq(HealthcareService::getCategoryCode, CATEGORY_REGISTRATION)
                 .eq(HealthcareService::getActiveFlag, 1)
