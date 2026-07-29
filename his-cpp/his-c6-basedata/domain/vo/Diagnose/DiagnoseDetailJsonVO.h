@@ -18,10 +18,7 @@
 #include "../../GlobalInclude.h"
 #include "../../dto/Diagnose/DiagnoseDetailDTO.h"
 #include OATPP_CODEGEN_BEGIN(DTO)
-/**
- * 诊断详情单条响应VO
- * 接口：/diagnose/detail
- */
+
 class DiagnoseDetailJsonVO : public JsonVO<DiagnoseDetailDTO::Wrapper>
 {
 	DTO_INIT(DiagnoseDetailJsonVO, JsonVO<DiagnoseDetailDTO::Wrapper>);

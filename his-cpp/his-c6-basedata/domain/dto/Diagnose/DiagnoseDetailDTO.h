@@ -24,9 +24,9 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 
-class diagnoseDetailDTO : public oatpp::DTO
+class DiagnoseDetailDTO : public oatpp::DTO
 {
-	DTO_INIT(diagnoseDetailDTO, DTO);
+	DTO_INIT(DiagnoseDetailDTO, DTO);
 
 	API_DTO_FIELD_REQUIRE(Int32, id, ZH_WORDS_GETTER("diagnose.field.id"), true);
 	API_DTO_FIELD_REQUIRE(String, diagnoseCode, ZH_WORDS_GETTER("diagnose.field.code"), true);

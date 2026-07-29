@@ -16,7 +16,7 @@
 #ifndef _DIAGNOSE_CATALOG_VO_H_
 #define _DIAGNOSE_CATALOG_VO_H_
 #include "../../GlobalInclude.h"
-#include "../../dto/diagnose/DiagnoseSelectDTO.h"
+#include "../../dto/Diagnose/DiagnoseSelectDTO.h"
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 

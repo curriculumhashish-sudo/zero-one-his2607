@@ -19,9 +19,9 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 
-class DiagnoseSelectDTO : public oatpp::DTO
+class DSelectDTO : public oatpp::DTO
 {
-	DTO_INIT(DiagnoseSelectDTO, DTO);
+	DTO_INIT(DSelectDTO, DTO);
 	// 主键ID
 	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("diagnose.field.id"), true);
 	// 诊断编码
@@ -76,9 +76,9 @@ public:
 };
 
 
-class DiagnoseSelectPageDTO : public PageDTO<DiagnoseSelectDTO::Wrapper>
+class DiagnoseSelectDTO : public PageDTO<DSelectDTO::Wrapper>
 {
-	DTO_INIT(DiagnoseSelectPageDTO, PageDTO<DiagnoseSelectDTO::Wrapper>);
+	DTO_INIT(DiagnoseSelectDTO, PageDTO<DSelectDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)
