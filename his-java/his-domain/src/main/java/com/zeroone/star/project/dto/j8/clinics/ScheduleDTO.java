@@ -12,6 +12,10 @@ public class ScheduleDTO extends ScheduleAddDTO {
     private Long id;
     @Schema(description = "科室ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private Long clinicId;
+    @Schema(description = "医师", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String doctor;
+    @Schema(description = "号源类型:便民,普通,专家", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String slotType;
     @Schema(description = "状态:草稿 0,已发布 1")
     private Integer scheduleType;
     @Schema(description = "开始日期")

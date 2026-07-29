@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zeroone.star.clinics.mapper.ScheduleMapper">
+
+    <insert id="insertSchedule" parameterType="com.zeroone.star.clinics.entity.Schedule">
+
+        insert into wkf_schedule
+        (id, tenant_id, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at,
+        deleted_by, version, organization_id, name, status_enum, active_flag, planning_horizon_start,
+        planning_horizon_end, service_type_concept_json, healthcare_service_id, service_category_json,
+        specialty_json, comment_markdown, substitute_practitioner_id, substitute_reason,
+        source_schedule_template_id, slot_provision_template_id)
+        values (
+        #{id}, #{tenantId}, #{createdAt}, #{updatedAt}, #{createdBy}, #{updatedBy}, #{isDeleted}, #{deletedAt},
+        #{deletedBy}, #{version}, #{organizationId}, #{name}, #{statusEnum}, #{activeFlag}, #{planningHorizonStart},
+        #{planningHorizonEnd}, #{serviceTypeConceptJson}, #{healthcareServiceId}, #{serviceCategoryJson},
+        #{specialtyJson}, #{commentMarkdown}, #{substitutePractitionerId}, #{substituteReason},
+        #{sourceScheduleTemplateId}, #{slotProvisionTemplateId}
+        );
+    </insert>
+
+</mapper>
