@@ -8,20 +8,20 @@ import com.zeroone.star.project.vo.JsonVO;
 public interface PharmacyStockTakeApis {
 
     /**
-     * 提交审批
+     * 盘点单提交审批
      */
     JsonVO<StocktakeStatusVO> submit(OperatorDTO dto);
 
     /**
-     * 审批状态通过
+     * 盘点单审批状态通过
      */
     JsonVO<StocktakeStatusVO> approve(ApproveDTO dto);
     /**
-     * 驳回审批
+     * 盘点单驳回审批
      */
     JsonVO<StocktakeStatusVO> reject(ApproveDTO dto);
     /**
-     * 撤回审批
+     * 盘点单撤回审批
      */
     JsonVO<StocktakeStatusVO> withdraw(OperatorDTO dto);
 }
