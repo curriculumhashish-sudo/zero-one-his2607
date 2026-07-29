@@ -25,7 +25,7 @@ public class StocktakeListVO {
     @Schema(description = "业务单号", example = "PD20260701001", requiredMode = Schema.RequiredMode.REQUIRED)
     private String busNo;
 
-    @Schema(description = "单据状态：DRAFT-草稿，SUBMITTED-已提交，APPROVED-已审批，REJECTED-已驳回", example = "DRAFT", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "单据状态：DRAFT-草稿，PENDING_APPROVAL-待审批，APPROVED-已审批，REJECTED-已驳回，WITHDRAWN-已撤回", example = "DRAFT", requiredMode = Schema.RequiredMode.REQUIRED)
     private String statusEnum;
 
     @Schema(description = "库房名称", example = "门诊药房")
