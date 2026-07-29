@@ -13,7 +13,13 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * 描述：MP初始化
+ * 描述：MyBatis-Plus 初始化配置类
+ * </p>
+ * <p>
+ * 功能说明：配置 MyBatis-Plus 框架的核心组件：
+ * 1. @MapperScan 扫描 pharmacy 模块下的所有 Mapper 接口
+ * 2. 注入 MetaObjectHandler 自动填充处理器，实现实体类中
+ *    createTime、createBy、updateTime、updateBy 字段的自动填充
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
@@ -22,7 +28,7 @@ import java.time.LocalDateTime;
  */
 @Configuration
 @ComponentScan("com.zeroone.star.project.config.mybatis")
-@MapperScan("com.zeroone.star.j7.pharmacy.mapper")
+@MapperScan("com.zeroone.star.pharmacy.mapper")
 public class MyBatisInit {
     @Resource
     UserHolder userHolder;
@@ -32,7 +38,7 @@ public class MyBatisInit {
         return new MetaObjectHandler() {
             @Override
             public void insertFill(MetaObject metaObject) {
-                this.strictInsertFill(metaObject, "createAt", LocalDateTime.class, LocalDateTime.now());
+                this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
                 try {
                     this.strictInsertFill(metaObject, "createBy", String.class, userHolder.getCurrentUser().getUsername());
                 } catch (Exception e) {
@@ -42,7 +48,7 @@ public class MyBatisInit {
 
             @Override
             public void updateFill(MetaObject metaObject) {
-                this.strictUpdateFill(metaObject, "updateAt", LocalDateTime.class, LocalDateTime.now());
+                this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
                 try {
                     this.strictUpdateFill(metaObject, "updateBy", String.class, userHolder.getCurrentUser().getUsername());
                 } catch (Exception e) {

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+  门诊发药 Mapper XML
+  @author xingfu
+  @since 2026-07-26
+-->
+<mapper namespace="com.zeroone.star.dispense.mapper.AdmPatientMapper">
+
+    <select id="pagePatientQueue" resultType="com.zeroone.star.project.vo.j7.dispense.PatientQueueVO">
+        SELECT
+        p.id AS patientId,
+        p.name AS patientName,
+        p.gender_enum AS genderEnum,
+        TIMESTAMPDIFF(YEAR, p.birth_date, CURDATE()) AS age,
+        r.encounter_id AS encounterBusNo,
+        r.requester_id AS requesterName,
+        COUNT(r.id) AS drugCount,
+        MIN(r.req_authored_time) AS encounterTime
+        FROM med_medication_request r
+        JOIN adm_patient p ON p.id = r.patient_id
+        WHERE r.is_deleted = 0
+        AND r.intent_enum = 'OUTPATIENT'
+        AND r.status_enum = 'PENDING'
+        <if test="query.name != null">
+            AND p.name LIKE CONCAT('%', #{query.name}, '%')
+        </if>
+        <if test="query.pyStr != null">
+            AND p.py_str LIKE CONCAT('%', #{query.pyStr}, '%')
+        </if>
+        <if test="query.locationId != null">
+            AND r.location_id = #{query.locationId}
+        </if>
+        <if test="query.startTime != null and query.endTime != null">
+            AND r.req_authored_time BETWEEN #{query.startTime} AND #{query.endTime}
+        </if>
+        GROUP BY p.id, r.encounter_id
+    </select>
+</mapper>

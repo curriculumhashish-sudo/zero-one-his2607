@@ -47,8 +47,8 @@ public class DispensingController implements DispensingApis {
     @Operation(summary = "获取患者药品明细")
     @GetMapping("query-patient-medications")
     @Override
-    public JsonVO<List<PatientMedicationVO>> queryPatientMedications(@Parameter(description = "汇总单ID", example = "1")@RequestParam Long summaryId) {
-        List<PatientMedicationVO> list = dispensingService.queryPatientMedications(summaryId);
+    public JsonVO<List<PatientMedicationVO>> queryPatientMedications(@Parameter(description = "汇总单号", example = "1")@RequestParam String summaryNo) {
+        List<PatientMedicationVO> list = dispensingService.queryPatientMedications(summaryNo);
         return JsonVO.success(list);
     }
 

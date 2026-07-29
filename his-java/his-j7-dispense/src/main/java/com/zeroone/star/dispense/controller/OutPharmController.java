@@ -11,6 +11,7 @@ import com.zeroone.star.dispense.service.DrugService;
 import com.zeroone.star.dispense.service.PatientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 @RequiredArgsConstructor
 public class OutPharmController implements OutPharmApis {
 
+    @Resource
     private final PatientService patientService;
+    @Resource
     private final DrugService drugService;
 
     @Operation(
