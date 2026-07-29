@@ -20,6 +20,32 @@
 #include "DiagnoseController.h"
 #include "../../service/Diagnose/DiagnoseService.h"
 
+DiagnosisSelectPageJsonVO::Wrapper DiagnoseController::execQuerySelectDiagnosis(
+	const DiagnosisSelectQuery::Wrapper& query,
+	const PayloadDTO& payload)
+{
+	auto response = DiagnosisSelectPageJsonVO::createShared();
+	if (!query || !query->validate().empty())
+	{
+		response->init(nullptr, RS_PARAMS_INVALID);
+		return response;
+	}
+	if (payload.getId().empty())
+	{
+		response->init(nullptr, RS_FORBIDDEN);
+		return response;
+	}
+
+	auto result = DiagnoseService().listSelectableDiagnoses(query, payload);
+	if (!result)
+	{
+		response->init(nullptr, RS_FORBIDDEN);
+		return response;
+	}
+	response->success(result);
+	return response;
+}
+
 // 1. select
 DiagnoseSelectJsonVO::Wrapper DiagnoseController::executeListSelectDiagnose(const DiagnoseSelectQuery::Wrapper& query)
 {

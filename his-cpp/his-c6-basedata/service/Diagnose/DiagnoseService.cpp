@@ -199,8 +199,8 @@
 //
 //	}
 //  
-DiagnoseSelectDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
-	const DiagnoseSelectQuery::Wrapper& query,
+DiagnosisSelectPageDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
+	const DiagnosisSelectQuery::Wrapper& query,
 	const PayloadDTO& payload)
 {
 	// 校验查询参数和 JWT 用户标识。
@@ -218,7 +218,7 @@ DiagnoseSelectDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
 	}
 
 	// 初始化分页结果并统计总数。
-	auto page = DiagnoseSelectDTO::createShared();
+	auto page = DiagnosisSelectPageDTO::createShared();
 	page->pageIndex = query->pageIndex;
 	page->pageSize = query->pageSize;
 	const uint64_t total = dao.countSelectableDiagnoses(query, tenantId);
@@ -234,7 +234,7 @@ DiagnoseSelectDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
 		dao.selectSelectableDiagnosesWithPage(query, tenantId);
 	for (ClnConditionDefinitionDO& record : records)
 	{
-		auto dto = DiagnoseSelectDTO::createShared();
+		auto dto = DiagnosisSelectDTO::createShared();
 		// 使用公共宏转换同义字段。
 		ZO_STAR_DOMAIN_DO_TO_DTO(
 			dto,

@@ -5,15 +5,17 @@
 #include <string>
 #include "../../domain/dto/Diagnose/DiagnoseDTO.h"
 #include "../../domain/dto/Diagnose/DiagnoseSelectDTO.h"
+#include "../../domain/dto/Diagnose/DiagnosisSelectPageDTO.h"
 #include "../../domain/query/Diagnose/DiagnoseSelectQuery.h"
+#include "../../domain/query/Diagnose/DiagnosisSelectQuery.h"
 #include "domain/dto/PayloadDTO.h"
 
 class DiagnoseService
 {
 public:
 	// 查询当前用户可选择的诊疗分页列表。
-	DiagnoseSelectDTO::Wrapper listSelectableDiagnoses(
-		const DiagnoseSelectQuery::Wrapper& query,
+	DiagnosisSelectPageDTO::Wrapper listSelectableDiagnoses(
+		const DiagnosisSelectQuery::Wrapper& query,
 		const PayloadDTO& payload);
 	//新增
 	std::string saveData(const DiagnoseAddDTO::Wrapper& dto);
