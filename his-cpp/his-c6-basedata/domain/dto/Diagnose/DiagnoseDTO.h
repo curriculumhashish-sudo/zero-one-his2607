@@ -59,12 +59,12 @@ public:
 		}
 
 		if (diagType && !diagType->empty()
-			&& *diagType != "1"//western_medicine_diagnosis
-			&& *diagType != "2"//chinese_main_disease_diagnosis
-			&& *diagType != "3"//chinese_main_symptom_diagnosis
+			&& *diagType != "1"//western_medicine_diagnose
+			&& *diagType != "2"//chinese_main_disease_diagnose
+			&& *diagType != "3"//chinese_main_symptom_diagnose
 			)
 		{
-			return "The diagnosis type is invalid";
+			return "The diagnose type is invalid";
 		}
 
 		if (!status->empty() && *status != "ACTIVE" && *status != "STOP")

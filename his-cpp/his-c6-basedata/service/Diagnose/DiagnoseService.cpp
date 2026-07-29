@@ -24,304 +24,122 @@
 #include "../../dao/Diagnose/DiagnoseDAO.h"
 #include "../../domain/DiagnoseConstants.h"
 
-#include "id/UuidFacade.h"
-#include "SimpleDateTimeFormat.h"
-#include "StringUtil.h"
-
-#include <algorithm>
-#include <charconv>
-
+//#include "id/UuidFacade.h"
+//#include "SimpleDateTimeFormat.h"
+//#include "StringUtil.h"
+//
+//#include <algorithm>
 //#include <charconv>
-//static const std::string SOURCE_GENERAL_diagnose = "general_dx";
-//static const std::string SOURCE_CHRONIC_SPECIAL = "chronic_spec";
-//static const std::string SOURCE_DISEASE_PACKAGE = "disease_pkg";
-//static const std::string SOURCE_PAID_diagnose = "paid_dx";
-//static const std::string SOURCE_DAY_SURGERY = "day_surgery_dx";
-//static const std::string SOURCE_TCM_diagnose = "tcm_dx";
-//static const std::string SOURCE_TCM_SYNDROME = "tcm_syndrome";
-//static const std::string SOURCE_TUMOR_MORPHOLOGY = "tumor_morph";
-//static const std::string diagnose_KIND_TCM = "TCM";
-//static const std::string diagnose_KIND_WESTERN = "WESTERN";
-//static const std::string STATUS_ACTIVE = "ACTIVE";
-//static constexpr int STATUS_ACTIVE_SORT_ORDER = 2;
-//
-//static bool tryParseInt32(const std::string& value, int32_t& result)
-//{
-//	if (value.empty())
-//	{
-//		return false;
-//	}
-//	const char* begin = value.data();
-//	const char* end = begin + value.size();
-//	const auto parsed = std::from_chars(begin, end, result);
-//	return parsed.ec == std::errc() && parsed.ptr == end;
-//}
-//
-//static bool isTraditionalChineseMedicineSource(const std::string& sourceEnum)
-//{
-//	return sourceEnum == SOURCE_TCM_diagnose || sourceEnum == SOURCE_TCM_SYNDROME;
-//}
-//
-//static bool isWesternMedicineSource(const std::string& sourceEnum)
-//{
-//	return sourceEnum == SOURCE_GENERAL_diagnose
-//		|| sourceEnum == SOURCE_CHRONIC_SPECIAL
-//		|| sourceEnum == SOURCE_DISEASE_PACKAGE
-//		|| sourceEnum == SOURCE_PAID_diagnose
-//		|| sourceEnum == SOURCE_DAY_SURGERY
-//		|| sourceEnum == SOURCE_TUMOR_MORPHOLOGY;
-//}
-//
-//static std::string getSourceEnumText(const std::string& sourceEnum)
-//{
-//	if (!isWesternMedicineSource(sourceEnum) &&
-//		!isTraditionalChineseMedicineSource(sourceEnum))
-//	{
-//		return "";
-//	}
-//	return ZH_WORDS_GETTER("diagnose.source." + sourceEnum);
-//}
-//
-//DiagnoseSelectPageDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
-//	const DiagnoseSelectQuery::Wrapper& query)
-//{
-//	auto page = DiagnoseSelectPageDTO::createShared();
-//	page->pageIndex = query->pageIndex;
-//	page->pageSize = query->pageSize;
-//
-//	DiagnoseDAO dao;
-//	const uint64_t total = dao.count(query);
-////DiagnoseSelectPageDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
-////	const DiagnoseSelectQuery::Wrapper& query)
-////{
-////	auto page = DiagnoseSelectPageDTO::createShared();
-////	page->pageIndex = query->pageIndex;
-////	page->pageSize = query->pageSize;
-////
-////	DiagnoseDAO dao;
-////	const uint64_t total = dao.count(query);
-//	//DiagnoseSelectPageDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
-//	//	const DiagnoseSelectQuery::Wrapper & query,
-//	//	const PayloadDTO & payload)
-//	//{
-//	//	if (!query || !query->validate().empty() || payload.getId().empty())
-//	//	{
-//	//		return nullptr;
-//	//	}
-//
-//	//	DiagnoseDAO dao;
-//	//	const std::string tenantId = dao.selectCurrentTenantId(payload.getId());
-//	//	if (tenantId.empty())
-//	//	{
-//	//		return nullptr;
-//	//	}
-//
-//	//	auto page = DiagnoseSelectPageDTO::createShared();
-//	//	page->pageIndex = query->pageIndex;
-//	//	page->pageSize = query->pageSize;
-//
-//	//	const uint64_t total = dao.count(query, tenantId);
-//	//	page->total = static_cast<int64_t>(total);
-//	//	page->calcPages();
-//	//	if (total == 0)
-//	//	{
-//	//		return page;
-//	//	}
-//
-//		std::list<ClnConditionDefinitionDO> records = dao.selectWithPage(query, tenantId);
-//		for (ClnConditionDefinitionDO& record : records)
-//		{
-//			auto dto = DiagnoseSelectDTO::createShared();
-//			dto->conditionDefinitionId = record.getId();
-//			dto->conditionCode = record.getConditionCode();
-//			dto->conditionDefinitionName = record.getName();
-//			dto->pyStr = record.getPyStr();
-//			dto->wbStr = record.getWbStr();
-//			auto dto = DiagnoseSelectDTO::createShared();
-//			ZO_STAR_DOMAIN_DO_TO_DTO(
-//				dto,
-//				record,
-//				conditionDefinitionId, Id,
-//				conditionCode, ConditionCode,
-//				conditionDefinitionName, Name,
-//				pyStr, PyStr,
-//				wbStr, WbStr);
-//
-//			const std::string sourceEnum = record.getSourceEnum();
-//			const bool isTcm = isTraditionalChineseMedicineSource(sourceEnum);
-//			if (isTcm)
-//			{
-//				dto->diagnoseKind = "TCM";
-//				dto->diagnoseKindText = ZH_WORDS_GETTER("diagnose.type.tcm");
-//			}
-//			else if (isWesternMedicineSource(sourceEnum))
-//			{
-//				dto->diagnoseKind = "WESTERN";
-//				dto->diagnoseKindText = ZH_WORDS_GETTER("diagnose.type.western");
-//	//=======
-//				dto->diagnoseKind = diagnose_KIND_TCM;
-//				dto->diagnoseKindText = ZH_WORDS_GETTER("diagnose.type.tcm");
-//			}
-//			else if (isWesternMedicineSource(sourceEnum))
-//			{
-//				dto->diagnoseKind = DIAGNOSIS_KIND_WESTERN;
-//				dto->diagnoseKindText = ZH_WORDS_GETTER("diagnose.type.western");
-//			}
-//			else
-//			{
-//				dto->diagnoseKind = nullptr;
-//				dto->diagnoseKindText = nullptr;
-//			}
-//
-//			int32_t sourceEnumValue = 0;
-//			dto->sourceEnum = tryParseInt32(sourceEnum, sourceEnumValue)
-//				? oatpp::Int32(sourceEnumValue)
-//				: oatpp::Int32(nullptr);
-//			const std::string sourceEnumText = getSourceEnumText(sourceEnum);
-//			dto->sourceEnumText = sourceEnumText.empty()
-//				? oatpp::String(nullptr)
-//				: oatpp::String(sourceEnumText.c_str());
-//
-//			const int ybFlag = record.getYbFlag() == 1 ? 1 : 0;
-//			dto->ybFlag = ybFlag;
-//			dto->ybFlagText = ybFlag == 1
-//				? ZH_WORDS_GETTER("diagnose.flag.yes")
-//				: ZH_WORDS_GETTER("diagnose.flag.no");
-//			dto->statusEnum = record.getStatusEnum() == STATUS_ACTIVE
-//				? oatpp::Int32(STATUS_ACTIVE_SORT_ORDER)
-//				: oatpp::Int32(nullptr);
-//			page->addData(dto);
-//		}
-//		
-//		
-//		return page;
-//
-//
-//	}
-//  
-DiagnoseSelectDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
-	const DiagnoseSelectQuery::Wrapper& query,
-	const PayloadDTO& payload)
+
+// 1. 弹窗选择分页
+DiagnoseSelectDTO::Wrapper DiagnoseService::listDiagnoseSelect(const DiagnoseSelectQuery::Wrapper& query)
 {
-	// 校验查询参数和 JWT 用户标识。
-	if (!query || !query->validate().empty() || payload.getId().empty())
-	{
-		return nullptr;
-	}
-
-	DiagnoseDAO dao;
-	// 解析当前用户所属的有效租户。
-	const std::string tenantId = dao.selectCurrentTenantId(payload.getId());
-	if (tenantId.empty())
-	{
-		return nullptr;
-	}
-
-	// 初始化分页结果并统计总数。
+	// 定义分页对象
 	auto page = DiagnoseSelectDTO::createShared();
 	page->pageIndex = query->pageIndex;
 	page->pageSize = query->pageSize;
-	const uint64_t total = dao.countSelectableDiagnoses(query, tenantId);
-	page->total = static_cast<int64_t>(total);
-	page->calcPages();
-	if (total == 0)
-	{
+
+	// 获取数据总条数
+	DiagnoseDAO dao;
+	auto count = dao.count(query);
+	if (count <= 0)
 		return page;
-	}
+	page->total = count;
+	page->calcPages();
 
-	// 分页读取诊疗定义 DO。
-	std::list<ClnConditionDefinitionDO> records =
-		dao.selectSelectableDiagnosesWithPage(query, tenantId);
-	for (ClnConditionDefinitionDO& record : records)
+	// 获取分页数据
+	auto list = dao.selectAll(query);
+	for (auto one : list)
 	{
-		auto dto = DiagnoseSelectDTO::createShared();
-		// 使用公共宏转换同义字段。
-		ZO_STAR_DOMAIN_DO_TO_DTO(
-			dto,
-			record,
-			conditionDefinitionId, Id,
-			conditionCode, ConditionCode,
-			conditionDefinitionName, Name,
-			pyStr, PyStr,
-			wbStr, WbStr);
-
-		std::string sourceEnum = record.getSourceEnum();
-		StringUtil::trim(&sourceEnum);
-		dto->sourceEnum = nullptr;
-		int sourceValue = 0;
-		// 参考项目对数字来源枚举进行安全解析。
-		const auto parseResult = std::from_chars(
-			sourceEnum.data(),
-			sourceEnum.data() + sourceEnum.size(),
-			sourceValue);
-		if (parseResult.ec == std::errc() &&
-			parseResult.ptr == sourceEnum.data() + sourceEnum.size())
-		{
-			dto->sourceEnum = sourceValue;
-		}
-
-		// 根据来源编码区分中医和西医。
-		const bool isTraditionalChineseMedicineSource =
-			std::find(
-				DiagnoseConstants::TCM_SOURCE_CODES.begin(),
-				DiagnoseConstants::TCM_SOURCE_CODES.end(),
-				sourceEnum) != DiagnoseConstants::TCM_SOURCE_CODES.end();
-		const bool isWesternMedicineSource =
-			std::find(
-				DiagnoseConstants::WESTERN_SOURCE_CODES.begin(),
-				DiagnoseConstants::WESTERN_SOURCE_CODES.end(),
-				sourceEnum) != DiagnoseConstants::WESTERN_SOURCE_CODES.end();
-
-		if (isTraditionalChineseMedicineSource)
-		{
-			dto->diagnosisKind = DiagnoseConstants::KIND_TCM;
-			dto->diagnosisKindText = ZH_WORDS_GETTER("diagnose.type.tcm");
-		}
-		else if (isWesternMedicineSource)
-		{
-			dto->diagnosisKind = DiagnoseConstants::KIND_WESTERN;
-			dto->diagnosisKindText = ZH_WORDS_GETTER("diagnose.type.western");
-		}
-		else
-		{
-			dto->diagnosisKind = nullptr;
-			dto->diagnosisKindText = nullptr;
-		}
-
-		// 从 UTF-8 中文词典读取来源名称。
-		const std::string sourceEnumText =
-			isTraditionalChineseMedicineSource || isWesternMedicineSource
-			? ZH_WORDS_GETTER("diagnose.source." + sourceEnum)
-			: "";
-		dto->sourceEnumText = sourceEnumText.empty()
-			? oatpp::String(nullptr)
-			: oatpp::String(sourceEnumText.c_str());
-
-		// 转换医保标记和启用状态。
-		const int ybFlag = record.getYbFlag() == 1 ? 1 : 0;
-		dto->ybFlag = ybFlag;
-		dto->ybFlagText = ybFlag == 1
-			? ZH_WORDS_GETTER("diagnose.flag.yes")
-			: ZH_WORDS_GETTER("diagnose.flag.no");
-		dto->statusEnum =
-			record.getStatusEnum() == DiagnoseConstants::STATUS_ACTIVE
-			? oatpp::Int32(DiagnoseConstants::STATUS_ACTIVE_SORT_ORDER)
-			: oatpp::Int32(nullptr);
-		page->addData(dto);
+		/*auto dto = DiagnoseSelectDTO::createShared();*/
+		diagnoseDO data;
+		
+		ZO_STAR_DOMAIN_DTO_TO_DO(
+			dto, one,
+			id, id,
+			chronicCode, conditionCode,
+			name, name,
+			diagType, typeCode,
+			medicalInsuranceCode, ybNo,
+			status, statusEnum,
+			remark, description
+		);
+		page->addData(data);
 	}
 	return page;
 }
 
+DiagnosePageDTO::Wrapper DiagnoseService::listDiagnosePage(const DiagnosePageQuery::Wrapper& query)
+{
+	// 定义分页对象
+	auto page = DiagnosePageDTO::createShared();
+	page->pageIndex = query->pageIndex;
+	page->pageSize = query->pageSize;
 
+	// 获取数据总条数
+	DiagnoseDAO dao;
+	auto count = dao.count(query);
+	if (count <= 0)
+		return page;
+	page->total = count;
+	page->calcPages();
+
+	// 获取分页数据
+	auto list = dao.selectAll(query);
+	
+	for (auto one : list)
+	{
+		/*auto dto = DiagnosePageDTO::createShared();*/
+		diagnoseDO data;
+		ZO_STAR_DOMAIN_DTO_TO_DO(
+			data,dto, 
+			id, id,
+			chronicCode, diseaseCode,
+			name, name,
+			diagType, typeCode,
+			medicalInsuranceCode, ybNo,
+			status, statusEnum,
+			remark, description,
+			
+		);
+		page->addData(data);
+	}
+	return page;
+}
+
+// 根据ID查询详情 
+DiagnoseDetailDTO::Wrapper DiagnoseService::getDiagnoseDetail(const oatpp::String& id)
+{
+	// 获取单条主数据
+	/*DiagnoseDAO dao;
+	auto data = dao.selectById(id.getValue(""));
+	if (!data)
+		return nullptr;
+
+	auto dto = DiagnoseDetailDTO::createShared();*/
+	diagnoseDO data;
+	ZO_STAR_DOMAIN_DTO_TO_DO(
+		data, dto,
+		id, id,
+		chronicCode, diseaseCode,
+		name, name,
+		diagType, typeCode,
+		medicalInsuranceCode, ybNo,
+		status, statusEnum,
+		remark, description,
+		
+	);
+	return data;
+}
 //std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
 //{
-//	DiagnosisDO data;
+//	diagnoseDO data;
 //	ZO_STAR_DOMAIN_DTO_TO_DO(
 //		data,
 //		dto,
-//		DiagnosisName, name,
-//		DiagnosisType, diagType,
-//		DiagnosisCode, chronicCode,
+//		diagnoseName, name,
+//		diagnoseType, diagType,
+//		diagnoseCode, chronicCode,
 //		MedicalInsuranceCode, medicalInsuranceCode,
 //		Status, status,
 //		IsDelete, isDelete
@@ -346,19 +164,19 @@ DiagnoseSelectDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
 //	//data.setIsDelete(0);
 //	data.setVersion(1);
 //
-//	DiagnosisDAO dao;
+//	diagnoseDAO dao;
 //	return dao.insert(data) == 1 ? data.getId() : "";
 //}
 //
 //bool DiagnoseService::updateData(const DiagnoseDTO::Wrapper& dto)
 //{
-//	DiagnosisDO data;
+//	diagnoseDO data;
 //	ZO_STAR_DOMAIN_DTO_TO_DO(
 //		data,
 //		dto,
-//		DiagnosisName, name,
-//		DiagnosisType, diagType,
-//		DiagnosisCode, chronicCode,
+//		diagnoseName, name,
+//		diagnoseType, diagType,
+//		diagnoseCode, chronicCode,
 //		MedicalInsuranceCode, medicalInsuranceCode,
 //		Status, status,
 //		TenantId, tenantId,
@@ -379,18 +197,18 @@ DiagnoseSelectDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
 //	data.setUpdateBy(dto->getPayload()->getUsername());
 //	data.setUpdateTime(SimpleDateTimeFormat::format());
 //	data.setVersion(*(dto->version)+1);
-//	DiagnosisDAO dao;
+//	diagnoseDAO dao;
 //	return dao.update(data) == 1;
 //}
 //
 ////删除一条数据（前端有）
 //bool DiagnoseService::removeOne(const std::string& id)
 //{
-//	DiagnosisDO data;
+//	diagnoseDO data;
 //	data.setIsDelete(1);
 //	data.setUpdateTime(SimpleDateTimeFormat::format());
 //
-//	DiagnosisDAO dao;
+//	diagnoseDAO dao;
 //	return dao.update(data) == 1;
 //}
 ////物理批量删除
@@ -402,18 +220,18 @@ DiagnoseSelectDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
 //		dataIds.emplace_back(id.getValue({}));
 //	}
 //
-//	DiagnosisDAO dao;
-//	return dao.deleteByIds<DiagnosisDO>(dataIds) == ids->size();
+//	diagnoseDAO dao;
+//	return dao.deleteByIds<diagnoseDO>(dataIds) == ids->size();
 //}
 //
 //bool DiagnoseService::batchChangeStatus(const DiagnoseBatchStatusDTO::Wrapper& dto,oatpp::String status)
 //{
 //	const oatpp::List<DiagnoseBatchDTO::Wrapper> ids = dto->ids;
-//	DiagnosisDAO dao;
+//	diagnoseDAO dao;
 //	int successCount = 0;
 //	for (const auto& idItem : *ids.get())
 //	{
-//		DiagnosisDO data;
+//		diagnoseDO data;
 //		data.setId(idItem->id);
 //		data.setStatus(*status);
 //		data.setUpdateBy(dto->getPayload()->getUsername());
@@ -430,11 +248,11 @@ DiagnoseSelectDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
 //bool DiagnoseService::execRemoveData(const DiagnoseRemoveDTO::Wrapper& dto)
 //{
 //	const oatpp::List<oatpp::String> ids = dto->ids;
-//	DiagnosisDAO dao;
+//	diagnoseDAO dao;
 //	int successCount = 0;
 //	for (const auto& idItem : *ids.get())//返回原生的vector并枚举遍历，get获取裸指针
 //	{
-//		DiagnosisDO data;
+//		diagnoseDO data;
 //		data.setId(idItem.getValue({}));
 //		data.setDeletedBy(dto->getPayload()->getUsername());
 //		data.setDeletedTime(SimpleDateTimeFormat::format());
@@ -450,13 +268,13 @@ DiagnoseSelectDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
 
 std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
 {
-	DiagnosisDO data;
+	diagnoseDO data;
 	ZO_STAR_DOMAIN_DTO_TO_DO(
 		data,
 		dto,
-		DiagnosisName, name,
-		DiagnosisType, diagType,
-		DiagnosisCode, chronicCode,
+		diagnoseName, name,
+		diagnoseType, diagType,
+		diagnoseCode, chronicCode,
 		MedicalInsuranceCode, medicalInsuranceCode,
 		Status, status,
 		IsDelete, isDelete
@@ -481,19 +299,19 @@ std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
 	//data.setIsDelete(0);
 	data.setVersion(1);
 
-	DiagnosisDAO dao;
+	DiagnoseDAO dao;
 	return dao.insert(data) == 1 ? data.getId() : "";
 }
 
 bool DiagnoseService::updateData(const DiagnoseDTO::Wrapper& dto)
 {
-	DiagnosisDO data;
+	diagnoseDO data;
 	ZO_STAR_DOMAIN_DTO_TO_DO(
 		data,
 		dto,
-		DiagnosisName, name,
-		DiagnosisType, diagType,
-		DiagnosisCode, chronicCode,
+		diagnoseName, name,
+		diagnoseType, diagType,
+		diagnoseCode, chronicCode,
 		MedicalInsuranceCode, medicalInsuranceCode,
 		Status, status,
 		TenantId, tenantId,
@@ -514,18 +332,18 @@ bool DiagnoseService::updateData(const DiagnoseDTO::Wrapper& dto)
 	data.setUpdateBy(dto->getPayload()->getUsername());
 	data.setUpdateTime(SimpleDateTimeFormat::format());
 	data.setVersion(*(dto->version)+1);
-	DiagnosisDAO dao;
+	DiagnoseDAO dao;
 	return dao.update(data) == 1;
 }
 
 //删除一条数据（前端有）
 bool DiagnoseService::removeOne(const std::string& id)
 {
-	DiagnosisDO data;
+	diagnoseDO data;
 	data.setIsDelete(1);
 	data.setUpdateTime(SimpleDateTimeFormat::format());
 
-	DiagnosisDAO dao;
+	DiagnoseDAO dao;
 	return dao.update(data) == 1;
 }
 //物理批量删除
@@ -537,18 +355,18 @@ bool DiagnoseService::RemoveData(const oatpp::List<oatpp::String>& ids)
 		dataIds.emplace_back(id.getValue({}));
 	}
 
-	DiagnosisDAO dao;
-	return dao.deleteByIds<DiagnosisDO>(dataIds) == ids->size();
+	DiagnoseDAO dao;
+	return dao.deleteByIds<DiagnoseDO>(dataIds) == ids->size();
 }
 
 //逻辑批量删除(不记录删除人)
 bool DiagnoseService::removeData(const oatpp::List<oatpp::String>& ids)
 {
-	DiagnosisDAO dao;
+	DiagnoseDAO dao;
 	int successCount = 0;
 	for (const auto& idItem : *ids.get())//返回原生的vector并枚举遍历，get获取裸指针
 	{
-		DiagnosisDO data;
+		diagnoseDO data;
 		data.setId(idItem.getValue({}));
 		data.setDeletedTime(SimpleDateTimeFormat::format());
 		data.setIsDelete(1);
@@ -564,11 +382,11 @@ bool DiagnoseService::removeData(const oatpp::List<oatpp::String>& ids)
 bool DiagnoseService::batchChangeStatus(const DiagnoseBatchStatusDTO::Wrapper& dto,oatpp::String status)
 {
 	const oatpp::List<DiagnoseBatchDTO::Wrapper> ids = dto->ids;
-	DiagnosisDAO dao;
+	DiagnoseDAO dao;
 	int successCount = 0;
 	for (const auto& idItem : *ids.get())
 	{
-		DiagnosisDO data;
+		diagnoseDO data;
 		data.setId(idItem->id);
 		data.setStatus(*status);
 		data.setUpdateBy(dto->getPayload()->getUsername());
@@ -585,11 +403,11 @@ bool DiagnoseService::batchChangeStatus(const DiagnoseBatchStatusDTO::Wrapper& d
 bool DiagnoseService::execRemoveData(const DiagnoseRemoveDTO::Wrapper& dto)
 {
 	const oatpp::List<oatpp::String> ids = dto->ids;
-	DiagnosisDAO dao;
+	DiagnoseDAO dao;
 	int successCount = 0;
 	for (const auto& idItem : *ids.get())//返回原生的vector并枚举遍历，get获取裸指针
 	{
-		DiagnosisDO data;
+		diagnoseDO data;
 		data.setId(idItem.getValue({}));
 		data.setDeletedBy(dto->getPayload()->getUsername());
 		data.setDeletedTime(SimpleDateTimeFormat::format());

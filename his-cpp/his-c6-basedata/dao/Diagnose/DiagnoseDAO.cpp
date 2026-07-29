@@ -23,7 +23,7 @@
 //#include "StringUtil.h"
 
 
-//std::string DiagnoseDAO::buildSelectableDiagnosisCondition(
+//std::string DiagnoseDAO::buildSelectablediagnoseCondition(
 //	const DiagnoseSelectQuery::Wrapper& query,
 //	const std::string& tenantId,
 //	SqlParams& params)
@@ -77,16 +77,16 @@
 //		}
 //	}
 //
-//	std::string diagnosisKindCode = query->diagnosisKindCode.getValue("");
-//	StringUtil::trim(&diagnosisKindCode);
+//	std::string diagnoseKindCode = query->diagnoseKindCode.getValue("");
+//	StringUtil::trim(&diagnoseKindCode);
 //	// 根据诊疗类型限制可选来源。
-//	if (diagnosisKindCode == DiagnoseConstants::KIND_FILTER_WESTERN)
+//	if (diagnoseKindCode == DiagnoseConstants::KIND_FILTER_WESTERN)
 //	{
 //		appendSourceFilter(
 //			DiagnoseConstants::WESTERN_SOURCE_CODES.data(),
 //			DiagnoseConstants::WESTERN_SOURCE_CODES.size());
 //	}
-//	else if (diagnosisKindCode == DiagnoseConstants::KIND_FILTER_TCM)
+//	else if (diagnoseKindCode == DiagnoseConstants::KIND_FILTER_TCM)
 //	{
 //		appendSourceFilter(
 //			DiagnoseConstants::TCM_SOURCE_CODES.data(),
@@ -140,7 +140,7 @@
 //	// 统计查询与分页查询复用完全相同的条件。
 //	SqlParams params;
 //	std::string sql = "SELECT COUNT(*) FROM `cln_condition_definition` d";
-//	sql += buildSelectableDiagnosisCondition(query, tenantId, params);
+//	sql += buildSelectablediagnoseCondition(query, tenantId, params);
 //	return sqlSession->executeQueryNumerical(sql, params);
 //}
 //
@@ -154,7 +154,7 @@
 //		"SELECT d.`id`,d.`condition_code`,d.`name`,d.`py_str`,d.`wb_str`,"
 //		"d.`source_enum`,COALESCE(d.`yb_flag`,0),d.`status_enum` "
 //		"FROM `cln_condition_definition` d";
-//	sql += buildSelectableDiagnosisCondition(query, tenantId, params);
+//	sql += buildSelectablediagnoseCondition(query, tenantId, params);
 //	sql += " ORDER BY d.`updated_at` DESC,d.`id` DESC";
 //
 //	const uint64_t pageIndex = query->pageIndex.getValue(1);

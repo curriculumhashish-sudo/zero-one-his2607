@@ -17,8 +17,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _DIAGNOSISCONTROLLER_H_
-#define _DIAGNOSISCONTROLLER_H_
+#ifndef _diagnoseCONTROLLER_H_
+#define _diagnoseCONTROLLER_H_
 #include "domain/GlobalInclude.h"
 
 // Query
@@ -77,8 +77,8 @@ public:
 	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/diagnose", modifyDiagnose, BODY_DTO(DiagnoseDTO::Wrapper, dto), execModifyDiagnose(dto, authObject->getPayload()));
 
 	//逻辑批量删，带鉴权
-	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.delete.summarylogicAuth"),removeDiagnosis,DiagnoseRemoveJsonVO::Wrapper,API_TAG);
-	API_HANDLER_ENDPOINT_AUTH(API_M_DEL,"/diagnosis",removeDiagnosis,BODY_DTO(DiagnoseRemoveDTO::Wrapper, dto),execRemoveDiagnosis(dto, authObject->getPayload()));
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.delete.summarylogicAuth"),removediagnose,DiagnoseRemoveJsonVO::Wrapper,API_TAG);
+	API_HANDLER_ENDPOINT_AUTH(API_M_DEL,"/diagnose",removediagnose,BODY_DTO(DiagnoseRemoveDTO::Wrapper, dto),execRemovediagnose(dto, authObject->getPayload()));
 
 	//物理批量删除（真实删除）
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.delete.summary1"),RemoveDiagnose,ListJsonVO<String>::Wrapper,API_TAG);
@@ -108,7 +108,7 @@ private:
 	ListJsonVO<String>::Wrapper execRemoveDiagnose(const List<String>& ids);
 	StringJsonVO::Wrapper execBatchChangeDiagnoseStatus(const DiagnoseBatchStatusDTO::Wrapper& dto, const PayloadDTO& payload);
 	//逻辑删除带鉴权
-	DiagnoseRemoveJsonVO::Wrapper execRemoveDiagnosis(const DiagnoseRemoveDTO::Wrapper& dto, const PayloadDTO& payload);
+	DiagnoseRemoveJsonVO::Wrapper execRemovediagnose(const DiagnoseRemoveDTO::Wrapper& dto, const PayloadDTO& payload);
 	//逻辑删除不带鉴权
 	ListJsonVO<String>::Wrapper execremoveDiagnose(const List<String>& ids);
 };

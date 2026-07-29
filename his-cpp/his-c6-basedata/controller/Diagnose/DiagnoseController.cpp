@@ -25,9 +25,9 @@ DiagnoseSelectJsonVO::Wrapper DiagnoseController::executeListSelectDiagnose(cons
 {
 	DiagnoseService ds;
 	auto vo = DiagnoseSelectJsonVO::createShared();
-	auto pageData = ds.listDiagnoseSelect(query);
-	if (pageData)
-		vo->success(pageData);
+	auto data = ds.listDiagnoseSelect(query);
+	if (data)
+		vo->success(data);
 	else
 		vo->fail({});
 	return vo;
@@ -165,7 +165,7 @@ StringJsonVO::Wrapper DiagnoseController::execBatchChangeDiagnoseStatus(const Di
 	return response;
 }
 //逻辑删除（记录修改人）
-DiagnoseRemoveJsonVO::Wrapper DiagnoseController::execRemoveDiagnosis(const DiagnoseRemoveDTO::Wrapper& dto, const PayloadDTO& payload)
+DiagnoseRemoveJsonVO::Wrapper DiagnoseController::execRemovediagnose(const DiagnoseRemoveDTO::Wrapper& dto, const PayloadDTO& payload)
 {
 	auto response = DiagnoseRemoveJsonVO::createShared();
 	if (!dto->ids)

@@ -30,7 +30,7 @@ class DiagnoseDAO : public BaseDAO
 {
 private:
 	//// 构造统计和分页查询共用的筛选条件。
-	//std::string buildSelectableDiagnosisCondition(
+	//std::string buildSelectablediagnoseCondition(
 	//	const DiagnoseSelectQuery::Wrapper& query,
 	//	const std::string& tenantId,
 	//	SqlParams& params);
@@ -56,4 +56,4 @@ public:
 };
 
 
-#endif // !_DIAGNOSIS_DAO_H_
+#endif // !_diagnose_DAO_H_

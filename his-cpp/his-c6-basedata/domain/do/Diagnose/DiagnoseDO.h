@@ -13,22 +13,22 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _DIAGNOSIS_DO_
-#define _DIAGNOSIS_DO_
+#ifndef _diagnose_DO_
+#define _diagnose_DO_
 #include "../DoInclude.h"
 /**
- * 诊断数据库实体DO，对应数据表 t_diagnosis
+ * 诊断数据库实体DO，对应数据表 t_diagnose
  */
-class DiagnosisDO : public BaseDO
+class diagnoseDO : public BaseDO
 {
 	// 主键ID
 	MYSQL_SYNTHESIZE(string, id, Id);//主键id
 	// 诊断编码
-	MYSQL_SYNTHESIZE(string, diagnosisCode, DiagnosisCode);//诊断编码/特慢病编码 disease_code
+	MYSQL_SYNTHESIZE(string, diagnoseCode, diagnoseCode);//诊断编码/特慢病编码 disease_code
 	// 诊断名称
-	MYSQL_SYNTHESIZE(string, diagnosisName, DiagnosisName);//诊断名称 name
+	MYSQL_SYNTHESIZE(string, diagnoseName, diagnoseName);//诊断名称 name
 	// 诊断分类
-	MYSQL_SYNTHESIZE(string, diagnosisType, DiagnosisType);//诊断类型码 type_code:1,2,3,对应西医诊断，中医主证诊断，中医主治诊断三个
+	MYSQL_SYNTHESIZE(string, diagnoseType, diagnoseType);//诊断类型码 type_code:1,2,3,对应西医诊断，中医主证诊断，中医主治诊断三个
 	// 启用状态 0-停用 1-启用
 	MYSQL_SYNTHESIZE(string, status, Status);//状态 status_enum
 	// 备注
@@ -66,16 +66,16 @@ class DiagnosisDO : public BaseDO
 	//来源枚举值
 	MYSQL_SYNTHESIZE(string, source_enum, Source_enum);//source_enum
 public:
-	DiagnosisDO() : BaseDO("cln_condition_definition")
+	diagnoseDO() : BaseDO("cln_condition_definition")
 	{
 		// 主键ID
 		MYSQL_ADD_FIELD_PK("id", "s", id);
 		// 诊断编码 disease_code
-		MYSQL_ADD_FIELD("disease_code", "s", diagnosisCode);
+		MYSQL_ADD_FIELD("disease_code", "s", diagnoseCode);
 		// 诊断名称 name
-		MYSQL_ADD_FIELD("name", "s", diagnosisName);
+		MYSQL_ADD_FIELD("name", "s", diagnoseName);
 		// 诊断分类 type_code
-		MYSQL_ADD_FIELD("type_code", "s", diagnosisType);
+		MYSQL_ADD_FIELD("type_code", "s", diagnoseType);
 		// 启用状态 status_enum
 		MYSQL_ADD_FIELD("status_enum", "s", status);
 		// 备注 description
@@ -116,18 +116,18 @@ public:
 
 	}
 };
-typedef std::shared_ptr<DiagnosisDO> PtrDiagnosisDO;
+typedef std::shared_ptr<diagnoseDO> PtrdiagnoseDO;
 
 class DiagnoseDO : public BaseDO
 {
 	// 主键ID
 	MYSQL_SYNTHESIZE(string, id, Id);//主键id
 	// 诊断编码
-	MYSQL_SYNTHESIZE(string, diagnosisCode, DiagnosisCode);//诊断编码/特慢病编码 disease_code
+	MYSQL_SYNTHESIZE(string, diagnoseCode, diagnoseCode);//诊断编码/特慢病编码 disease_code
 	// 诊断名称
-	MYSQL_SYNTHESIZE(string, diagnosisName, DiagnosisName);//诊断名称 name
+	MYSQL_SYNTHESIZE(string, diagnoseName, diagnoseName);//诊断名称 name
 	// 诊断分类
-	MYSQL_SYNTHESIZE(string, diagnosisType, DiagnosisType);//诊断类型码 type_code:1,2,3,对应西医诊断，中医主证诊断，中医主治诊断三个
+	MYSQL_SYNTHESIZE(string, diagnoseType, diagnoseType);//诊断类型码 type_code:1,2,3,对应西医诊断，中医主证诊断，中医主治诊断三个
 	// 启用状态 0-停用 1-启用
 	MYSQL_SYNTHESIZE(string, status, Status);//状态 status_enum
 	// 备注
@@ -170,11 +170,11 @@ public:
 		// 主键ID
 		MYSQL_ADD_FIELD_PK("id", "s", id);
 		// 诊断编码 disease_code
-		MYSQL_ADD_FIELD("disease_code", "s", diagnosisCode);
+		MYSQL_ADD_FIELD("disease_code", "s", diagnoseCode);
 		// 诊断名称 name
-		MYSQL_ADD_FIELD("name", "s", diagnosisName);
+		MYSQL_ADD_FIELD("name", "s", diagnoseName);
 		// 诊断分类 type_code
-		MYSQL_ADD_FIELD("type_code", "s", diagnosisType);
+		MYSQL_ADD_FIELD("type_code", "s", diagnoseType);
 		// 启用状态 status_enum
 		MYSQL_ADD_FIELD("status_enum", "s", status);
 		// 备注 description
@@ -218,4 +218,4 @@ public:
 typedef std::shared_ptr<DiagnoseDO> PtrDiagnoseDO;
 
 
-#endif // !_DIAGNOSIS_DO_
+#endif // !_diagnose_DO_

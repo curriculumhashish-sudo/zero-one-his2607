@@ -66,7 +66,7 @@ public:
 		}
 		if (isMain && *isMain != 0 && *isMain != 1)
 		{
-			return "The main diagnosis flag only allows 0 or 1";
+			return "The main diagnose flag only allows 0 or 1";
 		}
 		if (saveToCommon && *saveToCommon != 0 && *saveToCommon != 1)
 		{
