@@ -284,7 +284,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         String userId = user.getId();
 
         String defaultDeptId = "";
-        if(userAddDTO.getDefaultOrgId() != null) {
+        if(StringUtils.hasText(userAddDTO.getDefaultOrgId())) {
             defaultDeptId=userAddDTO.getDefaultOrgId();
         }else {
             String currentUserId = getCurrentUserId();
@@ -306,7 +306,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         practitioner.setAddressStreet(userAddDTO.getAddress());
         practitioner.setYbNo(userAddDTO.getYbNo());
         practitioner.setSignature(userAddDTO.getSignature());
-        practitioner.setDrProfttlCode(userAddDTO.getDrProfttlCode() != null ? Integer.valueOf(userAddDTO.getDrProfttlCode()) : null);
+        practitioner.setDrProfttlCode(StringUtils.hasText(userAddDTO.getDrProfttlCode()) ? Integer.valueOf(userAddDTO.getDrProfttlCode()) : null);
         practitioner.setPharPracCertNo(userAddDTO.getPharPracCertNo());
         practitioner.setOrgId(defaultDeptId);
         practitionerMapper.insert(practitioner);
@@ -567,7 +567,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
         // 处理默认科室
         String defaultDeptId = "";
-        if (dto.getDefaultOrgId() != null) {
+        if (StringUtils.hasText(dto.getDefaultOrgId())) {
             defaultDeptId = dto.getDefaultOrgId();
         } else {
             Practitioner currentPractitioner = practitionerMapper.selectOne(
@@ -586,7 +586,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         practitioner.setAddressStreet(dto.getAddress());
         practitioner.setYbNo(dto.getYbNo());
         practitioner.setSignature(dto.getSignature());
-        practitioner.setDrProfttlCode(dto.getDrProfttlCode() != null ? Integer.valueOf(dto.getDrProfttlCode()) : null);
+        practitioner.setDrProfttlCode(StringUtils.hasText(dto.getDrProfttlCode()) ? Integer.valueOf(dto.getDrProfttlCode()) : null);
         practitioner.setPharPracCertNo(dto.getPharPracCertNo());
         practitioner.setOrgId(defaultDeptId);
 
@@ -596,33 +596,36 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             practitionerMapper.updateById(practitioner);
         }
 
-        // ========== 4. 更新用户角色关联：软删除旧角色，插入新角色 ==========
-        // 4.1 查询该用户的所有旧角色（未删除）
+        // ========== 4. 更新用户角色关联：只删变动的，只插新增的 ==========
+        // 4.1 查询旧角色
         List<UserRole> oldUserRoles = userRoleMapper.selectList(
                 new LambdaQueryWrapper<UserRole>()
                         .eq(UserRole::getUserId, dto.getId())
                         .eq(UserRole::getIsDeleted, 0)
         );
-        if (!oldUserRoles.isEmpty()) {
-            // 4.2 先填充删除信息（deleted_by, deleted_at）
-            for (UserRole ur : oldUserRoles) {
-                ur.setDeletedBy(currentUserId);
-                ur.setDeletedAt(now);
-                userRoleMapper.updateById(ur);   // 此时 is_deleted 仍为 0
+        Set<String> oldRoleIdSet = oldUserRoles.stream().map(UserRole::getRoleId).collect(Collectors.toSet());
+        Set<String> newRoleIdSet = dto.getRoleIds() != null ? new HashSet<>(dto.getRoleIds()) : Collections.emptySet();
+
+        // 4.2 软删除"旧有但新没有"的角色
+        List<UserRole> toDelete = oldUserRoles.stream()
+                .filter(ur -> !newRoleIdSet.contains(ur.getRoleId()))
+                .peek(ur -> { ur.setDeletedBy(currentUserId); ur.setDeletedAt(now); })
+                .collect(Collectors.toList());
+        if (!toDelete.isEmpty()) {
+            for (UserRole ur : toDelete) {
+                userRoleMapper.updateById(ur);
             }
-            // 4.3 批量逻辑删除（将 is_deleted 置为 1）
-            List<String> oldRoleIds = oldUserRoles.stream().map(UserRole::getId).collect(Collectors.toList());
-            userRoleMapper.deleteBatchIds(oldRoleIds);
+            userRoleMapper.deleteBatchIds(toDelete.stream().map(UserRole::getId).collect(Collectors.toList()));
         }
 
-        // 4.4 插入新角色（is_deleted 默认为 0）
-        if (dto.getRoleIds() != null && !dto.getRoleIds().isEmpty()) {
-            for (String roleId : dto.getRoleIds()) {
-                UserRole ur = new UserRole();
-                ur.setUserId(dto.getId());
-                ur.setRoleId(roleId);
-                userRoleMapper.insert(ur);
-            }
+        // 4.3 插入"新有但旧没有"的角色
+        Set<String> toInsert = new HashSet<>(newRoleIdSet);
+        toInsert.removeAll(oldRoleIdSet);
+        for (String roleId : toInsert) {
+            UserRole ur = new UserRole();
+            ur.setUserId(dto.getId());
+            ur.setRoleId(roleId);
+            userRoleMapper.insert(ur);
         }
 
         // ========== 5. 查询新角色的 code 映射 ==========
@@ -730,17 +733,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                         .eq(UserOrganizationUnit::getUserId, dto.getId())
                         .eq(UserOrganizationUnit::getIsDeleted, 0)
         );
-        if (existingUnit != null) {
-            // 如果科室ID发生变化，则更新；否则不变
-            if (!existingUnit.getOrganizationUnitId().equals(defaultDeptId)) {
-                existingUnit.setOrganizationUnitId(defaultDeptId);
-                userOrganizationUnitMapper.updateById(existingUnit);
+        if (StringUtils.hasText(defaultDeptId)) {
+            if (existingUnit != null) {
+                // 如果科室ID发生变化，则更新；否则不变
+                if (!existingUnit.getOrganizationUnitId().equals(defaultDeptId)) {
+                    existingUnit.setOrganizationUnitId(defaultDeptId);
+                    userOrganizationUnitMapper.updateById(existingUnit);
+                }
+            } else {
+                UserOrganizationUnit newUnit = new UserOrganizationUnit();
+                newUnit.setUserId(dto.getId());
+                newUnit.setOrganizationUnitId(defaultDeptId);
+                userOrganizationUnitMapper.insert(newUnit);
             }
-        } else {
-            UserOrganizationUnit newUnit = new UserOrganizationUnit();
-            newUnit.setUserId(dto.getId());
-            newUnit.setOrganizationUnitId(defaultDeptId);
-            userOrganizationUnitMapper.insert(newUnit);
         }
         return true;
     }

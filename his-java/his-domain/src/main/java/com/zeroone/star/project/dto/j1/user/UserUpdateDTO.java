@@ -19,7 +19,7 @@ public class UserUpdateDTO {
     private String username;
 
     @NotEmpty(message = "角色不能为空")
-    @Schema(description = "角色ID列表", requiredMode = Schema.RequiredMode.REQUIRED, example = "1,2,3")
+    @Schema(description = "角色ID列表", requiredMode = Schema.RequiredMode.REQUIRED, example = "[\"roleId1\", \"roleId2\"]")
     private List<String> roleIds;
 
     @Schema(description = "默认登录科室ID")
