@@ -1,7 +1,5 @@
 package com.zeroone.star.pharmacy.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
-import com.zeroone.star.pharmacy.entity.DispensingHeader;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j7.pharmacy.DispensingRejectDTO;
 import com.zeroone.star.project.dto.j7.pharmacy.ReturnConfirmDTO;
@@ -21,7 +19,7 @@ import java.util.List;
  * @author 01star
  * @version 1.0.0
  */
-public interface IInpatientPharmacyService extends IService<DispensingHeader> {
+public interface IInpatientPharmacyService {
 
     // ==================== 住院发药驳回 ====================
 
