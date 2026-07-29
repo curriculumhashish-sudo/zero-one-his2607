@@ -35,7 +35,7 @@ public class UserController implements UserApis {
     public JsonVO<UserInfoDTO> getUserInfo(
             @Parameter(description = "用户ID", example = "1234567890123456789")
             @RequestParam String userId) {
-        UserInfoDTO userInfo = whaleUserService.getUserInfo(Long.valueOf(userId));
+        UserInfoDTO userInfo = whaleUserService.getUserInfo(userId);
         if (userInfo == null) {
             return JsonVO.fail("用户不存在");
         }

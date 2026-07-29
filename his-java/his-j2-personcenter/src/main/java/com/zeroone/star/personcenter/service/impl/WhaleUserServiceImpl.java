@@ -27,7 +27,7 @@ import java.time.LocalDateTime;
 public class WhaleUserServiceImpl extends ServiceImpl<WhaleUserMapper, WhaleUser> implements IWhaleUserService {
 
     @Override
-    public UserInfoDTO getUserInfo(Long userId) {
+    public UserInfoDTO getUserInfo(String userId) {
         WhaleUser user = baseMapper.selectById(userId);
         if (user == null) {
             return null;
@@ -51,7 +51,7 @@ public class WhaleUserServiceImpl extends ServiceImpl<WhaleUserMapper, WhaleUser
         }
         WhaleUser user = new WhaleUser();
         BeanUtil.copyProperties(updateDTO, user);
-        user.setUserId(Long.valueOf(updateDTO.getUserId()));
+        user.setUserId(updateDTO.getUserId());
         user.setUpdatedAt(LocalDateTime.now());
         baseMapper.updateById(user);
         return getUserInfo(user.getUserId());
@@ -67,7 +67,7 @@ public class WhaleUserServiceImpl extends ServiceImpl<WhaleUserMapper, WhaleUser
         if (dto.getUserId() == null || dto.getUserId().isBlank()) {
             throw new IllegalArgumentException("用户ID不能为空");
         }
-        Long userId = Long.valueOf(dto.getUserId());
+        String userId = dto.getUserId();
         WhaleUser user = baseMapper.selectById(userId);
         if (user == null) {
             throw new RuntimeException("用户不存在");

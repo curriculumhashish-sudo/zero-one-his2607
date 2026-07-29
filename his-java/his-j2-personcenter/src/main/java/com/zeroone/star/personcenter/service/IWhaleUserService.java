@@ -22,7 +22,7 @@ public interface IWhaleUserService extends IService<WhaleUser> {
      * @param userId 用户ID
      * @return 用户信息 DTO
      */
-    UserInfoDTO getUserInfo(Long userId);
+    UserInfoDTO getUserInfo(String userId);
 
     /**
      * 更新用户信息

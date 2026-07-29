@@ -15,8 +15,11 @@ public class UpdateUserDTO {
     @JsonProperty("id")
     private String userId;
 
-    @Schema(description = "真实姓名", example = "张三")
-    private String realName;
+    @Schema(description = "名", example = "三")
+    private String name;
+
+    @Schema(description = "姓", example = "张")
+    private String surname;
 
     @Schema(description = "邮箱", example = "zhangsan@example.com")
     @Email(message = "邮箱格式不正确")
@@ -24,10 +27,4 @@ public class UpdateUserDTO {
 
     @Schema(description = "手机号", example = "13800138000")
     private String phoneNumber;
-
-    @Schema(description = "头像URL", example = "https://example.com/avatar.jpg")
-    private String avatar;
-
-    @Schema(description = "个人简介", example = "这是我的个人简介")
-    private String introduction;
 }
