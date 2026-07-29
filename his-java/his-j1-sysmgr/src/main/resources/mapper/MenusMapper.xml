@@ -39,4 +39,44 @@
         tenant_id,created_at,updated_at,created_by,updated_by,
         is_deleted,deleted_at,deleted_by,keep_alive
     </sql>
+
+    <!-- 根据角色集合查询授权菜单，递归补齐所有父级菜单 -->
+    <select id="selectMenusByRoles" resultMap="BaseResultMap">
+        WITH RECURSIVE authorized_menus AS (
+        -- 锚点查询：查询角色直接绑定权限的菜单
+        SELECT DISTINCT m.*
+        FROM whale_menus m
+        INNER JOIN whale_permissions p ON m.permission_name = p.name AND p.is_deleted = 0
+        INNER JOIN whale_permission_grants pg ON pg.permission_name = p.name
+        AND pg.provider_name = 'R'
+        AND pg.is_deleted = 0
+        INNER JOIN whale_roles r ON r.id = pg.provider_key
+        AND r.is_deleted = 0
+        WHERE m.is_deleted = 0
+        AND m.is_enabled = 1
+        AND (
+        r.id IN
+        <foreach collection="roles" item="role" open="(" separator="," close=")">#{role}</foreach>
+        OR r.code IN
+        <foreach collection="roles" item="role" open="(" separator="," close=")">#{role}</foreach>
+        OR r.name IN
+        <foreach collection="roles" item="role" open="(" separator="," close=")">#{role}</foreach>
+        )
+
+        UNION DISTINCT
+
+        -- 递归向上查找所有父菜单
+        SELECT parent.*
+        FROM whale_menus parent
+        INNER JOIN authorized_menus child ON child.parent_id = parent.id
+        WHERE parent.is_deleted = 0
+        AND parent.is_enabled = 1
+        )
+        SELECT DISTINCT
+        id, code, name, display_name, icon, path, component, permission_name,
+        parent_id, sort_order, is_enabled, is_hidden, is_external, external_url, menu_type,
+        remark, tenant_id, created_at, updated_at, created_by, updated_by, keep_alive
+        FROM authorized_menus
+        ORDER BY sort_order, id
+    </select>
 </mapper>
