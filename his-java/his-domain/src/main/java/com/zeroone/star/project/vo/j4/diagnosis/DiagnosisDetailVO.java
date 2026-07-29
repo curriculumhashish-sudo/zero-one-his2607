@@ -23,29 +23,17 @@ public class DiagnosisDetailVO implements Serializable {
     @Schema(description = "诊断目录编码", example = "general_dx")
     private String sourceEnum;
 
-    @Schema(description = "诊断目录", example = "疾病与诊断")
-    private String sourceEnum_enumText;
-
     @Schema(description = "诊断名称", example = "原发性高血压")
     private String name;
 
     @Schema(description = "特慢病编码", example = "TB-001")
     private String diseaseCode;
 
-    @Schema(description = "诊断编码", example = "CDF00000003")
-    private String conditionCode;
-
     @Schema(description = "诊断类型编码", example = "1")
     private String typeCode;
 
-    @Schema(description = "诊断类型", example = "西医诊断")
-    private String typeCode_dictText;
-
     @Schema(description = "医保编码", example = "YB-I10")
     private String ybNo;
-
-    @Schema(description = "状态", example = "已启用")
-    private String statusEnum_enumText;
 
     @Schema(description = "医保标记，1表示是，0表示否", example = "1")
     private Integer ybFlag;

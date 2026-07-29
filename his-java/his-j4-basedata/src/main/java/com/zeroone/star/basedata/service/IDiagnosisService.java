@@ -2,6 +2,7 @@ package com.zeroone.star.basedata.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zeroone.star.basedata.entity.diagnosis.ClnConditionDefinitionDO;
+import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisDefinitionDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisSaveDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisUpdateDTO;
@@ -9,7 +10,12 @@ import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisIdsDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisStatusDTO;
 
 import com.zeroone.star.project.query.j4.diagnosis.DiagnosisDefinitionQuery;
+import com.zeroone.star.project.query.j4.diagnosis.DiagnosisPageQuery;
+import com.zeroone.star.project.query.j4.diagnosis.DiagnosisSelectPageQuery;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisDefinitionDetailVO;
+import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisDetailVO;
+import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisListVO;
+import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisOptionVO;
 
 
 import java.util.List;
@@ -78,4 +84,25 @@ public interface IDiagnosisService {
      * @return 诊断定义列表
      */
     Page<ClnConditionDefinitionDO> getSelectList(DiagnosisDefinitionQuery query);
+
+    /**
+     * 获取选择诊断列表（条件+分页）。
+     * @param query 查询条件
+     * @return 可选择诊断分页数据
+     */
+    PageDTO<DiagnosisOptionVO> queryDiagnosisSelectList(DiagnosisSelectPageQuery query);
+
+    /**
+     * 获取诊断管理列表（条件+分页）。
+     * @param query 查询条件
+     * @return 诊断管理分页数据
+     */
+    PageDTO<DiagnosisListVO> queryDiagnosisList(DiagnosisPageQuery query);
+
+    /**
+     * 获取诊断详情。
+     * @param id 诊断ID
+     * @return 诊断详情
+     */
+    DiagnosisDetailVO queryDiagnosisDetail(String id);
 }

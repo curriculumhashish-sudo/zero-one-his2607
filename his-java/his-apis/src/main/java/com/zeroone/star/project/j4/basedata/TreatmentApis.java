@@ -9,6 +9,7 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j4.treatment.TreatmentDetailVO;
 import com.zeroone.star.project.vo.j4.treatment.TreatmentListVO;
 import com.zeroone.star.project.vo.j4.treatment.TreatmentSelectVO;
+import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * <p>
@@ -47,14 +48,14 @@ public interface TreatmentApis {
      * @param treatmentAddDTO 诊疗详情信息DTO
      * @return 无返回值
      */
-    JsonVO<Void> addTreatment(TreatmentAddDTO treatmentAddDTO);
+    JsonVO<Void> addTreatment(@RequestBody TreatmentAddDTO treatmentAddDTO);
 
     /**
      * 编辑诊疗项目（携带编辑校验码）
      * @param dto 编辑诊疗数据
      * @return 编辑确认结果
      */
-    JsonVO<TreatmentDetailVO> modifyTreatment(TreatmentEditDTO dto);
+    JsonVO<TreatmentDetailVO> modifyTreatment(@RequestBody TreatmentEditDTO dto);
 
 
     /**
@@ -62,7 +63,7 @@ public interface TreatmentApis {
      * @param dto 切换状态请求
      * @return 切换后结果
      */
-    JsonVO<TreatmentDetailVO> modifyStatus(TreatmentStatusDTO dto);
+    JsonVO<TreatmentDetailVO> modifyStatus(@RequestBody TreatmentStatusDTO dto);
 
     /**
      * 删除诊疗项目

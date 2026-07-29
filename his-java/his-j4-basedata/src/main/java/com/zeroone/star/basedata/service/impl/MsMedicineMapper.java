@@ -28,7 +28,18 @@ public interface MsMedicineMapper {
      * @return 药品详情DTO
      */
 
+
     MedicineDetailDTO entityToDetailDTO(MedMedicationDefinitionDO medDefinitionDO);
+
+    /**
+     * <p>
+     * 描述：将 药品详情DTO 转换为 数据库实体
+     * </p>
+     *
+     * @param  dto 药品详情DTO
+     * @return 药品定义实体
+     */
+    MedMedicationDefinitionDO detailDtoToEntity(MedicineDetailDTO dto);
 
     /**
      * <p>
