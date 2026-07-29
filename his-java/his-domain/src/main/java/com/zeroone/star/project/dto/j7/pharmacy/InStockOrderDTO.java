@@ -1,12 +1,10 @@
 package com.zeroone.star.project.dto.j7.pharmacy;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -15,8 +13,8 @@ import java.util.List;
  * 描述：药房入库单数据传输对象
  * </p>
  * <p>
- * 功能说明：用于新增、编辑和提交审批入库单。包含主表的入库单号、供应商、入库日期、
- * 药房、备注以及明细列表。明细中的行合计金额由服务端自动计算，前端可忽略。
+ * 功能说明：用于新增、编辑和提交审批入库单。包含主表信息及药品明细列表。
+ * 整单总金额由服务端自动汇总明细行的合计金额，前端无需传递。
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
@@ -25,12 +23,10 @@ import java.util.List;
  */
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @Schema(description = "入库单DTO")
-public class InStockOrderDTO {
+public class InStockOrderDTO implements Serializable {
 
-    @Schema(description = "入库单号（新增时可自动生成）")
+    @Schema(description = "入库单号（业务号），新增时可自动生成")
     private String orderNo;
 
     @Schema(description = "供应商ID", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -44,9 +40,6 @@ public class InStockOrderDTO {
 
     @Schema(description = "主表备注")
     private String remark;
-
-    @Schema(description = "总金额（后台自动汇总，无需传递）")
-    private BigDecimal totalAmount;
 
     @Schema(description = "入库单明细列表", requiredMode = Schema.RequiredMode.REQUIRED)
     private List<InStockOrderDetailDTO> items;

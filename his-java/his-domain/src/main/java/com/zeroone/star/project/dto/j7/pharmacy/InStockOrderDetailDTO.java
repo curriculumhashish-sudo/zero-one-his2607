@@ -1,11 +1,9 @@
 package com.zeroone.star.project.dto.j7.pharmacy;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -14,8 +12,8 @@ import java.time.LocalDate;
  * 描述：入库单明细数据传输对象
  * </p>
  * <p>
- * 功能说明：封装一条药品入库明细信息，包含行号、药品名称、规格、厂家、数量、单价、
- * 有效期等，用于前端提交或后端返回。其中行合计金额由后端自动计算，前端无需传递。
+ * 功能说明：封装一条药品入库明细信息，用于前后端数据交互。
+ * 行合计金额（totalAmount）由服务端根据单价和数量自动计算，前端无需传递。
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
@@ -24,10 +22,8 @@ import java.time.LocalDate;
  */
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @Schema(description = "入库单明细DTO")
-public class InStockOrderDetailDTO {
+public class InStockOrderDetailDTO implements Serializable {
 
     @Schema(description = "明细主键ID（更新时传入，新增时不传）")
     private Long id;
@@ -50,7 +46,7 @@ public class InStockOrderDetailDTO {
     @Schema(description = "单价", requiredMode = Schema.RequiredMode.REQUIRED)
     private BigDecimal unitPrice;
 
-    @Schema(description = "行合计金额（后台自动计算，前端可不传）")
+    @Schema(description = "行合计金额（后台自动计算，前端可忽略）")
     private BigDecimal totalAmount;
 
     @Schema(description = "药品批号", requiredMode = Schema.RequiredMode.REQUIRED)

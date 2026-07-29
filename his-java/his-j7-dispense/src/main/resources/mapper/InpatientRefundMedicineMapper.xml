@@ -49,7 +49,7 @@
     <select id="selectPatientQueuePage"
             resultType="com.zeroone.star.project.vo.j7.dispense.InpatientRefundPatientVO">
         SELECT
-            e.id AS encounterId,
+            e.id AS id,
             p.name AS patientName,
             p.gender_enum AS genderEnum,
             CASE p.gender_enum
@@ -62,13 +62,13 @@
             CASE
                 WHEN p.birth_date IS NULL THEN ''
                 ELSE CONCAT(TIMESTAMPDIFF(YEAR, p.birth_date, CURDATE()), '岁')
-            END AS age,
+            END AS ageLabel,
             stay.ward_name AS wardName,
             stay.bed_no AS bedName,
-            e.bus_no AS encounterNo,
+            e.bus_no AS hospitalizationNo,
             CASE
                 WHEN MAX(UPPER(d.status_enum)) = 'REFUNDED' THEN 'REFUNDED'
-                ELSE 'PENDING'
+                ELSE 'PENDING_REFUND'
             END AS refundEnum,
             CASE
                 WHEN MAX(UPPER(d.status_enum)) = 'REFUNDED' THEN '已退药'
@@ -108,6 +108,56 @@
             stay.bed_no,
             e.bus_no
         ORDER BY MAX(d.created_at) DESC, e.id DESC
+    </select>
+
+    <select id="selectRefundDetailList"
+            resultType="com.zeroone.star.project.vo.j7.dispense.InpatientRefundDetailVO">
+        SELECT
+            d.id AS id,
+            d.id AS dispenseId,
+            d.med_req_id AS requestId,
+            d.medication_id AS itemId,
+            COALESCE(md.name, '') AS itemName,
+            d.lot_number AS lotNumber,
+            d.quantity AS quantity,
+            d.unit_code AS unitCode,
+            COALESCE(uc.display, d.unit_code) AS unitText,
+            COALESCE(doc.name, '') AS doctorName,
+            CASE
+                WHEN UPPER(d.status_enum) = 'REFUNDED' THEN 'REFUNDED'
+                ELSE 'PENDING_REFUND'
+            END AS refundEnum,
+            CASE
+                WHEN UPPER(d.status_enum) = 'REFUNDED' THEN '已退药'
+                ELSE '待退药'
+            END AS refundEnumText,
+            d.trace_no AS traceNo,
+            CASE
+                WHEN UPPER(d.status_enum) = 'PENDING' THEN TRUE
+                ELSE FALSE
+            END AS selectable
+        FROM med_medication_dispense d
+        INNER JOIN adm_encounter e ON e.id = d.encounter_id AND e.is_deleted = 0
+        LEFT JOIN med_medication_definition md ON md.id = d.medication_id AND md.is_deleted = 0
+        LEFT JOIN med_medication_request mr ON mr.id = d.med_req_id AND mr.is_deleted = 0
+        LEFT JOIN adm_practitioner doc ON doc.id = mr.requester_id AND doc.is_deleted = 0
+        LEFT JOIN ter_concept uc
+            ON uc.code_system_id = '279125561775755265'
+           AND uc.code = d.unit_code
+           AND uc.is_deleted = 0
+        WHERE d.is_deleted = 0
+          AND d.encounter_id = #{query.encounterId}
+          AND UPPER(e.class_enum) IN ('INPATIENT', 'IMP')
+          AND UPPER(d.dispense_enum) IN ('REFUND', 'RETURN')
+        <choose>
+            <when test="query.refundStatus != null and query.refundStatus == 'REFUNDED'">
+                AND UPPER(d.status_enum) = 'REFUNDED'
+            </when>
+            <otherwise>
+                AND UPPER(d.status_enum) = 'PENDING'
+            </otherwise>
+        </choose>
+        ORDER BY d.created_at DESC, d.id DESC
     </select>
 
 </mapper>

@@ -186,43 +186,43 @@ public interface PharmacyApis {
          * @version 1.0.0
          */
 
-                // ==================== 药房入库管理 ====================
+        // ==================== 药房入库管理 ====================
 
-                /**
-                 * 新增入库单据
-                 * <p>
-                 * 创建一张新的药房入库单，初始状态为“草稿”。系统根据传入的数量、单价自动计算
-                 * 明细行合计金额和整单总金额。入库单号可手动传入或由后端自动生成。
-                 * </p>
-                 * @param dto 入库单数据传输对象，包含主表信息及药品明细列表
-                 * @return 操作结果，data 中包含新创建的入库单主键 ID
-                 */
-                JsonVO<Long> addInOrder(InStockOrderDTO dto);
+        /**
+         * 新增入库单据
+         * <p>
+         * 创建一张新的药房入库单，初始状态为“草稿”。系统根据传入的数量、单价自动计算
+         * 明细行合计金额和整单总金额。入库单号可手动传入或由后端自动生成。
+         * </p>
+         * @param dto 入库单数据传输对象，包含主表信息及药品明细列表
+         * @return 操作结果，data 中包含新创建的入库单主键 ID
+         */
+        JsonVO<String> addInOrder(InStockOrderDTO dto);
 
-                /**
-                 * 保存入库单据
-                 * <p>
-                 * 对已存在的草稿入库单进行全量编辑保存。主表字段直接覆盖，明细采用全量替换策略
-                 * （先删除原有明细，再插入新明细），并重新汇总计算整单总金额。
-                 * 仅允许状态为“草稿”的单据执行此操作。
-                 * </p>
-                 * @param orderId 入库单主键 ID
-                 * @param dto     更新后的入库单数据
-                 * @return 操作结果
-                 */
-                JsonVO<String> updateInOrder(Long orderId, InStockOrderDTO dto);
+        /**
+         * 保存入库单据
+         * <p>
+         * 对已存在的草稿入库单进行全量编辑保存。主表字段直接覆盖，明细采用全量替换策略
+         * （先删除原有明细，再插入新明细），并重新汇总计算整单总金额。
+         * 仅允许状态为“草稿”的单据执行此操作。
+         * </p>
+         * @param orderId 入库单主键 ID
+         * @param dto     更新后的入库单数据
+         * @return 操作结果
+         */
+        JsonVO<String> updateInOrder(Long orderId, InStockOrderDTO dto);
 
-                /**
-                 * 保存并提交审批
-                 * <p>
-                 * 在完成保存逻辑后，立即将单据状态从“草稿”变更为“待审批”。
-                 * 该操作要求单据当前必须处于草稿状态，否则抛出业务异常。
-                 * 适用于最终确认后直接提交审核的场景。
-                 * </p>
-                 * @param orderId 入库单主键 ID
-                 * @param dto     最终版本的入库单数据
-                 * @return 操作结果
-                 */
-                JsonVO<String> submitInOrder(Long orderId, InStockOrderDTO dto);
+        /**
+         * 保存并提交审批
+         * <p>
+         * 在完成保存逻辑后，立即将单据状态从“草稿”变更为“待审批”。
+         * 该操作要求单据当前必须处于草稿状态，否则抛出业务异常。
+         * 适用于最终确认后直接提交审核的场景。
+         * </p>
+         * @param orderId 入库单主键 ID
+         * @param dto     最终版本的入库单数据
+         * @return 操作结果
+         */
+        JsonVO<String> submitInOrder(Long orderId, InStockOrderDTO dto);
 
 }

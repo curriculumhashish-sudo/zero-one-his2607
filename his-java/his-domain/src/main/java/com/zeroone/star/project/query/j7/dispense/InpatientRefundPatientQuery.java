@@ -30,7 +30,7 @@ public class InpatientRefundPatientQuery extends PageQuery {
     /**
      * 队列页签：PENDING-待退药 / COMPLETED-已退药
      * （前置条件 med_medication_dispense.dispense_enum=REFUND；
-     *  对应 med_medication_dispense.status_enum：PENDING=待退药，REFUNDED=已退药，DECLINED=退药拒绝；
+     *  页签 PENDING 映射库表 status_enum=PENDING，展示态 refundEnum=PENDING_REFUND；
      *  页签 COMPLETED 映射 status_enum=REFUNDED）
      */
     @Schema(description = "队列页签（PENDING/COMPLETED）", example = "PENDING")
