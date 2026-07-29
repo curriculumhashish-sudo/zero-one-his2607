@@ -6,7 +6,6 @@ import com.zeroone.star.basedata.entity.treatment.WkfActivityDefinitionDO;
 import com.zeroone.star.project.query.j4.treatment.TreatmentQuery;
 import com.zeroone.star.project.vo.j4.treatment.TreatmentListVO;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
 
 /**
  * <p>
@@ -19,5 +18,5 @@ import org.apache.ibatis.annotations.Param;
  */
 @Mapper
 public interface TreatmentMapper extends BaseMapper<WkfActivityDefinitionDO> {
-    Page<TreatmentListVO> selectTreatmentListPage(Page<TreatmentListVO> page, @Param("query") TreatmentQuery query);
+    Page<TreatmentListVO> selectTreatmentListPage(Page<TreatmentListVO> page, TreatmentQuery query);
 }
