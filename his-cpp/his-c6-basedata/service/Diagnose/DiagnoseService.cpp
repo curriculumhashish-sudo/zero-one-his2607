@@ -56,13 +56,9 @@ DiagnoseSelectDTO::Wrapper DiagnoseService::listDiagnoseSelect(const DiagnoseSel
 		
 		ZO_STAR_DOMAIN_DO_TO_DTO_1(
 			dto, one,
-			id, id,
-			chronicCode, conditionCode,
-			name, name,
-			diagType, typeCode,
-			medicalInsuranceCode, ybNo,
-			status, statusEnum,
-			remark, description
+			id, Id,
+			diagnoseCode, ConditionCode,
+			diagnoseName, Name
 		);
 		page->addData(dto);
 	}
@@ -93,13 +89,13 @@ DiagnosePageDTO::Wrapper DiagnoseService::listDiagnosePage(const DiagnosePageQue
 		
 		ZO_STAR_DOMAIN_DO_TO_DTO_1(
 			dto, one,
-			id, id,
-			chronicCode, diseaseCode,
-			name, name,
-			diagType, typeCode,
-			medicalInsuranceCode, ybNo,
-			status, statusEnum,
-			remark, description,
+			id, Id,
+			diagnoseCode, ConditionCode,
+			diagnoseName, Name,
+			diagnoseType, TypeCode,
+			medicalInsuranceCode, YbNo,
+			status, StatusEnum,
+			remark, Description
 			
 		);
 		page->addData(dto);
@@ -115,22 +111,27 @@ DiagnoseDetailDTO::Wrapper DiagnoseService::getDiagnoseDetail(const oatpp::Strin
 	auto data = dao.selectById(id.getValue(""));
 	if (!data)
 		return nullptr;
+	for (auto one : list)
+	{
+		auto dto = DiagnoseDetailDTO::createShared();
 
-	auto dto = DiagnoseDetailDTO::createShared();
+		ZO_STAR_DOMAIN_DO_TO_DTO_1(
+			dto, one,
+			id, Id,
+			diagnoseCode, ConditionCode,
+			diagnoseName, Name,
+			diagnoseType, TypeCode,
+
+			medicalInsuranceCode, YbNo,
+			status, StatusEnum,
+			remark, Description
+
+		);
+		return dto;
+	}
 	
-	ZO_STAR_DOMAIN_DO_TO_DTO_1(
-		dto, one,
-		id, id,
-		chronicCode, diseaseCode,
-		name, name,
-		diagType, typeCode,
-		medicalInsuranceCode, ybNo,
-		status, statusEnum,
-		remark, description,
-		
-	);
-	return dto;
 }
+
 //std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
 //{
 //	diagnoseDO data;
