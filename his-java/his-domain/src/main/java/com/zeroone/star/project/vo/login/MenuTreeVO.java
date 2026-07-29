@@ -18,7 +18,7 @@ import java.util.List;
 @Data
 public class MenuTreeVO extends TreeNode {
     @Schema(description = "序号", example = "1")
-    private Integer id;
+    private String id;
     @Schema(description = "菜单名称", example = "主页")
     private String text;
     @Schema(description = "图标", example = "dashboard")
@@ -26,7 +26,7 @@ public class MenuTreeVO extends TreeNode {
     @Schema(description = "路由地址", example = "/dashboard")
     private String href;
     @Schema(description = "父级菜单编号", example = "0")
-    private Integer pid;
+    private String pid;
 
     @Schema(description = "节点包含的子节点")
     public List<MenuTreeVO> getChildren() {

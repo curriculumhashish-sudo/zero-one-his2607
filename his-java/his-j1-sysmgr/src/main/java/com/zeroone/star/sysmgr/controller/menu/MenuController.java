@@ -57,6 +57,7 @@ public class MenuController implements MenuApis {
         }else {
             List<String> roles = user.getRoles();
             List<MenuTreeVO> menuTree = menusService.getMenuTree(roles);
+//            List<MenuTreeVO> menuTree = menusService.getMenuTree(List.of("admin"));
             return JsonVO.success(menuTree);
         }
     }
@@ -83,6 +84,7 @@ public class MenuController implements MenuApis {
             throw new SystemException(MenuStatus.USER_INFO_MISSING);
         }
         return JsonVO.success(menusService.getMenuList(user.getRoles(), query));
+//        return JsonVO.success(menusService.getMenuList(List.of("admin"), query));
     }
 
     /**
