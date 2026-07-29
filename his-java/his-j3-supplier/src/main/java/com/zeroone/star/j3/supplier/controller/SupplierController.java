@@ -87,7 +87,7 @@ public class SupplierController implements SupplierApis {
                description = "新增一条供应商记录，包含信用代码、联系方式、资质等信息")
     public JsonVO<String> addSupplier(
             @Parameter(description = "供应商数据", required = true)
-            @Valid  SupplierFullDTO dto) {
+            @Valid @RequestBody SupplierFullDTO dto) {
         try {
             String result = supplierService.addSupplier(dto);
             if (result != null){
