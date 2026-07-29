@@ -80,13 +80,13 @@ public:
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.delete.summarylogicAuth"),removediagnose,DiagnoseRemoveJsonVO::Wrapper,API_TAG);
 	API_HANDLER_ENDPOINT_AUTH(API_M_DEL,"/diagnose",removediagnose,BODY_DTO(DiagnoseRemoveDTO::Wrapper, dto),execRemovediagnose(dto, authObject->getPayload()));
 
-	//物理批量删除（真实删除）
-	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.delete.summary1"),RemoveDiagnose,ListJsonVO<String>::Wrapper,API_TAG);
-	API_HANDLER_ENDPOINT_AUTH(API_M_DEL,"/diagnose",RemoveDiagnose,BODY_DTO(List<String>, ids),execRemoveDiagnose(ids));
-	
-	//逻辑批量删（不带鉴权）
-	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.delete.summarylogic"),removeDiagnose,ListJsonVO<String>::Wrapper,API_TAG);
-	API_HANDLER_ENDPOINT_AUTH(API_M_DEL,"/diagnose",removeDiagnose,BODY_DTO(List<String>, ids),execremoveDiagnose(ids));
+	////物理批量删除（真实删除）
+	//API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.delete.summary1"),RemoveDiagnose,ListJsonVO<String>::Wrapper,API_TAG);
+	//API_HANDLER_ENDPOINT_AUTH(API_M_DEL,"/diagnose",RemoveDiagnose,BODY_DTO(List<String>, ids),execRemoveDiagnose(ids));
+	//
+	////逻辑批量删（不带鉴权）
+	//API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.delete.summarylogic"),removeDiagnose,ListJsonVO<String>::Wrapper,API_TAG);
+	//API_HANDLER_ENDPOINT_AUTH(API_M_DEL,"/diagnose",removeDiagnose,BODY_DTO(List<String>, ids),execremoveDiagnose(ids));
 
     // 定义批量启用/停用接口描述
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.field.diag.status"), batchChangeDiagnoseStatus, StringJsonVO::Wrapper, API_TAG);
@@ -96,7 +96,7 @@ private:
 	
 	 //1.select
 	DiagnoseSelectJsonVO::Wrapper executeListSelectDiagnose(const DiagnoseSelectQuery::Wrapper& query);
-	 //2. page
+	//2. page
 	DiagnosePageJsonVO::Wrapper executeListPageDiagnose(const DiagnosePageQuery::Wrapper& query);
 	 //3. detail
 	DiagnoseDetailJsonVO::Wrapper executeGetDiagnoseDetail(const String& id);

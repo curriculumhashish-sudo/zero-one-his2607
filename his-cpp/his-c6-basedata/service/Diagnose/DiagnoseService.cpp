@@ -23,9 +23,10 @@
 #include "DiagnoseService.h"
 #include "../../dao/Diagnose/DiagnoseDAO.h"
 #include "../../domain/DiagnoseConstants.h"
+//这两个别注释
+#include "id/UuidFacade.h"
+#include "SimpleDateTimeFormat.h"
 
-//#include "id/UuidFacade.h"
-//#include "SimpleDateTimeFormat.h"
 //#include "StringUtil.h"
 //
 //#include <algorithm>
@@ -39,9 +40,9 @@ DiagnoseSelectDTO::Wrapper DiagnoseService::listDiagnoseSelect(const DiagnoseSel
 	page->pageIndex = query->pageIndex;
 	page->pageSize = query->pageSize;
 
-	// 获取数据总条数
+	//// 获取数据总条数
 	DiagnoseDAO dao;
-	auto count = dao.count(query);
+	auto count = dao.count(query);//这里跟service调用传入的参数跟定义的count函数参数类型对不上，这里按照在DAO重载了一个count函数
 	if (count <= 0)
 		return page;
 	page->total = count;
@@ -51,14 +52,15 @@ DiagnoseSelectDTO::Wrapper DiagnoseService::listDiagnoseSelect(const DiagnoseSel
 	auto list = dao.selectAll(query);
 	for (auto one : list)
 	{
-		auto dto = DiagnoseSelectDTO::createShared();
-		
-		
+		//auto dto = DiagnoseSelectDTO::createShared();        这里不是应该是选择的那个类，而是放到选择里里的那个类
+		auto dto = DSelectDTO::createShared();
+
 		ZO_STAR_DOMAIN_DO_TO_DTO_1(
 			dto, one,
 			id, Id,
 			diagnoseCode, ConditionCode,
-			diagnoseName, Name
+			diagnoseName, Name,
+			dictType, TenantId
 		);
 		page->addData(dto);
 	}
@@ -85,7 +87,8 @@ DiagnosePageDTO::Wrapper DiagnoseService::listDiagnosePage(const DiagnosePageQue
 	
 	for (auto one : list)
 	{
-		auto dto = DiagnosePageDTO::createShared();
+		//auto dto = DiagnosePageDTO::createShared();             修正
+		auto dto = DPageDTO::createShared();
 		
 		ZO_STAR_DOMAIN_DO_TO_DTO_1(
 			dto, one,
@@ -109,26 +112,28 @@ DiagnoseDetailDTO::Wrapper DiagnoseService::getDiagnoseDetail(const oatpp::Strin
 	// 获取单条主数据
 	DiagnoseDAO dao;
 	auto data = dao.selectById(id.getValue(""));
+
+	// 如果数据不存在，直接返回空
 	if (!data)
 		return nullptr;
-	for (auto one : list)
-	{
-		auto dto = DiagnoseDetailDTO::createShared();
 
-		ZO_STAR_DOMAIN_DO_TO_DTO_1(
-			dto, one,
-			id, Id,
-			diagnoseCode, ConditionCode,
-			diagnoseName, Name,
-			diagnoseType, TypeCode,
+	// 创建 DTO 对象并进行字段映射
+	//auto dto = DiagnoseDetailDTO::createShared();            修正
+	auto dto = DiagnoseDetailDTO::createShared();
+	ZO_STAR_DOMAIN_DO_TO_DTO_1(
+		dto, data,
+		id, Id,
+		diagnoseCode, ConditionCode,
+		diagnoseName, Name,
+		diagnoseType, TypeCode,
+		medicalInsuranceCode, YbNo,
+		status, StatusEnum,
+		remark, Description
+	);
 
-			medicalInsuranceCode, YbNo,
-			status, StatusEnum,
-			remark, Description
-
-		);
-		return dto;
-	}
+	 //返回详情数据
+	return dto;
+	
 	
 }
 

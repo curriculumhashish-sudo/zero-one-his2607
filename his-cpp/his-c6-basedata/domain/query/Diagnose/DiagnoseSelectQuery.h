@@ -25,7 +25,7 @@ class DiagnoseSelectQuery : public PageQuery
 	DTO_INIT(DiagnoseSelectQuery, PageQuery);
 	// keyword
 	API_DTO_FIELD_DEFAULT(String, keyword, ZH_WORDS_GETTER("diagnose.field.keyword"));
-	// dictType
+	// dictType你这个应该叫租户id
 	API_DTO_FIELD_REQUIRE(String, dictType, ZH_WORDS_GETTER("diagnose.field.dictType"), true);
 
 };

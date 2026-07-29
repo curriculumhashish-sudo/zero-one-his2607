@@ -33,7 +33,8 @@ class DPageDTO : public oatpp::DTO
 	// 医保编码
 	API_DTO_FIELD_DEFAULT(String, medicalInsuranceCode, ZH_WORDS_GETTER("diagnose.field.medicalInsuranceCode"));
 	// 状态:0,1
-	API_DTO_FIELD_REQUIRE(Int32, status, ZH_WORDS_GETTER("diagnose.field.status"), true);
+	//API_DTO_FIELD_REQUIRE(Int32, status, ZH_WORDS_GETTER("diagnose.field.status"), true);
+	API_DTO_FIELD_REQUIRE(String, status, ZH_WORDS_GETTER("diagnose.field.status"), true);
 	// 说明
 	API_DTO_FIELD_DEFAULT(String, remark, ZH_WORDS_GETTER("diagnose.field.remark"));
 };

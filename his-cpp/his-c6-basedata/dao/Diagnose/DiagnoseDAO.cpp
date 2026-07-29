@@ -191,6 +191,27 @@ uint64_t DiagnoseDAO::count(const DiagnosePageQuery::Wrapper& query)
 
 	return sqlSession->executeQueryNumerical(sql, params);
 }
+//重载的count接收DiagnoseSelectQuery
+uint64_t DiagnoseDAO::count(const DiagnoseSelectQuery::Wrapper& query)
+{
+	std::string sql = "SELECT count(id) FROM cln_condition_definition WHERE is_deleted = 0 ";
+	SqlParams params;
+	// 关键词模糊
+	if (query->keyword)
+	{
+		sql += " AND (name LIKE CONCAT('%',?,'%') OR condition_code LIKE CONCAT('%',?,'%')) ";
+		SQLPARAMS_PUSH(params, "s", std::string, query->keyword.getValue(""));
+		SQLPARAMS_PUSH(params, "s", std::string, query->keyword.getValue(""));
+	}
+	// 租户id筛选
+	if (query->dictType)
+	{
+		sql += " AND tenant_id = ? ";
+		SQLPARAMS_PUSH(params, "s", std::string, query->dictType.getValue(""));
+	}
+
+	return sqlSession->executeQueryNumerical(sql, params);
+}
 
 // 分页列表查询
 std::list<PtrClnConditionDefinitionDO> DiagnoseDAO::selectAll(const DiagnosePageQuery::Wrapper& query)
@@ -207,6 +228,28 @@ std::list<PtrClnConditionDefinitionDO> DiagnoseDAO::selectAll(const DiagnosePage
 	{
 		sql += " AND type_code = ? ";
 		SQLPARAMS_PUSH(params, "s", std::string, query->diagnoseType.getValue(""));
+	}
+	// 分页偏移
+	sql += " LIMIT ?,?";
+	SQLPARAMS_PUSH(params, "ull", uint64_t, (query->pageIndex.getValue(1) - 1) * query->pageSize.getValue(10));
+	SQLPARAMS_PUSH(params, "ull", uint64_t, query->pageSize.getValue(10));
+	return sqlSession->executeQuery<PtrClnConditionDefinitionDO>(sql, DiagnoseMapper(), params);
+}
+
+std::list<PtrClnConditionDefinitionDO> DiagnoseDAO::selectAll(const DiagnoseSelectQuery::Wrapper& query)
+{
+	std::string sql = "SELECT id,tenant_id,created_at,updated_at,created_by,updated_by,is_deleted,deleted_at,deleted_by,version,source_enum,condition_code,name,py_str,wb_str,type_code,description,yb_flag,disease_code,yb_no,yb_match_flag,status_enum FROM cln_condition_definition WHERE is_deleted = 0 ";
+	SqlParams params;
+	if (query->keyword)
+	{
+		sql += " AND (name LIKE CONCAT('%',?,'%') OR condition_code LIKE CONCAT('%',?,'%')) ";
+		SQLPARAMS_PUSH(params, "s", std::string, query->keyword.getValue(""));
+		SQLPARAMS_PUSH(params, "s", std::string, query->keyword.getValue(""));
+	}
+	if (query->dictType)
+	{
+		sql += " AND tenant_id = ? ";
+		SQLPARAMS_PUSH(params, "s", std::string, query->dictType.getValue(""));
 	}
 	// 分页偏移
 	sql += " LIMIT ?,?";
