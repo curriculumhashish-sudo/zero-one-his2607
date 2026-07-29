@@ -4,16 +4,24 @@
 
 #include <string>
 #include "../../domain/dto/Diagnose/DiagnoseDTO.h"
+<<<<<<< HEAD
 #include "domain/query/Diagnose/DiagnoseSelectQuery.h"
 #include "domain/query/Diagnose/DiagnosePageQuery.h"
 #include "domain/dto/Diagnose/DiagnoseSelectDTO.h"
 #include "domain/dto/Diagnose/DiagnosePageDTO.h"
 #include "domain/dto/Diagnose/DiagnoseDetailDTO.h"
+=======
+#include "../../domain/dto/Diagnose/DiagnoseSelectDTO.h"
+#include "../../domain/dto/Diagnose/DiagnosisSelectPageDTO.h"
+#include "../../domain/query/Diagnose/DiagnoseSelectQuery.h"
+#include "../../domain/query/Diagnose/DiagnosisSelectQuery.h"
+>>>>>>> c868642b7034bda3b2832b089f2afd7e864c4f9c
 #include "domain/dto/PayloadDTO.h"
 
 class DiagnoseService
 {
 public:
+<<<<<<< HEAD
 	//// 查询当前用户可选择的诊疗分页列表。
 	//DiagnoseSelectDTO::Wrapper listSelectableDiagnoses(
 	//	const DiagnoseSelectQuery::Wrapper& query,
@@ -24,6 +32,12 @@ public:
 	DiagnosePageDTO::Wrapper listDiagnosePage(const DiagnosePageQuery::Wrapper& query);
 	// 根据ID查询详情（对标User getUserDetail）
 	DiagnoseDetailDTO::Wrapper getDiagnoseDetail(const oatpp::String& id);
+=======
+	// 查询当前用户可选择的诊疗分页列表。
+	DiagnosisSelectPageDTO::Wrapper listSelectableDiagnoses(
+		const DiagnosisSelectQuery::Wrapper& query,
+		const PayloadDTO& payload);
+>>>>>>> c868642b7034bda3b2832b089f2afd7e864c4f9c
 	//新增
 	std::string saveData(const DiagnoseAddDTO::Wrapper& dto);
 	//更新
