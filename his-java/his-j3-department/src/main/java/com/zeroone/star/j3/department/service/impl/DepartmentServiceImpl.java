@@ -240,7 +240,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
 
 
-        String formattedSeq = String.format("OR%04d", newValue);
+        String formattedSeqseqKey  = String.format("OR%04d", newValue);
         if (Objects.equals(TypeEnum.HOSPITAL.getDesc(), TypeEnum.getDescByValue(dto.getTypeEnum())) || parentDepartment == null) {
             busNo = formattedSeq;
         } else {
