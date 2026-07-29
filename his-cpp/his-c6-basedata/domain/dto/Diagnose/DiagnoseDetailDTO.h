@@ -27,14 +27,25 @@
 class DiagnoseDetailDTO : public oatpp::DTO
 {
 	DTO_INIT(DiagnoseDetailDTO, DTO);
-
-	API_DTO_FIELD_REQUIRE(Int32, id, ZH_WORDS_GETTER("diagnose.field.id"), true);
+	// 主键ID
+	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("diagnose.field.id"), true);
+	// 诊断编码
 	API_DTO_FIELD_REQUIRE(String, diagnoseCode, ZH_WORDS_GETTER("diagnose.field.code"), true);
+	// 诊断名称
 	API_DTO_FIELD_REQUIRE(String, diagnoseName, ZH_WORDS_GETTER("diagnose.field.name"), true);
+	// 诊断类型
 	API_DTO_FIELD_REQUIRE(Int32, diagnoseType, ZH_WORDS_GETTER("diagnose.field.type"), true);
-	API_DTO_FIELD_DEFAULT(String, catalogName, ZH_WORDS_GETTER("diagnose.field.catalogName"));
+	// 医保编码
+	API_DTO_FIELD_DEFAULT(String, medicalInsuranceCode, ZH_WORDS_GETTER("diagnose.field.medicalInsuranceCode"));
+	// 状态:0,1
 	API_DTO_FIELD_REQUIRE(Int32, status, ZH_WORDS_GETTER("diagnose.field.status"), true);
+	// 说明
 	API_DTO_FIELD_DEFAULT(String, remark, ZH_WORDS_GETTER("diagnose.field.remark"));
+public:
+	DiagnoseDetailDTO()
+	{
+		
+    }
 };
 
 #include OATPP_CODEGEN_END(DTO)

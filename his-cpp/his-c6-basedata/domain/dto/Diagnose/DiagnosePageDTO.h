@@ -13,8 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _DIAGNOSE_SELECT_DTO_H_
-#define _DIAGNOSE_SELECT_DTO_H_
+#ifndef _DIAGNOSE_PAGE_DTO_H_
+#define _DIAGNOSE_PAGE_DTO_H_
 #include "../../GlobalInclude.h"
 #include OATPP_CODEGEN_BEGIN(DTO)
 

@@ -19,11 +19,40 @@
 #include "stdafx.h"
 #include "DiagnoseController.h"
 #include "../../service/Diagnose/DiagnoseService.h"
-#include <algorithm>
-#include <cctype>
-#include <exception>
 
-
+// 1. select
+DiagnoseSelectJsonVO::Wrapper DiagnoseController::executeListSelectDiagnose(const DiagnoseSelectQuery::Wrapper& query)
+{
+	DiagnoseService ds;
+	auto vo = DiagnoseSelectJsonVO::createShared();
+	auto pageData = ds.listDiagnoseSelect(query);
+	if (pageData)
+		vo->success(pageData);
+	else
+		vo->fail({});
+	return vo;
+}
+// 2.page
+DiagnosePageJsonVO::Wrapper DiagnoseController::executeListPageDiagnose(const DiagnosePageQuery::Wrapper& query)
+{
+	DiagnoseService ds;
+	auto vo = DiagnosePageJsonVO::createShared();
+	vo->success(ds.listDiagnosePage(query));
+	
+	return vo;
+}
+// 3. detail
+DiagnoseDetailJsonVO::Wrapper DiagnoseController::executeGetDiagnoseDetail(const String& id)
+{
+	DiagnoseService ds;
+	auto jvo = DiagnoseDetailJsonVO::createShared();
+	auto data = ds.getDiagnoseDetail(id);
+	if (data)
+		jvo->success(data);
+	else
+		jvo->fail({});
+	return jvo;
+}
 StringJsonVO::Wrapper DiagnoseController::execAddDiagnose(const DiagnoseAddDTO::Wrapper& dto, const PayloadDTO& payload)
 {
 	auto response = StringJsonVO::createShared();

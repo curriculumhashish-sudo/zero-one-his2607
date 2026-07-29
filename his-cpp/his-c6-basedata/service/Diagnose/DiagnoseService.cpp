@@ -199,7 +199,7 @@
 //
 //	}
 //  
-DiagnoseSelectPageDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
+DiagnoseSelectDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
 	const DiagnoseSelectQuery::Wrapper& query,
 	const PayloadDTO& payload)
 {
@@ -218,7 +218,7 @@ DiagnoseSelectPageDTO::Wrapper DiagnoseService::listSelectableDiagnoses(
 	}
 
 	// 初始化分页结果并统计总数。
-	auto page = DiagnoseSelectPageDTO::createShared();
+	auto page = DiagnoseSelectDTO::createShared();
 	page->pageIndex = query->pageIndex;
 	page->pageSize = query->pageSize;
 	const uint64_t total = dao.countSelectableDiagnoses(query, tenantId);

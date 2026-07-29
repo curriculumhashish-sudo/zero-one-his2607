@@ -24,7 +24,7 @@
 // Query
 #include "domain/query/Diagnose/DiagnoseCatalogQuery.h"
 #include "domain/query/Diagnose/DiagnosePageQuery.h"
-#include "domain/query/Diagnose/DiagnoseDetailQuery.h"
+//#include "domain/query/Diagnose/DiagnoseDetailQuery.h"
 #include "domain/query/Diagnose/DiagnoseSelectQuery.h"
 //DTO
 #include "domain/dto/Diagnose/DiagnosePageDTO.h"
@@ -52,20 +52,20 @@ class DiagnoseController : public oatpp::web::server::api::ApiController
 
 public:
 	
-	//1. diagnose / select - page
-	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("diagnose.select.summary"), listSelectDiagnose, DiagnoseSelectQuery, DiagnoseSelectJsonVO::Wrapper, API_TAG);
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/diagnose/select-page", listSelectDiagnose, DiagnoseSelectQuery, executeListSelectDiagnose(query));
+	//1. diagnose / select 
+	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("diagnose.select.summary"), listDiagnoseSelect, DiagnoseSelectQuery, DiagnoseSelectJsonVO::Wrapper, API_TAG);
+	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/diagnose/select-page", listDiagnoseSelect, DiagnoseSelectQuery, executeListSelectDiagnose(query));
 	
 	// 2. diagnose/page
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("diagnose.page.summary"), listDiagnosePage, DiagnosePageQuery, DiagnosePageJsonVO::Wrapper, API_TAG);
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/diagnose/page", listDiagnosePage, DiagnosePageQuery, executeListDiagnose(query));
+	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/diagnose/page", listDiagnosePage, DiagnosePageQuery, executeListPageDiagnose(query));
    
 	// 3. diagnose/detail
-	/*API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.detail.summary"), getDiagnoseDetail, DiagnoseDetailJsonVO::Wrapper, API_TAG,
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.detail.summary"), getDiagnoseDetail, DiagnoseDetailJsonVO::Wrapper, API_TAG,
 		API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("diagnose.field.id"), "ae65c714d48d4f34b52479f5482c0edd", true);
     );
-	API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/diagnose/detail", getDiagnoseDetail, QUERY(String, id), executeGetDiagnoseDetail(id));*/
-
+	API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/diagnose/detail", getDiagnoseDetail, QUERY(String, id), executeGetDiagnoseDetail(id));
+	
     // 定义新增诊断表接口描述
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.post.summary"), addDiagnose, StringJsonVO::Wrapper, API_TAG);
 	// 定义新增诊断表接口处理
@@ -99,8 +99,8 @@ private:
 	 //2. page
 	DiagnosePageJsonVO::Wrapper executeListPageDiagnose(const DiagnosePageQuery::Wrapper& query);
 	 //3. detail
-	/*DiagnoseDetailJsonVO::Wrapper executeGetDiagnoseDetail(const String& id);*/
-
+	DiagnoseDetailJsonVO::Wrapper executeGetDiagnoseDetail(const String& id);
+	
 	StringJsonVO::Wrapper execAddDiagnose(const DiagnoseAddDTO::Wrapper& dto, const PayloadDTO& payload);
 	//StringJsonVO::Wrapper execAddDiagcategory(const DiagnoseAddDTO::Wrapper& dto, const PayloadDTO& payload);
 	StringJsonVO::Wrapper execModifyDiagnose(const DiagnoseDTO::Wrapper& dto, const PayloadDTO& payload);
