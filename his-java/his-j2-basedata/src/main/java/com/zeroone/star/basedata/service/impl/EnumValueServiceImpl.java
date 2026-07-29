@@ -18,8 +18,8 @@ import java.util.*;
 @Service
 public class EnumValueServiceImpl implements EnumValueService {
 
-    // 默认系统租户ID，各个租户公用
-    private static final String TENANT_ID = "1";
+    // TODO: 临时设定，后续需要从jwt中获取
+    private static final String TENANT_ID = "2";
 
     @Resource
     private EnumValueRepository enumValueRepository;
@@ -29,8 +29,10 @@ public class EnumValueServiceImpl implements EnumValueService {
 
     @Override
     public void saveEnum(EnumAddDTO dto) {
+        if (!enumTypeRepository.existsById(dto.getEnumTypeId())) {
+            throw new RuntimeException("枚举类型不存在");
+        }
 
-        // 第二个是系统默认租户
         if (enumValueRepository.existsByTenantIdAndEnumTypeIdAndEnumKey(TENANT_ID, dto.getEnumTypeId(), dto.getEnumKey())
                 && enumValueRepository.existsByTenantIdAndEnumTypeIdAndEnumKey("1", dto.getEnumTypeId(), dto.getEnumKey())) {
             throw new RuntimeException("同一枚举类型下枚举键已存在");
@@ -65,8 +67,22 @@ public class EnumValueServiceImpl implements EnumValueService {
             throw new RuntimeException("枚举值已删除");
         }
 
-        BeanUtils.copyProperties(dto, existing);
+        if (existing.getIsDeleted().equals(true)) {
+            throw new RuntimeException("枚举值已删除");
+        }
 
+        if (!existing.getTenantId().equals(TENANT_ID)) {
+            throw new RuntimeException("枚举值不属于当前租户");
+        }
+
+        if (enumValueRepository.existsByTenantIdAndEnumTypeIdAndDisplay(
+                TENANT_ID, dto.getEnumTypeId(), dto.getDisplay())) {
+            throw new RuntimeException("同一枚举类型下标签已存在，不能同名");
+        }
+
+        existing.setDisplay(dto.getDisplay());
+        existing.setOrder(dto.getOrder());
+        existing.setStatus(dto.getStatus());
         existing.setUpdatedAt(new Date());
         existing.setUpdatedBy("test");
 
@@ -87,14 +103,13 @@ public class EnumValueServiceImpl implements EnumValueService {
         for (String enumTypeKey : enumTypeKeys) {
             EnumType enumType = enumTypeRepository.findActiveByEnumTypeKey("1", enumTypeKey);
             if (enumType == null) {
-                // TODO: 这里需要对为查找到相关类型的情况做出处理
-                // 如果未找到，创建一个空列表并添加到结果中
-                enumTypeMap.put(enumTypeKey, new ArrayList<EnumDTO>());
-                continue;
+                // TODO: 这里需要对为查找到相关类型的情况做出处理，是否应该返回错误？
+                // enumTypeMap.put(enumTypeKey, new ArrayList<EnumDTO>());
+
+                throw new RuntimeException("枚举类型不存在");
+                // continue;
             }
             String enumTypeId = enumType.getId();
-
-            // TODO： 这里会查找到所有内容，如果枚举类型属于该租户，但是枚举值不属于该租户，则依旧会返回给用户
             List<EnumDTO> enumDTOList = EnumValue.toDTOList(
                     enumValueRepository.findByEnumTypeIdAndIsDeletedFalse(enumTypeId));
             enumTypeMap.put(enumTypeKey, enumDTOList);

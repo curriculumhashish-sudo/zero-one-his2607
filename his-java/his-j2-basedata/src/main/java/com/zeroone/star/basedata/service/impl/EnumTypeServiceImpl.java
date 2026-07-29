@@ -23,8 +23,8 @@ import java.util.List;
 @Service
 public class EnumTypeServiceImpl implements EnumTypeService {
 
-    // 默认系统租户ID，各个租户公用
-    private static final String TENANT_ID = "1";
+    // TODO: 临时设定，后续需要从jwt中获取
+    private static final String TENANT_ID = "2";
 
     @Resource
     private EnumTypeRepository enumTypeRepository;
@@ -38,7 +38,6 @@ public class EnumTypeServiceImpl implements EnumTypeService {
                 Sort.by(Sort.Direction.DESC, "updatedAt")
         );
 
-
         Page<EnumType> page = enumTypeRepository.findByKeyword(
                 TENANT_ID,
                 query.getEnumTypeKeyword(),
@@ -51,7 +50,8 @@ public class EnumTypeServiceImpl implements EnumTypeService {
     @Override
     public void saveEnumType(EnumTypeAddDTO dto) {
 
-        if (enumTypeRepository.existsByTenantIdAndEnumTypeKey(TENANT_ID, dto.getEnumTypeKey())) {
+        if (enumTypeRepository.existsByTenantIdAndEnumTypeKey(TENANT_ID, dto.getEnumTypeKey())
+                && enumTypeRepository.existsByTenantIdAndEnumTypeKey("1", dto.getEnumTypeKey())) {
             throw new RuntimeException("枚举类型键已经存在");
         }
 
@@ -75,6 +75,10 @@ public class EnumTypeServiceImpl implements EnumTypeService {
 
         if (Boolean.TRUE.equals(existing.getIsDeleted())) {
             throw new RuntimeException("枚举类型已删除");
+        }
+
+        if (!existing.getTenantId().equals(TENANT_ID)) {
+            throw new RuntimeException("枚举类型不属于当前租户");
         }
 
         // 如果枚举类型键修改了，并且新的枚举类型键已经存在，则抛出异常

@@ -1,6 +1,7 @@
 package com.zeroone.star.project.dto.j2.basedata.enumdto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -26,6 +27,7 @@ public class EnumModifyDTO {
     @Schema(description = "标签，必须唯一", example = "label", requiredMode = Schema.RequiredMode.REQUIRED)
     private String display;
 
+    @Min(value = 0, message = "排序必须大于0")
     @NotNull
     @Schema(description = "排序", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer order;
