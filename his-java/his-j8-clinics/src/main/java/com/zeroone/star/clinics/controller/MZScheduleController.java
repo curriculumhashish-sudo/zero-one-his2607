@@ -3,6 +3,7 @@ package com.zeroone.star.clinics.controller;
 
 
 import com.zeroone.star.clinics.service.IWkfSlotService;
+import com.zeroone.star.project.dto.j8.clinics.RetireScheduleDTO;
 import com.zeroone.star.project.dto.j8.clinics.SlotBatchReleaseDTO;
 import com.zeroone.star.project.j8.clinics.ScheduleApis;
 import com.zeroone.star.project.query.j8.clinics.RelSlotQuery;
@@ -59,13 +60,15 @@ public class MZScheduleController implements ScheduleApis {
     @PostMapping("/reactivate-schedule/{scheduleId}")
     @Override
     public JsonVO<ResumeScheduleVO> reactivateSchedule(@PathVariable String scheduleId) {
-        return null;
+        ResumeScheduleVO result = wkfSlotService.reactivateSchedule(scheduleId);
+        return JsonVO.success(result);
     }
 
     @Operation(summary = "作废日程")
     @DeleteMapping("/retire-schedule/{scheduleId}")
     @Override
-    public JsonVO<String> retireSchedule(@PathVariable String scheduleId) {
-        return null;
+    public JsonVO<String> retireSchedule(@RequestBody @Valid RetireScheduleDTO retireScheduleDTO) {
+        wkfSlotService.retireSchedule(retireScheduleDTO);
+        return JsonVO.success(null);
     }
 }

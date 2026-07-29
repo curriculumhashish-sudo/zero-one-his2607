@@ -1,6 +1,7 @@
 package com.zeroone.star.project.j8.clinics;
 
 
+import com.zeroone.star.project.dto.j8.clinics.RetireScheduleDTO;
 import com.zeroone.star.project.dto.j8.clinics.SlotBatchReleaseDTO;
 import com.zeroone.star.project.query.j8.clinics.RelSlotQuery;
 import com.zeroone.star.project.vo.JsonVO;
@@ -56,8 +57,8 @@ public interface ScheduleApis {
 
     /**
      * 作废日程
-     * @param scheduleId 排班id
+     * @param retireScheduleDTO
      * @return 响应对象
      */
-    JsonVO<String> retireSchedule(String scheduleId);
+    JsonVO<String> retireSchedule(@Valid RetireScheduleDTO retireScheduleDTO);
 }
