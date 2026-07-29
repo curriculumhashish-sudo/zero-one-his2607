@@ -2,7 +2,10 @@ package com.zeroone.star.basedata.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinitionDO;
+import com.zeroone.star.project.vo.j4.equipment.EquipmentVO;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 /**
  * <p>
@@ -16,4 +19,11 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface EquipmentMapper extends BaseMapper<AdmDeviceDefinitionDO> {
+
+    /**
+     * 获取器材详情
+     * @param equipmentId 器材Id
+     * @return 器材VO
+     */
+    List<EquipmentVO> queryEquipmentsById(Long equipmentId);
 }
