@@ -16,7 +16,7 @@ import com.zeroone.star.project.vo.stocktake.StocktakeDetailVO;
  * 提供盘点单的查询、详情查看、提交审批三大业务能力：
  * 1. 分页查询盘点单列表（按 bus_no 聚合）
  * 2. 查询盘点单详情（含汇总信息 + 明细列表）
- * 3. 提交盘点单审批（DRAFT → SUBMITTED，批量更新同一 bus_no 下所有行）
+ * 3. 提交盘点单审批（DRAFT → PENDING_APPROVAL，批量更新同一 bus_no 下所有行）
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
@@ -48,7 +48,7 @@ public interface IStocktakeService extends IService<WkfSupplyRequest> {
      * 3. 盘点单至少有一条明细行
      * </p>
      * <p>
-     * 状态变更：DRAFT → SUBMITTED，同时写入 applicant_id、apply_time
+     * 状态变更：DRAFT → PENDING_APPROVAL，同时写入 applicant_id、apply_time
      * </p>
      *
      * @param dto 提交审批参数（含盘点单ID/备注）
