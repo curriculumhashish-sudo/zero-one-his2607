@@ -4,8 +4,10 @@ import com.zeroone.star.project.dto.j7.pharmacy.InboundApprovalDTO;
 import com.zeroone.star.project.j7.pharmacy.InboundApprovalApis;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j7.pharmacy.InboundApprovalVO;
+import com.zeroone.star.pharmacy.service.IInboundApprovalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,6 +25,9 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "G7 入库单审批流转", description = "撤回审批、审批通过、驳回审批")
 public class yaofangrukudan implements InboundApprovalApis {
 
+    @Resource
+    private IInboundApprovalService inboundApprovalService;
+
     /**
      * lvv：撤回处于待审批状态的入库单。
      */
@@ -30,7 +35,11 @@ public class yaofangrukudan implements InboundApprovalApis {
     @PostMapping("/withdraw")
     @Operation(summary = "撤回审批", description = "申请人撤回处于待审批状态的入库单")
     public JsonVO<InboundApprovalVO> withdrawApproval(@Valid @RequestBody InboundApprovalDTO dto) {
-        return JsonVO.success(new InboundApprovalVO(dto.getBusNo(), "WITHDRAW", "撤回审批成功"));
+        try {
+            return JsonVO.success(inboundApprovalService.withdrawApproval(dto));
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 
     /**
@@ -40,7 +49,11 @@ public class yaofangrukudan implements InboundApprovalApis {
     @PostMapping("/approve")
     @Operation(summary = "审批通过", description = "审批人通过处于待审批状态的入库单")
     public JsonVO<InboundApprovalVO> approveApproval(@Valid @RequestBody InboundApprovalDTO dto) {
-        return JsonVO.success(new InboundApprovalVO(dto.getBusNo(), "AGREE", "审批通过"));
+        try {
+            return JsonVO.success(inboundApprovalService.approveApproval(dto));
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 
     /**
@@ -50,6 +63,10 @@ public class yaofangrukudan implements InboundApprovalApis {
     @PostMapping("/reject")
     @Operation(summary = "驳回审批", description = "审批人驳回处于待审批状态的入库单，remark 填写驳回原因")
     public JsonVO<InboundApprovalVO> rejectApproval(@Valid @RequestBody InboundApprovalDTO dto) {
-        return JsonVO.success(new InboundApprovalVO(dto.getBusNo(), "REJECT", "驳回审批成功"));
+        try {
+            return JsonVO.success(inboundApprovalService.rejectApproval(dto));
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 }
