@@ -2,6 +2,8 @@ package com.zeroone.star.project.dto.j3.register;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -49,6 +51,8 @@ public class RegisterDTO implements Serializable {
      * 状态：1 启用 0 禁用
      */
     @NotNull(message = "状态不能为空")
+    @Min(value = 0, message = "状态值非法：只能为0或1")
+    @Max(value = 1, message = "状态值非法：只能为0或1")
     @Schema(description = "状态 1启用 0禁用", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer status;
 

@@ -5,13 +5,16 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zeroone.star.j3.register.entity.HealthcareService;
 import com.zeroone.star.j3.register.entity.RegisterType;
+import com.zeroone.star.j3.register.mapper.HealthcareServiceMapper;
 import com.zeroone.star.j3.register.mapper.RegisterTypeMapper;
 import com.zeroone.star.j3.register.service.IRegisterTypeService;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j3.register.RegisterDTO;
 import com.zeroone.star.project.query.j3.register.RegisterQuery;
 import com.zeroone.star.project.vo.j3.register.RegisterVO;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,6 +33,9 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
 
     /** 挂号费类型编码 */
     private static final String REG_TYPE_CODE = "1012";
+
+    @Resource
+    private HealthcareServiceMapper healthcareServiceMapper;
 
     /** DB状态转API状态：ACTIVE→1, 其他→0 */
     private Integer toApiStatus(String dbStatus) {
@@ -100,11 +106,27 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
         RegisterType entity = dtoToEntity(dto);
         entity.setId(String.valueOf(IdWorker.getId()));
 
-        // 根据名称自动关联 adm_healthcare_service，获取业务编码 bus_no
+        // 1. 按名称查找已有 healthcare_service
         String serviceId = baseMapper.selectHealthcareServiceIdByName(dto.getName());
-        if (serviceId != null && !serviceId.isEmpty()) {
-            entity.setInstanceId(serviceId);
+
+        // 2. 找不到则同步创建一条，确保下拉查询一致
+        if (serviceId == null || serviceId.isEmpty()) {
+            HealthcareService hs = new HealthcareService();
+            String hsId = String.valueOf(IdWorker.getId());
+            hs.setId(hsId);
+            hs.setTenantId("1");
+            hs.setName(dto.getName());
+            hs.setTypeCode("1");
+            hs.setStatusEnum("ACTIVE");
+            hs.setActiveFlag(1);
+            hs.setIsDeleted(0);
+            hs.setVersion(0);
+            hs.setBusNo("HS" + hsId.substring(hsId.length() - 6));
+            healthcareServiceMapper.insert(hs);
+            serviceId = hsId;
         }
+
+        entity.setInstanceId(serviceId);
         return save(entity);
     }
 

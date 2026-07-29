@@ -7,3 +7,6 @@ server:
 spring:
   application:
     name: ${sn.j3-database:his-j3-database}
+
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*.xml
