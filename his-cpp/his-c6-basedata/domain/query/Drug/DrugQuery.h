@@ -11,7 +11,7 @@ class DrugQuery : public PageQuery
 	//关键词
 	API_DTO_FIELD_DEFAULT(String, name, ZH_WORDS_GETTER("Drug.field.name"), false);
 	//名称
-	API_DTO_FIELD_DEFAULT(Int32, kind, ZH_WORDS_GETTER("Drug.field.kind"), false);
+	API_DTO_FIELD_DEFAULT(String, kind, ZH_WORDS_GETTER("Drug.field.kind"), false);
 	//分类
 };
 #include OATPP_CODEGEN_END(DTO);

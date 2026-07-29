@@ -398,6 +398,92 @@ MedMedicationDefinitionDO selectById(std::string id)
 // 新增的数据插入 (供 saveData 调用)
 int insert(const MedMedicationDefinitionDO& entity)
 {
+    std::string sql = "INSERT INTO Med_Medication_Definition"
+        "(`id`, `name`, `category_code`, `inventory_status_enum`, `created_by`, `created_at`, `is_deleted`, `version`) "
+        "VALUES (?, ?, ?, ?, ?, ?, 0, 0)";
+
+    SqlParams params;
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getId());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getTenantId());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getCreatedAt());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getUpdatedAt());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getCreatedBy());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getUpdatedBy());
+    SQLPARAMS_PUSH(params, "b", bool, entity.getIsDeleted());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getDeletedAt());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getDeletedBy());
+    SQLPARAMS_PUSH(params, "i", int, entity.getVersion());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getBusNo());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getName());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getDomainEnum());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getMedVersion());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getNameEn());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getPyStr());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getWbStr());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getCategoryCode());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getMerchandiseName());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getMerchandisePyStr());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getMerchandiseWbStr());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getPurchaseUnitCode());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getSplitUnitCode());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getComprisedText());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getIngredient());
+    SQLPARAMS_PUSH(params, "i", int, entity.getDoseFrom());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getApprovalNumber());
+    SQLPARAMS_PUSH(params, "b", bool, entity.getYbMatchFlag());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getYbNo());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getPharmacologyCategoryCode());
+    SQLPARAMS_PUSH(params, "b", bool, entity.getSkinTestFlag());
+    SQLPARAMS_PUSH(params, "b", bool, entity.getInjectFlag());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getManufacturerId());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getManufacturerText());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getSupplyId());
+    SQLPARAMS_PUSH(params, "b", bool, entity.getRestrictedFlag());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getRestrictedScope());
+    SQLPARAMS_PUSH(params, "b", bool, entity.getActiveFlag());
+    SQLPARAMS_PUSH(params, "b", bool, entity.getChildrenFlag());
+    SQLPARAMS_PUSH(params, "i", int, entity.getCharacteristic());
+    SQLPARAMS_PUSH(params, "d", double, entity.getItemMinQuantity());
+    SQLPARAMS_PUSH(params, "d", double, entity.getItemMaxQuantity());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getDefEncounterUnitCode());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getDefInhospitalUnitCode());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getNationalDrugCode());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getPartAttributeEnum());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getAntibioticCode());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getRestrictedEnum());
+    SQLPARAMS_PUSH(params, "b", bool, entity.getSelfFlag());
+    SQLPARAMS_PUSH(params, "b", bool, entity.getAntibioticFlag());
+    SQLPARAMS_PUSH(params, "b", bool, entity.getBasicFlag());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getThoPartAttributeEnum());
+    SQLPARAMS_PUSH(params, "i", int, entity.getChrgitmLv());
+    SQLPARAMS_PUSH(params, "b", bool, entity.getRxFlag());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getDosageInstruction());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getDrug69Code());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getTotalVolume());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getDoseFormCode());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getDoseUnitCode());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getPackageUnitCode());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getStockUnitCode());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getMethodCode());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getRateCode());
+    SQLPARAMS_PUSH(params, "d", double, entity.getDose());
+    SQLPARAMS_PUSH(params, "d", double, entity.getMaxUnit());
+    SQLPARAMS_PUSH(params, "d", double, entity.getUsageLimit());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getLocationId());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getStatusEnum());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getOrgId());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getIngredientItem());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getMedicationDefinition());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getDddCode());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getDddUnitCode());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getMinRateCode());
+    SQLPARAMS_PUSH(params, "s", std::string, entity.getMaxRateCode());
+    SQLPARAMS_PUSH(params, "d", double, entity.getDoseUnitRatio());
+    SQLPARAMS_PUSH(params, "d", double, entity.getPurchaseUnitRatio());
+    SQLPARAMS_PUSH(params, "d", double, entity.getStockUnitRatio());
+    SQLPARAMS_PUSH(params, "d", double, entity.getPackageUnitRatio());
+
+    return sqlSession->executeUpdate(sql, params);
 
 }
 
@@ -416,9 +502,9 @@ std::string DrugDAO::queryConditionBuilder(const DrugQuery::Wrapper& query, SqlP
     }
 
     // 条件2：器材分类精准查询
-    if (query->classification && !query->classification->empty()) {
+    if (query->kind&& !query->kind->empty()) {
         sqlCondition << " AND `category_code` = ? ";
-        SQLPARAMS_PUSH(params, "s", std::string, query->classification.getValue(""));
+        SQLPARAMS_PUSH(params, "s", std::string, query->kind.getValue(""));
     }
 
     return sqlCondition.str();
