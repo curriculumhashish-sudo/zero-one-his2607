@@ -83,42 +83,42 @@ public: // 接口定义
 	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/treatment/query", queryTreatment,
 		TreatmentQuery, execQueryTreatment(query));
 
-	// 导入诊疗：接口信息
-	API_DEF_ENDPOINT_INFO_FILE_AUTH(ZH_WORDS_GETTER("treatment.import.summary"), importTreatment, TreatmentImportDTO::Wrapper, StringJsonVO::Wrapper, API_TAG);
-	// 导入诊疗：接口绑定
-	API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/treatment/import", importTreatment, REQUEST(std::shared_ptr<IncomingRequest>, request), execImportTreatment(request, authObject->getPayload()));
 
-	// 3.1 定义测试声明式服务调用的接口1描述
-	API_DEF_ENDPOINT_INFO_AUTH(
-		ZH_WORDS_GETTER("treatment.query-one.summary"), queryOne, TreatmentDetailJsonVO::Wrapper, API_TAG2,
-		API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("treatment.field.id"), "184000000000000001", true););
-	// 3.2 定义测试声明式服务调用的接口1处理
-	API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/treatment/query-one", queryOne, QUERY(String, id), execQueryOne(id, authObject->getPayload()));
 
-	// 3.1 定义测试声明式服务调用的接口2描述
-	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("treatment.query-all.summary"), queryAll, TreatmentQuery, TreatmentPageJsonVO::Wrapper, API_TAG2);
-	// 3.2 定义测试声明式服务调用的接口2处理
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/treatment/query-all", queryAll, TreatmentQuery, execQueryAll(query, authObject->getPayload()));
+	//// 导入诊疗：接口信息
+	//API_DEF_ENDPOINT_INFO_FILE_AUTH(ZH_WORDS_GETTER("treatment.import.summary"), importTreatment, TreatmentImportDTO::Wrapper, StringJsonVO::Wrapper, API_TAG);
+	//// 导入诊疗：接口绑定
+	//API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/treatment/import", importTreatment, REQUEST(std::shared_ptr<IncomingRequest>, request), execImportTreatment(request, authObject->getPayload()));
 
-	// 3.1 定义导出接口描述Excel
-	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("treatment.export.summary"), exportTreatment, TreatmentQuery, Void, API_TAG);
-	// 3.2 定义导出接口处理
-	API_HANDLER_ENDPOINT_OPTION_AUTH(API_M_GET, "/treatment/export", exportTreatment, QUERIES(QueryParams, queryParams),
-		API_HANDLER_QUERY_PARAM(query, TreatmentQuery, queryParams); return execExportTreatment(query););
+	//// 3.1 定义测试声明式服务调用的接口1描述
+	//API_DEF_ENDPOINT_INFO_AUTH(
+	//	ZH_WORDS_GETTER("treatment.query-one.summary"), queryOne, TreatmentDetailJsonVO::Wrapper, API_TAG2,
+	//	API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("treatment.field.id"), "184000000000000001", true););
+	//// 3.2 定义测试声明式服务调用的接口1处理
+	//API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/treatment/query-one", queryOne, QUERY(String, id), execQueryOne(id, authObject->getPayload()));
 
-	// 3.1 定义导出接口描述pdf
-	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("treatment.export-pdf.summary"), exportTreatmentPdf, TreatmentQuery, StringJsonVO::Wrapper, API_TAG);
-	// 3.2 定义导出接口处理
-	API_HANDLER_ENDPOINT_OPTION_AUTH(API_M_GET, "/treatment/export-pdf", exportTreatmentPdf, QUERIES(QueryParams, queryParams),
-		API_HANDLER_QUERY_PARAM(query, TreatmentQuery, queryParams); API_HANDLER_RESP_VO(execExportTreatmentPdf(query)););
+	//// 3.1 定义测试声明式服务调用的接口2描述
+	//API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("treatment.query-all.summary"), queryAll, TreatmentQuery, TreatmentPageJsonVO::Wrapper, API_TAG2);
+	//// 3.2 定义测试声明式服务调用的接口2处理
+	//API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/treatment/query-all", queryAll, TreatmentQuery, execQueryAll(query, authObject->getPayload()));
+
+	//// 3.1 定义导出接口描述Excel
+	//API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("treatment.export.summary"), exportTreatment, TreatmentQuery, Void, API_TAG);
+	//// 3.2 定义导出接口处理
+	//API_HANDLER_ENDPOINT_OPTION_AUTH(API_M_GET, "/treatment/export", exportTreatment, QUERIES(QueryParams, queryParams),
+	//	API_HANDLER_QUERY_PARAM(query, TreatmentQuery, queryParams); return execExportTreatment(query););
+
+	//// 3.1 定义导出接口描述pdf
+	//API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("treatment.export-pdf.summary"), exportTreatmentPdf, TreatmentQuery, StringJsonVO::Wrapper, API_TAG);
+	//// 3.2 定义导出接口处理
+	//API_HANDLER_ENDPOINT_OPTION_AUTH(API_M_GET, "/treatment/export-pdf", exportTreatmentPdf, QUERIES(QueryParams, queryParams),
+	//	API_HANDLER_QUERY_PARAM(query, TreatmentQuery, queryParams); API_HANDLER_RESP_VO(execExportTreatmentPdf(query)););
 
 private: // 接口执行函数
 	// 通过ID获取诊疗详情
 	TreatmentDetailJsonVO::Wrapper execQueryById(const String& id);
-	// 声明式服务查询一条
-	TreatmentDetailJsonVO::Wrapper execQueryOne(const String& id, const PayloadDTO& payload);
-	// 导入诊疗
-	StringJsonVO::Wrapper execImportTreatment(std::shared_ptr<IncomingRequest> request, const PayloadDTO& payload);
+	
+	
 	// 新增诊疗：执行函数
 	StringJsonVO::Wrapper execAddTreatment(const TreatmentAddDTO::Wrapper& dto, const PayloadDTO& payload);
 	// 修改诊疗：执行函数
@@ -136,13 +136,19 @@ private: // 接口执行函数
 	// 获取诊疗列表（条件+分页）：执行函数
 	TreatmentPageJsonVO::Wrapper execQueryTreatment(const TreatmentQuery::Wrapper& query);
 
-	// 测试声明式服务调用2
-	TreatmentPageJsonVO::Wrapper execQueryAll(const TreatmentQuery::Wrapper& query, const PayloadDTO& payload);
+	//// 声明式服务查询一条
+	//TreatmentDetailJsonVO::Wrapper execQueryOne(const String& id, const PayloadDTO& payload);
 
-	// 演示导出数据
-	std::shared_ptr<OutgoingResponse> execExportTreatment(const TreatmentQuery::Wrapper& query);
-	// 演示导出数据(PDF)
-	StringJsonVO::Wrapper execExportTreatmentPdf(const TreatmentQuery::Wrapper& query);
+	//// 测试声明式服务调用2
+	//TreatmentPageJsonVO::Wrapper execQueryAll(const TreatmentQuery::Wrapper& query, const PayloadDTO& payload);
+
+	//// 导入诊疗
+	//StringJsonVO::Wrapper execImportTreatment(std::shared_ptr<IncomingRequest> request, const PayloadDTO& payload);
+	
+	//// 演示导出数据
+	//std::shared_ptr<OutgoingResponse> execExportTreatment(const TreatmentQuery::Wrapper& query);
+	//// 演示导出数据(PDF)
+	//StringJsonVO::Wrapper execExportTreatmentPdf(const TreatmentQuery::Wrapper& query);
 };
 
 #undef API_TAG
