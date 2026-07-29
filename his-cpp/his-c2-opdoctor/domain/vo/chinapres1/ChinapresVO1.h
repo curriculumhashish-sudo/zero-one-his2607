@@ -11,7 +11,7 @@
 
 class ChinapresPageJsonVO1 : public  JsonVO<ChinapresPageDTO1::Wrapper>
 {
-	DTO_INIT(ChinapresPageJsonVO1, JsonVO<ChinapresDTO1::Wrapper>);
+	DTO_INIT(ChinapresPageJsonVO1, JsonVO<ChinapresPageDTO1::Wrapper>);
 };
 
 class ChinapresDetailJsonVO1 : public  JsonVO<ChinapresDetailDTO1::Wrapper>

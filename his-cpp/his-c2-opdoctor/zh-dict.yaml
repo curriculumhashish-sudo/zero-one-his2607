@@ -36,7 +36,7 @@ medicalrecord:
     tag: "病历管理"
   field:
     patientid1: "患者病历号"
-    keyword1: "搜索关键词"
+    encounterid: "本次就诊号"
     recordid: "病历ID"
     recordname: "病历名称"
     status1: "状态"

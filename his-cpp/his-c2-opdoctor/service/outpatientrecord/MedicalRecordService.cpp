@@ -1,0 +1,29 @@
+#include "stdafx.h"
+#include "MedicalRecordService.h"
+#include "dao/outpatientrecord/EmrDocumentDAO.h"
+
+MedicalRecordPageDTO::Wrapper MedicalRecordService::queryList(const MedicalRecordQuery::Wrapper& query)
+{
+	auto page = MedicalRecordPageDTO::createShared();
+	page->pageIndex = query->pageIndex;
+	page->pageSize = query->pageSize;
+
+	EmrDocumentDAO dao;
+	auto total = dao.count(query);
+	if (total <= 0) {
+		return page;
+	}
+	page->total = total;
+	page->calcPages();
+
+	auto list = dao.selectList(query);
+	for (auto& record : list) {
+		auto dto = MedicalRecordDTO::createShared();
+		dto->recordId = record->getId();
+		dto->recordName = record->getTitle();
+		dto->status = record->getStatus();
+		dto->createTime = record->getCreatedAt();
+		page->addData(dto);
+	}
+	return page;
+}
