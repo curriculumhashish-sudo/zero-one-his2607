@@ -1,16 +1,21 @@
 package com.zeroone.star.sysmgr.controller;
 
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentDTO2;
+import com.zeroone.star.project.dto.j2.sysmgr.rent.RentDTO2;
 import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentAddDTO;
 import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentDTO;
 import com.zeroone.star.project.j2.sysmgr.rent.RentApis;
-import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentNameDTO;
+import com.zeroone.star.project.dto.j2.sysmgr.rent.RentNameDTO;
 import com.zeroone.star.project.query.j2.sysmgr.rent2.RentNameQuery;
 import com.zeroone.star.project.query.j2.sysmgr.rent2.RentQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.sysmgr.service.IWhaleTenantsService;
+import com.zeroone.star.sysmgr.service.impl.WorkbenchMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
@@ -23,23 +28,39 @@ import org.springframework.web.bind.annotation.*;
  * @author 鹿
  * @version 1.0.0
  */
-
+@Slf4j
 @RestController
 @Tag(name = "租户管理")
 @RequestMapping("/rent")
 public class RentController implements RentApis {
 
+    @Resource
+    private IWhaleTenantsService whaleTenantsService;
+
     @Operation(summary = "获取租户名称")
     @GetMapping("/query-name")
     @Override
     public JsonVO<PageDTO<RentNameDTO>> queryName(RentNameQuery rentNameQuery) {
-        return null;
+        try {
+            PageDTO<RentNameDTO> result = whaleTenantsService.queryTenantNames(rentNameQuery);
+            return JsonVO.success(result);
+        } catch (Exception e) {
+            log.error("获取租户名称异常", e);
+            return JsonVO.fail("获取租户名称失败，请稍后重试");
+        }
     }
+
     @Operation(summary = "获取租户列表（条件+分页）")
     @GetMapping("/query-all")
     @Override
-    public JsonVO<PageDTO<RentDTO2>> queryAll(RentQuery rentQuery) {
-        return null;
+    public JsonVO<PageDTO<RentDTO2>> queryAll(@Validated RentQuery rentQuery) {
+        try {
+            PageDTO<RentDTO2> result = whaleTenantsService.queryTenantList(rentQuery);
+            return JsonVO.success(result);
+        } catch (Exception e) {
+            log.error("获取租户列表异常, code={}, keyword={}", rentQuery.getCode(), rentQuery.getRentKeywords(), e);
+            return JsonVO.fail("获取租户列表失败，请稍后重试");
+        }
     }
 
     @Operation(summary = "新增租户")
