@@ -8,9 +8,9 @@ import com.zeroone.star.configuration.mapper.MetadataMapper;
 import com.zeroone.star.configuration.mapper.MsMetadataMapper;
 import com.zeroone.star.configuration.service.MetadataService;
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j5.configuration.MetadataDetailDTO;
-import com.zeroone.star.project.dto.j5.configuration.MetadataListDTO;
-import com.zeroone.star.project.query.j5.configuration.MetadataQuery;
+import com.zeroone.star.project.dto.j5.Metadata.MetadataDetailDTO;
+import com.zeroone.star.project.dto.j5.Metadata.MetadataListDTO;
+import com.zeroone.star.project.query.j5.Metadata.MetadataQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -125,7 +125,10 @@ public class MetadataServiceImpl extends ServiceImpl<MetadataMapper, Metadata> i
         } else {
             // === 无关键词路径：MyBatis-Plus 标准分页 ===
             // 等值过滤，MyBatis-Plus 自动处理 count + LIMIT
+            // 显式指定 SELECT 列，仅查询 MetadataListDTO 所需字段，避免 SELECT * 冗余传输
             LambdaQueryWrapper<Metadata> wrapper = new LambdaQueryWrapper<>();
+            wrapper.select(Metadata::getId, Metadata::getFieldKey, Metadata::getLabel,
+                           Metadata::getEditableDefault, Metadata::getValueSource);
             wrapper.eq(Metadata::getIsEnabled, isEnabled);
             if (StringUtils.hasText(query.getValueSource())) {
                 wrapper.eq(Metadata::getValueSource, query.getValueSource());

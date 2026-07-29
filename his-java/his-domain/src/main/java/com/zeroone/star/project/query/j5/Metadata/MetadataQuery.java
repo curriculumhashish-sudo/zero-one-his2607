@@ -1,4 +1,4 @@
-package com.zeroone.star.project.query.j5.configuration;
+package com.zeroone.star.project.query.j5.Metadata;
 
 import com.zeroone.star.project.query.PageQuery;
 import io.swagger.v3.oas.annotations.media.Schema;

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.configuration.mapper.MetadataMapper">
+
+    <!-- 通用结果映射 -->
+    <resultMap id="BaseResultMap" type="com.zeroone.star.configuration.entity.Metadata">
+        <id column="id" property="id"/>
+        <result column="field_key" property="fieldKey"/>
+        <result column="label" property="label"/>
+        <result column="data_type" property="dataType"/>
+        <result column="editable_default" property="editableDefault"/>
+        <result column="value_source" property="valueSource"/>
+        <result column="source_path" property="sourcePath"/>
+        <result column="source_config" property="sourceConfig"/>
+        <result column="default_value" property="defaultValue"/>
+        <result column="mask_rule" property="maskRule"/>
+        <result column="format_pattern" property="formatPattern"/>
+        <result column="sort_order" property="sortOrder"/>
+        <result column="is_enabled" property="isEnabled"/>
+        <result column="remark" property="remark"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_by" property="updatedBy"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="is_deleted" property="isDeleted"/>
+        <result column="deleted_at" property="deletedAt"/>
+        <result column="deleted_by" property="deletedBy"/>
+        <result column="tenant_id" property="tenantId"/>
+    </resultMap>
+
+    <!--
+        UNION ALL 关键词分页查询。
+
+        将 field_key 和 label 的模糊匹配拆分为两个子查询，
+        通过 UNION ALL 合并，避免 OR 条件导致的全表扫描。
+        子查询间通过 NOT LIKE 去重（每行只在第一个匹配的分支返回）。
+        显式列出所需列，避免 SELECT * 导致的冗余数据传输和索引覆盖失效。
+    -->
+    <select id="selectPageWithKeyword" resultMap="BaseResultMap">
+        SELECT id, field_key, label, data_type, editable_default, value_source,
+               source_path, source_config, default_value, mask_rule, format_pattern,
+               sort_order, is_enabled, remark,
+               created_by, created_at, updated_by, updated_at,
+               is_deleted, deleted_at, deleted_by, tenant_id
+        FROM (
+            SELECT id, field_key, label, data_type, editable_default, value_source,
+                   source_path, source_config, default_value, mask_rule, format_pattern,
+                   sort_order, is_enabled, remark,
+                   created_by, created_at, updated_by, updated_at,
+                   is_deleted, deleted_at, deleted_by, tenant_id
+            FROM `emr_metadata_field_def`
+            WHERE is_deleted = 0
+              AND is_enabled = #{isEnabled}
+              <if test="valueSource != null and valueSource != ''">
+              AND value_source = #{valueSource}
+              </if>
+              AND field_key LIKE CONCAT('%', #{keyword}, '%')
+            UNION ALL
+            SELECT id, field_key, label, data_type, editable_default, value_source,
+                   source_path, source_config, default_value, mask_rule, format_pattern,
+                   sort_order, is_enabled, remark,
+                   created_by, created_at, updated_by, updated_at,
+                   is_deleted, deleted_at, deleted_by, tenant_id
+            FROM `emr_metadata_field_def`
+            WHERE is_deleted = 0
+              AND is_enabled = #{isEnabled}
+              <if test="valueSource != null and valueSource != ''">
+              AND value_source = #{valueSource}
+              </if>
+              AND label LIKE CONCAT('%', #{keyword}, '%')
+              AND field_key NOT LIKE CONCAT('%', #{keyword}, '%')
+        ) t
+        ORDER BY sort_order ASC
+    </select>
+
+    <!--
+        UNION ALL 关键词分页计数查询。
+
+        与 selectPageWithKeyword 的 WHERE 条件完全一致，
+        返回合并去重后的总记录数。
+    -->
+    <select id="selectCountWithKeyword" resultType="long">
+        SELECT COUNT(*) FROM (
+            SELECT id FROM `emr_metadata_field_def`
+            WHERE is_deleted = 0
+              AND is_enabled = #{isEnabled}
+              <if test="valueSource != null and valueSource != ''">
+              AND value_source = #{valueSource}
+              </if>
+              AND field_key LIKE CONCAT('%', #{keyword}, '%')
+            UNION ALL
+            SELECT id FROM `emr_metadata_field_def`
+            WHERE is_deleted = 0
+              AND is_enabled = #{isEnabled}
+              <if test="valueSource != null and valueSource != ''">
+              AND value_source = #{valueSource}
+              </if>
+              AND label LIKE CONCAT('%', #{keyword}, '%')
+              AND field_key NOT LIKE CONCAT('%', #{keyword}, '%')
+        ) t
+    </select>
+
+</mapper>
