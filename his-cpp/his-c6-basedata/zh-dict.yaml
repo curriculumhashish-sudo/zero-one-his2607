@@ -1,13 +1,13 @@
 ﻿diagnose:
  tags:
-  t1: 诊疗管理
+  t1: 诊断管理
   t2: 声明式服务接口
  query_select:
-  summary: 获取选择诊疗列表（条件+分页）
+  summary: 获取选择诊断列表（条件+分页）
  query_all:
-  summary: 获取诊疗列表（条件+分页）
+  summary: 获取诊断列表（条件+分页）
  query_one:
-  summary: 获取单个诊疗详情
+  summary: 获取单个诊断详情
  batch_status:
   summary: 批量启用或停用诊断
  query:
