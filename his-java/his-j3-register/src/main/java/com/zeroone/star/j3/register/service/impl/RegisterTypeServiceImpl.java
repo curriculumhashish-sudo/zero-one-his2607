@@ -117,6 +117,7 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
             hs.setTenantId("1");
             hs.setName(dto.getName());
             hs.setTypeCode("1");
+            hs.setCategoryCode("REGISTRATION");
             hs.setStatusEnum("ACTIVE");
             hs.setActiveFlag(1);
             hs.setIsDeleted(0);
