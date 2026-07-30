@@ -10,17 +10,17 @@ class PatientConsumableDTO :public oatpp::DTO
 {
 	DTO_INIT(PatientConsumableDTO, DTO);
 	// Consumable name
-	API_DTO_FIELD_REQUIRE(String, consumableName, ZH_WORDS_GETTER("patientconsumable.field.consumableName"), true);
-	// Model specification
-	API_DTO_FIELD_REQUIRE(String, modelSpec, ZH_WORDS_GETTER("patientconsumable.field.modelSpec"), true);
+	API_DTO_FIELD_REQUIRE(String, consumableName, ZH_WORDS_GETTER("patientconsumable1.field.consumableName"), true);
+	// Model spec
+	API_DTO_FIELD_REQUIRE(String, modelSpec, ZH_WORDS_GETTER("patientconsumable1.field.modelSpec"), true);
 	// Quantity
-	API_DTO_FIELD_REQUIRE(String, quantity, ZH_WORDS_GETTER("patientconsumable.field.quantity"), true);
+	API_DTO_FIELD_REQUIRE(String, quantity, ZH_WORDS_GETTER("patientconsumable1.field.quantity"), true);
 	// Status
-	API_DTO_FIELD_REQUIRE(String, status, ZH_WORDS_GETTER("patientconsumable.field.status"), true);
+	API_DTO_FIELD_REQUIRE(String, status, ZH_WORDS_GETTER("patientconsumable1.field.status"), true);
 	// Consumable room
-	API_DTO_FIELD_REQUIRE(String, consumableRoom, ZH_WORDS_GETTER("patientconsumable.field.consumableRoom"), true);
-	// isEmpty
-	API_DTO_FIELD_REQUIRE(Int32, isEmpty, ZH_WORDS_GETTER("patientconsumable.field.isEmpty"), true);
+	API_DTO_FIELD_REQUIRE(String, consumableRoom, ZH_WORDS_GETTER("patientconsumable1.field.consumableRoom"), true);
+	// Whether empty
+	API_DTO_FIELD_REQUIRE(Int32, isEmpty, ZH_WORDS_GETTER("patientconsumable1.field.isEmpty"), true);
 
 };
 #include OATPP_CODEGEN_END(DTO)

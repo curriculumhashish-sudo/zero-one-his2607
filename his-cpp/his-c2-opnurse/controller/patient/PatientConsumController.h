@@ -5,21 +5,26 @@
 #include"domain/query/patient/PatientConsumable.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
+
 #define API_TAG ZH_WORDS_GETTER("patient1.tags.tag")
-class PatientConsumController :public oatpp::web::server::api::ApiController
+
+class PatientConsumController : public oatpp::web::server::api::ApiController
 {
 	API_ACCESS_DECLARE(PatientConsumController);
 public:
-	// Define patient consumable query endpoint info (non-paginated)
-	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("patient1.queryconsum.consum"), consumPatient, PatientConsumQuery, PatientConsumListJsonVO::Wrapper, API_TAG);
-	// Define patient consumable query endpoint handler
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/patient/query-consum", consumPatient, PatientConsumQuery, executeCosumPatient(query));
+	// Endpoint info definition
+	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("patient1.queryconsum.consum"),
+		consumPatient, PatientConsumQuery, PatientConsumListJsonVO::Wrapper, API_TAG);
+	// Endpoint binding
+	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/patient/query-consum",
+		consumPatient, PatientConsumQuery, execConsumPatient(query));
 
-	// Define patient consumable query executor
-	PatientConsumListJsonVO::Wrapper executeCosumPatient(const PatientConsumQuery::Wrapper& query);
-
+private:
+	// Execute patient consumable query
+	PatientConsumListJsonVO::Wrapper execConsumPatient(const PatientConsumQuery::Wrapper& query);
 };
+
 #undef API_TAG
 #include OATPP_CODEGEN_END(ApiController)
 
-#endif
+#endif // !_PATIENTCONSUMCONTROLLER_H_

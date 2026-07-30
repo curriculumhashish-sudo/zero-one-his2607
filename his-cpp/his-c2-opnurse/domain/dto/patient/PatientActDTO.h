@@ -13,12 +13,14 @@ class PatientActDTO : public oatpp::DTO
 	API_DTO_FIELD_REQUIRE(String, status, ZH_WORDS_GETTER("patient1.field.status"), true);
 	// Order content
 	API_DTO_FIELD_REQUIRE(String, orderContent, ZH_WORDS_GETTER("patient1.field.orderContent"), true);
+	// Amount (formatted price)
+	API_DTO_FIELD_REQUIRE(String, amount, ZH_WORDS_GETTER("patientact.field.amount"), true);
 	// Whether executed
 	API_DTO_FIELD_REQUIRE(Int32, isAct, ZH_WORDS_GETTER("patient1.field.act"), false);
 };
 
 /**
- * Paginated DTO for patient list.
+ * Paginated DTO for patient act list.
  */
 class PatientActPageDTO : public PageDTO<PatientActDTO::Wrapper>
 {

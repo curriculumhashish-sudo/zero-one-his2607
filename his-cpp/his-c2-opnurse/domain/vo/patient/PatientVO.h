@@ -2,17 +2,18 @@
 #define _PATIENTVO_H_
 
 #include "domain/vo/BaseJsonVO.h"
+#include "../../dto/patient/PatientQueueDTO.h"
 #include "../../dto/patient/PatientActDTO.h"
 #include "../../dto/patient/PatientConsumableDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * Paginated JSON VO for patient list response.
+ * Paginated JSON VO for patient queue list response.
  */
-class PatientPageJsonVO : public JsonVO<PatientActPageDTO::Wrapper>
+class PatientQueuePageJsonVO : public JsonVO<PatientQueuePageDTO::Wrapper>
 {
-	DTO_INIT(PatientPageJsonVO, JsonVO<PatientActPageDTO::Wrapper>);
+	DTO_INIT(PatientQueuePageJsonVO, JsonVO<PatientQueuePageDTO::Wrapper>);
 };
 
 /**
