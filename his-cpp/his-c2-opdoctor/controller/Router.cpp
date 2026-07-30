@@ -102,7 +102,6 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(Chinapres2Controller);
 
 	ROUTER_SIMPLE_BIND(chinapres3Controller);
-	ROUTER_SIMPLE_BIND(outpatientrecordController);
 
 	ROUTER_SIMPLE_BIND(Prescription2Controller);
 

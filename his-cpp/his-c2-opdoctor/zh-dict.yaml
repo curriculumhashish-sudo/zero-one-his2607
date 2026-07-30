@@ -301,7 +301,7 @@ chinapres1:
 
 medicalrecord:
  tags:
-  tag: "病历管理"
+  tag: "门诊病历"
  field:
   patientid1: "患者病历号"
   keyword1: "搜索关键词"
