@@ -1,7 +1,6 @@
 package com.zeroone.star.project.dto.stocktake;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
@@ -17,8 +16,10 @@ import lombok.Data;
 @Schema(description = "盘点单提交审批")
 public class StocktakeSubmitDTO {
 
-    @NotBlank(message = "盘点单ID不能为空")
-    @Schema(description = "盘点单ID", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "盘点单号", example = "PST202607300001")
+    private String busNo;
+
+    @Schema(description = "盘点单ID（兼容旧参数）", example = "1")
     private String id;
 
     @Schema(description = "提交审批备注", example = "请审批")

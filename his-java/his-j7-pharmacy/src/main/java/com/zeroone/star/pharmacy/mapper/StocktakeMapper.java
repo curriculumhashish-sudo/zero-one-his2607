@@ -92,5 +92,6 @@ public interface StocktakeMapper extends BaseMapper<WkfSupplyRequest> {
                             @Param("applicantId") String applicantId,
                             @Param("applyTime") String applyTime,
                             @Param("updatedBy") String updatedBy,
-                            @Param("updatedAt") String updatedAt);
+                            @Param("updatedAt") String updatedAt,
+                            @Param("remark") String remark);
 }
