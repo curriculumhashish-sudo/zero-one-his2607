@@ -30,9 +30,6 @@ public class UserHolder {
     @Resource
     ApplicationContext applicationContext;
 
-    @Resource
-    ApplicationContext applicationContext;
-
     /**
      * 从请求头中获取用户信息
      * @return 用户信息
