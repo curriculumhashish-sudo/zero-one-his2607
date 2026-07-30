@@ -3,6 +3,47 @@
 #include "StringUtil.h"
 #include "service/ward/WardService.h"
 
+namespace
+{
+    bool hasText(const oatpp::String& value)
+    {
+        if (!value)
+        {
+            return false;
+        }
+
+        std::string text = value->c_str();
+        StringUtil::trim(&text);
+        return !text.empty();
+    }
+
+    WardVO::Wrapper toWardVO(
+        const PtrWardLocationDO& source)
+    {
+        if (!source)
+        {
+            return nullptr;
+        }
+
+        auto data = WardVO::createShared();
+        data->id = source->getId();
+        data->name = source->getName();
+        data->busNo = source->getBusNo();
+        data->statusEnum = source->getStatusEnum();
+        data->operationalEnum = source->getOperationalEnum();
+        data->formEnum = source->getFormEnum();
+        data->modeEnum = source->getModeEnum();
+        data->typeJson = source->getTypeJson();
+        data->organizationId = source->getOrganizationId();
+        data->displayOrder = source->getDisplayOrder();
+        data->pyStr = source->getPyStr();
+        data->wbStr = source->getWbStr();
+        data->parentId = source->getParentId();
+        data->version = source->getVersion();
+        return data;
+    }
+}
+
 // Query room by ID (stub)
 WardRoomJsonVO::Wrapper WardController::execQueryRoomById(const String& id) {
     return WardRoomJsonVO::createShared();
@@ -11,6 +52,104 @@ WardRoomJsonVO::Wrapper WardController::execQueryRoomById(const String& id) {
 // Query bed by ID (stub)
 WardBedJsonVO::Wrapper WardController::execQueryBedById(const String& id) {
     return WardBedJsonVO::createShared();
+}
+
+WardJsonVO::Wrapper WardController::execModifyWard(
+    const WardModifyDTO::Wrapper& dto,
+    const PayloadDTO& payload)
+{
+    auto response = WardJsonVO::createShared();
+    if (!dto ||
+        !hasText(dto->id) ||
+        !hasText(dto->name) ||
+        !hasText(dto->organizationId) ||
+        dto->id.getValue("").size() > 64 ||
+        dto->name.getValue("").size() > 255 ||
+        dto->organizationId.getValue("").size() > 64 ||
+        dto->pyStr.getValue("").size() > 255 ||
+        dto->wbStr.getValue("").size() > 255 ||
+        dto->version.getValue(-1) < 0 ||
+        dto->displayOrder.getValue(0) < 0)
+    {
+        response->init(
+            nullptr,
+            ResultStatus("Invalid ward modification parameters.", 9995));
+        return response;
+    }
+
+    const auto result = WardService().modifyWard(dto, payload);
+    if (!result.success)
+    {
+        response->init(
+            nullptr,
+            ResultStatus(result.message, 9999));
+        return response;
+    }
+
+    response->success(toWardVO(result.data));
+    return response;
+}
+
+BooleanJsonVO::Wrapper WardController::execRemoveWard(
+    const String& id,
+    const PayloadDTO& payload)
+{
+    auto response = BooleanJsonVO::createShared();
+    if (!hasText(id) || id.getValue("").size() > 64)
+    {
+        response->init(
+            false,
+            ResultStatus("Ward ID is required.", 9995));
+        return response;
+    }
+
+    const auto result =
+        WardService().removeWard(id.getValue(""), payload);
+    if (!result.success)
+    {
+        response->init(
+            false,
+            ResultStatus(result.message, 9999));
+        return response;
+    }
+
+    response->success(true);
+    return response;
+}
+
+WardJsonVO::Wrapper WardController::execModifyWardStatus(
+    const WardStatusDTO::Wrapper& dto,
+    const PayloadDTO& payload)
+{
+    auto response = WardJsonVO::createShared();
+    const std::string statusEnum =
+        dto ? dto->statusEnum.getValue("") : "";
+
+    if (!dto ||
+        !hasText(dto->id) ||
+        dto->id.getValue("").size() > 64 ||
+        (statusEnum != "ACTIVE" &&
+         statusEnum != "DISABLED") ||
+        dto->version.getValue(-1) < 0)
+    {
+        response->init(
+            nullptr,
+            ResultStatus("Invalid ward status parameters.", 9995));
+        return response;
+    }
+
+    const auto result =
+        WardService().changeWardStatus(dto, payload);
+    if (!result.success)
+    {
+        response->init(
+            nullptr,
+            ResultStatus(result.message, 9999));
+        return response;
+    }
+
+    response->success(toWardVO(result.data));
+    return response;
 }
 
 // Query ward tree list
