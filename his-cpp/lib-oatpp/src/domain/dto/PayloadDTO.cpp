@@ -61,7 +61,10 @@ PayloadDTO::PayloadDTO()
 	// 设置jti 使用当前时间戳作为jti的值
 	this->Jti(std::to_string(time(nullptr)));
 	this->setCode(PayloadCode::SUCCESS);
-	// 注意：新增属性字段赋值默认值在后面补充即可
+	// 新增：租户标识默认值
+	this->tenantId = "TEST_TENANT_001";
+	// 新增：机构标识默认值
+	this->orgId = "TEST_ORG_001";
 }
 
 void PayloadDTO::putAuthority(std::string authstr)
@@ -86,6 +89,7 @@ void PayloadDTO::propToJwt(jwt::builder<jwt::default_clock, jwt::traits::kazuho_
 	// 转换id
 	builder.set_payload_claim("id", jwt::basic_claim<jwt::traits::kazuho_picojson>(id));
 
+
 	// 提示：新增字段需要在后补充方法
 
 	// 转换真实姓名
@@ -104,6 +108,11 @@ void PayloadDTO::propToJwt(jwt::builder<jwt::default_clock, jwt::traits::kazuho_
 	builder.set_payload_claim("titleName", jwt::basic_claim<jwt::traits::kazuho_picojson>(titleName));
 	// 转换职称编码
 	builder.set_payload_claim("titleCode", jwt::basic_claim<jwt::traits::kazuho_picojson>(titleCode));
+
+	// 新增：转换租户标识
+	builder.set_payload_claim("tenantId", jwt::basic_claim<jwt::traits::kazuho_picojson>(tenantId));
+	// 新增：转换机构标识
+	builder.set_payload_claim("orgId", jwt::basic_claim<jwt::traits::kazuho_picojson>(orgId));
 }
 
 void PayloadDTO::propToPayload(const jwt::decoded_jwt<jwt::traits::kazuho_picojson>& decoded)
@@ -145,6 +154,7 @@ void PayloadDTO::propToPayload(const jwt::decoded_jwt<jwt::traits::kazuho_picojs
 			std::cerr << "Error parsing id: " << e.what() << std::endl;
 		}
 	}
+
 
 	// 提示：新增字段需要在后补充方法
 
@@ -209,6 +219,32 @@ void PayloadDTO::propToPayload(const jwt::decoded_jwt<jwt::traits::kazuho_picojs
 		}
 		catch (const std::exception& e) {
 			std::cerr << "Error parsing titleCode: " << e.what() << std::endl;
+
+	// 新增：解析租户标识
+	if (claims.count("tenantId")) {
+		const auto& value = claims.at("tenantId");
+		try {
+			if (value.is<std::string>()) {
+				this->tenantId = value.get<std::string>();
+			}
+		}
+		catch (const std::exception& e) {
+			std::cerr << "Error parsing tenantId: " << e.what() << std::endl;
+			this->tenantId = "TEST_TENANT_001";
+		}
+	}
+	// 新增：解析机构标识
+	if (claims.count("orgId")) {
+		const auto& value = claims.at("orgId");
+		try {
+			if (value.is<std::string>()) {
+				this->orgId = value.get<std::string>();
+			}
+		}
+		catch (const std::exception& e) {
+			std::cerr << "Error parsing orgId: " << e.what() << std::endl;
+			this->orgId = "TEST_ORG_001";
+
 		}
 	}
 }

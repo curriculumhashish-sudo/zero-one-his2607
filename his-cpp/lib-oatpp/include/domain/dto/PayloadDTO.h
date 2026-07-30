@@ -77,7 +77,6 @@ private:
 	std::list<std::string> authorities;
 	
 	// TIP：新增属性字段在后面添加即可
-	
 	/**
 	 * 用户名称（真实姓名）
 	 */
@@ -103,7 +102,18 @@ private:
 	 * 职称编码，职称名称对应的编码值
 	 */
 	std::string titleCode;
+
+	std::string tenantId;
+	std::string orgId;
 public:
+
+	void setTenantId(std::string val) { tenantId = val; }
+	std::string getTenantId() const { return tenantId; }
+
+	void setOrgId(std::string val) { orgId = val; }
+	std::string getOrgId() const { return orgId; }
+
+
 	PayloadDTO();
 	/**
 	 * 构造初始化
@@ -144,7 +154,9 @@ public:
 	void setId(std::string val) { id = val; }
 	const std::list<std::string>& getAuthorities() const { return authorities; }
 	void setAuthorities(std::list<std::string> val) { authorities = val; }
+	
 	// 注意：新增属性字段后需要补充getter/setter
+
 	std::string getName() const { return name; }
 	void setName(std::string val) { name = val; }
 	std::map<std::string, std::string> getOrganizationUnits() const { return organizationUnits; }

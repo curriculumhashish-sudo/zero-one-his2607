@@ -19,6 +19,7 @@
 #include "stdafx.h"
 #include "Router.h"
 #include "ApiHelper.h"
+
 #include "prescription2/Prescription2Controller.h"
 
 #include "chinapres1/ChinapresController1.h"
@@ -43,6 +44,9 @@
 #include "controller/prescription3/Prescription3Controller.h"
 
 #include "order/OrderController.h"
+
+#include "order/OrderController1.h"
+
 
 #include "chinapres2/Chinapres2Controller.h"
 
@@ -92,8 +96,6 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(HistoryOrderDetailController);
 
 
-	ROUTER_SIMPLE_BIND(OrderController);
-
 	ROUTER_SIMPLE_BIND(ChinapresController1);
 	ROUTER_SIMPLE_BIND(MedicalRecordController);
 	ROUTER_SIMPLE_BIND(Chinapres2Controller);
@@ -102,4 +104,7 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(outpatientrecordController);
 
 	ROUTER_SIMPLE_BIND(Prescription2Controller);
+
+	ROUTER_SIMPLE_BIND(OrderController1);
+
 }
