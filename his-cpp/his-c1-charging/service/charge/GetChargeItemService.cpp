@@ -60,7 +60,10 @@ GetChargeItemDTO::Wrapper GetChargeItemService::listAll(const GetChargeItemsQuer
 
             // 字典翻译/派生字段
             row->chargeCategoryDisplay = ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.chargeCategoryDisplay.value");
-            row->statusText = ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.statusText.value");
+            if (item.getStatusCode() == "DRAFT")    row->statusText = ZH_WORDS_GETTER("lhfc.charging.charge.dict.chargeStatus.pending");
+            else if (item.getStatusCode() == "SETTLED")  row->statusText = ZH_WORDS_GETTER("lhfc.charging.charge.dict.chargeStatus.settled");
+            else if (item.getStatusCode() == "REFUNDED") row->statusText = ZH_WORDS_GETTER("lhfc.charging.charge.dict.chargeStatus.refunded");
+            else row->statusText = item.getStatusCode();
             row->discountRateDisplay = ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.discountRateDisplay.value");
 
             row->feeNatureDisplay = item.getContractName();
