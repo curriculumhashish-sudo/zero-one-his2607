@@ -32,7 +32,7 @@ public:
 	// 通过姓名查询数据
 	std::list<WkfInventoryItemDO> selectByName(const string& name);
 	// 通过ID查询数据
-	PtrWkfInventoryItemDO selectById(std::string id);
+	PtrDocInventorySnapshotDO selectById(std::string id);
 
 	// 新增的数据插入 (供 saveData 调用)
 	int insert(const WkfInventoryItemDO& entity);

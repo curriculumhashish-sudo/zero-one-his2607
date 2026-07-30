@@ -34,7 +34,8 @@ EquipmentDetailPageDTO::Wrapper EquipmentService::listAll(const EquipmentQuery::
 			name, Name,
 			classification, TotalVolume,
 			specification, InventoryStatusEnum,
-			manufacturer, Manufacturer
+			manufacturer, Manufacturer,
+			price, LotNumberPriceAmount
 		);
 		if (sub.getDeviceCategoryCode() == "1")
 		{
@@ -66,7 +67,28 @@ EquipmentDTO::Wrapper EquipmentService::getById(std::string id)
 		dto, res,
 		id, Id,
 		name, Name,
-		classification, CategoryCode,
+		goods, MerchandiseName,
+		classification, DeviceCategoryCode,
+		manufacturer, Manufacturer,
+		supplier, SupplierId,
+		apprno, ApprovalNumber,
+		specification, TotalVolume,
+		code, YbNo,
+		finantype, MedicationCategoryCode,
+		code, ProductBusNo,
+		// 医保类别 medinscat,
+		// 医保等级 medinsgra, ChrgitmLv
+		// 采购单位 purchaunit,
+		// 采购/拆零倍数 
+		purchase,LotNumberCostAmount,
+		// 库存单位
+		// 库存拆零倍数
+		retail,LotNumberPriceAmount,
+		// 包装单位
+		packsplit, PackageUnitRatio,
+		// 最高零售价（包装单位）
+		// 警戒线最高值(库存单位)
+		// 警戒线最低值(库存单位)
 		pinyin, PyStr,
 		wubi, WbStr
 		);

@@ -126,6 +126,8 @@ class WkfInventoryItemViewDO : public WkfInventoryItemDO {
 	MYSQL_SYNTHESIZE(string, manufacturer, Manufacturer);
 	// 耗材分类编码
 	MYSQL_SYNTHESIZE(string, deviceCategoryCode, DeviceCategoryCode);
+	// 批号售价（包装整包）
+	MYSQL_SYNTHESIZE(double, lotNumberPriceAmount, LotNumberPriceAmount);
 };
 
 // 定义一个智能指针别名方便使用

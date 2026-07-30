@@ -249,7 +249,8 @@ public:
 		data.setDeviceCategoryCode(resultSet->getString(6));
 		// 厂家/产地
 		data.setManufacturer(resultSet->getString(7));
-
+		// 批号售价（包装整包）
+		data.setLotNumberPriceAmount(resultSet->getDouble(35));
 		return data;
 	}
 };
