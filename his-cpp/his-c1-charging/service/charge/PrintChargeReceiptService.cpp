@@ -6,6 +6,7 @@
 
 #include <set>
 #include <sstream>
+#include "PrintTraceStore.h"
 
 // 防止 ODBC/MySQL 类型冲突
 #include "NacosClient.h"
@@ -106,10 +107,18 @@ PreparePrintResponseDTO::Wrapper PrintChargeReceiptService::preparePrint(const P
     if (!templates.empty())
     {
         auto& t = templates.front();
-        resp->traceId = UuidFacade().genUuid();
+        std::string traceId = UuidFacade().genUuid();
+        resp->traceId = traceId;
         resp->busNo = t.getBusNo();
         resp->scenarioCode = t.getScenarioCode();
         try { resp->templateVersion = std::stoi(t.getTemplateVersion()); } catch (...) {}
+
+        // 存入打印追踪快照，供4C校验防重放
+        PrintTraceSnapshot snap;
+        snap.busNo = t.getBusNo();
+        snap.scenarioCode = t.getScenarioCode();
+        snap.templateVersion = resp->templateVersion;
+        PrintTraceStore::getInstance().put(traceId, snap);
 
         // 解析JSON字符串为Any对象，序列化时作为内嵌JSON输出
         auto mapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
@@ -129,6 +138,15 @@ ConfirmPrintResponseDTO::Wrapper PrintChargeReceiptService::confirmPrint(const C
     auto resp = ConfirmPrintResponseDTO::createShared();
 
     if (!dto->traceId || dto->traceId->empty())
+    {
+        resp->ok = false;
+        return resp;
+    }
+
+    // 校验打印追踪ID，防重放
+    std::string traceId = std::string(dto->traceId->c_str());
+    PrintTraceSnapshot snap;
+    if (!PrintTraceStore::getInstance().take(traceId, snap))
     {
         resp->ok = false;
         return resp;

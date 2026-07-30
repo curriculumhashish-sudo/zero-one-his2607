@@ -6,6 +6,7 @@
 
 #include <chrono>
 #include <set>
+#include "SettleDraftStore.h"
 
 // 防止 ODBC/MySQL 类型冲突
 #include "NacosClient.h"
@@ -57,8 +58,17 @@ PreSettleChargeResponseDTO::Wrapper SettleChargeService::preSettle(const PreSett
     resp->displayAmount = displayAmount;
     resp->previews = previews;
 
-    // 生成支付草稿ID
-    resp->paymentDraftId = UuidFacade().genUuid();
+    // 生成支付草稿ID并存入快照，供3B校验防换单
+    std::string draftId = UuidFacade().genUuid();
+    resp->paymentDraftId = draftId;
+
+    SettleDraftSnapshot snapshot;
+    snapshot.encounterId = dto->encounterId.getValue("");
+    snapshot.totalAmount = displayAmount;
+    if (dto->chargeItemIds)
+        for (auto& id : *dto->chargeItemIds)
+            snapshot.chargeItemIds.push_back(std::string(id->c_str()));
+    SettleDraftStore::getInstance().put(draftId, snapshot);
 
     // 自费汇总
     auto selfPayRollup = OpSelfPayRollupDTO::createShared();
@@ -82,6 +92,30 @@ ConfirmSettleChargeResponseDTO::Wrapper SettleChargeService::confirmSettle(
 
     if (!dto->encounterId || dto->encounterId->empty())
         return resp;
+
+    // 校验支付草稿ID，防重放和防换单
+    std::string draftId = dto->paymentDraftId ? std::string(dto->paymentDraftId->c_str()) : "";
+    SettleDraftSnapshot draft;
+    if (draftId.empty() || !SettleDraftStore::getInstance().take(draftId, draft))
+    {
+        resp->successMessageCode = "EX-DRAFT-404";
+        return resp;
+    }
+    if (draft.encounterId != std::string(dto->encounterId->c_str()))
+    {
+        resp->successMessageCode = "EX-DRAFT-ENCOUNTER_MISMATCH";
+        return resp;
+    }
+    // 比对选中收费项集合，防换单
+    std::set<std::string> draftIds(draft.chargeItemIds.begin(), draft.chargeItemIds.end());
+    std::set<std::string> reqIds;
+    if (dto->chargeItemIds)
+        for (auto& id : *dto->chargeItemIds) reqIds.insert(std::string(id->c_str()));
+    if (draftIds != reqIds)
+    {
+        resp->successMessageCode = "EX-DRAFT-ITEMS_MISMATCH";
+        return resp;
+    }
 
     std::string paymentId = UuidFacade().genUuid();
     std::string invoiceId = UuidFacade().genUuid();
