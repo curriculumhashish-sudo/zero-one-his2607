@@ -161,5 +161,21 @@ public interface PatientMapper extends BaseMapper<PatientDO> {
             @Param("updatedAt") LocalDateTime updatedAt
     );
 
+    /**
+     * 查询患者是否存在进行中的就诊记录（挂号/住院）。
+     * <p>排除已结束、已取消、录入错误等终态就诊。</p>
+     *
+     * @param patientId 患者ID
+     * @return 进行中的就诊记录数
+     */
+    @Select("""
+            SELECT COUNT(1)
+            FROM adm_encounter
+            WHERE patient_id = #{patientId}
+              AND is_deleted = 0
+              AND status_enum NOT IN ('FINISHED', 'CANCELLED', 'ENTERED_IN_ERROR')
+            """)
+    int countActiveEncounters(@Param("patientId") String patientId);
+
 
 }

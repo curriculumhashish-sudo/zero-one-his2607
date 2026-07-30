@@ -187,7 +187,12 @@ public class PatientServiceImpl implements PatientService {
         if (patient == null) {
             throw new PatientBusinessException("患者不存在或已删除");
         }
-        // TODO: 检查挂号、住院等业务引用
+        int activeEncounters = patientMapper.countActiveEncounters(id.trim());
+        if (activeEncounters > 0) {
+            throw new PatientBusinessException(
+                    "该患者存在进行中的就诊记录（挂号/住院），暂不能删除"
+            );
+        }
         patientMapper.deleteById(id.trim());
     }
 
