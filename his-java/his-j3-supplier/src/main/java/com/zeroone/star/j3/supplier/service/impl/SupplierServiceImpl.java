@@ -199,7 +199,6 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         // 设置更新人/更新时间（从登录用户获取，类似删除处理方式）
         try {
             supplier.setUpdatedBy(userHolder.getCurrentUser().getUsername());
-            supplier.setTenantId(userHolder.getCurrentTenantId());
         } catch (Exception e) {
             e.printStackTrace();
         }
