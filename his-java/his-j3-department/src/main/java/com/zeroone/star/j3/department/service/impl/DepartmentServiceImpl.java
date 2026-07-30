@@ -10,7 +10,9 @@ import com.zeroone.star.j3.department.entity.DepartmentDO;
 import com.zeroone.star.j3.department.entity.DepartmentUnitDO;
 import com.zeroone.star.j3.department.mapper.DepartmentMapper;
 import com.zeroone.star.j3.department.service.DepartmentService;
+import com.zeroone.star.project.components.user.UserDTO;
 import com.zeroone.star.project.components.user.UserHolder;
+import com.zeroone.star.project.constant.RedisConstant;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j3.department.DepartmentBatchDTO;
 import com.zeroone.star.project.dto.j3.department.DepartmentCreateDTO;
@@ -26,6 +28,7 @@ import com.zeroone.star.project.vo.j3.department.DepartmentTreeVO;
 import com.zeroone.star.project.vo.j3.department.DepartmentVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -53,14 +56,9 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Resource
     private UserHolder userHolder;
 
-    /**
-     *
-     * 获取科室树结构
-     *
-     * @param query 查询参数
-     * @return 科室树结构
-     * @author 胡傲宇
-     */
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
+
     @Override
     public PageDTO<DepartmentVO> getDepartmentPage(DepartmentQuery query) {
         Page<DepartmentDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
@@ -101,6 +99,14 @@ public class DepartmentServiceImpl implements DepartmentService {
         return PageDTO.create(result, this::toDepartmentVO);
     }
 
+    /**
+     *
+     * 获取科室树结构
+     *
+     * @param query 查询参数
+     * @return 科室树结构
+     * @author 胡傲宇
+     */
     @Override
     public List<DepartmentTreeVO> getDepartmentTree(DepartmentTreeQuery query) {
         if (query == null) {
@@ -254,11 +260,19 @@ public class DepartmentServiceImpl implements DepartmentService {
             throw new IllegalArgumentException("部门编号已存在");
         }
 
-        // TODO: 替换为真实的用户上下文获取
-        Long currentUserId = 1L;
-        Long tenantId = departmentMapper.getTenantIdByUserId(currentUserId);
-        if (tenantId == null) {
-            throw new CurrentTenantNotFoundException("无法获取当前用户的租户信息");
+        Long currentUserId = getCurrentUserId();
+        String tenantIdStr = getCurrentTenantId();
+        Long tenantId;
+        if (StrUtil.isNotBlank(tenantIdStr)) {
+            tenantId = Long.valueOf(tenantIdStr.trim());
+        } else {
+            tenantId = departmentMapper.getTenantIdByUserId(currentUserId);
+            if (tenantId != null) {
+                String redisKey = RedisConstant.LOGIN_CONTEXT + currentUserId;
+                redisTemplate.opsForHash().put(redisKey, "tenantId", String.valueOf(tenantId));
+            } else {
+                throw new CurrentTenantNotFoundException("无法获取当前用户的租户信息");
+            }
         }
 
         List<DepartmentDO> existingNameDepartments = departmentMapper.selectList(new LambdaQueryWrapper<DepartmentDO>()
@@ -740,6 +754,52 @@ public class DepartmentServiceImpl implements DepartmentService {
         );
         if (updated != 1) {
             throw new IllegalStateException("关联组织单元更新失败");
+        }
+    }
+
+    /**
+     * 获取当前用户所属租户ID
+     *
+     * @return 当前用户所属租户ID
+     */
+    private String getCurrentTenantId() {
+        try {
+            // 1. 获取当前用户ID
+            UserDTO currentUser = userHolder.getCurrentUser();
+            String userId = currentUser.getId();
+
+            // 2. 构建 Redis Key
+            String redisKey = RedisConstant.LOGIN_CONTEXT + userId;
+
+            // 3. 从 Hash 中取 tenantId
+            Object tenantObj = redisTemplate.opsForHash().get(redisKey, "tenantId");
+            if (tenantObj == null) {
+                throw new RuntimeException("未找到用户 [" + userId + "] 的租户信息");
+            }
+            return tenantObj.toString();
+
+        } catch (Exception e) {
+            throw new RuntimeException("获取当前租户ID失败", e);
+        }
+    }
+
+    /**
+     * 获取当前用户ID
+     *
+     * @return 当前用户ID
+     * @author 胡傲宇
+     */
+    private Long getCurrentUserId() {
+        try {
+            UserDTO currentUser = userHolder.getCurrentUser();
+            String userId = currentUser.getId();
+            if (StringUtils.hasText(userId)) {
+                return Long.valueOf(userId);
+            } else {
+                throw new RuntimeException("未获取到当前用户ID");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("获取当前用户ID失败", e);
         }
     }
 }
