@@ -17,7 +17,6 @@ import com.zeroone.star.project.vo.j3.supplier.SupplierNameVO;
 import jakarta.annotation.Resource;
 
 import org.springframework.beans.BeanUtils;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -123,13 +122,22 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         // DTO → Entity 转换
         Supplier supplier = msSupplierMapper.SupplierFullDTO2Supplier(dto);
         // ID后端自增（基于最大ID +1），在事务中使用悲观锁保证并发安全
-        supplier.setId(generateId());
         // 如果BusNo为空则设置默认值
         if (!StringUtils.hasText(supplier.getBusNo())) {
             supplier.setBusNo(generateBusNo());
         }
         if (!StringUtils.hasText(supplier.getStatusEnum())) {
             supplier.setStatusEnum(ENABLED);
+        }
+        supplier.setId(generateId());
+        // 设置租户ID（从登录用户获取，失败时使用入参值）
+        try {
+            supplier.setTenantId(userHolder.getCurrentTenantId());
+        } catch (Exception e) {
+            // 当用户上下文不可用时（如测试环境无token），使用DTO传入的tenantId
+            if (StringUtils.hasText(dto.getTenantId())) {
+                supplier.setTenantId(dto.getTenantId());
+            }
         }
         supplier.setVersion(0);
         // 软删除字段初始化
@@ -141,7 +149,6 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         try {
             supplier.setCreatedBy(userHolder.getCurrentUser().getUsername());
         } catch (Exception e) {
-            // TODO 开发阶段可能无token，暂不处理
             e.printStackTrace();
         }
         //supplier.setCreatedAt(LocalDateTime.now());
@@ -197,8 +204,8 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         // 设置更新人/更新时间（从登录用户获取，类似删除处理方式）
         try {
             supplier.setUpdatedBy(userHolder.getCurrentUser().getUsername());
+            supplier.setTenantId(userHolder.getCurrentTenantId());
         } catch (Exception e) {
-            // TODO 开发阶段可能无token，暂不处理
             e.printStackTrace();
         }
         //supplier.setUpdatedAt(LocalDateTime.now());
@@ -228,7 +235,6 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         try {
             deletedBy = userHolder.getCurrentUser().getUsername();
         } catch (Exception e) {
-            // TODO 开发阶段可能无token，暂不处理
             e.printStackTrace();
         }
 
