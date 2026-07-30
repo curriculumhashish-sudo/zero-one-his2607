@@ -1,44 +1,25 @@
-#ifndef _outpatientrecordCONTROLLER_H_
-#define _outpatientrecordCONTROLLER_H_
+#ifndef __OUTPATIENTRECORDCONTROLLER_H_
+#define __OUTPATIENTRECORDCONTROLLER_H_
 
 #include "domain/vo/BaseJsonVO.h"
-#include "../../domain/dto/outpatientrecord/outpatientrecordSaveDTO.h"
+#include "domain/query/outpatientrecord/OutpatientRecordQuery.h"
+#include "domain/vo/outpatientrecord/OutpatientRecordVO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
+#define API_TAG ZH_WORDS_GETTER("outpatientRecord.tags.tag")
 
-#define API_TAG ZH_WORDS_GETTER("outpatientrecord.tags.tag")
-
-class outpatientrecordController
-	: public oatpp::web::server::api::ApiController
+class OutpatientRecordController : public oatpp::web::server::api::ApiController
 {
-	API_ACCESS_DECLARE(outpatientrecordController);
-
+    API_ACCESS_DECLARE(OutpatientRecordController);
 public:
-
-	// ±£´æÃÅÕï²¡Àú
-	API_DEF_ENDPOINT_INFO_AUTH(
-		ZH_WORDS_GETTER("outpatientrecord.save.summary"),
-		saveoutpatientrecord,
-		StringJsonVO::Wrapper,
-		API_TAG);
-
-	API_HANDLER_ENDPOINT_AUTH(
-		API_M_POST,
-		"/outpatientrecord/save",
-		saveoutpatientrecord,
-		BODY_DTO(outpatientrecordSaveDTO::Wrapper, dto),
-		execSaveoutpatientrecord(dto, authObject->getPayload()));
+    API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("outpatientRecord.query.summary"), queryRecord, OutpatientRecordQuery, OutpatientRecordPageJsonVO::Wrapper, API_TAG);
+    API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/outpatientrecord", queryRecord, OutpatientRecordQuery, execQueryRecord(query));
 
 private:
-
-	StringJsonVO::Wrapper
-		execSaveoutpatientrecord(
-			const outpatientrecordSaveDTO::Wrapper& dto,
-			const PayloadDTO& payload);
+    OutpatientRecordPageJsonVO::Wrapper execQueryRecord(const OutpatientRecordQuery::Wrapper& query);
 };
 
 #undef API_TAG
-
 #include OATPP_CODEGEN_END(ApiController)
 
-#endif
+#endif // !__OUTPATIENTRECORDCONTROLLER_H_

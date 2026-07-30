@@ -1,10 +1,12 @@
 #include "stdafx.h"
-#include "outpatientrecordController.h"
+#include "OutpatientRecordController.h"
+#include "../../service/outpatientrecord/OutpatientRecordService.h"
 
-StringJsonVO::Wrapper
-outpatientrecordController::execSaveoutpatientrecord(
-	const outpatientrecordSaveDTO::Wrapper& dto,
-	const PayloadDTO& payload)
+OutpatientRecordPageJsonVO::Wrapper OutpatientRecordController::execQueryRecord(const OutpatientRecordQuery::Wrapper& query)
 {
-	return {};
+    auto jvo = OutpatientRecordPageJsonVO::createShared();
+    OutpatientRecordService service;
+    auto pageDto = service.listAll(query);
+    jvo->success(pageDto);
+    return jvo;
 }

@@ -315,118 +315,137 @@ medicalrecord:
 
 chinapres2:
  tags:
-  tag: 中医处方
+  tag: "中医处方"
  query:
-  summary: 获取历史处方
+  summary: "获取历史处方"
  add:
-  summary: 新增处方
+  summary: "新增处方"
  remove:
-  summary: 删除处方
+  summary: "删除处方"
  field:
-  id: 处方编号
-  usage: 用法
-  frequency: 频次
-  days: 天数
-  copies: 付数
-  decoction: 代煎
-  diagnosis: 诊断
-  remark: 备注
-  medicine: 药材
-  preNum: 位数
+  id: "处方编号"
+  usage: "用法"
+  frequency: "频次"
+  days: "天数"
+  copies: "付数"
+  decoction: "代煎"
+  diagnosis: "诊断"
+  remark: "备注"
+  medicine: "药材"
+  preNum: "位数"
+  details: "药材列表"
+  patientId: "患者ID"
+  encounterId: "就诊ID"
+  requesterId: "开方医生ID"
 
 chinapres3:
  tags:
-  tag: 中医处方
+  tag: "中医处方"
  issue:
-  summary: 签发处方
+  summary: "签发处方"
  recall:
-  summary: 撤回处方
+  summary: "撤回处方"
  field:
-  chinapres3Id: 处方ID
-  status: 处方状态
-  createBy: 创建人
-  updateBy: 更新人
-  patientId: 患者ID
-  diagnosisId: 诊断ID
-  usage: 用法
-  frequency: 频次
-  days: 天数
-  copies: 付数
-  decoction: 是否代煎
-  remark: 医嘱备注
-  items: 添加药材
-  medicineId: 药材ID
-  dosage: 剂量(g)
-  materialCode: 精确搜项目编码
-  materialName: 模糊搜药材名称
-  category: 类别筛选：中草药、耗材
+  chinapres3Id: "处方ID"
+  status: "处方状态"
+  createBy: "创建人"
+  updateBy: "更新人"
+  patientId: "患者ID"
+  diagnosisId: "诊断ID"
+  usage: "用法"
+  frequency: "频次"
+  days: "天数"
+  copies: "付数"
+  decoction: "是否代煎"
+  remark: "医嘱备注"
+  items: "添加药材"
+  medicineId: "药材ID"
+  dosage: "剂量(g)"
+  materialCode: "精确搜项目编码"
+  materialName: "模糊搜药材名称"
+  category: "类别筛选：中草药、耗材"
 
 outpatientrecord:
  field:
-  outpatientrecordId: 病历ID（为空表示新增，不为空表示修改）
-  patientId: 患者ID
-  content: 病历正文
+  outpatientrecordId: "病历ID（为空表示新增，不为空表示修改）"
+  patientId: "患者ID"
+  content: "病历正文"
  tags:
-  tag: 门诊病历
+  tag: "门诊病历"
  save:
-  summary: 保存门诊病历
+  summary: "保存门诊病历"
+
+outpatientRecord:
+ tags:
+  tag: "门诊病历"
+ query:
+  summary: "获取历史病历详情"
+ field:
+  id: "就诊编号"
+  patientName: "患者姓名"
+  gender: "性别"
+  visitDate: "就诊日期"
+  diagnosis: "诊断"
+  doctorName: "医生"
+  deptName: "科室"
+  remark: "备注"
 
 medical-advice:
  tags:
-  tag: 医嘱管理
+  tag: "医嘱管理"
  sign:
-  summary: 批量签署医嘱
+  summary: "批量签署医嘱"
  withdraw:
-  summary: 批量撤回医嘱
+  summary: "批量撤回医嘱"
  print-application-form:
-  summary: 打印申请单
+  summary: "打印申请单"
  field:
-  medical-advice-ids: 医嘱ID列表
-  service-request-id: 服务申请单ID
+  medical-advice-ids: "医嘱ID列表"
+  service-request-id: "服务申请单ID"
 
 createOrder:
  test:
   get:
-   summary: 查询测试接口
-   result: 这个是测试接口，返回测试数据
+   summary: "查询测试接口"
+   result: "这个是测试接口，返回测试数据"
  common:
-  keyword: 关键词
+  keyword: "关键词"
  order:
   tags:
-   tag: 开立医嘱
+   tag: "开立医嘱"
   query:
-   summary: 分页查询医嘱
+   summary: "分页查询医嘱"
   add:
-   summary: 新增医嘱
+   summary: "新增医嘱"
   modify:
-   summary: 修改医嘱
+   summary: "修改医嘱"
   catalog:
-   summary: 分页查询项目
+   summary: "分页查询项目"
   field:
-   visitid: 就诊ID
-   patientid: 患者ID
-   departmentId: 科室ID
-   excludeCodes: 排除编码
-   strictStock: 严格库存检查
-   itemCode: 项目编码
-   itemName: 项目名称
-   category: 类别
-   spec: 规格
-   stock: 库存
-   unitPrice: 单价
-   diagnosis: 诊断
-   expenseType: 费用性质
-   orderType: 类型
-   dosage: 用量
-   frequency: 频次
-   routeCode: 给药途径
-   useDays: 使用天数
-   quantity: 数量
-   isSkinTest: 是否皮试
-   remark: 备注
-   orderid: 医嘱ID
-   doctorId: 医生ID
-   doctorName: 医生姓名
-   status: 状态
-   createTime: 开立时间
-   totalPrice: 总价
+   visitid: "就诊ID"
+   patientid: "患者ID"
+   departmentId: "科室ID"
+   excludeCodes: "排除编码"
+   strictStock: "严格库存检查"
+   itemCode: "项目编码"
+   itemName: "项目名称"
+   category: "类别"
+   spec: "规格"
+   stock: "库存"
+   unitPrice: "单价"
+   diagnosis: "诊断"
+   expenseType: "费用性质"
+   orderType: "类型"
+   dosage: "用量"
+   frequency: "频次"
+   routeCode: "给药途径"
+   useDays: "使用天数"
+   quantity: "数量"
+   isSkinTest: "是否皮试"
+   remark: "备注"
+   orderid: "医嘱ID"
+   doctorId: "医生ID"
+   doctorName: "医生姓名"
+   status: "状态"
+   createTime: "开立时间"
+   totalPrice: "总价"
