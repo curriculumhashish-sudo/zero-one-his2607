@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.basedata.mapper.TerConceptMapper">
+
+    <select id="queryEquipmentCategoryList" resultType="com.zeroone.star.project.vo.j4.equipment.EquipmentCategoryVO">
+        SELECT tc.display label,
+               tc.code `value`
+        FROM ter_concept tc JOIN ter_code_system tcs ON tc.code_system_id = tcs.id
+        WHERE tcs.name = #{equipmentCategoryCode}
+    </select>
+</mapper>
