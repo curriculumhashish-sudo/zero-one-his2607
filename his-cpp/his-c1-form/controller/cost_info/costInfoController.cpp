@@ -7,18 +7,23 @@
 
 CostInfoJsonVO::Wrapper CostInfoController::execQuery(const CostInfoQuery::Wrapper& query)
 {
-	return CostInfoJsonVO::Wrapper();
+	// æŸ¥è¯¢æ•°æ®
+	auto result = CostInfoService().listAll(query);
+	// å“åº”ç»“æœ
+	auto jvo = CostInfoJsonVO::createShared();
+	jvo->success(result);
+	return jvo;
 }
 
 std::shared_ptr<oatpp::web::server::api::ApiController::OutgoingResponse> CostInfoController::execExport(const CostInfoQuery::Wrapper& query)
 {
-	// ²éÑ¯Êı¾İ
-	auto result = CostInfoService().listAll(query);
+	// æŸ¥è¯¢æ•°æ®
+	auto result = CostInfoService().exportAll(query);
 
-	// ½«Êı¾İĞ´Èëµ½ExcelÖĞ
+	// å°†æ•°æ®å†™å…¥åˆ°Excelä¸­
 	auto buff = ExcelComponent().writeVectorToBuff("CostInfo",
 		[result](ExcelComponent* ex) {
-			// Ğ´Èë±íÍ·
+			// å†™å…¥è¡¨å¤´
 			ex->addHeader({
 				ZH_WORDS_GETTER("rhqm.form.cost_info.data.id"),
 				ZH_WORDS_GETTER("rhqm.form.cost_info.data.clinicNo"),
@@ -48,7 +53,7 @@ std::shared_ptr<oatpp::web::server::api::ApiController::OutgoingResponse> CostIn
 				ZH_WORDS_GETTER("rhqm.form.cost_info.data.insuranceAmount"),
 				ZH_WORDS_GETTER("rhqm.form.cost_info.data.selfPayAmount"),
 				});
-			// Ğ´ÈëÊı¾İ
+			// å†™å…¥æ•°æ®
 			int row = 2;
 			int col = 1;
 			for (auto item : *(result->rows.get())) {
@@ -84,18 +89,18 @@ std::shared_ptr<oatpp::web::server::api::ApiController::OutgoingResponse> CostIn
 			}
 		});
 
-	// ×é×°ÏÂ·¢Êı¾İ
+	// ç»„è£…ä¸‹å‘æ•°æ®
 	const char* charData = reinterpret_cast<const char*>(buff.data());
 	auto fstring = String(charData, buff.size());
 
-	// ´´½¨ÏìÓ¦Í·
+	// åˆ›å»ºå“åº”å¤´
 	auto response = createResponse(Status::CODE_200, fstring);
 
-	// ÉèÖÃÏìÓ¦Í·ĞÅÏ¢
+	// è®¾ç½®å“åº”å¤´ä¿¡æ¯
 	std::string filename = "CostInfo_" + SimpleDateTimeFormat::format() + ".xlsx";
 	response->putHeader("Content-Disposition", "attachment; filename=" + filename);
 	response->putHeader(Header::CONTENT_TYPE, " application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
-	// Ó°Ïì³É¹¦½á¹û
+	// å½±å“æˆåŠŸç»“æœ
 	return response;
 }

@@ -10,68 +10,68 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 
-// »ñÈ¡Ã÷Ï¸ÁÐ±íµÄquery
+// ï¿½ï¿½È¡ï¿½ï¿½Ï¸ï¿½Ð±ï¿½ï¿½ï¿½query
 class CostInfoQuery :public PageQuery
 {
 	DTO_INIT(CostInfoQuery, PageQuery);
 
-	// ¿ªÊ¼Ê±¼ä
-	DTO_FIELD(UInt64, start_time);
+	// ï¿½ï¿½Ê¼Ê±ï¿½ï¿½
+	DTO_FIELD(String, start_time);
 	DTO_FIELD_INFO(start_time) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.start_time");
 		info->required = true;
 	}
 
-	// ½áÊøÊ±¼ä
-	DTO_FIELD(UInt64, end_time);
+	// ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+	DTO_FIELD(String, end_time);
 	DTO_FIELD_INFO(end_time) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.end_time");
 		info->required = true;
 	}
 
-	// »¼ÕßÐÕÃû
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	DTO_FIELD(String, name);
 	DTO_FIELD_INFO(name) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.name");
 	}
 
-	// ¹ÒºÅ¿ÆÊÒ
+	// ï¿½ÒºÅ¿ï¿½ï¿½ï¿½
 	DTO_FIELD(String, room);
 	DTO_FIELD_INFO(room) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.room");
 	}
 
-	// ÊÕ·Ñ´óÀà
+	// ï¿½Õ·Ñ´ï¿½ï¿½ï¿½
 	DTO_FIELD(String, feeClass);
 	DTO_FIELD_INFO(feeClass) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.feeClass");
 	}
 
-	// Ï¸·ÖÀà
+	// Ï¸ï¿½ï¿½ï¿½ï¿½
 	DTO_FIELD(String, detailClass);
 	DTO_FIELD_INFO(detailClass) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.detailClass");
 	}
 
-	// ÏîÄ¿Ãû³Æ
+	// ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½
 	DTO_FIELD(String, projectName);
 	DTO_FIELD_INFO(projectName) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.projectName");
 	}
 
-	// ÔºÄÚ±àºÅ
+	// Ôºï¿½Ú±ï¿½ï¿½
 	DTO_FIELD(String, hisID);
 	DTO_FIELD_INFO(hisID) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.hisID");
 	}
 
-	// ÊÕÒøÔ±
+	// ï¿½ï¿½ï¿½ï¿½Ô±
 	DTO_FIELD(String, checker);
 	DTO_FIELD_INFO(checker) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.checker");
 	}
 
-	// ÊÕÍË·½Ïò
+	// ï¿½ï¿½ï¿½Ë·ï¿½ï¿½ï¿½
 	DTO_FIELD(String, feeDir);
 	DTO_FIELD_INFO(feeDir) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.feeDir");

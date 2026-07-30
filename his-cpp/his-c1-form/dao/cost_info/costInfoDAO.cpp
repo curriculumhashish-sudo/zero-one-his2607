@@ -3,22 +3,22 @@
 #include "costInfoDAO.h"
 #include "costInfoMapper.h"
 
-#define MAIN_SQL_FROM \
+#define MAIN_SQL_COLUMNS \
 	" aci.`id` AS id," \
 	" ae.`bus_no` AS clinicNo," \
 	" a_pa.`name` AS name," \
 	" al.`name` AS room," \
 	" ae.`start_time` AS date," \
 	" tc.`display` AS feeClass," \
-	" COALESCE(mmd.`category_code`, add.`category_code`, wad.`category_code`) AS detailClass," \
+	" COALESCE(mmd.`category_code`, `add`.`category_code`, wad.`category_code`) AS detailClass," \
 	" acid.`charge_name` AS projectName," \
-	" COALESCE(mmd.`bus_no`, add.`bus_no`, wad.`bus_no`) AS hisID," \
-	" COALESCE(mmd.`total_volume`, add.`total_volume`, NULL) AS spec," \
+	" COALESCE(mmd.`bus_no`, `add`.`bus_no`, wad.`bus_no`) AS hisID," \
+	" COALESCE(mmd.`total_volume`, `add`.`total_volume`, NULL) AS spec," \
 	" aci.`quantity_value` AS number," \
 	" aci.`quantity_unit` AS unit," \
 	" a_pr_d.`name` AS doctor," \
 	" IF(aci.`refund_id` IS NULL, 'Charge', 'Refund') AS source," \
-	" COALESCE(mmd.`chrgitm_lv`, add.`chrgitm_lv`, wad.`chrgitm_lv`) AS insuranceLevel," \
+	" COALESCE(mmd.`chrgitm_lv`, `add`.`chrgitm_lv`, wad.`chrgitm_lv`) AS insuranceLevel," \
 	" ysr.`insutype` AS insuranceType," \
 	" acid.`price_value` AS originalPrice," \
 	" aci.`discount_amount` AS discountAmount," \
@@ -30,7 +30,9 @@
 	" ysr.`psn_cash_pay` AS selfPayAmount," \
 	" fcs.`settled_at` AS settleTime," \
 	" a_pr_c.`name` AS checker," \
-	" fpr.`tendered_amount` AS actualAmount" \
+	" fpr.`tendered_amount` AS actualAmount"
+
+#define MAIN_SQL_JOINS \
 	" FROM adm_charge_item aci" \
 	" LEFT JOIN adm_encounter ae ON aci.encounter_id = ae.id" \
 	" LEFT JOIN adm_patient a_pa ON ae.patient_id = a_pa.id" \
@@ -39,7 +41,7 @@
 	" LEFT JOIN adm_charge_item_definition acid ON aci.definition_id = acid.id" \
 	" LEFT JOIN ter_concept tc ON acid.type_code = tc.code AND tc.code_system_id = 236" \
 	" LEFT JOIN med_medication_definition mmd ON aci.product_table = 'med_medication_definition' AND aci.product_id = mmd.id" \
-	" LEFT JOIN adm_device_definition add ON aci.product_table = 'adm_device_definition' AND aci.product_id = add.id" \
+	" LEFT JOIN adm_device_definition `add` ON aci.product_table = 'adm_device_definition' AND aci.product_id = `add`.id" \
 	" LEFT JOIN wkf_activity_definition wad ON aci.product_table = 'wkf_activity_definition' AND aci.product_id = wad.id" \
 	" LEFT JOIN adm_practitioner a_pr_d ON aci.enterer_id = a_pr_d.id" \
 	" LEFT JOIN yb_clinic_fee_upload ycfu ON aci.id = ycfu.charge_item_id" \
@@ -60,11 +62,11 @@ inline std::string CostInfoDAO::queryConditionBuilder(const CostInfoQuery::Wrapp
 
 	if (query->start_time) {
 		sqlCondition << " AND aci.`occurrence_time`>=?";
-		SQLPARAMS_PUSH(params, "ull", uint64_t, query->start_time.getValue(0));
+		SQLPARAMS_PUSH(params, "s", std::string, query->start_time.getValue(""));
 	}
 	if (query->end_time) {
 		sqlCondition << " AND aci.`occurrence_time`<=?";
-		SQLPARAMS_PUSH(params, "ull", uint64_t, query->end_time.getValue(0));
+		SQLPARAMS_PUSH(params, "s", std::string, query->end_time.getValue(""));
 	}
 	if (query->name) {
 		sqlCondition << " AND a_pa.`name` LIKE CONCAT('%',?,'%')";
@@ -79,7 +81,7 @@ inline std::string CostInfoDAO::queryConditionBuilder(const CostInfoQuery::Wrapp
 		SQLPARAMS_PUSH(params, "s", std::string, query->feeClass.getValue(""));
 	}
 	if (query->detailClass) {
-		sqlCondition << " AND COALESCE(mmd.`category_code`, add.`category_code`, wad.`category_code`)=?";
+		sqlCondition << " AND COALESCE(mmd.`category_code`, `add`.`category_code`, wad.`category_code`)=?";
 		SQLPARAMS_PUSH(params, "s", std::string, query->detailClass.getValue(""));
 	}
 	if (query->projectName) {
@@ -87,7 +89,7 @@ inline std::string CostInfoDAO::queryConditionBuilder(const CostInfoQuery::Wrapp
 		SQLPARAMS_PUSH(params, "s", std::string, query->projectName.getValue(""));
 	}
 	if (query->hisID) {
-		sqlCondition << " AND COALESCE(mmd.`bus_no`, add.`bus_no`, wad.`bus_no`)=?";
+		sqlCondition << " AND COALESCE(mmd.`bus_no`, `add`.`bus_no`, wad.`bus_no`)=?";
 		SQLPARAMS_PUSH(params, "s", std::string, query->hisID.getValue(""));
 	}
 	if (query->checker) {
@@ -109,7 +111,7 @@ inline std::string CostInfoDAO::queryConditionBuilder(const CostInfoQuery::Wrapp
 
 uint64_t CostInfoDAO::count(const CostInfoQuery::Wrapper& query) {
 	SqlParams params;
-	string sqlStr = "SELECT COUNT(*) " MAIN_SQL_FROM;
+	string sqlStr = "SELECT COUNT(*)" MAIN_SQL_JOINS;
 	sqlStr += queryConditionBuilder(query, params);
 	return sqlSession->executeQueryNumerical(sqlStr, params);
 }
@@ -117,7 +119,7 @@ uint64_t CostInfoDAO::count(const CostInfoQuery::Wrapper& query) {
 std::list<CostInfoDO> CostInfoDAO::selectWithPage(const CostInfoQuery::Wrapper& query) {
 
 	SqlParams params;
-	string sqlStr = "SELECT " MAIN_SQL_FROM;
+	string sqlStr = "SELECT" MAIN_SQL_COLUMNS MAIN_SQL_JOINS;
 	sqlStr += queryConditionBuilder(query, params);
 	sqlStr += " ORDER BY aci.`occurrence_time` DESC, aci.`id` DESC ";
 	sqlStr += " LIMIT " + std::to_string(((query->pageIndex - 1) * query->pageSize)) + "," + std::to_string(query->pageSize);
@@ -128,7 +130,7 @@ std::list<CostInfoDO> CostInfoDAO::selectWithPage(const CostInfoQuery::Wrapper& 
 std::list<CostInfoDO> CostInfoDAO::selectAll(const CostInfoQuery::Wrapper& query) {
 
 	SqlParams params;
-	string sqlStr = "SELECT " MAIN_SQL_FROM;
+	string sqlStr = "SELECT" MAIN_SQL_COLUMNS MAIN_SQL_JOINS;
 	sqlStr += queryConditionBuilder(query, params);
 	sqlStr += " ORDER BY aci.`occurrence_time` DESC, aci.`id` DESC ";
 
