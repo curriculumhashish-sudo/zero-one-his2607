@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zeroone.star.j3.patient.entity.PatientDO;
 import com.zeroone.star.j3.patient.exception.PatientBusinessException;
 import com.zeroone.star.j3.patient.mapper.PatientMapper;
+import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.query.j3.patient.PatientQuery;
 import com.zeroone.star.project.vo.j3.patient.PatientOptionVO;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -42,16 +44,24 @@ class PatientServiceImplTest {
     @Mock
     private PatientMapper patientMapper;
 
+    @Mock
+    private UserHolder userHolder;
+
     @InjectMocks
     private PatientServiceImpl patientService;
+
+    private static final String TENANT_ID = "tenant-test";
 
     private PatientDO patient1;
     private PatientDO patient2;
 
     @BeforeEach
     void setUp() {
+        when(userHolder.getCurrentTenantId()).thenReturn(TENANT_ID);
+
         patient1 = new PatientDO();
         patient1.setId("P001");
+        patient1.setTenantId(TENANT_ID);
         patient1.setName("张三");
         patient1.setGenderEnum("MALE");
         patient1.setBirthDate(LocalDate.of(1990, 5, 15));
@@ -63,6 +73,7 @@ class PatientServiceImplTest {
 
         patient2 = new PatientDO();
         patient2.setId("P002");
+        patient2.setTenantId(TENANT_ID);
         patient2.setName("李四");
         patient2.setGenderEnum("FEMALE");
         patient2.setBirthDate(LocalDate.of(1985, 10, 20));
@@ -91,7 +102,7 @@ class PatientServiceImplTest {
             mockPage.setTotal(2);
             mockPage.setPages(1);
 
-            when(patientMapper.selectPatientPage(any(), eq(query)))
+            when(patientMapper.selectPatientPage(any(), eq(query), eq(TENANT_ID)))
                     .thenReturn(mockPage);
 
             PageDTO<PatientOptionVO> result = patientService.queryPatients(query);
@@ -120,7 +131,7 @@ class PatientServiceImplTest {
             mockPage.setTotal(0);
             mockPage.setPages(0);
 
-            when(patientMapper.selectPatientPage(any(), eq(query)))
+            when(patientMapper.selectPatientPage(any(), eq(query), eq(TENANT_ID)))
                     .thenReturn(mockPage);
 
             PageDTO<PatientOptionVO> result = patientService.queryPatients(query);
@@ -141,7 +152,7 @@ class PatientServiceImplTest {
             mockPage.setRecords(List.of(patient1));
             mockPage.setTotal(1);
 
-            when(patientMapper.selectPatientPage(any(), eq(query)))
+            when(patientMapper.selectPatientPage(any(), eq(query), eq(TENANT_ID)))
                     .thenReturn(mockPage);
 
             PageDTO<PatientOptionVO> result = patientService.queryPatients(query);
@@ -194,6 +205,19 @@ class PatientServiceImplTest {
                     .isInstanceOf(PatientBusinessException.class)
                     .hasMessage("患者不存在或已删除");
         }
+
+        @Test
+        @DisplayName("患者租户与当前用户不一致时抛异常")
+        void shouldThrowWhenTenantMismatch() {
+            PatientDO otherTenantPatient = new PatientDO();
+            otherTenantPatient.setId("P003");
+            otherTenantPatient.setTenantId("other-tenant");
+            when(patientMapper.selectById("P003")).thenReturn(otherTenantPatient);
+
+            assertThatThrownBy(() -> patientService.getPatientById("P003"))
+                    .isInstanceOf(PatientBusinessException.class)
+                    .hasMessage("患者不存在或已删除");
+        }
     }
 
     // ──────────────────── deletePatientById ────────────────────
@@ -204,14 +228,40 @@ class PatientServiceImplTest {
 
         @Test
         @DisplayName("正常删除已存在的患者")
-        void shouldDeleteExistingPatient() {
+        void shouldDeleteExistingPatient() throws Exception {
             when(patientMapper.selectById("P001")).thenReturn(patient1);
+            when(patientMapper.countActiveEncounters("P001", TENANT_ID)).thenReturn(0);
             when(patientMapper.deleteById("P001")).thenReturn(1);
 
             patientService.deletePatientById("P001");
 
             verify(patientMapper).selectById("P001");
+            verify(patientMapper).countActiveEncounters("P001", TENANT_ID);
             verify(patientMapper).deleteById("P001");
+        }
+
+        @Test
+        @DisplayName("存在进行中的就诊记录时抛异常")
+        void shouldThrowWhenActiveEncountersExist() {
+            when(patientMapper.selectById("P001")).thenReturn(patient1);
+            when(patientMapper.countActiveEncounters("P001", TENANT_ID)).thenReturn(3);
+
+            assertThatThrownBy(() -> patientService.deletePatientById("P001"))
+                    .isInstanceOf(PatientBusinessException.class)
+                    .hasMessage("该患者存在进行中的就诊记录（挂号/住院），暂不能删除");
+        }
+
+        @Test
+        @DisplayName("患者租户与当前用户不一致时抛异常")
+        void shouldThrowWhenTenantMismatch() {
+            PatientDO otherTenantPatient = new PatientDO();
+            otherTenantPatient.setId("P003");
+            otherTenantPatient.setTenantId("other-tenant");
+            when(patientMapper.selectById("P003")).thenReturn(otherTenantPatient);
+
+            assertThatThrownBy(() -> patientService.deletePatientById("P003"))
+                    .isInstanceOf(PatientBusinessException.class)
+                    .hasMessage("患者不存在或已删除");
         }
 
         @Test
