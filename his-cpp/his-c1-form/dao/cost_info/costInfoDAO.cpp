@@ -124,6 +124,7 @@ std::list<CostInfoDO> CostInfoDAO::selectWithPage(const CostInfoQuery::Wrapper& 
 	string charge = ZH_WORDS_GETTER("rhqm.form.cost_info.other.charge");
 	string refund = ZH_WORDS_GETTER("rhqm.form.cost_info.other.refund");
 	string sqlStr = "SELECT DISTINCT" MAIN_SQL_COLUMNS;
+	// 收费退费为了中文表示需要拆开sql
 	sqlStr += ", IF(aci.`refund_id` IS NULL, '" + charge + "', '" + refund + "') AS source";
 	sqlStr += MAIN_SQL_JOINS;
 	sqlStr += queryConditionBuilder(query, params);
@@ -139,6 +140,7 @@ std::list<CostInfoDO> CostInfoDAO::selectAll(const CostInfoQuery::Wrapper& query
 	string charge = ZH_WORDS_GETTER("rhqm.form.cost_info.other.charge");
 	string refund = ZH_WORDS_GETTER("rhqm.form.cost_info.other.refund");
 	string sqlStr = "SELECT DISTINCT" MAIN_SQL_COLUMNS;
+	// 收费退费为了中文表示需要拆开sql
 	sqlStr += ", IF(aci.`refund_id` IS NULL, '" + charge + "', '" + refund + "') AS source";
 	sqlStr += MAIN_SQL_JOINS;
 	sqlStr += queryConditionBuilder(query, params);
