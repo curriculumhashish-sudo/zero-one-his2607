@@ -71,25 +71,25 @@ class InOutboundDO : public BaseDO
 	MYSQL_SYNTHESIZE(string, lotNumber, LotNumber);
 
 	// 数量
-	MYSQL_SYNTHESIZE(int32_t, quantity, Quantity);
+	MYSQL_SYNTHESIZE(double, quantity, Quantity);
 
 	// 包装单位换算比例
-	MYSQL_SYNTHESIZE(string, packageUnitRatio, PackageUnitRatio);
+	MYSQL_SYNTHESIZE(double, packageUnitRatio, PackageUnitRatio);
 
 	// 包装单位编码
 	MYSQL_SYNTHESIZE(string, packageUnitCode, PackageUnitCode);
 
 	// 批号进价
-	MYSQL_SYNTHESIZE(int32_t, lotNumberCostAmount, LotNumberCostAmount);
+	MYSQL_SYNTHESIZE(double, lotNumberCostAmount, LotNumberCostAmount);
 
 	// 批号售价
-	MYSQL_SYNTHESIZE(int32_t, lotNumberPriceAmount, LotNumberPriceAmount);
+	MYSQL_SYNTHESIZE(double, lotNumberPriceAmount, LotNumberPriceAmount);
 
 	// 进价行总额
-	MYSQL_SYNTHESIZE(int32_t, lineCostTotal, LineCostTotal);
+	MYSQL_SYNTHESIZE(double, lineCostTotal, LineCostTotal);
 
 	// 售价行总额
-	MYSQL_SYNTHESIZE(int32_t, linePriceTotal, LinePriceTotal);
+	MYSQL_SYNTHESIZE(double, linePriceTotal, LinePriceTotal);
 
 	// 生产日期
 	MYSQL_SYNTHESIZE(string, productionDate, ProductionDate);
@@ -173,16 +173,16 @@ public:
 
 		MYSQL_ADD_FIELD("lot_number", "s", lotNumber);
 
-		MYSQL_ADD_FIELD("quantity", "s", quantity);
+		MYSQL_ADD_FIELD("quantity", "d", quantity);
 
-		MYSQL_ADD_FIELD("package_unit_ratio", "s", packageUnitRatio);
+		MYSQL_ADD_FIELD("package_unit_ratio", "d", packageUnitRatio);
 		MYSQL_ADD_FIELD("package_unit_code", "s", packageUnitCode);
 
-		MYSQL_ADD_FIELD("lot_number_cost_amount", "s", lotNumberCostAmount);
-		MYSQL_ADD_FIELD("lot_number_price_amount", "s", lotNumberPriceAmount);
+		MYSQL_ADD_FIELD("lot_number_cost_amount", "d", lotNumberCostAmount);
+		MYSQL_ADD_FIELD("lot_number_price_amount", "d", lotNumberPriceAmount);
 
-		MYSQL_ADD_FIELD("line_cost_total", "s", lineCostTotal);
-		MYSQL_ADD_FIELD("line_price_total", "s", linePriceTotal);
+		MYSQL_ADD_FIELD("line_cost_total", "d", lineCostTotal);
+		MYSQL_ADD_FIELD("line_price_total", "d", linePriceTotal);
 
 		MYSQL_ADD_FIELD("production_date", "s", productionDate);
 		MYSQL_ADD_FIELD("expiration_date", "s", expirationDate);

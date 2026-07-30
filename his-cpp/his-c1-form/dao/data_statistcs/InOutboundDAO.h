@@ -8,7 +8,7 @@
 
 class InOutboundDAO : public BaseDAO {
 private:
-	inline std::string queryConditionBuilder(const InOutboundQuery::Wrapper& query, SqlParams& params);
+	std::string queryConditionBuilder(const InOutboundQuery::Wrapper& query, SqlParams& params);
 public:
 	std::list<InOutboundDO> selectWithPage(const InOutboundQuery::Wrapper& query);
 	InOutboundDO selectById(const std::string& id);

@@ -4,7 +4,7 @@
 
 #include "../DoInclude.h"
 
-class InventoryMaterialDO : BaseDO {
+class InventoryMaterialDO : public BaseDO {
 	// Id
 	MYSQL_SYNTHESIZE(string, id, Id);
 
@@ -52,13 +52,15 @@ public:
 	InventoryMaterialDO() : BaseDO("inventory_lock")
 	{
 		MYSQL_ADD_FIELD_PK("id", "s", id);
+		MYSQL_ADD_FIELD("created_at", "s", createdAt);
+		MYSQL_ADD_FIELD("updated_at", "s", updatedAt);
 		MYSQL_ADD_FIELD("created_by", "s", createdBy);
 		MYSQL_ADD_FIELD("updated_by", "s", updatedBy);
 		MYSQL_ADD_FIELD("is_deleted", "i", isDeleted);
 		MYSQL_ADD_FIELD("deleted_at", "s", deletedAt);
 		MYSQL_ADD_FIELD("deleted_by", "s", deletedBy);
 		MYSQL_ADD_FIELD("version", "i", version);
-		MYSQL_ADD_FIELD_PK("inventory_id", "s", inventoryId);
+		MYSQL_ADD_FIELD("inventory_id", "s", inventoryId);
 		MYSQL_ADD_FIELD("lock_flag", "i", lockFlag);
 		MYSQL_ADD_FIELD("status", "s", status);
 		MYSQL_ADD_FIELD("bus_no", "s", busNo);

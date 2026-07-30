@@ -12,7 +12,7 @@ public:
 		inventoryDO.inventoryMaterialDO.setCreatedBy(resultSet->getString("created_by"));
 		inventoryDO.inventoryMaterialDO.setUpdatedBy(resultSet->getString("updated_by"));
 		inventoryDO.inventoryMaterialDO.setBusNo(resultSet->getString("bus_no"));
-		inventoryDO.inOutboundDO.setQuantity(resultSet->getString("quantity"));
+		inventoryDO.inOutboundDO.setQuantity(resultSet->getDouble("quantity"));
 		inventoryDO.inOutboundDO.setName(resultSet->getString("name"));
 		inventoryDO.inOutboundDO.setProductionDate(resultSet->getString("production_date"));
 		inventoryDO.inOutboundDO.setExpirationDate(resultSet->getString("expiration_date"));

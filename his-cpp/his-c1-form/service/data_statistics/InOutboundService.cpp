@@ -21,12 +21,13 @@ InOutboundPageDto::Wrapper InOutboundService::listAll(const InOutboundQuery::Wra
 	list<InOutboundDO> result = dao.selectWithPage(query);
 	for (InOutboundDO& sub : result) {
 		auto dto = InOutboundDto::createShared();
-		dto->allmoney = sub.getLotNumberPriceAmount();
-		dto->alloutmoney = sub.getLotNumberCostAmount();
-		dto->batch_number = sub.getBusNo();
+		dto->id = sub.getId();
 		dto->name = sub.getName();
-		dto->onemoney = sub.getLinePriceTotal();
-		dto->outmoney = sub.getLineCostTotal();
+		dto->onemoney = sub.getLotNumberCostAmount();
+		dto->allmoney = sub.getLineCostTotal();
+		dto->outmoney = sub.getLotNumberPriceAmount();
+		dto->alloutmoney = sub.getLinePriceTotal();
+		dto->batch_number = sub.getLotNumber();
 		pages->addData(dto);
 	}
 	return pages;
@@ -35,15 +36,16 @@ InOutboundPageDto::Wrapper InOutboundService::listAll(const InOutboundQuery::Wra
 InOutboundDto::Wrapper InOutboundService::getById(std::string id) {
 	InOutboundDAO dao;
 	InOutboundDO result = dao.selectById(id);
-	if (result.getBusNo().empty()) {
+	if (result.getId().empty()) {
 		return nullptr;
 	}
 	auto dto = InOutboundDto::createShared();
-	dto->allmoney = result.getLotNumberPriceAmount();
-	dto->alloutmoney = result.getLotNumberCostAmount();
-	dto->batch_number = result.getBusNo();
+	dto->id = result.getId();
 	dto->name = result.getName();
-	dto->onemoney = result.getLinePriceTotal();
-	dto->outmoney = result.getLineCostTotal();
+	dto->onemoney = result.getLotNumberCostAmount();
+	dto->allmoney = result.getLineCostTotal();
+	dto->outmoney = result.getLotNumberPriceAmount();
+	dto->alloutmoney = result.getLinePriceTotal();
+	dto->batch_number = result.getLotNumber();
 	return dto;
 }

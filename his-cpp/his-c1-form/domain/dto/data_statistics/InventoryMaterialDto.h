@@ -21,7 +21,7 @@ class InventoryMaterialAddDto : public oatpp::DTO {
 	}
 
 	// 该有效期对应的数量
-	DTO_FIELD(Int32, numbers);
+	DTO_FIELD(Float64, numbers);
 	DTO_FIELD_INFO(numbers) {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.numbers");
 	}
@@ -35,9 +35,6 @@ class InventoryMaterialAddDto : public oatpp::DTO {
 public:
 	// 数据校验
 	std::string isValid() {
-		if (!time || time->empty()) {
-			return "time is invalid";
-		}
 		if (!time || time->empty()) {
 			return "time is invalid";
 		}

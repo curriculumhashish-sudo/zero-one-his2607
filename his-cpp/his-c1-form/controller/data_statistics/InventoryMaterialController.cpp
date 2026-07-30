@@ -6,7 +6,7 @@
 #include "PdfComponent.h"
 #include "service/data_statistics/InventoryMaterialService.h"
 
-InventoryMaterialPageDto::Wrapper InventoryMaterialController::execQueryObject1(const InventoryMaterialQuery::Wrapper& query) {
+InventoryMaterialPageJsonVo::Wrapper InventoryMaterialController::execQueryObject1(const InventoryMaterialQuery::Wrapper& query) {
 	// 查询数据
 	auto result = InventoryMaterialService().listAll(query);
 	// 相应结果

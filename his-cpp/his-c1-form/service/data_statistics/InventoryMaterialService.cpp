@@ -23,6 +23,7 @@ InventoryMaterialPageDto::Wrapper InventoryMaterialService::listAll(const Invent
 	// ½«DO×ª»»ÎªDTO
 	for (InventoryDO& sub : result) {
 		auto dto = InventoryMaterialDto::createShared();
+		dto->id = sub.inventoryMaterialDO.getId();
 		dto->bus_no = sub.inventoryMaterialDO.getBusNo();
 		dto->time = sub.inOutboundDO.getExpirationDate();
 		dto->numbers = sub.inOutboundDO.getQuantity();
@@ -38,6 +39,7 @@ InventoryMaterialDto::Wrapper InventoryMaterialService::getById(std::string id) 
 		return nullptr;
 	}
 	auto dto = InventoryMaterialDto::createShared();
+	dto->id = result.inventoryMaterialDO.getId();
 	dto->bus_no = result.inventoryMaterialDO.getBusNo();
 	dto->time = result.inOutboundDO.getExpirationDate();
 	dto->numbers = result.inOutboundDO.getQuantity();

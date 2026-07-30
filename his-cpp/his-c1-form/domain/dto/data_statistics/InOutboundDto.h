@@ -21,25 +21,25 @@ class InOutboundAddDto : public oatpp::DTO {
 	}
 
 	// 入库单价
-	DTO_FIELD(Int32, onemoney);
+	DTO_FIELD(Float64, onemoney);
 	DTO_FIELD_INFO(onemoney) {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.onemoney");
 	}
 
 	// 入库总金额
-	DTO_FIELD(Int32, allmoney);
+	DTO_FIELD(Float64, allmoney);
 	DTO_FIELD_INFO(allmoney) {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.allmoney");
 	}
 
 	// 出库单价
-	DTO_FIELD(Int32, outmoney);
+	DTO_FIELD(Float64, outmoney);
 	DTO_FIELD_INFO(outmoney) {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.outmoney");
 	}
 
 	// 出库总金额
-	DTO_FIELD(Int32, alloutmoney);
+	DTO_FIELD(Float64, alloutmoney);
 	DTO_FIELD_INFO(alloutmoney) {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.alloutmoney");
 	}
@@ -68,7 +68,7 @@ public:
 		if (!outmoney || outmoney < 0) {
 			return "outmoney is invalid";
 		}
-		if (!alloutmoney || outmoney < 0) {
+		if (!alloutmoney || alloutmoney < 0) {
 			return "alloutmoney is invalid";
 		}
 		return "";

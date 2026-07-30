@@ -10,12 +10,12 @@
 
 class InventoryMaterialDAO : public BaseDAO {
 private:
-	inline std::string queryConditionBuilder(const InventoryMaterialQuery::Wrapper& query, SqlParams& params);
+	std::string queryConditionBuilder(const InventoryMaterialQuery::Wrapper& query, SqlParams& params);
 public:
 	// 分页查询数据
 	std::list<InventoryDO> selectWithPage(const InventoryMaterialQuery::Wrapper& query);
 	// 通过物品id查询
-	InventoryDO selectById(const std::string& bus_no);
+	InventoryDO selectById(const std::string& id);
 	// 统计数据条数
 	uint64_t count(const InventoryMaterialQuery::Wrapper& query);
 };
