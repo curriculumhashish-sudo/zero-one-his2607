@@ -130,15 +130,8 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
             supplier.setStatusEnum(ENABLED);
         }
         supplier.setId(generateId());
-        // 设置租户ID（从登录用户获取，失败时使用入参值）
-        try {
-            supplier.setTenantId(userHolder.getCurrentTenantId());
-        } catch (Exception e) {
-            // 当用户上下文不可用时（如测试环境无token），使用DTO传入的tenantId
-            if (StringUtils.hasText(dto.getTenantId())) {
-                supplier.setTenantId(dto.getTenantId());
-            }
-        }
+        // 强制从登录上下文获取租户ID，失败时直接抛出异常，杜绝信任前端传入值
+        supplier.setTenantId(getCurrentTenantId());
         supplier.setVersion(0);
         // 软删除字段初始化
         supplier.setIsDeleted(0);
@@ -170,8 +163,10 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         if (!StringUtils.hasText(id)) {
             throw new IllegalArgumentException("供应商ID不能为空");
         }
+        String tenantId = getCurrentTenantId();
         Long exists = this.lambdaQuery()
                 .eq(Supplier::getId, id.trim())
+                .eq(Supplier::getTenantId, tenantId)
                 .count();
         if (exists == null || exists == 0) {
             throw new IllegalArgumentException("供应商不存在，请检查ID是否正确");
@@ -204,11 +199,10 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         // 设置更新人/更新时间（从登录用户获取，类似删除处理方式）
         try {
             supplier.setUpdatedBy(userHolder.getCurrentUser().getUsername());
-            supplier.setTenantId(userHolder.getCurrentTenantId());
         } catch (Exception e) {
             e.printStackTrace();
         }
-        //supplier.setUpdatedAt(LocalDateTime.now());
+        supplier.setTenantId(tenantId);
         this.updateById(supplier);
         return "修改供应商成功";
     }
@@ -278,6 +272,18 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
 
         String statusText = ENABLED.equals(normalizedStatus) ? "启用" : "停用";
         return "成功批量" + statusText + " " + size + " 个供应商";
+    }
+
+    /**
+     * 从当前登录上下文获取租户ID
+     * 获取失败时直接抛出异常，杜绝信任前端传入的租户ID
+     */
+    private String getCurrentTenantId() {
+        try {
+            return userHolder.getCurrentTenantId();
+        } catch (Exception e) {
+            throw new IllegalStateException("无法获取当前租户信息，请重新登录", e);
+        }
     }
 
     /**
