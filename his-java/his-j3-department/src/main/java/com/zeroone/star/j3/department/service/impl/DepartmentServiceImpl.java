@@ -275,13 +275,6 @@ public class DepartmentServiceImpl implements DepartmentService {
             }
         }
 
-        tenantId = StrUtil.isNotBlank(tenantIdStr)
-                ? Long.valueOf(tenantIdStr)
-                : departmentMapper.getTenantIdByUserId(currentUserId);
-        if (tenantId == null) {
-            throw new CurrentTenantNotFoundException("无法获取当前用户的租户信息");
-        }
-
         List<DepartmentDO> existingNameDepartments = departmentMapper.selectList(new LambdaQueryWrapper<DepartmentDO>()
                 .eq(DepartmentDO::getName, dto.getName()));
         if (!existingNameDepartments.isEmpty()) {
