@@ -1,23 +1,37 @@
 #pragma once
+/*
+ Copyright Zero One Star. All rights reserved.
+
+ @Author: awei
+ @Date: 2026/07/27
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+*/
 #ifndef _HISTORY_ORDER_LIST_QUERY_H_
 #define _HISTORY_ORDER_LIST_QUERY_H_
 
-#include "../../GlobalInclude.h"			// 项目全局公共头文件
-#include "domain/query/PageQuery.h"			// 分页查询基类，继承分页参数
+#include "../../GlobalInclude.h"
+#include "domain/query/PageQuery.h"
 
-#include OATPP_CODEGEN_BEGIN(DTO)			// oatpp DTO 代码生成开始宏
+#include OATPP_CODEGEN_BEGIN(DTO)
 
-/**
- * 历史医嘱就诊记录列表查询请求
- * 场景：打开历史医嘱弹窗，加载左侧就诊记录列表
- */
 class HistoryOrderListQuery : public PageQuery {
-	DTO_INIT(HistoryOrderListQuery, PageQuery);	// DTO 初始化宏，声明父子类关系
+	DTO_INIT(HistoryOrderListQuery, PageQuery);
 
-	API_DTO_FIELD_REQUIRE(String, patientId, ZH_WORDS_GETTER("historyOrder.field.patientId"), true);	// 患者唯一ID，必传，定位该患者所有就诊
-	API_DTO_FIELD_REQUIRE(String, keyword, ZH_WORDS_GETTER("common.keyword"), false);			// 搜索关键词，可选，模糊匹配诊断、医生
-	API_DTO_FIELD_REQUIRE(String, visitType, ZH_WORDS_GETTER("historyOrder.field.visitType"), false);	// 就诊类型筛选，可选
+	API_DTO_FIELD_REQUIRE(String, patientId, ZH_WORDS_GETTER("historyOrder.field.patientId"), true);
+	API_DTO_FIELD_REQUIRE(String, keyword, ZH_WORDS_GETTER("common.keyword"), false);
+	API_DTO_FIELD_REQUIRE(String, visitType, ZH_WORDS_GETTER("historyOrder.field.visitType"), false);
 };
 
-#include OATPP_CODEGEN_END(DTO)			// oatpp DTO 代码生成结束宏
-#endif // _HISTORY_ORDER_LIST_QUERY_H_	// 头文件保护宏结束
+#include OATPP_CODEGEN_END(DTO)
+#endif // _HISTORY_ORDER_LIST_QUERY_H_
