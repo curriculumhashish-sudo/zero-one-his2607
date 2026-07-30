@@ -28,7 +28,7 @@ public:
 	// 统计数据条数
 	uint64_t count(const EquipmentQuery::Wrapper& query);
 	// 分页查询数据
-	std::list<WkfInventoryItemViewDO> selectWithPage(const EquipmentQuery::Wrapper& query);
+	std::list<DocInventoryItemSnapshotDO> selectWithPage(const EquipmentQuery::Wrapper& query);
 	// 通过姓名查询数据
 	std::list<WkfInventoryItemDO> selectByName(const string& name);
 	// 通过ID查询数据

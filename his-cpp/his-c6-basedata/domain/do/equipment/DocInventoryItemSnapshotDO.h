@@ -72,7 +72,7 @@ class DocInventoryItemSnapshotDO : public BaseDO
 	MYSQL_SYNTHESIZE(string, expirationDate, ExpirationDate);
 	// 剩余过期天数（写入时刻冻结）
 	MYSQL_SYNTHESIZE(int, remainingDays, RemainingDays);
-	// 供应状态（PublicationStatus code）
+	// 供应状态（PublicationStatus code）1/0
 	MYSQL_SYNTHESIZE(string, inventoryStatusEnum, InventoryStatusEnum);
 	// 医保等级码
 	MYSQL_SYNTHESIZE(int, chrgitmLv, ChrgitmLv);
