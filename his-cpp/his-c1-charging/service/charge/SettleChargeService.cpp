@@ -4,6 +4,7 @@
 #include "dao/charge/SettleChargeDAO.h"
 #include "id/UuidFacade.h"
 
+#include <chrono>
 #include <set>
 
 // 防止 ODBC/MySQL 类型冲突
@@ -107,16 +108,27 @@ ConfirmSettleChargeResponseDTO::Wrapper SettleChargeService::confirmSettle(const
 
     // 当前时间
     time_t now = time(nullptr);
-    char timeBuf[32];
-    strftime(timeBuf, sizeof(timeBuf), "%Y-%m-%d %H:%M:%S", localtime(&now));
-    std::string nowStr(timeBuf);
+    char nowBuf[32];
+    strftime(nowBuf, sizeof(nowBuf), "%Y-%m-%d %H:%M:%S", localtime(&now));
+    std::string nowStr(nowBuf);
 
     // 账单日期
     std::string billDate = (dto->billDate && !dto->billDate->empty())
         ? std::string(dto->billDate->c_str()) : nowStr;
 
-    // 支付流水号
-    std::string paymentNo = std::string("PMR-") + timeBuf;
+    // 日期部分（用于生成流水号）
+    char dateBuf[16];
+    strftime(dateBuf, sizeof(dateBuf), "%Y-%m-%d", localtime(&now));
+    // 毫秒后4位作为序列号
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count() % 10000;
+    char seqBuf[8];
+    snprintf(seqBuf, sizeof(seqBuf), "%04lld", (long long)ms);
+
+    // 支付流水号 PMR-YYYY-MM-DDNNNN
+    std::string paymentNo = std::string("PMR-") + dateBuf + seqBuf;
+    // 发票业务号 IVYYYY-MM-DDNNNN
+    std::string invoiceBusNo = std::string("IV") + dateBuf + seqBuf;
 
     // 通过 DAO 执行写操作
     SettleChargeDAO dao;
@@ -127,10 +139,10 @@ ConfirmSettleChargeResponseDTO::Wrapper SettleChargeService::confirmSettle(const
 
     // 2. 插入发票草稿
     dao.insertInvoice(invoiceId, nowStr, encounterId, paymentId,
-        chargeItemIdsStr, totalAmountStr);
+        chargeItemIdsStr, totalAmountStr, invoiceBusNo);
 
-    // 3. 批量更新收费项状态
-    dao.updateChargeItemsToSettled(encounterId, nowStr);
+    // 3. 更新选中的收费项状态
+    dao.updateChargeItemsToSettled(chargeItemIdsStr, nowStr);
 
     resp->paymentId = paymentId;
     resp->invoiceId = invoiceId;

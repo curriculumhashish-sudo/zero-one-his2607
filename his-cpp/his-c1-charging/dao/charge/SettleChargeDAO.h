@@ -24,12 +24,13 @@ public:
      */
     void insertInvoice(const std::string& invoiceId, const std::string& nowStr,
         const std::string& encounterId, const std::string& paymentId,
-        const std::string& chargeItemIdsStr, const std::string& totalAmountStr);
+        const std::string& chargeItemIdsStr, const std::string& totalAmountStr,
+        const std::string& busNo);
 
     /**
-     * 更新收费项状态为已结算
+     * 更新指定收费项状态为已结算
      */
-    void updateChargeItemsToSettled(const std::string& encounterId,
+    void updateChargeItemsToSettled(const std::string& chargeItemIdsStr,
         const std::string& nowStr);
 };
 

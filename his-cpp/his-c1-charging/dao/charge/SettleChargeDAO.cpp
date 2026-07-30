@@ -13,8 +13,8 @@ void SettleChargeDAO::insertPayment(const std::string& paymentId, const std::str
     SQLPARAMS_PUSH(params, "s", std::string, paymentId);
     SQLPARAMS_PUSH(params, "s", std::string, nowStr);
     SQLPARAMS_PUSH(params, "s", std::string, paymentNo);
-    SQLPARAMS_PUSH(params, "s", std::string, "CASH_PAY");
-    SQLPARAMS_PUSH(params, "s", std::string, "SETTLEMENT");
+    SQLPARAMS_PUSH(params, "s", std::string, "CASHIER");
+    SQLPARAMS_PUSH(params, "s", std::string, "OUTPATIENT_CLINIC");
     SQLPARAMS_PUSH(params, "s", std::string, encounterId);
     SQLPARAMS_PUSH(params, "s", std::string, encounterId);
     SQLPARAMS_PUSH(params, "s", std::string, totalAmountStr);
@@ -30,18 +30,22 @@ void SettleChargeDAO::insertPayment(const std::string& paymentId, const std::str
         << " status_enum, payment_no, payment_enum, kind_enum,"
         << " enterer_id, patient_id, tendered_amount, display_amount,"
         << " print_count, charge_item_ids, encounter_id, bill_date, invoice_id)"
-        << " VALUES (?,NULL,?,0,0, 'SUCCESS',?,?,?, ?,?,?,?, 0,?,?,?,?)";
+        << " VALUES (?,NULL,?,0,0, 'SUCCESS',?,?,?,"
+        << " ?,?,?,?, 0,?,?,?,?)";
 
     sqlSession->executeUpdate(sql.str(), params);
 }
 
 void SettleChargeDAO::insertInvoice(const std::string& invoiceId, const std::string& nowStr,
     const std::string& encounterId, const std::string& paymentId,
-    const std::string& chargeItemIdsStr, const std::string& totalAmountStr)
+    const std::string& chargeItemIdsStr, const std::string& totalAmountStr,
+    const std::string& busNo)
 {
     SqlParams params;
     SQLPARAMS_PUSH(params, "s", std::string, invoiceId);
     SQLPARAMS_PUSH(params, "s", std::string, nowStr);
+    SQLPARAMS_PUSH(params, "s", std::string, busNo);
+    SQLPARAMS_PUSH(params, "s", std::string, "OUTPATIENT");
     SQLPARAMS_PUSH(params, "s", std::string, encounterId);
     SQLPARAMS_PUSH(params, "s", std::string, paymentId);
     SQLPARAMS_PUSH(params, "s", std::string, paymentId);
@@ -51,21 +55,25 @@ void SettleChargeDAO::insertInvoice(const std::string& invoiceId, const std::str
     std::ostringstream sql;
     sql << "INSERT INTO adm_invoice"
         << " (id, tenant_id, created_at, is_deleted, version,"
+        << " bus_no, type_code,"
         << " patient_id, reconciliation_id, payment_id,"
         << " charge_item_ids, amount, status_enum)"
-        << " VALUES (?,NULL,?,0,0, ?,?,?, ?,?,'DRAFT')";
+        << " VALUES (?,NULL,?,0,0, ?,?, ?,?,?, ?,?,'DRAFT')";
 
     sqlSession->executeUpdate(sql.str(), params);
 }
 
-void SettleChargeDAO::updateChargeItemsToSettled(const std::string& encounterId,
+void SettleChargeDAO::updateChargeItemsToSettled(const std::string& chargeItemIdsStr,
     const std::string& nowStr)
 {
     SqlParams params;
     SQLPARAMS_PUSH(params, "s", std::string, nowStr);
-    SQLPARAMS_PUSH(params, "s", std::string, encounterId);
 
-    sqlSession->executeUpdate(
-        "UPDATE adm_charge_item SET status_enum='SETTLED', updated_at=? WHERE encounter_id=?",
-        params);
+    std::ostringstream sql;
+    sql << "UPDATE adm_charge_item SET status_enum='SETTLED', updated_at=?"
+        << " WHERE FIND_IN_SET(id, ?)";
+
+    SQLPARAMS_PUSH(params, "s", std::string, chargeItemIdsStr);
+
+    sqlSession->executeUpdate(sql.str(), params);
 }
