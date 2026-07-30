@@ -8,7 +8,7 @@
 #include "domain/vo/cycleCtrl1/receptionPatientVo.h"
 #include "domain/GlobalInclude.h"
 #include "service/cycleCtrl1/ReceptionPatientService.h"
-
+#include "domain/dto/PayloadDTO.h" 
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
@@ -20,38 +20,31 @@ class RecePatientController : public oatpp::web::server::api::ApiController
 	API_ACCESS_DECLARE(RecePatientController);
 
 public:
-	//2.1定义在诊患者的查询接口处理
+	//2.1 接口：将凭证传入 execQueryRece
 	ENDPOINT(API_M_GET, "/cycleCtrl/reception", recePatient, QUERIES(QueryParams, queryParams), API_HANDLER_AUTH_PARAME)
 	{
-		//解析查询参数为query的领域模型
+		// 将 query 解析为 DTO
 		API_HANDLER_QUERY_PARAM(userQuery, RecePatientQuery, queryParams);
-		//调用执行函数
-		API_HANDLER_RESP_VO(execQueryRece(userQuery));
+		// 把 authObject->getPayload() 
+		API_HANDLER_RESP_VO(execQueryRece(userQuery, authObject->getPayload()));
 	}
-	//2.2定义在诊患者的查询接口描述
+	//2.2 接口信息保持不变
 	ENDPOINT_INFO(recePatient)
 	{
-		//定义授权描述
 		API_DEF_ADD_AUTH();
-		//定义接口标题
 		API_DEF_ADD_TITLE(ZH_WORDS_GETTER("rece.get.summary"));
-		//定义响应参数格式
 		API_DEF_ADD_RSP_JSON_WRAPPER(RecePatientJsonVO);
-		//定义标签
 		API_DEF_ADD_TAG(API_TAG);
 
-		//用户输入的请求
-		// 就诊时间
-		API_DEF_ADD_QUERY_PARAMS(String, "visitTime", ZH_WORDS_GETTER("rece.param.visitTime"),"", true);
+		//只输入日期即可
+		API_DEF_ADD_QUERY_PARAMS(String, "date", ZH_WORDS_GETTER("rece.param.visitTime"), "", true);
 	}
 
 private:
-	//2.3执行查询在诊患者的数据
-	RecePatientJsonVO::Wrapper execQueryRece(const RecePatientQuery::Wrapper& query);
+	// 修改签名：增加 payload 参数
+	RecePatientJsonVO::Wrapper execQueryRece(const RecePatientQuery::Wrapper& query, const PayloadDTO& payload);
 
 };
-
-
 
 #include OATPP_CODEGEN_END(ApiController)
 

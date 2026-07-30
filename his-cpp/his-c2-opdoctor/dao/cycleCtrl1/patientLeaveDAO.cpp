@@ -3,9 +3,10 @@
 
 std::shared_ptr<AdmEncounterDO> PatientLeaveDAO::selectEncounterById(const oatpp::String& tenantId, const oatpp::String& encounterId)
 {
+    //select时字段要和Mapper里对应，不然data里没有值
     std::string sql = "SELECT id, tenant_id, status_enum, is_deleted "
                       "FROM adm_encounter "
-                      "WHERE amb_encounter_id = ? AND tenant_id = ? AND is_deleted = 0";
+                      "WHERE id = ? AND tenant_id = ? AND is_deleted = 0";
     SqlParams params;
     SQLPARAMS_PUSH(params, "s", std::string, encounterId->c_str());
     SQLPARAMS_PUSH(params, "s", std::string, tenantId ? tenantId->c_str() : "");
@@ -14,8 +15,8 @@ std::shared_ptr<AdmEncounterDO> PatientLeaveDAO::selectEncounterById(const oatpp
 
 bool PatientLeaveDAO::updateEncounterToLeave(const oatpp::String& tenantId, const oatpp::String& encounterId)
 {
-    // 暂离仅修改就诊状态，按 amb_encounter_id 匹配（与 select 保持一致）
-    std::string sql = "UPDATE adm_encounter SET status_enum = 'LEFT' WHERE amb_encounter_id = ? AND tenant_id = ? AND is_deleted = 0";
+    // 暂离仅修改就诊状态
+    std::string sql = "UPDATE adm_encounter SET status_enum = 'LEFT' WHERE id = ? AND tenant_id = ? AND is_deleted = 0";
     SqlParams params;
     SQLPARAMS_PUSH(params, "s", std::string, encounterId->c_str());
     SQLPARAMS_PUSH(params, "s", std::string, tenantId ? tenantId->c_str() : "");

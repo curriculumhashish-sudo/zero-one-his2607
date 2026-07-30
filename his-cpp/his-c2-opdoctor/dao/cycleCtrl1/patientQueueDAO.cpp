@@ -16,7 +16,7 @@ std::list<PtrPatientQueueCombineDO> PatientQueueDAO::queryPatientQueue(
                     pat.birth_date,
                     enc.bus_no,
                     enc.status_enum,
-                    UNIX_TIMESTAMP(DATE(enc.reception_time)) AS reception_time,
+                    (DATE(enc.reception_time)) AS reception_time,
                     enc.service_type_id,
                     serv.name AS service_name,
                     acc.type_code
@@ -62,13 +62,8 @@ std::list<PtrPatientQueueCombineDO> PatientQueueDAO::queryPatientQueue(
             sql += " AND enc.status_enum = ? ";
             SQLPARAMS_PUSH(params, "s", std::string, query->visitStatus->c_str());
         }
-        if (query->finishStatus && !query->finishStatus->empty())
-        {
-            sql += " AND enc.status_enum = ? ";
-            SQLPARAMS_PUSH(params, "s", std::string, query->finishStatus->c_str());
-        }
     
-
     PatientQueueMapper mapper;
     return sqlSession->executeQuery<PtrPatientQueueCombineDO>(sql, mapper, params);
 }
+

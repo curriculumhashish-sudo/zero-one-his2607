@@ -5,6 +5,11 @@
 #include "domain/query/cycleCtrl1/patientQueueQuery.h"
 #include "domain/dto/cycleCtrl1/patientQueueDTO.h"
 #include "dao/cycleCtrl1/PatientQueueDAO.h"
+#include <ctime>
+#include <chrono>
+#include <sstream>
+#include <iomanip>
+
 
 class PatientQueueService
 {
@@ -14,6 +19,7 @@ public:
         const std::string& tenantId,
         const std::string& practitionerId);
 
+        static int calcAge(const std::string& birthDate);
 
 private:
     PatientQueueDAO m_patientQueueDAO;

@@ -17,10 +17,9 @@ class PatientQueueQuery : public oatpp::DTO
 	API_DTO_FIELD_REQUIRE(String, date, ZH_WORDS_GETTER("queue.query.date"), true);
 	//À—À˜ªº’ﬂ
 	API_DTO_FIELD_REQUIRE(String, patientName, ZH_WORDS_GETTER("queue.query.patientName"), false);
-	//visitStatus -> ¥˝’Ô°¢‘⁄’Ô
+	//visitStatus -> ¥˝’Ô°¢‘⁄’Ô°¢ÕÍ’Ô
 	API_DTO_FIELD_REQUIRE(String, visitStatus, ZH_WORDS_GETTER("queue.query.visitStatus"), false);
-	//finishStatus -> ÕÍ’Ô
-	API_DTO_FIELD_REQUIRE(String, finishStatus, ZH_WORDS_GETTER("queue.query.finishStatus"), false);
+	
 };
 
 #include OATPP_CODEGEN_END(DTO)

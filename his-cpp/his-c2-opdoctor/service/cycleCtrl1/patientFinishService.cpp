@@ -16,19 +16,20 @@ PatientFinishJsonVO::Wrapper PatientFinishService::execFinishPatient(const oatpp
 
     //2. 业务状态校验
     oatpp::String status = encounterDO->getStatusEnum();
-    if (status == "FINISHED")
+    if (status == "COMPLETED")
     {
         auto vo = PatientFinishJsonVO::createShared();
         vo->code = 10002;
-        vo->message = "该患者已经完诊，请勿重复操作";
+        vo->message = u8"该患者已经完诊，请勿重复操作";
         vo->data = nullptr;
         return vo;
     }
+    // 允许【接诊中TREATING、待诊WAITING】执行完诊
     if (status != "TREATING" && status != "WAITING")
     {
         auto vo = PatientFinishJsonVO::createShared();
         vo->code = 10003;
-        vo->message = "当前就诊状态不允许执行完诊";
+        vo->message = u8"当前就诊状态不允许执行完诊";
         vo->data = nullptr;
         return vo;
     }
@@ -39,7 +40,7 @@ PatientFinishJsonVO::Wrapper PatientFinishService::execFinishPatient(const oatpp
     {
         auto vo = PatientFinishJsonVO::createShared();
         vo->code = 10004;
-        vo->message = "完诊操作失败";
+        vo->message = u8"完诊操作失败";
         vo->data = nullptr;
         return vo;
     }
@@ -51,7 +52,7 @@ PatientFinishJsonVO::Wrapper PatientFinishService::execFinishPatient(const oatpp
 
     auto vo = PatientFinishJsonVO::createShared();
     vo->code = 10000;
-    vo->message = "success";
+    vo->message = u8"success";
     vo->data = dto;
     return vo;
 }

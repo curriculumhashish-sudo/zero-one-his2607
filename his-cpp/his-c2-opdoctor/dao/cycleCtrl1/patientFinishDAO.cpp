@@ -4,8 +4,8 @@
 
 std::shared_ptr<AdmEncounterDO> PatientFinishDAO::selectEncounterById(const oatpp::String& tenantId, const oatpp::String& encounterId)
 {
-    // 使用 amb_encounter_id 作为外部传入的 encounterId 匹配列
-    std::string sql = "SELECT id, status_enum, is_deleted FROM adm_encounter WHERE amb_encounter_id = ? AND tenant_id = ? AND is_deleted = 0";
+    // 增加 tenant_id 到 SELECT 中，保证 mapper 能读取到 tenant_id
+    std::string sql = "SELECT id, tenant_id, status_enum, is_deleted FROM adm_encounter WHERE id = ? AND tenant_id = ? AND is_deleted = 0";
     SqlParams params;
     SQLPARAMS_PUSH(params, "s", std::string, encounterId->c_str());
     SQLPARAMS_PUSH(params, "s", std::string, tenantId->c_str());
@@ -14,8 +14,8 @@ std::shared_ptr<AdmEncounterDO> PatientFinishDAO::selectEncounterById(const oatp
 
 bool PatientFinishDAO::updateEncounterToFinish(const oatpp::String& tenantId, const oatpp::String& encounterId)
 {
-    // 同样按 amb_encounter_id 更新
-    std::string sql = "UPDATE adm_encounter SET status_enum = 'FINISHED', finish_time = NOW() WHERE amb_encounter_id = ? AND tenant_id = ? AND is_deleted = 0";
+    // 根据主键id更新
+    std::string sql = "UPDATE adm_encounter SET status_enum = 'COMPLETED', end_time = NOW() WHERE id = ? AND tenant_id = ? AND is_deleted = 0";
     SqlParams params;
     SQLPARAMS_PUSH(params, "s", std::string, encounterId->c_str());
     SQLPARAMS_PUSH(params, "s", std::string, tenantId->c_str());

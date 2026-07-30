@@ -18,7 +18,7 @@ PatientLeaveJsonVO::Wrapper PatientLeaveService::execLeavePatient(const oatpp::S
 
     //2. 状态校验
     oatpp::String status = encounterDO->getStatusEnum();
-    if (status == "LEFT" || status == "FINISHED")
+    if (status == "LEFT" || status == "COMPLETED")
     {
         vo->code = 10002;
         vo->message = u8"该患者已离院或已完诊，不能重复操作";

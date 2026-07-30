@@ -9,6 +9,8 @@
 #include "domain/vo/cycleCtrl1/patientQueueVo.h"
 #include "domain/GlobalInclude.h"
 #include "service/cycleCtrl1/PatientQueueService.h"
+#include "domain/dto/PayloadDTO.h"
+
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
@@ -27,7 +29,7 @@ public:
 		//解析查询参数为query的领域模型
 		API_HANDLER_QUERY_PARAM(userQuery, PatientQueueQuery, queryParams);
 		//调用执行函数
-		API_HANDLER_RESP_VO(execQueryQueue(userQuery));
+		API_HANDLER_RESP_VO(execQueryQueue(userQuery, authObject->getPayload()));
 	}
 	//1.2定义患者队列的查询接口描述	
 	ENDPOINT_INFO(queryQueue)
@@ -52,7 +54,7 @@ public:
 
 private:
 	//1.3执行查询队列里的数据
-	PatientQueueJsonVO::Wrapper execQueryQueue(const PatientQueueQuery::Wrapper& query);
+	PatientQueueJsonVO::Wrapper execQueryQueue(const PatientQueueQuery::Wrapper& query, const PayloadDTO& payload);
 };
 
 

@@ -19,6 +19,7 @@ public:
 	std::list<PtrPatientQueueCombineDO> queryPatientQueue(const PatientQueueQuery::Wrapper& query,
 		const std::string& tenantId,const std::string& practitionerId);
 		
+	
 };
 
 

@@ -13,6 +13,8 @@ class PatientFinishQuery : public oatpp::DTO
     //前端传入 encounterId唯一标识
     API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("finish.query.encounterId"), true);
 
+
+
 };
 
 

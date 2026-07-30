@@ -22,14 +22,14 @@ oatpp::Vector<PatientQueueDTO::Wrapper> PatientQueueService::getPatientQueueList
 
         item->patientName = patDO->getName();
 
-        if (patDO->getGenderEnum() == "MALE")
+        if (patDO->getGenderEnum() == "M")
             item->gender = "男性";
-        else if (patDO->getGenderEnum() == "FEMALE")
+        else if (patDO->getGenderEnum() == "F")
             item->gender = "女性";
         else
             item->gender = "未知";
 
-        item->age = 0;
+        item->age = calcAge(patDO->getBirthDate());
         item->registerType = servDO->getName();
 
         int64_t ts = encDO->getReceptionTime();
@@ -46,7 +46,7 @@ oatpp::Vector<PatientQueueDTO::Wrapper> PatientQueueService::getPatientQueueList
             item->visitTime = "";
         }
 
-        item->medicalRecordNum = encDO->getBusNo();
+        item->encounterId = encDO->getBusNo();
         item->payType = accDO->getTypeCode();
         item->visitStatus = encDO->getStatusEnum();
 
@@ -54,4 +54,30 @@ oatpp::Vector<PatientQueueDTO::Wrapper> PatientQueueService::getPatientQueueList
     }
 
     return resultVec;
+}
+
+int PatientQueueService::calcAge(const std::string& birthDate)
+{
+    if (birthDate.empty())
+        return 0;
+
+    // 解析出生日期 yyyy-MM-dd
+    std::tm birthTm = {};
+    std::istringstream ss(birthDate);
+    ss >> std::get_time(&birthTm, "%Y-%m-%d");
+    if (ss.fail())
+        return 0;
+
+    // 当前系统时间
+    std::time_t nowT = std::time(nullptr);
+    std::tm nowTm = *std::localtime(&nowT);
+
+    int age = nowTm.tm_year - birthTm.tm_year;
+    // 判断生日有没有过
+    if (nowTm.tm_mon < birthTm.tm_mon ||
+        (nowTm.tm_mon == birthTm.tm_mon && nowTm.tm_mday < birthTm.tm_mday))
+    {
+        age--;
+    }
+    return age > 0 ? age : 0;
 }

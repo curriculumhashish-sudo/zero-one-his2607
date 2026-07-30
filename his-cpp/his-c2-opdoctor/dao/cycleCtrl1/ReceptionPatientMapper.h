@@ -18,7 +18,7 @@ public:
     CC_SYNTHESIZE(PtrAdmEncounterLocationDO, locationDO, LocationDO);
     CC_SYNTHESIZE(PtrAdmHealthcareServiceDO, serviceDO, ServiceDO);
     CC_SYNTHESIZE(PtrAdmAccountDO, accountDO, AccountDO);
-    CC_SYNTHESIZE(PtrAdmOrganizationDO, orgDO, OrgDO);    // 新增科室组织
+    CC_SYNTHESIZE(PtrAdmOrganizationDO, orgDO, OrgDO);    
     CC_SYNTHESIZE(PtrClnAllergyIntoleranceDO, allergyDO, AllergyDO);
 
     CurrentReceptionCombineDO() = default;

@@ -2,25 +2,34 @@
 #include "patientFinishController.h"
 #include "domain/query/cycleCtrl1/patientFinishQuery.h"
 #include "service/cycleCtrl1/patientFinishService.h"
-
+#include "RedisClient.h"
 
 PatientFinishJsonVO::Wrapper PatientFinishController::execFinishPatient(const PatientFinishQuery::Wrapper& dto, const PayloadDTO& payload)
 {
     auto vo = PatientFinishJsonVO::createShared();
 
-    // 使用请求体中的 encounterId
-    oatpp::String encounterId = dto->encounterId;
-    // 从 payload 取 tenantId
-    oatpp::String tenantId = nullptr;
-    if (!payload.getId().empty()) {
-        tenantId = oatpp::String(payload.getId().c_str());
+    //参数校验
+    if (!dto)
+    {
+        vo->init(nullptr, RS_PARAMS_INVALID);
+        return vo;
     }
 
-    // 参数校验
-    if (!encounterId || encounterId->empty())
+    // 使用请求体中的encounterId
+    oatpp::String encounterId = dto->encounterId;
+    
+    // 创建 Redis 客户端以获取 tenantId
+    RedisClient re("127.0.0.1", 6379, "01star");
+    std::string tenantId = re.execute<std::string>([](Redis* r) {
+        auto res = r->hget("his:login:context:u001", "tenantId");
+        return res.value();
+    });
+
+
+    if (tenantId.empty()|| encounterId == nullptr)
     {
-        vo->init(nullptr, RS_PARAMS_INVALID); 
-        return vo;
+        tenantId = "tenant_001";
+        encounterId = "enc_001";
     }
 
     PatientFinishService service;

@@ -23,22 +23,19 @@ class RecePatientDTO : public oatpp::DTO
     // 挂号类型（普通号/专家号）
     API_DTO_FIELD_REQUIRE(String, registerType, ZH_WORDS_GETTER("rece.dto.registerType"), true);
 
-    //病历号
-    API_DTO_FIELD_REQUIRE(String, medicalRecordNum, ZH_WORDS_GETTER("rece.dto.medicalRecordNum"), true);
+    //就诊号
+    API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("rece.dto.medicalRecordNum"), true);
     //病历性质（自费/医保）
-    API_DTO_FIELD_REQUIRE(String, recordType, ZH_WORDS_GETTER("rece.dto.recordType"), true);
+    API_DTO_FIELD_REQUIRE(String, payType, ZH_WORDS_GETTER("rece.dto.recordType"), true);
     //就诊时间
-    API_DTO_FIELD_REQUIRE(Int32, time, ZH_WORDS_GETTER("rece.dto.time"), true);
+    API_DTO_FIELD_REQUIRE(Int32, VisitTime, ZH_WORDS_GETTER("rece.dto.time"), true);
     //挂号科室
     API_DTO_FIELD_REQUIRE(String, registerDept, ZH_WORDS_GETTER("rece.dto.registerDept"), true);
     //电话号
     API_DTO_FIELD_REQUIRE(String, phoneNum, ZH_WORDS_GETTER("rece.dto.phoneNum"), true);
     //过敏史
     API_DTO_FIELD_REQUIRE(String, allergyHistory, ZH_WORDS_GETTER("rece.dto.allergyHistory"), false);
-
-
-    //唯一标识
-    API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("rece.dto.encounterId"), false);
+    
 };
 
 
