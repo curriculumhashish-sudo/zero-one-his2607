@@ -1,5 +1,6 @@
 package com.zeroone.star.project.vo.j3.department;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -16,5 +17,6 @@ import lombok.*;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Schema(description = "科室详情VO")
+@JsonInclude(JsonInclude.Include.ALWAYS)
 public class DepartmentDetailVO extends DepartmentTreeVO {
 }

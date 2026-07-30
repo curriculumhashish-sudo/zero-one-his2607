@@ -7,6 +7,7 @@ import lombok.Getter;
 /**
  * <p>
  * 描述：科室管理状态枚举类
+ * 其中，value为前段给后段传递的值，desc为前数据库中的值，dictText为字典文本，同时也是前端展示的文本
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
@@ -18,7 +19,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum StatusEnum implements BaseEnum {
     ACTIVE(1, "ACTIVE", "已启用"),
-    INACTIVE(2, "INACTIVE", "已停用");
+    INACTIVE(0, "INACTIVE", "已停用");
 
     private final Integer value;
     private final String desc;
@@ -36,37 +37,37 @@ public enum StatusEnum implements BaseEnum {
 
     public static Integer getValueByDesc(String desc) {
         if (desc == null) {
-            return null;
+            throw new IllegalArgumentException("状态不能为空");
         }
         for (StatusEnum e : values()) {
             if (e.desc.equals(desc)) {
                 return e.value;
             }
         }
-        return null;
+        throw new IllegalArgumentException("状态不存在");
     }
 
     public static String getDictTextByDesc(String desc) {
         if (desc == null) {
-            return null;
+            throw new IllegalArgumentException("状态不能为空");
         }
         for (StatusEnum e : values()) {
             if (e.desc.equals(desc)) {
                 return e.dictText;
             }
         }
-        return null;
+        throw new IllegalArgumentException("状态不存在");
     }
 
     public static String getDescByValue(Integer value) {
         if (value == null) {
-            return null;
+            throw new IllegalArgumentException("状态不能为空");
         }
         for (StatusEnum e : values()) {
             if (e.value.equals(value)) {
                 return e.desc;
             }
         }
-        return null;
+        throw new IllegalArgumentException("状态不存在");
     }
 }

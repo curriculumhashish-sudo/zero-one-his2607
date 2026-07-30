@@ -6,7 +6,7 @@ import com.zeroone.star.project.dto.j3.register.RegisterDTO;
 import com.zeroone.star.project.j3.register.RegisterApis;
 import com.zeroone.star.project.query.j3.register.RegisterQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j3.register.RegisterVO;
+import com.zeroone.star.project.vo.j3.register.RegisterNameVO;
 import com.zeroone.star.project.vo.j3.register.RegisterVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * <p>
@@ -39,6 +41,13 @@ public class RegisterController implements RegisterApis {
 
     @Resource
     private IRegisterTypeService registerTypeService;
+
+    @GetMapping("query-names")
+    @Operation(summary = "获取挂号类型名称列表", description = "用于下拉选择号源类型")
+    @Override
+    public JsonVO<List<RegisterNameVO>> queryRegisterNames() {
+        return JsonVO.success(registerTypeService.queryRegisterNames());
+    }
 
     /**
      * 获取挂号类型列表（条件+分页）

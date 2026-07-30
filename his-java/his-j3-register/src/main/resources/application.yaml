@@ -6,7 +6,8 @@ server:
 
 spring:
   application:
-    name: ${sn.j3-database:his-j3-database}
-
-mybatis-plus:
-  mapper-locations: classpath*:mapper/**/*.xml
+    name: ${sn.j3-register:his-j3-register}
+  cloud:
+    nacos:
+      discovery:
+        register-enabled: ${NACOS_REGISTER_ENABLED:true}
