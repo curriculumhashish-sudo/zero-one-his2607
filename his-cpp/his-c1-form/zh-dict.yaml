@@ -30,12 +30,12 @@ rhqm:
     end_time: 结束时间
     name: 患者姓名
     room: 挂号科室
-    feeClass: 费用大类
-    detailClass: 细分类
+    feeClass: 费用大类编号
+    detailClass: 细分类编号
     projectName: 项目名称
     hisID: 院内编号
     checker: 收银员
-    feeDir: 收退方向
+    feeDir: 收退方向编号（0 / 1）
    export:
     tag: "导出报表"
     fileID: "文件ID"

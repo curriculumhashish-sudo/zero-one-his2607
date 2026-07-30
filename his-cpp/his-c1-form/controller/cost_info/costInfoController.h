@@ -27,10 +27,10 @@ public:
 		API_DEF_ADD_QUERY_PARAMS(String, "start_time", ZH_WORDS_GETTER("rhqm.form.cost_info.query.start_time"), "", true);
 		API_DEF_ADD_QUERY_PARAMS(String, "end_time", ZH_WORDS_GETTER("rhqm.form.cost_info.query.end_time"), "", true);
 		API_DEF_ADD_QUERY_PARAMS(String, "room", ZH_WORDS_GETTER("rhqm.form.cost_info.query.room"), "", false);
-		API_DEF_ADD_QUERY_PARAMS(String, "feeClass", ZH_WORDS_GETTER("rhqm.form.cost_info.query.feeClass"), "", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "feeClass", ZH_WORDS_GETTER("rhqm.form.cost_info.query.feeClass") , "", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "detailClass", ZH_WORDS_GETTER("rhqm.form.cost_info.query.detailClass"), "", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "projectName", ZH_WORDS_GETTER("rhqm.form.cost_info.query.projectName"), "", false);
-		API_DEF_ADD_QUERY_PARAMS(UInt64, "hisID", ZH_WORDS_GETTER("rhqm.form.cost_info.query.hisID"), 1, false);
+		API_DEF_ADD_QUERY_PARAMS(String, "hisID", ZH_WORDS_GETTER("rhqm.form.cost_info.query.hisID"), "", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "name", ZH_WORDS_GETTER("rhqm.form.cost_info.query.name"), "", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "checker", ZH_WORDS_GETTER("rhqm.form.cost_info.query.checker"), "", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "feeDir", ZH_WORDS_GETTER("rhqm.form.cost_info.query.feeDir"), "", false);
@@ -54,7 +54,7 @@ public:
 		API_DEF_ADD_QUERY_PARAMS(String, "feeClass", ZH_WORDS_GETTER("rhqm.form.cost_info.query.feeClass"), "", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "detailClass", ZH_WORDS_GETTER("rhqm.form.cost_info.query.detailClass"), "", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "projectName", ZH_WORDS_GETTER("rhqm.form.cost_info.query.projectName"), "", false);
-		API_DEF_ADD_QUERY_PARAMS(UInt64, "hisID", ZH_WORDS_GETTER("rhqm.form.cost_info.query.hisID"), 1, false);
+		API_DEF_ADD_QUERY_PARAMS(String, "hisID", ZH_WORDS_GETTER("rhqm.form.cost_info.query.hisID"), "", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "checker", ZH_WORDS_GETTER("rhqm.form.cost_info.query.checker"), "", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "feeDir", ZH_WORDS_GETTER("rhqm.form.cost_info.query.feeDir"), "", false);
 	}
