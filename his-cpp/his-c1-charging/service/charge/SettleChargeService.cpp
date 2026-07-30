@@ -99,11 +99,17 @@ ConfirmSettleChargeResponseDTO::Wrapper SettleChargeService::confirmSettle(
     if (draftId.empty() || !SettleDraftStore::getInstance().take(draftId, draft))
     {
         resp->successMessageCode = "EX-DRAFT-404";
+        resp->paymentId = "";
+        resp->invoiceId = "";
+        resp->invoiceStatus = "";
         return resp;
     }
     if (draft.encounterId != std::string(dto->encounterId->c_str()))
     {
         resp->successMessageCode = "EX-DRAFT-ENCOUNTER_MISMATCH";
+        resp->paymentId = "";
+        resp->invoiceId = "";
+        resp->invoiceStatus = "";
         return resp;
     }
     // 比对选中收费项集合，防换单
@@ -114,6 +120,9 @@ ConfirmSettleChargeResponseDTO::Wrapper SettleChargeService::confirmSettle(
     if (draftIds != reqIds)
     {
         resp->successMessageCode = "EX-DRAFT-ITEMS_MISMATCH";
+        resp->paymentId = "";
+        resp->invoiceId = "";
+        resp->invoiceStatus = "";
         return resp;
     }
 
