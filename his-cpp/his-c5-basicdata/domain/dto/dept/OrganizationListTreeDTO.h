@@ -22,8 +22,11 @@ class OrganizationListTreeDTO : public oatpp::DTO, public TreeNode
     API_DTO_FIELD_REQUIRE(oatpp::String, name, ZH_WORDS_GETTER("dept.organizationQuery.fields.name"), true);
     API_DTO_FIELD_DEFAULT(oatpp::String, busNo, ZH_WORDS_GETTER("dept.organizationQuery.fields.busNo"));
     API_DTO_FIELD_DEFAULT(oatpp::String, typeEnum, ZH_WORDS_GETTER("dept.organizationQuery.fields.typeEnum"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, typeEnumDictText, ZH_WORDS_GETTER("dept.organizationQuery.fields.typeEnumDictText"));
     API_DTO_FIELD_DEFAULT(oatpp::String, classEnum, ZH_WORDS_GETTER("dept.organizationQuery.fields.classEnum"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, classEnumDictText, ZH_WORDS_GETTER("dept.organizationQuery.fields.classEnumDictText"));
     API_DTO_FIELD_DEFAULT(oatpp::String, statusEnum, ZH_WORDS_GETTER("dept.organizationQuery.fields.statusEnum"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, statusEnumDictText, ZH_WORDS_GETTER("dept.organizationQuery.fields.statusEnumDictText"));
     API_DTO_FIELD_DEFAULT(oatpp::Int32, displayOrder, ZH_WORDS_GETTER("dept.organizationQuery.fields.displayOrder"));
 
     API_DTO_FIELD(

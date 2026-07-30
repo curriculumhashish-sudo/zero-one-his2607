@@ -10,6 +10,31 @@
 #include "OrganizationTreeAssembler.h"
 #include "OrganizationNameTreeMapper.h"
 #include "OrganizationListTreeMapper.h"
+#include "OrganizationEnumDictionary.h"
+
+namespace
+{
+    bool hasMissingEnumMapping(
+        const PtrAdmOrganizationDO& data,
+        const OrganizationEnumTextMap& mappings
+    )
+    {
+        return
+            (!data->getTypeEnum().empty() &&
+                !mappings.hasTypeText(data->getTypeEnum())) ||
+            (!data->getClassEnum().empty() &&
+                !mappings.hasClassText(data->getClassEnum())) ||
+            (!data->getStatusEnum().empty() &&
+                !mappings.hasStatusText(data->getStatusEnum()));
+    }
+
+    const char* getEnumWarningKey(OrganizationEnumLoadStatus status)
+    {
+        return status == OrganizationEnumLoadStatus::MONGO_UNAVAILABLE
+            ? "dept.organizationQuery.warnings.enumMongoUnavailable"
+            : "dept.organizationQuery.warnings.enumDataIncomplete";
+    }
+}
 
 bool OrganizationService::containsIgnoreCase(
     const std::string& value,
@@ -193,10 +218,26 @@ OrganizationListTreeJsonVO::Wrapper OrganizationService::getListTree(
             }
         );
 
+    const auto enumResult = OrganizationEnumDictionary().load();
+    auto enumStatus = enumResult.status;
+
+    if (enumStatus != OrganizationEnumLoadStatus::MONGO_UNAVAILABLE)
+    {
+        for (const auto& organization : filteredOrganizations)
+        {
+            if (hasMissingEnumMapping(organization, enumResult.mappings))
+            {
+                enumStatus =
+                    OrganizationEnumLoadStatus::ENUM_DATA_INCOMPLETE;
+                break;
+            }
+        }
+    }
+
     const auto roots =
         OrganizationTreeAssembler::build(
             filteredOrganizations,
-            OrganizationListTreeMapper()
+            OrganizationListTreeMapper(enumResult.mappings)
         );
 
     auto treeData =
@@ -221,6 +262,15 @@ OrganizationListTreeJsonVO::Wrapper OrganizationService::getListTree(
 
     auto result = OrganizationListTreeJsonVO::createShared();
     result->success(treeData);
+    result->enumMappingSuccess =
+        enumStatus == OrganizationEnumLoadStatus::SUCCESS;
+
+    if (enumStatus != OrganizationEnumLoadStatus::SUCCESS)
+    {
+        result->message = ZH_WORDS_GETTER(
+            getEnumWarningKey(enumStatus)
+        );
+    }
 
     return result;
 }
@@ -242,6 +292,15 @@ OrganizationDetailJsonVO::Wrapper OrganizationService::getDetail(
         return result;
     }
 
+    const auto enumResult = OrganizationEnumDictionary().load();
+    auto enumStatus = enumResult.status;
+
+    if (enumStatus != OrganizationEnumLoadStatus::MONGO_UNAVAILABLE &&
+        hasMissingEnumMapping(data, enumResult.mappings))
+    {
+        enumStatus = OrganizationEnumLoadStatus::ENUM_DATA_INCOMPLETE;
+    }
+
     auto detail = OrganizationDetailDTO::createShared();
 
     detail->id = data->getId();
@@ -259,8 +318,17 @@ OrganizationDetailJsonVO::Wrapper OrganizationService::getDetail(
     detail->busNo = data->getBusNo();
     detail->caty = data->getCaty();
     detail->typeEnum = data->getTypeEnum();
+    detail->typeEnumDictText = enumResult.mappings.getTypeText(
+        data->getTypeEnum()
+    );
     detail->classEnum = data->getClassEnum();
+    detail->classEnumDictText = enumResult.mappings.getClassText(
+        data->getClassEnum()
+    );
     detail->statusEnum = data->getStatusEnum();
+    detail->statusEnumDictText = enumResult.mappings.getStatusText(
+        data->getStatusEnum()
+    );
     detail->ybNo = data->getYbNo();
     detail->ybName = data->getYbName();
     detail->medinsId = data->getMedinsId();
@@ -272,6 +340,15 @@ OrganizationDetailJsonVO::Wrapper OrganizationService::getDetail(
     detail->displayOrder = data->getDisplayOrder();
 
     result->success(detail);
+    result->enumMappingSuccess =
+        enumStatus == OrganizationEnumLoadStatus::SUCCESS;
+
+    if (enumStatus != OrganizationEnumLoadStatus::SUCCESS)
+    {
+        result->message = ZH_WORDS_GETTER(
+            getEnumWarningKey(enumStatus)
+        );
+    }
 
     return result;
 }

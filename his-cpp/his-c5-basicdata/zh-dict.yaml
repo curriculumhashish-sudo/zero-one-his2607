@@ -88,6 +88,9 @@ dept:
       invalidParameter: 查询参数不合法
       notFound: 科室不存在
       serverError: 科室查询失败
+    warnings:
+      enumMongoUnavailable: 科室信息查询成功，但MongoDB不可用，已返回原始枚举编码
+      enumDataIncomplete: 科室信息查询成功，但未找到完整的枚举映射，已返回原始枚举编码
     fields:
       id: 科室唯一标识，JSON类型为字符串，禁止按数字处理
       name: 科室名称
@@ -96,8 +99,12 @@ dept:
       busNo: 科室业务编码
       caty: 科别名称
       typeEnum: 科室类型编码，返回数据库保存的编码原值
+      typeEnumDictText: 科室类型中文名称，MongoDB枚举查询失败或编码不存在时返回null
       classEnum: 科室类别编码，返回数据库保存的编码原值
+      classEnumDictText: 科室类别中文名称，MongoDB枚举查询失败或编码不存在时返回null
       statusEnum: 科室状态编码，返回数据库保存的编码原值
+      statusEnumDictText: 科室状态中文名称，MongoDB枚举查询失败或编码不存在时返回null
+      enumMappingSuccess: MongoDB枚举中文映射是否完整，false时原始编码和其他科室信息仍正常返回
       ybNo: 医保编码
       ybName: 医保名称
       medinsId: 医疗机构标识

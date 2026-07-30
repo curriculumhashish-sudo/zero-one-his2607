@@ -38,6 +38,15 @@ class OrganizationListTreeJsonVO
         JsonVO<oatpp::List<OrganizationListTreeDTO::Wrapper>>
     );
 
+    DTO_FIELD(oatpp::Boolean, enumMappingSuccess) = true;
+    DTO_FIELD_INFO(enumMappingSuccess)
+    {
+        info->description = ZH_WORDS_GETTER(
+            "dept.organizationQuery.fields.enumMappingSuccess"
+        );
+        info->required = true;
+    }
+
 public:
     OrganizationListTreeJsonVO()
     {

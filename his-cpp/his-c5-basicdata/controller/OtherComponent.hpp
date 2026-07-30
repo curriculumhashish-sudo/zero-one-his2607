@@ -20,6 +20,7 @@
 #ifndef _OTHERCOMMPONENT_H_
 #define _OTHERCOMMPONENT_H_
 #include "AbstractComponentReg.h"
+#include "service/dept/OrganizationMongoClientFactory.h"
 
 /**
  * Registration of other Oatpp components.
@@ -28,7 +29,12 @@
 class OtherComponent : public AbstractComponentReg
 {
 	// #TIP: Add other component registration code below as needed
-	
+	OATPP_CREATE_COMPONENT(
+		std::shared_ptr<MongoClient>,
+		organizationEnumMongoClient
+	)("dept-organization-enum-mongo", [] {
+		return OrganizationMongoClientFactory::create();
+	}());
 };
 
 #endif // _OTHERCOMMPONENT_H_

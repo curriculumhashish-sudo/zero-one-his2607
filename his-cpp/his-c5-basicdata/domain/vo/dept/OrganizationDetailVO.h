@@ -18,6 +18,15 @@ class OrganizationDetailJsonVO
         OrganizationDetailJsonVO,
         JsonVO<OrganizationDetailDTO::Wrapper>
     );
+
+    DTO_FIELD(oatpp::Boolean, enumMappingSuccess) = true;
+    DTO_FIELD_INFO(enumMappingSuccess)
+    {
+        info->description = ZH_WORDS_GETTER(
+            "dept.organizationQuery.fields.enumMappingSuccess"
+        );
+        info->required = true;
+    }
 };
 
 #include OATPP_CODEGEN_END(DTO)

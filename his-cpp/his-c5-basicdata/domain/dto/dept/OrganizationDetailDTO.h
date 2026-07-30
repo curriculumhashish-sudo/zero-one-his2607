@@ -24,8 +24,11 @@ class OrganizationDetailDTO : public oatpp::DTO
     API_DTO_FIELD_DEFAULT(oatpp::String, busNo, ZH_WORDS_GETTER("dept.organizationQuery.fields.busNo"));
     API_DTO_FIELD_DEFAULT(oatpp::String, caty, ZH_WORDS_GETTER("dept.organizationQuery.fields.caty"));
     API_DTO_FIELD_DEFAULT(oatpp::String, typeEnum, ZH_WORDS_GETTER("dept.organizationQuery.fields.typeEnum"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, typeEnumDictText, ZH_WORDS_GETTER("dept.organizationQuery.fields.typeEnumDictText"));
     API_DTO_FIELD_DEFAULT(oatpp::String, classEnum, ZH_WORDS_GETTER("dept.organizationQuery.fields.classEnum"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, classEnumDictText, ZH_WORDS_GETTER("dept.organizationQuery.fields.classEnumDictText"));
     API_DTO_FIELD_DEFAULT(oatpp::String, statusEnum, ZH_WORDS_GETTER("dept.organizationQuery.fields.statusEnum"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, statusEnumDictText, ZH_WORDS_GETTER("dept.organizationQuery.fields.statusEnumDictText"));
     API_DTO_FIELD_DEFAULT(oatpp::String, ybNo, ZH_WORDS_GETTER("dept.organizationQuery.fields.ybNo"));
     API_DTO_FIELD_DEFAULT(oatpp::String, ybName, ZH_WORDS_GETTER("dept.organizationQuery.fields.ybName"));
     API_DTO_FIELD_DEFAULT(oatpp::String, medinsId, ZH_WORDS_GETTER("dept.organizationQuery.fields.medinsId"));

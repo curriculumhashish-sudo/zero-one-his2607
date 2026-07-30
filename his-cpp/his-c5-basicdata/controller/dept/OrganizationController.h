@@ -75,6 +75,11 @@ public:
      *
      * Response contract:
      * - HTTP 200: the query succeeded; no match is represented by data: [].
+     * - typeEnumDictText, classEnumDictText, and statusEnumDictText contain
+     *   display values obtained from the MongoDB enum collections.
+     * - If the MongoDB enum lookup fails or is incomplete, HTTP 200 and code
+     *   10000 are kept, enumMappingSuccess is false, missing dictionary text
+     *   fields are null, and the original enum codes are still returned.
      * - HTTP 400 / code 9995: an optional parameter exceeds its length limit.
      * - HTTP 500 / code 9994: database access, mapping, or tree assembly failed.
      * - Authentication failures are handled by the global authentication layer.
@@ -110,6 +115,11 @@ public:
      *
      * Response contract:
      * - HTTP 200: the organization was found.
+     * - typeEnumDictText, classEnumDictText, and statusEnumDictText contain
+     *   display values obtained from the MongoDB enum collections.
+     * - If the MongoDB enum lookup fails or is incomplete, HTTP 200 and code
+     *   10000 are kept, enumMappingSuccess is false, missing dictionary text
+     *   fields are null, and the original enum codes are still returned.
      * - HTTP 400 / code 9995: id is missing, blank, or too long.
      * - HTTP 404 / code 9999: the organization does not exist.
      * - HTTP 500 / code 9994: database access or response mapping failed.
