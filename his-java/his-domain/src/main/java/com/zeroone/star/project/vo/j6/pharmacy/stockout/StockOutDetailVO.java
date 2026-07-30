@@ -13,9 +13,6 @@ public class StockOutDetailVO {
     @Schema(description = "出库单号", example = "OUT-20240719-001", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String busNo;
 
-    @Schema(description = "原始出库单号", example = "ORI-20240718-005", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String originalBusNo;
-
     @Schema(description = "类型枚举", example = "NORMAL", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String typeEnum;
 
@@ -37,14 +34,8 @@ public class StockOutDetailVO {
     @Schema(description = "分类枚举", example = "DRUG", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String categoryEnum;
 
-    @Schema(description = "备注", example = "需冷藏保存", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String remark;
-
-    @Schema(description = "单价", example = "25.50", requiredMode = Schema.RequiredMode.REQUIRED)
-    private BigDecimal unitPrice;
-
-    @Schema(description = "总金额", example = "127.50", requiredMode = Schema.RequiredMode.REQUIRED)
-    private BigDecimal totalAmount;
+    @Schema(description = "原始出库单号", example = "ORI-20240718-005", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String originalBusNo;
 
     @Schema(description = "出库单明细行", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private List<StockOutLineVO> lines;
