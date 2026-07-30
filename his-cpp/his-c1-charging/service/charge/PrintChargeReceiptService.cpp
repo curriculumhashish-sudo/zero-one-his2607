@@ -29,7 +29,10 @@ PrintChargeReceiptResponseDTO::Wrapper PrintChargeReceiptService::printChargeRec
         slip->encounterId = s.getEncounterId();
         slip->patientName = s.getPatientName();
         slip->hospitalName = s.getHospitalName();
-        slip->genderEnumText = s.getGenderEnumText();
+        std::string genderCode = s.getGenderEnumText();
+        if (genderCode == "MALE")   slip->genderEnumText = ZH_WORDS_GETTER("lhfc.charging.charge.dict.gender.male");
+        else if (genderCode == "FEMALE") slip->genderEnumText = ZH_WORDS_GETTER("lhfc.charging.charge.dict.gender.female");
+        else slip->genderEnumText = genderCode;
         // 根据出生日期计算年龄文本
         std::string birthDate = s.getBirthDate();
         if (!birthDate.empty() && birthDate.length() >= 4)
@@ -139,13 +142,20 @@ ConfirmPrintResponseDTO::Wrapper PrintChargeReceiptService::confirmPrint(const C
     std::string errorCode = dto->errorCode ? dto->errorCode->c_str() : "";
     std::string errorMessage = dto->errorMessage ? dto->errorMessage->c_str() : "";
 
+    // 序列化bizRef为JSON字符串
+    std::string bizRefJson = "{}";
+    if (dto->bizRef)
+    {
+        auto mapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
+        bizRefJson = mapper->writeToString(dto->bizRef).getValue("{}");
+    }
+
     int rows = PrintChargeReceiptDAO().insertPrintLog(
         dto->traceId,
         dto->busNo ? dto->busNo->c_str() : "",
         version, status,
         printer, copies, clientType, errorCode, errorMessage,
-        dto->bizRef ? "{}" : "{}");
-    // TODO: serialize dto->bizRef to JSON string
+        bizRefJson);
 
     resp->ok = (rows > 0);
     return resp;
