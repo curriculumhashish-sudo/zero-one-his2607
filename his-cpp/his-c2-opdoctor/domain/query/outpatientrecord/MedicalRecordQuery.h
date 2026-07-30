@@ -11,10 +11,10 @@ class MedicalRecordQuery : public PageQuery
 	DTO_INIT(MedicalRecordQuery, PageQuery);
 	//患者病历号
 	API_DTO_FIELD_REQUIRE(String, patientId, ZH_WORDS_GETTER("medicalrecord.field.patientid"), true);
-	//处方号
-	API_DTO_FIELD_REQUIRE(String, presId, ZH_WORDS_GETTER("chinapres1.field.presid"), false);
-	//搜索关键词
-	API_DTO_FIELD_REQUIRE(String, keyword, ZH_WORDS_GETTER("medicalrecord.field.keyword1"), false);
+	//就诊号
+	API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("medicalrecord.field.encounterid"), false);
+	//搜索病历名称
+	API_DTO_FIELD_REQUIRE(String, recordName, ZH_WORDS_GETTER("medicalrecord.field.recordname"), false);
 };
 
 #include OATPP_CODEGEN_END(DTO)
