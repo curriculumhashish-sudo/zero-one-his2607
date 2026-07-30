@@ -13,6 +13,7 @@ import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j3.storehouse.StoreHouseAddDTO;
 import com.zeroone.star.project.dto.j3.storehouse.StoreHouseUpdateDTO;
 import com.zeroone.star.project.enums.j3.storehouse.*;
+import com.zeroone.star.project.exception.j3.storehouse.StoreHouseDuplicateException;
 import com.zeroone.star.project.exception.j3.storehouse.StoreHouseNotFoundException;
 import com.zeroone.star.project.query.j3.storehouse.StoreHouseQuery;
 import com.zeroone.star.project.vo.j3.storehouse.DepartmentSimpleVO;
@@ -85,16 +86,23 @@ public class StoreHouseServiceImpl implements StoreHouseService {
     @Override
     @Transactional
     public void add(StoreHouseAddDTO dto) {
+        Long orgId = dto.getOrganizationId() != null ? dto.getOrganizationId() : 322663105141149696L;
+
+        LambdaQueryWrapper<StoreHouseDO> dupCheck = new LambdaQueryWrapper<>();
+        dupCheck.eq(StoreHouseDO::getName, dto.getName())
+                .eq(StoreHouseDO::getOrganizationId, orgId)
+                .in(StoreHouseDO::getFormEnum, STOREHOUSE_FORMS);
+        if (storeHouseMapper.selectCount(dupCheck) > 0) {
+            throw new StoreHouseDuplicateException("同机构下已存在同名库房/药房：" + dto.getName());
+        }
+
         StoreHouseDO entity = new StoreHouseDO();
         entity.setName(dto.getName());
         entity.setFormEnum(dto.getFormEnum());
         entity.setDisplayOrder(0);
-        // 默认启用
         entity.setStatusEnum(StorehouseStatusEnum.ACTIVE.getDesc());
-        // 默认模式为"具体实例"
         entity.setModeEnum(ModeEnum.INSTANCE.getDesc());
-        entity.setOrganizationId(dto.getOrganizationId() != null ? dto.getOrganizationId() : 322663105141149696L);
-        // 生成业务编号
+        entity.setOrganizationId(orgId);
         entity.setBusNo(generateBusNo());
         entity.setCreatedAt(LocalDateTime.now());
         entity.setUpdatedAt(LocalDateTime.now());
@@ -140,6 +148,10 @@ public class StoreHouseServiceImpl implements StoreHouseService {
     @Override
     @Transactional
     public void toggleEnabled(Long id, Byte isEnabled) {
+        if (isEnabled == null || (isEnabled != 0 && isEnabled != 1)) {
+            throw new IllegalArgumentException("isEnabled 参数非法，仅允许 0(停用) 或 1(启用)，当前值: " + isEnabled);
+        }
+
         StoreHouseDO existing = storeHouseMapper.selectById(id);
         if (existing == null || !STOREHOUSE_FORMS.contains(existing.getFormEnum())) {
             throw new StoreHouseNotFoundException("库房药房不存在，ID: " + id);
