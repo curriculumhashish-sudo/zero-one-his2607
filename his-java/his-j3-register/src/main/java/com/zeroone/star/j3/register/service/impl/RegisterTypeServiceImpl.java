@@ -39,7 +39,8 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
 
     /** 挂号费类型编码 */
     private static final String REG_TYPE_CODE = "1012";
-
+    /** 挂号类型在医疗服务表中的类别标记 */
+    private static final String CATEGORY_REGISTRATION = "REGISTRATION";
 
     /** DB状态转API状态：ACTIVE→1, 其他→0 */
     private Integer toApiStatus(String dbStatus) {
@@ -121,6 +122,7 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
             hs.setTenantId("1");
             hs.setName(dto.getName());
             hs.setTypeCode("1");
+            hs.setCategoryCode("REGISTRATION");
             hs.setStatusEnum("ACTIVE");
             hs.setActiveFlag(1);
             hs.setIsDeleted(0);
@@ -156,10 +158,6 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
         return updateById(entity);
     }
 
-    /**
-     * 挂号类型在医疗服务表中的类别标记
-     */
-    private static final String CATEGORY_REGISTRATION = "REGISTRATION";
 
     @Override
     public List<RegisterNameVO> queryRegisterNames() {
