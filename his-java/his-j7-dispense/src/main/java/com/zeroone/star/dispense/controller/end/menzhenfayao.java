@@ -23,12 +23,9 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "门诊发药", description = "门诊发药基础流程")
 public class menzhenfayao implements OutPharmApis {
 
-
-    /**
-     * 等待幸福controller层部分
-     */
     @Resource
     private PatientService patientService;
+
     @Resource
     private DrugService drugService;
 
@@ -57,9 +54,4 @@ public class menzhenfayao implements OutPharmApis {
                 ? JsonVO.fail(null)
                 : JsonVO.success(page);
     }
-
-
-    /**
-     *
-     */
 }

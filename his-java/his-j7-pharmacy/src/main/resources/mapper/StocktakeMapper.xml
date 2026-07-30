@@ -59,10 +59,11 @@
             t.bus_no                                   AS busNo,
             t.status_enum                              AS statusEnum,
             CASE t.status_enum
-                WHEN 'DRAFT'      THEN '草稿'
-                WHEN 'SUBMITTED'  THEN '已提交'
-                WHEN 'APPROVED'   THEN '已审批'
-                WHEN 'REJECTED'   THEN '已驳回'
+                WHEN 'DRAFT'            THEN '草稿'
+                WHEN 'PENDING_APPROVAL' THEN '待审批'
+                WHEN 'APPROVED'         THEN '已审批'
+                WHEN 'REJECTED'         THEN '已驳回'
+                WHEN 'WITHDRAWN'        THEN '已撤回'
                 ELSE t.status_enum
             END                                        AS statusDesc,
             t.purpose_location_id                      AS warehouseId,
@@ -109,6 +110,7 @@
             t.total_quantity                           AS totalQuantity,
             t.item_quantity                            AS itemQuantity,
             t.unit_code                                AS unitCode,
+            <!-- 注：数据库无独立单位名称表，unitName 暂返回单位编码 -->
             t.unit_code                                AS unitName,
             t.price                                    AS price,
             t.profit_loss_price                        AS profitLossPrice,

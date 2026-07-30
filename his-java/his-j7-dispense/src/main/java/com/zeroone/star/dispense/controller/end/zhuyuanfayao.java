@@ -12,13 +12,18 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @Tag(name = "住院发药记录", description = "住院发药记录基础流程")
 public class zhuyuanfayao implements DispensingApis {
+
     @Resource
     private IDispensingService dispensingService;
 
@@ -33,7 +38,8 @@ public class zhuyuanfayao implements DispensingApis {
     @Operation(summary = "获取患者药品明细")
     @GetMapping("query-patient-medications")
     @Override
-    public JsonVO<List<PatientMedicationVO>> queryPatientMedications(@Parameter(description = "汇总单号", example = "1")@RequestParam String summaryNo) {
+    public JsonVO<List<PatientMedicationVO>> queryPatientMedications(
+            @Parameter(description = "汇总单号", example = "1") @RequestParam String summaryNo) {
         List<PatientMedicationVO> list = dispensingService.queryPatientMedications(summaryNo);
         return JsonVO.success(list);
     }
