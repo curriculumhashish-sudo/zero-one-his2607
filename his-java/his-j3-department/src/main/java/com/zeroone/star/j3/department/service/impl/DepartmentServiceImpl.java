@@ -35,7 +35,6 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -269,9 +268,9 @@ public class DepartmentServiceImpl implements DepartmentService {
         } else {
             tenantId = departmentMapper.getTenantIdByUserId(currentUserId);
             if (tenantId != null) {
-                redisTemplate.opsForValue().set("tenantId", String.valueOf(tenantId), 30, TimeUnit.MINUTES);
+                String redisKey = RedisConstant.LOGIN_CONTEXT + currentUserId;
+                redisTemplate.opsForHash().put(redisKey, "tenantId", String.valueOf(tenantId));
             } else {
-                redisTemplate.opsForValue().set("tenantId", "", 5, TimeUnit.MINUTES);
                 throw new CurrentTenantNotFoundException("无法获取当前用户的租户信息");
             }
         }
