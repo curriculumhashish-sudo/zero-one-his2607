@@ -17,9 +17,9 @@ import com.zeroone.star.project.components.fastdfs.FastDfsFileInfo;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -54,32 +54,8 @@ public class MinXiServiceImpl implements MinXiService {
     @Resource
     private UserHolder userHolder;
 
-    /**
-     * 兜底租户 ID（当 Redis/登录上下文没传时用，和其他模块一致）
-     */
-    private static final String DEFAULT_TENANT_ID = "1";
-
-    /**
-     * 解析当前登录用户的租户 ID（按优先级）
-     *  1) query.tenantId 前端硬塞了就优先（预留）
-     *  2) 【预留】Redis user:session:{userId} 里的 tenant_id（登录模块写入后启用，目前暂不依赖 Redis，避免本地没装 Redis 启动失败）
-     *  3) 兜底 DEFAULT_TENANT_ID="1"
-     *
-     *  ⚠️ 后续要启用 Redis 读取时，直接在本方法第 2 步塞两行：
-     *     Object t = redisTemplate.opsForHash().get("user:session:" + userId, "tenant_id");
-     *     if (t != null && StringUtils.hasText(t.toString())) return t.toString();
-     */
-    private String resolveTenantId(Object query) {
-        if (query instanceof MinXiQuery q && StringUtils.hasText(q.getTenantId())) {
-            return q.getTenantId();
-        }
-        if (query instanceof MinXiExportQuery q && StringUtils.hasText(q.getTenantId())) {
-            return q.getTenantId();
-        }
-        // 预留：userId 拿到了，等登录模块写 Redis 再启用分摊读
-        // try { String userId = userHolder.getCurrentUser().getId(); } catch (Exception ignore) {}
-        return DEFAULT_TENANT_ID;
-    }
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     /**
      * FastDFS Nginx 下载地址前缀（从 Nacos 配置 fastdfs.nginx-servers 读取）
@@ -105,6 +81,23 @@ public class MinXiServiceImpl implements MinXiService {
     private static final String XLSX_CONTENT_TYPE =
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
+    /**
+     * 获取当前请求的租户ID
+     * <p>数据来源：Redis Hash {@code his:login:context:{userId}} → field {@code tenantId}</p>
+     * @return 租户ID
+     */
+    private String getCurrentTenantId() {
+        try {
+            String userId = userHolder.getCurrentUser().getId();
+            Object tenantObj = redisTemplate.opsForHash().get("his:login:context:" + userId, "tenantId");
+            if (tenantObj != null) {
+                return tenantObj.toString();
+            }
+        } catch (Exception ignored) {
+        }
+        return "1";
+    }
+
 
     /**
      * 接口 1：分页查询门诊费用明细（方案 B 纯平铺，1 行 = 1 条收费项，同一次就诊的就诊字段每行重复）
@@ -119,8 +112,7 @@ public class MinXiServiceImpl implements MinXiService {
     @Override
     @Transactional(readOnly = true)
     public MinXiPageVO queryPage(MinXiQuery query) {
-        // 🔴 租户过滤：优先 Redis(user:session) → his:login:context → 兜底 "1"，注入 SQL 查询条件
-        query.setTenantId(resolveTenantId(query));
+        query.setTenantId(getCurrentTenantId());
 
         // ① 全量合计（不带 LIMIT，原型图顶部红色数字）
         MinXiPageVO totals = minXiMapper.selectTotals(query);
@@ -174,8 +166,7 @@ public class MinXiServiceImpl implements MinXiService {
     @Override
     @Transactional(readOnly = true)
     public ExportFileVO export(MinXiExportQuery exportQuery) {
-        // 🔴 租户过滤：优先 Redis(user:session) → his:login:context → 兜底 "1"，注入 SQL 查询条件
-        exportQuery.setTenantId(resolveTenantId(exportQuery));
+        exportQuery.setTenantId(getCurrentTenantId());
 
         // ① 全量明细（不带 LIMIT）
         List<MinXiDTO> allDTOs = minXiMapper.selectAllRows(exportQuery);
