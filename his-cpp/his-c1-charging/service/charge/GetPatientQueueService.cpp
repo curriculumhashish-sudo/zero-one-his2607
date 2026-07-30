@@ -58,7 +58,8 @@ std::string GetPatientQueueService::computeRollupStatusCode(
     for (auto& code : statusCodes)
     {
         if (code == "DRAFT") hasPending = true;
-        else hasSettled = true;
+        else if (code == "SETTLED") hasSettled = true;
+        // REFUNDED: already refunded, exclude from rollup
     }
 
     if (hasPending && hasSettled) return "MIXED";
