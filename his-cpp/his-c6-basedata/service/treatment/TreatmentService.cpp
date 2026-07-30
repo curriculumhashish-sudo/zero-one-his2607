@@ -79,28 +79,20 @@ static TreatmentDetailDTO::Wrapper toDetailDto(const TreatmentDO& src)
 	dto->name = src.getName();
 	dto->status = src.getStatusEnum();
 	dto->categoryCode = src.getCategoryCode();
-	dto->packageUnitCode = src.getPackageUnitCode();
-	dto->pyStr = src.getPyStr();
-	dto->wbStr = src.getWbStr();
-	dto->descriptionText = src.getDescriptionText();
-	dto->ybFlag = src.getYbFlag();
-	dto->ybNo = src.getYbNo();
-	dto->ybMatchFlag = src.getYbMatchFlag();
-	dto->chrgitmLv = src.getChrgitmLv();
-
+	//dto->retailPrice=src.get
 	// type_enum 在库中按字符串存储，DTO 使用 Int32
-	const std::string& typeEnumStr = src.getTypeEnum();
-	if (!typeEnumStr.empty())
-	{
-		try
-		{
-			dto->typeEnum = std::stoi(typeEnumStr);
-		}
-		catch (...)
-		{
-			// 非法枚举值时不赋值
-		}
-	}
+	//const std::string& typeEnumStr = src.getTypeEnum();
+	//if (!typeEnumStr.empty())
+	//{
+	//	try
+	//	{
+	//		dto->typeEnum = std::stoi(typeEnumStr);
+	//	}
+	//	catch (...)
+	//	{
+	//		// 非法枚举值时不赋值
+	//	}
+	//}
 	return dto;
 }
 
