@@ -17,7 +17,6 @@
 	" aci.`quantity_value` AS number," \
 	" aci.`quantity_unit` AS unit," \
 	" a_pr_d.`name` AS doctor," \
-	" IF(aci.`refund_id` IS NULL, 'Charge', 'Refund') AS source," \
 	" COALESCE(mmd.`chrgitm_lv`, `add`.`chrgitm_lv`, wad.`chrgitm_lv`) AS insuranceLevel," \
 	" ysr.`insutype` AS insuranceType," \
 	" acid.`price_value` AS originalPrice," \
@@ -122,7 +121,11 @@ uint64_t CostInfoDAO::count(const CostInfoQuery::Wrapper& query) {
 std::list<CostInfoDO> CostInfoDAO::selectWithPage(const CostInfoQuery::Wrapper& query) {
 
 	SqlParams params;
-	string sqlStr = "SELECT DISTINCT" MAIN_SQL_COLUMNS MAIN_SQL_JOINS;
+	string charge = ZH_WORDS_GETTER("rhqm.form.cost_info.other.charge");
+	string refund = ZH_WORDS_GETTER("rhqm.form.cost_info.other.refund");
+	string sqlStr = "SELECT DISTINCT" MAIN_SQL_COLUMNS;
+	sqlStr += ", IF(aci.`refund_id` IS NULL, '" + charge + "', '" + refund + "') AS source";
+	sqlStr += MAIN_SQL_JOINS;
 	sqlStr += queryConditionBuilder(query, params);
 	sqlStr += " ORDER BY aci.`occurrence_time` DESC, aci.`id` DESC ";
 	sqlStr += " LIMIT " + std::to_string(((query->pageIndex - 1) * query->pageSize)) + "," + std::to_string(query->pageSize);
@@ -133,7 +136,11 @@ std::list<CostInfoDO> CostInfoDAO::selectWithPage(const CostInfoQuery::Wrapper& 
 std::list<CostInfoDO> CostInfoDAO::selectAll(const CostInfoQuery::Wrapper& query) {
 
 	SqlParams params;
-	string sqlStr = "SELECT DISTINCT" MAIN_SQL_COLUMNS MAIN_SQL_JOINS;
+	string charge = ZH_WORDS_GETTER("rhqm.form.cost_info.other.charge");
+	string refund = ZH_WORDS_GETTER("rhqm.form.cost_info.other.refund");
+	string sqlStr = "SELECT DISTINCT" MAIN_SQL_COLUMNS;
+	sqlStr += ", IF(aci.`refund_id` IS NULL, '" + charge + "', '" + refund + "') AS source";
+	sqlStr += MAIN_SQL_JOINS;
 	sqlStr += queryConditionBuilder(query, params);
 	sqlStr += " ORDER BY aci.`occurrence_time` DESC, aci.`id` DESC ";
 
