@@ -55,6 +55,11 @@ public class HealthcareService implements Serializable {
     /** 服务类型编码 */
     private String typeCode;
 
+    /**
+     * 服务类别编码（挂号类型统一标记）
+     */
+    private String categoryCode;
+
     /** 服务状态 */
     private String statusEnum;
 

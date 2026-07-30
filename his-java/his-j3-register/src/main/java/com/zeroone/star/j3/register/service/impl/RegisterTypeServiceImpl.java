@@ -40,8 +40,6 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
     /** 挂号费类型编码 */
     private static final String REG_TYPE_CODE = "1012";
 
-    @Resource
-    private HealthcareServiceMapper healthcareServiceMapper;
 
     /** DB状态转API状态：ACTIVE→1, 其他→0 */
     private Integer toApiStatus(String dbStatus) {
