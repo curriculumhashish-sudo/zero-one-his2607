@@ -1,85 +1,71 @@
 #pragma once
-/*
- Copyright Zero One Star. All rights reserved.
-
- @Author: his-c2-opdoctor
- @Date: 2026/07/28
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
-      https://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-*/
 #ifndef _EmrDocumentDO_H_
 #define _EmrDocumentDO_H_
 
 #include "../DoInclude.h"
 
 /**
- * EMR Document Data Object
+ * 电子病历文档数据库实体类
  *
- * Database table: emr_document
+ * 对应数据库物理表：emr_document（门诊电子病历主表）
  *
- * Maps the core electronic medical record document entity.
- * Used by the outpatient record save operation to insert or update
- * medical record documents with their Tiptap/ProseMirror JSON content.
+ * 映射电子病历完整业务实体字段。
+ * 门诊病历保存/更新业务时使用该实体与数据库交互，
+ * 存储前端Tiptap富文本编辑器产出的JSON病历正文。
  */
 class EmrDocumentDO : public BaseDO
 {
 	// =============================
-	// Primary Key
+	// 主键字段区
 	// =============================
-	// Document ID, SnowFlake-generated unique identifier
+	// 病历唯一ID，雪花算法分布式全局唯一标识
 	MYSQL_SYNTHESIZE(string, id, Id);
 
 	// =============================
-	// Core Business Fields
+	// 核心业务字段区
 	// =============================
-	// Patient ID, references the patient this record belongs to
+	// 患者ID，关联患者基础信息表，标识病历归属就诊人
 	MYSQL_SYNTHESIZE(string, patientId, PatientId);
-	// Encounter/Visit ID, references the outpatient visit
+	// 就诊流水ID，单次门诊挂号就诊唯一标识
 	MYSQL_SYNTHESIZE(string, encounterId, EncounterId);
-	// Document type code, e.g. OUTPATIENT_RECORD
+	// 病历文档类型编码，固定值示例：OUTPATIENT_RECORD 门诊病历
 	MYSQL_SYNTHESIZE(string, documentTypeCode, DocumentTypeCode);
-	// Document title, auto-generated if not supplied
+	// 病历标题，前端不传参时后端自动生成默认标题
 	MYSQL_SYNTHESIZE(string, title, Title);
-	// Document body content in Tiptap/ProseMirror JSON format
+	// 病历正文内容，存储格式为 Tiptap/ProseMirror 富文本结构化JSON字符串
 	MYSQL_SYNTHESIZE(string, content, Content);
-	// Document status: DRAFT / SUBMITTED / LOCKED / ARCHIVED
+	// 病历状态枚举值：
+	// DRAFT 草稿 / SUBMITTED 已提交 / LOCKED 锁定 / ARCHIVED 归档
 	MYSQL_SYNTHESIZE(string, status, Status);
-	// Source template ID, references emr_template.id
+	// 病历模板ID，关联emr_template模板表，记录创建病历使用的模板
 	MYSQL_SYNTHESIZE(string, sourceTemplateId, SourceTemplateId);
 
 	// =============================
-	// Audit Fields
+	// 系统审计字段区（自动填充，前端无需传入）
 	// =============================
-	// Created at timestamp
+	// 病历创建时间戳
 	MYSQL_SYNTHESIZE(string, createdAt, CreatedAt);
-	// Updated at timestamp
+	// 病历最后更新时间戳
 	MYSQL_SYNTHESIZE(string, updatedAt, UpdatedAt);
-	// Created by (operator username / ID)
+	// 创建人账号/操作员ID
 	MYSQL_SYNTHESIZE(string, createdBy, CreatedBy);
-	// Updated by (operator username / ID)
+	// 最后更新人账号/操作员ID
 	MYSQL_SYNTHESIZE(string, updatedBy, UpdatedBy);
-	// Soft delete flag: 0 = active, 1 = deleted
+	// 逻辑删除标识：0=正常有效数据，1=已软删除
 	MYSQL_SYNTHESIZE(int, isDeleted, IsDeleted);
-	// Tenant ID for multi-tenancy isolation
+	// 租户ID，SaaS多医院隔离字段，区分不同医疗机构数据
 	MYSQL_SYNTHESIZE(string, tenantId, TenantId);
 
 public:
+	/**
+	 * 构造函数：绑定实体与数据库表名，映射C++成员变量与MySQL字段
+	 */
 	EmrDocumentDO() : BaseDO("emr_document")
 	{
-		// Primary Key
+		// 绑定主键字段 id
 		MYSQL_ADD_FIELD_PK("id", "s", id);
 
-		// Core Business Fields
+		// 绑定核心业务字段（数据库字段名 <-> 实体成员变量）
 		MYSQL_ADD_FIELD("patient_id", "s", patientId);
 		MYSQL_ADD_FIELD("encounter_id", "s", encounterId);
 		MYSQL_ADD_FIELD("document_type_code", "s", documentTypeCode);
@@ -88,7 +74,7 @@ public:
 		MYSQL_ADD_FIELD("status", "s", status);
 		MYSQL_ADD_FIELD("source_template_id", "s", sourceTemplateId);
 
-		// Audit Fields
+		// 绑定审计通用字段
 		MYSQL_ADD_FIELD("created_at", "s", createdAt);
 		MYSQL_ADD_FIELD("updated_at", "s", updatedAt);
 		MYSQL_ADD_FIELD("created_by", "s", createdBy);
@@ -97,7 +83,7 @@ public:
 	}
 };
 
-// Shared pointer type alias
+// 类型别名：简化std::shared_ptr<EmrDocumentDO>书写，全项目统一使用PtrEmrDocumentDO
 typedef std::shared_ptr<EmrDocumentDO> PtrEmrDocumentDO;
 
 #endif // !_EmrDocumentDO_H_

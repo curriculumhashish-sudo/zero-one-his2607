@@ -21,66 +21,94 @@
 #define _PAYLOADDTO_H_
 #include "jwt-cpp/jwt.h"
 #include <list>
+#include <map>
 
 /**
- * 负载信息获取状态编码
+ * 负载信息获取状态枚举
  */
 enum class PayloadCode
 {
-	// 信息验证处理成功
+	// 信息校验解析成功
 	SUCCESS,
-	// Token已过期
+	// Token过期
 	TOKEN_EXPIRED_ERROR,
 	// 签名格式错误
 	SIGNATUREFORMAT_ERROR,
-	// 解密错误
+	// 解码失败
 	DECODE_ERROR,
-	// 验证错误
+	// 校验失败
 	VERIFICATION_ERROR,
 	// 其他错误
 	OTHER_ERROR
 };
 
 /**
- * 负载信息实体类
+ * 负载信息实体
  */
 class PayloadDTO
 {
 public:
-	// 获取状态码对应的枚举值名称
+	// 获取状态码对应的文本信息
 	static std::string getCodeName(PayloadCode code);
-	// 获取凭证前缀
+	// 获取令牌前缀
 	static std::string getTokenPrefix();
 private:
 	// Token字符串对应的值
 	std::string token;
-	// 受众，一般存客户端id名称
+	// 受众，一个客户端id标识
 	std::string aud;
 	// 签发者
 	std::string iss;
-	// 主题,一般存用户名
+	// 主题，一般不用
 	std::string sub;
-	// 过期时间（注意：生成凭证的时候用它来指定有效秒数），是一个Unix时间戳
+	// 过期时间；注意：令牌过期时间对应有效截止时间，为Unix时间戳
 	int64_t exp;
-	// 签发时间，是一个Unix时间戳
+	// 签发时间，为Unix时间戳
 	int64_t iat;
-	// 生效时间，是一个Unix时间戳
+	// 生效时间，为Unix时间戳
 	int64_t nbf;
 	// jwt id 唯一标识
 	std::string jti;
-	// 数据状态系信息
+	// 认证状态信息
 	PayloadCode code;
-	// 用户编号
+	// 用户ID
 	std::string id;
-	// 用户拥有的权限
+	// 用户拥有的权限列表
 	std::list<std::string> authorities;
-	// TIP：新增属性字段在后面添加即可
+
+	// TIP：新增字段请在这里扩展
+
+	/**
+	 * 用户名称，登录人员姓名
+	 */
+	std::string name;
+	/**
+	 * 组织机构信息
+	 * 每条元素：key为组织机构ID，value为组织机构名称
+	 */
+	std::map<std::string, std::string> organizationUnits;
+	/**
+	 * 对应的执业人员ID
+	 */
+	std::string practitionerId;
+	/**
+	 * 对应的执业人员名称
+	 */
+	std::string practitionerName;
+	/**
+	 * 职称名称，例如：医师、药师、护士
+	 */
+	std::string titleName;
+	/**
+	 * 职称编码，职称名称对应的编码值
+	 */
+	std::string titleCode;
 public:
 	PayloadDTO();
 	/**
-	 * 构造初始化
-	 * @param username 用户名
-	 * @param exp 过期时间，单位为秒
+	 * 构造函数
+	 * @param username 用户名称
+	 * @param exp 过期时间，单位秒
 	 * @param _authorities 权限列表
 	 */
 	PayloadDTO(std::string username, int64_t exp, std::list<std::string> _authorities);
@@ -88,12 +116,12 @@ public:
 	std::string getToken() const { return token; }
 	// 设置Token字符串
 	void setToken(std::string val) { token = val; }
-	// 获取数据状态码信息
+	// 获取认证状态信息
 	PayloadCode getCode() const { return code; }
-	// 设置数据状态码信息
+	// 设置认证状态信息
 	void setCode(PayloadCode val) { code = val; }
-	
-	// 标准属性字段的getter/setter
+
+	// 标准字段getter/setter
 	std::string Aud() const { return aud; }
 	void Aud(std::string val) { aud = val; }
 	std::string Iss() const { return iss; }
@@ -109,24 +137,38 @@ public:
 	std::string Jti() const { return jti; }
 	void Jti(std::string val) { jti = val; }
 
-	// 自定义属性字段的getter/setter
+	// 自定义字段getter/setter
 	std::string getUsername() const { return Sub(); }
 	void setUsername(std::string val) { Sub(val); }
 	std::string getId() const { return id; }
 	void setId(std::string val) { id = val; }
 	const std::list<std::string>& getAuthorities() const { return authorities; }
 	void setAuthorities(std::list<std::string> val) { authorities = val; }
-	// 注意：新增属性字段后需要补充getter/setter
+	// 注意：新增字段后需要补充getter/setter
+	std::string getName() const { return name; }
+	void setName(std::string val) { name = val; }
+	std::map<std::string, std::string> getOrganizationUnits() const { return organizationUnits; }
+	void setOrganizationUnits(std::map<std::string, std::string> val) { organizationUnits = val; }
+	std::string getPractitionerId() const { return practitionerId; }
+	void setPractitionerId(std::string val) { practitionerId = val; }
+	std::string getPractitionerName() const { return practitionerName; }
+	void setPractitionerName(std::string val) { practitionerName = val; }
+	std::string getTitleName() const { return titleName; }
+	void setTitleName(std::string val) { titleName = val; }
+	std::string getTitleCode() const { return titleCode; }
+	void setTitleCode(std::string val) { titleCode = val; }
 
 	// 添加权限
 	void putAuthority(std::string authstr);
-	
-	// 将Payload的属性转换到jwt builder中
-	// 注意：新增属性字段后需要维护此方法的定义
+	// 添加机构
+	void putOrg(std::string orgId, std::string orgName);
+
+	// 将Payload属性转换写入jwt builder
+	// 注意：新增字段需要适配此方法实现
 	void propToJwt(jwt::builder<jwt::default_clock, jwt::traits::kazuho_picojson>& builder) const;
 
-	// 将jwt decoded_jwt的属性转换到Payload中
-	// 注意：新增属性字段后需要维护此方法的定义
+	// 将jwt decoded_jwt属性转换载入Payload
+	// 注意：新增字段需要适配此方法实现
 	void propToPayload(const jwt::decoded_jwt<jwt::traits::kazuho_picojson>& decoded);
 };
 
