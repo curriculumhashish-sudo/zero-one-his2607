@@ -56,12 +56,15 @@ inline std::string CostInfoDAO::queryConditionBuilder(const CostInfoQuery::Wrapp
 	std::stringstream sqlCondition;
 	sqlCondition << " WHERE 1=1";
 
+	// 检测是否有这两个必要条件，一般不会进这个分支
 	if (!query->start_time || !query->end_time) {
 		sqlCondition.clear();
 		sqlCondition << "error";
 		return sqlCondition.str();
 	}
 
+
+	// 获取query中的查询条件
 	if (query->start_time) {
 		sqlCondition << " AND aci.`occurrence_time`>=?";
 		SQLPARAMS_PUSH(params, "s", std::string, query->start_time.getValue(""));
@@ -98,7 +101,7 @@ inline std::string CostInfoDAO::queryConditionBuilder(const CostInfoQuery::Wrapp
 		sqlCondition << " AND a_pr_c.`name` LIKE CONCAT('%',?,'%')";
 		SQLPARAMS_PUSH(params, "s", std::string, query->checker.getValue(""));
 	}
-	// feedir: 1=refund, 0=charge
+	// feedir: 1=refund, 0=charge（收费退费）
 	if (query->feeDir) {
 		std::string feeDirVal = query->feeDir.getValue("");
 		if (feeDirVal == "1") {
@@ -123,6 +126,7 @@ std::list<CostInfoDO> CostInfoDAO::selectWithPage(const CostInfoQuery::Wrapper& 
 	SqlParams params;
 	string charge = ZH_WORDS_GETTER("rhqm.form.cost_info.other.charge");
 	string refund = ZH_WORDS_GETTER("rhqm.form.cost_info.other.refund");
+
 	string sqlStr = "SELECT DISTINCT" MAIN_SQL_COLUMNS;
 	// 收费退费为了中文表示需要拆开sql
 	sqlStr += ", IF(aci.`refund_id` IS NULL, '" + charge + "', '" + refund + "') AS source";
@@ -139,6 +143,7 @@ std::list<CostInfoDO> CostInfoDAO::selectAll(const CostInfoQuery::Wrapper& query
 	SqlParams params;
 	string charge = ZH_WORDS_GETTER("rhqm.form.cost_info.other.charge");
 	string refund = ZH_WORDS_GETTER("rhqm.form.cost_info.other.refund");
+
 	string sqlStr = "SELECT DISTINCT" MAIN_SQL_COLUMNS;
 	// 收费退费为了中文表示需要拆开sql
 	sqlStr += ", IF(aci.`refund_id` IS NULL, '" + charge + "', '" + refund + "') AS source";
