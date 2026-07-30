@@ -3,8 +3,11 @@ package com.zeroone.star.project.components.user;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.json.JSONObject;
 import com.zeroone.star.project.components.jwt.JwtComponent;
+import com.zeroone.star.project.constant.RedisConstant;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -24,6 +27,8 @@ import org.yaml.snakeyaml.util.UriEncoder;
 public class UserHolder {
     @Resource
     JwtComponent jwtComponent;
+    @Resource
+    ApplicationContext applicationContext;
 
     /**
      * 从请求头中获取用户信息
@@ -82,5 +87,55 @@ public class UserHolder {
             return null;
         }
         return token.replace("Bearer ", "");
+    }
+
+    /**
+     * 获取当前用户选择的租户ID
+     * @return 当前租户ID
+     */
+    public String getCurrentTenantId() {
+        try {
+            UserDTO currentUser = getCurrentUser();
+            if (currentUser == null || !StringUtils.hasText(currentUser.getId())) {
+                throw new IllegalStateException("无法获取当前用户ID");
+            }
+            if (applicationContext == null) {
+                throw new IllegalStateException("RedisTemplate未初始化，无法获取当前租户ID");
+            }
+
+            String userId = currentUser.getId();
+            Object tenantId = getRedisHashValue(
+                    RedisConstant.LOGIN_CONTEXT_PREFIX + userId,
+                    RedisConstant.LOGIN_CONTEXT_TENANT_ID_FIELD
+            );
+            if (tenantId == null) {
+                tenantId = getRedisHashValue(
+                        RedisConstant.USER_SESSION_PREFIX + userId,
+                        RedisConstant.USER_SESSION_TENANT_ID_FIELD
+                );
+            }
+            if (tenantId == null || !StringUtils.hasText(tenantId.toString())) {
+                throw new IllegalStateException("未找到当前用户的租户ID");
+            }
+            return tenantId.toString();
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IllegalStateException("获取当前租户ID失败", e);
+        }
+    }
+
+    private Object getRedisHashValue(String key, String field) {
+        try {
+            Object redisTemplate = applicationContext.getBean("redisTemplate");
+            Class<?> redisOperationsClass = Class.forName("org.springframework.data.redis.core.RedisOperations");
+            Class<?> hashOperationsClass = Class.forName("org.springframework.data.redis.core.HashOperations");
+            Object hashOperations = redisOperationsClass.getMethod("opsForHash").invoke(redisTemplate);
+            return hashOperationsClass.getMethod("get", Object.class, Object.class).invoke(hashOperations, key, field);
+        } catch (BeansException e) {
+            throw new IllegalStateException("RedisTemplate未初始化，无法获取当前租户ID", e);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("获取当前租户ID失败", e);
+        }
     }
 }

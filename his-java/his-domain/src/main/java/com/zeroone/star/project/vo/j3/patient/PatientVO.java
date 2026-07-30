@@ -81,4 +81,5 @@ public class PatientVO {
     @Schema(description = "建档机构ID")
     private String organizationId;
 
+
 }

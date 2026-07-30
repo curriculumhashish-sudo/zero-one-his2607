@@ -31,7 +31,7 @@ public interface DepartmentApis {
      * @param query 科室名称树筛选条件
      * @return 科室名称树结果
      */
-    JsonVO<DepartmentTreeVO> getDepartmentTree(DepartmentTreeQuery query);
+    JsonVO<List<DepartmentTreeVO>> getDepartmentTree(DepartmentTreeQuery query);
 
     /**
      * 获取科室详情
@@ -47,7 +47,7 @@ public interface DepartmentApis {
      * @param dto 新增科室对象
      * @return 提示信息
      */
-    JsonVO<String> createDepartment(DepartmentCreateDTO dto);
+    JsonVO<String> createDepartment(DepartmentCreateDTO dto) throws Exception;
 
     /**
      * 启用/停用科室(支持批量)

@@ -3,9 +3,11 @@ package com.zeroone.star.project.j3.register;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j3.register.RegisterDTO;
 import com.zeroone.star.project.query.j3.register.RegisterQuery;
-import com.zeroone.star.project.vo.j3.register.RegisterVO;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j3.register.RegisterNameVO;
 import com.zeroone.star.project.vo.j3.register.RegisterVO;
+
+import java.util.List;
 
 /**
  * <p>
@@ -17,6 +19,13 @@ import com.zeroone.star.project.vo.j3.register.RegisterVO;
  * @version 1.0.0
  */
 public interface RegisterApis {
+
+    /**
+     * 获取挂号类型名称列表（不分页，用于下拉选择号源类型）
+     *
+     * @return 名称列表（每条包含唯一标识、名称）
+     */
+    JsonVO<List<RegisterNameVO>> queryRegisterNames();
 
     /**
      * 获取挂号类型列表（条件+分页）
@@ -37,10 +46,11 @@ public interface RegisterApis {
     /**
      * 修改挂号类型
      *
-     * @param dto 修改数据（id 必传）
+     * @param id  待修改的挂号类型唯一标识（路径参数）
+     * @param dto 修改数据
      * @return 修改结果
      */
-    JsonVO<Boolean> modifyRegister(RegisterDTO dto);
+    JsonVO<Boolean> modifyRegister(Long id, RegisterDTO dto);
 
     /**
      * 删除挂号类型

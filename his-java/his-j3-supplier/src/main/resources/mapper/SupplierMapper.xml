@@ -8,6 +8,7 @@
         name
         FROM cus_supplier
         WHERE is_deleted = 0
+          AND tenant_id = #{tenantId}
         <if test="statusEnum == 'ENABLED'">
             AND UPPER(status_enum) IN ('ENABLED', 'ACTIVE', '1', 'TRUE', '启用')
         </if>
@@ -39,6 +40,7 @@
         FROM cus_supplier
         <where>
             is_deleted = 0
+            AND tenant_id = #{tenantId}
             <if test="query.keyword != null and query.keyword != ''">
                 AND (
                 name LIKE CONCAT('%', #{query.keyword}, '%')
@@ -103,7 +105,15 @@
             note
         FROM cus_supplier
         WHERE id = #{id}
+          AND tenant_id = #{tenantId}
           AND is_deleted = 0
         LIMIT 1
+    </select>
+    <select id="selectCreditCodeById" resultType="java.lang.String">
+        SELECT credit_code FROM cus_supplier WHERE id = #{id} AND tenant_id = #{tenantId} AND is_deleted = 0 LIMIT 1
+    </select>
+
+    <select id="selectMaxIdForUpdate" resultType="java.lang.String">
+        SELECT COALESCE(MAX(id), '4100000000000000001') FROM cus_supplier FOR UPDATE
     </select>
 </mapper>
