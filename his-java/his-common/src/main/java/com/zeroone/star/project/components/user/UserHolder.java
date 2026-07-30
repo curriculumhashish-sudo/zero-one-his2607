@@ -27,6 +27,8 @@ import org.yaml.snakeyaml.util.UriEncoder;
 public class UserHolder {
     @Resource
     JwtComponent jwtComponent;
+    @Resource
+    ApplicationContext applicationContext;
 
     @Resource
     ApplicationContext applicationContext;

@@ -36,13 +36,7 @@ public class FeeNatureController implements FeeNatureApis {
     @Operation(summary = "获取费用性质列表（条件+分页）",
             description = "查询所有费用性质记录，收费结算模块引用此列表生成患者费用明细。支持按名称或编码模糊搜索，返回分页结果")
     public JsonVO<PageDTO<FeeNatureVO>> getPageList(@Valid FeeNatureQuery query) {
-        List<FeeNatureVO> list = feeNatureService.listFeeNatures(query);
-        PageDTO<FeeNatureVO> pageDTO = new PageDTO<>();
-        pageDTO.setPageIndex(query.getPageIndex());
-        pageDTO.setPageSize(query.getPageSize());
-        pageDTO.setTotal((long) list.size());
-        pageDTO.setPages(list.isEmpty() ? 0L : (list.size() + query.getPageSize() - 1) / query.getPageSize());
-        pageDTO.setRows(list);
+        PageDTO<FeeNatureVO> pageDTO = feeNatureService.listFeeNatures(query);
         return JsonVO.success(pageDTO);
     }
 
