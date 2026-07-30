@@ -16,11 +16,11 @@ import org.yaml.snakeyaml.util.UriEncoder;
 
 /**
  * <p>
- * 鎻忚堪锛氳幏鍙栫櫥褰曠敤鎴蜂俊鎭?
+ * 描述：获取登录用户信息
  * </p>
- * <p>鐗堟潈锛?copy;01鏄熺悆</p>
- * <p>鍦板潃锛?1鏄熺悆鎬婚儴</p>
- * @author 闃夸紵瀛﹂暱
+ * <p>版权：&copy;01星球</p>
+ * <p>地址：01星球总部</p>
+ * @author 阿伟学长
  * @version 1.0.0
  */
 @Component
@@ -32,20 +32,20 @@ public class UserHolder {
     ApplicationContext applicationContext;
 
     /**
-     * 浠庤姹傚ご涓幏鍙栫敤鎴蜂俊鎭?
-     * @return 鐢ㄦ埛淇℃伅
-     * @throws Exception 瑙ｆ瀽澶辫触鎶涘嚭寮傚父
+     * 从请求头中获取用户信息
+     * @return 用户信息
+     * @throws Exception 解析失败抛出异常
      */
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     public UserDTO getCurrentUser() throws Exception {
-        // 浠嶩eader涓幏鍙栫敤鎴蜂俊鎭?
+        // 从Header中获取用户信息
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = servletRequestAttributes.getRequest();
         String userStr = request.getHeader("user");
         JSONObject userJsonObject;
-        // 涓嶆槸閫氳繃缃戝叧杩囨潵鐨勶紝閭ｄ箞鎵ц瑙ｆ瀽楠岃瘉JWT
+        // 不是通过网关过来的，那么执行解析验证JWT
         if (userStr == null) {
-            //浠巘oken涓В鏋愮敤鎴蜂俊鎭苟璁剧疆鍒癏eader涓幓
+            //从token中解析用户信息并设置到Header中去
             String realToken = request.getHeader("Authorization");
             if (StringUtils.hasText(realToken)) {
                 realToken = realToken.replace("Bearer ", "");
@@ -59,15 +59,15 @@ public class UserHolder {
             userJsonObject = new JSONObject(userStr);
         }
 
-//        // HARD_CODE 鍦ㄦ病鏈夊姙娉曚娇鐢╰oken鏃跺€欏彲浠ヤ慨鏀硅繖閲岀殑浠ｇ爜浼€犵敤鎴蜂俊鎭紝娉ㄦ剰浼€犵敤鎴蜂唬鐮佷笉瑕佹彁浜ゅ埌浠撳簱涓?
+//        // HARD_CODE 在没有办法使用token时候可以修改这里的代码伪造用户信息，注意伪造用户代码不要提交到仓库中
 //        userJsonObject = new JSONObject();
 //        userJsonObject.putOnce("id", 1);
-//        userJsonObject.putOnce("user_name", "鐜嬮夯瀛?);
+//        userJsonObject.putOnce("user_name", "王麻子");
 //        ArrayList<Object> roles = new ArrayList<>();
 //        roles.add("ROLE_ADMIN");
 //        userJsonObject.putOnce("authorities", roles);
 
-        // FIXME: 濡傛灉瑕佹墿灞曠敤鎴蜂俊鎭紝闇€瑕佷慨鏀硅繖閲岀殑浠ｇ爜
+        // FIXME: 如果要扩展用户信息，需要修改这里的代码
         return UserDTO.builder()
                 .id(Convert.toStr(userJsonObject.get("id")))
                 .username(userJsonObject.getStr("sub"))
@@ -77,8 +77,8 @@ public class UserHolder {
     }
 
     /**
-     * 浠庤姹傚ご涓幏鍙栧綋鍓嶈姹傜殑token
-     * @return 娌℃湁鑾峰彇鍒拌繑鍥瀗ull
+     * 从请求头中获取当前请求的token
+     * @return 没有获取到返回null
      */
     public String getCurrentToken() {
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
@@ -91,17 +91,17 @@ public class UserHolder {
     }
 
     /**
-     * 鑾峰彇褰撳墠鐢ㄦ埛閫夋嫨鐨勭鎴稩D
-     * @return 褰撳墠绉熸埛ID
+     * 获取当前用户选择的租户ID
+     * @return 当前租户ID
      */
     public String getCurrentTenantId() {
         try {
             UserDTO currentUser = getCurrentUser();
             if (currentUser == null || !StringUtils.hasText(currentUser.getId())) {
-                throw new IllegalStateException("鏃犳硶鑾峰彇褰撳墠鐢ㄦ埛ID");
+                throw new IllegalStateException("无法获取当前用户ID");
             }
             if (applicationContext == null) {
-                throw new IllegalStateException("RedisTemplate鏈垵濮嬪寲锛屾棤娉曡幏鍙栧綋鍓嶇鎴稩D");
+                throw new IllegalStateException("RedisTemplate未初始化，无法获取当前租户ID");
             }
 
             String userId = currentUser.getId();
@@ -116,13 +116,13 @@ public class UserHolder {
                 );
             }
             if (tenantId == null || !StringUtils.hasText(tenantId.toString())) {
-                throw new IllegalStateException("鏈壘鍒板綋鍓嶇敤鎴风殑绉熸埛ID");
+                throw new IllegalStateException("未找到当前用户的租户ID");
             }
             return tenantId.toString();
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            throw new IllegalStateException("鑾峰彇褰撳墠绉熸埛ID澶辫触", e);
+            throw new IllegalStateException("获取当前租户ID失败", e);
         }
     }
 
@@ -134,9 +134,9 @@ public class UserHolder {
             Object hashOperations = redisOperationsClass.getMethod("opsForHash").invoke(redisTemplate);
             return hashOperationsClass.getMethod("get", Object.class, Object.class).invoke(hashOperations, key, field);
         } catch (BeansException e) {
-            throw new IllegalStateException("RedisTemplate is not initialized, cannot get current tenant id", e);
+            throw new IllegalStateException("RedisTemplate未初始化，无法获取当前租户ID", e);
         } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("Failed to get current tenant id", e);
+            throw new IllegalStateException("获取当前租户ID失败", e);
         }
     }
 }
