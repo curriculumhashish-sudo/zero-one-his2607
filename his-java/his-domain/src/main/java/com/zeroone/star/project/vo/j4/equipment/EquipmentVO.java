@@ -77,4 +77,9 @@ public class EquipmentVO {
 
     @Schema(description = "描述")
     private String description;
+
+    /**
+     * 价格类型编码,只负责后端数据传递,前端不做接收
+     */
+    private String priceTypeCode;
 }
