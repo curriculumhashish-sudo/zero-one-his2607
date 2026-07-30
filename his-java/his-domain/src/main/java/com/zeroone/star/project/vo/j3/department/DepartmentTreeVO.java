@@ -1,11 +1,13 @@
 package com.zeroone.star.project.vo.j3.department;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,12 +25,16 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema(description = "科室名称树VO")
+@JsonInclude(JsonInclude.Include.ALWAYS)
 public class DepartmentTreeVO {
     @Schema(description = "主键ID", example = "322663105141149696")
     private Long id;
 
     @Schema(description = "业务编号", example = "OR0007.OR0008")
     private String busNo;
+
+    @Schema(description = "机构/科室名称", example = "门诊内科")
+    private String name;
 
     @Schema(description = "类型", example = "ACTIVE")
     private String statusEnum;
@@ -54,7 +60,7 @@ public class DepartmentTreeVO {
     @Schema(description = "五笔码(wb_str)", example = "tntk")
     private String wbStr;
 
-    @Schema(description = "默认医生ID(def_doctor_id)", example = "308791351298756608")
+    @Schema(description = "默认医师ID", example = "308791351298756608")
     private Long defDoctorId;
 
     @Schema(description = "医保编号(yb_no)", example = "YB-3301-001")

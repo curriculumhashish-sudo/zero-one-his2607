@@ -27,4 +27,13 @@ public interface SupplierMapper extends BaseMapper<Supplier> {
     Page<SupplierListVO> selectSupplierPage(Page<SupplierListVO> page, @Param("query") SupplierQuery query);
 
     SupplierDetailVO selectSupplierDetail(@Param("id") String id);
+
+    String selectCreditCodeById(String trim);
+
+    /**
+     * 悲观锁方式查询当前最大ID，用于并发安全的ID自增生成
+     * FOR UPDATE 锁定行，防止并发请求读到同一个MAX(id)
+     * @return 当前最大ID，表为空时返回NULL
+     */
+    String selectMaxIdForUpdate();
 }

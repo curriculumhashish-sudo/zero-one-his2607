@@ -44,8 +44,8 @@ public interface FeeNatureApis {
     @Operation(summary = "修改费用性质",
             description = "根据ID修改费用性质信息。修改后新产生的收费记录将使用更新后的名称/编码，已结算的历史记录不受影响")
     JsonVO<String> update(
-            @Parameter(description = "费用性质ID", example = "1", required = true)
-            Long id,
+            @Parameter(description = "费用性质ID", example = "abc123", required = true)
+            String id,
             @Parameter(description = "费用性质数据", required = true)
             FeeNatureDTO dto
     );
@@ -59,8 +59,8 @@ public interface FeeNatureApis {
     @Operation(summary = "停/启用费用性质",
             description = "切换费用性质的启用状态。停用后收费结算下拉框不再显示该项，新收费不可选择；已有结算记录不受影响，仍可正常查询统计")
     JsonVO<String> updateStatus(
-            @Parameter(description = "费用性质ID", example = "1", required = true)
-            Long id,
+            @Parameter(description = "费用性质ID", example = "abc123", required = true)
+            String id,
             @Parameter(description = "是否启用 1 启用 0 禁用", example = "1", required = true)
             Integer isEnabled
     );
@@ -69,7 +69,7 @@ public interface FeeNatureApis {
      * 获取费用性质名称列表（用于下拉框）
      * @return 名称列表
      */
-    @Operation(summary = "获取费用性质名称列表",
+    @Operation(summary = "获取费用性质名称",
             description = "获取所有已启用的费用性质，供门诊/住院收费结算界面下拉框选择，常用于患者缴费时确定费用类别")
     JsonVO<List<FeeNatureVO>> getNameList();
 
@@ -93,7 +93,7 @@ public interface FeeNatureApis {
     @Operation(summary = "删除费用性质",
             description = "根据ID删除费用性质。注意：若该费用性质已被收费结算记录引用（存在关联患者缴费数据），则不允许删除，需先停用或处理关联数据")
     JsonVO<String> delete(
-            @Parameter(description = "费用性质ID", example = "1", required = true)
-            Long id
+            @Parameter(description = "费用性质ID", example = "abc123", required = true)
+            String id
     );
 }

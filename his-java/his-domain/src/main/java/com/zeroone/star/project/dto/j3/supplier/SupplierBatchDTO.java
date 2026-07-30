@@ -19,7 +19,7 @@ import java.util.List;
 public class SupplierBatchDTO implements Serializable {
 
     @NotEmpty(message = "供应商ID列表不能为空")
-    @Schema(description = "供应商ID列表", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "供应商ID列表", requiredMode = Schema.RequiredMode.REQUIRED,example = "[4100000000000000002,4100000000000000003,4100000000000000004]")
     private List<String> ids;
 
     @NotNull(message = "状态不能为空")

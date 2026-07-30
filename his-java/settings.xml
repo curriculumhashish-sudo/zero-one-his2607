@@ -51,7 +51,7 @@ under the License.
      |
      | Default: ${user.home}/.m2/repository
     -->
-    <localRepository>C:\Environment\maven\apache-maven-3.9.4\mvn_repo</localRepository>
+    <localRepository>D:\桌面\project\.m2repo</localRepository>
 
 
     <!-- interactiveMode

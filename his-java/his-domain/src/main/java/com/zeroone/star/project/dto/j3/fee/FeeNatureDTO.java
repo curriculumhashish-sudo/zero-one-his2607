@@ -1,13 +1,13 @@
 package com.zeroone.star.project.dto.j3.fee;
 
+import com.zeroone.star.project.enums.j3.fee.FeeCategoryEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.io.Serializable;
 
 /**
+ * <p>
  * 描述：费用性质数据传输对象
  * @author 白文儿
  * @version 1.0.0
@@ -16,27 +16,15 @@ import java.io.Serializable;
 @Schema(description = "费用性质数据对象")
 public class FeeNatureDTO implements Serializable {
 
-    @Schema(description = "费用性质ID", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private Long id;
-
-    @NotBlank(message = "名称不能为空")
-    @Schema(description = "费用性质名称", example = "自费", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "费用性质名称", example = "自费")
     private String name;
 
-    @NotBlank(message = "编码不能为空")
-    @Schema(description = "费用性质编码", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String code;
+    @Schema(description = "费用性质编码（业务编号）", example = "1001")
+    private String busNo;
 
-    @NotNull(message = "显示顺序不能为空不能为空")
-    @Schema(description = "费用性质显示顺序", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Integer sortOrder;
+    @Schema(description = "显示顺序", example = "1")
+    private Integer displayOrder;
 
-    @NotBlank(message = "分类不能为空")
-    @Schema(description = "费用性质分类", example = "自费", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String category;
-
-//    // 不能确定前端传输的是数字还是字符串
-//    @NotBlank(message = "分类不能为空")
-//    @Schema(description = "费用性质分类", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-//    private Integer category;
+    @Schema(description = "费用性质分类(1自费、2公费、3省医保、4市医保)", example = "1")
+    private Integer categoryEnum;
 }
