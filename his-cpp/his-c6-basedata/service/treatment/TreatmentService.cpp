@@ -23,6 +23,38 @@
 #include "SimpleDateTimeFormat.h"
 #include "TransactionManager.h"
 
+/** 将数据库状态转换为接口数值。 */
+static int treatmentStatusValue(const std::string& status)
+{
+	if (status == "DRAFT")
+		return 1;
+	if (status == "ACTIVE")
+		return 2;
+	if (status == "INACTIVE")
+		return 3;
+	if (status == "DISCARDED")
+		return 4;
+	return 0;
+}
+
+/** 返回状态中文词典键。 */
+static const char* treatmentStatusTextKey(int status)
+{
+	switch (status)
+	{
+	case 1:
+		return "treatment.status-text.draft";
+	case 2:
+		return "treatment.status-text.active";
+	case 3:
+		return "treatment.status-text.inactive";
+	case 4:
+		return "treatment.status-text.discarded";
+	default:
+		return "treatment.status-text.unknown";
+	}
+}
+
 // 从新增/修改 DTO 填充主表业务字段（不含主键、审计字段）
 template<typename TDto>
 static void fillMainFromAddDto(TreatmentDO& data, const TDto& dto)
@@ -238,30 +270,65 @@ TreatmentPageDTO::Wrapper TreatmentService::listAll(const TreatmentQuery::Wrappe
 	return pages;
 }
 
-TreatmentSelectPageDTO::Wrapper TreatmentService::listSelect(const TreatmentQuery::Wrapper& query)
+TreatmentSelectPageDTO::Wrapper TreatmentService::listSelect(
+	const TreatmentSelectQuery::Wrapper& query,
+	const PayloadDTO& payload)
 {
-	// 构建返回对象
+	if (!query || !query->validate().empty() || payload.getId().empty())
+	{
+		return nullptr;
+	}
+
+	TreatmentDAO dao;
+	// 从 JWT 用户解析有效租户，查询始终按租户隔离。
+	const std::string tenantId = dao.selectCurrentTenantId(payload.getId());
+	if (tenantId.empty())
+	{
+		return nullptr;
+	}
+
+	// 初始化分页结果。
 	auto pages = TreatmentSelectPageDTO::createShared();
 	pages->pageIndex = query->pageIndex;
 	pages->pageSize = query->pageSize;
 
-	// 查询数据总条数
-	TreatmentDAO dao;
-	uint64_t count = dao.count(query);
-	if (count <= 0)
+	const uint64_t count = dao.countSelect(query, tenantId);
+	pages->total = count;
+	pages->calcPages();
+	if (count == 0)
 	{
 		return pages;
 	}
 
-	// 分页查询数据
-	pages->total = count;
-	pages->calcPages();
-	list<TreatmentDO> result = dao.selectWithPage(query);
-	// 将DO转换成下拉选项DTO（仅 id + name）
-	for (TreatmentDO& sub : result)
+	// 将联表查询 BO 转换为接口 DTO。
+	std::list<TreatmentSelectBO> result =
+		dao.selectSelectWithPage(query, tenantId);
+	for (TreatmentSelectBO& sub : result)
 	{
 		auto dto = TreatmentSelectDTO::createShared();
-		ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub, id, Id, name, Name);
+		ZO_STAR_DOMAIN_DO_TO_DTO(
+			dto,
+			sub,
+			id, Id,
+			busNo, BusNo,
+			name, Name,
+			categoryCode, CategoryCode,
+			categoryCodeDictText, CategoryCodeDictText,
+			orgIdDictText, OrgIdDictText,
+			retailPrice, RetailPrice,
+			specification, Specification,
+			manufacturerText, ManufacturerText,
+			itemTypeCode, ItemTypeCode,
+			itemTypeCodeDictText, ItemTypeCodeDictText,
+			packageUnitCode, PackageUnitCode,
+			packageUnitCodeDictText, PackageUnitCodeDictText,
+			defEncounterUnitCode, DefEncounterUnitCode,
+			defEncounterUnitCodeDictText, DefEncounterUnitCodeDictText,
+			ybNo, YbNo);
+		const int status = treatmentStatusValue(sub.getStatusEnum());
+		dto->statusEnum = status;
+		dto->statusEnumText =
+			ZH_WORDS_GETTER(treatmentStatusTextKey(status));
 		pages->addData(dto);
 	}
 	return pages;

@@ -20,9 +20,11 @@
 #ifndef _TREATMENT_DAO_
 #define _TREATMENT_DAO_
 #include "BaseDAO.h"
+#include "../../domain/bo/treatment/TreatmentSelectBO.h"
 #include "../../domain/do/treatment/WkfActivityDefinitionDo.h"
 #include "../../domain/do/treatment/WkfActivityDefinitionChildrenDo.h"
 #include "../../domain/query/treatment/TreatmentQuery.h"
+#include "../../domain/query/treatment/TreatmentSelectQuery.h"
 
 /**
  * 诊疗表数据库操作实现
@@ -40,11 +42,26 @@ private:
 	// Description: 查询条件构建器，根据TreatmentQuery对象动态构建查询条件相关参数
 	//************************************
 	inline std::string queryConditionBuilder(const TreatmentQuery::Wrapper& query, SqlParams& params);
+	// 构建选择诊疗列表的租户、关键字和状态条件。
+	inline std::string selectConditionBuilder(
+		const TreatmentSelectQuery::Wrapper& query,
+		const std::string& tenantId,
+		SqlParams& params);
 public:
 	// 统计数据条数
 	uint64_t count(const TreatmentQuery::Wrapper& query);
 	// 分页查询数据
 	std::list<TreatmentDO> selectWithPage(const TreatmentQuery::Wrapper& query);
+	// 查询当前用户唯一有效的租户。
+	std::string selectCurrentTenantId(const std::string& userId);
+	// 统计可选诊疗数据。
+	uint64_t countSelect(
+		const TreatmentSelectQuery::Wrapper& query,
+		const std::string& tenantId);
+	// 分页查询可选诊疗数据。
+	std::list<TreatmentSelectBO> selectSelectWithPage(
+		const TreatmentSelectQuery::Wrapper& query,
+		const std::string& tenantId);
 	// 通过名称模糊查询数据
 	std::list<TreatmentDO> selectByName(const string& name);
 	// 通过ID查询数据

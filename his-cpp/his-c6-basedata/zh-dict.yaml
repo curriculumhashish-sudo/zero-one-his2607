@@ -8,7 +8,7 @@ treatment:
   query-one:
     summary: 使用声明式服务查询一条数据
   query-select:
-    summary: 获取可选诊疗列表
+    summary: 获取选择诊疗列表（条件+分页）
   query:
     summary: 获取诊疗列表
   # 增改状态操作接口文案
@@ -35,14 +35,20 @@ treatment:
     id: 诊疗ID
     ids: 诊疗ID列表
     code: 诊疗编码
+    bus-no: 诊疗业务编码
     name: 诊疗名称
     status: 启用状态
     excel: 导入报表文件
 
     # 分类、计价单位相关
     category-code: 目录分类编码
+    category-code-text: 目录分类名称
+    org-id-text: 所属机构名称
     type-enum: 业务类型
     package-unit-code: 计价/销售单位编码
+    package-unit-code-text: 计价/销售单位名称
+    def-encounter-unit-code: 默认门诊单位编码
+    def-encounter-unit-code-text: 默认门诊单位名称
 
     # 检索拼音五笔
     py-str: 拼音简码
@@ -50,9 +56,12 @@ treatment:
 
     # 财务价格字段
     item-type-code: 财务分类编码
+    item-type-code-text: 财务分类名称
     purchase-price: 进货成本价
     retail-price: 零售售价
     maximum-retail-price: 最高零售价
+    specification: 规格
+    manufacturer-text: 生产厂家
 
     # 备注描述
     description-text: 详细描述
@@ -73,3 +82,12 @@ treatment:
 
     # 全局搜索字段
     keywords: 检索关键词
+    status-enum: 状态枚举值
+    status-enum-text: 状态名称
+
+  status-text:
+    draft: 草稿
+    active: 已启用
+    inactive: 已停用
+    discarded: 已废弃
+    unknown: 未知状态

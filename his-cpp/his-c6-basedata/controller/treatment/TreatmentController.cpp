@@ -151,13 +151,31 @@ StringJsonVO::Wrapper TreatmentController::execAddTreatment(
 	return jvo;
 }
 
-// 选择分页
-TreatmentSelectPageJsonVO::Wrapper TreatmentController::execQuerySelect(const TreatmentQuery::Wrapper& query)
+// 获取选择诊疗列表（条件+分页）
+TreatmentSelectPageJsonVO::Wrapper TreatmentController::execQuerySelect(
+	const TreatmentSelectQuery::Wrapper& query, const PayloadDTO& payload)
 {
-	// Query select list data
-	auto result = TreatmentService().listSelect(query);
-	// Build response
 	auto jvo = TreatmentSelectPageJsonVO::createShared();
+
+	// 校验查询条件与凭证
+	if (!query || !query->validate().empty())
+	{
+		jvo->init(nullptr, RS_PARAMS_INVALID);
+		return jvo;
+	}
+	if (payload.getId().empty())
+	{
+		jvo->init(nullptr, RS_FORBIDDEN);
+		return jvo;
+	}
+
+	// 查询当前用户所属租户的数据
+	auto result = TreatmentService().listSelect(query, payload);
+	if (!result)
+	{
+		jvo->init(nullptr, RS_FORBIDDEN);
+		return jvo;
+	}
 	jvo->success(result);
 	return jvo;
 }
