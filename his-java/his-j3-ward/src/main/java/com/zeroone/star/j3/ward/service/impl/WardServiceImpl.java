@@ -3,7 +3,9 @@ package com.zeroone.star.j3.ward.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.zeroone.star.j3.ward.entity.AdmLocation;
+import com.zeroone.star.j3.ward.entity.AdmOrganization;
 import com.zeroone.star.j3.ward.mapper.AdmLocationMapper;
+import com.zeroone.star.j3.ward.mapper.AdmOrganizationMapper;
 import com.zeroone.star.j3.ward.service.WardService;
 import com.zeroone.star.project.dto.j3.ward.BedAddDTO;
 import com.zeroone.star.project.dto.j3.ward.BedDTO;
@@ -42,6 +44,9 @@ public class WardServiceImpl implements WardService {
     @Resource
     private AdmLocationMapper admLocationMapper;
 
+    @Resource
+    private AdmOrganizationMapper admOrganizationMapper;
+
     // ==================== 树形结构 ====================
 
     @Override
@@ -49,7 +54,15 @@ public class WardServiceImpl implements WardService {
         LambdaQueryWrapper<AdmLocation> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(AdmLocation::getIsDeleted, false);
         if (query.getOrgName() != null && !query.getOrgName().isEmpty()) {
-            wrapper.like(AdmLocation::getName, query.getOrgName());
+            LambdaQueryWrapper<AdmOrganization> orgWrapper = new LambdaQueryWrapper<>();
+            orgWrapper.like(AdmOrganization::getName, query.getOrgName());
+            List<AdmOrganization> orgs = admOrganizationMapper.selectList(orgWrapper);
+            List<Long> orgIds = orgs.stream().map(AdmOrganization::getId).collect(Collectors.toList());
+            if (!orgIds.isEmpty()) {
+                wrapper.in(AdmLocation::getOrganizationId, orgIds);
+            } else {
+                return Collections.emptyList();
+            }
         }
         List<AdmLocation> allLocations = admLocationMapper.selectList(wrapper);
 
@@ -100,11 +113,23 @@ public class WardServiceImpl implements WardService {
     @Override
     @Transactional
     public void addWard(WardAddDTO dto) {
+        Long organizationId = null;
+        if (dto.getDepartmentCode() != null && !dto.getDepartmentCode().isEmpty()) {
+            LambdaQueryWrapper<AdmOrganization> orgWrapper = new LambdaQueryWrapper<>();
+            orgWrapper.eq(AdmOrganization::getBusNo, dto.getDepartmentCode());
+            AdmOrganization org = admOrganizationMapper.selectOne(orgWrapper);
+            if (org != null) {
+                organizationId = org.getId();
+            }
+        }
         AdmLocation entity = AdmLocation.builder()
                 .name(dto.getWardName())
                 .formEnum("WARD")
                 .statusEnum("ENABLED")
                 .busNo(generateBusNo("WARD"))
+                .organizationId(organizationId)
+                .modeEnum("INPATIENT")
+                .operationalEnum("OPEN")
                 .build();
         admLocationMapper.insert(entity);
     }
@@ -151,11 +176,23 @@ public class WardServiceImpl implements WardService {
     @Override
     @Transactional
     public void addRoom(RoomAddDTO dto) {
+        Long parentId = null;
+        if (dto.getWardCode() != null && !dto.getWardCode().isEmpty()) {
+            LambdaQueryWrapper<AdmLocation> parentWrapper = new LambdaQueryWrapper<>();
+            parentWrapper.eq(AdmLocation::getBusNo, dto.getWardCode())
+                    .eq(AdmLocation::getFormEnum, "WARD")
+                    .eq(AdmLocation::getIsDeleted, false);
+            AdmLocation parentWard = admLocationMapper.selectOne(parentWrapper);
+            if (parentWard != null) {
+                parentId = parentWard.getId();
+            }
+        }
         AdmLocation entity = AdmLocation.builder()
                 .name(dto.getRoomName())
                 .formEnum("ROOM")
                 .statusEnum("ENABLED")
                 .busNo(generateBusNo("ROOM"))
+                .parentId(parentId)
                 .build();
         admLocationMapper.insert(entity);
     }
@@ -205,11 +242,23 @@ public class WardServiceImpl implements WardService {
     @Override
     @Transactional
     public void addBed(BedAddDTO dto) {
+        Long parentId = null;
+        if (dto.getRoomCode() != null && !dto.getRoomCode().isEmpty()) {
+            LambdaQueryWrapper<AdmLocation> parentWrapper = new LambdaQueryWrapper<>();
+            parentWrapper.eq(AdmLocation::getBusNo, dto.getRoomCode())
+                    .eq(AdmLocation::getFormEnum, "ROOM")
+                    .eq(AdmLocation::getIsDeleted, false);
+            AdmLocation parentRoom = admLocationMapper.selectOne(parentWrapper);
+            if (parentRoom != null) {
+                parentId = parentRoom.getId();
+            }
+        }
         AdmLocation entity = AdmLocation.builder()
                 .name(dto.getBedName())
                 .formEnum("BED")
                 .statusEnum("ENABLED")
                 .busNo(generateBusNo("BED"))
+                .parentId(parentId)
                 .build();
         admLocationMapper.insert(entity);
     }
@@ -245,4 +294,3 @@ public class WardServiceImpl implements WardService {
         return prefix + "_" + System.currentTimeMillis();
     }
 }
-
