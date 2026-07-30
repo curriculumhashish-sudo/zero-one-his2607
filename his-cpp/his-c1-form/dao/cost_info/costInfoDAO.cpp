@@ -8,7 +8,7 @@
 	" ae.`bus_no` AS clinicNo," \
 	" a_pa.`name` AS name," \
 	" al.`name` AS room," \
-	" ae.`start_time` AS date," \
+	" aci.`occurrence_time` AS date," \
 	" tc.`display` AS feeClass," \
 	" COALESCE(mmd.`category_code`, `add`.`category_code`, wad.`category_code`) AS detailClass," \
 	" acid.`charge_name` AS projectName," \
@@ -119,7 +119,7 @@ uint64_t CostInfoDAO::count(const CostInfoQuery::Wrapper& query) {
 std::list<CostInfoDO> CostInfoDAO::selectWithPage(const CostInfoQuery::Wrapper& query) {
 
 	SqlParams params;
-	string sqlStr = "SELECT" MAIN_SQL_COLUMNS MAIN_SQL_JOINS;
+	string sqlStr = "SELECT DISTINCT" MAIN_SQL_COLUMNS MAIN_SQL_JOINS;
 	sqlStr += queryConditionBuilder(query, params);
 	sqlStr += " ORDER BY aci.`occurrence_time` DESC, aci.`id` DESC ";
 	sqlStr += " LIMIT " + std::to_string(((query->pageIndex - 1) * query->pageSize)) + "," + std::to_string(query->pageSize);
@@ -130,7 +130,7 @@ std::list<CostInfoDO> CostInfoDAO::selectWithPage(const CostInfoQuery::Wrapper& 
 std::list<CostInfoDO> CostInfoDAO::selectAll(const CostInfoQuery::Wrapper& query) {
 
 	SqlParams params;
-	string sqlStr = "SELECT" MAIN_SQL_COLUMNS MAIN_SQL_JOINS;
+	string sqlStr = "SELECT DISTINCT" MAIN_SQL_COLUMNS MAIN_SQL_JOINS;
 	sqlStr += queryConditionBuilder(query, params);
 	sqlStr += " ORDER BY aci.`occurrence_time` DESC, aci.`id` DESC ";
 
