@@ -28,6 +28,9 @@ pat:
     page:
       summary: 分页查询弹窗可选患者列表
       success: 查询可选患者列表成功
+    gender:
+      male: 男性
+      female: 女性
     query:
       field:
         keyword: 搜索关键词(姓名/病历号/证件号)

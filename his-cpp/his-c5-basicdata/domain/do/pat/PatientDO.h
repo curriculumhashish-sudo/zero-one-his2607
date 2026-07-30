@@ -1,4 +1,4 @@
-#ifndef _PATIENT_DO_
+﻿#ifndef _PATIENT_DO_
 #define _PATIENT_DO_
 #include "../DoInclude.h"
 
@@ -39,7 +39,7 @@ class PatientDO : public BaseDO
 	MYSQL_SYNTHESIZE(string, nameJson, NameJson);
 
 	// 性别编码
-	MYSQL_SYNTHESIZE(string, genderEnum, GenderEnum);
+	MYSQL_SYNTHESIZE(string, gender, Gender);
 	// 出生日期
 	MYSQL_SYNTHESIZE(string, birthDate, BirthDate);
 
@@ -146,7 +146,7 @@ public:
 		MYSQL_ADD_FIELD("name", "s", name);
 		MYSQL_ADD_FIELD_NULLABLE("name_json", "s", nameJson, true);
 
-		MYSQL_ADD_FIELD("gender_enum", "s", genderEnum);
+		MYSQL_ADD_FIELD("gender_enum", "s", gender);
 		MYSQL_ADD_FIELD_NULLABLE("birth_date", "s", birthDate, true);
 
 		MYSQL_ADD_FIELD("status_enum", "s", statusEnum);
