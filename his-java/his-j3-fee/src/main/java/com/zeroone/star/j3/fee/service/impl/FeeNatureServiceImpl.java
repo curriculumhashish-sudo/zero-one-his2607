@@ -18,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import jakarta.annotation.Resource;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,11 +36,16 @@ import java.util.List;
 public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature> implements IFeeNatureService {
 
     private final AdmAccountMapper admAccountMapper;
-    private final UserHolder userHolder;
+    @Resource
+    private UserHolder userHolder;
 
     @Override
     public PageDTO<FeeNatureVO> listFeeNatures(FeeNatureQuery query) {
+        String tenantId = userHolder.getCurrentTenantId();
+
         LambdaQueryWrapper<FeeNature> wrapper = new LambdaQueryWrapper<>();
+        // 租户隔离
+        wrapper.eq(FeeNature::getTenantId, tenantId);
         // 过滤已删除的记录
         wrapper.eq(FeeNature::getIsDeleted, 0);
         // 关键词模糊搜索（名称或编码）
@@ -102,16 +109,18 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
             throw new RuntimeException("显示顺序不能为空");
         }
 
-        // 2. 校验记录存在
+        // 2. 校验记录存在且属于当前租户
         FeeNature entity = baseMapper.selectById(id);
-        if (entity == null) {
+        String tenantId = userHolder.getCurrentTenantId();
+        if (entity == null || !tenantId.equals(entity.getTenantId())) {
             throw new RuntimeException("费用性质不存在");
         }
 
-        // 3. 编码变更时检查唯一性
+        // 3. 编码变更时检查唯一性（同一租户下）
         if (!dto.getBusNo().equals(entity.getBusNo())) {
             LambdaQueryWrapper<FeeNature> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(FeeNature::getBusNo, dto.getBusNo());
+            wrapper.eq(FeeNature::getTenantId, tenantId)
+                    .eq(FeeNature::getBusNo, dto.getBusNo());
             if (baseMapper.selectCount(wrapper) > 0) {
                 throw new RuntimeException("费用性质编码已存在，请重新输入");
             }
@@ -130,8 +139,9 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
 
     @Override
     public void updateStatus(String id, Integer isEnabled) {
+        String tenantId = userHolder.getCurrentTenantId();
         FeeNature entity = baseMapper.selectById(id);
-        if (entity == null) {
+        if (entity == null || !tenantId.equals(entity.getTenantId())) {
             throw new RuntimeException("费用性质不存在");
         }
         entity.setActiveFlag(isEnabled);
@@ -143,9 +153,11 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
     }
     @Override
     public List<FeeNatureVO> getNameList() {
+        String tenantId = userHolder.getCurrentTenantId();
         // 注意是否启用,是否被删除,按照sortBy字段排序
         LambdaQueryWrapper<FeeNature> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(FeeNature::getActiveFlag, 1)
+        wrapper.eq(FeeNature::getTenantId, tenantId)
+                .eq(FeeNature::getActiveFlag, 1)
                 .eq(FeeNature::getIsDeleted, 0)
                 .orderByAsc(FeeNature::getDisplayOrder)
                 .select(FeeNature::getBusNo, FeeNature::getName);
@@ -168,9 +180,10 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
         if(StringUtils.isEmpty(code)){
             throw new RuntimeException("费用性质编码不能为空");
         }
-        // 1.2  编码不能重复
+        // 1.2  编码不能重复（同一租户下）
         LambdaQueryWrapper<FeeNature> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(FeeNature::getBusNo, dto.getBusNo());
+        wrapper.eq(FeeNature::getTenantId, userHolder.getCurrentTenantId())
+                .eq(FeeNature::getBusNo, dto.getBusNo());
         wrapper.eq(FeeNature::getIsDeleted, 0);
         if (baseMapper.selectCount(wrapper) > 0) {
             throw new RuntimeException("费用性质编码已存在，请重新输入");
@@ -196,6 +209,7 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
         // 3. 填充字段,保存
         FeeNature entity = new FeeNature();
         BeanUtils.copyProperties(dto, entity);
+        entity.setTenantId(userHolder.getCurrentTenantId());
         entity.setCategoryEnum(FeeCategoryEnum.of(categoryEnum));
         entity.setActiveFlag(1);
         entity.setStatusEnum("1");
@@ -205,10 +219,11 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
 
     @Override
     public void delete(String id) {
+        String tenantId = userHolder.getCurrentTenantId();
         // 注意是否已经被删除,是否关联了其他表,是否还是启用状态
-        // 1. 数据是否存在
+        // 1. 数据是否存在且属于当前租户
         FeeNature entity = baseMapper.selectById(id);
-        if (entity == null) {
+        if (entity == null || !tenantId.equals(entity.getTenantId())) {
             throw new RuntimeException("费用性质不存在");
         }
 
