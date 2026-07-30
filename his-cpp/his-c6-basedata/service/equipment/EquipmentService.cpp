@@ -23,28 +23,29 @@ EquipmentDetailPageDTO::Wrapper EquipmentService::listAll(const EquipmentQuery::
 	// 分页查询数据
 	pages->total = count;
 	pages->calcPages();
-	list<WkfInventoryItemViewDO> result = dao.selectWithPage(query);
+	list<DocInventoryItemSnapshotDO> result = dao.selectWithPage(query);
 	// 将DO转换成DTO
-	for (WkfInventoryItemViewDO& sub : result)
+	for (DocInventoryItemSnapshotDO& sub : result)
 	{
 		auto dto = EquipmentDetailDTO::createShared();
 		ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub, 
+			// id
 			id, Id,
+			// 编码
 			code,ProductBusNo,
+			// 项目名
 			name, Name,
-			classification, TotalVolume,
-			specification, InventoryStatusEnum,
+			// 规格
+			specification, TotalVolume,
+			// 状态
+			status, InventoryStatusEnum,
+			// 分类
+			classification, DeviceCategoryCode,
+			// 厂家
 			manufacturer, Manufacturer,
+			// 价格
 			price, LotNumberPriceAmount
 		);
-		if (sub.getDeviceCategoryCode() == "1")
-		{
-			dto->status = 1;
-		}
-		else
-		{
-			dto->status = 0;
-		}
 		pages->addData(dto);
 	}
 	return pages;
@@ -210,8 +211,8 @@ EquipmentSelectPageDTO::Wrapper EquipmentService::selectData(const EquipmentQuer
 	pages->total = count;
 	pages->calcPages();
 
-	list<WkfInventoryItemViewDO> result = dao.selectWithPage(query);
-	for (WkfInventoryItemViewDO& sub : result)
+	list<DocInventoryItemSnapshotDO> result = dao.selectWithPage(query);
+	for (DocInventoryItemSnapshotDO& sub : result)
 	{
 		auto dto = EquipmentSelectDTO::createShared();
 		dto->id = sub.getId();
