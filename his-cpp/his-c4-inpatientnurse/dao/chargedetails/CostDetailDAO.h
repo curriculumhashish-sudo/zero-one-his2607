@@ -17,8 +17,8 @@
  limitations under the License.
 */
 #pragma once
-#ifndef _CostDetail_DAO_H_
-#define _CostDetail_DAO_H_
+#ifndef _COST_DETAIL_DAO_H_
+#define _COST_DETAIL_DAO_H_
 
 #include "BaseDAO.h"
 #include "domain/query/chargedetails/CostDetailQuery.h"
@@ -36,4 +36,4 @@ public:
 	std::list<CostSummaryDTO::Wrapper> selectSummary(const CostSummaryQuery::Wrapper& query);
 };
 
-#endif // !_CostDetail_DAO_H_
+#endif // !_COST_DETAIL_DAO_H_

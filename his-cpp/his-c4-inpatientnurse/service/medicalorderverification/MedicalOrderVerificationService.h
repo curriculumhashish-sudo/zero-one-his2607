@@ -17,18 +17,18 @@
  limitations under the License.
 */
 #pragma once
-#ifndef _MedicalOrderVerification_SERVICE_H_
-#define _MedicalOrderVerification_SERVICE_H_
-#include "domain/query/medicalorderverification/medicalorderverificationQuery.h"
+#ifndef _MEDICAL_ORDER_VERIFICATION_SERVICE_H_
+#define _MEDICAL_ORDER_VERIFICATION_SERVICE_H_
+#include "domain/query/medicalorderverification/MedicalOrderVerificationQuery.h"
 #include "domain/dto/medicalorderverification/VerificationDTO.h"
-#include "domain/dto/medicalorderverification/medicalOrderVerificationDetailDTO.h"
+#include "domain/dto/medicalorderverification/MedicalOrderVerificationDetailDTO.h"
 
 class MedicalOrderVerificationService
 {
 public:
-	oatpp::List<medicalOrderVerificationDetailDTO::Wrapper> list(const MedicalVerificationQuery::Wrapper& query);
+	oatpp::List<MedicalOrderVerificationDetailDTO::Wrapper> list(const MedicalVerificationQuery::Wrapper& query);
 	VerifyPassResponseDTO::Wrapper verify(const VerifyPassRequestDTO::Wrapper& dto,const std::string& operatorId);
 	RejectOrdersResponseDTO::Wrapper reject(const RejectOrdersRequestDTO::Wrapper& dto,const std::string& operatorId);
 };
 
-#endif // !_MedicalOrderVerification_SERVICE_H_
+#endif // !_MEDICAL_ORDER_VERIFICATION_SERVICE_H_

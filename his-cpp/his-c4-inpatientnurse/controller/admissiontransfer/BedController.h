@@ -4,7 +4,7 @@
 #include "domain/vo/BaseJsonVO.h"
 #include "domain/query/admissiontransfer/BedQuery.h"
 #include "domain/dto/admissiontransfer/BedAssignDTO.h"
-#include "domain/vo/admissiontransfer/BedVo.h"
+#include "domain/vo/admissiontransfer/BedVO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 

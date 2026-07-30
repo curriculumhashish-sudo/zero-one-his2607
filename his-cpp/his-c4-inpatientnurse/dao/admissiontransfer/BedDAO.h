@@ -34,9 +34,9 @@ public:
     // Count free beds
     uint64_t countFree(const BedQuery::Wrapper& query);
     // Query free beds with pagination
-    std::list<adm_locationDO> selectFreeWithPage(const BedQuery::Wrapper& query);
+    std::list<LocationDO> selectFreeWithPage(const BedQuery::Wrapper& query);
     // Insert a reservation record (assign). Returns affected rows.
-    int reserve(const bkg_bed_reservation_extDO& data);
+    int reserve(const BedReservationDO& data);
 };
 
 #endif // !_BED_DAO_

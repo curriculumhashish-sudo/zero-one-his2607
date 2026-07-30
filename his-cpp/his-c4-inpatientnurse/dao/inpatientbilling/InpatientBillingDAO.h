@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _InpatientBilling_DAO_H_
-#define _InpatientBilling_DAO_H_
+#ifndef _INPATIENT_BILLING_DAO_H_
+#define _INPATIENT_BILLING_DAO_H_
 
 #include "BaseDAO.h"
 #include "domain/do/inpatientbilling/AutoGenRuleDO.h"
@@ -43,4 +43,4 @@ public:
     int updateChargeItemStatus(const std::string& id, const std::string& status);
 };
 
-#endif // !_InpatientBilling_DAO_H_
+#endif // !_INPATIENT_BILLING_DAO_H_

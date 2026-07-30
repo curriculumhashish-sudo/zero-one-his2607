@@ -23,12 +23,12 @@
 #include "../../domain/do/admissiontransfer/LocationDO.h"
 
 // Mapper for adm_location free-bed query
-class BedMapper : public Mapper<adm_locationDO>
+class BedMapper : public Mapper<LocationDO>
 {
 public:
-    adm_locationDO mapper(ResultSet* resultSet) const override
+    LocationDO mapper(ResultSet* resultSet) const override
     {
-        adm_locationDO data;
+        LocationDO data;
         data.setId(resultSet->getString(1));
         data.setName(resultSet->getString(2));
         data.setParent_id(resultSet->getString(3));

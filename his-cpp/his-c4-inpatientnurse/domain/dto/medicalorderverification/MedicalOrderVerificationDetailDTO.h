@@ -1,13 +1,13 @@
-#ifndef _MEDICALORDERVERIFICATIONDETAILDTO_H
-#define _MEDICALORDERVERIFICATIONDETAILDTO_H
+#ifndef _MEDICAL_ORDER_VERIFICATION_DETAIL_DTO_H_
+#define _MEDICAL_ORDER_VERIFICATION_DETAIL_DTO_H_
 
 #include "../../GlobalInclude.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class medicalOrderVerificationDetailDTO : public oatpp::DTO
+class MedicalOrderVerificationDetailDTO : public oatpp::DTO
 {
-	DTO_INIT(medicalOrderVerificationDetailDTO, oatpp::DTO);
+	DTO_INIT(MedicalOrderVerificationDetailDTO, oatpp::DTO);
 	API_DTO_FIELD_REQUIRE(String, requestId, ZH_WORDS_GETTER("medicalOrderVerification.field.requestId"), true);
 	API_DTO_FIELD_REQUIRE(String, orderType, ZH_WORDS_GETTER("medicalOrderVerification.field.orderType"), true);
 	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("medicalOrderVerification.field.name"), true);
@@ -18,4 +18,4 @@ class medicalOrderVerificationDetailDTO : public oatpp::DTO
 
 #include OATPP_CODEGEN_END(DTO)
 
-#endif // _MEDICALORDERVERIFICATIONDETAILDTO_H
+#endif // !_MEDICAL_ORDER_VERIFICATION_DETAIL_DTO_H_

@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _InpatientBillingService_H_
-#define _InpatientBillingService_H_
+#ifndef _INPATIENT_BILLING_SERVICE_H_
+#define _INPATIENT_BILLING_SERVICE_H_
 #include "domain/vo/inpatientbilling/InpatientBillingVO.h"
 #include "domain/dto/inpatientbilling/InpatientBillingDTO.h"
 
@@ -21,4 +21,4 @@ public:
 	ActivateAutoGenRuleResponseDTO::Wrapper suspendAutoGenRule(const ActivateAutoGenRuleDTO::Wrapper& dto);
 };
 
-#endif // !_InpatientBillingService_H_
+#endif // !_INPATIENT_BILLING_SERVICE_H_

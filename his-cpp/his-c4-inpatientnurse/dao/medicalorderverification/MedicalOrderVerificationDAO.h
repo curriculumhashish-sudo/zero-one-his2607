@@ -17,18 +17,18 @@
  limitations under the License.
 */
 #pragma once
-#ifndef _MedicalOrderVerification_DAO_H_
-#define _MedicalOrderVerification_DAO_H_
+#ifndef _MEDICAL_ORDER_VERIFICATION_DAO_H_
+#define _MEDICAL_ORDER_VERIFICATION_DAO_H_
 #include "BaseDAO.h"
-#include "domain/query/medicalorderverification/medicalorderverificationQuery.h"
-#include "domain/dto/medicalorderverification/medicalOrderVerificationDetailDTO.h"
+#include "domain/query/medicalorderverification/MedicalOrderVerificationQuery.h"
+#include "domain/dto/medicalorderverification/MedicalOrderVerificationDetailDTO.h"
 
 class MedicalOrderVerificationDAO : public BaseDAO
 {
 public:
-	std::list<medicalOrderVerificationDetailDTO::Wrapper> selectItems(const MedicalVerificationQuery::Wrapper& query);
+	std::list<MedicalOrderVerificationDetailDTO::Wrapper> selectItems(const MedicalVerificationQuery::Wrapper& query);
 	int verify(const std::string& orderType,const std::string& requestId,const std::string& operatorId);
 	int reject(const std::string& orderType,const std::string& requestId,const std::string& reason,const std::string& operatorId);
 };
 
-#endif // !_MedicalOrderVerification_DAO_H_
+#endif // !_MEDICAL_ORDER_VERIFICATION_DAO_H_

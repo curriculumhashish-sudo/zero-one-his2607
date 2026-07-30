@@ -20,11 +20,7 @@
 #ifndef _COSTSUMMARYQUERY_H_
 #define _COSTSUMMARYQUERY_H_
 
-#include "oatpp/core/macro/codegen.hpp"
-#include "oatpp/core/Types.hpp"
-#include "Macros.h"
-#include "ServerInfo.h"
-using namespace oatpp;
+#include "../../GlobalInclude.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 

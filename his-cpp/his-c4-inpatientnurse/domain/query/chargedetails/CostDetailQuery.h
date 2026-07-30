@@ -20,12 +20,8 @@
 #ifndef _COSTDETAILQUERY_H_
 #define _COSTDETAILQUERY_H_
 
-#include "oatpp/core/macro/codegen.hpp"
-#include "oatpp/core/Types.hpp"
+#include "../../GlobalInclude.h"
 #include "domain/query/PageQuery.h"
-#include "Macros.h"
-#include "ServerInfo.h"
-using namespace oatpp;
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
