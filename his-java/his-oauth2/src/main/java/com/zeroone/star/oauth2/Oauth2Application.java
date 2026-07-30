@@ -1,5 +1,6 @@
 package com.zeroone.star.oauth2;
 
+import com.zeroone.cloud.starter.oauth2.autoconfiguration.Oauth2ServerAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -13,7 +14,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * @author 阿伟学长
  * @version 1.0.0
  */
-@SpringBootApplication
+@SpringBootApplication(exclude = Oauth2ServerAutoConfiguration.class)
 @EnableDiscoveryClient
 public class Oauth2Application {
 

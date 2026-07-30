@@ -1,17 +1,15 @@
 package com.zeroone.star.oauth2.service.impl.oauth2;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zeroone.cloud.starter.oauth2.service.TokenGranterStrategy;
 import com.zeroone.cloud.starter.oauth2.service.grant.AbstractCustomAuthenticationConverter;
 import com.zeroone.cloud.starter.oauth2.service.grant.AbstractCustomAuthenticationProvider;
 import com.zeroone.cloud.starter.oauth2.service.grant.CustomGrantAuthenticationToken;
-import com.zeroone.star.oauth2.entity.User;
-import com.zeroone.star.oauth2.service.IUserService;
+import com.zeroone.cloud.oauth2.entity.SecurityUser;
+import com.zeroone.star.oauth2.config.Oauth2Properties;
 import jakarta.annotation.Resource;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Token;
@@ -31,7 +29,10 @@ public class PasswordTokenGranterStrategy implements TokenGranterStrategy {
     private static final String GRANT_TYPE = "password";
 
     @Resource
-    private IUserService userService;
+    private LoadUserDetailServiceImpl loadUserDetailService;
+
+    @Resource
+    private Oauth2Properties oauth2Properties;
 
     @Override
     public String getGrantType() {
@@ -61,13 +62,14 @@ public class PasswordTokenGranterStrategy implements TokenGranterStrategy {
                 if (!StringUtils.hasText(username) || !StringUtils.hasText(password)) {
                     throw new OAuth2AuthenticationException("invalid_grant");
                 }
-                User user = userService.getOne(new QueryWrapper<User>()
-                        .eq("user_name", username).eq("is_active", 1)
-                        .eq("is_locked_out", 0).eq("is_deleted", 0));
-                if (user == null || !new BCryptPasswordEncoder().matches(password, bcryptHash(user.getPasswordHash()))) {
+                // 必须返回 SecurityUser，而非数据库 User。JWT 自定义声明增强器以
+                // SecurityUser 为输入，直接返回 User 会导致 id、roles、人员与组织单元等
+                // 业务字段没有写进 access token，后续 /user/info 无法还原当前用户。
+                SecurityUser user = loadUserDetailService.loadUserDetail(username, oauth2Properties.getMgrId());
+                if (user == null || !new BCryptPasswordEncoder().matches(password, bcryptHash(user.getPassword()))) {
                     throw new OAuth2AuthenticationException("invalid_grant");
                 }
-                return new UsernamePasswordAuthenticationToken(user, null, AuthorityUtils.NO_AUTHORITIES);
+                return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
             }
         };
     }
