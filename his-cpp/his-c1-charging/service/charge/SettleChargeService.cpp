@@ -4,6 +4,8 @@
 #include "dao/charge/SettleChargeDAO.h"
 #include "id/UuidFacade.h"
 
+#include <set>
+
 // 防止 ODBC/MySQL 类型冲突
 #include "NacosClient.h"
 
@@ -14,7 +16,15 @@ PreSettleChargeResponseDTO::Wrapper SettleChargeService::preSettle(const PreSett
     if (!dto->encounterId || dto->encounterId->empty())
         return resp;
 
-    // 读取收费项明细
+    // 构造选中ID集合，用于快速过滤
+    std::set<std::string> selectedIds;
+    if (dto->chargeItemIds)
+    {
+        for (auto& id : *dto->chargeItemIds)
+            selectedIds.insert(std::string(id->c_str()));
+    }
+
+    // 读取就诊下所有收费项，仅保留用户选中的
     GetChargeItemDAO dao;
     auto items = dao.selectByEncounterId(dto->encounterId);
 
@@ -24,16 +34,22 @@ PreSettleChargeResponseDTO::Wrapper SettleChargeService::preSettle(const PreSett
 
     for (auto& item : items)
     {
+        // 跳过未被选中的收费项
+        if (!selectedIds.empty() && !selectedIds.count(item.getChargeItemId()))
+            continue;
+
         double linePrice = 0.0;
         try { linePrice = std::stod(item.getTotalPrice()); } catch (...) {}
 
         displayAmount += linePrice;
 
         auto preview = PreSettleChargeLinePreviewDTO::createShared();
-        preview->chargeItemId = item.getChargeItemId();
-        preview->itemLabel = item.getItemName();
+        ZO_STAR_DOMAIN_DO_TO_DTO(preview, item,
+            chargeItemId, ChargeItemId,
+            itemLabel, ItemName,
+            feeNatureDisplay,ContractName
+        );
         preview->lineAmount = linePrice;
-        preview->feeNatureDisplay = item.getContractName();
         previews->push_back(preview);
     }
 
