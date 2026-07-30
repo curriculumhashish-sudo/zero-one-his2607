@@ -10,7 +10,7 @@
 	" al.`name` AS room," \
 	" aci.`occurrence_time` AS date," \
 	" tc.`display` AS feeClass," \
-	" COALESCE(mmd.`category_code`, `add`.`category_code`, wad.`category_code`) AS detailClass," \
+	" COALESCE(tc_mmd.`display`, tc_add.`display`, tc_wad.`display`) AS detailClass," \
 	" acid.`charge_name` AS projectName," \
 	" COALESCE(mmd.`bus_no`, `add`.`bus_no`, wad.`bus_no`) AS hisID," \
 	" COALESCE(mmd.`total_volume`, `add`.`total_volume`, NULL) AS spec," \
@@ -43,6 +43,9 @@
 	" LEFT JOIN med_medication_definition mmd ON aci.product_table = 'med_medication_definition' AND aci.product_id = mmd.id" \
 	" LEFT JOIN adm_device_definition `add` ON aci.product_table = 'adm_device_definition' AND aci.product_id = `add`.id" \
 	" LEFT JOIN wkf_activity_definition wad ON aci.product_table = 'wkf_activity_definition' AND aci.product_id = wad.id" \
+	" LEFT JOIN ter_concept tc_mmd ON mmd.category_code = tc_mmd.code AND tc_mmd.code_system_id = 900006" \
+	" LEFT JOIN ter_concept tc_add ON `add`.category_code = tc_add.code AND tc_add.code_system_id = 253" \
+	" LEFT JOIN ter_concept tc_wad ON wad.category_code = tc_wad.code AND tc_wad.code_system_id = 255" \
 	" LEFT JOIN adm_practitioner a_pr_d ON aci.enterer_id = a_pr_d.id" \
 	" LEFT JOIN yb_clinic_fee_upload ycfu ON aci.id = ycfu.charge_item_id" \
 	" LEFT JOIN yb_settlement_record ysr ON ycfu.chrg_bchno = ysr.chrg_bchno" \
