@@ -4,6 +4,9 @@
 #include "dao/charge/GetChargeItemDAO.h"
 #include "id/UuidFacade.h"
 
+#include <set>
+#include <sstream>
+
 // 防止 ODBC/MySQL 类型冲突
 #include "NacosClient.h"
 
@@ -27,7 +30,17 @@ PrintChargeReceiptResponseDTO::Wrapper PrintChargeReceiptService::printChargeRec
         slip->patientName = s.getPatientName();
         slip->hospitalName = s.getHospitalName();
         slip->genderEnumText = s.getGenderEnumText();
-        slip->ageText = s.getAgeText();
+        // 根据出生日期计算年龄文本
+        std::string birthDate = s.getBirthDate();
+        if (!birthDate.empty() && birthDate.length() >= 4)
+        {
+            time_t now = time(nullptr);
+            int currentYear = localtime(&now)->tm_year + 1900;
+            int birthYear = std::stoi(birthDate.substr(0, 4));
+            int age = currentYear - birthYear;
+            if (age >= 0)
+                slip->ageText = std::to_string(age) + ZH_WORDS_GETTER("lhfc.charging.charge.dict.ageSuffix");
+        }
         slip->feeNatureText = s.getFeeNatureText();
         slip->totalAmountText = s.getTotalAmountText();
         slip->cashierName = s.getCashierName();
@@ -43,17 +56,34 @@ PrintChargeReceiptResponseDTO::Wrapper PrintChargeReceiptService::printChargeRec
         slip->deductibleLineText = "";
         slip->accountBalanceText = "";
 
-        // 加载收费项明细
+        // 解析支付记录中的收费项ID列表
+        std::set<std::string> paidIds;
+        std::string idsStr = s.getChargeItemIds();
+        if (!idsStr.empty())
+        {
+            std::istringstream iss(idsStr);
+            std::string token;
+            while (std::getline(iss, token, ','))
+                if (!token.empty()) paidIds.insert(token);
+        }
+
+        // 加载收费项明细，仅保留本次支付的项
         GetChargeItemDAO ciDao;
         auto items = ciDao.selectByEncounterId(s.getEncounterId());
         auto lines = oatpp::Vector<oatpp::Object<ChargeReceiptChargeLineDTO>>::createShared();
         for (auto& item : items)
         {
+            if (!paidIds.count(item.getChargeItemId()))
+                continue;
+
             auto line = ChargeReceiptChargeLineDTO::createShared();
-            line->itemName = item.getItemName();
+            // DTO字段, DO的Getter后缀
+            ZO_STAR_DOMAIN_DO_TO_DTO(line, item,
+                itemName, ItemName,
+                amountText, TotalPrice,
+                chargeCategoryText, ChargeCategoryCode
+            );
             line->quantityText = item.getQuantityValue() + " " + item.getQuantityUnit();
-            line->amountText = item.getTotalPrice();
-            line->chargeCategoryText = item.getChargeCategoryCode();
             lines->push_back(line);
         }
         slip->chargeItemLines = lines;

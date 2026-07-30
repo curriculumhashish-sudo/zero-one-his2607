@@ -37,12 +37,13 @@ class PrintChargeReceiptSlipDO : public BaseDO
     MYSQL_SYNTHESIZE(string, patientName, PatientName);
     MYSQL_SYNTHESIZE(string, hospitalName, HospitalName);
     MYSQL_SYNTHESIZE(string, genderEnumText, GenderEnumText);
-    MYSQL_SYNTHESIZE(string, ageText, AgeText);
+    MYSQL_SYNTHESIZE(string, birthDate, BirthDate);
     MYSQL_SYNTHESIZE(string, feeNatureText, FeeNatureText);
     MYSQL_SYNTHESIZE(string, totalAmountText, TotalAmountText);
     MYSQL_SYNTHESIZE(string, cashierName, CashierName);
     MYSQL_SYNTHESIZE(string, chargeTimeText, ChargeTimeText);
     MYSQL_SYNTHESIZE(string, paymentId, PaymentId);
+    MYSQL_SYNTHESIZE(string, chargeItemIds, ChargeItemIds);
 
 public:
     PrintChargeReceiptSlipDO() : BaseDO("")
@@ -51,12 +52,13 @@ public:
         MYSQL_ADD_FIELD("patient_name", "s", patientName);
         MYSQL_ADD_FIELD("hospital_name", "s", hospitalName);
         MYSQL_ADD_FIELD("gender_enum_text", "s", genderEnumText);
-        MYSQL_ADD_FIELD("age_text", "s", ageText);
+        MYSQL_ADD_FIELD("birth_date", "s", birthDate);
         MYSQL_ADD_FIELD("fee_nature_text", "s", feeNatureText);
         MYSQL_ADD_FIELD("total_amount_text", "s", totalAmountText);
         MYSQL_ADD_FIELD("cashier_name", "s", cashierName);
         MYSQL_ADD_FIELD("charge_time_text", "s", chargeTimeText);
         MYSQL_ADD_FIELD("payment_id", "s", paymentId);
+        MYSQL_ADD_FIELD("charge_item_ids", "s", chargeItemIds);
     }
 };
 

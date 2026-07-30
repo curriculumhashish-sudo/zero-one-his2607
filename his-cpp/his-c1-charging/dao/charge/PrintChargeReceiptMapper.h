@@ -31,12 +31,13 @@ public:
         data.setPatientName(rs->getString("patient_name"));
         data.setHospitalName(rs->getString("hospital_name"));
         data.setGenderEnumText(rs->getString("gender_enum_text"));
-        data.setAgeText(rs->getString("age_text"));
+        data.setBirthDate(rs->getString("birth_date"));
         data.setFeeNatureText(rs->getString("fee_nature_text"));
         data.setTotalAmountText(rs->getString("total_amount_text"));
         data.setCashierName(rs->getString("cashier_name"));
         data.setChargeTimeText(rs->getString("charge_time_text"));
         data.setPaymentId(rs->getString("payment_id"));
+        data.setChargeItemIds(rs->getString("charge_item_ids"));
         return data;
     }
 };
