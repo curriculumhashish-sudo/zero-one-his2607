@@ -107,6 +107,15 @@ PreparePrintResponseDTO::Wrapper PrintChargeReceiptService::preparePrint(const P
         resp->busNo = t.getBusNo();
         resp->scenarioCode = t.getScenarioCode();
         try { resp->templateVersion = std::stoi(t.getTemplateVersion()); } catch (...) {}
+
+        // 解析JSON字符串为Any对象，序列化时作为内嵌JSON输出
+        auto mapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
+        std::string printJsonStr = t.getPrintJson();
+        if (!printJsonStr.empty())
+            resp->PrintJson = mapper->readFromString<oatpp::Any>(printJsonStr);
+        std::string sampleStr = t.getSamplePrintData();
+        if (!sampleStr.empty())
+            resp->samplePrintData = mapper->readFromString<oatpp::Any>(sampleStr);
     }
 
     return resp;

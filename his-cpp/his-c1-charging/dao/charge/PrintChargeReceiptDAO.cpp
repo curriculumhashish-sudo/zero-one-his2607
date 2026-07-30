@@ -77,7 +77,7 @@ std::list<PrintChargeReceiptTemplateDO> PrintChargeReceiptDAO::selectTemplateByS
         << " CAST(print_json AS CHAR) AS print_json,"
         << " CAST(sample_print_data AS CHAR) AS sample_print_data"
         << " FROM prt_template"
-        << " WHERE scenario_code = ? AND status = 'ACTIVE'"
+        << " WHERE scenario_code = ? AND status = 'published'"
         << " ORDER BY version DESC LIMIT 1";
 
     return sqlSession->executeQuery<PrintChargeReceiptTemplateDO>(sql.str(), PrintChargeReceiptTemplateMapper(), params);
