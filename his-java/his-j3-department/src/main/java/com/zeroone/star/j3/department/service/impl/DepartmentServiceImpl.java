@@ -126,6 +126,7 @@ public class DepartmentServiceImpl implements DepartmentService {
                 .eq(query.getTypeEnum() != null, DepartmentDO::getTypeEnum, TypeEnum.getDescByValue(query.getTypeEnum()))
                 .eq(query.getClassEnum() != null, DepartmentDO::getClassEnum, ClassEnum.getDescByValue(query.getClassEnum()))
                 .eq(query.getStatusEnum() != null, DepartmentDO::getStatusEnum, query.getStatusEnum())
+                .eq(DepartmentDO::getTenantId, userHolder.getCurrentTenantId())
                 .orderByAsc(DepartmentDO::getCreatedAt);
 
         List<DepartmentDO> allDepartments = departmentMapper.selectList(wrapper);
@@ -144,7 +145,10 @@ public class DepartmentServiceImpl implements DepartmentService {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
         while (!missingParentIds.isEmpty()) {
-            List<DepartmentDO> missingDepartments = departmentMapper.selectByIds(missingParentIds);
+            List<DepartmentDO> missingDepartments = departmentMapper.selectList(new LambdaQueryWrapper<DepartmentDO>()
+                    .in(DepartmentDO::getId, missingParentIds)
+                    .eq(DepartmentDO::getTenantId, userHolder.getCurrentTenantId())
+            );
             if (CollUtil.isEmpty(missingDepartments)) {
                 break;
             }
@@ -261,7 +265,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         }
 
         Long currentUserId = getCurrentUserId();
-        String tenantIdStr = getCurrentTenantId();
+        String tenantIdStr = userHolder.getCurrentTenantId();
         Long tenantId;
         if (StrUtil.isNotBlank(tenantIdStr)) {
             tenantId = Long.valueOf(tenantIdStr.trim());
@@ -491,7 +495,6 @@ public class DepartmentServiceImpl implements DepartmentService {
      */
     @Override
     public void activeOrInactiveDepartment(DepartmentBatchDTO dto) {
-        // 1. 参数校验
         if (dto == null || CollUtil.isEmpty(dto.getIds())) {
             throw new IllegalArgumentException("部门ID列表不能为空");
         }
@@ -502,6 +505,11 @@ public class DepartmentServiceImpl implements DepartmentService {
 
         List<Long> ids = dto.getIds();
         boolean enable = (isEnabled == 1);
+        String tenantIdStr = userHolder.getCurrentTenantId();
+        if (StrUtil.isBlank(tenantIdStr)) {
+            throw new IllegalArgumentException("当前用户未选择租户");
+        }
+        Long currentTenantId = Long.parseLong(tenantIdStr);
 
         if (enable) {
             Set<Long> ancestorIds = new LinkedHashSet<>();
@@ -511,6 +519,7 @@ public class DepartmentServiceImpl implements DepartmentService {
                         new LambdaQueryWrapper<DepartmentDO>()
                                 .in(DepartmentDO::getId, currentLevel)
                                 .isNotNull(DepartmentDO::getParentId)
+                                .eq(DepartmentDO::getTenantId, currentTenantId)
                                 .select(DepartmentDO::getParentId));
                 Set<Long> nextLevel = parents.stream()
                         .map(DepartmentDO::getParentId)
@@ -524,6 +533,7 @@ public class DepartmentServiceImpl implements DepartmentService {
                         new LambdaQueryWrapper<DepartmentDO>()
                                 .in(DepartmentDO::getId, ancestorIds)
                                 .eq(DepartmentDO::getActiveFlag, false)
+                                .eq(DepartmentDO::getTenantId, currentTenantId)
                                 .select(DepartmentDO::getId));
                 if (!inactiveAncestors.isEmpty()) {
                     throw new DepartmentActiveOrInactiveStatusException(
@@ -538,6 +548,7 @@ public class DepartmentServiceImpl implements DepartmentService {
                 List<DepartmentDO> children = departmentMapper.selectList(
                         new LambdaQueryWrapper<DepartmentDO>()
                                 .eq(DepartmentDO::getParentId, currentId)
+                                .eq(DepartmentDO::getTenantId, currentTenantId)
                                 .select(DepartmentDO::getId));
                 for (DepartmentDO child : children) {
                     if (descendantIds.add(child.getId())) {
@@ -551,6 +562,7 @@ public class DepartmentServiceImpl implements DepartmentService {
                         new LambdaQueryWrapper<DepartmentDO>()
                                 .in(DepartmentDO::getId, descendantIds)
                                 .eq(DepartmentDO::getActiveFlag, true)
+                                .eq(DepartmentDO::getTenantId, currentTenantId)
                                 .select(DepartmentDO::getId));
                 if (!activeDescendants.isEmpty()) {
                     throw new DepartmentActiveOrInactiveStatusException(
@@ -754,32 +766,6 @@ public class DepartmentServiceImpl implements DepartmentService {
         );
         if (updated != 1) {
             throw new IllegalStateException("关联组织单元更新失败");
-        }
-    }
-
-    /**
-     * 获取当前用户所属租户ID
-     *
-     * @return 当前用户所属租户ID
-     */
-    private String getCurrentTenantId() {
-        try {
-            // 1. 获取当前用户ID
-            UserDTO currentUser = userHolder.getCurrentUser();
-            String userId = currentUser.getId();
-
-            // 2. 构建 Redis Key
-            String redisKey = RedisConstant.LOGIN_CONTEXT + userId;
-
-            // 3. 从 Hash 中取 tenantId
-            Object tenantObj = redisTemplate.opsForHash().get(redisKey, "tenantId");
-            if (tenantObj == null) {
-                throw new RuntimeException("未找到用户 [" + userId + "] 的租户信息");
-            }
-            return tenantObj.toString();
-
-        } catch (Exception e) {
-            throw new RuntimeException("获取当前租户ID失败", e);
         }
     }
 
