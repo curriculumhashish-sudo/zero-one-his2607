@@ -34,7 +34,7 @@ class DrugDAO : public BaseDAO
     static std::string fullDrugColumns();
     static std::string placeholders(size_t count);
     static void appendIds(SqlParams &params, const std::list<std::string> &ids);
-    inline std::string queryConditionBuilder(const DrugQuery::Wrapper& query, SqlParams& params);
+    std::string queryConditionBuilder(const DrugQuery::Wrapper &query, SqlParams &params);
 
   public:
     void releaseSqlSession() noexcept;
@@ -65,19 +65,9 @@ class DrugDAO : public BaseDAO
                            const std::string &expectedStatus,
                            const std::string &targetStatus, bool activeFlag, const std::string &operatorId,
                            const std::string &operationTime);
-    uint64_t count(const DrugQuery::Wrapper& query);
-    // 分页查询数据
-    std::list<MedMedicationDefinitionDO> selectWithPage(const DrugQuery::Wrapper& query);
-    // 通过姓名查询数据
-    // 通过ID查询数据
-    MedMedicationDefinitionDO selectById2(std::string id);
-    // 新增的数据插入 (供 saveData 调用)
-    int insert(const MedMedicationDefinitionDO& entity);
-
-
-
-
-
+    uint64_t count(const DrugQuery::Wrapper &query);
+    std::list<PtrMedMedicationDefinitionDO> selectWithPage(const DrugQuery::Wrapper &query);
+    int insert(const MedMedicationDefinitionDO &entity);
 };
 
 #endif // !_DRUG_DAO_H_

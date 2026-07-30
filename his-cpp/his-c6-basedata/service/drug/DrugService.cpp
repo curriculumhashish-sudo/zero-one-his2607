@@ -566,7 +566,7 @@ DrugListPageDTO::Wrapper DrugService::listAll(const DrugQuery::Wrapper& query)
     pages->pageIndex = query->pageIndex;
     pages->pageSize = query->pageSize;
 
-    // 脤戙杅擂軞沭杅
+    // 查询符合条件的药品总数。
     DrugDAO dao;
     uint64_t count = dao.count(query);
     if (count <= 0)
@@ -574,15 +574,24 @@ DrugListPageDTO::Wrapper DrugService::listAll(const DrugQuery::Wrapper& query)
         return pages;
     }
 
-    // 煦珜脤戙杅擂
+    // 分页查询并转换为列表 DTO。
     pages->total = count;
     pages->calcPages();
-    list<MedMedicationDefinitionDO> result = dao.selectWithPage(query);
-    // 蔚DO蛌遙傖DTO
-    for (MedMedicationDefinitionDO& sub : result)
+    std::list<PtrMedMedicationDefinitionDO> result = dao.selectWithPage(query);
+    for (const auto &sub : result)
     {
-        auto dto = DrugDetailDTO::createShared();
-        ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub, id, Id, name, Name);
+        if (!sub)
+        {
+            continue;
+        }
+        auto dto = DrugListDTO::createShared();
+        ZO_STAR_DOMAIN_DO_TO_DTO_1(dto, sub, id, Id, code, BusNo, name, Name, guige, TotalVolume,
+                                   kinds, CategoryCode, changjia, ManufacturerText);
+        const std::string status = sub->getStatusEnum();
+        dto->status = status == DrugConstants::STATUS_ACTIVE      ? 1
+                      : status == DrugConstants::STATUS_INACTIVE ? 2
+                      : status == DrugConstants::STATUS_DISCARDED ? 3
+                                                                  : 0;
         pages->addData(dto);
     }
     return pages;
@@ -591,17 +600,23 @@ DrugListPageDTO::Wrapper DrugService::listAll(const DrugQuery::Wrapper& query)
 DrugDetailDTO::Wrapper DrugService::getById(string id)
 {
     DrugDAO dao;
-    auto res = dao.selectById2(id);
+    auto res = dao.selectById(id);
 
-    // 羶衄脤戙善杅擂
+    // 未查询到药品时返回空结果。
     if (!res)
+    {
         return nullptr;
+    }
 
-    // 脤戙善杅擂蛌遙傖DTO
+    // 将药品 DO 转换为详情 DTO。
     auto dto = DrugDetailDTO::createShared();
-    ZO_STAR_DOMAIN_DO_TO_DTO_1(
-        dto, res,
-    );
+    ZO_STAR_DOMAIN_DO_TO_DTO_1(dto, res, id, Id, tongyongname, Name, name, MerchandiseName,
+                               kinds, CategoryCode, changjia, ManufacturerText, gongyingshang, SupplyId,
+                               wenhao, ApprovalNumber, guojiabianma, NationalDrugCode, yibaobianma, YbNo,
+                               guige, TotalVolume, danwei, DoseUnitCode, jixin, DoseFormCode,
+                               yaopingyinma, PyStr, shangpingyinma, MerchandisePyStr,
+                               shangwubima, MerchandiseWbStr, liujiuma, Drug69Code,
+                               yaopingstatus, StatusEnum, lingyu, DomainEnum);
     return dto;
 
 }
