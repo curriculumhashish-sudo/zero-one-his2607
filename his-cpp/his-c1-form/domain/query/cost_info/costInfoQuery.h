@@ -10,68 +10,68 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 
-// ��ȡ��ϸ�б���query
+// 获取明细列表的query
 class CostInfoQuery :public PageQuery
 {
 	DTO_INIT(CostInfoQuery, PageQuery);
 
-	// ��ʼʱ��
+	// 开始时间
 	DTO_FIELD(String, start_time);
 	DTO_FIELD_INFO(start_time) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.start_time");
 		info->required = true;
 	}
 
-	// ����ʱ��
+	// 结束时间
 	DTO_FIELD(String, end_time);
 	DTO_FIELD_INFO(end_time) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.end_time");
 		info->required = true;
 	}
 
-	// ��������
+	// 患者姓名
 	DTO_FIELD(String, name);
 	DTO_FIELD_INFO(name) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.name");
 	}
 
-	// �Һſ���
+	// 挂号科室
 	DTO_FIELD(String, room);
 	DTO_FIELD_INFO(room) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.room");
 	}
 
-	// �շѴ���
+	// 收费大类
 	DTO_FIELD(String, feeClass);
 	DTO_FIELD_INFO(feeClass) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.feeClass");
 	}
 
-	// ϸ����
+	// 细分类
 	DTO_FIELD(String, detailClass);
 	DTO_FIELD_INFO(detailClass) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.detailClass");
 	}
 
-	// ��Ŀ����
+	// 项目名称
 	DTO_FIELD(String, projectName);
 	DTO_FIELD_INFO(projectName) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.projectName");
 	}
 
-	// Ժ�ڱ��
+	// 院内编号
 	DTO_FIELD(String, hisID);
 	DTO_FIELD_INFO(hisID) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.hisID");
 	}
 
-	// ����Ա
+	// 收银员
 	DTO_FIELD(String, checker);
 	DTO_FIELD_INFO(checker) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.checker");
 	}
 
-	// ���˷���
+	// 收退方向
 	DTO_FIELD(String, feeDir);
 	DTO_FIELD_INFO(feeDir) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.feeDir");
