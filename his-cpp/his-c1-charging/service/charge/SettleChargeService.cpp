@@ -62,6 +62,8 @@ PreSettleChargeResponseDTO::Wrapper SettleChargeService::preSettle(const PreSett
     // 自费汇总
     auto selfPayRollup = OpSelfPayRollupDTO::createShared();
     selfPayRollup->totalAmount = displayAmount;
+    if (dto->chargeItemIds)
+        selfPayRollup->chargeItemIds = dto->chargeItemIds;
     resp->selfPayRollup = selfPayRollup;
 
     // 医保分组（需要对接医保平台2206接口，当前返回空）
