@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "EmrDocumentDAO.h"
-#include "EmrDocumentMapper.h"
+#include "EmrDocument3DAO.h"
+#include "EmrDocument3Mapper.h"
 #include "SqlSession.h"
 #include <sstream>
 
@@ -8,14 +8,14 @@
                     "source_template_id,created_at,updated_at,created_by,updated_by," \
                     "is_deleted,tenant_id FROM emr_document "
 
-PtrEmrDocumentDO EmrDocumentDAO::selectById(const std::string& id)
+PtrEmrDocument3DO EmrDocument3DAO::selectById(const std::string& id)
 {
 	std::ostringstream sql;
 	sql << QUERY_HEAD;
 	sql << "WHERE id=? AND is_deleted=0";
-	EmrDocumentMapper mapper;
+	EmrDocument3Mapper mapper;
 	SqlParams params = { SqlParam("s", std::make_shared<std::string>(id)) };
-	auto list = sqlSession->executeQuery<PtrEmrDocumentDO>(sql.str(), mapper, params);
+	auto list = sqlSession->executeQuery<PtrEmrDocument3DO>(sql.str(), mapper, params);
 	if (list.empty())
 		return nullptr;
 	return list.front();

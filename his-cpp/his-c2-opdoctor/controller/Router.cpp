@@ -20,7 +20,7 @@
 #include "Router.h"
 #include "ApiHelper.h"
 #include "chinapres3/chinapres3Controller.h"
-#include "outpatientrecord/outpatientrecordController.h"
+#include "outpatientrecord3/outpatientrecord3Controller.h"
 
 
 // If the macro for disabling Swagger documentation is defined
@@ -44,5 +44,5 @@ void Router::initRouter()
 {
 	// #TIP: Add system extension route definitions below
 	ROUTER_SIMPLE_BIND(chinapres3Controller);
-	ROUTER_SIMPLE_BIND(outpatientrecordController);
+	ROUTER_SIMPLE_BIND(outpatientrecord33Controller);
 }

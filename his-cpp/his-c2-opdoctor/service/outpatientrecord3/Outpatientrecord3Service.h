@@ -15,12 +15,12 @@
  不附带任何明示或隐含的担保（包括适销性、适配特定用途等担保）。
  请查阅许可证，了解权限范围、使用约束与免责条款。
 */
-#ifndef _OutpatientrecordService_H_
-#define _OutpatientrecordService_H_
+#ifndef _outpatientrecord3Service_H_
+#define _outpatientrecord3Service_H_
 
-#include "../../domain/dto/outpatientrecord/outpatientrecordSaveDTO.h"
+#include "../../domain/dto/outpatientrecord3/outpatientrecord3SaveDTO.h"
 #include "domain/vo/BaseJsonVO.h"
-#include "../../dao/outpatientrecord/EmrDocumentDAO.h"
+#include "../../dao/outpatientrecord3/EmrDocument3DAO.h"
 
 /**
  * 门诊病历业务服务层
@@ -32,10 +32,10 @@
  *   4. 自动填充审计字段：操作时间、操作人、租户ID（从JWT载荷中读取）
  *   5. 返回标准JSON响应体，data字段为保存完成后的病历ID
  */
-class OutpatientrecordService
+class outpatientrecord3Service
 {
 	// 电子病历文档数据访问对象：提供 emr_document 表的新增、修改、根据ID查询数据库操作
-	EmrDocumentDAO emrDocumentDAO;
+	EmrDocument3DAO EmrDocument3DAO;
 
 public:
 	/**
@@ -46,8 +46,8 @@ public:
 	 * @return 统一JSON返回体，data中返回本次保存完成的病历主键ID
 	 */
 	StringJsonVO::Wrapper save(
-		const outpatientrecordSaveDTO::Wrapper& dto,
+		const outpatientrecord3SaveDTO::Wrapper& dto,
 		const PayloadDTO& payload);
 };
 
-#endif // !_OutpatientrecordService_H_
+#endif // !_outpatientrecord3Service_H_

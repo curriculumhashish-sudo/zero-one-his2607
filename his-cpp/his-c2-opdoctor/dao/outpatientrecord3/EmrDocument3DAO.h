@@ -15,12 +15,12 @@
  不附带任何明示或隐含的担保（包括适销性、适配特定用途等担保）。
  请查阅许可证，了解权限范围、使用约束与免责条款。
 */
-#ifndef _EmrDocumentDAO_H_
-#define _EmrDocumentDAO_H_
+#ifndef _EmrDocument3DAO_H_
+#define _EmrDocument3DAO_H_
 
 #include "BaseDAO.h"
-#include "EmrDocumentMapper.h"
-#include "../../domain/do/outpatientrecord/EmrDocumentDO.h"
+#include "EmrDocument3Mapper.h"
+#include "../../domain/do/outpatientrecord3/EmrDocument3DO.h"
 
 /**
  * 电子病历文档数据访问对象
@@ -28,11 +28,11 @@
  * 负责操作 emr_document 电子病历数据表。
  * 新增、修改数据库操作能力继承自 BaseDAO 基类。
  */
-class EmrDocumentDAO : public BaseDAO
+class EmrDocument3DAO : public BaseDAO
 {
 public:
 	// 根据主键ID单条查询病历记录，无匹配数据则返回空指针
-	PtrEmrDocumentDO selectById(const std::string& id);
+	PtrEmrDocument3DO selectById(const std::string& id);
 };
 
-#endif // !_EmrDocumentDAO_H_
+#endif // !_EmrDocument3DAO_H_

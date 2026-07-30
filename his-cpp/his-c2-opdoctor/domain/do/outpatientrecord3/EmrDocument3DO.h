@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _EmrDocumentDO_H_
-#define _EmrDocumentDO_H_
+#ifndef _EmrDocument3DO_H_
+#define _EmrDocument3DO_H_
 
 #include "../DoInclude.h"
 
@@ -13,7 +13,7 @@
  * 门诊病历保存/更新业务时使用该实体与数据库交互，
  * 存储前端Tiptap富文本编辑器产出的JSON病历正文。
  */
-class EmrDocumentDO : public BaseDO
+class EmrDocument3DO : public BaseDO
 {
 	// =============================
 	// 主键字段区
@@ -60,7 +60,7 @@ public:
 	/**
 	 * 构造函数：绑定实体与数据库表名，映射C++成员变量与MySQL字段
 	 */
-	EmrDocumentDO() : BaseDO("emr_document")
+	EmrDocument3DO() : BaseDO("emr_document")
 	{
 		// 绑定主键字段 id
 		MYSQL_ADD_FIELD_PK("id", "s", id);
@@ -83,7 +83,7 @@ public:
 	}
 };
 
-// 类型别名：简化std::shared_ptr<EmrDocumentDO>书写，全项目统一使用PtrEmrDocumentDO
-typedef std::shared_ptr<EmrDocumentDO> PtrEmrDocumentDO;
+// 类型别名：简化std::shared_ptr<EmrDocument3DO>书写，全项目统一使用PtrEmrDocument3DO
+typedef std::shared_ptr<EmrDocument3DO> PtrEmrDocument3DO;
 
-#endif // !_EmrDocumentDO_H_
+#endif // !_EmrDocument3DO_H_

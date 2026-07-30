@@ -15,19 +15,19 @@
  不附带任何明示或暗示的担保（包括适销性、适配特定用途等担保）。
  请查阅许可证，了解权限范围、使用约束与免责条款。
 */
-#ifndef _EmrDocumentMapper_H_
-#define _EmrDocumentMapper_H_
+#ifndef _EmrDocument3Mapper_H_
+#define _EmrDocument3Mapper_H_
 
 #include "Mapper.h"
-#include "../../domain/do/outpatientrecord/EmrDocumentDO.h"
+#include "../../domain/do/outpatientrecord3/EmrDocument3DO.h"
 
 /**
  * 电子病历数据库结果集映射器
  *
- * 作用：将数据库查询返回的单行结果集（ResultSet）转换为 EmrDocumentDO 实体对象
+ * 作用：将数据库查询返回的单行结果集（ResultSet）转换为 EmrDocument3DO 实体对象
  * 完整映射 emr_document 数据表全部字段，一一赋值给DO实体对应的属性
  */
-class EmrDocumentMapper : public Mapper<PtrEmrDocumentDO>
+class EmrDocument3Mapper : public Mapper<PtrEmrDocument3DO>
 {
 public:
 	/**
@@ -35,10 +35,10 @@ public:
 	 * @param resultSet 数据库查询返回的单行数据集
 	 * @return 填充完字段的电子病历DO智能指针对象
 	 */
-	PtrEmrDocumentDO mapper(ResultSet* resultSet) const override
+	PtrEmrDocument3DO mapper(ResultSet* resultSet) const override
 	{
 		// 创建空的电子病历DO共享指针对象
-		auto data = std::make_shared<EmrDocumentDO>();
+		auto data = std::make_shared<EmrDocument3DO>();
 
 		// ========== 主键字段赋值 ==========
 		// 读取数据库id字段，赋值给DO主键
@@ -79,4 +79,4 @@ public:
 	}
 };
 
-#endif // !_EmrDocumentMapper_H_
+#endif // !_EmrDocument3Mapper_H_

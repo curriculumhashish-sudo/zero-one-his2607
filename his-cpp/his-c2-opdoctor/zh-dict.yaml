@@ -63,11 +63,11 @@ chinapres3:
    reason: 失败原因
    isDeleted: 逻辑删除标记
 
-outpatientrecord:
+outpatientrecord3:
   field:
-   outpatientrecordId: 病历ID（为空表示新增，不为空表示修改）
+   outpatientrecord3Id: 病历ID（为空表示新增，不为空表示修改）
    patientId: 患者ID
-   visitId: 就诊ID
+   encounterId: 就诊ID
    title: 病历标题
    templateId: 模板ID
    content: 病历正文

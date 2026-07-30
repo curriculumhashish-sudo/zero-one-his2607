@@ -15,48 +15,48 @@
  不附带任何明示或隐含的担保（包括适销性、适配特定用途等担保）。
  请查阅许可证，了解权限范围、使用约束与免责条款。
 */
-#ifndef _outpatientrecordCONTROLLER_H_
-#define _outpatientrecordCONTROLLER_H_
+#ifndef _outpatientrecord33Controller_H_
+#define _outpatientrecord33Controller_H_
 
 #include "domain/vo/BaseJsonVO.h"
-#include "../../domain/dto/outpatientrecord/outpatientrecordSaveDTO.h"
-#include "../../service/outpatientrecord/OutpatientrecordService.h"
+#include "../../domain/dto/outpatientrecord3/outpatientrecord3SaveDTO.h"
+#include "../../service/outpatientrecord3/outpatientrecord3Service.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
 // 接口分组标签（读取多语言配置）
-#define API_TAG ZH_WORDS_GETTER("outpatientrecord.tags.tag")
+#define API_TAG ZH_WORDS_GETTER("outpatientrecord3.tags.tag")
 
 /**
  * 门诊病历控制器
  * 提供门诊病历相关接口，处理前端病历保存请求
  */
-class outpatientrecordController
+class outpatientrecord33Controller
 	: public oatpp::web::server::api::ApiController
 {
 	// 声明控制器鉴权相关基础封装
-	API_ACCESS_DECLARE(outpatientrecordController);
+	API_ACCESS_DECLARE(outpatientrecord33Controller);
 
 public:
 
 	// 保存门诊病历接口定义
 	API_DEF_ENDPOINT_INFO_AUTH(
-		ZH_WORDS_GETTER("outpatientrecord.save.summary"), // 接口简介（多语言）
-		saveoutpatientrecord,                           // 接口处理函数名
+		ZH_WORDS_GETTER("outpatientrecord3.save.summary"), // 接口简介（多语言）
+		saveoutpatientrecord3,                           // 接口处理函数名
 		StringJsonVO::Wrapper,                          // 接口统一返回包装VO 这里直接复用提前分装号的接口
 		API_TAG);                                        // Swagger接口分组标签
 
 	// 绑定POST接口路由、入参、业务执行函数，开启接口鉴权
 	API_HANDLER_ENDPOINT_AUTH(
 		API_M_POST,                                      // 请求方式 POST
-		"/outpatientrecord/save",                       // 接口路由地址
-		saveoutpatientrecord,                           // 对外暴露的接口名称
-		BODY_DTO(outpatientrecordSaveDTO::Wrapper, dto), // 请求体绑定保存病历DTO
-		execSaveoutpatientrecord(dto, authObject->getPayload())); // 调用内部业务方法，传入JWT载荷信息
+		"/outpatientrecord3/save",                       // 接口路由地址
+		saveoutpatientrecord3,                           // 对外暴露的接口名称
+		BODY_DTO(outpatientrecord3SaveDTO::Wrapper, dto), // 请求体绑定保存病历DTO
+		execSaveoutpatientrecord3(dto, authObject->getPayload())); // 调用内部业务方法，传入JWT载荷信息
 
 private:
 	// 门诊病历业务服务实例，封装病历增删改查业务逻辑
-	OutpatientrecordService service;
+	outpatientrecord3Service service;
 
 	/**
 	 * 病历保存核心业务执行函数
@@ -65,8 +65,8 @@ private:
 	 * @return 统一JSON响应包装对象
 	 */
 	StringJsonVO::Wrapper
-		execSaveoutpatientrecord(
-			const outpatientrecordSaveDTO::Wrapper& dto,
+		execSaveoutpatientrecord3(
+			const outpatientrecord3SaveDTO::Wrapper& dto,
 			const PayloadDTO& payload);
 };
 
