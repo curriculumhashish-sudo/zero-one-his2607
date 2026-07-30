@@ -1,37 +1,27 @@
-package com.zeroone.star.j5.configmanage.entity;
+package com.zeroone.star.project.emr.configmanage.vo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
  * <p>
- * 描述：执行地点实体
+ * 描述：执行地点响应数据对象
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
  * @author 阿伟学长
  * @version 1.0.0
  */
-@Schema(description = "执行地点实体")
-@Getter
-@Setter
-@TableName("exec_place")
-public class ExecPlace implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+@Data
+@Schema(description = "执行地点响应数据对象")
+public class ExecPlaceVO {
 
     /**
      * 主键
      */
     @Schema(description = "主键", example = "1")
-    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /**
@@ -81,16 +71,4 @@ public class ExecPlace implements Serializable {
      */
     @Schema(description = "更新人", example = "admin")
     private String updatedBy;
-
-    /**
-     * 是否删除 0-未删除 1-已删除
-     */
-    @Schema(description = "是否删除 0-未删除 1-已删除", example = "0")
-    private Integer isDeleted;
-
-    /**
-     * 乐观锁版本号
-     */
-    @Schema(description = "乐观锁版本号", example = "0")
-    private Integer version;
 }

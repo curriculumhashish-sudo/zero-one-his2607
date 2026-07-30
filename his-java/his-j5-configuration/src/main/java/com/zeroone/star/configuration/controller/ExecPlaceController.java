@@ -1,6 +1,9 @@
 package com.zeroone.star.configuration.controller;
 
-import com.zeroone.star.configuration.dto.ExecPlaceDTO;
+import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.emr.configmanage.dto.ExecPlaceDTO;
+import com.zeroone.star.project.emr.configmanage.query.ExecPlaceQuery;
+import com.zeroone.star.project.emr.configmanage.vo.ExecPlaceVO;
 import com.zeroone.star.configuration.service.IExecPlaceService;
 import com.zeroone.star.project.vo.JsonVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/config/exec-place")
-@Tag(name = "配置管理-执行地点", description = "执行地点增删改接口")
+@Tag(name = "配置管理-执行地点", description = "执行地点增删改查接口")
 public class ExecPlaceController {
 
     @Resource
@@ -32,5 +35,17 @@ public class ExecPlaceController {
     @DeleteMapping("/delete/{id}")
     public JsonVO<String> delete(@PathVariable("id") Long id) {
         return execPlaceService.delete(id);
+    }
+
+    @Operation(summary = "分页查询执行地点列表")
+    @GetMapping("/query")
+    public JsonVO<PageDTO<ExecPlaceVO>> queryByPage(ExecPlaceQuery query) {
+        return execPlaceService.queryByPage(query);
+    }
+
+    @Operation(summary = "根据ID查询执行地点详情")
+    @GetMapping("/query/{id}")
+    public JsonVO<ExecPlaceVO> queryById(@PathVariable("id") Long id) {
+        return execPlaceService.queryById(id);
     }
 }
