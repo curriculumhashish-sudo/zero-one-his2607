@@ -1,7 +1,6 @@
 package com.zeroone.star.project.j4.basedata;
 
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisDefinitionDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisSaveDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisUpdateDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisIdsDTO;
@@ -13,7 +12,6 @@ import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisDetailVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisListVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisOptionVO;
 
-import java.util.List;
 
 /**
  * <p>
@@ -27,7 +25,7 @@ import java.util.List;
 public interface DiagnosisApis {
 
     /**
-     * 获取可选择诊断列表（条件+分页）。
+     * 获取选择诊断列表（条件+分页）。
      *
      * @param query 查询条件
      * @return 可选择诊断分页数据
@@ -35,7 +33,7 @@ public interface DiagnosisApis {
     JsonVO<PageDTO<DiagnosisOptionVO>> queryDiagnosisSelectList(DiagnosisSelectPageQuery query);
 
     /**
-     * 获取诊断管理列表（条件+分页）。
+     * 获取诊断列表（条件+分页）。
      *
      * @param query 查询条件
      * @return 诊断管理分页数据

@@ -3,16 +3,24 @@ package com.zeroone.star.basedata.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zeroone.star.basedata.constant.EquipmentConstants;
 import com.zeroone.star.basedata.entity.equipment.AdmChargeItemDefinitionDO;
 import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinitionDO;
 import com.zeroone.star.basedata.mapper.EquipmentChargeItemMapper;
 import com.zeroone.star.basedata.mapper.EquipmentMapper;
+import com.zeroone.star.basedata.mapper.TerConceptMapper;
 import com.zeroone.star.basedata.service.IEquipmentService;
+import com.zeroone.star.project.dto.j4.equipment.EquipmentAddDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentStatusDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentUpdateDTO;
 import com.zeroone.star.project.query.j4.equipment.EquipmentPageQuery;
-import jakarta.annotation.Resource;
+import com.zeroone.star.project.vo.j4.equipment.EquipmentCategoryVO;
+import com.zeroone.star.project.vo.j4.equipment.EquipmentVO;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
@@ -30,12 +38,12 @@ import java.time.LocalDateTime;
  * @version 1.0.0
  */
 @Service
+@RequiredArgsConstructor
 public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDeviceDefinitionDO> implements IEquipmentService {
 
-    @Resource
-    private MsEquipmentMapper msEquipmentMapper;
-    @Resource
-    private EquipmentChargeItemMapper chargeItemMapper;
+    private final MsEquipmentMapper msEquipmentMapper;
+    private final EquipmentChargeItemMapper chargeItemMapper;
+    private final TerConceptMapper conceptMapper;
 
     /**
      * 获取器材列表（条件+分页）
@@ -169,5 +177,79 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
             count++;
         }
         return count;
+    }
+
+    /**
+     * 新增器材
+     * @param equipmentAddDTO 新增器材的DTO
+     */
+    @Override
+    @Transactional
+    public void saveEquipment(EquipmentAddDTO equipmentAddDTO) {
+        //1.DTO转Entity实体类
+        AdmDeviceDefinitionDO equipmentEntity = msEquipmentMapper.saveDtoToEntity(equipmentAddDTO);
+        equipmentEntity.setStatusEnum("ACTIVE");
+        equipmentEntity.setActiveFlag(true);
+        AdmChargeItemDefinitionDO chargeItemDefinitionEntity = msEquipmentMapper.saveDtoToChargeItemDefinitionEntity(equipmentAddDTO);
+        //2.数据持久化
+        this.baseMapper.insert(equipmentEntity);
+        //3.设置关联表数据
+        chargeItemDefinitionEntity.setInstanceId(equipmentEntity.getId());
+        chargeItemDefinitionEntity.setInstanceTable(EquipmentConstants.EQUIPMENT_TABLE_NAME);
+        chargeItemDefinitionEntity.setStatusEnum("ACTIVE");
+        chargeItemDefinitionEntity.setPriceTypeCode("PURCHASE");
+        chargeItemDefinitionEntity.setPriceValue(equipmentAddDTO.getPurchasePrice());
+        //4.保存价格
+        //4.1.保存采购价格
+        chargeItemMapper.insert(chargeItemDefinitionEntity);
+        //4.2.保存零售价格
+        chargeItemDefinitionEntity.setId(null);
+        chargeItemDefinitionEntity.setPriceTypeCode("SALE");
+        chargeItemDefinitionEntity.setPriceValue(equipmentAddDTO.getRetailPrice());
+        chargeItemMapper.insert(chargeItemDefinitionEntity);
+    }
+
+    /**
+     * 获取器材详情
+     * @param equipmentId 器材Id
+     * @return 器材VO
+     */
+    @Override
+    public EquipmentVO getEquipmentById(Long equipmentId) {
+        List<EquipmentVO> voList = this.baseMapper.queryEquipmentsById(equipmentId);
+        if(voList == null || voList.isEmpty()){
+            return null;
+        }
+        EquipmentVO vo = voList.get(0);
+        for(EquipmentVO temp : voList){
+            if(temp.getPriceTypeCode().equals("PURCHASE")){
+                vo.setPurchasePrice(temp.getPurchasePrice());
+            }
+            else{
+                vo.setRetailPrice(temp.getRetailPrice());
+            }
+        }
+        return vo;
+    }
+
+    /**
+     * 获取选择器材种类列表
+     * @return 可选择的器材种类列表
+     */
+    @Override
+    public List<EquipmentCategoryVO> queryEquipmentCategoryList() {
+        List<EquipmentCategoryVO> voList = conceptMapper.queryEquipmentCategoryList(EquipmentConstants.EQUIPMENT_CATEGORY_CODE);
+        return voList;
+    }
+
+    /**
+     * 批量删除器材信息
+     * @param equipmentIds 器材Id集合
+     */
+    @Override
+    @Transactional
+    public void removeEquipmentByIds(List<Long> equipmentIds) {
+        this.baseMapper.deleteByIds(equipmentIds);
+        chargeItemMapper.deleteByEquipmentIds(equipmentIds);
     }
 }

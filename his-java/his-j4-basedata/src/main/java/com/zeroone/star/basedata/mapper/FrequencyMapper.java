@@ -1,8 +1,15 @@
 package com.zeroone.star.basedata.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zeroone.star.basedata.entity.frequency.CusFrequencyDO;
+import com.zeroone.star.project.query.j4.frequency.FrequencyPageQuery;
+import com.zeroone.star.project.vo.j4.frequency.FrequencyOptionVO;
+import com.zeroone.star.project.vo.j4.frequency.FrequencyVO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * <p>
@@ -15,4 +22,28 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface FrequencyMapper extends BaseMapper<CusFrequencyDO> {
+
+    /**
+     * 分页+条件查询频次列表
+     * @param page  分页对象
+     * @param query 查询条件
+     * @return 频次分页数据
+     */
+    Page<FrequencyVO> selectFrequencyPage(
+            Page<FrequencyVO> page,
+            @Param("query") FrequencyPageQuery query
+    );
+
+    /**
+     * 根据ID查询频次详情
+     * @param id 频次ID
+     * @return 频次详情
+     */
+    FrequencyVO selectFrequencyById(@Param("id") String id);
+
+    /**
+     * 获取已启用的频次名称下拉选项
+     * @return 频次下拉选项列表
+     */
+    List<FrequencyOptionVO> selectActiveFrequencyOptions();
 }

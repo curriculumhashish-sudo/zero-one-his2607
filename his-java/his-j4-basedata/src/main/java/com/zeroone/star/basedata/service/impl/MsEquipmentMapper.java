@@ -1,6 +1,7 @@
 package com.zeroone.star.basedata.service.impl;
 
 import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinitionDO;
+import com.zeroone.star.basedata.entity.equipment.AdmChargeItemDefinitionDO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentAddDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentUpdateDTO;
 import com.zeroone.star.project.vo.j4.equipment.EquipmentCategoryVO;
@@ -31,10 +32,17 @@ public interface MsEquipmentMapper {
      * 描述：将器材添加DTO转换为实体
      * </p>
      *
-     * @param equipmentAddDTO 新增器材DTo
+     * @param equipmentAddDTO 新增器材DTO
      * @return 器材实体
      */
     AdmDeviceDefinitionDO saveDtoToEntity(EquipmentAddDTO equipmentAddDTO);
+
+    /**
+     * 将新增器材DTO转换为AdmChargeItemDefinitionDO实体类
+     * @param equipmentAddDTO 新增器材DTO
+     * @return 物品价格实体
+     */
+    AdmChargeItemDefinitionDO saveDtoToChargeItemDefinitionEntity(EquipmentAddDTO equipmentAddDTO);
 
     /**
      * <p>

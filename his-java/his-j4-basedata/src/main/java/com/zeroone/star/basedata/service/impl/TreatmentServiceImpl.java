@@ -54,8 +54,8 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
 
     @Override
     public PageDTO<TreatmentSelectVO> listTreatmentOptions(TreatmentQuery query) {
-        long pageIndex = query.getPageIndex() <= 0 ? DEFAULT_PAGE_INDEX : query.getPageIndex();
-        long pageSize = query.getPageSize() <= 0 ? DEFAULT_PAGE_SIZE : query.getPageSize();
+        long pageIndex = query.getPageIndex() == null || query.getPageIndex() <= 0 ? DEFAULT_PAGE_INDEX : query.getPageIndex();
+        long pageSize = query.getPageSize() == null || query.getPageSize() <= 0 ? DEFAULT_PAGE_SIZE : query.getPageSize();
 
         Page<WkfActivityDefinitionDO> page = new Page<>(pageIndex, pageSize);
         LambdaQueryWrapper<WkfActivityDefinitionDO> wrapper = new LambdaQueryWrapper<>();
@@ -79,7 +79,6 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
 
         List<TreatmentSelectVO> voList = msTreatmentMapper.toSelectVOList(result.getRecords());
         for (TreatmentSelectVO vo : voList) {
-            enrichSelectDictText(vo);
             List<AdmChargeItemDefinitionDO> priceLines = loadPriceLines(vo.getId());
             vo.setRetailPrice(extractRetailPrice(priceLines));
         }
@@ -94,14 +93,11 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
 
     @Override
     public PageDTO<TreatmentListVO> queryTreatmentList(TreatmentQuery query) {
-        long pageIndex = query.getPageIndex() <= 0 ? DEFAULT_PAGE_INDEX : query.getPageIndex();
-        long pageSize = query.getPageSize() <= 0 ? DEFAULT_PAGE_SIZE : query.getPageSize();
+        long pageIndex = query.getPageIndex() == null || query.getPageIndex() <= 0 ? DEFAULT_PAGE_INDEX : query.getPageIndex();
+        long pageSize = query.getPageSize() == null || query.getPageSize() <= 0 ? DEFAULT_PAGE_SIZE : query.getPageSize();
 
         Page<TreatmentListVO> page = new Page<>(pageIndex, pageSize);
         Page<TreatmentListVO> result = baseMapper.selectTreatmentListPage(page, query);
-        for (TreatmentListVO vo : result.getRecords()) {
-            enrichListDictText(vo);
-        }
         return PageDTO.create(result);
     }
 
@@ -121,8 +117,6 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
         List<WkfActivityDefinitionChildVO> childVOs = msTreatmentMapper.toChildVOList(children);
         detailVO.setChildren(childVOs);
 
-        enrichDetailDictText(detailVO);
-
         return detailVO;
     }
 
@@ -134,6 +128,9 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
     @Override
     public void addTreatment(TreatmentAddDTO treatmentAddDTO) {
         WkfActivityDefinitionDO wkfActivityDefinitionDO = msTreatmentMapper.addDtoToEntity(treatmentAddDTO);
+        if (wkfActivityDefinitionDO.getTypeEnum() == null) {
+            wkfActivityDefinitionDO.setTypeEnum("1");
+        }
         this.save(wkfActivityDefinitionDO);
     }
 
@@ -151,9 +148,7 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
         updateWkfActivityDefinitionDO.setDeletedBy(wkfActivityDefinitionDO.getDeletedBy());
         updateWkfActivityDefinitionDO.setVersion(wkfActivityDefinitionDO.getVersion());
         this.updateById(updateWkfActivityDefinitionDO);
-        TreatmentDetailVO detailVO = msTreatmentMapper.toDetailVO(updateWkfActivityDefinitionDO);
-        enrichDetailDictText(detailVO);
-        return detailVO;
+        return msTreatmentMapper.toDetailVO(updateWkfActivityDefinitionDO);
     }
 
     @Override
@@ -170,9 +165,7 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
         updateWkfActivityDefinitionDO.setDeletedBy(wkfActivityDefinitionDO.getDeletedBy());
         updateWkfActivityDefinitionDO.setVersion(wkfActivityDefinitionDO.getVersion());
         this.updateById(updateWkfActivityDefinitionDO);
-        TreatmentDetailVO detailVO = msTreatmentMapper.toDetailVO(updateWkfActivityDefinitionDO);
-        enrichDetailDictText(detailVO);
-        return detailVO;
+        return msTreatmentMapper.toDetailVO(updateWkfActivityDefinitionDO);
     }
 
     @Override
@@ -183,9 +176,7 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
         }
         wkfActivityDefinitionDO.setStatusEnum(dto.getStatusEnum());
         this.updateById(wkfActivityDefinitionDO);
-        TreatmentDetailVO detailVO = msTreatmentMapper.toDetailVO(wkfActivityDefinitionDO);
-        enrichDetailDictText(detailVO);
-        return detailVO;
+        return msTreatmentMapper.toDetailVO(wkfActivityDefinitionDO);
     }
 
     @Override
@@ -243,33 +234,6 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
                 dto.setRetailPrice(row.getPriceValue());
             }
         }
-    }
-
-    private void enrichSelectDictText(TreatmentSelectVO vo) {
-        if (vo == null) {
-            return;
-        }
-        vo.setCategoryCode_dictText(TreatmentConstants.getCategoryName(vo.getCategoryCode()));
-    }
-
-    private void enrichListDictText(TreatmentListVO vo) {
-        if (vo == null) {
-            return;
-        }
-        vo.setCategoryCode_dictText(TreatmentConstants.getCategoryName(vo.getCategoryCode()));
-        vo.setStatusEnum_dictText(TreatmentConstants.getStatusText(vo.getStatusEnum()));
-        vo.setTypeEnum_dictText(TreatmentConstants.getTypeName(vo.getTypeEnum()));
-    }
-
-    private void enrichDetailDictText(TreatmentDetailVO vo) {
-        if (vo == null) {
-            return;
-        }
-        vo.setCategoryCode_dictText(TreatmentConstants.getCategoryName(vo.getCategoryCode()));
-        vo.setPackageUnitCode_dictText(TreatmentConstants.getUnitName(vo.getPackageUnitCode()));
-        vo.setStatusEnum_dictText(TreatmentConstants.getStatusText(vo.getStatusEnum()));
-        vo.setTypeEnum_dictText(TreatmentConstants.getTypeName(vo.getTypeEnum()));
-        vo.setItemTypeCode_dictText(TreatmentConstants.getItemTypeName(vo.getItemTypeCode()));
     }
 
     private List<WkfActivityDefinitionChildDO> loadChildren(String activityId) {
