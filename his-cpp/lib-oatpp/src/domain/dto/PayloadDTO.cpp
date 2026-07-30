@@ -212,7 +212,8 @@ void PayloadDTO::propToPayload(const jwt::decoded_jwt<jwt::traits::kazuho_picojs
 		}
 	}
 	// 转换职称编码
-	if (claims.count("titleCode")) {
+	if (claims.count("titleCode"))
+	{
 		const auto& title_code = claims.at("titleCode");
 		try {
 			setTitleCode(title_code.get<std::string>());
@@ -220,6 +221,47 @@ void PayloadDTO::propToPayload(const jwt::decoded_jwt<jwt::traits::kazuho_picojs
 		catch (const std::exception& e) {
 			std::cerr << "Error parsing titleCode: " << e.what() << std::endl;
 
+			// 新增：解析租户标识
+			if (claims.count("tenantId")) {
+				const auto& value = claims.at("tenantId");
+				try {
+					if (value.is<std::string>()) {
+						this->tenantId = value.get<std::string>();
+					}
+				}
+				catch (const std::exception& e) {
+					std::cerr << "Error parsing tenantId: " << e.what() << std::endl;
+					this->tenantId = "TEST_TENANT_001";
+				}
+			}
+			// 新增：解析机构标识
+			if (claims.count("orgId")) {
+				const auto& value = claims.at("orgId");
+				try {
+					if (value.is<std::string>()) {
+						this->orgId = value.get<std::string>();
+					}
+				}
+				catch (const std::exception& e) {
+					std::cerr << "Error parsing orgId: " << e.what() << std::endl;
+					this->orgId = "TEST_ORG_001";
+
+				}
+			}
+		}
+	}
+
+
+	// 转换职称编码
+	if (claims.count("titleCode")) {
+		const auto& title_code = claims.at("titleCode");
+		try {
+			setTitleCode(title_code.get<std::string>());
+		}
+		catch (const std::exception& e) {
+			std::cerr << "Error parsing titleCode: " << e.what() << std::endl;
+		}
+	}
 	// 新增：解析租户标识
 	if (claims.count("tenantId")) {
 		const auto& value = claims.at("tenantId");
@@ -244,7 +286,6 @@ void PayloadDTO::propToPayload(const jwt::decoded_jwt<jwt::traits::kazuho_picojs
 		catch (const std::exception& e) {
 			std::cerr << "Error parsing orgId: " << e.what() << std::endl;
 			this->orgId = "TEST_ORG_001";
-
 		}
 	}
 }
