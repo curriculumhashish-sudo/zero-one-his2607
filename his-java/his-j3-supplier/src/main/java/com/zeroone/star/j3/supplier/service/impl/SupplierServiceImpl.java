@@ -17,6 +17,7 @@ import com.zeroone.star.project.vo.j3.supplier.SupplierNameVO;
 import jakarta.annotation.Resource;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -25,6 +26,7 @@ import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> implements ISupplierService {
@@ -93,6 +95,18 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         if (!StringUtils.hasText(dto.getName())) {
             throw new IllegalArgumentException("供应商名称不能为空");
         }
+        if (!StringUtils.hasText(dto.getTypeEnum())) {
+            throw new IllegalArgumentException("供应商类型不能为空");
+        }
+        if (!StringUtils.hasText(dto.getPyStr())) {
+            throw new IllegalArgumentException("拼音码不能为空");
+        }
+        if (!StringUtils.hasText(dto.getWbStr())) {
+            throw new IllegalArgumentException("五笔码不能为空");
+        }
+        if (!StringUtils.hasText(dto.getOrgId())) {
+            throw new IllegalArgumentException("机构标识不能为空");
+        }
         if (!StringUtils.hasText(dto.getCreditCode())) {
             throw new IllegalArgumentException("统一信用代码不能为空");
         }
@@ -139,7 +153,7 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
 
     /**
      * 修改供应商
-     * 校验供应商存在性，统一信用代码不允许直接修改
+     * 校验供应商存在性与必填业务字段，统一信用代码不允许直接修改
      * @param id  供应商ID
      * @param dto 供应商完整数据
      * @return 操作结果提示
@@ -154,6 +168,19 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
                 .count();
         if (exists == null || exists == 0) {
             throw new IllegalArgumentException("供应商不存在，请检查ID是否正确");
+        }
+        // 校验必填业务字段
+        if (!StringUtils.hasText(dto.getTypeEnum())) {
+            throw new IllegalArgumentException("供应商类型不能为空");
+        }
+        if (!StringUtils.hasText(dto.getPyStr())) {
+            throw new IllegalArgumentException("拼音码不能为空");
+        }
+        if (!StringUtils.hasText(dto.getWbStr())) {
+            throw new IllegalArgumentException("五笔码不能为空");
+        }
+        if (!StringUtils.hasText(dto.getOrgId())) {
+            throw new IllegalArgumentException("机构标识不能为空");
         }
         // 如果需要校验信用代码不可修改，单独查询 credit_code 字段
         if (StringUtils.hasText(dto.getCreditCode())) {
