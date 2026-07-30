@@ -4,10 +4,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zeroone.star.project.dto.j6.pharmacy.inventory.InventoryStatusDTO;
 import com.zeroone.star.project.query.j6.pharmacy.inventory.InventoryDetailQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j6.pharmacy.inventory.ExcelExportVO;
 import com.zeroone.star.project.vo.j6.pharmacy.inventory.InventoryDetailVO;
-
-import java.util.List;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.web.bind.annotation.RequestBody;
+import java.io.IOException;
 
 public interface WarehouseInventoryDetailApis {
     /**
@@ -35,7 +35,9 @@ public interface WarehouseInventoryDetailApis {
      * 请求路径 /exportInventoryDetailCurrent
      * 请求方式 post
      * @param inventoryDetailQueryDTO 条件 (根据条件导出excel)
-     * @return 导出的数据
+     * @return 一个编码为base64的excel文件流
      */
-    JsonVO<ExcelExportVO> exportInventoryDetailCurrent(InventoryDetailQuery inventoryDetailQueryDTO);
+    void exportInventoryDetailCurrent(@RequestBody InventoryDetailQuery inventoryDetailQueryDTO,
+                                                       HttpServletResponse response) throws IOException;
+
 }
