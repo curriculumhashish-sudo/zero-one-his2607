@@ -48,7 +48,8 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
     @Override
     public List<SupplierNameVO> querySupplierNames(String statusEnum, String keyword) {
         String normalizedStatus = normalizeStatus(statusEnum, ENABLED);
-        return baseMapper.selectSupplierNames(normalizedStatus, trimToNull(keyword));
+        String tenantId = getCurrentTenantId();
+        return baseMapper.selectSupplierNames(normalizedStatus, trimToNull(keyword), tenantId);
     }
 
     /**
@@ -61,8 +62,9 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
     public PageDTO<SupplierListVO> querySupplierList(SupplierQuery query) {
         // 管理列表允许查询启用和停用数据，但 Mapper 层统一过滤软删除记录。
         SupplierQuery normalizedQuery = normalizeQuery(query);
+        String tenantId = getCurrentTenantId();
         Page<SupplierListVO> page = new Page<>(normalizedQuery.getPageIndex(), normalizedQuery.getPageSize());
-        Page<SupplierListVO> result = baseMapper.selectSupplierPage(page, normalizedQuery);
+        Page<SupplierListVO> result = baseMapper.selectSupplierPage(page, normalizedQuery, tenantId);
         return PageDTO.create(result);
     }
 
@@ -78,7 +80,7 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         if (!StringUtils.hasText(id)) {
             return null;
         }
-        return baseMapper.selectSupplierDetail(id.trim());
+        return baseMapper.selectSupplierDetail(id.trim(), getCurrentTenantId());
     }
 
     /**
@@ -113,8 +115,11 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         if (!dto.getCreditCode().matches("^[0-9A-Z]{18}$")) {
             throw new IllegalArgumentException("统一信用代码格式不正确，应为18位数字或大写字母");
         }
-        // 校验信用代码唯一性
-        long count = this.lambdaQuery().eq(Supplier::getCreditCode, dto.getCreditCode()).count();
+        // 校验信用代码唯一性（同租户下唯一）
+        long count = this.lambdaQuery()
+                .eq(Supplier::getCreditCode, dto.getCreditCode())
+                .eq(Supplier::getTenantId, getCurrentTenantId())
+                .count();
         if (count > 0) {
             throw new IllegalArgumentException("统一信用代码已存在，请检查是否重复录入");
         }
@@ -186,7 +191,7 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         }
         // 如果需要校验信用代码不可修改，单独查询 credit_code 字段
         if (StringUtils.hasText(dto.getCreditCode())) {
-            String originalCreditCode = baseMapper.selectCreditCodeById(id.trim());
+            String originalCreditCode = baseMapper.selectCreditCodeById(id.trim(), tenantId);
             if (originalCreditCode != null && !dto.getCreditCode().equals(originalCreditCode)) {
                 throw new IllegalArgumentException("统一信用代码不允许直接修改，如需修改请联系管理员");
             }
@@ -217,8 +222,10 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         if (!StringUtils.hasText(id)) {
             throw new IllegalArgumentException("供应商ID不能为空");
         }
+        String tenantId = getCurrentTenantId();
         Long count = this.lambdaQuery()
                 .eq(Supplier::getId, id.trim())
+                .eq(Supplier::getTenantId, tenantId)
                 .eq(Supplier::getIsDeleted, 0)
                 .count();
         if (count == null || count == 0) {
@@ -234,6 +241,7 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
 
         this.lambdaUpdate()
                 .eq(Supplier::getId, id.trim())
+                .eq(Supplier::getTenantId, tenantId)
                 .set(Supplier::getIsDeleted, 1)
                 .set(Supplier::getDeletedAt, LocalDateTime.now())
                 .set(deletedBy != null, Supplier::getDeletedBy, deletedBy)
@@ -255,18 +263,21 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         }
         // 规范化状态参数
         String normalizedStatus = normalizeStatus(status, ENABLED);
-        // 查询待操作的供应商
+        String tenantId = getCurrentTenantId();
+        // 查询待操作的供应商（同租户下）
         List<Supplier> suppliers = this.lambdaQuery()
                 .in(Supplier::getId, ids)
+                .eq(Supplier::getTenantId, tenantId)
                 .ne(Supplier::getStatusEnum, normalizedStatus)
                 .list();
         int size = suppliers.size();
         if (size == 0) {
             return normalizedStatus.equals(ENABLED)?"所选供应商中已全部启用，无需重复操作":"所选供应商中已全部停用，无需重复操作";
         }
-        // 批量更改状态
+        // 批量更改状态（同租户下）
         this.lambdaUpdate()
                 .in(Supplier::getId, ids)
+                .eq(Supplier::getTenantId, tenantId)
                 .set(Supplier::getStatusEnum, normalizedStatus)
                 .update();
 
