@@ -61,43 +61,4 @@ public class StockOutListVO {
     @Schema(description = "原业务单号", example = "null", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String originalBusNo;
 
-    @Schema(description = "供应商ID", example = "SUP-1001", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String supplierId;
-
-    @Schema(description = "物品ID", example = "ITEM-5001", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String itemId;
-
-    @Schema(description = "物品表名", example = "drug_info", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String itemTable;
-
-    @Schema(description = "物品数量", example = "100", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private Integer itemQuantity;
-
-    @Schema(description = "单位编码", example = "BOX", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String unitCode;
-
-    @Schema(description = "批号", example = "B20240701", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String lotNumber;
-
-    @Schema(description = "追溯号", example = "TR20240719001", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String traceNo;
-
-    @Schema(description = "单价", example = "12.50", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private Integer price;
-
-    @Schema(description = "总价", example = "1250.00", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private Integer totalPrice;
-
-    @Schema(description = "项目名称", example = "阿莫西林胶囊", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String name;
-
-    @Schema(description = "规格", example = "0.25g*24粒", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String specification;
-
-    @Schema(description = "厂家/产地", example = "华北制药股份有限公司", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String manufacturer;
-
-    @Schema(description = "备注", example = "需冷藏保存", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String remark;
-
 }
