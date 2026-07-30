@@ -34,18 +34,6 @@ SupplierPageJsonVO::Wrapper SupplierController::execQueryAll(const SupplierQuery
     return {};
 }
 
-// Add supplier (stub — TODO: connect Service)
-StringJsonVO::Wrapper SupplierController::execAddSupplier(const SupplierDTO::Wrapper& dto)
-{
-    return {};
-}
-
-// Modify supplier (stub — TODO: connect Service)
-StringJsonVO::Wrapper SupplierController::execModifySupplier(const SupplierDTO::Wrapper& dto)
-{
-    return {};
-}
-
 // Batch enable/disable suppliers (stub — TODO: connect Service)
 StringJsonVO::Wrapper SupplierController::execBatchEnableDisable(const SupplierBatchEnableDisableDTO::Wrapper& dto)
 {
