@@ -106,8 +106,18 @@ std::string EquipmentService::saveData(const EquipmentAddDTO::Wrapper& dto, cons
 	std::string newId = uuidFacade.genUuid();
 	entity.setId(newId);
 
+
 	entity.setName(dto->name.getValue(""));
 	entity.setCategoryCode(dto->classification.getValue(""));
+
+	//给默认值防止报错
+	entity.setItemTable("wkf_equipment");     // 必填：物品表名
+	entity.setItemId("test_item_id");         // 必填：物品定义标识
+	entity.setSupplierId("default_supplier"); // 必填：供应商标识
+	entity.setUnitCode("box");                // 必填：单位编码
+	entity.setQuantity(1.0);                  // 必填：数量
+	entity.setLotNumber("LOT000000");         // 必填：批号
+	entity.setLocationId("loc_01");           // 必填：库房标识
 
 	entity.setCreatedBy(payload.getId());
 	entity.setCreatedAt(SimpleDateTimeFormat::format());

@@ -92,8 +92,9 @@ PtrDocInventorySnapshotDO EquipmentDAO::selectById(std::string id)
 int EquipmentDAO::insert(const WkfInventoryItemDO& entity)
 {
 	std::string sql = "INSERT INTO wkf_inventory_item "
-		"(`id`, `name`, `category_code`, `inventory_status_enum`, `created_by`, `created_at`, `is_deleted`, `version`) "
-		"VALUES (?, ?, ?, ?, ?, ?, 0, 0)";
+		"(`id`, `name`, `category_code`, `inventory_status_enum`, `created_by`, `created_at`, `is_deleted`, `version`, "
+		"`item_table`, `item_id`, `supplier_id`, `unit_code`, `quantity`, `lot_number`, `location_id`) "
+		"VALUES (?, ?, ?, ?, ?, ?, 0, 0, ?, ?, ?, ?, ?, ?, ?)";
 
 	SqlParams params;
 	SQLPARAMS_PUSH(params, "s", std::string, entity.getId());
@@ -102,6 +103,14 @@ int EquipmentDAO::insert(const WkfInventoryItemDO& entity)
 	SQLPARAMS_PUSH(params, "s", std::string, entity.getInventoryStatusEnum());
 	SQLPARAMS_PUSH(params, "s", std::string, entity.getCreatedBy());
 	SQLPARAMS_PUSH(params, "s", std::string, entity.getCreatedAt());
+
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getItemTable());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getItemId());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getSupplierId());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getUnitCode());
+	SQLPARAMS_PUSH(params, "d", double, entity.getQuantity());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getLotNumber());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getLocationId());
 
 	return sqlSession->executeUpdate(sql, params);
 }
