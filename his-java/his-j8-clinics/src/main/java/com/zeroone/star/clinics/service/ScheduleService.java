@@ -26,4 +26,11 @@ public interface ScheduleService {
      * 新增日程
      */
     void insertSchedule(ScheduleAddDTO dto);
+
+    /**
+     * 生成正式排班
+     * @param formalRosterDTO 生成正式排班参数
+     * @return 操作结果
+     */
+    String generateFormalRoster(com.zeroone.star.project.dto.j8.clinics.FormalRosterDTO formalRosterDTO);
 }

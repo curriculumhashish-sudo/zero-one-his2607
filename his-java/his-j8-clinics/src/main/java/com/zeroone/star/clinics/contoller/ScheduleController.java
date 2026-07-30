@@ -49,6 +49,7 @@ public class ScheduleController implements ClinicsApis {
     @Override
     @PostMapping("/generate-formal-roster")
     public JsonVO<String> generateFormalRoster(@RequestBody FormalRosterDTO formalRosterDTO) {
-        return null;
+        String result = scheduleService.generateFormalRoster(formalRosterDTO);
+        return JsonVO.success(result);
     }
 }
