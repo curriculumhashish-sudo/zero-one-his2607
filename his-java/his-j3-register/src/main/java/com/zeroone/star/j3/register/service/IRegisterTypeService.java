@@ -54,7 +54,8 @@ public interface IRegisterTypeService extends IService<RegisterType> {
      * @return 是否成功
      */
     boolean removeRegister(Long id);
-    /*
+
+    /**
      * 获取挂号类型名称列表（不分页，仅启用的，用于下拉选择号源类型）
      *
      * @return 名称列表（id + name）
