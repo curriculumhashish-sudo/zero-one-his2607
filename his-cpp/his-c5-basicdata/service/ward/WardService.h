@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef _WARDSERVICE_H_
 #define _WARDSERVICE_H_
 
@@ -12,6 +12,7 @@
 #include "domain/vo/ward/WardNameVO.h"
 #include "domain/vo/ward/WardTreeNodeVO.h"
 #include "domain/query/ward/WardTreeQuery.h"
+#include "domain/do/ward/WardDO.h"
 
 class WardService
 {
@@ -21,6 +22,12 @@ public:
     std::string createLocation(
         const WardLocationAddDTO::Wrapper& dto,
         const PayloadDTO& payload);
+
+    std::string validateQueryRoomById(const oatpp::String& id);
+    PtrWardDO getRoomById(const std::string& id);
+
+    std::string validateQueryBedById(const oatpp::String& id);
+    PtrBedDO getBedById(const std::string& id);
 };
 
 #endif
