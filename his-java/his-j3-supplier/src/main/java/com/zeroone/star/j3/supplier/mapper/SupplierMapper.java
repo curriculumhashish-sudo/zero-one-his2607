@@ -22,13 +22,13 @@ import java.util.List;
  */
 public interface SupplierMapper extends BaseMapper<Supplier> {
 
-    List<SupplierNameVO> selectSupplierNames(@Param("statusEnum") String statusEnum, @Param("keyword") String keyword);
+    List<SupplierNameVO> selectSupplierNames(@Param("statusEnum") String statusEnum, @Param("keyword") String keyword, @Param("tenantId") String tenantId);
 
-    Page<SupplierListVO> selectSupplierPage(Page<SupplierListVO> page, @Param("query") SupplierQuery query);
+    Page<SupplierListVO> selectSupplierPage(Page<SupplierListVO> page, @Param("query") SupplierQuery query, @Param("tenantId") String tenantId);
 
-    SupplierDetailVO selectSupplierDetail(@Param("id") String id);
+    SupplierDetailVO selectSupplierDetail(@Param("id") String id, @Param("tenantId") String tenantId);
 
-    String selectCreditCodeById(String trim);
+    String selectCreditCodeById(@Param("id") String id, @Param("tenantId") String tenantId);
 
     /**
      * 悲观锁方式查询当前最大ID，用于并发安全的ID自增生成
