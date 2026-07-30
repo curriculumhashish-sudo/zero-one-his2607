@@ -30,6 +30,9 @@ public class UserHolder {
     @Resource
     ApplicationContext applicationContext;
 
+    @Resource
+    ApplicationContext applicationContext;
+
     /**
      * 从请求头中获取用户信息
      * @return 用户信息
@@ -88,6 +91,7 @@ public class UserHolder {
         }
         return token.replace("Bearer ", "");
     }
+
     /**
      * 获取当前用户选择的租户ID
      * @return 当前租户ID
@@ -101,6 +105,7 @@ public class UserHolder {
             if (applicationContext == null) {
                 throw new IllegalStateException("RedisTemplate未初始化，无法获取当前租户ID");
             }
+
             String userId = currentUser.getId();
             Object tenantId = getRedisHashValue(
                     RedisConstant.LOGIN_CONTEXT_PREFIX + userId,
@@ -122,6 +127,7 @@ public class UserHolder {
             throw new IllegalStateException("获取当前租户ID失败", e);
         }
     }
+
     private Object getRedisHashValue(String key, String field) {
         try {
             Object redisTemplate = applicationContext.getBean("redisTemplate");

@@ -25,13 +25,13 @@ public class SupplierFullDTO implements Serializable {
 
     // ==================== 基础字段 ====================
 
-    @Schema(description = "主键", example = "1234567890123456789", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "主键", example = "4100000000000000002")
     private String id;
 
-    @Schema(description = "租户标识", example = "tenant001")
+    @Schema(description = "租户标识", example = "1")
     private String tenantId;
 
-    @Schema(description = "创建时间", example = "2025-01-01 10:00:00", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "创建时间", example = "2025-01-01 10:00:00")
     private LocalDateTime createdAt;
 
     @Schema(description = "最后更新时间", example = "2025-01-10 15:30:00")
@@ -43,7 +43,7 @@ public class SupplierFullDTO implements Serializable {
     @Schema(description = "最后更新人", example = "admin")
     private String updatedBy;
 
-    @Schema(description = "软删标记（0未删除 1已删除）", example = "0", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "软删标记（0未删除 1已删除）", example = "0")
     private Integer isDeleted;
 
     @Schema(description = "删除时间", example = "2025-06-01 08:00:00")
@@ -52,12 +52,12 @@ public class SupplierFullDTO implements Serializable {
     @Schema(description = "删除人", example = "admin")
     private String deletedBy;
 
-    @Schema(description = "乐观锁版本号", example = "0", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "乐观锁版本号", example = "0")
     private Integer version;
 
     // ==================== 业务字段 ====================
 
-    @Schema(description = "业务编号", example = "SUP20250001", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "业务编号", example = "SUPP002")
     private String busNo;
 
     @Schema(description = "名称", example = "华润医药集团有限公司", requiredMode = Schema.RequiredMode.REQUIRED)

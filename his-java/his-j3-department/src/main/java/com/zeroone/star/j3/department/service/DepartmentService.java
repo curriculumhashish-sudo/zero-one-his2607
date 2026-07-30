@@ -1,0 +1,64 @@
+package com.zeroone.star.j3.department.service;
+
+import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j3.department.DepartmentBatchDTO;
+import com.zeroone.star.project.dto.j3.department.DepartmentCreateDTO;
+import com.zeroone.star.project.dto.j3.department.DepartmentUpdateDTO;
+import com.zeroone.star.project.query.j3.department.DepartmentQuery;
+import com.zeroone.star.project.query.j3.department.DepartmentTreeQuery;
+import com.zeroone.star.project.vo.j3.department.DepartmentDetailVO;
+import com.zeroone.star.project.vo.j3.department.DepartmentTreeVO;
+import com.zeroone.star.project.vo.j3.department.DepartmentVO;
+
+import java.util.List;
+
+/**
+ * <p>
+ * 描述：科室管理服务层接口
+ * </p>
+ * <p>版权：&copy;01星球</p>
+ * <p>地址：01星球总部</p>
+ *
+ * @author 胡傲宇
+ * @version 1.0.0
+ */
+public interface DepartmentService {
+
+    PageDTO<DepartmentVO> getDepartmentPage(DepartmentQuery query);
+
+    List<DepartmentTreeVO> getDepartmentTree(DepartmentTreeQuery query);
+
+    /**
+     * 获取科室详情
+     *
+     * @param id 科室ID
+     * @return 科室详情VO
+     * @author 胡傲宇
+     */
+    DepartmentDetailVO getDepartmentDetail(Long id);
+
+    /**
+     * 新增科室
+     *
+     * @param dto 创建科室DTO
+     * @author 胡傲宇
+     */
+    void createDepartment(DepartmentCreateDTO dto) throws Exception;
+
+    /**
+     * 修改科室信息。
+     *
+     * @param id  科室ID
+     * @param dto 修改内容
+     */
+    void updateDepartment(String id, DepartmentUpdateDTO dto);
+
+    /**
+     * 删除科室（逻辑删除）。
+     *
+     * @param id 科室ID
+     */
+    void deleteDepartment(String id);
+
+    void activeOrInactiveDepartment(DepartmentBatchDTO dto);
+}
