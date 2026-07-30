@@ -75,14 +75,4 @@ public class WarehouseInventoryDetailController implements WarehouseInventoryDet
         ExcelExportVO excelExportVO = inventoryDetailService.exportToExcel(inventoryDetailQueryDTO);
         return JsonVO.success(excelExportVO);
     }
-    @GetMapping("/test")
-    @Operation(
-            summary = "测试",
-            description = "测试接口",
-            responses = @ApiResponse(responseCode = "200", description = "测试成功",
-                    content = @Content(schema = @Schema(implementation = String.class)))
-    )
-    public String test() {
-        return "test";
-    }
 }
