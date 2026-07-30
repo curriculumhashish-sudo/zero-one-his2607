@@ -9,6 +9,7 @@ import com.zeroone.star.j3.fee.mapper.AdmAccountMapper;
 import com.zeroone.star.j3.fee.mapper.FeeNatureMapper;
 import com.zeroone.star.j3.fee.service.IFeeNatureService;
 import com.zeroone.star.project.components.user.UserHolder;
+import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j3.fee.FeeNatureDTO;
 import com.zeroone.star.project.enums.j3.fee.FeeCategoryEnum;
 import com.zeroone.star.project.query.j3.fee.FeeNatureQuery;
@@ -36,7 +37,7 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
     private final UserHolder userHolder;
 
     @Override
-    public List<FeeNatureVO> listFeeNatures(FeeNatureQuery query) {
+    public PageDTO<FeeNatureVO> listFeeNatures(FeeNatureQuery query) {
         LambdaQueryWrapper<FeeNature> wrapper = new LambdaQueryWrapper<>();
         // 过滤已删除的记录
         wrapper.eq(FeeNature::getIsDeleted, 0);
@@ -51,13 +52,22 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
         wrapper.orderByAsc(FeeNature::getDisplayOrder);
         List<FeeNature> entities = baseMapper.selectList(wrapper);
 
-        // 内存分页截取（注意使用 long 类型）
+        // 先记录总数（分页前）
+        long total = entities.size();
+
+        // 内存分页截取
         int fromIndex = (int) ((query.getPageIndex() - 1) * query.getPageSize());
         int toIndex = (int) Math.min(fromIndex + query.getPageSize(), entities.size());
 
         // 防止越界
         if (fromIndex >= entities.size()) {
-            return new ArrayList<>();
+            PageDTO<FeeNatureVO> emptyPage = new PageDTO<>();
+            emptyPage.setPageIndex(query.getPageIndex());
+            emptyPage.setPageSize(query.getPageSize());
+            emptyPage.setTotal(total);
+            emptyPage.setPages((total + query.getPageSize() - 1) / query.getPageSize());
+            emptyPage.setRows(new ArrayList<>());
+            return emptyPage;
         }
 
         List<FeeNature> pagedEntities = entities.subList(fromIndex, toIndex);
@@ -66,7 +76,14 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
         for (FeeNature entity : pagedEntities) {
             vos.add(toVO(entity));
         }
-        return vos;
+
+        PageDTO<FeeNatureVO> pageDTO = new PageDTO<>();
+        pageDTO.setPageIndex(query.getPageIndex());
+        pageDTO.setPageSize(query.getPageSize());
+        pageDTO.setTotal(total);
+        pageDTO.setPages((total + query.getPageSize() - 1) / query.getPageSize());
+        pageDTO.setRows(vos);
+        return pageDTO;
     }
 
     @Override
@@ -118,6 +135,8 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
             throw new RuntimeException("费用性质不存在");
         }
         entity.setActiveFlag(isEnabled);
+        // 同步更新状态枚举，保持数据一致性
+        entity.setStatusEnum(isEnabled == 1 ? "1" : "0");
         if (!updateById(entity)) {
             throw new RuntimeException("状态更新失败");
         }
