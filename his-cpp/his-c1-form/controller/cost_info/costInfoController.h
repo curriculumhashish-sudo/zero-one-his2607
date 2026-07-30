@@ -47,7 +47,6 @@ public:
 		API_DEF_ADD_AUTH();
 		API_DEF_ADD_RSP_JSON_WRAPPER(ExportVO);
 		API_DEF_ADD_TAG(API_TAG);
-		API_DEF_ADD_PAGE_PARAMS();
 		API_DEF_ADD_QUERY_PARAMS(String, "start_time", ZH_WORDS_GETTER("rhqm.form.cost_info.query.start_time"), "", true);
 		API_DEF_ADD_QUERY_PARAMS(String, "end_time", ZH_WORDS_GETTER("rhqm.form.cost_info.query.end_time"), "", true);
 		API_DEF_ADD_QUERY_PARAMS(String, "name", ZH_WORDS_GETTER("rhqm.form.cost_info.query.name"), "", false);
