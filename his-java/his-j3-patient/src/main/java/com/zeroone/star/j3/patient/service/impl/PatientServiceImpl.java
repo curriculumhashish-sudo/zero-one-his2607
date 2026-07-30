@@ -21,6 +21,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -76,6 +77,7 @@ public class PatientServiceImpl implements PatientService {
         LocalDateTime now = LocalDateTime.now();
         PatientDO patient = new PatientDO();
         BeanUtils.copyProperties(dto, patient);
+        applyPrototypeFields(patient, dto);
         applyNormalizedValues(patient, normalized);
         patient.setTenantId(tenantId);
         patient.setBusNo(nextPatientNumber(tenantId, now));
@@ -112,8 +114,8 @@ public class PatientServiceImpl implements PatientService {
                     "当前患者状态不允许修改基本资料"
             );
         }
-        if (dto.getVersion() == null
-                || !patient.getVersion().equals(dto.getVersion())) {
+        if (dto.getVersion() != null
+                && !patient.getVersion().equals(dto.getVersion())) {
             throw new PatientBusinessException(
                     "患者资料已被其他人修改，请刷新后重试"
             );
@@ -133,6 +135,7 @@ public class PatientServiceImpl implements PatientService {
                 "version",
                 "organizationId"
         );
+        applyPrototypeFields(patient, dto);
         applyNormalizedValues(patient, normalized);
         patient.setUpdatedAt(LocalDateTime.now());
         patient.setPyStr(PatientNameCodeUtils.toPinyinInitials(
@@ -211,8 +214,8 @@ public class PatientServiceImpl implements PatientService {
     private PatientListVO toListVO(PatientDO patient) {
         PatientListVO result = new PatientListVO();
         BeanUtils.copyProperties(patient, result);
-        result.setIdCard(maskIdCard(patient.getIdCard()));
-        result.setPhone(maskPhone(patient.getPhone()));
+        result.setAge(calculateAge(patient.getBirthDate()));
+        result.setGenderEnumText(genderText(patient.getGenderEnum()));
         return result;
     }
 
@@ -230,14 +233,30 @@ public class PatientServiceImpl implements PatientService {
         if (!GENDER_CODES.contains(genderEnum)) {
             throw new PatientBusinessException("性别编码不合法");
         }
+        validateIdCard(idCard);
+        if (dto.getBirthDate() == null) {
+            throw new PatientBusinessException("出生日期不能为空");
+        }
+        if (dto.getAge() == null) {
+            throw new PatientBusinessException("年龄不能为空");
+        }
+        if (dto.getAge() < 0 || dto.getAge() > 150) {
+            throw new PatientBusinessException("年龄必须在0到150之间");
+        }
+        if (dto.getBirthDate().isAfter(LocalDate.now())) {
+            throw new PatientBusinessException("出生日期不能晚于当前日期");
+        }
+        if (!dto.getAge().equals(calculateAge(dto.getBirthDate()))) {
+            throw new PatientBusinessException("年龄与出生日期不一致");
+        }
+        if (dto.getDeceasedDate() != null
+                && dto.getDeceasedDate().toLocalDate()
+                .isBefore(dto.getBirthDate())) {
+            throw new PatientBusinessException("死亡日期不能早于出生日期");
+        }
         if (organizationId == null) {
             throw new PatientBusinessException("建档机构ID不能为空");
         }
-        if (dto.getBirthDate() != null
-                && dto.getBirthDate().isAfter(LocalDate.now())) {
-            throw new PatientBusinessException("出生日期不能晚于当前日期");
-        }
-        validateIdCard(idCard);
         validateTelephone(phone, "联系电话");
         validateTelephone(linkTelcom, "联系人电话");
 
@@ -266,9 +285,6 @@ public class PatientServiceImpl implements PatientService {
             String idCard,
             String excludedPatientId
     ) {
-        if (idCard == null) {
-            return;
-        }
         String occupiedPatientId = patientMapper
                 .selectIdByIdCardForUpdate(idCard, excludedPatientId);
         if (occupiedPatientId != null) {
@@ -375,11 +391,22 @@ public class PatientServiceImpl implements PatientService {
         patient.setLinkName(trimToNull(patient.getLinkName()));
     }
 
+    private void applyPrototypeFields(
+            PatientDO patient,
+            PatientCreateDTO dto
+    ) {
+        patient.setBloodTypeAbo(dto.getBloodAbo());
+        patient.setBloodTypeRh(dto.getBloodRh());
+        patient.setDeceasedDate(dto.getDeceasedDate());
+    }
+
     private void validateIdCard(String idCard) {
-        if (idCard != null
-                && !idCard.matches("(?:\\d{15}|\\d{17}[\\dX])")) {
+        if (idCard == null) {
+            throw new PatientBusinessException("证件号不能为空");
+        }
+        if (!idCard.matches("(?:\\d{15}|\\d{17}[\\dX])")) {
             throw new PatientBusinessException(
-                    "身份证号格式不正确，应为15位或18位"
+                    "证件号格式不正确，应为15位或18位身份证号"
             );
         }
     }
@@ -413,22 +440,23 @@ public class PatientServiceImpl implements PatientService {
         return normalized.isEmpty() ? null : normalized;
     }
 
-    private String maskIdCard(String idCard) {
-        if (!StringUtils.hasText(idCard) || idCard.length() <= 10) {
-            return idCard;
+    private Integer calculateAge(LocalDate birthDate) {
+        if (birthDate == null) {
+            return null;
         }
-        return idCard.substring(0, 6)
-                + "*".repeat(idCard.length() - 10)
-                + idCard.substring(idCard.length() - 4);
+        return Period.between(birthDate, LocalDate.now()).getYears();
     }
 
-    private String maskPhone(String phone) {
-        if (!StringUtils.hasText(phone) || phone.length() <= 7) {
-            return phone;
+    private String genderText(String genderEnum) {
+        if (genderEnum == null) {
+            return null;
         }
-        return phone.substring(0, 3)
-                + "*".repeat(phone.length() - 7)
-                + phone.substring(phone.length() - 4);
+        return switch (genderEnum) {
+            case "MALE" -> "男性";
+            case "FEMALE" -> "女性";
+            case "UNKNOWN" -> "未知";
+            default -> genderEnum;
+        };
     }
 
     private record NormalizedPatient(

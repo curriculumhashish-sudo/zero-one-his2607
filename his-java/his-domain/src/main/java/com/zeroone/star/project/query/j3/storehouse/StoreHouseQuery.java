@@ -20,4 +20,5 @@ public class StoreHouseQuery extends PageQuery {
 
     @Schema(description = "关键字（名称模糊搜索）", example = "药")
     private String keyword;
+
 }

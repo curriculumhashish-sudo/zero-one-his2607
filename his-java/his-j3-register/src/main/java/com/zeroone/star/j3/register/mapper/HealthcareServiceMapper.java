@@ -13,4 +13,5 @@ import com.zeroone.star.j3.register.entity.HealthcareService;
  * @version 1.0.0
  */
 public interface HealthcareServiceMapper extends BaseMapper<HealthcareService> {
+
 }

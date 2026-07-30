@@ -32,7 +32,7 @@ public class SupplierQuery extends PageQuery {
     @Schema(description = "供应商名称（模糊匹配）", example = "华润医药")
     private String name;
 
-    @Schema(description = "统一社会信用代码（精确匹配）", example = "91110000100000XXXX")
+    @Schema(description = "统一社会信用代码（精确匹配）", example = "91110000100000AAAA")
     private String creditCode;
 
     @Schema(description = "类型枚举值（ENTERPRISE-企业/INDIVIDUAL-个体）", example = "ENTERPRISE")

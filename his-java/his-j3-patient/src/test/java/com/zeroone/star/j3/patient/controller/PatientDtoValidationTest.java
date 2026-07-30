@@ -68,10 +68,37 @@ class PatientDtoValidationTest {
     }
 
     @Test
-    void shouldRequireNonNegativeUpdateVersion() {
+    void shouldRejectMissingPrototypeRequiredFieldsAndInvalidAge() {
+        PatientCreateDTO dto = validCreateDto();
+        dto.setIdCard(" ");
+        dto.setAge(151);
+        dto.setBirthDate(null);
+
+        Set<ConstraintViolation<PatientCreateDTO>> violations =
+                validator.validate(dto);
+
+        assertTrue(violations.stream().anyMatch(
+                violation -> violation.getPropertyPath()
+                        .toString()
+                        .equals("idCard")
+        ));
+        assertTrue(violations.stream().anyMatch(
+                violation -> violation.getPropertyPath()
+                        .toString()
+                        .equals("age")
+        ));
+        assertTrue(violations.stream().anyMatch(
+                violation -> violation.getPropertyPath()
+                        .toString()
+                        .equals("birthDate")
+        ));
+    }
+
+    @Test
+    void shouldAllowMissingVersionAndRejectNegativeVersion() {
         PatientUpdateDTO dto = validUpdateDto();
         dto.setVersion(null);
-        assertFalse(validator.validate(dto).isEmpty());
+        assertTrue(validator.validate(dto).isEmpty());
 
         dto.setVersion(-1);
         assertFalse(validator.validate(dto).isEmpty());
@@ -84,6 +111,8 @@ class PatientDtoValidationTest {
         PatientCreateDTO dto = new PatientCreateDTO();
         dto.setName("原型验收甲");
         dto.setGenderEnum("MALE");
+        dto.setIdCard("110101199001011237");
+        dto.setAge(36);
         dto.setBirthDate(LocalDate.of(1990, 1, 1));
         dto.setOrganizationId("322663105141149696");
         return dto;
@@ -93,6 +122,8 @@ class PatientDtoValidationTest {
         PatientUpdateDTO dto = new PatientUpdateDTO();
         dto.setName("原型验收甲");
         dto.setGenderEnum("MALE");
+        dto.setIdCard("110101199001011237");
+        dto.setAge(36);
         dto.setBirthDate(LocalDate.of(1990, 1, 1));
         dto.setOrganizationId("322663105141149696");
         return dto;

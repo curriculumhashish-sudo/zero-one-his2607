@@ -1,6 +1,7 @@
 package com.zeroone.star.project.dto.j3.department;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
@@ -18,9 +19,11 @@ import lombok.Data;
 public class DepartmentUpdateDTO {
 
     @Schema(description = "名称", example = "门诊内科", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "科室名称不能为空")
     private String name;
 
     @Schema(description = "类型", example = "DEPARTMENT", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "科室类型不能为空")
     private String typeEnum;
 
     @Schema(description = "类别", example = "CLINIC", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
