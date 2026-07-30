@@ -6,6 +6,7 @@ import com.zeroone.star.outpatient.mapper.MinXiStructMapper;
 import com.zeroone.star.outpatient.service.MinXiService;
 import com.zeroone.star.project.components.excel.ExcelComponent;
 import com.zeroone.star.project.components.fastdfs.FastDfsClientComponent;
+import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.j8.mzfymx.MinXiDTO;
 import com.zeroone.star.project.dto.j8.mzfymx.MinXiExportDTO;
 import com.zeroone.star.project.query.j8.mzfymx.MinXiExportQuery;
@@ -18,6 +19,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -42,16 +44,42 @@ public class MinXiServiceImpl implements MinXiService {
     @Resource
     private MinXiMapper minXiMapper;
 
-    // ========== MapStruct DTO 转换器（MinXiDTO → MinXiExportDTO）==========
-    //   用 Mappers.getMapper() 静态实例，不依赖 Spring 注入，避免 BeanCreationException
-    private static final MinXiStructMapper minXiStructMapper = MinXiStructMapper.INSTANCE;
-
     // ========== 公共组件（导出功能用，注入后 export 方法实现直接用）==========
     @Resource
     private ExcelComponent excelComponent;
 
     @Resource
     private FastDfsClientComponent fastDfsClientComponent;
+
+    @Resource
+    private UserHolder userHolder;
+
+    /**
+     * 兜底租户 ID（当 Redis/登录上下文没传时用，和其他模块一致）
+     */
+    private static final String DEFAULT_TENANT_ID = "1";
+
+    /**
+     * 解析当前登录用户的租户 ID（按优先级）
+     *  1) query.tenantId 前端硬塞了就优先（预留）
+     *  2) 【预留】Redis user:session:{userId} 里的 tenant_id（登录模块写入后启用，目前暂不依赖 Redis，避免本地没装 Redis 启动失败）
+     *  3) 兜底 DEFAULT_TENANT_ID="1"
+     *
+     *  ⚠️ 后续要启用 Redis 读取时，直接在本方法第 2 步塞两行：
+     *     Object t = redisTemplate.opsForHash().get("user:session:" + userId, "tenant_id");
+     *     if (t != null && StringUtils.hasText(t.toString())) return t.toString();
+     */
+    private String resolveTenantId(Object query) {
+        if (query instanceof MinXiQuery q && StringUtils.hasText(q.getTenantId())) {
+            return q.getTenantId();
+        }
+        if (query instanceof MinXiExportQuery q && StringUtils.hasText(q.getTenantId())) {
+            return q.getTenantId();
+        }
+        // 预留：userId 拿到了，等登录模块写 Redis 再启用分摊读
+        // try { String userId = userHolder.getCurrentUser().getId(); } catch (Exception ignore) {}
+        return DEFAULT_TENANT_ID;
+    }
 
     /**
      * FastDFS Nginx 下载地址前缀（从 Nacos 配置 fastdfs.nginx-servers 读取）
@@ -91,6 +119,9 @@ public class MinXiServiceImpl implements MinXiService {
     @Override
     @Transactional(readOnly = true)
     public MinXiPageVO queryPage(MinXiQuery query) {
+        // 🔴 租户过滤：优先 Redis(user:session) → his:login:context → 兜底 "1"，注入 SQL 查询条件
+        query.setTenantId(resolveTenantId(query));
+
         // ① 全量合计（不带 LIMIT，原型图顶部红色数字）
         MinXiPageVO totals = minXiMapper.selectTotals(query);
         if (totals == null) {
@@ -143,14 +174,23 @@ public class MinXiServiceImpl implements MinXiService {
     @Override
     @Transactional(readOnly = true)
     public ExportFileVO export(MinXiExportQuery exportQuery) {
+        // 🔴 租户过滤：优先 Redis(user:session) → his:login:context → 兜底 "1"，注入 SQL 查询条件
+        exportQuery.setTenantId(resolveTenantId(exportQuery));
+
         // ① 全量明细（不带 LIMIT）
         List<MinXiDTO> allDTOs = minXiMapper.selectAllRows(exportQuery);
         if (allDTOs == null) {
             allDTOs = new ArrayList<>();
         }
 
-        // ② MinXiDTO → MinXiExportDTO（27列，tradeDirection 英文→中文）
-        List<MinXiExportDTO> exportRows = minXiStructMapper.toExportDTOList(allDTOs);
+        // ② MinXiDTO → MinXiExportDTO（BeanUtils 手动映射 + 收退方向翻译，100% 可控）
+        List<MinXiExportDTO> exportRows = new ArrayList<>(allDTOs.size() + 1);
+        for (MinXiDTO dto : allDTOs) {
+            MinXiExportDTO row = new MinXiExportDTO();
+            BeanUtils.copyProperties(dto, row);
+            row.setTradeDirection(translateTradeDirection(dto.getTradeDirection()));
+            exportRows.add(row);
+        }
 
         // ③ 全量金额合计（selectTotals 入参是 MinXiQuery，9个筛选字段 BeanUtils 拷贝）
         MinXiQuery minXiQuery = convertToMinXiQuery(exportQuery);
@@ -159,11 +199,11 @@ public class MinXiServiceImpl implements MinXiService {
             totals = new MinXiPageVO();
         }
 
-        // ④ + ⑤ 构造合计行并追加到末尾
+        // 构造合计行并追加到末尾
         MinXiExportDTO totalRow = buildTotalRow(totals);
         exportRows.add(totalRow);
 
-        // ⑥ 写 Excel 到内存流（自动 5000 条/Sheet 分页）
+        // 写 Excel 到内存流（自动 5000 条/Sheet 分页）
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             excelComponent.export("门诊费用明细", baos, MinXiExportDTO.class, exportRows);
@@ -172,7 +212,7 @@ public class MinXiServiceImpl implements MinXiService {
         }
         byte[] xlsxBytes = baos.toByteArray();
 
-        // ⑦ 上传 FastDFS（byte[] 直接上传，不写临时文件）
+        // 上传 FastDFS（byte[] 直接上传，不写临时文件）
         FastDfsFileInfo dfsInfo;
         try {
             dfsInfo = fastDfsClientComponent.uploadFile(xlsxBytes, "xlsx");
@@ -183,24 +223,22 @@ public class MinXiServiceImpl implements MinXiService {
             throw new RuntimeException("上传门诊费用明细Excel到FastDFS失败：返回文件信息为空");
         }
 
-        // ⑧ 生成下载 URL（拼接 Nginx 地址 + 防盗链 Token，isToken=true 完全对齐配置 http-anti-steal-token=true）
+        // 生成下载 URL（拼接 Nginx 地址 + 防盗链 Token，isToken=true 完全对齐配置 http-anti-steal-token=true）
         String urlPrefix = buildUrlPrefix(dfsNginxServers);
         String downloadUrl = fastDfsClientComponent.fetchUrl(dfsInfo, urlPrefix, true);
         if (downloadUrl == null || downloadUrl.isEmpty()) {
             throw new RuntimeException("生成FastDFS下载地址失败");
         }
 
-        // ⑨ 组装返回（body = 完整下载 URL，前端 window.open(resp.data.body) 直接下载）
+        // 组装返回（body = 完整下载 URL，前端 window.open(resp.data.body) 直接下载）
         String fileName = "门诊费用明细_" + LocalDateTime.now().format(FILE_TS_FMT) + ".xlsx";
         return new ExportFileVO(fileName, XLSX_CONTENT_TYPE, downloadUrl);
     }
 
-    // ======================================================================
     // 辅助方法：把 fastdfs.nginx-servers 转成标准 URL 前缀
     //   输入：192.168.30.132:8888  或  http://192.168.30.132:8888
-    //         或多个逗号分隔 192.168.30.132:8888,192.168.30.133:8888（取第一个）
-    //   输出：http://192.168.30.132:8888（统一不带尾部斜杠）
-    // ======================================================================
+    //         或多个逗号分隔 192.168.30.132:8888,192.168.30.133:8888
+    //   输出：http://192.168.30.132:8888
     private String buildUrlPrefix(String nginxServers) {
         if (nginxServers == null || nginxServers.isEmpty()) {
             throw new RuntimeException("fastdfs.nginx-servers 配置为空");
@@ -218,9 +256,8 @@ public class MinXiServiceImpl implements MinXiService {
         return first;
     }
 
-    // ======================================================================
     // 辅助方法：MinXiExportQuery → MinXiQuery 转换（9个筛选字段 BeanUtils 拷贝）
-    // ======================================================================
+
     private MinXiQuery convertToMinXiQuery(MinXiExportQuery exportQuery) {
         MinXiQuery minXiQuery = new MinXiQuery();
         // 9个筛选字段完全同名同类型，BeanUtils 自动拷贝
@@ -228,9 +265,7 @@ public class MinXiServiceImpl implements MinXiService {
         return minXiQuery;
     }
 
-    // ======================================================================
     // 辅助方法：构造合计行（门诊号列填"合计"，8个金额列填全量 SUM）
-    // ======================================================================
     private MinXiExportDTO buildTotalRow(MinXiPageVO totals) {
         MinXiExportDTO totalRow = new MinXiExportDTO();
         // 第 1 列填"合计"，醒目标识
@@ -246,5 +281,20 @@ public class MinXiServiceImpl implements MinXiService {
         totalRow.setSelfPayAmount(totals.getSelfPayAmountSum());
         // 其他 18 个展示列保持 null（Excel 中显示为空，符合常规报表习惯）
         return totalRow;
+    }
+
+    // ======================================================================
+    // 辅助方法：收退方向英文编码 → 中文展示
+    //   CHARGE → 收费
+    //   REFUND → 退费
+    //   其他 → 原值返回（兜底）
+    // ======================================================================
+    private String translateTradeDirection(String code) {
+        if ("CHARGE".equals(code)) {
+            return "收费";
+        } else if ("REFUND".equals(code)) {
+            return "退费";
+        }
+        return code;
     }
 }

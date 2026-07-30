@@ -55,4 +55,7 @@ public class MinXiExportQuery {
     @Schema(description = "收退方向", example = "ALL", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String tradeDirection;
 
+    @Schema(description = "租户ID（后端注入，无需前端传）", hidden = true)
+    private String tenantId;
+
 }

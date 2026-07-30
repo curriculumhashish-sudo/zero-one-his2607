@@ -69,6 +69,133 @@
     </sql>
 
     <!-- ============================================================
+          公共 SQL 片段 3：💰 4 个纯 aci 金额（base/discount/receivable/discounted/line）
+          退费行统一乘以 -1，合计自然抵消
+          🔴 注意：receivable/discounted/lineAmount 三个都 = base - discount
+         ============================================================ -->
+    <sql id="minXiAciAmountCols">
+            /* ---------- 💰 金额：从 aci 表直接算（100% 有值，不依赖支付流水）---------- */
+            CASE WHEN aci.refund_id IS NOT NULL THEN -aci.base_amount ELSE aci.base_amount END
+                                                                AS baseAmount,
+            CASE WHEN aci.refund_id IS NOT NULL THEN -aci.discount_amount ELSE aci.discount_amount END
+                                                                AS discountAmount,
+            CASE WHEN aci.refund_id IS NOT NULL
+                 THEN -(aci.base_amount - aci.discount_amount)
+                 ELSE (aci.base_amount - aci.discount_amount) END
+                                                                AS receivableAmount,
+            CASE WHEN aci.refund_id IS NOT NULL
+                 THEN -(aci.base_amount - aci.discount_amount)
+                 ELSE (aci.base_amount - aci.discount_amount) END
+                                                                AS discountedAmount,
+            CASE WHEN aci.refund_id IS NOT NULL
+                 THEN -(aci.base_amount - aci.discount_amount)
+                 ELSE (aci.base_amount - aci.discount_amount) END
+                                                                AS lineAmount
+    </sql>
+
+    <!-- ============================================================
+          公共 SQL 片段 4：💰 3 个支付流水相关金额（actualReceived/insurance/selfPay）
+          🔴 关键兜底：det 匹配不到支付流水 → 实收=行金额，医保=0，自费=行金额
+               → 解决 adm_charge_item 有数据但 fin_payment_rec 没数据时的全 0 问题
+          🔴 公式：
+               actualReceived = 分摊(rec.det实收合计)[分摊结果==0 兜底 lineAmount]
+               insurance      = 分摊(pay_enum='YB')[分摊结果==0 兜底 0]
+               selfPay        = lineAmount - insurance
+         ============================================================ -->
+    <sql id="minXiPayAmountCols">
+            /* ---------- 💰 实收：det 匹配不到 → 兜底 = 行金额（默认全额已收）---------- */
+            COALESCE(NULLIF(
+                CASE WHEN aci.refund_id IS NOT NULL
+                     THEN -(CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                         FROM adm_charge_item inner_aci
+                                        WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
+                                   THEN 0
+                                   ELSE ROUND(
+                                       (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
+                                     * (aci.base_amount - aci.discount_amount)
+                                     / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                          FROM adm_charge_item inner_aci
+                                         WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
+                                   , 2) END)
+                     ELSE  (CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                         FROM adm_charge_item inner_aci
+                                        WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
+                                   THEN 0
+                                   ELSE ROUND(
+                                       (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
+                                     * (aci.base_amount - aci.discount_amount)
+                                     / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                          FROM adm_charge_item inner_aci
+                                         WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
+                                   , 2) END) END
+            , 0), CASE WHEN aci.refund_id IS NOT NULL
+                       THEN -(aci.base_amount - aci.discount_amount)
+                       ELSE (aci.base_amount - aci.discount_amount) END)
+                                                                AS actualReceivedAmount,
+            /* ---------- 💰 医保：det.pay_enum='YB' 才分摊，否则 0（无兜底）---------- */
+            CASE WHEN det.pay_enum = 'YB'
+                 THEN COALESCE(NULLIF(
+                       CASE WHEN aci.refund_id IS NOT NULL
+                            THEN -(CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                                FROM adm_charge_item inner_aci
+                                               WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
+                                          THEN 0
+                                          ELSE ROUND(
+                                              (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
+                                            * (aci.base_amount - aci.discount_amount)
+                                            / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                                 FROM adm_charge_item inner_aci
+                                                WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
+                                          , 2) END)
+                            ELSE  (CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                                FROM adm_charge_item inner_aci
+                                               WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
+                                          THEN 0
+                                          ELSE ROUND(
+                                              (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
+                                            * (aci.base_amount - aci.discount_amount)
+                                            / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                                 FROM adm_charge_item inner_aci
+                                                WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
+                                          , 2) END) END
+                 , 0), 0)
+                 ELSE 0 END
+                                                                AS insuranceAmount,
+            /* ---------- 💰 自费 = 行金额 - 医保 ---------- */
+            (CASE WHEN aci.refund_id IS NOT NULL
+                  THEN -(aci.base_amount - aci.discount_amount)
+                  ELSE (aci.base_amount - aci.discount_amount) END)
+          - (CASE WHEN det.pay_enum = 'YB'
+                  THEN COALESCE(NULLIF(
+                        CASE WHEN aci.refund_id IS NOT NULL
+                             THEN -(CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                                 FROM adm_charge_item inner_aci
+                                                WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
+                                           THEN 0
+                                           ELSE ROUND(
+                                               (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
+                                             * (aci.base_amount - aci.discount_amount)
+                                             / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                                  FROM adm_charge_item inner_aci
+                                                 WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
+                                           , 2) END)
+                             ELSE  (CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                                 FROM adm_charge_item inner_aci
+                                                WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
+                                           THEN 0
+                                           ELSE ROUND(
+                                               (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
+                                             * (aci.base_amount - aci.discount_amount)
+                                             / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                                  FROM adm_charge_item inner_aci
+                                                 WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
+                                           , 2) END) END
+                  , 0), 0)
+                  ELSE 0 END)
+                                                                AS selfPayAmount
+    </sql>
+
+    <!-- ============================================================
           公共 SQL 片段 2：WHERE 条件（selectTotals 和 selectRows 100% 共用）
           注意：所有 <if> 的属性名必须与 MinXiQuery 完全一致
          ============================================================ -->
@@ -77,6 +204,12 @@
             aci.is_deleted = 0
             <!-- 🔴 只查门诊：写死排除 HOSPITAL_DEPOSIT 住院押金 -->
             AND rec.kind_enum = 'OUTPATIENT_CLINIC'
+            <!-- 🔴 🔐 租户过滤：3 张主表（收费项/就诊/对账）各加一次，避免 JOIN 行数爆炸 -->
+            <if test="q.tenantId != null and q.tenantId != ''">
+                AND aci.tenant_id COLLATE utf8mb4_general_ci = #{q.tenantId} COLLATE utf8mb4_general_ci
+                AND enc.tenant_id COLLATE utf8mb4_general_ci = #{q.tenantId} COLLATE utf8mb4_general_ci
+                AND rec.tenant_id COLLATE utf8mb4_general_ci = #{q.tenantId} COLLATE utf8mb4_general_ci
+            </if>
             <!-- 1. 结算日期范围（核心筛选条件，rec.bill_date = "哪天收的钱"） -->
             <if test="q.dateFrom != null and q.dateFrom != ''">
                 AND rec.bill_date <![CDATA[>=]]> CONCAT(#{q.dateFrom}, ' 00:00:00')
@@ -214,7 +347,8 @@
                                                                                 AS lineAmountSum,
             -- 🔴 Bug 1 修复：6. 实收合计 = 每条 aci 分摊实收的 SUM（和明细行算法 100% 一致）
             --    det 金额是 rec 级总金额，需按 aci 折后比例分摊后再 SUM，避免 N 条重复放大
-            COALESCE(SUM(
+            --    🔴 兜底：分摊结果 == 0（det 匹配不到支付流水 / rec 内全免）→ 用 lineAmount（行金额折后）兜底，默认全额已收
+            COALESCE(NULLIF(SUM(
                 CASE WHEN aci.refund_id IS NOT NULL
                      THEN -(CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
                                          FROM adm_charge_item inner_aci
@@ -238,7 +372,10 @@
                                           FROM adm_charge_item inner_aci
                                          WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
                                    , 2) END) END
-            ), 0)                                                                 AS actualReceivedAmountSum,
+            ), 0), COALESCE(SUM(CASE WHEN aci.refund_id IS NOT NULL
+                              THEN -(aci.base_amount - aci.discount_amount)
+                              ELSE (aci.base_amount - aci.discount_amount) END), 0))
+                                                                                AS actualReceivedAmountSum,
             -- 🔴 Bug 1 修复：7. 医保合计 = 分摊实收的 SUM（仅 pay_enum='YB'）
             COALESCE(SUM(
                 CASE WHEN det.pay_enum = 'YB'
@@ -268,34 +405,37 @@
                      ELSE 0 END
             ), 0)                                                                 AS insuranceAmountSum,
             -- 🔴 Bug 1 修复：8. 自费合计 = 行金额合计（折后） - 医保合计分摊 SUM（和明细行算法 100% 一致）
+            --    🔴 说明：actualReceivedAmountSum 有兜底（det没数据=全额已收），但医保合计永远取真实分摊值（没匹配YB=0，自费=行金额）
             COALESCE(SUM(CASE WHEN aci.refund_id IS NOT NULL
                               THEN -(aci.base_amount - aci.discount_amount)
                               ELSE (aci.base_amount - aci.discount_amount) END), 0)
           - COALESCE(SUM(
                 CASE WHEN det.pay_enum = 'YB'
-                     THEN (CASE WHEN aci.refund_id IS NOT NULL
+                     THEN COALESCE(NULLIF(
+                           CASE WHEN aci.refund_id IS NOT NULL
                                 THEN -(CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
                                                     FROM adm_charge_item inner_aci
                                                    WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
-                                               THEN 0
-                                               ELSE ROUND(
-                                                   (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
-                                                 * (aci.base_amount - aci.discount_amount)
-                                                 / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
-                                                      FROM adm_charge_item inner_aci
-                                                     WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
-                                               , 2) END)
+                                              THEN 0
+                                              ELSE ROUND(
+                                                  (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
+                                                * (aci.base_amount - aci.discount_amount)
+                                                / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                                     FROM adm_charge_item inner_aci
+                                                    WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
+                                              , 2) END)
                                 ELSE  (CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
                                                     FROM adm_charge_item inner_aci
                                                    WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
-                                               THEN 0
-                                               ELSE ROUND(
-                                                   (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
-                                                 * (aci.base_amount - aci.discount_amount)
-                                                 / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
-                                                      FROM adm_charge_item inner_aci
-                                                     WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
-                                               , 2) END) END)
+                                              THEN 0
+                                              ELSE ROUND(
+                                                  (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
+                                                * (aci.base_amount - aci.discount_amount)
+                                                / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                                     FROM adm_charge_item inner_aci
+                                                    WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
+                                              , 2) END) END
+                     , 0), 0)
                      ELSE 0 END
             ), 0)                                                                 AS selfPayAmountSum
         <include refid="minXiJoinFragment"/>
@@ -418,112 +558,8 @@
                 ELSE CONCAT(ROUND((aci.base_amount - aci.discount_amount) / aci.base_amount * 100, 0), '%')
             END                                                 AS discountRateDisplay,
 
-            /* ============ 💰 金额列（退费行统一取负数，合计自然抵消） ============ */
-            CASE WHEN aci.refund_id IS NOT NULL THEN -aci.base_amount ELSE aci.base_amount END
-                                                                AS baseAmount,
-            CASE WHEN aci.refund_id IS NOT NULL THEN -aci.discount_amount ELSE aci.discount_amount END
-                                                                AS discountAmount,
-            CASE WHEN aci.refund_id IS NOT NULL
-                 THEN -(aci.base_amount - aci.discount_amount)
-                 ELSE (aci.base_amount - aci.discount_amount) END
-                                                                AS receivableAmount,
-            -- 折后金额 = 原价 - 优惠
-            CASE WHEN aci.refund_id IS NOT NULL
-                 THEN -(aci.base_amount - aci.discount_amount)
-                 ELSE (aci.base_amount - aci.discount_amount) END
-                                                                AS discountedAmount,
-            -- 🔴 行金额 = 折后金额 = 原价 - 优惠
-            --    🔴 绝对不能用 aci.total_price（= aci.base_amount = 原价，不是折后！2026-07-26 数据库实锤：total_price = base_amount = q*p）
-            CASE WHEN aci.refund_id IS NOT NULL
-                 THEN -(aci.base_amount - aci.discount_amount)
-                 ELSE (aci.base_amount - aci.discount_amount) END
-                                                                AS lineAmount,
-            -- 🔴 Bug 1 修复：实收分摊
-            --    det.charge_amount / return_amount 是 rec（对账主表）级总金额，1 条 rec 含多条 aci（N 条拼在 charge_item_ids 逗号串里）
-            --    直接把 det 总金额赋值给每条 aci = 实收被放大 N 倍（典型错误：氯化钠 2.99 元显示实收 21.92）
-            --    ✅ 正确算法：按每条 aci 折后金额（base-discount）占该 rec 内「全部 aci 折后总和」的比例分摊 det 总实收
-            --    极端边界：如果 rec 内全部 aci 折后 = 0（全部全免优惠），则本条实收 = 0（避免除以 0）
-            CASE WHEN aci.refund_id IS NOT NULL
-                 THEN -(CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
-                                     FROM adm_charge_item inner_aci
-                                    WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
-                              THEN 0
-                              ELSE ROUND(
-                                  (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
-                                * (aci.base_amount - aci.discount_amount)
-                                / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
-                                     FROM adm_charge_item inner_aci
-                                    WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
-                              , 2) END)
-                 ELSE  (CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
-                                     FROM adm_charge_item inner_aci
-                                    WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
-                              THEN 0
-                              ELSE ROUND(
-                                  (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
-                                * (aci.base_amount - aci.discount_amount)
-                                / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
-                                     FROM adm_charge_item inner_aci
-                                    WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
-                              , 2) END) END
-                                                                AS actualReceivedAmount,
-            -- 🔴 Bug 1 修复：医保分摊（同实收算法，仅筛选 pay_enum='YB' 的 det 明细行）
-            CASE WHEN det.pay_enum = 'YB'
-                 THEN (CASE WHEN aci.refund_id IS NOT NULL
-                            THEN -(CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
-                                                FROM adm_charge_item inner_aci
-                                               WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
-                                       THEN 0
-                                       ELSE ROUND(
-                                           (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
-                                         * (aci.base_amount - aci.discount_amount)
-                                         / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
-                                              FROM adm_charge_item inner_aci
-                                             WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
-                                       , 2) END)
-                            ELSE  (CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
-                                                FROM adm_charge_item inner_aci
-                                               WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
-                                       THEN 0
-                                       ELSE ROUND(
-                                           (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
-                                         * (aci.base_amount - aci.discount_amount)
-                                         / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
-                                              FROM adm_charge_item inner_aci
-                                             WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
-                                       , 2) END) END)
-                 ELSE 0 END
-                                                                AS insuranceAmount,
-            -- 🔴 Bug 1 修复：自费 = 行金额（折后） - 医保分摊（同上，不再重复 det 总金额算法错误）
-            (CASE WHEN aci.refund_id IS NOT NULL
-                  THEN -(aci.base_amount - aci.discount_amount)
-                  ELSE (aci.base_amount - aci.discount_amount) END)
-          - (CASE WHEN det.pay_enum = 'YB'
-                  THEN (CASE WHEN aci.refund_id IS NOT NULL
-                             THEN -(CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
-                                                 FROM adm_charge_item inner_aci
-                                                WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
-                                        THEN 0
-                                        ELSE ROUND(
-                                            (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
-                                          * (aci.base_amount - aci.discount_amount)
-                                          / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
-                                               FROM adm_charge_item inner_aci
-                                              WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
-                                        , 2) END)
-                             ELSE  (CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
-                                                 FROM adm_charge_item inner_aci
-                                                WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
-                                        THEN 0
-                                        ELSE ROUND(
-                                            (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
-                                          * (aci.base_amount - aci.discount_amount)
-                                          / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
-                                               FROM adm_charge_item inner_aci
-                                              WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
-                                        , 2) END) END)
-                  ELSE 0 END)
-                                                                AS selfPayAmount
+            <include refid="minXiAciAmountCols"/>,
+            <include refid="minXiPayAmountCols"/>
         <include refid="minXiJoinFragment"/>
         <include refid="minXiWhereFragment"/>
         ORDER BY rec.bill_date DESC, aci.id DESC
@@ -618,102 +654,8 @@
                 ELSE CONCAT(ROUND((aci.base_amount - aci.discount_amount) / aci.base_amount * 100, 0), '%')
             END                                                 AS discountRateDisplay,
 
-            /* ============ 💰 金额列（退费行统一取负数，合计自然抵消） ============ */
-            CASE WHEN aci.refund_id IS NOT NULL THEN -aci.base_amount ELSE aci.base_amount END
-                                                                AS baseAmount,
-            CASE WHEN aci.refund_id IS NOT NULL THEN -aci.discount_amount ELSE aci.discount_amount END
-                                                                AS discountAmount,
-            CASE WHEN aci.refund_id IS NOT NULL
-                 THEN -(aci.base_amount - aci.discount_amount)
-                 ELSE (aci.base_amount - aci.discount_amount) END
-                                                                AS receivableAmount,
-            CASE WHEN aci.refund_id IS NOT NULL
-                 THEN -(aci.base_amount - aci.discount_amount)
-                 ELSE (aci.base_amount - aci.discount_amount) END
-                                                                AS discountedAmount,
-            CASE WHEN aci.refund_id IS NOT NULL
-                 THEN -(aci.base_amount - aci.discount_amount)
-                 ELSE (aci.base_amount - aci.discount_amount) END
-                                                                AS lineAmount,
-            CASE WHEN aci.refund_id IS NOT NULL
-                 THEN -(CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
-                                     FROM adm_charge_item inner_aci
-                                    WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
-                              THEN 0
-                              ELSE ROUND(
-                                  (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
-                                * (aci.base_amount - aci.discount_amount)
-                                / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
-                                     FROM adm_charge_item inner_aci
-                                    WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
-                              , 2) END)
-                 ELSE  (CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
-                                     FROM adm_charge_item inner_aci
-                                    WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
-                              THEN 0
-                              ELSE ROUND(
-                                  (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
-                                * (aci.base_amount - aci.discount_amount)
-                                / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
-                                     FROM adm_charge_item inner_aci
-                                    WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
-                              , 2) END) END
-                                                                AS actualReceivedAmount,
-            CASE WHEN det.pay_enum = 'YB'
-                 THEN (CASE WHEN aci.refund_id IS NOT NULL
-                            THEN -(CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
-                                                FROM adm_charge_item inner_aci
-                                               WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
-                                       THEN 0
-                                       ELSE ROUND(
-                                           (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
-                                         * (aci.base_amount - aci.discount_amount)
-                                         / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
-                                              FROM adm_charge_item inner_aci
-                                             WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
-                                       , 2) END)
-                            ELSE  (CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
-                                                FROM adm_charge_item inner_aci
-                                               WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
-                                       THEN 0
-                                       ELSE ROUND(
-                                           (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
-                                         * (aci.base_amount - aci.discount_amount)
-                                         / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
-                                              FROM adm_charge_item inner_aci
-                                             WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
-                                       , 2) END) END)
-                 ELSE 0 END
-                                                                AS insuranceAmount,
-            (CASE WHEN aci.refund_id IS NOT NULL
-                  THEN -(aci.base_amount - aci.discount_amount)
-                  ELSE (aci.base_amount - aci.discount_amount) END)
-          - (CASE WHEN det.pay_enum = 'YB'
-                  THEN (CASE WHEN aci.refund_id IS NOT NULL
-                             THEN -(CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
-                                                 FROM adm_charge_item inner_aci
-                                                WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
-                                        THEN 0
-                                        ELSE ROUND(
-                                            (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
-                                          * (aci.base_amount - aci.discount_amount)
-                                          / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
-                                               FROM adm_charge_item inner_aci
-                                              WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
-                                        , 2) END)
-                             ELSE  (CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
-                                                 FROM adm_charge_item inner_aci
-                                                WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
-                                        THEN 0
-                                        ELSE ROUND(
-                                            (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
-                                          * (aci.base_amount - aci.discount_amount)
-                                          / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
-                                               FROM adm_charge_item inner_aci
-                                              WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
-                                        , 2) END) END)
-                  ELSE 0 END)
-                                                                AS selfPayAmount
+            <include refid="minXiAciAmountCols"/>,
+            <include refid="minXiPayAmountCols"/>
         <include refid="minXiJoinFragment"/>
         <include refid="minXiWhereFragment"/>
         ORDER BY rec.bill_date DESC, aci.id DESC
