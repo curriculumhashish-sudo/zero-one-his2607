@@ -5,20 +5,14 @@
 #include "../../GlobalInclude.h"
 #include "../../dto/cycleCtrl1/patientQueueDTO.h"
 
-
-
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-//显示JsonVO，用于响应给客户端的JSON对象
-class PatientQueueJsonVO : public JsonVO<PatientQueueDTO::Wrapper>
+// 返回列表时，VO 的模板参数应为 Vector<DTO::Wrapper>
+class PatientQueueJsonVO : public JsonVO<oatpp::Vector<PatientQueueDTO::Wrapper>>
 {
-	DTO_INIT(PatientQueueJsonVO, JsonVO<PatientQueueDTO::Wrapper>);
+	DTO_INIT(PatientQueueJsonVO, JsonVO<oatpp::Vector<PatientQueueDTO::Wrapper>>);
 };
 
-
-
-
 #include OATPP_CODEGEN_END(DTO)
-
 
 #endif // !_PATIENTQUEUEVO_H_

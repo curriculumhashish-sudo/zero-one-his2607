@@ -12,7 +12,11 @@ class PatientFinishDTO : public oatpp::DTO
 
   
     // 更新后最新就诊状态
-    API_DTO_FIELD_REQUIRE(String, newVisitStatus, ZH_WORDS_GETTER("finish.dto.newVisitStatus"), true);
+    API_DTO_FIELD_REQUIRE(String, visitStatus, ZH_WORDS_GETTER("finish.dto.newVisitStatus"), true);
+
+    //唯一标识
+    API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("finish.dto.encounterId"),true);
+
 };
 
 

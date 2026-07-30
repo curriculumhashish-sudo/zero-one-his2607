@@ -1,11 +1,12 @@
-#pragma once
+Ôªø#pragma once
 #ifndef _PATIENTLEAVECONTROLLER_H_
 #define _PATIENTLEAVECONTROLLER_H_
 
-#include "domain/dto/cycleCtrl1/patientLeaveDTO.h"
+#include "domain/dto/cycleCtrl1/patientLeaveDTO.h"        
 #include "domain/query/cycleCtrl1/patientLeaveQuery.h"
 #include "domain/vo/cycleCtrl1/patientLeaveVo.h"
 #include "domain/GlobalInclude.h"
+#include "domain/dto/PayloadDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
@@ -17,27 +18,26 @@ class PatientLeaveController : public oatpp::web::server::api::ApiController
 
     API_ACCESS_DECLARE(PatientLeaveController);
 public:
-    ENDPOINT(API_M_PUT, "/cycleCtrl/leave", leavePatient,BODY_DTO(Object<PatientLeaveQuery>, leaveParam), API_HANDLER_AUTH_PARAME)
+    // ËØ∑Ê±Ç‰ΩìÂè™ÈúÄË¶ÅencounterId
+    ENDPOINT(API_M_PUT, "/cycleCtrl/leave", leavePatient, BODY_DTO(Object<PatientLeaveQuery>, leaveParam), API_HANDLER_AUTH_PARAME)
     {
-        API_HANDLER_RESP_VO(execLeavePatient(leaveParam));
+        API_HANDLER_RESP_VO(execLeavePatient(leaveParam, authObject->getPayload()));
     }
 
     ENDPOINT_INFO(leavePatient)
     {
-        //∂®“Â ⁄»®√Ë ˆ
+        //ÂÆö‰πâÊéàÊùÉÊèèËø∞
         API_DEF_ADD_AUTH();
         API_DEF_ADD_TITLE(ZH_WORDS_GETTER("leave.get.summary"));
-        //∂®“Â±Í«©
+        //ÂÆö‰πâÊ†áÁ≠æ
         API_DEF_ADD_TAG(API_TAG);
-
 
         API_DEF_ADD_RSP_JSON_WRAPPER(PatientLeaveJsonVO);
     }
 
 private:
-    PatientLeaveJsonVO::Wrapper execLeavePatient(const PatientLeaveQuery::Wrapper& query);
+    PatientLeaveJsonVO::Wrapper execLeavePatient(const PatientLeaveQuery::Wrapper& dto, const PayloadDTO& payload);
 };
-
 
 
 

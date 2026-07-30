@@ -17,7 +17,7 @@ class PatientQueueQuery : public oatpp::DTO
 	API_DTO_FIELD_REQUIRE(String, date, ZH_WORDS_GETTER("queue.query.date"), true);
 	//搜索患者
 	API_DTO_FIELD_REQUIRE(String, patientName, ZH_WORDS_GETTER("queue.query.patientName"), false);
-	//visitStatus -> 全部、待诊、在诊、完诊
+	//visitStatus -> 待诊、在诊、完诊
 	API_DTO_FIELD_REQUIRE(String, visitStatus, ZH_WORDS_GETTER("queue.query.visitStatus"), false);
 	
 };
