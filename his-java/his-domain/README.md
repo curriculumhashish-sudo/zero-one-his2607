@@ -8,6 +8,6 @@
   * Query模型包名：`com.zeroone.star.project.query.j1.homepage`
   * Vo模型包名：`com.zeroone.star.project.vo.j1.homepage`
 * j2组开发系统设置的相关领域模型，包名可以命名为：
-  * Dto模型包名：`com.zeroone.star.project.dto.j2.sys`
+  * Dto模型包名：`com.zeroone.star.project.dto.j2.sysmgr`
   * Query模型包名：`com.zeroone.star.project.query.j2.sys`
   * Vo模型包名：`com.zeroone.star.project.vo.j2.sys`

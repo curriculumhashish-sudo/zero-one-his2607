@@ -23,4 +23,5 @@ public class RentAddDTO {
     private String tenantStatus;
     @Schema(description = "租户描述", example = "默认租户", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String tenantDescription;
+
 }
