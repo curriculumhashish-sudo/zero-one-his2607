@@ -12,8 +12,13 @@ PreSettleChargeVO::Wrapper SettlementController::execPreSettleCharge(const PreSe
 }
 
 // 正式结算
-ConfirmSettleChargeVO::Wrapper SettlementController::execConfirmSettleCharge(const ConfirmSettleChargeRequestDTO::Wrapper& dto)
+ConfirmSettleChargeVO::Wrapper SettlementController::execConfirmSettleCharge(
+    const ConfirmSettleChargeRequestDTO::Wrapper& dto,
+    const PayloadDTO& payload)
 {
+    // 将操作人载荷注入DTO，供Service层读取
+    dto->setPayload(&payload);
+
     auto vo = ConfirmSettleChargeVO::createShared();
     SettleChargeService service;
     auto resp = service.confirmSettle(dto);

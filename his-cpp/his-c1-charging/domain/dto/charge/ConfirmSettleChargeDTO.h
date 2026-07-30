@@ -37,6 +37,9 @@ class ConfirmSettleChargeRequestDTO : public oatpp::DTO
 {
     DTO_INIT(ConfirmSettleChargeRequestDTO, DTO);
 
+    // 操作人载荷（由Controller注入，Service读取）
+    CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
+
     // 支付草稿主键——核心防重/防换单锚点
     API_DTO_FIELD(String, paymentDraftId,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeRequestDTO.paymentDraftId.description"),

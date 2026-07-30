@@ -75,7 +75,8 @@ PreSettleChargeResponseDTO::Wrapper SettleChargeService::preSettle(const PreSett
     return resp;
 }
 
-ConfirmSettleChargeResponseDTO::Wrapper SettleChargeService::confirmSettle(const ConfirmSettleChargeRequestDTO::Wrapper& dto)
+ConfirmSettleChargeResponseDTO::Wrapper SettleChargeService::confirmSettle(
+    const ConfirmSettleChargeRequestDTO::Wrapper& dto)
 {
     auto resp = ConfirmSettleChargeResponseDTO::createShared();
 
@@ -85,6 +86,11 @@ ConfirmSettleChargeResponseDTO::Wrapper SettleChargeService::confirmSettle(const
     std::string paymentId = UuidFacade().genUuid();
     std::string invoiceId = UuidFacade().genUuid();
     std::string encounterId = dto->encounterId;
+
+    // 从DTO中获取Controller注入的操作人载荷
+    std::string entererId = dto->getPayload() ? dto->getPayload()->getId() : "";
+    // 患者ID（目前从encounter取，后续可查adm_encounter表获取）
+    std::string patientId = encounterId;
 
     // 计算总金额
     double totalAmount = 0.0;
@@ -134,8 +140,9 @@ ConfirmSettleChargeResponseDTO::Wrapper SettleChargeService::confirmSettle(const
     SettleChargeDAO dao;
 
     // 1. 插入支付流水
-    dao.insertPayment(paymentId, nowStr, paymentNo, encounterId,
-        totalAmountStr, chargeItemIdsStr, billDate, invoiceId);
+    dao.insertPayment(paymentId, nowStr, paymentNo, entererId,
+        patientId, totalAmountStr, chargeItemIdsStr, billDate, invoiceId,
+        encounterId);
 
     // 2. 插入发票草稿
     dao.insertInvoice(invoiceId, nowStr, encounterId, paymentId,

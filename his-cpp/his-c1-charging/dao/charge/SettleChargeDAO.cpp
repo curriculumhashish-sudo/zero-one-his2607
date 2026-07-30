@@ -5,9 +5,11 @@
 #include "NacosClient.h"
 
 void SettleChargeDAO::insertPayment(const std::string& paymentId, const std::string& nowStr,
-    const std::string& paymentNo, const std::string& encounterId,
-    const std::string& totalAmountStr, const std::string& chargeItemIdsStr,
-    const std::string& billDate, const std::string& invoiceId)
+    const std::string& paymentNo, const std::string& entererId,
+    const std::string& patientId, const std::string& totalAmountStr,
+    const std::string& chargeItemIdsStr,
+    const std::string& billDate, const std::string& invoiceId,
+    const std::string& encounterId)
 {
     SqlParams params;
     SQLPARAMS_PUSH(params, "s", std::string, paymentId);
@@ -15,8 +17,8 @@ void SettleChargeDAO::insertPayment(const std::string& paymentId, const std::str
     SQLPARAMS_PUSH(params, "s", std::string, paymentNo);
     SQLPARAMS_PUSH(params, "s", std::string, "CASHIER");
     SQLPARAMS_PUSH(params, "s", std::string, "OUTPATIENT_CLINIC");
-    SQLPARAMS_PUSH(params, "s", std::string, encounterId);
-    SQLPARAMS_PUSH(params, "s", std::string, encounterId);
+    SQLPARAMS_PUSH(params, "s", std::string, entererId);
+    SQLPARAMS_PUSH(params, "s", std::string, patientId);
     SQLPARAMS_PUSH(params, "s", std::string, totalAmountStr);
     SQLPARAMS_PUSH(params, "s", std::string, totalAmountStr);
     SQLPARAMS_PUSH(params, "s", std::string, chargeItemIdsStr);

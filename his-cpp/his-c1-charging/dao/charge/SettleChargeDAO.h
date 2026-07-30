@@ -15,9 +15,11 @@ public:
      * 插入支付流水记录
      */
     void insertPayment(const std::string& paymentId, const std::string& nowStr,
-        const std::string& paymentNo, const std::string& encounterId,
-        const std::string& totalAmountStr, const std::string& chargeItemIdsStr,
-        const std::string& billDate, const std::string& invoiceId);
+        const std::string& paymentNo, const std::string& entererId,
+        const std::string& patientId, const std::string& totalAmountStr,
+        const std::string& chargeItemIdsStr,
+        const std::string& billDate, const std::string& invoiceId,
+        const std::string& encounterId);
 
     /**
      * 插入发票草稿记录
