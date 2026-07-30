@@ -4,16 +4,12 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zeroone.star.pharmacy.entity.WkfSupplyRequest;
-<<<<<<< HEAD
 import com.zeroone.star.project.query.j6.pharmacy.stocktake.PharmacyInventoryQuery;
 import com.zeroone.star.project.vo.j6.pharmacy.stocktake.PharmacyInventoryVO;
-import org.apache.ibatis.annotations.Param;
-=======
 import org.apache.ibatis.annotations.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
->>>>>>> 47246482f964d710eb2cdd54b1f334cc21cc983b
 
 /**
  * <p>工作流 supply request Mapper 接口</p>
@@ -44,7 +40,7 @@ public interface WkfSupplyRequestMapper extends BaseMapper<WkfSupplyRequest> {
      * 查询进货单审批所需行数据（按 busNo + typeEnum，排除已删行）
      */
     List<WkfSupplyRequest> selectInboundRowsForApproval(@Param("busNo") String busNo,
-                                                         @Param("typeEnum") String typeEnum);
+                                                        @Param("typeEnum") String typeEnum);
 
     /**
      * 提交审批：status_enum → PENDING_APPROVAL，写入审批人和申请人
@@ -89,6 +85,7 @@ public interface WkfSupplyRequestMapper extends BaseMapper<WkfSupplyRequest> {
                               @Param("reason") String reason,
                               @Param("updatedAt") LocalDateTime updatedAt,
                               @Param("updatedBy") String updatedBy);
+
     int updateStocktakeToWithdraw(@Param("busNo") String busNo,
                                   @Param("typeEnum") String typeEnum,
                                   @Param("currentStatus") String currentStatus,
@@ -103,10 +100,6 @@ public interface WkfSupplyRequestMapper extends BaseMapper<WkfSupplyRequest> {
                                @Param("updatedAt") LocalDateTime updatedAt,
                                @Param("updatedBy") String updatedBy);
 
-<<<<<<< HEAD
-
-
-=======
     int updateStocktakeToReject(@Param("busNo") String busNo,
                                 @Param("typeEnum") String typeEnum,
                                 @Param("currentStatus") String currentStatus,
@@ -115,5 +108,4 @@ public interface WkfSupplyRequestMapper extends BaseMapper<WkfSupplyRequest> {
                                 @Param("reason") String reason,
                                 @Param("updatedAt") LocalDateTime updatedAt,
                                 @Param("updatedBy") String updatedBy);
->>>>>>> 47246482f964d710eb2cdd54b1f334cc21cc983b
 }
