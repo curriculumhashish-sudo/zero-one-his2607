@@ -37,37 +37,37 @@ public enum TypeEnum implements BaseEnum {
 
     public static Integer getValueByDesc(String desc) {
         if (desc == null) {
-            return null;
+            throw new IllegalArgumentException("类型不能为空");
         }
         for (TypeEnum e : values()) {
             if (e.desc.equals(desc)) {
                 return e.value;
             }
         }
-        return null;
+        throw new IllegalArgumentException("类型不存在");
     }
 
     public static String getDictTextByDesc(String desc) {
         if (desc == null) {
-            return null;
+            throw new IllegalArgumentException("类型不能为空");
         }
         for (TypeEnum e : values()) {
             if (e.desc.equals(desc)) {
                 return e.dictText;
             }
         }
-        return null;
+        throw new IllegalArgumentException("类型不存在");
     }
 
     public static String getDescByValue(Integer value) {
         if (value == null) {
-            return null;
+            throw new IllegalArgumentException("类型不能为空");
         }
         for (TypeEnum e : values()) {
             if (e.value.equals(value)) {
                 return e.desc;
             }
         }
-        return null;
+        throw new IllegalArgumentException("类型不存在");
     }
 }

@@ -49,6 +49,10 @@
         INSERT INTO zo_his.whale_sequence(seq_key, current_value, updated_at)
         VALUES (#{seqKey}, #{currentValue}, #{updatedAt});
     </insert>
+    <insert id="createSequence">
+        INSERT INTO zo_his.whale_sequence(seq_key, current_value, updated_at)
+        VALUES (#{seqKey}, 0, NOW());
+    </insert>
 
     <update id="updateCurrentValue">
         UPDATE zo_his.whale_sequence
@@ -339,5 +343,9 @@
 
     <select id="getCurrentValueAfterIncrement" resultType="java.lang.Long">
         SELECT @new_val
+    </select>
+
+    <select id="isSeqKeyExist" resultType="java.lang.Boolean">
+        SELECT EXISTS (SELECT 1 FROM zo_his.whale_sequence WHERE seq_key = #{seqKey})
     </select>
 </mapper>

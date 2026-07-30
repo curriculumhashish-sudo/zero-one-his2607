@@ -232,6 +232,9 @@ public class DepartmentServiceImpl implements DepartmentService {
 
         String seqKey = "1:OR";
         String busNo = null;
+        if (!departmentMapper.isSeqKeyExist(seqKey)) {
+            departmentMapper.createSequence(seqKey);
+        }
         departmentMapper.incrementSequence(seqKey);
         Long newValue = departmentMapper.getCurrentValueAfterIncrement();
         if (newValue == null) {
@@ -239,12 +242,16 @@ public class DepartmentServiceImpl implements DepartmentService {
         }
 
 
-
-        String formattedSeqseqKey  = String.format("OR%04d", newValue);
+        String formattedSeq = String.format("OR%04d", newValue);
         if (Objects.equals(TypeEnum.HOSPITAL.getDesc(), TypeEnum.getDescByValue(dto.getTypeEnum())) || parentDepartment == null) {
             busNo = formattedSeq;
         } else {
             busNo = parentDepartment.getBusNo() + "." + formattedSeq;
+        }
+        List<DepartmentDO> existingBusNoDepartments = departmentMapper.selectList(new LambdaQueryWrapper<DepartmentDO>()
+                .eq(DepartmentDO::getBusNo, busNo));
+        if (!existingBusNoDepartments.isEmpty()) {
+            throw new IllegalArgumentException("部门编号已存在");
         }
 
         // TODO: 替换为真实的用户上下文获取
@@ -252,6 +259,12 @@ public class DepartmentServiceImpl implements DepartmentService {
         Long tenantId = departmentMapper.getTenantIdByUserId(currentUserId);
         if (tenantId == null) {
             throw new CurrentTenantNotFoundException("无法获取当前用户的租户信息");
+        }
+
+        List<DepartmentDO> existingNameDepartments = departmentMapper.selectList(new LambdaQueryWrapper<DepartmentDO>()
+                .eq(DepartmentDO::getName, dto.getName()));
+        if (!existingNameDepartments.isEmpty()) {
+            throw new IllegalArgumentException("部门名称已存在");
         }
 
         LocalDateTime now = LocalDateTime.now();
@@ -296,12 +309,6 @@ public class DepartmentServiceImpl implements DepartmentService {
         departmentMapper.insertUnit(unitDO);
     }
 
-    /**
-     * 批量启用或禁用部门
-     *
-     * @param dto 包含部门ID列表和状态值的DTO
-     * @author 胡傲宇
-     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateDepartment(String id, DepartmentUpdateDTO dto) {
@@ -462,6 +469,12 @@ public class DepartmentServiceImpl implements DepartmentService {
         }
     }
 
+    /**
+     * 批量启用或禁用部门
+     *
+     * @param dto 包含部门ID列表和状态值的DTO
+     * @author 胡傲宇
+     */
     @Override
     public void activeOrInactiveDepartment(DepartmentBatchDTO dto) {
         // 1. 参数校验
