@@ -13,8 +13,8 @@
 #include "room/RoomController.h"
 #include "bed/BedController.h"
 
-// If the macro for disabling Swagger documentation is defined
 #include "sup/SupplierAddUpdateController.h"
+#include "sup/SupController.h"
 
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
@@ -44,6 +44,8 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(SupplierAddUpdateController);
 	// Supplier management routes
 	ROUTER_SIMPLE_BIND(SupplierController);
+	// Supplier name query routes
+	ROUTER_SIMPLE_BIND(SupController);
 	ROUTER_SIMPLE_BIND(WardController);
 	ROUTER_SIMPLE_BIND(PharmController);
 	ROUTER_SIMPLE_BIND(RoomController);
