@@ -29,4 +29,10 @@ public interface RegisterTypeMapper extends BaseMapper<RegisterType> {
      * @return  healthcare_service.id
      */
     String selectHealthcareServiceIdByName(@Param("name") String name);
+
+    /**
+     * 获取第一个可用的 healthcare_service.id（名称匹配不到时的兜底）
+     * @return  healthcare_service.id
+     */
+    String selectFirstHealthcareServiceId();
 }
