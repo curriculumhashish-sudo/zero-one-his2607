@@ -114,4 +114,23 @@ public:
 // 定义一个库存物品（器材）实体的智能指针
 typedef std::shared_ptr<WkfInventoryItemDO> PtrWkfInventoryItemDO;
 
+/**
+ * 视图对象，关联一些外表的字段
+ */
+class WkfInventoryItemViewDO : public WkfInventoryItemDO {
+	// 项目编码
+	MYSQL_SYNTHESIZE(string, productBusNo, ProductBusNo);
+	// 规格
+	MYSQL_SYNTHESIZE(string, totalVolume, TotalVolume);
+	// 厂家/产地
+	MYSQL_SYNTHESIZE(string, manufacturer, Manufacturer);
+	// 耗材分类编码
+	MYSQL_SYNTHESIZE(string, deviceCategoryCode, DeviceCategoryCode);
+	// 批号售价（包装整包）
+	MYSQL_SYNTHESIZE(double, lotNumberPriceAmount, LotNumberPriceAmount);
+};
+
+// 定义一个智能指针别名方便使用
+typedef std::shared_ptr<WkfInventoryItemViewDO> PtrWkfInventoryItemViewDO;
+
 #endif // !_INVENTORYITEMDO_H_

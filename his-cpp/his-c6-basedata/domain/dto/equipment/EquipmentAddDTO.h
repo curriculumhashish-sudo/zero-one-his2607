@@ -19,7 +19,7 @@ class EquipmentAddDTO : public oatpp::DTO
 	// 器材分类
 	API_DTO_FIELD_REQUIRE(String, classification, ZH_WORDS_GETTER("equipment.field.classification"), true);
 	// 器材编码
-	API_DTO_FIELD_REQUIRE(String, keywords, ZH_WORDS_GETTER("equipment.field.keywords"), false);
+	API_DTO_FIELD_REQUIRE(String, code, ZH_WORDS_GETTER("equipment.field.code"), false);
 	// 商品名称
 	API_DTO_FIELD_REQUIRE(String, goods, ZH_WORDS_GETTER("equipment.field.goods"), false);
 	// 包装规格
@@ -41,29 +41,29 @@ class EquipmentAddDTO : public oatpp::DTO
 	// 医保等级
 	API_DTO_FIELD_REQUIRE(String, medinsgra, ZH_WORDS_GETTER("equipment.field.medinsgra"), false);
 	// 采购单位
-	API_DTO_FIELD_REQUIRE(String, purchaunit, ZH_WORDS_GETTER("equipment.field.purchaunit"), true);
+	API_DTO_FIELD_REQUIRE(Float64, purchaunit, ZH_WORDS_GETTER("equipment.field.purchaunit"), true);
 	// 采购/拆零倍数pur/min
-	API_DTO_FIELD_REQUIRE(String, purmin, ZH_WORDS_GETTER("equipment.field.purmin"), true);
+	API_DTO_FIELD_REQUIRE(Float64, purmin, ZH_WORDS_GETTER("equipment.field.purmin"), true);
 	// 购入价（包装单位）
-	API_DTO_FIELD_REQUIRE(String, purchase, ZH_WORDS_GETTER("equipment.field.purchase"), true);
+	API_DTO_FIELD_REQUIRE(Float64, purchase, ZH_WORDS_GETTER("equipment.field.purchase"), true);
 	// 库存单位
 	API_DTO_FIELD_REQUIRE(String, inventory, ZH_WORDS_GETTER("equipment.field.inventory"), true);
 	// 库存/拆零倍数
-	API_DTO_FIELD_REQUIRE(String, invsplit, ZH_WORDS_GETTER("equipment.field.invstlit"), true);
+	API_DTO_FIELD_REQUIRE(Float64, invsplit, ZH_WORDS_GETTER("equipment.field.invstlit"), true);
 	// 零售价（包装单位）
-	API_DTO_FIELD_REQUIRE(String, retail, ZH_WORDS_GETTER("equipment.field.retail"), true);
+	API_DTO_FIELD_REQUIRE(Float64, retail, ZH_WORDS_GETTER("equipment.field.retail"), true);
 	// 包装单位
 	API_DTO_FIELD_REQUIRE(String, packaging, ZH_WORDS_GETTER("equipment.field.packaging"), true);
 	// 包装/拆零倍数Packaging / Split bulk
-	API_DTO_FIELD_REQUIRE(String, packsplit, ZH_WORDS_GETTER("equipment.field.packsplit"), true);
+	API_DTO_FIELD_REQUIRE(Float64, packsplit, ZH_WORDS_GETTER("equipment.field.packsplit"), true);
 	// 拆零单位
 	API_DTO_FIELD_REQUIRE(String, split, ZH_WORDS_GETTER("equipment.field.split"), true);
 	// 最高零售价（包装单位）
-	API_DTO_FIELD_REQUIRE(String, maxretail, ZH_WORDS_GETTER("equipment.field.maxretail"), false);
+	API_DTO_FIELD_REQUIRE(Float64, maxretail, ZH_WORDS_GETTER("equipment.field.maxretail"), false);
 	// 警戒线最高值(库存单位)
-	API_DTO_FIELD_REQUIRE(String, warningmax, ZH_WORDS_GETTER("equipment.field.warningmax"), false);
+	API_DTO_FIELD_REQUIRE(Float64, warningmax, ZH_WORDS_GETTER("equipment.field.warningmax"), false);
 	// 警戒线最低值(库存单位)
-	API_DTO_FIELD_REQUIRE(String, warningmin, ZH_WORDS_GETTER("equipment.field.warningmin"), false);
+	API_DTO_FIELD_REQUIRE(Int64, warningmin, ZH_WORDS_GETTER("equipment.field.warningmin"), false);
 	// 拼音码
 	API_DTO_FIELD_REQUIRE(String, pinyin, ZH_WORDS_GETTER("equipment.field.pinyin"), false);
 	// 五笔码
@@ -88,21 +88,28 @@ public:
 			return "price invalidate.";
 		if (!finantype || finantype->empty())
 			return "finantype invalidate.";
-		if (!purchaunit || purchaunit->empty())
+		double unit = *purchaunit;
+		if (unit <= 0.000)
+		{
 			return "purchaunit invalidate.";
-		if (!purmin || purmin->empty())
+		}
+
+		double minVal = *purmin;
+		if (minVal <= 0)
+		{
 			return "purmin invalidate.";
-		if (!purchase || purchase->empty())
+		}
+		if (!purchase)
 			return "purchase invalidate.";
 		if (!inventory || inventory->empty())
 			return "inventory invalidate.";
-		if (!invsplit || invsplit->empty())
+		if (!invsplit)
 			return "invsplit invalidate.";
-		if (!retail || retail->empty())
+		if (!retail)
 			return "retail invalidate.";
 		if (!packaging || packaging->empty())
 			return "packaging invalidate.";
-		if (!packsplit || packsplit->empty())
+		if (!packsplit)
 			return "packsplit invalidate.";
 		if (!split || split->empty())
 			return "split invalidate.";

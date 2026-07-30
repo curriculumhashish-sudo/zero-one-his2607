@@ -24,7 +24,7 @@
     # 基础通用字段
     id: 序号
     ids: 待操作的器材ID集合
-    code: 器材编码
+    code: 编码
     name: 器材名称
     status: 器材状态 1-启用 0-禁用
     desc: 器材描述

@@ -23,12 +23,28 @@ EquipmentDetailPageDTO::Wrapper EquipmentService::listAll(const EquipmentQuery::
 	// 分页查询数据
 	pages->total = count;
 	pages->calcPages();
-	list<WkfInventoryItemDO> result = dao.selectWithPage(query);
+	list<WkfInventoryItemViewDO> result = dao.selectWithPage(query);
 	// 将DO转换成DTO
-	for (WkfInventoryItemDO& sub : result)
+	for (WkfInventoryItemViewDO& sub : result)
 	{
 		auto dto = EquipmentDetailDTO::createShared();
-		ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub, id, Id, name, Name);
+		ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub, 
+			id, Id,
+			code,ProductBusNo,
+			name, Name,
+			classification, TotalVolume,
+			specification, InventoryStatusEnum,
+			manufacturer, Manufacturer,
+			price, LotNumberPriceAmount
+		);
+		if (sub.getDeviceCategoryCode() == "1")
+		{
+			dto->status = 1;
+		}
+		else
+		{
+			dto->status = 0;
+		}
 		pages->addData(dto);
 	}
 	return pages;
@@ -51,7 +67,28 @@ EquipmentDTO::Wrapper EquipmentService::getById(std::string id)
 		dto, res,
 		id, Id,
 		name, Name,
-		classification, CategoryCode,
+		goods, MerchandiseName,
+		classification, DeviceCategoryCode,
+		manufacturer, Manufacturer,
+		supplier, SupplierId,
+		apprno, ApprovalNumber,
+		specification, TotalVolume,
+		code, YbNo,
+		finantype, MedicationCategoryCode,
+		code, ProductBusNo,
+		// 医保类别 medinscat,
+		// 医保等级 medinsgra, ChrgitmLv
+		// 采购单位 purchaunit,
+		// 采购/拆零倍数 
+		purchase,LotNumberCostAmount,
+		// 库存单位
+		// 库存拆零倍数
+		retail,LotNumberPriceAmount,
+		// 包装单位
+		packsplit, PackageUnitRatio,
+		// 最高零售价（包装单位）
+		// 警戒线最高值(库存单位)
+		// 警戒线最低值(库存单位)
 		pinyin, PyStr,
 		wubi, WbStr
 		);
@@ -173,8 +210,8 @@ EquipmentSelectPageDTO::Wrapper EquipmentService::selectData(const EquipmentQuer
 	pages->total = count;
 	pages->calcPages();
 
-	list<WkfInventoryItemDO> result = dao.selectWithPage(query);
-	for (WkfInventoryItemDO& sub : result)
+	list<WkfInventoryItemViewDO> result = dao.selectWithPage(query);
+	for (WkfInventoryItemViewDO& sub : result)
 	{
 		auto dto = EquipmentSelectDTO::createShared();
 		dto->id = sub.getId();
