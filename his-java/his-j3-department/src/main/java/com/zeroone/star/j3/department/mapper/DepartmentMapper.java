@@ -20,7 +20,8 @@ import java.time.LocalDateTime;
  */
 @Mapper
 public interface DepartmentMapper extends BaseMapper<DepartmentDO> {
-    DepartmentDO selectUpdateDepartmentById(@Param("id") String id);
+    DepartmentDO selectUpdateDepartmentById(@Param("id") String id,
+                                            @Param("tenantId") String tenantId);
 
     String getParentBusNo(Long parentId);
 
