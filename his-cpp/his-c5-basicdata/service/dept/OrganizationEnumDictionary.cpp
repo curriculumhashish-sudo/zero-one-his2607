@@ -7,12 +7,15 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 #include "MongoClient.h"
 #include "bsoncxx/builder/basic/array.hpp"
 #include "bsoncxx/builder/basic/document.hpp"
 #include "bsoncxx/builder/basic/kvp.hpp"
 #include "bsoncxx/types.hpp"
+#include "mongocxx/collection.hpp"
+#include "mongocxx/cursor.hpp"
 #include "mongocxx/options/find.hpp"
 #include "oatpp/core/base/Environment.hpp"
 
@@ -32,9 +35,11 @@ namespace
 
     constexpr const char MONGO_COMPONENT_NAME[] =
         "dept-organization-enum-mongo";
+    // Temporary convention: organization enums belong to system tenant 1.
+    // Replace this constant with auth context or configuration when needed.
     constexpr const char SYSTEM_ENUM_TENANT_ID[] = "1";
-    constexpr const char ENUM_TYPE_COLLECTION[] = "enum_type";
-    constexpr const char ENUM_VALUE_COLLECTION[] = "enum_value";
+    constexpr const char ENUM_TYPE_COLLECTION[] = "EnumType";
+    constexpr const char ENUM_VALUE_COLLECTION[] = "EnumValue";
     constexpr const char ORGANIZATION_TYPE_KEY[] = "OrganizationType";
     constexpr const char ORGANIZATION_CLASS_KEY[] =
         "OrganizationClassification";
@@ -114,7 +119,8 @@ namespace
 
     bool loadEnumTypes(
         MongoClient& client,
-        std::unordered_map<std::string, std::string>& typeKeyById
+        std::unordered_map<std::string, std::string>& typeKeyById,
+        std::vector<bsoncxx::oid>& typeIds
     )
     {
         using bsoncxx::builder::basic::kvp;
@@ -124,7 +130,7 @@ namespace
         const auto filter = make_document(
             kvp("tenantId", SYSTEM_ENUM_TENANT_ID),
             kvp(
-                "enum_type_key",
+                "enumTypeKey",
                 make_document(
                     kvp(
                         "$in",
@@ -136,20 +142,20 @@ namespace
                     )
                 )
             ),
-            kvp("is_deleted", false)
+            kvp("isDeleted", false)
         );
 
         mongocxx::options::find options;
         options.projection(
             make_document(
                 kvp("_id", 1),
-                kvp("enum_type_key", 1)
+                kvp("enumTypeKey", 1)
             )
         );
 
         return client.execute(
             ENUM_TYPE_COLLECTION,
-            [&filter, &options, &typeKeyById](
+            [&filter, &options, &typeKeyById, &typeIds](
                 mongocxx::collection* collection
             )
             {
@@ -157,15 +163,22 @@ namespace
 
                 for (const auto& document : cursor)
                 {
-                    const std::string id = readString(document, "_id");
+                    const auto idElement = document["_id"];
+                    if (!idElement || idElement.type() != bsoncxx::type::k_oid)
+                    {
+                        continue;
+                    }
+
+                    const bsoncxx::oid id = idElement.get_oid().value;
                     const std::string typeKey = readString(
                         document,
-                        "enum_type_key"
+                        "enumTypeKey"
                     );
 
-                    if (!id.empty() && isRequiredTypeKey(typeKey))
+                    if (isRequiredTypeKey(typeKey))
                     {
-                        typeKeyById.emplace(id, typeKey);
+                        typeKeyById.emplace(id.to_string(), typeKey);
+                        typeIds.emplace_back(id);
                     }
                 }
             }
@@ -175,6 +188,7 @@ namespace
     bool loadEnumValues(
         MongoClient& client,
         const std::unordered_map<std::string, std::string>& typeKeyById,
+        const std::vector<bsoncxx::oid>& typeIds,
         OrganizationEnumTextMap& mappings
     )
     {
@@ -182,27 +196,26 @@ namespace
         using bsoncxx::builder::basic::kvp;
         using bsoncxx::builder::basic::make_document;
 
-        array typeIds;
-        for (const auto& entry : typeKeyById)
+        array typeIdValues;
+        for (const auto& typeId : typeIds)
         {
-            typeIds.append(entry.first);
+            typeIdValues.append(bsoncxx::types::b_oid{typeId});
         }
 
         const auto filter = make_document(
-            kvp("tenant_id", SYSTEM_ENUM_TENANT_ID),
+            kvp("tenantId", SYSTEM_ENUM_TENANT_ID),
             kvp(
-                "enum_type_id",
-                make_document(kvp("$in", typeIds.extract()))
+                "enumTypeId",
+                make_document(kvp("$in", typeIdValues.extract()))
             ),
-            kvp("is_deleted", false),
-            kvp("status", 0)
+            kvp("isDeleted", false)
         );
 
         mongocxx::options::find options;
         options.projection(
             make_document(
-                kvp("enum_type_id", 1),
-                kvp("enum_key", 1),
+                kvp("enumTypeId", 1),
+                kvp("enumKey", 1),
                 kvp("display", 1),
                 kvp("_id", 0)
             )
@@ -220,11 +233,11 @@ namespace
                 {
                     const std::string typeId = readString(
                         document,
-                        "enum_type_id"
+                        "enumTypeId"
                     );
                     const std::string enumKey = readString(
                         document,
-                        "enum_key"
+                        "enumKey"
                     );
                     const std::string display = readString(
                         document,
@@ -272,14 +285,15 @@ namespace
     )
     {
         std::unordered_map<std::string, std::string> typeKeyById;
+        std::vector<bsoncxx::oid> typeIds;
 
-        if (!loadEnumTypes(client, typeKeyById))
+        if (!loadEnumTypes(client, typeKeyById, typeIds))
         {
             return false;
         }
 
         if (!typeKeyById.empty() &&
-            !loadEnumValues(client, typeKeyById, result.mappings))
+            !loadEnumValues(client, typeKeyById, typeIds, result.mappings))
         {
             return false;
         }

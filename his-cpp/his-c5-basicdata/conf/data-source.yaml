@@ -12,4 +12,3 @@ spring:
       password: root
     mongodb:
       uri: mongodb://awei:123456@192.168.28.132:27017/firstDb
-      #uri: mongodb://awei:123456@192.168.31.58:27017/firstDb
