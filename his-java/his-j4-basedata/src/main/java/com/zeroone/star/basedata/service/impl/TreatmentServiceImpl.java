@@ -66,8 +66,8 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
 
     @Override
     public PageDTO<TreatmentSelectVO> listTreatmentOptions(TreatmentQuery query) {
-        long pageIndex = query.getPageIndex() == null || query.getPageIndex() <= 0 ? DEFAULT_PAGE_INDEX : query.getPageIndex();
-        long pageSize = query.getPageSize() == null || query.getPageSize() <= 0 ? DEFAULT_PAGE_SIZE : query.getPageSize();
+        long pageIndex = (query.getPageIndex() <= 0) ? DEFAULT_PAGE_INDEX : query.getPageIndex();
+        long pageSize = (query.getPageSize() <= 0) ? DEFAULT_PAGE_SIZE : query.getPageSize();
 
         String tenantId = userHolder.getCurrentTenantId();
         Page<WkfActivityDefinitionDO> page = new Page<>(pageIndex, pageSize);
@@ -99,8 +99,8 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
 
     @Override
     public PageDTO<TreatmentListVO> queryTreatmentList(TreatmentQuery query) {
-        long pageIndex = query.getPageIndex() == null || query.getPageIndex() <= 0 ? DEFAULT_PAGE_INDEX : query.getPageIndex();
-        long pageSize = query.getPageSize() == null || query.getPageSize() <= 0 ? DEFAULT_PAGE_SIZE : query.getPageSize();
+        long pageIndex = query.getPageIndex() <= 0 ? DEFAULT_PAGE_INDEX : query.getPageIndex();
+        long pageSize = query.getPageSize() <= 0 ? DEFAULT_PAGE_SIZE : query.getPageSize();
 
         String tenantId = userHolder.getCurrentTenantId();
         Page<TreatmentListVO> page = new Page<>(pageIndex, pageSize);
