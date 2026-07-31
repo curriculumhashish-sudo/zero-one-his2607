@@ -39,9 +39,9 @@ class EquipmentAddDTO : public oatpp::DTO
 	// 医保类别Med Ins Cat.
 	API_DTO_FIELD_REQUIRE(String, medinscat, ZH_WORDS_GETTER("equipment.field.medinscat"), false);
 	// 医保等级
-	API_DTO_FIELD_REQUIRE(String, medinsgra, ZH_WORDS_GETTER("equipment.field.medinsgra"), false);
+	API_DTO_FIELD_REQUIRE(Int32, medinsgra, ZH_WORDS_GETTER("equipment.field.medinsgra"), false);
 	// 采购单位
-	API_DTO_FIELD_REQUIRE(Float64, purchaunit, ZH_WORDS_GETTER("equipment.field.purchaunit"), true);
+	API_DTO_FIELD_REQUIRE(String, purchaunit, ZH_WORDS_GETTER("equipment.field.purchaunit"), true);
 	// 采购/拆零倍数pur/min
 	API_DTO_FIELD_REQUIRE(Float64, purmin, ZH_WORDS_GETTER("equipment.field.purmin"), true);
 	// 购入价（包装单位）
@@ -63,7 +63,7 @@ class EquipmentAddDTO : public oatpp::DTO
 	// 警戒线最高值(库存单位)
 	API_DTO_FIELD_REQUIRE(Float64, warningmax, ZH_WORDS_GETTER("equipment.field.warningmax"), false);
 	// 警戒线最低值(库存单位)
-	API_DTO_FIELD_REQUIRE(Int64, warningmin, ZH_WORDS_GETTER("equipment.field.warningmin"), false);
+	API_DTO_FIELD_REQUIRE(Float64, warningmin, ZH_WORDS_GETTER("equipment.field.warningmin"), false);
 	// 拼音码
 	API_DTO_FIELD_REQUIRE(String, pinyin, ZH_WORDS_GETTER("equipment.field.pinyin"), false);
 	// 五笔码
@@ -88,11 +88,8 @@ public:
 			return "price invalidate.";
 		if (!finantype || finantype->empty())
 			return "finantype invalidate.";
-		double unit = *purchaunit;
-		if (unit <= 0.000)
-		{
+		if (!purchaunit || purchaunit->empty())
 			return "purchaunit invalidate.";
-		}
 
 		double minVal = *purmin;
 		if (minVal <= 0)

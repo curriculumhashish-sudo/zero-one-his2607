@@ -66,33 +66,61 @@ EquipmentDTO::Wrapper EquipmentService::getById(std::string id)
 	auto dto = EquipmentDTO::createShared();
 	ZO_STAR_DOMAIN_DO_TO_DTO_1(
 		dto, res,
+		// 基础主键
 		id, Id,
+		// 器材名称
 		name, Name,
+		// 商品名称
 		goods, MerchandiseName,
-		classification, DeviceCategoryCode,
-		manufacturer, Manufacturer,
-		supplier, SupplierId,
+		// 器材分类编码
+		classification, CategoryCode,
+		// 生产厂家名称
+		manufacturer, ManufacturerText,
+		// 供应商标识
+		supplier, SupplyId,
+		// 批准文号
 		apprno, ApprovalNumber,
+		// 包装规格描述
 		specification, TotalVolume,
+		// 医保编码
 		code, YbNo,
-		finantype, MedicationCategoryCode,
-		code, ProductBusNo,
-		// 医保类别 medinscat,
-		// 医保等级 medinsgra, ChrgitmLv
-		// 采购单位 purchaunit,
-		// 采购/拆零倍数 
-		purchase,LotNumberCostAmount,
-		// 库存单位
-		// 库存拆零倍数
-		retail,LotNumberPriceAmount,
-		// 包装单位
+		// 财务类型：DO无对应字段
+		// finantype, 无对应DO字段,
+		// 院内业务编码
+		code, BusNo,
+		// 医保类别：DO无此字段
+		// medinscat, 无对应DO字段,
+		// 医保等级
+		medinsgra, ChrgitmLv,
+		// 采购单位编码
+		purchaunit, PurchaseUnitCode,
+		// 采购/拆零倍数（采购换算比例）
+		purmin, PurchaseUnitRatio,
+		// 购入价（整包装价格）
+		purchase, LotNumberCostAmount,
+		// 库存单位编码
+		inventory, SplitUnitCode,
+		// 库存拆零倍数（库存换算比例）
+		invsplit, StockUnitRatio,
+		// 零售价（整包装售价）
+		retail, LotNumberPriceAmount,
+		// 包装单位编码
+		packaging, PurchaseUnitCode,
+		// 包装拆零倍数（包装换算比例）
 		packsplit, PackageUnitRatio,
-		// 最高零售价（包装单位）
-		// 警戒线最高值(库存单位)
-		// 警戒线最低值(库存单位)
+		// 拆零单位编码
+		split, SplitUnitCode,
+		// 最高零售价：DO无对应字段
+		// maxretail, 无对应DO字段,
+		// 库存警戒上限
+		warningmax, ItemMaxQuantity,
+		// 库存警戒下限
+		warningmin, ItemMinQuantity,
+		// 拼音检索码
 		pinyin, PyStr,
+		// 五笔检索码
 		wubi, WbStr
-		);
+	);
 	return dto;
 }
 

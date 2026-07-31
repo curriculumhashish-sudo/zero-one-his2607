@@ -7,7 +7,7 @@
 #include "../../domain/do/equipment/DocInventoryItemSnapshotDO.h"
 #include "../../domain/do/equipment/InventoryLockDO.h"
 #include "../../domain/do/equipment/WkfInventoryItemDO.h"
-
+#include "../../domain/do/equipment/AdmDeviceDefinition.h"
 
 /**
  * 示例表字段匹配映射InventoryLock
@@ -131,7 +131,7 @@ public:
 
 
 /**
- * 库存物品主表 普通值对象映射
+ * 分页
  */
 class QueryMapper : public Mapper<DocInventoryItemSnapshotDO>
 {
@@ -156,6 +156,72 @@ public:
 		data.setManufacturer(resultSet->getString(7));
 		// 批号售价（包装整包）
 		data.setLotNumberPriceAmount(resultSet->getDouble(8));
+
+		return data;
+	}
+};
+
+// 详情
+// 详情查询Mapper 按ID单条查询
+class PtrByIdMapper : public Mapper<std::shared_ptr<AdmDeviceDefinitionDO>>
+{
+public:
+	std::shared_ptr<AdmDeviceDefinitionDO> mapper(ResultSet* resultSet) const override
+	{
+		auto data = std::make_shared<AdmDeviceDefinitionDO>();
+
+		// ========== 基础主键、租户、创建更新、删除、乐观锁字段 ==========
+		data->setId(resultSet->getString(1));
+		data->setTenantId(resultSet->getString(2));
+		data->setCreatedAt(resultSet->getString(3));
+		data->setUpdatedAt(resultSet->getString(4));
+		data->setCreatedBy(resultSet->getString(5));
+		data->setUpdatedBy(resultSet->getString(6));
+		data->setIsDeleted(resultSet->getBoolean(7));
+		data->setDeletedAt(resultSet->getString(8));
+		data->setDeletedBy(resultSet->getString(9));
+		data->setVersion(resultSet->getInt(10));
+
+		// ========== 核心业务器材基础信息字段 ==========
+		data->setName(resultSet->getString(11));
+		data->setBusNo(resultSet->getString(12));
+		data->setPyStr(resultSet->getString(13));
+		data->setWbStr(resultSet->getString(14));
+		data->setCategoryCode(resultSet->getString(15));
+		data->setTypeCode(resultSet->getString(16));
+		data->setPurchaseUnitCode(resultSet->getString(17));
+		data->setSplitUnitCode(resultSet->getString(18));
+		data->setTotalVolume(resultSet->getString(19));
+		data->setItemMinQuantity(resultSet->getDouble(20));
+		data->setItemMaxQuantity(resultSet->getDouble(21));
+		data->setMerchandiseName(resultSet->getString(22));
+		data->setMerchandisePyStr(resultSet->getString(23));
+		data->setMerchandiseWbStr(resultSet->getString(24));
+		data->setOrgId(resultSet->getString(25));
+		data->setModelNumber(resultSet->getString(26));
+		data->setHvcmFlag(resultSet->getBoolean(27));
+		data->setApprovalNumber(resultSet->getString(28));
+		data->setManufacturerId(resultSet->getString(29));
+		data->setManufacturerText(resultSet->getString(30));
+		data->setSupplyId(resultSet->getString(31));
+		data->setStatusEnum(resultSet->getString(32));
+		data->setActiveFlag(resultSet->getBoolean(33));
+
+		// ========== 医保、财务、单位换算、进价售价字段 ==========
+		data->setAllergenFlag(resultSet->getBoolean(34));
+		data->setRxFlag(resultSet->getBoolean(35));
+		data->setYbFlag(resultSet->getBoolean(36));
+		data->setYbNo(resultSet->getString(37));
+		data->setYbMatchFlag(resultSet->getBoolean(38));
+		data->setChrgitmLv(resultSet->getInt(39));
+
+		data->setDoseUnitRatio(resultSet->getDouble(40));
+		data->setPurchaseUnitRatio(resultSet->getDouble(41));
+		data->setStockUnitRatio(resultSet->getDouble(42));
+		data->setPackageUnitRatio(resultSet->getDouble(43));
+
+		data->setLotNumberCostAmount(resultSet->getDouble(44));
+		data->setLotNumberPriceAmount(resultSet->getDouble(45));
 
 		return data;
 	}

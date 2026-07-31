@@ -80,10 +80,11 @@ std::list<DocInventoryItemSnapshotDO> EquipmentDAO::selectWithPage(const Equipme
 // ============================================================================
 // 4. 根据 ID 查询单条数据
 // ============================================================================
-PtrDocInventorySnapshotDO EquipmentDAO::selectById(std::string id)
+PtrAdmDeviceDefinitionDO EquipmentDAO::selectById(std::string id)
 {
-	std::string sql = "SELECT * FROM doc_inventory_item_snapshot WHERE `id` = ?";
-	return sqlSession->executeQueryOne<PtrDocInventorySnapshotDO>(sql, PtrDocInventorySnapshotMapper(), "%s", id);
+	std::string sql = "SELECT ad.*,diis.* FROM adm_device_definition ad JOIN doc_inventory_item_snapshot diis ON "
+		"ad.tenant_id=diis.tenant_id WHERE ad.`id` = ?";
+	return sqlSession->executeQueryOne<PtrAdmDeviceDefinitionDO>(sql, PtrByIdMapper(), "%s", id);
 }
 
 // ============================================================================

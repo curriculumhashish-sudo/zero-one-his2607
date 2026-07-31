@@ -7,7 +7,7 @@
 #include "../../domain/do/equipment/InventoryLockDO.h"
 #include "../../domain/do/equipment/WkfInventoryItemDO.h"
 #include "../../domain/query/equipment/EquipmentQuery.h"
-
+#include "../../domain/do/equipment/AdmDeviceDefinition.h"
 /**
  * 示例表数据库操作实现
  */
@@ -32,7 +32,7 @@ public:
 	// 通过姓名查询数据
 	std::list<WkfInventoryItemDO> selectByName(const string& name);
 	// 通过ID查询数据
-	PtrDocInventorySnapshotDO selectById(std::string id);
+	PtrAdmDeviceDefinitionDO selectById(std::string id);
 
 	// 新增的数据插入 (供 saveData 调用)
 	int insert(const WkfInventoryItemDO& entity);

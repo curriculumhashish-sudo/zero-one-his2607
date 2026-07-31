@@ -4,7 +4,7 @@
 #define _ADM_DEVICE_DEFINITION_DO_H_
 
 #include "../DoInclude.h"
-
+#include "DocInventoryItemSnapshotDO.h"
 /**
  * 耗材/器材基础定义字典实体
  */
@@ -105,6 +105,10 @@
 	// 销售单位→拆零换算
 	MYSQL_SYNTHESIZE(double, packageUnitRatio, PackageUnitRatio);
 
+	// 批号进价（包装整包）
+	MYSQL_SYNTHESIZE(double, lotNumberCostAmount, LotNumberCostAmount);
+	// 批号售价（包装整包）
+	MYSQL_SYNTHESIZE(double, lotNumberPriceAmount, LotNumberPriceAmount);
 
 public:
 
