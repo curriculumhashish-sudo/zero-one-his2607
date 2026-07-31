@@ -2,9 +2,11 @@ package com.zeroone.star.project.query.j6.report;
 // 周接诊量门诊趋势查询：日期范围(start/end)
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.AssertTrue;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 /**
  * <p>
@@ -18,6 +20,25 @@ import java.time.LocalDate;
 @Data
 @Schema(description = "周接诊量门诊趋势查询对象")
 public class EncounterWeekTrendQuery {
+    @Schema(description = "开始日期", example = "2026-07-01")
     private LocalDate startDate;  // 可选，默认最近7天
+
+    @Schema(description = "结束日期", example = "2026-07-07")
     private LocalDate endDate;    // 可选，默认今天
+
+    @AssertTrue(message = "开始日期不能晚于结束日期")
+    public boolean isDateRangeValid() {
+        if (startDate != null && endDate != null) {
+            return !startDate.isAfter(endDate);
+        }
+        return true;
+    }
+    @AssertTrue(message = "查询区间不能超过7天（含当天）")
+    public boolean isDateRangeWithinSevenDays() {
+        if (startDate != null && endDate != null) {
+            long days = ChronoUnit.DAYS.between(startDate, endDate) + 1;
+            return days <= 7;
+        }
+        return true;
+    }
 }
