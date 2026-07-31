@@ -94,3 +94,28 @@ uint64_t PatientDAO::countPatPage(const PatPageQuery::Wrapper& query)
 	sql += buildPatPageCondition(query, params);
 	return sqlSession->executeQueryNumerical(sql, params);
 }
+
+int PatientDAO::softDeletePatient(const std::string& id,
+	const std::string& deletedAt,
+	const std::string& deletedBy)
+{
+	const std::string sql = R"(
+		UPDATE adm_patient
+		SET is_deleted = 1,
+			deleted_at = ?,
+			deleted_by = ?,
+			updated_at = ?,
+			updated_by = ?
+		WHERE id = ?
+		  AND is_deleted = 0
+	)";
+
+	SqlParams params;
+	SQLPARAMS_PUSH(params, "dt", std::string, deletedAt);
+	SQLPARAMS_PUSH(params, "s", std::string, deletedBy);
+	SQLPARAMS_PUSH(params, "dt", std::string, deletedAt);
+	SQLPARAMS_PUSH(params, "s", std::string, deletedBy);
+	SQLPARAMS_PUSH(params, "s", std::string, id);
+
+	return sqlSession->executeUpdate(sql, params);
+}

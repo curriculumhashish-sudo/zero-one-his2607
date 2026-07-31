@@ -19,6 +19,11 @@ public:
     std::list<WardTreeDO> selectTreeRows(
         const std::string& organizationId
     );
+    // Read-only query by ID (no row lock)
+    PtrWardLocationDO selectLocationById(
+        const std::string& id
+    );
+
 	std::string selectOrganizationTenantIdForUpdate(
 		const std::string& organizationId);
 

@@ -39,6 +39,11 @@ public:
 	// 3.2 定义修改接口处理
 	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/patient/modify", modifyPatient, BODY_DTO(PatientDTO::Wrapper, dto), execModifyPatient(dto, authObject->getPayload()));
 
+	// Define remove patient endpoint
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("pat.remove-patient.summary"), removePatient, BooleanJsonVO::Wrapper, API_TAG);
+	// Remove patient endpoint handler
+	API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/patient/remove-patient", removePatient, BODY_DTO(PatientRemoveDTO::Wrapper, dto), execRemovePatient(dto, authObject->getPayload()));
+
 private:
 	// 3.3 演示ID查询数据
 	PatientJsonVO::Wrapper execQueryById(const String &id);
@@ -46,6 +51,8 @@ private:
 	StringJsonVO::Wrapper execAddPatient(const PatientAddDTO::Wrapper &dto, const PayloadDTO &payload);
 	// 3.3 演示修改数据
 	StringJsonVO::Wrapper execModifyPatient(const PatientDTO::Wrapper &dto, const PayloadDTO &payload);
+	// Remove patient endpoint implementation
+	BooleanJsonVO::Wrapper execRemovePatient(const PatientRemoveDTO::Wrapper &dto, const PayloadDTO &payload);
 };
 
 #undef API_TAG

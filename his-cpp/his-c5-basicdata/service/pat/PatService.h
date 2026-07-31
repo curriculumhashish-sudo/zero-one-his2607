@@ -7,6 +7,7 @@
 #include "../../domain/dto/pat/PatSelectDTO.h"
 #include "../../domain/dto/pat/PatDTO.h"
 #include "domain/dto/PageDTO.h"
+#include "domain/dto/PayloadDTO.h"
 
 /**
  * Patient business service.
@@ -23,6 +24,12 @@ public:
 	 * Paginated query for patient management list (GET /pat/page).
 	 */
 	PageDTO<PatDTO::Wrapper>::Wrapper queryPatPage(const PatPageQuery::Wrapper& query);
+
+	/**
+	 * Soft-delete a patient by ID.
+	 * Returns true if the patient was deleted, false if not found.
+	 */
+	bool removePatient(const std::string& id, const PayloadDTO& payload);
 
 private:
 	/** Convert gender_enum (MALE/FEMALE) to display text. */

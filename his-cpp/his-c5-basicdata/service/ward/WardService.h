@@ -7,6 +7,7 @@
 #include "id/SnowFlake.h"
 #include "SimpleDateTimeFormat.h"
 #include "TransactionManager.h"
+#include "domain/dto/ward/WardDTO.h"
 #include "domain/dto/ward/WardLocationAddDTO.h"
 #include "domain/dto/ward/WardModifyDTO.h"
 #include "domain/dto/ward/WardStatusDTO.h"
@@ -31,6 +32,12 @@ class WardService
 {
 public:
     oatpp::List<WardTreeNodeVO::Wrapper> GetTree(WardTreeQuery::Wrapper query);
+
+    // Query room by ID (returns room DTO with id/name/wardAreaId)
+    WardRoomDTO::Wrapper queryRoomById(const std::string& id);
+
+    // Query bed by ID (returns bed DTO with id/name/status/wardRoomId)
+    WardBedDTO::Wrapper queryBedById(const std::string& id);
 
     std::string createLocation(
         const WardLocationAddDTO::Wrapper& dto,

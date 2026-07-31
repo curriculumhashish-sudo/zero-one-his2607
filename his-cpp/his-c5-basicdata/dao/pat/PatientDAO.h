@@ -34,6 +34,14 @@ public:
 	 */
 	uint64_t countPatPage(const PatPageQuery::Wrapper& query);
 
+	/**
+	 * Soft-delete a patient by ID (sets is_deleted=1).
+	 * Returns affected row count (1 on success, 0 if not found).
+	 */
+	int softDeletePatient(const std::string& id,
+		const std::string& deletedAt,
+		const std::string& deletedBy);
+
 private:
 	/**
 	 * Build WHERE clause and bind params for select popup keyword search.

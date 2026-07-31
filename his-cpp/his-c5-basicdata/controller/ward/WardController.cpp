@@ -44,14 +44,40 @@ namespace
     }
 }
 
-// Query room by ID (stub)
+// Query room by ID
 WardRoomJsonVO::Wrapper WardController::execQueryRoomById(const String& id) {
-    return WardRoomJsonVO::createShared();
+    auto response = WardRoomJsonVO::createShared();
+    if (!hasText(id) || id.getValue("").size() > 64)
+    {
+        response->init(nullptr, RS_PARAMS_INVALID);
+        return response;
+    }
+    auto data = WardService().queryRoomById(id.getValue(""));
+    if (!data)
+    {
+        response->fail(nullptr);
+        return response;
+    }
+    response->success(data);
+    return response;
 }
 
-// Query bed by ID (stub)
+// Query bed by ID
 WardBedJsonVO::Wrapper WardController::execQueryBedById(const String& id) {
-    return WardBedJsonVO::createShared();
+    auto response = WardBedJsonVO::createShared();
+    if (!hasText(id) || id.getValue("").size() > 64)
+    {
+        response->init(nullptr, RS_PARAMS_INVALID);
+        return response;
+    }
+    auto data = WardService().queryBedById(id.getValue(""));
+    if (!data)
+    {
+        response->fail(nullptr);
+        return response;
+    }
+    response->success(data);
+    return response;
 }
 
 WardJsonVO::Wrapper WardController::execModifyWard(

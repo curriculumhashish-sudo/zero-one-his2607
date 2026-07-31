@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "PatService.h"
 #include "../../dao/pat/PatientDAO.h"
+#include "SimpleDateTimeFormat.h"
 #include <ctime>
 
 std::string PatService::toGenderLabel(const std::string& genderEnum)
@@ -137,4 +138,21 @@ PageDTO<PatDTO::Wrapper>::Wrapper PatService::queryPatPage(const PatPageQuery::W
 	}
 
 	return pageData;
+}
+
+bool PatService::removePatient(const std::string& id, const PayloadDTO& payload)
+{
+	PatientDAO dao;
+	std::string now = SimpleDateTimeFormat::getFormatNow();
+	std::string actor = payload.getUsername();
+	if (actor.empty() || actor == "none")
+	{
+		actor = payload.getId();
+	}
+	if (actor.empty())
+	{
+		actor = "unknown";
+	}
+	int affected = dao.softDeletePatient(id, now, actor);
+	return affected > 0;
 }

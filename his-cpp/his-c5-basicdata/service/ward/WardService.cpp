@@ -279,6 +279,53 @@ oatpp::List<WardTreeNodeVO::Wrapper> WardService::GetTree(WardTreeQuery::Wrapper
     return applyTreeFilters(result, statusEnum, keyword);
 }
 
+// Query room by ID — returns id, name, wardAreaId (parent_id)
+WardRoomDTO::Wrapper WardService::queryRoomById(const std::string& rawId)
+{
+    std::string id = rawId;
+    StringUtil::trim(&id);
+    if (id.empty())
+        return nullptr;
+
+    WardDAO dao;
+    auto row = dao.selectLocationById(id);
+    if (!row || row->getFormEnum() != "HOUSE")
+        return nullptr;
+
+    auto dto = WardRoomDTO::createShared();
+    dto->id = row->getId();
+    dto->name = row->getName();
+    dto->wardAreaId = row->getParentId();
+    return dto;
+}
+
+// Query bed by ID — returns id, name, status, wardRoomId (parent_id)
+WardBedDTO::Wrapper WardService::queryBedById(const std::string& rawId)
+{
+    std::string id = rawId;
+    StringUtil::trim(&id);
+    if (id.empty())
+        return nullptr;
+
+    WardDAO dao;
+    auto row = dao.selectLocationById(id);
+    if (!row || row->getFormEnum() != "BED")
+        return nullptr;
+
+    auto dto = WardBedDTO::createShared();
+    dto->id = row->getId();
+    dto->name = row->getName();
+    dto->wardRoomId = row->getParentId();
+    // status: 0 = idle, 1 = in use, 2 = disabled
+    if (row->getStatusEnum() == "DISABLED")
+        dto->status = 2;
+    else if (row->getOperationalEnum() == "IN_USE")
+        dto->status = 1;
+    else
+        dto->status = 0;
+    return dto;
+}
+
 std::string WardService::createLocation(
     const WardLocationAddDTO::Wrapper& dto,
     const PayloadDTO& payload)
