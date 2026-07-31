@@ -1,9 +1,11 @@
 #include "stdafx.h"
 #include "AdmissionDAO.h"
+#include "SqlSession.h"
 #include "id/UuidFacade.h"
 #include <sstream>
 #include <iomanip>
 #include <ctime>
+#include <cstdlib>
 
 std::string AdmissionDAO::generateUuid()
 {
@@ -11,8 +13,12 @@ std::string AdmissionDAO::generateUuid()
 	return uuidFacade.genUuid(true);
 }
 
-std::string AdmissionDAO::generateBusNo(const oatpp::String& prefix)
+std::string AdmissionDAO::generateBusNo(const std::string& prefix)
 {
+	// Seed rand() once per process
+	static bool randSeeded = (std::srand(static_cast<unsigned>(std::time(nullptr))), true);
+	(void)randSeeded; // Suppress unused variable warning
+
 	std::time_t now = std::time(nullptr);
 	std::tm tm;
 #ifdef LINUX
@@ -21,7 +27,7 @@ std::string AdmissionDAO::generateBusNo(const oatpp::String& prefix)
 	localtime_s(&tm, &now);
 #endif
 	std::ostringstream oss;
-	oss << (prefix && !prefix->empty() ? prefix->c_str() : "ZY")
+	oss << (!prefix.empty() ? prefix : "ZY")
 		<< std::setfill('0') << std::setw(4) << (tm.tm_year + 1900)
 		<< std::setw(2) << (tm.tm_mon + 1)
 		<< std::setw(2) << tm.tm_mday
@@ -29,55 +35,78 @@ std::string AdmissionDAO::generateBusNo(const oatpp::String& prefix)
 	return oss.str();
 }
 
-// 添加字符串参数
-static void sp(SqlParams& p, const oatpp::String& v) {
-	p.push_back(SqlParam("s", std::make_shared<std::string>(v ? v->c_str() : "")));
+// Append a string-type SqlParam from std::string
+void AdmissionDAO::sp(SqlParams& p, const std::string& v) {
+	p.push_back(SqlParam("s", std::make_shared<std::string>(v)));
+}
+
+// Check if a string matches YYYY-MM-DD date format
+static bool isValidDate(const std::string& s)
+{
+	if (s.length() != 10) return false;
+	if (s[4] != '-' || s[7] != '-') return false;
+	for (int i = 0; i < 10; ++i) {
+		if (i == 4 || i == 7) continue;
+		if (s[i] < '0' || s[i] > '9') return false;
+	}
+	return true;
 }
 
 bool AdmissionDAO::insertAdmission(
-	const oatpp::String& name,
-	const oatpp::String& idCard,
-	const oatpp::String& birthTime,
-	const oatpp::Int32& age,
-	const oatpp::String& sex,
-	const oatpp::String& phone,
-	const oatpp::String& admissionDept,
-	const oatpp::String& admissionWard,
-	const oatpp::String& attendingDoctor,
-	const oatpp::String& admissionDiagnosis,
-	const oatpp::String& diagnosisDesc,
-	const oatpp::String& patientCondition,
-	const oatpp::String& admissionType,
-	const oatpp::String& admissionMode,
-	const oatpp::String& feeNature,
-	const oatpp::String& admissionDate,
-	const oatpp::String& prepayAmount,
-	const oatpp::String& payWay,
-	const oatpp::String& tenantId,
-	const oatpp::String& orgId,
-	const oatpp::String& operUserId,
-	oatpp::String& outPatientId,
-	oatpp::String& outEncounterId,
-	oatpp::String& outBusNo
+	const std::string& name,
+	const std::string& idCard,
+	const std::string& birthTime,
+	int age,
+	const std::string& sex,
+	const std::string& phone,
+	const std::string& admissionDept,
+	const std::string& admissionWard,
+	const std::string& attendingDoctor,
+	const std::string& admissionDiagnosis,
+	const std::string& diagnosisDesc,
+	const std::string& patientCondition,
+	const std::string& admissionType,
+	const std::string& admissionMode,
+	const std::string& feeNature,
+	const std::string& admissionDate,
+	const std::string& prepayAmount,
+	const std::string& payWay,
+	const std::string& tenantId,
+	const std::string& orgId,
+	const std::string& operUserId,
+	std::string& outPatientId,
+	std::string& outEncounterId,
+	std::string& outBusNo
 )
 {
-	// 校验必填字段
-	if (!name || name->empty()) return false;
-	if (!sex || sex->empty()) return false;
-	if (age && age.getValue(0) < 0) return false;
+	// Validate required fields
+	if (name.empty()) return false;
+	if (sex.empty()) return false;
+	if (age < 0) return false;
 
-	// 生成主键和业务编号
+	// Validate date formats before they reach STR_TO_DATE in SQL
+	if (!isValidDate(admissionDate)) {
+		std::cerr << "admissionDate is empty or invalid format (expected YYYY-MM-DD): "
+		          << admissionDate << std::endl;
+		return false;
+	}
+	if (!isValidDate(birthTime)) {
+		std::cerr << "birthTime is empty or invalid format (expected YYYY-MM-DD): "
+		          << birthTime << std::endl;
+		return false;
+	}
+
+	// Generate primary keys and business numbers
 	std::string patientId = generateUuid();
 	std::string encounterId = generateUuid();
-	std::string encounterBusNo = generateBusNo(oatpp::String("ZY"));
-	std::string accountBusNo = generateBusNo(oatpp::String("AC"));
+	std::string encounterBusNo = generateBusNo("ZY");
+	std::string accountBusNo = generateBusNo("AC");
 
-	// 设置输出参数
-	outPatientId = oatpp::String(patientId);
-	outEncounterId = oatpp::String(encounterId);
-	outBusNo = oatpp::String(encounterBusNo);
-
-	// 开启事务
+	// Set output parameters
+	outPatientId = patientId;
+	outEncounterId = encounterId;
+	outBusNo = encounterBusNo;
+	// Begin transaction
 	sqlSession->beginTransaction();
 
 	try
@@ -85,7 +114,7 @@ bool AdmissionDAO::insertAdmission(
 		std::string sql;
 		SqlParams params;
 
-		// 插入患者表
+		// 1. Insert patient record
 		sql = R"(
 INSERT INTO adm_patient
 (id, tenant_id, created_at, updated_at, created_by, updated_by,
@@ -103,7 +132,7 @@ VALUES
 		sp(params, tenantId);
 		sp(params, operUserId);
 		sp(params, operUserId);
-		sp(params, std::string("BR") + encounterBusNo.substr(2)); // 患者业务编号：BR + 日期 + 随机数
+		sp(params, std::string("BR") + encounterBusNo.substr(2)); // Patient bus no: BR + date + random
 		sp(params, name);
 		sp(params, sex);
 		sp(params, birthTime);
@@ -116,7 +145,7 @@ VALUES
 			return false;
 		}
 
-		// 插入患者标识表
+		// 2. Insert patient identifier record
 		sql = R"(
 INSERT INTO adm_patient_identifier
 (id, tenant_id, created_at, updated_at, created_by, updated_by,
@@ -140,7 +169,7 @@ VALUES
 			return false;
 		}
 
-		//  插入就诊表
+		// 3. Insert encounter record
 		sql = R"(
 INSERT INTO adm_encounter
 (id, tenant_id, created_at, updated_at, created_by, updated_by,
@@ -174,17 +203,17 @@ VALUES
 			return false;
 		}
 
-		// 插入就诊诊断表
+		// 4. Insert encounter diagnosis record
 		sql = R"(
 INSERT INTO adm_encounter_diagnosis
 (id, tenant_id, created_at, updated_at, created_by, updated_by,
  is_deleted, deleted_at, deleted_by, version,
- encounter_id, condition_id, primary_flag, rank, description,
+ encounter_id, condition_id, primary_flag, `rank`, description,
  diag_type_code, med_type, highest_diag_flag, tcm_flag)
 VALUES
 (?, ?, NOW(6), NOW(6), ?, ?,
  0, NULL, NULL, 1,
- ?, NULL, 1, 1, ?,
+	 ?, ?, 1, 1, ?,
  'ADMIT_DIAG', 'WEST', 1, 0)
 )";
 		params.clear();
@@ -193,6 +222,7 @@ VALUES
 		sp(params, operUserId);
 		sp(params, operUserId);
 		sp(params, encounterId);
+		sp(params, admissionDiagnosis);
 		sp(params, diagnosisDesc);
 
 		if (sqlSession->executeUpdate(sql, params) < 1) {
@@ -200,7 +230,7 @@ VALUES
 			return false;
 		}
 
-		//  插入就诊参与人表
+		// 5. Insert encounter participant record
 		sql = R"(
 INSERT INTO adm_encounter_participant
 (id, tenant_id, created_at, updated_at, created_by, updated_by,
@@ -224,7 +254,7 @@ VALUES
 			return false;
 		}
 
-		// 插入就诊位置表
+		// 6. Insert encounter location record
 		sql = R"(
 INSERT INTO adm_encounter_location
 (id, tenant_id, created_at, updated_at, created_by, updated_by,
@@ -248,7 +278,7 @@ VALUES
 			return false;
 		}
 
-		// 插入账户表
+		// 7. Insert account record
 		sql = R"(
 INSERT INTO adm_account
 (id, tenant_id, created_at, updated_at, created_by, updated_by,
@@ -278,7 +308,7 @@ VALUES
 			return false;
 		}
 
-		// 提交事务 — 所有7个插入操作成功
+		// Commit transaction — all 7 insert operations succeeded
 		sqlSession->commitTransaction();
 		return true;
 	}
@@ -291,15 +321,15 @@ VALUES
 }
 
 bool AdmissionDAO::deleteAdmission(
-	const oatpp::String& encounterId,
-	const oatpp::String& cancelReason,
-	const oatpp::String& operUserId,
-	const oatpp::String& tenantId
+	const std::string& encounterId,
+	const std::string& cancelReason,
+	const std::string& operUserId,
+	const std::string& tenantId
 )
 {
-	// 校验必填字段
-	if (!encounterId || encounterId->empty()) return false;
-	if (!tenantId || tenantId->empty()) return false;
+	// Validate required fields
+	if (encounterId.empty()) return false;
+	if (tenantId.empty()) return false;
 
 	sqlSession->beginTransaction();
 
@@ -308,10 +338,10 @@ bool AdmissionDAO::deleteAdmission(
 		std::string sql;
 		SqlParams params;
 
-		// 软删除：将所有关联表的 is_deleted 设置为 1
-		// 顺序遵循外键依赖（先子表后父表）
+		// Soft delete: set is_deleted = 1 on all related tables
+		// Order follows foreign key dependencies (child tables first, parent last)
 
-		// 1. 账户表
+		// 1. Account table
 		sql = R"(
 UPDATE adm_account
 SET is_deleted = 1, deleted_at = NOW(6), deleted_by = ?, updated_at = NOW(6)
@@ -323,7 +353,7 @@ WHERE encounter_id = ? AND tenant_id = ? AND is_deleted = 0
 		sp(params, tenantId);
 		sqlSession->executeUpdate(sql, params);
 
-		// 2. 就诊位置表
+		// 2. Encounter location table
 		sql = R"(
 UPDATE adm_encounter_location
 SET is_deleted = 1, deleted_at = NOW(6), deleted_by = ?, updated_at = NOW(6)
@@ -335,7 +365,7 @@ WHERE encounter_id = ? AND tenant_id = ? AND is_deleted = 0
 		sp(params, tenantId);
 		sqlSession->executeUpdate(sql, params);
 
-		// 3. 就诊参与人表
+		// 3. Encounter participant table
 		sql = R"(
 UPDATE adm_encounter_participant
 SET is_deleted = 1, deleted_at = NOW(6), deleted_by = ?, updated_at = NOW(6)
@@ -347,7 +377,7 @@ WHERE encounter_id = ? AND tenant_id = ? AND is_deleted = 0
 		sp(params, tenantId);
 		sqlSession->executeUpdate(sql, params);
 
-		// 4. 就诊诊断表
+		// 4. Encounter diagnosis table
 		sql = R"(
 UPDATE adm_encounter_diagnosis
 SET is_deleted = 1, deleted_at = NOW(6), deleted_by = ?, updated_at = NOW(6)
@@ -359,7 +389,7 @@ WHERE encounter_id = ? AND tenant_id = ? AND is_deleted = 0
 		sp(params, tenantId);
 		sqlSession->executeUpdate(sql, params);
 
-		// 5. 就诊表（核心就诊记录）
+		// 5. Encounter table (core encounter record)
 		sql = R"(
 UPDATE adm_encounter
 SET is_deleted = 1, deleted_at = NOW(6), deleted_by = ?, updated_at = NOW(6)

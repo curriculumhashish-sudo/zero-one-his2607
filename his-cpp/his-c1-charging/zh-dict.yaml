@@ -1,11 +1,9 @@
 charging:
-
-
  admission:
   tag: 收费工作站-住院登记
   add_discription: 住院登记
   delete_discription: 取消登记
-  id: 身份证号
+  idCard: 身份证号
   name: 姓名
   birthtime: 出生日期
   age: 年龄
@@ -13,14 +11,16 @@ charging:
   phone: 联系方式
   admissionDept: 入院科室
   admission_ward: 入院病区
-  attending_doctorL: 主治医师
+  attending_doctor: 主治医师
   admissionDiagnosis: 入院诊断
   diagnosisDesc: 诊断描述
   patientCondition: 患者病情
   admissionType: 入院类型
   admissionMode: 入院方式
   feeNature: 费用性质
-  admissiondata: 入院日期
+  admissionDate: 入院日期
+  prepayAmount: 预交金金额
+  payWay: 支付方式
   delete: 取消原因
  register:
   tag: 收费工作站-门诊挂号
@@ -896,28 +896,6 @@ byj:
    rest: 账户余额
    ward: 病区
    VisitStatus: 就诊状态
-yiguang:
- charging:
-  admission:
-   summary1: 住院登记
-   summary2: 取消登记
-   id: 身份证号
-   name: 姓名
-   birthtime: 出生日期
-   age: 年龄
-   sex: 性别
-   phone: 联系方式
-   admissionDept: 入院科室
-   admission_ward: 入院病区
-   attending_doctorL: 主治医师
-   admissionDiagnosis: 入院诊断
-   diagnosisDesc: 诊断描述
-   patientCondition: 患者病情
-   admissionType: 入院类型
-   admissionMode: 入院方式
-   feeNature: 费用性质
-   admissiondata: 入院日期
-   delete: 取消原因
 ovo:
   charging:
     settle:

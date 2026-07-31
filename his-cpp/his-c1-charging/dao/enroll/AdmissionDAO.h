@@ -4,59 +4,59 @@
 #define _ADMISSION_DAO_
 
 #include "BaseDAO.h"
-#include "ApiHelper.h"
 
-/*
- * 入院数据访问对象。
- * 处理住院入院登记的多表插入/删除操作。
- */
+// Admission data access object.
+// Handles multi-table insert/delete operations for inpatient admission registration.
 class AdmissionDAO : public BaseDAO
 {
 public:
-	// 插入新的住院入院记录（多表事务）。
-	// 成功返回 true；outPatientId/outEncounterId/outBusNo 接收生成的ID。
+	// Insert a new inpatient admission record (multi-table transaction).
+	// Returns true on success; outPatientId/outEncounterId/outBusNo receive the generated IDs.
 	bool insertAdmission(
-		const oatpp::String& name,
-		const oatpp::String& idCard,
-		const oatpp::String& birthTime,
-		const oatpp::Int32& age,
-		const oatpp::String& sex,
-		const oatpp::String& phone,
-		const oatpp::String& admissionDept,
-		const oatpp::String& admissionWard,
-		const oatpp::String& attendingDoctor,
-		const oatpp::String& admissionDiagnosis,
-		const oatpp::String& diagnosisDesc,
-		const oatpp::String& patientCondition,
-		const oatpp::String& admissionType,
-		const oatpp::String& admissionMode,
-		const oatpp::String& feeNature,
-		const oatpp::String& admissionDate,
-		const oatpp::String& prepayAmount,
-		const oatpp::String& payWay,
-		const oatpp::String& tenantId,
-		const oatpp::String& orgId,
-		const oatpp::String& operUserId,
-		oatpp::String& outPatientId,
-		oatpp::String& outEncounterId,
-		oatpp::String& outBusNo
+		const std::string& name,
+		const std::string& idCard,
+		const std::string& birthTime,
+		int age,
+		const std::string& sex,
+		const std::string& phone,
+		const std::string& admissionDept,
+		const std::string& admissionWard,
+		const std::string& attendingDoctor,
+		const std::string& admissionDiagnosis,
+		const std::string& diagnosisDesc,
+		const std::string& patientCondition,
+		const std::string& admissionType,
+		const std::string& admissionMode,
+		const std::string& feeNature,
+		const std::string& admissionDate,
+		const std::string& prepayAmount,
+		const std::string& payWay,
+		const std::string& tenantId,
+		const std::string& orgId,
+		const std::string& operUserId,
+		std::string& outPatientId,
+		std::string& outEncounterId,
+		std::string& outBusNo
 	);
 
-	// 取消住院入院（软删除：设置 is_deleted = 1）。
-	// 成功返回 true。
+	// Cancel an inpatient admission (soft delete: set is_deleted = 1).
+	// Returns true on success.
 	bool deleteAdmission(
-		const oatpp::String& encounterId,
-		const oatpp::String& cancelReason,
-		const oatpp::String& operUserId,
-		const oatpp::String& tenantId
+		const std::string& encounterId,
+		const std::string& cancelReason,
+		const std::string& operUserId,
+		const std::string& tenantId
 	);
 
 private:
-	// 生成不含分隔符的UUID字符串
+	// Generate a UUID string without separators
 	std::string generateUuid();
 
-	// 生成业务编号，如"ZY202607280001"
-	std::string generateBusNo(const oatpp::String& prefix);
+	// Generate a business number, e.g. "ZY202607280001"
+	std::string generateBusNo(const std::string& prefix);
+
+	// Append a string-type SqlParam.
+	static void sp(SqlParams& p, const std::string& v);
 };
 
 #endif // !_ADMISSION_DAO_

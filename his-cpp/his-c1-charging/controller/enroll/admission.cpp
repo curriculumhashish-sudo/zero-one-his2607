@@ -2,12 +2,12 @@
 #include "admission.h"
 #include "../../service/enroll/AdmissionService.h"
 
-StringJsonVO::Wrapper AdmissionController::admission_add(const AdmissionAddDTO::Wrapper& dto)
+StringJsonVO::Wrapper AdmissionController::execAdmissionAdd(const AdmissionAddDTO::Wrapper& dto, const std::shared_ptr<CustomerAuthorizeObject>& authObject)
 {
-	// 构建统一的JSON响应
+	// Build unified JSON response
 	auto result = StringJsonVO::createShared();
 
-	// 校验必填字段
+	// Validate required fields
 	std::string errMsg = dto->validate();
 	if (!errMsg.empty())
 	{
@@ -15,9 +15,9 @@ StringJsonVO::Wrapper AdmissionController::admission_add(const AdmissionAddDTO::
 		return result;
 	}
 
-	// 调用服务执行入院登记
+	// Call service to execute admission registration
 	AdmissionService service;
-	bool success = service.insertAdmission(dto, *dto->getPayload());
+	bool success = service.insertAdmission(dto, authObject->getPayload());
 
 	if (success)
 	{
@@ -30,14 +30,15 @@ StringJsonVO::Wrapper AdmissionController::admission_add(const AdmissionAddDTO::
 	return result;
 }
 
-StringJsonVO::Wrapper AdmissionController::admission_delete(
-	const AdmissionDeleteDTO::Wrapper& dto
+StringJsonVO::Wrapper AdmissionController::execAdmissionDelete(
+		const AdmissionDeleteDTO::Wrapper& dto,
+		const std::shared_ptr<CustomerAuthorizeObject>& authObject
 )
 {
-	// 构建统一的JSON响应
+	// Build unified JSON response
 	auto result = StringJsonVO::createShared();
 
-	// 校验必填字段
+	// Validate required fields
 	std::string errMsg = dto->validate();
 	if (!errMsg.empty())
 	{
@@ -45,9 +46,9 @@ StringJsonVO::Wrapper AdmissionController::admission_delete(
 		return result;
 	}
 
-	// 调用服务执行入院取消
+	// Call service to execute admission cancellation
 	AdmissionService service;
-	bool success = service.deleteAdmission(dto, *dto->getPayload());
+	bool success = service.deleteAdmission(dto, authObject->getPayload());
 
 	if (success)
 	{
