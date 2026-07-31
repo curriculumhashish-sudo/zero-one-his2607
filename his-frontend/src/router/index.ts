@@ -82,9 +82,9 @@ router.beforeEach(async function (to, _from) {
     return true
   }
 
-  // 放行示例模块访问
+  // 放行示例模块与基础数据模块访问（开发环境）
   if (import.meta.env.DEV) {
-    if (to.path.indexOf('sample') !== -1) {
+    if (to.path.indexOf('sample') !== -1 || to.path.indexOf('basicdata') !== -1) {
       return true
     }
   }

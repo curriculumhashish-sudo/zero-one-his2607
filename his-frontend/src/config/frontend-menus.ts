@@ -135,6 +135,55 @@ const FRONTEND_MENUS: Menu[] = [
         text: '挂号类型',
         icon: 'IconTickets',
         href: '/basic/registration-type'
+      },
+      {
+        id: 'frontend-basic-medication-catalog',
+        pid: 'frontend-basic',
+        text: '药品目录',
+        icon: 'IconTickets',
+        href: '/basicdata/medication-catalog'
+      },
+      {
+        id: 'frontend-basic-frequency',
+        pid: 'frontend-basic',
+        text: '频次管理',
+        icon: 'IconTickets',
+        href: '/basicdata/frequency'
+      },
+      {
+        id: 'frontend-basic-medication',
+        pid: 'frontend-basic',
+        text: '药品管理',
+        icon: 'IconTickets',
+        href: '/basicdata/medication'
+      },
+      {
+        id: 'frontend-basic-diagnosis',
+        pid: 'frontend-basic',
+        text: '诊断管理',
+        icon: 'IconTickets',
+        href: '/basicdata/diagnosis'
+      },
+      {
+        id: 'frontend-basic-treatment',
+        pid: 'frontend-basic',
+        text: '诊疗管理',
+        icon: 'IconTickets',
+        href: '/basicdata/treatment'
+      },
+      {
+        id: 'frontend-basic-equipment',
+        pid: 'frontend-basic',
+        text: '器材管理',
+        icon: 'IconTickets',
+        href: '/basicdata/equipment'
+      },
+      {
+        id: 'frontend-basic-sample',
+        pid: 'frontend-basic',
+        text: '样本管理',
+        icon: 'IconTickets',
+        href: '/basicdata/sample'
       }
     ]
   },
