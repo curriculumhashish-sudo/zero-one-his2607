@@ -18,6 +18,7 @@
 */
 #include "stdafx.h"
 #include "InpatientBillingController.h"
+#include "service/inpatientbilling/InpatientBillingService.h"
 
 PagePricingCatalogJsonVO::Wrapper InpatientBillingController::execPagePricingCatalog(
     const PagePricingCatalogQuery::Wrapper& query)
@@ -64,37 +65,44 @@ CancelPricingJsonVO::Wrapper InpatientBillingController::execCancelPricing(
 ListAutoRollConfigsJsonVO::Wrapper InpatientBillingController::execListAutoRollConfigs(
     const ListAutoRollConfigsQuery::Wrapper& query)
 {
-    return {};
+    auto result = InpatientBillingService().listAutoRollConfigs(query);
+    auto jvo = ListAutoRollConfigsJsonVO::createShared();
+    jvo->success(result);
+    return jvo;
 }
 
 CreateAutoGenRuleJsonVO::Wrapper InpatientBillingController::execCreateAutoGenRule(
     const CreateAutoGenRuleDTO::Wrapper& dto)
 {
+    auto result = InpatientBillingService().createAutoGenRule(dto);
     auto jvo = CreateAutoGenRuleJsonVO::createShared();
-    jvo->setStatus(RS_SUCCESS);
+    jvo->success(result);
     return jvo;
 }
 
 UpdateAutoGenRuleJsonVO::Wrapper InpatientBillingController::execUpdateAutoGenRule(
     const UpdateAutoGenRuleDTO::Wrapper& dto)
 {
+    auto result = InpatientBillingService().updateAutoGenRule(dto);
     auto jvo = UpdateAutoGenRuleJsonVO::createShared();
-    jvo->setStatus(RS_SUCCESS);
+    jvo->success(result);
     return jvo;
 }
 
 DeleteAutoGenRuleJsonVO::Wrapper InpatientBillingController::execDeleteAutoGenRule(
     const DeleteAutoGenRuleDTO::Wrapper& dto)
 {
+    auto result = InpatientBillingService().deleteAutoGenRule(dto);
     auto jvo = DeleteAutoGenRuleJsonVO::createShared();
-    jvo->setStatus(RS_SUCCESS);
+    jvo->success(result);
     return jvo;
 }
 
 ActivateAutoGenRuleJsonVO::Wrapper InpatientBillingController::execActivateAutoGenRule(
     const ActivateAutoGenRuleDTO::Wrapper& dto)
 {
+    auto result = InpatientBillingService().activateAutoGenRule(dto);
     auto jvo = ActivateAutoGenRuleJsonVO::createShared();
-    jvo->setStatus(RS_SUCCESS);
+    jvo->success(result);
     return jvo;
 }

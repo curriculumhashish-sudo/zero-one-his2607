@@ -22,11 +22,8 @@
 
 #include "domain/dto/inpatientbilling/InpatientBillingDTO.h"
 #include "domain/vo/inpatientbilling/InpatientBillingVO.h"
-
 using namespace oatpp;
-
 #include OATPP_CODEGEN_BEGIN(ApiController)
-
 #define API_TAG ZH_WORDS_GETTER("inpatientbilling.tag")
 
 class InpatientBillingController : public oatpp::web::server::api::ApiController
@@ -34,7 +31,7 @@ class InpatientBillingController : public oatpp::web::server::api::ApiController
     API_ACCESS_DECLARE(InpatientBillingController);
 
 public:
-    // 1. Page pricing catalog (GET)
+    // 分页查询计价目录（GET）
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("inpatientbilling.page-pricing-catalog.summary"),
         pagePricingCatalog,
@@ -62,8 +59,7 @@ public:
         pagePricingCatalog,
         PagePricingCatalogQuery,
         execPagePricingCatalog(query));
-
-    // 2. Confirm direct pricing (POST)
+    // 确认直接计价（POST）
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("inpatientbilling.confirm-direct-pricing.summary"),
         confirmDirectPricing,
@@ -79,8 +75,7 @@ public:
         confirmDirectPricing,
         BODY_DTO(ConfirmDirectPricingDTO::Wrapper, dto),
         execConfirmDirectPricing(dto));
-
-    // 3. List priced orders (GET)
+    // 查询已计价医嘱列表（GET）
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("inpatientbilling.list-priced-orders.summary"),
         listPricedOrders,
@@ -102,8 +97,7 @@ public:
         listPricedOrders,
         ListPricedOrdersQuery,
         execListPricedOrders(query));
-
-    // 4. List supplement parent orders (GET)
+    // 查询补费父医嘱列表（GET）
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("inpatientbilling.list-supplement-parent-orders.summary"),
         listSupplementParentOrders,
@@ -127,8 +121,7 @@ public:
         listSupplementParentOrders,
         ListSupplementParentOrdersQuery,
         execListSupplementParentOrders(query));
-
-    // 5. Confirm supplement pricing (POST)
+    // 确认补费计价（POST）
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("inpatientbilling.confirm-supplement-pricing.summary"),
         confirmSupplementPricing,
@@ -144,8 +137,7 @@ public:
         confirmSupplementPricing,
         BODY_DTO(ConfirmSupplementPricingDTO::Wrapper, dto),
         execConfirmSupplementPricing(dto));
-
-    // 6. Cancel pricing (POST)
+    // 取消计价（POST）
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("inpatientbilling.cancel-pricing.summary"),
         cancelPricing,
@@ -161,8 +153,7 @@ public:
         cancelPricing,
         BODY_DTO(CancelPricingDTO::Wrapper, dto),
         execCancelPricing(dto));
-
-    // 7. List auto roll configs (GET)
+    // 查询自动计费配置列表（GET）
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("inpatientbilling.list-auto-roll-configs.summary"),
         listAutoRollConfigs,
@@ -183,8 +174,7 @@ public:
         listAutoRollConfigs,
         ListAutoRollConfigsQuery,
         execListAutoRollConfigs(query));
-
-    // 8. Create auto gen rule (POST)
+    // 新增自动计费规则（POST）
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("inpatientbilling.create-auto-gen-rule.summary"),
         createAutoGenRule,
@@ -200,8 +190,7 @@ public:
         createAutoGenRule,
         BODY_DTO(CreateAutoGenRuleDTO::Wrapper, dto),
         execCreateAutoGenRule(dto));
-
-    // 9. Update auto gen rule (POST)
+    // 修改自动计费规则（POST）
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("inpatientbilling.update-auto-gen-rule.summary"),
         updateAutoGenRule,
@@ -217,8 +206,7 @@ public:
         updateAutoGenRule,
         BODY_DTO(UpdateAutoGenRuleDTO::Wrapper, dto),
         execUpdateAutoGenRule(dto));
-
-    // 10. Delete auto gen rule (POST)
+    // 删除自动计费规则（POST）
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("inpatientbilling.delete-auto-gen-rule.summary"),
         deleteAutoGenRule,
@@ -234,8 +222,7 @@ public:
         deleteAutoGenRule,
         BODY_DTO(DeleteAutoGenRuleDTO::Wrapper, dto),
         execDeleteAutoGenRule(dto));
-
-    // 11. Enable or disable an auto generation rule (POST)
+    // 启用或停用自动计费规则（POST）
     API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("inpatientbilling.set-auto-gen-rule-status.summary"),
         activateAutoGenRule,
@@ -251,7 +238,6 @@ public:
         activateAutoGenRule,
         BODY_DTO(ActivateAutoGenRuleDTO::Wrapper, dto),
         execActivateAutoGenRule(dto));
-
 private:
     PagePricingCatalogJsonVO::Wrapper execPagePricingCatalog(
         const PagePricingCatalogQuery::Wrapper& query);
@@ -276,9 +262,6 @@ private:
     ActivateAutoGenRuleJsonVO::Wrapper execActivateAutoGenRule(
         const ActivateAutoGenRuleDTO::Wrapper& dto);
 };
-
 #undef API_TAG
-
 #include OATPP_CODEGEN_END(ApiController)
-
 #endif // !_INPATIENT_BILLING_CONTROLLER_
