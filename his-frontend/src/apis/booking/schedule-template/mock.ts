@@ -5,11 +5,13 @@ import type {
   DailyTemplateSavePayload,
   HolidayException,
   HolidayExceptionSavePayload,
+  HolidayExceptionQuery,
   PageResult,
   ReleasePolicy,
+  ReleasePolicyQuery,
+  ReleasePolicySavePayload,
   RequestContext,
   ScheduleTemplateInit,
-  TemplateStatus,
   TimePeriod,
   TimePeriodQuery,
   TimePeriodSavePayload,
@@ -125,8 +127,9 @@ let weeklyTemplates: WeeklyTemplate[] = [
     ]
   }
 ]
-let policy: ReleasePolicy = {
+let policies: ReleasePolicy[] = [{
   id: 'policy-default',
+  policyCode: 'DEFAULT',
   name: '门诊默认放号策略',
   enabled: true,
   openDays: 14,
@@ -135,8 +138,9 @@ let policy: ReleasePolicy = {
   maxAdvanceDays: 30,
   maxPerPatient: 3,
   slotMinutes: 30,
-  capacityPerSlot: 10
-}
+  capacityPerSlot: 10,
+  channelQuotaJsonText: '{"WINDOW":50,"MINIAPP":50}'
+}]
 let holidays: HolidayException[] = [
   {
     id: 'holiday-1',
@@ -192,8 +196,100 @@ function weekdayLabel(value: number) {
 }
 function toPage<T>(rows: T[], page = 1, pageSize = 10): PageResult<T> {
   const start = (page - 1) * pageSize
-  return { rows: clone(rows.slice(start, start + pageSize)), total: rows.length }
+  const pageRows = clone(rows.slice(start, start + pageSize))
+  return {
+    content: clone(pageRows),
+    totalCount: rows.length,
+    pageNo: page,
+    pageSize
+  }
 }
+
+function syncPeriodFields(row: TimePeriod) {
+  row.organizationId = departments[0]!.value
+  row.templateCode = row.id
+  row.templateName = row.name
+  row.segments.forEach((segment) => {
+    segment.startTime = segment.start
+    segment.endTime = segment.end
+  })
+  row.slotTemplates = row.segments
+  row.enabled = row.status === 'enabled'
+  return row
+}
+
+function syncDailyFields(row: DailyTemplate) {
+  row.organizationId = departments[0]!.value
+  row.templateCode = row.id
+  row.templateName = row.name
+  row.healthcareServiceId = row.serviceType
+  row.slotProvisionTemplateId = row.periodIds[0]
+  row.practitionerId = row.doctorId
+  row.locationId = row.roomId
+  row.defaultReleasePolicyId = row.releasePolicyId
+  row.enabled = row.status === 'enabled'
+  return row
+}
+
+function syncWeeklyFields(row: WeeklyTemplate) {
+  row.organizationId = departments[0]!.value
+  row.templateCode = row.id
+  row.templateName = row.name
+  row.fallbackBookable = row.appointmentOpen
+  row.enabled = row.status === 'enabled'
+  row.items.forEach((item, index) => {
+    item.dayScheduleTemplateId = item.dailyTemplateId
+    item.sortNo = index + 1
+  })
+  return row
+}
+
+function syncPolicyFields(row: ReleasePolicy) {
+  row.organizationId = departments[0]!.value
+  row.policyName = row.policyName ?? row.name
+  row.name = row.policyName
+  row.policyCode = row.policyCode ?? row.id
+  row.advanceDays = row.openDays
+  if (row.channelQuotaJsonText) {
+    row.channelQuotas = JSON.parse(row.channelQuotaJsonText) as Record<string, number>
+  } else if (row.channelQuotas) {
+    row.channelQuotaJsonText = JSON.stringify(row.channelQuotas)
+  }
+  return row
+}
+
+function parseChannelQuotas(value?: string) {
+  if (!value?.trim()) return undefined
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(value)
+  } catch {
+    throw new Error('渠道配额必须是有效 JSON')
+  }
+  if (
+    !parsed ||
+    Array.isArray(parsed) ||
+    typeof parsed !== 'object' ||
+    Object.values(parsed).some((item) => typeof item !== 'number' || !Number.isFinite(item))
+  ) {
+    throw new Error('渠道配额必须是“渠道编码: 数字”的 JSON 对象')
+  }
+  return parsed as Record<string, number>
+}
+
+function syncHolidayFields(row: HolidayException) {
+  row.organizationId = departments[0]!.value
+  row.exceptionDate = row.date
+  row.exceptionType = row.type
+  row.overrideScheduleTemplateId = row.replacementDailyTemplateId
+  return row
+}
+
+periods.forEach(syncPeriodFields)
+dailyTemplates.forEach(syncDailyFields)
+weeklyTemplates.forEach(syncWeeklyFields)
+policies.forEach(syncPolicyFields)
+holidays.forEach(syncHolidayFields)
 
 export async function mockLoadScheduleTemplateInit(
   context: RequestContext = {}
@@ -201,6 +297,7 @@ export async function mockLoadScheduleTemplateInit(
   await delay(context)
   return clone({
     department: departments[0]!,
+    organizationId: departments[0]!.value,
     departments,
     doctors,
     rooms,
@@ -227,28 +324,37 @@ export async function mockSaveTimePeriod(
 ) {
   const id = payload.id
   await delay(context)
-  if (!payload.name.trim() || !payload.segments.length) throw new Error('时段名称和时间段不能为空')
-  if (payload.segments.some((item) => item.end <= item.start))
+  if (!payload.templateName.trim() || !payload.slotTemplates.length) throw new Error('时段名称和时间段不能为空')
+  if (payload.slotTemplates.some((item) => item.endTime <= item.startTime))
     throw new Error('结束时间必须晚于开始时间')
-  const segments = payload.segments.map((item, index) => ({
+  const segments = payload.slotTemplates.map((item, index) => ({
     id: `${id ?? 'segment'}-${index + 1}`,
-    ...item,
-    capacity: Number(item.capacity ?? policy.capacityPerSlot)
+    start: item.startTime,
+    end: item.endTime,
+    capacity: Number(item.capacity ?? policies[0]!.capacityPerSlot)
   }))
   if (id) {
     const row = findOrThrow(periods, id, '放号时段不存在')
-    Object.assign(row, { name: payload.name.trim(), segments, status: payload.status })
-    return clone(row)
+    Object.assign(row, {
+      name: payload.templateName.trim(),
+      templateCode: payload.templateCode ?? row.templateCode,
+      organizationId: payload.organizationId ?? row.organizationId,
+      segments,
+      status: payload.enabled ? 'enabled' : 'disabled'
+    })
+    syncPeriodFields(row)
+    return { id: row.id }
   }
   const row: TimePeriod = {
     id: `period-${sequence++}`,
-    name: payload.name.trim(),
+    name: payload.templateName.trim(),
     segments,
-    status: payload.status,
+    status: payload.enabled ? 'enabled' : 'disabled',
     usageCount: 0
   }
   periods.push(row)
-  return clone(row)
+  syncPeriodFields(row)
+  return { id: row.id }
 }
 export async function mockRemoveTimePeriod(id: string, context: RequestContext = {}) {
   await delay(context)
@@ -281,24 +387,26 @@ export async function mockSaveDailyTemplate(
   const id = payload.id
   await delay(context)
   if (
-    !payload.name.trim() ||
-    !payload.periodIds.length ||
-    !payload.serviceType ||
-    !payload.doctorId ||
-    !payload.roomId
+    !payload.templateName.trim() ||
+    !payload.slotProvisionTemplateId ||
+    !payload.healthcareServiceId ||
+    !payload.practitionerId ||
+    !payload.locationId
   )
     throw new Error('请完整填写日排班模板')
-  if (payload.effectiveEnd < payload.effectiveStart) throw new Error('生效结束日期不能早于开始日期')
-  payload.periodIds.forEach((periodId) =>
+  if (payload.effectiveStart && payload.effectiveEnd && payload.effectiveEnd < payload.effectiveStart) throw new Error('生效结束日期不能早于开始日期')
+  const periodIds = [payload.slotProvisionTemplateId]
+  periodIds.forEach((periodId) =>
     option(
       periods.map((item) => ({ value: item.id, label: item.name })),
       periodId,
       '放号时段'
     )
   )
-  const doctor = option(doctors, payload.doctorId, '医生')
-  const room = option(rooms, payload.roomId, '诊室')
-  if (payload.releasePolicyId !== policy.id) throw new Error('放号策略不存在或已停用')
+  const doctor = option(doctors, payload.practitionerId, '医生')
+  const room = option(rooms, payload.locationId, '诊室')
+  if (payload.defaultReleasePolicyId && !policies.some((item) => item.id === payload.defaultReleasePolicyId))
+    throw new Error('放号策略不存在或已停用')
   if (id) {
     const row = findOrThrow(dailyTemplates, id, '日排班模板不存在')
     row.periodIds.forEach((periodId) => {
@@ -306,30 +414,53 @@ export async function mockSaveDailyTemplate(
       if (period) period.usageCount = Math.max(0, period.usageCount - 1)
     })
     Object.assign(row, {
-      ...payload,
-      name: payload.name.trim(),
+      name: payload.templateName.trim(),
+      templateCode: payload.templateCode ?? row.templateCode,
+      organizationId: payload.organizationId,
+      scheduleMode: payload.scheduleMode,
+      serviceType: payload.healthcareServiceId,
+      periodIds,
+      doctorId: payload.practitionerId,
+      roomId: payload.locationId,
+      releasePolicyId: payload.defaultReleasePolicyId ?? '',
+      effectiveStart: payload.effectiveStart ?? '',
+      effectiveEnd: payload.effectiveEnd ?? '',
+      priority: payload.priority ?? 0,
+      status: payload.enabled ? 'enabled' : 'disabled',
       doctorName: doctor.label,
       roomName: room.label
     })
-    payload.periodIds.forEach((periodId) => {
+    periodIds.forEach((periodId) => {
       const period = periods.find((item) => item.id === periodId)
       if (period) period.usageCount += 1
     })
-    return clone(row)
+    syncDailyFields(row)
+    return { id: row.id }
   }
   const row: DailyTemplate = {
-    ...payload,
     id: `daily-${sequence++}`,
-    name: payload.name.trim(),
+    name: payload.templateName.trim(),
+    scheduleMode: payload.scheduleMode,
+    serviceType: payload.healthcareServiceId,
+    periodIds,
+    doctorId: payload.practitionerId,
+    roomId: payload.locationId,
+    releasePolicyId: payload.defaultReleasePolicyId ?? '',
+    effectiveStart: payload.effectiveStart ?? '',
+    effectiveEnd: payload.effectiveEnd ?? '',
+    priority: payload.priority ?? 0,
+    defaultAppointment: false,
+    status: payload.enabled ? 'enabled' : 'disabled',
     doctorName: doctor.label,
     roomName: room.label
   }
   dailyTemplates.push(row)
-  payload.periodIds.forEach((periodId) => {
+  periodIds.forEach((periodId) => {
     const period = periods.find((item) => item.id === periodId)
     if (period) period.usageCount += 1
   })
-  return clone(row)
+  syncDailyFields(row)
+  return { id: row.id }
 }
 export async function mockRemoveDailyTemplate(id: string, context: RequestContext = {}) {
   await delay(context)
@@ -364,35 +495,42 @@ export async function mockSaveWeeklyTemplate(
 ) {
   const id = payload.id
   await delay(context)
-  if (!payload.name.trim() || !payload.items.length) throw new Error('周排班名称和周明细不能为空')
-  if (new Set(payload.items.map((item) => item.weekday)).size !== payload.items.length)
+  const payloadItems = payload.items ?? []
+  if (!payload.templateName.trim() || !payloadItems.length) throw new Error('周排班名称和周明细不能为空')
+  if (new Set(payloadItems.map((item) => item.weekday)).size !== payloadItems.length)
     throw new Error('同一周排班中不能重复配置星期')
-  const items = payload.items.map((item, index) => {
+  const items = payloadItems.map((item, index) => {
     const daily = option(
       dailyTemplates.map((entry) => ({ value: entry.id, label: entry.name })),
-      item.dailyTemplateId,
+      item.dayScheduleTemplateId,
       '日排班模板'
     )
     return {
-      ...item,
       id: `${id ?? `weekly-${sequence}`}-item-${index + 1}`,
+      weekday: item.weekday,
       weekdayLabel: weekdayLabel(item.weekday),
+      dailyTemplateId: item.dayScheduleTemplateId,
+      enabled: item.enabled ?? true,
       dailyTemplateName: daily.label
     }
   })
-  const value = {
-    ...payload,
-    name: payload.name.trim(),
+  const value: Omit<WeeklyTemplate, 'id'> = {
+    name: payload.templateName.trim(),
+    isDefault: payload.isDefault ?? false,
+    appointmentOpen: payload.fallbackBookable ?? false,
+    status: payload.enabled ? 'enabled' : 'disabled',
     items
   }
   if (id) {
     const row = findOrThrow(weeklyTemplates, id, '周排班模板不存在')
     Object.assign(row, value)
-    return clone(row)
+    syncWeeklyFields(row)
+    return { id: row.id }
   }
   const row: WeeklyTemplate = { ...value, id: `weekly-${sequence++}` }
   weeklyTemplates.push(row)
-  return clone(row)
+  syncWeeklyFields(row)
+  return { id: row.id }
 }
 export async function mockRemoveWeeklyTemplate(id: string, context: RequestContext = {}) {
   await delay(context)
@@ -401,16 +539,76 @@ export async function mockRemoveWeeklyTemplate(id: string, context: RequestConte
 }
 export async function mockGetReleasePolicy(context: RequestContext = {}) {
   await delay(context)
-  return clone(policy)
+  if (!policies[0]) throw new Error('尚未配置放号策略')
+  return clone(policies[0])
 }
-export async function mockSaveReleasePolicy(payload: ReleasePolicy, context: RequestContext = {}) {
+export async function mockPageReleasePolicies(
+  query: ReleasePolicyQuery,
+  context: RequestContext = {}
+) {
   await delay(context)
-  if (!payload.name.trim()) throw new Error('策略名称不能为空')
-  if (payload.openTime >= payload.closeTime) throw new Error('放号开始时间必须早于结束时间')
+  const keyword = query.keyword?.trim().toLowerCase()
+  return toPage(
+    policies.filter(
+      (item) =>
+        !keyword || `${item.policyCode ?? ''}${item.policyName ?? ''}`.toLowerCase().includes(keyword)
+    ),
+    query.pageNo,
+    query.pageSize
+  )
+}
+export async function mockSaveReleasePolicy(
+  payload: ReleasePolicySavePayload,
+  context: RequestContext = {}
+) {
+  await delay(context)
+  if (!payload.policyName.trim()) throw new Error('策略名称不能为空')
   if (payload.slotMinutes < 5 || payload.capacityPerSlot < 1)
     throw new Error('时段粒度和单段容量必须大于零')
-  policy = clone(payload)
-  return clone(policy)
+  const channelQuotaJsonText = payload.channelQuotaJson?.trim() || undefined
+  const channelQuotas = parseChannelQuotas(channelQuotaJsonText)
+  if (payload.id) {
+    const row = findOrThrow(policies, payload.id, '放号策略不存在')
+    Object.assign(row, {
+      policyCode: payload.policyCode || row.policyCode,
+      policyName: payload.policyName.trim(),
+      name: payload.policyName.trim(),
+      advanceDays: payload.advanceDays,
+      openDays: payload.advanceDays,
+      slotMinutes: payload.slotMinutes,
+      capacityPerSlot: payload.capacityPerSlot,
+      channelQuotaJsonText,
+      channelQuotas
+    })
+    syncPolicyFields(row)
+    return { id: row.id }
+  }
+  const row: ReleasePolicy = {
+    id: `policy-${sequence++}`,
+    policyCode: payload.policyCode || `POLICY-${sequence}`,
+    policyName: payload.policyName.trim(),
+    name: payload.policyName.trim(),
+    enabled: true,
+    openDays: payload.advanceDays,
+    advanceDays: payload.advanceDays,
+    openTime: '00:00',
+    closeTime: '23:59',
+    maxAdvanceDays: payload.advanceDays,
+    maxPerPatient: 1,
+    slotMinutes: payload.slotMinutes,
+    capacityPerSlot: payload.capacityPerSlot,
+    channelQuotaJsonText,
+    channelQuotas
+  }
+  policies.push(syncPolicyFields(row))
+  return { id: row.id }
+}
+export async function mockRemoveReleasePolicy(id: string, context: RequestContext = {}) {
+  await delay(context)
+  findOrThrow(policies, id, '放号策略不存在')
+  if (dailyTemplates.some((item) => item.releasePolicyId === id))
+    throw new Error('该放号策略已被日排班引用，不能删除')
+  policies = policies.filter((item) => item.id !== id)
 }
 export async function mockListHolidayExceptions(
   range: { start: string; end: string },
@@ -421,32 +619,64 @@ export async function mockListHolidayExceptions(
     holidays.filter((item) => item.date <= range.end && (item.rangeEnd ?? item.date) >= range.start)
   )
 }
+export async function mockPageHolidayExceptions(
+  query: HolidayExceptionQuery,
+  context: RequestContext = {}
+) {
+  await delay(context)
+  const typeMap = { CLOSED: 'closed', REDUCED: 'reduced', OVERRIDE: 'replace', EXTRA: 'extra' } as const
+  const type = query.exceptionType ? typeMap[query.exceptionType] : undefined
+  const keyword = query.keyword?.trim().toLowerCase()
+  return toPage(
+    holidays.filter(
+      (item) =>
+        (!query.rangeStart || (item.rangeEnd ?? item.date) >= query.rangeStart) &&
+        (!query.rangeEnd || item.date <= query.rangeEnd) &&
+        (!type || item.type === type) &&
+        (!keyword || `${item.reason}${item.replacementDailyTemplateName ?? ''}`.toLowerCase().includes(keyword))
+    ),
+    query.pageNo,
+    query.pageSize
+  )
+}
 export async function mockSaveHolidayException(
   payload: HolidayExceptionSavePayload,
   context: RequestContext = {}
 ) {
   const id = payload.id
   await delay(context)
-  if (!payload.date || !payload.reason.trim()) throw new Error('日期和例外原因不能为空')
-  if (payload.rangeEnd && payload.rangeEnd < payload.date)
-    throw new Error('结束日期不能早于开始日期')
+  if (!payload.exceptionDate || !payload.exceptionType) throw new Error('起始日和例外类型不能为空')
+  if (payload.rangeEnd && payload.rangeEnd < payload.exceptionDate)
+    throw new Error('结束日期不能早于起始日')
   let replacementDailyTemplateName: string | undefined
-  if (payload.type !== 'closed') {
+  const typeMap = { CLOSED: 'closed', REDUCED: 'reduced', OVERRIDE: 'replace', EXTRA: 'extra' } as const
+  const type = typeMap[payload.exceptionType]
+  if (type !== 'closed') {
     replacementDailyTemplateName = option(
       dailyTemplates.map((item) => ({ value: item.id, label: item.name })),
-      payload.replacementDailyTemplateId ?? '',
+      payload.overrideScheduleTemplateId ?? '',
       '替代日排班'
     ).label
   }
-  const value = { ...payload, reason: payload.reason.trim(), replacementDailyTemplateName }
+  const value = {
+    date: payload.exceptionDate,
+    rangeEnd: payload.rangeEnd,
+    type,
+    replacementDailyTemplateId: payload.overrideScheduleTemplateId,
+    reason: payload.reason?.trim() ?? '',
+    autoApplyOnGenerate: payload.autoApplyOnGenerate ?? false,
+    replacementDailyTemplateName
+  }
   if (id) {
     const row = findOrThrow(holidays, id, '节假日例外不存在')
     Object.assign(row, value)
-    return clone(row)
+    syncHolidayFields(row)
+    return { id: row.id }
   }
   const row: HolidayException = { ...value, id: `holiday-${sequence++}` }
   holidays.push(row)
-  return clone(row)
+  syncHolidayFields(row)
+  return { id: row.id }
 }
 export async function mockRemoveHolidayException(id: string, context: RequestContext = {}) {
   await delay(context)
@@ -455,5 +685,5 @@ export async function mockRemoveHolidayException(id: string, context: RequestCon
 }
 
 export function getScheduleTemplateSnapshot() {
-  return clone({ periods, dailyTemplates, weeklyTemplates, policy, holidays })
+  return clone({ periods, dailyTemplates, weeklyTemplates, policies, holidays })
 }

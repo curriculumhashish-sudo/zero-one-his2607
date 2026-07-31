@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import type { PaymentChannel, PreSettlement } from '@/apis/outpatient/charge/charge'
+import type { PaymentChannel } from '@/apis/outpatient/charge/charge'
+import type { ChargeSettlementView } from '../type'
 import { computed, ref } from 'vue'
-const props = defineProps<{ data: PreSettlement | null; submitting: boolean }>()
-const emit = defineEmits<{ confirm: [channel: PaymentChannel] }>()
+const props = defineProps<{ data: ChargeSettlementView | null; submitting: boolean }>()
+const emit = defineEmits<{
+  confirm: [data: { channel: PaymentChannel; scanCode?: string }]
+}>()
 const visible = ref(false)
 const channel = ref<PaymentChannel>('card')
+const scanCode = ref('')
 const options: Array<{ value: PaymentChannel; label: string }> = [
   { value: 'cash', label: '现金' },
   { value: 'card', label: '银行卡' },
@@ -15,12 +19,20 @@ const amount = computed(() => props.data?.summary.totalAmount ?? 0)
 const availableOptions = computed(() =>
   options.filter((item) => props.data?.channels.includes(item.value) ?? false)
 )
+const submitDisabled = computed(
+  () => props.submitting || (['wechat', 'alipay'].includes(channel.value) && !scanCode.value.trim())
+)
 function open() {
   channel.value = 'card'
+  scanCode.value = ''
   visible.value = true
 }
 function close() {
   visible.value = false
+}
+function submit() {
+  if (['wechat', 'alipay'].includes(channel.value) && !scanCode.value.trim()) return
+  emit('confirm', { channel: channel.value, scanCode: scanCode.value.trim() || undefined })
 }
 defineExpose({ open, close })
 </script>
@@ -34,7 +46,7 @@ defineExpose({ open, close })
       ><el-descriptions-item label="个人支付"
         >¥{{ data.summary.selfPayAmount.toFixed(2) }}</el-descriptions-item
       ><el-descriptions-item label="项目数">{{
-        data.itemIds.length
+        data.chargeItemIds.length
       }}</el-descriptions-item></el-descriptions
     ><el-form label-width="90px" class="pay-form"
       ><el-form-item label="支付渠道"
@@ -51,10 +63,17 @@ defineExpose({ open, close })
         v-if="['wechat', 'alipay'].includes(channel)"
         type="info"
         :closable="false"
-        title="提交后进入扫码支付确认，可查询或恢复未完成交易。" /></el-form
+        title="提交后进入扫码支付确认，可查询或恢复未完成交易。" /><el-form-item
+        v-if="['wechat', 'alipay'].includes(channel)"
+        label="付款码"
+        required
+        ><el-input
+          v-model="scanCode"
+          maxlength="64"
+          placeholder="请扫描或输入患者付款码" /></el-form-item></el-form
     ><template #footer
       ><el-button :disabled="submitting" @click="close">取消</el-button
-      ><el-button type="primary" :loading="submitting" @click="emit('confirm', channel)"
+      ><el-button type="primary" :loading="submitting" :disabled="submitDisabled" @click="submit"
         >确认结算</el-button
       ></template
     ></el-dialog

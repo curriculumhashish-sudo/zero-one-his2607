@@ -2,9 +2,9 @@
 import type { FormInstance, FormRules } from 'element-plus'
 import type {
   BookingOption,
-  ScheduleRecord,
-  ScheduleSavePayload
+  ScheduleRecord
 } from '@/apis/booking/outpatient-schedule'
+import type { ScheduleSavePayload } from '../type'
 
 import { computed, nextTick, reactive, ref } from 'vue'
 
@@ -40,7 +40,6 @@ const form = reactive<ScheduleSavePayload>({
   startTime: '08:00',
   endTime: '12:00',
   capacity: 20,
-  fee: 0,
   publish: false
 })
 
@@ -68,7 +67,6 @@ function reset(record?: ScheduleRecord, date?: string) {
     startTime: record?.startTime ?? '08:00',
     endTime: record?.endTime ?? '12:00',
     capacity: record?.capacity ?? 20,
-    fee: record?.fee ?? 0,
     publish: record?.status === 'published'
   })
   nextTick(() => formRef.value?.clearValidate())
@@ -175,16 +173,6 @@ defineExpose({ open, close })
             v-model="form.capacity"
             :min="1"
             :max="500"
-            controls-position="right"
-            style="width: 100%"
-          />
-        </el-form-item>
-        <el-form-item label="挂号费" prop="fee">
-          <el-input-number
-            v-model="form.fee"
-            :min="0"
-            :max="9999"
-            :precision="2"
             controls-position="right"
             style="width: 100%"
           />

@@ -6,7 +6,8 @@ import type {
   RefundPayload,
   RefundQueueQuery,
   RefundRecord,
-  RefundVerification,
+  SwitchPreservedChargeItemsRequest,
+  VerifyRefundableBeforeExecutionRequest,
   RequestContext
 } from './type'
 const patients: RefundPatient[] = [
@@ -125,6 +126,7 @@ const refundRecords: RefundRecord[] = [
   }
 ]
 const pendingPayloads = new Map<string, RefundPayload>()
+const verifiedSelections = new Map<string, string[]>()
 let sequence = 4
 function clone<T>(value: T): T {
   return structuredClone(value)
@@ -151,19 +153,79 @@ function patientOf(encounterId: string) {
   if (!row) throw new Error('患者就诊信息不存在')
   return row
 }
+
+function syncPatientFields(row: RefundPatient) {
+  const rows = items.get(row.encounterId) ?? []
+  row.patientId = row.id
+  row.encounterBusNo = row.visitNo
+  row.patientName = row.name
+  row.genderCode = row.gender === '男' ? 'M' : 'F'
+  row.genderEnumText = row.gender
+  row.ageText = `${row.age}岁`
+  row.organizationName = row.departmentName
+  row.doctorName = row.departmentName === '妇科' ? '李文静' : '赵海峰'
+  row.startTime = row.visitTime
+  row.queueLabelCode = row.status === 'pending' ? 'PENDING' : 'SETTLED'
+  row.chargeItemStatusSummary = rows.some((item) => item.status === 'refundable')
+    ? '存在可退项目'
+    : '无可退项目'
+  row.totalAmount = rows.reduce((sum, item) => sum + item.amount, 0)
+  row.paidAmount = row.totalAmount
+  return row
+}
+
+function syncItemFields(row: RefundItem) {
+  row.chargeItemId = row.id
+  row.paymentId = row.paymentRecordId
+  row.paymentBusNo = row.paymentNo
+  row.itemDisplayName = row.itemName
+  row.lineTotalAmount = row.amount
+  row.chargeItemStatusEnum = row.status.toUpperCase()
+  return row
+}
+
+function syncRecordFields(row: RefundRecord) {
+  row.reversePaymentId = row.id
+  return row
+}
+
+items.forEach((rows) => rows.forEach(syncItemFields))
+refundRecords.forEach(syncRecordFields)
+patients.forEach(syncPatientFields)
+
 export async function mockPageRefundPatientQueue(
   query: RefundQueueQuery,
   context: RequestContext = {}
 ): Promise<PageResult<RefundPatient>> {
   await delay(context)
   const key = query.keyword?.trim().toLowerCase()
+  const status =
+    query.queueTabCode === 'PENDING'
+      ? 'pending'
+      : query.queueTabCode === 'SETTLED'
+        ? 'refunded'
+        : query.queueTabCode === 'ALL'
+          ? 'all'
+          : query.status
   const rows = patients.filter(
     (item) =>
-      (query.status === 'all' || item.status === query.status) &&
+      (status === 'all' || item.status === status) &&
+      (!query.startDate || item.visitTime.slice(0, 10) >= query.startDate) &&
+      (!query.endDate || item.visitTime.slice(0, 10) <= query.endDate) &&
       (!key || `${item.name}${item.patientNo}${item.visitNo}`.toLowerCase().includes(key))
   )
-  const start = (query.page - 1) * query.pageSize
-  return { rows: clone(rows.slice(start, start + query.pageSize)), total: rows.length }
+  const start = ((query.pageNo ?? query.page) - 1) * query.pageSize
+  const pageRows = clone(rows.slice(start, start + query.pageSize))
+  const pageNo = query.pageNo ?? query.page
+  return {
+    rows: pageRows,
+    records: clone(pageRows),
+    content: clone(pageRows),
+    total: rows.length,
+    totalCount: rows.length,
+    pageNo,
+    pageSize: query.pageSize
+  }
 }
 export async function mockGetRefundableExecutionDetail(
   encounterId: string,
@@ -176,21 +238,54 @@ export async function mockGetRefundableExecutionDetail(
   const failed = [...refundRecords]
     .reverse()
     .find((record) => record.encounterId === encounterId && record.status === 'failed')
+  const detailRows = items.get(encounterId) ?? []
+  const grouped = new Map<string, RefundItem[]>()
+  detailRows.forEach((item) =>
+    grouped.set(item.paymentRecordId, [...(grouped.get(item.paymentRecordId) ?? []), item])
+  )
   return clone({
     patient: patientOf(encounterId),
-    items: items.get(encounterId) ?? [],
+    items: detailRows,
+    paymentGroups: [...grouped.entries()].map(([paymentId, groupRows]) => ({
+      halfRefundOnPayment:
+        groupRows.some((item) => item.status === 'refunded') &&
+        groupRows.some((item) => item.status === 'refundable'),
+      originalPayChannelCodes: [...new Set(groupRows.map((item) => item.channel))],
+      paymentBusNo: groupRows[0]?.paymentNo ?? paymentId,
+      paymentId,
+      paymentStatusEnum: 'SUCCESS',
+      preservedLines: groupRows
+        .filter((item) => item.status !== 'refundable')
+        .map((item) => ({
+          chargeItemId: item.id,
+          chargeItemStatusEnum: item.chargeItemStatusEnum ?? item.status,
+          itemDisplayName: item.itemName,
+          lineTotalAmount: item.amount,
+          paymentId
+        })),
+      refundableAmount: groupRows.reduce((sum, item) => sum + item.refundableAmount, 0),
+      refundingLines: groupRows
+        .filter((item) => item.status === 'refundable')
+        .map((item) => ({
+          chargeItemId: item.id,
+          chargeItemStatusEnum: item.chargeItemStatusEnum ?? item.status,
+          itemDisplayName: item.itemName,
+          lineTotalAmount: item.amount,
+          paymentId
+        }))
+    })),
     interruptedRefundId: interrupted?.id,
     refundFailureReason: failed?.failureReason
   })
 }
 export async function mockVerifyOutpatientRefund(
-  data: { encounterId: string; itemIds: string[] },
+  data: VerifyRefundableBeforeExecutionRequest,
   context: RequestContext = {}
-): Promise<RefundVerification> {
+): Promise<{ allowed: boolean; rejectReasonCode?: string | null }> {
   await delay(context)
-  if (!data.itemIds.length) throw new Error('请至少选择一条可退项目')
+  if (!data.refundingChargeItemIds.length) throw new Error('请至少选择一条可退项目')
   const rows = items.get(data.encounterId) ?? []
-  const selected = rows.filter((item) => data.itemIds.includes(item.id))
+  const selected = rows.filter((item) => data.refundingChargeItemIds.includes(item.id))
   if (
     !selected.length ||
     selected.some((item) => item.status !== 'refundable' || item.refundableAmount <= 0)
@@ -202,26 +297,12 @@ export async function mockVerifyOutpatientRefund(
   if (
     [...pendingPayloads.values()].some(
       (payload) =>
-        payload.encounterId === data.encounterId && payload.paymentRecordId === paymentRecordId
+        payload.encounterId === data.encounterId && payload.originalPaymentId === paymentRecordId
     )
   )
     throw new Error('该原支付记录存在处理中的退款，请先查询或恢复退款结果')
-  const groupRows = rows.filter(
-    (item) => item.paymentRecordId === paymentRecordId && item.status === 'refundable'
-  )
-  const refundAmount = selected.reduce((sum, item) => sum + item.refundableAmount, 0)
-  const retainedAmount = groupRows
-    .filter((item) => !data.itemIds.includes(item.id))
-    .reduce((sum, item) => sum + item.refundableAmount, 0)
-  return {
-    verificationId: `refund-check-${sequence++}`,
-    paymentRecordId,
-    itemIds: [...data.itemIds],
-    refundAmount,
-    retainedAmount,
-    channel: selected[0]!.channel,
-    message: `原支付单 ${selected[0]!.paymentNo}，本次可退 ¥${refundAmount.toFixed(2)}`
-  }
+  verifiedSelections.set(data.encounterId, [...data.refundingChargeItemIds])
+  return { allowed: true }
 }
 export async function mockRefundOutpatientCharge(
   data: RefundPayload,
@@ -229,58 +310,80 @@ export async function mockRefundOutpatientCharge(
 ) {
   await delay(context, 300)
   const rows = items.get(data.encounterId) ?? []
-  const selected = rows.filter((item) => data.itemIds.includes(item.id))
+  const selected = rows.filter((item) => data.refundingChargeItemIds.includes(item.id))
   if (
-    selected.length !== data.itemIds.length ||
+    selected.length !== data.refundingChargeItemIds.length ||
     selected.some((item) => item.status !== 'refundable')
   )
     throw new Error('退款项目状态已变化，请重新校验')
   if (
     new Set(selected.map((item) => item.paymentRecordId)).size !== 1 ||
-    selected[0]?.paymentRecordId !== data.paymentRecordId
+    selected[0]?.paymentRecordId !== data.originalPaymentId
   )
     throw new Error('退款项目必须属于同一原支付记录')
-  if (selected.some((item) => item.channel !== data.channel))
+  const channel = String(data.refundPaymentDetails[0]?.payChannelCode ?? '') as RefundItem['channel']
+  if (selected.some((item) => item.channel !== channel))
     throw new Error('退款必须退回原支付渠道')
-  const status = ['wechat', 'alipay'].includes(data.channel) ? 'pending' : 'success'
+  const status = ['wechat', 'alipay'].includes(channel) ? 'pending' : 'success'
   const record: RefundRecord = {
     id: `refund-${sequence++}`,
     encounterId: data.encounterId,
-    paymentRecordId: data.paymentRecordId,
+    paymentRecordId: data.originalPaymentId,
     amount: selected.reduce((sum, item) => sum + item.refundableAmount, 0),
+    halfRefundExecuted:
+      selected.length < rows.filter((item) => item.paymentRecordId === data.originalPaymentId).length,
+    insuranceRevoked: selected.some((item) => item.insuranceMode === 'insurance'),
+    originalPaymentId: data.originalPaymentId,
+    success: status === 'success',
     status,
     createdAt: '2026-07-25 12:30'
   }
+  syncRecordFields(record)
   refundRecords.push(record)
   if (status === 'pending') pendingPayloads.set(record.id, clone(data))
   else completeRefund(data)
-  return clone(record)
+  return {
+    halfRefundExecuted: record.halfRefundExecuted,
+    insuranceRevoked: record.insuranceRevoked,
+    originalPaymentId: record.originalPaymentId,
+    reversePaymentId: record.id,
+    success: record.success ?? false
+  }
 }
 export async function mockSwitchRetainedItemsInsuranceMode(
-  data: { encounterId: string; itemIds: string[]; mode: 'insurance' | 'self-pay' },
+  data: SwitchPreservedChargeItemsRequest,
   context: RequestContext = {}
 ) {
   await delay(context)
   const rows = items.get(data.encounterId) ?? []
-  const retained = rows.filter((item) => data.itemIds.includes(item.id))
-  if (retained.length !== data.itemIds.length) throw new Error('保留项目状态已变化，请重新校验')
+  const selectedIds = verifiedSelections.get(data.encounterId) ?? []
+  const selectedPaymentId = rows.find((item) => selectedIds.includes(item.id))?.paymentRecordId
+  const retained = rows.filter(
+    (item) =>
+      item.paymentRecordId === selectedPaymentId &&
+      item.status === 'refundable' &&
+      !selectedIds.includes(item.id)
+  )
   retained.forEach((item) => {
-    item.insuranceMode = data.mode
-    item.insuranceAmount = data.mode === 'insurance' ? Number((item.amount * 0.8).toFixed(2)) : 0
+    item.insuranceMode = 'self-pay'
+    item.insuranceAmount = 0
     item.selfPayAmount = Number((item.amount - item.insuranceAmount).toFixed(2))
+    syncItemFields(item)
   })
-  return mockGetRefundableExecutionDetail(data.encounterId, context)
+  return { success: true }
 }
 function completeRefund(data: RefundPayload) {
   const rows = items.get(data.encounterId) ?? []
   rows
-    .filter((item) => data.itemIds.includes(item.id))
+    .filter((item) => data.refundingChargeItemIds.includes(item.id))
     .forEach((item) => {
       item.status = 'refunded'
       item.refundableAmount = 0
+      syncItemFields(item)
     })
   if (rows.every((item) => item.status !== 'refundable' && item.status !== 'partial'))
     patientOf(data.encounterId).status = 'refunded'
+  syncPatientFields(patientOf(data.encounterId))
 }
 export async function mockQueryRefundResult(refundId: string, context: RequestContext = {}) {
   await delay(context)
@@ -292,6 +395,7 @@ export async function mockQueryRefundResult(refundId: string, context: RequestCo
     completeRefund(payload)
     pendingPayloads.delete(refundId)
     record.status = 'success'
+    syncRecordFields(record)
   }
   return clone(record)
 }

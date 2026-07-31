@@ -1,6 +1,3 @@
-// src/apis/pharmacy/outpatient-dispense/type.ts
-
-/** ===== 发药队列查询参数 ===== */
 export interface PageDispenseQueueParams {
   startTime?: string
   endTime?: string
@@ -8,9 +5,10 @@ export interface PageDispenseQueueParams {
   dispenseStatusEnumIn?: ('PREPARATION' | 'IN_PROGRESS' | 'COMPLETED')[]
   pageNo?: number
   pageSize?: number
+  status?: string
+  pageNum?: number
 }
 
-/** ===== 发药队列返回行 ===== */
 export interface PendingDispenseEncounterQueueRowDto {
   encounterId: string
   patientId: string
@@ -21,9 +19,46 @@ export interface PendingDispenseEncounterQueueRowDto {
   prescriptionCount: number
   registerTime: string
   dispenseStatus: 'PREPARATION' | 'IN_PROGRESS' | 'COMPLETED'
+  gender?: string
+  age?: string | number
+  departmentName?: string
+  doctorName?: string
+  visitTime?: string
+  slipCount?: number
+  status?: string
+  serviceType?: string
+  paymentType?: string
+  patientNo?: string
 }
 
-/** ===== 发放明细查询参数 ===== */
+export interface PageDispenseQueueResult {
+  total: number
+  pageNum: number
+  pageSize: number
+  records: PendingDispenseEncounterQueueRowDto[]
+  rows?: PendingDispenseEncounterQueueRowDto[]
+}
+
+export interface PagePatientQueueResult {
+  total: number
+  pageNum: number
+  pageSize: number
+  records: {
+    id: string | number
+    name: string
+    gender: string
+    age: string | number
+    serviceType: string
+    patientNo: string
+    visitNo: string
+    visitTime: string
+    departmentName: string
+    status: string
+    statusTone: string
+    paymentType: string
+  }[]
+}
+
 export interface PageDispenseSlipsParams {
   encounterId: string
   dispenseStatusEnumIn?: ('PREPARATION' | 'IN_PROGRESS' | 'COMPLETED')[]
@@ -31,11 +66,9 @@ export interface PageDispenseSlipsParams {
   pageSize?: number
 }
 
-/** ===== 发放明细返回行 ===== */
 export interface EncounterMedicationDispenseSlipRowDto {
   dispenseId: string
   prescriptionNo: string
-  /** 前端页签使用的处方类型；真实接口对接时在 API 层完成枚举转换。 */
   rxType?: 'western' | 'herbal'
   medicationName: string
   specText: string
@@ -66,13 +99,70 @@ export interface EncounterMedicationDispenseSlipRowDto {
   }[]
 }
 
-/** 处方直接打印参数，不在发药页面重复选择模板和打印机。 */
+export interface DispenseSlipItemDto {
+  itemId: string
+  slipId: string
+  drugId: string
+  itemName: string
+  spec: string
+  dosage: string
+  route: string
+  frequency: string
+  days: number
+  quantity: number
+  unit: string
+  price: number
+  totalAmount: number
+  status: string
+  inventoryLots: InventoryLotDto[]
+  selectedInventoryId: string
+  selectedLotNo: string
+  pickedQty: number
+}
+
+export interface DispenseSlipDto {
+  slipId: string
+  encounterId: string
+  patientId: string
+  patientName: string
+  patientNo: string
+  visitNo: string
+  doctorName: string
+  departmentName: string
+  createTime: string
+  status: string
+  items: DispenseSlipItemDto[]
+}
+
+export interface InventoryLotDto {
+  inventoryId: string
+  inventoryName: string
+  lotNo: string
+  batchNo: string
+  expiryDate: string
+  availableQty: number
+  unit: string
+  price: number
+}
+
+export interface PharmacyDispenserDto {
+  dispenserId: string
+  name: string
+  code: string
+}
+
+export interface TraceCodeConfirmResult {
+  success: boolean
+  drugName: string
+  lotNo: string
+  expiryDate: string
+}
+
 export interface PrintPrescriptionParams {
   encounterId: string
   prescriptionIds: string[]
 }
 
-/** ===== 发药准备参数 ===== */
 export interface SavePreparationParams {
   encounterId: string
   preparerPractitionerId: string
@@ -85,7 +175,6 @@ export interface SavePreparationParams {
   }[]
 }
 
-/** ===== 发药确认参数 ===== */
 export interface ConfirmDispenseParams {
   encounterId: string
   contractBusNo?: string
@@ -94,13 +183,11 @@ export interface ConfirmDispenseParams {
   }[]
 }
 
-/** ===== 药师选项 ===== */
 export interface PractitionerOptionDto {
   practitionerId: number | string
   displayName: string
 }
 
-/** ===== 药房选项 ===== */
 export interface PharmacyOptionDto {
   pharmacyId: string
   pharmacyName: string

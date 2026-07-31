@@ -7,25 +7,41 @@ import { ElMessage } from 'element-plus'
 
 import OutpatientSchedulePage from './outpatient-schedule/Index.vue'
 import SlotCalendarPage from './slot-calendar/Index.vue'
+import SlotDetailDialogComponent from './slot-calendar/components/SlotDetailDialog.vue'
 
 const scheduleApi = vi.hoisted(() => ({
-  loadScheduleInit: vi.fn(),
-  pageSchedulesByRange: vi.fn(),
-  getScheduleDetail: vi.fn(),
-  createSchedule: vi.fn(),
-  updateSchedule: vi.fn(),
-  publishSchedule: vi.fn(),
-  stopSchedule: vi.fn(),
-  loadDepartmentOptions: vi.fn(),
-  loadDoctorOptions: vi.fn()
+  loadScheduleInit: vi.fn<(...args: unknown[]) => unknown>(),
+  pageSchedulesByRange: vi.fn<(...args: unknown[]) => unknown>(),
+  getScheduleDetail: vi.fn<(...args: unknown[]) => unknown>(),
+  createSchedule: vi.fn<(...args: unknown[]) => unknown>(),
+  updateSchedule: vi.fn<(...args: unknown[]) => unknown>(),
+  publishSchedule: vi.fn<(...args: unknown[]) => unknown>(),
+  stopSchedule: vi.fn<(...args: unknown[]) => unknown>(),
+  loadDepartmentOptions: vi.fn<(...args: unknown[]) => unknown>(),
+  loadDoctorOptions: vi.fn<(...args: unknown[]) => unknown>(),
+  loadScheduleGenerationOptions: vi.fn<(...args: unknown[]) => unknown>(),
+  generateFormalSchedules: vi.fn<(...args: unknown[]) => unknown>(),
+  clearScheduleSubstitution: vi.fn<(...args: unknown[]) => unknown>(),
+  deleteReleasedSlots: vi.fn<(...args: unknown[]) => unknown>(),
+  listReleasedSlots: vi.fn<(...args: unknown[]) => unknown>(),
+  partialStopSchedule: vi.fn<(...args: unknown[]) => unknown>(),
+  previewScheduleImpact: vi.fn<(...args: unknown[]) => unknown>(),
+  provisionScheduleSlots: vi.fn<(...args: unknown[]) => unknown>(),
+  resumeSchedule: vi.fn<(...args: unknown[]) => unknown>(),
+  setScheduleSubstitution: vi.fn<(...args: unknown[]) => unknown>(),
+  unlockPartialStop: vi.fn<(...args: unknown[]) => unknown>(),
+  voidSchedule: vi.fn<(...args: unknown[]) => unknown>()
 }))
 
 const slotApi = vi.hoisted(() => ({
-  loadSlotInit: vi.fn(),
-  pageSlotsByDate: vi.fn(),
-  getSlotDetail: vi.fn(),
-  loadDepartmentOptions: vi.fn(),
-  loadDoctorOptions: vi.fn()
+  loadSlotInit: vi.fn<(...args: unknown[]) => unknown>(),
+  pageSlotsByDate: vi.fn<(...args: unknown[]) => unknown>(),
+  getSlotDetail: vi.fn<(...args: unknown[]) => unknown>(),
+  loadDepartmentOptions: vi.fn<(...args: unknown[]) => unknown>(),
+  loadDoctorOptions: vi.fn<(...args: unknown[]) => unknown>(),
+  batchBlockSlots: vi.fn<(...args: unknown[]) => unknown>(),
+  batchUnblockSlots: vi.fn<(...args: unknown[]) => unknown>(),
+  markSlotOverbooked: vi.fn<(...args: unknown[]) => unknown>()
 }))
 
 vi.mock('@/apis/booking/outpatient-schedule', () => scheduleApi)
@@ -56,14 +72,37 @@ const AlertStub = defineComponent({
   template: '<div class="alert-stub"><span>{{ title }}</span><slot /></div>'
 })
 
+const DescriptionListStub = defineComponent({
+  name: 'DescriptionList',
+  props: ['data', 'items', 'column'],
+  template: '<div class="description-list-stub"><slot name="value-status" /></div>'
+})
+
+const DrawerStub = defineComponent({
+  name: 'ElDrawer',
+  props: ['modelValue', 'title'],
+  emits: ['update:modelValue'],
+  template: '<section><slot /><slot name="footer" /></section>'
+})
+
 const ButtonStub = defineComponent({
   emits: ['click'],
   template: '<button type="button" @click="$emit(\'click\')"><slot /></button>'
 })
 
-const editOpen = vi.fn()
-const slotDetailOpen = vi.fn()
-const slotDetailClose = vi.fn()
+const ActionToolbarStub = defineComponent({
+  name: 'ActionToolbar',
+  props: ['actions'],
+  emits: ['action'],
+  template:
+    '<div class="toolbar-stub"><button v-for="action in actions" :key="action.key" :class="`action-${action.key}`" @click="$emit(\'action\', action)">{{ action.label }}</button></div>'
+})
+
+const editOpen = vi.fn<(...args: unknown[]) => unknown>()
+const generateOpen = vi.fn<(...args: unknown[]) => unknown>()
+const generateClose = vi.fn<(...args: unknown[]) => unknown>()
+const slotDetailOpen = vi.fn<(...args: unknown[]) => unknown>()
+const slotDetailClose = vi.fn<(...args: unknown[]) => unknown>()
 
 function createDeferred<T>() {
   let resolve!: (value: T) => void
@@ -76,7 +115,17 @@ function createDeferred<T>() {
 const ScheduleEditDialogStub = defineComponent({
   name: 'ScheduleEditDialog',
   setup(_, { expose }) {
-    expose({ open: editOpen, close: vi.fn() })
+    expose({ open: editOpen, close: vi.fn<() => void>() })
+    return () => null
+  }
+})
+
+const ScheduleGenerateDialogStub = defineComponent({
+  name: 'ScheduleGenerateDialog',
+  props: ['dailyTemplates', 'weeklyTemplates', 'submitting'],
+  emits: ['submit'],
+  setup(_, { expose }) {
+    expose({ open: generateOpen, close: generateClose })
     return () => null
   }
 })
@@ -93,9 +142,10 @@ const SlotDetailDialogStub = defineComponent({
 const commonStubs = {
   SearchPanel: SearchPanelStub,
   RemoteSelectField: true,
-  ActionToolbar: true,
+  ActionToolbar: ActionToolbarStub,
   ScheduleDetailPanel: true,
   ScheduleEditDialog: ScheduleEditDialogStub,
+  ScheduleGenerateDialog: ScheduleGenerateDialogStub,
   SlotDetailDialog: SlotDetailDialogStub,
   ElAlert: AlertStub,
   ElButton: ButtonStub,
@@ -126,15 +176,41 @@ function mountSlotPage() {
 beforeEach(() => {
   vi.clearAllMocks()
   editOpen.mockClear()
+  generateOpen.mockClear()
+  generateClose.mockClear()
   slotDetailOpen.mockClear()
   slotDetailClose.mockClear()
-  scheduleApi.loadScheduleInit.mockResolvedValue({ departments: [], doctors: [], rooms: [] })
-  scheduleApi.pageSchedulesByRange.mockResolvedValue([])
+  scheduleApi.loadScheduleInit.mockResolvedValue({
+    organizationId: 'org-main',
+    departments: [],
+    doctors: [],
+    rooms: []
+  })
+  scheduleApi.pageSchedulesByRange.mockResolvedValue({ records: [], days: [], summary: {} })
   scheduleApi.getScheduleDetail.mockResolvedValue({ id: 'schedule-1' })
   scheduleApi.loadDepartmentOptions.mockResolvedValue([])
   scheduleApi.loadDoctorOptions.mockResolvedValue([])
-  slotApi.loadSlotInit.mockResolvedValue({ departments: [], doctors: [] })
-  slotApi.pageSlotsByDate.mockResolvedValue([])
+  scheduleApi.loadScheduleGenerationOptions.mockResolvedValue({
+    dailyTemplates: [{ value: 'daily-1', label: '心内科工作日' }],
+    weeklyTemplates: [{ value: 'weekly-1', label: '内科默认周排班' }]
+  })
+  scheduleApi.generateFormalSchedules.mockResolvedValue({
+    scheduleIds: ['generated-1'],
+    generatedCount: 1,
+    skippedCount: 0,
+    provisionedSlotCount: 0
+  })
+  slotApi.loadSlotInit.mockResolvedValue({
+    organizationId: 'org-main',
+    departments: [],
+    doctors: []
+  })
+  slotApi.pageSlotsByDate.mockResolvedValue({
+    content: [],
+    totalCount: 0,
+    pageNo: 1,
+    pageSize: 100
+  })
   slotApi.getSlotDetail.mockResolvedValue({ id: 'slot-1' })
   slotApi.loadDepartmentOptions.mockResolvedValue([])
   slotApi.loadDoctorOptions.mockResolvedValue([])
@@ -149,7 +225,11 @@ describe('B组页面事件连接', () => {
     calendar.vm.$emit('rangeChange', { start: '2026-07-20', end: '2026-07-26' })
     await flushPromises()
     expect(scheduleApi.pageSchedulesByRange).toHaveBeenCalledWith(
-      expect.objectContaining({ start: '2026-07-20', end: '2026-07-26' }),
+      expect.objectContaining({
+        organizationId: 'org-main',
+        rangeStart: '2026-07-20',
+        rangeEnd: '2026-07-26'
+      }),
       expect.objectContaining({ signal: expect.any(AbortSignal) })
     )
 
@@ -181,6 +261,46 @@ describe('B组页面事件连接', () => {
     await wrapper.get('.alert-stub button').trigger('click')
     await flushPromises()
     expect(scheduleApi.loadScheduleInit).toHaveBeenCalledTimes(2)
+  })
+
+  it('生成正式排班从模板列表选择并按原型字段提交，不输入裸模板 ID', async () => {
+    const wrapper = mountSchedulePage()
+    await flushPromises()
+    const calendar = wrapper.findComponent(CalendarStub)
+    calendar.vm.$emit('rangeChange', { start: '2026-07-20', end: '2026-07-26' })
+    await flushPromises()
+
+    await wrapper.get('.action-generate').trigger('click')
+    await flushPromises()
+    expect(scheduleApi.loadScheduleGenerationOptions).toHaveBeenCalledWith('org-main')
+    expect(generateOpen).toHaveBeenCalledWith({ start: '2026-07-20', end: '2026-07-26' })
+    expect(wrapper.findComponent(ScheduleGenerateDialogStub).props()).toMatchObject({
+      dailyTemplates: [{ value: 'daily-1', label: '心内科工作日' }],
+      weeklyTemplates: [{ value: 'weekly-1', label: '内科默认周排班' }]
+    })
+
+    wrapper.findComponent(ScheduleGenerateDialogStub).vm.$emit('submit', {
+      templateKind: 'DAY',
+      scheduleTemplateId: 'daily-1',
+      weekScheduleTemplateId: undefined,
+      rangeStart: '2026-07-20',
+      rangeEnd: '2026-07-26',
+      autoPublish: true,
+      autoProvision: false
+    })
+    await flushPromises()
+
+    expect(scheduleApi.generateFormalSchedules).toHaveBeenCalledWith({
+      organizationId: 'org-main',
+      templateKind: 'DAY',
+      scheduleTemplateId: 'daily-1',
+      weekScheduleTemplateId: undefined,
+      rangeStart: '2026-07-20',
+      rangeEnd: '2026-07-26',
+      autoPublish: true,
+      autoProvision: false
+    })
+    expect(generateClose).toHaveBeenCalled()
   })
 
   it('号源初始化可以重试，重新查询会清空旧选择', async () => {
@@ -228,6 +348,78 @@ describe('B组页面事件连接', () => {
     expect(warning).toHaveBeenNthCalledWith(2, '医生临时停诊')
     expect(warning).toHaveBeenNthCalledWith(3, '该时段已经过期')
     warning.mockRestore()
+  })
+
+  it('号源详情按原型 SlotDetailDto 字段和单列顺序展示', () => {
+    const wrapper = shallowMount(SlotDetailDialogComponent, {
+      props: {
+        data: {
+          slotId: 'slot-1',
+          id: 'slot-1',
+          scheduleId: 'schedule-1',
+          organizationId: 'dept-internal',
+          organizationName: '心血管内科',
+          departmentId: 'dept-internal',
+          departmentName: '心血管内科',
+          practitionerId: 'doctor-wang',
+          practitionerName: '王建国',
+          doctorId: 'doctor-wang',
+          doctorName: '王建国',
+          healthcareServiceId: 'normal',
+          healthcareServiceName: '普通号',
+          roomName: '门诊 101 诊室',
+          date: '2026-07-30',
+          startTime: '2026-07-30 08:00:00',
+          endTime: '2026-07-30 08:30:00',
+          group: '上午',
+          capacity: 10,
+          bookedCount: 2,
+          used: 2,
+          remainingCount: 8,
+          remaining: 8,
+          statusCode: 'FREE',
+          status: 'available',
+          displayStatus: '可约',
+          overbookedFlag: false,
+          commentText: '演示号源'
+        }
+      },
+      global: {
+        stubs: {
+          ElDrawer: DrawerStub,
+          DescriptionList: DescriptionListStub,
+          StatusDisplay: true,
+          ElEmpty: true,
+          ElButton: true
+        },
+        directives: { loading: () => undefined }
+      }
+    })
+    const descriptions = wrapper.findComponent(DescriptionListStub)
+
+    expect(descriptions.props('column')).toBe(1)
+    expect(descriptions.props('items').map((item: { label: string }) => item.label)).toEqual([
+      '科室',
+      '医师',
+      '号源类型',
+      '状态',
+      '时段',
+      '容量',
+      '已约',
+      '剩余',
+      '超售',
+      '备注',
+      '号源 ID',
+      '日程 ID'
+    ])
+    expect(descriptions.props('data')).toMatchObject({
+      organizationName: '心血管内科',
+      practitionerName: '王建国',
+      healthcareServiceName: '普通号',
+      timeRange: '08:00 — 08:30',
+      overbookedText: '否',
+      commentText: '演示号源'
+    })
   })
 
   it('快速切换号源详情时旧请求不能覆盖新选择', async () => {

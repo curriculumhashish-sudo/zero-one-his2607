@@ -2,7 +2,7 @@
 
 import { mount } from '@vue/test-utils'
 import { defineComponent, h } from 'vue'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import AdviceOrderTable from './AdviceOrderTable.vue'
 import type { AdviceOrder } from './type'
 
@@ -18,17 +18,22 @@ const ColumnStub = defineComponent({
     label: { type: String, default: '' }
   },
   setup(props, { slots }) {
-    const rows = (globalThis as unknown as { __ADVICE_ROWS__?: AdviceOrder[] }).__ADVICE_ROWS__ ?? []
+    const rows =
+      (globalThis as unknown as { __ADVICE_ROWS__?: AdviceOrder[] }).__ADVICE_ROWS__ ?? []
     return () =>
       h(
         'div',
         { class: 'col', 'data-prop': props.prop },
         rows.map((row) =>
-          slots.default ? slots.default({ row }) : h('span', String(row[props.prop as keyof AdviceOrder] ?? ''))
+          slots.default
+            ? slots.default({ row })
+            : h('span', String(row[props.prop as keyof AdviceOrder] ?? ''))
         )
       )
   }
 })
+
+const clearSelectionSpy = vi.fn()
 
 const TableStub = defineComponent({
   name: 'ElTable',
@@ -36,9 +41,10 @@ const TableStub = defineComponent({
     data: { type: Array, default: () => [] },
     rowClassName: { type: Function, default: undefined }
   },
-  setup(props, { slots }) {
+  setup(props, { expose, slots }) {
     ;(globalThis as unknown as { __ADVICE_ROWS__?: AdviceOrder[] }).__ADVICE_ROWS__ =
       props.data as AdviceOrder[]
+    expose({ clearSelection: clearSelectionSpy })
     return () =>
       h('div', { class: 'table' }, [
         ...(props.data as AdviceOrder[]).map((row) =>
@@ -110,7 +116,11 @@ describe('C54 AdviceOrderTable', () => {
       global
     })
     // 只读时任何行都不可勾选
-    expect((readonly.vm as unknown as { canSelectRow: (r: AdviceOrder) => boolean }).canSelectRow(rows[0]!)).toBe(false)
+    expect(
+      (readonly.vm as unknown as { canSelectRow: (r: AdviceOrder) => boolean }).canSelectRow(
+        rows[0]!
+      )
+    ).toBe(false)
 
     const perRow = mount(AdviceOrderTable, {
       props: {
@@ -121,9 +131,19 @@ describe('C54 AdviceOrderTable', () => {
       },
       global
     })
-    const canSelect = (perRow.vm as unknown as { canSelectRow: (r: AdviceOrder) => boolean }).canSelectRow
+    const canSelect = (perRow.vm as unknown as { canSelectRow: (r: AdviceOrder) => boolean })
+      .canSelectRow
     expect(canSelect(rows[0]!)).toBe(true) // pending 可选
     expect(canSelect(rows[1]!)).toBe(false) // done 不可选
+  })
+
+  it('exposes clearSelection from the underlying Element Plus table', () => {
+    clearSelectionSpy.mockClear()
+    const wrapper = mount(AdviceOrderTable, { props: { rows, selectable: true }, global })
+
+    ;(wrapper.vm as unknown as { clearSelection: () => void }).clearSelection()
+
+    expect(clearSelectionSpy).toHaveBeenCalledOnce()
   })
 
   it('keeps currentRowKey controlled under rapid repeated current changes', async () => {

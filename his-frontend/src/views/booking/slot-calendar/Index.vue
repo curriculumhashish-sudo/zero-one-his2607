@@ -1,19 +1,25 @@
 <script setup lang="ts">
 import type { BookingOption, SlotRecord } from '@/apis/booking/slot-calendar'
 import type { TimeSlot, TimeSlotStatusMap } from '@/components/schedule/type'
+import type { ActionToolbarItem } from '@/components/common/type'
 import type { SlotQueryModel } from './type'
 
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { Lock, Refresh, Unlock, Warning } from '@element-plus/icons-vue'
 
 import {
+  batchBlockSlots,
+  batchUnblockSlots,
   getSlotDetail,
   loadDepartmentOptions,
   loadDoctorOptions,
   loadSlotInit,
+  markSlotOverbooked,
   pageSlotsByDate
 } from '@/apis/booking/slot-calendar'
 import RemoteSelectField from '@/components/common/RemoteSelectField.vue'
+import ActionToolbar from '@/components/common/ActionToolbar.vue'
 import SearchPanel from '@/components/common/SearchPanel.vue'
 import TimeSlotGrid from '@/components/schedule/TimeSlotGrid.vue'
 import SlotDetailDialog from './components/SlotDetailDialog.vue'
@@ -30,10 +36,13 @@ const query = reactive<SlotQueryModel>({
   date: todayText(),
   keyword: '',
   departmentId: null,
-  doctorId: null
+  doctorId: null,
+  pageNo: 1,
+  pageSize: 100
 })
 const departments = ref<BookingOption[]>([])
 const doctors = ref<BookingOption[]>([])
+const organizationId = ref('')
 const rows = ref<SlotRecord[]>([])
 const loading = ref(false)
 const initLoading = ref(false)
@@ -42,6 +51,9 @@ const initErrorMessage = ref('')
 const listErrorMessage = ref('')
 const selectedSlotKey = ref<string | number | null>(null)
 const selectedSlot = ref<SlotRecord | null>(null)
+const selectedSlotIds = ref<string[]>([])
+const total = ref(0)
+const actionLoading = ref(false)
 const detailDialog = ref<InstanceType<typeof SlotDetailDialog>>()
 let controller: AbortController | undefined
 let requestSequence = 0
@@ -63,6 +75,30 @@ const summary = computed(() =>
     { capacity: 0, used: 0, remaining: 0, stopped: 0 }
   )
 )
+const toolbarActions = computed<ActionToolbarItem[]>(() => [
+  {
+    key: 'block',
+    label: '批量封锁',
+    type: 'warning',
+    icon: Lock,
+    disabled: selectedSlotIds.value.length === 0
+  },
+  {
+    key: 'unblock',
+    label: '批量解封',
+    type: 'success',
+    icon: Unlock,
+    disabled: selectedSlotIds.value.length === 0
+  },
+  {
+    key: 'overbook',
+    label: '标记超售',
+    type: 'danger',
+    icon: Warning,
+    disabled: selectedSlotIds.value.length !== 1
+  },
+  { key: 'refresh', label: '刷新', icon: Refresh, loading: loading.value }
+])
 
 const slotStatusMap: TimeSlotStatusMap = {
   available: { text: '可约', type: 'success', selectable: true },
@@ -76,6 +112,8 @@ async function initialize() {
   initErrorMessage.value = ''
   try {
     const result = await loadSlotInit()
+    organizationId.value = result.organizationId
+    query.departmentId = query.departmentId ?? result.organizationId
     departments.value = result.departments
     doctors.value = result.doctors
     await loadSlots()
@@ -94,8 +132,10 @@ async function loadSlots() {
   detailLoading.value = false
   selectedSlotKey.value = null
   selectedSlot.value = null
+  selectedSlotIds.value = []
   if (!query.date) {
     rows.value = []
+    total.value = 0
     listErrorMessage.value = '请选择查询日期'
     return
   }
@@ -105,11 +145,45 @@ async function loadSlots() {
   loading.value = true
   listErrorMessage.value = ''
   try {
-    const result = await pageSlotsByDate({ ...query }, { signal: currentController.signal })
+    const request = {
+      organizationId: query.departmentId ?? organizationId.value,
+      date: query.date,
+      practitionerId: query.doctorId,
+      pageNo: query.keyword.trim() ? 1 : query.pageNo,
+      pageSize: query.pageSize
+    }
+    const firstPage = await pageSlotsByDate(request, { signal: currentController.signal })
     if (sequence !== requestSequence || currentController.signal.aborted) return
-    rows.value = result
+    const keyword = query.keyword.trim().toLocaleLowerCase()
+    if (!keyword) {
+      rows.value = firstPage.content
+      total.value = firstPage.totalCount
+      return
+    }
+    const pageCount = Math.ceil(firstPage.totalCount / query.pageSize)
+    const remainingPages = await Promise.all(
+      Array.from({ length: Math.max(0, pageCount - 1) }, (_, index) =>
+        pageSlotsByDate(
+          { ...request, pageNo: index + 2 },
+          { signal: currentController.signal }
+        )
+      )
+    )
+    if (sequence !== requestSequence || currentController.signal.aborted) return
+    const filtered = [firstPage, ...remainingPages]
+      .flatMap((page) => page.content)
+      .filter((item) =>
+        `${item.doctorName}${item.departmentName}${item.roomName}${item.startTime}`
+          .toLocaleLowerCase()
+          .includes(keyword)
+      )
+    const start = (query.pageNo - 1) * query.pageSize
+    rows.value = filtered.slice(start, start + query.pageSize)
+    total.value = filtered.length
   } catch (error) {
     if (currentController.signal.aborted) return
+    rows.value = []
+    total.value = 0
     listErrorMessage.value = error instanceof Error ? error.message : '号源加载失败，请重试'
   } finally {
     if (sequence === requestSequence) loading.value = false
@@ -117,13 +191,20 @@ async function loadSlots() {
 }
 
 function resetQuery() {
-  Object.assign(query, { date: todayText(), keyword: '', departmentId: null, doctorId: null })
+  Object.assign(query, {
+    date: todayText(),
+    keyword: '',
+    departmentId: organizationId.value || null,
+    doctorId: null,
+    pageNo: 1
+  })
   void loadSlots()
 }
 
 function handleDepartmentChange() {
   const doctor = doctors.value.find((item) => item.value === query.doctorId)
   if (doctor && doctor.departmentId !== query.departmentId) query.doctorId = null
+  query.pageNo = 1
 }
 
 async function openSlotDetail(slot: TimeSlot) {
@@ -136,7 +217,10 @@ async function openSlotDetail(slot: TimeSlot) {
   await nextTick()
   detailDialog.value?.open()
   try {
-    const result = await getSlotDetail(String(slot.key), { signal: currentController.signal })
+    const result = await getSlotDetail(
+      { slotId: String(slot.key) },
+      { signal: currentController.signal }
+    )
     if (sequence !== detailSequence || currentController.signal.aborted) return
     selectedSlot.value = result
   } catch (error) {
@@ -151,6 +235,77 @@ async function openSlotDetail(slot: TimeSlot) {
 function showUnavailableReason(slot: TimeSlot) {
   const row = slot.raw as SlotRecord
   ElMessage.warning(row.unavailableReason || '该号源当前不可预约')
+}
+
+async function blockSelected() {
+  if (!selectedSlotIds.value.length || actionLoading.value) return
+  try {
+    const { value } = await ElMessageBox.prompt(
+      '封锁后号源不可预约，请填写原因。',
+      '批量封锁确认',
+      {
+        type: 'warning',
+        inputValidator: (reason) => Boolean(reason.trim()) || '请输入封锁原因'
+      }
+    )
+    actionLoading.value = true
+    await batchBlockSlots({ slotIds: [...selectedSlotIds.value], reason: value })
+    ElMessage.success('号源已封锁')
+    await loadSlots()
+  } catch (error) {
+    if (error === 'cancel' || error === 'close') return
+    ElMessage.error(error instanceof Error ? error.message : '批量封锁失败')
+  } finally {
+    actionLoading.value = false
+  }
+}
+
+async function unblockSelected() {
+  if (!selectedSlotIds.value.length || actionLoading.value) return
+  try {
+    await ElMessageBox.confirm(
+      '确认解封所选号源？排班停诊产生的不可用号源不会恢复。',
+      '批量解封确认',
+      { type: 'warning' }
+    )
+    actionLoading.value = true
+    await batchUnblockSlots({ slotIds: [...selectedSlotIds.value] })
+    ElMessage.success('号源已解封')
+    await loadSlots()
+  } catch (error) {
+    if (error === 'cancel' || error === 'close') return
+    ElMessage.error(error instanceof Error ? error.message : '批量解封失败')
+  } finally {
+    actionLoading.value = false
+  }
+}
+
+async function toggleOverbooked() {
+  const id = selectedSlotIds.value[0]
+  const row = rows.value.find((item) => item.slotId === id)
+  if (!id || !row || actionLoading.value) return
+  const next = !row.overbookedFlag
+  try {
+    await ElMessageBox.confirm(`确认${next ? '标记' : '取消'}该号源的超售状态？`, '超售标记确认', {
+      type: 'warning'
+    })
+    actionLoading.value = true
+    await markSlotOverbooked({ slotId: id, overbookedFlag: next })
+    ElMessage.success(next ? '已标记超售' : '已取消超售标记')
+    await loadSlots()
+  } catch (error) {
+    if (error === 'cancel' || error === 'close') return
+    ElMessage.error(error instanceof Error ? error.message : '超售标记失败')
+  } finally {
+    actionLoading.value = false
+  }
+}
+
+function handleToolbar(action: ActionToolbarItem) {
+  if (action.key === 'block') void blockSelected()
+  else if (action.key === 'unblock') void unblockSelected()
+  else if (action.key === 'overbook') void toggleOverbooked()
+  else void loadSlots()
 }
 
 onMounted(() => void initialize())
@@ -262,6 +417,31 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
+      <ActionToolbar
+        title="号源状态维护"
+        description="选择一个或多个号源后执行封锁、解封；超售标记仅支持单个号源"
+        :selection-count="selectedSlotIds.length"
+        :actions="toolbarActions"
+        :disabled="actionLoading"
+        @action="handleToolbar"
+      />
+      <el-select
+        v-model="selectedSlotIds"
+        multiple
+        collapse-tags
+        clearable
+        placeholder="选择需要维护状态的号源"
+        :disabled="loading || actionLoading"
+        style="width: 100%"
+      >
+        <el-option
+          v-for="row in rows"
+          :key="row.slotId"
+          :label="`${row.startTime}-${row.endTime} ${row.doctorName}（${row.displayStatus}${row.overbookedFlag ? '，超售' : ''}）`"
+          :value="row.slotId"
+        />
+      </el-select>
+
       <TimeSlotGrid
         v-model="selectedSlotKey"
         :slots="timeSlots"
@@ -272,6 +452,14 @@ onBeforeUnmount(() => {
         @select="openSlotDetail"
         @disabled-click="showUnavailableReason"
       />
+      <el-pagination
+        v-if="total > query.pageSize"
+        v-model:current-page="query.pageNo"
+        :page-size="query.pageSize"
+        :total="total"
+        layout="total, prev, pager, next"
+        @change="loadSlots"
+      />
     </section>
 
     <SlotDetailDialog ref="detailDialog" :data="selectedSlot" :loading="detailLoading" />
@@ -280,6 +468,15 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .slot-page {
+  --el-color-primary: #1d4ed8;
+  --el-color-success: #15803d;
+  --el-color-warning: #a16207;
+  --el-color-danger: #b91c1c;
+  --el-color-info: #4b5563;
+  --el-text-color-primary: #1f2937;
+  --el-text-color-regular: #374151;
+  --el-text-color-secondary: #4b5563;
+  --el-text-color-placeholder: #6b7280;
   display: flex;
   min-width: 0;
   flex-direction: column;
@@ -287,6 +484,18 @@ onBeforeUnmount(() => {
   padding: 16px;
 }
 .slot-page__workspace {
+  --el-bg-color: #ffffff;
+  --el-fill-color-blank: #ffffff;
+  --el-fill-color-light: #f5f7fa;
+  --el-fill-color-lighter: #fafafa;
+  --el-border-color: #dcdfe6;
+  --el-border-color-light: #e4e7ed;
+  --el-border-color-lighter: #ebeef5;
+  --el-text-color-primary: #1f2937;
+  --el-text-color-regular: #374151;
+  --el-text-color-secondary: #4b5563;
+  --el-text-color-placeholder: #6b7280;
+
   display: flex;
   min-height: 360px;
   flex-direction: column;
@@ -294,7 +503,8 @@ onBeforeUnmount(() => {
   padding: 18px;
   border: 1px solid var(--el-border-color-light);
   border-radius: 6px;
-  background: var(--el-bg-color);
+  color: #303133;
+  background: #ffffff;
 }
 .slot-page__header {
   display: flex;
@@ -304,6 +514,7 @@ onBeforeUnmount(() => {
 }
 .slot-page__header h2 {
   margin: 0;
+  color: #303133;
   font-size: 18px;
   letter-spacing: 0;
 }
@@ -340,8 +551,12 @@ onBeforeUnmount(() => {
   font-size: 13px;
 }
 .slot-page__summary strong {
+  color: #303133;
   font-size: 22px;
   letter-spacing: 0;
+}
+.slot-page :deep(.time-slot-grid__status) {
+  font-size: 13px;
 }
 @media (max-width: 768px) {
   .slot-page {
@@ -355,6 +570,10 @@ onBeforeUnmount(() => {
   }
   .slot-page__summary > div:nth-child(2) {
     border-right: 0;
+  }
+  .slot-page :deep(.action-toolbar__title) {
+    overflow: visible;
+    white-space: normal;
   }
 }
 </style>

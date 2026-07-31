@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive } from 'vue'
 import { Refresh } from '@element-plus/icons-vue'
 
 import DateRangeField from '@/components/common/DateRangeField.vue'
@@ -37,7 +37,7 @@ const emit = defineEmits<{
 const searchModel = reactive({
   keyword: ''
 })
-const dateRange = ref<DateRangeValue>(null)
+const dateRange = defineModel<DateRangeValue>('dateRange', { default: null })
 
 function handleSearch() {
   emit('search', searchModel.keyword.trim())

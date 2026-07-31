@@ -20,6 +20,14 @@ const routes: RouteRecordRaw[] = [
     },
     // 使用懒加载：只有用户真正打开医生站时，才下载并加载这个页面。
     component: () => import('@/views/outpatient/doctor-station/Index.vue')
+  },
+  {
+    path: '/outpatient/nurse-station',
+    name: 'OutpatientNurseStation',
+    meta: {
+      label: '门诊护士站'
+    },
+    component: () => import('@/views/outpatient/nurse-station/Index.vue')
   }
 ]
 

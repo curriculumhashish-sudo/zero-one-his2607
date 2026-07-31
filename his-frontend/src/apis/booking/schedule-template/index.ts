@@ -10,8 +10,11 @@ export const pageWeeklyTemplates = mock.mockPageWeeklyTemplates
 export const saveWeeklyTemplate = mock.mockSaveWeeklyTemplate
 export const removeWeeklyTemplate = mock.mockRemoveWeeklyTemplate
 export const getReleasePolicy = mock.mockGetReleasePolicy
+export const pageReleasePolicies = mock.mockPageReleasePolicies
 export const saveReleasePolicy = mock.mockSaveReleasePolicy
+export const removeReleasePolicy = mock.mockRemoveReleasePolicy
 export const listHolidayExceptions = mock.mockListHolidayExceptions
+export const pageHolidayExceptions = mock.mockPageHolidayExceptions
 export const saveHolidayException = mock.mockSaveHolidayException
 export const removeHolidayException = mock.mockRemoveHolidayException
 export type * from './type'

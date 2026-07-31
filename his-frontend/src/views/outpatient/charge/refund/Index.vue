@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import type { RefundDetail, RefundItem, RefundVerification } from '@/apis/outpatient/charge/refund'
+import type { RefundDetail, RefundItem } from '@/apis/outpatient/charge/refund'
 import type { PatientSummary } from '@/components/patient/type'
+import type { DateRangeValue } from '@/components/common/type'
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Refresh, RefreshLeft } from '@element-plus/icons-vue'
@@ -22,11 +23,13 @@ import {
 } from '@/apis/outpatient/charge/refund'
 import { toRefundPatientSummary } from './adapter'
 import RefundSettlementDialog from './components/RefundSettlementDialog.vue'
-import type { RefundPageQuery } from './type'
+import type { RefundPageQuery, RefundVerificationView } from './type'
 
 defineOptions({ name: 'OutpatientChargeRefund' })
 const query = reactive<RefundPageQuery>({
   keyword: '',
+  startDate: null,
+  endDate: null,
   status: 'pending',
   page: 1,
   pageSize: 10
@@ -40,7 +43,7 @@ const errorMessage = ref('')
 const selectedEncounterId = ref<string | null>(null)
 const detail = ref<RefundDetail | null>(null)
 const selectedItems = ref<RefundItem[]>([])
-const verification = ref<RefundVerification | null>(null)
+const verification = ref<RefundVerificationView | null>(null)
 const pendingRefundId = ref('')
 const dialog = ref<InstanceType<typeof RefundSettlementDialog>>()
 let queueSequence = 0
@@ -157,10 +160,29 @@ async function verifyRefund() {
   }
   submitting.value = true
   try {
-    verification.value = await verifyOutpatientRefund({
+    const check = await verifyOutpatientRefund({
       encounterId: detail.value.patient.encounterId,
-      itemIds: selectedItems.value.map((item) => item.id)
+      refundingChargeItemIds: selectedItems.value.map((item) => item.chargeItemId ?? item.id)
     })
+    if (!check.allowed) throw new Error(check.rejectReasonCode ?? '当前项目不可退')
+    const paymentRecordId = selectedItems.value[0]!.paymentRecordId
+    const groupItems = detail.value.items.filter((item) => item.paymentRecordId === paymentRecordId)
+    const selectedIds = selectedItems.value.map((item) => item.chargeItemId ?? item.id)
+    const retainedItems = groupItems.filter((item) => !selectedIds.includes(item.chargeItemId ?? item.id))
+    const refundAmount = selectedItems.value.reduce((sum, item) => sum + item.refundableAmount, 0)
+    verification.value = {
+      allowed: true,
+      originalPaymentId: paymentRecordId,
+      paymentRecordId,
+      refundingChargeItemIds: selectedIds,
+      preservedNewChargeItemIds: retainedItems.map((item) => item.chargeItemId ?? item.id),
+      halfRefundOnPayment: retainedItems.length > 0,
+      originalPayChannelCodes: [...new Set(selectedItems.value.map((item) => item.channel))],
+      refundAmount,
+      retainedAmount: retainedItems.reduce((sum, item) => sum + item.refundableAmount, 0),
+      channel: selectedItems.value[0]!.channel,
+      message: `原支付单 ${selectedItems.value[0]!.paymentNo}，本次可退 ¥${refundAmount.toFixed(2)}`
+    }
     dialog.value?.open()
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '退费校验失败')
@@ -168,7 +190,7 @@ async function verifyRefund() {
     submitting.value = false
   }
 }
-async function confirmRefund(retainedMode: 'insurance' | 'self-pay') {
+async function confirmRefund(data: { retainedMode: 'insurance' | 'self-pay'; scanCode?: string }) {
   if (!detail.value || !verification.value || submitting.value) return
   try {
     await ElMessageBox.confirm(
@@ -181,29 +203,33 @@ async function confirmRefund(retainedMode: 'insurance' | 'self-pay') {
   }
   submitting.value = true
   try {
-    const allGroupItems = detail.value.items.filter(
-      (item) => item.paymentRecordId === verification.value!.paymentRecordId
-    )
-    const retainedIds = allGroupItems
-      .filter((item) => !verification.value!.itemIds.includes(item.id))
-      .map((item) => item.id)
-    if (retainedIds.length)
-      detail.value = await switchRetainedItemsInsuranceMode({
-        encounterId: detail.value.patient.encounterId,
-        itemIds: retainedIds,
-        mode: retainedMode
-      })
+    const retainedIds = verification.value.preservedNewChargeItemIds
+    if (retainedIds.length && data.retainedMode === 'self-pay')
+      await switchRetainedItemsInsuranceMode({ encounterId: detail.value.patient.encounterId })
     const record = await refundOutpatientCharge({
-      verificationId: verification.value.verificationId,
       encounterId: detail.value.patient.encounterId,
-      paymentRecordId: verification.value.paymentRecordId,
-      itemIds: verification.value.itemIds,
-      channel: verification.value.channel,
-      retainedMode
+      originalPaymentId: verification.value.originalPaymentId,
+      refundingChargeItemIds: verification.value.refundingChargeItemIds,
+      preservedNewChargeItemIds: verification.value.preservedNewChargeItemIds,
+      refundPaymentDetails: [
+        {
+          amount: verification.value.refundAmount,
+          payChannelCode: verification.value.channel
+        }
+      ],
+      clientRefundResult: data.scanCode
+        ? {
+            merTradeNo: verification.value.originalPaymentId,
+            tradeNo: data.scanCode,
+            respCode: 'PROCESSING',
+            respMsg: '等待渠道确认',
+            refundAmountYuan: verification.value.refundAmount
+          }
+        : undefined,
     })
     dialog.value?.close()
-    const pendingId = record.status === 'pending' ? record.id : ''
-    ElMessage.success(record.status === 'pending' ? '扫码退款已发起，请确认退款结果' : '退费成功')
+    const pendingId = data.scanCode ? record.reversePaymentId ?? '' : ''
+    ElMessage.success(data.scanCode ? '扫码退款已发起，请确认退款结果' : '退费成功')
     await refreshCurrent()
     pendingRefundId.value = pendingId
   } catch (error) {
@@ -241,6 +267,13 @@ function changeStatus(value: any) {
 }
 function handleSearch(keyword: string) {
   query.keyword = keyword
+  query.page = 1
+  clearSelection()
+  void loadQueue()
+}
+function handleDateFilterChange(value: DateRangeValue) {
+  query.startDate = value?.[0] ?? null
+  query.endDate = value?.[1] ?? null
   query.page = 1
   clearSelection()
   void loadQueue()
@@ -285,6 +318,7 @@ onBeforeUnmount(() => {
         :selected-id="selectedEncounterId"
         :loading="queueLoading"
         @search="handleSearch"
+        @date-change="handleDateFilterChange"
         @refresh="loadQueue"
         @select="selectPatient"
       />
@@ -372,6 +406,15 @@ onBeforeUnmount(() => {
 </template>
 <style scoped>
 .refund-page {
+  --el-color-primary: #1d4ed8;
+  --el-color-success: #15803d;
+  --el-color-warning: #a16207;
+  --el-color-danger: #b91c1c;
+  --el-color-info: #4b5563;
+  --el-text-color-primary: #1f2937;
+  --el-text-color-regular: #374151;
+  --el-text-color-secondary: #4b5563;
+  --el-text-color-placeholder: #6b7280;
   display: grid;
   height: calc(100vh - 96px);
   min-height: 620px;
@@ -412,6 +455,10 @@ onBeforeUnmount(() => {
   }
   .queue-pane {
     height: 520px;
+    overflow-x: auto;
+  }
+  .queue-pane :deep(.patient-queue-panel) {
+    min-width: 360px;
   }
 }
 </style>

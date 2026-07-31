@@ -14,7 +14,8 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/inventory/pharmacy/stocktake/Index.vue')
   },
   {
-    path: '/inventory/warehouse/purchase-inbound2',
+    path: '/inventory/warehouse/purchase-inbound',
+    alias: '/inventory/warehouse/purchase-inbound2',
     name: 'WarehousePurchaseInbound2',
     meta: { label: '药库进货' },
     component: () => import('@/views/inventory/warehouse/purchase-inbound2/Index.vue')

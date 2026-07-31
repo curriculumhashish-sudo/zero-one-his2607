@@ -1,5 +1,3 @@
-// src/apis/pharmacy/outpatient-dispense/index.ts
-
 import type {
   PageDispenseQueueParams,
   PendingDispenseEncounterQueueRowDto,
@@ -8,8 +6,10 @@ import type {
   ConfirmDispenseParams,
   PractitionerOptionDto,
   PharmacyOptionDto,
-  PrintPrescriptionParams
+  DispenseSlipDto
 } from './type'
+import type { PrintActionContext } from '@/components/common/PrintActionPanel.vue'
+import type { PatientSummary } from '@/components/patient/type'
 
 import {
   mockPageDispenseQueue,
@@ -17,119 +17,146 @@ import {
   mockSavePreparation,
   mockConfirmDispense,
   mockLoadDispenserOptions,
-  mockLoadPharmacyOptions
+  mockLoadPharmacyOptions,
+  mockPagePatientQueue
 } from './mock'
 
-/**
- * 加载发药页面初始化数据（药师候选等）
- */
+import { adaptPatientSummary } from './adapter'
+
 export async function loadDispensePageInit(): Promise<{
   dispensers: PractitionerOptionDto[]
   pharmacies: PharmacyOptionDto[]
 }> {
-  // TODO: 替换为真实接口
-  // const res = await httpLoadPharmacyDispensePageInit()
-  // return { dispensers: res.preparerCandidatePage.content, pharmacies: res.pharmacyList }
   return {
     dispensers: await mockLoadDispenserOptions(''),
-    pharmacies: await mockLoadPharmacyOptions('')
+    pharmacies: await mockLoadPharmacyOptions(''),
   }
 }
 
-/**
- * 分页查询发药患者队列
- */
 export async function pageDispensePatientQueue(
-  params: PageDispenseQueueParams
+  params: PageDispenseQueueParams,
 ): Promise<{ rows: PendingDispenseEncounterQueueRowDto[]; total: number }> {
-  // TODO: 替换为真实接口
-  // return httpPagePendingDispenseEncounterQueue(params)
-  return mockPageDispenseQueue(params)
+  const result = mockPageDispenseQueue(params)
+  return {
+    rows: result.records,
+    total: result.total
+  }
 }
 
-/**
- * 查询患者处方明细（发放行列表）
- */
+export async function pagePatientQueue(
+  params: PageDispenseQueueParams,
+): Promise<{ rows: PatientSummary[]; total: number }> {
+  const result = mockPagePatientQueue(params)
+  return {
+    rows: result.records as PatientSummary[],
+    total: result.total
+  }
+}
+
 export async function listPatientPrescriptions(
   encounterId: string,
-  status?: 'pending' | 'completed'
 ): Promise<EncounterMedicationDispenseSlipRowDto[]> {
-  // TODO: 替换为真实接口
-  // const statusEnum = status === 'pending' ? ['PREPARATION', 'IN_PROGRESS'] : ['COMPLETED']
-  // return httpPageEncounterMedicationDispenseSlips({ encounterId, dispenseStatusEnumIn: statusEnum })
+  const slips = mockListDispenseSlips(encounterId)
+  return slips.flatMap((slip) =>
+    slip.items.map((item) => {
+      const firstLot = item.inventoryLots?.[0]
+      return {
+        dispenseId: item.itemId,
+        prescriptionNo: `CP${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(slip.slipId).padStart(8, '0')}`,
+        medicationName: item.itemName,
+        specText: item.spec,
+        quantity: item.quantity,
+        unitName: item.unit,
+        dosageText: item.dosage,
+        frequencyText: item.frequency,
+        routeText: item.route,
+        days: item.days,
+        totalPrice: item.totalAmount,
+        statusEnum: (item.status === 'completed' ? 'COMPLETED' : 'PENDING') as EncounterMedicationDispenseSlipRowDto['statusEnum'],
+        pharmacyName: firstLot?.inventoryName || '',
+        lotNumber: firstLot?.lotNo || '',
+        factoryName: getFactoryName(item.itemName),
+        traceNo: '',
+        inventoryDetailList: item.inventoryLots?.map((lot) => ({
+          pharmacyOrganizationId: lot.inventoryId,
+          pharmacyName: lot.inventoryName,
+          lotNumber: lot.lotNo,
+          availableQuantity: lot.availableQty
+        })) || []
+      }
+    })
+  )
+}
+
+function getFactoryName(drugName: string): string {
+  const factoryMap: Record<string, string> = {
+    '阿莫西林胶囊': '湖北科伦药业有限公司',
+    '布洛芬缓释胶囊': '四川科伦药业股份有限公司',
+    '氯雷他定片': '湖北科伦药业有限公司',
+    '硝苯地平缓释片': '四川科伦药业股份有限公司',
+    '阿司匹林肠溶片': '湖北科伦药业有限公司',
+    '丹参滴丸': '四川科伦药业股份有限公司',
+    '妇科千金片': '湖北科伦药业有限公司',
+    '益母草颗粒': '四川科伦药业股份有限公司',
+    '对乙酰氨基酚片': '湖北科伦药业有限公司',
+    '骨痛贴膏': '四川科伦药业股份有限公司',
+    '奥美拉唑肠溶胶囊': '湖北科伦药业有限公司',
+    '左氧氟沙星滴眼液': '四川科伦药业股份有限公司',
+    '珍珠明目滴眼液': '湖北科伦药业有限公司'
+  }
+  return factoryMap[drugName] || '未知厂家'
+}
+
+export async function listDispenseSlips(encounterId: string): Promise<DispenseSlipDto[]> {
   return mockListDispenseSlips(encounterId)
 }
 
-/**
- * 保存配药准备（锁定库存）
- */
 export async function saveDispensePreparation(
-  params: SavePreparationParams
+  _params: SavePreparationParams,
 ): Promise<{ success: boolean }> {
-  // TODO: 替换为真实接口
-  // return httpSavePrepareOutpatientMedicationDispense(params)
-  return mockSavePreparation(params)
+  return mockSavePreparation()
 }
 
-/**
- * 确认发药
- */
 export async function confirmMedicationDispense(
-  params: ConfirmDispenseParams
+  _params: ConfirmDispenseParams,
 ): Promise<{ message: string }> {
-  // TODO: 替换为真实接口
-  // return httpDispenseOutpatientMedications(params)
-  return mockConfirmDispense(params)
+  return mockConfirmDispense()
 }
 
-/**
- * 加载调配药师选项
- */
 export async function loadDispenserOptions(
-  keyword: string
+  keyword: string,
 ): Promise<{ label: string; value: string }[]> {
-  // TODO: 替换为真实接口
   const list = await mockLoadDispenserOptions(keyword)
   return list.map((item) => ({
     label: item.displayName,
-    value: String(item.practitionerId)
+    value: String(item.practitionerId),
   }))
 }
 
-/**
- * 加载药房选项
- */
 export async function loadPharmacyOptions(
-  keyword: string
+  keyword: string,
 ): Promise<{ label: string; value: string }[]> {
-  // TODO: 替换为真实接口
   const list = await mockLoadPharmacyOptions(keyword)
   return list.map((item) => ({
     label: item.pharmacyName,
-    value: item.pharmacyId
+    value: item.pharmacyId,
   }))
 }
 
-/**
- * 预览处方（打印预览）
- */
 export async function previewPrescription(
-  context: Record<string, unknown>
+  context: Record<string, unknown>,
 ): Promise<{ previewUrl: string }> {
-  // TODO: 替换为真实接口
   console.log('[print] 预览处方:', context)
   await new Promise((resolve) => setTimeout(resolve, 800))
   return { previewUrl: '/preview/prescription' }
 }
 
-/**
- * 打印处方
- */
 export async function printPrescription(
-  params: PrintPrescriptionParams
+  context: PrintActionContext,
 ): Promise<{ success: boolean }> {
-  // TODO: 替换为真实接口
-  void params
+  console.log('[print] 打印处方:', context)
   await new Promise((resolve) => setTimeout(resolve, 1500))
   return { success: true }
 }
+
+export { adaptPatientSummary }

@@ -7,6 +7,7 @@ import type {
 } from '@/apis/inpatient/charge/prepay'
 import type { PatientSummary } from '@/components/patient/type'
 import type { RowActionItem } from '@/components/common/type'
+import type { DateRangeValue } from '@/components/common/type'
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Refresh } from '@element-plus/icons-vue'
@@ -34,7 +35,14 @@ import RefundPrepayDialog from './components/RefundPrepayDialog.vue'
 import type { PrepayPageQuery } from './type'
 
 defineOptions({ name: 'InpatientPrepay' })
-const query = reactive<PrepayPageQuery>({ keyword: '', page: 1, pageSize: 10 })
+const query = reactive<PrepayPageQuery>({
+  admissionDate: null,
+  admissionStartDate: null,
+  admissionEndDate: null,
+  keyword: '',
+  page: 1,
+  pageSize: 10
+})
 const patients = ref<InpatientPatient[]>([])
 const queueTotal = ref(0)
 const queueLoading = ref(false)
@@ -170,12 +178,25 @@ function handleSearch(keyword: string) {
   clearSelection()
   void loadQueue()
 }
+function handleAdmissionDateChange(value: DateRangeValue) {
+  query.admissionStartDate = value?.[0] ?? null
+  query.admissionEndDate = value?.[1] ?? null
+  query.admissionDate = value?.[0] === value?.[1] ? (value?.[0] ?? null) : null
+  query.page = 1
+  clearSelection()
+  void loadQueue()
+}
 function handleQueuePageChange(page: number) {
   query.page = page
   clearSelection()
   void loadQueue()
 }
-async function collect(data: { amount: number; channel: PrepayChannel }) {
+async function collect(data: {
+  amount: number
+  channel: PrepayChannel
+  scanCode: string
+  remark: string
+}) {
   if (!selectedEncounterId.value || submitting.value) return
   try {
     await ElMessageBox.confirm(`确认收取预交金 ¥${data.amount.toFixed(2)}？`, '收款确认', {
@@ -186,11 +207,29 @@ async function collect(data: { amount: number; channel: PrepayChannel }) {
   }
   submitting.value = true
   try {
-    const record = await collectInpatientPrepay({ encounterId: selectedEncounterId.value, ...data })
+    const patientId = summary.value?.patient.patientId ?? summary.value?.patient.id
+    if (!patientId) throw new Error('当前患者缺少 patientId，无法办理预交金收款')
+    const result = await collectInpatientPrepay({
+      encounterId: selectedEncounterId.value,
+      patientId,
+      amount: data.amount,
+      paymentCode: data.channel.toUpperCase(),
+      paymentDetails: [{ amount: data.amount, payChannelCode: data.channel }],
+      clientScanResult: data.scanCode
+          ? {
+            merTradeNo: `MER-${Date.now()}`,
+            tradeNo: data.scanCode,
+            payType: data.channel,
+            respCode: 'PROCESSING',
+            respMsg: '等待渠道确认',
+            txnAmtFen: Math.round(data.amount * 100)
+          }
+        : undefined,
+      remark: data.remark
+    })
     collectDialog.value?.close()
-    ElMessage.success(
-      record.status === 'processing' ? '扫码收款已发起，请确认支付结果' : '预交金收取成功'
-    )
+    pendingPaymentId.value = data.scanCode ? result.paymentId : ''
+    ElMessage.success(data.scanCode ? '扫码收款已发起，请确认支付结果' : '预交金收取成功')
     await refreshCurrent()
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '收款失败')
@@ -202,7 +241,12 @@ function openRefund(record: PrepayRecord) {
   refundRecord.value = record
   refundDialog.value?.open(record)
 }
-async function refund(data: { amount: number; channel: PrepayChannel }) {
+async function refund(data: {
+  amount: number
+  channel: PrepayChannel
+  scanCode: string
+  remark: string
+}) {
   if (!selectedEncounterId.value || !refundRecord.value || submitting.value) return
   try {
     await ElMessageBox.confirm(`确认按原渠道退款 ¥${data.amount.toFixed(2)}？`, '退款确认', {
@@ -213,15 +257,28 @@ async function refund(data: { amount: number; channel: PrepayChannel }) {
   }
   submitting.value = true
   try {
-    const record = await refundInpatientPrepay({
+    const patientId = summary.value?.patient.patientId ?? summary.value?.patient.id
+    if (!patientId) throw new Error('当前患者缺少 patientId，无法办理预交金退款')
+    const result = await refundInpatientPrepay({
       encounterId: selectedEncounterId.value,
-      recordId: refundRecord.value.id,
-      ...data
+      patientId,
+      originalPaymentId: refundRecord.value.paymentId ?? refundRecord.value.id,
+      refundAmount: data.amount,
+      paymentDetails: [{ amount: data.amount, payChannelCode: data.channel }],
+      remark: data.remark,
+      clientRefundResult: data.scanCode
+          ? {
+            merTradeNo: refundRecord.value.paymentId ?? refundRecord.value.id,
+            tradeNo: data.scanCode,
+            respCode: 'PROCESSING',
+            respMsg: '等待渠道确认',
+            refundAmountYuan: data.amount
+          }
+        : undefined
     })
     refundDialog.value?.close()
-    ElMessage.success(
-      record.status === 'processing' ? '扫码退款已发起，系统将自动查询结果' : '预交金退款成功'
-    )
+    pendingPaymentId.value = data.scanCode ? result.paymentId : ''
+    ElMessage.success(data.scanCode ? '扫码退款已发起，系统将自动查询结果' : '预交金退款成功')
     await refreshCurrent()
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '退款失败')
@@ -323,6 +380,7 @@ onBeforeUnmount(() => {
         :selected-id="selectedEncounterId"
         :loading="queueLoading"
         @search="handleSearch"
+        @date-change="handleAdmissionDateChange"
         @refresh="loadQueue"
         @select="selectPatient"
       />
@@ -434,6 +492,15 @@ onBeforeUnmount(() => {
 </template>
 <style scoped>
 .prepay-page {
+  --el-color-primary: #1d4ed8;
+  --el-color-success: #15803d;
+  --el-color-warning: #a16207;
+  --el-color-danger: #b91c1c;
+  --el-color-info: #4b5563;
+  --el-text-color-primary: #1f2937;
+  --el-text-color-regular: #374151;
+  --el-text-color-secondary: #4b5563;
+  --el-text-color-placeholder: #6b7280;
   display: grid;
   height: calc(100vh - 96px);
   min-height: 620px;
@@ -478,6 +545,10 @@ onBeforeUnmount(() => {
   }
   .queue-pane {
     height: 520px;
+    overflow-x: auto;
+  }
+  .queue-pane :deep(.patient-queue-panel) {
+    min-width: 360px;
   }
 }
 </style>

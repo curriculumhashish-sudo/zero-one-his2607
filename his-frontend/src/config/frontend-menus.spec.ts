@@ -27,11 +27,33 @@ describe('前端业务菜单', () => {
         '/basic/registration-type',
         '/booking/outpatient-schedule',
         '/booking/slot-calendar',
+        '/booking/schedule-template',
+        '/outpatient/charge/register',
+        '/outpatient/charge/charge',
+        '/outpatient/charge/refund',
+        '/inpatient/charge/register',
+        '/inpatient/charge/prepay',
+        '/inpatient/charge/settle',
         '/warehouse/purchase-inbound',
+        '/inventory/pharmacy/stock-in',
+        '/inventory/pharmacy/stocktake',
+        '/inventory/warehouse/purchase-inbound',
+        '/inventory/warehouse/stock-out',
+        '/inventory/warehouse/stocktake',
+        '/inventory/stock-list',
         '/pharmacy/outpatient-dispense',
-        '/outpatient/doctor-station'
+        '/pharmacy/dispense/outpatient',
+        '/pharmacy/dispense/inpatient',
+        '/pharmacy/return-medicine/outpatient',
+        '/pharmacy/return-medicine/inpatient',
+        '/pharmacy/dispense-record/outpatient',
+        '/pharmacy/dispense-record/inpatient',
+        '/outpatient/doctor-station',
+        '/inpatient/doctor-station',
+        '/outpatient/nurse-station'
       ])
     )
+    expect(new Set(paths).size).toBe(paths.length)
   })
 
   it('与后端菜单合并时保留后端入口并按路径去重', () => {

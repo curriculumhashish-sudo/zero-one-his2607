@@ -123,6 +123,62 @@ function patientOf(encounterId: string) {
   if (!row) throw new Error('住院患者不存在')
   return row
 }
+
+function channelText(channel: PrepayRecord['channel']) {
+  return channel === 'cash'
+    ? '现金'
+    : channel === 'card'
+      ? '银行卡'
+      : channel === 'wechat'
+        ? '微信'
+        : '支付宝'
+}
+
+function syncPatientFields(row: InpatientPatient) {
+  row.patientId = row.id
+  row.encounterBusNo = row.visitNo
+  row.patientName = row.name
+  row.genderEnum = row.gender === '男' ? 'MALE' : 'FEMALE'
+  row.genderEnumText = row.gender
+  row.ageText = `${row.age}岁`
+  row.organizationName = row.departmentName
+  row.bedName = row.bedNo
+  row.startTime = row.admissionDate
+  row.statusEnum = 'IN_HOSPITAL'
+  row.statusEnumText = '在院'
+  row.contractDisplay = row.paymentType
+  row.accountBalance = row.balance
+  row.availableBalance = row.balance
+  row.prepayNetBalance = row.balance
+  row.pendingSettlementTotal = 0
+  row.lowBalanceWarning = row.balance < 500
+  return row
+}
+
+function syncRecordFields(row: PrepayRecord) {
+  row.paymentId = row.id
+  row.bizTypeText = row.type === 'collect' ? '预交金收款' : '预交金退款'
+  row.paymentDetails = [{ amount: row.amount, payChannelCode: row.channel }]
+  row.payMethodText = channelText(row.channel)
+  row.paymentEnum = row.channel.toUpperCase()
+  row.operatorName = '收费员'
+  row.ticketNo = row.transactionNo
+  row.statusEnum = row.status.toUpperCase()
+  row.statusEnumText =
+    row.status === 'processing'
+      ? '处理中'
+      : row.status === 'settled'
+        ? '已结算'
+        : row.status === 'refunded'
+          ? '已退款'
+          : '已取消'
+  row.tradeTime = row.createdAt
+  return row
+}
+
+records.forEach((rows) => rows.forEach(syncRecordFields))
+patients.forEach(syncPatientFields)
+
 export async function mockPageInpatientQueue(
   query: InpatientQueueQuery,
   context: RequestContext = {}
@@ -131,11 +187,23 @@ export async function mockPageInpatientQueue(
   const key = query.keyword?.trim().toLowerCase()
   const rows = patients.filter(
     (item) =>
-      !key ||
-      `${item.name}${item.patientNo}${item.visitNo}${item.bedNo}`.toLowerCase().includes(key)
+      (!query.admissionDate || item.admissionDate === query.admissionDate) &&
+      (!query.admissionStartDate || item.admissionDate >= query.admissionStartDate) &&
+      (!query.admissionEndDate || item.admissionDate <= query.admissionEndDate) &&
+      (!key ||
+        `${item.name}${item.patientNo}${item.visitNo}${item.bedNo}`.toLowerCase().includes(key))
   )
-  const start = (query.page - 1) * query.pageSize
-  return { rows: clone(rows.slice(start, start + query.pageSize)), total: rows.length }
+  patients.forEach(syncPatientFields)
+  const start = ((query.pageNo ?? query.page) - 1) * query.pageSize
+  const pageRows = clone(rows.slice(start, start + query.pageSize))
+  return {
+    rows: pageRows,
+    content: clone(pageRows),
+    total: rows.length,
+    totalCount: rows.length,
+    pageNo: query.pageNo ?? query.page,
+    pageSize: query.pageSize
+  }
 }
 export async function mockGetInpatientPrepaySummary(
   encounterId: string,
@@ -166,39 +234,56 @@ export async function mockPagePrepayRecords(
   await delay(context)
   patientOf(encounterId)
   const rows = records.get(encounterId) ?? []
-  const start = (query.page - 1) * query.pageSize
-  return { rows: clone(rows.slice(start, start + query.pageSize)), total: rows.length }
+  const pageNo = query.pageNo ?? query.page
+  const start = (pageNo - 1) * query.pageSize
+  const pageRows = clone(rows.slice(start, start + query.pageSize))
+  return {
+    rows: pageRows,
+    records: clone(pageRows),
+    total: rows.length,
+    pageNo,
+    pageSize: query.pageSize
+  }
 }
 export async function mockCollectInpatientPrepay(
   data: CollectPrepayPayload,
   context: RequestContext = {}
 ) {
   await delay(context, 260)
-  if (data.amount <= 0) throw new Error('收款金额必须大于 0')
+  const amount = Number(data.amount)
+  if (amount <= 0) throw new Error('收款金额必须大于 0')
   const patient = patientOf(data.encounterId)
+  if (patient.patientId !== data.patientId) throw new Error('患者与本次住院就诊不匹配')
   if ((records.get(data.encounterId) ?? []).some((item) => item.status === 'processing'))
     throw new Error('当前患者存在处理中的扫码交易，请先确认或取消')
-  const processing = ['wechat', 'alipay'].includes(data.channel)
+  const channel = String(data.paymentDetails[0]?.payChannelCode ?? '') as PrepayRecord['channel']
+  if (!['cash', 'card', 'wechat', 'alipay'].includes(channel)) throw new Error('支付渠道无效')
+  const processing = Boolean(data.clientScanResult)
   const row: PrepayRecord = {
     id: `prepay-${sequence++}`,
     encounterId: data.encounterId,
     type: 'collect',
-    amount: data.amount,
-    channel: data.channel,
+    amount,
+    channel,
     status: processing ? 'processing' : 'settled',
     transactionNo: `PP20260725${String(sequence).padStart(4, '0')}`,
     createdAt: '2026-07-25 13:00',
-    refundableAmount: processing ? 0 : data.amount
+    refundableAmount: processing ? 0 : amount
   }
+  syncRecordFields(row)
   ;(records.get(data.encounterId) ?? []).unshift(row)
   if (processing)
     pendingPayloads.set(row.id, {
       type: 'collect',
       encounterId: data.encounterId,
-      amount: data.amount
+      amount
     })
-  else patient.balance += data.amount
-  return clone(row)
+  else {
+    patient.balance += amount
+    syncPatientFields(patient)
+  }
+  row.accountBalance = patient.balance
+  return { accountBalance: patient.balance, paymentId: row.id }
 }
 export async function mockRefundInpatientPrepay(
   data: RefundPrepayPayload,
@@ -207,41 +292,48 @@ export async function mockRefundInpatientPrepay(
   await delay(context, 260)
   const patient = patientOf(data.encounterId)
   const source = (records.get(data.encounterId) ?? []).find(
-    (item) => item.id === data.recordId && item.type === 'collect'
+    (item) => item.id === data.originalPaymentId && item.type === 'collect'
   )
+  if (patient.patientId !== data.patientId) throw new Error('患者与本次住院就诊不匹配')
   if (!source || source.status !== 'settled') throw new Error('当前记录状态不允许退款')
-  if (data.channel !== source.channel) throw new Error('预交金退款必须退回原支付渠道')
+  const channel = String(data.paymentDetails[0]?.payChannelCode ?? '') as PrepayRecord['channel']
+  if (channel !== source.channel) throw new Error('预交金退款必须退回原支付渠道')
   if ((records.get(data.encounterId) ?? []).some((item) => item.status === 'processing'))
     throw new Error('当前患者存在处理中的扫码交易，请先确认或取消')
   const max = Math.min(source.refundableAmount, patient.balance)
-  if (data.amount <= 0 || data.amount > max)
+  const amount = Number(data.refundAmount)
+  if (amount <= 0 || amount > max)
     throw new Error(`退款金额不能超过可退余额 ¥${max.toFixed(2)}`)
-  const processing = ['wechat', 'alipay'].includes(data.channel)
+  const processing = Boolean(data.clientRefundResult)
   const row: PrepayRecord = {
     id: `prepay-${sequence++}`,
     encounterId: data.encounterId,
     type: 'refund',
-    amount: data.amount,
-    channel: data.channel,
+    amount,
+    channel,
     status: processing ? 'processing' : 'settled',
     transactionNo: `PR20260725${String(sequence).padStart(4, '0')}`,
     createdAt: '2026-07-25 13:10',
     refundableAmount: 0
   }
+  syncRecordFields(row)
   ;(records.get(data.encounterId) ?? []).unshift(row)
   if (processing) {
     pendingPayloads.set(row.id, {
       type: 'refund',
       encounterId: data.encounterId,
-      amount: data.amount,
+      amount,
       sourceRecordId: source.id
     })
-    return clone(row)
+    return { accountBalance: patient.balance, paymentId: row.id }
   }
-  source.refundableAmount -= data.amount
+  source.refundableAmount -= amount
   if (source.refundableAmount <= 0) source.status = 'refunded'
-  patient.balance -= data.amount
-  return clone(row)
+  patient.balance -= amount
+  syncRecordFields(source)
+  syncPatientFields(patient)
+  row.accountBalance = patient.balance
+  return { accountBalance: patient.balance, paymentId: row.id }
 }
 export async function mockQueryPrepayPaymentResult(
   paymentId: string,
@@ -263,11 +355,16 @@ export async function mockQueryPrepayPaymentResult(
         source.refundableAmount -= pending.amount
         if (source.refundableAmount <= 0) source.status = 'refunded'
         patient.balance -= pending.amount
+        syncRecordFields(source)
+        syncPatientFields(patient)
       } else {
         row.refundableAmount = row.amount
-        patientOf(encounterId).balance += row.amount
+        const patient = patientOf(encounterId)
+        patient.balance += row.amount
+        syncPatientFields(patient)
       }
       row.status = 'settled'
+      syncRecordFields(row)
       pendingPayloads.delete(paymentId)
     }
     return clone(row)
@@ -284,6 +381,7 @@ export async function mockCancelPrepayPayment(paymentId: string, context: Reques
     if (!row) continue
     if (row.status !== 'processing') throw new Error('当前交易状态不允许取消')
     row.status = 'cancelled'
+    syncRecordFields(row)
     pendingPayloads.delete(paymentId)
     return clone(row)
   }

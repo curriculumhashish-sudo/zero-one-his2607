@@ -2,15 +2,16 @@
 import type { ActionToolbarItem, RowActionItem } from '@/components/common/type'
 import type {
   DailyTemplate,
-  DailyTemplateSavePayload,
   HolidayException,
-  HolidayExceptionSavePayload,
   ReleasePolicy,
+  ReleasePolicySavePayload,
   ScheduleTemplateInit,
   TimePeriod,
-  TimePeriodSavePayload,
   WeeklyTemplate,
-  WeeklyTemplateSavePayload
+  SaveCalendarExceptionRequest,
+  SaveScheduleTemplateRequest,
+  SaveSlotProvisionTemplateRequest,
+  SaveWeekScheduleTemplateRequest
 } from '@/apis/booking/schedule-template'
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -23,14 +24,15 @@ import RowActionGroup from '@/components/common/RowActionGroup.vue'
 import SearchPanel from '@/components/common/SearchPanel.vue'
 import StatusDisplay from '@/components/common/StatusDisplay.vue'
 import {
-  getReleasePolicy,
-  listHolidayExceptions,
   loadScheduleTemplateInit,
   pageDailyTemplates,
+  pageHolidayExceptions,
+  pageReleasePolicies,
   pageTimePeriods,
   pageWeeklyTemplates,
   removeDailyTemplate,
   removeHolidayException,
+  removeReleasePolicy,
   removeTimePeriod,
   removeWeeklyTemplate,
   saveDailyTemplate,
@@ -40,7 +42,13 @@ import {
   saveWeeklyTemplate
 } from '@/apis/booking/schedule-template'
 import { TEMPLATE_STATUS_OPTIONS, WEEKDAYS } from './constants'
-import type { ScheduleTemplatePageQuery } from './type'
+import type {
+  DailyTemplateForm,
+  HolidayExceptionForm,
+  ScheduleTemplatePageQuery,
+  TimePeriodForm,
+  WeeklyTemplateForm
+} from './type'
 
 defineOptions({ name: 'BookingScheduleTemplate' })
 const router = useRouter()
@@ -66,30 +74,32 @@ const periodTotal = ref(0)
 const dailyTotal = ref(0)
 const weeklyTotal = ref(0)
 const holidays = ref<HolidayException[]>([])
-const policy = reactive<ReleasePolicy>({
-  id: 'policy-default',
-  name: '门诊默认放号策略',
-  enabled: true,
-  openDays: 14,
-  openTime: '08:00',
-  closeTime: '20:00',
-  maxAdvanceDays: 30,
-  maxPerPatient: 3,
+const holidayTotal = ref(0)
+const holidayType = ref<'' | 'CLOSED' | 'REDUCED' | 'OVERRIDE' | 'EXTRA'>('')
+const policyRows = ref<ReleasePolicy[]>([])
+const policyTotal = ref(0)
+const policyDialog = ref(false)
+const policyId = ref<string>()
+const policyForm = reactive<ReleasePolicySavePayload>({
+  policyCode: '',
+  policyName: '',
+  advanceDays: 14,
   slotMinutes: 30,
-  capacityPerSlot: 10
+  capacityPerSlot: 10,
+  channelQuotaJson: ''
 })
 const holidayCalendarDate = ref(new Date(2026, 9, 1))
 
 const periodDialog = ref(false)
 const periodId = ref<string>()
-const periodForm = reactive<TimePeriodSavePayload>({
+const periodForm = reactive<TimePeriodForm>({
   name: '',
   segments: [{ start: '08:00', end: '12:00', capacity: 40 }],
   status: 'enabled'
 })
 const dailyDialog = ref(false)
 const dailyId = ref<string>()
-const dailyForm = reactive<DailyTemplateSavePayload>({
+const dailyForm = reactive<DailyTemplateForm>({
   name: '',
   scheduleMode: 'MODE-A',
   serviceType: '',
@@ -105,7 +115,7 @@ const dailyForm = reactive<DailyTemplateSavePayload>({
 })
 const weeklyDialog = ref(false)
 const weeklyId = ref<string>()
-const weeklyForm = reactive<WeeklyTemplateSavePayload>({
+const weeklyForm = reactive<WeeklyTemplateForm>({
   name: '',
   isDefault: true,
   appointmentOpen: true,
@@ -114,7 +124,7 @@ const weeklyForm = reactive<WeeklyTemplateSavePayload>({
 })
 const holidayDialog = ref(false)
 const holidayId = ref<string>()
-const holidayForm = reactive<HolidayExceptionSavePayload>({
+const holidayForm = reactive<HolidayExceptionForm>({
   date: '2026-10-01',
   type: 'closed',
   reason: '',
@@ -123,7 +133,10 @@ const holidayForm = reactive<HolidayExceptionSavePayload>({
 
 const toolbarActions = computed<ActionToolbarItem[]>(() =>
   activeTab.value === 'policy'
-    ? [{ key: 'refresh', label: '刷新策略', icon: Refresh }]
+    ? [
+        { key: 'create', label: '新增策略', type: 'primary', icon: Plus },
+        { key: 'refresh', label: '刷新策略', icon: Refresh }
+      ]
     : activeTab.value === 'holiday'
       ? [
           { key: 'create', label: '新增例外', type: 'primary', icon: Plus },
@@ -139,6 +152,9 @@ const periodOptions = computed(() =>
 )
 const dailyOptions = computed(() =>
   dailyRows.value.map((item) => ({ value: item.id, label: item.name }))
+)
+const policyOptions = computed(() =>
+  policyRows.value.map((item) => ({ value: item.id, label: item.policyName ?? item.name }))
 )
 const statusFilterOptions = TEMPLATE_STATUS_OPTIONS.map((item) => ({
   label: item.label,
@@ -191,8 +207,8 @@ async function loadCurrentTab() {
         },
         { signal: controller.signal }
       )
-      periods.value = result.rows
-      periodTotal.value = result.total
+      periods.value = result.content
+      periodTotal.value = result.totalCount
     } else if (activeTab.value === 'daily') {
       const result = await pageDailyTemplates(
         {
@@ -203,12 +219,17 @@ async function loadCurrentTab() {
         },
         { signal: controller.signal }
       )
-      dailyRows.value = result.rows
-      dailyTotal.value = result.total
+      dailyRows.value = result.content
+      dailyTotal.value = result.totalCount
       periods.value = (
         await pageTimePeriods({ page: 1, pageSize: 200 }, { signal: controller.signal })
-      ).rows
-      Object.assign(policy, await getReleasePolicy({ signal: controller.signal }))
+      ).content
+      policyRows.value = (
+        await pageReleasePolicies(
+          { pageNo: 1, pageSize: 200 },
+          { signal: controller.signal }
+        )
+      ).content
     } else if (activeTab.value === 'weekly') {
       const result = await pageWeeklyTemplates(
         {
@@ -219,20 +240,43 @@ async function loadCurrentTab() {
         },
         { signal: controller.signal }
       )
-      weeklyRows.value = result.rows
-      weeklyTotal.value = result.total
+      weeklyRows.value = result.content
+      weeklyTotal.value = result.totalCount
       dailyRows.value = (
         await pageDailyTemplates({ page: 1, pageSize: 200 }, { signal: controller.signal })
-      ).rows
-    } else if (activeTab.value === 'policy')
-      Object.assign(policy, await getReleasePolicy({ signal: controller.signal }))
+      ).content
+    } else if (activeTab.value === 'policy') {
+      const result = await pageReleasePolicies(
+        {
+          organizationId: init.value?.organizationId,
+          keyword: query.keyword,
+          pageNo: query.page,
+          pageSize: query.pageSize
+        },
+        { signal: controller.signal }
+      )
+      policyRows.value = result.content
+      policyTotal.value = result.totalCount
+    }
     else {
-      holidays.value = await listHolidayExceptions(monthRange(holidayCalendarDate.value), {
-        signal: controller.signal
-      })
+      const range = monthRange(holidayCalendarDate.value)
+      const result = await pageHolidayExceptions(
+        {
+          organizationId: init.value?.organizationId,
+          exceptionType: holidayType.value || undefined,
+          rangeStart: range.start,
+          rangeEnd: range.end,
+          keyword: query.keyword,
+          pageNo: query.page,
+          pageSize: query.pageSize
+        },
+        { signal: controller.signal }
+      )
+      holidays.value = result.content
+      holidayTotal.value = result.totalCount
       dailyRows.value = (
         await pageDailyTemplates({ page: 1, pageSize: 200 }, { signal: controller.signal })
-      ).rows
+      ).content
     }
   } catch (error) {
     if (!controller.signal.aborted)
@@ -293,7 +337,7 @@ function openDaily(row?: DailyTemplate) {
     periodIds: row?.periodIds ?? [],
     doctorId: row?.doctorId ?? '',
     roomId: row?.roomId ?? '',
-    releasePolicyId: row?.releasePolicyId ?? policy.id,
+    releasePolicyId: row?.releasePolicyId ?? policyRows.value[0]?.id ?? '',
     effectiveStart: row?.effectiveStart ?? '2026-07-01',
     effectiveEnd: row?.effectiveEnd ?? '2026-12-31',
     priority: row?.priority ?? 0,
@@ -329,9 +373,31 @@ function openHoliday(row?: HolidayException) {
   })
   holidayDialog.value = true
 }
+function openPolicy(row?: ReleasePolicy) {
+  policyId.value = row?.id
+  const channelQuotaJson = row?.channelQuotaJsonText
+    ?? (row?.channelQuotas ? JSON.stringify(row.channelQuotas, null, 2) : '')
+  Object.assign(policyForm, {
+    policyCode: row?.policyCode ?? '',
+    policyName: row?.policyName ?? row?.name ?? '',
+    advanceDays: row?.advanceDays ?? row?.openDays ?? 14,
+    slotMinutes: row?.slotMinutes ?? 30,
+    capacityPerSlot: row?.capacityPerSlot ?? 10,
+    channelQuotaJson
+  })
+  policyDialog.value = true
+}
 function openHolidayForDate(date: string) {
   openHoliday()
   holidayForm.date = date
+}
+function handleHolidayStartChange(date?: string) {
+  if (date && holidayForm.rangeEnd && holidayForm.rangeEnd < date) {
+    holidayForm.rangeEnd = undefined
+  }
+}
+function disableHolidayEndDate(date: Date) {
+  return Boolean(holidayForm.date && dateText(date) < holidayForm.date)
 }
 async function persist(
   action: () => Promise<unknown>,
@@ -366,7 +432,20 @@ function savePeriodForm() {
     return
   }
   void persist(
-    () => saveTimePeriod({ ...structuredClone(periodForm), id: periodId.value }),
+    () => {
+      const payload: SaveSlotProvisionTemplateRequest = {
+        id: periodId.value,
+        organizationId: init.value?.organizationId,
+        templateName: periodForm.name.trim(),
+        slotTemplates: periodForm.segments.map((item) => ({
+          startTime: item.start,
+          endTime: item.end,
+          capacity: item.capacity
+        })),
+        enabled: periodForm.status === 'enabled'
+      }
+      return saveTimePeriod(payload)
+    },
     () => {
       periodDialog.value = false
     },
@@ -390,7 +469,24 @@ function saveDailyForm() {
     return
   }
   void persist(
-    () => saveDailyTemplate({ ...structuredClone(dailyForm), id: dailyId.value }),
+    () => {
+      const payload: SaveScheduleTemplateRequest = {
+        id: dailyId.value,
+        organizationId: init.value!.organizationId ?? init.value!.department.value,
+        templateName: dailyForm.name.trim(),
+        scheduleMode: dailyForm.scheduleMode,
+        practitionerId: dailyForm.doctorId,
+        locationId: dailyForm.roomId,
+        healthcareServiceId: dailyForm.serviceType,
+        slotProvisionTemplateId: dailyForm.periodIds[0],
+        defaultReleasePolicyId: dailyForm.releasePolicyId,
+        effectiveStart: dailyForm.effectiveStart,
+        effectiveEnd: dailyForm.effectiveEnd,
+        priority: dailyForm.priority,
+        enabled: dailyForm.status === 'enabled'
+      }
+      return saveDailyTemplate(payload)
+    },
     () => {
       dailyDialog.value = false
     },
@@ -409,7 +505,23 @@ function saveWeeklyForm() {
     return
   }
   void persist(
-    () => saveWeeklyTemplate({ ...structuredClone(weeklyForm), id: weeklyId.value }),
+    () => {
+      const payload: SaveWeekScheduleTemplateRequest = {
+        id: weeklyId.value,
+        organizationId: init.value!.organizationId ?? init.value!.department.value,
+        templateName: weeklyForm.name.trim(),
+        fallbackBookable: weeklyForm.appointmentOpen,
+        isDefault: weeklyForm.isDefault,
+        enabled: weeklyForm.status === 'enabled',
+        items: weeklyForm.items.map((item, index) => ({
+          weekday: item.weekday,
+          dayScheduleTemplateId: item.dailyTemplateId,
+          sortNo: index + 1,
+          enabled: item.enabled
+        }))
+      }
+      return saveWeeklyTemplate(payload)
+    },
     () => {
       weeklyDialog.value = false
     },
@@ -430,17 +542,38 @@ function saveWeeklyForm() {
 }
 function saveHolidayForm() {
   if (!ensureCurrentDepartment()) return
-  if (
-    !holidayForm.date ||
-    !holidayForm.reason.trim() ||
-    (holidayForm.rangeEnd && holidayForm.rangeEnd < holidayForm.date) ||
-    (holidayForm.type !== 'closed' && !holidayForm.replacementDailyTemplateId)
-  ) {
-    ElMessage.warning('请完整填写例外日期、类型和原因')
+  if (!holidayForm.date || !holidayForm.type) {
+    ElMessage.warning('请填写起始日和例外类型')
+    return
+  }
+  if (holidayForm.rangeEnd && holidayForm.rangeEnd < holidayForm.date) {
+    ElMessage.warning('结束日期不能早于起始日')
+    return
+  }
+  if (holidayForm.type !== 'closed' && !holidayForm.replacementDailyTemplateId) {
+    ElMessage.warning('替换工作日、减量出诊或临时加诊必须选择替代日排班')
     return
   }
   void persist(
-    () => saveHolidayException({ ...structuredClone(holidayForm), id: holidayId.value }),
+    () => {
+      const typeMap = {
+        closed: 'CLOSED',
+        reduced: 'REDUCED',
+        replace: 'OVERRIDE',
+        extra: 'EXTRA'
+      } as const
+      const payload: SaveCalendarExceptionRequest = {
+        id: holidayId.value,
+        organizationId: init.value?.organizationId,
+        exceptionDate: holidayForm.date,
+        rangeEnd: holidayForm.rangeEnd,
+        exceptionType: typeMap[holidayForm.type],
+        overrideScheduleTemplateId: holidayForm.replacementDailyTemplateId,
+        reason: holidayForm.reason.trim(),
+        autoApplyOnGenerate: holidayForm.autoApplyOnGenerate
+      }
+      return saveHolidayException(payload)
+    },
     () => {
       holidayDialog.value = false
     },
@@ -452,6 +585,7 @@ async function remove(kind: string, id: string) {
     if (kind === 'period') await removeTimePeriod(id)
     else if (kind === 'daily') await removeDailyTemplate(id)
     else if (kind === 'weekly') await removeWeeklyTemplate(id)
+    else if (kind === 'policy') await removeReleasePolicy(id)
     else await removeHolidayException(id)
     ElMessage.success('删除成功')
     await loadCurrentTab()
@@ -465,6 +599,7 @@ function handleRowAction(action: RowActionItem, source: unknown) {
   else if (activeTab.value === 'period') openPeriod(source as TimePeriod)
   else if (activeTab.value === 'daily') openDaily(source as DailyTemplate)
   else if (activeTab.value === 'weekly') openWeekly(source as WeeklyTemplate)
+  else if (activeTab.value === 'policy') openPolicy(source as ReleasePolicy)
   else openHoliday(source as HolidayException)
 }
 function handleToolbar(action: ActionToolbarItem) {
@@ -472,21 +607,35 @@ function handleToolbar(action: ActionToolbarItem) {
   else if (activeTab.value === 'period') openPeriod()
   else if (activeTab.value === 'daily') openDaily()
   else if (activeTab.value === 'weekly') openWeekly()
+  else if (activeTab.value === 'policy') openPolicy()
   else openHoliday()
 }
 async function savePolicyForm() {
   if (!ensureCurrentDepartment()) return
-  if (policy.openTime >= policy.closeTime) {
-    ElMessage.warning('放号开始时间必须早于结束时间')
-    return
-  }
-  if (!policy.name.trim() || policy.slotMinutes < 5 || policy.capacityPerSlot < 1) {
+  if (!policyForm.policyName.trim() || policyForm.slotMinutes < 5 || policyForm.capacityPerSlot < 1) {
     ElMessage.warning('请填写策略名称、时段粒度和单段容量')
     return
   }
+  try {
+    if (policyForm.channelQuotaJson) JSON.parse(policyForm.channelQuotaJson)
+  } catch {
+    ElMessage.warning('渠道配额必须是有效 JSON')
+    return
+  }
+  const payload: ReleasePolicySavePayload = {
+    id: policyId.value,
+    policyCode: policyForm.policyCode?.trim() || undefined,
+    policyName: policyForm.policyName.trim(),
+    advanceDays: Number(policyForm.advanceDays),
+    slotMinutes: Number(policyForm.slotMinutes),
+    capacityPerSlot: Number(policyForm.capacityPerSlot),
+    channelQuotaJson: policyForm.channelQuotaJson?.trim() || undefined
+  }
   await persist(
-    () => saveReleasePolicy(structuredClone(policy)),
-    () => undefined,
+    () => saveReleasePolicy(payload),
+    () => {
+      policyDialog.value = false
+    },
     '放号策略已保存'
   )
 }
@@ -557,7 +706,7 @@ onBeforeUnmount(() => requestController.value?.abort())
       /><el-tab-pane label="节假日例外（可选）" name="holiday" />
     </el-tabs>
     <SearchPanel
-      v-if="!['policy', 'holiday'].includes(activeTab)"
+      v-if="activeTab !== 'holiday'"
       v-model:keyword="query.keyword"
       v-model:dropdown-value="query.status"
       keyword-placeholder="输入模板名称"
@@ -566,6 +715,27 @@ onBeforeUnmount(() => requestController.value?.abort())
       :loading="loading"
       @search="searchCurrentTab"
       @reset="resetQuery"
+    />
+    <SearchPanel
+      v-if="activeTab === 'holiday'"
+      v-model:keyword="query.keyword"
+      v-model:dropdown-value="holidayType"
+      keyword-placeholder="输入例外原因"
+      dropdown-label="例外类型"
+      :dropdown-options="[
+        { value: 'CLOSED', label: '停诊' },
+        { value: 'REDUCED', label: '减号' },
+        { value: 'OVERRIDE', label: '替换模板' },
+        { value: 'EXTRA', label: '加班' }
+      ]"
+      :loading="loading"
+      @search="searchCurrentTab"
+      @reset="
+        () => {
+          holidayType = ''
+          resetQuery()
+        }
+      "
     />
     <ActionToolbar
       :title="
@@ -678,7 +848,7 @@ onBeforeUnmount(() => requestController.value?.abort())
         }}</template></el-table-column
       ><el-table-column label="科室默认" width="100"
         ><template #default="{ row }">{{ row.isDefault ? '是' : '否' }}</template></el-table-column
-      ><el-table-column label="开放预约" width="100" /><el-table-column label="开放预约" width="100"
+      ><el-table-column label="开放预约" width="100"
         ><template #default="{ row }">{{
           row.appointmentOpen ? '开放' : '关闭'
         }}</template></el-table-column
@@ -692,41 +862,28 @@ onBeforeUnmount(() => requestController.value?.abort())
           ><RowActionGroup :row="row" :actions="rowActions()" @action="handleRowAction" /></template
       ></el-table-column>
     </DataTablePanel>
-    <section v-else-if="activeTab === 'policy'" v-loading="loading" class="policy-panel">
-      <el-form label-width="150px" class="policy-form"
-        ><el-form-item label="策略名称" required><el-input v-model="policy.name" /></el-form-item
-        ><el-form-item label="启用自动放号"><el-switch v-model="policy.enabled" /></el-form-item
-        ><el-form-item label="提前放号天数"
-          ><el-input-number v-model="policy.openDays" :min="1" :max="90" /></el-form-item
-        ><el-form-item label="每日放号时间"
-          ><el-time-select
-            v-model="policy.openTime"
-            start="00:00"
-            step="00:30"
-            end="23:30" /></el-form-item
-        ><el-form-item label="预约截止时间"
-          ><el-time-select
-            v-model="policy.closeTime"
-            start="00:00"
-            step="00:30"
-            end="23:30" /></el-form-item
-        ><el-form-item label="最大提前预约天数"
-          ><el-input-number v-model="policy.maxAdvanceDays" :min="1" :max="180" /></el-form-item
-        ><el-form-item label="单患者预约上限"
-          ><el-input-number v-model="policy.maxPerPatient" :min="1" :max="20" /></el-form-item
-        ><el-form-item label="时段粒度"
-          ><el-input-number v-model="policy.slotMinutes" :min="5" :max="240" :step="5" />
-          <span class="field-unit">分钟/段</span></el-form-item
-        ><el-form-item label="单段容量"
-          ><el-input-number v-model="policy.capacityPerSlot" :min="1" :max="999" />
-          <span class="field-unit">人/段</span></el-form-item
-        ><el-form-item
-          ><el-button type="primary" :loading="saving" @click="savePolicyForm"
-            >保存策略</el-button
-          ></el-form-item
-        ></el-form
-      >
-    </section>
+    <DataTablePanel
+      v-else-if="activeTab === 'policy'"
+      :data="policyRows"
+      :loading="loading"
+      :total="policyTotal"
+      :page="query.page"
+      :page-size="query.pageSize"
+      min-height="300px"
+      @update:page="changePage"
+      @update:page-size="changePageSize"
+    >
+      <el-table-column prop="policyCode" label="策略编码" min-width="140" />
+      <el-table-column prop="policyName" label="策略名称" min-width="170" />
+      <el-table-column prop="advanceDays" label="提前天数" width="100" />
+      <el-table-column prop="slotMinutes" label="时段分钟" width="100" />
+      <el-table-column prop="capacityPerSlot" label="单段容量" width="100" />
+      <el-table-column label="操作" width="160">
+        <template #default="{ row }">
+          <RowActionGroup :row="row" :actions="rowActions()" @action="handleRowAction" />
+        </template>
+      </el-table-column>
+    </DataTablePanel>
     <section v-else class="holiday-layout">
       <el-calendar v-model="holidayCalendarDate" class="holiday-calendar"
         ><template #date-cell="{ data }"
@@ -748,8 +905,12 @@ onBeforeUnmount(() => requestController.value?.abort())
           v-else
           :data="holidays"
           :loading="loading"
-          :total="holidays.length"
+          :total="holidayTotal"
+          :page="query.page"
+          :page-size="query.pageSize"
           min-height="280px"
+          @update:page="changePage"
+          @update:page-size="changePageSize"
           ><el-table-column prop="date" label="起始日" width="120" /><el-table-column
             prop="rangeEnd"
             label="结束日"
@@ -867,7 +1028,11 @@ onBeforeUnmount(() => requestController.value?.abort())
               :value="item.value" /></el-select></el-form-item
         ><el-form-item label="放号策略" required
           ><el-select v-model="dailyForm.releasePolicyId"
-            ><el-option :label="policy.name" :value="policy.id" /></el-select></el-form-item
+            ><el-option
+              v-for="item in policyOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value" /></el-select></el-form-item
         ><el-form-item label="生效日期" required
           ><el-date-picker
             v-model="dailyForm.effectiveStart"
@@ -949,19 +1114,51 @@ onBeforeUnmount(() => requestController.value?.abort())
       ></el-dialog
     >
     <el-dialog
+      v-model="policyDialog"
+      :title="policyId ? '编辑放号策略' : '新增放号策略'"
+      width="560px"
+      :close-on-click-modal="false"
+    >
+      <el-form label-width="110px">
+        <el-form-item label="策略编码"><el-input v-model="policyForm.policyCode" /></el-form-item>
+        <el-form-item label="策略名称" required
+          ><el-input v-model="policyForm.policyName" /></el-form-item>
+        <el-form-item label="提前天数" required
+          ><el-input-number v-model="policyForm.advanceDays" :min="0" :max="365" /></el-form-item>
+        <el-form-item label="时段分钟" required
+          ><el-input-number v-model="policyForm.slotMinutes" :min="5" :max="240" :step="5" /></el-form-item>
+        <el-form-item label="单段容量" required
+          ><el-input-number v-model="policyForm.capacityPerSlot" :min="1" :max="999" /></el-form-item>
+        <el-form-item label="渠道配额 JSON"
+          ><el-input v-model="policyForm.channelQuotaJson" type="textarea" :rows="3" /></el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button :disabled="saving" @click="policyDialog = false">取消</el-button>
+        <el-button type="primary" :loading="saving" @click="savePolicyForm">保存</el-button>
+      </template>
+    </el-dialog>
+    <el-dialog
       v-model="holidayDialog"
       :title="holidayId ? '编辑节假日例外' : '新增节假日例外'"
       width="560px"
       :close-on-click-modal="false"
       ><el-form label-width="110px"
-        ><el-form-item label="日期" required
-          ><el-date-picker v-model="holidayForm.date" value-format="YYYY-MM-DD" /></el-form-item
-        ><el-form-item label="结束日期"
+        ><el-form-item label="起始日" required
+          ><el-date-picker
+            v-model="holidayForm.date"
+            type="date"
+            value-format="YYYY-MM-DD"
+            style="width: 100%"
+            @change="handleHolidayStartChange" /></el-form-item
+        ><el-form-item label="结束日"
           ><el-date-picker
             v-model="holidayForm.rangeEnd"
+            type="date"
             value-format="YYYY-MM-DD"
-            placeholder="空表示单日" /></el-form-item
-        ><el-form-item label="例外类型"
+            :disabled-date="disableHolidayEndDate"
+            placeholder="空表示单日"
+            style="width: 100%" /></el-form-item
+        ><el-form-item label="例外类型" required
           ><el-select v-model="holidayForm.type"
             ><el-option label="停诊" value="closed" /><el-option
               label="替换工作日"
@@ -975,8 +1172,12 @@ onBeforeUnmount(() => requestController.value?.abort())
               :key="item.value"
               :label="item.label"
               :value="item.value" /></el-select></el-form-item
-        ><el-form-item label="原因" required
-          ><el-input v-model="holidayForm.reason" type="textarea" :rows="3" /></el-form-item
+        ><el-form-item label="说明"
+          ><el-input
+            v-model="holidayForm.reason"
+            type="textarea"
+            :rows="3"
+            placeholder="国庆、调休等（可选）" /></el-form-item
         ><el-form-item label="参与生成"
           ><el-switch v-model="holidayForm.autoApplyOnGenerate" /></el-form-item></el-form
       ><template #footer
@@ -991,6 +1192,15 @@ onBeforeUnmount(() => requestController.value?.abort())
 
 <style scoped>
 .template-page {
+  --el-color-primary: #1d4ed8;
+  --el-color-success: #15803d;
+  --el-color-warning: #a16207;
+  --el-color-danger: #b91c1c;
+  --el-color-info: #4b5563;
+  --el-text-color-primary: #1f2937;
+  --el-text-color-regular: #374151;
+  --el-text-color-secondary: #4b5563;
+  --el-text-color-placeholder: #6b7280;
   display: flex;
   min-width: 0;
   flex-direction: column;
@@ -1046,6 +1256,26 @@ onBeforeUnmount(() => requestController.value?.abort())
 .holiday-calendar {
   border: 1px solid var(--el-border-color-light);
   border-radius: 6px;
+  color: #374151;
+  background: #ffffff;
+}
+.holiday-calendar :deep(.el-calendar__title),
+.holiday-calendar :deep(.el-calendar-table thead th) {
+  color: #1f2937;
+}
+.holiday-calendar :deep(.el-calendar-table td),
+.holiday-calendar :deep(.el-calendar-day) {
+  color: #374151;
+  background: #ffffff;
+}
+.holiday-calendar :deep(.el-calendar-table td.prev),
+.holiday-calendar :deep(.el-calendar-table td.next) {
+  color: #6b7280;
+}
+.holiday-calendar :deep(.el-calendar-table td.is-selected),
+.holiday-calendar :deep(.el-calendar-table td.is-today) {
+  color: #1d4ed8;
+  background: #eff6ff;
 }
 .holiday-list {
   min-width: 0;
@@ -1080,6 +1310,7 @@ onBeforeUnmount(() => requestController.value?.abort())
   justify-content: space-between;
   min-height: 42px;
   cursor: pointer;
+  color: inherit;
 }
 .el-select {
   width: 100%;

@@ -5,20 +5,19 @@
     </header>
 
     <el-table
+      ref="tableRef"
       v-loading="loading"
       :data="displayRows"
       :row-key="String(rowKey)"
+      :height="height"
+      :border="border"
+      :stripe="stripe"
       highlight-current-row
       :row-class-name="rowClass"
       @selection-change="onSelectionChange"
       @current-change="onCurrentChange"
     >
-      <el-table-column
-        v-if="selectable"
-        type="selection"
-        width="44"
-        :selectable="canSelectRow"
-      />
+      <el-table-column v-if="selectable" type="selection" width="44" :selectable="canSelectRow" />
       <el-table-column
         v-for="column in columns"
         :key="column.prop"
@@ -27,11 +26,12 @@
         :width="column.width"
         :min-width="column.minWidth"
         :align="column.align"
+        :show-overflow-tooltip="column.showOverflowTooltip"
       >
         <template #default="scope">
-          <slot :name="`cell-${column.prop}`" :row="(scope.row as AdviceOrder)" :column="column">
-            <slot v-if="column.prop === 'order'" name="order" :row="(scope.row as AdviceOrder)">
-              <AdviceOrderDisplayCell :order="(scope.row as AdviceOrder)" compact />
+          <slot :name="`cell-${column.prop}`" :row="scope.row as AdviceOrder" :column="column">
+            <slot v-if="column.prop === 'order'" name="order" :row="scope.row as AdviceOrder">
+              <AdviceOrderDisplayCell :order="scope.row as AdviceOrder" compact />
             </slot>
             <template v-else>{{ cellText(scope.row as AdviceOrder, column) }}</template>
           </slot>
@@ -41,8 +41,10 @@
         <template #default="scope">
           <slot
             name="actions"
-            :row="(scope.row as AdviceOrder)"
-            :action="(action: string) => emit('rowAction', { row: scope.row as AdviceOrder, action })"
+            :row="scope.row as AdviceOrder"
+            :action="
+              (action: string) => emit('rowAction', { row: scope.row as AdviceOrder, action })
+            "
           />
         </template>
       </el-table-column>
@@ -58,7 +60,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import type { TableInstance } from 'element-plus'
 import AdviceOrderDisplayCell from './AdviceOrderDisplayCell.vue'
 import type { AdviceColumn, AdviceOrder, MedicalKey } from './type'
 
@@ -92,6 +95,12 @@ const props = withDefaults(
     disabledRow?: (row: AdviceOrder) => boolean
     /** 空数据文案 */
     emptyText?: string
+    /** 表格高度；传入 100% 时填满业务容器。 */
+    height?: number | string
+    /** 是否显示纵向边框。 */
+    border?: boolean
+    /** 是否显示斑马纹。 */
+    stripe?: boolean
   }>(),
   {
     rows: () => [],
@@ -106,9 +115,14 @@ const props = withDefaults(
     groupBy: undefined,
     currentRowKey: null,
     disabledRow: () => false,
-    emptyText: '暂无医嘱'
+    emptyText: '暂无医嘱',
+    height: undefined,
+    border: false,
+    stripe: false
   }
 )
+
+const tableRef = ref<TableInstance>()
 
 const emit = defineEmits<{
   selectionChange: [rows: AdviceOrder[]]
@@ -151,6 +165,16 @@ function onSelectionChange(rows: AdviceOrder[]) {
 function onCurrentChange(row: AdviceOrder | null) {
   emit('currentChange', row ?? undefined)
 }
+
+/** 清空表格选择，供切换患者或提交完成后调用。 */
+function clearSelection() {
+  tableRef.value?.clearSelection()
+}
+
+defineExpose({
+  tableRef,
+  clearSelection
+})
 </script>
 
 <style scoped>

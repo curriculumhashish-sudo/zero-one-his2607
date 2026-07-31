@@ -4,7 +4,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/pharmacy/outpatient-dispense',
     name: 'PharmacyOutpatientDispense',
-    meta: { label: '门诊发药' },
+    meta: { label: '门诊发药', anonymous: true },
     component: () => import('@/views/pharmacy/outpatient-dispense/Index.vue')
   }
 ]

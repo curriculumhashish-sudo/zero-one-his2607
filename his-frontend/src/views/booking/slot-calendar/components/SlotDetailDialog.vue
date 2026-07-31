@@ -6,11 +6,10 @@ import type { StatusDisplayOption } from '@/components/common/type'
 import { computed, ref } from 'vue'
 
 import DescriptionList from '@/components/common/DescriptionList.vue'
-import MyDialog from '@/components/mydialog/MyDialog.vue'
 import StatusDisplay from '@/components/common/StatusDisplay.vue'
 
 const props = defineProps<{ data: SlotRecord | null; loading?: boolean }>()
-const dialog = ref<{ openDialog: () => void; closeDialog: () => void }>()
+const visible = ref(false)
 
 const statusOptions: StatusDisplayOption[] = [
   { value: 'available', label: '可约', type: 'success' },
@@ -20,55 +19,76 @@ const statusOptions: StatusDisplayOption[] = [
 ]
 
 const items = computed<DescriptionItem[]>(() => [
-  { prop: 'departmentName', label: '科室' },
-  { prop: 'doctorName', label: '医生' },
-  { prop: 'roomName', label: '诊室' },
-  { prop: 'date', label: '日期' },
-  { prop: 'timeRange', label: '时间' },
-  { prop: 'group', label: '时段' },
-  { prop: 'capacity', label: '总号数' },
-  { prop: 'used', label: '已用号数' },
-  { prop: 'remaining', label: '剩余号数' },
-  {
-    prop: 'unavailableReason',
-    label: props.data?.status === 'stopped' ? '停诊原因' : '不可用原因',
-    span: 2,
-    hidden: (data) => !data.unavailableReason
-  }
+  { prop: 'organizationName', label: '科室' },
+  { prop: 'practitionerName', label: '医师' },
+  { prop: 'healthcareServiceName', label: '号源类型' },
+  { prop: 'status', label: '状态' },
+  { prop: 'timeRange', label: '时段' },
+  { prop: 'capacity', label: '容量' },
+  { prop: 'bookedCount', label: '已约' },
+  { prop: 'remainingCount', label: '剩余' },
+  { prop: 'overbookedText', label: '超售' },
+  { prop: 'commentText', label: '备注' },
+  { prop: 'slotId', label: '号源 ID' },
+  { prop: 'scheduleId', label: '日程 ID' }
 ])
+
+function formatTime(value: string) {
+  const matched = value.match(/(?:T|\s)(\d{2}:\d{2})/)
+  return matched?.[1] ?? value.slice(0, 5)
+}
 
 const displayData = computed(() =>
   props.data
-    ? { ...props.data, timeRange: `${props.data.startTime} - ${props.data.endTime}` }
+    ? {
+        ...props.data,
+        organizationName: props.data.organizationName || props.data.departmentName || '—',
+        practitionerName: props.data.practitionerName || props.data.doctorName || '医师待定',
+        healthcareServiceName: props.data.healthcareServiceName || '—',
+        timeRange: `${formatTime(props.data.startTime)} — ${formatTime(props.data.endTime)}`,
+        overbookedText: props.data.overbookedFlag ? '是' : '否',
+        commentText: props.data.commentText || '—'
+      }
     : null
 )
 
 function open() {
-  dialog.value?.openDialog()
+  visible.value = true
 }
 function close() {
-  dialog.value?.closeDialog()
+  visible.value = false
 }
 defineExpose({ open, close })
 </script>
 
 <template>
-  <MyDialog ref="dialog" :data="data ?? {}" title="号源详情" width="620px" align-center>
+  <el-drawer v-model="visible" title="号源详情" size="min(440px, 100%)" destroy-on-close>
     <div v-loading="loading" class="slot-detail">
-      <div v-if="data" class="slot-detail__status">
-        <span>号源状态</span>
-        <StatusDisplay :value="data.status" :options="statusOptions" />
-      </div>
-      <DescriptionList v-if="data" :data="displayData" :items="items" :column="2" dense />
+      <DescriptionList
+        v-if="data"
+        :data="displayData"
+        :items="items"
+        :column="1"
+        label-width="130px"
+        empty-text="—"
+      >
+        <template #value-status>
+          <StatusDisplay
+            :value="data.status"
+            :options="statusOptions"
+            :fallback-label="data.displayStatus || data.statusCode"
+          />
+        </template>
+      </DescriptionList>
       <el-empty v-else description="未找到号源详情" />
     </div>
     <template #footer>
       <div class="slot-detail__actions">
-        <span>预约登记功能将在后续版本开放</span>
-        <el-button type="primary" @click="close">关闭</el-button>
+        <el-button type="primary" disabled>预约登记</el-button>
+        <el-button @click="close">关闭</el-button>
       </div>
     </template>
-  </MyDialog>
+  </el-drawer>
 </template>
 
 <style scoped>
@@ -82,30 +102,26 @@ defineExpose({ open, close })
   min-height: 220px;
   color: #303133;
 }
-.slot-detail__status {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  padding: 12px;
-  color: #303133;
-  background: #f5f7fa;
-  border-radius: 6px;
-}
 .slot-detail :deep(.el-descriptions__label) {
-  color: #606266 !important;
-  background: #f5f7fa !important;
+  color: #1f2937 !important;
+  background: #f3f6fa !important;
+  font-weight: 600 !important;
 }
 .slot-detail :deep(.el-descriptions__content) {
   color: #303133 !important;
   background: #ffffff !important;
 }
+.slot-detail :deep(.el-descriptions__table) {
+  width: 100%;
+  table-layout: fixed;
+}
+.slot-detail :deep(.el-descriptions__content) {
+  overflow-wrap: anywhere;
+}
 .slot-detail__actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 12px;
-  color: #606266;
-  font-size: 13px;
 }
 </style>

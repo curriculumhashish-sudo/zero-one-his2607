@@ -1,7 +1,6 @@
 import type {
   BookingOption,
-  ScheduleRecord,
-  ScheduleSavePayload
+  ScheduleRecord
 } from '@/apis/booking/outpatient-schedule'
 
 export interface ScheduleQueryModel {
@@ -13,6 +12,17 @@ export interface ScheduleQueryModel {
 
 export interface ScheduleDialogModel extends ScheduleSavePayload {
   id?: string
+}
+
+export interface ScheduleSavePayload {
+  departmentId: string
+  doctorId: string
+  roomId: string
+  date: string
+  startTime: string
+  endTime: string
+  capacity: number
+  publish: boolean
 }
 
 export interface SchedulePageData {

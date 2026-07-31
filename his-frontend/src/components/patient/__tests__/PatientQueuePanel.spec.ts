@@ -87,6 +87,22 @@ describe('PatientQueuePanel', () => {
     expect(wrapper.emitted('dateChange')).toEqual([[value]])
   })
 
+  it('受控日期范围会同步显示到日期控件', async () => {
+    const initial: DateRangeValue = ['2026-07-29', '2026-07-29']
+    const wrapper = mount(PatientQueuePanel, {
+      props: {
+        patients,
+        dateRange: initial
+      }
+    })
+
+    expect(wrapper.findComponent(DateRangeField).props('modelValue')).toEqual(initial)
+
+    const changed: DateRangeValue = ['2026-07-30', '2026-07-30']
+    await wrapper.setProps({ dateRange: changed })
+    expect(wrapper.findComponent(DateRangeField).props('modelValue')).toEqual(changed)
+  })
+
   it('重置时清空关键词和日期条件', async () => {
     const wrapper = mount(PatientQueuePanel, {
       props: { patients }

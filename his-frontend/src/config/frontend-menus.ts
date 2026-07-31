@@ -156,6 +156,62 @@ const FRONTEND_MENUS: Menu[] = [
         text: '号源查看',
         icon: 'IconTickets',
         href: '/booking/slot-calendar'
+      },
+      {
+        id: 'frontend-booking-template',
+        pid: 'frontend-booking',
+        text: '号源设置',
+        icon: 'IconTickets',
+        href: '/booking/schedule-template'
+      }
+    ]
+  },
+  {
+    id: 'frontend-charge',
+    text: '收费管理',
+    icon: 'IconTickets',
+    children: [
+      {
+        id: 'frontend-outpatient-register',
+        pid: 'frontend-charge',
+        text: '门诊挂号',
+        icon: 'IconTickets',
+        href: '/outpatient/charge/register'
+      },
+      {
+        id: 'frontend-outpatient-charge',
+        pid: 'frontend-charge',
+        text: '门诊收费',
+        icon: 'IconTickets',
+        href: '/outpatient/charge/charge'
+      },
+      {
+        id: 'frontend-outpatient-refund',
+        pid: 'frontend-charge',
+        text: '门诊退费',
+        icon: 'IconTickets',
+        href: '/outpatient/charge/refund'
+      },
+      {
+        id: 'frontend-inpatient-register',
+        pid: 'frontend-charge',
+        text: '住院登记',
+        icon: 'IconTickets',
+        href: '/inpatient/charge/register'
+      },
+      {
+        id: 'frontend-inpatient-prepay',
+        pid: 'frontend-charge',
+        text: '住院预交金',
+        icon: 'IconTickets',
+        href: '/inpatient/charge/prepay'
+      },
+      {
+        id: 'frontend-inpatient-settle',
+        pid: 'frontend-charge',
+        text: '住院结算',
+        icon: 'IconTickets',
+        href: '/inpatient/charge/settle'
       }
     ]
   },
@@ -165,11 +221,53 @@ const FRONTEND_MENUS: Menu[] = [
     icon: 'IconMenu',
     children: [
       {
-        id: 'frontend-warehouse-stocktake',
+        id: 'frontend-warehouse-purchase-inbound',
+        pid: 'frontend-warehouse',
+        text: '采购入库工作站',
+        icon: 'IconTickets',
+        href: '/warehouse/purchase-inbound'
+      },
+      {
+        id: 'frontend-pharmacy-stock-in',
+        pid: 'frontend-warehouse',
+        text: '药房入库',
+        icon: 'IconTickets',
+        href: '/inventory/pharmacy/stock-in'
+      },
+      {
+        id: 'frontend-pharmacy-stocktake',
         pid: 'frontend-warehouse',
         text: '药房盘点',
         icon: 'IconTickets',
-        href: '/warehouse/purchase-inbound'
+        href: '/inventory/pharmacy/stocktake'
+      },
+      {
+        id: 'frontend-warehouse-purchase-inbound-v2',
+        pid: 'frontend-warehouse',
+        text: '药库进货',
+        icon: 'IconTickets',
+        href: '/inventory/warehouse/purchase-inbound'
+      },
+      {
+        id: 'frontend-warehouse-stock-out',
+        pid: 'frontend-warehouse',
+        text: '药库出库',
+        icon: 'IconTickets',
+        href: '/inventory/warehouse/stock-out'
+      },
+      {
+        id: 'frontend-warehouse-stocktake',
+        pid: 'frontend-warehouse',
+        text: '药库盘点',
+        icon: 'IconTickets',
+        href: '/inventory/warehouse/stocktake'
+      },
+      {
+        id: 'frontend-inventory-stock-list',
+        pid: 'frontend-warehouse',
+        text: '库存明细',
+        icon: 'IconTickets',
+        href: '/inventory/stock-list'
       }
     ]
   },
@@ -179,25 +277,81 @@ const FRONTEND_MENUS: Menu[] = [
     icon: 'IconMenu',
     children: [
       {
+        id: 'frontend-outpatient-dispense-v1',
+        pid: 'frontend-dispense',
+        text: '门诊发药工作站',
+        icon: 'IconTickets',
+        href: '/pharmacy/outpatient-dispense'
+      },
+      {
         id: 'frontend-outpatient-dispense',
         pid: 'frontend-dispense',
         text: '门诊发药',
         icon: 'IconTickets',
-        href: '/pharmacy/outpatient-dispense'
+        href: '/pharmacy/dispense/outpatient'
+      },
+      {
+        id: 'frontend-inpatient-dispense',
+        pid: 'frontend-dispense',
+        text: '住院发药',
+        icon: 'IconTickets',
+        href: '/pharmacy/dispense/inpatient'
+      },
+      {
+        id: 'frontend-outpatient-return-medicine',
+        pid: 'frontend-dispense',
+        text: '门诊退药',
+        icon: 'IconTickets',
+        href: '/pharmacy/return-medicine/outpatient'
+      },
+      {
+        id: 'frontend-inpatient-return-medicine',
+        pid: 'frontend-dispense',
+        text: '住院退药',
+        icon: 'IconTickets',
+        href: '/pharmacy/return-medicine/inpatient'
+      },
+      {
+        id: 'frontend-outpatient-dispense-record',
+        pid: 'frontend-dispense',
+        text: '门诊发退药记录',
+        icon: 'IconTickets',
+        href: '/pharmacy/dispense-record/outpatient'
+      },
+      {
+        id: 'frontend-inpatient-dispense-record',
+        pid: 'frontend-dispense',
+        text: '住院发退药记录',
+        icon: 'IconTickets',
+        href: '/pharmacy/dispense-record/inpatient'
       }
     ]
   },
   {
-    id: 'frontend-outpatient',
-    text: '门诊业务',
+    id: 'frontend-clinical-station',
+    text: '临床工作站',
     icon: 'IconUser',
     children: [
       {
         id: 'frontend-doctor-station',
-        pid: 'frontend-outpatient',
+        pid: 'frontend-clinical-station',
         text: '门诊医生站',
         icon: 'IconUser',
         href: '/outpatient/doctor-station'
+      },
+      {
+        id: 'frontend-inpatient-doctor-station',
+        pid: 'frontend-clinical-station',
+        text: '住院医生站',
+        icon: 'IconUser',
+        href: '/inpatient/doctor-station'
+      },
+      {
+        id: 'frontend-outpatient-nurse-station',
+        pid: 'frontend-clinical-station',
+        text: '门诊护士站',
+        icon: 'IconUser',
+        href: '/outpatient/nurse-station'
       }
     ]
   }

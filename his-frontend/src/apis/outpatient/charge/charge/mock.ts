@@ -4,11 +4,14 @@ import type {
   ChargePatient,
   ChargeQueueQuery,
   ChargeRecord,
+  ConfirmOutpatientChargeSettlementResponse,
   InsuranceMode,
   PageResult,
   PaymentStatus,
+  PreSettleOutpatientChargesRequest,
   PreSettlement,
   ReceiptData,
+  PrintChargeReceiptParams,
   RequestContext,
   SettleChargePayload
 } from './type'
@@ -186,19 +189,90 @@ function summaryOf(rows: ChargeItem[]) {
   )
 }
 
+function syncPatientFields(row: ChargePatient) {
+  const patientItems = items.get(row.encounterId) ?? []
+  row.patientId = row.id
+  row.encounterBusNo = row.visitNo
+  row.patientName = row.name
+  row.genderCode = row.gender === '男' ? 'M' : 'F'
+  row.genderEnumText = row.gender
+  row.ageText = `${row.age}岁`
+  row.organizationName = row.departmentName
+  row.doctorName =
+    row.departmentName === '心血管内科'
+      ? '王建国'
+      : row.departmentName === '呼吸内科'
+        ? '李文静'
+        : '赵海峰'
+  row.startTime = row.visitTime
+  row.queueLabelCode = row.status === 'pending' ? 'PENDING' : 'SETTLED'
+  row.totalAmount = summaryOf(patientItems).totalAmount
+  row.paidAmount = summaryOf(patientItems.filter((item) => item.status === 'settled')).totalAmount
+  row.paymentId = [...records]
+    .reverse()
+    .find((record) => record.encounterId === row.encounterId)?.id
+  return row
+}
+
+function syncItemFields(row: ChargeItem) {
+  row.accountId = `ACCOUNT-${row.id}`
+  row.chargeItemId = row.id
+  row.busNo = row.id
+  row.cashierName = '收费员'
+  row.cashierUserId = 'OPERATOR-B'
+  row.chargeCategoryCode = row.category
+  row.chargeCategoryDisplay = row.category
+  row.contractId = row.insuranceAmount > 0 ? 'CONTRACT-MI' : 'CONTRACT-SELF'
+  row.discountRateDisplay = '100%'
+  row.medicalInsuranceCode = `MI-${row.id}`
+  row.medTypeCode = '11'
+  row.feeNatureDisplay = row.insuranceAmount > 0 ? '医保' : '自费'
+  row.quantityDisplay = `${row.quantity}${row.quantity === 1 ? '次' : '份'}`
+  row.quantityValue = row.quantity
+  row.quantityUnit = row.quantity === 1 ? '次' : '份'
+  row.serviceId = row.id
+  row.serviceTable = 'outpatient_charge_item'
+  row.totalPrice = row.amount
+  row.statusCode = row.status === 'pending' ? 'PENDING' : 'SETTLED'
+  row.statusText = row.status === 'pending' ? '待收费' : '已收费'
+  return row
+}
+
+function syncRecordFields(row: ChargeRecord) {
+  row.paymentId = row.id
+  row.paymentDetails = [{ amount: row.amount, payChannelCode: row.channel }]
+  return row
+}
+
+items.forEach((rows) => rows.forEach(syncItemFields))
+records.forEach(syncRecordFields)
+patients.forEach(syncPatientFields)
+
 export async function mockPageChargePatientQueue(
   query: ChargeQueueQuery,
   context: RequestContext = {}
 ): Promise<PageResult<ChargePatient>> {
   await delay(context)
   const keyword = query.keyword?.trim().toLowerCase()
+  const status =
+    query.queueTabCode === 'PENDING'
+      ? 'pending'
+      : query.queueTabCode === 'SETTLED'
+        ? 'settled'
+        : query.queueTabCode === 'ALL'
+          ? 'all'
+          : query.status
   const filtered = patients.filter(
     (item) =>
-      (query.status === 'all' || item.status === query.status) &&
+      (status === 'all' || item.status === status) &&
+      (!query.startDate || item.visitTime.slice(0, 10) >= query.startDate) &&
+      (!query.endDate || item.visitTime.slice(0, 10) <= query.endDate) &&
       (!keyword || `${item.name}${item.patientNo}${item.visitNo}`.toLowerCase().includes(keyword))
   )
-  const start = (query.page - 1) * query.pageSize
-  return { rows: clone(filtered.slice(start, start + query.pageSize)), total: filtered.length }
+  patients.forEach(syncPatientFields)
+  const start = ((query.pageNo ?? query.page) - 1) * query.pageSize
+  const rows = clone(filtered.slice(start, start + query.pageSize))
+  return { rows, records: clone(rows), total: filtered.length }
 }
 export async function mockGetPendingChargeDetail(
   encounterId: string,
@@ -212,6 +286,7 @@ export async function mockGetPendingChargeDetail(
     .reverse()
     .find((record) => record.encounterId === encounterId && record.status === 'success')
   return clone({
+    encounterId,
     patient,
     items: rows,
     insuranceMode: mode,
@@ -227,68 +302,127 @@ export async function mockGetPendingChargeDetail(
   })
 }
 export async function mockPreSettleOutpatientCharge(
-  data: { encounterId: string; itemIds: string[] },
+  data: PreSettleOutpatientChargesRequest,
   context: RequestContext = {}
 ): Promise<PreSettlement> {
   await delay(context)
-  if (!data.itemIds.length) throw new Error('请至少选择一个收费项目')
+  if (!data.chargeItemIds.length) throw new Error('请至少选择一个收费项目')
   if (
     records.some((record) => record.encounterId === data.encounterId && record.status === 'pending')
   )
     throw new Error('当前就诊存在未完成支付，请先查询或恢复结算')
   const patient = patientOf(data.encounterId)
   const selected = (items.get(data.encounterId) ?? []).filter(
-    (item) => data.itemIds.includes(item.id) && item.status === 'pending'
+    (item) => data.chargeItemIds.includes(item.id) && item.status === 'pending'
   )
-  if (selected.length !== data.itemIds.length) throw new Error('部分项目状态已变化，请刷新后重试')
+  if (selected.length !== data.chargeItemIds.length) throw new Error('部分项目状态已变化，请刷新后重试')
+  const settlementId = `settlement-${sequence++}`
+  const summary = summaryOf(selected)
   return {
-    settlementId: `settlement-${sequence++}`,
-    encounterId: data.encounterId,
-    itemIds: [...data.itemIds],
-    summary: summaryOf(selected),
-    insuranceMode: patient.paymentType === '医保' ? 'insurance' : 'self-pay',
-    channels: ['cash', 'card', 'wechat', 'alipay']
+    paymentDraftId: settlementId,
+    displayAmount: summary.totalAmount,
+    previews: selected.map((item) => ({
+      chargeItemId: item.id,
+      itemLabel: item.itemName,
+      lineAmount: item.amount,
+      quantityDisplay: item.quantityDisplay ?? String(item.quantity),
+      quantityUnit: item.quantityUnit ?? '',
+      feeNatureDisplay: item.feeNatureDisplay ?? ''
+    })),
+    insuranceGroups:
+      patient.paymentType === '医保'
+        ? [
+            {
+              accountId: `ACCOUNT-${patient.id}`,
+              chargeItemIds: selected.map((item) => item.id),
+              chrgBchno: `CHRG-${settlementId}`,
+              contractId: 'CONTRACT-MI',
+              diseCodg: 'I10',
+              diseName: '门诊诊断',
+              groupIndex: 0,
+              mdtrtId: patient.encounterId,
+              medType: '11',
+              medTypeDisplay: '普通门诊',
+              medfeeSumamt: summary.totalAmount,
+              preSettleId: `YB-PRE-${settlementId}`,
+              fundPaySumamt: summary.insuranceAmount,
+              acctPay: 0,
+              psnCashPay: summary.selfPayAmount
+            }
+          ]
+        : [],
+    selfPayRollup:
+      patient.paymentType === '医保'
+        ? null
+        : {
+            accountId: `ACCOUNT-${patient.id}`,
+            chargeItemIds: selected.map((item) => item.id),
+            totalAmount: summary.totalAmount
+          },
+    ybFundPaySumamt: summary.insuranceAmount,
+    ybAcctPay: 0,
+    ybPsnCashPay: summary.selfPayAmount,
+    ybMedfeeSumamt: summary.totalAmount,
+    ybChrgBchno: patient.paymentType === '医保' ? `CHRG-${settlementId}` : undefined,
+    insurancePreSettled: patient.paymentType === '医保',
+    settlementComposition: patient.paymentType === '医保' ? 'INSURANCE' : 'SELF_PAY',
   }
 }
 export async function mockSettleOutpatientCharge(
   data: SettleChargePayload,
   context: RequestContext = {}
-): Promise<ChargeRecord> {
+): Promise<ConfirmOutpatientChargeSettlementResponse> {
   await delay(context, 300)
   const selected = (items.get(data.encounterId) ?? []).filter((item) =>
-    data.itemIds.includes(item.id)
+    data.chargeItemIds.includes(item.id)
   )
-  if (selected.length !== data.itemIds.length || selected.some((item) => item.status !== 'pending'))
+  if (selected.length !== data.chargeItemIds.length || selected.some((item) => item.status !== 'pending'))
     throw new Error('项目已经结算，请勿重复收费')
-  const paymentStatus: PaymentStatus = ['wechat', 'alipay'].includes(data.channel)
+  const channel = String(data.paymentDetails[0]?.payChannelCode ?? '') as ChargeRecord['channel']
+  if (!['cash', 'card', 'wechat', 'alipay'].includes(channel)) throw new Error('支付渠道无效')
+  const paymentStatus: PaymentStatus = ['wechat', 'alipay'].includes(channel)
     ? 'pending'
     : 'success'
   const record: ChargeRecord = {
     id: `record-${sequence++}`,
+    invoiceId: `INV-${sequence}`,
+    invoiceStatus: paymentStatus === 'success' ? 'ISSUED' : 'PENDING',
+    successMessageCode: paymentStatus === 'success' ? 'OUTPATIENT_CHARGE_SUCCESS' : undefined,
+    ybSetlId:
+      patientOf(data.encounterId).paymentType === '医保' ? `YB-SETL-${sequence}` : undefined,
     encounterId: data.encounterId,
-    itemIds: [...data.itemIds],
+    itemIds: [...data.chargeItemIds],
     receiptNo: `RC20260725${String(sequence).padStart(4, '0')}`,
     amount: summaryOf(selected).totalAmount,
-    channel: data.channel,
+    channel,
     status: paymentStatus,
     receiptStatus: paymentStatus === 'success' ? 'issued' : 'pending',
     printStatus: paymentStatus === 'success' ? 'auto-queued' : 'scheduled',
     createdAt: '2026-07-25 12:00'
   }
+  syncRecordFields(record)
   records.push(record)
   payments.set(record.id, paymentStatus)
   if (paymentStatus === 'success') {
     selected.forEach((item) => {
       item.status = 'settled'
       item.recordId = record.id
+      syncItemFields(item)
     })
     patientOf(data.encounterId).status = (items.get(data.encounterId) ?? []).some(
       (item) => item.status === 'pending'
     )
       ? 'pending'
       : 'settled'
+    syncPatientFields(patientOf(data.encounterId))
   }
-  return clone(record)
+  return {
+    invoiceId: record.invoiceId!,
+    invoiceStatus: record.invoiceStatus,
+    paymentId: record.id,
+    successMessageCode: record.successMessageCode,
+    ybSetlId: record.ybSetlId
+  }
 }
 export async function mockSwitchChargeInsuranceMode(
   data: { encounterId: string; mode: InsuranceMode },
@@ -303,6 +437,7 @@ export async function mockSwitchChargeInsuranceMode(
     .forEach((item) => {
       item.insuranceAmount = data.mode === 'insurance' ? Number((item.amount * 0.8).toFixed(2)) : 0
       item.selfPayAmount = Number((item.amount - item.insuranceAmount).toFixed(2))
+      syncItemFields(item)
     })
   return mockGetPendingChargeDetail(data.encounterId, context)
 }
@@ -320,34 +455,70 @@ export async function mockQueryPaymentResult(paymentId: string, context: Request
     .forEach((item) => {
       item.status = 'settled'
       item.recordId = paymentId
+      syncItemFields(item)
     })
   patientOf(record.encounterId).status = rows.some((item) => item.status === 'pending')
     ? 'pending'
     : 'settled'
+  syncPatientFields(patientOf(record.encounterId))
+  syncRecordFields(record)
   return clone(record)
 }
 export async function mockRecoverSettlement(paymentId: string, context: RequestContext = {}) {
   return mockQueryPaymentResult(paymentId, context)
 }
 export async function mockGetChargeReceipt(
-  recordId: string,
+  params: PrintChargeReceiptParams,
   context: RequestContext = {}
 ): Promise<ReceiptData> {
   await delay(context)
-  const record = records.find((item) => item.id === recordId && item.status === 'success')
+  const record = records.find(
+    (item) =>
+      item.status === 'success' &&
+      (!params.paymentId || (item.paymentId ?? item.id) === params.paymentId) &&
+      (!params.encounterId || item.encounterId === params.encounterId)
+  )
   if (!record) throw new Error('只有收费成功的记录可以打印票据')
   if (record.receiptStatus !== 'issued')
     throw new Error(record.receiptFailureReason ?? '电子票据尚未开具，暂不能打印')
   record.printStatus = 'printed'
   const patient = patientOf(record.encounterId)
+  const chargeItems = (items.get(record.encounterId) ?? []).filter((item) =>
+    record.itemIds.includes(item.id)
+  )
   return {
-    recordId,
+    recordId: record.id,
     receiptNo: record.receiptNo,
     patientName: patient.name,
     amount: record.amount,
     issuedAt: record.createdAt,
     printStatus: record.printStatus,
-    previewText: `${record.receiptNo} · ${patient.name} · ¥${record.amount.toFixed(2)}`
+    previewText: `${record.receiptNo} · ${patient.name} · ¥${record.amount.toFixed(2)}`,
+    slip: {
+      encounterId: record.encounterId,
+      patientName: patient.name,
+      hospitalName: '零壹医院',
+      genderEnumText: patient.genderEnumText ?? patient.gender,
+      ageText: patient.ageText ?? `${patient.age}岁`,
+      feeNatureText: patient.paymentType,
+      chargeItemLines: chargeItems.map((item) => ({
+        itemName: item.itemName,
+        quantityText: item.quantityDisplay ?? String(item.quantity),
+        amountText: `¥${item.amount.toFixed(2)}`,
+        chargeCategoryText: item.chargeCategoryDisplay ?? item.category
+      })),
+      totalAmountText: `¥${record.amount.toFixed(2)}`,
+      poolingPayText: `¥${chargeItems.reduce((sum, item) => sum + item.insuranceAmount, 0).toFixed(2)}`,
+      fundPayText: `¥${chargeItems.reduce((sum, item) => sum + item.insuranceAmount, 0).toFixed(2)}`,
+      accountPayText: '¥0.00',
+      deductibleLineText: '¥0.00',
+      cashPayText: record.channel === 'cash' ? `¥${record.amount.toFixed(2)}` : '¥0.00',
+      wechatPayText: record.channel === 'wechat' ? `¥${record.amount.toFixed(2)}` : '¥0.00',
+      alipayPayText: record.channel === 'alipay' ? `¥${record.amount.toFixed(2)}` : '¥0.00',
+      accountBalanceText: '¥0.00',
+      cashierName: '收费员01',
+      chargeTimeText: record.createdAt
+    }
   }
 }
 

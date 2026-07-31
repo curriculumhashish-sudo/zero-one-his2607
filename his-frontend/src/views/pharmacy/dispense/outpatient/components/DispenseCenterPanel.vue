@@ -60,7 +60,10 @@ const props = defineProps<{
   prescriptionType?: 'western' | 'chinese'
 }>()
 
-const selectedRowKeys = ref<string[]>([])
+const emit = defineEmits<{
+  (e: 'selection-change', ids: string[]): void
+}>()
+
 const orderTableRef = ref<any>(null)
 
 const filteredBlocks = computed(() => {
@@ -95,23 +98,24 @@ const statusOptions = [
 ]
 
 function handleSelectionChange(selected: any[]) {
-  selectedRowKeys.value = selected.map((row: any) => String(row.key))
+  const ids = selected.map((row: any) => String(row.key))
+  emit('selection-change', ids)
 }
 
 function clearSelection() {
-  selectedRowKeys.value = []
   orderTableRef.value?.clearSelection()
+  emit('selection-change', [])
 }
 
 defineExpose({
-  clearSelection,
-  getSelectedIds: () => selectedRowKeys.value
+  clearSelection
 })
 
 watch(
   () => props.prescriptionBlocks,
   () => {
-    selectedRowKeys.value = []
+    orderTableRef.value?.clearSelection()
+    emit('selection-change', [])
   },
 )
 </script>

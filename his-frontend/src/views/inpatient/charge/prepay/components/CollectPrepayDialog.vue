@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import type { PrepayChannel } from '@/apis/inpatient/charge/prepay'
-import { reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 defineProps<{ submitting: boolean }>()
-const emit = defineEmits<{ confirm: [data: { amount: number; channel: PrepayChannel }] }>()
+interface CollectForm {
+  amount: number
+  channel: PrepayChannel
+  scanCode: string
+  remark: string
+}
+const emit = defineEmits<{ confirm: [data: CollectForm] }>()
 const visible = ref(false)
-const form = reactive<{ amount: number; channel: PrepayChannel }>({ amount: 1000, channel: 'card' })
+const form = reactive<CollectForm>({ amount: 1000, channel: 'card', scanCode: '', remark: '' })
 const quickAmounts = [500, 1000, 2000, 5000]
 const channels: Array<{ value: PrepayChannel; label: string }> = [
   { value: 'cash', label: '现金' },
@@ -12,15 +18,20 @@ const channels: Array<{ value: PrepayChannel; label: string }> = [
   { value: 'wechat', label: '微信扫码' },
   { value: 'alipay', label: '支付宝扫码' }
 ]
+const submitDisabled = computed(
+  () => form.amount <= 0 || (['wechat', 'alipay'].includes(form.channel) && !form.scanCode.trim())
+)
 function open() {
-  Object.assign(form, { amount: 1000, channel: 'card' })
+  Object.assign(form, { amount: 1000, channel: 'card', scanCode: '', remark: '' })
   visible.value = true
 }
 function close() {
   visible.value = false
 }
 function submit() {
-  if (form.amount > 0) emit('confirm', { ...form })
+  if (form.amount <= 0) return
+  if (['wechat', 'alipay'].includes(form.channel) && !form.scanCode.trim()) return
+  emit('confirm', { ...form, scanCode: form.scanCode.trim(), remark: form.remark.trim() })
 }
 defineExpose({ open, close })
 </script>
@@ -53,10 +64,19 @@ defineExpose({ open, close })
         v-if="['wechat', 'alipay'].includes(form.channel)"
         type="info"
         :closable="false"
-        title="扫码收款提交后需确认支付结果。" /></el-form
+        title="扫码收款提交后需确认支付结果。" /><el-form-item
+        v-if="['wechat', 'alipay'].includes(form.channel)"
+        label="付款码"
+        required
+        ><el-input
+          v-model="form.scanCode"
+          maxlength="64"
+          placeholder="请扫描或输入付款码" /></el-form-item
+      ><el-form-item label="备注"
+        ><el-input v-model="form.remark" maxlength="100" show-word-limit /></el-form-item></el-form
     ><template #footer
       ><el-button :disabled="submitting" @click="close">取消</el-button
-      ><el-button type="primary" :loading="submitting" @click="submit"
+      ><el-button type="primary" :loading="submitting" :disabled="submitDisabled" @click="submit"
         >确认收取</el-button
       ></template
     ></el-dialog

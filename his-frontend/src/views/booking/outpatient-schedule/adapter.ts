@@ -3,13 +3,13 @@ import type { ScheduleEvent, ScheduleResource } from '@/components/schedule/type
 
 export function toScheduleEvents(rows: ScheduleRecord[]): ScheduleEvent[] {
   return rows.map((row) => ({
-    key: row.id,
-    date: row.date,
+    key: row.scheduleId ?? row.id,
+    date: row.planningHorizonStart?.slice(0, 10) ?? row.date,
     title: `${row.doctorName} · ${row.roomName}`,
-    start: row.startTime,
-    end: row.endTime,
-    status: row.status,
-    resourceKey: row.doctorId,
+    start: row.planningHorizonStart?.slice(11, 16) ?? row.startTime,
+    end: row.planningHorizonEnd?.slice(11, 16) ?? row.endTime,
+    status: row.statusEnum ?? row.status,
+    resourceKey: row.practitionerId ?? row.doctorId,
     raw: row
   }))
 }

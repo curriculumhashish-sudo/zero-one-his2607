@@ -10,7 +10,7 @@
 
 ## 页面用途
 
-用于按日期、科室、医生和关键词查看门诊号源。页面按上午、下午、晚间分组展示各时段的总号数、已用号数、剩余号数和状态。第一版只提供查看能力，不办理患者预约登记。
+用于按日期、科室、医生和关键词查看门诊号源。页面按上午、下午、晚间分组展示各时段的总号数、已用号数、剩余号数和状态，并支持批量封锁、批量解封和标记超售。第一版不办理患者预约登记。
 
 ## 目录职责
 
@@ -45,6 +45,9 @@ pageSlotsByDate(query)
 getSlotDetail(id)
 loadDepartmentOptions(keyword)
 loadDoctorOptions(keyword, departmentId)
+batchBlockSlots(data)
+batchUnblockSlots(data)
+markSlotOverbooked(data)
 ```
 
 当前 `index.ts` 使用同目录 `mock.ts` 提供模拟实现。号源模拟数据会读取排班模拟状态，排班停诊后对应号源显示为停诊。
@@ -55,11 +58,11 @@ loadDoctorOptions(keyword, departmentId)
 - 号源通过 `group-by="group"` 按上午、下午和晚间分组。
 - 可约号源可以选中并打开详情。
 - 已满、停诊和过期号源不可选择，点击时显示不可用原因。
-- 详情展示医生、科室、诊室、日期、时间、总号数、已用号数、剩余号数和停诊/不可用原因。
+- 详情按原型 `SlotDetailDto` 展示科室、医师、号源类型、状态、时段、容量、已约、剩余、超售、备注、号源 ID 和日程 ID。
 - 重新查询前清空旧号源选择并关闭旧详情弹窗，避免详情与当前结果不一致。
 - 列表和详情均使用请求取消与请求序号保护，快速查询或切换号源时旧结果不能覆盖新结果。
 - 初始化错误和号源列表错误分别显示，并提供对应重试操作。
-- 详情底部保留后续预约操作区域，但当前不实现预约登记。
+- 详情底部保留禁用的预约登记操作入口，但当前不办理患者预约登记。
 
 ## 数据约定
 
@@ -69,6 +72,18 @@ loadDoctorOptions(keyword, departmentId)
 - 号源状态：`available`、`full`、`stopped`、`expired`。
 - 接口模型必须通过 `adapter.ts` 转换后再传给 `TimeSlotGrid`。
 - 页面和组件不能直接导入 `mock.ts`。
+
+## 原型字段对照
+
+| 模块 | 原型/后端字段 | 页面兼容字段或说明 |
+| --- | --- | --- |
+| 查询 | `organizationId`、`date`、`practitionerId`、`scheduleId`、`statusCode`、`pageNo`、`pageSize` | 页面当前提供日期、科室、医生和关键词查询 |
+| 标识与关联 | `slotId`、`scheduleId`、`practitionerId`、`healthcareServiceId` | 页面兼容 `id`、`doctorId`、`departmentId` |
+| 时段 | `startTime`、`endTime` | `group` 由 adapter/mock 按上午、下午、晚间计算 |
+| 数量 | `capacity`、`bookedCount`、`remainingCount` | 页面兼容 `used`、`remaining` |
+| 状态 | `statusCode`、`displayStatus`、`overbookedFlag`、`commentText` | 页面状态为 `available/full/stopped/expired` |
+
+`adapter.ts` 优先读取 `slotId`、`bookedCount`、`remainingCount` 和 `statusCode`。页面不办理患者预约登记；思维导图后续要求的批量封锁、批量解封和超售标记由独立状态维护区完成，并复用同一号源查询结果。`organizationId` 始终是机构标识，科室筛选在页面取得正式结果后按 `healthcareServiceId` 处理。
 
 ## 验证
 

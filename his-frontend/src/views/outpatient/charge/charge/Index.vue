@@ -4,9 +4,10 @@ import type {
   ChargeItem,
   ChargePatient,
   PaymentChannel,
-  PreSettlement
+  ReceiptData
 } from '@/apis/outpatient/charge/charge'
 import type { PatientSummary } from '@/components/patient/type'
+import type { DateRangeValue } from '@/components/common/type'
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { CreditCard, Printer, Refresh, Switch } from '@element-plus/icons-vue'
@@ -14,6 +15,7 @@ import ActionToolbar from '@/components/common/ActionToolbar.vue'
 import DataTablePanel from '@/components/common/DataTablePanel.vue'
 import DetailSummary from '@/components/common/DetailSummary.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
+import PrintActionPanel from '@/components/common/PrintActionPanel.vue'
 import PatientInfoBar from '@/components/patient/PatientInfoBar.vue'
 import PatientQueuePanel from '@/components/patient/PatientQueuePanel.vue'
 import {
@@ -28,11 +30,13 @@ import {
 } from '@/apis/outpatient/charge/charge'
 import { toChargePatientSummary } from './adapter'
 import SettlementDialog from './components/SettlementDialog.vue'
-import type { ChargePageQuery } from './type'
+import type { ChargePageQuery, ChargeSettlementView } from './type'
 
 defineOptions({ name: 'OutpatientCharge' })
 const query = reactive<ChargePageQuery>({
   keyword: '',
+  startDate: null,
+  endDate: null,
   status: 'pending',
   page: 1,
   pageSize: 10
@@ -45,10 +49,12 @@ const errorMessage = ref('')
 const selectedEncounterId = ref<string | null>(null)
 const detail = ref<ChargeDetail | null>(null)
 const selectedItems = ref<ChargeItem[]>([])
-const settlement = ref<PreSettlement | null>(null)
+const settlement = ref<ChargeSettlementView | null>(null)
 const settling = ref(false)
 const pendingPaymentId = ref('')
 const lastRecordId = ref('')
+const receipt = ref<ReceiptData | null>(null)
+const receiptVisible = ref(false)
 const dialog = ref<InstanceType<typeof SettlementDialog>>()
 let queueSequence = 0
 let detailSequence = 0
@@ -163,6 +169,13 @@ function handleSearch(keyword: string) {
   clearSelection()
   void loadQueue()
 }
+function handleDateFilterChange(value: DateRangeValue) {
+  query.startDate = value?.[0] ?? null
+  query.endDate = value?.[1] ?? null
+  query.page = 1
+  clearSelection()
+  void loadQueue()
+}
 async function preSettle() {
   if (!detail.value || settling.value) return
   if (pendingPaymentId.value) {
@@ -171,10 +184,23 @@ async function preSettle() {
   }
   settling.value = true
   try {
-    settlement.value = await preSettleOutpatientCharge({
+    const chargeItemIds = selectedItems.value.map((item) => item.chargeItemId ?? item.id)
+    const response = await preSettleOutpatientCharge({
       encounterId: detail.value.patient.encounterId,
-      itemIds: selectedItems.value.map((item) => item.id)
+      chargeItemIds
     })
+    settlement.value = {
+      ...response,
+      encounterId: detail.value.patient.encounterId,
+      chargeItemIds,
+      summary: {
+        totalAmount: Number(response.displayAmount),
+        insuranceAmount: Number(response.ybFundPaySumamt ?? 0) + Number(response.ybAcctPay ?? 0),
+        selfPayAmount: Number(response.ybPsnCashPay ?? response.displayAmount)
+      },
+      insuranceMode: detail.value.insuranceMode,
+      channels: ['cash', 'card', 'wechat', 'alipay']
+    }
     dialog.value?.open()
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '预结算失败')
@@ -182,7 +208,7 @@ async function preSettle() {
     settling.value = false
   }
 }
-async function confirmSettlement(channel: PaymentChannel) {
+async function confirmSettlement(data: { channel: PaymentChannel; scanCode?: string }) {
   if (!settlement.value || settling.value) return
   try {
     await ElMessageBox.confirm(
@@ -196,20 +222,35 @@ async function confirmSettlement(channel: PaymentChannel) {
   settling.value = true
   try {
     const record = await settleOutpatientCharge({
-      settlementId: settlement.value.settlementId,
+      paymentDraftId: settlement.value.paymentDraftId,
       encounterId: settlement.value.encounterId,
-      itemIds: settlement.value.itemIds,
-      channel
+      chargeItemIds: settlement.value.chargeItemIds,
+      billDate: new Date().toLocaleDateString('sv-SE'),
+      outcomeEnum: 'COMPLETED',
+      paymentDetails: [
+        { amount: settlement.value.summary.totalAmount, payChannelCode: data.channel }
+      ],
+      clientScanResult: data.scanCode
+        ? {
+            merTradeNo: `MER-${Date.now()}`,
+            tradeNo: data.scanCode,
+            payType: data.channel,
+            respCode: 'PROCESSING',
+            respMsg: '等待渠道确认'
+          }
+        : undefined,
+      ybChrgBchno: settlement.value.ybChrgBchno,
+      ybChrgBchnos: settlement.value.insuranceGroups
+        ?.map((item) => item.chrgBchno)
+        .filter((item): item is string => Boolean(item))
     })
     dialog.value?.close()
-    lastRecordId.value = record.status === 'success' ? record.id : ''
-    pendingPaymentId.value = record.status === 'pending' ? record.id : ''
+    if (!record.paymentId) throw new Error('收费成功但未返回 paymentId，无法确认支付结果')
+    const pending = Boolean(data.scanCode)
+    lastRecordId.value = pending ? '' : record.paymentId
+    pendingPaymentId.value = pending ? record.paymentId : ''
     ElMessage.success(
-      record.status === 'success'
-        ? record.printStatus === 'auto-queued'
-          ? '收费结算成功，票据已加入自动打印队列'
-          : '收费结算成功'
-        : '扫码支付已发起，请确认支付结果'
+      pending ? '扫码支付已发起，请确认支付结果' : '收费结算成功，票据已加入自动打印队列'
     )
     await refreshCurrent()
   } catch (error) {
@@ -264,11 +305,18 @@ async function switchInsurance() {
 async function printReceipt() {
   if (!lastRecordId.value) return
   try {
-    const receipt = await getChargeReceipt(lastRecordId.value)
-    await ElMessageBox.alert(receipt.previewText, '收费票据预览', { confirmButtonText: '关闭' })
+    receipt.value = await getChargeReceipt({
+      encounterId: selectedEncounterId.value,
+      paymentId: lastRecordId.value
+    })
+    receiptVisible.value = true
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '票据加载失败')
   }
+}
+function executeReceiptPrint() {
+  window.print()
+  return Promise.resolve(receipt.value)
 }
 function handleToolbar(action: { key: string | number }) {
   if (action.key === 'settle') void preSettle()
@@ -301,6 +349,7 @@ onBeforeUnmount(() => {
         :selected-id="selectedEncounterId"
         :loading="queueLoading"
         @search="handleSearch"
+        @date-change="handleDateFilterChange"
         @refresh="loadQueue"
         @select="selectPatient"
       /><el-pagination
@@ -392,10 +441,41 @@ onBeforeUnmount(() => {
       :submitting="settling"
       @confirm="confirmSettlement"
     />
+    <el-dialog v-model="receiptVisible" title="门诊收费小票" width="760px">
+      <el-descriptions v-if="receipt" :column="2" border>
+        <el-descriptions-item label="票据号">{{ receipt.receiptNo }}</el-descriptions-item>
+        <el-descriptions-item label="患者姓名">{{ receipt.patientName }}</el-descriptions-item>
+        <el-descriptions-item label="收费时间">{{ receipt.issuedAt }}</el-descriptions-item>
+        <el-descriptions-item label="收费金额">¥{{ receipt.amount.toFixed(2) }}</el-descriptions-item>
+      </el-descriptions>
+      <el-table v-if="receipt" :data="receipt.slip.chargeItemLines" class="receipt-lines">
+        <el-table-column prop="chargeCategoryText" label="类别" width="100" />
+        <el-table-column prop="itemName" label="项目名称" min-width="180" />
+        <el-table-column prop="quantityText" label="数量" width="90" />
+        <el-table-column prop="amountText" label="金额" width="110" />
+      </el-table>
+      <PrintActionPanel
+        :template-value="'charge-receipt'"
+        :printer-value="'local-printer'"
+        :templates="[{ value: 'charge-receipt', label: '门诊收费小票' }]"
+        :printers="[{ value: 'local-printer', label: '本机默认打印机', status: 'online' }]"
+        :preview="async () => receipt"
+        :print="executeReceiptPrint"
+      />
+    </el-dialog>
   </main>
 </template>
 <style scoped>
 .charge-page {
+  --el-color-primary: #1d4ed8;
+  --el-color-success: #15803d;
+  --el-color-warning: #a16207;
+  --el-color-danger: #b91c1c;
+  --el-color-info: #4b5563;
+  --el-text-color-primary: #1f2937;
+  --el-text-color-regular: #374151;
+  --el-text-color-secondary: #4b5563;
+  --el-text-color-placeholder: #6b7280;
   display: grid;
   height: calc(100vh - 96px);
   min-height: 620px;
@@ -406,6 +486,10 @@ onBeforeUnmount(() => {
 .queue-pane,
 .charge-workspace {
   min-height: 0;
+}
+.receipt-lines,
+:deep(.print-action-panel) {
+  margin-top: 14px;
 }
 .queue-pane {
   display: flex;
@@ -442,6 +526,10 @@ onBeforeUnmount(() => {
   }
   .queue-pane {
     height: 520px;
+    overflow-x: auto;
+  }
+  .queue-pane :deep(.patient-queue-panel) {
+    min-width: 360px;
   }
 }
 </style>

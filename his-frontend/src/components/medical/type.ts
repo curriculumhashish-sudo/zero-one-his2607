@@ -20,4 +20,13 @@ export interface AdviceOrder {
   groupItems?: AdviceOrder[]
   raw?: unknown
 }
-export interface AdviceColumn { prop: string; label: string; width?: string | number; minWidth?: string | number; formatter?: (row: AdviceOrder) => string; align?: 'left' | 'center' | 'right' }
+export interface AdviceColumn {
+  prop: string
+  label: string
+  width?: string | number
+  minWidth?: string | number
+  formatter?: (row: AdviceOrder) => string
+  align?: 'left' | 'center' | 'right'
+  /** 内容溢出时是否显示 tooltip。 */
+  showOverflowTooltip?: boolean
+}

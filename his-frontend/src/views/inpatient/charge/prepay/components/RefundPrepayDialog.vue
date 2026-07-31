@@ -2,20 +2,36 @@
 import type { PrepayChannel, PrepayRecord } from '@/apis/inpatient/charge/prepay'
 import { computed, reactive, ref } from 'vue'
 const props = defineProps<{ record: PrepayRecord | null; balance: number; submitting: boolean }>()
-const emit = defineEmits<{ confirm: [data: { amount: number; channel: PrepayChannel }] }>()
+interface RefundForm {
+  amount: number
+  channel: PrepayChannel
+  scanCode: string
+  remark: string
+}
+const emit = defineEmits<{ confirm: [data: RefundForm] }>()
 const visible = ref(false)
-const form = reactive<{ amount: number; channel: PrepayChannel }>({ amount: 0, channel: 'card' })
+const form = reactive<RefundForm>({ amount: 0, channel: 'card', scanCode: '', remark: '' })
 const maxRefund = computed(() => Math.min(props.balance, props.record?.refundableAmount ?? 0))
+const submitDisabled = computed(
+  () =>
+    form.amount <= 0 ||
+    form.amount > maxRefund.value ||
+    (['wechat', 'alipay'].includes(form.channel) && !form.scanCode.trim())
+)
 function open(record: PrepayRecord) {
   form.amount = Math.min(props.balance, record.refundableAmount)
   form.channel = record.channel
+  form.scanCode = ''
+  form.remark = ''
   visible.value = true
 }
 function close() {
   visible.value = false
 }
 function submit() {
-  if (form.amount > 0 && form.amount <= maxRefund.value) emit('confirm', { ...form })
+  if (form.amount <= 0 || form.amount > maxRefund.value) return
+  if (['wechat', 'alipay'].includes(form.channel) && !form.scanCode.trim()) return
+  emit('confirm', { ...form, scanCode: form.scanCode.trim(), remark: form.remark.trim() })
 }
 defineExpose({ open, close })
 </script>
@@ -41,10 +57,19 @@ defineExpose({ open, close })
             label="银行卡"
             value="card" /><el-option label="微信扫码" value="wechat" /><el-option
             label="支付宝扫码"
-            value="alipay" /></el-select></el-form-item></el-form
+            value="alipay" /></el-select></el-form-item
+      ><el-form-item v-if="['wechat', 'alipay'].includes(form.channel)" label="退款授权码" required
+        ><el-input
+          v-model="form.scanCode"
+          maxlength="64"
+          placeholder="请扫描或输入退款授权码" /></el-form-item
+      ><el-form-item label="备注"
+        ><el-input v-model="form.remark" maxlength="100" show-word-limit /></el-form-item></el-form
     ><template #footer
       ><el-button :disabled="submitting" @click="close">取消</el-button
-      ><el-button type="danger" :loading="submitting" @click="submit">确认退款</el-button></template
+      ><el-button type="danger" :loading="submitting" :disabled="submitDisabled" @click="submit"
+        >确认退款</el-button
+      ></template
     ></el-dialog
   >
 </template>

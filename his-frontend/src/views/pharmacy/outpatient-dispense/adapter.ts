@@ -3,7 +3,7 @@
 import type {
   DispenseQueuePatient,
   DispensePrescriptionBlock,
-  DispensePrescriptionItemRow
+  DispensePrescriptionItemRow,
 } from './type'
 
 /** ===== 后端队列数据 → 页面患者 ===== */
@@ -20,12 +20,14 @@ export function toDispensePatient(apiData: any): DispenseQueuePatient {
     registerTime: apiData.registerTime || '',
     name: apiData.patientName || '',
     gender: apiData.genderText || '未知',
-    age: apiData.ageText || ''
+    age: apiData.ageText || '',
   }
 }
 
 /** ===== 后端发放行 → 页面处方块 ===== */
-export function toPrescriptionBlocks(slipRows: any[]): DispensePrescriptionBlock[] {
+export function toPrescriptionBlocks(
+  slipRows: any[],
+): DispensePrescriptionBlock[] {
   if (!slipRows || slipRows.length === 0) return []
 
   const groupMap = new Map<string, any[]>()
@@ -43,26 +45,19 @@ export function toPrescriptionBlocks(slipRows: any[]): DispensePrescriptionBlock
     blocks.push({
       id: rxNo,
       rxNo,
-      rxType: inferRxType(rows[0]),
       status,
-      items: rows.map((row, index) => toPrescriptionItemRow(row, index, rows.length))
+      items: rows.map((row, index) => toPrescriptionItemRow(row, index, rows.length)),
     })
   }
 
   return blocks
 }
 
-/** 后端未返回处方类型时按西药处理，保证旧接口数据仍可展示。 */
-function inferRxType(row: any): 'western' | 'herbal' {
-  return row?.rxType === 'herbal' ? 'herbal' : 'western'
-}
-
 /** ===== 推断处方块状态 ===== */
 function inferBlockStatus(rows: any[]): 'pending' | 'partial' | 'completed' | 'blocking' {
   const statuses = rows.map((r) => r.statusEnum ?? 'PENDING')
   if (statuses.every((s) => s === 'COMPLETED')) return 'completed'
-  if (statuses.every((s) => s === 'PENDING' || s === 'PREPARATION' || s === 'IN_PROGRESS'))
-    return 'pending'
+  if (statuses.every((s) => s === 'PENDING' || s === 'PREPARATION' || s === 'IN_PROGRESS')) return 'pending'
   if (statuses.some((s) => s === 'BLOCKED' || s === 'ERROR')) return 'blocking'
   return 'partial'
 }
@@ -71,7 +66,7 @@ function inferBlockStatus(rows: any[]): 'pending' | 'partial' | 'completed' | 'b
 function toPrescriptionItemRow(
   row: any,
   index: number,
-  total: number
+  total: number,
 ): DispensePrescriptionItemRow {
   return {
     id: row.dispenseId,
@@ -89,7 +84,6 @@ function toPrescriptionItemRow(
     route: row.routeText || '',
     days: row.days || 0,
     totalPrice: row.totalPrice || 0,
-    sourceStatus: row.statusEnum || 'PENDING',
     status: inferRowStatus(row.statusEnum),
     pharmacy: row.pharmacyName || '',
     batchNo: row.lotNumber || '',
@@ -99,7 +93,7 @@ function toPrescriptionItemRow(
     key: row.dispenseId,
     name: row.medicationName || '',
     specification: row.specText || '',
-    dose: row.dosageText || ''
+    dose: row.dosageText || '',
   }
 }
 
@@ -116,7 +110,7 @@ function buildInventoryOptions(inventoryList: any[]): { label: string; value: st
   if (!inventoryList || inventoryList.length === 0) return []
   return inventoryList.map((item) => ({
     label: `${item.pharmacyName || item.pharmacyOrganizationId} (批次: ${item.lotNumber})`,
-    value: encodeInventoryPick(item.pharmacyOrganizationId, item.lotNumber)
+    value: encodeInventoryPick(item.pharmacyOrganizationId, item.lotNumber),
   }))
 }
 
@@ -126,21 +120,18 @@ export function encodeInventoryPick(pharmacyOrganizationId: string, lotNumber: s
 }
 
 /** ===== 解码库房选择 ===== */
-export function decodeInventoryPick(value: string): {
-  pharmacyOrganizationId: string
-  lotNumber: string
-} {
+export function decodeInventoryPick(value: string): { pharmacyOrganizationId: string; lotNumber: string } {
   const parts = value.split('|')
   return {
     pharmacyOrganizationId: parts[0] || '',
-    lotNumber: parts[1] || ''
+    lotNumber: parts[1] || '',
   }
 }
 
 /** ===== 计算处方汇总 ===== */
 export function buildPrescriptionSummary(
   blocks: DispensePrescriptionBlock[],
-  dispenserName: string = ''
+  dispenserName: string = '',
 ): {
   prescriptionCount: number
   totalAmount: number
@@ -161,6 +152,6 @@ export function buildPrescriptionSummary(
     prescriptionCount: blocks.length,
     totalAmount,
     drugCount,
-    dispenserName
+    dispenserName,
   }
 }
