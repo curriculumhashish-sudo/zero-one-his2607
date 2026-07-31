@@ -43,7 +43,7 @@ public:
 		FrequencyQuery, ListJsonVO<FrequencyVO::Wrapper>::Wrapper, API_TAG);
 	API_HANDLER_ENDPOINT_QUERY_AUTH(
 		API_M_GET, "/frequency/getname", getFrequencyName,
-		FrequencyQuery, executeGetFrequencyName(query));
+		FrequencyQuery, execGetFrequencyName(query));
 
 	// Query the frequency list with filters and pagination.
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(
@@ -51,7 +51,7 @@ public:
 		FrequencyQuery, FrequencyPageJsonVO::Wrapper, API_TAG);
 	API_HANDLER_ENDPOINT_QUERY_AUTH(
 		API_M_GET, "/frequency/query-all", queryAllFrequency,
-		FrequencyQuery, execQueryAll(query));
+		FrequencyQuery, execQueryFrequency(query));
 
 	// Query one frequency by its identifier.
 	API_DEF_ENDPOINT_INFO_AUTH(
@@ -61,7 +61,7 @@ public:
 			String, "id", ZH_WORDS_GETTER("frequency.field.id"), "1", true););
 	API_HANDLER_ENDPOINT_AUTH(
 		API_M_GET, "/frequency/query-one", queryOneFrequency,
-		QUERY(String, id), execQueryOne(id));
+		QUERY(String, id), execQueryById(id));
 
 	// ==================== 2. 增删改接口（yancao 实现：采用 Oat++ 原生宏） ====================
 
@@ -115,10 +115,10 @@ public:
 
 private:
 	// 查询接口处理函数（senma）
-	ListJsonVO<FrequencyVO::Wrapper>::Wrapper executeGetFrequencyName(
+	ListJsonVO<FrequencyVO::Wrapper>::Wrapper execGetFrequencyName(
 		const FrequencyQuery::Wrapper& query);
-	FrequencyPageJsonVO::Wrapper execQueryAll(const FrequencyQuery::Wrapper& query);
-	FrequencyDetailJsonVO::Wrapper execQueryOne(const String& id);
+	FrequencyPageJsonVO::Wrapper execQueryFrequency(const FrequencyQuery::Wrapper& query);
+	FrequencyDetailJsonVO::Wrapper execQueryById(const String& id);
 
 	// 增删改接口处理函数（yancao）
 	StringJsonVO::Wrapper execAdd(const FrequencyDTO::Wrapper& dto);

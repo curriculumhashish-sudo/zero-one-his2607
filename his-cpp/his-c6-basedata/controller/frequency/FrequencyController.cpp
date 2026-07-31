@@ -16,177 +16,131 @@
 */
 #include "stdafx.h"
 #include "FrequencyController.h"
-
-namespace
-{
-	FrequencyDTO::Wrapper buildSampleFrequencyRow(
-		const String& id, const String& code, const String& name,
-		const String& cycleType, const String& dayTimes,
-		const String& allowCrossDay, Int32 sortNo)
-	{
-		auto row = FrequencyDTO::createShared();
-		row->id = id;
-		row->code = code;
-		row->name = name;
-		row->status = 1;
-		row->cycleType = cycleType;
-		row->dayTimes = dayTimes;
-		row->dayCount = nullptr;
-		row->executionPeriod = nullptr;
-		row->executionPeriodUnit = nullptr;
-		row->dayInterval = nullptr;
-		row->totalExecutionCount = nullptr;
-		row->applicableScenes = u8"\u5168\u90e8";
-		row->allowCrossDay = allowCrossDay;
-		row->sortNo = sortNo;
-		return row;
-	}
-}
-
-// ==================== 1. 查询类接口（合并自队友 senma） ====================
-
-ListJsonVO<FrequencyVO::Wrapper>::Wrapper FrequencyController::executeGetFrequencyName(
+#include "../../service/frequency/FrequencyService.h"
+#include "../../domain/bo/PdfReportBO.h"
+#include "../ApiDeclarativeServicesHelper.h"
+#include "ExcelComponent.h"
+#include "SimpleDateTimeFormat.h"
+#include "PdfComponent.h"
+#include<algorithm>
+// 获取频次名称
+ListJsonVO<FrequencyVO::Wrapper>::Wrapper FrequencyController::execGetFrequencyName(
 	const FrequencyQuery::Wrapper& query)
 {
-	// Preserve the branch implementation placeholder for the selection endpoint.
-	return {};
+	auto result = FrequencyService().getName(query);
+	auto jvo = ListJsonVO<FrequencyVO::Wrapper>::createShared();
+
+	jvo->success(result);
+	return jvo;
 }
 
-FrequencyPageJsonVO::Wrapper FrequencyController::execQueryAll(
+//获取频次列表
+FrequencyPageJsonVO::Wrapper FrequencyController::execQueryFrequency(
 	const FrequencyQuery::Wrapper& query)
 {
-	// Return sample rows until the Service and DAO layers are implemented.
-	auto pageDto = FrequencyPageDTO::createShared();
-	pageDto->addData(buildSampleFrequencyRow(
-		"1", "QD", u8"\u6bcf\u65e5\u4e00\u6b21", "daily", "08:00", "same-day", 10));
-	pageDto->addData(buildSampleFrequencyRow(
-		"2", "BID", u8"\u6bcf\u65e5\u4e24\u6b21", "daily", "08:00,18:00", "same-day", 20));
-
-	auto oneWithInterval = FrequencyDTO::createShared();
-	oneWithInterval->id = "10";
-	oneWithInterval->code = "QOD";
-	oneWithInterval->name = u8"\u9694\u65e5\u4e00\u6b21";
-	oneWithInterval->status = 1;
-	oneWithInterval->cycleType = "daily";
-	oneWithInterval->dayTimes = "08:00";
-	oneWithInterval->dayCount = nullptr;
-	oneWithInterval->executionPeriod = nullptr;
-	oneWithInterval->executionPeriodUnit = nullptr;
-	oneWithInterval->dayInterval = 2;
-	oneWithInterval->totalExecutionCount = nullptr;
-	oneWithInterval->applicableScenes = u8"\u5168\u90e8";
-	oneWithInterval->allowCrossDay = "same-day";
-	oneWithInterval->sortNo = 100;
-	pageDto->addData(oneWithInterval);
-
-	auto q12h = FrequencyDTO::createShared();
-	q12h->id = "14";
-	q12h->code = "Q12H";
-	q12h->name = u8"\u6bcf12\u5c0f\u65f6\u4e00\u6b21";
-	q12h->status = 1;
-	q12h->cycleType = "interval";
-	q12h->dayTimes = nullptr;
-	q12h->dayCount = nullptr;
-	q12h->executionPeriod = 12;
-	q12h->executionPeriodUnit = u8"\u5c0f\u65f6";
-	q12h->dayInterval = nullptr;
-	q12h->totalExecutionCount = nullptr;
-	q12h->applicableScenes = u8"\u5168\u90e8";
-	q12h->allowCrossDay = "cross-day";
-	q12h->sortNo = 140;
-	pageDto->addData(q12h);
-
-	pageDto->pageIndex = query->pageIndex;
-	pageDto->pageSize = query->pageSize;
-	pageDto->total = 15;
-	pageDto->calcPages();
-
-	auto vo = FrequencyPageJsonVO::createShared();
-	vo->success(pageDto);
-	return vo;
+	auto result = FrequencyService().listAll(query);
+	auto jvo = FrequencyPageJsonVO::createShared();
+	jvo->success(result);
+	return jvo;
 }
 
-FrequencyDetailJsonVO::Wrapper FrequencyController::execQueryOne(const String& id)
+//获取频次详情
+FrequencyDetailJsonVO::Wrapper FrequencyController::execQueryById(const String& id)
 {
-	FrequencyDTO::Wrapper dto;
-	if (id == "1") {
-		dto = buildSampleFrequencyRow(
-			"1", "QD", u8"\u6bcf\u65e5\u4e00\u6b21", "daily", "08:00", "same-day", 10);
+	auto jvo = FrequencyDetailJsonVO::createShared();
+	if (!id) {
+		jvo->init(nullptr, RS_PARAMS_INVALID);
+		return jvo;
 	}
-	else if (id == "2") {
-		dto = buildSampleFrequencyRow(
-			"2", "BID", u8"\u6bcf\u65e5\u4e24\u6b21", "daily", "08:00,18:00", "same-day", 20);
-	}
-	else if (id == "10") {
-		dto = FrequencyDTO::createShared();
-		dto->id = "10";
-		dto->code = "QOD";
-		dto->name = u8"\u9694\u65e5\u4e00\u6b21";
-		dto->status = 1;
-		dto->cycleType = "daily";
-		dto->dayTimes = "08:00";
-		dto->dayInterval = 2;
-		dto->applicableScenes = u8"\u5168\u90e8";
-		dto->allowCrossDay = "same-day";
-		dto->sortNo = 100;
-	}
-	else if (id == "14") {
-		dto = FrequencyDTO::createShared();
-		dto->id = "14";
-		dto->code = "Q12H";
-		dto->name = u8"\u6bcf12\u5c0f\u65f6\u4e00\u6b21";
-		dto->status = 1;
-		dto->cycleType = "interval";
-		dto->executionPeriod = 12;
-		dto->executionPeriodUnit = u8"\u5c0f\u65f6";
-		dto->applicableScenes = u8"\u5168\u90e8";
-		dto->allowCrossDay = "cross-day";
-		dto->sortNo = 140;
-	}
-	else {
-		dto = FrequencyDTO::createShared();
-		dto->id = id;
-		dto->code = "CUSTOM";
-		dto->name = u8"\u793a\u4f8b\u9891\u6b21";
-		dto->status = 1;
-		dto->cycleType = "daily";
-		dto->dayTimes = "08:00";
-		dto->applicableScenes = u8"\u5168\u90e8";
-		dto->allowCrossDay = "same-day";
-		dto->sortNo = 999;
-	}
-
-	auto vo = FrequencyDetailJsonVO::createShared();
-	vo->success(dto);
-	return vo;
+	auto res = FrequencyService().getById(id.getValue({}));
+	jvo->success(res);
+	return jvo;
 }
 
 // ==================== 2. 增删改接口（yancao 增补实现） ====================
 
 StringJsonVO::Wrapper FrequencyController::execAdd(const FrequencyDTO::Wrapper& dto)
 {
-	auto vo = StringJsonVO::createShared();
-	vo->success(String("10086"));
-	return vo;
+	auto jvo = StringJsonVO::createShared();
+
+	std::string errorMsg;
+	if (FrequencyService().addFrequency(dto, errorMsg))
+	{
+		jvo->success(dto->id ? dto->id.getValue({}) : "");
+	}
+	else
+	{
+		jvo->init(errorMsg, RS_PARAMS_INVALID);
+	}
+	return jvo;
 }
 
 BooleanJsonVO::Wrapper FrequencyController::execModify(const FrequencyDTO::Wrapper& dto)
 {
-	auto vo = BooleanJsonVO::createShared();
-	vo->success(true);
-	return vo;
+	auto jvo = BooleanJsonVO::createShared();
+
+	if (!dto->id)
+	{
+		jvo->init(nullptr, RS_PARAMS_INVALID);
+		return jvo;
+	}
+
+	std::string errorMsg;
+	if (FrequencyService().modifyFrequency(dto, errorMsg))
+	{
+		jvo->success(true);
+	}
+	else
+	{
+		jvo->init(false, RS_PARAMS_INVALID);
+	}
+	return jvo;
 }
 
 BooleanJsonVO::Wrapper FrequencyController::execModifyStatus(const String& id, const Int32& status)
 {
-	auto vo = BooleanJsonVO::createShared();
-	vo->success(true);
-	return vo;
+	auto jvo = BooleanJsonVO::createShared();
+
+	// 参数校验
+	if (!id || !status)
+	{
+		jvo->init(nullptr, RS_PARAMS_INVALID);
+		return jvo;
+	}
+
+	// 执行启/停用
+	std::string errorMsg;
+	if (FrequencyService().modifyStatus(id.getValue({}), status.getValue(0), errorMsg))
+	{
+		jvo->success(true);
+	}
+	else
+	{
+		jvo->init(false, RS_PARAMS_INVALID);
+	}
+
+	// 响应结果
+	return jvo;
 }
 
 BooleanJsonVO::Wrapper FrequencyController::execDelete(const String& id)
 {
-	auto vo = BooleanJsonVO::createShared();
-	vo->success(true);
-	return vo;
+	auto jvo = BooleanJsonVO::createShared();
+
+	if (!id)
+	{
+		jvo->init(nullptr, RS_PARAMS_INVALID);
+		return jvo;
+	}
+
+	std::string errorMsg;
+	if (FrequencyService().removeFrequency(id.getValue({}), errorMsg))
+	{
+		jvo->success(true);
+	}
+	else
+	{
+		jvo->init(false, RS_PARAMS_INVALID);
+	}
+	return jvo;
 }
