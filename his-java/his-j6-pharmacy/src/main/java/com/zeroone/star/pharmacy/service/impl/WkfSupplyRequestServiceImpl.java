@@ -15,6 +15,7 @@ import com.zeroone.star.project.query.j6.pharmacy.stocktake.PharmacyInventoryQue
 import com.zeroone.star.project.vo.j6.pharmacy.*;
 import com.zeroone.star.project.vo.j6.pharmacy.stocktake.PharmacyInventoryVO;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
  * @since 2026-07-24
  */
 @Service
+@Slf4j
 public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMapper, WkfSupplyRequest> implements IWkfSupplyRequestService {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -252,8 +254,12 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
     public PharmacyInventoryListVO listInventory(PharmacyInventoryQuery query) {
         //1.构建分页对象
         Page<WkfSupplyRequest> page = new Page<>();
-        page.setCurrent(query.getPageIndex());
-        page.setSize(query.getPageSize());
+        long pageIndex = query.getPageIndex() < 1 ? 1 : query.getPageIndex();
+        long pageSize = query.getPageSize() < 1 ? 10 : query.getPageSize();
+        page.setCurrent(pageIndex);
+        page.setSize(pageSize);
+//        page.setCurrent(query.getPageIndex());
+//        page.setSize(query.getPageSize());
         // 2.构造主表查询条件
         var wrapper = new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<WkfSupplyRequest>();
         wrapper.eq(WkfSupplyRequest::getIsDeleted, false);
@@ -284,12 +290,13 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
                 wrapper.in(WkfSupplyRequest::getPurposeLocationId, locIdList);
             } else {
                 // 没有匹配库房，直接返回空
-                PharmacyInventoryListVO resultVO = new PharmacyInventoryListVO();
-                resultVO.setContent(new ArrayList<>());
-                resultVO.setTotalCount(0L);
-                resultVO.setPageIndex(query.getPageIndex());
-                resultVO.setPageSize(query.getPageSize());
-                return resultVO;
+//                PharmacyInventoryListVO resultVO = new PharmacyInventoryListVO();
+//                resultVO.setContent(new ArrayList<>());
+//                resultVO.setTotalCount(0L);
+//                resultVO.setPageIndex(query.getPageIndex());
+//                resultVO.setPageSize(query.getPageSize());
+//                return resultVO;
+                locIdList.clear();
             }
         }
         // 创建时间倒序，最新单据置顶

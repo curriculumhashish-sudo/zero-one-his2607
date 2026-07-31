@@ -46,7 +46,8 @@ public class WarehouseStocktakeController implements WarehouseStocktakeApis {
     @GetMapping("/detail")
     @Operation(summary = "获取单据详情")
     public JsonVO<PharmacyInventoryDetailVO> getInventoryDetail(PharmacyInventoryDetailQuery query) {
-        return JsonVO.success(new PharmacyInventoryDetailVO());
+        PharmacyInventoryDetailVO vo=IwkfSupplyRequestService.getStocktakeDetail(query);
+        return JsonVO.success(vo);
     }
 
 
