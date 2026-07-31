@@ -1,7 +1,10 @@
 package com.zeroone.star.project.j4.basedata;
 
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisDefinitionDTO;
+import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisSaveDTO;
+import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisUpdateDTO;
+import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisIdsDTO;
+import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisStatusDTO;
 import com.zeroone.star.project.query.j4.diagnosis.DiagnosisPageQuery;
 import com.zeroone.star.project.query.j4.diagnosis.DiagnosisSelectPageQuery;
 import com.zeroone.star.project.vo.JsonVO;
@@ -9,7 +12,6 @@ import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisDetailVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisListVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisOptionVO;
 
-import java.util.List;
 
 /**
  * <p>
@@ -23,7 +25,7 @@ import java.util.List;
 public interface DiagnosisApis {
 
     /**
-     * 获取可选择诊断列表（条件+分页）。
+     * 获取选择诊断列表（条件+分页）。
      *
      * @param query 查询条件
      * @return 可选择诊断分页数据
@@ -31,7 +33,7 @@ public interface DiagnosisApis {
     JsonVO<PageDTO<DiagnosisOptionVO>> queryDiagnosisSelectList(DiagnosisSelectPageQuery query);
 
     /**
-     * 获取诊断管理列表（条件+分页）。
+     * 获取诊断列表（条件+分页）。
      *
      * @param query 查询条件
      * @return 诊断管理分页数据
@@ -51,7 +53,7 @@ public interface DiagnosisApis {
      * @param dto 诊断定义数据（编码和拼音/五笔码由后端自动生成）
      * @return 新增记录的 ID
      */
-    default JsonVO<String> addDefinition(DiagnosisDefinitionDTO dto) {
+    default JsonVO<String> addDefinition(DiagnosisSaveDTO dto) {
         return null;
     }
 
@@ -60,26 +62,25 @@ public interface DiagnosisApis {
      * @param dto 诊断定义数据（id 必填，仅修改可编辑字段）
      * @return 编辑结果
      */
-    default JsonVO<String> modifyDefinition(DiagnosisDefinitionDTO dto) {
+    default JsonVO<String> modifyDefinition(DiagnosisUpdateDTO dto) {
         return null;
     }
 
     /**
      * 启用/停用诊断定义（支持批量操作）
-     * @param ids 诊断定义主键列表
-     * @param status 状态（ACTIVE/INACTIVE）
+     * @param dto 诊断状态数据
      * @return 操作结果
      */
-    default JsonVO<String> modifyBatchStatus(List<String> ids, String status) {
+    default JsonVO<String> modifyBatchStatus(DiagnosisStatusDTO dto) {
         return null;
     }
 
     /**
      * 删除诊断定义（支持批量操作）
-     * @param ids 诊断定义主键列表
+     * @param dto 诊断ID列表
      * @return 删除结果
      */
-    default JsonVO<String> removeBatch(List<String> ids) {
+    default JsonVO<String> removeBatch(DiagnosisIdsDTO dto) {
         return null;
     }
 }

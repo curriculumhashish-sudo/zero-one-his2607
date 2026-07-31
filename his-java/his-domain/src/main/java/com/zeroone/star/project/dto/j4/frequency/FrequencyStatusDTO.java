@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -26,6 +27,7 @@ public class FrequencyStatusDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @NotBlank(message = "频次ID不能为空")
+    @Size(max = 64, message = "频次ID长度不能超过64个字符")
     @Schema(
             description = "频次ID",
             example = "320010001000000014",

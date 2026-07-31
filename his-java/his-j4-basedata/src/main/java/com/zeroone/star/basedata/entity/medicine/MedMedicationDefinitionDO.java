@@ -39,27 +39,31 @@ public class MedMedicationDefinitionDO implements Serializable {
     /**
      * 创建时间
      */
-    private LocalDateTime createdAt;
+    @TableField(value = "created_at",fill = FieldFill.INSERT)
+    private LocalDateTime createTime;
 
     /**
      * 最后更新时间
      */
-    private LocalDateTime updatedAt;
+    @TableField(value = "updated_at",fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updateTime;
 
     /**
      * 创建人
      */
+    @TableField(fill = FieldFill.INSERT)
     private String createdBy;
 
     /**
      * 最后更新人
      */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private String updatedBy;
 
     /**
      * 软删标记
      */
-    @TableLogic(value = "0", delval = "1")
+    @TableLogic
     private Boolean isDeleted;
 
     /**

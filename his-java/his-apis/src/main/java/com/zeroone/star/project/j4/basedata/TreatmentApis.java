@@ -4,15 +4,12 @@ import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentAddDTO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentEditDTO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentStatusDTO;
-import com.zeroone.star.project.dto.j4.treatment.TreatmentUpdateDTO;
 import com.zeroone.star.project.query.j4.treatment.TreatmentQuery;
-import com.zeroone.star.project.query.j4.treatment.TreatmentSelectQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j4.treatment.TreatmentDetailVO;
 import com.zeroone.star.project.vo.j4.treatment.TreatmentListVO;
 import com.zeroone.star.project.vo.j4.treatment.TreatmentSelectVO;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * <p>
@@ -37,7 +34,7 @@ public interface TreatmentApis {
      * @param query 查询条件
      * @return 分页数据，每条含id/busNo/name/categoryCode
      */
-    JsonVO<PageDTO<TreatmentSelectVO>> listTreatmentOptions(TreatmentSelectQuery query);
+    JsonVO<PageDTO<TreatmentSelectVO>> listTreatmentOptions(TreatmentQuery query);
 
     /**
      * 获取诊疗详情
@@ -51,14 +48,14 @@ public interface TreatmentApis {
      * @param treatmentAddDTO 诊疗详情信息DTO
      * @return 无返回值
      */
-    JsonVO<Void> addTreatment(TreatmentAddDTO treatmentAddDTO);
+    JsonVO<Void> addTreatment(@RequestBody TreatmentAddDTO treatmentAddDTO);
 
     /**
      * 编辑诊疗项目（携带编辑校验码）
      * @param dto 编辑诊疗数据
      * @return 编辑确认结果
      */
-    JsonVO<TreatmentDetailVO> modifyTreatment(TreatmentEditDTO dto);
+    JsonVO<TreatmentDetailVO> modifyTreatment(@RequestBody TreatmentEditDTO dto);
 
 
     /**
@@ -66,7 +63,7 @@ public interface TreatmentApis {
      * @param dto 切换状态请求
      * @return 切换后结果
      */
-    JsonVO<TreatmentDetailVO> modifyStatus(TreatmentStatusDTO dto);
+    JsonVO<TreatmentDetailVO> modifyStatus(@RequestBody TreatmentStatusDTO dto);
 
     /**
      * 删除诊疗项目

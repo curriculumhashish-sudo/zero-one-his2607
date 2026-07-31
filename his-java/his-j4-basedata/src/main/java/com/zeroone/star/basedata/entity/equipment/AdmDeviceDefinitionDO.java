@@ -1,13 +1,11 @@
 package com.zeroone.star.basedata.entity.equipment;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -22,15 +20,52 @@ import java.math.BigDecimal;
 @Data
 @TableName("adm_device_definition")
 @Schema(description = "器材定义")
-public class AdmDeviceDefinition {
+public class AdmDeviceDefinitionDO {
 
     /**
      * 主键标识
      */
-    //TODO 主键是自增长还是基于雪花算法之类的还待商榷
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_UUID)
     @Schema(description = "主键标识")
-    private Long id;
+    private String id;
+
+    @TableField("tenant_id")
+    @Schema(description = "租户标识")
+    private String tenantId;
+
+    @TableField(value = "created_at", fill = FieldFill.INSERT)
+    @Schema(description = "创建时间")
+    private LocalDateTime createdAt;
+
+    @TableField(value = "updated_at", fill = FieldFill.INSERT_UPDATE)
+    @Schema(description = "最后更新时间")
+    private LocalDateTime updatedAt;
+
+    @TableField(value = "created_by", fill = FieldFill.INSERT)
+    @Schema(description = "创建人")
+    private String createdBy;
+
+    @TableField(value = "updated_by", fill = FieldFill.INSERT_UPDATE)
+    @Schema(description = "最后更新人")
+    private String updatedBy;
+
+    @TableField("is_deleted")
+    @TableLogic(value = "0", delval = "1")
+    @Schema(description = "软删标记")
+    private Boolean isDeleted;
+
+    @TableField("deleted_at")
+    @Schema(description = "删除时间")
+    private LocalDateTime deletedAt;
+
+    @TableField("deleted_by")
+    @Schema(description = "删除人")
+    private String deletedBy;
+
+    @Version
+    @TableField("version")
+    @Schema(description = "乐观锁版本号")
+    private Integer version;
 
     /**
      * 器材名称
@@ -135,14 +170,14 @@ public class AdmDeviceDefinition {
      */
     @TableField("org_id")
     @Schema(description = "所属科室标识")
-    private Long orgId;
+    private String orgId;
 
     /**
      * 所在位置标识
      */
     @TableField("location_id")
     @Schema(description = "所在位置标识")
-    private Long locationId;
+    private String locationId;
 
     /**
      * 默认门诊/就诊单位编码
@@ -233,7 +268,7 @@ public class AdmDeviceDefinition {
      */
     @TableField("manufacturer_id")
     @Schema(description = "生产厂家标识")
-    private Long manufacturerId;
+    private String manufacturerId;
 
     /**
      * 生产厂家名称
@@ -247,7 +282,7 @@ public class AdmDeviceDefinition {
      */
     @TableField("supply_id")
     @Schema(description = "供应商标识")
-    private Long supplyId;
+    private String supplyId;
 
     /**
      * 器材说明
@@ -268,7 +303,7 @@ public class AdmDeviceDefinition {
      */
     @TableField("device_version")
     @Schema(description = "器材版本")
-    private String version;
+    private String deviceVersion;
 
     /**
      * 主要成分描述

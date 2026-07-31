@@ -26,27 +26,21 @@ public interface MsMedicineMapper {
      * </p>
      *
      * @param  medDefinitionDO 药品定义实体
-     * @param  chargeDefinitionDO 收费项目定于实体
      * @return 药品详情DTO
      */
-    @Mappings({
-            @Mapping(target = "id", source = "medDefinitionDO.id"),
-            @Mapping(target = "name", source = "medDefinitionDO.name"),
-            @Mapping(target = "medVersion", source = "medDefinitionDO.medVersion"),
-            @Mapping(target = "categoryCode", source = "medDefinitionDO.categoryCode"),
-            @Mapping(target = "manufacturerText", source = "medDefinitionDO.manufacturerText"),
-            @Mapping(target = "doseFormCode", source = "medDefinitionDO.doseFormCode"),
-            @Mapping(target = "totalVolume", source = "medDefinitionDO.totalVolume"),
-            @Mapping(target = "doseUnitCode", source = "medDefinitionDO.doseUnitCode"),
-            @Mapping(target = "purchaseSplitRatio", source = "medDefinitionDO.purchaseUnitRatio"),
-            @Mapping(target = "stockSplitRatio", source = "medDefinitionDO.stockUnitRatio"),
-            @Mapping(target = "packageSplitRatio", source = "medDefinitionDO.packageUnitRatio"),
-            @Mapping(target = "orgId", source = "medDefinitionDO.orgId"),
-            @Mapping(target = "statusEnum", source = "medDefinitionDO.statusEnum"),
-    })
 
-    MedicineDetailDTO entityToDetailDTO(MedMedicationDefinitionDO medDefinitionDO,
-                                        AdmChargeItemDefinitionDO chargeDefinitionDO);
+
+    MedicineDetailDTO entityToDetailDTO(MedMedicationDefinitionDO medDefinitionDO);
+
+    /**
+     * <p>
+     * 描述：将 药品详情DTO 转换为 数据库实体
+     * </p>
+     *
+     * @param  dto 药品详情DTO
+     * @return 药品定义实体
+     */
+    MedMedicationDefinitionDO detailDtoToEntity(MedicineDetailDTO dto);
 
     /**
      * <p>

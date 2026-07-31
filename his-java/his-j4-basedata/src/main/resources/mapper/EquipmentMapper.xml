@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.basedata.mapper.EquipmentMapper">
+
+
+    <select id="queryEquipmentsById" resultType="com.zeroone.star.project.vo.j4.equipment.EquipmentVO"
+            parameterType="java.lang.String">
+        SELECT ad.id,
+               bus_no,
+               name,
+               category_code,
+               ad.type_code,
+               model_number,
+               total_volume,
+               manufacturer_text,
+               price_type_code,
+               yb_flag,
+               yb_no,
+               hvcm_flag,
+               ad.status_enum,
+               description
+        FROM adm_device_definition ad INNER JOIN adm_charge_item_definition ac ON ad.id = ac.instance_id
+        WHERE ad.id = #{equipmentId} AND ad.is_deleted = 0
+    </select>
+</mapper>

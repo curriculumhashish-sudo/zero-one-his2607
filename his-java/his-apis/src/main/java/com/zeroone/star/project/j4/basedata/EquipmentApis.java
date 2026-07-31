@@ -6,9 +6,9 @@ import com.zeroone.star.project.dto.j4.equipment.EquipmentStatusDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentUpdateDTO;
 import com.zeroone.star.project.query.j4.equipment.EquipmentPageQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j4.equipment.EquipmentCategoryVo;
-import com.zeroone.star.project.vo.j4.equipment.EquipmentUpdateVO;
+import com.zeroone.star.project.vo.j4.equipment.EquipmentCategoryVO;
 import com.zeroone.star.project.vo.j4.equipment.EquipmentVO;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ public interface EquipmentApis {
      * @param query 分页查询条件
      * @return 分页器材数据
      */
-    JsonVO<PageDTO<EquipmentVO>> queryPage(EquipmentPageQuery query);
+    JsonVO<PageDTO<EquipmentVO>> queryPage(@Valid EquipmentPageQuery query);
 
     /**
      * 添加器材
@@ -38,7 +38,7 @@ public interface EquipmentApis {
      * @param equipmentAddDTO 器材详情信息DTO
      * @return 无返回值
      */
-    JsonVO<Void> addEquipment(EquipmentAddDTO equipmentAddDTO);
+    JsonVO<Void> addEquipment(@Valid EquipmentAddDTO equipmentAddDTO);
 
 
     /**
@@ -47,7 +47,7 @@ public interface EquipmentApis {
      * @param dto 修改器材数据
      * @return 修改确认结果
      */
-    JsonVO<EquipmentUpdateVO> updateEquipment(EquipmentUpdateDTO dto);
+    JsonVO<EquipmentVO> updateEquipment(@Valid EquipmentUpdateDTO dto);
 
     /**
      * 切换器材状态（启用/禁用取反）
@@ -55,7 +55,7 @@ public interface EquipmentApis {
      * @param dto 切换状态请求
      * @return 切换后结果
      */
-    JsonVO<EquipmentUpdateVO> modifyStatus(EquipmentStatusDTO dto);
+    JsonVO<EquipmentVO> modifyStatus(@Valid EquipmentStatusDTO dto);
 
     /**
      * 获取器材详情
@@ -63,14 +63,14 @@ public interface EquipmentApis {
      * @param equipmentId 器材id
      * @return 器材详情
      */
-    JsonVO<EquipmentVO> getEquipmentByEquipmentId(Long equipmentId);
+    JsonVO<EquipmentVO> getEquipmentByEquipmentId(String equipmentId);
 
     /**
      * 获取选择器材种类列表
      *
      * @return 可选择的器材种类列表
      */
-    JsonVO<List<EquipmentCategoryVo>> queryEquipmentCategoryList();
+    JsonVO<List<EquipmentCategoryVO>> queryEquipmentCategoryList();
 
     /**
      * 批量删除器材信息
@@ -78,5 +78,5 @@ public interface EquipmentApis {
      * @param equipmentIds 器材id集合
      * @return 无返回值
      */
-    JsonVO<Void> removeEquipmentByEquipmentIds(List<Long> equipmentIds);
+    JsonVO<Void> removeEquipmentByEquipmentIds(List<String> equipmentIds);
 }

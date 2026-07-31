@@ -1,7 +1,19 @@
 package com.zeroone.star.basedata.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinition;
+import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinitionDO;
+import com.zeroone.star.project.dto.j4.equipment.EquipmentAddDTO;
+import com.zeroone.star.project.dto.j4.equipment.EquipmentStatusDTO;
+import com.zeroone.star.project.dto.j4.equipment.EquipmentUpdateDTO;
+import com.zeroone.star.project.query.j4.equipment.EquipmentPageQuery;
+import com.zeroone.star.project.vo.j4.equipment.EquipmentCategoryVO;
+import com.zeroone.star.project.vo.j4.equipment.EquipmentVO;
+import jakarta.validation.Valid;
+
+import java.util.List;
+
+import java.math.BigDecimal;
 
 /**
  * <p>
@@ -13,5 +25,62 @@ import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinition;
  * @author j4组
  * @version 1.0.0
  */
-public interface IEquipmentService extends IService<AdmDeviceDefinition> {
+public interface IEquipmentService extends IService<AdmDeviceDefinitionDO> {
+
+    /**
+     * 获取器材列表(条件+分页)
+     *
+     * @param query 分页查询条件（支持关键字搜索、分类筛选）
+     * @return 器材实体分页数据
+     */
+    Page<AdmDeviceDefinitionDO> queryEquipmentPage(EquipmentPageQuery query);
+
+    /**
+     * 修改器材
+     *
+     * @param dto 修改器材的DTO
+     * @return 修改后的器材实体
+     */
+    AdmDeviceDefinitionDO updateEquipment(EquipmentUpdateDTO dto);
+
+    /**
+     * 启/停用器材（支持批量）
+     *
+     * @param dto 切换状态请求（主键列表）
+     * @return 成功修改的数量
+     */
+    int modifyEquipmentStatus(EquipmentStatusDTO dto);
+
+    /**
+     * 新增器材
+     * @param equipmentAddDTO 新增器材的DTO
+     */
+    void saveEquipment(EquipmentAddDTO equipmentAddDTO);
+
+    /**
+     * 获取器材详情
+     * @param equipmentId 器材Id
+     * @return 器材VO
+     */
+    EquipmentVO getEquipmentById(String equipmentId);
+
+    /**
+     * 获取选择器材种类列表
+     * @return 可选择的器材种类列表
+     */
+    List<EquipmentCategoryVO> queryEquipmentCategoryList();
+
+    /**
+     * 批量删除器材信息
+     * @param equipmentIds 器材Id集合
+     */
+    void removeEquipmentByIds(List<String> equipmentIds);
+
+    /**
+     * 获取器材零售价（从价格表查询）
+     *
+     * @param deviceId 器材主键
+     * @return 零售价，未找到返回 null
+     */
+    BigDecimal getRetailPrice(String deviceId);
 }

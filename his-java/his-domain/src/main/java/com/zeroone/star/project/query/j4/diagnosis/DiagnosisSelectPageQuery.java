@@ -2,12 +2,13 @@ package com.zeroone.star.project.query.j4.diagnosis;
 
 import com.zeroone.star.project.query.PageQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 /**
- * 选择诊断列表分页查询对象。
+ * 选择诊断目录列表分页查询对象。
  *
  * @author j4组
  * @version 1.0.0
@@ -15,12 +16,14 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString(callSuper = true)
-@Schema(description = "选择诊断列表分页查询对象")
+@Schema(description = "选择诊断目录列表分页查询对象")
 public class DiagnosisSelectPageQuery extends PageQuery {
 
-    @Schema(description = "模糊查询关键字，支持诊断名称、编码、拼音码和五笔码", example = "高血压")
+    @Size(max = 255, message = "模糊查询关键字长度不能超过255个字符")
+    @Schema(description = "诊断目录名称或编码关键字", example = "中医")
     private String keyword;
 
-    @Schema(description = "诊断目录编码", example = "general_dx")
+    @Size(max = 50, message = "诊断目录编码长度不能超过50个字符")
+    @Schema(description = "诊断目录编码精确筛选", example = "general_dx")
     private String sourceEnum;
 }

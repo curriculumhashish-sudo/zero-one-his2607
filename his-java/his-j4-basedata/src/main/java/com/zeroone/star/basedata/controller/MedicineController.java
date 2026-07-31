@@ -4,10 +4,7 @@ package com.zeroone.star.basedata.controller;
 import com.zeroone.star.basedata.service.IMedicineService;
 import com.zeroone.star.basedata.service.impl.MsMedicineMapper;
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j4.medicine.MedicineAddDTO;
-import com.zeroone.star.project.dto.j4.medicine.MedicineChangeStatusDTO;
-import com.zeroone.star.project.dto.j4.medicine.MedicineDeleteDTO;
-import com.zeroone.star.project.dto.j4.medicine.MedicineDetailDTO;
+import com.zeroone.star.project.dto.j4.medicine.*;
 import com.zeroone.star.project.j4.basedata.MedicineApis;
 import com.zeroone.star.project.query.j4.medicine.MedicinePageQuery;
 import com.zeroone.star.project.query.j4.medicine.MedicineSelectPageQuery;
@@ -16,6 +13,7 @@ import com.zeroone.star.project.vo.j4.medicine.MedicineDetailVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineListVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineSelectVO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -48,7 +46,7 @@ public class MedicineController implements MedicineApis {
     @Override
     @GetMapping("/query-medicine-list")
     @Operation(summary = "获取药品列表（条件+分页）")
-    public JsonVO<PageDTO<MedicineListVO>> queryMedicineList(@Valid MedicinePageQuery query) {
+    public JsonVO<PageDTO<MedicineListVO>> queryMedicineList(@Validated MedicinePageQuery query) {
         return JsonVO.success(medicineService.queryMedicinePage(query));
     }
 
@@ -56,7 +54,7 @@ public class MedicineController implements MedicineApis {
     @GetMapping("/query-medicine-select-list")
     @Operation(summary = "获取选择药品列表（条件+分页）")
     public JsonVO<PageDTO<MedicineSelectVO>> queryMedicineSelectList(
-            @Valid MedicineSelectPageQuery query) {
+            @Validated MedicineSelectPageQuery query) {
 
         PageDTO<MedicineSelectVO> pageResult =
                 medicineService.queryMedicineSelectPage(query);
@@ -67,7 +65,11 @@ public class MedicineController implements MedicineApis {
     @Override
     @GetMapping("/query-medicine")
     @Operation(summary = "获取药品详情")
+    @Parameter(name = "id",example = "1")
     public JsonVO<MedicineDetailVO> queryMedicineDetail(String id) {
+        if(id.isBlank()){
+            return JsonVO.fail("id不能为空");
+        }
         MedicineDetailDTO detailDTO = medicineService.queryMedicineDetailById(id);
         MedicineDetailVO detailVO = msMedicineMapper.medicineDetailDtoToVo(detailDTO);
         if(detailDTO!=null){
@@ -89,20 +91,22 @@ public class MedicineController implements MedicineApis {
 
     @DeleteMapping("/delete-medicine")
     @Operation(summary = "删除药品（支持批量）")
-    public JsonVO<String> deleteMedicine(@Validated @RequestBody MedicineDeleteDTO dto){
+    public JsonVO<MedicineDeleteResultDTO> deleteMedicine(@Validated @RequestBody MedicineDeleteDTO dto){
 
-        int i = medicineService.deleteMedicine(dto);
-        // 让删除失败的在service层抛异常
-        if(i != 0) return JsonVO.success("删除成功"+ i + "个药品");
-        return JsonVO.fail("删除失败");
+        MedicineDeleteResultDTO deleteResultDTO = medicineService.deleteMedicine(dto);
+        return JsonVO.success(deleteResultDTO);
     }
 
     @PutMapping("/change-status/{status}")
     @Operation(summary = "启/停用药品(支持批量)",description = "status为1表示启用，为0表示停用")
+    @Parameter(name = "status",example = "1")
     public JsonVO<Void> updateChangeMedicineStatus(
-            @PathVariable int status,
+            @PathVariable Integer status,
             @Validated @RequestBody MedicineChangeStatusDTO dto
     ){
+        if(status != 1 && status !=0 ){
+            return JsonVO.fail("status状态值输入不符合规范");
+        }
         //在service里处理复杂逻辑
         int i = medicineService.updateChangeMedicineStatus(status,dto);
 
