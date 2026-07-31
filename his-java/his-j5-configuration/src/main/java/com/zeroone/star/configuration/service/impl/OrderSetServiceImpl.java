@@ -3,19 +3,24 @@ package com.zeroone.star.configuration.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 
 import com.zeroone.star.configuration.converter.OrderSetConverter;
-import com.zeroone.star.configuration.domain.OrderSetDO;
-import com.zeroone.star.configuration.domain.OrderSetLineDO;
+import com.zeroone.star.configuration.entity.OrderSetDO;
+import com.zeroone.star.configuration.entity.OrderSetLineDO;
 import com.zeroone.star.configuration.enums.*;
 import com.zeroone.star.configuration.mapper.OrderSetLineMapper;
 import com.zeroone.star.configuration.mapper.OrderSetMapper;
 import com.zeroone.star.configuration.service.IOrderSetService;
 import com.zeroone.star.project.components.user.UserDTO;
 import com.zeroone.star.project.components.user.UserHolder;
+import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j5.configuration.orderset.OrderSetAddDTO;
 import com.zeroone.star.project.dto.j5.configuration.orderset.OrderSetLineDTO;
 import com.zeroone.star.project.dto.j5.configuration.orderset.OrderSetModifyDTO;
 import com.zeroone.star.project.dto.j5.configuration.orderset.OrderSetStatusDTO;
 import com.zeroone.star.project.exception.BusinessException;
+import com.zeroone.star.project.query.j5.configuration.orderset.OrderSetQuery;
+import com.zeroone.star.project.vo.j5.configuration.orderset.OrderSetDetailVO;
+import com.zeroone.star.project.vo.j5.configuration.orderset.OrderSetListVO;
+import com.zeroone.star.project.vo.j5.configuration.orderset.OrderSetNameVO;
 import com.zeroone.star.project.vo.j5.configuration.orderset.OrderSetOperationVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -43,6 +48,150 @@ public class OrderSetServiceImpl implements IOrderSetService {
     private final OrderSetMapper orderSetMapper;
     private final OrderSetLineMapper orderSetLineMapper;
     private final UserHolder userHolder;
+
+    @Override
+    public List<OrderSetNameVO> listOrderSetNames() {
+        return orderSetMapper.selectList(Wrappers.<OrderSetDO>lambdaQuery()
+                        .eq(OrderSetDO::getIsDeleted, false)
+                        .eq(OrderSetDO::getStatusEnum, OrderSetStatusEnum.ACTIVE.name()))
+                .stream()
+                .map(this::convertToNameVO)
+                .toList();
+    }
+
+    @Override
+    public PageDTO<OrderSetListVO> listOrderSets(OrderSetQuery query) {
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page<OrderSetDO> page =
+                new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(query.getPageIndex(), query.getPageSize());
+
+        com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<OrderSetDO> wrapper =
+                Wrappers.<OrderSetDO>lambdaQuery()
+                        .eq(OrderSetDO::getIsDeleted, false);
+
+        if (StringUtils.hasText(query.getName())) {
+            wrapper.like(OrderSetDO::getName, query.getName());
+        }
+        if (StringUtils.hasText(query.getTemplateCode())) {
+            wrapper.like(OrderSetDO::getTemplateCode, query.getTemplateCode());
+        }
+        if (StringUtils.hasText(query.getBindingEnum())) {
+            wrapper.eq(OrderSetDO::getBindingEnum, query.getBindingEnum());
+        }
+        if (StringUtils.hasText(query.getSceneEnum())) {
+            wrapper.eq(OrderSetDO::getSceneEnum, query.getSceneEnum());
+        }
+        if (StringUtils.hasText(query.getStatusEnum())) {
+            wrapper.eq(OrderSetDO::getStatusEnum, query.getStatusEnum());
+        }
+
+        wrapper.orderByDesc(OrderSetDO::getCreatedAt);
+
+        com.baomidou.mybatisplus.core.metadata.IPage<OrderSetDO> result = orderSetMapper.selectPage(page, wrapper);
+
+        List<OrderSetListVO> voList = result.getRecords().stream()
+                .map(this::convertToListVO)
+                .toList();
+
+        PageDTO<OrderSetListVO> pageDTO = new PageDTO<>();
+        pageDTO.setRows(voList);
+        pageDTO.setTotal(result.getTotal());
+        pageDTO.setPageIndex(result.getCurrent());
+        pageDTO.setPageSize(result.getSize());
+        pageDTO.setPages(result.getPages());
+
+        return pageDTO;
+    }
+
+    @Override
+    public OrderSetDetailVO getOrderSetDetail(String id) {
+        OrderSetDO orderSet = orderSetMapper.selectById(id);
+        if (orderSet == null || Boolean.TRUE.equals(orderSet.getIsDeleted())) {
+            throw new BusinessException("组套模板不存在");
+        }
+
+        List<OrderSetLineDO> lines = orderSetLineMapper.selectList(
+                Wrappers.<OrderSetLineDO>lambdaQuery()
+                        .eq(OrderSetLineDO::getOrderTemplateId, id)
+                        .eq(OrderSetLineDO::getIsDeleted, false)
+                        .orderByAsc(OrderSetLineDO::getSortOrder));
+
+        return convertToDetailVO(orderSet, lines);
+    }
+
+    private OrderSetNameVO convertToNameVO(OrderSetDO orderSet) {
+        OrderSetNameVO vo = new OrderSetNameVO();
+        vo.setId(orderSet.getId());
+        vo.setName(orderSet.getName());
+        vo.setTemplateCode(orderSet.getTemplateCode());
+        return vo;
+    }
+
+    private OrderSetListVO convertToListVO(OrderSetDO orderSet) {
+        OrderSetListVO vo = new OrderSetListVO();
+        vo.setId(orderSet.getId());
+        vo.setTemplateCode(orderSet.getTemplateCode());
+        vo.setName(orderSet.getName());
+        vo.setDescription(orderSet.getDescription());
+        vo.setBindingEnum(orderSet.getBindingEnum());
+        vo.setSceneEnum(orderSet.getSceneEnum());
+        vo.setStatusEnum(orderSet.getStatusEnum());
+        vo.setTemplateKindEnum(orderSet.getTemplateKindEnum());
+        vo.setSortWeight(orderSet.getSortWeight());
+        vo.setRemark(orderSet.getRemark());
+        vo.setCreatedAt(orderSet.getCreatedAt());
+        vo.setUpdatedAt(orderSet.getUpdatedAt());
+        return vo;
+    }
+
+    private OrderSetDetailVO convertToDetailVO(OrderSetDO orderSet, List<OrderSetLineDO> lines) {
+        OrderSetDetailVO vo = new OrderSetDetailVO();
+        vo.setId(orderSet.getId());
+        vo.setObjectId(orderSet.getObjectId());
+        vo.setBindingEnum(orderSet.getBindingEnum());
+        vo.setSceneEnum(orderSet.getSceneEnum());
+        vo.setTemplateCode(orderSet.getTemplateCode());
+        vo.setName(orderSet.getName());
+        vo.setDescription(orderSet.getDescription());
+        vo.setSortWeight(orderSet.getSortWeight());
+        vo.setStatusEnum(orderSet.getStatusEnum());
+        vo.setRemark(orderSet.getRemark());
+        vo.setTemplateKindEnum(orderSet.getTemplateKindEnum());
+        vo.setDefaultChineseHerbsDoseQuantity(orderSet.getDefaultChineseHerbsDoseQuantity());
+        vo.setDefaultSufferingFlag(orderSet.getDefaultSufferingFlag());
+        vo.setTemplateSourceEnum(orderSet.getTemplateSourceEnum());
+        vo.setCreatedAt(orderSet.getCreatedAt());
+        vo.setUpdatedAt(orderSet.getUpdatedAt());
+        vo.setCreatedBy(orderSet.getCreatedBy());
+        vo.setUpdatedBy(orderSet.getUpdatedBy());
+
+        List<OrderSetDetailVO.OrderSetLineVO> lineVOs = lines.stream()
+                .map(this::convertToLineVO)
+                .toList();
+        vo.setLines(lineVOs);
+
+        return vo;
+    }
+
+    private OrderSetDetailVO.OrderSetLineVO convertToLineVO(OrderSetLineDO line) {
+        OrderSetDetailVO.OrderSetLineVO vo = new OrderSetDetailVO.OrderSetLineVO();
+        vo.setId(line.getId());
+        vo.setOrderTemplateId(line.getOrderTemplateId());
+        vo.setLineKindEnum(line.getLineKindEnum());
+        vo.setMedicationDefinitionId(line.getMedicationDefinitionId());
+        vo.setActivityDefinitionId(line.getActivityDefinitionId());
+        vo.setDeviceDefinitionId(line.getDeviceDefinitionId());
+        vo.setGroupKey(line.getGroupKey());
+        vo.setSortOrder(line.getSortOrder());
+        vo.setDefaultQuantity(line.getDefaultQuantity());
+        vo.setDefaultUnitCode(line.getDefaultUnitCode());
+        vo.setDefaultDays(line.getDefaultDays());
+        vo.setFrequencyId(line.getFrequencyId());
+        vo.setRouteCode(line.getRouteCode());
+        vo.setDosageText(line.getDosageText());
+        vo.setDefaultPerformOrgId(line.getDefaultPerformOrgId());
+        vo.setLineRemark(line.getLineRemark());
+        return vo;
+    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)

@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.zeroone.star.configuration.entity.EmrMetadataFieldDef;
 import com.zeroone.star.configuration.mapper.FieldMapper;
 import com.zeroone.star.configuration.service.FieldService;
-import com.zeroone.star.project.dto.j5.medicalTemplate.FieldAddDTO;
+import com.zeroone.star.project.dto.j5.medicalTemplate.FieldBaseDTO;
 import com.zeroone.star.project.dto.j5.medicalTemplate.FieldUpdateDTO;
 import com.zeroone.star.project.exception.BusinessException;
 import org.springframework.beans.BeanUtils;
@@ -29,7 +29,7 @@ public class FieldServiceImpl implements FieldService {
      * @return 返回受影响行数
      */
     @Override
-    public int addField(FieldAddDTO data) {
+    public int addField(FieldBaseDTO data) {
         /**
          * 校验参数
          * 使用同意异常处理

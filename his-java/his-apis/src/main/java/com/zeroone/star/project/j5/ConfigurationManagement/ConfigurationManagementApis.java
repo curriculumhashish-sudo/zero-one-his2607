@@ -1,14 +1,12 @@
 package com.zeroone.star.project.j5.ConfigurationManagement;
 
-import com.zeroone.star.project.dto.ConfigurationManagement.OrgNameDTO;
-import com.zeroone.star.project.dto.ConfigurationManagement.RunProListDTO;
+import com.zeroone.star.project.dto.j5.ConfigurationManagement.OrgNameDTO;
+import com.zeroone.star.project.dto.j5.ConfigurationManagement.RunProListDTO;
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.query.ConfigurationManagement.OrgNameQuery;
-import com.zeroone.star.project.query.ConfigurationManagement.RunProListQuery;
+import com.zeroone.star.project.query.j5.ConfigurationManagement.OrgNameQuery;
+import com.zeroone.star.project.query.j5.ConfigurationManagement.RunProListQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "配置管理")
 public interface ConfigurationManagementApis {
     JsonVO<OrgNameDTO> getOrgName(OrgNameQuery orgNameQuery);
 

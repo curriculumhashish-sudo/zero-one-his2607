@@ -3,9 +3,9 @@ package com.zeroone.star.configuration.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zeroone.star.configuration.entity.EmrTemplateDO;
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.j5.emr.template.query.MedicalTemplateQuery;
-import com.zeroone.star.project.j5.emr.template.vo.MedicalTemplateDetailVO;
-import com.zeroone.star.project.j5.emr.template.vo.MedicalTemplateVO;
+import com.zeroone.star.project.query.j5.emr.MedicalTemplateQuery;
+import com.zeroone.star.project.vo.j5.emr.MedicalTemplateDetailVO;
+import com.zeroone.star.project.vo.j5.emr.MedicalTemplateVO;
 
 /**
  * 病历模板服务接口

@@ -1,11 +1,12 @@
 package com.zeroone.star.configuration.service.impl;
 
 import com.zeroone.star.configuration.entity.EmrTemplateDO;
-import com.zeroone.star.project.j5.emr.template.vo.MedicalTemplateDetailVO;
-import com.zeroone.star.project.j5.emr.template.vo.MedicalTemplateVO;
+import com.zeroone.star.project.vo.j5.emr.MedicalTemplateDetailVO;
+import com.zeroone.star.project.vo.j5.emr.MedicalTemplateVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
+import org.mapstruct.factory.Mappers;
 
 /**
  * 病历模板实体与 VO 之间的 MapStruct 转换器
@@ -15,17 +16,18 @@ public interface MsEmrTemplateMapper {
 
     /**
      * DO → 列表VO
-     * name → templateName, content → templateContent
+     * name → templateName, Boolean isEnabled → Integer isEnabled
      */
     @Mapping(source = "name", target = "templateName")
-    @Mapping(source = "content", target = "templateContent")
+    @Mapping(target = "isEnabled", expression = "java(entity.getIsEnabled() != null ? (entity.getIsEnabled() ? 1 : 0) : null)")
     MedicalTemplateVO toListVO(EmrTemplateDO entity);
 
     /**
      * DO → 详情VO
-     * name → templateName, content → templateContent
+     * name → templateName, content → contentJson, Boolean isEnabled → Integer isEnabled
      */
     @Mapping(source = "name", target = "templateName")
-    @Mapping(source = "content", target = "templateContent")
+    @Mapping(source = "content", target = "contentJson")
+    @Mapping(target = "isEnabled", expression = "java(entity.getIsEnabled() != null ? (entity.getIsEnabled() ? 1 : 0) : null)")
     MedicalTemplateDetailVO toDetailVO(EmrTemplateDO entity);
 }

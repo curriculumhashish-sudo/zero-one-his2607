@@ -1,8 +1,8 @@
 package com.zeroone.star.configuration.converter;
 
 import com.zeroone.star.configuration.entity.MedicalTemplateDO;
-import com.zeroone.star.project.j5.emr.template.dto.MedicalTemplateCreateDTO;
-import com.zeroone.star.project.j5.emr.template.dto.MedicalTemplateUpdateDTO;
+import com.zeroone.star.project.dto.j5.emr.MedicalTemplateCreateDTO;
+import com.zeroone.star.project.dto.j5.emr.MedicalTemplateUpdateDTO;
 
 /**
  * 病历模板接口模型与数据对象转换器。

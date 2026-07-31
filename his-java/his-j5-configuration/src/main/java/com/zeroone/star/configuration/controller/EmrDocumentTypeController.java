@@ -32,7 +32,7 @@ import java.util.List;
  * @version 1.0.0
  */
 @RestController
-@Tag(name = "配置管理-文书类型", description = "文书类型接口")
+@Tag(name = "配置管理-文书管理", description = "文书管理接口")
 @Validated
 @RequestMapping("/emr/document-type")
 public class EmrDocumentTypeController implements EmrDocumentTypeApis {

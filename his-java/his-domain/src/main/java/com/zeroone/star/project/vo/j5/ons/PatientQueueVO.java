@@ -19,6 +19,15 @@ public class PatientQueueVO {
     @Schema(description = "患者标识", example = "1")
     private String patient_id;
 
+    @Schema(description = "患者姓名", example = "张三")
+    private String patient_name;
+
+    @Schema(description = "患者性别", example = "MALE")
+    private String patient_gender;
+
+    @Schema(description = "患者年龄", example = "30")
+    private String patient_age;
+
     @Schema(description = "就诊标识", example = "1")
     private String encounter_id;
 
@@ -28,8 +37,14 @@ public class PatientQueueVO {
     @Schema(description = "去向诊室/地点标识", example = "1")
     private String destination_location_id;
 
+    @Schema(description = "去向诊室名称", example = "内科诊室")
+    private String destination_location_name;
+
     @Schema(description = "分诊等级", example = "LEVEL1")
     private String triage_level;
+
+    @Schema(description = "分诊等级名称", example = "一级")
+    private String triage_level_name;
 
     @Schema(description = "分诊优先级编码", example = "P1")
     private String triage_priority_code;
@@ -46,8 +61,14 @@ public class PatientQueueVO {
     @Schema(description = "服务类型编码", example = "GENERAL")
     private String service_type_code;
 
+    @Schema(description = "服务类型名称", example = "普通门诊")
+    private String service_type_name;
+
     @Schema(description = "预约类型编码", example = "NORMAL")
     private String appointment_type_code;
+
+    @Schema(description = "预约类型名称", example = "普通预约")
+    private String appointment_type_name;
 
     @Schema(description = "计划开始时间", example = "2024-01-15 09:00:00")
     private String start_instant;
@@ -75,6 +96,12 @@ public class PatientQueueVO {
 
     @Schema(description = "预约日期", example = "2024-01-15")
     private String booking_date;
+
+    @Schema(description = "分诊状态", example = "WAITING")
+    private String triage_status;
+
+    @Schema(description = "分诊状态名称", example = "候诊中")
+    private String triage_status_name;
 
     @Schema(description = "创建时间", example = "2024-01-15 08:00:00")
     private String created_at;

@@ -3,7 +3,7 @@ package com.zeroone.star.configuration.controller;
 import com.zeroone.star.configuration.service.DocumentTypeService;
 import com.zeroone.star.project.dto.documenttype.DocumentTypeAddDTO;
 import com.zeroone.star.project.dto.documenttype.DocumentTypeUpdateDTO;
-import com.zeroone.star.project.config.DocumentTypeApis;
+import com.zeroone.star.project.j5.config.DocumentTypeApis;
 import com.zeroone.star.project.vo.JsonVO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/config/document-type")
 @RequiredArgsConstructor
-@Tag(name = "配置管理-文书类型", description = "文书类型接口")
+@Tag(name = "配置管理-文书管理", description = "文书管理接口")
 @Validated
 public class DocumentTypeController implements DocumentTypeApis {
     

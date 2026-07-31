@@ -40,7 +40,7 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
         // 构建实体
         DocumentTypeDO entity = new DocumentTypeDO();
         BeanUtils.copyProperties(dto, entity);
-        entity.setIsEnabled(dto.getIsEnabled() != null ? dto.getIsEnabled() : true);
+        entity.setIsEnabled(dto.getIsEnabled() != null ? dto.getIsEnabled() : 1);
         entity.setSortOrder(dto.getSortOrder() != null ? dto.getSortOrder() : 0);
         
         // 设置审计字段

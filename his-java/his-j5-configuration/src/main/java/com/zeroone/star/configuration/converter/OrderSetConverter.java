@@ -1,8 +1,8 @@
 package com.zeroone.star.configuration.converter;
 
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
-import com.zeroone.star.configuration.domain.OrderSetDO;
-import com.zeroone.star.configuration.domain.OrderSetLineDO;
+import com.zeroone.star.configuration.entity.OrderSetDO;
+import com.zeroone.star.configuration.entity.OrderSetLineDO;
 import com.zeroone.star.configuration.enums.OrderSetStatusEnum;
 import com.zeroone.star.project.dto.j5.configuration.orderset.OrderSetAddDTO;
 import com.zeroone.star.project.dto.j5.configuration.orderset.OrderSetLineDTO;

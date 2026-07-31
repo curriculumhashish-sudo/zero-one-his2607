@@ -1,7 +1,7 @@
 package com.zeroone.star.configuration.service.impl;
 
-import com.zeroone.star.project.j5.emr.template.dto.MedicalTemplateCreateDTO;
-import com.zeroone.star.project.j5.emr.template.dto.MedicalTemplateUpdateDTO;
+import com.zeroone.star.project.dto.j5.emr.MedicalTemplateCreateDTO;
+import com.zeroone.star.project.dto.j5.emr.MedicalTemplateUpdateDTO;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;

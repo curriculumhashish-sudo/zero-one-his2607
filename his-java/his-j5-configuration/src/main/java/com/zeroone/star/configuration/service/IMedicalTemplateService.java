@@ -1,7 +1,7 @@
 package com.zeroone.star.configuration.service;
 
-import com.zeroone.star.project.j5.emr.template.dto.MedicalTemplateCreateDTO;
-import com.zeroone.star.project.j5.emr.template.dto.MedicalTemplateUpdateDTO;
+import com.zeroone.star.project.dto.j5.emr.MedicalTemplateCreateDTO;
+import com.zeroone.star.project.dto.j5.emr.MedicalTemplateUpdateDTO;
 
 /**
  * 病历模板写操作服务。

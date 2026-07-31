@@ -1,6 +1,6 @@
 package com.zeroone.star.configuration.service;
 
-import com.zeroone.star.project.dto.j5.medicalTemplate.FieldAddDTO;
+import com.zeroone.star.project.dto.j5.medicalTemplate.FieldBaseDTO;
 import com.zeroone.star.project.dto.j5.medicalTemplate.FieldUpdateDTO;
 import com.zeroone.star.project.vo.JsonVO;
 
@@ -14,7 +14,7 @@ public interface FieldService {
      * @param data 元数据字段添加 DTO
      * @return 操作结果 JSON 包含 ID 字段
      */
-    int addField(FieldAddDTO data);
+    int addField(FieldBaseDTO data);
     /**
      * 修改元数据字段
      * @param data 元数据字段修改 DTO

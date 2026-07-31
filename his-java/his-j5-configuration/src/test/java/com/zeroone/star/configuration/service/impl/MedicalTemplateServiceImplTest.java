@@ -5,8 +5,8 @@ import com.zeroone.star.configuration.exception.MedicalTemplateBusinessException
 import com.zeroone.star.configuration.mapper.MedicalTemplateMapper;
 import com.zeroone.star.project.components.user.UserDTO;
 import com.zeroone.star.project.components.user.UserHolder;
-import com.zeroone.star.project.j5.emr.template.dto.MedicalTemplateCreateDTO;
-import com.zeroone.star.project.j5.emr.template.dto.MedicalTemplateUpdateDTO;
+import com.zeroone.star.project.dto.j5.emr.MedicalTemplateCreateDTO;
+import com.zeroone.star.project.dto.j5.emr.MedicalTemplateUpdateDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
