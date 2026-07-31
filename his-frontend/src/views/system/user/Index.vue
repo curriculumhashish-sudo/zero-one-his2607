@@ -92,14 +92,21 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import SearchPanel from '@/components/common/SearchPanel.vue'
 import ActionToolbar from '@/components/common/ActionToolbar.vue'
 import DataTablePanel from '@/components/common/DataTablePanel.vue'
 import StatusDisplay from '@/components/common/StatusDisplay.vue'
 import RowActionGroup from '@/components/common/RowActionGroup.vue'
 import type { ActionToolbarItem, RowActionItem } from '@/components/common/type'
-import { pageUsers, setUserEnabled, unlockUser } from '@/apis/system/user'
+import {
+  changeUserPassword,
+  pageUsers,
+  removeUser,
+  setUserEnabled,
+  setUserLocked,
+  unlockUser
+} from '@/apis/system/user'
 import type { UserRecord } from '@/apis/system/user'
 import UserEditDialog from './components/UserEditDialog.vue'
 import {
@@ -188,9 +195,20 @@ function handleToolbarAction(action: ActionToolbarItem) {
 function actionsFor(source: unknown): RowActionItem[] {
   const row = source as UserRecord
   const isAdmin = row.username.toLowerCase() === 'admin'
-  const actions: RowActionItem[] = [{ key: 'edit', label: '编辑', type: 'primary' }]
+  const actions: RowActionItem[] = [
+    { key: 'edit', label: '编辑', type: 'primary' },
+    { key: 'change-password', label: '修改密码', type: 'warning' }
+  ]
   if (row.locked) {
     actions.push({ key: 'unlock', label: '解锁', type: 'success', confirmText: '确认解锁该用户？' })
+  } else {
+    actions.push({
+      key: 'lock',
+      label: '锁定',
+      type: 'warning',
+      disabled: isAdmin,
+      confirmText: '确认锁定该用户？锁定后将不能登录。'
+    })
   }
   actions.push(
     row.enabled
@@ -203,6 +221,13 @@ function actionsFor(source: unknown): RowActionItem[] {
         }
       : { key: 'enable', label: '启用', type: 'success', confirmText: '确认启用该用户？' }
   )
+  actions.push({
+    key: 'delete',
+    label: '删除',
+    type: 'danger',
+    disabled: isAdmin,
+    confirmText: '确认删除该用户？删除后无法恢复。'
+  })
   return actions
 }
 
@@ -211,6 +236,28 @@ async function handleRowAction(action: RowActionItem, source: unknown) {
   if (!row?.id || operationLoadingId.value) return
   if (action.key === 'edit') {
     await editDialogRef.value?.open(row.id)
+    return
+  }
+
+  if (action.key === 'change-password') {
+    try {
+      const { value } = await ElMessageBox.prompt('请输入新密码（至少 6 位）', '修改密码', {
+        inputType: 'password',
+        inputPattern: /^.{6,}$/,
+        inputErrorMessage: '密码长度不能少于 6 位',
+        confirmButtonText: '保存',
+        cancelButtonText: '取消'
+      })
+      operationLoadingId.value = row.id
+      await changeUserPassword(row.id, value)
+      ElMessage.success('密码修改成功')
+    } catch (error) {
+      if (error !== 'cancel' && error !== 'close') {
+        ElMessage.error(error instanceof Error ? error.message : '密码修改失败')
+      }
+    } finally {
+      operationLoadingId.value = ''
+    }
     return
   }
 
@@ -223,6 +270,12 @@ async function handleRowAction(action: RowActionItem, source: unknown) {
       const enabled = action.key === 'enable'
       await setUserEnabled(row.id, enabled)
       ElMessage.success(enabled ? '用户已启用' : '用户已停用')
+    } else if (action.key === 'lock') {
+      await setUserLocked(row.id, true)
+      ElMessage.success('用户已锁定')
+    } else if (action.key === 'delete') {
+      await removeUser(row.id)
+      ElMessage.success('用户已删除')
     }
     await loadUsers()
   } catch (error) {

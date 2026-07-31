@@ -36,6 +36,13 @@ export interface RoleOption extends Record<string, unknown> {
   name: string
 }
 
+export interface UserSelectOption {
+  id: string
+  username: string
+  realName: string
+  label: string
+}
+
 export interface UserPageResult {
   rows: UserRecord[]
   total: number

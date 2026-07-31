@@ -16,6 +16,69 @@ const FRONTEND_MENUS: Menu[] = [
         text: '用户管理',
         icon: 'IconUser',
         href: '/system/user'
+      },
+      {
+        id: 'frontend-system-permission',
+        pid: 'frontend-system',
+        text: '权限管理',
+        icon: 'IconTickets',
+        href: '/system/permission'
+      },
+      {
+        id: 'frontend-system-menu',
+        pid: 'frontend-system',
+        text: '菜单管理',
+        icon: 'IconMenu',
+        href: '/system/menu'
+      },
+      {
+        id: 'frontend-system-role',
+        pid: 'frontend-system',
+        text: '角色管理',
+        icon: 'IconUser',
+        href: '/system/role'
+      }
+    ]
+  },
+  {
+    id: 'frontend-configuration',
+    text: '配置管理',
+    icon: 'IconSetting',
+    children: [
+      {
+        id: 'frontend-configuration-emr-template',
+        pid: 'frontend-configuration',
+        text: '病历模板配置',
+        icon: 'IconTickets',
+        href: '/configuration/emr-template'
+      },
+      {
+        id: 'frontend-configuration-execute-location',
+        pid: 'frontend-configuration',
+        text: '执行地点',
+        icon: 'IconSetting',
+        href: '/configuration/execute-location'
+      },
+      {
+        id: 'frontend-configuration-order-template',
+        pid: 'frontend-configuration',
+        text: '组套模板',
+        icon: 'IconTickets',
+        href: '/configuration/order-template'
+      },
+      {
+        id: 'frontend-configuration-medication-location',
+        pid: 'frontend-configuration',
+        text: '取药科室',
+        icon: 'IconMenu',
+        href: '/configuration/medication-location'
+      },
+      {
+        id: 'frontend-configuration-service-device-binding',
+        pid: 'frontend-configuration',
+        text: '诊疗耗材绑定',
+        icon: 'IconSetting',
+        href: '/configuration/service-device-binding'
       }
     ]
   },

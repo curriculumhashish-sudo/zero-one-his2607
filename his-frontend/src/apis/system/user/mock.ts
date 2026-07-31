@@ -1,4 +1,11 @@
-import type { RoleOption, UserPageResult, UserQuery, UserRecord, UserSavePayload } from './type'
+import type {
+  RoleOption,
+  UserPageResult,
+  UserQuery,
+  UserRecord,
+  UserSavePayload,
+  UserSelectOption
+} from './type'
 
 const roles: RoleOption[] = [
   { id: 'role-admin', name: '系统管理员' },
@@ -106,6 +113,29 @@ export async function mockGetUserDetail(id: string) {
   return cloneUser(requireUser(id))
 }
 
+export async function mockPageSelectableUsers(query: UserQuery): Promise<UserPageResult> {
+  return mockPageUsers({ ...query, enabled: true, locked: false })
+}
+
+export async function mockLoadUserSelectOptions(keyword = ''): Promise<UserSelectOption[]> {
+  const term = keyword.trim().toLowerCase()
+  return users
+    .filter(
+      (user) =>
+        user.enabled &&
+        !user.locked &&
+        (!term ||
+          user.username.toLowerCase().includes(term) ||
+          user.realName.toLowerCase().includes(term))
+    )
+    .map((user) => ({
+      id: user.id,
+      username: user.username,
+      realName: user.realName,
+      label: `${user.realName}（${user.username}）`
+    }))
+}
+
 export async function mockCreateUser(payload: UserSavePayload) {
   await delay()
   validatePayload(payload)
@@ -156,14 +186,36 @@ export async function mockSetUserEnabled(id: string, enabled: boolean) {
   return cloneUser(user)
 }
 
-export async function mockUnlockUser(id: string) {
+export async function mockSetUserLocked(id: string, locked: boolean) {
   await delay()
   const user = requireUser(id)
-  user.locked = false
-  user.accessFailedCount = 0
-  user.lockoutEnd = ''
+  if (user.username.toLowerCase() === 'admin' && locked) {
+    throw new Error('系统管理员不能锁定')
+  }
+  user.locked = locked
+  user.accessFailedCount = locked ? Math.max(user.accessFailedCount, 5) : 0
+  user.lockoutEnd = locked ? '2099-12-31 23:59:59' : ''
   user.updatedAt = new Date().toISOString().replace('T', ' ').slice(0, 19)
   return cloneUser(user)
+}
+
+/** 为已有用户页面保留的“解锁”调用，实际对应同一个锁定/解锁接口。 */
+export const mockUnlockUser = (id: string) => mockSetUserLocked(id, false)
+
+export async function mockChangeUserPassword(id: string, password: string) {
+  await delay()
+  const user = requireUser(id)
+  if (password.length < 6) throw new Error('密码长度不能少于 6 位')
+  // Mock 不保存明文密码；真实环境由后端负责加密、校验和持久化。
+  user.updatedAt = new Date().toISOString().replace('T', ' ').slice(0, 19)
+}
+
+export async function mockRemoveUser(id: string) {
+  await delay()
+  const user = requireUser(id)
+  if (user.username.toLowerCase() === 'admin') throw new Error('系统管理员不能删除')
+  const index = users.findIndex((item) => item.id === id)
+  users.splice(index, 1)
 }
 
 export async function mockLoadRoleOptions(keyword: string, signal?: AbortSignal) {

@@ -10,6 +10,14 @@ describe('前端业务菜单', () => {
     expect(paths).toEqual(
       expect.arrayContaining([
         '/system/user',
+        '/system/permission',
+        '/system/menu',
+        '/system/role',
+        '/configuration/emr-template',
+        '/configuration/execute-location',
+        '/configuration/order-template',
+        '/configuration/medication-location',
+        '/configuration/service-device-binding',
         '/basic/department',
         '/basic/patient',
         '/basic/ward-bed',
