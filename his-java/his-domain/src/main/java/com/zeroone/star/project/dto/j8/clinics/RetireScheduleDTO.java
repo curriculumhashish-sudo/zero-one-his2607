@@ -18,4 +18,5 @@ public class RetireScheduleDTO {
     @Schema(description = "作废原因", example = "作废日程")
     private String reason;
 
+
 }
