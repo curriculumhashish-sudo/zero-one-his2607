@@ -177,7 +177,7 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
         // 1.校验编码
         // 1.1 编码不能为空
         String code = dto.getBusNo();
-        if(StringUtils.isEmpty(code)){
+        if(code == null || code.isBlank()) {
             throw new RuntimeException("费用性质编码不能为空");
         }
         // 1.2  编码不能重复（同一租户下）
@@ -191,13 +191,16 @@ public class FeeNatureServiceImpl extends ServiceImpl<FeeNatureMapper, FeeNature
 
         // 2. 判名称,显示顺序,分类不能为空
         String name = dto.getName();
-        if(StringUtils.isEmpty(name)){
+        if(name==null || name.isBlank()){
             throw new RuntimeException("费用性质名称不能为空");
         }
 
         Integer displayOrder = dto.getDisplayOrder();
         if(displayOrder==null){
             throw new RuntimeException("费用性质显示顺序不能为空");
+        }
+        if(displayOrder<0){
+            throw new RuntimeException("费用性质显示顺序不能为负数");
         }
 
         Integer categoryEnum = dto.getCategoryEnum();
