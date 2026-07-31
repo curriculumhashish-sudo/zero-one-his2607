@@ -13,5 +13,10 @@ public:
 	std::list<SummarizeDispenseRow> lockSummarizable(const std::vector<std::string>& ids);
 	int attachSummary(const std::string& dispenseId,const std::string& summaryNo,const std::string& operatorId);
 	int insertSupplyLine(const std::string& id,const std::string& summaryNo,const SummarizeDispenseRow& row,const std::string& operatorId);
+	uint64_t countSummarySupplyLines(const std::string& summaryNo);
+	int submitSummarySupplyLines(const std::string& summaryNo,const std::string& operatorId);
+	uint64_t countSummaryDispenses(const std::string& summaryNo);
+	int releaseSummaryDispenses(const std::string& summaryNo,const std::string& operatorId);
+	int removePendingSummarySupplyLines(const std::string& summaryNo,const std::string& operatorId);
 };
 #endif

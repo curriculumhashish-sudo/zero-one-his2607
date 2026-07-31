@@ -110,7 +110,7 @@ public:
 		"/medicationcollection/submit-summary",
 		submitSummary,
 		BODY_DTO(SubmitSummaryRequestDTO::Wrapper, dto),
-		execSubmitSummary(dto));
+		execSubmitSummary(dto, authObject->getPayload()));
 
 	// Cancel summary slips (batch revoke)
 	API_DEF_ENDPOINT_INFO_AUTH(
@@ -127,7 +127,7 @@ public:
 		"/medicationcollection/cancel-summary",
 		cancelSummary,
 		BODY_DTO(CancelSummaryRequestDTO::Wrapper, dto),
-		execCancelSummary(dto));
+		execCancelSummary(dto, authObject->getPayload()));
 
 private:
 	PagePendingDispenseSummaryLinesJsonVO::Wrapper execQuerySummaryOrderItems(
@@ -135,9 +135,9 @@ private:
 	CreateMedicationSummaryJsonVO::Wrapper execSummaryMedication(
 		const CreateMedicationSummaryDTO::Wrapper& dto,const PayloadDTO& payload);
 	SubmitSummaryJsonVO::Wrapper execSubmitSummary(
-		const SubmitSummaryRequestDTO::Wrapper& dto);
+		const SubmitSummaryRequestDTO::Wrapper& dto,const PayloadDTO& payload);
 	CancelSummaryJsonVO::Wrapper execCancelSummary(
-		const CancelSummaryRequestDTO::Wrapper& dto);
+		const CancelSummaryRequestDTO::Wrapper& dto,const PayloadDTO& payload);
 };
 
 #undef API_TAG

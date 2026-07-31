@@ -22,12 +22,15 @@
 #include "domain/query/medicationcollection/PagePendingDispenseSummaryLinesQuery.h"
 #include "domain/dto/medicationcollection/PagePendingDispenseSummaryLinesDTO.h"
 #include "domain/dto/medicationcollection/CreateMedicationSummaryDTO.h"
+#include "domain/dto/medicationcollection/SummarySlipDTO.h"
 
 class MedicationCollectionService
 {
 public:
 	PagePendingDispenseSummaryLinesDTO::Wrapper listPending(const PagePendingDispenseSummaryLinesQuery::Wrapper& query);
 	CreateMedicationSummaryResponseDTO::Wrapper summarize(const CreateMedicationSummaryDTO::Wrapper& dto,const std::string& operatorId);
+	SubmitSummaryResponseDTO::Wrapper submitSummary(const SubmitSummaryRequestDTO::Wrapper& dto,const std::string& operatorId);
+	CancelSummaryResponseDTO::Wrapper cancelSummary(const CancelSummaryRequestDTO::Wrapper& dto,const std::string& operatorId);
 };
 
 #endif // !_MEDICATION_COLLECTION_SERVICE_H_
