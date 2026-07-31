@@ -22,9 +22,13 @@ spring:
         group: DEFAULT_GROUP
         file-extension: yaml
         refresh-enabled: true
+        username: nacos
+        password: nacos
       discovery:
         server-addr: 127.0.0.1:8848
         namespace: his-dev
+        username: nacos
+        password: nacos
 # MyBatis-Plus 配置
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml

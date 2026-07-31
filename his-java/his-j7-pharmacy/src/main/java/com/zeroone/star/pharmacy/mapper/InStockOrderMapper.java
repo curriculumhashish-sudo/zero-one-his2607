@@ -3,6 +3,9 @@ package com.zeroone.star.pharmacy.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.zeroone.star.pharmacy.entity.InStockOrder;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * <p>
@@ -20,4 +23,11 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface InStockOrderMapper extends BaseMapper<InStockOrder> {
+    int insertOrder(InStockOrder order);
+    int updateOrderById(InStockOrder order);
+    int updateOrderStatus(@Param("id") String id, @Param("statusEnum") String statusEnum);
+    InStockOrder selectOrderById(@Param("id") String id);
+    InStockOrder selectOrderByBusNo(@Param("busNo") String busNo);
+    List<InStockOrder> selectOrdersPage(@Param("offset") int offset, @Param("limit") int limit);
+    Long countOrders();
 }

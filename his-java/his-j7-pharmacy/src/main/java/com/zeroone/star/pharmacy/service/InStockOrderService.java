@@ -1,6 +1,11 @@
 package com.zeroone.star.pharmacy.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zeroone.star.project.dto.j7.pharmacy.InStockOrderDTO;
+import com.zeroone.star.project.dto.j7.pharmacy.PurchaseInboundSubmitDTO;
+import com.zeroone.star.project.query.j7.pharmacy.PurchaseInboundQuery;
+import com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundDetailVO;
+import com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundListVO;
 
 /**
  * <p>
@@ -16,7 +21,33 @@ import com.zeroone.star.project.dto.j7.pharmacy.InStockOrderDTO;
  * @version 1.0.0
  */
 public interface InStockOrderService {
+    /**
+     * 新增入库单据
+     */
     String create(InStockOrderDTO dto);
+
+    /**
+     * 保存入库单据（编辑草稿）
+     */
     void update(String orderId, InStockOrderDTO dto);
+
+    /**
+     * 提交审批入库单据
+     */
     void submit(String orderId, InStockOrderDTO dto);
+
+    /**
+     * 获取单据列表（条件+分页）
+     */
+    IPage<PurchaseInboundListVO> listInboundOrders(PurchaseInboundQuery query);
+
+    /**
+     * 获取单据详情
+     */
+    PurchaseInboundDetailVO getInboundDetail(String id);
+
+    /**
+     * 提交审批
+     */
+    void submitInboundOrder(PurchaseInboundSubmitDTO dto);
 }
