@@ -18,13 +18,22 @@
 */
 #include "stdafx.h"
 #include "controller/data_statistics/OutpatientStatController.h"
+#include "../../service/data_statistics/OutpatientStatService.h"
 
 OutpatientTrendJsonVO::Wrapper OutpatientStatController::execQueryTrend(const OutpatientTrendQuery::Wrapper& query)
 {
-	return OutpatientTrendJsonVO::Wrapper();
+	// Call Service layer to query outpatient visit trend
+	auto result = OutpatientStatService().queryTrend(query);
+	auto jvo = OutpatientTrendJsonVO::createShared();
+	jvo->success(result);
+	return jvo;
 }
 
 DiseaseDistributionJsonVO::Wrapper OutpatientStatController::execQueryDiseaseDistribution(const DiseaseDistributionQuery::Wrapper& query)
 {
-	return DiseaseDistributionJsonVO::Wrapper();
+	// Call Service layer to query disease distribution
+	auto result = OutpatientStatService().queryDiseaseDistribution(query);
+	auto jvo = DiseaseDistributionJsonVO::createShared();
+	jvo->success(result);
+	return jvo;
 }

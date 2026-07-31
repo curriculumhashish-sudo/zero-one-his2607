@@ -1,4 +1,22 @@
 #pragma once
+/*
+ Copyright Zero One Star. All rights reserved.
+
+ @Author: WYS
+ @Date: 2026/07/20 00:00:00
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+*/
 #ifndef _INOUTBOUNDDTO_H_
 #define _INOUTBOUNDDTO_H_
 
@@ -14,44 +32,44 @@
 class InOutboundAddDto : public oatpp::DTO {
 	DTO_INIT(InOutboundAddDto, DTO);
 
-	// 项目名称
+	// Item name
 	DTO_FIELD(String, name);
 	DTO_FIELD_INFO(name) {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.name");
 	}
 
-	// 单价
+	// Unit price
 	DTO_FIELD(Int32, onemoney);
 	DTO_FIELD_INFO(onemoney) {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.onemoney");
 	}
 
-	// 总金额
+	// Total amount
 	DTO_FIELD(Int32, allmoney);
 	DTO_FIELD_INFO(allmoney) {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.allmoney");
 	}
 
-	// 数量
+	// Quantity
 	DTO_FIELD(Int32, number);
 	DTO_FIELD_INFO(number) {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.number");
 	}
 
-	// 厂家
+	// Origin
 	DTO_FIELD(String, origin);
 	DTO_FIELD_INFO(origin) {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.origin");
 	}
 
-	// 批号
+	// Batch number
 	DTO_FIELD(String, batch_number);
 	DTO_FIELD_INFO(batch_number) {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.batch_number");
 	}
 
 public:
-	// 数据校验
+	// Field validation
 	std::string isValid() {
 		if (!name || name->empty()) {
 			return "name is invalid";
@@ -75,17 +93,17 @@ public:
 	}
 };
 
-// 传输对象
+// Detail DTO (extends add DTO with ID)
 class InOutboundDto : public InOutboundAddDto {
 	DTO_INIT(InOutboundDto, InOutboundAddDto);
 
-	DTO_FIELD(String, id); // 入库药品的编号
+	DTO_FIELD(String, id); // Record ID
 	DTO_FIELD_INFO(id) {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.id");
 	}
 };
 
-// 分页传输对象
+// Paged result DTO
 class InOutboundPageDto : public PageDTO<InOutboundDto::Wrapper> {
 	DTO_INIT(InOutboundPageDto, PageDTO<InOutboundDto::Wrapper>);
 };
@@ -93,7 +111,7 @@ class InOutboundPageDto : public PageDTO<InOutboundDto::Wrapper> {
 
 class InOutboundimportDTO : public oatpp::DTO {
 	DTO_INIT(InOutboundimportDTO, DTO);
-	// 导入报表文件
+	// Import report file
 	API_DTO_FIELD_REQUIRE(oatpp::swagger::Binary, excel, ZH_WORDS_GETTER("Litguidyo.form.inoutbound.excel"), true);
 };
 

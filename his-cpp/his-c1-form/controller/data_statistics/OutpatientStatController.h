@@ -55,8 +55,8 @@ public:
 		API_DEF_ADD_AUTH();
 		API_DEF_ADD_RSP_JSON_WRAPPER(DiseaseDistributionJsonVO);
 		API_DEF_ADD_TAG(API_TAG);
-		API_DEF_ADD_QUERY_PARAMS(String, "startDate", ZH_WORDS_GETTER("W.form.data_statistics.field.start_date"), "2026-07-01", false);
-		API_DEF_ADD_QUERY_PARAMS(String, "endDate", ZH_WORDS_GETTER("W.form.data_statistics.field.end_date"), "2026-07-31", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "startDate", ZH_WORDS_GETTER("W.form.data_statistics.field.start_date"), "", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "endDate", ZH_WORDS_GETTER("W.form.data_statistics.field.end_date"), "", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "orgId", ZH_WORDS_GETTER("W.form.data_statistics.field.org_id"), "1001", false);
 	}
 	ENDPOINT(API_M_GET, "/form/data_statistics/query_disease_distribution", queryDiseaseDistribution, QUERIES(QueryParams, queryParams), API_HANDLER_AUTH_PARAME) {
