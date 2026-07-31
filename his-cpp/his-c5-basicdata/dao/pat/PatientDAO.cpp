@@ -95,6 +95,15 @@ uint64_t PatientDAO::countPatPage(const PatPageQuery::Wrapper& query)
 	return sqlSession->executeQueryNumerical(sql, params);
 }
 
+// ============================================================
+// 软删除患者 — 逻辑删除，不物理删除数据
+// SQL说明:
+//   - SET is_deleted=1 标记删除
+//   - deleted_at/deleted_by 记录删除审计信息
+//   - updated_at/updated_by 同时更新（历史兼容，取deleted_at/deleted_by相同值）
+//   - WHERE is_deleted=0 防止重复删除
+// 注意: 未使用乐观锁version校验，简化处理
+// ============================================================
 int PatientDAO::softDeletePatient(const std::string& id,
 	const std::string& deletedAt,
 	const std::string& deletedBy)

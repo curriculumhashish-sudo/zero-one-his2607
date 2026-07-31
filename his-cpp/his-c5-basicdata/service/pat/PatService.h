@@ -25,10 +25,12 @@ public:
 	 */
 	PageDTO<PatDTO::Wrapper>::Wrapper queryPatPage(const PatPageQuery::Wrapper& query);
 
-	/**
-	 * Soft-delete a patient by ID.
-	 * Returns true if the patient was deleted, false if not found.
-	 */
+	// ============================================================
+	// 软删除患者 — 设置is_deleted=1，不物理删除
+	// 参数: id=患者ID, payload=JWT认证信息（用于记录操作人）
+	// 返回: true=删除成功，false=记录不存在或已删除
+	// 调用: PatientDAO::softDeletePatient
+	// ============================================================
 	bool removePatient(const std::string& id, const PayloadDTO& payload);
 
 private:

@@ -37,6 +37,12 @@ public:
 	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("pat.delete.summary"), removePat, ListJsonVO<String>::Wrapper, API_TAG
 	);
+	// ============================================================
+	// 批量删除患者（软删除） — DELETE /pat/delete
+	// Body: JSON数组 ["id1", "id2", ...]
+	// 链路: PatController → PatService::removePatient → PatientDAO::softDeletePatient
+	// 遍历ID列表逐个软删除，返回成功删除的ID列表
+	// ============================================================
 	API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/pat/delete", removePat, BODY_DTO(List<String>, ids), execRemovePat(ids, authObject->getPayload()));
 
 private:

@@ -50,14 +50,21 @@ public:
     // c5 endpoints: room/bed query, ward CRUD, status management
     // ============================================================
 
-    // Query room by ID
+    // ============================================================
+    // 根据ID查询病房 / 病床 — 基于adm_location表只读查询
+    // 链路: Controller → WardService::queryRoomById/queryBedById → WardDAO::selectLocationById
+    // ============================================================
+
+    // 根据病房ID查询病房信息（GET /patient/query-room-by-id?id=xxx）
+    // 返回: WardRoomDTO { id, name, wardAreaId }
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("ward.query-room-by-id.summary"), queryRoomById, WardRoomJsonVO::Wrapper, API_TAG,
         API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("ward.field.roomId"), "2233", true);
     );
     API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/patient/query-room-by-id", queryRoomById, QUERY(String, id), execQueryRoomById(id));
 
-    // Query bed by ID
+    // 根据病床ID查询病床信息（GET /ward/query-bed-by-id?id=xxx）
+    // 返回: WardBedDTO { id, name, status, wardRoomId }
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("ward.query-bed-by-id.summary"), queryBedById, WardBedJsonVO::Wrapper, API_TAG,
         API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("ward.field.bedId"), "2233", true);

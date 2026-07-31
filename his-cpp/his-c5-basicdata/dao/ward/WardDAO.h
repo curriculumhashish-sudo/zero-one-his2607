@@ -19,7 +19,11 @@ public:
     std::list<WardTreeDO> selectTreeRows(
         const std::string& organizationId
     );
-    // Read-only query by ID (no row lock)
+    // ============================================================
+    // 只读按ID查询地理位置（不加FOR UPDATE行锁）
+    // 用于病房/病床ID查询接口，区别于selectLocationByIdForUpdate
+    // 查询adm_location表，过滤is_deleted=0
+    // ============================================================
     PtrWardLocationDO selectLocationById(
         const std::string& id
     );

@@ -38,7 +38,12 @@ std::list<WardTreeDO> WardDAO::selectTreeRows(
         params
     );
 }
-// Read-only query by ID (no row lock, for lookup endpoints)
+// ============================================================
+// 只读按ID查询地理位置记录
+// SQL: SELECT * FROM adm_location WHERE id=? AND is_deleted=0 LIMIT 1
+// 不加FOR UPDATE锁，仅用于查询展示场景（如病房/病床ID查询接口）
+// 写操作场景（修改/删除/状态变更）请使用selectLocationByIdForUpdate加锁查询
+// ============================================================
 PtrWardLocationDO WardDAO::selectLocationById(
     const std::string& id)
 {

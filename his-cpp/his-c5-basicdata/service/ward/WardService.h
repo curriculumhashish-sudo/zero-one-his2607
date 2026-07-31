@@ -33,10 +33,18 @@ class WardService
 public:
     oatpp::List<WardTreeNodeVO::Wrapper> GetTree(WardTreeQuery::Wrapper query);
 
-    // Query room by ID (returns room DTO with id/name/wardAreaId)
+    // ============================================================
+    // 根据ID查询病房/病床 — 只读查询，不加行锁
+    // 返回nullptr表示记录不存在或类型不匹配
+    // ============================================================
+
+    // 根据病房ID查询病房名称及所属病区
+    // 校验formEnum=="HOUSE"，返回{id, name, wardAreaId=parent_id}
     WardRoomDTO::Wrapper queryRoomById(const std::string& id);
 
-    // Query bed by ID (returns bed DTO with id/name/status/wardRoomId)
+    // 根据病床ID查询病床名称、状态及所属病房
+    // 校验formEnum=="BED"，返回{id, name, status, wardRoomId=parent_id}
+    // status映射: DISABLED→2, IN_USE→1, 其他→0
     WardBedDTO::Wrapper queryBedById(const std::string& id);
 
     std::string createLocation(

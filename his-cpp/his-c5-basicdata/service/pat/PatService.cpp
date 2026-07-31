@@ -140,10 +140,19 @@ PageDTO<PatDTO::Wrapper>::Wrapper PatService::queryPatPage(const PatPageQuery::W
 	return pageData;
 }
 
+// ============================================================
+// 软删除患者
+// 业务逻辑:
+//   ① 获取当前时间作为删除时间戳
+//   ② 从JWT Payload解析操作人: 优先username → 其次id → 兜底"unknown"
+//   ③ 调用DAO执行SQL: UPDATE adm_patient SET is_deleted=1 WHERE id=? AND is_deleted=0
+// 返回: affected>0即删除成功，affected==0表示记录不存在或已被删除
+// ============================================================
 bool PatService::removePatient(const std::string& id, const PayloadDTO& payload)
 {
 	PatientDAO dao;
 	std::string now = SimpleDateTimeFormat::getFormatNow();
+	// 解析操作人身份
 	std::string actor = payload.getUsername();
 	if (actor.empty() || actor == "none")
 	{

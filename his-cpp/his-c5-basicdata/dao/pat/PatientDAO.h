@@ -34,10 +34,11 @@ public:
 	 */
 	uint64_t countPatPage(const PatPageQuery::Wrapper& query);
 
-	/**
-	 * Soft-delete a patient by ID (sets is_deleted=1).
-	 * Returns affected row count (1 on success, 0 if not found).
-	 */
+	// ============================================================
+	// 软删除患者 — 设置is_deleted=1，记录删除人和删除时间
+	// SQL: UPDATE adm_patient SET is_deleted=1, deleted_at=?, deleted_by=?, updated_at=?, updated_by=? WHERE id=? AND is_deleted=0
+	// 返回: 受影响行数（1=成功, 0=记录不存在或已被删除）
+	// ============================================================
 	int softDeletePatient(const std::string& id,
 		const std::string& deletedAt,
 		const std::string& deletedBy);

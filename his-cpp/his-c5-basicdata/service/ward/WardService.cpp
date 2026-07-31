@@ -279,7 +279,13 @@ oatpp::List<WardTreeNodeVO::Wrapper> WardService::GetTree(WardTreeQuery::Wrapper
     return applyTreeFilters(result, statusEnum, keyword);
 }
 
-// Query room by ID — returns id, name, wardAreaId (parent_id)
+// ============================================================
+// 根据病房ID查询病房信息
+// 业务逻辑: 从adm_location表中按ID查询HOUSE类型记录
+// 步骤: ① trim ID → ② WardDAO只读查询 → ③ 校验formEnum=="HOUSE"
+//      → ④ 将parent_id映射为wardAreaId返回
+// 返回: {id, name, wardAreaId}，ID无效或记录不存在返回nullptr
+// ============================================================
 WardRoomDTO::Wrapper WardService::queryRoomById(const std::string& rawId)
 {
     std::string id = rawId;
@@ -295,11 +301,20 @@ WardRoomDTO::Wrapper WardService::queryRoomById(const std::string& rawId)
     auto dto = WardRoomDTO::createShared();
     dto->id = row->getId();
     dto->name = row->getName();
-    dto->wardAreaId = row->getParentId();
+    dto->wardAreaId = row->getParentId();  // 所属病区ID = parent_id
     return dto;
 }
 
-// Query bed by ID — returns id, name, status, wardRoomId (parent_id)
+// ============================================================
+// 根据病床ID查询病床信息
+// 业务逻辑: 从adm_location表中按ID查询BED类型记录
+// 步骤: ① trim ID → ② WardDAO只读查询 → ③ 校验formEnum=="BED"
+//      → ④ 将parent_id映射为wardRoomId，status_enum/operational_enum映射为Int32状态码
+// 状态映射: status_enum=="DISABLED" → 2(停用)
+//           operational_enum=="IN_USE" → 1(占用)
+//           其他 → 0(空闲)
+// 返回: {id, name, status, wardRoomId}，ID无效或记录不存在返回nullptr
+// ============================================================
 WardBedDTO::Wrapper WardService::queryBedById(const std::string& rawId)
 {
     std::string id = rawId;
@@ -315,8 +330,8 @@ WardBedDTO::Wrapper WardService::queryBedById(const std::string& rawId)
     auto dto = WardBedDTO::createShared();
     dto->id = row->getId();
     dto->name = row->getName();
-    dto->wardRoomId = row->getParentId();
-    // status: 0 = idle, 1 = in use, 2 = disabled
+    dto->wardRoomId = row->getParentId();  // 所属病房ID = parent_id
+    // status: 0 = 空闲, 1 = 占用, 2 = 停用
     if (row->getStatusEnum() == "DISABLED")
         dto->status = 2;
     else if (row->getOperationalEnum() == "IN_USE")
