@@ -6,19 +6,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zeroone.star.dispense.entity.AdmPatient;
 import com.zeroone.star.project.query.j7.dispense.PatientQueueQuery;
 import com.zeroone.star.project.vo.j7.dispense.PatientQueueVO;
-import feign.Param;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
-/**
- * <p>
- * 患者 Mapper
- * </p>
- *
- * @author j7
- * @since 2026-07-24
- */
 @Mapper
 public interface AdmPatientMapper extends BaseMapper<AdmPatient> {
+
     IPage<PatientQueueVO> pagePatientQueue(
             Page<?> page,
             @Param("query") PatientQueueQuery query
