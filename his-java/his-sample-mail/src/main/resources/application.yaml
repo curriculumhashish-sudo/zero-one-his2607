@@ -1,9 +1,0 @@
-server:
-  port: ${sp.mail}
-  servlet:
-    # 设置应用上下文路径
-    context-path: /mail
-spring:
-  application:
-    name: ${sn.mail}
-
