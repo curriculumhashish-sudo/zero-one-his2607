@@ -182,6 +182,6 @@ public:
 	// 将jwt decoded_jwt的属性转换到Payload中
 	// 注意：新增属性字段后需要维护此方法的定义
 	void propToPayload(const jwt::decoded_jwt<jwt::traits::kazuho_picojson>& decoded);
-};
+ };
 
 #endif // !_PAYLOADDTO_H_
