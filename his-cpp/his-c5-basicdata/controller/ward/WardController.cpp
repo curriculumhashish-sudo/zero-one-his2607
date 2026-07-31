@@ -4,6 +4,7 @@
 #include "StringUtil.h"
 #include "../../service/ward/WardService.h"
 
+
 WardRoomJsonVO::Wrapper WardController::execQueryRoomById(const String& id)
 {
     // 定义返回数据对象
@@ -17,9 +18,21 @@ WardRoomJsonVO::Wrapper WardController::execQueryRoomById(const String& id)
         return jvo;
     }
 
-    // 执行数据新增
-    auto res = WardService().getRoomById(id.getValue({}));
-    jvo->success(res);
+    // 执行数据查询
+    auto resDo = WardService().getRoomById(id.getValue({}));
+    if (!resDo) {
+        jvo->init(nullptr, RS_FAIL);
+        return jvo;
+    }
+
+    // 将 DO 转为 DTO
+    auto dto = WardRoomDTO::createShared();
+    dto->id = resDo->getId();
+    dto->name = resDo->getName();
+    // 将 parentId 作为 wardAreaId
+    dto->wardAreaId = resDo->getParentId();
+
+    jvo->success(dto);
 
     //响应结果
     return jvo;
@@ -31,16 +44,27 @@ WardBedJsonVO::Wrapper WardController::execQueryBedById(const String& id)
     auto jvo = WardBedJsonVO::createShared();
 
     // 参数校验
-    // 非空校验
     if (!id)
     {
         jvo->init(nullptr, RS_PARAMS_INVALID);
         return jvo;
     }
+    // 执行数据查询
+    auto resDo = WardService().getBedById(id.getValue({}));
+    if (!resDo) {
+        jvo->init(nullptr, RS_FAIL);
+        return jvo;
+    }
 
-    // 执行数据新增
-    auto res = WardService().getBedById(id.getValue({}));
-    jvo->success(res);
+    // 将 DO 转为 DTO
+    auto dto = WardBedDTO::createShared();
+    dto->id = resDo->getId();
+    dto->name = resDo->getName();
+    // DO 的 statusEnum 是字符串，这里用默认值 0
+    dto->status = 0;
+    dto->wardRoomId = resDo->getParentId();
+
+    jvo->success(dto);
 
     //响应结果
     return jvo;

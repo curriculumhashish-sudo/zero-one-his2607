@@ -222,8 +222,8 @@ public:
         d.setOrganizationId(rs->getString(4));
         d.setStatusEnum(rs->getString(5));
         d.setTypeJson(rs->getString(6));
-        d.setDisplayOrder(rs->getInt(7));
-        d.setVersion(rs->getInt(8));
+        d.setDisplayOrder(rs->getString(7));
+        d.setVersion(rs->getString(8));
         d.setCreatedAt(rs->getString(9));
         d.setUpdatedAt(rs->getString(10));
         return d;
@@ -242,8 +242,8 @@ public:
         p->setOrganizationId(rs->getString(4));
         p->setStatusEnum(rs->getString(5));
         p->setTypeJson(rs->getString(6));
-        p->setDisplayOrder(rs->getInt(7));
-        p->setVersion(rs->getInt(8));
+        p->setDisplayOrder(rs->getString(7));
+        p->setVersion(rs->getString(8));
         p->setCreatedAt(rs->getString(9));
         p->setUpdatedAt(rs->getString(10));
         return p;
