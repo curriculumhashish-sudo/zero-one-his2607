@@ -33,25 +33,24 @@ public class menzhenfayao implements OutPharmApis {
             summary = "分页查询患者队列",
             description = "根据姓名、状态、机构等条件分页查询候诊/发药患者队列"
     )
+
+    // ... existing code ...
     @GetMapping("/patient-queue")
     @Override
     public JsonVO<IPage<PatientQueueVO>> pagePatientQueue(PatientQueueQuery query) {
         IPage<PatientQueueVO> page = patientService.pagePatientQueue(query);
-        return page == null || page.getRecords().isEmpty()
-                ? JsonVO.fail(null)
-                : JsonVO.success(page);
+        return JsonVO.success(page);
     }
 
     @Operation(
             summary = "分页查询患者药品项目",
             description = "根据患者ID、就诊ID、处方状态等条件查询患者处方药品明细"
     )
+    // ... existing code ...
     @GetMapping("/patient-drug-items")
     @Override
     public JsonVO<IPage<PatientDrugItemVO>> pagePatientDrugItems(PatientDrugItemQuery query) {
         IPage<PatientDrugItemVO> page = drugService.pagePatientDrugItems(query);
-        return page == null || page.getRecords().isEmpty()
-                ? JsonVO.fail(null)
-                : JsonVO.success(page);
+        return JsonVO.success(page);
     }
 }

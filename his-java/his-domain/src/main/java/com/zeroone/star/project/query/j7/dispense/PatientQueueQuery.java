@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDateTime;
+
 /**
  * 患者队列查询条件（数据库层）
  */
@@ -13,30 +15,34 @@ import lombok.EqualsAndHashCode;
 @Schema(description = "患者队列数据库查询条件")
 public class PatientQueueQuery extends PageQuery {
 
-    @Schema(description = "租户ID", example = "t001")
-    private String tenantId;
 
-    @Schema(description = "患者业务号", example = "PAT20260101")
-    private String busNo;
+    @Schema(description = "机构ID", example = "1")
+    private String organization_id;
 
-    @Schema(description = "患者姓名", example = "张三")
-    private String name;
+    @Schema(description = "患者ID", example = "1")
+    private String patient_id;
 
-    @Schema(description = "性别编码(gender_enum)", example = "1")
-    private String genderEnum;
+    @Schema(description = "就诊标识", example = "1")
+    private String encounter_id;
 
-    @Schema(description = "身份证号", example = "110101199001011234")
-    private String idCard;
+    @Schema(description = "预约分类", example = "OUTPATIENT_BOOKING")
+    private String appointment_kind;
 
-    @Schema(description = "手机号", example = "13800000000")
-    private String phone;
+    @Schema(description = "服务类型编码", example = "GENERAL")
+    private String service_type_code;
 
-    @Schema(description = "就诊状态(status_enum)", example = "1")
-    private String statusEnum;
+    @Schema(description = "去向诊室ID", example = "1")
+    private String destination_location_id;
 
-    @Schema(description = "有效标识(0-无效 1-有效)", example = "1")
-    private Integer activeFlag;
+    @Schema(description = "预约日期", example = "2024-01-15")
+    private String booking_date;
 
-    @Schema(description = "机构ID", example = "org_001")
-    private String organizationId;
+    @Schema(description = "分诊等级", example = "LEVEL1")
+    private String triage_level;
+
+    @Schema(description = "就诊开始时间")
+    private LocalDateTime start_time;
+
+    @Schema(description = "就诊结束时间")
+    private LocalDateTime end_time;
 }

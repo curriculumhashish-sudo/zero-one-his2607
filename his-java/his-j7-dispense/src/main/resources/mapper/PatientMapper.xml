@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!--
-  门诊发药 Mapper XML
+  门诊发药 - 患者队列 Mapper XML
   @author xingfu
   @since 2026-07-26
 -->
@@ -10,31 +10,54 @@
 
     <select id="pagePatientQueue" resultType="com.zeroone.star.project.vo.j7.dispense.PatientQueueVO">
         SELECT
-        p.id AS patientId,
-        p.name AS patientName,
-        p.gender_enum AS genderEnum,
-        TIMESTAMPDIFF(YEAR, p.birth_date, CURDATE()) AS age,
-        r.encounter_id AS encounterBusNo,
-        r.requester_id AS requesterName,
-        COUNT(r.id) AS drugCount,
-        MIN(r.req_authored_time) AS encounterTime
+        p.id                            AS id,
+        p.id                            AS patient_id,
+        p.name                          AS keyword,
+        r.encounter_id                  AS encounter_id,
+        r.bus_no                        AS bus_no,
+        r.org_id                        AS organization_id,
+        r.location_id                   AS destination_location_id,
+        r.category_enum                 AS service_type_code,
+        r.status_enum                   AS appointment_kind,
+        r.created_at                    AS created_at,
+        r.req_authored_time             AS start_instant
         FROM med_medication_request r
         JOIN adm_patient p ON p.id = r.patient_id
         WHERE r.is_deleted = 0
-        AND r.intent_enum = 'OUTPATIENT'
-        AND r.status_enum = 'PENDING'
-        <if test="query.name != null">
-            AND p.name LIKE CONCAT('%', #{query.name}, '%')
+
+        <if test="query.patient_id != null and query.patient_id != ''">
+            AND r.patient_id = #{query.patient_id}
         </if>
-        <if test="query.pyStr != null">
-            AND p.py_str LIKE CONCAT('%', #{query.pyStr}, '%')
+
+        <if test="query.encounter_id != null and query.encounter_id != ''">
+            AND r.encounter_id = #{query.encounter_id}
         </if>
-        <if test="query.locationId != null">
-            AND r.location_id = #{query.locationId}
+
+        <if test="query.organization_id != null and query.organization_id != ''">
+            AND r.org_id = #{query.organization_id}
         </if>
-        <if test="query.startTime != null and query.endTime != null">
-            AND r.req_authored_time BETWEEN #{query.startTime} AND #{query.endTime}
+
+        <if test="query.appointment_kind != null and query.appointment_kind != ''">
+            AND r.status_enum = #{query.appointment_kind}
         </if>
-        GROUP BY p.id, r.encounter_id
+
+        <if test="query.service_type_code != null and query.service_type_code != ''">
+            AND r.category_enum = #{query.service_type_code}
+        </if>
+
+        <if test="query.destination_location_id != null and query.destination_location_id != ''">
+            AND r.location_id = #{query.destination_location_id}
+        </if>
+
+        <if test="query.start_time != null">
+            AND r.req_authored_time &gt;= #{query.start_time}
+        </if>
+
+        <if test="query.end_time != null">
+            AND r.req_authored_time &lt;= #{query.end_time}
+        </if>
+
+        ORDER BY r.req_authored_time DESC
     </select>
+
 </mapper>

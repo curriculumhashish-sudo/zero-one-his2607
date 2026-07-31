@@ -28,8 +28,6 @@
     AND r.status_enum = 'PENDING'
     AND r.patient_id = #{query.patientId}
     AND r.encounter_id = #{query.encounterId}
-    <if test="query.locationId != null">
-        AND r.location_id = #{query.locationId}
-    </if>
+
 </select>
 </mapper>
