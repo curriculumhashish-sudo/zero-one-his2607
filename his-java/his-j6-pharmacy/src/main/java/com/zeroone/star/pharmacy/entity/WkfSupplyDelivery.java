@@ -1,5 +1,6 @@
 package com.zeroone.star.pharmacy.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Getter;
 import lombok.Setter;
@@ -135,6 +136,7 @@ public class WkfSupplyDelivery implements Serializable {
     /**
      * 病情
      */
+    @TableField("`condition`")
     private String condition;
 
     /**
