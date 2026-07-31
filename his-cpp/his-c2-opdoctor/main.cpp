@@ -23,6 +23,7 @@
 #include "controller/Router.h"
 #include "controller/OtherComponent.hpp"
 #include "DbInit.h"
+#include "service/ClientManager.h"  // 新增
 
 #ifdef LINUX
 #include "NacosClient.h"
@@ -169,6 +170,9 @@ int main(int argc, char* argv[]) {
 	if (!initConnPool) return -1;
 #endif
 
+	// ===== 新增：初始化全局客户端 (Redis + MongoDB) =====
+	ClientManager::init();
+
 #ifdef LINUX
 	// 创建Nacos客户端对象
 	NacosClient nacosClient(
@@ -211,5 +215,9 @@ int main(int argc, char* argv[]) {
 			ServerInfo::getInstance().getServiceName());
 	}
 #endif
+
+	// ===== 新增：销毁全局客户端 =====
+	ClientManager::destroy();
+
 	return 0;
 }

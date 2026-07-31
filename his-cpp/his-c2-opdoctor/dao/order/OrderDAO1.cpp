@@ -1,3 +1,4 @@
+// dao/order/OrderDAO1.cpp
 #include "stdafx.h"
 #include "OrderDAO1.h"
 #include "mapper/MedicationDefinitionMapper1.h"
@@ -7,12 +8,12 @@
 #include "mapper/ServiceRequestMapper1.h"
 #include "mapper/DeviceRequestMapper1.h"
 #include "mapper/ChargeItemDefinitionMapper1.h"
-#include "mapper/PractitionerMapper1.h"
 #include "SimpleDateTimeFormat.h"
 #include <sstream>
 #include <iomanip>
 #include <ctime>
 
+// ========== 辅助查询 ==========
 std::string OrderDAO1::getMedicationIdByBusNo(const std::string& busNo)
 {
     if (busNo.empty()) return "";
@@ -60,23 +61,17 @@ uint64_t OrderDAO1::getUnitPrice(const std::string& instanceTable, const std::st
     return sqlSession->executeQueryNumerical(sql, params);
 }
 
-std::string OrderDAO1::getPractitionerName(const std::string& practitionerId)
-{
-    if (practitionerId.empty()) return "";
-    std::string sql = "SELECT name FROM adm_practitioner WHERE id = ? AND status_enum = 'ACTIVE'";
-    auto result = sqlSession->executeQueryOne<PtrPractitionerDO1>(sql, PtrPractitionerMapper1(), "%s", practitionerId);
-    if (result) {
-        return result->getName();
-    }
-    return "";
-}
-
-std::list<OrderDetailDTO1::Wrapper> OrderDAO1::queryOrderList(const std::string& encounterId, const std::string& patientId,
-    uint64_t pageIndex, uint64_t pageSize, uint64_t& total)
+// ========== 查询医嘱列表（重构：移除医生姓名查询） ==========
+std::list<OrderDetailDTO1::Wrapper> OrderDAO1::queryOrderList(
+    const std::string& encounterId,
+    const std::string& patientId,
+    uint64_t pageIndex,
+    uint64_t pageSize,
+    uint64_t& total,
+    const std::string& doctorName)
 {
     std::list<OrderDetailDTO1::Wrapper> resultList;
 
-    // 分页参数校验
     if (pageIndex < 1) pageIndex = 1;
     if (pageSize < 1) pageSize = 10;
 
@@ -114,7 +109,7 @@ std::list<OrderDetailDTO1::Wrapper> OrderDAO1::queryOrderList(const std::string&
         dto->visitId = oatpp::String(item.getEncounterId());
         dto->patientId = oatpp::String(item.getPatientId());
         dto->doctorId = oatpp::String(item.getRequesterId());
-        dto->doctorName = oatpp::String(getPractitionerName(item.getRequesterId()));
+        dto->doctorName = oatpp::String(doctorName);  // 从 Service 传入，不再查数据库
 
         // 获取药品名称和规格
         std::string medSql2 = "SELECT * FROM med_medication_definition WHERE id = ? AND status_enum = 'ACTIVE'";
@@ -130,7 +125,7 @@ std::list<OrderDetailDTO1::Wrapper> OrderDAO1::queryOrderList(const std::string&
         dto->frequency = oatpp::String(item.getRateCode());
         dto->routeCode = oatpp::String(item.getMethodCode());
 
-        // ========== 第一处：计算药品使用天数 ==========
+        // 计算使用天数
         int days = 0;
         if (!item.getEffectiveDoseStart().empty() && !item.getEffectiveDoseEnd().empty()) {
             std::tm tmStart = {}, tmEnd = {};
@@ -152,7 +147,6 @@ std::list<OrderDetailDTO1::Wrapper> OrderDAO1::queryOrderList(const std::string&
         dto->status = oatpp::String(item.getStatusEnum());
         dto->createTime = oatpp::String(item.getCreatedAt());
 
-        // 计算总价
         double unitPrice = getUnitPrice("med_medication_definition", item.getMedicationId());
         dto->unitPrice = oatpp::Float64(unitPrice);
         dto->totalPrice = oatpp::Float64(unitPrice * item.getQuantity());
@@ -171,9 +165,8 @@ std::list<OrderDetailDTO1::Wrapper> OrderDAO1::queryOrderList(const std::string&
         dto->visitId = oatpp::String(item.getEncounterId());
         dto->patientId = oatpp::String(item.getPatientId());
         dto->doctorId = oatpp::String(item.getRequesterId());
-        dto->doctorName = oatpp::String(getPractitionerName(item.getRequesterId()));
+        dto->doctorName = oatpp::String(doctorName);
 
-        // 获取诊疗名称和规格
         std::string actSql = "SELECT * FROM wkf_activity_definition WHERE id = ? AND status_enum = 'ACTIVE'";
         auto actDef = sqlSession->executeQueryOne<PtrActivityDefinitionDO1>(actSql, PtrActivityDefinitionMapper1(), "%s", item.getActivityId());
         if (actDef) {
@@ -187,7 +180,6 @@ std::list<OrderDetailDTO1::Wrapper> OrderDAO1::queryOrderList(const std::string&
         dto->frequency = oatpp::String(item.getRateCode());
         dto->routeCode = oatpp::String("");
 
-        // ========== 第二处：计算诊疗使用天数 ==========
         int days = 0;
         if (!item.getOccurrenceStartTime().empty() && !item.getOccurrenceEndTime().empty()) {
             std::tm tmStart = {}, tmEnd = {};
@@ -209,7 +201,6 @@ std::list<OrderDetailDTO1::Wrapper> OrderDAO1::queryOrderList(const std::string&
         dto->status = oatpp::String(item.getStatusEnum());
         dto->createTime = oatpp::String(item.getCreatedAt());
 
-        // 计算总价
         double unitPrice = getUnitPrice("wkf_activity_definition", item.getActivityId());
         dto->unitPrice = oatpp::Float64(unitPrice);
         dto->totalPrice = oatpp::Float64(unitPrice * item.getQuantity());
@@ -228,9 +219,8 @@ std::list<OrderDetailDTO1::Wrapper> OrderDAO1::queryOrderList(const std::string&
         dto->visitId = oatpp::String(item.getEncounterId());
         dto->patientId = oatpp::String(item.getPatientId());
         dto->doctorId = oatpp::String(item.getRequesterId());
-        dto->doctorName = oatpp::String(getPractitionerName(item.getRequesterId()));
+        dto->doctorName = oatpp::String(doctorName);
 
-        // 获取耗材名称和规格
         std::string devSql2 = "SELECT * FROM adm_device_definition WHERE id = ? AND status_enum = 'ACTIVE'";
         auto devDef = sqlSession->executeQueryOne<PtrDeviceDefinitionDO1>(devSql2, PtrDeviceDefinitionMapper1(), "%s", item.getDeviceDefId());
         if (devDef) {
@@ -244,7 +234,6 @@ std::list<OrderDetailDTO1::Wrapper> OrderDAO1::queryOrderList(const std::string&
         dto->frequency = oatpp::String(item.getRateCode());
         dto->routeCode = oatpp::String("");
 
-        // ========== 第三处：计算耗材使用天数 ==========
         int days = 0;
         if (!item.getUseStartTime().empty() && !item.getUseEndTime().empty()) {
             std::tm tmStart = {}, tmEnd = {};
@@ -266,7 +255,6 @@ std::list<OrderDetailDTO1::Wrapper> OrderDAO1::queryOrderList(const std::string&
         dto->status = oatpp::String(item.getStatusEnum());
         dto->createTime = oatpp::String(item.getCreatedAt());
 
-        // 计算总价
         double unitPrice = getUnitPrice("adm_device_definition", item.getDeviceDefId());
         dto->unitPrice = oatpp::Float64(unitPrice);
         dto->totalPrice = oatpp::Float64(unitPrice * item.getQuantity());
@@ -283,10 +271,8 @@ std::list<OrderDetailDTO1::Wrapper> OrderDAO1::queryOrderList(const std::string&
         return a.first > b.first;
         });
 
-    // 计算总条数
     total = mergedList.size();
 
-    // 分页截取
     uint64_t start = (pageIndex - 1) * pageSize;
     uint64_t end = std::min(start + pageSize, total);
 
@@ -300,6 +286,7 @@ std::list<OrderDetailDTO1::Wrapper> OrderDAO1::queryOrderList(const std::string&
     return resultList;
 }
 
+// ========== 插入 ==========
 bool OrderDAO1::insertMedicationOrder(const MedicationRequestDO1& data)
 {
     return insert(data) == 1;
@@ -315,6 +302,7 @@ bool OrderDAO1::insertDeviceOrder(const DeviceRequestDO1& data)
     return insert(data) == 1;
 }
 
+// ========== 更新 ==========
 bool OrderDAO1::updateMedicationOrder(const MedicationRequestDO1& data)
 {
     return update(data) == 1;
@@ -330,6 +318,7 @@ bool OrderDAO1::updateDeviceOrder(const DeviceRequestDO1& data)
     return update(data) == 1;
 }
 
+// ========== 查询单条 ==========
 PtrMedicationRequestDO1 OrderDAO1::selectMedicationOrderById(const std::string& id)
 {
     std::string sql = "SELECT * FROM med_medication_request WHERE id = ? AND is_deleted = 0";

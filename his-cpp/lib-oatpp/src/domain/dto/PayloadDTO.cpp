@@ -61,12 +61,6 @@ PayloadDTO::PayloadDTO()
 	// 生成jti，使用当前时间作为jti的值
 	this->Jti(std::to_string(time(nullptr)));
 	this->setCode(PayloadCode::SUCCESS);
-	// 新增：租户标识默认值
-	this->tenantId = "TEST_TENANT_001";
-	// 新增：机构标识默认值
-	this->orgId = "TEST_ORG_001";
-
-	// 注意：新增字段默认值在此处补充
 }
 
 void PayloadDTO::putAuthority(std::string authstr)
@@ -91,16 +85,22 @@ void PayloadDTO::propToJwt(jwt::builder<jwt::default_clock, jwt::traits::kazuho_
 	// 转换id
 	builder.set_payload_claim("id", jwt::basic_claim<jwt::traits::kazuho_picojson>(id));
 
-	// 新增字段需要在这里转换
 
 	// 转换人员名称
 	builder.set_payload_claim("name", jwt::basic_claim<jwt::traits::kazuho_picojson>(name));
 	// 转换组织机构信息
+
+	// 提示：新增字段需要在后补充方法
+
+	// 转换真实姓名
+	builder.set_payload_claim("name", jwt::basic_claim<jwt::traits::kazuho_picojson>(name));
+	// 转换组织单元信息
 	picojson::object org_obj;
 	for (const auto& org : organizationUnits) {
 		org_obj.insert(std::make_pair(org.first, picojson::value(org.second)));
 	}
 	builder.set_payload_claim("organizationUnits", jwt::basic_claim<jwt::traits::kazuho_picojson>(picojson::value(org_obj)));
+
 	// 转换对应执业人员ID
 	builder.set_payload_claim("practitionerId", jwt::basic_claim<jwt::traits::kazuho_picojson>(practitionerId));
 	// 转换对应执业人员名称
@@ -109,11 +109,6 @@ void PayloadDTO::propToJwt(jwt::builder<jwt::default_clock, jwt::traits::kazuho_
 	builder.set_payload_claim("titleName", jwt::basic_claim<jwt::traits::kazuho_picojson>(titleName));
 	// 转换职称编码
 	builder.set_payload_claim("titleCode", jwt::basic_claim<jwt::traits::kazuho_picojson>(titleCode));
-
-	// 新增：转换租户标识
-	builder.set_payload_claim("tenantId", jwt::basic_claim<jwt::traits::kazuho_picojson>(tenantId));
-	// 新增：转换机构标识
-	builder.set_payload_claim("orgId", jwt::basic_claim<jwt::traits::kazuho_picojson>(orgId));
 }
 
 void PayloadDTO::propToPayload(const jwt::decoded_jwt<jwt::traits::kazuho_picojson>& decoded)
@@ -156,6 +151,7 @@ void PayloadDTO::propToPayload(const jwt::decoded_jwt<jwt::traits::kazuho_picojs
 		}
 	}
 
+
 	if (claims.count("name")) {
 		const auto& name_value = claims.at("name");
 		try {
@@ -165,7 +161,6 @@ void PayloadDTO::propToPayload(const jwt::decoded_jwt<jwt::traits::kazuho_picojs
 			std::cerr << "Error parsing name: " << e.what() << std::endl;
 		}
 	}
-
 	if (claims.count("organizationUnits")) {
 		const auto& org_value = claims.at("organizationUnits");
 		try {
@@ -245,43 +240,17 @@ void PayloadDTO::propToPayload(const jwt::decoded_jwt<jwt::traits::kazuho_picojs
 			}
 		}
 	}
-
-
-	// 转换职称编码
-	if (claims.count("titleCode")) {
-		const auto& title_code = claims.at("titleCode");
-		try {
-			setTitleCode(title_code.get<std::string>());
-		}
-		catch (const std::exception& e) {
-			std::cerr << "Error parsing titleCode: " << e.what() << std::endl;
-		}
-	}
+	
 	// 新增：解析租户标识
 	if (claims.count("tenantId")) {
 		const auto& value = claims.at("tenantId");
 		try {
-			if (value.is<std::string>()) {
-				this->tenantId = value.get<std::string>();
-			}
+			setTenantId(value.get<std::string>());
 		}
 		catch (const std::exception& e) {
-			std::cerr << "Error parsing tenantId: " << e.what() << std::endl;
-			this->tenantId = "TEST_TENANT_001";
+            std::cerr << "Error parsing tenantId: " << e.what() << std::endl;
 		}
 	}
-	// 新增：解析机构标识
-	if (claims.count("orgId")) {
-		const auto& value = claims.at("orgId");
-		try {
-			if (value.is<std::string>()) {
-				this->orgId = value.get<std::string>();
-			}
-		}
-		catch (const std::exception& e) {
-			std::cerr << "Error parsing orgId: " << e.what() << std::endl;
-			this->orgId = "TEST_ORG_001";
-		}
-	}
+
 }
 

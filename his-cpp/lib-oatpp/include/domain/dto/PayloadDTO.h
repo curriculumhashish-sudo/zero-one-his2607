@@ -106,6 +106,8 @@ private:
 
 	std::string tenantId;
 	std::string orgId;
+
+
 public:
 
 	void setTenantId(std::string val) { tenantId = val; }
@@ -169,11 +171,10 @@ public:
 
 	// 添加权限
 	void putAuthority(std::string authstr);
-	// 添加机构
 	void putOrg(std::string orgId, std::string orgName);
 
-	// 将Payload属性转换写入jwt builder
-	// 注意：新增字段需要适配此方法实现
+	// 将Payload的属性转换到jwt builder中
+	// 注意：新增属性字段后需要维护此方法的定义
 	void propToJwt(jwt::builder<jwt::default_clock, jwt::traits::kazuho_picojson>& builder) const;
 
 	// 将jwt decoded_jwt属性转换载入Payload

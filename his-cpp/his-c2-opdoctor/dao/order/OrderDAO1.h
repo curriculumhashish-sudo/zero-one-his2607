@@ -1,3 +1,4 @@
+// dao/order/OrderDAO1.h
 #pragma once
 #ifndef _ORDER_DAO_1_H_
 #define _ORDER_DAO_1_H_
@@ -15,6 +16,7 @@
 
 /**
  * 医嘱相关数据库操作
+ * 重构：移除 getPractitionerName，医生姓名由 Service 层从 Payload 传入
  */
 class OrderDAO1 : public BaseDAO
 {
@@ -23,11 +25,6 @@ private:
      * 获取物品单价（从 adm_charge_item_definition 查询）
      */
     uint64_t getUnitPrice(const std::string& instanceTable, const std::string& instanceId);
-
-    /**
-     * 查询医生姓名
-     */
-    std::string getPractitionerName(const std::string& practitionerId);
 
 public:
     /**
@@ -47,9 +44,16 @@ public:
 
     /**
      * 查询患者医嘱列表（合并药品、诊疗、耗材医嘱）
+     * @param doctorName 医生姓名（由 Service 层从 Payload 传入，不再查数据库）
      */
-    std::list<OrderDetailDTO1::Wrapper> queryOrderList(const std::string& encounterId, const std::string& patientId,
-        uint64_t pageIndex, uint64_t pageSize, uint64_t& total);
+    std::list<OrderDetailDTO1::Wrapper> queryOrderList(
+        const std::string& encounterId,
+        const std::string& patientId,
+        uint64_t pageIndex,
+        uint64_t pageSize,
+        uint64_t& total,
+        const std::string& doctorName = ""  // 新增参数
+    );
 
     /**
      * 插入药品医嘱
