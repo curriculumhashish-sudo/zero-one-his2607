@@ -36,8 +36,9 @@ int QuitNumberDAO::insertRefundPayment(const std::string& id, const std::string&
     const std::string& chargeItemIds, const std::string& entererId) {
     std::string sql = "INSERT INTO fin_payment_reconciliation ("
         "id, status_enum, patient_id, encounter_id, payment_no, payment_enum, kind_enum, "
-        "tendered_amount, display_amount, charge_item_ids, enterer_id, bill_date, version) "
-        "VALUES (?, 'COMPLETED', ?, ?, ?, ?, 'REFUND', ?, ?, ?, ?, NOW(), 0)";
+        "tendered_amount, display_amount, charge_item_ids, enterer_id, bill_date, "
+        "print_count, created_at, version) "
+        "VALUES (?, 'COMPLETED', ?, ?, ?, ?, 'REFUND', ?, ?, ?, ?, NOW(), 0, NOW(), 0)";
     return sqlSession->executeUpdate(sql, "%s%s%s%s%s%d%d%s%s",
         id, patientId, encounterId,
         paymentNo, paymentEnum,
@@ -47,8 +48,9 @@ int QuitNumberDAO::insertRefundPayment(const std::string& id, const std::string&
 int QuitNumberDAO::insertRefundDetail(const std::string& id, const std::string& reconciliationId,
     const std::string& payEnum, double returnAmount) {
     std::string sql = "INSERT INTO fin_payment_rec_detail ("
-        "id, reconciliation_id, pay_enum, amount, charge_amount, return_amount, pay_trans_date, result_enum, version) "
-        "VALUES (?, ?, ?, 0, 0, ?, NOW(), 'SUCCESS', 0)";
+        "id, reconciliation_id, account_id, pay_enum, amount, charge_amount, return_amount, "
+        "pay_trans_date, result_enum, created_at, version) "
+        "VALUES (?, ?, '', ?, 0, 0, ?, NOW(), 'SUCCESS', NOW(), 0)";
     return sqlSession->executeUpdate(sql, "%s%s%s%d",
         id, reconciliationId, payEnum, returnAmount);
 }

@@ -7,48 +7,54 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * ¶¨ÒåÈ·ÈÏÊÕ·ÑDTO
+ * ç¡®è®¤ç¼´è´¹DTO
  */
 class ChargeConfirmDTO : public oatpp::DTO {
     DTO_INIT(ChargeConfirmDTO, DTO);
 
-    // ¾ÍÕïºÅ×Ö¶Î
+    // å°±è¯Šå·
     DTO_FIELD(String, visitNumber);
     DTO_FIELD_INFO(visitNumber) {
         info->description = ZH_WORDS_GETTER("macchiato.charging.register.visitNumber");
     }
 
-    // »¼ÕßÐÕÃû×Ö¶Î
+    // Patient ID field
+    DTO_FIELD(String, patientId);
+    DTO_FIELD_INFO(patientId) {
+        info->description = ZH_WORDS_GETTER("macchiato.charging.register.patientId");
+    }
+
+    // Patient name field
     DTO_FIELD(String, name);
     DTO_FIELD_INFO(name) {
         info->description = ZH_WORDS_GETTER("macchiato.charging.register.patientName");
     }
 
-    // ÁªÏµµç»°×Ö¶Î
+    // Phone field
     DTO_FIELD(String, phone);
     DTO_FIELD_INFO(phone) {
         info->description = ZH_WORDS_GETTER("macchiato.charging.register.phone");
     }
 
-    // Ó¦ÊÕ½ð¶î×Ö¶Î
+    // money field
     DTO_FIELD(Float64, amount);
     DTO_FIELD_INFO(amount) {
         info->description = ZH_WORDS_GETTER("macchiato.charging.register.amount");
     }
 
-    // Ö§¸¶²Ý¸åºÅ×Ö¶Î
+    // æ”¯ä»˜æ–¹å¼è‰ç¨¿å·
     DTO_FIELD(String, paymentDraft);
     DTO_FIELD_INFO(paymentDraft) {
         info->description = ZH_WORDS_GETTER("macchiato.charging.register.paymentDraft");
     }
 
-    // ¹ÒºÅÀàÐÍ×Ö¶Î
+    // æŒ‚å·ç±»åž‹
     DTO_FIELD(String, registrationType);
     DTO_FIELD_INFO(registrationType) {
         info->description = ZH_WORDS_GETTER("macchiato.charging.register.registrationType");
     }
 
-    // Ö§¸¶·½Ê½×Ö¶Î:ÏÖ½ð¡¢Î¢ÐÅ¡¢Ö§¸¶±¦¡¢ÒøÐÐ¿¨ 1-cash, 2-wechat, 3-alipay, 4-bankcard
+    // æ”¯ä»˜æ–¹å¼ 1-cash, 2-wechat, 3-alipay, 4-bankcard
     DTO_FIELD(Int32, paymentMethod);
     DTO_FIELD_INFO(paymentMethod) {
         info->description = ZH_WORDS_GETTER("macchiato.charging.register.paymentMethod");

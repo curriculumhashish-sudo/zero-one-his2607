@@ -12,7 +12,7 @@ int ChargeConfirmDAO::updatePaymentReconciliation(const std::string& paymentDraf
         "bill_date = ?, "
         "version = version + 1 "
         "WHERE id = ? AND status_enum = 'DRAFT' AND version = ?";
-    return sqlSession->executeUpdate(sql, "%s%s%s%s%i",
+    return sqlSession->executeUpdate(sql, "%s%s%s%i",
         std::string(paymentEnum), std::string(billDate),
         std::string(paymentDraftId), version);          
 }
@@ -31,8 +31,9 @@ int ChargeConfirmDAO::insertPaymentDetail(const std::string& detailId, const std
         "pay_trans_date, "
         "result_enum, "
         "target_enum, "
+        "created_at, "
         "version) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)";
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), 0)";
     return sqlSession->executeUpdate(sql, "%s%s%s%s%d%d%s%s%s",
         std::string(detailId), std::string(reconciliationId), std::string(accountId),
         std::string(payEnum), amount, chargeAmount, std::string(payTransDate),
@@ -43,14 +44,16 @@ int ChargeConfirmDAO::insertPaymentDetail(const std::string& detailId, const std
 int ChargeConfirmDAO::insertPaymentStatic(const std::string& reconciliationId, const std::string& methodCode, const std::string& typeCode,
     const std::string& typeName, double amount, const std::string& chargeItemIds) {
     std::string sql = "INSERT INTO fin_payment_rec_static ("
+        "id, "
         "reconciliation_id, "
         "method_code, "
         "type_code, "
         "type_name, "
         "amount, "
         "charge_item_ids, "
+        "created_at, "
         "version) "
-        "VALUES (?, ?, ?, ?, ?, ?, 0)";
+        "VALUES (UUID(), ?, ?, ?, ?, ?, ?, NOW(), 0)";
     return sqlSession->executeUpdate(sql, "%s%s%s%s%d%s",
         std::string(reconciliationId), std::string(methodCode), std::string(typeCode),
         std::string(typeName), amount, std::string(chargeItemIds));
@@ -62,7 +65,7 @@ int ChargeConfirmDAO::updateChargeItemToPaid(const std::string& paymentDraftId) 
         "status_enum = 'PAID', "
         "version = version + 1 "
         "WHERE id = ? AND status_enum = 'UNPAID'";
-    return sqlSession->executeUpdate(sql, "%s%i", std::string(paymentDraftId));
+    return sqlSession->executeUpdate(sql, "%s", std::string(paymentDraftId));
 }
 
 // --------------------- 插入发票记录 ---------------------
@@ -81,8 +84,9 @@ int ChargeConfirmDAO::insertInvoice(const std::string& invoiceId, const std::str
         "charge_item_ids, "
         "issued_at, "
         "payment_terms, "
+        "created_at, "
         "version) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)";
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), 0)";
     return sqlSession->executeUpdate(sql, "%s%s%s%s%s%s%s%d%s%s%s",
         std::string(invoiceId), std::string(patientId), std::string(reconciliationId),
         std::string(paymentId), std::string(busNo), std::string(billNo),
