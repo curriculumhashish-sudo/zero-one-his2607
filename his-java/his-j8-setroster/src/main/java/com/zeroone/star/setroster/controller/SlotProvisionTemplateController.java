@@ -1,31 +1,20 @@
 package com.zeroone.star.setroster.controller;
 
-import cn.hutool.core.bean.BeanUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotProvisionTemplateAddDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotProvisionTemplateDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotProvisionTemplateDetailDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotProvisionTemplateModifyDTO;
-import com.zeroone.star.project.dto.j8.setroster.SlotTemplateItemDTO;
 import com.zeroone.star.project.enums.ResultStatus;
 import com.zeroone.star.project.j8.setroster.SlotProvisionTemplateApis;
 import com.zeroone.star.project.query.j8.setroster.SlotProvisionTemplateQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.setroster.entity.BkgSlotProvisionTemplate;
 import com.zeroone.star.setroster.service.IBkgSlotProvisionTemplateService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * <p>
@@ -45,36 +34,13 @@ public class SlotProvisionTemplateController implements SlotProvisionTemplateApi
     @Resource
     private IBkgSlotProvisionTemplateService slotProvisionTemplateService;
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-
     @Operation(summary = "分页查询放号时段模板列表")
     @GetMapping("/querySlotProvisionTemplates")
     @Override
     public JsonVO<PageDTO<SlotProvisionTemplateDTO>> querySlotProvisionTemplates(
             @Valid @ModelAttribute SlotProvisionTemplateQuery query) {
-
-        Page<BkgSlotProvisionTemplate> page = new Page<>(query.getPageIndex(), query.getPageSize());
-        LambdaQueryWrapper<BkgSlotProvisionTemplate> wrapper = new LambdaQueryWrapper<>();
-
-        // 关键词搜索：匹配模板编码或模板名称
-        if (StringUtils.hasText(query.getKeyword())) {
-            wrapper.and(w -> w
-                    .like(BkgSlotProvisionTemplate::getTemplateCode, query.getKeyword())
-                    .or()
-                    .like(BkgSlotProvisionTemplate::getTemplateName, query.getKeyword()));
-        }
-        if (StringUtils.hasText(query.getOrganizationId())) {
-            wrapper.eq(BkgSlotProvisionTemplate::getOrganizationId, query.getOrganizationId());
-        }
-        if (query.getEnabled() != null) {
-            wrapper.eq(BkgSlotProvisionTemplate::getEnabled, query.getEnabled());
-        }
-        wrapper.orderByDesc(BkgSlotProvisionTemplate::getCreatedAt);
-
-        PageDTO<SlotProvisionTemplateDTO> result = PageDTO.create(
-                slotProvisionTemplateService.page(page, wrapper),
-                SlotProvisionTemplateDTO::new);
-
+        // 调用业务层查询（已过滤已删除记录、指定查询字段）
+        PageDTO<SlotProvisionTemplateDTO> result = slotProvisionTemplateService.querySlotProvisionTemplatePage(query);
         return JsonVO.create(result, ResultStatus.SUCCESS);
     }
 
@@ -83,25 +49,10 @@ public class SlotProvisionTemplateController implements SlotProvisionTemplateApi
     @Override
     public JsonVO<SlotProvisionTemplateDetailDTO> getSlotProvisionTemplate(
             @RequestParam("id") String id) {
-
-        BkgSlotProvisionTemplate entity = slotProvisionTemplateService.getById(id);
-        if (entity == null) {
+        // 调用业务层查询详情（含时段JSON解析、已删除记录过滤）
+        SlotProvisionTemplateDetailDTO detail = slotProvisionTemplateService.getSlotProvisionTemplateDetail(id);
+        if (detail == null) {
             return JsonVO.create(null, ResultStatus.FAIL);
-        }
-
-        SlotProvisionTemplateDetailDTO detail = new SlotProvisionTemplateDetailDTO();
-        BeanUtil.copyProperties(entity, detail);
-
-        // 解析 slot_templates_json → List<SlotTemplateItemDTO>
-        if (StringUtils.hasText(entity.getSlotTemplatesJson())) {
-            try {
-                List<SlotTemplateItemDTO> items = objectMapper.readValue(
-                        entity.getSlotTemplatesJson(),
-                        new TypeReference<List<SlotTemplateItemDTO>>() {});
-                detail.setSlotTemplates(items);
-            } catch (Exception e) {
-                detail.setSlotTemplates(Collections.emptyList());
-            }
         }
         return JsonVO.create(detail, ResultStatus.SUCCESS);
     }
@@ -111,19 +62,13 @@ public class SlotProvisionTemplateController implements SlotProvisionTemplateApi
     @Override
     public JsonVO<String> addSlotProvisionTemplate(
             @Valid @RequestBody SlotProvisionTemplateAddDTO addDTO) {
-
-        BkgSlotProvisionTemplate entity = new BkgSlotProvisionTemplate();
-        BeanUtil.copyProperties(addDTO, entity);
-
-        // 时段列表 → JSON 字符串
-        try {
-            entity.setSlotTemplatesJson(objectMapper.writeValueAsString(addDTO.getSlotTemplates()));
-        } catch (Exception e) {
-            return JsonVO.create(null, ResultStatus.PARAMS_INVALID);
+        // 调用业务层新增（含编码唯一性校验、时段列表序列化）
+        String id = slotProvisionTemplateService.addSlotProvisionTemplate(addDTO);
+        if (id == null) {
+            // 编码重复或序列化失败
+            return JsonVO.fail("模板编码已存在或参数异常");
         }
-
-        slotProvisionTemplateService.save(entity);
-        return JsonVO.create(entity.getId(), ResultStatus.SUCCESS);
+        return JsonVO.create(id, ResultStatus.SUCCESS);
     }
 
     @Operation(summary = "修改放号时段模板")
@@ -131,19 +76,11 @@ public class SlotProvisionTemplateController implements SlotProvisionTemplateApi
     @Override
     public JsonVO<String> modifySlotProvisionTemplate(
             @Valid @RequestBody SlotProvisionTemplateModifyDTO modifyDTO) {
-
-        BkgSlotProvisionTemplate entity = new BkgSlotProvisionTemplate();
-        BeanUtil.copyProperties(modifyDTO, entity);
-
-        if (modifyDTO.getSlotTemplates() != null) {
-            try {
-                entity.setSlotTemplatesJson(objectMapper.writeValueAsString(modifyDTO.getSlotTemplates()));
-            } catch (Exception e) {
-                return JsonVO.create(null, ResultStatus.PARAMS_INVALID);
-            }
+        // 调用业务层修改（含存在性校验、编码唯一性校验、乐观锁）
+        boolean success = slotProvisionTemplateService.modifySlotProvisionTemplate(modifyDTO);
+        if (!success) {
+            return JsonVO.fail("模板不存在或编码已存在");
         }
-
-        slotProvisionTemplateService.updateById(entity);
         return JsonVO.create("修改成功", ResultStatus.SUCCESS);
     }
 
@@ -152,8 +89,11 @@ public class SlotProvisionTemplateController implements SlotProvisionTemplateApi
     @Override
     public JsonVO<String> deleteSlotProvisionTemplate(
             @PathVariable("id") String id) {
-
-        slotProvisionTemplateService.removeById(id);
+        // 调用业务层软删除（设置 is_deleted、deleted_at、deleted_by）
+        boolean success = slotProvisionTemplateService.removeSlotProvisionTemplate(id);
+        if (!success) {
+            return JsonVO.fail("模板不存在或已删除");
+        }
         return JsonVO.create("删除成功", ResultStatus.SUCCESS);
     }
 }
