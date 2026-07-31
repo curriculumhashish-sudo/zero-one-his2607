@@ -47,6 +47,7 @@ public interface PatientMapper extends BaseMapper<PatientDO> {
                 tenant_id
             FROM adm_patient
             WHERE is_deleted = 0
+              AND tenant_id = #{tenantId}
             <if test="query.keyword != null and query.keyword != ''">
                 AND (
                     name LIKE CONCAT('%', #{query.keyword}, '%')
@@ -80,9 +81,6 @@ public interface PatientMapper extends BaseMapper<PatientDO> {
             <if test="query.tempFlag != null">
                 AND temp_flag = #{query.tempFlag}
             </if>
-            <if test="tenantId != null and tenantId != ''">
-                AND tenant_id = #{tenantId}
-            </if>
             <if test="query.organizationId != null and query.organizationId != ''">
                 AND organization_id = #{query.organizationId}
             </if>
@@ -91,28 +89,98 @@ public interface PatientMapper extends BaseMapper<PatientDO> {
             """)
     Page<PatientDO> selectPatientPage(
             Page<PatientDO> page,
-            @Param("query") PatientQuery query ,
+            @Param("query") PatientQuery query,
+            @Param("tenantId") String tenantId
+    );
+
+    /**
+     * 按患者ID和当前租户查询可修改的患者档案。
+     *
+     * @param patientId 患者ID
+     * @param tenantId  当前租户ID
+     * @return 当前租户下未删除的患者档案
+     */
+    @Select("""
+            SELECT
+                id,
+                tenant_id,
+                created_at,
+                updated_at,
+                created_by,
+                updated_by,
+                is_deleted,
+                deleted_at,
+                deleted_by,
+                version,
+                bus_no,
+                name,
+                gender_enum,
+                birth_date,
+                status_enum,
+                active_flag,
+                temp_flag,
+                id_card,
+                marital_status_enum,
+                prfs_enum,
+                phone,
+                address,
+                address_province,
+                address_city,
+                address_district,
+                address_street,
+                nationality_code,
+                py_str,
+                wb_str,
+                blood_type_abo,
+                blood_type_rh,
+                work_company,
+                native_place,
+                country_code,
+                link_name,
+                link_relation_code,
+                link_telcom,
+                deceased_date,
+                organization_id
+            FROM adm_patient
+            WHERE id = #{patientId}
+              AND tenant_id = #{tenantId}
+              AND is_deleted = 0
+            LIMIT 1
+            """)
+    PatientDO selectPatientByIdAndTenant(
+            @Param("patientId") String patientId,
             @Param("tenantId") String tenantId
     );
 
     /**
      * 查询包括已软删数据在内的身份证占用记录，并加排他锁。
+     *
+     * @param idCard     身份证号
+     * @param excludedId 修改时排除的患者ID
+     * @param tenantId   当前租户ID
+     * @return 占用该身份证号的患者ID
      */
     @Select("""
             SELECT id
             FROM adm_patient
             WHERE id_card = #{idCard}
+              AND tenant_id = #{tenantId}
               AND (#{excludedId} IS NULL OR id != #{excludedId})
             LIMIT 1
             FOR UPDATE
             """)
     String selectIdByIdCardForUpdate(
             @Param("idCard") String idCard,
-            @Param("excludedId") String excludedId
+            @Param("excludedId") String excludedId,
+            @Param("tenantId") String tenantId
     );
 
     /**
-     * 获取有效建档机构所属租户。
+     * 校验建档机构有效且属于当前租户。
+     *
+     * @param organizationId 建档机构ID
+     * @param tenantId       当前租户ID
+     * @return 当前租户ID；机构无效或不属于当前租户时返回空
      */
     @Select("""
             SELECT COALESCE(tenant_id, '')
@@ -121,10 +189,12 @@ public interface PatientMapper extends BaseMapper<PatientDO> {
               AND is_deleted = 0
               AND active_flag = 1
               AND status_enum = 'ACTIVE'
+              AND tenant_id = #{tenantId}
             LIMIT 1
             """)
     String selectTenantIdByActiveOrganizationId(
-            @Param("organizationId") String organizationId
+            @Param("organizationId") String organizationId,
+            @Param("tenantId") String tenantId
     );
 
     /**

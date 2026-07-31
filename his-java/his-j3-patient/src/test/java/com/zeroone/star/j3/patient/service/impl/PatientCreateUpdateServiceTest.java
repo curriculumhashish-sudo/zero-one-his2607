@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zeroone.star.j3.patient.entity.PatientDO;
 import com.zeroone.star.j3.patient.exception.PatientBusinessException;
 import com.zeroone.star.j3.patient.mapper.PatientMapper;
+import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j3.patient.PatientCreateDTO;
 import com.zeroone.star.project.dto.j3.patient.PatientUpdateDTO;
@@ -27,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,15 +38,21 @@ class PatientCreateUpdateServiceTest {
 
     private static final String ORGANIZATION_ID =
             "322663105141149696";
+    private static final String TENANT_ID = "tenant-current";
 
     @Mock
     private PatientMapper patientMapper;
+
+    @Mock
+    private UserHolder userHolder;
 
     private PatientServiceImpl patientService;
 
     @BeforeEach
     void setUp() {
-        patientService = new PatientServiceImpl(patientMapper);
+        lenient().when(userHolder.getCurrentTenantId())
+                .thenReturn(TENANT_ID);
+        patientService = new PatientServiceImpl(patientMapper, userHolder);
     }
 
     @Test
@@ -63,7 +71,11 @@ class PatientCreateUpdateServiceTest {
         Page<PatientDO> mapperPage = new Page<>(1, 10);
         mapperPage.setTotal(1);
         mapperPage.setRecords(List.of(patient));
-        when(patientMapper.selectPatientPage(any(), eq(query)))
+        when(patientMapper.selectPatientPage(
+                any(),
+                eq(query),
+                eq(TENANT_ID)
+        ))
                 .thenReturn(mapperPage);
 
         PageDTO<PatientListVO> result =
@@ -87,16 +99,20 @@ class PatientCreateUpdateServiceTest {
         dto.setDeceasedDate(LocalDateTime.now().minusDays(1));
 
         when(patientMapper.selectTenantIdByActiveOrganizationId(
-                ORGANIZATION_ID
-        )).thenReturn("1");
+                ORGANIZATION_ID,
+                TENANT_ID
+        )).thenReturn(TENANT_ID);
         when(patientMapper.selectIdByIdCardForUpdate(
                 "11010119900101123X",
-                null
+                null,
+                TENANT_ID
         )).thenReturn(null);
-        when(patientMapper.selectSequenceValueForUpdate("1:PA"))
+        when(patientMapper.selectSequenceValueForUpdate(
+                TENANT_ID + ":PA"
+        ))
                 .thenReturn(5L);
         when(patientMapper.updateSequence(
-                eq("1:PA"),
+                eq(TENANT_ID + ":PA"),
                 eq(6L),
                 any(LocalDateTime.class)
         )).thenReturn(1);
@@ -117,6 +133,7 @@ class PatientCreateUpdateServiceTest {
         verify(patientMapper).insert(captor.capture());
         PatientDO inserted = captor.getValue();
         assertEquals("照夜清", inserted.getName());
+        assertEquals(TENANT_ID, inserted.getTenantId());
         assertEquals("11010119900101123X", inserted.getIdCard());
         assertEquals("PA00000006", inserted.getBusNo());
         assertEquals("ZYQ", inserted.getPyStr());
@@ -132,14 +149,19 @@ class PatientCreateUpdateServiceTest {
     @Test
     void shouldUpdateWithoutFrontendVersionButKeepOptimisticLock() {
         PatientDO patient = activePatient();
-        when(patientMapper.selectById(patient.getId()))
+        when(patientMapper.selectPatientByIdAndTenant(
+                patient.getId(),
+                TENANT_ID
+        ))
                 .thenReturn(patient);
         when(patientMapper.selectTenantIdByActiveOrganizationId(
-                ORGANIZATION_ID
-        )).thenReturn("1");
+                ORGANIZATION_ID,
+                TENANT_ID
+        )).thenReturn(TENANT_ID);
         when(patientMapper.selectIdByIdCardForUpdate(
                 "110101199001011237",
-                patient.getId()
+                patient.getId(),
+                TENANT_ID
         )).thenReturn(null);
         when(patientMapper.updateById(any(PatientDO.class)))
                 .thenReturn(1);
@@ -171,7 +193,10 @@ class PatientCreateUpdateServiceTest {
         verify(patientMapper, never()).insert(any(PatientDO.class));
 
         PatientDO patient = activePatient();
-        when(patientMapper.selectById(patient.getId()))
+        when(patientMapper.selectPatientByIdAndTenant(
+                patient.getId(),
+                TENANT_ID
+        ))
                 .thenReturn(patient);
         PatientUpdateDTO updateDTO = validUpdateDto();
         updateDTO.setIdCard(null);
@@ -189,7 +214,10 @@ class PatientCreateUpdateServiceTest {
     @Test
     void shouldRejectStaleVersionWhenFrontendProvidesIt() {
         PatientDO patient = activePatient();
-        when(patientMapper.selectById(patient.getId()))
+        when(patientMapper.selectPatientByIdAndTenant(
+                patient.getId(),
+                TENANT_ID
+        ))
                 .thenReturn(patient);
         PatientUpdateDTO dto = validUpdateDto();
         dto.setVersion(1);
@@ -197,6 +225,49 @@ class PatientCreateUpdateServiceTest {
         assertThrows(
                 PatientBusinessException.class,
                 () -> patientService.updatePatient(patient.getId(), dto)
+        );
+        verify(patientMapper, never()).updateById(any(PatientDO.class));
+    }
+
+    @Test
+    void shouldRejectCreateWhenOrganizationIsOutsideCurrentTenant() {
+        PatientCreateDTO dto = validCreateDto();
+        when(patientMapper.selectTenantIdByActiveOrganizationId(
+                ORGANIZATION_ID,
+                TENANT_ID
+        )).thenReturn(null);
+
+        PatientBusinessException exception = assertThrows(
+                PatientBusinessException.class,
+                () -> patientService.createPatient(dto)
+        );
+
+        assertEquals(
+                "建档机构不存在、已停用、已删除或不属于当前租户",
+                exception.getMessage()
+        );
+        verify(patientMapper, never()).insert(any(PatientDO.class));
+    }
+
+    @Test
+    void shouldRejectUpdateWhenPatientIsOutsideCurrentTenant() {
+        PatientUpdateDTO dto = validUpdateDto();
+        when(patientMapper.selectPatientByIdAndTenant(
+                "other-tenant-patient",
+                TENANT_ID
+        )).thenReturn(null);
+
+        PatientBusinessException exception = assertThrows(
+                PatientBusinessException.class,
+                () -> patientService.updatePatient(
+                        "other-tenant-patient",
+                        dto
+                )
+        );
+
+        assertEquals(
+                "患者不存在或已删除",
+                exception.getMessage()
         );
         verify(patientMapper, never()).updateById(any(PatientDO.class));
     }
@@ -230,7 +301,7 @@ class PatientCreateUpdateServiceTest {
     private PatientDO activePatient() {
         PatientDO patient = new PatientDO();
         patient.setId("patient-id");
-        patient.setTenantId("1");
+        patient.setTenantId(TENANT_ID);
         patient.setBusNo("PA00000001");
         patient.setName("原型验收患者");
         patient.setGenderEnum("MALE");

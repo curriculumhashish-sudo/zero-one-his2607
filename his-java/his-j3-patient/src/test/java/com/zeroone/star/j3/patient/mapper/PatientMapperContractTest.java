@@ -31,4 +31,36 @@ class PatientMapperContractTest {
         assertTrue(selectSql.contains("PY_STR LIKE"));
         assertTrue(selectSql.contains("WB_STR LIKE"));
     }
+
+    @Test
+    void shouldRequireTenantForPatientManagementQueries() {
+        String pageSql = selectSql("selectPatientPage");
+        assertTrue(pageSql.contains(
+                "AND TENANT_ID = #{TENANTID}"
+        ));
+        assertFalse(pageSql.contains(
+                "<IF TEST=\"TENANTID"
+        ));
+
+        assertTrue(selectSql("selectPatientByIdAndTenant").contains(
+                "AND TENANT_ID = #{TENANTID}"
+        ));
+        assertTrue(selectSql("selectIdByIdCardForUpdate").contains(
+                "AND TENANT_ID = #{TENANTID}"
+        ));
+        assertTrue(
+                selectSql("selectTenantIdByActiveOrganizationId")
+                        .contains("AND TENANT_ID = #{TENANTID}")
+        );
+    }
+
+    private String selectSql(String methodName) {
+        return Arrays.stream(PatientMapper.class.getDeclaredMethods())
+                .filter(method -> method.getName().equals(methodName))
+                .map(method -> method.getAnnotation(Select.class))
+                .filter(annotation -> annotation != null)
+                .flatMap(annotation -> Arrays.stream(annotation.value()))
+                .collect(Collectors.joining("\n"))
+                .toUpperCase(Locale.ROOT);
+    }
 }

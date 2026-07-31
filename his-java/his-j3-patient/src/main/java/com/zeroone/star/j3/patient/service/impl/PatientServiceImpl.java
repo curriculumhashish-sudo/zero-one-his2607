@@ -72,10 +72,16 @@ public class PatientServiceImpl implements PatientService {
     @Transactional(rollbackFor = Exception.class)
     public String createPatient(PatientCreateDTO dto) {
         NormalizedPatient normalized = normalizeAndValidate(dto);
-        String tenantId = requireActiveOrganization(
-                normalized.organizationId()
+        String tenantId = userHolder.getCurrentTenantId();
+        requireActiveOrganization(
+                normalized.organizationId(),
+                tenantId
         );
-        ensureIdCardAvailable(normalized.idCard(), null);
+        ensureIdCardAvailable(
+                normalized.idCard(),
+                null,
+                tenantId
+        );
 
         LocalDateTime now = LocalDateTime.now();
         PatientDO patient = new PatientDO();
@@ -108,7 +114,11 @@ public class PatientServiceImpl implements PatientService {
             throw new PatientBusinessException("患者ID不能为空");
         }
 
-        PatientDO patient = patientMapper.selectById(id.trim());
+        String tenantId = userHolder.getCurrentTenantId();
+        PatientDO patient = patientMapper.selectPatientByIdAndTenant(
+                id.trim(),
+                tenantId
+        );
         if (patient == null) {
             throw new PatientBusinessException("患者不存在或已删除");
         }
@@ -126,8 +136,15 @@ public class PatientServiceImpl implements PatientService {
 
         NormalizedPatient normalized = normalizeAndValidate(dto);
         requireUnchangedState(patient, dto, normalized.organizationId());
-        requireActiveOrganization(normalized.organizationId());
-        ensureIdCardAvailable(normalized.idCard(), patient.getId());
+        requireActiveOrganization(
+                normalized.organizationId(),
+                tenantId
+        );
+        ensureIdCardAvailable(
+                normalized.idCard(),
+                patient.getId(),
+                tenantId
+        );
 
         BeanUtils.copyProperties(
                 dto,
@@ -280,23 +297,33 @@ public class PatientServiceImpl implements PatientService {
         );
     }
 
-    private String requireActiveOrganization(String organizationId) {
-        String tenantId = patientMapper
-                .selectTenantIdByActiveOrganizationId(organizationId);
-        if (tenantId == null) {
+    private void requireActiveOrganization(
+            String organizationId,
+            String tenantId
+    ) {
+        String organizationTenantId = patientMapper
+                .selectTenantIdByActiveOrganizationId(
+                        organizationId,
+                        tenantId
+                );
+        if (!StringUtils.hasText(organizationTenantId)) {
             throw new PatientBusinessException(
-                    "建档机构不存在、已停用或已删除"
+                    "建档机构不存在、已停用、已删除或不属于当前租户"
             );
         }
-        return tenantId;
     }
 
     private void ensureIdCardAvailable(
             String idCard,
-            String excludedPatientId
+            String excludedPatientId,
+            String tenantId
     ) {
         String occupiedPatientId = patientMapper
-                .selectIdByIdCardForUpdate(idCard, excludedPatientId);
+                .selectIdByIdCardForUpdate(
+                        idCard,
+                        excludedPatientId,
+                        tenantId
+                );
         if (occupiedPatientId != null) {
             throw new PatientBusinessException(
                     "该身份证号已存在患者档案"
