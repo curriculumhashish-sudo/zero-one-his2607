@@ -9,12 +9,14 @@ import com.zeroone.star.j3.storehouse.entity.StoreHouseDO;
 import com.zeroone.star.j3.storehouse.mapper.DepartmentMapper;
 import com.zeroone.star.j3.storehouse.mapper.StoreHouseMapper;
 import com.zeroone.star.j3.storehouse.service.StoreHouseService;
+import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j3.storehouse.StoreHouseAddDTO;
 import com.zeroone.star.project.dto.j3.storehouse.StoreHouseUpdateDTO;
 import com.zeroone.star.project.enums.j3.storehouse.*;
 import com.zeroone.star.project.exception.j3.storehouse.StoreHouseDuplicateException;
 import com.zeroone.star.project.exception.j3.storehouse.StoreHouseNotFoundException;
+import com.zeroone.star.project.exception.j3.storehouse.StoreHouseTenantAccessException;
 import com.zeroone.star.project.query.j3.storehouse.StoreHouseQuery;
 import com.zeroone.star.project.vo.j3.storehouse.DepartmentSimpleVO;
 import com.zeroone.star.project.vo.j3.storehouse.StoreHouseVO;
@@ -42,6 +44,9 @@ public class StoreHouseServiceImpl implements StoreHouseService {
     @Resource
     private DepartmentMapper departmentMapper;
 
+    @Resource
+    private UserHolder userHolder;
+
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     /** 库房药房模块管理的 formEnum 值 */
@@ -49,8 +54,10 @@ public class StoreHouseServiceImpl implements StoreHouseService {
 
     @Override
     public List<StoreHouseVO> getStoreHouseNames(String formEnum) {
+        Long tenantId = resolveCurrentTenantId();
         LambdaQueryWrapper<StoreHouseDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.in(StoreHouseDO::getFormEnum, STOREHOUSE_FORMS);
+        wrapper.eq(StoreHouseDO::getTenantId, tenantId)
+               .in(StoreHouseDO::getFormEnum, STOREHOUSE_FORMS);
         if (formEnum != null && !formEnum.isBlank()) {
             wrapper.eq(StoreHouseDO::getFormEnum, formEnum);
         }
@@ -63,10 +70,10 @@ public class StoreHouseServiceImpl implements StoreHouseService {
 
     @Override
     public PageDTO<StoreHouseVO> list(StoreHouseQuery query) {
+        Long tenantId = resolveCurrentTenantId();
         LambdaQueryWrapper<StoreHouseDO> wrapper = new LambdaQueryWrapper<>();
-        // 只查库房药房类型
-        wrapper.in(StoreHouseDO::getFormEnum, STOREHOUSE_FORMS);
-        // 关键字模糊搜索（名称/拼音码）
+        wrapper.eq(StoreHouseDO::getTenantId, tenantId)
+               .in(StoreHouseDO::getFormEnum, STOREHOUSE_FORMS);
         if (query.getKeyword() != null && !query.getKeyword().isBlank()) {
             wrapper.and(w -> w
                     .like(StoreHouseDO::getName, query.getKeyword())
@@ -86,23 +93,24 @@ public class StoreHouseServiceImpl implements StoreHouseService {
     @Override
     @Transactional
     public void add(StoreHouseAddDTO dto) {
-        Long orgId = dto.getOrganizationId() != null ? dto.getOrganizationId() : 322663105141149696L;
+        Long tenantId = resolveCurrentTenantId();
 
         LambdaQueryWrapper<StoreHouseDO> dupCheck = new LambdaQueryWrapper<>();
-        dupCheck.eq(StoreHouseDO::getName, dto.getName())
-                .eq(StoreHouseDO::getOrganizationId, orgId)
+        dupCheck.eq(StoreHouseDO::getTenantId, tenantId)
+                .eq(StoreHouseDO::getName, dto.getName())
                 .in(StoreHouseDO::getFormEnum, STOREHOUSE_FORMS);
         if (storeHouseMapper.selectCount(dupCheck) > 0) {
-            throw new StoreHouseDuplicateException("同机构下已存在同名库房/药房：" + dto.getName());
+            throw new StoreHouseDuplicateException("当前租户下已存在同名库房/药房：" + dto.getName());
         }
 
         StoreHouseDO entity = new StoreHouseDO();
+        entity.setTenantId(tenantId);
         entity.setName(dto.getName());
         entity.setFormEnum(dto.getFormEnum());
         entity.setDisplayOrder(0);
         entity.setStatusEnum(StorehouseStatusEnum.ACTIVE.getDesc());
         entity.setModeEnum(ModeEnum.INSTANCE.getDesc());
-        entity.setOrganizationId(orgId);
+        entity.setOrganizationId(dto.getOrganizationId());
         entity.setBusNo(generateBusNo());
         entity.setCreatedAt(LocalDateTime.now());
         entity.setUpdatedAt(LocalDateTime.now());
@@ -113,13 +121,18 @@ public class StoreHouseServiceImpl implements StoreHouseService {
     @Override
     @Transactional
     public void update(StoreHouseUpdateDTO dto) {
+        Long tenantId = resolveCurrentTenantId();
         StoreHouseDO existing = storeHouseMapper.selectById(dto.getId());
         if (existing == null || !STOREHOUSE_FORMS.contains(existing.getFormEnum())) {
             throw new StoreHouseNotFoundException("库房药房不存在，ID: " + dto.getId());
         }
+        if (!Objects.equals(existing.getTenantId(), tenantId)) {
+            throw new StoreHouseTenantAccessException("无权修改其他租户的库房药房数据");
+        }
 
         LambdaUpdateWrapper<StoreHouseDO> wrapper = new LambdaUpdateWrapper<>();
         wrapper.eq(StoreHouseDO::getId, dto.getId())
+               .eq(StoreHouseDO::getTenantId, tenantId)
                .in(StoreHouseDO::getFormEnum, STOREHOUSE_FORMS)
                .set(StoreHouseDO::getName, dto.getName())
                .set(StoreHouseDO::getFormEnum, dto.getFormEnum())
@@ -138,9 +151,13 @@ public class StoreHouseServiceImpl implements StoreHouseService {
     @Override
     @Transactional
     public void delete(Long id) {
+        Long tenantId = resolveCurrentTenantId();
         StoreHouseDO existing = storeHouseMapper.selectById(id);
         if (existing == null || !STOREHOUSE_FORMS.contains(existing.getFormEnum())) {
             throw new StoreHouseNotFoundException("库房药房不存在，ID: " + id);
+        }
+        if (!Objects.equals(existing.getTenantId(), tenantId)) {
+            throw new StoreHouseTenantAccessException("无权删除其他租户的库房药房数据");
         }
         storeHouseMapper.deleteById(id);
     }
@@ -152,9 +169,13 @@ public class StoreHouseServiceImpl implements StoreHouseService {
             throw new IllegalArgumentException("isEnabled 参数非法，仅允许 0(停用) 或 1(启用)，当前值: " + isEnabled);
         }
 
+        Long tenantId = resolveCurrentTenantId();
         StoreHouseDO existing = storeHouseMapper.selectById(id);
         if (existing == null || !STOREHOUSE_FORMS.contains(existing.getFormEnum())) {
             throw new StoreHouseNotFoundException("库房药房不存在，ID: " + id);
+        }
+        if (!Objects.equals(existing.getTenantId(), tenantId)) {
+            throw new StoreHouseTenantAccessException("无权操作其他租户的库房药房数据");
         }
 
         String statusEnum = isEnabled == 1
@@ -163,6 +184,7 @@ public class StoreHouseServiceImpl implements StoreHouseService {
 
         LambdaUpdateWrapper<StoreHouseDO> wrapper = new LambdaUpdateWrapper<>();
         wrapper.eq(StoreHouseDO::getId, id)
+               .eq(StoreHouseDO::getTenantId, tenantId)
                .in(StoreHouseDO::getFormEnum, STOREHOUSE_FORMS)
                .set(StoreHouseDO::getStatusEnum, statusEnum)
                .set(StoreHouseDO::getUpdatedAt, LocalDateTime.now());
@@ -218,8 +240,10 @@ public class StoreHouseServiceImpl implements StoreHouseService {
 
     @Override
     public List<DepartmentSimpleVO> listParentDepartments() {
+        Long tenantId = resolveCurrentTenantId();
         LambdaQueryWrapper<DepartmentDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(DepartmentDO::getTypeEnum, "DEPARTMENT")
+        wrapper.eq(DepartmentDO::getTenantId, tenantId)
+               .eq(DepartmentDO::getTypeEnum, "DEPARTMENT")
                .eq(DepartmentDO::getStatusEnum, "ACTIVE")
                .eq(DepartmentDO::getActiveFlag, true);
         List<DepartmentDO> list = departmentMapper.selectList(wrapper);
@@ -241,6 +265,24 @@ public class StoreHouseServiceImpl implements StoreHouseService {
         } catch (Exception e) {
             log.warn("解析 typeJson 失败: {}", typeJson, e);
             return new HashMap<>();
+        }
+    }
+
+    /**
+     * 获取当前登录用户的租户ID，获取失败抛出越权异常
+     */
+    private Long resolveCurrentTenantId() {
+        try {
+            Long tenantId = userHolder.getCurrentTenantId();
+            if (tenantId == null) {
+                throw new StoreHouseTenantAccessException("无法获取当前用户的租户信息，请重新登录");
+            }
+            return tenantId;
+        } catch (StoreHouseTenantAccessException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("获取当前租户ID失败", e);
+            throw new StoreHouseTenantAccessException("无法获取当前用户的租户信息，请重新登录");
         }
     }
 

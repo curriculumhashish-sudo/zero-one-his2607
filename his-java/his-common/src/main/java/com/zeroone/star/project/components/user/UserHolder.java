@@ -5,6 +5,7 @@ import cn.hutool.json.JSONObject;
 import com.zeroone.star.project.components.jwt.JwtComponent;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -24,6 +25,9 @@ import org.yaml.snakeyaml.util.UriEncoder;
 public class UserHolder {
     @Resource
     JwtComponent jwtComponent;
+
+    @Resource
+    JdbcTemplate jdbcTemplate;
 
     /**
      * 从请求头中获取用户信息
@@ -82,5 +86,27 @@ public class UserHolder {
             return null;
         }
         return token.replace("Bearer ", "");
+    }
+
+    /**
+     * 获取当前登录用户的租户ID
+     * 通过用户ID查询 whale_user_tenants 表获取租户关联
+     * @return 租户ID，未找到返回null
+     */
+    public Long getCurrentTenantId() {
+        try {
+            UserDTO currentUser = getCurrentUser();
+            if (currentUser == null || !StringUtils.hasText(currentUser.getId())) {
+                return null;
+            }
+            String sql = "SELECT tenant_id FROM whale_user_tenants WHERE user_id = ? AND is_deleted = 0 LIMIT 1";
+            String tenantId = jdbcTemplate.queryForObject(sql, String.class, currentUser.getId());
+            if (!StringUtils.hasText(tenantId)) {
+                return null;
+            }
+            return Long.valueOf(tenantId);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

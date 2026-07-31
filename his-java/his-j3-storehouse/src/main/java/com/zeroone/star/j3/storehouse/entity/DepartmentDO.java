@@ -15,6 +15,8 @@ public class DepartmentDO {
 
     private Long id;
 
+    private Long tenantId;
+
     private String name;
 
     private String typeEnum;
