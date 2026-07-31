@@ -1,33 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<!--
-  门诊发药 Mapper XML
-  @author xingfu
-  @since 2026-07-26
--->
 <mapper namespace="com.zeroone.star.dispense.mapper.MedMedicationDefinitionMapper">
 
-<select id="pagePatientDrugItems" resultType="com.zeroone.star.project.vo.j7.dispense.PatientDrugItemVO">
-    SELECT
-    r.id AS requestId,
-    m.name AS drugName,
-    m.total_volume AS totalVolume,
-    r.dose,
-    r.dose_unit_code AS doseUnitCode,
-    r.quantity,
-    r.unit_code AS unitCode,
-    r.method_code AS methodCode,
-    r.rate_code AS frequencyCode,
-    r.lot_number AS lotNumber,
-    r.status_enum AS statusEnum
-    FROM med_medication_request r
-    JOIN med_medication_definition m ON m.id = r.medication_id
-    WHERE r.is_deleted = 0
-    AND r.intent_enum = 'OUTPATIENT'
-    AND r.status_enum = 'PENDING'
-    AND r.patient_id = #{query.patientId}
-    AND r.encounter_id = #{query.encounterId}
+    <select id="pagePatientDrugItems" resultType="com.zeroone.star.project.vo.j7.dispense.PatientDrugItemVO">
+        SELECT
+            d.id                  AS id,
+            d.tenant_id           AS tenantId,
+            d.bus_no              AS busNo,
+            d.status_enum         AS statusEnum,
+            d.dispense_enum       AS dispenseEnum,
+            d.medication_id       AS medicationId,
+            d.patient_id          AS patientId,
+            d.encounter_id        AS encounterId,
+            d.med_req_id          AS medReqId,
+            d.quantity,
+            d.unit_code           AS unitCode,
+            d.dispense_quantity   AS dispenseQuantity,
+            d.lot_number          AS lotNumber,
+            d.preparer_id         AS preparerId,
+            d.prepare_time        AS prepareTime,
+            d.practitioner_id     AS practitionerId,
+            d.dispense_time       AS dispenseTime,
+            d.dosage_instruction  AS dosageInstruction,
+            d.method_code         AS methodCode,
+            d.frequency_code      AS frequencyCode,
+            d.dose,
+            d.dose_unit_code      AS doseUnitCode,
+            d.summary_no          AS summaryNo,
+            m.name                AS name,
+            m.merchandise_name    AS merchandiseName,
+            m.category_code       AS categoryCode,
+            m.total_volume        AS totalVolume,
+            m.comprised_text      AS comprisedText,
+            m.ingredient,
+            m.approval_number     AS approvalNumber,
+            m.skin_test_flag      AS skinTestFlag,
+            m.inject_flag         AS injectFlag,
+            m.manufacturer_text   AS manufacturerText,
+            m.antibiotic_flag     AS antibioticFlag,
+            m.rx_flag             AS rxFlag,
+            m.dose_form_code      AS doseFormCode,
+            m.package_unit_code   AS packageUnitCode,
+            m.py_str              AS pyStr
+        FROM med_medication_dispense d
+        JOIN med_medication_definition m ON m.id = d.medication_id
+        WHERE d.is_deleted = 0
 
-</select>
+        <if test="query.patientId != null and query.patientId != ''">
+            AND d.patient_id = #{query.patientId}
+        </if>
+
+        <if test="query.encounterId != null and query.encounterId != ''">
+            AND d.encounter_id = #{query.encounterId}
+        </if>
+
+        <if test="query.dispenseEnum != null and query.dispenseEnum != ''">
+            AND d.dispense_enum = #{query.dispenseEnum}
+        </if>
+
+        <if test="query.statusEnum != null and query.statusEnum != ''">
+            AND d.status_enum = #{query.statusEnum}
+        </if>
+
+        <if test="query.busNo != null and query.busNo != ''">
+            AND d.bus_no = #{query.busNo}
+        </if>
+
+        ORDER BY d.created_at DESC
+    </select>
+
 </mapper>

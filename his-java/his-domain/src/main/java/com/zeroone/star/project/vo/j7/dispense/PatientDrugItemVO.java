@@ -94,6 +94,9 @@ public class PatientDrugItemVO {
     @Schema(description = "药品分类编码")
     private String categoryCode;
 
+    @Schema(description = "规格", example = "100ml:0.9g")
+    private String totalVolume;
+
     @Schema(description = "规格", example = "0.25g*24粒")
     private String comprisedText;
 
@@ -126,4 +129,8 @@ public class PatientDrugItemVO {
 
     @Schema(description = "药品拼音码", example = "AMXL")
     private String pyStr;
+
+
+
+
 }

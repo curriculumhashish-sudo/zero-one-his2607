@@ -7,42 +7,29 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
-/**
- * 患者队列查询条件（数据库层）
- */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Schema(description = "患者队列数据库查询条件")
+@Schema(description = "患者队列查询条件")
 public class PatientQueueQuery extends PageQuery {
 
+    @Schema(description = "患者ID", example = "326940849401761792")
+    private String patientId;
 
-    @Schema(description = "机构ID", example = "1")
-    private String organization_id;
+    @Schema(description = "就诊ID", example = "329874660147597312")
+    private String encounterId;
 
-    @Schema(description = "患者ID", example = "1")
-    private String patient_id;
+    @Schema(description = "发药状态(COMPLETED/PENDING)", example = "PENDING")
+    private String statusEnum;
 
-    @Schema(description = "就诊标识", example = "1")
-    private String encounter_id;
+    @Schema(description = "发放类型(OUTPATIENT/REFUND)", example = "OUTPATIENT")
+    private String dispenseEnum;
 
-    @Schema(description = "预约分类", example = "OUTPATIENT_BOOKING")
-    private String appointment_kind;
+    @Schema(description = "患者姓名(模糊查询)")
+    private String name;
 
-    @Schema(description = "服务类型编码", example = "GENERAL")
-    private String service_type_code;
+    @Schema(description = "查询开始时间")
+    private LocalDateTime startTime;
 
-    @Schema(description = "去向诊室ID", example = "1")
-    private String destination_location_id;
-
-    @Schema(description = "预约日期", example = "2024-01-15")
-    private String booking_date;
-
-    @Schema(description = "分诊等级", example = "LEVEL1")
-    private String triage_level;
-
-    @Schema(description = "就诊开始时间")
-    private LocalDateTime start_time;
-
-    @Schema(description = "就诊结束时间")
-    private LocalDateTime end_time;
+    @Schema(description = "查询结束时间")
+    private LocalDateTime endTime;
 }
