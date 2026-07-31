@@ -1,8 +1,6 @@
 package com.zeroone.star.basedata.entity.medicine;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -30,7 +28,7 @@ public class MedMedicationDefinitionDO implements Serializable {
     /**
      * 主键
      */
-    @TableId(type = IdType.ASSIGN_ID)
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
     private String id;
 
     /**
@@ -61,6 +59,7 @@ public class MedMedicationDefinitionDO implements Serializable {
     /**
      * 软删标记
      */
+    @TableLogic(value = "0", delval = "1")
     private Boolean isDeleted;
 
     /**
@@ -76,6 +75,7 @@ public class MedMedicationDefinitionDO implements Serializable {
     /**
      * 乐观锁版本号
      */
+    @Version
     private Integer version;
 
     /**
