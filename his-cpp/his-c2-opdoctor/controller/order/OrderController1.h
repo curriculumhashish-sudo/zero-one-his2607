@@ -1,3 +1,4 @@
+// controller/order/OrderController1.h
 #pragma once
 #ifndef _ORDER_CONTROLLER_1_H_
 #define _ORDER_CONTROLLER_1_H_
@@ -8,18 +9,22 @@
 #include "domain/dto/order/OrderAddDTO1.h"
 #include "domain/dto/order/OrderDetailDTO1.h"
 #include "domain/dto/order/OrderModifyDTO1.h"
+#include "domain/dto/PayloadDTO.h"
 
-#include OATPP_CODEGEN_BEGIN(ApiController) //<- Begin Codegen
+#include OATPP_CODEGEN_BEGIN(ApiController)
 
 #define API_TAG ZH_WORDS_GETTER("createOrder.order.tags.tag")
 
 /**
  * 医嘱管理控制器
  * 提供医嘱的查询、新增、修改接口
- * 注意：医生ID、科室ID等上下文信息由后端从Payload中获取，前端无需传递
+ *
+ * 重构说明：
+ * - 医生ID (requester_id) 从 payload->getPractitionerId() 获取
+ * - 医生姓名 从 payload->getPractitionerName() 获取
+ * - tenantId/orgId 从 Redis user:session:{userId} 获取
  */
 class OrderController1 : public oatpp::web::server::api::ApiController {
-    // 定义控制器访问入口
     API_ACCESS_DECLARE(OrderController1);
 public:
     // ========== 1. 分页查询医嘱 ==========
@@ -32,10 +37,10 @@ public:
     );
     API_HANDLER_ENDPOINT_QUERY_AUTH(
         API_M_GET,
-        "/order/query",
+        "/createOrder/query",
         queryOrder,
         OrderQuery1,
-        execQueryOrder(query)
+        execQueryOrder(query, authObject->getPayload())
     );
 
     // ========== 2. 新增医嘱 ==========
@@ -47,7 +52,7 @@ public:
     );
     API_HANDLER_ENDPOINT_AUTH(
         API_M_POST,
-        "/order/add",
+        "/createOrder/add",
         addOrder,
         BODY_DTO(OrderAddDTO1::Wrapper, dto),
         execAddOrder(dto, authObject->getPayload())
@@ -62,19 +67,22 @@ public:
     );
     API_HANDLER_ENDPOINT_AUTH(
         API_M_PUT,
-        "/order/modify",
+        "/createOrder/modify",
         modifyOrder,
         BODY_DTO(OrderModifyDTO1::Wrapper, dto),
         execModifyOrder(dto, authObject->getPayload())
     );
 
+
 private:
-    // 执行函数声明
-    OrderDetailPageJsonVO1::Wrapper execQueryOrder(const OrderQuery1::Wrapper& query);
-    StringJsonVO::Wrapper execAddOrder(const OrderAddDTO1::Wrapper& dto, const PayloadDTO& payload);
-    StringJsonVO::Wrapper execModifyOrder(const OrderModifyDTO1::Wrapper& dto, const PayloadDTO& payload);
+    OrderDetailPageJsonVO1::Wrapper execQueryOrder(const OrderQuery1::Wrapper& query,
+        const PayloadDTO& payload);
+    StringJsonVO::Wrapper execAddOrder(const OrderAddDTO1::Wrapper& dto,
+        const PayloadDTO& payload);
+    StringJsonVO::Wrapper execModifyOrder(const OrderModifyDTO1::Wrapper& dto,
+        const PayloadDTO& payload);
 };
 
 #undef API_TAG
-#include OATPP_CODEGEN_END(ApiController) //<- End Codegen
+#include OATPP_CODEGEN_END(ApiController)
 #endif

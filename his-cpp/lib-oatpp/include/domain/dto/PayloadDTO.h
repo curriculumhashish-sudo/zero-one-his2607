@@ -21,6 +21,7 @@
 #define _PAYLOADDTO_H_
 #include "jwt-cpp/jwt.h"
 #include <list>
+#include <map>
 
 /**
  * 负载信息获取状态编码
@@ -74,11 +75,34 @@ private:
 	std::string id;
 	// 用户拥有的权限
 	std::list<std::string> authorities;
+
 	// TIP：新增属性字段在后面添加即可
-	// 租户标识
-	std::string tenantId;
-	// 机构标识
-	std::string orgId;
+
+	/**
+	 * 用户名称（真实姓名）
+	 */
+	std::string name;
+	/**
+	 * 组织单元信息
+	 * 每个元素：key为组织单元编号，value为组织单元名称
+	 */
+	std::map<std::string, std::string> organizationUnits;
+	/**
+	 * 对应的医务人员编号
+	 */
+	std::string practitionerId;
+	/**
+	 * 对应的医务人员名称
+	 */
+	std::string practitionerName;
+	/**
+	 * 职称名称，如：主任医师、护士、药师、技师等
+	 */
+	std::string titleName;
+	/**
+	 * 职称编码，职称名称对应的编码值
+	 */
+	std::string titleCode;
 public:
 	PayloadDTO();
 	/**
@@ -96,7 +120,7 @@ public:
 	PayloadCode getCode() const { return code; }
 	// 设置数据状态码信息
 	void setCode(PayloadCode val) { code = val; }
-	
+
 	// 标准属性字段的getter/setter
 	std::string Aud() const { return aud; }
 	void Aud(std::string val) { aud = val; }
@@ -120,16 +144,25 @@ public:
 	void setId(std::string val) { id = val; }
 	const std::list<std::string>& getAuthorities() const { return authorities; }
 	void setAuthorities(std::list<std::string> val) { authorities = val; }
-	
 	// 注意：新增属性字段后需要补充getter/setter
-	std::string getTenantId() const { return tenantId; }
-	void setTenantId(const std::string& val) { tenantId = val; }
-	std::string getOrgId() const { return orgId; }
-	void setOrgId(const std::string& val) { orgId = val; }
+	std::string getName() const { return name; }
+	void setName(std::string val) { name = val; }
+	std::map<std::string, std::string> getOrganizationUnits() const { return organizationUnits; }
+	void setOrganizationUnits(std::map<std::string, std::string> val) { organizationUnits = val; }
+	std::string getPractitionerId() const { return practitionerId; }
+	void setPractitionerId(std::string val) { practitionerId = val; }
+	std::string getPractitionerName() const { return practitionerName; }
+	void setPractitionerName(std::string val) { practitionerName = val; }
+	std::string getTitleName() const { return titleName; }
+	void setTitleName(std::string val) { titleName = val; }
+	std::string getTitleCode() const { return titleCode; }
+	void setTitleCode(std::string val) { titleCode = val; }
 
 	// 添加权限
 	void putAuthority(std::string authstr);
-	
+	// 添加组织
+	void putOrg(std::string orgId, std::string orgName);
+
 	// 将Payload的属性转换到jwt builder中
 	// 注意：新增属性字段后需要维护此方法的定义
 	void propToJwt(jwt::builder<jwt::default_clock, jwt::traits::kazuho_picojson>& builder) const;

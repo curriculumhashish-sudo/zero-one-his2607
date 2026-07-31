@@ -61,15 +61,17 @@ PayloadDTO::PayloadDTO()
 	// 设置jti 使用当前时间戳作为jti的值
 	this->Jti(std::to_string(time(nullptr)));
 	this->setCode(PayloadCode::SUCCESS);
-	// 新增：租户标识默认值
-	this->tenantId = "TEST_TENANT_001";
-	// 新增：机构标识默认值
-	this->orgId = "TEST_ORG_001";
+	// 注意：新增属性字段赋值默认值在后面补充即可
 }
 
 void PayloadDTO::putAuthority(std::string authstr)
 {
 	this->authorities.emplace_back(authstr);
+}
+
+void PayloadDTO::putOrg(std::string orgId, std::string orgName)
+{
+	this->organizationUnits.insert(std::make_pair(orgId, orgName));
 }
 
 void PayloadDTO::propToJwt(jwt::builder<jwt::default_clock, jwt::traits::kazuho_picojson>& builder) const
@@ -83,10 +85,25 @@ void PayloadDTO::propToJwt(jwt::builder<jwt::default_clock, jwt::traits::kazuho_
 	builder.set_payload_claim("roles", jwt::basic_claim<jwt::traits::kazuho_picojson>(auth_array));
 	// 转换id
 	builder.set_payload_claim("id", jwt::basic_claim<jwt::traits::kazuho_picojson>(id));
-	// 新增：转换租户标识
-	builder.set_payload_claim("tenantId", jwt::basic_claim<jwt::traits::kazuho_picojson>(tenantId));
-	// 新增：转换机构标识
-	builder.set_payload_claim("orgId", jwt::basic_claim<jwt::traits::kazuho_picojson>(orgId));
+
+	// 提示：新增字段需要在后补充方法
+
+	// 转换真实姓名
+	builder.set_payload_claim("name", jwt::basic_claim<jwt::traits::kazuho_picojson>(name));
+	// 转换组织单元信息
+	picojson::object org_obj;
+	for (const auto& org : organizationUnits) {
+		org_obj.insert(std::make_pair(org.first, picojson::value(org.second)));
+	}
+	builder.set_payload_claim("organizationUnits", jwt::basic_claim<jwt::traits::kazuho_picojson>(picojson::value(org_obj)));
+	// 转换对应的医务人员编号
+	builder.set_payload_claim("practitionerId", jwt::basic_claim<jwt::traits::kazuho_picojson>(practitionerId));
+	// 转换对应的医务人员姓名
+	builder.set_payload_claim("practitionerName", jwt::basic_claim<jwt::traits::kazuho_picojson>(practitionerName));
+	// 转换职称名称
+	builder.set_payload_claim("titleName", jwt::basic_claim<jwt::traits::kazuho_picojson>(titleName));
+	// 转换职称编码
+	builder.set_payload_claim("titleCode", jwt::basic_claim<jwt::traits::kazuho_picojson>(titleCode));
 }
 
 void PayloadDTO::propToPayload(const jwt::decoded_jwt<jwt::traits::kazuho_picojson>& decoded)
@@ -128,30 +145,70 @@ void PayloadDTO::propToPayload(const jwt::decoded_jwt<jwt::traits::kazuho_picojs
 			std::cerr << "Error parsing id: " << e.what() << std::endl;
 		}
 	}
-	// 新增：解析租户标识
-	if (claims.count("tenantId")) {
-		const auto& value = claims.at("tenantId");
+
+	// 提示：新增字段需要在后补充方法
+
+	// 转换真实姓名
+	if (claims.count("name")) {
+		const auto& name_value = claims.at("name");
 		try {
-			if (value.is<std::string>()) {
-				this->tenantId = value.get<std::string>();
-			}
+			setName(name_value.get<std::string>());
 		}
 		catch (const std::exception& e) {
-			std::cerr << "Error parsing tenantId: " << e.what() << std::endl;
-			this->tenantId = "TEST_TENANT_001";
+			std::cerr << "Error parsing name: " << e.what() << std::endl;
 		}
 	}
-	// 新增：解析机构标识
-	if (claims.count("orgId")) {
-		const auto& value = claims.at("orgId");
+	// 转换组织单元信息
+	if (claims.count("organizationUnits")) {
+		const auto& org_value = claims.at("organizationUnits");
 		try {
-			if (value.is<std::string>()) {
-				this->orgId = value.get<std::string>();
+			auto obj = org_value.get<picojson::object>();
+			for (const auto& kv : obj) {
+				putOrg(kv.first, kv.second.get<std::string>());
 			}
 		}
 		catch (const std::exception& e) {
-			std::cerr << "Error parsing orgId: " << e.what() << std::endl;
-			this->orgId = "TEST_ORG_001";
+			std::cerr << "Error parsing organizationUnits: " << e.what() << std::endl;
+		}
+	}
+	// 转换对应的医务人员编号
+	if (claims.count("practitionerId")) {
+		const auto& practitioner_id = claims.at("practitionerId");
+		try {
+			setPractitionerId(practitioner_id.get<std::string>());
+		}
+		catch (const std::exception& e) {
+			std::cerr << "Error parsing practitionerId: " << e.what() << std::endl;
+		}
+	}
+	// 转换对应的医务人员姓名
+	if (claims.count("practitionerName")) {
+		const auto& practitioner_name = claims.at("practitionerName");
+		try {
+			setPractitionerName(practitioner_name.get<std::string>());
+		}
+		catch (const std::exception& e) {
+			std::cerr << "Error parsing practitionerName: " << e.what() << std::endl;
+		}
+	}
+	// 转换职称名称
+	if (claims.count("titleName")) {
+		const auto& title_name = claims.at("titleName");
+		try {
+			setTitleName(title_name.get<std::string>());
+		}
+		catch (const std::exception& e) {
+			std::cerr << "Error parsing titleName: " << e.what() << std::endl;
+		}
+	}
+	// 转换职称编码
+	if (claims.count("titleCode")) {
+		const auto& title_code = claims.at("titleCode");
+		try {
+			setTitleCode(title_code.get<std::string>());
+		}
+		catch (const std::exception& e) {
+			std::cerr << "Error parsing titleCode: " << e.what() << std::endl;
 		}
 	}
 }
