@@ -72,6 +72,13 @@ StringJsonVO::Wrapper SupplierController::execBatchEnableDisable(
     return vo;
 }
 
+// GET /sup/query-one — Query single supplier by ID or code (stub)
+SupplierJsonVO::Wrapper SupplierController::execQueryOne(const SupplierDetailQuery::Wrapper& query)
+{
+    // TODO: Build dynamic SQL from query->id or query->code; return single SupplierDTO
+    return {};
+}
+
 // Paginated query with code/name/type/keyword/statusEnum filters (stub)
 SupplierPageJsonVO::Wrapper SupplierController::execQueryAll(const SupplierQuery::Wrapper& query)
 {
