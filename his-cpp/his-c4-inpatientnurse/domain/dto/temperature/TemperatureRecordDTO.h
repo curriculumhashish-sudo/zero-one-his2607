@@ -55,7 +55,7 @@ class TemperatureSheetGridSlotCellDTO : public oatpp::DTO
 	DTO_INIT(TemperatureSheetGridSlotCellDTO, DTO);
 
 	API_DTO_FIELD_REQUIRE(List<TemperatureSheetDetailItemDTO::Wrapper>, detailItems,
-		ZH_WORDS_GETTER("temperature.field.detailItems"), false);
+		ZH_WORDS_GETTER("temperature.field.detailItems"), true);
 	API_DTO_FIELD_REQUIRE(String, timeSlot,
 		ZH_WORDS_GETTER("temperature.field.timeSlot"), false);
 	API_DTO_FIELD_REQUIRE(String, vitalSignId,
@@ -101,7 +101,7 @@ class TemperatureSheetFillSlotDTO : public oatpp::DTO
 	DTO_INIT(TemperatureSheetFillSlotDTO, DTO);
 
 	API_DTO_FIELD_REQUIRE(List<TemperatureSheetDetailItemDTO::Wrapper>, detailItems,
-		ZH_WORDS_GETTER("temperature.field.detailItems"), false);
+		ZH_WORDS_GETTER("temperature.field.detailItems"), true);
 	API_DTO_FIELD_REQUIRE(String, timeSlot,
 		ZH_WORDS_GETTER("temperature.field.timeSlot"), false);
 	API_DTO_FIELD_REQUIRE(String, vitalSignId,
@@ -180,6 +180,44 @@ public:
 		patientId = "326940849401761792";
 		recordDate = "2026-07-24";
 		timeSlot = "10";
+
+		detailItems = List<TemperatureSheetDetailItemDTO::Wrapper>::createShared();
+		auto add = [this](const char* code, const char* value) {
+			auto item = TemperatureSheetDetailItemDTO::createShared();
+			item->itemCode = code;
+			item->itemValue = value;
+			item->termCode = "vital_signs_code";
+			detailItems->push_back(item);
+		};
+		// Vital signs
+		add("TEMP", "36.5");
+		add("PULSE", "80");
+		add("RESPIRATION", "18");
+		add("HEART_RATE", "80");
+		add("SYSTOLIC_PRESSURE", "120");
+		add("DIASTOLIC_PRESSURE", "80");
+		// Event flags
+		add("PHYSICAL_COOLING", "false");
+		add("TEMP_AFTER_PHYSICAL_COOLING", "");
+		add("DRUG_COOLING", "false");
+		add("TEMP_AFTER_DRUG_COOLING", "");
+		add("TEMP_NOT_RISING", "false");
+		add("DISCHARGE", "false");
+		add("DISCHARGE_TIME", "");
+		// Special event: Transfer/Surgery/Delivery/Death/ExternalExam/Refuse
+		add("SPECIAL_EVENT", "");
+		add("SPECIAL_EVENT_TIME", "");
+		// Supplementary (daily summary below the grid)
+		add("WEIGHT", "65");
+		add("WAIST", "80");
+		add("HEIGHT", "170");
+		add("SKIN_TEST_POSITIVE", "");
+		// Previous-day summary (saved on date X, displayed on date X-1)
+		add("STOOL", "1");
+		add("URINE_FREQ", "6");
+		add("INTAKE", "1500");
+		add("URINE", "1200");
+		add("OTHER", "100");
 	}
 };
 
