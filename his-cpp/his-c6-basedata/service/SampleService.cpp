@@ -1,9 +1,49 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "SampleService.h"
 #include "SimpleDateTimeFormat.h"
 #include <chrono>
 #include <random>
 #include <sstream>
+
+std::list<SampleDTO::Wrapper> SampleService::listSampleNames(const SampleQuery::Wrapper& query) const
+{
+	SampleDAO dao;
+	const auto keyword = query ? toStdString(query->keyword) : std::string();
+	const auto rows = dao.selectByKeyword(keyword, 0, 100);
+
+	std::list<SampleDTO::Wrapper> result;
+	for (const auto& row : rows)
+	{
+		result.push_back(toSampleDTO(row));
+	}
+	return result;
+}
+
+SamplePageDTO::Wrapper SampleService::listSamplePage(const SampleQuery::Wrapper& query) const
+{
+	const auto pageIndex = query ? query->pageIndex.getValue(1) : 1;
+	const auto pageSize = query ? query->pageSize.getValue(10) : 10;
+	const auto safePageIndex = pageIndex == 0 ? 1ULL : pageIndex;
+	const auto safePageSize = pageSize == 0 ? 10ULL : pageSize;
+	const auto offset = (safePageIndex - 1) * safePageSize;
+	const auto keyword = query ? toStdString(query->keyword) : std::string();
+
+	SampleDAO dao;
+	auto page = SamplePageDTO::createShared();
+	page->pageIndex = safePageIndex;
+	page->pageSize = safePageSize;
+	page->rows = {};
+
+	const auto rows = dao.selectByKeyword(keyword, offset, safePageSize);
+	for (const auto& row : rows)
+	{
+		page->addData(toSampleDTO(row));
+	}
+
+	page->total = static_cast<v_int64>(dao.countByKeyword(keyword));
+	page->calcPages();
+	return page;
+}
 
 void SampleService::addSample(const SampleAddDTO::Wrapper& dto) const
 {
@@ -110,6 +150,23 @@ void SampleService::switchSampleStatus(const SampleStatusDTO::Wrapper& dto) cons
 	{
 		throw std::runtime_error("failed to switch sample status.");
 	}
+}
+
+SampleDTO::Wrapper SampleService::toSampleDTO(const PtrSampleDO& sample)
+{
+	auto dto = SampleDTO::createShared();
+	if (!sample)
+	{
+		return dto;
+	}
+
+	dto->id = sample->getId().c_str();
+	dto->sampleCode = sample->getSampleCode().c_str();
+	dto->sampleName = sample->getSampleName().c_str();
+	dto->inputCode = sample->getInputCode().c_str();
+	dto->wbCode = sample->getWbCode().c_str();
+	dto->remark = sample->getRemark().c_str();
+	return dto;
 }
 
 std::string SampleService::buildSampleId() const

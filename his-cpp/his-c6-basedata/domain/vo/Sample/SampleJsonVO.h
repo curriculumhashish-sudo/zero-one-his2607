@@ -25,12 +25,19 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/**
- second
- */
 class SampleJsonVO : public JsonVO<SampleDTO::Wrapper>
 {
 	DTO_INIT(SampleJsonVO, JsonVO<SampleDTO::Wrapper>);
+};
+
+class SampleListJsonVO : public ListJsonVO<SampleDTO::Wrapper>
+{
+	DTO_INIT(SampleListJsonVO, ListJsonVO<SampleDTO::Wrapper>);
+};
+
+class SamplePageJsonVO : public JsonVO<SamplePageDTO::Wrapper>
+{
+	DTO_INIT(SamplePageJsonVO, JsonVO<SamplePageDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)

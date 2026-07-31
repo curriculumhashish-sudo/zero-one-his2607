@@ -1,8 +1,8 @@
-#pragma once
+Ôªø#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: À’≤”
+ @Author: Su Can
  @Date: 2026/07/25 10:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,13 +22,18 @@
 
 #include "dao/SampleDAO.h"
 #include "domain/dto/Sample/SampleAddDTO.h"
+#include "domain/dto/Sample/SampleDTO.h"
 #include "domain/dto/Sample/SampleEditDTO.h"
 #include "domain/dto/Sample/SampleStatusDTO.h"
+#include "domain/query/Sample/SampleQuery.h"
+#include <list>
 #include <string>
 
 class SampleService
 {
 public:
+	std::list<SampleDTO::Wrapper> listSampleNames(const SampleQuery::Wrapper& query) const;
+	SamplePageDTO::Wrapper listSamplePage(const SampleQuery::Wrapper& query) const;
 	void addSample(const SampleAddDTO::Wrapper& dto) const;
 	void editSample(const SampleEditDTO::Wrapper& dto) const;
 	void removeSample(const std::string& id) const;
@@ -38,6 +43,7 @@ private:
 	inline static constexpr const char* DEFAULT_OPERATOR = "system";
 	inline static constexpr const char* DEFAULT_SAMPLE_TYPE = "BLOOD";
 
+	static SampleDTO::Wrapper toSampleDTO(const PtrSampleDO& sample);
 	std::string buildSampleId() const;
 	std::string currentTime() const;
 	static std::string toStdString(const oatpp::String& value);
