@@ -46,6 +46,7 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
     @Override
     @Transactional(rollbackFor = Exception.class)
     public InboundReceiptSaveResultVO addInboundReceipt(InboundReceiptSaveDTO dto) {
+        validateSaveRequest(dto);
         String busNo = StringUtils.hasText(dto.getBusNo()) ? dto.getBusNo() : generateBusNo();
         if (existsActive(busNo)) {
             throw new IllegalArgumentException("药库进货单已存在：" + busNo);
@@ -60,6 +61,7 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
     @Override
     @Transactional(rollbackFor = Exception.class)
     public InboundReceiptSaveResultVO saveInboundReceipt(InboundReceiptSaveDTO dto) {
+        validateSaveRequest(dto);
         String busNo = requireBusNo(dto);
         List<WkfSupplyRequest> oldRows = requireEditableRows(busNo, dto.getVersion());
         int nextVersion = nextVersion(oldRows);
@@ -74,6 +76,7 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
     @Override
     @Transactional(rollbackFor = Exception.class)
     public InboundReceiptSaveResultVO saveAndSubmitInboundReceipt(InboundReceiptSaveDTO dto) {
+        validateSaveRequest(dto);
         String busNo = StringUtils.hasText(dto.getBusNo()) ? dto.getBusNo() : generateBusNo();
         List<WkfSupplyRequest> oldRows = listActive(busNo);
         int nextVersion = oldRows.isEmpty() ? 0 : nextVersion(requireEditableRows(busNo, dto.getVersion()));
@@ -85,6 +88,33 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
         List<WkfSupplyRequest> newRows = buildRows(dto, busNo, STATUS_PENDING_APPROVAL, nextVersion, now, userId, now);
         saveBatch(newRows);
         return buildResult(newRows.get(0), "保存并提交审批成功");
+    }
+
+    private void validateSaveRequest(InboundReceiptSaveDTO dto) {
+        if (dto == null) {
+            throw new IllegalArgumentException("药库进货单入参不能为空");
+        }
+        if (dto.getLines() == null || dto.getLines().isEmpty()) {
+            throw new IllegalArgumentException("药库进货单明细不能为空");
+        }
+        for (int i = 0; i < dto.getLines().size(); i++) {
+            InboundReceiptSaveDTO.InboundReceiptLineDTO line = dto.getLines().get(i);
+            if (line == null) {
+                throw new IllegalArgumentException("药库进货单第" + (i + 1) + "行明细不能为空");
+            }
+            if (!StringUtils.hasText(line.getItemTable())) {
+                throw new IllegalArgumentException("药库进货单第" + (i + 1) + "行项目表不能为空");
+            }
+            if (!StringUtils.hasText(line.getItemId())) {
+                throw new IllegalArgumentException("药库进货单第" + (i + 1) + "行项目标识不能为空");
+            }
+            if (!StringUtils.hasText(line.getUnitCode())) {
+                throw new IllegalArgumentException("药库进货单第" + (i + 1) + "行单位编码不能为空");
+            }
+            if (line.getItemQuantity() == null || line.getItemQuantity().compareTo(java.math.BigDecimal.ZERO) <= 0) {
+                throw new IllegalArgumentException("药库进货单第" + (i + 1) + "行数量必须大于0");
+            }
+        }
     }
 
     private List<WkfSupplyRequest> buildRows(InboundReceiptSaveDTO dto, String busNo, String status, Integer version,
