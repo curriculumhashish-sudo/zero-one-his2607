@@ -112,9 +112,16 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
     public TreatmentDetailVO getTreatmentById(String id) {
         String tenantId = userHolder.getCurrentTenantId();
 
-        // 主键查询加租户条件
+        // 主键查询加租户条件，只查询详情VO需要的字段，避免select *
         LambdaQueryWrapper<WkfActivityDefinitionDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(WkfActivityDefinitionDO::getId, id)
+        wrapper.select(WkfActivityDefinitionDO::getId, WkfActivityDefinitionDO::getBusNo,
+                        WkfActivityDefinitionDO::getName, WkfActivityDefinitionDO::getCategoryCode,
+                        WkfActivityDefinitionDO::getTypeEnum, WkfActivityDefinitionDO::getPackageUnitCode,
+                        WkfActivityDefinitionDO::getPyStr, WkfActivityDefinitionDO::getWbStr,
+                        WkfActivityDefinitionDO::getDescriptionText, WkfActivityDefinitionDO::getYbFlag,
+                        WkfActivityDefinitionDO::getYbNo, WkfActivityDefinitionDO::getYbMatchFlag,
+                        WkfActivityDefinitionDO::getChrgitmLv, WkfActivityDefinitionDO::getStatusEnum)
+                .eq(WkfActivityDefinitionDO::getId, id)
                 .eq(WkfActivityDefinitionDO::getTenantId, tenantId);
         WkfActivityDefinitionDO entity = this.getOne(wrapper);
         if (entity == null) {

@@ -49,7 +49,6 @@ public interface MsTreatmentMapper {
     List<TreatmentListVO> toListVOList(List<WkfActivityDefinitionDO> wkfActivityDefinitionDOS);
 
     @Mappings({
-            @Mapping(source = "isDeleted", target = "deleteFlag"),
             @Mapping(source = "typeEnum", target = "typeEnum", qualifiedByName = "stringToInteger"),
             @Mapping(source = "statusEnum", target = "statusEnum", qualifiedByName = "statusStringToInteger"),
             @Mapping(target = "ybType", ignore = true),
