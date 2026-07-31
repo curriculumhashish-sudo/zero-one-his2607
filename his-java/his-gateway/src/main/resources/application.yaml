@@ -55,6 +55,10 @@ zo:
           - "/v3/api-docs/**"
           - "/*/v3/api-docs"
           - "/webjars/**"
+          - "/report/**"
+          - "/j6-report/**"
+          - "/data-statistics/**"
+
         # 配置内部路径(需要用到凭证但不需要权限验证的请求)
         inner-paths:
           - "/login/current-user"
