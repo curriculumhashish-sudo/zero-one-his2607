@@ -1,5 +1,6 @@
 package com.zeroone.star.project.j6.report;
 
+import com.zeroone.star.project.query.j6.report.FeeDetailExportQuery;
 import com.zeroone.star.project.query.j6.report.FeeDetailQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j6.report.ExportResultVo;
@@ -18,6 +19,6 @@ public interface OutpatientFeeDetailsApis {
      * @param query 查询条件（与列表查询条件一致）
      * @return 导出文件下载URL
      */
-    JsonVO<ExportResultVo> exportFeeDetail(FeeDetailQuery query);
+    JsonVO<ExportResultVo> exportFeeDetail(FeeDetailExportQuery query);
 
 }

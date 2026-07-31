@@ -1,11 +1,13 @@
 package com.zeroone.star.report.service.impl;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zeroone.star.project.query.j6.report.FeeDetailExportQuery;
 import com.zeroone.star.project.query.j6.report.FeeDetailQuery;
+import com.zeroone.star.project.components.excel.ExcelComponent;
+import com.zeroone.star.project.vo.j6.report.ExportResultVo;
 import com.zeroone.star.project.vo.j6.report.FeeDetailVO;
 import com.zeroone.star.project.vo.j6.report.FeeSummaryVo;
 import com.zeroone.star.project.vo.j6.report.OutpatientFeeDetailsVo;
+import com.zeroone.star.report.entity.FeeDetailExportDO;
 import com.zeroone.star.report.entity.FeeDetailLineDO;
 import com.zeroone.star.report.entity.FeeDetailSummaryDO;
 import com.zeroone.star.report.entity.PageEncounterDO;
@@ -14,9 +16,12 @@ import com.zeroone.star.report.service.IFeeDetailService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,16 +39,20 @@ public class FeeDetailServiceImpl implements IFeeDetailService {
     @Resource
     private AdmEncounterMapper admEncounterMapper;
 
+    @Resource
+    private ExcelComponent excelComponent;
+
     @Override
     public OutpatientFeeDetailsVo pageFeeDetailQuery(FeeDetailQuery query) {
 
-        // 1. 分页查询就诊列表
+        // 1. 手动分页：先统计总数，再查当前页
         long pageIndex = query.getPageIndex() > 0 ? query.getPageIndex() : 1L;
         long pageSize = query.getPageSize() > 0 ? query.getPageSize() : 10L;
-        Page<PageEncounterDO> page = new Page<>(pageIndex, pageSize);
+        long total = admEncounterMapper.selectEncounterCount(query);
+        long pages = (total + pageSize - 1) / pageSize;
+        long offset = (pageIndex - 1) * pageSize;
 
-        IPage<PageEncounterDO> encounterPage = admEncounterMapper.selectEncounterByPage(page, query);
-        List<PageEncounterDO> encounters = encounterPage.getRecords();
+        List<PageEncounterDO> encounters = admEncounterMapper.selectEncounterByPage(query, offset, pageSize);
 
         // 2. 收集就诊ID
         List<String> encounterIds = encounters.stream()
@@ -104,10 +113,10 @@ public class FeeDetailServiceImpl implements IFeeDetailService {
 
         // 6. 构建分页结果
         OutpatientFeeDetailsVo result = new OutpatientFeeDetailsVo();
-        result.setPageIndex(encounterPage.getCurrent());
-        result.setPageSize(encounterPage.getSize());
-        result.setTotal(encounterPage.getTotal());
-        result.setPages(encounterPage.getPages());
+        result.setPageIndex(pageIndex);
+        result.setPageSize(pageSize);
+        result.setTotal(total);
+        result.setPages(pages);
         result.setRows(rows);
 
         // 7. 全局汇总
@@ -124,6 +133,30 @@ public class FeeDetailServiceImpl implements IFeeDetailService {
         }
         result.setSummary(summaryVo);
 
+        return result;
+    }
+
+    @Override
+    public ExportResultVo exportFeeDetail(FeeDetailExportQuery query) {
+        // 1. 全量查询（无分页）
+        List<FeeDetailExportDO> rows = admEncounterMapper.selectAllExportLines(query);
+
+        // 2. 写入 Excel 输出流
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            excelComponent.export("门诊费用明细", bos, FeeDetailExportDO.class, rows);
+        } catch (Exception e) {
+            throw new RuntimeException("导出 Excel 失败", e);
+        }
+
+        // 3. 构建返回结果
+        String base64 = Base64.getEncoder().encodeToString(bos.toByteArray());
+        ExportResultVo result = new ExportResultVo();
+        result.setFilename("门诊费用明细_" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".xlsx");
+        result.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        result.setBody(base64);
+        result.setRowCount(rows.size());
+        result.setTruncated(false);
         return result;
     }
 

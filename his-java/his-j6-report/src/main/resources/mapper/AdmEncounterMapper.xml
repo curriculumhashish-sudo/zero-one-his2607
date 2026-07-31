@@ -73,6 +73,99 @@
 <!--        -->
 <!--    </sql>-->
 
+    <!-- ===== 公共 WHERE 片段（就诊筛选条件） ===== -->
+    <sql id="encounterWhere">
+        where e.is_deleted = 0
+        <if test="query.registrationDepartmentId != null and query.registrationDepartmentId != ''">
+            AND e.organization_id = #{query.registrationDepartmentId}
+        </if>
+        <if test="query.patientKeyword != null and query.patientKeyword != ''">
+            AND ((p.name like concat('%', #{query.patientKeyword}, '%'))
+                     or
+                 (e.bus_no like concat('%', #{query.patientKeyword}, '%')))
+        </if>
+        AND EXISTS (
+            select 1 from adm_charge_item aci
+            where aci.encounter_id = e.id
+            and aci.is_deleted = 0
+            <if test="query.tradeDirection != null and query.tradeDirection != '' and query.tradeDirection != 'ALL'">
+                <choose>
+                    <when test="query.tradeDirection == 'CHARGE'">
+                        and aci.refund_id is null
+                    </when>
+                    <when test="query.tradeDirection == 'REFUND'">
+                        and aci.refund_id is not null
+                    </when>
+                </choose>
+            </if>
+            <if test="query.cashierId != null and query.cashierId != ''">
+                and aci.enterer_id = #{query.cashierId}
+            </if>
+            <if test="query.settlementDateFrom != null and query.settlementDateFrom != ''
+                and query.settlementDateTo != null and query.settlementDateTo != ''">
+                and aci.occurrence_time &gt;= #{query.settlementDateFrom}
+                and aci.occurrence_time &lt;= #{query.settlementDateTo}
+            </if>
+            AND EXISTS (
+                select 1 from adm_charge_item_definition def
+                where def.id = aci.definition_id and def.is_deleted = 0
+                <if test="query.subCategoryCodes != null and query.subCategoryCodes.size() > 0">
+                    AND def.type_code IN
+                    <foreach collection="query.subCategoryCodes" item="code" open="(" separator="," close=")">
+                        #{code}
+                    </foreach>
+                </if>
+            )
+            <if test="(query.productNameKeyword != null and query.productNameKeyword != '') or
+                  (query.productCodeKeyword != null and query.productCodeKeyword != '')">
+                AND (
+                    (aci.product_table = 'med_medication_definition'
+                        AND EXISTS (select 1 from med_medication_definition mdf
+                            where mdf.id = aci.product_id and mdf.is_deleted = 0
+                            <if test="query.productNameKeyword != null and query.productNameKeyword != ''">
+                                AND mdf.name like concat('%', #{query.productNameKeyword}, '%')
+                            </if>
+                            <if test="query.productCodeKeyword != null and query.productCodeKeyword != ''">
+                                AND mdf.bus_no like concat('%', #{query.productCodeKeyword}, '%')
+                            </if>
+                        )
+                    )
+                    OR (aci.product_table = 'wkf_activity_definition'
+                        AND EXISTS (select 1 from wkf_activity_definition act
+                            where act.id = aci.product_id and act.is_deleted = 0
+                            <if test="query.productNameKeyword != null and query.productNameKeyword != ''">
+                                AND act.name like concat('%', #{query.productNameKeyword}, '%')
+                            </if>
+                            <if test="query.productCodeKeyword != null and query.productCodeKeyword != ''">
+                                AND act.bus_no like concat('%', #{query.productCodeKeyword}, '%')
+                            </if>
+                        )
+                    )
+                    OR (aci.product_table = 'adm_device_definition'
+                        AND EXISTS (select 1 from adm_device_definition dev
+                            where dev.id = aci.product_id and dev.is_deleted = 0
+                            <if test="query.productNameKeyword != null and query.productNameKeyword != ''">
+                                AND dev.name like concat('%', #{query.productNameKeyword}, '%')
+                            </if>
+                            <if test="query.productCodeKeyword != null and query.productCodeKeyword != ''">
+                                AND dev.bus_no like concat('%', #{query.productCodeKeyword}, '%')
+                            </if>
+                        )
+                    )
+                )
+            </if>
+        )
+    </sql>
+
+    <!-- 统计符合条件的就诊数 -->
+    <select id="selectEncounterCount" resultType="long">
+        select count(DISTINCT e.id)
+        from adm_encounter e
+        left join adm_patient p on e.patient_id = p.id and p.is_deleted = 0
+        <include refid="encounterWhere"/>
+    </select>
+
+    <!-- 手动分页查询就诊列表 -->
     <select id="selectEncounterByPage" resultType="com.zeroone.star.report.entity.PageEncounterDO">
         select
             e.id as encounterId,
@@ -83,114 +176,9 @@
         from adm_encounter e
         left join adm_patient p on e.patient_id = p.id and p.is_deleted = 0
         left join adm_organization o on e.organization_id = o.id and o.is_deleted = 0
-        where e.is_deleted = 0
-
-<!--          挂号科室-->
-        <if test="query.registrationDepartmentId != null and query.registrationDepartmentId != ''">
-            AND e.organization_id = #{query.registrationDepartmentId}
-        </if>
-<!--        患者关键词-->
-        <if test="query.patientKeyword != null and query.patientKeyword != ''">
-            AND ((p.name like concat('%', #{query.patientKeyword}, '%'))
-                     or
-                 (e.bus_no like concat('%', #{query.patientKeyword}, '%')))
-
-          </if>
-
-          and exists (
-<!--            根据分类id筛选-->
-            select 1 from adm_charge_item aci
-            where aci.encounter_id = e.id
-            and aci.is_deleted = 0
-
-            <!-- 收退方向 -->
-            <if test="query.tradeDirection != null
-                and query.tradeDirection != ''
-                and query.tradeDirection != 'ALL'">
-                <choose>
-
-                    <when test="query.tradeDirection == 'CHARGE'">
-                        and aci.refund_id is null
-                    </when>
-
-                    <when test="query.tradeDirection == 'REFUND'">
-                        and aci.refund_id is not null
-                    </when>
-
-                </choose>
-            </if>
-
-            <!-- 收费员筛选 -->
-            <if test="query.cashierId != null and query.cashierId != ''">
-                and aci.enterer_id = #{query.cashierId}
-            </if>
-
-            <!--  结算时间-->
-            <if test="query.settlementDateFrom != null and query.settlementDateFrom != ''
-                and query.settlementDateTo != null and query.settlementDateTo != '' ">
-                and aci.occurrence_time &gt;= #{query.settlementDateFrom}
-                and aci.occurrence_time &lt;= #{query.settlementDateTo}
-            </if>
-
-            and exists(
-                select 1 from adm_charge_item_definition def
-                where def.id = aci.definition_id
-                and def.is_deleted = 0
-                <if test="query.subCategoryCodes != null and query.subCategoryCodes.size() > 0">
-                        AND def.type_code IN
-                        <foreach collection="query.subCategoryCodes" item="code" open="(" separator="," close=")">
-                            #{code}
-                        </foreach>
-                </if>
-
-            )
-        <if test="(query.productNameKeyword != null and query.productNameKeyword != '') or
-            (query.productCodeKeyword != null and query.productCodeKeyword != '')">
-            and (
-<!--            根据产品关键词筛选-->
-            (aci.product_table = 'med_medication_definition'
-            and exists(
-            select 1 from med_medication_definition mdf
-            where mdf.id = aci.product_id
-            and mdf.is_deleted = 0
-            <if test="query.productNameKeyword != null and query.productNameKeyword != ''">
-                AND (mdf.name like concat('%', #{query.productNameKeyword}, '%'))
-            </if>
-            <if test="query.productCodeKeyword != null and query.productCodeKeyword != ''">
-                AND (mdf.bus_no like concat('%', #{query.productCodeKeyword}, '%'))
-            </if>
-            ))
-            or (aci.product_table = 'wkf_activity_definition'
-            and exists(
-            select 1 from wkf_activity_definition act
-            where act.id = aci.product_id
-            and act.is_deleted = 0
-            <if test="query.productNameKeyword != null and query.productNameKeyword != ''">
-                AND (act.name like concat('%', #{query.productNameKeyword}, '%'))
-            </if>
-            <if test="query.productCodeKeyword != null and query.productCodeKeyword != ''">
-                AND (act.bus_no like concat('%', #{query.productCodeKeyword}, '%'))
-            </if>
-            ))
-            or (aci.product_table = 'adm_device_definition'
-            and exists(
-            select 1 from adm_device_definition dev
-            where dev.id = aci.product_id
-            and dev.is_deleted = 0
-            <if test="query.productNameKeyword != null and query.productNameKeyword != ''">
-                AND (dev.name like concat('%', #{query.productNameKeyword}, '%'))
-            </if>
-            <if test="query.productCodeKeyword != null and query.productCodeKeyword != ''">
-                AND (dev.bus_no like concat('%', #{query.productCodeKeyword}, '%'))
-            </if>
-            ))
-            )
-
-        </if>
-        )
-        order by
-            e.start_time desc,
-            e.id desc
+        <include refid="encounterWhere"/>
+        order by e.start_time desc, e.id desc
+        LIMIT #{offset}, #{limit}
     </select>
 
 
@@ -504,4 +492,109 @@
             )
         </if>
     </select>
+    <!-- ===== 全量导出：不加分页，含就诊层字段 ===== -->
+    <select id="selectAllExportLines" resultType="com.zeroone.star.report.entity.FeeDetailExportDO">
+        SELECT
+            p.name                                                      AS patient_name,
+            e.bus_no                                                    AS bus_no,
+            o.name                                                      AS registration_department_name,
+            CASE aci.product_table
+                WHEN 'med_medication_definition' THEN '药品'
+                WHEN 'wkf_activity_definition' THEN '诊疗'
+                WHEN 'adm_device_definition' THEN '耗材'
+            END                                                         AS fee_category_display,
+            tc.display                                                  AS sub_category_display,
+            COALESCE(med.name, act.name, dev.name)                      AS product_name,
+            COALESCE(med.bus_no, act.bus_no, dev.bus_no)                AS product_code,
+            COALESCE(med.total_volume, dev.total_volume)                AS specification,
+            aci.quantity_value                                          AS quantity_value,
+            aci.quantity_unit                                           AS quantity_unit_display,
+            ap.name                                                     AS ordering_doctor_name,
+            pr.name                                                     AS cashier_name,
+            DATE_FORMAT(aci.occurrence_time, '%Y-%m-%d %H:%i:%s')       AS bill_date,
+            ycfu.chrgitm_lv                                             AS insurance_level_display,
+            ycfu.med_chrgitm_type                                       AS insurance_type_display,
+            IF(aci.refund_id IS NULL, aci.base_amount, -aci.base_amount)
+                AS base_amount,
+            IF(aci.refund_id IS NULL, aci.discount_amount, -aci.discount_amount)
+                AS discount_amount,
+            IF(aci.refund_id IS NULL, aci.base_amount - aci.discount_amount, -(aci.base_amount - aci.discount_amount))
+                AS receivable_amount,
+            IF(aci.refund_id IS NULL, aci.base_amount - aci.discount_amount, -(aci.base_amount - aci.discount_amount))
+                AS discounted_amount,
+            IF(aci.refund_id IS NULL, aci.unit_price, -aci.unit_price)  AS unit_amount,
+            IF(aci.refund_id IS NULL, aci.base_amount - aci.discount_amount, -(aci.base_amount - aci.discount_amount))
+                AS line_amount,
+            IF(aci.refund_id IS NULL, aci.base_amount - aci.discount_amount, -(aci.base_amount - aci.discount_amount))
+                AS actual_received_amount,
+            0.000000                                                    AS insurance_amount,
+            IF(aci.refund_id IS NULL, aci.discount_amount, -aci.discount_amount)
+                AS self_pay_amount
+        FROM adm_charge_item aci
+        JOIN adm_encounter e ON aci.encounter_id = e.id AND e.is_deleted = 0
+        LEFT JOIN adm_patient p ON e.patient_id = p.id AND p.is_deleted = 0
+        LEFT JOIN adm_organization o ON e.organization_id = o.id AND o.is_deleted = 0
+        LEFT JOIN adm_charge_item_definition def ON aci.definition_id = def.id AND def.is_deleted = 0
+        LEFT JOIN ter_concept tc ON def.type_code = tc.code AND tc.code_system_id = '236' AND tc.is_deleted = 0
+        LEFT JOIN med_medication_definition med
+            ON aci.product_table = 'med_medication_definition' AND aci.product_id = med.id AND med.is_deleted = 0
+        LEFT JOIN wkf_activity_definition act
+            ON aci.product_table = 'wkf_activity_definition' AND aci.product_id = act.id AND act.is_deleted = 0
+        LEFT JOIN adm_device_definition dev
+            ON aci.product_table = 'adm_device_definition' AND aci.product_id = dev.id AND dev.is_deleted = 0
+        LEFT JOIN adm_practitioner pr ON aci.enterer_id = pr.id AND pr.is_deleted = 0
+        LEFT JOIN adm_encounter_participant aep ON aci.encounter_id = aep.encounter_id
+            AND aep.role_code = 'ADMITTER' AND aep.is_deleted = 0
+        LEFT JOIN adm_practitioner ap ON aep.practitioner_id = ap.id AND ap.is_deleted = 0
+        LEFT JOIN yb_clinic_fee_upload ycfu ON aci.id = ycfu.charge_item_id AND ycfu.is_deleted = 0
+        WHERE aci.is_deleted = 0
+
+        <if test="query.registrationDepartmentId != null and query.registrationDepartmentId != ''">
+            AND e.organization_id = #{query.registrationDepartmentId}
+        </if>
+        <if test="query.patientKeyword != null and query.patientKeyword != ''">
+            AND ((p.name LIKE CONCAT('%', #{query.patientKeyword}, '%'))
+                 OR (e.bus_no LIKE CONCAT('%', #{query.patientKeyword}, '%')))
+        </if>
+        <if test="query.tradeDirection != null and query.tradeDirection != '' and query.tradeDirection != 'ALL'">
+            <choose>
+                <when test="query.tradeDirection == 'CHARGE'">
+                    AND aci.refund_id IS NULL
+                </when>
+                <when test="query.tradeDirection == 'REFUND'">
+                    AND aci.refund_id IS NOT NULL
+                </when>
+            </choose>
+        </if>
+        <if test="query.cashierId != null and query.cashierId != ''">
+            AND aci.enterer_id = #{query.cashierId}
+        </if>
+        <if test="query.settlementDateFrom != null and query.settlementDateFrom != ''
+            and query.settlementDateTo != null and query.settlementDateTo != ''">
+            AND aci.occurrence_time &gt;= #{query.settlementDateFrom}
+            AND aci.occurrence_time &lt;= #{query.settlementDateTo}
+        </if>
+        <if test="query.subCategoryCodes != null and query.subCategoryCodes.size() > 0">
+            AND def.type_code IN
+            <foreach collection="query.subCategoryCodes" item="code" open="(" separator="," close=")">
+                #{code}
+            </foreach>
+        </if>
+        <if test="(query.productNameKeyword != null and query.productNameKeyword != '') or
+              (query.productCodeKeyword != null and query.productCodeKeyword != '')">
+            AND (
+                (aci.product_table = 'med_medication_definition'
+                    AND med.name LIKE CONCAT('%', #{query.productNameKeyword}, '%')
+                    AND med.bus_no LIKE CONCAT('%', #{query.productCodeKeyword}, '%'))
+                OR (aci.product_table = 'wkf_activity_definition'
+                    AND act.name LIKE CONCAT('%', #{query.productNameKeyword}, '%')
+                    AND act.bus_no LIKE CONCAT('%', #{query.productCodeKeyword}, '%'))
+                OR (aci.product_table = 'adm_device_definition'
+                    AND dev.name LIKE CONCAT('%', #{query.productNameKeyword}, '%')
+                    AND dev.bus_no LIKE CONCAT('%', #{query.productCodeKeyword}, '%'))
+            )
+        </if>
+        ORDER BY aci.occurrence_time DESC, aci.id ASC
+    </select>
+
 </mapper>

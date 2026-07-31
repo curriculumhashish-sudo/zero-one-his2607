@@ -1,6 +1,7 @@
 package com.zeroone.star.report.controller;
 
 import com.zeroone.star.project.j6.report.OutpatientFeeDetailsApis;
+import com.zeroone.star.project.query.j6.report.FeeDetailExportQuery;
 import com.zeroone.star.project.query.j6.report.FeeDetailQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j6.report.ExportResultVo;
@@ -39,8 +40,8 @@ public class OutpatientFeeDetailsController implements OutpatientFeeDetailsApis 
     @Operation(summary = "导出报表")
     @PostMapping("fee-detail-export")
     @Override
-    public JsonVO<ExportResultVo> exportFeeDetail(@RequestBody FeeDetailQuery query) {
-        // TODO: 后续实现报表导出功能
-        return JsonVO.success(null);
+    public JsonVO<ExportResultVo> exportFeeDetail(@RequestBody FeeDetailExportQuery query) {
+        ExportResultVo result = feeDetailService.exportFeeDetail(query);
+        return JsonVO.success(result);
     }
 }

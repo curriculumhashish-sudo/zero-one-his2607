@@ -1,6 +1,8 @@
 package com.zeroone.star.report.service;
 
+import com.zeroone.star.project.query.j6.report.FeeDetailExportQuery;
 import com.zeroone.star.project.query.j6.report.FeeDetailQuery;
+import com.zeroone.star.project.vo.j6.report.ExportResultVo;
 import com.zeroone.star.project.vo.j6.report.OutpatientFeeDetailsVo;
 
 public interface IFeeDetailService {
@@ -11,4 +13,7 @@ public interface IFeeDetailService {
      * @return 分页视图
      */
     OutpatientFeeDetailsVo pageFeeDetailQuery(FeeDetailQuery query);
+
+    /** 导出门诊费用明细 Excel */
+    ExportResultVo exportFeeDetail(FeeDetailExportQuery query);
 }
