@@ -12,7 +12,6 @@ import com.zeroone.star.project.j4.basedata.MedicineApis;
 import com.zeroone.star.project.query.j4.medicine.MedicinePageQuery;
 import com.zeroone.star.project.query.j4.medicine.MedicineSelectPageQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j4.medicine.MedicineAddVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineDetailVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineListVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineSelectVO;
@@ -116,8 +115,8 @@ public class MedicineController implements MedicineApis {
     @Override
     @PostMapping("/add-medicine")
     @Operation(summary = "新增药品", description = "新增药品主体及价格信息")
-    public JsonVO<MedicineAddVO> addMedicine(@Valid @RequestBody MedicineAddDTO dto) {
-        MedicineAddVO vo = medicineService.addMedicine(dto);
+    public JsonVO<MedicineListVO> addMedicine(@Valid @RequestBody MedicineAddDTO dto) {
+        MedicineListVO vo = medicineService.addMedicine(dto);
         return JsonVO.success(vo);
     }
 }

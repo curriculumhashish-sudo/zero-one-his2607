@@ -9,7 +9,6 @@ import com.zeroone.star.project.dto.j4.medicine.MedicineDeleteDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineDetailDTO;
 import com.zeroone.star.project.query.j4.medicine.MedicinePageQuery;
 import com.zeroone.star.project.query.j4.medicine.MedicineSelectPageQuery;
-import com.zeroone.star.project.vo.j4.medicine.MedicineAddVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineListVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineSelectVO;
 
@@ -75,5 +74,5 @@ public interface IMedicineService extends IService<MedMedicationDefinitionDO> {
      * @param dto 新增药品数据
      * @return 新增后的药品信息
      */
-    MedicineAddVO addMedicine(MedicineAddDTO dto);
+    MedicineListVO addMedicine(MedicineAddDTO dto);
 }

@@ -16,7 +16,6 @@ import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineAddDTO;
 import com.zeroone.star.project.query.j4.medicine.MedicinePageQuery;
 import com.zeroone.star.project.query.j4.medicine.MedicineSelectPageQuery;
-import com.zeroone.star.project.vo.j4.medicine.MedicineAddVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineListVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineSelectVO;
 import jakarta.annotation.Resource;
@@ -85,7 +84,7 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public MedicineAddVO addMedicine(MedicineAddDTO dto) {
+    public MedicineListVO addMedicine(MedicineAddDTO dto) {
         validatePrice(dto);
         validateInventoryRange(dto);
 
@@ -109,7 +108,9 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
             savePrice(medicine, dto, PRICE_TYPE_MAX_RETAIL, dto.getMaximumRetailPrice(), now);
         }
 
-        return msMedicineMapper.entityToAddVO(medicine);
+        MedicineListVO vo = msMedicineMapper.entityToListVO(medicine);
+        vo.setRetailPrice(dto.getRetailPrice());
+        return vo;
     }
 
     /**
