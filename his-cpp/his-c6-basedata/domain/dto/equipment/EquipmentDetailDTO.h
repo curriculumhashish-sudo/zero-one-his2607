@@ -8,7 +8,7 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * 器材详情all DTO
+ * 器材分页的字段 DTO
  */
 class EquipmentDetailDTO : public oatpp::DTO
 {
@@ -19,16 +19,19 @@ class EquipmentDetailDTO : public oatpp::DTO
 	API_DTO_FIELD_REQUIRE(String, code, ZH_WORDS_GETTER("equipment.field.code"), false);
 	// 器材名称
 	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("equipment.field.name"), true);
-	// 器材分类
-	API_DTO_FIELD_REQUIRE(String, classification, ZH_WORDS_GETTER("equipment.field.classification"), true);
 	// 规格
 	API_DTO_FIELD_REQUIRE(String, specification, ZH_WORDS_GETTER("equipment.field.specification"), true);
 	// 状态
-	API_DTO_FIELD_REQUIRE(Int32, status, ZH_WORDS_GETTER("equipment.field.status"), true);
+	API_DTO_FIELD_REQUIRE(String, status, ZH_WORDS_GETTER("equipment.field.status"), true);
+	// 器材分类
+	API_DTO_FIELD_REQUIRE(String, classification, ZH_WORDS_GETTER("equipment.field.classification"), true);
 	// 生产厂家
 	API_DTO_FIELD_REQUIRE(String, manufacturer, ZH_WORDS_GETTER("equipment.field.manufacturer"), false);
 	// 价格
-	API_DTO_FIELD_REQUIRE(String, price, ZH_WORDS_GETTER("equipment.field.price"), true);
+	API_DTO_FIELD_REQUIRE(Float64, price, ZH_WORDS_GETTER("equipment.field.price"), true);
+
+	// 关联一个PayloadDTO负载数据对象
+	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 };
 
 /**

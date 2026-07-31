@@ -96,6 +96,7 @@ treatment:
 equipment:
   tags:
     tag: 器材管理
+    tag2: 器材声明式服务
   query:
     summary: 获取器材列表（条件+分页）
   add:
@@ -108,13 +109,17 @@ equipment:
     summary: 启停用器材
   select:
     summary: 选择器材
-  query-one:
+  query-by-id:
     summary: 器材详情
+  query-one: 
+    summary: 服务1
+  query-all: 
+    summary: 服务2
   field:
     # 基础通用字段
     id: 序号
     ids: 待操作的器材ID集合
-    code: 器材编码
+    code: 编码
     name: 器材名称
     status: 器材状态 1-启用 0-禁用
     desc: 器材描述
@@ -123,6 +128,7 @@ equipment:
     keywords: 关键字,请输入器材名称或编码
     classification: 器材分类
     specification: 器材规格
+
 
 # 器材业务基础字段
     goods: 商品名称

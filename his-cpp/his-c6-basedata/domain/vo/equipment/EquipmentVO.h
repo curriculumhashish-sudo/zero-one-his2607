@@ -5,23 +5,24 @@
 
 #include "../../dto/equipment/EquipmentDetailDTO.h"
 #include "../../dto/equipment/EquipmentSelectDTO.h"
+#include "../../dto/equipment/EquipmentAddDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
  * 定义一个器材信息分页显示JsonVO对象，用于响应给客户端
  */
-class EquipmentDetailPageJsonVO : public JsonVO<EquipmentDetailPageDTO::Wrapper>
+class EquipmentPageJsonVO : public JsonVO<EquipmentDetailPageDTO::Wrapper>
 {
-	DTO_INIT(EquipmentDetailPageJsonVO, JsonVO<EquipmentDetailPageDTO::Wrapper>);
+	DTO_INIT(EquipmentPageJsonVO, JsonVO<EquipmentDetailPageDTO::Wrapper>);
 };
 
 /**
- * 响应给客户端的one用户详细信息JsonVO对象
+ * 示例显示JsonVO，用于响应给客户端的Json对象
  */
-class EquipmentDetailJsonVO : public JsonVO<EquipmentAddDTO::Wrapper>
+class EquipmentJsonVO : public JsonVO<EquipmentDTO::Wrapper>
 {
-	DTO_INIT(EquipmentDetailJsonVO, JsonVO<EquipmentAddDTO::Wrapper>);
+	DTO_INIT(EquipmentJsonVO, JsonVO<EquipmentDTO::Wrapper>);
 };
 
 /**

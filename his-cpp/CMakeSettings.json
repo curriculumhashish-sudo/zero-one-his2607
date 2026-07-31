@@ -23,7 +23,18 @@
 
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
+<<<<<<< HEAD
       "inheritEnvironments": [ "local_msvc_x64_x64" ]
+=======
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "variables": [
+        {
+          "name": "CMAKE_CXX_FLAGS",
+          "value": "/std:c++17 /Zc:__cplusplus",
+          "type": "STRING"
+        }
+      ]
+>>>>>>> 763b10e476a941bc985874326f337f6e03186ae4
     },
     {
       "name": "x64-Release",
@@ -34,10 +45,21 @@
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "msvc_x64_x64" ],
+<<<<<<< HEAD
       "cmakeCommandArgs": "-D_RELEASE_DOC_=1 -DCMAKE_CXX_FLAGS=\"/std:c++17\""
     //  "inheritEnvironments": [ "local_msvc_x64_x64" ],
     //  "cmakeCommandArgs": "-D_RELEASE_DOC_=1 -DCMAKE_C_COMPILER=\"${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\bin\\Hostx64\\x64\\cl.exe\" -DCMAKE_CXX_COMPILER=\"${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\bin\\Hostx64\\x64\\cl.exe\""
 
+=======
+      "cmakeCommandArgs": "-D_RELEASE_DOC_=1",
+      "variables": [
+        {
+          "name": "CMAKE_CXX_FLAGS",
+          "value": "/std:c++17 /Zc:__cplusplus",
+          "type": "STRING"
+        }
+      ]
+>>>>>>> 763b10e476a941bc985874326f337f6e03186ae4
     },
     {
       "name": "Linux-GCC-Debug",
