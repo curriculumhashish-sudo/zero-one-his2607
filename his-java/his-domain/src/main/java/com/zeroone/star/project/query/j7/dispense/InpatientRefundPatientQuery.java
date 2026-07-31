@@ -24,7 +24,7 @@ public class InpatientRefundPatientQuery extends PageQuery {
     /**
      * 病区ID（对应 adm_location.id，form_enum=WARD；经 adm_encounter_location.location_id 关联就诊病区）
      */
-    @Schema(description = "病区ID", example = "322963602326687744")
+    @Schema(description = "病区ID", example = "322955305339588608")
     private String wardId;
 
     /**
@@ -39,6 +39,6 @@ public class InpatientRefundPatientQuery extends PageQuery {
     /**
      * 患者关键字（姓名/住院号/床号）（对应 adm_patient.name / adm_encounter.bus_no / adm_location.name(form_enum=BED)）
      */
-    @Schema(description = "患者关键字（姓名/住院号/床号）", example = "张三")
+    @Schema(description = "患者关键字（姓名/住院号/床号）", example = "周女士")
     private String keyword;
 }
