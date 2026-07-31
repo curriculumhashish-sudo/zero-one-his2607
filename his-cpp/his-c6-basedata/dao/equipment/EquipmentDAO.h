@@ -3,11 +3,9 @@
 #ifndef _RENTCONTROLLER_DAO_
 #define _RENTCONTROLLER_DAO_
 #include "BaseDAO.h"
-#include "../../domain/do/equipment/DocInventoryItemSnapshotDO.h"
-#include "../../domain/do/equipment/InventoryLockDO.h"
-#include "../../domain/do/equipment/WkfInventoryItemDO.h"
 #include "../../domain/query/equipment/EquipmentQuery.h"
-#include "../../domain/do/equipment/AdmDeviceDefinition.h"
+#include "../../domain/do/equipment/AdmDeviceDefinitionDO.h"
+#include "../../domain/do/equipment/AdmChargeItemDefinitionDO.h" 
 /**
  * 示例表数据库操作实现
  */
@@ -28,22 +26,25 @@ public:
 	// 统计数据条数
 	uint64_t count(const EquipmentQuery::Wrapper& query);
 	// 分页查询数据
-	std::list<DocInventoryItemSnapshotDO> selectWithPage(const EquipmentQuery::Wrapper& query);
+	std::list<AdmDeviceDefinitionDO> selectWithPage(const EquipmentQuery::Wrapper& query);
 	// 通过姓名查询数据
-	std::list<WkfInventoryItemDO> selectByName(const string& name);
+	std::list<AdmDeviceDefinitionDO> selectByName(const string& name);
 	// 通过ID查询数据
 	PtrAdmDeviceDefinitionDO selectById(std::string id);
 
 	// 新增的数据插入 (供 saveData 调用)
-	int insert(const WkfInventoryItemDO& entity);
+	int insert(const AdmDeviceDefinitionDO& entity);
 
 	// 修改数据 (供 modifyData 调用)
-	int update(const WkfInventoryItemDO& entity);
+	int update(const AdmDeviceDefinitionDO& entity);
 
 	// 批量逻辑删除
 	int softDeleteByIds(const std::list<std::string>& ids, const std::string& deletedBy, const std::string& deletedAt);
 
 	// 批量修改状态
 	int updateStatusByIds(const std::list<std::string>& ids, const std::string& statusEnum, const std::string& updatedBy, const std::string& updatedAt);
+
+	//批量启停用
+	int EquipmentDAO::updateActiveFlagByIds(const std::list<std::string>& ids, bool activeFlag, const std::string& updatedBy, const std::string& updatedAt);
 };
 #endif // !_RENTCONTROLLER_DAO_

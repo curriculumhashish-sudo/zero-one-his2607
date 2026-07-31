@@ -2,27 +2,30 @@
 #include "EquipmentDAO.h"
 #include "EquipmentMapper.h"
 
-
+// ============================================================================
 // 1. 查询条件构建器 
+// ============================================================================
 std::string EquipmentDAO::queryConditionBuilder(const EquipmentQuery::Wrapper& query, SqlParams& params)
 {
 	std::stringstream sqlCondition;
 
 	// 基础条件：只查询未删除的数据 (is_deleted = 0)
-	sqlCondition << " WHERE `is_deleted` = 0 ";
+	sqlCondition << " WHERE t.`is_deleted` = 0 ";
 
-	// 条件1：关键词模糊查询 
+	// 条件 1：关键词模糊查询 (匹配名称或拼音码)
 	if (query->keywords && !query->keywords->empty()) {
-		sqlCondition << " AND (`name` LIKE CONCAT('%',?,'%') OR `py_str` LIKE CONCAT('%',?,'%')) ";
+		sqlCondition << " AND (t.`name` LIKE CONCAT('%',?,'%') OR t.`py_str` LIKE CONCAT('%',?,'%')) ";
 		SQLPARAMS_PUSH(params, "s", std::string, query->keywords.getValue(""));
 		SQLPARAMS_PUSH(params, "s", std::string, query->keywords.getValue(""));
 	}
 
-	// 条件2：器材分类精准查询
+	// 条件 2：器材分类精准查询
 	if (query->classification && !query->classification->empty()) {
-		sqlCondition << " AND `category_code` = ? ";
+		sqlCondition << " AND t.`category_code` = ? ";
 		SQLPARAMS_PUSH(params, "s", std::string, query->classification.getValue(""));
 	}
+
+	// TODO: 你可以在这里继续新增对 active_flag (启停用) 等新字段的查询过滤
 
 	return sqlCondition.str();
 }
@@ -33,7 +36,7 @@ std::string EquipmentDAO::queryConditionBuilder(const EquipmentQuery::Wrapper& q
 uint64_t EquipmentDAO::count(const EquipmentQuery::Wrapper& query)
 {
 	SqlParams params;
-	std::string sql = "SELECT COUNT(*) FROM doc_inventory_item_snapshot diis";
+	std::string sql = "SELECT COUNT(*) FROM adm_device_definition t";
 
 	// 拼接条件
 	sql += queryConditionBuilder(query, params);
@@ -43,29 +46,28 @@ uint64_t EquipmentDAO::count(const EquipmentQuery::Wrapper& query)
 }
 
 const std::string listCols =
-"diis.id, diis.product_bus_no, diis.name, diis.total_volume,"
-"diis.inventory_status_enum,"
-"diis.device_category_code, diis.manufacturer, diis.lot_number_price_amount";
+"t.id, t.bus_no, t.name, t.category_code, t.total_volume, t.manufacturer_text, t.status_enum, t.active_flag";
 // ============================================================================
 // 3. 列表分页查询
 // ============================================================================
-std::list<DocInventoryItemSnapshotDO> EquipmentDAO::selectWithPage(const EquipmentQuery::Wrapper& query)
+std::list<AdmDeviceDefinitionDO> EquipmentDAO::selectWithPage(const EquipmentQuery::Wrapper& query)
 {
 	SqlParams params;
-	std::string sql = "SELECT  "+ listCols +" FROM doc_inventory_item_snapshot diis";
+	std::string sql = "SELECT " + listCols + " FROM adm_device_definition t";
 
 	// 拼接条件
 	sql += queryConditionBuilder(query, params);
 
-	// 拼接排序：优先按更新时间降序，其次按创建时间，最后按ID
-	sql += " ORDER BY IFNULL(`updated_at`, `created_at`) DESC, `id` DESC ";
+	// 拼接排序：优先按更新时间降序，其次按创建时间，最后按 ID
+	sql += " ORDER BY IFNULL(t.`updated_at`, t.`created_at`) DESC, t.`id` DESC ";
 
 	// 拼接分页
 	sql += " LIMIT " + std::to_string(((query->pageIndex - 1) * query->pageSize)) + "," + std::to_string(query->pageSize);
 
-	std::cout << "最终执行SQL：" << sql << std::endl;
-	// 执行查询并通过 Mapper 映射结果
-	return sqlSession->executeQuery<DocInventoryItemSnapshotDO>(sql, QueryMapper(), params);
+	std::cout << "最终执行 SQL：" << sql << std::endl;
+
+	// 使用新的轻量级 Mapper
+	return sqlSession->executeQuery<AdmDeviceDefinitionDO>(sql, AdmDeviceDefinitionQueryMapper(), params);
 }
 
 //这个真的有必要保留吗？
@@ -82,58 +84,167 @@ std::list<DocInventoryItemSnapshotDO> EquipmentDAO::selectWithPage(const Equipme
 // ============================================================================
 PtrAdmDeviceDefinitionDO EquipmentDAO::selectById(std::string id)
 {
-	std::string sql = "SELECT ad.*,diis.* FROM adm_device_definition ad JOIN doc_inventory_item_snapshot diis ON "
-		"ad.tenant_id=diis.tenant_id WHERE ad.`id` = ?";
-	return sqlSession->executeQueryOne<PtrAdmDeviceDefinitionDO>(sql, PtrByIdMapper(), "%s", id);
+	std::string sql = "SELECT * FROM adm_device_definition WHERE `id` = ? AND `is_deleted` = 0";
+	return sqlSession->executeQueryOne<std::shared_ptr<AdmDeviceDefinitionDO>>(sql, PtrAdmDeviceDefinitionMapper(), "%s", id);
 }
 
 // ============================================================================
 // 5. 新增数据
 // PtrDocInventorySnapshotDO
-int EquipmentDAO::insert(const WkfInventoryItemDO& entity)
+int EquipmentDAO::insert(const AdmDeviceDefinitionDO& entity)
 {
-	std::string sql = "INSERT INTO wkf_inventory_item "
-		"(`id`, `name`, `category_code`, `inventory_status_enum`, `created_by`, `created_at`, `is_deleted`, `version`, "
-		"`item_table`, `item_id`, `supplier_id`, `unit_code`, `quantity`, `lot_number`, `location_id`) "
-		"VALUES (?, ?, ?, ?, ?, ?, 0, 0, ?, ?, ?, ?, ?, ?, ?)";
+	// 构建 SQL，包含系统字段、基础信息、单位信息、业务标记
+	std::string sql = "INSERT INTO adm_device_definition ("
+		// 系统字段 (10个)
+		"`id`, `tenant_id`, `created_at`, `updated_at`, `created_by`, `updated_by`, "
+		"`is_deleted`, `version`, `status_enum`, `active_flag`, "
+
+		// 基础信息 (11个)
+		"`name`, `merchandise_name`, `category_code`, `type_code`, `manufacturer_text`, "
+		"`supply_id`, `approval_number`, `total_volume`, `yb_no`, `yb_org_no`, `chrgitm_lv`, "
+
+		// 业务及标记信息 (6个)
+		"`py_str`, `wb_str`, `allergen_flag`, `yb_flag`, `hvcm_flag`, `description`, "
+
+		// 单位与库存预警信息 (11个)
+		"`purchase_unit_code`, `purchase_unit_ratio`, `stock_unit_code`, `stock_unit_ratio`, "
+		"`package_unit_code`, `package_unit_ratio`, `split_unit_code`, "
+		"`item_min_quantity`, `item_max_quantity`, `yb_match_flag`"
+		") VALUES ("
+		// 10 + 11 + 6 + 11 = 38 个字段
+		"?, ?, ?, ?, ?, ?, "    // id -> updated_by
+		"0, 0, ?, ?, "          // is_deleted(0), version(0), status, active
+		"?, ?, ?, ?, ?, "       // name -> mfr_text
+		"?, ?, ?, ?, ?, ?, "    // supply -> chrgitm_lv
+		"?, ?, ?, ?, ?, ?, "    // py_str -> description
+		"?, ?, ?, ?, "          // purchase -> stock ratio
+		"?, ?, ?, "             // package -> split
+		"?, ?, ?)";             // min/max -> yb_match_flag
 
 	SqlParams params;
+
+	// ================== 系统基础与状态字段 ==================
 	SQLPARAMS_PUSH(params, "s", std::string, entity.getId());
-	SQLPARAMS_PUSH(params, "s", std::string, entity.getName());
-	SQLPARAMS_PUSH(params, "s", std::string, entity.getCategoryCode());
-	SQLPARAMS_PUSH(params, "s", std::string, entity.getInventoryStatusEnum());
-	SQLPARAMS_PUSH(params, "s", std::string, entity.getCreatedBy());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getTenantId());
 	SQLPARAMS_PUSH(params, "s", std::string, entity.getCreatedAt());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getUpdatedAt());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getCreatedBy());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getUpdatedBy());
+	// is_deleted 和 version 已经在 SQL 中硬编码为 0
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getStatusEnum()); // 必填
+	SQLPARAMS_PUSH(params, "b", bool, entity.getActiveFlag()); // 必填
 
-	SQLPARAMS_PUSH(params, "s", std::string, entity.getItemTable());
-	SQLPARAMS_PUSH(params, "s", std::string, entity.getItemId());
-	SQLPARAMS_PUSH(params, "s", std::string, entity.getSupplierId());
-	SQLPARAMS_PUSH(params, "s", std::string, entity.getUnitCode());
-	SQLPARAMS_PUSH(params, "d", double, entity.getQuantity());
-	SQLPARAMS_PUSH(params, "s", std::string, entity.getLotNumber());
-	SQLPARAMS_PUSH(params, "s", std::string, entity.getLocationId());
+	// ================== 页面：基础信息模块 ==================
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getName());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getMerchandiseName());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getCategoryCode());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getTypeCode());        // 映射前端:财务类型
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getManufacturerText());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getSupplyId());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getApprovalNumber());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getTotalVolume());     // 映射前端:包装规格
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getYbNo());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getYbOrgNo());         // 映射前端:医药机构目录编码
+	SQLPARAMS_PUSH(params, "i", int, entity.getChrgitmLv());       // 映射前端:医保等级
 
+	// ================== 页面：业务信息模块 ==================
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getPyStr());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getWbStr());
+	SQLPARAMS_PUSH(params, "b", bool, entity.getAllergenFlag());
+	SQLPARAMS_PUSH(params, "b", bool, entity.getYbFlag());
+	SQLPARAMS_PUSH(params, "b", bool, entity.getHvcmFlag());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getDescription());     // 映射前端:说明
+
+	// ================== 页面：库存与单位信息模块 ==================
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getPurchaseUnitCode());
+	SQLPARAMS_PUSH(params, "d", double, entity.getPurchaseUnitRatio());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getStockUnitCode());
+	SQLPARAMS_PUSH(params, "d", double, entity.getStockUnitRatio());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getPackageUnitCode()); // 映射前端:包装单位
+	SQLPARAMS_PUSH(params, "d", double, entity.getPackageUnitRatio());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getSplitUnitCode());   // 映射前端:拆零单位
+
+	SQLPARAMS_PUSH(params, "d", double, entity.getItemMinQuantity()); // 映射前端:警戒线最低值
+	SQLPARAMS_PUSH(params, "d", double, entity.getItemMaxQuantity()); // 映射前端:警戒线最高值
+	SQLPARAMS_PUSH(params, "b", bool, entity.getYbMatchFlag());     // 映射前端:医保对码
+
+	// 执行插入
 	return sqlSession->executeUpdate(sql, params);
 }
 
 // ============================================================================
 // 6. 修改数据
 // ============================================================================
-int EquipmentDAO::update(const WkfInventoryItemDO& entity)
+int EquipmentDAO::update(const AdmDeviceDefinitionDO& entity)
 {
-	std::string sql = "UPDATE wkf_inventory_item "
-		"SET `name` = ?, `category_code` = ?, `inventory_status_enum` = ?, `updated_by` = ?, `updated_at` = ? "
+	// 构建 UPDATE SQL
+	// 注意：不更新 created_at, created_by, tenant_id 等不可变字段
+	std::string sql = "UPDATE adm_device_definition SET "
+
+		// ================== 基础信息模块 ==================
+		"`name` = ?, `merchandise_name` = ?, `category_code` = ?, `type_code` = ?, "
+		"`manufacturer_text` = ?, `supply_id` = ?, `approval_number` = ?, `total_volume` = ?, "
+		"`yb_no` = ?, `yb_org_no` = ?, `chrgitm_lv` = ?, "
+
+		// ================== 业务及标记信息 ==================
+		"`py_str` = ?, `wb_str` = ?, `allergen_flag` = ?, `yb_flag` = ?, `hvcm_flag` = ?, `description` = ?, "
+
+		// ================== 单位与库存信息 ==================
+		"`purchase_unit_code` = ?, `purchase_unit_ratio` = ?, `stock_unit_code` = ?, `stock_unit_ratio` = ?, "
+		"`package_unit_code` = ?, `package_unit_ratio` = ?, `split_unit_code` = ?, "
+		"`item_min_quantity` = ?, `item_max_quantity` = ?, `yb_match_flag` = ?, "
+
+		// ================== 系统状态与审计 ==================
+		"`status_enum` = ?, `active_flag` = ?, `updated_by` = ?, `updated_at` = ? "
+
+		// ================== 限制条件 ==================
 		"WHERE `id` = ? AND `is_deleted` = 0";
 
 	SqlParams params;
+
+	// ================== 页面：基础信息模块 ==================
 	SQLPARAMS_PUSH(params, "s", std::string, entity.getName());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getMerchandiseName());
 	SQLPARAMS_PUSH(params, "s", std::string, entity.getCategoryCode());
-	SQLPARAMS_PUSH(params, "s", std::string, entity.getInventoryStatusEnum());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getTypeCode());        // 映射前端:财务类型
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getManufacturerText());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getSupplyId());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getApprovalNumber());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getTotalVolume());     // 映射前端:包装规格
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getYbNo());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getYbOrgNo());         // 映射前端:医药机构目录编码
+	SQLPARAMS_PUSH(params, "i", int, entity.getChrgitmLv());       // 映射前端:医保等级
+
+	// ================== 页面：业务及标记信息 ==================
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getPyStr());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getWbStr());
+	SQLPARAMS_PUSH(params, "b", bool, entity.getAllergenFlag());
+	SQLPARAMS_PUSH(params, "b", bool, entity.getYbFlag());
+	SQLPARAMS_PUSH(params, "b", bool, entity.getHvcmFlag());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getDescription());     // 映射前端:说明
+
+	// ================== 页面：库存与单位信息 ==================
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getPurchaseUnitCode());
+	SQLPARAMS_PUSH(params, "d", double, entity.getPurchaseUnitRatio());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getStockUnitCode());
+	SQLPARAMS_PUSH(params, "d", double, entity.getStockUnitRatio());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getPackageUnitCode()); // 映射前端:包装单位
+	SQLPARAMS_PUSH(params, "d", double, entity.getPackageUnitRatio());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getSplitUnitCode());   // 映射前端:拆零单位
+
+	SQLPARAMS_PUSH(params, "d", double, entity.getItemMinQuantity()); // 映射前端:警戒线最低值
+	SQLPARAMS_PUSH(params, "d", double, entity.getItemMaxQuantity()); // 映射前端:警戒线最高值
+	SQLPARAMS_PUSH(params, "b", bool, entity.getYbMatchFlag());     // 映射前端:医保对码
+
+	// ================== 系统状态与审计字段 ==================
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getStatusEnum());
+	SQLPARAMS_PUSH(params, "b", bool, entity.getActiveFlag());
 	SQLPARAMS_PUSH(params, "s", std::string, entity.getUpdatedBy());
 	SQLPARAMS_PUSH(params, "s", std::string, entity.getUpdatedAt());
 
 	SQLPARAMS_PUSH(params, "s", std::string, entity.getId());
 
+	// 执行更新
 	return sqlSession->executeUpdate(sql, params);
 }
 
@@ -143,17 +254,19 @@ int EquipmentDAO::update(const WkfInventoryItemDO& entity)
 // ============================================================================
 int EquipmentDAO::softDeleteByIds(const std::list<std::string>& ids, const std::string& deletedBy, const std::string& deletedAt)
 {
+	// 如果传进来的 id 列表为空，直接返回 0，防止拼接出 WHERE id IN () 导致 SQL 语法报错
 	if (ids.empty()) return 0;
 
 	std::stringstream sql;
 	SqlParams params;
 
-	// 构建前缀
-	sql << "UPDATE wkf_inventory_item SET `is_deleted` = 1, `deleted_by` = ?, `deleted_at` = ? WHERE `id` IN (";
+	sql << "UPDATE adm_device_definition SET `is_deleted` = 1, `deleted_by` = ?, `deleted_at` = ? WHERE `id` IN (";
+
+	// 压入固定的更新人、更新时间参数
 	SQLPARAMS_PUSH(params, "s", std::string, deletedBy);
 	SQLPARAMS_PUSH(params, "s", std::string, deletedAt);
 
-	// 动态拼接 IN (?, ?, ?) 占位符并压入参数
+	// 动态拼接 IN (?, ?, ?) 占位符，并循环压入 ID 参数
 	int i = 0;
 	for (const auto& id : ids) {
 		sql << "?";
@@ -176,11 +289,14 @@ int EquipmentDAO::updateStatusByIds(const std::list<std::string>& ids, const std
 	std::stringstream sql;
 	SqlParams params;
 
-	sql << "UPDATE wkf_inventory_item SET `inventory_status_enum` = ?, `updated_by` = ?, `updated_at` = ? WHERE `id` IN (";
+	sql << "UPDATE adm_device_definition SET `status_enum` = ?, `updated_by` = ?, `updated_at` = ? WHERE `id` IN (";
+
+	// 压入状态、更新人、更新时间参数
 	SQLPARAMS_PUSH(params, "s", std::string, statusEnum);
 	SQLPARAMS_PUSH(params, "s", std::string, updatedBy);
 	SQLPARAMS_PUSH(params, "s", std::string, updatedAt);
 
+	// 动态拼接 IN (?, ?, ?) 占位符，并循环压入 ID 参数
 	int i = 0;
 	for (const auto& id : ids) {
 		sql << "?";
@@ -192,3 +308,4 @@ int EquipmentDAO::updateStatusByIds(const std::list<std::string>& ids, const std
 
 	return sqlSession->executeUpdate(sql.str(), params);
 }
+
