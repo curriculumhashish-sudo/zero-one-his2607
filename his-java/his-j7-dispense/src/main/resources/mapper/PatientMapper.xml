@@ -5,16 +5,16 @@
 
     <select id="pagePatientQueue" resultType="com.zeroone.star.project.vo.j7.dispense.PatientQueueVO">
         SELECT
-            d.patient_id          AS patientId,
-            d.encounter_id        AS encounterId,
-            p.name                AS name,
-            TIMESTAMPDIFF(YEAR, p.birth_date, CURDATE()) AS age,
-            p.gender_enum         AS genderEnum,
-            p.phone               AS phone,
-            MAX(d.status_enum)    AS statusEnum,
-            d.dispense_enum       AS dispenseEnum,
-            COUNT(d.id)           AS drugCount,
-            MAX(d.created_at)     AS createdAt
+        d.patient_id          AS patientId,
+        d.encounter_id        AS encounterId,
+        p.name                AS name,
+        TIMESTAMPDIFF(YEAR, p.birth_date, CURDATE()) AS age,
+        p.gender_enum         AS genderEnum,
+        p.phone               AS phone,
+        MAX(d.status_enum)    AS statusEnum,
+        d.dispense_enum       AS dispenseEnum,
+        COUNT(d.id)           AS drugCount,
+        MAX(d.created_at)     AS createdAt
         FROM med_medication_dispense d
         JOIN adm_patient p ON p.id = d.patient_id
         WHERE d.is_deleted = 0
@@ -52,3 +52,4 @@
     </select>
 
 </mapper>
+
