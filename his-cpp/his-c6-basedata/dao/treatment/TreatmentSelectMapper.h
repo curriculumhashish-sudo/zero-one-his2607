@@ -36,7 +36,10 @@ public:
 		data.setCategoryCode(resultSet->getString(4));
 		data.setCategoryCodeDictText(resultSet->getString(5));
 		data.setOrgIdDictText(resultSet->getString(6));
-		data.setRetailPrice(resultSet->getDouble(7));
+		if (!resultSet->isNull(7))
+		{
+			data.setRetailPrice(resultSet->getDouble(7));
+		}
 		data.setSpecification(resultSet->getString(8));
 		data.setManufacturerText(resultSet->getString(9));
 		data.setItemTypeCode(resultSet->getString(10));

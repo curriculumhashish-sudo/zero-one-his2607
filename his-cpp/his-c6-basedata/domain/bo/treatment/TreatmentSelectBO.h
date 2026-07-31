@@ -21,6 +21,7 @@
 #define _TREATMENT_SELECT_BO_H_
 
 #include "Macros.h"
+#include "oatpp/core/Types.hpp"
 
 #include <string>
 
@@ -33,7 +34,7 @@ class TreatmentSelectBO
 	CC_SYNTHESIZE(std::string, categoryCode, CategoryCode);
 	CC_SYNTHESIZE(std::string, categoryCodeDictText, CategoryCodeDictText);
 	CC_SYNTHESIZE(std::string, orgIdDictText, OrgIdDictText);
-	CC_SYNTHESIZE(double, retailPrice, RetailPrice);
+	CC_SYNTHESIZE(oatpp::Float64, retailPrice, RetailPrice);
 	CC_SYNTHESIZE(std::string, specification, Specification);
 	CC_SYNTHESIZE(std::string, manufacturerText, ManufacturerText);
 	CC_SYNTHESIZE(std::string, itemTypeCode, ItemTypeCode);
@@ -45,10 +46,6 @@ class TreatmentSelectBO
 	CC_SYNTHESIZE(std::string, ybNo, YbNo);
 	CC_SYNTHESIZE(std::string, statusEnum, StatusEnum);
 
-public:
-	TreatmentSelectBO() : retailPrice(0.0)
-	{
-	}
 };
 
 #endif // !_TREATMENT_SELECT_BO_H_

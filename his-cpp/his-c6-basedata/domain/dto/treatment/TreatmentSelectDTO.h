@@ -50,7 +50,7 @@ class TreatmentSelectDTO : public oatpp::DTO
         info->required = false;
     }
     // 价格、规格和厂家。
-    API_DTO_FIELD_REQUIRE(Float64, retailPrice, ZH_WORDS_GETTER("treatment.field.retail-price"), true);
+    API_DTO_FIELD_REQUIRE(Float64, retailPrice, ZH_WORDS_GETTER("treatment.field.retail-price"), false);
     API_DTO_FIELD_REQUIRE(String, specification, ZH_WORDS_GETTER("treatment.field.specification"), false);
     API_DTO_FIELD_REQUIRE(String, manufacturerText, ZH_WORDS_GETTER("treatment.field.manufacturer-text"), false);
     // 财务分类编码和字典文本。
