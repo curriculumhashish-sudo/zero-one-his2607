@@ -69,11 +69,11 @@ void HttpServer::initServer(string port, string host, function<void(Endpoints*, 
 
 	// 创建监听端口的ConnectionProvider组件
 	uint16_t currPort = (uint16_t)strtoul(port.c_str(), NULL, 0);
+	std::shared_ptr<oatpp::network::ServerConnectionProvider> createdConnectionProvider;
 	try
 	{
-		OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ServerConnectionProvider>, serverConnectionProvider)([=] {
-			return oatpp::network::tcp::server::ConnectionProvider::createShared({ host, currPort, oatpp::network::Address::IP_4 });
-			}());
+		createdConnectionProvider =
+			oatpp::network::tcp::server::ConnectionProvider::createShared({ host, currPort, oatpp::network::Address::IP_4 });
 	}
 	catch (const std::exception& ex)
 	{
@@ -83,6 +83,7 @@ void HttpServer::initServer(string port, string host, function<void(Endpoints*, 
 		std::cerr << "reason: " << ex.what() << std::endl;
 		throw;
 	}
+	OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ServerConnectionProvider>, serverConnectionProvider)(createdConnectionProvider);
 	// 获取路由组件
 	OATPP_COMPONENT(std::shared_ptr<oatpp::web::server::HttpRouter>, router);
 	// 获取连接处理组件
