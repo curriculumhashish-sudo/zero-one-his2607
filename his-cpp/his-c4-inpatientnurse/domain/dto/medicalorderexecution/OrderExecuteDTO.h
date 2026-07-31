@@ -87,7 +87,7 @@ public:
 	CancelExecutionRequestDTO()
 	{
 		items = {CancelExecutionItemDTO::createShared()};
-		statusReasonText = "患者暂缓执行";
+		statusReasonText = ZH_WORDS_GETTER("business-text.execution.deferred-reason");
 	}
 
 	std::string validate()
@@ -145,7 +145,7 @@ public:
 	{
 		success = true;
 		rebuiltSummaryNos = {"SUM202607240001"};
-		message = "取消执行成功";
+		message = ZH_WORDS_GETTER("business-text.execution.cancel-success");
 	}
 };
 

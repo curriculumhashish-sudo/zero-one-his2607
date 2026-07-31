@@ -48,7 +48,7 @@ public:
         API_DEF_ADD_QUERY_PARAMS(String, "patientId",
             ZH_WORDS_GETTER("inpatientbilling.field.patientId"), "326940849401761792", false);
         API_DEF_ADD_QUERY_PARAMS(String, "keyword",
-            ZH_WORDS_GETTER("inpatientbilling.field.keyword"), "替米沙坦", false);
+            ZH_WORDS_GETTER("inpatientbilling.field.keyword"), ZH_WORDS_GETTER("business-text.sample.medication-keyword"), false);
         API_DEF_ADD_QUERY_PARAMS(String, "categoryCode",
             ZH_WORDS_GETTER("inpatientbilling.field.categoryCode"), "DRUG", false);
         API_DEF_ADD_QUERY_PARAMS(String, "organizationUnitId",
@@ -115,7 +115,7 @@ public:
         API_DEF_ADD_QUERY_PARAMS(String, "therapyType",
             ZH_WORDS_GETTER("inpatientbilling.field.therapyType"), "TEMPORARY", false);
         API_DEF_ADD_QUERY_PARAMS(String, "keyword",
-            ZH_WORDS_GETTER("inpatientbilling.field.keyword"), "替米沙坦", false);
+            ZH_WORDS_GETTER("inpatientbilling.field.keyword"), ZH_WORDS_GETTER("business-text.sample.medication-keyword"), false);
         API_DEF_ADD_QUERY_PARAMS(String, "orgId",
             ZH_WORDS_GETTER("inpatientbilling.field.orgId"), "327170091059744768", false);
         info->responses[Status::CODE_200].addExample(

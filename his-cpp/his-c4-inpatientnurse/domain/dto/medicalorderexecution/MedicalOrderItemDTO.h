@@ -149,7 +149,7 @@ public:
         performerId = "NURSE001";
         locationId = "334526752078102528";
         executionCount = 0;
-        remark = "饭后服用";
+        remark = ZH_WORDS_GETTER("business-text.sample.medication-remark");
     }
 };
 

@@ -19,7 +19,7 @@ class MedicalVerificationQuery : public oatpp::DTO
 public:
 	MedicalVerificationQuery()
 	{
-		name = "张三";
+		name = ZH_WORDS_GETTER("business-text.sample.person-name");
 		isPassed = "false";
 		medicalType = "MED_REQUEST";
 		medicalPeriod = "TEMPORARY";

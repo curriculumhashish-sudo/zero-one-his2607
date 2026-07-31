@@ -641,3 +641,51 @@ inpatientbilling.field.therapyTypeText: 长临类型名称
 inpatientbilling.field.unitCodeText: 单位名称
 inpatientbilling.field.performingOrgId: 执行科室ID
 medical_advice.cancelexecute.field.items: 取消执行项目列表
+
+# Runtime business text and Swagger example values
+business-text:
+  encounter:
+    available-balance: 可用余额
+    balance-prefix: "余额 "
+    currency-suffix: " 元"
+    age-suffix: 岁
+    diagnosis-separator: ；
+  enum:
+    gender-female: 女
+    gender-male: 男
+    unknown: 未知
+    encounter-discharged: 已出院
+    encounter-pending-discharge: 待出院
+    encounter-in-hospital: 在院
+    therapy-long-term: 长期
+    therapy-temporary: 临时
+  execution:
+    deferred-reason: 患者暂缓执行
+    cancel-success: 取消执行成功
+  medication-collection:
+    summary-failed: 汇总失败
+    summary-success: 汇总领药成功
+  sample:
+    person-name: 张三
+    patient-name: 小孙
+    doctor-name: 李医生
+    nurse-name: 周女士
+    bed-name: 1号床
+    age-text: 26岁
+    balance-summary: 余额 1300.00 元
+    diagnosis-summary: 主|感冒
+    department-name: 住院内科
+    ward-name: 内科疗区
+    medication-keyword: 替米沙坦
+    medication-name: 替米沙坦片
+    medication-category: 药品
+    tablet-unit: 片
+    medication-specification: 40mg*14片
+    medication-method: 口服
+    medication-frequency: 每日一次
+    medication-remark: 饭后服用
+    inpatient-pharmacy: 住院药房
+    billing-rule-name: 早晨常规计费
+    nursing-activity-name: 晨间护理
+    billing-rule-create-name: 早晨常规计费规则
+    billing-rule-update-name: 更新早晨常规计费规则

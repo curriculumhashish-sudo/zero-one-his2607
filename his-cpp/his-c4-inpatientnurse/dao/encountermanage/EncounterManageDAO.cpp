@@ -63,11 +63,13 @@ uint64_t EncounterManageDAO::countPatients(const PagePatientQueueQuery::Wrapper&
 
 std::list<PatientQueueItemDTO::Wrapper> EncounterManageDAO::selectPatients(const PagePatientQueueQuery::Wrapper& query)
 {
+	const std::string ageSuffix = ZH_WORDS_GETTER("business-text.encounter.age-suffix");
+	const std::string diagnosisSeparator = ZH_WORDS_GETTER("business-text.encounter.diagnosis-separator");
 	std::string sql = "SELECT e.id encounter_id,e.bus_no encounter_bus_no,e.patient_id,p.name patient_name,p.gender_enum,"
-		"CONCAT(TIMESTAMPDIFF(YEAR,p.birth_date,CURDATE()),'岁') age_text,p.py_str pinyin_code,p.wb_str wubi_code,"
+		"CONCAT(TIMESTAMPDIFF(YEAR,p.birth_date,CURDATE()),'" + ageSuffix + "') age_text,p.py_str pinyin_code,p.wb_str wubi_code,"
 		"e.status_enum,e.priority_enum,e.start_time,e.end_time,e.organization_id,org.name organization_name,"
 		"bed.id bed_id,bed.name bed_name,ward.id ward_id,ward.name ward_name,house.name house_name,"
-		"COALESCE((SELECT GROUP_CONCAT(d.description ORDER BY d.primary_flag DESC,d.rank SEPARATOR '；') FROM adm_encounter_diagnosis d WHERE d.encounter_id=e.id AND d.is_deleted=0),'') diagnosis_summary,"
+		"COALESCE((SELECT GROUP_CONCAT(d.description ORDER BY d.primary_flag DESC,d.rank SEPARATOR '" + diagnosisSeparator + "') FROM adm_encounter_diagnosis d WHERE d.encounter_id=e.id AND d.is_deleted=0),'') diagnosis_summary,"
 		"COALESCE((SELECT pr.name FROM adm_encounter_participant ep JOIN adm_practitioner pr ON pr.id=ep.practitioner_id AND pr.is_deleted=0 WHERE ep.encounter_id=e.id AND ep.is_deleted=0 AND ep.status_enum='ACTIVE' AND ep.role_code IN ('ATTENDING_DOCTOR','DOCTOR') LIMIT 1),'') doctor_name,"
 		"COALESCE((SELECT pr.name FROM adm_encounter_participant ep JOIN adm_practitioner pr ON pr.id=ep.practitioner_id AND pr.is_deleted=0 WHERE ep.encounter_id=e.id AND ep.is_deleted=0 AND ep.status_enum='ACTIVE' AND ep.role_code IN ('PRIMARY_NURSE','NURSE') LIMIT 1),'') nurse_name,"
 		"COALESCE((SELECT a.id FROM adm_account a WHERE a.encounter_id=e.id AND a.is_deleted=0 ORDER BY a.default_flag DESC LIMIT 1),'') account_id,"

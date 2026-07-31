@@ -19,7 +19,7 @@ class BedDTO : public oatpp::DTO
 public:
     BedDTO() {
 		this->id = "BED30101";
-		this->name = "1号床";
+		this->name = ZH_WORDS_GETTER("business-text.sample.bed-name");
 		this->parent_id = "WARD301";
         this->form_enum = "BED";
         this->status_enum = "ENABLE";

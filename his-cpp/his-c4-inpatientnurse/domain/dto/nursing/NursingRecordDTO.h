@@ -91,7 +91,7 @@ public:
 		respiratory = "18";
 		bloodPressure = "120/80";
 		oxygenSaturation = "98";
-		nurseSignature = "周女士";
+		nurseSignature = ZH_WORDS_GETTER("business-text.sample.nurse-name");
 	}
 };
 

@@ -51,8 +51,8 @@ public:
 		procedureId = "338131147144708097";
 		plannedDispenseTime = "2026-07-21 08:00:00";
 		quantity = 1.0;
-		unitCode = "片";
-		unitCodeText = "片";
+		unitCode = ZH_WORDS_GETTER("business-text.sample.tablet-unit");
+		unitCodeText = ZH_WORDS_GETTER("business-text.sample.tablet-unit");
 		chargeUnitPrice = 2.50;
 	}
 };
@@ -97,18 +97,18 @@ public:
 	{
 		medReqId = "337990013773271040";
 		medicationId = "334568157811871744";
-		medicationName = "替米沙坦片";
-		specificationText = "40mg*14片";
+		medicationName = ZH_WORDS_GETTER("business-text.sample.medication-name");
+		specificationText = ZH_WORDS_GETTER("business-text.sample.medication-specification");
 		groupId = "GRP202607210001";
 		therapyEnum = "TEMPORARY";
-		therapyEnumText = "临时";
+		therapyEnumText = ZH_WORDS_GETTER("business-text.enum.therapy-temporary");
 		dosageInstruction = "40mg";
 		methodCode = "PO";
-		methodCodeText = "口服";
+		methodCodeText = ZH_WORDS_GETTER("business-text.sample.medication-method");
 		frequencyCode = "QD";
-		frequencyCodeText = "每日一次";
+		frequencyCodeText = ZH_WORDS_GETTER("business-text.sample.medication-frequency");
 		locationId = "334526752078102528";
-		locationName = "住院药房";
+		locationName = ZH_WORDS_GETTER("business-text.sample.inpatient-pharmacy");
 		timePoints = List<NurseStationDispenseSummaryTimePointDTO::Wrapper>::createShared();
 		timePoints->push_back(NurseStationDispenseSummaryTimePointDTO::createShared());
 	}
@@ -134,8 +134,8 @@ public:
 	{
 		encounterId = "337907884548657152";
 		patientId = "326940849401761792";
-		patientName = "小孙";
-		bedDisplay = "1号床";
+		patientName = ZH_WORDS_GETTER("business-text.sample.patient-name");
+		bedDisplay = ZH_WORDS_GETTER("business-text.sample.bed-name");
 		orderRows = List<NurseStationDispenseSummaryOrderRowDTO::Wrapper>::createShared();
 		orderRows->push_back(NurseStationDispenseSummaryOrderRowDTO::createShared());
 	}
