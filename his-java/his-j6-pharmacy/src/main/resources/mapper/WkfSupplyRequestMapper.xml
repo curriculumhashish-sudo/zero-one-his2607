@@ -150,6 +150,87 @@
           AND type_enum = #{typeEnum}
           AND status_enum = #{currentStatus}
           AND is_deleted = 0
+</update>
+
+    <!-- 分页查询入库单列表（按 bus_no 聚合） -->
+    <select id="selectInboundReceiptListPage"
+            resultType="com.zeroone.star.project.vo.j6.pharmacy.inbound.InboundReceiptListVO">
+        SELECT
+            sr.bus_no                              AS busNo,
+            sup.name                                AS supplierName,
+            sr.status_enum                          AS statusEnum,
+            MAX(creator.name)                       AS creatorName,
+            MAX(approver.name)                      AS approverName,
+            SUM(sr.total_price)                     AS totalAmount,
+            MAX(sr.approval_time)                   AS approvalTime,
+            MAX(sr.apply_time)                      AS applyTime
+        FROM wkf_supply_request sr
+        LEFT JOIN cus_supplier sup
+            ON sup.id = sr.supplier_id AND sup.is_deleted = 0
+        LEFT JOIN adm_practitioner creator
+            ON creator.id = sr.created_by
+        LEFT JOIN adm_practitioner approver
+            ON approver.id = sr.approver_id
+        WHERE sr.type_enum = 'CABINET_INBOUND_RECEIPT'
+          AND sr.is_deleted = 0
+        <if test="query.keyword != null and query.keyword != ''">
+            AND sr.bus_no LIKE CONCAT('%', #{query.keyword}, '%')
+        </if>
+        <if test="query.applyTimeFrom != null">
+            AND sr.apply_time >= #{query.applyTimeFrom}
+        </if>
+        <if test="query.applyTimeTo != null">
+            AND sr.apply_time &lt;= #{query.applyTimeTo}
+        </if>
+        <if test="query.purposeLocationId != null and query.purposeLocationId != ''">
+            AND sr.purpose_location_id = #{query.purposeLocationId}
+        </if>
+        GROUP BY sr.bus_no
+        ORDER BY MAX(sr.created_at) DESC
+    </select>
+
+    <!-- 查询入库单明细行（关联药品/器材名称、规格、厂商） -->
+    <select id="selectInboundReceiptDetailLines"
+            resultType="com.zeroone.star.project.vo.j6.pharmacy.inbound.InboundReceiptDetailLineVO">
+        SELECT
+            sr.id,
+            sr.item_table                                               AS itemTable,
+            sr.item_id                                                  AS itemId,
+            sr.item_quantity                                            AS itemQuantity,
+            sr.unit_code                                                AS unitCode,
+            sr.lot_number                                               AS lotNumber,
+            sr.trace_no                                                 AS traceNo,
+            sr.price,
+            sr.total_price                                              AS totalPrice,
+            sr.occurrence_time                                          AS occurrenceTime,
+            sr.start_time                                               AS startTime,
+            sr.end_time                                                 AS endTime,
+            sr.remake,
+            COALESCE(med.name, dev.name)                                AS productName,
+            COALESCE(med.total_volume, dev.total_volume)                AS specification,
+            COALESCE(med.manufacturer_text, dev.manufacturer_text)      AS manufacturer
+        FROM wkf_supply_request sr
+        LEFT JOIN med_medication_definition med
+            ON sr.item_table = 'med_medication_definition'
+            AND med.id = sr.item_id AND med.is_deleted = 0
+        LEFT JOIN adm_device_definition dev
+            ON sr.item_table = 'adm_device_definition'
+            AND dev.id = sr.item_id AND dev.is_deleted = 0
+        WHERE sr.bus_no = #{busNo}
+          AND sr.type_enum = 'CABINET_INBOUND_RECEIPT'
+          AND sr.is_deleted = 0
+        ORDER BY sr.created_at ASC
+    </select>
+
+    <!-- 按 bus_no 逻辑删除入库单 -->
+    <update id="deleteInboundByBusNo">
+        UPDATE wkf_supply_request
+        SET is_deleted = 1,
+            deleted_at = #{deletedAt},
+            deleted_by = #{deletedBy}
+        WHERE bus_no = #{busNo}
+          AND type_enum = 'CABINET_INBOUND_RECEIPT'
+          AND is_deleted = 0
     </update>
 
 </mapper>
