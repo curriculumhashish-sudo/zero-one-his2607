@@ -15,7 +15,7 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-@Document(collection = "enum_value")
+@Document(collection = "EnumValue")
 @CompoundIndexes({
         // 联合唯一索引：同一个租户下，同一个枚举类型中，enumCode 必须唯一
         @CompoundIndex(name = "idx_tenant_type_code",
@@ -42,52 +42,40 @@ public class EnumValue {
     private String id;
 
     @Indexed
-    @Field("enum_type_id")
     private String enumTypeId;
 
     @Indexed
-    @Field("tenant_id")
     private String tenantId;
 
     @Indexed
-    @Field("enum_key")
     private String enumKey;
 
     @Indexed
-    @Field("enum_code")
     private Integer enumCode;
 
-    @Field("display")
     private String display;
 
-    @Field("order")
     private Integer order;
 
     @Indexed
-    @Field("status")
     private Integer status;
 
     // @CreatedBy
-    @Field("created_by")
     private String createdBy;
 
     // @CreatedDate
-    @Field("created_at")
     private Date createdAt;
 
     // @LastModifiedBy
-    @Field("updated_by")
     private String updatedBy;
 
     // @LastModifiedDate
-    @Field("updated_at")
     private Date updatedAt;
 
     @Version
     private Integer version;
 
     @Indexed
-    @Field("is_deleted")
     private Boolean isDeleted;
 
 
