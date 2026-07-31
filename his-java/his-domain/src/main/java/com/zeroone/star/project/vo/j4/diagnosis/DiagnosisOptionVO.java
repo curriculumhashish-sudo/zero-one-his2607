@@ -18,8 +18,8 @@ public class DiagnosisOptionVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "诊断目录编码", example = "general_dx")
-    private String sourceEnum;
+    private String code;
 
     @Schema(description = "诊断目录名称", example = "疾病与诊断")
-    private String sourceName;
+    private String display;
 }

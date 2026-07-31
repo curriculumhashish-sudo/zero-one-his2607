@@ -9,6 +9,9 @@ import com.zeroone.star.project.vo.j4.medicine.MedicineAddVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineDetailVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineListVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineSelectVO;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * <p>
@@ -59,7 +62,7 @@ public interface MedicineApis {
     * @param dto 药品更新dto
     * @return 更新结果
     */
-    JsonVO<String> updateMedicine(MedicineDetailDTO dto);
+    JsonVO<String> updateMedicine(@Validated @RequestBody MedicineDetailDTO dto);
 
     /**
      * <p>
@@ -71,7 +74,7 @@ public interface MedicineApis {
      * @author xxm
      * @version 1.0.0
      */
-    JsonVO<MedicineDeleteResultDTO> deleteMedicine(MedicineDeleteDTO dto);
+    JsonVO<MedicineDeleteResultDTO> deleteMedicine(@Validated @RequestBody MedicineDeleteDTO dto);
 
     /**
     * <p>
@@ -83,7 +86,8 @@ public interface MedicineApis {
     * @param dto 药品状态转换DTO
     * @return 药品状态转换VO 包含转换状态成功的药品ids
     */
-    JsonVO<Void> updateChangeMedicineStatus(Integer status,MedicineChangeStatusDTO dto);
+    JsonVO<Void> updateChangeMedicineStatus(@PathVariable Integer status,
+                                            @Validated @RequestBody MedicineChangeStatusDTO dto);
 
     /**
      * 新增药品。

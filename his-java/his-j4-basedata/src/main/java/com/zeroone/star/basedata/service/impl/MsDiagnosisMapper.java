@@ -8,7 +8,6 @@ import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisDetailVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisListVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisOptionVO;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import java.util.List;
 
@@ -43,24 +42,32 @@ public interface MsDiagnosisMapper {
      */
     List<DiagnosisDefinitionDetailVO> entitiesToDetailVos(List<ClnConditionDefinitionDO> entities);
 
-    @Mapping(source = "code", target = "sourceEnum")
-    @Mapping(source = "display", target = "sourceName")
+    /**
+     * 将术语概念映射为选择诊断列表VO
+     * @param entity 术语概念实体
+     * @return 选择诊断列表VO
+     */
     DiagnosisOptionVO conceptToOptionVo(TerConceptDO entity);
 
     /**
-     * 将数据库实体映射为诊断管理列表项。
+     * 将术语概念列表映射为选择诊断列表VO列表
+     * @param entities 术语概念实体列表
+     * @return 选择诊断列表VO列表
+     */
+    List<DiagnosisOptionVO> conceptsToOptionVos(List<TerConceptDO> entities);
+
+    /**
+     * 将诊断定义实体映射为诊断管理列表VO
+     * @param entity 诊断定义实体
+     * @return 诊断管理列表VO
      */
     DiagnosisListVO entityToListVo(ClnConditionDefinitionDO entity);
 
     /**
-     * 将数据库实体映射为诊断详情。
+     * 将诊断定义实体映射为诊断详情VO
+     * @param entity 诊断定义实体
+     * @return 诊断详情VO
      */
     DiagnosisDetailVO entityToDiagnosisDetailVo(ClnConditionDefinitionDO entity);
 
-    /**
-     * 数据库使用 Boolean，现有 VO 使用 0/1 表示标记。
-     */
-    default Integer booleanToInteger(Boolean value) {
-        return value == null ? null : (value ? 1 : 0);
-    }
 }
