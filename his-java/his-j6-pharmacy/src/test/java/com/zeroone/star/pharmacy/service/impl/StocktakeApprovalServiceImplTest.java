@@ -44,13 +44,13 @@ class StocktakeApprovalServiceImplTest {
         when(supplyRequestMapper.selectStocktakeRowsForApproval(anyString(), anyString()))
                 .thenReturn(List.of(stocktakeRow("DRAFT")));
         when(supplyRequestMapper.updateStocktakeToPending(
-                anyString(), anyString(), anyString(), anyString(), any(), any(), anyString()))
+                anyString(), anyString(), anyString(), anyString(), anyString(), any(), any(), anyString()))
                 .thenReturn(1);
 
         assertTrue(service.submit(submitDto("CST2026-001")));
 
         verify(supplyRequestMapper).updateStocktakeToPending(
-                eq("CST2026-001"), eq("CABINET_STOCKTAKE"), eq("DRAFT"), anyString(), any(), any(), anyString());
+                eq("CST2026-001"), eq("PHARMACY_STOCKTAKE"), eq("DRAFT"), anyString(), eq("approver-1"), any(), any(), anyString());
         verify(inventoryItemMapper, never()).updateQuantityForStocktake(
                 any(), any(), any(), any(), any(), any(), any(), any());
     }
@@ -60,13 +60,13 @@ class StocktakeApprovalServiceImplTest {
         when(supplyRequestMapper.selectStocktakeRowsForApproval(anyString(), anyString()))
                 .thenReturn(List.of(stocktakeRow("WITHDRAW")));
         when(supplyRequestMapper.updateStocktakeToPending(
-                anyString(), anyString(), anyString(), anyString(), any(), any(), anyString()))
+                anyString(), anyString(), anyString(), anyString(), anyString(), any(), any(), anyString()))
                 .thenReturn(1);
 
         assertTrue(service.submit(submitDto("CST2026-001")));
 
         verify(supplyRequestMapper).updateStocktakeToPending(
-                eq("CST2026-001"), eq("CABINET_STOCKTAKE"), eq("WITHDRAW"), anyString(), any(), any(), anyString());
+                eq("CST2026-001"), eq("PHARMACY_STOCKTAKE"), eq("WITHDRAW"), anyString(), eq("approver-1"), any(), any(), anyString());
     }
 
     @Test
@@ -74,13 +74,13 @@ class StocktakeApprovalServiceImplTest {
         when(supplyRequestMapper.selectStocktakeRowsForApproval(anyString(), anyString()))
                 .thenReturn(List.of(stocktakeRow("REJECT")));
         when(supplyRequestMapper.updateStocktakeToPending(
-                anyString(), anyString(), anyString(), anyString(), any(), any(), anyString()))
+                anyString(), anyString(), anyString(), anyString(), anyString(), any(), any(), anyString()))
                 .thenReturn(1);
 
         assertTrue(service.submit(submitDto("CST2026-001")));
 
         verify(supplyRequestMapper).updateStocktakeToPending(
-                eq("CST2026-001"), eq("CABINET_STOCKTAKE"), eq("REJECT"), anyString(), any(), any(), anyString());
+                eq("CST2026-001"), eq("PHARMACY_STOCKTAKE"), eq("REJECT"), anyString(), eq("approver-1"), any(), any(), anyString());
     }
 
     @Test
@@ -93,7 +93,7 @@ class StocktakeApprovalServiceImplTest {
 
         assertEquals("current status PENDING_APPROVAL does not allow this approval action", ex.getMessage());
         verify(supplyRequestMapper, never()).updateStocktakeToPending(
-                anyString(), anyString(), anyString(), anyString(), any(), any(), anyString());
+                anyString(), anyString(), anyString(), anyString(), anyString(), any(), any(), anyString());
     }
 
     @Test
@@ -101,7 +101,7 @@ class StocktakeApprovalServiceImplTest {
         when(supplyRequestMapper.selectStocktakeRowsForApproval(anyString(), anyString()))
                 .thenReturn(List.of(stocktakeRow("DRAFT")));
         when(supplyRequestMapper.updateStocktakeToPending(
-                anyString(), anyString(), anyString(), anyString(), any(), any(), anyString()))
+                anyString(), anyString(), anyString(), anyString(), anyString(), any(), any(), anyString()))
                 .thenReturn(0);
 
         IllegalStateException ex = assertThrows(IllegalStateException.class,
@@ -120,7 +120,7 @@ class StocktakeApprovalServiceImplTest {
         assertTrue(service.withdraw(withdrawDto("CST2026-001")));
 
         verify(supplyRequestMapper).updateStocktakeToWithdraw(
-                eq("CST2026-001"), eq("CABINET_STOCKTAKE"), eq("PENDING_APPROVAL"), any(), anyString());
+                eq("CST2026-001"), eq("PHARMACY_STOCKTAKE"), eq("PENDING_APPROVAL"), any(), anyString());
     }
 
     @Test
@@ -139,11 +139,26 @@ class StocktakeApprovalServiceImplTest {
                 eq("med_medication_definition"), eq("drug-1"), eq("warehouse-1"), eq("LOT-1"), eq("box"),
                 eq(BigDecimal.TEN), any(), anyString());
         verify(supplyRequestMapper).updateStocktakeToAgree(
-                eq("CST2026-001"), eq("CABINET_STOCKTAKE"), eq("PENDING_APPROVAL"), anyString(), any(), any(), anyString());
+                eq("CST2026-001"), eq("PHARMACY_STOCKTAKE"), eq("PENDING_APPROVAL"), anyString(), any(), any(), anyString());
     }
 
     @Test
-    void agreeRequiresAgreeStatus() {
+    void agreeAllowsMissingStatus() {
+        StocktakeAgreeApprovalDTO dto = agreeDto("CST2026-001");
+        dto.setStatus(null);
+        when(supplyRequestMapper.selectStocktakeRowsForApproval(anyString(), anyString()))
+                .thenReturn(List.of(stocktakeRow("PENDING_APPROVAL")));
+        when(inventoryItemMapper.updateQuantityForStocktake(any(), any(), any(), any(), any(), any(), any(), any()))
+                .thenReturn(1);
+        when(supplyRequestMapper.updateStocktakeToAgree(
+                anyString(), anyString(), anyString(), anyString(), any(), any(), anyString()))
+                .thenReturn(1);
+
+        assertTrue(service.agree(dto));
+    }
+
+    @Test
+    void agreeRejectsWrongStatusWhenProvided() {
         StocktakeAgreeApprovalDTO dto = agreeDto("CST2026-001");
         dto.setStatus("PENDING_APPROVAL");
 
@@ -178,7 +193,7 @@ class StocktakeApprovalServiceImplTest {
         assertTrue(service.reject(dto));
 
         verify(supplyRequestMapper).updateStocktakeToReject(
-                eq("CST2026-001"), eq("CABINET_STOCKTAKE"), eq("PENDING_APPROVAL"), anyString(), any(),
+                eq("CST2026-001"), eq("PHARMACY_STOCKTAKE"), eq("PENDING_APPROVAL"), anyString(), any(),
                 eq("DIFF:inventory difference needs recheck"), any(), anyString());
     }
 
@@ -208,12 +223,12 @@ class StocktakeApprovalServiceImplTest {
         when(supplyRequestMapper.selectStocktakeRowsForApproval(anyString(), anyString()))
                 .thenReturn(List.of(stocktakeRow("DRAFT")));
         when(supplyRequestMapper.updateStocktakeToPending(
-                anyString(), anyString(), anyString(), anyString(), any(), any(), anyString()))
+                anyString(), anyString(), anyString(), anyString(), anyString(), any(), any(), anyString()))
                 .thenReturn(1);
 
         service.submit(submitDto("CST2026-001"));
 
-        verify(supplyRequestMapper).selectStocktakeRowsForApproval("CST2026-001", "CABINET_STOCKTAKE");
+        verify(supplyRequestMapper).selectStocktakeRowsForApproval("CST2026-001", "PHARMACY_STOCKTAKE");
     }
 
     @Test
@@ -226,7 +241,7 @@ class StocktakeApprovalServiceImplTest {
 
         assertTrue(ex.getMessage().startsWith("stocktake order has inconsistent row statuses"));
         verify(supplyRequestMapper, never()).updateStocktakeToPending(
-                anyString(), anyString(), anyString(), anyString(), any(), any(), anyString());
+                anyString(), anyString(), anyString(), anyString(), anyString(), any(), any(), anyString());
     }
 
     @Test
@@ -280,6 +295,7 @@ class StocktakeApprovalServiceImplTest {
     private StocktakeSubmitApprovalDTO submitDto(String busNo) {
         StocktakeSubmitApprovalDTO dto = new StocktakeSubmitApprovalDTO();
         dto.setBusNo(busNo);
+        dto.setApproverId("approver-1");
         return dto;
     }
 
@@ -306,7 +322,7 @@ class StocktakeApprovalServiceImplTest {
         WkfSupplyRequest row = new WkfSupplyRequest();
         row.setId("row-1");
         row.setBusNo("CST2026-001");
-        row.setTypeEnum("CABINET_STOCKTAKE");
+        row.setTypeEnum("PHARMACY_STOCKTAKE");
         row.setStatusEnum(status);
         row.setItemTable("med_medication_definition");
         row.setItemId("drug-1");

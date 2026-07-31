@@ -11,7 +11,6 @@ public class StocktakeAgreeApprovalDTO {
     @NotBlank(message = "busNo cannot be blank")
     private String busNo;
 
-    @Schema(description = "Approval status, fixed value AGREE", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "status cannot be blank")
+    @Schema(description = "Approval status, fixed value AGREE")
     private String status;
 }

@@ -3,9 +3,9 @@ spring:
   #https://github.com/alibaba/spring-cloud-alibaba/blob/2025.0.x/spring-cloud-alibaba-examples/nacos-example/readme-zh.md
   cloud:
     nacos:
-      server-addr: localhost:8848
+      server-addr: 192.168.42.100:8848
       username: nacos
-      password: 6qkjwQQTgVXq
+      password: nacos
       discovery:
         namespace: his-dev
       config:

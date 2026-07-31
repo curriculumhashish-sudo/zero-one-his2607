@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
-    private static final String TYPE_WAREHOUSE_STOCKTAKE = "CABINET_STOCKTAKE";
+    private static final String TYPE_WAREHOUSE_STOCKTAKE = "PHARMACY_STOCKTAKE";
     private static final String STATUS_DRAFT = "DRAFT";
     private static final String STATUS_PENDING_APPROVAL = "PENDING_APPROVAL";
     private static final String STATUS_WITHDRAW = "WITHDRAW";
@@ -49,7 +49,8 @@ public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
         LocalDateTime now = LocalDateTime.now();
         String userId = currentUserId();
         int affectedRows = supplyRequestMapper.updateStocktakeToPending(
-                dto.getBusNo(), TYPE_WAREHOUSE_STOCKTAKE, rows.get(0).getStatusEnum(), userId, now, now, userId);
+                dto.getBusNo(), TYPE_WAREHOUSE_STOCKTAKE, rows.get(0).getStatusEnum(), userId,
+                dto.getApproverId(), now, now, userId);
         requireUpdated(affectedRows);
         return true;
     }
@@ -132,10 +133,7 @@ public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
     }
 
     private void requireAgreeStatus(String status) {
-        if (!StringUtils.hasText(status)) {
-            throw new IllegalArgumentException("status cannot be blank when approving stocktake");
-        }
-        if (!STATUS_AGREE.equals(status)) {
+        if (StringUtils.hasText(status) && !STATUS_AGREE.equals(status)) {
             throw new IllegalArgumentException("status must be AGREE when approving stocktake");
         }
     }
