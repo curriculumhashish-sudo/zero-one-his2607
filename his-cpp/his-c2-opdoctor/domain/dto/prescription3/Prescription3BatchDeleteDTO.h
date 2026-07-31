@@ -4,30 +4,22 @@
 #define _PRESCRIPTION3_BATCH_DELETE_DTO_H_
 
 #include "../../GlobalInclude.h"
+#include "Prescription3OrderItemDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * 删除医嘱请求对象
- *
- * 支持删除一条或多条未签发医嘱。
+ * Deletes draft outpatient orders. A selected group member expands to its
+ * complete group.
  */
 class Prescription3BatchDeleteDTO : public oatpp::DTO
 {
-    DTO_INIT(
-        Prescription3BatchDeleteDTO,
-        DTO
-    );
+    DTO_INIT(Prescription3BatchDeleteDTO, DTO);
 
-    /**
-     * 需要删除的医嘱ID集合
-     */
     API_DTO_FIELD_REQUIRE(
-        List<String>,
-        prescriptionIds,
-        ZH_WORDS_GETTER(
-            "prescription3.field.deletePrescriptionIds"
-        ),
+        List<Object<Prescription3OrderItemDTO>>,
+        orders,
+        ZH_WORDS_GETTER("prescription3.field.deleteOrders"),
         true
     );
 };

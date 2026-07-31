@@ -8,16 +8,11 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/**
- * 删除医嘱响应VO
- */
 class Prescription3DeleteJsonVO
     : public JsonVO<Prescription3DeleteResultDTO::Wrapper>
 {
-    DTO_INIT(
-        Prescription3DeleteJsonVO,
-        JsonVO<Prescription3DeleteResultDTO::Wrapper>
-    );
+    DTO_INIT(Prescription3DeleteJsonVO,
+        JsonVO<Prescription3DeleteResultDTO::Wrapper>);
 
 public:
     Prescription3DeleteJsonVO()
@@ -26,16 +21,11 @@ public:
     }
 };
 
-/**
- * 并组医嘱响应VO
- */
 class Prescription3MergeJsonVO
     : public JsonVO<Prescription3MergeResultDTO::Wrapper>
 {
-    DTO_INIT(
-        Prescription3MergeJsonVO,
-        JsonVO<Prescription3MergeResultDTO::Wrapper>
-    );
+    DTO_INIT(Prescription3MergeJsonVO,
+        JsonVO<Prescription3MergeResultDTO::Wrapper>);
 
 public:
     Prescription3MergeJsonVO()
@@ -44,16 +34,11 @@ public:
     }
 };
 
-/**
- * 拆组医嘱响应VO
- */
 class Prescription3SplitJsonVO
     : public JsonVO<Prescription3SplitResultDTO::Wrapper>
 {
-    DTO_INIT(
-        Prescription3SplitJsonVO,
-        JsonVO<Prescription3SplitResultDTO::Wrapper>
-    );
+    DTO_INIT(Prescription3SplitJsonVO,
+        JsonVO<Prescription3SplitResultDTO::Wrapper>);
 
 public:
     Prescription3SplitJsonVO()

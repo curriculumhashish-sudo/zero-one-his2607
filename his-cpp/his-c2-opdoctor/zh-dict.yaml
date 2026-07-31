@@ -395,6 +395,15 @@ createOrder:
    summary: "修改医嘱"
   catalog:
    summary: "分页查询项目"
+  batchDelete:
+   summary: "删除待签发医嘱"
+   description: "软删除 DRAFT 医嘱；选中组内任意医嘱时删除整个组。支持药品、服务和器材医嘱。业务码：21001 参数错误、21002 医嘱不存在、21003 状态错误、21004 分组错误、21005 范围不一致、21006 并发更新、21007 数据库错误。"
+  mergeGroup:
+   summary: "合并待签发医嘱组"
+   description: "将至少两个独立医嘱或已有医嘱组合并为新组。允许跨医嘱类型，groupId 由后端生成。业务码：21001 参数错误、21002 医嘱不存在、21003 状态错误、21004 分组错误、21005 范围不一致、21006 并发更新、21007 数据库错误。"
+  splitGroup:
+   summary: "拆分待签发医嘱组"
+   description: "选中组内任意医嘱后拆分整个组，全部成员恢复为独立医嘱，不恢复历史分组。业务码：21001 参数错误、21002 医嘱不存在、21003 状态错误、21004 分组错误、21005 范围不一致、21006 并发更新、21007 数据库错误。"
   field:
    visitid: "就诊ID"
    patientid: "患者ID"
@@ -423,81 +432,89 @@ createOrder:
    status: "状态"
    createTime: "开立时间"
    totalPrice: "总价"
+   orderId: "医嘱 ID，长度 1-64"
+   deleteOrders: "待删除医嘱；选择组内成员会自动扩展为整个组，最多传 200 项"
+   mergeOrders: "待并组医嘱；至少包含两个独立医嘱或已有组，最多传 200 项"
+   splitOrders: "待拆组医嘱；可传组内任意成员，后端按完整组拆分，最多传 200 项"
+   success: "操作是否成功"
+   affectedCount: "实际受影响的医嘱条数"
+   groupId: "后端生成的雪花分组 ID"
+   message: "操作结果说明"
 
 chinapres3:
-  tags:
-   tag: 中医处方
-  issue:
-   summary: 签发处方
-  recall:
-   summary: 撤回处方
-  field:
-   prescriptionNo: 处方编号
-   status: 处方状态
-   createBy: 创建人
-   updateBy: 更新人
-   patientId: 患者ID
-   diagnosisId: 诊断ID
-   usage: 用法
-   frequency: 频次
-   days: 天数
-   copies: 付数
-   decoction: 是否代煎
-   remark: 医嘱备注
-   items: 添加药材
-   medicineId: 药材ID
-   dosage: 剂量(g)
-   materialCode: 精确搜项目编码
-   materialName: 模糊搜药材名称
-   category: 类别筛选：中草药、耗材
-   encounterId: 就诊ID
-   statusEnum: 处方状态
-   rxTypeCode: 处方类型
-   busNo: 业务编号
-   therapyEnum: 医嘱类型
-   tcmFlag: 中医标识
-   unitCode: 单位编码
-   sortNumber: 排序号
-   chineseHerbsDoseQuantity: 付数
-   sufferingFlag: 是否代煎
-   medicationRequestId: 药品行ID
-   medReqId: 处方行ID
-   locationId: 发药库位
-   dispenseEnum: 发药类型
-   serviceTable: 业务来源表
-   serviceId: 业务来源ID
-   definitionId: 收费项目定义ID
-   totalPrice: 总价
-   quantityValue: 数量值
-   quantityUnit: 数量单位
-   unitPrice: 单价
-   accountId: 账户ID
-   orgId: 开立机构
-   conditionId: 诊断ID
-   encounterDiagnosisId: 就诊诊断ID
-   generateSourceEnum: 生成来源
-   contextEnum: 收费上下文
-   signTargets: 签发目标列表
-   prescriptionGroupKey: 处方组标识
-   processedCount: 处理的药品行数
-   prescriptionCount: 涉及的处方数量
-   busNos: 发药流水号列表
-   prescriptionNos: 处方号列表
-   revokedPrescriptionCount: 撤回处方数
-   revokedMedicationCount: 撤回药品行数
-   failures: 撤回失败项
-   reason: 失败原因
-   isDeleted: 逻辑删除标记
+ tags:
+  tag: "中医处方"
+ issue:
+  summary: "签发处方"
+ recall:
+  summary: "撤回处方"
+ field:
+  prescriptionNo: "处方编号"
+  status: "处方状态"
+  createBy: "创建人"
+  updateBy: "更新人"
+  patientId: "患者ID"
+  diagnosisId: "诊断ID"
+  usage: "用法"
+  frequency: "频次"
+  days: "天数"
+  copies: "付数"
+  decoction: "是否代煎"
+  remark: "医嘱备注"
+  items: "添加药材"
+  medicineId: "药材ID"
+  dosage: "剂量(g)"
+  materialCode: "精确搜项目编码"
+  materialName: "模糊搜药材名称"
+  category: "类别筛选：中草药、耗材"
+  encounterId: "就诊ID"
+  statusEnum: "处方状态"
+  rxTypeCode: "处方类型"
+  busNo: "业务编号"
+  therapyEnum: "医嘱类型"
+  tcmFlag: "中医标识"
+  unitCode: "单位编码"
+  sortNumber: "排序号"
+  chineseHerbsDoseQuantity: "付数"
+  sufferingFlag: "是否代煎"
+  medicationRequestId: "药品行ID"
+  medReqId: "处方行ID"
+  locationId: "发药库位"
+  dispenseEnum: "发药类型"
+  serviceTable: "业务来源表"
+  serviceId: "业务来源ID"
+  definitionId: "收费项目定义ID"
+  totalPrice: "总价"
+  quantityValue: "数量值"
+  quantityUnit: "数量单位"
+  unitPrice: "单价"
+  accountId: "账户ID"
+  orgId: "开立机构"
+  conditionId: "诊断ID"
+  encounterDiagnosisId: "就诊诊断ID"
+  generateSourceEnum: "生成来源"
+  contextEnum: "收费上下文"
+  signTargets: "签发目标列表"
+  prescriptionGroupKey: "处方组标识"
+  processedCount: "处理的药品行数"
+  prescriptionCount: "涉及的处方数量"
+  busNos: "发药流水号列表"
+  prescriptionNos: "处方号列表"
+  revokedPrescriptionCount: "撤回处方数"
+  revokedMedicationCount: "撤回药品行数"
+  failures: "撤回失败项"
+  reason: "失败原因"
+  isDeleted: "逻辑删除标记"
 
 outpatientrecord3:
-  field:
-   outpatientrecord3Id: 病历ID（为空表示新增，不为空表示修改）
-   patientId: 患者ID
-   encounterId: 就诊ID
-   title: 病历标题
-   templateId: 模板ID
-   content: 病历正文
-  tags:
-   tag: 门诊病历
-  save:
-   summary: 保存门诊病历
+ field:
+  outpatientrecord3Id: "病历ID（为空表示新增，不为空表示修改）"
+  patientId: "患者ID"
+  encounterId: "就诊ID"
+  title: "病历标题"
+  templateId: "模板ID"
+  content: "病历正文"
+ tags:
+  tag: "门诊病历"
+ save:
+  summary: "保存门诊病历"

@@ -4,32 +4,22 @@
 #define _PRESCRIPTION3_MERGE_GROUP_DTO_H_
 
 #include "../../GlobalInclude.h"
+#include "Prescription3OrderItemDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * 并组医嘱请求对象
- *
- * 将用户勾选的多条未签发医嘱合并为一个医嘱组。
- * 至少需要选择两条医嘱。
- * 医嘱组号由服务端生成。
+ * Merges two or more draft order units. Existing groups are expanded and
+ * replaced by one server-generated group identifier.
  */
 class Prescription3MergeGroupDTO : public oatpp::DTO
 {
-    DTO_INIT(
-        Prescription3MergeGroupDTO,
-        DTO
-    );
+    DTO_INIT(Prescription3MergeGroupDTO, DTO);
 
-    /**
-     * 需要并组的医嘱ID集合
-     */
     API_DTO_FIELD_REQUIRE(
-        List<String>,
-        prescriptionIds,
-        ZH_WORDS_GETTER(
-            "prescription3.field.mergePrescriptionIds"
-        ),
+        List<Object<Prescription3OrderItemDTO>>,
+        orders,
+        ZH_WORDS_GETTER("prescription3.field.mergeOrders"),
         true
     );
 };
