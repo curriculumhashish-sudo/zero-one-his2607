@@ -1,6 +1,11 @@
 package com.zeroone.star.pharmacy.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zeroone.star.project.dto.j7.pharmacy.InStockOrderDTO;
+import com.zeroone.star.project.dto.j7.pharmacy.PurchaseInboundSubmitDTO;
+import com.zeroone.star.project.query.j7.pharmacy.PurchaseInboundQuery;
+import com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundDetailVO;
+import com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundListVO;
 
 /**
  * <p>
@@ -19,4 +24,16 @@ public interface InStockOrderService {
     String create(InStockOrderDTO dto);
     void update(String orderId, InStockOrderDTO dto);
     void submit(String orderId, InStockOrderDTO dto);
+
+    default IPage<PurchaseInboundListVO> listInboundOrders(PurchaseInboundQuery query) {
+        throw new UnsupportedOperationException("入库单列表查询接口暂未实现");
+    }
+
+    default PurchaseInboundDetailVO getInboundDetail(String id) {
+        throw new UnsupportedOperationException("入库单详情查询接口暂未实现");
+    }
+
+    default void submitInboundOrder(PurchaseInboundSubmitDTO dto) {
+        throw new UnsupportedOperationException("入库单提交审批接口暂未实现");
+    }
 }
