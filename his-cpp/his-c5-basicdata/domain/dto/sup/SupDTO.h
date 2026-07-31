@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef __SUP_DTO_
 #define __SUP_DTO_
