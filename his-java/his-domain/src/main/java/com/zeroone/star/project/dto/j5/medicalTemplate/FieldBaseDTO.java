@@ -2,6 +2,7 @@ package com.zeroone.star.project.dto.j5.medicalTemplate;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
@@ -13,15 +14,19 @@ import lombok.Data;
 public class FieldBaseDTO {
     @Schema(description = "id/雪花算法自动生成",hidden = true, requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String id;
+
+    @NotNull(message = "fieldKey不能为空")
     @Schema(description = "fieldKey" , example = "patientName", requiredMode = Schema.RequiredMode.REQUIRED)
     private String fieldKey;
 
+    @NotNull(message = "显示名不能为空")
     @Schema(description = "显示名" , example = "患者姓名", requiredMode = Schema.RequiredMode.REQUIRED)
     private String label;
 
     @Schema(description = "数据类型" , example = "文本", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String dataType;
 
+    @NotNull(message = "取值来源不能为空")
     @Schema(description = "取值来源" , example = "患者主档", requiredMode = Schema.RequiredMode.REQUIRED)
     private String valueSource;
 
