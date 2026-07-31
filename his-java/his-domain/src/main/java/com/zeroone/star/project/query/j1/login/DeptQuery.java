@@ -12,8 +12,4 @@ public class DeptQuery {
 
     @Schema(description = "科室编码", example = "NK001")
     private String code;
-
-    @Schema(description = "租户ID")
-    private String tenantId;
-
 }

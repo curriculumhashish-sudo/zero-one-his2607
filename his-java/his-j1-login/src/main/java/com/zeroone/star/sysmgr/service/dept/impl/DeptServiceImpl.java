@@ -57,7 +57,7 @@ public class DeptServiceImpl implements DeptService {
                 }).collect(Collectors.toList());
             }
 
-            List<WhaleOrganizationUnitDO> doList = deptmapper.selectUserDeptList(userId, tenantId);
+            List<WhaleOrganizationUnitDO> doList = deptmapper.selectUserDeptList(userId, tenantId,query);
             List<DepartmentVO> voList = BeanUtil.copyToList(doList, DepartmentVO.class);
             List<String> deptIdList = voList.stream()
                     .map(DepartmentVO::getId)
