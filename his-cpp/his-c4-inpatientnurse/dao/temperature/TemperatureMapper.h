@@ -18,11 +18,11 @@
  limitations under the License.
 */
 #ifndef _TEMPERATURE_MAPPER_
-    #define _TEMPERATURE_MAPPER_
+#define _TEMPERATURE_MAPPER_
 
-    #include "Mapper.h"
-    #include "domain/do/nursing/VitalSignDO.h"
-    #include "domain/do/nursing/VitalSignDetailDO.h"
+#include "Mapper.h"
+#include "domain/do/nursing/VitalSignDO.h"
+#include "domain/do/nursing/VitalSignDetailDO.h"
 
 // Value-type mapper for temperature sheet list queries
 class TemperatureMapper : public Mapper<VitalSignDO>
@@ -54,7 +54,7 @@ public:
     }
 };
 
-// Pointer-type mapper for single-record queries
+
 class PtrTemperatureMapper : public Mapper<PtrVitalSignDO>
 {
 public:
@@ -84,7 +84,7 @@ public:
     }
 };
 
-// Value-type mapper for detail list queries
+
 class TemperatureDetailMapper : public Mapper<VitalSignDetailDO>
 {
 public:
@@ -111,4 +111,4 @@ public:
     }
 };
 
-#endif  // !_TEMPERATURE_MAPPER_
+#endif // !_TEMPERATURE_MAPPER_

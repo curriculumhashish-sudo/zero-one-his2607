@@ -20,7 +20,7 @@
 #include "TemperatureDAO.h"
 #include "TemperatureMapper.h"
 
-// Column list matching VitalSignDO field order (same table as nursing: dia_vital_sign)
+
 #define TS_COLUMNS \
     "id, tenant_id, created_at, updated_at, created_by, " \
     "updated_by, is_deleted, deleted_at, deleted_by, version, " \
@@ -32,9 +32,7 @@
     "updated_by, is_deleted, deleted_at, deleted_by, version, " \
     "vital_sign_id, term_code, item_code, item_value, units, remark"
 
-// ---------------------------------------------------------------------------
-// queryConditionBuilder — date-range filter for temperature sheet grid
-// ---------------------------------------------------------------------------
+
 std::string TemperatureDAO::queryConditionBuilder(const std::string& encounterId,
                                                    const std::string& patientId,
                                                    const std::string& dateFrom,
@@ -42,7 +40,7 @@ std::string TemperatureDAO::queryConditionBuilder(const std::string& encounterId
                                                    SqlParams& params)
 {
     std::stringstream sqlCondition;
-    // Base filter: exclude soft-deleted, restrict to TEMPERATURE_SHEET type
+
     sqlCondition << " WHERE is_deleted = 0 AND type_enum = 'TEMPERATURE_SHEET'";
 
     if (!encounterId.empty())
@@ -69,9 +67,7 @@ std::string TemperatureDAO::queryConditionBuilder(const std::string& encounterId
     return sqlCondition.str();
 }
 
-// ---------------------------------------------------------------------------
-// slotConditionBuilder — exact slot match (date + 2-digit hour)
-// ---------------------------------------------------------------------------
+
 std::string TemperatureDAO::slotConditionBuilder(const std::string& encounterId,
                                                   const std::string& patientId,
                                                   const std::string& recordDate,
@@ -154,9 +150,7 @@ std::list<VitalSignDO> TemperatureDAO::selectBySlot(const std::string& encounter
     return sqlSession->executeQuery<VitalSignDO>(sql, TemperatureMapper(), params);
 }
 
-// ---------------------------------------------------------------------------
-// countByBusNoPrefix — atomic query used by Service layer for bus_no sequence
-// ---------------------------------------------------------------------------
+
 uint64_t TemperatureDAO::countByBusNoPrefix(const std::string& prefix)
 {
     SqlParams params;
