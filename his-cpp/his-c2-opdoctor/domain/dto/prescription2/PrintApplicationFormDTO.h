@@ -9,13 +9,11 @@ using namespace oatpp;
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/**
- * ´òÓ¡ÉêÇëµ¥ÇëÇóDTO
- */
+// è®°å½•ç”³è¯·å•æ‰“å°æ“ä½œçš„è¯·æ±‚ä½“ã€‚
 class PrintApplicationFormDTO : public oatpp::DTO
 {
 	DTO_INIT(PrintApplicationFormDTO, DTO);
-	// ·şÎñÉêÇëµ¥ID
+	// å¾…æ‰“å°æœåŠ¡ç”³è¯·å•çš„æ ‡è¯†ã€‚
 	API_DTO_FIELD_REQUIRE(String, serviceRequestId,
 		ZH_WORDS_GETTER("medical-advice.field.service-request-id"), true);
 };

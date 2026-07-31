@@ -9,13 +9,11 @@ using namespace oatpp;
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/**
- * ����ǩ��ҽ������DTO
- */
+// 批量签发医嘱的请求体。
 class SignMedicalAdviceDTO : public oatpp::DTO
 {
 	DTO_INIT(SignMedicalAdviceDTO, DTO);
-	// ҽ��ID�б�
+	// 待签发医嘱记录的标识列表。
 	API_DTO_FIELD_REQUIRE(List<String>, medicalAdviceIds,
 		ZH_WORDS_GETTER("medical-advice.field.medical-advice-ids"), true);
 };

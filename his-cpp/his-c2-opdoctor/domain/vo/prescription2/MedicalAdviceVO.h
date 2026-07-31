@@ -1,22 +1,5 @@
 #pragma once
-/*
- Copyright Zero One Star. All rights reserved.
 
- @Author: Codex
- @Date: 2026/07/20 00:00:00
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
-      https://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-*/
 #ifndef _MEDICAL_ADVICE_VO_
 #define _MEDICAL_ADVICE_VO_
 
@@ -29,25 +12,19 @@ using namespace oatpp;
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/**
- * ÅúÁ¿Ç©·¢Ò½ÖöÏìÓ¦¶ÔÏó£¬·µ»ØÒÑÇ©·¢µÄÒ½ÖöIDÁĞ±í
- */
+// åŒ…å«å·²æˆåŠŸç­¾å‘åŒ»å˜±æ ‡è¯†çš„å“åº”ã€‚
 class SignMedicalAdviceJsonVO : public JsonVO<List<String>>
 {
     DTO_INIT(SignMedicalAdviceJsonVO, JsonVO<List<String>>);
 };
 
-/**
- * ÅúÁ¿³·»ØÒ½ÖöÏìÓ¦¶ÔÏó£¬·µ»ØÒÑ³·»ØµÄÒ½ÖöIDÁĞ±í
- */
+// åŒ…å«å·²æˆåŠŸæ’¤å›åŒ»å˜±æ ‡è¯†çš„å“åº”ã€‚
 class WithdrawMedicalAdviceJsonVO : public JsonVO<List<String>>
 {
     DTO_INIT(WithdrawMedicalAdviceJsonVO, JsonVO<List<String>>);
 };
 
-/**
- * ´òÓ¡ÉêÇëµ¥ÏìÓ¦¶ÔÏó£¬·µ»ØÉú³ÉµÄÉêÇëµ¥µØÖ·»òÄÚÈİ
- */
+// åŒ…å«å·²æ‰“å°æœåŠ¡ç”³è¯·å•æ ‡è¯†çš„å“åº”ã€‚
 class PrintApplicationFormJsonVO : public JsonVO<String>
 {
     DTO_INIT(PrintApplicationFormJsonVO, JsonVO<String>);
