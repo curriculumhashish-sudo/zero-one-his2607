@@ -46,7 +46,7 @@ std::string OrderDAO1::getDeviceDefIdByBusNo(const std::string& busNo)
     return "";
 }
 
-double OrderDAO1::getUnitPrice(const std::string& instanceTable, const std::string& instanceId)
+uint64_t OrderDAO1::getUnitPrice(const std::string& instanceTable, const std::string& instanceId)
 {
     if (instanceTable.empty() || instanceId.empty()) {
         return 0.0;

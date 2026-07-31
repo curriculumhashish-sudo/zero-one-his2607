@@ -22,7 +22,7 @@ private:
     /**
      * 获取物品单价（从 adm_charge_item_definition 查询）
      */
-    double getUnitPrice(const std::string& instanceTable, const std::string& instanceId);
+    uint64_t getUnitPrice(const std::string& instanceTable, const std::string& instanceId);
 
     /**
      * 查询医生姓名
