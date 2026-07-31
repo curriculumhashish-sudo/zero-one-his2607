@@ -21,8 +21,6 @@ import com.zeroone.star.project.vo.j4.medicine.MedicineSelectVO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -125,13 +123,9 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
         medicine.setVersion(0);
         medicine.setOrgId(TEMP_ORG_ID);
 
-        if (!StringUtils.hasText(medicine.getStatusEnum())) {
-            medicine.setStatusEnum(STATUS_ACTIVE);
-        }
-
-        if (medicine.getActiveFlag() == null) {
-            medicine.setActiveFlag(true);
-        }
+        // 新增药品统一以启用状态保存，状态不由前端传入。
+        medicine.setStatusEnum(STATUS_ACTIVE);
+        medicine.setActiveFlag(true);
     }
 
     /**
