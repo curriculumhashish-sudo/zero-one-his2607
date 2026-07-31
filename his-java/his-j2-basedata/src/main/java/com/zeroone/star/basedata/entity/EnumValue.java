@@ -120,7 +120,8 @@ public class EnumValue {
  *   "tenantId": "tenant_001",           // 冗余字段，便于按租户分片
  *   "enumKey": "SHIPPED",                 // 存储字符
  *   "enumCode": 1                             // 枚举对应的实数值，一个枚举类型的枚举值的code，string互不相同
- *   "display": "已发货",                  // 显示文本（支持多语言）
+ *   "display": "已发货",                  // 显示文本
+ *   "description": "已发货的订单",         // 描述
  *   "order": 10,                        // 排序权重，数值越小越靠前
  *   "status": 1,                // active/inactive/deleted
  *

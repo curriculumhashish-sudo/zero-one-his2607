@@ -23,7 +23,7 @@ public class EnumModifyDTO {
     @Schema(description = "枚举类型ID，和EnumType的id关联", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private String enumTypeId;
 
-    @Size(min = 1, max = 500, message = "标签长度必须在1到500个字符之间")
+    @Size(min = 1, max = 100, message = "标签长度必须在1到100个字符之间")
     @Schema(description = "标签，必须唯一", example = "label", requiredMode = Schema.RequiredMode.REQUIRED)
     private String display;
 
