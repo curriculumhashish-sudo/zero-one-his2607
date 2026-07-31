@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -21,7 +21,7 @@
 #define _DRUG_MODIFY_VO_H_
 
 #include "../../GlobalInclude.h"
-#include "../../dto/drug/DrugModifyDTO.h"
+#include "../../dto/drug/DrugModifyResultDTO.h"
 #include "domain/vo/JsonVO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
@@ -29,12 +29,6 @@
 class DrugModifyJsonVO : public JsonVO<DrugModifyResultDTO::Wrapper>
 {
     DTO_INIT(DrugModifyJsonVO, JsonVO<DrugModifyResultDTO::Wrapper>);
-
-  public:
-    DrugModifyJsonVO()
-    {
-        this->success(DrugModifyResultDTO::createShared());
-    }
 };
 
 #include OATPP_CODEGEN_END(DTO)

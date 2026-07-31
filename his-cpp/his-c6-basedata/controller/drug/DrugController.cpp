@@ -1,4 +1,4 @@
-/*
+﻿ /*
  Copyright Zero One Star. All rights reserved.
 
  @Author: axiao
@@ -18,225 +18,237 @@
 */
 #include "stdafx.h"
 #include "DrugController.h"
-
-#include <algorithm>
-#include <cctype>
+#include "../../service/drug/DrugService.h"
+#include "../ApiDeclarativeServicesHelper.h"
 #include <exception>
-
-namespace
-{
-bool hasText(const oatpp::String &value)
-{
-    return value && std::any_of(value->cbegin(), value->cend(), [](const char character)
-                                { return std::isspace(static_cast<unsigned char>(character)) == 0; });
-}
-
-bool isUnsignedIntegerId(const oatpp::String &value)
-{
-    return hasText(value) && value->find_first_not_of("0123456789") == std::string::npos;
-}
-
-bool hasRequiredModifyFields(const DrugModifyDTO::Wrapper &dto)
-{
-    return dto && isUnsignedIntegerId(dto->id) && hasText(dto->name) && hasText(dto->merchandiseName) &&
-           hasText(dto->categoryCode) && hasText(dto->manufacturerText) && hasText(dto->supplyId) &&
-           hasText(dto->typeCode) && hasText(dto->pharmacologyCategoryCode) && hasText(dto->totalVolume) &&
-           hasText(dto->purchaseUnitCode) && hasText(dto->splitUnitCode) && hasText(dto->doseUnitCode) &&
-           hasText(dto->doseFormCode) && hasText(dto->packageUnitCode) && hasText(dto->stockUnitCode) &&
-           hasText(dto->partAttributeEnum) && hasText(dto->thoPartAttributeEnum) &&
-           dto->doseUnitRatio.getValue(0.0) > 0.0 && dto->purchaseUnitRatio.getValue(0.0) > 0.0 &&
-           dto->purchasePrice != nullptr && dto->stockUnitRatio.getValue(0.0) > 0.0 && dto->retailPrice != nullptr &&
-           dto->packageUnitRatio.getValue(0.0) > 0.0;
-}
-
-NoDataJsonVO::Wrapper createBatchResult(const oatpp::List<oatpp::String> &ids)
-{
-    auto result = NoDataJsonVO::createShared();
-    if (!ids || ids->empty())
-    {
-        result->init(RS_PARAMS_INVALID);
-        return result;
-    }
-
-    for (const auto &id : *ids.get())
-    {
-        if (!isUnsignedIntegerId(id))
-        {
-            result->init(RS_PARAMS_INVALID);
-            return result;
-        }
-    }
-
-    result->init(RS_SUCCESS);
-    return result;
-}
-} // namespace
-
-void DrugSwagger::addModifyExamples(const std::shared_ptr<oatpp::web::server::api::Endpoint::Info> &info)
-{
-    info->body.description = ZH_WORDS_GETTER("drug.body.modify");
-    info->body.addExample("default", sampleModify());
-    info->responses[oatpp::web::protocol::http::Status::CODE_200].addExample("success", successModify());
-}
-
-void DrugSwagger::addRemoveExamples(const std::shared_ptr<oatpp::web::server::api::Endpoint::Info> &info)
-{
-    info->body.description = ZH_WORDS_GETTER("drug.body.remove");
-    info->body.addExample("default", sampleRemove());
-    info->responses[oatpp::web::protocol::http::Status::CODE_200].addExample("success", successNoData());
-}
-
-void DrugSwagger::addEnableDisableExamples(const std::shared_ptr<oatpp::web::server::api::Endpoint::Info> &info)
-{
-    info->body.description = ZH_WORDS_GETTER("drug.body.enableDisable");
-    info->body.addExample("enable", sampleEnableDisable(true));
-    info->body.addExample("disable", sampleEnableDisable(false));
-    info->responses[oatpp::web::protocol::http::Status::CODE_200].addExample("success", successNoData());
-}
-
-oatpp::List<oatpp::String> DrugSwagger::sampleIds()
-{
-    auto ids = oatpp::List<oatpp::String>::createShared();
-    ids->push_back("10001");
-    ids->push_back("10002");
-    return ids;
-}
-
-DrugModifyDTO::Wrapper DrugSwagger::sampleModify()
-{
-    auto dto = DrugModifyDTO::createShared();
-    fillRequiredModifyFields(dto);
-    return dto;
-}
-
-DrugRemoveDTO::Wrapper DrugSwagger::sampleRemove()
-{
-    auto dto = DrugRemoveDTO::createShared();
-    dto->ids = sampleIds();
-    return dto;
-}
-
-DrugEnableDisableDTO::Wrapper DrugSwagger::sampleEnableDisable(bool activeFlag)
-{
-    auto dto = DrugEnableDisableDTO::createShared();
-    dto->ids = sampleIds();
-    dto->activeFlag = activeFlag;
-    return dto;
-}
-
-DrugModifyJsonVO::Wrapper DrugSwagger::successModify()
-{
-    auto result = DrugModifyJsonVO::createShared();
-    result->success(DrugModifyResultDTO::createShared());
-    return result;
-}
-
-NoDataJsonVO::Wrapper DrugSwagger::successNoData()
-{
-    auto result = NoDataJsonVO::createShared();
-    result->init(RS_SUCCESS);
-    return result;
-}
-
-void DrugSwagger::fillRequiredModifyFields(const DrugModifyDTO::Wrapper &dto)
-{
-    dto->id = "10001";
-    dto->name = ZH_WORDS_GETTER("drug.example.name");
-    dto->categoryCode = "FL001";
-    dto->merchandiseName = ZH_WORDS_GETTER("drug.example.merchandiseName");
-    dto->purchaseUnitCode = "DW001";
-    dto->splitUnitCode = "DW002";
-    dto->pharmacologyCategoryCode = "YL001";
-    dto->manufacturerText = ZH_WORDS_GETTER("drug.example.manufacturerText");
-    dto->supplyId = "60001";
-    dto->partAttributeEnum = "1";
-    dto->thoPartAttributeEnum = "1";
-    dto->typeCode = "CW001";
-    dto->totalVolume = "5ml:0.5g";
-    dto->doseFormCode = "JX001";
-    dto->doseUnitCode = "DW001";
-    dto->packageUnitCode = "DW003";
-    dto->stockUnitCode = "DW004";
-    dto->doseUnitRatio = 10.0;
-    dto->purchaseUnitRatio = 10.0;
-    dto->stockUnitRatio = 10.0;
-    dto->packageUnitRatio = 10.0;
-    dto->purchasePrice = 10.5;
-    dto->retailPrice = 15.8;
-}
 
 DrugListPageJsonVO::Wrapper DrugController::execQueryDrug(const DrugQuery::Wrapper &query)
 {
-    return {};
+    auto jvo = DrugListPageJsonVO::createShared();
+    jvo->success(DrugService().listAll(query));
+    return jvo;
 }
 
 DrugSelectPageJsonVO::Wrapper DrugController::execQuerySelectDrug(const DrugSelectQuery::Wrapper &query)
 {
+    (void)query;
     return {};
 }
 
 StringJsonVO::Wrapper DrugController::execAddDrug(const DrugAddDTO::Wrapper &dto, const PayloadDTO &payload)
 {
-    return {};
-}
-
-DrugDetailJsonVO::Wrapper DrugController::execQueryOneDrug(const String &id)
-{
-    return {};
-}
-
-DrugModifyJsonVO::Wrapper DrugController::execModifyDrug(const DrugModifyDTO::Wrapper &dto)
-{
-    auto result = DrugModifyJsonVO::createShared();
-    if (!hasRequiredModifyFields(dto))
+    auto jvo = StringJsonVO::createShared();
+    const std::string errorMessage = dto ? dto->validate() : "invalid request";
+    if (!errorMessage.empty())
     {
-        result->init(nullptr, RS_PARAMS_INVALID);
-        return result;
+        jvo->init(errorMessage, RS_PARAMS_INVALID);
+        return jvo;
     }
 
+    dto->setPayload(&payload);
+    const std::string id = DrugService().saveData(dto);
+    if (!id.empty())
+    {
+        jvo->success(id);
+    }
+    else
+    {
+        jvo->fail("");
+    }
+    return jvo;
+}
+
+DrugDetailJsonVO::Wrapper DrugController::execQueryById(const String &id)
+{
+    auto jvo = DrugDetailJsonVO::createShared();
+    if (!id)
+    {
+        jvo->init(nullptr, RS_PARAMS_INVALID);
+        return jvo;
+    }
+    jvo->success(DrugService().getById(id.getValue({})));
+    return jvo;
+}
+
+static ResultStatus mapDrugServiceError(DrugServiceError error)
+{
+    switch (error)
+    {
+    case DrugServiceError::InvalidInput:
+        return ResultStatus(ZH_WORDS_GETTER("drug.error.invalidInput"), RS_PARAMS_INVALID.getCode());
+    case DrugServiceError::NotFound:
+        return ResultStatus(ZH_WORDS_GETTER("drug.error.notFound"), RS_FAIL.getCode());
+    case DrugServiceError::InvalidStatus:
+        return ResultStatus(ZH_WORDS_GETTER("drug.error.invalidStatus"), RS_FAIL.getCode());
+    case DrugServiceError::Referenced:
+        return ResultStatus(ZH_WORDS_GETTER("drug.error.referenced"), RS_FAIL.getCode());
+    case DrugServiceError::CrossTenant:
+        return ResultStatus(ZH_WORDS_GETTER("drug.error.crossTenant"), RS_FORBIDDEN.getCode());
+    case DrugServiceError::ConcurrentModification:
+        return ResultStatus(ZH_WORDS_GETTER("drug.error.concurrentModification"), RS_FAIL.getCode());
+    case DrugServiceError::DatabaseFailure:
+    default:
+        return ResultStatus(ZH_WORDS_GETTER("drug.error.databaseFailure"), RS_SERVER_ERROR.getCode());
+    }
+}
+
+DrugModifyJsonVO::Wrapper DrugController::execModifyDrug(const DrugModifyDTO::Wrapper &dto,
+                                                          const PayloadDTO &payload)
+{
+    // 创建响应对象。
+    auto jvo = DrugModifyJsonVO::createShared();
+
+    // 校验主键。
+    if (!dto || !dto->id)
+    {
+        jvo->init(nullptr, RS_PARAMS_INVALID);
+        return jvo;
+    }
+
+    // 校验修改表单。
+    const std::string validationError = dto->validate();
+    if (!validationError.empty())
+    {
+        jvo->init(nullptr, RS_PARAMS_INVALID);
+        return jvo;
+    }
+
+    // 执行修改。
     try
     {
-        const auto mapper = getDefaultObjectMapper();
-        if (!mapper)
+        dto->setPayload(&payload);
+        auto result = DrugService().updateDrug(dto);
+        if (result)
         {
-            result->init(nullptr, RS_PARAMS_INVALID);
-            return result;
+            jvo->success(result);
         }
-
-        auto detail = mapper->readFromString<DrugModifyResultDTO::Wrapper>(mapper->writeToString(dto));
-        if (!detail)
+        else
         {
-            result->init(nullptr, RS_PARAMS_INVALID);
-            return result;
+            jvo->fail(nullptr);
         }
-
-        detail->specification = dto->totalVolume;
-        if (!hasText(detail->drugDefId))
-        {
-            detail->drugDefId = dto->id;
-        }
-        result->success(detail);
+    }
+    catch (const DrugServiceException &error)
+    {
+        jvo->init(nullptr, mapDrugServiceError(error.getError()));
     }
     catch (const std::exception &)
     {
-        result->init(nullptr, RS_PARAMS_INVALID);
+        jvo->init(nullptr, RS_SERVER_ERROR);
     }
 
-    return result;
+    // 返回统一响应。
+    return jvo;
 }
 
-NoDataJsonVO::Wrapper DrugController::execRemoveDrug(const DrugRemoveDTO::Wrapper &dto)
+NoDataJsonVO::Wrapper DrugController::execRemoveDrug(const DrugRemoveDTO::Wrapper &dto,
+                                                      const PayloadDTO &payload)
 {
-    return createBatchResult(dto ? dto->ids : nullptr);
-}
+    // 创建响应对象。
+    auto jvo = NoDataJsonVO::createShared();
 
-NoDataJsonVO::Wrapper DrugController::execEnableDisableDrug(const DrugEnableDisableDTO::Wrapper &dto)
-{
-    if (!dto || dto->activeFlag == nullptr)
+    // 校验删除批次。
+    if (!dto)
     {
-        auto result = NoDataJsonVO::createShared();
-        result->init(RS_PARAMS_INVALID);
-        return result;
+        jvo->init(RS_PARAMS_INVALID);
+        return jvo;
     }
-    return createBatchResult(dto->ids);
+    const std::string validationError = dto->validate();
+    if (!validationError.empty())
+    {
+        jvo->init(RS_PARAMS_INVALID);
+        return jvo;
+    }
+
+    // 执行批量删除。
+    try
+    {
+        dto->setPayload(&payload);
+        if (DrugService().removeDrugs(dto))
+        {
+            jvo->init(RS_SUCCESS);
+        }
+        else
+        {
+            jvo->init(RS_FAIL);
+        }
+    }
+    catch (const DrugServiceException &error)
+    {
+        jvo->init(mapDrugServiceError(error.getError()));
+    }
+    catch (const std::exception &)
+    {
+        jvo->init(RS_SERVER_ERROR);
+    }
+
+    // 返回无 data 的统一响应。
+    return jvo;
+}
+
+NoDataJsonVO::Wrapper DrugController::execEnableDisableDrug(const DrugEnableDisableDTO::Wrapper &dto,
+                                                             const PayloadDTO &payload)
+{
+    // 创建响应对象。
+    auto jvo = NoDataJsonVO::createShared();
+
+    // 校验目标状态和批次。
+    if (!dto)
+    {
+        jvo->init(RS_PARAMS_INVALID);
+        return jvo;
+    }
+    const std::string validationError = dto->validate();
+    if (!validationError.empty())
+    {
+        jvo->init(RS_PARAMS_INVALID);
+        return jvo;
+    }
+
+    // 执行整批状态变更。
+    try
+    {
+        dto->setPayload(&payload);
+        if (DrugService().enableDisableDrugs(dto))
+        {
+            jvo->init(RS_SUCCESS);
+        }
+        else
+        {
+            jvo->init(RS_FAIL);
+        }
+    }
+    catch (const DrugServiceException &error)
+    {
+        jvo->init(mapDrugServiceError(error.getError()));
+    }
+    catch (const std::exception &)
+    {
+        jvo->init(RS_SERVER_ERROR);
+    }
+
+    // 返回统一响应。
+    return jvo;
+}
+
+DrugDetailJsonVO::Wrapper DrugController::execQueryOne(const String &id, const PayloadDTO &payload)
+{
+    // 创建声明式客户端并转发凭证。
+    API_CLIENT_CREATE(client, objectMapper, DrugApiClient, "drug-api");
+    const std::string token = PayloadDTO::getTokenPrefix() + payload.getToken();
+    return client->queryById(token, id)->readBodyToDto<DrugDetailJsonVO::Wrapper>(objectMapper);
+}
+
+DrugListPageJsonVO::Wrapper DrugController::execQueryAll(
+    const DrugQuery::Wrapper &query,
+    const PayloadDTO &payload)
+{
+    // 创建声明式客户端并转发凭证。
+    API_CLIENT_CREATE(client, objectMapper, DrugApiClient, "drug-api");
+    const std::string token = PayloadDTO::getTokenPrefix() + payload.getToken();
+    return client->queryAll(
+                     token,
+                     query->pageIndex,
+                     query->pageSize,
+                     URIUtil::urlEncode(query->keywords))
+        ->readBodyToDto<DrugListPageJsonVO::Wrapper>(objectMapper);
 }

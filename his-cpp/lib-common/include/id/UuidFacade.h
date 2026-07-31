@@ -21,6 +21,7 @@
 #define _UUIDFACADE_H_
 #include <string>
 #include <memory>
+#include <random>
 #include "stduuid/uuid.h"
 
 /**
@@ -32,6 +33,8 @@ class UuidFacade final
 private:
 	// 使用生成器类型 0 random 1 system
 	int type;
+	// Keep the random engine alive for the lifetime of the UUID generator.
+	std::mt19937 random_engine;
 	// 声明UUID生成器
 	uuids::uuid_random_generator* random_gen;
 #ifdef UUID_SYSTEM_GENERATOR

@@ -30,10 +30,9 @@
 #include "oatpp/web/client/HttpRequestExecutor.hpp"
 //////////////////////////////////////////////////////////////////////////
 // #TIP: Import project ApiClient headers here
-
 #include "service/equipment/declarative/EquipmentApiClient.h"
 #include "service/treatment/declarative/TreatmentApiClient.h"
-
+#include "service/drug/declarative/DrugApiClient.h"
 
 //////////////////////////////////////////////////////////////////////////
 

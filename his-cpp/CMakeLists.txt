@@ -1,9 +1,10 @@
 ﻿# CMakeList.txt: 顶层 CMake 项目文件，在此处执行全局配置
 # 并包含子项目。
 #
-
 cmake_minimum_required (VERSION 3.8)
 
+# 指定工程名
+project ("zero-one-his")
 
 # 设置安装目录前缀
 if(NOT WIN32)
@@ -13,8 +14,6 @@ endif()
 # C++标准
 set (CMAKE_CXX_STANDARD 17)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
-#set(CMAKE_CXX_EXTENSIONS OFF)
-
 
 # 判断构建类型
 if ((NOT CMAKE_BUILD_TYPE) 
@@ -165,5 +164,5 @@ if(UNIX)
 	add_subdirectory ("nacos-register")
 endif()
 # 在后面添加你的模块
-add_subdirectory ("his-c6-basedata")
 add_subdirectory("arch-tests")
+add_subdirectory("his-c6-basedata")
