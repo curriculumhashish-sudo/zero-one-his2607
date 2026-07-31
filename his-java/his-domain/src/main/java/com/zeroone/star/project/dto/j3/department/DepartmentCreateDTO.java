@@ -31,7 +31,7 @@ public class DepartmentCreateDTO {
             example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     @NotNull(message = "类别不能为空")
     @Pattern(regexp = "^[1-10]$", message = "类别只能是1-10之间的数字")
-    private Integer classEnum;
+    private String classEnum;
 
     @Schema(description = "上级组织", example = "322663105141149696", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     @Pattern(regexp = "^[0-9]+$", message = "上级组织只能是数字")

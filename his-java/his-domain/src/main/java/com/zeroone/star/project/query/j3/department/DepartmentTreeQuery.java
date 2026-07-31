@@ -22,12 +22,12 @@ public class DepartmentTreeQuery {
 
     @Schema(description = "类型, 1-医院, 2-科室", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     @Pattern(regexp = "^[12]$", message = "类型只能是1-2之间的数字")
-    private Integer typeEnum;
+    private String typeEnum;
 
     @Schema(description = "类别, 1-门诊, 2-住院, 3-药房, 4-库房, 5-财务, 6-护士站, 7-管理, 8-后勤支持, 9-其他, 10-医技",
             example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     @Pattern(regexp = "^[1-10]$", message = "类别只能是1-10之间的数字")
-    private Integer classEnum;
+    private String classEnum;
 
     @Schema(description = "状态, ACTIVE-正常, INACTIVE-停用", example = "ACTIVE", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String statusEnum;

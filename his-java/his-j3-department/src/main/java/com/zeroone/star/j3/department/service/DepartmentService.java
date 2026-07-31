@@ -13,11 +13,9 @@ import com.zeroone.star.project.vo.j3.department.DepartmentVO;
 import java.util.List;
 
 /**
- * <p>
  * 描述：科室管理服务层接口
- * </p>
- * <p>版权：&copy;01星球</p>
- * <p>地址：01星球总部</p>
+ * 版权：01星球
+ * 地址：01星球总部
  *
  * @author 胡傲宇
  * @version 1.0.0
