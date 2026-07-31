@@ -18,14 +18,18 @@ spring:
       max-request-size: 20MB
       # 单个文件的最大值
       max-file-size: 10MB
+  # nacos配置
+  # https://github.com/alibaba/spring-cloud-alibaba/blob/2025.0.x/spring-cloud-alibaba-examples/nacos-example/readme-zh.md
   config:
     import:
+      # 根据当前激活的profile 动态导入common模块中对应的环境配置
       - optional:classpath:config/common-${spring.profiles.active}.yaml
-      - nacos:system.yaml?refreshEnabled=true&group=DEFAULT_GROUP&namespace=project-dev
-      - nacos:data-source.yaml?refreshEnabled=true&group=DEFAULT_GROUP&namespace=project-dev
-      - nacos:third-services.yaml?refreshEnabled=true&group=DEFAULT_GROUP&namespace=project-dev
-      - nacos:gateway.yaml?refreshEnabled=true&group=DEFAULT_GROUP&namespace=project-dev
-      - nacos:key-config.yaml?refreshEnabled=true&group=DEFAULT_GROUP&namespace=project-dev
+      # 必须加载的系统配置
+      - nacos:system.yaml?refreshEnabled=true
+      - nacos:data-source.yaml?refreshEnabled=true
+      - nacos:third-services.yaml?refreshEnabled=true
+      - nacos:gateway.yaml?refreshEnabled=true
+      - nacos:key-config.yaml?refreshEnabled=true
 
 management:
   # 端点检查

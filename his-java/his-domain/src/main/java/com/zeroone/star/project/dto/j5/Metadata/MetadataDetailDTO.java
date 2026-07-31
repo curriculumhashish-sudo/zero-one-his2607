@@ -1,4 +1,4 @@
-package com.zeroone.star.project.dto.j5.configuration;
+package com.zeroone.star.project.dto.j5.Metadata;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

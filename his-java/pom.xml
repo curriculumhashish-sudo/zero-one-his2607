@@ -9,7 +9,7 @@
         <relativePath/>
     </parent>
     <artifactId>his-java</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>${revision}</version>
     <packaging>pom</packaging>
     <licenses>
         <license>
@@ -50,32 +50,18 @@
             <dependency>
                 <groupId>com.zeroone.star</groupId>
                 <artifactId>his-apis</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.zeroone.star</groupId>
                 <artifactId>his-common</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.zeroone.star</groupId>
                 <artifactId>his-domain</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>${revision}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>javadoc</id>
-                        <phase>none</phase>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>

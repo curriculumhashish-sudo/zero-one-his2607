@@ -43,6 +43,3 @@ target
 
 # Maven ignore
 .flattened-pom.xml
-# 个人ignore
-/docs
-/his-j5-configuration-management

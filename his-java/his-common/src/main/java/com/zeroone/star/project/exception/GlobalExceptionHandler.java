@@ -35,16 +35,6 @@ public class GlobalExceptionHandler {
     private EhResultWrapper wrapper;
 
     /**
-     * 业务异常处理。
-     * @param e 业务异常
-     * @return 统一失败响应
-     */
-    @ExceptionHandler(BusinessException.class)
-    public Object businessExceptionHandler(BusinessException e) {
-        return wrapper.getResult(e.getMessage(), ResultStatus.FAIL);
-    }
-
-    /**
      * 系统通用异常处理
      * @param e 异常数据对象
      * @return 返回异常信息回显数据

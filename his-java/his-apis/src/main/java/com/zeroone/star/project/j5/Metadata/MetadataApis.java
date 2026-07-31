@@ -1,9 +1,9 @@
-package com.zeroone.star.project.j5.configuration;
+package com.zeroone.star.project.j5.Metadata;
 
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j5.configuration.MetadataDetailDTO;
-import com.zeroone.star.project.dto.j5.configuration.MetadataListDTO;
-import com.zeroone.star.project.query.j5.configuration.MetadataQuery;
+import com.zeroone.star.project.dto.j5.Metadata.MetadataDetailDTO;
+import com.zeroone.star.project.dto.j5.Metadata.MetadataListDTO;
+import com.zeroone.star.project.query.j5.Metadata.MetadataQuery;
 import com.zeroone.star.project.vo.JsonVO;
 
 import java.util.List;

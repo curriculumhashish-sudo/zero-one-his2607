@@ -65,21 +65,9 @@ public class UserHolder {
         return UserDTO.builder()
                 .id(Convert.toStr(userJsonObject.get("id")))
                 .username(userJsonObject.getStr("sub"))
-                .tenantId(getTenantId(userJsonObject))
                 .isEnabled(Convert.toByte(1))
                 .roles(Convert.toList(String.class, userJsonObject.get("roles")))
                 .build();
-    }
-
-    /**
-     * 兼容网关中常见的两种租户声明命名。
-     */
-    private String getTenantId(JSONObject userJsonObject) {
-        String tenantId = Convert.toStr(userJsonObject.get("tenant_id"));
-        if (!StringUtils.hasText(tenantId)) {
-            tenantId = Convert.toStr(userJsonObject.get("tenantId"));
-        }
-        return tenantId;
     }
 
     /**
