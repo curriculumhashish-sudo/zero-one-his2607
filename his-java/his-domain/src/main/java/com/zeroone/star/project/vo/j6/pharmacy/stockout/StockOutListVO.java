@@ -47,7 +47,7 @@ public class StockOutListVO {
     private String applicantId;
 
     @Schema(description = "申请人名称", example = "admin", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String creatorName;
+    private String createdBy;
 
     @Schema(description = "审批人ID", example = "380791351297856608", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String approverId;

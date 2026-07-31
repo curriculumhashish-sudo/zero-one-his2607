@@ -94,6 +94,67 @@
           AND is_deleted = 0
     </select>
 
+    <!-- 分页查询 -->
+    <select id="selectDistinctBusNoPage" resultType="com.zeroone.star.pharmacy.entity.WkfSupplyRequest">
+        SELECT t.bus_no, t.type_enum, t.status_enum, t.source_location_id,t.purpose_location_id, t.apply_time,
+               t.approval_time, t.occurrence_time, t.applicant_id, t.created_by, t.approver_id,
+               t.original_bus_no,sub.total_amount
+        FROM wkf_supply_request t
+        INNER JOIN (
+        SELECT MIN(id) min_id,bus_no,
+        SUM(total_price) AS total_amount
+        FROM wkf_supply_request
+        WHERE is_deleted = 0
+        <if test="query.keyword != null and query.keyword != ''">
+            AND bus_no LIKE CONCAT('%', #{query.keyword}, '%')
+        </if>
+        <if test="query.applyTimeFrom != null">
+            AND created_at >= #{query.applyTimeFrom}
+        </if>
+        <if test="query.applyTimeTo != null">
+            AND created_at &lt;= #{query.applyTimeTo}
+        </if>
+        <if test="query.purposeLocationId != null and query.purposeLocationId != ''">
+            AND purpose_location_id = #{query.purposeLocationId}
+        </if>
+        <if test="query.sourceLocationId != null and query.sourceLocationId != ''">
+            AND source_location_id = #{query.sourceLocationId}
+        </if>
+        GROUP BY bus_no
+        ) sub ON t.id = sub.min_id
+        ORDER BY t.created_at DESC
+    </select>
+
+    <!-- 根据单据编号查询所有明细行（需要关联药品信息） -->
+    <select id="selectDetailLinesByBusNo" resultType="com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutLineVO">
+        SELECT
+        sr.item_table,
+        sr.item_id,
+        m.name,
+        m.total_volume,
+        m.manufacturer_text,
+        m.purchase_unit_code,
+        sr.item_quantity,
+        sr.unit_code,
+        sr.lot_number,
+        sr.start_time,
+        sr.end_time,
+        sr.trace_no,
+        sr.remake,
+        sr.price,
+        sr.total_price,
+        sr.occurrence_time,
+        tc.display AS purchase_unit_text
+        FROM wkf_supply_request sr
+        LEFT JOIN med_medication_definition m ON sr.item_id = m.id
+        LEFT JOIN ter_concept tc
+            ON tc.sort_order = m.purchase_unit_code
+            AND tc.code_system_id = 900002
+        WHERE sr.bus_no = #{busNo}
+        ORDER BY sr.id ASC
+    </select>
+
+
     <!-- 提交审批 -->
     <update id="updateInboundToPending">
         UPDATE wkf_supply_request

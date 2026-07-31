@@ -70,28 +70,28 @@ public class WarehouseStockOutController implements WarehouseStockOutApis {
     @DeleteMapping("/{busNo}/delete")
     @Override
     public JsonVO<String> removeStockOut(@PathVariable String busNo) {
-        // 根据 ID 查询单据是否存在
-        //boolean success = stockOutService.deleteDraftByBusNo(busNo);
-        //return success ? JsonVO.success("删除成功") : JsonVO.fail(success ? "删除成功" : "单据不存在或状态非草稿");
-        return null;
+        String result = stockOutService.deleteDraftByBusNo(busNo);
+        if ("success".equals(result)) {
+            return JsonVO.success("删除成功");
+        } else {
+            return JsonVO.fail(result);
+        }
     }
 
     @Operation(summary = "获取单据详情")
     @GetMapping("/{busNo}")
     @Override
     public JsonVO<StockOutDetailVO> getStockOutDetail(@PathVariable String busNo) {
-        //StockOutDetailVO detail = stockOutService.getDetailByBusNo(busNo);
-        //return detail != null ? JsonVO.success(detail) : JsonVO.fail("单据不存在");
-        return null;
+        StockOutDetailVO detail = stockOutService.getDetailByBusNo(busNo);
+        return detail != null ? JsonVO.success(detail) : JsonVO.fail("单据不存在");
     }
 
     @Operation(summary = "获取单据列表（条件+分页）")
     @GetMapping("/getPharmacy")
     @Override
     public JsonVO<PageDTO<StockOutListVO>> getPharmacy(@Valid StockOutQuery stockOutQuery) {
-        //PageDTO<StockOutListVO> pageDTO = stockOutService.getPharmacyList(stockOutQuery);
-        //return JsonVO.success(pageDTO);
-        return null;
+        PageDTO<StockOutListVO> pageDTO = stockOutService.getPharmacyList(stockOutQuery);
+        return JsonVO.success(pageDTO);
     }
 
 

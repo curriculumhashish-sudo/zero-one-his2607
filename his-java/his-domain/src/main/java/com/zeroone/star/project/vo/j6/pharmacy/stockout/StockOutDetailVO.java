@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -33,6 +34,9 @@ public class StockOutDetailVO {
 
     @Schema(description = "分类枚举", example = "DRUG", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String categoryEnum;
+
+    @Schema(description = "制单时间", example = "2024-07-19 10:30:00", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private LocalDateTime createdAt;
 
     @Schema(description = "原始出库单号", example = "ORI-20240718-005", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String originalBusNo;

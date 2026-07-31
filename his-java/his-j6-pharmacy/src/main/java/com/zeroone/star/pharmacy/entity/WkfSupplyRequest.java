@@ -9,6 +9,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import com.baomidou.mybatisplus.annotation.TableField;
 
 /**
  * <p>
@@ -60,7 +61,7 @@ public class WkfSupplyRequest implements Serializable {
     /**
      * 软删标记
      */
-    private Boolean isDeleted;
+    private Integer isDeleted;
 
     /**
      * 删除时间
@@ -251,4 +252,10 @@ public class WkfSupplyRequest implements Serializable {
      * 盘点盈亏金额；盘盈为正、盘亏为负；非盘点类型可空
      */
     private BigDecimal profitLossPrice;
+
+    /**
+     * 分页查询返回的一张单据的总金额
+     */
+    @TableField(exist = false)
+    private BigDecimal totalAmount;
 }
