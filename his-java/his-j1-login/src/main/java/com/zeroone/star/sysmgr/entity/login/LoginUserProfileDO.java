@@ -13,8 +13,11 @@ public class LoginUserProfileDO {
     private Byte isEnabled;
     private Boolean lockedOut;
     private String tenantId;
+    private String tenantName;
     private String hospitalOrganizationId;
+    private String hospitalName;
     private String organizationUnitId;
+    private String organizationUnitName;
     private String practitionerId;
     private String practitionerName;
     private String practitionerStatus;

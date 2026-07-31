@@ -17,11 +17,15 @@ public interface LoginUserMapper extends BaseMapper<LoginUserDO> {
     @Select("""
             SELECT u.id, u.user_name AS username, u.name, u.email, u.phone_number AS phoneNumber,
                    u.is_active AS isEnabled, u.is_locked_out AS lockedOut,
-                   s.tenant_id AS tenantId, s.hospital_organization_id AS hospitalOrganizationId,
-                   s.organization_unit_id AS organizationUnitId,
+                   s.tenant_id AS tenantId, t.name AS tenantName,
+                   s.hospital_organization_id AS hospitalOrganizationId, h.name AS hospitalName,
+                   s.organization_unit_id AS organizationUnitId, ou.display_name AS organizationUnitName,
                    p.id AS practitionerId, p.name AS practitionerName, p.status_enum AS practitionerStatus
             FROM whale_users u
             LEFT JOIN whale_user_login_session s ON s.user_id = u.id
+            LEFT JOIN whale_tenants t ON t.id = s.tenant_id AND t.is_deleted = 0
+            LEFT JOIN adm_organization h ON h.id = s.hospital_organization_id AND h.is_deleted = 0
+            LEFT JOIN whale_organization_units ou ON ou.id = s.organization_unit_id AND ou.is_deleted = 0
             LEFT JOIN adm_practitioner p ON p.user_id = u.id AND p.is_deleted = 0
             WHERE u.id = #{userId} AND u.is_deleted = 0
             """)

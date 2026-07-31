@@ -1,40 +1,33 @@
 package com.zeroone.star.sysmgr.service.login.impl;
 
-import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONArray;
 import com.zeroone.star.project.components.jwt.JwtComponent;
 import com.zeroone.star.project.components.user.UserDTO;
 import com.zeroone.star.project.components.user.UserHolder;
-import com.zeroone.star.project.constant.RedisConstant;
 import com.zeroone.star.project.dto.login.LoginDTO;
 import com.zeroone.star.project.dto.login.Oauth2TokenDTO;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.login.LoginVO;
 import com.zeroone.star.sysmgr.entity.login.LoginUserProfileDO;
-import com.zeroone.star.sysmgr.mapper.login.LoginSessionMapper;
 import com.zeroone.star.sysmgr.mapper.login.LoginUserMapper;
 import com.zeroone.star.sysmgr.service.login.ILoginService;
+import com.zeroone.star.sysmgr.service.login.LoginContextService;
 import com.zeroone.star.sysmgr.service.login.OauthService;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 public class LoginServiceImpl implements ILoginService {
 
     private static final Logger log = LoggerFactory.getLogger(LoginServiceImpl.class);
     private static final String BEARER_PREFIX = "Bearer ";
-    private static final Duration LOGIN_CONTEXT_TTL = Duration.ofHours(1);
 
     @Value("${zo.oauth2.mgr-id:project-manager}")
     private String clientId;
@@ -55,13 +48,7 @@ public class LoginServiceImpl implements ILoginService {
     private LoginUserMapper loginUserMapper;
 
     @Resource
-    private LoginSessionMapper loginSessionMapper;
-
-    @Resource
-    private RedisTemplate<String, Object> redisTemplate;
-
-    @Resource
-    private StringRedisTemplate stringRedisTemplate;
+    private LoginContextService loginContextService;
 
     @Override
     public JsonVO<Oauth2TokenDTO> login(LoginDTO loginDTO) {
@@ -95,7 +82,10 @@ public class LoginServiceImpl implements ILoginService {
         String userId = loginUserMapper.selectIdByUsername(loginDTO.getUsername());
         LoginUserProfileDO profile = StringUtils.hasText(userId)
                 ? loginUserMapper.selectProfileById(userId) : null;
-        writeLoginContext(userId, loginDTO.getUsername(), profile, tokenDTO);
+        if (!StringUtils.hasText(userId)) {
+            return JsonVO.fail("认证成功但未找到用户资料");
+        }
+        writeLoginContext(userId, profile, tokenDTO.getToken());
 
         // 第 5 步：返回成功结果
         return JsonVO.success(tokenDTO);
@@ -143,46 +133,37 @@ public class LoginServiceImpl implements ILoginService {
             // 优先从统一登录上下文读取（包含身份 + 租户/医院 + 角色 + token）
             LoginVO vo = readLoginContext(userId);
             if (vo != null) {
+                loginContextService.refreshContext(userId);
                 return JsonVO.success(vo);
             }
-            // 上下文缺失时回退到数据库查询
+            // context 不存在时先读取 user:info。它只保存设计规定的基础资料，
+            // 为保证 LoginVO 和数据库路径字段完全一致，仍以 DB 查询补齐会话/医护字段。
+            Map<String, String> userInfo = loginContextService.loadUserInfo(userId);
             LoginUserProfileDO profile = loginUserMapper.selectProfileById(userId);
             if (profile == null) {
                 return JsonVO.fail("用户不存在或已被删除");
             }
-            return JsonVO.success(toLoginVO(profile));
+            LoginVO result = toLoginVO(profile);
+            if (!userInfo.isEmpty()) {
+                applyUserInfo(result, userInfo);
+            }
+            // MySQL 回源后同时回填两类缓存，确保下次请求可命中完整上下文。
+            writeLoginContext(userId, profile, userHolder.getCurrentToken());
+            return JsonVO.success(result);
         } catch (Exception exception) {
             return JsonVO.fail("登录状态无效：" + safeMessage(exception));
         }
     }
 
-    // ---- 统一登录上下文（his:login:context:{userId}）----
-
-    /**
-     * 登录成功写入统一登录上下文（his:login:context:{userId}）。
-     * Hash 字段：userId、username、name、email、phone、tenantId、hospitalId、token。TTL=1h。
-     */
-    private void writeLoginContext(String userId, String username, LoginUserProfileDO profile, Oauth2TokenDTO token) {
-        if (!StringUtils.hasText(userId)) {
-            return;
-        }
+    private void writeLoginContext(String userId, LoginUserProfileDO profile, String token) {
         try {
-            String key = RedisConstant.LOGIN_CONTEXT_PREFIX + userId;
-            Map<String, String> ctx = new HashMap<>(8);
-            ctx.put("userId", userId);
-            ctx.put("username", username);
-            if (token != null) {
-                ctx.put("token", token.getToken());
-            }
-            if (profile != null) {
-                ctx.put("name", profile.getName());
-                ctx.put("email", profile.getEmail());
-                ctx.put("phone", profile.getPhoneNumber());
-                ctx.put("tenantId", profile.getTenantId());
-                ctx.put("hospitalId", profile.getHospitalOrganizationId());
-            }
-            stringRedisTemplate.opsForHash().putAll(key, ctx);
-            stringRedisTemplate.expire(key, LOGIN_CONTEXT_TTL);
+            JSONObject claims = decodeToken(token);
+            JSONArray rolesJson = claims == null ? null : claims.getJSONArray("roles");
+            JSONArray permissionsJson = claims == null ? null : claims.getJSONArray("permissions");
+            List<String> roles = rolesJson == null ? List.of() : rolesJson.toList(String.class);
+            String permissions = permissionsJson == null ? "[]" : permissionsJson.toString();
+            loginContextService.saveContext(userId, token, profile, roles, permissions);
+            loginContextService.saveUserInfo(userId, profile);
         } catch (Exception e) {
             log.warn("写登录上下文到 Redis 失败: {}", e.getMessage());
         }
@@ -193,28 +174,29 @@ public class LoginServiceImpl implements ILoginService {
      */
     private LoginVO readLoginContext(String userId) {
         try {
-            String key = RedisConstant.LOGIN_CONTEXT_PREFIX + userId;
-            Map<Object, Object> ctx = stringRedisTemplate.opsForHash().entries(key);
-            if (ctx == null || ctx.isEmpty()) {
+            Map<String, String> ctx = loginContextService.loadContext(userId);
+            if (ctx.isEmpty()) {
                 return null;
             }
             LoginVO vo = new LoginVO();
-            vo.setId(toString(ctx.get("userId")));
-            vo.setUsername(toString(ctx.get("username")));
-            vo.setName(toString(ctx.get("name")));
-            vo.setEmail(toString(ctx.get("email")));
-            vo.setPhoneNumber(toString(ctx.get("phone")));
-            vo.setTenantId(toString(ctx.get("tenantId")));
-            vo.setHospitalOrganizationId(toString(ctx.get("hospitalId")));
+            vo.setId(ctx.get("userId"));
+            vo.setUsername(ctx.get("username"));
+            vo.setName(ctx.get("realName"));
+            vo.setEmail(ctx.get("email"));
+            vo.setPhoneNumber(ctx.get("phone_number"));
+            vo.setIsEnabled(toByte(ctx.get("is_enabled")));
+            vo.setLockedOut(toBoolean(ctx.get("is_locked_out")));
+            vo.setTenantId(ctx.get("tenantId"));
+            vo.setHospitalOrganizationId(ctx.get("hospitalId"));
+            vo.setOrganizationUnitId(ctx.get("deptId"));
+            vo.setPractitionerId(ctx.get("practitionerId"));
+            vo.setPractitionerName(ctx.get("practitionerName"));
+            vo.setPractitionerStatus(ctx.get("practitionerStatus"));
             return vo;
         } catch (Exception e) {
             log.warn("从登录上下文读取失败，回退数据库: {}", e.getMessage());
             return null;
         }
-    }
-
-    private static String toString(Object value) {
-        return value == null ? null : value.toString();
     }
 
     /**
@@ -224,9 +206,8 @@ public class LoginServiceImpl implements ILoginService {
         try {
             UserDTO currentUser = userHolder.getCurrentUser();
             if (currentUser != null && StringUtils.hasText(currentUser.getId())) {
-                // 必须用 StringRedisTemplate 删除：写入侧同样使用字符串序列化，
-                // 否则 RedisTemplate 默认 JDK 键序列化会导致 key 不匹配、删除无效。
-                stringRedisTemplate.delete(RedisConstant.LOGIN_CONTEXT_PREFIX + currentUser.getId());
+                loginContextService.removeContext(currentUser.getId());
+                loginContextService.removeUserInfo(currentUser.getId());
             }
         } catch (Exception e) {
             log.warn("退出登录时清除登录上下文失败: {}", e.getMessage());
@@ -235,60 +216,36 @@ public class LoginServiceImpl implements ILoginService {
 
     // ---- JWT 解析工具 ----
 
-    private JSONObject decodeToken(Oauth2TokenDTO token) {
-        if (token == null || !StringUtils.hasText(token.getToken())) {
+    private JSONObject decodeToken(String token) {
+        if (!StringUtils.hasText(token)) {
             return null;
         }
         try {
-            return new JSONObject(jwtComponent.defaultRsaVerify(token.getToken()));
+            return new JSONObject(jwtComponent.defaultRsaVerify(token));
         } catch (Exception e) {
             log.warn("解析登录 JWT 失败: {}", e.getMessage());
             return null;
         }
     }
 
-    private String joinRoles(JSONObject claims) {
-        Object roles = claims.get("roles");
-        if (roles instanceof JSONArray arr) {
-            return arr.toList(String.class).stream().collect(Collectors.joining(","));
-        }
-        return roles == null ? "" : roles.toString();
-    }
-
-    private String joinPermissions(JSONObject claims) {
-        Object perms = claims.get("permissions");
-        if (perms instanceof JSONArray arr) {
-            return arr.toList(String.class).stream().collect(Collectors.joining(","));
-        }
-        return "";
-    }
-
     // ---- 工具方法 ----
 
-    private String asString(Map<String, String> map, String key) {
-        return map == null ? null : map.get(key);
+    private Byte toByte(String value) {
+        return StringUtils.hasText(value) ? Byte.valueOf(value) : null;
     }
 
-    private Byte asByte(Map<Object, Object> map, String key) {
-        Object value = map == null ? null : map.get(key);
-        if (value == null) {
-            return null;
-        }
-        if (value instanceof Number number) {
-            return number.byteValue();
-        }
-        return Byte.valueOf(value.toString());
+    private Boolean toBoolean(String value) {
+        return StringUtils.hasText(value) ? Boolean.valueOf(value) : null;
     }
 
-    private Boolean asBoolean(Map<Object, Object> map, String key) {
-        Object value = map == null ? null : map.get(key);
-        if (value == null) {
-            return null;
-        }
-        if (value instanceof Boolean b) {
-            return b;
-        }
-        return Boolean.valueOf(value.toString());
+    private void applyUserInfo(LoginVO vo, Map<String, String> userInfo) {
+        vo.setId(userInfo.get("id"));
+        vo.setUsername(userInfo.get("username"));
+        vo.setName(userInfo.get("name"));
+        vo.setEmail(userInfo.get("email"));
+        vo.setPhoneNumber(userInfo.get("phone_number"));
+        vo.setIsEnabled(toByte(userInfo.get("is_enabled")));
+        vo.setLockedOut(toBoolean(userInfo.get("is_locked_out")));
     }
 
     private Oauth2TokenDTO toTokenDTO(Map<String, Object> response) {
@@ -327,16 +284,6 @@ public class LoginServiceImpl implements ILoginService {
 
     private String safeMessage(Exception exception) {
         return StringUtils.hasText(exception.getMessage()) ? exception.getMessage() : "未知错误";
-    }
-
-    private void touchLoginSession(String username) {
-        try {
-            String userId = loginUserMapper.selectIdByUsername(username);
-            if (StringUtils.hasText(userId)) {
-                loginSessionMapper.touchByUserId(userId);
-            }
-        } catch (Exception ignored) {
-        }
     }
 
     private LoginVO toLoginVO(LoginUserProfileDO profile) {
