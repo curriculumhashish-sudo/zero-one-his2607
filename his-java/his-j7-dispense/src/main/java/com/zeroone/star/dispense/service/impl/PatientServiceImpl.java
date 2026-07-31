@@ -18,12 +18,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class PatientServiceImpl implements PatientService {
 
+
+
     @Resource
     private AdmPatientMapper patientMapper;
 
     @Override
     public IPage<PatientQueueVO> pagePatientQueue(PatientQueueQuery query) {
-        Page<?> page = new Page<>(query.getPageIndex(), query.getPageSize());
+        long pageIndex = query.getPageIndex() > 0 ? query.getPageIndex() : 1;
+        long pageSize = query.getPageSize() > 0 ? query.getPageSize() : 10;
+
+        Page<?> page = new Page<>(pageIndex, pageSize);
         return patientMapper.pagePatientQueue(page, query);
     }
 }
