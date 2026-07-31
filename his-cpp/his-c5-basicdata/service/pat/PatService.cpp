@@ -151,7 +151,7 @@ PageDTO<PatDTO::Wrapper>::Wrapper PatService::queryPatPage(const PatPageQuery::W
 bool PatService::removePatient(const std::string& id, const PayloadDTO& payload)
 {
 	PatientDAO dao;
-	std::string now = SimpleDateTimeFormat::getFormatNow();
+	std::string now = SimpleDateTimeFormat::format();
 	// 解析操作人身份
 	std::string actor = payload.getUsername();
 	if (actor.empty() || actor == "none")
