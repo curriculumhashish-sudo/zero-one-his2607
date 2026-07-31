@@ -207,19 +207,6 @@ class PatientUpdateDTO : public oatpp::DTO
 	}
 };
 
-/**
- * Patient remove DTO — accepts the patient ID to soft-delete.
- */
-class PatientRemoveDTO : public oatpp::DTO
-{
-	DTO_INIT(PatientRemoveDTO, DTO);
-	// Patient ID
-	DTO_FIELD(String, id);
-	DTO_FIELD_INFO(id) {
-		info->description = ZH_WORDS_GETTER("pat.field.id");
-	}
-};
-
 #include OATPP_CODEGEN_END(DTO)
 
 #endif // !_PATIENT_DTO_

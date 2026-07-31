@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "PatController.h"
+#include "StringUtil.h"
 #include "../../service/pat/PatService.h"
 
 PatPageJsonVO::Wrapper PatController::execQueryPatPage(const PatPageQuery::Wrapper& query, const PayloadDTO& payload)
@@ -44,7 +45,7 @@ PatSelectPageJsonVO::Wrapper PatController::execQuerySelectPatPage(const PatSele
 	return respVo;
 }
 
-ListJsonVO<String>::Wrapper PatController::execRemovePat(const List<String>& ids)
+ListJsonVO<String>::Wrapper PatController::execRemovePat(const List<String>& ids, const PayloadDTO& payload)
 {
 	auto jvo = ListJsonVO<String>::createShared();
 	if (!ids || ids->empty())
@@ -52,5 +53,20 @@ ListJsonVO<String>::Wrapper PatController::execRemovePat(const List<String>& ids
 		jvo->init(nullptr, RS_PARAMS_INVALID);
 		return jvo;
 	}
+
+	PatService patService;
+	auto deletedList = oatpp::List<String>::createShared();
+	for (const auto& id : *ids)
+	{
+		if (!id || id->empty()) continue;
+		std::string rawId = id;
+		StringUtil::trim(&rawId);
+		if (rawId.empty() || rawId.size() > 64) continue;
+		if (patService.removePatient(rawId, payload))
+		{
+			deletedList->push_back(rawId);
+		}
+	}
+	jvo->success(deletedList);
 	return jvo;
 }

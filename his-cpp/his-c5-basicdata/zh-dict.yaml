@@ -10,8 +10,6 @@ pat:
   tag: 患者管理
   delete:
     summary: 删除患者
-  remove-patient:
-    summary: 删除患者
   page:
     success: 患者分页查询接口访问成功
     summary: 分页查询患者列表

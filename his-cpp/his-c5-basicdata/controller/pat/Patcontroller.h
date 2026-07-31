@@ -37,12 +37,12 @@ public:
 	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("pat.delete.summary"), removePat, ListJsonVO<String>::Wrapper, API_TAG
 	);
-	API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/pat/delete", removePat, BODY_DTO(List<String>, ids), execRemovePat(ids));
+	API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/pat/delete", removePat, BODY_DTO(List<String>, ids), execRemovePat(ids, authObject->getPayload()));
 
 private:
 	PatPageJsonVO::Wrapper execQueryPatPage(const PatPageQuery::Wrapper& query, const PayloadDTO& payload);
 	PatSelectPageJsonVO::Wrapper execQuerySelectPatPage(const PatSelectPageQuery::Wrapper& query, const PayloadDTO& payload);
-	ListJsonVO<String>::Wrapper execRemovePat(const List<String>& ids);
+	ListJsonVO<String>::Wrapper execRemovePat(const List<String>& ids, const PayloadDTO& payload);
 };
 
 #undef API_TAG
