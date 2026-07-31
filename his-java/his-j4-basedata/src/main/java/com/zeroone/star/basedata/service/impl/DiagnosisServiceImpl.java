@@ -61,7 +61,7 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
     public Page<ClnConditionDefinitionDO> pageQuery(DiagnosisDefinitionQuery query) {
         Page<ClnConditionDefinitionDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
         LambdaQueryWrapper<ClnConditionDefinitionDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(ClnConditionDefinitionDO::getTenantId, getCurrentTenantId());
+        wrapper.eq(ClnConditionDefinitionDO::getTenantId, userHolder.getCurrentTenantId());
         
         if (StrUtil.isNotBlank(query.getName())) {
             wrapper.like(ClnConditionDefinitionDO::getName, query.getName());
@@ -102,7 +102,7 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
         entity.setUpdatedAt(LocalDateTime.now());
         
         // 设置租户ID
-        entity.setTenantId(getCurrentTenantId());
+        entity.setTenantId(userHolder.getCurrentTenantId());
         
         // 2. 保存到数据库
         baseMapper.insert(entity);
@@ -158,7 +158,7 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
         }
         // 3. 批量更新状态（限定租户）
         LambdaUpdateWrapper<ClnConditionDefinitionDO> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.eq(ClnConditionDefinitionDO::getTenantId, getCurrentTenantId())
+        updateWrapper.eq(ClnConditionDefinitionDO::getTenantId, userHolder.getCurrentTenantId())
                 .in(ClnConditionDefinitionDO::getId, dto.getIds())
                 .set(ClnConditionDefinitionDO::getStatusEnum, dto.getStatus());
         int rowsAffected = baseMapper.update(null, updateWrapper);
@@ -177,7 +177,7 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
         }
         // 2. 逻辑删除（实体有@TableLogic注解，会自动转为update操作）
         List<String> ids = dto.getIds();
-        String tenantId = getCurrentTenantId();
+        String tenantId = userHolder.getCurrentTenantId();
         for (String id : ids) {
             // 检查记录是否存在（限定租户）
             ClnConditionDefinitionDO existing = lambdaQuery()
@@ -196,7 +196,7 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
     public Page<ClnConditionDefinitionDO> getSelectList(DiagnosisDefinitionQuery query) {
         Page<ClnConditionDefinitionDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
         LambdaQueryWrapper<ClnConditionDefinitionDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(ClnConditionDefinitionDO::getTenantId, getCurrentTenantId());
+        wrapper.eq(ClnConditionDefinitionDO::getTenantId, userHolder.getCurrentTenantId());
         
         if (StrUtil.isNotBlank(query.getName())) {
             wrapper.like(ClnConditionDefinitionDO::getName, query.getName());
@@ -215,7 +215,7 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
     public PageDTO<DiagnosisOptionVO> queryDiagnosisSelectList(DiagnosisSelectPageQuery query) {
         Page<TerConceptDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
         LambdaQueryWrapper<TerConceptDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(TerConceptDO::getTenantId, getCurrentTenantId())
+        wrapper.eq(TerConceptDO::getTenantId, userHolder.getCurrentTenantId())
                 .eq(TerConceptDO::getCodeSystemId, "279125561775755266")
                 .eq(TerConceptDO::getIsActive, true);
 
@@ -255,7 +255,7 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
     private LambdaQueryWrapper<ClnConditionDefinitionDO> buildQueryWrapper(
             String keyword, String sourceEnum) {
         LambdaQueryWrapper<ClnConditionDefinitionDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(ClnConditionDefinitionDO::getTenantId, getCurrentTenantId());
+        wrapper.eq(ClnConditionDefinitionDO::getTenantId, userHolder.getCurrentTenantId());
         if (StrUtil.isNotBlank(keyword)) {
             wrapper.and(item -> item
                     .like(ClnConditionDefinitionDO::getName, keyword)
@@ -272,10 +272,4 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
         return wrapper;
     }
 
-    /**
-     * 获取当前租户ID
-     */
-    private String getCurrentTenantId() {
-        return userHolder.getCurrentTenantId();
-    }
 }
