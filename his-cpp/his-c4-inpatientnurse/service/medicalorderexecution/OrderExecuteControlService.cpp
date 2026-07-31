@@ -1,4 +1,4 @@
-/*
+﻿/*
  Copyright Zero One Star. All rights reserved.
 
  @Author: Swan_Woo
@@ -18,6 +18,7 @@
 */
 #include "stdafx.h"
 #include "id/SnowFlake.h"
+#include "id/UuidFacade.h"
 #include "OrderExecuteControlService.h"
 
 #include <list>
@@ -77,6 +78,99 @@ namespace
 		if (completedProcedure->getGroupIdPtr()) cancelProcedure.setGroupId(completedProcedure->getGroupId());
 		cancelProcedure.setRefundId(completedProcedure->getId());
 		cancelProcedure.setOccurrenceSlotActive(false);
+	}
+
+	bool appendUniqueId(
+		std::list<std::string>& ids,
+		std::unordered_set<std::string>& idSet,
+		const std::string& id)
+	{
+		if (id.empty())
+			return false;
+		if (!idSet.insert(id).second)
+			return false;
+		ids.push_back(id);
+		return true;
+	}
+
+	void copyOptionalMedicationDispenseFields(
+		MedicationDispenseDO& target,
+		const PtrMedicationDispenseDO& source)
+	{
+		if (source->getTenantIdPtr()) target.setTenantId(source->getTenantId());
+		if (source->getPlannedDispenseTimePtr()) target.setPlannedDispenseTime(source->getPlannedDispenseTime());
+		if (source->getDesLocationIdPtr()) target.setDesLocationId(source->getDesLocationId());
+		if (source->getDosageInstructionPtr()) target.setDosageInstruction(source->getDosageInstruction());
+		if (source->getMethodCodePtr()) target.setMethodCode(source->getMethodCode());
+		if (source->getFrequencyCodePtr()) target.setFrequencyCode(source->getFrequencyCode());
+		if (source->getDosePtr()) target.setDose(source->getDose());
+		if (source->getDoseUnitCodePtr()) target.setDoseUnitCode(source->getDoseUnitCode());
+		if (source->getMaxUnitPtr()) target.setMaxUnit(source->getMaxUnit());
+		if (source->getPartTypeCodePtr()) target.setPartTypeCode(source->getPartTypeCode());
+		if (source->getDispenseFrequencyCodePtr()) target.setDispenseFrequencyCode(source->getDispenseFrequencyCode());
+	}
+
+	MedicationDispenseDO buildMedicationRefundDispense(
+		const PtrMedicationDispenseDO& completedDispense,
+		const std::string& refundDispenseId,
+		const std::string& cancelProcedureId,
+		const std::string& nowTime,
+		const std::string& operatorId)
+	{
+		MedicationDispenseDO refundDispense;
+		refundDispense.setId(refundDispenseId);
+		copyOptionalMedicationDispenseFields(refundDispense, completedDispense);
+		refundDispense.setCreatedAt(nowTime);
+		refundDispense.setCreatedBy(operatorId);
+		refundDispense.setIsDeleted(false);
+		refundDispense.setVersion(0);
+		refundDispense.setBusNo("RF" + refundDispenseId);
+		refundDispense.setStatusEnum("PENDING_REFUND");
+		refundDispense.setStatusChangedTime(nowTime);
+		refundDispense.setDispenseEnum("REFUND");
+		refundDispense.setMedicationId(completedDispense->getMedicationId());
+		refundDispense.setPatientId(completedDispense->getPatientId());
+		refundDispense.setEncounterId(completedDispense->getEncounterId());
+		refundDispense.setLocationId(completedDispense->getLocationId());
+		refundDispense.setMedReqId(completedDispense->getMedReqId());
+		refundDispense.setQuantity(
+			completedDispense->getDispenseQuantityPtr()
+				? completedDispense->getDispenseQuantity()
+				: completedDispense->getQuantity());
+		refundDispense.setUnitCode(completedDispense->getUnitCode());
+		refundDispense.setProcedureId(cancelProcedureId);
+		refundDispense.setRecPractitionerId(operatorId);
+		return refundDispense;
+	}
+
+	SupplyRequestDO buildMedicationSummarySupplyRequest(
+		const MedicationSummaryLineRow& line,
+		const std::string& requestId,
+		const std::string& summaryNo,
+		const std::string& nowTime,
+		const std::string& operatorId)
+	{
+		SupplyRequestDO request;
+		request.setId(requestId);
+		request.setCreatedAt(nowTime);
+		request.setCreatedBy(operatorId);
+		request.setIsDeleted(false);
+		request.setVersion(0);
+		request.setBusNo(summaryNo);
+		request.setTypeEnum("27");
+		request.setStatusEnum("PENDING_APPROVAL");
+		request.setCategoryEnum("MEDICATION");
+		request.setPatientId(line.patientId);
+		request.setItemTable("med_medication_definition");
+		request.setItemQuantity(line.quantity);
+		request.setItemId(line.medicationId);
+		request.setUnitCode(line.unitCode);
+		request.setPurposeTypeEnum("LOCATION");
+		request.setPurposeLocationId(line.locationId);
+		request.setApplicantId(operatorId);
+		request.setPrice(line.price);
+		request.setTotalPrice(line.price * line.quantity);
+		return request;
 	}
 }
 
@@ -328,18 +422,63 @@ CancelExecutionResultDTO::Wrapper OrderExecuteControlService::cancelOrderExecuti
 		}
 	}
 
-	// TODO: Call Charge service gate to reject cancellation when related charges are settled, refunding, or refunded.
-	// TODO: Call medication dispense/refund service gate to reject cancellation when drugs are prepared or dispensing.
-	// TODO: Call medication summary service gate to reject cancellation when related summary orders cannot be revoked or rebuilt.
-	// TODO: Call material dispense/inventory service gate to reject cancellation when related materials cannot be rolled back.
-	// TODO: Call derived service request service gate to reject cancellation when bound diagnosis/treatment items cannot be rolled back.
+	std::list<std::string> allProcedureIdList = procedureIdList;
+	std::unordered_set<std::string> allProcedureIds = procedureIds;
+	std::list<std::string> derivedProcedureIdList;
+	auto derivedServiceRequestIds = dao.listDerivedServiceRequestIdsForCancellation(procedureIdList);
+	for (const auto& procedure : dao.queryCompletedProceduresByServiceRequestIds(derivedServiceRequestIds))
+	{
+		if (!procedure || !appendUniqueId(allProcedureIdList, allProcedureIds, procedure->getId()))
+			continue;
+		derivedProcedureIdList.push_back(procedure->getId());
+		procedureMap[procedure->getId()] = procedure;
+		if (!canOperateEncounter(operableEncounterIds, procedure->getEncounterId()))
+		{
+			result->success = false;
+			result->message = "CANCEL_EXECUTION_DERIVED_ENCOUNTER_NOT_OPERABLE";
+			return result;
+		}
+	}
+
+	if (!derivedProcedureIdList.empty() && dao.existsCancelProcedureByRefundIds(derivedProcedureIdList))
+	{
+		result->success = false;
+		result->message = "CANCEL_EXECUTION_DERIVED_ALREADY_CANCELLED";
+		return result;
+	}
+
+	if (dao.existsBlockingChargeItemsForCancellation(allProcedureIdList, derivedServiceRequestIds))
+	{
+		result->success = false;
+		result->message = "CANCEL_EXECUTION_CHARGE_NOT_ROLLBACKABLE";
+		return result;
+	}
+	if (dao.existsBlockingMedicationDispensesForCancellation(allProcedureIdList))
+	{
+		result->success = false;
+		result->message = "CANCEL_EXECUTION_MEDICATION_DISPENSE_NOT_ROLLBACKABLE";
+		return result;
+	}
+	auto medicationSummaryNos = dao.listMedicationSummaryNosByProcedureIds(allProcedureIdList);
+	if (dao.existsBlockingMedicationSummaryByNos(medicationSummaryNos))
+	{
+		result->success = false;
+		result->message = "CANCEL_EXECUTION_MEDICATION_SUMMARY_NOT_ROLLBACKABLE";
+		return result;
+	}
+	if (dao.existsBlockingDeviceDispensesForCancellation(allProcedureIdList))
+	{
+		result->success = false;
+		result->message = "CANCEL_EXECUTION_DEVICE_DISPENSE_NOT_ROLLBACKABLE";
+		return result;
+	}
 
 	std::list<ClnProcedureDO> cancelProcedures;
+	std::unordered_map<std::string, std::string> cancelProcedureIdByOriginalId;
 	const std::string nowTime = SimpleDateTimeFormat::format();
 	const std::string statusReasonText = *dto->statusReasonText.getPtr();
-	for (auto& item : *dto->items)
+	for (const auto& procedureId : allProcedureIdList)
 	{
-		const std::string procedureId = *item->procedureId.getPtr();
 		const std::string cancelProcedureId = std::to_string(SnowFlake::getInstance()->nextId());
 		if (cancelProcedureId == "0")
 		{
@@ -347,6 +486,7 @@ CancelExecutionResultDTO::Wrapper OrderExecuteControlService::cancelOrderExecuti
 			result->message = "CANCEL_EXECUTION_SYSTEM_ERROR";
 			return result;
 		}
+		cancelProcedureIdByOriginalId[procedureId] = cancelProcedureId;
 		cancelProcedures.emplace_back();
 		fillCancelProcedure(
 			cancelProcedures.back(),
@@ -357,11 +497,34 @@ CancelExecutionResultDTO::Wrapper OrderExecuteControlService::cancelOrderExecuti
 			statusReasonText);
 	}
 
+	std::list<MedicationDispenseDO> refundMedicationDispenses;
+	for (const auto& completedDispense : dao.queryCompletedMedicationDispensesForRefund(allProcedureIdList))
+	{
+		if (!completedDispense || !completedDispense->getProcedureIdPtr())
+			continue;
+		auto cancelProcedureIt = cancelProcedureIdByOriginalId.find(completedDispense->getProcedureId());
+		if (cancelProcedureIt == cancelProcedureIdByOriginalId.end())
+			continue;
+		const std::string refundDispenseId = std::to_string(SnowFlake::getInstance()->nextId());
+		if (refundDispenseId == "0")
+		{
+			result->success = false;
+			result->message = "CANCEL_EXECUTION_SYSTEM_ERROR";
+			return result;
+		}
+		refundMedicationDispenses.push_back(buildMedicationRefundDispense(
+			completedDispense,
+			refundDispenseId,
+			cancelProcedureIt->second,
+			nowTime,
+			payload.getId()));
+	}
+
 	dao.getSqlSession()->beginTransaction(); //开启事务，按数据库更改动作类别批量执行更改
 	try
 	{
 		// 先批量置0原先已执行记录占用计划点标志
-		if (dao.releaseCompletedProcedureSlotsNoTransaction(procedureIdList) != static_cast<int>(procedureIdList.size()))
+		if (dao.releaseCompletedProcedureSlotsNoTransaction(allProcedureIdList) != static_cast<int>(allProcedureIdList.size()))
 		{
 			dao.getSqlSession()->rollbackTransaction();
 			result->success = false;
@@ -378,11 +541,62 @@ CancelExecutionResultDTO::Wrapper OrderExecuteControlService::cancelOrderExecuti
 			return result;
 		}
 
-		// TODO: Call Charge service to void or reverse pending-settlement charge items generated by these procedures.
-		// TODO: Call medication dispense/refund service to remove unissued dispense rows or create pending drug return orders.
-		// TODO: Call medication summary service to revoke affected summaries, rebuild remaining summaries, and return rebuilt summary numbers.
-		// TODO: Call material dispense/inventory service to cancel material dispense rows and restore inventory when needed.
-		// TODO: Call derived service request service to remove bound derived requests, cancel derived procedures, and trigger charge rollback.
+		dao.voidPendingChargeItemsForCancellationNoTransaction(allProcedureIdList, derivedServiceRequestIds, payload.getId());
+		dao.softDeleteMedicationDispensesForCancellationNoTransaction(allProcedureIdList, payload.getId());
+		if (!refundMedicationDispenses.empty()
+			&& dao.insertMedicationRefundDispensesNoTransaction(refundMedicationDispenses)
+				!= static_cast<int>(refundMedicationDispenses.size()))
+		{
+			dao.getSqlSession()->rollbackTransaction();
+			result->success = false;
+			result->message = "CANCEL_EXECUTION_INSERT_REFUND_DISPENSE_FAILED";
+			return result;
+		}
+
+		dao.softDeleteMedicationSummarySupplyRequestsNoTransaction(medicationSummaryNos, payload.getId());
+		dao.clearMedicationSummaryNoForCancellationNoTransaction(allProcedureIdList, payload.getId());
+		UuidFacade uuidFacade;
+		for (const auto& summaryNo : medicationSummaryNos)
+		{
+			auto summaryLines = dao.queryMedicationSummaryLinesForRebuild(summaryNo);
+			if (summaryLines.empty())
+				continue;
+
+			const std::string rebuiltSummaryNo = "MS" + uuidFacade.genUuid();
+			if (dao.reassignMedicationSummaryNoTransaction(summaryNo, rebuiltSummaryNo, payload.getId())
+				!= static_cast<int>(summaryLines.size()))
+			{
+				dao.getSqlSession()->rollbackTransaction();
+				result->success = false;
+				result->message = "CANCEL_EXECUTION_SUMMARY_REBUILD_FAILED";
+				return result;
+			}
+
+			std::list<SupplyRequestDO> rebuiltSupplyRequests;
+			for (const auto& line : summaryLines)
+			{
+				rebuiltSupplyRequests.push_back(buildMedicationSummarySupplyRequest(
+					line,
+					uuidFacade.genUuid(),
+					rebuiltSummaryNo,
+					nowTime,
+					payload.getId()));
+			}
+			if (dao.insertMedicationSummarySupplyRequestsNoTransaction(rebuiltSupplyRequests)
+				!= static_cast<int>(rebuiltSupplyRequests.size()))
+			{
+				dao.getSqlSession()->rollbackTransaction();
+				result->success = false;
+				result->message = "CANCEL_EXECUTION_SUMMARY_REBUILD_FAILED";
+				return result;
+			}
+			result->rebuiltSummaryNos->push_back(rebuiltSummaryNo);
+		}
+
+		dao.restoreInventoryForCompletedDeviceDispensesNoTransaction(allProcedureIdList, payload.getId());
+		dao.softDeleteDeviceDispensesForCancellationNoTransaction(allProcedureIdList, payload.getId());
+		dao.softDeleteDerivedServiceRequestDetailsNoTransaction(derivedServiceRequestIds, payload.getId());
+		dao.softDeleteDerivedServiceRequestsNoTransaction(derivedServiceRequestIds, payload.getId());
 
 		dao.getSqlSession()->commitTransaction();
 		result->success = true;

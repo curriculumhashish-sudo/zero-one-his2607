@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef _CLN_PROCEDURE_DO_
 #define _CLN_PROCEDURE_DO_
