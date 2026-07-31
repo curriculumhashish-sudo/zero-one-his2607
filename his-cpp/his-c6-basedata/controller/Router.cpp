@@ -21,7 +21,7 @@
 #include "ApiHelper.h"
 
 #include "drug/DrugController.h"
-#include"Diagnosis/DiagnosisController.h"
+#include"Diagnose/DiagnoseController.h"
 
 #include "treatment/TreatmentController.h"
 
@@ -55,8 +55,8 @@ void Router::initRouter()
 
 	ROUTER_SIMPLE_BIND(FrequencyController);
 	ROUTER_SIMPLE_BIND(EquipmentController);
-
-	ROUTER_SIMPLE_BIND(DiagnosisController);
 	ROUTER_SIMPLE_BIND(TreatmentController);
 	ROUTER_SIMPLE_BIND(SampleController);
+	ROUTER_SIMPLE_BIND(DiagnoseController);
+
 }

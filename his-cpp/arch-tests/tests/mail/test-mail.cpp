@@ -79,6 +79,10 @@ TEST_F(MailTest, SendAttach) {
 	std::string body = ZH_WORDS_GETTER("mail.body1");
 	emailSender->addRecvEmailAddr("2069682479@qq.com", "awei");
 	emailSender->setEmailContent(topic, body);
+<<<<<<< HEAD
 	emailSender->addAttachment("/home/file/1.png");
+=======
+	emailSender->addAttachment("/home/file/1.zip");
+>>>>>>> 1ed999b056e7222a64e54eb534b4d071810cf178
 	ASSERT_EQ(emailSender->send(), true);
 }

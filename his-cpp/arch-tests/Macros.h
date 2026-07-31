@@ -25,7 +25,10 @@
 #endif
 
 #ifndef TEST_NS_NAMESPACE
+
 #define TEST_NS_NAMESPACE "his-dev"
+
+#define TEST_NS_NAMESPACE "project-dev"
 #endif
 
 //////////////////////////////////////////////////////////////////////////
