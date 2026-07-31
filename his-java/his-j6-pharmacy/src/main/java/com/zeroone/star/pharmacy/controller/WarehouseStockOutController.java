@@ -1,5 +1,6 @@
 package com.zeroone.star.pharmacy.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.zeroone.star.pharmacy.service.IStockOutService;
 import com.zeroone.star.project.dto.j6.pharmacy.stockout.StockOutSaveDTO;
 import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutSaveResultVO;
@@ -16,8 +17,10 @@ import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutDetailVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutListVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +30,9 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "药库出库单", description = "药库管理相关接口")
 @Valid
 public class WarehouseStockOutController implements WarehouseStockOutApis {
+
+    @Resource
+    private IStockOutService stockOutService;
 
     @PostMapping("/save-and-submit")
     @Operation(summary = "保存并提交审批")
@@ -43,8 +49,7 @@ public class WarehouseStockOutController implements WarehouseStockOutApis {
         dto.setBusNo(null);
         return stockOutService.saveStockOut(dto);
     }
-    // 注入 Service
-    private final IStockOutService stockOutService;
+
 
     @PostMapping("/save")
     @Operation(summary = "保存单据")
@@ -62,24 +67,28 @@ public class WarehouseStockOutController implements WarehouseStockOutApis {
         return stockOutService.submitApproval(dto);
     }
     @Operation(summary = "删除单据")
-    @DeleteMapping("/removeStockOut/{id}")
+    @DeleteMapping("/{busNo}/delete")
     @Override
-    public JsonVO<String> removeStockOut(@PathVariable String id) {
-        return JsonVO.fail("功能开发中");
+    public JsonVO<String> removeStockOut(@PathVariable String busNo) {
+        // 根据 ID 查询单据是否存在
+        boolean success = stockOutService.deleteDraftByBusNo(busNo);
+        return success ? JsonVO.success("删除成功") : JsonVO.fail(success ? "删除成功" : "单据不存在或状态非草稿");
     }
 
     @Operation(summary = "获取单据详情")
-    @GetMapping("/getStockOutDetail/{id}")
+    @GetMapping("/{busNo}")
     @Override
-    public JsonVO<StockOutDetailVO> getStockOutDetail(@PathVariable String id) {
-        return JsonVO.fail("功能开发中");
+    public JsonVO<StockOutDetailVO> getStockOutDetail(@PathVariable String busNo) {
+        StockOutDetailVO detail = stockOutService.getDetailByBusNo(busNo);
+        return detail != null ? JsonVO.success(detail) : JsonVO.fail("单据不存在");
     }
 
     @Operation(summary = "获取单据列表（条件+分页）")
     @GetMapping("/getPharmacy")
     @Override
     public JsonVO<PageDTO<StockOutListVO>> getPharmacy(@Valid StockOutQuery stockOutQuery) {
-        return JsonVO.fail("功能开发中");
+        PageDTO<StockOutListVO> pageDTO = stockOutService.getPharmacyList(stockOutQuery);
+        return JsonVO.success(pageDTO);
     }
 
 
