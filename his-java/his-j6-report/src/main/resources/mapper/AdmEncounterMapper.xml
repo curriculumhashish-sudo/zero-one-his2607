@@ -597,4 +597,38 @@
         ORDER BY aci.occurrence_time DESC, aci.id ASC
     </select>
 
+    <!-- ===== 流量趋势：按时间粒度统计门诊数量 ===== -->
+    <select id="selectTrafficTrend" resultType="com.zeroone.star.project.vo.j6.report.TrafficTrendVO">
+        SELECT
+            <choose>
+                <when test="granularity == 'MONTH'">
+                    DATE_FORMAT(e.start_time, '%Y-%m') AS date
+                </when>
+                <when test="granularity == 'WEEK'">
+                    CONCAT(YEAR(e.start_time), '-W', LPAD(WEEK(e.start_time, 1), 2, '0')) AS date
+                </when>
+                <otherwise>
+                    DATE_FORMAT(e.start_time, '%Y-%m-%d') AS date
+                </otherwise>
+            </choose>
+            , COUNT(1) AS count
+        FROM adm_encounter e
+        WHERE e.is_deleted = 0
+          AND e.start_time &gt;= #{start}
+          AND e.start_time &lt;= CONCAT(#{end}, ' 23:59:59')
+        GROUP BY
+            <choose>
+                <when test="granularity == 'MONTH'">
+                    DATE_FORMAT(e.start_time, '%Y-%m')
+                </when>
+                <when test="granularity == 'WEEK'">
+                    CONCAT(YEAR(e.start_time), '-W', LPAD(WEEK(e.start_time, 1), 2, '0'))
+                </when>
+                <otherwise>
+                    DATE_FORMAT(e.start_time, '%Y-%m-%d')
+                </otherwise>
+            </choose>
+        ORDER BY date
+    </select>
+
 </mapper>

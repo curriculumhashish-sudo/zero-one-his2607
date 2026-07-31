@@ -3,8 +3,8 @@ package com.zeroone.star.project.j6.report;
 import com.zeroone.star.project.query.j6.report.FeeDetailExportQuery;
 import com.zeroone.star.project.query.j6.report.FeeDetailQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j6.report.ExportResultVo;
 import com.zeroone.star.project.vo.j6.report.OutpatientFeeDetailsVo;
+import jakarta.servlet.http.HttpServletResponse;
 
 public interface OutpatientFeeDetailsApis {
     /**
@@ -15,10 +15,10 @@ public interface OutpatientFeeDetailsApis {
     JsonVO<OutpatientFeeDetailsVo> queryFeeDetail(FeeDetailQuery query);
 
     /**
-     * 门诊费用明细报表导出
-     * @param query 查询条件（与列表查询条件一致）
-     * @return 导出文件下载URL
+     * 门诊费用明细报表导出（文件流）
+     * @param query 查询条件
+     * @param response HttpServletResponse
      */
-    JsonVO<ExportResultVo> exportFeeDetail(FeeDetailExportQuery query);
+    void exportFeeDetail(FeeDetailExportQuery query, HttpServletResponse response);
 
 }

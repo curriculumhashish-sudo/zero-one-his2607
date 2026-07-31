@@ -3,7 +3,6 @@ package com.zeroone.star.report.service.impl;
 import com.zeroone.star.project.query.j6.report.FeeDetailExportQuery;
 import com.zeroone.star.project.query.j6.report.FeeDetailQuery;
 import com.zeroone.star.project.components.excel.ExcelComponent;
-import com.zeroone.star.project.vo.j6.report.ExportResultVo;
 import com.zeroone.star.project.vo.j6.report.FeeDetailVO;
 import com.zeroone.star.project.vo.j6.report.FeeSummaryVo;
 import com.zeroone.star.project.vo.j6.report.OutpatientFeeDetailsVo;
@@ -14,14 +13,16 @@ import com.zeroone.star.report.entity.PageEncounterDO;
 import com.zeroone.star.report.mapper.AdmEncounterMapper;
 import com.zeroone.star.report.service.IFeeDetailService;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,11 @@ public class FeeDetailServiceImpl implements IFeeDetailService {
 
     @Override
     public OutpatientFeeDetailsVo pageFeeDetailQuery(FeeDetailQuery query) {
+
+        // 参数校验
+        if (!tradeDirectionValid(query.getTradeDirection())) {
+            throw new RuntimeException("收退方向只能为ALL/CHARGE/REFUND");
+        }
 
         // 1. 手动分页：先统计总数，再查当前页
         long pageIndex = query.getPageIndex() > 0 ? query.getPageIndex() : 1L;
@@ -137,27 +143,23 @@ public class FeeDetailServiceImpl implements IFeeDetailService {
     }
 
     @Override
-    public ExportResultVo exportFeeDetail(FeeDetailExportQuery query) {
+    public void exportFeeDetail(FeeDetailExportQuery query, HttpServletResponse response) {
         // 1. 全量查询（无分页）
         List<FeeDetailExportDO> rows = admEncounterMapper.selectAllExportLines(query);
 
-        // 2. 写入 Excel 输出流
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        // 2. 设置响应头
+        String filename = "门诊费用明细_" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".xlsx";
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        response.setHeader("Content-Disposition",
+                "attachment; filename=" + URLEncoder.encode(filename, StandardCharsets.UTF_8).replace("+", "%20"));
+
+        // 3. 写入 Excel 到 response 输出流
         try {
-            excelComponent.export("门诊费用明细", bos, FeeDetailExportDO.class, rows);
-        } catch (Exception e) {
+            excelComponent.export("门诊费用明细", response.getOutputStream(), FeeDetailExportDO.class, rows);
+        } catch (IOException e) {
             throw new RuntimeException("导出 Excel 失败", e);
         }
-
-        // 3. 构建返回结果
-        String base64 = Base64.getEncoder().encodeToString(bos.toByteArray());
-        ExportResultVo result = new ExportResultVo();
-        result.setFilename("门诊费用明细_" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".xlsx");
-        result.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        result.setBody(base64);
-        result.setRowCount(rows.size());
-        result.setTruncated(false);
-        return result;
     }
 
     // ---- helper ----
@@ -203,4 +205,20 @@ public class FeeDetailServiceImpl implements IFeeDetailService {
                 BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO
         };
     }
+
+    // 收退方向枚举校验
+    private boolean tradeDirectionValid(String tradeDirection) {
+        if (tradeDirection != null && !tradeDirection.isEmpty()) {
+            return tradeDirection.equals("ALL") || tradeDirection.equals("CHARGE") || tradeDirection.equals("REFUND");
+        }
+
+        return true;
+    }
+
+    // 日期范围校验
+//    private boolean dateTimeValid(String dateFrom, String dateTo) {
+//        if ()
+//
+//        return dateFrom.compareTo(dateTo) <= 0;
+//    }
 }

@@ -3,6 +3,7 @@ package com.zeroone.star.project.query.j6.report;
 import com.zeroone.star.project.query.PageQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -35,8 +36,10 @@ public class FeeDetailQuery extends PageQuery {
     private String cashierId;
 
     @Schema(description = "结算日期起始 (YYYY-MM-DD)", example = "2026-01-01")
+    @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}")
     private String settlementDateFrom;
 
     @Schema(description = "结算日期截至 (YYYY-MM-DD)", example = "2026-12-31")
+    @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}")
     private String settlementDateTo;
 }

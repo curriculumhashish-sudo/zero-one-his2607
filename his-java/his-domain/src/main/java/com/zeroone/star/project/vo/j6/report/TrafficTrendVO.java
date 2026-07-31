@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TrafficTrendVO {
 
-    @Schema(description = "日期", example = "2026-07-01")
+    @Schema(description = "日期（根据时间粒度改变月/日/周）", example = "2026-07-01")
     private String date;
 
     @Schema(description = "访问量", example = "1500")

@@ -4,12 +4,16 @@ import com.zeroone.star.project.j6.report.DataStatisticsApis;
 import com.zeroone.star.project.query.j6.report.ExpirationWarningQuery;
 import com.zeroone.star.project.query.j6.report.MonthlyAccessQuery;
 import com.zeroone.star.project.query.j6.report.SupplyAmountCompareQuery;
+import com.zeroone.star.project.query.j6.report.TrafficTrendQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j6.report.ExpirationWarningVO;
 import com.zeroone.star.project.vo.j6.report.MonthlyAccessVO;
 import com.zeroone.star.project.vo.j6.report.SupplyAmountCompareVO;
+import com.zeroone.star.project.vo.j6.report.TrafficTrendVO;
+import com.zeroone.star.report.service.ITrafficTrendService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,8 +22,6 @@ import com.zeroone.star.project.query.j6.report.EncounterWeekTrendQuery;
 import com.zeroone.star.project.vo.j6.report.DiseaseDistributionVO;
 import com.zeroone.star.project.vo.j6.report.EncounterMonthTrendVO;
 import com.zeroone.star.project.vo.j6.report.EncounterWeekTrendVO;
-import com.zeroone.star.project.query.j6.report.TrafficTrendQuery;
-import com.zeroone.star.project.vo.j6.report.TrafficTrendVO;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -30,6 +32,9 @@ import java.util.List;
 @RequestMapping("/data-statistics")
 @Tag(name = "数据统计")
 public class DataStatisticsController implements DataStatisticsApis {
+
+    @Resource
+    private ITrafficTrendService trafficTrendService;
 
     @Operation(summary = "获取月访问量")
     @GetMapping("monthly-access")
@@ -119,22 +124,7 @@ public class DataStatisticsController implements DataStatisticsApis {
     @GetMapping("traffic-trend")
     @Override
     public JsonVO<List<TrafficTrendVO>> queryTrafficTrend(TrafficTrendQuery query) {
-        // 创建 Mock 模拟测试数据，以保证接口文档能呈现出参示例
-        List<TrafficTrendVO> list = new ArrayList<>();
-        list.add(new TrafficTrendVO("2026-07-01", 320L));
-        list.add(new TrafficTrendVO("2026-07-02", 450L));
-        list.add(new TrafficTrendVO("2026-07-03", 380L));
-        list.add(new TrafficTrendVO("2026-07-04", 510L));
-        list.add(new TrafficTrendVO("2026-07-05", 600L));
-        list.add(new TrafficTrendVO("2026-07-06", 280L));
-        list.add(new TrafficTrendVO("2026-07-07", 430L));
-        list.add(new TrafficTrendVO("2026-07-08", 520L));
-        list.add(new TrafficTrendVO("2026-07-09", 480L));
-        list.add(new TrafficTrendVO("2026-07-10", 550L));
-        list.add(new TrafficTrendVO("2026-07-11", 390L));
-        list.add(new TrafficTrendVO("2026-07-12", 460L));
-        list.add(new TrafficTrendVO("2026-07-13", 510L));
-        list.add(new TrafficTrendVO("2026-07-14", 580L));
+        List<TrafficTrendVO> list = trafficTrendService.queryTrafficTrend(query);
         return JsonVO.success(list);
     }
 }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.zeroone.star.project.query.j6.report.FeeDetailExportQuery;
 import com.zeroone.star.project.query.j6.report.FeeDetailQuery;
 import com.zeroone.star.report.entity.AdmEncounter;
+import com.zeroone.star.project.vo.j6.report.TrafficTrendVO;
 import com.zeroone.star.report.entity.FeeDetailExportDO;
 import com.zeroone.star.report.entity.FeeDetailLineDO;
 import com.zeroone.star.report.entity.FeeDetailSummaryDO;
@@ -32,4 +33,9 @@ public interface AdmEncounterMapper extends BaseMapper<AdmEncounter> {
 
     /** 全量导出（不加分页，含就诊层字段） */
     List<FeeDetailExportDO> selectAllExportLines(@Param("query") FeeDetailExportQuery query);
+
+    /** 门诊流量趋势（按时间粒度统计门诊数量） */
+    List<TrafficTrendVO> selectTrafficTrend(@Param("start") String start,
+                                            @Param("end") String end,
+                                            @Param("granularity") String granularity);
 }
