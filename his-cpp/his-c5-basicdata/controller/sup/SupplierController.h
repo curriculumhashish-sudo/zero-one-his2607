@@ -22,7 +22,9 @@
 #define _SUPLIER_CONTROLLER_
 
 #include "domain/vo/BaseJsonVO.h"
+#include "domain/vo/sup/SupplierVO.h"
 #include "domain/dto/sup/SupplierDTO.h"
+#include "domain/query/sup/SupplierQuery.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 #define API_TAG ZH_WORDS_GETTER("sup.tag")
