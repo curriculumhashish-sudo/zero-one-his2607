@@ -184,4 +184,50 @@ public interface PatientMapper extends BaseMapper<PatientDO> {
     int countActiveEncounters(@Param("patientId") String patientId,@Param("tenantId") String tenantId);
 
 
+    /**
+     * 查询患者的所有历史就诊记录数（含已完成）。
+     *
+     * @param patientId 患者ID
+     * @return 历史就诊记录总数
+     */
+    @Select("""
+            SELECT COUNT(1)
+            FROM adm_encounter
+            WHERE patient_id = #{patientId}
+              AND is_deleted = 0
+              AND tenant_id = #{tenantId}
+            """)
+    int countAllEncounters(@Param("patientId") String patientId, @Param("tenantId") String tenantId);
+
+    /**
+     * 查询患者的收费记录数。
+     *
+     * @param patientId 患者ID
+     * @return 收费记录总数
+     */
+    @Select("""
+            SELECT COUNT(1)
+            FROM adm_charge_item
+            WHERE patient_id = #{patientId}
+              AND is_deleted = 0
+              AND tenant_id = #{tenantId}
+            """)
+    int countChargeItems(@Param("patientId") String patientId, @Param("tenantId") String tenantId);
+
+    /**
+     * 查询患者的发票记录数。
+     *
+     * @param patientId 患者ID
+     * @return 发票记录总数
+     */
+    @Select("""
+            SELECT COUNT(1)
+            FROM adm_invoice
+            WHERE patient_id = #{patientId}
+              AND is_deleted = 0
+              AND tenant_id = #{tenantId}
+            """)
+    int countInvoices(@Param("patientId") String patientId, @Param("tenantId") String tenantId);
+
+
 }
