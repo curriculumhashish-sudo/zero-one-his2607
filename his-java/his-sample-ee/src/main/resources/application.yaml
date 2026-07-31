@@ -1,0 +1,12 @@
+# 应用名称
+server:
+  port: ${sp.ee}
+spring:
+  application:
+    name: ${sn.ee}
+
+# 关闭健康检查
+management:
+  health:
+    elasticsearch:
+      enabled: false

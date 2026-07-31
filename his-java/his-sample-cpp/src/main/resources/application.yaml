@@ -1,0 +1,39 @@
+server:
+  port: ${sp.cpp}
+  servlet:
+    # 设置应用上下文路径
+    context-path: /cpp
+spring:
+  application:
+    name: ${sn.cpp}
+  cloud:
+    loadbalancer:
+      retry:
+        enabled: true
+        # 对同一个服务实例的最大重试次数（不包括首次调用）
+        max-retries-on-same-service-instance: 0
+        # 切换新实例的最大重试次数（不包括首次调用的实例）
+        max-retries-on-next-service-instance: 1
+    sentinel:
+      transport:
+        # 控制台地址
+        dashboard: ${sentinel.dashboard}
+      eager: true
+      datasource:
+        #流控规则
+        ds1:
+          file:
+            file: "classpath: flowrule.json"
+            data-type: json
+            rule-type: flow
+        #降级规则
+        ds2:
+          file:
+            file: "classpath: degraderule.json"
+            data-type: json
+            rule-type: degrade
+
+# 开启sentinel声明式服务熔断
+feign:
+  sentinel:
+    enabled: true

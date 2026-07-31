@@ -39,6 +39,10 @@
         <module>his-mcp-gateway</module>
         <module>his-j6-pharmacy</module>
         <module>his-j6-report</module>
+        <module>his-sample-elk</module>
+        <module>his-sample-ee</module>
+        <module>his-sample-mongo</module>
+        <module>his-sample-mail</module>
     </modules>
     <properties>
         <!-- 项目版本号 -->

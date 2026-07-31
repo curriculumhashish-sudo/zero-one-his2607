@@ -1,0 +1,10 @@
+server:
+  port: 9000
+spring:
+  application:
+    name: elk
+
+# 日志级别
+logging:
+  level:
+    root: info
