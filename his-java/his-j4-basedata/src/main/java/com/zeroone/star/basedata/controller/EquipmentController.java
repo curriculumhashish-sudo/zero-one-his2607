@@ -13,7 +13,6 @@ import com.zeroone.star.project.j4.basedata.EquipmentApis;
 import com.zeroone.star.project.query.j4.equipment.EquipmentPageQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j4.equipment.EquipmentCategoryVO;
-import com.zeroone.star.project.vo.j4.equipment.EquipmentUpdateVO;
 import com.zeroone.star.project.vo.j4.equipment.EquipmentVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,8 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -109,15 +106,14 @@ public class EquipmentController implements EquipmentApis {
     @Override
     @PostMapping("/update-equipment")
     @Operation(summary = "修改器材", description = "修改器材")
-    public JsonVO<EquipmentUpdateVO> updateEquipment(@RequestBody @Validated EquipmentUpdateDTO dto) {
+    public JsonVO<EquipmentVO> updateEquipment(@RequestBody @Validated EquipmentUpdateDTO dto) {
         try {
             AdmDeviceDefinitionDO entity = equipmentService.updateEquipment(dto);
             if (entity == null) {
                 return JsonVO.fail("修改器材失败");
             }
-            EquipmentUpdateVO vo = msEquipmentMapper.entityToUpdateVo(entity);
+            EquipmentVO vo = msEquipmentMapper.entityToVo(entity);
             vo.setRetailPrice(equipmentService.getRetailPrice(entity.getId()));
-            vo.setUpdateTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             return JsonVO.success(vo);
         } catch (IllegalArgumentException e) {
             return JsonVO.fail(e.getMessage());
