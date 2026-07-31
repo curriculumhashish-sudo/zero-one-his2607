@@ -1,4 +1,4 @@
-package com.zeroone.star.configuration.orderset.enums;
+package com.zeroone.star.configuration.enums;
 
 import com.zeroone.star.project.exception.BusinessException;
 

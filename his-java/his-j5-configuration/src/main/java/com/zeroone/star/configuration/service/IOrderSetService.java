@@ -1,4 +1,4 @@
-package com.zeroone.star.configuration.orderset.service;
+package com.zeroone.star.configuration.service;
 
 import com.zeroone.star.project.dto.j5.configuration.orderset.OrderSetAddDTO;
 import com.zeroone.star.project.dto.j5.configuration.orderset.OrderSetModifyDTO;

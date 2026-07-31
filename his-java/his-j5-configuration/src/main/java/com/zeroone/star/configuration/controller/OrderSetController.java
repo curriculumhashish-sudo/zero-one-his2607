@@ -1,6 +1,7 @@
-package com.zeroone.star.configuration.orderset.controller;
+package com.zeroone.star.configuration.controller;
 
-import com.zeroone.star.configuration.orderset.service.IOrderSetService;
+
+import com.zeroone.star.configuration.service.IOrderSetService;
 import com.zeroone.star.project.dto.j5.configuration.orderset.OrderSetAddDTO;
 import com.zeroone.star.project.dto.j5.configuration.orderset.OrderSetModifyDTO;
 import com.zeroone.star.project.dto.j5.configuration.orderset.OrderSetStatusDTO;
