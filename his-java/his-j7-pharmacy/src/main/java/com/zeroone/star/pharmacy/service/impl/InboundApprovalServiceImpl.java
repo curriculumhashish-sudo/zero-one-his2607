@@ -46,6 +46,7 @@ public class InboundApprovalServiceImpl implements IInboundApprovalService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public InboundApprovalVO withdrawApproval(InboundApprovalDTO dto) {
+        normalize(dto);
         requireRemark(dto, "撤回原因不能为空");
         WkfSupplyRequest record = requirePendingInboundOrder(dto.getBusNo());
         UserDTO operator = currentUser();
@@ -66,6 +67,7 @@ public class InboundApprovalServiceImpl implements IInboundApprovalService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public InboundApprovalVO approveApproval(InboundApprovalDTO dto) {
+        normalize(dto);
         requirePendingInboundOrder(dto.getBusNo());
         UserDTO operator = currentUser();
         int rows = updatePendingOrder(dto, STATUS_AGREE, operator, true);
@@ -77,6 +79,7 @@ public class InboundApprovalServiceImpl implements IInboundApprovalService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public InboundApprovalVO rejectApproval(InboundApprovalDTO dto) {
+        normalize(dto);
         requireRemark(dto, "驳回原因不能为空");
         requirePendingInboundOrder(dto.getBusNo());
         UserDTO operator = currentUser();
@@ -139,6 +142,19 @@ public class InboundApprovalServiceImpl implements IInboundApprovalService {
     private void requireRemark(InboundApprovalDTO dto, String message) {
         if (!StringUtils.hasText(dto.getRemark())) {
             throw new IllegalArgumentException(message);
+        }
+    }
+
+    /**
+     * lvv：统一清理接口参数，避免空格单号查不到数据或备注保存无效空白。
+     */
+    private void normalize(InboundApprovalDTO dto) {
+        if (dto == null || !StringUtils.hasText(dto.getBusNo())) {
+            throw new IllegalArgumentException("入库单号不能为空");
+        }
+        dto.setBusNo(dto.getBusNo().trim());
+        if (dto.getRemark() != null) {
+            dto.setRemark(dto.getRemark().trim());
         }
     }
 
