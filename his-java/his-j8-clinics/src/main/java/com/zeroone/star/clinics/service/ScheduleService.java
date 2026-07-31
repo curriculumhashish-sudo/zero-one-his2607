@@ -13,7 +13,7 @@ public interface ScheduleService {
      * @param scheduleListQuery
      * @return
      */
-    JsonVO<PageDTO<ScheduleDTO>> listQuery(ScheduleListQuery scheduleListQuery);
+    PageDTO<Schedule> listQuery(ScheduleListQuery scheduleListQuery);
 
     /**
      * 根据ID查询日程

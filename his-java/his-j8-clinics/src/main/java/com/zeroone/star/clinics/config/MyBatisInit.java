@@ -1,6 +1,9 @@
 package com.zeroone.star.clinics.config;
 
+import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
+import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.zeroone.star.project.components.user.UserHolder;
 import jakarta.annotation.Resource;
 import org.apache.ibatis.reflection.MetaObject;
@@ -50,5 +53,13 @@ public class MyBatisInit {
                 }
             }
         };
+    }
+
+    @Bean
+    public MybatisPlusInterceptor mybatisPlusInterceptor() {
+        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
+        // 分页插件(设置数据库类型)
+        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));
+        return interceptor;
     }
 }

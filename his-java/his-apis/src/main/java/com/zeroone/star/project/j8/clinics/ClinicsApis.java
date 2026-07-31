@@ -5,6 +5,8 @@ import com.zeroone.star.project.dto.j8.clinics.FormalRosterDTO;
 import com.zeroone.star.project.dto.j8.clinics.ScheduleAddDTO;
 import com.zeroone.star.project.dto.j8.clinics.ScheduleDTO;
 import com.zeroone.star.project.query.j8.clinics.ScheduleListQuery;
+
+
 import com.zeroone.star.project.vo.JsonVO;
 
 /**
@@ -22,7 +24,8 @@ public interface ClinicsApis {
      * @param scheduleListQuery 查询门诊日程参数
      * @return 门诊日程分页结果
      */
-    JsonVO<PageDTO<ScheduleDTO>> querySchedule(ScheduleListQuery scheduleListQuery);
+    JsonVO<PageDTO> querySchedule(ScheduleListQuery scheduleListQuery);
+
 
     /**
      * 获取日程详情

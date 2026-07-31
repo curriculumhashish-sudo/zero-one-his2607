@@ -1,5 +1,9 @@
 package com.zeroone.star.clinics.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zeroone.star.clinics.entity.Schedule;
 import com.zeroone.star.clinics.mapper.ScheduleMapper;
 import com.zeroone.star.clinics.service.ScheduleService;
@@ -11,6 +15,7 @@ import com.zeroone.star.project.vo.JsonVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 
 
 @Service
@@ -25,8 +30,50 @@ public class ScheduleServiceImpl implements ScheduleService {
      * @return
      */
     @Override
-    public JsonVO<PageDTO<ScheduleDTO>> listQuery(ScheduleListQuery scheduleListQuery) {
-        return null;
+    public PageDTO<Schedule> listQuery(ScheduleListQuery scheduleListQuery) {
+        // 创建 MyBatis-Plus 分页对象
+        Page<Schedule> page = new Page<>(scheduleListQuery.getPageIndex(), scheduleListQuery.getPageSize());
+
+        // 构建查询条件
+        LambdaQueryWrapper<Schedule> queryWrapper = new LambdaQueryWrapper<>();
+        
+        // 科室查询条件 或许需要关联查询
+        if (scheduleListQuery.getDepartmentId() != null && !scheduleListQuery.getDepartmentId().isEmpty()) {
+            // 尝试在服务类别JSON字段中查找科室信息
+            queryWrapper.and(wrapper -> wrapper
+                .like(Schedule::getServiceCategoryJson, scheduleListQuery.getDepartmentId())
+                .or()
+                .like(Schedule::getSpecialtyJson, scheduleListQuery.getDepartmentId())
+            );
+        }
+        
+        // 医师查询条件 或许需要关联查询
+        if (scheduleListQuery.getDoctorId() != null && !scheduleListQuery.getDoctorId().isEmpty()) {
+
+                Long doctorIdValue = Long.valueOf(scheduleListQuery.getDoctorId());
+                queryWrapper.and(wrapper -> wrapper
+                    .eq(Schedule::getHealthcareServiceId, doctorIdValue)
+                    .or()
+                    .eq(Schedule::getSubstitutePractitionerId, doctorIdValue)
+                );
+
+        }
+        
+        // 诊室查询条件 (可能需要通过其他关联字段实现)
+        if (scheduleListQuery.getClinicRoomId() != null && !scheduleListQuery.getClinicRoomId().isEmpty()) {
+            // 由于实体中没有直接的诊室字段，我们可以通过名称或其他字段模糊匹配
+            queryWrapper.like(Schedule::getName, scheduleListQuery.getClinicRoomId());
+        }
+        
+        // 号源类型查询条件 (使用 healthcareServiceId 字段)
+        if (scheduleListQuery.getSlotType() != null) {
+            queryWrapper.eq(Schedule::getHealthcareServiceId, scheduleListQuery.getSlotType());
+        }
+        
+        Page<Schedule> schedulePage = scheduleMapper.selectPage(page, queryWrapper);
+
+        // 返回分页结果
+        return PageDTO.create(schedulePage);
     }
 
     /**

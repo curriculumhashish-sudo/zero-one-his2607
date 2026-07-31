@@ -18,5 +18,13 @@
         #{sourceScheduleTemplateId}, #{slotProvisionTemplateId}
         );
     </insert>
+<!--    <select id="selectPage" resultType="com.zeroone.star.clinics.entity.Schedule">-->
+<!--        select * from wkf_schedule-->
+<!--        <where>-->
+<!--            <if test="ew!=null and ew.sqlSegment!=null and ew.sqlSegment!=''">-->
+<!--                ${ew.sqlSegment}-->
+<!--            </if>-->
+<!--        </where>-->
+<!--    </select>-->
 
 </mapper>

@@ -24,9 +24,9 @@ public class ScheduleController implements ClinicsApis {
     @Operation(summary = "查询日程列表")
     @Override
     @GetMapping("/query-schedule")
-    public JsonVO<PageDTO<ScheduleDTO>> querySchedule(ScheduleListQuery scheduleListQuery) {
-        JsonVO<PageDTO<ScheduleDTO>> pageResult= scheduleService.listQuery(scheduleListQuery);
-        return null;
+    public JsonVO<PageDTO> querySchedule(ScheduleListQuery scheduleListQuery) {
+        PageDTO<Schedule> pageResult= scheduleService.listQuery(scheduleListQuery);
+        return JsonVO.success(pageResult);
     }
 
     @Operation(summary = "获取日程详情")

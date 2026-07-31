@@ -24,8 +24,7 @@ public class ScheduleListQuery extends PageQuery {
     @Schema(description = "诊室", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String clinicRoomId;
     @Schema(description = "号源类型:便民号,普通号,专家号,急诊号", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String slotType;
-    @Schema(description = "视图模式:周 0,月 1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String viewMode;
+    private Long slotType;
+
 
 }
