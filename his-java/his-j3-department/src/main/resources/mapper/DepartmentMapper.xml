@@ -1,6 +1,42 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.zeroone.star.j3.department.mapper.DepartmentMapper">
+    <select id="selectUpdateDepartmentById"
+            resultType="com.zeroone.star.j3.department.entity.DepartmentDO">
+        SELECT id,
+               tenant_id AS tenantId,
+               created_at AS createdAt,
+               updated_at AS updatedAt,
+               created_by AS createdBy,
+               updated_by AS updatedBy,
+               is_deleted AS isDeleted,
+               deleted_at AS deletedAt,
+               deleted_by AS deletedBy,
+               version,
+               name,
+               bus_no AS busNo,
+               parent_id AS parentId,
+               type_enum AS typeEnum,
+               class_enum AS classEnum,
+               status_enum AS statusEnum,
+               active_flag AS activeFlag,
+               display_order AS displayOrder,
+               def_doctor_id AS defDoctorId,
+               py_str AS pyStr,
+               wb_str AS wbStr,
+               yb_no AS ybNo,
+               yb_name AS ybName,
+               medins_id AS medinsId,
+               medins_admdvs AS medinsAdmdvs,
+               medins_type AS medinsType,
+               medins_lv AS medinsLv,
+               caty
+        FROM zo_his.adm_organization
+        WHERE id = #{id}
+          AND is_deleted = 0
+        LIMIT 1
+    </select>
+
     <insert id="insertUnit">
         INSERT INTO zo_his.whale_organization_units(id, code, display_name, parent_id, sort_order, tenant_id,
                                                     created_at,
@@ -18,6 +54,13 @@
         UPDATE zo_his.whale_sequence
         SET current_value = #{newValue}
         WHERE seq_key = #{seqKey};
+    </update>
+
+    <update id="incrementSequence">
+        UPDATE zo_his.whale_sequence
+        SET current_value = (@new_val := current_value + 1),
+            updated_at    = NOW()
+        WHERE seq_key = #{seqKey}
     </update>
 
     <select id="getParentBusNo" resultType="java.lang.String">
@@ -43,9 +86,258 @@
         FROM zo_his.adm_practitioner
         WHERE id = #{defDoctorId};
     </select>
+
     <select id="selectParentUnitIdByBusNo" resultType="java.lang.Long">
         SELECT id
         FROM zo_his.whale_organization_units
         WHERE code = #{parentBusNO};
+    </select>
+
+    <select id="isDoctorAvailable" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        FROM zo_his.adm_practitioner
+        WHERE id = #{defDoctorId}
+          AND is_deleted = 0
+          AND active_flag = 1
+        <choose>
+            <when test="tenantId != null">
+                AND tenant_id = #{tenantId}
+            </when>
+            <otherwise>
+                AND tenant_id IS NULL
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectUnitIdByBusNo" resultType="java.lang.Long">
+        SELECT id
+        FROM zo_his.whale_organization_units
+        WHERE code = #{busNo}
+          AND is_deleted = 0
+        <choose>
+            <when test="tenantId != null">
+                AND tenant_id = #{tenantId}
+            </when>
+            <otherwise>
+                AND tenant_id IS NULL
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="countUndeletedChildDepartments" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        FROM zo_his.adm_organization
+        WHERE parent_id = #{parentId}
+          AND is_deleted = 0
+        <choose>
+            <when test="tenantId != null">
+                AND tenant_id = #{tenantId}
+            </when>
+            <otherwise>
+                AND tenant_id IS NULL
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="existsDeleteBusinessReference" resultType="java.lang.Integer">
+        SELECT CASE WHEN
+            EXISTS (
+                SELECT 1 FROM zo_his.adm_encounter
+                WHERE organization_id = #{departmentId} AND is_deleted = 0
+                <choose>
+                    <when test="tenantId != null">AND tenant_id = #{tenantId}</when>
+                    <otherwise>AND tenant_id IS NULL</otherwise>
+                </choose>
+            )
+            OR EXISTS (
+                SELECT 1 FROM zo_his.adm_episode_of_care
+                WHERE organization_id = #{departmentId} AND is_deleted = 0
+                <choose>
+                    <when test="tenantId != null">AND tenant_id = #{tenantId}</when>
+                    <otherwise>AND tenant_id IS NULL</otherwise>
+                </choose>
+            )
+            OR EXISTS (
+                SELECT 1 FROM zo_his.cus_encounter_history
+                WHERE (original_organization_id = #{departmentId}
+                    OR target_organization_id = #{departmentId})
+                  AND is_deleted = 0
+                <choose>
+                    <when test="tenantId != null">AND tenant_id = #{tenantId}</when>
+                    <otherwise>AND tenant_id IS NULL</otherwise>
+                </choose>
+            )
+            OR EXISTS (
+                SELECT 1 FROM zo_his.adm_location
+                WHERE organization_id = #{departmentId} AND is_deleted = 0
+                <choose>
+                    <when test="tenantId != null">AND tenant_id = #{tenantId}</when>
+                    <otherwise>AND tenant_id IS NULL</otherwise>
+                </choose>
+            )
+            OR EXISTS (
+                SELECT 1 FROM zo_his.wkf_appointment_queue
+                WHERE organization_id = #{departmentId} AND is_deleted = 0
+                <choose>
+                    <when test="tenantId != null">AND tenant_id = #{tenantId}</when>
+                    <otherwise>AND tenant_id IS NULL</otherwise>
+                </choose>
+            )
+            OR EXISTS (
+                SELECT 1 FROM zo_his.wkf_schedule
+                WHERE organization_id = #{departmentId} AND is_deleted = 0
+                <choose>
+                    <when test="tenantId != null">AND tenant_id = #{tenantId}</when>
+                    <otherwise>AND tenant_id IS NULL</otherwise>
+                </choose>
+            )
+            OR EXISTS (
+                SELECT 1 FROM zo_his.wkf_slot
+                WHERE organization_id = #{departmentId} AND is_deleted = 0
+                <choose>
+                    <when test="tenantId != null">AND tenant_id = #{tenantId}</when>
+                    <otherwise>AND tenant_id IS NULL</otherwise>
+                </choose>
+            )
+            OR EXISTS (
+                SELECT 1 FROM zo_his.adm_healthcare_service
+                WHERE offered_org_id = #{departmentId} AND is_deleted = 0
+                <choose>
+                    <when test="tenantId != null">AND tenant_id = #{tenantId}</when>
+                    <otherwise>AND tenant_id IS NULL</otherwise>
+                </choose>
+            )
+            OR EXISTS (
+                SELECT 1 FROM zo_his.adm_practitioner
+                WHERE org_id = #{departmentId} AND is_deleted = 0
+                <choose>
+                    <when test="tenantId != null">AND tenant_id = #{tenantId}</when>
+                    <otherwise>AND tenant_id IS NULL</otherwise>
+                </choose>
+            )
+            OR EXISTS (
+                SELECT 1 FROM zo_his.adm_pr_assign
+                WHERE org_id = #{departmentId} AND is_deleted = 0
+                <choose>
+                    <when test="tenantId != null">AND tenant_id = #{tenantId}</when>
+                    <otherwise>AND tenant_id IS NULL</otherwise>
+                </choose>
+            )
+            OR EXISTS (
+                SELECT 1 FROM zo_his.bkg_schedule_template
+                WHERE organization_id = #{departmentId} AND is_deleted = 0
+                <choose>
+                    <when test="tenantId != null">AND tenant_id = #{tenantId}</when>
+                    <otherwise>AND tenant_id IS NULL</otherwise>
+                </choose>
+            )
+            OR EXISTS (
+                SELECT 1 FROM zo_his.bkg_slot_provision_template
+                WHERE organization_id = #{departmentId} AND is_deleted = 0
+                <choose>
+                    <when test="tenantId != null">AND tenant_id = #{tenantId}</when>
+                    <otherwise>AND tenant_id IS NULL</otherwise>
+                </choose>
+            )
+            OR EXISTS (
+                SELECT 1 FROM zo_his.bkg_week_schedule_template
+                WHERE organization_id = #{departmentId} AND is_deleted = 0
+                <choose>
+                    <when test="tenantId != null">AND tenant_id = #{tenantId}</when>
+                    <otherwise>AND tenant_id IS NULL</otherwise>
+                </choose>
+            )
+            OR EXISTS (
+                SELECT 1 FROM zo_his.bkg_calendar_exception
+                WHERE organization_id = #{departmentId} AND is_deleted = 0
+                <choose>
+                    <when test="tenantId != null">AND tenant_id = #{tenantId}</when>
+                    <otherwise>AND tenant_id IS NULL</otherwise>
+                </choose>
+            )
+            OR EXISTS (
+                SELECT 1 FROM zo_his.bkg_stop_clinic_slot_freeze
+                WHERE organization_id = #{departmentId} AND is_deleted = 0
+                <choose>
+                    <when test="tenantId != null">AND tenant_id = #{tenantId}</when>
+                    <otherwise>AND tenant_id IS NULL</otherwise>
+                </choose>
+            )
+            OR EXISTS (
+                SELECT 1 FROM zo_his.bkg_waitlist_entry
+                WHERE organization_id = #{departmentId} AND is_deleted = 0
+                <choose>
+                    <when test="tenantId != null">AND tenant_id = #{tenantId}</when>
+                    <otherwise>AND tenant_id IS NULL</otherwise>
+                </choose>
+            )
+        THEN 1 ELSE 0 END
+    </select>
+
+    <update id="softDeleteDepartment">
+        UPDATE zo_his.adm_organization
+        SET is_deleted = 1,
+            deleted_at = #{deletedAt},
+            deleted_by = #{deletedBy},
+            updated_at = #{deletedAt},
+            updated_by = #{deletedBy},
+            version = version + 1
+        WHERE id = #{id}
+          AND is_deleted = 0
+          AND version = #{version}
+        <choose>
+            <when test="tenantId != null">
+                AND tenant_id = #{tenantId}
+            </when>
+            <otherwise>
+                AND tenant_id IS NULL
+            </otherwise>
+        </choose>
+    </update>
+
+    <update id="softDeleteUnitByCode">
+        UPDATE zo_his.whale_organization_units
+        SET is_deleted = 1,
+            deleted_at = #{deletedAt},
+            deleted_by = #{deletedBy},
+            updated_at = #{deletedAt},
+            updated_by = #{deletedBy}
+        WHERE code = #{code}
+          AND is_deleted = 0
+        <choose>
+            <when test="tenantId != null">
+                AND tenant_id = #{tenantId}
+            </when>
+            <otherwise>
+                AND tenant_id IS NULL
+            </otherwise>
+        </choose>
+    </update>
+
+    <update id="updateUnitByCode">
+        UPDATE zo_his.whale_organization_units
+        <set>
+            display_name = #{displayName},
+            sort_order = #{sortOrder},
+            updated_at = #{updatedAt},
+            updated_by = #{updatedBy},
+            <if test="parentIdChanged">
+                parent_id = #{parentId},
+            </if>
+        </set>
+        WHERE code = #{code}
+          AND is_deleted = 0
+        <choose>
+            <when test="tenantId != null">
+                AND tenant_id = #{tenantId}
+            </when>
+            <otherwise>
+                AND tenant_id IS NULL
+            </otherwise>
+        </choose>
+    </update>
+
+    <select id="getCurrentValueAfterIncrement" resultType="java.lang.Long">
+        SELECT @new_val
     </select>
 </mapper>
