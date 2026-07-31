@@ -8,6 +8,7 @@ import com.zeroone.star.basedata.entity.equipment.AdmChargeItemDefinitionDO;
 import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinitionDO;
 import com.zeroone.star.basedata.mapper.EquipmentChargeItemMapper;
 import com.zeroone.star.basedata.mapper.EquipmentMapper;
+import com.zeroone.star.basedata.mapper.TerConceptMapper;
 import com.zeroone.star.basedata.service.IEquipmentService;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentAddDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentStatusDTO;
@@ -41,7 +42,7 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
 
     private final MsEquipmentMapper msEquipmentMapper;
     private final EquipmentChargeItemMapper chargeItemMapper;
-
+    private final TerConceptMapper conceptMapper;
 
     /**
      * 获取器材列表（条件+分页）
