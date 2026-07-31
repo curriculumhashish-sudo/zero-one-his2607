@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
  *
- * @author 夜照清
+ * @author 照夜清
  * @version 1.0.0
  */
 @Data
@@ -29,16 +29,22 @@ public class PatientListVO {
     @Schema(description = "患者姓名")
     private String name;
 
+    @Schema(description = "年龄")
+    private Integer age;
+
     @Schema(description = "性别编码")
     private String genderEnum;
+
+    @Schema(description = "性别名称")
+    private String genderEnumText;
 
     @Schema(description = "出生日期")
     private LocalDate birthDate;
 
-    @Schema(description = "身份证号，列表返回时应进行脱敏")
+    @Schema(description = "证件号")
     private String idCard;
 
-    @Schema(description = "联系电话，列表返回时应进行脱敏")
+    @Schema(description = "联系电话")
     private String phone;
 
     @Schema(description = "患者状态编码")

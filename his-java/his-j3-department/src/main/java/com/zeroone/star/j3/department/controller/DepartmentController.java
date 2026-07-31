@@ -1,14 +1,17 @@
 package com.zeroone.star.j3.department.controller;
 
+import com.zeroone.star.j3.department.service.DepartmentService;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j3.department.DepartmentBatchDTO;
 import com.zeroone.star.project.dto.j3.department.DepartmentCreateDTO;
-import com.zeroone.star.project.dto.j3.department.DepartmentDTO;
+
 import com.zeroone.star.project.dto.j3.department.DepartmentUpdateDTO;
 import com.zeroone.star.project.j3.department.DepartmentApis;
 import com.zeroone.star.project.query.j3.department.DepartmentQuery;
 import com.zeroone.star.project.query.j3.department.DepartmentTreeQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j3.department.DepartmentDetailVO;
+import com.zeroone.star.project.vo.j3.department.DepartmentTreeVO;
 import com.zeroone.star.project.vo.j3.department.DepartmentVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -17,9 +20,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * <p>
@@ -36,33 +42,53 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @Tag(name = "科室管理")
 public class DepartmentController implements DepartmentApis {
+    @Resource
+    private DepartmentService departmentService;
 
-    @GetMapping("/tree")
+    /**
+     * 获取科室名称树（支持门诊/住院筛选)
+     *
+     * @param query 查询参数
+     * @return 科室树结构
+     * @author 胡傲宇
+     */
+    @PostMapping("/tree")
     @Operation(summary = "获取科室名称树（支持门诊/住院筛选)")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "成功",
-                    content = @Content(schema = @Schema(implementation = JsonVO.class))),
-            @ApiResponse(responseCode = "400", description = "参数错误"),
-            @ApiResponse(responseCode = "404", description = "数据不存在")
-    })
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class))), @ApiResponse(responseCode = "400", description = "参数错误"), @ApiResponse(responseCode = "404", description = "数据不存在"), @ApiResponse(responseCode = "200", description = "成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class))), @ApiResponse(responseCode = "400", description = "参数错误"), @ApiResponse(responseCode = "404", description = "科室不存在")})
     @Override
-    public JsonVO<DepartmentDTO> getDepartmentTree(DepartmentTreeQuery query) {
-        return null;
+    public JsonVO<List<DepartmentTreeVO>> getDepartmentTree(@RequestBody DepartmentTreeQuery query) {
+        List<DepartmentTreeVO> departmentTree = departmentService.getDepartmentTree(query);
+        return JsonVO.success(departmentTree);
     }
 
+    /**
+     *
+     * 获取科室详情
+     *
+     * @param id 科室对象ID
+     * @return 科室详情结果
+     * @author 胡傲宇
+     */
     @GetMapping("/{id}")
     @Operation(summary = "获取科室详情")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "成功",
-                    content = @Content(schema = @Schema(implementation = JsonVO.class))),
-            @ApiResponse(responseCode = "400", description = "参数错误"),
-            @ApiResponse(responseCode = "404", description = "科室不存在")
-    })
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class))), @ApiResponse(responseCode = "400", description = "参数错误"), @ApiResponse(responseCode = "404", description = "科室不存在"), @ApiResponse(responseCode = "200", description = "成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class))), @ApiResponse(responseCode = "400", description = "参数错误"), @ApiResponse(responseCode = "404", description = "科室不存在")})
     @Override
-    public JsonVO<DepartmentDTO> getDepartmentDetail(@PathVariable Long id) {
-        return null;
+    public JsonVO<DepartmentDetailVO> getDepartmentDetail(@PathVariable Long id) {
+        DepartmentDetailVO departmentDetail = departmentService.getDepartmentDetail(id);
+        return JsonVO.success(departmentDetail);
     }
 
+    /**
+     * 新增科室
+     *
+     * @param dto 新增科室对象
+     * @return 提示信息
+     * @author 胡傲宇
+     */
     @PostMapping
     @Operation(summary = "新增科室")
     @ApiResponses({
@@ -71,10 +97,18 @@ public class DepartmentController implements DepartmentApis {
             @ApiResponse(responseCode = "400", description = "参数错误")
     })
     @Override
-    public JsonVO<String> createDepartment(@Valid @RequestBody DepartmentCreateDTO dto) {
-        return null;
+    public JsonVO<String> createDepartment(@Valid @RequestBody DepartmentCreateDTO dto) throws Exception {
+        departmentService.createDepartment(dto);
+        return JsonVO.success("新增科室成功");
     }
 
+    /**
+     * 启用/停用科室(支持批量)
+     *
+     * @param dto 批量操作参数（含id列表+状态枚举）
+     * @return 提示信息
+     * @author 胡傲宇
+     */
     @PutMapping("/batch-status")
     @Operation(summary = "启用/停用科室(支持批量)")
     @ApiResponses({
@@ -85,7 +119,8 @@ public class DepartmentController implements DepartmentApis {
     })
     @Override
     public JsonVO<String> activeOrInactiveDepartment(@Valid @RequestBody DepartmentBatchDTO dto) {
-        return null;
+        departmentService.activeOrInactiveDepartment(dto);
+        return JsonVO.success("修改成功");
     }
 
     @GetMapping("/page")
@@ -98,7 +133,8 @@ public class DepartmentController implements DepartmentApis {
     })
     @Override
     public JsonVO<PageDTO<DepartmentVO>> getDepartmentPage(@Valid DepartmentQuery query) {
-        return null;
+        PageDTO<DepartmentVO> departmentPage = departmentService.getDepartmentPage(query);
+        return JsonVO.success(departmentPage);
     }
 
     @PutMapping("/{id}")
@@ -114,12 +150,21 @@ public class DepartmentController implements DepartmentApis {
             @Parameter(description = "科室ID", example = "322663105141149696", required = true)
             @PathVariable("id") String id,
             @Valid @RequestBody DepartmentUpdateDTO dto) {
-        return null;
+        try {
+            departmentService.updateDepartment(id, dto);
+            return JsonVO.success("修改科室成功");
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            log.warn("修改科室业务校验失败: {}", e.getMessage());
+            return JsonVO.fail(e.getMessage());
+        } catch (Exception e) {
+            log.error("修改科室异常", e);
+            return JsonVO.fail("修改科室失败，请联系管理员");
+        }
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "删除科室",
-            description = "根据科室ID删除科室，业务实现阶段需校验子科室及业务引用")
+            description = "根据科室ID逻辑删除科室；存在下级科室或挂号、住院、入出转等业务引用时拒绝删除")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "删除成功",
                     content = @Content(schema = @Schema(implementation = JsonVO.class))),
@@ -130,6 +175,15 @@ public class DepartmentController implements DepartmentApis {
     public JsonVO<String> deleteDepartment(
             @Parameter(description = "科室ID", example = "322663105141149696", required = true)
             @PathVariable("id") String id) {
-        return null;
+        try {
+            departmentService.deleteDepartment(id);
+            return JsonVO.success("删除科室成功");
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            log.warn("删除科室业务校验失败: {}", e.getMessage());
+            return JsonVO.fail(e.getMessage());
+        } catch (Exception e) {
+            log.error("删除科室异常", e);
+            return JsonVO.fail("删除科室失败，请联系管理员");
+        }
     }
 }

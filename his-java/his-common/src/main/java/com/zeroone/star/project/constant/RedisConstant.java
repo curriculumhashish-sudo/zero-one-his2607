@@ -22,4 +22,20 @@ public interface RedisConstant {
      * 刷新凭证的key前缀
      */
     String REFRESH_TOKEN_PREFIX = "auth:rt:";
+    /**
+     * 用户登录上下文key前缀
+     */
+    String LOGIN_CONTEXT_PREFIX = "his:login:context:";
+    /**
+     * 用户登录上下文中的租户ID字段
+     */
+    String LOGIN_CONTEXT_TENANT_ID_FIELD = "tenantId";
+    /**
+     * 用户会话key前缀
+     */
+    String USER_SESSION_PREFIX = "user:session:";
+    /**
+     * 用户会话中的租户ID字段
+     */
+    String USER_SESSION_TENANT_ID_FIELD = "tenant_id";
 }
