@@ -22,25 +22,22 @@
 #define _SUPLIER_CONTROLLER_
 
 #include "domain/vo/BaseJsonVO.h"
-#include "domain/query/sup/SupplierQuery.h"
 #include "domain/dto/sup/SupplierDTO.h"
-#include "domain/vo/sup/SupplierVO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 #define API_TAG ZH_WORDS_GETTER("sup.tag")
 
 /**
- * SupplierController - Supplier management API.
+ * SupplierController - supplier batch enable/disable & batch delete
  *
  * Provides 4 endpoints: query, batch enable/disable, and batch remove.
+ * Add/update is handled by SupplierAddUpdateController.
  */
 class SupplierController : public oatpp::web::server::api::ApiController {
     API_ACCESS_DECLARE(SupplierController);
 
 public:
-    // ============================================================
-    // 1. GET /sup/query-one — Query single supplier by ID or code
-    // ============================================================
+    // GET /sup/query-one — Query single supplier by ID or code
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(
         ZH_WORDS_GETTER("sup.query-one.summary"),
         queryOne,
@@ -56,10 +53,7 @@ public:
         execQueryOne(query)
     );
 
-    // ============================================================
-    // 2. GET /sup/query-all — Paginated query with filters
-    //    Supports: code, name, type, keyword, statusEnum
-    // ============================================================
+    // GET /sup/query-all — Paginated query with filters
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(
         ZH_WORDS_GETTER("sup.query-all.summary"),
         queryAll,
@@ -75,9 +69,7 @@ public:
         execQueryAll(query)
     );
 
-    // ============================================================
-    // 3. PUT /sup/batch-enable-disable — Batch enable/disable
-    // ============================================================
+    // PUT /sup/batch-enable-disable — Batch enable/disable
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("sup.batch-enable-disable.summary"),
         batchEnableDisable,
@@ -92,9 +84,7 @@ public:
         execBatchEnableDisable(dto)
     );
 
-    // ============================================================
-    // 4. DELETE /sup/batch-remove — Batch delete suppliers
-    // ============================================================
+    // DELETE /sup/batch-remove — Batch delete suppliers
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("sup.batch-remove.summary"),
         batchRemove,
@@ -110,13 +100,13 @@ public:
     );
 
 private:
-    // Query single supplier by ID or code (stub — TODO: connect Service)
+    // Query single supplier by ID or code
     SupplierJsonVO::Wrapper execQueryOne(const SupplierDetailQuery::Wrapper& query);
-    // Paginated query with filters (stub — TODO: connect Service)
+    // Paginated query with filters
     SupplierPageJsonVO::Wrapper execQueryAll(const SupplierQuery::Wrapper& query);
-    // Batch enable/disable (stub — TODO: connect Service)
+    // Batch enable/disable
     StringJsonVO::Wrapper execBatchEnableDisable(const SupplierBatchEnableDisableDTO::Wrapper& dto);
-    // Batch delete (stub — TODO: connect Service)
+    // Batch delete suppliers
     ListJsonVO<String>::Wrapper execBatchRemove(const List<String>& ids);
 };
 
