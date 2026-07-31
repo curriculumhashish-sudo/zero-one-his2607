@@ -148,6 +148,7 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
             supplier.setCreatedBy(userHolder.getCurrentUser().getUsername());
         } catch (Exception e) {
             e.printStackTrace();
+            throw new IllegalArgumentException("获取创建者失败，请稍后再试");
         }
         //supplier.setCreatedAt(LocalDateTime.now());
         //supplier.setUpdatedAt(LocalDateTime.now());
@@ -206,6 +207,7 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
             supplier.setUpdatedBy(userHolder.getCurrentUser().getUsername());
         } catch (Exception e) {
             e.printStackTrace();
+            throw new IllegalArgumentException("获取更改者失败，请稍后再试");
         }
         supplier.setTenantId(tenantId);
         this.updateById(supplier);
