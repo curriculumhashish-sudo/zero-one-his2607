@@ -33,8 +33,7 @@ public interface MsTreatmentMapper {
     List<TreatmentSelectDTO> toSelectDTOList(List<WkfActivityDefinitionDO> wkfActivityDefinitionDOS);
 
     @Mappings({
-            @Mapping(target = "price", ignore = true),
-            @Mapping(source = "typeEnum", target = "typeEnum", qualifiedByName = "stringToInteger")
+            @Mapping(target = "price", ignore = true)
     })
     TreatmentDTO toDTO(WkfActivityDefinitionDO wkfActivityDefinitionDO);
 
@@ -78,7 +77,7 @@ public interface MsTreatmentMapper {
             @Mapping(target = "deletedBy", ignore = true),
             @Mapping(target = "version", ignore = true),
             @Mapping(target = "childrenJson", ignore = true),
-            @Mapping(source = "typeEnum", target = "typeEnum", qualifiedByName = "integerToString")
+            @Mapping(target = "typeEnum", ignore = true)
     })
     WkfActivityDefinitionDO addDtoToEntity(TreatmentAddDTO dto);
 
@@ -93,7 +92,7 @@ public interface MsTreatmentMapper {
             @Mapping(target = "deletedBy", ignore = true),
             @Mapping(target = "version", ignore = true),
             @Mapping(target = "childrenJson", ignore = true),
-            @Mapping(source = "typeEnum", target = "typeEnum", qualifiedByName = "integerToString")
+            @Mapping(target = "typeEnum", ignore = true)
     })
     WkfActivityDefinitionDO editDtoToEntity(TreatmentEditDTO dto);
 
@@ -108,7 +107,7 @@ public interface MsTreatmentMapper {
             @Mapping(target = "deletedBy", ignore = true),
             @Mapping(target = "version", ignore = true),
             @Mapping(target = "childrenJson", ignore = true),
-            @Mapping(source = "typeEnum", target = "typeEnum", qualifiedByName = "integerToString")
+            @Mapping(target = "typeEnum", ignore = true)
     })
     WkfActivityDefinitionDO updateDtoToEntity(TreatmentUpdateDTO dto);
 
