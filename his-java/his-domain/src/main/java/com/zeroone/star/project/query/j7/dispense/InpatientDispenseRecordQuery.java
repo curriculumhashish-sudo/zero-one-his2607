@@ -19,10 +19,6 @@ import java.time.format.ResolverStyle;
 @Schema(description = "住院发退药记录查询条件")
 public class InpatientDispenseRecordQuery extends PageQuery {
 
-    private static final DateTimeFormatter DATE_TIME_FORMATTER =
-            DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss")
-                    .withResolverStyle(ResolverStyle.STRICT);
-
     public InpatientDispenseRecordQuery() {
         setPageIndex(1);
         setPageSize(20);
@@ -91,6 +87,8 @@ public class InpatientDispenseRecordQuery extends PageQuery {
             LocalDate date = LocalDate.parse(normalized);
             return endOfDay ? date.atTime(23, 59, 59) : date.atStartOfDay();
         }
-        return LocalDateTime.parse(normalized, DATE_TIME_FORMATTER);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss")
+                .withResolverStyle(ResolverStyle.STRICT);
+        return LocalDateTime.parse(normalized, formatter);
     }
 }
