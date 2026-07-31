@@ -39,10 +39,10 @@ class DrugUnitBandDTO : public oatpp::DTO
     {
         auto dto = createShared();
         dto->bandKind = "PACKAGE";
-        dto->unitCode = "DW003";
+        dto->unitCode = "2";
         dto->unitName = ZH_WORDS_GETTER("drug.example.purchaseUnitText");
-        dto->ratioToSplit = 10.0;
-        dto->unitPrice = 15.8;
+        dto->ratioToSplit = 20.0;
+        dto->unitPrice = 6.99;
         return dto;
     }
 };

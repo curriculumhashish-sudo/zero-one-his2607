@@ -239,6 +239,73 @@ std::list<PtrAdmChargeItemDefinitionDO> DrugDAO::selectBasePrices(const std::str
     return sqlSession->executeQuery<PtrAdmChargeItemDefinitionDO>(sql, PtrDrugPriceMapper(), params);
 }
 
+PtrDrugModifyTextResult DrugDAO::selectModifyResultTexts(const std::string &drugId,
+                                                         const std::string &tenantId,
+                                                         const std::string &typeCode)
+{
+    const std::string sql =
+        "SELECT COALESCE(purchase_unit.display,''),COALESCE(split_unit.display,''),"
+        "COALESCE(dose_unit.display,''),COALESCE(package_unit.display,''),"
+        "COALESCE(stock_unit.display,''),COALESCE(dose_from.display,''),"
+        "COALESCE(antibiotic.display,''),COALESCE(fin_type.display,''),"
+        "COALESCE(category.display,''),COALESCE(location.name,''),COALESCE(supplier.name,'') "
+        "FROM med_medication_definition d "
+        "LEFT JOIN ter_code_system unit_system ON unit_system.name='unit_code' "
+        "AND unit_system.is_deleted=0 AND unit_system.status IN ('ACTIVE','2') "
+        "AND (unit_system.tenant_id=d.tenant_id OR unit_system.tenant_id IS NULL) "
+        "LEFT JOIN ter_concept purchase_unit ON purchase_unit.code_system_id=unit_system.id "
+        "AND purchase_unit.code=d.purchase_unit_code AND purchase_unit.is_deleted=0 "
+        "AND purchase_unit.is_active=1 "
+        "AND (purchase_unit.tenant_id=d.tenant_id OR purchase_unit.tenant_id IS NULL) "
+        "LEFT JOIN ter_concept split_unit ON split_unit.code_system_id=unit_system.id "
+        "AND split_unit.code=d.split_unit_code AND split_unit.is_deleted=0 AND split_unit.is_active=1 "
+        "AND (split_unit.tenant_id=d.tenant_id OR split_unit.tenant_id IS NULL) "
+        "LEFT JOIN ter_concept dose_unit ON dose_unit.code_system_id=unit_system.id "
+        "AND dose_unit.code=d.dose_unit_code AND dose_unit.is_deleted=0 AND dose_unit.is_active=1 "
+        "AND (dose_unit.tenant_id=d.tenant_id OR dose_unit.tenant_id IS NULL) "
+        "LEFT JOIN ter_concept package_unit ON package_unit.code_system_id=unit_system.id "
+        "AND package_unit.code=d.package_unit_code AND package_unit.is_deleted=0 AND package_unit.is_active=1 "
+        "AND (package_unit.tenant_id=d.tenant_id OR package_unit.tenant_id IS NULL) "
+        "LEFT JOIN ter_concept stock_unit ON stock_unit.code_system_id=unit_system.id "
+        "AND stock_unit.code=d.stock_unit_code AND stock_unit.is_deleted=0 AND stock_unit.is_active=1 "
+        "AND (stock_unit.tenant_id=d.tenant_id OR stock_unit.tenant_id IS NULL) "
+        "LEFT JOIN ter_code_system dose_from_system ON dose_from_system.name='dose_from_code' "
+        "AND dose_from_system.is_deleted=0 AND dose_from_system.status IN ('ACTIVE','2') "
+        "AND (dose_from_system.tenant_id=d.tenant_id OR dose_from_system.tenant_id IS NULL) "
+        "LEFT JOIN ter_concept dose_from ON dose_from.code_system_id=dose_from_system.id "
+        "AND dose_from.code=CAST(d.dose_from AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci "
+        "AND dose_from.is_deleted=0 AND dose_from.is_active=1 "
+        "AND (dose_from.tenant_id=d.tenant_id OR dose_from.tenant_id IS NULL) "
+        "LEFT JOIN ter_code_system antibiotic_system ON antibiotic_system.name='antibiotic_type_code' "
+        "AND antibiotic_system.is_deleted=0 AND antibiotic_system.status IN ('ACTIVE','2') "
+        "AND (antibiotic_system.tenant_id=d.tenant_id OR antibiotic_system.tenant_id IS NULL) "
+        "LEFT JOIN ter_concept antibiotic ON antibiotic.code_system_id=antibiotic_system.id "
+        "AND antibiotic.code=d.antibiotic_code AND antibiotic.is_deleted=0 AND antibiotic.is_active=1 "
+        "AND (antibiotic.tenant_id=d.tenant_id OR antibiotic.tenant_id IS NULL) "
+        "LEFT JOIN ter_code_system fin_type_system ON fin_type_system.name='fin_type_code' "
+        "AND fin_type_system.is_deleted=0 AND fin_type_system.status IN ('ACTIVE','2') "
+        "AND (fin_type_system.tenant_id=d.tenant_id OR fin_type_system.tenant_id IS NULL) "
+        "LEFT JOIN ter_concept fin_type ON fin_type.code_system_id=fin_type_system.id "
+        "AND fin_type.code=? AND fin_type.is_deleted=0 AND fin_type.is_active=1 "
+        "AND (fin_type.tenant_id=d.tenant_id OR fin_type.tenant_id IS NULL) "
+        "LEFT JOIN ter_code_system category_system ON category_system.name='medication_category_code' "
+        "AND category_system.is_deleted=0 AND category_system.status IN ('ACTIVE','2') "
+        "AND (category_system.tenant_id=d.tenant_id OR category_system.tenant_id IS NULL) "
+        "LEFT JOIN ter_concept category ON category.code_system_id=category_system.id "
+        "AND category.code=d.category_code AND category.is_deleted=0 AND category.is_active=1 "
+        "AND (category.tenant_id=d.tenant_id OR category.tenant_id IS NULL) "
+        "LEFT JOIN adm_location location ON location.id=d.location_id AND location.is_deleted=0 "
+        "AND (location.tenant_id=d.tenant_id OR location.tenant_id IS NULL) "
+        "LEFT JOIN cus_supplier supplier ON supplier.id=d.supply_id AND supplier.is_deleted=0 "
+        "AND (supplier.tenant_id=d.tenant_id OR supplier.tenant_id IS NULL) "
+        "WHERE d.id=? AND d.tenant_id=? AND d.is_deleted=0 LIMIT 1";
+    SqlParams params;
+    SQLPARAMS_PUSH(params, "s", std::string, typeCode);
+    SQLPARAMS_PUSH(params, "s", std::string, drugId);
+    SQLPARAMS_PUSH(params, "s", std::string, tenantId);
+    return sqlSession->executeQueryOne<PtrDrugModifyTextResult>(sql, PtrDrugModifyTextMapper(), params);
+}
+
 PtrDrugReferenceCheck DrugDAO::selectReferenceCheck(const std::list<std::string> &ids)
 {
     if (ids.empty())

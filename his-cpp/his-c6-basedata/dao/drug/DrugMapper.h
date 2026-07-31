@@ -152,6 +152,47 @@ class PtrDrugPriceMapper : public Mapper<PtrAdmChargeItemDefinitionDO>
     }
 };
 
+struct DrugModifyTextResult
+{
+    std::string purchaseUnitName;
+    std::string splitUnitName;
+    std::string doseUnitName;
+    std::string packageUnitName;
+    std::string stockUnitName;
+    std::string doseFromName;
+    std::string antibioticName;
+    std::string typeName;
+    std::string categoryName;
+    std::string locationName;
+    std::string supplierName;
+};
+
+using PtrDrugModifyTextResult = std::shared_ptr<DrugModifyTextResult>;
+
+/**
+ * Maps display text needed by the drug modification response.
+ */
+class PtrDrugModifyTextMapper : public Mapper<PtrDrugModifyTextResult>
+{
+  public:
+    PtrDrugModifyTextResult mapper(ResultSet *resultSet) const override
+    {
+        auto data = std::make_shared<DrugModifyTextResult>();
+        data->purchaseUnitName = resultSet->getString(1);
+        data->splitUnitName = resultSet->getString(2);
+        data->doseUnitName = resultSet->getString(3);
+        data->packageUnitName = resultSet->getString(4);
+        data->stockUnitName = resultSet->getString(5);
+        data->doseFromName = resultSet->getString(6);
+        data->antibioticName = resultSet->getString(7);
+        data->typeName = resultSet->getString(8);
+        data->categoryName = resultSet->getString(9);
+        data->locationName = resultSet->getString(10);
+        data->supplierName = resultSet->getString(11);
+        return data;
+    }
+};
+
 struct DrugReferenceCheck
 {
     bool referenced = false;

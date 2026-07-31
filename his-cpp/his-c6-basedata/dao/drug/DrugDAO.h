@@ -51,6 +51,9 @@ class DrugDAO : public BaseDAO
     int insertBasePrice(const AdmChargeItemDefinitionDO &price);
     std::list<PtrAdmChargeItemDefinitionDO> selectBasePrices(const std::string &drugId,
                                                              const std::string &tenantId);
+    PtrDrugModifyTextResult selectModifyResultTexts(const std::string &drugId,
+                                                    const std::string &tenantId,
+                                                    const std::string &typeCode);
 
     PtrDrugReferenceCheck selectReferenceCheck(const std::list<std::string> &ids);
     PtrDrugConditionCheck selectEnableReadiness(const std::list<std::string> &ids, const std::string &tenantId);

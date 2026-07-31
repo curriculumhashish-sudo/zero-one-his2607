@@ -173,6 +173,7 @@ static void fillBasePrice(AdmChargeItemDefinitionDO &price, const DrugModifyDTO:
 static void addUnitBand(oatpp::List<DrugUnitBandDTO::Wrapper> bands,
                         const std::string &kind,
                         const std::string &unitCode,
+                        const std::string &unitName,
                         double ratioToSplit,
                         const oatpp::Float64 &unitPrice = nullptr)
 {
@@ -184,15 +185,15 @@ static void addUnitBand(oatpp::List<DrugUnitBandDTO::Wrapper> bands,
     auto band = DrugUnitBandDTO::createShared();
     band->bandKind = kind;
     band->unitCode = unitCode;
-    // 单位名称待字典回填。
-    band->unitName = nullptr;
+    band->unitName = unitName.empty() ? nullptr : oatpp::String(unitName);
     band->ratioToSplit = ratioToSplit;
     band->unitPrice = unitPrice;
     bands->push_back(band);
 }
 
 static DrugModifyResultDTO::Wrapper toResultDTO(const PtrMedMedicationDefinitionDO &drug,
-                                                const std::list<PtrAdmChargeItemDefinitionDO> &prices)
+                                                const std::list<PtrAdmChargeItemDefinitionDO> &prices,
+                                                const PtrDrugModifyTextResult &texts)
 {
     auto dto = DrugModifyResultDTO::createShared();
     ZO_STAR_DOMAIN_DO_TO_DTO_1(
@@ -218,15 +219,15 @@ static DrugModifyResultDTO::Wrapper toResultDTO(const PtrMedMedicationDefinition
         MinRateCode, maxRateCode, MaxRateCode, doseUnitRatio, DoseUnitRatio, purchaseUnitRatio, PurchaseUnitRatio,
         stockUnitRatio, StockUnitRatio, packageUnitRatio, PackageUnitRatio, activeFlag, ActiveFlag);
     ZO_STAR_DOMAIN_DO_TO_DTO_1(dto, drug, medicationDefId, Id, specification, TotalVolume);
-    dto->purchaseUnitCodeDictText = nullptr;
-    dto->doseFromDictText = nullptr;
-    dto->antibioticCodeDictText = nullptr;
-    dto->typeCodeDictText = nullptr;
-    dto->doseUnitCodeDictText = nullptr;
-    dto->categoryCodeDictText = nullptr;
-    dto->packageUnitCodeDictText = nullptr;
-    dto->locationIdDictText = nullptr;
-    dto->supplyIdDictText = nullptr;
+    dto->purchaseUnitCodeDictText = texts->purchaseUnitName;
+    dto->doseFromDictText = texts->doseFromName.empty() ? nullptr : oatpp::String(texts->doseFromName);
+    dto->antibioticCodeDictText = texts->antibioticName.empty() ? nullptr : oatpp::String(texts->antibioticName);
+    dto->typeCodeDictText = texts->typeName;
+    dto->doseUnitCodeDictText = texts->doseUnitName;
+    dto->categoryCodeDictText = texts->categoryName;
+    dto->packageUnitCodeDictText = texts->packageUnitName;
+    dto->locationIdDictText = texts->locationName.empty() ? nullptr : oatpp::String(texts->locationName);
+    dto->supplyIdDictText = texts->supplierName;
     dto->potencyFlag = nullptr;
     dto->unitBands = oatpp::List<DrugUnitBandDTO::Wrapper>::createShared();
     dto->typeCode = nullptr;
@@ -277,15 +278,19 @@ static DrugModifyResultDTO::Wrapper toResultDTO(const PtrMedMedicationDefinition
         }
     }
 
-    addUnitBand(dto->unitBands, DrugConstants::UNIT_BAND_SPLIT, drug->getSplitUnitCode(),
+    addUnitBand(dto->unitBands, DrugConstants::UNIT_BAND_SPLIT, drug->getSplitUnitCode(), texts->splitUnitName,
                 DrugConstants::SPLIT_UNIT_RATIO);
-    addUnitBand(dto->unitBands, DrugConstants::UNIT_BAND_DOSE, drug->getDoseUnitCode(), drug->getDoseUnitRatio());
+    addUnitBand(dto->unitBands, DrugConstants::UNIT_BAND_DOSE, drug->getDoseUnitCode(), texts->doseUnitName,
+                drug->getDoseUnitRatio());
     addUnitBand(dto->unitBands, DrugConstants::UNIT_BAND_PURCHASE, drug->getPurchaseUnitCode(),
+                texts->purchaseUnitName,
                 drug->getPurchaseUnitRatio(),
                 dto->purchasePrice);
     addUnitBand(dto->unitBands, DrugConstants::UNIT_BAND_STOCK, drug->getStockUnitCode(),
+                texts->stockUnitName,
                 drug->getStockUnitRatio());
     addUnitBand(dto->unitBands, DrugConstants::UNIT_BAND_PACKAGE, drug->getPackageUnitCode(),
+                texts->packageUnitName,
                 drug->getPackageUnitRatio(),
                 dto->retailPrice);
     return dto;
@@ -378,8 +383,16 @@ DrugModifyResultDTO::Wrapper DrugService::updateDrug(const DrugModifyDTO::Wrappe
         {
             throw DrugServiceException(DrugServiceError::DatabaseFailure);
         }
+        const auto texts = dao.selectModifyResultTexts(current->getId(), current->getTenantId(),
+                                                       dto->typeCode.getValue(""));
+        if (!texts || texts->purchaseUnitName.empty() || texts->splitUnitName.empty() ||
+            texts->doseUnitName.empty() || texts->packageUnitName.empty() || texts->stockUnitName.empty() ||
+            texts->typeName.empty() || texts->categoryName.empty() || texts->supplierName.empty())
+        {
+            throw DrugServiceException(DrugServiceError::InvalidInput);
+        }
         stage = "map-result";
-        auto result = toResultDTO(updated, prices);
+        auto result = toResultDTO(updated, prices, texts);
         stage = "commit";
         transaction.commit();
         return result;
