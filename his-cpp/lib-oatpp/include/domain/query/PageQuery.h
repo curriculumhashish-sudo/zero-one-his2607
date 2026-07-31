@@ -24,13 +24,16 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 /**
- * 分页查询对象父类，后续分页查询对象可以继承它
+ * 分页查询基类
+ *
+ * 所有分页查询参数类可继承此类，复用 pageIndex 和 pageSize 两个通用分页字段。
+ * 默认从第1页开始，每页显示10条记录。
  */
 class PageQuery : public oatpp::DTO
 {
-	// 初始化定义
+	// 初始化宏，注册 DTO 类型
 	DTO_INIT(PageQuery, DTO);
-	// 查询页码
+	// 当前页码，默认值为1（第一页）
 	DTO_FIELD(UInt64, pageIndex) = 1;
 	DTO_FIELD_INFO(pageIndex) {
 		info->required = true;
@@ -40,12 +43,12 @@ class PageQuery : public oatpp::DTO
 		info->description = "curr page index";
 #endif
 	}
-	// 查询条数
+	// 每页显示数量，默认值为10
 	DTO_FIELD(UInt64, pageSize) = 10;
 	DTO_FIELD_INFO(pageSize) {
 		info->required = true;
 #ifndef LINUX
-		info->description = u8"每页数据条数";
+		info->description = u8"每页显示数量";
 #else
 		info->description = "curr page size";
 #endif

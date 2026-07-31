@@ -52,7 +52,7 @@
 #include "outpatientrecord/OutpatientRecordController.h"
 
 #include "chinapres3/chinapres3Controller.h"
-#include "outpatientrecord/outpatientrecordController.h"
+#include "outpatientrecord3/outpatientrecord3Controller.h"
 
 
 
@@ -108,4 +108,6 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(OrderController1);
 
 	ROUTER_SIMPLE_BIND(OutpatientRecordController);
+
+	ROUTER_SIMPLE_BIND(outpatientrecord33Controller);
 }

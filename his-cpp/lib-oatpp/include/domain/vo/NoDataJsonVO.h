@@ -26,14 +26,19 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * 无数据JsonVO
+ * 无数据JsonVO（基类）
+ *
+ * 所有 JSON 响应对象的基类，仅包含 code（状态码）和 message（提示信息）两个字段，
+ * 不包含 data 字段。适用于不需要返回业务数据的接口响应（如纯操作结果通知）。
+ *
+ * @see JsonVO 带数据字段的扩展版本
  */
 class NoDataJsonVO : public oatpp::DTO
 {
-	// 初始化定义
+	// 初始化宏，注册 DTO 类型
 	DTO_INIT(NoDataJsonVO, DTO);
 
-	// 状态码
+	// 状态码，标识请求处理结果（如 10000 表示成功）
 	DTO_FIELD_INFO(code) {
 #ifndef LINUX
 		info->description = u8"状态码";
@@ -43,7 +48,7 @@ class NoDataJsonVO : public oatpp::DTO
 		info->required = true;
 	}
 	DTO_FIELD(Int32, code, "code") = 10000;
-	// 提示消息
+	// 提示信息，对状态码的文本说明（如 "success"、"操作失败"）
 	DTO_FIELD_INFO(message) {
 #ifndef LINUX
 		info->description = u8"提示信息";
@@ -54,7 +59,7 @@ class NoDataJsonVO : public oatpp::DTO
 	}
 	DTO_FIELD(String, message, "message") = "success";
 public:
-	// 初始化
+	// 使用 ResultStatus 初始化 code 和 message
 	void init(ResultStatus resultStatus) {
 		this->code = resultStatus.getCode();
 		this->message = resultStatus.getMessage();
