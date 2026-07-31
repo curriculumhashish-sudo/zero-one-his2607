@@ -17,14 +17,21 @@
  limitations under the License.
 */
 #pragma once
-#ifndef _COST_DETAIL_SERVICE_H_
-#define _COST_DETAIL_SERVICE_H_
+#ifndef _CostDetail_SERVICE_H_
+#define _CostDetail_SERVICE_H_
+
+#include "domain/query/chargedetails/CostDetailQuery.h"
+#include "domain/query/chargedetails/CostSummaryQuery.h"
+#include "domain/dto/chargedetails/CostDetailDTO.h"
+#include "domain/dto/chargedetails/CostSummaryDTO.h"
+#include "domain/dto/PageDTO.h"
+using namespace oatpp;
 
 class CostDetailService
 {
 public:
-    CostDetailService() = default;
-    ~CostDetailService() = default;
+	PageDTO<CostDetailDTO::Wrapper>::Wrapper queryDetails(const CostDetailQuery::Wrapper& query);
+	List<CostSummaryDTO::Wrapper> querySummary(const CostSummaryQuery::Wrapper& query);
 };
 
-#endif // !_COST_DETAIL_SERVICE_H_
+#endif // !_CostDetail_SERVICE_H_

@@ -18,3 +18,32 @@
 */
 #include "stdafx.h"
 #include "CostDetailService.h"
+#include "dao/chargedetails/CostDetailDAO.h"
+
+PageDTO<CostDetailDTO::Wrapper>::Wrapper CostDetailService::queryDetails(const CostDetailQuery::Wrapper& query)
+{
+	auto pages = PageDTO<CostDetailDTO::Wrapper>::createShared();
+	pages->pageIndex = query->pageIndex;
+	pages->pageSize = query->pageSize;
+	CostDetailDAO dao;
+	uint64_t count = dao.count(query);
+	if (count <= 0) return pages;
+	pages->total = count;
+	pages->calcPages();
+	auto items = dao.selectWithPage(query);
+	for (auto& item : items) {
+		pages->addData(item);
+	}
+	return pages;
+}
+
+List<CostSummaryDTO::Wrapper> CostDetailService::querySummary(const CostSummaryQuery::Wrapper& query)
+{
+	CostDetailDAO dao;
+	auto items = dao.selectSummary(query);
+	auto result = List<CostSummaryDTO::Wrapper>::createShared();
+	for (auto& item : items) {
+		result->push_back(item);
+	}
+	return result;
+}
