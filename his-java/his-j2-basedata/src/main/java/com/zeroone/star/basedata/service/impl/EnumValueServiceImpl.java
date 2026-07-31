@@ -108,7 +108,7 @@ public class EnumValueServiceImpl implements EnumValueService {
         Map<String, List<EnumDTO>> enumTypeMap = new HashMap<>();
 
         for (String enumTypeKey : enumTypeKeys) {
-            EnumType enumType = enumTypeRepository.findActiveByEnumTypeKey("1", enumTypeKey);
+            EnumType enumType = enumTypeRepository.findActiveByEnumTypeKey(TENANT_ID, enumTypeKey);
             if (enumType == null) {
                 // TODO: 这里需要对为查找到相关类型的情况做出处理，是否应该返回错误？
                 // enumTypeMap.put(enumTypeKey, new ArrayList<EnumDTO>());

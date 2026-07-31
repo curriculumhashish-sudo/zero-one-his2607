@@ -55,6 +55,8 @@ public class EnumValue {
 
     private String display;
 
+    private String description;
+
     private Integer order;
 
     @Indexed

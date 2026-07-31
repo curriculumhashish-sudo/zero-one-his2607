@@ -27,6 +27,10 @@ public class EnumModifyDTO {
     @Schema(description = "标签，必须唯一", example = "label", requiredMode = Schema.RequiredMode.REQUIRED)
     private String display;
 
+    @Size(min = 1, max = 500, message = "描述长度必须在1到500个字符之间")
+    @Schema(description = "描述", example = "描述", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String description;
+
     @Min(value = 0, message = "排序必须大于0")
     @NotNull
     @Schema(description = "排序", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
