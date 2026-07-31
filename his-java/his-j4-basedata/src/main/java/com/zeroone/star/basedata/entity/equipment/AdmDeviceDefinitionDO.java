@@ -63,6 +63,10 @@ public class AdmDeviceDefinitionDO {
     @Schema(description = "删除人")
     private Long deletedBy;
 
+    @TableField("version")
+    @Schema(description = "乐观锁版本号")
+    private String version;
+
     /**
      * 器材名称
      */
@@ -299,7 +303,7 @@ public class AdmDeviceDefinitionDO {
      */
     @TableField("device_version")
     @Schema(description = "器材版本")
-    private String version;
+    private String deviceVersion;
 
     /**
      * 主要成分描述
