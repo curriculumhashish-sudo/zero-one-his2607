@@ -39,7 +39,7 @@ public interface DepartmentApis {
      * @param id 科室对象ID
      * @return 科室详情结果
      */
-    JsonVO<DepartmentDetailVO> getDepartmentDetail(Long id);
+    JsonVO<DepartmentDetailVO> getDepartmentDetail(String id);
 
     /**
      * 新增科室

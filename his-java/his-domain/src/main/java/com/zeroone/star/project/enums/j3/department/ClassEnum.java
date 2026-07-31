@@ -46,7 +46,7 @@ public enum ClassEnum implements BaseEnum {
 
     public static Integer getValueByDesc(String desc) {
         if (desc == null) {
-            throw new IllegalArgumentException("类别不能为空");
+            return null;
         }
         for (ClassEnum e : values()) {
             if (e.desc.equals(desc)) {
@@ -58,7 +58,7 @@ public enum ClassEnum implements BaseEnum {
 
     public static String getDictTextByDesc(String desc) {
         if (desc == null) {
-            throw new IllegalArgumentException("类别不能为空");
+            return null;
         }
         for (ClassEnum e : values()) {
             if (e.desc.equals(desc)) {
@@ -70,7 +70,7 @@ public enum ClassEnum implements BaseEnum {
 
     public static String getDescByValue(Integer value) {
         if (value == null) {
-            throw new IllegalArgumentException("类别不能为空");
+            return null;
         }
         for (ClassEnum e : values()) {
             if (e.value.equals(value)) {

@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,7 +59,7 @@ public class DepartmentController implements DepartmentApis {
             content = @Content(schema = @Schema(implementation = JsonVO.class))), @ApiResponse(responseCode = "400", description = "参数错误"), @ApiResponse(responseCode = "404", description = "数据不存在"), @ApiResponse(responseCode = "200", description = "成功",
             content = @Content(schema = @Schema(implementation = JsonVO.class))), @ApiResponse(responseCode = "400", description = "参数错误"), @ApiResponse(responseCode = "404", description = "科室不存在")})
     @Override
-    public JsonVO<List<DepartmentTreeVO>> getDepartmentTree(@RequestBody DepartmentTreeQuery query) {
+    public JsonVO<List<DepartmentTreeVO>> getDepartmentTree(@RequestBody @Valid DepartmentTreeQuery query) {
         List<DepartmentTreeVO> departmentTree = departmentService.getDepartmentTree(query);
         return JsonVO.success(departmentTree);
     }
@@ -77,7 +78,9 @@ public class DepartmentController implements DepartmentApis {
             content = @Content(schema = @Schema(implementation = JsonVO.class))), @ApiResponse(responseCode = "400", description = "参数错误"), @ApiResponse(responseCode = "404", description = "科室不存在"), @ApiResponse(responseCode = "200", description = "成功",
             content = @Content(schema = @Schema(implementation = JsonVO.class))), @ApiResponse(responseCode = "400", description = "参数错误"), @ApiResponse(responseCode = "404", description = "科室不存在")})
     @Override
-    public JsonVO<DepartmentDetailVO> getDepartmentDetail(@PathVariable Long id) {
+    public JsonVO<DepartmentDetailVO> getDepartmentDetail(@PathVariable
+                                                          @Parameter(description = "科室对象ID")
+                                                          @Pattern(regexp = "^[0-9]+$", message = "科室对象ID只能是数字") String id) {
         DepartmentDetailVO departmentDetail = departmentService.getDepartmentDetail(id);
         return JsonVO.success(departmentDetail);
     }

@@ -41,14 +41,14 @@ public class DepartmentDO {
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     @TableId(type = IdType.ASSIGN_ID)
-    private Long id;
+    private String id;
 
     @Schema(
             description = "租户标识",
             example = "1",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private Long tenantId;
+    private String tenantId;
 
     @Schema(
             description = "创建时间",
@@ -69,14 +69,14 @@ public class DepartmentDO {
             example = "1",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private Long createdBy;
+    private String createdBy;
 
     @Schema(
             description = "最后更新人ID",
             example = "1",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private Long updatedBy;
+    private String updatedBy;
 
     @Schema(
             description = "软删标记",
@@ -98,7 +98,7 @@ public class DepartmentDO {
             example = "1000000000000002",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private Long deletedBy;
+    private String deletedBy;
 
     @Schema(
             description = "乐观锁版本号",
@@ -127,7 +127,7 @@ public class DepartmentDO {
             example = "322663105141149696",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private Long parentId;
+    private String parentId;
 
     @Schema(
             description = "类型枚举值(type_enum)",
@@ -169,7 +169,7 @@ public class DepartmentDO {
             example = "308791351298756608",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private Long defDoctorId;
+    private String defDoctorId;
 
     @Schema(
             description = "拼音码(py_str)",

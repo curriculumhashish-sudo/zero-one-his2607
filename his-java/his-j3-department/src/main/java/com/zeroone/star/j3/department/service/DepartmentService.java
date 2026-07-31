@@ -26,6 +26,13 @@ public interface DepartmentService {
 
     PageDTO<DepartmentVO> getDepartmentPage(DepartmentQuery query);
 
+    /**
+     * 获取科室树结构
+     *
+     * @param query 查询参数
+     * @return 科室树VO列表
+     * @author 胡傲宇
+     */
     List<DepartmentTreeVO> getDepartmentTree(DepartmentTreeQuery query);
 
     /**
@@ -35,7 +42,7 @@ public interface DepartmentService {
      * @return 科室详情VO
      * @author 胡傲宇
      */
-    DepartmentDetailVO getDepartmentDetail(Long id);
+    DepartmentDetailVO getDepartmentDetail(String id);
 
     /**
      * 新增科室
@@ -60,5 +67,11 @@ public interface DepartmentService {
      */
     void deleteDepartment(String id);
 
+    /**
+     * 批量激活或停用科室
+     *
+     * @param dto 批量操作科室DTO
+     * @author 胡傲宇
+     */
     void activeOrInactiveDepartment(DepartmentBatchDTO dto);
 }
