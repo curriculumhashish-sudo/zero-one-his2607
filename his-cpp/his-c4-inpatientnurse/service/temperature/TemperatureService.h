@@ -17,8 +17,8 @@
  limitations under the License.
 */
 #pragma once
-#ifndef _Temperature_SERVICE_H_
-#define _Temperature_SERVICE_H_
+#ifndef _TEMPERATURE_SERVICE_H_
+#define _TEMPERATURE_SERVICE_H_
 
 class TemperatureService
 {
@@ -27,4 +27,4 @@ public:
     ~TemperatureService() = default;
 };
 
-#endif // !_Temperature_SERVICE_H_
+#endif // !_TEMPERATURE_SERVICE_H_

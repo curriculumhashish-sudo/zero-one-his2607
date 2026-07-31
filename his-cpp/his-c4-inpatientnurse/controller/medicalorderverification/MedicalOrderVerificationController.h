@@ -22,9 +22,9 @@
 #define _MEDICALORDERVERIFICATIONCONTROLLER_H_
 
 #include "domain/vo/BaseJsonVO.h"
-#include "domain/vo/medicalorderverification/medicalorderverificationVO.h"
+#include "domain/vo/medicalorderverification/MedicalOrderVerificationVO.h"
 #include "domain/vo/medicalorderverification/VerificationVO.h"
-#include "domain/query/medicalorderverification/medicalorderverificationQuery.h"
+#include "domain/query/medicalorderverification/MedicalOrderVerificationQuery.h"
 #include "domain/dto/medicalorderverification/VerificationDTO.h"
 
 using namespace oatpp;
@@ -41,11 +41,11 @@ public:
     // Endpoint info definition
     API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medicalOrderVerification.query.summary"),
                                       queryMedicalOrderVerification,
-                                      medicalOrderVerificationJsonVO::Wrapper,
+                                      MedicalOrderVerificationJsonVO::Wrapper,
                                       API_TAG,
                                       API_DEF_QUERY_PARAM_BUILD(MedicalVerificationQuery);
                                       info->responses[Status::CODE_200].addExample(
-                                          "success", medicalOrderVerificationJsonVO::createShared());
+                                          "success", MedicalOrderVerificationJsonVO::createShared());
                                       );
 
     // Endpoint binding
@@ -90,7 +90,7 @@ public:
 
 private:
     // Endpoint execution function
-    medicalOrderVerificationJsonVO::Wrapper execQueryMedicalOrderVerification(
+    MedicalOrderVerificationJsonVO::Wrapper execQueryMedicalOrderVerification(
         const MedicalVerificationQuery::Wrapper& query);
     VerifyPassJsonVO::Wrapper execVerifyPass(const VerifyPassRequestDTO::Wrapper& dto,const PayloadDTO& payload);
     RejectOrdersJsonVO::Wrapper execRejectOrders(const RejectOrdersRequestDTO::Wrapper& dto,const PayloadDTO& payload);

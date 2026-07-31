@@ -61,7 +61,7 @@ uint64_t BedDAO::countFree(const BedQuery::Wrapper& query)
     return sqlSession->executeQueryNumerical(sql, params);
 }
 
-std::list<adm_locationDO> BedDAO::selectFreeWithPage(const BedQuery::Wrapper& query)
+std::list<LocationDO> BedDAO::selectFreeWithPage(const BedQuery::Wrapper& query)
 {
     SqlParams params;
     std::string sql = "SELECT l.id, l.name, l.parent_id, l.form_enum, l.status_enum, l.organization_id FROM adm_location l ";
@@ -71,10 +71,10 @@ std::list<adm_locationDO> BedDAO::selectFreeWithPage(const BedQuery::Wrapper& qu
     sql += " GROUP BY l.id";
     sql += " ORDER BY l.id DESC ";
     sql += " LIMIT " + std::to_string((query->pageIndex - 1) * query->pageSize) + "," + std::to_string(query->pageSize);
-    return sqlSession->executeQuery<adm_locationDO>(sql, BedMapper(), params);
+    return sqlSession->executeQuery<LocationDO>(sql, BedMapper(), params);
 }
 
-int BedDAO::reserve(const bkg_bed_reservation_extDO& data)
+int BedDAO::reserve(const BedReservationDO& data)
 {
     // Unique index (location_id, intended_admission_date) on bkg_bed_reservation_ext
     // guarantees no duplicate reservation on the same bed + date. A duplicate insert

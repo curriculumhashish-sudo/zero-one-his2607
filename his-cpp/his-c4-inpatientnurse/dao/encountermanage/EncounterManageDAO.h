@@ -17,8 +17,8 @@
  limitations under the License.
 */
 #pragma once
-#ifndef _EncounterManage_DAO_H_
-#define _EncounterManage_DAO_H_
+#ifndef _ENCOUNTER_MANAGE_DAO_H_
+#define _ENCOUNTER_MANAGE_DAO_H_
 
 #include "BaseDAO.h"
 #include "domain/query/encountermanage/PagePatientQueueQuery.h"
@@ -35,4 +35,4 @@ public:
 	uint64_t countPendingExecute(const PatientStatisticsQuery::Wrapper& query);
 };
 
-#endif // !_EncounterManage_DAO_H_
+#endif // !_ENCOUNTER_MANAGE_DAO_H_

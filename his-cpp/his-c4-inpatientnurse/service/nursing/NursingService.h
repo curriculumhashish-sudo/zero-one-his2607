@@ -17,8 +17,8 @@
  limitations under the License.
 */
 #pragma once
-#ifndef _Nursing_SERVICE_H_
-#define _Nursing_SERVICE_H_
+#ifndef _NURSING_SERVICE_H_
+#define _NURSING_SERVICE_H_
 
 class NursingService
 {
@@ -27,4 +27,4 @@ public:
     ~NursingService() = default;
 };
 
-#endif // !_Nursing_SERVICE_H_
+#endif // !_NURSING_SERVICE_H_

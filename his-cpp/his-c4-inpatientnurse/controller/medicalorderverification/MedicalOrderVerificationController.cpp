@@ -17,12 +17,12 @@
  limitations under the License.
 */
 #include "stdafx.h"
-#include "medicalorderverificationController.h"
+#include "MedicalOrderVerificationController.h"
 #include "service/medicalorderverification/MedicalOrderVerificationService.h"
 
-medicalOrderVerificationJsonVO::Wrapper MedicalOrderVerificationController::execQueryMedicalOrderVerification(
+MedicalOrderVerificationJsonVO::Wrapper MedicalOrderVerificationController::execQueryMedicalOrderVerification(
     const MedicalVerificationQuery::Wrapper& query) {
-    auto vo=medicalOrderVerificationJsonVO::createShared(); vo->success(MedicalOrderVerificationService().list(query)); return vo;
+    auto vo=MedicalOrderVerificationJsonVO::createShared(); vo->success(MedicalOrderVerificationService().list(query)); return vo;
 }
 
 VerifyPassJsonVO::Wrapper MedicalOrderVerificationController::execVerifyPass(

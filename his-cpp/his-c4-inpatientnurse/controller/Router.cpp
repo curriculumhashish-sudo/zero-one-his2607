@@ -25,7 +25,7 @@
 #include "medicationcollection/MedicationCollectionController.h"
 #include "controller/medicalorderexecution/OrderExecuteControlController.h"
 #include "medicationcollection/DispenseController.h"
-#include "medicalorderverification/medicalorderverificationController.h"
+#include "medicalorderverification/MedicalOrderVerificationController.h"
 #include "medicalorderexecution/MedicalOrderExecutionController.h"
 #include "controller/admissiontransfer/BedController.h"
 #include "nursing/NursingController.h"

@@ -36,8 +36,8 @@ BedPageDTO::Wrapper BedService::listFree(const BedQuery::Wrapper& query)
 
     pages->total = count;
     pages->calcPages();
-    std::list<adm_locationDO> result = dao.selectFreeWithPage(query);
-    for (adm_locationDO& sub : result)
+    std::list<LocationDO> result = dao.selectFreeWithPage(query);
+    for (LocationDO& sub : result)
     {
         auto dto = BedDTO::createShared();
         ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub,
@@ -50,7 +50,7 @@ BedPageDTO::Wrapper BedService::listFree(const BedQuery::Wrapper& query)
 
 std::string BedService::assignBed(const BedAssignAddDTO::Wrapper& dto, const PayloadDTO& payload)
 {
-    bkg_bed_reservation_extDO data;
+    BedReservationDO data;
     UuidFacade uf;
     data.setId(uf.genUuid());
     data.setAppointment_id(dto->appointment_id.getValue(""));

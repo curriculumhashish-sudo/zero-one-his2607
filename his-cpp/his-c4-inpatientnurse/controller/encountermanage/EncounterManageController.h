@@ -45,7 +45,7 @@ public:
 		PatientStatisticsJsonVO::Wrapper,
 		API_TAG,
 		API_DEF_ADD_QUERY_PARAMS(String, "keyword",
-			ZH_WORDS_GETTER("encountermanage.field.keyword"), "小孙", false);
+			ZH_WORDS_GETTER("encountermanage.field.keyword"), ZH_WORDS_GETTER("business-text.sample.patient-name"), false);
 		API_DEF_ADD_QUERY_PARAMS(String, "wardId",
 			ZH_WORDS_GETTER("encountermanage.field.wardId"), "334526584536674304", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "houseId",
@@ -76,7 +76,7 @@ public:
 		info->queryParams["pageIndex"].required = true;
 		info->queryParams["pageSize"].required = true;
 		API_DEF_ADD_QUERY_PARAMS(String, "keyword",
-			ZH_WORDS_GETTER("encountermanage.field.keyword"), "小孙", false);
+			ZH_WORDS_GETTER("encountermanage.field.keyword"), ZH_WORDS_GETTER("business-text.sample.patient-name"), false);
 		API_DEF_ADD_QUERY_PARAMS(String, "wardId",
 			ZH_WORDS_GETTER("encountermanage.field.wardId"), "334526584536674304", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "houseId",

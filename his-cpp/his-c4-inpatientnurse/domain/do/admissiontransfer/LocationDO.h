@@ -4,7 +4,7 @@
 
 #include "../DoInclude.h"
 
-class adm_locationDO : public BaseDO 
+class LocationDO : public BaseDO
 {
 	MYSQL_SYNTHESIZE(string, id, Id);
 	MYSQL_SYNTHESIZE(string, tenant_id, Tenant_id);
@@ -30,7 +30,7 @@ class adm_locationDO : public BaseDO
 	MYSQL_SYNTHESIZE(string, parent_id, Parent_id);
 
 public:
-	adm_locationDO() : BaseDO("adm_location") 
+	LocationDO() : BaseDO("adm_location")
 	{
 		MYSQL_ADD_FIELD_PK("id", "s", id);
 		MYSQL_ADD_FIELD_NULLABLE("tenant_id", "s", tenant_id, true);
@@ -57,6 +57,6 @@ public:
 	}
 };
 
-typedef std::shared_ptr<adm_locationDO> PtrLocationDO;
+typedef std::shared_ptr<LocationDO> PtrLocationDO;
 
 #endif

@@ -57,7 +57,7 @@ public:
 		API_DEF_ADD_QUERY_PARAMS(String, "queryDeadline",
 			ZH_WORDS_GETTER("medicationcollection.field.queryDeadline"), "2026-07-21 23:59:59", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "keyword",
-			ZH_WORDS_GETTER("medicationcollection.field.keyword"), "替米沙坦", false);
+			ZH_WORDS_GETTER("medicationcollection.field.keyword"), ZH_WORDS_GETTER("business-text.sample.medication-keyword"), false);
 		API_DEF_ADD_QUERY_PARAMS(String, "startDate",
 			ZH_WORDS_GETTER("medicationcollection.field.startDate"), "2026-07-21 00:00:00", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "endDate",

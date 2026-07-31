@@ -75,15 +75,15 @@ public:
     NurseStationPricingCatalogRowDTO()
     {
         productDefinitionId = "334568157811871744";
-        name = "替米沙坦片";
+        name = ZH_WORDS_GETTER("business-text.sample.medication-name");
         unitPrice = 2.50;
         categoryCode = "DRUG";
-        categoryCodeText = "药品";
-        unitCode = "片";
-        unitCodeText = "片";
-        specificationText = "40mg*14片";
+        categoryCodeText = ZH_WORDS_GETTER("business-text.sample.medication-category");
+        unitCode = ZH_WORDS_GETTER("business-text.sample.tablet-unit");
+        unitCodeText = ZH_WORDS_GETTER("business-text.sample.tablet-unit");
+        specificationText = ZH_WORDS_GETTER("business-text.sample.medication-specification");
         organizationUnitId = "334526752078102528";
-        organizationUnitName = "住院药房";
+        organizationUnitName = ZH_WORDS_GETTER("business-text.sample.inpatient-pharmacy");
     }
 };
 
@@ -146,7 +146,7 @@ public:
         productTableName = "product_table";
         productDefinitionId = "334568157811871744";
         quantity = 2.0;
-        unitCode = "片";
+        unitCode = ZH_WORDS_GETTER("business-text.sample.tablet-unit");
         chargeItemDefinitionId = "334568157811871745";
         unitPrice = 2.50;
         totalPrice = 5.00;
@@ -241,9 +241,9 @@ public:
     {
         serviceRequestId = "SR202607240001";
         productDefinitionId = "334568157811871744";
-        productName = "替米沙坦片";
+        productName = ZH_WORDS_GETTER("business-text.sample.medication-name");
         quantity = 2.0;
-        unitCode = "片";
+        unitCode = ZH_WORDS_GETTER("business-text.sample.tablet-unit");
         unitPrice = 2.50;
         totalPrice = 5.00;
         pricedTime = "2026-07-24 10:00:00";
@@ -306,7 +306,7 @@ public:
         encounterIds = List<String>::createShared();
         encounterIds->push_back("337907884548657152");
         therapyType = "TEMPORARY";
-        keyword = "替米沙坦";
+        keyword = ZH_WORDS_GETTER("business-text.sample.medication-keyword");
         orgId = "327170091059744768";
     }
 };
@@ -334,12 +334,12 @@ public:
     SupplementParentOrderItemDTO()
     {
         orderId = "337990013773271040";
-        orderName = "替米沙坦片";
+        orderName = ZH_WORDS_GETTER("business-text.sample.medication-name");
         therapyType = "TEMPORARY";
-        therapyTypeText = "临时";
+        therapyTypeText = ZH_WORDS_GETTER("business-text.enum.therapy-temporary");
         dosageInstruction = "40mg";
         frequencyCode = "QD";
-        frequencyCodeText = "每日一次";
+        frequencyCodeText = ZH_WORDS_GETTER("business-text.sample.medication-frequency");
     }
 };
 
@@ -418,7 +418,7 @@ public:
         productTableName = "product_table";
         productDefinitionId = "334568157811871744";
         quantity = 2.0;
-        unitCode = "片";
+        unitCode = ZH_WORDS_GETTER("business-text.sample.tablet-unit");
         chargeItemDefinitionId = "334568157811871745";
         unitPrice = 2.50;
         totalPrice = 5.00;
@@ -570,9 +570,9 @@ public:
     AutoRollConfigDTO()
     {
         ruleId = "RUL202607240001";
-        ruleName = "早晨常规计费";
+        ruleName = ZH_WORDS_GETTER("business-text.sample.billing-rule-name");
         activityId = "ACT_MORNING_ROUTINE";
-        activityName = "晨间护理";
+        activityName = ZH_WORDS_GETTER("business-text.sample.nursing-activity-name");
         chargeDefinitionId = "CDEF_NURSING_CARE";
         quantityValue = 1.0;
         isActive = true;
@@ -629,7 +629,7 @@ public:
     {
         encounterId = "337907884548657152";
         patientId = "326940849401761792";
-        ruleName = "早晨常规计费规则";
+        ruleName = ZH_WORDS_GETTER("business-text.sample.billing-rule-create-name");
         activityId = "ACT_MORNING_ROUTINE";
         chargeDefinitionId = "CDEF_NURSING_CARE";
         quantityValue = 1.0;
@@ -688,7 +688,7 @@ public:
         ruleId = "RUL202607240001";
         encounterId = "337907884548657152";
         patientId = "326940849401761792";
-        ruleName = "更新早晨常规计费规则";
+        ruleName = ZH_WORDS_GETTER("business-text.sample.billing-rule-update-name");
         activityId = "ACT_MORNING_ROUTINE";
         chargeDefinitionId = "CDEF_NURSING_CARE";
         quantityValue = 2.0;

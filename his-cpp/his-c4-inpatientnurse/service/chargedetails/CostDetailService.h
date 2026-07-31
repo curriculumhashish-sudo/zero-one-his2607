@@ -17,8 +17,8 @@
  limitations under the License.
 */
 #pragma once
-#ifndef _CostDetail_SERVICE_H_
-#define _CostDetail_SERVICE_H_
+#ifndef _COST_DETAIL_SERVICE_H_
+#define _COST_DETAIL_SERVICE_H_
 
 class CostDetailService
 {
@@ -27,4 +27,4 @@ public:
     ~CostDetailService() = default;
 };
 
-#endif // !_CostDetail_SERVICE_H_
+#endif // !_COST_DETAIL_SERVICE_H_

@@ -21,19 +21,23 @@ public:
 		dto->arrearsAmount = dto->availableBalance < 0 ? -dto->availableBalance : 0;
 		dto->lowBalanceWarning = dto->availableBalance < 0;
 		dto->accountBalanceDisplayMode = "BALANCE";
-		dto->accountBalanceSubText = "可用余额";
-		dto->accountBalanceSummaryText = "余额 " + std::to_string(dto->availableBalance.getValue(0)) + " 元";
+		dto->accountBalanceSubText = ZH_WORDS_GETTER("business-text.encounter.available-balance");
+		dto->accountBalanceSummaryText = std::string(ZH_WORDS_GETTER("business-text.encounter.balance-prefix")) +
+			std::to_string(dto->availableBalance.getValue(0)) + ZH_WORDS_GETTER("business-text.encounter.currency-suffix");
 		dto->encounterId = rs->getString("encounter_id").asStdString();
 		dto->encounterBusNo = rs->getString("encounter_bus_no").asStdString();
 		dto->patientId = rs->getString("patient_id").asStdString();
 		dto->patientName = rs->getString("patient_name").asStdString();
 		dto->genderEnum = rs->getString("gender_enum").asStdString();
-		dto->genderEnumText = dto->genderEnum == "FEMALE" ? "女" : (dto->genderEnum == "MALE" ? "男" : "未知");
+		dto->genderEnumText = dto->genderEnum == "FEMALE" ? ZH_WORDS_GETTER("business-text.enum.gender-female") :
+			(dto->genderEnum == "MALE" ? ZH_WORDS_GETTER("business-text.enum.gender-male") : ZH_WORDS_GETTER("business-text.enum.unknown"));
 		dto->ageText = rs->getString("age_text").asStdString();
 		dto->pinyinCode = rs->getString("pinyin_code").asStdString();
 		dto->wubiCode = rs->getString("wubi_code").asStdString();
 		dto->statusEnum = rs->getString("status_enum").asStdString();
-		dto->statusEnumText = dto->statusEnum == "COMPLETED" ? "已出院" : (dto->statusEnum == "DISCHARGE_PROCESSING" ? "待出院" : "在院");
+		dto->statusEnumText = dto->statusEnum == "COMPLETED" ? ZH_WORDS_GETTER("business-text.enum.encounter-discharged") :
+			(dto->statusEnum == "DISCHARGE_PROCESSING" ? ZH_WORDS_GETTER("business-text.enum.encounter-pending-discharge") :
+			 ZH_WORDS_GETTER("business-text.enum.encounter-in-hospital"));
 		dto->priorityEnum = rs->getString("priority_enum").asStdString();
 		dto->startTime = rs->getString("start_time").asStdString();
 		dto->admissionTime = dto->startTime;

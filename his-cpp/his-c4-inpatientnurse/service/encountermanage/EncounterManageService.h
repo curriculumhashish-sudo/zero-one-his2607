@@ -17,8 +17,8 @@
  limitations under the License.
 */
 #pragma once
-#ifndef _EncounterManage_SERVICE_H_
-#define _EncounterManage_SERVICE_H_
+#ifndef _ENCOUNTER_MANAGE_SERVICE_H_
+#define _ENCOUNTER_MANAGE_SERVICE_H_
 
 #include "domain/query/encountermanage/PagePatientQueueQuery.h"
 #include "domain/query/encountermanage/PatientStatisticsQuery.h"
@@ -32,4 +32,4 @@ public:
 	PatientStatisticsDTO::Wrapper getStatistics(const PatientStatisticsQuery::Wrapper& query);
 };
 
-#endif // !_EncounterManage_SERVICE_H_
+#endif // !_ENCOUNTER_MANAGE_SERVICE_H_

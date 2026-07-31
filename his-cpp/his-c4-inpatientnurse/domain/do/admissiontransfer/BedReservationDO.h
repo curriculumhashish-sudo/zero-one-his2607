@@ -3,7 +3,7 @@
 #define _BEDRESERVATION_DO_
 #include "../DoInclude.h"
 
-class bkg_bed_reservation_extDO : public BaseDO
+class BedReservationDO : public BaseDO
 {
     // Primary key
     MYSQL_SYNTHESIZE(string, id, Id);
@@ -41,7 +41,7 @@ class bkg_bed_reservation_extDO : public BaseDO
     CC_SYNTHESIZE(string, patient_name, Patient_name);
 
 public:
-    bkg_bed_reservation_extDO() : BaseDO("bkg_bed_reservation_ext")
+    BedReservationDO() : BaseDO("bkg_bed_reservation_ext")
     {
         MYSQL_ADD_FIELD_PK("id", "s", id);
         MYSQL_ADD_FIELD_NULLABLE("tenant_id", "s", tenant_id, true);
@@ -64,5 +64,5 @@ public:
         setVersion(0);
     }
 };
-typedef std::shared_ptr<bkg_bed_reservation_extDO> PtrBedReservationDO;
+typedef std::shared_ptr<BedReservationDO> PtrBedReservationDO;
 #endif
