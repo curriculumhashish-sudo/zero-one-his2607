@@ -6,6 +6,7 @@ import com.zeroone.star.j3.patient.exception.PatientBusinessException;
 import com.zeroone.star.j3.patient.mapper.PatientMapper;
 import com.zeroone.star.j3.patient.service.PatientService;
 import com.zeroone.star.j3.patient.util.PatientNameCodeUtils;
+import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j3.patient.PatientCreateDTO;
 import com.zeroone.star.project.dto.j3.patient.PatientUpdateDTO;
@@ -24,6 +25,7 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -43,14 +45,15 @@ public class PatientServiceImpl implements PatientService {
     private static final String PATIENT_NUMBER_PREFIX = "PA";
 
     private final PatientMapper patientMapper;
-
+    private final UserHolder userHolder;
 
     @Override
     public PageDTO<PatientListVO> queryPatientPage(PatientQuery query) {
         normalizeQuery(query);
         Page<PatientDO> page = patientMapper.selectPatientPage(
                 new Page<>(query.getPageIndex(), query.getPageSize()),
-                query
+                query,
+                userHolder.getCurrentTenantId()
         );
 
         List<PatientListVO> rows = page.getRecords().stream()
@@ -154,7 +157,8 @@ public class PatientServiceImpl implements PatientService {
         normalizeQuery(query);
         Page<PatientDO> page = patientMapper.selectPatientPage(
                 new Page<>(query.getPageIndex(), query.getPageSize()),
-                query
+                query,
+                userHolder.getCurrentTenantId()
         );//根据条件查询患者
         List<PatientOptionVO> rows = page.getRecords().stream()
                 .map(this::toOptionVO)
@@ -170,27 +174,33 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public PatientVO getPatientById(String id) {
-
+    public PatientVO getPatientById(String id) {//根据id获取患者详情
         PatientDO patient = patientMapper.selectById(id);
-        if (patient == null) {
+        if (patient == null || !Objects.equals(patient.getTenantId(), userHolder.getCurrentTenantId())) {
             throw new PatientBusinessException("患者不存在或已删除");
         }
         PatientVO result = new PatientVO();
         BeanUtils.copyProperties(patient, result);
         return result;
     }
-
     @Override
-    public void deletePatientById(String id) {
+    public void deletePatientById(String id) {//根据id删除患者
         if (!StringUtils.hasText(id)) {
             throw new PatientBusinessException("患者ID不能为空");
         }
         PatientDO patient = patientMapper.selectById(id.trim());
-        if (patient == null) {
+        if (patient == null|| !Objects.equals(patient.getTenantId(), userHolder.getCurrentTenantId())) {
             throw new PatientBusinessException("患者不存在或已删除");
         }
-        // TODO: 检查挂号、住院等业务引用
+        int activeEncounters = patientMapper.countActiveEncounters(
+                id.trim(),
+                userHolder.getCurrentTenantId()
+        );
+        if (activeEncounters > 0) {
+            throw new PatientBusinessException(
+                    "该患者存在进行中的就诊记录（挂号/住院），暂不能删除"
+            );
+        }
         patientMapper.deleteById(id.trim());
     }
 

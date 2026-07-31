@@ -43,7 +43,8 @@ public interface PatientMapper extends BaseMapper<PatientDO> {
                 temp_flag,
                 organization_id,
                 created_at,
-                updated_at
+                updated_at,
+                tenant_id
             FROM adm_patient
             WHERE is_deleted = 0
             <if test="query.keyword != null and query.keyword != ''">
@@ -79,6 +80,9 @@ public interface PatientMapper extends BaseMapper<PatientDO> {
             <if test="query.tempFlag != null">
                 AND temp_flag = #{query.tempFlag}
             </if>
+            <if test="tenantId != null and tenantId != ''">
+                AND tenant_id = #{tenantId}
+            </if>
             <if test="query.organizationId != null and query.organizationId != ''">
                 AND organization_id = #{query.organizationId}
             </if>
@@ -87,7 +91,8 @@ public interface PatientMapper extends BaseMapper<PatientDO> {
             """)
     Page<PatientDO> selectPatientPage(
             Page<PatientDO> page,
-            @Param("query") PatientQuery query
+            @Param("query") PatientQuery query ,
+            @Param("tenantId") String tenantId
     );
 
     /**
@@ -160,6 +165,23 @@ public interface PatientMapper extends BaseMapper<PatientDO> {
             @Param("currentValue") long currentValue,
             @Param("updatedAt") LocalDateTime updatedAt
     );
+
+    /**
+     * 查询患者是否存在进行中的就诊记录（挂号/住院）。
+     * <p>排除已结束、已取消、录入错误等终态就诊。</p>
+     *
+     * @param patientId 患者ID
+     * @return 进行中的就诊记录数
+     */
+    @Select("""
+            SELECT COUNT(1)
+            FROM adm_encounter
+            WHERE patient_id = #{patientId}
+              AND is_deleted = 0
+              AND status_enum NOT IN ('FINISHED', 'CANCELLED', 'ENTERED_IN_ERROR')
+              AND tenant_id = #{tenantId}
+            """)
+    int countActiveEncounters(@Param("patientId") String patientId,@Param("tenantId") String tenantId);
 
 
 }
