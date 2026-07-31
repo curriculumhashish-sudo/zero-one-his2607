@@ -67,6 +67,22 @@ StringJsonVO::Wrapper TreatmentController::execModifyStatus(const TreatmentStatu
 		vo->fail("ids empty");
 		return vo;
 	}
+	if (!dto->status) {
+		vo->fail("status empty");
+		return vo;
+	}//TreatmentStatusDTO().s
+	std::string errorMsg;
+	for (const auto& id : *(dto->ids)) {
+		if (!TreatmentService().modifyStatus(
+			id.getValue({}),
+			dto->status,
+			payload.Aud(),
+			errorMsg
+		)) {
+			vo->fail(errorMsg);
+			return vo;
+		}
+	}
 	vo->success("OK");
 	return vo;
 }

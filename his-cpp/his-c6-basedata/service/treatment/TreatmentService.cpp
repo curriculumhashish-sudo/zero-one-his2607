@@ -161,6 +161,26 @@ TreatmentDetailDTO::Wrapper TreatmentService::getById(std::string id)
 	return dto;
 }
 
+bool TreatmentService::modifyStatus(const std::string& id, int32_t targetStatus, const std::string& operatorId, std::string& errorMsg) {
+	std::string statusStr = std::to_string(targetStatus);
+	auto record = TreatmentDAO().selectById(id);
+	if (!record) {
+		errorMsg = "record is not existed or deleted";
+		return false;
+	}
+	if (record->getStatusEnum() == statusStr) {
+		errorMsg = (targetStatus == 1) ?
+			"enable status" : "stop status";
+		return false;
+	}
+	int32_t rows = TreatmentDAO().updateStatusById(id, statusStr, operatorId, record->getVersion());
+	if (rows == 0) {
+		errorMsg = "update failed,the data may be moidfied by others,please reflush and retry";
+		return false;
+	}
+	return true;
+}
+
 std::string TreatmentService::saveData(const TreatmentAddDTO::Wrapper& dto)
 {
 	// 组装主表 DO 数据

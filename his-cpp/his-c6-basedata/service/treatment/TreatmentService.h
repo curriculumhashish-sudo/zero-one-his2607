@@ -45,6 +45,8 @@ public:
 	// 修改诊疗（主表 + 子项先软删再插入）
 	bool updateData(const TreatmentModifyDTO::Wrapper& dto);
 
+	//启停诊疗
+	bool modifyStatus(const std::string& id, int32_t targetStatus, const std::string& operatorId, std::string& errorMsg);
 
 	// 分页查询列表数据
 	TreatmentPageDTO::Wrapper listAll(const TreatmentQuery::Wrapper& query);

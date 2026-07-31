@@ -286,6 +286,15 @@ PtrTreatmentDO TreatmentDAO::selectById(std::string id)
 	return sqlSession->executeQueryOne<PtrTreatmentDO>(sql, PtrWkfActivityDefinitionMapper(), "%s", id);
 }
 
+int32_t TreatmentDAO::updateStatusById(const std::string& id, const std::string& statusEnum,
+	const std::string& updatedBy, int32_t version) {
+	std::string sql= "UPDATE wkf_activity_definition "
+		"SET status_enum=?, updated_at=NOW(), updated_by=?, version=version+1 "
+		"WHERE id=? AND version=? AND is_deleted=0";
+	return sqlSession->executeUpdate(sql, "%s%s%s%i",
+		statusEnum, updatedBy, id, version);
+}
+
 std::list<TreatmentChildDO> TreatmentDAO::selectChildrenByActivityId(const std::string& activityId)
 {
 	string sql = "SELECT ";

@@ -47,6 +47,7 @@ private:
 		const TreatmentSelectQuery::Wrapper& query,
 		const std::string& tenantId,
 		SqlParams& params);
+	
 public:
 	// 统计数据条数
 	uint64_t count(const TreatmentQuery::Wrapper& query);
@@ -62,6 +63,9 @@ public:
 	std::list<TreatmentSelectBO> selectSelectWithPage(
 		const TreatmentSelectQuery::Wrapper& query,
 		const std::string& tenantId);
+	//乐观锁更新状态
+	int32_t updateStatusById(const std::string& id, const std::string& statusEnum,
+		const std::string& updatedBy, int32_t version);
 	// 通过名称模糊查询数据
 	std::list<TreatmentDO> selectByName(const string& name);
 	// 通过ID查询数据
