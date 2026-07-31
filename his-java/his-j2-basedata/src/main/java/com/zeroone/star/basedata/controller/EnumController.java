@@ -70,7 +70,9 @@ public class EnumController implements EnumApis {
     @Operation(summary = "删除枚举", description = "租户等信息由jwt等提供，id自动生成")
     @Override
     public JsonVO<String> deleteEnum(@PathVariable(value = "id", required = true) String id) {
-        return null;
+        enumValueService.deleteEnum(id);
+
+        return JsonVO.success("success");
     }
 
 

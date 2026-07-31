@@ -87,7 +87,18 @@ public class EnumValueServiceImpl implements EnumValueService {
 
     @Override
     public void deleteEnum(String enumValueId) {
+        EnumValue existing = enumValueRepository.findById(enumValueId)
+                .orElseThrow(() -> new RuntimeException("枚举值不存在"));
+        if (Boolean.TRUE.equals(existing.getIsDeleted())) {
+            throw new RuntimeException("枚举值已删除");
+        }
+        if (!existing.getTenantId().equals(TENANT_ID)) {
+            throw new RuntimeException("枚举值不属于当前租户");
+        }
 
+        // 逻辑删除
+        existing.setIsDeleted(true);
+        enumValueRepository.save(existing);
     }
 
 
