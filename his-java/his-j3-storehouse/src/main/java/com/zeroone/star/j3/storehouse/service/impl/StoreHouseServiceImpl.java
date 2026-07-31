@@ -55,6 +55,10 @@ public class StoreHouseServiceImpl implements StoreHouseService {
     @Override
     public List<StoreHouseVO> getStoreHouseNames(String formEnum) {
         Long tenantId = resolveCurrentTenantId();
+        // 非空时校验 formEnum 必须属于库房药房允许范围
+        if (formEnum != null && !formEnum.isBlank()) {
+            validateFormEnum(formEnum);
+        }
         LambdaQueryWrapper<StoreHouseDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(StoreHouseDO::getTenantId, tenantId)
                .in(StoreHouseDO::getFormEnum, STOREHOUSE_FORMS);
@@ -94,6 +98,10 @@ public class StoreHouseServiceImpl implements StoreHouseService {
     @Transactional
     public void add(StoreHouseAddDTO dto) {
         Long tenantId = resolveCurrentTenantId();
+        // 校验 formEnum 必须属于库房药房允许范围
+        validateFormEnum(dto.getFormEnum());
+        // 校验 organizationId 是否真实存在、属于当前租户、为有效机构
+        validateOrganizationId(dto.getOrganizationId(), tenantId);
 
         LambdaQueryWrapper<StoreHouseDO> dupCheck = new LambdaQueryWrapper<>();
         dupCheck.eq(StoreHouseDO::getTenantId, tenantId)
@@ -122,6 +130,11 @@ public class StoreHouseServiceImpl implements StoreHouseService {
     @Transactional
     public void update(StoreHouseUpdateDTO dto) {
         Long tenantId = resolveCurrentTenantId();
+        // 校验 formEnum 必须属于库房药房允许范围
+        validateFormEnum(dto.getFormEnum());
+        // 校验 organizationId 是否真实存在、属于当前租户、为有效机构
+        validateOrganizationId(dto.getOrganizationId(), tenantId);
+
         StoreHouseDO existing = storeHouseMapper.selectById(dto.getId());
         if (existing == null || !STOREHOUSE_FORMS.contains(existing.getFormEnum())) {
             throw new StoreHouseNotFoundException("库房药房不存在，ID: " + dto.getId());
@@ -176,6 +189,11 @@ public class StoreHouseServiceImpl implements StoreHouseService {
         }
         if (!Objects.equals(existing.getTenantId(), tenantId)) {
             throw new StoreHouseTenantAccessException("无权操作其他租户的库房药房数据");
+        }
+
+        // 停用时校验业务引用
+        if (isEnabled == 0) {
+            checkBusinessReferenceBeforeDisable(existing, tenantId);
         }
 
         String statusEnum = isEnabled == 1
@@ -265,6 +283,72 @@ public class StoreHouseServiceImpl implements StoreHouseService {
         } catch (Exception e) {
             log.warn("解析 typeJson 失败: {}", typeJson, e);
             return new HashMap<>();
+        }
+    }
+
+    /**
+     * 校验 formEnum 必须属于库房药房允许范围（WAREHOUSE/PHARMACY/DEPT_PHARMACY）
+     */
+    private void validateFormEnum(String formEnum) {
+        if (formEnum == null || formEnum.isBlank()) {
+            throw new IllegalArgumentException("形态枚举(formEnum)不能为空");
+        }
+        if (!STOREHOUSE_FORMS.contains(formEnum)) {
+            throw new IllegalArgumentException(
+                    "形态枚举(formEnum)不合法，仅允许: " + String.join(" / ", STOREHOUSE_FORMS) + "，当前值: " + formEnum);
+        }
+    }
+
+    /**
+     * 校验 organizationId 是否真实存在、是否属于当前租户、是否为有效机构
+     */
+    private void validateOrganizationId(Long organizationId, Long tenantId) {
+        if (organizationId == null) {
+            return;
+        }
+        DepartmentDO org = departmentMapper.selectById(organizationId);
+        if (org == null) {
+            throw new IllegalArgumentException("机构不存在，organizationId: " + organizationId);
+        }
+        if (!Objects.equals(org.getTenantId(), tenantId)) {
+            throw new StoreHouseTenantAccessException("所选机构不属于当前租户，无权关联");
+        }
+        if (!"ACTIVE".equals(org.getStatusEnum()) || !Boolean.TRUE.equals(org.getActiveFlag())) {
+            throw new IllegalArgumentException("所选机构已停用，不能关联到库房药房，organizationId: " + organizationId);
+        }
+    }
+
+    /**
+     * 停用前业务引用校验：检查子节点、库存、入出库单据、发药记录等业务引用
+     */
+    private void checkBusinessReferenceBeforeDisable(StoreHouseDO storeHouse, Long tenantId) {
+        String locationId = storeHouse.getId().toString();
+
+        // 1. 检查是否存在启用中的子节点
+        LambdaQueryWrapper<StoreHouseDO> childCheck = new LambdaQueryWrapper<>();
+        childCheck.eq(StoreHouseDO::getParentId, storeHouse.getId())
+                  .eq(StoreHouseDO::getTenantId, tenantId)
+                  .eq(StoreHouseDO::getStatusEnum, StorehouseStatusEnum.ACTIVE.getDesc());
+        if (storeHouseMapper.selectCount(childCheck) > 0) {
+            throw new IllegalArgumentException("该库房药房下存在启用中的子节点，不能停用");
+        }
+
+        // 2. 检查是否仍有库存（数量>0）
+        long inventoryCount = storeHouseMapper.countInventoryByLocationId(locationId);
+        if (inventoryCount > 0) {
+            throw new IllegalArgumentException("该库房药房存在库存记录（" + inventoryCount + "条），不能停用，请先完成库存清零或转移");
+        }
+
+        // 3. 检查是否存在未完成的入出库/供应单据
+        long supplyCount = storeHouseMapper.countUnfinishedSupplyRequestByLocationId(locationId);
+        if (supplyCount > 0) {
+            throw new IllegalArgumentException("该库房药房存在未完成的入出库单据（" + supplyCount + "条），不能停用，请先完成或取消相关单据");
+        }
+
+        // 4. 检查是否存在未完成的发药记录
+        long dispenseCount = storeHouseMapper.countUnfinishedDispenseByLocationId(locationId);
+        if (dispenseCount > 0) {
+            throw new IllegalArgumentException("该库房药房存在未完成的发药记录（" + dispenseCount + "条），不能停用，请先完成或取消相关发药");
         }
     }
 
