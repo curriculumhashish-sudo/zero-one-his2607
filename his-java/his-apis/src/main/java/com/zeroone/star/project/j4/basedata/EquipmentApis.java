@@ -64,7 +64,7 @@ public interface EquipmentApis {
      * @param equipmentId 器材id
      * @return 器材详情
      */
-    JsonVO<EquipmentVO> getEquipmentByEquipmentId(Long equipmentId);
+    JsonVO<EquipmentVO> getEquipmentByEquipmentId(String equipmentId);
 
     /**
      * 获取选择器材种类列表
@@ -79,5 +79,5 @@ public interface EquipmentApis {
      * @param equipmentIds 器材id集合
      * @return 无返回值
      */
-    JsonVO<Void> removeEquipmentByEquipmentIds(List<Long> equipmentIds);
+    JsonVO<Void> removeEquipmentByEquipmentIds(List<String> equipmentIds);
 }

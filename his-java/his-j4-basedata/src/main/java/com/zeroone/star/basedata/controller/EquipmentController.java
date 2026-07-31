@@ -160,9 +160,9 @@ public class EquipmentController implements EquipmentApis {
     @Override
     @GetMapping("/get-by-id")
     @Operation(summary = "查询器材详情", description = "查询器材详情")
-    public JsonVO<EquipmentVO> getEquipmentByEquipmentId(@RequestParam Long equipmentId) {
+    public JsonVO<EquipmentVO> getEquipmentByEquipmentId(@RequestParam String equipmentId) {
         log.info("<======================>");
-        log.info("查询器材详情:{}", equipmentId.toString());
+        log.info("查询器材详情:{}", equipmentId);
         try {
             EquipmentVO vo = equipmentService.getEquipmentById(equipmentId);
             if(vo == null){
@@ -216,7 +216,7 @@ public class EquipmentController implements EquipmentApis {
     @Override
     @DeleteMapping("/remove-by-ids")
     @Operation(summary = "删除器材(支持批量)", description = "批量删除器材")
-    public JsonVO<Void> removeEquipmentByEquipmentIds(@RequestBody List<Long> equipmentIds) {
+    public JsonVO<Void> removeEquipmentByEquipmentIds(@RequestBody List<String> equipmentIds) {
         log.info("<======================>");
         try {
             equipmentService.removeEquipmentByIds(equipmentIds);
