@@ -70,6 +70,32 @@ class TreatmentAddDTO : public oatpp::DTO
 
 	// 子项
 	API_DTO_FIELD_REQUIRE(List<TreatmentChildDTO::Wrapper>, children, ZH_WORDS_GETTER("treatment.field.children"), false);
+
+	// 关联 PayloadDTO 负载数据对象
+	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
+
+public:
+	// 新增参数最小校验：必填字段
+	std::string validate()
+	{
+		if (!name || name->empty())
+			return "name invalidate.";
+		if (!categoryCode || categoryCode->empty())
+			return "categoryCode invalidate.";
+		if (!typeEnum)
+			return "typeEnum invalidate.";
+		return "";
+	}
+};
+
+/**
+ * 导入诊疗数据传输对象
+ */
+class TreatmentImportDTO : public oatpp::DTO
+{
+	DTO_INIT(TreatmentImportDTO, DTO);
+	// 导入报表文件
+	API_DTO_FIELD_REQUIRE(oatpp::swagger::Binary, excel, ZH_WORDS_GETTER("treatment.field.excel"), true);
 };
 
 #include OATPP_CODEGEN_END(DTO)
