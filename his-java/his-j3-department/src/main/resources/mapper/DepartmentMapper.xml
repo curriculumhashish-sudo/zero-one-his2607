@@ -33,6 +33,7 @@
                caty
         FROM zo_his.adm_organization
         WHERE id = #{id}
+          AND tenant_id = #{tenantId}
           AND is_deleted = 0
         LIMIT 1
     </select>

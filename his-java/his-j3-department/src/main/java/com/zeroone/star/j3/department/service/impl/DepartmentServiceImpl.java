@@ -61,8 +61,10 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public PageDTO<DepartmentVO> getDepartmentPage(DepartmentQuery query) {
+        String tenantId = requireCurrentTenantId();
         Page<DepartmentDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
         LambdaQueryWrapper<DepartmentDO> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(DepartmentDO::getTenantId, tenantId);
 
         if (StringUtils.hasText(query.getKeyword())) {
             String keyword = query.getKeyword().trim();
@@ -334,19 +336,15 @@ public class DepartmentServiceImpl implements DepartmentService {
             throw new IllegalArgumentException("修改内容不能为空");
         }
 
+        String tenantId = requireCurrentTenantId();
         Long departmentId = parseRequiredId(id, "科室ID");
-        DepartmentDO existing = departmentMapper.selectUpdateDepartmentById(toSqlId(departmentId));
+        DepartmentDO existing = departmentMapper.selectUpdateDepartmentById(
+                toSqlId(departmentId), tenantId);
         if (existing == null) {
             throw new IllegalArgumentException("科室不存在，请检查ID是否正确");
         }
 
         Long currentUserId = resolveCurrentUserId(null);
-        if (currentUserId != null) {
-            Long currentTenantId = departmentMapper.getTenantIdByUserId(currentUserId);
-            if (currentTenantId != null && !Objects.equals(currentTenantId, existing.getTenantId())) {
-                throw new IllegalArgumentException("无权修改其他租户的科室");
-            }
-        }
 
         String name = trimToNull(dto.getName());
         if (name == null) {
@@ -370,7 +368,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         }
 
         DepartmentDO parent = parentIdChanged
-                ? validateParentChain(parentId, existing)
+                ? validateParentChain(parentId, existing, tenantId)
                 : null;
         if (isNameDuplicate(name, parentId, existing)) {
             throw new IllegalArgumentException("同一上级组织下已存在名称为「" + name + "」的科室");
@@ -382,7 +380,7 @@ public class DepartmentServiceImpl implements DepartmentService {
                 : existing.getDefDoctorId();
         if (defDoctorChanged && defDoctorId != null
                 && departmentMapper.isDoctorAvailable(
-                toSqlId(defDoctorId), toSqlId(existing.getTenantId())) == 0) {
+                toSqlId(defDoctorId), tenantId) == 0) {
             throw new IllegalArgumentException("默认医师不存在、已停用或不属于当前租户，ID: " + defDoctorId);
         }
 
@@ -393,6 +391,7 @@ public class DepartmentServiceImpl implements DepartmentService {
                 : dto.getDisplayOrder();
         LambdaUpdateWrapper<DepartmentDO> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(DepartmentDO::getId, toSqlId(departmentId))
+                .eq(DepartmentDO::getTenantId, tenantId)
                 .set(DepartmentDO::getName, name)
                 .set(DepartmentDO::getTypeEnum, typeEnum)
                 .set(dto.getClassEnum() != null, DepartmentDO::getClassEnum, classEnum)
@@ -430,22 +429,17 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteDepartment(String id) {
+        String tenantId = requireCurrentTenantId();
         Long parsedDepartmentId = parseRequiredId(id, "科室ID");
         String departmentId = toSqlId(parsedDepartmentId);
-        DepartmentDO existing = departmentMapper.selectUpdateDepartmentById(departmentId);
+        DepartmentDO existing = departmentMapper.selectUpdateDepartmentById(
+                departmentId, tenantId);
         if (existing == null) {
             throw new IllegalArgumentException("科室不存在或已删除");
         }
 
         Long currentUserId = resolveCurrentUserId(null);
-        if (currentUserId != null) {
-            Long currentTenantId = departmentMapper.getTenantIdByUserId(currentUserId);
-            if (currentTenantId != null && !Objects.equals(currentTenantId, existing.getTenantId())) {
-                throw new IllegalArgumentException("无权删除其他租户的科室");
-            }
-        }
 
-        String tenantId = toSqlId(existing.getTenantId());
         if (departmentMapper.countUndeletedChildDepartments(departmentId, tenantId) > 0) {
             throw new IllegalStateException("该科室存在下级科室，请先处理关联数据后再删除");
         }
@@ -659,7 +653,9 @@ public class DepartmentServiceImpl implements DepartmentService {
         return StringUtils.hasText(value) ? value.trim() : null;
     }
 
-    private DepartmentDO validateParentChain(Long parentId, DepartmentDO currentDepartment) {
+    private DepartmentDO validateParentChain(Long parentId,
+                                             DepartmentDO currentDepartment,
+                                             String tenantId) {
         if (parentId == null) {
             return null;
         }
@@ -675,7 +671,8 @@ public class DepartmentServiceImpl implements DepartmentService {
                 throw new IllegalArgumentException("上级科室链存在循环引用");
             }
 
-            DepartmentDO ancestor = departmentMapper.selectUpdateDepartmentById(toSqlId(currentId));
+            DepartmentDO ancestor = departmentMapper.selectUpdateDepartmentById(
+                    toSqlId(currentId), tenantId);
             if (ancestor == null) {
                 throw new IllegalArgumentException("指定的上级科室不存在，ID: " + currentId);
             }
@@ -713,6 +710,14 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     private String toSqlId(Long value) {
         return value == null ? null : value.toString();
+    }
+
+    private String requireCurrentTenantId() {
+        String tenantId = userHolder.getCurrentTenantId();
+        if (!StringUtils.hasText(tenantId)) {
+            throw new IllegalStateException("未获取到当前租户信息");
+        }
+        return tenantId.trim();
     }
 
     private Long resolveCurrentUserId(Long fallback) {
