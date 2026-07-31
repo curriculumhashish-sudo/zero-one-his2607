@@ -1,20 +1,20 @@
 #pragma once
-#ifndef __REFUNDAPPLYDTO_H_
-#define __REFUNDAPPLYDTO_H_
+#ifndef __PRESCRIPTION2DTO_H_
+#define __PRESCRIPTION2DTO_H_
 
 #include "domain/dto/doctor/Prescription2DetailDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class Refund2ApplyDTO :public oatpp::DTO
+class Prescription2DTO :public oatpp::DTO
 {
-    DTO_INIT(Refund2ApplyDTO, DTO);
+    DTO_INIT(Prescription2DTO, DTO);
 
-    // ´¦·½µ¥
-    API_DTO_FIELD_DEFAULT(List<Object<PrescriptionDetailDTO>>, Prescription, ZH_WORDS_GETTER("cyclectrl2.prescription.tag"));
+    // å¤„æ–¹åˆ—è¡¨
+    API_DTO_FIELD_DEFAULT(List<Object<Prescription2DetailDTO>>, prescription, ZH_WORDS_GETTER("cyclectrl2.prescription.tag"));
 
 };
 
 #include OATPP_CODEGEN_END(DTO)
 
-#endif // !_QUERY_H_
+#endif // !__PRESCRIPTION2DTO_H_

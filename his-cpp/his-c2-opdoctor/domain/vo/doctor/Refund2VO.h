@@ -9,7 +9,7 @@
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-	  https://www.apache.org/licenses/LICENSE-2.0
+      https://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,14 +20,18 @@
 #ifndef _REFUNDVO_H_
 #define _REFUNDVO_H_
 
-#include "../../dto/doctor/Refund2DetailDTO.h"
+#include "domain/vo/BaseJsonVO.h"
+#include "domain/dto/doctor/Refund2DetailDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class Refund2DetailJsonVO : public JsonVO<Refund2DetailDTO::Wrapper>
+/**
+ * 退费清单列表响应VO
+ */
+class Refund2DetailJsonVO : public ListJsonVO<Refund2DetailDTO::Wrapper>
 {
-	DTO_INIT(Refund2DetailJsonVO, JsonVO<Refund2DetailDTO::Wrapper>);
+	DTO_INIT(Refund2DetailJsonVO, ListJsonVO<Refund2DetailDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)
-#endif // !_USERQUERY_H_
+#endif // !_REFUNDVO_H_
