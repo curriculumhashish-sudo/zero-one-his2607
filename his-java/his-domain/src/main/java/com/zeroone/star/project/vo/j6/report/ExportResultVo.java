@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Schema(description = "门诊费用明细数据行")
+@Schema(description = "报表导出响应结构")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

@@ -1,5 +1,6 @@
 package com.zeroone.star.project.vo.j6.report;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -33,13 +34,14 @@ public class FeeDetailVO {
     private List<FeeDetail> lines;
 
     @Schema(description = "门诊费用小结")
-    private SubTotal subTotal;
+    private FeeSummaryVo subTotal;
 
     /**
      *  费用行
      */
     @Data
-    static class FeeDetail {
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    public static class FeeDetail {
 
         @Schema(description = "项目消费id", example = "338640728705470464")
         private String chargeItemId;
@@ -47,19 +49,25 @@ public class FeeDetailVO {
         @Schema(description = "支付id", example = "338640826768297984")
         private String paymentId;
 
-        @Schema(description = "项目类别id", example = "1008")
+        @Schema(description = "费用类别编码", example = "REGISTER")
+        private String feeCategoryCode;
+
+        @Schema(description = "费用类别名称", example = "挂号")
+        private String feeCategoryDisplay;
+
+        @Schema(description = "项目子分类编码", example = "1008")
         private String subCategoryCode;
 
-        @Schema(description = "项目类别", example = "治理")
+        @Schema(description = "项目子分类名称", example = "治疗")
         private String subCategoryDisplay;
 
-        @Schema(description = "项目名称", example = "阿莫西林胶囊")
+        @Schema(description = "项目名称", example = "氯化钠注射")
         private String productName;
 
         @Schema(description = "项目编码", example = "YP0001")
         private String productCode;
 
-        @Schema(description = "说明")
+        @Schema(description = "项目规格", example = "250ml:2.25g")
         private String specification;
 
         @Schema(description = "数量", example = "2")
@@ -95,14 +103,17 @@ public class FeeDetailVO {
         @Schema(description = "原价(元)", example = "25.00")
         private BigDecimal baseAmount;
 
-        @Schema(description = "折后金额(元)", example = "5.00")
+        @Schema(description = "折扣金额(元)", example = "5.00")
         private BigDecimal discountAmount;
-
-        @Schema(description = "单价(元)", example = "10.00")
-        private BigDecimal unitAmount;
 
         @Schema(description = "应收金额(元)", example = "20.00")
         private BigDecimal receivableAmount;
+
+        @Schema(description = "折后金额", example = "20.00")
+        private BigDecimal discountedAmount;
+
+        @Schema(description = "单价(元)", example = "10.00")
+        private BigDecimal unitAmount;
 
         @Schema(description = "实收金额(元)", example = "20.00")
         private BigDecimal actualReceivedAmount;
@@ -112,33 +123,5 @@ public class FeeDetailVO {
 
         @Schema(description = "自费金额(元)", example = "8.00")
         private BigDecimal selfPayAmount;
-
-    }
-
-    /**
-     *  本次门诊费用小结
-     */
-    @Data
-    static class SubTotal {
-        @Schema(description = "基准金额合计", example = "100.00")
-        private BigDecimal baseAmountTotal;
-
-        @Schema(description = "折扣金额合计", example = "100.00")
-        private BigDecimal discountAmountTotal;
-
-        @Schema(description = "应收金额合计", example = "100.00")
-        private BigDecimal receivableAmountTotal;
-
-        @Schema(description = "折后金额合计", example = "100.00")
-        private BigDecimal discountedAmountTotal;
-
-        @Schema(description = "实收金额合计", example = "100.00")
-        private BigDecimal actualReceivedAmountTotal;
-
-        @Schema(description = "医保金额合计", example = "100.00")
-        private BigDecimal insuranceAmountTotal;
-
-        @Schema(description = "自付金额合计", example = "100.00")
-        private BigDecimal selfPayAmountTotal;
     }
 }
