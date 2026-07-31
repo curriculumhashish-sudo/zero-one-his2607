@@ -17,4 +17,5 @@ public class RetireScheduleDTO {
     @NotBlank(message = "作废原因不能为空")
     @Schema(description = "作废原因", example = "作废日程")
     private String reason;
+
 }
