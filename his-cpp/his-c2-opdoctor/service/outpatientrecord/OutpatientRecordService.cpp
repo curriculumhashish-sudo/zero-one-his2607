@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "OutpatientRecordService.h"
 
-oatpp::List<OutpatientRecordDTO::Wrapper> OutpatientRecordService::convertToDTOList(const std::list<PtrOutpatientRecordViewDO>& doList)
+inline oatpp::List<OutpatientRecordDTO::Wrapper> OutpatientRecordService::convertToDTOList(const std::list<PtrOutpatientRecordViewDO>& doList)
 {
     auto dtoList = oatpp::List<OutpatientRecordDTO::Wrapper>::createShared();
     for (auto& doItem : doList) {
@@ -19,7 +19,7 @@ oatpp::List<OutpatientRecordDTO::Wrapper> OutpatientRecordService::convertToDTOL
     return dtoList;
 }
 
-OutpatientRecordPageDTO::Wrapper OutpatientRecordService::listAll(const OutpatientRecordQuery::Wrapper& query)
+inline OutpatientRecordPageDTO::Wrapper OutpatientRecordService::listAll(const OutpatientRecordQuery::Wrapper& query)
 {
     auto doList = dao.selectWithPage(query);
     auto total = dao.count(query);

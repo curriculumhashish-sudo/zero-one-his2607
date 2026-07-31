@@ -2,7 +2,7 @@
 #include "OutpatientRecordDAO.h"
 #include "OutpatientRecordMapper.h"
 
-std::string OutpatientRecordDAO::queryConditionBuilder(const OutpatientRecordQuery::Wrapper& query, SqlParams& params)
+inline std::string OutpatientRecordDAO::queryConditionBuilder(const OutpatientRecordQuery::Wrapper& query, SqlParams& params)
 {
     std::stringstream sql;
     sql << " WHERE e.is_deleted = 0";
@@ -26,7 +26,7 @@ std::string OutpatientRecordDAO::queryConditionBuilder(const OutpatientRecordQue
     return sql.str();
 }
 
-uint64_t OutpatientRecordDAO::count(const OutpatientRecordQuery::Wrapper& query)
+inline uint64_t OutpatientRecordDAO::count(const OutpatientRecordQuery::Wrapper& query)
 {
     SqlParams params;
     std::string sql =
@@ -39,7 +39,7 @@ uint64_t OutpatientRecordDAO::count(const OutpatientRecordQuery::Wrapper& query)
     return sqlSession->executeQueryNumerical(sql, params);
 }
 
-std::list<PtrOutpatientRecordViewDO> OutpatientRecordDAO::selectWithPage(const OutpatientRecordQuery::Wrapper& query)
+inline std::list<PtrOutpatientRecordViewDO> OutpatientRecordDAO::selectWithPage(const OutpatientRecordQuery::Wrapper& query)
 {
     SqlParams params;
 
