@@ -84,13 +84,14 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
      * @throws IllegalArgumentException 器材不存在或参数非法
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public AdmDeviceDefinitionDO updateEquipment(EquipmentUpdateDTO dto) {
         String id = dto.getId();
         if (!StringUtils.hasText(id)) {
             throw new IllegalArgumentException("修改器材时主键不可为空");
         }
 
-        AdmDeviceDefinitionDO existing = baseMapper.selectById(Long.valueOf(id));
+        AdmDeviceDefinitionDO existing = baseMapper.selectById(id);
         if (existing == null) {
             throw new IllegalArgumentException("器材不存在，主键：" + id);
         }
@@ -102,16 +103,17 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
         baseMapper.updateById(existing);
 
         // 同步价格表
-        Long deviceId = Long.valueOf(id);
-        saveOrUpdatePrice(deviceId, "PURCHASE", dto.getPurchasePrice(), "采购价", dto.getItemTypeCode(), dto.getOrgId(), dto.getYbType());
-        saveOrUpdatePrice(deviceId, "SALE", dto.getRetailPrice(), "零售价", dto.getItemTypeCode(), dto.getOrgId(), dto.getYbType());
-        saveOrUpdatePrice(deviceId, "LIMIT", dto.getMaximumRetailPrice(), "限价", dto.getItemTypeCode(), dto.getOrgId(), dto.getYbType());
+        String deviceId = id;
+        String orgIdStr = dto.getOrgId() != null ? dto.getOrgId().toString() : null;
+        saveOrUpdatePrice(deviceId, "PURCHASE", dto.getPurchasePrice(), "采购价", dto.getItemTypeCode(), orgIdStr, dto.getYbType());
+        saveOrUpdatePrice(deviceId, "SALE", dto.getRetailPrice(), "零售价", dto.getItemTypeCode(), orgIdStr, dto.getYbType());
+        saveOrUpdatePrice(deviceId, "LIMIT", dto.getMaximumRetailPrice(), "限价", dto.getItemTypeCode(), orgIdStr, dto.getYbType());
 
         return existing;
     }
 
     @Override
-    public BigDecimal getRetailPrice(Long deviceId) {
+    public BigDecimal getRetailPrice(String deviceId) {
         LambdaQueryWrapper<AdmChargeItemDefinitionDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(AdmChargeItemDefinitionDO::getInstanceTable, "adm_device_definition")
                .eq(AdmChargeItemDefinitionDO::getInstanceId, deviceId)
@@ -121,8 +123,8 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
         return priceRecord != null ? priceRecord.getPriceValue() : null;
     }
 
-    private void saveOrUpdatePrice(Long instanceId, String priceTypeCode, BigDecimal priceValue,
-                                    String chargeName, String typeCode, Long orgId, String ybType) {
+    private void saveOrUpdatePrice(String instanceId, String priceTypeCode, BigDecimal priceValue,
+                                    String chargeName, String typeCode, String orgId, String ybType) {
         if (priceValue == null) {
             return;
         }
@@ -165,7 +167,7 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
     public int modifyEquipmentStatus(EquipmentStatusDTO dto) {
         int count = 0;
         for (String id : dto.getIds()) {
-            AdmDeviceDefinitionDO existing = baseMapper.selectById(Long.valueOf(id));
+            AdmDeviceDefinitionDO existing = baseMapper.selectById(id);
             if (existing == null) {
                 throw new IllegalArgumentException("器材不存在，主键：" + id);
             }
@@ -213,7 +215,7 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
      * @return 器材VO
      */
     @Override
-    public EquipmentVO getEquipmentById(Long equipmentId) {
+    public EquipmentVO getEquipmentById(String equipmentId) {
         List<EquipmentVO> voList = this.baseMapper.queryEquipmentsById(equipmentId);
         if(voList == null || voList.isEmpty()){
             return null;
@@ -246,7 +248,7 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
      */
     @Override
     @Transactional
-    public void removeEquipmentByIds(List<Long> equipmentIds) {
+    public void removeEquipmentByIds(List<String> equipmentIds) {
         this.baseMapper.deleteByIds(equipmentIds);
         chargeItemMapper.deleteByEquipmentIds(equipmentIds);
     }

@@ -6,7 +6,6 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 
 /**
  * <p>
@@ -26,13 +25,13 @@ public class AdmDeviceDefinitionDO {
     /**
      * 主键标识
      */
-    @TableId(type = IdType.ASSIGN_ID)
+    @TableId(type = IdType.ASSIGN_UUID)
     @Schema(description = "主键标识")
-    private Long id;
+    private String id;
 
     @TableField("tenant_id")
     @Schema(description = "租户标识")
-    private Long tenantId;
+    private String tenantId;
 
     @TableField(value = "created_at", fill = FieldFill.INSERT)
     @Schema(description = "创建时间")
@@ -44,11 +43,11 @@ public class AdmDeviceDefinitionDO {
 
     @TableField(value = "created_by", fill = FieldFill.INSERT)
     @Schema(description = "创建人")
-    private Long createdBy;
+    private String createdBy;
 
     @TableField(value = "updated_by", fill = FieldFill.INSERT_UPDATE)
     @Schema(description = "最后更新人")
-    private Long updatedBy;
+    private String updatedBy;
 
     @TableField("is_deleted")
     @TableLogic(value = "0", delval = "1")
@@ -61,11 +60,12 @@ public class AdmDeviceDefinitionDO {
 
     @TableField("deleted_by")
     @Schema(description = "删除人")
-    private Long deletedBy;
+    private String deletedBy;
 
+    @Version
     @TableField("version")
     @Schema(description = "乐观锁版本号")
-    private String version;
+    private Integer version;
 
     /**
      * 器材名称
@@ -170,14 +170,14 @@ public class AdmDeviceDefinitionDO {
      */
     @TableField("org_id")
     @Schema(description = "所属科室标识")
-    private Long orgId;
+    private String orgId;
 
     /**
      * 所在位置标识
      */
     @TableField("location_id")
     @Schema(description = "所在位置标识")
-    private Long locationId;
+    private String locationId;
 
     /**
      * 默认门诊/就诊单位编码
@@ -268,7 +268,7 @@ public class AdmDeviceDefinitionDO {
      */
     @TableField("manufacturer_id")
     @Schema(description = "生产厂家标识")
-    private Long manufacturerId;
+    private String manufacturerId;
 
     /**
      * 生产厂家名称
@@ -282,7 +282,7 @@ public class AdmDeviceDefinitionDO {
      */
     @TableField("supply_id")
     @Schema(description = "供应商标识")
-    private Long supplyId;
+    private String supplyId;
 
     /**
      * 器材说明

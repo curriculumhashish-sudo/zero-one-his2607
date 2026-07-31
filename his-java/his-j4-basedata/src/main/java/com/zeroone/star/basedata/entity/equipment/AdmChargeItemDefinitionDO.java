@@ -12,13 +12,13 @@ import java.time.LocalDateTime;
 @Schema(description = "收费项目定义")
 public class AdmChargeItemDefinitionDO {
 
-    @TableId(type = IdType.ASSIGN_ID)
+    @TableId(type = IdType.ASSIGN_UUID)
     @Schema(description = "主键")
-    private Long id;
+    private String id;
 
     @TableField("tenant_id")
     @Schema(description = "租户标识")
-    private Long tenantId;
+    private String tenantId;
 
     @TableField(value = "created_at", fill = FieldFill.INSERT)
     @Schema(description = "创建时间")
@@ -28,13 +28,13 @@ public class AdmChargeItemDefinitionDO {
     @Schema(description = "最后更新时间")
     private LocalDateTime updatedAt;
 
-    @TableField(value = "updated_by", fill = FieldFill.INSERT_UPDATE)
+    @TableField(value = "created_by", fill = FieldFill.INSERT)
     @Schema(description = "创建人")
-    private Long createdBy;
+    private String createdBy;
 
-    @TableField("updated_by")
+    @TableField(value = "updated_by", fill = FieldFill.INSERT_UPDATE)
     @Schema(description = "最后更新人")
-    private Long updatedBy;
+    private String updatedBy;
 
     @TableField("is_deleted")
     @TableLogic(value = "0", delval = "1")
@@ -47,11 +47,12 @@ public class AdmChargeItemDefinitionDO {
 
     @TableField("deleted_by")
     @Schema(description = "删除人")
-    private Long deletedBy;
+    private String deletedBy;
 
+    @Version
     @TableField("version")
     @Schema(description = "乐观锁版本号")
-    private String version;
+    private Integer version;
 
     @TableField("instance_table")
     @Schema(description = "实例来源表标识（如 adm_device_definition）")
@@ -59,7 +60,7 @@ public class AdmChargeItemDefinitionDO {
 
     @TableField("instance_id")
     @Schema(description = "业务实例主键")
-    private Long instanceId;
+    private String instanceId;
 
     @TableField("charge_name")
     @Schema(description = "收费显示名称")
@@ -71,7 +72,7 @@ public class AdmChargeItemDefinitionDO {
 
     @TableField("org_id")
     @Schema(description = "所属机构主键")
-    private Long orgId;
+    private String orgId;
 
     @TableField("type_code")
     @Schema(description = "收费类型编码（财务分类编码 fin_type_code）")
