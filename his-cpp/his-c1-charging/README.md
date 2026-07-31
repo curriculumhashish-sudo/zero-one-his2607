@@ -1,10 +1,18 @@
+<<<<<<< HEAD
+# 模块骨架
+=======
 ﻿# 模块骨架
+>>>>>>> 29e277be45e89526e4fb67cd3f10e4bac478e7d3
 
 ## 简介
 模块骨架代码。
 
 ## 目录结构说明
+<<<<<<< HEAD
+> `arch-skeleton`
+=======
 > `his-c1-charging`
+>>>>>>> 29e277be45e89526e4fb67cd3f10e4bac478e7d3
 >
 > > `conf` -- Windows平台需要的配置文件
 > >

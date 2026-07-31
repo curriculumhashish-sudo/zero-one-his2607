@@ -19,11 +19,11 @@
 #include "stdafx.h"
 #include "Router.h"
 #include "ApiHelper.h"
+#include "data_statistics/OutpatientStatController.h"
 #include "data_statistics/InOutboundController.h"
 #include "data_statistics/InventoryMaterialController.h"
 
 #include "cost_info/costInfoController.h"
-#include"data_statistics/OutpatientStatController.h"
 
 #include"data_statistics/MonthVisitController.h"
 #include"data_statistics/TrendController.h"
@@ -49,6 +49,7 @@ void Router::initRouter()
 {
 	// #TIP: Add system extension route definitions below
 
+
 	ROUTER_SIMPLE_BIND(InOutboundController);
 	ROUTER_SIMPLE_BIND(InventoryMaterialController);
 
@@ -59,5 +60,4 @@ void Router::initRouter()
 
 	ROUTER_SIMPLE_BIND(MonthVisitController);
 	ROUTER_SIMPLE_BIND(FlowTrendController);
-
 }

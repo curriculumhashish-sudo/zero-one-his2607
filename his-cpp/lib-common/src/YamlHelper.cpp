@@ -62,7 +62,13 @@ void YamlHelper::parseDbConnUrl(const std::string& url, std::string* ip, int* po
 	}
 	if (*port == -1)
 	{
-		*port = atoi(tmp[1].c_str());
+		// 先判断 tmp 的大小是否足够，再去取 tmp[1]
+		if (tmp.size() >= 2) {
+			*port = atoi(tmp[1].c_str());
+		}
+		else {
+			// 可以加一行日志打印：地址格式不正确，缺少端口号
+		}
 	}
 }
 

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
+﻿# CMakeList.txt: his-app-form 的 CMake 项目，在此处包括源代码并定义
+=======
 ﻿# CMakeList.txt: his-c1-form 的 CMake 项目，在此处包括源代码并定义
+>>>>>>> 29e277be45e89526e4fb67cd3f10e4bac478e7d3
 # 项目特定的逻辑。
 #
 cmake_minimum_required (VERSION 3.8)
@@ -32,8 +36,11 @@ endif()
 # 获取要编译的源代码
 file (GLOB_RECURSE SC_FILES ./*.cpp)
 list (REMOVE_ITEM SC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/./stdafx.cpp")
+<<<<<<< HEAD
+=======
 # 排除构建输出目录，防止 out/ 下的 CMake 检测文件（如 CMakeCXXCompilerId.cpp）被编译
 list (FILTER SC_FILES EXCLUDE REGEX ".*/out/.*")
+>>>>>>> 29e277be45e89526e4fb67cd3f10e4bac478e7d3
 
 # 设置预编译标头
 if(WIN32)
@@ -41,7 +48,11 @@ if(WIN32)
 endif()
 
 # 编译可执行文件
+<<<<<<< HEAD
+add_executable (${appName} ${SC_FILES})
+=======
 add_executable (${appName} ${SC_FILES} "domain/query/data_statistics/InventoryMaterialQuery.h")
+>>>>>>> 29e277be45e89526e4fb67cd3f10e4bac478e7d3
 
 # 发布Swagger文档包宏定义
 if(DEFINED _RELEASE_DOC_)
@@ -155,6 +166,22 @@ endif()
 
 # 复制配置到调试时可执行文件所在的目录
 # RSA公钥证书
+<<<<<<< HEAD
+file (COPY "public.pem" DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+# Swagger资源
+if (NOT DEFINED CLOSE_SWAGGER_DOC)
+	file (GLOB swaggerRes "../lib-oatpp/include/oatpp-swagger/res/*")
+	file (COPY ${swaggerRes} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/res)
+endif()
+# 中文词典
+file (COPY "zh-dict.yaml" DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+# 模板文件目录
+file (GLOB tplDir "tpl/*")
+file (COPY ${tplDir} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/tpl")
+# 字体文件目录
+file (GLOB fontsDir "fonts/*")
+file (COPY ${fontsDir} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/fonts")
+=======
 file (COPY "public.pem" DESTINATION ${PROJECT_BINARY_DIR}/${appName})
 # Swagger资源
 if (NOT DEFINED CLOSE_SWAGGER_DOC)
@@ -169,20 +196,32 @@ file (COPY ${tplDir} DESTINATION "${PROJECT_BINARY_DIR}/${appName}/tpl")
 # 字体文件目录
 file (GLOB fontsDir "fonts/*")
 file (COPY ${fontsDir} DESTINATION "${PROJECT_BINARY_DIR}/${appName}/fonts")
+>>>>>>> 29e277be45e89526e4fb67cd3f10e4bac478e7d3
 # Ubuntu系统特殊处理
 if(IS_UBUNTU)
 	# 复制动态库到可执行文件目录
 	file (GLOB dylibdir "${PROJECT_SOURCE_DIR}/lib-dy/lib64/*")
+<<<<<<< HEAD
+	file (COPY ${dylibdir} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+=======
 	file (COPY ${dylibdir} DESTINATION "${PROJECT_BINARY_DIR}/${appName}")
+>>>>>>> 29e277be45e89526e4fb67cd3f10e4bac478e7d3
 endif()
 # Windows平台特殊处理
 if(WIN32)
 	# 复制dll文件到可执行文件目录
 	file (GLOB_RECURSE dycopy ${ZO_DY_DIR}/*.dll)
+<<<<<<< HEAD
+	file (COPY ${dycopy} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+	# 复制项目配置到可执行文件目录
+	file (GLOB conf "conf/*")
+	file (COPY ${conf} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/conf)
+=======
 	file (COPY ${dycopy} DESTINATION "${PROJECT_BINARY_DIR}/${appName}")
 	# 复制项目配置到可执行文件目录
 	file (GLOB conf "conf/*")
 	file (COPY ${conf} DESTINATION ${PROJECT_BINARY_DIR}/${appName}/conf)
+>>>>>>> 29e277be45e89526e4fb67cd3f10e4bac478e7d3
 endif()
 
 # 安装文件

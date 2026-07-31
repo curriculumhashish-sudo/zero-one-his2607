@@ -77,7 +77,7 @@ void Router::initRouter()
 
 	// #TIP: Add system extension route definitions below
 
-    ROUTER_SIMPLE_BIND(AdmissionController);
+	ROUTER_SIMPLE_BIND(AdmissionController);
 
 	ROUTER_SIMPLE_BIND(ChargeConfirmController);
 	ROUTER_SIMPLE_BIND(QuitNumberController);
@@ -101,7 +101,7 @@ void Router::initRouter()
 
 	ROUTER_SIMPLE_BIND(EnrollController);
 
-	
+
 	ROUTER_SIMPLE_BIND(RefundGetPatientController);
 	ROUTER_SIMPLE_BIND(RefundGetItemController);
 	ROUTER_SIMPLE_BIND(RefundVerifyRefundController);

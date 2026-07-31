@@ -10,13 +10,14 @@ Litguidyo:
    name: 项目名称
    onemoney: 单价
    allmoney: 总金额
+   outmoney: 出库金额
+   outallmoney: 出库总金额
    number: 数量
-   origin: 产地
-   batch_number: 批号
+   bus_no: 库存id
    excel: excel表格
    summary: 物资入库出库数据查询
    tag1 : 物资入库出库数据查询
-   time : 有效期
+   time: 有效期
    numbers: 有效物资数量
    tag2: 物资有效期预警分布
    summary2: 物资有效期查询
@@ -106,4 +107,3 @@ Lin:
         total_visit: "月访问量"
         trend_list: "流量趋势数据列表"
         month_visit_list: "月访问量数据列表"
-

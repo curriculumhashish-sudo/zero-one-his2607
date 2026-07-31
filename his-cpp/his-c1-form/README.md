@@ -4,7 +4,11 @@
 模块骨架代码。
 
 ## 目录结构说明
+<<<<<<< HEAD
+> `his-app-form`
+=======
 > `his-c1-form`
+>>>>>>> 29e277be45e89526e4fb67cd3f10e4bac478e7d3
 >
 > > `conf` -- Windows平台需要的配置文件
 > >
