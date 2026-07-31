@@ -12,6 +12,8 @@
           AND start_time &lt; DATE_ADD(#{endDate}, INTERVAL 1 DAY)
         GROUP BY DATE_FORMAT(start_time, '%Y-%m-%d')
         ORDER BY date
+    </select>
+
     <sql id="selectColumns">
         select aci.encounter_id                              as encounterId,
                aci.id                                        as chargeItemId,
@@ -558,6 +560,7 @@
         LEFT JOIN adm_practitioner ap ON aep.practitioner_id = ap.id AND ap.is_deleted = 0
         LEFT JOIN yb_clinic_fee_upload ycfu ON aci.id = ycfu.charge_item_id AND ycfu.is_deleted = 0
         WHERE aci.is_deleted = 0
+    </select>
 
     <!-- 统计总就诊人数 -->
     <select id="selectTotalEncounterCount" resultType="int">

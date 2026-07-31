@@ -26,6 +26,12 @@
             <artifactId>his-common</artifactId>
         </dependency>
 
+        <!-- redis（UserHolder 依赖 RedisTemplate） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
         <!--nacos相关-->
         <!--nacos discovery-->
         <dependency>

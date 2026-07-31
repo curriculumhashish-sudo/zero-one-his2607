@@ -26,8 +26,8 @@ public class UserHolder {
     @Resource
     JwtComponent jwtComponent;
 
-    @Resource
-    private RedisTemplate<String, Object> redisTemplate;
+//    @Resource
+//    private RedisTemplate<String, Object> redisTemplate;
 
     /**
      * 从请求头中获取用户信息
@@ -74,34 +74,34 @@ public class UserHolder {
                 .build();
     }
 
-    /**
-     * 获取当前请求的租户ID
-     * <p>数据来源：Redis Hash {@code his:login:context:{userId}} → field {@code tenantId}</p>
-     * @return 租户ID
-     * @throws RuntimeException 如果获取不到用户信息或租户ID
-     */
-    public String getCurrentTenantId() {
-        try {
-            // 1. 获取当前用户ID
-            UserDTO currentUser = getCurrentUser();
-            String userId = currentUser.getId();
-
-            // 2. 构建 Redis Key
-            String redisKey = "his:login:context:" + userId;
-
-            // 3. 从 Hash 中取 tenantId
-            Object tenantObj = redisTemplate.opsForHash().get(redisKey, "tenantId");
-            if (tenantObj == null) {
-                throw new RuntimeException("未找到用户 [" + userId + "] 的租户信息");
-            }
-            return tenantObj.toString();
-
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("获取当前租户ID失败", e);
-        }
-    }
+//    /**
+//     * 获取当前请求的租户ID
+//     * <p>数据来源：Redis Hash {@code his:login:context:{userId}} → field {@code tenantId}</p>
+//     * @return 租户ID
+//     * @throws RuntimeException 如果获取不到用户信息或租户ID
+//     */
+//    public String getCurrentTenantId() {
+//        try {
+//            // 1. 获取当前用户ID
+//            UserDTO currentUser = getCurrentUser();
+//            String userId = currentUser.getId();
+//
+//            // 2. 构建 Redis Key
+//            String redisKey = "his:login:context:" + userId;
+//
+//            // 3. 从 Hash 中取 tenantId
+//            Object tenantObj = redisTemplate.opsForHash().get(redisKey, "tenantId");
+//            if (tenantObj == null) {
+//                throw new RuntimeException("未找到用户 [" + userId + "] 的租户信息");
+//            }
+//            return tenantObj.toString();
+//
+//        } catch (RuntimeException e) {
+//            throw e;
+//        } catch (Exception e) {
+//            throw new RuntimeException("获取当前租户ID失败", e);
+//        }
+//    }
 
     /**
      * 从请求头中获取当前请求的token
