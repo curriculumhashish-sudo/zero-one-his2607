@@ -3,8 +3,10 @@ package com.zeroone.star.j3.supplier.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zeroone.star.j3.supplier.entity.Supplier;
 import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j3.supplier.SupplierAddDTO;
 import com.zeroone.star.project.dto.j3.supplier.SupplierBatchDTO;
 import com.zeroone.star.project.dto.j3.supplier.SupplierFullDTO;
+import com.zeroone.star.project.dto.j3.supplier.SupplierUpdateDTO;
 import com.zeroone.star.project.query.j3.supplier.SupplierQuery;
 import com.zeroone.star.project.vo.j3.supplier.SupplierDetailVO;
 import com.zeroone.star.project.vo.j3.supplier.SupplierListVO;
@@ -28,9 +30,9 @@ public interface ISupplierService extends IService<Supplier> {
 
     SupplierDetailVO querySupplierDetail(String id);
 
-    String addSupplier(SupplierFullDTO dto);
+    String addSupplier(SupplierAddDTO dto);
 
-    String updateSupplier(String id, SupplierFullDTO dto);
+    String updateSupplier(String id, SupplierUpdateDTO dto);
 
     String deleteSupplier(String id);
 
