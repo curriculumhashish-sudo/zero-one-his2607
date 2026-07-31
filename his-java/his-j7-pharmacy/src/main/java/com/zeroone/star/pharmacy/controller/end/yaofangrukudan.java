@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/j7/inbound-approval")
-@Tag(name = "药房入库单审批流转", description = "撤回审批、审批通过、驳回审批")
+@Tag(name = "药房入库单管理", description = "撤回审批、审批通过、驳回审批")
 public class yaofangrukudan {
 
     @Resource

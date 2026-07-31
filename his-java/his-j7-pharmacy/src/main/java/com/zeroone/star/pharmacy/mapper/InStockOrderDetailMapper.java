@@ -3,6 +3,10 @@ package com.zeroone.star.pharmacy.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.zeroone.star.pharmacy.entity.InStockOrderDetail;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * <p>
@@ -20,4 +24,11 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface InStockOrderDetailMapper extends BaseMapper<InStockOrderDetail> {
+    int insertOrderDetail(InStockOrderDetail detail);
+    int insertBatchOrderDetail(@Param("items") List<InStockOrderDetail> items);
+    int updateOrderDetailById(InStockOrderDetail detail);
+    int deleteOrderDetailsByOrderId(@Param("orderId") String orderId);
+    List<InStockOrderDetail> selectOrderDetailsByOrderId(@Param("orderId") String orderId);
+    Long countOrderDetailsByOrderId(@Param("orderId") String orderId);
+    BigDecimal sumAmountByOrderId(@Param("orderId") String orderId);
 }
