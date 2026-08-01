@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
 import { Search } from '@element-plus/icons-vue'
 import * as ElIcons from '@element-plus/icons-vue'
 import type { WorkbenchAction, WorkbenchData } from '@/apis/workbench'
 import { loadWorkbenchData } from '@/apis/workbench'
+import { useUserStore } from '@/stores/user'
 
 defineOptions({ name: 'WorkbenchHome' })
 
 const router = useRouter()
+const { user } = storeToRefs(useUserStore())
 const searchKeyword = ref('')
 const data = ref<WorkbenchData>({
   notices: [],
@@ -33,7 +36,7 @@ const filteredGroups = computed(() => {
 })
 
 async function loadData() {
-  data.value = await loadWorkbenchData()
+  data.value = await loadWorkbenchData(user.value?.roles ?? [])
 }
 
 function handleNavigate(path: string) {

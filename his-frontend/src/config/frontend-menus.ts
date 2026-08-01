@@ -6,6 +6,12 @@ import type { Menu } from '@/apis/login/type'
  */
 const FRONTEND_MENUS: Menu[] = [
   {
+    id: 'frontend-workbench',
+    text: '工作台',
+    icon: 'IconTickets',
+    href: '/workbench'
+  },
+  {
     id: 'frontend-system',
     text: '系统管理',
     icon: 'IconUser',
@@ -37,6 +43,20 @@ const FRONTEND_MENUS: Menu[] = [
         text: '角色管理',
         icon: 'IconUser',
         href: '/system/role'
+      },
+      {
+        id: 'frontend-system-tenant',
+        pid: 'frontend-system',
+        text: '租户管理',
+        icon: 'IconUser',
+        href: '/system/tenant'
+      },
+      {
+        id: 'frontend-system-settings',
+        pid: 'frontend-system',
+        text: '设置管理',
+        icon: 'IconSetting',
+        href: '/system/settings'
       }
     ]
   },
@@ -429,6 +449,13 @@ const FRONTEND_MENUS: Menu[] = [
         text: '门诊护士站',
         icon: 'IconUser',
         href: '/outpatient/nurse-station'
+      },
+      {
+        id: 'frontend-inpatient-nurse-station',
+        pid: 'frontend-clinical-station',
+        text: '住院护士站',
+        icon: 'IconUser',
+        href: '/inpatient/nurse-station'
       }
     ]
   }

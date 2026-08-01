@@ -28,8 +28,8 @@
         </el-icon>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item command="userInfo">
-              <el-icon :size="15"> <IconUser /> </el-icon>用户信息
+            <el-dropdown-item command="profile">
+              <el-icon :size="15"> <IconUser /> </el-icon>个人中心
             </el-dropdown-item>
             <el-dropdown-item command="logout">
               <el-icon :size="15"> <IconSwitchButton /> </el-icon>退出登录
@@ -57,22 +57,30 @@
         </el-icon>
         <span>首页</span>
       </el-menu-item>
-      <el-sub-menu v-for="item in menus" :key="item.id" :index="item.id + 'submenu'">
-        <template #title>
+      <template v-for="item in menus" :key="item.id">
+        <el-menu-item v-if="item.href && !item.children?.length" :index="item.href">
           <el-icon>
             <component :is="item.icon" />
           </el-icon>
           <span>{{ item.text }}</span>
-        </template>
-        <el-menu-item-group>
-          <el-menu-item v-for="i in item.children" :key="i.id" :index="i.href || ''">
+        </el-menu-item>
+        <el-sub-menu v-else :index="item.id + 'submenu'">
+          <template #title>
             <el-icon>
-              <component :is="i.icon" />
+              <component :is="item.icon" />
             </el-icon>
-            {{ i.text }}
-          </el-menu-item>
-        </el-menu-item-group>
-      </el-sub-menu>
+            <span>{{ item.text }}</span>
+          </template>
+          <el-menu-item-group>
+            <el-menu-item v-for="i in item.children" :key="i.id" :index="i.href || ''">
+              <el-icon>
+                <component :is="i.icon" />
+              </el-icon>
+              {{ i.text }}
+            </el-menu-item>
+          </el-menu-item-group>
+        </el-sub-menu>
+      </template>
     </el-menu>
     <!-- 主内容区 -->
     <div class="main">
@@ -177,8 +185,8 @@ const userInfo = computed(() => `欢迎用户：${user.value?.username ?? '游�
 
 // 用户设置点击事件
 const handleUserSettings = async (command: string | number | object) => {
-  if (command == 'userInfo') {
-    ElMessage.info(user.value ? `${user.value.username}（${user.value.realName ?? '未设置姓名'}）` : '当前用户信息未加载')
+  if (command == 'profile') {
+    await router.push({ name: 'MyProfile' })
   } else if (command == 'logout') {
     try {
       await ustore.logoutSession()
