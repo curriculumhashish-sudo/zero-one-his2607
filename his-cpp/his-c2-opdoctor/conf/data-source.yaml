@@ -11,4 +11,4 @@
       port: 6379
       password: 01star
     mongodb:
-      uri: mongodb://awei:123456@192.168.28.132:27017/firstDb
+      uri: mongodb://root:123456@192.168.26.135:27017/firstDb
