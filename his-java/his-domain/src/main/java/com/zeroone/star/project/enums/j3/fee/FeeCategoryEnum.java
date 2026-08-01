@@ -33,12 +33,8 @@ public enum FeeCategoryEnum implements BaseEnum {
         return desc;
     }
 
-    // 按数字反序列化
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static FeeCategoryEnum of(Integer value) {
-        if (value == null) {
-            return null;
-        }
+    public static FeeCategoryEnum of(Integer value) {  // 内部工具方法，不加 @JsonCreator
+        if (value == null) return null;
         for (FeeCategoryEnum item : values()) {
             if (item.value == value) {
                 return item;
@@ -47,17 +43,33 @@ public enum FeeCategoryEnum implements BaseEnum {
         return null;
     }
 
-    // 按描述反序列化（可选，支持前端传中文）
+    // 唯一的反序列化入口，支持多种格式
     @JsonCreator
-    public static FeeCategoryEnum of(String desc) {
-        if (desc == null || desc.isEmpty()) {
+    public static FeeCategoryEnum fromString(String input) {
+        if (input == null || input.isBlank()) {
             return null;
         }
+
+        // 1. 尝试按数字字符串解析（支持 "1" 和 1）
+        try {
+            int intValue = Integer.parseInt(input);
+            return of(intValue);
+        } catch (NumberFormatException ignored) {}
+
+        // 2. 按中文描述匹配
         for (FeeCategoryEnum item : values()) {
-            if (item.desc.equals(desc)) {
+            if (item.desc.equals(input)) {
                 return item;
             }
         }
+
+        // 3. 按枚举名匹配（兜底）
+        for (FeeCategoryEnum item : values()) {
+            if (item.name().equals(input)) {
+                return item;
+            }
+        }
+
         return null;
     }
 }

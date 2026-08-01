@@ -6,8 +6,8 @@ import com.zeroone.star.project.components.jwt.JwtComponent;
 import com.zeroone.star.project.constant.RedisConstant;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -21,13 +21,20 @@ import org.yaml.snakeyaml.util.UriEncoder;
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
- *
  * @author 阿伟学长
  * @version 1.0.0
  */
 @Component
-@Slf4j
 public class UserHolder {
+    private static final String LOCAL_TEST_USER_ID = "1";
+    private static final String LOCAL_TEST_TENANT_ID = "1";
+
+    @Value("${spring.application.name:}")
+    private String applicationName;
+
+    @Value("${j3.auth-bypass.enabled:true}")
+    private boolean j3AuthBypassEnabled;
+
     @Resource
     JwtComponent jwtComponent;
     @Resource
@@ -35,12 +42,17 @@ public class UserHolder {
 
     /**
      * 从请求头中获取用户信息
-     *
      * @return 用户信息
      * @throws Exception 解析失败抛出异常
      */
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     public UserDTO getCurrentUser() throws Exception {
+        if (isJ3AuthBypassEnabled()) {
+            JSONObject userJsonObject = new JSONObject();
+            fillLocalTestUser(userJsonObject);
+            return buildUserDto(userJsonObject);
+        }
+
         // 从Header中获取用户信息
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = servletRequestAttributes.getRequest();
@@ -71,6 +83,10 @@ public class UserHolder {
 //        userJsonObject.putOnce("authorities", roles);
 
         // FIXME: 如果要扩展用户信息，需要修改这里的代码
+        return buildUserDto(userJsonObject);
+    }
+
+    private UserDTO buildUserDto(JSONObject userJsonObject) {
         return UserDTO.builder()
                 .id(Convert.toStr(userJsonObject.get("id")))
                 .username(userJsonObject.getStr("sub"))
@@ -81,10 +97,13 @@ public class UserHolder {
 
     /**
      * 从请求头中获取当前请求的token
-     *
      * @return 没有获取到返回null
      */
     public String getCurrentToken() {
+        if (isJ3AuthBypassEnabled()) {
+            return null;
+        }
+
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = servletRequestAttributes.getRequest();
         String token = request.getHeader("Authorization");
@@ -96,21 +115,13 @@ public class UserHolder {
 
     /**
      * 获取当前用户选择的租户ID
-     *
      * @return 当前租户ID
      */
     public String getCurrentTenantId() {
         try {
             UserDTO currentUser = getCurrentUser();
             if (currentUser == null || !StringUtils.hasText(currentUser.getId())) {
-                // TODO：处理未登录情况
-                log.warn("未登录用户，无法获取当前用户ID，暂时返回1");
-                if (currentUser != null) {
-                    currentUser.setId("1");
-                } else {
-                    return "1";
-                }
-                // throw new IllegalStateException("无法获取当前用户ID");
+                throw new IllegalStateException("无法获取当前用户ID");
             }
             if (applicationContext == null) {
                 throw new IllegalStateException("RedisTemplate未初始化，无法获取当前租户ID");
@@ -128,17 +139,33 @@ public class UserHolder {
                 );
             }
             if (tenantId == null || !StringUtils.hasText(tenantId.toString())) {
-                // TODO: 未登录用户的租户ID默认返回1
-                log.warn("未找到当前用户的租户ID，暂时返回1");
-                return "1";
-                // throw new IllegalStateException("未找到当前用户的租户ID");
+                if (isJ3AuthBypassEnabled()) {
+                    return LOCAL_TEST_TENANT_ID;
+                }
+                throw new IllegalStateException("未找到当前用户的租户ID");
             }
             return tenantId.toString();
         } catch (RuntimeException e) {
+            if (isJ3AuthBypassEnabled()) {
+                return LOCAL_TEST_TENANT_ID;
+            }
             throw e;
         } catch (Exception e) {
+            if (isJ3AuthBypassEnabled()) {
+                return LOCAL_TEST_TENANT_ID;
+            }
             throw new IllegalStateException("获取当前租户ID失败", e);
         }
+    }
+
+    private boolean isJ3AuthBypassEnabled() {
+        return j3AuthBypassEnabled && applicationName != null && applicationName.startsWith("his-j3-");
+    }
+
+    private void fillLocalTestUser(JSONObject userJsonObject) {
+        userJsonObject.putOnce("id", LOCAL_TEST_USER_ID);
+        userJsonObject.putOnce("sub", "j3-test");
+        userJsonObject.putOnce("roles", java.util.List.of("ROLE_ADMIN"));
     }
 
     private Object getRedisHashValue(String key, String field) {

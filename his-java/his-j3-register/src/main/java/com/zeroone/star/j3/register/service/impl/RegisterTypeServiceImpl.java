@@ -12,6 +12,7 @@ import com.zeroone.star.j3.register.entity.RegisterType;
 import com.zeroone.star.j3.register.mapper.HealthcareServiceMapper;
 import com.zeroone.star.j3.register.mapper.RegisterTypeMapper;
 import com.zeroone.star.j3.register.service.IRegisterTypeService;
+import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j3.register.RegisterDTO;
 import com.zeroone.star.project.query.j3.register.RegisterQuery;
@@ -36,6 +37,9 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
 
     @Resource
     private HealthcareServiceMapper healthcareServiceMapper;
+
+    @Resource
+    private UserHolder userHolder;
 
     /** 挂号费类型编码 */
     private static final String REG_TYPE_CODE = "1012";
@@ -77,8 +81,8 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
         // 挂号费固定类型编码（type_code）
         entity.setBusinessCode(REG_TYPE_CODE);
 
-        // 默认值
-        entity.setTenantId("1");
+        // 默认值（租户ID从当前登录用户上下文取，不信任前端传值）
+        entity.setTenantId(userHolder.getCurrentTenantId());
         entity.setInstanceTable("adm_healthcare_service");
         entity.setPriceTypeCode("SALE");
         entity.setIsDeleted(0);
@@ -89,9 +93,10 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
     public PageDTO<RegisterVO> queryRegisterList(RegisterQuery query) {
         Page<RegisterType> page = new Page<>(query.getPageIndex(), query.getPageSize());
         String keyword = query.getKeyword();
+        String tenantId = userHolder.getCurrentTenantId();
 
-        // 使用自定义 JOIN 查询
-        IPage<RegisterType> resultPage = baseMapper.selectRegisterTypePage(page, keyword);
+        // 使用自定义 JOIN 查询（按租户隔离）
+        IPage<RegisterType> resultPage = baseMapper.selectRegisterTypePage(page, keyword, tenantId);
 
         List<RegisterVO> voList = resultPage.getRecords().stream()
                 .map(this::toVO)
@@ -110,16 +115,17 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
     public boolean addRegister(RegisterDTO dto) {
         RegisterType entity = dtoToEntity(dto);
         entity.setId(String.valueOf(IdWorker.getId()));
+        String tenantId = userHolder.getCurrentTenantId();
 
-        // 1. 按名称查找已有 healthcare_service
-        String serviceId = baseMapper.selectHealthcareServiceIdByName(dto.getName());
+        // 1. 按名称查找当前租户下已有的 healthcare_service
+        String serviceId = baseMapper.selectHealthcareServiceIdByName(dto.getName(), tenantId);
 
         // 2. 找不到则同步创建一条，确保下拉查询一致
         if (serviceId == null || serviceId.isEmpty()) {
             HealthcareService hs = new HealthcareService();
             String hsId = String.valueOf(IdWorker.getId());
             hs.setId(hsId);
-            hs.setTenantId("1");
+            hs.setTenantId(tenantId);
             hs.setName(dto.getName());
             hs.setTypeCode("1");
             hs.setCategoryCode("REGISTRATION");
@@ -161,9 +167,11 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
 
     @Override
     public List<RegisterNameVO> queryRegisterNames() {
-        // 只查启用的挂号类型，仅取 id + name 两列（@TableLogic 自动过滤软删）
+        String tenantId = userHolder.getCurrentTenantId();
+        // 只查当前租户下启用的挂号类型，仅取 id + name 两列（@TableLogic 自动过滤软删）
         return healthcareServiceMapper.selectList(new LambdaQueryWrapper<HealthcareService>()
                 .select(HealthcareService::getId, HealthcareService::getName)
+                .eq(HealthcareService::getTenantId, tenantId)
                 .eq(HealthcareService::getCategoryCode, CATEGORY_REGISTRATION)
                 .eq(HealthcareService::getActiveFlag, 1)
                 .orderByAsc(HealthcareService::getCreatedAt))

@@ -7,8 +7,6 @@ server:
 spring:
   application:
     name: ${sn.j3-storehouse:his-j3-storehouse}
-  config:
-    import: classpath:storehouse-datasource-override.yaml
   cloud:
     nacos:
       discovery:

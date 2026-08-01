@@ -52,7 +52,7 @@ public class PatientController implements PatientApis {
     @GetMapping("options")
     @Override
     public JsonVO<PageDTO<PatientOptionVO>> queryPatients(
-            PatientQuery query) {
+            @Valid PatientQuery query) {
         return JsonVO.success(patientService.queryPatients(query));
     }
 
