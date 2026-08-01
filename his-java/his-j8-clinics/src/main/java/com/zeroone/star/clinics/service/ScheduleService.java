@@ -2,6 +2,7 @@ package com.zeroone.star.clinics.service;
 
 import com.zeroone.star.project.dto.j8.clinics.ScheduleAddDTO;
 import com.zeroone.star.project.query.j8.clinics.ScheduleListQuery;
+import com.zeroone.star.project.vo.j8.clinics.ScheduleCreateVO;
 import com.zeroone.star.project.vo.j8.clinics.ScheduleItemVO;
 import com.zeroone.star.project.vo.j8.clinics.ScheduleListVO;
 
@@ -23,7 +24,7 @@ public interface ScheduleService {
     /**
      * 新增日程
      */
-    void insertSchedule(ScheduleAddDTO dto);
+    ScheduleCreateVO insertSchedule(ScheduleAddDTO dto);
 
     /**
      * 生成正式排班

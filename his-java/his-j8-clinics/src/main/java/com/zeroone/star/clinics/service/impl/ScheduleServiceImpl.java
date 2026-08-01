@@ -1,13 +1,14 @@
 package com.zeroone.star.clinics.service.impl;
 
+import cn.hutool.core.util.IdUtil;
 import com.zeroone.star.clinics.entity.Schedule;
 import com.zeroone.star.clinics.entity.ScheduleActor;
 import com.zeroone.star.clinics.mapper.ScheduleMapper;
 import com.zeroone.star.clinics.service.ScheduleService;
+import com.zeroone.star.project.dto.j8.clinics.ScheduleActorAddDTO;
 import com.zeroone.star.project.dto.j8.clinics.ScheduleAddDTO;
 import com.zeroone.star.project.query.j8.clinics.ScheduleListQuery;
 import com.zeroone.star.project.vo.j8.clinics.*;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -163,10 +164,37 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public void insertSchedule(ScheduleAddDTO dto) {
+    public ScheduleCreateVO insertSchedule(ScheduleAddDTO dto) {
+        // 生成日程ID
+        String scheduleId = IdUtil.fastSimpleUUID();
+
         Schedule schedule = new Schedule();
-        BeanUtils.copyProperties(dto, schedule);
+        schedule.setId(scheduleId);
+        schedule.setOrganizationId(dto.getOrganizationId());
+        schedule.setName(dto.getName());
+        schedule.setPlanningHorizonStart(dto.getPlanningHorizonStart());
+        schedule.setPlanningHorizonEnd(dto.getPlanningHorizonEnd());
+        schedule.setSlotProvisionTemplateId(dto.getSlotProvisionTemplateId());
+        schedule.setStatusEnum("DRAFT");
+        schedule.setActiveFlag(false);
+        schedule.setVersion(0);
         scheduleMapper.insertSchedule(schedule);
+
+        // 插入参与者
+        if (dto.getActors() != null) {
+            for (ScheduleActorAddDTO actorDto : dto.getActors()) {
+                ScheduleActor actor = new ScheduleActor();
+                actor.setId(IdUtil.fastSimpleUUID());
+                actor.setScheduleId(scheduleId);
+                actor.setActorType(actorDto.getActorType() != null ? Integer.valueOf(actorDto.getActorType()) : null);
+                actor.setActorId(actorDto.getActorId());
+                actor.setSortNo(actorDto.getSortNo() != null ? actorDto.getSortNo() : 0);
+                actor.setVersion(0);
+                scheduleMapper.insertScheduleActor(actor);
+            }
+        }
+
+        return new ScheduleCreateVO(scheduleId);
     }
 
     @Override

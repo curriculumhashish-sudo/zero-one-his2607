@@ -72,6 +72,17 @@
         AND schedule_id = #{scheduleId}
         ORDER BY sort_no
     </select>
+    <!-- 新增日程参与者 -->
+    <insert id="insertScheduleActor" parameterType="com.zeroone.star.clinics.entity.ScheduleActor">
+        INSERT INTO wkf_schedule_actor
+        (id, tenant_id, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at,
+        deleted_by, version, schedule_id, actor_type, actor_id, sort_no)
+        VALUES (
+        #{id}, #{tenantId}, #{createdAt}, #{updatedAt}, #{createdBy}, #{updatedBy}, #{isDeleted}, #{deletedAt},
+        #{deletedBy}, #{version}, #{scheduleId}, #{actorType}, #{actorId}, #{sortNo}
+        );
+    </insert>
+
     <!-- 查询医师名称 -->
     <select id="selectPractitionerName" resultType="string">
         SELECT name FROM adm_practitioner WHERE id = #{id}

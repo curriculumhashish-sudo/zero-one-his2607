@@ -4,6 +4,7 @@ import com.zeroone.star.project.dto.j8.clinics.FormalRosterDTO;
 import com.zeroone.star.project.dto.j8.clinics.ScheduleAddDTO;
 import com.zeroone.star.project.query.j8.clinics.ScheduleListQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j8.clinics.ScheduleCreateVO;
 import com.zeroone.star.project.vo.j8.clinics.ScheduleItemVO;
 import com.zeroone.star.project.vo.j8.clinics.ScheduleListVO;
 
@@ -37,7 +38,7 @@ public interface ClinicsApis {
      * @param scheduleAddDTO 新建日程参数
      * @return 新建日程结果
      */
-    JsonVO<String> createSchedule(ScheduleAddDTO scheduleAddDTO);
+    JsonVO<ScheduleCreateVO> createSchedule(ScheduleAddDTO scheduleAddDTO);
 
     /**
      * 生成正式排班

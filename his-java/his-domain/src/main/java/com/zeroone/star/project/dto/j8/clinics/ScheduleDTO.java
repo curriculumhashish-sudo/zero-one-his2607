@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Schema(description = "日程管理对象")
-public class ScheduleDTO extends ScheduleAddDTO {
+public class ScheduleDTO {
     @Schema(description = "日程ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
     @Schema(description = "科室ID", requiredMode = Schema.RequiredMode.REQUIRED)

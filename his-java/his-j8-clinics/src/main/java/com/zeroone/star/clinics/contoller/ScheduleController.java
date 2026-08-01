@@ -6,6 +6,7 @@ import com.zeroone.star.project.dto.j8.clinics.ScheduleAddDTO;
 import com.zeroone.star.project.j8.clinics.ClinicsApis;
 import com.zeroone.star.project.query.j8.clinics.ScheduleListQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j8.clinics.ScheduleCreateVO;
 import com.zeroone.star.project.vo.j8.clinics.ScheduleItemVO;
 import com.zeroone.star.project.vo.j8.clinics.ScheduleListVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,9 +40,9 @@ public class ScheduleController implements ClinicsApis {
     @Operation(summary = "新建日程")
     @Override
     @PostMapping("/add-schedule")
-    public JsonVO<String> createSchedule(@RequestBody ScheduleAddDTO scheduleAddDTO) {
-        scheduleService.insertSchedule(scheduleAddDTO);
-        return JsonVO.success("新建成功");
+    public JsonVO<ScheduleCreateVO> createSchedule(@RequestBody ScheduleAddDTO scheduleAddDTO) {
+        ScheduleCreateVO result = scheduleService.insertSchedule(scheduleAddDTO);
+        return JsonVO.success(result);
     }
 
     @Operation(summary = "生成正式排班")

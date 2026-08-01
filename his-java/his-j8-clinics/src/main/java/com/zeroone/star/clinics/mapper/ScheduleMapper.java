@@ -51,4 +51,9 @@ public interface ScheduleMapper extends BaseMapper<Schedule> {
      * 新增日程
      */
     void insertSchedule(Schedule schedule);
+
+    /**
+     * 新增日程参与者
+     */
+    void insertScheduleActor(ScheduleActor actor);
 }
