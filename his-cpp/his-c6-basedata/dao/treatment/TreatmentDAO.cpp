@@ -335,7 +335,8 @@ int32_t TreatmentDAO::removeData(std::list<std::string>& ids)
 {
 	if (ids.empty()) return 0;
 
-	std::string sql = "UPDATE wkf_activity_definition SET is_deleted=1, deleted_at=NOW() WHERE id IN (";
+	std::string sql = "UPDATE wkf_activity_definition w LEFT JOIN adm_charge_item_definition a SET "
+		"w.is_deleted = 1, w.deleted_at = NOW(),a.is_deleted=1,a.deleted_at = NOW() WHERE w.id IN(";
 	SqlParams params;
 	bool first = true;
 
@@ -346,7 +347,7 @@ int32_t TreatmentDAO::removeData(std::list<std::string>& ids)
 		sql += "?";
 		SQLPARAMS_PUSH(params, "s", std::string, item);
 	}
-	sql += ") AND is_deleted=0";
+	sql += ") AND w.is_deleted=0";
 
 	return sqlSession->executeUpdate(sql, params);
 }
