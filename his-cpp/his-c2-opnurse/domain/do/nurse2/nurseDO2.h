@@ -2,7 +2,7 @@
  Copyright Zero One Star. All rights reserved.
 
  @Author: fa-mian-tuan
- @Date: 2026/07/24
+ @Date: 2026/08/01
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -25,31 +25,37 @@
  */
 class NurseDO2 : public BaseDO
 {
-	// 主键 ID      
+	// Primary key ID
 	MYSQL_SYNTHESIZE(string, id, Id);
-	// 患者姓名
+	// Queue number / patient name (bus_no column)
 	MYSQL_SYNTHESIZE(string, name, Name);
-	// 执行状态
+	// Execution status (status_enum column)
 	MYSQL_SYNTHESIZE(string, state, State);
-	// 医嘱内容
+	// Medical order content (content_json column)
 	MYSQL_SYNTHESIZE(string, content, Content);
-	// 执行次数
+	// Execution count (execution_count column)
 	MYSQL_SYNTHESIZE(int, amount, Amount);
-	// 执行人
+	// Executor (performer_id column)
 	MYSQL_SYNTHESIZE(string, person, Person);
-	// 操作
+	// Operation category (category_enum column)
 	MYSQL_SYNTHESIZE(string, operate, Operate);
+	// Remark (remark column)
+	MYSQL_SYNTHESIZE(string, remark, Remark);
+	// Encounter ID (encounter_id column)
+	MYSQL_SYNTHESIZE(string, encounterId, EncounterId);
 
 public:
-	NurseDO2() : BaseDO("wkf_service_request")    //wkf_service_request 这张表
+	NurseDO2() : BaseDO("wkf_service_request")
 	{
-		MYSQL_ADD_FIELD_PK("id", "s", id);                //id
-		MYSQL_ADD_FIELD("bus_no", "s", name);             //患者姓名
-		MYSQL_ADD_FIELD("status_enum", "s", state);       //执行状态
-		MYSQL_ADD_FIELD("content_json", "s", content);    //医嘱内容
-		MYSQL_ADD_FIELD("execution_count", "i", amount);  //执行次数
-		MYSQL_ADD_FIELD("performer_id", "s", person);     //执行人
-		MYSQL_ADD_FIELD("category_enum", "s", operate);   //操作
+		MYSQL_ADD_FIELD_PK("id", "s", id);
+		MYSQL_ADD_FIELD("bus_no", "s", name);
+		MYSQL_ADD_FIELD("status_enum", "s", state);
+		MYSQL_ADD_FIELD("content_json", "s", content);
+		MYSQL_ADD_FIELD("execution_count", "i", amount);
+		MYSQL_ADD_FIELD("performer_id", "s", person);
+		MYSQL_ADD_FIELD("category_enum", "s", operate);
+		MYSQL_ADD_FIELD("remark", "s", remark);
+		MYSQL_ADD_FIELD("encounter_id", "s", encounterId);
 	}
 };
 

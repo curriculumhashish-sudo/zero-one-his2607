@@ -1,24 +1,28 @@
+
 #ifndef _NURSE_DAO2_
 #define _NURSE_DAO2_
 #include "BaseDAO.h"
 #include "domain/do/nurse2/nurseDO2.h"
 #include "domain/query/nurse2/NurseQuery2.h"
 
-/**
- * Nurse2 数据访问对象
- * - 仅封装各类查询方法 —— 新增、修改、删除逻辑全部继承自基础父类 BaseDAO
- */
 class NurseDAO2 : public BaseDAO
 {
 private:
-	// 根据查询筛选条件拼接生成 WHERE 子句
+	// Build WHERE clause from query filters
 	inline std::string queryConditionBuilder(const NurseQuery2::Wrapper& query, SqlParams& params);
 
 public:
-	// 根据查询过滤条件统计数据条数
+	// Count records by query filters
 	uint64_t count(const NurseQuery2::Wrapper& query);
-	//  分页查询数据
+	// Select with pagination
 	std::list<NurseDO2> selectWithPage(const NurseQuery2::Wrapper& query);
+
+	// Execute a service request (update status, count, performer by pk + encounter validation)
+	int updateExecutionStatus(const std::string& itemId, const std::string& encounterId,
+		const std::string& status, int execCount, const std::string& performerId);
+	// Cancel a service request (update status to CANCELLED by pk + encounter validation)
+	int updateCancelStatus(const std::string& itemId, const std::string& encounterId,
+		const std::string& cancelReason, const std::string& performerId);
 };
 
 #endif // !_NURSE_DAO2_

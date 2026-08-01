@@ -2,7 +2,7 @@
  Copyright Zero One Star. All rights reserved.
 
  @Author: fa-mian-tuan
- @Date: 2026/07/24
+ @Date: 2026/08/01
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -18,35 +18,29 @@
 */
 #include "stdafx.h"
 #include "nurseService2.h"
-#include "domain/do/nurse2/nurseDO2.h"
 #include "dao/nurse2/NurseDAO2.h"
 
 bool NurseService2::NurseOperate2(const NurseOperateDTO2::Wrapper& dto, const std::string& username)
 {
-	// 转换 DTO to DO
-	NurseDO2 data;
-	ZO_STAR_DOMAIN_DTO_TO_DO(data, dto, Name, name, State, state,
-		Content, content, Amount, amount, Operate, operate);
-	// 从身份认证载荷（payload）中赋值执行人信息（覆盖DTO里原本的人员字段）
-	data.setPerson(username);
+	// Extract fields from DTO
+	std::string encounterId = dto->encounterId.getValue("");
+	std::string itemId = dto->itemId.getValue("");
+	std::string status = dto->state ? dto->state.getValue("") : "COMPLETED";
+	int execCount = dto->amount ? dto->amount.getValue(0) : 1;
 
-	// 根据业务编号（排队号）匹配对应记录，并执行更新操作
+	// Update service request by primary key with encounter validation
 	NurseDAO2 dao;
-	std::string where = "`bus_no`='" + dto->name.getValue("") + "'";
-	return dao.update(data, where) == 1;
+	return dao.updateExecutionStatus(itemId, encounterId, status, execCount, username) == 1;
 }
 
 bool NurseService2::NurseCancel2(const NurseCancelDTO2::Wrapper& dto, const std::string& username)
 {
-	//  DTO to DO
-	NurseDO2 data;
-	ZO_STAR_DOMAIN_DTO_TO_DO(data, dto, Name, name, State, state,
-		Content, content, Amount, amount, Operate, operate);
-	// 从身份认证载荷（payload）中赋值执行人信息（覆盖DTO里原本的人员字段）
-	data.setPerson(username);
+	// Extract fields from DTO
+	std::string encounterId = dto->encounterId.getValue("");
+	std::string itemId = dto->itemId.getValue("");
+	std::string cancelReason = dto->cancelReason ? dto->cancelReason.getValue("") : "";
 
-	// 根据排队业务编号（bus_no）匹配目标记录并执行数据更新
+	// Cancel service request by primary key with encounter validation
 	NurseDAO2 dao;
-	std::string where = "`bus_no`='" + dto->name.getValue("") + "'";
-	return dao.update(data, where) == 1;
+	return dao.updateCancelStatus(itemId, encounterId, cancelReason, username) == 1;
 }

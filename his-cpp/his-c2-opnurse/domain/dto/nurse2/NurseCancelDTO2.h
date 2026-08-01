@@ -2,7 +2,7 @@
  Copyright Zero One Star. All rights reserved.
 
  @Author: fa-mian-tuan
- @Date: 2026/07/24
+ @Date: 2026/08/01
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -24,23 +24,19 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-// 取消执行 DTO
+// Cancel execution DTO
 class NurseCancelDTO2 : public oatpp::DTO
 {
 	DTO_INIT(NurseCancelDTO2, DTO);
 
-
-	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("nurse2.field.name_code"), true);
-
-	API_DTO_FIELD_REQUIRE(String, state, ZH_WORDS_GETTER("nurse2.field.state"), false);
-	
-	API_DTO_FIELD_REQUIRE(String, content, ZH_WORDS_GETTER("nurse2.field.content"), false);
-	
-	API_DTO_FIELD_REQUIRE(Int32, amount, ZH_WORDS_GETTER("nurse2.field.amount"), false);
-
-	API_DTO_FIELD_REQUIRE(String, person, ZH_WORDS_GETTER("nurse2.field.person"), false);
-
-	API_DTO_FIELD_REQUIRE(String, operate, ZH_WORDS_GETTER("nurse2.field.operate"), false);
+	// Encounter ID (必须)
+	API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("nurse2.field.encounter_id"), true);
+	// Service request item ID to cancel (必须)
+	API_DTO_FIELD_REQUIRE(String, itemId, ZH_WORDS_GETTER("nurse2.field.item_id"), true);
+	// 取消原因
+	API_DTO_FIELD_REQUIRE(String, cancelReason, ZH_WORDS_GETTER("nurse2.field.cancel_reason"), true);
+	//乐观锁版本
+	API_DTO_FIELD_REQUIRE(Int32, version, ZH_WORDS_GETTER("nurse2.field.version"), false);
 };
 
 #include OATPP_CODEGEN_END(DTO)
