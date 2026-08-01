@@ -28,17 +28,17 @@ PharmPageJsonVO::Wrapper PharmService::getPage(const PharmQuery::Wrapper& query)
     auto result = PharmPageJsonVO::createShared();
     PharmDAO dao;
 
-    // ²éÑ¯×ÜÌõÊý
+    // ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     uint64_t total = dao.count(query);
 
-    // ÏÈ¹¹Ôì·ÖÒ³DTO£¬¿ÕÊý¾ÝÒ²·µ»ØÍêÕû½á¹¹
+    // ï¿½È¹ï¿½ï¿½ï¿½ï¿½Ò³DTOï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½á¹¹
     auto pageDto = PharmPageDTO::createShared();
     pageDto->pageIndex = query->pageIndex.getValue(1);
     pageDto->pageSize = query->pageSize.getValue(10);
     pageDto->total = total;
     pageDto->rows = oatpp::List<PharmDTO::Wrapper>::createShared();
 
-    // ÓÐÊý¾ÝÊ±ÔÙ²éÑ¯ÁÐ±í²¢×öDO×ªDTO
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½Ù²ï¿½Ñ¯ï¿½Ð±ï¿½ï¿½ï¿½ï¿½ï¿½DO×ªDTO
     if (total > 0)
     {
         std::list<PtrPharmDO> dataList = dao.selectPage(query);
@@ -65,6 +65,31 @@ PharmPageJsonVO::Wrapper PharmService::getPage(const PharmQuery::Wrapper& query)
     return result;
 }
 
+PharmNameListJsonVO::Wrapper PharmService::nameList(const oatpp::String& type)
+{
+    auto result = PharmNameListJsonVO::createShared();
+    PharmDAO dao;
+
+    std::string typeStr;
+    if (type)
+    {
+        typeStr = type.getValue("");
+    }
+
+    std::list<PtrPharmDO> dataList = dao.nameList(typeStr);
+    auto rows = oatpp::List<PharmNameDTO::Wrapper>::createShared();
+    for (const auto& item : dataList)
+    {
+        auto dto = PharmNameDTO::createShared();
+        dto->id = item->getId();
+        dto->name = oatpp::String(item->getName());
+        rows->push_back(dto);
+    }
+
+    result->success(rows);
+    return result;
+}
+
 StringJsonVO::Wrapper PharmService::add(const PharmAddDTO::Wrapper& dto)
 {
     auto result = StringJsonVO::createShared();
@@ -76,7 +101,7 @@ StringJsonVO::Wrapper PharmService::add(const PharmAddDTO::Wrapper& dto)
     data.setSort(dto->sort.getValue(0));
     data.setRemark(dto->remark.getValue(""));
 
-    // »ñÈ¡²Ù×÷ÈË£ºpayload´æÔÚÓÃÕæÊµÓÃ»§Ãû£¬²»´æÔÚÓÃÄ¬ÈÏadmin¶µµ×
+    // ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½Ë£ï¿½payloadï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¬ï¿½ï¿½adminï¿½ï¿½ï¿½ï¿½
     std::string username = "admin";
     if (dto->getPayload())
     {
@@ -88,10 +113,10 @@ StringJsonVO::Wrapper PharmService::add(const PharmAddDTO::Wrapper& dto)
     data.setCreate_Time(now);
     data.setUpdate_Time(now);
 
-    // ÐÂÔöÄ¬ÈÏÆôÓÃ×´Ì¬
+    // ï¿½ï¿½ï¿½ï¿½Ä¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬
     data.setStatus(1);
 
-    // Ö´ÐÐÊý¾Ý¿â²åÈë
+    // Ö´ï¿½ï¿½ï¿½ï¿½ï¿½Ý¿ï¿½ï¿½ï¿½ï¿½
     PharmDAO dao;
     int rows = dao.insert(data);
     if (rows > 0)
@@ -116,7 +141,7 @@ StringJsonVO::Wrapper PharmService::modify(const PharmModifyDTO::Wrapper& dto)
     data.setSort(dto->sort.getValue(0));
     data.setRemark(dto->remark.getValue(""));
 
-    // »ñÈ¡²Ù×÷ÈË£ºpayload´æÔÚÓÃÕæÊµÓÃ»§Ãû£¬²»´æÔÚÓÃÄ¬ÈÏadmin¶µµ×
+    // ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½Ë£ï¿½payloadï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¬ï¿½ï¿½adminï¿½ï¿½ï¿½ï¿½
     std::string username = "admin";
     if (dto->getPayload())
     {

@@ -47,32 +47,14 @@ class PharmDTO : public oatpp::DTO
 };
 
 /**
- * PharmModifyStatusEnumDTO - Status modification DTO (c5 mengsuibizhi).
- * Used for the /pharm/statusEnum/modify endpoint.
+ * PharmNameDTO - Lightweight DTO for pharmacy/warehouse name list (id + name).
+ * Used by GET /pharm/name-list endpoint for dropdown selection.
  */
-class PharmModifyStatusEnumDTO : public oatpp::DTO
+class PharmNameDTO : public oatpp::DTO
 {
-    DTO_INIT(PharmModifyStatusEnumDTO, DTO);
-    DTO_FIELD(String, statusEnum);
-    DTO_FIELD_INFO(statusEnum) {
-        info->description = ZH_WORDS_GETTER("pharm.field.statusEnum");
-    }
-};
-
-/**
- * PharmSelectDTO - Lightweight DTO for dropdown selection lists (c5 mengsuibizhi).
- */
-class PharmSelectDTO : public oatpp::DTO
-{
-    DTO_INIT(PharmSelectDTO, DTO);
-    DTO_FIELD(String, id);
-    DTO_FIELD_INFO(id) {
-        info->description = ZH_WORDS_GETTER("pharm.field.id");
-    }
-    DTO_FIELD(String, name);
-    DTO_FIELD_INFO(name) {
-        info->description = ZH_WORDS_GETTER("pharm.field.name");
-    }
+    DTO_INIT(PharmNameDTO, DTO);
+    API_DTO_FIELD_DEFAULT(oatpp::UInt64, id, ZH_WORDS_GETTER("pharm.field.id"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, name, ZH_WORDS_GETTER("pharm.field.name"));
 };
 
 #include OATPP_CODEGEN_END(DTO)

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "PharmDAO.h"
 #include "PharmMapper.h"
+#include "PharmNameMapper.h"
 #include <sstream>
 
 std::string PharmDAO::queryConditionBuilder(const PharmQuery::Wrapper& query, SqlParams& params)
@@ -99,6 +100,19 @@ int PharmDAO::remove(uint64_t id)
 	SqlParams params;
 	SQLPARAMS_PUSH(params, "ull", uint64_t, id);
 	return sqlSession->executeUpdate(sql, params);
+}
+
+std::list<PtrPharmDO> PharmDAO::nameList(const std::string& type)
+{
+    std::string sql = "SELECT id, name FROM sys_pharm WHERE is_deleted = 0 AND status = 1";
+    SqlParams params;
+    if (!type.empty())
+    {
+        sql += " AND type = ?";
+        SQLPARAMS_PUSH(params, "s", std::string, type);
+    }
+    sql += " ORDER BY sort ASC, id DESC";
+    return sqlSession->executeQuery<PtrPharmDO>(sql, PharmNameMapper(), params);
 }
 
 int PharmDAO::updateStatus(uint64_t id, int status)

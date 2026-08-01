@@ -9,21 +9,23 @@
 class PharmDAO : public BaseDAO
 {
 public:
-    // ·ÖÒ³²éÑ¯¿â·¿Ò©·¿ÁÐ±í
+    // Paginated query for pharmacy/warehouse list
     std::list<PtrPharmDO> selectPage(const PharmQuery::Wrapper& query);
-    // Í³¼Æ·ûºÏÌõ¼þµÄ¼ÇÂ¼×ÜÊý
+    // Count records matching filter conditions
     uint64_t count(const PharmQuery::Wrapper& query);
-    // ÐÂÔö¿â·¿Ò©·¿
+    // Pharmacy/warehouse name list: query id + name, with optional type filter
+    std::list<PtrPharmDO> nameList(const std::string& type);
+    // Insert a new pharmacy/warehouse
     int insert(const PharmDO& data);
-    // ÐÞ¸Ä¿â·¿Ò©·¿ÐÅÏ¢
+    // Modify pharmacy/warehouse info
     int update(const PharmDO& data);
-    // Âß¼­É¾³ý¿â·¿Ò©·¿
+    // Logical delete of pharmacy/warehouse
     int remove(uint64_t id);
-    // ¸üÐÂ¿â·¿Ò©·¿×´Ì¬
+    // Update pharmacy/warehouse status
     int updateStatus(uint64_t id, int status);
 
 private:
-    // ¶¯Ì¬¹¹½¨²éÑ¯Ìõ¼þÓë²ÎÊý¼¯ºÏ
+    // ï¿½ï¿½Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     std::string queryConditionBuilder(const PharmQuery::Wrapper& query, SqlParams& params);
 };
 

@@ -1,4 +1,4 @@
-﻿/*
+/*
  Copyright Zero One Star. All rights reserved.
 
  @Author: Lfff
@@ -20,18 +20,21 @@
 #include "PharmController.h"
 #include "../../service/pharm/PharmService.h"
 
-// ============================================================
-// c5-pharm real implementations (via PharmService)
-// ============================================================
+// 1. GET /pharm/name-list — Pharmacy/warehouse name list (id + name, optional type filter)
+PharmNameListJsonVO::Wrapper PharmController::execNameList(const String& type)
+{
+    PharmService service;
+    return service.nameList(type);
+}
 
-// GET /pharm/list — Paginated query
+// 2. GET /pharm/list — Paginated query list
 PharmPageJsonVO::Wrapper PharmController::execGetPharmList(const PharmQuery::Wrapper& query)
 {
     PharmService service;
     return service.getPage(query);
 }
 
-// POST /pharm — Add pharmacy/warehouse
+// 3. POST /pharm — Add pharmacy/warehouse
 StringJsonVO::Wrapper PharmController::execAddPharm(const PharmAddDTO::Wrapper& dto)
 {
     std::string err = dto->validate();
@@ -45,14 +48,14 @@ StringJsonVO::Wrapper PharmController::execAddPharm(const PharmAddDTO::Wrapper& 
     return service.add(dto);
 }
 
-// PUT /pharm — Modify pharmacy/warehouse
+// 4. PUT /pharm — Modify pharmacy/warehouse
 StringJsonVO::Wrapper PharmController::execModifyPharm(const PharmModifyDTO::Wrapper& dto)
 {
     PharmService service;
     return service.modify(dto);
 }
 
-// DELETE /pharm/{id} — Remove pharmacy/warehouse
+// 5. DELETE /pharm/{id} — Remove pharmacy/warehouse
 StringJsonVO::Wrapper PharmController::execRemovePharm(const String& id)
 {
     uint64_t idNum = std::stoull(id->c_str());
@@ -60,49 +63,9 @@ StringJsonVO::Wrapper PharmController::execRemovePharm(const String& id)
     return service.remove(idNum);
 }
 
-// PUT /pharm/status — Toggle status
+// 6. PUT /pharm/status — Toggle enable/disable status
 StringJsonVO::Wrapper PharmController::execUpdatePharmStatus(uint64_t id, int status)
 {
     PharmService service;
     return service.updateStatus(id, status);
-}
-
-// ============================================================
-// c5 (mengsuibizhi) stub implementations
-// ============================================================
-
-// GET /pharm/select-list — Dropdown selection list (stub)
-PharmSelectListJsonVO::Wrapper PharmController::execSelectList(const String& type)
-{
-    auto jvo = PharmSelectListJsonVO::createShared();
-    // TODO: Replace with Service layer call
-    jvo->fail({});
-    return jvo;
-}
-
-// GET /pharm/query-all — Paginated query via GET (stub)
-PharmPageJsonVO::Wrapper PharmController::execQueryAll(const PharmQuery::Wrapper& query)
-{
-    auto jvo = PharmPageJsonVO::createShared();
-    // TODO: Replace with Service layer call
-    jvo->fail({});
-    return jvo;
-}
-
-// POST /pharm/statusEnum/modify — Status modify via enum (stub)
-StringJsonVO::Wrapper PharmController::execModifyPharmStatusEnum(const PharmModifyStatusEnumDTO::Wrapper& dto)
-{
-    auto jvo = StringJsonVO::createShared();
-    // TODO: Replace with Service layer call
-    jvo->fail({});
-    return jvo;
-}
-
-// POST /pharm/list/query — Paginated query via POST (stub)
-PharmPageJsonVO::Wrapper PharmController::execQueryPharmList(const PharmQuery::Wrapper& query)
-{
-    auto jvo = PharmPageJsonVO::createShared();
-    // TODO: Replace with Service layer call
-    jvo->fail({});
-    return jvo;
 }

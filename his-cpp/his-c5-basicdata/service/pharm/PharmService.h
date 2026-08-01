@@ -5,21 +5,24 @@
 #include "domain/dto/pharm/PharmAddDTO.h"
 #include "domain/dto/pharm/PharmModifyDTO.h"
 #include "domain/vo/pharm/PharmPageVO.h"
+#include "domain/vo/pharm/PharmVO.h"
 #include "domain/GlobalInclude.h"
 #include "domain/vo/BaseJsonVO.h"
 
 class PharmService
 {
 public:
-    // 分页查询库房药房列表
+    // Paginated query for pharmacy/warehouse list
     PharmPageJsonVO::Wrapper getPage(const PharmQuery::Wrapper& query);
-    // 新增库房药房
+    // Pharmacy/warehouse name list: id + name, optional type filter
+    PharmNameListJsonVO::Wrapper nameList(const oatpp::String& type);
+    // Add a new pharmacy/warehouse
     StringJsonVO::Wrapper add(const PharmAddDTO::Wrapper& dto);
-    // 修改库房药房信息
+    // Modify pharmacy/warehouse info
     StringJsonVO::Wrapper modify(const PharmModifyDTO::Wrapper& dto);
-    // 逻辑删除库房药房
+    // Logical delete pharmacy/warehouse
     StringJsonVO::Wrapper remove(uint64_t id);
-    // 更新库房药房状态
+    // Update pharmacy/warehouse status
     StringJsonVO::Wrapper updateStatus(uint64_t id, int status);
 };
 

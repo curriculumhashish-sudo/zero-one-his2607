@@ -192,24 +192,17 @@ sup:
 pharm:
   tag: 库房药房管理
   endpoints:
-    list: 分页查询库房药房列表
+    nameList: 获取库房药房名称
+    list: 获取库房药房列表条件+分页
     add: 新增库房药房
     modify: 修改库房药房
     remove: 删除库房药房
-    status: 切换库房药房状态
-  select-list:
-    summary: 获取库房药房下拉选择列表
-  query-all:
-    summary: 分页查询库房药房列表(GET参数)
-  statusEnum:
-    modify: 修改库房药房启停状态
-  list:
-    query: 分页查询库房药房列表(POST参数)
+    status: 切换库房药房启停状态
   field:
     id: 编号
     name: 药房名称
     type: 药房类型
-    typeEnum: 供应商类型(生产厂家/供应商等)
+    typeEnum: 库房药房类型
     classRoom: 上级科室
     sort: 排序号
     remark: 备注

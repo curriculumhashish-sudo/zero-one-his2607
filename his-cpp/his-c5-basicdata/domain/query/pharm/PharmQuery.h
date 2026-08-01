@@ -28,8 +28,7 @@
 /**
  * PharmQuery - Pharmacy/warehouse paginated query parameters.
  *
- * Used by both c5-pharm (/pharm/list) and c5 mengsuibizhi
- * (/pharm/query-all, /pharm/list/query) endpoints.
+ * Used by GET /pharm/list endpoint.
  */
 class PharmQuery : public PageQuery
 {
