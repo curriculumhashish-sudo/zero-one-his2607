@@ -5,7 +5,6 @@ import com.zeroone.star.clinics.entity.ScheduleActor;
 import com.zeroone.star.clinics.mapper.ScheduleMapper;
 import com.zeroone.star.clinics.service.ScheduleService;
 import com.zeroone.star.project.dto.j8.clinics.ScheduleAddDTO;
-import com.zeroone.star.project.dto.j8.clinics.ScheduleDTO;
 import com.zeroone.star.project.query.j8.clinics.ScheduleListQuery;
 import com.zeroone.star.project.vo.j8.clinics.*;
 import org.springframework.beans.BeanUtils;
@@ -32,10 +31,10 @@ public class ScheduleServiceImpl implements ScheduleService {
         List<Schedule> schedules = scheduleMapper.selectByConditions(query);
 
         // 2. 批量查询参与者
-        List<Long> scheduleIds = schedules.stream()
+        List<String> scheduleIds = schedules.stream()
                 .map(Schedule::getId)
                 .collect(Collectors.toList());
-        Map<Long, List<ScheduleActor>> actorMap = Collections.emptyMap();
+        Map<String, List<ScheduleActor>> actorMap = Collections.emptyMap();
         if (!scheduleIds.isEmpty()) {
             List<ScheduleActor> allActors = scheduleMapper.selectActorsByScheduleIds(scheduleIds);
             actorMap = allActors.stream()
@@ -120,8 +119,47 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public ScheduleDTO getById(Long scheduleId) {
-        return scheduleMapper.getById(scheduleId);
+    public ScheduleItemVO getById(String scheduleId) {
+        Schedule s = scheduleMapper.getById(scheduleId);
+        if (s == null) {
+            return null;
+        }
+
+        List<ScheduleActor> actors = scheduleMapper.selectActorsByScheduleId(scheduleId);
+
+        ScheduleItemVO vo = new ScheduleItemVO();
+        vo.setScheduleId(s.getId());
+        vo.setName(s.getName());
+        vo.setStatusEnum(s.getStatusEnum());
+        vo.setPlanningHorizonStart(s.getPlanningHorizonStart());
+        vo.setPlanningHorizonEnd(s.getPlanningHorizonEnd());
+        vo.setHealthcareServiceId(s.getHealthcareServiceId());
+        vo.setSourceScheduleTemplateId(s.getSourceScheduleTemplateId());
+        vo.setSlotProvisionTemplateId(s.getSlotProvisionTemplateId());
+        vo.setSubstitutePractitionerId(s.getSubstitutePractitionerId());
+        vo.setActors(actors.stream().map(this::toActorVO).collect(Collectors.toList()));
+
+        // 查询医疗服务名称
+        if (s.getHealthcareServiceId() != null) {
+            vo.setHealthcareServiceName(scheduleMapper.selectHealthcareServiceName(s.getHealthcareServiceId()));
+        }
+
+        // 从参与者中提取医师名称和地点名称
+        for (ScheduleActor actor : actors) {
+            if (actor.getActorId() == null) continue;
+            // 尝试从医师表查询
+            String practitionerName = scheduleMapper.selectPractitionerName(actor.getActorId());
+            if (practitionerName != null) {
+                vo.setPractitionerName(practitionerName);
+            }
+            // 尝试从地点表查询
+            String locationName = scheduleMapper.selectLocationName(actor.getActorId());
+            if (locationName != null) {
+                vo.setLocationName(locationName);
+            }
+        }
+
+        return vo;
     }
 
     @Override
@@ -168,15 +206,15 @@ public class ScheduleServiceImpl implements ScheduleService {
         return "DRAFT".equalsIgnoreCase(s.getStatusEnum());
     }
 
-    private ScheduleItemVO toItemVO(Schedule s, Map<Long, List<ScheduleActor>> actorMap) {
+    private ScheduleItemVO toItemVO(Schedule s, Map<String, List<ScheduleActor>> actorMap) {
         ScheduleItemVO vo = new ScheduleItemVO();
-        vo.setScheduleId(s.getId() != null ? s.getId().toString() : null);
+        vo.setScheduleId(s.getId() != null ? s.getId() : null);
         vo.setName(s.getName());
         vo.setStatusEnum(s.getStatusEnum());
         vo.setPlanningHorizonStart(s.getPlanningHorizonStart());
         vo.setPlanningHorizonEnd(s.getPlanningHorizonEnd());
-        vo.setHealthcareServiceId(s.getHealthcareServiceId() != null ? s.getHealthcareServiceId().toString() : null);
-        vo.setSubstitutePractitionerId(s.getSubstitutePractitionerId() != null ? s.getSubstitutePractitionerId().toString() : null);
+        vo.setHealthcareServiceId(s.getHealthcareServiceId() != null ? s.getHealthcareServiceId() : null);
+        vo.setSubstitutePractitionerId(s.getSubstitutePractitionerId() != null ? s.getSubstitutePractitionerId() : null);
 
         List<ScheduleActor> actors = actorMap.getOrDefault(s.getId(), Collections.emptyList());
         vo.setActors(actors.stream().map(this::toActorVO).collect(Collectors.toList()));
@@ -187,7 +225,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     private ScheduleActorVO toActorVO(ScheduleActor a) {
         ScheduleActorVO vo = new ScheduleActorVO();
         vo.setActorType(a.getActorType() != null ? a.getActorType().toString() : null);
-        vo.setActorId(a.getActorId() != null ? a.getActorId().toString() : null);
+        vo.setActorId(a.getActorId() != null ? a.getActorId() : null);
         vo.setSortNo(a.getSortNo());
         return vo;
     }
@@ -236,7 +274,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         }
     }
 
-    private void releaseSlots(Long scheduleId) {
+    private void releaseSlots(String scheduleId) {
         System.out.println("对日程ID " + scheduleId + " 进行放号处理");
     }
 }

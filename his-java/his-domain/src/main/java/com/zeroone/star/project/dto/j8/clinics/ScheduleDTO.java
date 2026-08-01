@@ -9,9 +9,9 @@ import java.time.LocalDateTime;
 @Schema(description = "日程管理对象")
 public class ScheduleDTO extends ScheduleAddDTO {
     @Schema(description = "日程ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long id;
+    private String id;
     @Schema(description = "科室ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long clinicId;
+    private String clinicId;
     @Schema(description = "医师", requiredMode = Schema.RequiredMode.REQUIRED)
     private String doctor;
     @Schema(description = "号源类型:便民,普通,专家", requiredMode = Schema.RequiredMode.REQUIRED)

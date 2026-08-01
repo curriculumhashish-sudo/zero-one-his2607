@@ -2,9 +2,9 @@ package com.zeroone.star.project.j8.clinics;
 
 import com.zeroone.star.project.dto.j8.clinics.FormalRosterDTO;
 import com.zeroone.star.project.dto.j8.clinics.ScheduleAddDTO;
-import com.zeroone.star.project.dto.j8.clinics.ScheduleDTO;
 import com.zeroone.star.project.query.j8.clinics.ScheduleListQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j8.clinics.ScheduleItemVO;
 import com.zeroone.star.project.vo.j8.clinics.ScheduleListVO;
 
 /**
@@ -30,7 +30,7 @@ public interface ClinicsApis {
      * @param scheduleId 日程ID
      * @return 日程详情
      */
-    JsonVO<ScheduleDTO> queryScheduleDetail(Long scheduleId);
+    JsonVO<ScheduleItemVO> queryScheduleDetail(String scheduleId);
 
     /**
      * 新建日程

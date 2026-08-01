@@ -3,7 +3,6 @@ package com.zeroone.star.clinics.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.zeroone.star.clinics.entity.Schedule;
 import com.zeroone.star.clinics.entity.ScheduleActor;
-import com.zeroone.star.project.dto.j8.clinics.ScheduleDTO;
 import com.zeroone.star.project.query.j8.clinics.ScheduleListQuery;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -21,12 +20,32 @@ public interface ScheduleMapper extends BaseMapper<Schedule> {
     /**
      * 根据日程ID列表批量查询参与者
      */
-    List<ScheduleActor> selectActorsByScheduleIds(@Param("scheduleIds") List<Long> scheduleIds);
+    List<ScheduleActor> selectActorsByScheduleIds(@Param("scheduleIds") List<String> scheduleIds);
+
+    /**
+     * 查询单个日程的参与者
+     */
+    List<ScheduleActor> selectActorsByScheduleId(@Param("scheduleId") String scheduleId);
 
     /**
      * 获取日程详情
      */
-    ScheduleDTO getById(Long scheduleId);
+    Schedule getById(@Param("scheduleId") String scheduleId);
+
+    /**
+     * 查询医师名称
+     */
+    String selectPractitionerName(@Param("id") String id);
+
+    /**
+     * 查询地点名称
+     */
+    String selectLocationName(@Param("id") String id);
+
+    /**
+     * 查询医疗服务名称
+     */
+    String selectHealthcareServiceName(@Param("id") String id);
 
     /**
      * 新增日程

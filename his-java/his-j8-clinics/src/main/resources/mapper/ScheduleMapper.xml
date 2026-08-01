@@ -58,29 +58,35 @@
     </select>
 
     <!-- 获取日程详情 -->
-    <select id="getById" resultType="map">
-    SELECT
-    CAST(s.id AS CHAR) AS scheduleId,
-    s.name AS name,
-    s.status_enum AS statusEnum,
-    s.planning_horizon_start AS planningHorizonStart,
-    s.planning_horizon_end AS planningHorizonEnd,
-    s.healthcare_service_id AS healthcareServiceId,
-    s.source_schedule_template_id AS sourceScheduleTemplateId,
-    s.slot_provision_template_id AS slotProvisionTemplateId,
-    s.substitute_practitioner_id AS substitutePractitionerId,
-    NULL AS fromTemplate,
-    NULL AS weekScheduleTemplateId,
-    NULL AS dayScheduleTemplateId,
-    NULL AS bookable,
-    NULL AS originalPractitionerId,
-    NULL AS substituteDisplay,
-    NULL AS practitionerName,
-    NULL AS locationName,
-    NULL AS healthcareServiceName
-    FROM wkf_schedule s
-    WHERE s.id = #{scheduleId}
+    <select id="getById" resultType="com.zeroone.star.clinics.entity.Schedule">
+        SELECT *
+        FROM wkf_schedule
+        WHERE id = #{scheduleId}
     </select>
+
+    <!-- 查询单个日程的参与者 -->
+    <select id="selectActorsByScheduleId" resultType="com.zeroone.star.clinics.entity.ScheduleActor">
+        SELECT *
+        FROM wkf_schedule_actor
+        WHERE is_deleted = 0
+        AND schedule_id = #{scheduleId}
+        ORDER BY sort_no
+    </select>
+    <!-- 查询医师名称 -->
+    <select id="selectPractitionerName" resultType="string">
+        SELECT name FROM adm_practitioner WHERE id = #{id}
+    </select>
+
+    <!-- 查询地点名称 -->
+    <select id="selectLocationName" resultType="string">
+        SELECT name FROM adm_location WHERE id = #{id}
+    </select>
+
+    <!-- 查询医疗服务名称 -->
+    <select id="selectHealthcareServiceName" resultType="string">
+        SELECT name FROM adm_healthcare_service WHERE id = #{id}
+    </select>
+
     <!--    <select id="selectPage" resultType="com.zeroone.star.clinics.entity.Schedule">-->
 <!--        select * from wkf_schedule-->
 <!--        <where>-->

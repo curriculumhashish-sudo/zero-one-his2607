@@ -1,9 +1,8 @@
 package com.zeroone.star.clinics.service;
 
-import com.zeroone.star.clinics.entity.Schedule;
 import com.zeroone.star.project.dto.j8.clinics.ScheduleAddDTO;
-import com.zeroone.star.project.dto.j8.clinics.ScheduleDTO;
 import com.zeroone.star.project.query.j8.clinics.ScheduleListQuery;
+import com.zeroone.star.project.vo.j8.clinics.ScheduleItemVO;
 import com.zeroone.star.project.vo.j8.clinics.ScheduleListVO;
 
 public interface ScheduleService {
@@ -19,7 +18,7 @@ public interface ScheduleService {
      * @param scheduleId
      * @return
      */
-    ScheduleDTO getById(Long scheduleId);
+    ScheduleItemVO getById(String scheduleId);
 
     /**
      * 新增日程

@@ -29,13 +29,13 @@ public class ScheduleActor implements Serializable {
      */
     @Schema(description = "主键")
     @TableId(value = "id", type = IdType.INPUT)
-    private Long id;
+    private String id;
     /**
      * 租户标识
      */
     @Schema(description = "租户标识")
     @TableField("tenant_id")
-    private Long tenantId;
+    private String tenantId;
     /**
      * 创建时间
      */
@@ -53,13 +53,13 @@ public class ScheduleActor implements Serializable {
      */
     @Schema(description = "创建人")
     @TableField(value = "created_by", fill = FieldFill.INSERT)
-    private Long createdBy;
+    private String createdBy;
     /**
      * 最后更新人
      */
     @Schema(description = "最后更新人")
     @TableField(value = "updated_by", fill = FieldFill.INSERT_UPDATE)
-    private Long updatedBy;
+    private String updatedBy;
     /**
      * 软删标记
      */
@@ -77,7 +77,7 @@ public class ScheduleActor implements Serializable {
      */
     @Schema(description = "删除人")
     @TableField(value = "deleted_by", fill = FieldFill.UPDATE)
-    private Long deletedBy;
+    private String deletedBy;
     /**
      * 乐观锁版本号
      */
@@ -89,7 +89,7 @@ public class ScheduleActor implements Serializable {
      */
     @Schema(description = "所属日程标识")
     @TableField("schedule_id")
-    private Long scheduleId;
+    private String scheduleId;
     /**
      * 参与者类型编码
      */
@@ -101,7 +101,7 @@ public class ScheduleActor implements Serializable {
      */
     @Schema(description = "参与者主键")
     @TableField("actor_id")
-    private Long actorId;
+    private String actorId;
     /**
      * 排序号
      */

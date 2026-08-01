@@ -1,13 +1,12 @@
 package com.zeroone.star.clinics.contoller;
 
-import com.zeroone.star.clinics.entity.Schedule;
 import com.zeroone.star.clinics.service.ScheduleService;
 import com.zeroone.star.project.dto.j8.clinics.FormalRosterDTO;
 import com.zeroone.star.project.dto.j8.clinics.ScheduleAddDTO;
-import com.zeroone.star.project.dto.j8.clinics.ScheduleDTO;
 import com.zeroone.star.project.j8.clinics.ClinicsApis;
 import com.zeroone.star.project.query.j8.clinics.ScheduleListQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j8.clinics.ScheduleItemVO;
 import com.zeroone.star.project.vo.j8.clinics.ScheduleListVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,8 +31,8 @@ public class ScheduleController implements ClinicsApis {
     @Operation(summary = "获取日程详情")
     @Override
     @GetMapping("/query-schedule-detail/{scheduleId}")
-    public JsonVO<ScheduleDTO> queryScheduleDetail(@PathVariable Long scheduleId) {
-        ScheduleDTO schedule = scheduleService.getById(scheduleId);
+    public JsonVO<ScheduleItemVO> queryScheduleDetail(@PathVariable String scheduleId) {
+        ScheduleItemVO schedule = scheduleService.getById(scheduleId);
         return JsonVO.success(schedule);
     }
 
