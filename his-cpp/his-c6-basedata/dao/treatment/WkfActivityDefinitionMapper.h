@@ -70,6 +70,7 @@ public:
 		data.setMerchandiseWbStr(resultSet->getString("merchandise_wb_str"));
 		data.setDefEncounterUnitCode(resultSet->getString("def_encounter_unit_code"));
 		data.setDefInhospitalUnitCode(resultSet->getString("def_inhospital_unit_code"));
+		data.setRetailPrice(resultSet->getDouble(38));
 		return data;
 	}
 };
@@ -122,6 +123,7 @@ public:
 		data->setMerchandiseWbStr(resultSet->getString("merchandise_wb_str"));
 		data->setDefEncounterUnitCode(resultSet->getString("def_encounter_unit_code"));
 		data->setDefInhospitalUnitCode(resultSet->getString("def_inhospital_unit_code"));
+		data->setRetailPrice(resultSet->getDouble(38));
 		return data;
 	}
 };

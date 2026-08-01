@@ -22,7 +22,7 @@
 #include "WkfActivityDefinitionMapper.h"
 #include "WkfActivityDefinitionChildrenMapper.h"
 #include "StringUtil.h"
-
+#include "TreatmentMapper.h"
 // 主表完整字段列表（对齐 WkfActivityDefinitionMapper，避免 SELECT *）
 static const char* TREATMENT_FULL_COLUMNS =
 	"id,tenant_id,created_at,updated_at,created_by,updated_by,is_deleted,deleted_at,deleted_by,version,"
@@ -57,7 +57,7 @@ static const char* treatmentStatusCode(int status)
 std::string TreatmentDAO::queryConditionBuilder(const TreatmentQuery::Wrapper& query, SqlParams& params)
 {
 	stringstream sqlCondition;
-	sqlCondition << " WHERE is_deleted=0";
+	sqlCondition << " WHERE w.is_deleted=0";
 	// 关键词：名称或业务编码模糊匹配
 	if (query->keywords) {
 		sqlCondition << " AND (`name` LIKE CONCAT('%',?,'%') OR `bus_no` LIKE CONCAT('%',?,'%'))";
@@ -66,7 +66,7 @@ std::string TreatmentDAO::queryConditionBuilder(const TreatmentQuery::Wrapper& q
 	}
 	// 分类过滤
 	if (query->classification) {
-		sqlCondition << " AND `category_code`=?";
+		sqlCondition << " AND w.`category_code`=?";
 		SQLPARAMS_PUSH(params, "s", std::string, query->classification.getValue(""));
 	}
 	return sqlCondition.str();
@@ -252,28 +252,43 @@ std::list<TreatmentSelectBO> TreatmentDAO::selectSelectWithPage(
 uint64_t TreatmentDAO::count(const TreatmentQuery::Wrapper& query)
 {
 	SqlParams params;
-	string sql = "SELECT COUNT(*) FROM wkf_activity_definition ";
+	string sql = "SELECT COUNT(*) FROM wkf_activity_definition w JOIN adm_charge_item_definition a";
 	// 构建查询条件
 	sql += queryConditionBuilder(query, params);
 	// 执行查询
 	return sqlSession->executeQueryNumerical(sql, params);
 }
-
+const std::string Cols = R"(
+w.id,w.tenant_id,w.created_at,w.updated_at,w.created_by,w.updated_by,
+w.is_deleted,w.deleted_at,w.deleted_by,w.version,w.category_code,w.bus_no,w.name,w.py_str,w.wb_str,
+w.package_unit_code,w.type_enum,w.status_enum,w.description_text,w.body_site_code,w.specimen_code,
+w.org_id,w.location_id,w.rule_id,w.pricing_flag,w.yb_flag,w.yb_no,w.yb_match_flag,w.chrgitm_lv,
+w.children_json,w.children_flag,w.activity_version,w.merchandise_name,w.merchandise_py_str,w.merchandise_wb_str,
+w.def_encounter_unit_code,w.def_inhospital_unit_code,
+a.limit_price
+)";
 std::list<TreatmentDO> TreatmentDAO::selectWithPage(const TreatmentQuery::Wrapper& query)
 {
 	SqlParams params;
 	string sql = "SELECT ";
-	sql += TREATMENT_FULL_COLUMNS;
-	sql += " FROM wkf_activity_definition ";
+	sql += Cols;
+	sql += " FROM wkf_activity_definition w LEFT JOIN ( "
+		"SELECT instance_id,tenant_id,"
+		"MAX(CASE price_type_code WHEN 'PURCHASE' THEN price_value END) AS purchase_price,"
+		"MAX(CASE price_type_code WHEN 'SALE' THEN price_value END) AS sale_price,"
+		"MAX(CASE price_type_code WHEN 'LIMIT' THEN price_value END) AS limit_price,"
+		"yb_type FROM adm_charge_item_definition "
+		"GROUP BY instance_id,tenant_id, yb_type "
+		") a ON w.id = a.instance_id AND w.tenant_id = a.tenant_id ";
 	// 构建查询条件
 	sql += queryConditionBuilder(query, params);
 	// 构建排序语句
-	sql += " ORDER BY IFNULL(`updated_at`, `created_at`) DESC, `id` DESC ";
+	sql += " ORDER BY IFNULL(w.`updated_at`, w.`created_at`) DESC, `id` DESC ";
 	// 构建分页条件
 	sql += " LIMIT " + std::to_string(((query->pageIndex - 1) * query->pageSize)) + "," + std::to_string(query->pageSize);
 
 	// 执行查询
-	return sqlSession->executeQuery<TreatmentDO>(sql, WkfActivityDefinitionMapper(), params);
+	return sqlSession->executeQuery<TreatmentDO>(sql, TreatmentMapper(), params);
 }
 
 std::list<TreatmentDO> TreatmentDAO::selectByName(const string& name)
