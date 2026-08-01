@@ -21,7 +21,7 @@ public:
 		data.setAddr(resultSet->getString(9));
 		data.setRegister_type(resultSet->getString(10));
 		data.setCost(resultSet->getDouble(11));
-		data.setTime(resultSet->getUInt64(12));
+		data.setTime(resultSet->getString(12));
 		return data;
 	}
 };

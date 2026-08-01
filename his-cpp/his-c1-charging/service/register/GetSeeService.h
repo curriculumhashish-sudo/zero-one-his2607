@@ -19,9 +19,9 @@ public:
 		uint64_t count = dao.count(query);
 		if (count <= 0)
 		{
+			cout << 2 << endl;
 			return pages;
 		}
-
 		pages->total = count;
 		pages->calcPages();
 		list<GetSeeDO> result = dao.selectSeeWithPage(query);
@@ -33,6 +33,7 @@ public:
 			ZO_STAR_DOMAIN_DO_TO_DTO(dto,sub, organization,Org_name, doctor, Doctor, cost_type, Cost_type, addr, Addr, register_type, Register_type, cost,Cost,time,Time);
 			pages->addData(dto);
 		}
+		cout << 1 << endl;
 		return pages;
 	}
 };

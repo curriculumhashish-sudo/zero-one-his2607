@@ -38,12 +38,12 @@ class GetTodayAppointDTO :public oatpp::DTO
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.organization");
 	}
 
-	DTO_FIELD(UInt64, start_time);
+	DTO_FIELD(String, start_time);
 	DTO_FIELD_INFO(start_time) {
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.start_time");
 	}
 
-	DTO_FIELD(UInt64, end_time);
+	DTO_FIELD(String, end_time);
 	DTO_FIELD_INFO(end_time) {
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.end_time");
 	}

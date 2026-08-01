@@ -15,9 +15,9 @@ public:
 		data.setCapacity(resultSet->getInt(3));
 		data.setBooked_count(resultSet->getInt(4));
 		data.setRegister_type(resultSet->getString(5));
-		data.setOganization(resultSet->getString(6));
-		data.setStart_time(resultSet->getUInt64(7));
-		data.setEnd_time(resultSet->getUInt64(8));
+		data.setOrganization(resultSet->getString(6));
+		data.setStart_time(resultSet->getString(7));
+		data.setEnd_time(resultSet->getString(8));
 		return data;
 	}
 };

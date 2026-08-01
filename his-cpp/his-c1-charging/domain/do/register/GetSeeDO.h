@@ -2,9 +2,6 @@
 #define _GET_SEE_DO_
 #include "../DoInclude.h"
 
-/**
- * 示例数据库实体类
- */
 class GetSeeDO : public BaseDO
 {
 	// 编号
@@ -30,7 +27,7 @@ class GetSeeDO : public BaseDO
 	//挂号费
 	MYSQL_SYNTHESIZE(double, cost, Cost)
 	//挂号时间
-	MYSQL_SYNTHESIZE(unsigned long long, time, Time)
+	MYSQL_SYNTHESIZE(string, time, Time)
 
 public:
 	GetSeeDO() : BaseDO("GetSee"){

@@ -35,21 +35,14 @@ uint64_t GetTodayAppointDAO::count(const GetTodayAppointQuery::Wrapper& query)
 
 	sql += "LEFT JOIN adm_charge_item_definition cid ON cid.type_code = hs.type_code AND cid.status_enum = \'ACTIVE\' AND cid.price_type_code = \'REGISTRATION\' ";
 	sql += queryConditionBuilder(query, params);
+	cout << sql << endl;
 	return sqlSession->executeQueryNumerical(sql, params);
 }
 
 std::list<GetTodayAppointDO> GetTodayAppointDAO::selectTodayWithPage(const GetTodayAppointQuery::Wrapper & query)
 {
 	SqlParams params;
-	string sql = "SELECT s.id AS id, \
-						 s.status_code AS status,\
-						 s.capacity AS capacity,\
-						 s.booked_count AS booked_count,\
-						 hs.name AS register_type.\
-						 loc.name AS organization,\
-						 MIN(s.start_time) AS start_time,\
-						 MAX(s.end_time) AS end_time\
-						 FROM wkf_slot s ";
+	string sql = "SELECT s.id AS id, s.status_code AS status,s.capacity AS capacity, s.booked_count AS booked_count, hs.name AS register_type.loc.name AS organization,MIN(s.start_time) AS start_time, MAX(s.end_time) AS end_time FROM wkf_slot s ";
 
 	sql += "INNER JOIN wkf_schedule sch ON s.schedule_id = sch.id ";
 
@@ -67,6 +60,8 @@ std::list<GetTodayAppointDO> GetTodayAppointDAO::selectTodayWithPage(const GetTo
 
 
 	sql += " LIMIT " + std::to_string(((query->pageIndex - 1) * query->pageSize)) + "," + std::to_string(query->pageSize);
+
+	std::cout << sql << endl;
 
 	return sqlSession->executeQuery<GetTodayAppointDO>(sql, GetTodayAppointMapper(), params);
 }

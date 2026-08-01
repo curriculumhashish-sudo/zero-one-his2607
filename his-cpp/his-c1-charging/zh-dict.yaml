@@ -74,7 +74,7 @@ yxy:
    id_number: 身份证号
    birth_date: 出生日期
    age: 年龄
-   patient_id: 患者表id
+   patient_id: 患者表id(如果患者表没有该用户可不填)
    doctor_id: 医生id
    organization_id: 科室id
    cost_type_id: 费用id

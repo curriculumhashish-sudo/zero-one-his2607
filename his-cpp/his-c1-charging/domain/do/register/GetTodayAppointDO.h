@@ -19,9 +19,9 @@ class GetTodayAppointDO:public BaseDO
 	//科室
 	MYSQL_SYNTHESIZE(string, organization, Organization);
 	//开始时间
-	MYSQL_SYNTHESIZE(unsigned long long, start_time, Start_time);
+	MYSQL_SYNTHESIZE(string, start_time, Start_time);
 	//结束时间
-	MYSQL_SYNTHESIZE(unsigned long long,end_time,End_time)
+	MYSQL_SYNTHESIZE(string,end_time,End_time)
 
 public:
 	GetTodayAppointDO() : BaseDO("GetTodauApoint")
