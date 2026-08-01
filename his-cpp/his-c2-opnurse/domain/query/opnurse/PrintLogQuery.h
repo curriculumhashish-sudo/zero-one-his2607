@@ -16,15 +16,15 @@ class PrintLogQuery : public PageQuery
 {
 	DTO_INIT(PrintLogQuery, PageQuery);
 	DTO_FIELD(String, docType);
-	DTO_FIELD_INFO(docType) { info->description = ZH_WORDS_GETTER("print.field.docType"); }
+	DTO_FIELD_INFO(docType) { info->description = ZH_WORDS_GETTER("opnurse3.field.docType"); }
 	DTO_FIELD(String, pname);
-	DTO_FIELD_INFO(pname) { info->description = ZH_WORDS_GETTER("print.field.patientName"); }
+	DTO_FIELD_INFO(pname) { info->description = ZH_WORDS_GETTER("opnurse3.field.patientName"); }
 	DTO_FIELD(Int32, isReprint);
-	DTO_FIELD_INFO(isReprint) { info->description = ZH_WORDS_GETTER("print.field.isReprint"); }
+	DTO_FIELD_INFO(isReprint) { info->description = ZH_WORDS_GETTER("opnurse3.field.isReprint"); }
 	DTO_FIELD(String, timefrom);
-	DTO_FIELD_INFO(timefrom) { info->description = ZH_WORDS_GETTER("print.field.timefrom"); }
+	DTO_FIELD_INFO(timefrom) { info->description = ZH_WORDS_GETTER("opnurse3.field.timefrom"); }
 	DTO_FIELD(String, timeto);
-	DTO_FIELD_INFO(timeto) { info->description = ZH_WORDS_GETTER("print.field.timeto"); }
+	DTO_FIELD_INFO(timeto) { info->description = ZH_WORDS_GETTER("opnurse3.field.timeto"); }
 };
 
 #include OATPP_CODEGEN_END(DTO)

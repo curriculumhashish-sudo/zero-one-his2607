@@ -1,4 +1,4 @@
-print:
+opnurse3:
   tags:
     job: 患者管理
     log: 患者管理
@@ -11,19 +11,54 @@ print:
     printJobId: 打印任务ID
     docType: 单据类型
     patientName: 患者姓名
+    doctorName: 医生姓名
+    remark: 备注
     treatmentItem: 处置项目
     execDept: 执行科室
-    doctorName: 医生姓名
     orderTime: 医嘱时间
     execTime: 执行时间
     executor: 执行人
+    drugName: 药品名称
+    specification: 规格
+    quantity: 数量
+    usage: 用法
+    frequency: 频次
+    receiptNo: 收费编号
+    chargeTime: 收费时间
+    itemName: 项目名称
+    unitPrice: 单价
+    amount: 金额
+    totalAmount: 合计金额
+    deptName: 科室名称
+    regTime: 挂号时间
+    regType: 挂号类型
+    regLevel: 号别
+    queueNo: 排队号
+    regFee: 挂号费
+    bedNo: 床号
+    admissionNo: 住院号
+    dosage: 剂量
+    dripRate: 滴速
+    settleDate: 日期
+    operator: 操作人
+    regTotal: 挂号收费
+    drugTotal: 药品收费
+    examTotal: 检查收费
+    labTotal: 检验收费
+    treatmentTotal: 处置收费
+    applyDept: 申请科室
+    examItem: 检查项目
+    examBodyPart: 检查部位
+    examMethod: 检查方法
+    labItem: 检验项目
+    specimenType: 标本类型
+    sampleTime: 采样时间
+    diagnosis: 临床诊断
     status: 状态
     printCount: 打印次数
     printTime: 打印时间
     printerName: 打印机名称
     isReprint: 是否补打
-    operator: 操作人
-    remark: 备注
     timefrom: 打印时间起
     timeto: 打印时间止
     printIds: 要打印的单据ID列表

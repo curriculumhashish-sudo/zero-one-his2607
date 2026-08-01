@@ -13,7 +13,7 @@
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-#define API_TAG ZH_WORDS_GETTER("print.tags.log")
+#define API_TAG ZH_WORDS_GETTER("opnurse3.tags.log")
 
 class PrintLogController : public oatpp::web::server::api::ApiController
 {
@@ -21,15 +21,15 @@ class PrintLogController : public oatpp::web::server::api::ApiController
 public:
 	ENDPOINT_INFO(queryRecords) {
 		API_DEF_ADD_AUTH();
-		info->summary = ZH_WORDS_GETTER("print.records.summary");
+		info->summary = ZH_WORDS_GETTER("opnurse3.records.summary");
 		API_DEF_ADD_TAG(API_TAG);
 		API_DEF_ADD_RSP_JSON_WRAPPER(PrintLogPageJsonVO);
 		API_DEF_ADD_PAGE_PARAMS();
-		API_DEF_ADD_QUERY_PARAMS(String, "docType", ZH_WORDS_GETTER("print.field.docType"), "", false);
-		API_DEF_ADD_QUERY_PARAMS(String, "pname", ZH_WORDS_GETTER("print.field.patientName"), "", false);
-		API_DEF_ADD_QUERY_PARAMS(Int32, "isReprint", ZH_WORDS_GETTER("print.field.isReprint"), 0, false);
-		API_DEF_ADD_QUERY_PARAMS(String, "timefrom", ZH_WORDS_GETTER("print.field.timefrom"), "", false);
-		API_DEF_ADD_QUERY_PARAMS(String, "timeto", ZH_WORDS_GETTER("print.field.timeto"), "", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "docType", ZH_WORDS_GETTER("opnurse3.field.docType"), "", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "pname", ZH_WORDS_GETTER("opnurse3.field.patientName"), "", false);
+		API_DEF_ADD_QUERY_PARAMS(Int32, "isReprint", ZH_WORDS_GETTER("opnurse3.field.isReprint"), 0, false);
+		API_DEF_ADD_QUERY_PARAMS(String, "timefrom", ZH_WORDS_GETTER("opnurse3.field.timefrom"), "", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "timeto", ZH_WORDS_GETTER("opnurse3.field.timeto"), "", false);
 	}
 	// GET /opnurse/records
 	ENDPOINT(API_M_GET, "/opnurse/records", queryRecords, QUERIES(QueryParams, params), API_HANDLER_AUTH_PARAME) {

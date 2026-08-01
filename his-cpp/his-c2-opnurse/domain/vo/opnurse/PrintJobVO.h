@@ -8,21 +8,10 @@
 #define _PRINT_JOB_VO_
 
 #include "../../GlobalInclude.h"
-#include "../../dto/opnurse/PrintJobDTO.h"
 #include "../../dto/opnurse/PrintApiDTO.h"
 #include "domain/vo/JsonVO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
-
-class PrintJobJsonVO : public JsonVO<PrintJobDTO::Wrapper>
-{
-	DTO_INIT(PrintJobJsonVO, JsonVO<PrintJobDTO::Wrapper>);
-};
-
-class PrintJobPageJsonVO : public JsonVO<PrintJobPageDTO::Wrapper>
-{
-	DTO_INIT(PrintJobPageJsonVO, JsonVO<PrintJobPageDTO::Wrapper>);
-};
 
 class PrintResultJsonVO : public JsonVO<PrintResultDTO::Wrapper>
 {

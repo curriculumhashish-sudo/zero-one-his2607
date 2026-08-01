@@ -13,7 +13,7 @@
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-#define API_TAG ZH_WORDS_GETTER("print.tags.job")
+#define API_TAG ZH_WORDS_GETTER("opnurse3.tags.job")
 
 class PrintJobController : public oatpp::web::server::api::ApiController
 {
@@ -21,7 +21,7 @@ class PrintJobController : public oatpp::web::server::api::ApiController
 public:
 	ENDPOINT_INFO(printJob) {
 		API_DEF_ADD_AUTH();
-		info->summary = ZH_WORDS_GETTER("print.print.summary");
+		info->summary = ZH_WORDS_GETTER("opnurse3.print.summary");
 		API_DEF_ADD_TAG(API_TAG);
 		API_DEF_ADD_RSP_JSON(oatpp::Object<PrintResultJsonVO>);
 	}
