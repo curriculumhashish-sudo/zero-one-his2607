@@ -19,10 +19,10 @@ import java.io.Serializable;
 public class UserWorkbenchQuery implements Serializable {
 
     @NotBlank(message = "租户ID不能为空")
-    @Schema(description = "租户医院ID", example = "001", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "租户医院ID", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private String tenantId;
 
-    @Schema(description = "登录用户ID（不传则从JWT解析）", example = "U001")
+    @Schema(description = "登录用户ID（不传则从JWT解析）", example = "1")
     private String userId;
 
     @Schema(description = "菜单名称搜索关键字", example = "门诊")
