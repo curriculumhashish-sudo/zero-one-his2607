@@ -60,7 +60,7 @@ public:
 		data.setMerchandiseWbStr(resultSet->getString(35));
 		data.setDefEncounterUnitCode(resultSet->getString(36));
 		data.setDefInhospitalUnitCode(resultSet->getString(37));
-
+		data.setRetailPrice(resultSet->getDouble(38));
 		return data;
 	}
 };
@@ -113,7 +113,7 @@ public:
 		data->setMerchandiseWbStr(resultSet->getString(35));
 		data->setDefEncounterUnitCode(resultSet->getString(36));
 		data->setDefInhospitalUnitCode(resultSet->getString(37));
-
+		data->setRetailPrice(resultSet->getDouble(38));
 		return data;
 	}
 };

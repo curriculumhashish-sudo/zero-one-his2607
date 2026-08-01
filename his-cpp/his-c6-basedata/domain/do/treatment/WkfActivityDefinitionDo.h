@@ -27,6 +27,9 @@
  */
 class TreatmentDO : public BaseDO
 {
+	
+	// 零售价
+	MYSQL_SYNTHESIZE(double, retailPrice, RetailPrice);
 	// 主键
 	MYSQL_SYNTHESIZE(string, id, Id);
 	// 租户标识

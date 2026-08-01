@@ -95,7 +95,7 @@ static TreatmentDetailDTO::Wrapper toDetailDto(const TreatmentDO& src)
 	dto->name = src.getName();
 	dto->status = src.getStatusEnum();
 	dto->categoryCode = src.getCategoryCode();
-	//dto->retailPrice=src.get
+	dto->retailPrice = src.getRetailPrice();
 	// type_enum 在库中按字符串存储，DTO 使用 Int32
 	//const std::string& typeEnumStr = src.getTypeEnum();
 	//if (!typeEnumStr.empty())
