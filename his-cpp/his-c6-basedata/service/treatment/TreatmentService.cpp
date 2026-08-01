@@ -25,7 +25,7 @@
 #include "TransactionManager.h"
 #include <stdexcept>
 
-/** 将数据库状态转换为接口数值。 */
+/** 将数据库状态枚举字符串转换为接口状态数值。 */
 static int treatmentStatusValue(const std::string& status)
 {
 	if (status == "DRAFT")
@@ -39,7 +39,7 @@ static int treatmentStatusValue(const std::string& status)
 	return 0;
 }
 
-// 从新增/修改 DTO 填充主表业务字段（不含主键、审计字段）
+// 从新增/修改 DTO 填充主表业务字段（不含审计字段）。
 template<typename TDto>
 static void fillMainFromAddDto(TreatmentDO& data, const TDto& dto)
 {
@@ -59,7 +59,7 @@ static void fillMainFromAddDto(TreatmentDO& data, const TDto& dto)
 	data.setChildrenFlag(hasChildren ? 1 : 0);
 }
 
-// 组装并插入子项列表
+// 插入诊疗子项列表。
 static bool insertChildren(TreatmentDAO& dao, const std::string& activityId,
 	const oatpp::List<TreatmentChildDTO::Wrapper>& children,
 	const std::string& username, const std::string& now)
@@ -86,7 +86,7 @@ static bool insertChildren(TreatmentDAO& dao, const std::string& activityId,
 	return true;
 }
 
-// 主表 DO 转详情 DTO（不含子项）
+// 将主表 DO 转换为详情 DTO（不含子项/价格）。
 static TreatmentDetailDTO::Wrapper toDetailDto(const TreatmentDO& src)
 {
 	auto dto = TreatmentDetailDTO::createShared();
@@ -95,24 +95,33 @@ static TreatmentDetailDTO::Wrapper toDetailDto(const TreatmentDO& src)
 	dto->name = src.getName();
 	dto->status = src.getStatusEnum();
 	dto->categoryCode = src.getCategoryCode();
-	dto->retailPrice = src.getRetailPrice();
-	// type_enum 在库中按字符串存储，DTO 使用 Int32
-	//const std::string& typeEnumStr = src.getTypeEnum();
-	//if (!typeEnumStr.empty())
-	//{
-	//	try
-	//	{
-	//		dto->typeEnum = std::stoi(typeEnumStr);
-	//	}
-	//	catch (...)
-	//	{
-	//		// 非法枚举值时不赋值
-	//	}
-	//}
+	dto->packageUnitCode = src.getPackageUnitCode();
+	dto->pyStr = src.getPyStr();
+	dto->wbStr = src.getWbStr();
+	dto->descriptionText = src.getDescriptionText();
+	dto->ybFlag = src.getYbFlag();
+	dto->ybNo = src.getYbNo();
+	dto->ybMatchFlag = src.getYbMatchFlag();
+	dto->chrgitmLv = src.getChrgitmLv();
+	// 仅在已赋值时拷贝（列表 join 可能有值）；详情价格由 fillPrices 填充。
+	if (src.getRetailPricePtr())
+		dto->retailPrice = src.getRetailPrice();
+
+	const std::string& typeEnumStr = src.getTypeEnum();
+	if (!typeEnumStr.empty())
+	{
+		try
+		{
+			dto->typeEnum = std::stoi(typeEnumStr);
+		}
+		catch (...)
+		{
+		}
+	}
 	return dto;
 }
 
-// 回填子项列表到详情 DTO
+// 加载子项列表到详情 DTO。
 static void fillChildren(TreatmentDetailDTO::Wrapper& dto, TreatmentDAO& dao, const std::string& activityId)
 {
 	auto childRows = dao.selectChildrenByActivityId(activityId);
@@ -129,9 +138,79 @@ static void fillChildren(TreatmentDetailDTO::Wrapper& dto, TreatmentDAO& dao, co
 	dto->children = children;
 }
 
+// 从 adm_charge_item_definition 填充成本价/售价/最高零售价。
+static void fillPrices(TreatmentDetailDTO::Wrapper& dto, TreatmentDAO& dao, const std::string& activityId)
+{
+	auto rows = dao.selectPricesByInstanceId(activityId);
+	for (auto& row : rows)
+	{
+		const std::string& priceType = row.getPriceTypeCode();
+		if (priceType == "PURCHASE")
+			dto->purchasePrice = row.getPriceValue();
+		else if (priceType == "SALE")
+			dto->retailPrice = row.getPriceValue();
+		else if (priceType == "LIMIT")
+			dto->maximumRetailPrice = row.getPriceValue();
+
+		if (!row.getTypeCode().empty())
+			dto->itemTypeCode = row.getTypeCode();
+		if (!row.getYbType().empty())
+			dto->ybType = row.getYbType();
+	}
+}
+
+// 为诊疗插入 PURCHASE/SALE/LIMIT 价格行。
+static bool insertPrices(TreatmentDAO& dao, const std::string& activityId,
+	const TreatmentAddDTO::Wrapper& dto, const std::string& username, const std::string& now)
+{
+	struct PriceItem
+	{
+		const char* priceTypeCode;
+		bool hasValue;
+		double value;
+	};
+
+	PriceItem items[] = {
+		{ "PURCHASE", (bool)dto->purchasePrice, dto->purchasePrice ? dto->purchasePrice.getValue(0) : 0 },
+		{ "SALE", (bool)dto->retailPrice, dto->retailPrice ? dto->retailPrice.getValue(0) : 0 },
+		{ "LIMIT", (bool)dto->maximumRetailPrice, dto->maximumRetailPrice ? dto->maximumRetailPrice.getValue(0) : 0 }
+	};
+
+	std::string typeCode = dto->itemTypeCode ? dto->itemTypeCode.getValue("1008") : "1008";
+	if (typeCode.empty())
+		typeCode = "1008";
+	std::string ybType = dto->ybType ? dto->ybType.getValue("") : "";
+	std::string chargeName = dto->name ? dto->name.getValue("") : "";
+
+	UuidFacade uf;
+	for (auto& item : items)
+	{
+		if (!item.hasValue)
+			continue;
+
+		AdmChargeItemDefinitionDO price;
+		price.setId(uf.genUuid());
+		price.setInstanceTable("wkf_activity_definition");
+		price.setInstanceId(activityId);
+		price.setChargeName(chargeName);
+		price.setStatusEnum("ACTIVE");
+		price.setTypeCode(typeCode);
+		price.setYbType(ybType);
+		price.setPriceTypeCode(item.priceTypeCode);
+		price.setPriceValue(item.value);
+		price.setCreatedBy(username);
+		price.setCreatedAt(now);
+		price.setIsDeleted(0);
+		price.setVersion(0);
+		if (dao.insert(price) != 1)
+			return false;
+	}
+	return true;
+}
+
 TreatmentDetailDTO::Wrapper TreatmentService::getById(std::string id)
 {
-	// 查询数据
+	// 查询主表
 	TreatmentDAO dao;
 	auto res = dao.selectById(id);
 
@@ -139,9 +218,10 @@ TreatmentDetailDTO::Wrapper TreatmentService::getById(std::string id)
 	if (!res)
 		return nullptr;
 
-	// 查询到数据转换成详情 DTO，并回填子项
+	// 查询到则转换成详情 DTO，并加载子项与价格
 	auto dto = toDetailDto(*res);
 	fillChildren(dto, dao, res->getId());
+	fillPrices(dto, dao, res->getId());
 	return dto;
 }
 
@@ -167,7 +247,6 @@ bool TreatmentService::modifyStatus(const std::string& id, int32_t targetStatus,
 
 std::string TreatmentService::saveData(const TreatmentAddDTO::Wrapper& dto)
 {
-	// 组装主表 DO 数据
 	TreatmentDO data;
 	UuidFacade uf;
 	std::string id = uf.genUuid();
@@ -175,7 +254,7 @@ std::string TreatmentService::saveData(const TreatmentAddDTO::Wrapper& dto)
 	std::string username = dto->getPayload() ? dto->getPayload()->getUsername() : "";
 
 	data.setId(id);
-	// 业务编码暂用主键，后续若有独立编码规则再改
+	// 业务编码暂用 id；有生成器后再替换。
 	data.setBusNo(id);
 	data.setStatusEnum("ACTIVE");
 	data.setIsDeleted(0);
@@ -186,7 +265,7 @@ std::string TreatmentService::saveData(const TreatmentAddDTO::Wrapper& dto)
 	data.setCreatedAt(now);
 	fillMainFromAddDto(data, dto);
 
-	// 执行数据添加（事务：主表 + 子项）
+	// 事务内新增：主表 + 子项 + 价格。
 	TreatmentDAO dao;
 	TransactionManager tm(&dao);
 	if (dao.insert(data) != 1)
@@ -199,13 +278,18 @@ std::string TreatmentService::saveData(const TreatmentAddDTO::Wrapper& dto)
 		tm.rollback();
 		return "";
 	}
+	if (!insertPrices(dao, id, dto, username, now))
+	{
+		tm.rollback();
+		return "";
+	}
 	tm.commit();
 	return id;
 }
 
 bool TreatmentService::saveDataBatch(const oatpp::List<TreatmentAddDTO::Wrapper>& datas)
 {
-	// 逐条复用 saveData（含事务与子项），全部成功才返回 true
+	// 复用 saveData（主表+子项+价格）；全部成功才返回 true。
 	for (auto dto : *datas.get())
 	{
 		if (saveData(dto).empty())
@@ -216,7 +300,6 @@ bool TreatmentService::saveDataBatch(const oatpp::List<TreatmentAddDTO::Wrapper>
 
 bool TreatmentService::updateData(const TreatmentModifyDTO::Wrapper& dto)
 {
-	// 组装主表 DO 数据
 	TreatmentDO data;
 	std::string id = dto->id.getValue("");
 	std::string now = SimpleDateTimeFormat::format();
@@ -229,7 +312,7 @@ bool TreatmentService::updateData(const TreatmentModifyDTO::Wrapper& dto)
 	data.setUpdatedAt(now);
 	fillMainFromAddDto(data, dto);
 
-	// 执行数据修改（事务：更新主表，子项先软删再插入）
+	// 执行主表修改；子项/价格先软删再插入。
 	TreatmentDAO dao;
 	TransactionManager tm(&dao);
 	if (dao.update(data) != 1)
@@ -239,6 +322,12 @@ bool TreatmentService::updateData(const TreatmentModifyDTO::Wrapper& dto)
 	}
 	dao.softDeleteChildrenByActivityId(id, username, now);
 	if (!insertChildren(dao, id, dto->children, username, now))
+	{
+		tm.rollback();
+		return false;
+	}
+	dao.softDeletePricesByInstanceId(id, username, now);
+	if (!insertPrices(dao, id, dto, username, now))
 	{
 		tm.rollback();
 		return false;
@@ -254,7 +343,7 @@ TreatmentPageDTO::Wrapper TreatmentService::listAll(const TreatmentQuery::Wrappe
 	pages->pageIndex = query->pageIndex;
 	pages->pageSize = query->pageSize;
 
-	// 查询数据总条数
+	// 查询总条数
 	TreatmentDAO dao;
 	uint64_t count = dao.count(query);
 	if (count <= 0)
@@ -266,7 +355,7 @@ TreatmentPageDTO::Wrapper TreatmentService::listAll(const TreatmentQuery::Wrappe
 	pages->total = count;
 	pages->calcPages();
 	list<TreatmentDO> result = dao.selectWithPage(query);
-	// 将DO转换成DTO（列表不加载子项）
+	// 将 DO 转换成 DTO（列表不含子项）
 	for (TreatmentDO& sub : result)
 	{
 		pages->addData(toDetailDto(sub));
@@ -284,14 +373,14 @@ TreatmentSelectPageDTO::Wrapper TreatmentService::listSelect(
 	}
 
 	TreatmentDAO dao;
-	// 从 JWT 用户解析有效租户，查询始终按租户隔离。
+	// 按 JWT 用户解析出的有效租户过滤；查询始终按租户隔离。
 	const std::string tenantId = dao.selectCurrentTenantId(payload.getId());
 	if (tenantId.empty())
 	{
 		return nullptr;
 	}
 
-	// 初始化分页结果。
+	// 初始化分页返回对象
 	auto pages = TreatmentSelectPageDTO::createShared();
 	pages->pageIndex = query->pageIndex;
 	pages->pageSize = query->pageSize;
@@ -304,7 +393,7 @@ TreatmentSelectPageDTO::Wrapper TreatmentService::listSelect(
 		return pages;
 	}
 
-	// 将联表查询 BO 转换为接口 DTO。
+	// 将分页查询 BO 转换为接口 DTO
 	std::list<TreatmentSelectBO> result =
 		dao.selectSelectWithPage(query, tenantId);
 	std::vector<std::string> statusCodes;
@@ -312,7 +401,7 @@ TreatmentSelectPageDTO::Wrapper TreatmentService::listSelect(
 	{
 		statusCodes.emplace_back(sub.getStatusEnum());
 	}
-	// 状态中文名称统一从 MongoDB 枚举字典读取。
+	// 状态显示文本统一从 MongoDB 枚举字典获取
 	const auto statusDisplays = EnumDictionaryDAO().findActiveDisplays(
 		EnumDictionaryDAO::PUBLICATION_STATUS_ENUM,
 		statusCodes);

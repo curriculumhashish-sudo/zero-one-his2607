@@ -10,7 +10,7 @@
 #include "../../domain/do/treatment/AdmEpisodeOfCareDO.h"
 
 /**
- * 诊疗项目主表 普通值对象Mapper
+ * ??????????? ????????Mapper
  */
 class TreatmentMapper : public Mapper<TreatmentDO>
 {
@@ -18,10 +18,10 @@ public:
 	TreatmentDO mapper(ResultSet* resultSet) const override
 	{
 		TreatmentDO data;
-		// 1 主键id
+		// 1 ????id
 		data.setId(resultSet->getString(1));
 
-		// 基础审计、乐观锁字段
+		// ????????????????
 		data.setTenantId(resultSet->getString(2));
 		data.setCreatedAt(resultSet->getString(3));
 		data.setUpdatedAt(resultSet->getString(4));
@@ -32,7 +32,7 @@ public:
 		data.setDeletedBy(resultSet->getString(9));
 		data.setVersion(resultSet->getInt(10));
 
-		// 业务诊疗字段依次赋值
+		// ?????????????θ??
 		data.setCategoryCode(resultSet->getString(11));
 		data.setBusNo(resultSet->getString(12));
 		data.setName(resultSet->getString(13));
@@ -66,7 +66,7 @@ public:
 };
 
 /**
- * 诊疗项目主表 智能指针Mapper
+ * ??????????? ???????Mapper
  */
 class PtrTreatmentMapper : public Mapper<PtrTreatmentDO>
 {
@@ -114,6 +114,46 @@ public:
 		data->setDefEncounterUnitCode(resultSet->getString(36));
 		data->setDefInhospitalUnitCode(resultSet->getString(37));
 		data->setRetailPrice(resultSet->getDouble(38));
+		return data;
+	}
+};
+
+/**
+ * Mapper for adm_charge_item_definition (1-based column index).
+ * Column order must match CHARGE_FULL_COLUMNS / table column order:
+ * 1 id, 2 tenant_id, 3 created_at, 4 updated_at, 5 created_by, 6 updated_by,
+ * 7 is_deleted, 8 deleted_at, 9 deleted_by, 10 version,
+ * 11 instance_table, 12 instance_id, 13 charge_name, 14 status_enum, 15 org_id,
+ * 16 type_code, 17 yb_type, 18 price_type_code, 19 lot_no, 20 price_value, 21 priority
+ */
+class AdmChargeItemDefinitionMapper : public Mapper<AdmChargeItemDefinitionDO>
+{
+public:
+	AdmChargeItemDefinitionDO mapper(ResultSet* resultSet) const override
+	{
+		AdmChargeItemDefinitionDO data;
+		data.setId(resultSet->getString(1));
+		data.setTenantId(resultSet->getString(2));
+		data.setCreatedAt(resultSet->getString(3));
+		data.setUpdatedAt(resultSet->getString(4));
+		data.setCreatedBy(resultSet->getString(5));
+		data.setUpdatedBy(resultSet->getString(6));
+		data.setIsDeleted(resultSet->getInt(7));
+		data.setDeletedAt(resultSet->getString(8));
+		data.setDeletedBy(resultSet->getString(9));
+		data.setVersion(resultSet->getInt(10));
+
+		data.setInstanceTable(resultSet->getString(11));
+		data.setInstanceId(resultSet->getString(12));
+		data.setChargeName(resultSet->getString(13));
+		data.setStatusEnum(resultSet->getString(14));
+		data.setOrgId(resultSet->getString(15));
+		data.setTypeCode(resultSet->getString(16));
+		data.setYbType(resultSet->getString(17));
+		data.setPriceTypeCode(resultSet->getString(18));
+		data.setLotNo(resultSet->getString(19));
+		data.setPriceValue(resultSet->getDouble(20));
+		data.setPriority(resultSet->getInt(21));
 		return data;
 	}
 };

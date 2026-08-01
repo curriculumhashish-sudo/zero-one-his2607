@@ -23,7 +23,7 @@
 #include "WkfActivityDefinitionChildrenMapper.h"
 #include "StringUtil.h"
 #include "TreatmentMapper.h"
-// 主表完整字段列表（对齐 WkfActivityDefinitionMapper，避免 SELECT *）
+// ????????????????????? WkfActivityDefinitionMapper?????? SELECT *??
 static const char* TREATMENT_FULL_COLUMNS =
 	"id,tenant_id,created_at,updated_at,created_by,updated_by,is_deleted,deleted_at,deleted_by,version,"
 	"category_code,bus_no,name,py_str,wb_str,package_unit_code,type_enum,status_enum,description_text,"
@@ -31,12 +31,12 @@ static const char* TREATMENT_FULL_COLUMNS =
 	"chrgitm_lv,children_json,children_flag,activity_version,merchandise_name,merchandise_py_str,"
 	"merchandise_wb_str,def_encounter_unit_code,def_inhospital_unit_code";
 
-// 子表完整字段列表（对齐 WkfActivityDefinitionChildrenMapper）
+// ???????????????????? WkfActivityDefinitionChildrenMapper??
 static const char* TREATMENT_CHILD_FULL_COLUMNS =
 	"id,tenant_id,created_at,updated_at,created_by,updated_by,is_deleted,deleted_at,deleted_by,version,"
 	"activity_id,children_id,children_num,children_name";
 
-/** 将接口状态值转换为数据库枚举。 */
+/** ????????????????????? */
 static const char* treatmentStatusCode(int status)
 {
 	switch (status)
@@ -58,13 +58,13 @@ std::string TreatmentDAO::queryConditionBuilder(const TreatmentQuery::Wrapper& q
 {
 	stringstream sqlCondition;
 	sqlCondition << " WHERE w.is_deleted=0";
-	// 关键词：名称或业务编码模糊匹配
+	// ???????????????????????
 	if (query->keywords) {
 		sqlCondition << " AND (`name` LIKE CONCAT('%',?,'%') OR `bus_no` LIKE CONCAT('%',?,'%'))";
 		SQLPARAMS_PUSH(params, "s", std::string, query->keywords.getValue(""));
 		SQLPARAMS_PUSH(params, "s", std::string, query->keywords.getValue(""));
 	}
-	// 分类过滤
+	// ???????
 	if (query->classification) {
 		sqlCondition << " AND w.`category_code`=?";
 		SQLPARAMS_PUSH(params, "s", std::string, query->classification.getValue(""));
@@ -112,7 +112,7 @@ std::string TreatmentDAO::selectCurrentTenantId(const std::string& userId)
 		return "";
 	}
 
-	// 优先使用最近登录租户，仅有一个有效租户时安全回退。
+	// ???????????????????????????????????????
 	const std::string sql =
 		"SELECT COALESCE("
 		"(SELECT s.`tenant_id` FROM `whale_user_login_session` s "
@@ -158,7 +158,7 @@ std::list<TreatmentSelectBO> TreatmentDAO::selectSelectWithPage(
 	const std::string& tenantId)
 {
 	SqlParams params;
-	// 联表一次返回接口需要的字段，避免 SELECT * 和逐条补查。
+	// ??????????????????????????? SELECT * ??????????
 	std::string sql =
 		"SELECT d.`id`,d.`bus_no`,d.`name`,d.`category_code`,"
 		"COALESCE(category_concept.`display`,''),"
@@ -253,9 +253,9 @@ uint64_t TreatmentDAO::count(const TreatmentQuery::Wrapper& query)
 {
 	SqlParams params;
 	string sql = "SELECT COUNT(*) FROM wkf_activity_definition w JOIN adm_charge_item_definition a";
-	// 构建查询条件
+	// ???????????
 	sql += queryConditionBuilder(query, params);
-	// 执行查询
+	// ??????
 	return sqlSession->executeQueryNumerical(sql, params);
 }
 const std::string Cols = R"(
@@ -280,14 +280,14 @@ std::list<TreatmentDO> TreatmentDAO::selectWithPage(const TreatmentQuery::Wrappe
 		"yb_type FROM adm_charge_item_definition "
 		"GROUP BY instance_id,tenant_id, yb_type "
 		") a ON w.id = a.instance_id AND w.tenant_id = a.tenant_id ";
-	// 构建查询条件
+	// ???????????
 	sql += queryConditionBuilder(query, params);
-	// 构建排序语句
+	// ???????????
 	sql += " ORDER BY IFNULL(w.`updated_at`, w.`created_at`) DESC, `id` DESC ";
-	// 构建分页条件
+	// ???????????
 	sql += " LIMIT " + std::to_string(((query->pageIndex - 1) * query->pageSize)) + "," + std::to_string(query->pageSize);
 
-	// 执行查询
+	// ??????
 	return sqlSession->executeQuery<TreatmentDO>(sql, TreatmentMapper(), params);
 }
 
@@ -329,6 +329,31 @@ int32_t TreatmentDAO::softDeleteChildrenByActivityId(const std::string& activity
 	string sql = "UPDATE wkf_activity_definition_children SET is_deleted=1, deleted_by=?, deleted_at=? "
 		"WHERE activity_id=? AND is_deleted=0";
 	return sqlSession->executeUpdate(sql, "%s%s%s", deletedBy, deletedAt, activityId);
+}
+
+// Price columns for adm_charge_item_definition
+static const char* CHARGE_FULL_COLUMNS =
+	"id,tenant_id,created_at,updated_at,created_by,updated_by,is_deleted,deleted_at,deleted_by,version,"
+	"instance_table,instance_id,charge_name,status_enum,org_id,type_code,yb_type,price_type_code,"
+	"lot_no,price_value,priority";
+
+std::list<AdmChargeItemDefinitionDO> TreatmentDAO::selectPricesByInstanceId(const std::string& instanceId)
+{
+	string sql = "SELECT ";
+	sql += CHARGE_FULL_COLUMNS;
+	sql += " FROM adm_charge_item_definition "
+		"WHERE instance_table='wkf_activity_definition' AND instance_id=? AND is_deleted=0 "
+		"AND price_type_code IN ('PURCHASE','SALE','LIMIT')";
+	return sqlSession->executeQuery<AdmChargeItemDefinitionDO>(
+		sql, AdmChargeItemDefinitionMapper(), "%s", instanceId);
+}
+
+int32_t TreatmentDAO::softDeletePricesByInstanceId(const std::string& instanceId, const std::string& deletedBy, const std::string& deletedAt)
+{
+	string sql = "UPDATE adm_charge_item_definition SET is_deleted=1, deleted_by=?, deleted_at=? "
+		"WHERE instance_table='wkf_activity_definition' AND instance_id=? AND is_deleted=0 "
+		"AND price_type_code IN ('PURCHASE','SALE','LIMIT')";
+	return sqlSession->executeUpdate(sql, "%s%s%s", deletedBy, deletedAt, instanceId);
 }
 
 int32_t TreatmentDAO::removeData(std::list<std::string>& ids)
