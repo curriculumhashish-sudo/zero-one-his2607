@@ -1,20 +1,11 @@
-export type PurchaseInboundStatus = 0 | 1 | 2 | 3
+/** 盘点单状态: 0=编辑中 1=待审核 2=审核中 3=已撤回 4=同意 5=驳回 */
+export type PurchaseInboundStatus = 0 | 1 | 2 | 3 | 4 | 5
 
 /** 当前页面沿用原目录名，实际展示的是药房盘点单。 */
 export interface PurchaseInboundOrder {
   id: string
-  /** @deprecated 已合并到卡片字段 busNo */
-  docNo?: string
-  /** @deprecated 已合并到卡片字段 applyTime */
-  date?: string
-  /** @deprecated 已合并到卡片字段 applicantId_dictText */
-  handler?: string
-  /** @deprecated 已合并到卡片字段 sourceLocationId_dictText */
-  counterparty?: string
-  /** 0 编辑中、1 待审批、2 已完成、3 已驳回。 */
+  /** 0=编辑中 1=待审核 2=审核中 3=已撤回 4=同意 5=驳回 */
   status: PurchaseInboundStatus
-  /** @deprecated 已合并到卡片字段 sourceLocationId_dictText */
-  type?: string
   /** 药品或耗材。 */
   category: string
   rejectReason?: string
@@ -86,6 +77,8 @@ export interface PurchaseInboundSavePayload {
   pharmacy: string
   itemType: string
   details: PurchaseInboundDetail[]
+  /** 保存后的目标状态（编辑中→待审核=1，保存并提交→审核中=2） */
+  targetStatus?: PurchaseInboundStatus
 }
 
 export interface PurchaseInboundDetailResult {

@@ -27,15 +27,19 @@ const SUPPLIERS = ['九州通医药集团', '国药控股', '华润医药']
 const STATUS = {
   EDITING: 0,
   PENDING: 1,
-  APPROVED: 2,
-  REJECTED: 3
+  REVIEWING: 2,
+  WITHDRAWN: 3,
+  APPROVED: 4,
+  REJECTED: 5
 } as const
 
 const STATUS_TEXT: Record<number, string> = {
   [STATUS.EDITING]: '编辑中',
-  [STATUS.PENDING]: '待审批',
-  [STATUS.APPROVED]: '已完成',
-  [STATUS.REJECTED]: '已驳回'
+  [STATUS.PENDING]: '待审核',
+  [STATUS.REVIEWING]: '审核中',
+  [STATUS.WITHDRAWN]: '已撤回',
+  [STATUS.APPROVED]: '同意',
+  [STATUS.REJECTED]: '驳回'
 }
 
 function pad(n: number): string {
@@ -152,7 +156,7 @@ const supplierData: SupplierItem[] = [
 
 const mockOrders: PurchaseInboundOrder[] = Array.from({ length: 12 }, (_, index) => {
   const pharmacy = PHARMACIES[index % PHARMACIES.length] ?? PHARMACIES[0]!
-  const status = ([0, 1, 2, 3] as PurchaseInboundStatus[])[index % 4] ?? 0
+  const status = ([0, 1, 2, 3, 4, 5] as PurchaseInboundStatus[])[index % 6] ?? 0
   const day = pad((index % 20) + 1)
   const h = 8 + (index % 10)
   const m = (index * 7) % 60
@@ -178,14 +182,16 @@ const mockOrders: PurchaseInboundOrder[] = Array.from({ length: 12 }, (_, index)
     applicantId_dictText: HANDLERS[index % HANDLERS.length] ?? '系统用户',
     /** 制单时间（卡片右上时间栏第一行，格式 YYYY-MM-DD HH:mm） 例: "2026-07-01 08:00" */
     applyTime: `2026-07-${day} ${pad(h)}:${pad(m)}`,
-    /** 审批人展示名（仅待审批/已完成时有值；卡片"审批人"行） 例: "陈主任" */
+    /** 审批人展示名（仅待审核/审核中时有值；卡片"审批人"行） 例: "陈主任" */
     approverId_dictText:
-      status === STATUS.PENDING || status === STATUS.APPROVED
+      status === STATUS.PENDING || status === STATUS.REVIEWING
         ? (APPROVERS[index % APPROVERS.length] ?? '')
         : '',
-    /** 审批时间（仅已完成时有值；卡片右上时间栏第二行） 例: "2026-07-01 09:15" */
+    /** 审批时间（仅同意/驳回时有值；卡片右上时间栏第二行） 例: "2026-07-01 09:15" */
     approvalTime:
-      status === STATUS.APPROVED ? `2026-07-${day} ${pad(h + 1)}:${pad((m + 15) % 60)}` : '',
+      status === STATUS.APPROVED || status === STATUS.REJECTED
+        ? `2026-07-${day} ${pad(h + 1)}:${pad((m + 15) % 60)}`
+        : '',
     /** 供应商展示名（showSupplier=true 时在卡片供应商行展示） 例: "九州通医药集团" */
     supplierId_dictText: SUPPLIERS[index % SUPPLIERS.length],
     /** 库房名称（卡片票尾行左侧） 例: "门诊西药房" */
@@ -319,14 +325,15 @@ export async function mockCreatePurchaseInbound(
   const now = new Date()
   const dateStr = now.toISOString().slice(0, 10)
   const id = `pi-${String(sequence).padStart(3, '0')}`
+  const targetStatus = payload.targetStatus ?? 0
   const order: PurchaseInboundOrder = {
     id,
-    status: 0,
+    status: targetStatus,
     category: payload.itemType,
     // 卡片展示字段
     busNo: `PD-2026-${String(sequence).padStart(4, '0')}`,
-    statusEnum: 0,
-    statusEnum_enumText: '编辑中',
+    statusEnum: targetStatus,
+    statusEnum_enumText: STATUS_TEXT[targetStatus] ?? '编辑中',
     applicantId_dictText: '当前用户',
     applyTime: `${dateStr} ${pad(now.getHours())}:${pad(now.getMinutes())}`,
     approverId_dictText: '',
@@ -354,6 +361,11 @@ export async function mockUpdatePurchaseInbound(
   order.sourceLocationId_dictText = payload.pharmacy
   order.category = payload.itemType
   order.rejectReason = undefined
+  if (payload.targetStatus != null) {
+    order.status = payload.targetStatus
+    order.statusEnum = payload.targetStatus
+    order.statusEnum_enumText = STATUS_TEXT[payload.targetStatus] ?? ''
+  }
   detailByOrderId.set(id, payload.details.map(normalizeDetail))
   return buildResult(order)
 }
@@ -377,22 +389,26 @@ async function changeStatus(
   const order = requireOrder(id)
   requireStatus(order, from, action)
   order.status = to
+  order.statusEnum = to
+  order.statusEnum_enumText = STATUS_TEXT[to] ?? ''
   return cloneOrder(order)
 }
 
-export const mockSubmitPurchaseInbound = (id: string) => changeStatus(id, [0, 3], 1, '提交')
-export const mockWithdrawPurchaseInbound = (id: string) => changeStatus(id, [1], 0, '撤回')
-export const mockApprovePurchaseInbound = (id: string) => changeStatus(id, [1], 2, '审批')
+export const mockSubmitPurchaseInbound = (id: string) => changeStatus(id, [0, 1, 3], 2, '提交')
+export const mockWithdrawPurchaseInbound = (id: string) => changeStatus(id, [2], 3, '撤回')
+export const mockApprovePurchaseInbound = (id: string) => changeStatus(id, [2], 4, '审批')
 
 export async function mockRejectPurchaseInbound(
   id: string,
   reason: string
 ): Promise<PurchaseInboundOrder> {
   const order = requireOrder(id)
-  requireStatus(order, [1], '驳回')
+  requireStatus(order, [2], '驳回')
   if (!reason.trim()) throw new Error('请填写驳回原因')
   await delay()
-  order.status = 3
+  order.status = 5
+  order.statusEnum = 5
+  order.statusEnum_enumText = '驳回'
   order.rejectReason = reason.trim()
   return cloneOrder(order)
 }

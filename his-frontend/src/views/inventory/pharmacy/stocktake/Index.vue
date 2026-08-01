@@ -14,6 +14,10 @@
         :dropdown2-options="queueDropdown2Options"
         :show-dropdown2="false"
         add-button-text="新增单据"
+<<<<<<< HEAD
+=======
+        :add-disabled="addDisabled"
+>>>>>>> remotes/origin/f1-cat
         :orders="orders"
         :loading="loading"
         :selected-order="selectedOrder"
@@ -27,6 +31,10 @@
     <!-- 右侧 Main 区 -->
     <template #main>
       <PurchaseInboundMainPane
+<<<<<<< HEAD
+=======
+        ref="mainPaneRef"
+>>>>>>> remotes/origin/f1-cat
         :order-id="selectedOrder?.id"
         title="药房盘点单"
         :extra-search-fields="mainSearchFields"
@@ -35,13 +43,37 @@
         :select-table-columns="selectTableColumns"
         :select-table-load-page="loadSupplierOptions"
         :on-supplier-fill="onSupplierFill"
+<<<<<<< HEAD
       />
     </template>
+=======
+        @action="handleAction"
+      />
+    </template>
+
+    <!-- 驳回原因弹窗 -->
+    <el-dialog v-model="rejectVisible" title="驳回原因" width="400px">
+      <el-input
+        v-model="rejectReason"
+        type="textarea"
+        :rows="3"
+        placeholder="请输入驳回原因"
+      />
+      <template #footer>
+        <el-button @click="cancelReject()">取消</el-button>
+        <el-button type="primary" @click="confirmReject()">确定</el-button>
+      </template>
+    </el-dialog>
+>>>>>>> remotes/origin/f1-cat
   </DocumentWorkstationShell>
 </template>
 
 <script setup lang="ts">
+<<<<<<< HEAD
 import { ref, reactive, onMounted } from 'vue'
+=======
+import { ref, reactive, computed, onMounted } from 'vue'
+>>>>>>> remotes/origin/f1-cat
 import DocumentWorkstationShell from '@/components/warehouse/DocumentWorkstationShell.vue'
 import PurchaseInboundQueuePane from '@/views/inventory/components/PurchaseInboundQueuePane.vue'
 import type { QueueSearchParams } from '@/views/inventory/components/PurchaseInboundQueuePane.vue'
@@ -52,6 +84,10 @@ import {
   loadSupplierOptions,
   pagePurchaseInboundOrders
 } from '@/apis/inventory/pharmacy/stocktake'
+<<<<<<< HEAD
+=======
+import { useApprovalFlow } from '@/views/inventory/common/useApprovalFlow'
+>>>>>>> remotes/origin/f1-cat
 import { computeBatchNo, computeActualAmount } from './utils'
 
 // ==================== 药房列表（静态数据） ====================
@@ -76,6 +112,24 @@ const orders = ref<Record<string, unknown>[]>([])
 const loading = ref(false)
 const selectedOrder = ref<Record<string, unknown> | null>(null)
 
+<<<<<<< HEAD
+=======
+/** 编辑中(0)时禁用新增按钮 */
+const addDisabled = computed(() => (selectedOrder.value?.status as number) === 0)
+
+// ==================== 审批流 ====================
+
+const mainPaneRef = ref<InstanceType<typeof PurchaseInboundMainPane>>()
+
+const approval = useApprovalFlow({
+  orders,
+  selectedOrder,
+  getDetails: () => mainPaneRef.value?.details ?? [],
+  refreshMainPane: () => mainPaneRef.value?.loadDetail(),
+})
+const { handleAction, rejectVisible, rejectReason, confirmReject, cancelReject } = approval
+
+>>>>>>> remotes/origin/f1-cat
 /** 新增空单据自增计数器 */
 let idCounter = 0
 
@@ -130,6 +184,10 @@ function handleQueueAdd() {
   }
   orders.value.unshift(newOrder)
   selectedOrder.value = newOrder
+<<<<<<< HEAD
+=======
+  mainPaneRef.value?.resetSearchValues()
+>>>>>>> remotes/origin/f1-cat
 }
 
 function handleQueueReset() {

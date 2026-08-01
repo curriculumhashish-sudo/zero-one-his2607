@@ -1,4 +1,5 @@
 import type {
+  FormConfig,
   PageResult,
   PurchaseInboundDetail,
   PurchaseInboundDetailResult,
@@ -19,7 +20,34 @@ const PHARMACIES = [
 ]
 const CATEGORIES = ['药品', '耗材']
 const HANDLERS = ['张三', '李四', '王五', '赵六']
+const APPROVERS = ['陈主任', '刘药师', '周科长']
+const SUPPLIERS = ['九州通医药集团', '国药控股', '华润医药']
 
+/** 状态常量 */
+const STATUS = {
+  EDITING: 0,
+  PENDING: 1,
+  APPROVED: 2,
+  REJECTED: 3
+} as const
+
+const STATUS_TEXT: Record<number, string> = {
+  [STATUS.EDITING]: '编辑中',
+  [STATUS.PENDING]: '待审批',
+  [STATUS.APPROVED]: '已完成',
+  [STATUS.REJECTED]: '已驳回'
+}
+
+function pad(n: number): string {
+  return String(n).padStart(2, '0')
+}
+
+/** 生成随机金额（两位小数） */
+function randomAmount(min: number, max: number): number {
+  return Math.round((min + Math.random() * (max - min)) * 100) / 100
+}
+
+// 弹窗数据
 const supplierData: SupplierItem[] = [
   {
     itemCode: 'MD0029',
@@ -124,15 +152,37 @@ const supplierData: SupplierItem[] = [
 
 const mockOrders: PurchaseInboundOrder[] = Array.from({ length: 12 }, (_, index) => {
   const pharmacy = PHARMACIES[index % PHARMACIES.length] ?? PHARMACIES[0]!
+  const status = ([0, 1, 2, 3] as PurchaseInboundStatus[])[index % 4] ?? 0
+  const day = pad((index % 20) + 1)
+  const h = 8 + (index % 10)
+  const m = (index * 7) % 60
   return {
+    // -------- 原有字段 --------
     id: `pi-${String(index + 1).padStart(3, '0')}`,
     docNo: `PD-2026-${String(index + 1).padStart(4, '0')}`,
-    date: `2026-07-${String((index % 20) + 1).padStart(2, '0')}`,
+    date: `2026-07-${day}`,
     handler: HANDLERS[index % HANDLERS.length] ?? '系统用户',
     counterparty: pharmacy,
-    status: ([0, 1, 2, 3] as PurchaseInboundStatus[])[index % 4] ?? 0,
+    status,
     type: pharmacy,
-    category: CATEGORIES[index % CATEGORIES.length] ?? '药品'
+    category: CATEGORIES[index % CATEGORIES.length] ?? '药品',
+
+    // -------- 卡片队列展示字段 --------
+    busNo: `PD-2026-${String(index + 1).padStart(4, '0')}`,
+    statusEnum: status,
+    statusEnum_enumText: STATUS_TEXT[status] ?? '编辑中',
+    applicantId_dictText: HANDLERS[index % HANDLERS.length] ?? '系统用户',
+    applyTime: `2026-07-${day} ${pad(h)}:${pad(m)}`,
+    approverId_dictText:
+      status === STATUS.PENDING || status === STATUS.APPROVED
+        ? (APPROVERS[index % APPROVERS.length] ?? '')
+        : '',
+    approvalTime:
+      status === STATUS.APPROVED ? `2026-07-${day} ${pad(h + 1)}:${pad((m + 15) % 60)}` : '',
+    supplierId_dictText: SUPPLIERS[index % SUPPLIERS.length],
+    sourceLocationId_dictText: pharmacy,
+    purposeLocationId_dictText: PHARMACIES[(index + 1) % PHARMACIES.length] ?? PHARMACIES[0]!,
+    totalAmount: randomAmount(50, 5000)
   }
 })
 
@@ -252,16 +302,33 @@ export async function mockCreatePurchaseInbound(
 ): Promise<PurchaseInboundDetailResult> {
   await delay()
   sequence += 1
+  const now = new Date()
+  const dateStr = now.toISOString().slice(0, 10)
   const id = `pi-${String(sequence).padStart(3, '0')}`
   const order: PurchaseInboundOrder = {
     id,
     docNo: `PD-2026-${String(sequence).padStart(4, '0')}`,
-    date: new Date().toISOString().slice(0, 10),
+    date: dateStr,
     handler: '当前用户',
     counterparty: payload.pharmacy,
     status: 0,
     type: payload.pharmacy,
-    category: payload.itemType
+    category: payload.itemType,
+    // 卡片展示字段
+    busNo: `PD-2026-${String(sequence).padStart(4, '0')}`,
+    statusEnum: 0,
+    statusEnum_enumText: '编辑中',
+    applicantId_dictText: '当前用户',
+    applyTime: `${dateStr} ${pad(now.getHours())}:${pad(now.getMinutes())}`,
+    approverId_dictText: '',
+    approvalTime: '',
+    supplierId_dictText: '',
+    sourceLocationId_dictText: payload.pharmacy,
+    purposeLocationId_dictText: '',
+    totalAmount: payload.details.reduce(
+      (sum, d) => sum + (Number(d.actualQuantity) || 0) * (Number(d.unitPrice) || 0),
+      0
+    )
   }
   mockOrders.unshift(order)
   detailByOrderId.set(id, payload.details.map(normalizeDetail))
@@ -338,4 +405,52 @@ export async function mockLoadSupplierOptions(query: {
   )
   const start = (query.pageIndex - 1) * query.pageSize
   return { rows: filtered.slice(start, start + query.pageSize), total: filtered.length }
+}
+
+/** 模拟获取表单配置 */
+export async function mockGetFormConfig(): Promise<FormConfig> {
+  await delay(100)
+  return {
+    columns: [
+      { prop: 'itemName', label: '项目名称', width: 200, fixed: 'left' as const },
+      { prop: 'specification', label: '规格', width: 120 },
+      { prop: 'manufacturer', label: '厂家', minWidth: 160 },
+      { prop: 'batchNo', label: '批号', width: 120 },
+      {
+        prop: 'bookQuantity',
+        label: '账面数量',
+        editable: true,
+        editorType: 'number' as const,
+        width: 100
+      },
+      { prop: 'actualQuantity', label: '实盘数量', width: 180 },
+      { prop: 'profitLoss', label: '盈亏数量', width: 90 },
+      { prop: 'unitPrice', label: '单价', width: 100 },
+      { prop: 'actualAmount', label: '实盘金额', width: 100 },
+      { prop: 'profitLossAmount', label: '盈亏金额', width: 100 },
+      { prop: 'remark', label: '备注', width: 140 }
+    ],
+    rowDefaults: {
+      itemName: '',
+      specification: '',
+      manufacturer: '',
+      batchNo: '',
+      bookQuantity: 0,
+      actualQuantity: 0,
+      actualUnit: '单位',
+      profitLoss: 0,
+      unitPrice: 0,
+      actualAmount: 0,
+      profitLossAmount: 0,
+      remark: ''
+    },
+    selectTableColumns: [
+      { prop: 'itemCode', label: '项目编码', width: 100 },
+      { prop: 'itemName', label: '项目名称', minWidth: 140 },
+      { prop: 'manufacturer', label: '厂家/产地', minWidth: 160 },
+      { prop: 'specification', label: '规格', width: 120 },
+      { prop: 'stockQuantity', label: '库存数量', width: 90 },
+      { prop: 'packageUnit', label: '包装单位', width: 90 }
+    ]
+  }
 }

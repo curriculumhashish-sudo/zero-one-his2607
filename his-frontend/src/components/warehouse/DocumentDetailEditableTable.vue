@@ -4,19 +4,19 @@
     <div v-if="showAdd || showDelete || $slots.toolbar" class="ddet__toolbar">
       <slot name="toolbar" />
       <el-button
-        v-if="showAdd && !readonly"
+        v-if="showAdd"
         size="default"
         type="primary"
-        :disabled="maxRows > 0 && modelValue.length >= maxRows"
+        :disabled="disableAdd || readonly || (maxRows > 0 && modelValue.length >= maxRows)"
         @click="addRow"
       >
         添加行
       </el-button>
       <el-button
-        v-if="showDelete && !readonly"
+        v-if="showDelete"
         size="default"
         type="danger"
-        :disabled="selectedRows.length === 0"
+        :disabled="disableDelete || readonly || selectedRows.length === 0"
         @click="deleteRows"
       >
         删除行
@@ -179,6 +179,10 @@ const props = withDefaults(
     showAdd?: boolean
     /** 是否显示"删除行"按钮 */
     showDelete?: boolean
+    /** 禁用"添加行"按钮（按钮仍显示） */
+    disableAdd?: boolean
+    /** 禁用"删除行"按钮（按钮仍显示） */
+    disableDelete?: boolean
     /** 最大行数 */
     maxRows?: number
     /** 是否显示序号列 */
@@ -193,6 +197,8 @@ const props = withDefaults(
     rules: () => [],
     showAdd: false,
     showDelete: false,
+    disableAdd: false,
+    disableDelete: false,
     maxRows: 0,
     showIndex: true
   }

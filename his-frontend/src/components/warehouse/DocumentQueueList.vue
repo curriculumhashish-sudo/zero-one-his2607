@@ -1,501 +1,680 @@
+<!--
+  库房单据工作站：左侧单据卡片队列（主色条、选中态、票尾虚线）。
+  默认：到分钟时间格式、单据号多字段解析、审批态、选中态、库房/审批人字典与选项解析；业务仅需传 orders + selectedOrder，可选传库房/职员选项与 locationContextId（草稿库房回退）。
+-->
+
 <template>
-  <div class="document-queue-list">
-    <!-- ==================== 头部 ==================== -->
-    <header v-if="$slots.filters || showCreate" class="document-queue-list__header">
-      <div v-if="$slots.filters" class="document-queue-list__filters">
-        <slot name="filters" />
-      </div>
-      <div class="document-queue-list__header-actions">
-        <el-button link title="刷新列表" @click="emit('refresh')">
-          <el-icon><Refresh /></el-icon>
-        </el-button>
-        <el-button v-if="showCreate" type="primary" size="small" @click="emit('create')">
-          新增
-        </el-button>
-      </div>
-    </header>
-
-    <!-- ==================== 主体 ==================== -->
-    <div class="document-queue-list__body">
-      <!-- 加载状态 -->
-      <div v-if="loading" class="document-queue-list__status">
-        <el-icon class="is-loading"><Loading /></el-icon>
-        <span>加载中...</span>
-      </div>
-
-      <!-- 错误状态 -->
+  <div class="inv-queue-cards">
+    <template v-if="orders.length > 0">
       <div
-        v-else-if="hasError"
-        class="document-queue-list__status document-queue-list__status--error"
+        v-for="(item, orderIdx) in orders"
+        :key="rowListKey(item, orderIdx)"
+        class="queue-item"
+        :class="{ 'is-active': isRowSelected(item) }"
+        @click="handleRowClick(item)"
       >
-        <el-result icon="error" :title="errorMessage">
-          <template #extra>
-            <el-button type="primary" @click="emit('retry')">重试</el-button>
-          </template>
-        </el-result>
-      </div>
-
-      <!-- 空状态 -->
-      <div v-else-if="isEmpty" class="document-queue-list__status">
-        <slot name="empty">
-          <el-empty :description="emptyText" />
-        </slot>
-      </div>
-
-      <!-- 单据列表 -->
-      <div
-        v-else
-        ref="listRef"
-        class="document-queue-list__list"
-        role="listbox"
-        :aria-label="'单据列表'"
-        @keydown="handleListKeydown"
-      >
-        <div
-          v-for="(order, index) in orders"
-          :key="resolveRowKey(order)"
-          :ref="(el: unknown) => setItemRef(el as HTMLElement | null, index)"
-          class="document-queue-list__item"
-          :class="{ 'is-active': isActive(order) }"
-          role="option"
-          :aria-selected="isActive(order)"
-          :tabindex="isActive(order) ? 0 : -1"
-          @click="handleSelect(order)"
-        >
-          <slot name="item" :order="order" :active="isActive(order)" :index="index">
-            <!-- ===== 默认卡片渲染 ===== -->
-            <div class="document-queue-list__item-card">
-              <!-- 顶行：主标识 + 状态标签 -->
-              <div class="document-queue-list__item-header">
-                <span class="document-queue-list__doc-no">
-                  {{ resolveField(order, primaryFieldKey) }}
-                </span>
-                <StatusDisplay
-                  v-if="
-                    statusMap && statusMap.length > 0 && resolveField(order, statusFieldKey) != null
-                  "
-                  :value="resolveField(order, statusFieldKey)"
-                  :options="statusMap"
-                  size="small"
-                  effect="plain"
-                />
+        <ElCard class="queue-card" shadow="never">
+          <div class="queue-head-wrap">
+            <div class="queue-head">
+              <div class="queue-bus-no">
+                <el-icon class="queue-bus-no__icon"><Document /></el-icon>
+                <span class="queue-bus-no__text">{{ displayBusNo(item) }}</span>
               </div>
-
-              <!-- 底行：其他已配置字段 -->
-              <div v-if="displayFields.length > 0" class="document-queue-list__item-body">
-                <template v-for="field in displayFields" :key="field.key">
-                  <span v-if="hasFieldValue(order, field)" class="document-queue-list__field">
-                    <span class="document-queue-list__field-label">{{ field.label }}</span>
-                    <span class="document-queue-list__field-separator">：</span>
-                    <span class="document-queue-list__field-value">{{
-                      resolveField(order, field.key)
-                    }}</span>
-                  </span>
-                </template>
+              <div class="queue-head__status">
+                <span class="queue-status" :class="queueStatusClass(item)">
+                  <StatusDisplay
+                    v-if="statusMap && statusMap.length > 0"
+                    :value="statusDisplayValue(item)"
+                    :options="statusMap"
+                    size="small"
+                    effect="plain"
+                  />
+                  <template v-else>{{ item.statusEnum_enumText }}</template>
+                </span>
               </div>
             </div>
-          </slot>
-
-          <!-- 每个条目的额外内容 -->
-          <div v-if="$slots.itemExtra" class="document-queue-list__item-extra">
-            <slot name="itemExtra" :order="order" :active="isActive(order)" :index="index" />
           </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- ==================== 底部 ==================== -->
-    <footer v-if="$slots.footer" class="document-queue-list__footer">
-      <slot name="footer" :count="orders?.length ?? 0" />
-    </footer>
+          <div class="queue-body">
+            <div v-if="showSupplier" class="queue-line queue-line--plain queue-line--supplier">
+              <span class="queue-plain-value">{{
+                displayText(item.supplierId_dictText) || '—'
+              }}</span>
+            </div>
+
+            <div class="queue-line queue-line--people-times">
+              <div class="queue-people-col">
+                <div class="queue-person-row">
+                  <span class="queue-label">{{ applicantRoleLabel }}</span>
+                  <span class="queue-person-value">{{
+                    displayText(item.applicantId_dictText) || '—'
+                  }}</span>
+                </div>
+                <div class="queue-person-row">
+                  <span class="queue-label">{{ approverRoleLabel }}</span>
+                  <span class="queue-person-value queue-person-value--slot">{{
+                    displayApproverLine(item) || '—'
+                  }}</span>
+                </div>
+              </div>
+              <div class="queue-times-col">
+                <div class="queue-time-row">
+                  <span class="queue-time-value queue-time-value--slot">{{
+                    formatApplyTimeForDisplay(item.applyTime) || '—'
+                  }}</span>
+                </div>
+                <div class="queue-time-row">
+                  <span class="queue-time-value queue-time-value--slot">{{
+                    displayApprovalTime(item) || '—'
+                  }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="queue-line queue-line--footer">
+              <div class="queue-footer-left--warehouse">
+                <span class="queue-warehouse-value">{{ displayWarehouseLine(item) || '—' }}</span>
+              </div>
+              <div class="queue-footer-right">
+                <span class="queue-label">{{ footerAmountLabel }}</span>
+                <span class="queue-amount-num">{{ displayTotalAmount(item) || '—' }}</span>
+              </div>
+            </div>
+          </div>
+        </ElCard>
+      </div>
+    </template>
+    <div v-else class="queue-empty">
+      <EmptyState
+        :title="emptyDescription"
+        compact
+        action-text="新增单据"
+        @action="handleEmptyAdd"
+      />
+    </div>
   </div>
 </template>
 
-<script setup lang="ts" generic="T extends Record<string, any> = Record<string, any>">
-import { computed, ref } from 'vue'
-import { Refresh, Loading } from '@element-plus/icons-vue'
+<script setup lang="ts">
+import { Document } from '@element-plus/icons-vue'
+import { ElCard } from 'element-plus'
+import dayjs from 'dayjs'
+
 import StatusDisplay from '@/components/common/StatusDisplay.vue'
+import EmptyState from '@/components/common/EmptyState.vue'
 import type { StatusDisplayOption } from '@/components/common/type'
+
+defineOptions({ name: 'DocumentQueueList' })
 
 // ==================== 类型定义 ====================
 
-/** 卡片主体渲染的单字段描述符 */
-export interface QueueField<T = any> {
-  /** 字段标识符；当未提供 resolve 时用于从单据解析值 */
-  key: string
-  /** 显示标签 */
-  label: string
-  /** 自定义解析器，默认取 order[key] */
-  resolve?: (order: T) => any
+export interface ApiOptionItem {
+  value?: string | number
+  label?: string
+  name?: string
+  id?: string | number
 }
 
-// ==================== 属性 ====================
+// ==================== Props ====================
 
 const props = withDefaults(
   defineProps<{
-    /** 单据数组 */
-    orders?: T[] | null
-    /**
-     * 稳定行键。
-     * - string：单据上的属性名（如 'id'）
-     * - function：(order) => 唯一键
-     */
-    rowKey: string | ((order: T) => string | number)
-    /** 当前选中键（受控） */
-    selectedKey?: string | number | null
-    /**
-     * 字段配置。
-     * 第一个字段（索引 0）作为卡片头部主标识渲染；
-     * 其余字段在卡片主体中以键值对行展示。
-     * 值为 null / undefined / '' 的字段自动隐藏，不显示空标签。
-     */
-    fields?: QueueField<T>[]
-    /**
-     * StatusDisplay 组件的状态映射。
-     * 默认以 key 为 `'status'` 的字段解析后匹配此映射。
-     * 传入 `[]` 或不传则完全隐藏状态标签。
-     */
-    statusMap?: StatusDisplayOption[] | null
-    /** 驱动状态标签的字段键，默认 'status' */
-    statusFieldKey?: string
-    /** 列表是否处于加载状态 */
-    loading?: boolean
-    /**
-     * 错误状态。
-     * - `true` 或非空字符串 → 显示错误面板
-     * - 字符串值将作为错误标题
-     */
-    error?: boolean | string
-    /** 空状态描述文本 */
-    emptyText?: string
-    /** 是否在头部显示"新增"按钮 */
-    showCreate?: boolean
+    applicantRoleLabel?: string
+    approverRoleLabel?: string
+    /** 库房下拉（用于草稿行 purpose 回退及 id→名称） */
+    cabinetListOptions?: Record<string, unknown>[]
+    emptyDescription?: string
+    /** 覆盖默认制单时间格式化 */
+    formatApplyTime?: (value: unknown) => string
+    /** 覆盖默认审批时间格式化 */
+    formatApprovalTime?: (value: unknown) => string
+    /** 覆盖默认「审批通过」判定 */
+    isApproved?: (row: Record<string, unknown>) => boolean
+    /** 与单头/筛选同步的库房 id，草稿卡片库房一行回退用 */
+    locationContextId?: number | string
+    orders: Record<string, unknown>[]
+    practitionerOption?: ApiOptionItem[]
+    /** 完全自定义审批人一行（极少用） */
+    resolveApproverLine?: (row: Record<string, unknown>) => string | undefined
+    /** 完全自定义单据号（极少用） */
+    resolveBusNo?: (row: Record<string, unknown>) => string | undefined
+    /** 完全自定义库房一行（极少用） */
+    resolveWarehouseLine?: (row: Record<string, unknown>) => string | undefined
+    /** 当前选中行（与列表行同构）；用于高亮与草稿 clientId 比对 */
+    selectedOrder?: null | Record<string, unknown>
+    /** 是否展示供应商（采购进货等少数场景为 true；默认 false 突出库房） */
+    showSupplier?: boolean
+    /** 票尾金额列标题（默认「总金额」） */
+    footerAmountLabel?: string
+    /** 覆盖默认金额解析（如调价单进价/售价盈亏） */
+    resolveAmountLine?: (row: Record<string, unknown>) => string | undefined
+    /** 状态映射配置（用于 StatusDisplay） */
+    statusMap?: StatusDisplayOption[]
   }>(),
   {
-    orders: () => [],
-    selectedKey: null,
-    fields: () =>
-      [
-        { key: 'docNo', label: '单据号' },
-        { key: 'date', label: '日期' },
-        { key: 'handler', label: '经办人' },
-        { key: 'counterparty', label: '往来单位' }
-      ] as QueueField<T>[],
-    statusMap: null,
-    statusFieldKey: 'status',
-    loading: false,
-    error: false,
-    emptyText: '暂无单据',
-    showCreate: false
+    applicantRoleLabel: '制单人',
+    approverRoleLabel: '审批人',
+    cabinetListOptions: () => [],
+    emptyDescription: '暂无单据',
+    footerAmountLabel: '总金额',
+    practitionerOption: () => [],
+    showSupplier: false,
+    statusMap: () => []
   }
 )
 
-// ==================== 事件 ====================
+// ==================== Emits ====================
 
 const emit = defineEmits<{
-  'update:selectedKey': [key: string | number]
-  select: [order: T]
-  create: []
-  refresh: []
-  retry: []
-  /** 通用操作事件；参数：(actionName, order) */
-  action: [action: string, order: T]
+  add: []
+  select: [row: Record<string, unknown>]
 }>()
 
-// ==================== 插槽 ====================
+// ==================== 常量 ====================
 
-defineSlots<{
-  filters?: () => unknown
-  item?: (props: { order: T; active: boolean; index: number }) => unknown
-  itemExtra?: (props: { order: T; active: boolean; index: number }) => unknown
-  empty?: () => unknown
-  footer?: (props: { count: number }) => unknown
-}>()
+const QUEUE_CARD_DATETIME_FORMAT = 'YYYY-MM-DD HH:mm'
 
-// ==================== 响应式引用 ====================
+// ==================== 事件处理 ====================
 
-const listRef = ref<HTMLElement | null>(null)
-const itemRefs = ref<(HTMLElement | null)[]>([])
-
-function setItemRef(el: HTMLElement | null, index: number) {
-  itemRefs.value[index] = el
+/** 点击卡片：通知父级切换当前单据并联查明细 */
+function handleRowClick(row: Record<string, unknown>) {
+  emit('select', row)
 }
 
-// ==================== 计算属性 ====================
-
-const hasError = computed(() => {
-  if (typeof props.error === 'string') return props.error.length > 0
-  return !!props.error
-})
-
-const errorMessage = computed(() => {
-  if (typeof props.error === 'string') return props.error
-  return '加载失败'
-})
-
-const isEmpty = computed(() => !props.orders || props.orders.length === 0)
-
-/** The first field — used as the card header's primary identifier */
-const primaryFieldKey = computed(() => props.fields[0]?.key ?? 'docNo')
-
-/** Remaining fields displayed in the card body (exclude the primary & status field keys) */
-const displayFields = computed(() =>
-  props.fields.slice(1).filter((f) => f.key !== props.statusFieldKey)
-)
-
-// ==================== 方法 ====================
-
-function resolveRowKey(order: T): string | number {
-  if (typeof props.rowKey === 'function') return props.rowKey(order)
-  return order[props.rowKey] as string | number
+/** 空态引导新增单据 */
+function handleEmptyAdd() {
+  emit('add')
 }
 
-function isActive(order: T): boolean {
-  return resolveRowKey(order) === props.selectedKey
+// ==================== 解析函数 ====================
+
+function defaultFormatQueueTime(value: unknown): string {
+  if (value === undefined || value === null || value === '') return ''
+  const d = dayjs(value as dayjs.ConfigType)
+  if (!d.isValid()) return ''
+  return d.format(QUEUE_CARD_DATETIME_FORMAT)
 }
 
-/** Resolve a field value from an order */
-function resolveField(order: T, key: string): any {
-  const field = props.fields.find((f) => f.key === key)
-  if (field?.resolve) return field.resolve(order)
-  return order[key]
-}
-
-/** Whether a field has a displayable value */
-function hasFieldValue(order: T, field: QueueField<T>): boolean {
-  const value = resolveField(order, field.key)
-  return value != null && value !== ''
-}
-
-function handleSelect(order: T) {
-  const key = resolveRowKey(order)
-  if (key === props.selectedKey) return
-  emit('update:selectedKey', key)
-  emit('select', order)
-}
-
-// ==================== 键盘导航 ====================
-
-/** Current orders array for index lookup (avoid computed dependency issues) */
-function getCurrentOrders(): T[] {
-  return props.orders ?? []
-}
-
-/** Navigate selection by relative offset. Clamps to valid range. */
-function navigateSelection(delta: 1 | -1) {
-  const orders = getCurrentOrders()
-  if (orders.length === 0) return
-
-  const currentIndex = orders.findIndex((o) => resolveRowKey(o) === props.selectedKey)
-  const nextIndex =
-    currentIndex === -1 ? 0 : Math.max(0, Math.min(orders.length - 1, currentIndex + delta))
-
-  const nextOrder = orders[nextIndex]
-  if (!nextOrder) return
-
-  const key = resolveRowKey(nextOrder)
-  emit('update:selectedKey', key)
-  emit('select', nextOrder)
-
-  // Focus the newly selected item after render
-  requestAnimationFrame(() => {
-    itemRefs.value[nextIndex]?.focus()
-  })
-}
-
-function handleListKeydown(e: KeyboardEvent) {
-  // 仅处理导航键
-  if (!['ArrowUp', 'ArrowDown', 'Enter', ' '].includes(e.key)) return
-
-  // 焦点在输入框/文本域/下拉框内时不拦截
-  const target = e.target as HTMLElement
-  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) return
-
-  e.preventDefault()
-
-  switch (e.key) {
-    case 'ArrowUp':
-      navigateSelection(-1)
-      break
-    case 'ArrowDown':
-      navigateSelection(1)
-      break
-    case 'Enter':
-    case ' ': {
-      const orders = getCurrentOrders()
-      const current = orders.find((o) => resolveRowKey(o) === props.selectedKey)
-      if (current) {
-        emit('select', current)
-      }
-      break
-    }
+function defaultResolveBusNo(row?: null | Record<string, unknown>): string | undefined {
+  if (!row) return undefined
+  const candidates = [row.supplyBusNo, row.busNo, row.orderBusNo, row.purchaseBusNo]
+  for (const raw of candidates) {
+    if (raw === undefined || raw === null) continue
+    const s = String(raw).trim()
+    if (s !== '') return s
   }
+  return undefined
+}
+
+function effectiveResolveBusNo(row?: null | Record<string, unknown>): string | undefined {
+  if (props.resolveBusNo) return props.resolveBusNo(row as Record<string, unknown>)
+  return defaultResolveBusNo(row)
+}
+
+/** 解析单行展示文案 */
+function displayText(value: unknown): string {
+  if (value === undefined || value === null) return ''
+  return String(value).trim()
+}
+
+/** 单据号：草稿无号时展示占位 */
+function displayBusNo(item: Record<string, unknown>): string {
+  const no = effectiveResolveBusNo(item)
+  if (no !== undefined && no !== null && String(no).trim() !== '') return String(no).trim()
+  if (item._draft) return '（新单据）'
+  return '—'
+}
+
+function queueStatusClass(item: Record<string, unknown>): string {
+  if (item._draft || displayText(item.statusEnum_enumText) === '编辑中') {
+    return 'queue-status--editing'
+  }
+  const approveFn = props.isApproved ?? defaultIsApproved
+  return approveFn(item) ? 'queue-status--ok' : 'queue-status--pending'
+}
+
+function defaultIsApproved(row: Record<string, unknown>): boolean {
+  if (!row) return false
+  if (row.statusEnum_enumText === '同意') return true
+  const s = row.statusEnum
+  if (s === 'AGREE' || s === 'agree') return true
+  return s === 3 || s === '3'
+}
+
+function isRowSelected(row: Record<string, unknown>): boolean {
+  const sel = props.selectedOrder
+  if (!sel) return false
+  if (Boolean(sel._draft) && Boolean(row._draft)) {
+    return sel._clientDraftId === row._clientDraftId
+  }
+  if (Boolean(sel._draft) || Boolean(row._draft)) return false
+  const selNo = effectiveResolveBusNo(sel)
+  const rowNo = effectiveResolveBusNo(row)
+  if (!selNo || !rowNo) return false
+  return selNo === rowNo
+}
+
+function rowListKey(item: Record<string, unknown>, orderIdx: number): string {
+  const draftId = item._clientDraftId
+  if (draftId !== undefined && draftId !== null && String(draftId) !== '') {
+    return String(draftId)
+  }
+  return effectiveResolveBusNo(item) ?? `order-${orderIdx}`
+}
+
+function formatApplyTimeForDisplay(value: unknown): string {
+  return (props.formatApplyTime ?? defaultFormatQueueTime)(value)
+}
+
+/** 金额格式化：两位小数 + 元 */
+function formatAmountTwoDecimals(value: unknown): string {
+  if (value === undefined || value === null || value === '') return ''
+  const n = Number(value)
+  if (Number.isFinite(n)) return `${n.toFixed(2)} 元`
+  return ''
+}
+
+/** 从行上解析总金额展示（兼容 totalPrice / totalAmount 等） */
+function displayTotalAmount(row: Record<string, unknown>): string {
+  const fromFn = props.resolveAmountLine?.(row)
+  if (fromFn !== undefined && fromFn !== null && String(fromFn).trim() !== '') {
+    return String(fromFn).trim()
+  }
+  const keys = ['totalPrice', 'totalAmount', 'totalMoney', 'sumTotalPrice', 'amount']
+  for (const k of keys) {
+    const raw = row[k]
+    if (raw === undefined || raw === null || raw === '') continue
+    const text = formatAmountTwoDecimals(raw)
+    if (text) return text
+  }
+  return ''
+}
+
+function cabinetNameById(id: unknown): string {
+  if (id === undefined || id === null || id === '') return ''
+  const idStr = String(id)
+  for (const o of props.cabinetListOptions) {
+    const v = o.id ?? o.value
+    if (String(v) === idStr) return String(o.name ?? o.label ?? '').trim()
+  }
+  return ''
+}
+
+/** 库房一行：优先完全自定义回调，其次草稿回退 + 字典 + id→名称 */
+function displayWarehouseLine(item: Record<string, unknown>): string {
+  const fromFn = props.resolveWarehouseLine?.(item)
+  if (fromFn !== undefined && fromFn !== null && String(fromFn).trim() !== '') {
+    return String(fromFn).trim()
+  }
+  if (item._draft) {
+    const lid = item.purposeLocationId ?? item.locationId ?? props.locationContextId
+    const lab = cabinetNameById(lid)
+    return lab || ''
+  }
+  const src =
+    displayText(item.sourceLocationId_dictText) ||
+    displayText(item.fromLocationId_dictText) ||
+    displayText(item.shipLocationId_dictText) ||
+    cabinetNameById(item.sourceLocationId ?? item.fromLocationId)
+  const dst =
+    displayText(item.purposeLocationId_dictText) ||
+    displayText(item.locationId_dictText) ||
+    displayText(item.targetLocationId_dictText) ||
+    cabinetNameById(item.purposeLocationId ?? item.locationId)
+  if (src && dst && src !== dst) return `${src} → ${dst}`
+  if (dst) return dst
+  if (src) return src
+  return ''
+}
+
+function displayApprovalTime(item: Record<string, unknown>): string {
+  const raw = item.approvalTime ?? item.auditTime ?? item.approveTime ?? item.reviewTime
+  return (props.formatApprovalTime ?? defaultFormatQueueTime)(raw) || ''
+}
+
+function practitionerLabelById(id: unknown): string {
+  if (id === undefined || id === null || id === '') return ''
+  const idStr = String(id)
+  for (const o of props.practitionerOption) {
+    if (String(o.value) === idStr) return String(o.label ?? '').trim()
+  }
+  return ''
+}
+
+/** 为 StatusDisplay 提供安全的 value（避免模板中 as string|number 触发 Vue filters 解析） */
+function statusDisplayValue(item: Record<string, unknown>): string | number | undefined | null {
+  const v = item.statusEnum
+  if (typeof v === 'string' || typeof v === 'number') return v
+  return undefined
+}
+
+/** 审批人展示名：优先完全自定义，其次字典 + 职员选项 */
+function displayApproverLine(item: Record<string, unknown>): string {
+  const fromFn = props.resolveApproverLine?.(item)
+  if (fromFn !== undefined && fromFn !== null && String(fromFn).trim() !== '') {
+    return String(fromFn).trim()
+  }
+  return (
+    displayText(item.approverId_dictText) ||
+    displayText(item.auditBy_dictText) ||
+    displayText(item.reviewerId_dictText) ||
+    practitionerLabelById(item.approverId ?? item.auditBy)
+  )
 }
 </script>
 
-<style scoped>
-/* ==================== Root ==================== */
-.document-queue-list {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-}
+<style scoped lang="scss">
+/* ==================== 根容器 ==================== */
 
-/* ==================== Header ==================== */
-.document-queue-list__header {
-  display: flex;
-  flex-shrink: 0;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--el-border-color-lighter);
-}
-
-.document-queue-list__filters {
-  flex: 1;
-  min-width: 0;
-}
-
-.document-queue-list__header-actions {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: 6px;
-}
-
-/* ==================== Body ==================== */
-.document-queue-list__body {
-  flex: 1;
-  min-height: 0;
-  overflow: hidden auto;
-}
-
-/* ---------- Status overlay (loading / error / empty) ---------- */
-.document-queue-list__status {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 200px;
-  padding: 32px 16px;
-  color: var(--el-text-color-secondary);
-  font-size: 14px;
-  gap: 8px;
-}
-
-.document-queue-list__status--error {
-  min-height: 240px;
-}
-
-/* ==================== List ==================== */
-.document-queue-list__list {
+.inv-queue-cards {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 6px 8px;
+  height: 100%;
+  overflow-y: auto;
 }
 
-/* ==================== Item ==================== */
-.document-queue-list__item {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 10px 12px;
-  border: 1px solid transparent;
-  border-radius: var(--el-border-radius-base, 4px);
-  background: var(--el-bg-color, #fff);
+/* ==================== 卡片条目 ==================== */
+
+.queue-item {
+  width: 100%;
   cursor: pointer;
-  outline: none;
+  border-radius: var(--el-border-radius-base);
+
+  &.is-active .queue-bus-no__text {
+    color: var(--el-color-primary);
+    font-weight: 600;
+  }
+}
+
+.queue-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--el-border-radius-base);
+  background: var(--el-fill-color-blank);
+  border: 1px solid var(--el-border-color-extra-light);
+  box-shadow:
+    inset 3px 0 0 0 var(--el-color-primary),
+    1px 2px 3px rgb(0 0 0 / 5%);
   transition:
-    border-color 0.2s,
-    background-color 0.2s,
-    box-shadow 0.2s;
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  :deep(.el-card__body) {
+    position: relative;
+    z-index: 0;
+    padding: 6px 8px;
+  }
 }
 
-.document-queue-list__item:hover {
-  border-color: var(--el-color-primary-light-7);
-  background: var(--el-color-primary-light-9);
+.queue-item:hover .queue-card {
+  border-color: var(--el-border-color-lighter);
+  box-shadow:
+    inset 3px 0 0 0 var(--el-color-primary),
+    1px 2px 6px rgb(0 0 0 / 7%);
 }
 
-.document-queue-list__item.is-active {
-  border-color: var(--el-color-primary-light-5);
-  background: var(--el-color-primary-light-9);
-  box-shadow: 0 0 0 1px var(--el-color-primary-light-5) inset;
+.queue-item.is-active .queue-card {
+  background-color: var(--el-fill-color-blank);
+  border-color: var(--el-color-primary-light-3);
+  box-shadow:
+    inset 3px 0 0 0 var(--el-color-primary),
+    1px 2px 4px rgb(0 0 0 / 5%);
 }
 
-.document-queue-list__item:focus-visible {
-  outline: 2px solid var(--el-color-primary);
-  outline-offset: 1px;
+.queue-item.is-active .queue-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+  background-color: var(--el-color-primary);
+  opacity: 0.04;
 }
 
-/* ==================== Item Card (default slot) ==================== */
-.document-queue-list__item-card {
-  flex: 1;
-  min-width: 0;
+/* ==================== 卡片头部 ==================== */
+
+.queue-head-wrap {
+  margin-bottom: 6px;
 }
 
-.document-queue-list__item-header {
+.queue-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-bottom: 4px;
+  min-width: 0;
 }
 
-.document-queue-list__doc-no {
+.queue-bus-no {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: 4px;
+}
+
+.queue-bus-no__icon {
+  flex-shrink: 0;
+  font-size: 13px;
+  color: var(--el-text-color-secondary);
+}
+
+.queue-bus-no__text {
+  min-width: 0;
   overflow: hidden;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--el-text-color-primary);
+  letter-spacing: 0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.queue-head__status {
+  flex-shrink: 0;
+}
+
+.queue-status {
+  display: inline-block;
+  padding: 0 5px;
+  line-height: 18px;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 2px;
+}
+
+.queue-status--ok {
+  color: var(--el-color-success);
+  background-color: var(--el-color-success-light-9);
+  border: 1px solid var(--el-color-success-light-7);
+}
+
+.queue-status--pending {
+  color: var(--el-color-danger);
+  background-color: var(--el-color-danger-light-9);
+  border: 1px solid var(--el-color-danger-light-7);
+}
+
+.queue-status--editing {
+  color: var(--el-color-primary);
+  background-color: var(--el-color-primary-light-9);
+  border: 1px solid var(--el-color-primary-light-7);
+}
+
+/* ==================== 卡片主体 ==================== */
+
+.queue-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.queue-line {
+  line-height: 1.35;
+  min-width: 0;
+}
+
+.queue-line--plain {
+  font-size: 12px;
+  color: var(--el-text-color-primary);
+}
+
+.queue-line--supplier {
+  margin-bottom: 4px;
+  min-width: 0;
+}
+
+.queue-plain-value {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.queue-line--people-times {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.queue-people-col {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.queue-person-row {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+}
+
+.queue-person-value {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 12px;
   color: var(--el-text-color-primary);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.document-queue-list__item-body {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-  font-size: 12px;
-  color: var(--el-text-color-secondary);
-}
-
-.document-queue-list__field {
-  display: inline-flex;
-  align-items: baseline;
-  min-width: 0;
-  max-width: 100%;
-}
-
-.document-queue-list__field-label {
-  flex-shrink: 0;
-  color: var(--el-text-color-placeholder);
-}
-
-.document-queue-list__field-separator {
-  flex-shrink: 0;
-  color: var(--el-text-color-placeholder);
-}
-
-.document-queue-list__field-value {
+.queue-person-value--slot {
+  display: inline-block;
+  min-width: 7ch;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* ==================== Item Extra ==================== */
-.document-queue-list__item-extra {
-  flex-shrink: 0;
+/* ==================== 票尾行 ==================== */
+
+.queue-line--footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 0;
+  padding-top: 3px;
+  border-top: 1px dashed var(--el-border-color-lighter);
+  font-size: 12px;
 }
 
-/* ==================== Footer ==================== */
-.document-queue-list__footer {
-  flex-shrink: 0;
-  padding: 8px 12px;
-  border-top: 1px solid var(--el-border-color-lighter);
+.queue-footer-left--warehouse {
+  display: block;
+  min-width: 0;
+  flex: 1;
+}
+
+.queue-footer-left--warehouse .queue-warehouse-value {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
   font-size: 12px;
-  color: var(--el-text-color-placeholder);
+  color: var(--el-text-color-primary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.queue-footer-right {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: baseline;
+  justify-content: flex-end;
+}
+
+.queue-label {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--el-text-color-regular);
+
+  &::after {
+    content: '：';
+  }
+}
+
+.queue-amount-num {
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--el-text-color-primary);
+}
+
+/* ==================== 时间列 ==================== */
+
+.queue-times-col {
+  display: flex;
+  max-width: 58%;
+  flex-shrink: 0;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  line-height: 1.25;
+  text-align: right;
+}
+
+.queue-time-row {
+  display: flex;
+  max-width: 100%;
+  overflow: hidden;
+  align-items: baseline;
+  justify-content: flex-end;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.queue-time-value {
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--el-text-color-regular);
+}
+
+/** 无审批/无制单时间时也占位，避免与有时间的卡片右栏宽度不齐 */
+.queue-time-value--slot {
+  display: inline-block;
+  min-width: 15ch;
+  text-align: right;
+}
+
+/* ==================== 空状态 ==================== */
+
+.queue-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 32px;
+  padding-bottom: 32px;
+  color: var(--el-text-color-secondary);
 }
 </style>

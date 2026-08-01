@@ -91,7 +91,11 @@
 
     <!-- ==================== 新增区 ==================== -->
     <div class="add-area">
+<<<<<<< HEAD
       <el-button type="primary" size="default" style="width: 100%" @click="handleCreate">
+=======
+      <el-button type="primary" size="default" style="width: 100%" :disabled="addDisabled" @click="handleCreate">
+>>>>>>> remotes/origin/f1-cat
         {{ addButtonText }}
       </el-button>
     </div>
@@ -143,6 +147,11 @@ const props = withDefaults(
     loading?: boolean
     /** 当前选中单据 */
     selectedOrder?: Record<string, unknown> | null
+<<<<<<< HEAD
+=======
+    /** 禁用新增按钮（编辑中状态不允许新增） */
+    addDisabled?: boolean
+>>>>>>> remotes/origin/f1-cat
   }>(),
   {
     cabinetListOptions: () => [],
@@ -150,7 +159,12 @@ const props = withDefaults(
     showSupplier: false,
     orders: () => [],
     loading: false,
+<<<<<<< HEAD
     selectedOrder: null
+=======
+    selectedOrder: null,
+    addDisabled: false
+>>>>>>> remotes/origin/f1-cat
   }
 )
 
@@ -171,9 +185,17 @@ const statusMap: {
   type: 'primary' | 'success' | 'warning' | 'danger' | 'info'
 }[] = [
   { value: 0, label: '编辑中', type: 'primary' },
+<<<<<<< HEAD
   { value: 1, label: '待审批', type: 'warning' },
   { value: 2, label: '已完成', type: 'success' },
   { value: 3, label: '已驳回', type: 'danger' }
+=======
+  { value: 1, label: '待审核', type: 'warning' },
+  { value: 2, label: '审核中', type: 'warning' },
+  { value: 3, label: '已撤回', type: 'info' },
+  { value: 4, label: '同意', type: 'success' },
+  { value: 5, label: '驳回', type: 'danger' }
+>>>>>>> remotes/origin/f1-cat
 ]
 
 // ==================== 检索条件 ====================

@@ -57,6 +57,25 @@ export interface PurchaseInboundDetailResult {
   details: PurchaseInboundDetail[]
 }
 
+/** 表单列配置（由父组件传入） */
+export interface FormColumnConfig {
+  prop: string
+  label: string
+  width?: number | string
+  minWidth?: number | string
+  fixed?: 'left' | 'right'
+  editable?: boolean
+  editorType?: 'input' | 'number' | 'select' | 'date'
+  editorProps?: Record<string, any>
+}
+
+/** 表单配置（mock 接口返回） */
+export interface FormConfig {
+  columns: FormColumnConfig[]
+  rowDefaults: Record<string, any>
+  selectTableColumns: { prop: string; label: string; width?: number | string; minWidth?: number | string }[]
+}
+
 /** 药品选择表格数据源。 */
 export interface SupplierItem extends Record<string, unknown> {
   itemCode: string

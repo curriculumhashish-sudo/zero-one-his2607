@@ -1,4 +1,5 @@
 import type {
+  FormConfig,
   PageResult,
   PurchaseInboundDetailResult,
   PurchaseInboundOrder,
@@ -9,6 +10,7 @@ import type {
 import {
   mockApprovePurchaseInbound,
   mockCreatePurchaseInbound,
+  mockGetFormConfig,
   mockGetPurchaseInboundDetail,
   mockLoadPurchaseInboundInit,
   mockLoadSupplierOptions,
@@ -66,6 +68,11 @@ export function approvePurchaseInbound(id: string): Promise<PurchaseInboundOrder
 
 export function rejectPurchaseInbound(id: string, reason: string): Promise<PurchaseInboundOrder> {
   return mockRejectPurchaseInbound(id, reason)
+}
+
+/** 获取表单配置（列定义、默认值、SelectTable 配置） */
+export function getFormConfig(): Promise<FormConfig> {
+  return mockGetFormConfig()
 }
 
 export function loadSupplierOptions(query: {

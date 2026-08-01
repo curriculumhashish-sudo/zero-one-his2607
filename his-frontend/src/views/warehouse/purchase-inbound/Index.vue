@@ -1,45 +1,74 @@
 <template>
-  <DocumentWorkstationShell :has-selection="Boolean(selectedOrder)">
+  <DocumentWorkstationShell :has-selection="true">
+    <!-- 左侧标题 -->
     <template #queue-header>
-      <span>历史盘点单</span>
+      <span class="queue-header-title">历史盘点单</span>
     </template>
 
+    <!-- 左侧 Queue 区 -->
     <template #queue>
       <PurchaseInboundQueuePane
-        ref="queueRef"
-        :selected-id="selectedOrder?.id"
         dropdown1-placeholder="盘点药房"
+        :dropdown1-options="queueDropdown1Options"
         dropdown2-placeholder="项目类型"
-        show-dropdown2
+        :dropdown2-options="queueDropdown2Options"
+        :show-dropdown2="true"
         add-button-text="新增盘点单"
-        @select="handleSelect"
-        @create="handleCreate"
+        @select="selectedOrder = $event"
+        @create="selectedOrder = null"
+        @reset="selectedOrder = null"
       />
     </template>
 
+    <!-- 右侧 Main 区 -->
     <template #main>
       <PurchaseInboundMainPane
-        :selected-order="selectedOrder"
+        :order-id="selectedOrder?.id"
         title="药房盘点单"
         :extra-search-fields="mainSearchFields"
-        @changed="handleChanged"
-        @removed="handleRemoved"
+        :form-columns="formColumns"
+        :row-defaults="rowDefaults"
+        :select-table-columns="selectTableColumns"
       />
     </template>
   </DocumentWorkstationShell>
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import DocumentWorkstationShell from '@/components/warehouse/DocumentWorkstationShell.vue'
-import { loadPurchaseInboundInit } from '@/apis/warehouse/purchase-inbound'
-import type { PurchaseInboundOrder } from '@/apis/warehouse/purchase-inbound'
-import PurchaseInboundQueuePane from './components/PurchaseInboundQueuePane.vue'
-import PurchaseInboundMainPane from './components/PurchaseInboundMainPane.vue'
-import type { ExtraSearchField } from './components/PurchaseInboundMainPane.vue'
+import PurchaseInboundQueuePane from '@/views/warehouse/purchase-inbound/components/PurchaseInboundQueuePane.vue'
+import PurchaseInboundMainPane from '@/views/warehouse/purchase-inbound/components/PurchaseInboundMainPane.vue'
+import type { ExtraSearchField } from '@/views/warehouse/purchase-inbound/components/PurchaseInboundMainPane.vue'
+import { getFormConfig } from '@/apis/warehouse/purchase-inbound'
+import type { PurchaseInboundOrder } from '@/apis/warehouse/purchase-inbound/type'
+
+// ==================== 药房列表（静态数据） ====================
+
+const pharmacyOptions = [
+  { label: '门诊西药房', value: '门诊西药房' },
+  { label: '门诊中药房', value: '门诊中药房' },
+  { label: '门诊耗材房', value: '门诊耗材房' },
+  { label: '住院西药房', value: '住院西药房' },
+  { label: '住院中药房', value: '住院中药房' },
+  { label: '住院耗材房', value: '住院耗材房' }
+]
+
+const categoryOptions = [
+  { label: '药品', value: '药品' },
+  { label: '耗材', value: '耗材' }
+]
+
+// ==================== 选中状态 ====================
 
 const selectedOrder = ref<PurchaseInboundOrder | null>(null)
-const queueRef = ref<InstanceType<typeof PurchaseInboundQueuePane> | null>(null)
+
+// ==================== 左侧 Queue 区下拉菜单配置 ====================
+
+const queueDropdown1Options = pharmacyOptions
+const queueDropdown2Options = categoryOptions
+
+// ==================== 右侧 Main 区检索配置 ====================
 
 const mainSearchFields = reactive<ExtraSearchField[]>([
   {
@@ -54,56 +83,56 @@ const mainSearchFields = reactive<ExtraSearchField[]>([
     prop: 'pharmacy',
     type: 'select',
     placeholder: '请选择',
-    options: []
+    options: pharmacyOptions
   },
   {
     label: '项目类型',
     prop: 'itemType',
     type: 'select',
     placeholder: '请选择',
-    defaultValue: '药品',
-    options: [
-      { label: '药品', value: '药品' },
-      { label: '耗材', value: '耗材' }
-    ]
+    options: categoryOptions
   }
 ])
 
-function handleSelect(order: PurchaseInboundOrder) {
-  selectedOrder.value = order
-}
+// ==================== Main 区表单配置（从 mock 加载） ====================
 
-function handleCreate() {
-  // 未保存的新单不写入历史队列，保存成功后再由接口返回正式 ID 和单据号。
-  selectedOrder.value = {
-    id: '',
-    docNo: '',
-    date: '',
-    handler: '',
-    counterparty: '',
-    status: 0,
-    type: '',
-    category: '药品'
-  }
-}
-
-async function handleChanged(order: PurchaseInboundOrder) {
-  selectedOrder.value = order
-  await queueRef.value?.refresh()
-}
-
-async function handleRemoved() {
-  selectedOrder.value = null
-  await queueRef.value?.refresh()
-}
+const formColumns = ref<any[]>([])
+const rowDefaults = ref<Record<string, any>>({})
+const selectTableColumns = ref<any[]>([])
 
 onMounted(async () => {
   try {
-    const data = await loadPurchaseInboundInit()
-    const pharmacyField = mainSearchFields.find((field) => field.prop === 'pharmacy')
-    if (pharmacyField) pharmacyField.options = data.pharmacyOptions
+    const config = await getFormConfig()
+    // 父组件控制列项：过滤掉不需要的列即可
+    formColumns.value = config.columns.filter(
+      (c) => c.prop !== 'profitLossAmount' // 示例：排除"盈亏金额"列
+    )
+    rowDefaults.value = config.rowDefaults
+    selectTableColumns.value = config.selectTableColumns
   } catch {
-    // 队列会展示接口加载错误；主区域保留空选项，避免初始化失败阻断页面渲染。
+    // 加载失败使用默认空值
   }
 })
 </script>
+
+<style scoped>
+.queue-header-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+  position: relative;
+  padding-left: 10px;
+}
+
+.queue-header-title::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 3px;
+  height: 14px;
+  background: var(--el-color-primary);
+  border-radius: 2px;
+  content: '';
+  transform: translateY(-50%);
+}
+</style>
