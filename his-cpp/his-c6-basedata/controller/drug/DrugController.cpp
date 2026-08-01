@@ -31,8 +31,9 @@ DrugListPageJsonVO::Wrapper DrugController::execQueryDrug(const DrugQuery::Wrapp
 
 DrugSelectPageJsonVO::Wrapper DrugController::execQuerySelectDrug(const DrugSelectQuery::Wrapper &query)
 {
-    (void)query;
-    return {};
+    auto jvo = DrugListPageJsonVO::createShared();
+    jvo->success(DrugService().listAll(query));
+    return jvo;
 }
 
 StringJsonVO::Wrapper DrugController::execAddDrug(const DrugAddDTO::Wrapper &dto, const PayloadDTO &payload)
@@ -230,8 +231,8 @@ NoDataJsonVO::Wrapper DrugController::execEnableDisableDrug(const DrugEnableDisa
     return jvo;
 }
 
-DrugDetailJsonVO::Wrapper DrugController::execQueryOne(const String &id, const PayloadDTO &payload)
-{
+/*DrugDetailJsonVO::Wrapper DrugController::execQueryOne(const String& id, const PayloadDTO& payload)
+  {
     // 创建声明式客户端并转发凭证。
     API_CLIENT_CREATE(client, objectMapper, DrugApiClient, "drug-api");
     const std::string token = PayloadDTO::getTokenPrefix() + payload.getToken();
@@ -252,3 +253,4 @@ DrugListPageJsonVO::Wrapper DrugController::execQueryAll(
                      URIUtil::urlEncode(query->keywords))
         ->readBodyToDto<DrugListPageJsonVO::Wrapper>(objectMapper);
 }
+*/
