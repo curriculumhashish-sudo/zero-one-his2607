@@ -19,7 +19,7 @@
 #include "stdafx.h"
 #include "DrugService.h"
 
-#include "../../dao/common/EnumDictionaryDAO.h"
+#include "../../dao/common/DrugEnumDictionaryDAO.h"
 #include "../../dao/drug/DrugDAO.h"
 #include "../../domain/DrugConstants.h"
 #include "SimpleDateTimeFormat.h"
@@ -336,14 +336,14 @@ DrugModifyResultDTO::Wrapper DrugService::updateDrug(const DrugModifyDTO::Wrappe
             throw DrugServiceException(DrugServiceError::InvalidStatus);
         }
 
-        // 使用 MongoDB 枚举字典校验两种拆分规则。
+        // Validate both split rules with the MongoDB dictionary.
         stage = "validate-enums";
-        EnumDictionaryDAO enumDictionaryDAO;
+        DrugEnumDictionaryDAO drugEnumDictionaryDAO;
         const std::vector<std::string> ruleCodes = {
             dto->partAttributeEnum.getValue(""),
             dto->thoPartAttributeEnum.getValue("")};
-        const auto ruleDisplays = enumDictionaryDAO.findActiveDisplays(
-            EnumDictionaryDAO::ORDER_CALC_RULE_ENUM,
+        const auto ruleDisplays = drugEnumDictionaryDAO.findActiveDisplays(
+            DrugEnumDictionaryDAO::ORDER_CALC_RULE_ENUM,
             ruleCodes);
         if (ruleDisplays.find(ruleCodes[0]) == ruleDisplays.end() ||
             ruleDisplays.find(ruleCodes[1]) == ruleDisplays.end())
@@ -408,8 +408,8 @@ DrugModifyResultDTO::Wrapper DrugService::updateDrug(const DrugModifyDTO::Wrappe
         const std::string activeStatus = updated->getActiveFlag()
                                              ? DrugConstants::STATUS_ACTIVE
                                              : DrugConstants::STATUS_INACTIVE;
-        const auto statusDisplays = enumDictionaryDAO.findActiveDisplays(
-            EnumDictionaryDAO::PUBLICATION_STATUS_ENUM,
+        const auto statusDisplays = drugEnumDictionaryDAO.findActiveDisplays(
+            DrugEnumDictionaryDAO::PUBLICATION_STATUS_ENUM,
             {updated->getStatusEnum(), activeStatus});
         const auto statusText = statusDisplays.find(updated->getStatusEnum());
         const auto activeFlagText = statusDisplays.find(activeStatus);

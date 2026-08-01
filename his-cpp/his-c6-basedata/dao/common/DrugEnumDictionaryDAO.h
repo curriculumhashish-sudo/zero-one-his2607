@@ -17,25 +17,25 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _ENUM_DICTIONARY_DAO_H_
-#define _ENUM_DICTIONARY_DAO_H_
+#ifndef _DRUG_ENUM_DICTIONARY_DAO_H_
+#define _DRUG_ENUM_DICTIONARY_DAO_H_
 
 #include <map>
 #include <string>
 #include <vector>
 
-/** MongoDB 枚举字典访问对象。 */
-class EnumDictionaryDAO
+/** Accesses drug enum dictionaries in MongoDB. */
+class DrugEnumDictionaryDAO
 {
 public:
     static constexpr const char* COLLECTION_NAME = "enum_dictionary";
     static constexpr const char* ORDER_CALC_RULE_ENUM = "OrderCalcRuleEnum";
     static constexpr const char* PUBLICATION_STATUS_ENUM = "PublicationStatus";
 
-    /** 查询启用枚举项，返回 code 到 display 的映射。 */
+    /** Returns active code-to-display mappings. */
     std::map<std::string, std::string> findActiveDisplays(
-        const std::string& enumName,
+        const std::string& codeSystemName,
         const std::vector<std::string>& codes) const;
 };
 
-#endif // !_ENUM_DICTIONARY_DAO_H_
+#endif // !_DRUG_ENUM_DICTIONARY_DAO_H_

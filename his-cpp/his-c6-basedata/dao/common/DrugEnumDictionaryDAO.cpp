@@ -17,7 +17,7 @@
  limitations under the License.
 */
 #include "stdafx.h"
-#include "EnumDictionaryDAO.h"
+#include "DrugEnumDictionaryDAO.h"
 
 #include "Macros.h"
 #include "MongoClient.h"
@@ -29,12 +29,12 @@
 #include <bsoncxx/builder/basic/kvp.hpp>
 #include <stdexcept>
 
-std::map<std::string, std::string> EnumDictionaryDAO::findActiveDisplays(
-    const std::string& enumName,
+std::map<std::string, std::string> DrugEnumDictionaryDAO::findActiveDisplays(
+    const std::string& codeSystemName,
     const std::vector<std::string>& codes) const
 {
     std::map<std::string, std::string> result;
-    if (enumName.empty() || codes.empty())
+    if (codeSystemName.empty() || codes.empty())
     {
         return result;
     }
@@ -47,7 +47,7 @@ std::map<std::string, std::string> EnumDictionaryDAO::findActiveDisplays(
     using bsoncxx::builder::basic::kvp;
     using bsoncxx::builder::basic::make_document;
     const auto filter = make_document(
-        kvp("enumName", enumName),
+        kvp("codeSystemName", codeSystemName),
         kvp("code", make_document(kvp("$in", codeArray.extract()))),
         kvp("isActive", true));
 
