@@ -14,6 +14,7 @@ import com.zeroone.star.project.query.j3.patient.PatientQuery;
 import com.zeroone.star.project.vo.j3.patient.PatientListVO;
 import com.zeroone.star.project.vo.j3.patient.PatientOptionVO;
 import com.zeroone.star.project.vo.j3.patient.PatientVO;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -199,6 +200,23 @@ public class PatientServiceImpl implements PatientService {
         if (activeEncounters > 0) {
             throw new PatientBusinessException(
                     "该患者存在进行中的就诊记录（挂号/住院），暂不能删除"
+            );
+        }
+        int allEncounters = patientMapper.countAllEncounters(
+                id.trim(),
+                userHolder.getCurrentTenantId()
+        );
+        int chargeItems = patientMapper.countChargeItems(
+                id.trim(),
+                userHolder.getCurrentTenantId()
+        );
+        int invoices = patientMapper.countInvoices(
+                id.trim(),
+                userHolder.getCurrentTenantId()
+        );
+        if (allEncounters > 0 || chargeItems > 0 || invoices > 0) {
+            throw new PatientBusinessException(
+                    "该患者存在历史业务记录（就诊/收费/发票），不允许删除。如需处理请先归档或合并患者档案"
             );
         }
         patientMapper.deleteById(id.trim());
