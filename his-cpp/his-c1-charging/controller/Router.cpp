@@ -115,7 +115,6 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(Pay_ManageGetPatientDetailsController);
 	ROUTER_SIMPLE_BIND(Pay_ManageGetPatientPayRecordsController);
 	ROUTER_SIMPLE_BIND(Pay_ManageGetPatientQueueController);
-	ROUTER_SIMPLE_BIND(PrepaymentController);
 
 	// #TIP：在下方添加系统扩展路由定义
 	ROUTER_SIMPLE_BIND(GetCostDetailController);
