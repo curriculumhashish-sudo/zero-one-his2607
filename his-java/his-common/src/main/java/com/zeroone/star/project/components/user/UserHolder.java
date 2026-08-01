@@ -7,6 +7,7 @@ import com.zeroone.star.project.constant.RedisConstant;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -25,9 +26,14 @@ import org.yaml.snakeyaml.util.UriEncoder;
  */
 @Component
 public class UserHolder {
-    private static final boolean LOCAL_TEST_LOGIN_BYPASS = true;
     private static final String LOCAL_TEST_USER_ID = "1";
     private static final String LOCAL_TEST_TENANT_ID = "1";
+
+    @Value("${spring.application.name:}")
+    private String applicationName;
+
+    @Value("${j3.auth-bypass.enabled:true}")
+    private boolean j3AuthBypassEnabled;
 
     @Resource
     JwtComponent jwtComponent;
@@ -41,6 +47,12 @@ public class UserHolder {
      */
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     public UserDTO getCurrentUser() throws Exception {
+        if (isJ3AuthBypassEnabled()) {
+            JSONObject userJsonObject = new JSONObject();
+            fillLocalTestUser(userJsonObject);
+            return buildUserDto(userJsonObject);
+        }
+
         // 从Header中获取用户信息
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = servletRequestAttributes.getRequest();
@@ -56,9 +68,6 @@ public class UserHolder {
                 userJsonObject = new JSONObject(userStr);
             } else {
                 userJsonObject = new JSONObject();
-                if (LOCAL_TEST_LOGIN_BYPASS) {
-                    fillLocalTestUser(userJsonObject);
-                }
             }
         } else {
             userStr = UriEncoder.decode(userStr);
@@ -74,6 +83,10 @@ public class UserHolder {
 //        userJsonObject.putOnce("authorities", roles);
 
         // FIXME: 如果要扩展用户信息，需要修改这里的代码
+        return buildUserDto(userJsonObject);
+    }
+
+    private UserDTO buildUserDto(JSONObject userJsonObject) {
         return UserDTO.builder()
                 .id(Convert.toStr(userJsonObject.get("id")))
                 .username(userJsonObject.getStr("sub"))
@@ -87,6 +100,10 @@ public class UserHolder {
      * @return 没有获取到返回null
      */
     public String getCurrentToken() {
+        if (isJ3AuthBypassEnabled()) {
+            return null;
+        }
+
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = servletRequestAttributes.getRequest();
         String token = request.getHeader("Authorization");
@@ -122,23 +139,27 @@ public class UserHolder {
                 );
             }
             if (tenantId == null || !StringUtils.hasText(tenantId.toString())) {
-                if (LOCAL_TEST_LOGIN_BYPASS) {
+                if (isJ3AuthBypassEnabled()) {
                     return LOCAL_TEST_TENANT_ID;
                 }
                 throw new IllegalStateException("未找到当前用户的租户ID");
             }
             return tenantId.toString();
         } catch (RuntimeException e) {
-            if (LOCAL_TEST_LOGIN_BYPASS) {
+            if (isJ3AuthBypassEnabled()) {
                 return LOCAL_TEST_TENANT_ID;
             }
             throw e;
         } catch (Exception e) {
-            if (LOCAL_TEST_LOGIN_BYPASS) {
+            if (isJ3AuthBypassEnabled()) {
                 return LOCAL_TEST_TENANT_ID;
             }
             throw new IllegalStateException("获取当前租户ID失败", e);
         }
+    }
+
+    private boolean isJ3AuthBypassEnabled() {
+        return j3AuthBypassEnabled && applicationName != null && applicationName.startsWith("his-j3-");
     }
 
     private void fillLocalTestUser(JSONObject userJsonObject) {

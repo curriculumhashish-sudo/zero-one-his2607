@@ -9,6 +9,8 @@ spring:
     name: ${sn.j3-department:his-j3-department}
   cloud:
     nacos:
+      server-addr: ${SPRING_CLOUD_NACOS_SERVER_ADDR:192.168.40.131:8848}
+      username: ${SPRING_CLOUD_NACOS_USERNAME:nacos}
+      password: ${SPRING_CLOUD_NACOS_PASSWORD:nacos}
       discovery:
         register-enabled: ${NACOS_REGISTER_ENABLED:true}
-
