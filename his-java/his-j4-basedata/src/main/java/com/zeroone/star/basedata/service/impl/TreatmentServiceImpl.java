@@ -74,13 +74,16 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
      *  届时将此方法内联回直接调用 userHolder.getCurrentTenantId()，删除try-catch兜底逻辑
      */
     private String getCurrentTenantIdSafely() {
-        try {
-            String tenantId = userHolder.getCurrentTenantId();
-            return tenantId != null ? tenantId : "1";
-        } catch (Exception e) {
-            // 本地测试无token场景，使用默认租户
-            return "1";
-        }
+//        try {
+//            String tenantId = userHolder.getCurrentTenantId();
+//            return tenantId != null ? tenantId : "1";
+//        } catch (Exception e) {
+//            // 本地测试无token场景，使用默认租户
+//            return "1";
+//        }
+
+        String tenantId = userHolder.getCurrentTenantId();
+        return tenantId != null ? tenantId : "1";
     }
 
     @Override
