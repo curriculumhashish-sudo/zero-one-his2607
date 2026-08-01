@@ -23,28 +23,28 @@ EquipmentDetailPageDTO::Wrapper EquipmentService::listAll(const EquipmentQuery::
 	// 分页查询数据
 	pages->total = count;
 	pages->calcPages();
-	list<DocInventoryItemSnapshotDO> result = dao.selectWithPage(query);
+	list<EquipmentVeiwDO> result = dao.selectWithPage(query);
 	// 将DO转换成DTO
-	for (DocInventoryItemSnapshotDO& sub : result)
+	for (EquipmentVeiwDO& sub : result)
 	{
 		auto dto = EquipmentDetailDTO::createShared();
 		ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub, 
 			// id
 			id, Id,
 			// 编码
-			code,ProductBusNo,
+			code, BusNo,
 			// 项目名
 			name, Name,
 			// 规格
 			specification, TotalVolume,
 			// 状态
-			status, InventoryStatusEnum,
+			status, StatusEnum,
 			// 分类
-			classification, DeviceCategoryCode,
+			classification, CategoryCode,
 			// 厂家
-			manufacturer, Manufacturer,
+			manufacturer, ManufacturerText,
 			// 价格
-			price, LotNumberPriceAmount
+			price, SalePrice
 		);
 		pages->addData(dto);
 	}
@@ -83,13 +83,13 @@ EquipmentDTO::Wrapper EquipmentService::getById(std::string id)
 		// 包装规格描述
 		specification, TotalVolume,
 		// 医保编码
-		code, YbNo,
-		// 财务类型：DO无对应字段
-		// finantype, 无对应DO字段,
-		// 院内业务编码
-		code, BusNo,
-		// 医保类别：DO无此字段
-		// medinscat, 无对应DO字段,
+		medcode, YbNo,
+		// 财务类型
+		finantype, TypeCode,
+		// 目录编码
+		catalogcode, YbOrgNo,
+		// 医保类别
+		medinscat, YbType,
 		// 医保等级
 		medinsgra, ChrgitmLv,
 		// 采购单位编码
@@ -97,21 +97,21 @@ EquipmentDTO::Wrapper EquipmentService::getById(std::string id)
 		// 采购/拆零倍数（采购换算比例）
 		purmin, PurchaseUnitRatio,
 		// 购入价（整包装价格）
-		purchase, LotNumberCostAmount,
+		purchase, PurchasePrice,
 		// 库存单位编码
 		inventory, SplitUnitCode,
 		// 库存拆零倍数（库存换算比例）
 		invsplit, StockUnitRatio,
 		// 零售价（整包装售价）
-		retail, LotNumberPriceAmount,
+		retail, SalePrice,
 		// 包装单位编码
-		packaging, PurchaseUnitCode,
+		packaging, PackageUnitCode,
 		// 包装拆零倍数（包装换算比例）
 		packsplit, PackageUnitRatio,
+		// 最高零售价
+		maxretail, LimitPrice,
 		// 拆零单位编码
 		split, SplitUnitCode,
-		// 最高零售价：DO无对应字段
-		// maxretail, 无对应DO字段,
 		// 库存警戒上限
 		warningmax, ItemMaxQuantity,
 		// 库存警戒下限
@@ -128,7 +128,7 @@ EquipmentDTO::Wrapper EquipmentService::getById(std::string id)
 std::string EquipmentService::saveData(const EquipmentAddDTO::Wrapper& dto, const PayloadDTO& payload)
 {
 	EquipmentDAO dao;
-	WkfInventoryItemDO entity;
+	EquipmentVeiwDO entity;
 
 	UuidFacade uuidFacade;
 	std::string newId = uuidFacade.genUuid();
@@ -139,19 +139,19 @@ std::string EquipmentService::saveData(const EquipmentAddDTO::Wrapper& dto, cons
 	entity.setCategoryCode(dto->classification.getValue(""));
 
 	//给默认值防止报错
-	entity.setItemTable("wkf_equipment");     // 必填：物品表名
-	entity.setItemId("test_item_id");         // 必填：物品定义标识
-	entity.setSupplierId("default_supplier"); // 必填：供应商标识
-	entity.setUnitCode("box");                // 必填：单位编码
-	entity.setQuantity(1.0);                  // 必填：数量
-	entity.setLotNumber("LOT000000");         // 必填：批号
-	entity.setLocationId("loc_01");           // 必填：库房标识
+	entity.setName("wkf_equipment");     // 必填：物品表名
+	//entity.setItemId("test_item_id");         // 必填：物品定义标识
+	//entity.setSupplierId("default_supplier"); // 必填：供应商标识
+	//entity.setUnitCode("box");                // 必填：单位编码
+	//entity.setQuantity(1.0);                  // 必填：数量
+	//entity.setLotNumber("LOT000000");         // 必填：批号
+	//entity.setLocationId("loc_01");           // 必填：库房标识
 
 	entity.setCreatedBy(payload.getId());
 	entity.setCreatedAt(SimpleDateTimeFormat::format());
 
 	// 假设默认启用
-	entity.setInventoryStatusEnum("ACTIVE");
+	entity.setStatusEnum("ACTIVE");
 
 	if (dao.insert(entity) > 0) {
 		return newId;
@@ -163,7 +163,7 @@ std::string EquipmentService::saveData(const EquipmentAddDTO::Wrapper& dto, cons
 bool EquipmentService::modifyData(const EquipmentModifyDTO::Wrapper& dto, const PayloadDTO& payload)
 {
 	EquipmentDAO dao;
-	WkfInventoryItemDO entity;
+	EquipmentVeiwDO entity;
 
 	// 使用 .getValue 获取值
 	entity.setId(dto->id.getValue(""));
@@ -171,10 +171,10 @@ bool EquipmentService::modifyData(const EquipmentModifyDTO::Wrapper& dto, const 
 
 	// 状态转换：前端传1(启用)，数据库存 "ACTIVE"
 	if (dto->status.getValue(1) == 1) {
-		entity.setInventoryStatusEnum("ACTIVE");
+		entity.setStatusEnum("ACTIVE");
 	}
 	else {
-		entity.setInventoryStatusEnum("INACTIVE");
+		entity.setStatusEnum("INACTIVE");
 	}
 
 	entity.setUpdatedBy(payload.getId());
@@ -239,8 +239,8 @@ EquipmentSelectPageDTO::Wrapper EquipmentService::selectData(const EquipmentQuer
 	pages->total = count;
 	pages->calcPages();
 
-	list<DocInventoryItemSnapshotDO> result = dao.selectWithPage(query);
-	for (DocInventoryItemSnapshotDO& sub : result)
+	list<EquipmentVeiwDO> result = dao.selectWithPage(query);
+	for (EquipmentVeiwDO& sub : result)
 	{
 		auto dto = EquipmentSelectDTO::createShared();
 		dto->id = sub.getId();

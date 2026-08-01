@@ -36,7 +36,7 @@ std::string EquipmentDAO::queryConditionBuilder(const EquipmentQuery::Wrapper& q
 uint64_t EquipmentDAO::count(const EquipmentQuery::Wrapper& query)
 {
 	SqlParams params;
-	std::string sql = "SELECT COUNT(*) FROM adm_device_definition t";
+	std::string sql = "SELECT COUNT(*) FROM adm_device_definition t JOIN adm_charge_item_definition ac ON t.tenant_id=ac.tenant_id";
 
 	// 拼接条件
 	sql += queryConditionBuilder(query, params);
@@ -45,15 +45,20 @@ uint64_t EquipmentDAO::count(const EquipmentQuery::Wrapper& query)
 	return sqlSession->executeQueryNumerical(sql, params);
 }
 
-const std::string listCols =
-"t.id, t.bus_no, t.name, t.category_code, t.total_volume, t.manufacturer_text, t.status_enum, t.active_flag";
+const std::string Cols ="t.*,ac.*";
 // ============================================================================
 // 3. 列表分页查询
 // ============================================================================
-std::list<AdmDeviceDefinitionDO> EquipmentDAO::selectWithPage(const EquipmentQuery::Wrapper& query)
+std::list<EquipmentVeiwDO> EquipmentDAO::selectWithPage(const EquipmentQuery::Wrapper& query)
 {
 	SqlParams params;
-	std::string sql = "SELECT " + listCols + " FROM adm_device_definition t";
+	std::string sql = "SELECT " + Cols + " FROM adm_device_definition t JOIN adm_charge_item_definition ac ON t.tenant_id=ac.tenant_id"
+		"-- 取出购入价"
+		"MAX(CASE price_type_code WHEN 'PURCHASE' THEN price_value END) AS purchase_price,"
+		"--取出零售价"
+		"MAX(CASE price_type_code WHEN 'SALE' THEN price_value END) AS sale_price,"
+		"--取出最高限价"
+		"MAX(CASE price_type_code WHEN 'LIMIT' THEN price_value END) AS limit_price";
 
 	// 拼接条件
 	sql += queryConditionBuilder(query, params);
@@ -67,7 +72,7 @@ std::list<AdmDeviceDefinitionDO> EquipmentDAO::selectWithPage(const EquipmentQue
 	std::cout << "最终执行 SQL：" << sql << std::endl;
 
 	// 使用新的轻量级 Mapper
-	return sqlSession->executeQuery<AdmDeviceDefinitionDO>(sql, AdmDeviceDefinitionQueryMapper(), params);
+	return sqlSession->executeQuery<EquipmentVeiwDO>(sql, EquipmentMapper(), params);
 }
 
 //这个真的有必要保留吗？
@@ -82,10 +87,10 @@ std::list<AdmDeviceDefinitionDO> EquipmentDAO::selectWithPage(const EquipmentQue
 // ============================================================================
 // 4. 根据 ID 查询单条数据
 // ============================================================================
-PtrAdmDeviceDefinitionDO EquipmentDAO::selectById(std::string id)
+PtrEquipmentVeiwDO EquipmentDAO::selectById(std::string id)
 {
-	std::string sql = "SELECT * FROM adm_device_definition WHERE `id` = ? AND `is_deleted` = 0";
-	return sqlSession->executeQueryOne<std::shared_ptr<AdmDeviceDefinitionDO>>(sql, PtrAdmDeviceDefinitionMapper(), "%s", id);
+	std::string sql = "SELECT "+Cols+" FROM adm_device_definition t JOIN adm_charge_item_definition ac ON t.tenant_id=ac.tenant_id WHERE t.`id` = ? AND t.`is_deleted` = 0";
+	return sqlSession->executeQueryOne<std::shared_ptr<EquipmentVeiwDO>>(sql, PtrEquipmentMapper(), "%s", id);
 }
 
 // ============================================================================

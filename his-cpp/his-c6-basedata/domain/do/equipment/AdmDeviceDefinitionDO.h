@@ -4,7 +4,6 @@
 #define _ADM_DEVICE_DEFINITION_DO_H_
 
 #include "../DoInclude.h"
-#include "DocInventoryItemSnapshotDO.h"
 
 /**
  * 耗材/器材基础定义字典实体 (基于最新 adm_device_definition 结构)
@@ -165,4 +164,14 @@ public:
 // 智能指针
 typedef std::shared_ptr<AdmDeviceDefinitionDO> PtrAdmDeviceDefinitionDO;
 
+class EquipmentVeiwDO : public AdmDeviceDefinitionDO {
+
+    MYSQL_SYNTHESIZE(double, purchasePrice, PurchasePrice); // 购入价
+    MYSQL_SYNTHESIZE(double, salePrice, SalePrice);         // 零售价
+    MYSQL_SYNTHESIZE(double, limitPrice, LimitPrice);       // 最高零售价
+    MYSQL_SYNTHESIZE(std::string, ybType, YbType);      // 医保类别
+    MYSQL_SYNTHESIZE(std::string, typeCode, TypeCode);  // 收费类型
+};
+
+typedef std::shared_ptr<EquipmentVeiwDO> PtrEquipmentVeiwDO;
 #endif // !_ADM_DEVICE_DEFINITION_DO_H_

@@ -26,11 +26,11 @@ public:
 	// 统计数据条数
 	uint64_t count(const EquipmentQuery::Wrapper& query);
 	// 分页查询数据
-	std::list<AdmDeviceDefinitionDO> selectWithPage(const EquipmentQuery::Wrapper& query);
+	std::list<EquipmentVeiwDO> selectWithPage(const EquipmentQuery::Wrapper& query);
 	// 通过姓名查询数据
 	std::list<AdmDeviceDefinitionDO> selectByName(const string& name);
 	// 通过ID查询数据
-	PtrAdmDeviceDefinitionDO selectById(std::string id);
+	PtrEquipmentVeiwDO selectById(std::string id);
 
 	// 新增的数据插入 (供 saveData 调用)
 	int insert(const AdmDeviceDefinitionDO& entity);

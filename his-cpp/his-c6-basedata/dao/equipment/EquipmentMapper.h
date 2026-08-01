@@ -9,12 +9,12 @@
 
 // 详情
 // 详情查询Mapper 按ID单条查询
-class PtrAdmDeviceDefinitionMapper : public Mapper<std::shared_ptr<AdmDeviceDefinitionDO>>
+class PtrEquipmentMapper : public Mapper<std::shared_ptr<EquipmentVeiwDO>>
 {
 public:
-	std::shared_ptr<AdmDeviceDefinitionDO> mapper(ResultSet* resultSet) const override
+	std::shared_ptr<EquipmentVeiwDO> mapper(ResultSet* resultSet) const override
 	{
-		auto data = std::make_shared<AdmDeviceDefinitionDO>();
+		auto data = std::make_shared<EquipmentVeiwDO>();
 
 		// ================== 1. 基础系统字段 ==================
 		data->setId(resultSet->getString(1));
@@ -87,19 +87,21 @@ public:
 		data->setChrgitmLv(resultSet->getInt(54));
 		data->setYbMappingCode(resultSet->getString(55));
 
+		data->setPurchasePrice(resultSet->getDouble(56));
+		data->setSalePrice(resultSet->getDouble(57));
+		data->setLimitPrice(resultSet->getDouble(58));
+		data->setYbType(resultSet->getString(59));
+		data->setTypeCode(resultSet->getString(60));
 		return data;
 	}
 };
 
-/**
- * 耗材/器材基础定义字典表
- */
-class AdmDeviceDefinitionMapper : public Mapper<AdmDeviceDefinitionDO>
+class EquipmentMapper : public Mapper<EquipmentVeiwDO>
 {
 public:
-	AdmDeviceDefinitionDO mapper(ResultSet* resultSet) const override
+	EquipmentVeiwDO mapper(ResultSet* resultSet) const override
 	{
-		AdmDeviceDefinitionDO data;
+		EquipmentVeiwDO data;
 
 		// ================== 1. 基础系统字段 ==================
 		data.setId(resultSet->getString(1));
@@ -172,111 +174,11 @@ public:
 		data.setChrgitmLv(resultSet->getInt(54));
 		data.setYbMappingCode(resultSet->getString(55));
 
-		return data;
-	}
-};
-
-/**
- * 耗材/器材基础定义字典表 - 分页/列表查询专用映射
- */
-class AdmDeviceDefinitionQueryMapper : public Mapper<AdmDeviceDefinitionDO>
-{
-public:
-	AdmDeviceDefinitionDO mapper(ResultSet* resultSet) const override
-	{
-		AdmDeviceDefinitionDO data;
-		// 这里的顺序必须和 EquipmentDAO.cpp 里的 listCols 字符串一一对应！
-		data.setId(resultSet->getString(1));               // 主键 id
-		data.setBusNo(resultSet->getString(2));            // 业务编码
-		data.setName(resultSet->getString(3));             // 器材名称
-		data.setCategoryCode(resultSet->getString(4));     // 分类编码
-		data.setTotalVolume(resultSet->getString(5));      // 规格
-		data.setManufacturerText(resultSet->getString(6)); // 厂家名称
-		data.setStatusEnum(resultSet->getString(7));       // 状态
-		data.setActiveFlag(resultSet->getBoolean(8));      // 启停用标记
-
-		return data;
-	}
-};
-
-/**
- * 收费项目定义表 - 普通对象映射
- */
-class AdmChargeItemDefinitionMapper : public Mapper<AdmChargeItemDefinitionDO>
-{
-public:
-	AdmChargeItemDefinitionDO mapper(ResultSet* resultSet) const override
-	{
-		AdmChargeItemDefinitionDO data;
-
-		// ================== 1. 基础系统字段 ==================
-		data.setId(resultSet->getString(1));
-		data.setTenantId(resultSet->getString(2));
-		data.setCreatedAt(resultSet->getString(3));
-		data.setUpdatedAt(resultSet->getString(4));
-		data.setCreatedBy(resultSet->getString(5));
-		data.setUpdatedBy(resultSet->getString(6));
-		data.setIsDeleted(resultSet->getBoolean(7));
-		data.setDeletedAt(resultSet->getString(8));
-		data.setDeletedBy(resultSet->getString(9));
-		data.setVersion(resultSet->getInt(10));
-
-		// ================== 2. 核心关联字段 ==================
-		data.setInstanceTable(resultSet->getString(11));
-		data.setInstanceId(resultSet->getString(12));
-		data.setOrgId(resultSet->getString(13));
-
-		// ================== 3. 业务收费字段 ==================
-		data.setChargeName(resultSet->getString(14));
-		data.setStatusEnum(resultSet->getString(15));
-		data.setTypeCode(resultSet->getString(16));
-		data.setYbType(resultSet->getString(17));
-		data.setPriceTypeCode(resultSet->getString(18));
-		data.setLotNo(resultSet->getString(19));
-		data.setPriceValue(resultSet->getDouble(20)); // decimal 类型用 getDouble 接收
-		data.setPriority(resultSet->getInt(21));
-
-		return data;
-	}
-};
-
-/**
- * 收费项目定义表 - 智能指针对象映射 (通常用于查单条详情)
- */
-class PtrAdmChargeItemDefinitionMapper : public Mapper<std::shared_ptr<AdmChargeItemDefinitionDO>>
-{
-public:
-	std::shared_ptr<AdmChargeItemDefinitionDO> mapper(ResultSet* resultSet) const override
-	{
-		auto data = std::make_shared<AdmChargeItemDefinitionDO>();
-
-		// ================== 1. 基础系统字段 ==================
-		data->setId(resultSet->getString(1));
-		data->setTenantId(resultSet->getString(2));
-		data->setCreatedAt(resultSet->getString(3));
-		data->setUpdatedAt(resultSet->getString(4));
-		data->setCreatedBy(resultSet->getString(5));
-		data->setUpdatedBy(resultSet->getString(6));
-		data->setIsDeleted(resultSet->getBoolean(7));
-		data->setDeletedAt(resultSet->getString(8));
-		data->setDeletedBy(resultSet->getString(9));
-		data->setVersion(resultSet->getInt(10));
-
-		// ================== 2. 核心关联字段 ==================
-		data->setInstanceTable(resultSet->getString(11));
-		data->setInstanceId(resultSet->getString(12));
-		data->setOrgId(resultSet->getString(13));
-
-		// ================== 3. 业务收费字段 ==================
-		data->setChargeName(resultSet->getString(14));
-		data->setStatusEnum(resultSet->getString(15));
-		data->setTypeCode(resultSet->getString(16));
-		data->setYbType(resultSet->getString(17));
-		data->setPriceTypeCode(resultSet->getString(18));
-		data->setLotNo(resultSet->getString(19));
-		data->setPriceValue(resultSet->getDouble(20));
-		data->setPriority(resultSet->getInt(21));
-
+		data.setPurchasePrice(resultSet->getDouble(56));
+		data.setSalePrice(resultSet->getDouble(57));
+		data.setLimitPrice(resultSet->getDouble(58));
+		data.setYbType(resultSet->getString(59));
+		data.setTypeCode(resultSet->getString(60));
 		return data;
 	}
 };
