@@ -4,7 +4,7 @@
 
     <update id="deleteByEquipmentIds">
         UPDATE adm_charge_item_definition
-        SET is_deleted = 1
+        SET is_deleted = 1, deleted_at = NOW(), deleted_by = #{userId}
         WHERE instance_id IN
         <foreach collection="equipmentIds" item="id" open="(" separator="," close=")">
             #{id}

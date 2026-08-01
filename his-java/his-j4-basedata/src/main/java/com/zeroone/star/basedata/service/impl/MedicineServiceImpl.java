@@ -150,8 +150,8 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
         AdmChargeItemDefinitionDO price = new AdmChargeItemDefinitionDO();
 
         price.setId(IdWorker.getIdStr());
-        price.setCreateTime(now);
-        price.setUpdateTime(now);
+//        price.setCreateTime(now);
+//        price.setUpdateTime(now);
         price.setIsDeleted(false);
         price.setVersion(0);
 

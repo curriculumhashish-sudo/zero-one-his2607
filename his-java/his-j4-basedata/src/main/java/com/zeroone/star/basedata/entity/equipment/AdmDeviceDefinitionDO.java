@@ -25,7 +25,7 @@ public class AdmDeviceDefinitionDO {
     /**
      * 主键标识
      */
-    @TableId(type = IdType.ASSIGN_UUID)
+    @TableId(type = IdType.ASSIGN_ID)
     @Schema(description = "主键标识")
     private String id;
 

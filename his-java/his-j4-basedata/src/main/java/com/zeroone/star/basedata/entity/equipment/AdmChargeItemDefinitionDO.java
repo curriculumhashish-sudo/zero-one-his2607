@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Schema(description = "收费项目定义")
 public class AdmChargeItemDefinitionDO {
 
-    @TableId(type = IdType.ASSIGN_UUID)
+    @TableId(type = IdType.ASSIGN_ID)
     @Schema(description = "主键")
     private String id;
 
