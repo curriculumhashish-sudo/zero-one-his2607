@@ -1,13 +1,11 @@
 package com.zeroone.star.project.j8.clinics;
 
-import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j8.clinics.FormalRosterDTO;
 import com.zeroone.star.project.dto.j8.clinics.ScheduleAddDTO;
 import com.zeroone.star.project.dto.j8.clinics.ScheduleDTO;
 import com.zeroone.star.project.query.j8.clinics.ScheduleListQuery;
-
-
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j8.clinics.ScheduleListVO;
 
 /**
  * <p>
@@ -20,11 +18,11 @@ import com.zeroone.star.project.vo.JsonVO;
  */
 public interface ClinicsApis {
     /**
-     * 获取日程列表
+     * 查询日程列表
      * @param scheduleListQuery 查询门诊日程参数
-     * @return 门诊日程分页结果
+     * @return 日程列表响应
      */
-    JsonVO<PageDTO> querySchedule(ScheduleListQuery scheduleListQuery);
+    JsonVO<ScheduleListVO> querySchedule(ScheduleListQuery scheduleListQuery);
 
 
     /**

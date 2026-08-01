@@ -1,22 +1,24 @@
 package com.zeroone.star.clinics.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zeroone.star.clinics.entity.Schedule;
+import com.zeroone.star.clinics.entity.ScheduleActor;
 import com.zeroone.star.clinics.mapper.ScheduleMapper;
 import com.zeroone.star.clinics.service.ScheduleService;
-import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j8.clinics.ScheduleAddDTO;
 import com.zeroone.star.project.dto.j8.clinics.ScheduleDTO;
 import com.zeroone.star.project.query.j8.clinics.ScheduleListQuery;
-import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j8.clinics.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ScheduleServiceImpl implements ScheduleService {
@@ -24,187 +26,217 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Autowired
     private ScheduleMapper scheduleMapper;
 
-    /**
-     * 查询日程列表
-     * @param scheduleListQuery
-     * @return
-     */
     @Override
-    public PageDTO<Schedule> listQuery(ScheduleListQuery scheduleListQuery) {
-        // 创建 MyBatis-Plus 分页对象
-        Page<Schedule> page = new Page<>(scheduleListQuery.getPageIndex(), scheduleListQuery.getPageSize());
+    public ScheduleListVO listQuery(ScheduleListQuery query) {
+        // 1. 查询日程数据
+        List<Schedule> schedules = scheduleMapper.selectByConditions(query);
 
-        // 构建查询条件
-        LambdaQueryWrapper<Schedule> queryWrapper = new LambdaQueryWrapper<>();
-        
-        // 科室查询条件 或许需要关联查询
-        if (scheduleListQuery.getDepartmentId() != null && !scheduleListQuery.getDepartmentId().isEmpty()) {
-            // 尝试在服务类别JSON字段中查找科室信息
-            queryWrapper.and(wrapper -> wrapper
-                .like(Schedule::getServiceCategoryJson, scheduleListQuery.getDepartmentId())
-                .or()
-                .like(Schedule::getSpecialtyJson, scheduleListQuery.getDepartmentId())
-            );
+        // 2. 批量查询参与者
+        List<Long> scheduleIds = schedules.stream()
+                .map(Schedule::getId)
+                .collect(Collectors.toList());
+        Map<Long, List<ScheduleActor>> actorMap = Collections.emptyMap();
+        if (!scheduleIds.isEmpty()) {
+            List<ScheduleActor> allActors = scheduleMapper.selectActorsByScheduleIds(scheduleIds);
+            actorMap = allActors.stream()
+                    .collect(Collectors.groupingBy(ScheduleActor::getScheduleId));
         }
-        
-        // 医师查询条件 或许需要关联查询
-        if (scheduleListQuery.getDoctorId() != null && !scheduleListQuery.getDoctorId().isEmpty()) {
 
-                Long doctorIdValue = Long.valueOf(scheduleListQuery.getDoctorId());
-                queryWrapper.and(wrapper -> wrapper
-                    .eq(Schedule::getHealthcareServiceId, doctorIdValue)
-                    .or()
-                    .eq(Schedule::getSubstitutePractitionerId, doctorIdValue)
-                );
+        // 3. 确定日历网格范围
+        YearMonth yearMonth = parseYearMonth(query.getYearMonth());
+        LocalDate monthStart = yearMonth.atDay(1);
+        LocalDate monthEnd = yearMonth.atEndOfMonth();
+        LocalDate gridStart = monthStart.with(DayOfWeek.MONDAY);
+        LocalDate gridEnd = monthEnd.with(DayOfWeek.SUNDAY);
 
-        }
-        
-        // 诊室查询条件 (可能需要通过其他关联字段实现)
-        if (scheduleListQuery.getClinicRoomId() != null && !scheduleListQuery.getClinicRoomId().isEmpty()) {
-            // 由于实体中没有直接的诊室字段，我们可以通过名称或其他字段模糊匹配
-            queryWrapper.like(Schedule::getName, scheduleListQuery.getClinicRoomId());
-        }
-        
-        // 号源类型查询条件 (使用 healthcareServiceId 字段)
-        if (scheduleListQuery.getSlotType() != null) {
-            queryWrapper.eq(Schedule::getHealthcareServiceId, scheduleListQuery.getSlotType());
-        }
-        
-        Page<Schedule> schedulePage = scheduleMapper.selectPage(page, queryWrapper);
+        // 4. 按日期分组日程
+        List<ScheduleDayVO> days = new ArrayList<>();
+        Set<Long> activeDaySet = new HashSet<>();
+        Set<Long> draftDaySet = new HashSet<>();
+        Set<Long> inactiveDaySet = new HashSet<>();
 
-        // 返回分页结果
-        return PageDTO.create(schedulePage);
+        for (LocalDate date = gridStart; !date.isAfter(gridEnd); date = date.plusDays(1)) {
+            ScheduleDayVO dayVO = new ScheduleDayVO();
+            dayVO.setDate(date);
+            dayVO.setInMonth(!date.isBefore(monthStart) && !date.isAfter(monthEnd));
+
+            List<ScheduleItemVO> daySchedules = new ArrayList<>();
+            int activeCount = 0;
+            int draftCount = 0;
+            int inactiveCount = 0;
+
+            for (Schedule s : schedules) {
+                LocalDate scheduleStart = toLocalDate(s.getPlanningHorizonStart());
+                LocalDate scheduleEnd = toLocalDate(s.getPlanningHorizonEnd());
+                if (scheduleStart == null || scheduleEnd == null) continue;
+                if (date.isBefore(scheduleStart) || date.isAfter(scheduleEnd)) continue;
+
+                ScheduleItemVO item = toItemVO(s, actorMap);
+                daySchedules.add(item);
+
+                if (isActive(s)) {
+                    activeCount++;
+                } else if (isDraft(s)) {
+                    draftCount++;
+                } else {
+                    inactiveCount++;
+                }
+            }
+
+            if (activeCount > 0) activeDaySet.add(date.toEpochDay());
+            if (draftCount > 0) draftDaySet.add(date.toEpochDay());
+            if (inactiveCount > 0 && activeCount == 0 && draftCount == 0) inactiveDaySet.add(date.toEpochDay());
+
+            dayVO.setActiveCount(activeCount);
+            dayVO.setDraftCount(draftCount);
+            dayVO.setInactiveCount(inactiveCount);
+            dayVO.setSchedules(daySchedules);
+            days.add(dayVO);
+        }
+
+        // 5. 汇总
+        ScheduleSummaryVO summary = new ScheduleSummaryVO();
+        summary.setPublishedDayCount(activeDaySet.size());
+        summary.setDraftDayCount(draftDaySet.size());
+        summary.setInactiveDayCount(inactiveDaySet.size());
+
+        long totalGridDays = ChronoUnit.DAYS.between(gridStart, gridEnd) + 1;
+        long scheduledDays = activeDaySet.size() + draftDaySet.size() + inactiveDaySet.size();
+        summary.setUnscheduledDayCount((int) (totalGridDays - scheduledDays));
+        summary.setBookedAppointmentCount(0);
+        summary.setTotalScheduleCount(schedules.size());
+
+        // 6. 组装返回
+        ScheduleListVO result = new ScheduleListVO();
+        result.setDays(days);
+        result.setYearMonth(yearMonth.format(DateTimeFormatter.ofPattern("yyyy-MM")));
+        result.setMonthStart(monthStart);
+        result.setMonthEnd(monthEnd);
+        result.setGridStart(gridStart);
+        result.setGridEnd(gridEnd);
+        result.setSummary(summary);
+
+        return result;
     }
 
-    /**
-     * 根据ID查询日程
-     * @param scheduleId
-     * @return
-     */
     @Override
     public ScheduleDTO getById(Long scheduleId) {
         return scheduleMapper.getById(scheduleId);
     }
 
-    /**
-     * 新增日程
-     * @param dto
-     */
     @Override
     public void insertSchedule(ScheduleAddDTO dto) {
         Schedule schedule = new Schedule();
-        BeanUtils.copyProperties(dto,schedule);
+        BeanUtils.copyProperties(dto, schedule);
         scheduleMapper.insertSchedule(schedule);
-
     }
 
-    /**
-     * 生成正式排班
-     * @param formalRosterDTO 生成正式排班参数
-     * @return 操作结果
-     */
     @Override
     public String generateFormalRoster(com.zeroone.star.project.dto.j8.clinics.FormalRosterDTO formalRosterDTO) {
         try {
-            // 根据排班类型处理不同的逻辑
-            if (formalRosterDTO.getRosterType() == 0) { // 日排班
+            if (formalRosterDTO.getRosterType() == 0) {
                 handleDailyRoster(formalRosterDTO);
-            } else if (formalRosterDTO.getRosterType() == 1) { // 周排班
+            } else if (formalRosterDTO.getRosterType() == 1) {
                 handleWeeklyRoster(formalRosterDTO);
             } else {
                 throw new IllegalArgumentException("无效的排班类型: " + formalRosterDTO.getRosterType());
             }
-            
             return "生成正式排班成功";
         } catch (Exception e) {
             throw new RuntimeException("生成正式排班失败: " + e.getMessage(), e);
         }
     }
 
-    /**
-     * 处理日排班逻辑
-     * @param formalRosterDTO 排班参数
-     */
+    // ---- private helpers ----
+
+    private YearMonth parseYearMonth(String ym) {
+        if (ym != null && !ym.isEmpty()) {
+            return YearMonth.parse(ym, DateTimeFormatter.ofPattern("yyyy-MM"));
+        }
+        return YearMonth.now();
+    }
+
+    private LocalDate toLocalDate(java.time.LocalDateTime dt) {
+        return dt != null ? dt.toLocalDate() : null;
+    }
+
+    private boolean isActive(Schedule s) {
+        return Boolean.TRUE.equals(s.getActiveFlag()) || "FORMAL".equalsIgnoreCase(s.getStatusEnum());
+    }
+
+    private boolean isDraft(Schedule s) {
+        return "DRAFT".equalsIgnoreCase(s.getStatusEnum());
+    }
+
+    private ScheduleItemVO toItemVO(Schedule s, Map<Long, List<ScheduleActor>> actorMap) {
+        ScheduleItemVO vo = new ScheduleItemVO();
+        vo.setScheduleId(s.getId() != null ? s.getId().toString() : null);
+        vo.setName(s.getName());
+        vo.setStatusEnum(s.getStatusEnum());
+        vo.setPlanningHorizonStart(s.getPlanningHorizonStart());
+        vo.setPlanningHorizonEnd(s.getPlanningHorizonEnd());
+        vo.setHealthcareServiceId(s.getHealthcareServiceId() != null ? s.getHealthcareServiceId().toString() : null);
+        vo.setSubstitutePractitionerId(s.getSubstitutePractitionerId() != null ? s.getSubstitutePractitionerId().toString() : null);
+
+        List<ScheduleActor> actors = actorMap.getOrDefault(s.getId(), Collections.emptyList());
+        vo.setActors(actors.stream().map(this::toActorVO).collect(Collectors.toList()));
+
+        return vo;
+    }
+
+    private ScheduleActorVO toActorVO(ScheduleActor a) {
+        ScheduleActorVO vo = new ScheduleActorVO();
+        vo.setActorType(a.getActorType() != null ? a.getActorType().toString() : null);
+        vo.setActorId(a.getActorId() != null ? a.getActorId().toString() : null);
+        vo.setSortNo(a.getSortNo());
+        return vo;
+    }
+
     private void handleDailyRoster(com.zeroone.star.project.dto.j8.clinics.FormalRosterDTO formalRosterDTO) {
-        // 创建单日的日程记录
         Schedule schedule = new Schedule();
         schedule.setName(formalRosterDTO.getRosterName());
-        
-        // 设置时间范围,日排班则相同的开始时间和结束时间
         schedule.setPlanningHorizonStart(formalRosterDTO.getStartTime());
         schedule.setPlanningHorizonEnd(formalRosterDTO.getEndTime());
-        
-        // 设置状态 - 如果自动发布则为正式状态，否则为草稿状态
         if (formalRosterDTO.getIsPublish() != null && formalRosterDTO.getIsPublish() == 1) {
-            schedule.setStatusEnum("FORMAL"); // 正式状态
-            schedule.setActiveFlag(true); // 启用
+            schedule.setStatusEnum("FORMAL");
+            schedule.setActiveFlag(true);
         } else {
-            schedule.setStatusEnum("DRAFT"); // 草稿状态
-            schedule.setActiveFlag(false); // 未启用
+            schedule.setStatusEnum("DRAFT");
+            schedule.setActiveFlag(false);
         }
-        
-        // 保存到数据库
         scheduleMapper.insertSchedule(schedule);
-        
-        // 如果需要自动放号
         if (formalRosterDTO.getIsSlotsRelease() != null && formalRosterDTO.getIsSlotsRelease() == 1) {
             releaseSlots(schedule.getId());
         }
     }
 
-    /**
-     * 处理周排班逻辑
-     * @param formalRosterDTO 排班参数
-     */
     private void handleWeeklyRoster(com.zeroone.star.project.dto.j8.clinics.FormalRosterDTO formalRosterDTO) {
-        // 计算从开始日期到结束日期之间的所有日期
         java.time.LocalDate startDate = formalRosterDTO.getStartTime().toLocalDate();
         java.time.LocalDate endDate = formalRosterDTO.getEndTime().toLocalDate();
-        
-        // 遍历每个日期，根据weekday生成对应的排班
-        java.time.temporal.ChronoUnit unit = java.time.temporal.ChronoUnit.DAYS;
-        long daysBetween = unit.between(startDate, endDate);
-        
+        long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
         for (long i = 0; i <= daysBetween; i++) {
             java.time.LocalDate currentDate = startDate.plusDays(i);
-            int dayOfWeek = currentDate.getDayOfWeek().getValue(); // 1-7 对应周一到周日
-            
-            // 创建当天的日程记录
             Schedule schedule = new Schedule();
-            schedule.setName(formalRosterDTO.getRosterName() + "-" + currentDate.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-            
-            // 设置当天的时间范围
+            schedule.setName(formalRosterDTO.getRosterName() + "-" + currentDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
             java.time.LocalDateTime scheduleStart = java.time.LocalDateTime.of(currentDate, formalRosterDTO.getStartTime().toLocalTime());
             java.time.LocalDateTime scheduleEnd = java.time.LocalDateTime.of(currentDate, formalRosterDTO.getEndTime().toLocalTime());
-            
             schedule.setPlanningHorizonStart(scheduleStart);
             schedule.setPlanningHorizonEnd(scheduleEnd);
-            
-            // 设置状态
             if (formalRosterDTO.getIsPublish() != null && formalRosterDTO.getIsPublish() == 1) {
-                schedule.setStatusEnum("FORMAL"); // 正式状态
-                schedule.setActiveFlag(true); // 启用
+                schedule.setStatusEnum("FORMAL");
+                schedule.setActiveFlag(true);
             } else {
-                schedule.setStatusEnum("DRAFT"); // 草稿状态
-                schedule.setActiveFlag(false); // 未启用
+                schedule.setStatusEnum("DRAFT");
+                schedule.setActiveFlag(false);
             }
-            
-            // 保存到数据库
             scheduleMapper.insertSchedule(schedule);
-            
-            // 如果需要自动放号
             if (formalRosterDTO.getIsSlotsRelease() != null && formalRosterDTO.getIsSlotsRelease() == 1) {
                 releaseSlots(schedule.getId());
             }
         }
     }
 
-    /**
-     * 自动放号处理
-     * @param scheduleId 日程ID
-     */
     private void releaseSlots(Long scheduleId) {
-        // 暂时留空，等待具体的放号业务逻辑实现
         System.out.println("对日程ID " + scheduleId + " 进行放号处理");
     }
 }

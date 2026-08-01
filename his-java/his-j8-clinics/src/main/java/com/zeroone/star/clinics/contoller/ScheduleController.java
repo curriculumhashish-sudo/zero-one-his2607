@@ -2,13 +2,13 @@ package com.zeroone.star.clinics.contoller;
 
 import com.zeroone.star.clinics.entity.Schedule;
 import com.zeroone.star.clinics.service.ScheduleService;
-import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j8.clinics.FormalRosterDTO;
 import com.zeroone.star.project.dto.j8.clinics.ScheduleAddDTO;
 import com.zeroone.star.project.dto.j8.clinics.ScheduleDTO;
 import com.zeroone.star.project.j8.clinics.ClinicsApis;
 import com.zeroone.star.project.query.j8.clinics.ScheduleListQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j8.clinics.ScheduleListVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +24,9 @@ public class ScheduleController implements ClinicsApis {
     @Operation(summary = "查询日程列表")
     @Override
     @GetMapping("/query-schedule")
-    public JsonVO<PageDTO> querySchedule(ScheduleListQuery scheduleListQuery) {
-        PageDTO<Schedule> pageResult= scheduleService.listQuery(scheduleListQuery);
-        return JsonVO.success(pageResult);
+    public JsonVO<ScheduleListVO> querySchedule(ScheduleListQuery scheduleListQuery) {
+        ScheduleListVO result = scheduleService.listQuery(scheduleListQuery);
+        return JsonVO.success(result);
     }
 
     @Operation(summary = "获取日程详情")

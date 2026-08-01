@@ -1,11 +1,10 @@
 package com.zeroone.star.clinics.service;
 
 import com.zeroone.star.clinics.entity.Schedule;
-import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j8.clinics.ScheduleAddDTO;
 import com.zeroone.star.project.dto.j8.clinics.ScheduleDTO;
 import com.zeroone.star.project.query.j8.clinics.ScheduleListQuery;
-import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j8.clinics.ScheduleListVO;
 
 public interface ScheduleService {
     /**
@@ -13,7 +12,7 @@ public interface ScheduleService {
      * @param scheduleListQuery
      * @return
      */
-    PageDTO<Schedule> listQuery(ScheduleListQuery scheduleListQuery);
+    ScheduleListVO listQuery(ScheduleListQuery scheduleListQuery);
 
     /**
      * 根据ID查询日程
