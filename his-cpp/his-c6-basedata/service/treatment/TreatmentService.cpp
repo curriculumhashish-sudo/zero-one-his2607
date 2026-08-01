@@ -18,10 +18,12 @@
 */
 #include "stdafx.h"
 #include "TreatmentService.h"
+#include "../../dao/common/EnumDictionaryDAO.h"
 #include "../../dao/treatment/TreatmentDAO.h"
 #include "id/UuidFacade.h"
 #include "SimpleDateTimeFormat.h"
 #include "TransactionManager.h"
+#include <stdexcept>
 
 /** 将数据库状态转换为接口数值。 */
 static int treatmentStatusValue(const std::string& status)
@@ -35,24 +37,6 @@ static int treatmentStatusValue(const std::string& status)
 	if (status == "DISCARDED")
 		return 4;
 	return 0;
-}
-
-/** 返回状态中文词典键。 */
-static const char* treatmentStatusTextKey(int status)
-{
-	switch (status)
-	{
-	case 1:
-		return "treatment.status-text.draft";
-	case 2:
-		return "treatment.status-text.active";
-	case 3:
-		return "treatment.status-text.inactive";
-	case 4:
-		return "treatment.status-text.discarded";
-	default:
-		return "treatment.status-text.unknown";
-	}
 }
 
 // 从新增/修改 DTO 填充主表业务字段（不含主键、审计字段）
@@ -323,6 +307,15 @@ TreatmentSelectPageDTO::Wrapper TreatmentService::listSelect(
 	// 将联表查询 BO 转换为接口 DTO。
 	std::list<TreatmentSelectBO> result =
 		dao.selectSelectWithPage(query, tenantId);
+	std::vector<std::string> statusCodes;
+	for (const auto& sub : result)
+	{
+		statusCodes.emplace_back(sub.getStatusEnum());
+	}
+	// 状态中文名称统一从 MongoDB 枚举字典读取。
+	const auto statusDisplays = EnumDictionaryDAO().findActiveDisplays(
+		EnumDictionaryDAO::PUBLICATION_STATUS_ENUM,
+		statusCodes);
 	for (TreatmentSelectBO& sub : result)
 	{
 		auto dto = TreatmentSelectDTO::createShared();
@@ -347,8 +340,12 @@ TreatmentSelectPageDTO::Wrapper TreatmentService::listSelect(
 			ybNo, YbNo);
 		const int status = treatmentStatusValue(sub.getStatusEnum());
 		dto->statusEnum = status;
-		dto->statusEnumText =
-			ZH_WORDS_GETTER(treatmentStatusTextKey(status));
+		const auto statusText = statusDisplays.find(sub.getStatusEnum());
+		if (status == 0 || statusText == statusDisplays.end())
+		{
+			throw std::runtime_error("invalid treatment status enum");
+		}
+		dto->statusEnumText = statusText->second;
 		pages->addData(dto);
 	}
 	return pages;
