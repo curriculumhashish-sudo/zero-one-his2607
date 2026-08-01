@@ -127,31 +127,69 @@ EquipmentDTO::Wrapper EquipmentService::getById(std::string id)
 // 新增器材
 std::string EquipmentService::saveData(const EquipmentAddDTO::Wrapper& dto, const PayloadDTO& payload)
 {
+	//检测JSON是否为空，安全凭证是否正确被解析
+	if (!dto) {
+		throw std::runtime_error("请求体解析失败，传入的 JSON 为空或格式不正确！");
+	}
+	if (&payload == nullptr) {
+		throw std::runtime_error("安全凭证(Token)解析失败，操作人信息为空！");
+	}
+
 	EquipmentDAO dao;
-	EquipmentVeiwDO entity;
+	AdmDeviceDefinitionDO entity;
 
 	UuidFacade uuidFacade;
 	std::string newId = uuidFacade.genUuid();
 	entity.setId(newId);
+	
+	std::string currentTime = SimpleDateTimeFormat::format();
+	entity.setTenantId("");       // 强制赋空串，解决 getTenantId 崩溃
+	entity.setCreatedAt(currentTime);
+	entity.setUpdatedAt(currentTime); 
+	entity.setCreatedBy(payload.getId());
+	entity.setUpdatedBy(payload.getId());
 
+	entity.setAllergenFlag(false);
+	entity.setYbFlag(false);
+	entity.setHvcmFlag(false);
+	entity.setYbMatchFlag(false);
+	entity.setDescription("");
 
-	entity.setName(dto->name.getValue(""));
-	entity.setCategoryCode(dto->classification.getValue(""));
-
-	//给默认值防止报错
-	entity.setName("wkf_equipment");     // 必填：物品表名
-	//entity.setItemId("test_item_id");         // 必填：物品定义标识
-	//entity.setSupplierId("default_supplier"); // 必填：供应商标识
-	//entity.setUnitCode("box");                // 必填：单位编码
-	//entity.setQuantity(1.0);                  // 必填：数量
-	//entity.setLotNumber("LOT000000");         // 必填：批号
-	//entity.setLocationId("loc_01");           // 必填：库房标识
 
 	entity.setCreatedBy(payload.getId());
 	entity.setCreatedAt(SimpleDateTimeFormat::format());
 
-	// 假设默认启用
-	entity.setStatusEnum("ACTIVE");
+	// 2. 状态映射 (DTO 里的 status 是 Int32: 1或0)
+	int statusVal = dto->status.getValue(1);
+	entity.setActiveFlag(statusVal == 1);
+	entity.setStatusEnum(statusVal == 1 ? "ACTIVE" : "INACTIVE");
+
+	// 3. 基础与业务信息映射 (使用 dto->xxx.getValue("") 防空指针)
+	entity.setName(dto->name.getValue(""));
+	entity.setMerchandiseName(dto->goods.getValue(""));
+	entity.setCategoryCode(dto->classification.getValue(""));
+	entity.setTypeCode(dto->finantype.getValue(""));
+	entity.setManufacturerText(dto->manufacturer.getValue(""));
+	entity.setSupplyId(dto->supplier.getValue(""));
+	entity.setApprovalNumber(dto->apprno.getValue(""));
+	entity.setTotalVolume(dto->specification.getValue(""));
+	entity.setYbNo(dto->medcode.getValue(""));
+	entity.setYbOrgNo(dto->catalogcode.getValue(""));
+	entity.setChrgitmLv(dto->medinsgra.getValue(0));
+	entity.setPyStr(dto->pinyin.getValue(""));
+	entity.setWbStr(dto->wubi.getValue(""));
+
+	// 4. 单位与换算比例 (DTO 里定义的是 Float64)
+	entity.setPurchaseUnitCode(dto->purchaunit.getValue(""));
+	entity.setPurchaseUnitRatio(dto->purmin.getValue(1.0));
+	entity.setStockUnitCode(dto->inventory.getValue(""));
+	entity.setStockUnitRatio(dto->invsplit.getValue(1.0));
+	entity.setPackageUnitCode(dto->packaging.getValue(""));
+	entity.setPackageUnitRatio(dto->packsplit.getValue(1.0));
+	entity.setSplitUnitCode(dto->split.getValue(""));
+
+	entity.setItemMinQuantity(dto->warningmin.getValue(0.0));
+	entity.setItemMaxQuantity(dto->warningmax.getValue(0.0));
 
 	if (dao.insert(entity) > 0) {
 		return newId;
@@ -162,24 +200,83 @@ std::string EquipmentService::saveData(const EquipmentAddDTO::Wrapper& dto, cons
 // 修改器材
 bool EquipmentService::modifyData(const EquipmentModifyDTO::Wrapper& dto, const PayloadDTO& payload)
 {
+	//检测JSON是否为空，安全凭证是否正确被解析
+	if (!dto) {
+		throw std::runtime_error("请求体解析失败，传入的 JSON 为空或格式不正确！");
+	}
+	if (&payload == nullptr) {
+		throw std::runtime_error("安全凭证(Token)解析失败，操作人信息为空！");
+	}
+
 	EquipmentDAO dao;
-	EquipmentVeiwDO entity;
+	AdmDeviceDefinitionDO  entity;
 
-	// 使用 .getValue 获取值
+	std::string currentTime = SimpleDateTimeFormat::format();
+	entity.setTenantId("");       // 强制赋空串，解决 getTenantId 崩溃
+	entity.setUpdatedAt(currentTime);
+	entity.setCreatedAt(currentTime);      // 新增时没有更新时间
+	entity.setUpdatedBy(payload.getId());
+	entity.setCreatedBy("");      // 新增时没有更新人
+
+	entity.setYbOrgNo("");
+	entity.setDescription("");
+	entity.setAllergenFlag(false);
+	entity.setYbFlag(false);
+	entity.setHvcmFlag(false);
+	entity.setYbMatchFlag(false);
+
+
+	
+
+	// 1. 系统字段
 	entity.setId(dto->id.getValue(""));
-	entity.setName(dto->name.getValue(""));
-
-	// 状态转换：前端传1(启用)，数据库存 "ACTIVE"
-	if (dto->status.getValue(1) == 1) {
-		entity.setStatusEnum("ACTIVE");
-	}
-	else {
-		entity.setStatusEnum("INACTIVE");
-	}
-
 	entity.setUpdatedBy(payload.getId());
 	entity.setUpdatedAt(SimpleDateTimeFormat::format());
 
+	// 2. 状态映射
+	int statusVal = dto->status.getValue(1);
+	entity.setActiveFlag(statusVal == 1);
+	entity.setStatusEnum(statusVal == 1 ? "ACTIVE" : "INACTIVE");
+
+	// 3. 基础与业务信息映射
+	entity.setName(dto->name.getValue(""));
+	entity.setMerchandiseName(dto->goods.getValue(""));
+	entity.setCategoryCode(dto->classification.getValue(""));
+	entity.setTypeCode(dto->finantype.getValue(""));
+	entity.setManufacturerText(dto->manufacturer.getValue(""));
+	entity.setSupplyId(dto->supplier.getValue(""));
+	entity.setApprovalNumber(dto->apprno.getValue(""));
+	entity.setTotalVolume(dto->specification.getValue(""));
+	entity.setYbNo(dto->code.getValue("")); // ModifyDTO 里的医保编码叫 code
+	entity.setPyStr(dto->pinyin.getValue(""));
+	entity.setWbStr(dto->wubi.getValue(""));
+
+	// 4. 单位映射
+	entity.setPurchaseUnitCode(dto->purchaunit.getValue(""));
+	entity.setStockUnitCode(dto->inventory.getValue(""));
+	entity.setPackageUnitCode(dto->packaging.getValue(""));
+	entity.setSplitUnitCode(dto->split.getValue(""));
+
+	int lv = 0;
+	if (dto->medinsgra && !dto->medinsgra->empty()) {
+		try { lv = std::stoi(dto->medinsgra.getValue("0")); }
+		catch (...) {}
+	}
+	entity.setChrgitmLv(lv);
+
+	auto safeStod = [](const std::string& str, double defaultVal = 0.0) -> double {
+		try { return str.empty() ? defaultVal : std::stod(str); }
+		catch (...) { return defaultVal; }
+		};
+
+	entity.setPurchaseUnitRatio(safeStod(dto->purmin.getValue("1.0")));
+	entity.setStockUnitRatio(safeStod(dto->invsplit.getValue("1.0")));
+	entity.setPackageUnitRatio(safeStod(dto->packsplit.getValue("1.0")));
+	entity.setItemMinQuantity(safeStod(dto->warningmin.getValue("0.0")));
+	entity.setItemMaxQuantity(safeStod(dto->warningmax.getValue("0.0")));
+
+	// 更新主表
+	// TODO: 价格的修改同样需要单独调用价格表的 Update 方法
 	return dao.update(entity) > 0;
 }
 
@@ -194,12 +291,12 @@ bool EquipmentService::deleteData(const EquipmentDeleteDTO::Wrapper& dto, const 
 
 	std::list<std::string> idList;
 	for (auto& idItem : *(dto->ids)) {
-		// idItem 也是 oatpp::String，取值用 .getValue
 		idList.push_back(idItem.getValue(""));
 	}
 
 	std::string deletedBy = payload.getId();
 	std::string deletedAt = SimpleDateTimeFormat::format();
+
 
 	return dao.softDeleteByIds(idList, deletedBy, deletedAt) > 0;
 }
@@ -217,12 +314,13 @@ bool EquipmentService::changeStatus(const EquipmentStatusDTO::Wrapper& dto, cons
 		idList.push_back(idItem.getValue(""));
 	}
 
-	// 状态转换
-	std::string targetStatus = (dto->status.getValue(1) == 1) ? "ACTIVE" : "INACTIVE";
+	// 修正：直接获取 1(启用) 或 0(停用)
+	int activeFlag = dto->status.getValue(1);
 	std::string updatedBy = payload.getId();
 	std::string updatedAt = SimpleDateTimeFormat::format();
 
-	return dao.updateStatusByIds(idList, targetStatus, updatedBy, updatedAt) > 0;
+	// 修正：调用 DAO 里专门修改 active_flag 的方法
+	return dao.updateActiveFlagByIds(idList, activeFlag, updatedBy, updatedAt) > 0;
 }
 
 // 选择器材 (下拉框精简版)
@@ -245,7 +343,9 @@ EquipmentSelectPageDTO::Wrapper EquipmentService::selectData(const EquipmentQuer
 		auto dto = EquipmentSelectDTO::createShared();
 		dto->id = sub.getId();
 		dto->name = sub.getName();
-		// dto->specification = sub.getSpecification();
+		dto->code = sub.getBusNo(); // 补充编码映射
+		dto->specification = sub.getTotalVolume(); // 补充规格映射
+		dto->manufacturer = sub.getManufacturerText(); // 补充厂家映射
 		pages->addData(dto);
 	}
 	return pages;

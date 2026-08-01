@@ -25,7 +25,11 @@ std::string EquipmentDAO::queryConditionBuilder(const EquipmentQuery::Wrapper& q
 		SQLPARAMS_PUSH(params, "s", std::string, query->classification.getValue(""));
 	}
 
-	// TODO: 你可以在这里继续新增对 active_flag (启停用) 等新字段的查询过滤
+	// 条件 3：根据启停状态过滤
+	if (query->activeFlag) {
+		sqlCondition << " AND t.`active_flag` = ? ";
+		SQLPARAMS_PUSH(params, "i", int, query->activeFlag.getValue(1));
+	}
 
 	return sqlCondition.str();
 }
@@ -36,7 +40,7 @@ std::string EquipmentDAO::queryConditionBuilder(const EquipmentQuery::Wrapper& q
 uint64_t EquipmentDAO::count(const EquipmentQuery::Wrapper& query)
 {
 	SqlParams params;
-	std::string sql = "SELECT COUNT(*) FROM adm_device_definition t JOIN adm_charge_item_definition ac ON t.tenant_id=ac.tenant_id";
+	std::string sql = "SELECT COUNT(*) FROM adm_device_definition t";
 
 	// 拼接条件
 	sql += queryConditionBuilder(query, params);
@@ -66,8 +70,8 @@ std::list<EquipmentVeiwDO> EquipmentDAO::selectWithPage(const EquipmentQuery::Wr
 		"MAX(CASE price_type_code WHEN 'PURCHASE' THEN price_value END) AS purchase_price,"
 		"MAX(CASE price_type_code WHEN 'SALE' THEN price_value END) AS sale_price,"
 		"MAX(CASE price_type_code WHEN 'LIMIT' THEN price_value END) AS limit_price,"
-		"yb_type FROM adm_charge_item_definition "
-		"GROUP BY instance_id,tenant_id, yb_type "
+		"MAX(yb_type) AS yb_type FROM adm_charge_item_definition "
+		"GROUP BY instance_id, tenant_id "
 		") ac ON t.id = ac.instance_id AND t.tenant_id = ac.tenant_id ";
 
 	// 拼接条件
@@ -85,15 +89,6 @@ std::list<EquipmentVeiwDO> EquipmentDAO::selectWithPage(const EquipmentQuery::Wr
 	return sqlSession->executeQuery<EquipmentVeiwDO>(sql, EquipmentMapper(), params);
 }
 
-//这个真的有必要保留吗？
-// 通过名字查询
-//std::list<WkfInventoryItemDO> EquipmentDAO::selectByName(const string& name)
-//{
-//	string sql = "SELECT * FROM wkf_inventory_item WHERE `name` LIKE CONCAT('%',?,'%')";
-//	return sqlSession->executeQuery<WkfInventoryItemDO>(sql, WkfInventoryItemMapper(), "%s", name);
-//}
-
-
 // ============================================================================
 // 4. 根据 ID 查询单条数据
 // ============================================================================
@@ -104,8 +99,8 @@ PtrEquipmentVeiwDO EquipmentDAO::selectById(std::string id)
 		"MAX(CASE price_type_code WHEN 'PURCHASE' THEN price_value END) AS purchase_price,"
 		"MAX(CASE price_type_code WHEN 'SALE' THEN price_value END) AS sale_price,"
 		"MAX(CASE price_type_code WHEN 'LIMIT' THEN price_value END) AS limit_price,"
-		"yb_type FROM adm_charge_item_definition "
-		"GROUP BY instance_id,tenant_id, yb_type "
+		"MAX(yb_type) AS yb_type FROM adm_charge_item_definition "
+		"GROUP BY instance_id, tenant_id "
 		") ac ON t.id = ac.instance_id AND t.tenant_id = ac.tenant_id  WHERE t.`id` = ? AND t.`is_deleted` = 0";
 	return sqlSession->executeQueryOne<std::shared_ptr<EquipmentVeiwDO>>(sql, PtrEquipmentMapper(), "%s", id);
 }
@@ -331,3 +326,52 @@ int EquipmentDAO::updateStatusByIds(const std::list<std::string>& ids, const std
 	return sqlSession->executeUpdate(sql.str(), params);
 }
 
+// ============================================================================
+// 9. 批量启停用
+// ============================================================================
+int EquipmentDAO::updateActiveFlagByIds(const std::list<std::string>& ids, int activeFlag, const std::string& updatedBy, const std::string& updatedAt)
+{
+	if (ids.empty()) return 0;
+
+	std::stringstream sql;
+	SqlParams params;
+
+	// 注意：这里更新的是 active_flag
+	sql << "UPDATE adm_device_definition SET `active_flag` = ?, `updated_by` = ?, `updated_at` = ? WHERE `id` IN (";
+
+	// 压入状态 (0或1)、更新人、更新时间参数
+	SQLPARAMS_PUSH(params, "i", int, activeFlag);
+	SQLPARAMS_PUSH(params, "s", std::string, updatedBy);
+	SQLPARAMS_PUSH(params, "s", std::string, updatedAt);
+
+	// 动态拼接 IN (?, ?, ?) 占位符
+	int i = 0;
+	for (const auto& id : ids) {
+		sql << "?";
+		if (i < ids.size() - 1) sql << ",";
+		SQLPARAMS_PUSH(params, "s", std::string, id);
+		i++;
+	}
+	sql << ")";
+
+	return sqlSession->executeUpdate(sql.str(), params);
+}
+
+// ============================================================================
+// 10. 检查名称是否重复 
+// ============================================================================
+bool EquipmentDAO::checkNameExists(const std::string& name, const std::string& excludeId)
+{
+	SqlParams params;
+	std::string sql = "SELECT COUNT(*) FROM adm_device_definition WHERE `name` = ? AND `is_deleted` = 0";
+	SQLPARAMS_PUSH(params, "s", std::string, name);
+
+	// 如果传了 excludeId，说明是“修改”操作，要排除自己当前的 ID
+	if (!excludeId.empty()) {
+		sql += " AND `id` != ?";
+		SQLPARAMS_PUSH(params, "s", std::string, excludeId);
+	}
+
+	uint64_t count = sqlSession->executeQueryNumerical(sql, params);
+	return count > 0;
+}
