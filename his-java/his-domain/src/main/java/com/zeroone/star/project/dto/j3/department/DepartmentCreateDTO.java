@@ -70,5 +70,5 @@ public class DepartmentCreateDTO {
 
     @Schema(description = "显示顺序", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     @Pattern(regexp = "^[0-9]+$", message = "显示顺序只能是数字")
-    private Integer displayOrder;
+    private String displayOrder;
 }

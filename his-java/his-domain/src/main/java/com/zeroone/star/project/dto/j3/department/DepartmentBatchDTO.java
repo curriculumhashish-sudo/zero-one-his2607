@@ -30,5 +30,5 @@ public class DepartmentBatchDTO implements Serializable {
     @NotNull(message = "状态不能为空")
     @Schema(description = "是否启用, 1-启用, 0-禁用", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     @Pattern(regexp = "^[01]$", message = "状态只能是0-1之间的数字")
-    private Integer isEnabled;
+    private String isEnabled;
 }

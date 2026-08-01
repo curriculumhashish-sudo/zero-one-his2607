@@ -85,7 +85,7 @@ public class DepartmentTreeVO {
     private String caty;
 
     @Schema(description = "显示顺序", example = "1")
-    private Integer displayOrder;
+    private String displayOrder;
 
     @Schema(description = "父级机构/科室ID", example = "322663105141149696")
     private String parentId;

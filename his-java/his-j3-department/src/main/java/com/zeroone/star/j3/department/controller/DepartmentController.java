@@ -4,7 +4,6 @@ import com.zeroone.star.j3.department.service.DepartmentService;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j3.department.DepartmentBatchDTO;
 import com.zeroone.star.project.dto.j3.department.DepartmentCreateDTO;
-
 import com.zeroone.star.project.dto.j3.department.DepartmentUpdateDTO;
 import com.zeroone.star.project.j3.department.DepartmentApis;
 import com.zeroone.star.project.query.j3.department.DepartmentQuery;
@@ -14,15 +13,12 @@ import com.zeroone.star.project.vo.j3.department.DepartmentDetailVO;
 import com.zeroone.star.project.vo.j3.department.DepartmentTreeVO;
 import com.zeroone.star.project.vo.j3.department.DepartmentVO;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,7 +56,7 @@ public class DepartmentController implements DepartmentApis {
             @ApiResponse(responseCode = "404", description = "数据不存在")
     })
     @Override
-    public JsonVO<List<DepartmentTreeVO>> getDepartmentTree(@RequestBody @Valid DepartmentTreeQuery query) {
+    public JsonVO<List<DepartmentTreeVO>> getDepartmentTree(@RequestBody DepartmentTreeQuery query) {
         List<DepartmentTreeVO> departmentTree = departmentService.getDepartmentTree(query);
         return JsonVO.success(departmentTree);
     }
@@ -82,9 +78,7 @@ public class DepartmentController implements DepartmentApis {
             @ApiResponse(responseCode = "404", description = "数据不存在")
     })
     @Override
-    public JsonVO<DepartmentDetailVO> getDepartmentDetail(@PathVariable
-                                                          @Parameter(description = "科室对象ID")
-                                                          @Pattern(regexp = "^[0-9]+$", message = "科室对象ID只能是数字") String id) {
+    public JsonVO<DepartmentDetailVO> getDepartmentDetail(@PathVariable String id) {
         DepartmentDetailVO departmentDetail = departmentService.getDepartmentDetail(id);
         return JsonVO.success(departmentDetail);
     }
@@ -105,7 +99,7 @@ public class DepartmentController implements DepartmentApis {
             @ApiResponse(responseCode = "404", description = "数据不存在")
     })
     @Override
-    public JsonVO<String> createDepartment(@Valid @RequestBody DepartmentCreateDTO dto) throws Exception {
+    public JsonVO<String> createDepartment(@RequestBody DepartmentCreateDTO dto) throws Exception {
         departmentService.createDepartment(dto);
         return JsonVO.success("新增科室成功");
     }
@@ -126,7 +120,7 @@ public class DepartmentController implements DepartmentApis {
             @ApiResponse(responseCode = "404", description = "数据不存在")
     })
     @Override
-    public JsonVO<String> activeOrInactiveDepartment(@Valid @RequestBody DepartmentBatchDTO dto) {
+    public JsonVO<String> activeOrInactiveDepartment(@RequestBody DepartmentBatchDTO dto) {
         departmentService.activeOrInactiveDepartment(dto);
         return JsonVO.success("修改成功");
     }
@@ -140,7 +134,7 @@ public class DepartmentController implements DepartmentApis {
             @ApiResponse(responseCode = "400", description = "参数错误")
     })
     @Override
-    public JsonVO<PageDTO<DepartmentVO>> getDepartmentPage(@Valid DepartmentQuery query) {
+    public JsonVO<PageDTO<DepartmentVO>> getDepartmentPage(DepartmentQuery query) {
         PageDTO<DepartmentVO> departmentPage = departmentService.getDepartmentPage(query);
         return JsonVO.success(departmentPage);
     }
@@ -155,9 +149,8 @@ public class DepartmentController implements DepartmentApis {
     })
     @Override
     public JsonVO<String> updateDepartment(
-            @Parameter(description = "科室ID", example = "322663105141149696", required = true)
             @PathVariable("id") String id,
-            @Valid @RequestBody DepartmentUpdateDTO dto) {
+            @RequestBody DepartmentUpdateDTO dto) {
         try {
             departmentService.updateDepartment(id, dto);
             return JsonVO.success("修改科室成功");
@@ -181,7 +174,6 @@ public class DepartmentController implements DepartmentApis {
     })
     @Override
     public JsonVO<String> deleteDepartment(
-            @Parameter(description = "科室ID", example = "322663105141149696", required = true)
             @PathVariable("id") String id) {
         try {
             departmentService.deleteDepartment(id);

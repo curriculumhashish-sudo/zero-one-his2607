@@ -6,6 +6,7 @@ import com.zeroone.star.project.components.jwt.JwtComponent;
 import com.zeroone.star.project.constant.RedisConstant;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -20,10 +21,12 @@ import org.yaml.snakeyaml.util.UriEncoder;
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
+ *
  * @author 阿伟学长
  * @version 1.0.0
  */
 @Component
+@Slf4j
 public class UserHolder {
     @Resource
     JwtComponent jwtComponent;
@@ -32,6 +35,7 @@ public class UserHolder {
 
     /**
      * 从请求头中获取用户信息
+     *
      * @return 用户信息
      * @throws Exception 解析失败抛出异常
      */
@@ -77,6 +81,7 @@ public class UserHolder {
 
     /**
      * 从请求头中获取当前请求的token
+     *
      * @return 没有获取到返回null
      */
     public String getCurrentToken() {
@@ -91,13 +96,21 @@ public class UserHolder {
 
     /**
      * 获取当前用户选择的租户ID
+     *
      * @return 当前租户ID
      */
     public String getCurrentTenantId() {
         try {
             UserDTO currentUser = getCurrentUser();
             if (currentUser == null || !StringUtils.hasText(currentUser.getId())) {
-                throw new IllegalStateException("无法获取当前用户ID");
+                // TODO：处理未登录情况
+                log.warn("未登录用户，无法获取当前用户ID，暂时返回1");
+                if (currentUser != null) {
+                    currentUser.setId("1");
+                } else {
+                    return "1";
+                }
+                // throw new IllegalStateException("无法获取当前用户ID");
             }
             if (applicationContext == null) {
                 throw new IllegalStateException("RedisTemplate未初始化，无法获取当前租户ID");
@@ -115,7 +128,10 @@ public class UserHolder {
                 );
             }
             if (tenantId == null || !StringUtils.hasText(tenantId.toString())) {
-                throw new IllegalStateException("未找到当前用户的租户ID");
+                // TODO: 未登录用户的租户ID默认返回1
+                log.warn("未找到当前用户的租户ID，暂时返回1");
+                return "1";
+                // throw new IllegalStateException("未找到当前用户的租户ID");
             }
             return tenantId.toString();
         } catch (RuntimeException e) {
