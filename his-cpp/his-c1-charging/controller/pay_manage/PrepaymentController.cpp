@@ -21,7 +21,7 @@
 #include "PrepaymentController.h"
 #include "../../service/pay_manage/PrepaymentService.h"
 
-// Add prepayment (charge)
+// 添加预交金
 PrepaymentAddVO::Wrapper PrepaymentController::execAddPrepayment(const PrepaymentAddDTO::Wrapper& dto)
 {
     OATPP_LOGD("Prepayment", "execAddPrepayment called");
@@ -48,7 +48,7 @@ PrepaymentAddVO::Wrapper PrepaymentController::execAddPrepayment(const Prepaymen
     return vo;
 }
 
-// Refund prepayment
+// 退款
 PrepaymentRefundVO::Wrapper PrepaymentController::execRefundPrepayment(const PrepaymentRefundDTO::Wrapper& dto)
 {
     auto vo = PrepaymentRefundVO::createShared();
@@ -73,7 +73,7 @@ PrepaymentRefundVO::Wrapper PrepaymentController::execRefundPrepayment(const Pre
     return vo;
 }
 
-// Query prepayment records
+// 查询预交金记录
 PrepaymentPageJsonVO::Wrapper PrepaymentController::execQueryPrepayment(const PrepaymentQuery::Wrapper& query)
 {
     auto vo = PrepaymentPageJsonVO::createShared();

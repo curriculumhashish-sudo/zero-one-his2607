@@ -25,36 +25,41 @@
 #include "domain/do/pay_manage/PrepaymentDO.h"
 #include "domain/query/pay_manage/PrepaymentQuery.h"
 
-// Account snapshot for prepayment transaction
+// 预交金流水链接用的账户快照
 struct AccountSnapshot
 {
-    std::string accountId;      // account_id from latest record
-    std::string predecessorId;  // id of latest record (for chain linking)
-    double balance;             // latest after_balance (as before_balance for new tx)
+    std::string accountId;      // 最新记录的account_id
+    std::string predecessorId;  // 最新记录ID（用于流水链接）
+    double balance;             // 最新余额
 };
 
 class PrepaymentDAO : public BaseDAO
 {
 private:
-    // Build WHERE clause dynamically based on query conditions
     inline std::string queryConditionBuilder(
         const PrepaymentQuery::Wrapper& query, SqlParams& params);
 
 public:
-    // Count prepayment records (for pagination)
+    // 统计预交金记录数（分页用）
     uint64_t count(const PrepaymentQuery::Wrapper& query);
 
-    // Page query prepayment records
+    // 分页查询预交金记录
     std::list<PrepaymentDO> selectWithPage(const PrepaymentQuery::Wrapper& query);
 
-    // Insert a new prepayment record (returns auto-generated PK)
-    uint64_t addPrepayment(const PrepaymentDO& prepayment);
-
-    // Insert a prepayment record with explicit PK (UUID)
-    uint64_t insertPrepayment(const PrepaymentDO& prepayment);
-
-    // Get account snapshot (accountId, balance, predecessorId) in one query
+    // 获取最新账户快照用于余额链接
     AccountSnapshot getAccountSnapshot(const std::string& accountCode);
+
+    // 插入预交金记录（收或退）
+    void insertPrepayment(
+        const std::string& id, const std::string& nowStr,
+        const std::string& tenantId, const std::string& operatorName,
+        const std::string& accountId, const std::string& accountCode,
+        const std::string& payEnum, double amount,
+        double chargeAmount, double returnAmount,
+        const std::string& payTransNo, const std::string& payTransText,
+        const std::string& payTransDate,
+        double beforeBalance, double afterBalance,
+        const std::string& predecessorId);
 };
 
 #endif // !_PREPAYMENT_DAO_

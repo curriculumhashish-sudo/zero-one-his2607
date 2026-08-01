@@ -32,15 +32,15 @@
 #define API_TAG ZH_WORDS_GETTER("charging.pay_manage.tag")
 
 /*
-   Prepayment management controller
-   Handles: add prepayment, refund prepayment, query records
+   预交金管理控制器
+   处理：添加预交金、退预交金、查询记录
 */
 class PrepaymentController : public oatpp::web::server::api::ApiController
 {
     API_ACCESS_DECLARE(PrepaymentController);
 
 public:
-    // Add prepayment (charge)
+    // 添加预交金（收）
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("Jack.charging.charge.prepayment.add.summary"),
         addPrepayment,
@@ -52,7 +52,7 @@ public:
         BODY_DTO(PrepaymentAddDTO::Wrapper, dto), execAddPrepayment(dto)
     );
 
-    // Refund prepayment
+    // 退预交金
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("Jack.charging.charge.prepayment.refund.summary"),
         refundPrepayment,
@@ -64,7 +64,7 @@ public:
         BODY_DTO(PrepaymentRefundDTO::Wrapper, dto), execRefundPrepayment(dto)
     );
 
-    // Query prepayment records
+    // 查询预交金流水
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("Jack.charging.charge.prepayment.query.summary"),
         queryPrepayment,
@@ -85,13 +85,13 @@ public:
     );
 
 private:
-    // Execute add prepayment
+    // 执行添加预交金
     PrepaymentAddVO::Wrapper execAddPrepayment(const PrepaymentAddDTO::Wrapper& dto);
 
-    // Execute refund prepayment
+    // 执行退预交金
     PrepaymentRefundVO::Wrapper execRefundPrepayment(const PrepaymentRefundDTO::Wrapper& dto);
 
-    // Execute query prepayment records
+    // 执行查询预交金流水
     PrepaymentPageJsonVO::Wrapper execQueryPrepayment(const PrepaymentQuery::Wrapper& query);
 };
 

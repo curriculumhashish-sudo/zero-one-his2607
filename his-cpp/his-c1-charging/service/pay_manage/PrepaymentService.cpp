@@ -3,14 +3,6 @@
 #include "../../dao/pay_manage/PrepaymentDAO.h"
 #include "id/UuidFacade.h"
 #include "SimpleDateTimeFormat.h"
-#include "DbInit.h"
-
-// Check if database pool is initialized and connection is healthy
-// TODO: Set to true after fixing DB connection on the server
-static bool isDbAvailable()
-{
-    return DbInit::getConnPool() != nullptr;
-}
 
 PrepaymentAddResponseDTO::Wrapper PrepaymentService::addPrepayment(const PrepaymentAddDTO::Wrapper& dto)
 {
@@ -19,82 +11,31 @@ PrepaymentAddResponseDTO::Wrapper PrepaymentService::addPrepayment(const Prepaym
     double amount = dto->amount.getValue(0.0);
     std::string paymentMethod = dto->paymentMethod.getValue("1");
     std::string operatorName = dto->operatorName.getValue("");
-
-    if (!isDbAvailable())
-    {
-        OATPP_LOGW("Prepayment", "addPrepayment: DB pool not initialized, returning mock data");
-        response->prepaymentId = "mock-" + SimpleDateTimeFormat::format();
-        response->inpatientNo = inpatientNo;
-        response->amount = amount;
-        response->paymentMethod = paymentMethod;
-        response->createTime = SimpleDateTimeFormat::format();
-        return response;
-    }
-
     std::string remark = dto->remark.getValue("");
-    OATPP_LOGD("Prepayment", "addPrepayment: inpatientNo=%s, amount=%.2f", inpatientNo.c_str(), amount);
 
     UuidFacade uf;
+    std::string uuid = uf.genUuid();
+    std::string now = SimpleDateTimeFormat::format();
+
+    // 获取最新账户快照用于余额链接
     PrepaymentDAO dao;
-
-    // Get account info in one query
-    OATPP_LOGD("Prepayment", "addPrepayment: getting account snapshot");
     auto snap = dao.getAccountSnapshot(inpatientNo);
-    OATPP_LOGD("Prepayment", "addPrepayment: accountId=%s, balance=%.2f, predecessorId=%s",
-        snap.accountId.c_str(), snap.balance, snap.predecessorId.c_str());
-
     double afterBalance = snap.balance + amount;
 
-    std::string now = SimpleDateTimeFormat::format();
-    std::string uuid = uf.genUuid();
-    OATPP_LOGD("Prepayment", "addPrepayment: uuid=%s, now=%s", uuid.c_str(), now.c_str());
+    // 构建支付说明：支付方式 + 可选备注
+    std::string payText = paymentMethod;
+    if (!remark.empty()) payText += "," + remark;
 
-    // Build DO
-    PrepaymentDO prepayment;
-    prepayment.setId(uuid);
-    prepayment.setTenantId("01xq");
-    prepayment.setCreatedAt(now);
-    prepayment.setUpdatedAt(now);
-    prepayment.setCreatedBy(operatorName);
-    prepayment.setUpdatedBy(operatorName);
-    prepayment.setIsDeleted(0);
-    prepayment.setVersion(0);
+    // 通过原生SQL插入（charge模块风格）
+    dao.insertPrepayment(
+        uuid, now, "01xq", operatorName,
+        snap.accountId, inpatientNo,
+        "CHARGE", amount, amount, 0.0,
+        uuid, payText, now,
+        snap.balance, afterBalance,
+        snap.predecessorId);
 
-    prepayment.setTargetEnum("PREPAYMENT");
-    prepayment.setAccountId(snap.accountId);
-    prepayment.setAccountCode(inpatientNo);
-    prepayment.setPayEnum("CHARGE");
-    prepayment.setAmount(amount);
-    prepayment.setChargeAmount(amount);
-    prepayment.setReturnAmount(0.0);
-    prepayment.setPayTransNo(uuid);
-    prepayment.setPayTransText(paymentMethod + (remark.empty() ? "" : "," + remark));
-    prepayment.setPayTransDate(now);
-    prepayment.setBeforeBalance(snap.balance);
-    prepayment.setAfterBalance(afterBalance);
-    prepayment.setResultEnum("SUCCESS");
-    if (!snap.predecessorId.empty())
-    {
-        prepayment.setPredecessorId(snap.predecessorId);
-    }
-
-    // Insert to DB
-    OATPP_LOGD("Prepayment", "addPrepayment: inserting to DB");
-    try
-    {
-        dao.insertPrepayment(prepayment);
-        OATPP_LOGD("Prepayment", "addPrepayment: insert done");
-    }
-    catch (const std::exception& e)
-    {
-        OATPP_LOGE("Prepayment", "addPrepayment insert failed: %s", e.what());
-    }
-    catch (...)
-    {
-        OATPP_LOGE("Prepayment", "addPrepayment insert failed: unknown error");
-    }
-
-    // Build response
+    // 构建响应
     response->prepaymentId = uuid;
     response->inpatientNo = inpatientNo;
     response->amount = amount;
@@ -111,77 +52,40 @@ PrepaymentRefundResponseDTO::Wrapper PrepaymentService::refundPrepayment(const P
     double amount = dto->amount.getValue(0.0);
     std::string refundMethod = dto->refundMethod.getValue("1");
     std::string operatorName = dto->operatorName.getValue("");
-
-    if (!isDbAvailable())
-    {
-        OATPP_LOGW("Prepayment", "refundPrepayment: DB pool not initialized, returning mock data");
-        response->prepaymentId = "mock-" + SimpleDateTimeFormat::format();
-        response->inpatientNo = inpatientNo;
-        response->amount = amount;
-        response->refundMethod = refundMethod;
-        response->createTime = SimpleDateTimeFormat::format();
-        return response;
-    }
-
     std::string reason = dto->reason.getValue("");
     std::string remark = dto->remark.getValue("");
 
     UuidFacade uf;
-    PrepaymentDAO dao;
+    std::string uuid = uf.genUuid();
+    std::string now = SimpleDateTimeFormat::format();
 
-    // Get account info in one query
+    // 获取最新账户快照用于余额链接
+    PrepaymentDAO dao;
     auto snap = dao.getAccountSnapshot(inpatientNo);
+
+    // 检查余额是否充足
+    if (amount > snap.balance)
+    {
+        throw std::runtime_error("insufficient balance: available="
+            + std::to_string(snap.balance) + ", refund=" + std::to_string(amount));
+    }
     double afterBalance = snap.balance - amount;
 
-    std::string now = SimpleDateTimeFormat::format();
-    std::string uuid = uf.genUuid();
+    // 构建支付说明：退款方式 + 退款原因 + 备注
+    std::string payText = refundMethod;
+    if (!reason.empty()) payText += "," + reason;
+    if (!remark.empty()) payText += "," + remark;
 
-    // Build DO
-    PrepaymentDO prepayment;
-    prepayment.setId(uuid);
-    prepayment.setTenantId("01xq");
-    prepayment.setCreatedAt(now);
-    prepayment.setUpdatedAt(now);
-    prepayment.setCreatedBy(operatorName);
-    prepayment.setUpdatedBy(operatorName);
-    prepayment.setIsDeleted(0);
-    prepayment.setVersion(0);
+    // 通过原生SQL插入（charge模块风格）
+    dao.insertPrepayment(
+        uuid, now, "01xq", operatorName,
+        snap.accountId, inpatientNo,
+        "REFUND", amount, 0.0, amount,
+        uuid, payText, now,
+        snap.balance, afterBalance,
+        snap.predecessorId);
 
-    prepayment.setTargetEnum("PREPAYMENT");
-    prepayment.setAccountId(snap.accountId);
-    prepayment.setAccountCode(inpatientNo);
-    prepayment.setPayEnum("REFUND");
-    prepayment.setAmount(amount);
-    prepayment.setChargeAmount(0.0);
-    prepayment.setReturnAmount(amount);
-    prepayment.setPayTransNo(uuid);
-    prepayment.setPayTransText(refundMethod
-        + (reason.empty() ? "" : "," + reason)
-        + (remark.empty() ? "" : "," + remark));
-    prepayment.setPayTransDate(now);
-    prepayment.setBeforeBalance(snap.balance);
-    prepayment.setAfterBalance(afterBalance);
-    prepayment.setResultEnum("SUCCESS");
-    if (!snap.predecessorId.empty())
-    {
-        prepayment.setPredecessorId(snap.predecessorId);
-    }
-
-    // Insert to DB
-    try
-    {
-        dao.insertPrepayment(prepayment);
-    }
-    catch (const std::exception& e)
-    {
-        OATPP_LOGE("Prepayment", "refundPrepayment insert failed: %s", e.what());
-    }
-    catch (...)
-    {
-        OATPP_LOGE("Prepayment", "refundPrepayment insert failed: unknown error");
-    }
-
-    // Build response
+    // 构建响应
     response->prepaymentId = uuid;
     response->inpatientNo = inpatientNo;
     response->amount = amount;
@@ -194,34 +98,20 @@ PrepaymentRefundResponseDTO::Wrapper PrepaymentService::refundPrepayment(const P
 PrepaymentPageDTO::Wrapper PrepaymentService::queryPrepayment(const PrepaymentQuery::Wrapper& query)
 {
     auto page = PrepaymentPageDTO::createShared();
-
-    if (!isDbAvailable())
-    {
-        OATPP_LOGW("Prepayment", "queryPrepayment: DB pool not initialized, returning empty page");
-        page->pageIndex = query->pageIndex.getValue(1);
-        page->pageSize = query->pageSize.getValue(10);
-        page->total = v_int64(0);
-        page->calcPages();
-        page->rows = oatpp::List<PrepaymentRecordDTO::Wrapper>::createShared();
-        return page;
-    }
-
     PrepaymentDAO dao;
 
-    // Count total records
+    // 统计并查询
     uint64_t total = dao.count(query);
-
-    // Query records with pagination
     auto doList = dao.selectWithPage(query);
 
-    // Map DO to DTO
+    // DO映射到DTO
     auto rows = oatpp::List<PrepaymentRecordDTO::Wrapper>::createShared();
     for (auto& record : doList)
     {
         auto dto = PrepaymentRecordDTO::createShared();
         dto->prepaymentId = record.getId();
         dto->inpatientNo = record.getAccountCode();
-        dto->patientName = record.getAccountCode();  // TODO: join patient table for real name
+        dto->patientName = record.getAccountCode();  // TODO: 关联患者表获取真实姓名
         dto->amount = record.getAmount();
         dto->prepayType = record.getPayEnum();
         dto->method = record.getPayTransText();
