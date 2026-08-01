@@ -56,15 +56,15 @@ import java.util.List;
  * ┌──────────────┬──────────────────┬─────────────────────────────────────────────────┐
  * │ 字段名        │ 含义              │ 说明                                            │
  * ├──────────────┼──────────────────┼─────────────────────────────────────────────────┤
- * │ statusEnum   │ 发布状态          │ 数字枚举：1=草稿/2=已启用/3=已停用/4=已废弃      │
+ * │ statusEnum   │ 发布状态          │ 字符串枚举：DRAFT=草稿/ACTIVE=已启用/INACTIVE=已停用/DISCARDED=已废弃 │
  * └──────────────┴──────────────────┴─────────────────────────────────────────────────┘
  *
  * === 三、数据类型与翻译规则 ===
- * 1. 【固定枚举字段（Integer）】：前端写死枚举映射即可，不需要调字典接口。
- *    - typeEnum: 1=检验(PROOF),2=检查(TEST),3=护理(CARE),4=手术(OPERATION),5=其他(OTHER)
- *    - statusEnum: 1=草稿(DRAFT),2=已启用(ACTIVE),3=已停用(INACTIVE),4=已废弃(DISCARDED)
- *    - ybFlag/ybMatchFlag: 0=否,1=是
- *    - chrgitmLv: 1=甲类,2=乙类,3=丙类(自费)
+ * 1. 【固定枚举字段（String）】：前端写死枚举映射即可，不需要调字典接口，数据库存储原始字符串。
+ *    - typeEnum: "1"=检验(PROOF),"2"=检查(TEST),"3"=护理(CARE),"4"=手术(OPERATION),"5"=其他(OTHER)
+ *    - statusEnum: "DRAFT"=草稿,"ACTIVE"=已启用,"INACTIVE"=已停用,"DISCARDED"=已废弃
+ *    - ybFlag/ybMatchFlag: 0=否,1=是（Integer类型，与数据库tinyint一致）
+ *    - chrgitmLv: 1=甲类,2=乙类,3=丙类(自费)（Integer类型，与数据库tinyint一致）
  *
  * 2. 【字典编码字段（String）】：前端必须通过字典接口动态获取选项，不要写死。
  *    - categoryCode: 字典code_system = activity_category_code（目录分类）
@@ -113,15 +113,15 @@ public class TreatmentDetailVO implements Serializable {
 
     /**
      * 【前端需字典翻译·固定枚举，前端写死即可】
-     * 业务类型（数字类型）：
+     * 业务类型（字符串类型，与数据库一致）：
      * 1=检验(PROOF) - 如血常规、尿常规等实验室检验项目
      * 2=检查(TEST) - 如CT、X光、B超等影像/功能检查项目
      * 3=护理(CARE) - 如一级护理、口腔护理等护理操作
      * 4=手术(OPERATION) - 各类手术项目
      * 5=其他(OTHER) - 如静脉注射、换药等治疗类及其他项目
      */
-    @Schema(description = "【必填·下拉框·枚举】业务类型（数字）：1=检验/2=检查/3=护理/4=手术/5=其他", example = "5", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Integer typeEnum;
+    @Schema(description = "【必填·下拉框·枚举】业务类型（字符串）：1=检验/2=检查/3=护理/4=手术/5=其他", example = "5", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String typeEnum;
 
     /**
      * 【前端需字典翻译·下拉框数据源: 字典接口unit_code】
@@ -192,14 +192,14 @@ public class TreatmentDetailVO implements Serializable {
 
     /**
      * 【前端需字典翻译·固定枚举，前端写死即可】
-     * 发布状态（数字类型）：
-     * 1=草稿(DRAFT) - 新建未发布
-     * 2=已启用(ACTIVE) - 正常使用中
-     * 3=已停用(INACTIVE) - 暂时停用
-     * 4=已废弃(DISCARDED) - 永久废弃
+     * 发布状态（字符串类型，与数据库一致）：
+     * DRAFT=草稿 - 新建未发布
+     * ACTIVE=已启用 - 正常使用中
+     * INACTIVE=已停用 - 暂时停用
+     * DISCARDED=已废弃 - 永久废弃
      */
-    @Schema(description = "发布状态（只读·数字枚举）：1=草稿/2=已启用/3=已停用/4=已废弃", example = "2")
-    private Integer statusEnum;
+    @Schema(description = "发布状态（只读·字符串枚举）：DRAFT=草稿/ACTIVE=已启用/INACTIVE=已停用/DISCARDED=已废弃", example = "ACTIVE")
+    private String statusEnum;
 
     @Schema(description = "【子项动态列表】诊疗子项列表，组合项目时返回子项数组，单项目返回空数组[]。每个元素字段见WkfActivityDefinitionChildVO")
     private List<WkfActivityDefinitionChildVO> children;

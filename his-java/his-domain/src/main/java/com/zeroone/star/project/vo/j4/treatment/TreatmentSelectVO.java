@@ -22,17 +22,17 @@ import java.io.Serializable;
  * │ 编码      │ busNo         │ 业务编码，如AD00000011，辅助识别                      │
  * │ 名称      │ name          │ 项目名称，主选择列                                    │
  * │ 分类      │ categoryCode  │ 目录分类编码，字典翻译展示中文分类名                   │
- * │ 类型      │ typeEnum      │ 业务类型（数字枚举）：1=检验/2=检查/3=护理/4=手术/5=其他│
+ * │ 类型      │ typeEnum      │ 业务类型（字符串枚举）："1"=检验/"2"=检查/"3"=护理/"4"=手术/"5"=其他│
  * └──────────┴──────────────┴──────────────────────────────────────────────────────┘
  *
  * === 交互说明 ===
- * 1. 本接口只返回【已启用】(statusEnum=2) 的诊疗项目，草稿/停用/废弃状态的项目不会出现在选择列表中。
+ * 1. 本接口只返回【已启用】(statusEnum="ACTIVE") 的诊疗项目，草稿/停用/废弃状态的项目不会出现在选择列表中。
  * 2. 支持关键词搜索（匹配名称/编码/拼音/五笔）和目录分类筛选。
  * 3. 选中某一行后：
  *    - 将 id 作为 childrenId（子项场景）或相关引用ID
  *    - 将 name 作为显示名称/childrenName
  *    - 将 busNo 作为辅助展示编码（可选）
- * 4. 字典映射复用 TreatmentDetailVO 中的规则，不要单独维护。
+ * 4. typeEnum 返回数据库原始字符串值，与数据库varchar类型一致；字典映射复用 TreatmentDetailVO 中的规则。
  *
  * @author j4组-treatment模块
  * @version 1.0.0
@@ -65,9 +65,14 @@ public class TreatmentSelectVO implements Serializable {
     private String categoryCode;
 
     /**
-     * 【前端需字典翻译·固定枚举】
-     * 业务类型（数字类型）：1=检验/2=检查/3=护理/4=手术/5=其他
+     * 【前端需字典翻译·固定枚举，前端写死即可】
+     * 业务类型（字符串类型，与数据库一致）：
+     * "1"=检验(PROOF) - 如血常规、尿常规等实验室检验项目
+     * "2"=检查(TEST) - 如CT、X光、B超等影像/功能检查项目
+     * "3"=护理(CARE) - 如一级护理、口腔护理等护理操作
+     * "4"=手术(OPERATION) - 各类手术项目
+     * "5"=其他(OTHER) - 如静脉注射、换药等治疗类及其他项目
      */
-    @Schema(description = "【需翻译·枚举】业务类型（数字）：1=检验/2=检查/3=护理/4=手术/5=其他", example = "5")
-    private Integer typeEnum;
+    @Schema(description = "【需翻译·枚举】业务类型（字符串）：1=检验/2=检查/3=护理/4=手术/5=其他", example = "5")
+    private String typeEnum;
 }
