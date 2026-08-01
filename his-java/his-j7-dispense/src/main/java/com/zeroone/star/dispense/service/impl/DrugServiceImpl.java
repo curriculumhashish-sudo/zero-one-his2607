@@ -29,4 +29,5 @@ public class DrugServiceImpl implements DrugService {
         Page<?> page = new Page<>(query.getPageIndex(), query.getPageSize());
         return drugMapper.pagePatientDrugItems(page, query);
     }
+
 }

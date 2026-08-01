@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zeroone.star.dispense.entity.InventoryItem;
 import com.zeroone.star.dispense.entity.MedMedicationDispense;
 import com.zeroone.star.dispense.mapper.InventoryItemMapper;
-import com.zeroone.star.dispense.mapper.MedicationDispenseMapper;
+import com.zeroone.star.dispense.mapper.MedMedicationDispenseMapper;
 import com.zeroone.star.dispense.service.IDispensingService;
 import com.zeroone.star.project.dto.ExtendPageDTO;
 import com.zeroone.star.project.dto.j7.dispense.DispenseVerifyDTO;
@@ -26,7 +26,7 @@ import java.util.List;
 @Service
 public class DispensingServiceImpl implements IDispensingService {
     @Resource
-    private MedicationDispenseMapper medicationDispenseMapper;
+    private MedMedicationDispenseMapper medicationDispenseMapper;
     @Resource
     private InventoryItemMapper inventoryItemMapper;
     @Override

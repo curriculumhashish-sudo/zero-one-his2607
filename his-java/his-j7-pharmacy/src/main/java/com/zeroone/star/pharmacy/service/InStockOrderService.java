@@ -21,8 +21,19 @@ import com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundListVO;
  * @version 1.0.0
  */
 public interface InStockOrderService {
+    /**
+     * 新增入库单据
+     */
     String create(InStockOrderDTO dto);
+
+    /**
+     * 保存入库单据（编辑草稿）
+     */
     void update(String orderId, InStockOrderDTO dto);
+
+    /**
+     * 提交审批入库单据
+     */
     void submit(String orderId, InStockOrderDTO dto);
 
     default IPage<PurchaseInboundListVO> listInboundOrders(PurchaseInboundQuery query) {

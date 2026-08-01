@@ -1,40 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<!--
-  门诊发药 Mapper XML
-  @author xingfu
-  @since 2026-07-26
--->
 <mapper namespace="com.zeroone.star.dispense.mapper.AdmPatientMapper">
 
     <select id="pagePatientQueue" resultType="com.zeroone.star.project.vo.j7.dispense.PatientQueueVO">
         SELECT
-        p.id AS patientId,
-        p.name AS patientName,
-        p.gender_enum AS genderEnum,
+        d.patient_id          AS patientId,
+        d.encounter_id        AS encounterId,
+        p.name                AS name,
         TIMESTAMPDIFF(YEAR, p.birth_date, CURDATE()) AS age,
-        r.encounter_id AS encounterBusNo,
-        r.requester_id AS requesterName,
-        COUNT(r.id) AS drugCount,
-        MIN(r.req_authored_time) AS encounterTime
-        FROM med_medication_request r
-        JOIN adm_patient p ON p.id = r.patient_id
-        WHERE r.is_deleted = 0
-        AND r.intent_enum = 'OUTPATIENT'
-        AND r.status_enum = 'PENDING'
-        <if test="query.name != null">
+        p.gender_enum         AS genderEnum,
+        p.phone               AS phone,
+        MAX(d.status_enum)    AS statusEnum,
+        d.dispense_enum       AS dispenseEnum,
+        COUNT(d.id)           AS drugCount,
+        MAX(d.created_at)     AS createdAt
+        FROM med_medication_dispense d
+        JOIN adm_patient p ON p.id = d.patient_id
+        WHERE d.is_deleted = 0
+
+        <if test="query.dispenseEnum != null and query.dispenseEnum != ''">
+            AND d.dispense_enum = #{query.dispenseEnum}
+        </if>
+
+        <if test="query.patientId != null and query.patientId != ''">
+            AND d.patient_id = #{query.patientId}
+        </if>
+
+        <if test="query.encounterId != null and query.encounterId != ''">
+            AND d.encounter_id = #{query.encounterId}
+        </if>
+
+        <if test="query.statusEnum != null and query.statusEnum != ''">
+            AND d.status_enum = #{query.statusEnum}
+        </if>
+
+        <if test="query.name != null and query.name != ''">
             AND p.name LIKE CONCAT('%', #{query.name}, '%')
         </if>
-        <if test="query.pyStr != null">
-            AND p.py_str LIKE CONCAT('%', #{query.pyStr}, '%')
+
+        <if test="query.startTime != null">
+            AND d.created_at &gt;= #{query.startTime}
         </if>
-        <if test="query.locationId != null">
-            AND r.location_id = #{query.locationId}
+
+        <if test="query.endTime != null">
+            AND d.created_at &lt;= #{query.endTime}
         </if>
-        <if test="query.startTime != null and query.endTime != null">
-            AND r.req_authored_time BETWEEN #{query.startTime} AND #{query.endTime}
-        </if>
-        GROUP BY p.id, r.encounter_id
+
+        GROUP BY d.encounter_id, d.patient_id, p.name, p.birth_date, p.gender_enum, p.phone, d.dispense_enum
+        ORDER BY MAX(d.created_at) DESC
     </select>
+
 </mapper>
+
