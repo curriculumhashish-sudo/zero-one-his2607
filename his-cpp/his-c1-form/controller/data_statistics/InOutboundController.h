@@ -27,7 +27,12 @@ public:
 		// 定义分页查询参数描述
 		API_DEF_ADD_PAGE_PARAMS();
 		// 定义查询参数
-		API_DEF_ADD_QUERY_PARAMS(String, "name", ZH_WORDS_GETTER("Litguidyo.form.inoutbound.name"), "medicine", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "name", ZH_WORDS_GETTER("Litguidyo.form.inoutbound.name"), "", false);
+		API_DEF_ADD_QUERY_PARAMS(Float64, "onemoney", ZH_WORDS_GETTER("Litguidyo.form.inoutbound.onemoney"), 0.0, false);
+		API_DEF_ADD_QUERY_PARAMS(Float64, "allmoney", ZH_WORDS_GETTER("Litguidyo.form.inoutbound.allmoney"), 0.0, false);
+		API_DEF_ADD_QUERY_PARAMS(Float64, "outmoney", ZH_WORDS_GETTER("Litguidyo.form.inoutbound.outmoney"), 0.0, false);
+		API_DEF_ADD_QUERY_PARAMS(Float64, "alloutmoney", ZH_WORDS_GETTER("Litguidyo.form.inoutbound.alloutmoney"), 0.0, false);
+		API_DEF_ADD_QUERY_PARAMS(String, "batch_number", ZH_WORDS_GETTER("Litguidyo.form.inoutbound.batch_number"), "", false);
 	}
 
 	// 定义查询接口处理点

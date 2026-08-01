@@ -17,7 +17,7 @@ class InventoryMaterialQuery : public PageQuery {
 	}
 
 	// 该有效期对应的数量
-	DTO_FIELD(Int32, numbers);
+	DTO_FIELD(Float64, numbers);
 	DTO_FIELD_INFO(numbers) {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.numbers");
 	}

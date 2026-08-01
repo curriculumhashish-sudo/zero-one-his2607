@@ -8,11 +8,6 @@ class AddRegisterDTO :public oatpp::DTO
 {
 	DTO_INIT(AddRegisterDTO, DTO);
 
-	DTO_FIELD(String, id);
-	DTO_FIELD_INFO(id) {
-		info->description = ZH_WORDS_GETTER("yxy.charging,register.getsee_id");
-	}
-
 	DTO_FIELD(String, name);
 	DTO_FIELD_INFO(name) {
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.name");
@@ -52,16 +47,6 @@ class AddRegisterDTO :public oatpp::DTO
 	DTO_FIELD_INFO(doctor) {
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.docker");
 	}
-
-	DTO_FIELD(String, cost_type);
-	DTO_FIELD_INFO(cost_type) {
-		info->description = ZH_WORDS_GETTER("yxy.charging,register.cost_type");
-	}
-
-	DTO_FIELD(String, register_type);
-	DTO_FIELD_INFO(register_type) {
-		info->description = ZH_WORDS_GETTER("yxy.charging,register.register_type");
-	}
 	DTO_FIELD(String, patient_id);
 	DTO_FIELD_INFO(patient_id) {
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.patient_id");
@@ -74,18 +59,6 @@ class AddRegisterDTO :public oatpp::DTO
 	DTO_FIELD_INFO(organization_id) {
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.organization_id");
 	}
-	DTO_FIELD(String, cost_type_id);
-	DTO_FIELD_INFO(cost_type_id) {
-		info->description = ZH_WORDS_GETTER("yxy.charging,register.cost_type_id");
-	}
-	DTO_FIELD(String, register_type_id);
-	DTO_FIELD_INFO(register_type_id) {
-		info->description = ZH_WORDS_GETTER("yxy.charging,register.register_type_id");
-	}
-	DTO_FIELD(String, register_def_id);
-	DTO_FIELD_INFO(register_def_id) {
-		info->description = ZH_WORDS_GETTER("yxy.charging,register.register_def_id");
-	}
 	DTO_FIELD(String, operator_id);
 	DTO_FIELD_INFO(operator_id) {
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.operator_id");
@@ -95,13 +68,6 @@ class AddRegisterDTO :public oatpp::DTO
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.tenant_id");
 	}
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
-public:
-std::string validate()
-	{
-		if (age<=0)
-			return "age invalidate.";
-		return "";
-	}
 };
 
 #include OATPP_CODEGEN_END(DTO)

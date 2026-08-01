@@ -4,8 +4,12 @@
 #include "ExcelComponent.h"
 #include "SimpleDateTimeFormat.h"
 #include "PdfComponent.h"
+#include "service/data_statistics/InOutboundService.h"
 
 InOutboundPageJsonVo::Wrapper InOutboundController::execQueryObject(const InOutboundQuery::Wrapper& query)
 {
-	return InOutboundPageJsonVo::Wrapper();
+	auto result = InOutboundService().listAll(query);
+	auto jvo = InOutboundPageJsonVo().createShared();
+	jvo->success(result);
+	return jvo;
 }

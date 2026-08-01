@@ -9,7 +9,7 @@
 
 class InOutboundQuery : public PageQuery {
 	DTO_INIT(InOutboundQuery, PageQuery);
-
+	
 
 	// 项目名称
 	DTO_FIELD(String, name);
@@ -17,28 +17,28 @@ class InOutboundQuery : public PageQuery {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.name");
 	}
 
-	// 单价
-	DTO_FIELD(Int32, onemoney);
+	// 入库单价
+	DTO_FIELD(Float64, onemoney);
 	DTO_FIELD_INFO(onemoney) {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.onemoney");
 	}
 
-	// 总金额
-	DTO_FIELD(Int32, allmoney);
+	// 入库总金额
+	DTO_FIELD(Float64, allmoney);
 	DTO_FIELD_INFO(allmoney) {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.allmoney");
 	}
 
-	// 数量
-	DTO_FIELD(Int32, number);
-	DTO_FIELD_INFO(number) {
-		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.number");
+	// 出库单价
+	DTO_FIELD(Float64, outmoney);
+	DTO_FIELD_INFO(outmoney) {
+		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.outmoney");
 	}
 
-	// 厂家
-	DTO_FIELD(String, origin);
-	DTO_FIELD_INFO(origin) {
-		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.origin");
+	// 出库总金额
+	DTO_FIELD(Float64, alloutmoney);
+	DTO_FIELD_INFO(alloutmoney) {
+		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.alloutmoney");
 	}
 
 	// 批号

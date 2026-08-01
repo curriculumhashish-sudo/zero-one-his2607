@@ -63,7 +63,7 @@ class GetSeeDTO:public oatpp::DTO
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.cost");
 	}
 
-	DTO_FIELD(UInt64, time);
+	DTO_FIELD(String, time);
 	DTO_FIELD_INFO(time) {
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.time");
 	}
@@ -75,12 +75,6 @@ class GetSeeDTO:public oatpp::DTO
 	DTO_FIELD_INFO(doctor_id) {
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.patient_id");
 	}
-	DTO_FIELD(String, organization_id);
-	DTO_FIELD(String, cost_type_id);
-	DTO_FIELD(String, register_type_id);
-	DTO_FIELD(String, register_def_id);
-	DTO_FIELD(String, operator_id);
-	DTO_FIELD(String, tenant_id);
 
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 };
