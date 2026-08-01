@@ -736,6 +736,8 @@ Jack:
           value: 现金
         createTime:
           description: 收款时间
+        afterBalance:
+          description: 交易后余额
       PrepaymentRefundResponseDTO:
         prepaymentId:
           description: 预交金流水号
@@ -748,6 +750,8 @@ Jack:
           value: 现金
         createTime:
           description: 退款时间
+        afterBalance:
+          description: 退款后余额
       PrepaymentRecordDTO:
         prepaymentId:
           description: 预交金流水号

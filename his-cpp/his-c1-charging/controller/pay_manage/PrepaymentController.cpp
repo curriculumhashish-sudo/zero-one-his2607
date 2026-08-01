@@ -19,23 +19,36 @@
 
 #include "stdafx.h"
 #include "PrepaymentController.h"
+#include "../../service/pay_manage/PrepaymentService.h"
 
-// 收预交金
+// Add prepayment (charge)
 PrepaymentAddVO::Wrapper PrepaymentController::execAddPrepayment(const PrepaymentAddDTO::Wrapper& dto)
 {
+    OATPP_LOGD("Prepayment", "execAddPrepayment called");
     auto vo = PrepaymentAddVO::createShared();
+    PrepaymentService service;
+    auto result = service.addPrepayment(dto);
+    vo->success(result);
+    OATPP_LOGD("Prepayment", "execAddPrepayment done");
     return vo;
 }
 
-// 退预交金
+// Refund prepayment
 PrepaymentRefundVO::Wrapper PrepaymentController::execRefundPrepayment(const PrepaymentRefundDTO::Wrapper& dto)
 {
     auto vo = PrepaymentRefundVO::createShared();
+    PrepaymentService service;
+    auto result = service.refundPrepayment(dto);
+    vo->success(result);
     return vo;
 }
 
-// 查询预交金流水
+// Query prepayment records
 PrepaymentPageJsonVO::Wrapper PrepaymentController::execQueryPrepayment(const PrepaymentQuery::Wrapper& query)
 {
-    return PrepaymentPageJsonVO::Wrapper();
+    auto vo = PrepaymentPageJsonVO::createShared();
+    PrepaymentService service;
+    auto result = service.queryPrepayment(query);
+    vo->success(result);
+    return vo;
 }

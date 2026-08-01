@@ -8,28 +8,22 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/*
-   收预交金响应视图对象
-*/
+// Add prepayment response view object
 class PrepaymentAddVO : public JsonVO<PrepaymentAddResponseDTO::Wrapper>
 {
     DTO_INIT(PrepaymentAddVO, JsonVO<PrepaymentAddResponseDTO::Wrapper>);
 };
 
-/*
-   退预交金响应视图对象
-*/
+// Refund prepayment response view object
 class PrepaymentRefundVO : public JsonVO<PrepaymentRefundResponseDTO::Wrapper>
 {
     DTO_INIT(PrepaymentRefundVO, JsonVO<PrepaymentRefundResponseDTO::Wrapper>);
 };
 
-/*
-   预交金分页查询响应视图对象
-*/
-class PrepaymentPageJsonVO : public JsonVO<PrepaymentRecordDTO::Wrapper>
+// Prepayment page query response view object
+class PrepaymentPageJsonVO : public JsonVO<PrepaymentPageDTO::Wrapper>
 {
-    DTO_INIT(PrepaymentPageJsonVO, JsonVO<PrepaymentRecordDTO::Wrapper>);
+    DTO_INIT(PrepaymentPageJsonVO, JsonVO<PrepaymentPageDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)
