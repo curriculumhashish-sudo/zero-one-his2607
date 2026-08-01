@@ -23,6 +23,7 @@
         FROM cus_frequency f
         <where>
             f.is_deleted = 0
+            AND f.tenant_id = #{tenantId}
             <if test="query != null and query.keyword != null and query.keyword != ''">
                 AND (f.name LIKE CONCAT('%', #{query.keyword}, '%')
                   OR f.rate_code LIKE CONCAT('%', #{query.keyword}, '%'))
@@ -52,6 +53,7 @@
         FROM cus_frequency f
         WHERE f.is_deleted = 0
           AND f.id = #{id}
+          AND f.tenant_id = #{tenantId}
     </select>
 
     <!-- 获取已启用的频次名称下拉选项 -->
@@ -63,6 +65,7 @@
         FROM cus_frequency f
         WHERE f.is_deleted = 0
           AND f.active_flag = 1
+          AND f.tenant_id = #{tenantId}
         ORDER BY f.sort_no ASC, f.id DESC
     </select>
 
