@@ -24,21 +24,23 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-// Ö´ĞĞ²Ù×÷ DTO
+// Ö´æ‰§è¡Œ DTO
 class NurseOperateDTO2 : public oatpp::DTO
 {
 	DTO_INIT(NurseOperateDTO2, DTO);
 
-	// ¾ÍÕïID£¨±ØÌî£©
+	// encounterID
 	API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("nurse2.field.encounter_id"), true);
-	// ´ıÖ´ĞĞµÄÏîÄ¿ID£¬¶ÔÓ¦ wkf_service_request.id£¨±ØÌî£©
+	// itemid
 	API_DTO_FIELD_REQUIRE(String, itemId, ZH_WORDS_GETTER("nurse2.field.item_id"), true);
-	// Ä¿±êÖ´ĞĞ×´Ì¬£¨Ñ¡Ìî£¬Ä¬ÈÏ COMPLETED£©
+	// çŠ¶æ€
 	API_DTO_FIELD_REQUIRE(String, state, ZH_WORDS_GETTER("nurse2.field.state"), false);
-	// Ö´ĞĞ´ÎÊı£¨Ñ¡Ìî£©
+	// Ö´æ•°é‡
 	API_DTO_FIELD_REQUIRE(Int32, amount, ZH_WORDS_GETTER("nurse2.field.amount"), false);
-	// ÀÖ¹ÛËø°æ±¾ºÅ£¨Ñ¡Ìî£©
+	// ç‰ˆæœ¬
 	API_DTO_FIELD_REQUIRE(Int32, version, ZH_WORDS_GETTER("nurse2.field.version"), false);
+	// å¹‚ç­‰é”®
+	API_DTO_FIELD_REQUIRE(String, idempotencyKey, ZH_WORDS_GETTER("nurse2.field.idempotency_key"), false);
 };
 
 #include OATPP_CODEGEN_END(DTO)

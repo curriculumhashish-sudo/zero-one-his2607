@@ -21,6 +21,7 @@
   remark: 备注
   success: 是否成功
   message: 结果消息
+  idempotency_key: 幂等键
  modify:
   operate1: 执行
   operate2: 取消执行
