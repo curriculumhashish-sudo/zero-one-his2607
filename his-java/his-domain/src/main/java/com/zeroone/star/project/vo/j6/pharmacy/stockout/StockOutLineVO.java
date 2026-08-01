@@ -63,4 +63,7 @@ public class StockOutLineVO {
     @Schema(description = "发生时间", example = "2024-07-19 10:30:00", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String occurrenceTime;
 
+    @Schema(description = "原因", example = "门诊发药", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String reason;
+
 }
