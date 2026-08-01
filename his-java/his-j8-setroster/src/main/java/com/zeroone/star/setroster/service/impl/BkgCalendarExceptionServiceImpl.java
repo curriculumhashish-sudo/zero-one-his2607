@@ -72,9 +72,11 @@ public class BkgCalendarExceptionServiceImpl implements IBkgCalendarExceptionSer
         entity.setExceptionType(dto.getExceptionType());
         entity.setExceptionDate(dto.getExceptionDate());
         entity.setRangeEnd(dto.getRangeEnd());
+        entity.setOrganizationId(dto.getOrganizationId());
+        entity.setOverrideScheduleTemplateId(dto.getOverrideScheduleTemplateId());
         entity.setReason(dto.getReason());
         entity.setAutoApplyOnGenerate(dto.getAutoApplyOnGenerate() != null
-                ? dto.getAutoApplyOnGenerate() == 1 : true);
+                ? dto.getAutoApplyOnGenerate() : true);
         entity.setIsDeleted(false);
         entity.setVersion(0);
         entity.setCreatedAt(LocalDateTime.now());
