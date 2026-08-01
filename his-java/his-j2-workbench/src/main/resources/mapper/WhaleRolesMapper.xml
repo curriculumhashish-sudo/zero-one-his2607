@@ -2,48 +2,64 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zeroone.star.workbench.mapper.WhaleRolesMapper">
 
-    <resultMap id="userWorkbenchMap" type="com.zeroone.star.project.vo.j2.workbench.UserWorkbenchVO">
-        <result column="role_name" property="name"/>
-        <collection property="menuList" ofType="com.zeroone.star.project.vo.j2.workbench.WorkbenchMenuVO">
-            <id column="menu_id" property="id"/>
-            <result column="icon" property="icon"/>
-            <result column="display_name" property="display_name"/>
-            <result column="path" property="path"/>
-            <result column="permission_name" property="permission_name"/>
-            <result column="sort_order" property="sort_order"/>
+    <!-- 工作台菜单结果映射：按角色分组，内嵌菜单列表 -->
+    <resultMap id="workbenchResultMap" type="com.zeroone.star.project.vo.j2.workbench.UserWorkbenchVO">
+        <id property="roleId" column="role_id"/>
+        <result property="roleCode" column="role_code"/>
+        <result property="roleName" column="role_display_name"/>
+        <collection property="menus" ofType="com.zeroone.star.project.vo.j2.workbench.WorkbenchMenuVO">
+            <id property="id" column="menu_id"/>
+            <result property="code" column="menu_code"/>
+            <result property="name" column="menu_name"/>
+            <result property="displayName" column="menu_display_name"/>
+            <result property="icon" column="menu_icon"/>
+            <result property="path" column="menu_path"/>
+            <result property="component" column="menu_component"/>
+            <result property="permissionName" column="menu_permission_name"/>
+            <result property="sortOrder" column="menu_sort_order"/>
         </collection>
     </resultMap>
 
-    <select id="selectUserWorkbench" resultMap="userWorkbenchMap">
+    <!--
+        查询用户工作台日常功能：
+        关联链路：whale_user_roles → whale_roles → whale_permission_grants → whale_menus
+        过滤条件：租户隔离、软删、启用状态、只查 menu 类型卡片
+    -->
+    <select id="selectUserWorkbench" resultMap="workbenchResultMap">
         SELECT
-        r.name          AS role_name,
-        m.id            AS menu_id,
-        m.icon,
-        m.display_name,
-        m.path,
-        m.permission_name,
-        m.sort_order
-        FROM whale_user_roles ur
-        INNER JOIN whale_roles r
-        ON ur.role_id = r.id
-        AND r.is_deleted = 0
+        r.id              AS role_id,
+        r.code            AS role_code,
+        r.display_name    AS role_display_name,
+        m.id              AS menu_id,
+        m.code            AS menu_code,
+        m.name            AS menu_name,
+        m.display_name    AS menu_display_name,
+        m.icon            AS menu_icon,
+        m.path            AS menu_path,
+        m.component       AS menu_component,
+        m.permission_name AS menu_permission_name,
+        m.sort_order      AS menu_sort_order
+        FROM whale_roles r
+        INNER JOIN whale_user_roles ur
+        ON r.id = ur.role_id
         INNER JOIN whale_permission_grants pg
-        ON pg.provider_name = 'R'
-        AND pg.is_deleted = 0
-        AND pg.tenant_id = #{tenantId}
+        ON r.id = pg.provider_key
+        AND pg.provider_name = 'R'
         INNER JOIN whale_menus m
-        ON m.permission_name = pg.permission_name
-        AND m.is_deleted = 0
-        AND m.is_enabled = 1
-        AND m.is_hidden = 0
-        AND m.tenant_id = #{tenantId}
+        ON pg.permission_name = m.permission_name
         WHERE ur.user_id = #{userId}
         AND ur.tenant_id = #{tenantId}
         AND ur.is_deleted = 0
+        AND r.is_deleted = 0
+        AND pg.is_deleted = 0
+        AND m.is_enabled = 1
+        AND m.is_hidden = 0
+        AND m.is_deleted = 0
+        AND (m.tenant_id = #{tenantId} OR m.tenant_id IS NULL)
+        AND m.menu_type = 'menu'
         <if test="keyword != null and keyword != ''">
             AND m.display_name LIKE CONCAT('%', #{keyword}, '%')
         </if>
-        ORDER BY r.name ASC, m.sort_order ASC
+        ORDER BY r.code, m.sort_order
     </select>
-
 </mapper>

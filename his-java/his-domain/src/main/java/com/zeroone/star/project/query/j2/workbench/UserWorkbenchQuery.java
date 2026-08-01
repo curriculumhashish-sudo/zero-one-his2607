@@ -17,14 +17,13 @@ import java.io.Serializable;
 @Data
 @Schema(description = "获取用户工作台菜单查询条件")
 public class UserWorkbenchQuery implements Serializable {
+
     @NotBlank(message = "租户ID不能为空")
     @Schema(description = "租户医院ID", example = "001", requiredMode = Schema.RequiredMode.REQUIRED)
     private String tenantId;
 
-    @NotBlank(message = "用户ID不能为空")
-    @Schema(description = "登录用户ID", example = "U001", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "登录用户ID（不传则从JWT解析）", example = "U001")
     private String userId;
-
 
     @Schema(description = "菜单名称搜索关键字", example = "门诊")
     private String keyword;
