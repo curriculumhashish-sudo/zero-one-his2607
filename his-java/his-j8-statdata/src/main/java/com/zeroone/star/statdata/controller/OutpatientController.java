@@ -7,16 +7,22 @@ import com.zeroone.star.project.vo.j8.statdata.TrendChartVO;
 import com.zeroone.star.statdata.service.OutpatientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+=======
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+>>>>>>> 921112a5edc4a313b4eb2347815452a35cdb0b25
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+
+=======
 @RequestMapping("/outpatient")
 @Tag(name = "报表中心-数据统计-门诊数据")
+>>>>>>> 921112a5edc4a313b4eb2347815452a35cdb0b25
 public class OutpatientController {
 
     @Autowired
