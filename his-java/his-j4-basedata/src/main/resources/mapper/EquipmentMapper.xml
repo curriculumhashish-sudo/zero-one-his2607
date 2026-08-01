@@ -4,7 +4,7 @@
 
 
     <select id="queryEquipmentsById" resultType="com.zeroone.star.project.vo.j4.equipment.EquipmentVO"
-            parameterType="java.lang.Long">
+            parameterType="java.lang.String">
         SELECT ad.id,
                bus_no,
                name,

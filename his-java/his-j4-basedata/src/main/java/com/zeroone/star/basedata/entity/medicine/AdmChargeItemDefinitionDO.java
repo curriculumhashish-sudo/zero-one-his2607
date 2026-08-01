@@ -61,6 +61,7 @@ public class AdmChargeItemDefinitionDO implements Serializable {
     /**
      * 软删标记
      */
+    @TableLogic
     private Boolean isDeleted;
 
     /**
