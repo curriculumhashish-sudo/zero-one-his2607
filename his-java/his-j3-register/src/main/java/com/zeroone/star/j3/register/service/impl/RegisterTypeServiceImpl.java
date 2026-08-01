@@ -15,11 +15,13 @@ import com.zeroone.star.j3.register.service.IRegisterTypeService;
 import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j3.register.RegisterDTO;
+import com.zeroone.star.project.exception.j3.register.RegisterNotFoundException;
 import com.zeroone.star.project.query.j3.register.RegisterQuery;
 import com.zeroone.star.project.vo.j3.register.RegisterNameVO;
 import com.zeroone.star.project.vo.j3.register.RegisterVO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -112,6 +114,7 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean addRegister(RegisterDTO dto) {
         RegisterType entity = dtoToEntity(dto);
         entity.setId(String.valueOf(IdWorker.getId()));
@@ -142,9 +145,26 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
         return save(entity);
     }
 
+    /**
+     * 校验挂号类型是否存在且未删除
+     * @param id 挂号类型ID
+     * @return 存在的记录
+     */
+    private RegisterType requireExisting(Long id) {
+        RegisterType existing = baseMapper.selectById(String.valueOf(id));
+        if (existing == null || Integer.valueOf(1).equals(existing.getIsDeleted())) {
+            throw new RegisterNotFoundException("挂号类型不存在或已删除，id: " + id);
+        }
+        return existing;
+    }
+
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean modifyRegister(Long id, RegisterDTO dto) {
-        if (id == null) return false;
+        if (id == null) throw new IllegalArgumentException("修改参数不能为空：id 缺失");
+        // 先校验记录存在且未删除，避免把已删除数据改活
+        RegisterType existing = requireExisting(id);
+
         RegisterType entity = new RegisterType();
         entity.setId(String.valueOf(id));
         entity.setName(dto.getName());
@@ -152,16 +172,36 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
         entity.setAmount(dto.getAmount());
         entity.setStatus(toDbStatus(dto.getStatus()));
         // 不更新 businessCode/type_code，保持原有 healthcare_service 关联
-        return updateById(entity);
+        boolean updated = updateById(entity);
+        if (!updated) {
+            throw new RegisterNotFoundException("挂号类型不存在或已删除，id: " + id);
+        }
+
+        // 同步更新关联的医疗服务名称，保证收费项目与医疗服务口径一致
+        if (existing.getInstanceId() != null && !existing.getInstanceId().isEmpty()
+                && !dto.getName().equals(existing.getName())) {
+            HealthcareService hs = new HealthcareService();
+            hs.setId(existing.getInstanceId());
+            hs.setName(dto.getName());
+            healthcareServiceMapper.updateById(hs);
+        }
+        return true;
     }
 
     @Override
     public boolean removeRegister(Long id) {
-        if (id == null) return false;
+        if (id == null) throw new IllegalArgumentException("删除参数不能为空：id 缺失");
+        // 先校验存在且未删除，重复删除/删除不存在返回明确失败
+        requireExisting(id);
+
         RegisterType entity = new RegisterType();
         entity.setId(String.valueOf(id));
         entity.setIsDeleted(1);
-        return updateById(entity);
+        boolean deleted = updateById(entity);
+        if (!deleted) {
+            throw new RegisterNotFoundException("挂号类型不存在或已删除，id: " + id);
+        }
+        return true;
     }
 
 
