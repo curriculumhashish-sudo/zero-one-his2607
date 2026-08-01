@@ -2,6 +2,7 @@ package com.zeroone.star.project.j8.setroster;
 
 import com.zeroone.star.project.dto.j8.setroster.CalendarExceptionAddDto;
 import com.zeroone.star.project.dto.j8.setroster.CalendarExceptionUpdateDto;
+import com.zeroone.star.project.query.j8.setroster.CalendarExceptionQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j8.setroster.CalendarExceptionVo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,22 +23,21 @@ import java.util.List;
 public interface CalendarExceptionApi {
 
     /**
-     * 查询所有节日例外列表
-     * <p>
-     * 用于前端表格展示，通常不需要分页或进行简单的内存分页。
+     * 获取节日例外列表（条件筛选）
      *
-     * @return 包含所有节日例外信息的列表
+     * @param query 查询条件（机构、日期范围、类型、关键字）
+     * @return 节日例外列表
      */
-    @Operation(summary = "获取节日例外列表", description = "查询系统中配置的所有节日例外数据")
-    JsonVO<List<CalendarExceptionVo>> queryAll();
+    @Operation(summary = "获取节日例外列表", description = "根据条件筛选系统中配置的节日例外数据")
+    JsonVO<List<CalendarExceptionVo>> queryCalendarExceptions(CalendarExceptionQuery query);
 
     /**
-     * 新增节日例外
+     * 新建节日例外
      *
      * @param data 新增数据传输对象，包含类型、日期范围等信息
      * @return 操作结果消息
      */
-    @Operation(summary = "新增节日例外", description = "创建一个新的节日例外配置")
+    @Operation(summary = "新建节日例外", description = "创建一个新的节日例外配置")
     JsonVO<String> add(CalendarExceptionAddDto data);
 
     /**
