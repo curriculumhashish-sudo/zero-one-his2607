@@ -18,7 +18,7 @@
 */
 #include "stdafx.h"
 #include "TreatmentService.h"
-#include "../../dao/common/EnumDictionaryDAO.h"
+#include "../../dao/common/TreatmentEnumDictionaryDAO.h"
 #include "../../dao/treatment/TreatmentDAO.h"
 #include "id/UuidFacade.h"
 #include "SimpleDateTimeFormat.h"
@@ -402,8 +402,8 @@ TreatmentSelectPageDTO::Wrapper TreatmentService::listSelect(
 		statusCodes.emplace_back(sub.getStatusEnum());
 	}
 	// 状态显示文本统一从 MongoDB 枚举字典获取
-	const auto statusDisplays = EnumDictionaryDAO().findActiveDisplays(
-		EnumDictionaryDAO::PUBLICATION_STATUS_ENUM,
+	const auto statusDisplays = TreatmentEnumDictionaryDAO().findActiveDisplays(
+		TreatmentEnumDictionaryDAO::PUBLICATION_STATUS_ENUM,
 		statusCodes);
 	for (TreatmentSelectBO& sub : result)
 	{
