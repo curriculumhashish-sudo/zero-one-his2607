@@ -3,15 +3,15 @@ spring:
   #https://github.com/alibaba/spring-cloud-alibaba/blob/2025.0.x/spring-cloud-alibaba-examples/nacos-example/readme-zh.md
   cloud:
     nacos:
-      server-addr: ${NACOS_SERVER_ADDR:192.168.20.130:8848}
+      server-addr: ${NACOS_SERVER_ADDR:192.168.6.100:8848}
       username: ${NACOS_USERNAME:nacos}
       password: ${NACOS_PASSWORD:root}
       discovery:
-        namespace: hei-dev
+        namespace: his-dev
         username: ${NACOS_USERNAME:nacos}
         password: ${NACOS_PASSWORD:root}
       config:
-        namespace: hei-dev
+        namespace: his-dev
         username: ${NACOS_USERNAME:nacos}
         password: ${NACOS_PASSWORD:root}
     sentinel:

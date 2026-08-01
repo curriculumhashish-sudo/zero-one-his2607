@@ -1,7 +1,6 @@
 package com.zeroone.star.j3.register.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
@@ -41,6 +40,8 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
     private static final String REG_TYPE_CODE = "1012";
     /** 挂号类型在医疗服务表中的类别标记 */
     private static final String CATEGORY_REGISTRATION = "REGISTRATION";
+    /** 最大分页条数 */
+    private static final long MAX_PAGE_SIZE = 100;
 
     /** DB状态转API状态：ACTIVE→1, 其他→0 */
     private Integer toApiStatus(String dbStatus) {
@@ -87,7 +88,9 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
 
     @Override
     public PageDTO<RegisterVO> queryRegisterList(RegisterQuery query) {
-        Page<RegisterType> page = new Page<>(query.getPageIndex(), query.getPageSize());
+        long pageIndex = query.getPageIndex();
+        long pageSize = Math.min(query.getPageSize(), MAX_PAGE_SIZE);
+        Page<RegisterType> page = new Page<>(pageIndex, pageSize);
         String keyword = query.getKeyword();
 
         // 使用自定义 JOIN 查询
@@ -161,14 +164,15 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
 
     @Override
     public List<RegisterNameVO> queryRegisterNames() {
-        // 只查启用的挂号类型，仅取 id + name 两列（@TableLogic 自动过滤软删）
-        return healthcareServiceMapper.selectList(new LambdaQueryWrapper<HealthcareService>()
-                .select(HealthcareService::getId, HealthcareService::getName)
-                .eq(HealthcareService::getCategoryCode, CATEGORY_REGISTRATION)
-                .eq(HealthcareService::getActiveFlag, 1)
-                .orderByAsc(HealthcareService::getCreatedAt))
+        // 下拉列表主键必须和 query-list 一致，都是 adm_charge_item_definition 的 id
+        return baseMapper.selectList(new LambdaQueryWrapper<RegisterType>()
+                .select(RegisterType::getId, RegisterType::getName)
+                .eq(RegisterType::getInstanceTable, "adm_healthcare_service")
+                .eq(RegisterType::getBusinessCode, REG_TYPE_CODE)
+                .eq(RegisterType::getStatus, "ACTIVE")
+                .orderByAsc(RegisterType::getCreatedAt))
                 .stream()
-                .map(hs -> new RegisterNameVO(Long.valueOf(hs.getId()), hs.getName()))
+                .map(rt -> new RegisterNameVO(Long.valueOf(rt.getId()), rt.getName()))
                 .toList();
     }
 }

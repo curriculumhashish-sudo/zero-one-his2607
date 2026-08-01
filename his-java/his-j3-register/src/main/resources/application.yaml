@@ -11,3 +11,4 @@ spring:
     nacos:
       discovery:
         register-enabled: ${NACOS_REGISTER_ENABLED:true}
+        
