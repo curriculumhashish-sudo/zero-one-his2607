@@ -28,7 +28,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public class DepartmentTreeVO {
     @Schema(description = "主键ID", example = "322663105141149696")
-    private Long id;
+    private String id;
 
     @Schema(description = "业务编号", example = "OR0007.OR0008")
     private String busNo;
@@ -61,7 +61,7 @@ public class DepartmentTreeVO {
     private String wbStr;
 
     @Schema(description = "默认医师ID", example = "308791351298756608")
-    private Long defDoctorId;
+    private String defDoctorId;
 
     @Schema(description = "医保编号(yb_no)", example = "YB-3301-001")
     private String ybNo;
@@ -88,7 +88,7 @@ public class DepartmentTreeVO {
     private Integer displayOrder;
 
     @Schema(description = "父级机构/科室ID", example = "322663105141149696")
-    private Long parentId;
+    private String parentId;
 
     @Schema(description = "组织单元ID", example = "OU20260720001")
     private String ouId;

@@ -40,7 +40,7 @@ public interface DepartmentMapper extends BaseMapper<DepartmentDO> {
      * @return 租户ID
      * @author 胡傲宇
      */
-    Long getTenantIdByUserId(Long currentUserId);
+    String getTenantIdByUserId(String currentUserId);
 
     /**
      * 检查医生是否存在
@@ -49,7 +49,7 @@ public interface DepartmentMapper extends BaseMapper<DepartmentDO> {
      * @return 医生是否存在
      * @author 胡傲宇
      */
-    int isDoctorExist(Long defDoctorId);
+    int isDoctorExist(String defDoctorId);
 
     /**
      * 根据父业务编号查询父单位ID
@@ -58,7 +58,7 @@ public interface DepartmentMapper extends BaseMapper<DepartmentDO> {
      * @return 父单位ID
      * @author 胡傲宇
      */
-    Long selectParentUnitIdByBusNo(String parentBusNO);
+    String selectParentUnitIdByBusNo(String parentBusNO);
 
     /**
      * 增加序列值
@@ -79,8 +79,8 @@ public interface DepartmentMapper extends BaseMapper<DepartmentDO> {
     int isDoctorAvailable(@Param("defDoctorId") String defDoctorId,
                           @Param("tenantId") String tenantId);
 
-    Long selectUnitIdByBusNo(@Param("busNo") String busNo,
-                             @Param("tenantId") String tenantId);
+    String selectUnitIdByBusNo(@Param("busNo") String busNo,
+                               @Param("tenantId") String tenantId);
 
     int countUndeletedChildDepartments(@Param("parentId") String parentId,
                                        @Param("tenantId") String tenantId);
@@ -108,9 +108,9 @@ public interface DepartmentMapper extends BaseMapper<DepartmentDO> {
                          @Param("displayName") String displayName,
                          @Param("sortOrder") Integer sortOrder,
                          @Param("parentIdChanged") boolean parentIdChanged,
-                         @Param("parentId") Long parentId,
+                         @Param("parentId") String parentId,
                          @Param("updatedAt") LocalDateTime updatedAt,
-                         @Param("updatedBy") Long updatedBy,
+                         @Param("updatedBy") String updatedBy,
                          @Param("tenantId") String tenantId);
 
     /**
@@ -129,4 +129,13 @@ public interface DepartmentMapper extends BaseMapper<DepartmentDO> {
      * @author 胡傲宇
      */
     void createSequence(String seqKey);
+
+    /**
+     * 更新序列值
+     *
+     * @param seqKey 序列键
+     * @param value  序列值
+     * @author 胡傲宇
+     */
+    void updateSequenceTo(String seqKey, long value);
 }

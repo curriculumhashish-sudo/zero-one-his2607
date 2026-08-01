@@ -3,17 +3,17 @@ spring:
   #https://github.com/alibaba/spring-cloud-alibaba/blob/2025.0.x/spring-cloud-alibaba-examples/nacos-example/readme-zh.md
   cloud:
     nacos:
-      server-addr: ${NACOS_SERVER_ADDR:192.168.20.130:8848}
+      server-addr: 192.168.16.198
       username: ${NACOS_USERNAME:nacos}
-      password: ${NACOS_PASSWORD:root}
+      password: ${NACOS_PASSWORD:nacos}
       discovery:
-        namespace: hei-dev
+        namespace: his-dev
         username: ${NACOS_USERNAME:nacos}
-        password: ${NACOS_PASSWORD:root}
+        password: ${NACOS_PASSWORD:nacos}
       config:
-        namespace: hei-dev
+        namespace: his-dev
         username: ${NACOS_USERNAME:nacos}
-        password: ${NACOS_PASSWORD:root}
+        password: ${NACOS_PASSWORD:nacos}
     sentinel:
       transport:
         #本机的IP地址，客户端给sentinel监控使用，不配置可能会识别成其他网卡的ip导致错误
