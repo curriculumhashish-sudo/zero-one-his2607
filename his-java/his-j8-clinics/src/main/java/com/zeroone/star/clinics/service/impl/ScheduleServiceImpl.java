@@ -198,22 +198,133 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public String generateFormalRoster(com.zeroone.star.project.dto.j8.clinics.FormalRosterDTO formalRosterDTO) {
-        try {
-            if (formalRosterDTO.getRosterType() == 0) {
-                handleDailyRoster(formalRosterDTO);
-            } else if (formalRosterDTO.getRosterType() == 1) {
-                handleWeeklyRoster(formalRosterDTO);
-            } else {
-                throw new IllegalArgumentException("无效的排班类型: " + formalRosterDTO.getRosterType());
+    public GenerateRosterVO generateFormalRoster(com.zeroone.star.project.dto.j8.clinics.FormalRosterDTO dto) {
+        boolean autoPublish = Boolean.TRUE.equals(dto.getAutoPublish());
+        boolean autoProvision = Boolean.TRUE.equals(dto.getAutoProvision());
+
+        List<String> scheduleIds = new ArrayList<>();
+        int skippedCount = 0;
+
+        if ("day".equalsIgnoreCase(dto.getTemplateKind())) {
+            Map<String, Object> dayTemplate = getDayTemplate(dto.getScheduleTemplateId());
+            if (dayTemplate == null) {
+                throw new IllegalArgumentException("日排班模板不存在: " + dto.getScheduleTemplateId());
             }
-            return "生成正式排班成功";
-        } catch (Exception e) {
-            throw new RuntimeException("生成正式排班失败: " + e.getMessage(), e);
+            for (LocalDate date = dto.getRangeStart(); !date.isAfter(dto.getRangeEnd()); date = date.plusDays(1)) {
+                String scheduleId = createScheduleFromDayTemplate(dto.getOrganizationId(), dayTemplate, date, autoPublish);
+                scheduleIds.add(scheduleId);
+            }
+        } else if ("week".equalsIgnoreCase(dto.getTemplateKind())) {
+            List<Map<String, Object>> weekItems = scheduleMapper.selectWeekItems(dto.getWeekScheduleTemplateId());
+            // 构建 weekday → dayTemplateId 映射
+            Map<Integer, String> weekdayTemplateMap = new HashMap<>();
+            for (Map<String, Object> item : weekItems) {
+                Integer weekday = (Integer) item.get("weekday");
+                String dayTemplateId = (String) item.get("dayScheduleTemplateId");
+                if (weekday != null && dayTemplateId != null) {
+                    weekdayTemplateMap.put(weekday, dayTemplateId);
+                }
+            }
+            // 缓存已查询的日模板
+            Map<String, Map<String, Object>> dayTemplateCache = new HashMap<>();
+
+            for (LocalDate date = dto.getRangeStart(); !date.isAfter(dto.getRangeEnd()); date = date.plusDays(1)) {
+                int weekday = date.getDayOfWeek().getValue(); // 1=Mon .. 7=Sun
+                String dayTemplateId = weekdayTemplateMap.get(weekday);
+                if (dayTemplateId == null) {
+                    skippedCount++;
+                    continue;
+                }
+                Map<String, Object> dayTemplate = dayTemplateCache.computeIfAbsent(
+                        dayTemplateId, this::getDayTemplate);
+                if (dayTemplate == null) {
+                    skippedCount++;
+                    continue;
+                }
+                String scheduleId = createScheduleFromDayTemplate(dto.getOrganizationId(), dayTemplate, date, autoPublish);
+                scheduleIds.add(scheduleId);
+            }
+        } else {
+            throw new IllegalArgumentException("不支持的模板类型: " + dto.getTemplateKind());
         }
+
+        int provisionedSlotCount = 0;
+        if (autoProvision) {
+            for (String scheduleId : scheduleIds) {
+                provisionedSlotCount += provisionSlots(scheduleId);
+            }
+        }
+
+        GenerateRosterVO result = new GenerateRosterVO();
+        result.setScheduleIds(scheduleIds);
+        result.setGeneratedCount(scheduleIds.size());
+        result.setSkippedCount(skippedCount);
+        result.setProvisionedSlotCount(provisionedSlotCount);
+        return result;
+    }
+
+    private String createScheduleFromDayTemplate(String organizationId, Map<String, Object> dayTemplate,
+                                                  LocalDate date, boolean autoPublish) {
+        String scheduleId = IdUtil.fastSimpleUUID();
+        Schedule schedule = new Schedule();
+        schedule.setId(scheduleId);
+        schedule.setOrganizationId(organizationId);
+        schedule.setName((String) dayTemplate.get("templateName"));
+        schedule.setPlanningHorizonStart(date.atStartOfDay());
+        schedule.setPlanningHorizonEnd(date.atTime(23, 59, 59));
+        schedule.setHealthcareServiceId((String) dayTemplate.get("healthcareServiceId"));
+        schedule.setSlotProvisionTemplateId((String) dayTemplate.get("slotProvisionTemplateId"));
+
+        if (autoPublish) {
+            schedule.setStatusEnum("FORMAL");
+            schedule.setActiveFlag(true);
+        } else {
+            schedule.setStatusEnum("DRAFT");
+            schedule.setActiveFlag(false);
+        }
+        schedule.setVersion(0);
+        scheduleMapper.insertSchedule(schedule);
+
+        // 插入模板中的医师作为参与者
+        String practitionerId = (String) dayTemplate.get("practitionerId");
+        if (practitionerId != null) {
+            ScheduleActor actor = new ScheduleActor();
+            actor.setId(IdUtil.fastSimpleUUID());
+            actor.setScheduleId(scheduleId);
+            actor.setActorType(1); // 医师类型
+            actor.setActorId(practitionerId);
+            actor.setSortNo(0);
+            actor.setVersion(0);
+            scheduleMapper.insertScheduleActor(actor);
+        }
+
+        // 插入模板中的地点作为参与者
+        String locationId = (String) dayTemplate.get("locationId");
+        if (locationId != null) {
+            ScheduleActor actor = new ScheduleActor();
+            actor.setId(IdUtil.fastSimpleUUID());
+            actor.setScheduleId(scheduleId);
+            actor.setActorType(2); // 地点类型
+            actor.setActorId(locationId);
+            actor.setSortNo(1);
+            actor.setVersion(0);
+            scheduleMapper.insertScheduleActor(actor);
+        }
+
+        return scheduleId;
+    }
+
+    private int provisionSlots(String scheduleId) {
+        // 放号逻辑后续对接 bkg_slot_provision_template 实现
+        return 0;
     }
 
     // ---- private helpers ----
+
+    private Map<String, Object> getDayTemplate(String id) {
+        List<Map<String, Object>> list = scheduleMapper.selectDayTemplate(id);
+        return list != null && !list.isEmpty() ? list.get(0) : null;
+    }
 
     private YearMonth parseYearMonth(String ym) {
         if (ym != null && !ym.isEmpty()) {
@@ -256,53 +367,5 @@ public class ScheduleServiceImpl implements ScheduleService {
         vo.setActorId(a.getActorId() != null ? a.getActorId() : null);
         vo.setSortNo(a.getSortNo());
         return vo;
-    }
-
-    private void handleDailyRoster(com.zeroone.star.project.dto.j8.clinics.FormalRosterDTO formalRosterDTO) {
-        Schedule schedule = new Schedule();
-        schedule.setName(formalRosterDTO.getRosterName());
-        schedule.setPlanningHorizonStart(formalRosterDTO.getStartTime());
-        schedule.setPlanningHorizonEnd(formalRosterDTO.getEndTime());
-        if (formalRosterDTO.getIsPublish() != null && formalRosterDTO.getIsPublish() == 1) {
-            schedule.setStatusEnum("FORMAL");
-            schedule.setActiveFlag(true);
-        } else {
-            schedule.setStatusEnum("DRAFT");
-            schedule.setActiveFlag(false);
-        }
-        scheduleMapper.insertSchedule(schedule);
-        if (formalRosterDTO.getIsSlotsRelease() != null && formalRosterDTO.getIsSlotsRelease() == 1) {
-            releaseSlots(schedule.getId());
-        }
-    }
-
-    private void handleWeeklyRoster(com.zeroone.star.project.dto.j8.clinics.FormalRosterDTO formalRosterDTO) {
-        java.time.LocalDate startDate = formalRosterDTO.getStartTime().toLocalDate();
-        java.time.LocalDate endDate = formalRosterDTO.getEndTime().toLocalDate();
-        long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
-        for (long i = 0; i <= daysBetween; i++) {
-            java.time.LocalDate currentDate = startDate.plusDays(i);
-            Schedule schedule = new Schedule();
-            schedule.setName(formalRosterDTO.getRosterName() + "-" + currentDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-            java.time.LocalDateTime scheduleStart = java.time.LocalDateTime.of(currentDate, formalRosterDTO.getStartTime().toLocalTime());
-            java.time.LocalDateTime scheduleEnd = java.time.LocalDateTime.of(currentDate, formalRosterDTO.getEndTime().toLocalTime());
-            schedule.setPlanningHorizonStart(scheduleStart);
-            schedule.setPlanningHorizonEnd(scheduleEnd);
-            if (formalRosterDTO.getIsPublish() != null && formalRosterDTO.getIsPublish() == 1) {
-                schedule.setStatusEnum("FORMAL");
-                schedule.setActiveFlag(true);
-            } else {
-                schedule.setStatusEnum("DRAFT");
-                schedule.setActiveFlag(false);
-            }
-            scheduleMapper.insertSchedule(schedule);
-            if (formalRosterDTO.getIsSlotsRelease() != null && formalRosterDTO.getIsSlotsRelease() == 1) {
-                releaseSlots(schedule.getId());
-            }
-        }
-    }
-
-    private void releaseSlots(String scheduleId) {
-        System.out.println("对日程ID " + scheduleId + " 进行放号处理");
     }
 }

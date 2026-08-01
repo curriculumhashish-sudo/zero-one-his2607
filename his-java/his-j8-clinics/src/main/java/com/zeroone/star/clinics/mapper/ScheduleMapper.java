@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface ScheduleMapper extends BaseMapper<Schedule> {
@@ -56,4 +57,14 @@ public interface ScheduleMapper extends BaseMapper<Schedule> {
      * 新增日程参与者
      */
     void insertScheduleActor(ScheduleActor actor);
+
+    /**
+     * 查询日排班模板
+     */
+    List<Map<String, Object>> selectDayTemplate(@Param("id") String id);
+
+    /**
+     * 查询周排班模板的子项（星期几→日模板映射）
+     */
+    List<Map<String, Object>> selectWeekItems(@Param("weekTemplateId") String weekTemplateId);
 }

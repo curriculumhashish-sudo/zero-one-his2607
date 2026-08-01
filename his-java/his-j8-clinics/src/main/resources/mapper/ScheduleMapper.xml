@@ -98,6 +98,36 @@
         SELECT name FROM adm_healthcare_service WHERE id = #{id}
     </select>
 
+    <!-- 查询日排班模板 -->
+    <select id="selectDayTemplate" resultType="map">
+        SELECT
+            id,
+            organization_id AS organizationId,
+            template_code AS templateCode,
+            template_name AS templateName,
+            practitioner_id AS practitionerId,
+            location_id AS locationId,
+            healthcare_service_id AS healthcareServiceId,
+            slot_provision_template_id AS slotProvisionTemplateId,
+            effective_start AS effectiveStart,
+            effective_end AS effectiveEnd
+        FROM bkg_schedule_template
+        WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <!-- 查询周排班模板子项 -->
+    <select id="selectWeekItems" resultType="map">
+        SELECT
+            id,
+            week_schedule_template_id AS weekScheduleTemplateId,
+            weekday,
+            day_schedule_template_id AS dayScheduleTemplateId,
+            sort_no AS sortNo
+        FROM bkg_week_schedule_template_item
+        WHERE week_schedule_template_id = #{weekTemplateId} AND is_deleted = 0 AND enabled = 1
+        ORDER BY weekday
+    </select>
+
     <!--    <select id="selectPage" resultType="com.zeroone.star.clinics.entity.Schedule">-->
 <!--        select * from wkf_schedule-->
 <!--        <where>-->

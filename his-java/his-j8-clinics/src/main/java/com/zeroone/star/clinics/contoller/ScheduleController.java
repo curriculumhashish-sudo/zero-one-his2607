@@ -6,6 +6,7 @@ import com.zeroone.star.project.dto.j8.clinics.ScheduleAddDTO;
 import com.zeroone.star.project.j8.clinics.ClinicsApis;
 import com.zeroone.star.project.query.j8.clinics.ScheduleListQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j8.clinics.GenerateRosterVO;
 import com.zeroone.star.project.vo.j8.clinics.ScheduleCreateVO;
 import com.zeroone.star.project.vo.j8.clinics.ScheduleItemVO;
 import com.zeroone.star.project.vo.j8.clinics.ScheduleListVO;
@@ -48,8 +49,8 @@ public class ScheduleController implements ClinicsApis {
     @Operation(summary = "生成正式排班")
     @Override
     @PostMapping("/generate-formal-roster")
-    public JsonVO<String> generateFormalRoster(@RequestBody FormalRosterDTO formalRosterDTO) {
-        String result = scheduleService.generateFormalRoster(formalRosterDTO);
+    public JsonVO<GenerateRosterVO> generateFormalRoster(@RequestBody FormalRosterDTO formalRosterDTO) {
+        GenerateRosterVO result = scheduleService.generateFormalRoster(formalRosterDTO);
         return JsonVO.success(result);
     }
 }
