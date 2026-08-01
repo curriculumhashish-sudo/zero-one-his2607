@@ -63,7 +63,7 @@ public interface SlotApis {
      * @param dto 封锁请求（号源ID列表 + 封锁原因）
      * @return 操作结果（通过 code 判断）
      */
-    JsonVO<String> blockSlots(SlotBlockDTO dto);
+    JsonVO<Void> blockSlots(SlotBlockDTO dto);
 
     /**
      * 批量解封号源（将已封锁的号源恢复为可约状态）
@@ -71,7 +71,7 @@ public interface SlotApis {
      * @param dto 解封请求（号源ID列表）
      * @return 操作结果（通过 code 判断）
      */
-    JsonVO<String> unblockSlots(SlotUnblockDTO dto);
+    JsonVO<Void> unblockSlots(SlotUnblockDTO dto);
 
     /**
      * 标记超售（设置号源的超售开关）
@@ -79,5 +79,5 @@ public interface SlotApis {
      * @param dto 超售请求（号源ID + 超售标记）
      * @return 操作结果（通过 code 判断）
      */
-    JsonVO<String> setOverbooked(SlotOverbookDTO dto);
+    JsonVO<Void> setOverbooked(SlotOverbookDTO dto);
 }

@@ -55,21 +55,21 @@ public class SlotCalendarController implements SlotApis {
     @Operation(summary = "批量封锁号源")
     @Override
     @PutMapping("/blockSlots")
-    public JsonVO<String> blockSlots(@Valid @RequestBody SlotBlockDTO dto) {
+    public JsonVO<Void> blockSlots(@Valid @RequestBody SlotBlockDTO dto) {
         return slotCalendarService.blockSlots(dto);
     }
 
     @Operation(summary = "批量解封号源")
     @Override
     @PutMapping("/unblockSlots")
-    public JsonVO<String> unblockSlots(@Valid @RequestBody SlotUnblockDTO dto) {
+    public JsonVO<Void> unblockSlots(@Valid @RequestBody SlotUnblockDTO dto) {
         return slotCalendarService.unblockSlots(dto);
     }
 
     @Operation(summary = "标记超售")
     @Override
     @PutMapping("/setOverbooked")
-    public JsonVO<String> setOverbooked(@Valid @RequestBody SlotOverbookDTO dto) {
+    public JsonVO<Void> setOverbooked(@Valid @RequestBody SlotOverbookDTO dto) {
         return slotCalendarService.setOverbooked(dto);
     }
 }

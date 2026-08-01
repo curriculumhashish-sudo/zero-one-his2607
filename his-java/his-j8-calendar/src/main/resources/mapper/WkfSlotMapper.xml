@@ -63,6 +63,9 @@
         <if test="query.organizationId != null and query.organizationId != ''">
             AND s.organization_id = #{query.organizationId}
         </if>
+        <if test="query.scheduleId != null and query.scheduleId != ''">
+            AND s.schedule_id = #{query.scheduleId}
+        </if>
         <if test="query.date != null">
             AND s.start_time &gt;= #{query.date}
             AND s.start_time &lt;  DATE_ADD(#{query.date}, INTERVAL 1 DAY)
