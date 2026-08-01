@@ -54,6 +54,9 @@ public class WorkbenchServiceImpl extends ServiceImpl<WhaleMenusMapper, WhaleMen
             log.warn("JWT解析失败，降级使用query中的userId", e);
             userId = query.getUserId();
         }
+        if (userId == null || userId.isEmpty()) {
+            userId = query.getUserId();
+        }
 
         String tenantId = query.getTenantId();
         String keyword = query.getKeyword();

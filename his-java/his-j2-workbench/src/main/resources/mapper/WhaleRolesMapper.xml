@@ -27,10 +27,8 @@
         INNER JOIN whale_roles r
         ON ur.role_id = r.id
         AND r.is_deleted = 0
-        AND r.tenant_id = #{tenantId}
         INNER JOIN whale_permission_grants pg
         ON pg.provider_name = 'R'
-        AND pg.provider_key = r.id
         AND pg.is_deleted = 0
         AND pg.tenant_id = #{tenantId}
         INNER JOIN whale_menus m
