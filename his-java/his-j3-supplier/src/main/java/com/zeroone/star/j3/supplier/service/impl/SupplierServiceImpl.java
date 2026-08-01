@@ -8,30 +8,30 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zeroone.star.j3.supplier.utils.MsSupplierMapper;
 import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j3.supplier.SupplierAddDTO;
 import com.zeroone.star.project.dto.j3.supplier.SupplierBatchDTO;
-import com.zeroone.star.project.dto.j3.supplier.SupplierFullDTO;
+import com.zeroone.star.project.dto.j3.supplier.SupplierUpdateDTO;
 import com.zeroone.star.project.query.j3.supplier.SupplierQuery;
 import com.zeroone.star.project.vo.j3.supplier.SupplierDetailVO;
 import com.zeroone.star.project.vo.j3.supplier.SupplierListVO;
 import com.zeroone.star.project.vo.j3.supplier.SupplierNameVO;
 import jakarta.annotation.Resource;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.math.BigInteger;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> implements ISupplierService {
 
-    private static final String ENABLED = "ENABLED";
-    private static final String DISABLED = "DISABLED";
+    private static final String ACTIVE = "ACTIVE";
+    private static final String INACTIVE = "INACTIVE";
 
     @Resource
     private UserHolder userHolder;
@@ -41,13 +41,13 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
     /**
      * 查询供应商名称下拉列表
      * 只展示启用供应商，避免停用数据被选入新增业务单据
-     * @param statusEnum 状态枚举：ENABLED启用 / DISABLED停用
+     * @param statusEnum 状态枚举：ACTIVE / INACTIVE
      * @param keyword 搜索关键词（名称、拼音码、五笔码）
      * @return 供应商名称简易VO列表
      */
     @Override
     public List<SupplierNameVO> querySupplierNames(String statusEnum, String keyword) {
-        String normalizedStatus = normalizeStatus(statusEnum, ENABLED);
+        String normalizedStatus = normalizeStatus(statusEnum, ACTIVE);
         String tenantId = getCurrentTenantId();
         return baseMapper.selectSupplierNames(normalizedStatus, trimToNull(keyword), tenantId);
     }
@@ -91,7 +91,7 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String addSupplier(SupplierFullDTO dto) {
+    public String addSupplier(SupplierAddDTO dto) {
         // 校验必填字段
         if (!StringUtils.hasText(dto.getName())) {
             throw new IllegalArgumentException("供应商名称不能为空");
@@ -123,17 +123,21 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         if (count > 0) {
             throw new IllegalArgumentException("统一信用代码已存在，请检查是否重复录入");
         }
+        // 状态枚举合法性校验：仅支持 ACTIVE / INACTIVE，空值默认 ACTIVE，非法值直接抛出异常
+        dto.setStatusEnum(normalizeStatus(dto.getStatusEnum(), ACTIVE));
+
+        // 类型/机构标识去除首尾空格，防止带空格的脏数据入库
+        //TODO typeEnum，orgId可能需要其他小组的数据进行校验
+        dto.setTypeEnum(trimToNull(dto.getTypeEnum()));
+        dto.setOrgId(trimToNull(dto.getOrgId()));
 
         // DTO → Entity 转换
-        Supplier supplier = msSupplierMapper.SupplierFullDTO2Supplier(dto);
+        Supplier supplier = msSupplierMapper.SupplierAddDTO2Supplier(dto);
         // ID后端自增（基于最大ID +1），在事务中使用悲观锁保证并发安全
-        // 如果BusNo为空则设置默认值
-        if (!StringUtils.hasText(supplier.getBusNo())) {
-            supplier.setBusNo(generateBusNo());
-        }
-        if (!StringUtils.hasText(supplier.getStatusEnum())) {
-            supplier.setStatusEnum(ENABLED);
-        }
+        // 业务编号统一由后端生成，不信任前端传入值，保证编号唯一且递增
+        supplier.setBusNo(generateBusNo());
+        // 状态已在 DTO 层规范化，此处兜底防止转换层引入异常值
+        supplier.setStatusEnum(normalizeStatus(supplier.getStatusEnum(), ACTIVE));
         supplier.setId(generateId());
         // 强制从登录上下文获取租户ID，失败时直接抛出异常，杜绝信任前端传入值
         supplier.setTenantId(getCurrentTenantId());
@@ -165,7 +169,7 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
      * @return 操作结果提示
      */
     @Override
-    public String updateSupplier(String id, SupplierFullDTO dto) {
+    public String updateSupplier(String id, SupplierUpdateDTO dto) {
         if (!StringUtils.hasText(id)) {
             throw new IllegalArgumentException("供应商ID不能为空");
         }
@@ -190,6 +194,10 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         if (!StringUtils.hasText(dto.getOrgId())) {
             throw new IllegalArgumentException("机构标识不能为空");
         }
+        // 状态枚举合法性校验：传入的状态必须是 ACTIVE / INACTIVE，非法值直接抛出异常
+        if (StringUtils.hasText(dto.getStatusEnum())) {
+            normalizeStatus(dto.getStatusEnum(), null);
+        }
         // 如果需要校验信用代码不可修改，单独查询 credit_code 字段
         if (StringUtils.hasText(dto.getCreditCode())) {
             String originalCreditCode = baseMapper.selectCreditCodeById(id.trim(), tenantId);
@@ -199,8 +207,7 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         }
 
         // DTO → Entity
-        Supplier supplier = msSupplierMapper.SupplierFullDTO2Supplier(dto);
-        BeanUtils.copyProperties(dto, supplier);
+        Supplier supplier = msSupplierMapper.SupplierUpdateVO2Supplier(dto);
         supplier.setId(id.trim());
         // 设置更新人/更新时间（从登录用户获取，类似删除处理方式）
         try {
@@ -231,7 +238,7 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
                 .eq(Supplier::getIsDeleted, 0)
                 .count();
         if (count == null || count == 0) {
-            throw new IllegalArgumentException("供应商不存在，请检查ID是否正确");
+            throw new IllegalArgumentException("供应商不存在或已删除，请检查ID是否正确");
         }
 
         String deletedBy = null;
@@ -239,6 +246,7 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
             deletedBy = userHolder.getCurrentUser().getUsername();
         } catch (Exception e) {
             e.printStackTrace();
+            throw new IllegalArgumentException("获取删除者失败，请稍后再试");
         }
 
         this.lambdaUpdate()
@@ -253,6 +261,8 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
 
     /**
      * 批量启/停用供应商
+     * 先校验所选供应商是否有效（存在且未删除），已删除/不存在的ID单独提示，
+     * 避免与"已全部停用"的提示混淆
      * @param batchDTO 批量操作参数（ID列表 + 目标状态）
      * @return 操作结果提示
      */
@@ -264,26 +274,48 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
             throw new IllegalArgumentException("请选择需要操作的供应商");
         }
         // 规范化状态参数
-        String normalizedStatus = normalizeStatus(status, ENABLED);
+        String normalizedStatus = normalizeStatus(status, ACTIVE);
         String tenantId = getCurrentTenantId();
-        // 查询待操作的供应商（同租户下）
-        List<Supplier> suppliers = this.lambdaQuery()
-                .in(Supplier::getId, ids)
+        // 去空格并去重，防止带空格的ID查不到或重复ID影响统计
+        List<String> normalizedIds = ids.stream()
+                .map(String::trim)
+                .filter(StringUtils::hasText)
+                .distinct()
+                .toList();
+        if (normalizedIds.isEmpty()) {
+            throw new IllegalArgumentException("请选择需要操作的供应商");
+        }
+        // 查询这批ID下实际存在的供应商（MyBatis-Plus 自动过滤已软删除记录）
+        List<Supplier> existingSuppliers = this.lambdaQuery()
+                .in(Supplier::getId, normalizedIds)
                 .eq(Supplier::getTenantId, tenantId)
-                .ne(Supplier::getStatusEnum, normalizedStatus)
                 .list();
-        int size = suppliers.size();
+        // 校验无效ID：已删除或不存在的供应商单独报错，避免误提示为"已停用"
+        Set<String> existingIds = existingSuppliers.stream()
+                .map(Supplier::getId)
+                .collect(Collectors.toSet());
+        List<String> invalidIds = normalizedIds.stream()
+                .filter(id -> !existingIds.contains(id))
+                .toList();
+        if (!invalidIds.isEmpty()) {
+            throw new IllegalArgumentException("以下供应商不存在或已删除，无法操作：" + String.join("、", invalidIds));
+        }
+        // 过滤出当前状态与目标状态不同的供应商
+        List<Supplier> toUpdate = existingSuppliers.stream()
+                .filter(s -> !normalizedStatus.equals(s.getStatusEnum()))
+                .toList();
+        int size = toUpdate.size();
         if (size == 0) {
-            return normalizedStatus.equals(ENABLED)?"所选供应商中已全部启用，无需重复操作":"所选供应商中已全部停用，无需重复操作";
+            return normalizedStatus.equals(ACTIVE) ? "所选供应商中已全部启用，无需重复操作" : "所选供应商中已全部停用，无需重复操作";
         }
         // 批量更改状态（同租户下）
         this.lambdaUpdate()
-                .in(Supplier::getId, ids)
+                .in(Supplier::getId, normalizedIds)
                 .eq(Supplier::getTenantId, tenantId)
                 .set(Supplier::getStatusEnum, normalizedStatus)
                 .update();
 
-        String statusText = ENABLED.equals(normalizedStatus) ? "启用" : "停用";
+        String statusText = ACTIVE.equals(normalizedStatus) ? "启用" : "停用";
         return "成功批量" + statusText + " " + size + " 个供应商";
     }
 
@@ -341,7 +373,7 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
      * 校验状态枚举合法性，非法参数直接抛出异常；无入参时使用传入默认值
      * @param statusEnum  原始状态字符串
      * @param defaultValue 为空时使用的默认值
-     * @return 清洗后的合法状态值 ENABLED / DISABLED
+     * @return 清洗后的合法状态值 ACTIVE / INACTIVE
      * @throws IllegalArgumentException 传入非法状态值抛出异常
      */
     private String normalizeStatus(String statusEnum, String defaultValue) {
@@ -349,8 +381,8 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
             return defaultValue;
         }
         String value = statusEnum.trim();
-        if (!ENABLED.equals(value) && !DISABLED.equals(value)) {
-            throw new IllegalArgumentException("statusEnum only supports ENABLED or DISABLED");
+        if (!ACTIVE.equals(value) && !INACTIVE.equals(value)) {
+            throw new IllegalArgumentException("statusEnum only supports ACTIVE or INACTIVE");
         }
         return value;
     }

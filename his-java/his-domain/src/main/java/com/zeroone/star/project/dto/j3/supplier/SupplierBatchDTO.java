@@ -23,6 +23,6 @@ public class SupplierBatchDTO implements Serializable {
     private List<String> ids;
 
     @NotNull(message = "状态不能为空")
-    @Schema(description = "状态枚举值（ENABLED-启用/DISABLED-停用）", example = "ENABLED", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "状态枚举值（ACTIVE-启用/INACTIVE-停用）", example = "ACTIVE", requiredMode = Schema.RequiredMode.REQUIRED)
     private String statusEnum;
 }
