@@ -2,6 +2,7 @@ package com.zeroone.star.setroster.service;
 
 import com.zeroone.star.project.dto.j8.setroster.CalendarExceptionAddDto;
 import com.zeroone.star.project.dto.j8.setroster.CalendarExceptionUpdateDto;
+import com.zeroone.star.project.query.j8.setroster.CalendarExceptionQuery;
 import com.zeroone.star.project.vo.j8.setroster.CalendarExceptionVo;
 
 import java.util.List;
@@ -19,11 +20,12 @@ import java.util.List;
 public interface IBkgCalendarExceptionService {
 
     /**
-     * 查询所有节日例外
+     * 根据条件查询节日例外列表
      *
+     * @param query 查询条件
      * @return 节日例外 VO 列表
      */
-    List<CalendarExceptionVo> queryAll();
+    List<CalendarExceptionVo> queryCalendarExceptions(CalendarExceptionQuery query);
 
     /**
      * 新增节日例外
@@ -42,7 +44,7 @@ public interface IBkgCalendarExceptionService {
     String modify(CalendarExceptionUpdateDto dto);
 
     /**
-     * 逻辑删除节日例外
+     * 物理删除节日例外
      *
      * @param id 主键 ID
      * @return 被删除记录的主键 ID

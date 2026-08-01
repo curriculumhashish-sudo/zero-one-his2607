@@ -18,15 +18,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Schema(description = "节日例外查询对象")
 public class CalendarExceptionQuery extends PageQuery {
 
+    @Schema(description = "机构/科室ID", example = "DEPT001", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String organizationId;
+
     @Schema(description = "起始日期", example = "2026-07-14", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String startDate;
+    private String rangeStart;
 
     @Schema(description = "结束日期", example = "2026-07-16", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String endDate;
+    private String rangeEnd;
 
     @Schema(description = "例外类型(CLOSED/REDUCED/OVERRIDE/EXTRA)", example = "CLOSED", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String exceptionType;
 
-    @Schema(description = "说明/备注(模糊搜索)", example = "国庆", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String reason;
+    @Schema(description = "关键字(模糊搜索原因说明)", example = "国庆", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String keyword;
 }
