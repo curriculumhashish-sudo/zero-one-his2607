@@ -12,7 +12,8 @@ import org.springframework.context.annotation.Configuration;
 import java.time.LocalDateTime;
 
 @Configuration
-@ComponentScan("com.zeroone.star.project.config.mybatis")
+// 扫描 his-common 公共配置（MyBatis-Plus + Redis 序列化等），RedisConfig 提供字符串序列化的 RedisTemplate 供 UserHolder 读取租户上下文
+@ComponentScan({"com.zeroone.star.project.config.mybatis", "com.zeroone.star.project.config.redis"})
 @MapperScan("com.zeroone.star.j3.register.mapper")
 public class MyBatisInit {
     @Resource
@@ -22,13 +23,13 @@ public class MyBatisInit {
         return new MetaObjectHandler() {
             @Override
             public void insertFill(MetaObject metaObject) {
-                this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
-                try { this.strictInsertFill(metaObject, "createBy", String.class, userHolder.getCurrentUser().getUsername()); } catch (Exception e) { System.out.println(e.getMessage()); }
+                this.strictInsertFill(metaObject, "createdAt", LocalDateTime.class, LocalDateTime.now());
+                try { this.strictInsertFill(metaObject, "createdBy", String.class, userHolder.getCurrentUser().getUsername()); } catch (Exception e) { System.out.println(e.getMessage()); }
             }
             @Override
             public void updateFill(MetaObject metaObject) {
-                this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
-                try { this.strictUpdateFill(metaObject, "updateBy", String.class, userHolder.getCurrentUser().getUsername()); } catch (Exception e) { System.out.println(e.getMessage()); }
+                this.strictUpdateFill(metaObject, "updatedAt", LocalDateTime.class, LocalDateTime.now());
+                try { this.strictUpdateFill(metaObject, "updatedBy", String.class, userHolder.getCurrentUser().getUsername()); } catch (Exception e) { System.out.println(e.getMessage()); }
             }
         };
     }

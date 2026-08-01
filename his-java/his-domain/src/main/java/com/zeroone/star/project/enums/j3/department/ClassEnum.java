@@ -19,24 +19,24 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ClassEnum implements BaseEnum {
 
-    CLINIC(1, "CLINIC", "门诊"),
-    INPATIENT(2, "INPATIENT", "住院"),
-    PHARMACY(3, "PHARMACY", "药房"),
-    STORAGE(4, "STORAGE", "库房"),
-    FIN(5, "FIN", "财务"),
-    NS(6, "NS", "护士站"),
-    MANAGER(7, "MANAGER", "管理"),
-    SUPPORT(8, "SUPPORT", "后勤支持"),
-    OTHER(9, "OTHER", "其他"),
-    TECH(10, "TECH", "医技");
+    CLINIC("1", "CLINIC", "门诊"),
+    INPATIENT("2", "INPATIENT", "住院"),
+    PHARMACY("3", "PHARMACY", "药房"),
+    STORAGE("4", "STORAGE", "库房"),
+    FIN("5", "FIN", "财务"),
+    NS("6", "NS", "护士站"),
+    MANAGER("7", "MANAGER", "管理"),
+    SUPPORT("8", "SUPPORT", "后勤支持"),
+    OTHER("9", "OTHER", "其他"),
+    TECH("10", "TECH", "医技");
 
-    private final Integer value;
+    private final String value;
     private final String desc;
     private final String dictText;
 
     @Override
     public int getValue() {
-        return this.value;
+        return Integer.parseInt(this.value);
     }
 
     @Override
@@ -44,7 +44,7 @@ public enum ClassEnum implements BaseEnum {
         return this.desc;
     }
 
-    public static Integer getValueByDesc(String desc) {
+    public static String getValueByDesc(String desc) {
         if (desc == null) {
             return null;
         }
@@ -53,7 +53,7 @@ public enum ClassEnum implements BaseEnum {
                 return e.value;
             }
         }
-        return null;
+        throw new IllegalArgumentException("类别不存在");
     }
 
     public static String getDictTextByDesc(String desc) {
@@ -65,10 +65,10 @@ public enum ClassEnum implements BaseEnum {
                 return e.dictText;
             }
         }
-        return null;
+        throw new IllegalArgumentException("类别不存在");
     }
 
-    public static String getDescByValue(Integer value) {
+    public static String getDescByValue(String value) {
         if (value == null) {
             return null;
         }
@@ -77,6 +77,6 @@ public enum ClassEnum implements BaseEnum {
                 return e.desc;
             }
         }
-        return null;
+        throw new IllegalArgumentException("类别不存在");
     }
 }

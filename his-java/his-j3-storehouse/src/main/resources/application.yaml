@@ -6,6 +6,8 @@ server:
 
 spring:
   application:
-    name: ${sn.j3-database:his-j3-database}
-  config:
-    import: classpath:storehouse-datasource-override.yaml
+    name: ${sn.j3-storehouse:his-j3-storehouse}
+  cloud:
+    nacos:
+      discovery:
+        register-enabled: ${NACOS_REGISTER_ENABLED:true}

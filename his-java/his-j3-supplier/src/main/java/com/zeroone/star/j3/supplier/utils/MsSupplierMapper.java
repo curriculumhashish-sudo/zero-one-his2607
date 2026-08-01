@@ -1,9 +1,8 @@
 package com.zeroone.star.j3.supplier.utils;
 
-import ch.qos.logback.core.model.ComponentModel;
 import com.zeroone.star.j3.supplier.entity.Supplier;
-import com.zeroone.star.project.dto.j3.supplier.SupplierFullDTO;
-import com.zeroone.star.project.vo.j3.supplier.SupplierDetailVO;
+import com.zeroone.star.project.dto.j3.supplier.SupplierAddDTO;
+import com.zeroone.star.project.dto.j3.supplier.SupplierUpdateDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
@@ -21,7 +20,7 @@ public interface MsSupplierMapper {
      * @param supplierDTO
      * @return
      */
-    Supplier SupplierFullDTO2Supplier(SupplierFullDTO supplierDTO);
+    Supplier SupplierAddDTO2Supplier(SupplierAddDTO supplierDTO);
 
 
     /**
@@ -29,5 +28,5 @@ public interface MsSupplierMapper {
      * @param detailVO
      * @return
      */
-    Supplier SupplierDetailVO2Supplier(SupplierDetailVO detailVO);
+    Supplier SupplierUpdateVO2Supplier(SupplierUpdateDTO detailVO);
 }

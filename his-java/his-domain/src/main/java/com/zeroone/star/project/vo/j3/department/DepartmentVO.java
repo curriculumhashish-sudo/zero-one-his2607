@@ -79,7 +79,7 @@ public class DepartmentVO implements Serializable {
     private String caty;
 
     @Schema(description = "显示顺序", example = "1")
-    private Integer displayOrder;
+    private String displayOrder;
 
     @Schema(description = "组织单元ID")
     private String ouId;

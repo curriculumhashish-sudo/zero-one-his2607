@@ -33,6 +33,7 @@
                caty
         FROM zo_his.adm_organization
         WHERE id = #{id}
+          AND tenant_id = #{tenantId}
           AND is_deleted = 0
         LIMIT 1
     </select>
@@ -48,6 +49,10 @@
     <insert id="addSeqKeyFromSequence">
         INSERT INTO zo_his.whale_sequence(seq_key, current_value, updated_at)
         VALUES (#{seqKey}, #{currentValue}, #{updatedAt});
+    </insert>
+    <insert id="createSequence">
+        INSERT INTO zo_his.whale_sequence(seq_key, current_value, updated_at)
+        VALUES (#{seqKey}, 0, NOW());
     </insert>
 
     <update id="updateCurrentValue">
@@ -75,7 +80,7 @@
         WHERE seq_key = #{seqKey};
     </select>
 
-    <select id="getTenantIdByUserId" resultType="java.lang.Long">
+    <select id="getTenantIdByUserId" resultType="java.lang.String">
         SELECT tenant_id
         FROM zo_his.whale_user_tenants
         WHERE user_id = #{currentUserId};
@@ -87,7 +92,7 @@
         WHERE id = #{defDoctorId};
     </select>
 
-    <select id="selectParentUnitIdByBusNo" resultType="java.lang.Long">
+    <select id="selectParentUnitIdByBusNo" resultType="java.lang.String">
         SELECT id
         FROM zo_his.whale_organization_units
         WHERE code = #{parentBusNO};
@@ -109,7 +114,7 @@
         </choose>
     </select>
 
-    <select id="selectUnitIdByBusNo" resultType="java.lang.Long">
+    <select id="selectUnitIdByBusNo" resultType="java.lang.String">
         SELECT id
         FROM zo_his.whale_organization_units
         WHERE code = #{busNo}
@@ -337,7 +342,18 @@
         </choose>
     </update>
 
+    <update id="updateSequenceTo">
+        UPDATE zo_his.whale_sequence
+        SET current_value = #{value}
+        WHERE seq_key = #{seqKey}
+          AND current_value &lt; #{value}
+    </update>
+
     <select id="getCurrentValueAfterIncrement" resultType="java.lang.Long">
         SELECT @new_val
+    </select>
+
+    <select id="isSeqKeyExist" resultType="java.lang.Boolean">
+        SELECT EXISTS (SELECT 1 FROM zo_his.whale_sequence WHERE seq_key = #{seqKey})
     </select>
 </mapper>

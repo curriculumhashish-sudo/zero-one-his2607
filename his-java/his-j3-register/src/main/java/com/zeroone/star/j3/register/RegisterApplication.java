@@ -2,7 +2,6 @@ package com.zeroone.star.j3.register;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
  * <p>
@@ -14,7 +13,6 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * @version 1.0.0
  */
 @SpringBootApplication
-@EnableDiscoveryClient
 public class RegisterApplication {
     public static void main(String[] args) {
         SpringApplication.run(RegisterApplication.class, args);

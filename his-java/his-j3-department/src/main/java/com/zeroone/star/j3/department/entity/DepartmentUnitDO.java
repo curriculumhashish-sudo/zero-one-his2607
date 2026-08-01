@@ -38,7 +38,7 @@ public class DepartmentUnitDO {
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     @TableId(type = IdType.ASSIGN_ID)
-    private Long id;
+    private String id;
 
     @Schema(
             description = "编码",
@@ -59,14 +59,14 @@ public class DepartmentUnitDO {
             example = "322663105157926912",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private Long parentId;
+    private String parentId;
 
     @Schema(
             description = "排序号",
             example = "0",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private Integer sortOrder;
+    private String sortOrder;
 
     @Schema(
             description = "是否启用",
@@ -87,7 +87,7 @@ public class DepartmentUnitDO {
             example = "1",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private Long tenantId;
+    private String tenantId;
 
     @Schema(
             description = "创建时间",
@@ -108,14 +108,14 @@ public class DepartmentUnitDO {
             example = "1",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private Long createdBy;
+    private String createdBy;
 
     @Schema(
             description = "最后更新人ID",
             example = "1",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private Long updatedBy;
+    private String updatedBy;
 
     @Schema(
             description = "软删标记",
@@ -137,5 +137,5 @@ public class DepartmentUnitDO {
             example = "1000000000000002",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private Long deletedBy;
+    private String deletedBy;
 }

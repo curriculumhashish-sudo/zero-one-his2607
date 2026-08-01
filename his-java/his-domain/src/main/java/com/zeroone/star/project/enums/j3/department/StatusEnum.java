@@ -18,16 +18,16 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum StatusEnum implements BaseEnum {
-    ACTIVE(1, "ACTIVE", "已启用"),
-    INACTIVE(2, "INACTIVE", "已停用");
+    ACTIVE("1", "ACTIVE", "已启用"),
+    INACTIVE("0", "INACTIVE", "已停用");
 
-    private final Integer value;
+    private final String value;
     private final String desc;
     private final String dictText;
 
     @Override
     public int getValue() {
-        return this.value;
+        return Integer.parseInt(this.value);
     }
 
     @Override
@@ -35,39 +35,39 @@ public enum StatusEnum implements BaseEnum {
         return this.desc;
     }
 
-    public static Integer getValueByDesc(String desc) {
+    public static String getValueByDesc(String desc) {
         if (desc == null) {
-            return null;
+            throw new IllegalArgumentException("状态不能为空");
         }
         for (StatusEnum e : values()) {
             if (e.desc.equals(desc)) {
                 return e.value;
             }
         }
-        return null;
+        throw new IllegalArgumentException("状态不存在");
     }
 
     public static String getDictTextByDesc(String desc) {
         if (desc == null) {
-            return null;
+            throw new IllegalArgumentException("状态不能为空");
         }
         for (StatusEnum e : values()) {
             if (e.desc.equals(desc)) {
                 return e.dictText;
             }
         }
-        return null;
+        throw new IllegalArgumentException("状态不存在");
     }
 
-    public static String getDescByValue(Integer value) {
+    public static String getDescByValue(String value) {
         if (value == null) {
-            return null;
+            throw new IllegalArgumentException("状态不能为空");
         }
         for (StatusEnum e : values()) {
             if (e.value.equals(value)) {
                 return e.desc;
             }
         }
-        return null;
+        throw new IllegalArgumentException("状态不存在");
     }
 }

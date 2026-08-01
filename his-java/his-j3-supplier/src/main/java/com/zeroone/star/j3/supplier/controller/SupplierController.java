@@ -2,8 +2,10 @@ package com.zeroone.star.j3.supplier.controller;
 
 import com.zeroone.star.j3.supplier.service.ISupplierService;
 import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j3.supplier.SupplierAddDTO;
 import com.zeroone.star.project.dto.j3.supplier.SupplierBatchDTO;
 import com.zeroone.star.project.dto.j3.supplier.SupplierFullDTO;
+import com.zeroone.star.project.dto.j3.supplier.SupplierUpdateDTO;
 import com.zeroone.star.project.j3.supplier.SupplierApis;
 import com.zeroone.star.project.query.j3.supplier.SupplierQuery;
 import com.zeroone.star.project.vo.JsonVO;
@@ -80,13 +82,14 @@ public class SupplierController implements SupplierApis {
         return JsonVO.success(detail);
     }
 
+
     @Override
     @PostMapping("/add")
     @Operation(summary = "新增供应商",
                description = "新增一条供应商记录，包含信用代码、联系方式、资质等信息")
     public JsonVO<String> addSupplier(
             @Parameter(description = "供应商数据", required = true)
-            @Valid  SupplierFullDTO dto) {
+            @Valid @RequestBody SupplierAddDTO dto) {
         try {
             String result = supplierService.addSupplier(dto);
             if (result != null){
@@ -106,7 +109,7 @@ public class SupplierController implements SupplierApis {
             @Parameter(description = "供应商ID", example = "4100000000000000002", required = true)
             @PathVariable String id,
             @Parameter(description = "供应商数据", required = true)
-            @Valid  SupplierFullDTO dto) {
+            @Valid SupplierUpdateDTO dto) {
         try {
             String result = supplierService.updateSupplier(id, dto);
             if(result!=null){

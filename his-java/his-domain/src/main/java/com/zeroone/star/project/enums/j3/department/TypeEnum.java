@@ -18,16 +18,16 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum TypeEnum implements BaseEnum {
-    HOSPITAL(1, "HOSPITAL", "医院"),
-    DEPARTMENT(2, "DEPARTMENT", "科室");
+    HOSPITAL("1", "HOSPITAL", "医院"),
+    DEPARTMENT("2", "DEPARTMENT", "科室");
 
-    private final Integer value;
+    private final String value;
     private final String desc;
     private final String dictText;
 
     @Override
     public int getValue() {
-        return this.value;
+        return Integer.parseInt(this.value);
     }
 
     @Override
@@ -35,7 +35,7 @@ public enum TypeEnum implements BaseEnum {
         return this.desc;
     }
 
-    public static Integer getValueByDesc(String desc) {
+    public static String getValueByDesc(String desc) {
         if (desc == null) {
             return null;
         }
@@ -44,7 +44,7 @@ public enum TypeEnum implements BaseEnum {
                 return e.value;
             }
         }
-        return null;
+        throw new IllegalArgumentException("类型不存在");
     }
 
     public static String getDictTextByDesc(String desc) {
@@ -56,10 +56,10 @@ public enum TypeEnum implements BaseEnum {
                 return e.dictText;
             }
         }
-        return null;
+        throw new IllegalArgumentException("类型不存在");
     }
 
-    public static String getDescByValue(Integer value) {
+    public static String getDescByValue(String value) {
         if (value == null) {
             return null;
         }
@@ -68,6 +68,6 @@ public enum TypeEnum implements BaseEnum {
                 return e.desc;
             }
         }
-        return null;
+        throw new IllegalArgumentException("类型不存在");
     }
 }

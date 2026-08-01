@@ -3,6 +3,7 @@ package com.zeroone.star.project.components.user;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.json.JSONObject;
 import com.zeroone.star.project.components.jwt.JwtComponent;
+import com.zeroone.star.project.constant.RedisConstant;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -23,8 +24,19 @@ import org.yaml.snakeyaml.util.UriEncoder;
  */
 @Component
 public class UserHolder {
+    private static final String LOCAL_TEST_USER_ID = "1";
+    private static final String LOCAL_TEST_TENANT_ID = "1";
+
+    @Value("${spring.application.name:}")
+    private String applicationName;
+
+    @Value("${j3.auth-bypass.enabled:true}")
+    private boolean j3AuthBypassEnabled;
+
     @Resource
     JwtComponent jwtComponent;
+    @Resource
+    ApplicationContext applicationContext;
 
     @Resource
     JdbcTemplate jdbcTemplate;
@@ -36,6 +48,12 @@ public class UserHolder {
      */
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     public UserDTO getCurrentUser() throws Exception {
+        if (isJ3AuthBypassEnabled()) {
+            JSONObject userJsonObject = new JSONObject();
+            fillLocalTestUser(userJsonObject);
+            return buildUserDto(userJsonObject);
+        }
+
         // 从Header中获取用户信息
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = servletRequestAttributes.getRequest();
@@ -66,6 +84,10 @@ public class UserHolder {
 //        userJsonObject.putOnce("authorities", roles);
 
         // FIXME: 如果要扩展用户信息，需要修改这里的代码
+        return buildUserDto(userJsonObject);
+    }
+
+    private UserDTO buildUserDto(JSONObject userJsonObject) {
         return UserDTO.builder()
                 .id(Convert.toStr(userJsonObject.get("id")))
                 .username(userJsonObject.getStr("sub"))
@@ -79,6 +101,10 @@ public class UserHolder {
      * @return 没有获取到返回null
      */
     public String getCurrentToken() {
+        if (isJ3AuthBypassEnabled()) {
+            return null;
+        }
+
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = servletRequestAttributes.getRequest();
         String token = request.getHeader("Authorization");

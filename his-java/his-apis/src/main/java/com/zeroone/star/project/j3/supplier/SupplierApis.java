@@ -1,8 +1,10 @@
 package com.zeroone.star.project.j3.supplier;
 
-import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j3.supplier.SupplierAddDTO;
 import com.zeroone.star.project.dto.j3.supplier.SupplierBatchDTO;
+import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j3.supplier.SupplierFullDTO;
+import com.zeroone.star.project.dto.j3.supplier.SupplierUpdateDTO;
 import com.zeroone.star.project.query.j3.supplier.SupplierQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j3.supplier.SupplierDetailVO;
@@ -40,7 +42,7 @@ public interface SupplierApis {
     @Operation(summary = "新增供应商", description = "新增一条供应商基础档案")
     JsonVO<String> addSupplier(
             @Parameter(description = "供应商完整数据", required = true)
-            SupplierFullDTO dto
+            SupplierAddDTO dto
     );
 
     @Operation(summary = "修改供应商", description = "根据供应商ID修改供应商基础档案")
@@ -48,7 +50,7 @@ public interface SupplierApis {
             @Parameter(description = "供应商主键ID", example = "1234567890123456789", required = true)
             String id,
             @Parameter(description = "供应商完整数据", required = true)
-            SupplierFullDTO dto
+            SupplierUpdateDTO dto
     );
 
     @Operation(summary = "删除供应商", description = "根据供应商ID删除供应商基础档案")
