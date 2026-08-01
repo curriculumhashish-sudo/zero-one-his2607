@@ -38,7 +38,7 @@ public class SlotCalendarServiceImpl extends ServiceImpl<WkfSlotMapper, WkfSlot>
     @Override
     public JsonVO<SlotPageResultDTO> pageSlots(SlotQuery query) {
         // 1. 构建分页对象
-        Page<SlotDTO> page = new Page<>(query.getPageNo(), query.getPageSize());
+        Page<SlotDTO> page = new Page<>(query.getPageIndex(), query.getPageSize());
 
         // 2. 执行分页查询
         Page<SlotDTO> result = baseMapper.selectSlotPage(page, query);
@@ -70,7 +70,7 @@ public class SlotCalendarServiceImpl extends ServiceImpl<WkfSlotMapper, WkfSlot>
         // 5. 组装 SlotPageResultDTO
         SlotPageResultDTO pageResult = new SlotPageResultDTO();
         pageResult.setTotalCount(result.getTotal());
-        pageResult.setPageNo(result.getCurrent());
+        pageResult.setPageIndex(result.getCurrent());
         pageResult.setPageSize(result.getSize());
         pageResult.setPages(result.getPages());
         pageResult.setContent(rows);

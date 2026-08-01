@@ -19,7 +19,7 @@ import java.util.List;
 public class SlotPageResultDTO {
 
     @Schema(description = "当前页码", example = "1")
-    private long pageNo;
+    private long pageIndex;
 
     @Schema(description = "每页显示条数", example = "10")
     private long pageSize;
