@@ -170,7 +170,6 @@ class EquipmentVeiwDO : public AdmDeviceDefinitionDO {
     MYSQL_SYNTHESIZE(double, salePrice, SalePrice);         // 零售价
     MYSQL_SYNTHESIZE(double, limitPrice, LimitPrice);       // 最高零售价
     MYSQL_SYNTHESIZE(std::string, ybType, YbType);      // 医保类别
-    MYSQL_SYNTHESIZE(std::string, typeCode, TypeCode);  // 收费类型
 };
 
 typedef std::shared_ptr<EquipmentVeiwDO> PtrEquipmentVeiwDO;

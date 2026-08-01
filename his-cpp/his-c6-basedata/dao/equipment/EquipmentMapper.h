@@ -91,7 +91,6 @@ public:
 		data->setSalePrice(resultSet->getDouble(57));
 		data->setLimitPrice(resultSet->getDouble(58));
 		data->setYbType(resultSet->getString(59));
-		data->setTypeCode(resultSet->getString(60));
 		return data;
 	}
 };
@@ -178,7 +177,6 @@ public:
 		data.setSalePrice(resultSet->getDouble(57));
 		data.setLimitPrice(resultSet->getDouble(58));
 		data.setYbType(resultSet->getString(59));
-		data.setTypeCode(resultSet->getString(60));
 		return data;
 	}
 };

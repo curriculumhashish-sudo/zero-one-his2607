@@ -45,20 +45,30 @@ uint64_t EquipmentDAO::count(const EquipmentQuery::Wrapper& query)
 	return sqlSession->executeQueryNumerical(sql, params);
 }
 
-const std::string Cols ="t.*,ac.*";
+const std::string Cols = R"(t.id,t.tenant_id,t.created_at,t.updated_at,t.created_by,t.updated_by,
+t.is_deleted,t.deleted_at,t.deleted_by,t.version,t.name,t.bus_no,t.py_str,t.wb_str,t.category_code,t.type_code,
+t.merchandise_name,t.merchandise_py_str,t.merchandise_wb_str,t.purchase_unit_code,t.split_unit_code,t.dose_unit_code,
+t.package_unit_code,t.stock_unit_code,t.total_volume,t.item_min_quantity,t.item_max_quantity,t.dose_unit_ratio,
+t.purchase_unit_ratio,t.stock_unit_ratio,t.package_unit_ratio,t.approval_number,t.manufacturer_id,t.manufacturer_text,
+t.supply_id,t.model_number,t.def_encounter_unit_code,t.def_inhospital_unit_code,t.org_id,t.location_id,t.hvcm_flag,
+t.allergen_flag,t.rx_flag,t.status_enum,t.active_flag,t.description,t.jurisdiction,t.device_version,t.substance_text,
+t.yb_flag,t.yb_no,t.yb_org_no,t.yb_match_flag,t.chrgitm_lv,t.yb_mapping_code,
+ac.purchase_price,ac.sale_price,ac.limit_price,ac.yb_type
+)";
 // ============================================================================
 // 3. 列表分页查询
 // ============================================================================
 std::list<EquipmentVeiwDO> EquipmentDAO::selectWithPage(const EquipmentQuery::Wrapper& query)
 {
 	SqlParams params;
-	std::string sql = "SELECT " + Cols + " FROM adm_device_definition t JOIN adm_charge_item_definition ac ON t.tenant_id=ac.tenant_id"
-		"-- 取出购入价"
+	std::string sql = "SELECT " + Cols + " FROM adm_device_definition t LEFT JOIN ( "
+		"SELECT instance_id,tenant_id,"
 		"MAX(CASE price_type_code WHEN 'PURCHASE' THEN price_value END) AS purchase_price,"
-		"--取出零售价"
 		"MAX(CASE price_type_code WHEN 'SALE' THEN price_value END) AS sale_price,"
-		"--取出最高限价"
-		"MAX(CASE price_type_code WHEN 'LIMIT' THEN price_value END) AS limit_price";
+		"MAX(CASE price_type_code WHEN 'LIMIT' THEN price_value END) AS limit_price,"
+		"yb_type FROM adm_charge_item_definition "
+		"GROUP BY instance_id,tenant_id, yb_type "
+		") ac ON t.id = ac.instance_id AND t.tenant_id = ac.tenant_id ";
 
 	// 拼接条件
 	sql += queryConditionBuilder(query, params);
@@ -89,7 +99,14 @@ std::list<EquipmentVeiwDO> EquipmentDAO::selectWithPage(const EquipmentQuery::Wr
 // ============================================================================
 PtrEquipmentVeiwDO EquipmentDAO::selectById(std::string id)
 {
-	std::string sql = "SELECT "+Cols+" FROM adm_device_definition t JOIN adm_charge_item_definition ac ON t.tenant_id=ac.tenant_id WHERE t.`id` = ? AND t.`is_deleted` = 0";
+	std::string sql = "SELECT " + Cols + " FROM adm_device_definition t LEFT JOIN ( "
+		"SELECT instance_id,tenant_id,"
+		"MAX(CASE price_type_code WHEN 'PURCHASE' THEN price_value END) AS purchase_price,"
+		"MAX(CASE price_type_code WHEN 'SALE' THEN price_value END) AS sale_price,"
+		"MAX(CASE price_type_code WHEN 'LIMIT' THEN price_value END) AS limit_price,"
+		"yb_type FROM adm_charge_item_definition "
+		"GROUP BY instance_id,tenant_id, yb_type "
+		") ac ON t.id = ac.instance_id AND t.tenant_id = ac.tenant_id  WHERE t.`id` = ? AND t.`is_deleted` = 0";
 	return sqlSession->executeQueryOne<std::shared_ptr<EquipmentVeiwDO>>(sql, PtrEquipmentMapper(), "%s", id);
 }
 
