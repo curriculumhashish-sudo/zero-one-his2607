@@ -29,6 +29,9 @@ public class AdmOrganization {
     @Schema(description = "主键ID", example = "322663218269917184", requiredMode = Schema.RequiredMode.REQUIRED)
     private Long id;
 
+    @Schema(description = "租户标识", example = "1")
+    private Long tenantId;
+
     @Schema(description = "机构/科室名称", example = "住院内科", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
 

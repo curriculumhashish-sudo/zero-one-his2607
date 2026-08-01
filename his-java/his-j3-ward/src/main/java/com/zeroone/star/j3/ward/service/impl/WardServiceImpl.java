@@ -4,9 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.zeroone.star.j3.ward.entity.AdmLocation;
 import com.zeroone.star.j3.ward.entity.AdmOrganization;
+import com.zeroone.star.j3.ward.exception.WardBusinessException;
 import com.zeroone.star.j3.ward.mapper.AdmLocationMapper;
 import com.zeroone.star.j3.ward.mapper.AdmOrganizationMapper;
 import com.zeroone.star.j3.ward.service.WardService;
+import com.zeroone.star.project.components.user.UserDTO;
+import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.j3.ward.BedAddDTO;
 import com.zeroone.star.project.dto.j3.ward.BedDTO;
 import com.zeroone.star.project.dto.j3.ward.RoomAddDTO;
@@ -47,12 +50,29 @@ public class WardServiceImpl implements WardService {
     @Resource
     private AdmOrganizationMapper admOrganizationMapper;
 
+    @Resource
+    private UserHolder userHolder;
+
+    private Long getCurrentTenantId() {
+        Long currentUserId = 1L;
+        try {
+            UserDTO currentUser = userHolder.getCurrentUser();
+            if (currentUser != null && currentUser.getId() != null) {
+                currentUserId = Long.valueOf(currentUser.getId());
+            }
+        } catch (Exception e) {
+            log.warn("获取当前用户失败，使用默认用户ID: {}", e.getMessage());
+        }
+        return admOrganizationMapper.getTenantIdByUserId(currentUserId);
+    }
+
     // ==================== 树形结构 ====================
 
     @Override
     public List<WardTreeVO> getWardTree(WardTreeQuery query) {
         LambdaQueryWrapper<AdmLocation> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(AdmLocation::getIsDeleted, false);
+        wrapper.eq(AdmLocation::getTenantId, getCurrentTenantId());
         if (query.getOrgName() != null && !query.getOrgName().isEmpty()) {
             LambdaQueryWrapper<AdmOrganization> orgWrapper = new LambdaQueryWrapper<>();
             orgWrapper.like(AdmOrganization::getName, query.getOrgName());
@@ -103,7 +123,8 @@ public class WardServiceImpl implements WardService {
     public List<OptionVO> getWardList() {
         LambdaQueryWrapper<AdmLocation> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(AdmLocation::getFormEnum, "WARD")
-                .eq(AdmLocation::getIsDeleted, false);
+                .eq(AdmLocation::getIsDeleted, false)
+                .eq(AdmLocation::getTenantId, getCurrentTenantId());
         List<AdmLocation> wards = admLocationMapper.selectList(wrapper);
         return wards.stream()
                 .map(w -> new OptionVO(w.getId(), w.getName()))
@@ -113,21 +134,22 @@ public class WardServiceImpl implements WardService {
     @Override
     @Transactional
     public void addWard(WardAddDTO dto) {
-        Long organizationId = null;
-        if (dto.getDepartmentCode() != null && !dto.getDepartmentCode().isEmpty()) {
-            LambdaQueryWrapper<AdmOrganization> orgWrapper = new LambdaQueryWrapper<>();
-            orgWrapper.eq(AdmOrganization::getBusNo, dto.getDepartmentCode());
-            AdmOrganization org = admOrganizationMapper.selectOne(orgWrapper);
-            if (org != null) {
-                organizationId = org.getId();
-            }
+        if (dto.getDepartmentCode() == null || dto.getDepartmentCode().isEmpty()) {
+            throw new WardBusinessException("关联科室编号不能为空");
+        }
+        LambdaQueryWrapper<AdmOrganization> orgWrapper = new LambdaQueryWrapper<>();
+        orgWrapper.eq(AdmOrganization::getBusNo, dto.getDepartmentCode());
+        AdmOrganization org = admOrganizationMapper.selectOne(orgWrapper);
+        if (org == null) {
+            throw new WardBusinessException("未找到关联科室：" + dto.getDepartmentCode());
         }
         AdmLocation entity = AdmLocation.builder()
                 .name(dto.getWardName())
                 .formEnum("WARD")
                 .statusEnum("ENABLED")
                 .busNo(generateBusNo("WARD"))
-                .organizationId(organizationId)
+                .organizationId(org.getId())
+                .tenantId(org.getTenantId())
                 .modeEnum("INPATIENT")
                 .operationalEnum("OPEN")
                 .build();
@@ -166,7 +188,8 @@ public class WardServiceImpl implements WardService {
         LambdaQueryWrapper<AdmLocation> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(AdmLocation::getFormEnum, "ROOM")
                 .eq(AdmLocation::getParentId, wardId)
-                .eq(AdmLocation::getIsDeleted, false);
+                .eq(AdmLocation::getIsDeleted, false)
+                .eq(AdmLocation::getTenantId, getCurrentTenantId());
         List<AdmLocation> rooms = admLocationMapper.selectList(wrapper);
         return rooms.stream()
                 .map(r -> new OptionVO(r.getId(), r.getName()))
@@ -176,23 +199,24 @@ public class WardServiceImpl implements WardService {
     @Override
     @Transactional
     public void addRoom(RoomAddDTO dto) {
-        Long parentId = null;
-        if (dto.getWardCode() != null && !dto.getWardCode().isEmpty()) {
-            LambdaQueryWrapper<AdmLocation> parentWrapper = new LambdaQueryWrapper<>();
-            parentWrapper.eq(AdmLocation::getBusNo, dto.getWardCode())
-                    .eq(AdmLocation::getFormEnum, "WARD")
-                    .eq(AdmLocation::getIsDeleted, false);
-            AdmLocation parentWard = admLocationMapper.selectOne(parentWrapper);
-            if (parentWard != null) {
-                parentId = parentWard.getId();
-            }
+        if (dto.getWardCode() == null || dto.getWardCode().isEmpty()) {
+            throw new WardBusinessException("所属病区编号不能为空");
+        }
+        LambdaQueryWrapper<AdmLocation> parentWrapper = new LambdaQueryWrapper<>();
+        parentWrapper.eq(AdmLocation::getBusNo, dto.getWardCode())
+                .eq(AdmLocation::getFormEnum, "WARD")
+                .eq(AdmLocation::getIsDeleted, false);
+        AdmLocation parentWard = admLocationMapper.selectOne(parentWrapper);
+        if (parentWard == null) {
+            throw new WardBusinessException("未找到所属病区：" + dto.getWardCode());
         }
         AdmLocation entity = AdmLocation.builder()
                 .name(dto.getRoomName())
                 .formEnum("ROOM")
                 .statusEnum("ENABLED")
                 .busNo(generateBusNo("ROOM"))
-                .parentId(parentId)
+                .parentId(parentWard.getId())
+                .tenantId(parentWard.getTenantId())
                 .build();
         admLocationMapper.insert(entity);
     }
@@ -229,7 +253,8 @@ public class WardServiceImpl implements WardService {
         LambdaQueryWrapper<AdmLocation> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(AdmLocation::getFormEnum, "BED")
                 .eq(AdmLocation::getParentId, roomId)
-                .eq(AdmLocation::getIsDeleted, false);
+                .eq(AdmLocation::getIsDeleted, false)
+                .eq(AdmLocation::getTenantId, getCurrentTenantId());
         List<AdmLocation> beds = admLocationMapper.selectList(wrapper);
         return beds.stream()
                 .map(b -> new BedOptionVO(
@@ -242,23 +267,24 @@ public class WardServiceImpl implements WardService {
     @Override
     @Transactional
     public void addBed(BedAddDTO dto) {
-        Long parentId = null;
-        if (dto.getRoomCode() != null && !dto.getRoomCode().isEmpty()) {
-            LambdaQueryWrapper<AdmLocation> parentWrapper = new LambdaQueryWrapper<>();
-            parentWrapper.eq(AdmLocation::getBusNo, dto.getRoomCode())
-                    .eq(AdmLocation::getFormEnum, "ROOM")
-                    .eq(AdmLocation::getIsDeleted, false);
-            AdmLocation parentRoom = admLocationMapper.selectOne(parentWrapper);
-            if (parentRoom != null) {
-                parentId = parentRoom.getId();
-            }
+        if (dto.getRoomCode() == null || dto.getRoomCode().isEmpty()) {
+            throw new WardBusinessException("所属病房编号不能为空");
+        }
+        LambdaQueryWrapper<AdmLocation> parentWrapper = new LambdaQueryWrapper<>();
+        parentWrapper.eq(AdmLocation::getBusNo, dto.getRoomCode())
+                .eq(AdmLocation::getFormEnum, "ROOM")
+                .eq(AdmLocation::getIsDeleted, false);
+        AdmLocation parentRoom = admLocationMapper.selectOne(parentWrapper);
+        if (parentRoom == null) {
+            throw new WardBusinessException("未找到所属病房：" + dto.getRoomCode());
         }
         AdmLocation entity = AdmLocation.builder()
                 .name(dto.getBedName())
                 .formEnum("BED")
                 .statusEnum("ENABLED")
                 .busNo(generateBusNo("BED"))
-                .parentId(parentId)
+                .parentId(parentRoom.getId())
+                .tenantId(parentRoom.getTenantId())
                 .build();
         admLocationMapper.insert(entity);
     }
@@ -287,8 +313,6 @@ public class WardServiceImpl implements WardService {
         entity.setIsDeleted(true);
         admLocationMapper.updateById(entity);
     }
-
-    // ==================== 私有方法 ====================
 
     private String generateBusNo(String prefix) {
         return prefix + "_" + System.currentTimeMillis();
