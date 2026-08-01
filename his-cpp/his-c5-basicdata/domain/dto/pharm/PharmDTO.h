@@ -3,7 +3,7 @@
  Copyright Zero One Star. All rights reserved.
 
  @Author: Lfff
- @Date: 2026/07/23 10:00:00
+ @Date: 2026/08/01 10:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * PharmDTO - Full pharmacy/warehouse data transfer object (c5-pharm).
+ * PharmDTO - Full pharmacy/warehouse data transfer object (adm_location).
  * Used for list display and detail responses.
  */
 class PharmDTO : public oatpp::DTO
@@ -32,18 +32,22 @@ class PharmDTO : public oatpp::DTO
     DTO_INIT(PharmDTO, DTO);
 
     // Required fields
-    API_DTO_FIELD_REQUIRE(oatpp::UInt64, id, ZH_WORDS_GETTER("pharm.field.id"), true);
+    API_DTO_FIELD_REQUIRE(oatpp::String, id, ZH_WORDS_GETTER("pharm.field.id"), true);
     API_DTO_FIELD_REQUIRE(oatpp::String, name, ZH_WORDS_GETTER("pharm.field.name"), true);
-    API_DTO_FIELD_REQUIRE(oatpp::String, type, ZH_WORDS_GETTER("pharm.field.type"), true);
-    API_DTO_FIELD_REQUIRE(oatpp::Int32, status, ZH_WORDS_GETTER("pharm.field.status"), true);
+    API_DTO_FIELD_REQUIRE(oatpp::String, formEnum, ZH_WORDS_GETTER("pharm.field.formEnum"), true);
+    API_DTO_FIELD_REQUIRE(oatpp::String, statusEnum, ZH_WORDS_GETTER("pharm.field.statusEnum"), true);
 
     // Optional fields
-    API_DTO_FIELD_DEFAULT(oatpp::Int32, sort, ZH_WORDS_GETTER("pharm.field.sort"));
-    API_DTO_FIELD_DEFAULT(oatpp::String, remark, ZH_WORDS_GETTER("pharm.field.remark"));
-    API_DTO_FIELD_DEFAULT(oatpp::String, create_by, ZH_WORDS_GETTER("pharm.field.createBy"));
-    API_DTO_FIELD_DEFAULT(oatpp::String, update_by, ZH_WORDS_GETTER("pharm.field.updateBy"));
-    API_DTO_FIELD_DEFAULT(oatpp::String, create_time, ZH_WORDS_GETTER("pharm.field.createTime"));
-    API_DTO_FIELD_DEFAULT(oatpp::String, update_time, ZH_WORDS_GETTER("pharm.field.updateTime"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, busNo, ZH_WORDS_GETTER("pharm.field.busNo"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, organizationId, ZH_WORDS_GETTER("pharm.field.organizationId"));
+    API_DTO_FIELD_DEFAULT(oatpp::Int32, displayOrder, ZH_WORDS_GETTER("pharm.field.displayOrder"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, pyStr, ZH_WORDS_GETTER("pharm.field.pyStr"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, wbStr, ZH_WORDS_GETTER("pharm.field.wbStr"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, parentId, ZH_WORDS_GETTER("pharm.field.parentId"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, createdBy, ZH_WORDS_GETTER("pharm.field.createBy"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, updatedBy, ZH_WORDS_GETTER("pharm.field.updateBy"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, createdAt, ZH_WORDS_GETTER("pharm.field.createTime"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, updatedAt, ZH_WORDS_GETTER("pharm.field.updateTime"));
 };
 
 /**
@@ -53,7 +57,7 @@ class PharmDTO : public oatpp::DTO
 class PharmNameDTO : public oatpp::DTO
 {
     DTO_INIT(PharmNameDTO, DTO);
-    API_DTO_FIELD_DEFAULT(oatpp::UInt64, id, ZH_WORDS_GETTER("pharm.field.id"));
+    API_DTO_FIELD_DEFAULT(oatpp::String, id, ZH_WORDS_GETTER("pharm.field.id"));
     API_DTO_FIELD_DEFAULT(oatpp::String, name, ZH_WORDS_GETTER("pharm.field.name"));
 };
 

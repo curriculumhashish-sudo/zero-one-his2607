@@ -3,7 +3,7 @@
  Copyright Zero One Star. All rights reserved.
 
  @Author: Lfff
- @Date: 2026/07/23 10:00:00
+ @Date: 2026/08/01 10:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -39,13 +39,13 @@
 /**
  * PharmController - Pharmacy/warehouse management API controller.
  *
- * Consolidated endpoints (6 total):
- *   1. GET    /pharm/name-list    - Pharmacy/warehouse name list (id + name), optional type filter
- *   2. GET    /pharm/list         - Paginated query list with conditions (full data for form fill)
- *   3. POST   /pharm              - Add pharmacy/warehouse
- *   4. PUT    /pharm              - Modify pharmacy/warehouse
- *   5. DELETE /pharm/{id}         - Remove pharmacy/warehouse
- *   6. PUT    /pharm/status       - Toggle pharmacy/warehouse status (enable/disable)
+ * Endpoints (6 total):
+ *   1. GET    /pharm/name-list  - Name list for dropdown (id + name), optional form_enum filter
+ *   2. GET    /pharm/list       - Paginated query list with conditions (full data for form fill)
+ *   3. POST   /pharm            - Add pharmacy/warehouse
+ *   4. PUT    /pharm            - Modify pharmacy/warehouse
+ *   5. DELETE /pharm/{id}       - Soft-delete pharmacy/warehouse
+ *   6. PUT    /pharm/status     - Toggle pharmacy/warehouse status
  */
 class PharmController : public oatpp::web::server::api::ApiController
 {
@@ -57,20 +57,20 @@ public:
     {
     }
 
-    // 1. GET /pharm/name-list — Pharmacy/warehouse name list (id + name, optional type filter)
+    // 1. GET /pharm/name-list — Pharmacy/warehouse name list (id + name, optional form_enum filter)
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("pharm.endpoints.nameList"),
         nameList,
         PharmNameListJsonVO::Wrapper,
         API_TAG,
-        API_DEF_ADD_QUERY_PARAMS(String, "type", ZH_WORDS_GETTER("pharm.field.type"), "", false);
+        API_DEF_ADD_QUERY_PARAMS(String, "formEnum", ZH_WORDS_GETTER("pharm.field.formEnum"), "", false);
     );
     API_HANDLER_ENDPOINT_AUTH(
         API_M_GET,
         "/pharm/name-list",
         nameList,
-        QUERY(String, type),
-        execNameList(type)
+        QUERY(String, formEnum),
+        execNameList(formEnum)
     );
 
     // 2. GET /pharm/list — Paginated query list with conditions
@@ -119,7 +119,7 @@ public:
         execModifyPharm(dto)
     );
 
-    // 5. DELETE /pharm/{id} — Remove pharmacy/warehouse
+    // 5. DELETE /pharm/{id} — Soft-delete pharmacy/warehouse
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("pharm.endpoints.remove"),
         removePharm,
@@ -138,7 +138,7 @@ public:
         execRemovePharm(id)
     );
 
-    // 6. PUT /pharm/status — Toggle enable/disable status
+    // 6. PUT /pharm/status — Toggle pharmacy/warehouse status
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("pharm.endpoints.status"),
         updatePharmStatus,
@@ -150,22 +150,22 @@ public:
         "/pharm/status",
         updatePharmStatus,
         BODY_DTO(PharmModifyDTO::Wrapper, dto),
-        execUpdatePharmStatus(dto->id.getValue(0), dto->status.getValue(0))
+        execUpdatePharmStatus(dto->id.getValue(""), dto->statusEnum.getValue(""))
     );
 
 private:
-    // Pharmacy/warehouse name list
-    PharmNameListJsonVO::Wrapper execNameList(const String& type);
+    // Name list for dropdown
+    PharmNameListJsonVO::Wrapper execNameList(const String& formEnum);
     // Paginated query list
     PharmPageJsonVO::Wrapper execGetPharmList(const PharmQuery::Wrapper& query);
     // Add pharmacy/warehouse
     StringJsonVO::Wrapper execAddPharm(const PharmAddDTO::Wrapper& dto);
     // Modify pharmacy/warehouse
     StringJsonVO::Wrapper execModifyPharm(const PharmModifyDTO::Wrapper& dto);
-    // Remove pharmacy/warehouse
+    // Soft-delete pharmacy/warehouse
     StringJsonVO::Wrapper execRemovePharm(const String& id);
     // Toggle status
-    StringJsonVO::Wrapper execUpdatePharmStatus(uint64_t id, int status);
+    StringJsonVO::Wrapper execUpdatePharmStatus(const std::string& id, const std::string& statusEnum);
 };
 
 #undef API_TAG

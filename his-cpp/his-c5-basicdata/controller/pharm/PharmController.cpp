@@ -2,7 +2,7 @@
  Copyright Zero One Star. All rights reserved.
 
  @Author: Lfff
- @Date: 2026/07/23 10:00:00
+ @Date: 2026/08/01 10:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -20,14 +20,14 @@
 #include "PharmController.h"
 #include "../../service/pharm/PharmService.h"
 
-// 1. GET /pharm/name-list — Pharmacy/warehouse name list (id + name, optional type filter)
-PharmNameListJsonVO::Wrapper PharmController::execNameList(const String& type)
+// 1. GET /pharm/name-list — Pharmacy/warehouse name list (id + name, optional form_enum filter)
+PharmNameListJsonVO::Wrapper PharmController::execNameList(const String& formEnum)
 {
     PharmService service;
-    return service.nameList(type);
+    return service.nameList(formEnum);
 }
 
-// 2. GET /pharm/list — Paginated query list
+// 2. GET /pharm/list — Paginated query list with conditions
 PharmPageJsonVO::Wrapper PharmController::execGetPharmList(const PharmQuery::Wrapper& query)
 {
     PharmService service;
@@ -55,17 +55,17 @@ StringJsonVO::Wrapper PharmController::execModifyPharm(const PharmModifyDTO::Wra
     return service.modify(dto);
 }
 
-// 5. DELETE /pharm/{id} — Remove pharmacy/warehouse
+// 5. DELETE /pharm/{id} — Soft-delete pharmacy/warehouse
 StringJsonVO::Wrapper PharmController::execRemovePharm(const String& id)
 {
-    uint64_t idNum = std::stoull(id->c_str());
+    std::string idStr = id ? id.getValue("") : "";
     PharmService service;
-    return service.remove(idNum);
+    return service.remove(idStr);
 }
 
-// 6. PUT /pharm/status — Toggle enable/disable status
-StringJsonVO::Wrapper PharmController::execUpdatePharmStatus(uint64_t id, int status)
+// 6. PUT /pharm/status — Toggle pharmacy/warehouse status
+StringJsonVO::Wrapper PharmController::execUpdatePharmStatus(const std::string& id, const std::string& statusEnum)
 {
     PharmService service;
-    return service.updateStatus(id, status);
+    return service.updateStatus(id, statusEnum);
 }

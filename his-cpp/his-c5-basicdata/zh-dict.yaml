@@ -200,31 +200,28 @@ pharm:
     status: 切换库房药房启停状态
   field:
     id: 编号
-    name: 药房名称
-    type: 药房类型
-    typeEnum: 库房药房类型
-    classRoom: 上级科室
-    sort: 排序号
-    remark: 备注
-    status: 状态
-    statusEnum: 状态枚举(NORMAL/DISABLED)
+    name: 库房药房名称
+    formEnum: 类型(PHARMACY药房/WAREHOUSE库房)
+    statusEnum: 状态(ACTIVE启用/INACTIVE停用)
+    busNo: 业务编号
+    organizationId: 所属机构
+    displayOrder: 显示顺序
     pyStr: 拼音码
     wbStr: 五笔码
-    displayOrder: 显示顺序
-    note: 备注
-    keyword: 搜索关键词(名称/拼音/五笔)
+    parentId: 上级库房药房
     createBy: 创建人
     updateBy: 修改人
     createTime: 创建时间
     updateTime: 修改时间
   queries:
-    keyword: 搜索关键词
-    type: 按类型筛选
-    status: 按状态筛选
+    keyword: 搜索关键词(模糊匹配名称)
+    formEnum: 按类型筛选(PHARMACY/WAREHOUSE)
+    statusEnum: 按状态筛选(ACTIVE/INACTIVE)
   result:
     empty: 暂无数据
     add_success: 新增成功
     add_fail: 新增失败
+    name_duplicate: 库房药房名称已存在
     modify_success: 修改成功
     modify_fail: 修改失败
     remove_success: 删除成功
