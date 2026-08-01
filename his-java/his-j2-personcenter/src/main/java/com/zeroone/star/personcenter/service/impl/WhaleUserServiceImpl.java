@@ -7,6 +7,7 @@ import com.zeroone.star.personcenter.entity.WhaleUser;
 import com.zeroone.star.personcenter.mapper.WhaleUserMapper;
 import com.zeroone.star.personcenter.service.IWhaleUserService;
 import com.zeroone.star.project.dto.j2.personcenter.userdto.ChangePasswordDTO;
+
 import com.zeroone.star.project.dto.j2.personcenter.userdto.UpdateUserDTO;
 import com.zeroone.star.project.dto.j2.personcenter.userdto.UserInfoDTO;
 import org.springframework.stereotype.Service;
@@ -47,12 +48,12 @@ public class WhaleUserServiceImpl extends ServiceImpl<WhaleUserMapper, WhaleUser
 
     @Override
     public UserInfoDTO updateUser(UpdateUserDTO updateDTO) {
-        if (updateDTO.getUserId() == null || updateDTO.getUserId().isBlank()) {
+        if (updateDTO.getId() == null || updateDTO.getId().isBlank()) {
             throw new IllegalArgumentException("用户ID不能为空");
         }
         WhaleUser user = new WhaleUser();
         BeanUtil.copyProperties(updateDTO, user);
-        user.setUserId(updateDTO.getUserId());
+        user.setUserId(updateDTO.getId());
         user.setUpdatedAt(LocalDateTime.now());
         baseMapper.updateById(user);
         return getUserInfo(user.getUserId());
@@ -65,10 +66,10 @@ public class WhaleUserServiceImpl extends ServiceImpl<WhaleUserMapper, WhaleUser
             throw new IllegalArgumentException("两次输入的密码不一致");
         }
 
-        if (dto.getUserId() == null || dto.getUserId().isBlank()) {
+        if (dto.getId() == null || dto.getId().isBlank()) {
             throw new IllegalArgumentException("用户ID不能为空");
         }
-        String userId = dto.getUserId();
+        String userId = dto.getId();
         WhaleUser user = baseMapper.selectById(userId);
         if (user == null) {
             throw new RuntimeException("用户不存在");

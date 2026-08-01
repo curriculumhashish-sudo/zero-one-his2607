@@ -1,8 +1,10 @@
 package com.zeroone.star.personcenter.controller;
 
-import com.zeroone.star.project.dto.j2.personcenter.UserDTO.ChangePasswordDTO;
-import com.zeroone.star.project.dto.j2.personcenter.UserDTO.UpdateUserDTO;
-import com.zeroone.star.project.dto.j2.personcenter.UserDTO.UserInfoDTO;
+
+import com.zeroone.star.project.dto.j2.personcenter.userdto.ChangePasswordDTO;
+import com.zeroone.star.project.dto.j2.personcenter.userdto.UpdateUserDTO;
+
+import com.zeroone.star.project.dto.j2.personcenter.userdto.UserInfoDTO;
 import com.zeroone.star.project.j2.personcenter.UserApis;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.personcenter.service.IWhaleUserService;
@@ -11,7 +13,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
-
 /**
  * <p>
  * 描述：用户个人中心控制器
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
  * @author 阿伟学长
  * @version 1.0.0
  */
+
 @RestController
 @RequestMapping("/user")
 @Tag(name = "用户个人中心")
