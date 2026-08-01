@@ -71,6 +71,7 @@ public class WhaleTenantsServiceImpl extends ServiceImpl<WhaleTenantsMapper, Wha
         LambdaQueryWrapper<WhaleTenants> wrapper = new LambdaQueryWrapper<>();
         wrapper.select(WhaleTenants::getId, WhaleTenants::getName, WhaleTenants::getCode)
                 .eq(WhaleTenants::getIsDeleted, false)
+                .groupBy(WhaleTenants::getId, WhaleTenants::getName, WhaleTenants::getCode)
                 .orderByAsc(WhaleTenants::getCode);
         Page<WhaleTenants> result = baseMapper.selectPage(page, wrapper);
         PageDTO<RentNameDTO> pageDTO = PageDTO.create(result, workbenchMapper::toRentNameDTO);
@@ -117,6 +118,8 @@ public class WhaleTenantsServiceImpl extends ServiceImpl<WhaleTenantsMapper, Wha
                         .like(WhaleTenants::getName, rentQuery.getRentKeywords())
                         .or()
                         .like(WhaleTenants::getDescription, rentQuery.getRentKeywords()))
+                .groupBy(WhaleTenants::getId, WhaleTenants::getName, WhaleTenants::getCode,
+                        WhaleTenants::getDescription, WhaleTenants::getIsActive)
                 .orderByAsc(WhaleTenants::getCode);
         Page<WhaleTenants> result = baseMapper.selectPage(page, wrapper);
         PageDTO<RentDTO2> pageDTO = PageDTO.create(result, workbenchMapper::toRentDTO2);
