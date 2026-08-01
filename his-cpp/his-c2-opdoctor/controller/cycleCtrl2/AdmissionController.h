@@ -24,7 +24,7 @@
 #include"domain/query/cycleCtrl2-admission/AdmissionQuery.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
-#define API_TAG2 ZH_WORDS_GETTER("title.tags.text")
+#define API_TAG2 ZH_WORDS_GETTER("cyclectrl2.test.tag")
 
 class Admission2Controller : public oatpp::web::server::api::ApiController
 {
@@ -34,7 +34,7 @@ public://定义接口
 	// 3.1.1 定义办理住院接口描述
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("cyclectrl2.admission.apply"), apply2Admission, Admission2Query, StringJsonVO::Wrapper, API_TAG2);
 	// 3.1.2 定义办理住院接口处理
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_POST, "/admission/apply", apply2Admission, Admission2Query, executeApplyAdmission(query));
+	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_POST, "/cyclectrl/admission_apply", apply2Admission, Admission2Query, executeApplyAdmission(query));
 private://定义接口执行函数
 	//3.3定义办理住院接口执行函数
 	StringJsonVO::Wrapper executeApplyAdmission(const Admission2Query::Wrapper& query);

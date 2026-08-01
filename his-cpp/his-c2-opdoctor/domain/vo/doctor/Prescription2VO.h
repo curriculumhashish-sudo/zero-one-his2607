@@ -9,7 +9,7 @@
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-	  https://www.apache.org/licenses/LICENSE-2.0
+      https://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,14 +20,18 @@
 #ifndef _PRESCRIPTIONVO_H_
 #define _PRESCRIPTIONVO_H_
 
-#include "../../dto/doctor/Prescription2DetailDTO.h"
+#include "domain/vo/BaseJsonVO.h"
+#include "domain/dto/doctor/Prescription2DetailDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class Prescription2DetailJsonVO : public JsonVO<Prescription2DetailDTO::Wrapper>
+/**
+ * 处方单列表响应VO
+ */
+class Prescription2DetailJsonVO : public ListJsonVO<Prescription2DetailDTO::Wrapper>
 {
-	DTO_INIT(Prescription2DetailJsonVO, JsonVO<Prescription2DetailDTO::Wrapper>);
+	DTO_INIT(Prescription2DetailJsonVO, ListJsonVO<Prescription2DetailDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)
-#endif // !_USERQUERY_H_
+#endif // !_PRESCRIPTIONVO_H_

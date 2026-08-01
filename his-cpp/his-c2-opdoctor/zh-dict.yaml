@@ -73,6 +73,8 @@ leave:
   summary: "暂离"
 
 cyclectrl2:
+ test:
+  tag: 周期循环
  refund:
   tag: "退费"
   apply: "提交退费申请"
@@ -117,7 +119,9 @@ cyclectrl2:
   apply: "办理住院"
   admissionDepartment: "入院科室"
   admissionWard: "入院病区"
+  diagnosisType: "诊断类型"
   admissionDiagnosis: "入院主诊断"
+  diagnosisSyndrome: "中医证候"
   diagnosisDesc: "诊断描述"
   admissionType: "入院类型"
   admissionMethod: "入院方式"
