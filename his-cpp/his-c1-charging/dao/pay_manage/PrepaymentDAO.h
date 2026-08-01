@@ -25,6 +25,14 @@
 #include "domain/do/pay_manage/PrepaymentDO.h"
 #include "domain/query/pay_manage/PrepaymentQuery.h"
 
+// Account snapshot for prepayment transaction
+struct AccountSnapshot
+{
+    std::string accountId;      // account_id from latest record
+    std::string predecessorId;  // id of latest record (for chain linking)
+    double balance;             // latest after_balance (as before_balance for new tx)
+};
+
 class PrepaymentDAO : public BaseDAO
 {
 private:
@@ -42,11 +50,11 @@ public:
     // Insert a new prepayment record (returns auto-generated PK)
     uint64_t addPrepayment(const PrepaymentDO& prepayment);
 
-    // Get the latest after_balance for an account (used as before_balance for new tx)
-    double getLatestBalance(const std::string& accountCode);
+    // Insert a prepayment record with explicit PK (UUID)
+    uint64_t insertPrepayment(const PrepaymentDO& prepayment);
 
-    // Get the account_id by account_code (inpatientNo)
-    std::string getAccountIdByCode(const std::string& accountCode);
+    // Get account snapshot (accountId, balance, predecessorId) in one query
+    AccountSnapshot getAccountSnapshot(const std::string& accountCode);
 };
 
 #endif // !_PREPAYMENT_DAO_

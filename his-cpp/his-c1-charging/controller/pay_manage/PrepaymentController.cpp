@@ -26,10 +26,25 @@ PrepaymentAddVO::Wrapper PrepaymentController::execAddPrepayment(const Prepaymen
 {
     OATPP_LOGD("Prepayment", "execAddPrepayment called");
     auto vo = PrepaymentAddVO::createShared();
-    PrepaymentService service;
-    auto result = service.addPrepayment(dto);
-    vo->success(result);
-    OATPP_LOGD("Prepayment", "execAddPrepayment done");
+    try
+    {
+        PrepaymentService service;
+        auto result = service.addPrepayment(dto);
+        vo->success(result);
+        OATPP_LOGD("Prepayment", "execAddPrepayment done");
+    }
+    catch (const std::exception& e)
+    {
+        OATPP_LOGE("Prepayment", "execAddPrepayment error: %s", e.what());
+        auto empty = PrepaymentAddResponseDTO::createShared();
+        vo->fail(empty);
+    }
+    catch (...)
+    {
+        OATPP_LOGE("Prepayment", "execAddPrepayment unknown error");
+        auto empty = PrepaymentAddResponseDTO::createShared();
+        vo->fail(empty);
+    }
     return vo;
 }
 
@@ -37,9 +52,24 @@ PrepaymentAddVO::Wrapper PrepaymentController::execAddPrepayment(const Prepaymen
 PrepaymentRefundVO::Wrapper PrepaymentController::execRefundPrepayment(const PrepaymentRefundDTO::Wrapper& dto)
 {
     auto vo = PrepaymentRefundVO::createShared();
-    PrepaymentService service;
-    auto result = service.refundPrepayment(dto);
-    vo->success(result);
+    try
+    {
+        PrepaymentService service;
+        auto result = service.refundPrepayment(dto);
+        vo->success(result);
+    }
+    catch (const std::exception& e)
+    {
+        OATPP_LOGE("Prepayment", "execRefundPrepayment error: %s", e.what());
+        auto empty = PrepaymentRefundResponseDTO::createShared();
+        vo->fail(empty);
+    }
+    catch (...)
+    {
+        OATPP_LOGE("Prepayment", "execRefundPrepayment unknown error");
+        auto empty = PrepaymentRefundResponseDTO::createShared();
+        vo->fail(empty);
+    }
     return vo;
 }
 
@@ -47,8 +77,23 @@ PrepaymentRefundVO::Wrapper PrepaymentController::execRefundPrepayment(const Pre
 PrepaymentPageJsonVO::Wrapper PrepaymentController::execQueryPrepayment(const PrepaymentQuery::Wrapper& query)
 {
     auto vo = PrepaymentPageJsonVO::createShared();
-    PrepaymentService service;
-    auto result = service.queryPrepayment(query);
-    vo->success(result);
+    try
+    {
+        PrepaymentService service;
+        auto result = service.queryPrepayment(query);
+        vo->success(result);
+    }
+    catch (const std::exception& e)
+    {
+        OATPP_LOGE("Prepayment", "execQueryPrepayment error: %s", e.what());
+        auto empty = PrepaymentPageDTO::createShared();
+        vo->fail(empty);
+    }
+    catch (...)
+    {
+        OATPP_LOGE("Prepayment", "execQueryPrepayment unknown error");
+        auto empty = PrepaymentPageDTO::createShared();
+        vo->fail(empty);
+    }
     return vo;
 }
