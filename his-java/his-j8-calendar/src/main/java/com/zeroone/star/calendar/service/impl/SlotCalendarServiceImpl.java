@@ -38,7 +38,7 @@ public class SlotCalendarServiceImpl extends ServiceImpl<WkfSlotMapper, WkfSlot>
     @Override
     public JsonVO<SlotPageResultDTO> pageSlots(SlotQuery query) {
         // 1. 构建分页对象
-        Page<SlotDTO> page = new Page<>(query.getPageIndex(), query.getPageSize());
+        Page<SlotDTO> page = new Page<>(query.getPageNo(), query.getPageSize());
 
         // 2. 执行分页查询
         Page<SlotDTO> result = baseMapper.selectSlotPage(page, query);
@@ -51,13 +51,10 @@ public class SlotCalendarServiceImpl extends ServiceImpl<WkfSlotMapper, WkfSlot>
         int totalRemaining = 0;
 
         for (SlotDTO row : rows) {
-            // displayStatus 计算
             row.setDisplayStatus(computeDisplayStatus(row));
-
-            // 聚合统计
             totalSlots++;
-            Integer capacity = row.getCapacity() != null ? row.getCapacity() : 0;
-            Integer booked = row.getBookedCount() != null ? row.getBookedCount() : 0;
+            int capacity = row.getCapacity() != null ? row.getCapacity() : 0;
+            int booked = row.getBookedCount() != null ? row.getBookedCount() : 0;
             totalCapacity += capacity;
             totalBooked += booked;
             totalRemaining += (capacity - booked);
@@ -72,11 +69,11 @@ public class SlotCalendarServiceImpl extends ServiceImpl<WkfSlotMapper, WkfSlot>
 
         // 5. 组装 SlotPageResultDTO
         SlotPageResultDTO pageResult = new SlotPageResultDTO();
-        pageResult.setTotal(result.getTotal());
-        pageResult.setPageIndex(result.getCurrent());
+        pageResult.setTotalCount(result.getTotal());
+        pageResult.setPageNo(result.getCurrent());
         pageResult.setPageSize(result.getSize());
         pageResult.setPages(result.getPages());
-        pageResult.setRows(rows);
+        pageResult.setContent(rows);
         pageResult.setStats(stats);
 
         return JsonVO.success(pageResult);
@@ -93,7 +90,7 @@ public class SlotCalendarServiceImpl extends ServiceImpl<WkfSlotMapper, WkfSlot>
     }
 
     @Override
-    public JsonVO<String> blockSlots(SlotBlockDTO dto) {
+    public JsonVO<Void> blockSlots(SlotBlockDTO dto) {
         // 先查这些号源是否确实存在
         long count = this.lambdaQuery()
                 .in(WkfSlot::getId, dto.getSlotIds())
@@ -102,17 +99,20 @@ public class SlotCalendarServiceImpl extends ServiceImpl<WkfSlotMapper, WkfSlot>
             return JsonVO.fail("号源不存在");
         }
 
-        // 只更新当前非封锁的号源（已封锁的不算失败）
+        // 只更新当前非封锁的号源（已封锁的不算失败），同时记录封锁原因
         LambdaUpdateWrapper<WkfSlot> wrapper = new LambdaUpdateWrapper<>();
         wrapper.in(WkfSlot::getId, dto.getSlotIds())
                .ne(WkfSlot::getStatusCode, STATUS_BUSY_UNAVAILABLE)
                .set(WkfSlot::getStatusCode, STATUS_BUSY_UNAVAILABLE);
+        if (dto.getReason() != null && !dto.getReason().isEmpty()) {
+            wrapper.set(WkfSlot::getCommentText, dto.getReason());
+        }
         this.update(wrapper);
-        return JsonVO.success("封锁成功");
+        return JsonVO.success(null);
     }
 
     @Override
-    public JsonVO<String> unblockSlots(SlotUnblockDTO dto) {
+    public JsonVO<Void> unblockSlots(SlotUnblockDTO dto) {
         // 先查这些号源是否确实存在（排除已软删的）
         long count = this.lambdaQuery()
                 .in(WkfSlot::getId, dto.getSlotIds())
@@ -127,12 +127,12 @@ public class SlotCalendarServiceImpl extends ServiceImpl<WkfSlotMapper, WkfSlot>
                .eq(WkfSlot::getStatusCode, STATUS_BUSY_UNAVAILABLE)
                .set(WkfSlot::getStatusCode, STATUS_FREE);
         this.update(wrapper);
-        return JsonVO.success("解封成功");
+        return JsonVO.success(null);
     }
 
     @Override
-    public JsonVO<String> setOverbooked(SlotOverbookDTO dto) {
-        Integer targetFlag = dto.getOverbooked() ? 1 : 0;
+    public JsonVO<Void> setOverbooked(SlotOverbookDTO dto) {
+        Integer targetFlag = dto.getOverbookedFlag() ? 1 : 0;
 
         WkfSlot slot = this.getById(dto.getSlotId());
         if (slot == null) {
@@ -140,12 +140,12 @@ public class SlotCalendarServiceImpl extends ServiceImpl<WkfSlotMapper, WkfSlot>
         }
         // 已经是目标状态，无需更新
         if (targetFlag.equals(slot.getOverbookedFlag())) {
-            return JsonVO.success("超售标记成功");
+            return JsonVO.success(null);
         }
 
         slot.setOverbookedFlag(targetFlag);
         this.updateById(slot);
-        return JsonVO.success("超售标记成功");
+        return JsonVO.success(null);
     }
 
     /**
