@@ -55,13 +55,6 @@ public class WarehouseStockOutController implements WarehouseStockOutApis {
         return stockOutService.saveStockOut(dto);
     }
 
-    @PostMapping("/submit-approval")
-    @Operation(summary = "提交审批")
-    @Override
-    public JsonVO<StockOutApprovalResultVO> submitStockOutApproval(@Validated @RequestBody SubmitStockOutApprovalDTO dto) {
-        // 调用 Service
-        return stockOutService.submitApproval(dto);
-    }
 
     @Operation(summary = "删除单据")
     @DeleteMapping("/{busNo}/delete")

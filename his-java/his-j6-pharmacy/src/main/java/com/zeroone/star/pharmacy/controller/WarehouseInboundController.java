@@ -1,6 +1,7 @@
 package com.zeroone.star.pharmacy.controller;
 
 import com.zeroone.star.pharmacy.service.IInboundReceiptApprovalService;
+import com.zeroone.star.pharmacy.service.IInboundReceiptService;
 import com.zeroone.star.pharmacy.service.IWkfSupplyRequestService;
 import com.zeroone.star.project.dto.j6.pharmacy.inbound.AgreeInboundReceiptDTO;
 import com.zeroone.star.project.dto.j6.pharmacy.inbound.InboundReceiptDeleteDTO;
@@ -43,28 +44,28 @@ public class WarehouseInboundController implements WarehouseInboundApis {
     @Resource
     private IInboundReceiptApprovalService inboundApprovalService;
 
+    @Resource
+    private IInboundReceiptService inboundReceiptService;
+
     @Override
     @GetMapping("/list")
-    @Operation(summary = "获取单据列表")
+    @Operation(summary = "获取单据列表（条件+分页）")
     public JsonVO<List<InboundReceiptListVO>> queryAllInboundReceipt(@Valid InboundReceiptQuery query) {
-        // TODO 调用 Service 查询数据库，返回列表
-        return null;
+        return JsonVO.success(inboundReceiptService.queryAllInboundReceipt(query));
     }
 
     @Override
     @GetMapping("/detail")
     @Operation(summary = "获取单据详情")
     public JsonVO<InboundReceiptDetailVO> getInboundReceiptDetail(@Valid InboundReceiptDetailQuery query) {
-        // TODO 调用 Service 查询详情，返回头和明细行
-        return null;
+        return JsonVO.success(inboundReceiptService.getInboundReceiptDetail(query));
     }
 
     @Override
     @DeleteMapping("/remove")
     @Operation(summary = "删除单据")
     public JsonVO<String> removeInboundReceipt(@Valid @RequestBody InboundReceiptDeleteDTO dto) {
-        // TODO 调用 Service 执行删除
-        return null;
+        return JsonVO.success(inboundReceiptService.removeInboundReceipt(dto));
     }
 
     @Override

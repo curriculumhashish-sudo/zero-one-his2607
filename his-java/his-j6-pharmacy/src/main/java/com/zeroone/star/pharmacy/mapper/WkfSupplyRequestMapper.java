@@ -4,7 +4,10 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zeroone.star.pharmacy.entity.WkfSupplyRequest;
+import com.zeroone.star.project.query.j6.pharmacy.inbound.InboundReceiptQuery;
 import com.zeroone.star.project.query.j6.pharmacy.stockout.StockOutQuery;
+import com.zeroone.star.project.vo.j6.pharmacy.inbound.InboundReceiptDetailLineVO;
+import com.zeroone.star.project.vo.j6.pharmacy.inbound.InboundReceiptListVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutLineVO;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -166,4 +169,24 @@ public interface WkfSupplyRequestMapper extends BaseMapper<WkfSupplyRequest> {
      * 根据单据编号查询所有明细行（已关联药品信息）
      */
     List<StockOutLineVO> selectDetailLinesByBusNo(@Param("busNo") String busNo);
+
+    // ==================== 业务查询与操作 ====================
+
+    /**
+     * 分页查询入库单列表（按 bus_no 聚合）
+     */
+    IPage<InboundReceiptListVO> selectInboundReceiptListPage(Page<InboundReceiptListVO> page,
+                                                             @Param("query") InboundReceiptQuery query);
+
+    /**
+     * 根据 busNo 查询入库单明细行（含物料名称/规格/厂商）
+     */
+    List<InboundReceiptDetailLineVO> selectInboundReceiptDetailLines(@Param("busNo") String busNo);
+
+    /**
+     * 逻辑删除指定入库单（按 bus_no 软删）
+     */
+    int deleteInboundByBusNo(@Param("busNo") String busNo,
+                             @Param("deletedAt") LocalDateTime deletedAt,
+                             @Param("deletedBy") String deletedBy);
 }

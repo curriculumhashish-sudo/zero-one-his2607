@@ -10,7 +10,6 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j6.pharmacy.PharmacyInventoryDeleteVO;
 import com.zeroone.star.project.vo.j6.pharmacy.PharmacyInventoryDetailVO;
 import com.zeroone.star.project.vo.j6.pharmacy.PharmacyInventoryListVO;
-import com.zeroone.star.project.vo.j6.pharmacy.stocktake.PharmacyInventoryVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stocktake.StocktakeDetailVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,7 +28,6 @@ import java.util.List;
 @Tag(name = "药库盘点单", description = "药库管理相关接口")
 public class WarehouseStocktakeController implements WarehouseStocktakeApis {
 
-    @Resource
     private final IWkfSupplyRequestService IwkfSupplyRequestService;
 
     @Override
@@ -40,8 +38,6 @@ public class WarehouseStocktakeController implements WarehouseStocktakeApis {
         return JsonVO.success(pageResult);
     }
 
-
-
     @Override
     @GetMapping("/detail")
     @Operation(summary = "获取单据详情")
@@ -49,7 +45,6 @@ public class WarehouseStocktakeController implements WarehouseStocktakeApis {
         PharmacyInventoryDetailVO vo=IwkfSupplyRequestService.getStocktakeDetail(query);
         return JsonVO.success(vo);
     }
-
 
     @Override
     @DeleteMapping("/{busNo}")

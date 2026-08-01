@@ -26,7 +26,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-@Controller
+@RestController
 @RequestMapping("/inventory")
 @RequiredArgsConstructor
 @Tag(name = "库存明细", description = "药库管理相关接口")

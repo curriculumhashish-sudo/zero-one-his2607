@@ -61,7 +61,7 @@ public class WkfSupplyRequest implements Serializable {
     /**
      * 软删标记
      */
-    private Integer isDeleted;
+    private Boolean isDeleted;
 
     /**
      * 删除时间
