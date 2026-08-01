@@ -4,17 +4,15 @@
     <select id="selectStocktakeRowsForApproval"
             resultType="com.zeroone.star.pharmacy.entity.WkfSupplyRequest">
         select
-            id,
-            bus_no,
-            type_enum,
-            status_enum,
-            item_table,
-            item_id,
-            purpose_location_id,
-            lot_number,
-            unit_code,
-            total_quantity,
-            is_deleted
+            id, bus_no, type_enum, status_enum, category_enum,
+            item_table, item_id, item_quantity, total_quantity, unit_code,
+            lot_number, trace_no, price, total_price, profit_loss_price,
+            purpose_location_id, purpose_type_enum, source_location_id, source_type_enum,
+            supplier_id, practitioner_id, applicant_id, apply_time,
+            approver_id, approval_time, reason, remake,
+            start_time, end_time, occurrence_time,
+            is_deleted, version, tenant_id,
+            created_at, updated_at, created_by, updated_by
         from wkf_supply_request
         where bus_no = #{busNo}
           and type_enum = #{typeEnum}
@@ -26,7 +24,6 @@
         set status_enum = 'PENDING_APPROVAL',
             applicant_id = #{applicantId},
             apply_time = #{applyTime},
-            approver_id = #{approverId},
             approval_time = null,
             reason = null,
             updated_at = #{updatedAt},

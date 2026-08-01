@@ -562,57 +562,11 @@
         WHERE aci.is_deleted = 0
     </select>
 
-    <!-- 统计总就诊人数 -->
+    <!-- 统计总就诊人数（用于疾病分布占比计算） -->
     <select id="selectTotalEncounterCount" resultType="int">
         SELECT COUNT(*)
         FROM adm_encounter
         WHERE is_deleted = 0
-        <if test="query.registrationDepartmentId != null and query.registrationDepartmentId != ''">
-            AND e.organization_id = #{query.registrationDepartmentId}
-        </if>
-        <if test="query.patientKeyword != null and query.patientKeyword != ''">
-            AND ((p.name LIKE CONCAT('%', #{query.patientKeyword}, '%'))
-                 OR (e.bus_no LIKE CONCAT('%', #{query.patientKeyword}, '%')))
-        </if>
-        <if test="query.tradeDirection != null and query.tradeDirection != '' and query.tradeDirection != 'ALL'">
-            <choose>
-                <when test="query.tradeDirection == 'CHARGE'">
-                    AND aci.refund_id IS NULL
-                </when>
-                <when test="query.tradeDirection == 'REFUND'">
-                    AND aci.refund_id IS NOT NULL
-                </when>
-            </choose>
-        </if>
-        <if test="query.cashierId != null and query.cashierId != ''">
-            AND aci.enterer_id = #{query.cashierId}
-        </if>
-        <if test="query.settlementDateFrom != null and query.settlementDateFrom != ''
-            and query.settlementDateTo != null and query.settlementDateTo != ''">
-            AND aci.occurrence_time &gt;= #{query.settlementDateFrom}
-            AND aci.occurrence_time &lt;= #{query.settlementDateTo}
-        </if>
-        <if test="query.subCategoryCodes != null and query.subCategoryCodes.size() > 0">
-            AND def.type_code IN
-            <foreach collection="query.subCategoryCodes" item="code" open="(" separator="," close=")">
-                #{code}
-            </foreach>
-        </if>
-        <if test="(query.productNameKeyword != null and query.productNameKeyword != '') or
-              (query.productCodeKeyword != null and query.productCodeKeyword != '')">
-            AND (
-                (aci.product_table = 'med_medication_definition'
-                    AND med.name LIKE CONCAT('%', #{query.productNameKeyword}, '%')
-                    AND med.bus_no LIKE CONCAT('%', #{query.productCodeKeyword}, '%'))
-                OR (aci.product_table = 'wkf_activity_definition'
-                    AND act.name LIKE CONCAT('%', #{query.productNameKeyword}, '%')
-                    AND act.bus_no LIKE CONCAT('%', #{query.productCodeKeyword}, '%'))
-                OR (aci.product_table = 'adm_device_definition'
-                    AND dev.name LIKE CONCAT('%', #{query.productNameKeyword}, '%')
-                    AND dev.bus_no LIKE CONCAT('%', #{query.productCodeKeyword}, '%'))
-            )
-        </if>
-        ORDER BY aci.occurrence_time DESC, aci.id ASC
     </select>
 
     <!-- ===== 流量趋势：按时间粒度统计门诊数量 ===== -->
