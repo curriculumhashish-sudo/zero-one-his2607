@@ -183,7 +183,7 @@ diagnose:
 
 prescription3:
  tags:
-  tag: "医嘱管理"
+  tag: "开立医嘱"
  batchDelete:
   summary: "删除一条或多条未签发医嘱"
  mergeGroup:
@@ -197,7 +197,7 @@ prescription3:
 
 historyOrder:
  tags:
-  tag: "医嘱管理"
+  tag: "开立医嘱"
  list:
   summary: "分页查询历史就诊记录列表"
  detail:
@@ -233,7 +233,7 @@ common:
 
 order:
  tags:
-  tag: "医嘱管理"
+  tag: "开立医嘱"
  query:
   summary: "分页查询医嘱"
  add:
@@ -370,7 +370,7 @@ outpatientRecord:
 
 medical-advice:
  tags:
-  tag: "医嘱管理"
+  tag: "开立医嘱"
  sign:
   summary: "批量签署医嘱"
  withdraw:
