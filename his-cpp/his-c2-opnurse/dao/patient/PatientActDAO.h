@@ -24,12 +24,31 @@
 #include "domain/do/patient/ServiceRequestDO.h"
 
 /**
- * ResultSet mapper for ServiceRequestDO.
+ * Extended result for service request query with joined display fields.
  */
-class ServiceRequestMapper : public Mapper<ServiceRequestDO>
+struct ServiceRequestResult
+{
+	ServiceRequestDO request;
+	// Extra fields from joined tables
+	std::string requestId;
+	std::string requestTypeName;
+	std::string specification;
+	std::string statusName;
+	int plannedCount;
+	int executedCount;
+	std::string executorName;
+	std::string executedAt;
+	int version;
+	std::string printTypes;
+};
+
+/**
+ * ResultSet mapper for ServiceRequestResult.
+ */
+class ServiceRequestResultMapper : public Mapper<ServiceRequestResult>
 {
 public:
-	ServiceRequestDO mapper(ResultSet* rs) const override;
+	ServiceRequestResult mapper(ResultSet* rs) const override;
 };
 
 /**
@@ -44,13 +63,14 @@ public:
 	 * @param encounterId encounter ID
 	 * @param categoryEnum optional category filter (e.g. skin-test)
 	 * @param statusEnum optional status filter
-	 * @return list of ServiceRequestDO
+	 * @return list of ServiceRequestResult
 	 */
-	std::list<ServiceRequestDO> queryServiceRequests(
+	std::list<ServiceRequestResult> queryServiceRequests(
 		const std::string& patientId,
 		const std::string& encounterId,
 		const std::string& categoryEnum,
-		const std::string& statusEnum);
+		const std::string& statusEnum,
+		int performFlag = -1);
 };
 
 #endif // !_PATIENTACTDAO_H_

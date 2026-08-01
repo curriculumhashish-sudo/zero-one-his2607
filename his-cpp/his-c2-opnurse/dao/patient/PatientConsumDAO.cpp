@@ -46,6 +46,12 @@ DeviceConsumResult DeviceConsumMapper::mapper(ResultSet* rs) const
 		result.definition.setMerchandiseName(rs->getString("merchandise_name"));
 	if (!rs->isNull("total_volume"))
 		result.definition.setTotalVolume(rs->getString("total_volume"));
+
+	// Map extended joined fields
+	if (!rs->isNull("status_name"))
+		result.statusName = rs->getString("status_name");
+	if (!rs->isNull("unit_name"))
+		result.unitName = rs->getString("unit_name");
 	return result;
 }
 
@@ -56,9 +62,15 @@ std::list<DeviceConsumResult> PatientConsumDAO::queryDeviceRequests(
 	std::ostringstream sql;
 	sql << "SELECT dr.id, dr.patient_id, dr.encounter_id, dr.device_def_id, "
 		<< "dr.status_enum, dr.perform_flag, dr.quantity, dr.unit_code, "
-		<< "dd.name AS dev_name, dd.model_number, dd.merchandise_name, dd.total_volume "
+		<< "dd.name AS dev_name, dd.model_number, dd.merchandise_name, dd.total_volume, "
+		<< "st.display_name AS status_name, "
+		<< "uc.display_name AS unit_name "
 		<< "FROM wkf_device_request dr "
 		<< "JOIN adm_device_definition dd ON dr.device_def_id = dd.id "
+		<< "LEFT JOIN adm_code_dict st ON st.code = dr.status_enum "
+		<< "AND st.category = 'device_request_status' "
+		<< "LEFT JOIN adm_code_dict uc ON uc.code = dr.unit_code "
+		<< "AND uc.category = 'unit_code' "
 		<< "WHERE dr.is_deleted = 0 ";
 
 	SqlParams params;

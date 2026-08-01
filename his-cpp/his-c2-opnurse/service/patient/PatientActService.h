@@ -41,7 +41,8 @@ public:
 		const std::string& patientId,
 		const std::string& encounterId,
 		const std::string& categoryEnum,
-		const std::string& statusEnum);
+		const std::string& statusEnum,
+		int performFlag = -1);
 };
 
 #endif // !_PATIENTACTSERVICE_H_

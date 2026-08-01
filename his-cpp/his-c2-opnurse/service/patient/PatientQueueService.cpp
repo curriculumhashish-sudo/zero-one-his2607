@@ -44,14 +44,23 @@ PatientQueuePageDTO::Wrapper PatientQueueService::queryPatientQueue(
 	auto dtos = oatpp::List<PatientQueueDTO::Wrapper>::createShared();
 	for (auto& res : results) {
 		auto dto = PatientQueueDTO::createShared();
-		dto->name = res.patient.getName();
-		dto->gender = convertGender(res.patient.getGenderEnum());
-		dto->age = calcAge(res.patient.getBirthDate());
-		dto->visitTime = res.queue.getStartInstant();
+		dto->encounterId = res.encounterId;
+		dto->patientId = res.patient.getId();
+		dto->patientName = res.patient.getName();
+		dto->genderName = convertGender(res.patient.getGenderEnum());
+		dto->ageText = std::to_string(calcAge(res.patient.getBirthDate())) + "\xE5\xB2\x81";
+		dto->medicalRecordNo = res.medicalRecordNo;
+		dto->visitNo = res.visitNo;
 		dto->queueNumber = res.queue.getBusNo();
-		std::string paymentType = res.paymentType;
-		if (paymentType.empty()) paymentType = "\xE8\x87\xAA\xE8\xB4\xB9";
-		dto->paymentType = paymentType;
+		dto->registeredAt = res.registeredAt;
+		dto->departmentName = res.departmentName;
+		dto->visitTypeName = res.visitTypeName;
+		dto->status = res.statusEnum;
+		dto->statusName = res.statusName;
+		dto->paymentTypeName = res.paymentTypeName.empty() ? "\xE8\x87\xAA\xE8\xB4\xB9" : res.paymentTypeName;
+		dto->pendingCount = res.pendingCount;
+		dto->priorityName = res.priorityName;
+		dto->riskHint = res.riskHint;
 		dtos->push_back(dto);
 	}
 

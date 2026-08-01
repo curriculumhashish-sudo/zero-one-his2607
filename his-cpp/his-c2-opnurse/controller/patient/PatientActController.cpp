@@ -55,7 +55,7 @@ PatientActListJsonVO::Wrapper PatientActController::execActPatient(
 		// act maps to perform_flag (1=executed, 0=pending)
 		PatientActService service;
 		auto dtos = service.queryServiceRequests(
-			patientId, encounterId, "", status);
+			patientId, encounterId, "", status, act);
 
 		auto vo = PatientActListJsonVO::createShared();
 		vo->success(dtos);

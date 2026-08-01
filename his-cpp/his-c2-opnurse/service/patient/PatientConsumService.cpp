@@ -31,7 +31,9 @@ oatpp::List<PatientConsumableDTO::Wrapper> PatientConsumService::queryDeviceRequ
 	auto dtos = oatpp::List<PatientConsumableDTO::Wrapper>::createShared();
 	for (auto& res : results) {
 		auto dto = PatientConsumableDTO::createShared();
-		dto->consumableName = res.definition.getName();
+		dto->dispenseItemId = res.request.getId();
+		dto->materialId = res.request.getDeviceDefId();
+		dto->materialName = res.definition.getName();
 		// Combine model number and total volume (package spec)
 		std::ostringstream spec;
 		spec << res.definition.getModelNumber();
@@ -39,18 +41,15 @@ oatpp::List<PatientConsumableDTO::Wrapper> PatientConsumService::queryDeviceRequ
 		if (!totalVolume.empty()) {
 			spec << "(" << totalVolume << ")";
 		}
-		dto->modelSpec = spec.str();
+		dto->specification = spec.str();
 		// Quantity with unit
 		std::ostringstream qty;
 		qty << std::fixed << std::setprecision(0) << res.request.getQuantity();
-		std::string unitCode = res.request.getUnitCode();
-		if (!unitCode.empty()) {
-			qty << "\xC3\x97" << unitCode;
-		}
 		dto->quantity = qty.str();
+		dto->unitName = res.unitName;
+		dto->roomName = consumableRoom;
 		dto->status = res.request.getStatusEnum();
-		dto->consumableRoom = consumableRoom;
-		dto->isEmpty = (res.request.getQuantity() <= 0) ? 1 : 0;
+		dto->statusName = res.statusName;
 		dtos->push_back(dto);
 	}
 

@@ -47,8 +47,34 @@ PatientQueueResult PatientQueueMapper::mapper(ResultSet* rs) const
 		result.patient.setGenderEnum(rs->getString("gender_enum"));
 	if (!rs->isNull("birth_date"))
 		result.patient.setBirthDate(rs->getString("birth_date"));
-	if (!rs->isNull("payment_type"))
-		result.paymentType = rs->getString("payment_type");
+
+	// Map extended joined fields
+	if (!rs->isNull("encounter_id"))
+		result.encounterId = rs->getString("encounter_id");
+	if (!rs->isNull("p_id"))
+		result.patient.setId(rs->getString("p_id"));
+	if (!rs->isNull("medical_record_no"))
+		result.medicalRecordNo = rs->getString("medical_record_no");
+	if (!rs->isNull("visit_no"))
+		result.visitNo = rs->getString("visit_no");
+	if (!rs->isNull("registered_at"))
+		result.registeredAt = rs->getString("registered_at");
+	if (!rs->isNull("department_name"))
+		result.departmentName = rs->getString("department_name");
+	if (!rs->isNull("visit_type_name"))
+		result.visitTypeName = rs->getString("visit_type_name");
+	if (!rs->isNull("encounter_status"))
+		result.statusEnum = rs->getString("encounter_status");
+	if (!rs->isNull("status_name"))
+		result.statusName = rs->getString("status_name");
+	if (!rs->isNull("payment_type_name"))
+		result.paymentTypeName = rs->getString("payment_type_name");
+	if (!rs->isNull("priority_name"))
+		result.priorityName = rs->getString("priority_name");
+	if (!rs->isNull("risk_hint"))
+		result.riskHint = rs->getString("risk_hint");
+	if (!rs->isNull("pending_count"))
+		result.pendingCount = rs->getInt("pending_count");
 	return result;
 }
 
@@ -60,11 +86,27 @@ std::list<PatientQueueResult> PatientQueueDAO::queryPatientQueue(
 	std::ostringstream sql;
 	sql << "SELECT q.id, q.tenant_id, q.patient_id, q.encounter_id, q.bus_no, q.display_order, "
 		<< "q.start_instant, q.booking_date, q.triage_level, "
-		<< "p.name, p.gender_enum, p.birth_date, "
-		<< "e.yb_class_text AS payment_type "
+		<< "p.id AS p_id, p.name, p.gender_enum, p.birth_date, "
+		<< "e.medical_record_no, e.visit_no, "
+		<< "e.created_at AS registered_at, "
+		<< "DATEDIFF(CURDATE(), p.birth_date) / 365 AS age, "
+		<< "dep.name AS department_name, "
+		<< "e.visit_type_name, "
+		<< "e.status_enum AS encounter_status, "
+		<< "st.display_name AS status_name, "
+		<< "e.yb_class_text AS payment_type_name, "
+		<< "tl.display_name AS priority_name, "
+		<< "COALESCE(e.risk_hint, '') AS risk_hint, "
+		<< "(SELECT COUNT(*) FROM wkf_appointment_queue q2 "
+		<< " WHERE q2.is_deleted = 0 AND q2.tenant_id = q.tenant_id "
+		<< "   AND q2.booking_date = q.booking_date "
+		<< "   AND q2.display_order < q.display_order) AS pending_count "
 		<< "FROM wkf_appointment_queue q "
 		<< "JOIN adm_patient p ON q.patient_id = p.id "
 		<< "JOIN adm_encounter e ON q.encounter_id = e.id "
+		<< "LEFT JOIN adm_department dep ON e.department_id = dep.id "
+		<< "LEFT JOIN adm_code_dict st ON st.code = e.status_enum AND st.category = 'encounter_status' "
+		<< "LEFT JOIN adm_code_dict tl ON tl.code = q.triage_level AND tl.category = 'triage_level' "
 		<< "WHERE q.is_deleted = 0 "
 		<< "AND q.tenant_id = ? ";
 

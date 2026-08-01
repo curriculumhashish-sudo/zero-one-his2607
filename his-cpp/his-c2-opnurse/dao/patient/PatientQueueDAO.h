@@ -25,13 +25,25 @@
 #include "domain/do/patient/PatientDO.h"
 
 /**
- *患者队列查询的组合结果 (JOIN wkf_appointment_queue + adm_patient + adm_encounter).
+ * Combined result for patient queue query (JOIN wkf_appointment_queue + adm_patient + adm_encounter + adm_department).
  */
 struct PatientQueueResult
 {
 	AppointmentQueueDO queue;
 	PatientDO patient;
-	std::string paymentType;
+	// Extra fields from joined tables
+	std::string encounterId;
+	std::string medicalRecordNo;
+	std::string visitNo;
+	std::string registeredAt;
+	std::string departmentName;
+	std::string visitTypeName;
+	std::string statusEnum;
+	std::string statusName;
+	std::string paymentTypeName;
+	std::string priorityName;
+	std::string riskHint;
+	int pendingCount;
 };
 
 /**
@@ -53,6 +65,7 @@ public:
 	 * Query patient queue list with patient info.
 	 * @param name optional patient name filter
 	 * @param date optional visit date filter
+	 * @param tenantId tenant ID filter
 	 * @param pageIndex page index (1-based)
 	 * @param pageSize page size
 	 * @return list of PatientQueueResult

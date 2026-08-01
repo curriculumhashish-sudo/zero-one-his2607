@@ -25,12 +25,15 @@
 #include "domain/do/patient/DeviceDefinitionDO.h"
 
 /**
- * Combined result for device request query (JOIN wkf_device_request + adm_device_definition).
+ * Combined result for device request query (JOIN wkf_device_request + adm_device_definition + related dicts).
  */
 struct DeviceConsumResult
 {
 	DeviceRequestDO request;
 	DeviceDefinitionDO definition;
+	// Extra fields from joined tables
+	std::string statusName;
+	std::string unitName;
 };
 
 /**
