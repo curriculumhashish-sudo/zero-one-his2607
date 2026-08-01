@@ -25,6 +25,10 @@ import org.yaml.snakeyaml.util.UriEncoder;
  */
 @Component
 public class UserHolder {
+    private static final boolean LOCAL_TEST_LOGIN_BYPASS = true;
+    private static final String LOCAL_TEST_USER_ID = "1";
+    private static final String LOCAL_TEST_TENANT_ID = "1";
+
     @Resource
     JwtComponent jwtComponent;
     @Resource
@@ -52,6 +56,9 @@ public class UserHolder {
                 userJsonObject = new JSONObject(userStr);
             } else {
                 userJsonObject = new JSONObject();
+                if (LOCAL_TEST_LOGIN_BYPASS) {
+                    fillLocalTestUser(userJsonObject);
+                }
             }
         } else {
             userStr = UriEncoder.decode(userStr);
@@ -115,14 +122,29 @@ public class UserHolder {
                 );
             }
             if (tenantId == null || !StringUtils.hasText(tenantId.toString())) {
+                if (LOCAL_TEST_LOGIN_BYPASS) {
+                    return LOCAL_TEST_TENANT_ID;
+                }
                 throw new IllegalStateException("未找到当前用户的租户ID");
             }
             return tenantId.toString();
         } catch (RuntimeException e) {
+            if (LOCAL_TEST_LOGIN_BYPASS) {
+                return LOCAL_TEST_TENANT_ID;
+            }
             throw e;
         } catch (Exception e) {
+            if (LOCAL_TEST_LOGIN_BYPASS) {
+                return LOCAL_TEST_TENANT_ID;
+            }
             throw new IllegalStateException("获取当前租户ID失败", e);
         }
+    }
+
+    private void fillLocalTestUser(JSONObject userJsonObject) {
+        userJsonObject.putOnce("id", LOCAL_TEST_USER_ID);
+        userJsonObject.putOnce("sub", "j3-test");
+        userJsonObject.putOnce("roles", java.util.List.of("ROLE_ADMIN"));
     }
 
     private Object getRedisHashValue(String key, String field) {

@@ -74,10 +74,10 @@ public class StorehouseController implements StoreHouseApis {
 
     @Override
     @PutMapping("/toggleEnabled")
-    @Operation(summary = "启/停用库房药房", description = "切换库房药房的启用状态")
+    @Operation(summary = "启/停用库房药房", description = "切换库房药房的启用状态，isEnabled: 1=启用, 0=停用")
     public JsonVO<String> toggleEnabled(@RequestParam Long id, @RequestParam Byte isEnabled) {
         storeHouseService.toggleEnabled(id, isEnabled);
-        String statusText = isEnabled == 1 ? "启用" : "停用";
+        String statusText = Byte.valueOf((byte) 1).equals(isEnabled) ? "启用" : "停用";
         return JsonVO.success(statusText + "成功");
     }
 
