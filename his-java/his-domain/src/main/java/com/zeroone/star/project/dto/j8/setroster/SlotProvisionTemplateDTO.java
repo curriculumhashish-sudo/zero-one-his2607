@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * <p>
@@ -35,6 +36,9 @@ public class SlotProvisionTemplateDTO implements Serializable {
 
     @Schema(description = "是否启用", example = "true")
     private Boolean enabled;
+
+    @Schema(description = "时段列表，每个时段包含开始时间、结束时间和号源容量")
+    private List<SlotTemplateItemDTO> slotTemplates;
 
     @Schema(description = "创建时间", example = "2025-01-15 10:30:00")
     private String createdAt;

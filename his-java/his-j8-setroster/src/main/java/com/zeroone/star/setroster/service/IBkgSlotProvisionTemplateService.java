@@ -4,10 +4,12 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotProvisionTemplateAddDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotProvisionTemplateDTO;
-import com.zeroone.star.project.dto.j8.setroster.SlotProvisionTemplateDetailDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotProvisionTemplateModifyDTO;
 import com.zeroone.star.project.query.j8.setroster.SlotProvisionTemplateQuery;
+import com.zeroone.star.project.vo.j8.setroster.SlotProvisionTemplateOptionVO;
 import com.zeroone.star.setroster.entity.BkgSlotProvisionTemplate;
+
+import java.util.List;
 
 /**
  * <p>
@@ -20,6 +22,13 @@ import com.zeroone.star.setroster.entity.BkgSlotProvisionTemplate;
 public interface IBkgSlotProvisionTemplateService extends IService<BkgSlotProvisionTemplate> {
 
     /**
+     * 获取放号时段模板名称下拉选项
+     * @param organizationId 机构/科室ID，为空则查询所有
+     * @return 名称选项列表
+     */
+    List<SlotProvisionTemplateOptionVO> listSlotProvisionTemplateOptions(String organizationId);
+
+    /**
      * 分页查询放号时段模板列表
      * @param query 查询条件（关键词、机构、启用状态、分页参数）
      * @return 分页数据
@@ -27,16 +36,9 @@ public interface IBkgSlotProvisionTemplateService extends IService<BkgSlotProvis
     PageDTO<SlotProvisionTemplateDTO> querySlotProvisionTemplatePage(SlotProvisionTemplateQuery query);
 
     /**
-     * 查询放号时段模板详情（含时段列表JSON解析）
-     * @param id 模板主键ID
-     * @return 详情数据，不存在或已删除返回null
-     */
-    SlotProvisionTemplateDetailDTO getSlotProvisionTemplateDetail(String id);
-
-    /**
-     * 新增放号时段模板
-     * @param addDTO 新增参数
-     * @return 新增成功返回主键ID，编码重复返回null
+     * 新建放号时段模板
+     * @param addDTO 新建参数
+     * @return 新建成功返回主键ID，编码重复返回null
      */
     String addSlotProvisionTemplate(SlotProvisionTemplateAddDTO addDTO);
 

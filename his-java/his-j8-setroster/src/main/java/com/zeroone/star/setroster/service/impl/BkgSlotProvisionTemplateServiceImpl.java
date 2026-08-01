@@ -11,10 +11,10 @@ import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotProvisionTemplateAddDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotProvisionTemplateDTO;
-import com.zeroone.star.project.dto.j8.setroster.SlotProvisionTemplateDetailDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotProvisionTemplateModifyDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotTemplateItemDTO;
 import com.zeroone.star.project.query.j8.setroster.SlotProvisionTemplateQuery;
+import com.zeroone.star.project.vo.j8.setroster.SlotProvisionTemplateOptionVO;
 import com.zeroone.star.setroster.entity.BkgSlotProvisionTemplate;
 import com.zeroone.star.setroster.mapper.BkgSlotProvisionTemplateMapper;
 import com.zeroone.star.setroster.service.IBkgSlotProvisionTemplateService;
@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -49,20 +50,43 @@ public class BkgSlotProvisionTemplateServiceImpl
     private UserHolder userHolder;
 
     @Override
-    public PageDTO<SlotProvisionTemplateDTO> querySlotProvisionTemplatePage(SlotProvisionTemplateQuery query) {
-        Page<BkgSlotProvisionTemplate> page = new Page<>(query.getPageIndex(), query.getPageSize());
+    public List<SlotProvisionTemplateOptionVO> listSlotProvisionTemplateOptions(String organizationId) {
         LambdaQueryWrapper<BkgSlotProvisionTemplate> wrapper = new LambdaQueryWrapper<>();
-
-        // 只查列表需要的字段，避免查询 slot_templates_json 大文本和审计字段
+        // 只查选项需要的字段
         wrapper.select(
                 BkgSlotProvisionTemplate::getId,
                 BkgSlotProvisionTemplate::getTemplateCode,
                 BkgSlotProvisionTemplate::getTemplateName,
-                BkgSlotProvisionTemplate::getOrganizationId,
-                BkgSlotProvisionTemplate::getEnabled,
-                BkgSlotProvisionTemplate::getCreatedAt,
-                BkgSlotProvisionTemplate::getUpdatedAt
+                BkgSlotProvisionTemplate::getCreatedAt
         );
+        // 按机构筛选
+        if (StringUtils.hasText(organizationId)) {
+            wrapper.eq(BkgSlotProvisionTemplate::getOrganizationId, organizationId);
+        }
+        // 只查启用的模板
+        wrapper.eq(BkgSlotProvisionTemplate::getEnabled, true);
+        // 按创建时间倒序
+        wrapper.orderByDesc(BkgSlotProvisionTemplate::getCreatedAt);
+
+        List<BkgSlotProvisionTemplate> entities = this.list(wrapper);
+        List<SlotProvisionTemplateOptionVO> options = new ArrayList<>();
+        for (BkgSlotProvisionTemplate entity : entities) {
+            SlotProvisionTemplateOptionVO option = new SlotProvisionTemplateOptionVO();
+            option.setValue(entity.getId());
+            option.setLabel(entity.getTemplateName());
+            option.setBusNo(entity.getTemplateCode());
+            option.setSort(options.size() + 1);
+            // 放号时段模板无子节点
+            option.setChildren(null);
+            options.add(option);
+        }
+        return options;
+    }
+
+    @Override
+    public PageDTO<SlotProvisionTemplateDTO> querySlotProvisionTemplatePage(SlotProvisionTemplateQuery query) {
+        Page<BkgSlotProvisionTemplate> page = new Page<>(query.getPageIndex(), query.getPageSize());
+        LambdaQueryWrapper<BkgSlotProvisionTemplate> wrapper = new LambdaQueryWrapper<>();
 
         // 关键词搜索：匹配模板编码或模板名称
         if (StringUtils.hasText(query.getKeyword())) {
@@ -83,33 +107,24 @@ public class BkgSlotProvisionTemplateServiceImpl
         wrapper.orderByDesc(BkgSlotProvisionTemplate::getCreatedAt);
 
         // is_deleted 由 @TableLogic 自动过滤
-        return PageDTO.create(this.page(page, wrapper), SlotProvisionTemplateDTO::new);
-    }
-
-    @Override
-    public SlotProvisionTemplateDetailDTO getSlotProvisionTemplateDetail(String id) {
-        // getById 已由 @TableLogic 自动过滤已删除记录
-        BkgSlotProvisionTemplate entity = this.getById(id);
-        if (entity == null) {
-            return null;
-        }
-
-        SlotProvisionTemplateDetailDTO detail = new SlotProvisionTemplateDetailDTO();
-        BeanUtil.copyProperties(entity, detail);
-
-        // 解析 slot_templates_json → List<SlotTemplateItemDTO>
-        if (StringUtils.hasText(entity.getSlotTemplatesJson())) {
-            try {
-                List<SlotTemplateItemDTO> items = objectMapper.readValue(
-                        entity.getSlotTemplatesJson(),
-                        new TypeReference<List<SlotTemplateItemDTO>>() {});
-                detail.setSlotTemplates(items);
-            } catch (Exception e) {
-                log.error("解析时段模板JSON失败，templateId={}, json={}", id, entity.getSlotTemplatesJson(), e);
-                detail.setSlotTemplates(Collections.emptyList());
+        // 使用回调转换，填充 slotTemplates 字段
+        return PageDTO.create(this.page(page, wrapper), entity -> {
+            SlotProvisionTemplateDTO dto = new SlotProvisionTemplateDTO();
+            BeanUtil.copyProperties(entity, dto);
+            // 解析 slot_templates_json → List<SlotTemplateItemDTO>
+            if (StringUtils.hasText(entity.getSlotTemplatesJson())) {
+                try {
+                    List<SlotTemplateItemDTO> items = objectMapper.readValue(
+                            entity.getSlotTemplatesJson(),
+                            new TypeReference<List<SlotTemplateItemDTO>>() {});
+                    dto.setSlotTemplates(items);
+                } catch (Exception e) {
+                    log.error("解析时段模板JSON失败，templateId={}", entity.getId(), e);
+                    dto.setSlotTemplates(Collections.emptyList());
+                }
             }
-        }
-        return detail;
+            return dto;
+        });
     }
 
     @Override
