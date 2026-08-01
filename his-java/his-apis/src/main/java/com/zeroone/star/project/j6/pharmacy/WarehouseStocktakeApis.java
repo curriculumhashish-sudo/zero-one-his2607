@@ -1,19 +1,15 @@
 package com.zeroone.star.project.j6.pharmacy;
 
 import com.zeroone.star.project.dto.j6.pharmacy.stocktake.*;
-import com.zeroone.star.project.dto.j6.pharmacy.stocktake.PharmacyInventoryDetailQueryDTO;
-import com.zeroone.star.project.dto.j6.pharmacy.stocktake.PharmacyInventoryQueryDTO;
 import com.zeroone.star.project.dto.j6.pharmacy.stocktake.StocktakeSaveDTO;
 import com.zeroone.star.project.query.j6.pharmacy.PharmacyInventoryDetailQuery;
 import com.zeroone.star.project.query.j6.pharmacy.stocktake.PharmacyInventoryQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j6.pharmacy.PharmacyInventoryDetailVO;
 import com.zeroone.star.project.vo.j6.pharmacy.PharmacyInventoryListVO;
-import com.zeroone.star.project.vo.j6.pharmacy.stocktake.PharmacyInventoryVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stocktake.StocktakeDetailVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 
@@ -38,10 +34,7 @@ public interface WarehouseStocktakeApis {
      * @param busNo
      * @return JsonVO包裹删除后的单据基础信息
      */
-
     JsonVO<Boolean> deleteStocktake(@Parameter(description = "盘点单号") String busNo);
-
-
 
     /**
      * 新增盘点单
@@ -53,14 +46,6 @@ public interface WarehouseStocktakeApis {
     @Operation(summary = "新增盘点单", description = "生成空盘点单, 状态=草稿")
     @PostMapping("/warehouse/stocktake/create")
     JsonVO<StocktakeDetailVO> createStocktake(StocktakeSaveDTO dto);
-
-    /**
-     * 新增盘点单据
-     * @param busNo
-     * @return JsonVO包裹新增后的单据基础信息
-     */
-
-    JsonVO<Boolean> deleteStocktake(@Parameter(description = "盘点单号") String busNo);
 
     /**
      * 保存盘点单

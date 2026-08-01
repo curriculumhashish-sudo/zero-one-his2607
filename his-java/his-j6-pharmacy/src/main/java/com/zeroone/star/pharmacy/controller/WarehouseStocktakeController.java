@@ -19,10 +19,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-
 @RestController
 @RequestMapping("/stocktake")
 @RequiredArgsConstructor
@@ -31,8 +27,7 @@ public class WarehouseStocktakeController implements WarehouseStocktakeApis {
 
     private final IWkfSupplyRequestService IwkfSupplyRequestService;
 
-    @Resource
-    private IStocktakeService stocktakeService;
+    private final IStocktakeService stocktakeService;
 
     @Override
     @GetMapping("list")
