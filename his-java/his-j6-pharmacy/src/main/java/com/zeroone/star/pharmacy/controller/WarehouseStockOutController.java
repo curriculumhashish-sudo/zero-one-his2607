@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/stockout")
 @RequiredArgsConstructor
 @Tag(name = "药库出库单", description = "药库管理相关接口")
+@Valid
 public class WarehouseStockOutController implements WarehouseStockOutApis {
     @Override
     public JsonVO<StockOutApprovalResultVO> saveAndSubmitApproval(StockOutSaveDTO dto) {
@@ -38,24 +39,24 @@ public class WarehouseStockOutController implements WarehouseStockOutApis {
     }
 
     @Operation(summary = "删除单据")
-    @DeleteMapping("/removeStockOut")
+    @DeleteMapping("/removeStockOut/{id}")
     @Override
     public JsonVO<String> removeStockOut(@PathVariable String id) {
-        return null;
+        return JsonVO.fail("功能开发中");
     }
 
     @Operation(summary = "获取单据详情")
-    @GetMapping("/getStockOutDetail")
+    @GetMapping("/getStockOutDetail/{id}")
     @Override
     public JsonVO<StockOutDetailVO> getStockOutDetail(@PathVariable String id) {
-        return null;
+        return JsonVO.fail("功能开发中");
     }
 
     @Operation(summary = "获取单据列表（条件+分页）")
     @GetMapping("/getPharmacy")
     @Override
-    public JsonVO<PageDTO<StockOutListVO>> getPharmacy(@RequestBody StockOutQuery stockOutQuery) {
-        return null;
+    public JsonVO<PageDTO<StockOutListVO>> getPharmacy(@Valid StockOutQuery stockOutQuery) {
+        return JsonVO.fail("功能开发中");
     }
 
 
