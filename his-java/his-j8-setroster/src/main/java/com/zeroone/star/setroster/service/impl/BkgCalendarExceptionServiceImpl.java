@@ -93,7 +93,7 @@ public class BkgCalendarExceptionServiceImpl implements IBkgCalendarExceptionSer
         validateExceptionType(dto.getExceptionType());
         validateDateRange(dto.getExceptionDate(), dto.getRangeEnd());
 
-        BkgCalendarException entity = mapper.selectById(Long.parseLong(dto.getId()));
+        BkgCalendarException entity = mapper.selectById(dto.getId());
         if (entity == null) {
             throw new IllegalArgumentException("节日例外记录不存在，id=" + dto.getId());
         }
@@ -101,9 +101,11 @@ public class BkgCalendarExceptionServiceImpl implements IBkgCalendarExceptionSer
         entity.setExceptionType(dto.getExceptionType());
         entity.setExceptionDate(dto.getExceptionDate());
         entity.setRangeEnd(dto.getRangeEnd());
+        entity.setOrganizationId(dto.getOrganizationId());
+        entity.setOverrideScheduleTemplateId(dto.getOverrideScheduleTemplateId());
         entity.setReason(dto.getReason());
         entity.setAutoApplyOnGenerate(dto.getAutoApplyOnGenerate() != null
-                ? dto.getAutoApplyOnGenerate() == 1 : entity.getAutoApplyOnGenerate());
+                ? dto.getAutoApplyOnGenerate() : entity.getAutoApplyOnGenerate());
         entity.setUpdatedAt(LocalDateTime.now());
         entity.setUpdatedBy(currentUserId());
 
