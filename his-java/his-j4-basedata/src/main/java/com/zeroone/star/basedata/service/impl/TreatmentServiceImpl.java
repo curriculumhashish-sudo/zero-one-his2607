@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zeroone.star.basedata.constant.TreatmentConstants;
-import com.zeroone.star.basedata.entity.medicine.AdmChargeItemDefinitionDO;
+import com.zeroone.star.basedata.entity.common.AdmChargeItemDefinitionDO;
 import com.zeroone.star.basedata.entity.treatment.WkfActivityDefinitionChildDO;
 import com.zeroone.star.basedata.entity.treatment.WkfActivityDefinitionDO;
 import com.zeroone.star.basedata.mapper.AdmChargeItemDefinitionMapper;
