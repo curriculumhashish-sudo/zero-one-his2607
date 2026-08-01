@@ -9,7 +9,7 @@
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-	  https://www.apache.org/licenses/LICENSE-2.0
+      https://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,118 +17,131 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _SAMPLE_DTO_
-#define _SAMPLE_DTO_
+#ifndef _ADMISSION_DTO_
+#define _ADMISSION_DTO_
 #include "../../GlobalInclude.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * 示例新增数据传输对象
+ * Admission registration data transfer object.
  */
 class AdmissionAddDTO : public oatpp::DTO
 {
 	DTO_INIT(AdmissionAddDTO, DTO);
-	// 姓名
+	// Patient name
 	DTO_FIELD(String, name);
 	DTO_FIELD_INFO(name) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.name");
+		info->description = ZH_WORDS_GETTER("charging.admission.name");
 	}
 
-	//身份证号
-	DTO_FIELD(Int64, id);
-	DTO_FIELD_INFO(id) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.id");
+	// ID card number (18-digit, stored as string)
+	DTO_FIELD(String, idCard);
+	DTO_FIELD_INFO(idCard) {
+		info->description = ZH_WORDS_GETTER("charging.admission.idCard");
 	}
 
-	//出生日期
+	// Date of birth
 	DTO_FIELD(String, birthtime);
 	DTO_FIELD_INFO(birthtime) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.birthtime");
+		info->description = ZH_WORDS_GETTER("charging.admission.birthtime");
 	}
 
-	// 年龄
+	// Age
 	DTO_FIELD(Int32, age);
 	DTO_FIELD_INFO(age) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.age");
+		info->description = ZH_WORDS_GETTER("charging.admission.age");
 	}
 
-	// 性别
+	// Gender
 	DTO_FIELD(String, sex);
 	DTO_FIELD_INFO(sex) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.sex");
+		info->description = ZH_WORDS_GETTER("charging.admission.sex");
 	}
 
-	//联系方式
-	DTO_FIELD(Int64, phone);
+	// Phone number (stored as string to preserve leading zeros)
+	DTO_FIELD(String, phone);
 	DTO_FIELD_INFO(phone) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.phone");
+		info->description = ZH_WORDS_GETTER("charging.admission.phone");
 	}
 
-	//入院科室
+	// Admission department
 	DTO_FIELD(String, admissionDept);
 	DTO_FIELD_INFO(admissionDept) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.admissionDept");
+		info->description = ZH_WORDS_GETTER("charging.admission.admissionDept");
 	}
 
-	//入院病区
+	// Admission ward
 	DTO_FIELD(String, admission_ward);
 	DTO_FIELD_INFO(admission_ward) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.admission_ward");
+		info->description = ZH_WORDS_GETTER("charging.admission.admission_ward");
 	}
 
-	//主治医师
+	// Attending doctor
 	DTO_FIELD(String, attending_doctor);
 	DTO_FIELD_INFO(attending_doctor) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.attending_doctor");
+		info->description = ZH_WORDS_GETTER("charging.admission.attending_doctor");
 	}
 
-	//入院诊断
+	// Admission diagnosis
 	DTO_FIELD(String, admissionDiagnosis);
 	DTO_FIELD_INFO(admissionDiagnosis) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.admissionDiagnosis");
+		info->description = ZH_WORDS_GETTER("charging.admission.admissionDiagnosis");
 	}
 
-	//诊断描述
+	// Diagnosis description
 	DTO_FIELD(String, diagnosisDesc);
 	DTO_FIELD_INFO(diagnosisDesc) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.diagnosisDesc");
+		info->description = ZH_WORDS_GETTER("charging.admission.diagnosisDesc");
 	}
 
-	//患者病情
+	// Patient condition
 	DTO_FIELD(String, patientCondition);
 	DTO_FIELD_INFO(patientCondition) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.patientCondition");
+		info->description = ZH_WORDS_GETTER("charging.admission.patientCondition");
 	}
 
-	//入院类型
+	// Admission type
 	DTO_FIELD(String, admissionType);
 	DTO_FIELD_INFO(admissionType) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.admissionType");
+		info->description = ZH_WORDS_GETTER("charging.admission.admissionType");
 	}
 
-	//入院方式
+	// Admission mode
 	DTO_FIELD(String, admissionMode);
 	DTO_FIELD_INFO(admissionMode) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.admissionMode");
+		info->description = ZH_WORDS_GETTER("charging.admission.admissionMode");
 	}
 
-	//费用性质
+	// Fee nature / payment type
 	DTO_FIELD(String, feeNature);
 	DTO_FIELD_INFO(feeNature) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.feeNature");
+		info->description = ZH_WORDS_GETTER("charging.admission.feeNature");
 	}
 
-	//入院日期
-	DTO_FIELD(String, admissiondata);
-	DTO_FIELD_INFO(admissiondata) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.admissiondata");
+	// Admission date
+	DTO_FIELD(String, admissionDate);
+	DTO_FIELD_INFO(admissionDate) {
+		info->description = ZH_WORDS_GETTER("charging.admission.admissionDate");
 	}
 
-	// 关联一个PayloadDTO负载数据对象
+	// Prepay amount
+	DTO_FIELD(String, prepayAmount);
+	DTO_FIELD_INFO(prepayAmount) {
+		info->description = ZH_WORDS_GETTER("charging.admission.prepayAmount");
+	}
+
+	// Payment method
+	DTO_FIELD(String, payWay);
+	DTO_FIELD_INFO(payWay) {
+		info->description = ZH_WORDS_GETTER("charging.admission.payWay");
+	}
+
+	// Payload DTO for auth context
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 public:
-	// 数据校验
+
+	// Data validation
 	std::string validate()
 	{
 		if (!age || age < 0)
@@ -137,6 +150,12 @@ public:
 			return "name invalidate.";
 		if (!sex || sex->empty())
 			return "sex invalidate.";
+		if (!idCard || idCard->empty())
+			return "idCard invalidate.";
+		if (!birthtime || birthtime->empty())
+			return "birthtime invalidate.";
+		if (!admissionDate || admissionDate->empty())
+			return "admissiondata invalidate.";
 		return "";
 	}
 };
@@ -144,20 +163,23 @@ public:
 class AdmissionDeleteDTO : public oatpp::DTO
 {
 	DTO_INIT(AdmissionDeleteDTO, DTO);
-	// 姓名
-	DTO_FIELD(String, thedelete);
-	DTO_FIELD_INFO(thedelete) {
-		info->description = ZH_WORDS_GETTER("yiguang.charging.admission.delete");
+	// Encounter ID to cancel
+	DTO_FIELD(String, encounterId);
+	DTO_FIELD_INFO(encounterId) {
+		info->description = ZH_WORDS_GETTER("charging.admission.delete");
 	}
 
-	// 关联一个PayloadDTO负载数据对象
+	// Payload DTO for auth context
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 public:
+	// Data validation
 	std::string validate()
 	{
+		if (!encounterId || encounterId->empty())
+			return "encounterId invalidate.";
 		return "";
 	}
 };
 
 #include OATPP_CODEGEN_END(DTO)
-#endif // !_SAMPLE_DTO_
+#endif // !_ADMISSION_DTO_
