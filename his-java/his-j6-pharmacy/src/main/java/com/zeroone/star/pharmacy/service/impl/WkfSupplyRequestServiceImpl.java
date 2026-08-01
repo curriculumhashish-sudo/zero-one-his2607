@@ -156,7 +156,7 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
         row.setVersion(version);
         row.setBusNo(busNo);
         row.setOriginalBusNo(dto.getOriginalBusNo());
-        row.setTypeEnum(valueOrDefault(dto.getTypeEnum(), DEFAULT_TYPE_INBOUND));
+        row.setTypeEnum(DEFAULT_TYPE_INBOUND);
         row.setStatusEnum(status);
         row.setCategoryEnum(valueOrDefault(dto.getCategoryEnum(), DEFAULT_CATEGORY_STOCK_SUPPLY));
         row.setItemTable(line.getItemTable());

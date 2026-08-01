@@ -24,7 +24,7 @@ public class InboundReceiptSaveDTO {
     private String originalBusNo;
 
     @NotBlank(message = "供应类型不能为空")
-    @Schema(description = "供应类型编码", example = "INBOUND")
+    @Schema(description = "供应类型编码（进货单固定为 CABINET_INBOUND_RECEIPT）", example = "CABINET_INBOUND_RECEIPT")
     private String typeEnum;
 
     @NotBlank(message = "供应类别不能为空")

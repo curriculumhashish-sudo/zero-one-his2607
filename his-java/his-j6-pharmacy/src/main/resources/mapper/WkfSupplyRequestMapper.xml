@@ -210,5 +210,72 @@
           AND is_deleted = 0
     </update>
 
+    <!-- 软删除进货单（逻辑删除） -->
+    <update id="deleteInboundByBusNo">
+        UPDATE wkf_supply_request
+        SET is_deleted = 1,
+            deleted_at = #{deletedAt},
+            deleted_by = #{deletedBy}
+        WHERE bus_no = #{busNo}
+          AND is_deleted = 0
+    </update>
+
+    <!-- 进货单列表（按 bus_no 聚合，每单一条） -->
+    <select id="selectInboundReceiptListPage" resultType="com.zeroone.star.project.vo.j6.pharmacy.inbound.InboundReceiptListVO">
+        SELECT t.bus_no           AS busNo,
+               t.status_enum      AS statusEnum,
+               sub.supplier_name  AS supplierName,
+               sub.creator_name   AS creatorName,
+               sub.approver_name  AS approverName,
+               sub.total_amount   AS totalAmount,
+               sub.approval_time  AS approvalTime,
+               sub.apply_time     AS applyTime
+        FROM wkf_supply_request t
+        INNER JOIN (
+            SELECT bus_no,
+                   MIN(id)                               AS min_id,
+                   SUM(COALESCE(total_price, 0))         AS total_amount,
+                   MAX(approval_time)                    AS approval_time,
+                   MAX(apply_time)                       AS apply_time,
+                   MAX(created_by)                       AS creator_name,
+                   MAX(approver_id)                      AS approver_name,
+                   MAX(supplier_id)                      AS supplier_name
+            FROM wkf_supply_request
+            WHERE is_deleted = 0
+              AND type_enum = 'CABINET_INBOUND_RECEIPT'
+            GROUP BY bus_no
+        ) sub ON t.id = sub.min_id
+        WHERE t.is_deleted = 0
+        ORDER BY t.created_at DESC
+    </select>
+
+    <!-- 进货单明细行 -->
+    <select id="selectInboundReceiptDetailLines" resultType="com.zeroone.star.project.vo.j6.pharmacy.inbound.InboundReceiptDetailLineVO">
+        SELECT sr.id,
+               sr.item_table     AS itemTable,
+               sr.item_id        AS itemId,
+               COALESCE(m.name, dev.name)         AS productName,
+               COALESCE(m.total_volume, dev.total_volume) AS specification,
+               COALESCE(m.manufacturer_text, '')  AS manufacturer,
+               sr.item_quantity  AS itemQuantity,
+               sr.unit_code      AS unitCode,
+               sr.unit_code      AS unitCodeDictText,
+               sr.lot_number     AS lotNumber,
+               sr.trace_no       AS traceNo,
+               sr.price,
+               sr.total_price    AS totalPrice,
+               sr.start_time     AS startTime,
+               sr.end_time       AS endTime,
+               sr.occurrence_time AS occurrenceTime,
+               sr.remake
+        FROM wkf_supply_request sr
+        LEFT JOIN med_medication_definition m
+            ON sr.item_table = 'med_medication_definition' AND sr.item_id = m.id AND m.is_deleted = 0
+        LEFT JOIN adm_device_definition dev
+            ON sr.item_table = 'adm_device_definition' AND sr.item_id = dev.id AND dev.is_deleted = 0
+        WHERE sr.bus_no = #{busNo}
+          AND sr.is_deleted = 0
+        ORDER BY sr.id ASC
+    </select>
 
 </mapper>
