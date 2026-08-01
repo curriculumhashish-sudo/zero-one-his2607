@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import lombok.Getter;
 import lombok.Setter;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -37,13 +37,13 @@ public class CusFrequencyDO implements Serializable {
      * 创建时间
      */
     @TableField(fill = FieldFill.INSERT)
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     /**
      * 最后更新时间
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
 
     /**
      * 创建人
@@ -67,7 +67,7 @@ public class CusFrequencyDO implements Serializable {
     /**
      * 删除时间
      */
-    private Date deletedAt;
+    private LocalDateTime deletedAt;
 
     /**
      * 删除人

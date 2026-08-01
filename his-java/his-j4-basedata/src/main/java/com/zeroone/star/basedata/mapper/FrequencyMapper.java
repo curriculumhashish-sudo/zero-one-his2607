@@ -25,25 +25,29 @@ public interface FrequencyMapper extends BaseMapper<CusFrequencyDO> {
 
     /**
      * 分页+条件查询频次列表
-     * @param page  分页对象
-     * @param query 查询条件
+     * @param page     分页对象
+     * @param query    查询条件
+     * @param tenantId 当前租户ID
      * @return 频次分页数据
      */
     Page<FrequencyVO> selectFrequencyPage(
             Page<FrequencyVO> page,
-            @Param("query") FrequencyPageQuery query
+            @Param("query") FrequencyPageQuery query,
+            @Param("tenantId") String tenantId
     );
 
     /**
-     * 根据ID查询频次详情
-     * @param id 频次ID
+     * 根据ID查询频次详情（限定当前租户）
+     * @param id       频次ID
+     * @param tenantId 当前租户ID
      * @return 频次详情
      */
-    FrequencyVO selectFrequencyById(@Param("id") String id);
+    FrequencyVO selectFrequencyById(@Param("id") String id, @Param("tenantId") String tenantId);
 
     /**
-     * 获取已启用的频次名称下拉选项
+     * 获取已启用的频次名称下拉选项（限定当前租户）
+     * @param tenantId 当前租户ID
      * @return 频次下拉选项列表
      */
-    List<FrequencyOptionVO> selectActiveFrequencyOptions();
+    List<FrequencyOptionVO> selectActiveFrequencyOptions(@Param("tenantId") String tenantId);
 }
