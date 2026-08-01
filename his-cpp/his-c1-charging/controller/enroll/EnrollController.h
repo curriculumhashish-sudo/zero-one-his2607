@@ -21,6 +21,7 @@
 
 #include "domain/query/enroll/EnrollQuery.h"
 #include "domain/vo/enroll/EnrollVO.h"
+#include "service/enroll/EnrollService.h"
 
 using namespace oatpp;
 
