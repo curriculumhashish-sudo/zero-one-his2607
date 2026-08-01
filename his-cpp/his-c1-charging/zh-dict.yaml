@@ -1,4 +1,27 @@
 charging:
+ admission:
+  tag: 收费工作站-住院登记
+  add_discription: 住院登记
+  delete_discription: 取消登记
+  idCard: 身份证号
+  name: 姓名
+  birthtime: 出生日期
+  age: 年龄
+  sex: 性别
+  phone: 联系方式
+  admissionDept: 入院科室
+  admission_ward: 入院病区
+  attending_doctor: 主治医师
+  admissionDiagnosis: 入院诊断
+  diagnosisDesc: 诊断描述
+  patientCondition: 患者病情
+  admissionType: 入院类型
+  admissionMode: 入院方式
+  feeNature: 费用性质
+  admissionDate: 入院日期
+  prepayAmount: 预交金金额
+  payWay: 支付方式
+  delete: 取消原因
  register:
   tag: 收费工作站-门诊挂号
  settle:
@@ -927,113 +950,166 @@ yiguang:
 ovo:
   charging:
     settle:
-      get_cost_detail_summary: 获取患者费用明细清单
-      get_settle_history_summary: 获取患者历史结算记录
-      settle_summary: 住院结算
-      patient_id: 患者主键
-      patient_name: 患者姓名
-      patient_name_example: 张三
-      encounter_id: 住院就诊主键
-      history_encounter_id: 住院就诊主键，为空时查询患者全部住院记录
-      encounter_bus_no: 住院号
-      cost_status_filter: 收费明细状态，ALL表示全部
-      history_status_filter: 结算状态，ALL表示包含结算和退结算记录
-      charge_item_id: 收费明细主键
-      charge_item_bus_no: 收费明细业务流水号
-      prescription_no: 处方号
-      item_name: 收费项目名称
-      item_name_example: 阿莫西林胶囊
-      charge_category_code: 费用类别编码
-      charge_category_name: 费用类别名称
-      charge_category_name_example: 药品费
-      quantity_value: 数量
-      quantity_unit: 数量单位
-      quantity_unit_example: 盒
-      unit_price: 单价
-      total_price: 明细总价
-      charge_status: 收费明细状态
-      occurrence_time: 费用发生时间
-      performing_org_name: 执行科室名称
-      performing_org_name_example: 住院药房
-      enterer_name: 录入人姓名
-      enterer_name_example: 张护士
-      total_amount: 费用总额
-      settled_amount: 已结算金额
-      unsettled_amount: 待结算金额
-      cost_items: 费用明细列表
-      payment_detail_id: 支付明细主键
-      pay_enum: 支付方式，支持CASH、WECHAT、ALIPAY、BANK_CARD、ACCOUNT、INSURANCE
-      payment_amount: 支付金额
-      return_amount: 支付明细退款金额
-      pay_trans_no: 第三方支付流水号，现金和账户余额支付可为空
-      pay_trans_date: 支付时间
-      pay_result: 支付结果
-      settlement_id: 结算记录主键
-      payment_id: 支付流水主键
-      payment_no: 支付流水号
-      kind_enum: 流水类型，SETTLEMENT为结算，REVERSAL为退结算
-      settlement_status: 结算状态
-      display_amount: 应付金额
-      tendered_amount: 实收金额
-      returned_amount: 找零金额
-      bill_date: 结算时间，格式yyyy-MM-dd HH:mm:ss
-      invoice_id: 发票主键
-      pre_settle_id: 预结算记录主键
-      setl_id: 医保结算标识
-      payment_details: 支付明细列表
-      account_id: 就诊账户主键
-      charge_item_ids: 本次结算的收费明细主键列表
-      contract_no: 费用性质合同编号
-      remark: 结算备注
-      settled_at: 结算完成时间
-      settle_result_status: 结算结果状态
-      query_empty: 查询参数不能为空
-      encounter_id_invalid: 住院就诊记录主键不能为空且长度不能超过64个字符
-      encounter_id_too_long: 住院就诊记录主键长度不能超过64个字符
-      patient_id_invalid: 患者主键不能为空且长度不能超过64个字符
-      cost_status_invalid: 收费明细状态仅支持ALL、DRAFT、UNSETTLED、SETTLED或REFUNDED
-      page_index_invalid: 页码必须在1到1000000之间
-      page_size_invalid: 每页条数必须在1到100之间
-      history_status_invalid: 结算状态仅支持ALL、CONFIRMED、SUCCESS、REFUNDED或CANCELLED
-      settle_request_empty: 结算请求不能为空
-      account_id_invalid: 就诊账户主键不能为空且长度不能超过64个字符
-      charge_items_empty: 至少需要选择一条待结算收费项目
-      charge_items_too_many: 单次结算的收费项目不能超过500条
-      charge_item_id_invalid: 收费项目主键不能为空且长度不能超过64个字符
-      charge_item_id_duplicate: 收费项目主键不能重复
-      display_amount_invalid: 结算金额必须大于0且不能超过一万亿元
-      payment_details_empty: 至少需要提供一种支付方式
-      payment_details_too_many: 单次结算的支付方式不能超过10种
-      payment_detail_empty: 支付明细不能为空
-      pay_enum_invalid: 支付方式仅支持CASH、WECHAT、ALIPAY、BANK_CARD、ACCOUNT或INSURANCE
-      payment_amount_invalid: 每条支付明细金额必须大于0且不能超过一万亿元
-      payment_total_too_large: 支付明细金额合计不能超过一万亿元
-      pay_trans_no_too_long: 支付交易号长度不能超过255个字符
-      pay_trans_no_required: 微信、支付宝或银行卡支付必须提供支付交易号
-      payment_total_invalid: 支付明细金额合计必须等于结算金额
-      contract_no_too_long: 合同编号长度不能超过255个字符
-      bill_date_invalid: 结算时间必须使用yyyy-MM-dd HH:mm:ss格式且日期有效
-      remark_too_long: 结算备注长度不能超过255个字符
-      encounter_not_found: 未找到对应的患者住院记录
-      get_cost_detail_failed: 获取患者住院费用明细失败
-      get_settle_history_failed: 获取患者历史结算记录失败
-      settle_failed: 住院结算失败，请稍后重试
-      generate_id_failed: 生成结算主键失败
-      charge_amount_out_of_range: 收费项目金额超出系统可结算范围
-      operator_not_found: 无法从登录凭证中获取结算操作人
-      account_mismatch: 患者、住院记录与就诊账户不匹配
-      account_unavailable: 当前就诊账户不可用
-      account_already_settled: 当前就诊账户已经完成结账
-      contract_mismatch: 结算合同与就诊账户合同不一致
-      insurance_contract_requires_api: 医保住院结算需要先完成医保预结算及正式结算调用
-      charge_item_mismatch: 部分收费项目不存在或不属于当前就诊账户
-      charge_item_status_invalid: 所选收费项目中包含不可结算状态的数据
-      charge_amount_mismatch: 结算金额与所选收费项目金额合计不一致
-      insurance_payment_requires_api: 医保支付需要先完成医保预结算及正式结算调用
-      settle_payment_total_invalid: 支付明细金额合计与结算金额不一致
-      account_balance_insufficient: 就诊账户余额不足
-      insert_payment_failed: 新增住院结算支付流水失败
-      insert_payment_detail_failed: 新增住院结算支付明细失败
-      insert_invoice_failed: 新增住院结算发票失败
-      charge_item_state_changed: 收费项目状态已变化，请刷新后重试
-      account_state_changed: 就诊账户状态已变化，请刷新后重试
+      GetCostDetail:
+        summary: 获取患者费用明细清单
+      GetSettleHistory:
+        summary: 获取患者历史结算记录
+      Settle:
+        summary: 住院结算
+      GetCostDetailQuery:
+        encounterId:
+          description: 住院就诊主键
+        patientId:
+          description: 患者主键
+        statusEnum:
+          description: 收费明细状态，ALL表示全部
+      GetSettleHistoryQuery:
+        patientId:
+          description: 患者主键
+        encounterId:
+          description: 住院就诊主键，为空时查询患者全部住院记录
+        statusEnum:
+          description: 结算状态，ALL表示包含结算和退结算记录
+      CostDetailItemDTO:
+        chargeItemId:
+          description: 收费明细主键
+        busNo:
+          description: 收费明细业务流水号
+        prescriptionNo:
+          description: 处方号
+        itemName:
+          description: 收费项目名称
+          value: 阿莫西林胶囊
+        chargeCategoryCode:
+          description: 费用类别编码
+        chargeCategoryName:
+          description: 费用类别名称
+          value: 药品费
+        quantityValue:
+          description: 数量
+        quantityUnit:
+          description: 数量单位
+          value: 盒
+        unitPrice:
+          description: 单价
+        totalPrice:
+          description: 明细总价
+        statusEnum:
+          description: 收费明细状态
+        occurrenceTime:
+          description: 费用发生时间
+        performingOrgName:
+          description: 执行科室名称
+          value: 住院药房
+        entererName:
+          description: 录入人姓名
+          value: 张护士
+      GetCostDetailDTO:
+        patientId:
+          description: 患者主键
+        patientName:
+          description: 患者姓名
+          value: 张三
+        encounterId:
+          description: 住院就诊主键
+        encounterBusNo:
+          description: 住院号
+        totalAmount:
+          description: 费用总额
+        settledAmount:
+          description: 已结算金额
+        unsettledAmount:
+          description: 待结算金额
+        items:
+          description: 费用明细列表
+      SettlePaymentDetailDTO:
+        paymentDetailId:
+          description: 支付明细主键
+        payEnum:
+          description: 支付方式，支持CASH、WECHAT、ALIPAY、BANK_CARD、ACCOUNT、INSURANCE
+        amount:
+          description: 支付金额
+        returnAmount:
+          description: 支付明细退款金额
+        payTransNo:
+          description: 第三方支付流水号，现金支付可为空
+        payTransDate:
+          description: 支付时间
+        resultEnum:
+          description: 支付结果
+      SettleHistoryItemDTO:
+        settlementId:
+          description: 结算记录主键
+        paymentNo:
+          description: 支付流水号
+        patientId:
+          description: 患者主键
+        patientName:
+          description: 患者姓名
+          value: 张三
+        encounterId:
+          description: 住院就诊主键
+        encounterBusNo:
+          description: 住院号
+        kindEnum:
+          description: 流水类型，SETTLEMENT为结算，REVERSAL为退结算
+        statusEnum:
+          description: 结算状态
+        displayAmount:
+          description: 应付金额
+        tenderedAmount:
+          description: 实收金额
+        returnedAmount:
+          description: 找零金额
+        billDate:
+          description: 结算时间，格式yyyy-MM-dd HH:mm:ss
+        invoiceId:
+          description: 发票主键
+        setlId:
+          description: 医保结算标识
+        paymentDetails:
+          description: 支付明细列表
+      SettlePaymentDTO:
+        payEnum:
+          description: 支付方式，支持CASH、WECHAT、ALIPAY、BANK_CARD、ACCOUNT、INSURANCE
+        amount:
+          description: 支付金额
+        payTransNo:
+          description: 第三方支付流水号，现金支付可为空
+      SettleRequestDTO:
+        patientId:
+          description: 患者主键
+        encounterId:
+          description: 住院就诊主键
+        accountId:
+          description: 就诊账户主键
+        chargeItemIds:
+          description: 本次结算的收费明细主键列表
+        paymentDetails:
+          description: 支付明细列表
+        displayAmount:
+          description: 应付金额
+        contractNo:
+          description: 费用性质合同编号
+        billDate:
+          description: 结算时间，格式yyyy-MM-dd HH:mm:ss
+        remark:
+          description: 结算备注
+          value: 住院出院结算
+      SettleResultDTO:
+        paymentId:
+          description: 支付流水主键
+        paymentNo:
+          description: 支付流水号
+        preSettleId:
+          description: 预结算记录主键
+        setlId:
+          description: 医保结算标识
+        invoiceId:
+          description: 发票主键
+        displayAmount:
+          description: 应付金额
+        statusEnum:
+          description: 结算结果状态
+        settledAt:
+          description: 结算完成时间

@@ -10,68 +10,68 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 
-// »ñÈ¡Ã÷Ï¸ÁÐ±íµÄquery
+// èŽ·å–æ˜Žç»†åˆ—è¡¨çš„query
 class CostInfoQuery :public PageQuery
 {
 	DTO_INIT(CostInfoQuery, PageQuery);
 
-	// ¿ªÊ¼Ê±¼ä
-	DTO_FIELD(UInt64, start_time);
+	// å¼€å§‹æ—¶é—´
+	DTO_FIELD(String, start_time);
 	DTO_FIELD_INFO(start_time) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.start_time");
 		info->required = true;
 	}
 
-	// ½áÊøÊ±¼ä
-	DTO_FIELD(UInt64, end_time);
+	// ç»“æŸæ—¶é—´
+	DTO_FIELD(String, end_time);
 	DTO_FIELD_INFO(end_time) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.end_time");
 		info->required = true;
 	}
 
-	// »¼ÕßÐÕÃû
+	// æ‚£è€…å§“å
 	DTO_FIELD(String, name);
 	DTO_FIELD_INFO(name) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.name");
 	}
 
-	// ¹ÒºÅ¿ÆÊÒ
+	// æŒ‚å·ç§‘å®¤
 	DTO_FIELD(String, room);
 	DTO_FIELD_INFO(room) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.room");
 	}
 
-	// ÊÕ·Ñ´óÀà
+	// æ”¶è´¹å¤§ç±»
 	DTO_FIELD(String, feeClass);
 	DTO_FIELD_INFO(feeClass) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.feeClass");
 	}
 
-	// Ï¸·ÖÀà
+	// ç»†åˆ†ç±»
 	DTO_FIELD(String, detailClass);
 	DTO_FIELD_INFO(detailClass) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.detailClass");
 	}
 
-	// ÏîÄ¿Ãû³Æ
+	// é¡¹ç›®åç§°
 	DTO_FIELD(String, projectName);
 	DTO_FIELD_INFO(projectName) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.projectName");
 	}
 
-	// ÔºÄÚ±àºÅ
+	// é™¢å†…ç¼–å·
 	DTO_FIELD(String, hisID);
 	DTO_FIELD_INFO(hisID) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.hisID");
 	}
 
-	// ÊÕÒøÔ±
+	// æ”¶é“¶å‘˜
 	DTO_FIELD(String, checker);
 	DTO_FIELD_INFO(checker) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.checker");
 	}
 
-	// ÊÕÍË·½Ïò
+	// æ”¶é€€æ–¹å‘
 	DTO_FIELD(String, feeDir);
 	DTO_FIELD_INFO(feeDir) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.feeDir");
