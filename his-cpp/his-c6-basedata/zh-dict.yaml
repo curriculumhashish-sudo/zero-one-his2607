@@ -36,13 +36,13 @@ drug:
     definition: 阿莫西林胶囊，用于敏感菌所致的呼吸道感染等
     dosageInstruction: 饭后服用，每次1粒，每日3次
     restrictedScope: 仅限呼吸内科使用
-    statusEnabled: 启用
-    statusDisabled: 停用
+    statusEnabled: 已启用
+    statusDisabled: 已停用
     locationText: 门诊药房
     supplierText: 国药控股广州有限公司
   status:
-    enabled: 启用
-    disabled: 停用
+    enabled: 已启用
+    disabled: 已停用
   error:
     invalidInput: 请求参数不完整或不符合药品业务规则
     notFound: 未找到待操作的药品，或药品已被删除

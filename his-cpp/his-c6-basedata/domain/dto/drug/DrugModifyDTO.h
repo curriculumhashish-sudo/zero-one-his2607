@@ -195,7 +195,7 @@ class DrugModifyDTO : public oatpp::DTO
         dto->approvalNumber = ZH_WORDS_GETTER("drug.example.approvalNumber");
         dto->ybMatchFlag = true;
         dto->ybNo = "YB2025001";
-        dto->pharmacologyCategoryCode = "YL001";
+        dto->pharmacologyCategoryCode = "1";
         dto->skinTestFlag = false;
         dto->injectFlag = false;
         dto->manufacturerText = ZH_WORDS_GETTER("drug.example.manufacturerText");
@@ -234,7 +234,7 @@ class DrugModifyDTO : public oatpp::DTO
         dto->purchaseUnitRatio = 20.0;
         dto->stockUnitRatio = 20.0;
         dto->packageUnitRatio = 20.0;
-        dto->statusEnum = "2";
+        dto->statusEnum = "1";
         dto->statusEnumText = ZH_WORDS_GETTER("drug.example.statusEnabled");
         dto->activeFlag = true;
         dto->purchasePrice = 6.99;

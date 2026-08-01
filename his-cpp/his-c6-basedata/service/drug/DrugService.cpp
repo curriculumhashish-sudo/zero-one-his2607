@@ -19,6 +19,7 @@
 #include "stdafx.h"
 #include "DrugService.h"
 
+#include "../../dao/common/EnumDictionaryDAO.h"
 #include "../../dao/drug/DrugDAO.h"
 #include "../../domain/DrugConstants.h"
 #include "SimpleDateTimeFormat.h"
@@ -193,7 +194,9 @@ static void addUnitBand(oatpp::List<DrugUnitBandDTO::Wrapper> bands,
 
 static DrugModifyResultDTO::Wrapper toResultDTO(const PtrMedMedicationDefinitionDO &drug,
                                                 const std::list<PtrAdmChargeItemDefinitionDO> &prices,
-                                                const PtrDrugModifyTextResult &texts)
+                                                const PtrDrugModifyTextResult &texts,
+                                                const std::string &statusText,
+                                                const std::string &activeFlagText)
 {
     auto dto = DrugModifyResultDTO::createShared();
     ZO_STAR_DOMAIN_DO_TO_DTO_1(
@@ -244,12 +247,8 @@ static DrugModifyResultDTO::Wrapper toResultDTO(const PtrMedMedicationDefinition
     {
         dto->statusEnum = DrugConstants::API_STATUS_DISCARDED;
     }
-    dto->statusEnumText = drug->getStatusEnum() == DrugConstants::STATUS_ACTIVE
-                              ? ZH_WORDS_GETTER("drug.status.enabled")
-                              : ZH_WORDS_GETTER("drug.status.disabled");
-    dto->activeFlagText =
-        drug->getActiveFlag() ? ZH_WORDS_GETTER("drug.status.enabled")
-                              : ZH_WORDS_GETTER("drug.status.disabled");
+    dto->statusEnumText = statusText;
+    dto->activeFlagText = activeFlagText;
 
     dto->purchasePrice = nullptr;
     dto->retailPrice = nullptr;
@@ -337,6 +336,21 @@ DrugModifyResultDTO::Wrapper DrugService::updateDrug(const DrugModifyDTO::Wrappe
             throw DrugServiceException(DrugServiceError::InvalidStatus);
         }
 
+        // 使用 MongoDB 枚举字典校验两种拆分规则。
+        stage = "validate-enums";
+        EnumDictionaryDAO enumDictionaryDAO;
+        const std::vector<std::string> ruleCodes = {
+            dto->partAttributeEnum.getValue(""),
+            dto->thoPartAttributeEnum.getValue("")};
+        const auto ruleDisplays = enumDictionaryDAO.findActiveDisplays(
+            EnumDictionaryDAO::ORDER_CALC_RULE_ENUM,
+            ruleCodes);
+        if (ruleDisplays.find(ruleCodes[0]) == ruleDisplays.end() ||
+            ruleDisplays.find(ruleCodes[1]) == ruleDisplays.end())
+        {
+            throw DrugServiceException(DrugServiceError::InvalidInput);
+        }
+
         const std::string auditOperator = operatorId(payload);
         const std::string operationTime = SimpleDateTimeFormat::format();
         MedMedicationDefinitionDO data;
@@ -391,8 +405,20 @@ DrugModifyResultDTO::Wrapper DrugService::updateDrug(const DrugModifyDTO::Wrappe
         {
             throw DrugServiceException(DrugServiceError::InvalidInput);
         }
+        const std::string activeStatus = updated->getActiveFlag()
+                                             ? DrugConstants::STATUS_ACTIVE
+                                             : DrugConstants::STATUS_INACTIVE;
+        const auto statusDisplays = enumDictionaryDAO.findActiveDisplays(
+            EnumDictionaryDAO::PUBLICATION_STATUS_ENUM,
+            {updated->getStatusEnum(), activeStatus});
+        const auto statusText = statusDisplays.find(updated->getStatusEnum());
+        const auto activeFlagText = statusDisplays.find(activeStatus);
+        if (statusText == statusDisplays.end() || activeFlagText == statusDisplays.end())
+        {
+            throw DrugServiceException(DrugServiceError::DatabaseFailure);
+        }
         stage = "map-result";
-        auto result = toResultDTO(updated, prices, texts);
+        auto result = toResultDTO(updated, prices, texts, statusText->second, activeFlagText->second);
         stage = "commit";
         transaction.commit();
         return result;
