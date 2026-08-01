@@ -37,6 +37,9 @@ class ConfirmSettleChargeRequestDTO : public oatpp::DTO
 {
     DTO_INIT(ConfirmSettleChargeRequestDTO, DTO);
 
+    // 操作人载荷（由Controller注入，Service读取）
+    CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
+
     // 支付草稿主键——核心防重/防换单锚点
     API_DTO_FIELD(String, paymentDraftId,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeRequestDTO.paymentDraftId.description"),
@@ -75,7 +78,7 @@ class ConfirmSettleChargeRequestDTO : public oatpp::DTO
     // 医保收费批次号列表（多组）
     API_DTO_FIELD(Vector<String>, ybChrgBchnos,
         ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeRequestDTO.ybChrgBchnos.description"),
-        false, {""});
+        false, {});
 
     // 银联被扫回执（仅扫码支付时传入）
     API_DTO_FIELD(Object<ClientScanResultDTO>, clientScanResult,

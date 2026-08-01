@@ -673,6 +673,21 @@ lhfc:
       ConfirmPrintResponseDTO:
         ok:
           description: 审计落库是否成功
+      # ---- 字典翻译 ----
+      dict:
+        gender:
+          male: 男
+          female: 女
+        ageSuffix: 岁
+        chargeStatus:
+          pending: 待收费
+          settled: 已结算
+          refunding: 退费中
+          refunded: 已退费
+        rollupStatus:
+          planned: 计划中
+          settled: 已结算
+          mixed: 混合
 qi:
   charging:
     settle:
