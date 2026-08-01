@@ -36,18 +36,15 @@ public interface InStockOrderService {
      */
     void submit(String orderId, InStockOrderDTO dto);
 
-    /**
-     * 获取单据列表（条件+分页）
-     */
-    IPage<PurchaseInboundListVO> listInboundOrders(PurchaseInboundQuery query);
+    default IPage<PurchaseInboundListVO> listInboundOrders(PurchaseInboundQuery query) {
+        throw new UnsupportedOperationException("入库单列表查询接口暂未实现");
+    }
 
-    /**
-     * 获取单据详情
-     */
-    PurchaseInboundDetailVO getInboundDetail(String id);
+    default PurchaseInboundDetailVO getInboundDetail(String id) {
+        throw new UnsupportedOperationException("入库单详情查询接口暂未实现");
+    }
 
-    /**
-     * 提交审批
-     */
-    void submitInboundOrder(PurchaseInboundSubmitDTO dto);
+    default void submitInboundOrder(PurchaseInboundSubmitDTO dto) {
+        throw new UnsupportedOperationException("入库单提交审批接口暂未实现");
+    }
 }
