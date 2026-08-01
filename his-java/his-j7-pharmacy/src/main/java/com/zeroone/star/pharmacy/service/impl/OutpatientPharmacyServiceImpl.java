@@ -3,15 +3,12 @@ package com.zeroone.star.pharmacy.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zeroone.star.pharmacy.entity.WkfInventoryItem;
 import com.zeroone.star.pharmacy.entity.WkfSupplyDelivery;
 import com.zeroone.star.pharmacy.entity.WkfSupplyRequest;
-import com.zeroone.star.pharmacy.mapper.WkfInventoryItemMapper;
 import com.zeroone.star.pharmacy.mapper.WkfSupplyDeliveryMapper;
 import com.zeroone.star.pharmacy.mapper.WkfSupplyRequestMapper;
 import com.zeroone.star.pharmacy.service.IOutpatientPharmacyService;
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j7.pharmacy.ReturnConfirmDTO;
 import com.zeroone.star.project.dto.j7.pharmacy.ReturnRejectDTO;
 import com.zeroone.star.project.query.j7.pharmacy.PatientQueueQuery;
 import com.zeroone.star.project.vo.j7.pharmacy.DrugItemVO;
@@ -20,8 +17,6 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,8 +31,13 @@ import java.util.stream.Collectors;
  * - wkf_supply_request（供应请求表）：退药主单据，退药类型为"门诊退药"
  * - wkf_supply_delivery（供应交付表）：退药明细
  * </p>
- * <p>版权：&copy;01星球</p>
- * <p>地址：01星球总部</p>
+ * <p>
+ * 版权：&copy;01星球
+ * </p>
+ * <p>
+ * 地址：01星球总部
+ * </p>
+ * 
  * @author 01star
  * @version 1.0.0
  */
@@ -49,9 +49,6 @@ public class OutpatientPharmacyServiceImpl implements IOutpatientPharmacyService
 
     @Resource
     private WkfSupplyDeliveryMapper wkfSupplyDeliveryMapper;
-
-    @Resource
-    private WkfInventoryItemMapper wkfInventoryItemMapper;
 
     /**
      * 分页查询门诊退药患者队列
@@ -95,8 +92,7 @@ public class OutpatientPharmacyServiceImpl implements IOutpatientPharmacyService
     public List<DrugItemVO> getReturnDrugItems(String returnId) {
         List<WkfSupplyDelivery> deliveries = wkfSupplyDeliveryMapper.selectList(
                 new LambdaQueryWrapper<WkfSupplyDelivery>()
-                        .eq(WkfSupplyDelivery::getRequestId, returnId)
-        );
+                        .eq(WkfSupplyDelivery::getRequestId, returnId));
         if (deliveries.isEmpty()) {
             return Collections.emptyList();
         }
@@ -109,84 +105,6 @@ public class OutpatientPharmacyServiceImpl implements IOutpatientPharmacyService
             vo.setBatchNo(item.getLotNumber());
             return vo;
         }).collect(Collectors.toList());
-    }
-
-    /**
-     * 执行确认退药（回补库存）
-     * <p>
-     * 根据勾选的药品明细ID列表，回补 wkf_inventory_item 表库存数量，
-     * 并更新 wkf_supply_request 表状态为"已完成"。
-     * 业务流程：
-     * 1. 校验退药单据存在且状态为"待处理"
-     * 2. 根据勾选的明细ID查询 wkf_supply_delivery 获取药品信息
-     * 3. 根据药品ID、批号、库房查询 wkf_inventory_item 库存项
-     * 4. 回补库存数量（增加 quantity）
-     * 5. 更新 wkf_supply_request 状态为"已完成"
-     * 6. 更新 wkf_supply_delivery 状态为"已完成"
-     * </p>
-     *
-     * @param dto 退药确认参数
-     */
-    @Override
-    @Transactional
-    public void confirmReturn(ReturnConfirmDTO dto) {
-        // 1. 查询退药请求
-        WkfSupplyRequest request = wkfSupplyRequestMapper.selectById(dto.getReturnId());
-        if (request == null) {
-            throw new IllegalArgumentException("退药单据不存在");
-        }
-        if (!"RETURN_OUTPATIENT".equals(request.getTypeEnum())) {
-            throw new IllegalArgumentException("单据类型错误");
-        }
-        if (!"PENDING".equals(request.getStatusEnum())) {
-            throw new IllegalArgumentException("单据状态错误，只有待处理状态才能确认退药");
-        }
-
-        // 2. 根据勾选的明细ID查询交付记录
-        List<WkfSupplyDelivery> deliveries = wkfSupplyDeliveryMapper.selectBatchIds(dto.getItemIds());
-        if (deliveries.isEmpty()) {
-            throw new IllegalArgumentException("退药明细为空");
-        }
-
-        // 3. 回补库存
-        for (WkfSupplyDelivery delivery : deliveries) {
-            WkfInventoryItem inventoryItem = wkfInventoryItemMapper.findByItemLotAndLocation(
-                    delivery.getItemId(),
-                    delivery.getLotNumber(),
-                    request.getSourceLocationId() != null ? request.getSourceLocationId() : request.getPurposeLocationId()
-            );
-
-            if (inventoryItem != null) {
-                // 回补库存数量
-                BigDecimal delta = delivery.getQuantity() != null ? delivery.getQuantity() : BigDecimal.ZERO;
-                int updated = wkfInventoryItemMapper.updateQuantity(
-                        inventoryItem.getId(),
-                        delta,
-                        inventoryItem.getVersion(),
-                        dto.getOperator()
-                );
-                if (updated == 0) {
-                    throw new IllegalArgumentException("库存更新失败，请重试");
-                }
-            }
-        }
-
-        // 4. 更新 wkf_supply_request 状态为"已完成"
-        wkfSupplyRequestMapper.update(null,
-                new LambdaUpdateWrapper<WkfSupplyRequest>()
-                        .eq(WkfSupplyRequest::getId, dto.getReturnId())
-                        .set(WkfSupplyRequest::getStatusEnum, "COMPLETED")
-                        .set(WkfSupplyRequest::getApprovalTime, LocalDateTime.now())
-                        .set(WkfSupplyRequest::getUpdatedBy, dto.getOperator())
-        );
-
-        // 5. 更新 wkf_supply_delivery 状态为"已完成"
-        wkfSupplyDeliveryMapper.update(null,
-                new LambdaUpdateWrapper<WkfSupplyDelivery>()
-                        .in(WkfSupplyDelivery::getId, dto.getItemIds())
-                        .set(WkfSupplyDelivery::getStatusEnum, "COMPLETED")
-                        .set(WkfSupplyDelivery::getReceiveTime, LocalDateTime.now())
-        );
     }
 
     /**
@@ -206,7 +124,6 @@ public class OutpatientPharmacyServiceImpl implements IOutpatientPharmacyService
                         .eq(WkfSupplyRequest::getId, dto.getReturnId())
                         .eq(WkfSupplyRequest::getTypeEnum, "RETURN_OUTPATIENT")
                         .set(WkfSupplyRequest::getStatusEnum, "REJECTED")
-                        .set(WkfSupplyRequest::getReason, dto.getRejectReason())
-        );
+                        .set(WkfSupplyRequest::getReason, dto.getRejectReason()));
     }
 }
