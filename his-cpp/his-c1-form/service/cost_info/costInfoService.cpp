@@ -84,3 +84,4 @@ CostInfoDataDTO::Wrapper CostInfoService::exportAll(const CostInfoQuery::Wrapper
 	}
 	return pages;
 }
+
