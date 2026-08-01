@@ -301,6 +301,7 @@ import {
 import type {
   PageOutpatientDispenseRecordsParams
 } from '@/apis/pharmacy/dispense-record/outpatient/type'
+import type { OutpatientDispenseRecordItemDTO } from '@/apis/pharmacy/dispense-record/outpatient/type'
 
 import {
   loadInpatientDispenseRecordInit,
@@ -310,6 +311,7 @@ import {
 import type {
   PageInpatientDispenseRecordsParams
 } from '@/apis/pharmacy/dispense-record/inpatient/type'
+import type { InpatientDispenseRecordItemDTO } from '@/apis/pharmacy/dispense-record/inpatient/type'
 
 const props = defineProps<{
   scope: DispenseRecordScope
@@ -386,7 +388,7 @@ function spanMethod({
 
   const data = tableData.value
   if (rowIndex >= data.length) return undefined
-  const currentRow = data[rowIndex]
+  const currentRow = data[rowIndex]!
   const currentKey = getGroupKey(currentRow)
 
   if (!currentKey) return undefined
@@ -398,7 +400,7 @@ function spanMethod({
 
   let groupSize = 1
   for (let i = rowIndex + 1; i < data.length; i++) {
-    if (getGroupKey(data[i]) === currentKey) groupSize++
+    if (getGroupKey(data[i]!) === currentKey) groupSize++
     else break
   }
 
@@ -500,8 +502,8 @@ async function loadData() {
     if (currentSeed === requestSeed) {
       total.value = result.total
       rawRecords.value = isInpatient.value
-        ? result.records.map(adaptInpatientRecord)
-        : result.records.map(adaptOutpatientRecord)
+        ? (result.records as InpatientDispenseRecordItemDTO[]).map(adaptInpatientRecord)
+        : (result.records as OutpatientDispenseRecordItemDTO[]).map(adaptOutpatientRecord)
     }
   } catch (e) {
     if (currentSeed === requestSeed) {

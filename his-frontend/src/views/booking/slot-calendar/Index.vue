@@ -20,6 +20,7 @@ import {
 } from '@/apis/booking/slot-calendar'
 import RemoteSelectField from '@/components/common/RemoteSelectField.vue'
 import ActionToolbar from '@/components/common/ActionToolbar.vue'
+import PaginationBar from '@/components/common/PaginationBar.vue'
 import SearchPanel from '@/components/common/SearchPanel.vue'
 import TimeSlotGrid from '@/components/schedule/TimeSlotGrid.vue'
 import SlotDetailDialog from './components/SlotDetailDialog.vue'
@@ -104,6 +105,7 @@ const slotStatusMap: TimeSlotStatusMap = {
   available: { text: '可约', type: 'success', selectable: true },
   full: { text: '已满', type: 'danger', selectable: false },
   stopped: { text: '停诊', type: 'warning', selectable: false },
+  blocked: { text: '已封锁', type: 'warning', selectable: false },
   expired: { text: '过期', type: 'info', selectable: false }
 }
 
@@ -113,7 +115,7 @@ async function initialize() {
   try {
     const result = await loadSlotInit()
     organizationId.value = result.organizationId
-    query.departmentId = query.departmentId ?? result.organizationId
+    query.departmentId = query.departmentId ?? result.departments[0]?.value ?? null
     departments.value = result.departments
     doctors.value = result.doctors
     await loadSlots()
@@ -149,8 +151,8 @@ async function loadSlots() {
       organizationId: query.departmentId ?? organizationId.value,
       date: query.date,
       practitionerId: query.doctorId,
-      pageNo: query.keyword.trim() ? 1 : query.pageNo,
-      pageSize: query.pageSize
+      PageIndex: query.keyword.trim() ? 1 : query.pageNo,
+      PageSize: query.pageSize
     }
     const firstPage = await pageSlotsByDate(request, { signal: currentController.signal })
     if (sequence !== requestSequence || currentController.signal.aborted) return
@@ -163,10 +165,7 @@ async function loadSlots() {
     const pageCount = Math.ceil(firstPage.totalCount / query.pageSize)
     const remainingPages = await Promise.all(
       Array.from({ length: Math.max(0, pageCount - 1) }, (_, index) =>
-        pageSlotsByDate(
-          { ...request, pageNo: index + 2 },
-          { signal: currentController.signal }
-        )
+        pageSlotsByDate({ ...request, PageIndex: index + 2 }, { signal: currentController.signal })
       )
     )
     if (sequence !== requestSequence || currentController.signal.aborted) return
@@ -194,10 +193,15 @@ function resetQuery() {
   Object.assign(query, {
     date: todayText(),
     keyword: '',
-    departmentId: organizationId.value || null,
+    departmentId: departments.value[0]?.value ?? null,
     doctorId: null,
     pageNo: 1
   })
+  void loadSlots()
+}
+
+function submitQuery() {
+  query.pageNo = 1
   void loadSlots()
 }
 
@@ -205,6 +209,13 @@ function handleDepartmentChange() {
   const doctor = doctors.value.find((item) => item.value === query.doctorId)
   if (doctor && doctor.departmentId !== query.departmentId) query.doctorId = null
   query.pageNo = 1
+}
+
+function handlePaginationChange(payload: { page: number; pageSize: number }) {
+  const pageSizeChanged = payload.pageSize !== query.pageSize
+  query.pageNo = pageSizeChanged ? 1 : payload.page
+  query.pageSize = payload.pageSize
+  void loadSlots()
 }
 
 async function openSlotDetail(slot: TimeSlot) {
@@ -239,6 +250,8 @@ function showUnavailableReason(slot: TimeSlot) {
 
 async function blockSelected() {
   if (!selectedSlotIds.value.length || actionLoading.value) return
+  const slotIds = [...selectedSlotIds.value]
+  actionLoading.value = true
   try {
     const { value } = await ElMessageBox.prompt(
       '封锁后号源不可预约，请填写原因。',
@@ -248,8 +261,7 @@ async function blockSelected() {
         inputValidator: (reason) => Boolean(reason.trim()) || '请输入封锁原因'
       }
     )
-    actionLoading.value = true
-    await batchBlockSlots({ slotIds: [...selectedSlotIds.value], reason: value })
+    await batchBlockSlots({ slotIds, reason: value })
     ElMessage.success('号源已封锁')
     await loadSlots()
   } catch (error) {
@@ -262,14 +274,15 @@ async function blockSelected() {
 
 async function unblockSelected() {
   if (!selectedSlotIds.value.length || actionLoading.value) return
+  const slotIds = [...selectedSlotIds.value]
+  actionLoading.value = true
   try {
     await ElMessageBox.confirm(
       '确认解封所选号源？排班停诊产生的不可用号源不会恢复。',
       '批量解封确认',
       { type: 'warning' }
     )
-    actionLoading.value = true
-    await batchUnblockSlots({ slotIds: [...selectedSlotIds.value] })
+    await batchUnblockSlots({ slotIds })
     ElMessage.success('号源已解封')
     await loadSlots()
   } catch (error) {
@@ -285,11 +298,11 @@ async function toggleOverbooked() {
   const row = rows.value.find((item) => item.slotId === id)
   if (!id || !row || actionLoading.value) return
   const next = !row.overbookedFlag
+  actionLoading.value = true
   try {
     await ElMessageBox.confirm(`确认${next ? '标记' : '取消'}该号源的超售状态？`, '超售标记确认', {
       type: 'warning'
     })
-    actionLoading.value = true
     await markSlotOverbooked({ slotId: id, overbookedFlag: next })
     ElMessage.success(next ? '已标记超售' : '已取消超售标记')
     await loadSlots()
@@ -323,7 +336,7 @@ onBeforeUnmount(() => {
       keyword-placeholder="医生、科室、诊室或时间"
       :field-count="3"
       :loading="loading"
-      @search="loadSlots"
+      @search="submitQuery"
       @reset="resetQuery"
     >
       <template #header>
@@ -398,22 +411,23 @@ onBeforeUnmount(() => {
           <el-tag type="success" effect="plain">可约</el-tag>
           <el-tag type="danger" effect="plain">已满</el-tag>
           <el-tag type="warning" effect="plain">停诊</el-tag>
+          <el-tag type="warning" effect="dark">已封锁</el-tag>
           <el-tag type="info" effect="plain">过期</el-tag>
         </div>
       </header>
 
       <div class="slot-page__summary">
         <div>
-          <span>总号数</span><strong>{{ summary.capacity }}</strong>
+          <span>本页总号数</span><strong>{{ summary.capacity }}</strong>
         </div>
         <div>
-          <span>已用号数</span><strong>{{ summary.used }}</strong>
+          <span>本页已用号数</span><strong>{{ summary.used }}</strong>
         </div>
         <div>
-          <span>剩余号数</span><strong>{{ summary.remaining }}</strong>
+          <span>本页剩余号数</span><strong>{{ summary.remaining }}</strong>
         </div>
         <div>
-          <span>停诊时段</span><strong>{{ summary.stopped }}</strong>
+          <span>本页停诊时段</span><strong>{{ summary.stopped }}</strong>
         </div>
       </div>
 
@@ -452,13 +466,14 @@ onBeforeUnmount(() => {
         @select="openSlotDetail"
         @disabled-click="showUnavailableReason"
       />
-      <el-pagination
-        v-if="total > query.pageSize"
-        v-model:current-page="query.pageNo"
+      <PaginationBar
+        v-if="total > 0"
+        class="slot-pagination"
+        :page="query.pageNo"
         :page-size="query.pageSize"
         :total="total"
-        layout="total, prev, pager, next"
-        @change="loadSlots"
+        :disabled="loading"
+        @change="handlePaginationChange"
       />
     </section>
 
@@ -505,6 +520,9 @@ onBeforeUnmount(() => {
   border-radius: 6px;
   color: #303133;
   background: #ffffff;
+}
+.slot-pagination {
+  justify-content: flex-end;
 }
 .slot-page__header {
   display: flex;

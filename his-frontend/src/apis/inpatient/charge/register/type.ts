@@ -38,8 +38,11 @@ export interface RegistrationQueueRecord {
 }
 
 export interface RegistrationQueueQuery {
-  pageNo: number
-  pageSize: number
+  page?: number
+  pageNo?: number
+  pageSize?: number
+  PageIndex?: number
+  PageSize?: number
   keyword?: string
   idCard?: string
   registrationListStatus?: RegistrationStatus | ''
@@ -122,8 +125,11 @@ export interface RegistrationPageInitResult {
 
 export interface RegistrationPatientQuery {
   keyword?: string
-  pageNo: number
-  pageSize: number
+  page?: number
+  pageNo?: number
+  pageSize?: number
+  PageIndex?: number
+  PageSize?: number
 }
 
 export interface RegistrationPatientPage {

@@ -14,7 +14,7 @@
         :dropdown2-options="queueDropdown2Options"
         :show-dropdown2="true"
         add-button-text="新增单据"
-        @select="selectedOrder = $event"
+        @select="handleQueueSelect"
         @create="selectedOrder = null"
         @reset="selectedOrder = null"
       />
@@ -68,6 +68,10 @@ const pharmacyOptions = [
 // ==================== 选中状态 ====================
 
 const selectedOrder = ref<PurchaseInboundOrder | null>(null)
+
+function handleQueueSelect(order: Record<string, unknown>) {
+  selectedOrder.value = order as unknown as PurchaseInboundOrder
+}
 
 // ==================== 左侧 Queue 区下拉菜单配置 ====================
 

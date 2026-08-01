@@ -4,6 +4,7 @@ export type PurchaseInboundStatus = 0 | 1 | 2 | 3
 export interface PurchaseInboundOrder {
   id: string
   docNo: string
+  busNo?: string
   date: string
   handler: string
   counterparty: string
@@ -14,6 +15,18 @@ export interface PurchaseInboundOrder {
   /** 药品或耗材。 */
   category: string
   rejectReason?: string
+  statusEnum?: PurchaseInboundStatus
+  statusEnum_enumText?: string
+  applicantId_dictText?: string
+  applyTime?: string
+  approverId_dictText?: string
+  approvalTime?: string
+  supplierId_dictText?: string
+  sourceLocationId_dictText?: string
+  purposeLocationId_dictText?: string
+  totalAmount?: number
+  _draft?: boolean
+  _clientDraftId?: string
 }
 
 export interface PurchaseInboundQuery {

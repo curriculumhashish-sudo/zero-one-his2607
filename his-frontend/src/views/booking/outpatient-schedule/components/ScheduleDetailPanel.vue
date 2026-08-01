@@ -39,9 +39,7 @@ const isVoided = computed(() => Boolean(props.data?.voidedFlag))
 const isDraft = computed(() => props.data?.status === 'draft' && !isVoided.value)
 const isPublished = computed(() => props.data?.status === 'published' && !isVoided.value)
 const isStopped = computed(() => props.data?.status === 'stopped' && !isVoided.value)
-const hasPartialStoppedSlots = computed(
-  () => (props.data?.partialStoppedSlotIds?.length ?? 0) > 0
-)
+const hasPartialStoppedSlots = computed(() => (props.data?.partialStoppedSlotIds?.length ?? 0) > 0)
 
 const items: DescriptionItem[] = [
   { prop: 'departmentName', label: '科室' },
@@ -92,10 +90,7 @@ function handleMore(command: string) {
     </div>
     <template #footer>
       <div v-if="data && !isVoided" class="schedule-detail__actions">
-        <el-button
-          v-if="isDraft"
-          :disabled="actionLoading"
-          @click="emit('edit', data)"
+        <el-button v-if="isDraft" :disabled="actionLoading" @click="emit('edit', data)"
           >编辑</el-button
         >
         <el-button
@@ -121,6 +116,7 @@ function handleMore(command: string) {
         >
         <el-dropdown
           v-if="isPublished || isDraft || isStopped"
+          trigger="click"
           :disabled="actionLoading"
           @command="handleMore"
         >

@@ -12,6 +12,7 @@ import {
   type ClinicalOrderContext,
   type ClinicalOrderDraft
 } from '@/components/clinical/order'
+import type { InpatientMedicalOrderTherapyType } from '@/apis/inpatient/doctor-station/type'
 
 /** 将住院医嘱记录转换为公共医嘱编辑器草稿。 */
 export function toInpatientClinicalOrder(order: InpatientMedicalOrderRecordVO): ClinicalOrderDraft {
@@ -86,7 +87,7 @@ export function toCreateInpatientMedicalOrderDTO(
     quantity: order.quantity ?? 0,
     quantityUnit: order.quantityUnit ?? '项',
     remark: order.remark,
-    therapyType: order.therapyType ?? 'TEMPORARY',
+    therapyType: (order.therapyType ?? 'TEMPORARY') as InpatientMedicalOrderTherapyType,
     orderNo: index + 1
   }
 }
@@ -117,8 +118,9 @@ export const inpatientAdviceAdapter = {
     candidate: ClinicalOrderCandidate,
     context: ClinicalOrderContext
   ): ClinicalOrderDraft {
-    const therapyType =
-      candidate.defaultTherapyType ?? (candidate.category === 'DRUG' ? 'LONG_TERM' : 'TEMPORARY')
+    const therapyType: InpatientMedicalOrderTherapyType =
+      (candidate.defaultTherapyType as InpatientMedicalOrderTherapyType | undefined) ??
+      (candidate.category === 'DRUG' ? 'LONG_TERM' : 'TEMPORARY')
     return {
       key: `draft-${context.encounterKey}-${candidate.id}`,
       catalogId: candidate.id,

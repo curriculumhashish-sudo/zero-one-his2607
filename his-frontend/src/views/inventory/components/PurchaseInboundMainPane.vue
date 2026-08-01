@@ -2,11 +2,7 @@
   <div class="main-pane">
     <DocumentHeadPanel
       :title="title"
-<<<<<<< HEAD
-      :status="orderData ? orderData.status : 0"
-=======
       :status="order?.status ?? 0"
->>>>>>> remotes/origin/f1-cat
       :status-map="statusMap"
       :loading="loading"
     >
@@ -21,11 +17,7 @@
                 v-if="field.type === 'input'"
                 v-model="searchValues[field.prop]"
                 :placeholder="field.placeholder"
-<<<<<<< HEAD
-                :disabled="field.disabled || searchDisabled"
-=======
                 :disabled="field.disabled || !canEditRows"
->>>>>>> remotes/origin/f1-cat
                 size="default"
               />
               <!-- 下拉菜单 -->
@@ -33,11 +25,7 @@
                 v-else-if="field.type === 'select'"
                 v-model="searchValues[field.prop]"
                 :placeholder="field.placeholder"
-<<<<<<< HEAD
-                :disabled="field.disabled || searchDisabled"
-=======
                 :disabled="field.disabled || !canEditRows"
->>>>>>> remotes/origin/f1-cat
                 clearable
                 size="default"
               >
@@ -54,11 +42,7 @@
                 v-model="searchValues[field.prop]"
                 type="datetime"
                 :placeholder="field.placeholder"
-<<<<<<< HEAD
-                :disabled="field.disabled || searchDisabled"
-=======
                 :disabled="field.disabled || !canEditRows"
->>>>>>> remotes/origin/f1-cat
                 size="default"
                 style="width: 100%"
               />
@@ -78,11 +62,8 @@
           row-key="id"
           show-add
           show-delete
-<<<<<<< HEAD
-=======
           :disable-add="!canEditRows"
           :disable-delete="!canEditRows"
->>>>>>> remotes/origin/f1-cat
           @row-add="handleRowAdd"
         >
           <!-- 项目名称： 点击输入框弹出 SelectTable -->
@@ -176,41 +157,6 @@
       <!-- ==================== 底部按钮 ==================== -->
       <template #extra>
         <div class="main-pane__footer">
-<<<<<<< HEAD
-          <el-button color="#006BE6" size="default" @click="emit('action', 'save')"
-            >保存单据</el-button
-          >
-          <el-button color="#006BE6" plain size="default" @click="emit('action', 'saveAndSubmit')"
-            >保存并提交审批</el-button
-          >
-          <el-button color="#FF3860" plain size="default" @click="emit('action', 'delete')"
-            >删除单据</el-button
-          >
-          <span class="main-pane__divider" />
-          <el-button color="#006BE6" plain size="default" @click="emit('action', 'submit')"
-            >提交审批</el-button
-          >
-          <el-button @click="emit('action', 'withdraw')"
-            ><el-icon><RefreshLeft /></el-icon>&nbsp;撤回</el-button
-          >
-          <span class="main-pane__divider" />
-          <el-button
-            v-if="footerVisible('approve')"
-            color="#57D188"
-            size="default"
-            style="color: #ffffff"
-            @click="emit('action', 'approve')"
-            ><el-icon><Check /></el-icon>审批</el-button
-          >
-          <el-button
-            v-if="footerVisible('reject')"
-            color="#EFBD48"
-            size="default"
-            style="color: #ffffff"
-            @click="emit('action', 'reject')"
-            >驳回</el-button
-          >
-=======
           <el-button
             color="#006BE6"
             size="default"
@@ -258,7 +204,6 @@
             :disabled="!btnVisible.reject"
             @click="emit('action', 'reject')"
           >驳回</el-button>
->>>>>>> remotes/origin/f1-cat
         </div>
       </template>
     </DocumentHeadPanel>
@@ -276,19 +221,12 @@
 </template>
 
 <script setup lang="ts">
-<<<<<<< HEAD
-import { ref, reactive, watch } from 'vue'
-=======
 import { ref, reactive, computed, watch, onMounted } from 'vue'
->>>>>>> remotes/origin/f1-cat
 import { Edit, RefreshLeft, Check } from '@element-plus/icons-vue'
 import DocumentHeadPanel from '@/components/warehouse/DocumentHeadPanel.vue'
 import DocumentDetailEditableTable from '@/components/warehouse/DocumentDetailEditableTable.vue'
 import SelectTable from '@/components/common/SelectTable.vue'
-<<<<<<< HEAD
-=======
 import { getPurchaseInboundDetail } from '@/apis/warehouse/purchase-inbound'
->>>>>>> remotes/origin/f1-cat
 
 // ==================== 类型 ====================
 
@@ -378,17 +316,11 @@ const emit = defineEmits<{
 
 const statusMap = [
   { label: '编辑中', value: 0 },
-<<<<<<< HEAD
-  { label: '入库中', value: 1 },
-  { label: '已完成', value: 2 },
-  { label: '已作废', value: 3 }
-=======
   { label: '待审核', value: 1 },
   { label: '审核中', value: 2 },
   { label: '已撤回', value: 3 },
   { label: '同意', value: 4 },
   { label: '驳回', value: 5 }
->>>>>>> remotes/origin/f1-cat
 ]
 
 const unitOptions = [
@@ -413,10 +345,6 @@ function buildSearchValues() {
 // ==================== 明细状态 ====================
 
 const details = ref<any[]>([])
-<<<<<<< HEAD
-const loading = ref(false)
-
-=======
 const order = ref<Record<string, any> | null>(null)
 const loading = ref(false)
 
@@ -437,18 +365,16 @@ const btnVisible = computed(() => {
     submit: s === 1 || s === 3,
     withdraw: s === 2,
     approve: s === 2,
-    reject: s === 2,
+    reject: s === 2
   }
 })
-
->>>>>>> remotes/origin/f1-cat
 /** SelectTable 弹窗状态 */
 const selectTableVisible = ref(false)
 const selectTargetRowId = ref<string>('')
 
 // ==================== SelectTable ====================
 
-function openSelectTable(rowKey: string) {
+function openSelectTable(rowKey: string | number) {
   selectTargetRowId.value = String(rowKey)
   selectTableVisible.value = true
 }
@@ -494,11 +420,9 @@ function deleteRow(index: number) {
   details.value.splice(index, 1)
 }
 
-<<<<<<< HEAD
 // ==================== 监听 ====================
 
 watch(() => props.extraSearchFields, buildSearchValues, { immediate: true })
-=======
 // ==================== 加载单据详情 ====================
 
 async function loadDetail() {
@@ -530,7 +454,6 @@ onMounted(() => {
 })
 
 defineExpose({ details, loadDetail, resetSearchValues: () => { for (const k of Object.keys(searchValues)) delete searchValues[k]; buildSearchValues() } })
->>>>>>> remotes/origin/f1-cat
 </script>
 
 <style scoped>

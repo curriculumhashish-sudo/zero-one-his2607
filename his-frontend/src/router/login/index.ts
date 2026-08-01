@@ -1,6 +1,7 @@
 const routes = [
   {
-    path: '/',
+    path: '/login',
+    alias: '/',
     name: 'Login',
     meta: {
       anonymous: true

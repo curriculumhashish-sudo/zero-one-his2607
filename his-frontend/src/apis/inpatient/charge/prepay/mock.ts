@@ -194,15 +194,17 @@ export async function mockPageInpatientQueue(
         `${item.name}${item.patientNo}${item.visitNo}${item.bedNo}`.toLowerCase().includes(key))
   )
   patients.forEach(syncPatientFields)
-  const start = ((query.pageNo ?? query.page) - 1) * query.pageSize
-  const pageRows = clone(rows.slice(start, start + query.pageSize))
+  const pageNo = query.PageIndex ?? query.pageNo ?? query.page ?? 1
+  const pageSize = query.PageSize ?? query.pageSize ?? 20
+  const start = (pageNo - 1) * pageSize
+  const pageRows = clone(rows.slice(start, start + pageSize))
   return {
     rows: pageRows,
     content: clone(pageRows),
     total: rows.length,
     totalCount: rows.length,
-    pageNo: query.pageNo ?? query.page,
-    pageSize: query.pageSize
+    pageNo,
+    pageSize
   }
 }
 export async function mockGetInpatientPrepaySummary(
@@ -234,15 +236,16 @@ export async function mockPagePrepayRecords(
   await delay(context)
   patientOf(encounterId)
   const rows = records.get(encounterId) ?? []
-  const pageNo = query.pageNo ?? query.page
-  const start = (pageNo - 1) * query.pageSize
-  const pageRows = clone(rows.slice(start, start + query.pageSize))
+  const pageNo = query.PageIndex ?? query.pageNo ?? query.page ?? 1
+  const pageSize = query.PageSize ?? query.pageSize ?? 20
+  const start = (pageNo - 1) * pageSize
+  const pageRows = clone(rows.slice(start, start + pageSize))
   return {
     rows: pageRows,
     records: clone(pageRows),
     total: rows.length,
     pageNo,
-    pageSize: query.pageSize
+    pageSize
   }
 }
 export async function mockCollectInpatientPrepay(

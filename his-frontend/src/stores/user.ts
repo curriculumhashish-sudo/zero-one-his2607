@@ -1,117 +1,130 @@
 import { defineStore } from 'pinia'
-import type { Menu, Oauth2TokenDTO, UserInfo } from '@/apis/login/type'
+import type { LoginResult, Menu, Oauth2TokenDTO, RouteMenuRecord, UserInfo } from '@/apis/login/type'
+import { loadCurrentMenus, loadCurrentUser, logout } from '@/apis/login'
 import { DataUpType, useHttp } from '@/plugins/http'
 import { useAuthManager } from '@/plugins/auth-manager'
 import { createFrontendMenus, mergeFrontendMenus } from '@/config/frontend-menus'
 
+type StoredUser = Partial<UserInfo> & { id: string; username: string }
+
+const LOGIN_CONTEXT_KEY = 'loginContext'
+
+function readLoginContext() {
+  try {
+    return JSON.parse(localStorage.getItem(LOGIN_CONTEXT_KEY) ?? '{}') as {
+      tenantId?: string | number | null
+      hospitalId?: string | number | null
+      departmentId?: string | null
+    }
+  } catch {
+    return {}
+  }
+}
+
+function toMenu(route: RouteMenuRecord, parentId?: string): Menu {
+  const id = route.name || route.path
+  return {
+    id,
+    pid: parentId,
+    text: route.meta.title,
+    icon: route.meta.icon ?? 'IconMenu',
+    href: route.children?.length ? undefined : route.path,
+    children: route.children?.map((item) => toMenu(item, id))
+  }
+}
+
 export const useUserStore = defineStore('user', {
   state: () => ({
-    // 记录token
     token: null as string | null,
-    // 记录refreshToken
     refreshToken: null as string | null,
-    // 保存一个标识信息，指示登陆后需要加载的初始化数据是否完成
     loaded: false,
-    // 保存当前用户
-    user: null as UserInfo | null,
-    // 菜单数据
-    menus: createFrontendMenus()
+    user: null as StoredUser | null,
+    menus: createFrontendMenus(),
+    tenantId: null as string | number | null,
+    hospitalId: null as string | number | null,
+    departmentId: null as string | null
   }),
   getters: {
-    // 获取token
     getToken: (state) => {
-      // 1. 优先使用当前state的token
       if (state.token) return state.token
-      // 2. 开发与测试环境，尝试降级到localStorage方便调试
-      if (import.meta.env.DEV || import.meta.env.TEST) {
-        const ltoken = localStorage.getItem('token')
-        if (ltoken) return ltoken
-      }
-      // 3. 统一的兜底获取逻辑
+      const localToken = localStorage.getItem('token')
+      if (localToken) return localToken
       try {
         return useAuthManager().accessToken.value
-      } catch (error: any) {
-        console.error('获取accessToken失败:', error.message)
+      } catch {
         return ''
       }
     },
-    // 是否已加载
     isLoaded: (state) => state.loaded,
-    // 获取当前用户
     getUser: (state) => state.user,
-    // 获取菜单
-    // getter 始终补齐前端菜单，当前登录会话无需重新请求菜单也能立即显示。
     getMenus: (state) => mergeFrontendMenus(state.menus)
   },
   actions: {
-    // 加载用户
     async loadUser() {
-      // 发送获取当前用户信息请求
-      const data = await useHttp().get<UserInfo>('/login/current-user')
-      if (data.data) this.user = data.data
-      if (!this.user?.avatar) {
-        this.user = {
-          avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-          ...this.user
-        } as UserInfo
-      }
+      if (!this.token) this.token = localStorage.getItem('token')
+      this.loadRefreshToken()
+      const user = await loadCurrentUser()
+      this.user = { ...user, id: user.userId }
+      this.setLoginContext(readLoginContext())
     },
-    // 加载菜单
     async loadMenus() {
       try {
-        // 保留后端权限菜单，并补入当前阶段由前端维护的业务页面。
-        const data = await useHttp().get<Array<Menu>>('/login/get-menus')
-        this.menus = mergeFrontendMenus(data.data ?? [])
+        const routes = await loadCurrentMenus()
+        this.menus = mergeFrontendMenus(routes.map((route) => toMenu(route)))
       } catch (error) {
+        // 主框架的业务菜单由前端维护；菜单服务暂不可用时不应阻止已验证的用户进入系统。
         this.menus = createFrontendMenus()
-        // 开发阶段允许只使用前端菜单；生产环境仍应由后端菜单接口决定权限。
-        if (!import.meta.env.DEV) throw error
+        console.warn('加载权限菜单失败，已使用前端业务菜单。', error)
       }
     },
-    // 加载刷新凭证
     loadRefreshToken() {
       if (!this.refreshToken) this.refreshToken = localStorage.getItem('refreshToken')
     },
-    // 刷新token
     async reloadToken() {
-      // 先加载刷新凭证
       this.loadRefreshToken()
-      // 如果没有刷新凭证，直接返回
       if (!this.refreshToken) return
-      // 发送刷新凭证请求
-      const data = await useHttp().post<Oauth2TokenDTO>(
-        '/login/refresh-token',
-        {
-          refreshToken: this.refreshToken,
-          token: this.token
-        },
-        {
-          upType: DataUpType.form
-        }
-      )
-      //设置Token相关属性
+      const data = await useHttp().post<Oauth2TokenDTO>('/login/refresh-token', { refreshToken: this.refreshToken, token: this.token }, { upType: DataUpType.form })
       this.setToken(data.data)
     },
-    // 设置是否加载完成
     setLoaded(loaded: boolean) {
       this.loaded = loaded
     },
-    // 设置token
-    setToken(data: any) {
-      this.token = data.token
+    setToken(data: LoginResult | Oauth2TokenDTO | null | undefined) {
+      if (!data) return
+      this.token = 'accessToken' in data ? data.accessToken : data.token
       this.refreshToken = data.refreshToken
       if (this.token) localStorage.setItem('token', this.token)
       if (this.refreshToken) localStorage.setItem('refreshToken', this.refreshToken)
     },
-    // 重置数据
+    setLoginContext(context: { tenantId?: string | number | null; hospitalId?: string | number | null; departmentId?: string | null }) {
+      if ('tenantId' in context) this.tenantId = context.tenantId ?? null
+      if ('hospitalId' in context) this.hospitalId = context.hospitalId ?? null
+      if ('departmentId' in context) this.departmentId = context.departmentId ?? null
+      localStorage.setItem(LOGIN_CONTEXT_KEY, JSON.stringify({
+        tenantId: this.tenantId,
+        hospitalId: this.hospitalId,
+        departmentId: this.departmentId
+      }))
+    },
+    async logoutSession() {
+      try {
+        await logout()
+      } finally {
+        this.resetSaveData()
+      }
+    },
     resetSaveData() {
       this.loaded = false
       this.user = null
       this.token = null
       this.refreshToken = null
       this.menus = createFrontendMenus()
+      this.tenantId = null
+      this.hospitalId = null
+      this.departmentId = null
       localStorage.removeItem('token')
       localStorage.removeItem('refreshToken')
+      localStorage.removeItem(LOGIN_CONTEXT_KEY)
     }
   }
 })

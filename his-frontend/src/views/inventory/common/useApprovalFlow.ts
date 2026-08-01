@@ -20,6 +20,7 @@ import {
   approvePurchaseInbound,
   rejectPurchaseInbound,
 } from '@/apis/inventory/pharmacy/stocktake'
+import type { PurchaseInboundDetail, PurchaseInboundStatus } from '@/apis/warehouse/purchase-inbound'
 
 export function useApprovalFlow(options: {
   orders: Ref<Record<string, unknown>[]>
@@ -79,13 +80,13 @@ export function useApprovalFlow(options: {
   }
 
   /** 从 selectedOrder 中提取保存参数 */
-  function buildSavePayload(targetStatus: number): { pharmacy: string; itemType: string; targetStatus: number; details: Record<string, unknown>[] } {
+  function buildSavePayload(targetStatus: PurchaseInboundStatus): { pharmacy: string; itemType: string; targetStatus: PurchaseInboundStatus; details: PurchaseInboundDetail[] } {
     const o = currentOrder()
     return {
       pharmacy: (o?.sourceLocationId_dictText as string) ?? '',
       itemType: (o?.category as string) ?? '',
       targetStatus,
-      details: getDetails() ?? [],
+      details: getDetails() as unknown as PurchaseInboundDetail[],
     }
   }
 
@@ -101,11 +102,11 @@ export function useApprovalFlow(options: {
     const o = currentOrder()
     if (!o) return
     const payload = buildSavePayload(1)
-    if (!validateBeforeSave(payload)) return
+    if (!validateBeforeSave(payload as any)) return
     try {
       const result = isDraft(o)
-        ? await createPurchaseInbound(payload)
-        : await updatePurchaseInbound(o.id as string, payload)
+        ? await createPurchaseInbound(payload as any)
+        : await updatePurchaseInbound(o.id as string, payload as any)
       syncOrder(result.order as unknown as Record<string, unknown>, o)
       ElMessage.success('保存成功')
     } catch {
@@ -118,11 +119,11 @@ export function useApprovalFlow(options: {
     const o = currentOrder()
     if (!o) return
     const payload = buildSavePayload(2)
-    if (!validateBeforeSave(payload)) return
+    if (!validateBeforeSave(payload as any)) return
     try {
       const result = isDraft(o)
-        ? await createPurchaseInbound(payload)
-        : await updatePurchaseInbound(o.id as string, payload)
+        ? await createPurchaseInbound(payload as any)
+        : await updatePurchaseInbound(o.id as string, payload as any)
       const submitted = await submitPurchaseInbound(result.order.id as string)
       syncOrder(submitted as unknown as Record<string, unknown>, o)
       ElMessage.success('已保存并提交审批')

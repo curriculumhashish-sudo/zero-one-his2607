@@ -17,7 +17,7 @@
         >
           <el-option
             v-for="opt in statusMap"
-            :key="opt.value"
+            :key="String(opt.value)"
             :label="opt.label"
             :value="opt.value"
           />

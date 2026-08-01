@@ -88,9 +88,11 @@ export interface RefundQueueQuery {
   startDate?: string | null
   endDate?: string | null
   status: RefundQueueStatus
+  page?: number
   pageNo?: number
-  page: number
-  pageSize: number
+  pageSize?: number
+  PageIndex?: number
+  PageSize?: number
 }
 export interface RefundVerification {
   allowed: boolean

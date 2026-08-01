@@ -9,7 +9,25 @@
       class="tianai-overlay"
       id="captcha-div"
       @click.self="close"
-    ></div>
+    >
+      <section v-if="localFallback" class="captcha-fallback" role="dialog" aria-modal="true" aria-labelledby="captcha-title">
+        <h2 id="captcha-title">安全验证</h2>
+        <div class="captcha-image-row">
+          <canvas ref="captchaCanvas" width="132" height="48" role="img" aria-label="图片验证码" />
+          <button type="button" class="captcha-refresh" aria-label="刷新图片验证码" title="刷新图片验证码" @click="generateLocalCaptcha">刷新</button>
+        </div>
+        <input
+          v-model="localInput"
+          class="captcha-input"
+          aria-label="图片验证码输入"
+          autocomplete="off"
+          maxlength="4"
+          placeholder="请输入图片中的字符"
+          @keyup.enter="completeLocalFallback"
+        />
+        <button type="button" class="captcha-confirm" :disabled="localInput.length !== 4" @click="completeLocalFallback">验证</button>
+      </section>
+    </div>
   </Teleport>
 </template>
 
@@ -32,6 +50,51 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'success', 'error'])
 // 弹窗显隐控制变量
 const visible = ref(props.modelValue)
+const localFallback = import.meta.env.DEV
+const captchaCanvas = ref<HTMLCanvasElement>()
+const localCode = ref('')
+const localInput = ref('')
+
+function generateLocalCaptcha() {
+  const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ'
+  localCode.value = Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+  localInput.value = ''
+  nextTick(() => {
+    const canvas = captchaCanvas.value
+    const context = canvas?.getContext('2d')
+    if (!canvas || !context) return
+    context.clearRect(0, 0, canvas.width, canvas.height)
+    context.fillStyle = '#f3f6fb'
+    context.fillRect(0, 0, canvas.width, canvas.height)
+    for (let index = 0; index < 7; index += 1) {
+      context.strokeStyle = `hsl(${Math.random() * 360} 60% 65%)`
+      context.beginPath()
+      context.moveTo(Math.random() * canvas.width, Math.random() * canvas.height)
+      context.lineTo(Math.random() * canvas.width, Math.random() * canvas.height)
+      context.stroke()
+    }
+    context.font = 'bold 28px Arial'
+    context.textBaseline = 'middle'
+    localCode.value.split('').forEach((char, index) => {
+      context.save()
+      context.translate(17 + index * 31, 25)
+      context.rotate((Math.random() - 0.5) * 0.35)
+      context.fillStyle = `hsl(${Math.random() * 360} 55% 35%)`
+      context.fillText(char, 0, 0)
+      context.restore()
+    })
+  })
+}
+
+const completeLocalFallback = () => {
+  if (localInput.value.trim().toUpperCase() !== localCode.value) {
+    emit('error')
+    generateLocalCaptcha()
+    return
+  }
+  emit('success', `local-image-captcha-${Date.now()}`)
+  close()
+}
 
 // 动态构建验证码请求地址
 const getRequestUrl = () => {
@@ -74,6 +137,7 @@ let captchaInstance: any = null
 
 // 初始化逻辑
 const init = () => {
+  if (localFallback) return
   window
     .initTAC('static/tac', captchaConfig, style)
     .then((tac) => {
@@ -83,13 +147,14 @@ const init = () => {
     })
     .catch((e) => {
       emit('error')
-      console.log('初始化tac失败', e)
     })
 }
 
 // 关闭弹窗
 const close = () => {
   captchaInstance?.destroyWindow()
+  localInput.value = ''
+  localCode.value = ''
   visible.value = false
   emit('update:modelValue', false)
 }
@@ -100,7 +165,8 @@ watch(
   (newVal) => {
     visible.value = newVal
     if (newVal) {
-      nextTick(() => init())
+      if (localFallback) generateLocalCaptcha()
+      else nextTick(() => init())
     }
   }
 )
@@ -140,4 +206,31 @@ defineExpose({
   width: 100%;
   min-height: 200px;
 }
+
+.captcha-fallback {
+  width: min(86vw, 320px);
+  padding: 24px;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgb(15 23 42 / 24%);
+  text-align: center;
+}
+
+.captcha-fallback h2 { margin: 0; color: #111827; font-size: 18px; }
+.captcha-image-row { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 18px 0 12px; }
+.captcha-image-row canvas { width: 132px; height: 48px; border: 1px solid #d9e2f0; border-radius: 4px; }
+.captcha-refresh, .captcha-confirm { border: 0; border-radius: 4px; padding: 8px 12px; color: #fff; background: #2563eb; cursor: pointer; }
+.captcha-refresh { color: #2563eb; background: #e8f0ff; }
+.captcha-input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 40px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 0 10px;
+  font-size: 16px;
+  text-transform: uppercase;
+}
+.captcha-confirm { width: 100%; margin-top: 12px; }
+.captcha-confirm:disabled { cursor: not-allowed; opacity: .5; }
 </style>

@@ -25,11 +25,7 @@ import type {
   RequestContext,
   ScheduleGenerationOptions
 } from './type'
-import {
-  pageDailyTemplates,
-  pageTimePeriods,
-  pageWeeklyTemplates
-} from '../schedule-template'
+import { pageDailyTemplates, pageTimePeriods, pageWeeklyTemplates } from '../schedule-template'
 
 export const loadScheduleInit = mockLoadScheduleInit
 export const pageSchedulesByRange = mockPageSchedulesByRange
@@ -41,7 +37,7 @@ export const stopSchedule = mockStopSchedule
 export const loadDepartmentOptions = mockLoadDepartmentOptions
 export const loadDoctorOptions = mockLoadDoctorOptions
 async function loadGenerationData(organizationId: string, context: RequestContext = {}) {
-  const query = { organizationId, status: 'enabled' as const, pageNo: 1, pageSize: 200 }
+  const query = { organizationId, status: 'enabled' as const, PageIndex: 1, PageSize: 200 }
   const [dailyTemplates, weeklyTemplates, timePeriods] = await Promise.all([
     pageDailyTemplates(query, context),
     pageWeeklyTemplates(query, context),

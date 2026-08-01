@@ -158,7 +158,7 @@ const policyOptions = computed(() =>
 )
 const statusFilterOptions = TEMPLATE_STATUS_OPTIONS.map((item) => ({
   label: item.label,
-  value: item.value
+  value: String(item.value)
 }))
 
 function monthRange(value: Date) {
@@ -202,8 +202,8 @@ async function loadCurrentTab() {
         {
           keyword: query.keyword,
           status: query.status || null,
-          page: query.page,
-          pageSize: query.pageSize
+          PageIndex: query.page,
+          PageSize: query.pageSize
         },
         { signal: controller.signal }
       )
@@ -214,51 +214,47 @@ async function loadCurrentTab() {
         {
           keyword: query.keyword,
           status: query.status || null,
-          page: query.page,
-          pageSize: query.pageSize
+          PageIndex: query.page,
+          PageSize: query.pageSize
         },
         { signal: controller.signal }
       )
       dailyRows.value = result.content
       dailyTotal.value = result.totalCount
       periods.value = (
-        await pageTimePeriods({ page: 1, pageSize: 200 }, { signal: controller.signal })
+        await pageTimePeriods({ PageIndex: 1, PageSize: 200 }, { signal: controller.signal })
       ).content
       policyRows.value = (
-        await pageReleasePolicies(
-          { pageNo: 1, pageSize: 200 },
-          { signal: controller.signal }
-        )
+        await pageReleasePolicies({ PageIndex: 1, PageSize: 200 }, { signal: controller.signal })
       ).content
     } else if (activeTab.value === 'weekly') {
       const result = await pageWeeklyTemplates(
         {
           keyword: query.keyword,
           status: query.status || null,
-          page: query.page,
-          pageSize: query.pageSize
+          PageIndex: query.page,
+          PageSize: query.pageSize
         },
         { signal: controller.signal }
       )
       weeklyRows.value = result.content
       weeklyTotal.value = result.totalCount
       dailyRows.value = (
-        await pageDailyTemplates({ page: 1, pageSize: 200 }, { signal: controller.signal })
+        await pageDailyTemplates({ PageIndex: 1, PageSize: 200 }, { signal: controller.signal })
       ).content
     } else if (activeTab.value === 'policy') {
       const result = await pageReleasePolicies(
         {
           organizationId: init.value?.organizationId,
           keyword: query.keyword,
-          pageNo: query.page,
-          pageSize: query.pageSize
+          PageIndex: query.page,
+          PageSize: query.pageSize
         },
         { signal: controller.signal }
       )
       policyRows.value = result.content
       policyTotal.value = result.totalCount
-    }
-    else {
+    } else {
       const range = monthRange(holidayCalendarDate.value)
       const result = await pageHolidayExceptions(
         {
@@ -267,15 +263,15 @@ async function loadCurrentTab() {
           rangeStart: range.start,
           rangeEnd: range.end,
           keyword: query.keyword,
-          pageNo: query.page,
-          pageSize: query.pageSize
+          PageIndex: query.page,
+          PageSize: query.pageSize
         },
         { signal: controller.signal }
       )
       holidays.value = result.content
       holidayTotal.value = result.totalCount
       dailyRows.value = (
-        await pageDailyTemplates({ page: 1, pageSize: 200 }, { signal: controller.signal })
+        await pageDailyTemplates({ PageIndex: 1, PageSize: 200 }, { signal: controller.signal })
       ).content
     }
   } catch (error) {
@@ -375,8 +371,9 @@ function openHoliday(row?: HolidayException) {
 }
 function openPolicy(row?: ReleasePolicy) {
   policyId.value = row?.id
-  const channelQuotaJson = row?.channelQuotaJsonText
-    ?? (row?.channelQuotas ? JSON.stringify(row.channelQuotas, null, 2) : '')
+  const channelQuotaJson =
+    row?.channelQuotaJsonText ??
+    (row?.channelQuotas ? JSON.stringify(row.channelQuotas, null, 2) : '')
   Object.assign(policyForm, {
     policyCode: row?.policyCode ?? '',
     policyName: row?.policyName ?? row?.name ?? '',
@@ -582,6 +579,11 @@ function saveHolidayForm() {
 }
 async function remove(kind: string, id: string) {
   try {
+    await ElMessageBox.confirm('删除后不可恢复，确认删除当前记录吗？', '删除确认', {
+      confirmButtonText: '删除',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
     if (kind === 'period') await removeTimePeriod(id)
     else if (kind === 'daily') await removeDailyTemplate(id)
     else if (kind === 'weekly') await removeWeeklyTemplate(id)
@@ -590,6 +592,7 @@ async function remove(kind: string, id: string) {
     ElMessage.success('删除成功')
     await loadCurrentTab()
   } catch (error) {
+    if (error === 'cancel' || error === 'close') return
     ElMessage.error(error instanceof Error ? error.message : '删除失败')
   }
 }
@@ -612,7 +615,11 @@ function handleToolbar(action: ActionToolbarItem) {
 }
 async function savePolicyForm() {
   if (!ensureCurrentDepartment()) return
-  if (!policyForm.policyName.trim() || policyForm.slotMinutes < 5 || policyForm.capacityPerSlot < 1) {
+  if (
+    !policyForm.policyName.trim() ||
+    policyForm.slotMinutes < 5 ||
+    policyForm.capacityPerSlot < 1
+  ) {
     ElMessage.warning('请填写策略名称、时段粒度和单段容量')
     return
   }
@@ -1122,15 +1129,20 @@ onBeforeUnmount(() => requestController.value?.abort())
       <el-form label-width="110px">
         <el-form-item label="策略编码"><el-input v-model="policyForm.policyCode" /></el-form-item>
         <el-form-item label="策略名称" required
-          ><el-input v-model="policyForm.policyName" /></el-form-item>
+          ><el-input v-model="policyForm.policyName"
+        /></el-form-item>
         <el-form-item label="提前天数" required
-          ><el-input-number v-model="policyForm.advanceDays" :min="0" :max="365" /></el-form-item>
+          ><el-input-number v-model="policyForm.advanceDays" :min="0" :max="365"
+        /></el-form-item>
         <el-form-item label="时段分钟" required
-          ><el-input-number v-model="policyForm.slotMinutes" :min="5" :max="240" :step="5" /></el-form-item>
+          ><el-input-number v-model="policyForm.slotMinutes" :min="5" :max="240" :step="5"
+        /></el-form-item>
         <el-form-item label="单段容量" required
-          ><el-input-number v-model="policyForm.capacityPerSlot" :min="1" :max="999" /></el-form-item>
+          ><el-input-number v-model="policyForm.capacityPerSlot" :min="1" :max="999"
+        /></el-form-item>
         <el-form-item label="渠道配额 JSON"
-          ><el-input v-model="policyForm.channelQuotaJson" type="textarea" :rows="3" /></el-form-item>
+          ><el-input v-model="policyForm.channelQuotaJson" type="textarea" :rows="3"
+        /></el-form-item>
       </el-form>
       <template #footer>
         <el-button :disabled="saving" @click="policyDialog = false">取消</el-button>

@@ -270,9 +270,19 @@ export async function mockPageChargePatientQueue(
       (!keyword || `${item.name}${item.patientNo}${item.visitNo}`.toLowerCase().includes(keyword))
   )
   patients.forEach(syncPatientFields)
-  const start = ((query.pageNo ?? query.page) - 1) * query.pageSize
-  const rows = clone(filtered.slice(start, start + query.pageSize))
-  return { rows, records: clone(rows), total: filtered.length }
+  const pageNo = query.PageIndex ?? query.pageNo ?? query.page ?? 1
+  const pageSize = query.PageSize ?? query.pageSize ?? 20
+  const start = (pageNo - 1) * pageSize
+  const rows = clone(filtered.slice(start, start + pageSize))
+  return {
+    rows,
+    records: clone(rows),
+    content: clone(rows),
+    total: filtered.length,
+    totalCount: filtered.length,
+    pageNo,
+    pageSize
+  }
 }
 export async function mockGetPendingChargeDetail(
   encounterId: string,

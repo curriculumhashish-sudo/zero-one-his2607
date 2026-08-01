@@ -1,13 +1,33 @@
 import type { BookingOption, RequestContext } from '../outpatient-schedule/type'
 
-export type SlotStatus = 'available' | 'full' | 'stopped' | 'expired'
-export type SlotStatusCode = 'FREE' | 'FULL' | 'BLOCKED' | 'EXPIRED'
+export type SlotStatus = 'available' | 'full' | 'stopped' | 'expired' | 'blocked'
+export type SlotStatusCode = string
 
-export interface SlotRecord {
-  slotId: string
+export interface SlotListItemDto {
+  slotId?: string
+  scheduleId?: string
+  organizationId?: string
+  practitionerId?: string
+  healthcareServiceId?: string
+  practitionerName?: string
+  healthcareServiceName?: string
+  organizationName?: string
+  startTime?: string
+  endTime?: string
+  statusCode?: string
+  capacity?: number
+  bookedCount?: number
+  remainingCount?: number
+  displayStatus?: string
+  overbookedFlag?: boolean
+}
+
+export interface SlotDetailDto extends SlotListItemDto {
+  commentText?: string
+}
+
+export interface SlotRecord extends Required<SlotListItemDto> {
   id: string
-  scheduleId: string
-  organizationId: string
   departmentId: string
   departmentName: string
   practitionerId: string
@@ -19,18 +39,12 @@ export interface SlotRecord {
   organizationName: string
   roomName: string
   date: string
-  startTime: string
-  endTime: string
   group: '上午' | '下午' | '晚间'
-  capacity: number
-  bookedCount: number
   used: number
   remainingCount: number
   remaining: number
   statusCode: SlotStatusCode
   status: SlotStatus
-  displayStatus: string
-  overbookedFlag: boolean
   blockedFlag?: boolean
   commentText?: string
   unavailableReason?: string
@@ -42,8 +56,8 @@ export interface PageSlotsByDateRequest {
   practitionerId?: string | null
   scheduleId?: string | null
   statusCode?: string | null
-  pageNo: number
-  pageSize: number
+  PageIndex: number
+  PageSize: number
 }
 export type SlotQuery = PageSlotsByDateRequest
 
@@ -62,6 +76,13 @@ export interface SlotPageResult {
   pageNo: number
   pageSize: number
   totalCount: number
+}
+
+export interface SlotPageResponse {
+  content?: SlotListItemDto[]
+  totalCount?: number
+  pageNo?: number
+  pageSize?: number
 }
 
 export interface BatchBlockSlotsPayload {

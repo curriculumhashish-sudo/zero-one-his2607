@@ -98,7 +98,7 @@ function buildLotNumber(i: number) {
 }
 
 function buildStockTexts(i: number, zeroStock: boolean) {
-  if (zeroStock) return { packageStockText: '0盒', splitStockText: '0支' }
+  if (zeroStock) return { packageStockText: '0盒', splitStockText: '0支', packageUnitRatio: 1 }
   const pkgQty = randInt(5, 200)
   const ratio = [1, 4, 10, 12, 20, 24, 100][i % 7]!
   const unit = UNITS[i % UNITS.length]!
@@ -112,7 +112,7 @@ function buildStockTexts(i: number, zeroStock: boolean) {
 
 function parseQty(text: string): number {
   const m = text.match(/^([\d.]+)/)
-  return m ? parseFloat(m[1]) : 0
+  return m ? parseFloat(m[1] ?? '0') : 0
 }
 
 function buildRow(template: Template, i: number): StockListRow {

@@ -153,8 +153,8 @@
               <div class="status-demo-list">
                 <StatusDisplay
                   v-for="option in statusOptions"
-                  :key="option.value"
-                  :value="option.value"
+                  :key="String(option.value)"
+                  :value="String(option.value)"
                   :options="statusOptions"
                   show-description
                 />

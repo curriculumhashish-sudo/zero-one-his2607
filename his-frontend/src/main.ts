@@ -20,8 +20,6 @@ app.use(router)
 app.use(ElementPlus, { locale: zhCn })
 app.use(FcDesigner)
 
-app.mount('#app')
-
 // 安装http插件
 import http from './plugins/http'
 app.use(http, { router })
@@ -49,3 +47,5 @@ app.use(authPlugin, {
   // 使用本地存储持久化用户状态
   userStore: new WebStorageStateStore({ store: window.sessionStorage })
 } as UserManagerSettings)
+
+app.mount('#app')

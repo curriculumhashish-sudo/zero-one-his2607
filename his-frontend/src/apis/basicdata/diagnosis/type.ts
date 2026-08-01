@@ -1,4 +1,4 @@
-import type { SelectOption } from '../type'
+import type { SelectOption } from '../../basicdata/type'
 
 /** 诊断类型枚举 */
 export type DiagnosisType = 'WESTERN' | 'TCM'

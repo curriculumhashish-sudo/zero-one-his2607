@@ -165,8 +165,11 @@ export interface RegisterPatient {
 
 export interface RegisterPatientQuery {
   keyword?: string
-  pageNo: number
-  pageSize: number
+  page?: number
+  pageNo?: number
+  pageSize?: number
+  PageIndex?: number
+  PageSize?: number
 }
 
 export interface RegisterPatientPage {
@@ -212,8 +215,11 @@ export interface RegisterHistoryQuery {
   dateFrom: string
   dateTo: string
   keyword?: string
-  pageNo: number
-  pageSize: number
+  page?: number
+  pageNo?: number
+  pageSize?: number
+  PageIndex?: number
+  PageSize?: number
   patientId?: null | number | string
 }
 

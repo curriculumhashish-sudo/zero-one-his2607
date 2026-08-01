@@ -113,8 +113,8 @@ export interface ReleasePolicy {
 export interface ReleasePolicyQuery {
   organizationId?: string
   keyword?: string
-  pageNo: number
-  pageSize: number
+  PageIndex: number
+  PageSize: number
 }
 
 export interface SaveReleasePolicyRequest {
@@ -158,34 +158,31 @@ export interface TimePeriodQuery {
   organizationId?: string
   keyword?: string
   status?: TemplateStatus | null
-  page?: number
-  pageNo?: number
-  pageSize?: number
+  PageIndex?: number
+  PageSize?: number
 }
 
 export interface PageTemplatesRequest {
   organizationId?: string
   keyword?: string
-  pageNo: number
-  pageSize: number
+  PageIndex: number
+  PageSize: number
 }
 
 export interface DailyTemplateQuery {
   organizationId?: string
   keyword?: string
   status?: TemplateStatus | null
-  page?: number
-  pageNo?: number
-  pageSize?: number
+  PageIndex?: number
+  PageSize?: number
 }
 
 export interface WeeklyTemplateQuery {
   organizationId?: string
   keyword?: string
   status?: TemplateStatus | null
-  page?: number
-  pageNo?: number
-  pageSize?: number
+  PageIndex?: number
+  PageSize?: number
 }
 
 export interface SaveSlotProvisionTemplateRequest {
@@ -224,11 +221,11 @@ export interface SaveWeekScheduleTemplateRequest {
   enabled: boolean
   effectiveStart?: string
   effectiveEnd?: string
-  items?: Array<{
+  items: Array<{
     weekday: number
     dayScheduleTemplateId: string
     sortNo?: number
-    enabled?: boolean
+    enabled: boolean
   }>
 }
 
@@ -259,8 +256,8 @@ export interface HolidayExceptionQuery {
   rangeStart?: string
   rangeEnd?: string
   keyword?: string
-  pageNo: number
-  pageSize: number
+  PageIndex: number
+  PageSize: number
 }
 
 export interface RequestContext {

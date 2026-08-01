@@ -15,6 +15,7 @@ import ActionToolbar from '@/components/common/ActionToolbar.vue'
 import DataTablePanel from '@/components/common/DataTablePanel.vue'
 import DetailSummary from '@/components/common/DetailSummary.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
+import PaginationBar from '@/components/common/PaginationBar.vue'
 import PrintActionPanel from '@/components/common/PrintActionPanel.vue'
 import PatientInfoBar from '@/components/patient/PatientInfoBar.vue'
 import PatientQueuePanel from '@/components/patient/PatientQueuePanel.vue'
@@ -107,7 +108,14 @@ async function loadQueue() {
   queueLoading.value = true
   errorMessage.value = ''
   try {
-    const result = await pageChargePatientQueue(query)
+    const result = await pageChargePatientQueue({
+      keyword: query.keyword,
+      startDate: query.startDate,
+      endDate: query.endDate,
+      status: query.status,
+      PageIndex: query.page,
+      PageSize: query.pageSize
+    })
     if (seq !== queueSequence) return
     patients.value = result.rows
     total.value = result.total
@@ -173,6 +181,14 @@ function handleDateFilterChange(value: DateRangeValue) {
   query.startDate = value?.[0] ?? null
   query.endDate = value?.[1] ?? null
   query.page = 1
+  clearSelection()
+  void loadQueue()
+}
+
+function handleQueuePaginationChange(payload: { page: number; pageSize: number }) {
+  const pageSizeChanged = payload.pageSize !== query.pageSize
+  query.page = pageSizeChanged ? 1 : payload.page
+  query.pageSize = payload.pageSize
   clearSelection()
   void loadQueue()
 }
@@ -318,7 +334,7 @@ function executeReceiptPrint() {
   window.print()
   return Promise.resolve(receipt.value)
 }
-function handleToolbar(action: { key: string | number }) {
+function handleToolbar(action: { key: string | number | boolean }) {
   if (action.key === 'settle') void preSettle()
   else if (action.key === 'insurance') void switchInsurance()
   else if (action.key === 'receipt') void printReceipt()
@@ -352,13 +368,16 @@ onBeforeUnmount(() => {
         @date-change="handleDateFilterChange"
         @refresh="loadQueue"
         @select="selectPatient"
-      /><el-pagination
-        v-if="total > query.pageSize"
-        v-model:current-page="query.page"
+      />
+      <PaginationBar
+        v-if="total > 0"
+        class="queue-pagination"
+        :page="query.page"
         :page-size="query.pageSize"
         :total="total"
-        layout="prev,pager,next"
-        @change="loadQueue"
+        :disabled="queueLoading"
+        small
+        @change="handleQueuePaginationChange"
       />
     </aside>
     <section class="charge-workspace">
@@ -446,7 +465,9 @@ onBeforeUnmount(() => {
         <el-descriptions-item label="票据号">{{ receipt.receiptNo }}</el-descriptions-item>
         <el-descriptions-item label="患者姓名">{{ receipt.patientName }}</el-descriptions-item>
         <el-descriptions-item label="收费时间">{{ receipt.issuedAt }}</el-descriptions-item>
-        <el-descriptions-item label="收费金额">¥{{ receipt.amount.toFixed(2) }}</el-descriptions-item>
+        <el-descriptions-item label="收费金额"
+          >¥{{ receipt.amount.toFixed(2) }}</el-descriptions-item
+        >
       </el-descriptions>
       <el-table v-if="receipt" :data="receipt.slip.chargeItemLines" class="receipt-lines">
         <el-table-column prop="chargeCategoryText" label="类别" width="100" />
@@ -508,7 +529,7 @@ onBeforeUnmount(() => {
 .queue-pane :deep(.patient-queue-panel) {
   min-height: 0;
 }
-.queue-pane :deep(.el-pagination) {
+.queue-pagination {
   justify-content: center;
   padding: 8px;
 }

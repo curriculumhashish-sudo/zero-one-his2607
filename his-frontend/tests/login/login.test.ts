@@ -1,6 +1,6 @@
 import { expect, describe, it, beforeAll, afterAll } from 'vitest'
 import { withSetup } from '../test-apis-settings'
-import { login } from '@/apis/login'
+import { loginAccount } from '@/apis/login'
 
 /**
  * 登录测试
@@ -16,17 +16,8 @@ describe('login', () => {
   })
   // 测试调用登录接口
   it('login', async () => {
-    await login(
-      {
-        username: 'admin',
-        password: '123456'
-      },
-      () => {
-        expect(1).toBe(1)
-      },
-      () => {
-        expect(0).toBe(1)
-      }
-    )
+    const result = await loginAccount({ username: 'admin', password: '123456' })
+    expect(result).toHaveProperty('accessToken')
+    expect(result.user.userName).toBe('admin')
   })
 })

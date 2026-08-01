@@ -1,7 +1,7 @@
 <template>
   <div class="header-row">
     <!-- 应用信息栏 -->
-    <div class="header-title">
+    <div class="header-title" :class="{ 'is-collapsed': isCollapse }">
       <img v-show="!isCollapse" class="app-icon" src="/logo.jpg" :title="appName" />
       <el-text v-show="!isCollapse" class="app-name">{{ appName }}</el-text>
       <el-button
@@ -39,7 +39,7 @@
       </el-dropdown>
     </div>
   </div>
-  <div class="content-row">
+  <div class="content-row" :class="{ 'is-collapsed': isCollapse }">
     <!-- 侧边菜单栏 -->
     <el-menu
       :collapse="isCollapse"
@@ -157,15 +157,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useUserStore } from '@/stores/user'
 import { useTabStore } from '@/stores/tab'
 import { useAiChatStore } from '@/stores/ai-chat'
 import type { TabPaneName, TabsPaneContext } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import type { ChatImage, ChatMessage } from '@/components/ai-chat/type'
-import { useAuthManager } from '@/plugins/auth-manager'
 import AiChatWidget from '@/components/ai-chat/AiChatWidget.vue'
 // 应用名称
 const appName = import.meta.env.VITE_APP_TITLE
@@ -173,32 +173,39 @@ const appName = import.meta.env.VITE_APP_TITLE
 const ustore = useUserStore()
 // 用户信息提示
 const { user, getMenus: menus } = storeToRefs(ustore)
-const userInfo = ref('欢迎用户：' + (user.value === null ? '游客' : user.value.username))
+const userInfo = computed(() => `欢迎用户：${user.value?.username ?? '游客'}`)
 
 // 用户设置点击事件
-const handleUserSettings = (command: string | number | object) => {
+const handleUserSettings = async (command: string | number | object) => {
   if (command == 'userInfo') {
-    // 跳转到用户信息页面
-    console.log(useAuthManager().user.value)
+    ElMessage.info(user.value ? `${user.value.username}（${user.value.realName ?? '未设置姓名'}）` : '当前用户信息未加载')
   } else if (command == 'logout') {
-    // 登出
-    useAuthManager()
-      .logout()
-      .catch((err) => {
-        if (err.message.includes('Failed to fetch')) {
-          // 跳转到登录页面
-          router.push({ name: 'Login' })
-          // 清理数据
-          ustore.resetSaveData()
-          // 清理标签页数据
-          tabstore.reset()
-        }
-      })
+    try {
+      await ustore.logoutSession()
+    } finally {
+      tabstore.reset()
+      await router.push({ name: 'Login' })
+    }
   }
 }
 
 // 菜单是是否折叠
 const isCollapse = ref(false)
+let isCompactViewport = false
+
+function syncResponsiveLayout() {
+  const compact = window.innerWidth <= 900
+  if (compact === isCompactViewport) return
+  isCompactViewport = compact
+  isCollapse.value = compact
+}
+
+onMounted(() => {
+  syncResponsiveLayout()
+  window.addEventListener('resize', syncResponsiveLayout)
+})
+
+onBeforeUnmount(() => window.removeEventListener('resize', syncResponsiveLayout))
 // 路由数据
 const router = useRouter()
 // 标签页数据
@@ -326,6 +333,16 @@ const requestAi = (text: string, history: ChatMessage[], images?: ChatImage[]) =
       color: white;
       font-size: 24px;
     }
+
+    &.is-collapsed {
+      width: calc(var(--el-menu-icon-width) + var(--el-menu-base-level-padding) * 2);
+      padding-left: 0;
+      justify-content: center;
+
+      .collapse-btn {
+        margin: 0;
+      }
+    }
   }
 
   .header-nav {
@@ -357,14 +374,24 @@ const requestAi = (text: string, history: ChatMessage[], images?: ChatImage[]) =
 
   .main {
     flex: 1;
+    min-width: 0;
     background-color: rgba(237, 236, 236, 0);
-    width: calc(100vw - var(--home-menu-width));
+    width: auto;
     height: 100%;
     overflow: auto;
 
     .operation-icon {
       padding: calc(var(--el-tabs-header-height) / 2 - 12px) 20px;
     }
+  }
+}
+
+@media (max-width: 900px) {
+  .header-row .header-nav {
+    min-width: 0;
+    gap: 6px;
+    padding-right: 10px;
+    white-space: nowrap;
   }
 }
 </style>

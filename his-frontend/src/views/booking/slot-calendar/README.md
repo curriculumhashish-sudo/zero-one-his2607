@@ -57,11 +57,14 @@ markSlotOverbooked(data)
 - 查询和重置后按所选日期重新加载号源。
 - 号源通过 `group-by="group"` 按上午、下午和晚间分组。
 - 可约号源可以选中并打开详情。
-- 已满、停诊和过期号源不可选择，点击时显示不可用原因。
-- 详情按原型 `SlotDetailDto` 展示科室、医师、号源类型、状态、时段、容量、已约、剩余、超售、备注、号源 ID 和日程 ID。
+- 已满、停诊、已封锁和过期号源不可选择，点击时显示不可用原因；当天号源以时段结束时间判断是否过期。
+- 详情按原型 `SlotDetailDto` 展示科室、医师、号源类型、状态、日期、时段、容量、已约、剩余、超售、停诊/不可用原因、备注、号源 ID 和日程 ID。
 - 重新查询前清空旧号源选择并关闭旧详情弹窗，避免详情与当前结果不一致。
+- 号源结果使用公共 `PaginationBar` 展示总记录数、每页条数、页码和跳页；翻页会按 `pageNo/pageSize` 重新查询，修改每页条数时回到第 1 页并清空旧选择。
+- 日期、科室、医生或关键词作为新条件提交时统一回到第 1 页；页面顶部数量明确为当前页汇总。
 - 列表和详情均使用请求取消与请求序号保护，快速查询或切换号源时旧结果不能覆盖新结果。
 - 初始化错误和号源列表错误分别显示，并提供对应重试操作。
+- 状态维护从确认阶段开始锁定操作和选择，避免重复确认、重复提交或确认期间切换目标。
 - 详情底部保留禁用的预约登记操作入口，但当前不办理患者预约登记。
 
 ## 数据约定
@@ -69,7 +72,7 @@ markSlotOverbooked(data)
 - 日期：本地日历字符串 `YYYY-MM-DD`。
 - 时间：24 小时制 `HH:mm`。
 - 分组：`上午`、`下午`、`晚间`。
-- 号源状态：`available`、`full`、`stopped`、`expired`。
+- 号源状态：`available`、`full`、`stopped`、`blocked`、`expired`。
 - 接口模型必须通过 `adapter.ts` 转换后再传给 `TimeSlotGrid`。
 - 页面和组件不能直接导入 `mock.ts`。
 
@@ -77,13 +80,13 @@ markSlotOverbooked(data)
 
 | 模块 | 原型/后端字段 | 页面兼容字段或说明 |
 | --- | --- | --- |
-| 查询 | `organizationId`、`date`、`practitionerId`、`scheduleId`、`statusCode`、`pageNo`、`pageSize` | 页面当前提供日期、科室、医生和关键词查询 |
+| 查询 | `organizationId`、`date`、`practitionerId`、`scheduleId`、`statusCode`、`pageNo`、`pageSize` | 页面提供日期、科室、医生和关键词查询；所选科室主键通过 `organizationId` 传递 |
 | 标识与关联 | `slotId`、`scheduleId`、`practitionerId`、`healthcareServiceId` | 页面兼容 `id`、`doctorId`、`departmentId` |
 | 时段 | `startTime`、`endTime` | `group` 由 adapter/mock 按上午、下午、晚间计算 |
 | 数量 | `capacity`、`bookedCount`、`remainingCount` | 页面兼容 `used`、`remaining` |
-| 状态 | `statusCode`、`displayStatus`、`overbookedFlag`、`commentText` | 页面状态为 `available/full/stopped/expired` |
+| 状态 | `statusCode`、`displayStatus`、`overbookedFlag`、`commentText` | 页面状态为 `available/full/stopped/blocked/expired` |
 
-`adapter.ts` 优先读取 `slotId`、`bookedCount`、`remainingCount` 和 `statusCode`。页面不办理患者预约登记；思维导图后续要求的批量封锁、批量解封和超售标记由独立状态维护区完成，并复用同一号源查询结果。`organizationId` 始终是机构标识，科室筛选在页面取得正式结果后按 `healthcareServiceId` 处理。
+`adapter.ts` 优先读取 `slotId`、`bookedCount`、`remainingCount` 和 `statusCode`。页面不办理患者预约登记；思维导图后续要求的批量封锁、批量解封和超售标记由独立状态维护区完成，并复用同一号源查询结果。`organizationId` 使用当前查询科室主键。三个状态维护接口无业务返回值。
 
 ## 验证
 

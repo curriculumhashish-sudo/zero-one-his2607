@@ -255,7 +255,7 @@ function toRecord(detail: MedicationCatalogDetail): MedicationCatalogRecord {
     activeFlag: detail.activeFlag,
     manufacturerText: detail.manufacturerText,
     doseFormName: doseFormNameMap.get(detail.doseFormCode) ?? detail.doseFormCode,
-    updatedAt: (detail as MedicationCatalogRecord).updatedAt ?? now()
+    updatedAt: getRecordTimestamp(detail.id ?? '')
   }
 }
 

@@ -24,7 +24,8 @@ function patient(encounterId: string, patientName: string): InpatientDoctorPatie
     bedId: `bed-${encounterId}`,
     bedName: `${encounterId}床`,
     encounterStatus: 'IN_HOSPITAL',
-    encounterStatusName: '在院'
+    encounterStatusName: '在院',
+    version: 1
   }
 }
 

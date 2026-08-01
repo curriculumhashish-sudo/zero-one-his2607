@@ -127,20 +127,22 @@ let weeklyTemplates: WeeklyTemplate[] = [
     ]
   }
 ]
-let policies: ReleasePolicy[] = [{
-  id: 'policy-default',
-  policyCode: 'DEFAULT',
-  name: '门诊默认放号策略',
-  enabled: true,
-  openDays: 14,
-  openTime: '08:00',
-  closeTime: '20:00',
-  maxAdvanceDays: 30,
-  maxPerPatient: 3,
-  slotMinutes: 30,
-  capacityPerSlot: 10,
-  channelQuotaJsonText: '{"WINDOW":50,"MINIAPP":50}'
-}]
+let policies: ReleasePolicy[] = [
+  {
+    id: 'policy-default',
+    policyCode: 'DEFAULT',
+    name: '门诊默认放号策略',
+    enabled: true,
+    openDays: 14,
+    openTime: '08:00',
+    closeTime: '20:00',
+    maxAdvanceDays: 30,
+    maxPerPatient: 3,
+    slotMinutes: 30,
+    capacityPerSlot: 10,
+    channelQuotaJsonText: '{"WINDOW":50,"MINIAPP":50}'
+  }
+]
 let holidays: HolidayException[] = [
   {
     id: 'holiday-1',
@@ -314,8 +316,8 @@ export async function mockPageTimePeriods(query: TimePeriodQuery, context: Reque
         (!keyword || item.name.toLowerCase().includes(keyword)) &&
         (!query.status || item.status === query.status)
     ),
-    query.page,
-    query.pageSize
+    query.PageIndex,
+    query.PageSize
   )
 }
 export async function mockSaveTimePeriod(
@@ -324,7 +326,8 @@ export async function mockSaveTimePeriod(
 ) {
   const id = payload.id
   await delay(context)
-  if (!payload.templateName.trim() || !payload.slotTemplates.length) throw new Error('时段名称和时间段不能为空')
+  if (!payload.templateName.trim() || !payload.slotTemplates.length)
+    throw new Error('时段名称和时间段不能为空')
   if (payload.slotTemplates.some((item) => item.endTime <= item.startTime))
     throw new Error('结束时间必须晚于开始时间')
   const segments = payload.slotTemplates.map((item, index) => ({
@@ -376,8 +379,8 @@ export async function mockPageDailyTemplates(
           `${item.name}${item.doctorName}${item.roomName}`.toLowerCase().includes(keyword)) &&
         (!query.status || item.status === query.status)
     ),
-    query.page,
-    query.pageSize
+    query.PageIndex,
+    query.PageSize
   )
 }
 export async function mockSaveDailyTemplate(
@@ -394,7 +397,12 @@ export async function mockSaveDailyTemplate(
     !payload.locationId
   )
     throw new Error('请完整填写日排班模板')
-  if (payload.effectiveStart && payload.effectiveEnd && payload.effectiveEnd < payload.effectiveStart) throw new Error('生效结束日期不能早于开始日期')
+  if (
+    payload.effectiveStart &&
+    payload.effectiveEnd &&
+    payload.effectiveEnd < payload.effectiveStart
+  )
+    throw new Error('生效结束日期不能早于开始日期')
   const periodIds = [payload.slotProvisionTemplateId]
   periodIds.forEach((periodId) =>
     option(
@@ -405,7 +413,10 @@ export async function mockSaveDailyTemplate(
   )
   const doctor = option(doctors, payload.practitionerId, '医生')
   const room = option(rooms, payload.locationId, '诊室')
-  if (payload.defaultReleasePolicyId && !policies.some((item) => item.id === payload.defaultReleasePolicyId))
+  if (
+    payload.defaultReleasePolicyId &&
+    !policies.some((item) => item.id === payload.defaultReleasePolicyId)
+  )
     throw new Error('放号策略不存在或已停用')
   if (id) {
     const row = findOrThrow(dailyTemplates, id, '日排班模板不存在')
@@ -485,8 +496,8 @@ export async function mockPageWeeklyTemplates(
         (!keyword || item.name.toLowerCase().includes(keyword)) &&
         (!query.status || item.status === query.status)
     ),
-    query.page,
-    query.pageSize
+    query.PageIndex,
+    query.PageSize
   )
 }
 export async function mockSaveWeeklyTemplate(
@@ -496,7 +507,8 @@ export async function mockSaveWeeklyTemplate(
   const id = payload.id
   await delay(context)
   const payloadItems = payload.items ?? []
-  if (!payload.templateName.trim() || !payloadItems.length) throw new Error('周排班名称和周明细不能为空')
+  if (!payload.templateName.trim() || !payloadItems.length)
+    throw new Error('周排班名称和周明细不能为空')
   if (new Set(payloadItems.map((item) => item.weekday)).size !== payloadItems.length)
     throw new Error('同一周排班中不能重复配置星期')
   const items = payloadItems.map((item, index) => {
@@ -551,10 +563,11 @@ export async function mockPageReleasePolicies(
   return toPage(
     policies.filter(
       (item) =>
-        !keyword || `${item.policyCode ?? ''}${item.policyName ?? ''}`.toLowerCase().includes(keyword)
+        !keyword ||
+        `${item.policyCode ?? ''}${item.policyName ?? ''}`.toLowerCase().includes(keyword)
     ),
-    query.pageNo,
-    query.pageSize
+    query.PageIndex,
+    query.PageSize
   )
 }
 export async function mockSaveReleasePolicy(
@@ -624,7 +637,12 @@ export async function mockPageHolidayExceptions(
   context: RequestContext = {}
 ) {
   await delay(context)
-  const typeMap = { CLOSED: 'closed', REDUCED: 'reduced', OVERRIDE: 'replace', EXTRA: 'extra' } as const
+  const typeMap = {
+    CLOSED: 'closed',
+    REDUCED: 'reduced',
+    OVERRIDE: 'replace',
+    EXTRA: 'extra'
+  } as const
   const type = query.exceptionType ? typeMap[query.exceptionType] : undefined
   const keyword = query.keyword?.trim().toLowerCase()
   return toPage(
@@ -633,10 +651,13 @@ export async function mockPageHolidayExceptions(
         (!query.rangeStart || (item.rangeEnd ?? item.date) >= query.rangeStart) &&
         (!query.rangeEnd || item.date <= query.rangeEnd) &&
         (!type || item.type === type) &&
-        (!keyword || `${item.reason}${item.replacementDailyTemplateName ?? ''}`.toLowerCase().includes(keyword))
+        (!keyword ||
+          `${item.reason}${item.replacementDailyTemplateName ?? ''}`
+            .toLowerCase()
+            .includes(keyword))
     ),
-    query.pageNo,
-    query.pageSize
+    query.PageIndex,
+    query.PageSize
   )
 }
 export async function mockSaveHolidayException(
@@ -649,7 +670,12 @@ export async function mockSaveHolidayException(
   if (payload.rangeEnd && payload.rangeEnd < payload.exceptionDate)
     throw new Error('结束日期不能早于起始日')
   let replacementDailyTemplateName: string | undefined
-  const typeMap = { CLOSED: 'closed', REDUCED: 'reduced', OVERRIDE: 'replace', EXTRA: 'extra' } as const
+  const typeMap = {
+    CLOSED: 'closed',
+    REDUCED: 'reduced',
+    OVERRIDE: 'replace',
+    EXTRA: 'extra'
+  } as const
   const type = typeMap[payload.exceptionType]
   if (type !== 'closed') {
     replacementDailyTemplateName = option(

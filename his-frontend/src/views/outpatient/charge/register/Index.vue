@@ -206,8 +206,8 @@ async function loadDashboard() {
         {
           dateFrom: today,
           dateTo: today,
-          pageNo: historyQuery.pageNo,
-          pageSize: historyQuery.pageSize
+          PageIndex: historyQuery.pageNo,
+          PageSize: historyQuery.pageSize
         },
         { signal: controller.signal }
       ),
@@ -283,7 +283,7 @@ const loadPatients: SelectTableLoadPage<RegisterPatient & Record<string, unknown
   context
 ) => {
   const result = await pageRegisterPatientOptions(
-    { keyword: request.keyword, pageNo: request.pageIndex, pageSize: request.pageSize },
+    { keyword: request.keyword, PageIndex: request.pageIndex, PageSize: request.pageSize },
     { signal: context.signal }
   )
   return {

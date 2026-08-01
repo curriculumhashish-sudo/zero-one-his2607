@@ -15,6 +15,7 @@ const statusOptions: StatusDisplayOption[] = [
   { value: 'available', label: '可约', type: 'success' },
   { value: 'full', label: '已满', type: 'danger' },
   { value: 'stopped', label: '停诊', type: 'warning' },
+  { value: 'blocked', label: '已封锁', type: 'warning' },
   { value: 'expired', label: '过期', type: 'info' }
 ]
 
@@ -23,11 +24,13 @@ const items = computed<DescriptionItem[]>(() => [
   { prop: 'practitionerName', label: '医师' },
   { prop: 'healthcareServiceName', label: '号源类型' },
   { prop: 'status', label: '状态' },
+  { prop: 'date', label: '日期' },
   { prop: 'timeRange', label: '时段' },
   { prop: 'capacity', label: '容量' },
   { prop: 'bookedCount', label: '已约' },
   { prop: 'remainingCount', label: '剩余' },
   { prop: 'overbookedText', label: '超售' },
+  { prop: 'unavailableReason', label: '停诊/不可用原因' },
   { prop: 'commentText', label: '备注' },
   { prop: 'slotId', label: '号源 ID' },
   { prop: 'scheduleId', label: '日程 ID' }
@@ -47,6 +50,7 @@ const displayData = computed(() =>
         healthcareServiceName: props.data.healthcareServiceName || '—',
         timeRange: `${formatTime(props.data.startTime)} — ${formatTime(props.data.endTime)}`,
         overbookedText: props.data.overbookedFlag ? '是' : '否',
+        unavailableReason: props.data.unavailableReason || '—',
         commentText: props.data.commentText || '—'
       }
     : null

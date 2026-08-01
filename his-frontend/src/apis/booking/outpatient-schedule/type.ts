@@ -104,7 +104,9 @@ export interface CreateScheduleRequest {
   slotProvisionTemplateId?: string
 }
 
-export interface CreateScheduleResponse { scheduleId?: string }
+export interface CreateScheduleResponse {
+  scheduleId?: string
+}
 
 export interface UpdateScheduleDraftRequest {
   scheduleId: string
@@ -123,7 +125,10 @@ export interface PublishScheduleRequest {
   acknowledgeConflictWarnings?: boolean
 }
 
-export interface DeactivateScheduleRequest { scheduleId: string; reason?: string }
+export interface DeactivateScheduleRequest {
+  scheduleId: string
+  reason?: string
+}
 
 export interface ScheduleInitResult {
   organizationId: string
@@ -194,6 +199,12 @@ export interface ReleasedSlotPage {
   totalCount: number
   pageNo: number
   pageSize: number
+}
+
+export interface ListReleasedSlotsQuery {
+  scheduleId: string
+  PageIndex: number
+  PageSize: number
 }
 
 export interface ScheduleImpactItem {

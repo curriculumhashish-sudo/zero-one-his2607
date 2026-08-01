@@ -1,466 +1,247 @@
-<template>
-  <div class="login-container">
-    <PolygonBackground />
-    <div class="glass-card">
-      <div class="login-header">
-        <h2 class="title">欢迎登录</h2>
-        <div class="mode-tabs" v-if="isDev">
-          <div
-            class="tab-item"
-            :class="{ active: loginMode === 'account' }"
-            @click="loginMode = 'account'"
-          >
-            账号登录
-          </div>
-          <div
-            class="tab-item"
-            :class="{ active: loginMode === 'oauth2' }"
-            @click="loginMode = 'oauth2'"
-          >
-            授权登录
-          </div>
-        </div>
-        <div class="mode-tabs single" v-else>
-          <div class="tab-item active">授权登录</div>
-        </div>
-      </div>
-
-      <div v-if="loginMode === 'account'" class="form-wrapper">
-        <el-form :model="formData" status-icon label-width="0">
-          <el-form-item prop="username">
-            <el-input
-              v-model="formData.username"
-              placeholder="请输入账号"
-              clearable
-              @keyup.enter="submitForm()"
-            >
-              <template #prefix>
-                <el-icon><User /></el-icon>
-              </template>
-            </el-input>
-          </el-form-item>
-          <el-form-item prop="password">
-            <el-input
-              v-model="formData.password"
-              type="password"
-              placeholder="请输入密码"
-              show-password
-              clearable
-              @keyup.enter="submitForm()"
-            >
-              <template #prefix>
-                <el-icon><Lock /></el-icon>
-              </template>
-            </el-input>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" class="login-btn" @click="submitForm()">立即登录</el-button>
-          </el-form-item>
-        </el-form>
-      </div>
-
-      <div v-else class="oauth-wrapper">
-        <div class="oauth-content">
-          <p class="oauth-tip">选择授权平台</p>
-          <div class="oauth-icons">
-            <div class="oauth-icon-item" @click="handleOAuth2Login">
-              <div class="icon-circle planet-bg">
-                <div class="planet-surface"></div>
-                <div class="orbit-dot"></div>
-              </div>
-              <span class="icon-label">01星球</span>
-            </div>
-            <!-- 可以预留其他平台 -->
-            <div class="oauth-icon-item disabled">
-              <div class="icon-circle gray-bg">
-                <el-icon :size="32"><ChatDotRound /></el-icon>
-              </div>
-              <span class="icon-label">微信</span>
-            </div>
-            <div class="oauth-icon-item disabled">
-              <div class="icon-circle gray-bg">
-                <el-icon :size="32"><Position /></el-icon>
-              </div>
-              <span class="icon-label">钉钉</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 测试示例访问入口 -->
-      <div class="footer-links" v-if="showTestLink">
-        <router-link to="/sample" class="sample-link">进入示例演示页面</router-link>
-      </div>
-    </div>
-  </div>
-  <!-- 验证码组件 -->
-  <TianaiCaptcha mode="popup" v-model="showCaptcha" @success="doLogin" />
-</template>
-
 <script setup lang="ts">
+import type {
+  LoginOrganizationOption,
+  LoginResult,
+  OrganizationInfo,
+  TenantInfo
+} from '@/apis/login'
+
+import { computed, reactive, ref } from 'vue'
+import { ElMessage } from 'element-plus'
+import { ArrowLeft, Lock, OfficeBuilding, User } from '@element-plus/icons-vue'
+import { useRouter } from 'vue-router'
+
+import {
+  getCaptcha,
+  loadAvailableDepartments,
+  loadAvailableHospitals,
+  loadAvailableTenants,
+  loginAccount,
+  selectDepartment,
+  selectHospital,
+  selectTenant,
+  verifyCaptcha
+} from '@/apis/login'
 import PolygonBackground from '@/components/background/PolygonBackground.vue'
 import TianaiCaptcha from '@/components/captcha/TianaiCaptcha.vue'
-import { ref, reactive } from 'vue'
-import { login } from '@/apis/login/index'
-import { ElMessage } from 'element-plus'
-import { useRouter } from 'vue-router'
 import { useTabStore } from '@/stores/tab'
 import { useUserStore } from '@/stores/user'
-import { User, Lock, ChatDotRound, Position } from '@element-plus/icons-vue'
-import { useAuthManager } from '@/plugins/auth-manager'
-import { closeLoading, showLoading } from '@/apis/http'
 
-// 是否为开发环境
-const isDev = import.meta.env.DEV
+defineOptions({ name: 'LoginView' })
 
-// 登录模式：account 或 oauth2，仅开发环境支持 account 模式
-const loginMode = ref<'account' | 'oauth2'>(isDev ? 'account' : 'oauth2')
+type LoginStep = 'account' | 'tenant' | 'hospital' | 'department'
 
-// 是否显示示例演示界面连接
-const showTestLink = ref(isDev)
-
-// 是否启用验证码
-const enableVerify = ref(!isDev)
-
-// 获取router对象
-const $router = useRouter()
-
-// 定义登录数据对象
-const formData = reactive({
-  username: '',
-  password: ''
-})
-
-/**
- * 执行登录
- * @param code 验证码字符串
- */
-function doLogin(code: string) {
-  // 发送登录请求
-  login(
-    {
-      ...formData,
-      code: code
-    },
-    () => {
-      // 重置标签页数据
-      useTabStore().reset()
-      // 跳转到首页
-      $router.push('/home')
-      // 登录成功提示
-      ElMessage.success('登录成功，前往首页')
-    },
-    () => {
-      ElMessage.error('账号或密码错误')
-    }
-  )
-}
-
-// 定义登录提交函数
-function submitForm() {
-  if (!formData.username || !formData.password) {
-    ElMessage.warning('请填写账号和密码')
-    return
-  }
-  // 是否启用验证码
-  if (!enableVerify.value) {
-    doLogin('')
-    return
-  }
-  // 弹出验证码框
-  useVerify()
-}
-
-/**
- * 处理 OAuth2 登录
- */
-function handleOAuth2Login() {
-  // 显示加载中
-  showLoading()
-  // 重置保存数据
-  useUserStore().resetSaveData()
-  // 重置标签页数据
-  useTabStore().reset()
-  // 登录请求
-  useAuthManager()
-    .login()
-    .catch((err) => {
-      // 登录失败提示
-      ElMessage.error('无法启动OAuth2登录流程')
-      console.error(err)
-    })
-    .finally(() => {
-      // 关闭加载中
-      closeLoading()
-    })
-}
-
-// 验证码显示状态
+const router = useRouter()
+const userStore = useUserStore()
+const tabStore = useTabStore()
+const formData = reactive({ username: '', password: '' })
+const step = ref<LoginStep>('account')
+const loading = ref(false)
+const isDevelopment = import.meta.env.DEV
+// 验证码是登录必经步骤；开发环境仍保留开关，便于联调未接入验证码服务的场景。
+const enableVerify = ref(true)
 const showCaptcha = ref(false)
+const loginResult = ref<LoginResult>()
+const tenants = ref<TenantInfo[]>([])
+const hospitals = ref<LoginOrganizationOption[]>([])
+const departments = ref<OrganizationInfo[]>([])
+const selectedTenantId = ref<number | string>()
+const selectedHospitalId = ref<number | string>()
+const selectedDepartmentId = ref<string>()
 
-/**
- * 弹出验证码框
- */
-function useVerify() {
-  showCaptcha.value = true
+const stepTitle = computed(() => ({ account: '账号登录', tenant: '选择租户', hospital: '选择医院', department: '选择机构（科室）' })[step.value])
+const currentStep = computed(() => ({ account: 0, tenant: 1, hospital: 2, department: 3 })[step.value])
+
+async function submitAccount() {
+  if (loading.value) return
+  if (!formData.username.trim() || !formData.password) {
+    ElMessage.warning('请输入账号和密码')
+    return
+  }
+  if (enableVerify.value) {
+    try {
+      loading.value = true
+      await getCaptcha()
+      showCaptcha.value = true
+    } catch (error) {
+      ElMessage.error(error instanceof Error ? error.message : '验证码加载失败')
+    } finally {
+      loading.value = false
+    }
+    return
+  }
+  await completeAccountLogin()
+}
+
+async function handleCaptchaSuccess(id: string) {
+  try {
+    loading.value = true
+    await verifyCaptcha({ id })
+    await completeAccountLogin()
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '验证码验证失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+async function completeAccountLogin() {
+  loading.value = true
+  try {
+    const result = await loginAccount({ username: formData.username.trim(), password: formData.password })
+    loginResult.value = result
+    userStore.setToken(result)
+    tenants.value = await loadAvailableTenants()
+    if (!tenants.value.length) throw new Error('当前账号没有可用租户')
+    if (tenants.value.length === 1) {
+      selectedTenantId.value = tenants.value[0]!.id
+      await confirmTenant()
+    } else {
+      step.value = 'tenant'
+    }
+  } catch (error) {
+    step.value = 'account'
+    ElMessage.error(error instanceof Error ? error.message : '登录失败，请重试')
+  } finally {
+    loading.value = false
+  }
+}
+
+async function confirmTenant() {
+  if (!selectedTenantId.value) return
+  loading.value = true
+  try {
+    await selectTenant(selectedTenantId.value)
+    userStore.setLoginContext({ tenantId: selectedTenantId.value, hospitalId: null, departmentId: null })
+    hospitals.value = await loadAvailableHospitals()
+    if (!hospitals.value.length) throw new Error('当前租户没有可用医院')
+    if (hospitals.value.length === 1) {
+      selectedHospitalId.value = hospitals.value[0]!.id
+      loading.value = false
+      await confirmHospital()
+    } else {
+      step.value = 'hospital'
+    }
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '租户选择失败，请重试')
+  } finally {
+    loading.value = false
+  }
+}
+
+async function confirmHospital() {
+  if (!selectedHospitalId.value) return
+  loading.value = true
+  try {
+    await selectHospital(selectedHospitalId.value)
+    userStore.setLoginContext({ hospitalId: selectedHospitalId.value, departmentId: null })
+    const doctor = loginResult.value?.configuration.currentUser.roles.includes('doctor') ?? false
+    if (!doctor) {
+      await finishLogin()
+      return
+    }
+    departments.value = await loadAvailableDepartments()
+    if (!departments.value.length) throw new Error('当前医生没有可用机构（科室）')
+    if (departments.value.length === 1) {
+      selectedDepartmentId.value = departments.value[0]!.id
+      loading.value = false
+      await confirmDepartment()
+    } else {
+      step.value = 'department'
+    }
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '医院选择失败，请重试')
+  } finally {
+    loading.value = false
+  }
+}
+
+async function confirmDepartment() {
+  if (!selectedDepartmentId.value) return
+  loading.value = true
+  try {
+    await selectDepartment(selectedDepartmentId.value)
+    userStore.setLoginContext({ departmentId: selectedDepartmentId.value })
+    await finishLogin()
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '机构（科室）选择失败，请重试')
+  } finally {
+    loading.value = false
+  }
+}
+
+async function finishLogin() {
+  await Promise.all([userStore.loadUser(), userStore.loadMenus()])
+  userStore.setLoaded(true)
+  tabStore.reset()
+  await router.replace({ name: 'Dashboard' })
+  ElMessage.success('登录成功')
+}
+
+function backStep() {
+  if (step.value === 'department') step.value = 'hospital'
+  else if (step.value === 'hospital') step.value = 'tenant'
+  else step.value = 'account'
 }
 </script>
 
+<template>
+  <main class="login-page">
+    <PolygonBackground />
+    <section class="login-panel">
+      <header class="login-panel__header">
+        <div class="brand-mark">01</div>
+        <div><h1>零壹 HIS</h1><p>{{ stepTitle }}</p></div>
+      </header>
+
+      <el-steps :active="currentStep" finish-status="success" simple class="login-steps">
+        <el-step title="账号" />
+        <el-step title="租户" />
+        <el-step title="医院" />
+        <el-step title="科室" />
+      </el-steps>
+
+      <el-form v-if="step === 'account'" :model="formData" class="login-form" @submit.prevent="submitAccount">
+        <el-form-item><el-input v-model="formData.username" autocomplete="username" placeholder="账号" :prefix-icon="User" clearable @keyup.enter="submitAccount" /></el-form-item>
+        <el-form-item><el-input v-model="formData.password" autocomplete="current-password" type="password" placeholder="密码" :prefix-icon="Lock" show-password @keyup.enter="submitAccount" /></el-form-item>
+        <div v-if="isDevelopment" class="captcha-switch"><span>登录验证码</span><el-switch v-model="enableVerify" /></div>
+        <el-button native-type="button" type="primary" class="primary-action" :loading="loading" @click="submitAccount">登录</el-button>
+      </el-form>
+
+      <div v-else class="context-form">
+        <el-select v-if="step === 'tenant'" v-model="selectedTenantId" placeholder="请选择租户" size="large"><el-option v-for="item in tenants" :key="item.id" :label="item.name" :value="item.id" /></el-select>
+        <el-select v-if="step === 'hospital'" v-model="selectedHospitalId" placeholder="请选择医院" size="large"><el-option v-for="item in hospitals" :key="item.id" :label="item.displayName ?? item.name" :value="item.id" /></el-select>
+        <el-select v-if="step === 'department'" v-model="selectedDepartmentId" placeholder="请选择机构（科室）" size="large"><el-option v-for="item in departments" :key="item.id" :label="item.displayName" :value="item.id" :disabled="!item.isEnabled" /></el-select>
+        <div class="context-actions">
+          <el-button :icon="ArrowLeft" :disabled="loading" @click="backStep">返回</el-button>
+          <el-button v-if="step === 'tenant'" type="primary" :loading="loading" :disabled="!selectedTenantId" @click="confirmTenant">确认租户</el-button>
+          <el-button v-if="step === 'hospital'" type="primary" :loading="loading" :disabled="!selectedHospitalId" @click="confirmHospital">确认医院</el-button>
+          <el-button v-if="step === 'department'" type="primary" :loading="loading" :disabled="!selectedDepartmentId" @click="confirmDepartment">进入系统</el-button>
+        </div>
+      </div>
+
+      <div class="login-panel__footer"><OfficeBuilding /><span>零壹医院信息系统</span></div>
+    </section>
+    <TianaiCaptcha v-model="showCaptcha" mode="popup" type="WORD_IMAGE_CLICK" @success="handleCaptchaSuccess" @error="ElMessage.error('验证码加载失败，请重试')" />
+  </main>
+</template>
+
 <style scoped>
-.login-container {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-}
-
-.glass-card {
-  width: 500px;
-  padding: 50px;
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  border-radius: 24px;
-  box-shadow: var(--glass-shadow);
-  transition: all 0.3s ease;
-}
-
-.login-header {
-  margin-bottom: 40px;
-  text-align: center;
-}
-
-.title {
-  color: var(--title-color);
-  font-size: 36px;
-  margin-bottom: 25px;
-  font-weight: 700;
-  letter-spacing: 2px;
-}
-
-.mode-tabs {
-  display: flex;
-  justify-content: center;
-  gap: 30px;
-  margin-bottom: 15px;
-}
-
-.tab-item {
-  padding: 10px 20px;
-  cursor: pointer;
-  color: #606266;
-  font-size: 20px;
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.tab-item:after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: 0;
-  height: 3px;
-  background: #409eff;
-  transition: all 0.3s ease;
-  transform: translateX(-50%);
-}
-
-.tab-item.active {
-  color: #409eff;
-  font-weight: bold;
-}
-
-.tab-item.active:after {
-  width: 100%;
-}
-
-.form-wrapper {
-  margin-top: 20px;
-}
-
-.login-btn {
-  width: 100%;
-  height: 54px;
-  font-size: 20px;
-  border-radius: 12px;
-  background: var(--primary-gradient);
-  border: none;
-  box-shadow: 0 4px 15px rgba(25, 113, 194, 0.2);
-  margin-top: 10px;
-}
-
-.login-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(25, 113, 194, 0.3);
-}
-
-.oauth-wrapper {
-  padding: 30px 0 10px;
-  text-align: center;
-}
-
-.oauth-tip {
-  color: #909399;
-  font-size: 18px;
-  margin-bottom: 30px;
-}
-
-.oauth-icons {
-  display: flex;
-  justify-content: center;
-  gap: 40px;
-}
-
-.oauth-icon-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.oauth-icon-item:hover {
-  transform: translateY(-5px);
-}
-
-.oauth-icon-item.disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.oauth-icon-item.disabled:hover {
-  transform: none;
-}
-
-.icon-circle {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.planet-bg {
-  background: radial-gradient(circle at 30% 30%, #4facfe 0%, #00f2fe 40%, #0072ff 100%);
-  position: relative;
-  /* 移除 overflow: hidden 以免切割轨道上的光点 */
-  box-shadow:
-    inset -10px -10px 20px rgba(0, 0, 0, 0.4),
-    0 0 20px rgba(79, 172, 254, 0.4);
-}
-
-.planet-surface {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%; /* 显式设置圆角以保持球体形状 */
-  background-image:
-    radial-gradient(circle at 70% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 20%),
-    radial-gradient(circle at 20% 60%, rgba(255, 255, 255, 0.1) 0%, transparent 15%),
-    radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 25%);
-  opacity: 0.8;
-}
-
-.planet-bg::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%; /* 保持高光层为圆形 */
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
-  pointer-events: none;
-}
-
-.orbit-dot {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 6px;
-  height: 6px;
-  margin: -3px 0 0 -3px;
-  background-color: #fff;
-  border-radius: 50%;
-  box-shadow: 0 0 15px 2px #fff;
-  animation: orbit 2.5s linear infinite;
-  z-index: 10;
-}
-
-/* 增强的拖尾效果 */
-.orbit-dot::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  box-shadow:
-    -2px 0 10px 2px rgba(255, 255, 255, 1),
-    -6px 0 15px 4px rgba(255, 255, 255, 0.8),
-    -12px 0 20px 6px rgba(255, 255, 255, 0.5),
-    -20px 0 30px 8px rgba(255, 255, 255, 0.3),
-    -35px 0 45px 12px rgba(255, 255, 255, 0.1);
-  filter: blur(1px);
-}
-
-@keyframes orbit {
-  from {
-    transform: rotate(0deg) translateY(-32px);
-  }
-  to {
-    transform: rotate(360deg) translateY(-32px);
-  }
-}
-
-.gray-bg {
-  background: #e4e7ed;
-  color: #909399;
-}
-
-.icon-label {
-  font-size: 16px;
-  color: #606266;
-}
-
-.footer-links {
-  margin-top: 35px;
-  text-align: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-  padding-top: 20px;
-}
-
-.sample-link {
-  color: #409eff;
-  text-decoration: none;
-  font-size: 16px;
-}
-
-.sample-link:hover {
-  text-decoration: underline;
-}
-
-:deep(.el-input__wrapper) {
-  background-color: rgba(255, 255, 255, 0.5) !important;
-  box-shadow: none !important;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 10px;
-  height: 48px;
-}
-
-:deep(.el-input__inner) {
-  font-size: 18px;
-}
-
-:deep(.el-input__wrapper.is-focus) {
-  border-color: #409eff;
-}
+.login-page { display: grid; min-height: 100vh; place-items: center; overflow: hidden; color: #111827; }
+.login-panel { position: relative; z-index: 2; width: min(92vw, 560px); padding: 32px; border: 1px solid rgb(255 255 255 / 70%); border-radius: 10px; background: rgb(255 255 255 / 94%); box-shadow: 0 18px 50px rgb(15 23 42 / 18%); }
+.login-panel__header { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+.brand-mark { display: grid; width: 48px; height: 48px; place-items: center; border-radius: 8px; background: #1d4ed8; color: #fff; font-size: 20px; font-weight: 800; }
+.login-panel__header h1 { margin: 0; color: #111827; font-size: 24px; letter-spacing: 0; }
+.login-panel__header p { margin: 4px 0 0; color: #4b5563; font-size: 14px; }
+.login-steps { margin-bottom: 26px; }
+.login-form, .context-form { display: flex; flex-direction: column; gap: 14px; }
+.login-form :deep(.el-form-item) { margin-bottom: 0; }
+.login-form :deep(.el-input__wrapper), .context-form :deep(.el-select__wrapper) { min-height: 46px; }
+.captcha-switch { display: flex; align-items: center; justify-content: space-between; color: #374151; font-size: 14px; }
+.primary-action { width: 100%; height: 46px; font-weight: 700; }
+.context-form :deep(.el-select) { width: 100%; }
+.context-actions { display: flex; justify-content: space-between; gap: 12px; }
+.login-panel__footer { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 24px; color: #6b7280; font-size: 13px; }
+.login-panel__footer :deep(svg) { width: 16px; height: 16px; flex: none; }
+@media (max-width: 560px) { .login-panel { padding: 24px 18px; } .login-steps :deep(.el-step__title) { font-size: 12px; } }
 </style>

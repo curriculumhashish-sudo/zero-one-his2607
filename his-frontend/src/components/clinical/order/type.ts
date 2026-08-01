@@ -27,6 +27,12 @@ export interface ClinicalOrderDraft extends AdviceOrder {
   quantity?: number
   /** 开立数量单位 */
   quantityUnit?: string
+  /** 医嘱状态码 */
+  statusCode?: string
+  /** 疗程类型 */
+  therapyType?: string
+  /** 疗程类型名称 */
+  therapyTypeName?: string
 }
 
 /** 医嘱项目选择弹窗中的候选项。 */
@@ -57,6 +63,8 @@ export interface ClinicalOrderCandidate extends Record<string, unknown> {
   defaultQuantity?: number
   /** 数量单位 */
   quantityUnit?: string
+  /** 默认疗程类型 */
+  defaultTherapyType?: string
 }
 
 /** 公共医嘱工作区使用的最小诊疗上下文。 */

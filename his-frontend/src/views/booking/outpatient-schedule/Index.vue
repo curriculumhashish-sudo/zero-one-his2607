@@ -150,10 +150,7 @@ async function loadSchedules(range = currentRange.value) {
         )
       : result.records
     rows.value = records
-    if (
-      selectedSchedule.value &&
-      !records.some((item) => item.id === selectedSchedule.value?.id)
-    ) {
+    if (selectedSchedule.value && !records.some((item) => item.id === selectedSchedule.value?.id)) {
       selectedSchedule.value = null
       detailVisible.value = false
     }
@@ -299,9 +296,9 @@ async function handleStop(record: ScheduleRecord) {
       `将停诊整个日程，影响 ${impact.slotCount} 个号源、${impact.appointmentCount} 个预约。请填写停诊原因。`,
       '整日停诊确认',
       {
-      type: 'warning',
-      inputPlaceholder: '请输入停诊原因',
-      inputValidator: (value) => (value.trim() ? true : '停诊原因不能为空')
+        type: 'warning',
+        inputPlaceholder: '请输入停诊原因',
+        inputValidator: (value) => (value.trim() ? true : '停诊原因不能为空')
       }
     )
     actionLoading.value = true
@@ -356,9 +353,7 @@ async function openGenerateDialog() {
   }
 }
 
-async function generateSchedules(
-  payload: Omit<GenerateFormalSchedulesPayload, 'organizationId'>
-) {
+async function generateSchedules(payload: Omit<GenerateFormalSchedulesPayload, 'organizationId'>) {
   if (generationLoading.value || !organizationId.value) return
   generationLoading.value = true
   try {
@@ -463,7 +458,7 @@ async function partialStop(record: ScheduleRecord) {
   if (actionLoading.value) return
   try {
     const [slots, impact] = await Promise.all([
-      listReleasedSlots(record.id),
+      listReleasedSlots({ scheduleId: record.id, PageIndex: 1, PageSize: 100 }),
       previewScheduleImpact(record.id)
     ])
     const defaultIds = slots.content
@@ -560,7 +555,7 @@ async function provision(record: ScheduleRecord) {
 async function deleteSlots(record: ScheduleRecord) {
   if (actionLoading.value) return
   try {
-    const result = await listReleasedSlots(record.id)
+    const result = await listReleasedSlots({ scheduleId: record.id, PageIndex: 1, PageSize: 100 })
     if (!result.content.length) throw new Error('当前日程没有已放号源')
     await ElMessageBox.confirm(`确认删除 ${result.content.length} 个未使用号源？`, '删除号源', {
       type: 'warning'

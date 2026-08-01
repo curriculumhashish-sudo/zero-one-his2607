@@ -8,7 +8,11 @@ export type ReceiptPrintStatus = 'auto-queued' | 'scheduled' | 'printed'
 export interface PageResult<T> {
   rows: T[]
   records: T[]
+  content?: T[]
   total: number
+  totalCount?: number
+  pageNo?: number
+  pageSize?: number
 }
 export interface ChargePatient {
   id: string
@@ -91,16 +95,21 @@ export interface ChargeQueueQuery {
   startDate?: string | null
   endDate?: string | null
   status: ChargeQueueStatus
+  page?: number
   pageNo?: number
-  page: number
-  pageSize: number
+  pageSize?: number
+  PageIndex?: number
+  PageSize?: number
 }
 export interface PageOutpatientChargeQueueRequest {
   endDate?: string | null
   keyword?: string
   organizationId?: string | null
-  pageNo: number
-  pageSize: number
+  page?: number
+  pageNo?: number
+  pageSize?: number
+  PageIndex?: number
+  PageSize?: number
   queueTabCode: 'ALL' | 'PENDING' | 'SETTLED'
   startDate?: string | null
 }

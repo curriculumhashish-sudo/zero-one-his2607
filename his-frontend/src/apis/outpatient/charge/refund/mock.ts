@@ -214,9 +214,10 @@ export async function mockPageRefundPatientQueue(
       (!query.endDate || item.visitTime.slice(0, 10) <= query.endDate) &&
       (!key || `${item.name}${item.patientNo}${item.visitNo}`.toLowerCase().includes(key))
   )
-  const start = ((query.pageNo ?? query.page) - 1) * query.pageSize
-  const pageRows = clone(rows.slice(start, start + query.pageSize))
-  const pageNo = query.pageNo ?? query.page
+  const pageNo = query.PageIndex ?? query.pageNo ?? query.page ?? 1
+  const pageSize = query.PageSize ?? query.pageSize ?? 20
+  const start = (pageNo - 1) * pageSize
+  const pageRows = clone(rows.slice(start, start + pageSize))
   return {
     rows: pageRows,
     records: clone(pageRows),
@@ -224,7 +225,7 @@ export async function mockPageRefundPatientQueue(
     total: rows.length,
     totalCount: rows.length,
     pageNo,
-    pageSize: query.pageSize
+    pageSize
   }
 }
 export async function mockGetRefundableExecutionDetail(

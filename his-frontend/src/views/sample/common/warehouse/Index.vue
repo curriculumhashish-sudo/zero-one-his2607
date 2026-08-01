@@ -236,8 +236,8 @@ const detailRules = [
 
 // ==================== 事件处理 ====================
 
-function onOrderSelect(order: MockOrder) {
-  console.log('选中单据:', order)
+function onOrderSelect(order: Record<string, unknown>) {
+  console.log('选中单据:', order as unknown as MockOrder)
 }
 
 function onCreate() {

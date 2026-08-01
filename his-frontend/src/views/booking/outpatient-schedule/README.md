@@ -62,7 +62,7 @@ partialStopSchedule(id, data)
 unlockPartialStop(id, data)
 resumeSchedule(id)
 voidSchedule(id, reason)
-listReleasedSlots(id)
+listReleasedSlots({ scheduleId, PageIndex, PageSize })
 provisionScheduleSlots(id, data)
 deleteReleasedSlots(id, data)
 ```

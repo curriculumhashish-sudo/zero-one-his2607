@@ -252,6 +252,8 @@ export async function mockPageInpatientSettleQueue(
   context: RequestContext = {}
 ) {
   await wait(context)
+  const pageIndex = query.PageIndex ?? query.pageNo ?? 1
+  const pageSize = query.PageSize ?? query.pageSize ?? 20
   const keyword = query.keyword?.trim().toLowerCase() ?? ''
   const filtered = patients.filter(
     (patient) =>
@@ -260,11 +262,11 @@ export async function mockPageInpatientSettleQueue(
         `${patient.patientName}${patient.encounterBusNo}`.toLowerCase().includes(keyword)) &&
       (!query.admissionDate || patient.startTime?.startsWith(query.admissionDate))
   )
-  const start = (query.pageNo - 1) * query.pageSize
+  const start = (pageIndex - 1) * pageSize
   const result: InpatientSettleQueuePage = {
-    content: clone(filtered.slice(start, start + query.pageSize)),
-    pageNo: query.pageNo,
-    pageSize: query.pageSize,
+    content: clone(filtered.slice(start, start + pageSize)),
+    pageNo: pageIndex,
+    pageSize,
     totalCount: filtered.length,
     totalElements: filtered.length
   }

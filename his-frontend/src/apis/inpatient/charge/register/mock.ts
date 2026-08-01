@@ -241,13 +241,15 @@ export async function mockPageInpatientRegistrationQueue(
     if (mockFilter.dateTo && date > mockFilter.dateTo) return false
     return true
   })
-  const start = (query.pageNo - 1) * query.pageSize
+  const pageNo = query.PageIndex ?? query.pageNo ?? query.page ?? 1
+  const pageSize = query.PageSize ?? query.pageSize ?? 20
+  const start = (pageNo - 1) * pageSize
   const result: RegistrationPageResult = {
     content: clone(
-      filtered.slice(start, start + query.pageSize).map(({ idCard: _idCard, ...record }) => record)
+      filtered.slice(start, start + pageSize).map(({ idCard: _idCard, ...record }) => record)
     ),
-    pageNo: query.pageNo,
-    pageSize: query.pageSize,
+    pageNo,
+    pageSize,
     totalCount: filtered.length,
     totalElements: filtered.length
   }
@@ -317,9 +319,11 @@ export async function mockPageRegistrationPatientOptions(
       .toLowerCase()
       .includes(keyword)
   )
-  const start = (query.pageNo - 1) * query.pageSize
+  const pageNo = query.PageIndex ?? query.pageNo ?? query.page ?? 1
+  const pageSize = query.PageSize ?? query.pageSize ?? 20
+  const start = (pageNo - 1) * pageSize
   const result: RegistrationPatientPage = {
-    records: clone(filtered.slice(start, start + query.pageSize)),
+    records: clone(filtered.slice(start, start + pageSize)),
     total: filtered.length
   }
   return result

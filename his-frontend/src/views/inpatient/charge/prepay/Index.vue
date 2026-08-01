@@ -15,6 +15,7 @@ import ActionToolbar from '@/components/common/ActionToolbar.vue'
 import DataTablePanel from '@/components/common/DataTablePanel.vue'
 import DetailSummary from '@/components/common/DetailSummary.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
+import PaginationBar from '@/components/common/PaginationBar.vue'
 import PatientInfoBar from '@/components/patient/PatientInfoBar.vue'
 import PatientQueuePanel from '@/components/patient/PatientQueuePanel.vue'
 import RowActionGroup from '@/components/common/RowActionGroup.vue'
@@ -111,7 +112,14 @@ async function loadQueue() {
   queueLoading.value = true
   errorMessage.value = ''
   try {
-    const result = await pageInpatientQueue(query)
+    const result = await pageInpatientQueue({
+      admissionDate: query.admissionDate,
+      admissionStartDate: query.admissionStartDate,
+      admissionEndDate: query.admissionEndDate,
+      keyword: query.keyword,
+      PageIndex: query.page,
+      PageSize: query.pageSize
+    })
     if (seq !== queueSequence) return
     patients.value = result.rows
     queueTotal.value = result.total
@@ -149,7 +157,7 @@ async function selectPatient(patient: PatientSummary) {
   try {
     const [summaryResult, recordResult] = await Promise.all([
       getInpatientPrepaySummary(id),
-      pagePrepayRecords(id, { page: recordPage.value, pageSize: recordPageSize.value })
+      pagePrepayRecords(id, { PageIndex: recordPage.value, PageSize: recordPageSize.value })
     ])
     if (seq !== detailSequence) return
     summary.value = summaryResult
@@ -186,8 +194,10 @@ function handleAdmissionDateChange(value: DateRangeValue) {
   clearSelection()
   void loadQueue()
 }
-function handleQueuePageChange(page: number) {
-  query.page = page
+function handleQueuePaginationChange(payload: { page: number; pageSize: number }) {
+  const pageSizeChanged = payload.pageSize !== query.pageSize
+  query.page = pageSizeChanged ? 1 : payload.page
+  query.pageSize = payload.pageSize
   clearSelection()
   void loadQueue()
 }
@@ -216,7 +226,7 @@ async function collect(data: {
       paymentCode: data.channel.toUpperCase(),
       paymentDetails: [{ amount: data.amount, payChannelCode: data.channel }],
       clientScanResult: data.scanCode
-          ? {
+        ? {
             merTradeNo: `MER-${Date.now()}`,
             tradeNo: data.scanCode,
             payType: data.channel,
@@ -267,7 +277,7 @@ async function refund(data: {
       paymentDetails: [{ amount: data.amount, payChannelCode: data.channel }],
       remark: data.remark,
       clientRefundResult: data.scanCode
-          ? {
+        ? {
             merTradeNo: refundRecord.value.paymentId ?? refundRecord.value.id,
             tradeNo: data.scanCode,
             respCode: 'PROCESSING',
@@ -384,13 +394,15 @@ onBeforeUnmount(() => {
         @refresh="loadQueue"
         @select="selectPatient"
       />
-      <el-pagination
-        v-if="queueTotal > query.pageSize"
-        v-model:current-page="query.page"
+      <PaginationBar
+        v-if="queueTotal > 0"
+        class="queue-pagination"
+        :page="query.page"
         :page-size="query.pageSize"
         :total="queueTotal"
-        layout="prev,pager,next"
-        @change="handleQueuePageChange"
+        :disabled="queueLoading"
+        small
+        @change="handleQueuePaginationChange"
       />
     </aside>
     <section class="prepay-workspace">
@@ -516,6 +528,10 @@ onBeforeUnmount(() => {
   border: 1px solid var(--el-border-color-light);
   border-radius: 6px;
   background: var(--el-bg-color);
+}
+.queue-pagination {
+  justify-content: center;
+  padding: 8px;
 }
 .queue-title {
   padding: 14px 16px 0;

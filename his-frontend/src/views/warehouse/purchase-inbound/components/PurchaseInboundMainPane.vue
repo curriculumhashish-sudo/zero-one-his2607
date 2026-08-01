@@ -301,7 +301,7 @@ const selectTargetRowId = ref<string>('')
 
 // ==================== SelectTable ====================
 
-function openSelectTable(rowKey: string) {
+function openSelectTable(rowKey: string | number) {
   selectTargetRowId.value = String(rowKey)
   selectTableVisible.value = true
 }

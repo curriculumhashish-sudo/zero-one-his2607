@@ -98,12 +98,19 @@ router.beforeEach(async function (to, _from) {
     const isLoaded = store.isLoaded
     // 如果没有加载
     if (!isLoaded) {
-      // 加载用户信息
-      await store.loadUser()
-      // 加载菜单资源
-      await store.loadMenus()
-      // 设置加载完毕
-      store.setLoaded(true)
+      try {
+        // 加载用户信息
+        await store.loadUser()
+        // 加载菜单资源
+        await store.loadMenus()
+        // 设置加载完毕
+        store.setLoaded(true)
+      } catch {
+        store.resetSaveData()
+        useTabStore().reset()
+        ElMessage.warning('登录状态已失效，请重新登录')
+        return { name: 'Login', replace: true }
+      }
     }
 
     // #region 处理标签页数据

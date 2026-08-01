@@ -92,9 +92,9 @@ function generateRecords(): InpatientDispenseRecordItemDTO[] {
       const wardIdx = Math.floor(Math.random() * wards.length)
       const bedNo = `${String(Math.floor(Math.random() * 20) + 1).padStart(2, '0')}`
       const pharmacyKeys = Object.keys(pharmacies)
-      const pharmacyKey = pharmacyKeys[Math.floor(Math.random() * pharmacyKeys.length)]
+      const pharmacyKey = pharmacyKeys[Math.floor(Math.random() * pharmacyKeys.length)]!
       const dispenserKeys = Object.keys(dispensers)
-      const dispenserKey = dispenserKeys[Math.floor(Math.random() * dispenserKeys.length)]
+      const dispenserKey = dispenserKeys[Math.floor(Math.random() * dispenserKeys.length)]!
       const qty = Math.floor(Math.random() * 3) + 1
       const hour = String(8 + Math.floor(Math.random() * 12)).padStart(2, '0')
       const minute = String(Math.floor(Math.random() * 60)).padStart(2, '0')
@@ -105,20 +105,20 @@ function generateRecords(): InpatientDispenseRecordItemDTO[] {
         prescriptionNo: `RX${dateStr.replace(/-/g, '')}${String(Math.floor(idCounter / 2) + 1).padStart(4, '0')}`,
         recordType,
         patientId: `P${String(patientIdx + 1).padStart(4, '0')}`,
-        patientName: patientNames[patientIdx],
+        patientName: patientNames[patientIdx]!,
         inpatientNo: `ZY${dateStr.replace(/-/g, '')}${String(idCounter).padStart(4, '0')}`,
-        departmentName: departments[deptIdx],
-        wardName: wards[wardIdx],
+        departmentName: departments[deptIdx]!,
+        wardName: wards[wardIdx]!,
         bedNo,
         dispenseTime: `${dateStr} ${hour}:${minute}:00`,
-        pharmacyName: pharmacies[pharmacyKey],
-        dispenserName: dispensers[dispenserKey],
-        drugName: drug.name,
-        spec: drug.spec,
+        pharmacyName: pharmacies[pharmacyKey]!,
+        dispenserName: dispensers[dispenserKey]!,
+        drugName: drug!.name,
+        spec: drug!.spec,
         quantity: qty,
-        unit: drug.unit,
-        price: drug.price,
-        amount: Math.round(drug.price * qty * 100) / 100,
+        unit: drug!.unit,
+        price: drug!.price,
+        amount: Math.round(drug!.price * qty * 100) / 100,
         batchNo: `B${dateStr.replace(/-/g, '')}${String(Math.floor(Math.random() * 100)).padStart(3, '0')}`,
         traceCode: `TC${String(idCounter).padStart(12, '0')}`,
         dosage: `${Math.floor(Math.random() * 3) + 1}次/日`,

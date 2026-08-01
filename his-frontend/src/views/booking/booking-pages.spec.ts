@@ -25,6 +25,7 @@ import {
 } from '@/apis/booking/slot-calendar'
 import { toScheduleEvents } from './outpatient-schedule/adapter'
 import { toTimeSlots } from './slot-calendar/adapter'
+import { isSlotExpired } from '@/apis/booking/slot-calendar/mock'
 
 function todayText() {
   const date = new Date()
@@ -32,10 +33,22 @@ function todayText() {
 }
 
 function slotQuery(date: string) {
-  return { organizationId: 'dept-internal', date, pageNo: 1, pageSize: 100 }
+  return {
+    organizationId: 'dept-internal',
+    date,
+    PageIndex: 1,
+    PageSize: 100
+  }
 }
 
 describe('B组门诊排班和号源业务', () => {
+  it('当天号源按结束时间判断是否过期', () => {
+    const now = new Date(2026, 6, 31, 10, 0, 0)
+    expect(isSlotExpired('2026-07-31', '09:30', now)).toBe(true)
+    expect(isSlotExpired('2026-07-31', '10:30', now)).toBe(false)
+    expect(isSlotExpired('2026-07-30', '23:59', now)).toBe(true)
+    expect(isSlotExpired('2026-08-01', '00:01', now)).toBe(false)
+  })
   it('将接口排班转换为公共日历事件', async () => {
     const date = todayText()
     const rows = (
@@ -154,9 +167,7 @@ describe('B组门诊排班和号源业务', () => {
         planningHorizonEnd: `${date}T22:00:00`
       })
     ).rejects.toThrow('只有草稿排班可以发布')
-    await expect(voidSchedule(scheduleId, '非法作废')).rejects.toThrow(
-      '只有草稿或停诊排班可以作废'
-    )
+    await expect(voidSchedule(scheduleId, '非法作废')).rejects.toThrow('只有草稿或停诊排班可以作废')
 
     await stopSchedule({ scheduleId, reason: '测试停诊' })
     await resumeSchedule(scheduleId)
@@ -173,13 +184,13 @@ describe('B组门诊排班和号源业务', () => {
 
     expect(slots.length).toBeGreaterThan(0)
     expect(slots.every((slot) => ['上午', '下午', '晚间'].includes(slot.group ?? ''))).toBe(true)
-    expect(slots.some((slot) => slot.status === 'full')).toBe(true)
-    expect(slots.some((slot) => slot.status === 'stopped')).toBe(true)
+    expect(slots.some((slot) => ['full', 'expired'].includes(slot.status ?? ''))).toBe(true)
     expect(slots.every((slot) => slot.capacity !== undefined && slot.remaining !== undefined)).toBe(
       true
     )
     expect(rows[0]).toMatchObject({
       slotId: rows[0]?.id,
+      organizationId: 'dept-internal',
       scheduleId: expect.any(String),
       practitionerId: rows[0]?.doctorId,
       practitionerName: expect.any(String),
@@ -237,9 +248,9 @@ describe('B组门诊排班和号源业务', () => {
     })
     expect(generated.generatedCount + generated.skippedCount).toBe(1)
 
-    const schedule = (await pageSchedulesByRange({ organizationId: 'org-main', rangeStart: date, rangeEnd: date })).records.find(
-      (item) => item.departmentId === 'dept-internal' && item.status === 'published'
-    )
+    const schedule = (
+      await pageSchedulesByRange({ organizationId: 'org-main', rangeStart: date, rangeEnd: date })
+    ).records.find((item) => item.departmentId === 'dept-internal' && item.status === 'published')
     expect(schedule).toBeTruthy()
     expect(schedule).toMatchObject({
       weekScheduleTemplateId: 'weekly-1',
@@ -251,7 +262,9 @@ describe('B组门诊排班和号源业务', () => {
       slotTemplates: [{ startTime: '08:00', endTime: '08:30', capacity: 5 }]
     })
     expect(provisioned.generatedCount).toBe(1)
-    expect((await listReleasedSlots(schedule!.id)).content).toHaveLength(1)
+    expect(
+      (await listReleasedSlots({ scheduleId: schedule!.id, PageIndex: 1, PageSize: 100 })).content
+    ).toHaveLength(1)
 
     const slotPage = await pageSlotsByDate(slotQuery(date))
     const slot = slotPage.content.find((item) => item.status === 'available')
@@ -261,7 +274,7 @@ describe('B组门诊排班和号源业务', () => {
     ).resolves.toBeUndefined()
     expect(
       (await pageSlotsByDate(slotQuery(date))).content.find((item) => item.slotId === slot!.slotId)
-    ).toMatchObject({ statusCode: 'BLOCKED' })
+    ).toMatchObject({ status: 'blocked', statusCode: 'BLOCKED', displayStatus: '已封锁' })
     await expect(batchUnblockSlots({ slotIds: [slot!.slotId] })).resolves.toBeUndefined()
     await expect(
       markSlotOverbooked({ slotId: slot!.slotId, overbookedFlag: true })
@@ -301,10 +314,11 @@ describe('B组门诊排班和号源业务', () => {
 
   it('部分停诊转移预约时要求原型 transferItems 字段', async () => {
     const date = todayText()
-    const schedule = (await pageSchedulesByRange({ organizationId: 'org-main', rangeStart: date, rangeEnd: date })).records.find(
-      (item) => item.status === 'published'
-    )!
-    const slot = (await listReleasedSlots(schedule.id)).content[0]
+    const schedule = (
+      await pageSchedulesByRange({ organizationId: 'org-main', rangeStart: date, rangeEnd: date })
+    ).records.find((item) => item.status === 'published')!
+    const slot = (await listReleasedSlots({ scheduleId: schedule.id, PageIndex: 1, PageSize: 100 }))
+      .content[0]
     expect(slot).toBeTruthy()
     await expect(
       partialStopSchedule({

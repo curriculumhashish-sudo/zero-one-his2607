@@ -3,7 +3,7 @@
 import { defineComponent, nextTick } from 'vue'
 import { flushPromises, shallowMount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 import OutpatientSchedulePage from './outpatient-schedule/Index.vue'
 import SlotCalendarPage from './slot-calendar/Index.vue'
@@ -98,6 +98,20 @@ const ActionToolbarStub = defineComponent({
     '<div class="toolbar-stub"><button v-for="action in actions" :key="action.key" :class="`action-${action.key}`" @click="$emit(\'action\', action)">{{ action.label }}</button></div>'
 })
 
+const PaginationBarStub = defineComponent({
+  name: 'PaginationBar',
+  props: ['page', 'pageSize', 'total', 'disabled'],
+  emits: ['change'],
+  template: '<div class="pagination-stub" />'
+})
+
+const SelectStub = defineComponent({
+  name: 'ElSelect',
+  props: ['modelValue', 'disabled'],
+  emits: ['update:modelValue'],
+  template: '<div class="select-stub" />'
+})
+
 const editOpen = vi.fn<(...args: unknown[]) => unknown>()
 const generateOpen = vi.fn<(...args: unknown[]) => unknown>()
 const generateClose = vi.fn<(...args: unknown[]) => unknown>()
@@ -143,13 +157,14 @@ const commonStubs = {
   SearchPanel: SearchPanelStub,
   RemoteSelectField: true,
   ActionToolbar: ActionToolbarStub,
+  PaginationBar: PaginationBarStub,
   ScheduleDetailPanel: true,
   ScheduleEditDialog: ScheduleEditDialogStub,
   ScheduleGenerateDialog: ScheduleGenerateDialogStub,
   SlotDetailDialog: SlotDetailDialogStub,
   ElAlert: AlertStub,
   ElButton: ButtonStub,
-  ElSelect: true,
+  ElSelect: SelectStub,
   ElOption: true,
   ElDatePicker: true,
   ElTag: true
@@ -201,9 +216,9 @@ beforeEach(() => {
     provisionedSlotCount: 0
   })
   slotApi.loadSlotInit.mockResolvedValue({
-    organizationId: 'org-main',
-    departments: [],
-    doctors: []
+    organizationId: 'dept-internal',
+    departments: [{ value: 'dept-internal', label: '心血管内科' }],
+    doctors: [{ value: 'doctor-wang', label: '王建国', departmentId: 'dept-internal' }]
   })
   slotApi.pageSlotsByDate.mockResolvedValue({
     content: [],
@@ -214,6 +229,9 @@ beforeEach(() => {
   slotApi.getSlotDetail.mockResolvedValue({ id: 'slot-1' })
   slotApi.loadDepartmentOptions.mockResolvedValue([])
   slotApi.loadDoctorOptions.mockResolvedValue([])
+  slotApi.batchBlockSlots.mockResolvedValue(undefined)
+  slotApi.batchUnblockSlots.mockResolvedValue(undefined)
+  slotApi.markSlotOverbooked.mockResolvedValue(undefined)
 })
 
 describe('B组页面事件连接', () => {
@@ -304,9 +322,11 @@ describe('B组页面事件连接', () => {
   })
 
   it('号源初始化可以重试，重新查询会清空旧选择', async () => {
-    slotApi.loadSlotInit
-      .mockRejectedValueOnce(new Error('号源初始化失败'))
-      .mockResolvedValueOnce({ departments: [], doctors: [] })
+    slotApi.loadSlotInit.mockRejectedValueOnce(new Error('号源初始化失败')).mockResolvedValueOnce({
+      organizationId: 'dept-internal',
+      departments: [{ value: 'dept-internal', label: '心血管内科' }],
+      doctors: []
+    })
     const wrapper = mountSlotPage()
     await flushPromises()
 
@@ -323,6 +343,87 @@ describe('B组页面事件连接', () => {
     await flushPromises()
     expect(grid.props('modelValue')).toBeNull()
     expect(slotDetailClose).toHaveBeenCalled()
+  })
+
+  it('号源查询使用所选科室主键，提交新条件时回到第一页', async () => {
+    slotApi.pageSlotsByDate.mockResolvedValue({
+      content: [],
+      totalCount: 250,
+      pageNo: 1,
+      pageSize: 100
+    })
+    const wrapper = mountSlotPage()
+    await flushPromises()
+    const pagination = wrapper.findComponent(PaginationBarStub)
+
+    expect(slotApi.pageSlotsByDate).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        organizationId: 'dept-internal',
+        PageIndex: 1
+      }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
+    )
+
+    pagination.vm.$emit('change', { page: 2, pageSize: 100 })
+    await flushPromises()
+    wrapper.findComponent(SearchPanelStub).vm.$emit('search')
+    await flushPromises()
+
+    expect(slotApi.pageSlotsByDate).toHaveBeenLastCalledWith(
+      expect.objectContaining({ PageIndex: 1 }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
+    )
+
+    wrapper.findComponent(SearchPanelStub).vm.$emit('reset')
+    await flushPromises()
+    expect(slotApi.pageSlotsByDate).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        organizationId: 'dept-internal',
+        PageIndex: 1
+      }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
+    )
+  })
+
+  it('号源分页传递正确页码，改变每页条数后回到第一页并清空旧选择', async () => {
+    slotApi.pageSlotsByDate.mockResolvedValue({
+      content: [
+        {
+          slotId: 'slot-1',
+          startTime: '2026-07-30 08:00:00',
+          endTime: '2026-07-30 08:30:00',
+          capacity: 10,
+          remainingCount: 8,
+          status: 'available',
+          group: '上午'
+        }
+      ],
+      totalCount: 250,
+      pageNo: 1,
+      pageSize: 100
+    })
+    const wrapper = mountSlotPage()
+    await flushPromises()
+    const grid = wrapper.findComponent(TimeSlotGridStub)
+    const pagination = wrapper.findComponent(PaginationBarStub)
+
+    grid.vm.$emit('update:modelValue', 'slot-1')
+    await nextTick()
+    pagination.vm.$emit('change', { page: 2, pageSize: 100 })
+    await flushPromises()
+
+    expect(slotApi.pageSlotsByDate).toHaveBeenLastCalledWith(
+      expect.objectContaining({ PageIndex: 2, PageSize: 100 }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
+    )
+    expect(grid.props('modelValue')).toBeNull()
+
+    pagination.vm.$emit('change', { page: 2, pageSize: 20 })
+    await flushPromises()
+    expect(slotApi.pageSlotsByDate).toHaveBeenLastCalledWith(
+      expect.objectContaining({ PageIndex: 1, PageSize: 20 }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
+    )
   })
 
   it('已满、停诊和过期号源点击后显示对应不可用原因', async () => {
@@ -348,6 +449,28 @@ describe('B组页面事件连接', () => {
     expect(warning).toHaveBeenNthCalledWith(2, '医生临时停诊')
     expect(warning).toHaveBeenNthCalledWith(3, '该时段已经过期')
     warning.mockRestore()
+  })
+
+  it('状态操作从确认阶段开始锁定，快速重复点击只提交一次', async () => {
+    const prompt = createDeferred<{ value: string }>()
+    const promptSpy = vi.spyOn(ElMessageBox, 'prompt').mockReturnValue(prompt.promise as never)
+    const wrapper = mountSlotPage()
+    await flushPromises()
+
+    wrapper.findComponent(SelectStub).vm.$emit('update:modelValue', ['slot-1'])
+    await nextTick()
+    await wrapper.get('.action-block').trigger('click')
+    await wrapper.get('.action-block').trigger('click')
+
+    expect(promptSpy).toHaveBeenCalledTimes(1)
+    prompt.resolve({ value: '接口联调测试' })
+    await flushPromises()
+    expect(slotApi.batchBlockSlots).toHaveBeenCalledTimes(1)
+    expect(slotApi.batchBlockSlots).toHaveBeenCalledWith({
+      slotIds: ['slot-1'],
+      reason: '接口联调测试'
+    })
+    promptSpy.mockRestore()
   })
 
   it('号源详情按原型 SlotDetailDto 字段和单列顺序展示', () => {
@@ -403,11 +526,13 @@ describe('B组页面事件连接', () => {
       '医师',
       '号源类型',
       '状态',
+      '日期',
       '时段',
       '容量',
       '已约',
       '剩余',
       '超售',
+      '停诊/不可用原因',
       '备注',
       '号源 ID',
       '日程 ID'

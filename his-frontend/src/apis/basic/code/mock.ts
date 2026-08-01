@@ -277,7 +277,8 @@ export async function mockRemoveCodeType(system: 'dict' | 'enum', id: string) {
   // 同步删除关联的编码项
   const items = itemStore(system)
   for (let i = items.length - 1; i >= 0; i--) {
-    if (items[i].typeId === id) items.splice(i, 1)
+    const current = items[i]
+    if (current?.typeId === id) items.splice(i, 1)
   }
 }
 

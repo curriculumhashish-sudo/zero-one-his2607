@@ -76,14 +76,18 @@ export interface InpatientQueueQuery {
   admissionStartDate?: string | null
   admissionEndDate?: string | null
   keyword?: string
+  page?: number
   pageNo?: number
-  page: number
-  pageSize: number
+  pageSize?: number
+  PageIndex?: number
+  PageSize?: number
 }
 export interface PrepayRecordQuery {
-  page: number
+  page?: number
   pageNo?: number
-  pageSize: number
+  pageSize?: number
+  PageIndex?: number
+  PageSize?: number
 }
 export interface CollectPrepayAdvanceDepositParams {
   encounterId: string

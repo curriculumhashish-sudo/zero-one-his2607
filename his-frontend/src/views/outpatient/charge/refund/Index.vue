@@ -2,13 +2,14 @@
 import type { RefundDetail, RefundItem } from '@/apis/outpatient/charge/refund'
 import type { PatientSummary } from '@/components/patient/type'
 import type { DateRangeValue } from '@/components/common/type'
-import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Refresh, RefreshLeft } from '@element-plus/icons-vue'
+import { Printer, Refresh, RefreshLeft } from '@element-plus/icons-vue'
 import ActionToolbar from '@/components/common/ActionToolbar.vue'
 import DataTablePanel from '@/components/common/DataTablePanel.vue'
 import DetailSummary from '@/components/common/DetailSummary.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
+import PaginationBar from '@/components/common/PaginationBar.vue'
 import PatientInfoBar from '@/components/patient/PatientInfoBar.vue'
 import PatientQueuePanel from '@/components/patient/PatientQueuePanel.vue'
 import StatusDisplay from '@/components/common/StatusDisplay.vue'
@@ -26,6 +27,16 @@ import RefundSettlementDialog from './components/RefundSettlementDialog.vue'
 import type { RefundPageQuery, RefundVerificationView } from './type'
 
 defineOptions({ name: 'OutpatientChargeRefund' })
+interface RefundReceipt {
+  patientName: string
+  encounterBusNo: string
+  originalPaymentNo: string
+  reversePaymentId: string
+  refundTime: string
+  totalAmount: number
+  items: Array<{ id: string; name: string; quantity: number; amount: number }>
+}
+
 const query = reactive<RefundPageQuery>({
   keyword: '',
   startDate: null,
@@ -45,6 +56,8 @@ const detail = ref<RefundDetail | null>(null)
 const selectedItems = ref<RefundItem[]>([])
 const verification = ref<RefundVerificationView | null>(null)
 const pendingRefundId = ref('')
+const lastReceipt = ref<RefundReceipt | null>(null)
+const pendingReceipt = ref<RefundReceipt | null>(null)
 const dialog = ref<InstanceType<typeof RefundSettlementDialog>>()
 let queueSequence = 0
 let detailSequence = 0
@@ -86,6 +99,12 @@ const actions = computed(() => [
     icon: RefreshLeft,
     disabled: !selectedItems.value.length || submitting.value || Boolean(pendingRefundId.value)
   },
+  {
+    key: 'print',
+    label: '打印退费小票',
+    icon: Printer,
+    disabled: !lastReceipt.value || submitting.value
+  },
   { key: 'refresh', label: '刷新', icon: Refresh }
 ])
 async function loadQueue() {
@@ -93,7 +112,14 @@ async function loadQueue() {
   queueLoading.value = true
   errorMessage.value = ''
   try {
-    const result = await pageRefundPatientQueue(query)
+    const result = await pageRefundPatientQueue({
+      keyword: query.keyword,
+      startDate: query.startDate,
+      endDate: query.endDate,
+      status: query.status,
+      PageIndex: query.page,
+      PageSize: query.pageSize
+    })
     if (seq !== queueSequence) return
     patients.value = result.rows
     total.value = result.total
@@ -122,8 +148,12 @@ function clearSelection() {
   dialog.value?.close()
 }
 async function selectPatient(patient: PatientSummary) {
-  clearSelection()
   const id = String(patient.id)
+  if (selectedEncounterId.value && selectedEncounterId.value !== id) {
+    lastReceipt.value = null
+    pendingReceipt.value = null
+  }
+  clearSelection()
   selectedEncounterId.value = id
   const seq = ++detailSequence
   detailLoading.value = true
@@ -168,7 +198,9 @@ async function verifyRefund() {
     const paymentRecordId = selectedItems.value[0]!.paymentRecordId
     const groupItems = detail.value.items.filter((item) => item.paymentRecordId === paymentRecordId)
     const selectedIds = selectedItems.value.map((item) => item.chargeItemId ?? item.id)
-    const retainedItems = groupItems.filter((item) => !selectedIds.includes(item.chargeItemId ?? item.id))
+    const retainedItems = groupItems.filter(
+      (item) => !selectedIds.includes(item.chargeItemId ?? item.id)
+    )
     const refundAmount = selectedItems.value.reduce((sum, item) => sum + item.refundableAmount, 0)
     verification.value = {
       allowed: true,
@@ -203,6 +235,20 @@ async function confirmRefund(data: { retainedMode: 'insurance' | 'self-pay'; sca
   }
   submitting.value = true
   try {
+    const receipt: RefundReceipt = {
+      patientName: detail.value.patient.patientName ?? detail.value.patient.name,
+      encounterBusNo: detail.value.patient.encounterBusNo ?? detail.value.patient.visitNo,
+      originalPaymentNo: selectedItems.value[0]?.paymentNo ?? verification.value.originalPaymentId,
+      reversePaymentId: '',
+      refundTime: new Date().toLocaleString('zh-CN', { hour12: false }),
+      totalAmount: verification.value.refundAmount,
+      items: selectedItems.value.map((item) => ({
+        id: item.chargeItemId ?? item.id,
+        name: item.itemDisplayName ?? item.itemName,
+        quantity: item.quantity,
+        amount: item.refundableAmount
+      }))
+    }
     const retainedIds = verification.value.preservedNewChargeItemIds
     if (retainedIds.length && data.retainedMode === 'self-pay')
       await switchRetainedItemsInsuranceMode({ encounterId: detail.value.patient.encounterId })
@@ -225,10 +271,13 @@ async function confirmRefund(data: { retainedMode: 'insurance' | 'self-pay'; sca
             respMsg: '等待渠道确认',
             refundAmountYuan: verification.value.refundAmount
           }
-        : undefined,
+        : undefined
     })
     dialog.value?.close()
-    const pendingId = data.scanCode ? record.reversePaymentId ?? '' : ''
+    const pendingId = data.scanCode ? (record.reversePaymentId ?? '') : ''
+    receipt.reversePaymentId = record.reversePaymentId
+    if (data.scanCode) pendingReceipt.value = receipt
+    else lastReceipt.value = receipt
     ElMessage.success(data.scanCode ? '扫码退款已发起，请确认退款结果' : '退费成功')
     await refreshCurrent()
     pendingRefundId.value = pendingId
@@ -250,6 +299,8 @@ async function confirmPending(recover = false) {
     await (recover
       ? recoverRefund(pendingRefundId.value)
       : queryRefundResult(pendingRefundId.value))
+    if (pendingReceipt.value) lastReceipt.value = pendingReceipt.value
+    pendingReceipt.value = null
     pendingRefundId.value = ''
     ElMessage.success('退款结果已确认')
     await refreshCurrent()
@@ -262,12 +313,16 @@ async function confirmPending(recover = false) {
 function changeStatus(value: any) {
   query.status = value
   query.page = 1
+  lastReceipt.value = null
+  pendingReceipt.value = null
   clearSelection()
   void loadQueue()
 }
 function handleSearch(keyword: string) {
   query.keyword = keyword
   query.page = 1
+  lastReceipt.value = null
+  pendingReceipt.value = null
   clearSelection()
   void loadQueue()
 }
@@ -275,17 +330,32 @@ function handleDateFilterChange(value: DateRangeValue) {
   query.startDate = value?.[0] ?? null
   query.endDate = value?.[1] ?? null
   query.page = 1
+  lastReceipt.value = null
+  pendingReceipt.value = null
   clearSelection()
   void loadQueue()
 }
-function handlePageChange(page: number) {
-  query.page = page
+function handleQueuePaginationChange(payload: { page: number; pageSize: number }) {
+  const pageSizeChanged = payload.pageSize !== query.pageSize
+  query.page = pageSizeChanged ? 1 : payload.page
+  query.pageSize = payload.pageSize
+  lastReceipt.value = null
+  pendingReceipt.value = null
   clearSelection()
   void loadQueue()
 }
-function handleToolbar(action: { key: string | number }) {
+function handleToolbar(action: { key: string | number | boolean }) {
   if (action.key === 'refund') void verifyRefund()
+  else if (action.key === 'print') void handlePrint()
   else void refreshCurrent()
+}
+async function handlePrint() {
+  if (!lastReceipt.value) {
+    ElMessage.warning('暂无可打印的退费记录')
+    return
+  }
+  await nextTick()
+  window.print()
 }
 function spanMethod({ row, columnIndex }: { row: RefundItem; columnIndex: number }) {
   if (columnIndex !== 1 || !detail.value) return
@@ -322,13 +392,15 @@ onBeforeUnmount(() => {
         @refresh="loadQueue"
         @select="selectPatient"
       />
-      <el-pagination
-        v-if="total > query.pageSize"
-        v-model:current-page="query.page"
+      <PaginationBar
+        v-if="total > 0"
+        class="queue-pagination"
+        :page="query.page"
         :page-size="query.pageSize"
         :total="total"
-        layout="prev,pager,next"
-        @change="handlePageChange"
+        :disabled="queueLoading"
+        small
+        @change="handleQueuePaginationChange"
       />
     </aside>
     <section class="refund-workspace">
@@ -402,6 +474,43 @@ onBeforeUnmount(() => {
       :submitting="submitting"
       @confirm="confirmRefund"
     />
+    <section v-if="lastReceipt" class="refund-print-sheet" aria-hidden="true">
+      <h1>门诊退费小票</h1>
+      <dl>
+        <dt>患者</dt>
+        <dd>{{ lastReceipt.patientName }}</dd>
+        <dt>门诊号</dt>
+        <dd>{{ lastReceipt.encounterBusNo }}</dd>
+        <dt>原支付单</dt>
+        <dd>{{ lastReceipt.originalPaymentNo }}</dd>
+        <dt>退费流水</dt>
+        <dd>{{ lastReceipt.reversePaymentId }}</dd>
+        <dt>退费时间</dt>
+        <dd>{{ lastReceipt.refundTime }}</dd>
+      </dl>
+      <table>
+        <thead>
+          <tr>
+            <th>项目</th>
+            <th>数量</th>
+            <th>退费金额</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in lastReceipt.items" :key="item.id">
+            <td>{{ item.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>¥{{ item.amount.toFixed(2) }}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="2">退费合计</th>
+            <th>¥{{ lastReceipt.totalAmount.toFixed(2) }}</th>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
   </main>
 </template>
 <style scoped>
@@ -431,6 +540,10 @@ onBeforeUnmount(() => {
   border-radius: 6px;
   background: var(--el-bg-color);
 }
+.queue-pagination {
+  justify-content: center;
+  padding: 8px;
+}
 .queue-status {
   padding: 12px 12px 0;
 }
@@ -447,6 +560,57 @@ onBeforeUnmount(() => {
   flex-direction: column;
   gap: 12px;
   overflow: auto;
+}
+.refund-print-sheet {
+  display: none;
+}
+@media print {
+  @page {
+    size: 80mm auto;
+    margin: 5mm;
+  }
+  .refund-page {
+    display: block;
+    height: auto;
+  }
+  .refund-page > :not(.refund-print-sheet) {
+    display: none !important;
+  }
+  .refund-print-sheet {
+    display: block;
+    color: #000;
+    font-size: 11px;
+  }
+  .refund-print-sheet h1 {
+    margin: 0 0 10px;
+    text-align: center;
+    font-size: 18px;
+  }
+  .refund-print-sheet dl {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    margin: 0 0 10px;
+  }
+  .refund-print-sheet dt,
+  .refund-print-sheet dd {
+    margin: 0;
+    padding: 2px 0;
+    overflow-wrap: anywhere;
+  }
+  .refund-print-sheet table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .refund-print-sheet th,
+  .refund-print-sheet td {
+    padding: 4px 2px;
+    border-bottom: 1px solid #777;
+    text-align: left;
+  }
+  .refund-print-sheet th:last-child,
+  .refund-print-sheet td:last-child {
+    text-align: right;
+  }
 }
 @media (max-width: 900px) {
   .refund-page {

@@ -202,8 +202,8 @@ function handleReset() {
   emit('reset')
 }
 
-function handleSelect(order: PurchaseInboundOrder) {
-  emit('select', order)
+function handleSelect(order: Record<string, unknown>) {
+  emit('select', order as unknown as PurchaseInboundOrder)
 }
 
 function handleCreate() {
@@ -211,10 +211,13 @@ function handleCreate() {
   const newOrder: PurchaseInboundOrder = {
     id: `pi-new-${idCounter}`,
     docNo: '',
+    busNo: '',
     date: '',
     handler: '',
     counterparty: '',
-    status: 0
+    status: 0,
+    type: '',
+    category: ''
   }
   orders.value.unshift(newOrder)
   selectedKey.value = newOrder.id

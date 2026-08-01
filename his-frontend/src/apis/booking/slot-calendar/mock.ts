@@ -57,16 +57,22 @@ function groupOf(startTime: string): SlotRecord['group'] {
   return '晚间'
 }
 
+export function isSlotExpired(date: string, endTime: string, now = new Date()) {
+  const localToday = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  if (date < localToday) return true
+  if (date > localToday) return false
+  return new Date(`${date}T${endTime}:00`).getTime() <= now.getTime()
+}
+
 function statusOf(
   scheduleStatus: string,
   date: string,
+  endTime: string,
   index: number,
   remaining: number
 ): SlotStatus {
   if (scheduleStatus === 'stopped') return 'stopped'
-  const today = new Date()
-  const localToday = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
-  if (date < localToday) return 'expired'
+  if (isSlotExpired(date, endTime)) return 'expired'
   if (remaining <= 0 || index % 4 === 1) return 'full'
   return 'available'
 }
@@ -92,9 +98,10 @@ function buildSlots(): SlotRecord[] {
         const id = `${schedule.id}-slot-${index + 1}`
         const provisionalRemaining = index % 4 === 1 ? 0 : Math.max(1, capacity - (index % 3))
         const blockedReason = blockedSlots.get(id)
+        const slotEndText = minutesToTime(slotEnd)
         const status = blockedReason
-          ? 'stopped'
-          : statusOf(schedule.status, schedule.date, index, provisionalRemaining)
+          ? 'blocked'
+          : statusOf(schedule.status, schedule.date, slotEndText, index, provisionalRemaining)
         const remaining = status === 'full' ? 0 : provisionalRemaining
         const used = capacity - remaining
         const statusText =
@@ -104,7 +111,9 @@ function buildSlots(): SlotRecord[] {
               ? '已满'
               : status === 'stopped'
                 ? '停诊'
-                : '过期'
+                : status === 'blocked'
+                  ? '已封锁'
+                  : '过期'
         return {
           slotId: id,
           id,
@@ -122,7 +131,7 @@ function buildSlots(): SlotRecord[] {
           roomName: schedule.roomName,
           date: schedule.date,
           startTime: `${schedule.date} ${minutesToTime(slotStart)}:00`,
-          endTime: `${schedule.date} ${minutesToTime(slotEnd)}:00`,
+          endTime: `${schedule.date} ${slotEndText}:00`,
           group: groupOf(minutesToTime(slotStart)),
           capacity,
           bookedCount: used,
@@ -136,13 +145,15 @@ function buildSlots(): SlotRecord[] {
           blockedFlag: Boolean(blockedReason),
           commentText: blockedReason ?? schedule.stopReason,
           unavailableReason:
-            status === 'stopped'
-              ? blockedReason || schedule.stopReason || '该排班已停诊'
-              : status === 'full'
-                ? '该时段号源已满'
-                : status === 'expired'
-                  ? '该时段已经过期'
-                  : undefined
+            status === 'blocked'
+              ? blockedReason || '该号源已封锁'
+              : status === 'stopped'
+                ? schedule.stopReason || '该排班已停诊'
+                : status === 'full'
+                  ? '该时段号源已满'
+                  : status === 'expired'
+                    ? '该时段已经过期'
+                    : undefined
         } satisfies SlotRecord
       })
     })
@@ -165,8 +176,8 @@ export async function mockPageSlotsByDate(query: SlotQuery, context: RequestCont
       return false
     return true
   })
-  const pageNo = query.pageNo
-  const pageSize = query.pageSize
+  const pageNo = query.PageIndex
+  const pageSize = query.PageSize
   const start = (pageNo - 1) * pageSize
   const result: SlotPageResult = {
     content: structuredClone(filtered.slice(start, start + pageSize)),
@@ -177,10 +188,7 @@ export async function mockPageSlotsByDate(query: SlotQuery, context: RequestCont
   return result
 }
 
-export async function mockGetSlotDetail(
-  request: { slotId: string },
-  context: RequestContext = {}
-) {
+export async function mockGetSlotDetail(request: { slotId: string }, context: RequestContext = {}) {
   await delay(context, 180)
   const slot = buildSlots().find((item) => item.id === request.slotId)
   if (!slot) throw new Error('号源不存在或已发生变化')

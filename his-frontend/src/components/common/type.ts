@@ -49,7 +49,7 @@ export interface RowActionItem {
 }
 
 export interface StatusDisplayOption {
-  value: CommonComponentKey
+  value: CommonComponentKey | boolean
   label: string
   type?: 'primary' | 'success' | 'warning' | 'danger' | 'info'
   effect?: 'dark' | 'light' | 'plain'

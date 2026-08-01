@@ -34,6 +34,7 @@ import ActionToolbar from '@/components/common/ActionToolbar.vue'
 import DataTablePanel from '@/components/common/DataTablePanel.vue'
 import DetailSummary from '@/components/common/DetailSummary.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
+import PaginationBar from '@/components/common/PaginationBar.vue'
 import SelectTable from '@/components/common/SelectTable.vue'
 import StatusDisplay from '@/components/common/StatusDisplay.vue'
 import PatientInfoBar from '@/components/patient/PatientInfoBar.vue'
@@ -155,8 +156,8 @@ async function loadQueue() {
       {
         admissionDate: query.admissionDate ?? undefined,
         keyword: query.keyword,
-        pageNo: query.pageNo,
-        pageSize: query.pageSize,
+        PageIndex: query.pageNo,
+        PageSize: query.pageSize,
         settleQueueTab: query.settleQueueTab
       },
       { signal: controller.signal }
@@ -241,8 +242,8 @@ const loadSelectablePatients: SelectTableLoadPage<
     {
       admissionDate: query.admissionDate ?? undefined,
       keyword: request.keyword,
-      pageNo: request.pageIndex,
-      pageSize: request.pageSize,
+      PageIndex: request.pageIndex,
+      PageSize: request.pageSize,
       settleQueueTab: query.settleQueueTab
     },
     { signal: context.signal }
@@ -298,6 +299,16 @@ function changeQueueTab(value: string | number | boolean | undefined) {
   selectedPatient.value = null
   selectedPatientId.value = null
   patientSelectorVisible.value = false
+  clearDetail()
+  void loadQueue()
+}
+
+function handleQueuePaginationChange(payload: { page: number; pageSize: number }) {
+  const pageSizeChanged = payload.pageSize !== query.pageSize
+  query.pageNo = pageSizeChanged ? 1 : payload.page
+  query.pageSize = payload.pageSize
+  selectedPatient.value = null
+  selectedPatientId.value = null
   clearDetail()
   void loadQueue()
 }
@@ -469,12 +480,7 @@ async function reverseSettlement(source: unknown) {
     submitting.value = true
     const patient = selectedPatient.value
     if (!patient) return
-    await reverseInpatientSettle(
-      patient.encounterId,
-      patient.patientId,
-      payment.paymentId,
-      value
-    )
+    await reverseInpatientSettle(patient.encounterId, patient.patientId, payment.paymentId, value)
     ElMessage.success('反结成功')
     selectedPatient.value = null
     selectedPatientId.value = null
@@ -537,19 +543,15 @@ onBeforeUnmount(() => {
         @refresh="loadQueue"
         @select="selectPatient"
       />
-      <el-pagination
-        v-if="total > query.pageSize"
-        v-model:current-page="query.pageNo"
+      <PaginationBar
+        v-if="total > 0"
+        class="queue-pagination"
+        :page="query.pageNo"
         :page-size="query.pageSize"
         :total="total"
-        layout="prev,pager,next"
-        @change="
-          () => {
-            selectedPatient = null
-            clearDetail()
-            loadQueue()
-          }
-        "
+        :disabled="queueLoading || submitting"
+        small
+        @change="handleQueuePaginationChange"
       />
     </aside>
 
@@ -741,6 +743,10 @@ onBeforeUnmount(() => {
 }
 .queue-tabs {
   padding: 12px 12px 0;
+}
+.queue-pagination {
+  justify-content: center;
+  padding: 8px;
 }
 .queue-tabs :deep(.el-segmented) {
   width: 100%;

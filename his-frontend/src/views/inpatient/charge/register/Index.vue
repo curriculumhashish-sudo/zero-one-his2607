@@ -104,8 +104,8 @@ async function loadRows() {
   try {
     const result = await pageInpatientRegistrationQueue(
       {
-        pageNo: query.pageNo,
-        pageSize: query.pageSize,
+        PageIndex: query.pageNo,
+        PageSize: query.pageSize,
         keyword: query.keyword,
         idCard: query.idCard,
         registrationListStatus: query.status
@@ -233,7 +233,7 @@ const loadPatients = async (
   context: { signal: AbortSignal }
 ) => {
   const result = await pageRegistrationPatientOptions(
-    { keyword: request.keyword, pageNo: request.pageIndex, pageSize: request.pageSize },
+    { keyword: request.keyword, PageIndex: request.pageIndex, PageSize: request.pageSize },
     { signal: context.signal }
   )
   return {

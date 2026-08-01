@@ -10,6 +10,7 @@ import type {
   ProvisionSlotsResult,
   ReleasedSlotPage,
   ReleasedSlotRecord,
+  ListReleasedSlotsQuery,
   RequestContext,
   ScheduleInitResult,
   ScheduleImpactPreview,
@@ -18,11 +19,7 @@ import type {
   UpdateScheduleDraftRequest,
   PublishScheduleRequest
 } from './type'
-import type {
-  DailyTemplate,
-  TimePeriod,
-  WeeklyTemplate
-} from '../schedule-template/type'
+import type { DailyTemplate, TimePeriod, WeeklyTemplate } from '../schedule-template/type'
 
 interface ScheduleGenerationTemplateData {
   dailyTemplates: DailyTemplate[]
@@ -367,7 +364,8 @@ export async function mockUpdateSchedule(payload: UpdateScheduleDraftRequest) {
   if (previous.status !== 'draft' || previous.voidedFlag) throw new Error('只有草稿排班可以编辑')
   const record = toRecord(internalPayload(payload, previous), payload.scheduleId)
   record.status = previous.status
-  record.slotProvisionTemplateId = payload.slotProvisionTemplateId ?? previous.slotProvisionTemplateId
+  record.slotProvisionTemplateId =
+    payload.slotProvisionTemplateId ?? previous.slotProvisionTemplateId
   syncPrototypeFields(record)
   record.name = payload.name ?? previous.name
   schedules[index] = record
@@ -453,8 +451,7 @@ export async function mockGenerateFormalSchedules(
   await delay(context)
   if (!payload.scheduleTemplateId && !payload.weekScheduleTemplateId)
     throw new Error('请选择排班模板')
-  if (payload.autoProvision && !payload.autoPublish)
-    throw new Error('自动放号前必须启用自动发布')
+  if (payload.autoProvision && !payload.autoPublish) throw new Error('自动放号前必须启用自动发布')
   const selectedDaily = payload.scheduleTemplateId
     ? templates.dailyTemplates.find((item) => item.id === payload.scheduleTemplateId)
     : undefined
@@ -491,13 +488,16 @@ export async function mockGenerateFormalSchedules(
       cursor.setDate(cursor.getDate() + 1)
       continue
     }
-    const doctor = findOption(doctors, dailyTemplate.practitionerId ?? dailyTemplate.doctorId, '医生')
+    const doctor = findOption(
+      doctors,
+      dailyTemplate.practitionerId ?? dailyTemplate.doctorId,
+      '医生'
+    )
     const department = findOption(departments, doctor.departmentId ?? '', '科室')
     const room = findOption(rooms, dailyTemplate.locationId ?? dailyTemplate.roomId, '诊室')
     const segments = dailyTemplate.periodIds
       .flatMap(
-        (periodId) =>
-          templates.timePeriods.find((period) => period.id === periodId)?.segments ?? []
+        (periodId) => templates.timePeriods.find((period) => period.id === periodId)?.segments ?? []
       )
       .sort((left, right) => left.start.localeCompare(right.start))
     const startTime = segments[0]?.start ?? '08:00'
@@ -698,20 +698,19 @@ export async function mockVoidSchedule(scheduleId: string, reason = '') {
 }
 
 export async function mockListReleasedSlots(
-  scheduleId: string,
-  pageNo = 1,
-  pageSize = 100
+  query: ListReleasedSlotsQuery
 ): Promise<ReleasedSlotPage> {
   await delay()
+  const { scheduleId, PageIndex, PageSize } = query
   const record = schedules.find((item) => item.id === scheduleId)
   if (!record) throw new Error('排班不存在')
   const rows = slotsOf(record)
-  const start = (pageNo - 1) * pageSize
+  const start = (PageIndex - 1) * PageSize
   return {
-    content: clone(rows.slice(start, start + pageSize)),
+    content: clone(rows.slice(start, start + PageSize)),
     totalCount: rows.length,
-    pageNo,
-    pageSize
+    pageNo: PageIndex,
+    pageSize: PageSize
   }
 }
 

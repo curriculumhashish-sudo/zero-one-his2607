@@ -18,6 +18,22 @@ interface ImportMetaEnv {
   readonly VITE_AUTH_SERVER_URL: string
 }
 
+interface TianaiCaptchaInstance {
+  init(): void
+  destroyWindow(): void
+  reloadCaptcha(): void
+}
+
+declare global {
+  interface Window {
+    initTAC(
+      resourcePath: string,
+      config: Record<string, unknown>,
+      style: Record<string, unknown>
+    ): Promise<TianaiCaptchaInstance>
+  }
+}
+
 declare module '*.vue' {
   import { DefineComponent } from 'vue'
   const component: DefineComponent<{}, {}, any>
