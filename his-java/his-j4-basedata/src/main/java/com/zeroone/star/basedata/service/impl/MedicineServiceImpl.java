@@ -14,7 +14,7 @@ import com.zeroone.star.basedata.mapper.MedMedicationDispenseMapper;
 import com.zeroone.star.basedata.mapper.MedMedicationRequestMapper;
 import com.zeroone.star.basedata.service.IMedicineService;
 import com.zeroone.star.project.dto.j4.medicine.*;
-import com.zeroone.star.basedata.entity.common.AdmChargeItemDefinitionDO;
+import com.zeroone.star.basedata.entity.medicine.AdmChargeItemDefinitionDO;
 import com.zeroone.star.basedata.entity.medicine.MedMedicationDefinitionDO;
 import com.zeroone.star.basedata.mapper.AdmChargeItemDefinitionMapper;
 import com.zeroone.star.basedata.mapper.MedMedicationDefinitionMapper;
