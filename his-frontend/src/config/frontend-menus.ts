@@ -137,6 +137,13 @@ const FRONTEND_MENUS: Menu[] = [
         href: '/basic/registration-type'
       },
       {
+        id: 'frontend-basic-code',
+        pid: 'frontend-basic',
+        text: '编码管理',
+        icon: 'IconTickets',
+        href: '/basic/code'
+      },
+      {
         id: 'frontend-basic-medication-catalog',
         pid: 'frontend-basic',
         text: '药品目录',
@@ -373,6 +380,27 @@ const FRONTEND_MENUS: Menu[] = [
         text: '住院发退药记录',
         icon: 'IconTickets',
         href: '/pharmacy/dispense-record/inpatient'
+      }
+    ]
+  },
+  {
+    id: 'frontend-report',
+    text: '报表中心',
+    icon: 'IconTickets',
+    children: [
+      {
+        id: 'frontend-report-outpatient-fee-detail',
+        pid: 'frontend-report',
+        text: '门诊费用明细',
+        icon: 'IconTickets',
+        href: '/report/outpatient-fee-detail'
+      },
+      {
+        id: 'frontend-report-data-statistics',
+        pid: 'frontend-report',
+        text: '数据统计',
+        icon: 'IconTickets',
+        href: '/report/data-statistics'
       }
     ]
   },

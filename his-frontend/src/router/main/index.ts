@@ -11,6 +11,14 @@ const routes = [
       {
         path: '/dashboard',
         name: 'Dashboard',
+        meta: { label: '工作台' },
+        component: () => import('@/views/dashboard/Dashboard.vue')
+      },
+      {
+        // 复用现有首页看板作为当前阶段的工作台入口，后续独立工作台完成后再替换组件。
+        path: '/workbench',
+        name: 'Workbench',
+        meta: { label: '工作台' },
         component: () => import('@/views/dashboard/Dashboard.vue')
       }
     ] as RouteRecordRaw[]
