@@ -1,7 +1,8 @@
-package com.zeroone.star.sysmgr.mapper;
+package com.zeroone.star.basedata.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.zeroone.star.sysmgr.entity.TerConcept;
+import com.zeroone.star.basedata.entity.TerConcept;
+
 
 /**
  * <p>

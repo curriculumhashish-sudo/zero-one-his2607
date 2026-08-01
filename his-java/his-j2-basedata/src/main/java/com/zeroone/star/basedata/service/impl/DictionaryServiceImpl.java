@@ -4,10 +4,9 @@ import com.zeroone.star.basedata.entity.DictionaryConceptDO;
 import com.zeroone.star.basedata.exception.DictionaryBusinessException;
 import com.zeroone.star.basedata.mapper.DictionaryMapper;
 import com.zeroone.star.basedata.service.IDictionaryService;
-import com.zeroone.star.project.components.user.UserHolder;
-import com.zeroone.star.project.dto.j2.basedata.dictionarydto.DictionaryAddDTO;
-import com.zeroone.star.project.dto.j2.basedata.dictionarydto.DictionaryDeleteDTO;
-import com.zeroone.star.project.dto.j2.basedata.dictionarydto.DictionaryModifyDTO;
+import com.zeroone.star.project.dto.j2.basedata.dictionarytypedto.DictionaryAddDTO;
+import com.zeroone.star.project.dto.j2.basedata.dictionarytypedto.DictionaryDeleteDTO;
+import com.zeroone.star.project.dto.j2.basedata.dictionarytypedto.DictionaryModifyDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,8 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class DictionaryServiceImpl implements IDictionaryService {
 
     private final DictionaryMapper dictionaryMapper;
-
-    private DictionaryServiceImpl dictionaryService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)

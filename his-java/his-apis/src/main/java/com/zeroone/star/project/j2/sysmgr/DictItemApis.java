@@ -1,7 +1,7 @@
 package com.zeroone.star.project.j2.sysmgr;
 
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j2.basedata.DictItemUpdateDTO;
+import com.zeroone.star.project.dto.j2.basedata.dictionarydto.DictItemUpdateDTO;
 import com.zeroone.star.project.dto.j2.sysmgr.dictiemdto.DictItemAddDTO;
 import com.zeroone.star.project.dto.j2.sysmgr.dictiemdto.DictItemDTO;
 import com.zeroone.star.project.query.j2.sysmgr.DictItemQuery;
