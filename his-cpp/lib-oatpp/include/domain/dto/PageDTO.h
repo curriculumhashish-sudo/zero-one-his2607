@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -17,75 +17,77 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
+#ifndef _PAGE_DTO_
+#define _PAGE_DTO_
 #include "oatpp/core/macro/codegen.hpp"
 #include "oatpp/core/Types.hpp"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * ��ҳ����ʵ��
+ * 分页数据实体
  */
 template <class T>
 class PageDTO : public oatpp::DTO
 {
-	// ��ʼ��
+	// 初始化
 	DTO_INIT(PageDTO, DTO);
 
 	/**
-	 * ��ǰҳ��
+	 * 当前页码
 	 */
 	DTO_FIELD(UInt64, pageIndex) = 1;
 	DTO_FIELD_INFO(pageIndex) {
 		info->required = true;
 #ifndef LINUX
-		info->description = u8"��ǰҳ��";
+		info->description = u8"当前页码";
 #else
 		info->description = "page index";
 #endif
 	}
 	/**
-	 * ÿҳ��ʾ�����������
+	 * 每页显示最大数据条数
 	 */
 	DTO_FIELD(UInt64, pageSize) = 5;
 	DTO_FIELD_INFO(pageSize) {
 		info->required = true;
 #ifndef LINUX
-		info->description = u8"ÿҳ��������";
+		info->description = u8"每页数据条数";
 #else
 		info->description = "page size";
 #endif
 	}
 	/**
-	 * ���ݵ�������
+	 * 数据的总条数
 	 */
 	DTO_FIELD(Int64, total) = 9;
 	DTO_FIELD_INFO(total) {
 		info->required = true;
 #ifndef LINUX
-		info->description = u8"���ݵ�������";
+		info->description = u8"数据的总条数";
 #else
 		info->description = "total";
 #endif
 	}
 	/**
-	 * ���ݵ���ҳ��
+	 * 数据的总页数
 	 */
 	DTO_FIELD(Int64, pages) = 2;
 	DTO_FIELD_INFO(pages) {
 		info->required = true;
 #ifndef LINUX
-		info->description = u8"���ݵ���ҳ��";
+		info->description = u8"数据的总页数";
 #else
 		info->description = "pages";
 #endif
 	}
 	/**
-	 * ��ǰҳ�����б�
+	 * 当前页数据列表
 	 */
 	DTO_FIELD(List<T>, rows) = {};
 	DTO_FIELD_INFO(rows) {
 #ifndef LINUX
-		info->description = u8"��ǰҳ�����б�";
+		info->description = u8"当前页数据列表";
 #else
 		info->description = "page data list";
 #endif
@@ -95,7 +97,7 @@ public:
 		this->total = v_int64(0);
 		this->pages = v_int64(0);
 	}
-	// ��ʼ����������
+	// 初始化所有内容
 	void initAll(UInt64 pageIndex, UInt64 pageSize, Int64 total, Int64 pages, List<T> rows) {
 		this->pageIndex = pageIndex;
 		this->pageSize = pageSize;
@@ -103,15 +105,16 @@ public:
 		this->pages = pages;
 		this->rows = rows;
 	}
-	// ������ҳ��
+	// 计算总页数
 	void calcPages() {
 		this->pages = total.getValue(0) / pageSize.getValue(1);
 		this->pages = total.getValue(0) % pageSize.getValue(1) == 0 ? this->pages.getValue(0) : this->pages.getValue(0) + 1;
 	}
-	// ����һ������
+	// 添加一条数据
 	void addData(T one) {
 		this->rows->push_back(one);
 	}
 };
 
 #include OATPP_CODEGEN_END(DTO)
+#endif // !_PAGE_DTO_
