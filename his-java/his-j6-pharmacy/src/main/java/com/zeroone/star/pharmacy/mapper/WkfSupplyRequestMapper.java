@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zeroone.star.pharmacy.entity.WkfSupplyRequest;
-import com.zeroone.star.project.query.j6.pharmacy.stocktake.PharmacyInventoryQuery;
-import com.zeroone.star.project.vo.j6.pharmacy.stocktake.PharmacyInventoryVO;
+import com.zeroone.star.project.query.j6.pharmacy.stockout.StockOutQuery;
+import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutLineVO;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
@@ -152,4 +152,18 @@ public interface WkfSupplyRequestMapper extends BaseMapper<WkfSupplyRequest> {
                                 @Param("reason") String reason,
                                 @Param("updatedAt") LocalDateTime updatedAt,
                                 @Param("updatedBy") String updatedBy);
+
+    /**
+     * 按 bus_no 去重分页查询单据列表（每个单据只返回一条记录）
+     * @param page 分页参数
+     * @param query 查询条件（keyword, status, time range）
+     * @return 分页结果
+     */
+    IPage<WkfSupplyRequest> selectDistinctBusNoPage(Page<WkfSupplyRequest> page,
+                                                    @Param("query") StockOutQuery query);
+
+    /**
+     * 根据单据编号查询所有明细行（已关联药品信息）
+     */
+    List<StockOutLineVO> selectDetailLinesByBusNo(@Param("busNo") String busNo);
 }

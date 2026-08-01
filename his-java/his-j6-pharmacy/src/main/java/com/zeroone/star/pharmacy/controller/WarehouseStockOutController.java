@@ -1,5 +1,8 @@
 package com.zeroone.star.pharmacy.controller;
 
+import com.zeroone.star.pharmacy.service.IStockOutService;
+import com.zeroone.star.project.dto.j6.pharmacy.stockout.StockOutSaveDTO;
+import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutSaveResultVO;
 import com.zeroone.star.pharmacy.service.IStockoutApprovalService;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j6.pharmacy.stockout.*;
@@ -9,9 +12,9 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutApprovalResultVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutDetailVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutListVO;
-import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutSaveResultVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -23,40 +26,69 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "药库出库单", description = "药库管理相关接口")
 @Valid
 public class WarehouseStockOutController implements WarehouseStockOutApis {
+
+    @Resource
+    private IStockOutService stockOutService;
+
+    @PostMapping("/save-and-submit")
+    @Operation(summary = "保存并提交审批")
     @Override
-    public JsonVO<StockOutApprovalResultVO> saveAndSubmitApproval(StockOutSaveDTO dto) {
-        return null;
+    public JsonVO<StockOutApprovalResultVO> saveAndSubmitApproval(@Valid @RequestBody StockOutSaveDTO dto) {
+        return stockOutService.saveAndSubmitApproval(dto);
     }
 
+    @PostMapping("/add")
+    @Operation(summary = "新增单据")
     @Override
-    public JsonVO<StockOutSaveResultVO> addStockOut(StockOutSaveDTO dto) {
-        return null;
+    public JsonVO<StockOutSaveResultVO> addStockOut(@Valid @RequestBody StockOutSaveDTO dto) {
+        // 新增时 busNo 为空，系统生成
+        dto.setBusNo(null);
+        return stockOutService.saveStockOut(dto);
     }
 
+
+    @PostMapping("/save")
+    @Operation(summary = "保存单据")
     @Override
-    public JsonVO<StockOutSaveResultVO> saveStockOut(StockOutSaveDTO dto) {
-        return null;
+    public JsonVO<StockOutSaveResultVO> saveStockOut(@Valid @RequestBody StockOutSaveDTO dto) {
+        // 调用 Service
+        return stockOutService.saveStockOut(dto);
+    }
+
+    @PostMapping("/submit-approval")
+    @Operation(summary = "提交审批")
+    @Override
+    public JsonVO<StockOutApprovalResultVO> submitStockOutApproval(@Validated @RequestBody SubmitStockOutApprovalDTO dto) {
+        // 调用 Service
+        return stockOutService.submitApproval(dto);
     }
 
     @Operation(summary = "删除单据")
-    @DeleteMapping("/removeStockOut/{id}")
+    @DeleteMapping("/{busNo}/delete")
     @Override
-    public JsonVO<String> removeStockOut(@PathVariable String id) {
-        return JsonVO.fail("功能开发中");
+    public JsonVO<String> removeStockOut(@PathVariable String busNo) {
+        String result = stockOutService.deleteDraftByBusNo(busNo);
+        if ("success".equals(result)) {
+            return JsonVO.success("删除成功");
+        } else {
+            return JsonVO.fail(result);
+        }
     }
 
     @Operation(summary = "获取单据详情")
-    @GetMapping("/getStockOutDetail/{id}")
+    @GetMapping("/{busNo}")
     @Override
-    public JsonVO<StockOutDetailVO> getStockOutDetail(@PathVariable String id) {
-        return JsonVO.fail("功能开发中");
+    public JsonVO<StockOutDetailVO> getStockOutDetail(@PathVariable String busNo) {
+        StockOutDetailVO detail = stockOutService.getDetailByBusNo(busNo);
+        return detail != null ? JsonVO.success(detail) : JsonVO.fail("单据不存在");
     }
 
     @Operation(summary = "获取单据列表（条件+分页）")
     @GetMapping("/getPharmacy")
     @Override
     public JsonVO<PageDTO<StockOutListVO>> getPharmacy(@Valid StockOutQuery stockOutQuery) {
-        return JsonVO.fail("功能开发中");
+        PageDTO<StockOutListVO> pageDTO = stockOutService.getPharmacyList(stockOutQuery);
+        return JsonVO.success(pageDTO);
     }
 
 

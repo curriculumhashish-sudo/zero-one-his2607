@@ -10,23 +10,5 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface StockOutMapper {
 
-    /**
-     * 插入出库单
-     */
-    int insertStockOut(StockOutSaveDTO dto);
 
-    /**
-     * 更新出库单
-     */
-    int updateStockOut(StockOutSaveDTO dto);
-
-    /**
-     * 更新状态
-     */
-    int updateStatus(String busNo, String status);
-
-    /**
-     * 查询详情
-     */
-    StockOutDetailVO selectByBusNo(String busNo);
 }
