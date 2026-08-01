@@ -1,6 +1,6 @@
+
 #include"GetTodayAppointController.h"
 #include"../../service/register/GetTodayAppointService.h"
-
 GetTodayAppointJsonVO::Wrapper GetTodayAppointController::execQueryGetTodayAppoint(const GetTodayAppointQuery::Wrapper& query)
 {
 	GetTodayAppointService service;
