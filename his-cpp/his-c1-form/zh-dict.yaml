@@ -21,6 +21,7 @@ Litguidyo:
    numbers: 有效物资数量
    tag2: 物资有效期预警分布
    summary2: 物资有效期查询
+   query-by-id: 通过id获取单条数据
 rhqm:
  form:
   cost_info:
