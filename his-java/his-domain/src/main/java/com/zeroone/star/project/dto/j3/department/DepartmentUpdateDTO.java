@@ -70,5 +70,5 @@ public class DepartmentUpdateDTO {
     private String caty;
 
     @Schema(description = "显示顺序", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private Integer displayOrder;
+    private String displayOrder;
 }

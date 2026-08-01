@@ -407,7 +407,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
         LocalDateTime updatedAt = LocalDateTime.now();
         String updatedBy = currentUserId == null ? existing.getUpdatedBy() : currentUserId;
-        Integer displayOrder = dto.getDisplayOrder() == null
+        String displayOrder = dto.getDisplayOrder() == null
                 ? existing.getDisplayOrder()
                 : dto.getDisplayOrder();
         LambdaUpdateWrapper<DepartmentDO> updateWrapper = new LambdaUpdateWrapper<>();
@@ -506,19 +506,18 @@ public class DepartmentServiceImpl implements DepartmentService {
      * @param dto 包含部门ID列表和状态值的DTO
      * @author 胡傲宇
      */
-
     @Override
     public void activeOrInactiveDepartment(DepartmentBatchDTO dto) {
         if (dto == null || CollUtil.isEmpty(dto.getIds())) {
             throw new IllegalArgumentException("部门ID列表不能为空");
         }
-        Integer isEnabled = dto.getIsEnabled();
-        if (isEnabled == null || (isEnabled != 0 && isEnabled != 1)) {
+        String isEnabled = dto.getIsEnabled();
+        if (isEnabled == null || isEnabled.isEmpty() || (!"0".equals(isEnabled) && !"1".equals(isEnabled))) {
             throw new IllegalArgumentException("状态值只能为 0(禁用) 或 1(启用)");
         }
 
         List<String> ids = dto.getIds();
-        boolean enable = (isEnabled == 1);
+        boolean enable = "1".equals(isEnabled);
         String tenantIdStr = userHolder.getCurrentTenantId();
         if (StrUtil.isBlank(tenantIdStr)) {
             throw new IllegalArgumentException("当前用户未选择租户");
@@ -762,7 +761,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     private void syncOrganizationUnit(DepartmentDO existing,
                                       DepartmentDO parent,
                                       String name,
-                                      Integer displayOrder,
+                                      String displayOrder,
                                       boolean parentIdChanged,
                                       LocalDateTime updatedAt,
                                       String updatedBy) {
@@ -814,7 +813,10 @@ public class DepartmentServiceImpl implements DepartmentService {
             if (StringUtils.hasText(userId)) {
                 return userId;
             } else {
-                throw new RuntimeException("未获取到当前用户ID");
+                //TODO：处理未登录情况
+                log.warn("未登录用户，无法获取当前用户ID,暂时返回1");
+                return "1";
+                // throw new RuntimeException("未获取到当前用户ID");
             }
         } catch (Exception e) {
             throw new RuntimeException("获取当前用户ID失败", e);

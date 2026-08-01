@@ -106,7 +106,7 @@ public interface DepartmentMapper extends BaseMapper<DepartmentDO> {
      */
     int updateUnitByCode(@Param("code") String code,
                          @Param("displayName") String displayName,
-                         @Param("sortOrder") Integer sortOrder,
+                         @Param("sortOrder") String sortOrder,
                          @Param("parentIdChanged") boolean parentIdChanged,
                          @Param("parentId") String parentId,
                          @Param("updatedAt") LocalDateTime updatedAt,

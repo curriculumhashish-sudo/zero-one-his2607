@@ -66,7 +66,7 @@ public class DepartmentUnitDO {
             example = "0",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private Integer sortOrder;
+    private String sortOrder;
 
     @Schema(
             description = "是否启用",

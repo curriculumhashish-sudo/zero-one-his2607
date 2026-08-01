@@ -162,7 +162,7 @@ public class DepartmentDO {
             example = "1",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private Integer displayOrder;
+    private String displayOrder;
 
     @Schema(
             description = "默认医师ID",

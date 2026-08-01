@@ -6,6 +6,7 @@ package com.zeroone.star.project.enums;
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
+ *
  * @author 阿伟学长
  * @version 1.0.0
  */
@@ -31,6 +32,15 @@ public enum ResultStatus {
 
     ResultStatus(String message) {
         this(message, 10000);
+    }
+
+    public static ResultStatus fromCode(int code) {
+        for (ResultStatus status : values()) {
+            if (status.getCode() == code) {
+                return status;
+            }
+        }
+        return null;
     }
 
     public String getMessage() {
