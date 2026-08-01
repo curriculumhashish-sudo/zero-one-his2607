@@ -1,10 +1,12 @@
 package com.zeroone.star.pharmacy.service;
 
 import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j7.pharmacy.ReturnConfirmDTO;
 import com.zeroone.star.project.dto.j7.pharmacy.ReturnRejectDTO;
 import com.zeroone.star.project.query.j7.pharmacy.PatientQueueQuery;
 import com.zeroone.star.project.vo.j7.pharmacy.DrugItemVO;
 import com.zeroone.star.project.vo.j7.pharmacy.PatientQueueVO;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -33,4 +35,9 @@ public interface IOutpatientPharmacyService {
      * 执行拒绝退药
      */
     void rejectReturn(ReturnRejectDTO dto);
+
+    /**
+     * 执行确认退药
+     */
+    void confirmReturn(ReturnConfirmDTO dto);
 }
