@@ -48,6 +48,11 @@ target
 # Design plan
 .plan/
 
+# Agent / AI coding tool project dirs
+.claude/
+.agents/
+.codex/
+
 # User-specific files
 *.rsuser
 *.suo

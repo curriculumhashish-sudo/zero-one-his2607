@@ -2,6 +2,7 @@ package com.zeroone.star.pharmacy.controller;
 
 import com.zeroone.star.pharmacy.service.IStocktakeApprovalService;
 import com.zeroone.star.pharmacy.service.IWkfSupplyRequestService;
+import com.zeroone.star.pharmacy.service.IStocktakeService;
 import com.zeroone.star.project.dto.j6.pharmacy.stocktake.*;
 import com.zeroone.star.project.j6.pharmacy.WarehouseStocktakeApis;
 import com.zeroone.star.project.query.j6.pharmacy.PharmacyInventoryDetailQuery;
@@ -30,6 +31,9 @@ public class WarehouseStocktakeController implements WarehouseStocktakeApis {
 
     private final IWkfSupplyRequestService IwkfSupplyRequestService;
 
+    @Resource
+    private IStocktakeService stocktakeService;
+
     @Override
     @GetMapping("list")
     @Operation(summary = "获取单据列表（条件+分页）")
@@ -54,69 +58,37 @@ public class WarehouseStocktakeController implements WarehouseStocktakeApis {
         return JsonVO.success(vo.getSuccess());
     }
 
+    /**
+     * 新增盘点单
+     * <p>生成空盘点单头，不生成明细行（明细由前端逐行添加后通过 saveStocktake 保存）</p>
+     */
     @Override
     @Operation(summary = "新增单据", description = "生成空盘点单, 状态=草稿")
     @PostMapping("/create")
     public JsonVO<StocktakeDetailVO> createStocktake(@RequestBody StocktakeSaveDTO dto) {
-        return JsonVO.success(buildExampleDetailVO());
+        return JsonVO.success(stocktakeService.createStocktake(dto));
     }
 
+    /**
+     * 保存盘点单
+     * <p>先删后插策略：快照锁定账面数 + 从库存项补全物品信息 + 批量写入明细行</p>
+     */
     @Override
     @Operation(summary = "保存单据", description = "填入实盘数据 + 快照锁定账面数，状态=草稿")
     @PutMapping("/{busNo}/save")
     public JsonVO<StocktakeDetailVO> saveStocktake(@PathVariable String busNo, @RequestBody StocktakeSaveDTO dto) {
-        StocktakeDetailVO vo = buildExampleDetailVO();
-        vo.setBusNo(busNo);
-        return JsonVO.success(vo);
+        return JsonVO.success(stocktakeService.saveStocktake(busNo, dto));
     }
 
+    /**
+     * 保存盘点单并提交审批
+     * <p>保存盘点数据 + 状态流转 DRAFT → PENDING_APPROVAL</p>
+     */
     @Override
     @Operation(summary = "保存并提交审批", description = "填入实盘数据，状态草稿→待审批")
     @PutMapping("/{busNo}/submit")
-    public JsonVO<StocktakeDetailVO> submitStocktake(@PathVariable String busNo,@RequestBody StocktakeSaveDTO dto) {
-        StocktakeDetailVO vo = buildExampleDetailVO();
-        vo.setBusNo(busNo);
-        vo.setStatusEnum("PENDING_APPROVAL");
-        return JsonVO.success(vo);
-    }
-
-    /** Knife4j 示例数据 */
-    private StocktakeDetailVO buildExampleDetailVO() {
-        StocktakeDetailVO vo = new StocktakeDetailVO();
-        vo.setBusNo("PD202607180001");
-        vo.setStatusEnum("DRAFT");
-        vo.setPurposeLocationId("284503862625177600");
-        vo.setPurposeLocationName("西药库");
-        vo.setPractitionerId("322733572165734400");
-        vo.setApplicantId("322733572165734400");
-        vo.setApplyTime(LocalDateTime.of(2026, 7, 18, 14, 0, 0));
-        vo.setApproverId("322733572165734401");
-        vo.setApprovalTime(LocalDateTime.of(2026, 7, 18, 15, 0, 0));
-
-        StocktakeDetailVO.StocktakeDetailLineVO line =
-                new StocktakeDetailVO.StocktakeDetailLineVO();
-        line.setLineId("line_001");
-        line.setItemTable("medication");
-        line.setItemId("med_001");
-        line.setProductName("阿莫西林胶囊");
-        line.setSpecification("0.25g*24粒");
-        line.setManufacturer("华北制药");
-        line.setLotNumber("LOT20260701");
-        line.setExpirationDate("2028-06-30");
-        line.setUnitCode("PCS");
-        line.setBookQuantity(new BigDecimal("95.00"));
-        line.setProfitLossQuantity(new BigDecimal("5.00"));
-        line.setActualQuantity(new BigDecimal("100.00"));
-        line.setProfitLossAmount(new BigDecimal("125.50"));
-        line.setPrice(new BigDecimal("25.10"));
-        line.setInventoryItemId("inv_001");
-        line.setSupplierId("supplier_001");
-        line.setTraceNo("TRACE001");
-        line.setRemake("盘点正常");
-        line.setOccurrenceTime(LocalDateTime.of(2026, 7, 18, 10, 0, 0));
-
-        vo.setLines(List.of(line));
-        return vo;
+    public JsonVO<StocktakeDetailVO> submitStocktake(@PathVariable String busNo, @RequestBody StocktakeSaveDTO dto) {
+        return JsonVO.success(stocktakeService.submitStocktake(busNo, dto));
     }
 
     @Resource

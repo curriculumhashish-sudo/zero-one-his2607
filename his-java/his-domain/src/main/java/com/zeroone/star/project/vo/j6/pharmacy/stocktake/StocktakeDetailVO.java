@@ -17,7 +17,7 @@ public class StocktakeDetailVO {
 
     // ==================== 头信息 ====================
 
-    @Schema(description = "盘点单号", example = "PD202607180001")
+    @Schema(description = "盘点单号", example = "CST2026-07-200001")
     private String busNo;
 
     @Schema(description = "单据状态（DRAFT/PENDING_APPROVAL/APPROVED/REJECTED）", example = "DRAFT")
@@ -44,6 +44,9 @@ public class StocktakeDetailVO {
     @Schema(description = "审批时间（审批后写入）", example = "2026-07-18 15:00:00")
     private LocalDateTime approvalTime;
 
+    @Schema(description = "项目类型(盘点类型)", example = "药品/耗材")
+    private String categoryEnum;
+
     // ==================== 明细行 ====================
 
     @Schema(description = "明细行列表")
@@ -69,13 +72,13 @@ public class StocktakeDetailVO {
         @Schema(description = "物品名称（冗余展示）", example = "阿莫西林胶囊")
         private String productName;
 
-        @Schema(description = "规格", example = "0.25g*24粒")
+        @Schema(description = "规格", example = "0.25g")
         private String specification;
 
         @Schema(description = "生产厂家", example = "华北制药")
         private String manufacturer;
 
-        @Schema(description = "批号", example = "LOT20260701")
+        @Schema(description = "批号", example = "001-003")
         private String lotNumber;
 
         @Schema(description = "效期", example = "2028-06-30")
@@ -83,6 +86,9 @@ public class StocktakeDetailVO {
 
         @Schema(description = "计量单位编码", example = "PCS")
         private String unitCode;
+
+        @Schema(description = "计量单位名称（展示用）", example = "片")
+        private String unitName;
 
         @Schema(description = "账面数量（保存时快照锁定的当前库存数）", example = "95.00")
         private BigDecimal bookQuantity;
@@ -92,6 +98,9 @@ public class StocktakeDetailVO {
 
         @Schema(description = "实盘数量", example = "100.00")
         private BigDecimal actualQuantity;
+
+        @Schema(description = "实盘金额（actualQuantity × price）", example = "2510.00")
+        private BigDecimal actualAmount;
 
         @Schema(description = "盈亏金额", example = "125.50")
         private BigDecimal profitLossAmount;
