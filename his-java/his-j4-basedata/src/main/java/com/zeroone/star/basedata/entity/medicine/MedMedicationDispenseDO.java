@@ -2,6 +2,7 @@ package com.zeroone.star.basedata.entity.medicine;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -67,6 +68,7 @@ public class MedMedicationDispenseDO implements Serializable {
     /**
      * 软删标记
      */
+    @TableLogic
     private Boolean isDeleted;
 
     /**

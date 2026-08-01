@@ -18,7 +18,8 @@ public class MedicineDetailDTO {
     @NotBlank(message = "id不能为空")
     private String id;
 
-
+    @Schema(description = "版本号，无需填写")
+    private Integer version;
     /**
      * 药品名称
      */
@@ -210,7 +211,9 @@ public class MedicineDetailDTO {
 
     /**
      * 国家药品贯标编码
+     *
      */
+    @Schema(description = "贯标国家编码",example = "国家编码")
     private String nationalDrugCode;
 
     /**
@@ -313,11 +316,13 @@ public class MedicineDetailDTO {
     /**
      * 默认用法编码
      */
+    @Schema(description = "默认用法编码",example = "默认用法")
     private String methodCode;
 
     /**
      * 默认频次编码
      */
+    @Schema(description = "默认频次编码",example = "Q12H")
     private String rateCode;
 
     /**
@@ -337,12 +342,17 @@ public class MedicineDetailDTO {
     /**
      * 用量限定
      */
+    @Schema(description = "用量限定",example = "用量限定")
     private BigDecimal usageLimit;
 
     /**
      * 采购入库位置（他域事实列）
      */
+    @Schema(description = "默认采购入库库房id",example = "默认采购入库库房id")
     private String locationId;
+
+    @Schema(description = "默认采购入库库房文字",example = "默认采购入库库房文字")
+    private String locationId_dictText;
 
     /**
      * 生命周期状态编码（DRAFT/ACTIVE/INACTIVE/DISCARDED）

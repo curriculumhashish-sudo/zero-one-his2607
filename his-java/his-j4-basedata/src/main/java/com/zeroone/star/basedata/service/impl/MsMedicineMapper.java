@@ -50,6 +50,7 @@ public interface MsMedicineMapper {
      * @param  dto 药品详情DTO
      * @return 药品详情VO
      */
+
     MedicineDetailVO medicineDetailDtoToVo(MedicineDetailDTO dto);
 
     /**
