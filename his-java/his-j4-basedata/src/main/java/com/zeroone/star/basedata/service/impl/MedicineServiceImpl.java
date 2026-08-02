@@ -123,8 +123,8 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
     private void fillMedicineFields(MedMedicationDefinitionDO medicine, String medicineId, LocalDateTime now) {
         medicine.setId(medicineId);
         medicine.setBusNo("MD" + medicineId);
-        medicine.setCreateTime(now);
-        medicine.setUpdateTime(now);
+        medicine.setCreatedAt(now);
+        medicine.setUpdatedAt(now);
         medicine.setIsDeleted(false);
         medicine.setVersion(0);
         medicine.setOrgId(TEMP_ORG_ID);
