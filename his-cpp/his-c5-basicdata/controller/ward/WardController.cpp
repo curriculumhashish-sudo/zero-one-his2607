@@ -1,7 +1,8 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "WardController.h"
+#include "../ApiDeclarativeServicesHelper.h"
 #include "StringUtil.h"
-#include "service/ward/WardService.h"
+#include "../../service/ward/WardService.h"
 
 namespace
 {
@@ -45,11 +46,11 @@ namespace
 }
 
 // ============================================================
-// 根据病房ID查询病房信息
-// 调用链路: Controller → WardService::queryRoomById → WardDAO::selectLocationById
-// 参数校验: id非空、长度≤64，无效返回RS_PARAMS_INVALID(9995)
-// 未找到对应记录或formEnum不是HOUSE，返回RS_FAIL(9999)
-// 成功返回: WardRoomDTO { id, name, wardAreaId }
+// Query room by ID (c5 — using WardService::queryRoomById)
+// Call chain: Controller → WardService::queryRoomById → WardDAO::selectLocationById
+// Param validation: id non-empty, length ≤64, invalid returns RS_PARAMS_INVALID(9995)
+// Not found or formEnum != HOUSE returns RS_FAIL(9999)
+// Success returns: WardRoomDTO { id, name, wardAreaId }
 // ============================================================
 WardRoomJsonVO::Wrapper WardController::execQueryRoomById(const String& id) {
     auto response = WardRoomJsonVO::createShared();
@@ -69,11 +70,11 @@ WardRoomJsonVO::Wrapper WardController::execQueryRoomById(const String& id) {
 }
 
 // ============================================================
-// 根据病床ID查询病床信息
-// 调用链路: Controller → WardService::queryBedById → WardDAO::selectLocationById
-// 参数校验: id非空、长度≤64，无效返回RS_PARAMS_INVALID(9995)
-// 未找到对应记录或formEnum不是BED，返回RS_FAIL(9999)
-// 成功返回: WardBedDTO { id, name, status(0空闲/1占用/2停用), wardRoomId }
+// Query bed by ID (c5 — using WardService::queryBedById)
+// Call chain: Controller → WardService::queryBedById → WardDAO::selectLocationById
+// Param validation: id non-empty, length ≤64, invalid returns RS_PARAMS_INVALID(9995)
+// Not found or formEnum != BED returns RS_FAIL(9999)
+// Success returns: WardBedDTO { id, name, status(0=free/1=occupied/2=disabled), wardRoomId }
 // ============================================================
 WardBedJsonVO::Wrapper WardController::execQueryBedById(const String& id) {
     auto response = WardBedJsonVO::createShared();

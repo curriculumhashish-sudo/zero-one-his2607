@@ -8,10 +8,11 @@
 #include "BaseDAO.h"
 #include "domain/do/ward/WardTreeDO.h"
 #include "WardTreeMapper.h"
-#include"domain/dto/ward/WardLocationAddDTO.h"
-#include"domain/do/ward/WardLocationDO.h"
+#include "domain/dto/ward/WardLocationAddDTO.h"
+#include "domain/do/ward/WardLocationDO.h"
 #include "WardLocationMapper.h"
 #include "OrganizationTenantIdMapper.h"
+#include "domain/do/ward/WardDO.h"
 
 class WardDAO : public BaseDAO
 {
@@ -19,11 +20,9 @@ public:
     std::list<WardTreeDO> selectTreeRows(
         const std::string& organizationId
     );
-    // ============================================================
-    // 只读按ID查询地理位置（不加FOR UPDATE行锁）
-    // 用于病房/病床ID查询接口，区别于selectLocationByIdForUpdate
-    // 查询adm_location表，过滤is_deleted=0
-    // ============================================================
+    // Read-only query by ID (no FOR UPDATE lock)
+    // Used for room/bed ID query endpoints, distinct from selectLocationByIdForUpdate
+    // Queries adm_location table, filters is_deleted=0
     PtrWardLocationDO selectLocationById(
         const std::string& id
     );
@@ -72,6 +71,17 @@ public:
 
 	// Insert a new location.
 	int insertLocation(const WardLocationDO& data);
+
+	// ============================================================
+	// Ward/Bed query methods (c5-ward-pb)
+	// ============================================================
+
+	// Query ward room (includes bed list)
+	PtrWardDO selectRoomById(const std::string& id);
+	// Query single bed
+	PtrBedDO selectBedById(const std::string& id);
+	// Query bed list by parentId
+	std::list<PtrBedDO> selectBedsByParentId(const std::string& parentId);
 };
 
 #endif

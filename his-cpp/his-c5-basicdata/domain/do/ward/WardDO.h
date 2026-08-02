@@ -2,9 +2,40 @@
 #define _WARD_DO_
 
 #include "../DoInclude.h"
-#include "BedDO.h"
 #include <vector>
 
+class BedDO : public BaseDO
+{
+	MYSQL_SYNTHESIZE(string, id, Id);
+	MYSQL_SYNTHESIZE(string, tenantId, TenantId);
+	MYSQL_SYNTHESIZE(string, name, Name);
+	MYSQL_SYNTHESIZE(string, parentId, ParentId);
+	MYSQL_SYNTHESIZE(string, organizationId, OrganizationId);
+	MYSQL_SYNTHESIZE(string, statusEnum, StatusEnum);
+	MYSQL_SYNTHESIZE(string, typeJson, TypeJson);
+	MYSQL_SYNTHESIZE(string, displayOrder, DisplayOrder);
+	MYSQL_SYNTHESIZE(string, version, Version);
+	MYSQL_SYNTHESIZE(string, createdAt, CreatedAt);
+	MYSQL_SYNTHESIZE(string, updatedAt, UpdatedAt);
+
+public:
+	BedDO() : BaseDO("adm_location")
+	{
+		MYSQL_ADD_FIELD_PK("id", "s", id);
+		MYSQL_ADD_FIELD("tenant_id", "s", tenantId);
+		MYSQL_ADD_FIELD("name", "s", name);
+		MYSQL_ADD_FIELD("parent_id", "s", parentId);
+		MYSQL_ADD_FIELD("organization_id", "s", organizationId);
+		MYSQL_ADD_FIELD("status_enum", "s", statusEnum);
+		MYSQL_ADD_FIELD("type_json", "s", typeJson);
+		MYSQL_ADD_FIELD("display_order", "i", displayOrder);
+		MYSQL_ADD_FIELD("version", "i", version);
+		MYSQL_ADD_FIELD("created_at", "s", createdAt);
+		MYSQL_ADD_FIELD("updated_at", "s", updatedAt);
+	}
+};
+
+typedef std::shared_ptr<BedDO> PtrBedDO;
 /**
  * WardDO - 病区病房
  */

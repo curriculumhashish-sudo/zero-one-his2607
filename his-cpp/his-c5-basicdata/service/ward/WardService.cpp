@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "WardService.h"
 #include "StringUtil.h"
 #include "dao/ward/WardDAO.h"
@@ -960,4 +960,32 @@ LocationMutationResult WardService::changeLocationStatus(
         transaction.rollback();
         return mutationFailure("Location status update failed.");
     }
+}
+
+// ============================================================
+// Ward/Bed query methods (c5-ward-pb)
+// ============================================================
+
+std::string WardService::validateQueryRoomById(const oatpp::String& id)
+{
+    if (!id || id->empty()) return "id invalidate.";
+    return "";
+}
+
+PtrWardDO WardService::getRoomById(const std::string& id)
+{
+    WardDAO dao;
+    return dao.selectRoomById(id);
+}
+
+std::string WardService::validateQueryBedById(const oatpp::String& id)
+{
+    if (!id || id->empty()) return "id invalidate.";
+    return "";
+}
+
+PtrBedDO WardService::getBedById(const std::string& id)
+{
+    WardDAO dao;
+    return dao.selectBedById(id);
 }
