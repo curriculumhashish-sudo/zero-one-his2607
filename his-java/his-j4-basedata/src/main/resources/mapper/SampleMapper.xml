@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.basedata.mapper.SampleMapper">
+
+    <!-- 分页+条件查询样本定义列表（限定当前租户，不含已删除） -->
+    <select id="selectSamplePage" resultType="com.zeroone.star.project.vo.j4.sample.SpecimenDefinitionDetailVO">
+        SELECT
+            s.id,
+            s.tenant_id,
+            s.bus_no,
+            s.name,
+            s.py_str,
+            s.wb_str,
+            s.type_enum,
+            s.status_enum,
+            s.updated_at
+        FROM adm_specimen_definition s
+        <where>
+            s.is_deleted = 0
+            AND s.tenant_id = #{tenantId}
+            <if test="query != null and query.keyword != null and query.keyword != ''">
+                AND (s.name LIKE CONCAT('%', #{query.keyword}, '%')
+                  OR s.bus_no LIKE CONCAT('%', #{query.keyword}, '%')
+                  OR s.py_str LIKE CONCAT('%', #{query.keyword}, '%')
+                  OR s.wb_str LIKE CONCAT('%', #{query.keyword}, '%'))
+            </if>
+            <if test="query != null and query.typeEnum != null and query.typeEnum != ''">
+                AND s.type_enum = #{query.typeEnum}
+            </if>
+            <if test="query != null and query.statusEnum != null and query.statusEnum != ''">
+                AND s.status_enum = #{query.statusEnum}
+            </if>
+        </where>
+        ORDER BY s.updated_at DESC, s.id DESC
+    </select>
+
+    <!-- 获取样本名称下拉选项（限定当前租户，仅返回未删除记录） -->
+    <select id="selectSampleOptions" resultType="com.zeroone.star.project.vo.j4.sample.SpecimenOptionVO">
+        SELECT
+            s.id AS value,
+            s.name AS label
+        FROM adm_specimen_definition s
+        WHERE s.is_deleted = 0
+          AND s.tenant_id = #{tenantId}
+        ORDER BY s.updated_at DESC, s.id DESC
+    </select>
+
+</mapper>

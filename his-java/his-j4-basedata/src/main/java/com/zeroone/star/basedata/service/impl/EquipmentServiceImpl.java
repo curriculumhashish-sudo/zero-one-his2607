@@ -3,10 +3,11 @@ package com.zeroone.star.basedata.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zeroone.star.basedata.constant.EquipmentCategoryConstants;
 import com.zeroone.star.basedata.constant.EquipmentConstants;
 import com.zeroone.star.basedata.entity.common.AdmChargeItemDefinitionDO;
 import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinitionDO;
-import com.zeroone.star.basedata.mapper.EquipmentChargeItemMapper;
+import com.zeroone.star.basedata.mapper.AdmChargeItemDefinitionMapper;
 import com.zeroone.star.basedata.mapper.EquipmentMapper;
 import com.zeroone.star.basedata.service.IEquipmentService;
 import com.zeroone.star.project.components.user.UserHolder;
@@ -18,6 +19,7 @@ import com.zeroone.star.project.vo.j4.equipment.EquipmentCategoryVO;
 import com.zeroone.star.project.vo.j4.equipment.EquipmentVO;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -41,8 +43,10 @@ import java.util.List;
 public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDeviceDefinitionDO> implements IEquipmentService {
 
     private final MsEquipmentMapper msEquipmentMapper;
-    private final EquipmentChargeItemMapper chargeItemMapper;
+    private final AdmChargeItemDefinitionMapper chargeItemMapper;
+    //TODO 调用编码服务
 //    private final TerConceptMapper conceptMapper;
+//    private final UserHolder userHolder;
 
     // UserHoler用于获取租户ID
     @Resource
@@ -218,6 +222,13 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
         chargeItemDefinitionEntity.setPriceTypeCode("SALE");
         chargeItemDefinitionEntity.setPriceValue(equipmentAddDTO.getRetailPrice());
         chargeItemMapper.insert(chargeItemDefinitionEntity);
+        //4.3.判断是否存在最高价格，而后保存
+        if(equipmentAddDTO.getMaximumRetailPrice() != null){
+            chargeItemDefinitionEntity.setId(null);
+            chargeItemDefinitionEntity.setPriceTypeCode("LIMIT");
+            chargeItemDefinitionEntity.setPriceValue(equipmentAddDTO.getMaximumRetailPrice());
+            chargeItemMapper.insert(chargeItemDefinitionEntity);
+        }
     }
 
     /**
@@ -233,13 +244,38 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
             return null;
         }
         EquipmentVO vo = voList.get(0);
-        for (EquipmentVO temp : voList) {
-            if (temp.getPriceTypeCode().equals("PURCHASE")) {
+        for(EquipmentVO temp : voList){
+            String priceTypeCode = temp.getPriceTypeCode();
+            if(priceTypeCode.equals("PURCHASE")){
                 vo.setPurchasePrice(temp.getPurchasePrice());
-            } else {
+            }
+            else if(priceTypeCode.equals("SALE")){
                 vo.setRetailPrice(temp.getRetailPrice());
             }
+            else{
+                vo.setMaximumRetailPrice(temp.getMaximumRetailPrice());
+            }
         }
+        //设置器材分类名
+        vo.setCategoryName(EquipmentCategoryConstants.CATEGORY_MAP.get(vo.getCategoryCode()));
+        //设置器材财物类型名
+        vo.setItemTypeCode_dictText(EquipmentCategoryConstants.FIN_TYPE_CODE.get(vo.getItemTypeCode()));
+        //设置采购单位名
+        vo.setPurchaseUnitName(EquipmentCategoryConstants.UNIT_CODE.get(vo.getPurchaseUnitCode()));
+        //设置单位名
+        vo.setUnitCode_dictText(EquipmentCategoryConstants.UNIT_CODE.get(vo.getUnitCode()));
+        //设置剂量单位名
+        vo.setDoseUnitCode_dictText(EquipmentCategoryConstants.UNIT_CODE.get(vo.getDoseUnitCode()));
+        //设置拆零单位名
+        vo.setSplitUnitName(EquipmentCategoryConstants.UNIT_CODE.get(vo.getSplitUnitCode()));
+        //设置销售单位名
+        vo.setPackageUnitName(EquipmentCategoryConstants.UNIT_CODE.get(vo.getPackageUnitCode()));
+        //设置库存单位名
+        vo.setStockUnitName(EquipmentCategoryConstants.UNIT_CODE.get(vo.getStockUnitCode()));
+        //设置供应商名称，供应商非固定单位，后续调用其他服务获取
+        vo.setSupplyId_dictText("供应商名称");
+        //设置医保类型名
+        vo.setYbType_dictText(EquipmentCategoryConstants.YB_TYPE_CODE.get(vo.getYbType()));
         return vo;
     }
 
@@ -251,8 +287,12 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
     @Override
     public List<EquipmentCategoryVO> queryEquipmentCategoryList() {
 //        List<EquipmentCategoryVO> voList = conceptMapper.queryEquipmentCategoryList(EquipmentConstants.EQUIPMENT_CATEGORY_CODE);
-//        return voList;
-        return null;
+        List<EquipmentCategoryVO> voList = EquipmentCategoryConstants.CATEGORY_MAP
+                .entrySet()
+                .stream()
+                .map(entry -> new EquipmentCategoryVO(entry.getKey(), entry.getValue()))
+                .toList();
+        return voList;
     }
 
     /**
@@ -260,10 +300,16 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
      *
      * @param equipmentIds 器材Id集合
      */
+    @SneakyThrows
     @Override
     @Transactional
     public void removeEquipmentByIds(List<String> equipmentIds) {
-        this.baseMapper.deleteByIds(equipmentIds);
-        chargeItemMapper.deleteByEquipmentIds(equipmentIds);
+        if(equipmentIds == null || equipmentIds.isEmpty()){
+            return;
+        }
+//        this.baseMapper.deleteByEquipmentIds(equipmentIds, userHolder.getCurrentUser().getId());
+        this.baseMapper.deleteByEquipmentIds(equipmentIds, "1");
+//        chargeItemMapper.deleteByEquipmentIds(equipmentIds, userHolder.getCurrentUser().getId());
+        chargeItemMapper.deleteByEquipmentIds(equipmentIds, "1");
     }
 }
