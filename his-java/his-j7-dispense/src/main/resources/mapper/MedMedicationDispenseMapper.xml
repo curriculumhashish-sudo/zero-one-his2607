@@ -61,7 +61,8 @@
         LEFT JOIN adm_practitioner prac ON prac.id = d.practitioner_id AND prac.is_deleted = 0
         <include refid="staySubQuery"/>
         WHERE d.is_deleted = 0
-        AND d.dispense_enum IN ('OUTPATIENT', 'INPATIENT')
+        AND UPPER(d.dispense_enum) = 'INPATIENT'
+        AND UPPER(e.class_enum) IN ('INPATIENT', 'IMP')
         AND d.summary_no IS NOT NULL
         <if test="summaryNo != null and summaryNo != ''">
             AND d.summary_no LIKE CONCAT('%', #{summaryNo}, '%')
@@ -94,6 +95,7 @@
         p.name AS patientName,
         stay.bed_no AS bedNo,
         d.medication_id AS medicationId,
+        md.bus_no AS drugCode,
         md.name AS drugName,
         md.total_volume AS spec,
         d.unit_code AS unit,
@@ -108,6 +110,7 @@
         LEFT JOIN adm_encounter e ON e.id = d.encounter_id AND e.is_deleted = 0
         <include refid="staySubQuery"/>
         WHERE d.is_deleted = 0
+        AND UPPER(d.dispense_enum) = 'INPATIENT'
         AND d.summary_no = #{summaryNo}
         ORDER BY p.name, md.name
     </select>
