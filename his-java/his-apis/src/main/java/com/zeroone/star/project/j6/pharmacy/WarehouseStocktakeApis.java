@@ -10,6 +10,7 @@ import com.zeroone.star.project.vo.j6.pharmacy.PharmacyInventoryListVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stocktake.StocktakeDetailVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 
@@ -57,7 +58,7 @@ public interface WarehouseStocktakeApis {
      */
     @Operation(summary = "保存盘点单", description = "填入实盘数据 + 快照锁定账面数，状态=草稿")
     @PutMapping("/warehouse/stocktake/{busNo}/save")
-    JsonVO<StocktakeDetailVO> saveStocktake(String busNo, StocktakeSaveDTO dto);
+    JsonVO<StocktakeDetailVO> saveStocktake(@PathVariable @Parameter(description = "盘点单号", required = true) String busNo, StocktakeSaveDTO dto);
 
     /**
      * 保存盘点单并提交审批
@@ -69,7 +70,7 @@ public interface WarehouseStocktakeApis {
      */
     @Operation(summary = "保存盘点单并提交审批", description = "填入实盘数据，状态草稿→待审批")
     @PutMapping("/warehouse/stocktake/{busNo}/submit")
-    JsonVO<StocktakeDetailVO> submitStocktake(String busNo, StocktakeSaveDTO dto);
+    JsonVO<StocktakeDetailVO> submitStocktake(@PathVariable @Parameter(description = "盘点单号", required = true) String busNo, StocktakeSaveDTO dto);
 
     /**
      * 提交药库盘点审批

@@ -1,5 +1,6 @@
 package com.zeroone.star.pharmacy.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.zeroone.star.pharmacy.entity.WkfSupplyRequest;
 import com.zeroone.star.pharmacy.mapper.WkfSupplyRequestMapper;
@@ -306,9 +307,10 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
         if (stocktake == null) {
             throw new RuntimeException("单据不存在或已经被删除");
         }
-        // 2. 业务规则校验：只有PENDING_APPROVAL状态允许删除
-        if (!"PENDING_APPROVAL".equals(stocktake.getStatusEnum())) {
-            throw new RuntimeException("单据已提交审批，无法执行删除操作！");
+        // 2. 业务规则校验：已通过和审批中的单据不允许删除
+        String status = stocktake.getStatusEnum();
+        if ("PENDING_APPROVAL".equals(status) || "AGREE".equals(status)) {
+            throw new RuntimeException("当前状态不允许删除，当前状态: " + status);
         }
         // 3. 逻辑删除主单据主键ID更新
         LambdaUpdateWrapper<WkfSupplyRequest> updateWrapper = new LambdaUpdateWrapper<>();
@@ -338,9 +340,11 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
             throw new RuntimeException("盘点单据号不能为空");
         }
         // 根据单据号busNo查询主单
-        LambdaQueryWrapper<WkfSupplyRequest> reqWrapper = new LambdaQueryWrapper<>();
-        reqWrapper.eq(WkfSupplyRequest::getBusNo, stocktakeNo);
-        reqWrapper.eq(WkfSupplyRequest::getIsDeleted, false);
+        QueryWrapper<WkfSupplyRequest> reqWrapper = new QueryWrapper<>();
+        reqWrapper.eq("bus_no", stocktakeNo);
+        reqWrapper.eq("type_enum", "PHARMACY_STOCKTAKE");
+        reqWrapper.eq("is_deleted", 0);
+        reqWrapper.last("LIMIT 1");
         WkfSupplyRequest mainRequest = baseMapper.selectOne(reqWrapper);
         if (mainRequest == null) {
             throw new RuntimeException("盘点单据不存在或已删除");
@@ -503,7 +507,7 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
         // 2.构造主表查询条件
         var wrapper = new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<WkfSupplyRequest>();
         wrapper.eq(WkfSupplyRequest::getIsDeleted, false);
-        wrapper.eq(WkfSupplyRequest::getTypeEnum, "CABINET_STOCKTAKE");
+        wrapper.eq(WkfSupplyRequest::getTypeEnum, "PHARMACY_STOCKTAKE");
         // 单据号模糊查询 stocktakeNo → busNo
         if (StringUtils.hasText(query.getStocktakeNo())) {
             wrapper.like(WkfSupplyRequest::getBusNo, query.getStocktakeNo());

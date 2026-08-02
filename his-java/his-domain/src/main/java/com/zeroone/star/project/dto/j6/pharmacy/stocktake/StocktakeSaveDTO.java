@@ -36,7 +36,7 @@ public class StocktakeSaveDTO {
     @Data
     public static class StocktakeLineDTO{
 
-        @Schema(description = "库存项ID（指向 wkf_inventory_item.id，用于快照锁定账面数）", requiredMode = Schema.RequiredMode.REQUIRED, example = "inv_001")
+        @Schema(description = "库存项ID（指向 wkf_inventory_item.id）", requiredMode = Schema.RequiredMode.REQUIRED, example = "WINV2026080101")
         private String inventoryItemId;
 
         @Schema(description = "盈亏数量（正=盘盈，负=盘亏，零=平）", example = "5.00")

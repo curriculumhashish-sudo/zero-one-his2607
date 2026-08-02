@@ -109,8 +109,8 @@ public class StocktakeServiceImpl implements IStocktakeService {
             row.setItemId(item.getItemId());
             row.setItemQuantity(lineDTO.getProfitLossQuantity());
             row.setTotalQuantity(lineDTO.getActualQuantity());
-            row.setUnitCode(lineDTO.getUnitCode() != null ? lineDTO.getUnitCode() : item.getUnitCode());
-            row.setLotNumber(lineDTO.getLotNumber() != null ? lineDTO.getLotNumber() : item.getLotNumber());
+            row.setUnitCode(item.getUnitCode());
+            row.setLotNumber(item.getLotNumber());
             row.setTraceNo(lineDTO.getTraceNo());
             row.setRemake(lineDTO.getRemake());
             row.setOccurrenceTime(now);
@@ -145,8 +145,8 @@ public class StocktakeServiceImpl implements IStocktakeService {
             lineVO.setItemTable(item.getItemTable());
             lineVO.setItemId(item.getItemId());
             lineVO.setProductName(item.getName());
-            lineVO.setUnitCode(lineDTO.getUnitCode() != null ? lineDTO.getUnitCode() : item.getUnitCode());
-            lineVO.setLotNumber(lineDTO.getLotNumber() != null ? lineDTO.getLotNumber() : item.getLotNumber());
+            lineVO.setUnitCode(item.getUnitCode());
+            lineVO.setLotNumber(item.getLotNumber());
             lineVO.setExpirationDate(item.getExpirationDate() != null ? item.getExpirationDate().toString() : null);
             lineVO.setBookQuantity(item.getQuantity());
             lineVO.setProfitLossQuantity(lineDTO.getProfitLossQuantity());
@@ -235,9 +235,9 @@ public class StocktakeServiceImpl implements IStocktakeService {
             lineVO.setProductName(productName);
             lineVO.setSpecification(specification);
             lineVO.setManufacturer(manufacturer);
-            lineVO.setLotNumber(lineDTO.getLotNumber() != null ? lineDTO.getLotNumber() : item.getLotNumber());
+            lineVO.setLotNumber(item.getLotNumber());
             lineVO.setExpirationDate(item.getExpirationDate() != null ? item.getExpirationDate().toString() : null);
-            lineVO.setUnitCode(lineDTO.getUnitCode() != null ? lineDTO.getUnitCode() : item.getUnitCode());
+            lineVO.setUnitCode(item.getUnitCode());
             lineVO.setBookQuantity(bookQuantity);
             lineVO.setProfitLossQuantity(profitLossQuantity);
             lineVO.setActualQuantity(actualQuantity);
