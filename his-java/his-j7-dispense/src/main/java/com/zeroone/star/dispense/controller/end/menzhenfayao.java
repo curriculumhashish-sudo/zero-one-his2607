@@ -9,11 +9,16 @@ import com.zeroone.star.project.query.j7.dispense.PatientQueueQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j7.dispense.PatientDrugItemVO;
 import com.zeroone.star.project.vo.j7.dispense.PatientQueueVO;
+import com.zeroone.star.project.dto.j7.dispense.BatchDispenseCommand;
+import com.zeroone.star.project.vo.j7.dispense.BatchDispenseResultVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -49,5 +54,17 @@ public class menzhenfayao implements OutPharmApis {
     public JsonVO<IPage<PatientDrugItemVO>> pagePatientDrugItems(PatientDrugItemQuery query) {
         IPage<PatientDrugItemVO> page = drugService.pagePatientDrugItems(query);
         return JsonVO.success(page);
+    }
+
+    @Operation(
+            summary = "批量发药",
+            description = "根据发药记录ID列表批量确认发药，将 PENDING 状态的门诊发药记录更新为 COMPLETED"
+    )
+    @PostMapping("/batch-dispense")
+    @Override
+    public JsonVO<BatchDispenseResultVO> batchDispense(
+            @RequestBody @Valid BatchDispenseCommand command) {
+        BatchDispenseResultVO result = drugService.batchDispense(command);
+        return JsonVO.success(result);
     }
 }
