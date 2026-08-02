@@ -3,6 +3,7 @@ package com.zeroone.star.dispense.service;
 import com.zeroone.star.project.dto.ExtendPageDTO;
 import com.zeroone.star.project.dto.j7.dispense.DispenseVerifyDTO;
 import com.zeroone.star.project.dto.j7.dispense.DispenseRejectDTO;
+import com.zeroone.star.project.query.j7.dispense.DispenseRejectQuery;
 import com.zeroone.star.project.query.j7.dispense.DispensingSummaryQuery;
 import com.zeroone.star.project.vo.j7.dispense.DispensingSummaryVO;
 import com.zeroone.star.project.vo.j7.dispense.PatientMedicationVO;
@@ -45,5 +46,5 @@ public interface IDispensingService {
     /**
      * 驳回患者发药单据，同步驳回汇总单
      */
-    void rejectDispensing(DispenseRejectDTO dto);
+    void rejectDispensing(DispenseRejectQuery dto);
 }

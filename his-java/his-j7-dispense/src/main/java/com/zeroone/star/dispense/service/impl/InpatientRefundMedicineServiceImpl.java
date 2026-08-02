@@ -4,14 +4,12 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zeroone.star.dispense.entity.InventoryItem;
+import com.zeroone.star.dispense.entity.MedMedicationDispense;
 import com.zeroone.star.dispense.mapper.InpatientRefundMedicineMapper;
+import com.zeroone.star.dispense.mapper.InventoryItemMapper;
+import com.zeroone.star.dispense.mapper.MedMedicationDispenseMapper;
 import com.zeroone.star.dispense.service.IInpatientRefundMedicineService;
-import com.zeroone.star.pharmacy.entity.WkfInventoryItem;
-import com.zeroone.star.pharmacy.entity.WkfSupplyDelivery;
-import com.zeroone.star.pharmacy.entity.WkfSupplyRequest;
-import com.zeroone.star.pharmacy.mapper.WkfInventoryItemMapper;
-import com.zeroone.star.pharmacy.mapper.WkfSupplyDeliveryMapper;
-import com.zeroone.star.pharmacy.mapper.WkfSupplyRequestMapper;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j7.pharmacy.ReturnConfirmDTO;
 import com.zeroone.star.project.query.j7.dispense.InpatientRefundDetailQuery;
@@ -47,6 +45,10 @@ public class InpatientRefundMedicineServiceImpl implements IInpatientRefundMedic
 
     @Resource
     private InpatientRefundMedicineMapper inpatientRefundMedicineMapper;
+    @Resource
+    private MedMedicationDispenseMapper medicationDispenseMapper;
+    @Resource
+    private InventoryItemMapper inventoryItemMapper;
 
     @Override
     public PageDTO<InpatientRefundPatientVO> queryPatientQueue(InpatientRefundPatientQuery query) {
@@ -123,46 +125,45 @@ public class InpatientRefundMedicineServiceImpl implements IInpatientRefundMedic
      *
      * @param dto 退药确认参数
      */
-    @Resource
-    private WkfSupplyRequestMapper wkfSupplyRequestMapper;
-    @Resource
-    private WkfSupplyDeliveryMapper wkfSupplyDeliveryMapper;
-    @Resource
-    private WkfInventoryItemMapper wkfInventoryItemMapper;
     @Override
     @Transactional
     public void confirmReturn(ReturnConfirmDTO dto) {
-        // 1. 更新供应请求：状态=已确认，记录审批信息
-        wkfSupplyRequestMapper.update(null,
-                new LambdaUpdateWrapper<WkfSupplyRequest>()
-                        .eq(WkfSupplyRequest::getId, dto.getReturnId())
-                        .set(WkfSupplyRequest::getStatusEnum, "CONFIRMED")
-                        .set(WkfSupplyRequest::getApproverId, dto.getOperator())
-                        .set(WkfSupplyRequest::getApprovalTime, LocalDateTime.now())
+        if (dto.getItemIds() == null || dto.getItemIds().isEmpty()) {
+            return;
+        }
+        // 1. 查询勾选的退药明细记录
+        List<MedMedicationDispense> returnItems = medicationDispenseMapper.selectList(
+                new LambdaQueryWrapper<MedMedicationDispense>()
+                        .in(MedMedicationDispense::getId, dto.getItemIds())
+                        .eq(MedMedicationDispense::getStatusEnum, "PENDING")
         );
-
-        // 2. 对勾选的药品回补库存
-        if (dto.getItemIds() != null && !dto.getItemIds().isEmpty()) {
-            List<WkfSupplyDelivery> returnItems = wkfSupplyDeliveryMapper.selectList(
-                    new LambdaQueryWrapper<WkfSupplyDelivery>()
-                            .in(WkfSupplyDelivery::getId, dto.getItemIds())
+        // 2. 逐条更新状态为已退药，并回补库存
+        for (MedMedicationDispense item : returnItems) {
+            medicationDispenseMapper.update(null,
+                    new LambdaUpdateWrapper<MedMedicationDispense>()
+                            .eq(MedMedicationDispense::getId, item.getId())
+                            .set(MedMedicationDispense::getStatusEnum, "REFUNDED")
+                            .set(MedMedicationDispense::getDispenseTime, LocalDateTime.now())
+                            .set(MedMedicationDispense::getPractitionerId, dto.getOperator())
             );
-            for (WkfSupplyDelivery item : returnItems) {
-                // 查询库存：根据物品表名和物品标识查找库存记录
-                WkfInventoryItem stock = wkfInventoryItemMapper.selectOne(
-                        new LambdaQueryWrapper<WkfInventoryItem>()
-                                .eq(WkfInventoryItem::getItemTable, item.getItemTable())
-                                .eq(WkfInventoryItem::getItemId, item.getItemId())
+            // 回补库存：根据物品表名、物品标识和批号查找库存记录
+            InventoryItem stock = inventoryItemMapper.selectOne(
+                    new LambdaQueryWrapper<InventoryItem>()
+                            .eq(InventoryItem::getItemTable, "med_medication_definition")
+                            .eq(InventoryItem::getItemId, item.getMedicationId())
+                            .eq(InventoryItem::getLotNumber, item.getLotNumber())
+            );
+            if (stock != null) {
+                BigDecimal returnQty = item.getDispenseQuantity() != null
+                        ? item.getDispenseQuantity()
+                        : (item.getQuantity() != null ? item.getQuantity() : BigDecimal.ZERO);
+                BigDecimal newQty = (stock.getQuantity() != null ? stock.getQuantity() : BigDecimal.ZERO)
+                        .add(returnQty);
+                inventoryItemMapper.update(null,
+                        new LambdaUpdateWrapper<InventoryItem>()
+                                .eq(InventoryItem::getId, stock.getId())
+                                .set(InventoryItem::getQuantity, newQty)
                 );
-                if (stock != null) {
-                    BigDecimal newQty = (stock.getQuantity() != null ? stock.getQuantity() : BigDecimal.ZERO)
-                            .add(item.getQuantity() != null ? item.getQuantity() : BigDecimal.ZERO);
-                    wkfInventoryItemMapper.update(null,
-                            new LambdaUpdateWrapper<WkfInventoryItem>()
-                                    .eq(WkfInventoryItem::getId, stock.getId())
-                                    .set(WkfInventoryItem::getQuantity, newQty)
-                    );
-                }
             }
         }
     }
