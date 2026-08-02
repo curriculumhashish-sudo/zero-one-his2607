@@ -20,7 +20,6 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface MsTreatmentMapper {
 
-    @Mapping(target = "retailPrice", ignore = true)
     TreatmentSelectVO toSelectVO(WkfActivityDefinitionDO wkfActivityDefinitionDO);
 
     List<TreatmentSelectVO> toSelectVOList(List<WkfActivityDefinitionDO> wkfActivityDefinitionDOS);
@@ -36,14 +35,16 @@ public interface MsTreatmentMapper {
 
     List<TreatmentDTO> toDTOList(List<WkfActivityDefinitionDO> wkfActivityDefinitionDOS);
 
+    @Mappings({
+            @Mapping(target = "price", ignore = true)
+    })
     TreatmentListVO toListVO(WkfActivityDefinitionDO wkfActivityDefinitionDO);
 
     List<TreatmentListVO> toListVOList(List<WkfActivityDefinitionDO> wkfActivityDefinitionDOS);
 
     @Mappings({
-            @Mapping(source = "isDeleted", target = "deleteFlag"),
-            @Mapping(target = "itemTypeCode", ignore = true),
             @Mapping(target = "ybType", ignore = true),
+            @Mapping(target = "itemTypeCode", ignore = true),
             @Mapping(target = "purchasePrice", ignore = true),
             @Mapping(target = "retailPrice", ignore = true),
             @Mapping(target = "maximumRetailPrice", ignore = true),
@@ -66,7 +67,8 @@ public interface MsTreatmentMapper {
             @Mapping(target = "deletedAt", ignore = true),
             @Mapping(target = "deletedBy", ignore = true),
             @Mapping(target = "version", ignore = true),
-            @Mapping(target = "childrenJson", ignore = true)
+            @Mapping(target = "childrenJson", ignore = true),
+            @Mapping(target = "typeEnum", ignore = true)
     })
     WkfActivityDefinitionDO addDtoToEntity(TreatmentAddDTO dto);
 
@@ -80,7 +82,8 @@ public interface MsTreatmentMapper {
             @Mapping(target = "deletedAt", ignore = true),
             @Mapping(target = "deletedBy", ignore = true),
             @Mapping(target = "version", ignore = true),
-            @Mapping(target = "childrenJson", ignore = true)
+            @Mapping(target = "childrenJson", ignore = true),
+            @Mapping(target = "typeEnum", ignore = true)
     })
     WkfActivityDefinitionDO editDtoToEntity(TreatmentEditDTO dto);
 
@@ -94,7 +97,8 @@ public interface MsTreatmentMapper {
             @Mapping(target = "deletedAt", ignore = true),
             @Mapping(target = "deletedBy", ignore = true),
             @Mapping(target = "version", ignore = true),
-            @Mapping(target = "childrenJson", ignore = true)
+            @Mapping(target = "childrenJson", ignore = true),
+            @Mapping(target = "typeEnum", ignore = true)
     })
     WkfActivityDefinitionDO updateDtoToEntity(TreatmentUpdateDTO dto);
 }

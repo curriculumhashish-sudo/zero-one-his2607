@@ -7,59 +7,50 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
- * 诊疗项目列表显示对象
+ * 【前端对接说明 - 诊疗列表】
  *
- * 【前端对接说明】
- * 1. 本对象用于诊疗项目管理页面的列表展示，包含列表页所需的核心字段
- * 2. 编码类字段（categoryCode/statusEnum/typeEnum）后端仅返回原始编码值，前端需自行字典翻译
- * 3. 编码对照表与TreatmentDetailVO保持一致，建议前端复用同一套字典映射
- * 4. price字段为项目零售价，单位为「元」，保留2位小数
+ * === 用途 ===
+ * 本VO用于「诊疗项目管理」列表页的分页查询结果展示，对应 GET /treatment/query-treatment-list 接口。
+ *
+ * === 列表页表格列 ===
+ * ┌──────────┬──────────────┬──────────────────────────────────────────────────────┐
+ * │ 前端列名  │ 字段名        │ 说明                                                 │
+ * ├──────────┼──────────────┼──────────────────────────────────────────────────────┤
+ * │ 诊疗名称  │ name          │ 点击可跳转到详情页/编辑页，传id参数                   │
+ * │ 业务类型  │ typeEnum      │ 字符串枚举翻译："1"=检验/"2"=检查/"3"=护理/"4"=手术/"5"=其他 │
+ * │ 状态      │ statusEnum    │ 字符串枚举翻译+颜色标签：                               │
+ * │          │              │   "DRAFT"=草稿(灰色) / "ACTIVE"=已启用(绿色) / "INACTIVE"=已停用(橙色) / "DISCARDED"=已废弃(红色) │
+ * │ 价格      │ price         │ 零售价，单位元，保留2位小数，格式化为¥xx.xx展示        │
+ * │ (操作列)  │ -             │ 编辑、停用/启用、删除按钮，使用id调用对应接口          │
+ * └──────────┴──────────────┴──────────────────────────────────────────────────────┘
+ *
+ * === 注意事项 ===
+ * 1. typeEnum 和 statusEnum 返回数据库原始字符串值，与数据库varchar类型一致，前端自行做枚举翻译。
+ * 2. price 字段是零售价（SALE类型价格），未设置价格时返回null，前端展示为"--"或"待定价"。
+ * 3. 点击行名称跳转详情页：/treatment/detail?id={id}，调用 get-treatment 接口获取完整数据。
+ * 4. 列表页支持按关键词（名称/编码）搜索和按目录分类筛选，筛选条件通过TreatmentQuery传入。
+ *
+ * @author j4组-treatment模块
+ * @version 1.0.0
  */
 @Data
-@Schema(description = "诊疗项目列表显示对象")
+@Schema(description = "诊疗项目列表显示对象（管理列表分页查询结果）")
 public class TreatmentListVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "主键(编码)", example = "123456789", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "诊疗项目主键ID（点击行名称跳转详情/编辑时使用）", example = "323001764504670208", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
-    @Schema(description = "项目名称", example = "血常规检查", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "诊疗项目名称（列表主列，可点击跳转详情）", example = "静脉注射", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
 
-    @Schema(description = "业务编码", example = "AD00000001")
-    private String busNo;
-
-    /**
-     * 【前端需字典翻译】目录分类编码
-     * 后端返回编码值，前端需根据编码维护枚举/字典映射为中文显示，不直接显示编码。
-     * 编码对照表（参考后端术语表 ter_concept，code_system_id=255）：
-     * 21=治疗, 22=检验, 23=检查, 24=手术, 25=麻醉, 26=护理级别, 27=膳食, 28=输血, 29=输氧,
-     * 31=其他, 32=转科, 33=术后, 34=出院, 35=转院, 36=死亡, 37=产后, 38=病情, 39=护理常规,
-     * 40=体位, 41=陪护, 42=隔离等级, 43=口腔检查, 44=内镜检查, 45=内镜治疗, 46=基础服务,
-     * 47=诊断费, 48=预防接种手续费, 49=口腔治疗, 50=护理项目, 51=床位服务
-     */
-    @Schema(description = "目录分类编码，前端需字典翻译：21=治疗/22=检验/23=检查/24=手术/25=麻醉/26=护理级别/27=膳食/28=输血/29=输氧/31=其他/32=转科/33=术后/34=出院/35=转院/36=死亡/37=产后/38=病情/39=护理常规/40=体位/41=陪护/42=隔离等级/43=口腔检查/44=内镜检查/45=内镜治疗/46=基础服务/47=诊断费/48=预防接种手续费/49=口腔治疗/50=护理项目/51=床位服务", example = "22")
-    private String categoryCode;
-
-    /**
-     * 【前端需字典翻译】发布状态
-     * 后端返回字符串枚举编码，前端需维护枚举映射为中文显示。
-     * 编码对照表（参考后端枚举 PublicationStatus）：
-     * DRAFT=草稿, ACTIVE=已启用, INACTIVE=已停用, DISCARDED=已废弃
-     */
-    @Schema(description = "发布状态，前端需字典翻译：DRAFT=草稿/ACTIVE=已启用/INACTIVE=已停用/DISCARDED=已废弃", example = "ACTIVE", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "发布状态（字符串枚举+颜色标签）：DRAFT=草稿(灰)/ACTIVE=已启用(绿)/INACTIVE=已停用(橙)/DISCARDED=已废弃(红)", example = "ACTIVE", requiredMode = Schema.RequiredMode.REQUIRED)
     private String statusEnum;
 
-    /**
-     * 【前端需字典翻译】业务类型编码
-     * 后端返回字符串编码，前端需维护枚举映射为中文显示。
-     * 编码对照表（参考后端枚举 ActivityType）：
-     * 1=检验, 2=检查, 3=护理, 4=手术, 5=其他
-     */
-    @Schema(description = "业务类型编码，前端需字典翻译：1=检验/2=检查/3=护理/4=手术/5=其他", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "业务类型（字符串枚举翻译）：1=检验/2=检查/3=护理/4=手术/5=其他", example = "5", requiredMode = Schema.RequiredMode.REQUIRED)
     private String typeEnum;
 
-    @Schema(description = "零售价格(元)", example = "35.00")
+    @Schema(description = "零售价（单位：元，保留2位小数，未设置时为null展示--）", example = "6.00")
     private BigDecimal price;
 }
