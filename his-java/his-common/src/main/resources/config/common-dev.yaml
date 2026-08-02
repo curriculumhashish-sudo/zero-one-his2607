@@ -3,17 +3,17 @@ spring:
   #https://github.com/alibaba/spring-cloud-alibaba/blob/2025.0.x/spring-cloud-alibaba-examples/nacos-example/readme-zh.md
   cloud:
     nacos:
-      server-addr: ${NACOS_SERVER_ADDR:192.168.6.100:8848}
-      username: ${NACOS_USERNAME:nacos}
-      password: ${NACOS_PASSWORD:root}
+      server-addr: ${NACOS_SERVER_ADDR:${SPRING_CLOUD_NACOS_SERVER_ADDR:192.168.40.131:8848}}
+      username: ${NACOS_USERNAME:${SPRING_CLOUD_NACOS_USERNAME:nacos}}
+      password: ${NACOS_PASSWORD:${SPRING_CLOUD_NACOS_PASSWORD:nacos}}
       discovery:
         namespace: his-dev
-        username: ${NACOS_USERNAME:nacos}
-        password: ${NACOS_PASSWORD:root}
+        username: ${NACOS_USERNAME:${SPRING_CLOUD_NACOS_USERNAME:nacos}}
+        password: ${NACOS_PASSWORD:${SPRING_CLOUD_NACOS_PASSWORD:nacos}}
       config:
         namespace: his-dev
-        username: ${NACOS_USERNAME:nacos}
-        password: ${NACOS_PASSWORD:root}
+        username: ${NACOS_USERNAME:${SPRING_CLOUD_NACOS_USERNAME:nacos}}
+        password: ${NACOS_PASSWORD:${SPRING_CLOUD_NACOS_PASSWORD:nacos}}
     sentinel:
       transport:
         #本机的IP地址，客户端给sentinel监控使用，不配置可能会识别成其他网卡的ip导致错误
@@ -21,9 +21,9 @@ spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${MYSQL_URL:jdbc:mysql://127.0.0.1:3306/zo_his?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true}
-    username: ${MYSQL_USERNAME:root}
-    password: ${MYSQL_PASSWORD:123456}
+    url: ${SPRING_DATASOURCE_URL:${MYSQL_URL:jdbc:mysql://192.168.40.131:3306/zo_his?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true}}
+    username: ${SPRING_DATASOURCE_USERNAME:${MYSQL_USERNAME:root}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${MYSQL_PASSWORD:123456}}
     druid:
       name: DruidDataSource
       initial-size: 1

@@ -12,7 +12,8 @@ import org.springframework.context.annotation.Configuration;
 import java.time.LocalDateTime;
 
 @Configuration
-@ComponentScan("com.zeroone.star.project.config.mybatis")
+// 扫描 his-common 公共配置（MyBatis-Plus + Redis 序列化等），RedisConfig 提供字符串序列化的 RedisTemplate 供 UserHolder 读取租户上下文
+@ComponentScan({"com.zeroone.star.project.config.mybatis", "com.zeroone.star.project.config.redis"})
 @MapperScan("com.zeroone.star.j3.register.mapper")
 public class MyBatisInit {
     @Resource

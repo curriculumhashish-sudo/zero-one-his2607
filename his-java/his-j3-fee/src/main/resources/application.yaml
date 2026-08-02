@@ -1,28 +1,14 @@
 server:
-  port: ${sp.j3-fee:10205}
+  port: ${sp.j3-fee:10202}
   servlet:
     context-path: /j3-basedata
   address: 0.0.0.0
 
 spring:
   application:
-    name: ${sn.j3-fee:his-j3-fee}
+    name: ${sn.j3-fee:his-j3-department}
   cloud:
     nacos:
       discovery:
-        server-addr: ${NACOS_SERVER_ADDR:192.168.40.131:8848}
         register-enabled: ${NACOS_REGISTER_ENABLED:true}
-      config:
-        server-addr: ${NACOS_SERVER_ADDR:192.168.40.131:8848}
-        file-extension: yaml
-        enabled: true
-  datasource:
-    url: jdbc:mysql://192.168.150.101:3306/his_j3_fee?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
-    username: root
-    password: tz
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    type: com.alibaba.druid.pool.DruidDataSource
-    druid:
-      max-active: 20
-      min-idle: 5
-      initial-size: 5
+

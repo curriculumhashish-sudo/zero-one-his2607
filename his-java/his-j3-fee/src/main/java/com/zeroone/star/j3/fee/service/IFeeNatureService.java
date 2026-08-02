@@ -2,6 +2,7 @@ package com.zeroone.star.j3.fee.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zeroone.star.j3.fee.entity.FeeNature;
+import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j3.fee.FeeNatureDTO;
 import com.zeroone.star.project.query.j3.fee.FeeNatureQuery;
 import com.zeroone.star.project.vo.j3.fee.FeeNatureVO;
@@ -21,9 +22,9 @@ public interface IFeeNatureService extends IService<FeeNature> {
     /**
      * 分页查询费用性质
      * @param query 查询条件（含分页、关键词）
-     * @return 费用性质列表
+     * @return 分页结果（含 total、pages、rows）
      */
-    List<FeeNatureVO> listFeeNatures(FeeNatureQuery query);
+    PageDTO<FeeNatureVO> listFeeNatures(FeeNatureQuery query);
 
     /**
      * 修改费用性质

@@ -63,7 +63,7 @@ public class SupplierFullDTO implements Serializable {
     @Schema(description = "名称", example = "华润医药集团有限公司", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
 
-    @Schema(description = "类型枚举值", example = "ENTERPRISE", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "类型枚举值", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private String typeEnum;
 
     @Schema(description = "统一社会信用代码", example = "91110000100000XXXX", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -93,13 +93,13 @@ public class SupplierFullDTO implements Serializable {
     @Schema(description = "银行账户", example = "6222000000000000000")
     private String bankAccount;
 
-    @Schema(description = "机构标识", example = "ORG001", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "机构标识", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private String orgId;
 
     @Schema(description = "显示顺序", example = "1")
     private Integer displayOrder;
 
-    @Schema(description = "状态枚举值（ENABLED-启用/DISABLED-停用）", example = "ENABLED", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "状态枚举值（ACTIVE-启用/INACTIVE-停用）", example = "ACTIVE", requiredMode = Schema.RequiredMode.REQUIRED)
     private String statusEnum;
 
     @Schema(description = "备注说明", example = "优质供应商，年合作额超百万")

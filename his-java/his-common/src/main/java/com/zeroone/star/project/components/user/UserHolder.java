@@ -6,8 +6,7 @@ import com.zeroone.star.project.components.jwt.JwtComponent;
 import com.zeroone.star.project.constant.RedisConstant;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -25,11 +24,22 @@ import org.yaml.snakeyaml.util.UriEncoder;
  */
 @Component
 public class UserHolder {
-    @Resource
-    JwtComponent jwtComponent;
+    private static final String LOCAL_TEST_USER_ID = "1";
+    private static final String LOCAL_TEST_TENANT_ID = "1";
+
+    @Value("${spring.application.name:}")
+    private String applicationName;
+
+    @Value("${j3.auth-bypass.enabled:true}")
+    private boolean j3AuthBypassEnabled;
 
     @Resource
+    JwtComponent jwtComponent;
+    @Resource
     ApplicationContext applicationContext;
+
+    @Resource
+    JdbcTemplate jdbcTemplate;
 
     /**
      * 从请求头中获取用户信息
@@ -38,6 +48,12 @@ public class UserHolder {
      */
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     public UserDTO getCurrentUser() throws Exception {
+        if (isJ3AuthBypassEnabled()) {
+            JSONObject userJsonObject = new JSONObject();
+            fillLocalTestUser(userJsonObject);
+            return buildUserDto(userJsonObject);
+        }
+
         // 从Header中获取用户信息
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = servletRequestAttributes.getRequest();
@@ -68,6 +84,10 @@ public class UserHolder {
 //        userJsonObject.putOnce("authorities", roles);
 
         // FIXME: 如果要扩展用户信息，需要修改这里的代码
+        return buildUserDto(userJsonObject);
+    }
+
+    private UserDTO buildUserDto(JSONObject userJsonObject) {
         return UserDTO.builder()
                 .id(Convert.toStr(userJsonObject.get("id")))
                 .username(userJsonObject.getStr("sub"))
@@ -81,6 +101,10 @@ public class UserHolder {
      * @return 没有获取到返回null
      */
     public String getCurrentToken() {
+        if (isJ3AuthBypassEnabled()) {
+            return null;
+        }
+
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = servletRequestAttributes.getRequest();
         String token = request.getHeader("Authorization");
@@ -91,52 +115,24 @@ public class UserHolder {
     }
 
     /**
-     * 获取当前用户选择的租户ID
-     * @return 当前租户ID
+     * 获取当前登录用户的租户ID
+     * 通过用户ID查询 whale_user_tenants 表获取租户关联
+     * @return 租户ID，未找到返回null
      */
-    public String getCurrentTenantId() {
+    public Long getCurrentTenantId() {
         try {
             UserDTO currentUser = getCurrentUser();
             if (currentUser == null || !StringUtils.hasText(currentUser.getId())) {
-                throw new IllegalStateException("无法获取当前用户ID");
+                return null;
             }
-            if (applicationContext == null) {
-                throw new IllegalStateException("RedisTemplate未初始化，无法获取当前租户ID");
+            String sql = "SELECT tenant_id FROM whale_user_tenants WHERE user_id = ? AND is_deleted = 0 LIMIT 1";
+            String tenantId = jdbcTemplate.queryForObject(sql, String.class, currentUser.getId());
+            if (!StringUtils.hasText(tenantId)) {
+                return null;
             }
-
-            String userId = currentUser.getId();
-            Object tenantId = getRedisHashValue(
-                    RedisConstant.LOGIN_CONTEXT_PREFIX + userId,
-                    RedisConstant.LOGIN_CONTEXT_TENANT_ID_FIELD
-            );
-            if (tenantId == null) {
-                tenantId = getRedisHashValue(
-                        RedisConstant.USER_SESSION_PREFIX + userId,
-                        RedisConstant.USER_SESSION_TENANT_ID_FIELD
-                );
-            }
-            if (tenantId == null || !StringUtils.hasText(tenantId.toString())) {
-                throw new IllegalStateException("未找到当前用户的租户ID");
-            }
-            return tenantId.toString();
-        } catch (RuntimeException e) {
-            throw e;
+            return Long.valueOf(tenantId);
         } catch (Exception e) {
-            throw new IllegalStateException("获取当前租户ID失败", e);
-        }
-    }
-
-    private Object getRedisHashValue(String key, String field) {
-        try {
-            Object redisTemplate = applicationContext.getBean("redisTemplate");
-            Class<?> redisOperationsClass = Class.forName("org.springframework.data.redis.core.RedisOperations");
-            Class<?> hashOperationsClass = Class.forName("org.springframework.data.redis.core.HashOperations");
-            Object hashOperations = redisOperationsClass.getMethod("opsForHash").invoke(redisTemplate);
-            return hashOperationsClass.getMethod("get", Object.class, Object.class).invoke(hashOperations, key, field);
-        } catch (BeansException e) {
-            throw new IllegalStateException("RedisTemplate未初始化，无法获取当前租户ID", e);
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("获取当前租户ID失败", e);
+            return null;
         }
     }
 }

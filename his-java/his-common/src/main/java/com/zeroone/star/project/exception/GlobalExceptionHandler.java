@@ -1,6 +1,7 @@
 package com.zeroone.star.project.exception;
 
 import com.zeroone.star.project.enums.ResultStatus;
+import com.zeroone.star.project.exception.j3.department.BusinessException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Path;
@@ -23,6 +24,7 @@ import java.util.stream.StreamSupport;
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
+ *
  * @author 阿伟学长
  * @version 1.0.0
  */
@@ -35,20 +37,8 @@ public class GlobalExceptionHandler {
     private EhResultWrapper wrapper;
 
     /**
-     * 系统通用异常处理
-     * @param e 异常数据对象
-     * @return 返回异常信息回显数据
-     */
-    @ExceptionHandler(value = Exception.class)
-    public Object exceptionHandler(Exception e) {
-        if (e instanceof HttpMediaTypeException) {
-            return wrapper.getResult(e.getMessage(), ResultStatus.CONTENT_TYPE_ERR);
-        }
-        return wrapper.getResult(e.getMessage(), ResultStatus.SERVER_ERROR);
-    }
-
-    /**
      * requestBody参数校验异常处理
+     *
      * @param e 异常数据对象
      * @return 返回异常信息回显数据
      */
@@ -69,6 +59,7 @@ public class GlobalExceptionHandler {
 
     /**
      * requestParam参数校验异常处理
+     *
      * @param e 异常数据对象
      * @return 返回异常信息回显数据
      */
@@ -89,5 +80,35 @@ public class GlobalExceptionHandler {
             msg = "参数值缺失";
         }
         return wrapper.getResult("[" + field + "]" + msg, ResultStatus.PARAMS_INVALID);
+    }
+
+    /**
+     * 业务异常处理
+     *
+     * @param e 异常数据对象
+     * @return 返回异常信息回显数据
+     */
+    @ExceptionHandler(BusinessException.class)
+    public Object businessExceptionHandler(BusinessException e) {
+        int code = e.getCode();
+        ResultStatus status = ResultStatus.fromCode(code);
+        if (status == null) {
+            status = ResultStatus.FAIL;
+        }
+        return wrapper.getResult(e.getMessage(), status);
+    }
+
+    /**
+     * 系统通用异常处理
+     *
+     * @param e 异常数据对象
+     * @return 返回异常信息回显数据
+     */
+    @ExceptionHandler(value = Exception.class)
+    public Object exceptionHandler(Exception e) {
+        if (e instanceof HttpMediaTypeException) {
+            return wrapper.getResult(e.getMessage(), ResultStatus.CONTENT_TYPE_ERR);
+        }
+        return wrapper.getResult(e.getMessage(), ResultStatus.SERVER_ERROR);
     }
 }
