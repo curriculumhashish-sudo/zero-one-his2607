@@ -1,6 +1,7 @@
 package com.zeroone.star.project.j7;
 
 import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j7.dispense.DispenseRejectDTO;
 import com.zeroone.star.project.dto.j7.pharmacy.*;
 import com.zeroone.star.project.dto.j7.pharmacy.approval.ApproveDTO;
 import com.zeroone.star.project.dto.j7.pharmacy.approval.OperatorDTO;
@@ -117,7 +118,7 @@ public interface PharmacyApis {
          * @param dto 驳回参数
          * @return 操作结果
          */
-        JsonVO<String> rejectDispensing(DispensingRejectDTO dto);
+        JsonVO<String> rejectDispensing(DispenseRejectDTO dto);
 
         // ==================== 住院退药确认 ====================
 
