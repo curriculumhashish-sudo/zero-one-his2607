@@ -45,13 +45,13 @@ public class MedMedicationRequestDO implements Serializable {
      * 创建时间
      */
     @TableField(value = "created_at",fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
+    private LocalDateTime createdAt;
 
     /**
      * 最后更新时间
      */
-    @TableField(value = "updated_at",fill = FieldFill.INSERT)
-    private LocalDateTime updateTime;
+    @TableField(value = "updated_at",fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updatedAt;
 
     /**
      * 创建人
