@@ -1,27 +1,13 @@
 spring:
   datasource:
-<<<<<<< HEAD
-<<<<<<< HEAD
-    url: jdbc:mysql://192.168.28.132:3306/test?useUnicode=true&useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    username: root
-    password: 123456
-=======
     url: jdbc:mysql://127.0.0.1:3306/test?useUnicode=true&useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-=======
-    url: jdbc:mysql://127.0.0.1:3306/zo_his?useUnicode=true&useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
->>>>>>> 8a4bf5011b98f94f33b1d8e21e7d7e9cefce05db
     username: root
     password: 061208
->>>>>>> 29e277be45e89526e4fb67cd3f10e4bac478e7d3
     druid:
      max-active: 5
   data:
     redis:
-<<<<<<< HEAD
       host: 192.168.28.132
-=======
-      host: 192.168.122.138
->>>>>>> 29e277be45e89526e4fb67cd3f10e4bac478e7d3
       port: 6379
       password: 01star
     mongodb:

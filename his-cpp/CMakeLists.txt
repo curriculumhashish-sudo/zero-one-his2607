@@ -163,10 +163,6 @@ add_subdirectory ("lib-common")
 if(UNIX)
 	add_subdirectory ("nacos-register")
 endif()
-<<<<<<< HEAD
-# 在后面添加你的模块
-=======
 
 add_subdirectory ("his-c1-charging")
->>>>>>> 29e277be45e89526e4fb67cd3f10e4bac478e7d3
 add_subdirectory ("his-c1-form")
