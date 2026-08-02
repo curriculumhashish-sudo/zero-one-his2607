@@ -22,7 +22,7 @@
 
 #include "../DoInclude.h"
 
-// RefundConfirmPrint data object ¡ª print confirmation record
+// RefundConfirmPrint data object â€” print confirmation record
 class RefundConfirmPrintDO : public BaseDO
 {
     // Print job trace ID

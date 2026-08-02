@@ -2,7 +2,7 @@
  Copyright Zero One Star. All rights reserved.
 
  @Author: xbzml
- @Date: 2026/07/20 00:00:00
+ @Date: 2026/07/26 00:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -18,8 +18,15 @@
 */
 #include "stdafx.h"
 #include "RefundPreparePrintController.h"
+#include "../../service/refund/RefundPreparePrintService.h"
 
+// Handle GET /charging/refund/prepare-print
+// Returns print template for refund receipt
 RefundPreparePrintJsonVO::Wrapper RefundPreparePrintController::execQueryAll(const RefundPreparePrintQuery::Wrapper& query)
 {
-    return {};
+    auto vo = RefundPreparePrintJsonVO::createShared();
+    RefundPreparePrintService service;
+    auto dto = service.prepare(query);
+    vo->success(dto);
+    return vo;
 }

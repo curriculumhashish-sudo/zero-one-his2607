@@ -2,7 +2,7 @@
  Copyright Zero One Star. All rights reserved.
 
  @Author: xbzml
- @Date: 2026/07/20 00:00:00
+ @Date: 2026/07/26 00:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -18,9 +18,16 @@
 */
 #include "stdafx.h"
 #include "RefundGetPatientController.h"
+#include "../../service/refund/RefundGetPatientService.h"
 
-// Stub implementation — returns empty response until Service layer is wired
+// Handle GET /charging/refund/get-patient-list
+// Delegates to Service layer and wraps result in JsonVO response envelope
 RefundGetPatientPageJsonVO::Wrapper RefundGetPatientController::execQueryAll(const RefundGetPatientQuery::Wrapper& query)
 {
-    return {};
+    // Create VO and fill with page data from service
+    auto vo = RefundGetPatientPageJsonVO::createShared();
+    RefundGetPatientService service;
+    auto pageDTO = service.listAll(query);
+    vo->success(pageDTO);
+    return vo;
 }
