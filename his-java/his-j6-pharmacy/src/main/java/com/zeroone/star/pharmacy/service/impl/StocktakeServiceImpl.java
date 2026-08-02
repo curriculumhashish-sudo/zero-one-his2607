@@ -36,8 +36,8 @@ import java.util.concurrent.ThreadLocalRandom;
 @Service
 public class StocktakeServiceImpl implements IStocktakeService {
 
-    private static final String TYPE_WAREHOUSE_STOCKTAKE = "WAREHOUSE_STOCKTAKE";
-    private static final String STATUS_SUBMITTED = "SUBMITTED";
+    private static final String TYPE_WAREHOUSE_STOCKTAKE = "PHARMACY_STOCKTAKE";
+    private static final String STATUS_DRAFT = "DRAFT";
     private static final String STATUS_PENDING_APPROVAL = "PENDING_APPROVAL";
 
     @Resource
@@ -101,7 +101,7 @@ public class StocktakeServiceImpl implements IStocktakeService {
             row.setId(UUID.randomUUID().toString().replace("-",""));
             row.setBusNo(busNo);
             row.setTypeEnum(TYPE_WAREHOUSE_STOCKTAKE);
-            row.setStatusEnum(STATUS_PENDING_APPROVAL);
+            row.setStatusEnum(STATUS_DRAFT);
             row.setCategoryEnum(dto.getCategoryEnum());
             row.setPurposeLocationId(dto.getPurposeLocationId());
             row.setPractitionerId(dto.getPractitionerId());
@@ -128,7 +128,7 @@ public class StocktakeServiceImpl implements IStocktakeService {
         }
         StocktakeDetailVO vo =  new StocktakeDetailVO();
         vo.setBusNo(busNo);
-        vo.setStatusEnum(STATUS_PENDING_APPROVAL);
+        vo.setStatusEnum(STATUS_DRAFT);
         vo.setPurposeLocationId(dto.getPurposeLocationId());
         vo.setPurposeLocationName(location.getName());
         vo.setPractitionerId(dto.getPractitionerId());
@@ -186,9 +186,12 @@ public class StocktakeServiceImpl implements IStocktakeService {
             throw new IllegalArgumentException("盘点单不存在:" + busNo);
         }
         String currentStatus = existingRows.get(0).getStatusEnum();
-        if(!STATUS_PENDING_APPROVAL.equals(currentStatus)){
+        if(!STATUS_DRAFT.equals(currentStatus)){
             throw new IllegalArgumentException("当前状态不允许编辑，当前状态: " + currentStatus);
         }
+
+        // 保持当前状态不变（保存不改变状态）
+        String targetStatus = currentStatus;
 
         // --- 明细行字段校验（已实现） ---
         assertStocktakeLinesFields(dto.getLines());
@@ -265,7 +268,7 @@ public class StocktakeServiceImpl implements IStocktakeService {
             row.setId(UUID.randomUUID().toString().replace("-", ""));
             row.setBusNo(busNo);
             row.setTypeEnum(TYPE_WAREHOUSE_STOCKTAKE);
-            row.setStatusEnum(STATUS_PENDING_APPROVAL);
+            row.setStatusEnum(targetStatus);
             row.setCategoryEnum(dto.getCategoryEnum());
             row.setPurposeLocationId(dto.getPurposeLocationId());
             row.setPractitionerId(dto.getPractitionerId());
@@ -295,7 +298,7 @@ public class StocktakeServiceImpl implements IStocktakeService {
         // --- 组装 VO ---
         StocktakeDetailVO vo = new StocktakeDetailVO();
         vo.setBusNo(busNo);
-        vo.setStatusEnum(STATUS_PENDING_APPROVAL);
+        vo.setStatusEnum(targetStatus);
         vo.setPurposeLocationId(dto.getPurposeLocationId());
         if (StringUtils.hasText(dto.getPurposeLocationId())) {
             AdmLocation loc = locationMapper.selectById(dto.getPurposeLocationId());
@@ -335,7 +338,7 @@ public class StocktakeServiceImpl implements IStocktakeService {
         updateWrapper.eq("bus_no", busNo);
         updateWrapper.eq("type_enum", TYPE_WAREHOUSE_STOCKTAKE);
         updateWrapper.eq("is_deleted", 0);
-        updateWrapper.set("status_enum", STATUS_SUBMITTED);
+        updateWrapper.set("status_enum", STATUS_PENDING_APPROVAL);
         updateWrapper.set("applicant_id", userId);
         updateWrapper.set("apply_time", now);
         updateWrapper.set("updated_at", now);
@@ -346,7 +349,7 @@ public class StocktakeServiceImpl implements IStocktakeService {
         }
 
         // --- 更新 VO 状态 ---
-        vo.setStatusEnum(STATUS_SUBMITTED);
+        vo.setStatusEnum(STATUS_PENDING_APPROVAL);
         vo.setApplicantId(userId);
         vo.setApplyTime(now);
         return vo;

@@ -148,6 +148,7 @@
             ON tc.sort_order = m.purchase_unit_code
             AND tc.code_system_id = 900002
         WHERE sr.bus_no = #{busNo}
+          AND sr.is_deleted = 0
         ORDER BY sr.id ASC
     </select>
 

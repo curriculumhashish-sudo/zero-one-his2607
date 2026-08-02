@@ -23,7 +23,7 @@ public class StocktakeSaveDTO {
     @Schema(description = "盘点人ID", example = "322733572165734400")
     private String practitionerId;
 
-    @Schema(description = "单据类型枚举", requiredMode = Schema.RequiredMode.REQUIRED, example = "WAREHOUSE_STOCKTAKE")
+    @Schema(description = "单据类型枚举（盘点单固定为 PHARMACY_STOCKTAKE）", requiredMode = Schema.RequiredMode.REQUIRED, example = "PHARMACY_STOCKTAKE")
     private String categoryEnum;
 
     // ==================== 明细行 ====================

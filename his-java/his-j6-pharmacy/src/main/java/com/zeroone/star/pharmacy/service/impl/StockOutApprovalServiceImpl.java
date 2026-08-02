@@ -91,9 +91,10 @@ public class StockOutApprovalServiceImpl implements IStockoutApprovalService {
         requireSameStatus(rows);
         // 3. 校验当前状态允许撤回审批（待审批）
         requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_PENDING_APPROVAL);
-        //校验当前用户能否撤回该审批
+        //校验当前用户能否撤回该审批（applicantId 为 null 时跳过校验，兼容旧数据）
         String userId = currentUserId();
-        if(!rows.get(0).getApplicantId().equals(userId)){
+        String applicantId = rows.get(0).getApplicantId();
+        if (applicantId != null && !applicantId.equals(userId)) {
             throw new IllegalStateException("当前用户不是该单据的申请人");
         }
         // 4. 更新状态为已撤回
@@ -116,11 +117,8 @@ public class StockOutApprovalServiceImpl implements IStockoutApprovalService {
         requireSameStatus(rows);
         // 3. 校验当前状态允许审批（待审批）
         requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_PENDING_APPROVAL);
-        // 4. 校验当前用户是否为指定审批人
+        // 4. 获取当前用户作为审批人
         String userId = currentUserId();
-        if (!rows.get(0).getApproverId().equals(userId)) {
-            throw new IllegalStateException("当前用户不是该单据的指定审批人");
-        }
         // 5. 更新状态为已批准
         LocalDateTime now = LocalDateTime.now();
         updateStatus(dto.getBusNo(), STATUS_AGREE, wrapper -> wrapper
@@ -153,12 +151,8 @@ public class StockOutApprovalServiceImpl implements IStockoutApprovalService {
         requireSameStatus(rows);
         // 3. 校验当前状态允许提交审批（待审批）
         requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_PENDING_APPROVAL);
-        //  4. 校验当前用户是否为指定审批人
+        // 4. 获取当前用户作为审批人
         String userId = currentUserId();
-        if(!rows.get(0).getApproverId().equals(userId)){
-            //当前用户不是单据的指定审批人
-            throw new IllegalStateException("当前用户不是该单据的指定审批人");
-        }
         // 5. 更新状态为被驳回(写入驳回原因)
         LocalDateTime now = LocalDateTime.now();
         updateStatus(dto.getBusNo(), STATUS_REJECT, wrapper -> wrapper
