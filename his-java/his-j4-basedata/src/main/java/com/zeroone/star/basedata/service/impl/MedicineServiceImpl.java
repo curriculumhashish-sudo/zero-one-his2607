@@ -21,14 +21,11 @@ import com.zeroone.star.basedata.mapper.MedMedicationDefinitionMapper;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.query.j4.medicine.MedicinePageQuery;
 import com.zeroone.star.project.query.j4.medicine.MedicineSelectPageQuery;
-import com.zeroone.star.project.vo.j4.medicine.MedicineAddVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineListVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineSelectVO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -95,7 +92,7 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public MedicineAddVO addMedicine(MedicineAddDTO dto) {
+    public MedicineListVO addMedicine(MedicineAddDTO dto) {
         validatePrice(dto);
         validateInventoryRange(dto);
 
@@ -119,7 +116,9 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
             savePrice(medicine, dto, PRICE_TYPE_MAX_RETAIL, dto.getMaximumRetailPrice(), now);
         }
 
-        return msMedicineMapper.entityToAddVO(medicine);
+        MedicineListVO vo = msMedicineMapper.entityToListVO(medicine);
+        vo.setRetailPrice(dto.getRetailPrice());
+        return vo;
     }
 
     /**
@@ -134,13 +133,9 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
         medicine.setVersion(0);
         medicine.setOrgId(TEMP_ORG_ID);
 
-        if (!StringUtils.hasText(medicine.getStatusEnum())) {
-            medicine.setStatusEnum(STATUS_ACTIVE);
-        }
-
-        if (medicine.getActiveFlag() == null) {
-            medicine.setActiveFlag(true);
-        }
+        // 新增药品统一以启用状态保存，状态不由前端传入。
+        medicine.setStatusEnum(STATUS_ACTIVE);
+        medicine.setActiveFlag(true);
     }
 
     /**
