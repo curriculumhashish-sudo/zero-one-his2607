@@ -6,28 +6,24 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class PatientConsumableDTO : public oatpp::DTO
+class PatientConsumableDTO :public oatpp::DTO
 {
 	DTO_INIT(PatientConsumableDTO, DTO);
-	// Dispense item ID (device request primary key)
-	API_DTO_FIELD_REQUIRE(String, dispenseItemId, ZH_WORDS_GETTER("patient1.field.dispenseItemId"), true);
-	// Material ID (device definition primary key)
-	API_DTO_FIELD_REQUIRE(String, materialId, ZH_WORDS_GETTER("patient1.field.materialId"), true);
-	// Material display name
-	API_DTO_FIELD_REQUIRE(String, materialName, ZH_WORDS_GETTER("patient1.field.materialName"), true);
-	// Model/specification text
-	API_DTO_FIELD_REQUIRE(String, specification, ZH_WORDS_GETTER("patient1.field.specification"), true);
-	// Quantity with unit (e.g. "2x支")
-	API_DTO_FIELD_REQUIRE(String, quantity, ZH_WORDS_GETTER("patient1.field.quantity"), true);
-	// Unit display name
-	API_DTO_FIELD_REQUIRE(String, unitName, ZH_WORDS_GETTER("patient1.field.unitName"), true);
-	// Room name (where consumable is used)
-	API_DTO_FIELD_REQUIRE(String, roomName, ZH_WORDS_GETTER("patient1.field.roomName"), true);
-	// Status enum code
-	API_DTO_FIELD_REQUIRE(String, status, ZH_WORDS_GETTER("patient1.field.status"), true);
-	// Status display name
-	API_DTO_FIELD_REQUIRE(String, statusName, ZH_WORDS_GETTER("patient1.field.statusName"), true);
+	// Consumable name
+	API_DTO_FIELD_REQUIRE(String, consumableName, ZH_WORDS_GETTER("patientconsumable1.field.consumableName"), true);
+	// Model spec
+	API_DTO_FIELD_REQUIRE(String, modelSpec, ZH_WORDS_GETTER("patientconsumable1.field.modelSpec"), true);
+	// Quantity
+	API_DTO_FIELD_REQUIRE(String, quantity, ZH_WORDS_GETTER("patientconsumable1.field.quantity"), true);
+	// Status
+	API_DTO_FIELD_REQUIRE(String, status, ZH_WORDS_GETTER("patientconsumable1.field.status"), true);
+	// Consumable room
+	API_DTO_FIELD_REQUIRE(String, consumableRoom, ZH_WORDS_GETTER("patientconsumable1.field.consumableRoom"), true);
+	// Whether empty
+	API_DTO_FIELD_REQUIRE(Int32, isEmpty, ZH_WORDS_GETTER("patientconsumable1.field.isEmpty"), true);
+	// Whether executed (checkbox, 0=unchecked, 1=checked)
+	API_DTO_FIELD_REQUIRE(Int32, isAct, ZH_WORDS_GETTER("patient1.field.act"), false);
 };
-
 #include OATPP_CODEGEN_END(DTO)
+
 #endif // !_PATIENTCONSUMABLEDTO_H_

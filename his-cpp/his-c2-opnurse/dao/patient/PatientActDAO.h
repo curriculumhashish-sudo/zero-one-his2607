@@ -24,53 +24,31 @@
 #include "domain/do/patient/ServiceRequestDO.h"
 
 /**
- * Extended result for service request query with joined display fields.
+ * ResultSet mapper for ServiceRequestDO.
  */
-struct ServiceRequestResult
-{
-	ServiceRequestDO request;
-	// Extra fields from joined tables
-	std::string requestId;
-	std::string requestTypeName;
-	std::string specification;
-	std::string statusName;
-	int plannedCount;
-	int executedCount;
-	std::string executorName;
-	std::string executedAt;
-	int version;
-	std::string printTypes;
-};
-
-/**
- * ResultSet mapper for ServiceRequestResult.
- */
-class ServiceRequestResultMapper : public Mapper<ServiceRequestResult>
+class ServiceRequestMapper : public Mapper<ServiceRequestDO>
 {
 public:
-	ServiceRequestResult mapper(ResultSet* rs) const override;
+	ServiceRequestDO mapper(ResultSet* rs) const override;
 };
 
 /**
  * DAO for querying patient service request (act) data.
+ *
+ * Note: queries are filtered by encounter_id only. The patient_id
+ * is no longer required because every encounter belongs to exactly
+ * one patient, so filtering by encounter transitively scopes the
+ * result to a single patient.
  */
 class PatientActDAO : public BaseDAO
 {
 public:
 	/*
-	 * Query service requests for a patient encounter.
-	 * @param patientId patient ID
-	 * @param encounterId encounter ID
-	 * @param categoryEnum optional category filter (e.g. skin-test)
-	 * @param statusEnum optional status filter
-	 * @return list of ServiceRequestResult
+	 * Query all service requests for an encounter.
+	 * @param encounterId encounter ID (uniquely identifies the visit)
+	 * @return list of ServiceRequestDO
 	 */
-	std::list<ServiceRequestResult> queryServiceRequests(
-		const std::string& patientId,
-		const std::string& encounterId,
-		const std::string& categoryEnum,
-		const std::string& statusEnum,
-		int performFlag = -1);
+	std::list<ServiceRequestDO> queryServiceRequests(const std::string& encounterId);
 };
 
 #endif // !_PATIENTACTDAO_H_

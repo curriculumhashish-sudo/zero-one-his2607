@@ -21,19 +21,16 @@
 #include <iomanip>
 
 oatpp::List<PatientConsumableDTO::Wrapper> PatientConsumService::queryDeviceRequests(
-	const std::string& patientId, const std::string& encounterId,
+	const std::string& encounterId,
 	const std::string& consumableRoom)
 {
 	PatientConsumDAO dao;
-	// consumableRoom maps to status_enum for filtering
-	auto results = dao.queryDeviceRequests(patientId, encounterId, consumableRoom);
+	auto results = dao.queryDeviceRequests(encounterId, consumableRoom);
 
 	auto dtos = oatpp::List<PatientConsumableDTO::Wrapper>::createShared();
 	for (auto& res : results) {
 		auto dto = PatientConsumableDTO::createShared();
-		dto->dispenseItemId = res.request.getId();
-		dto->materialId = res.request.getDeviceDefId();
-		dto->materialName = res.definition.getName();
+		dto->consumableName = res.definition.getName();
 		// Combine model number and total volume (package spec)
 		std::ostringstream spec;
 		spec << res.definition.getModelNumber();
@@ -41,15 +38,19 @@ oatpp::List<PatientConsumableDTO::Wrapper> PatientConsumService::queryDeviceRequ
 		if (!totalVolume.empty()) {
 			spec << "(" << totalVolume << ")";
 		}
-		dto->specification = spec.str();
+		dto->modelSpec = spec.str();
 		// Quantity with unit
 		std::ostringstream qty;
 		qty << std::fixed << std::setprecision(0) << res.request.getQuantity();
+		std::string unitCode = res.request.getUnitCode();
+		if (!unitCode.empty()) {
+			qty << "\xC3\x97" << unitCode;
+		}
 		dto->quantity = qty.str();
-		dto->unitName = res.unitName;
-		dto->roomName = consumableRoom;
 		dto->status = res.request.getStatusEnum();
-		dto->statusName = res.statusName;
+		dto->consumableRoom = consumableRoom;
+		dto->isEmpty = (res.request.getQuantity() <= 0) ? 1 : 0;
+		dto->isAct = res.request.getPerformFlag();
 		dtos->push_back(dto);
 	}
 

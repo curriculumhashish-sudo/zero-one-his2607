@@ -21,28 +21,26 @@
 #define _PATIENTACTSERVICE_H_
 
 #include "dao/patient/PatientActDAO.h"
+#include "dao/patient/PatientQueueDAO.h"
 #include "domain/dto/patient/PatientActDTO.h"
 
 /**
  * Service for handling patient service request (act) business logic.
+ *
+ * Query act items for a patient identified by encounterId.
+ * Returns a wrapper DTO with patient info at the top level
+ * and act items in a nested list, matching the UI layout.
  */
 class PatientActService
 {
 public:
 	/*
-	 * Query service requests for a patient encounter.
-	 * @param patientId patient ID
-	 * @param encounterId encounter ID
-	 * @param categoryEnum optional category filter (e.g. skin-test)
-	 * @param statusEnum optional status filter
-	 * @return list of PatientActDTO
+	 * Query all service requests for a patient encounter.
+	 * @param encounterId encounter ID (uniquely identifies the visit)
+	 * @return wrapper DTO with patient info and act item list
 	 */
-	oatpp::List<PatientActDTO::Wrapper> queryServiceRequests(
-		const std::string& patientId,
-		const std::string& encounterId,
-		const std::string& categoryEnum,
-		const std::string& statusEnum,
-		int performFlag = -1);
+	oatpp::Object<PatientActWrapperDTO> queryServiceRequests(
+		const std::string& encounterId);
 };
 
 #endif // !_PATIENTACTSERVICE_H_

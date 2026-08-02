@@ -25,7 +25,7 @@
 #include <stdexcept>
 
 PatientQueuePageDTO::Wrapper PatientQueueService::queryPatientQueue(
-	const std::string& name, const std::string& date,
+	const std::string& keyword, const std::string& startDate, const std::string& endDate,
 	const std::string& userId,
 	int pageIndex, int pageSize)
 {
@@ -37,30 +37,22 @@ PatientQueuePageDTO::Wrapper PatientQueueService::queryPatientQueue(
 
 	PatientQueueDAO dao;
 	// Query data with tenant isolation
-	auto results = dao.queryPatientQueue(name, date, tenantId, pageIndex, pageSize);
-	auto total = dao.countPatientQueue(name, date, tenantId);
+	auto results = dao.queryPatientQueue(keyword, startDate, endDate, tenantId, pageIndex, pageSize);
+	auto total = dao.countPatientQueue(keyword, startDate, endDate, tenantId);
 
 	// Convert DO to DTO
 	auto dtos = oatpp::List<PatientQueueDTO::Wrapper>::createShared();
 	for (auto& res : results) {
 		auto dto = PatientQueueDTO::createShared();
-		dto->encounterId = res.encounterId;
-		dto->patientId = res.patient.getId();
-		dto->patientName = res.patient.getName();
-		dto->genderName = convertGender(res.patient.getGenderEnum());
-		dto->ageText = std::to_string(calcAge(res.patient.getBirthDate())) + "\xE5\xB2\x81";
-		dto->medicalRecordNo = res.medicalRecordNo;
-		dto->visitNo = res.visitNo;
+		dto->encounterId = res.queue.getEncounterId();
+		dto->name = res.patient.getName();
+		dto->gender = convertGender(res.patient.getGenderEnum());
+		dto->age = calcAge(res.patient.getBirthDate());
+		dto->visitTime = res.queue.getStartInstant();
 		dto->queueNumber = res.queue.getBusNo();
-		dto->registeredAt = res.registeredAt;
-		dto->departmentName = res.departmentName;
-		dto->visitTypeName = res.visitTypeName;
-		dto->status = res.statusEnum;
-		dto->statusName = res.statusName;
-		dto->paymentTypeName = res.paymentTypeName.empty() ? "\xE8\x87\xAA\xE8\xB4\xB9" : res.paymentTypeName;
-		dto->pendingCount = res.pendingCount;
-		dto->priorityName = res.priorityName;
-		dto->riskHint = res.riskHint;
+		std::string paymentType = res.paymentType;
+		if (paymentType.empty()) paymentType = "\xE8\x87\xAA\xE8\xB4\xB9";
+		dto->paymentType = paymentType;
 		dtos->push_back(dto);
 	}
 

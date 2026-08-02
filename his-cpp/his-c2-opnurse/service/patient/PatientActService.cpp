@@ -17,34 +17,67 @@
  limitations under the License.
 */
 #include "PatientActService.h"
+#include <sstream>
+#include <ctime>
 
-oatpp::List<PatientActDTO::Wrapper> PatientActService::queryServiceRequests(
-	const std::string& patientId, const std::string& encounterId,
-	const std::string& categoryEnum, const std::string& statusEnum,
-	int performFlag)
+oatpp::Object<PatientActWrapperDTO> PatientActService::queryServiceRequests(
+	const std::string& encounterId)
 {
 	PatientActDAO dao;
-	auto results = dao.queryServiceRequests(patientId, encounterId, categoryEnum, statusEnum, performFlag);
+	auto results = dao.queryServiceRequests(encounterId);
 
-	auto dtos = oatpp::List<PatientActDTO::Wrapper>::createShared();
-	for (auto& res : results) {
-		auto dto = PatientActDTO::createShared();
-		dto->itemId = res.request.getId();
-		dto->requestId = res.requestId;
-		dto->requestType = res.request.getCategoryEnum();
-		dto->requestTypeName = res.requestTypeName;
-		dto->orderContent = res.request.getEntrustContent();
-		dto->specification = res.specification;
-		dto->status = res.request.getStatusEnum();
-		dto->statusName = res.statusName;
-		dto->plannedCount = res.plannedCount;
-		dto->executedCount = res.executedCount;
-		dto->executorName = res.executorName;
-		dto->executedAt = res.executedAt;
-		dto->version = res.version;
-		dto->printTypes = res.printTypes;
-		dtos->push_back(dto);
+	// Fetch patient queue info for this encounter
+	PatientQueueDAO queueDao;
+	auto queueInfo = queueDao.queryByEncounterId(encounterId);
+	std::string patientName = queueInfo.name;
+	std::string patientGender = queueInfo.gender;
+	if (patientGender == "M" || patientGender == "male") patientGender = "\xE7\x94\xB7";
+	else if (patientGender == "F" || patientGender == "female") patientGender = "\xE5\xA5\xB3";
+		int patientAge = 0;
+	{
+		std::string birthDate = queueInfo.birthDate;
+		if (!birthDate.empty()) {
+			std::istringstream iss(birthDate);
+			int year = 0, month = 0, day = 0;
+			char dash1, dash2;
+			if (iss >> year >> dash1 >> month >> dash2 >> day) {
+				auto now = std::time(nullptr);
+				auto* tm = std::localtime(&now);
+				int curYear = tm->tm_year + 1900;
+				int curMonth = tm->tm_mon + 1;
+				int curDay = tm->tm_mday;
+				patientAge = curYear - year;
+				if (curMonth < month || (curMonth == month && curDay < day))
+					patientAge--;
+			}
+		}
 	}
 
-	return dtos;
+	// Build act item list
+	auto items = oatpp::Vector<oatpp::Object<PatientActDTO>>::createShared();
+	for (auto& s : results) {
+		auto dto = PatientActDTO::createShared();
+		dto->status = s.getStatusEnum();
+		dto->orderContent = s.getEntrustContent();
+		std::string price = s.getTotalPrice();
+		if (!price.empty()) {
+			std::ostringstream oss;
+			oss << "\xE5\xB7\xB2\xE7\xBB\x93\xE7\xAE\x97\xEF\xBC\x9B" << price << "\xE5\x85\x83";
+			dto->amount = oss.str();
+		}
+		else {
+			dto->amount = "\xE6\x9C\xAA\xE7\xBB\x93\xE7\xAE\x97";
+		}
+		dto->isAct = s.getPerformFlag();
+		items->push_back(dto);
+	}
+
+	// Build wrapper with patient info at top level
+	auto wrapper = PatientActWrapperDTO::createShared();
+	wrapper->name = patientName;
+	wrapper->gender = patientGender;
+	wrapper->age = patientAge;
+	wrapper->items = items;
+
+	return wrapper;
 }
