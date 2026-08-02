@@ -12,7 +12,6 @@
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
 #define API_TAG ZH_WORDS_GETTER("pat.tag")
-
 /**
  * Patient management controller.
  */

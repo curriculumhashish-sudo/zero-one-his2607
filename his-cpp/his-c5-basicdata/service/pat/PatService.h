@@ -8,6 +8,8 @@
 #include "../../domain/dto/pat/PatDTO.h"
 #include "domain/dto/PageDTO.h"
 #include "domain/dto/PayloadDTO.h"
+#include <list>
+#include <string>
 
 /**
  * Patient business service.
@@ -15,31 +17,41 @@
 class PatService
 {
 public:
-	/**
-	 * Paginated query for select-patient popup.
-	 */
-	PageDTO<PatSelectDTO::Wrapper>::Wrapper querySelectPatPage(const PatSelectPageQuery::Wrapper& query);
+    // ============================================================
+    // Query methods (c5)
+    // ============================================================
 
-	/**
-	 * Paginated query for patient management list (GET /pat/page).
-	 */
-	PageDTO<PatDTO::Wrapper>::Wrapper queryPatPage(const PatPageQuery::Wrapper& query);
+    /** Paginated query for select-patient popup. */
+    PageDTO<PatSelectDTO::Wrapper>::Wrapper querySelectPatPage(const PatSelectPageQuery::Wrapper& query);
 
-	// ============================================================
-	// 软删除患者 — 设置is_deleted=1，不物理删除
-	// 参数: id=患者ID, payload=JWT认证信息（用于记录操作人）
-	// 返回: true=删除成功，false=记录不存在或已删除
-	// 调用: PatientDAO::softDeletePatient
-	// ============================================================
-	bool removePatient(const std::string& id, const PayloadDTO& payload);
+    /** Paginated query for patient management list (GET /pat/page). */
+    PageDTO<PatDTO::Wrapper>::Wrapper queryPatPage(const PatPageQuery::Wrapper& query);
+
+    // ============================================================
+    // Soft-delete patient (c5)
+    // Set is_deleted=1, no physical deletion
+    // Params: id=patient ID, payload=JWT auth info (for audit)
+    // Returns: true=success, false=record not found or already deleted
+    // ============================================================
+    bool removePatient(const std::string& id, const PayloadDTO& payload);
+
+    // ============================================================
+    // Batch delete methods (c5-pat-delete-pb)
+    // ============================================================
+
+    /** Validate delete parameters, returns error message or empty string. */
+    std::string validateRemove(const oatpp::List<oatpp::String>& ids);
+
+    /** Batch delete patients by ID list, returns true if all deleted. */
+    bool removeData(const oatpp::List<oatpp::String>& ids);
 
 private:
-	/** Convert gender_enum (MALE/FEMALE) to display text. */
-	static std::string toGenderLabel(const std::string& genderEnum);
-	/** Convert gender_enum (MALE/FEMALE) to numeric code (MALE->1, FEMALE->2, unknown->0). */
-	static int toGenderCode(const std::string& genderEnum);
-	/** Calculate age from birth_date (yyyy-MM-dd). Empty/invalid returns 0. */
-	static int calcAge(const std::string& birthDate);
+    /** Convert gender_enum (MALE/FEMALE) to display text. */
+    static std::string toGenderLabel(const std::string& genderEnum);
+    /** Convert gender_enum (MALE/FEMALE) to numeric code (MALE->1, FEMALE->2, unknown->0). */
+    static int toGenderCode(const std::string& genderEnum);
+    /** Calculate age from birth_date (yyyy-MM-dd). Empty/invalid returns 0. */
+    static int calcAge(const std::string& birthDate);
 };
 
 #endif

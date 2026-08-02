@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "PatController.h"
 #include "StringUtil.h"
 #include "../../service/pat/PatService.h"
@@ -71,7 +71,7 @@ ListJsonVO<String>::Wrapper PatController::execRemovePat(const List<String>& ids
 		if (!id || id->empty()) continue;
 		std::string rawId = id;
 		StringUtil::trim(&rawId);
-		if (rawId.empty() || rawId.size() > 64) continue;  // 跳过非法ID
+		if (rawId.empty() || rawId.size() > 64) continue;  // skip invalid ID
 		if (patService.removePatient(rawId, payload))
 		{
 			deletedList->push_back(rawId);
