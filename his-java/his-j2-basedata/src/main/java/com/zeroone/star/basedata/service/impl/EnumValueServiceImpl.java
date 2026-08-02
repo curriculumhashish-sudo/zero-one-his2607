@@ -1,17 +1,30 @@
 package com.zeroone.star.basedata.service.impl;
 
+import org.springframework.data.domain.Page;
+import com.alibaba.nacos.common.utils.StringUtils;
 import com.zeroone.star.basedata.entity.EnumType;
 import com.zeroone.star.basedata.entity.EnumValue;
 import com.zeroone.star.basedata.repository.EnumTypeRepository;
 import com.zeroone.star.basedata.repository.EnumValueRepository;
 import com.zeroone.star.basedata.service.EnumValueService;
+import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumAddDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumModifyDTO;
+import com.zeroone.star.project.query.j2.basedata.EnumQuery;
+import com.zeroone.star.project.vo.JsonVO;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 
+import org.bson.Document;
 import java.util.*;
 
 @Service
@@ -25,6 +38,9 @@ public class EnumValueServiceImpl implements EnumValueService {
 
     @Resource
     private EnumTypeRepository enumTypeRepository;
+
+    @Resource
+    MongoTemplate mongoTemplate;
 
     @Override
     public void saveEnum(EnumAddDTO dto) {
@@ -123,5 +139,131 @@ public class EnumValueServiceImpl implements EnumValueService {
         }
 
         return enumTypeMap;
+    }
+
+    @Override
+    public JsonVO<List<String>> getEnumNameList(String id) {
+        if(StringUtils.hasText(id)){
+            List<String> displays = new ArrayList<>();
+            List<EnumValue> enumValues = enumTypeRepository.findByEnumTypeId(id);
+            enumValues.forEach(enumValue -> {displays.add(enumValue.getDisplay());});
+            return JsonVO.success(displays);
+        }
+        return JsonVO.fail(null);
+    }
+
+    @Override
+    public JsonVO<PageDTO<EnumDTO>> QueryAllEnum(EnumQuery query) {
+
+        //构建分页对象
+        int pageIndex = Math.max(0, query.getPageIndex() - 1);
+        PageRequest pageRequest = PageRequest.of(
+                pageIndex,
+                query.getPageSize(),
+                Sort.by(Sort.Direction.ASC, "order")
+        );
+
+
+        //执行查询
+        String enumCode = query.getEnumCode();
+        String enumTypeId = query.getEnumTypeId();
+        String display = query.getDisplay();
+        Page<EnumValue> enumValues = findByQuery(
+                TENANT_ID,
+                enumCode,
+                enumTypeId,
+                display,
+                pageRequest
+        );
+
+        //返回结果
+        return JsonVO.success(EnumValue.toPageDTO(enumValues));
+    }
+
+
+    public Page<EnumValue> findByQuery(String tenantId, String enumCode,
+                                       String enumTypeId, String display,
+                                       PageRequest pageRequest) {
+
+        if (!StringUtils.hasText(enumTypeId)) {
+            return new PageImpl<>(List.of(), pageRequest, 0);
+        }
+
+        // ========== 1. 构建 enum_value 侧的动态过滤条件 ==========
+        List<Criteria> valueFilters = new ArrayList<>();
+        if (StringUtils.hasText(enumCode)) {
+            try {
+                int code = Integer.parseInt(enumCode);
+                valueFilters.add(Criteria.where("enumCode").is(code));
+            } catch (NumberFormatException ignored) {
+                return new PageImpl<>(List.of(), pageRequest, 0);
+            }
+        }
+        if (StringUtils.hasText(display)) {
+            valueFilters.add(Criteria.where("display").regex(display, "i"));
+        }
+
+        // ========== 2. 构建聚合管道（主集合: EnumType） ==========
+        List<AggregationOperation> operations = new ArrayList<>();
+
+        // 2.1 $addFields: 将 _id 转为字符串 _idStr（解决 ObjectId/String 类型不匹配）
+        operations.add(ctx -> new Document("$addFields",
+                new Document("_idStr", new Document("$toString", "$_id"))));
+
+        // 2.2 $match: 用 _idStr（String）匹配 enumTypeId（String），类型统一
+        Criteria typeCriteria = Criteria.where("tenantId").is(tenantId)
+                .and("isDeleted").is(false)
+                .and("_idStr").is(enumTypeId);
+        operations.add(Aggregation.match(typeCriteria));
+
+        // 2.3 $lookup: EnumType._idStr → EnumValue.enumTypeId（都是 String）
+        operations.add(Aggregation.lookup("EnumValue", "_idStr", "enumTypeId", "enumValueList"));
+
+        // 2.4 $unwind: 展开枚举值数组，无匹配则丢弃
+        operations.add(Aggregation.unwind("enumValueList", false));
+
+        // 2.5 $replaceRoot: 以 EnumValue 作为根文档
+        operations.add(Aggregation.replaceRoot("enumValueList"));
+
+        // 2.6 过滤 EnumValue 侧的 isDeleted 和 tenantId
+        operations.add(Aggregation.match(Criteria.where("isDeleted").is(false)
+                .and("tenantId").is(tenantId)));
+
+        // 2.7 动态过滤 enumCode / display
+        if (!valueFilters.isEmpty()) {
+            operations.add(Aggregation.match(
+                    new Criteria().andOperator(valueFilters.toArray(new Criteria[0]))));
+        }
+
+        // 2.8 $project: 只返回前端需要的 4 个字段
+        operations.add(Aggregation.project("display", "enumCode", "order", "description","_id"));
+
+        // 2.9 排序 + 分页
+        operations.add(Aggregation.sort(pageRequest.getSort()));
+        operations.add(Aggregation.skip(pageRequest.getOffset()));
+        operations.add(Aggregation.limit(pageRequest.getPageSize()));
+
+        // ========== 3. 执行分页查询 ==========
+        Aggregation aggregation = Aggregation.newAggregation(operations);
+        List<EnumValue> list = mongoTemplate.aggregate(aggregation, "EnumType", EnumValue.class)
+                .getMappedResults();
+
+        // ========== 4. 查总数 ==========
+        List<AggregationOperation> countOps = new ArrayList<>(operations);
+        countOps.remove(countOps.size() - 1); // limit
+        countOps.remove(countOps.size() - 1); // skip
+        countOps.remove(countOps.size() - 1); // sort
+        countOps.add(Aggregation.count().as("total"));
+
+        Aggregation countAggregation = Aggregation.newAggregation(countOps);
+        long total = 0;
+        Document resultDoc = mongoTemplate.aggregate(countAggregation, "EnumType", Document.class)
+                .getUniqueMappedResult();
+        if (resultDoc != null) {
+            total = resultDoc.getInteger("total", 0);
+        }
+
+        // ========== 5. 返回 Page ==========
+        return new PageImpl<>(list, pageRequest, total);
     }
 }

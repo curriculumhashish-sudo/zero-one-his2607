@@ -1,8 +1,7 @@
-package com.zeroone.star.project.dto.j2.personcenter.userdto;
+package com.zeroone.star.project.dto.j2.personcenter.UserDTO;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -12,7 +11,6 @@ import lombok.experimental.Accessors;
 public class UpdateUserDTO {
 
     @Schema(description = "用户ID", example = "1234567890123456789")
-    @NotBlank(message = "用户ID不能为空")
     private String id;
 
     @Schema(description = "名", example = "三")

@@ -14,10 +14,15 @@ import lombok.Data;
 @Data
 @Schema(description = "配置项数据传输对象")
 public class SettingsDTO {
-    @Schema(description = "提供者名称", example = "U",requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "配置项ID", example = "123456")
+    private String id;
+
+    @Schema(description = "提供者名称", example = "U", requiredMode = Schema.RequiredMode.REQUIRED)
     private String provider_name;
-    @Schema(description = "提供者键", example = "U-user",requiredMode = Schema.RequiredMode.REQUIRED)
+
+    @Schema(description = "提供者键", example = "U-user", requiredMode = Schema.RequiredMode.REQUIRED)
     private String provider_key;
-    @Schema(description = "值",example = "1",requiredMode = Schema.RequiredMode.REQUIRED)
+
+    @Schema(description = "值", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private String value;
 }

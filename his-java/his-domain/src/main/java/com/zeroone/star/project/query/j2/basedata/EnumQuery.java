@@ -7,8 +7,10 @@ import lombok.Data;
 @Data
 @Schema(description = "枚举关键词查询对象")
 public class EnumQuery extends PageQuery {
-    @Schema(description = "枚举值名称",example = "男性",requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "枚举值名称",example = "display",requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String display;
-    @Schema(description = "枚举值编码",example = "MALE",requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String enumKey;
+    @Schema(description = "枚举类型id",example = "1",requiredMode = Schema.RequiredMode.REQUIRED)
+    private String enumTypeId;
+    @Schema(description = "枚举值代码",example = "enumCode",requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String enumCode;
 }

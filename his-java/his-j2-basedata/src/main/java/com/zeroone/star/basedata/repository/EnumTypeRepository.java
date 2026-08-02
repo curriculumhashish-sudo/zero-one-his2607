@@ -2,10 +2,14 @@ package com.zeroone.star.basedata.repository;
 
 
 import com.zeroone.star.basedata.entity.EnumType;
+import com.zeroone.star.basedata.entity.EnumValue;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
+
+import java.util.List;
 
 
 public interface EnumTypeRepository extends MongoRepository<EnumType, String> {
@@ -45,4 +49,12 @@ public interface EnumTypeRepository extends MongoRepository<EnumType, String> {
     @Query("{'enumTypeKey': ?1, 'tenantId': {$in: ['1', ?0]}, 'isDeleted': false}")
     EnumType findActiveByEnumTypeKey(String tenantId, String enumTypeKey);
 
+    @Aggregation(pipeline = {
+            "{$addFields: {_idStr: {$toString: '$_id'}}}",
+            "{$match: {_idStr: ?0}}",
+            "{$lookup: {from: 'EnumValue', localField: '_idStr', foreignField: 'enumTypeId', as: 'enum_List'}}",
+            "{$unwind: {path: '$enum_List', preserveNullAndEmptyArrays: false}}",
+            "{$replaceRoot: {newRoot: '$enum_List'}}"
+    })
+    List<EnumValue> findByEnumTypeId(String id);
 }

@@ -95,6 +95,7 @@ public class SettingsServiceImpl implements SettingsService {
         List<SettingsDTO> dtoList = result.getRecords().stream()
                 .map(doObj -> {
                     SettingsDTO dto = new SettingsDTO();
+                    dto.setId(doObj.getId());          // 加上这行
                     dto.setValue(doObj.getValue());
                     dto.setProvider_name(doObj.getProviderName());
                     dto.setProvider_key(doObj.getProviderKey());

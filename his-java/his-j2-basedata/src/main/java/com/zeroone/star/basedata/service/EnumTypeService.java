@@ -6,6 +6,7 @@ import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumTypeAddDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumTypeDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumTypeModifyDTO;
 import com.zeroone.star.project.query.j2.basedata.EnumTypeQuery;
+import com.zeroone.star.project.vo.JsonVO;
 
 public interface EnumTypeService {
 
@@ -15,5 +16,5 @@ public interface EnumTypeService {
 
     public void updateEnumType(EnumTypeModifyDTO dto);
 
-    public void removeEnumType(String enumTypeId);
+    public JsonVO<String> deleteEnumType(String enumTypeId);
 }

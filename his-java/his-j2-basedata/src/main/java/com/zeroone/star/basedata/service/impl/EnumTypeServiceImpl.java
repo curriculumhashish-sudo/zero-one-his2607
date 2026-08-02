@@ -1,5 +1,6 @@
 package com.zeroone.star.basedata.service.impl;
 
+import com.alibaba.nacos.common.utils.StringUtils;
 import com.zeroone.star.basedata.entity.EnumType;
 import com.zeroone.star.basedata.repository.EnumTypeRepository;
 import com.zeroone.star.basedata.service.EnumTypeService;
@@ -8,15 +9,22 @@ import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumTypeAddDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumTypeDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumTypeModifyDTO;
 import com.zeroone.star.project.query.j2.basedata.EnumTypeQuery;
+import com.zeroone.star.project.vo.JsonVO;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
+import org.bson.Document;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class EnumTypeServiceImpl implements EnumTypeService {
@@ -26,6 +34,9 @@ public class EnumTypeServiceImpl implements EnumTypeService {
 
     @Resource
     private EnumTypeRepository enumTypeRepository;
+
+    @Resource
+    MongoTemplate template;
 
     @Override
     public PageDTO<EnumTypeDTO> queryAllEnumType(EnumTypeQuery query) {
@@ -92,7 +103,37 @@ public class EnumTypeServiceImpl implements EnumTypeService {
     }
 
     @Override
-    public void removeEnumType(String enumTypeId) {
+    public JsonVO<String> deleteEnumType(String id) {
+        if (!StringUtils.hasText(id)) {
+            return JsonVO.fail(null);
+        }
 
+        // 1. 聚合管道：$addFields 将 _id 转 _idStr → $match → $lookup 关联 EnumValue
+        Aggregation aggregation = Aggregation.newAggregation(
+                ctx -> new Document("$addFields",
+                        new Document("_idStr", new Document("$toString", "$_id"))),
+                Aggregation.match(Criteria.where("_idStr").is(id)),
+                Aggregation.lookup("EnumValue", "_idStr", "enumTypeId", "enumValueList")
+        );
+
+        List<Document> results = template.aggregate(aggregation, "EnumType", Document.class)
+                .getMappedResults();
+
+        if (results.isEmpty()) {
+            return JsonVO.fail("枚举类型不存在");
+        }
+
+        // 2. 删除所有关联的 EnumValue（enumTypeId 本身就是 String，无类型问题）
+        Query valueQuery = new Query(Criteria.where("enumTypeId").is(id));
+        template.remove(valueQuery, "EnumValue");
+
+        // 3. 删除 EnumType 自身（用聚合查到的 _id 精确删除）
+        Object rawId = results.get(0).get("_id");
+        Query typeQuery = new Query(Criteria.where("_id").is(rawId));
+        template.remove(typeQuery, EnumType.class, "EnumType");
+
+        return JsonVO.success("success");
     }
+
+
 }

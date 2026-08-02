@@ -30,9 +30,9 @@ public class EnumController implements EnumApis {
 
     @Override
     @Operation(summary = "获取枚举名称列表")
-    @GetMapping("/sys/get-enum-type-name")
-    public JsonVO<List<String>> getEnumTypeName(@RequestBody EnumListQuery query) {
-        return null;
+    @GetMapping("/sys/get-enum-name-list/{id}")
+    public JsonVO<List<String>> getEnumNameList(@PathVariable String id) {
+        return enumValueService.getEnumNameList(id);
     }
 
     @Override
@@ -42,6 +42,11 @@ public class EnumController implements EnumApis {
         return JsonVO.success(enumValueService.initTableEnums(enumTypeKeys));
     }
 
+
+    @Override
+    public JsonVO<List<String>> getEnumTypeName(EnumListQuery query) {
+        return null;
+    }
 
     @Override
     @Operation(summary = "获取枚举类型列表(条件+分页)")
@@ -93,10 +98,11 @@ public class EnumController implements EnumApis {
         return JsonVO.success("success");
     }
 
+
     @Override
     @Operation(summary = "删除枚举类型")
-    @DeleteMapping("/sys/delete-enum")
-    public JsonVO<Integer> deleteEnumType(@PathVariable EnumDeleteDTO dto) {
-        return null;
+    @DeleteMapping("/sys/delete-enum-type/{id}")
+    public JsonVO<String> deleteEnumType(@PathVariable(value = "id", required = true) String id) {
+        return enumTypeService.deleteEnumType(id);
     }
 }

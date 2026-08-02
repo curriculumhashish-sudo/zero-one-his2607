@@ -72,9 +72,16 @@ public interface EnumApis {
 
     /**
      * 删除枚举类型
-     * @param dto 枚举删除对象DTO
+     * @param id 枚举删除对象DTO
      * @return 枚举类型id
      */
-    JsonVO<Integer> deleteEnumType(EnumDeleteDTO dto);
+    JsonVO<String> deleteEnumType(String id);
+
+    /**
+     * 获取枚举名称列表
+     * @param enumKey 枚举类型编码
+     * @return 枚举值名称列表
+     */
+    JsonVO<List<String>> getEnumNameList(String enumKey);
 
 }
