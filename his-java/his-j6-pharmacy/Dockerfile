@@ -1,6 +1,6 @@
 FROM amazoncorretto:17
 MAINTAINER 01star
-ADD target/his-pharmacy-1.0.0-SNAPSHOT.jar app.jar
+ADD target/his-j6-pharmacy-1.0.0-SNAPSHOT.jar app.jar
 ENV JAVA_OPTS="-Xms256m -Xmx256m"
 ENV SPRING_ARGS=""
 RUN echo "JAVA_OPTS=" $JAVA_OPTS
