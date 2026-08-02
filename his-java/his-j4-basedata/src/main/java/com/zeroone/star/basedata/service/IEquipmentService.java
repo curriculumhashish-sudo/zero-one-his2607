@@ -9,7 +9,6 @@ import com.zeroone.star.project.dto.j4.equipment.EquipmentUpdateDTO;
 import com.zeroone.star.project.query.j4.equipment.EquipmentPageQuery;
 import com.zeroone.star.project.vo.j4.equipment.EquipmentCategoryVO;
 import com.zeroone.star.project.vo.j4.equipment.EquipmentVO;
-import jakarta.validation.Valid;
 
 import java.util.List;
 
