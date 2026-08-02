@@ -8,13 +8,13 @@ import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+import com.zeroone.star.basedata.entity.common.AdmChargeItemDefinitionDO;
 import com.zeroone.star.basedata.entity.medicine.MedMedicationDispenseDO;
 import com.zeroone.star.basedata.entity.medicine.MedMedicationRequestDO;
 import com.zeroone.star.basedata.mapper.MedMedicationDispenseMapper;
 import com.zeroone.star.basedata.mapper.MedMedicationRequestMapper;
 import com.zeroone.star.basedata.service.IMedicineService;
 import com.zeroone.star.project.dto.j4.medicine.*;
-import com.zeroone.star.basedata.entity.common.AdmChargeItemDefinitionDO;
 import com.zeroone.star.basedata.entity.medicine.MedMedicationDefinitionDO;
 import com.zeroone.star.basedata.mapper.AdmChargeItemDefinitionMapper;
 import com.zeroone.star.basedata.mapper.MedMedicationDefinitionMapper;
@@ -141,8 +141,6 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
         AdmChargeItemDefinitionDO price = new AdmChargeItemDefinitionDO();
 
         price.setId(IdWorker.getIdStr());
-        price.setCreatedAt(now);
-        price.setUpdatedAt(now);
         price.setIsDeleted(false);
         price.setVersion(0);
 
@@ -191,7 +189,7 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public MedicineDetailDTO queryMedicineDetailById(String id) {
+    public MedicineDetailDTO queryMedicineDetailById(String id) { //TODO 调用频次管理接口，调用编码管理接口消除硬编码
         MedMedicationDefinitionDO medicationDefinitionDO = baseMapper.selectById(id);
         //获取与id值关联的AdmChargeItemDefinitionDO列表
         QueryWrapper<AdmChargeItemDefinitionDO> queryWrapper = new QueryWrapper<>();
@@ -230,7 +228,7 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int updateMedicine(MedicineDetailDTO dto) {
+    public int updateMedicine(MedicineDetailDTO dto) {//TODO 调用编码管理接口消除硬编码
         MedMedicationDefinitionDO definitionDO = msMedicineMapper.detailDtoToEntity(dto);
         int i = baseMapper.updateById(definitionDO);
         if(i==0) log.debug("definition表未更新");
