@@ -5,10 +5,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zeroone.star.project.components.user.UserDTO;
 import com.zeroone.star.project.components.user.UserHolder;
-// import com.zeroone.star.project.constant.RedisConstant;
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j2.sysmgr.rent.RentDTO2;
-import com.zeroone.star.project.dto.j2.sysmgr.rent.RentNameDTO;
+import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentAddDTO;
+import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentDTO;
+import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentDTO2;
+import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentNameDTO;
 import com.zeroone.star.project.query.j2.sysmgr.rent2.RentNameQuery;
 import com.zeroone.star.project.query.j2.sysmgr.rent2.RentQuery;
 import com.zeroone.star.sysmgr.entity.WhaleTenants;
@@ -17,13 +18,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zeroone.star.sysmgr.service.IWhaleTenantsService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-// import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
-// import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -138,5 +139,81 @@ public class WhaleTenantsServiceImpl extends ServiceImpl<WhaleTenantsMapper, Wha
         // 执行查询
         Page<WhaleTenants> result = baseMapper.selectPage(page, wrapper);
         return PageDTO.create(result, workbenchMapper::toRentDTO2);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void addRent(RentAddDTO addDTO) {
+        log.info("新增租户, code={}, name={}", addDTO.getTenantCode(), addDTO.getTenantName());
+
+        // 校验租户编码是否已存在
+        LambdaQueryWrapper<WhaleTenants> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(WhaleTenants::getCode, addDTO.getTenantCode())
+                .eq(WhaleTenants::getIsDeleted, 0);
+        if (baseMapper.selectCount(wrapper) > 0) {
+            throw new RuntimeException("租户编码已存在");
+        }
+
+        WhaleTenants tenant = new WhaleTenants();
+        tenant.setCode(addDTO.getTenantCode());
+        tenant.setName(addDTO.getTenantName());
+        tenant.setIsActive(Integer.parseInt(addDTO.getTenantStatus()));
+        tenant.setDescription(addDTO.getTenantDescription());
+        tenant.setIsDeleted(0);
+
+        if (baseMapper.insert(tenant) != 1) {
+            throw new RuntimeException("新增租户失败");
+        }
+        log.info("新增租户成功, id={}", tenant.getId());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateRent(RentDTO updateDTO) {
+        log.info("修改租户, id={}", updateDTO.getId());
+
+        // 校验租户是否存在
+        LambdaQueryWrapper<WhaleTenants> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(WhaleTenants::getId, updateDTO.getId())
+                .eq(WhaleTenants::getIsDeleted, 0);
+        if (baseMapper.selectCount(wrapper) == 0) {
+            throw new RuntimeException("租户不存在或已删除");
+        }
+
+        WhaleTenants tenant = new WhaleTenants();
+        tenant.setId(updateDTO.getId());
+        tenant.setName(updateDTO.getTenantName());
+        tenant.setIsActive(Integer.parseInt(updateDTO.getTenantStatus()));
+        tenant.setDescription(updateDTO.getTenantDescription());
+
+        if (baseMapper.updateById(tenant) != 1) {
+            throw new RuntimeException("修改租户失败");
+        }
+        log.info("修改租户成功, id={}", updateDTO.getId());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteRent(String id) {
+        log.info("删除租户, id={}", id);
+
+        // 校验租户是否存在
+        LambdaQueryWrapper<WhaleTenants> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(WhaleTenants::getId, id)
+                .eq(WhaleTenants::getIsDeleted, 0);
+        if (baseMapper.selectCount(wrapper) == 0) {
+            throw new RuntimeException("租户不存在或已删除");
+        }
+
+        // 软删除
+        WhaleTenants tenant = new WhaleTenants();
+        tenant.setId(id);
+        tenant.setIsDeleted(1);
+        tenant.setDeletedAt(LocalDateTime.now());
+
+        if (baseMapper.updateById(tenant) != 1) {
+            throw new RuntimeException("删除租户失败");
+        }
+        log.info("删除租户成功, id={}", id);
     }
 }

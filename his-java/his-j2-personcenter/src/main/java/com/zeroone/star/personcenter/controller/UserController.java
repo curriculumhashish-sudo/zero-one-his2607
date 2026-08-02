@@ -45,18 +45,24 @@ public class UserController implements UserApis {
     }
 
     @Operation(summary = "更新用户信息")
-    @PostMapping("/update-user")
+    @PutMapping("/update-user/{id}")
     @Override
-    public JsonVO<UserInfoDTO> updateUser(@RequestBody UpdateUserDTO updateDTO) {
+    public JsonVO<UserInfoDTO> updateUser(
+            @PathVariable("id") String id,
+            @RequestBody UpdateUserDTO updateDTO) {
+        updateDTO.setId(id);
         UserInfoDTO result = whaleUserService.updateUser(updateDTO);
         return JsonVO.success(result);
     }
 
     @Operation(summary = "修改用户密码")
-    @PostMapping("/modify-password")
+    @PutMapping("/modify-password/{id}")
     @Override
-    public JsonVO<String> modifyPassword(@RequestBody ChangePasswordDTO changePasswordDTO) {
+    public JsonVO<String> modifyPassword(
+            @PathVariable("id") String id,
+            @RequestBody ChangePasswordDTO changePasswordDTO) {
         try {
+            changePasswordDTO.setId(id);
             whaleUserService.modifyPassword(changePasswordDTO);
             return JsonVO.success("密码修改成功");
         } catch (IllegalArgumentException e) {

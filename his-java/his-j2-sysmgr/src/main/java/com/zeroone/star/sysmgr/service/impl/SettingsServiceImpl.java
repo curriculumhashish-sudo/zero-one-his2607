@@ -1,16 +1,16 @@
 package com.zeroone.star.sysmgr.service.impl;
 
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zeroone.star.project.components.user.UserDTO;
 import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.doo.WhaleSettingsDO;
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j2.sysmgr.settingdto.SettingDefinitionDTO;
-import com.zeroone.star.project.dto.j2.sysmgr.settingdto.SettingsAddDTO;
-import com.zeroone.star.project.dto.j2.sysmgr.settingdto.SettingsDTO;
+import com.zeroone.star.project.dto.j2.sysmgr.settingdto.*;
 import com.zeroone.star.project.query.j2.sysmgr.settings.SettingDefinitionQuery;
 import com.zeroone.star.project.query.j2.sysmgr.settings.SettingsQuery;
+import com.zeroone.star.sysmgr.entity.WhaleSettings;
 import com.zeroone.star.sysmgr.enums.SettingDefinitionEnum;
 import com.zeroone.star.sysmgr.mapper.SettingsMapper;
 import com.zeroone.star.sysmgr.service.SettingsService;
@@ -155,6 +155,38 @@ public class SettingsServiceImpl implements SettingsService {
         }
         log.info("新增配置项成功: name={}, tenantId={}", dto.getName(), tenantId);
         return null;
+    }
+
+    @Override  //更新配置项
+    @Transactional
+    public Boolean updateSetting(SettingUpdateDTO settingUpdateDTO) throws Exception {
+        UserDTO currentUser = userHolder.getCurrentUser();
+
+        LambdaUpdateWrapper<WhaleSettingsDO> wrapper = new LambdaUpdateWrapper<>();
+
+        wrapper.eq(WhaleSettingsDO::getId,settingUpdateDTO.getId())
+                .eq(WhaleSettingsDO::getIsDeleted,0)
+                .set(WhaleSettingsDO::getUpdatedAt,LocalDateTime.now())
+                .set(WhaleSettingsDO::getUpdatedBy,currentUser.getId());
+
+        return settingsMapper.update(wrapper) > 0;
+    }
+
+    @Override  //删除配置项
+    @Transactional
+    public Boolean deleteSetting(SettingDeleteDTO settingDeleteDTO) throws Exception {
+        UserDTO currentUser = userHolder.getCurrentUser();
+
+        LambdaUpdateWrapper<WhaleSettingsDO> wrapper = new LambdaUpdateWrapper<>();
+
+        wrapper.eq(WhaleSettingsDO::getId,settingDeleteDTO.getId())
+                .eq(WhaleSettingsDO::getIsDeleted, 0)
+                .set(WhaleSettingsDO::getIsDeleted,1)
+                .set(WhaleSettingsDO::getDeletedAt,LocalDateTime.now())
+                .set(WhaleSettingsDO::getDeletedBy,currentUser.getId());
+
+        return settingsMapper.update(wrapper) > 0;
+
     }
 
     // ==================== 内部工具方法 ====================

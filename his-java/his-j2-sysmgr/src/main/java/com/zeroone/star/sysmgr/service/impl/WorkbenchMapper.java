@@ -1,10 +1,10 @@
 package com.zeroone.star.sysmgr.service.impl;
 
-import com.zeroone.star.project.dto.j2.sysmgr.rent.RentDTO2;
-import com.zeroone.star.project.dto.j2.sysmgr.rent.RentNameDTO;
+import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentDTO2;
+import com.zeroone.star.project.dto.j2.sysmgr.rentdto.RentNameDTO;
 import com.zeroone.star.sysmgr.entity.WhaleTenants;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+
 import org.mapstruct.ReportingPolicy;
 
 import java.util.List;

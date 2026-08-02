@@ -8,7 +8,7 @@ import com.zeroone.star.project.vo.JsonVO;
 public interface UserApis {
     JsonVO<UserInfoDTO> getUserInfo(String userId);
 
-    JsonVO<UserInfoDTO> updateUser(UpdateUserDTO updateDTO);
+    JsonVO<UserInfoDTO> updateUser(String id,UpdateUserDTO updateDTO);
 
-    JsonVO<String> modifyPassword(ChangePasswordDTO changePasswordDTO);
+    JsonVO<String> modifyPassword(String id,ChangePasswordDTO changePasswordDTO);
 }

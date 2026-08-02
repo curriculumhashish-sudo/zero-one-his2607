@@ -45,7 +45,7 @@ public interface RentApis {
       * @param updateDTO 租户修改信息
      * @return 修改结果
      */
-    JsonVO<String> updateRent(RentDTO updateDTO );
+    JsonVO<String> updateRent(String id,RentDTO updateDTO );
     /**
      * 删除租户信息
      * @param id 租户ID

@@ -1,9 +1,7 @@
 package com.zeroone.star.sysmgr.service;
 
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j2.sysmgr.settingdto.SettingDefinitionDTO;
-import com.zeroone.star.project.dto.j2.sysmgr.settingdto.SettingsAddDTO;
-import com.zeroone.star.project.dto.j2.sysmgr.settingdto.SettingsDTO;
+import com.zeroone.star.project.dto.j2.sysmgr.settingdto.*;
 import com.zeroone.star.project.query.j2.sysmgr.settings.SettingDefinitionQuery;
 import com.zeroone.star.project.query.j2.sysmgr.settings.SettingsQuery;
 
@@ -25,4 +23,8 @@ public interface SettingsService {
 
     // ============ 新增配置项 ============
     String addSetting(SettingsAddDTO dto);
+
+    Boolean updateSetting(SettingUpdateDTO settingUpdateDTO) throws Exception;
+
+    Boolean deleteSetting(SettingDeleteDTO settingDeleteDTO) throws Exception;
 }
