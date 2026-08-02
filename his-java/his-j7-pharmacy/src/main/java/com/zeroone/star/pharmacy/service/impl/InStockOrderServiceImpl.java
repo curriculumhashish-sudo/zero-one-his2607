@@ -61,6 +61,13 @@ public class InStockOrderServiceImpl implements InStockOrderService {
     // private final LocationService locationService;
     // private final UserService userService;
 
+    /**
+     * <p>
+     * 获取单据列表（条件+分页）
+     * </p>
+     *
+     * @author chunmu
+     */
     @Override
     public IPage<PurchaseInboundListVO> listInboundOrders(PurchaseInboundQuery query) {
         // 1. 构建查询条件
@@ -85,6 +92,13 @@ public class InStockOrderServiceImpl implements InStockOrderService {
         return orderPage.convert(this::convertToListVO);
     }
 
+    /**
+     * <p>
+     * 获取单据详情
+     * </p>
+     *
+     * @author chunmu
+     */
     @Override
     public PurchaseInboundDetailVO getInboundDetail(String id) {
         // 1. 查询单据头
@@ -127,6 +141,13 @@ public class InStockOrderServiceImpl implements InStockOrderService {
         return detailVO;
     }
 
+    /**
+     * <p>
+     * 保存并提交审批
+     * </p>
+     *
+     * @author chunmu
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void submitInboundOrder(PurchaseInboundSubmitDTO dto) {
@@ -154,6 +175,8 @@ public class InStockOrderServiceImpl implements InStockOrderService {
 
     /**
      * 私有方法：Entity 转 ListVO，并拼接流转路径
+     *
+     * @author chunmu
      */
     private PurchaseInboundListVO convertToListVO(InStockOrder order) {
         PurchaseInboundListVO vo = new PurchaseInboundListVO();
