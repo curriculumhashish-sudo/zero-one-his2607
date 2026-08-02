@@ -36,15 +36,43 @@ public interface InStockOrderService {
      */
     void submit(String orderId, InStockOrderDTO dto);
 
-    default IPage<PurchaseInboundListVO> listInboundOrders(PurchaseInboundQuery query) {
-        throw new UnsupportedOperationException("入库单列表查询接口暂未实现");
-    }
+//    default IPage<PurchaseInboundListVO> listInboundOrders(PurchaseInboundQuery query) {
+//        throw new UnsupportedOperationException("入库单列表查询接口暂未实现");
+//    }
+//
+//    default PurchaseInboundDetailVO getInboundDetail(String id) {
+//        throw new UnsupportedOperationException("入库单详情查询接口暂未实现");
+//    }
+//
+//    default void submitInboundOrder(PurchaseInboundSubmitDTO dto) {
+//        throw new UnsupportedOperationException("入库单提交审批接口暂未实现");
+//    }
 
-    default PurchaseInboundDetailVO getInboundDetail(String id) {
-        throw new UnsupportedOperationException("入库单详情查询接口暂未实现");
-    }
+    /**
+     * <p>
+     * 获取单据列表（条件+分页）
+     * </p>
+     *
+     * @author chunmu
+     */
+    IPage<PurchaseInboundListVO> listInboundOrders(PurchaseInboundQuery query);
 
-    default void submitInboundOrder(PurchaseInboundSubmitDTO dto) {
-        throw new UnsupportedOperationException("入库单提交审批接口暂未实现");
-    }
+    /**
+     * <p>
+     * 获取单据详情
+     * </p>
+     *
+     * @author chunmu
+     */
+    PurchaseInboundDetailVO getInboundDetail(String id);
+
+    /**
+     * <p>
+     * 保存并提交审批
+     * </p>
+     *
+     * @author chunmu
+     */
+    void submitInboundOrder(PurchaseInboundSubmitDTO dto);
+
 }

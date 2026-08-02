@@ -18,6 +18,9 @@ import java.time.LocalDateTime;
  *     功能说明：该表为供应请求聚合根表，同一 {@code bus_no} 下聚合多条明细行，共享审批状态。
  *     支持采购入库、调拨入库等多种业务场景。
  * </p>
+ * <p>
+ *     @author chunmu
+ * <p>
  */
 @Getter
 @Setter

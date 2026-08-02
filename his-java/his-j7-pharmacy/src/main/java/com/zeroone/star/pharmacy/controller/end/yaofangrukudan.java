@@ -1,12 +1,16 @@
 package com.zeroone.star.pharmacy.controller.end;
 
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zeroone.star.pharmacy.service.InStockOrderService;
 import com.zeroone.star.project.dto.j7.pharmacy.InStockOrderDTO;
 import com.zeroone.star.project.dto.j7.pharmacy.InboundApprovalDTO;
+import com.zeroone.star.project.query.j7.pharmacy.PurchaseInboundQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j7.pharmacy.InboundApprovalVO;
 import com.zeroone.star.pharmacy.service.IInboundApprovalService;
+import com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundDetailVO;
+import com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundListVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -96,6 +100,34 @@ public class yaofangrukudan {
     @Operation(summary = "保存并提交审批", description = "保存草稿并立即提交审批，状态变更为“待审批”。")
     @PutMapping("/{orderId}/submitInStockOrder")
     public JsonVO<String> submitInOrder(@PathVariable String orderId, @RequestBody InStockOrderDTO dto) {
+        inStockOrderService.submit(orderId, dto);
+        return JsonVO.success("保存并提交审批成功");
+    }
+
+    /**
+     * chunmu：获取单据列表（条件+分页）
+     */
+    @PostMapping("/list")
+    @Operation(summary = "获取单据列表", description = "根据条件分页查询药房入库单列表")
+    public JsonVO<IPage<PurchaseInboundListVO>> listInboundOrders(@RequestBody PurchaseInboundQuery query) {
+        return JsonVO.success(inStockOrderService.listInboundOrders(query));
+    }
+
+    /**
+     * chunmu：获取单据详情
+     */
+    @GetMapping("/detail/{id}")
+    @Operation(summary = "获取单据详情", description = "根据入库单ID查询单据的详细信息，包含主表和明细")
+    public JsonVO<PurchaseInboundDetailVO> getInboundDetail(@PathVariable("id") String id) {
+        return JsonVO.success(inStockOrderService.getInboundDetail(id));
+    }
+
+    /**
+     * chunmu：保存并提交审批
+     */
+    @PutMapping("/{orderId}/saveAndSubmit")
+    @Operation(summary = "保存并提交审批", description = "保存入库单草稿并立即提交审批，状态变更为“待审批”。")
+    public JsonVO<String> saveAndSubmitInOrder(@PathVariable String orderId, @RequestBody InStockOrderDTO dto) {
         inStockOrderService.submit(orderId, dto);
         return JsonVO.success("保存并提交审批成功");
     }
