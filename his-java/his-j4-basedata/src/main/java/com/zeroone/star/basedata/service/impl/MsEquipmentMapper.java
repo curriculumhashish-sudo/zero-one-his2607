@@ -1,7 +1,7 @@
 package com.zeroone.star.basedata.service.impl;
 
+import com.zeroone.star.basedata.entity.common.AdmChargeItemDefinitionDO;
 import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinitionDO;
-import com.zeroone.star.basedata.entity.equipment.AdmChargeItemDefinitionDO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentAddDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentUpdateDTO;
 import com.zeroone.star.project.vo.j4.equipment.EquipmentCategoryVO;

@@ -5,9 +5,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zeroone.star.basedata.constant.EquipmentCategoryConstants;
 import com.zeroone.star.basedata.constant.EquipmentConstants;
-import com.zeroone.star.basedata.entity.equipment.AdmChargeItemDefinitionDO;
+import com.zeroone.star.basedata.entity.common.AdmChargeItemDefinitionDO;
 import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinitionDO;
-import com.zeroone.star.basedata.mapper.EquipmentChargeItemMapper;
+import com.zeroone.star.basedata.mapper.AdmChargeItemDefinitionMapper;
 import com.zeroone.star.basedata.mapper.EquipmentMapper;
 import com.zeroone.star.basedata.service.IEquipmentService;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentAddDTO;
@@ -42,7 +42,7 @@ import java.time.LocalDateTime;
 public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDeviceDefinitionDO> implements IEquipmentService {
 
     private final MsEquipmentMapper msEquipmentMapper;
-    private final EquipmentChargeItemMapper chargeItemMapper;
+    private final AdmChargeItemDefinitionMapper chargeItemMapper;
     //TODO 调用编码服务
 //    private final TerConceptMapper conceptMapper;
 //    private final UserHolder userHolder;
