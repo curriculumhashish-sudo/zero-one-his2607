@@ -35,6 +35,7 @@ class DrugDAO : public BaseDAO
     static std::string placeholders(size_t count);
     static void appendIds(SqlParams &params, const std::list<std::string> &ids);
     std::string queryConditionBuilder(const DrugQuery::Wrapper &query, SqlParams &params);
+    std::string querySelectConditionBuilder(const DrugSelectQuery::Wrapper& query, SqlParams& params);
 
   public:
     void releaseSqlSession() noexcept;
@@ -70,6 +71,7 @@ class DrugDAO : public BaseDAO
                            const std::string &operationTime);
     uint64_t count(const DrugQuery::Wrapper &query);
     std::list<PtrMedMedicationDefinitionDO> selectWithPage(const DrugQuery::Wrapper &query);
+    std::list<PtrMedMedicationDefinitionDO> SElectWithPage(const DrugSelectQuery::Wrapper& query)
     int insert(const MedMedicationDefinitionDO &entity);
 };
 

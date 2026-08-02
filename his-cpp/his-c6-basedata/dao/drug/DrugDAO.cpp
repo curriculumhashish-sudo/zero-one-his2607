@@ -19,7 +19,7 @@
 #include "stdafx.h"
 #include "DrugDAO.h"
 #include "../../domain/DrugConstants.h"
-
+#include "domain/query/Drug/DrugSelectQuery.h"
 #include <sstream>
 
 static const std::string &drugTableName()
@@ -99,9 +99,50 @@ std::string DrugDAO::queryConditionBuilder(const DrugQuery::Wrapper &query, SqlP
         sqlCondition << " AND category_code=?";
         SQLPARAMS_PUSH(params, "s", std::string, kind);
     }
+     if (query->kind && !query->kind->empty())
+    {
+        const std::string kind = query->kind.getValue("");
+        sqlCondition << " AND category_code=?";
+        SQLPARAMS_PUSH(params, "s", std::string, kind);
+    }
     return sqlCondition.str();
 }
+std::string querySelectConditionBuilder(const DrugSelectQuery::Wrapper& query, SqlParams& params)
+{
+    std::ostringstream sqlCondition;
+    sqlCondition << " WHERE is_deleted=0";
 
+    if (query->proname && !query->proname->empty())
+    {
+        const std::string pron = query->proname.getValue("");
+        sqlCondition << " AND (name LIKE CONCAT('%',?,'%')";
+        for (int index = 0; index < 4; ++index)
+        {
+            SQLPARAMS_PUSH(params, "s", std::string, pron);
+        }
+    }
+    if (query->Minjiliang && !query->Minjiliang->empty())
+    {
+        const std::string zuixiao = query->Minjiliang.getValue("");
+        sqlCondition << " AND name LIKE CONCAT('%',?,'%')";
+        SQLPARAMS_PUSH(params, "s", std::string, zuixiao);
+    }
+    if (query->Maxjiliang && !query->Maxjiliang->empty())
+    {
+        const std::string zuida = query->Maxjiliang.getValue("");
+        sqlCondition << " AND category_code=?";
+        SQLPARAMS_PUSH(params, "s", std::string, zuida);
+    }
+    if (query->yongfa && !query->yongfa->empty())
+    {
+        const std::string yongfa = query->yongfa.getValue("");
+        sqlCondition << " AND category_code=?";
+        SQLPARAMS_PUSH(params, "s", std::string, yongfa);
+    }
+    return sqlCondition.str();
+
+
+}
 bool DrugDAO::hasTenantAccess(const std::string &userId, const std::string &username,
                               const std::string &tenantId)
 {
@@ -516,7 +557,20 @@ std::list<PtrMedMedicationDefinitionDO> DrugDAO::selectWithPage(const DrugQuery:
     SQLPARAMS_PUSH(params, "ull", uint64_t, pageSize);
     return sqlSession->executeQuery<PtrMedMedicationDefinitionDO>(sql, PtrDrugMapper(), params);
 }
+std::list<PtrMedMedicationDefinitionDO> DrugDAO::SElectWithPage(const DrugSelectQuery::Wrapper& query)
+{
+    SqlParams params;
+    std::string sql = "SELECT " + fullDrugColumns() + " FROM med_medication_definition";
+    sql += querySelectConditionBuilder(query, params);
+    sql += " ORDER BY IFNULL(updated_at,created_at) DESC,id DESC LIMIT ?,?";
 
+    const uint64_t pageIndex = query->pageIndex.getValue(1);
+    const uint64_t pageSize = query->pageSize.getValue(10);
+    const uint64_t offset = (pageIndex - 1) * pageSize;
+    SQLPARAMS_PUSH(params, "ull", uint64_t, offset);
+    SQLPARAMS_PUSH(params, "ull", uint64_t, pageSize);
+    return sqlSession->executeQuery<PtrMedMedicationDefinitionDO>(sql, PtrDrugMapper(), params);
+}
 int DrugDAO::insert(const MedMedicationDefinitionDO &entity)
 {
     return BaseDAO::insert(entity);

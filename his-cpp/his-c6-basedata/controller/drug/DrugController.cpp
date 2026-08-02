@@ -31,9 +31,10 @@ DrugListPageJsonVO::Wrapper DrugController::execQueryDrug(const DrugQuery::Wrapp
 
 DrugSelectPageJsonVO::Wrapper DrugController::execQuerySelectDrug(const DrugSelectQuery::Wrapper &query)
 {
-    auto jvo = DrugListPageJsonVO::createShared();
-    jvo->success(DrugService().listAll(query));
+    auto jvo = DrugSelectPageJsonVO::createShared();
+    jvo->success(DrugService().SelectlistAll(query));
     return jvo;
+    
 }
 
 StringJsonVO::Wrapper DrugController::execAddDrug(const DrugAddDTO::Wrapper &dto, const PayloadDTO &payload)

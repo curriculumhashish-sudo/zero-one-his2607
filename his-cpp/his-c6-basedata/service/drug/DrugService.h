@@ -30,6 +30,7 @@
 #include "domain/dto/drug/DrugDetailDTO.h"
 #include "domain/dto/drug/DrugListDTO.h"
 #include "domain/dto/drug/DrugAddDTO.h"
+#include  "domain/query/Drug/DrugSelectQuery.h"
 #include <stdexcept>
 
 enum class DrugServiceError
@@ -63,6 +64,7 @@ class DrugService
     DrugListPageDTO::Wrapper listAll(const DrugQuery::Wrapper& query);
     DrugDetailDTO::Wrapper getById(string id);
     string saveData(const DrugAddDTO::Wrapper& dto);
+    DrugSelectPageDTO::Wrapper SelectlistAll(const DrugSelectQuery::Wrapper& query);
 };
 
 #endif // !_DRUG_SERVICE_H_

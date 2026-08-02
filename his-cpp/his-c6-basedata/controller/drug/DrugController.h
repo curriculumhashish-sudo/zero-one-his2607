@@ -93,19 +93,7 @@ class DrugController : public oatpp::web::server::api::ApiController
                                BODY_DTO(DrugEnableDisableDTO::Wrapper, dto),
                                execEnableDisableDrug(dto, authObject->getPayload()));
 
-    // 声明式单条查询。
-    API_DEF_ENDPOINT_INFO_AUTH(
-        ZH_WORDS_GETTER("drug.query-one.summary"), queryOne, DrugDetailJsonVO::Wrapper, API_TAG2,
-        API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("drug.field.id"),
-                                 "d934050a8bb373e8f8eed0bf7507ec17", true););
-    API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/drug/query-one", queryOne, QUERY(String, id),
-                              execQueryOne(id, authObject->getPayload()));
-
-    // 声明式分页查询。
-    API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("drug.query-all.summary"), queryAll, DrugQuery,
-                                     DrugListPageJsonVO::Wrapper, API_TAG2);
-    API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/drug/query-all", queryAll, DrugQuery,
-                                    execQueryAll(query, authObject->getPayload()));
+   
 
   private:
     DrugListPageJsonVO::Wrapper execQueryDrug(const DrugQuery::Wrapper &query);
@@ -122,8 +110,6 @@ class DrugController : public oatpp::web::server::api::ApiController
     // 批量启用或停用药品。
     NoDataJsonVO::Wrapper execEnableDisableDrug(const DrugEnableDisableDTO::Wrapper &dto, const PayloadDTO &payload);
 
-    DrugDetailJsonVO::Wrapper execQueryOne(const String &id, const PayloadDTO &payload);
-    DrugListPageJsonVO::Wrapper execQueryAll(const DrugQuery::Wrapper &query, const PayloadDTO &payload);
 };
 
 #undef API_TAG

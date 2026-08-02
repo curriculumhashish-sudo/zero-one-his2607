@@ -18,7 +18,7 @@
 */
 #include "stdafx.h"
 #include "DrugService.h"
-
+#include "domain/dto/drug/DrugSelectDTO.h"
 #include "../../dao/common/DrugEnumDictionaryDAO.h"
 #include "../../dao/drug/DrugDAO.h"
 #include "../../domain/DrugConstants.h"
@@ -631,6 +631,43 @@ DrugListPageDTO::Wrapper DrugService::listAll(const DrugQuery::Wrapper& query)
                       : status == DrugConstants::STATUS_INACTIVE ? 2
                       : status == DrugConstants::STATUS_DISCARDED ? 3
                                                                   : 0;
+        pages->addData(dto);
+    }
+    return pages;
+
+}
+DrugSelectPageDTO::Wrapper SelectlistAll(const DrugSelectQuery::Wrapper& query)
+{
+    auto pages = DrugSelectPageDTO::createShared();
+    pages->pageIndex = query->pageIndex;
+    pages->pageSize = query->pageSize;
+
+    // 查询符合条件的药品总数。
+    DrugDAO dao;
+    uint64_t count = dao.count(query);
+    if (count <= 0)
+    {
+        return pages;
+    }
+
+    // 分页查询并转换为列表 DTO。
+    pages->total = count;
+    pages->calcPages();
+    std::list<PtrMedMedicationDefinitionDO> result = dao.selectWithPage(query);
+    for (const auto& sub : result)
+    {
+        if (!sub)
+        {
+            continue;
+        }
+        auto dto = DrugListDTO::createShared();
+        ZO_STAR_DOMAIN_DO_TO_DTO_1(dto, sub, id, Id, code, BusNo, name, Name, guige, TotalVolume,
+            kinds, CategoryCode, changjia, ManufacturerText);
+        const std::string status = sub->getStatusEnum();
+        dto->status = status == DrugConstants::STATUS_ACTIVE ? 1
+            : status == DrugConstants::STATUS_INACTIVE ? 2
+            : status == DrugConstants::STATUS_DISCARDED ? 3
+            : 0;
         pages->addData(dto);
     }
     return pages;
