@@ -23,6 +23,9 @@ public class DiagnosisDetailVO implements Serializable {
     @Schema(description = "诊断目录编码", example = "general_dx")
     private String sourceEnum;
 
+    @Schema(description = "诊断编码", example = "CDF00000004")
+    private String conditionCode;
+
     @Schema(description = "诊断名称", example = "原发性高血压")
     private String name;
 

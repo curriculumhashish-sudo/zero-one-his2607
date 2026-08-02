@@ -67,6 +67,7 @@ public class UserHolder {
         // FIXME: 如果要扩展用户信息，需要修改这里的代码
         return UserDTO.builder()
                 .id(Convert.toStr(userJsonObject.get("id")))
+                .tenantId(userJsonObject.getStr("tenantId"))
                 .username(userJsonObject.getStr("sub"))
                 .isEnabled(Convert.toByte(1))
                 .roles(Convert.toList(String.class, userJsonObject.get("roles")))
@@ -77,6 +78,16 @@ public class UserHolder {
                 .titleName(userJsonObject.getStr("titleName"))
                 .titleCode(userJsonObject.getStr("titleCode"))
                 .build();
+    }
+
+    /**
+     * 获取当前用户所属租户编号。
+     *
+     * @return 租户编号
+     * @throws Exception 用户信息解析失败时抛出异常
+     */
+    public String getCurrentTenantId() throws Exception {
+        return getCurrentUser().getTenantId();
     }
 
     /**

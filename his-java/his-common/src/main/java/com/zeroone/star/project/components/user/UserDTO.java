@@ -24,6 +24,10 @@ public class UserDTO {
      */
     private String id;
     /**
+     * 当前用户所属租户编号
+     */
+    private String tenantId;
+    /**
      * 用户名称(登录账号)
      */
     private String username;

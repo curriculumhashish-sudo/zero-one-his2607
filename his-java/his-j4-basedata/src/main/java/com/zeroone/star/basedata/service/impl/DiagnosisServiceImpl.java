@@ -8,6 +8,7 @@ import com.zeroone.star.basedata.constant.DiagnosisCatalogConstants;
 import com.zeroone.star.basedata.entity.diagnosis.ClnConditionDefinitionDO;
 import com.zeroone.star.basedata.mapper.DiagnosisMapper;
 import com.zeroone.star.basedata.service.IDiagnosisService;
+import com.zeroone.star.project.components.user.UserHolder;
 
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisSaveDTO;
@@ -26,6 +27,7 @@ import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisOptionVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -42,8 +44,14 @@ import java.util.List;
 public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnConditionDefinitionDO> 
     implements IDiagnosisService {
 
+    private static final long DEFAULT_PAGE_INDEX = 1L;
+    private static final long DEFAULT_PAGE_SIZE = 10L;
+
     @Autowired
     private MsDiagnosisMapper msDiagnosisMapper;
+
+    @Autowired
+    private UserHolder userHolder;
 
     @Override
     public Page<ClnConditionDefinitionDO> pageQuery(DiagnosisDefinitionQuery query) {
@@ -96,16 +104,18 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
 
     @Override
     public PageDTO<DiagnosisOptionVO> queryDiagnosisSelectList(DiagnosisSelectPageQuery query) {
-        long pageIndex = query.getPageIndex() <= 0 ? 1L : query.getPageIndex();
-        long pageSize = query.getPageSize() <= 0 ? 10L : query.getPageSize();
-        String keyword = StrUtil.trim(query.getKeyword());
-        String sourceEnum = StrUtil.trim(query.getSourceEnum());
+        // 1. 处理分页参数和查询条件
+        long pageIndex = normalizePageIndex(query == null ? 0L : query.getPageIndex());
+        long pageSize = normalizePageSize(query == null ? 0L : query.getPageSize());
+        String keyword = query == null ? null : StrUtil.trim(query.getKeyword());
+        String sourceEnum = query == null ? null : StrUtil.trim(query.getSourceEnum());
 
+        // 2. 从临时常量中过滤目录，并转换为页面显示对象
         List<DiagnosisOptionVO> matched = DiagnosisCatalogConstants.catalogOptions().entrySet().stream()
                 .filter(item -> StrUtil.isBlank(sourceEnum) || item.getKey().equals(sourceEnum))
                 .filter(item -> StrUtil.isBlank(keyword)
-                        || item.getKey().contains(keyword)
-                        || item.getValue().contains(keyword))
+                        || StrUtil.containsIgnoreCase(item.getKey(), keyword)
+                        || StrUtil.containsIgnoreCase(item.getValue(), keyword))
                 .map(item -> {
                     DiagnosisOptionVO option = new DiagnosisOptionVO();
                     option.setCode(item.getKey());
@@ -114,10 +124,13 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
                 })
                 .toList();
 
+        // 3. 对过滤后的目录数据进行内存分页
         long total = matched.size();
-        long fromIndex = Math.min((pageIndex - 1) * pageSize, total);
-        long toIndex = Math.min(fromIndex + pageSize, total);
+        long pages = total / pageSize + (total % pageSize == 0 ? 0 : 1);
+        long fromIndex = pageIndex > pages ? total : (pageIndex - 1) * pageSize;
+        long toIndex = pageSize >= total - fromIndex ? total : fromIndex + pageSize;
 
+        // 4. 封装并返回统一分页结果
         Page<DiagnosisOptionVO> result = new Page<>(pageIndex, pageSize, total);
         result.setRecords(matched.subList((int) fromIndex, (int) toIndex));
         return PageDTO.create(result);
@@ -125,38 +138,85 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
 
     @Override
     public PageDTO<DiagnosisListVO> queryDiagnosisList(DiagnosisPageQuery query) {
-        Page<ClnConditionDefinitionDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
-        LambdaQueryWrapper<ClnConditionDefinitionDO> wrapper = buildQueryWrapper(
-                query.getKeyword(), query.getSourceEnum());
-        wrapper.orderByAsc(ClnConditionDefinitionDO::getConditionCode);
+        // 1. 处理分页参数
+        long pageIndex = normalizePageIndex(query == null ? 0L : query.getPageIndex());
+        long pageSize = normalizePageSize(query == null ? 0L : query.getPageSize());
+        Page<ClnConditionDefinitionDO> page = new Page<>(pageIndex, pageSize);
 
+        // 2. 根据关键字和诊断目录构造查询条件
+        LambdaQueryWrapper<ClnConditionDefinitionDO> wrapper = buildQueryWrapper(
+                query == null ? null : query.getKeyword(), query == null ? null : query.getSourceEnum());
+        wrapper.eq(ClnConditionDefinitionDO::getTenantId, currentTenantId());
+        wrapper.orderByAsc(ClnConditionDefinitionDO::getConditionCode)
+                .orderByAsc(ClnConditionDefinitionDO::getId);
+
+        // 3. 查询诊断定义表
         Page<ClnConditionDefinitionDO> result = baseMapper.selectPage(page, wrapper);
+
+        // 4. 将数据库实体转换为列表VO并返回
         return PageDTO.create(result, msDiagnosisMapper::entityToListVo);
     }
 
     @Override
     public DiagnosisDetailVO queryDiagnosisDetail(String id) {
-        ClnConditionDefinitionDO entity = baseMapper.selectById(id);
-        return entity == null ? null : msDiagnosisMapper.entityToDiagnosisDetailVo(entity);
+        // 1. 根据诊断ID查询数据库实体
+        if (StrUtil.isBlank(id)) {
+            throw new IllegalArgumentException("诊断ID不能为空");
+        }
+        ClnConditionDefinitionDO entity = lambdaQuery()
+                .eq(ClnConditionDefinitionDO::getId, id)
+                .eq(ClnConditionDefinitionDO::getTenantId, currentTenantId())
+                .one();
+        if (entity == null) {
+            throw new RuntimeException("诊断记录不存在");
+        }
+
+        // 2. 将数据库实体转换为详情VO并返回
+        return msDiagnosisMapper.entityToDiagnosisDetailVo(entity);
     }
 
     private LambdaQueryWrapper<ClnConditionDefinitionDO> buildQueryWrapper(
             String keyword, String sourceEnum) {
+        String normalizedKeyword = StrUtil.trim(keyword);
+        String normalizedSourceEnum = StrUtil.trim(sourceEnum);
         LambdaQueryWrapper<ClnConditionDefinitionDO> wrapper = new LambdaQueryWrapper<>();
-        if (StrUtil.isNotBlank(keyword)) {
+        if (StrUtil.isNotBlank(normalizedKeyword)) {
             wrapper.and(item -> item
-                    .like(ClnConditionDefinitionDO::getName, keyword)
+                    .like(ClnConditionDefinitionDO::getName, normalizedKeyword)
                     .or()
-                    .like(ClnConditionDefinitionDO::getConditionCode, keyword)
+                    .like(ClnConditionDefinitionDO::getConditionCode, normalizedKeyword)
                     .or()
-                    .like(ClnConditionDefinitionDO::getPyStr, keyword)
+                    .like(ClnConditionDefinitionDO::getPyStr, normalizedKeyword)
                     .or()
-                    .like(ClnConditionDefinitionDO::getWbStr, keyword));
+                    .like(ClnConditionDefinitionDO::getWbStr, normalizedKeyword));
         }
-        if (StrUtil.isNotBlank(sourceEnum)) {
-            wrapper.eq(ClnConditionDefinitionDO::getSourceEnum, sourceEnum);
+        if (StrUtil.isNotBlank(normalizedSourceEnum)) {
+            wrapper.eq(ClnConditionDefinitionDO::getSourceEnum, normalizedSourceEnum);
         }
         return wrapper;
+    }
+
+    private long normalizePageIndex(long pageIndex) {
+        return pageIndex > 0 ? pageIndex : DEFAULT_PAGE_INDEX;
+    }
+
+    private long normalizePageSize(long pageSize) {
+        return pageSize > 0 ? pageSize : DEFAULT_PAGE_SIZE;
+    }
+
+    private String currentTenantId() {
+        try {
+            String tenantId = userHolder.getCurrentTenantId();
+            if (!StringUtils.hasText(tenantId)) {
+                throw new IllegalStateException("当前用户未绑定租户");
+            }
+            return tenantId;
+        } catch (Exception e) {
+            if (e instanceof IllegalStateException) {
+                throw (IllegalStateException) e;
+            }
+            throw new IllegalStateException("获取当前租户失败", e);
+        }
     }
 
 
