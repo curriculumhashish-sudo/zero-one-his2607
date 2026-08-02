@@ -12,6 +12,7 @@ import com.zeroone.star.basedata.mapper.DiagnosisCatalogMapper;
 import com.zeroone.star.basedata.mapper.DiagnosisMapper;
 import com.zeroone.star.basedata.service.IDiagnosisService;
 
+import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisDefinitionDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisSaveDTO;
@@ -53,10 +54,14 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
     @Resource
     private DiagnosisCatalogMapper diagnosisCatalogMapper;
 
+    @Resource
+    private UserHolder userHolder;
+
     @Override
     public Page<ClnConditionDefinitionDO> pageQuery(DiagnosisDefinitionQuery query) {
         Page<ClnConditionDefinitionDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
         LambdaQueryWrapper<ClnConditionDefinitionDO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ClnConditionDefinitionDO::getTenantId, userHolder.getCurrentTenantId());
         
         if (StrUtil.isNotBlank(query.getName())) {
             wrapper.like(ClnConditionDefinitionDO::getName, query.getName());
@@ -95,6 +100,9 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
         // 设置创建时间
         entity.setCreatedAt(LocalDateTime.now());
         entity.setUpdatedAt(LocalDateTime.now());
+        
+        // 设置租户ID
+        entity.setTenantId(userHolder.getCurrentTenantId());
         
         // 2. 保存到数据库
         baseMapper.insert(entity);
@@ -148,9 +156,10 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
         if (!"ACTIVE".equals(dto.getStatus()) && !"INACTIVE".equals(dto.getStatus())) {
             throw new IllegalArgumentException("状态值必须为ACTIVE或INACTIVE");
         }
-        // 3. 批量更新状态
+        // 3. 批量更新状态（限定租户）
         LambdaUpdateWrapper<ClnConditionDefinitionDO> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.in(ClnConditionDefinitionDO::getId, dto.getIds())
+        updateWrapper.eq(ClnConditionDefinitionDO::getTenantId, userHolder.getCurrentTenantId())
+                .in(ClnConditionDefinitionDO::getId, dto.getIds())
                 .set(ClnConditionDefinitionDO::getStatusEnum, dto.getStatus());
         int rowsAffected = baseMapper.update(null, updateWrapper);
         
@@ -168,9 +177,13 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
         }
         // 2. 逻辑删除（实体有@TableLogic注解，会自动转为update操作）
         List<String> ids = dto.getIds();
+        String tenantId = userHolder.getCurrentTenantId();
         for (String id : ids) {
-            // 检查记录是否存在
-            ClnConditionDefinitionDO existing = baseMapper.selectById(id);
+            // 检查记录是否存在（限定租户）
+            ClnConditionDefinitionDO existing = lambdaQuery()
+                    .eq(ClnConditionDefinitionDO::getId, id)
+                    .eq(ClnConditionDefinitionDO::getTenantId, tenantId)
+                    .one();
             if (existing == null) {
                 throw new RuntimeException("诊断记录不存在，ID: " + id);
             }
@@ -183,6 +196,7 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
     public Page<ClnConditionDefinitionDO> getSelectList(DiagnosisDefinitionQuery query) {
         Page<ClnConditionDefinitionDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
         LambdaQueryWrapper<ClnConditionDefinitionDO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ClnConditionDefinitionDO::getTenantId, userHolder.getCurrentTenantId());
         
         if (StrUtil.isNotBlank(query.getName())) {
             wrapper.like(ClnConditionDefinitionDO::getName, query.getName());
@@ -201,7 +215,8 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
     public PageDTO<DiagnosisOptionVO> queryDiagnosisSelectList(DiagnosisSelectPageQuery query) {
         Page<TerConceptDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
         LambdaQueryWrapper<TerConceptDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(TerConceptDO::getCodeSystemId, "279125561775755266")
+        wrapper.eq(TerConceptDO::getTenantId, userHolder.getCurrentTenantId())
+                .eq(TerConceptDO::getCodeSystemId, "279125561775755266")
                 .eq(TerConceptDO::getIsActive, true);
 
         if (StrUtil.isNotBlank(query.getKeyword())) {
@@ -240,6 +255,7 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
     private LambdaQueryWrapper<ClnConditionDefinitionDO> buildQueryWrapper(
             String keyword, String sourceEnum) {
         LambdaQueryWrapper<ClnConditionDefinitionDO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ClnConditionDefinitionDO::getTenantId, userHolder.getCurrentTenantId());
         if (StrUtil.isNotBlank(keyword)) {
             wrapper.and(item -> item
                     .like(ClnConditionDefinitionDO::getName, keyword)

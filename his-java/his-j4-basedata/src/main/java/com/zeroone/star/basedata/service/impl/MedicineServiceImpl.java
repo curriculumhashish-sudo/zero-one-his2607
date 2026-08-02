@@ -273,7 +273,7 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
                     .set(AdmChargeItemDefinitionDO::getPriceValue, dto.getMaxRetailPrice());
             chargeItemMapper.update(null, limitWrapper);
         }
-
+        dto.setVersion(dto.getVersion()+1);
         // TODO Redis清理旧缓存
 
 
