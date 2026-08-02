@@ -1,7 +1,7 @@
 package com.zeroone.star.basedata.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.zeroone.star.basedata.entity.equipment.AdmChargeItemDefinitionDO;
+import com.zeroone.star.basedata.entity.common.AdmChargeItemDefinitionDO;
 
 import java.util.List;
 
@@ -14,6 +14,7 @@ public interface EquipmentChargeItemMapper extends BaseMapper<AdmChargeItemDefin
 
     /**
      * 批量删除器材关联价格数据
+     *
      * @param equipmentIds 器材Id集合
      */
     void deleteByEquipmentIds(List<String> equipmentIds);
