@@ -20,5 +20,111 @@
 #include "MedicationCollectionService.h"
 #include "dao/medicationcollection/MedicationCollectionDAO.h"
 #include "id/UuidFacade.h"
+#include <set>
 PagePendingDispenseSummaryLinesDTO::Wrapper MedicationCollectionService::listPending(const PagePendingDispenseSummaryLinesQuery::Wrapper&q){auto page=PagePendingDispenseSummaryLinesDTO::createShared();page->rows=oatpp::List<NurseStationDispenseSummaryPatientGroupDTO::Wrapper>::createShared();page->patientGroups=oatpp::List<NurseStationDispenseSummaryPatientGroupDTO::Wrapper>::createShared();page->pageIndex=q->pageIndex;page->pageSize=q->pageSize;MedicationCollectionDAO dao;page->total=dao.countPending(q);page->calcPages();std::map<std::string,NurseStationDispenseSummaryPatientGroupDTO::Wrapper> patients;std::map<std::string,NurseStationDispenseSummaryOrderRowDTO::Wrapper> orders;for(auto&r:dao.selectPending(q)){auto&g=patients[r.encounterId];if(!g){g=NurseStationDispenseSummaryPatientGroupDTO::createShared();g->encounterId=r.encounterId;g->patientId=r.patientId;g->patientName=r.patientName;g->bedDisplay=r.bedName;g->orderRows=oatpp::List<NurseStationDispenseSummaryOrderRowDTO::Wrapper>::createShared();page->patientGroups->push_back(g);page->rows->push_back(g);}auto key=r.encounterId+":"+r.medReqId;auto&o=orders[key];if(!o){o=NurseStationDispenseSummaryOrderRowDTO::createShared();o->medReqId=r.medReqId;o->medicationId=r.medicationId;o->medicationName=r.medicationName;o->specificationText=r.specification;o->groupId=r.groupId;o->therapyEnum=r.therapy;o->therapyEnumText=r.therapy=="LONG_TERM"?ZH_WORDS_GETTER("business-text.enum.therapy-long-term"):ZH_WORDS_GETTER("business-text.enum.therapy-temporary");o->dosageInstruction=r.dosage;o->methodCode=r.method;o->methodCodeText=r.method;o->frequencyCode=r.frequency;o->frequencyCodeText=r.frequency;o->locationId=r.locationId;o->locationName=r.locationName;o->timePoints=oatpp::List<NurseStationDispenseSummaryTimePointDTO::Wrapper>::createShared();g->orderRows->push_back(o);}auto t=NurseStationDispenseSummaryTimePointDTO::createShared();t->dispenseId=r.dispenseId;t->procedureId=r.procedureId;t->plannedDispenseTime=r.plannedTime;t->quantity=r.quantity;t->unitCode=r.unitCode;t->unitCodeText=r.unitCode;t->chargeUnitPrice=r.price;o->timePoints->push_back(t);}return page;}
 CreateMedicationSummaryResponseDTO::Wrapper MedicationCollectionService::summarize(const CreateMedicationSummaryDTO::Wrapper&dto,const std::string&op){auto out=CreateMedicationSummaryResponseDTO::createShared();out->summaryNos=oatpp::List<oatpp::String>::createShared();out->message=ZH_WORDS_GETTER("business-text.medication-collection.summary-failed");if(!dto||!dto->dispenseItems||dto->dispenseItems->empty()||dto->dispenseItems->size()>500)return out;std::vector<std::string> ids;for(auto&i:*dto->dispenseItems)if(i&&i->dispenseId)ids.push_back(i->dispenseId);MedicationCollectionDAO dao;dao.getSqlSession()->beginTransaction();try{auto rows=dao.lockSummarizable(ids);if(rows.size()!=ids.size())throw std::runtime_error("already summarized");std::map<std::string,std::string> noByLocation;UuidFacade uf;for(auto&r:rows){auto&no=noByLocation[r.locationId];if(no.empty()){no="MS"+uf.genUuid();out->summaryNos->push_back(no);}if(dao.attachSummary(r.id,no,op)!=1||dao.insertSupplyLine(uf.genUuid(),no,r,op)!=1)throw std::runtime_error("summarize failed");}dao.getSqlSession()->commitTransaction();out->message=ZH_WORDS_GETTER("business-text.medication-collection.summary-success");}catch(...){dao.getSqlSession()->rollbackTransaction();out->summaryNos=oatpp::List<oatpp::String>::createShared();}return out;}
+
+namespace
+{
+	std::vector<std::string> distinctSummaryNos(const oatpp::List<oatpp::String>& summaryNos)
+	{
+		std::vector<std::string> result;
+		std::set<std::string> seen;
+		if (!summaryNos)
+		{
+			return result;
+		}
+		for (const auto& summaryNo : *summaryNos)
+		{
+			const auto value = summaryNo ? summaryNo.getValue("") : "";
+			if (!value.empty() && seen.insert(value).second)
+			{
+				result.push_back(value);
+			}
+		}
+		return result;
+	}
+
+	void copySummaryNos(const std::vector<std::string>& source, oatpp::List<oatpp::String>& target)
+	{
+		for (const auto& summaryNo : source)
+		{
+			target->push_back(summaryNo);
+		}
+	}
+}
+
+SubmitSummaryResponseDTO::Wrapper MedicationCollectionService::submitSummary(
+	const SubmitSummaryRequestDTO::Wrapper& dto,const std::string& operatorId)
+{
+	auto result = SubmitSummaryResponseDTO::createShared();
+	result->summaryNos = oatpp::List<oatpp::String>::createShared();
+	const auto summaryNos = dto ? distinctSummaryNos(dto->summaryNos) : std::vector<std::string>();
+	if (summaryNos.empty() || summaryNos.size() > 50)
+	{
+		result->message = "Invalid summary numbers.";
+		return result;
+	}
+
+	MedicationCollectionDAO dao;
+	dao.getSqlSession()->beginTransaction();
+	try
+	{
+		for (const auto& summaryNo : summaryNos)
+		{
+			const auto expected = dao.countSummarySupplyLines(summaryNo);
+			if (expected == 0 || dao.submitSummarySupplyLines(summaryNo, operatorId) != expected)
+			{
+				throw std::runtime_error("Summary is not submittable.");
+			}
+		}
+		dao.getSqlSession()->commitTransaction();
+		copySummaryNos(summaryNos, result->summaryNos);
+		result->message = "Summary submitted to pharmacy.";
+	}
+	catch (const std::exception&)
+	{
+		dao.getSqlSession()->rollbackTransaction();
+		result->message = "Summary submission failed.";
+	}
+	return result;
+}
+
+CancelSummaryResponseDTO::Wrapper MedicationCollectionService::cancelSummary(
+	const CancelSummaryRequestDTO::Wrapper& dto,const std::string& operatorId)
+{
+	auto result = CancelSummaryResponseDTO::createShared();
+	result->summaryNos = oatpp::List<oatpp::String>::createShared();
+	const auto summaryNos = dto ? distinctSummaryNos(dto->summaryNos) : std::vector<std::string>();
+	if (summaryNos.empty() || summaryNos.size() > 50)
+	{
+		result->message = "Invalid summary numbers.";
+		return result;
+	}
+
+	MedicationCollectionDAO dao;
+	dao.getSqlSession()->beginTransaction();
+	try
+	{
+		for (const auto& summaryNo : summaryNos)
+		{
+			const auto supplyCount = dao.countSummarySupplyLines(summaryNo);
+			const auto dispenseCount = dao.countSummaryDispenses(summaryNo);
+			if (supplyCount == 0
+				|| (dispenseCount > 0 && dao.releaseSummaryDispenses(summaryNo, operatorId) != dispenseCount)
+				|| dao.removePendingSummarySupplyLines(summaryNo, operatorId) != supplyCount)
+			{
+				throw std::runtime_error("Summary is not cancellable.");
+			}
+		}
+		dao.getSqlSession()->commitTransaction();
+		copySummaryNos(summaryNos, result->summaryNos);
+		result->message = "Summary cancelled.";
+	}
+	catch (const std::exception&)
+	{
+		dao.getSqlSession()->rollbackTransaction();
+		result->message = "Summary cancellation failed.";
+	}
+	return result;
+}

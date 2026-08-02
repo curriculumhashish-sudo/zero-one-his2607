@@ -34,17 +34,59 @@ CreateMedicationSummaryJsonVO::Wrapper MedicationCollectionController::execSumma
 }
 
 SubmitSummaryJsonVO::Wrapper MedicationCollectionController::execSubmitSummary(
-	const SubmitSummaryRequestDTO::Wrapper& dto)
+	const SubmitSummaryRequestDTO::Wrapper& dto,const PayloadDTO& payload)
 {
 	auto jvo = SubmitSummaryJsonVO::createShared();
-	jvo->setStatus(RS_SUCCESS);
+	if (!dto || !dto->summaryNos || dto->summaryNos->empty() || dto->summaryNos->size() > 50)
+	{
+		jvo->init(nullptr, RS_PARAMS_INVALID);
+		return jvo;
+	}
+	for (const auto& summaryNo : *dto->summaryNos)
+	{
+		if (!summaryNo || summaryNo->empty())
+		{
+			jvo->init(nullptr, RS_PARAMS_INVALID);
+			return jvo;
+		}
+	}
+	try
+	{
+		auto result = MedicationCollectionService().submitSummary(dto, payload.getUsername());
+		result && result->summaryNos && !result->summaryNos->empty() ? jvo->success(result) : jvo->fail(result);
+	}
+	catch (const std::exception&)
+	{
+		jvo->init(nullptr, RS_FAIL);
+	}
 	return jvo;
 }
 
 CancelSummaryJsonVO::Wrapper MedicationCollectionController::execCancelSummary(
-	const CancelSummaryRequestDTO::Wrapper& dto)
+	const CancelSummaryRequestDTO::Wrapper& dto,const PayloadDTO& payload)
 {
 	auto jvo = CancelSummaryJsonVO::createShared();
-	jvo->setStatus(RS_SUCCESS);
+	if (!dto || !dto->summaryNos || dto->summaryNos->empty() || dto->summaryNos->size() > 50)
+	{
+		jvo->init(nullptr, RS_PARAMS_INVALID);
+		return jvo;
+	}
+	for (const auto& summaryNo : *dto->summaryNos)
+	{
+		if (!summaryNo || summaryNo->empty())
+		{
+			jvo->init(nullptr, RS_PARAMS_INVALID);
+			return jvo;
+		}
+	}
+	try
+	{
+		auto result = MedicationCollectionService().cancelSummary(dto, payload.getUsername());
+		result && result->summaryNos && !result->summaryNos->empty() ? jvo->success(result) : jvo->fail(result);
+	}
+	catch (const std::exception&)
+	{
+		jvo->init(nullptr, RS_FAIL);
+	}
 	return jvo;
 }
