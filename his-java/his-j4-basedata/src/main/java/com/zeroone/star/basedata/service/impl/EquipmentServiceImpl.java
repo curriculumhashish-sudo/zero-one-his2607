@@ -4,27 +4,27 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zeroone.star.basedata.constant.EquipmentConstants;
-import com.zeroone.star.basedata.entity.equipment.AdmChargeItemDefinitionDO;
+import com.zeroone.star.basedata.entity.common.AdmChargeItemDefinitionDO;
 import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinitionDO;
 import com.zeroone.star.basedata.mapper.EquipmentChargeItemMapper;
 import com.zeroone.star.basedata.mapper.EquipmentMapper;
-import com.zeroone.star.basedata.mapper.TerConceptMapper;
 import com.zeroone.star.basedata.service.IEquipmentService;
+import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentAddDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentStatusDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentUpdateDTO;
 import com.zeroone.star.project.query.j4.equipment.EquipmentPageQuery;
 import com.zeroone.star.project.vo.j4.equipment.EquipmentCategoryVO;
 import com.zeroone.star.project.vo.j4.equipment.EquipmentVO;
+import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * <p>
@@ -42,7 +42,11 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
 
     private final MsEquipmentMapper msEquipmentMapper;
     private final EquipmentChargeItemMapper chargeItemMapper;
-    private final TerConceptMapper conceptMapper;
+//    private final TerConceptMapper conceptMapper;
+
+    // UserHoler用于获取租户ID
+    @Resource
+    private UserHolder userHolder;
 
     /**
      * 获取器材列表（条件+分页）
@@ -54,6 +58,8 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
     public Page<AdmDeviceDefinitionDO> queryEquipmentPage(EquipmentPageQuery query) {
         // 1.构建查询条件
         LambdaQueryWrapper<AdmDeviceDefinitionDO> wrapper = new LambdaQueryWrapper<>();
+        // 添加租户ID检查
+        wrapper.eq(AdmDeviceDefinitionDO::getTenantId, userHolder.getCurrentTenantId());
         if (StringUtils.hasText(query.getKeyword())) {
             // 关键词查询
             wrapper.and(w -> w.like(AdmDeviceDefinitionDO::getName, query.getKeyword())
@@ -84,13 +90,14 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
      * @throws IllegalArgumentException 器材不存在或参数非法
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public AdmDeviceDefinitionDO updateEquipment(EquipmentUpdateDTO dto) {
         String id = dto.getId();
         if (!StringUtils.hasText(id)) {
             throw new IllegalArgumentException("修改器材时主键不可为空");
         }
 
-        AdmDeviceDefinitionDO existing = baseMapper.selectById(Long.valueOf(id));
+        AdmDeviceDefinitionDO existing = baseMapper.selectById(id);
         if (existing == null) {
             throw new IllegalArgumentException("器材不存在，主键：" + id);
         }
@@ -102,35 +109,36 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
         baseMapper.updateById(existing);
 
         // 同步价格表
-        Long deviceId = Long.valueOf(id);
-        saveOrUpdatePrice(deviceId, "PURCHASE", dto.getPurchasePrice(), "采购价", dto.getItemTypeCode(), dto.getOrgId(), dto.getYbType());
-        saveOrUpdatePrice(deviceId, "SALE", dto.getRetailPrice(), "零售价", dto.getItemTypeCode(), dto.getOrgId(), dto.getYbType());
-        saveOrUpdatePrice(deviceId, "LIMIT", dto.getMaximumRetailPrice(), "限价", dto.getItemTypeCode(), dto.getOrgId(), dto.getYbType());
+        String deviceId = id;
+        String orgIdStr = dto.getOrgId() != null ? dto.getOrgId().toString() : null;
+        saveOrUpdatePrice(deviceId, "PURCHASE", dto.getPurchasePrice(), "采购价", dto.getItemTypeCode(), orgIdStr, dto.getYbType());
+        saveOrUpdatePrice(deviceId, "SALE", dto.getRetailPrice(), "零售价", dto.getItemTypeCode(), orgIdStr, dto.getYbType());
+        saveOrUpdatePrice(deviceId, "LIMIT", dto.getMaximumRetailPrice(), "限价", dto.getItemTypeCode(), orgIdStr, dto.getYbType());
 
         return existing;
     }
 
     @Override
-    public BigDecimal getRetailPrice(Long deviceId) {
+    public BigDecimal getRetailPrice(String deviceId) {
         LambdaQueryWrapper<AdmChargeItemDefinitionDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(AdmChargeItemDefinitionDO::getInstanceTable, "adm_device_definition")
-               .eq(AdmChargeItemDefinitionDO::getInstanceId, deviceId)
-               .eq(AdmChargeItemDefinitionDO::getPriceTypeCode, "SALE")
-               .last("LIMIT 1");
+                .eq(AdmChargeItemDefinitionDO::getInstanceId, deviceId)
+                .eq(AdmChargeItemDefinitionDO::getPriceTypeCode, "SALE")
+                .last("LIMIT 1");
         AdmChargeItemDefinitionDO priceRecord = chargeItemMapper.selectOne(wrapper);
         return priceRecord != null ? priceRecord.getPriceValue() : null;
     }
 
-    private void saveOrUpdatePrice(Long instanceId, String priceTypeCode, BigDecimal priceValue,
-                                    String chargeName, String typeCode, Long orgId, String ybType) {
+    private void saveOrUpdatePrice(String instanceId, String priceTypeCode, BigDecimal priceValue,
+                                   String chargeName, String typeCode, String orgId, String ybType) {
         if (priceValue == null) {
             return;
         }
         LambdaQueryWrapper<AdmChargeItemDefinitionDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(AdmChargeItemDefinitionDO::getInstanceTable, "adm_device_definition")
-               .eq(AdmChargeItemDefinitionDO::getInstanceId, instanceId)
-               .eq(AdmChargeItemDefinitionDO::getPriceTypeCode, priceTypeCode)
-               .last("LIMIT 1");
+        wrapper.eq(AdmChargeItemDefinitionDO::getInstanceTable, "adm_device_definition") //收费项目定义实体
+                .eq(AdmChargeItemDefinitionDO::getInstanceId, instanceId) //业务实例主键
+                .eq(AdmChargeItemDefinitionDO::getPriceTypeCode, priceTypeCode) // 价格类型编码
+                .last("LIMIT 1");
         AdmChargeItemDefinitionDO existingPrice = chargeItemMapper.selectOne(wrapper);
 
         if (existingPrice != null) {
@@ -163,11 +171,15 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
      */
     @Override
     public int modifyEquipmentStatus(EquipmentStatusDTO dto) {
+        String currentTenantId = userHolder.getCurrentTenantId();
         int count = 0;
         for (String id : dto.getIds()) {
-            AdmDeviceDefinitionDO existing = baseMapper.selectById(Long.valueOf(id));
+            AdmDeviceDefinitionDO existing = baseMapper.selectById(id);
             if (existing == null) {
                 throw new IllegalArgumentException("器材不存在，主键：" + id);
+            }
+            if (!currentTenantId.equals(existing.getTenantId())) {
+                throw new IllegalArgumentException("无权操作，器材不属于当前租户，主键：" + id);
             }
             boolean newStatus = existing.getActiveFlag() == null || !existing.getActiveFlag();
             existing.setActiveFlag(newStatus);
@@ -179,6 +191,7 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
 
     /**
      * 新增器材
+     *
      * @param equipmentAddDTO 新增器材的DTO
      */
     @Override
@@ -209,21 +222,21 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
 
     /**
      * 获取器材详情
+     *
      * @param equipmentId 器材Id
      * @return 器材VO
      */
     @Override
-    public EquipmentVO getEquipmentById(Long equipmentId) {
+    public EquipmentVO getEquipmentById(String equipmentId) {
         List<EquipmentVO> voList = this.baseMapper.queryEquipmentsById(equipmentId);
-        if(voList == null || voList.isEmpty()){
+        if (voList == null || voList.isEmpty()) {
             return null;
         }
         EquipmentVO vo = voList.get(0);
-        for(EquipmentVO temp : voList){
-            if(temp.getPriceTypeCode().equals("PURCHASE")){
+        for (EquipmentVO temp : voList) {
+            if (temp.getPriceTypeCode().equals("PURCHASE")) {
                 vo.setPurchasePrice(temp.getPurchasePrice());
-            }
-            else{
+            } else {
                 vo.setRetailPrice(temp.getRetailPrice());
             }
         }
@@ -232,21 +245,24 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
 
     /**
      * 获取选择器材种类列表
+     *
      * @return 可选择的器材种类列表
      */
     @Override
     public List<EquipmentCategoryVO> queryEquipmentCategoryList() {
-        List<EquipmentCategoryVO> voList = conceptMapper.queryEquipmentCategoryList(EquipmentConstants.EQUIPMENT_CATEGORY_CODE);
-        return voList;
+//        List<EquipmentCategoryVO> voList = conceptMapper.queryEquipmentCategoryList(EquipmentConstants.EQUIPMENT_CATEGORY_CODE);
+//        return voList;
+        return null;
     }
 
     /**
      * 批量删除器材信息
+     *
      * @param equipmentIds 器材Id集合
      */
     @Override
     @Transactional
-    public void removeEquipmentByIds(List<Long> equipmentIds) {
+    public void removeEquipmentByIds(List<String> equipmentIds) {
         this.baseMapper.deleteByIds(equipmentIds);
         chargeItemMapper.deleteByEquipmentIds(equipmentIds);
     }

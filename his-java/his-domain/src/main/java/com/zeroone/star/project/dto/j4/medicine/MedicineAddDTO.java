@@ -240,9 +240,6 @@ public class MedicineAddDTO {
     @Schema(description = "药品69码")
     private String drug69Code;
 
-    @Schema(description = "药品状态", example = "ACTIVE")
-    private String statusEnum;
-
     @Schema(description = "领域编码")
     private String domainEnum;
 
@@ -256,9 +253,6 @@ public class MedicineAddDTO {
 
     @Schema(description = "自制药标识", example = "false")
     private Boolean selfFlag;
-
-    @Schema(description = "是否有效", example = "true")
-    private Boolean activeFlag;
 
     @Schema(description = "是否限制使用", example = "false")
     private Boolean restrictedFlag;

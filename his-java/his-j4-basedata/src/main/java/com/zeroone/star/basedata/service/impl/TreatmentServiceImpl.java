@@ -5,13 +5,14 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zeroone.star.basedata.constant.TreatmentConstants;
-import com.zeroone.star.basedata.entity.medicine.AdmChargeItemDefinitionDO;
+import com.zeroone.star.basedata.entity.common.AdmChargeItemDefinitionDO;
 import com.zeroone.star.basedata.entity.treatment.WkfActivityDefinitionChildDO;
 import com.zeroone.star.basedata.entity.treatment.WkfActivityDefinitionDO;
 import com.zeroone.star.basedata.mapper.AdmChargeItemDefinitionMapper;
 import com.zeroone.star.basedata.mapper.TreatmentMapper;
 import com.zeroone.star.basedata.mapper.WkfActivityDefinitionChildMapper;
 import com.zeroone.star.basedata.service.ITreatmentService;
+import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentAddDTO;
 import com.zeroone.star.project.dto.j4.treatment.TreatmentEditDTO;
@@ -25,10 +26,18 @@ import com.zeroone.star.project.vo.j4.treatment.WkfActivityDefinitionChildVO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * <p>
+ * 描述：诊疗管理服务实现
+ * </p>
+ * <p>版权：&copy;01星球</p>
+ * <p>地址：01星球总部</p>
+ * @author j4组
+ * @version 1.0.0
+ */
 @Service
 public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivityDefinitionDO> implements ITreatmentService {
 
@@ -52,13 +61,31 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
     @Resource
     private WkfActivityDefinitionChildMapper childMapper;
 
+    @Resource
+    private UserHolder userHolder;
+
+    /**
+     * 获取当前租户ID
+     * <p>数据来源：登录用户绑定的租户信息（Redis）</p>
+     */
+    private String getCurrentTenantId() {
+        String tenantId = userHolder.getCurrentTenantId();
+        return tenantId != null ? tenantId : "1";
+    }
+
     @Override
     public PageDTO<TreatmentSelectVO> listTreatmentOptions(TreatmentQuery query) {
-        long pageIndex = query.getPageIndex() <= 0 ? DEFAULT_PAGE_INDEX : query.getPageIndex();
-        long pageSize = query.getPageSize() <= 0 ? DEFAULT_PAGE_SIZE : query.getPageSize();
+        long pageIndex = (query.getPageIndex() <= 0) ? DEFAULT_PAGE_INDEX : query.getPageIndex();
+        long pageSize = (query.getPageSize() <= 0) ? DEFAULT_PAGE_SIZE : query.getPageSize();
 
+        String tenantId = getCurrentTenantId();
         Page<WkfActivityDefinitionDO> page = new Page<>(pageIndex, pageSize);
         LambdaQueryWrapper<WkfActivityDefinitionDO> wrapper = new LambdaQueryWrapper<>();
+        // 只查询选择VO需要的字段，避免select *
+        wrapper.select(WkfActivityDefinitionDO::getId, WkfActivityDefinitionDO::getBusNo,
+                WkfActivityDefinitionDO::getName, WkfActivityDefinitionDO::getCategoryCode,
+                WkfActivityDefinitionDO::getTypeEnum);
+        wrapper.eq(WkfActivityDefinitionDO::getTenantId, tenantId);
         wrapper.eq(WkfActivityDefinitionDO::getStatusEnum, STATUS_ACTIVE);
         if (StrUtil.isNotBlank(query.getKeyword())) {
             wrapper.and(w -> w
@@ -76,19 +103,7 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
         }
         wrapper.orderByDesc(WkfActivityDefinitionDO::getCreatedAt);
         Page<WkfActivityDefinitionDO> result = baseMapper.selectPage(page, wrapper);
-
-        List<TreatmentSelectVO> voList = msTreatmentMapper.toSelectVOList(result.getRecords());
-        for (TreatmentSelectVO vo : voList) {
-            List<AdmChargeItemDefinitionDO> priceLines = loadPriceLines(vo.getId());
-            vo.setRetailPrice(extractRetailPrice(priceLines));
-        }
-        PageDTO<TreatmentSelectVO> pageDTO = new PageDTO<>();
-        pageDTO.setTotal(result.getTotal());
-        pageDTO.setPageIndex(result.getCurrent());
-        pageDTO.setPageSize(result.getSize());
-        pageDTO.setPages(result.getPages());
-        pageDTO.setRows(voList);
-        return pageDTO;
+        return PageDTO.create(result, msTreatmentMapper::toSelectVO);
     }
 
     @Override
@@ -96,24 +111,38 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
         long pageIndex = query.getPageIndex() <= 0 ? DEFAULT_PAGE_INDEX : query.getPageIndex();
         long pageSize = query.getPageSize() <= 0 ? DEFAULT_PAGE_SIZE : query.getPageSize();
 
+        String tenantId = getCurrentTenantId();
         Page<TreatmentListVO> page = new Page<>(pageIndex, pageSize);
-        Page<TreatmentListVO> result = baseMapper.selectTreatmentListPage(page, query);
+        Page<TreatmentListVO> result = baseMapper.selectTreatmentListPage(page, query, tenantId);
         return PageDTO.create(result);
     }
 
     @Override
     public TreatmentDetailVO getTreatmentById(String id) {
-        WkfActivityDefinitionDO entity = this.getById(id);
+        String tenantId = getCurrentTenantId();
+
+        // 主键查询加租户条件，只查询详情VO需要的字段，避免select *
+        LambdaQueryWrapper<WkfActivityDefinitionDO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.select(WkfActivityDefinitionDO::getId, WkfActivityDefinitionDO::getBusNo,
+                        WkfActivityDefinitionDO::getName, WkfActivityDefinitionDO::getCategoryCode,
+                        WkfActivityDefinitionDO::getTypeEnum, WkfActivityDefinitionDO::getPackageUnitCode,
+                        WkfActivityDefinitionDO::getPyStr, WkfActivityDefinitionDO::getWbStr,
+                        WkfActivityDefinitionDO::getDescriptionText, WkfActivityDefinitionDO::getYbFlag,
+                        WkfActivityDefinitionDO::getYbNo, WkfActivityDefinitionDO::getYbMatchFlag,
+                        WkfActivityDefinitionDO::getChrgitmLv, WkfActivityDefinitionDO::getStatusEnum)
+                .eq(WkfActivityDefinitionDO::getId, id)
+                .eq(WkfActivityDefinitionDO::getTenantId, tenantId);
+        WkfActivityDefinitionDO entity = this.getOne(wrapper);
         if (entity == null) {
             throw new RuntimeException("诊疗项目不存在");
         }
 
         TreatmentDetailVO detailVO = msTreatmentMapper.toDetailVO(entity);
 
-        List<AdmChargeItemDefinitionDO> priceLines = loadPriceLines(id);
+        List<AdmChargeItemDefinitionDO> priceLines = loadPriceLines(id, tenantId);
         enrichPriceFields(detailVO, priceLines);
 
-        List<WkfActivityDefinitionChildDO> children = loadChildren(id);
+        List<WkfActivityDefinitionChildDO> children = loadChildren(id, tenantId);
         List<WkfActivityDefinitionChildVO> childVOs = msTreatmentMapper.toChildVOList(children);
         detailVO.setChildren(childVOs);
 
@@ -131,6 +160,8 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
         if (wkfActivityDefinitionDO.getTypeEnum() == null) {
             wkfActivityDefinitionDO.setTypeEnum("1");
         }
+        // 新增时写入租户ID，与查询侧按租户过滤保持一致
+        wkfActivityDefinitionDO.setTenantId(getCurrentTenantId());
         this.save(wkfActivityDefinitionDO);
     }
 
@@ -188,24 +219,16 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
         this.removeById(id);
     }
 
-    private List<AdmChargeItemDefinitionDO> loadPriceLines(String instanceId) {
+    private List<AdmChargeItemDefinitionDO> loadPriceLines(String instanceId, String tenantId) {
         LambdaQueryWrapper<AdmChargeItemDefinitionDO> wrapper = new LambdaQueryWrapper<>();
+        // 只查询价格回填需要的4个字段，避免select *
+        wrapper.select(AdmChargeItemDefinitionDO::getTypeCode, AdmChargeItemDefinitionDO::getYbType,
+                AdmChargeItemDefinitionDO::getPriceTypeCode, AdmChargeItemDefinitionDO::getPriceValue);
         wrapper.eq(AdmChargeItemDefinitionDO::getInstanceTable, INSTANCE_TABLE)
                 .eq(AdmChargeItemDefinitionDO::getInstanceId, instanceId)
-                .eq(AdmChargeItemDefinitionDO::getIsDeleted, false);
+                .eq(AdmChargeItemDefinitionDO::getIsDeleted, false)
+                .eq(AdmChargeItemDefinitionDO::getTenantId, tenantId);
         return chargeItemMapper.selectList(wrapper);
-    }
-
-    private BigDecimal extractRetailPrice(List<AdmChargeItemDefinitionDO> rows) {
-        if (rows == null || rows.isEmpty()) {
-            return null;
-        }
-        for (AdmChargeItemDefinitionDO row : rows) {
-            if (row != null && PRICE_TYPE_SALE.equals(row.getPriceTypeCode())) {
-                return row.getPriceValue();
-            }
-        }
-        return null;
     }
 
     private void enrichPriceFields(TreatmentDetailVO dto, List<AdmChargeItemDefinitionDO> rows) {
@@ -236,9 +259,14 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
         }
     }
 
-    private List<WkfActivityDefinitionChildDO> loadChildren(String activityId) {
+    private List<WkfActivityDefinitionChildDO> loadChildren(String activityId, String tenantId) {
         LambdaQueryWrapper<WkfActivityDefinitionChildDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(WkfActivityDefinitionChildDO::getActivityId, activityId);
+        // 只查询子项VO需要的5个字段，避免select *
+        wrapper.select(WkfActivityDefinitionChildDO::getId, WkfActivityDefinitionChildDO::getActivityId,
+                WkfActivityDefinitionChildDO::getChildrenId, WkfActivityDefinitionChildDO::getChildrenNum,
+                WkfActivityDefinitionChildDO::getChildrenName);
+        wrapper.eq(WkfActivityDefinitionChildDO::getActivityId, activityId)
+                .eq(WkfActivityDefinitionChildDO::getTenantId, tenantId);
         List<WkfActivityDefinitionChildDO> children = childMapper.selectList(wrapper);
         return children != null ? children : Collections.emptyList();
     }

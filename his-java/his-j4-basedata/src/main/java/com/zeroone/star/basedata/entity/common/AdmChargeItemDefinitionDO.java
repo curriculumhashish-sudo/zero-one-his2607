@@ -1,9 +1,8 @@
-package com.zeroone.star.basedata.entity.medicine;
+package com.zeroone.star.basedata.entity.common;
 
 import com.baomidou.mybatisplus.annotation.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -11,15 +10,15 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * 管理域 收费项目定义
+ * 描述：管理域收费项目定义实体，对应 adm_charge_item_definition 表
  * </p>
- *
- * @author xxm
- * @since 2026-07-19
+ * <p>版权：&copy;01星球</p>
+ * <p>地址：01星球总部</p>
+ * @author j4组
+ * @version 1.0.0
  */
-@Getter
-@Setter
-@ToString
+@Data
+@EqualsAndHashCode(callSuper = false)
 @TableName("adm_charge_item_definition")
 public class AdmChargeItemDefinitionDO implements Serializable {
 
@@ -39,14 +38,14 @@ public class AdmChargeItemDefinitionDO implements Serializable {
     /**
      * 创建时间
      */
-    @TableField(value = "created_at",fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
+    @TableField(fill = FieldFill.INSERT)
+    private LocalDateTime createdAt;
 
     /**
      * 最后更新时间
      */
-    @TableField(value = "updated_at",fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updatedAt;
 
     /**
      * 创建人
@@ -61,8 +60,9 @@ public class AdmChargeItemDefinitionDO implements Serializable {
     private String updatedBy;
 
     /**
-     * 软删标记
+     * 软删标记 (0=未删除, 1=已删除)
      */
+    @TableLogic
     private Boolean isDeleted;
 
     /**
@@ -78,6 +78,7 @@ public class AdmChargeItemDefinitionDO implements Serializable {
     /**
      * 乐观锁版本号
      */
+    @Version
     private Integer version;
 
     /**
@@ -101,7 +102,7 @@ public class AdmChargeItemDefinitionDO implements Serializable {
     private String statusEnum;
 
     /**
-     * 所属科室标识，可空表示全局价格
+     * 所属机构主键（可空表示全局）
      */
     private String orgId;
 
@@ -126,7 +127,7 @@ public class AdmChargeItemDefinitionDO implements Serializable {
     private String lotNo;
 
     /**
-     * 价格数值（元，与 { adm_charge_item} 金额列同口径）
+     * 价格数值（元，与 adm_charge_item 金额列同口径）
      */
     private BigDecimal priceValue;
 

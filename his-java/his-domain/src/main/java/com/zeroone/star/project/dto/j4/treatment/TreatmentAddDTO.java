@@ -8,6 +8,11 @@ import lombok.Data;
 /**
  * 新增诊疗项目DTO
  * <p>字段对齐表 {@code wkf_activity_definition}（详见 zo_his.sql）。</p>
+ *
+ * 【前端对接说明】
+ * 1. categoryCode必须传编码值，如"21"代表治疗，"22"代表检验，不是中文
+ * 2. busNo业务编号需保证唯一，建议按"AD"+序号规则生成
+ * 3. statusEnum不传默认ACTIVE（启用）
  */
 @Data
 @Schema(description = "新增诊疗项目DTO")
@@ -42,7 +47,7 @@ public class TreatmentAddDTO {
 
     @NotBlank(message = "分类编码不能为空")
     @Size(max = 255, message = "分类编码不能超过255个字符")
-    @Schema(description = "分类编码（诊疗项目定义聚合根）", example = "检查", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "分类编码（21=治疗/22=检验/23=检查/24=手术等，传编码值不是中文）", example = "21", requiredMode = Schema.RequiredMode.REQUIRED)
     private String categoryCode;
 
     @NotBlank(message = "业务编号不能为空")

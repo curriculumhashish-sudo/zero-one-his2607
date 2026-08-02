@@ -8,27 +8,24 @@ import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+import com.zeroone.star.basedata.entity.common.AdmChargeItemDefinitionDO;
 import com.zeroone.star.basedata.entity.medicine.MedMedicationDispenseDO;
 import com.zeroone.star.basedata.entity.medicine.MedMedicationRequestDO;
 import com.zeroone.star.basedata.mapper.MedMedicationDispenseMapper;
 import com.zeroone.star.basedata.mapper.MedMedicationRequestMapper;
 import com.zeroone.star.basedata.service.IMedicineService;
 import com.zeroone.star.project.dto.j4.medicine.*;
-import com.zeroone.star.basedata.entity.medicine.AdmChargeItemDefinitionDO;
 import com.zeroone.star.basedata.entity.medicine.MedMedicationDefinitionDO;
 import com.zeroone.star.basedata.mapper.AdmChargeItemDefinitionMapper;
 import com.zeroone.star.basedata.mapper.MedMedicationDefinitionMapper;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.query.j4.medicine.MedicinePageQuery;
 import com.zeroone.star.project.query.j4.medicine.MedicineSelectPageQuery;
-import com.zeroone.star.project.vo.j4.medicine.MedicineAddVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineListVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineSelectVO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -95,7 +92,7 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public MedicineAddVO addMedicine(MedicineAddDTO dto) {
+    public MedicineListVO addMedicine(MedicineAddDTO dto) {
         validatePrice(dto);
         validateInventoryRange(dto);
 
@@ -119,7 +116,9 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
             savePrice(medicine, dto, PRICE_TYPE_MAX_RETAIL, dto.getMaximumRetailPrice(), now);
         }
 
-        return msMedicineMapper.entityToAddVO(medicine);
+        MedicineListVO vo = msMedicineMapper.entityToListVO(medicine);
+        vo.setRetailPrice(dto.getRetailPrice());
+        return vo;
     }
 
     /**
@@ -128,19 +127,15 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
     private void fillMedicineFields(MedMedicationDefinitionDO medicine, String medicineId, LocalDateTime now) {
         medicine.setId(medicineId);
         medicine.setBusNo("MD" + medicineId);
-        medicine.setCreateTime(now);
-        medicine.setUpdateTime(now);
+        medicine.setCreatedAt(now);
+        medicine.setUpdatedAt(now);
         medicine.setIsDeleted(false);
         medicine.setVersion(0);
         medicine.setOrgId(TEMP_ORG_ID);
 
-        if (!StringUtils.hasText(medicine.getStatusEnum())) {
-            medicine.setStatusEnum(STATUS_ACTIVE);
-        }
-
-        if (medicine.getActiveFlag() == null) {
-            medicine.setActiveFlag(true);
-        }
+        // 新增药品统一以启用状态保存，状态不由前端传入。
+        medicine.setStatusEnum(STATUS_ACTIVE);
+        medicine.setActiveFlag(true);
     }
 
     /**
@@ -150,8 +145,6 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
         AdmChargeItemDefinitionDO price = new AdmChargeItemDefinitionDO();
 
         price.setId(IdWorker.getIdStr());
-        price.setCreateTime(now);
-        price.setUpdateTime(now);
         price.setIsDeleted(false);
         price.setVersion(0);
 
@@ -200,7 +193,7 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public MedicineDetailDTO queryMedicineDetailById(String id) {
+    public MedicineDetailDTO queryMedicineDetailById(String id) { //TODO 调用频次管理接口，调用编码管理接口消除硬编码
         MedMedicationDefinitionDO medicationDefinitionDO = baseMapper.selectById(id);
         //获取与id值关联的AdmChargeItemDefinitionDO列表
         QueryWrapper<AdmChargeItemDefinitionDO> queryWrapper = new QueryWrapper<>();
@@ -239,7 +232,7 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int updateMedicine(MedicineDetailDTO dto) {
+    public int updateMedicine(MedicineDetailDTO dto) {//TODO 调用编码管理接口消除硬编码
         MedMedicationDefinitionDO definitionDO = msMedicineMapper.detailDtoToEntity(dto);
         int i = baseMapper.updateById(definitionDO);
         if(i==0) log.debug("definition表未更新");
@@ -273,7 +266,7 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
                     .set(AdmChargeItemDefinitionDO::getPriceValue, dto.getMaxRetailPrice());
             chargeItemMapper.update(null, limitWrapper);
         }
-
+        dto.setVersion(dto.getVersion()+1);
         // TODO Redis清理旧缓存
 
 

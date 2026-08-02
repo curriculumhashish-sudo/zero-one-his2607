@@ -25,5 +25,5 @@ public interface EquipmentMapper extends BaseMapper<AdmDeviceDefinitionDO> {
      * @param equipmentId 器材Id
      * @return 器材VO
      */
-    List<EquipmentVO> queryEquipmentsById(Long equipmentId);
+    List<EquipmentVO> queryEquipmentsById(String equipmentId);
 }

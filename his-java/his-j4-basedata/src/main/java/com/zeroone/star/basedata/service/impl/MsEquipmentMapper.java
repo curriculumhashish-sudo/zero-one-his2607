@@ -1,11 +1,10 @@
 package com.zeroone.star.basedata.service.impl;
 
+import com.zeroone.star.basedata.entity.common.AdmChargeItemDefinitionDO;
 import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinitionDO;
-import com.zeroone.star.basedata.entity.equipment.AdmChargeItemDefinitionDO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentAddDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentUpdateDTO;
 import com.zeroone.star.project.vo.j4.equipment.EquipmentCategoryVO;
-import com.zeroone.star.project.vo.j4.equipment.EquipmentUpdateVO;
 import com.zeroone.star.project.vo.j4.equipment.EquipmentVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -39,6 +38,7 @@ public interface MsEquipmentMapper {
 
     /**
      * 将新增器材DTO转换为AdmChargeItemDefinitionDO实体类
+     *
      * @param equipmentAddDTO 新增器材DTO
      * @return 物品价格实体
      */
@@ -92,11 +92,4 @@ public interface MsEquipmentMapper {
      */
     List<EquipmentCategoryVO> entitiesToOptionVos(List<AdmDeviceDefinitionDO> entities);
 
-    /**
-     * 将器材实体转换为修改响应VO
-     *
-     * @param entity 器材实体
-     * @return 修改响应VO
-     */
-    EquipmentUpdateVO entityToUpdateVo(AdmDeviceDefinitionDO entity);
 }

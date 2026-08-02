@@ -62,7 +62,7 @@ public interface IEquipmentService extends IService<AdmDeviceDefinitionDO> {
      * @param equipmentId 器材Id
      * @return 器材VO
      */
-    EquipmentVO getEquipmentById(Long equipmentId);
+    EquipmentVO getEquipmentById(String equipmentId);
 
     /**
      * 获取选择器材种类列表
@@ -74,7 +74,7 @@ public interface IEquipmentService extends IService<AdmDeviceDefinitionDO> {
      * 批量删除器材信息
      * @param equipmentIds 器材Id集合
      */
-    void removeEquipmentByIds(List<Long> equipmentIds);
+    void removeEquipmentByIds(List<String> equipmentIds);
 
     /**
      * 获取器材零售价（从价格表查询）
@@ -82,5 +82,5 @@ public interface IEquipmentService extends IService<AdmDeviceDefinitionDO> {
      * @param deviceId 器材主键
      * @return 零售价，未找到返回 null
      */
-    BigDecimal getRetailPrice(Long deviceId);
+    BigDecimal getRetailPrice(String deviceId);
 }
