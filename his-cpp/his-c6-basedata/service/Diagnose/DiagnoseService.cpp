@@ -1,8 +1,8 @@
-﻿//<<<<<<< HEAD
+﻿
 // #include "DiagnoseService.h"
 //#include "../../dao/Diagnose/DiagnoseDAO.h"
 //#include "../../lib-common/include/id/UuidFacade.h"
-//=======
+
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -95,7 +95,7 @@ DiagnosePageDTO::Wrapper DiagnoseService::listDiagnosePage(const DiagnosePageQue
 			id, Id,
 			diagnoseCode, ConditionCode,
 			diagnoseName, Name,
-			diagnoseType, TypeCode,
+			diagnoseType, SourceEnum,
 			medicalInsuranceCode, YbNo,
 			status, StatusEnum,
 			remark, Description
@@ -125,7 +125,7 @@ DiagnoseDetailDTO::Wrapper DiagnoseService::getDiagnoseDetail(const oatpp::Strin
 		id, Id,
 		diagnoseCode, ConditionCode,
 		diagnoseName, Name,
-		diagnoseType, TypeCode,
+		diagnoseType, SourceEnum,
 		medicalInsuranceCode, YbNo,
 		status, StatusEnum,
 		remark, Description
