@@ -1,6 +1,6 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "PatController.h"
-
+#include "../../service/pat/PatService.h"
 
 PatPageJsonVO::Wrapper PatController::execQueryPatPage(const PatPageQuery::Wrapper& query, const PayloadDTO& payload)
 {
@@ -32,14 +32,25 @@ PatSelectPageJsonVO::Wrapper PatController::execQuerySelectPatPage(const PatSele
 
 ListJsonVO<String>::Wrapper PatController::execRemovePat(const List<String>& ids)
 {
-   
     auto jvo = ListJsonVO<String>::createShared();
-    
-    if (ids->empty())
+
+    PatService service;
+    std::string errmsg = service.validateRemove(ids);
+    if (!errmsg.empty())
     {
-        jvo->init(nullptr, RS_PARAMS_INVALID);
+        auto errList = oatpp::List<oatpp::String>::createShared();
+        errList->push_back(errmsg);
+        jvo->init(errList, RS_PARAMS_INVALID);
         return jvo;
     }
 
+    // 执行删除
+    bool ok = service.removeData(ids);
+    if (ok)
+    {
+        jvo->success(ids);
+        return jvo;
+    }
+    jvo->fail(nullptr);
     return jvo;
 }
