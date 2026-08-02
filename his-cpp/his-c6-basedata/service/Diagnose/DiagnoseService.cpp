@@ -60,7 +60,7 @@ DiagnoseSelectDTO::Wrapper DiagnoseService::listDiagnoseSelect(const DiagnoseSel
 			id, Id,
 			diagnoseCode, ConditionCode,
 			diagnoseName, Name,
-			dictType, TenantId
+			dictType, TypeCode
 		);
 		page->addData(dto);
 	}
@@ -88,7 +88,7 @@ DiagnosePageDTO::Wrapper DiagnoseService::listDiagnosePage(const DiagnosePageQue
 	for (auto one : list)
 	{
 		//auto dto = DiagnosePageDTO::createShared();             修正
-		auto dto = DPageDTO::createShared();
+		auto dto = DPageDTO::createShared();//给自己做笔记:这里的类不能继承PageDTO
 		
 		ZO_STAR_DOMAIN_DO_TO_DTO_1(
 			dto, one,
