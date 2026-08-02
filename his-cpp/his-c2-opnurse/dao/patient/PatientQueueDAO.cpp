@@ -53,7 +53,7 @@ PatientQueueResult PatientQueueMapper::mapper(ResultSet* rs) const
 }
 
 std::list<PatientQueueResult> PatientQueueDAO::queryPatientQueue(
-	const std::string& name, const std::string& date,
+	const std::string& keyword, const std::string& startDate, const std::string& endDate,
 	const std::string& tenantId,
 	int pageIndex, int pageSize)
 {
@@ -70,14 +70,18 @@ std::list<PatientQueueResult> PatientQueueDAO::queryPatientQueue(
 
 	SqlParams params;
 	SQLPARAMS_PUSH(params, "s", std::string, tenantId);
-	if (!name.empty()) {
+	if (!keyword.empty()) {
 		sql << "AND (p.name LIKE ? OR q.bus_no = ?) ";
-		SQLPARAMS_PUSH(params, "s", std::string, "%" + name + "%");
-		SQLPARAMS_PUSH(params, "s", std::string, name);
+		SQLPARAMS_PUSH(params, "s", std::string, "%" + keyword + "%");
+		SQLPARAMS_PUSH(params, "s", std::string, keyword);
 	}
-	if (!date.empty()) {
-		sql << "AND q.booking_date = ? ";
-		SQLPARAMS_PUSH(params, "s", std::string, date);
+	if (!startDate.empty()) {
+		sql << "AND q.booking_date >= ? ";
+		SQLPARAMS_PUSH(params, "s", std::string, startDate);
+	}
+	if (!endDate.empty()) {
+		sql << "AND q.booking_date <= ? ";
+		SQLPARAMS_PUSH(params, "s", std::string, endDate);
 	}
 
 	sql << "ORDER BY q.display_order ASC ";
@@ -89,7 +93,9 @@ std::list<PatientQueueResult> PatientQueueDAO::queryPatientQueue(
 	return sqlSession->executeQuery<PatientQueueResult>(sql.str(), mapper, params);
 }
 
-uint64_t PatientQueueDAO::countPatientQueue(const std::string& name, const std::string& date, const std::string& tenantId)
+uint64_t PatientQueueDAO::countPatientQueue(
+	const std::string& keyword, const std::string& startDate, const std::string& endDate,
+	const std::string& tenantId)
 {
 	std::ostringstream sql;
 	sql << "SELECT COUNT(*) FROM wkf_appointment_queue q "
@@ -100,14 +106,18 @@ uint64_t PatientQueueDAO::countPatientQueue(const std::string& name, const std::
 
 	SqlParams params;
 	SQLPARAMS_PUSH(params, "s", std::string, tenantId);
-	if (!name.empty()) {
+	if (!keyword.empty()) {
 		sql << "AND (p.name LIKE ? OR q.bus_no = ?) ";
-		SQLPARAMS_PUSH(params, "s", std::string, "%" + name + "%");
-		SQLPARAMS_PUSH(params, "s", std::string, name);
+		SQLPARAMS_PUSH(params, "s", std::string, "%" + keyword + "%");
+		SQLPARAMS_PUSH(params, "s", std::string, keyword);
 	}
-	if (!date.empty()) {
-		sql << "AND q.booking_date = ? ";
-		SQLPARAMS_PUSH(params, "s", std::string, date);
+	if (!startDate.empty()) {
+		sql << "AND q.booking_date >= ? ";
+		SQLPARAMS_PUSH(params, "s", std::string, startDate);
+	}
+	if (!endDate.empty()) {
+		sql << "AND q.booking_date <= ? ";
+		SQLPARAMS_PUSH(params, "s", std::string, endDate);
 	}
 
 	return sqlSession->executeQueryNumerical(sql.str(), params);

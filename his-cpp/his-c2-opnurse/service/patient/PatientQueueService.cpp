@@ -25,7 +25,7 @@
 #include <stdexcept>
 
 PatientQueuePageDTO::Wrapper PatientQueueService::queryPatientQueue(
-	const std::string& name, const std::string& date,
+	const std::string& keyword, const std::string& startDate, const std::string& endDate,
 	const std::string& userId,
 	int pageIndex, int pageSize)
 {
@@ -37,8 +37,8 @@ PatientQueuePageDTO::Wrapper PatientQueueService::queryPatientQueue(
 
 	PatientQueueDAO dao;
 	// Query data with tenant isolation
-	auto results = dao.queryPatientQueue(name, date, tenantId, pageIndex, pageSize);
-	auto total = dao.countPatientQueue(name, date, tenantId);
+	auto results = dao.queryPatientQueue(keyword, startDate, endDate, tenantId, pageIndex, pageSize);
+	auto total = dao.countPatientQueue(keyword, startDate, endDate, tenantId);
 
 	// Convert DO to DTO
 	auto dtos = oatpp::List<PatientQueueDTO::Wrapper>::createShared();

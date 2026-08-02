@@ -1,4 +1,4 @@
-# 门诊护士站 - 接口对接修改建议
+# 门诊护士站 - 前端接口对接修改建议
 
 > 基于后端 `his-c2-opnurse` 当前实现 vs 前端 OpenAPI 契约（`1.json`），给前端开发人员的适配建议。
 > 范围：患者队列、执行项目、耗材项目（三个查询接口）。
@@ -13,48 +13,27 @@
 | 2 | `/ons/encounters/{encounterId}/execution-items` | `/patient/query-act/{encounterId}` | GET |
 | 3 | `/ons/encounters/{encounterId}/consumable-items` | `/patient/query-consum/{encounterId}` | GET |
 
-**建议：前端改为请求后端实际路径。**
+**前端需要改为请求后端实际路径。**
 
 ---
 
 ## 2. 患者队列 `/patient/query`
 
-### 2.1 查询条件
+### 2.1 请求
 
-| 前端参数 | 后端参数 | 适配 |
-|---------|---------|------|
-| `patient_name` | `name` | 字段名映射 |
-| `visit_date` | `date` | 字段名映射 |
-| `status` | ❌ | 暂不支持，前端可不传 |
-| `department_id` | ❌ | 暂不支持 |
-| `doctor_id` | ❌ | 暂不支持 |
-| `pageIndex` | `pageIndex` | ✅ |
-| `pageSize` | `pageSize` | ✅ |
+```
+GET /patient/query?keyword=&startDate=&endDate=&pageIndex=1&pageSize=10
+```
 
-**额外能力：** `name` 参数同时支持姓名模糊匹配和排队号精确匹配（输入"002"可直接搜排队号）。
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `keyword` | string | 否 | 姓名模糊匹配 或 排队号精确匹配 |
+| `startDate` | string | 否 | 就诊开始日期（yyyy-MM-dd） |
+| `endDate` | string | 否 | 就诊结束日期（yyyy-MM-dd） |
+| `pageIndex` | int | 是 | 页码（从 1 开始） |
+| `pageSize` | int | 是 | 每页条数（1-100） |
 
-### 2.2 响应字段
-
-| 前端字段 | 后端字段 | 适配 |
-|------|------|------|
-| `encounter_id` | `encounterId` | 字段名映射 |
-| `patient_name` | `name` | 字段名映射 |
-| `patient_gender` | `gender` | 字段名映射 |
-| `patient_age` | `age` | 字段名映射 |
-| `visit_order` | `queueNumber` | 字段名映射 |
-| `register_time` | `visitTime` | 字段名映射 |
-| `status_name` | `paymentType` | 字段名映射（语义略有不同） |
-| `id` | ❌ | 前端兜底 `"-"` |
-| `patient_id` | ❌ | 前端兜底 `"-"` |
-| `patient_card_no` | ❌ | 前端兜底 `"-"` |
-| `department_name` | ❌ | 前端兜底 `"-"` |
-| `doctor_name` | ❌ | 前端兜底 `"-"` |
-| `visit_no` | ❌ | 前端兜底 `"-"` |
-| `status` (int) | ❌ | 前端写死为 1（就诊中） |
-| `department_id` | ❌ | 前端兜底 `""` |
-| `doctor_id` | ❌ | 前端兜底 `""` |
-
-### 2.3 后端实际返回示例
+### 2.2 响应
 
 ```json
 {
@@ -80,33 +59,41 @@
 }
 ```
 
-### 2.4 前端适配清单
+| 后端字段 | 类型 | 说明 |
+|---------|------|------|
+| `encounterId` | string | 就诊 ID（联动执行/耗材接口） |
+| `name` | string | 患者姓名 |
+| `gender` | string | 性别（已翻译为"男"/"女"） |
+| `age` | int | 年龄 |
+| `visitTime` | string | 就诊时间 |
+| `queueNumber` | string | 排队号 |
+| `paymentType` | string | 付费类型 |
+
+### 2.3 前端适配
 
 | # | 适配项 |
 |---|--------|
 | 1 | 路径改为 `/patient/query` |
-| 2 | 参数名：`patient_name` → `name`，`visit_date` → `date` |
-| 3 | 删除 `status`/`department_id`/`doctor_id` 参数 |
-| 4 | adapter 层做字段名映射（见上表） |
-| 5 | 缺失字段给默认值（`"-"` 或 `""`） |
-| 6 | 成功判断用 `code === 0`（不是 10000） |
+| 2 | 参数名映射：前端 `patient_name` → 后端 `keyword` |
+| 3 | 日期参数：前端 `visit_date` → 后端 `startDate`，前端 `visit_date` → 后端 `endDate` |
+| 4 | 删除 `status`/`department_id`/`doctor_id` 参数（后端暂不支持） |
+| 5 | 字段名映射：`encounterId`→`encounter_id`、`name`→`patient_name`、`gender`→`patient_gender`、`age`→`patient_age`、`visitTime`→`register_time`、`queueNumber`→`visit_order`、`paymentType`→`status_name` |
+| 6 | 缺失字段兜底：`id:"-"`、`patient_id:"-"`、`patient_card_no:"-"`、`department_name:"-"`、`doctor_name:"-"`、`visit_no:"-"`、`status:1`、`department_id:""`、`doctor_id:""` |
+| 7 | 成功码判断：`code === 0`（不是 10000） |
 
 ---
 
 ## 3. 执行项目 `/patient/query-act/{encounterId}`
 
-### 3.1 查询条件
+### 3.1 请求
 
-| 前端参数 | 后端参数 | 适配 |
-|---------|---------|------|
-| `encounterId` (path) | `encounterId` (path) | ✅ |
-| 其他 query 参数 | **无** | ✅ |
+```
+GET /patient/query-act/{encounterId}
+```
 
-**重大变更：** 后端不再接受 `act`/`status`/`orderContent` 作为查询参数，改为全量返回。前端按 `isAct` 自行分组。
+**无 query 参数。** 后端返回全量医嘱，前端按 `isAct` 自行分组。
 
-### 3.2 响应结构
-
-**后端使用 Wrapper 结构（与前端纯数组不同）：**
+### 3.2 响应
 
 ```json
 {
@@ -128,51 +115,46 @@
 }
 ```
 
-### 3.3 响应字段
+| 层级 | 字段 | 类型 | 说明 |
+|------|------|------|------|
+| 顶层 | `name` | string | 患者姓名 |
+| 顶层 | `gender` | string | 患者性别 |
+| 顶层 | `age` | int | 患者年龄 |
+| items[] | `status` | string | 状态文案（"待执行"/"已执行"） |
+| items[] | `orderContent` | string | 医嘱内容 |
+| items[] | `amount` | string | 金额（"已结算；6.00元" 或 "未结算"） |
+| items[] | `isAct` | int | 0=未执行（☐），1=已执行（☑） |
 
-| 前端字段 | 后端字段 | 适配 |
-|------|------|------|
-| `orderContent` | `items[i].orderContent` | ✅ |
-| `statusName` | `items[i].status` | ✅（已是中文） |
-| `status` (enum) | `items[i].isAct` | 映射：`isAct==1 ? "COMPLETED" : "PENDING"` |
-| 勾选框 ☑ | `items[i].isAct` | `isAct==1` 打钩 |
-| `itemId` | ❌ | 前端兜底 `items[i].orderContent` |
-| `requestId` | ❌ | 前端兜底 `""` |
-| `requestType` | ❌ | 前端兜底 `"SERVICE"` |
-| `requestTypeName` | ❌ | 前端兜底 `"处置"` |
-| `specification` | ❌ | 前端兜底 `"-"` |
-| `plannedCount` | ❌ | 前端兜底 `1` |
-| `executedCount` | ❌ | 前端用 `isAct` |
-| `version` | ❌ | 前端兜底 `0` |
-| `printTypes` | ❌ | 前端兜底 `[]` |
-
-### 3.4 前端适配清单
+### 3.3 前端适配
 
 | # | 适配项 |
 |---|--------|
 | 1 | 路径改为 `/patient/query-act/{encounterId}` |
-| 2 | **删除所有 query 参数**（act/status/orderContent） |
-| 3 | 患者信息从 `data.name`/`data.gender`/`data.age` 取（顶层） |
-| 4 | 列表数据从 `data.items[]` 取 |
-| 5 | ☑ 勾选框用 `items[i].isAct` 控制 |
-| 6 | 前端按 `isAct` 分组显示（已执行/未执行） |
-| 7 | adapter 层补齐缺失字段（见上表） |
-| 8 | 成功判断用 `code === 0` |
+| 2 | **删除所有 query 参数**（不要传 act/status/orderContent） |
+| 3 | 患者信息从 `data.name`/`data.gender`/`data.age` 取（顶层，不在 items 内） |
+| 4 | 列表从 `data.items[]` 取 |
+| 5 | ☑ 勾选框：`items[i].isAct === 1` 打钩 |
+| 6 | 前端按 `isAct` 分组（已执行/未执行） |
+| 7 | `status` (enum)：`isAct===1 ? "COMPLETED" : "PENDING"` |
+| 8 | 缺失字段兜底：`itemId: items[i].orderContent`、`requestId:""`、`requestType:"SERVICE"`、`requestTypeName:"处置"`、`specification:"-"`、`plannedCount:1`、`executedCount: items[i].isAct`、`version:0`、`printTypes:[]` |
+| 9 | 成功码判断：`code === 0` |
 
 ---
 
 ## 4. 耗材项目 `/patient/query-consum/{encounterId}`
 
-### 4.1 查询条件
+### 4.1 请求
 
-| 前端参数 | 后端参数 | 适配 |
-|---------|---------|------|
-| `encounterId` (path) | `encounterId` (path) | ✅ |
-| — | `consumableRoom` (query, 可选) | 前端新增：耗材房下拉值传入 |
+```
+GET /patient/query-consum/{encounterId}?consumableRoom=门诊西药房
+```
 
-### 4.2 响应结构
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `encounterId` | path | 是 | 就诊 ID |
+| `consumableRoom` | query | 否 | 耗材房筛选，空选省略 |
 
-**后端返回纯数组（与前端一致 ✅）：**
+### 4.2 响应
 
 ```json
 {
@@ -192,39 +174,37 @@
 }
 ```
 
-### 4.3 响应字段
-
-| 前端字段 | 后端字段 | 适配 |
+| 字段 | 类型 | 说明 |
 |------|------|------|
-| `materialName` | `consumableName` | 字段名映射 |
-| `specification` | `modelSpec` | 字段名映射 |
-| `quantity` | `quantity` | ⚠️ 后端是字符串 "11 ×1"，前端如需数字需解析 |
-| `unitName` | 含在 `quantity` 中 | 从 `quantity` 解析或前端写死 |
-| `roomName` | `consumableRoom` | 字段名映射 |
-| `statusName` | `status` | ✅（已是中文） |
-| `status` (enum) | `status` | 映射：`"待发放" ? "PENDING" : "DISPENSED"` |
-| 勾选框 ☑ | `isAct` | `isAct==1` 打钩（前端新增） |
-| `dispenseItemId` | ❌ | 前端兜底 `consumableName + index` |
-| `materialId` | ❌ | 前端兜底 `""` |
+| `consumableName` | string | 耗材名称 |
+| `modelSpec` | string | 型号规格（含总容量） |
+| `quantity` | string | 数量 + 单位（"11 ×1"） |
+| `status` | string | 状态（"待发放"/"已发放"） |
+| `consumableRoom` | string | 耗材房 |
+| `isEmpty` | int | 是否空（0=非空，1=空） |
+| `isAct` | int | ☑ 勾选框状态（0=未勾选，1=已勾选） |
 
-### 4.4 前端适配清单
+**返回纯数组（无顶层患者信息），与前端契约一致。**
+
+### 4.3 前端适配
 
 | # | 适配项 |
 |---|--------|
 | 1 | 路径改为 `/patient/query-consum/{encounterId}` |
-| 2 | 新增 query 参数：`consumableRoom`（耗材房下拉选中值，空选省略） |
-| 3 | adapter 层做字段名映射（见上表） |
-| 4 | ☑ 勾选框用 `isAct` 控制（前端新增此字段） |
-| 5 | `quantity` 字符串解析或直接展示 |
-| 6 | 缺失字段给默认值 |
-| 7 | 成功判断用 `code === 0` |
+| 2 | 新增 query 参数：耗材房下拉选中值 → `?consumableRoom=门诊西药房`，空选省略 |
+| 3 | 字段名映射：`consumableName`→`materialName`、`modelSpec`→`specification`、`consumableRoom`→`roomName` |
+| 4 | ☑ 勾选框：用 `isAct`（前端 adapter 新增此字段） |
+| 5 | `status` (enum)：`status==="待发放" ? "PENDING" : "DISPENSED"` |
+| 6 | `unitName`：从 `quantity` 字符串解析，或前端写死默认单位 |
+| 7 | 缺失字段兜底：`dispenseItemId: consumableName + index`、`materialId:""` |
+| 8 | 成功码判断：`code === 0` |
 
 ---
 
 ## 5. 数据联动
 
 ```
-步骤1：GET /patient/query?name=&date=
+步骤1：GET /patient/query?keyword=&startDate=&endDate=&pageIndex=1&pageSize=10
        → 取 rows[i].encounterId
 
 步骤2：用户点击卡片
@@ -239,20 +219,24 @@
 
 | 项目 | 前端期望 | 后端实际 | 适配 |
 |------|---------|---------|------|
-| 成功码 | `10000` | `0` | 判断 `code === 0` |
-| 错误码 | 自定义 | `9995`/`9994`/`9999` | 判断 `code !== 0` |
+| 成功码 | `10000` | `0` | `code === 0` |
+| 错误码 | 自定义 | `9995`/`9994`/`9999` | `code !== 0` 即失败 |
 | 字段命名 | snake_case | camelCase | adapter 层转换 |
-| 鉴权 | Bearer JWT | Bearer JWT | ✅ |
+| 鉴权 | Bearer JWT | Bearer JWT | ✅ 一致 |
 
 ---
 
-## 7. 待办
+## 7. 前端适配清单汇总
 
-| # | 项目 | 负责方 | 优先级 |
+| # | 接口 | 适配项 | 优先级 |
 |---|------|--------|--------|
-| 1 | 患者队列补齐 `patient_id`/`department_name` 等字段 | 后端 | 高 |
-| 2 | 执行项目补齐 `itemId`/`requestId` 等字段 | 后端 | 中 |
-| 3 | 耗材 `quantity` 改为数字 + `unitName` 独立字段 | 后端 | 低 |
-| 4 | 前端 adapter 层做字段映射 | 前端 | 高 |
-| 5 | 前端路径改为后端实际路径 | 前端 | 高 |
-| 6 | 前端去掉执行项目 query 参数 | 前端 | 高 |
+| 1 | 患者队列 | 路径改为 `/patient/query` | 高 |
+| 2 | 患者队列 | 参数名映射（keyword/startDate/endDate） | 高 |
+| 3 | 患者队列 | 字段名 adapter 转换 + 缺失字段兜底 | 高 |
+| 4 | 执行项目 | 路径改为 `/patient/query-act/{encounterId}` | 高 |
+| 5 | 执行项目 | **删除所有 query 参数** | 高 |
+| 6 | 执行项目 | Wrapper 结构取 data.items[] | 高 |
+| 7 | 耗材项目 | 路径改为 `/patient/query-consum/{encounterId}` | 高 |
+| 8 | 耗材项目 | 新增 `consumableRoom` 查询参数 | 中 |
+| 9 | 耗材项目 | 字段名 adapter 转换 | 中 |
+| 10 | 全部 | 成功码判断 `code === 0` | 高 |
