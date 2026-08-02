@@ -13,11 +13,6 @@ class Chinapres2Controller : public oatpp::web::server::api::ApiController
     // 定义控制器访问入口
     API_ACCESS_DECLARE(Chinapres2Controller);
 public: 
-    // 定义接口
-     // 3.1 定义分页查询接口描述
-    API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("chinapres2.query.summary"), queryChinapre, Chinapres2Query, Chinapres2DetailPageJsonVO::Wrapper, API_TAG);
-    // 3.2 定义分页查询接口处理
-    API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/chinapres2", queryChinapre, Chinapres2Query, execQueryChinapre(query));
 
     // 3.1 定义处方新增接口描述
     API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("chinapres2.add.summary"), addPrescription, StringJsonVO::Wrapper, API_TAG);
