@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Service
 public class DeptServiceImpl implements DeptService {
@@ -39,7 +38,6 @@ public class DeptServiceImpl implements DeptService {
     public List<DepartmentVO> deptList(DeptQuery query) {
         // 医生角色校验
         checkDoctorRole();
-
         try {
             UserDTO user = userholder.getCurrentUser();
             String userId = user.getId();
@@ -47,35 +45,27 @@ public class DeptServiceImpl implements DeptService {
             String tenantId = getTenantIdByUserId(userId);
 
             String cacheKey = DeptRedisConstant.getUserAllowDeptKey(tenantId, userId);
-            List<String> cacheDeptIdList = (List<String>) redisTemplate.opsForValue().get(cacheKey);
-
-            if (CollUtil.isNotEmpty(cacheDeptIdList)) {
-                return cacheDeptIdList.stream().map(id -> {
-                    DepartmentVO vo = new DepartmentVO();
-                    vo.setId(id);
-                    return vo;
-                }).collect(Collectors.toList());
+            // 缓存存储完整VO列表
+            List<DepartmentVO> cacheVoList = (List<DepartmentVO>) redisTemplate.opsForValue().get(cacheKey);
+            if (CollUtil.isNotEmpty(cacheVoList)) {
+                return cacheVoList;
             }
 
-            List<WhaleOrganizationUnitDO> doList = deptmapper.selectUserDeptList(userId, tenantId,query);
+            // 缓存未命中，查询数据库
+            List<WhaleOrganizationUnitDO> doList = deptmapper.selectUserDeptList(userId, tenantId, query);
             List<DepartmentVO> voList = BeanUtil.copyToList(doList, DepartmentVO.class);
-            List<String> deptIdList = voList.stream()
-                    .map(DepartmentVO::getId)
-                    .collect(Collectors.toList());
 
+            // 将完整VO存入Redis缓存
             redisTemplate.opsForValue().set(
                     cacheKey,
-                    deptIdList,
+                    voList,
                     DeptRedisConstant.USER_ALLOW_DEPT_CACHE_TTL,
                     TimeUnit.SECONDS
             );
             return voList;
-
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-
     }
 
     @Override
@@ -127,19 +117,23 @@ public class DeptServiceImpl implements DeptService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        List<String> roles = user.getRoles();
-        if (!roles.contains(ROLE_DOCTOR)) {
-            throw new RuntimeException("");
+        // 会话失效校验
+        if (user == null) {
+            throw new RuntimeException("登录会话已失效，请重新登录");
+        }
+        List<String> authorityList = user.getRoles();
+        // 空值+权限判断
+        if (authorityList == null || authorityList.isEmpty() || !authorityList.contains(ROLE_DOCTOR)) {
+            throw new RuntimeException("权限不足：仅拥有【ROLE_DOCTOR】医生权限的账号可操作科室模块");
         }
     }
-
     /**
      * 根据userId从会话Hash获取租户ID
      * key = user:session:{userId}  hashKey: tenant_id
      */
     private String getTenantIdByUserId(String userId) {
         String sessionKey = RedisConstant.USER_SESSION_PREFIX + userId;
-        Object tenantObj = redisTemplate.opsForHash().get(sessionKey, "tenant_id");
+        Object tenantObj = redisTemplate.opsForHash().get(sessionKey, "tenantId");
         if (tenantObj == null) {
             throw new RuntimeException("会话租户信息缺失，请重新登录");
         }
