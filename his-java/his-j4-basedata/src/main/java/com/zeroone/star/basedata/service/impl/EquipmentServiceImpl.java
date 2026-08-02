@@ -27,6 +27,7 @@ import org.springframework.util.StringUtils;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>
@@ -62,8 +63,10 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
     public Page<AdmDeviceDefinitionDO> queryEquipmentPage(EquipmentPageQuery query) {
         // 1.构建查询条件
         LambdaQueryWrapper<AdmDeviceDefinitionDO> wrapper = new LambdaQueryWrapper<>();
+        String tenantId = userHolder.getCurrentTenantId();
+//        String tenantId = "1";
         // 添加租户ID检查
-        wrapper.eq(AdmDeviceDefinitionDO::getTenantId, userHolder.getCurrentTenantId());
+        wrapper.eq(AdmDeviceDefinitionDO::getTenantId, tenantId);
         if (StringUtils.hasText(query.getKeyword())) {
             // 关键词查询
             wrapper.and(w -> w.like(AdmDeviceDefinitionDO::getName, query.getKeyword())
@@ -100,17 +103,31 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
         if (!StringUtils.hasText(id)) {
             throw new IllegalArgumentException("修改器材时主键不可为空");
         }
-
+        // 获取当前租户ID
+        String currentTenantId = userHolder.getCurrentTenantId();
+        // 硬编码测试
+//        String currentTenantId = "1";
+        // 校验器材存在且属于当前租户
         AdmDeviceDefinitionDO existing = baseMapper.selectById(id);
-        if (existing == null) {
+        if (existing == null || !currentTenantId.equals(existing.getTenantId())) {
             throw new IllegalArgumentException("器材不存在，主键：" + id);
         }
         // ms转换
         AdmDeviceDefinitionDO dtoEntity = msEquipmentMapper.updateDtoToEntity(dto);
-        // 复制属性
+        // 复制属性（ignoreNullValue 保留 version 不被覆盖，乐观锁生效）
         cn.hutool.core.bean.BeanUtil.copyProperties(dtoEntity, existing,
                 cn.hutool.core.bean.copier.CopyOptions.create().ignoreNullValue());
-        baseMapper.updateById(existing);
+        // 乐观锁冲突检查
+        // 执行更新
+        int updated = baseMapper.updateById(existing);
+        // 检查更新结果，0代表被并发修改，需要重新检查
+        if (updated == 0) {
+            // 乐观锁冲突，需要重新检查
+            AdmDeviceDefinitionDO latest = baseMapper.selectById(id);
+            if (latest == null || !Objects.equals(latest.getVersion(), existing.getVersion())) {
+                throw new RuntimeException("数据已被他人修改，请刷新后重试");
+            }
+        }
 
         // 同步价格表
         String deviceId = id;
@@ -174,23 +191,17 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
      * @throws IllegalArgumentException 器材不存在或参数非法
      */
     @Override
-    public int modifyEquipmentStatus(EquipmentStatusDTO dto) {
+    public boolean modifyEquipmentStatus(EquipmentStatusDTO dto) {
         String currentTenantId = userHolder.getCurrentTenantId();
-        int count = 0;
-        for (String id : dto.getIds()) {
-            AdmDeviceDefinitionDO existing = baseMapper.selectById(id);
-            if (existing == null) {
-                throw new IllegalArgumentException("器材不存在，主键：" + id);
-            }
-            if (!currentTenantId.equals(existing.getTenantId())) {
-                throw new IllegalArgumentException("无权操作，器材不属于当前租户，主键：" + id);
-            }
-            boolean newStatus = existing.getActiveFlag() == null || !existing.getActiveFlag();
-            existing.setActiveFlag(newStatus);
-            baseMapper.updateById(existing);
-            count++;
-        }
-        return count;
+//        String currentTenantId = "1";
+        Boolean targetStatus = dto.getActiveFlag();
+        // 批量更新限定当前租户的记录，幂等（状态相同不重复更新）
+        return lambdaUpdate()
+                .in(AdmDeviceDefinitionDO::getId, dto.getIds())
+                .eq(AdmDeviceDefinitionDO::getTenantId, currentTenantId)
+                .ne(AdmDeviceDefinitionDO::getActiveFlag, targetStatus) // 跳过已经目标状态的记录，避免无效更新
+                .set(AdmDeviceDefinitionDO::getActiveFlag, targetStatus)
+                .update();
     }
 
     /**
@@ -223,7 +234,7 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
         chargeItemDefinitionEntity.setPriceValue(equipmentAddDTO.getRetailPrice());
         chargeItemMapper.insert(chargeItemDefinitionEntity);
         //4.3.判断是否存在最高价格，而后保存
-        if(equipmentAddDTO.getMaximumRetailPrice() != null){
+        if (equipmentAddDTO.getMaximumRetailPrice() != null) {
             chargeItemDefinitionEntity.setId(null);
             chargeItemDefinitionEntity.setPriceTypeCode("LIMIT");
             chargeItemDefinitionEntity.setPriceValue(equipmentAddDTO.getMaximumRetailPrice());
@@ -244,15 +255,13 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
             return null;
         }
         EquipmentVO vo = voList.get(0);
-        for(EquipmentVO temp : voList){
+        for (EquipmentVO temp : voList) {
             String priceTypeCode = temp.getPriceTypeCode();
-            if(priceTypeCode.equals("PURCHASE")){
+            if (priceTypeCode.equals("PURCHASE")) {
                 vo.setPurchasePrice(temp.getPurchasePrice());
-            }
-            else if(priceTypeCode.equals("SALE")){
+            } else if (priceTypeCode.equals("SALE")) {
                 vo.setRetailPrice(temp.getRetailPrice());
-            }
-            else{
+            } else {
                 vo.setMaximumRetailPrice(temp.getMaximumRetailPrice());
             }
         }
@@ -304,7 +313,7 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
     @Override
     @Transactional
     public void removeEquipmentByIds(List<String> equipmentIds) {
-        if(equipmentIds == null || equipmentIds.isEmpty()){
+        if (equipmentIds == null || equipmentIds.isEmpty()) {
             return;
         }
 //        this.baseMapper.deleteByEquipmentIds(equipmentIds, userHolder.getCurrentUser().getId());

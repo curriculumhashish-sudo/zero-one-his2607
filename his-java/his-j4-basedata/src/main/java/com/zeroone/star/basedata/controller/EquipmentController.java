@@ -133,12 +133,7 @@ public class EquipmentController implements EquipmentApis {
     @Operation(summary = "启/停用器材（支持批量）", description = "启/停用器材（支持批量）")
     public JsonVO<EquipmentVO> modifyStatus(@RequestBody @Validated EquipmentStatusDTO dto) {
         try {
-            // 得到修改成功的数量
-            int count = equipmentService.modifyEquipmentStatus(dto);
-            // 如果修改数量与传入数量不一致，说明存在异常
-            if (count != dto.getIds().size()) {
-                return JsonVO.fail("切换状态存在异常");
-            }
+            equipmentService.modifyEquipmentStatus(dto);
             return JsonVO.success(null);
         } catch (IllegalArgumentException e) {
             return JsonVO.fail(e.getMessage());
