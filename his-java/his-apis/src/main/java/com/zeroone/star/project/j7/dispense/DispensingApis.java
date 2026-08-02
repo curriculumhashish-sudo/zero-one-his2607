@@ -1,8 +1,8 @@
 package com.zeroone.star.project.j7.dispense;
 
 import com.zeroone.star.project.dto.ExtendPageDTO;
-import com.zeroone.star.project.dto.j7.dispense.DispenseRejectDTO;
 import com.zeroone.star.project.dto.j7.dispense.DispenseVerifyDTO;
+import com.zeroone.star.project.query.j7.dispense.DispenseRejectQuery;
 import com.zeroone.star.project.query.j7.dispense.DispensingSummaryQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j7.dispense.DispensingSummaryVO;
@@ -48,5 +48,5 @@ public interface DispensingApis {
     // =================== 住院发药驳回 ====================
     @Operation(summary = "驳回患者发药单据", description = "驳回指定患者的发药单据，并同步更新对应汇总单状态为已驳回")
     @PostMapping("/reject-dispensing")
-    JsonVO<String> rejectDispensing(@RequestBody DispenseRejectDTO dto);
+    JsonVO<String> rejectDispensing(@RequestBody DispenseRejectQuery dto);
 }

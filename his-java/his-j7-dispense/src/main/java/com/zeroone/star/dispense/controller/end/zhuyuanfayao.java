@@ -2,9 +2,9 @@ package com.zeroone.star.dispense.controller.end;
 
 import com.zeroone.star.dispense.service.IDispensingService;
 import com.zeroone.star.project.dto.ExtendPageDTO;
-import com.zeroone.star.project.dto.j7.dispense.DispenseRejectDTO;
 import com.zeroone.star.project.dto.j7.dispense.DispenseVerifyDTO;
 import com.zeroone.star.project.j7.dispense.DispensingApis;
+import com.zeroone.star.project.query.j7.dispense.DispenseRejectQuery;
 import com.zeroone.star.project.query.j7.dispense.DispensingSummaryQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j7.dispense.DispensingSummaryVO;
@@ -57,7 +57,7 @@ public class zhuyuanfayao implements DispensingApis {
     @Operation(summary = "驳回患者发药单据", description = "驳回指定患者的发药单据，并同步更新对应汇总单状态为已驳回")
     @PostMapping("/reject-dispensing")
     @Override
-    public JsonVO<String> rejectDispensing(@RequestBody DispenseRejectDTO dto) {
+    public JsonVO<String> rejectDispensing(@RequestBody DispenseRejectQuery dto) {
         dispensingService.rejectDispensing(dto);
         return JsonVO.success("发药驳回成功");
     }

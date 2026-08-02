@@ -9,11 +9,9 @@ import com.zeroone.star.dispense.entity.MedMedicationDispense;
 import com.zeroone.star.dispense.mapper.InventoryItemMapper;
 import com.zeroone.star.dispense.mapper.MedMedicationDispenseMapper;
 import com.zeroone.star.dispense.service.IDispensingService;
-import com.zeroone.star.pharmacy.entity.WkfSupplyRequest;
-import com.zeroone.star.pharmacy.mapper.WkfSupplyRequestMapper;
 import com.zeroone.star.project.dto.ExtendPageDTO;
-import com.zeroone.star.project.dto.j7.dispense.DispenseRejectDTO;
 import com.zeroone.star.project.dto.j7.dispense.DispenseVerifyDTO;
+import com.zeroone.star.project.query.j7.dispense.DispenseRejectQuery;
 import com.zeroone.star.project.query.j7.dispense.DispensingSummaryQuery;
 import com.zeroone.star.project.vo.j7.dispense.DispensingSummaryVO;
 import com.zeroone.star.project.vo.j7.dispense.PatientMedicationVO;
@@ -28,8 +26,6 @@ import java.util.List;
 
 @Service
 public class DispensingServiceImpl implements IDispensingService {
-    @Resource
-    private WkfSupplyRequestMapper wkfSupplyRequestMapper;
     @Resource
     private MedMedicationDispenseMapper medicationDispenseMapper;
     @Resource
@@ -112,31 +108,25 @@ public class DispensingServiceImpl implements IDispensingService {
     /**
      * 驳回患者发药单据，同步驳回汇总单
      * <p>
-     * 两步操作在同一事务中执行：
-     * 1. 更新指定请求的状态为"已驳回"，记录驳回原因
-     * 2. 同步驳回同一汇总单（bus_no）下的所有请求
+     * 在同一事务中执行：
+     * 1. 根据汇总单号找到所有待发药的记录
+     * 2. 将状态更新为"已拒绝"，记录驳回原因
      * </p>
      *
-     * @param dto 发药驳回参数
+     * @param dto 发药驳回参数（包含汇总单号和驳回原因）
      */
     @Override
     @Transactional
-    public void rejectDispensing(DispenseRejectDTO dto) {
-        // 1. 更新指定请求：状态=已驳回，记录驳回原因
-        wkfSupplyRequestMapper.update(null,
-                new LambdaUpdateWrapper<WkfSupplyRequest>()
-                        .eq(WkfSupplyRequest::getId, dto.getDispensingId())
-                        .set(WkfSupplyRequest::getStatusEnum, "REJECTED")
-                        .set(WkfSupplyRequest::getReason, dto.getRejectReason())
-        );
-        // 2. 同步驳回同一汇总单下的其他待处理请求
-        if (dto.getSummaryId() != null) {
-            wkfSupplyRequestMapper.update(null,
-                    new LambdaUpdateWrapper<WkfSupplyRequest>()
-                            .eq(WkfSupplyRequest::getBusNo, dto.getSummaryId())
-                            .eq(WkfSupplyRequest::getStatusEnum, "PENDING")
-                            .set(WkfSupplyRequest::getStatusEnum, "REJECTED")
-            );
+    public void rejectDispensing(DispenseRejectQuery dto) {
+        if (StrUtil.isBlank(dto.getSummaryNo())) {
+            throw new IllegalArgumentException("汇总单号不能为空");
         }
+        medicationDispenseMapper.update(null,
+                new LambdaUpdateWrapper<MedMedicationDispense>()
+                        .eq(MedMedicationDispense::getSummaryNo, dto.getSummaryNo())
+                        .eq(MedMedicationDispense::getStatusEnum, "PENDING")
+                        .set(MedMedicationDispense::getStatusEnum, "DECLINED")
+                        .set(MedMedicationDispense::getNotPerformedReasonEnum, dto.getRejectReason())
+        );
     }
 }
