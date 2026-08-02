@@ -162,10 +162,7 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
         return detailVO;
     }
 
-    @Override
-    public List<String> listCategoryOptions() {
-        return TreatmentConstants.listCategoryOptions();
-    }
+
 
     @Override
     public void addTreatment(TreatmentAddDTO treatmentAddDTO) {
