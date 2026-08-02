@@ -17,15 +17,18 @@
  limitations under the License.
 */
 #include "CostDetailController.h"
+#include "service/chargedetails/CostDetailService.h"
 
 CostDetailPageJsonVO::Wrapper CostDetailController::execQueryAll(const CostDetailQuery::Wrapper& query) {
-	auto vo = CostDetailPageJsonVO::createShared();
-	vo->setStatus(RS_SUCCESS);
-	return vo;
+	auto jvo = CostDetailPageJsonVO::createShared();
+	auto result = CostDetailService().queryDetails(query);
+	jvo->success(result);
+	return jvo;
 }
 
 CostSummaryListJsonVO::Wrapper CostDetailController::execSummaryByEncounter(const CostSummaryQuery::Wrapper& query) {
-	auto vo = CostSummaryListJsonVO::createShared();
-	vo->setStatus(RS_SUCCESS);
-	return vo;
+	auto jvo = CostSummaryListJsonVO::createShared();
+	auto result = CostDetailService().querySummary(query);
+	jvo->success(result);
+	return jvo;
 }
