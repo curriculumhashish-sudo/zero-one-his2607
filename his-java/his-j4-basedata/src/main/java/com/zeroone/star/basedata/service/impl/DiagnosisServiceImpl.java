@@ -2,17 +2,14 @@ package com.zeroone.star.basedata.service.impl;
 
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zeroone.star.basedata.constant.DiagnosisCatalogConstants;
 import com.zeroone.star.basedata.entity.diagnosis.ClnConditionDefinitionDO;
-import com.zeroone.star.basedata.entity.diagnosis.TerConceptDO;
-import com.zeroone.star.basedata.mapper.DiagnosisCatalogMapper;
 import com.zeroone.star.basedata.mapper.DiagnosisMapper;
 import com.zeroone.star.basedata.service.IDiagnosisService;
 
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisDefinitionDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisSaveDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisUpdateDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisIdsDTO;
@@ -47,9 +44,6 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
 
     @Autowired
     private MsDiagnosisMapper msDiagnosisMapper;
-
-    @Autowired
-    private DiagnosisCatalogMapper diagnosisCatalogMapper;
 
     @Override
     public Page<ClnConditionDefinitionDO> pageQuery(DiagnosisDefinitionQuery query) {
@@ -102,25 +96,31 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
 
     @Override
     public PageDTO<DiagnosisOptionVO> queryDiagnosisSelectList(DiagnosisSelectPageQuery query) {
-        Page<TerConceptDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
-        LambdaQueryWrapper<TerConceptDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(TerConceptDO::getCodeSystemId, "279125561775755266")
-                .eq(TerConceptDO::getIsActive, true);
+        long pageIndex = query.getPageIndex() <= 0 ? 1L : query.getPageIndex();
+        long pageSize = query.getPageSize() <= 0 ? 10L : query.getPageSize();
+        String keyword = StrUtil.trim(query.getKeyword());
+        String sourceEnum = StrUtil.trim(query.getSourceEnum());
 
-        if (StrUtil.isNotBlank(query.getKeyword())) {
-            wrapper.and(item -> item
-                    .like(TerConceptDO::getDisplay, query.getKeyword())
-                    .or()
-                    .like(TerConceptDO::getCode, query.getKeyword()));
-        }
-        if (StrUtil.isNotBlank(query.getSourceEnum())) {
-            wrapper.eq(TerConceptDO::getCode, query.getSourceEnum());
-        }
-        wrapper.orderByAsc(TerConceptDO::getSortOrder)
-                .orderByAsc(TerConceptDO::getId);
+        List<DiagnosisOptionVO> matched = DiagnosisCatalogConstants.catalogOptions().entrySet().stream()
+                .filter(item -> StrUtil.isBlank(sourceEnum) || item.getKey().equals(sourceEnum))
+                .filter(item -> StrUtil.isBlank(keyword)
+                        || item.getKey().contains(keyword)
+                        || item.getValue().contains(keyword))
+                .map(item -> {
+                    DiagnosisOptionVO option = new DiagnosisOptionVO();
+                    option.setCode(item.getKey());
+                    option.setDisplay(item.getValue());
+                    return option;
+                })
+                .toList();
 
-        Page<TerConceptDO> result = diagnosisCatalogMapper.selectPage(page, wrapper);
-        return PageDTO.create(result, msDiagnosisMapper::conceptToOptionVo);
+        long total = matched.size();
+        long fromIndex = Math.min((pageIndex - 1) * pageSize, total);
+        long toIndex = Math.min(fromIndex + pageSize, total);
+
+        Page<DiagnosisOptionVO> result = new Page<>(pageIndex, pageSize, total);
+        result.setRecords(matched.subList((int) fromIndex, (int) toIndex));
+        return PageDTO.create(result);
     }
 
     @Override
