@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "ReceptionPatientService.h"
+#include "EnumDictUtil.h"
+#include <mongocxx/client.hpp>
 
 RecePatientDTO::Wrapper ReceptionPatientService::getRecePatient(const RecePatientQuery::Wrapper& query,
     const string& tenantId, const string& practitionerId)
@@ -12,11 +14,56 @@ RecePatientDTO::Wrapper ReceptionPatientService::getRecePatient(const RecePatien
         return dto;
     }
 
+    // ¼ÓÔØ×´Ì¬Ã¶¾Ù×Öµä
+    std::unordered_map<std::string, std::string> statusDict;
+    if (m_mongoClient)
+    {
+        statusDict = EnumDictUtil::loadEnumDict(*m_mongoClient, tenantId, "visit_status");
+    }
+
     // Ìî³ä DTO ×Ö¶Î
     dto->patientName = data->getPatientDO()->getName();
-	dto->visitStatus = data->getEncounterDO()->getStatusEnum();
-    dto->gender = data->getPatientDO()->getGenderEnum(); 
-	dto->age = calcAge(data->getPatientDO()->getBirthDate());
+
+    std::string statusCode = data->getEncounterDO()->getStatusEnum();
+    std::string statusText = "Î´Öª";
+    auto itDict = statusDict.find(statusCode);
+    if (itDict != statusDict.end())
+    {
+        statusText = itDict->second;
+    }
+    else
+    {
+      
+        static const std::unordered_map<std::string, std::string> statusMapping = {
+            {"arrived", "´ýÕï"},
+            {"in-progress", "ÔÚÕï"},
+            {"on-hold", "ÔÝÀë"},
+            {"finished", "ÍêÕï"}
+        };
+        auto itMap = statusMapping.find(statusCode);
+        if (itMap != statusMapping.end())
+        {
+            statusText = itMap->second;
+        }
+    }
+    dto->visitStatus = statusText;
+
+
+    if (data->getPatientDO()->getGenderEnum() == "MAIL")
+    {
+        dto->gender = u8"ÄÐÐÔ";
+    }
+    else if (data->getPatientDO()->getGenderEnum() == "FEMALE")
+    {
+        dto->gender = u8"Å®ÐÔ";
+    }
+    else
+    {
+        dto->gender = u8"Î´Öª";
+    }
+    
+
+    dto->age = calcAge(data->getPatientDO()->getBirthDate());
     dto->registerType = data->getServiceDO()->getName();
     dto->encounterId = data->getEncounterDO()->getBusNo();
     dto->payType = data->getAccountDO()->getTypeCode();
@@ -24,7 +71,6 @@ RecePatientDTO::Wrapper ReceptionPatientService::getRecePatient(const RecePatien
     dto->registerDept = data->getOrgDO()->getName();
     dto->phoneNum = data->getPatientDO()->getPhone();
     dto->allergyHistory = data->getAllergyDO()->getAllergyText();
-
 
     return dto;
 }

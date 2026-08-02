@@ -59,7 +59,7 @@ PtrCurrentReceptionCombineDO ReceptionPatientDAO::queryReceptionPatient(
     SQLPARAMS_PUSH(params, "s", std::string, practitionerId);
     SQLPARAMS_PUSH(params, "s", std::string, tenantId);
     SQLPARAMS_PUSH(params, "s", std::string, query->date->c_str());
-    SQLPARAMS_PUSH(params, "s", std::string, std::string("TREATING"));
+    SQLPARAMS_PUSH(params, "s", std::string, std::string("in-progress"));
 
     ReceptionPatientMapper mapper;
 

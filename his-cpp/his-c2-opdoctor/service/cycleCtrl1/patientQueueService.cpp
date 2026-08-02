@@ -1,15 +1,30 @@
 ﻿#include "PatientQueueService.h"
 #include "dao/cycleCtrl1/PatientQueueDAO.h"
 #include <ctime>
+#include <iostream>
+#include <bsoncxx/builder/stream/document.hpp>
+#include <sstream>
 
 oatpp::Vector<PatientQueueDTO::Wrapper> PatientQueueService::getPatientQueueList(
     const PatientQueueQuery::Wrapper& query,
     const std::string& tenantId,
     const std::string& practitionerId)
 {
-    std::list<PtrPatientQueueCombineDO> dataList = m_patientQueueDAO.queryPatientQueue(query,tenantId, practitionerId);
+    std::unordered_map<std::string, std::string> statusDict;
+    if (m_mongoClient)
+    {
+        statusDict = EnumDictUtil::loadEnumDict(*m_mongoClient, tenantId, "visit_status");
+    }
 
+    std::list<PtrPatientQueueCombineDO> dataList = m_patientQueueDAO.queryPatientQueue(query, tenantId, practitionerId);
     auto resultVec = oatpp::Vector<PatientQueueDTO::Wrapper>::createShared();
+
+    static const std::unordered_map<std::string, std::string> statusMapping = {
+        {"arrived", "待诊"},
+        {"in-progress", "在诊"},
+        {"on-hold", "暂离"},
+        {"finished", "完诊"}
+    };
 
     for (auto& combineDO : dataList)
     {
@@ -22,12 +37,12 @@ oatpp::Vector<PatientQueueDTO::Wrapper> PatientQueueService::getPatientQueueList
 
         item->patientName = patDO->getName();
 
-        if (patDO->getGenderEnum() == "M")
-            item->gender = "男性";
-        else if (patDO->getGenderEnum() == "F")
-            item->gender = "女性";
+        if (patDO->getGenderEnum() == "MALE")
+            item->gender = u8"男性";
+        else if (patDO->getGenderEnum() == "FEMALE")
+            item->gender = u8"女性";
         else
-            item->gender = "未知";
+            item->gender = u8"未知";
 
         item->age = calcAge(patDO->getBirthDate());
         item->registerType = servDO->getName();
@@ -48,7 +63,26 @@ oatpp::Vector<PatientQueueDTO::Wrapper> PatientQueueService::getPatientQueueList
 
         item->encounterId = encDO->getBusNo();
         item->payType = accDO->getTypeCode();
-        item->visitStatus = encDO->getStatusEnum();
+
+        std::string statusCode = encDO->getStatusEnum();
+        std::string visitStatusText = "未知";
+
+        // 直接用mysql取出的statusCode匹配Mongo enumKey
+        auto itDict = statusDict.find(statusCode);
+        if (itDict != statusDict.end())
+        {
+            visitStatusText = itDict->second;
+        }
+        else
+        {
+            // 降级本地映射
+            auto itMap = statusMapping.find(statusCode);
+            if (itMap != statusMapping.end())
+            {
+                visitStatusText = itMap->second;
+            }
+        }
+        item->visitStatus = visitStatusText;
 
         resultVec->push_back(item);
     }
@@ -61,19 +95,16 @@ int PatientQueueService::calcAge(const std::string& birthDate)
     if (birthDate.empty())
         return 0;
 
-    // 解析出生日期 yyyy-MM-dd
     std::tm birthTm = {};
     std::istringstream ss(birthDate);
     ss >> std::get_time(&birthTm, "%Y-%m-%d");
     if (ss.fail())
         return 0;
 
-    // 当前系统时间
     std::time_t nowT = std::time(nullptr);
     std::tm nowTm = *std::localtime(&nowT);
 
     int age = nowTm.tm_year - birthTm.tm_year;
-    // 判断生日有没有过
     if (nowTm.tm_mon < birthTm.tm_mon ||
         (nowTm.tm_mon == birthTm.tm_mon && nowTm.tm_mday < birthTm.tm_mday))
     {
