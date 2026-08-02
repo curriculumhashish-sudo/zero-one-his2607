@@ -9,6 +9,9 @@ import com.zeroone.star.project.dto.j4.sample.SpecimenDefinitionAddDTO;
 import com.zeroone.star.project.query.j4.sample.SpecimenDefinitionQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j4.sample.SpecimenDefinitionDetailVO;
+import com.zeroone.star.project.vo.j4.sample.SpecimenOptionVO;
+
+import java.util.List;
 
 /**
  * <p>
@@ -45,13 +48,12 @@ public interface SampleApis {
      */
     JsonVO<SpecimenDefinitionOperateVO> update(SpecimenDefinitionUpdateDTO dto);
 
-    /*
-     * 获取样本名称
-     * 根据主键获取单个样本定义的详细信息
-     * @param id 样本定义主键
-     * @return 样本定义详情
+    /**
+     * 获取样本名称（下拉选项）
+     * 获取当前租户下所有样本定义的名称列表，供其他组模块调用，前端渲染为下拉选项，选择后存储样本ID
+     * @return 样本名称下拉选项列表
      */
-    JsonVO<SpecimenDefinitionDetailVO> getSampleName(String id);
+    JsonVO<List<SpecimenOptionVO>> listSampleNames();
 
     /**
      * 获取样本列表（条件+分页）

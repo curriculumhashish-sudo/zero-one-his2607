@@ -9,6 +9,10 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j4.treatment.TreatmentDetailVO;
 import com.zeroone.star.project.vo.j4.treatment.TreatmentListVO;
 import com.zeroone.star.project.vo.j4.treatment.TreatmentSelectVO;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * <p>
@@ -26,35 +30,35 @@ public interface TreatmentApis {
      * @param query 查询条件
      * @return 分页结果数据
      */
-    JsonVO<PageDTO<TreatmentListVO>> queryTreatmentList(TreatmentQuery query);
+    JsonVO<PageDTO<TreatmentListVO>> queryTreatmentList(@Valid TreatmentQuery query);
 
     /**
      * 查询可选诊疗列表
      * @param query 查询条件
      * @return 分页数据，每条含id/busNo/name/categoryCode
      */
-    JsonVO<PageDTO<TreatmentSelectVO>> listTreatmentOptions(TreatmentQuery query);
+    JsonVO<PageDTO<TreatmentSelectVO>> listTreatmentOptions(@Valid TreatmentQuery query);
 
     /**
      * 获取诊疗详情
      * @param id 诊疗数据主键ID
      * @return 诊疗详情数据
      */
-    JsonVO<TreatmentDetailVO> getTreatment(String id);
+    JsonVO<TreatmentDetailVO> getTreatment(@NotBlank(message = "诊疗ID不能为空") String id);
 
     /**
      * 添加诊疗项目
      * @param treatmentAddDTO 诊疗详情信息DTO
      * @return 无返回值
      */
-    JsonVO<Void> addTreatment(TreatmentAddDTO treatmentAddDTO);
+    JsonVO<Void> addTreatment(@Validated @RequestBody TreatmentAddDTO treatmentAddDTO);
 
     /**
      * 编辑诊疗项目（携带编辑校验码）
      * @param dto 编辑诊疗数据
      * @return 编辑确认结果
      */
-    JsonVO<TreatmentDetailVO> modifyTreatment(TreatmentEditDTO dto);
+    JsonVO<TreatmentDetailVO> modifyTreatment(@Validated @RequestBody TreatmentEditDTO dto);
 
 
     /**
@@ -62,7 +66,7 @@ public interface TreatmentApis {
      * @param dto 切换状态请求
      * @return 切换后结果
      */
-    JsonVO<TreatmentDetailVO> modifyStatus(TreatmentStatusDTO dto);
+    JsonVO<TreatmentDetailVO> modifyStatus(@Validated @RequestBody TreatmentStatusDTO dto);
 
     /**
      * 删除诊疗项目

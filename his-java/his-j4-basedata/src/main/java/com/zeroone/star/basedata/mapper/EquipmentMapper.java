@@ -2,7 +2,11 @@ package com.zeroone.star.basedata.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinitionDO;
+import com.zeroone.star.project.vo.j4.equipment.EquipmentVO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * <p>
@@ -16,4 +20,19 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface EquipmentMapper extends BaseMapper<AdmDeviceDefinitionDO> {
+
+    /**
+     * 获取器材详情
+     * @param equipmentId 器材Id
+     * @return 器材VO
+     */
+    List<EquipmentVO> queryEquipmentsById(String equipmentId);
+
+    /**
+     * 批量删除器材数据
+     * @param equipmentIds 器材Id集合
+     * @param userId 当前操作用户Id
+     */
+    void deleteByEquipmentIds(@Param("equipmentIds") List<String> equipmentIds,
+                              @Param("userId") String userId);
 }

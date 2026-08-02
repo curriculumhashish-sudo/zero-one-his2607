@@ -2,15 +2,15 @@ package com.zeroone.star.project.dto.j4.medicine;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.math.BigDecimal;
 
 @Getter
 @Setter
 @ToString
+@AllArgsConstructor
+@NoArgsConstructor
 @Schema(description = "更新药品和药品详情（共用）DTO")
 public class MedicineDetailDTO {
 
@@ -18,7 +18,8 @@ public class MedicineDetailDTO {
     @NotBlank(message = "id不能为空")
     private String id;
 
-
+    @Schema(description = "版本号，无需填写")
+    private Integer version;
     /**
      * 药品名称
      */
@@ -210,7 +211,9 @@ public class MedicineDetailDTO {
 
     /**
      * 国家药品贯标编码
+     *
      */
+    @Schema(description = "贯标国家编码",example = "国家编码")
     private String nationalDrugCode;
 
     /**
@@ -313,11 +316,13 @@ public class MedicineDetailDTO {
     /**
      * 默认用法编码
      */
+    @Schema(description = "默认用法编码",example = "默认用法")
     private String methodCode;
 
     /**
      * 默认频次编码
      */
+    @Schema(description = "默认频次编码",example = "Q12H")
     private String rateCode;
 
     /**
@@ -337,12 +342,17 @@ public class MedicineDetailDTO {
     /**
      * 用量限定
      */
+    @Schema(description = "用量限定",example = "用量限定")
     private BigDecimal usageLimit;
 
     /**
      * 采购入库位置（他域事实列）
      */
+    @Schema(description = "默认采购入库库房id",example = "默认采购入库库房id")
     private String locationId;
+
+    @Schema(description = "默认采购入库库房文字",example = "默认采购入库库房文字")
+    private String locationId_dictText;
 
     /**
      * 生命周期状态编码（DRAFT/ACTIVE/INACTIVE/DISCARDED）
@@ -364,7 +374,7 @@ public class MedicineDetailDTO {
      * 药品说明
      */
     @Schema(description = "药品说明")
-    private String medicationDefinition;
+    private String medicationdefinition;
 
     /**
      * DDD（日限定剂量）编码
@@ -393,24 +403,28 @@ public class MedicineDetailDTO {
     /**
      * 剂量单位→拆零单位换算倍数（拆零单位为1）
      */
+    @NotNull(message = "剂量单位→拆零单位换算倍数不能为空")
     @Schema(description = "剂量单位→拆零单位换算倍数")
     private BigDecimal doseUnitRatio;
 
     /**
      * 采购单位→拆零单位换算倍数（拆零单位为1）
      */
+    @NotNull(message = "采购单位→拆零单位换算倍数不能为空")
     @Schema(description = "采购单位→拆零单位换算倍数")
     private BigDecimal purchaseUnitRatio;
 
     /**
      * 库存单位→拆零单位换算倍数（拆零单位为1）
      */
+    @NotNull(message = "库存单位→拆零单位换算倍数不能为空")
     @Schema(description = "库存单位→拆零单位换算倍数")
     private BigDecimal stockUnitRatio;
 
     /**
      * 销售单位→拆零单位换算倍数（拆零单位为1）
      */
+    @NotNull(message = "剂量单位→拆零单位换算倍数不能为空")
     @Schema(description = "销售单位→拆零单位换算倍数")
     private BigDecimal packageUnitRatio;
     /**
@@ -433,25 +447,6 @@ public class MedicineDetailDTO {
     @Schema(description = "最高零售价")
     private BigDecimal maxRetailPrice;
 
-    /**
-     * 采购/拆零倍数 (例如：1袋=1000g)
-     */
-    @Schema(description = "采购倍数",example = "1000",defaultValue = "1000")
-    @NotNull(message = "采购倍数不能为空")
-    private Integer purchaseSplitRatio;
 
-    /**
-     * 库存/拆零倍数
-     */
-    @Schema(description = "库存倍数",example = "1",defaultValue = "1")
-    @NotNull(message = "库存倍数不能为空")
-    private Integer stockSplitRatio;
-
-    /**
-     * 包装/拆零倍数
-     */
-    @Schema(description = "包装倍数",example = "1",defaultValue = "1")
-    @NotNull(message = "包装倍数不能为空")
-    private Integer packageSplitRatio;
 
 }

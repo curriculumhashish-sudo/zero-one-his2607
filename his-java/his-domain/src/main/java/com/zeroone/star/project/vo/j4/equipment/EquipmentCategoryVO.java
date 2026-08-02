@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "器材分类VO")
-public class EquipmentCategoryVo {
+public class EquipmentCategoryVO {
 
     @Schema(description = "分类编码", example = "01")
     private String value;
