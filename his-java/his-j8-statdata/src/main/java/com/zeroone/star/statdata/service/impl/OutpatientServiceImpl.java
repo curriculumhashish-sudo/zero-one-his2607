@@ -1,11 +1,11 @@
-package com.zeroone.star.statdata.service.serviceImpl;
+package com.zeroone.star.statdata.service.impl;
 
 import com.zeroone.star.project.dto.j8.statdata.BaseStatQueryDTO;
 import com.zeroone.star.project.vo.j8.statdata.DistributionItemVO;
 import com.zeroone.star.project.vo.j8.statdata.DistributionVO;
 import com.zeroone.star.project.vo.j8.statdata.TrendChartVO;
 import com.zeroone.star.project.vo.j8.statdata.TrendPointVO;
-import com.zeroone.star.statdata.mapper.OutpatientMapper;
+import com.zeroone.star.statdata.mapper.AdmEncounterMapper;
 import com.zeroone.star.statdata.service.OutpatientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ public class OutpatientServiceImpl implements OutpatientService {
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Autowired
-    private OutpatientMapper outpatientMapper;
+    private AdmEncounterMapper admEncounterMapper;
 
     @Override
     public TrendChartVO getWeeklyOutpatientData(BaseStatQueryDTO dto) {
@@ -33,7 +33,7 @@ public class OutpatientServiceImpl implements OutpatientService {
         LocalDate monday = dateFrom.with(java.time.temporal.TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY));
         LocalDate sundayExclusive = monday.plusDays(7);
 
-        List<TrendPointVO> rawData = outpatientMapper.getWeekData(monday, sundayExclusive, dto.getOrganizationId());
+        List<TrendPointVO> rawData = admEncounterMapper.getWeekData(monday, sundayExclusive, dto.getOrganizationId());
 
         // 按日期索引
         Map<String, Integer> dataMap = rawData.stream()
@@ -60,7 +60,7 @@ public class OutpatientServiceImpl implements OutpatientService {
         LocalDate firstDay = dateFrom.withDayOfMonth(1);
         LocalDate lastDayExclusive = firstDay.plusMonths(1);
 
-        List<TrendPointVO> rawData = outpatientMapper.getMonthData(firstDay, lastDayExclusive, dto.getOrganizationId());
+        List<TrendPointVO> rawData = admEncounterMapper.getMonthData(firstDay, lastDayExclusive, dto.getOrganizationId());
 
         // 按日期索引
         Map<String, Integer> dataMap = rawData.stream()
@@ -91,7 +91,7 @@ public class OutpatientServiceImpl implements OutpatientService {
         LocalDate dateFrom = parseDate(dto.getDateFrom(), LocalDate.now().withDayOfMonth(1));
         LocalDate dateTo = parseDate(dto.getDateTo(), dateFrom.plusMonths(1));
 
-        List<DistributionItemVO> items = outpatientMapper.getDiseaseDistribution(dateFrom, dateTo, dto.getOrganizationId());
+        List<DistributionItemVO> items = admEncounterMapper.getDiseaseDistribution(dateFrom, dateTo, dto.getOrganizationId());
 
         DistributionVO result = new DistributionVO();
         result.setItems(items);
