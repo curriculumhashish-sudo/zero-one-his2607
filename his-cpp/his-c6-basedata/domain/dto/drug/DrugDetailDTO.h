@@ -22,15 +22,15 @@ class DrugDetailDTO : public oatpp::DTO
 	API_DTO_FIELD_DEFAULT(String,caiwuleixin, ZH_WORDS_GETTER("Drug.field.caiwuleixin"), false);
 	API_DTO_FIELD_DEFAULT(String, yibaodengji, ZH_WORDS_GETTER("Drug.field.yibaodengji"), false);
 	API_DTO_FIELD_DEFAULT(String, jiesuanleixin, ZH_WORDS_GETTER("Drug.field.jiesuanleixin"), false);
-	API_DTO_FIELD_DEFAULT(String, yibaoduima, ZH_WORDS_GETTER("Drug.field.yibaoduima"), false);
+	API_DTO_FIELD_DEFAULT(Boolean, yibaoduima, ZH_WORDS_GETTER("Drug.field.yibaoduima"), false);
 	API_DTO_FIELD_DEFAULT(String, yibaoleibie, ZH_WORDS_GETTER("Drug.field.yibaoleibie"), false);
 	API_DTO_FIELD_DEFAULT(String, xingzhi, ZH_WORDS_GETTER("Drug.field.xingzhi"), true);
 	API_DTO_FIELD_DEFAULT(String, guige, ZH_WORDS_GETTER("Drug.field.guige"), true);
 	API_DTO_FIELD_DEFAULT(String, danwei, ZH_WORDS_GETTER("Drug.field.danwei"), true);
 	API_DTO_FIELD_DEFAULT(String, beishu, ZH_WORDS_GETTER("Drug.field.beishu"), false);
 	API_DTO_FIELD_DEFAULT(String, jixin, ZH_WORDS_GETTER("Drug.field.jixin"), false);
-	API_DTO_FIELD_DEFAULT(String, pishipanbie, ZH_WORDS_GETTER("Drug.field.pishipanbie"), false);
-	API_DTO_FIELD_DEFAULT(String,zhusheyaopin, ZH_WORDS_GETTER("Drug.field.zhusheyaopin"), false);
+	API_DTO_FIELD_DEFAULT(Boolean, pishipanbie, ZH_WORDS_GETTER("Drug.field.pishipanbie"), false);
+	API_DTO_FIELD_DEFAULT(Boolean,zhusheyaopin, ZH_WORDS_GETTER("Drug.field.zhusheyaopin"), false);
 	API_DTO_FIELD_DEFAULT(String,yongliangxianding, ZH_WORDS_GETTER("Drug.yongliangxianding"), false);
 	API_DTO_FIELD_DEFAULT(String, yongfa, ZH_WORDS_GETTER("Drug.field.yongfa"), false);
 	API_DTO_FIELD_DEFAULT(String, pingci, ZH_WORDS_GETTER("Drug.field.pingci"), false);

@@ -9,8 +9,8 @@ class DrugSelectQuery : public PageQuery
 	DTO_INIT(DrugSelectQuery, PageQuery);
 	API_DTO_FIELD_DEFAULT(String, proname, ZH_WORDS_GETTER("Drug.field.name"), false);
 	//名称
-	API_DTO_FIELD_DEFAULT(String, Minjiliang, ZH_WORDS_GETTER("Drug.field.jiliang"), false);
-	API_DTO_FIELD_DEFAULT(String, Maxjiliang, ZH_WORDS_GETTER("Drug.field.jiliang"), false);
+	API_DTO_FIELD_DEFAULT(String, itemMinQuantity ,ZH_WORDS_GETTER("Drug.field.itemMinQuantity"), false);
+	API_DTO_FIELD_DEFAULT(String, itemMaxQuantity, ZH_WORDS_GETTER("Drug.field.itemMaxQuantity"), false);
 	API_DTO_FIELD_DEFAULT(String, yongfa, ZH_WORDS_GETTER("Drug.field.yongfa"), false);
 	
 	//分类

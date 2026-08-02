@@ -688,7 +688,36 @@ DrugDetailDTO::Wrapper DrugService::getById(string id)
                                guige, TotalVolume, danwei, DoseUnitCode, jixin, DoseFormCode,
                                yaopingyinma, PyStr, shangpingyinma, MerchandisePyStr,
                                shangwubima, MerchandiseWbStr, liujiuma, Drug69Code,
-                               yaopingstatus, StatusEnum, lingyu, DomainEnum);
+                               yaopingstatus, StatusEnum, lingyu, DomainEnum, //已完成
+        yibaoduima, YbMatchFlag,
+        xingzhi, Characteristic,
+        beishu, DoseUnitRatio,
+        pishipanbie, SkinTestFlag,
+        zhusheyaopin, InjectFlag,
+        yongliangxianding, UsageLimit  ,    yongfa, MethodCode
+        pingci, RateCode,
+        dancijiliang, Dose,
+        dancizuida, ItemMaxQuantity,
+        yongfashuoming, DosageInstruction,
+        shiyongfanwei, RestrictedScope,
+        DDDzhi, DddCode,
+        DDDdanwei, DddUnitCode,
+        caigoudanwei, PurchaseUnitCode,
+        caigoubeishu, PurchaseUnitRatio,
+        menzhengshuxing, DefEncounterUnitCode,
+        kucundanwei, StockUnitCode,
+        kucunbeishu, StockUnitRatio,
+        linshishuxing, DefInhospitalUnitCode,
+        baozhuangbeishu, PackageUnitRatio,
+        baozhuangdanwei, PackageUnitCode,
+        chailingdanwei, SplitUnitCode,
+        selfFlag, SelfFlag,
+        antibioticFlag, AntibioticFlag,
+        basicFlag, BasicFlag,
+        activeFlag, ActiveFlag,
+        childrenFlag, ChildrenFlag,
+        restrictedFlag, RestrictedFlag,
+        rxFlag, RxFlag);
     return dto;
 
 }
