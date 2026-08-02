@@ -14,7 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.util.Date;
 
 @Data
-@Document(collection = "enum_type")
+@Document(collection = "EnumType")
 @CompoundIndexes({
         // 复合索引，确保租户下enumTypeKey唯一
         @CompoundIndex(name = "idx_tenantId_enumKey",
@@ -33,42 +33,32 @@ public class EnumType {
     private String tenantId;
     
     @Indexed
-    @Field("enum_type_key")
     private String enumTypeKey;
 
-    @Field("display_name")
     private String displayName;
 
-    @Field("description")
     private String description;
 
-    @Field("is_system")
     private Boolean isSystem;
 
-    @Field("status")
     private Integer status;
 
     // @CreatedBy
-    @Field("created_by")
     private String createdBy;
 
     // @CreatedDate
-    @Field("created_at")
     private Date createdAt;
 
     // @LastModifiedBy
-    @Field("updated_by")
     private String updatedBy;
 
     // @LastModifiedDate
-    @Field("updated_at")
     private Date updatedAt;
 
     @Version
     private Integer version;
 
     @Indexed
-    @Field("is_deleted")
     private Boolean isDeleted;
 
     public static EnumTypeDTO toDTO(EnumType enumType) {

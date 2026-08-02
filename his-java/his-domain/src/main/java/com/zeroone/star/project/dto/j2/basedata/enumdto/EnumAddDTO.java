@@ -1,10 +1,7 @@
 package com.zeroone.star.project.dto.j2.basedata.enumdto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.ToString;
 
@@ -33,10 +30,15 @@ public class EnumAddDTO {
     @Schema(description = "枚举码，必须唯一", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer enumCode;
 
-    @Size(min = 1, max = 500, message = "标签长度必须在1到500个字符之间")
+    @Size(min = 1, max = 100, message = "标签长度必须在1到500个字符之间")
     @Schema(description = "标签，必须唯一", example = "男性", requiredMode = Schema.RequiredMode.REQUIRED)
     private String display;
 
+    @Size(min = 1, max = 500, message = "描述长度必须在1到500个字符之间")
+    @Schema(description = "描述", example = "描述", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String description;
+
+    @Min(value = 0, message = "排序不能小于0")
     @NotNull
     @Schema(description = "排序", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer order;

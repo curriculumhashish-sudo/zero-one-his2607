@@ -10,7 +10,6 @@ import lombok.ToString;
 /**
  * <p>
  * 描述：枚举类型添加DTO
- * TODO: 由于还没有设计实际的mongodb集合结构，这里的类型名字暂定，EnumTypeDTO也是如此
  * </p>
  * @author 逆光 ni_guang
  * @version 1.0
@@ -35,7 +34,6 @@ public class EnumTypeAddDTO {
     @Schema(description = "是否系统枚举类型", example = "false", requiredMode = Schema.RequiredMode.REQUIRED)
     private Boolean isSystem;
 
-    // TODO: 该类型计划也由枚举系统管理，本身为系统内置的枚举类型
     @NotNull(message = "枚举类型状态枚举值不能为空")
     @Schema(description = "枚举类型状态(0-激活, 1-未激活)", example = "0", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer status;
