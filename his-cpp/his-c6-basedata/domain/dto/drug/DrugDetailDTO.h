@@ -61,7 +61,13 @@ class DrugDetailDTO : public oatpp::DTO
 	API_DTO_FIELD_DEFAULT(String, liujiuma, ZH_WORDS_GETTER("Drug.field.liujiuma"), false);
 	API_DTO_FIELD_DEFAULT(String, yaopingstatus, ZH_WORDS_GETTER("Drug.field.yaopingstatus"), false);
 	API_DTO_FIELD_DEFAULT(String, lingyu, ZH_WORDS_GETTER("Drug.field.lingyu"), false);
-
+	API_DTO_FIELD_DEFAULT(Boolean, selfFlag, ZH_WORDS_GETTER("Drug.field.selfFlag"), false);
+	API_DTO_FIELD_DEFAULT(Boolean, antibioticFlag, ZH_WORDS_GETTER("Drug.field.antibioticFlag"), false);
+	API_DTO_FIELD_DEFAULT(Boolean, basicFlag, ZH_WORDS_GETTER("Drug.field.basicFlag"), false);
+	API_DTO_FIELD_DEFAULT(Boolean, activeFlag, ZH_WORDS_GETTER("Drug.field.activeFlag"), false);
+	API_DTO_FIELD_DEFAULT(Boolean, childrenFlag, ZH_WORDS_GETTER("Drug.field.childrenFlag"), false);
+	API_DTO_FIELD_DEFAULT(Boolean, restrictedFlag, ZH_WORDS_GETTER("Drug.field.restrictedFlag"), false);
+	API_DTO_FIELD_DEFAULT(Boolean, rxFlag, ZH_WORDS_GETTER("Drug.field.rxFlag"), false);
 
 
 	

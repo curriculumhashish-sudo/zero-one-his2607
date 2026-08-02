@@ -107,7 +107,7 @@ std::string DrugDAO::queryConditionBuilder(const DrugQuery::Wrapper &query, SqlP
     }
     return sqlCondition.str();
 }
-std::string querySelectConditionBuilder(const DrugSelectQuery::Wrapper& query, SqlParams& params)
+std::string DrugDAO::querySelectConditionBuilder(const DrugSelectQuery::Wrapper& query, SqlParams& params)
 {
     std::ostringstream sqlCondition;
     sqlCondition << " WHERE is_deleted=0";
@@ -539,10 +539,16 @@ uint64_t DrugDAO::count(const DrugQuery::Wrapper &query)
 {
     SqlParams params;
     std::string sql = "SELECT COUNT(*) FROM med_medication_definition";
-    sql += queryConditionBuilder(query, params);
+    sql =sql+ queryConditionBuilder(query, params);
     return sqlSession->executeQueryNumerical(sql, params);
 }
-
+uint64_t DrugDAO::count2(const DrugSelectQuery::Wrapper& query)
+{
+    SqlParams params;
+    std::string sql = "SELECT COUNT(*) FROM med_medication_definition";
+    sql = sql + querySelectConditionBuilder(query, params);
+    return sqlSession->executeQueryNumerical(sql, params);
+}
 std::list<PtrMedMedicationDefinitionDO> DrugDAO::selectWithPage(const DrugQuery::Wrapper &query)
 {
     SqlParams params;
@@ -559,6 +565,7 @@ std::list<PtrMedMedicationDefinitionDO> DrugDAO::selectWithPage(const DrugQuery:
 }
 std::list<PtrMedMedicationDefinitionDO> DrugDAO::SElectWithPage(const DrugSelectQuery::Wrapper& query)
 {
+
     SqlParams params;
     std::string sql = "SELECT " + fullDrugColumns() + " FROM med_medication_definition";
     sql += querySelectConditionBuilder(query, params);

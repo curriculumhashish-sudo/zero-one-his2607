@@ -60,10 +60,7 @@ public:
 		return "";
 
 	};
-	std::string setPayload()
-	{
-		return "";
-	}
+
 };
 
 #include OATPP_CODEGEN_END(DTO);

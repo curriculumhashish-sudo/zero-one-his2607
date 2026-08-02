@@ -30,6 +30,7 @@
 #include "domain/dto/drug/DrugDetailDTO.h"
 #include "domain/dto/drug/DrugListDTO.h"
 #include "domain/dto/drug/DrugAddDTO.h"
+#include "domain/dto/drug/DrugSelectDTO.h"
 #include  "domain/query/Drug/DrugSelectQuery.h"
 #include <stdexcept>
 

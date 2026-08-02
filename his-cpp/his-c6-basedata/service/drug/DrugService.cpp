@@ -22,6 +22,7 @@
 #include "../../dao/common/DrugEnumDictionaryDAO.h"
 #include "../../dao/drug/DrugDAO.h"
 #include "../../domain/DrugConstants.h"
+#include "domain/dto/drug/DrugSelectDTO.h"
 #include "SimpleDateTimeFormat.h"
 #include "TransactionManager.h"
 #include "id/UuidFacade.h"
@@ -636,7 +637,7 @@ DrugListPageDTO::Wrapper DrugService::listAll(const DrugQuery::Wrapper& query)
     return pages;
 
 }
-DrugSelectPageDTO::Wrapper SelectlistAll(const DrugSelectQuery::Wrapper& query)
+DrugSelectPageDTO::Wrapper DrugService::SelectlistAll(const DrugSelectQuery::Wrapper& query)
 {
     auto pages = DrugSelectPageDTO::createShared();
     pages->pageIndex = query->pageIndex;
@@ -644,7 +645,7 @@ DrugSelectPageDTO::Wrapper SelectlistAll(const DrugSelectQuery::Wrapper& query)
 
     // 查询符合条件的药品总数。
     DrugDAO dao;
-    uint64_t count = dao.count(query);
+    uint64_t count = dao.count2(query);
     if (count <= 0)
     {
         return pages;
@@ -653,21 +654,16 @@ DrugSelectPageDTO::Wrapper SelectlistAll(const DrugSelectQuery::Wrapper& query)
     // 分页查询并转换为列表 DTO。
     pages->total = count;
     pages->calcPages();
-    std::list<PtrMedMedicationDefinitionDO> result = dao.selectWithPage(query);
+    std::list<PtrMedMedicationDefinitionDO> result = dao.SElectWithPage(query);
     for (const auto& sub : result)
     {
         if (!sub)
         {
             continue;
         }
-        auto dto = DrugListDTO::createShared();
-        ZO_STAR_DOMAIN_DO_TO_DTO_1(dto, sub, id, Id, code, BusNo, name, Name, guige, TotalVolume,
-            kinds, CategoryCode, changjia, ManufacturerText);
+        auto dto = DrugSelectDTO::createShared();
+        ZO_STAR_DOMAIN_DO_TO_DTO_1(dto, sub, code, Id, name, Name, danwei, StockUnitCode);
         const std::string status = sub->getStatusEnum();
-        dto->status = status == DrugConstants::STATUS_ACTIVE ? 1
-            : status == DrugConstants::STATUS_INACTIVE ? 2
-            : status == DrugConstants::STATUS_DISCARDED ? 3
-            : 0;
         pages->addData(dto);
     }
     return pages;
@@ -710,7 +706,7 @@ string DrugService::saveData(const DrugAddDTO::Wrapper& dto)
 
     entity.setCreatedBy("");
     entity.setCreatedAt(SimpleDateTimeFormat::format());
-
+    
     // 樑扢蘇蚚
     entity.setActiveFlag(true);
 

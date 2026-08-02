@@ -25,6 +25,8 @@
 #include "../../domain/do/adm/AdmChargeItemDefinitionDO.h"
 #include "DrugMapper.h"
 #include "domain/query/Drug/DrugQuery.h"
+#include "domain/query/Drug/DrugSelectQuery.h"
+
 /**
  * Persistence operations for the drug aggregate and its base prices.
  */
@@ -70,8 +72,9 @@ class DrugDAO : public BaseDAO
                            const std::string &targetStatus, bool activeFlag, const std::string &operatorId,
                            const std::string &operationTime);
     uint64_t count(const DrugQuery::Wrapper &query);
+    uint64_t count2(const DrugSelectQuery::Wrapper &query);
     std::list<PtrMedMedicationDefinitionDO> selectWithPage(const DrugQuery::Wrapper &query);
-    std::list<PtrMedMedicationDefinitionDO> SElectWithPage(const DrugSelectQuery::Wrapper& query)
+    std::list<PtrMedMedicationDefinitionDO> SElectWithPage(const DrugSelectQuery::Wrapper& query);
     int insert(const MedMedicationDefinitionDO &entity);
 };
 
