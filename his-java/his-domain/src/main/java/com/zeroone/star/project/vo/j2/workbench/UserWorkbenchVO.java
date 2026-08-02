@@ -16,9 +16,15 @@ import java.util.List;
 @Data
 @Schema(description = "按角色分组工作台数据")
 public class UserWorkbenchVO implements Serializable {
-    //whale_roles
-    @Schema(description = "角色名称：医生/护士/收费处/药房/管理员", example = "医生", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String name;
+    @Schema(description = "角色ID", example = "r_doctor")
+    private String roleId;
+
+    @Schema(description = "角色编码", example = "DOCTOR")
+    private String roleCode;
+
+    @Schema(description = "角色显示名称：医生/护士/收费处/药房/管理员", example = "医生", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String roleName;
+
     @Schema(description = "当前角色拥有的全部功能菜单卡片")
-    private List<WorkbenchMenuVO> menuList;
+    private List<WorkbenchMenuVO> menus;
 }
