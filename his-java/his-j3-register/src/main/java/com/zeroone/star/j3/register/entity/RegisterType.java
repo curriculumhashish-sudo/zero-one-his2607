@@ -3,6 +3,7 @@ package com.zeroone.star.j3.register.entity;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Getter;
 import lombok.Setter;
@@ -48,6 +49,7 @@ public class RegisterType implements Serializable {
     private String updatedBy;
 
     /** 是否删除 */
+    @TableLogic(value = "0", delval = "1")
     private Integer isDeleted;
 
     /** 关联业务表 */

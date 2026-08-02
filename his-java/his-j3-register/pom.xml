@@ -56,13 +56,13 @@
                 <artifactId>mp-code-generator-plugin</artifactId>
                 <configuration>
                     <dbConfig>
-                        <host>192.168.20.130</host>
+                        <host>192.168.6.100</host>
                     <port>3306</port>
                     <dbname>zo_his</dbname>
                     <username>root</username>
                     <password>root</password>
                     </dbConfig><outDir>${project.basedir}/src/main/java</outDir></configuration></plugin>
-            <plugin><groupId>io.fabric8</groupId><artifactId>docker-maven-plugin</artifactId><configuration><dockerHost>https://192.168.220.128:2375</dockerHost><certPath>/home/docker-ca</certPath><images><image><name>01star/${project.artifactId}:${project.version}</name><build><contextDir>${project.basedir}</contextDir></build><alias>${project.artifactId}</alias><run><namingStrategy>alias</namingStrategy><ports><port>10207:10207</port></ports><volumes><bind><volume>/etc/localtime:/etc/localtime</volume><volume>/home/app/${project.artifactId}/logs:/tmp/logs</volume></bind></volumes><env><JAVA_OPTS>-Xms256m -Xmx256m</JAVA_OPTS><SPRING_ARGS>--spring.profiles.active=test --spring.cloud.nacos.discovery.ip=192.168.220.128</SPRING_ARGS></env></run></image></images></configuration></plugin>
+            <plugin><groupId>io.fabric8</groupId><artifactId>docker-maven-plugin</artifactId><configuration><dockerHost>https://192.168.6.100:2375</dockerHost><certPath>/home/docker-ca</certPath><images><image><name>01star/${project.artifactId}:${project.version}</name><build><contextDir>${project.basedir}</contextDir></build><alias>${project.artifactId}</alias><run><namingStrategy>alias</namingStrategy><ports><port>10207:10207</port></ports><volumes><bind><volume>/etc/localtime:/etc/localtime</volume><volume>/home/app/${project.artifactId}/logs:/tmp/logs</volume></bind></volumes><env><JAVA_OPTS>-Xms256m -Xmx256m</JAVA_OPTS><SPRING_ARGS>--spring.profiles.active=test --spring.cloud.nacos.discovery.ip=192.168.6.100</SPRING_ARGS></env></run></image></images></configuration></plugin>
         </plugins>
     </build>
     <profiles>
@@ -75,7 +75,7 @@
                         <artifactId>mp-code-generator-plugin</artifactId>
                         <configuration>
                             <dbConfig>
-                                <host>192.168.20.130</host>
+                                <host>192.168.6.100</host>
                                 <port>3306</port>
                                 <dbname>zo_his</dbname>
                                 <username>root</username>

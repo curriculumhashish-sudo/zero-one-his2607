@@ -58,7 +58,7 @@ public class RegisterController implements RegisterApis {
     @GetMapping("query-list")
     @Operation(summary = "获取挂号类型列表", description = "支持按名称、医保编码、业务编码、id进行模糊查询，分页返回数据")
     @Override
-    public JsonVO<PageDTO<RegisterVO>> queryRegisterList(RegisterQuery query) {
+    public JsonVO<PageDTO<RegisterVO>> queryRegisterList(@Valid RegisterQuery query) {
         PageDTO<RegisterVO> result = registerTypeService.queryRegisterList(query);
         return JsonVO.success(result);
     }
