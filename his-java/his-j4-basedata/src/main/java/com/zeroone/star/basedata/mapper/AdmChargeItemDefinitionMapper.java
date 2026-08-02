@@ -1,7 +1,7 @@
 package com.zeroone.star.basedata.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.zeroone.star.basedata.entity.medicine.AdmChargeItemDefinitionDO;
+import com.zeroone.star.basedata.entity.common.AdmChargeItemDefinitionDO;
 
 import java.util.List;
 

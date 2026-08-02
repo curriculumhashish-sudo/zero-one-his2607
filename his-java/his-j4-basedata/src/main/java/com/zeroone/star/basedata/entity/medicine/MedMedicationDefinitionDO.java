@@ -28,7 +28,7 @@ public class MedMedicationDefinitionDO implements Serializable {
     /**
      * 主键
      */
-    @TableId(type = IdType.ASSIGN_ID)
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
     private String id;
 
     /**
@@ -79,6 +79,7 @@ public class MedMedicationDefinitionDO implements Serializable {
     /**
      * 乐观锁版本号
      */
+    @Version
     private Integer version;
 
     /**

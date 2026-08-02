@@ -1,14 +1,12 @@
 package com.zeroone.star.basedata.service.impl;
 
-import com.zeroone.star.basedata.entity.medicine.AdmChargeItemDefinitionDO;
 import com.zeroone.star.basedata.entity.medicine.MedMedicationDefinitionDO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineAddDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineDetailDTO;
-import com.zeroone.star.project.vo.j4.medicine.MedicineAddVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineDetailVO;
 import org.mapstruct.*;
+import com.zeroone.star.project.vo.j4.medicine.MedicineListVO;
 
-import java.util.List;
 
 /**
  * <p>
@@ -59,7 +57,7 @@ public interface MsMedicineMapper {
     MedMedicationDefinitionDO addDtoToEntity(MedicineAddDTO dto);
 
     /**
-     * 药品实体转换为新增结果VO。
+     * 药品实体转换为药品列表VO。
      */
-    MedicineAddVO entityToAddVO(MedMedicationDefinitionDO entity);
+    MedicineListVO entityToListVO(MedMedicationDefinitionDO entity);
 }
