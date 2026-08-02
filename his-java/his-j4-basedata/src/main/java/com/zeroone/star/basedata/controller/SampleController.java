@@ -7,6 +7,7 @@ import com.zeroone.star.project.dto.j4.sample.SpecimenDefinitionUpdateDTO;
 import com.zeroone.star.project.j4.basedata.SampleApis;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j4.sample.SpecimenDefinitionOperateVO;
+import com.zeroone.star.project.vo.j4.sample.SpecimenOptionVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -65,19 +66,19 @@ public class SampleController implements SampleApis {
     }
 
     /**
-     * 获取样本名称（根据ID获取单个样本信息）
+     * 获取样本名称下拉列表（当前租户下所有样本）
+     * 供其他组模块调用，前端渲染成下拉选项，选择后存储样本ID
      */
-    @Operation(summary = "获取样本名称", description = "根据样本定义主键ID获取单个样本的详细信息")
-    @GetMapping("get-sample-name")
+    @Operation(summary = "获取样本名称", description = "获取当前租户下所有样本定义的名称下拉选项，供其他模块选择并存储样本ID")
+    @GetMapping("list-sample-names")
     @Override
-    public JsonVO<SpecimenDefinitionDetailVO> getSampleName(
-            @Parameter(description = "样本定义主键", example = "328090253175296000")
-            @RequestParam String id) {
+    public JsonVO<List<SpecimenOptionVO>> listSampleNames() {
         // TODO: 待实现 Service/Mapper 层逻辑，当前返回 mock 数据
         AdmSpecimenDefinitionDO sample = buildMockSample();
-        SpecimenDefinitionDetailVO vo = new SpecimenDefinitionDetailVO();
-        BeanUtil.copyProperties(sample, vo);
-        return JsonVO.success(vo);
+        SpecimenOptionVO vo = new SpecimenOptionVO();
+        vo.setValue(sample.getId());
+        vo.setLabel(sample.getName());
+        return JsonVO.success(List.of(vo));
     }
 
     /**

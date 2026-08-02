@@ -19,6 +19,21 @@ import java.util.Map;
 public class SampleConstants {
 
     /**
+     * 发布状态（PublicationStatus）枚举编码：草稿
+     */
+    public static final String STATUS_DRAFT = "DRAFT";
+
+    /**
+     * 发布状态（PublicationStatus）枚举编码：已启用（新增样本时由服务端默认设置）
+     */
+    public static final String STATUS_ACTIVE = "ACTIVE";
+
+    /**
+     * 发布状态（PublicationStatus）枚举编码：已停用
+     */
+    public static final String STATUS_INACTIVE = "INACTIVE";
+
+    /**
      * 标本种类（SpecimenType）编码 → 中文名 映射
      * key   = typeEnum（存入 adm_specimen_definition.type_enum）
      * value = 标本种类中文名（显示用）

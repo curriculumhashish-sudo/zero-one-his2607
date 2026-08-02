@@ -11,6 +11,9 @@ import lombok.Data;
 /**
  * <p>
  * 描述：样本定义 修改 请求参数
+ * 说明：修改时前端回显样本名称、标本种类（来源：分页查询结果），
+ * 名称/种类修改后，业务编码(busNo)、拼音/五笔检索码(pyStr/wbStr)由前端同步更新后一并传入；
+ * 发布状态(statusEnum)不参与修改，保持原值
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
@@ -53,23 +56,36 @@ public class SpecimenDefinitionUpdateDTO {
     private String name;
 
     /**
-     * 拼音检索码
+     * 业务编码（前端自动生成，名称/种类修改后由前端同步更新传入）
      */
-    @Size(max = 32, message = "拼音检索码长度不能超过32个字符")
+    @NotBlank(message = "业务编码不能为空")
+    @Size(max = 255, message = "业务编码长度不能超过255个字符")
+    @Pattern(regexp = "^[A-Za-z0-9_-]+$", message = "业务编码只能包含字母、数字、下划线和中划线")
+    @Schema(description = "业务编码，全局唯一，前端自动生成",
+            requiredMode = Schema.RequiredMode.REQUIRED,
+            example = "SPD0001", maxLength = 255)
+    private String busNo;
+
+    /**
+     * 拼音检索码（前端拼音库生成后传入）
+     */
+    @NotBlank(message = "拼音检索码不能为空")
+    @Size(max = 255, message = "拼音检索码长度不能超过255个字符")
     @Pattern(regexp = "^[A-Za-z]*$", message = "拼音检索码只能包含字母")
-    @Schema(description = "拼音检索码，为空时由服务端根据样本名称自动生成",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED,
-            example = "X", maxLength = 32)
+    @Schema(description = "拼音检索码，前端拼音库生成后传入",
+            requiredMode = Schema.RequiredMode.REQUIRED,
+            example = "X", maxLength = 255)
     private String pyStr;
 
     /**
-     * 五笔检索码
+     * 五笔检索码（前端拼音库生成后传入）
      */
-    @Size(max = 32, message = "五笔检索码长度不能超过32个字符")
+    @NotBlank(message = "五笔检索码不能为空")
+    @Size(max = 255, message = "五笔检索码长度不能超过255个字符")
     @Pattern(regexp = "^[A-Za-z]*$", message = "五笔检索码只能包含字母")
-    @Schema(description = "五笔检索码，为空时由服务端根据样本名称自动生成",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED,
-            example = "T", maxLength = 32)
+    @Schema(description = "五笔检索码，前端拼音库生成后传入",
+            requiredMode = Schema.RequiredMode.REQUIRED,
+            example = "T", maxLength = 255)
     private String wbStr;
 
     /**
