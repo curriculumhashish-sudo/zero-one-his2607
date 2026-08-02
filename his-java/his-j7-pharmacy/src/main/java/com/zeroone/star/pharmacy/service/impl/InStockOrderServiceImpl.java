@@ -7,9 +7,13 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zeroone.star.pharmacy.entity.InStockOrder;
 import com.zeroone.star.pharmacy.entity.InStockOrderDetail;
+import com.zeroone.star.pharmacy.entity.InventoryLock;
 import com.zeroone.star.pharmacy.mapper.InStockOrderDetailMapper;
 import com.zeroone.star.pharmacy.mapper.InStockOrderMapper;
+import com.zeroone.star.pharmacy.mapper.InventoryLockMapper;
 import com.zeroone.star.pharmacy.service.InStockOrderService;
+import com.zeroone.star.project.components.user.UserDTO;
+import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.j7.pharmacy.InStockOrderDTO;
 import com.zeroone.star.project.dto.j7.pharmacy.InStockOrderDetailDTO;
 import com.zeroone.star.project.dto.j7.pharmacy.PurchaseInboundSubmitDTO;
@@ -17,13 +21,17 @@ import com.zeroone.star.project.query.j7.pharmacy.PurchaseInboundQuery;
 import com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundDetailVO;
 import com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundItemVO;
 import com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundListVO;
+import com.zeroone.star.project.dto.j7.pharmacy.InStockOrderDeleteDTO;
+import com.zeroone.star.project.vo.j7.pharmacy.SupplyDocumentDeleteVO;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,6 +53,7 @@ import java.util.stream.Collectors;
  * @author 01star
  * @version 1.0.0
  */
+@Slf4j
 @Service
 public class InStockOrderServiceImpl implements InStockOrderService {
 
@@ -54,12 +63,19 @@ public class InStockOrderServiceImpl implements InStockOrderService {
     @Resource
     private InStockOrderDetailMapper detailMapper;
 
+    @Resource
+    private InventoryLockMapper inventoryLockMapper;
+
+    @Resource
+    private UserHolder userHolder;
+
     private static final String STATUS_DRAFT = "DRAFT";
     private static final String STATUS_PENDING = "PENDING";
+    private static final String STATUS_PENDING_APPROVAL = "PENDING_APPROVAL";
 
-    // TODO: 如果有库房字典服务或用户服务，请在此注入
-    // private final LocationService locationService;
-    // private final UserService userService;
+    private static final List<String> DELETABLE_STATUSES = List.of(STATUS_DRAFT, STATUS_PENDING_APPROVAL);
+    private static final DateTimeFormatter DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     /**
      * <p>
@@ -249,6 +265,51 @@ public class InStockOrderServiceImpl implements InStockOrderService {
         }
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public SupplyDocumentDeleteVO deleteOrder(InStockOrderDeleteDTO dto) {
+        String busNo = dto.getBusNo().trim();
+
+        InStockOrder order = inStockOrderMapper.selectOne(
+                new LambdaQueryWrapper<InStockOrder>()
+                        .eq(InStockOrder::getBusNo, busNo)
+                        .last("LIMIT 1"));
+        if (order == null) {
+            throw new IllegalArgumentException("入库单不存在：" + busNo);
+        }
+        if (!DELETABLE_STATUSES.contains(order.getStatusEnum())) {
+            throw new IllegalArgumentException(
+                    "只有草稿或待审核状态的入库单可以删除，当前状态：" + order.getStatusEnum());
+        }
+
+        int unlockedLocks = 0;
+        try {
+            inventoryLockMapper.deleteByBusNo(busNo);
+            unlockedLocks = 1;
+        } catch (Exception e) {
+            log.warn("删除库存锁定记录失败：busNo={}, error={}", busNo, e.getMessage());
+        }
+
+        detailMapper.delete(new LambdaQueryWrapper<InStockOrderDetail>()
+                .eq(InStockOrderDetail::getPharmacyId, order.getId()));
+
+        LocalDateTime now = LocalDateTime.now();
+        String deletedBy = getCurrentUserId();
+        int deletedLines = inStockOrderMapper.softDeleteByBusNo(
+                busNo, deletedBy, now.format(DATE_TIME_FORMATTER));
+        if (deletedLines == 0) {
+            throw new IllegalArgumentException("删除入库单失败，单据可能已被其他操作修改：" + busNo);
+        }
+
+        log.info("入库单 {} 删除成功，删除 {} 行，解锁 {} 条锁定记录", busNo, deletedLines, unlockedLocks);
+
+        SupplyDocumentDeleteVO vo = new SupplyDocumentDeleteVO();
+        vo.setBusNo(busNo);
+        vo.setDeletedLines(deletedLines);
+        vo.setUnlockedLocks(unlockedLocks);
+        return vo;
+    }
+
     // ==================== 私有方法 ====================
 
     private InStockOrder buildOrder(InStockOrderDTO dto) {
@@ -298,5 +359,14 @@ public class InStockOrderServiceImpl implements InStockOrderService {
         order.setId(orderId);
         order.setTotalPrice(total);
         inStockOrderMapper.updateById(order);
+    }
+
+    private String getCurrentUserId() {
+        try {
+            UserDTO user = userHolder.getCurrentUser();
+            return user != null && user.getId() != null ? user.getId() : "system";
+        } catch (Exception e) {
+            return "system";
+        }
     }
 }

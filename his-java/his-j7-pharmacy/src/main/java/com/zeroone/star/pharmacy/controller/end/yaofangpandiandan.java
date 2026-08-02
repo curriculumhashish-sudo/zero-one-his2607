@@ -1,13 +1,18 @@
 package com.zeroone.star.pharmacy.controller.end;
 
 import com.zeroone.star.pharmacy.service.IWkfSupplyRequestService;
+import com.zeroone.star.pharmacy.service.IStocktakeService;
+import com.zeroone.star.project.dto.j7.pharmacy.StocktakeDeleteDTO;
 import com.zeroone.star.project.dto.j7.pharmacy.approval.ApproveDTO;
 import com.zeroone.star.project.dto.j7.pharmacy.approval.OperatorDTO;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j7.pharmacy.StocktakeStatusVO;
+import com.zeroone.star.project.vo.j7.pharmacy.SupplyDocumentDeleteVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +25,9 @@ public class yaofangpandiandan {
 
     @Resource
     private IWkfSupplyRequestService wkfSupplyRequestService;
+
+    @Resource
+    private IStocktakeService stocktakeService;
 
     @PutMapping("/submit")
     @Operation(summary = "提交审批")
@@ -43,5 +51,11 @@ public class yaofangpandiandan {
     @Operation(summary = "撤回审批")
     public JsonVO<StocktakeStatusVO> withdraw(@RequestBody OperatorDTO dto) {
         return JsonVO.success(wkfSupplyRequestService.withdraw(dto));
+    }
+
+    @DeleteMapping("/delete")
+    @Operation(summary = "删除盘点单据", description = "软删除指定单据号的盘点单，仅草稿/待审核状态可删，同时解锁关联的库存锁定记录")
+    public JsonVO<SupplyDocumentDeleteVO> deleteStocktake(@Valid @RequestBody StocktakeDeleteDTO dto) {
+        return JsonVO.success(stocktakeService.deleteStocktake(dto));
     }
 }

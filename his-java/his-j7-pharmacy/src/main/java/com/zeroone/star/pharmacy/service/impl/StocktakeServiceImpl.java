@@ -1,5 +1,6 @@
 package com.zeroone.star.pharmacy.service.impl;
 
+import com.alibaba.nacos.common.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -12,17 +13,18 @@ import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.stocktake.StocktakeItemSaveDTO;
 import com.zeroone.star.project.dto.stocktake.StocktakeSaveDTO;
-import com.zeroone.star.project.dto.stocktake.StocktakeSubmitDTO;
 import com.zeroone.star.project.query.stocktake.StocktakeQuery;
 import com.zeroone.star.project.vo.stocktake.StocktakeDetailVO;
 import com.zeroone.star.project.vo.stocktake.StocktakeItemVO;
 import com.zeroone.star.project.vo.stocktake.StocktakeListVO;
 import com.zeroone.star.project.vo.stocktake.StocktakeSaveVO;
+import com.zeroone.star.pharmacy.mapper.InventoryLockMapper;
+import com.zeroone.star.project.dto.j7.pharmacy.StocktakeDeleteDTO;
+import com.zeroone.star.project.vo.j7.pharmacy.SupplyDocumentDeleteVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -70,8 +72,13 @@ public class StocktakeServiceImpl
     private static final DateTimeFormatter BUS_NO_FORMATTER =
             DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
 
+    private static final List<String> DELETABLE_STATUSES = List.of(STATUS_DRAFT, STATUS_PENDING_APPROVAL);
+
     @Resource
     private StocktakeMapper stocktakeMapper;
+
+    @Resource
+    private InventoryLockMapper inventoryLockMapper;
 
     @Resource
     private UserHolder userHolder;
@@ -146,23 +153,13 @@ public class StocktakeServiceImpl
         return persistStocktake(dto, STATUS_PENDING_APPROVAL);
     }
 
-    /**
-     * 提交盘点单审批
-     *
-     * @param dto 提交审批参数
-     * @return 提交结果消息
-     */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String submitStocktake(StocktakeSubmitDTO dto) {
-        if (dto == null) {
-            throw new IllegalArgumentException("提交审批参数不能为空");
-        }
-
-        String busNo = firstText(dto.getBusNo(), dto.getId());
-        if (!StringUtils.hasText(busNo)) {
+    public SupplyDocumentDeleteVO deleteStocktake(StocktakeDeleteDTO dto) {
+        if (dto == null || !StringUtils.hasText(dto.getBusNo())) {
             throw new IllegalArgumentException("盘点单号不能为空");
         }
+        String busNo = dto.getBusNo().trim();
 
         WkfSupplyRequest record = stocktakeMapper.selectOneByBusNo(busNo);
         if (record == null) {
@@ -171,44 +168,37 @@ public class StocktakeServiceImpl
         if (!isStocktakeType(record.getTypeEnum())) {
             throw new IllegalArgumentException("单据类型非盘点单：" + busNo);
         }
-        if (!STATUS_DRAFT.equals(record.getStatusEnum())) {
+        if (!DELETABLE_STATUSES.contains(record.getStatusEnum())) {
             throw new IllegalArgumentException(
-                    "该盘点单不在草稿状态，无法提交审批，当前状态：" + record.getStatusEnum());
+                    "只有草稿或待审核状态的盘点单可以删除，当前状态：" + record.getStatusEnum());
         }
 
-        Long itemCount = stocktakeMapper.countItemsByBusNo(busNo);
-        if (itemCount == null || itemCount <= 0) {
-            throw new IllegalArgumentException("盘点单无明细行，无法提交审批：" + busNo);
+        int unlockedLocks = 0;
+        try {
+            inventoryLockMapper.deleteByBusNo(busNo);
+            unlockedLocks = 1;
+        } catch (Exception e) {
+            log.warn("删除库存锁定记录失败：busNo={}, error={}", busNo, e.getMessage());
         }
 
         UserDTO currentUser = getCurrentUserQuietly();
-        String applicantId = firstText(
-                currentUser == null ? null : currentUser.getId(),
-                record.getApplicantId(),
-                "system"
-        );
-        String updatedBy = firstText(
-                currentUser == null ? null : currentUser.getId(),
-                currentUser == null ? null : currentUser.getUsername(),
-                applicantId,
-                "system"
-        );
-
+        String deletedBy = currentUser != null && currentUser.getId() != null
+                ? currentUser.getId() : "system";
         LocalDateTime now = LocalDateTime.now();
-        int rows = stocktakeMapper.updateStatusByBusNo(
-                busNo,
-                STATUS_PENDING_APPROVAL,
-                applicantId,
-                now.format(DATE_TIME_FORMATTER),
-                updatedBy,
-                now.format(DATE_TIME_FORMATTER),
-                dto.getRemark()
-        );
-        if (rows == 0) {
-            throw new IllegalArgumentException("提交审批失败，单据可能已被其他操作修改：" + busNo);
+
+        int deletedLines = stocktakeMapper.softDeleteByBusNo(
+                busNo, deletedBy, now.format(DATE_TIME_FORMATTER));
+        if (deletedLines == 0) {
+            throw new IllegalArgumentException("删除盘点单失败，单据可能已被其他操作修改：" + busNo);
         }
-        log.info("盘点单 {} 提交审批成功，受影响行数：{}", busNo, rows);
-        return "提交成功";
+
+        log.info("盘点单 {} 删除成功，删除 {} 行，解锁 {} 条锁定记录", busNo, deletedLines, unlockedLocks);
+
+        SupplyDocumentDeleteVO vo = new SupplyDocumentDeleteVO();
+        vo.setBusNo(busNo);
+        vo.setDeletedLines(deletedLines);
+        vo.setUnlockedLocks(unlockedLocks);
+        return vo;
     }
 
     private StocktakeSaveVO persistStocktake(StocktakeSaveDTO dto, String targetStatus) {

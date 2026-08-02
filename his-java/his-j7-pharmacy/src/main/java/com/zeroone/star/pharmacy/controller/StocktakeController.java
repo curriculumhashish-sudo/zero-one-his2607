@@ -3,7 +3,6 @@ package com.zeroone.star.pharmacy.controller;
 import com.zeroone.star.pharmacy.service.IStocktakeService;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.stocktake.StocktakeSaveDTO;
-import com.zeroone.star.project.dto.stocktake.StocktakeSubmitDTO;
 import com.zeroone.star.project.query.stocktake.StocktakeQuery;
 import com.zeroone.star.project.stocktake.StocktakeApis;
 import com.zeroone.star.project.vo.JsonVO;
@@ -59,10 +58,5 @@ public class StocktakeController implements StocktakeApis {
     @Override
     public JsonVO<StocktakeSaveVO> saveAndSubmitStocktake(@Valid @RequestBody StocktakeSaveDTO dto) {
         return JsonVO.success(stocktakeService.saveAndSubmitStocktake(dto));
-    }
-
-    @Override
-    public JsonVO<String> submitStocktake(@Valid @RequestBody StocktakeSubmitDTO dto) {
-        return JsonVO.success(stocktakeService.submitStocktake(dto));
     }
 }

@@ -2,10 +2,12 @@ package com.zeroone.star.pharmacy.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zeroone.star.project.dto.j7.pharmacy.InStockOrderDTO;
+import com.zeroone.star.project.dto.j7.pharmacy.InStockOrderDeleteDTO;
 import com.zeroone.star.project.dto.j7.pharmacy.PurchaseInboundSubmitDTO;
 import com.zeroone.star.project.query.j7.pharmacy.PurchaseInboundQuery;
 import com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundDetailVO;
 import com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundListVO;
+import com.zeroone.star.project.vo.j7.pharmacy.SupplyDocumentDeleteVO;
 
 /**
  * <p>
@@ -75,4 +77,15 @@ public interface InStockOrderService {
      */
     void submitInboundOrder(PurchaseInboundSubmitDTO dto);
 
+    /**
+     * 删除入库单据
+     * <p>
+     * 仅 DRAFT（草稿）或 PENDING_APPROVAL（待审核）状态可删除。
+     * 软删除 wkf_supply_request 主表，硬删 pharmacy_in_item 明细，解锁 inventory_lock。
+     * </p>
+     *
+     * @param dto 删除请求（含单据号和原因）
+     * @return 删除结果
+     */
+    SupplyDocumentDeleteVO deleteOrder(InStockOrderDeleteDTO dto);
 }

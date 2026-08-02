@@ -30,4 +30,11 @@ public interface InStockOrderMapper extends BaseMapper<InStockOrder> {
     InStockOrder selectOrderByBusNo(@Param("busNo") String busNo);
     List<InStockOrder> selectOrdersPage(@Param("offset") int offset, @Param("limit") int limit);
     Long countOrders();
+
+    /**
+     * 根据 bus_no 软删除入库单（设置 deleted_at、deleted_by）
+     */
+    int softDeleteByBusNo(@Param("busNo") String busNo,
+                          @Param("deletedBy") String deletedBy,
+                          @Param("deletedAt") String deletedAt);
 }
