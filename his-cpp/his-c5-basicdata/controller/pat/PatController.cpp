@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "PatController.h"
+#include "Patcontroller.h"
 #include "../../service/pat/PatService.h"
 
 PatPageJsonVO::Wrapper PatController::execQueryPatPage(const PatPageQuery::Wrapper& query, const PayloadDTO& payload)

@@ -3,7 +3,7 @@
 #include "ApiHelper.h"
 #include "dept/DeptController.h"
 #include "dept/DeptBatchStatusController.h"
-#include "pat/PatController.h"
+#include "pat/Patcontroller.h"
 #include "pat/PatientController.h"
 #include "organization/OrganizationController.h"
 #include "sup/SupplierController.h"

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "SupplierService.h"
 #include "dao/sup/SupplierDAO.h"
-#include "simpleDateTimeFormat.h"
+#include "../../../lib-common/include/SimpleDateTimeFormat.h"
 
 StringJsonVO::Wrapper SupplierService::batchEnableDisable(const SupplierBatchEnableDisableDTO :: Wrapper& dto){
 	auto result = StringJsonVO::createShared();

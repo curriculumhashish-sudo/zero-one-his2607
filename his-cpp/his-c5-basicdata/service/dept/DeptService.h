@@ -4,7 +4,7 @@
 
 #include "ResultStatus.h"
 #include "domain/dto/dept/DeptBatchStatusDTO.h"
-#include "domain/dto/dept/DeptDTO.h"
+#include "domain/dto/dept/deptDTO.h"
 #include "domain/query/dept/DeptQuery.h"
 
 struct DeptOperationResult
