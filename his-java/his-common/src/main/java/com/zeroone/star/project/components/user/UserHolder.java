@@ -6,7 +6,9 @@ import com.zeroone.star.project.components.jwt.JwtComponent;
 import com.zeroone.star.project.constant.RedisConstant;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -37,9 +39,6 @@ public class UserHolder {
     JwtComponent jwtComponent;
     @Resource
     ApplicationContext applicationContext;
-
-    @Resource
-    JdbcTemplate jdbcTemplate;
 
     /**
      * 从请求头中获取用户信息
@@ -115,24 +114,71 @@ public class UserHolder {
     }
 
     /**
-     * 获取当前登录用户的租户ID
-     * 通过用户ID查询 whale_user_tenants 表获取租户关联
-     * @return 租户ID，未找到返回null
+     * 获取当前用户选择的租户ID
+     * @return 当前租户ID
      */
-    public Long getCurrentTenantId() {
+    public String getCurrentTenantId() {
         try {
             UserDTO currentUser = getCurrentUser();
             if (currentUser == null || !StringUtils.hasText(currentUser.getId())) {
-                return null;
+                throw new IllegalStateException("无法获取当前用户ID");
             }
-            String sql = "SELECT tenant_id FROM whale_user_tenants WHERE user_id = ? AND is_deleted = 0 LIMIT 1";
-            String tenantId = jdbcTemplate.queryForObject(sql, String.class, currentUser.getId());
-            if (!StringUtils.hasText(tenantId)) {
-                return null;
+            if (applicationContext == null) {
+                throw new IllegalStateException("RedisTemplate未初始化，无法获取当前租户ID");
             }
-            return Long.valueOf(tenantId);
+
+            String userId = currentUser.getId();
+            Object tenantId = getRedisHashValue(
+                    RedisConstant.LOGIN_CONTEXT_PREFIX + userId,
+                    RedisConstant.LOGIN_CONTEXT_TENANT_ID_FIELD
+            );
+            if (tenantId == null) {
+                tenantId = getRedisHashValue(
+                        RedisConstant.USER_SESSION_PREFIX + userId,
+                        RedisConstant.USER_SESSION_TENANT_ID_FIELD
+                );
+            }
+            if (tenantId == null || !StringUtils.hasText(tenantId.toString())) {
+                if (isJ3AuthBypassEnabled()) {
+                    return LOCAL_TEST_TENANT_ID;
+                }
+                throw new IllegalStateException("未找到当前用户的租户ID");
+            }
+            return tenantId.toString();
+        } catch (RuntimeException e) {
+            if (isJ3AuthBypassEnabled()) {
+                return LOCAL_TEST_TENANT_ID;
+            }
+            throw e;
         } catch (Exception e) {
-            return null;
+            if (isJ3AuthBypassEnabled()) {
+                return LOCAL_TEST_TENANT_ID;
+            }
+            throw new IllegalStateException("获取当前租户ID失败", e);
+        }
+    }
+
+    private boolean isJ3AuthBypassEnabled() {
+        return j3AuthBypassEnabled && applicationName != null && applicationName.startsWith("his-j3-");
+    }
+
+    private void fillLocalTestUser(JSONObject userJsonObject) {
+        userJsonObject.putOnce("id", LOCAL_TEST_USER_ID);
+        userJsonObject.putOnce("sub", "j3-test");
+        userJsonObject.putOnce("roles", java.util.List.of("ROLE_ADMIN"));
+    }
+
+    private Object getRedisHashValue(String key, String field) {
+        try {
+            Object redisTemplate = applicationContext.getBean("redisTemplate");
+            Class<?> redisOperationsClass = Class.forName("org.springframework.data.redis.core.RedisOperations");
+            Class<?> hashOperationsClass = Class.forName("org.springframework.data.redis.core.HashOperations");
+            Object hashOperations = redisOperationsClass.getMethod("opsForHash").invoke(redisTemplate);
+            return hashOperationsClass.getMethod("get", Object.class, Object.class).invoke(hashOperations, key, field);
+        } catch (BeansException e) {
+            throw new IllegalStateException("RedisTemplate未初始化，无法获取当前租户ID", e);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("获取当前租户ID失败", e);
         }
     }
 }
