@@ -1,80 +1,277 @@
 #include "stdafx.h"
 #include "SupplierService.h"
+
+#include "SimpleDateTimeFormat.h"
+#include "TransactionManager.h"
 #include "dao/sup/SupplierDAO.h"
-#include "simpleDateTimeFormat.h"
+#include "domain/sup/SupplierStatus.h"
+#include "id/SnowFlake.h"
 
-StringJsonVO::Wrapper SupplierService::batchEnableDisable(const SupplierBatchEnableDisableDTO :: Wrapper& dto){
-	auto result = StringJsonVO::createShared();
+namespace
+{
+    SupplierOperationResult successResult(const std::string& id)
+    {
+        return SupplierOperationResult(true, id, RS_SUCCESS, 200);
+    }
 
-	//ids参数校验
-	if (!dto->ids || dto->ids->size() == 0) {
-		result->fail(oatpp::String("供应商列表不能为空"));
-		return result;
-	}
+    SupplierOperationResult failResult(const ResultStatus& status, int httpStatus)
+    {
+        return SupplierOperationResult(false, "", status, httpStatus);
+    }
 
-	//StatusEnum参数校验
-	std::string status = dto->statusEnum.getValue("");
-	if (status != "NORMAL" && status != "DISABLED") {
-		result->fail(oatpp::String("状态值无效，仅支持NORMAL(启用)或DISABLED(停用)"));
-		return result;
-	}
-
-	//oatpp::ids转换为list
-	std::list<std::string> idList;
-	for (const auto& id : *dto->ids) {
-		idList.push_back(id.getValue(""));
-	}
-
-	//dao调用
-	SupplierDAO dao;
-	int affectedRows = dao.batchUpdateStatus(idList, status);
-
-	if (affectedRows > 0)
-	{
-		result->success(oatpp::String("操作成功，共更新 " + std::to_string(affectedRows) + " 条记录"));
-	}
-	else
-	{
-		result->fail(oatpp::String("操作失败，未找到匹配的供应商记录"));
-	}
-
-	return result;
+    std::string valueOrEmpty(const oatpp::String& value)
+    {
+        return value ? value->c_str() : "";
+    }
 }
 
-ListJsonVO<String>::Wrapper SupplierService::batchRemove(const oatpp::List<oatpp::String>& ids){
-    auto result = ListJsonVO<String>::createShared();
+// ============================================================
+// Batch operations (c5)
+// ============================================================
 
-    // 参数校验
-    if (!ids || ids->size() == 0){
-        result->fail(oatpp::List<oatpp::String>::createShared());
+StringJsonVO::Wrapper SupplierService::batchEnableDisable(const SupplierBatchEnableDisableDTO::Wrapper& dto)
+{
+    auto result = StringJsonVO::createShared();
+
+    // Validate ids list
+    if (!dto->ids || dto->ids->size() == 0)
+    {
+        result->fail(oatpp::String("Supplier ID list must not be empty"));
         return result;
     }
 
-    // oatpp List → std::list 转换
+    // Validate statusEnum
+    std::string status = dto->statusEnum.getValue("");
+    if (status != "NORMAL" && status != "DISABLED")
+    {
+        result->fail(oatpp::String("Invalid status value, only NORMAL(enable) or DISABLED(disable) is supported"));
+        return result;
+    }
+
+    // Convert oatpp List to std::list
     std::list<std::string> idList;
-    for (const auto& id : *ids){
+    for (const auto& id : *dto->ids)
+    {
         idList.push_back(id.getValue(""));
     }
 
-    // 获取操作信息
-    std::string deletedBy = "system";
-    std::string deletedAt = SimpleDateTimeFormat::format();
-
-    // 调用 DAO
+    // Execute DAO
     SupplierDAO dao;
-    int affectedRows = dao.batchSoftDelete(idList, deletedBy, deletedAt);
+    int affectedRows = dao.batchUpdateStatus(idList, status);
 
-    if (affectedRows > 0){
-        // 返回成功删除的ID列表
-        auto successIds = oatpp::List<oatpp::String>::createShared();
-        for (const auto& id : idList){
-            successIds->push_back(oatpp::String(id));
-        }
-        result->success(successIds);
-    }else{
-        result->fail(oatpp::List<oatpp::String>::createShared());
-	}
+    if (affectedRows > 0)
+    {
+        result->success(oatpp::String("Batch operation succeeded, affected " + std::to_string(affectedRows) + " rows"));
+    }
+    else
+    {
+        result->fail(oatpp::String("Batch operation failed, no matching supplier records found"));
+    }
 
     return result;
 }
 
+ListJsonVO<String>::Wrapper SupplierService::batchRemove(const oatpp::List<oatpp::String>& ids)
+{
+    auto result = ListJsonVO<String>::createShared();
+
+    // Validate input
+    if (!ids || ids->size() == 0)
+    {
+        result->fail(oatpp::List<oatpp::String>::createShared());
+        return result;
+    }
+
+    // Convert oatpp List to std::list
+    std::list<std::string> idList;
+    for (const auto& id : *ids)
+    {
+        idList.push_back(id.getValue(""));
+    }
+
+    // Get audit info
+    std::string deletedBy = "system";
+    std::string deletedAt = SimpleDateTimeFormat::format();
+
+    // Execute DAO
+    SupplierDAO dao;
+    int affectedRows = dao.batchSoftDelete(idList, deletedBy, deletedAt);
+
+    if (affectedRows > 0)
+    {
+        // Return successfully deleted ID list
+        auto successIds = oatpp::List<oatpp::String>::createShared();
+        for (const auto& id : idList)
+        {
+            successIds->push_back(oatpp::String(id));
+        }
+        result->success(successIds);
+    }
+    else
+    {
+        result->fail(oatpp::List<oatpp::String>::createShared());
+    }
+
+    return result;
+}
+
+// ============================================================
+// Add/Update operations (c5-supplier-add-update)
+// ============================================================
+
+SupplierOperationResult SupplierService::add(const SupplierAddDTO::Wrapper& dto)
+{
+    SupplierDAO dao;
+    TransactionManager transaction(&dao);
+
+    try
+    {
+        // Resolve the caller's identity from the request payload.
+        const PayloadDTO* payload = dto->getPayload();
+        if (!payload)
+        {
+            transaction.rollback();
+            return failResult(SupplierStatus::forbidden(), 403);
+        }
+        const std::string userId = payload->getId();
+        const std::string tenantId = dao.selectTenantIdByUserId(userId);
+        if (tenantId.empty())
+        {
+            transaction.rollback();
+            return failResult(SupplierStatus::forbidden(), 403);
+        }
+
+        // Reject duplicate names within the same tenant.
+        const std::string name = valueOrEmpty(dto->name);
+        if (dao.existsName(tenantId, name))
+        {
+            transaction.rollback();
+            return failResult(SupplierStatus::duplicateName(), 409);
+        }
+
+        // Generate a snowflake id and assemble the DO with audit + defaults.
+        const std::string id = std::to_string(SnowFlake::getInstance()->nextId());
+
+        SupplierDO data;
+        data.setId(id);
+        data.setTenantId(tenantId);
+        data.setCreatedAt(SimpleDateTimeFormat::format());
+        data.setCreatedBy(userId);
+        const std::string busNo =
+            (dto->busNo && !dto->busNo->empty()) ? dto->busNo->c_str() : ("SUPP" + id);
+        data.setBusNo(busNo);
+        data.setStatusEnum("ACTIVE");
+
+        ZO_STAR_DOMAIN_DTO_TO_DO(
+            data, dto,
+            Name, name,
+            TypeEnum, typeEnum,
+            CreditCode, creditCode,
+            LegalRepresentative, legalRepresentative,
+            Address, address,
+            PyStr, pyStr,
+            WbStr, wbStr,
+            Phone, phone,
+            Email, email,
+            BankName, bankName,
+            BankAccount, bankAccount,
+            OrgId, orgId,
+            DisplayOrder, displayOrder,
+            Note, note);
+
+        // py_str/wb_str are NOT NULL columns; fall back to name when empty.
+        if (data.getPyStr().empty())
+            data.setPyStr(name);
+        if (data.getWbStr().empty())
+            data.setWbStr(name);
+
+        if (dao.insertSupplier(data) != 1)
+        {
+            transaction.rollback();
+            return failResult(SupplierStatus::databaseFailure(), 500);
+        }
+
+        transaction.commit();
+        return successResult(id);
+    }
+    catch (...)
+    {
+        transaction.rollback();
+        return failResult(SupplierStatus::databaseFailure(), 500);
+    }
+}
+
+SupplierOperationResult SupplierService::modify(const SupplierUpdateDTO::Wrapper& dto)
+{
+    SupplierDAO dao;
+    TransactionManager transaction(&dao);
+
+    try
+    {
+        // Resolve the caller's identity from the request payload.
+        const PayloadDTO* payload = dto->getPayload();
+        if (!payload)
+        {
+            transaction.rollback();
+            return failResult(SupplierStatus::forbidden(), 403);
+        }
+        const std::string userId = payload->getId();
+        const std::string tenantId = dao.selectTenantIdByUserId(userId);
+        if (tenantId.empty())
+        {
+            transaction.rollback();
+            return failResult(SupplierStatus::forbidden(), 403);
+        }
+
+        const std::string id = valueOrEmpty(dto->id);
+        auto current = dao.selectByIdForUpdate(id);
+        if (!current)
+        {
+            transaction.rollback();
+            return failResult(SupplierStatus::notFound(), 404);
+        }
+        // Tenant isolation: the row must belong to the caller's tenant.
+        if (current->getTenantId() != tenantId)
+        {
+            transaction.rollback();
+            return failResult(SupplierStatus::forbidden(), 403);
+        }
+
+        // Optimistic lock: reject when the client version is stale.
+        if (current->getVersion() != dto->version.getValue(-1))
+        {
+            transaction.rollback();
+            return failResult(SupplierStatus::updateConflict(), 409);
+        }
+
+        // Name uniqueness, excluding the row being modified.
+        const std::string effectiveName =
+            dto->name ? dto->name->c_str() : current->getName();
+        if (dao.existsName(tenantId, effectiveName, id))
+        {
+            transaction.rollback();
+            return failResult(SupplierStatus::duplicateName(), 409);
+        }
+
+        // Normalize empty py_str/wb_str to the effective name (NOT NULL columns).
+        if (dto->pyStr && dto->pyStr->empty())
+            dto->pyStr = oatpp::String(effectiveName);
+        if (dto->wbStr && dto->wbStr->empty())
+            dto->wbStr = oatpp::String(effectiveName);
+
+        // The UPDATE re-checks the version in WHERE as a second guard.
+        if (dao.updatePatch(*dto.get(), userId, current->getVersion()) != 1)
+        {
+            transaction.rollback();
+            return failResult(SupplierStatus::updateConflict(), 409);
+        }
+
+        transaction.commit();
+        return successResult(id);
+    }
+    catch (...)
+    {
+        transaction.rollback();
+        return failResult(SupplierStatus::databaseFailure(), 500);
+    }
+}

@@ -38,6 +38,49 @@ std::list<WardTreeDO> WardDAO::selectTreeRows(
         params
     );
 }
+// ============================================================
+// 只读按ID查询地理位置记录
+// SQL: SELECT * FROM adm_location WHERE id=? AND is_deleted=0 LIMIT 1
+// 不加FOR UPDATE锁，仅用于查询展示场景（如病房/病床ID查询接口）
+// 写操作场景（修改/删除/状态变更）请使用selectLocationByIdForUpdate加锁查询
+// ============================================================
+PtrWardLocationDO WardDAO::selectLocationById(
+    const std::string& id)
+{
+    const std::string sql = R"(
+        SELECT
+            id,
+            tenant_id,
+            name,
+            bus_no,
+            status_enum,
+            operational_enum,
+            form_enum,
+            mode_enum,
+            organization_id,
+            display_order,
+            type_json,
+            py_str,
+            wb_str,
+            version,
+            parent_id
+        FROM adm_location
+        WHERE id = ?
+          AND is_deleted = 0
+        LIMIT 1
+    )";
+
+    SqlParams params;
+    SQLPARAMS_PUSH(params, "s", std::string, id);
+
+    return sqlSession
+        ->executeQueryOne<PtrWardLocationDO>(
+            sql,
+            WardLocationMapper(),
+            params
+        );
+}
+
 std::string WardDAO::
 selectOrganizationTenantIdForUpdate(
     const std::string& organizationId)

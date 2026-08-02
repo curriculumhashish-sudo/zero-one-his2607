@@ -44,14 +44,52 @@ namespace
     }
 }
 
-// Query room by ID (stub)
+// ============================================================
+// 根据病房ID查询病房信息
+// 调用链路: Controller → WardService::queryRoomById → WardDAO::selectLocationById
+// 参数校验: id非空、长度≤64，无效返回RS_PARAMS_INVALID(9995)
+// 未找到对应记录或formEnum不是HOUSE，返回RS_FAIL(9999)
+// 成功返回: WardRoomDTO { id, name, wardAreaId }
+// ============================================================
 WardRoomJsonVO::Wrapper WardController::execQueryRoomById(const String& id) {
-    return WardRoomJsonVO::createShared();
+    auto response = WardRoomJsonVO::createShared();
+    if (!hasText(id) || id.getValue("").size() > 64)
+    {
+        response->init(nullptr, RS_PARAMS_INVALID);
+        return response;
+    }
+    auto data = WardService().queryRoomById(id.getValue(""));
+    if (!data)
+    {
+        response->fail(nullptr);
+        return response;
+    }
+    response->success(data);
+    return response;
 }
 
-// Query bed by ID (stub)
+// ============================================================
+// 根据病床ID查询病床信息
+// 调用链路: Controller → WardService::queryBedById → WardDAO::selectLocationById
+// 参数校验: id非空、长度≤64，无效返回RS_PARAMS_INVALID(9995)
+// 未找到对应记录或formEnum不是BED，返回RS_FAIL(9999)
+// 成功返回: WardBedDTO { id, name, status(0空闲/1占用/2停用), wardRoomId }
+// ============================================================
 WardBedJsonVO::Wrapper WardController::execQueryBedById(const String& id) {
-    return WardBedJsonVO::createShared();
+    auto response = WardBedJsonVO::createShared();
+    if (!hasText(id) || id.getValue("").size() > 64)
+    {
+        response->init(nullptr, RS_PARAMS_INVALID);
+        return response;
+    }
+    auto data = WardService().queryBedById(id.getValue(""));
+    if (!data)
+    {
+        response->fail(nullptr);
+        return response;
+    }
+    response->success(data);
+    return response;
 }
 
 WardJsonVO::Wrapper WardController::execModifyWard(
