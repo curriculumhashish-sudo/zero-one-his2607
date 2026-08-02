@@ -94,6 +94,49 @@ dept:
     nameTree: 获取科室名称树
     listTree: 获取科室列表树
     detail: 获取科室详情
+  organizationQuery:
+    endpoints:
+      nameTree: 获取科室名称树
+      listTree: 获取科室列表树
+      detail: 获取科室详情
+    errors:
+      invalidParameter: 查询参数不合法
+      notFound: 科室不存在
+      serverError: 科室查询失败
+    warnings:
+      enumMongoUnavailable: 科室信息查询成功，但MongoDB不可用，已返回原始枚举编码
+      enumDataIncomplete: 科室信息查询成功，但未找到完整的枚举映射，已返回原始枚举编码
+    fields:
+      id: 科室唯一标识，JSON类型为字符串，禁止按数字处理
+      name: 科室名称
+      parentId: 上级机构或科室唯一标识，根节点返回null，JSON类型为字符串
+      defDoctorId: 默认医生唯一标识，未配置默认医生时返回null，JSON类型为字符串
+      busNo: 科室业务编码
+      caty: 科别名称
+      typeEnum: 科室类型编码，返回数据库保存的编码原值
+      typeEnumDictText: 科室类型中文名称，MongoDB枚举查询失败或编码不存在时返回null
+      classEnum: 科室类别编码，返回数据库保存的编码原值
+      classEnumDictText: 科室类别中文名称，MongoDB枚举查询失败或编码不存在时返回null
+      statusEnum: 科室状态编码，返回数据库保存的编码原值
+      statusEnumDictText: 科室状态中文名称，MongoDB枚举查询失败或编码不存在时返回null
+      enumMappingSuccess: MongoDB枚举中文映射是否完整，false时原始编码和其他科室信息仍正常返回
+      ybNo: 医保编码
+      ybName: 医保名称
+      medinsId: 医疗机构标识
+      medinsAdmdvs: 医保区划编码
+      medinsType: 医疗机构类型编码
+      medinsLv: 医疗机构等级编码
+      pyStr: 科室名称拼音检索码
+      wbStr: 科室名称五笔检索码
+      displayOrder: 显示顺序，JSON类型为整数，同级节点按此字段升序排列
+      children: 直接下级科室数组，叶子节点返回空数组
+    queries:
+      typeEnum: 科室类型编码，可选，最长255个字符，使用精确匹配，与其他筛选条件按AND组合
+      classEnum: 科室类别编码，可选，最长255个字符，使用精确匹配，与其他筛选条件按AND组合
+      statusEnum: 科室状态编码，可选，最长255个字符，仅科室列表树使用精确匹配，与其他筛选条件按AND组合
+      keyword: 关键词，可选，最长500个字符，部分匹配科室名称、类型编码、类别编码、状态编码、医保编码、医保名称、机构标识、医保区划、机构类型和机构等级；命中节点时保留完整祖先路径，不自动返回未命中的后代
+      excludeId: 编辑上级科室时需要排除的科室唯一标识，可选，最长64个字符，同时排除该节点及其全部后代，JSON类型为字符串
+      id: 科室唯一标识，详情接口必填，去除首尾空白后查询，最长64个字符，JSON类型为字符串
   field:
     id: 科室编号
     name: 科室名称
@@ -115,25 +158,6 @@ dept:
     active-flag: 是否启用
     deptIdList: 批量科室ID数组
     targetStatus: 目标启停状态(0停用/1启用)
-    typeEnum: 科室类型
-    classEnum: 科室类别
-    statusEnum: 科室状态
-    ybNo: 医保编码
-    ybName: 医保名称
-    medinsId: 机构标识
-    medinsAdmdvs: 医保区划
-    medinsType: 机构类型
-    medinsLv: 机构等级
-    pyStr: 拼音码
-    wbStr: 五笔码
-    displayOrder: 显示顺序
-    children: 下级科室列表
-  queries:
-    typeEnum: 按科室类型筛选
-    classEnum: 按科室类别筛选
-    statusEnum: 按科室状态筛选
-    keyword: 按科室及医保相关信息进行关键词筛选
-    id: 科室唯一标识
 
 # ============================================================
 # 供应商管理 (sup) — 供应商 CRUD + 批量操作
