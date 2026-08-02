@@ -139,9 +139,9 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
             return;
         }
         LambdaQueryWrapper<AdmChargeItemDefinitionDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(AdmChargeItemDefinitionDO::getInstanceTable, "adm_device_definition")
-                .eq(AdmChargeItemDefinitionDO::getInstanceId, instanceId)
-                .eq(AdmChargeItemDefinitionDO::getPriceTypeCode, priceTypeCode)
+        wrapper.eq(AdmChargeItemDefinitionDO::getInstanceTable, "adm_device_definition") //收费项目定义实体
+                .eq(AdmChargeItemDefinitionDO::getInstanceId, instanceId) //业务实例主键
+                .eq(AdmChargeItemDefinitionDO::getPriceTypeCode, priceTypeCode) // 价格类型编码
                 .last("LIMIT 1");
         AdmChargeItemDefinitionDO existingPrice = chargeItemMapper.selectOne(wrapper);
 

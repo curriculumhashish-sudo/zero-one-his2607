@@ -45,7 +45,6 @@
         m.total_volume AS specification,
         COALESCE(inventory.stock_quantity, 0) AS stockQuantity,
         m.stock_unit_code AS stockUnitCode,
-        COALESCE(unit_concept.display, m.stock_unit_code) AS stockUnitName,
         (
         SELECT price.price_value
         FROM adm_charge_item_definition price
@@ -81,12 +80,6 @@
         AND category_concept.code = m.category_code
         AND category_concept.is_active = 1
         AND category_concept.is_deleted = 0
-
-        LEFT JOIN ter_concept unit_concept
-        ON unit_concept.code_system_id = '279125561775755265'
-        AND unit_concept.code = m.stock_unit_code
-        AND unit_concept.is_active = 1
-        AND unit_concept.is_deleted = 0
 
         <where>
             m.is_deleted = 0

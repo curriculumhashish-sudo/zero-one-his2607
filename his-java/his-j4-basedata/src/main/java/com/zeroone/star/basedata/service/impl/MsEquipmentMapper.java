@@ -38,6 +38,7 @@ public interface MsEquipmentMapper {
 
     /**
      * 将新增器材DTO转换为AdmChargeItemDefinitionDO实体类
+     *
      * @param equipmentAddDTO 新增器材DTO
      * @return 物品价格实体
      */
