@@ -336,6 +336,20 @@ bool TreatmentService::updateData(const TreatmentModifyDTO::Wrapper& dto)
 	return true;
 }
 
+// 将主表 DO 转换为详情 DTO（不含子项/价格）。
+static TreatmentDetailDTO::Wrapper toDto(const TreatmentDO& src)
+{
+	auto dto = TreatmentDetailDTO::createShared();
+	dto->id = src.getId();
+	dto->code = src.getBusNo();
+	dto->name = src.getName();
+	dto->status = src.getStatusEnum();
+	dto->categoryCode = src.getCategoryCode();
+	dto->retailPrice = src.getRetailPrice();
+	return dto;
+}
+
+
 TreatmentPageDTO::Wrapper TreatmentService::listAll(const TreatmentQuery::Wrapper& query)
 {
 	// 构建返回对象
@@ -358,7 +372,7 @@ TreatmentPageDTO::Wrapper TreatmentService::listAll(const TreatmentQuery::Wrappe
 	// 将 DO 转换成 DTO（列表不含子项）
 	for (TreatmentDO& sub : result)
 	{
-		pages->addData(toDetailDto(sub));
+		pages->addData(toDto(sub));
 	}
 	return pages;
 }
