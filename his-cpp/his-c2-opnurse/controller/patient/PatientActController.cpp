@@ -21,41 +21,20 @@
 #include "service/patient/PatientActService.h"
 
 PatientActListJsonVO::Wrapper PatientActController::execActPatient(
-	const PatientActQuery::Wrapper& query)
+	const std::string& encounterId)
 {
-	// --- Extract parameters ---
-	std::string patientId = query->patientId ? query->patientId.getValue("") : "";
-	std::string encounterId = query->encounterId ? query->encounterId.getValue("") : "";
-	std::string status = query->status ? query->status.getValue("") : "";
-	std::string orderContent = query->orderContent ? query->orderContent.getValue("") : "";
-	int act = query->act ? static_cast<int>(query->act.getValue(0)) : 0;
-
 	// --- Validate input ---
-	if (patientId.empty()) {
-		auto vo = PatientActListJsonVO::createShared();
-		vo->code = 9995;
-		vo->message = "patientId is required";
-		return vo;
-	}
 	if (encounterId.empty()) {
 		auto vo = PatientActListJsonVO::createShared();
 		vo->code = 9995;
-		vo->message = "encounterId is required";
-		return vo;
-	}
-	if (act != 0 && act != 1) {
-		auto vo = PatientActListJsonVO::createShared();
-		vo->code = 9995;
-		vo->message = "act must be 0 or 1";
+		vo->message = "encounterId is required (path)";
 		return vo;
 	}
 
 	// --- Exception handling ---
 	try {
-		// act maps to perform_flag (1=executed, 0=pending)
 		PatientActService service;
-		auto dtos = service.queryServiceRequests(
-			patientId, encounterId, "", status);
+		auto dtos = service.queryServiceRequests(encounterId);
 
 		auto vo = PatientActListJsonVO::createShared();
 		vo->success(dtos);

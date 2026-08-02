@@ -21,7 +21,8 @@ class PatientConsumableDTO :public oatpp::DTO
 	API_DTO_FIELD_REQUIRE(String, consumableRoom, ZH_WORDS_GETTER("patientconsumable1.field.consumableRoom"), true);
 	// Whether empty
 	API_DTO_FIELD_REQUIRE(Int32, isEmpty, ZH_WORDS_GETTER("patientconsumable1.field.isEmpty"), true);
-
+	// Whether executed (checkbox, 0=unchecked, 1=checked)
+	API_DTO_FIELD_REQUIRE(Int32, isAct, ZH_WORDS_GETTER("patient1.field.act"), false);
 };
 #include OATPP_CODEGEN_END(DTO)
 

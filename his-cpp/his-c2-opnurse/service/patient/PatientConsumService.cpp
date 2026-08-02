@@ -21,12 +21,11 @@
 #include <iomanip>
 
 oatpp::List<PatientConsumableDTO::Wrapper> PatientConsumService::queryDeviceRequests(
-	const std::string& patientId, const std::string& encounterId,
+	const std::string& encounterId,
 	const std::string& consumableRoom)
 {
 	PatientConsumDAO dao;
-	// consumableRoom maps to status_enum for filtering
-	auto results = dao.queryDeviceRequests(patientId, encounterId, consumableRoom);
+	auto results = dao.queryDeviceRequests(encounterId, consumableRoom);
 
 	auto dtos = oatpp::List<PatientConsumableDTO::Wrapper>::createShared();
 	for (auto& res : results) {
@@ -51,6 +50,7 @@ oatpp::List<PatientConsumableDTO::Wrapper> PatientConsumService::queryDeviceRequ
 		dto->status = res.request.getStatusEnum();
 		dto->consumableRoom = consumableRoom;
 		dto->isEmpty = (res.request.getQuantity() <= 0) ? 1 : 0;
+		dto->isAct = res.request.getPerformFlag();
 		dtos->push_back(dto);
 	}
 

@@ -25,6 +25,26 @@
 #include "domain/do/patient/PatientDO.h"
 
 /**
+ * Simple struct for patient queue info, using only std::string types
+ * to avoid copy issues with BaseDO (which deletes copy constructor).
+ */
+struct PatientInfoResult
+{
+	std::string name;
+	std::string gender;
+	std::string birthDate;
+};
+
+/**
+ * Mapper for PatientInfoResult (simple struct, copy-safe).
+ */
+class PatientInfoMapper : public Mapper<PatientInfoResult>
+{
+public:
+	PatientInfoResult mapper(ResultSet* rs) const override;
+};
+
+/**
  *患者队列查询的组合结果 (JOIN wkf_appointment_queue + adm_patient + adm_encounter).
  */
 struct PatientQueueResult
@@ -72,6 +92,13 @@ public:
 	 * @return total count
 	 */
 	uint64_t countPatientQueue(const std::string& name, const std::string& date, const std::string& tenantId);
+
+	/*
+	 * Query patient queue info by encounter ID.
+	 * @param encounterId encounter ID
+	 * @return PatientInfoResult with patient name, gender, age, visit time, queue number, payment type
+	 */
+	PatientInfoResult queryByEncounterId(const std::string& encounterId);
 };
 
 #endif // !_PATIENTQUEUEDAO_H_

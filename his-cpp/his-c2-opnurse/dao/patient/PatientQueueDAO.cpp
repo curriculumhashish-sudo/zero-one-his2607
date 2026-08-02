@@ -71,8 +71,9 @@ std::list<PatientQueueResult> PatientQueueDAO::queryPatientQueue(
 	SqlParams params;
 	SQLPARAMS_PUSH(params, "s", std::string, tenantId);
 	if (!name.empty()) {
-		sql << "AND p.name LIKE ? ";
+		sql << "AND (p.name LIKE ? OR q.bus_no = ?) ";
 		SQLPARAMS_PUSH(params, "s", std::string, "%" + name + "%");
+		SQLPARAMS_PUSH(params, "s", std::string, name);
 	}
 	if (!date.empty()) {
 		sql << "AND q.booking_date = ? ";
@@ -100,8 +101,9 @@ uint64_t PatientQueueDAO::countPatientQueue(const std::string& name, const std::
 	SqlParams params;
 	SQLPARAMS_PUSH(params, "s", std::string, tenantId);
 	if (!name.empty()) {
-		sql << "AND p.name LIKE ? ";
+		sql << "AND (p.name LIKE ? OR q.bus_no = ?) ";
 		SQLPARAMS_PUSH(params, "s", std::string, "%" + name + "%");
+		SQLPARAMS_PUSH(params, "s", std::string, name);
 	}
 	if (!date.empty()) {
 		sql << "AND q.booking_date = ? ";
@@ -109,4 +111,34 @@ uint64_t PatientQueueDAO::countPatientQueue(const std::string& name, const std::
 	}
 
 	return sqlSession->executeQueryNumerical(sql.str(), params);
+}
+
+PatientInfoResult PatientInfoMapper::mapper(ResultSet* rs) const
+{
+	PatientInfoResult result;
+	result.name = rs->getString("name");
+	result.gender = rs->getString("gender_enum");
+	result.birthDate = rs->getString("birth_date");
+	return result;
+}
+
+PatientInfoResult PatientQueueDAO::queryByEncounterId(const std::string& encounterId)
+{
+	std::ostringstream sql;
+	sql << "SELECT p.name, p.gender_enum, p.birth_date "
+		<< "FROM wkf_appointment_queue q "
+		<< "JOIN adm_patient p ON q.patient_id = p.id "
+		<< "WHERE q.is_deleted = 0 "
+		<< "AND q.encounter_id = ? "
+		<< "LIMIT 1";
+
+	SqlParams params;
+	SQLPARAMS_PUSH(params, "s", std::string, encounterId);
+
+	PatientInfoMapper mapper;
+	auto results = sqlSession->executeQuery<PatientInfoResult>(sql.str(), mapper, params);
+	if (results.empty()) {
+		return PatientInfoResult();
+	}
+	return results.front();
 }

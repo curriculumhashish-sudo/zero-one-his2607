@@ -18,15 +18,43 @@
 */
 #include "PatientActService.h"
 #include <sstream>
+#include <ctime>
 
-oatpp::List<PatientActDTO::Wrapper> PatientActService::queryServiceRequests(
-	const std::string& patientId, const std::string& encounterId,
-	const std::string& categoryEnum, const std::string& statusEnum)
+oatpp::Object<PatientActWrapperDTO> PatientActService::queryServiceRequests(
+	const std::string& encounterId)
 {
 	PatientActDAO dao;
-	auto results = dao.queryServiceRequests(patientId, encounterId, categoryEnum, statusEnum);
+	auto results = dao.queryServiceRequests(encounterId);
 
-	auto dtos = oatpp::List<PatientActDTO::Wrapper>::createShared();
+	// Fetch patient queue info for this encounter
+	PatientQueueDAO queueDao;
+	auto queueInfo = queueDao.queryByEncounterId(encounterId);
+	std::string patientName = queueInfo.name;
+	std::string patientGender = queueInfo.gender;
+	if (patientGender == "M" || patientGender == "male") patientGender = "\xE7\x94\xB7";
+	else if (patientGender == "F" || patientGender == "female") patientGender = "\xE5\xA5\xB3";
+		int patientAge = 0;
+	{
+		std::string birthDate = queueInfo.birthDate;
+		if (!birthDate.empty()) {
+			std::istringstream iss(birthDate);
+			int year = 0, month = 0, day = 0;
+			char dash1, dash2;
+			if (iss >> year >> dash1 >> month >> dash2 >> day) {
+				auto now = std::time(nullptr);
+				auto* tm = std::localtime(&now);
+				int curYear = tm->tm_year + 1900;
+				int curMonth = tm->tm_mon + 1;
+				int curDay = tm->tm_mday;
+				patientAge = curYear - year;
+				if (curMonth < month || (curMonth == month && curDay < day))
+					patientAge--;
+			}
+		}
+	}
+
+	// Build act item list
+	auto items = oatpp::Vector<oatpp::Object<PatientActDTO>>::createShared();
 	for (auto& s : results) {
 		auto dto = PatientActDTO::createShared();
 		dto->status = s.getStatusEnum();
@@ -41,8 +69,15 @@ oatpp::List<PatientActDTO::Wrapper> PatientActService::queryServiceRequests(
 			dto->amount = "\xE6\x9C\xAA\xE7\xBB\x93\xE7\xAE\x97";
 		}
 		dto->isAct = s.getPerformFlag();
-		dtos->push_back(dto);
+		items->push_back(dto);
 	}
 
-	return dtos;
+	// Build wrapper with patient info at top level
+	auto wrapper = PatientActWrapperDTO::createShared();
+	wrapper->name = patientName;
+	wrapper->gender = patientGender;
+	wrapper->age = patientAge;
+	wrapper->items = items;
+
+	return wrapper;
 }

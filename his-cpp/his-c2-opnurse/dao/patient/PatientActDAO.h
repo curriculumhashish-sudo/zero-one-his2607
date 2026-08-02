@@ -34,23 +34,21 @@ public:
 
 /**
  * DAO for querying patient service request (act) data.
+ *
+ * Note: queries are filtered by encounter_id only. The patient_id
+ * is no longer required because every encounter belongs to exactly
+ * one patient, so filtering by encounter transitively scopes the
+ * result to a single patient.
  */
 class PatientActDAO : public BaseDAO
 {
 public:
 	/*
-	 * Query service requests for a patient encounter.
-	 * @param patientId patient ID
-	 * @param encounterId encounter ID
-	 * @param categoryEnum optional category filter (e.g. skin-test)
-	 * @param statusEnum optional status filter
+	 * Query all service requests for an encounter.
+	 * @param encounterId encounter ID (uniquely identifies the visit)
 	 * @return list of ServiceRequestDO
 	 */
-	std::list<ServiceRequestDO> queryServiceRequests(
-		const std::string& patientId,
-		const std::string& encounterId,
-		const std::string& categoryEnum,
-		const std::string& statusEnum);
+	std::list<ServiceRequestDO> queryServiceRequests(const std::string& encounterId);
 };
 
 #endif // !_PATIENTACTDAO_H_

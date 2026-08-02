@@ -4,19 +4,16 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
+/**
+ * Query DTO for patient service-request (act) list.
+ *
+ * NOTE: No query parameters. encounterId is a PATH parameter only.
+ *   act / status / orderContent are RESPONSE fields, not filter params.
+ *   The backend returns all acts for the encounter; frontend handles filtering.
+ */
 class PatientActQuery : public oatpp::DTO
 {
 	DTO_INIT(PatientActQuery, DTO);
-	// Patient ID
-	API_DTO_FIELD_REQUIRE(String, patientId, ZH_WORDS_GETTER("patientact.field.patientId"), true);
-	// Encounter ID
-	API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("patientact.field.encounterId"), true);
-	// Whether executed
-	API_DTO_FIELD_REQUIRE(Int32, act, ZH_WORDS_GETTER("patient1.field.act"), false);
-	// Status
-	API_DTO_FIELD_REQUIRE(String, status, ZH_WORDS_GETTER("patient1.field.status"), false);
-	// Order content
-	API_DTO_FIELD_REQUIRE(String, orderContent, ZH_WORDS_GETTER("patient1.field.orderContent"), false);
 };
 #include OATPP_CODEGEN_END(DTO)
 #endif // !_PATIENTACTQUERY_H_

@@ -44,6 +44,7 @@ PatientQueuePageDTO::Wrapper PatientQueueService::queryPatientQueue(
 	auto dtos = oatpp::List<PatientQueueDTO::Wrapper>::createShared();
 	for (auto& res : results) {
 		auto dto = PatientQueueDTO::createShared();
+		dto->encounterId = res.queue.getEncounterId();
 		dto->name = res.patient.getName();
 		dto->gender = convertGender(res.patient.getGenderEnum());
 		dto->age = calcAge(res.patient.getBirthDate());
