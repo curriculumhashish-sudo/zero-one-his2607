@@ -2,6 +2,7 @@
 #define _SUPPLIER_UPDATE_DTO_H_
 
 #include "../../GlobalInclude.h"
+#include <string>
 
 using namespace oatpp;
 
@@ -108,6 +109,12 @@ class SupplierUpdateDTO : public oatpp::DTO
         note,
         "Remark."
     );
+
+    // Payload data object associated with the request
+    CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
+
+public:
+    std::string validate() const;
 };
 
 #include OATPP_CODEGEN_END(DTO)
