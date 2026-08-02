@@ -25,19 +25,19 @@
 
 /**
  * Service for handling patient consumable business logic.
+ *
+ * Query consumable items for a patient identified by encounterId.
  */
 class PatientConsumService
 {
 public:
 	/*
 	 * Query device requests for a patient encounter.
-	 * @param patientId patient ID
-	 * @param encounterId encounter ID
+	 * @param encounterId encounter ID (uniquely identifies the visit)
 	 * @param consumableRoom optional filter (maps to status enum)
 	 * @return list of PatientConsumableDTO
 	 */
 	oatpp::List<PatientConsumableDTO::Wrapper> queryDeviceRequests(
-		const std::string& patientId,
 		const std::string& encounterId,
 		const std::string& consumableRoom);
 };

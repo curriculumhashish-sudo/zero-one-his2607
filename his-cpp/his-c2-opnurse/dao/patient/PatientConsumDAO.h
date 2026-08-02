@@ -47,21 +47,24 @@ public:
 
 /**
  * DAO for querying device consumable data.
+ *
+ * Note: queries are filtered by encounter_id only. The patient_id
+ * is no longer required because every encounter belongs to exactly
+ * one patient, so filtering by encounter transitively scopes the
+ * result to a single patient.
  */
 class PatientConsumDAO : public BaseDAO
 {
 public:
 	/*
-	 * Query device requests with device definition for a patient encounter.
-	 * @param patientId patient ID
-	 * @param encounterId encounter ID
-	 * @param statusEnum optional status filter
+	 * Query all device requests with device definition for an encounter.
+	 * @param encounterId encounter ID (uniquely identifies the visit)
+	 * @param consumableRoom optional consumable room filter
 	 * @return list of DeviceConsumResult
 	 */
 	std::list<DeviceConsumResult> queryDeviceRequests(
-		const std::string& patientId,
 		const std::string& encounterId,
-		const std::string& statusEnum);
+		const std::string& consumableRoom);
 };
 
 #endif // !_PATIENTCONSUNDAO_H_

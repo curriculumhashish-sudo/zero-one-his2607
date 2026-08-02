@@ -21,31 +21,30 @@
 #include "service/patient/PatientConsumService.h"
 
 PatientConsumListJsonVO::Wrapper PatientConsumController::execConsumPatient(
-	const PatientConsumQuery::Wrapper& query)
+	const PatientConsumQuery::Wrapper& query,
+	const std::string& encounterId)
 {
-	// --- Extract parameters ---
-	std::string patientId = query->patientId ? query->patientId.getValue("") : "";
-	std::string encounterId = query->encounterId ? query->encounterId.getValue("") : "";
+	// --- Extract real query parameter (filter) ---
 	std::string consumableRoom = query->consumableRoom ? query->consumableRoom.getValue("") : "";
 
 	// --- Validate input ---
-	if (patientId.empty()) {
-		auto vo = PatientConsumListJsonVO::createShared();
-		vo->code = 9995;
-		vo->message = "patientId is required";
-		return vo;
-	}
+	// encounterId is a PATH parameter, declared required by the
+	// PATH(String, encounterId) macro on the endpoint. The check
+	// below is a defensive double-check.
 	if (encounterId.empty()) {
 		auto vo = PatientConsumListJsonVO::createShared();
 		vo->code = 9995;
-		vo->message = "encounterId is required";
+		vo->message = "encounterId is required (path)";
 		return vo;
 	}
 
 	// --- Exception handling ---
 	try {
+		// The backend derives patientId from encounterId internally
+		// (via adm_encounter.patient_id), so the caller only needs
+		// to pass encounterId.
 		PatientConsumService service;
-		auto dtos = service.queryDeviceRequests(patientId, encounterId, consumableRoom);
+		auto dtos = service.queryDeviceRequests(encounterId, consumableRoom);
 
 		auto vo = PatientConsumListJsonVO::createShared();
 		vo->success(dtos);

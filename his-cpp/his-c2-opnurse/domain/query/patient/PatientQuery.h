@@ -8,10 +8,12 @@
 class PatientQuery :public PageQuery
 {
 	DTO_INIT(PatientQuery, PageQuery);
-	// Patient name
-	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("patient1.field.name"), false);
-	// Date
-	API_DTO_FIELD_REQUIRE(String, date, ZH_WORDS_GETTER("patient1.field.date"), false);
+	// Keyword (patient name or queue number)
+	API_DTO_FIELD_REQUIRE(String, keyword, ZH_WORDS_GETTER("patient1.field.name"), false);
+	// Start date
+	API_DTO_FIELD_REQUIRE(String, startDate, ZH_WORDS_GETTER("patient1.field.date"), false);
+	// End date
+	API_DTO_FIELD_REQUIRE(String, endDate, ZH_WORDS_GETTER("patient1.field.date"), false);
 
 };
 #include OATPP_CODEGEN_END(DTO)

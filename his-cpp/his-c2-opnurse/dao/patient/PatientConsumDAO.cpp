@@ -56,8 +56,8 @@ DeviceConsumResult DeviceConsumMapper::mapper(ResultSet* rs) const
 }
 
 std::list<DeviceConsumResult> PatientConsumDAO::queryDeviceRequests(
-	const std::string& patientId, const std::string& encounterId,
-	const std::string& statusEnum)
+	const std::string& encounterId,
+	const std::string& consumableRoom)
 {
 	std::ostringstream sql;
 	sql << "SELECT dr.id, dr.patient_id, dr.encounter_id, dr.device_def_id, "
@@ -74,17 +74,13 @@ std::list<DeviceConsumResult> PatientConsumDAO::queryDeviceRequests(
 		<< "WHERE dr.is_deleted = 0 ";
 
 	SqlParams params;
-	if (!patientId.empty()) {
-		sql << "AND dr.patient_id = ? ";
-		SQLPARAMS_PUSH(params, "s", std::string, patientId);
-	}
 	if (!encounterId.empty()) {
 		sql << "AND dr.encounter_id = ? ";
 		SQLPARAMS_PUSH(params, "s", std::string, encounterId);
 	}
-	if (!statusEnum.empty()) {
+	if (!consumableRoom.empty()) {
 		sql << "AND dr.status_enum = ? ";
-		SQLPARAMS_PUSH(params, "s", std::string, statusEnum);
+		SQLPARAMS_PUSH(params, "s", std::string, consumableRoom);
 	}
 
 	sql << "ORDER BY dr.id DESC";
