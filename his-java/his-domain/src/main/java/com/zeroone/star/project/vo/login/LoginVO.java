@@ -15,14 +15,33 @@ import lombok.Data;
 @Schema(description = "登录显示对象")
 @Data
 public class LoginVO {
+
+    @Schema(description = "用户唯一编号（前端契约字段，与 id 相同）", example = "1")
+    private String userId;
+
     @Schema(description = "用户唯一编号", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
     @Schema(description = "登录账号", example = "admin", requiredMode = Schema.RequiredMode.REQUIRED)
     private String username;
 
+    @Schema(description = "用户真实姓名（前端契约字段，与 name 相同）", example = "张三")
+    private String realName;
+
     @Schema(description = "用户姓名", example = "张三")
     private String name;
+
+    @Schema(description = "用户头像地址", example = "")
+    private String avatar;
+
+    @Schema(description = "用户描述/个性签名", example = "")
+    private String desc;
+
+    @Schema(description = "登录后跳转首页路径", example = "/dashboard")
+    private String homePath;
+
+    @Schema(description = "访问令牌", example = "eyJhbGciOi...")
+    private String token;
 
     @Schema(description = "邮箱", example = "zhangsan@example.com")
     private String email;

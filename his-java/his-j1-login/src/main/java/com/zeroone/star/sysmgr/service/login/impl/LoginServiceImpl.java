@@ -28,6 +28,8 @@ public class LoginServiceImpl implements ILoginService {
 
     private static final Logger log = LoggerFactory.getLogger(LoginServiceImpl.class);
     private static final String BEARER_PREFIX = "Bearer ";
+    /** 前端契约字段：无数据来源时的默认首页路径 */
+    private static final String DEFAULT_HOME_PATH = "/dashboard";
 
     @Value("${zo.oauth2.mgr-id:project-manager}")
     private String clientId;
@@ -130,9 +132,11 @@ public class LoginServiceImpl implements ILoginService {
                 return JsonVO.fail("用户未登录");
             }
             String userId = currentUser.getId();
+            String currentToken = userHolder.getCurrentToken();
             // 优先从统一登录上下文读取（包含身份 + 租户/医院 + 角色 + token）
             LoginVO vo = readLoginContext(userId);
             if (vo != null) {
+                applyFrontendFields(vo, currentToken);
                 loginContextService.refreshContext(userId);
                 return JsonVO.success(vo);
             }
@@ -149,10 +153,29 @@ public class LoginServiceImpl implements ILoginService {
             }
             // MySQL 回源后同时回填两类缓存，确保下次请求可命中完整上下文。
             writeLoginContext(userId, profile, userHolder.getCurrentToken());
+            applyFrontendFields(result, currentToken);
             return JsonVO.success(result);
         } catch (Exception exception) {
             return JsonVO.fail("登录状态无效：" + safeMessage(exception));
         }
+    }
+
+    /**
+     * 填充前端契约要求、但 LoginVO 原有字段未覆盖的展示字段。
+     * 其中 avatar/desc 数据库当前无数据来源，返回空串；homePath 使用默认首页路径。
+     */
+    private void applyFrontendFields(LoginVO vo, String currentToken) {
+        if (vo == null) {
+            return;
+        }
+        vo.setUserId(vo.getId());
+        vo.setRealName(vo.getName());
+        if (!StringUtils.hasText(vo.getToken())) {
+            vo.setToken(currentToken);
+        }
+        vo.setAvatar(vo.getAvatar() == null ? "" : vo.getAvatar());
+        vo.setDesc(vo.getDesc() == null ? "" : vo.getDesc());
+        vo.setHomePath(StringUtils.hasText(vo.getHomePath()) ? vo.getHomePath() : DEFAULT_HOME_PATH);
     }
 
     private void writeLoginContext(String userId, LoginUserProfileDO profile, String token) {
@@ -182,6 +205,7 @@ public class LoginServiceImpl implements ILoginService {
             vo.setId(ctx.get("userId"));
             vo.setUsername(ctx.get("username"));
             vo.setName(ctx.get("realName"));
+            vo.setToken(ctx.get("token"));
             vo.setEmail(ctx.get("email"));
             vo.setPhoneNumber(ctx.get("phone_number"));
             vo.setIsEnabled(toByte(ctx.get("is_enabled")));
