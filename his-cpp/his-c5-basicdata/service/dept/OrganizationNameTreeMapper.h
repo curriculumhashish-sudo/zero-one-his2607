@@ -2,8 +2,8 @@
 #define _ORGANIZATIONNAMETREEMAPPER_H_
 
 #include "tree/TreeNodeMapper.h"
-#include "domain/do/organization/adm_organizationDO.h"
-#include "domain/dto/organization/OrganizationNameTreeDTO.h"
+#include "domain/do/dept/adm_organizationDO.h"
+#include "domain/dto/dept/OrganizationNameTreeDTO.h"
 
 class OrganizationNameTreeMapper
     : public TreeNodeMapper<PtrAdmOrganizationDO>
@@ -16,7 +16,7 @@ public:
         auto result = std::make_shared<OrganizationNameTreeDTO>();
 
         result->_id(source->getId());
-        result->_pid(source->getParent_Id());
+        result->_pid(source->getParentId());
 
         result->id = source->getId();
         result->name = source->getName();

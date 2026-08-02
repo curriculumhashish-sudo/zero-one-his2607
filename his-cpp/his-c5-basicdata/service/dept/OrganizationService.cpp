@@ -5,11 +5,36 @@
 #include <cctype>
 #include <vector>
 
-#include "dao/organization/OrganizationDAO.h"
+#include "dao/dept/OrganizationDAO.h"
 #include "OrganizationTreeFilter.h"
 #include "OrganizationTreeAssembler.h"
 #include "OrganizationNameTreeMapper.h"
 #include "OrganizationListTreeMapper.h"
+#include "OrganizationEnumDictionary.h"
+
+namespace
+{
+    bool hasMissingEnumMapping(
+        const PtrAdmOrganizationDO& data,
+        const OrganizationEnumTextMap& mappings
+    )
+    {
+        return
+            (!data->getTypeEnum().empty() &&
+                !mappings.hasTypeText(data->getTypeEnum())) ||
+            (!data->getClassEnum().empty() &&
+                !mappings.hasClassText(data->getClassEnum())) ||
+            (!data->getStatusEnum().empty() &&
+                !mappings.hasStatusText(data->getStatusEnum()));
+    }
+
+    const char* getEnumWarningKey(OrganizationEnumLoadStatus status)
+    {
+        return status == OrganizationEnumLoadStatus::MONGO_UNAVAILABLE
+            ? "dept.organizationQuery.warnings.enumMongoUnavailable"
+            : "dept.organizationQuery.warnings.enumDataIncomplete";
+    }
+}
 
 bool OrganizationService::containsIgnoreCase(
     const std::string& value,
@@ -53,15 +78,15 @@ bool OrganizationService::matchesNameTreeQuery(
 ) const
 {
     // Type and category filters are combined with AND.
-    const std::string typeEnum = query->type_enum.getValue("");
-    const std::string classEnum = query->class_enum.getValue("");
+    const std::string typeEnum = query->typeEnum.getValue("");
+    const std::string classEnum = query->classEnum.getValue("");
 
-    if (!typeEnum.empty() && data->getType_Enum() != typeEnum)
+    if (!typeEnum.empty() && data->getTypeEnum() != typeEnum)
     {
         return false;
     }
 
-    if (!classEnum.empty() && data->getClass_Enum() != classEnum)
+    if (!classEnum.empty() && data->getClassEnum() != classEnum)
     {
         return false;
     }
@@ -74,22 +99,22 @@ bool OrganizationService::matchesListTreeQuery(
     const OrganizationListTreeQuery::Wrapper& query
 ) const
 {
-    const std::string typeEnum = query->type_enum.getValue("");
-    const std::string classEnum = query->class_enum.getValue("");
-    const std::string statusEnum = query->status_enum.getValue("");
+    const std::string typeEnum = query->typeEnum.getValue("");
+    const std::string classEnum = query->classEnum.getValue("");
+    const std::string statusEnum = query->statusEnum.getValue("");
     const std::string keyword = query->keyword.getValue("");
 
-    if (!typeEnum.empty() && data->getType_Enum() != typeEnum)
+    if (!typeEnum.empty() && data->getTypeEnum() != typeEnum)
     {
         return false;
     }
 
-    if (!classEnum.empty() && data->getClass_Enum() != classEnum)
+    if (!classEnum.empty() && data->getClassEnum() != classEnum)
     {
         return false;
     }
 
-    if (!statusEnum.empty() && data->getStatus_Enum() != statusEnum)
+    if (!statusEnum.empty() && data->getStatusEnum() != statusEnum)
     {
         return false;
     }
@@ -102,15 +127,15 @@ bool OrganizationService::matchesListTreeQuery(
     const std::vector<std::string> searchableFields =
     {
         data->getName(),
-        data->getType_Enum(),
-        data->getClass_Enum(),
-        data->getStatus_Enum(),
-        data->getYb_No(),
-        data->getYb_Name(),
-        data->getMedins_Id(),
-        data->getMedins_Admdvs(),
-        data->getMedins_Type(),
-        data->getMedins_Lv()
+        data->getTypeEnum(),
+        data->getClassEnum(),
+        data->getStatusEnum(),
+        data->getYbNo(),
+        data->getYbName(),
+        data->getMedinsId(),
+        data->getMedinsAdmdvs(),
+        data->getMedinsType(),
+        data->getMedinsLv()
     };
 
     for (const auto& field : searchableFields)
@@ -134,12 +159,13 @@ OrganizationNameTreeJsonVO::Wrapper OrganizationService::getNameTree(
         organizationDAO.selectAllNotDeleted();
 
     const auto filteredOrganizations =
-        OrganizationTreeFilter::filterWithAncestors(
+        OrganizationTreeFilter::filterSelectableWithAncestors(
             allOrganizations,
             [this, &query](const PtrAdmOrganizationDO& data)
             {
                 return matchesNameTreeQuery(data, query);
-            }
+            },
+            query->excludeId.getValue("")
         );
 
     const auto roots =
@@ -192,10 +218,26 @@ OrganizationListTreeJsonVO::Wrapper OrganizationService::getListTree(
             }
         );
 
+    const auto enumResult = OrganizationEnumDictionary().load();
+    auto enumStatus = enumResult.status;
+
+    if (enumStatus != OrganizationEnumLoadStatus::MONGO_UNAVAILABLE)
+    {
+        for (const auto& organization : filteredOrganizations)
+        {
+            if (hasMissingEnumMapping(organization, enumResult.mappings))
+            {
+                enumStatus =
+                    OrganizationEnumLoadStatus::ENUM_DATA_INCOMPLETE;
+                break;
+            }
+        }
+    }
+
     const auto roots =
         OrganizationTreeAssembler::build(
             filteredOrganizations,
-            OrganizationListTreeMapper()
+            OrganizationListTreeMapper(enumResult.mappings)
         );
 
     auto treeData =
@@ -220,6 +262,15 @@ OrganizationListTreeJsonVO::Wrapper OrganizationService::getListTree(
 
     auto result = OrganizationListTreeJsonVO::createShared();
     result->success(treeData);
+    result->enumMappingSuccess =
+        enumStatus == OrganizationEnumLoadStatus::SUCCESS;
+
+    if (enumStatus != OrganizationEnumLoadStatus::SUCCESS)
+    {
+        result->message = ZH_WORDS_GETTER(
+            getEnumWarningKey(enumStatus)
+        );
+    }
 
     return result;
 }
@@ -241,24 +292,63 @@ OrganizationDetailJsonVO::Wrapper OrganizationService::getDetail(
         return result;
     }
 
+    const auto enumResult = OrganizationEnumDictionary().load();
+    auto enumStatus = enumResult.status;
+
+    if (enumStatus != OrganizationEnumLoadStatus::MONGO_UNAVAILABLE &&
+        hasMissingEnumMapping(data, enumResult.mappings))
+    {
+        enumStatus = OrganizationEnumLoadStatus::ENUM_DATA_INCOMPLETE;
+    }
+
     auto detail = OrganizationDetailDTO::createShared();
 
     detail->id = data->getId();
     detail->name = data->getName();
-    detail->type_enum = data->getType_Enum();
-    detail->class_enum = data->getClass_Enum();
-    detail->status_enum = data->getStatus_Enum();
-    detail->yb_no = data->getYb_No();
-    detail->yb_name = data->getYb_Name();
-    detail->medins_id = data->getMedins_Id();
-    detail->medins_admdvs = data->getMedins_Admdvs();
-    detail->medins_type = data->getMedins_Type();
-    detail->medins_lv = data->getMedins_Lv();
-    detail->py_str = data->getPy_Str();
-    detail->wb_str = data->getWb_Str();
-    detail->display_order = data->getDisplay_Order();
+    if (!data->getParentId().empty())
+    {
+        detail->parentId = data->getParentId();
+    }
+
+    if (!data->getDefDoctorId().empty())
+    {
+        detail->defDoctorId = data->getDefDoctorId();
+    }
+
+    detail->busNo = data->getBusNo();
+    detail->caty = data->getCaty();
+    detail->typeEnum = data->getTypeEnum();
+    detail->typeEnumDictText = enumResult.mappings.getTypeText(
+        data->getTypeEnum()
+    );
+    detail->classEnum = data->getClassEnum();
+    detail->classEnumDictText = enumResult.mappings.getClassText(
+        data->getClassEnum()
+    );
+    detail->statusEnum = data->getStatusEnum();
+    detail->statusEnumDictText = enumResult.mappings.getStatusText(
+        data->getStatusEnum()
+    );
+    detail->ybNo = data->getYbNo();
+    detail->ybName = data->getYbName();
+    detail->medinsId = data->getMedinsId();
+    detail->medinsAdmdvs = data->getMedinsAdmdvs();
+    detail->medinsType = data->getMedinsType();
+    detail->medinsLv = data->getMedinsLv();
+    detail->pyStr = data->getPyStr();
+    detail->wbStr = data->getWbStr();
+    detail->displayOrder = data->getDisplayOrder();
 
     result->success(detail);
+    result->enumMappingSuccess =
+        enumStatus == OrganizationEnumLoadStatus::SUCCESS;
+
+    if (enumStatus != OrganizationEnumLoadStatus::SUCCESS)
+    {
+        result->message = ZH_WORDS_GETTER(
+            getEnumWarningKey(enumStatus)
+        );
+    }
 
     return result;
 }

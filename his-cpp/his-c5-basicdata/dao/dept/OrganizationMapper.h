@@ -2,7 +2,7 @@
 #define _ORGANIZATIONMAPPER_H_
 
 #include "Mapper.h"
-#include "domain/do/organization/adm_organizationDO.h"
+#include "domain/do/dept/adm_organizationDO.h"
 
 class OrganizationMapper : public Mapper<PtrAdmOrganizationDO>
 {
