@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zeroone.star.basedata.constant.EquipmentConstants;
-import com.zeroone.star.basedata.entity.equipment.AdmChargeItemDefinitionDO;
+import com.zeroone.star.basedata.entity.common.AdmChargeItemDefinitionDO;
 import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinitionDO;
 import com.zeroone.star.basedata.mapper.EquipmentChargeItemMapper;
 import com.zeroone.star.basedata.mapper.EquipmentMapper;
@@ -42,7 +42,7 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
 
     private final MsEquipmentMapper msEquipmentMapper;
     private final EquipmentChargeItemMapper chargeItemMapper;
-    private final TerConceptMapper conceptMapper;
+//    private final TerConceptMapper conceptMapper;
 
     // UserHoler用于获取租户ID
     @Resource
@@ -135,9 +135,9 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
             return;
         }
         LambdaQueryWrapper<AdmChargeItemDefinitionDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(AdmChargeItemDefinitionDO::getInstanceTable, "adm_device_definition")
-                .eq(AdmChargeItemDefinitionDO::getInstanceId, instanceId)
-                .eq(AdmChargeItemDefinitionDO::getPriceTypeCode, priceTypeCode)
+        wrapper.eq(AdmChargeItemDefinitionDO::getInstanceTable, "adm_device_definition") //收费项目定义实体
+                .eq(AdmChargeItemDefinitionDO::getInstanceId, instanceId) //业务实例主键
+                .eq(AdmChargeItemDefinitionDO::getPriceTypeCode, priceTypeCode) // 价格类型编码
                 .last("LIMIT 1");
         AdmChargeItemDefinitionDO existingPrice = chargeItemMapper.selectOne(wrapper);
 
@@ -250,8 +250,9 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
      */
     @Override
     public List<EquipmentCategoryVO> queryEquipmentCategoryList() {
-        List<EquipmentCategoryVO> voList = conceptMapper.queryEquipmentCategoryList(EquipmentConstants.EQUIPMENT_CATEGORY_CODE);
-        return voList;
+//        List<EquipmentCategoryVO> voList = conceptMapper.queryEquipmentCategoryList(EquipmentConstants.EQUIPMENT_CATEGORY_CODE);
+//        return voList;
+        return null;
     }
 
     /**
