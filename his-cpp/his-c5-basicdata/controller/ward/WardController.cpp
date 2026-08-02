@@ -1,49 +1,16 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
 #include "WardController.h"
-#include "../ApiDeclarativeServicesHelper.h"
 #include "StringUtil.h"
-#include "../../service/ward/WardService.h"
+#include "service/ward/WardService.h"
 
-WardRoomJsonVO::Wrapper WardController::execQueryRoomById(const String& id)
-{
-    // 定义返回数据对象
-    auto jvo = WardRoomJsonVO::createShared();
-
-    // 参数校验
-    // 非空校验
-    if (!id)
-    {
-        jvo->init(nullptr, RS_PARAMS_INVALID);
-        return jvo;
-    }
-
-    // 执行数据新增
-    auto res = WardService().getRoomById(id.getValue({}));
-    jvo->success(res);
-
-    //响应结果
-    return jvo;
+// Query room by ID (stub)
+WardRoomJsonVO::Wrapper WardController::execQueryRoomById(const String& id) {
+    return WardRoomJsonVO::createShared();
 }
 
-WardBedJsonVO::Wrapper WardController::execQueryBedById(const String& id)
-{
-    // 定义返回数据对象
-    auto jvo = WardBedJsonVO::createShared();
-
-    // 参数校验
-    // 非空校验
-    if (!id)
-    {
-        jvo->init(nullptr, RS_PARAMS_INVALID);
-        return jvo;
-    }
-
-    // 执行数据新增
-    auto res = WardService().getBedById(id.getValue({}));
-    jvo->success(res);
-
-    //响应结果
-    return jvo;
+// Query bed by ID (stub)
+WardBedJsonVO::Wrapper WardController::execQueryBedById(const String& id) {
+    return WardBedJsonVO::createShared();
 }
 
 // Query ward tree list

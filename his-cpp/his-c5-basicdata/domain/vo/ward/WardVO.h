@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -28,17 +28,6 @@ using namespace oatpp;
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class WardBedVO : public oatpp::DTO {
-	DTO_INIT(WardBedVO, DTO);
-	API_DTO_FIELD(String, id, "Bed ID", true, "322955479021522944");
-	API_DTO_FIELD(String, name, "Bed name", true, "Bed-01");
-	API_DTO_FIELD(String, parentId, "Parent room/ward ID", false, "");
-	API_DTO_FIELD(String, organizationId, "Organization ID", false, "");
-	API_DTO_FIELD(String, statusEnum, "Status enum", false, "ACTIVE");
-	API_DTO_FIELD(String, typeJson, "Type JSON", false, "{}");
-	API_DTO_FIELD(Int32, displayOrder, "Display order", false, 1);
-	API_DTO_FIELD(Int32, version, "Optimistic lock version", false, 0);
-};
 // Ward room VO (single)
 class WardRoomJsonVO : public JsonVO<WardRoomDTO::Wrapper> {
 	DTO_INIT(WardRoomJsonVO, JsonVO<WardRoomDTO::Wrapper>);
