@@ -9,7 +9,7 @@
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-      https://www.apache.org/licenses/LICENSE-2.0
+	  https://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -44,8 +44,13 @@ public:
 		API_DEF_ADD_TAG(API_TAG);
 		// Set paged query parameters
 		API_DEF_ADD_PAGE_PARAMS();
-		// Set query filter parameters
-		API_DEF_ADD_QUERY_PARAMS(String, "name", ZH_WORDS_GETTER("Litguidyo.form.inoutbound.name"), "medicine", false);
+		// 定义查询参数
+		API_DEF_ADD_QUERY_PARAMS(String, "name", ZH_WORDS_GETTER("Litguidyo.form.inoutbound.name"), "", false);
+		API_DEF_ADD_QUERY_PARAMS(Float64, "onemoney", ZH_WORDS_GETTER("Litguidyo.form.inoutbound.onemoney"), 0.0, false);
+		API_DEF_ADD_QUERY_PARAMS(Float64, "allmoney", ZH_WORDS_GETTER("Litguidyo.form.inoutbound.allmoney"), 0.0, false);
+		API_DEF_ADD_QUERY_PARAMS(Float64, "outmoney", ZH_WORDS_GETTER("Litguidyo.form.inoutbound.outmoney"), 0.0, false);
+		API_DEF_ADD_QUERY_PARAMS(Float64, "alloutmoney", ZH_WORDS_GETTER("Litguidyo.form.inoutbound.alloutmoney"), 0.0, false);
+		API_DEF_ADD_QUERY_PARAMS(String, "batch_number", ZH_WORDS_GETTER("Litguidyo.form.inoutbound.batch_number"), "", false);
 	}
 
 	// Query endpoint handler

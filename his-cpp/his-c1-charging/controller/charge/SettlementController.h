@@ -38,14 +38,17 @@ public:
     );
     API_HANDLER_ENDPOINT_AUTH(
         API_M_POST, "/charging/charge/confirm-settle-charge", confirmSettleCharge,
-        BODY_DTO(ConfirmSettleChargeRequestDTO::Wrapper, dto), execConfirmSettleCharge(dto)
+        BODY_DTO(ConfirmSettleChargeRequestDTO::Wrapper, dto),
+        execConfirmSettleCharge(dto, authObject->getPayload())
     );
 
 private:
     // 预结算
     PreSettleChargeVO::Wrapper execPreSettleCharge(const PreSettleChargeRequestDTO::Wrapper& dto);
     // 正式结算
-    ConfirmSettleChargeVO::Wrapper execConfirmSettleCharge(const ConfirmSettleChargeRequestDTO::Wrapper& dto);
+    ConfirmSettleChargeVO::Wrapper execConfirmSettleCharge(
+        const ConfirmSettleChargeRequestDTO::Wrapper& dto,
+        const PayloadDTO& payload);
 };
 #undef API_TAG
 

@@ -21,6 +21,7 @@ Litguidyo:
    numbers: 有效物资数量
    tag2: 物资有效期预警分布
    summary2: 物资有效期查询
+   query-by-id: 通过id获取单条数据
 rhqm:
  form:
   cost_info:
@@ -31,12 +32,12 @@ rhqm:
     end_time: 结束时间
     name: 患者姓名
     room: 挂号科室
-    feeClass: 费用大类
-    detailClass: 细分类
+    feeClass: 费用大类编号
+    detailClass: 细分类编号
     projectName: 项目名称
     hisID: 院内编号
     checker: 收银员
-    feeDir: 收退方向
+    feeDir: 收退方向编号（0 / 1）
    export:
     tag: "导出报表"
     fileID: "文件ID"
@@ -69,6 +70,9 @@ rhqm:
     actualAmount: 实收金额
     insuranceAmount: 医保金额
     selfPayAmount: 自费金额
+   other:
+    charge: 收费
+    refund: 退费
 W:
   form:
     data_statistics:

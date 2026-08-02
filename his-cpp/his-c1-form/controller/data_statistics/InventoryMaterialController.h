@@ -9,7 +9,7 @@
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-      https://www.apache.org/licenses/LICENSE-2.0
+	  https://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,8 +23,10 @@
 #include "domain/vo/BaseJsonVO.h"
 #include "domain/query/data_statistics/InventoryMaterialQuery.h"
 #include "domain/vo/data_statistics/InventoryMaterialVo.h"
+#include "domain/dto/data_statistics/InventoryMaterialDto.h"
+#include "ApiHelper.h"
 
-#include OATPP_CODEGEN_BEGIN(ApiController) //<- Begin Codegen
+#include OATPP_CODEGEN_BEGIN(ApiController)
 
 #define API_TAG ZH_WORDS_GETTER("form.data_statistics.tag")
 
@@ -44,9 +46,11 @@ public:
 		API_DEF_ADD_TAG(API_TAG);
 		// Set paged query parameters
 		API_DEF_ADD_PAGE_PARAMS();
-		// Set query filter parameters (aligned with InventoryMaterialQuery DTO fields)
+
+		// 整合了本地与云端的完整查询参数列表
+		API_DEF_ADD_QUERY_PARAMS(String, "bus_no", ZH_WORDS_GETTER("Litguidyo.form.inoutbound.bus_no"), "", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "time", ZH_WORDS_GETTER("Litguidyo.form.inoutbound.time"), "", false);
-		API_DEF_ADD_QUERY_PARAMS(Int32, "numbers", ZH_WORDS_GETTER("Litguidyo.form.inoutbound.numbers"), 0, false);
+		API_DEF_ADD_QUERY_PARAMS(Float64, "numbers", ZH_WORDS_GETTER("Litguidyo.form.inoutbound.numbers"), 0.0, false);
 		API_DEF_ADD_QUERY_PARAMS(String, "batch_number", ZH_WORDS_GETTER("Litguidyo.form.inoutbound.batch_number"), "", false);
 	}
 
@@ -58,11 +62,37 @@ public:
 		API_HANDLER_RESP_VO(execQueryObject1(objectQuery1));
 	}
 
+	ENDPOINT_INFO(queryInventoryMaterialId) {
+		API_DEF_ADD_TITLE(ZH_WORDS_GETTER("Litguidyo.form.inoutbound.query-by-id"));
+		API_DEF_ADD_AUTH();
+		API_DEF_ADD_RSP_JSON_WRAPPER(InventoryMaterialVo);
+		API_DEF_ADD_TAG(API_TAG);
+		API_DEF_ADD_QUERY_PARAMS(
+			String,
+			"id",
+			ZH_WORDS_GETTER("Litguidyo.form.id"),
+			"900001",
+			true
+		);
+	}
+
+	API_HANDLER_ENDPOINT_AUTH(
+		API_M_GET,
+		"/form/data_statistics/InventoryMaterial/query-by-id",
+		queryInventoryMaterialId,
+		QUERY(String, id),
+		execQueryById(id)
+	);
+
 private:
 	// Paged query handler
 	InventoryMaterialPageJsonVo::Wrapper execQueryObject1(const InventoryMaterialQuery::Wrapper& query);
+
+	// Query by ID handler (保留云端新增的方法声明)
+	InventoryMaterialVo::Wrapper execQueryById(const String& id);
 };
 
+// 保留防污染的宏清理
 #undef API_TAG
 #include OATPP_CODEGEN_END(ApiController) //<- End Codegen
 

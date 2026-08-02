@@ -9,7 +9,7 @@
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-      https://www.apache.org/licenses/LICENSE-2.0
+	  https://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,34 +28,34 @@
 class InOutboundQuery : public PageQuery {
 	DTO_INIT(InOutboundQuery, PageQuery);
 
-	// Item name
+	// 项目名称
 	DTO_FIELD(String, name);
 	DTO_FIELD_INFO(name) {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.name");
 	}
 
-	// Unit price
-	DTO_FIELD(Int32, onemoney);
+	// 入库单价
+	DTO_FIELD(Float64, onemoney);
 	DTO_FIELD_INFO(onemoney) {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.onemoney");
 	}
 
-	// Total amount
-	DTO_FIELD(Int32, allmoney);
+	// 入库总金额
+	DTO_FIELD(Float64, allmoney);
 	DTO_FIELD_INFO(allmoney) {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.allmoney");
 	}
 
-	// Quantity
-	DTO_FIELD(Int32, number);
-	DTO_FIELD_INFO(number) {
-		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.number");
+	// 出库单价
+	DTO_FIELD(Float64, outmoney);
+	DTO_FIELD_INFO(outmoney) {
+		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.outmoney");
 	}
 
-	// Origin
-	DTO_FIELD(String, origin);
-	DTO_FIELD_INFO(origin) {
-		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.origin");
+	// 出库总金额
+	DTO_FIELD(Float64, alloutmoney);
+	DTO_FIELD_INFO(alloutmoney) {
+		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.alloutmoney");
 	}
 
 	// Batch number

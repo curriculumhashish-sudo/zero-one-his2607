@@ -4,218 +4,180 @@
 #define _COSTINFO_DTO_
 #include "../../GlobalInclude.h"
 #include "domain/query/PageQuery.h"
+#include "domain/dto/PageDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-// ²éÑ¯ÓÃµÄDTO
-class CostInfoDTO : public PageQuery
+class CostInfoDTO : public oatpp::DTO
 {
-	DTO_INIT(CostInfoDTO, PageQuery);
+	DTO_INIT(CostInfoDTO, DTO);
 
-	// ¿ªÊ¼Ê±¼ä
-	DTO_FIELD(UInt64, start_time);
-	DTO_FIELD_INFO(start_time) {
-		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.start_time");
-		info->required = true;
-	}
-
-	// ½áÊøÊ±¼ä
-	DTO_FIELD(UInt64, end_time);
-	DTO_FIELD_INFO(end_time) {
-		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.end_time");
-		info->required = true;
-	}
-
-	// »¼ÕßÐÕÃû
-	DTO_FIELD(String, name);
-	DTO_FIELD_INFO(name) {
-		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.name");
-	}
-
-	// ¹ÒºÅ¿ÆÊÒ
-	DTO_FIELD(String, room);
-	DTO_FIELD_INFO(room) {
-		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.room");
-	}
-
-	// ÊÕ·Ñ´óÀà
-	DTO_FIELD(String, feeClass);
-	DTO_FIELD_INFO(feeClass) {
-		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.feeClass");
-	}
-
-	// Ï¸·ÖÀà
-	DTO_FIELD(String, detailClass);
-	DTO_FIELD_INFO(detailClass) {
-		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.detailClass");
-	}
-
-	// ÏîÄ¿Ãû³Æ
-	DTO_FIELD(String, projectName);
-	DTO_FIELD_INFO(projectName) {
-		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.projectName");
-	}
-
-	// ÔºÄÚ±àºÅ
-	DTO_FIELD(UInt64, hisID);
-	DTO_FIELD_INFO(hisID) {
-		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.hisID");
-	}
-
-	// ÊÕÒøÔ±
-	DTO_FIELD(String, checker);
-	DTO_FIELD_INFO(checker) {
-		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.checker");
-	}
-
-	// ÊÕÍË·½Ïò
-	DTO_FIELD(String, feeDir);
-	DTO_FIELD_INFO(feeDir) {
-		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.query.feeDir");
-	}
-
-	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
-};
-
-// ÏêÏ¸µÄDTO(ÓÃÓÚÕ¹Ê¾/µ¼³öµÄ)
-class CostInfoDataDTO : public oatpp::DTO
-{
-	DTO_INIT(CostInfoDataDTO, DTO);
-
-	DTO_FIELD(UInt64, id);
+	// åºå·
+	DTO_FIELD(String, id);
 	DTO_FIELD_INFO(id) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.id");
 	}
 
+	// é—¨è¯Šå·
 	DTO_FIELD(String, clinicNo);
 	DTO_FIELD_INFO(clinicNo) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.clinicNo");
 	}
 
+	// æ‚£è€…
 	DTO_FIELD(String, name);
 	DTO_FIELD_INFO(name) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.name");
 	}
 
+	// æŒ‚å·ç§‘å®¤
 	DTO_FIELD(String, room);
 	DTO_FIELD_INFO(room) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.room");
 	}
 
+	// å°±è¯Šæ—¥æœŸ
 	DTO_FIELD(String, date);
 	DTO_FIELD_INFO(date) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.date");
 	}
 
+	// å¤§ç±»
 	DTO_FIELD(String, feeClass);
 	DTO_FIELD_INFO(feeClass) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.feeClass");
 	}
 
+	// ç»†åˆ†ç±»
 	DTO_FIELD(String, detailClass);
 	DTO_FIELD_INFO(detailClass) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.detailClass");
 	}
 
+	// é¡¹ç›®åç§°
 	DTO_FIELD(String, projectName);
 	DTO_FIELD_INFO(projectName) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.projectName");
 	}
 
+	// é™¢å†…ç¼–ç 
 	DTO_FIELD(String, hisID);
 	DTO_FIELD_INFO(hisID) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.hisID");
 	}
 
+	// è§„æ ¼
 	DTO_FIELD(String, spec);
 	DTO_FIELD_INFO(spec) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.spec");
 	}
 
+	// æ•°é‡
 	DTO_FIELD(Float64, number);
 	DTO_FIELD_INFO(number) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.number");
 	}
 
+	// å•ä½
 	DTO_FIELD(String, unit);
 	DTO_FIELD_INFO(unit) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.unit");
 	}
 
+	// å¼€å•åŒ»ç”Ÿ
 	DTO_FIELD(String, doctor);
 	DTO_FIELD_INFO(doctor) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.doctor");
 	}
 
+	// æ”¶è´¹äºº
 	DTO_FIELD(String, checker);
 	DTO_FIELD_INFO(checker) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.checker");
 	}
 
+	// ç»“ç®—æ—¶é—´
 	DTO_FIELD(String, settleTime);
 	DTO_FIELD_INFO(settleTime) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.settleTime");
 	}
 
+	// æ¥æº
 	DTO_FIELD(String, source);
 	DTO_FIELD_INFO(source) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.source");
 	}
 
+	// åŒ»ä¿ç­‰çº§
 	DTO_FIELD(String, insuranceLevel);
 	DTO_FIELD_INFO(insuranceLevel) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.insuranceLevel");
 	}
 
+	// åŒ»ä¿ç±»åž‹
 	DTO_FIELD(String, insuranceType);
 	DTO_FIELD_INFO(insuranceType) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.insuranceType");
 	}
 
+	// åŽŸä»·
 	DTO_FIELD(Float64, originalPrice);
 	DTO_FIELD_INFO(originalPrice) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.originalPrice");
 	}
 
+	// ä¼˜æƒ é‡‘é¢
 	DTO_FIELD(Float64, discountAmount);
 	DTO_FIELD_INFO(discountAmount) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.discountAmount");
 	}
 
+	// åº”æ”¶é‡‘é¢
 	DTO_FIELD(Float64, receivableAmount);
 	DTO_FIELD_INFO(receivableAmount) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.receivableAmount");
 	}
 
+	// æŠ˜åŽé‡‘é¢
 	DTO_FIELD(Float64, discountedPrice);
 	DTO_FIELD_INFO(discountedPrice) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.discountedPrice");
 	}
 
+	// å•ä»·
 	DTO_FIELD(Float64, unitPrice);
 	DTO_FIELD_INFO(unitPrice) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.unitPrice");
 	}
 
+	// è¡Œé‡‘é¢
 	DTO_FIELD(Float64, lineAmount);
 	DTO_FIELD_INFO(lineAmount) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.lineAmount");
 	}
 
+	// å®žæ”¶é‡‘é¢
 	DTO_FIELD(Float64, actualAmount);
 	DTO_FIELD_INFO(actualAmount) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.actualAmount");
 	}
 
+	// åŒ»ä¿é‡‘é¢
 	DTO_FIELD(Float64, insuranceAmount);
 	DTO_FIELD_INFO(insuranceAmount) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.insuranceAmount");
 	}
 
+	// è‡ªè´¹é‡‘é¢
 	DTO_FIELD(Float64, selfPayAmount);
 	DTO_FIELD_INFO(selfPayAmount) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.selfPayAmount");
 	}
+};
+
+class CostInfoDataDTO : public PageDTO<CostInfoDTO::Wrapper>
+{
+	DTO_INIT(CostInfoDataDTO, PageDTO<CostInfoDTO::Wrapper>);
 };
 
 

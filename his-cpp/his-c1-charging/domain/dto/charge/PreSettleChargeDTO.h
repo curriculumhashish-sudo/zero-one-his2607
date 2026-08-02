@@ -16,12 +16,12 @@ class PreSettleChargeRequestDTO : public oatpp::DTO
     // 就诊主键
     API_DTO_FIELD(String, encounterId,
         ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeRequestDTO.encounterId.description"),
-        true, "337209205188464640");
+        true, "");
 
     // 用户选中的待收收费项 ID 列表
     API_DTO_FIELD(Vector<String>, chargeItemIds,
         ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeRequestDTO.chargeItemIds.description"),
-        true, {"337206129186574336"});
+        true, {});
 };
 
 /*

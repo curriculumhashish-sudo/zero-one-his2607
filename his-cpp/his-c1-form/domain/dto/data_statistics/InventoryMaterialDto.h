@@ -9,7 +9,7 @@
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-      https://www.apache.org/licenses/LICENSE-2.0
+	  https://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,13 +38,19 @@ class InventoryMaterialAddDto : public oatpp::DTO {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.time");
 	}
 
-	// Valid material count
-	DTO_FIELD(Int32, numbers);
+	// 该有效期对应的数量 (采用云端的 Float64 类型)
+	DTO_FIELD(Float64, numbers);
 	DTO_FIELD_INFO(numbers) {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.numbers");
 	}
 
-	// Batch number
+	// 库存ID (采用云端的新字段)
+	DTO_FIELD(String, bus_no);
+	DTO_FIELD_INFO(bus_no) {
+		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.bus_no");
+	}
+
+	// Batch number (保留本地的批号字段以防其他地方调用)
 	DTO_FIELD(String, batch_number);
 	DTO_FIELD_INFO(batch_number) {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.batch_number");
@@ -59,8 +65,8 @@ public:
 		if (!numbers || numbers < 0) {
 			return "numbers is invalid";
 		}
-		if (!batch_number || batch_number->empty()) {
-			return "batch_number is invalid";
+		if (!bus_no || bus_no->empty()) {
+			return "bus_no is invalid";
 		}
 		return "";
 	}

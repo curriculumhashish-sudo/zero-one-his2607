@@ -2,7 +2,7 @@
  Copyright Zero One Star. All rights reserved.
 
  @Author: xbzml
- @Date: 2026/07/20 00:00:00
+ @Date: 2026/07/26 00:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -18,8 +18,15 @@
 */
 #include "stdafx.h"
 #include "RefundVerifyRefundController.h"
+#include "../../service/refund/RefundVerifyRefundService.h"
 
+// Handle GET /charging/refund/verify-refund
+// Validates whether selected charge items can be refunded
 RefundVerifyRefundJsonVO::Wrapper RefundVerifyRefundController::execQueryAll(const RefundVerifyRefundQuery::Wrapper& query)
 {
-    return {};
+    auto vo = RefundVerifyRefundJsonVO::createShared();
+    RefundVerifyRefundService service;
+    auto dto = service.verify(query);
+    vo->success(dto);
+    return vo;
 }

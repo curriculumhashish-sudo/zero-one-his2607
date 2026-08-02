@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #ifndef _CHARGE_CONFIRM_CONTROLLER_H_
 #define _CHARGE_CONFIRM_CONTROLLER_H_
 #include "../../domain/dto/register/ChargeConfirmDTO.h"
@@ -15,14 +15,14 @@ class ChargeConfirmController : public oatpp::web::server::api::ApiController
     API_ACCESS_DECLARE(ChargeConfirmController);
 public:
 
-    // ¶¨ÒåÕ¹Ê¾ÊÕ·ÑÏêÇé
+    // å®šä¹‰å±•ç¤ºæ”¶è´¹è¯¦æƒ…
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("macchiato.charging.register.summary1"),
         confirmCharge,
         StringJsonVO::Wrapper,
         API_TAG
     );
-    // ¶¨ÒåÕ¹Ê¾ÊÕ·ÑÏêÇé¶Ëµã´¦ÀíÂß¼­
+    // å®šä¹‰å±•ç¤ºæ”¶è´¹è¯¦æƒ…ç«¯ç‚¹å¤„ç†é€»è¾‘
     API_HANDLER_ENDPOINT_AUTH(
         API_M_POST,
         "/charging/register/chargeconfirmcontroller",
@@ -32,7 +32,7 @@ public:
     );
 
 private:
-    // ¶¨ÒåÖ´ĞĞÈ·ÈÏÊÕ·Ñ½Ó¿Ú
+    // å®šä¹‰æ‰§è¡Œç¡®è®¤æ”¶è´¹æ¥å£
     ChargeConfirmJsonVO::Wrapper execConfirmCharge(const ChargeConfirmDTO::Wrapper& dto, const PayloadDTO& payload);
 };
 

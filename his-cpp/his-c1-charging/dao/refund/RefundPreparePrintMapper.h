@@ -31,7 +31,7 @@ public:
         RefundPreparePrintDO data;
         data.setTraceId(resultSet->getString("trace_id"));
         data.setBusNo(resultSet->getString("bus_no"));
-        data.setScenarioCode(resultSet->getString("scenario_code"));
+        data.setBindingCode(resultSet->getString("binding_code"));
         return data;
     }
 };

@@ -31,7 +31,7 @@ public:
         RefundConfirmPrintDO data;
         data.setTraceId(resultSet->getString("trace_id"));
         data.setBusNo(resultSet->getString("bus_no"));
-        data.setScenarioCode(resultSet->getString("scenario_code"));
+        data.setBindingCode(resultSet->getString("binding_code"));
         data.setStatus(resultSet->getString("status"));
         data.setCopies(resultSet->getInt("copies"));
         data.setClientType(resultSet->getString("client_type"));
