@@ -1,5 +1,6 @@
 package com.zeroone.star.j3.storehouse.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -13,7 +14,10 @@ import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j3.storehouse.StoreHouseAddDTO;
 import com.zeroone.star.project.dto.j3.storehouse.StoreHouseUpdateDTO;
-import com.zeroone.star.project.enums.j3.storehouse.*;
+import com.zeroone.star.project.enums.j3.storehouse.FormEnum;
+import com.zeroone.star.project.enums.j3.storehouse.ModeEnum;
+import com.zeroone.star.project.enums.j3.storehouse.OperationalEnum;
+import com.zeroone.star.project.enums.j3.storehouse.StorehouseStatusEnum;
 import com.zeroone.star.project.exception.j3.storehouse.StoreHouseDuplicateException;
 import com.zeroone.star.project.exception.j3.storehouse.StoreHouseNotFoundException;
 import com.zeroone.star.project.exception.j3.storehouse.StoreHouseTenantAccessException;
@@ -31,6 +35,7 @@ import java.util.stream.Collectors;
 
 /**
  * 库房药房服务实现
+ *
  * @author mie
  * @version 1.0.0
  */
@@ -49,7 +54,9 @@ public class StoreHouseServiceImpl implements StoreHouseService {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    /** 库房药房模块管理的 formEnum 值 */
+    /**
+     * 库房药房模块管理的 formEnum 值
+     */
     private static final List<String> STOREHOUSE_FORMS = FormEnum.STOREHOUSE_FORMS;
 
     @Override
@@ -61,12 +68,12 @@ public class StoreHouseServiceImpl implements StoreHouseService {
         }
         LambdaQueryWrapper<StoreHouseDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(StoreHouseDO::getTenantId, tenantId)
-               .in(StoreHouseDO::getFormEnum, STOREHOUSE_FORMS);
+                .in(StoreHouseDO::getFormEnum, STOREHOUSE_FORMS);
         if (formEnum != null && !formEnum.isBlank()) {
             wrapper.eq(StoreHouseDO::getFormEnum, formEnum);
         }
         wrapper.orderByAsc(StoreHouseDO::getDisplayOrder)
-               .orderByAsc(StoreHouseDO::getCreatedAt);
+                .orderByAsc(StoreHouseDO::getCreatedAt);
         List<StoreHouseDO> list = storeHouseMapper.selectList(wrapper);
         Map<Long, String> parentNameMap = buildParentNameMap(list);
         return list.stream().map(e -> convertToVO(e, parentNameMap)).collect(Collectors.toList());
@@ -77,7 +84,7 @@ public class StoreHouseServiceImpl implements StoreHouseService {
         Long tenantId = resolveCurrentTenantId();
         LambdaQueryWrapper<StoreHouseDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(StoreHouseDO::getTenantId, tenantId)
-               .in(StoreHouseDO::getFormEnum, STOREHOUSE_FORMS);
+                .in(StoreHouseDO::getFormEnum, STOREHOUSE_FORMS);
         if (query.getKeyword() != null && !query.getKeyword().isBlank()) {
             wrapper.and(w -> w
                     .like(StoreHouseDO::getName, query.getKeyword())
@@ -85,7 +92,7 @@ public class StoreHouseServiceImpl implements StoreHouseService {
                     .like(StoreHouseDO::getPyStr, query.getKeyword()));
         }
         wrapper.orderByAsc(StoreHouseDO::getDisplayOrder)
-               .orderByAsc(StoreHouseDO::getCreatedAt);
+                .orderByAsc(StoreHouseDO::getCreatedAt);
 
         Page<StoreHouseDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
         Page<StoreHouseDO> result = storeHouseMapper.selectPage(page, wrapper);
@@ -145,18 +152,18 @@ public class StoreHouseServiceImpl implements StoreHouseService {
 
         LambdaUpdateWrapper<StoreHouseDO> wrapper = new LambdaUpdateWrapper<>();
         wrapper.eq(StoreHouseDO::getId, dto.getId())
-               .eq(StoreHouseDO::getTenantId, tenantId)
-               .in(StoreHouseDO::getFormEnum, STOREHOUSE_FORMS)
-               .set(StoreHouseDO::getName, dto.getName())
-               .set(StoreHouseDO::getFormEnum, dto.getFormEnum())
-               .set(StoreHouseDO::getOperationalEnum, dto.getOperationalEnum())
-               .set(StoreHouseDO::getModeEnum, dto.getModeEnum())
-               .set(StoreHouseDO::getOrganizationId, dto.getOrganizationId())
-               .set(StoreHouseDO::getDisplayOrder, dto.getDisplayOrder())
-               .set(StoreHouseDO::getPyStr, dto.getPyStr())
-               .set(StoreHouseDO::getWbStr, dto.getWbStr())
-               .set(StoreHouseDO::getParentId, dto.getParentId())
-               .set(StoreHouseDO::getUpdatedAt, LocalDateTime.now());
+                .eq(StoreHouseDO::getTenantId, tenantId)
+                .in(StoreHouseDO::getFormEnum, STOREHOUSE_FORMS)
+                .set(StoreHouseDO::getName, dto.getName())
+                .set(StoreHouseDO::getFormEnum, dto.getFormEnum())
+                .set(StoreHouseDO::getOperationalEnum, dto.getOperationalEnum())
+                .set(StoreHouseDO::getModeEnum, dto.getModeEnum())
+                .set(StoreHouseDO::getOrganizationId, dto.getOrganizationId())
+                .set(StoreHouseDO::getDisplayOrder, dto.getDisplayOrder())
+                .set(StoreHouseDO::getPyStr, dto.getPyStr())
+                .set(StoreHouseDO::getWbStr, dto.getWbStr())
+                .set(StoreHouseDO::getParentId, dto.getParentId())
+                .set(StoreHouseDO::getUpdatedAt, LocalDateTime.now());
 
         storeHouseMapper.update(wrapper);
     }
@@ -202,10 +209,10 @@ public class StoreHouseServiceImpl implements StoreHouseService {
 
         LambdaUpdateWrapper<StoreHouseDO> wrapper = new LambdaUpdateWrapper<>();
         wrapper.eq(StoreHouseDO::getId, id)
-               .eq(StoreHouseDO::getTenantId, tenantId)
-               .in(StoreHouseDO::getFormEnum, STOREHOUSE_FORMS)
-               .set(StoreHouseDO::getStatusEnum, statusEnum)
-               .set(StoreHouseDO::getUpdatedAt, LocalDateTime.now());
+                .eq(StoreHouseDO::getTenantId, tenantId)
+                .in(StoreHouseDO::getFormEnum, STOREHOUSE_FORMS)
+                .set(StoreHouseDO::getStatusEnum, statusEnum)
+                .set(StoreHouseDO::getUpdatedAt, LocalDateTime.now());
 
         storeHouseMapper.update(wrapper);
     }
@@ -261,9 +268,9 @@ public class StoreHouseServiceImpl implements StoreHouseService {
         Long tenantId = resolveCurrentTenantId();
         LambdaQueryWrapper<DepartmentDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(DepartmentDO::getTenantId, tenantId)
-               .eq(DepartmentDO::getTypeEnum, "DEPARTMENT")
-               .eq(DepartmentDO::getStatusEnum, "ACTIVE")
-               .eq(DepartmentDO::getActiveFlag, true);
+                .eq(DepartmentDO::getTypeEnum, "DEPARTMENT")
+                .eq(DepartmentDO::getStatusEnum, "ACTIVE")
+                .eq(DepartmentDO::getActiveFlag, true);
         List<DepartmentDO> list = departmentMapper.selectList(wrapper);
         return list.stream()
                 .map(d -> new DepartmentSimpleVO(d.getId().toString(), d.getName()))
@@ -327,8 +334,8 @@ public class StoreHouseServiceImpl implements StoreHouseService {
         // 1. 检查是否存在启用中的子节点
         LambdaQueryWrapper<StoreHouseDO> childCheck = new LambdaQueryWrapper<>();
         childCheck.eq(StoreHouseDO::getParentId, storeHouse.getId())
-                  .eq(StoreHouseDO::getTenantId, tenantId)
-                  .eq(StoreHouseDO::getStatusEnum, StorehouseStatusEnum.ACTIVE.getDesc());
+                .eq(StoreHouseDO::getTenantId, tenantId)
+                .eq(StoreHouseDO::getStatusEnum, StorehouseStatusEnum.ACTIVE.getDesc());
         if (storeHouseMapper.selectCount(childCheck) > 0) {
             throw new IllegalArgumentException("该库房药房下存在启用中的子节点，不能停用");
         }
@@ -357,11 +364,11 @@ public class StoreHouseServiceImpl implements StoreHouseService {
      */
     private Long resolveCurrentTenantId() {
         try {
-            Long tenantId = userHolder.getCurrentTenantId();
-            if (tenantId == null) {
+            String tenantIdStr = userHolder.getCurrentTenantId();
+            if (StrUtil.isBlank(tenantIdStr)) {
                 throw new StoreHouseTenantAccessException("无法获取当前用户的租户信息，请重新登录");
             }
-            return tenantId;
+            return Long.parseLong(tenantIdStr);
         } catch (StoreHouseTenantAccessException e) {
             throw e;
         } catch (Exception e) {
