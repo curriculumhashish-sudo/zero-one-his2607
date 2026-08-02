@@ -3,6 +3,7 @@ package com.zeroone.star.project.dto.j4.equipment;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,4 +19,8 @@ public class EquipmentStatusDTO {
     @NotEmpty(message = "主键列表不能为空")
     @Schema(description = "主键列表", requiredMode = Schema.RequiredMode.REQUIRED)
     private List<@NotBlank(message = "主键不能为空") String> ids;
+
+    @NotNull(message = "启用状态不能为空")
+    @Schema(description = "启用标记：true-启用，false-停用", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Boolean activeFlag;
 }
