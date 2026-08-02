@@ -12,6 +12,12 @@ class PatientQueueDTO : public oatpp::DTO
     // VO专用初始化标识，框架区分返回模型
     DTO_INIT(PatientQueueDTO, DTO);
 
+    //患者ID
+    API_DTO_FIELD_REQUIRE(String, patientId, ZH_WORDS_GETTER("queue.dto.patientId"), false);
+
+    //就诊ID
+    API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("queue.dto.encounterId"), false);
+
     // 患者姓名
     API_DTO_FIELD_REQUIRE(String, patientName, ZH_WORDS_GETTER("queue.dto.patientName"), true);
 
@@ -25,11 +31,15 @@ class PatientQueueDTO : public oatpp::DTO
     // 就诊时间
     API_DTO_FIELD_REQUIRE(String, visitTime, ZH_WORDS_GETTER("queue.dto.visitTime"), true);
     // 就诊号
-    API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("queue.dto.visitNum"), true);
+    API_DTO_FIELD_REQUIRE(String, visitNo, ZH_WORDS_GETTER("queue.dto.visitNum"), true);
     // 支付类型 自费/省医保/市医保
     API_DTO_FIELD_REQUIRE(String, payType, ZH_WORDS_GETTER("queue.dto.payType"), true);
     // 就诊状态 待诊、在诊、完诊
     API_DTO_FIELD_REQUIRE(String, visitStatus, ZH_WORDS_GETTER("queue.dto.visitStatus"), true);
+
+
+
+
     
 };
 

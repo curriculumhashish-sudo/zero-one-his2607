@@ -12,7 +12,8 @@ queue:
   visitNum: "病历号"
   payType: "支付类型"
   visitStatus: "就诊状态"
-  encounterId: "就诊号"
+  encounterId: "就诊ID"
+  patientId: "患者ID"
  query:
   date: "日期"
   patient: "患者"
