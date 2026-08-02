@@ -17,12 +17,15 @@
  limitations under the License.
 */
 #include "stdafx.h"
+#include"../../service/data_statistics/TrafficTrendService.h"
 #include "controller/data_statistics/TrendController.h"
 
-TrafficTrendPageJsonVO::Wrapper FlowTrendController::execQueryFlowTrend(
-	const TrafficTrendQuery::Wrapper& query,
-	const PayloadDTO& payload
+TrafficTrendVO::Wrapper FlowTrendController::execQueryFlowTrend(
+	const TrafficTrendQuery::Wrapper& query
 )
 {
-	return TrafficTrendPageJsonVO::createShared();
+	auto result = TrafficTrendService().findflow(query);
+	auto jvo = TrafficTrendVO::createShared();
+	jvo->success(result);
+	return jvo;
 }

@@ -31,15 +31,9 @@ class TrafficTrendDTO : public oatpp::DTO
 	DTO_INIT(TrafficTrendDTO, DTO);
 
 	// X-axis label (e.g. week label or month label)
-	DTO_FIELD(String, xLabel);
-	DTO_FIELD_INFO(xLabel) {
-		info->description = ZH_WORDS_GETTER("Lin.form.data_statistics.field.x_label");
-	}
-
-	// Visit count for this period
-	DTO_FIELD(Int32, visitCount);
-	DTO_FIELD_INFO(visitCount) {
-		info->description = ZH_WORDS_GETTER("Lin.form.data_statistics.field.visit_count");
+	DTO_FIELD(List<String>, visited);
+	DTO_FIELD_INFO(visited) {
+		info->description = ZH_WORDS_GETTER("Lin.form.data_statistics.field.visited");
 	}
 
 };

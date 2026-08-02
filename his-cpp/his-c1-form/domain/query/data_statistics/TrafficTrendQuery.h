@@ -33,27 +33,9 @@ class TrafficTrendQuery : public PageQuery
 	DTO_INIT(TrafficTrendQuery, PageQuery);
 
 	// Time dimension type: 1=weekly, 2=monthly
-	DTO_FIELD(UInt32, timeType);
-	DTO_FIELD_INFO(timeType) {
-		info->description = ZH_WORDS_GETTER("Lin.form.data_statistics.field.time_type");
-	}
-
-	// Start date
-	DTO_FIELD(String, startDate);
-	DTO_FIELD_INFO(startDate) {
-		info->description = ZH_WORDS_GETTER("Lin.form.data_statistics.field.start_date");
-	}
-
-	// End date
-	DTO_FIELD(String, endDate);
-	DTO_FIELD_INFO(endDate) {
-		info->description = ZH_WORDS_GETTER("Lin.form.data_statistics.field.end_date");
-	}
-
-	// Organization ID
-	DTO_FIELD(UInt32, orgId);
-	DTO_FIELD_INFO(orgId) {
-		info->description = ZH_WORDS_GETTER("Lin.form.data_statistics.field.org_id");
+	DTO_FIELD(String, date);
+	DTO_FIELD_INFO(date) {
+		info->description = ZH_WORDS_GETTER("Lin.form.data_statistics.field.date");
 	}
 
 };

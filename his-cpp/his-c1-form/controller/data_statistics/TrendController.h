@@ -42,32 +42,28 @@ class FlowTrendController : public oatpp::web::server::api::ApiController
 public:
 
 
-	API_DEF_ENDPOINT_INFO_QUERY_AUTH(
+	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("Lin.form.data_statistics.query_flow_trend.summary"),
 		queryFlowTrend,
-		TrafficTrendQuery,
-		TrafficTrendPageJsonVO::Wrapper,
-		API_TAG
+		TrafficTrendVO::Wrapper,
+		API_TAG,
+		API_DEF_ADD_QUERY_PARAMS(String, "date", ZH_WORDS_GETTER("Lin.form.data_statistics.field.date"), "", true);
 	);
 
-
-
-	API_HANDLER_ENDPOINT_QUERY_AUTH(
-		API_M_GET,
-		"/data-statistics/flow-trend",
-		queryFlowTrend,
-		TrafficTrendQuery,
-		execQueryFlowTrend(query, authObject->getPayload())
-	);
+	ENDPOINT(API_M_GET, "/data-statistics/flow-trend", queryFlowTrend, QUERIES(QueryParams, queryParams), API_HANDLER_AUTH_PARAME) {
+		// 解析查询参数为Query领域模型
+		API_HANDLER_QUERY_PARAM(query, TrafficTrendQuery, queryParams);
+		// 呼叫执行函数响应结果
+		API_HANDLER_RESP_VO(execQueryFlowTrend(query));
+	}
 
 
 
 private:
 
 
-	TrafficTrendPageJsonVO::Wrapper execQueryFlowTrend(
-		const TrafficTrendQuery::Wrapper& query,
-		const PayloadDTO& payload
+	TrafficTrendVO::Wrapper execQueryFlowTrend(
+		const TrafficTrendQuery::Wrapper& query
 	);
 
 };
