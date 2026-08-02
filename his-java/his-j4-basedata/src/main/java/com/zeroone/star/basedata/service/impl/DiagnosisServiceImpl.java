@@ -104,13 +104,13 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
 
     @Override
     public PageDTO<DiagnosisOptionVO> queryDiagnosisSelectList(DiagnosisSelectPageQuery query) {
-        // 1. 处理分页参数和查询条件
+        // 1. 处理分页参数、目录编码和关键字，Service 内部调用也使用默认分页值
         long pageIndex = normalizePageIndex(query == null ? 0L : query.getPageIndex());
         long pageSize = normalizePageSize(query == null ? 0L : query.getPageSize());
         String keyword = query == null ? null : StrUtil.trim(query.getKeyword());
         String sourceEnum = query == null ? null : StrUtil.trim(query.getSourceEnum());
 
-        // 2. 从临时常量中过滤目录，并转换为页面显示对象
+        // 2. 从公共编码接口接入前的临时常量中过滤目录，并转换为页面显示对象
         List<DiagnosisOptionVO> matched = DiagnosisCatalogConstants.catalogOptions().entrySet().stream()
                 .filter(item -> StrUtil.isBlank(sourceEnum) || item.getKey().equals(sourceEnum))
                 .filter(item -> StrUtil.isBlank(keyword)
@@ -124,13 +124,13 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
                 })
                 .toList();
 
-        // 3. 对过滤后的目录数据进行内存分页
+        // 3. 对过滤后的目录数据进行内存分页，越界页返回空 rows 但保留总数
         long total = matched.size();
         long pages = total / pageSize + (total % pageSize == 0 ? 0 : 1);
         long fromIndex = pageIndex > pages ? total : (pageIndex - 1) * pageSize;
         long toIndex = pageSize >= total - fromIndex ? total : fromIndex + pageSize;
 
-        // 4. 封装并返回统一分页结果
+        // 4. 封装为统一的 PageDTO 返回，保持前端接口协议不变
         Page<DiagnosisOptionVO> result = new Page<>(pageIndex, pageSize, total);
         result.setRecords(matched.subList((int) fromIndex, (int) toIndex));
         return PageDTO.create(result);
@@ -138,28 +138,28 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
 
     @Override
     public PageDTO<DiagnosisListVO> queryDiagnosisList(DiagnosisPageQuery query) {
-        // 1. 处理分页参数
+        // 1. 处理分页参数，避免 Service 被内部调用时传入 0 导致分页异常
         long pageIndex = normalizePageIndex(query == null ? 0L : query.getPageIndex());
         long pageSize = normalizePageSize(query == null ? 0L : query.getPageSize());
         Page<ClnConditionDefinitionDO> page = new Page<>(pageIndex, pageSize);
 
-        // 2. 根据关键字和诊断目录构造查询条件
+        // 2. 按关键字、诊断目录和当前租户构造组合查询条件
         LambdaQueryWrapper<ClnConditionDefinitionDO> wrapper = buildQueryWrapper(
                 query == null ? null : query.getKeyword(), query == null ? null : query.getSourceEnum());
         wrapper.eq(ClnConditionDefinitionDO::getTenantId, currentTenantId());
         wrapper.orderByAsc(ClnConditionDefinitionDO::getConditionCode)
                 .orderByAsc(ClnConditionDefinitionDO::getId);
 
-        // 3. 查询诊断定义表
+        // 3. 按诊断编码和主键稳定排序后查询诊断定义表
         Page<ClnConditionDefinitionDO> result = baseMapper.selectPage(page, wrapper);
 
-        // 4. 将数据库实体转换为列表VO并返回
+        // 4. 将数据库实体转换为列表 VO，避免向前端暴露系统字段
         return PageDTO.create(result, msDiagnosisMapper::entityToListVo);
     }
 
     @Override
     public DiagnosisDetailVO queryDiagnosisDetail(String id) {
-        // 1. 根据诊断ID查询数据库实体
+        // 1. 校验诊断 ID，防止绕过 Controller 时发起无效查询
         if (StrUtil.isBlank(id)) {
             throw new IllegalArgumentException("诊断ID不能为空");
         }
@@ -171,12 +171,13 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
             throw new RuntimeException("诊断记录不存在");
         }
 
-        // 2. 将数据库实体转换为详情VO并返回
+        // 2. 按诊断 ID 和当前租户查询，避免跨租户读取
         return msDiagnosisMapper.entityToDiagnosisDetailVo(entity);
     }
 
     private LambdaQueryWrapper<ClnConditionDefinitionDO> buildQueryWrapper(
             String keyword, String sourceEnum) {
+        // 关键字条件使用括号分组，确保 OR 只作用于名称、编码、拼音和五笔字段
         String normalizedKeyword = StrUtil.trim(keyword);
         String normalizedSourceEnum = StrUtil.trim(sourceEnum);
         LambdaQueryWrapper<ClnConditionDefinitionDO> wrapper = new LambdaQueryWrapper<>();
@@ -205,6 +206,7 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
     }
 
     private String currentTenantId() {
+        // 统一从用户上下文获取租户，不使用固定租户或空租户降级
         try {
             String tenantId = userHolder.getCurrentTenantId();
             if (!StringUtils.hasText(tenantId)) {
