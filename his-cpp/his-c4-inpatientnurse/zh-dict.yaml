@@ -463,6 +463,7 @@ nursing.tag: 护理记录接口
 nursing.list-records.summary: 获取患者护理记录
 nursing.save-records.summary: 保存患者护理记录
 nursing.delete-record.summary: 删除护理记录
+nursing.field.dateTime: 日期时间
 nursing.field.vitalSignId: 生命体征记录ID
 nursing.field.recordDate: 记录日期
 nursing.field.recordTime: 记录时间

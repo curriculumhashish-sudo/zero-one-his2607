@@ -20,7 +20,7 @@
 #include "NursingDAO.h"
 #include "NursingMapper.h"
 
-// Explicit column list matching VitalSignDO field order
+
 #define NURSING_COLUMNS \
     "id, tenant_id, created_at, updated_at, created_by, " \
     "updated_by, is_deleted, deleted_at, deleted_by, version, " \
@@ -35,31 +35,31 @@
 std::string NursingDAO::queryConditionBuilder(const NursingRecordQuery::Wrapper& query, SqlParams& params)
 {
     std::stringstream sqlCondition;
-    // Base filter: exclude soft-deleted, restrict to NURSING_RECORD type
+
     sqlCondition << " WHERE is_deleted = 0 AND type_enum = 'NURSING_RECORD'";
 
-    // Filter by encounter_id
+
     if (query->encounterId)
     {
         sqlCondition << " AND encounter_id = ?";
         SQLPARAMS_PUSH(params, "s", std::string, query->encounterId.getValue(""));
     }
 
-    // Filter by patient_id
+
     if (query->patientId)
     {
         sqlCondition << " AND patient_id = ?";
         SQLPARAMS_PUSH(params, "s", std::string, query->patientId.getValue(""));
     }
 
-    // Filter by recorded_at range start
+
     if (query->recordedAtFrom)
     {
         sqlCondition << " AND recorded_at >= ?";
         SQLPARAMS_PUSH(params, "s", std::string, query->recordedAtFrom.getValue(""));
     }
 
-    // Filter by recorded_at range end
+
     if (query->recordedAtTo)
     {
         sqlCondition << " AND recorded_at <= ?";
@@ -83,7 +83,7 @@ std::list<VitalSignDO> NursingDAO::selectByCondition(const NursingRecordQuery::W
     std::string sql = "SELECT " NURSING_COLUMNS " FROM dia_vital_sign ";
     sql += queryConditionBuilder(query, params);
 
-    // Sort order: ascending or descending by recorded_at
+   
     bool asc = query->sortAsc ? query->sortAsc.getValue(false) : false;
     sql += asc ? " ORDER BY recorded_at ASC, id ASC"
                : " ORDER BY recorded_at DESC, id DESC";
@@ -93,7 +93,7 @@ std::list<VitalSignDO> NursingDAO::selectByCondition(const NursingRecordQuery::W
 
 std::shared_ptr<PaperHeaderData> NursingDAO::selectPaperHeader(const std::string& encounterId, const std::string& patientId)
 {
-    // At the call sites, encounterId/patientId are already validated non-empty strings.
+   
     if (encounterId.empty() || patientId.empty())
     {
         return std::make_shared<PaperHeaderData>();
@@ -137,7 +137,7 @@ std::list<VitalSignDetailDO> NursingDAO::selectByVitalSignIds(const std::list<st
 {
     if (ids.empty()) return {};
 
-    // Build IN clause with parameterized placeholders
+  
     SqlParams params;
     std::stringstream inClause;
     bool first = true;
@@ -152,4 +152,61 @@ std::list<VitalSignDetailDO> NursingDAO::selectByVitalSignIds(const std::list<st
     std::string sql = "SELECT " DETAIL_COLUMNS " FROM dia_vital_sign_detail "
                       "WHERE is_deleted = 0 AND vital_sign_id IN (" + inClause.str() + ")";
     return sqlSession->executeQuery<VitalSignDetailDO>(sql, NursingDetailMapper(), params);
+}
+
+// ---------------------------------------------------------------------------
+// countByBusNoPrefix — atomic query used by Service layer for bus_no sequence
+// ---------------------------------------------------------------------------
+uint64_t NursingDAO::countByBusNoPrefix(const std::string& prefix)
+{
+    SqlParams params;
+    std::string sql = "SELECT COUNT(*) FROM dia_vital_sign "
+                      "WHERE type_enum = 'NURSING_RECORD' AND bus_no LIKE ?";
+    SQLPARAMS_PUSH(params, "s", std::string, prefix + "%");
+    return sqlSession->executeQueryNumerical(sql, params);
+}
+
+// ---------------------------------------------------------------------------
+// selectBySlot — find existing record at the same encounter+patient+date+time
+// ---------------------------------------------------------------------------
+std::list<VitalSignDO> NursingDAO::selectBySlot(const std::string& encounterId,
+                                                 const std::string& patientId,
+                                                 const std::string& recordDate,
+                                                 const std::string& recordTime)
+{
+    SqlParams params;
+    std::string sql = "SELECT " NURSING_COLUMNS " FROM dia_vital_sign "
+                      "WHERE is_deleted = 0 AND type_enum = 'NURSING_RECORD'"
+                      " AND encounter_id = ?"
+                      " AND patient_id = ?"
+                      " AND recorded_at = ?";
+    SQLPARAMS_PUSH(params, "s", std::string, encounterId);
+    SQLPARAMS_PUSH(params, "s", std::string, patientId);
+
+    std::string recordedAt = recordDate;
+    if (!recordTime.empty())
+        recordedAt += " " + recordTime + ":00";
+    else if (!recordDate.empty())
+        recordedAt += " 00:00:00";
+    SQLPARAMS_PUSH(params, "s", std::string, recordedAt);
+
+    return sqlSession->executeQuery<VitalSignDO>(sql, NursingMapper(), params);
+}
+
+// ---------------------------------------------------------------------------
+// softDeleteById — soft-delete a main record; BaseDAO delete marks is_deleted
+// ---------------------------------------------------------------------------
+int NursingDAO::softDeleteById(const std::string& id)
+{
+    std::string sql = "UPDATE dia_vital_sign SET is_deleted = 1 WHERE id = ?";
+    return sqlSession->executeUpdate(sql, "%s", id);
+}
+
+// ---------------------------------------------------------------------------
+// deleteByVitalSignId — FK-based delete not covered by BaseDAO (PK-only)
+// ---------------------------------------------------------------------------
+int NursingDAO::deleteByVitalSignId(const std::string& vitalSignId)
+{
+    std::string sql = "DELETE FROM dia_vital_sign_detail WHERE vital_sign_id = ?";
+    return sqlSession->executeUpdate(sql, "%s", vitalSignId);
 }

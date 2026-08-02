@@ -24,8 +24,7 @@
 #include "domain/do/nursing/VitalSignDetailDO.h"
 #include "domain/query/nursing/NursingRecordQuery.h"
 
-// Lightweight data struct for paper-header cross-table query results.
-// DAO returns this; Service maps it to NursingRecordPaperHeaderDTO.
+
 struct PaperHeaderData
 {
     std::string inpatientNo;
@@ -38,20 +37,29 @@ struct PaperHeaderData
     std::string bedNo;
 };
 
-// Nursing record DAO — queries dia_vital_sign table (query-only per skill convention)
+
 class NursingDAO : public BaseDAO
 {
 public:
-    // Build WHERE clause from query parameters
+
     std::string queryConditionBuilder(const NursingRecordQuery::Wrapper& query, SqlParams& params);
-    // Count nursing records matching filters
+
     uint64_t count(const NursingRecordQuery::Wrapper& query);
-    // Query vital sign records by condition (ordered by recorded_at)
+
     std::list<VitalSignDO> selectByCondition(const NursingRecordQuery::Wrapper& query);
-    // Query patient/encounter info for paper header; returns raw data struct
+
     std::shared_ptr<PaperHeaderData> selectPaperHeader(const std::string& encounterId, const std::string& patientId);
-    // Batch query detail rows by parent vital-sign IDs
+
     std::list<VitalSignDetailDO> selectByVitalSignIds(const std::list<std::string>& ids);
+
+    uint64_t countByBusNoPrefix(const std::string& prefix);
+
+    std::list<VitalSignDO> selectBySlot(const std::string& encounterId, const std::string& patientId,
+                                         const std::string& recordDate, const std::string& recordTime);
+
+    int softDeleteById(const std::string& id);
+
+    int deleteByVitalSignId(const std::string& vitalSignId);
 };
 
 #endif // !_NURSING_DAO_

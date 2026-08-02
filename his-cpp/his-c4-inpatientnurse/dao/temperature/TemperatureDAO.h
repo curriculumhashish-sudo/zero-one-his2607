@@ -23,37 +23,36 @@
 #include "domain/do/nursing/VitalSignDO.h"
 #include "domain/do/nursing/VitalSignDetailDO.h"
 
-// Temperature sheet DAO — queries dia_vital_sign with type_enum = 'TEMPERATURE_SHEET'
-// Follows skill convention: query-only; insert/update/delete use BaseDAO directly.
+
 class TemperatureDAO : public BaseDAO
 {
 private:
-    // Build WHERE clause for date-range queries
+
     std::string queryConditionBuilder(const std::string& encounterId, const std::string& patientId,
                                       const std::string& dateFrom, const std::string& dateTo,
                                       SqlParams& params);
-    // Build WHERE clause for slot-level lookup (date + time-slot)
+
     std::string slotConditionBuilder(const std::string& encounterId, const std::string& patientId,
                                      const std::string& recordDate, const std::string& timeSlot,
                                      SqlParams& params);
 public:
-    // Count temperature sheet records in date range
+
     uint64_t count(const std::string& encounterId, const std::string& patientId,
                    const std::string& dateFrom, const std::string& dateTo);
-    // Query vital sign records by condition (ordered by recorded_at ASC)
+
     std::list<VitalSignDO> selectByCondition(const std::string& encounterId, const std::string& patientId,
                                               const std::string& dateFrom, const std::string& dateTo);
-    // Check if a record exists for given encounter+patient+date+timeslot
+
     bool existsBySlot(const std::string& encounterId, const std::string& patientId,
                       const std::string& recordDate, const std::string& timeSlot);
-    // Find records by encounter+patient+date+timeslot
+
     std::list<VitalSignDO> selectBySlot(const std::string& encounterId, const std::string& patientId,
                                          const std::string& recordDate, const std::string& timeSlot);
-    // Count records matching a bus_no prefix (used by Service for sequence generation)
+
     uint64_t countByBusNoPrefix(const std::string& prefix);
-    // Batch query detail rows by parent vital-sign IDs
+
     std::list<VitalSignDetailDO> selectByVitalSignIds(const std::list<std::string>& ids);
-    // Delete details by vital sign ID (FK-based delete — BaseDAO only supports PK deletes)
+
     int deleteByVitalSignId(const std::string& vitalSignId);
 };
 
