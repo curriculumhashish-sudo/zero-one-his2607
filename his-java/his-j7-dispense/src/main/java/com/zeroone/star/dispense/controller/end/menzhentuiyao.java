@@ -3,6 +3,7 @@ package com.zeroone.star.dispense.controller.end;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zeroone.star.dispense.service.IOutpatientRefundService;
 import com.zeroone.star.project.dto.j7.dispense.DispenseVerifyDTO;
+import com.zeroone.star.project.dto.j7.pharmacy.ReturnRejectDTO;
 import com.zeroone.star.project.query.j7.dispense.PatientDrugItemQuery;
 import com.zeroone.star.project.query.j7.dispense.PatientQueueQuery;
 import com.zeroone.star.project.vo.JsonVO;
@@ -101,5 +102,14 @@ public class menzhentuiyao {
         } catch (IllegalArgumentException e) {
             return JsonVO.fail(e.getMessage());
         }
+    }
+
+    // ==================== 门诊拒绝退药流程 ====================
+    // 步骤：查询退药患者队列 → 查看退药明细 → 执行拒绝退药
+    @Operation(summary = "执行拒绝退药", description = "更新退药申请单状态为已拒绝，并记录拒绝原因")
+    @PostMapping("/reject-return")
+    public JsonVO<String> rejectReturn(@RequestBody ReturnRejectDTO dto) {
+        outpatientRefundService.rejectReturn(dto);
+        return JsonVO.success("拒绝退药成功");
     }
 }

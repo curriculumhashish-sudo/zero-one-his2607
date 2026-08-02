@@ -9,7 +9,10 @@ import com.zeroone.star.dispense.entity.MedMedicationDispense;
 import com.zeroone.star.dispense.mapper.InventoryItemMapper;
 import com.zeroone.star.dispense.mapper.MedMedicationDispenseMapper;
 import com.zeroone.star.dispense.service.IOutpatientRefundService;
+import com.zeroone.star.pharmacy.entity.WkfSupplyRequest;
+import com.zeroone.star.pharmacy.mapper.WkfSupplyRequestMapper;
 import com.zeroone.star.project.dto.j7.dispense.DispenseVerifyDTO;
+import com.zeroone.star.project.dto.j7.pharmacy.ReturnRejectDTO;
 import com.zeroone.star.project.query.j7.dispense.PatientDrugItemQuery;
 import com.zeroone.star.project.query.j7.dispense.PatientQueueQuery;
 import com.zeroone.star.project.vo.j7.dispense.PatientDrugItemVO;
@@ -173,5 +176,28 @@ public class OutpatientRefundServiceImpl implements IOutpatientRefundService {
             throw new RuntimeException("以下记录退药失败（已退药或数量异常）：" + String.join(",", failedIds));
         }
         return "退药成功";
+    }
+
+    /**
+     * 执行拒绝退药
+     * <p>
+     * 更新 wkf_supply_request 表：设置状态为"已拒绝"，记录拒绝原因。
+     * 同时校验退药类型为"门诊退药"，确保不会误操作住院退药。
+     * </p>
+     *
+     * @param dto 拒绝退药参数
+     */
+    @Resource
+    private WkfSupplyRequestMapper wkfSupplyRequestMapper;
+    @Override
+    @Transactional
+    public void rejectReturn(ReturnRejectDTO dto) {
+        wkfSupplyRequestMapper.update(null,
+                new LambdaUpdateWrapper<WkfSupplyRequest>()
+                        .eq(WkfSupplyRequest::getId, dto.getReturnId())
+                        .eq(WkfSupplyRequest::getTypeEnum, "RETURN_OUTPATIENT")
+                        .set(WkfSupplyRequest::getStatusEnum, "REJECTED")
+                        .set(WkfSupplyRequest::getReason, dto.getRejectReason())
+        );
     }
 }

@@ -1,4 +1,4 @@
-package com.zeroone.star.project.dto.j7.pharmacy;
+package com.zeroone.star.project.dto.j7.dispense;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -25,7 +25,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema(description = "住院发药驳回DTO")
-public class DispensingRejectDTO {
+public class DispenseRejectDTO {
     @Schema(description = "患者ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String patientId;
 
