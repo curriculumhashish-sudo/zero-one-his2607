@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.statdata.mapper.AdmEncounterMapper">
+
+    <!-- 门诊日趋势（按天分组） -->
+    <select id="getWeekData" resultType="com.zeroone.star.project.vo.j8.statdata.TrendPointVO">
+        SELECT DATE(e.start_time) AS label,
+               COUNT(*)            AS value
+        FROM adm_encounter e
+        WHERE e.is_deleted = 0
+          AND e.class_enum = 'AMB'
+          AND e.start_time &gt;= #{dateFrom}
+          AND e.start_time &lt; #{dateTo}
+        <if test="organizationId != null and organizationId != ''">
+          AND e.organization_id = #{organizationId}
+        </if>
+        GROUP BY DATE(e.start_time)
+        ORDER BY label
+    </select>
+
+    <!-- 门诊月趋势原始日数据（Service 层拼区间） -->
+    <select id="getMonthData" resultType="com.zeroone.star.project.vo.j8.statdata.TrendPointVO">
+        SELECT DATE(e.start_time) AS label,
+               COUNT(*)            AS value
+        FROM adm_encounter e
+        WHERE e.is_deleted = 0
+          AND e.class_enum = 'AMB'
+          AND e.start_time &gt;= #{dateFrom}
+          AND e.start_time &lt; #{dateTo}
+        <if test="organizationId != null and organizationId != ''">
+          AND e.organization_id = #{organizationId}
+        </if>
+        GROUP BY DATE(e.start_time)
+        ORDER BY label
+    </select>
+
+    <!-- 门诊患者疾病类型分布 -->
+    <select id="getDiseaseDistribution" resultType="com.zeroone.star.project.vo.j8.statdata.DistributionItemVO">
+        SELECT IF(d.description IS NULL OR d.description = '', '其他症状', d.description) AS name,
+               COUNT(DISTINCT e.patient_id)                                               AS value
+        FROM adm_encounter e
+        JOIN adm_encounter_diagnosis d ON e.id = d.encounter_id
+        WHERE e.is_deleted = 0
+          AND d.is_deleted = 0
+          AND e.class_enum = 'AMB'
+          AND e.start_time &gt;= #{dateFrom}
+          AND e.start_time &lt; #{dateTo}
+        <if test="organizationId != null and organizationId != ''">
+          AND e.organization_id = #{organizationId}
+        </if>
+        GROUP BY IF(d.description IS NULL OR d.description = '', '其他症状', d.description)
+        ORDER BY value DESC
+    </select>
+
+</mapper>

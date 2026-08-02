@@ -1,11 +1,11 @@
 package com.zeroone.star.project.j8.setroster;
 
 
-import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotReleaseStrategyAddDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotReleaseStrategyDTO;
-import com.zeroone.star.project.dto.j8.setroster.SlotReleaseStrategyDetailDTO;
+import com.zeroone.star.project.dto.j8.setroster.SlotReleaseStrategyIdVO;
 import com.zeroone.star.project.dto.j8.setroster.SlotReleaseStrategyModifyDTO;
+import com.zeroone.star.project.dto.j8.setroster.SlotReleaseStrategyPageVO;
 import com.zeroone.star.project.query.j8.setroster.SlotReleaseStrategyQuery;
 import com.zeroone.star.project.vo.JsonVO;
 
@@ -19,49 +19,42 @@ import com.zeroone.star.project.vo.JsonVO;
  * @author 余悸
  * @version 1.0.0
  */
-
 public interface SlotReleaseStrategyApis {
+
     /**
-     * 查询所有放号策略
+     * 获取放号策略列表（条件+分页）
      * @param query 查询条件
-     * @return 放号策略列表
+     * @return 放号策略分页列表
      */
-    JsonVO<PageDTO<SlotReleaseStrategyDTO>>querySlotReleaseStrategies(SlotReleaseStrategyQuery query);
-
+    JsonVO<SlotReleaseStrategyPageVO<SlotReleaseStrategyDTO>> querySlotReleaseStrategies(
+            SlotReleaseStrategyQuery query);
 
     /**
-     * 查询放号策略详情
-     * @param id 查询条件
-     * @return 放号策略详情
+     * 获取放号策略名称
+     * @param query 查询条件
+     * @return 放号策略分页列表
      */
-    JsonVO<SlotReleaseStrategyDetailDTO> getSlotReleaseStrategy(Long id);
-
-
-
-
+    JsonVO<SlotReleaseStrategyPageVO<SlotReleaseStrategyDTO>> querySlotReleaseStrategyNames(
+            SlotReleaseStrategyQuery query);
 
     /**
-     * 添加放号策略
-     * @param addDTO 添加条件
-     * @return 添加结果
+     * 新建放号策略
+     * @param addDTO 新建参数
+     * @return 新建结果（含ID）
      */
-    JsonVO<String> addSlotReleaseStrategy(SlotReleaseStrategyAddDTO addDTO);
-
+    JsonVO<SlotReleaseStrategyIdVO> addSlotReleaseStrategy(SlotReleaseStrategyAddDTO addDTO);
 
     /**
      * 修改放号策略
-      * @param modifyDTO 修改条件
-     * @return 修改结果
+     * @param modifyDTO 修改参数
+     * @return 修改结果（含ID）
      */
-    JsonVO<String> modifySlotReleaseStrategy(
-        SlotReleaseStrategyModifyDTO modifyDTO);
-
+    JsonVO<SlotReleaseStrategyIdVO> modifySlotReleaseStrategy(SlotReleaseStrategyModifyDTO modifyDTO);
 
     /**
      * 删除放号策略
-     * @param id 删除条件
+     * @param id 策略ID
      * @return 删除结果
      */
-    JsonVO<String> deleteSlotReleaseStrategy(Long id);
-
+    JsonVO<String> deleteSlotReleaseStrategy(String id);
 }
