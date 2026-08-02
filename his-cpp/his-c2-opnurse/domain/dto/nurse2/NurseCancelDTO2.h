@@ -29,13 +29,13 @@ class NurseCancelDTO2 : public oatpp::DTO
 {
 	DTO_INIT(NurseCancelDTO2, DTO);
 
-	// Encounter ID (必须)
+	// Encounter ID (required)
 	API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("nurse2.field.encounter_id"), true);
-	// Service request item ID to cancel (必须)
+	// Service request item ID to cancel (required)
 	API_DTO_FIELD_REQUIRE(String, itemId, ZH_WORDS_GETTER("nurse2.field.item_id"), true);
-	// 取消原因
+	// Cancel reason (required)
 	API_DTO_FIELD_REQUIRE(String, cancelReason, ZH_WORDS_GETTER("nurse2.field.cancel_reason"), true);
-	//乐观锁版本
+	// Optimistic lock version (optional)
 	API_DTO_FIELD_REQUIRE(Int32, version, ZH_WORDS_GETTER("nurse2.field.version"), false);
 };
 

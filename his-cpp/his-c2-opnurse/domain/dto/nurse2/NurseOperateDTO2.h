@@ -24,22 +24,22 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-// ִ执行 DTO
+// Execute operation DTO
 class NurseOperateDTO2 : public oatpp::DTO
 {
 	DTO_INIT(NurseOperateDTO2, DTO);
 
-	// encounterID
+	// Encounter ID (required)
 	API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("nurse2.field.encounter_id"), true);
-	// itemid
+	// Service request item ID to execute (required)
 	API_DTO_FIELD_REQUIRE(String, itemId, ZH_WORDS_GETTER("nurse2.field.item_id"), true);
-	// 状态
+	// Target execution status (optional, default COMPLETED)
 	API_DTO_FIELD_REQUIRE(String, state, ZH_WORDS_GETTER("nurse2.field.state"), false);
-	// ִ数量
+	// Execution count (optional)
 	API_DTO_FIELD_REQUIRE(Int32, amount, ZH_WORDS_GETTER("nurse2.field.amount"), false);
-	// 版本
+	// Optimistic lock version (optional)
 	API_DTO_FIELD_REQUIRE(Int32, version, ZH_WORDS_GETTER("nurse2.field.version"), false);
-	// 幂等键
+	// Idempotency key (optional, prevents duplicate execution on retry)
 	API_DTO_FIELD_REQUIRE(String, idempotencyKey, ZH_WORDS_GETTER("nurse2.field.idempotency_key"), false);
 };
 
