@@ -1,28 +1,34 @@
-/*
- Copyright Zero One Star. All rights reserved.
-
- @Author: ovo
- @Date: 2026/07/20
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
-      https://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-*/
 #include "stdafx.h"
 #include "SettleController.h"
 
-SettleJsonVO::Wrapper SettleController::execSettle(const SettleRequestDTO::Wrapper& dto)
-{
-	(void)dto;
+#include <stdexcept>
+#include <string>
+
+#include "service/settle/SettleService.h"
+#include "service/settle/SettlementValidator.h"
+
+SettleJsonVO::Wrapper SettleController::execSettle(
+	const SettleRequestDTO::Wrapper &dto,
+	const PayloadDTO &payload) {
 	auto vo = SettleJsonVO::createShared();
-	vo->success(SettleResultDTO::createShared());
+	const std::string validationMessage =
+		SettlementValidator::validateSettleRequest(dto);
+	if (!validationMessage.empty()) {
+		vo->init(nullptr, ResultStatus(validationMessage, 9995));
+		return vo;
+	}
+
+	try {
+		vo->success(SettleService().settle(dto, payload));
+	}
+	catch (const std::invalid_argument &exception) {
+		vo->init(nullptr, ResultStatus(exception.what(), 9995));
+	}
+	catch (const std::logic_error &exception) {
+		vo->init(nullptr, ResultStatus(exception.what(), 9999));
+	}
+	catch (const std::exception &) {
+		vo->init(nullptr, ResultStatus(ZH_WORDS_GETTER("ovo.charging.settle.settle_failed"), 9994));
+	}
 	return vo;
 }

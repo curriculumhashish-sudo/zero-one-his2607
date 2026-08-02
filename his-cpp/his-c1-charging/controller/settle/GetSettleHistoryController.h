@@ -1,22 +1,5 @@
 #pragma once
-/*
- Copyright Zero One Star. All rights reserved.
 
- @Author: ovo
- @Date: 2026/07/20
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
-      https://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-*/
 #ifndef _GET_SETTLE_HISTORY_CONTROLLER_H_
 #define _GET_SETTLE_HISTORY_CONTROLLER_H_
 
@@ -28,31 +11,22 @@
 
 #define API_TAG ZH_WORDS_GETTER("charging.settle.tag")
 
-class GetSettleHistoryController : public oatpp::web::server::api::ApiController
-{
+class GetSettleHistoryController : public oatpp::web::server::api::ApiController {
 	API_ACCESS_DECLARE(GetSettleHistoryController);
 
 public:
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(
-		ZH_WORDS_GETTER("ovo.charging.settle.GetSettleHistory.summary"),
-		getSettleHistory,
-		GetSettleHistoryQuery,
-		GetSettleHistoryJsonVO::Wrapper,
-		API_TAG);
+		ZH_WORDS_GETTER("ovo.charging.settle.get_settle_history_summary"), getSettleHistory, GetSettleHistoryQuery, GetSettleHistoryJsonVO::Wrapper, API_TAG);
 
 	API_HANDLER_ENDPOINT_QUERY_AUTH(
-		API_M_GET,
-		"/charging/settle/gethistory",
-		getSettleHistory,
-		GetSettleHistoryQuery,
-		execGetSettleHistory(query));
+		API_M_GET, "/charging/settle/gethistory", getSettleHistory, GetSettleHistoryQuery, execGetSettleHistory(query));
 
 private:
-	GetSettleHistoryJsonVO::Wrapper execGetSettleHistory(const GetSettleHistoryQuery::Wrapper& query);
+	GetSettleHistoryJsonVO::Wrapper execGetSettleHistory(const GetSettleHistoryQuery::Wrapper &query);
 };
 
 #undef API_TAG
 
 #include OATPP_CODEGEN_END(ApiController)
 
-#endif // !_GET_SETTLE_HISTORY_CONTROLLER_H_
+#endif
