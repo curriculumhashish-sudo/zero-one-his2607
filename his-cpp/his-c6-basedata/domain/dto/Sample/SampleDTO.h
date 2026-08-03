@@ -52,6 +52,14 @@ class SampleDTO : public oatpp::DTO
 	API_DTO_FIELD_DEFAULT(String, status_enum, "status_enum");
 };
 
+class SampleNameDTO : public oatpp::DTO
+{
+	DTO_INIT(SampleNameDTO, DTO);
+
+	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("sample.field.id"), true);
+	API_DTO_FIELD_REQUIRE(String, name, "name", true);
+};
+
 using SampleFullSelectDTO = SampleDTO;
 
 class SamplePageDTO : public oatpp::DTO

@@ -5,16 +5,19 @@
 #include <random>
 #include <sstream>
 
-std::list<SampleDTO::Wrapper> SampleService::listSampleNames(const SampleNameQuery::Wrapper& query) const
+std::list<SampleNameDTO::Wrapper> SampleService::listSampleNames(const SampleNameQuery::Wrapper& query) const
 {
 	SampleDAO dao;
 	const auto keyword = query ? toStdString(query->keyword) : std::string();
 	const auto rows = dao.selectByKeyword(keyword, 0, 100);
 
-	std::list<SampleDTO::Wrapper> result;
+	std::list<SampleNameDTO::Wrapper> result;
 	for (const auto& row : rows)
 	{
-		result.push_back(toSampleDTO(row));
+		auto dto = SampleNameDTO::createShared();
+		dto->id = row->getId().c_str();
+		dto->name = row->getName().c_str();
+		result.push_back(dto);
 	}
 	return result;
 }

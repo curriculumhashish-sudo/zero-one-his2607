@@ -33,7 +33,7 @@
 class SampleService
 {
 public:
-	std::list<SampleDTO::Wrapper> listSampleNames(const SampleNameQuery::Wrapper& query) const;
+	std::list<SampleNameDTO::Wrapper> listSampleNames(const SampleNameQuery::Wrapper& query) const;
 	SamplePageDTO::Wrapper listSamplePage(const SampleQuery::Wrapper& query) const;
 	void addSample(const SampleAddDTO::Wrapper& dto) const;
 	void editSample(const SampleEditDTO::Wrapper& dto) const;

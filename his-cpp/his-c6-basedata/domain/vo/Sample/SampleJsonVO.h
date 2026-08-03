@@ -30,9 +30,9 @@ class SampleJsonVO : public JsonVO<SampleDTO::Wrapper>
 	DTO_INIT(SampleJsonVO, JsonVO<SampleDTO::Wrapper>);
 };
 
-class SampleListJsonVO : public ListJsonVO<SampleDTO::Wrapper>
+class SampleListJsonVO : public ListJsonVO<SampleNameDTO::Wrapper>
 {
-	DTO_INIT(SampleListJsonVO, ListJsonVO<SampleDTO::Wrapper>);
+	DTO_INIT(SampleListJsonVO, ListJsonVO<SampleNameDTO::Wrapper>);
 };
 
 class SamplePageJsonVO : public JsonVO<SamplePageDTO::Wrapper>
