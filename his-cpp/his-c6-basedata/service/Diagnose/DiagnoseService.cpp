@@ -296,12 +296,12 @@ std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
 		MedicalInsuranceMatch, medicalInsuranceMatch,
 		PinyinCode, pinyinCode,
 		WubiCode, wubiCode,
-		Remark, remark,
-		CatName, catName
+		Remark, remark
+		//CatName, catName
 		//,TenantId,tenantId//前端可以不传，从redis中拿取
 		, Source_enum, source_enum  //前端可以不传，用catName也就是诊断目录名去mongodb找来源枚举值插入
 	);
-
+	data.setSource_enum(dto->catName);//如果不走mongodb查询，那么诊断目录就是来源枚举值
 	UuidFacade uuidFacade;
 	data.setId(uuidFacade.genUuid());
 	data.setCreateBy(dto->getPayload()->getUsername());
