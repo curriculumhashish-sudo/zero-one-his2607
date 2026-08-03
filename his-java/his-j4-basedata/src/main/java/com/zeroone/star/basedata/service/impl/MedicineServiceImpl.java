@@ -194,13 +194,18 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public MedicineDetailDTO queryMedicineDetailById(String id) { //TODO 调用频次管理接口，调用编码管理接口消除硬编码
+    public MedicineDetailDTO queryMedicineDetailById(String id) {
+        //获取租户id
+        String tenantId = userHolder.getCurrentTenantId();
+
         MedMedicationDefinitionDO medicationDefinitionDO = baseMapper.selectById(id);
         //获取与id值关联的AdmChargeItemDefinitionDO列表
         QueryWrapper<AdmChargeItemDefinitionDO> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda()
                 .eq(AdmChargeItemDefinitionDO::getInstanceTable,"med_medication_definition")
-                .eq(AdmChargeItemDefinitionDO::getInstanceId,id);
+                .eq(AdmChargeItemDefinitionDO::getInstanceId,id)
+                .eq(AdmChargeItemDefinitionDO::getTenantId,tenantId);//补充租户条件
+
         List<AdmChargeItemDefinitionDO> chargeItemDefinitionDOS = chargeItemMapper.selectList(queryWrapper);
         if(medicationDefinitionDO == null||chargeItemDefinitionDOS ==null||chargeItemDefinitionDOS.isEmpty()){
             return null;
@@ -233,9 +238,16 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int updateMedicine(MedicineDetailDTO dto) {//TODO 调用编码管理接口消除硬编码
+    public int updateMedicine(MedicineDetailDTO dto) {
+        //获取租户id
+        String tenantId = userHolder.getCurrentTenantId();
+
         MedMedicationDefinitionDO definitionDO = msMedicineMapper.detailDtoToEntity(dto);
-        int i = baseMapper.updateById(definitionDO);
+        UpdateWrapper<MedMedicationDefinitionDO> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.lambda()
+                .eq(MedMedicationDefinitionDO::getTenantId,tenantId)
+                .eq(MedMedicationDefinitionDO::getId,definitionDO.getId());
+        int i = baseMapper.update(definitionDO, updateWrapper);
         if(i==0) log.debug("definition表未更新");
 
         if (dto.getPurchasePrice() != null) {
@@ -244,6 +256,7 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
                     .eq(AdmChargeItemDefinitionDO::getInstanceTable, "med_medication_defination")
                     .eq(AdmChargeItemDefinitionDO::getInstanceId, dto.getId())
                     .eq(AdmChargeItemDefinitionDO::getPriceTypeCode, "PURCHASE")
+                    .eq(AdmChargeItemDefinitionDO::getTenantId,tenantId) //补充租户id条件
                     .set(AdmChargeItemDefinitionDO::getPriceValue, dto.getPurchasePrice());
             chargeItemMapper.update(null, purchaseWrapper);
         }
@@ -254,6 +267,7 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
                     .eq(AdmChargeItemDefinitionDO::getInstanceTable, "med_medication_defination")
                     .eq(AdmChargeItemDefinitionDO::getInstanceId, dto.getId())
                     .eq(AdmChargeItemDefinitionDO::getPriceTypeCode, "SALE")
+                    .eq(AdmChargeItemDefinitionDO::getTenantId,tenantId) //补充租户id条件
                     .set(AdmChargeItemDefinitionDO::getPriceValue, dto.getRetailPrice());
             chargeItemMapper.update(null, saleWrapper);
         }
@@ -264,6 +278,7 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
                     .eq(AdmChargeItemDefinitionDO::getInstanceTable, "med_medication_defination")
                     .eq(AdmChargeItemDefinitionDO::getInstanceId, dto.getId())
                     .eq(AdmChargeItemDefinitionDO::getPriceTypeCode, "LIMIT")
+                    .eq(AdmChargeItemDefinitionDO::getTenantId,tenantId) //补充租户id条件
                     .set(AdmChargeItemDefinitionDO::getPriceValue, dto.getMaxRetailPrice());
             chargeItemMapper.update(null, limitWrapper);
         }
@@ -283,19 +298,21 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
     @Override
     @Transactional(rollbackFor = Exception.class)
     public MedicineDeleteResultDTO deleteMedicine(MedicineDeleteDTO dto) {
-        //软删除
-
+        //获取租户id
+        String tenantId = userHolder.getCurrentTenantId();
 
         List<String> ids = dto.getIds();
         //查出所有有关联的id
         LambdaQueryWrapper<MedMedicationDispenseDO> dispenseWrapper = new LambdaQueryWrapper<>();
-        dispenseWrapper.in(MedMedicationDispenseDO::getMedicationId,ids);
+        dispenseWrapper.in(MedMedicationDispenseDO::getMedicationId,ids)
+                .eq(MedMedicationDispenseDO::getTenantId,tenantId);//补充租户条件
         Set<String> dispenseIds = dispenseMapper.selectList(dispenseWrapper).stream()
                 .map(MedMedicationDispenseDO::getMedicationId)
                 .collect(Collectors.toSet());
 
         LambdaQueryWrapper<MedMedicationRequestDO> requestWrapper = new LambdaQueryWrapper<>();
-        requestWrapper.in(MedMedicationRequestDO::getMedicationId,ids);
+        requestWrapper.in(MedMedicationRequestDO::getMedicationId,ids)
+                .eq(MedMedicationRequestDO::getTenantId,tenantId);//补充租户条件
         Set<String> requestIds = requestMapper.selectList(requestWrapper).stream()
                 .map(MedMedicationRequestDO::getMedicationId)
                 .collect(Collectors.toSet());
@@ -320,7 +337,10 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
 
         //删除满足条件的ids
         if (!deleteIds.isEmpty()){
-            int i = baseMapper.deleteByIds(deleteIds);
+            LambdaQueryWrapper<MedMedicationDefinitionDO> deleteWrapper = new LambdaQueryWrapper<>();
+            deleteWrapper.in(MedMedicationDefinitionDO::getId,deleteIds)
+                    .eq(MedMedicationDefinitionDO::getTenantId,tenantId);//补充租户条件
+            int i = baseMapper.delete(deleteWrapper);
             successCount = i;
         }
         return new MedicineDeleteResultDTO(successCount, failIds.size(), failIds);
@@ -331,15 +351,18 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
     public int updateChangeMedicineStatus(
             int status,
             MedicineChangeStatusDTO dto) {
+        //获取租户id
+        String tenantId = userHolder.getCurrentTenantId();
         int count = 0;
         List<String> ids = dto.getIds();
 
         LambdaUpdateWrapper<MedMedicationDefinitionDO> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.in(MedMedicationDefinitionDO::getId,ids)
                 .ne(MedMedicationDefinitionDO::getActiveFlag,status)
-                .set(MedMedicationDefinitionDO::getActiveFlag,status);
+                .set(MedMedicationDefinitionDO::getActiveFlag,status)
+                .eq(MedMedicationDefinitionDO::getTenantId,tenantId);//补充租户条件
 
-        return baseMapper.update(updateWrapper);
+        return baseMapper.update(null,updateWrapper);
 
     }
 }

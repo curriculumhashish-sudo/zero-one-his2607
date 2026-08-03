@@ -20,6 +20,14 @@ import lombok.Data;
 public class DiagnosisSaveDTO {
 
     /**
+     * 病情编码，格式如 CDF00000001，由前端生成
+     */
+    @NotBlank(message = "病情编码不能为空")
+    @Size(max = 50, message = "病情编码长度不能超过50个字符")
+    @Schema(description = "病情编码，格式如 CDF00000001", example = "CDF00000001", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String conditionCode;
+
+    /**
      * 来源枚举：general_dx(西医) / tcm_dx(中医) / tcm_syndrome(中医证候)
      */
     @NotBlank(message = "来源枚举不能为空")

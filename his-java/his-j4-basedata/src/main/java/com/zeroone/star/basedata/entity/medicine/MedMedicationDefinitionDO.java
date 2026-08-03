@@ -1,9 +1,7 @@
 package com.zeroone.star.basedata.entity.medicine;
 
 import com.baomidou.mybatisplus.annotation.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
