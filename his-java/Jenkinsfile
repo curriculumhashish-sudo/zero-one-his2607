@@ -1,0 +1,108 @@
+pipeline {
+    agent any
+
+    tools {
+        jdk 'jdk17'
+        maven 'maven3'
+    }
+
+    environment {
+        GIT_CREDENTIAL_ID  = 'codeup-credentials'
+    }
+
+    options {
+        timestamps()
+        timeout(time: 30, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
+    stages {
+
+        stage('拉取代码') {
+            steps {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/j5']],
+                    userRemoteConfigs: [[
+                        url: 'https://codeup.aliyun.com/zero-one-star/zero-awei/zero-one-his2607.git',
+                        credentialsId: "${GIT_CREDENTIAL_ID}"
+                    ]]
+                ])
+            }
+        }
+
+        stage('Maven 打包') {
+            steps {
+                sh '''
+                    mvn clean package -DskipTests \
+                        -pl his-j5-ons,his-j5-configuration \
+                        -am \
+                        -Dmaven.test.skip=true
+                '''
+            }
+        }
+
+        stage('构建 Docker 镜像') {
+            steps {
+                sh '''
+                    docker compose build his-j5-ons his-j5-configuration
+                '''
+            }
+        }
+
+        stage('部署服务') {
+            steps {
+                sh '''
+                    docker compose down
+                    docker compose up -d
+                    echo "等待服务启动..."
+                    sleep 30
+                '''
+            }
+        }
+
+        stage('健康检查') {
+            steps {
+                sh '''
+                    for i in $(seq 1 12); do
+                        if curl -sf http://localhost:10500/actuator/health | grep -q "UP"; then
+                            echo "his-j5-ons 健康检查通过"
+                            break
+                        fi
+                        echo "等待 his-j5-ons 启动... ($i/12)"
+                        sleep 10
+                    done
+
+                    for i in $(seq 1 12); do
+                        if curl -sf http://localhost:10501/actuator/health | grep -q "UP"; then
+                            echo "his-j5-configuration 健康检查通过"
+                            break
+                        fi
+                        echo "等待 his-j5-configuration 启动... ($i/12)"
+                        sleep 10
+                    done
+
+                    curl -sf http://localhost:10500/actuator/health || exit 1
+                    curl -sf http://localhost:10501/actuator/health || exit 1
+                    echo "所有服务健康检查通过"
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '部署成功！服务地址：'
+            echo "  - his-j5-ons:           http://121.199.54.234:10500"
+            echo "  - his-j5-configuration: http://121.199.54.234:10501"
+            echo "  - Nacos 控制台:          http://121.199.54.234:8848/nacos"
+            echo "  - Jenkins:              http://121.199.54.234:8080"
+        }
+        failure {
+            echo '部署失败！请检查日志：'
+            echo '  docker compose logs his-j5-ons'
+            echo '  docker compose logs his-j5-configuration'
+            echo '  docker compose logs nacos'
+        }
+    }
+}
