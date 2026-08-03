@@ -1,12 +1,17 @@
 package com.zeroone.star.project.j8.clinics;
 
 
+//import com.zeroone.star.project.dto.j8.clinics.RetireScheduleDTO;
+import com.zeroone.star.project.dto.j8.clinics.RetireScheduleDTO;
 import com.zeroone.star.project.dto.j8.clinics.SlotBatchReleaseDTO;
 import com.zeroone.star.project.query.j8.clinics.RelSlotQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j8.clinics.ResumeScheduleVO;
 import com.zeroone.star.project.vo.j8.clinics.SlotBatchReleaseVO;
 import com.zeroone.star.project.vo.j8.clinics.SlotVO;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 
 import java.util.List;
 
@@ -26,7 +31,7 @@ public interface ScheduleApis {
      * @param query 查询参数
      * @return 响应对象
      */
-    JsonVO<List<SlotVO>> getRelNumberSource(RelSlotQuery query);
+    JsonVO<List<SlotVO>> getRelNumberSource(@Valid RelSlotQuery query);
 
 
     /**
@@ -34,14 +39,14 @@ public interface ScheduleApis {
      * @param slotId 待删除的号源时段主键id
      * @return 响应对象
      */
-    JsonVO<String> deleteRelNumberSource(String slotId);
+    JsonVO<String> deleteNumberSource(@Schema(description = "号源时段主键id", example = "335659579333414912")String slotId);
 
     /**
      * 批量放号
      * @param numberSourceBatchReleaseDTO 批量待放号参数
      * @return 响应对象
      */
-    JsonVO<SlotBatchReleaseVO> batchReleaseNumberSource(SlotBatchReleaseDTO numberSourceBatchReleaseDTO);
+    JsonVO<SlotBatchReleaseVO> batchReleaseNumberSource(@Valid SlotBatchReleaseDTO numberSourceBatchReleaseDTO);
 
 
     /**
@@ -53,8 +58,8 @@ public interface ScheduleApis {
 
     /**
      * 作废日程
-     * @param scheduleId 排班id
+     * @param retireScheduleDTO
      * @return 响应对象
      */
-    JsonVO<String> retireSchedule(String scheduleId);
+    JsonVO<String> retireSchedule(@Valid RetireScheduleDTO retireScheduleDTO);
 }

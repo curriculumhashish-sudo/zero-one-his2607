@@ -26,7 +26,7 @@ public class SlotDTO {
     @Schema(description = "日程主键", example = "329700000000000001")
     private String scheduleId;
 
-    @Schema(description = "科室主键", example = "322663218269917186")
+    @Schema(description = "科室主键", example = "322663218269917184")
     private String organizationId;
 
     @Schema(description = "医师主键", example = "322663218269917187")

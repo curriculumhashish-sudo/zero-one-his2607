@@ -42,8 +42,8 @@ public class MinXiDTO {
     @Schema(description = "患者姓名（来源 adm_patient.name，如 小赵）")
     private String patientName;
 
-    @Schema(description = "挂号科室（来源 adm_organization.name，如 门诊内科）")
-    private String deptName;
+    @Schema(description = "挂号科室名称（来源 adm_organization.name，如 门诊内科）")
+    private String registrationDepartmentName;
 
     @Schema(description = "就诊日期（格式 yyyy-MM-dd，来源 adm_encounter.start_time 挂号/就诊开始时间 截取日期）")
     private String encounterDate;

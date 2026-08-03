@@ -7,11 +7,11 @@ import lombok.Data;
 @Schema(description = "替诊信息")
 public class SubstituteDTO {
     @Schema(description = "排班日程ID", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long scheduleId;
+    private String scheduleId;
 
     @Schema(description = "替诊医师ID", example = "100", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long substitutePractitionerId;
+    private String substitutePractitionerId;
 
     @Schema(description = "替诊原因", example = "医师请假")
-    private String substituteReason;
+    private String reason;
 }

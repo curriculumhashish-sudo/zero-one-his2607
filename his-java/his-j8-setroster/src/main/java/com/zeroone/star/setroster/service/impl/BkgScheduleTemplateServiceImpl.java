@@ -6,11 +6,12 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zeroone.star.project.components.user.UserDTO;
 import com.zeroone.star.project.components.user.UserHolder;
-import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j8.setroster.AddDailyScheduleDTO;
 import com.zeroone.star.project.dto.j8.setroster.DailyScheduleDTO;
+import com.zeroone.star.project.query.j8.setroster.DailyScheduleOptionQuery;
 import com.zeroone.star.project.query.j8.setroster.DailyScheduleQuery;
-import com.zeroone.star.project.vo.j8.setroster.DailyScheduleOptionVO;
+import com.zeroone.star.project.vo.j8.setroster.DailySchedulePageVO;
+import com.zeroone.star.project.vo.j8.setroster.DailyScheduleVO;
 import com.zeroone.star.setroster.entity.BkgScheduleTemplate;
 import com.zeroone.star.setroster.mapper.BkgScheduleTemplateMapper;
 import com.zeroone.star.setroster.service.IBkgScheduleTemplateService;
@@ -21,7 +22,6 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * <p>
@@ -44,25 +44,47 @@ public class BkgScheduleTemplateServiceImpl extends ServiceImpl<BkgScheduleTempl
      * @return 排班日模板选项列表
      */
     @Override
-    public List<DailyScheduleOptionVO> listOptions(String organizationId) {
-        var query = lambdaQuery().eq(BkgScheduleTemplate::getEnabled, true);
-        if (StringUtils.hasText(organizationId)) {
-            query.and(w -> w.eq(BkgScheduleTemplate::getOrganizationId, organizationId)
+    public DailySchedulePageVO<DailyScheduleVO> listDailyScheduleOptions(DailyScheduleOptionQuery query) {
+        long pageIndex = query.getPageIndex() != null ? query.getPageIndex() : 1;
+        long pageSize = query.getPageSize() != null ? query.getPageSize() : 200;
+
+        Page<BkgScheduleTemplate> page = new Page<>(pageIndex, pageSize);
+        LambdaQueryWrapper<BkgScheduleTemplate> lqw = new LambdaQueryWrapper<>();
+        lqw.eq(BkgScheduleTemplate::getEnabled, true);
+
+        if (StringUtils.hasText(query.getOrganizationId())) {
+            lqw.and(w -> w.eq(BkgScheduleTemplate::getOrganizationId, query.getOrganizationId())
                     .or().isNull(BkgScheduleTemplate::getOrganizationId));
         }
-        return query.orderByAsc(BkgScheduleTemplate::getTemplateName)
-                .list().stream()
-                .map(convert::toOptionVo)
-                .toList();
+        String kw = query.getKeyword();
+        if (StringUtils.hasText(kw)) {
+            lqw.and(wrapper -> wrapper
+                    .like(BkgScheduleTemplate::getTemplateCode, kw)
+                    .or()
+                    .like(BkgScheduleTemplate::getTemplateName, kw));
+        }
+        lqw.last("ORDER BY `template_name` ASC");
+
+        Page<BkgScheduleTemplate> result = baseMapper.selectPage(page, lqw);
+
+        DailySchedulePageVO<DailyScheduleVO> vo = new DailySchedulePageVO<>();
+        vo.setPageIndex(result.getCurrent());
+        vo.setPageSize(result.getSize());
+        vo.setTotalCount(result.getTotal());
+        vo.setContent(result.getRecords().stream()
+                .map(convert::toVo)
+                .toList());
+        return vo;
     }
 
     /**
      * 分页获取排班日模板列表(条件+分页)
+     *
      * @param query 查询参数
      * @return 排班日模板列表
      */
     @Override
-    public PageDTO<DailyScheduleDTO> pageDailySchedule(DailyScheduleQuery query) {
+    public DailySchedulePageVO<DailyScheduleVO> pageDailySchedule(DailyScheduleQuery query) {
         //1 构造分页对象
         Page<BkgScheduleTemplate> page = new Page<>(query.getPageIndex(), query.getPageSize());
 
@@ -83,7 +105,17 @@ public class BkgScheduleTemplateServiceImpl extends ServiceImpl<BkgScheduleTempl
 
         //3 执行查询
         Page<BkgScheduleTemplate> result = baseMapper.selectPage(page, lqw);
-        return PageDTO.create(result, convert::toDto);
+
+        //4 手动转换为 DailySchedulePageVO<DailyScheduleVO>
+        DailySchedulePageVO<DailyScheduleVO> vo = new DailySchedulePageVO<>();
+        vo.setPageIndex(result.getCurrent());
+        vo.setPageSize(result.getSize());
+        vo.setTotalCount(result.getTotal());
+        vo.setContent(result.getRecords().stream()
+                    .map(convert::toVo)
+                    .toList());
+
+        return vo;
 
     }
 

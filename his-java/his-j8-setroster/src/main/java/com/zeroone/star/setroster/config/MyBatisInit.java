@@ -32,21 +32,26 @@ public class MyBatisInit {
         return new MetaObjectHandler() {
             @Override
             public void insertFill(MetaObject metaObject) {
-                this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
+                // 新增时填充创建时间和创建人
+                this.strictInsertFill(metaObject, "createdAt", LocalDateTime.class, LocalDateTime.now());
+                this.strictInsertFill(metaObject, "updatedAt", LocalDateTime.class, LocalDateTime.now());
                 try {
-                    this.strictInsertFill(metaObject, "createBy", String.class, userHolder.getCurrentUser().getUsername());
+                    String username = userHolder.getCurrentUser().getUsername();
+                    this.strictInsertFill(metaObject, "createdBy", String.class, username);
+                    this.strictInsertFill(metaObject, "updatedBy", String.class, username);
                 } catch (Exception e) {
-                    System.out.println(e.getMessage());
+                    // 无用户上下文时跳过，不影响主流程
                 }
             }
 
             @Override
             public void updateFill(MetaObject metaObject) {
-                this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
+                // 修改时填充更新时间和更新人
+                this.strictUpdateFill(metaObject, "updatedAt", LocalDateTime.class, LocalDateTime.now());
                 try {
-                    this.strictUpdateFill(metaObject, "updateBy", String.class, userHolder.getCurrentUser().getUsername());
+                    this.strictUpdateFill(metaObject, "updatedBy", String.class, userHolder.getCurrentUser().getUsername());
                 } catch (Exception e) {
-                    System.out.println(e.getMessage());
+                    // 无用户上下文时跳过，不影响主流程
                 }
             }
         };
