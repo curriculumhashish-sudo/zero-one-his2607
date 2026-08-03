@@ -90,7 +90,7 @@ class DrugController : public oatpp::web::server::api::ApiController
                                                         "ae65c714d48d4f34b52479f5482c0edd", true););
     API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/drug/query-by-id", queryDrugById, QUERY(String, id), execQueryById(id));
 
-    API_DEF_ENDPOINT_INFO(ZH_WORDS_GETTER("drug.v2.status.summary"), updateMedicineStatusV2,
+    API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("drug.v2.status.summary"), updateMedicineStatusV2,
                                MedicineBatchJsonVO::Wrapper, API_TAG,
                                MEDICINE_V2_BODY_SCHEMA(MedicineStatusUpdateDTO::Wrapper,
                                                        MedicineStatusUpdateDTO::createExample());
@@ -128,7 +128,7 @@ class DrugController : public oatpp::web::server::api::ApiController
         return createDtoResponse(medicineV2HttpStatus(response->code.getValue(10099)), response);
     }
 
-    API_DEF_ENDPOINT_INFO(ZH_WORDS_GETTER("drug.v2.batchDelete.summary"), batchDeleteMedicinesV2,
+    API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("drug.v2.batchDelete.summary"), batchDeleteMedicinesV2,
                                MedicineBatchJsonVO::Wrapper, API_TAG,
                                MEDICINE_V2_BODY_SCHEMA(MedicineBatchDeleteDTO::Wrapper,
                                                        MedicineBatchDeleteDTO::createExample());
@@ -166,7 +166,7 @@ class DrugController : public oatpp::web::server::api::ApiController
         return createDtoResponse(medicineV2HttpStatus(response->code.getValue(10099)), response);
     }
 
-    API_DEF_ENDPOINT_INFO(ZH_WORDS_GETTER("drug.v2.update.summary"), updateMedicineV2,
+    API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("drug.v2.update.summary"), updateMedicineV2,
                                MedicineVersionJsonVO::Wrapper, API_TAG,
                                API_DEF_ADD_PATH_PARAMS(String, "id", ZH_WORDS_GETTER("drug.field.id"), "10001",
                                                        true);
