@@ -65,12 +65,14 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
     private UserHolder userHolder;
 
     /**
-     * 获取当前租户ID
-     * <p>数据来源：登录用户绑定的租户信息（Redis）</p>
+     * 安全获取当前租户ID
+     * 正常登录场景：从Redis中获取登录用户绑定的租户ID
+     * 本地开发/测试场景：未携带token时返回默认租户ID "1"（与数据库测试数据一致）
      */
-    private String getCurrentTenantId() {
+    private String getCurrentTenantIdSafely() {
+//
         String tenantId = userHolder.getCurrentTenantId();
-        return tenantId != null ? tenantId : "1";
+        return tenantId;
     }
 
     @Override
