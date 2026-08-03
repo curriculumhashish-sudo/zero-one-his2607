@@ -29,7 +29,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/outpatient/dispense")
-@Tag(name = "门诊发退药记录", description = "门诊药房发药/退药记录查询与导出")
 public class menzhenfatuiyaojilu implements OutpatientDispenseApis {
     @Resource
     private IOutpatientDispenseRecordService service;
@@ -39,17 +38,13 @@ public class menzhenfatuiyaojilu implements OutpatientDispenseApis {
 
     @Override
     @GetMapping("/page")
-    @Operation(summary = "分页查询发退药记录", description = "按处方分组展示门诊发药/退药记录")
-    public JsonVO<PageDTO<DispenseGroupVO>> queryPage(
-            @Parameter(description = "查询参数", required = true) DispenseQuery query) {
+    public JsonVO<PageDTO<DispenseGroupVO>> queryPage(DispenseQuery query) {
         return JsonVO.success(service.queryPage(query));
     }
 
     @Override
     @GetMapping("/export")
-    @Operation(summary = "导出发退药记录", description = "将查询结果以平铺格式导出为 Excel")
-    public void export(
-            @Parameter(description = "查询参数") DispenseQuery query,
+    public void export(DispenseQuery query,
             HttpServletResponse response) throws IOException {
         List<OutpatientDispenseRecordDTO> records = service.listForExport(query);
         if (records == null || records.isEmpty()) {
