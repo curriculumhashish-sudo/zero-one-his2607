@@ -23,11 +23,14 @@
 #include "domain/query/Sample/SampleQuery.h"
 #include "domain/query/Sample/SampleNameQuery.h"
 #include "domain/query/Sample/SampleRemoveQuery.h"
-#include "domain/vo/BaseJsonVO.h"
+
+#include "domain/dto/Sample/SampleDTO.h"
 #include "domain/dto/Sample/SampleAddDTO.h"
 #include "domain/dto/Sample/SampleEditDTO.h"
 #include "domain/dto/Sample/SampleStatusDTO.h"
-#include "domain/dto/Sample/SampleDTO.h"
+
+#include "domain/vo/BaseJsonVO.h"
+
 #include "domain/vo/Sample/SampleJsonVO.h"
 #include "domain/vo/Sample/SampleAddVO.h"
 #include "domain/vo/Sample/SampleEditVO.h"
