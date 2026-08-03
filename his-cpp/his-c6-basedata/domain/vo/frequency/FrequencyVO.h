@@ -23,9 +23,9 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 // Frequency item used by selection controls.
-class FrequencyVO : public StringJsonVO
+class FrequencyVO : public oatpp::DTO
 {
-	DTO_INIT(FrequencyVO, StringJsonVO);
+	DTO_INIT(FrequencyVO, oatpp::DTO);
 
 	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("frequency.field.id"), true);
 	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("frequency.field.name"), true);
