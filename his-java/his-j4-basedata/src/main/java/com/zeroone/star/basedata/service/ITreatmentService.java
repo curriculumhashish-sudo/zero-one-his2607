@@ -31,8 +31,6 @@ public interface ITreatmentService extends IService<WkfActivityDefinitionDO> {
 
     TreatmentDetailVO getTreatmentById(String id);
 
-    List<String> listCategoryOptions();
-
     void addTreatment(TreatmentAddDTO treatmentAddDTO);
 
     TreatmentDetailVO modifyTreatment(TreatmentEditDTO dto);

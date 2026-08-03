@@ -8,6 +8,7 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineDetailVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineListVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineSelectVO;
+import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -94,5 +95,5 @@ public interface MedicineApis {
      * @param dto 新增药品信息
      * @return 新增成功后的药品ID
      */
-    JsonVO<MedicineListVO> addMedicine(MedicineAddDTO dto);
+    JsonVO<MedicineListVO> addMedicine(@Valid MedicineAddDTO dto);
 }

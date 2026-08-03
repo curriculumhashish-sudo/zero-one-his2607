@@ -99,36 +99,43 @@ public class CusFrequencyDO implements Serializable {
     /**
      * 日计数
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private Integer dayCount;
 
     /**
      * 日间隔
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private Integer dayInterval;
 
     /**
      * 日执行时点串
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private String dayTimes;
 
     /**
      * 周周期标记
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private Byte weekCycleFlag;
 
     /**
      * 总执行次数
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private Integer totalExecutionCount;
 
     /**
      * 执行周期
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private Integer executionPeriod;
 
     /**
      * 执行周期单位
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private String executionPeriodUnit;
 
     /**
@@ -139,6 +146,7 @@ public class CusFrequencyDO implements Serializable {
     /**
      * 允许跨日
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private String allowCrossDay;
 
     /**

@@ -61,10 +61,22 @@ public class SpecimenDefinitionDetailVO {
     private String typeEnum;
 
     /**
+     * 标本种类名称（服务端根据枚举映射填充，供前端直接展示）
+     */
+    @Schema(description = "标本种类名称（如：血液）", example = "血液")
+    private String typeName;
+
+    /**
      * 发布状态编码（对应 PublicationStatus 枚举）
      */
     @Schema(description = "发布状态编码（如：ACTIVE-已启用、INACTIVE-已停用、DRAFT-草稿）", example = "ACTIVE")
     private String statusEnum;
+
+    /**
+     * 发布状态名称（服务端根据枚举映射填充，供前端直接展示）
+     */
+    @Schema(description = "发布状态名称（如：已启用）", example = "已启用")
+    private String statusName;
 
     /**
      * 创建时间
