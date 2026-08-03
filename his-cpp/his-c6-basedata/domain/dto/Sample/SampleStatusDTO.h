@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -9,7 +9,7 @@
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-	  https://www.apache.org/licenses/LICENSE-2.0
+      https://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,15 +24,16 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/*
- * Request body for batch status update.
- */
+/* Request body for batch status update. */
 class SampleStatusDTO : public oatpp::DTO
 {
-	DTO_INIT(SampleStatusDTO, DTO);
+    DTO_INIT(SampleStatusDTO, DTO);
 
-	API_DTO_FIELD_REQUIRE(List<String>, ids, "sample id list", true);
-	API_DTO_FIELD_REQUIRE(Int32, status, ZH_WORDS_GETTER("sample.field.status"), true);
+    API_DTO_FIELD_REQUIRE(List<String>, ids, "sample id list", true);
+    API_DTO_FIELD_DEFAULT(String, statusEnum, "status_enum");
+
+    // Legacy numeric status field
+    API_DTO_FIELD_REQUIRE(Int32, status, ZH_WORDS_GETTER("sample.field.status"), true);
 };
 
 #include OATPP_CODEGEN_END(DTO)

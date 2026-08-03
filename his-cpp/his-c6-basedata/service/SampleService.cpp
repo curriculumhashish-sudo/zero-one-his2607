@@ -5,7 +5,7 @@
 #include <random>
 #include <sstream>
 
-std::list<SampleDTO::Wrapper> SampleService::listSampleNames(const SampleQuery::Wrapper& query) const
+std::list<SampleDTO::Wrapper> SampleService::listSampleNames(const SampleNameQuery::Wrapper& query) const
 {
 	SampleDAO dao;
 	const auto keyword = query ? toStdString(query->keyword) : std::string();
@@ -21,8 +21,8 @@ std::list<SampleDTO::Wrapper> SampleService::listSampleNames(const SampleQuery::
 
 SamplePageDTO::Wrapper SampleService::listSamplePage(const SampleQuery::Wrapper& query) const
 {
-	const auto pageIndex = query ? query->pageIndex.getValue(1) : 1;
-	const auto pageSize = query ? query->pageSize.getValue(10) : 10;
+	const auto pageIndex = query ? query->page_index.getValue(1) : 1;
+	const auto pageSize = query ? query->page_size.getValue(10) : 10;
 	const auto safePageIndex = pageIndex == 0 ? 1ULL : pageIndex;
 	const auto safePageSize = pageSize == 0 ? 10ULL : pageSize;
 	const auto offset = (safePageIndex - 1) * safePageSize;
@@ -30,8 +30,8 @@ SamplePageDTO::Wrapper SampleService::listSamplePage(const SampleQuery::Wrapper&
 
 	SampleDAO dao;
 	auto page = SamplePageDTO::createShared();
-	page->pageIndex = safePageIndex;
-	page->pageSize = safePageSize;
+	page->page_index = safePageIndex;
+	page->page_size = safePageSize;
 	page->rows = {};
 
 	const auto rows = dao.selectByKeyword(keyword, offset, safePageSize);
@@ -48,20 +48,25 @@ SamplePageDTO::Wrapper SampleService::listSamplePage(const SampleQuery::Wrapper&
 void SampleService::addSample(const SampleAddDTO::Wrapper& dto) const
 {
 	SampleDAO dao;
-	const auto sampleCode = toStdString(dto->sampleCode);
+	const auto sampleCode = toStdString(firstPresent(dto->busNo, dto->sampleCode));
+	const auto sampleName = toStdString(firstPresent(dto->name, dto->sampleName));
 	if (dao.existsByCode(sampleCode))
 	{
 		throw std::runtime_error("sampleCode already exists.");
+	}
+	if (sampleCode.empty() || sampleName.empty())
+	{
+		throw std::runtime_error("busNo/name is required.");
 	}
 
 	SampleDO sample;
 	sample.setId(buildSampleId());
 	sample.setSampleCode(sampleCode);
-	sample.setSampleName(toStdString(dto->sampleName));
-	if (dto->inputCode) sample.setInputCode(toStdString(dto->inputCode));
-	if (dto->wbCode) sample.setWbCode(toStdString(dto->wbCode));
-	sample.setStatus(dto->status ? dto->status.getValue(1) : 1);
-	sample.setTypeEnum(DEFAULT_SAMPLE_TYPE);
+	sample.setSampleName(sampleName);
+	if (firstPresent(dto->pyStr, dto->inputCode)) sample.setInputCode(toStdString(firstPresent(dto->pyStr, dto->inputCode)));
+	if (firstPresent(dto->wbStr, dto->wbCode)) sample.setWbCode(toStdString(firstPresent(dto->wbStr, dto->wbCode)));
+	sample.setStatusEnum(resolveStatusEnum(dto->statusEnum, dto->status, 1));
+	sample.setTypeEnum(dto->typeEnum ? toStdString(dto->typeEnum) : std::string(DEFAULT_SAMPLE_TYPE));
 	if (dto->remark) sample.setRemark(toStdString(dto->remark));
 
 	const auto now = currentTime();
@@ -86,19 +91,25 @@ void SampleService::editSample(const SampleEditDTO::Wrapper& dto) const
 		throw std::runtime_error("sample not found.");
 	}
 
-	const auto sampleCode = toStdString(dto->sampleCode);
+	const auto sampleCode = toStdString(firstPresent(dto->busNo, dto->sampleCode));
+	const auto sampleName = toStdString(firstPresent(dto->name, dto->sampleName));
 	if (dao.existsByCode(sampleCode, id))
 	{
 		throw std::runtime_error("sampleCode already exists.");
+	}
+	if (sampleCode.empty() || sampleName.empty())
+	{
+		throw std::runtime_error("busNo/name is required.");
 	}
 
 	SampleDO sample;
 	sample.setId(id);
 	sample.setSampleCode(sampleCode);
-	sample.setSampleName(toStdString(dto->sampleName));
-	if (dto->inputCode) sample.setInputCode(toStdString(dto->inputCode));
-	if (dto->wbCode) sample.setWbCode(toStdString(dto->wbCode));
-	if (dto->status) sample.setStatus(dto->status.getValue(0));
+	sample.setSampleName(sampleName);
+	if (firstPresent(dto->pyStr, dto->inputCode)) sample.setInputCode(toStdString(firstPresent(dto->pyStr, dto->inputCode)));
+	if (firstPresent(dto->wbStr, dto->wbCode)) sample.setWbCode(toStdString(firstPresent(dto->wbStr, dto->wbCode)));
+	if (dto->statusEnum || dto->status) sample.setStatusEnum(resolveStatusEnum(dto->statusEnum, dto->status));
+	if (dto->typeEnum) sample.setTypeEnum(toStdString(dto->typeEnum));
 	if (dto->remark) sample.setRemark(toStdString(dto->remark));
 	sample.setUpdateBy(DEFAULT_OPERATOR);
 	sample.setUpdateTime(currentTime());
@@ -142,7 +153,7 @@ void SampleService::switchSampleStatus(const SampleStatusDTO::Wrapper& dto) cons
 
 	const auto affected = dao.updateStatusByIds(
 		ids,
-		dto->status.getValue(0),
+		dto->statusEnum ? (toStdString(dto->statusEnum) == "ACTIVE" ? 1 : 0) : dto->status.getValue(0),
 		DEFAULT_OPERATOR,
 		currentTime());
 
@@ -161,12 +172,37 @@ SampleDTO::Wrapper SampleService::toSampleDTO(const PtrSampleDO& sample)
 	}
 
 	dto->id = sample->getId().c_str();
-	dto->sampleCode = sample->getSampleCode().c_str();
-	dto->sampleName = sample->getSampleName().c_str();
-	dto->inputCode = sample->getInputCode().c_str();
-	dto->wbCode = sample->getWbCode().c_str();
-	dto->remark = sample->getRemark().c_str();
+	dto->tenant_id = sample->getTenantId().c_str();
+	dto->created_at = sample->getCreateTime().c_str();
+	dto->updated_at = sample->getUpdateTime().c_str();
+	dto->created_by = sample->getCreateBy().c_str();
+	dto->updated_by = sample->getUpdateBy().c_str();
+	dto->is_deleted = sample->getIsDeleted();
+	dto->deleted_at = sample->getDeletedAt().c_str();
+	dto->deleted_by = sample->getDeletedBy().c_str();
+	dto->version = sample->getVersion();
+	dto->bus_no = sample->getBusNo().c_str();
+	dto->name = sample->getName().c_str();
+	dto->py_str = sample->getPyStr().c_str();
+	dto->wb_str = sample->getWbStr().c_str();
+	dto->type_enum = sample->getTypeEnum().c_str();
+	dto->status_enum = sample->getStatusEnum().c_str();
 	return dto;
+}
+
+oatpp::String SampleService::firstPresent(const oatpp::String& primary, const oatpp::String& fallback)
+{
+	return primary && !primary->empty() ? primary : fallback;
+}
+
+std::string SampleService::resolveStatusEnum(const oatpp::String& statusEnum, const oatpp::Int32& status, int defaultStatus)
+{
+	if (statusEnum && !statusEnum->empty())
+	{
+		return toStdString(statusEnum);
+	}
+	return status ? (status.getValue(defaultStatus) == 1 ? "ACTIVE" : "INACTIVE")
+		: (defaultStatus == 1 ? "ACTIVE" : "INACTIVE");
 }
 
 std::string SampleService::buildSampleId() const

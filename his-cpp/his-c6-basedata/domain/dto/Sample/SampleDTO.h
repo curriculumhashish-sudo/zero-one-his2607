@@ -34,23 +34,91 @@ class SampleDTO : public oatpp::DTO
 
 	// 主键ID
 	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("sample.field.id"), true);
-	// 业务编码
-	API_DTO_FIELD_REQUIRE(String, sampleCode, ZH_WORDS_GETTER("sample.field.sampleCode"), true);
-	// 样本名称
-	API_DTO_FIELD_REQUIRE(String, sampleName, ZH_WORDS_GETTER("sample.field.sampleName"), true);
-	// 拼音助记码
-	API_DTO_FIELD_DEFAULT(String, inputCode, ZH_WORDS_GETTER("sample.field.inputCode"));
-	// 五笔助记码
-	API_DTO_FIELD_DEFAULT(String, wbCode, ZH_WORDS_GETTER("sample.field.wbCode"));
-	// 备注
-	API_DTO_FIELD_DEFAULT(String, remark, ZH_WORDS_GETTER("sample.field.remark"));
+	// Response fields use the exact adm_specimen_definition column names.
+	API_DTO_FIELD_DEFAULT(String, tenant_id, "tenant_id");
+	API_DTO_FIELD_DEFAULT(String, created_at, "created_at");
+	API_DTO_FIELD_DEFAULT(String, updated_at, "updated_at");
+	API_DTO_FIELD_DEFAULT(String, created_by, "created_by");
+	API_DTO_FIELD_DEFAULT(String, updated_by, "updated_by");
+	API_DTO_FIELD_DEFAULT(Int32, is_deleted, "is_deleted");
+	API_DTO_FIELD_DEFAULT(String, deleted_at, "deleted_at");
+	API_DTO_FIELD_DEFAULT(String, deleted_by, "deleted_by");
+	API_DTO_FIELD_DEFAULT(Int32, version, "version");
+	API_DTO_FIELD_REQUIRE(String, bus_no, "bus_no", true);
+	API_DTO_FIELD_REQUIRE(String, name, "name", true);
+	API_DTO_FIELD_DEFAULT(String, py_str, "py_str");
+	API_DTO_FIELD_DEFAULT(String, wb_str, "wb_str");
+	API_DTO_FIELD_DEFAULT(String, type_enum, "type_enum");
+	API_DTO_FIELD_DEFAULT(String, status_enum, "status_enum");
 };
 
 using SampleFullSelectDTO = SampleDTO;
 
-class SamplePageDTO : public PageDTO<SampleDTO::Wrapper>
+class SamplePageDTO : public oatpp::DTO
 {
-	DTO_INIT(SamplePageDTO, PageDTO<SampleDTO::Wrapper>);
+	DTO_INIT(SamplePageDTO, DTO);
+
+	DTO_FIELD(UInt64, page_index) = 1;
+	DTO_FIELD_INFO(page_index) {
+		info->required = true;
+#ifndef LINUX
+		info->description = u8"当前页码";
+#else
+		info->description = "current page index";
+#endif
+	}
+
+	DTO_FIELD(UInt64, page_size) = 10;
+	DTO_FIELD_INFO(page_size) {
+		info->required = true;
+#ifndef LINUX
+		info->description = u8"每页数据条数";
+#else
+		info->description = "page size";
+#endif
+	}
+
+	DTO_FIELD(Int64, total);
+	DTO_FIELD_INFO(total) {
+		info->required = true;
+#ifndef LINUX
+		info->description = u8"数据的总条数";
+#else
+		info->description = "total";
+#endif
+	}
+
+	DTO_FIELD(Int64, pages);
+	DTO_FIELD_INFO(pages) {
+		info->required = true;
+#ifndef LINUX
+		info->description = u8"数据的总页数";
+#else
+		info->description = "pages";
+#endif
+	}
+
+	DTO_FIELD(List<SampleDTO::Wrapper>, rows) = {};
+	DTO_FIELD_INFO(rows) {
+#ifndef LINUX
+		info->description = u8"当前页数据列表";
+#else
+		info->description = "page data list";
+#endif
+	}
+
+public:
+	void calcPages()
+	{
+		const auto size = page_size.getValue(1);
+		const auto count = total.getValue(0);
+		pages = count / size + (count % size == 0 ? 0 : 1);
+	}
+
+	void addData(const SampleDTO::Wrapper& one)
+	{
+		rows->push_back(one);
+	}
 };
 
 #include OATPP_CODEGEN_END(DTO)

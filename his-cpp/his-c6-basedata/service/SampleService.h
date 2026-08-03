@@ -26,13 +26,14 @@
 #include "domain/dto/Sample/SampleEditDTO.h"
 #include "domain/dto/Sample/SampleStatusDTO.h"
 #include "domain/query/Sample/SampleQuery.h"
+#include "domain/query/Sample/SampleNameQuery.h"
 #include <list>
 #include <string>
 
 class SampleService
 {
 public:
-	std::list<SampleDTO::Wrapper> listSampleNames(const SampleQuery::Wrapper& query) const;
+	std::list<SampleDTO::Wrapper> listSampleNames(const SampleNameQuery::Wrapper& query) const;
 	SamplePageDTO::Wrapper listSamplePage(const SampleQuery::Wrapper& query) const;
 	void addSample(const SampleAddDTO::Wrapper& dto) const;
 	void editSample(const SampleEditDTO::Wrapper& dto) const;
@@ -44,6 +45,8 @@ private:
 	inline static constexpr const char* DEFAULT_SAMPLE_TYPE = "BLOOD";
 
 	static SampleDTO::Wrapper toSampleDTO(const PtrSampleDO& sample);
+	static oatpp::String firstPresent(const oatpp::String& primary, const oatpp::String& fallback);
+	static std::string resolveStatusEnum(const oatpp::String& statusEnum, const oatpp::Int32& status, int defaultStatus = 0);
 	std::string buildSampleId() const;
 	std::string currentTime() const;
 	static std::string toStdString(const oatpp::String& value);

@@ -200,6 +200,12 @@ int SampleDAO::updateSample(const SampleDO& sample)
 		SQLPARAMS_PUSH(params, "s", std::string, sample.getStatusEnum());
 	}
 
+	if (sample.getTypeEnumPtr())
+	{
+		sql << ", type_enum = ?";
+		SQLPARAMS_PUSH(params, "s", std::string, sample.getTypeEnum());
+	}
+
 	sql << ", updated_by = ?, updated_at = ? "
 		<< "WHERE id = ? AND is_deleted = 0";
 

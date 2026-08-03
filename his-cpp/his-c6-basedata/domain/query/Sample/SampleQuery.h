@@ -21,16 +21,31 @@
 #define _SAMPLE_FULL_SELECT_QUERY_
 
 #include "../../GlobalInclude.h"
-#include "domain/query/PageQuery.h"
-
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/**
-second
- */
-class SampleQuery : public PageQuery
+class SampleQuery : public oatpp::DTO
 {
-	DTO_INIT(SampleQuery, PageQuery);
+	DTO_INIT(SampleQuery, DTO);
+
+	DTO_FIELD(UInt64, page_index) = 1;
+	DTO_FIELD_INFO(page_index) {
+		info->required = true;
+#ifndef LINUX
+		info->description = u8"当前页码";
+#else
+		info->description = "current page index";
+#endif
+	}
+
+	DTO_FIELD(UInt64, page_size) = 10;
+	DTO_FIELD_INFO(page_size) {
+		info->required = true;
+#ifndef LINUX
+		info->description = u8"每页数据条数";
+#else
+		info->description = "page size";
+#endif
+	}
 
 	// 综合关键词，匹配样本业务编码、样本名称、拼音码、五笔码
 	API_DTO_FIELD_DEFAULT(String, keyword, ZH_WORDS_GETTER("sample.query.keyword"));

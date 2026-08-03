@@ -2,7 +2,7 @@
 #include "SampleController.h"
 #include "service/SampleService.h"
 
-SampleListJsonVO::Wrapper SampleController::executeListSampleName(const SampleQuery::Wrapper& query)
+SampleListJsonVO::Wrapper SampleController::executeListSampleName(const SampleNameQuery::Wrapper& query)
 {
 	SampleService service;
 	auto vo = SampleListJsonVO::createShared();

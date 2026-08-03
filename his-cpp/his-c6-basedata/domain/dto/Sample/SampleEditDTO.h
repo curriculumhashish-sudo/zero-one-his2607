@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -9,7 +9,7 @@
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-	  https://www.apache.org/licenses/LICENSE-2.0
+      https://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,20 +24,28 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/*
- * Request body for updating a sample.
- */
+/* Request body for updating a sample. */
 class SampleEditDTO : public oatpp::DTO
 {
-	DTO_INIT(SampleEditDTO, DTO);
+    DTO_INIT(SampleEditDTO, DTO);
 
-	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("sample.field.id"), true);
-	API_DTO_FIELD_REQUIRE(String, sampleCode, ZH_WORDS_GETTER("sample.field.sampleCode"), true);
-	API_DTO_FIELD_REQUIRE(String, sampleName, ZH_WORDS_GETTER("sample.field.sampleName"), true);
-	API_DTO_FIELD_DEFAULT(String, inputCode, ZH_WORDS_GETTER("sample.field.inputCode"));
-	API_DTO_FIELD_DEFAULT(String, wbCode, ZH_WORDS_GETTER("sample.field.wbCode"));
-	API_DTO_FIELD_DEFAULT(Int32, status, ZH_WORDS_GETTER("sample.field.status"));
-	API_DTO_FIELD_DEFAULT(String, remark, ZH_WORDS_GETTER("sample.field.remark"));
+    API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("sample.field.id"), true);
+
+    // Database-aligned fields
+    API_DTO_FIELD_DEFAULT(String, busNo, "bus_no");
+    API_DTO_FIELD_DEFAULT(String, name, "name");
+    API_DTO_FIELD_DEFAULT(String, pyStr, "py_str");
+    API_DTO_FIELD_DEFAULT(String, wbStr, "wb_str");
+    API_DTO_FIELD_DEFAULT(String, typeEnum, "type_enum");
+    API_DTO_FIELD_DEFAULT(String, statusEnum, "status_enum");
+
+    // Legacy aliases kept for backward compatibility
+    API_DTO_FIELD_DEFAULT(String, sampleCode, ZH_WORDS_GETTER("sample.field.sampleCode"));
+    API_DTO_FIELD_DEFAULT(String, sampleName, ZH_WORDS_GETTER("sample.field.sampleName"));
+    API_DTO_FIELD_DEFAULT(String, inputCode, ZH_WORDS_GETTER("sample.field.inputCode"));
+    API_DTO_FIELD_DEFAULT(String, wbCode, ZH_WORDS_GETTER("sample.field.wbCode"));
+    API_DTO_FIELD_DEFAULT(Int32, status, ZH_WORDS_GETTER("sample.field.status"));
+    API_DTO_FIELD_DEFAULT(String, remark, ZH_WORDS_GETTER("sample.field.remark"));
 };
 
 #include OATPP_CODEGEN_END(DTO)

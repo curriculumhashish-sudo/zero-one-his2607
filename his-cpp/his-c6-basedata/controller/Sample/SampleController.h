@@ -21,6 +21,7 @@
 #define _SAMPLECONTROLLER_H_
 
 #include "domain/query/Sample/SampleQuery.h"
+#include "domain/query/Sample/SampleNameQuery.h"
 #include "domain/query/Sample/SampleRemoveQuery.h"
 #include "domain/vo/BaseJsonVO.h"
 #include "domain/dto/Sample/SampleAddDTO.h"
@@ -42,8 +43,8 @@ class SampleController : public oatpp::web::server::api::ApiController
 {
 	API_ACCESS_DECLARE(SampleController);
 public:
-	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("sample.select-name.summary"), listSampleName, SampleQuery, SampleListJsonVO::Wrapper, API_TAG);
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/sample/select-name", listSampleName, SampleQuery, executeListSampleName(query));
+	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("sample.select-name.summary"), listSampleName, SampleNameQuery, SampleListJsonVO::Wrapper, API_TAG);
+	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/sample/select-name", listSampleName, SampleNameQuery, executeListSampleName(query));
 
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("sample.list-page.summary"), listSamplePage, SampleQuery, SamplePageJsonVO::Wrapper, API_TAG);
 	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/sample/list-page", listSamplePage, SampleQuery, executeListSamplePage(query));
@@ -61,7 +62,7 @@ public:
 	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/sample/switch-status", switchSampleStatus, BODY_DTO(SampleStatusDTO::Wrapper, dto), executeSwitchSampleStatus(dto));
 
 private:
-	SampleListJsonVO::Wrapper executeListSampleName(const SampleQuery::Wrapper& query);
+	SampleListJsonVO::Wrapper executeListSampleName(const SampleNameQuery::Wrapper& query);
 	SamplePageJsonVO::Wrapper executeListSamplePage(const SampleQuery::Wrapper& query);
 	StringJsonVO::Wrapper executeAddSample(const SampleAddDTO::Wrapper& dto);
 	StringJsonVO::Wrapper executeEditSample(const SampleEditDTO::Wrapper& dto);
