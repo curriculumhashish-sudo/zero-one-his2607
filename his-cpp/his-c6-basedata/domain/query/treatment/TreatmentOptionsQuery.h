@@ -54,6 +54,7 @@ class TreatmentOptionsQuery : public oatpp::DTO
 		false);
 
 public:
+	/** 校验必填分页参数及允许范围。 */
 	std::string validate() const
 	{
 		if (!pageIndex || !pageSize)

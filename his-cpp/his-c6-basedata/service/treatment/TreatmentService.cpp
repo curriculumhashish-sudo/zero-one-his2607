@@ -22,7 +22,10 @@
 #include "id/UuidFacade.h"
 #include "SimpleDateTimeFormat.h"
 #include "TransactionManager.h"
+#include <mutex>
 #include <stdexcept>
+
+static std::mutex TREATMENT_OPTIONS_QUERY_MUTEX;
 
 // 从新增/修改 DTO 填充主表业务字段（不含审计字段）。
 template<typename TDto>
@@ -367,11 +370,15 @@ TreatmentOptionsPageDTO::Wrapper TreatmentService::listOptionsV2(
 	const TreatmentOptionsQuery::Wrapper& query,
 	const PayloadDTO& payload)
 {
+	// 校验查询参数和凭证用户。
 	if (!query || !query->validate().empty() || payload.getId().empty())
 	{
 		return nullptr;
 	}
 
+	// 限制该查询同时占用的数据库连接，避免瞬时并发耗尽连接池。
+	std::lock_guard<std::mutex> queryGuard(TREATMENT_OPTIONS_QUERY_MUTEX);
+	// 根据登录用户解析当前租户。
 	TreatmentDAO dao;
 	const std::string tenantId = dao.selectCurrentTenantId(payload.getId());
 	if (tenantId.empty())
@@ -379,6 +386,7 @@ TreatmentOptionsPageDTO::Wrapper TreatmentService::listOptionsV2(
 		return nullptr;
 	}
 
+	// 统计总数并初始化分页信息。
 	auto pages = TreatmentOptionsPageDTO::createShared();
 	pages->pageIndex = query->pageIndex;
 	pages->pageSize = query->pageSize;
@@ -390,6 +398,7 @@ TreatmentOptionsPageDTO::Wrapper TreatmentService::listOptionsV2(
 		return pages;
 	}
 
+	// 将联表查询结果转换为接口 DTO。
 	for (const auto& sub : dao.selectSelectWithPage(query, tenantId))
 	{
 		auto dto = TreatmentOptionV2DTO::createShared();

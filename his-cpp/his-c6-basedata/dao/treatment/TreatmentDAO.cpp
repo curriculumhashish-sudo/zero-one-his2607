@@ -1,4 +1,4 @@
-/*
+﻿/*
  Copyright Zero One Star. All rights reserved.
 
  @Author: awei
@@ -54,6 +54,7 @@ std::string TreatmentDAO::queryConditionBuilder(const TreatmentQuery::Wrapper& q
 	return sqlCondition.str();
 }
 
+// 构建当前租户下已启用诊疗的关键字与分类筛选条件。
 std::string TreatmentDAO::selectConditionBuilder(
 	const TreatmentOptionsQuery::Wrapper& query,
 	const std::string& tenantId,
@@ -87,14 +88,19 @@ std::string TreatmentDAO::selectConditionBuilder(
 	return condition.str();
 }
 
+// 查询当前登录用户唯一有效的租户。
 std::string TreatmentDAO::selectCurrentTenantId(const std::string& userId)
 {
 	if (userId.empty())
 	{
 		return "";
 	}
+	if (!sqlSession || !sqlSession->getConnection())
+	{
+		throw std::runtime_error("database connection is unavailable");
+	}
 
-	// ???????????????????????????????????????
+	// 优先读取最近登录会话租户；无会话时仅接受唯一有效租户。
 	const std::string sql =
 		"SELECT COALESCE("
 		"(SELECT s.`tenant_id` FROM `whale_user_login_session` s "
@@ -124,10 +130,12 @@ std::string TreatmentDAO::selectCurrentTenantId(const std::string& userId)
 		params);
 }
 
+// 统计符合选择条件的诊疗数量。
 uint64_t TreatmentDAO::countSelect(
 	const TreatmentOptionsQuery::Wrapper& query,
 	const std::string& tenantId)
 {
+	// 复用相同查询条件统计分页总数。
 	SqlParams params;
 	std::string sql =
 		"SELECT COUNT(d.`id`) FROM `wkf_activity_definition` d";
@@ -135,12 +143,13 @@ uint64_t TreatmentDAO::countSelect(
 	return sqlSession->executeQueryNumerical(sql, params);
 }
 
+// 分页查询诊疗，并联表补充字典文本、机构名称和售价。
 std::list<TreatmentSelectBO> TreatmentDAO::selectSelectWithPage(
 	const TreatmentOptionsQuery::Wrapper& query,
 	const std::string& tenantId)
 {
 	SqlParams params;
-	// ??????????????????????????? SELECT * ??????????
+	// 显式列出返回字段，避免使用 SELECT *。
 	std::string sql =
 		"SELECT d.`id`,d.`bus_no`,d.`name`,d.`category_code`,"
 		"COALESCE(category_concept.`display`,''),"

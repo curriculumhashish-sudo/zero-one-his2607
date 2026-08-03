@@ -1,4 +1,4 @@
-/*
+﻿/*
  Copyright Zero One Star. All rights reserved.
 
  @Author: awei
@@ -68,6 +68,7 @@ std::shared_ptr<Response> createErrorRespone(std::string message, std::shared_pt
 	return response;
 }
 
+// 构造诊疗选择接口的 401 统一响应。
 static std::shared_ptr<Response> createTreatmentOptionsV2UnauthorizedResponse(
 	const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& mapper)
 {

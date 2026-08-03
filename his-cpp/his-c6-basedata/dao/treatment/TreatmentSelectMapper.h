@@ -27,6 +27,7 @@
 class TreatmentSelectMapper : public Mapper<TreatmentSelectBO>
 {
 public:
+	// 按 DAO 查询列顺序映射字段，列序必须与 SELECT 保持一致。
 	TreatmentSelectBO mapper(ResultSet* resultSet) const override
 	{
 		TreatmentSelectBO data;

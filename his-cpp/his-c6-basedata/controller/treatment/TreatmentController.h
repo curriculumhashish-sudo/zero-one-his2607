@@ -88,6 +88,7 @@ public: // 接口定义
 		QUERIES(QueryParams, queryParams),
 		HEADER(String, authorization, API_H_TOKEN))
 	{
+		// 构造符合接口契约的统一错误响应。
 		auto makeError = [](const char* key, int code)
 		{
 			auto result = TreatmentOptionsPageJsonVO::createShared();
@@ -95,6 +96,7 @@ public: // 接口定义
 			return result;
 		};
 
+		// 校验 Bearer 凭证并解析当前用户。
 		std::shared_ptr<CustomerAuthorizeObject> v2AuthObject;
 		try
 		{
@@ -114,6 +116,7 @@ public: // 接口定义
 				makeError("treatment.message.unauthorized", 10002));
 		}
 
+		// 校验诊疗选择列表访问权限。
 		const auto& authorities = v2AuthObject->getPayload().getAuthorities();
 		const bool permitted =
 			std::find(authorities.begin(), authorities.end(), "SUPER_ADMIN") != authorities.end() ||
@@ -125,6 +128,7 @@ public: // 接口定义
 				makeError("treatment.message.forbidden", 10003));
 		}
 
+		// 解析并校验分页及筛选参数。
 		auto query = TreatmentOptionsQuery::createShared();
 		bool pageIndexSet = false;
 		bool pageSizeSet = false;
@@ -172,6 +176,7 @@ public: // 接口定义
 				makeError("treatment.message.params-invalid", 10001));
 		}
 
+		// 调用执行函数并将业务码映射为 HTTP 状态。
 		auto result = execQueryOptionsV2(query, v2AuthObject->getPayload());
 		const int code = result->code.getValue(10099);
 		if (code == 10003)

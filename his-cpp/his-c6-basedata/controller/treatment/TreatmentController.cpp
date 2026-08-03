@@ -171,7 +171,9 @@ StringJsonVO::Wrapper TreatmentController::execAddTreatment(
 TreatmentOptionsPageJsonVO::Wrapper TreatmentController::execQueryOptionsV2(
 	const TreatmentOptionsQuery::Wrapper& query, const PayloadDTO& payload)
 {
+	// 定义统一响应对象。
 	auto jvo = TreatmentOptionsPageJsonVO::createShared();
+	// 校验查询参数和凭证用户。
 	if (!query || !query->validate().empty())
 	{
 		jvo->init(nullptr, ResultStatus(
@@ -185,6 +187,7 @@ TreatmentOptionsPageJsonVO::Wrapper TreatmentController::execQueryOptionsV2(
 		return jvo;
 	}
 
+	// 调用业务层并封装查询结果。
 	try
 	{
 		auto result = TreatmentService().listOptionsV2(query, payload);
