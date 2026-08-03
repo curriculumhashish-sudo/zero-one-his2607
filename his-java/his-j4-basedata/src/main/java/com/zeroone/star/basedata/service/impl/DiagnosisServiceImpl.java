@@ -205,6 +205,7 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
 
     @Override
     public PageDTO<DiagnosisOptionVO> queryDiagnosisSelectList(DiagnosisSelectPageQuery query) {
+        // 诊断目录接口由其他成员负责，当前仅返回合法的空分页占位结果。
         Page<DiagnosisOptionVO> result = new Page<>(query.getPageIndex(), query.getPageSize(), 0L);
         result.setRecords(List.of());
         return PageDTO.create(result);
@@ -219,7 +220,7 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
 
         // 2. 按关键字、诊断目录和当前租户构造组合查询条件
         LambdaQueryWrapper<ClnConditionDefinitionDO> wrapper = buildQueryWrapper(
-                query == null ? null : query.getKeyword(), query == null ? null : query.getSourceEnum());
+                query.getKeyword(), query.getSourceEnum());
         wrapper.orderByAsc(ClnConditionDefinitionDO::getConditionCode)
                 .orderByAsc(ClnConditionDefinitionDO::getId);
 

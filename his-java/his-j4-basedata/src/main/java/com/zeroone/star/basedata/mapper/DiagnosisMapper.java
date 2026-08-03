@@ -15,9 +15,4 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface DiagnosisMapper extends BaseMapper<ClnConditionDefinitionDO> {
-
-    Page<String> selectDistinctSourceEnum(Page<String> page,
-                                          @Param("tenantId") String tenantId,
-                                          @Param("keyword") String keyword,
-                                          @Param("sourceEnum") String sourceEnum);
 }
