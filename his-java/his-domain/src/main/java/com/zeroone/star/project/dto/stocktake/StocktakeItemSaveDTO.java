@@ -3,6 +3,7 @@ package com.zeroone.star.project.dto.stocktake;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -27,9 +28,11 @@ public class StocktakeItemSaveDTO {
     private String itemTable;
 
     @NotBlank(message = "物品标识不能为空")
+    @Size(max = 64, message = "物品标识长度不能超过64个字符")
     @Schema(description = "物品标识", example = "322998385762111488", requiredMode = Schema.RequiredMode.REQUIRED)
     private String itemId;
 
+    @Size(max = 255, message = "批号长度不能超过255个字符")
     @Schema(description = "批号", example = "001-009")
     private String lotNumber;
 
@@ -47,6 +50,7 @@ public class StocktakeItemSaveDTO {
     private BigDecimal itemQuantity;
 
     @NotBlank(message = "单位编码不能为空")
+    @Size(max = 255, message = "单位编码长度不能超过255个字符")
     @Schema(description = "单位编码", example = "box", requiredMode = Schema.RequiredMode.REQUIRED)
     private String unitCode;
 

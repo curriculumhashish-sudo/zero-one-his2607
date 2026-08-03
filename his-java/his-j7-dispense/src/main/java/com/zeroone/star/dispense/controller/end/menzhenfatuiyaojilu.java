@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,6 +28,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/outpatient/dispense")
+@Validated
 @Tag(name = "门诊发退药记录", description = "门诊药房发药/退药记录查询与导出")
 public class menzhenfatuiyaojilu implements OutpatientDispenseApis {
 

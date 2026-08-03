@@ -11,6 +11,7 @@ import com.zeroone.star.project.vo.j7.dispense.InpatientDispenseRecordVO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
+@Validated
 @Tag(name = "住院发退药记录", description = "住院发退药记录基础流程")
 public class zhuyuanfatuiyaojilu implements InpatientDispenseRecordApis {
 

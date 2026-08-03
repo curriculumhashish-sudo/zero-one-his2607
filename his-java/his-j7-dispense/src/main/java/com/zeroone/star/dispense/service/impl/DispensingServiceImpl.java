@@ -94,13 +94,13 @@ public class DispensingServiceImpl implements IDispensingService {
                             .ge(InventoryItem::getQuantity, item.getDispenseQuantity())
                             .setSql("quantity = quantity - " + item.getDispenseQuantity()));
             if (invRows == 0) {
-                throw new RuntimeException("库存不足，药品ID：" + dispense.getMedicationId()
+                throw new IllegalArgumentException("库存不足，药品ID：" + dispense.getMedicationId()
                         + "，批号：" + item.getLotNumber());
             }
         }
 
         if (!failedIds.isEmpty()) {
-            throw new RuntimeException("以下记录发药失败（已发药或超卖）：" + String.join(",", failedIds));
+            throw new IllegalArgumentException("以下记录发药失败（已发药或超卖）：" + String.join(",", failedIds));
         }
         return "发药成功";
     }

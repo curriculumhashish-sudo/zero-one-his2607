@@ -31,31 +31,51 @@ public class yaofangpandiandan {
 
     @PutMapping("/submit")
     @Operation(summary = "提交审批")
-    public JsonVO<StocktakeStatusVO> submit(@RequestBody OperatorDTO dto) {
-        return JsonVO.success(wkfSupplyRequestService.submit(dto));
+    public JsonVO<StocktakeStatusVO> submit(@Valid @RequestBody OperatorDTO dto) {
+        try {
+            return JsonVO.success(wkfSupplyRequestService.submit(dto));
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 
     @PutMapping("/approve")
     @Operation(summary = "审批通过")
-    public JsonVO<StocktakeStatusVO> approve(@RequestBody ApproveDTO dto) {
-        return JsonVO.success(wkfSupplyRequestService.approve(dto));
+    public JsonVO<StocktakeStatusVO> approve(@Valid @RequestBody ApproveDTO dto) {
+        try {
+            return JsonVO.success(wkfSupplyRequestService.approve(dto));
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 
     @PutMapping("/reject")
     @Operation(summary = "审批驳回")
-    public JsonVO<StocktakeStatusVO> reject(@RequestBody ApproveDTO dto) {
-        return JsonVO.success(wkfSupplyRequestService.reject(dto));
+    public JsonVO<StocktakeStatusVO> reject(@Valid @RequestBody ApproveDTO dto) {
+        try {
+            return JsonVO.success(wkfSupplyRequestService.reject(dto));
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 
     @PutMapping("/withdraw")
     @Operation(summary = "撤回审批")
-    public JsonVO<StocktakeStatusVO> withdraw(@RequestBody OperatorDTO dto) {
-        return JsonVO.success(wkfSupplyRequestService.withdraw(dto));
+    public JsonVO<StocktakeStatusVO> withdraw(@Valid @RequestBody OperatorDTO dto) {
+        try {
+            return JsonVO.success(wkfSupplyRequestService.withdraw(dto));
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 
     @DeleteMapping("/delete")
     @Operation(summary = "删除盘点单据", description = "软删除指定单据号的盘点单，仅草稿/待审核状态可删，同时解锁关联的库存锁定记录")
     public JsonVO<SupplyDocumentDeleteVO> deleteStocktake(@Valid @RequestBody StocktakeDeleteDTO dto) {
-        return JsonVO.success(stocktakeService.deleteStocktake(dto));
+        try {
+            return JsonVO.success(stocktakeService.deleteStocktake(dto));
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 }

@@ -72,6 +72,10 @@ public class InStockOrderServiceImpl implements InStockOrderService {
     private static final String STATUS_DRAFT = "DRAFT";
     private static final String STATUS_PENDING = "PENDING";
     private static final String STATUS_PENDING_APPROVAL = "PENDING_APPROVAL";
+    private static final String CATEGORY_ENUM_PURCHASE_IN = "PURCHASE_IN";
+    private static final String ITEM_TABLE_PHARMACY_IN = "pharmacy_in_item";
+    private static final DateTimeFormatter BUS_NO_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
 
     private static final List<String> DELETABLE_STATUSES = List.of(STATUS_DRAFT, STATUS_PENDING_APPROVAL);
     private static final DateTimeFormatter DATE_TIME_FORMATTER =
@@ -117,13 +121,11 @@ public class InStockOrderServiceImpl implements InStockOrderService {
      */
     @Override
     public PurchaseInboundDetailVO getInboundDetail(String id) {
-        // 1. 查询单据头
         InStockOrder order = inStockOrderMapper.selectById(id);
         if (order == null) {
-            throw new RuntimeException("入库单不存在");
+            throw new IllegalArgumentException("入库单不存在");
         }
 
-        // 2. 组装详情 VO
         PurchaseInboundDetailVO detailVO = new PurchaseInboundDetailVO();
         detailVO.setId(order.getId());
         detailVO.setBusNo(order.getBusNo());
@@ -133,23 +135,22 @@ public class InStockOrderServiceImpl implements InStockOrderService {
         detailVO.setStatusEnum(order.getStatusEnum());
         detailVO.setApplyTime(order.getApplyTime());
         detailVO.setRemake(order.getRemake());
-        // TODO: 关联查询供应商名称和目的库房名称并 set
 
-        // 3. 查询并组装明细列表 (基于 bus_no 查询同一聚合根下的所有行)
-        LambdaQueryWrapper<InStockOrder> itemWrapper = new LambdaQueryWrapper<>();
-        itemWrapper.eq(InStockOrder::getBusNo, order.getBusNo());
-        List<InStockOrder> itemEntities = inStockOrderMapper.selectList(itemWrapper);
+        List<InStockOrderDetail> detailItems = detailMapper.selectList(
+                new LambdaQueryWrapper<InStockOrderDetail>()
+                        .eq(InStockOrderDetail::getPharmacyId, order.getId())
+                        .orderByAsc(InStockOrderDetail::getSeqNo));
 
-        List<PurchaseInboundItemVO> itemVOs = itemEntities.stream().map(item -> {
+        List<PurchaseInboundItemVO> itemVOs = detailItems.stream().map(item -> {
             PurchaseInboundItemVO itemVO = new PurchaseInboundItemVO();
-            itemVO.setId(item.getId());
+            itemVO.setId(String.valueOf(item.getId()));
             itemVO.setItemId(item.getItemId());
-            itemVO.setLotNumber(item.getLotNumber());
-            itemVO.setQuantity(item.getItemQuantity());
-            itemVO.setUnit(item.getUnitCode());
-            itemVO.setPrice(item.getPrice());
-            itemVO.setSubTotal(item.getTotalPrice());
-            // TODO: 关联查询药品名称、规格等并 set
+            itemVO.setLotNumber(item.getBatchNo());
+            itemVO.setQuantity(item.getQuantity() != null ?
+                    BigDecimal.valueOf(item.getQuantity()) : null);
+            itemVO.setUnit(null);
+            itemVO.setPrice(item.getUnitPrice());
+            itemVO.setSubTotal(item.getTotalAmount());
             return itemVO;
         }).collect(Collectors.toList());
 
@@ -167,15 +168,13 @@ public class InStockOrderServiceImpl implements InStockOrderService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void submitInboundOrder(PurchaseInboundSubmitDTO dto) {
-        // 1. 校验单据是否存在
         InStockOrder order = inStockOrderMapper.selectById(dto.getId());
         if (order == null) {
-            throw new RuntimeException("入库单不存在");
+            throw new IllegalArgumentException("入库单不存在");
         }
 
-        // 2. 状态校验：只有草稿(DRAFT)或已驳回(REJECTED)状态才能提交
         if (!"DRAFT".equals(order.getStatusEnum()) && !"REJECTED".equals(order.getStatusEnum())) {
-            throw new RuntimeException("当前单据状态不允许提交审批");
+            throw new IllegalArgumentException("当前单据状态不允许提交审批");
         }
 
         // 3. 更新单据状态及提交时间
@@ -216,9 +215,29 @@ public class InStockOrderServiceImpl implements InStockOrderService {
     @Override
     @Transactional
     public String create(InStockOrderDTO dto) {
+        LocalDateTime now = LocalDateTime.now();
+        String userId = getCurrentUserId();
+
         InStockOrder order = buildOrder(dto);
+        String busNo = StringUtils.hasText(dto.getOrderNo()) ?
+                dto.getOrderNo() : "PSI" + now.format(BUS_NO_FORMATTER);
+        order.setBusNo(busNo);
         order.setStatusEnum(STATUS_DRAFT);
         order.setTotalPrice(BigDecimal.ZERO);
+        order.setCreatedAt(now);
+        order.setUpdatedAt(now);
+        order.setCreatedBy(userId);
+        order.setUpdatedBy(userId);
+        order.setIsDeleted(false);
+        order.setVersion(0);
+        if (order.getCategoryEnum() == null) {
+            order.setCategoryEnum(CATEGORY_ENUM_PURCHASE_IN);
+        }
+        order.setItemTable(ITEM_TABLE_PHARMACY_IN);
+        order.setItemQuantity(BigDecimal.ZERO);
+        order.setItemId("0");
+        order.setUnitCode("-");
+        order.setApplicantId(userId);
         inStockOrderMapper.insert(order);
 
         saveItems(order.getId(), dto.getItems());
@@ -231,14 +250,16 @@ public class InStockOrderServiceImpl implements InStockOrderService {
     public void update(String orderId, InStockOrderDTO dto) {
         InStockOrder existOrder = inStockOrderMapper.selectById(orderId);
         if (existOrder == null) {
-            throw new RuntimeException("入库单不存在");
+            throw new IllegalArgumentException("入库单不存在");
         }
         if (!STATUS_DRAFT.equals(existOrder.getStatusEnum())) {
-            throw new RuntimeException("只有草稿状态才能编辑");
+            throw new IllegalArgumentException("只有草稿状态才能编辑");
         }
 
         InStockOrder updateOrder = buildOrder(dto);
         updateOrder.setId(orderId);
+        updateOrder.setUpdatedAt(LocalDateTime.now());
+        updateOrder.setUpdatedBy(getCurrentUserId());
         inStockOrderMapper.updateById(updateOrder);
 
         // 明细全量替换
@@ -261,7 +282,7 @@ public class InStockOrderServiceImpl implements InStockOrderService {
                         .set(InStockOrder::getStatusEnum, STATUS_PENDING));
 
         if (rows == 0) {
-            throw new RuntimeException("当前状态不允许提交审批");
+            throw new IllegalArgumentException("当前状态不允许提交审批");
         }
     }
 
@@ -315,13 +336,16 @@ public class InStockOrderServiceImpl implements InStockOrderService {
     private InStockOrder buildOrder(InStockOrderDTO dto) {
         InStockOrder order = new InStockOrder();
         order.setBusNo(dto.getOrderNo());
-        order.setSupplierId(String.valueOf(dto.getSupplierId()));
+        order.setSourceLocationId(dto.getSourceLocationId());
+        order.setPurposeLocationId(dto.getWarehouseId());
         order.setOccurrenceTime(dto.getInDate() != null ?
                 dto.getInDate().atStartOfDay() : LocalDateTime.now());
-        order.setPurposeLocationId(String.valueOf(dto.getWarehouseId()));
+        order.setSupplierId(dto.getSupplierId() != null ?
+                String.valueOf(dto.getSupplierId()) : null);
         order.setRemake(dto.getRemark());
-        // 设置入库类型和初始状态
         order.setTypeEnum("INVENTORY_IN");
+        order.setCategoryEnum(dto.getProjectType() != null ?
+                dto.getProjectType() : CATEGORY_ENUM_PURCHASE_IN);
         return order;
     }
 
@@ -331,6 +355,7 @@ public class InStockOrderServiceImpl implements InStockOrderService {
             InStockOrderDetail item = new InStockOrderDetail();
             item.setPharmacyId(orderId);
             item.setSeqNo(dto.getSeqNo());
+            item.setItemId(dto.getItemId());
             item.setDrugName(dto.getDrugName());
             item.setSpec(dto.getSpec());
             item.setManufacturer(dto.getManufacturer());
@@ -338,6 +363,7 @@ public class InStockOrderServiceImpl implements InStockOrderService {
             item.setUnitPrice(dto.getUnitPrice());
             item.setTotalAmount(dto.getUnitPrice().multiply(BigDecimal.valueOf(dto.getQuantity())));
             item.setBatchNo(dto.getBatchNo());
+            item.setTraceNo(dto.getTraceNo());
             item.setExpireDate(dto.getExpireDate());
             item.setItemRemark(dto.getItemRemark());
             items.add(item);

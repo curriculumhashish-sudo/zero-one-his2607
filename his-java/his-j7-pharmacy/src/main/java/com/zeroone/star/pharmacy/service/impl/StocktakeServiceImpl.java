@@ -245,7 +245,7 @@ public class StocktakeServiceImpl
             );
             int rows = stocktakeMapper.insert(record);
             if (rows <= 0) {
-                throw new IllegalStateException("保存盘点单明细失败：" + item.getItemId());
+                throw new IllegalArgumentException("保存盘点单明细失败：" + item.getItemId());
             }
             totalPrice = addIfNotNull(totalPrice, record.getTotalPrice());
             itemCount++;

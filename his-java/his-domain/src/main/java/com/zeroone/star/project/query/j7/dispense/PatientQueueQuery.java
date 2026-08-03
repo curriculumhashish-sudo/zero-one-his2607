@@ -24,12 +24,12 @@ public class PatientQueueQuery extends PageQuery {
     @Schema(description = "发放类型(OUTPATIENT/REFUND)", example = "OUTPATIENT")
     private String dispenseEnum;
 
-    @Schema(description = "患者姓名(模糊查询)")
+    @Schema(description = "患者姓名(模糊查询)", example = "张三")
     private String name;
 
-    @Schema(description = "查询开始时间")
+    @Schema(description = "查询开始时间", example = "2026-07-01T00:00:00")
     private LocalDateTime startTime;
 
-    @Schema(description = "查询结束时间")
+    @Schema(description = "查询结束时间", example = "2026-07-31T23:59:59")
     private LocalDateTime endTime;
 }

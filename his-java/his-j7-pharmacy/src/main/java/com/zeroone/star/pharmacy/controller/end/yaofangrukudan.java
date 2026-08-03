@@ -87,23 +87,37 @@ public class yaofangrukudan {
     // 新增入库单据
     @Operation(summary = "新增入库单据", description = "创建一张新的入库单，状态为草稿。返回入库单主表ID。")
     @PostMapping("/addInStockOrder")
-    public JsonVO<String> addInOrder(@RequestBody InStockOrderDTO dto) {
-        String orderId = inStockOrderService.create(dto);
-        return JsonVO.success(orderId);
+    public JsonVO<String> addInOrder(@Valid @RequestBody InStockOrderDTO dto) {
+        try {
+            String orderId = inStockOrderService.create(dto);
+            return JsonVO.success(orderId);
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
+
     // 保存入库单据（编辑）
     @Operation(summary = "保存入库单据", description = "修改草稿态的入库单，支持对明细的全量增删改。")
     @PutMapping("/{orderId}/saveInStockOrder")
-    public JsonVO<String> updateInOrder(@PathVariable String orderId, @RequestBody InStockOrderDTO dto) {
-        inStockOrderService.update(orderId, dto);
-        return JsonVO.success("保存入库单据成功");
+    public JsonVO<String> updateInOrder(@PathVariable String orderId, @Valid @RequestBody InStockOrderDTO dto) {
+        try {
+            inStockOrderService.update(orderId, dto);
+            return JsonVO.success("保存入库单据成功");
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
+
     // 保存并提交审批
-    @Operation(summary = "保存并提交审批", description = "保存草稿并立即提交审批，状态变更为“待审批”。")
+    @Operation(summary = "保存并提交审批", description = "保存草稿并立即提交审批，状态变更为'待审批'。")
     @PutMapping("/{orderId}/submitInStockOrder")
-    public JsonVO<String> submitInOrder(@PathVariable String orderId, @RequestBody InStockOrderDTO dto) {
-        inStockOrderService.submit(orderId, dto);
-        return JsonVO.success("保存并提交审批成功");
+    public JsonVO<String> submitInOrder(@PathVariable String orderId, @Valid @RequestBody InStockOrderDTO dto) {
+        try {
+            inStockOrderService.submit(orderId, dto);
+            return JsonVO.success("保存并提交审批成功");
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 
     /**
@@ -111,7 +125,7 @@ public class yaofangrukudan {
      */
     @PostMapping("/list")
     @Operation(summary = "获取单据列表", description = "根据条件分页查询药房入库单列表")
-    public JsonVO<IPage<PurchaseInboundListVO>> listInboundOrders(@RequestBody PurchaseInboundQuery query) {
+    public JsonVO<IPage<PurchaseInboundListVO>> listInboundOrders(@Valid @RequestBody PurchaseInboundQuery query) {
         return JsonVO.success(inStockOrderService.listInboundOrders(query));
     }
 
@@ -121,22 +135,34 @@ public class yaofangrukudan {
     @GetMapping("/detail/{id}")
     @Operation(summary = "获取单据详情", description = "根据入库单ID查询单据的详细信息，包含主表和明细")
     public JsonVO<PurchaseInboundDetailVO> getInboundDetail(@PathVariable("id") String id) {
-        return JsonVO.success(inStockOrderService.getInboundDetail(id));
+        try {
+            return JsonVO.success(inStockOrderService.getInboundDetail(id));
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 
     /**
      * chunmu：保存并提交审批
      */
     @PutMapping("/{orderId}/saveAndSubmit")
-    @Operation(summary = "保存并提交审批", description = "保存入库单草稿并立即提交审批，状态变更为“待审批”。")
-    public JsonVO<String> saveAndSubmitInOrder(@PathVariable String orderId, @RequestBody InStockOrderDTO dto) {
-        inStockOrderService.submit(orderId, dto);
-        return JsonVO.success("保存并提交审批成功");
+    @Operation(summary = "保存并提交审批", description = "保存入库单草稿并立即提交审批，状态变更为'待审批'")
+    public JsonVO<String> saveAndSubmitInOrder(@PathVariable String orderId, @Valid @RequestBody InStockOrderDTO dto) {
+        try {
+            inStockOrderService.submit(orderId, dto);
+            return JsonVO.success("保存并提交审批成功");
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 
     @DeleteMapping("/delete")
     @Operation(summary = "删除入库单据", description = "软删除指定单据号的入库单，仅草稿/待审核状态可删，同时解锁关联的库存锁定记录")
     public JsonVO<SupplyDocumentDeleteVO> deleteInStockOrder(@Valid @RequestBody InStockOrderDeleteDTO dto) {
-        return JsonVO.success(inStockOrderService.deleteOrder(dto));
+        try {
+            return JsonVO.success(inStockOrderService.deleteOrder(dto));
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 }

@@ -12,6 +12,7 @@ import com.zeroone.star.project.vo.j7.dispense.InpatientRefundPatientVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,8 +50,12 @@ public class zhuyuantuiyao implements InpatientRefundMedicineApis {
             description = "确认退药操作：更新退药单状态为已确认，并对勾选的药品回补库存")
     @PostMapping("/confirm-return")
     @Override
-    public JsonVO<String> confirmReturn(@RequestBody ReturnConfirmDTO dto) {
-        inpatientRefundMedicineService.confirmReturn(dto);
-        return JsonVO.success("退药确认成功");
+    public JsonVO<String> confirmReturn(@Valid @RequestBody ReturnConfirmDTO dto) {
+        try {
+            inpatientRefundMedicineService.confirmReturn(dto);
+            return JsonVO.success("退药确认成功");
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 }

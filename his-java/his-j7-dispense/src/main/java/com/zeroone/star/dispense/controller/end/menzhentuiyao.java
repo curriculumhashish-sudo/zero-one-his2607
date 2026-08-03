@@ -12,6 +12,7 @@ import com.zeroone.star.project.vo.j7.dispense.PatientQueueVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -96,7 +97,7 @@ public class menzhentuiyao {
      */
     @PostMapping("/confirm")
     @Operation(summary = "确认退药", description = "核对退药明细后确认退药，回补库存数量")
-    public JsonVO<String> confirmRefund(@Validated @RequestBody DispenseVerifyDTO dto) {
+    public JsonVO<String> confirmRefund(@Valid @RequestBody DispenseVerifyDTO dto) {
         try {
             return JsonVO.success(outpatientRefundService.confirmRefund(dto));
         } catch (IllegalArgumentException e) {
@@ -108,8 +109,12 @@ public class menzhentuiyao {
     // 步骤：查询退药患者队列 → 查看退药明细 → 执行拒绝退药
     @Operation(summary = "执行拒绝退药", description = "更新退药申请单状态为已拒绝，并记录拒绝原因")
     @PostMapping("/reject-return")
-    public JsonVO<String> rejectReturn(@RequestBody ReturnRejectDTO dto) {
-        outpatientRefundService.rejectReturn(dto);
-        return JsonVO.success("拒绝退药成功");
+    public JsonVO<String> rejectReturn(@Valid @RequestBody ReturnRejectDTO dto) {
+        try {
+            outpatientRefundService.rejectReturn(dto);
+            return JsonVO.success("拒绝退药成功");
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 }

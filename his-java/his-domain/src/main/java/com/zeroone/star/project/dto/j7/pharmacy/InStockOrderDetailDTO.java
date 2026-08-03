@@ -1,6 +1,10 @@
 package com.zeroone.star.project.dto.j7.pharmacy;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import java.io.Serializable;
@@ -25,36 +29,52 @@ import java.time.LocalDate;
 @Schema(description = "入库单明细DTO")
 public class InStockOrderDetailDTO implements Serializable {
 
-    @Schema(description = "明细主键ID（更新时传入，新增时不传）")
+    @Schema(description = "明细主键ID（更新时传入，新增时不传）", example = "1")
     private Long id;
 
-    @Schema(description = "行号", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "行号不能为空")
+    @Schema(description = "行号", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer seqNo;
 
-    @Schema(description = "药品名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "药品ID不能为空")
+    @Size(max = 64, message = "药品ID长度不能超过64个字符")
+    @Schema(description = "药品/物资ID", example = "MED_001", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String itemId;
+
+    @NotBlank(message = "药品名称不能为空")
+    @Schema(description = "药品名称", example = "阿莫西林胶囊", requiredMode = Schema.RequiredMode.REQUIRED)
     private String drugName;
 
-    @Schema(description = "药品规格")
+    @Schema(description = "药品规格", example = "0.5g*24粒/盒")
     private String spec;
 
-    @Schema(description = "生产厂家")
+    @Schema(description = "生产厂家", example = "哈药集团")
     private String manufacturer;
 
-    @Schema(description = "入库数量", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "入库数量不能为空")
+    @Min(value = 1, message = "入库数量必须大于0")
+    @Schema(description = "入库数量", example = "100", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer quantity;
 
-    @Schema(description = "单价", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "单价不能为空")
+    @Min(value = 0, message = "单价不能为负数")
+    @Schema(description = "单价", example = "15.50", requiredMode = Schema.RequiredMode.REQUIRED)
     private BigDecimal unitPrice;
 
-    @Schema(description = "行合计金额（后台自动计算，前端可忽略）")
+    @Schema(description = "行合计金额（后台自动计算，前端可忽略）", example = "1550.00")
     private BigDecimal totalAmount;
 
-    @Schema(description = "药品批号", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "药品批号不能为空")
+    @Schema(description = "药品批号", example = "B20260701", requiredMode = Schema.RequiredMode.REQUIRED)
     private String batchNo;
 
-    @Schema(description = "有效期", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Size(max = 255, message = "追溯码长度不能超过255个字符")
+    @Schema(description = "追溯码", example = "TRACE-001")
+    private String traceNo;
+
+    @Schema(description = "有效期", example = "2028-07-01")
     private LocalDate expireDate;
 
-    @Schema(description = "明细备注")
+    @Schema(description = "明细备注", example = "需冷藏保存")
     private String itemRemark;
 }

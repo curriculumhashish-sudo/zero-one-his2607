@@ -10,11 +10,11 @@ import lombok.Data;
 public class InStockOrderDeleteDTO {
 
     @NotBlank(message = "单据号不能为空")
-    @Size(max = 64, message = "单据号长度不能超过64个字符")
+    @Size(max = 255, message = "单据号长度不能超过255个字符")
     @Schema(description = "入库单业务单号", example = "PSI2026-06-300001", requiredMode = Schema.RequiredMode.REQUIRED)
     private String busNo;
 
-    @Size(max = 500, message = "删除原因长度不能超过500个字符")
+    @Size(max = 255, message = "删除原因长度不能超过255个字符")
     @Schema(description = "删除原因", example = "录入错误")
     private String reason;
 }
