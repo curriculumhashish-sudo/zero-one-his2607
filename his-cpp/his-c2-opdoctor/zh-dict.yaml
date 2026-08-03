@@ -66,11 +66,11 @@ chinapres3:
 outpatientrecord3:
   field:
    outpatientrecord3Id: 病历ID（为空表示新增，不为空表示修改）
-   patientId: 患者ID
    encounterId: 就诊ID
    title: 病历标题
    templateId: 模板ID
    content: 病历正文
+   updatedAt: 最后更新时间
   tags:
    tag: 门诊病历
   save:
