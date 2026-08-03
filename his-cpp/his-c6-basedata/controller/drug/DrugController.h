@@ -36,7 +36,7 @@
 #define API_M_PATCH "PATCH"
 #endif
 
-#define API_TAG ZH_WORDS_GETTER("drug.tag")
+#define API_TAG ZH_WORDS_GETTER("drug.tags.tag")
 #define API_TAG2 ZH_WORDS_GETTER("drug.tags.tag2")
 #define MEDICINE_V2_ERROR_RESPONSES(_TYPE_)                                                                        \
     info->authorization = "Bearer";                                                                               \
