@@ -1,6 +1,6 @@
 
 # HIS系统前端文案字典配置 UTF-8(No BOM) 编码保存
-sample:
+﻿sample:
   tags:
     tag: 样本管理
 
@@ -617,3 +617,4 @@ drug:
     total: 总记录数
     pages: 总页数
     rows: 当前页药品列表
+    remark: 备注

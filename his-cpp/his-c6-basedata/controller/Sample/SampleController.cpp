@@ -1,86 +1,59 @@
-
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "SampleController.h"
+#include "service/SampleService.h"
 
-// ²éÑ¯Ñù±¾Ãû³ÆÁÐ±í
-SampleJsonVO::Wrapper SampleController::executeListSampleName(const SampleQuery::Wrapper& query)
+SampleListJsonVO::Wrapper SampleController::executeListSampleName(const SampleNameQuery::Wrapper& query)
 {
-	
-	auto jvo = SampleJsonVO::createShared();
-	
-	return jvo;
+	SampleService service;
+	auto vo = SampleListJsonVO::createShared();
+	for (const auto& row : service.listSampleNames(query))
+	{
+		vo->addData(row);
+	}
+	vo->setStatus(RS_SUCCESS);
+	return vo;
 }
 
-SampleJsonVO::Wrapper SampleController::executeListSamplePage(const SampleQuery::Wrapper& query)
+SamplePageJsonVO::Wrapper SampleController::executeListSamplePage(const SampleQuery::Wrapper& query)
 {
-	auto jvo = SampleJsonVO::createShared();
-	// TODO µ÷ÓÃService²ãÒµÎñÂß¼­
-	return jvo;
+	SampleService service;
+	auto vo = SamplePageJsonVO::createShared();
+	vo->success(service.listSamplePage(query));
+	return vo;
 }
 
-//// ÐÂÔöÑù±¾
-//StringJsonVO::Wrapper SampleController::executeAddSample(const SampleAddDTO::Wrapper& dto)
-//{
-//	(void)dto; // ÏÈÕ¼Î»£¬ºóÐø½Ó Service/DAO Ê±ÔÙÌæ»»
-//	auto vo = StringJsonVO::createShared();
-//	vo->success("add sample success");
-//	return vo;
-//}
-//
-//// ÐÞ¸ÄÑù±¾
-//StringJsonVO::Wrapper SampleController::executeEditSample(const SampleEditDTO::Wrapper& dto)
-//{
-//	(void)dto;
-//	auto vo = StringJsonVO::createShared();
-//	vo->success("edit sample success");
-//	return vo;
-//}
-//
-//// É¾³ýÑù±¾
-//StringJsonVO::Wrapper SampleController::executeRemoveSample(const String& id)
-//{
-//	(void)id;
-//	auto vo = StringJsonVO::createShared();
-//	vo->success("remove sample success");
-//	return vo;
-//}
-//
-//// ÆôÓÃ/Í£ÓÃÑù±¾
-//StringJsonVO::Wrapper SampleController::executeSwitchSampleStatus(const SampleStatusDTO::Wrapper& dto)
-//{
-//	(void)dto;
-//	auto vo = StringJsonVO::createShared();
-//	vo->success("switch sample status success");
-//	return vo;
-//}
-// ÐÂÔöÑù±¾ÐÅÏ¢
 StringJsonVO::Wrapper SampleController::executeAddSample(const SampleAddDTO::Wrapper& dto)
 {
-	auto jvo = StringJsonVO::createShared();
-	// TODO µ÷ÓÃService²ãÒµÎñÂß¼­
-	return jvo;
+	SampleService service;
+	service.addSample(dto);
+	auto vo = StringJsonVO::createShared();
+	vo->success("add sample success");
+	return vo;
 }
 
-// ÐÞ¸ÄÑù±¾ÐÅÏ¢
 StringJsonVO::Wrapper SampleController::executeEditSample(const SampleEditDTO::Wrapper& dto)
 {
-	auto jvo = StringJsonVO::createShared();
-	// TODO µ÷ÓÃService²ãÒµÎñÂß¼­
-	return jvo;
+	SampleService service;
+	service.editSample(dto);
+	auto vo = StringJsonVO::createShared();
+	vo->success("edit sample success");
+	return vo;
 }
 
-// É¾³ýÑù±¾ÐÅÏ¢
 StringJsonVO::Wrapper SampleController::executeRemoveSample(const SampleRemoveQuery::Wrapper& dto)
 {
-	auto jvo = StringJsonVO::createShared();
-	// TODO µ÷ÓÃService²ãÒµÎñÂß¼­
-	return jvo;
+	SampleService service;
+	service.removeSample(dto->id.getValue(""));
+	auto vo = StringJsonVO::createShared();
+	vo->success("remove sample success");
+	return vo;
 }
 
-// Ñù±¾ÆôÍ£ÓÃ×´Ì¬ÇÐ»»
 StringJsonVO::Wrapper SampleController::executeSwitchSampleStatus(const SampleStatusDTO::Wrapper& dto)
 {
-	auto jvo = StringJsonVO::createShared();
-	// TODO µ÷ÓÃService²ãÒµÎñÂß¼­
-	return jvo;
+	SampleService service;
+	service.switchSampleStatus(dto);
+	auto vo = StringJsonVO::createShared();
+	vo->success("switch sample status success");
+	return vo;
 }

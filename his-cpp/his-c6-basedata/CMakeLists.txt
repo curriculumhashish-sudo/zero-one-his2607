@@ -31,6 +31,7 @@ endif()
 
 # 获取要编译的源代码
 file (GLOB_RECURSE SC_FILES ./*.cpp)
+list (FILTER SC_FILES EXCLUDE REGEX ".*/out/.*")
 list (REMOVE_ITEM SC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/./stdafx.cpp")
 
 # 设置预编译标头
@@ -212,4 +213,3 @@ if(WIN32)
 	# 复制项目配置到可执行文件目录
 	install (DIRECTORY "conf" DESTINATION ${appName})
 endif()
-

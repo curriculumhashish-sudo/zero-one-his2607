@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -25,25 +25,108 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * Ñù±¾ÍêÕûÊý¾ÝÑ¡Ôñµ¯´°DTO
- * Ò³ÃæËµÃ÷£ºÁÐ±íÐ¯´øÍêÕûÑù±¾Êý¾Ý£¬¿ÉÖ±½ÓÓÃÓÚÐÞ¸Ä±íµ¥»ØÌî
+ * æ ·æœ¬å®Œæ•´æ•°æ®é€‰æ‹©å¼¹çª—DTO
+ * é¡µé¢è¯´æ˜Žï¼šåˆ—è¡¨æºå¸¦å®Œæ•´æ ·æœ¬æ•°æ®ï¼Œå¯ç›´æŽ¥ç”¨äºŽä¿®æ”¹è¡¨å•å›žå¡«
  */
 class SampleDTO : public oatpp::DTO
 {
 	DTO_INIT(SampleDTO, DTO);
 
-	// Ö÷¼üID
-	API_DTO_FIELD_REQUIRE(Int32, id, ZH_WORDS_GETTER("sample.field.id"), true);
-	// ÒµÎñ±àÂë
-	API_DTO_FIELD_REQUIRE(String, sampleCode, ZH_WORDS_GETTER("sample.field.sampleCode"), true);
-	// Ñù±¾Ãû³Æ
-	API_DTO_FIELD_REQUIRE(String, sampleName, ZH_WORDS_GETTER("sample.field.sampleName"), true);
-	// Æ´ÒôÖú¼ÇÂë
-	API_DTO_FIELD_DEFAULT(String, inputCode, ZH_WORDS_GETTER("sample.field.inputCode"));
-	// Îå±ÊÖú¼ÇÂë
-	API_DTO_FIELD_DEFAULT(String, wbCode, ZH_WORDS_GETTER("sample.field.wbCode"));
-	// ±¸×¢
-	API_DTO_FIELD_DEFAULT(String, remark, ZH_WORDS_GETTER("sample.field.remark"));
+	// ä¸»é”®ID
+	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("sample.field.id"), true);
+	// Response fields use the exact adm_specimen_definition column names.
+	API_DTO_FIELD_DEFAULT(String, tenant_id, "tenant_id");
+	API_DTO_FIELD_DEFAULT(String, created_at, "created_at");
+	API_DTO_FIELD_DEFAULT(String, updated_at, "updated_at");
+	API_DTO_FIELD_DEFAULT(String, created_by, "created_by");
+	API_DTO_FIELD_DEFAULT(String, updated_by, "updated_by");
+	API_DTO_FIELD_DEFAULT(Int32, is_deleted, "is_deleted");
+	API_DTO_FIELD_DEFAULT(String, deleted_at, "deleted_at");
+	API_DTO_FIELD_DEFAULT(String, deleted_by, "deleted_by");
+	API_DTO_FIELD_DEFAULT(Int32, version, "version");
+	API_DTO_FIELD_REQUIRE(String, bus_no, "bus_no", true);
+	API_DTO_FIELD_REQUIRE(String, name, "name", true);
+	API_DTO_FIELD_DEFAULT(String, py_str, "py_str");
+	API_DTO_FIELD_DEFAULT(String, wb_str, "wb_str");
+	API_DTO_FIELD_DEFAULT(String, type_enum, "type_enum");
+	API_DTO_FIELD_DEFAULT(String, status_enum, "status_enum");
+};
+
+class SampleNameDTO : public oatpp::DTO
+{
+	DTO_INIT(SampleNameDTO, DTO);
+
+	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("sample.field.id"), true);
+	API_DTO_FIELD_REQUIRE(String, name, "name", true);
+};
+
+using SampleFullSelectDTO = SampleDTO;
+
+class SamplePageDTO : public oatpp::DTO
+{
+	DTO_INIT(SamplePageDTO, DTO);
+
+	DTO_FIELD(UInt64, page_index) = 1;
+	DTO_FIELD_INFO(page_index) {
+		info->required = true;
+#ifndef LINUX
+		info->description = u8"å½“å‰é¡µç ";
+#else
+		info->description = "current page index";
+#endif
+	}
+
+	DTO_FIELD(UInt64, page_size) = 10;
+	DTO_FIELD_INFO(page_size) {
+		info->required = true;
+#ifndef LINUX
+		info->description = u8"æ¯é¡µæ•°æ®æ¡æ•°";
+#else
+		info->description = "page size";
+#endif
+	}
+
+	DTO_FIELD(Int64, total);
+	DTO_FIELD_INFO(total) {
+		info->required = true;
+#ifndef LINUX
+		info->description = u8"æ•°æ®çš„æ€»æ¡æ•°";
+#else
+		info->description = "total";
+#endif
+	}
+
+	DTO_FIELD(Int64, pages);
+	DTO_FIELD_INFO(pages) {
+		info->required = true;
+#ifndef LINUX
+		info->description = u8"æ•°æ®çš„æ€»é¡µæ•°";
+#else
+		info->description = "pages";
+#endif
+	}
+
+	DTO_FIELD(List<SampleDTO::Wrapper>, rows) = {};
+	DTO_FIELD_INFO(rows) {
+#ifndef LINUX
+		info->description = u8"å½“å‰é¡µæ•°æ®åˆ—è¡¨";
+#else
+		info->description = "page data list";
+#endif
+	}
+
+public:
+	void calcPages()
+	{
+		const auto size = page_size.getValue(1);
+		const auto count = total.getValue(0);
+		pages = count / size + (count % size == 0 ? 0 : 1);
+	}
+
+	void addData(const SampleDTO::Wrapper& one)
+	{
+		rows->push_back(one);
+	}
 };
 
 #include OATPP_CODEGEN_END(DTO)

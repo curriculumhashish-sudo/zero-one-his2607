@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -21,20 +21,37 @@
 #define _SAMPLE_FULL_SELECT_QUERY_
 
 #include "../../GlobalInclude.h"
-#include "domain/query/PageQuery.h"
-
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/**
-second
- */
-class SampleQuery : public PageQuery
+class SampleQuery : public oatpp::DTO
 {
-	DTO_INIT(SampleQuery, PageQuery);
+	DTO_INIT(SampleQuery, DTO);
 
-	// ×ÛºÏ¹Ø¼ü´Ê£¬Æ¥ÅäÑù±¾ÒµÎñ±àÂë¡¢Ñù±¾Ãû³Æ¡¢Æ´ÒôÂë¡¢Îå±ÊÂë
+	DTO_FIELD(UInt64, page_index) = 1;
+	DTO_FIELD_INFO(page_index) {
+		info->required = true;
+#ifndef LINUX
+		info->description = u8"å½“å‰é¡µç ";
+#else
+		info->description = "current page index";
+#endif
+	}
+
+	DTO_FIELD(UInt64, page_size) = 10;
+	DTO_FIELD_INFO(page_size) {
+		info->required = true;
+#ifndef LINUX
+		info->description = u8"æ¯é¡µæ•°æ®æ¡æ•°";
+#else
+		info->description = "page size";
+#endif
+	}
+
+	// ç»¼åˆå…³é”®è¯ï¼ŒåŒ¹é…æ ·æœ¬ä¸šåŠ¡ç¼–ç ã€æ ·æœ¬åç§°ã€æ‹¼éŸ³ç ã€äº”ç¬”ç 
 	API_DTO_FIELD_DEFAULT(String, keyword, ZH_WORDS_GETTER("sample.query.keyword"));
 };
+
+using SampleFullSelectQuery = SampleQuery;
 
 #include OATPP_CODEGEN_END(DTO)
 #endif // !_SAMPLE_FULL_SELECT_QUERY_

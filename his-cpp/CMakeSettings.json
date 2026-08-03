@@ -58,6 +58,7 @@
 >>>>>>> 763b10e476a941bc985874326f337f6e03186ae4
 =======
       "cmakeCommandArgs": "-D_RELEASE_DOC_=1"
+<<<<<<< HEAD
 >>>>>>> 1ce8858f73e91e8a29a24d5f2b150e5c2209f07a
     },
     {
@@ -100,6 +101,8 @@
 
       //"cmakeCommandArgs": "-D_RELEASE_DOC_=1"
 
+=======
+>>>>>>> 73b39b3574889c4fbc1e57d07c19c9f4a1626378
     }
   ]
 }
