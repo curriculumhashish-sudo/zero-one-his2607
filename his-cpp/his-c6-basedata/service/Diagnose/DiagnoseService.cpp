@@ -277,7 +277,7 @@ DiagnoseDetailDTO::Wrapper DiagnoseService::getDiagnoseDetail(const oatpp::Strin
 //增加一条数据
 std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
 {
-	diagnoseDO data;
+	DiagnoseDO data;//别改我这里
 	ZO_STAR_DOMAIN_DTO_TO_DO(
 		data,
 		dto,
@@ -299,7 +299,7 @@ std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
 		Remark, remark,
 		CatName, catName
 		//,TenantId,tenantId//前端可以不传，从redis中拿取
-		//,Source_enum, source_enum  //前端可以不传，用catName也就是诊断目录名去mongodb找来源枚举值插入
+		,Source_enum, source_enum  //前端可以不传，用catName也就是诊断目录名去mongodb找来源枚举值插入
 	);
 
 	UuidFacade uuidFacade;
@@ -381,7 +381,7 @@ std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
 
 bool DiagnoseService::updateData(const DiagnoseDTO::Wrapper& dto)
 {
-	diagnoseDO data;
+	DiagnoseDO data;//别改我这里
 	ZO_STAR_DOMAIN_DTO_TO_DO(
 		data,
 		dto,
@@ -402,7 +402,7 @@ bool DiagnoseService::updateData(const DiagnoseDTO::Wrapper& dto)
 		PinyinCode, pinyinCode,
 		WubiCode, wubiCode,
 		Remark, remark,
-		//Source_enum,source_enum,//前端可以不传，从mongodb中获取
+		Source_enum,source_enum,//前端可以不传，从mongodb中获取
 	Version,version
 	);
 
@@ -490,7 +490,7 @@ bool DiagnoseService::updateData(const DiagnoseDTO::Wrapper& dto)
 //删除一条数据（前端有）
 bool DiagnoseService::removeOne(const std::string& id)
 {
-	diagnoseDO data;
+	DiagnoseDO data;//别改我这里
 	data.setIsDelete(1);
 	data.setUpdateTime(SimpleDateTimeFormat::format());
 
@@ -517,7 +517,7 @@ bool DiagnoseService::removeData(const oatpp::List<oatpp::String>& ids)
 	int successCount = 0;
 	for (const auto& idItem : *ids.get())//返回原生的vector并枚举遍历，get获取裸指针
 	{
-		diagnoseDO data;
+		DiagnoseDO data;
 		data.setId(idItem.getValue({}));
 		data.setDeletedTime(SimpleDateTimeFormat::format());
 		data.setIsDelete(1);
@@ -537,7 +537,7 @@ bool DiagnoseService::batchChangeStatus(const DiagnoseBatchStatusDTO::Wrapper& d
 	int successCount = 0;
 	for (const auto& idItem : *ids.get())
 	{
-		diagnoseDO data;
+		DiagnoseDO data;//别改我这里
 		data.setId(idItem->id);
 		data.setStatus(*status);
 		data.setUpdateBy(dto->getPayload()->getUsername());
@@ -558,7 +558,7 @@ bool DiagnoseService::execRemoveData(const DiagnoseRemoveDTO::Wrapper& dto)
 	int successCount = 0;
 	for (const auto& idItem : *ids.get())//返回原生的vector并枚举遍历，get获取裸指针
 	{
-		diagnoseDO data;
+		DiagnoseDO data;
 		data.setId(idItem.getValue({}));
 		data.setDeletedBy(dto->getPayload()->getUsername());
 		data.setDeletedTime(SimpleDateTimeFormat::format());
