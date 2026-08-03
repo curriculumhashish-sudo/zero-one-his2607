@@ -81,7 +81,7 @@ public: // 接口定义
 		API_DEF_QUERY_PARAM_BUILD(TreatmentOptionsQuery);
 		info->queryParams["pageIndex"].addExample("default", UInt64(1));
 		info->queryParams["pageSize"].addExample("default", UInt64(20));
-		info->queryParams["keyword"].addExample("example", String("肝功"));
+		info->queryParams["keyword"].addExample("example", String("AD00000013"));
 		info->queryParams["categoryCode"].addExample("example", String("22"));
 		info->authorization = "Bearer";
 		info->addResponse<TreatmentOptionsPageJsonVO::Wrapper>(Status::CODE_400, "application/json");
