@@ -27,6 +27,7 @@
 class TreatmentSelectMapper : public Mapper<TreatmentSelectBO>
 {
 public:
+	// 按 DAO 查询列顺序映射字段，列序必须与 SELECT 保持一致。
 	TreatmentSelectBO mapper(ResultSet* resultSet) const override
 	{
 		TreatmentSelectBO data;
@@ -35,18 +36,10 @@ public:
 		data.setName(resultSet->getString(3));
 		data.setCategoryCode(resultSet->getString(4));
 		data.setCategoryCodeDictText(resultSet->getString(5));
-		data.setOrgIdDictText(resultSet->getString(6));
-		data.setRetailPrice(resultSet->getDouble(7));
-		data.setSpecification(resultSet->getString(8));
-		data.setManufacturerText(resultSet->getString(9));
-		data.setItemTypeCode(resultSet->getString(10));
-		data.setItemTypeCodeDictText(resultSet->getString(11));
-		data.setPackageUnitCode(resultSet->getString(12));
-		data.setPackageUnitCodeDictText(resultSet->getString(13));
-		data.setDefEncounterUnitCode(resultSet->getString(14));
-		data.setDefEncounterUnitCodeDictText(resultSet->getString(15));
-		data.setYbNo(resultSet->getString(16));
-		data.setStatusEnum(resultSet->getString(17));
+		data.setPackageUnitCode(resultSet->getString(6));
+		data.setPackageUnitCodeDictText(resultSet->getString(7));
+		data.setDefEncounterUnitCode(resultSet->getString(8));
+		data.setDefEncounterUnitCodeDictText(resultSet->getString(9));
 		return data;
 	}
 };

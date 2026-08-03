@@ -24,7 +24,7 @@
 #include "../../domain/do/treatment/WkfActivityDefinitionDo.h"
 #include "../../domain/do/treatment/WkfActivityDefinitionChildrenDo.h"
 #include "../../domain/query/treatment/TreatmentQuery.h"
-#include "../../domain/query/treatment/TreatmentSelectQuery.h"
+#include "../../domain/query/treatment/TreatmentOptionsQuery.h"
 
 /**
  * 诊疗表数据库操作实现
@@ -44,7 +44,7 @@ private:
 	inline std::string queryConditionBuilder(const TreatmentQuery::Wrapper& query, SqlParams& params);
 	// 构建选择诊疗列表的租户、关键字和状态条件。
 	inline std::string selectConditionBuilder(
-		const TreatmentSelectQuery::Wrapper& query,
+		const TreatmentOptionsQuery::Wrapper& query,
 		const std::string& tenantId,
 		SqlParams& params);
 	
@@ -57,11 +57,11 @@ public:
 	std::string selectCurrentTenantId(const std::string& userId);
 	// 统计可选诊疗数据。
 	uint64_t countSelect(
-		const TreatmentSelectQuery::Wrapper& query,
+		const TreatmentOptionsQuery::Wrapper& query,
 		const std::string& tenantId);
 	// 分页查询可选诊疗数据。
 	std::list<TreatmentSelectBO> selectSelectWithPage(
-		const TreatmentSelectQuery::Wrapper& query,
+		const TreatmentOptionsQuery::Wrapper& query,
 		const std::string& tenantId);
 	//乐观锁更新状态
 	int32_t updateStatusById(const std::string& id, const std::string& statusEnum,
@@ -74,6 +74,10 @@ public:
 	std::list<TreatmentChildDO> selectChildrenByActivityId(const std::string& activityId);
 	// 按 activity_id 软删除子项
 	int32_t softDeleteChildrenByActivityId(const std::string& activityId, const std::string& deletedBy, const std::string& deletedAt);
+	// Query price rows by treatment id (PURCHASE/SALE/LIMIT)
+	std::list<AdmChargeItemDefinitionDO> selectPricesByInstanceId(const std::string& instanceId);
+	// Soft-delete price rows by treatment id
+	int32_t softDeletePricesByInstanceId(const std::string& instanceId, const std::string& deletedBy, const std::string& deletedAt);
 	// 按主键列表软删除
 	int32_t removeData(std::list<std::string>& ids);
 };

@@ -30,7 +30,7 @@
     status: 启用状态
     remark: 备注
 
-treatment:
+﻿treatment:
   tags:
     tag: 诊疗管理
     tag2: 声明式服务
@@ -39,7 +39,7 @@ treatment:
     summary: 通过ID获取单条数据
   query-one:
     summary: 使用声明式服务查询一条数据
-  query-select:
+  options-v2:
     summary: 获取选择诊疗列表（条件+分页）
   query:
     summary: 获取诊疗列表
@@ -77,6 +77,7 @@ treatment:
     category-code-text: 目录分类名称
     org-id-text: 所属机构名称
     type-enum: 业务类型
+    type-code: 业务类型编码
     package-unit-code: 计价/销售单位编码
     package-unit-code-text: 计价/销售单位名称
     def-encounter-unit-code: 默认门诊单位编码
@@ -114,7 +115,6 @@ treatment:
 
     # 全局搜索字段
     keywords: 检索关键词
-
 equipment:
   tags:
     tag: 器材管理
@@ -618,3 +618,20 @@ drug:
     pages: 总页数
     rows: 当前页药品列表
     remark: 备注
+    page-index: 当前页码
+    page-size: 每页数据条数
+    status-enum: 状态枚举值
+    status-enum-text: 状态名称
+
+  message:
+    params-invalid: 请求参数错误
+    unauthorized: 凭证缺失或无效
+    forbidden: 当前租户无权访问
+    server-error: 服务内部错误
+
+  status-text:
+    draft: 草稿
+    active: 已启用
+    inactive: 已停用
+    discarded: 已废弃
+    unknown: 未知状态

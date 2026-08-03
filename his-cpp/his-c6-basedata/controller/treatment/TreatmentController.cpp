@@ -167,35 +167,45 @@ StringJsonVO::Wrapper TreatmentController::execAddTreatment(
 	return jvo;
 }
 
-// 获取选择诊疗列表（条件+分页）
-TreatmentSelectPageJsonVO::Wrapper TreatmentController::execQuerySelect(
-	const TreatmentSelectQuery::Wrapper& query, const PayloadDTO& payload)
+// 获取选择诊疗列表。
+TreatmentOptionsPageJsonVO::Wrapper TreatmentController::execQueryOptionsV2(
+	const TreatmentOptionsQuery::Wrapper& query, const PayloadDTO& payload)
 {
-	auto jvo = TreatmentSelectPageJsonVO::createShared();
-
-	// 校验查询条件与凭证
+	// 定义统一响应对象。
+	auto jvo = TreatmentOptionsPageJsonVO::createShared();
+	// 校验查询参数和凭证用户。
 	if (!query || !query->validate().empty())
 	{
-		jvo->init(nullptr, RS_PARAMS_INVALID);
+		jvo->init(nullptr, ResultStatus(
+			ZH_WORDS_GETTER("treatment.message.params-invalid"), 10001));
 		return jvo;
 	}
 	if (payload.getId().empty())
 	{
-		jvo->init(nullptr, RS_FORBIDDEN);
+		jvo->init(nullptr, ResultStatus(
+			ZH_WORDS_GETTER("treatment.message.forbidden"), 10003));
 		return jvo;
 	}
 
-	// 查询当前用户所属租户的数据
-	auto result = TreatmentService().listSelect(query, payload);
-	if (!result)
+	// 调用业务层并封装查询结果。
+	try
 	{
-		jvo->init(nullptr, RS_FORBIDDEN);
-		return jvo;
+		auto result = TreatmentService().listOptionsV2(query, payload);
+		if (!result)
+		{
+			jvo->init(nullptr, ResultStatus(
+				ZH_WORDS_GETTER("treatment.message.forbidden"), 10003));
+			return jvo;
+		}
+		jvo->success(result);
 	}
-	jvo->success(result);
+	catch (const std::exception&)
+	{
+		jvo->init(nullptr, ResultStatus(
+			ZH_WORDS_GETTER("treatment.message.server-error"), 10099));
+	}
 	return jvo;
 }
-
 
 
 

@@ -23,14 +23,19 @@
 
 #include "domain/vo/BaseJsonVO.h"
 #include "domain/vo/treatment/TreatmentVO.h"
+#include "domain/vo/treatment/TreatmentOptionsVO.h"
 #include "domain/dto/treatment/TreatmentAddDTO.h"
 #include "domain/dto/treatment/TreatmentModifyDTO.h"
 #include "domain/query/treatment/TreatmentQuery.h"
-#include "domain/query/treatment/TreatmentSelectQuery.h"
+#include "domain/query/treatment/TreatmentOptionsQuery.h"
 #include "domain/dto/treatment/TreatmentPageDTO.h"
-#include "domain/dto/treatment/TreatmentSelectDTO.h"
 #include "domain/dto/treatment/TreatmentStatusDTO.h"
 #include "domain/dto/treatment/TreatmentRemoveDTO.h"
+
+#include <algorithm>
+#include <charconv>
+#include <exception>
+#include <system_error>
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 #define API_TAG ZH_WORDS_GETTER("treatment.tags.tag")
@@ -70,12 +75,120 @@ public: // 接口定义
 	// 删除诊疗（支持批量）：接口绑定
 	API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/treatment/remove-treatment", removeTreatment, BODY_DTO(List<String>, ids), execRemoveTreatment(ids));
 
-	// 获取选择诊疗列表（条件+分页）：接口信息
-	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("treatment.query-select.summary"), querySelectTreatment,
-		TreatmentSelectQuery, TreatmentSelectPageJsonVO::Wrapper, API_TAG);
-	// 获取选择诊疗列表（条件+分页）：接口绑定
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/treatment/query-select", querySelectTreatment,
-		TreatmentSelectQuery, execQuerySelect(query, authObject->getPayload()));
+	// 获取选择诊疗列表（条件+分页）。
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("treatment.options-v2.summary"), queryTreatmentOptionsV2,
+		TreatmentOptionsPageJsonVO::Wrapper, API_TAG,
+		API_DEF_QUERY_PARAM_BUILD(TreatmentOptionsQuery);
+		info->queryParams["pageIndex"].addExample("default", UInt64(1));
+		info->queryParams["pageSize"].addExample("default", UInt64(20));
+		info->queryParams["keyword"].addExample("example", String("肝功"));
+		info->queryParams["categoryCode"].addExample("example", String("22"));
+		info->authorization = "Bearer";
+		info->addResponse<TreatmentOptionsPageJsonVO::Wrapper>(Status::CODE_400, "application/json");
+		info->addResponse<TreatmentOptionsPageJsonVO::Wrapper>(Status::CODE_401, "application/json");
+		info->addResponse<TreatmentOptionsPageJsonVO::Wrapper>(Status::CODE_403, "application/json");
+		info->addResponse<TreatmentOptionsPageJsonVO::Wrapper>(Status::CODE_500, "application/json"););
+	ENDPOINT(API_M_GET, "/api/v2/treatments/options", queryTreatmentOptionsV2,
+		QUERIES(QueryParams, queryParams),
+		HEADER(String, authorization, API_H_TOKEN))
+	{
+		// 构造符合接口契约的统一错误响应。
+		auto makeError = [](const char* key, int code)
+		{
+			auto result = TreatmentOptionsPageJsonVO::createShared();
+			result->init(nullptr, ResultStatus(ZH_WORDS_GETTER(key), code));
+			return result;
+		};
+
+		// 校验 Bearer 凭证并解析当前用户。
+		std::shared_ptr<CustomerAuthorizeObject> v2AuthObject;
+		try
+		{
+			auto authorizationHandler = ApiController::getDefaultAuthorizationHandler();
+			if (authorizationHandler)
+			{
+				auto authorizationObject = authorizationHandler->handleAuthorization(authorization);
+				v2AuthObject = std::dynamic_pointer_cast<CustomerAuthorizeObject>(authorizationObject);
+			}
+		}
+		catch (const std::exception&)
+		{
+		}
+		if (!v2AuthObject)
+		{
+			return createDtoResponse(Status::CODE_401,
+				makeError("treatment.message.unauthorized", 10002));
+		}
+
+		// 校验诊疗选择列表访问权限。
+		const auto& authorities = v2AuthObject->getPayload().getAuthorities();
+		const bool permitted =
+			std::find(authorities.begin(), authorities.end(), "SUPER_ADMIN") != authorities.end() ||
+			std::find(authorities.begin(), authorities.end(),
+				"Navigation.Diagnosistreatment") != authorities.end();
+		if (!permitted)
+		{
+			return createDtoResponse(Status::CODE_403,
+				makeError("treatment.message.forbidden", 10003));
+		}
+
+		// 解析并校验分页及筛选参数。
+		auto query = TreatmentOptionsQuery::createShared();
+		bool pageIndexSet = false;
+		bool pageSizeSet = false;
+		bool valid = true;
+		for (const auto& param : queryParams.getAll())
+		{
+			const std::string name = param.first.toString();
+			auto data = param.second.getMemoryHandle().get();
+			if (!data)
+			{
+				valid = false;
+				break;
+			}
+			const std::string value = *data;
+			if (name == "pageIndex" || name == "pageSize")
+			{
+				bool& assigned = name == "pageIndex" ? pageIndexSet : pageSizeSet;
+				uint64_t parsed = 0;
+				const auto parseResult = std::from_chars(
+					value.data(), value.data() + value.size(), parsed);
+				if (assigned || value.empty() || parseResult.ec != std::errc() ||
+					parseResult.ptr != value.data() + value.size())
+				{
+					valid = false;
+					break;
+				}
+				assigned = true;
+				if (name == "pageIndex")
+					query->pageIndex = parsed;
+				else
+					query->pageSize = parsed;
+			}
+			else if (name == "keyword")
+			{
+				query->keyword = URIUtil::urlDecode(value.c_str());
+			}
+			else if (name == "categoryCode")
+			{
+				query->categoryCode = URIUtil::urlDecode(value.c_str());
+			}
+		}
+		if (!valid || !pageIndexSet || !pageSizeSet || !query->validate().empty())
+		{
+			return createDtoResponse(Status::CODE_400,
+				makeError("treatment.message.params-invalid", 10001));
+		}
+
+		// 调用执行函数并将业务码映射为 HTTP 状态。
+		auto result = execQueryOptionsV2(query, v2AuthObject->getPayload());
+		const int code = result->code.getValue(10099);
+		if (code == 10003)
+			return createDtoResponse(Status::CODE_403, result);
+		if (code == 10099)
+			return createDtoResponse(Status::CODE_500, result);
+		return createDtoResponse(Status::CODE_200, result);
+	}
 
 	// 获取诊疗列表（条件+分页）：接口信息
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("treatment.query.summary"), queryTreatment,
@@ -131,9 +244,9 @@ private: // 接口执行函数
 	// 演示删除数据
 	ListJsonVO<String>::Wrapper execRemoveTreatment(const List<String>& ids);
 
-	// 获取选择诊疗列表（条件+分页）：执行函数
-	TreatmentSelectPageJsonVO::Wrapper execQuerySelect(
-		const TreatmentSelectQuery::Wrapper& query, const PayloadDTO& payload);
+	// 获取选择诊疗列表执行函数。
+	TreatmentOptionsPageJsonVO::Wrapper execQueryOptionsV2(
+		const TreatmentOptionsQuery::Wrapper& query, const PayloadDTO& payload);
 
 	// 获取诊疗列表（条件+分页）：执行函数
 	TreatmentPageJsonVO::Wrapper execQueryTreatment(const TreatmentQuery::Wrapper& query);

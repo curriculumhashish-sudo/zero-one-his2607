@@ -1,9 +1,9 @@
-#pragma once
+ï»¿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
  @Author: axiao
- @Date: 2026/07/30
+ @Date: 2026/08/03
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,37 +17,44 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#ifndef _TREATMENT_SELECT_QUERY_H_
-#define _TREATMENT_SELECT_QUERY_H_
+#ifndef _TREATMENT_OPTIONS_QUERY_H_
+#define _TREATMENT_OPTIONS_QUERY_H_
 
 #include "../../GlobalInclude.h"
-#include "domain/query/PageQuery.h"
-
 #include <cstdint>
 #include <limits>
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/** »ñÈ¡Ñ¡ÔñÕïÁÆÁĞ±íµÄÌõ¼ş·ÖÒ³²éÑ¯Ä£ĞÍ¡£ */
-class TreatmentSelectQuery : public PageQuery
+/** è¯Šç–—é€‰æ‹©åˆ—è¡¨åˆ†é¡µæŸ¥è¯¢å‚æ•°ã€‚ */
+class TreatmentOptionsQuery : public oatpp::DTO
 {
-	DTO_INIT(TreatmentSelectQuery, PageQuery);
+	DTO_INIT(TreatmentOptionsQuery, DTO);
 
-	// ÕïÁÆÃû³Æ¡¢±àÂë¡¢Æ´ÒôÂë»òÎå±ÊÂë¹Ø¼ü×Ö¡£
+	API_DTO_FIELD_REQUIRE(
+		UInt64,
+		pageIndex,
+		ZH_WORDS_GETTER("treatment.field.page-index"),
+		true);
+	API_DTO_FIELD_REQUIRE(
+		UInt64,
+		pageSize,
+		ZH_WORDS_GETTER("treatment.field.page-size"),
+		true);
+
 	API_DTO_FIELD_REQUIRE(
 		String,
-		keywords,
-		ZH_WORDS_GETTER("treatment.field.keywords"),
+		keyword,
+		ZH_WORDS_GETTER("treatment.field.keyword"),
 		false);
-	// ×´Ì¬£º1-²İ¸å£¬2-ÆôÓÃ£¬3-Í£ÓÃ£¬4-·ÏÆú¡£
 	API_DTO_FIELD_REQUIRE(
-		Int32,
-		status,
-		ZH_WORDS_GETTER("treatment.field.status"),
+		String,
+		categoryCode,
+		ZH_WORDS_GETTER("treatment.field.category-code"),
 		false);
 
 public:
-	/** Ğ£Ñé·ÖÒ³·¶Î§ºÍ×´Ì¬·¶Î§¡£ */
+	/** æ ¡éªŒå¿…å¡«åˆ†é¡µå‚æ•°åŠå…è®¸èŒƒå›´ã€‚ */
 	std::string validate() const
 	{
 		if (!pageIndex || !pageSize)
@@ -55,28 +62,17 @@ public:
 			return "pagination required.";
 		}
 
-		const uint64_t pageIndexValue = pageIndex.getValue(1);
-		const uint64_t pageSizeValue = pageSize.getValue(10);
+		const uint64_t pageIndexValue = pageIndex.getValue(0);
+		const uint64_t pageSizeValue = pageSize.getValue(0);
 		if (pageIndexValue < 1 || pageIndexValue > MAX_PAGE_INDEX ||
 			pageSizeValue < 1 || pageSizeValue > MAX_PAGE_SIZE)
 		{
 			return "pagination invalid.";
 		}
-
-		if (status)
-		{
-			const int statusValue = status.getValue(0);
-			if (statusValue < MIN_STATUS || statusValue > MAX_STATUS)
-			{
-				return "status invalid.";
-			}
-		}
 		return "";
 	}
 
 private:
-	static constexpr int MIN_STATUS = 1;
-	static constexpr int MAX_STATUS = 4;
 	static constexpr uint64_t MAX_PAGE_INDEX =
 		static_cast<uint64_t>((std::numeric_limits<std::int32_t>::max)());
 	static constexpr uint64_t MAX_PAGE_SIZE = 1000;
@@ -84,4 +80,4 @@ private:
 
 #include OATPP_CODEGEN_END(DTO)
 
-#endif // !_TREATMENT_SELECT_QUERY_H_
+#endif // !_TREATMENT_OPTIONS_QUERY_H_

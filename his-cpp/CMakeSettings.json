@@ -6,30 +6,10 @@
       "configurationType": "Debug",
       "buildRoot": "${projectDir}\\out\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
-<<<<<<< HEAD
-      "cmakeCommandArgs": "-DUNIT_TEST=1 -DCMAKE_CXX_FLAGS=\"/std:c++17\"",
-      //"cmakeCommandArgs": "-DUNIT_TEST=1 -DCMAKE_C_COMPILER=\"${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\bin\\Hostx64\\x64\\cl.exe\" -DCMAKE_CXX_COMPILER=\"${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\bin\\Hostx64\\x64\\cl.exe\"",
-
-      "buildCommandArgs": "",
-      "ctestCommandArgs": "",
-<<<<<<< HEAD
-      "inheritEnvironments": [ "local_msvc_x64_x64" ]
-=======
-      "inheritEnvironments": [ "msvc_x64_x64" ],
-      "variables": [
-        {
-          "name": "CMAKE_CXX_FLAGS",
-          "value": "/std:c++17 /Zc:__cplusplus",
-          "type": "STRING"
-        }
-      ]
->>>>>>> 763b10e476a941bc985874326f337f6e03186ae4
-=======
       "cmakeCommandArgs": "-DUNIT_TEST=1",
       "buildCommandArgs": "",
-      "ctestCommandArgs": "" ,
+      "ctestCommandArgs": "",
       "inheritEnvironments": [ "msvc_x64_x64" ]
->>>>>>> 1ce8858f73e91e8a29a24d5f2b150e5c2209f07a
     },
     {
       "name": "x64-Release",
@@ -40,26 +20,7 @@
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "msvc_x64_x64" ],
-<<<<<<< HEAD
-<<<<<<< HEAD
-      "cmakeCommandArgs": "-D_RELEASE_DOC_=1 -DCMAKE_CXX_FLAGS=\"/std:c++17\""
-    //  "inheritEnvironments": [ "local_msvc_x64_x64" ],
-    //  "cmakeCommandArgs": "-D_RELEASE_DOC_=1 -DCMAKE_C_COMPILER=\"${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\bin\\Hostx64\\x64\\cl.exe\" -DCMAKE_CXX_COMPILER=\"${env.VSInstallDir}\\VC\\Tools\\MSVC\\${env.VisualStudio_VCToolsVersion}\\bin\\Hostx64\\x64\\cl.exe\""
-
-=======
-      "cmakeCommandArgs": "-D_RELEASE_DOC_=1",
-      "variables": [
-        {
-          "name": "CMAKE_CXX_FLAGS",
-          "value": "/std:c++17 /Zc:__cplusplus",
-          "type": "STRING"
-        }
-      ]
->>>>>>> 763b10e476a941bc985874326f337f6e03186ae4
-=======
       "cmakeCommandArgs": "-D_RELEASE_DOC_=1"
-<<<<<<< HEAD
->>>>>>> 1ce8858f73e91e8a29a24d5f2b150e5c2209f07a
     },
     {
       "name": "Linux-GCC-Debug",
@@ -98,11 +59,6 @@
       "rsyncCommandArgs": "-t --delete",
       "remoteCopyBuildOutput": false,
       "remoteCopySourcesMethod": "rsync"
-
-      //"cmakeCommandArgs": "-D_RELEASE_DOC_=1"
-
-=======
->>>>>>> 73b39b3574889c4fbc1e57d07c19c9f4a1626378
     }
   ]
 }

@@ -22,7 +22,6 @@
 
 #include "../../dto/treatment/TreatmentDetailDTO.h"
 #include "../../dto/treatment/TreatmentPageDTO.h"
-#include "../../dto/treatment/TreatmentSelectDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
@@ -36,12 +35,6 @@ class TreatmentDetailJsonVO : public JsonVO<TreatmentDetailDTO::Wrapper>
 class TreatmentPageJsonVO : public JsonVO<TreatmentPageDTO::Wrapper>
 {
     DTO_INIT(TreatmentPageJsonVO, JsonVO<TreatmentPageDTO::Wrapper>);
-};
-
-// 诊疗选择列表分页响应包装（简化项）
-class TreatmentSelectPageJsonVO : public JsonVO<TreatmentSelectPageDTO::Wrapper>
-{
-    DTO_INIT(TreatmentSelectPageJsonVO, JsonVO<TreatmentSelectPageDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)

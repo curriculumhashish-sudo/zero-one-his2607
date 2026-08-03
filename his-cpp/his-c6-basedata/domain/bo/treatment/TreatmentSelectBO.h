@@ -21,7 +21,9 @@
 #define _TREATMENT_SELECT_BO_H_
 
 #include "Macros.h"
+#include "oatpp/core/Types.hpp"
 
+#include <cstdint>
 #include <string>
 
 /** 选择诊疗联表查询结果。 */
@@ -32,23 +34,10 @@ class TreatmentSelectBO
 	CC_SYNTHESIZE(std::string, name, Name);
 	CC_SYNTHESIZE(std::string, categoryCode, CategoryCode);
 	CC_SYNTHESIZE(std::string, categoryCodeDictText, CategoryCodeDictText);
-	CC_SYNTHESIZE(std::string, orgIdDictText, OrgIdDictText);
-	CC_SYNTHESIZE(double, retailPrice, RetailPrice);
-	CC_SYNTHESIZE(std::string, specification, Specification);
-	CC_SYNTHESIZE(std::string, manufacturerText, ManufacturerText);
-	CC_SYNTHESIZE(std::string, itemTypeCode, ItemTypeCode);
-	CC_SYNTHESIZE(std::string, itemTypeCodeDictText, ItemTypeCodeDictText);
 	CC_SYNTHESIZE(std::string, packageUnitCode, PackageUnitCode);
 	CC_SYNTHESIZE(std::string, packageUnitCodeDictText, PackageUnitCodeDictText);
 	CC_SYNTHESIZE(std::string, defEncounterUnitCode, DefEncounterUnitCode);
 	CC_SYNTHESIZE(std::string, defEncounterUnitCodeDictText, DefEncounterUnitCodeDictText);
-	CC_SYNTHESIZE(std::string, ybNo, YbNo);
-	CC_SYNTHESIZE(std::string, statusEnum, StatusEnum);
-
-public:
-	TreatmentSelectBO() : retailPrice(0.0)
-	{
-	}
 };
 
 #endif // !_TREATMENT_SELECT_BO_H_
