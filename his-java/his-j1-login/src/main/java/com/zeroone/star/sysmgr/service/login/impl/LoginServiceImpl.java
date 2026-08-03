@@ -133,10 +133,11 @@ public class LoginServiceImpl implements ILoginService {
             }
             String userId = currentUser.getId();
             String currentToken = userHolder.getCurrentToken();
+            JSONObject claims = decodeToken(currentToken);
             // 优先从统一登录上下文读取（包含身份 + 租户/医院 + 角色 + token）
             LoginVO vo = readLoginContext(userId);
             if (vo != null) {
-                applyFrontendFields(vo, currentToken);
+                applyFrontendFields(vo, claims, currentToken);
                 loginContextService.refreshContext(userId);
                 return JsonVO.success(vo);
             }
@@ -153,7 +154,7 @@ public class LoginServiceImpl implements ILoginService {
             }
             // MySQL 回源后同时回填两类缓存，确保下次请求可命中完整上下文。
             writeLoginContext(userId, profile, userHolder.getCurrentToken());
-            applyFrontendFields(result, currentToken);
+            applyFrontendFields(result, claims, currentToken);
             return JsonVO.success(result);
         } catch (Exception exception) {
             return JsonVO.fail("登录状态无效：" + safeMessage(exception));
@@ -162,9 +163,10 @@ public class LoginServiceImpl implements ILoginService {
 
     /**
      * 填充前端契约要求、但 LoginVO 原有字段未覆盖的展示字段。
-     * 其中 avatar/desc 数据库当前无数据来源，返回空串；homePath 使用默认首页路径。
+     * 其中 avatar/desc 数据库当前无数据来源，返回空串；homePath 使用默认首页路径；
+     * roles 优先取已填充值（Redis 上下文），缺失时从 JWT claims 回填。
      */
-    private void applyFrontendFields(LoginVO vo, String currentToken) {
+    private void applyFrontendFields(LoginVO vo, JSONObject claims, String currentToken) {
         if (vo == null) {
             return;
         }
@@ -172,6 +174,10 @@ public class LoginServiceImpl implements ILoginService {
         vo.setRealName(vo.getName());
         if (!StringUtils.hasText(vo.getToken())) {
             vo.setToken(currentToken);
+        }
+        if (vo.getRoles() == null || vo.getRoles().isEmpty()) {
+            JSONArray rolesJson = claims == null ? null : claims.getJSONArray("roles");
+            vo.setRoles(rolesJson == null ? List.of() : rolesJson.toList(String.class));
         }
         vo.setAvatar(vo.getAvatar() == null ? "" : vo.getAvatar());
         vo.setDesc(vo.getDesc() == null ? "" : vo.getDesc());
@@ -206,6 +212,7 @@ public class LoginServiceImpl implements ILoginService {
             vo.setUsername(ctx.get("username"));
             vo.setName(ctx.get("realName"));
             vo.setToken(ctx.get("token"));
+            vo.setRoles(splitRoles(ctx.get("role")));
             vo.setEmail(ctx.get("email"));
             vo.setPhoneNumber(ctx.get("phone_number"));
             vo.setIsEnabled(toByte(ctx.get("is_enabled")));
@@ -260,6 +267,16 @@ public class LoginServiceImpl implements ILoginService {
 
     private Boolean toBoolean(String value) {
         return StringUtils.hasText(value) ? Boolean.valueOf(value) : null;
+    }
+
+    private List<String> splitRoles(String roleStr) {
+        if (!StringUtils.hasText(roleStr)) {
+            return List.of();
+        }
+        return Arrays.stream(roleStr.split(","))
+                .map(String::trim)
+                .filter(StringUtils::hasText)
+                .toList();
     }
 
     private void applyUserInfo(LoginVO vo, Map<String, String> userInfo) {

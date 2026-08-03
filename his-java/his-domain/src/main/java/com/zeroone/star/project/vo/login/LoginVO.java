@@ -3,6 +3,8 @@ package com.zeroone.star.project.vo.login;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * <p>
  * 描述：登录显示数据对象
@@ -42,6 +44,9 @@ public class LoginVO {
 
     @Schema(description = "访问令牌", example = "eyJhbGciOi...")
     private String token;
+
+    @Schema(description = "用户角色列表", example = "[\"ROLE_ADMIN\"]")
+    private List<String> roles;
 
     @Schema(description = "邮箱", example = "zhangsan@example.com")
     private String email;
