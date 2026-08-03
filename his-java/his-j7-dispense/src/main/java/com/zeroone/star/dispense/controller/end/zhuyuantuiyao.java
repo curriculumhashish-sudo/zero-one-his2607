@@ -34,7 +34,8 @@ public class zhuyuantuiyao implements InpatientRefundMedicineApis {
     @Operation(summary = "分页查询退药患者队列")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"pageIndex\":1,\"pageSize\":10,\"total\":1,\"pages\":1,\"rows\":[{\"id\":\"329874660147597312\",\"patientName\":\"张三\",\"genderEnum\":\"1\",\"genderEnumText\":\"男\",\"ageLabel\":\"45岁\",\"wardName\":\"内科病区\",\"bedName\":\"08床\",\"hospitalizationNo\":\"ZY20260719001\",\"refundEnum\":\"PENDING_REFUND\",\"refundEnumText\":\"待退药\"}]}}")))
     })
     @Override
     public JsonVO<PageDTO<InpatientRefundPatientVO>> queryPatientQueue(
@@ -46,7 +47,8 @@ public class zhuyuantuiyao implements InpatientRefundMedicineApis {
     @Operation(summary = "获取患者退药明细")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":[{\"id\":\"329906419476205568\",\"dispenseId\":\"329906419476205568\",\"requestId\":\"329891428408758272\",\"itemId\":\"322997883812974592\",\"itemName\":\"阿莫西林胶囊\",\"lotNumber\":\"20260501\",\"quantity\":1.00,\"unitCode\":\"8\",\"unitText\":\"瓶\",\"doctorName\":\"王医生\",\"refundEnum\":\"PENDING_REFUND\",\"refundEnumText\":\"待退药\",\"traceNo\":null,\"selectable\":true}]}")))
     })
     @Override
     public JsonVO<List<InpatientRefundDetailVO>> queryRefundDetail(
@@ -61,7 +63,8 @@ public class zhuyuantuiyao implements InpatientRefundMedicineApis {
             description = "确认退药操作：更新退药单状态为已确认，并对勾选的药品回补库存")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":\"退药确认成功\"}")))
     })
     @PostMapping("/confirm-return")
     @Override

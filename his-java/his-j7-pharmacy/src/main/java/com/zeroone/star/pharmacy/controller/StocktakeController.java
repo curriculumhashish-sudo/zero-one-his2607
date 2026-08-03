@@ -19,6 +19,7 @@ import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -42,7 +43,8 @@ public class StocktakeController implements StocktakeApis {
     @Override
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"id\":\"329874660147597312\"}}")))
     })
     public JsonVO<StocktakeSaveVO> addStocktake() {
         return JsonVO.success(stocktakeService.addStocktake());
@@ -51,16 +53,18 @@ public class StocktakeController implements StocktakeApis {
     @Override
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"pageIndex\":1,\"pageSize\":10,\"total\":0,\"pages\":0,\"rows\":[]}}")))
     })
-    public JsonVO<PageDTO<StocktakeListVO>> queryStocktakeList(@Valid @ModelAttribute StocktakeQuery query) {
+    public JsonVO<PageDTO<StocktakeListVO>> queryStocktakeList(@RequestBody @Valid StocktakeQuery query) {
         return JsonVO.success(stocktakeService.queryStocktakeList(query));
     }
 
     @Override
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"id\":\"329874660147597312\",\"busNo\":\"PD2026-07-010001\"}}")))
     })
     public JsonVO<StocktakeDetailVO> queryStocktakeDetail(@PathVariable("id") String id) {
         return JsonVO.success(stocktakeService.queryStocktakeDetail(id));
@@ -69,7 +73,8 @@ public class StocktakeController implements StocktakeApis {
     @Override
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"id\":\"329874660147597312\"}}")))
     })
     public JsonVO<StocktakeSaveVO> saveStocktake(@Valid @RequestBody StocktakeSaveDTO dto) {
         return JsonVO.success(stocktakeService.saveStocktake(dto));
@@ -78,7 +83,8 @@ public class StocktakeController implements StocktakeApis {
     @Override
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"id\":\"329874660147597312\"}}")))
     })
     public JsonVO<StocktakeSaveVO> saveAndSubmitStocktake(@Valid @RequestBody StocktakeSaveDTO dto) {
         return JsonVO.success(stocktakeService.saveAndSubmitStocktake(dto));

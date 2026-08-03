@@ -37,7 +37,8 @@ public class yaofangpandiandan {
     @Operation(summary = "提交审批")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"status\":\"PENDING_APPROVAL\"}}")))
     })
     public JsonVO<StocktakeStatusVO> submit(@Valid @RequestBody OperatorDTO dto) {
         try {
@@ -51,7 +52,8 @@ public class yaofangpandiandan {
     @Operation(summary = "审批通过")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"status\":\"APPROVED\"}}")))
     })
     public JsonVO<StocktakeStatusVO> approve(@Valid @RequestBody ApproveDTO dto) {
         try {
@@ -65,7 +67,8 @@ public class yaofangpandiandan {
     @Operation(summary = "审批驳回")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"status\":\"REJECTED\"}}")))
     })
     public JsonVO<StocktakeStatusVO> reject(@Valid @RequestBody ApproveDTO dto) {
         try {
@@ -79,7 +82,8 @@ public class yaofangpandiandan {
     @Operation(summary = "撤回审批")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"status\":\"WITHDRAWN\"}}")))
     })
     public JsonVO<StocktakeStatusVO> withdraw(@Valid @RequestBody OperatorDTO dto) {
         try {
@@ -93,7 +97,8 @@ public class yaofangpandiandan {
     @Operation(summary = "删除盘点单据", description = "软删除指定单据号的盘点单，仅草稿/待审核状态可删，同时解锁关联的库存锁定记录")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"deleted\":true}}")))
     })
     public JsonVO<SupplyDocumentDeleteVO> deleteStocktake(@Valid @RequestBody StocktakeDeleteDTO dto) {
         try {

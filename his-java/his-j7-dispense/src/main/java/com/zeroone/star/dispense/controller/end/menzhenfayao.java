@@ -44,11 +44,12 @@ public class menzhenfayao implements OutPharmApis {
     )
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"records\":[],\"total\":0,\"size\":10,\"current\":1,\"pages\":0}}")))
     })
-    @GetMapping("/patient-queue")
+    @PostMapping("/patient-queue")
     @Override
-    public JsonVO<IPage<PatientQueueVO>> pagePatientQueue(PatientQueueQuery query) {
+    public JsonVO<IPage<PatientQueueVO>> pagePatientQueue(@RequestBody PatientQueueQuery query) {
         IPage<PatientQueueVO> page = patientService.pagePatientQueue(query);
         return JsonVO.success(page);
     }
@@ -59,11 +60,12 @@ public class menzhenfayao implements OutPharmApis {
     )
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"records\":[],\"total\":0,\"size\":10,\"current\":1,\"pages\":0}}")))
     })
-    @GetMapping("/patient-drug-items")
+    @PostMapping("/patient-drug-items")
     @Override
-    public JsonVO<IPage<PatientDrugItemVO>> pagePatientDrugItems(PatientDrugItemQuery query) {
+    public JsonVO<IPage<PatientDrugItemVO>> pagePatientDrugItems(@RequestBody PatientDrugItemQuery query) {
         IPage<PatientDrugItemVO> page = drugService.pagePatientDrugItems(query);
         return JsonVO.success(page);
     }
@@ -74,7 +76,8 @@ public class menzhenfayao implements OutPharmApis {
     )
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"successCount\":2,\"failCount\":0,\"successIds\":[\"d001\",\"d002\"],\"failIds\":[],\"message\":\"批量发药完成\"}}")))
     })
     @PostMapping("/batch-dispense")
     @Override

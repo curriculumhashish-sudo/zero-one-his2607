@@ -19,7 +19,8 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -43,25 +44,26 @@ public class menzhenfatuiyaojilu implements OutpatientDispenseApis {
     private ExcelComponent excelComponent;
 
     @Override
-    @GetMapping("/page")
+    @PostMapping("/page")
     @Operation(summary = "分页查询发退药记录", description = "按处方分组展示门诊发药/退药记录")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"pageIndex\":1,\"pageSize\":10,\"total\":1,\"pages\":1,\"rows\":[{\"recordNo\":\"DP2026-07-010001\",\"statusEnum\":\"COMPLETED\",\"prescriptionNo\":\"CP2026-07-010003\",\"recordTypeName\":\"发药\",\"patientName\":\"马化腾\",\"clinicNo\":\"EN2026-07-010001\",\"deptName\":\"门诊内科\",\"dispenseTime\":\"2026-07-01 19:25:06\",\"pharmacyName\":\"门诊中药房\",\"dispenserName\":\"admin\",\"drugItems\":[]}]}}")))
     })
     public JsonVO<PageDTO<DispenseGroupVO>> queryPage(
-            @Parameter(description = "查询参数", required = true) DispenseQuery query) {
+            @RequestBody DispenseQuery query) {
         return JsonVO.success(service.queryPage(query));
     }
 
     @Override
-    @GetMapping("/export")
+    @PostMapping("/export")
     @Operation(summary = "导出发退药记录", description = "将查询结果以平铺格式导出为 Excel")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "导出成功，返回Excel文件流")
     })
     public void export(
-            @Parameter(description = "查询参数") DispenseQuery query,
+            @RequestBody DispenseQuery query,
             HttpServletResponse response) throws IOException {
         try {
             List<OutpatientDispenseRecordDTO> records = service.listForExport(query);

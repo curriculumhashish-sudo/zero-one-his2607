@@ -67,13 +67,14 @@ public class menzhentuiyao {
      * @param query 分页查询参数
      * @return 患者队列分页数据
      */
-    @GetMapping("/patient-queue")
+    @PostMapping("/patient-queue")
     @Operation(summary = "获取退药患者队列", description = "分页查询门诊退药患者队列（待退药/已退药）")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"records\":[],\"total\":0,\"size\":10,\"current\":1,\"pages\":0}}")))
     })
-    public JsonVO<IPage<PatientQueueVO>> getPatientQueue(PatientQueueQuery query) {
+    public JsonVO<IPage<PatientQueueVO>> getPatientQueue(@RequestBody PatientQueueQuery query) {
         return JsonVO.success(outpatientRefundService.queryRefundPatientQueue(query));
     }
 
@@ -87,13 +88,14 @@ public class menzhentuiyao {
      * @param query 查询参数（包含患者ID、就诊ID等）
      * @return 药品明细列表
      */
-    @GetMapping("/drug-items")
+    @PostMapping("/drug-items")
     @Operation(summary = "获取退药明细", description = "获取患者退药明细信息，供药师核对")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":[]}")))
     })
-    public JsonVO<List<PatientDrugItemVO>> getRefundDrugItems(PatientDrugItemQuery query) {
+    public JsonVO<List<PatientDrugItemVO>> getRefundDrugItems(@RequestBody PatientDrugItemQuery query) {
         return JsonVO.success(outpatientRefundService.queryRefundDrugItems(query));
     }
 
@@ -111,7 +113,8 @@ public class menzhentuiyao {
     @Operation(summary = "确认退药", description = "核对退药明细后确认退药，回补库存数量")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":\"退药确认成功\"}")))
     })
     public JsonVO<String> confirmRefund(@Valid @RequestBody DispenseVerifyDTO dto) {
         try {
@@ -126,7 +129,8 @@ public class menzhentuiyao {
     @Operation(summary = "执行拒绝退药", description = "更新退药申请单状态为已拒绝，并记录拒绝原因")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":\"拒绝退药成功\"}")))
     })
     @PostMapping("/reject-return")
     public JsonVO<String> rejectReturn(@Valid @RequestBody ReturnRejectDTO dto) {

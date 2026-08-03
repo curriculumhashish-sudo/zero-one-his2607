@@ -40,7 +40,8 @@ public class zhuyuanfatuiyaojilu implements InpatientDispenseRecordApis {
     @Override
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"pageIndex\":1,\"pageSize\":10,\"total\":1,\"pages\":1,\"rows\":[{\"id\":\"DISP-001\",\"dispenseTypeName\":\"发药\",\"dispenseStatusName\":\"已完成\",\"prescriptionNo\":\"RX-20260701-001\",\"patientName\":\"张三\",\"inpatientNo\":\"IP-20260701-001\",\"wardName\":\"内科一病区\",\"bedNo\":\"08床\",\"drugName\":\"阿托伐他汀钙片\",\"spec\":\"20mg*7片\",\"dispenseQuantity\":2,\"unitCode\":\"盒\",\"lotNumber\":\"LOT-20260701\",\"traceNo\":\"TRACE-001\",\"pharmacistName\":\"李药师\",\"dispenseTime\":\"2026-07-01 19:25:06\"}]}}")))
     })
     public JsonVO<PageDTO<InpatientDispenseRecordVO>> queryPage(InpatientDispenseRecordQuery query) {
         return JsonVO.success(service.queryPage(query));
