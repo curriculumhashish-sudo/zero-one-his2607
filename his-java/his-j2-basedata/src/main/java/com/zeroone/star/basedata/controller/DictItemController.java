@@ -1,6 +1,11 @@
 package com.zeroone.star.basedata.controller;
 
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.alibaba.nacos.common.utils.StringUtils;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.zeroone.star.basedata.entity.Dict;
+import com.zeroone.star.basedata.mapper.DictMapper;
 import com.zeroone.star.basedata.service.ITerConceptService;
 import com.zeroone.star.project.dto.PageDTO;
 
@@ -38,24 +43,54 @@ public class DictItemController implements DictItemApis {
     @Autowired
     private ITerConceptService terConceptService;
 
+    private final DictMapper dictMapper;
     @Operation(summary = "获取字典名称列表")
     @GetMapping("/queryDictNameList")
     @Override
     public JsonVO<List<String>> queryDictNameList(DictItemQuery query) {
-        return null;
+        List<String> names = dictMapper.selectDictNameList();
+        return JsonVO.success(names);
     }
 
-    @Operation(summary = "获取字典列表(条件+分页)",description = "获取字典列表(条件+分页)")
+    @Operation(summary = "获取字典列表(条件+分页)")
     @GetMapping("/queryDictItem")
     @Override
     public JsonVO<PageDTO<DictItemDTO>> queryAll(DictItemQuery query) {
-        return null;
+        Page<Dict> page = new Page<>(query.getPageIndex(), query.getPageSize());
+        LambdaQueryWrapper<Dict> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(StringUtils.hasText(query.getDictCode()), Dict::getCode, query.getDictCode());
+        if (StringUtils.hasText(query.getDicitemKeyword())) {
+            wrapper.and(w -> w
+                    .like(Dict::getDisplay, query.getDicitemKeyword())
+                    .or()
+                    .like(Dict::getCode, query.getDicitemKeyword()));
+        }
+        wrapper.orderByAsc(Dict::getSortOrder);  // ✅ sortOrder
+        Page<Dict> result = dictMapper.selectPage(page, wrapper);
+        PageDTO<DictItemDTO> pageDTO = PageDTO.create(result, dict -> {
+            DictItemDTO dto = new DictItemDTO();
+            dto.setDicId(String.valueOf(dict.getId()));
+            dto.setDicCode(dict.getCode());           // ✅ code
+            dto.setDicName(dict.getDisplay());        // ✅ display
+            dto.setDicDescription(dict.getDefinition()); // ✅ definition
+            dto.setDicSort(dict.getSortOrder() != null ? dict.getSortOrder().intValue() : null);      // ✅ sortOrder
+            return dto;
+        });
+        return JsonVO.success(pageDTO);
     }
+
     @Operation(summary = "新增字典")
     @PostMapping("/addDictItem")
     @Override
     public JsonVO<String> addDictItem(@RequestBody DictItemAddDTO addDTO) {
-        return null;
+        Dict dict = new Dict();
+        dict.setCodeSystemId(addDTO.getCodeSystemId());
+        dict.setCode(addDTO.getDicCode());              // ✅ code
+        dict.setDisplay(addDTO.getDicName());           // ✅ display
+        dict.setDefinition(addDTO.getDicDescription()); // ✅ definition
+        dict.setSortOrder(addDTO.getDicSort() != null ? addDTO.getDicSort().longValue() : null);         // ✅ sortOrder
+        int rows = dictMapper.insert(dict);
+        return rows > 0 ? JsonVO.success("新增成功") : JsonVO.fail("新增失败");
     }
     @Operation(summary = "修改字典")
     @PutMapping("/dictItem")

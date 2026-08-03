@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.basedata.mapper.DictionaryTypeMapper">
+    <select id="countName" resultType="int">
+        SELECT COUNT(1)
+        FROM ter_code_system
+        WHERE name = #{name}
+        <if test="excludeId != null and excludeId != ''">
+            AND id != #{excludeId}
+        </if>
+    </select>
+
+    <select id="countConcepts" resultType="int">
+        SELECT COUNT(1)
+        FROM ter_concept
+        WHERE code_system_id = #{dictionaryTypeId}
+        AND is_deleted = 0
+    </select>
+
+    <update id="updateDictionaryType">
+        UPDATE ter_code_system
+        SET name = #{et.name},
+        title = #{et.title},
+        description = #{et.description},
+        updated_at = #{et.updatedAt},
+        updated_by = #{et.updatedBy}
+        WHERE id = #{et.id}
+        AND is_deleted = 0
+    </update>
+
+    <update id="logicallyDeleteDictionaryType">
+        UPDATE ter_code_system
+        SET is_deleted = 1,
+        updated_at = #{et.updatedAt},
+        updated_by = #{et.updatedBy},
+        deleted_at = #{et.deletedAt},
+        deleted_by = #{et.deletedBy}
+        WHERE id = #{et.id}
+        AND is_deleted = 0
+    </update>
+</mapper>
