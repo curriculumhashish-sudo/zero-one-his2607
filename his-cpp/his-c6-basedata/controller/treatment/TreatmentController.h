@@ -85,8 +85,14 @@ public: // 接口定义
 		TreatmentSelectQuery, execQuerySelect(query, authObject->getPayload()));
 
 	// 新版诊疗选择列表接口。
-	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("treatment.options-v2.summary"), queryTreatmentOptionsV2,
-		TreatmentOptionsQuery, TreatmentOptionsPageJsonVO::Wrapper, API_TAG);
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("treatment.options-v2.summary"), queryTreatmentOptionsV2,
+		TreatmentOptionsPageJsonVO::Wrapper, API_TAG,
+		API_DEF_QUERY_PARAM_BUILD(TreatmentOptionsQuery);
+		info->authorization = "Bearer";
+		info->addResponse<TreatmentOptionsPageJsonVO::Wrapper>(Status::CODE_400, "application/json");
+		info->addResponse<TreatmentOptionsPageJsonVO::Wrapper>(Status::CODE_401, "application/json");
+		info->addResponse<TreatmentOptionsPageJsonVO::Wrapper>(Status::CODE_403, "application/json");
+		info->addResponse<TreatmentOptionsPageJsonVO::Wrapper>(Status::CODE_500, "application/json"););
 	ENDPOINT(API_M_GET, "/api/v2/treatments/options", queryTreatmentOptionsV2,
 		QUERIES(QueryParams, queryParams),
 		HEADER(String, authorization, API_H_TOKEN))
@@ -99,24 +105,17 @@ public: // 接口定义
 		};
 
 		std::shared_ptr<CustomerAuthorizeObject> v2AuthObject;
-		if (authorization)
+		try
 		{
-			const std::string headerValue = authorization.getValue("");
-			const std::string prefix = PayloadDTO::getTokenPrefix();
-			if (headerValue.size() > prefix.size() &&
-				headerValue.compare(0, prefix.size(), prefix) == 0)
+			auto authorizationHandler = ApiController::getDefaultAuthorizationHandler();
+			if (authorizationHandler)
 			{
-				try
-				{
-					CustomerAuthorizeHandler handler;
-					auto authObject = handler.authorize(
-						String(headerValue.substr(prefix.size())));
-					v2AuthObject = std::dynamic_pointer_cast<CustomerAuthorizeObject>(authObject);
-				}
-				catch (const std::exception&)
-				{
-				}
+				auto authorizationObject = authorizationHandler->handleAuthorization(authorization);
+				v2AuthObject = std::dynamic_pointer_cast<CustomerAuthorizeObject>(authorizationObject);
 			}
+		}
+		catch (const std::exception&)
+		{
 		}
 		if (!v2AuthObject)
 		{

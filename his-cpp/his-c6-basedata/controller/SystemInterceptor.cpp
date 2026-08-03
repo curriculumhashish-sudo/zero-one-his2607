@@ -1,4 +1,4 @@
-???/*
+/*
  Copyright Zero One Star. All rights reserved.
 
  @Author: awei
@@ -100,7 +100,8 @@ std::shared_ptr<oatpp::web::server::interceptor::RequestInterceptor::OutgoingRes
 	// Get request credentials
 	oatpp::String token = request->getHeader(API_H_TOKEN);
 	if (!token || token->empty()) {
-		if (path == "/api/v2/treatments/options") {
+		const std::string optionsPath = "/api/v2/treatments/options";
+		if (path == optionsPath || path.rfind(optionsPath + "?", 0) == 0) {
 			return createTreatmentOptionsV2UnauthorizedResponse(m_objectMapper);
 		}
 		return createErrorRespone("empty token", m_objectMapper);
