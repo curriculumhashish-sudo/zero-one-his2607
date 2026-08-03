@@ -2,9 +2,9 @@
 #ifndef _PATIENT_LEAVE_SERVICE_
 #define _PATIENT_LEAVE_SERVICE_
 
-#include "dao/cycleCtrl1/patientLeaveDAO.h"
-#include "domain/dto/cycleCtrl1/patientLeaveDTO.h"
-#include "domain/vo/cycleCtrl1/patientLeaveVo.h"
+#include "dao/cycleCtrl1/PatientLeaveDAO.h"
+#include "domain/dto/cycleCtrl1/PatientLeaveDTO.h"
+#include "domain/vo/cycleCtrl1/PatientLeaveVo.h"
 
 
 class PatientLeaveService

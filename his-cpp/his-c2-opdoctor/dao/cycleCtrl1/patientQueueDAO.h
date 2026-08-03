@@ -9,7 +9,7 @@
 #include "domain/do/cycleCtrl1/AdmEncounterLocationDO.h"
 #include "domain/do/cycleCtrl1/AdmEncounterParticipantDO.h"
 #include "dao/cycleCtrl1/PatientQueueMapper.h"
-#include "domain/query/cycleCtrl1/patientQueueQuery.h"
+#include "domain/query/cycleCtrl1/PatientQueueQuery.h"
 #include <list>
 
 class PatientQueueDAO : public BaseDAO

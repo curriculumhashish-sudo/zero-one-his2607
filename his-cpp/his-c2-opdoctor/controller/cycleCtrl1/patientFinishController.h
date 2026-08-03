@@ -2,9 +2,9 @@
 #ifndef _PATIENTFINISHCONTROLLER_H_
 #define _PATIENTFINISHCONTROLLER_H_
 
-#include "domain/dto/cycleCtrl1/patientFinishDTO.h"
-#include "domain/query/cycleCtrl1/patientFinishQuery.h"
-#include "domain/vo/cycleCtrl1/patientFinishVo.h"
+#include "domain/dto/cycleCtrl1/PatientFinishDTO.h"
+#include "domain/query/cycleCtrl1/PatientFinishQuery.h"
+#include "domain/vo/cycleCtrl1/PatientFinishVo.h"
 #include "domain/GlobalInclude.h"
 #include "domain/dto/PayloadDTO.h"
 

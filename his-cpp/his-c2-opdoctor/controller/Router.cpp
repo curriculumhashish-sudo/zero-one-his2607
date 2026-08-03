@@ -20,6 +20,7 @@
 #include "Router.h"
 #include "ApiHelper.h"
 
+
 #include "prescription2/Prescription2Controller.h"
 
 #include "chinapres1/ChinapresController1.h"
@@ -29,10 +30,12 @@
 #include "prescription4/historyOrderListController.h"
 
 
-#include "cycleCtrl1/patientQueueController.h"
-#include "cycleCtrl1/receptionPatientController.h"
-#include "cycleCtrl1/patientFinishController.h"
-#include "cycleCtrl1/patientLeaveController.h"
+
+#include "cycleCtrl1/PatientQueueController.h"
+#include "cycleCtrl1/ReceptionPatientController.h"
+#include "cycleCtrl1/PatientFinishController.h"
+#include "cycleCtrl1/PatientLeaveController.h"
+
 
 #include "controller/diagnose/DiagnoseController.h"
 

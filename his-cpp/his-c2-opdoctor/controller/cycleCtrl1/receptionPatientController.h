@@ -3,9 +3,9 @@
 #define _RECEPTIONPATIENTCONTROLLER_H_
 
 #include "domain/vo/BaseJsonVO.h"
-#include "domain/query/cycleCtrl1/receptionPatientQuery.h"
-#include "domain/dto/cycleCtrl1/receptionPatientDTO.h"
-#include "domain/vo/cycleCtrl1/receptionPatientVo.h"
+#include "domain/query/cycleCtrl1/ReceptionPatientQuery.h"
+#include "domain/dto/cycleCtrl1/ReceptionPatientDTO.h"
+#include "domain/vo/cycleCtrl1/ReceptionPatientVo.h"
 #include "domain/GlobalInclude.h"
 #include "service/cycleCtrl1/ReceptionPatientService.h"
 #include "domain/dto/PayloadDTO.h" 

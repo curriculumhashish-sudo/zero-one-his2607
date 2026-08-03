@@ -9,8 +9,8 @@
 #include "domain/do/cycleCtrl1/AdmHealthcareServiceDO.h"
 #include "domain/do/cycleCtrl1/AdmAccountDO.h"
 #include "dao/cycleCtrl1/ReceptionPatientMapper.h"
-#include "domain/query/cycleCtrl1/receptionPatientQuery.h"
-#include "domain/dto/cycleCtrl1/receptionPatientDTO.h"
+#include "domain/query/cycleCtrl1/ReceptionPatientQuery.h"
+#include "domain/dto/cycleCtrl1/ReceptionPatientDTO.h"
 #include "BaseDAO.h"
 
 

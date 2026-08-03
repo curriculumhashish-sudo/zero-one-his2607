@@ -2,14 +2,14 @@
 #ifndef RECEPTIONPATIENTSERVICE_H_
 #define RECEPTIONPATIENTSERVICE_H_
 
-#include "domain/dto/cycleCtrl1/receptionPatientDTO.h"
-#include "domain/query/cycleCtrl1/receptionPatientQuery.h"
+#include "domain/dto/cycleCtrl1/ReceptionPatientDTO.h"
+#include "domain/query/cycleCtrl1/ReceptionPatientQuery.h"
 #include "dao/cycleCtrl1/ReceptionPatientDAO.h"
 #include <ctime>
 #include <chrono>
 #include <sstream>
 #include <iomanip>
-
+#include "EnumDictUtil.h"
 
 
 class ReceptionPatientService
@@ -19,10 +19,17 @@ public:
 	RecePatientDTO::Wrapper getRecePatient(const RecePatientQuery::Wrapper& query, 
 		const string& tenantId, const string& practitionerId);
 
-
 	static int calcAge(const std::string& birthDate);
+
+	ReceptionPatientService()
+		: m_mongoClient(new MongoClient("mongodb://hisuser:123456@192.168.26.135:27017/firstDb"))
+	{
+
+	}
+
 private:
 	ReceptionPatientDAO m_dao;
+	std::shared_ptr<MongoClient> m_mongoClient;
 
 };
 

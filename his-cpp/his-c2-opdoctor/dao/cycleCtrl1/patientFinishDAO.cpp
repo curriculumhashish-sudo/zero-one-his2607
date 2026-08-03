@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "patientFinishDAO.h"
-#include "patientFinishMapper.h"
+#include "PatientFinishDAO.h"
+#include "PatientFinishMapper.h"
 
 std::shared_ptr<AdmEncounterDO> PatientFinishDAO::selectEncounterById(const oatpp::String& tenantId, const oatpp::String& encounterId)
 {
@@ -15,7 +15,7 @@ std::shared_ptr<AdmEncounterDO> PatientFinishDAO::selectEncounterById(const oatp
 bool PatientFinishDAO::updateEncounterToFinish(const oatpp::String& tenantId, const oatpp::String& encounterId)
 {
     // 根据主键id更新
-    std::string sql = "UPDATE adm_encounter SET status_enum = 'COMPLETED', end_time = NOW() WHERE id = ? AND tenant_id = ? AND is_deleted = 0";
+    std::string sql = "UPDATE adm_encounter SET status_enum = 'finished', end_time = NOW() WHERE id = ? AND tenant_id = ? AND is_deleted = 0";
     SqlParams params;
     SQLPARAMS_PUSH(params, "s", std::string, encounterId->c_str());
     SQLPARAMS_PUSH(params, "s", std::string, tenantId->c_str());

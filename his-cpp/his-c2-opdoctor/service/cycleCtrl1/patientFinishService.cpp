@@ -1,5 +1,5 @@
 ﻿#include "stdafx.h"
-#include "patientFinishService.h"
+#include "PatientFinishService.h"
 
 PatientFinishJsonVO::Wrapper PatientFinishService::execFinishPatient(const oatpp::String& tenantId, const oatpp::String& encounterId)
 {

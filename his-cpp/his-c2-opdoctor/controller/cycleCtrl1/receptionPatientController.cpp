@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "receptionPatientController.h"
+#include "ReceptionPatientController.h"
 #include "service/cycleCtrl1/ReceptionPatientService.h"
 #include "RedisClient.h"
 

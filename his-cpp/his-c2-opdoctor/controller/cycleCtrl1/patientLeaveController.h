@@ -2,9 +2,9 @@
 #ifndef _PATIENTLEAVECONTROLLER_H_
 #define _PATIENTLEAVECONTROLLER_H_
 
-#include "domain/dto/cycleCtrl1/patientLeaveDTO.h"        
-#include "domain/query/cycleCtrl1/patientLeaveQuery.h"
-#include "domain/vo/cycleCtrl1/patientLeaveVo.h"
+#include "domain/dto/cycleCtrl1/PatientLeaveDTO.h"        
+#include "domain/query/cycleCtrl1/PatientLeaveQuery.h"
+#include "domain/vo/cycleCtrl1/PatientLeaveVo.h"
 #include "domain/GlobalInclude.h"
 #include "domain/dto/PayloadDTO.h"
 
