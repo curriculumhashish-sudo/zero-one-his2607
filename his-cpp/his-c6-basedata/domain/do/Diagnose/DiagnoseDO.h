@@ -18,7 +18,6 @@
 #include "../DoInclude.h"
 /**
  * 诊断数据库实体DO，对应数据表 t_diagnose
-//这是你的部分
  */
 class diagnoseDO : public BaseDO
 {
@@ -106,7 +105,7 @@ public:
 		// 删除标记 is_deleted 
 		MYSQL_ADD_FIELD("is_deleted", "b", isDelete);
 		// 诊断目录 condition_code
-		MYSQL_ADD_FIELD("condition_code", "s", catName);
+		MYSQL_ADD_FIELD("condition_code", "s", medicalInsuranceCode);
 		// 租户标识 tenant_id
 		MYSQL_ADD_FIELD("tenant_id", "s", tenantId);
 		//乐观锁版本version
@@ -117,16 +116,6 @@ public:
 
 	}
 };
-
-
-
-
-
-
-
-
-
-//这是我的部分
 typedef std::shared_ptr<diagnoseDO> PtrdiagnoseDO;
 
 class DiagnoseDO : public BaseDO
@@ -221,7 +210,7 @@ public:
 		//乐观锁版本version
 		MYSQL_ADD_FIELD("version", "i", version);
 		//来源枚举值
-		MYSQL_ADD_FIELD("source_enum", "s", source_enum);
+		MYSQL_ADD_FIELD("source_enum", "i", source_enum);
 
 
 	}
