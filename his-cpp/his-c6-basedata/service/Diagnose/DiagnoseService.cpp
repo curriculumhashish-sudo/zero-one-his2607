@@ -405,7 +405,7 @@ bool DiagnoseService::updateData(const DiagnoseDTO::Wrapper& dto)
 		Source_enum, source_enum,//前端可以不传，从mongodb中获取
 		Version,version
 	);
-
+	data.setSource_enum(dto->catName);//如果不走mongodb查询，那么诊断目录就是来源枚举值
 	//租户id获取
 	RedisClient rc("127.0.0.1", 6379, "");
 	std::string getr = rc.execute<std::string>([](Redis* r) {

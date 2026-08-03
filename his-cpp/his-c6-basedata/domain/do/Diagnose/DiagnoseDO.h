@@ -214,13 +214,13 @@ public:
 		MYSQL_ADD_FIELD("yb_flag", "b", medicalInsuranceTag);
 		// 删除标记 is_deleted 
 		MYSQL_ADD_FIELD("is_deleted", "b", isDelete);
-		// 诊断目录 condition_code
+		// 诊断病情码 condition_code
 		MYSQL_ADD_FIELD("condition_code", "s", medicalInsuranceCode);
 		// 租户标识 tenant_id
 		MYSQL_ADD_FIELD("tenant_id", "s", tenantId);
 		//乐观锁版本version
 		MYSQL_ADD_FIELD("version", "i", version);
-		//来源枚举值
+		//来源枚举值（需要查mongodb）--对应本地诊断目录
 		MYSQL_ADD_FIELD("source_enum", "s", source_enum);
 
 
