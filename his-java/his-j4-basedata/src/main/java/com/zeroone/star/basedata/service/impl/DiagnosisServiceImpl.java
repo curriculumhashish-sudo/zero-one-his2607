@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zeroone.star.basedata.constant.DiagnosisConstants;
 import com.zeroone.star.basedata.entity.diagnosis.ClnConditionDefinitionDO;
 import com.zeroone.star.basedata.entity.diagnosis.TerConceptDO;
 import com.zeroone.star.basedata.mapper.DiagnosisCatalogMapper;
@@ -90,58 +91,72 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
     @Override
     @Transactional
     public String saveDefinition(DiagnosisSaveDTO dto) {
-        // 1. DTO转实体
+        // 1. 获取当前租户ID并校验病情编码唯一
+        String tenantId = userHolder.getCurrentTenantId();
+        checkConditionCodeUnique(dto.getConditionCode(), null, tenantId);
+        
+        // 2. DTO转实体
         ClnConditionDefinitionDO entity = new ClnConditionDefinitionDO();
         BeanUtil.copyProperties(dto, entity);
-        
-        // 生成病情编码（格式：CDF + 8位数字序号）
-        entity.setConditionCode(generateConditionCode());
         
         // 设置创建时间
         entity.setCreatedAt(LocalDateTime.now());
         entity.setUpdatedAt(LocalDateTime.now());
         
         // 设置租户ID
-        entity.setTenantId(userHolder.getCurrentTenantId());
+        entity.setTenantId(tenantId);
         
-        // 2. 保存到数据库
+        // 新增默认状态为"已启用"
+        entity.setStatusEnum(DiagnosisConstants.STATUS_ACTIVE);
+        
+        // 3. 保存到数据库
         baseMapper.insert(entity);
         
-        // 3. 返回新增记录ID
+        // 4. 返回新增记录ID
         return entity.getId();
     }
     
     /**
-     * 生成病情编码，格式为 CDF + 8位数字
+     * 校验同租户内病情编码是否唯一
+     * @param conditionCode 病情编码
+     * @param excludeId     需要排除的主键ID（新增传null，修改传当前ID）
+     * @param tenantId      当前租户ID
      */
-    private String generateConditionCode() {
-        // 简单实现：使用当前时间戳的一部分作为唯一编码
-        // 实际项目中可能需要更复杂的逻辑来确保全局唯一性
-        return "CDF" + System.currentTimeMillis() % 100000000L;
+    private void checkConditionCodeUnique(String conditionCode, String excludeId, String tenantId) {
+        Long count = lambdaQuery()
+                .eq(ClnConditionDefinitionDO::getTenantId, tenantId)
+                .eq(ClnConditionDefinitionDO::getConditionCode, conditionCode)
+                .ne(excludeId != null, ClnConditionDefinitionDO::getId, excludeId)
+                .count();
+        if (count != null && count > 0) {
+            throw new RuntimeException("病情编码 [" + conditionCode + "] 已存在");
+        }
     }
 
     @Override
     @Transactional
     public void modifyDefinition(DiagnosisUpdateDTO dto) {
-        // 1. 检查记录是否存在
+        // 1. 获取当前租户ID并检查记录是否存在
+        String tenantId = userHolder.getCurrentTenantId();
         ClnConditionDefinitionDO existing = baseMapper.selectById(dto.getId());
         if (existing == null) {
             throw new RuntimeException("诊断记录不存在");
         }
-        // 2. DTO转实体
+        // 2. 校验同租户内病情编码唯一（排除自身）
+        checkConditionCodeUnique(dto.getConditionCode(), dto.getId(), tenantId);
+        // 3. DTO转实体
         ClnConditionDefinitionDO entity = new ClnConditionDefinitionDO();
         BeanUtil.copyProperties(dto, entity);
-        // 3. 保留系统字段
+        // 4. 保留系统字段
         entity.setCreatedAt(existing.getCreatedAt());
         entity.setCreatedBy(existing.getCreatedBy());
         entity.setIsDeleted(existing.getIsDeleted());
         entity.setDeletedAt(existing.getDeletedAt());
         entity.setDeletedBy(existing.getDeletedBy());
         entity.setVersion(existing.getVersion());
-        entity.setConditionCode(existing.getConditionCode()); // 保留原编码
-        entity.setTenantId(existing.getTenantId()); // 保留租户ID
-        entity.setUpdatedAt(LocalDateTime.now()); // 更新时间
-        // 4. 更新数据库
+        entity.setTenantId(existing.getTenantId());
+        entity.setUpdatedAt(LocalDateTime.now());
+        // 5. 更新数据库
         baseMapper.updateById(entity);
     }
 
@@ -153,8 +168,8 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
             throw new IllegalArgumentException("诊断ID列表不能为空");
         }
         // 2. 检查状态值是否有效
-        if (!"ACTIVE".equals(dto.getStatus()) && !"INACTIVE".equals(dto.getStatus())) {
-            throw new IllegalArgumentException("状态值必须为ACTIVE或INACTIVE");
+        if (!DiagnosisConstants.isValidStatus(dto.getStatus())) {
+            throw new IllegalArgumentException("状态值无效，必须为 DRAFT / ACTIVE / INACTIVE / DISCARDED");
         }
         // 3. 批量更新状态（限定租户）
         LambdaUpdateWrapper<ClnConditionDefinitionDO> updateWrapper = new LambdaUpdateWrapper<>();

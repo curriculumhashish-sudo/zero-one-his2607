@@ -43,6 +43,8 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, CusFreque
     public PageDTO<FrequencyVO> queryFrequencyPage(FrequencyPageQuery query) {
         // 1. 获取当前租户ID
         String tenantId = userHolder.getCurrentTenantId();
+        // 测试用
+//        String tenantId = "1";
         // 2. 构建分页对象并按租户查询
         Page<FrequencyVO> page = new Page<>(query.getPageIndex(), query.getPageSize());
         Page<FrequencyVO> result = baseMapper.selectFrequencyPage(page, query, tenantId);
@@ -53,6 +55,8 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, CusFreque
     public FrequencyVO queryFrequencyDetail(String id) {
         // 1. 获取当前租户ID
         String tenantId = userHolder.getCurrentTenantId();
+        // 测试用
+//        String tenantId = "1";
         return baseMapper.selectFrequencyById(id, tenantId);
     }
 
@@ -61,6 +65,8 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, CusFreque
     public FrequencyVO addFrequency(FrequencySaveDTO dto) {
         // 1. 获取当前租户ID
         String tenantId = userHolder.getCurrentTenantId();
+        // 测试用
+//        String tenantId = "1";
         // 2. 校验同租户内频次代号唯一
         checkRateCodeUnique(dto.getRateCode(), null, tenantId);
         // 3. DTO转实体并绑定租户
@@ -77,6 +83,8 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, CusFreque
     public FrequencyVO modifyFrequency(FrequencyUpdateDTO dto) {
         // 1. 获取当前租户ID并校验记录归属
         String tenantId = userHolder.getCurrentTenantId();
+        // 测试用
+//        String tenantId = "1";
         CusFrequencyDO existing = baseMapper.selectById(dto.getId());
         if (existing == null || !tenantId.equals(existing.getTenantId())) {
             throw new RuntimeException("频次记录不存在");
@@ -85,6 +93,7 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, CusFreque
         checkRateCodeUnique(dto.getRateCode(), dto.getId(), tenantId);
         // 3. DTO转实体
         CusFrequencyDO entity = msFrequencyMapper.updateDtoToEntity(dto);
+        normalizeCycleFields(entity);
         // 4. 保留系统字段与租户标识
         entity.setTenantId(existing.getTenantId());
         entity.setCreatedAt(existing.getCreatedAt());
@@ -104,6 +113,66 @@ public class FrequencyServiceImpl extends ServiceImpl<FrequencyMapper, CusFreque
         }
         // 6. 查询最新数据并返回（限定当前租户）
         return baseMapper.selectFrequencyById(dto.getId(), tenantId);
+    }
+
+    /**
+     * 根据周期类型清空不适用的执行规则字段，防止周期切换后残留旧类型数据。
+     *
+     * @param entity 待更新的频次实体
+     */
+    static void normalizeCycleFields(CusFrequencyDO entity) {
+        if (entity == null || entity.getCycleType() == null) {
+            return;
+        }
+
+        String dayTimes = entity.getDayTimes();
+        Integer dayInterval = entity.getDayInterval();
+        Integer dayCount = entity.getDayCount();
+        Byte weekCycleFlag = entity.getWeekCycleFlag();
+        Integer executionPeriod = entity.getExecutionPeriod();
+        String executionPeriodUnit = entity.getExecutionPeriodUnit();
+        Integer totalExecutionCount = entity.getTotalExecutionCount();
+        String allowCrossDay = entity.getAllowCrossDay();
+
+        clearCycleFields(entity);
+        switch (entity.getCycleType()) {
+            case "daily" -> {
+                entity.setDayTimes(dayTimes);
+                entity.setDayInterval(dayInterval);
+                entity.setDayCount(dayCount);
+                entity.setAllowCrossDay(allowCrossDay);
+            }
+            case "weekly" -> {
+                entity.setDayTimes(dayTimes);
+                entity.setWeekCycleFlag(weekCycleFlag);
+                entity.setAllowCrossDay(allowCrossDay);
+            }
+            case "interval" -> {
+                entity.setDayInterval(dayInterval);
+                entity.setExecutionPeriod(executionPeriod);
+                entity.setExecutionPeriodUnit(executionPeriodUnit);
+                entity.setAllowCrossDay(allowCrossDay);
+            }
+            case "as-needed" -> entity.setDayTimes(dayTimes);
+            case "fixed-count" -> {
+                entity.setDayTimes(dayTimes);
+                entity.setTotalExecutionCount(totalExecutionCount);
+            }
+            default -> {
+                // 未支持的周期类型不保留任何周期条件，避免形成互相矛盾的规则数据。
+            }
+        }
+    }
+
+    private static void clearCycleFields(CusFrequencyDO entity) {
+        entity.setDayTimes(null);
+        entity.setDayInterval(null);
+        entity.setDayCount(null);
+        entity.setWeekCycleFlag(null);
+        entity.setExecutionPeriod(null);
+        entity.setExecutionPeriodUnit(null);
+        entity.setTotalExecutionCount(null);
+        entity.setAllowCrossDay(null);
     }
 
     @Override
