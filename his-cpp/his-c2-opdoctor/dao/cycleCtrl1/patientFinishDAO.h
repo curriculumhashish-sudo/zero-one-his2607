@@ -4,7 +4,7 @@
 
 #include "BaseDAO.h"
 #include "domain/do/cycleCtrl1/AdmEncounterDO.h"
-#include "dao/cycleCtrl1/patientFinishMapper.h"
+#include "dao/cycleCtrl1/PatientFinishMapper.h"
 
 class PatientFinishDAO : public BaseDAO
 {

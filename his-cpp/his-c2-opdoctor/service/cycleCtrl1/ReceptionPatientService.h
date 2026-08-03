@@ -2,8 +2,8 @@
 #ifndef RECEPTIONPATIENTSERVICE_H_
 #define RECEPTIONPATIENTSERVICE_H_
 
-#include "domain/dto/cycleCtrl1/receptionPatientDTO.h"
-#include "domain/query/cycleCtrl1/receptionPatientQuery.h"
+#include "domain/dto/cycleCtrl1/ReceptionPatientDTO.h"
+#include "domain/query/cycleCtrl1/ReceptionPatientQuery.h"
 #include "dao/cycleCtrl1/ReceptionPatientDAO.h"
 #include <ctime>
 #include <chrono>

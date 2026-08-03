@@ -3,9 +3,9 @@
 #define _PATIENT_FINISH_SERVICE_
 
 
-#include "dao/cycleCtrl1/patientFinishDAO.h"
-#include "domain/dto/cycleCtrl1/patientFinishDTO.h"
-#include "domain/vo/cycleCtrl1/patientFinishVO.h"
+#include "dao/cycleCtrl1/PatientFinishDAO.h"
+#include "domain/dto/cycleCtrl1/PatientFinishDTO.h"
+#include "domain/vo/cycleCtrl1/PatientFinishVo.h"
 
 class PatientFinishService
 {

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "patientLeaveService.h"
+#include "PatientLeaveService.h"
 
 
 PatientLeaveJsonVO::Wrapper PatientLeaveService::execLeavePatient(const oatpp::String& tenantId, const oatpp::String& encounterId)
@@ -18,7 +18,7 @@ PatientLeaveJsonVO::Wrapper PatientLeaveService::execLeavePatient(const oatpp::S
 
     //2. 状态校验
     oatpp::String status = encounterDO->getStatusEnum();
-    if (status == "LEFT" || status == "COMPLETED")
+    if (status == "onHold" || status == "finished")
     {
         vo->code = 10002;
         vo->message = u8"该患者已离院或已完诊，不能重复操作";
@@ -27,7 +27,7 @@ PatientLeaveJsonVO::Wrapper PatientLeaveService::execLeavePatient(const oatpp::S
     }
 
    
-    //3. 执行更新到离院状态
+    //3. 执行更新到离院状态 --> 前端要求在诊变成待诊
     uint64_t affectRows = dao.updateEncounterToLeave(tenantId, encounterId);
     if (affectRows == 0)
     {

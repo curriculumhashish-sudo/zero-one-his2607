@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "patientQueueController.h"
+#include "PatientQueueController.h"
 #include "service/cycleCtrl1/PatientQueueService.h"
 #include "RedisClient.h"
 #include "../../../.skeleton/Macros.h"

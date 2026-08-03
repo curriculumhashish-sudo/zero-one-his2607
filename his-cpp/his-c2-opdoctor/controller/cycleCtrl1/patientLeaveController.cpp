@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "patientLeaveController.h"
-#include "service/cycleCtrl1/patientLeaveService.h"
+#include "PatientLeaveController.h"
+#include "service/cycleCtrl1/PatientLeaveService.h"
 #include "RedisClient.h"
 
 PatientLeaveJsonVO::Wrapper PatientLeaveController::execLeavePatient(const PatientLeaveQuery::Wrapper& dto, const PayloadDTO& payload)

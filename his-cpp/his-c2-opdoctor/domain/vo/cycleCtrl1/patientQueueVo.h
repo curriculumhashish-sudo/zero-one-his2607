@@ -3,7 +3,7 @@
 #define _PATIENTQUEUEVO_H_
 
 #include "../../GlobalInclude.h"
-#include "../../dto/cycleCtrl1/patientQueueDTO.h"
+#include "../../dto/cycleCtrl1/PatientQueueDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "patientLeaveDAO.h"
+#include "PatientLeaveDAO.h"
 
 std::shared_ptr<AdmEncounterDO> PatientLeaveDAO::selectEncounterById(const oatpp::String& tenantId, const oatpp::String& encounterId)
 {
@@ -16,7 +16,7 @@ std::shared_ptr<AdmEncounterDO> PatientLeaveDAO::selectEncounterById(const oatpp
 bool PatientLeaveDAO::updateEncounterToLeave(const oatpp::String& tenantId, const oatpp::String& encounterId)
 {
     // ÔÝÀë½öÐÞ¸Ä¾ÍÕï×´Ì¬
-    std::string sql = "UPDATE adm_encounter SET status_enum = 'LEFT' WHERE id = ? AND tenant_id = ? AND is_deleted = 0";
+    std::string sql = "UPDATE adm_encounter SET status_enum = 'arrived' WHERE id = ? AND tenant_id = ? AND is_deleted = 0";
     SqlParams params;
     SQLPARAMS_PUSH(params, "s", std::string, encounterId->c_str());
     SQLPARAMS_PUSH(params, "s", std::string, tenantId ? tenantId->c_str() : "");

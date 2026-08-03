@@ -4,9 +4,9 @@
 
 
 #include "domain/vo/BaseJsonVO.h"
-#include "domain/query/cycleCtrl1/patientQueueQuery.h"
-#include "domain/dto/cycleCtrl1/patientQueueDTO.h"
-#include "domain/vo/cycleCtrl1/patientQueueVo.h"
+#include "domain/query/cycleCtrl1/PatientQueueQuery.h"
+#include "domain/dto/cycleCtrl1/PatientQueueDTO.h"
+#include "domain/vo/cycleCtrl1/PatientQueueVo.h"
 #include "domain/GlobalInclude.h"
 #include "service/cycleCtrl1/PatientQueueService.h"
 #include "domain/dto/PayloadDTO.h"

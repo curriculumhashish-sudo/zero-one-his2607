@@ -19,10 +19,11 @@
 #include "stdafx.h"
 #include "Router.h"
 #include "ApiHelper.h"
-#include "cycleCtrl1/patientQueueController.h"
-#include "cycleCtrl1/receptionPatientController.h"
-#include "cycleCtrl1/patientFinishController.h"
-#include "cycleCtrl1/patientLeaveController.h"
+#include "cycleCtrl1/PatientQueueController.h"
+#include "cycleCtrl1/ReceptionPatientController.h"
+#include "cycleCtrl1/PatientFinishController.h"
+#include "cycleCtrl1/PatientLeaveController.h"
+
 
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC

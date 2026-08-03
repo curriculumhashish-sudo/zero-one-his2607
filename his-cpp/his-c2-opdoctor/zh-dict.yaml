@@ -10,10 +10,13 @@ queue:
   registerType: "挂号类型"
   visitTime: "就诊时间"
   visitNum: "病历号"
-  payType: "支付类型"
+  payType: "支付类型(自费/医保)"
   visitStatus: "就诊状态"
   encounterId: "就诊ID"
   patientId: "患者ID"
+  queueNum: "排队号"
+  departmentName: "科室名称"
+  priorityName: "优先级名称"
  query:
   date: "日期"
   patient: "患者"
@@ -34,13 +37,18 @@ rece:
   gender: "性别"
   age: "年龄"
   registerType: "挂号类型"
-  medicalRecordNum: "病历号(唯一标识)"
+  medicalRecordNum: "病历号"
   recordType: "病历类型"
   time: "就诊时间"
   registerDept: "挂号科室"
   phoneNum: "电话号"
   allergyHistory: "过敏史"
   encounterId: "就诊号"
+  patientId: "患者ID"
+  attendingDoctorName: "接诊医生名字"
+  chiefComplaint: "主诉"
+  emergencyContact: "紧急联系人"
+  triageNote: "分诊备注"
  query:
   data: "日期"
  param:
@@ -57,8 +65,14 @@ rece:
 
 finish:
  dto:
-  newVisitStatus: "完诊"
-  encounterId: "就诊号"
+  newVisitStatus: "完诊状态"
+  encounterId: "就诊ID"
+  visitNo: "病历号"
+  version: "版本号"
+  arrived: "待诊"
+  inProgress: "在诊"
+  finished: "完诊"
+  completedAt: "完诊时间"
  query:
   visitStatus: "其他状态"
  get:
@@ -67,7 +81,13 @@ finish:
 leave:
  dto:
   newVisitStatus: "暂离"
-  encounterId: "就诊号"
+  encounterId: "就诊ID"
+  version: "版本号"
+  arrived: "待诊"
+  inProgress: "在诊"
+  finished: "完诊"
+  attendingDoctorName: "接诊医生名字"
+  acceptedAt: "接诊时间"
  query:
   visitStatus: "其他状态"
  get:

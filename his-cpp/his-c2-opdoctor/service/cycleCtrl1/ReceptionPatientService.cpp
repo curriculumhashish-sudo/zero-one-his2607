@@ -67,7 +67,7 @@ RecePatientDTO::Wrapper ReceptionPatientService::getRecePatient(const RecePatien
     dto->registerType = data->getServiceDO()->getName();
     dto->encounterId = data->getEncounterDO()->getBusNo();
     dto->payType = data->getAccountDO()->getTypeCode();
-    dto->VisitTime = data->getEncounterDO()->getReceptionTime();
+    dto->visitTime = data->getEncounterDO()->getReceptionTime();
     dto->registerDept = data->getOrgDO()->getName();
     dto->phoneNum = data->getPatientDO()->getPhone();
     dto->allergyHistory = data->getAllergyDO()->getAllergyText();

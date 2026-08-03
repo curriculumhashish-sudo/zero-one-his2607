@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
-#include "patientFinishController.h"
-#include "domain/query/cycleCtrl1/patientFinishQuery.h"
-#include "service/cycleCtrl1/patientFinishService.h"
+#include "PatientFinishController.h"
+#include "domain/query/cycleCtrl1/PatientFinishQuery.h"
+#include "service/cycleCtrl1/PatientFinishService.h"
 #include "RedisClient.h"
 
 PatientFinishJsonVO::Wrapper PatientFinishController::execFinishPatient(const PatientFinishQuery::Wrapper& dto, const PayloadDTO& payload)

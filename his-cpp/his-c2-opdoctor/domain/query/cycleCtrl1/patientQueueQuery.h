@@ -19,6 +19,7 @@ class PatientQueueQuery : public oatpp::DTO
 	API_DTO_FIELD_REQUIRE(String, patientName, ZH_WORDS_GETTER("queue.query.patientName"), false);
 	//visitStatus -> Д§еяЁЂдкеяЁЂЭъея
 	API_DTO_FIELD_REQUIRE(String, visitStatus, ZH_WORDS_GETTER("queue.query.visitStatus"), false);
+
 	
 };
 

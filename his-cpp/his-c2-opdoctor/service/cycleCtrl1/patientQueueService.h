@@ -2,8 +2,8 @@
 #ifndef _PATIENTQUEUESERVICE_H_
 #define _PATIENTQUEUESERVICE_H_
 
-#include "domain/query/cycleCtrl1/patientQueueQuery.h"
-#include "domain/dto/cycleCtrl1/patientQueueDTO.h"
+#include "domain/query/cycleCtrl1/PatientQueueQuery.h"
+#include "domain/dto/cycleCtrl1/PatientQueueDTO.h"
 #include "dao/cycleCtrl1/PatientQueueDAO.h"
 #include <ctime>
 #include <chrono>

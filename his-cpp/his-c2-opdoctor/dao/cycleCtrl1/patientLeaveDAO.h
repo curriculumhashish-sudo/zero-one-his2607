@@ -4,7 +4,8 @@
 
 #include "BaseDAO.h"
 #include "domain/do/cycleCtrl1/AdmEncounterDO.h"
-#include "dao/cycleCtrl1/patientLeaveMapper.h"
+#include "dao/cycleCtrl1/PatientLeaveMapper.h"
+
 
 class PatientLeaveDAO : public BaseDAO
 {
@@ -19,5 +20,4 @@ public:
 
 #endif // !_PATIENT_LEAVE_DAO_
 
-#include "patientLeaveDAO.h"
 
