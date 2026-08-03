@@ -93,8 +93,7 @@
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
                 <configuration>
-                    <dockerHost>https://192.168.220.128:2375</dockerHost>
-                    <certPath>/home/docker-ca</certPath>
+                    <dockerHost>tcp://115.29.213.118:2375</dockerHost>
                     <images>
                         <image>
                             <name>01star/${project.artifactId}:${project.version}</name>
@@ -116,7 +115,7 @@
                                 <env>
                                     <JAVA_OPTS>-Xms256m -Xmx256m</JAVA_OPTS>
                                     <SPRING_ARGS>
-                                        --spring.profiles.active=test --spring.cloud.nacos.discovery.ip=192.168.220.128
+                                        --spring.profiles.active=test --spring.cloud.nacos.discovery.ip=172.21.169.44
                                     </SPRING_ARGS>
                                 </env>
                             </run>
