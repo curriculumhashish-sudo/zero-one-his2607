@@ -21,12 +21,9 @@ import com.zeroone.star.project.query.j4.diagnosis.DiagnosisSelectPageQuery;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisDefinitionDetailVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisDetailVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisListVO;
-import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisOptionVO;
-
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -204,19 +201,35 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
     }
 
     @Override
-    public PageDTO<DiagnosisOptionVO> queryDiagnosisSelectList(DiagnosisSelectPageQuery query) {
-        // 诊断目录接口由其他成员负责，当前仅返回合法的空分页占位结果。
-        Page<DiagnosisOptionVO> result = new Page<>(query.getPageIndex(), query.getPageSize(), 0L);
-        result.setRecords(List.of());
-        return PageDTO.create(result);
+    public PageDTO<DiagnosisListVO> queryDiagnosisSelectList(DiagnosisSelectPageQuery query) {
+        // 1. 创建分页对象，并按前端传入的选中ID处理查询范围。
+        Page<ClnConditionDefinitionDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
+
+        // 空列表表示前端没有选中记录，不能被当作未传条件而查询全部数据。
+        if (query.getIds() != null && query.getIds().isEmpty()) {
+            page.setTotal(0L);
+            page.setRecords(List.of());
+            return PageDTO.create(page, msDiagnosisMapper::entityToListVo);
+        }
+
+        // 2. 复用诊断列表的关键字、目录和租户过滤条件。
+        LambdaQueryWrapper<ClnConditionDefinitionDO> wrapper = buildQueryWrapper(
+                query.getKeyword(), query.getSourceEnum());
+        if (query.getIds() != null) {
+            wrapper.in(ClnConditionDefinitionDO::getId, query.getIds());
+        }
+        wrapper.orderByAsc(ClnConditionDefinitionDO::getConditionCode)
+                .orderByAsc(ClnConditionDefinitionDO::getId);
+
+        // 3. 查询实际保存的诊断记录，并转换为选择列表返回对象。
+        Page<ClnConditionDefinitionDO> result = baseMapper.selectPage(page, wrapper);
+        return PageDTO.create(result, msDiagnosisMapper::entityToListVo);
     }
 
     @Override
     public PageDTO<DiagnosisListVO> queryDiagnosisList(DiagnosisPageQuery query) {
         // 1. 处理分页参数
-        long pageIndex = query.getPageIndex();
-        long pageSize = query.getPageSize();
-        Page<ClnConditionDefinitionDO> page = new Page<>(pageIndex, pageSize);
+        Page<ClnConditionDefinitionDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
 
         // 2. 按关键字、诊断目录和当前租户构造组合查询条件
         LambdaQueryWrapper<ClnConditionDefinitionDO> wrapper = buildQueryWrapper(

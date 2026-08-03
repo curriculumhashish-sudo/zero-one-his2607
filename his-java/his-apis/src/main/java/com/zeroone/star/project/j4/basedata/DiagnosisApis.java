@@ -10,7 +10,7 @@ import com.zeroone.star.project.query.j4.diagnosis.DiagnosisSelectPageQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisDetailVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisListVO;
-import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisOptionVO;
+import jakarta.validation.Valid;
 
 
 /**
@@ -30,7 +30,7 @@ public interface DiagnosisApis {
      * @param query 查询条件
      * @return 可选择诊断分页数据
      */
-    JsonVO<PageDTO<DiagnosisOptionVO>> queryDiagnosisSelectList(DiagnosisSelectPageQuery query);
+    JsonVO<PageDTO<DiagnosisListVO>> queryDiagnosisSelectList(@Valid DiagnosisSelectPageQuery query);
 
     /**
      * 获取诊断列表（条件+分页）。
