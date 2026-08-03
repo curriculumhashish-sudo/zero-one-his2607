@@ -32,6 +32,17 @@ public:
     std::optional<std::string> getOrgId(const std::string& userId);
 
     /**
+     * 获取用户会话中的医院机构ID (hospital_organization_id)
+     * 与 getOrgId 语义相同，为了代码可读性保留
+     */
+    std::optional<std::string> getHospitalOrganizationId(const std::string& userId);
+
+    /**
+     * 获取用户会话中的组织单元ID (organization_unit_id)
+     */
+    std::optional<std::string> getOrganizationUnitId(const std::string& userId);
+
+    /**
      * 获取完整的会话信息 (Hash 所有字段)
      * 返回 JSON 字符串
      */

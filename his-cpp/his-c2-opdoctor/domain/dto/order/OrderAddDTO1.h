@@ -7,45 +7,53 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * 新增医嘱信息
- * 演示项目中是通过搜索框选中药品或检查，然后医生手动录入加工字段后提交信息
- * 以此来实现新增医嘱的功能
+ * 新增医嘱请求
  *
- * 根据 orderType 字段值决定写入不同表：
- * - medication -> med_medication_request
- * - service -> wkf_service_request
- * - device -> wkf_device_request
+ * 设计说明：
+ * - 前端传入 encounterId、catalogId、orderType，后端自动推导 patientId 和项目信息
+ * - 剂量使用数值类型 + 独立单位字段
+ * - 数量使用数值类型 + 独立单位字段
+ * - orderNo（sortNumber）由前端维护，强制必填
+ * - groupId 用于组套关联
+ *
+ * 兼容字段：
+ * - visitId 自动映射到 encounterId
+ * - itemCode 自动映射到 catalogId
+ * - dosage 自动映射到 dose
+ * - quantityInt 自动映射到 quantity
  */
 class OrderAddDTO1 : public oatpp::DTO {
     DTO_INIT(OrderAddDTO1, DTO);
 
-    // === 上下文（必传） ===
-    API_DTO_FIELD_REQUIRE(String, visitId, ZH_WORDS_GETTER("createOrder.order.field.visitid"), true);          // 本次就诊ID
-    API_DTO_FIELD_REQUIRE(String, patientId, ZH_WORDS_GETTER("createOrder.order.field.patientid"), true);    // 患者ID
-    API_DTO_FIELD_REQUIRE(String, diagnosis, ZH_WORDS_GETTER("createOrder.order.field.diagnosis"), true);    // 当前诊断（如“感冒”）
-    API_DTO_FIELD_REQUIRE(String, expenseType, ZH_WORDS_GETTER("createOrder.order.field.expenseType"), true);// 费用性质（自费/医保/公费）
+   // 上下文
+API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("createOrder.order.field.encounterId"), true);
+API_DTO_FIELD_REQUIRE(String, catalogId, ZH_WORDS_GETTER("createOrder.order.field.catalogId"), true);
+API_DTO_FIELD_REQUIRE(String, orderType, ZH_WORDS_GETTER("createOrder.order.field.orderType"), true);
+API_DTO_FIELD_REQUIRE(String, expenseType, ZH_WORDS_GETTER("createOrder.order.field.expenseType"), true);
 
-    // === 来自搜索框的药品/项目信息（前端回传） ===
-    API_DTO_FIELD_REQUIRE(String, itemCode, ZH_WORDS_GETTER("createOrder.order.field.itemCode"), true);      // 项目编码（唯一主键）
-    API_DTO_FIELD_REQUIRE(String, itemName, ZH_WORDS_GETTER("createOrder.order.field.itemName"), true);      // 项目名称
-    API_DTO_FIELD_REQUIRE(String, spec, ZH_WORDS_GETTER("createOrder.order.field.spec"), true);              // 规格（2ml:15mg）
-    API_DTO_FIELD_REQUIRE(Float64, unitPrice, ZH_WORDS_GETTER("createOrder.order.field.unitPrice"), true);   // 单价（从目录带出）
-    API_DTO_FIELD_REQUIRE(String, orderType, ZH_WORDS_GETTER("createOrder.order.field.orderType"), true);    // 类型（medication/service/device）
+// 临床决策
+API_DTO_FIELD_REQUIRE(Float64, dose, ZH_WORDS_GETTER("createOrder.order.field.dose"), false);
+API_DTO_FIELD_REQUIRE(String, doseUnit, ZH_WORDS_GETTER("createOrder.order.field.doseUnit"), false);
+API_DTO_FIELD_REQUIRE(String, frequency, ZH_WORDS_GETTER("createOrder.order.field.frequency"), false);
+API_DTO_FIELD_REQUIRE(String, routeCode, ZH_WORDS_GETTER("createOrder.order.field.routeCode"), false);
+API_DTO_FIELD_REQUIRE(Int32, useDays, ZH_WORDS_GETTER("createOrder.order.field.useDays"), false);
+API_DTO_FIELD_REQUIRE(Float64, quantity, ZH_WORDS_GETTER("createOrder.order.field.quantity"), true);
+API_DTO_FIELD_REQUIRE(String, quantityUnit, ZH_WORDS_GETTER("createOrder.order.field.quantityUnit"), true);
+API_DTO_FIELD_REQUIRE(Boolean, isSkinTest, ZH_WORDS_GETTER("createOrder.order.field.isSkinTest"), false);
+API_DTO_FIELD_REQUIRE(String, remark, ZH_WORDS_GETTER("createOrder.order.field.remark"), false);
 
-    // === 医生手动录入的临床决策 ===
-    API_DTO_FIELD_REQUIRE(String, dosage, ZH_WORDS_GETTER("createOrder.order.field.dosage"), false);         // 每次用量（如 "2ml"，诊疗可为空）
-    API_DTO_FIELD_REQUIRE(String, frequency, ZH_WORDS_GETTER("createOrder.order.field.frequency"), false);   // 频次（诊疗可为空）
-    API_DTO_FIELD_REQUIRE(String, routeCode, ZH_WORDS_GETTER("createOrder.order.field.routeCode"), false);   // 给药途径（诊疗可为空）
-    API_DTO_FIELD_REQUIRE(Int32, useDays, ZH_WORDS_GETTER("createOrder.order.field.useDays"), false);        // 使用天数（如 7）
-    API_DTO_FIELD_REQUIRE(Int32, quantity, ZH_WORDS_GETTER("createOrder.order.field.quantity"), true);       // 总数量
-    API_DTO_FIELD_REQUIRE(Boolean, isSkinTest, ZH_WORDS_GETTER("createOrder.order.field.isSkinTest"), false);// 是否皮试（true/false，诊疗可为空）
-    API_DTO_FIELD_REQUIRE(String, remark, ZH_WORDS_GETTER("createOrder.order.field.remark"), false);         // 备注
+// 分组与排序
+API_DTO_FIELD_REQUIRE(String, groupId, ZH_WORDS_GETTER("createOrder.order.field.groupId"), false);
+API_DTO_FIELD_REQUIRE(Int32, orderNo, ZH_WORDS_GETTER("createOrder.order.field.orderNo"), true);
 
-    // === 关联 PayloadDTO 负载数据对象 ===
-    //CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
-protected: const PayloadDTO* _payload;
-public: const PayloadDTO* getPayload(void) const { return _payload; }
-public: void setPayload(const PayloadDTO* var) { _payload = var; }
+// 兼容旧字段
+API_DTO_FIELD_REQUIRE(String, itemCode, ZH_WORDS_GETTER("createOrder.order.field.itemCode"), false);
+    // === 关联 PayloadDTO ===
+protected:
+    const PayloadDTO* _payload;
+public:
+    const PayloadDTO* getPayload(void) const { return _payload; }
+    void setPayload(const PayloadDTO* var) { _payload = var; }
 };
 
 #include OATPP_CODEGEN_END(DTO)

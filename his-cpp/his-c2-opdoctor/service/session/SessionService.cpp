@@ -20,15 +20,11 @@ std::optional<std::string> SessionService::getTenantId(const std::string& userId
     return m_redisClient->execute<std::optional<std::string>>(
         [this, &userId](sw::redis::Redis* redis) -> std::optional<std::string> {
             try {
-                // hget 返回 sw::redis::OptionalString
                 sw::redis::OptionalString result = redis->hget(sessionKey(userId), "tenant_id");
-
-                // 转换为 std::optional<std::string>
                 if (result) {
                     return std::optional<std::string>(*result);
                 }
                 return std::nullopt;
-
             }
             catch (const std::exception& e) {
                 std::cerr << "Redis hget tenant_id failed: " << e.what() << std::endl;
@@ -46,18 +42,41 @@ std::optional<std::string> SessionService::getOrgId(const std::string& userId) {
     return m_redisClient->execute<std::optional<std::string>>(
         [this, &userId](sw::redis::Redis* redis) -> std::optional<std::string> {
             try {
-                // hget 返回 sw::redis::OptionalString
                 sw::redis::OptionalString result = redis->hget(sessionKey(userId), "hospital_organization_id");
-
-                // 转换为 std::optional<std::string>
                 if (result) {
                     return std::optional<std::string>(*result);
                 }
                 return std::nullopt;
-
             }
             catch (const std::exception& e) {
                 std::cerr << "Redis hget hospital_organization_id failed: " << e.what() << std::endl;
+                return std::nullopt;
+            }
+        }
+    );
+}
+
+std::optional<std::string> SessionService::getHospitalOrganizationId(const std::string& userId) {
+    // 与 getOrgId 相同，直接复用
+    return getOrgId(userId);
+}
+
+std::optional<std::string> SessionService::getOrganizationUnitId(const std::string& userId) {
+    if (!m_redisClient) {
+        return std::nullopt;
+    }
+
+    return m_redisClient->execute<std::optional<std::string>>(
+        [this, &userId](sw::redis::Redis* redis) -> std::optional<std::string> {
+            try {
+                sw::redis::OptionalString result = redis->hget(sessionKey(userId), "organization_unit_id");
+                if (result) {
+                    return std::optional<std::string>(*result);
+                }
+                return std::nullopt;
+            }
+            catch (const std::exception& e) {
+                std::cerr << "Redis hget organization_unit_id failed: " << e.what() << std::endl;
                 return std::nullopt;
             }
         }
