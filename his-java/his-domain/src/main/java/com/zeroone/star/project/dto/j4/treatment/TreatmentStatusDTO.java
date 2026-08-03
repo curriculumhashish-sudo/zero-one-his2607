@@ -21,7 +21,7 @@ public class TreatmentStatusDTO {
 
     @NotBlank(message = "诊疗项目ID不能为空")
     @Size(max = 64, message = "诊疗项目ID不能超过64个字符")
-    @Schema(description = "诊疗项目ID", example = "1890000000000000001", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "诊疗项目ID", example = "323001764504670208", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
     @NotBlank(message = "状态不能为空")

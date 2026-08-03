@@ -68,35 +68,42 @@ public class DiagnosisController implements DiagnosisApis {
     @Override
     @Operation(summary = "获取诊断详情")
     @GetMapping("/get-detail/{id}")
-    public JsonVO<DiagnosisDetailVO> queryDiagnosisDetail(@PathVariable @NotBlank(message = "诊断ID不能为空") String id) {
+    public JsonVO<DiagnosisDetailVO> queryDiagnosisDetail(@PathVariable String id) {
+        if (id == null || id.trim().isEmpty()) {
+            throw new IllegalArgumentException("诊断ID不能为空");
+        }
         return JsonVO.success(definitionService.queryDiagnosisDetail(id));
     }
 
     @Operation(summary = "新增诊断")
     @PostMapping("/add-definition")
     @Override
-    public JsonVO<String> addDefinition(@Valid @RequestBody DiagnosisSaveDTO dto) {
-        return null;
+    public JsonVO<String> addDefinition(@RequestBody DiagnosisSaveDTO dto) {
+        String id = definitionService.saveDefinition(dto);
+        return JsonVO.success(id);
     }
 
     @Operation(summary = "修改诊断")
     @PutMapping("/modify-definition")
     @Override
-    public JsonVO<String> modifyDefinition(@Valid @RequestBody DiagnosisUpdateDTO dto) {
-        return null;
+    public JsonVO<String> modifyDefinition(@RequestBody DiagnosisUpdateDTO dto) {
+        definitionService.modifyDefinition(dto);
+        return JsonVO.success("修改成功");
     }
 
     @Operation(summary = "启/停用诊断（支持批量）")
     @PutMapping("/modify-batch-status")
     @Override
-    public JsonVO<String> modifyBatchStatus(@Valid @RequestBody DiagnosisStatusDTO dto) {
-        return null;
+    public JsonVO<String> modifyBatchStatus(@RequestBody DiagnosisStatusDTO dto) {
+        definitionService.modifyBatchStatus(dto);
+        return JsonVO.success("状态更新成功");
     }
 
     @Operation(summary = "删除诊断（支持批量）")
     @DeleteMapping("/remove-batch")
     @Override
-    public JsonVO<String> removeBatch(@Valid @RequestBody DiagnosisIdsDTO dto) {
-        return null;
+    public JsonVO<String> removeBatch(@RequestBody DiagnosisIdsDTO dto) {
+        definitionService.removeBatch(dto);
+        return JsonVO.success("删除成功");
     }
 }

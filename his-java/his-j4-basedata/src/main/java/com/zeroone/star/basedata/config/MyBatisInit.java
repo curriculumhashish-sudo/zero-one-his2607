@@ -33,21 +33,33 @@ public class MyBatisInit {
         return new MetaObjectHandler() {
             @Override
             public void insertFill(MetaObject metaObject) {
-                this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
-                try {
-                    this.strictInsertFill(metaObject, "createBy", String.class, userHolder.getCurrentUser() != null ? userHolder.getCurrentUser().getUsername() : "system");
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+                LocalDateTime now = LocalDateTime.now();
+                String username = getCurrentUsername();
+                // 创建时间 / 创建人
+                this.strictInsertFill(metaObject, "createdAt", LocalDateTime.class, now);
+                this.strictInsertFill(metaObject, "createdBy", String.class, username);
+                // 插入时 lastUpdate 与 created 保持一致（组员反馈的问题）
+                this.strictInsertFill(metaObject, "updatedAt", LocalDateTime.class, now);
+                this.strictInsertFill(metaObject, "updatedBy", String.class, username);
             }
 
             @Override
             public void updateFill(MetaObject metaObject) {
-                this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
+                // 更新时刷新最后更新时间 / 人
+                this.strictUpdateFill(metaObject, "updatedAt", LocalDateTime.class, LocalDateTime.now());
+                this.strictUpdateFill(metaObject, "updatedBy", String.class, getCurrentUsername());
+            }
+
+            /**
+             * 获取当前登录用户名；未登录或上下文异常时降级为 system，
+             * 避免内部调用/定时任务等场景因取不到用户导致数据操作失败。
+             */
+            private String getCurrentUsername() {
                 try {
-                    this.strictUpdateFill(metaObject, "updateBy", String.class, userHolder.getCurrentUser() != null ? userHolder.getCurrentUser().getUsername() : "system");
+                    return userHolder.getCurrentUser() != null
+                            ? userHolder.getCurrentUser().getUsername() : "system";
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    return "system";
                 }
             }
         };

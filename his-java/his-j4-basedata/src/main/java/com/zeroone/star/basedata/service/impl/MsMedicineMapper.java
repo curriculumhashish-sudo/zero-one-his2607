@@ -1,14 +1,12 @@
 package com.zeroone.star.basedata.service.impl;
 
-import com.zeroone.star.basedata.entity.medicine.AdmChargeItemDefinitionDO;
 import com.zeroone.star.basedata.entity.medicine.MedMedicationDefinitionDO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineAddDTO;
 import com.zeroone.star.project.dto.j4.medicine.MedicineDetailDTO;
-import com.zeroone.star.project.vo.j4.medicine.MedicineAddVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineDetailVO;
 import org.mapstruct.*;
+import com.zeroone.star.project.vo.j4.medicine.MedicineListVO;
 
-import java.util.List;
 
 /**
  * <p>
@@ -28,7 +26,18 @@ public interface MsMedicineMapper {
      * @return 药品详情DTO
      */
 
+
     MedicineDetailDTO entityToDetailDTO(MedMedicationDefinitionDO medDefinitionDO);
+
+    /**
+     * <p>
+     * 描述：将 药品详情DTO 转换为 数据库实体
+     * </p>
+     *
+     * @param  dto 药品详情DTO
+     * @return 药品定义实体
+     */
+    MedMedicationDefinitionDO detailDtoToEntity(MedicineDetailDTO dto);
 
     /**
      * <p>
@@ -38,6 +47,7 @@ public interface MsMedicineMapper {
      * @param  dto 药品详情DTO
      * @return 药品详情VO
      */
+
     MedicineDetailVO medicineDetailDtoToVo(MedicineDetailDTO dto);
 
     /**
@@ -47,7 +57,7 @@ public interface MsMedicineMapper {
     MedMedicationDefinitionDO addDtoToEntity(MedicineAddDTO dto);
 
     /**
-     * 药品实体转换为新增结果VO。
+     * 药品实体转换为药品列表VO。
      */
-    MedicineAddVO entityToAddVO(MedMedicationDefinitionDO entity);
+    MedicineListVO entityToListVO(MedMedicationDefinitionDO entity);
 }

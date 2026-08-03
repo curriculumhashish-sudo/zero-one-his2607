@@ -42,9 +42,6 @@ public class MedicineSelectVO implements Serializable {
     @Schema(description = "库存单位编码")
     private String stockUnitCode;
 
-    @Schema(description = "库存单位名称")
-    private String stockUnitName;
-
     @Schema(description = "单价")
     private BigDecimal unitPrice;
 }

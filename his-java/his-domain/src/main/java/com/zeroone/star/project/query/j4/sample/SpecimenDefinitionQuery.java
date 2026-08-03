@@ -18,25 +18,14 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString(callSuper = true)
+@Schema(description = "样本定义分页查询对象")
 public class SpecimenDefinitionQuery extends PageQuery {
 
     /**
-     * 样本名称（支持模糊搜索）
+     * 关键词（样本名称/业务编码/拼音检索码/五笔检索码 模糊匹配）
      */
-    @Schema(description = "样本名称（模糊搜索）", example = "血")
-    private String name;
-
-    /**
-     * 拼音检索码（支持模糊搜索）
-     */
-    @Schema(description = "拼音检索码（模糊搜索）", example = "X")
-    private String pyStr;
-
-    /**
-     * 五笔检索码（支持模糊搜索）
-     */
-    @Schema(description = "五笔检索码（模糊搜索）", example = "T")
-    private String wbStr;
+    @Schema(description = "关键词，同时模糊匹配样本名称、业务编码、拼音检索码、五笔检索码", example = "血")
+    private String keyword;
 
     /**
      * 标本种类编码（对应 SpecimenType 枚举）

@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 public class EquipmentAddDTO {
 
     /** 器材业务编号 */
-    @Schema(description = "耗材业务编号", example = "HC20260001")
+    @Schema(description = "耗材业务编号", example = "DD20260001")
     private String busNo;
 
     /** 器材名称 */
@@ -38,16 +38,16 @@ public class EquipmentAddDTO {
 
     /** 器材分类字典编码 */
     @NotBlank(message = "器材分类字典编码不能为空")
-    @Schema(description = "器材分类字典编码", example = "CAT001", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "器材分类字典编码", example = "11", requiredMode = Schema.RequiredMode.REQUIRED)
     private String categoryCode;
 
     /** 器材类型编码 */
-    @Schema(description = "器材类型编码", example = "TYPE001")
+    @Schema(description = "器材类型编码", example = "2")
     private String typeCode;
 
     /** 采购单位编码 */
     @NotBlank(message = "采购单位编码不能为空")
-    @Schema(description = "采购单位编码", example = "BOX", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "采购单位编码", example = "2", requiredMode = Schema.RequiredMode.REQUIRED)
     private String purchaseUnitCode;
 
     /** 包装规格（与药品 totalVolume 对齐） */
@@ -57,40 +57,40 @@ public class EquipmentAddDTO {
 
     /** 拆零单位编码 */
     @NotBlank(message = "拆零单位编码不能为空")
-    @Schema(description = "拆零单位编码", example = "PCS", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "拆零单位编码", example = "2", requiredMode = Schema.RequiredMode.REQUIRED)
     private String splitUnitCode;
 
     /** 采购单位历史别名（purchaseUnitCode 为空时回落）；新接口请传 purchaseUnitCode */
     @NotBlank(message = "采购单位历史别名不能为空")
-    @Schema(description = "采购单位历史别名（purchaseUnitCode 为空时回落）；新接口请传 purchaseUnitCode", example = "BOX")
+    @Schema(description = "采购单位历史别名（purchaseUnitCode 为空时回落）；新接口请传 purchaseUnitCode", example = "2")
     private String unitCode;
 
     /** 拆零单位历史别名（splitUnitCode 为空时回落）；新接口请传 splitUnitCode */
     @NotBlank(message = "拆零单位历史别名不能为空")
-    @Schema(description = "拆零单位历史别名（splitUnitCode 为空时回落）；新接口请传 splitUnitCode", example = "PCS")
+    @Schema(description = "拆零单位历史别名（splitUnitCode 为空时回落）；新接口请传 splitUnitCode", example = "2")
     private String minUnitCode;
 
     /** 默认门诊/就诊单位编码 */
-    @Schema(description = "默认门诊/就诊单位编码", example = "BOX")
+    @Schema(description = "默认门诊/就诊单位编码", example = "2")
     private String defEncounterUnitCode;
 
     /** 默认住院单位编码 */
-    @Schema(description = "默认住院单位编码", example = "BOX")
+    @Schema(description = "默认住院单位编码", example = "2")
     private String defInhospitalUnitCode;
 
     /** 包装单位编码（界面命名；持久化列 package_unit_code） */
     @NotBlank(message = "包装单位编码不能为空")
-    @Schema(description = "包装单位编码（界面命名；持久化列 package_unit_code）", example = "BOX", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "包装单位编码（界面命名；持久化列 package_unit_code）", example = "2", requiredMode = Schema.RequiredMode.REQUIRED)
     private String packageUnitCode;
 
     /** 库存单位编码（持久化列 stock_unit_code） */
     @NotBlank(message = "库存单位编码不能为空")
-    @Schema(description = "库存单位编码（持久化列 stock_unit_code）", example = "BOX", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "库存单位编码（持久化列 stock_unit_code）", example = "2", requiredMode = Schema.RequiredMode.REQUIRED)
     private String stockUnitCode;
 
     /** 剂量单位编码（给药/化验口径） */
     @NotBlank(message = "剂量单位编码不能为空")
-    @Schema(description = "剂量单位编码（给药/化验口径）", example = "PCS")
+    @Schema(description = "剂量单位编码（给药/化验口径）", example = "2")
     private String doseUnitCode;
 
     /** 执行机构主键 */

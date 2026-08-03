@@ -1,10 +1,10 @@
 package com.zeroone.star.basedata.service.impl;
 
+import com.zeroone.star.basedata.entity.common.AdmChargeItemDefinitionDO;
 import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinitionDO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentAddDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentUpdateDTO;
-import com.zeroone.star.project.vo.j4.equipment.EquipmentCategoryVo;
-import com.zeroone.star.project.vo.j4.equipment.EquipmentUpdateVO;
+import com.zeroone.star.project.vo.j4.equipment.EquipmentCategoryVO;
 import com.zeroone.star.project.vo.j4.equipment.EquipmentVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -31,10 +31,18 @@ public interface MsEquipmentMapper {
      * 描述：将器材添加DTO转换为实体
      * </p>
      *
-     * @param equipmentAddDTO 新增器材DTo
+     * @param equipmentAddDTO 新增器材DTO
      * @return 器材实体
      */
     AdmDeviceDefinitionDO saveDtoToEntity(EquipmentAddDTO equipmentAddDTO);
+
+    /**
+     * 将新增器材DTO转换为AdmChargeItemDefinitionDO实体类
+     *
+     * @param equipmentAddDTO 新增器材DTO
+     * @return 物品价格实体
+     */
+    AdmChargeItemDefinitionDO saveDtoToChargeItemDefinitionEntity(EquipmentAddDTO equipmentAddDTO);
 
     /**
      * <p>
@@ -74,7 +82,7 @@ public interface MsEquipmentMapper {
      */
     @Mapping(source = "categoryCode", target = "value")
     @Mapping(source = "name", target = "label")
-    EquipmentCategoryVo entityToOptionVo(AdmDeviceDefinitionDO entity);
+    EquipmentCategoryVO entityToOptionVo(AdmDeviceDefinitionDO entity);
 
     /**
      * 将数据库实体列表映射为下拉选项 VO 列表
@@ -82,13 +90,6 @@ public interface MsEquipmentMapper {
      * @param entities 器材实体列表
      * @return 下拉选项VO列表
      */
-    List<EquipmentCategoryVo> entitiesToOptionVos(List<AdmDeviceDefinitionDO> entities);
+    List<EquipmentCategoryVO> entitiesToOptionVos(List<AdmDeviceDefinitionDO> entities);
 
-    /**
-     * 将器材实体转换为修改响应VO
-     *
-     * @param entity 器材实体
-     * @return 修改响应VO
-     */
-    EquipmentUpdateVO entityToUpdateVo(AdmDeviceDefinitionDO entity);
 }

@@ -3,10 +3,16 @@ package com.zeroone.star.basedata.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zeroone.star.basedata.entity.equipment.AdmDeviceDefinitionDO;
+import com.zeroone.star.project.dto.j4.equipment.EquipmentAddDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentStatusDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentUpdateDTO;
 import com.zeroone.star.project.query.j4.equipment.EquipmentPageQuery;
-import jakarta.validation.Valid;
+import com.zeroone.star.project.vo.j4.equipment.EquipmentCategoryVO;
+import com.zeroone.star.project.vo.j4.equipment.EquipmentVO;
+
+import java.util.List;
+
+import java.math.BigDecimal;
 
 /**
  * <p>
@@ -34,13 +40,46 @@ public interface IEquipmentService extends IService<AdmDeviceDefinitionDO> {
      * @param dto 修改器材的DTO
      * @return 修改后的器材实体
      */
-    AdmDeviceDefinitionDO updateEquipment(@Valid EquipmentUpdateDTO dto);
+    AdmDeviceDefinitionDO updateEquipment(EquipmentUpdateDTO dto);
 
     /**
      * 启/停用器材（支持批量）
      *
-     * @param dto 切换状态请求（仅主键）
-     * @return 切换后的器材实体
+     * @param dto 切换状态请求（主键列表 + 目标状态）
+     * @return true-至少更新了一条，false-未更新任何记录
      */
-    AdmDeviceDefinitionDO modifyEquipmentStatus(@Valid EquipmentStatusDTO dto);
+    boolean modifyEquipmentStatus(EquipmentStatusDTO dto);
+
+    /**
+     * 新增器材
+     * @param equipmentAddDTO 新增器材的DTO
+     */
+    void saveEquipment(EquipmentAddDTO equipmentAddDTO);
+
+    /**
+     * 获取器材详情
+     * @param equipmentId 器材Id
+     * @return 器材VO
+     */
+    EquipmentVO getEquipmentById(String equipmentId);
+
+    /**
+     * 获取选择器材种类列表
+     * @return 可选择的器材种类列表
+     */
+    List<EquipmentCategoryVO> queryEquipmentCategoryList();
+
+    /**
+     * 批量删除器材信息
+     * @param equipmentIds 器材Id集合
+     */
+    void removeEquipmentByIds(List<String> equipmentIds);
+
+    /**
+     * 获取器材零售价（从价格表查询）
+     *
+     * @param deviceId 器材主键
+     * @return 零售价，未找到返回 null
+     */
+    BigDecimal getRetailPrice(String deviceId);
 }

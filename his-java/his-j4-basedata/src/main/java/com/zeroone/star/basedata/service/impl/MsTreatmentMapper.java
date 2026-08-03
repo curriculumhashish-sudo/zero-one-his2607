@@ -43,10 +43,7 @@ public interface MsTreatmentMapper {
     List<TreatmentListVO> toListVOList(List<WkfActivityDefinitionDO> wkfActivityDefinitionDOS);
 
     @Mappings({
-            @Mapping(source = "isDeleted", target = "deleteFlag"),
-            @Mapping(target = "ruleId_dictText", ignore = true),
             @Mapping(target = "ybType", ignore = true),
-            @Mapping(target = "ybType_dictText", ignore = true),
             @Mapping(target = "itemTypeCode", ignore = true),
             @Mapping(target = "purchasePrice", ignore = true),
             @Mapping(target = "retailPrice", ignore = true),
@@ -70,7 +67,8 @@ public interface MsTreatmentMapper {
             @Mapping(target = "deletedAt", ignore = true),
             @Mapping(target = "deletedBy", ignore = true),
             @Mapping(target = "version", ignore = true),
-            @Mapping(target = "childrenJson", ignore = true)
+            @Mapping(target = "childrenJson", ignore = true),
+            @Mapping(target = "typeEnum", ignore = true)
     })
     WkfActivityDefinitionDO addDtoToEntity(TreatmentAddDTO dto);
 
@@ -84,7 +82,8 @@ public interface MsTreatmentMapper {
             @Mapping(target = "deletedAt", ignore = true),
             @Mapping(target = "deletedBy", ignore = true),
             @Mapping(target = "version", ignore = true),
-            @Mapping(target = "childrenJson", ignore = true)
+            @Mapping(target = "childrenJson", ignore = true),
+            @Mapping(target = "typeEnum", ignore = true)
     })
     WkfActivityDefinitionDO editDtoToEntity(TreatmentEditDTO dto);
 
@@ -98,7 +97,8 @@ public interface MsTreatmentMapper {
             @Mapping(target = "deletedAt", ignore = true),
             @Mapping(target = "deletedBy", ignore = true),
             @Mapping(target = "version", ignore = true),
-            @Mapping(target = "childrenJson", ignore = true)
+            @Mapping(target = "childrenJson", ignore = true),
+            @Mapping(target = "typeEnum", ignore = true)
     })
     WkfActivityDefinitionDO updateDtoToEntity(TreatmentUpdateDTO dto);
 }

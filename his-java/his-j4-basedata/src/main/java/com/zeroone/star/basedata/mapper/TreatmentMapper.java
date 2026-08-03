@@ -19,5 +19,5 @@ import org.apache.ibatis.annotations.Param;
  */
 @Mapper
 public interface TreatmentMapper extends BaseMapper<WkfActivityDefinitionDO> {
-    Page<TreatmentListVO> selectTreatmentListPage(Page<TreatmentListVO> page, @Param("query") TreatmentQuery query);
+    Page<TreatmentListVO> selectTreatmentListPage(Page<TreatmentListVO> page, @Param("query") TreatmentQuery query, @Param("tenantId") String tenantId);
 }
