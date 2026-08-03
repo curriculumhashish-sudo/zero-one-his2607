@@ -18,8 +18,8 @@ class EquipmentAddDTO : public oatpp::DTO
 	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("equipment.field.name"), true);
 	// 器材分类
 	API_DTO_FIELD_REQUIRE(String, classification, ZH_WORDS_GETTER("equipment.field.classification"), true);
-	// 器材编码
-	API_DTO_FIELD_REQUIRE(String, code, ZH_WORDS_GETTER("equipment.field.code"), false);
+	// 医保编码
+	API_DTO_FIELD_REQUIRE(String, medcode, ZH_WORDS_GETTER("equipment.field.medcode"), false);
 	// 商品名称
 	API_DTO_FIELD_REQUIRE(String, goods, ZH_WORDS_GETTER("equipment.field.goods"), false);
 	// 包装规格
@@ -68,6 +68,9 @@ class EquipmentAddDTO : public oatpp::DTO
 	API_DTO_FIELD_REQUIRE(String, pinyin, ZH_WORDS_GETTER("equipment.field.pinyin"), false);
 	// 五笔码
 	API_DTO_FIELD_REQUIRE(String, wubi, ZH_WORDS_GETTER("equipment.field.wubi"), false);
+	// 目录编码Catalog Code
+	API_DTO_FIELD_REQUIRE(String, catalogcode, ZH_WORDS_GETTER("equipment.field.catalogcode"), false);
+
 
 	// 关联一个PayloadDTO负载数据对象
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
