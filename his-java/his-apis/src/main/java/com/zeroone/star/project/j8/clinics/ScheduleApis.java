@@ -1,6 +1,7 @@
 package com.zeroone.star.project.j8.clinics;
 
 
+//import com.zeroone.star.project.dto.j8.clinics.RetireScheduleDTO;
 import com.zeroone.star.project.dto.j8.clinics.RetireScheduleDTO;
 import com.zeroone.star.project.dto.j8.clinics.SlotBatchReleaseDTO;
 import com.zeroone.star.project.query.j8.clinics.RelSlotQuery;

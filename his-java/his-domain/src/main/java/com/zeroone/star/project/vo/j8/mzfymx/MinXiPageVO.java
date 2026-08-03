@@ -11,8 +11,8 @@ import java.util.List;
 /**
  * <p>
  * 描述：门诊费用明细-分页查询接口返回 VO（方案 B 纯平铺）
- *      = rows（MinXiDTO 多行列表，1行=1条收费项）
- *      + totalRowCount（明细总行数，全量 SUM，不带 LIMIT）
+ *      = content（MinXiDTO 多行列表，1行=1条收费项）
+ *      + totalCount（明细总行数，全量 SUM，不带 LIMIT）
  *      + pageNo / pageSize（前端分页栏高亮用，返回入参原值）
  *      + 8 个 *Sum 金额合计（全量 SUM，不带 LIMIT，对应原型图顶部红色数字）
  *      对应 MinXiApis#getMinXiList 接口返回值
@@ -27,10 +27,10 @@ import java.util.List;
 public class MinXiPageVO {
 
     @Schema(description = "分页明细行列表（每行 = 1 条收费项，同一次就诊的就诊字段每行重复）")
-    private List<MinXiDTO> rows = new ArrayList<>();
+    private List<MinXiDTO> content = new ArrayList<>();
 
     @Schema(description = "满足条件的明细总行数（全量，不含 LIMIT，用于前端分页栏显示总条数）")
-    private Long totalRowCount = 0L;
+    private Long totalCount = 0L;
 
     // ============================================
     // 分页栏高亮用（你要求新增返回，= 入参 pageIndex / pageSize 原值，不动 PageQuery 父类）

@@ -138,8 +138,8 @@ public class MinXiServiceImpl implements MinXiService {
         }
 
         // 组装返回
-        totals.setRows(rows);
-        totals.setTotalRowCount(mpPage.getTotal());
+        totals.setContent(rows);
+        totals.setTotalCount(mpPage.getTotal());
         // ④ 你明确要求新增返回 pageNo / pageSize（不动 PageQuery 父类，只在返回值里加这俩字段）
         totals.setPageNo(pageIndex);
         totals.setPageSize(pageSize);
