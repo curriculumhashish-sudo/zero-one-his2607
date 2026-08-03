@@ -9,11 +9,11 @@
         FROM cus_supplier
         WHERE is_deleted = 0
           AND tenant_id = #{tenantId}
-        <if test="statusEnum == 'ENABLED'">
-            AND UPPER(status_enum) IN ('ENABLED', 'ACTIVE', '1', 'TRUE', '启用')
+        <if test="statusEnum == 'ACTIVE'">
+            AND UPPER(status_enum) = 'ACTIVE'
         </if>
-        <if test="statusEnum == 'DISABLED'">
-            AND UPPER(status_enum) IN ('DISABLED', 'INACTIVE', '0', 'FALSE', '停用')
+        <if test="statusEnum == 'INACTIVE'">
+            AND UPPER(status_enum) = 'INACTIVE'
         </if>
         <if test="keyword != null and keyword != ''">
             AND (
@@ -62,11 +62,11 @@
             <if test="query.typeEnum != null and query.typeEnum != ''">
                 AND type_enum = #{query.typeEnum}
             </if>
-            <if test="query.statusEnum == 'ENABLED'">
-                AND UPPER(status_enum) IN ('ENABLED', 'ACTIVE', '1', 'TRUE', '启用')
+            <if test="query.statusEnum == 'ACTIVE'">
+                AND UPPER(status_enum) = 'ACTIVE'
             </if>
-            <if test="query.statusEnum == 'DISABLED'">
-                AND UPPER(status_enum) IN ('DISABLED', 'INACTIVE', '0', 'FALSE', '停用')
+            <if test="query.statusEnum == 'INACTIVE'">
+                AND UPPER(status_enum) = 'INACTIVE'
             </if>
             <if test="query.orgId != null and query.orgId != ''">
                 AND org_id = #{query.orgId}
@@ -111,6 +111,16 @@
     </select>
     <select id="selectCreditCodeById" resultType="java.lang.String">
         SELECT credit_code FROM cus_supplier WHERE id = #{id} AND tenant_id = #{tenantId} AND is_deleted = 0 LIMIT 1
+    </select>
+
+    <select id="countActiveOrganizationById" resultType="int">
+        SELECT COUNT(1)
+        FROM adm_organization
+        WHERE id = #{orgId}
+          AND tenant_id = #{tenantId}
+          AND is_deleted = 0
+          AND status_enum = 'ACTIVE'
+          AND active_flag = 1
     </select>
 
     <select id="selectMaxIdForUpdate" resultType="java.lang.String">

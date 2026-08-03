@@ -38,7 +38,7 @@ public class SupplierQuery extends PageQuery {
     @Schema(description = "类型枚举值（ENTERPRISE-企业/INDIVIDUAL-个体）", example = "ENTERPRISE")
     private String typeEnum;
 
-    @Schema(description = "状态枚举值（ENABLED-启用/DISABLED-停用）", example = "ENABLED")
+    @Schema(description = "状态枚举值（ACTIVE-启用/INACTIVE-停用）", example = "ACTIVE")
     private String statusEnum;
 
     @Schema(description = "机构标识（精确匹配）", example = "ORG001")

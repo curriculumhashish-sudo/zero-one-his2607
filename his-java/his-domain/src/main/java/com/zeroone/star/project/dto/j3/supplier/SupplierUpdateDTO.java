@@ -24,7 +24,7 @@ public class SupplierUpdateDTO {
     @Schema(description = "名称", example = "华润医药集团有限公司", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
 
-    @Schema(description = "类型枚举值", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "类型枚举值（ENTERPRISE-企业/INDIVIDUAL-个体）", example = "ENTERPRISE", requiredMode = Schema.RequiredMode.REQUIRED)
     private String typeEnum;
 
     @Schema(description = "统一社会信用代码", example = "91110000100000XXXX")

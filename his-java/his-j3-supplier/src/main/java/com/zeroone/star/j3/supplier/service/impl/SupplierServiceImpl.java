@@ -32,6 +32,9 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
 
     private static final String ACTIVE = "ACTIVE";
     private static final String INACTIVE = "INACTIVE";
+    private static final String TYPE_ENTERPRISE = "ENTERPRISE";
+    private static final String TYPE_INDIVIDUAL = "INDIVIDUAL";
+    private static final Set<String> SUPPLIER_TYPES = Set.of(TYPE_ENTERPRISE, TYPE_INDIVIDUAL);
 
     @Resource
     private UserHolder userHolder;
@@ -126,10 +129,8 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         // 状态枚举合法性校验：仅支持 ACTIVE / INACTIVE，空值默认 ACTIVE，非法值直接抛出异常
         dto.setStatusEnum(normalizeStatus(dto.getStatusEnum(), ACTIVE));
 
-        // 类型/机构标识去除首尾空格，防止带空格的脏数据入库
-        //TODO typeEnum，orgId可能需要其他小组的数据进行校验
-        dto.setTypeEnum(trimToNull(dto.getTypeEnum()));
-        dto.setOrgId(trimToNull(dto.getOrgId()));
+        dto.setTypeEnum(normalizeTypeEnum(dto.getTypeEnum()));
+        dto.setOrgId(requireActiveOrganization(dto.getOrgId()));
 
         // DTO → Entity 转换
         Supplier supplier = msSupplierMapper.SupplierAddDTO2Supplier(dto);
@@ -182,21 +183,18 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
             throw new IllegalArgumentException("供应商不存在，请检查ID是否正确");
         }
         // 校验必填业务字段
-        if (!StringUtils.hasText(dto.getTypeEnum())) {
-            throw new IllegalArgumentException("供应商类型不能为空");
-        }
+        String normalizedTypeEnum = normalizeTypeEnum(dto.getTypeEnum());
         if (!StringUtils.hasText(dto.getPyStr())) {
             throw new IllegalArgumentException("拼音码不能为空");
         }
         if (!StringUtils.hasText(dto.getWbStr())) {
             throw new IllegalArgumentException("五笔码不能为空");
         }
-        if (!StringUtils.hasText(dto.getOrgId())) {
-            throw new IllegalArgumentException("机构标识不能为空");
-        }
+        String normalizedOrgId = requireActiveOrganization(dto.getOrgId());
         // 状态枚举合法性校验：传入的状态必须是 ACTIVE / INACTIVE，非法值直接抛出异常
+        String normalizedStatusEnum = null;
         if (StringUtils.hasText(dto.getStatusEnum())) {
-            normalizeStatus(dto.getStatusEnum(), null);
+            normalizedStatusEnum = normalizeStatus(dto.getStatusEnum(), null);
         }
         // 如果需要校验信用代码不可修改，单独查询 credit_code 字段
         if (StringUtils.hasText(dto.getCreditCode())) {
@@ -209,6 +207,9 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         // DTO → Entity
         Supplier supplier = msSupplierMapper.SupplierUpdateVO2Supplier(dto);
         supplier.setId(id.trim());
+        supplier.setTypeEnum(normalizedTypeEnum);
+        supplier.setOrgId(normalizedOrgId);
+        supplier.setStatusEnum(normalizedStatusEnum);
         // 设置更新人/更新时间（从登录用户获取，类似删除处理方式）
         try {
             supplier.setUpdatedBy(userHolder.getCurrentUser().getUsername());
@@ -405,7 +406,11 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         target.setBusNo(trimToNull(target.getBusNo()));
         target.setName(trimToNull(target.getName()));
         target.setCreditCode(trimToNull(target.getCreditCode()));
-        target.setTypeEnum(trimToNull(target.getTypeEnum()));
+        if (StringUtils.hasText(target.getTypeEnum())) {
+            target.setTypeEnum(normalizeTypeEnum(target.getTypeEnum()));
+        } else {
+            target.setTypeEnum(null);
+        }
         target.setStatusEnum(normalizeStatus(target.getStatusEnum(), null));
         target.setOrgId(trimToNull(target.getOrgId()));
         target.setPyStr(trimToNull(target.getPyStr()));
@@ -425,5 +430,33 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
             return null;
         }
         return value.trim();
+    }
+
+    private String normalizeTypeEnum(String typeEnum) {
+        if (!StringUtils.hasText(typeEnum)) {
+            throw new IllegalArgumentException("供应商类型不能为空");
+        }
+        String value = typeEnum.trim().toUpperCase();
+        if ("1".equals(value)) {
+            return TYPE_ENTERPRISE;
+        }
+        if ("2".equals(value)) {
+            return TYPE_INDIVIDUAL;
+        }
+        if (!SUPPLIER_TYPES.contains(value)) {
+            throw new IllegalArgumentException("typeEnum only supports ENTERPRISE or INDIVIDUAL");
+        }
+        return value;
+    }
+
+    private String requireActiveOrganization(String orgId) {
+        String normalizedOrgId = trimToNull(orgId);
+        if (normalizedOrgId == null) {
+            throw new IllegalArgumentException("机构标识不能为空");
+        }
+        if (baseMapper.countActiveOrganizationById(normalizedOrgId, getCurrentTenantId()) <= 0) {
+            throw new IllegalArgumentException("机构不存在、已停用、已删除或不属于当前租户");
+        }
+        return normalizedOrgId;
     }
 }
