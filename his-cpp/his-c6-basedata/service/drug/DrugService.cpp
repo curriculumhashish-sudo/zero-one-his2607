@@ -575,6 +575,7 @@ DrugDetailDTO::Wrapper DrugService::getById(string id)
     ZO_STAR_DOMAIN_DO_TO_DTO_1(dto, res, DDDzhi, DddCode, DDDdanwei, DddUnitCode, caigoudanwei, PurchaseUnitCode, caigoubeishu, PurchaseUnitRatio, menzhengshuxing, DefEncounterUnitCode, kucundanwei, StockUnitCode, kucunbeishu, StockUnitRatio, linshishuxing, DefInhospitalUnitCode, baozhuangbeishu, PackageUnitRatio, baozhuangdanwei, PackageUnitCode, chailingdanwei, SplitUnitCode, selfFlag, SelfFlag, antibioticFlag, AntibioticFlag, basicFlag, BasicFlag,
         activeFlag, ActiveFlag, childrenFlag, ChildrenFlag,
         restrictedFlag, RestrictedFlag, rxFlag, RxFlag);
+    ZO_STAR_DOMAIN_DO_TO_DTO_1(dto, res, caiwuleixin, ChrgitmLv, yibaodengji, RestrictedEnum, jiesuanleixin, PartAttributeEnum, yibaoleibie, ThoPartAttributeEnum, yaopingshuoming, Ingredient, gourujia, MaxUnit, zuigaolinshoujia, MaxUnit);
    
     return dto;
 
