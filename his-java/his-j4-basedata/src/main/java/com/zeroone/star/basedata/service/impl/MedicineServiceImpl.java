@@ -14,6 +14,7 @@ import com.zeroone.star.basedata.entity.medicine.MedMedicationRequestDO;
 import com.zeroone.star.basedata.mapper.MedMedicationDispenseMapper;
 import com.zeroone.star.basedata.mapper.MedMedicationRequestMapper;
 import com.zeroone.star.basedata.service.IMedicineService;
+import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.j4.medicine.*;
 import com.zeroone.star.basedata.entity.medicine.MedMedicationDefinitionDO;
 import com.zeroone.star.basedata.mapper.AdmChargeItemDefinitionMapper;
@@ -27,7 +28,6 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -72,17 +72,22 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
     @Resource
     private AdmChargeItemDefinitionMapper chargeItemMapper;
 
+    @Resource
+    private UserHolder userHolder;
+
     @Override
     public PageDTO<MedicineListVO> queryMedicinePage(MedicinePageQuery query) {
+        String tenantId = userHolder.getCurrentTenantId();
         Page<MedicineListVO> page = new Page<>(query.getPageIndex(), query.getPageSize());
-        Page<MedicineListVO> result = baseMapper.selectMedicinePage(page, query);
+        Page<MedicineListVO> result = baseMapper.selectMedicinePage(page, query, tenantId);
         return PageDTO.create(result);
     }
 
     @Override
     public PageDTO<MedicineSelectVO> queryMedicineSelectPage(MedicineSelectPageQuery query) {
+        String tenantId = userHolder.getCurrentTenantId();
         Page<MedicineSelectVO> page = new Page<>(query.getPageIndex(), query.getPageSize());
-        Page<MedicineSelectVO> result = baseMapper.selectMedicineSelectPage(page, query, TEMP_LOCATION_ID);
+        Page<MedicineSelectVO> result = baseMapper.selectMedicineSelectPage(page, query, TEMP_LOCATION_ID, tenantId);
         return PageDTO.create(result);
     }
 
@@ -91,25 +96,25 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
     public MedicineListVO addMedicine(MedicineAddDTO dto) {
         validatePrice(dto);
         validateInventoryRange(dto);
-
-        LocalDateTime now = LocalDateTime.now();
+        //获取租户id
+        String tenantId = userHolder.getCurrentTenantId();
         String medicineId = IdWorker.getIdStr();
 
         MedMedicationDefinitionDO medicine = msMedicineMapper.addDtoToEntity(dto);
 
-        fillMedicineFields(medicine, medicineId, now);
+        fillMedicineFields(medicine, medicineId, tenantId);
 
         int medicineRows = baseMapper.insert(medicine);
         if (medicineRows != 1) {
             throw new IllegalStateException("新增药品主体失败");
         }
 
-        savePrice(medicine, dto, PRICE_TYPE_PURCHASE, dto.getPurchasePrice(), now);
+        savePrice(medicine, dto, PRICE_TYPE_PURCHASE, dto.getPurchasePrice());
 
-        savePrice(medicine, dto, PRICE_TYPE_SALE, dto.getRetailPrice(), now);
+        savePrice(medicine, dto, PRICE_TYPE_SALE, dto.getRetailPrice());
 
         if (dto.getMaximumRetailPrice() != null) {
-            savePrice(medicine, dto, PRICE_TYPE_MAX_RETAIL, dto.getMaximumRetailPrice(), now);
+            savePrice(medicine, dto, PRICE_TYPE_MAX_RETAIL, dto.getMaximumRetailPrice());
         }
 
         MedicineListVO vo = msMedicineMapper.entityToListVO(medicine);
@@ -120,11 +125,10 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
     /**
      * 补充不允许由前端控制的系统字段。
      */
-    private void fillMedicineFields(MedMedicationDefinitionDO medicine, String medicineId, LocalDateTime now) {
+    private void fillMedicineFields(MedMedicationDefinitionDO medicine, String medicineId, String tenantId) {
         medicine.setId(medicineId);
+        medicine.setTenantId(tenantId);
         medicine.setBusNo("MD" + medicineId);
-        medicine.setCreatedAt(now);
-        medicine.setUpdatedAt(now);
         medicine.setIsDeleted(false);
         medicine.setVersion(0);
         medicine.setOrgId(TEMP_ORG_ID);
@@ -137,10 +141,11 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
     /**
      * 保存一种价格定义。
      */
-    private void savePrice(MedMedicationDefinitionDO medicine, MedicineAddDTO dto, String priceType, BigDecimal priceValue, LocalDateTime now) {
+    private void savePrice(MedMedicationDefinitionDO medicine, MedicineAddDTO dto, String priceType, BigDecimal priceValue) {
         AdmChargeItemDefinitionDO price = new AdmChargeItemDefinitionDO();
 
         price.setId(IdWorker.getIdStr());
+        price.setTenantId(medicine.getTenantId());
         price.setIsDeleted(false);
         price.setVersion(0);
 
