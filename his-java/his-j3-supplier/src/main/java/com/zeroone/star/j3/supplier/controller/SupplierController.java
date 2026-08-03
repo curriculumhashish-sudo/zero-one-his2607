@@ -42,7 +42,7 @@ public class SupplierController implements SupplierApis {
     @GetMapping("/names")
     @Operation(summary = "获取供应商名称", description = "用于下拉框或业务选择框，默认只返回启用且未删除的供应商，支持按名称、拼音码、五笔码搜索")
     public JsonVO<List<SupplierNameVO>> querySupplierNames(
-            @Parameter(description = "状态枚举：ENABLED-启用，DISABLED-停用；不传默认查询启用供应商")
+            @Parameter(description = "状态枚举：ACTIVE-启用，INACTIVE-停用；不传默认查询启用供应商")
             @RequestParam(required = false) String statusEnum,
             @Parameter(description = "搜索关键字，支持供应商名称、拼音码、五笔码模糊匹配")
             @RequestParam(required = false) String keyword) {
@@ -109,7 +109,7 @@ public class SupplierController implements SupplierApis {
             @Parameter(description = "供应商ID", example = "4100000000000000002", required = true)
             @PathVariable String id,
             @Parameter(description = "供应商数据", required = true)
-            @Valid SupplierUpdateDTO dto) {
+            @Valid @RequestBody SupplierUpdateDTO dto) {
         try {
             String result = supplierService.updateSupplier(id, dto);
             if(result!=null){

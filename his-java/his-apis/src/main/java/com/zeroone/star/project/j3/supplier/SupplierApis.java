@@ -21,7 +21,7 @@ public interface SupplierApis {
 
     @Operation(summary = "获取供应商名称", description = "用于下拉框或业务选择框，默认只返回启用且未删除的供应商，支持按名称、拼音码、五笔码搜索")
     JsonVO<List<SupplierNameVO>> querySupplierNames(
-            @Parameter(description = "状态枚举：ENABLED-启用，DISABLED-停用；不传默认查询启用供应商", example = "ENABLED")
+            @Parameter(description = "状态枚举：ACTIVE-启用，INACTIVE-停用；不传默认查询启用供应商", example = "ACTIVE")
             String statusEnum,
             @Parameter(description = "搜索关键字，支持供应商名称、拼音码、五笔码模糊匹配", example = "HRYY")
             String keyword

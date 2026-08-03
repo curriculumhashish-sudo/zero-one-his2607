@@ -30,6 +30,8 @@ public interface SupplierMapper extends BaseMapper<Supplier> {
 
     String selectCreditCodeById(@Param("id") String id, @Param("tenantId") String tenantId);
 
+    int countActiveOrganizationById(@Param("orgId") String orgId, @Param("tenantId") String tenantId);
+
     /**
      * 悲观锁方式查询当前最大ID，用于并发安全的ID自增生成
      * FOR UPDATE 锁定行，防止并发请求读到同一个MAX(id)
