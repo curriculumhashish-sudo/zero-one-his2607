@@ -235,6 +235,92 @@ int DrugDAO::updateEditableByVersion(const MedMedicationDefinitionDO &data, cons
     return sqlSession->executeUpdate(sql.str(), params);
 }
 
+int DrugDAO::updateBasePriceValue(const std::string &drugId, const std::string &tenantId,
+                                  const std::string &priceType, double priceValue,
+                                  const std::string &operatorId, const std::string &operationTime)
+{
+    const std::string sql =
+        "UPDATE adm_charge_item_definition SET price_value=?,updated_at=?,updated_by=?,version=version+1 "
+        "WHERE instance_table=? AND instance_id=? AND tenant_id=? AND price_type_code=? "
+        "AND is_deleted=0 AND status_enum=? AND lot_no IS NULL";
+    SqlParams params;
+    SQLPARAMS_PUSH(params, "d", double, priceValue);
+    SQLPARAMS_PUSH(params, "dt", std::string, operationTime);
+    SQLPARAMS_PUSH(params, "s", std::string, operatorId);
+    SQLPARAMS_PUSH(params, "s", std::string, drugTableName());
+    SQLPARAMS_PUSH(params, "s", std::string, drugId);
+    SQLPARAMS_PUSH(params, "s", std::string, tenantId);
+    SQLPARAMS_PUSH(params, "s", std::string, priceType);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::STATUS_ACTIVE);
+    return sqlSession->executeUpdate(sql, params);
+}
+
+int DrugDAO::updateBasePriceFinanceType(const std::string &drugId, const std::string &tenantId,
+                                        const std::string &financeTypeCode,
+                                        const std::string &operatorId, const std::string &operationTime)
+{
+    const std::string sql =
+        "UPDATE adm_charge_item_definition SET type_code=?,updated_at=?,updated_by=?,version=version+1 "
+        "WHERE instance_table=? AND instance_id=? AND tenant_id=? AND is_deleted=0 AND status_enum=? "
+        "AND lot_no IS NULL AND price_type_code IN (?,?,?)";
+    SqlParams params;
+    SQLPARAMS_PUSH(params, "s", std::string, financeTypeCode);
+    SQLPARAMS_PUSH(params, "dt", std::string, operationTime);
+    SQLPARAMS_PUSH(params, "s", std::string, operatorId);
+    SQLPARAMS_PUSH(params, "s", std::string, drugTableName());
+    SQLPARAMS_PUSH(params, "s", std::string, drugId);
+    SQLPARAMS_PUSH(params, "s", std::string, tenantId);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::STATUS_ACTIVE);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::PRICE_TYPE_PURCHASE);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::PRICE_TYPE_SALE);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::PRICE_TYPE_LIMIT);
+    return sqlSession->executeUpdate(sql, params);
+}
+
+int DrugDAO::updateBasePriceInsuranceType(const std::string &drugId, const std::string &tenantId,
+                                          const std::string &insuranceType,
+                                          const std::string &operatorId, const std::string &operationTime)
+{
+    const std::string sql =
+        "UPDATE adm_charge_item_definition SET yb_type=?,updated_at=?,updated_by=?,version=version+1 "
+        "WHERE instance_table=? AND instance_id=? AND tenant_id=? AND is_deleted=0 AND status_enum=? "
+        "AND lot_no IS NULL AND price_type_code IN (?,?,?)";
+    SqlParams params;
+    SQLPARAMS_PUSH(params, "s", std::string, insuranceType);
+    SQLPARAMS_PUSH(params, "dt", std::string, operationTime);
+    SQLPARAMS_PUSH(params, "s", std::string, operatorId);
+    SQLPARAMS_PUSH(params, "s", std::string, drugTableName());
+    SQLPARAMS_PUSH(params, "s", std::string, drugId);
+    SQLPARAMS_PUSH(params, "s", std::string, tenantId);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::STATUS_ACTIVE);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::PRICE_TYPE_PURCHASE);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::PRICE_TYPE_SALE);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::PRICE_TYPE_LIMIT);
+    return sqlSession->executeUpdate(sql, params);
+}
+
+int DrugDAO::updateBasePriceChargeName(const std::string &drugId, const std::string &tenantId,
+                                       const std::string &chargeName,
+                                       const std::string &operatorId, const std::string &operationTime)
+{
+    const std::string sql =
+        "UPDATE adm_charge_item_definition SET charge_name=?,updated_at=?,updated_by=?,version=version+1 "
+        "WHERE instance_table=? AND instance_id=? AND tenant_id=? AND is_deleted=0 AND status_enum=? "
+        "AND lot_no IS NULL AND price_type_code IN (?,?,?)";
+    SqlParams params;
+    SQLPARAMS_PUSH(params, "s", std::string, chargeName);
+    SQLPARAMS_PUSH(params, "dt", std::string, operationTime);
+    SQLPARAMS_PUSH(params, "s", std::string, operatorId);
+    SQLPARAMS_PUSH(params, "s", std::string, drugTableName());
+    SQLPARAMS_PUSH(params, "s", std::string, drugId);
+    SQLPARAMS_PUSH(params, "s", std::string, tenantId);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::STATUS_ACTIVE);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::PRICE_TYPE_PURCHASE);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::PRICE_TYPE_SALE);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::PRICE_TYPE_LIMIT);
+    return sqlSession->executeUpdate(sql, params);
+}
+
 int DrugDAO::softDeleteBasePrices(const std::string &drugId, const std::string &tenantId,
                                   const std::string &operatorId,
                                   const std::string &operationTime)
@@ -511,6 +597,28 @@ int DrugDAO::softDeleteDrugs(const std::list<std::string> &ids, const std::strin
     return sqlSession->executeUpdate(sql, params);
 }
 
+int DrugDAO::softDeleteDrugByVersion(const std::string &id, const std::string &tenantId,
+                                     int expectedVersion, const std::string &operatorId,
+                                     const std::string &operationTime)
+{
+    const std::string sql =
+        "UPDATE med_medication_definition SET is_deleted=1,active_flag=?,status_enum=?,"
+        "deleted_at=?,deleted_by=?,updated_at=?,updated_by=?,version=version+1 "
+        "WHERE id=? AND tenant_id=? AND version=? AND is_deleted=0 AND status_enum=?";
+    SqlParams params;
+    SQLPARAMS_PUSH(params, "b", bool, false);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::STATUS_DISCARDED);
+    SQLPARAMS_PUSH(params, "dt", std::string, operationTime);
+    SQLPARAMS_PUSH(params, "s", std::string, operatorId);
+    SQLPARAMS_PUSH(params, "dt", std::string, operationTime);
+    SQLPARAMS_PUSH(params, "s", std::string, operatorId);
+    SQLPARAMS_PUSH(params, "s", std::string, id);
+    SQLPARAMS_PUSH(params, "s", std::string, tenantId);
+    SQLPARAMS_PUSH(params, "i", int, expectedVersion);
+    SQLPARAMS_PUSH(params, "s", std::string, DrugConstants::STATUS_INACTIVE);
+    return sqlSession->executeUpdate(sql, params);
+}
+
 int DrugDAO::updateActiveStatus(const std::list<std::string> &ids, const std::string &tenantId,
                                 const std::string &expectedStatus,
                                 const std::string &targetStatus, bool activeFlag, const std::string &operatorId,
@@ -532,6 +640,26 @@ int DrugDAO::updateActiveStatus(const std::list<std::string> &ids, const std::st
     SQLPARAMS_PUSH(params, "s", std::string, operatorId);
     appendIds(params, ids);
     SQLPARAMS_PUSH(params, "s", std::string, tenantId);
+    SQLPARAMS_PUSH(params, "s", std::string, expectedStatus);
+    return sqlSession->executeUpdate(sql, params);
+}
+
+int DrugDAO::updateActiveStatusByVersion(const std::string &id, const std::string &tenantId,
+                                         int expectedVersion, const std::string &expectedStatus,
+                                         const std::string &targetStatus, bool activeFlag,
+                                         const std::string &operatorId, const std::string &operationTime)
+{
+    const std::string sql =
+        "UPDATE med_medication_definition SET active_flag=?,status_enum=?,updated_at=?,updated_by=?,"
+        "version=version+1 WHERE id=? AND tenant_id=? AND version=? AND is_deleted=0 AND status_enum=?";
+    SqlParams params;
+    SQLPARAMS_PUSH(params, "b", bool, activeFlag);
+    SQLPARAMS_PUSH(params, "s", std::string, targetStatus);
+    SQLPARAMS_PUSH(params, "dt", std::string, operationTime);
+    SQLPARAMS_PUSH(params, "s", std::string, operatorId);
+    SQLPARAMS_PUSH(params, "s", std::string, id);
+    SQLPARAMS_PUSH(params, "s", std::string, tenantId);
+    SQLPARAMS_PUSH(params, "i", int, expectedVersion);
     SQLPARAMS_PUSH(params, "s", std::string, expectedStatus);
     return sqlSession->executeUpdate(sql, params);
 }
