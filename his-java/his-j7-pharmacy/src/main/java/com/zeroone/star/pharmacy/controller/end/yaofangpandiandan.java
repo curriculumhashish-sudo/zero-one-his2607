@@ -9,6 +9,10 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j7.pharmacy.StocktakeStatusVO;
 import com.zeroone.star.project.vo.j7.pharmacy.SupplyDocumentDeleteVO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -31,6 +35,10 @@ public class yaofangpandiandan {
 
     @PutMapping("/submit")
     @Operation(summary = "提交审批")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+    })
     public JsonVO<StocktakeStatusVO> submit(@Valid @RequestBody OperatorDTO dto) {
         try {
             return JsonVO.success(wkfSupplyRequestService.submit(dto));
@@ -41,6 +49,10 @@ public class yaofangpandiandan {
 
     @PutMapping("/approve")
     @Operation(summary = "审批通过")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+    })
     public JsonVO<StocktakeStatusVO> approve(@Valid @RequestBody ApproveDTO dto) {
         try {
             return JsonVO.success(wkfSupplyRequestService.approve(dto));
@@ -51,6 +63,10 @@ public class yaofangpandiandan {
 
     @PutMapping("/reject")
     @Operation(summary = "审批驳回")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+    })
     public JsonVO<StocktakeStatusVO> reject(@Valid @RequestBody ApproveDTO dto) {
         try {
             return JsonVO.success(wkfSupplyRequestService.reject(dto));
@@ -61,6 +77,10 @@ public class yaofangpandiandan {
 
     @PutMapping("/withdraw")
     @Operation(summary = "撤回审批")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+    })
     public JsonVO<StocktakeStatusVO> withdraw(@Valid @RequestBody OperatorDTO dto) {
         try {
             return JsonVO.success(wkfSupplyRequestService.withdraw(dto));
@@ -71,6 +91,10 @@ public class yaofangpandiandan {
 
     @DeleteMapping("/delete")
     @Operation(summary = "删除盘点单据", description = "软删除指定单据号的盘点单，仅草稿/待审核状态可删，同时解锁关联的库存锁定记录")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+    })
     public JsonVO<SupplyDocumentDeleteVO> deleteStocktake(@Valid @RequestBody StocktakeDeleteDTO dto) {
         try {
             return JsonVO.success(stocktakeService.deleteStocktake(dto));

@@ -14,6 +14,8 @@ import com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundListVO;
 import com.zeroone.star.project.dto.j7.pharmacy.InStockOrderDeleteDTO;
 import com.zeroone.star.project.vo.j7.pharmacy.SupplyDocumentDeleteVO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -86,6 +88,10 @@ public class yaofangrukudan {
 
     // 新增入库单据
     @Operation(summary = "新增入库单据", description = "创建一张新的入库单，状态为草稿。返回入库单主表ID。")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+    })
     @PostMapping("/addInStockOrder")
     public JsonVO<String> addInOrder(@Valid @RequestBody InStockOrderDTO dto) {
         try {
@@ -98,6 +104,10 @@ public class yaofangrukudan {
 
     // 保存入库单据（编辑）
     @Operation(summary = "保存入库单据", description = "修改草稿态的入库单，支持对明细的全量增删改。")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+    })
     @PutMapping("/{orderId}/saveInStockOrder")
     public JsonVO<String> updateInOrder(@PathVariable String orderId, @Valid @RequestBody InStockOrderDTO dto) {
         try {
@@ -110,6 +120,10 @@ public class yaofangrukudan {
 
     // 保存并提交审批
     @Operation(summary = "保存并提交审批", description = "保存草稿并立即提交审批，状态变更为'待审批'。")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+    })
     @PutMapping("/{orderId}/submitInStockOrder")
     public JsonVO<String> submitInOrder(@PathVariable String orderId, @Valid @RequestBody InStockOrderDTO dto) {
         try {
@@ -125,6 +139,10 @@ public class yaofangrukudan {
      */
     @PostMapping("/list")
     @Operation(summary = "获取单据列表", description = "根据条件分页查询药房入库单列表")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+    })
     public JsonVO<IPage<PurchaseInboundListVO>> listInboundOrders(@Valid @RequestBody PurchaseInboundQuery query) {
         return JsonVO.success(inStockOrderService.listInboundOrders(query));
     }
@@ -134,6 +152,10 @@ public class yaofangrukudan {
      */
     @GetMapping("/detail/{id}")
     @Operation(summary = "获取单据详情", description = "根据入库单ID查询单据的详细信息，包含主表和明细")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+    })
     public JsonVO<PurchaseInboundDetailVO> getInboundDetail(@PathVariable("id") String id) {
         try {
             return JsonVO.success(inStockOrderService.getInboundDetail(id));
@@ -147,6 +169,10 @@ public class yaofangrukudan {
      */
     @PutMapping("/{orderId}/saveAndSubmit")
     @Operation(summary = "保存并提交审批", description = "保存入库单草稿并立即提交审批，状态变更为'待审批'")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+    })
     public JsonVO<String> saveAndSubmitInOrder(@PathVariable String orderId, @Valid @RequestBody InStockOrderDTO dto) {
         try {
             inStockOrderService.submit(orderId, dto);
@@ -158,6 +184,10 @@ public class yaofangrukudan {
 
     @DeleteMapping("/delete")
     @Operation(summary = "删除入库单据", description = "软删除指定单据号的入库单，仅草稿/待审核状态可删，同时解锁关联的库存锁定记录")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+    })
     public JsonVO<SupplyDocumentDeleteVO> deleteInStockOrder(@Valid @RequestBody InStockOrderDeleteDTO dto) {
         try {
             return JsonVO.success(inStockOrderService.deleteOrder(dto));

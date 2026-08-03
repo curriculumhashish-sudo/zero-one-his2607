@@ -37,6 +37,12 @@ public class DispenseVerifyDTO {
     @Schema(description = "发药明细核对列表", requiredMode = Schema.RequiredMode.REQUIRED)
     private List<VerifyItem> items;
 
+    @Schema(description = "调配药师ID（对应 practitioner_id）", example = "prac1234567890123456789")
+    private String practitionerId;
+
+    @Schema(description = "领药人ID（对应 rec_practitioner_id）", example = "prac9876543210987654321")
+    private String recPractitionerId;
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor

@@ -79,6 +79,8 @@ public class DispensingServiceImpl implements IDispensingService {
                             .ge(MedMedicationDispense::getQuantity, item.getDispenseQuantity())
                             .set(MedMedicationDispense::getDispenseQuantity, item.getDispenseQuantity())
                             .set(MedMedicationDispense::getLotNumber, item.getLotNumber())
+                            .set(MedMedicationDispense::getPractitionerId, verifyDTO.getPractitionerId())
+                            .set(MedMedicationDispense::getRecPractitionerId, verifyDTO.getRecPractitionerId())
                             .set(MedMedicationDispense::getStatusEnum, "COMPLETED")
                             .set(MedMedicationDispense::getDispenseTime, LocalDateTime.now()));
             if (rows == 0) {

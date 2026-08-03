@@ -10,6 +10,10 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j7.dispense.PatientDrugItemVO;
 import com.zeroone.star.project.vo.j7.dispense.PatientQueueVO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -65,6 +69,10 @@ public class menzhentuiyao {
      */
     @GetMapping("/patient-queue")
     @Operation(summary = "获取退药患者队列", description = "分页查询门诊退药患者队列（待退药/已退药）")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+    })
     public JsonVO<IPage<PatientQueueVO>> getPatientQueue(PatientQueueQuery query) {
         return JsonVO.success(outpatientRefundService.queryRefundPatientQueue(query));
     }
@@ -81,6 +89,10 @@ public class menzhentuiyao {
      */
     @GetMapping("/drug-items")
     @Operation(summary = "获取退药明细", description = "获取患者退药明细信息，供药师核对")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+    })
     public JsonVO<List<PatientDrugItemVO>> getRefundDrugItems(PatientDrugItemQuery query) {
         return JsonVO.success(outpatientRefundService.queryRefundDrugItems(query));
     }
@@ -97,6 +109,10 @@ public class menzhentuiyao {
      */
     @PostMapping("/confirm")
     @Operation(summary = "确认退药", description = "核对退药明细后确认退药，回补库存数量")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+    })
     public JsonVO<String> confirmRefund(@Valid @RequestBody DispenseVerifyDTO dto) {
         try {
             return JsonVO.success(outpatientRefundService.confirmRefund(dto));
@@ -108,6 +124,10 @@ public class menzhentuiyao {
     // ==================== 门诊拒绝退药流程 ====================
     // 步骤：查询退药患者队列 → 查看退药明细 → 执行拒绝退药
     @Operation(summary = "执行拒绝退药", description = "更新退药申请单状态为已拒绝，并记录拒绝原因")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+    })
     @PostMapping("/reject-return")
     public JsonVO<String> rejectReturn(@Valid @RequestBody ReturnRejectDTO dto) {
         try {

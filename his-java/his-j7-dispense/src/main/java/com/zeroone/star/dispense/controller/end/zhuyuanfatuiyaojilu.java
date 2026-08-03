@@ -8,6 +8,11 @@ import com.zeroone.star.project.j7.dispense.InpatientDispenseRecordApis;
 import com.zeroone.star.project.query.j7.dispense.InpatientDispenseRecordQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j7.dispense.InpatientDispenseRecordVO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.ServletOutputStream;
@@ -31,13 +36,20 @@ public class zhuyuanfatuiyaojilu implements InpatientDispenseRecordApis {
 
     @Resource
     private ExcelComponent excelComponent;
-
+ 
     @Override
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+    })
     public JsonVO<PageDTO<InpatientDispenseRecordVO>> queryPage(InpatientDispenseRecordQuery query) {
         return JsonVO.success(service.queryPage(query));
     }
 
     @Override
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "导出成功，返回Excel文件流")
+    })
     public void export(InpatientDispenseRecordQuery query, HttpServletResponse response) throws IOException {
         try {
             List<InpatientDispenseRecordDTO> records = service.listForExport(query);

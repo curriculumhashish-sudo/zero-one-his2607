@@ -10,6 +10,10 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j7.dispense.DispenseGroupVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.ServletOutputStream;
@@ -41,6 +45,10 @@ public class menzhenfatuiyaojilu implements OutpatientDispenseApis {
     @Override
     @GetMapping("/page")
     @Operation(summary = "分页查询发退药记录", description = "按处方分组展示门诊发药/退药记录")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+    })
     public JsonVO<PageDTO<DispenseGroupVO>> queryPage(
             @Parameter(description = "查询参数", required = true) DispenseQuery query) {
         return JsonVO.success(service.queryPage(query));
@@ -49,6 +57,9 @@ public class menzhenfatuiyaojilu implements OutpatientDispenseApis {
     @Override
     @GetMapping("/export")
     @Operation(summary = "导出发退药记录", description = "将查询结果以平铺格式导出为 Excel")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "导出成功，返回Excel文件流")
+    })
     public void export(
             @Parameter(description = "查询参数") DispenseQuery query,
             HttpServletResponse response) throws IOException {

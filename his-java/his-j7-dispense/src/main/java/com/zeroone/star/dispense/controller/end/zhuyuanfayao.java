@@ -11,8 +11,13 @@ import com.zeroone.star.project.vo.j7.dispense.DispensingSummaryVO;
 import com.zeroone.star.project.vo.j7.dispense.PatientMedicationVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,14 +33,22 @@ public class zhuyuanfayao implements DispensingApis {
     private IDispensingService dispensingService;
 
     @Operation(summary = "获取汇总单队列")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+    })
     @PostMapping("query-summary-list")
     @Override
-    public JsonVO<ExtendPageDTO<DispensingSummaryVO>> querySummaryList(@RequestBody DispensingSummaryQuery query) {
+    public JsonVO<ExtendPageDTO<DispensingSummaryVO>> querySummaryList(@Valid @RequestBody DispensingSummaryQuery query) {
         ExtendPageDTO<DispensingSummaryVO> page = dispensingService.querySummaryList(query);
         return JsonVO.success(page);
     }
 
     @Operation(summary = "获取患者药品明细")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+    })
     @GetMapping("query-patient-medications")
     @Override
     public JsonVO<List<PatientMedicationVO>> queryPatientMedications(
@@ -45,9 +58,13 @@ public class zhuyuanfayao implements DispensingApis {
     }
 
     @Operation(summary = "核对发药")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+    })
     @PostMapping("verify-dispense")
     @Override
-    public JsonVO<String> verifyDispense(@RequestBody DispenseVerifyDTO verifyDTO) {
+    public JsonVO<String> verifyDispense(@Valid @RequestBody DispenseVerifyDTO verifyDTO) {
         try {
             String result = dispensingService.verifyDispense(verifyDTO);
             return JsonVO.success(result);
@@ -58,9 +75,13 @@ public class zhuyuanfayao implements DispensingApis {
 
     // =================== 住院发药驳回 ====================
     @Operation(summary = "驳回患者发药单据", description = "驳回指定患者的发药单据，并同步更新对应汇总单状态为已驳回")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class)))
+    })
     @PostMapping("/reject-dispensing")
     @Override
-    public JsonVO<String> rejectDispensing(@RequestBody DispenseRejectQuery dto) {
+    public JsonVO<String> rejectDispensing(@Valid @RequestBody DispenseRejectQuery dto) {
         try {
             dispensingService.rejectDispensing(dto);
             return JsonVO.success("发药驳回成功");

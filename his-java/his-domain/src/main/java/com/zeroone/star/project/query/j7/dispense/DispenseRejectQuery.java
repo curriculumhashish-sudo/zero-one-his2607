@@ -1,9 +1,9 @@
 package com.zeroone.star.project.query.j7.dispense;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
+
+import jakarta.validation.constraints.NotBlank;
 
 /**
  * <p>
@@ -18,12 +18,15 @@ import lombok.ToString;
  * @author 01star
  * @version 1.0.0
  */
-@Getter
-@Setter
-@ToString(callSuper = true)
-@Schema(description = "住院发药驳回查询对象")
-public class DispenseRejectQuery extends DispensingSummaryQuery {
+@Data
+@Schema(description = "住院发药驳回请求")
+public class DispenseRejectQuery {
 
-    @Schema(description = "驳回原因")
+    @NotBlank(message = "汇总单号不能为空")
+    @Schema(description = "汇总单号", example = "HZ20240719001", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String summaryNo;
+
+    @NotBlank(message = "驳回原因不能为空")
+    @Schema(description = "驳回原因", requiredMode = Schema.RequiredMode.REQUIRED)
     private String rejectReason;
 }
