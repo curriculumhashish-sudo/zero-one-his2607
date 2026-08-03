@@ -10,13 +10,11 @@ import com.zeroone.star.basedata.entity.diagnosis.ClnConditionDefinitionDO;
 import com.zeroone.star.basedata.mapper.DiagnosisMapper;
 import com.zeroone.star.basedata.service.IDiagnosisService;
 import com.zeroone.star.project.components.user.UserHolder;
-import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisSaveDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisUpdateDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisIdsDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisStatusDTO;
-
 import com.zeroone.star.project.query.j4.diagnosis.DiagnosisDefinitionQuery;
 import com.zeroone.star.project.query.j4.diagnosis.DiagnosisPageQuery;
 import com.zeroone.star.project.query.j4.diagnosis.DiagnosisSelectPageQuery;
@@ -28,7 +26,6 @@ import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisOptionVO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -45,9 +42,6 @@ import java.util.List;
 @Service
 public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnConditionDefinitionDO> 
     implements IDiagnosisService {
-
-    private static final long DEFAULT_PAGE_INDEX = 1L;
-    private static final long DEFAULT_PAGE_SIZE = 10L;
 
     @Resource
     private MsDiagnosisMapper msDiagnosisMapper;
@@ -211,29 +205,16 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
 
     @Override
     public PageDTO<DiagnosisOptionVO> queryDiagnosisSelectList(DiagnosisSelectPageQuery query) {
-        // 1. 处理分页参数和查询条件，目录只取诊断表实际保存的编码。
-        long pageIndex = normalizePageIndex(query == null ? 0L : query.getPageIndex());
-        long pageSize = normalizePageSize(query == null ? 0L : query.getPageSize());
-        String keyword = query == null ? null : StrUtil.trim(query.getKeyword());
-        String sourceEnum = query == null ? null : StrUtil.trim(query.getSourceEnum());
-
-        // 2. 按当前租户对 source_enum 去重分页，不补充外部目录名称。
-        Page<String> result = new Page<>(pageIndex, pageSize);
-        result = baseMapper.selectDistinctSourceEnum(result, userHolder.getCurrentTenantId(), keyword, sourceEnum);
-
-        // 3. code 返回表中编码，display 保持为空，名称由前端编码接口获取。
-        return PageDTO.create(result, sourceEnumCode -> {
-            DiagnosisOptionVO option = new DiagnosisOptionVO();
-            option.setCode(sourceEnumCode);
-            return option;
-        });
+        Page<DiagnosisOptionVO> result = new Page<>(query.getPageIndex(), query.getPageSize(), 0L);
+        result.setRecords(List.of());
+        return PageDTO.create(result);
     }
 
     @Override
     public PageDTO<DiagnosisListVO> queryDiagnosisList(DiagnosisPageQuery query) {
-        // 1. 处理分页参数，避免 Service 被内部调用时传入 0 导致分页异常
-        long pageIndex = normalizePageIndex(query == null ? 0L : query.getPageIndex());
-        long pageSize = normalizePageSize(query == null ? 0L : query.getPageSize());
+        // 1. 处理分页参数
+        long pageIndex = query.getPageIndex();
+        long pageSize = query.getPageSize();
         Page<ClnConditionDefinitionDO> page = new Page<>(pageIndex, pageSize);
 
         // 2. 按关键字、诊断目录和当前租户构造组合查询条件
@@ -257,7 +238,7 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
         }
         ClnConditionDefinitionDO entity = lambdaQuery()
                 .eq(ClnConditionDefinitionDO::getId, id)
-                .eq(ClnConditionDefinitionDO::getTenantId, currentTenantId())
+                .eq(ClnConditionDefinitionDO::getTenantId, userHolder.getCurrentTenantId())
                 .one();
         if (entity == null) {
             throw new RuntimeException("诊断记录不存在");
@@ -289,31 +270,5 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
         }
         return wrapper;
     }
-
-    private String currentTenantId() {
-        // 统一从用户上下文获取租户，不使用固定租户或空租户降级
-        try {
-            String tenantId = userHolder.getCurrentTenantId();
-            if (!StringUtils.hasText(tenantId)) {
-                throw new IllegalStateException("当前用户未绑定租户");
-            }
-            return tenantId;
-        } catch (Exception e) {
-            if (e instanceof IllegalStateException) {
-                throw (IllegalStateException) e;
-            }
-            throw new IllegalStateException("获取当前租户失败", e);
-        }
-    }
-
-    private long normalizePageIndex(long pageIndex) {
-        return pageIndex > 0 ? pageIndex : DEFAULT_PAGE_INDEX;
-    }
-
-    private long normalizePageSize(long pageSize) {
-        return pageSize > 0 ? pageSize : DEFAULT_PAGE_SIZE;
-    }
-
-
 
 }
