@@ -1,11 +1,9 @@
 package com.zeroone.star.project.j8.statdata;
 
-import com.zeroone.star.project.dto.j8.statdata.ExpireWarningDTO;
-import com.zeroone.star.project.dto.j8.statdata.StockChartDTO;
-import com.zeroone.star.project.query.j8.statdata.StockChartQuery;
+import com.zeroone.star.project.query.j8.statdata.HourTrendQuery;
 import com.zeroone.star.project.vo.JsonVO;
-
-import java.util.List;
+import com.zeroone.star.project.vo.j8.statdata.ExpireWarningVO;
+import com.zeroone.star.project.vo.j8.statdata.StockInOutVO;
 
 /**
  * <p>
@@ -19,16 +17,16 @@ import java.util.List;
 public interface StockChartApis {
 
     /**
-     * 获取近半年物资入库出库堆叠柱状图数据
-     * @param query 查询参数（起始月份、结束月份、物资类型筛选）
-     * @return ECharts堆叠柱状图数据（xAxis、series）
+     * 获取出入库堆叠柱状图
+     * @param query 查询参数
+     * @return 堆叠柱状图数据
      */
-    JsonVO<StockChartDTO> getStockInOutChart(StockChartQuery query);
+    JsonVO<StockInOutVO> getStockInOutChart(HourTrendQuery query);
 
     /**
-     * 获取库存物品过期预警饼图数据
-     * @param goodsType 物资分类（drug-药品/consumable-耗材/device-器械，不传默认全部）
-     * @return 过期预警数据列表
+     * 获取过期预警饼图
+     * @param query 查询参数
+     * @return 过期预警饼图数据
      */
-    JsonVO<List<ExpireWarningDTO>> getExpireWarningPie(String goodsType);
+    JsonVO<ExpireWarningVO> getExpireWarningPie(HourTrendQuery query);
 }

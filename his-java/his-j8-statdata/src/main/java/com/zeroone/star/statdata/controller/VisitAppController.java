@@ -1,16 +1,15 @@
 package com.zeroone.star.statdata.controller;
 
-import com.zeroone.star.project.dto.j8.statdata.HourTrendDTO;
-import com.zeroone.star.project.dto.j8.statdata.MonthTrendDTO;
 import com.zeroone.star.project.j8.statdata.VisitAppApis;
+import com.zeroone.star.project.query.j8.statdata.HourTrendQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j8.statdata.HourTrendVO;
 import com.zeroone.star.statdata.service.IVisitTrendService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * <p>描述: 流量统计控制器</p>
@@ -31,37 +30,21 @@ public class VisitAppController implements VisitAppApis {
         this.visitTrendService = visitTrendService;
     }
 
-    @Operation(summary = "获取小时访问趋势", 
-               description = "根据日期获取当天0-23时每个小时的访问量，返回24条数据")
-    @GetMapping("/hour-trend/{day}")
+    @Operation(summary = "获取小时访问趋势",
+               description = "根据日期范围获取小时粒度的访问量趋势")
+    @GetMapping("/hour-trend")
     @Override
-    public JsonVO<List<HourTrendDTO>> getHourTrend(
-            @Parameter(description = "统计日期，格式：yyyy-MM-dd", 
-                       example = "2026-07-20", 
-                       required = true)
-            @PathVariable String day,
-            @Parameter(description = "租户ID", example = "t001")
-            @RequestParam(required = false) String tenantId,
-            @Parameter(description = "医院ID", example = "h001")
-            @RequestParam(required = false) String hospitalId) {
-        List<HourTrendDTO> result = visitTrendService.getHourTrend(day, tenantId, hospitalId);
+    public JsonVO<HourTrendVO> getHourTrend(HourTrendQuery query) {
+        HourTrendVO result = visitTrendService.getHourTrend(query);
         return JsonVO.success(result);
     }
 
-    @Operation(summary = "获取月访问趋势", 
-               description = "根据月份获取该月每天的访问量")
-    @GetMapping("/month-trend/{month}")
+    @Operation(summary = "获取月访问量",
+               description = "根据日期范围获取该月每天的访问量")
+    @GetMapping("/month-trend")
     @Override
-    public JsonVO<List<MonthTrendDTO>> getMonthVisitTrend(
-            @Parameter(description = "统计月份，格式：yyyy-MM", 
-                       example = "2026-07", 
-                       required = true)
-            @PathVariable String month,
-            @Parameter(description = "租户ID", example = "t001")
-            @RequestParam(required = false) String tenantId,
-            @Parameter(description = "医院ID", example = "h001")
-            @RequestParam(required = false) String hospitalId) {
-        List<MonthTrendDTO> result = visitTrendService.getMonthTrend(month, tenantId, hospitalId);
+    public JsonVO<HourTrendVO> getMonthVisitTrend(HourTrendQuery query) {
+        HourTrendVO result = visitTrendService.getMonthTrend(query);
         return JsonVO.success(result);
     }
 }
