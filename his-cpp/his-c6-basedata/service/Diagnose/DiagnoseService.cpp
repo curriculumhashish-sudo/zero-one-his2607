@@ -20,13 +20,16 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
+
 #include "DiagnoseService.h"
 #include "../../dao/Diagnose/DiagnoseDAO.h"
 #include "../../domain/DiagnoseConstants.h"
 //这两个别注释
 #include "id/UuidFacade.h"
 #include "SimpleDateTimeFormat.h"
-
+#include "RedisClient.h"
+#include "MongoClient.h"
+#include "bsoncxx/json.hpp"
 //#include "StringUtil.h"
 //
 //#include <algorithm>
@@ -271,7 +274,7 @@ DiagnoseDetailDTO::Wrapper DiagnoseService::getDiagnoseDetail(const oatpp::Strin
 //	return successCount > 0;
 //
 //}
-
+//增加一条数据
 std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
 {
 	diagnoseDO data;
@@ -279,7 +282,7 @@ std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
 		data,
 		dto,
 		diagnoseName, name,
-		diagnoseType, diagType,
+		diagnoseType, diagType,//传诊断类型，对应去mongodb找诊断类型码插入
 		diagnoseCode, chronicCode,
 		MedicalInsuranceCode, medicalInsuranceCode,
 		Status, status,
@@ -294,9 +297,10 @@ std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
 		PinyinCode, pinyinCode,
 		WubiCode, wubiCode,
 		Remark, remark,
-		CatName, catName,
-		TenantId,tenantId,
-		Source_enum, source_enum);
+		CatName, catName
+		//,TenantId,tenantId//前端可以不传，从redis中拿取
+		//,Source_enum, source_enum  //前端可以不传，用catName也就是诊断目录名去mongodb找来源枚举值插入
+	);
 
 	UuidFacade uuidFacade;
 	data.setId(uuidFacade.genUuid());
@@ -304,6 +308,72 @@ std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
 	data.setCreateTime(SimpleDateTimeFormat::format());
 	//data.setIsDelete(0);
 	data.setVersion(1);
+
+	RedisClient rc("127.0.0.1", 6379, "");
+	std::string getr = rc.execute<std::string>([](Redis* r) {
+		return r->hget("user:session:10001","tenant_id").value();
+		});
+	if (getr != "")
+	{
+		data.setTenantId(getr);
+	}
+
+
+	std::string catname = *dto->catName;
+	std::string diagtype = *dto->diagType;
+		//MongoClient mc("mongodb://root:123456@127.0.0.1:27017/test");
+	MongoClient mc("mongodb://root:123456@127.0.0.1:27017/test");
+	using bsoncxx::builder::basic::kvp;
+		using bsoncxx::builder::basic::make_document;
+		mc.execute("dict_condition_definition_source", [&](mongocxx::collection* conn)
+			{				std::cout << "execute" << std::endl;
+
+
+				auto result = conn->find_one(make_document(kvp("name", catname)));
+				std::cout << "execute find_one" << std::endl;
+				if (result)
+				{
+					std::cout << "execute view" << std::endl;
+					auto field = result->view().find("code");
+
+					if (field!= result->view().end())
+					{
+						auto bstr = field->get_string();
+						std::string source_str(bstr.value);
+						std::cout << source_str << std::endl;
+						data.setSource_enum(source_str);//添加来源枚举值
+					}
+					else
+					{
+						std::cout << "No field found" << std::endl;
+					}
+				}
+				else
+				{
+					std::cout << "No result found" << std::endl;
+				}
+
+			});
+		
+		mc.execute("ipt_dise_type_code", [&](mongocxx::collection* conn)
+			{
+				auto result = conn->find_one(make_document(kvp("itemName", diagtype)));
+				if (result)
+				{
+					auto field = result->view().find("itemCode");
+
+					if (field!= result->view().end())
+					{
+						data.setdiagnoseType(std::string(field->get_string().value));//添加诊断类型码
+					}
+				}
+				else
+				{
+					std::cout << "No result found" << std::endl;
+				}
+
+			});
+	
 
 	DiagnoseDAO dao;
 	return dao.insert(data) == 1 ? data.getId() : "";
@@ -316,11 +386,11 @@ bool DiagnoseService::updateData(const DiagnoseDTO::Wrapper& dto)
 		data,
 		dto,
 		diagnoseName, name,
-		diagnoseType, diagType,
+		diagnoseType, diagType,//前端传的就是诊断类型，对应从mongodb中查到诊断类型码插入
 		diagnoseCode, chronicCode,
 		MedicalInsuranceCode, medicalInsuranceCode,
 		Status, status,
-		TenantId, tenantId,
+		//TenantId, tenantId,//前端可以不传，可以从redis中获取
 		IsDelete, isDelete,
 		Id, id);
 
@@ -332,8 +402,83 @@ bool DiagnoseService::updateData(const DiagnoseDTO::Wrapper& dto)
 		PinyinCode, pinyinCode,
 		WubiCode, wubiCode,
 		Remark, remark,
-		Source_enum,source_enum,
-	Version,version);
+		//Source_enum,source_enum,//前端可以不传，从mongodb中获取
+	Version,version
+	);
+
+	//租户id获取
+	RedisClient rc("127.0.0.1", 6379, "");
+	std::string getr = rc.execute<std::string>([](Redis* r) {
+		return r->hget("user:session:10001", "tenant_id").value();
+		});
+	if (getr != "")
+	{
+		data.setTenantId(getr);
+	}
+
+
+	std::string catname = *dto->catName;
+	std::string diagtype = *dto->diagType;
+	//MongoClient mc("mongodb://root:123456@127.0.0.1:27017/test");
+	MongoClient mc("mongodb://root:123456@127.0.0.1:27017/test");
+	using bsoncxx::builder::basic::kvp;
+	using bsoncxx::builder::basic::make_document;
+	mc.execute("dict_condition_definition_source", [&](mongocxx::collection* conn)
+		{				std::cout << "execute" << std::endl;
+
+
+	auto result = conn->find_one(make_document(kvp("name", catname)));
+	std::cout << "execute find_one" << std::endl;
+	if (result)
+	{
+		std::cout << "execute view" << std::endl;
+		auto field = result->view().find("code");
+
+		if (field != result->view().end())
+		{
+			auto bstr = field->get_string();
+			std::string source_str(bstr.value);
+			std::cout << source_str << std::endl;
+			data.setSource_enum(source_str);//添加来源枚举值
+		}
+		else
+		{
+			std::cout << "No field found" << std::endl;
+		}
+	}
+	else
+	{
+		std::cout << "No result found" << std::endl;
+	}
+
+		});
+	std::cout << "到达两段execute中间位置" << std::endl;  //新增
+
+	mc.execute("ipt_dise_type_code", [&](mongocxx::collection* conn)
+		{
+			std::cout << "enter ipt_dise_type_code" << std::endl;
+			auto result = conn->find_one(make_document(kvp("itemName", diagtype)));
+			std::cout << "execute ipt's find_one" << std::endl;
+			if (result)
+			{
+				auto field = result->view().find("itemCode");
+				std::cout << "get view" << std::endl;
+				if (field != result->view().end())
+				{
+					data.setdiagnoseType(std::string(field->get_string().value));//添加诊断类型码
+				}
+			}
+			else
+			{
+				std::cout << "No result found" << std::endl;
+			}
+
+		});
+
+	//如果version前端不传，就从数据库查
+
+
+
 
 	data.setUpdateBy(dto->getPayload()->getUsername());
 	data.setUpdateTime(SimpleDateTimeFormat::format());

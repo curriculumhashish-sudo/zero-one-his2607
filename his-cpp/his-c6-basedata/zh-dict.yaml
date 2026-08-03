@@ -35,7 +35,7 @@
     diag_code: 诊断编码
     name: 疾病名称（非空）
     category_id: 所属分类ID
-    diag_type: 诊断类型码
+    diag_type: 诊断类型
     chronic_code: 特慢病编码
     medical_insurance_code: 医保ICD编码
     status: 启用状态
@@ -51,7 +51,7 @@
     update_time: 修改时间
     id_list: 诊断id列表
     tenant_id: 租户标识
-    source_enum: 来源枚举值
+    source_enum: 来源枚举值——对应诊断目录
     version: 当前乐观锁版本
   select:
     condition_definition_id: 诊断定义ID
