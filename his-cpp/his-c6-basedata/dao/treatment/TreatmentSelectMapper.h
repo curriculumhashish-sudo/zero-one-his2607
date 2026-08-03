@@ -50,6 +50,8 @@ public:
 		data.setDefEncounterUnitCodeDictText(resultSet->getString(15));
 		data.setYbNo(resultSet->getString(16));
 		data.setStatusEnum(resultSet->getString(17));
+		data.setVersion(resultSet->getInt(18));
+		data.setTypeCode(resultSet->getString(19));
 		return data;
 	}
 };

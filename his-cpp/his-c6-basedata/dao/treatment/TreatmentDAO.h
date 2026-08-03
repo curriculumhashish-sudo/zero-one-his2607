@@ -46,7 +46,8 @@ private:
 	inline std::string selectConditionBuilder(
 		const TreatmentSelectQuery::Wrapper& query,
 		const std::string& tenantId,
-		SqlParams& params);
+		SqlParams& params,
+		const std::string& categoryCode = "");
 	
 public:
 	// 统计数据条数
@@ -58,11 +59,13 @@ public:
 	// 统计可选诊疗数据。
 	uint64_t countSelect(
 		const TreatmentSelectQuery::Wrapper& query,
-		const std::string& tenantId);
+		const std::string& tenantId,
+		const std::string& categoryCode = "");
 	// 分页查询可选诊疗数据。
 	std::list<TreatmentSelectBO> selectSelectWithPage(
 		const TreatmentSelectQuery::Wrapper& query,
-		const std::string& tenantId);
+		const std::string& tenantId,
+		const std::string& categoryCode = "");
 	//乐观锁更新状态
 	int32_t updateStatusById(const std::string& id, const std::string& statusEnum,
 		const std::string& updatedBy, int32_t version);

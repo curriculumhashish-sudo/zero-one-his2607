@@ -22,12 +22,14 @@
 #include "domain/vo/treatment/TreatmentVO.h"
 #include "domain/query/treatment/TreatmentQuery.h"
 #include "domain/query/treatment/TreatmentSelectQuery.h"
+#include "domain/query/treatment/TreatmentOptionsQuery.h"
 #include "domain/dto/treatment/TreatmentAddDTO.h"
 #include "domain/dto/treatment/TreatmentChildDTO.h"
 #include "domain/dto/treatment/TreatmentDetailDTO.h"
 #include "domain/dto/treatment/TreatmentModifyDTO.h"
 #include "domain/dto/treatment/TreatmentPageDTO.h"
 #include "domain/dto/treatment/TreatmentSelectDTO.h"
+#include "domain/dto/treatment/TreatmentOptionsDTO.h"
 #include "domain/dto/treatment/TreatmentStatusDTO.h"
 
 /**
@@ -53,6 +55,10 @@ public:
 	// 按当前用户租户分页查询可选诊疗。
 	TreatmentSelectPageDTO::Wrapper listSelect(
 		const TreatmentSelectQuery::Wrapper& query,
+		const PayloadDTO& payload);
+	// 按新版契约分页查询可选诊疗。
+	TreatmentOptionsPageDTO::Wrapper listOptionsV2(
+		const TreatmentOptionsQuery::Wrapper& query,
 		const PayloadDTO& payload);
 	// 通过ID批量删除数据
 	bool removeData(const oatpp::List<oatpp::String>& ids);

@@ -197,6 +197,43 @@ TreatmentSelectPageJsonVO::Wrapper TreatmentController::execQuerySelect(
 }
 
 
+// 获取新版诊疗选择列表。
+TreatmentOptionsPageJsonVO::Wrapper TreatmentController::execQueryOptionsV2(
+	const TreatmentOptionsQuery::Wrapper& query, const PayloadDTO& payload)
+{
+	auto jvo = TreatmentOptionsPageJsonVO::createShared();
+	if (!query || !query->validate().empty())
+	{
+		jvo->init(nullptr, ResultStatus(
+			ZH_WORDS_GETTER("treatment.message.params-invalid"), 10001));
+		return jvo;
+	}
+	if (payload.getId().empty())
+	{
+		jvo->init(nullptr, ResultStatus(
+			ZH_WORDS_GETTER("treatment.message.forbidden"), 10003));
+		return jvo;
+	}
+
+	try
+	{
+		auto result = TreatmentService().listOptionsV2(query, payload);
+		if (!result)
+		{
+			jvo->init(nullptr, ResultStatus(
+				ZH_WORDS_GETTER("treatment.message.forbidden"), 10003));
+			return jvo;
+		}
+		jvo->success(result);
+	}
+	catch (const std::exception&)
+	{
+		jvo->init(nullptr, ResultStatus(
+			ZH_WORDS_GETTER("treatment.message.server-error"), 10099));
+	}
+	return jvo;
+}
+
 
 
 //// 声明式服务1

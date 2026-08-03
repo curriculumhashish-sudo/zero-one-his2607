@@ -1,4 +1,4 @@
-﻿/*
+???/*
  Copyright Zero One Star. All rights reserved.
 
  @Author: awei
@@ -24,6 +24,7 @@
 #include "SystemInterceptor.h"
 #include "Message.h"
 #include "domain/vo/NoDataJsonVO.h"
+#include "domain/vo/treatment/TreatmentOptionsVO.h"
 #include "ApiHelper.h"
 
 using namespace oatpp::web::protocol::http;
@@ -67,6 +68,17 @@ std::shared_ptr<Response> createErrorRespone(std::string message, std::shared_pt
 	return response;
 }
 
+static std::shared_ptr<Response> createTreatmentOptionsV2UnauthorizedResponse(
+	const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& mapper)
+{
+	auto error = TreatmentOptionsPageJsonVO::createShared();
+	error->init(nullptr, ResultStatus(
+		ZH_WORDS_GETTER("treatment.message.unauthorized"), 10002));
+	auto response = ResponseFactory::createResponse(Status::CODE_401, error, mapper);
+	response->putHeader(Header::WWW_AUTHENTICATE, "Bearer realm=\"API\"");
+	return response;
+}
+
 CheckRequestInterceptor::CheckRequestInterceptor(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper)
 {
 	m_objectMapper = objectMapper;
@@ -88,6 +100,9 @@ std::shared_ptr<oatpp::web::server::interceptor::RequestInterceptor::OutgoingRes
 	// Get request credentials
 	oatpp::String token = request->getHeader(API_H_TOKEN);
 	if (!token || token->empty()) {
+		if (path == "/api/v2/treatments/options") {
+			return createTreatmentOptionsV2UnauthorizedResponse(m_objectMapper);
+		}
 		return createErrorRespone("empty token", m_objectMapper);
 	}
 	return nullptr;

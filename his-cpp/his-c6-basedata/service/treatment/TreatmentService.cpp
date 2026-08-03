@@ -454,6 +454,72 @@ TreatmentSelectPageDTO::Wrapper TreatmentService::listSelect(
 	return pages;
 }
 
+// 复用选择诊疗查询链路，按新版字段契约组装分页结果。
+TreatmentOptionsPageDTO::Wrapper TreatmentService::listOptionsV2(
+	const TreatmentOptionsQuery::Wrapper& query,
+	const PayloadDTO& payload)
+{
+	if (!query || !query->validate().empty() || payload.getId().empty())
+	{
+		return nullptr;
+	}
+
+	TreatmentDAO dao;
+	const std::string tenantId = dao.selectCurrentTenantId(payload.getId());
+	if (tenantId.empty())
+	{
+		return nullptr;
+	}
+
+	auto selectQuery = TreatmentSelectQuery::createShared();
+	selectQuery->pageIndex = query->pageIndex;
+	selectQuery->pageSize = query->pageSize;
+	selectQuery->keywords = query->keyword;
+	selectQuery->status = 2;
+	const std::string categoryCode = query->categoryCode.getValue("");
+
+	auto pages = TreatmentOptionsPageDTO::createShared();
+	pages->pageIndex = query->pageIndex;
+	pages->pageSize = query->pageSize;
+	const uint64_t count = dao.countSelect(selectQuery, tenantId, categoryCode);
+	pages->total = count;
+	pages->calcPages();
+	if (count == 0)
+	{
+		return pages;
+	}
+
+	for (const auto& sub : dao.selectSelectWithPage(
+		selectQuery, tenantId, categoryCode))
+	{
+		auto dto = TreatmentOptionV2DTO::createShared();
+		ZO_STAR_DOMAIN_DO_TO_DTO(
+			dto,
+			sub,
+			id, Id,
+			code, BusNo,
+			name, Name,
+			categoryCode, CategoryCode,
+			categoryCodeDictText, CategoryCodeDictText,
+			orgIdDictText, OrgIdDictText,
+			retailPrice, RetailPrice,
+			specification, Specification,
+			manufacturerText, ManufacturerText,
+			itemTypeCode, ItemTypeCode,
+			itemTypeCodeDictText, ItemTypeCodeDictText,
+			typeCode, TypeCode,
+			packageUnitCode, PackageUnitCode,
+			packageUnitCodeDictText, PackageUnitCodeDictText,
+			defEncounterUnitCode, DefEncounterUnitCode,
+			defEncounterUnitCodeDictText, DefEncounterUnitCodeDictText,
+			ybNo, YbNo,
+			version, Version);
+		dto->status = sub.getStatusEnum();
+		pages->addData(dto);
+	}
+	return pages;
+}
+
 bool TreatmentService::removeData(const oatpp::List<oatpp::String>& ids)
 {
 	TreatmentDAO dao;

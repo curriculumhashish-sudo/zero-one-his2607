@@ -23,14 +23,21 @@
 
 #include "domain/vo/BaseJsonVO.h"
 #include "domain/vo/treatment/TreatmentVO.h"
+#include "domain/vo/treatment/TreatmentOptionsVO.h"
 #include "domain/dto/treatment/TreatmentAddDTO.h"
 #include "domain/dto/treatment/TreatmentModifyDTO.h"
 #include "domain/query/treatment/TreatmentQuery.h"
 #include "domain/query/treatment/TreatmentSelectQuery.h"
+#include "domain/query/treatment/TreatmentOptionsQuery.h"
 #include "domain/dto/treatment/TreatmentPageDTO.h"
 #include "domain/dto/treatment/TreatmentSelectDTO.h"
 #include "domain/dto/treatment/TreatmentStatusDTO.h"
 #include "domain/dto/treatment/TreatmentRemoveDTO.h"
+
+#include <algorithm>
+#include <charconv>
+#include <exception>
+#include <system_error>
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 #define API_TAG ZH_WORDS_GETTER("treatment.tags.tag")
@@ -76,6 +83,113 @@ public: // 接口定义
 	// 获取选择诊疗列表（条件+分页）：接口绑定
 	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/treatment/query-select", querySelectTreatment,
 		TreatmentSelectQuery, execQuerySelect(query, authObject->getPayload()));
+
+	// 新版诊疗选择列表接口。
+	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("treatment.options-v2.summary"), queryTreatmentOptionsV2,
+		TreatmentOptionsQuery, TreatmentOptionsPageJsonVO::Wrapper, API_TAG);
+	ENDPOINT(API_M_GET, "/api/v2/treatments/options", queryTreatmentOptionsV2,
+		QUERIES(QueryParams, queryParams),
+		HEADER(String, authorization, API_H_TOKEN))
+	{
+		auto makeError = [](const char* key, int code)
+		{
+			auto result = TreatmentOptionsPageJsonVO::createShared();
+			result->init(nullptr, ResultStatus(ZH_WORDS_GETTER(key), code));
+			return result;
+		};
+
+		std::shared_ptr<CustomerAuthorizeObject> v2AuthObject;
+		if (authorization)
+		{
+			const std::string headerValue = authorization.getValue("");
+			const std::string prefix = PayloadDTO::getTokenPrefix();
+			if (headerValue.size() > prefix.size() &&
+				headerValue.compare(0, prefix.size(), prefix) == 0)
+			{
+				try
+				{
+					CustomerAuthorizeHandler handler;
+					auto authObject = handler.authorize(
+						String(headerValue.substr(prefix.size())));
+					v2AuthObject = std::dynamic_pointer_cast<CustomerAuthorizeObject>(authObject);
+				}
+				catch (const std::exception&)
+				{
+				}
+			}
+		}
+		if (!v2AuthObject)
+		{
+			return createDtoResponse(Status::CODE_401,
+				makeError("treatment.message.unauthorized", 10002));
+		}
+
+		const auto& authorities = v2AuthObject->getPayload().getAuthorities();
+		const bool permitted =
+			std::find(authorities.begin(), authorities.end(), "SUPER_ADMIN") != authorities.end() ||
+			std::find(authorities.begin(), authorities.end(),
+				"Navigation.Diagnosistreatment") != authorities.end();
+		if (!permitted)
+		{
+			return createDtoResponse(Status::CODE_403,
+				makeError("treatment.message.forbidden", 10003));
+		}
+
+		auto query = TreatmentOptionsQuery::createShared();
+		bool pageIndexSet = false;
+		bool pageSizeSet = false;
+		bool valid = true;
+		for (const auto& param : queryParams.getAll())
+		{
+			const std::string name = param.first.toString();
+			auto data = param.second.getMemoryHandle().get();
+			if (!data)
+			{
+				valid = false;
+				break;
+			}
+			const std::string value = *data;
+			if (name == "pageIndex" || name == "pageSize")
+			{
+				bool& assigned = name == "pageIndex" ? pageIndexSet : pageSizeSet;
+				uint64_t parsed = 0;
+				const auto parseResult = std::from_chars(
+					value.data(), value.data() + value.size(), parsed);
+				if (assigned || value.empty() || parseResult.ec != std::errc() ||
+					parseResult.ptr != value.data() + value.size())
+				{
+					valid = false;
+					break;
+				}
+				assigned = true;
+				if (name == "pageIndex")
+					query->pageIndex = parsed;
+				else
+					query->pageSize = parsed;
+			}
+			else if (name == "keyword")
+			{
+				query->keyword = URIUtil::urlDecode(value.c_str());
+			}
+			else if (name == "categoryCode")
+			{
+				query->categoryCode = URIUtil::urlDecode(value.c_str());
+			}
+		}
+		if (!valid || !pageIndexSet || !pageSizeSet || !query->validate().empty())
+		{
+			return createDtoResponse(Status::CODE_400,
+				makeError("treatment.message.params-invalid", 10001));
+		}
+
+		auto result = execQueryOptionsV2(query, v2AuthObject->getPayload());
+		const int code = result->code.getValue(10099);
+		if (code == 10003)
+			return createDtoResponse(Status::CODE_403, result);
+		if (code == 10099)
+			return createDtoResponse(Status::CODE_500, result);
+		return createDtoResponse(Status::CODE_200, result);
+	}
 
 	// 获取诊疗列表（条件+分页）：接口信息
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("treatment.query.summary"), queryTreatment,
@@ -134,6 +248,10 @@ private: // 接口执行函数
 	// 获取选择诊疗列表（条件+分页）：执行函数
 	TreatmentSelectPageJsonVO::Wrapper execQuerySelect(
 		const TreatmentSelectQuery::Wrapper& query, const PayloadDTO& payload);
+
+	// 新版诊疗选择列表执行函数。
+	TreatmentOptionsPageJsonVO::Wrapper execQueryOptionsV2(
+		const TreatmentOptionsQuery::Wrapper& query, const PayloadDTO& payload);
 
 	// 获取诊疗列表（条件+分页）：执行函数
 	TreatmentPageJsonVO::Wrapper execQueryTreatment(const TreatmentQuery::Wrapper& query);

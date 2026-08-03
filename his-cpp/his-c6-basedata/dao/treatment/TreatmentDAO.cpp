@@ -75,7 +75,8 @@ std::string TreatmentDAO::queryConditionBuilder(const TreatmentQuery::Wrapper& q
 std::string TreatmentDAO::selectConditionBuilder(
 	const TreatmentSelectQuery::Wrapper& query,
 	const std::string& tenantId,
-	SqlParams& params)
+	SqlParams& params,
+	const std::string& categoryCode)
 {
 	std::stringstream condition;
 	condition << " WHERE d.`is_deleted`=0 AND d.`tenant_id`=?";
@@ -101,6 +102,11 @@ std::string TreatmentDAO::selectConditionBuilder(
 		const std::string status =
 			treatmentStatusCode(query->status.getValue(0));
 		SQLPARAMS_PUSH(params, "s", std::string, status);
+	}
+	if (!categoryCode.empty())
+	{
+		condition << " AND d.`category_code`=?";
+		SQLPARAMS_PUSH(params, "s", std::string, categoryCode);
 	}
 	return condition.str();
 }
@@ -144,18 +150,20 @@ std::string TreatmentDAO::selectCurrentTenantId(const std::string& userId)
 
 uint64_t TreatmentDAO::countSelect(
 	const TreatmentSelectQuery::Wrapper& query,
-	const std::string& tenantId)
+	const std::string& tenantId,
+	const std::string& categoryCode)
 {
 	SqlParams params;
 	std::string sql =
 		"SELECT COUNT(d.`id`) FROM `wkf_activity_definition` d";
-	sql += selectConditionBuilder(query, tenantId, params);
+	sql += selectConditionBuilder(query, tenantId, params, categoryCode);
 	return sqlSession->executeQueryNumerical(sql, params);
 }
 
 std::list<TreatmentSelectBO> TreatmentDAO::selectSelectWithPage(
 	const TreatmentSelectQuery::Wrapper& query,
-	const std::string& tenantId)
+	const std::string& tenantId,
+	const std::string& categoryCode)
 {
 	SqlParams params;
 	// ??????????????????????????? SELECT * ??????????
@@ -168,21 +176,23 @@ std::list<TreatmentSelectBO> TreatmentDAO::selectSelectWithPage(
 		"COALESCE(item_type_concept.`display`,''),"
 		"d.`package_unit_code`,COALESCE(package_unit.`display`,''),"
 		"d.`def_encounter_unit_code`,COALESCE(encounter_unit.`display`,''),"
-		"d.`yb_no`,d.`status_enum` "
+		"d.`yb_no`,d.`status_enum`,d.`version`,CAST(d.`type_enum` AS CHAR) "
 		"FROM `wkf_activity_definition` d "
 		"LEFT JOIN `ter_code_system` category_system "
-		"ON category_system.`name`='activity_category_code' "
-		"AND category_system.`is_deleted`=0 "
-		"AND category_system.`status` IN ('ACTIVE','2') "
-		"AND (category_system.`tenant_id`=d.`tenant_id` "
-		"OR category_system.`tenant_id` IS NULL) "
+		"ON category_system.`id`=("
+		"SELECT cs.`id` FROM `ter_code_system` cs "
+		"WHERE cs.`name`='activity_category_code' "
+		"AND cs.`is_deleted`=0 AND cs.`status` IN ('ACTIVE','2') "
+		"AND (cs.`tenant_id`=d.`tenant_id` OR cs.`tenant_id` IS NULL) "
+		"ORDER BY (cs.`tenant_id`=d.`tenant_id`) DESC,cs.`id` DESC LIMIT 1) "
 		"LEFT JOIN `ter_concept` category_concept "
-		"ON category_concept.`code_system_id`=category_system.`id` "
-		"AND category_concept.`code`=d.`category_code` "
-		"AND category_concept.`is_deleted`=0 "
-		"AND category_concept.`is_active`=1 "
-		"AND (category_concept.`tenant_id`=d.`tenant_id` "
-		"OR category_concept.`tenant_id` IS NULL) "
+		"ON category_concept.`id`=("
+		"SELECT concept.`id` FROM `ter_concept` concept "
+		"WHERE concept.`code_system_id`=category_system.`id` "
+		"AND concept.`code`=d.`category_code` "
+		"AND concept.`is_deleted`=0 AND concept.`is_active`=1 "
+		"AND (concept.`tenant_id`=d.`tenant_id` OR concept.`tenant_id` IS NULL) "
+		"ORDER BY (concept.`tenant_id`=d.`tenant_id`) DESC,concept.`id` DESC LIMIT 1) "
 		"LEFT JOIN `adm_organization` adm_org "
 		"ON adm_org.`id`=d.`org_id` AND adm_org.`is_deleted`=0 "
 		"AND (adm_org.`tenant_id`=d.`tenant_id` "
@@ -192,23 +202,28 @@ std::list<TreatmentSelectBO> TreatmentDAO::selectSelectWithPage(
 		"AND (whale_org.`tenant_id`=d.`tenant_id` "
 		"OR whale_org.`tenant_id` IS NULL) "
 		"LEFT JOIN `ter_code_system` unit_system "
-		"ON unit_system.`name`='unit_code' "
-		"AND unit_system.`is_deleted`=0 "
-		"AND unit_system.`status` IN ('ACTIVE','2') "
-		"AND (unit_system.`tenant_id`=d.`tenant_id` "
-		"OR unit_system.`tenant_id` IS NULL) "
+		"ON unit_system.`id`=("
+		"SELECT cs.`id` FROM `ter_code_system` cs "
+		"WHERE cs.`name`='unit_code' "
+		"AND cs.`is_deleted`=0 AND cs.`status` IN ('ACTIVE','2') "
+		"AND (cs.`tenant_id`=d.`tenant_id` OR cs.`tenant_id` IS NULL) "
+		"ORDER BY (cs.`tenant_id`=d.`tenant_id`) DESC,cs.`id` DESC LIMIT 1) "
 		"LEFT JOIN `ter_concept` package_unit "
-		"ON package_unit.`code_system_id`=unit_system.`id` "
-		"AND package_unit.`code`=d.`package_unit_code` "
-		"AND package_unit.`is_deleted`=0 AND package_unit.`is_active`=1 "
-		"AND (package_unit.`tenant_id`=d.`tenant_id` "
-		"OR package_unit.`tenant_id` IS NULL) "
+		"ON package_unit.`id`=("
+		"SELECT concept.`id` FROM `ter_concept` concept "
+		"WHERE concept.`code_system_id`=unit_system.`id` "
+		"AND concept.`code`=d.`package_unit_code` "
+		"AND concept.`is_deleted`=0 AND concept.`is_active`=1 "
+		"AND (concept.`tenant_id`=d.`tenant_id` OR concept.`tenant_id` IS NULL) "
+		"ORDER BY (concept.`tenant_id`=d.`tenant_id`) DESC,concept.`id` DESC LIMIT 1) "
 		"LEFT JOIN `ter_concept` encounter_unit "
-		"ON encounter_unit.`code_system_id`=unit_system.`id` "
-		"AND encounter_unit.`code`=d.`def_encounter_unit_code` "
-		"AND encounter_unit.`is_deleted`=0 AND encounter_unit.`is_active`=1 "
-		"AND (encounter_unit.`tenant_id`=d.`tenant_id` "
-		"OR encounter_unit.`tenant_id` IS NULL) "
+		"ON encounter_unit.`id`=("
+		"SELECT concept.`id` FROM `ter_concept` concept "
+		"WHERE concept.`code_system_id`=unit_system.`id` "
+		"AND concept.`code`=d.`def_encounter_unit_code` "
+		"AND concept.`is_deleted`=0 AND concept.`is_active`=1 "
+		"AND (concept.`tenant_id`=d.`tenant_id` OR concept.`tenant_id` IS NULL) "
+		"ORDER BY (concept.`tenant_id`=d.`tenant_id`) DESC,concept.`id` DESC LIMIT 1) "
 		"LEFT JOIN ("
 		"SELECT `tenant_id`,`instance_id`,`price_value` AS retail_price,"
 		"`type_code` AS item_type_code FROM ("
@@ -222,19 +237,21 @@ std::list<TreatmentSelectBO> TreatmentDAO::selectSelectWithPage(
 		") price ON price.`instance_id`=d.`id` "
 		"AND price.`tenant_id`=d.`tenant_id` "
 		"LEFT JOIN `ter_code_system` item_type_system "
-		"ON item_type_system.`name`='fin_type_code' "
-		"AND item_type_system.`is_deleted`=0 "
-		"AND item_type_system.`status` IN ('ACTIVE','2') "
-		"AND (item_type_system.`tenant_id`=d.`tenant_id` "
-		"OR item_type_system.`tenant_id` IS NULL) "
+		"ON item_type_system.`id`=("
+		"SELECT cs.`id` FROM `ter_code_system` cs "
+		"WHERE cs.`name`='fin_type_code' "
+		"AND cs.`is_deleted`=0 AND cs.`status` IN ('ACTIVE','2') "
+		"AND (cs.`tenant_id`=d.`tenant_id` OR cs.`tenant_id` IS NULL) "
+		"ORDER BY (cs.`tenant_id`=d.`tenant_id`) DESC,cs.`id` DESC LIMIT 1) "
 		"LEFT JOIN `ter_concept` item_type_concept "
-		"ON item_type_concept.`code_system_id`=item_type_system.`id` "
-		"AND item_type_concept.`code`=price.`item_type_code` "
-		"AND item_type_concept.`is_deleted`=0 "
-		"AND item_type_concept.`is_active`=1 "
-		"AND (item_type_concept.`tenant_id`=d.`tenant_id` "
-		"OR item_type_concept.`tenant_id` IS NULL)";
-	sql += selectConditionBuilder(query, tenantId, params);
+		"ON item_type_concept.`id`=("
+		"SELECT concept.`id` FROM `ter_concept` concept "
+		"WHERE concept.`code_system_id`=item_type_system.`id` "
+		"AND concept.`code`=price.`item_type_code` "
+		"AND concept.`is_deleted`=0 AND concept.`is_active`=1 "
+		"AND (concept.`tenant_id`=d.`tenant_id` OR concept.`tenant_id` IS NULL) "
+		"ORDER BY (concept.`tenant_id`=d.`tenant_id`) DESC,concept.`id` DESC LIMIT 1)";
+	sql += selectConditionBuilder(query, tenantId, params, categoryCode);
 	sql += " ORDER BY COALESCE(d.`updated_at`,d.`created_at`) DESC,d.`id` DESC";
 
 	const uint64_t pageIndex = query->pageIndex.getValue(1);

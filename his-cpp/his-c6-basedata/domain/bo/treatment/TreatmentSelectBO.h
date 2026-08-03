@@ -23,6 +23,7 @@
 #include "Macros.h"
 #include "oatpp/core/Types.hpp"
 
+#include <cstdint>
 #include <string>
 
 /** 选择诊疗联表查询结果。 */
@@ -45,6 +46,8 @@ class TreatmentSelectBO
 	CC_SYNTHESIZE(std::string, defEncounterUnitCodeDictText, DefEncounterUnitCodeDictText);
 	CC_SYNTHESIZE(std::string, ybNo, YbNo);
 	CC_SYNTHESIZE(std::string, statusEnum, StatusEnum);
+	CC_SYNTHESIZE(int32_t, version, Version);
+	CC_SYNTHESIZE(std::string, typeCode, TypeCode);
 
 };
 
