@@ -3,13 +3,13 @@ spring:
     #nacos配置
     #https://github.com/alibaba/spring-cloud-alibaba/blob/2025.0.x/spring-cloud-alibaba-examples/nacos-example/readme-zh.md
     nacos:
-      server-addr: 39.99.114.126:8848
+      server-addr: 121.43.236.176:8848
       username: nacos
       password: nacos
       discovery:
-        namespace: 1653f775-4782-46ad-9cd2-b60155a574c6
+        namespace: his-test
       config:
-        namespace: 1653f775-4782-46ad-9cd2-b60155a574c6
+        namespace: his-test
 
 #日志级别
 #logging:

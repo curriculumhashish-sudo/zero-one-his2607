@@ -1,0 +1,672 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.outpatient.mapper.MinXiMapper">
+
+    <!-- ============================================================
+          公共 SQL 片段 1：JOIN（所有 SELECT 都复用，避免 JOIN 写错不一致）
+          真实数据库表 & 字段（2026-07-26 实锤确认 zo_his）：
+          主表：adm_charge_item aci（收费项明细，1 行 = 1 条收费项）
+                ❌ 没有 name_text / system_discount_price（全 NULL）
+                ✅ 有 definition_id（可以 JOIN def 表）/ refund_id（判断退费）
+          就诊组：adm_encounter enc（就诊）→ adm_patient pat → adm_organization org
+                ❌ enc 没有 occurrence_time；✅ enc 有 start_time（挂号/就诊开始）
+          产品定义组：
+                ✅ adm_charge_item_definition def（收费项定义表）
+                   - 可通过 def.id = aci.definition_id JOIN（aci.def_detail_id 全 NULL，不能用！）
+                   - ✅ 有 type_code / yb_type / charge_name
+                   - ❌ 没有 sub_type_code / bus_no
+                ✅ 3 张产品表（真实 product_table 枚举值）：
+                   - wkf_activity_definition（挂号/医疗服务类）
+                   - med_medication_definition（药品类）
+                   - adm_device_definition（耗材/设备/检查类）
+                   - ❌ 3 张产品表都没有 specification 字段
+                   - ❌ product_table 枚举里没有 cln_observation_definition（不能 JOIN）
+          结算组：fin_payment_reconciliation rec（对账/结算主表）
+                ✅ kind_enum 只有 OUTPATIENT_CLINIC / HOSPITAL_DEPOSIT（没有 REFUND！）
+                → 退费判断用 aci.refund_id IS NOT NULL
+                + fin_payment_rec_detail det（对账明细，拆分医保/自费）
+          人员组：
+                🟢 🔴 rec.enterer_id 不固定只在 whale_users 里！（实锤：ID=308791351298756608 在 adm_practitioner 叫 admin，不在 whale_users；ID=1 在 whale_users 叫 admin）
+                → 收银员需要 LEFT JOIN 两张表，COALESCE 合并：
+                - whale_users cashier（系统用户：id=1/收费 shoufei id=322932211309350912 等）
+                - adm_practitioner prac_cashier（医护用户：如 ID=308791351298756608=admin）
+                + adm_practitioner doc（开单/录入医生 = aci.enterer_id，不是 performer_id）
+         ============================================================ -->
+    <sql id="minXiJoinFragment">
+        FROM adm_charge_item aci
+            -- 就诊 3 张
+            LEFT JOIN adm_encounter enc
+                ON enc.id = aci.encounter_id AND enc.is_deleted = 0
+            LEFT JOIN adm_patient pat
+                ON pat.id = aci.patient_id AND pat.is_deleted = 0
+            LEFT JOIN adm_organization org
+                ON org.id = enc.organization_id AND org.is_deleted = 0
+            -- 产品定义 4 张（def 表可 JOIN，JOIN 条件是 def.id = aci.definition_id）
+            LEFT JOIN adm_charge_item_definition def
+                ON def.id = aci.definition_id AND def.is_deleted = 0
+            LEFT JOIN wkf_activity_definition wkf
+                ON aci.product_table = 'wkf_activity_definition'
+                AND wkf.id = aci.product_id AND wkf.is_deleted = 0
+            LEFT JOIN med_medication_definition med
+                ON aci.product_table = 'med_medication_definition'
+                AND med.id = aci.product_id AND med.is_deleted = 0
+            LEFT JOIN adm_device_definition dev
+                ON aci.product_table = 'adm_device_definition'
+                AND dev.id = aci.product_id AND dev.is_deleted = 0
+            -- 结算对账 2 张（rec 里 bill_date 是筛选核心！charge_item_ids 字符串关联）
+            LEFT JOIN fin_payment_reconciliation rec
+                ON rec.charge_item_ids LIKE CONCAT('%', aci.id, '%') AND rec.is_deleted = 0
+            LEFT JOIN fin_payment_rec_detail det
+                ON det.reconciliation_id = rec.id AND det.is_deleted = 0
+            -- 🔴 人员：cashier = rec.enterer_id（跨 whale_users + adm_practitioner 两张表！）
+            LEFT JOIN whale_users cashier
+                ON cashier.id = rec.enterer_id AND cashier.is_deleted = 0
+            LEFT JOIN adm_practitioner prac_cashier
+                ON prac_cashier.id = rec.enterer_id AND prac_cashier.is_deleted = 0
+            -- 🔴 人员：开单/录入医生 = aci.enterer_id
+            LEFT JOIN adm_practitioner doc
+                ON doc.id = aci.enterer_id AND doc.is_deleted = 0
+    </sql>
+
+    <!-- ============================================================
+          公共 SQL 片段 3：💰 4 个纯 aci 金额（base/discount/receivable/discounted/line）
+          退费行统一乘以 -1，合计自然抵消
+          🔴 注意：receivable/discounted/lineAmount 三个都 = base - discount
+         ============================================================ -->
+    <sql id="minXiAciAmountCols">
+            /* ---------- 💰 金额：从 aci 表直接算（100% 有值，不依赖支付流水）---------- */
+            CASE WHEN aci.refund_id IS NOT NULL THEN -aci.base_amount ELSE aci.base_amount END
+                                                                AS baseAmount,
+            CASE WHEN aci.refund_id IS NOT NULL THEN -aci.discount_amount ELSE aci.discount_amount END
+                                                                AS discountAmount,
+            CASE WHEN aci.refund_id IS NOT NULL
+                 THEN -(aci.base_amount - aci.discount_amount)
+                 ELSE (aci.base_amount - aci.discount_amount) END
+                                                                AS receivableAmount,
+            CASE WHEN aci.refund_id IS NOT NULL
+                 THEN -(aci.base_amount - aci.discount_amount)
+                 ELSE (aci.base_amount - aci.discount_amount) END
+                                                                AS discountedAmount,
+            CASE WHEN aci.refund_id IS NOT NULL
+                 THEN -(aci.base_amount - aci.discount_amount)
+                 ELSE (aci.base_amount - aci.discount_amount) END
+                                                                AS lineAmount
+    </sql>
+
+    <!-- ============================================================
+          公共 SQL 片段 4：💰 3 个支付流水相关金额（actualReceived/insurance/selfPay）
+          🔴 关键兜底：det 匹配不到支付流水 → 实收=行金额，医保=0，自费=行金额
+               → 解决 adm_charge_item 有数据但 fin_payment_rec 没数据时的全 0 问题
+          🔴 公式：
+               actualReceived = 分摊(rec.det实收合计)[分摊结果==0 兜底 lineAmount]
+               insurance      = 分摊(pay_enum='YB')[分摊结果==0 兜底 0]
+               selfPay        = lineAmount - insurance
+         ============================================================ -->
+    <sql id="minXiPayAmountCols">
+            /* ---------- 💰 实收：det 匹配不到 → 兜底 = 行金额（默认全额已收）---------- */
+            COALESCE(NULLIF(
+                CASE WHEN aci.refund_id IS NOT NULL
+                     THEN -(CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                         FROM adm_charge_item inner_aci
+                                        WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
+                                   THEN 0
+                                   ELSE ROUND(
+                                       (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
+                                     * (aci.base_amount - aci.discount_amount)
+                                     / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                          FROM adm_charge_item inner_aci
+                                         WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
+                                   , 2) END)
+                     ELSE  (CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                         FROM adm_charge_item inner_aci
+                                        WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
+                                   THEN 0
+                                   ELSE ROUND(
+                                       (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
+                                     * (aci.base_amount - aci.discount_amount)
+                                     / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                          FROM adm_charge_item inner_aci
+                                         WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
+                                   , 2) END) END
+            , 0), CASE WHEN aci.refund_id IS NOT NULL
+                       THEN -(aci.base_amount - aci.discount_amount)
+                       ELSE (aci.base_amount - aci.discount_amount) END)
+                                                                AS actualReceivedAmount,
+            /* ---------- 💰 医保：det.pay_enum='YB' 才分摊，否则 0（无兜底）---------- */
+            CASE WHEN det.pay_enum = 'YB'
+                 THEN COALESCE(NULLIF(
+                       CASE WHEN aci.refund_id IS NOT NULL
+                            THEN -(CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                                FROM adm_charge_item inner_aci
+                                               WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
+                                          THEN 0
+                                          ELSE ROUND(
+                                              (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
+                                            * (aci.base_amount - aci.discount_amount)
+                                            / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                                 FROM adm_charge_item inner_aci
+                                                WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
+                                          , 2) END)
+                            ELSE  (CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                                FROM adm_charge_item inner_aci
+                                               WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
+                                          THEN 0
+                                          ELSE ROUND(
+                                              (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
+                                            * (aci.base_amount - aci.discount_amount)
+                                            / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                                 FROM adm_charge_item inner_aci
+                                                WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
+                                          , 2) END) END
+                 , 0), 0)
+                 ELSE 0 END
+                                                                AS insuranceAmount,
+            /* ---------- 💰 自费 = 行金额 - 医保 ---------- */
+            (CASE WHEN aci.refund_id IS NOT NULL
+                  THEN -(aci.base_amount - aci.discount_amount)
+                  ELSE (aci.base_amount - aci.discount_amount) END)
+          - (CASE WHEN det.pay_enum = 'YB'
+                  THEN COALESCE(NULLIF(
+                        CASE WHEN aci.refund_id IS NOT NULL
+                             THEN -(CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                                 FROM adm_charge_item inner_aci
+                                                WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
+                                           THEN 0
+                                           ELSE ROUND(
+                                               (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
+                                             * (aci.base_amount - aci.discount_amount)
+                                             / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                                  FROM adm_charge_item inner_aci
+                                                 WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
+                                           , 2) END)
+                             ELSE  (CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                                 FROM adm_charge_item inner_aci
+                                                WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
+                                           THEN 0
+                                           ELSE ROUND(
+                                               (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
+                                             * (aci.base_amount - aci.discount_amount)
+                                             / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                                  FROM adm_charge_item inner_aci
+                                                 WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
+                                           , 2) END) END
+                  , 0), 0)
+                  ELSE 0 END)
+                                                                AS selfPayAmount
+    </sql>
+
+    <!-- ============================================================
+          公共 SQL 片段 2：WHERE 条件（selectTotals 和 selectRows 100% 共用）
+          注意：所有 <if> 的属性名必须与 MinXiQuery 完全一致
+         ============================================================ -->
+    <sql id="minXiWhereFragment">
+        <where>
+            aci.is_deleted = 0
+            <!-- 🔴 只查门诊：写死排除 HOSPITAL_DEPOSIT 住院押金 -->
+            AND rec.kind_enum = 'OUTPATIENT_CLINIC'
+            <!-- 🔴 🔐 租户过滤：3 张主表（收费项/就诊/对账）各加一次，避免 JOIN 行数爆炸 -->
+            <if test="q.tenantId != null and q.tenantId != ''">
+                AND aci.tenant_id COLLATE utf8mb4_general_ci = #{q.tenantId} COLLATE utf8mb4_general_ci
+                AND enc.tenant_id COLLATE utf8mb4_general_ci = #{q.tenantId} COLLATE utf8mb4_general_ci
+                AND rec.tenant_id COLLATE utf8mb4_general_ci = #{q.tenantId} COLLATE utf8mb4_general_ci
+            </if>
+            <!-- 1. 结算日期范围（核心筛选条件，rec.bill_date = "哪天收的钱"） -->
+            <if test="q.dateFrom != null and q.dateFrom != ''">
+                AND rec.bill_date <![CDATA[>=]]> CONCAT(#{q.dateFrom}, ' 00:00:00')
+            </if>
+            <if test="q.dateTo != null and q.dateTo != ''">
+                AND rec.bill_date <![CDATA[<=]]> CONCAT(#{q.dateTo}, ' 23:59:59')
+            </if>
+            <!-- 2. 收退方向 tradeDirection：用 aci.refund_id 判断
+                 ALL = 不限制；CHARGE = refund_id IS NULL（收费）；REFUND = refund_id IS NOT NULL（退费） -->
+            <if test="q.tradeDirection != null and q.tradeDirection != '' and q.tradeDirection != 'ALL'">
+                <choose>
+                    <when test="q.tradeDirection == 'CHARGE'">
+                        AND aci.refund_id IS NULL
+                    </when>
+                    <when test="q.tradeDirection == 'REFUND'">
+                        AND aci.refund_id IS NOT NULL
+                    </when>
+                </choose>
+            </if>
+            <!-- 3. 挂号科室（enc.organization_id）
+                 🔴 MySQL 8 的 CAST(? AS CHAR) 默认是 utf8mb4_0900_ai_ci，表字段是 utf8mb4_general_ci
+                    → COLLATE 统一到表侧，避免 Illegal mix of collations -->
+            <if test="q.registrationDepartmentId != null and q.registrationDepartmentId != ''">
+                AND enc.organization_id COLLATE utf8mb4_general_ci = CAST(#{q.registrationDepartmentId} AS CHAR) COLLATE utf8mb4_general_ci
+            </if>
+            <!-- 4. 费用大类 feeCategoryCodes：基于展示文案筛选（挂号/药品/耗材/医疗服务）
+                 🔴 优先级：aci.product_table（100% 准确）> def.type_code 兜底，不要搞反！
+                    product_table 值：
+                    - med_medication_definition = 药品（注意：def.type_code 可能是 1001/1003，不是 200x！）
+                    - adm_device_definition     = 耗材
+                    - wkf_activity_definition   = 医疗服务
+                    - NULL + generate_source_enum='registration' = 挂号
+                 🔴 COLLATE 避免 utf8mb4_general_ci vs 0900_ai_ci 排序冲突 -->
+            <if test="q.feeCategoryCodes != null and q.feeCategoryCodes.size() > 0">
+                AND (
+                    CASE
+                        WHEN aci.product_table = 'med_medication_definition' THEN '药品' COLLATE utf8mb4_general_ci
+                        WHEN aci.product_table = 'adm_device_definition' THEN '耗材' COLLATE utf8mb4_general_ci
+                        WHEN aci.product_table = 'wkf_activity_definition' THEN '医疗服务' COLLATE utf8mb4_general_ci
+                        WHEN aci.product_table IS NULL AND aci.generate_source_enum = 'registration' THEN '挂号' COLLATE utf8mb4_general_ci
+                        WHEN def.type_code LIKE '101%' THEN '挂号' COLLATE utf8mb4_general_ci
+                        WHEN def.type_code LIKE '100%' THEN '医疗服务' COLLATE utf8mb4_general_ci
+                        WHEN def.type_code LIKE '200%' THEN '药品' COLLATE utf8mb4_general_ci
+                        WHEN def.type_code LIKE '3%' THEN '耗材' COLLATE utf8mb4_general_ci
+                        ELSE '其他' COLLATE utf8mb4_general_ci
+                    END IN
+                    <foreach collection="q.feeCategoryCodes" item="item" open="(" separator="," close=")">
+                        #{item} COLLATE utf8mb4_general_ci
+                    </foreach>
+                )
+            </if>
+            <!-- 5. 费用细分类 subCategoryCodes：def 表暂缺 sub_type_code 字段，
+                 算法暂时与 feeCategoryCodes 一致（避免开了条件 Unknown column 报错）
+                 🔴 COLLATE 避免排序冲突 -->
+            <if test="q.subCategoryCodes != null and q.subCategoryCodes.size() > 0">
+                AND (
+                    CASE
+                        WHEN aci.product_table = 'med_medication_definition' THEN '药品' COLLATE utf8mb4_general_ci
+                        WHEN aci.product_table = 'adm_device_definition' THEN '耗材' COLLATE utf8mb4_general_ci
+                        WHEN aci.product_table = 'wkf_activity_definition' THEN '医疗服务' COLLATE utf8mb4_general_ci
+                        WHEN aci.product_table IS NULL AND aci.generate_source_enum = 'registration' THEN '挂号' COLLATE utf8mb4_general_ci
+                        WHEN def.type_code LIKE '101%' THEN '挂号' COLLATE utf8mb4_general_ci
+                        WHEN def.type_code LIKE '100%' THEN '医疗服务' COLLATE utf8mb4_general_ci
+                        WHEN def.type_code LIKE '200%' THEN '药品' COLLATE utf8mb4_general_ci
+                        WHEN def.type_code LIKE '3%' THEN '耗材' COLLATE utf8mb4_general_ci
+                        ELSE '其他' COLLATE utf8mb4_general_ci
+                    END IN
+                    <foreach collection="q.subCategoryCodes" item="item" open="(" separator="," close=")">
+                        #{item} COLLATE utf8mb4_general_ci
+                    </foreach>
+                )
+            </if>
+            <!-- 6. 患者关键字：门诊号(enc.bus_no) OR 姓名(pat.name)
+                 🔴 COLLATE 避免 utf8mb4_general_ci vs 0900_ai_ci 冲突 -->
+            <if test="q.patientKeyword != null and q.patientKeyword.trim() != ''">
+                AND (
+                    enc.bus_no COLLATE utf8mb4_general_ci LIKE CONCAT('%', #{q.patientKeyword}, '%') COLLATE utf8mb4_general_ci
+                    OR pat.name COLLATE utf8mb4_general_ci LIKE CONCAT('%', #{q.patientKeyword}, '%') COLLATE utf8mb4_general_ci
+                )
+            </if>
+            <!-- 7. 项目名称：模糊匹配 wkf/med/dev 3 张产品表 name + def.charge_name 兜底 + 挂号写死"挂号费"
+                 🔴 COLLATE 避免排序规则冲突 -->
+            <if test="q.productNameKeyword != null and q.productNameKeyword.trim() != ''">
+                AND (
+                    wkf.name COLLATE utf8mb4_general_ci LIKE CONCAT('%', #{q.productNameKeyword}, '%') COLLATE utf8mb4_general_ci
+                    OR med.name COLLATE utf8mb4_general_ci LIKE CONCAT('%', #{q.productNameKeyword}, '%') COLLATE utf8mb4_general_ci
+                    OR dev.name COLLATE utf8mb4_general_ci LIKE CONCAT('%', #{q.productNameKeyword}, '%') COLLATE utf8mb4_general_ci
+                    OR def.charge_name COLLATE utf8mb4_general_ci LIKE CONCAT('%', #{q.productNameKeyword}, '%') COLLATE utf8mb4_general_ci
+                    OR (aci.product_table IS NULL AND aci.generate_source_enum = 'registration' AND '挂号费' COLLATE utf8mb4_general_ci LIKE CONCAT('%', #{q.productNameKeyword}, '%') COLLATE utf8mb4_general_ci)
+                )
+            </if>
+            <!-- 8. 院内编码：精确匹配 wkf/med/dev 3 张产品表 bus_no（def 表没有 bus_no）
+                 🔴 COLLATE 避免 UTF8MB4 排序冲突 -->
+            <if test="q.productCodeKeyword != null and q.productCodeKeyword != ''">
+                AND (
+                    wkf.bus_no COLLATE utf8mb4_general_ci = CAST(#{q.productCodeKeyword} AS CHAR) COLLATE utf8mb4_general_ci
+                    OR med.bus_no COLLATE utf8mb4_general_ci = CAST(#{q.productCodeKeyword} AS CHAR) COLLATE utf8mb4_general_ci
+                    OR dev.bus_no COLLATE utf8mb4_general_ci = CAST(#{q.productCodeKeyword} AS CHAR) COLLATE utf8mb4_general_ci
+                )
+            </if>
+            <!-- 9. 收费员 cashierId：跨 whale_users + adm_practitioner 两张表
+                 rec.enterer_id 可能是系统用户 ID 或医护用户 ID -->
+            <if test="q.cashierId != null and q.cashierId != ''">
+                AND (
+                    cashier.id COLLATE utf8mb4_general_ci = #{q.cashierId} COLLATE utf8mb4_general_ci
+                    OR prac_cashier.id COLLATE utf8mb4_general_ci = #{q.cashierId} COLLATE utf8mb4_general_ci
+                )
+            </if>
+        </where>
+    </sql>
+
+    <!-- ============================================================
+         1. selectTotals：查询 8 个金额的 SUM 全量合计（不带 LIMIT）
+            退费判断：aci.refund_id IS NOT NULL（=退费）
+            折后金额：(aci.base_amount - aci.discount_amount)（aci.system_discount_price 全 NULL）
+            🔴 数据库实锤（2026-07-26）：
+               aci.total_price = aci.base_amount = 数量×单价 =【原价】，不是折后！
+               → lineAmountSum / selfPayAmountSum 必须用 (base_amount - discount_amount)，不能用 total_price！
+         ============================================================ -->
+    <select id="selectTotals" resultType="com.zeroone.star.project.vo.j8.mzfymx.MinXiPageVO">
+        SELECT
+            -- 1. 原价合计
+            COALESCE(SUM(CASE WHEN aci.refund_id IS NOT NULL THEN -aci.base_amount ELSE aci.base_amount END), 0)
+                                                                                AS baseAmountSum,
+            -- 2. 优惠合计
+            COALESCE(SUM(CASE WHEN aci.refund_id IS NOT NULL THEN -aci.discount_amount ELSE aci.discount_amount END), 0)
+                                                                                AS discountAmountSum,
+            -- 3. 应收合计 = 原价 - 优惠
+            COALESCE(SUM(CASE WHEN aci.refund_id IS NOT NULL
+                              THEN -(aci.base_amount - aci.discount_amount)
+                              ELSE (aci.base_amount - aci.discount_amount) END), 0)
+                                                                                AS receivableAmountSum,
+            -- 4. 折后合计 = 原价 - 优惠
+            COALESCE(SUM(CASE WHEN aci.refund_id IS NOT NULL
+                              THEN -(aci.base_amount - aci.discount_amount)
+                              ELSE (aci.base_amount - aci.discount_amount) END), 0)
+                                                                                AS discountedAmountSum,
+            -- 5. 行金额合计 = 折后金额 = 原价 - 优惠
+            --    🔴 绝对不能用 aci.total_price（= 原价，不是折后！）
+            COALESCE(SUM(CASE WHEN aci.refund_id IS NOT NULL
+                              THEN -(aci.base_amount - aci.discount_amount)
+                              ELSE (aci.base_amount - aci.discount_amount) END), 0)
+                                                                                AS lineAmountSum,
+            -- 🔴 Bug 1 修复：6. 实收合计 = 每条 aci 分摊实收的 SUM（和明细行算法 100% 一致）
+            --    det 金额是 rec 级总金额，需按 aci 折后比例分摊后再 SUM，避免 N 条重复放大
+            --    🔴 兜底：分摊结果 == 0（det 匹配不到支付流水 / rec 内全免）→ 用 lineAmount（行金额折后）兜底，默认全额已收
+            COALESCE(NULLIF(SUM(
+                CASE WHEN aci.refund_id IS NOT NULL
+                     THEN -(CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                         FROM adm_charge_item inner_aci
+                                        WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
+                                   THEN 0
+                                   ELSE ROUND(
+                                       (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
+                                     * (aci.base_amount - aci.discount_amount)
+                                     / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                          FROM adm_charge_item inner_aci
+                                         WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
+                                   , 2) END)
+                     ELSE  (CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                         FROM adm_charge_item inner_aci
+                                        WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
+                                   THEN 0
+                                   ELSE ROUND(
+                                       (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
+                                     * (aci.base_amount - aci.discount_amount)
+                                     / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                          FROM adm_charge_item inner_aci
+                                         WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
+                                   , 2) END) END
+            ), 0), COALESCE(SUM(CASE WHEN aci.refund_id IS NOT NULL
+                              THEN -(aci.base_amount - aci.discount_amount)
+                              ELSE (aci.base_amount - aci.discount_amount) END), 0))
+                                                                                AS actualReceivedAmountSum,
+            -- 🔴 Bug 1 修复：7. 医保合计 = 分摊实收的 SUM（仅 pay_enum='YB'）
+            COALESCE(SUM(
+                CASE WHEN det.pay_enum = 'YB'
+                     THEN (CASE WHEN aci.refund_id IS NOT NULL
+                                THEN -(CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                                    FROM adm_charge_item inner_aci
+                                                   WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
+                                               THEN 0
+                                               ELSE ROUND(
+                                                   (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
+                                                 * (aci.base_amount - aci.discount_amount)
+                                                 / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                                      FROM adm_charge_item inner_aci
+                                                     WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
+                                               , 2) END)
+                                ELSE  (CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                                    FROM adm_charge_item inner_aci
+                                                   WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
+                                               THEN 0
+                                               ELSE ROUND(
+                                                   (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
+                                                 * (aci.base_amount - aci.discount_amount)
+                                                 / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                                      FROM adm_charge_item inner_aci
+                                                     WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
+                                               , 2) END) END)
+                     ELSE 0 END
+            ), 0)                                                                 AS insuranceAmountSum,
+            -- 🔴 Bug 1 修复：8. 自费合计 = 行金额合计（折后） - 医保合计分摊 SUM（和明细行算法 100% 一致）
+            --    🔴 说明：actualReceivedAmountSum 有兜底（det没数据=全额已收），但医保合计永远取真实分摊值（没匹配YB=0，自费=行金额）
+            COALESCE(SUM(CASE WHEN aci.refund_id IS NOT NULL
+                              THEN -(aci.base_amount - aci.discount_amount)
+                              ELSE (aci.base_amount - aci.discount_amount) END), 0)
+          - COALESCE(SUM(
+                CASE WHEN det.pay_enum = 'YB'
+                     THEN COALESCE(NULLIF(
+                           CASE WHEN aci.refund_id IS NOT NULL
+                                THEN -(CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                                    FROM adm_charge_item inner_aci
+                                                   WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
+                                              THEN 0
+                                              ELSE ROUND(
+                                                  (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
+                                                * (aci.base_amount - aci.discount_amount)
+                                                / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                                     FROM adm_charge_item inner_aci
+                                                    WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
+                                              , 2) END)
+                                ELSE  (CASE WHEN (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                                    FROM adm_charge_item inner_aci
+                                                   WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids)) = 0
+                                              THEN 0
+                                              ELSE ROUND(
+                                                  (COALESCE(det.charge_amount, 0) - COALESCE(det.return_amount, 0))
+                                                * (aci.base_amount - aci.discount_amount)
+                                                / (SELECT COALESCE(SUM(inner_aci.base_amount - inner_aci.discount_amount), 0)
+                                                     FROM adm_charge_item inner_aci
+                                                    WHERE FIND_IN_SET(inner_aci.id, rec.charge_item_ids))
+                                              , 2) END) END
+                     , 0), 0)
+                     ELSE 0 END
+            ), 0)                                                                 AS selfPayAmountSum
+        <include refid="minXiJoinFragment"/>
+        <include refid="minXiWhereFragment"/>
+    </select>
+
+    <!-- ============================================================
+         2. selectRows：分页明细行查询（按结算时间倒序）
+            ⚠️ 字段别名必须与 MinXiDTO 属性名完全一致（驼峰）！
+            ⚠️ 退费行统一取负数，合计自然抵消（与 selectTotals 算法完全一致）
+            ⚠️ 已删除所有不存在的数据库字段：
+               - enc.occurrence_time → enc.start_time
+               - aci.name_text       → 已删除（不存在）
+               - med/dev/wkf.specification → NULL（都不存在）
+         ============================================================ -->
+    <select id="selectRows" resultType="com.zeroone.star.project.dto.j8.mzfymx.MinXiDTO">
+        SELECT
+            /* ============ 🔑 内部追踪 ID（雪花 ID 字符串，CAST AS CHAR） ============ */
+            CAST(aci.id AS CHAR)                                AS chargeItemId,
+            CAST(rec.id AS CHAR)                                AS paymentId,
+
+            /* ============ 🏥 就诊级展示字段 ============ */
+            enc.bus_no                                          AS outpatientNo,
+            pat.name                                            AS patientName,
+            org.name                                            AS registrationDepartmentName,
+            -- ❌ enc.occurrence_time 不存在，改为 enc.start_time（挂号/就诊开始时间）
+            DATE_FORMAT(enc.start_time, '%Y-%m-%d')             AS encounterDate,
+
+            /* ============ 📋 收费项级展示字段 ============ */
+            -- 费用大类 code：🔴 优先取 aci.product_table 对应的分类（100% 准确），def.type_code 兜底
+            --   注意：med_medication_definition（药品）的 def.type_code 常常是 1001/1003，不是 200x！
+            CASE
+                WHEN aci.product_table = 'med_medication_definition' THEN COALESCE(def.type_code, '2000')
+                WHEN aci.product_table = 'adm_device_definition' THEN COALESCE(def.type_code, '3000')
+                WHEN aci.product_table = 'wkf_activity_definition' THEN COALESCE(def.type_code, '1000')
+                WHEN aci.product_table IS NULL AND aci.generate_source_enum = 'registration' THEN COALESCE(def.type_code, '1010')
+                ELSE COALESCE(def.type_code, '9999')
+            END                                                 AS feeCategoryCode,
+            -- 费用大类展示：🔴 优先 product_table 判断（最准），def.type_code 前缀兜底
+            CASE
+                WHEN aci.product_table = 'med_medication_definition' THEN '药品'
+                WHEN aci.product_table = 'adm_device_definition' THEN '耗材'
+                WHEN aci.product_table = 'wkf_activity_definition' THEN '医疗服务'
+                WHEN aci.product_table IS NULL AND aci.generate_source_enum = 'registration' THEN '挂号'
+                WHEN def.type_code LIKE '101%' THEN '挂号'
+                WHEN def.type_code LIKE '100%' THEN '医疗服务'
+                WHEN def.type_code LIKE '200%' THEN '药品'
+                WHEN def.type_code LIKE '3%' THEN '耗材'
+                ELSE '其他'
+            END                                                 AS feeCategoryDisplay,
+            -- 细分类 code：def 表暂缺 sub_type_code，暂时与 feeCategoryCode 一致
+            CASE
+                WHEN aci.product_table = 'med_medication_definition' THEN COALESCE(def.type_code, '2000')
+                WHEN aci.product_table = 'adm_device_definition' THEN COALESCE(def.type_code, '3000')
+                WHEN aci.product_table = 'wkf_activity_definition' THEN COALESCE(def.type_code, '1000')
+                WHEN aci.product_table IS NULL AND aci.generate_source_enum = 'registration' THEN COALESCE(def.type_code, '1010')
+                ELSE COALESCE(def.type_code, '9999')
+            END                                                 AS subCategoryCode,
+            -- 细分类展示：暂时与 feeCategoryDisplay 一致
+            CASE
+                WHEN aci.product_table = 'med_medication_definition' THEN '药品'
+                WHEN aci.product_table = 'adm_device_definition' THEN '耗材'
+                WHEN aci.product_table = 'wkf_activity_definition' THEN '医疗服务'
+                WHEN aci.product_table IS NULL AND aci.generate_source_enum = 'registration' THEN '挂号'
+                WHEN def.type_code LIKE '101%' THEN '挂号'
+                WHEN def.type_code LIKE '100%' THEN '医疗服务'
+                WHEN def.type_code LIKE '200%' THEN '药品'
+                WHEN def.type_code LIKE '3%' THEN '耗材'
+                ELSE '其他'
+            END                                                 AS subCategoryDisplay,
+            -- 项目名称：3 张产品表 name → def.charge_name → 挂号兜底"挂号费"
+            -- ❌ aci.name_text 不存在，已删除！
+            CASE
+                WHEN aci.product_table IS NULL AND aci.generate_source_enum = 'registration' THEN COALESCE(def.charge_name, '挂号费')
+                ELSE COALESCE(wkf.name, med.name, dev.name, def.charge_name, '未命名项目')
+            END                                                 AS productName,
+            -- 院内编码：3 张产品表 bus_no（def 表没有 bus_no）
+            COALESCE(wkf.bus_no, med.bus_no, dev.bus_no)        AS productCode,
+            -- ❌ 规格：med/dev/wkf 3 张表都没有 specification 字段，暂返回 NULL，后续接字典再补
+            NULL                                                AS specification,
+            aci.quantity_value                                  AS quantityValue,
+            -- 🔴 Bug 2 修复：数量单位不能直接返回 aci.quantity_unit（是数字字典 code，比如 8=瓶，会显示"8"而不是"瓶"）
+            --    优先顺序：
+            --    1. 3 张产品表 def_encounter_unit_code（门诊计价单位）查 ter_concept 字典 display
+            --    2. 找不到用 aci.quantity_unit 查字典
+            --    3. 字典没匹配兜底返回数字 code（aci.quantity_unit）
+            --    字典：ter_concept.code_system_id = 279125561775755265（unit_code 单位编码，2026-07-26 数据库实锤）
+            COALESCE(
+                (SELECT tc.display FROM ter_concept tc
+                 WHERE tc.code_system_id = 279125561775755265 AND tc.is_deleted = 0 AND tc.is_active = 1
+                   AND tc.code = COALESCE(wkf.def_encounter_unit_code, med.def_encounter_unit_code, dev.def_encounter_unit_code)
+                 LIMIT 1),
+                (SELECT tc.display FROM ter_concept tc
+                 WHERE tc.code_system_id = 279125561775755265 AND tc.is_deleted = 0 AND tc.is_active = 1
+                   AND tc.code = aci.quantity_unit
+                 LIMIT 1),
+                aci.quantity_unit
+            )                                                   AS quantityUnitDisplay,
+            aci.unit_price                                      AS unitPrice,
+            CAST(doc.id AS CHAR)                                AS orderingDoctorId,
+            doc.name                                            AS orderingDoctorName,
+            -- 🔴 收银员跨两张表：whale_users（系统用户）+ adm_practitioner（医护用户）
+            --    实锤：rec.enterer_id=308791351298756608（admin）在 adm_practitioner 里，不在 whale_users；
+            --         rec.enterer_id=1（admin）在 whale_users 里，不在 adm_practitioner
+            COALESCE(CAST(cashier.id AS CHAR), CAST(prac_cashier.id AS CHAR))
+                                                                AS cashierId,
+            COALESCE(cashier.name, prac_cashier.name)           AS cashierName,
+            DATE_FORMAT(rec.bill_date, '%Y-%m-%d %H:%i:%s')    AS billDate,
+            -- 收退方向：aci.refund_id 判断（rec.kind_enum 根本没有 REFUND 值！）
+            CASE WHEN aci.refund_id IS NOT NULL THEN 'REFUND' ELSE 'CHARGE' END
+                                                                AS tradeDirection,
+            aci.generate_source_enum                            AS sourceDisplay,
+            enc.yb_class_text                                   AS insuranceLevelDisplay,
+            -- 医保类型：def.yb_type（真实字段，目前数据全 NULL，后续字典翻译）
+            def.yb_type                                         AS insuranceTypeDisplay,
+            -- 折扣率：折后金额 ÷ 原价 × 100（折后 = 原价 - 优惠）
+            --   例如：原价2.85，优惠2.85 → 折后0 → 折扣率 0%（正确）；原价5，优惠0 → 折后5 → 100%
+            CASE
+                WHEN COALESCE(aci.base_amount, 0) = 0 THEN '0%'
+                ELSE CONCAT(ROUND((aci.base_amount - aci.discount_amount) / aci.base_amount * 100, 0), '%')
+            END                                                 AS discountRateDisplay,
+
+            <include refid="minXiAciAmountCols"/>,
+            <include refid="minXiPayAmountCols"/>
+        <include refid="minXiJoinFragment"/>
+        <include refid="minXiWhereFragment"/>
+        ORDER BY rec.bill_date DESC, aci.id DESC
+    </select>
+
+    <!-- ============================================================
+         3. selectAllRows：导出用全量明细查询（不带分页 LIMIT）
+            ⚠️ SELECT 列、JOIN、WHERE、ORDER BY 与 selectRows 100% 完全一致（杜绝两处改漏）
+            ⚠️ 唯一区别：没有传 Page 参数，MyBatis-Plus 不会自动加 LIMIT，查满足条件的全部数据
+         ============================================================ -->
+    <select id="selectAllRows" resultType="com.zeroone.star.project.dto.j8.mzfymx.MinXiDTO">
+        SELECT
+            /* ============ 🔑 内部追踪 ID（雪花 ID 字符串，CAST AS CHAR） ============ */
+            CAST(aci.id AS CHAR)                                AS chargeItemId,
+            CAST(rec.id AS CHAR)                                AS paymentId,
+
+            /* ============ 🏥 就诊级展示字段 ============ */
+            enc.bus_no                                          AS outpatientNo,
+            pat.name                                            AS patientName,
+            org.name                                            AS registrationDepartmentName,
+            DATE_FORMAT(enc.start_time, '%Y-%m-%d')             AS encounterDate,
+
+            /* ============ 📋 收费项级展示字段 ============ */
+            CASE
+                WHEN aci.product_table = 'med_medication_definition' THEN COALESCE(def.type_code, '2000')
+                WHEN aci.product_table = 'adm_device_definition' THEN COALESCE(def.type_code, '3000')
+                WHEN aci.product_table = 'wkf_activity_definition' THEN COALESCE(def.type_code, '1000')
+                WHEN aci.product_table IS NULL AND aci.generate_source_enum = 'registration' THEN COALESCE(def.type_code, '1010')
+                ELSE COALESCE(def.type_code, '9999')
+            END                                                 AS feeCategoryCode,
+            CASE
+                WHEN aci.product_table = 'med_medication_definition' THEN '药品'
+                WHEN aci.product_table = 'adm_device_definition' THEN '耗材'
+                WHEN aci.product_table = 'wkf_activity_definition' THEN '医疗服务'
+                WHEN aci.product_table IS NULL AND aci.generate_source_enum = 'registration' THEN '挂号'
+                WHEN def.type_code LIKE '101%' THEN '挂号'
+                WHEN def.type_code LIKE '100%' THEN '医疗服务'
+                WHEN def.type_code LIKE '200%' THEN '药品'
+                WHEN def.type_code LIKE '3%' THEN '耗材'
+                ELSE '其他'
+            END                                                 AS feeCategoryDisplay,
+            CASE
+                WHEN aci.product_table = 'med_medication_definition' THEN COALESCE(def.type_code, '2000')
+                WHEN aci.product_table = 'adm_device_definition' THEN COALESCE(def.type_code, '3000')
+                WHEN aci.product_table = 'wkf_activity_definition' THEN COALESCE(def.type_code, '1000')
+                WHEN aci.product_table IS NULL AND aci.generate_source_enum = 'registration' THEN COALESCE(def.type_code, '1010')
+                ELSE COALESCE(def.type_code, '9999')
+            END                                                 AS subCategoryCode,
+            CASE
+                WHEN aci.product_table = 'med_medication_definition' THEN '药品'
+                WHEN aci.product_table = 'adm_device_definition' THEN '耗材'
+                WHEN aci.product_table = 'wkf_activity_definition' THEN '医疗服务'
+                WHEN aci.product_table IS NULL AND aci.generate_source_enum = 'registration' THEN '挂号'
+                WHEN def.type_code LIKE '101%' THEN '挂号'
+                WHEN def.type_code LIKE '100%' THEN '医疗服务'
+                WHEN def.type_code LIKE '200%' THEN '药品'
+                WHEN def.type_code LIKE '3%' THEN '耗材'
+                ELSE '其他'
+            END                                                 AS subCategoryDisplay,
+            CASE
+                WHEN aci.product_table IS NULL AND aci.generate_source_enum = 'registration' THEN COALESCE(def.charge_name, '挂号费')
+                ELSE COALESCE(wkf.name, med.name, dev.name, def.charge_name, '未命名项目')
+            END                                                 AS productName,
+            COALESCE(wkf.bus_no, med.bus_no, dev.bus_no)        AS productCode,
+            NULL                                                AS specification,
+            aci.quantity_value                                  AS quantityValue,
+            COALESCE(
+                (SELECT tc.display FROM ter_concept tc
+                 WHERE tc.code_system_id = 279125561775755265 AND tc.is_deleted = 0 AND tc.is_active = 1
+                   AND tc.code = COALESCE(wkf.def_encounter_unit_code, med.def_encounter_unit_code, dev.def_encounter_unit_code)
+                 LIMIT 1),
+                (SELECT tc.display FROM ter_concept tc
+                 WHERE tc.code_system_id = 279125561775755265 AND tc.is_deleted = 0 AND tc.is_active = 1
+                   AND tc.code = aci.quantity_unit
+                 LIMIT 1),
+                aci.quantity_unit
+            )                                                   AS quantityUnitDisplay,
+            aci.unit_price                                      AS unitPrice,
+            CAST(doc.id AS CHAR)                                AS orderingDoctorId,
+            doc.name                                            AS orderingDoctorName,
+            COALESCE(CAST(cashier.id AS CHAR), CAST(prac_cashier.id AS CHAR))
+                                                                AS cashierId,
+            COALESCE(cashier.name, prac_cashier.name)           AS cashierName,
+            DATE_FORMAT(rec.bill_date, '%Y-%m-%d %H:%i:%s')    AS billDate,
+            CASE WHEN aci.refund_id IS NOT NULL THEN 'REFUND' ELSE 'CHARGE' END
+                                                                AS tradeDirection,
+            aci.generate_source_enum                            AS sourceDisplay,
+            enc.yb_class_text                                   AS insuranceLevelDisplay,
+            def.yb_type                                         AS insuranceTypeDisplay,
+            CASE
+                WHEN COALESCE(aci.base_amount, 0) = 0 THEN '0%'
+                ELSE CONCAT(ROUND((aci.base_amount - aci.discount_amount) / aci.base_amount * 100, 0), '%')
+            END                                                 AS discountRateDisplay,
+
+            <include refid="minXiAciAmountCols"/>,
+            <include refid="minXiPayAmountCols"/>
+        <include refid="minXiJoinFragment"/>
+        <include refid="minXiWhereFragment"/>
+        ORDER BY rec.bill_date DESC, aci.id DESC
+    </select>
+
+</mapper>
