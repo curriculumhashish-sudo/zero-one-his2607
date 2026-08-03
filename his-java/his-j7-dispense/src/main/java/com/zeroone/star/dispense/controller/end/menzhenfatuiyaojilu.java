@@ -52,22 +52,28 @@ public class menzhenfatuiyaojilu implements OutpatientDispenseApis {
     public void export(
             @Parameter(description = "查询参数") DispenseQuery query,
             HttpServletResponse response) throws IOException {
-        List<OutpatientDispenseRecordDTO> records = service.listForExport(query);
-        if (records == null || records.isEmpty()) {
+        try {
+            List<OutpatientDispenseRecordDTO> records = service.listForExport(query);
+            if (records == null || records.isEmpty()) {
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"code\":0,\"msg\":\"没有可导出的数据\"}");
+                return;
+            }
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            excelComponent.export("门诊发退药记录", baos, OutpatientDispenseRecordDTO.class, records);
+            byte[] bytes = baos.toByteArray();
+            String filename = URLEncoder.encode("门诊发退药记录-" + LocalDate.now() + ".xlsx", StandardCharsets.UTF_8)
+                    .replace("+", "%20");
+            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            response.setHeader("Content-Disposition", "attachment; filename=" + filename);
+            response.setContentLength(bytes.length);
+            ServletOutputStream outputStream = response.getOutputStream();
+            outputStream.write(bytes);
+            outputStream.flush();
+        } catch (IllegalArgumentException e) {
             response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write("{\"code\":0,\"msg\":\"没有可导出的数据\"}");
-            return;
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"code\":9999,\"message\":\"" + e.getMessage() + "\",\"data\":null}");
         }
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        excelComponent.export("门诊发退药记录", baos, OutpatientDispenseRecordDTO.class, records);
-        byte[] bytes = baos.toByteArray();
-        String filename = URLEncoder.encode("门诊发退药记录-" + LocalDate.now() + ".xlsx", StandardCharsets.UTF_8)
-                .replace("+", "%20");
-        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=" + filename);
-        response.setContentLength(bytes.length);
-        ServletOutputStream outputStream = response.getOutputStream();
-        outputStream.write(bytes);
-        outputStream.flush();
     }
 }

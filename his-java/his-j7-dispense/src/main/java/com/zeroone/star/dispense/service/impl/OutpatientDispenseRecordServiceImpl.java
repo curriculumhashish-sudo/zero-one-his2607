@@ -112,10 +112,10 @@ public class OutpatientDispenseRecordServiceImpl implements IOutpatientDispenseR
         Objects.requireNonNull(query, "查询条件不能为空");
         List<DispenseFlatDTO> flatRows = mapper.selectOutpatientDispenseFlatList(query, EXPORT_LIMIT + 1);
         if (flatRows.size() > EXPORT_LIMIT) {
-            throw new IllegalStateException("导出记录不能超过10000条，请缩小筛选范围");
+            throw new IllegalArgumentException("导出记录不能超过10000条，请缩小筛选范围");
         }
         if (flatRows.isEmpty()) {
-            throw new IllegalStateException("没有可导出的门诊发退药记录");
+            throw new IllegalArgumentException("没有可导出的门诊发退药记录");
         }
 
         return flatRows.stream().map(f -> {

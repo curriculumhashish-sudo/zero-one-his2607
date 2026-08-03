@@ -13,7 +13,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +30,7 @@ public class zhuyuanfayao implements DispensingApis {
     @Operation(summary = "获取汇总单队列")
     @PostMapping("query-summary-list")
     @Override
-    public JsonVO<ExtendPageDTO<DispensingSummaryVO>> querySummaryList(@Valid @RequestBody DispensingSummaryQuery query) {
+    public JsonVO<ExtendPageDTO<DispensingSummaryVO>> querySummaryList(@RequestBody DispensingSummaryQuery query) {
         ExtendPageDTO<DispensingSummaryVO> page = dispensingService.querySummaryList(query);
         return JsonVO.success(page);
     }
@@ -48,7 +47,7 @@ public class zhuyuanfayao implements DispensingApis {
     @Operation(summary = "核对发药")
     @PostMapping("verify-dispense")
     @Override
-    public JsonVO<String> verifyDispense(@Valid @RequestBody DispenseVerifyDTO verifyDTO) {
+    public JsonVO<String> verifyDispense(@RequestBody DispenseVerifyDTO verifyDTO) {
         try {
             String result = dispensingService.verifyDispense(verifyDTO);
             return JsonVO.success(result);
@@ -61,7 +60,7 @@ public class zhuyuanfayao implements DispensingApis {
     @Operation(summary = "驳回患者发药单据", description = "驳回指定患者的发药单据，并同步更新对应汇总单状态为已驳回")
     @PostMapping("/reject-dispensing")
     @Override
-    public JsonVO<String> rejectDispensing(@Valid @RequestBody DispenseRejectQuery dto) {
+    public JsonVO<String> rejectDispensing(@RequestBody DispenseRejectQuery dto) {
         try {
             dispensingService.rejectDispensing(dto);
             return JsonVO.success("发药驳回成功");

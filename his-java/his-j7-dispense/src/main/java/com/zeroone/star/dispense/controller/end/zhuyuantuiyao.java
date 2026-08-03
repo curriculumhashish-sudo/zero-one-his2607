@@ -12,7 +12,6 @@ import com.zeroone.star.project.vo.j7.dispense.InpatientRefundPatientVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +30,7 @@ public class zhuyuantuiyao implements InpatientRefundMedicineApis {
     @Operation(summary = "分页查询退药患者队列")
     @Override
     public JsonVO<PageDTO<InpatientRefundPatientVO>> queryPatientQueue(
-            @Validated @RequestBody InpatientRefundPatientQuery query) {
+            @RequestBody InpatientRefundPatientQuery query) {
         return JsonVO.success(inpatientRefundMedicineService.queryPatientQueue(query));
     }
 
@@ -39,7 +38,7 @@ public class zhuyuantuiyao implements InpatientRefundMedicineApis {
     @Operation(summary = "获取患者退药明细")
     @Override
     public JsonVO<List<InpatientRefundDetailVO>> queryRefundDetail(
-            @Validated @RequestBody InpatientRefundDetailQuery query) {
+            @RequestBody InpatientRefundDetailQuery query) {
         return JsonVO.success(inpatientRefundMedicineService.queryRefundDetail(query));
     }
 
@@ -50,7 +49,7 @@ public class zhuyuantuiyao implements InpatientRefundMedicineApis {
             description = "确认退药操作：更新退药单状态为已确认，并对勾选的药品回补库存")
     @PostMapping("/confirm-return")
     @Override
-    public JsonVO<String> confirmReturn(@Valid @RequestBody ReturnConfirmDTO dto) {
+    public JsonVO<String> confirmReturn(@RequestBody ReturnConfirmDTO dto) {
         try {
             inpatientRefundMedicineService.confirmReturn(dto);
             return JsonVO.success("退药确认成功");
