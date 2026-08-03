@@ -94,4 +94,15 @@ public interface StocktakeMapper extends BaseMapper<WkfSupplyRequest> {
                             @Param("updatedBy") String updatedBy,
                             @Param("updatedAt") String updatedAt,
                             @Param("remark") String remark);
+
+    /**
+     * 根据盘点单号软删除所有明细行
+     * @param busNo      盘点单号
+     * @param deletedBy  删除人
+     * @param deletedAt  删除时间
+     * @return 受影响行数
+     */
+    int softDeleteByBusNo(@Param("busNo") String busNo,
+                          @Param("deletedBy") String deletedBy,
+                          @Param("deletedAt") String deletedAt);
 }

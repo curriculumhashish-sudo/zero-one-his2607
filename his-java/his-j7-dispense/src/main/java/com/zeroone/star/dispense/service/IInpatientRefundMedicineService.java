@@ -1,6 +1,7 @@
 package com.zeroone.star.dispense.service;
 
 import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j7.pharmacy.ReturnConfirmDTO;
 import com.zeroone.star.project.query.j7.dispense.InpatientRefundDetailQuery;
 import com.zeroone.star.project.query.j7.dispense.InpatientRefundPatientQuery;
 import com.zeroone.star.project.vo.j7.dispense.InpatientRefundDetailVO;
@@ -27,4 +28,10 @@ public interface IInpatientRefundMedicineService {
      * 查询患者退药明细
      */
     List<InpatientRefundDetailVO> queryRefundDetail(InpatientRefundDetailQuery query);
+
+    // ==================== 住院退药确认 ====================
+    /**
+     * 确认退药（对勾选药品执行退药，同步回补药品库存）
+     */
+    void confirmReturn(ReturnConfirmDTO dto);
 }

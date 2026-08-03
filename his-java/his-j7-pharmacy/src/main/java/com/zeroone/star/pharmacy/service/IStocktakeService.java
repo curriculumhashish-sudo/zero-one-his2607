@@ -3,9 +3,10 @@ package com.zeroone.star.pharmacy.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zeroone.star.pharmacy.entity.WkfSupplyRequest;
 import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j7.pharmacy.StocktakeDeleteDTO;
 import com.zeroone.star.project.dto.stocktake.StocktakeSaveDTO;
-import com.zeroone.star.project.dto.stocktake.StocktakeSubmitDTO;
 import com.zeroone.star.project.query.stocktake.StocktakeQuery;
+import com.zeroone.star.project.vo.j7.pharmacy.SupplyDocumentDeleteVO;
 import com.zeroone.star.project.vo.stocktake.StocktakeDetailVO;
 import com.zeroone.star.project.vo.stocktake.StocktakeSaveVO;
 
@@ -69,20 +70,14 @@ public interface IStocktakeService extends IService<WkfSupplyRequest> {
     StocktakeSaveVO saveAndSubmitStocktake(StocktakeSaveDTO dto);
 
     /**
-     * 提交盘点单审批
+     * 删除盘点单据
      * <p>
-     * 业务校验规则：
-     * 1. 单据（bus_no）必须存在且 type_enum = INVENTORY_CHECK
-     * 2. status_enum 必须为 DRAFT（草稿状态）
-     * 3. 盘点单至少有一条明细行
-     * </p>
-     * <p>
-     * 状态变更：DRAFT → PENDING_APPROVAL，同时写入 applicant_id、apply_time
+     * 仅 DRAFT（草稿）或 PENDING_APPROVAL（待审核）状态可删除。
+     * 软删除 wkf_supply_request 同一 bus_no 下所有明细行，解锁 inventory_lock。
      * </p>
      *
-     * @param dto 提交审批参数（含盘点单ID/备注）
-     * @return 提交结果消息
-     * @throws IllegalArgumentException 业务校验失败时抛出
+     * @param dto 删除请求（含单据号和原因）
+     * @return 删除结果
      */
-    String submitStocktake(StocktakeSubmitDTO dto);
+    SupplyDocumentDeleteVO deleteStocktake(StocktakeDeleteDTO dto);
 }

@@ -11,6 +11,7 @@ import com.zeroone.star.dispense.mapper.MedMedicationDispenseMapper;
 import com.zeroone.star.dispense.service.IDispensingService;
 import com.zeroone.star.project.dto.ExtendPageDTO;
 import com.zeroone.star.project.dto.j7.dispense.DispenseVerifyDTO;
+import com.zeroone.star.project.query.j7.dispense.DispenseRejectQuery;
 import com.zeroone.star.project.query.j7.dispense.DispensingSummaryQuery;
 import com.zeroone.star.project.vo.j7.dispense.DispensingSummaryVO;
 import com.zeroone.star.project.vo.j7.dispense.PatientMedicationVO;
@@ -102,5 +103,30 @@ public class DispensingServiceImpl implements IDispensingService {
             throw new RuntimeException("以下记录发药失败（已发药或超卖）：" + String.join(",", failedIds));
         }
         return "发药成功";
+    }
+
+    /**
+     * 驳回患者发药单据，同步驳回汇总单
+     * <p>
+     * 在同一事务中执行：
+     * 1. 根据汇总单号找到所有待发药的记录
+     * 2. 将状态更新为"已拒绝"，记录驳回原因
+     * </p>
+     *
+     * @param dto 发药驳回参数（包含汇总单号和驳回原因）
+     */
+    @Override
+    @Transactional
+    public void rejectDispensing(DispenseRejectQuery dto) {
+        if (StrUtil.isBlank(dto.getSummaryNo())) {
+            throw new IllegalArgumentException("汇总单号不能为空");
+        }
+        medicationDispenseMapper.update(null,
+                new LambdaUpdateWrapper<MedMedicationDispense>()
+                        .eq(MedMedicationDispense::getSummaryNo, dto.getSummaryNo())
+                        .eq(MedMedicationDispense::getStatusEnum, "PENDING")
+                        .set(MedMedicationDispense::getStatusEnum, "DECLINED")
+                        .set(MedMedicationDispense::getNotPerformedReasonEnum, dto.getRejectReason())
+        );
     }
 }

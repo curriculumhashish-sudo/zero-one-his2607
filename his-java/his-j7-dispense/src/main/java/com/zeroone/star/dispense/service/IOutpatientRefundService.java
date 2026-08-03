@@ -2,6 +2,7 @@ package com.zeroone.star.dispense.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zeroone.star.project.dto.j7.dispense.DispenseVerifyDTO;
+import com.zeroone.star.project.dto.j7.pharmacy.ReturnRejectDTO;
 import com.zeroone.star.project.query.j7.dispense.PatientDrugItemQuery;
 import com.zeroone.star.project.query.j7.dispense.PatientQueueQuery;
 import com.zeroone.star.project.vo.j7.dispense.PatientDrugItemVO;
@@ -70,4 +71,9 @@ public interface IOutpatientRefundService {
      * @return 操作结果
      */
     String confirmRefund(DispenseVerifyDTO dto);
+
+    /**
+     * 执行拒绝退药
+     */
+    void rejectReturn(ReturnRejectDTO dto);
 }

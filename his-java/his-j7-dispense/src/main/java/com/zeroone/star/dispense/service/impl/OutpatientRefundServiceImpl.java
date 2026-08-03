@@ -10,6 +10,7 @@ import com.zeroone.star.dispense.mapper.InventoryItemMapper;
 import com.zeroone.star.dispense.mapper.MedMedicationDispenseMapper;
 import com.zeroone.star.dispense.service.IOutpatientRefundService;
 import com.zeroone.star.project.dto.j7.dispense.DispenseVerifyDTO;
+import com.zeroone.star.project.dto.j7.pharmacy.ReturnRejectDTO;
 import com.zeroone.star.project.query.j7.dispense.PatientDrugItemQuery;
 import com.zeroone.star.project.query.j7.dispense.PatientQueueQuery;
 import com.zeroone.star.project.vo.j7.dispense.PatientDrugItemVO;
@@ -173,5 +174,31 @@ public class OutpatientRefundServiceImpl implements IOutpatientRefundService {
             throw new RuntimeException("以下记录退药失败（已退药或数量异常）：" + String.join(",", failedIds));
         }
         return "退药成功";
+    }
+
+    /**
+     * 执行拒绝退药
+     * <p>
+     * 更新 med_medication_dispense 表：设置状态为"已拒绝"(DECLINED)，记录拒绝原因。
+     * 同时校验退药类型为"退药"(REFUND)，确保不会误操作发药记录。
+     * 优先使用 itemIds 批量拒绝，若为空则使用 returnId 单条拒绝。
+     * </p>
+     *
+     * @param dto 拒绝退药参数
+     */
+    @Override
+    @Transactional
+    public void rejectReturn(ReturnRejectDTO dto) {
+        LambdaUpdateWrapper<MedMedicationDispense> wrapper = new LambdaUpdateWrapper<MedMedicationDispense>()
+                .eq(MedMedicationDispense::getDispenseEnum, "REFUND")
+                .eq(MedMedicationDispense::getStatusEnum, "PENDING")
+                .set(MedMedicationDispense::getStatusEnum, "DECLINED")
+                .set(MedMedicationDispense::getNotPerformedReasonEnum, dto.getRejectReason());
+        if (dto.getItemIds() != null && !dto.getItemIds().isEmpty()) {
+            wrapper.in(MedMedicationDispense::getId, dto.getItemIds());
+        } else {
+            wrapper.eq(MedMedicationDispense::getId, dto.getReturnId());
+        }
+        medicationDispenseMapper.update(null, wrapper);
     }
 }

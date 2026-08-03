@@ -2,6 +2,7 @@ package com.zeroone.star.dispense.controller.end;
 
 import com.zeroone.star.dispense.service.IInpatientRefundMedicineService;
 import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j7.pharmacy.ReturnConfirmDTO;
 import com.zeroone.star.project.j7.dispense.InpatientRefundMedicineApis;
 import com.zeroone.star.project.query.j7.dispense.InpatientRefundDetailQuery;
 import com.zeroone.star.project.query.j7.dispense.InpatientRefundPatientQuery;
@@ -12,10 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -42,5 +40,17 @@ public class zhuyuantuiyao implements InpatientRefundMedicineApis {
     public JsonVO<List<InpatientRefundDetailVO>> queryRefundDetail(
             @Validated @RequestBody InpatientRefundDetailQuery query) {
         return JsonVO.success(inpatientRefundMedicineService.queryRefundDetail(query));
+    }
+
+    // ==================== 住院退药确认流程 ====================
+    // 步骤：查询退药患者队列 → 查看退药明细 → 确认退药（回补库存）
+
+    @Operation(summary = "确认退药（对勾选药品执行退药，同步回补药品库存）",
+            description = "确认退药操作：更新退药单状态为已确认，并对勾选的药品回补库存")
+    @PostMapping("/confirm-return")
+    @Override
+    public JsonVO<String> confirmReturn(@RequestBody ReturnConfirmDTO dto) {
+        inpatientRefundMedicineService.confirmReturn(dto);
+        return JsonVO.success("退药确认成功");
     }
 }

@@ -11,6 +11,8 @@ import com.zeroone.star.project.vo.j7.pharmacy.InboundApprovalVO;
 import com.zeroone.star.pharmacy.service.IInboundApprovalService;
 import com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundDetailVO;
 import com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundListVO;
+import com.zeroone.star.project.dto.j7.pharmacy.InStockOrderDeleteDTO;
+import com.zeroone.star.project.vo.j7.pharmacy.SupplyDocumentDeleteVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -130,5 +132,11 @@ public class yaofangrukudan {
     public JsonVO<String> saveAndSubmitInOrder(@PathVariable String orderId, @RequestBody InStockOrderDTO dto) {
         inStockOrderService.submit(orderId, dto);
         return JsonVO.success("保存并提交审批成功");
+    }
+
+    @DeleteMapping("/delete")
+    @Operation(summary = "删除入库单据", description = "软删除指定单据号的入库单，仅草稿/待审核状态可删，同时解锁关联的库存锁定记录")
+    public JsonVO<SupplyDocumentDeleteVO> deleteInStockOrder(@Valid @RequestBody InStockOrderDeleteDTO dto) {
+        return JsonVO.success(inStockOrderService.deleteOrder(dto));
     }
 }
