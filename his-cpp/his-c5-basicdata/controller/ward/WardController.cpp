@@ -1,7 +1,8 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "WardController.h"
+#include "../ApiDeclarativeServicesHelper.h"
 #include "StringUtil.h"
-#include "service/ward/WardService.h"
+#include "../../service/ward/WardService.h"
 
 namespace
 {
@@ -44,14 +45,52 @@ namespace
     }
 }
 
-// Query room by ID (stub)
+// ============================================================
+// Query room by ID (c5 — using WardService::queryRoomById)
+// Call chain: Controller → WardService::queryRoomById → WardDAO::selectLocationById
+// Param validation: id non-empty, length ≤64, invalid returns RS_PARAMS_INVALID(9995)
+// Not found or formEnum != HOUSE returns RS_FAIL(9999)
+// Success returns: WardRoomDTO { id, name, wardAreaId }
+// ============================================================
 WardRoomJsonVO::Wrapper WardController::execQueryRoomById(const String& id) {
-    return WardRoomJsonVO::createShared();
+    auto response = WardRoomJsonVO::createShared();
+    if (!hasText(id) || id.getValue("").size() > 64)
+    {
+        response->init(nullptr, RS_PARAMS_INVALID);
+        return response;
+    }
+    auto data = WardService().queryRoomById(id.getValue(""));
+    if (!data)
+    {
+        response->fail(nullptr);
+        return response;
+    }
+    response->success(data);
+    return response;
 }
 
-// Query bed by ID (stub)
+// ============================================================
+// Query bed by ID (c5 — using WardService::queryBedById)
+// Call chain: Controller → WardService::queryBedById → WardDAO::selectLocationById
+// Param validation: id non-empty, length ≤64, invalid returns RS_PARAMS_INVALID(9995)
+// Not found or formEnum != BED returns RS_FAIL(9999)
+// Success returns: WardBedDTO { id, name, status(0=free/1=occupied/2=disabled), wardRoomId }
+// ============================================================
 WardBedJsonVO::Wrapper WardController::execQueryBedById(const String& id) {
-    return WardBedJsonVO::createShared();
+    auto response = WardBedJsonVO::createShared();
+    if (!hasText(id) || id.getValue("").size() > 64)
+    {
+        response->init(nullptr, RS_PARAMS_INVALID);
+        return response;
+    }
+    auto data = WardService().queryBedById(id.getValue(""));
+    if (!data)
+    {
+        response->fail(nullptr);
+        return response;
+    }
+    response->success(data);
+    return response;
 }
 
 WardJsonVO::Wrapper WardController::execModifyWard(

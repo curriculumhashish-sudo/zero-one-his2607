@@ -1,7 +1,13 @@
 #include "stdafx.h"
 #include "PatService.h"
 #include "../../dao/pat/PatientDAO.h"
+#include "../../dao/pat/PatDAO.h"
+#include "SimpleDateTimeFormat.h"
 #include <ctime>
+
+// ============================================================
+// Helper methods (c5)
+// ============================================================
 
 std::string PatService::toGenderLabel(const std::string& genderEnum)
 {
@@ -72,6 +78,10 @@ int PatService::calcAge(const std::string& birthDate)
 	return age < 0 ? 0 : age;
 }
 
+// ============================================================
+// Query methods (c5)
+// ============================================================
+
 PageDTO<PatSelectDTO::Wrapper>::Wrapper PatService::querySelectPatPage(const PatSelectPageQuery::Wrapper& query)
 {
 	auto pageData = PageDTO<PatSelectDTO::Wrapper>::createShared();
@@ -137,4 +147,67 @@ PageDTO<PatDTO::Wrapper>::Wrapper PatService::queryPatPage(const PatPageQuery::W
 	}
 
 	return pageData;
+}
+
+// ============================================================
+// Soft-delete patient (c5)
+// Call chain: PatController → PatService::removePatient → PatientDAO::softDeletePatient
+//   ① Get current timestamp
+//   ② Parse operator from JWT Payload: username → id → "unknown" fallback
+//   ③ Execute DAO: UPDATE adm_patient SET is_deleted=1 WHERE id=? AND is_deleted=0
+// Returns: affected>0 = success, affected==0 = record not found or already deleted
+// ============================================================
+bool PatService::removePatient(const std::string& id, const PayloadDTO& payload)
+{
+	PatientDAO dao;
+	std::string now = SimpleDateTimeFormat::format();
+	// Resolve operator identity
+	std::string actor = payload.getUsername();
+	if (actor.empty() || actor == "none")
+	{
+		actor = payload.getId();
+	}
+	if (actor.empty())
+	{
+		actor = "unknown";
+	}
+	int affected = dao.softDeletePatient(id, now, actor);
+	return affected > 0;
+}
+
+// ============================================================
+// Batch delete methods (c5-pat-delete-pb)
+// ============================================================
+
+std::string PatService::validateRemove(const oatpp::List<oatpp::String>& ids)
+{
+    if (!ids || ids->empty())
+    {
+        return "ids empty.";
+    }
+
+    for (auto one : *ids.get())
+    {
+        if (!one || one->empty())
+        {
+            return "one of ids is empty.";
+        }
+    }
+    return "";
+}
+
+bool PatService::removeData(const oatpp::List<oatpp::String>& ids)
+{
+    std::list<std::string> datas;
+    for (auto one : *ids.get())
+    {
+        datas.emplace_back(one.getValue({}));
+    }
+
+    // Execute DAO batch delete
+    PatDAO dao;
+    int rows = dao.deleteByIds(datas);
+
+    // Success if affected rows match input count
+    return rows == (int)ids->size();
 }

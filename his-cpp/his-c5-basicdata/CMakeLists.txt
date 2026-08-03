@@ -29,9 +29,9 @@ elseif(WIN32)
 	link_directories (${PROJECT_SOURCE_DIR}/lib-mysql/${ZO_LB_NAME}/vs14/${ZO_LBT_NAME})
 endif()
 
-# 获取要编译的源代码
-file (GLOB_RECURSE SC_FILES ./*.cpp)
-list (REMOVE_ITEM SC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/./stdafx.cpp")
+# 获取要编译的源代码；新增或删除 cpp 后让 CMake 自动重新扫描
+file (GLOB_RECURSE SC_FILES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+list (REMOVE_ITEM SC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/stdafx.cpp")
 list(FILTER SC_FILES EXCLUDE REGEX ".*/out/.*")
 list(FILTER SC_FILES EXCLUDE REGEX ".*/tests/.*")
 
