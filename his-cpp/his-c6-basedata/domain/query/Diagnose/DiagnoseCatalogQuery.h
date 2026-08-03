@@ -22,7 +22,7 @@
 class DiagnoseCatalogQuery : public oatpp::DTO
 {
 	DTO_INIT(DiagnoseCatalogQuery, DTO);
-	API_DTO_FIELD_DEFAULT(String, keyword, ZH_WORDS_GETTER("diagnose.field.catalogKeyword"));
+	API_DTO_FIELD_DEFAULT(String, diagnoseType, ZH_WORDS_GETTER("diagnose.field.type"));
 };
 
 #include OATPP_CODEGEN_END(DTO)

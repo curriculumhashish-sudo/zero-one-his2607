@@ -28,7 +28,7 @@ class DPageDTO : public oatpp::DTO
 	API_DTO_FIELD_REQUIRE(String, diagnoseCode, ZH_WORDS_GETTER("diagnose.field.code"), true);
 	// 诊断名称
 	API_DTO_FIELD_REQUIRE(String, diagnoseName, ZH_WORDS_GETTER("diagnose.field.name"), true);
-	// 诊断类型
+	// 诊断目录
 	API_DTO_FIELD_REQUIRE(String, diagnoseType, ZH_WORDS_GETTER("diagnose.field.type"), true);
 	// 医保编码
 	API_DTO_FIELD_DEFAULT(String, medicalInsuranceCode, ZH_WORDS_GETTER("diagnose.field.medicalInsuranceCode"));
