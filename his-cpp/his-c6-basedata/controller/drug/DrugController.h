@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -31,10 +31,6 @@
 #include "domain/vo/drug/MedicineV2VO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
-
-#ifndef API_M_PATCH
-#define API_M_PATCH "PATCH"
-#endif
 
 #define API_TAG ZH_WORDS_GETTER("drug.tags.tag")
 #define API_TAG2 ZH_WORDS_GETTER("drug.tags.tag2")
@@ -107,7 +103,7 @@ class DrugController : public oatpp::web::server::api::ApiController
                                    "versionConflict", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::VERSION_CONFLICT));
                                info->responses[Status::CODE_422].addExample(
                                    "businessValidation", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::BUSINESS_VALIDATION_FAILED)););
-    ENDPOINT(API_M_PATCH, "/api/v2/medicines/status", updateMedicineStatusV2,
+    ENDPOINT(API_M_PUT, "/api/v2/medicines/status", updateMedicineStatusV2,
              BODY_DTO(MedicineStatusUpdateDTO::Wrapper, dto),
              HEADER(String, authorization, API_H_TOKEN))
     {
@@ -145,7 +141,7 @@ class DrugController : public oatpp::web::server::api::ApiController
                                    "versionConflict", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::VERSION_CONFLICT));
                                info->responses[Status::CODE_422].addExample(
                                    "businessValidation", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::BUSINESS_VALIDATION_FAILED)););
-    ENDPOINT(API_M_POST, "/api/v2/medicines/batch-delete", batchDeleteMedicinesV2,
+    ENDPOINT(API_M_DEL, "/api/v2/medicines/batch-delete", batchDeleteMedicinesV2,
              BODY_DTO(MedicineBatchDeleteDTO::Wrapper, dto),
              HEADER(String, authorization, API_H_TOKEN))
     {
@@ -183,7 +179,7 @@ class DrugController : public oatpp::web::server::api::ApiController
                                    "versionConflict", MedicineVersionJsonVO::createExample(MedicineV2BusinessCode::VERSION_CONFLICT));
                                info->responses[Status::CODE_422].addExample(
                                    "businessValidation", MedicineVersionJsonVO::createExample(MedicineV2BusinessCode::BUSINESS_VALIDATION_FAILED)););
-    ENDPOINT(API_M_PATCH, "/api/v2/medicines/{id}", updateMedicineV2, PATH(String, id),
+    ENDPOINT(API_M_PUT, "/api/v2/medicines/{id}", updateMedicineV2, PATH(String, id),
              BODY_DTO(MedicineUpdateDTO::Wrapper, dto),
              HEADER(String, authorization, API_H_TOKEN))
     {
