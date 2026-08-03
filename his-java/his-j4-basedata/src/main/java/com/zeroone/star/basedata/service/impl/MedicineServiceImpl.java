@@ -54,18 +54,6 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
     private static final String PRICE_TYPE_SALE = "SALE";
     private static final String PRICE_TYPE_MAX_RETAIL = "MAX_RETAIL";
 
-    /**
-     * TODO 登录选择科室功能完成后，
-     * 根据当前用户ID从Redis读取本次会话选择的科室orgId。
-     */
-    private static final String TEMP_ORG_ID = "322663105141149696";
-
-    /**
-     * TODO 用户药房选择功能完成后，
-     * 从当前登录状态中获取对应的药房或库房locationId。
-     */
-    private static final String TEMP_LOCATION_ID = "322954949549363200";
-
     @Resource
     private MsMedicineMapper msMedicineMapper;
 
@@ -87,7 +75,7 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
     public PageDTO<MedicineSelectVO> queryMedicineSelectPage(MedicineSelectPageQuery query) {
         String tenantId = userHolder.getCurrentTenantId();
         Page<MedicineSelectVO> page = new Page<>(query.getPageIndex(), query.getPageSize());
-        Page<MedicineSelectVO> result = baseMapper.selectMedicineSelectPage(page, query, TEMP_LOCATION_ID, tenantId);
+        Page<MedicineSelectVO> result = baseMapper.selectMedicineSelectPage(page, query, query.getLocationId(), tenantId);
         return PageDTO.create(result);
     }
 
@@ -128,14 +116,11 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
     private void fillMedicineFields(MedMedicationDefinitionDO medicine, String medicineId, String tenantId) {
         medicine.setId(medicineId);
         medicine.setTenantId(tenantId);
-        medicine.setBusNo("MD" + medicineId);
         medicine.setIsDeleted(false);
         medicine.setVersion(0);
-        medicine.setOrgId(TEMP_ORG_ID);
 
-        // 新增药品统一以启用状态保存，状态不由前端传入。
+        // 生命周期状态由后端统一维护。
         medicine.setStatusEnum(STATUS_ACTIVE);
-        medicine.setActiveFlag(true);
     }
 
     /**
