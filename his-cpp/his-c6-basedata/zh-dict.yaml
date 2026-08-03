@@ -255,11 +255,11 @@ diagnose:
  tags:
   t1: 诊断管理
   t2: 声明式服务接口
- query_select:
+ select:
   summary: 获取选择诊断列表（条件+分页）
- query_all:
+ page:
   summary: 获取诊断列表（条件+分页）
- query_one:
+ detail:
   summary: 获取单个诊断详情
  batch_status:
   summary: 批量启用或停用诊断
@@ -363,6 +363,7 @@ diagnose:
  flag:
    yes: "是"
    no: "否"
+
 
 
 drug:
