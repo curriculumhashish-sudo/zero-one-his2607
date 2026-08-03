@@ -18,16 +18,17 @@
 */
 #include "stdafx.h"
 #include "DrugService.h"
-
+#include "domain/dto/drug/DrugSelectDTO.h"
+#include "../../dao/common/DrugEnumDictionaryDAO.h"
 #include "../../dao/drug/DrugDAO.h"
 #include "../../domain/DrugConstants.h"
+#include "domain/dto/drug/DrugSelectDTO.h"
 #include "SimpleDateTimeFormat.h"
 #include "TransactionManager.h"
 #include "id/UuidFacade.h"
 #include <algorithm>
 #include <cctype>
 #include <exception>
-#include <set>
 
 static bool isValidId(const oatpp::String &id)
 {
@@ -57,45 +58,6 @@ static std::string operatorId(const PayloadDTO &payload)
     throw DrugServiceException(DrugServiceError::InvalidInput);
 }
 
-static std::list<std::string> normalizeIds(const oatpp::List<oatpp::String> &source)
-{
-    if (!source || source->empty() || source->size() > DrugConstants::MAX_BATCH_SIZE)
-    {
-        throw DrugServiceException(DrugServiceError::InvalidInput);
-    }
-
-    std::set<std::string> unique;
-    for (const auto &id : *source.get())
-    {
-        if (!isValidId(id))
-        {
-            throw DrugServiceException(DrugServiceError::InvalidInput);
-        }
-        unique.emplace(id.getValue(""));
-    }
-    if (unique.empty())
-    {
-        throw DrugServiceException(DrugServiceError::InvalidInput);
-    }
-    return {unique.begin(), unique.end()};
-}
-
-static void ensureSameTenant(const std::list<PtrMedMedicationDefinitionDO> &drugs)
-{
-    if (drugs.empty())
-    {
-        return;
-    }
-    const std::string tenantId = drugs.front()->getTenantId();
-    for (const auto &drug : drugs)
-    {
-        if (!drug || drug->getTenantId() != tenantId)
-        {
-            throw DrugServiceException(DrugServiceError::CrossTenant);
-        }
-    }
-}
-
 static void ensureTenantAccess(DrugDAO &dao, const PayloadDTO &payload, const std::string &tenantId)
 {
     if (!dao.hasTenantAccess(payload.getId(), payload.getUsername(), tenantId))
@@ -104,191 +66,102 @@ static void ensureTenantAccess(DrugDAO &dao, const PayloadDTO &payload, const st
     }
 }
 
-static void fillEditableDrug(MedMedicationDefinitionDO &data, const DrugModifyDTO::Wrapper &dto,
-                             const std::string &updatedBy,
-                             const std::string &updatedAt)
+static void fillMedicineV2Patch(MedMedicationDefinitionDO &data, const std::string &id,
+                                const MedicineUpdateDTO::Wrapper &dto,
+                                const std::string &updatedBy, const std::string &updatedAt)
 {
+    // 仅映射请求中出现的字段，未传字段不会进入 UPDATE。
+    data.setId(id);
     ZO_STAR_DOMAIN_DTO_TO_DO(
         data, dto, BusNo, busNo, Name, name, DomainEnum, domainEnum, MedVersion, medVersion, NameEn, nameEn,
-        PyStr, pyStr, WbStr, wbStr, CategoryCode, categoryCode, MerchandiseName, merchandiseName, MerchandisePyStr,
-        merchandisePyStr, MerchandiseWbStr, merchandiseWbStr, PurchaseUnitCode, purchaseUnitCode, SplitUnitCode,
-        splitUnitCode, ComprisedText, comprisedText, Ingredient, ingredient, DoseFrom, doseFrom, ApprovalNumber,
-        approvalNumber, YbMatchFlag, ybMatchFlag, YbNo, ybNo, PharmacologyCategoryCode, pharmacologyCategoryCode,
-        SkinTestFlag, skinTestFlag, InjectFlag, injectFlag, ManufacturerId, manufacturerId, ManufacturerText,
-        manufacturerText, SupplyId, supplyId, RestrictedFlag, restrictedFlag, RestrictedScope, restrictedScope,
-        ChildrenFlag, childrenFlag);
+        PyStr, pyStr, WbStr, wbStr, CategoryCode, categoryCode, MerchandiseName, merchandiseName,
+        MerchandisePyStr, merchandisePyStr, MerchandiseWbStr, merchandiseWbStr, PurchaseUnitCode,
+        purchaseUnitCode, SplitUnitCode, splitUnitCode, ComprisedText, comprisedText, Ingredient, ingredient,
+        DoseFrom, doseFrom, ApprovalNumber, approvalNumber, YbMatchFlag, ybMatchFlag, YbNo, ybNo,
+        PharmacologyCategoryCode, pharmacologyCategoryCode, SkinTestFlag, skinTestFlag, InjectFlag, injectFlag,
+        ManufacturerId, manufacturerId, ManufacturerText, manufacturerText, SupplyId, supplyId, RestrictedFlag,
+        restrictedFlag, RestrictedScope, restrictedScope);
     ZO_STAR_DOMAIN_DTO_TO_DO(
-        data, dto, Characteristic, characteristic, ItemMinQuantity, itemMinQuantity, ItemMaxQuantity, itemMaxQuantity,
-        NationalDrugCode, nationalDrugCode, PartAttributeEnum, partAttributeEnum, AntibioticCode, antibioticCode,
-        RestrictedEnum, restrictedEnum, SelfFlag, selfFlag, AntibioticFlag, antibioticFlag, BasicFlag, basicFlag,
-        ThoPartAttributeEnum, thoPartAttributeEnum, ChrgitmLv, chrgitmLv, RxFlag, rxFlag, DosageInstruction,
-        dosageInstruction, Drug69Code, drug69Code, TotalVolume, totalVolume, DoseFormCode, doseFormCode, DoseUnitCode,
-        doseUnitCode, PackageUnitCode, packageUnitCode, StockUnitCode, stockUnitCode, MethodCode, methodCode, RateCode,
-        rateCode, Dose, dose, MaxUnit, maxUnit, UsageLimit, usageLimit, LocationId, locationId, IngredientItem,
-        ingredientItem, MedicationDefinition, definition, DddCode, dddCode, DddUnitCode, dddUnitCode);
-    ZO_STAR_DOMAIN_DTO_TO_DO(data, dto, MinRateCode, minRateCode, MaxRateCode, maxRateCode, DoseUnitRatio, doseUnitRatio,
-                             PurchaseUnitRatio, purchaseUnitRatio, StockUnitRatio, stockUnitRatio, PackageUnitRatio,
-                             packageUnitRatio);
-    ZO_STAR_DOMAIN_DTO_TO_DO(
-        data, dto, YbMatchFlag, ybMatchFlag, SkinTestFlag, skinTestFlag, InjectFlag, injectFlag, RestrictedFlag,
-        restrictedFlag, ChildrenFlag, childrenFlag, SelfFlag, selfFlag, AntibioticFlag, antibioticFlag, BasicFlag,
-        basicFlag, RxFlag, rxFlag, Id, id);
-    // Keep stored default unit codes because this request does not carry them.
+        data, dto, ChildrenFlag, childrenFlag, Characteristic, characteristic, ItemMinQuantity, itemMinQuantity,
+        ItemMaxQuantity, itemMaxQuantity, NationalDrugCode, nationalDrugCode, PartAttributeEnum, partAttributeEnum,
+        AntibioticCode, antibioticCode, RestrictedEnum, restrictedEnum, SelfFlag, selfFlag, AntibioticFlag,
+        antibioticFlag, BasicFlag, basicFlag, ThoPartAttributeEnum, thoPartAttributeEnum, ChrgitmLv, chrgitmLv,
+        RxFlag, rxFlag, DosageInstruction, dosageInstruction, Drug69Code, drug69Code, DoseFormCode, doseFormCode,
+        DoseUnitCode, doseUnitCode, PackageUnitCode, packageUnitCode, StockUnitCode, stockUnitCode, MethodCode,
+        methodCode, RateCode, rateCode, Dose, dose, MaxUnit, maxUnit, UsageLimit, usageLimit, LocationId, locationId,
+        IngredientItem, ingredientItem, MedicationDefinition, definition, DddCode, dddCode, DddUnitCode,
+        dddUnitCode);
+    ZO_STAR_DOMAIN_DTO_TO_DO(data, dto, MinRateCode, minRateCode, MaxRateCode, maxRateCode, DoseUnitRatio,
+                             doseUnitRatio, PurchaseUnitRatio, purchaseUnitRatio, StockUnitRatio, stockUnitRatio,
+                             PackageUnitRatio, packageUnitRatio);
+    if (dto->specification)
+    {
+        data.setTotalVolume(dto->specification.getValue(""));
+    }
     data.setUpdatedBy(updatedBy);
     data.setUpdatedAt(updatedAt);
 }
 
-static void fillBasePrice(AdmChargeItemDefinitionDO &price, const DrugModifyDTO::Wrapper &dto,
-                          const PtrMedMedicationDefinitionDO &drug,
-                          const std::string &priceType, double priceValue, const std::string &createdBy,
-                          const std::string &createdAt, UuidFacade &uuidFacade)
+static MedicineVersionItemDTO::Wrapper makeMedicineVersionItem(const std::string &id, int version)
 {
-    const std::string priceId = uuidFacade.genUuid();
-    if (priceId.empty())
-    {
-        throw DrugServiceException(DrugServiceError::DatabaseFailure);
-    }
-    price.setId(priceId);
-    price.setTenantId(drug->getTenantId());
-    price.setCreatedAt(createdAt);
-    price.setUpdatedAt(createdAt);
-    price.setCreatedBy(createdBy);
-    price.setUpdatedBy(createdBy);
-    price.setIsDeleted(false);
-    price.setVersion(0);
-    price.setInstanceTable(drug->getTable());
-    price.setInstanceId(drug->getId());
-    ZO_STAR_DOMAIN_DTO_TO_DO(price, dto, ChargeName, name, TypeCode, typeCode, YbType, ybType);
-    price.setStatusEnum(DrugConstants::STATUS_ACTIVE);
-    // 机构归属以数据库记录为准。
-    const std::string orgId = drug->getOrgId();
-    if (!orgId.empty())
-    {
-        price.setOrgId(orgId);
-    }
-    price.setPriceTypeCode(priceType);
-    price.setPriceValue(priceValue);
+    auto item = MedicineVersionItemDTO::createShared();
+    item->id = id;
+    item->version = version;
+    return item;
 }
 
-static void addUnitBand(oatpp::List<DrugUnitBandDTO::Wrapper> bands,
-                        const std::string &kind,
-                        const std::string &unitCode,
-                        double ratioToSplit,
-                        const oatpp::Float64 &unitPrice = nullptr)
+static void addMedicineV2Failure(const MedicineBatchResultDTO::Wrapper &result, const std::string &id,
+                                 int code, const std::string &message,
+                                 const oatpp::Int32 &currentVersion = nullptr)
 {
-    if (unitCode.empty() || ratioToSplit <= 0.0)
-    {
-        return;
-    }
-
-    auto band = DrugUnitBandDTO::createShared();
-    band->bandKind = kind;
-    band->unitCode = unitCode;
-    // 单位名称待字典回填。
-    band->unitName = nullptr;
-    band->ratioToSplit = ratioToSplit;
-    band->unitPrice = unitPrice;
-    bands->push_back(band);
+    auto item = MedicineFailedItemDTO::createShared();
+    item->id = id;
+    item->code = code;
+    item->message = message;
+    item->currentVersion = currentVersion;
+    result->failedItems->push_back(item);
 }
 
-static DrugModifyResultDTO::Wrapper toResultDTO(const PtrMedMedicationDefinitionDO &drug,
-                                                const std::list<PtrAdmChargeItemDefinitionDO> &prices)
+static int medicineV2FailureCode(DrugServiceError error)
 {
-    auto dto = DrugModifyResultDTO::createShared();
-    ZO_STAR_DOMAIN_DO_TO_DTO_1(
-        dto, drug, id, Id, orgId, OrgId, busNo, BusNo, name, Name, domainEnum, DomainEnum, medVersion, MedVersion, nameEn,
-        NameEn, pyStr, PyStr, wbStr, WbStr, categoryCode, CategoryCode, merchandiseName, MerchandiseName,
-        merchandisePyStr, MerchandisePyStr, merchandiseWbStr, MerchandiseWbStr, purchaseUnitCode, PurchaseUnitCode,
-        splitUnitCode, SplitUnitCode, comprisedText, ComprisedText, ingredient, Ingredient, doseFrom, DoseFrom,
-        approvalNumber, ApprovalNumber, ybMatchFlag, YbMatchFlag, ybNo, YbNo, pharmacologyCategoryCode,
-        PharmacologyCategoryCode, skinTestFlag, SkinTestFlag, injectFlag, InjectFlag, manufacturerId, ManufacturerId,
-        manufacturerText, ManufacturerText);
-    ZO_STAR_DOMAIN_DO_TO_DTO_1(
-        dto, drug, supplyId, SupplyId, restrictedFlag, RestrictedFlag, restrictedScope, RestrictedScope, childrenFlag,
-        ChildrenFlag, characteristic, Characteristic, itemMinQuantity, ItemMinQuantity, itemMaxQuantity,
-        ItemMaxQuantity, nationalDrugCode, NationalDrugCode, partAttributeEnum, PartAttributeEnum, antibioticCode,
-        AntibioticCode, restrictedEnum, RestrictedEnum, selfFlag, SelfFlag, antibioticFlag, AntibioticFlag, basicFlag,
-        BasicFlag, thoPartAttributeEnum, ThoPartAttributeEnum, chrgitmLv, ChrgitmLv, rxFlag, RxFlag,
-        dosageInstruction, DosageInstruction, drug69Code, Drug69Code, totalVolume, TotalVolume, doseFormCode,
-        DoseFormCode, doseUnitCode, DoseUnitCode, packageUnitCode, PackageUnitCode, stockUnitCode, StockUnitCode,
-        methodCode, MethodCode, rateCode, RateCode);
-    ZO_STAR_DOMAIN_DO_TO_DTO_1(
-        dto, drug, dose, Dose, maxUnit, MaxUnit, usageLimit, UsageLimit, locationId, LocationId, ingredientItem,
-        IngredientItem, definition, MedicationDefinition, dddCode, DddCode, dddUnitCode, DddUnitCode, minRateCode,
-        MinRateCode, maxRateCode, MaxRateCode, doseUnitRatio, DoseUnitRatio, purchaseUnitRatio, PurchaseUnitRatio,
-        stockUnitRatio, StockUnitRatio, packageUnitRatio, PackageUnitRatio, activeFlag, ActiveFlag);
-    ZO_STAR_DOMAIN_DO_TO_DTO_1(dto, drug, medicationDefId, Id, specification, TotalVolume);
-    dto->purchaseUnitCodeDictText = nullptr;
-    dto->doseFromDictText = nullptr;
-    dto->antibioticCodeDictText = nullptr;
-    dto->typeCodeDictText = nullptr;
-    dto->doseUnitCodeDictText = nullptr;
-    dto->categoryCodeDictText = nullptr;
-    dto->packageUnitCodeDictText = nullptr;
-    dto->locationIdDictText = nullptr;
-    dto->supplyIdDictText = nullptr;
-    dto->potencyFlag = nullptr;
-    dto->unitBands = oatpp::List<DrugUnitBandDTO::Wrapper>::createShared();
-    dto->typeCode = nullptr;
-    dto->ybType = nullptr;
-    if (drug->getStatusEnum() == DrugConstants::STATUS_ACTIVE)
+    switch (error)
     {
-        dto->statusEnum = DrugConstants::API_STATUS_ACTIVE;
+    case DrugServiceError::NotFound:
+        return MedicineV2BusinessCode::NOT_FOUND;
+    case DrugServiceError::CrossTenant:
+        return MedicineV2BusinessCode::FORBIDDEN;
+    case DrugServiceError::ConcurrentModification:
+        return MedicineV2BusinessCode::VERSION_CONFLICT;
+    case DrugServiceError::DatabaseFailure:
+        return MedicineV2BusinessCode::SERVER_ERROR;
+    case DrugServiceError::InvalidInput:
+    case DrugServiceError::InvalidStatus:
+    case DrugServiceError::Referenced:
+    default:
+        return MedicineV2BusinessCode::BUSINESS_VALIDATION_FAILED;
     }
-    else if (drug->getStatusEnum() == DrugConstants::STATUS_INACTIVE)
-    {
-        dto->statusEnum = DrugConstants::API_STATUS_INACTIVE;
-    }
-    else
-    {
-        dto->statusEnum = DrugConstants::API_STATUS_DISCARDED;
-    }
-    dto->statusEnumText = drug->getStatusEnum() == DrugConstants::STATUS_ACTIVE
-                              ? ZH_WORDS_GETTER("drug.status.enabled")
-                              : ZH_WORDS_GETTER("drug.status.disabled");
-    dto->activeFlagText =
-        drug->getActiveFlag() ? ZH_WORDS_GETTER("drug.status.enabled")
-                              : ZH_WORDS_GETTER("drug.status.disabled");
+}
 
-    dto->purchasePrice = nullptr;
-    dto->retailPrice = nullptr;
-    dto->maximumRetailPrice = nullptr;
-    for (const auto &price : prices)
+static std::string medicineV2FailureMessage(DrugServiceError error)
+{
+    switch (error)
     {
-        if (!dto->typeCode && !price->getTypeCode().empty())
-        {
-            dto->typeCode = price->getTypeCode();
-        }
-        if (!dto->ybType && !price->getYbType().empty())
-        {
-            dto->ybType = price->getYbType();
-        }
-        if (price->getPriceTypeCode() == DrugConstants::PRICE_TYPE_PURCHASE)
-        {
-            dto->purchasePrice = price->getPriceValue();
-        }
-        else if (price->getPriceTypeCode() == DrugConstants::PRICE_TYPE_SALE)
-        {
-            dto->retailPrice = price->getPriceValue();
-        }
-        else if (price->getPriceTypeCode() == DrugConstants::PRICE_TYPE_LIMIT)
-        {
-            dto->maximumRetailPrice = price->getPriceValue();
-        }
+    case DrugServiceError::NotFound:
+        return ZH_WORDS_GETTER("drug.v2.message.notFound");
+    case DrugServiceError::CrossTenant:
+        return ZH_WORDS_GETTER("drug.v2.message.forbidden");
+    case DrugServiceError::ConcurrentModification:
+        return ZH_WORDS_GETTER("drug.v2.message.versionConflict");
+    case DrugServiceError::InvalidStatus:
+        return ZH_WORDS_GETTER("drug.v2.message.invalidStatus");
+    case DrugServiceError::Referenced:
+        return ZH_WORDS_GETTER("drug.v2.message.referenced");
+    case DrugServiceError::DatabaseFailure:
+        return ZH_WORDS_GETTER("drug.v2.message.serverError");
+    case DrugServiceError::InvalidInput:
+    default:
+        return ZH_WORDS_GETTER("drug.v2.message.businessFailed");
     }
-
-    addUnitBand(dto->unitBands, DrugConstants::UNIT_BAND_SPLIT, drug->getSplitUnitCode(),
-                DrugConstants::SPLIT_UNIT_RATIO);
-    addUnitBand(dto->unitBands, DrugConstants::UNIT_BAND_DOSE, drug->getDoseUnitCode(), drug->getDoseUnitRatio());
-    addUnitBand(dto->unitBands, DrugConstants::UNIT_BAND_PURCHASE, drug->getPurchaseUnitCode(),
-                drug->getPurchaseUnitRatio(),
-                dto->purchasePrice);
-    addUnitBand(dto->unitBands, DrugConstants::UNIT_BAND_STOCK, drug->getStockUnitCode(),
-                drug->getStockUnitRatio());
-    addUnitBand(dto->unitBands, DrugConstants::UNIT_BAND_PACKAGE, drug->getPackageUnitCode(),
-                drug->getPackageUnitRatio(),
-                dto->retailPrice);
-    return dto;
 }
 
 DrugServiceException::DrugServiceException(DrugServiceError errorCode)
@@ -301,233 +174,49 @@ DrugServiceError DrugServiceException::getError() const noexcept
     return error;
 }
 
-DrugModifyResultDTO::Wrapper DrugService::updateDrug(const DrugModifyDTO::Wrapper &dto)
+MedicineVersionItemDTO::Wrapper DrugService::updateMedicineV2(const std::string &id,
+                                                               const MedicineUpdateDTO::Wrapper &dto)
 {
-    // 校验请求和登录信息。
-    if (!dto || !isValidId(dto->id) || dto->getPayload() == nullptr)
+    if (!isValidId(id) || !dto || dto->getPayload() == nullptr)
     {
         throw DrugServiceException(DrugServiceError::InvalidInput);
     }
     const PayloadDTO &payload = *dto->getPayload();
-
     DrugDAO dao;
-    const char *stage = "transaction";
     try
     {
-        // 锁定记录并校验租户和状态。
         TransactionManager transaction(&dao);
-        stage = "select-drug";
-        const auto current = dao.selectById(dto->id.getValue(""), true);
+        const auto current = dao.selectById(id, true);
         if (!current)
         {
             throw DrugServiceException(DrugServiceError::NotFound);
         }
         ensureTenantAccess(dao, payload, current->getTenantId());
-        if (dto->orgId && dto->orgId.getValue("") != current->getOrgId())
-        {
-            throw DrugServiceException(DrugServiceError::InvalidInput);
-        }
         if (current->getStatusEnum() == DrugConstants::STATUS_DISCARDED)
         {
             throw DrugServiceException(DrugServiceError::InvalidStatus);
         }
-
-        const std::string auditOperator = operatorId(payload);
-        const std::string operationTime = SimpleDateTimeFormat::format();
-        MedMedicationDefinitionDO data;
-        // 将 DTO 转为可修改 DO。
-        stage = "map-request";
-        fillEditableDrug(data, dto, auditOperator, operationTime);
-        stage = "update-drug";
-        if (dao.updateEditableByVersion(data, current->getTenantId(), current->getVersion()) != 1)
+        if (dto->version.getValue(-1) != current->getVersion())
         {
             throw DrugServiceException(DrugServiceError::ConcurrentModification);
         }
 
-        // 同一事务内替换基础价格。
-        stage = "expire-prices";
-        dao.softDeleteBasePrices(current->getId(), current->getTenantId(), auditOperator, operationTime);
-        UuidFacade uuidFacade;
-        size_t expectedPriceCount = 0;
-        auto insertPrice = [&](const std::string &priceType, const oatpp::Float64 &value)
+        // 只校验本次实际提交的拆分规则枚举。
+        std::vector<std::string> ruleCodes;
+        if (dto->partAttributeEnum)
         {
-            if (!value)
-            {
-                return;
-            }
-            AdmChargeItemDefinitionDO price;
-            stage = "map-price";
-            fillBasePrice(price, dto, current, priceType, value.getValue(0.0), auditOperator, operationTime,
-                          uuidFacade);
-            stage = "insert-price";
-            if (dao.insertBasePrice(price) != 1)
-            {
-                throw DrugServiceException(DrugServiceError::DatabaseFailure);
-            }
-            ++expectedPriceCount;
-        };
-        insertPrice(DrugConstants::PRICE_TYPE_PURCHASE, dto->purchasePrice);
-        insertPrice(DrugConstants::PRICE_TYPE_SALE, dto->retailPrice);
-        insertPrice(DrugConstants::PRICE_TYPE_LIMIT, dto->maximumRetailPrice);
-
-        // 回读数据并提交事务。
-        stage = "reload-result";
-        const auto updated = dao.selectById(current->getId());
-        const auto prices = dao.selectBasePrices(current->getId(), current->getTenantId());
-        if (!updated || prices.size() != expectedPriceCount)
-        {
-            throw DrugServiceException(DrugServiceError::DatabaseFailure);
+            ruleCodes.emplace_back(dto->partAttributeEnum.getValue(""));
         }
-        stage = "map-result";
-        auto result = toResultDTO(updated, prices);
-        stage = "commit";
-        transaction.commit();
-        return result;
-    }
-    catch (...)
-    {
-        // 回滚并保留原异常。
-        const auto originalError = std::current_exception();
-        try
+        if (dto->thoPartAttributeEnum)
         {
-            std::rethrow_exception(originalError);
+            ruleCodes.emplace_back(dto->thoPartAttributeEnum.getValue(""));
         }
-        catch (const std::exception &error)
+        if (!ruleCodes.empty())
         {
-            std::cerr << "DrugService::updateDrug failed at " << stage << ": " << error.what() << std::endl;
-        }
-        catch (...)
-        {
-            std::cerr << "DrugService::updateDrug failed at " << stage << ": unknown exception" << std::endl;
-        }
-        try
-        {
-            dao.getSqlSession()->rollbackTransaction();
-        }
-        catch (...)
-        {
-        }
-        dao.releaseSqlSession();
-        std::rethrow_exception(originalError);
-    }
-}
-
-bool DrugService::removeDrugs(const DrugRemoveDTO::Wrapper &dto)
-{
-    // 校验并整理批量编号。
-    if (!dto || dto->getPayload() == nullptr)
-    {
-        throw DrugServiceException(DrugServiceError::InvalidInput);
-    }
-    const PayloadDTO &payload = *dto->getPayload();
-    const auto ids = normalizeIds(dto ? dto->ids : nullptr);
-    DrugDAO dao;
-    try
-    {
-        // 锁定批次并校验租户和状态。
-        TransactionManager transaction(&dao);
-        const auto drugs = dao.selectStatesForUpdate(ids);
-        if (drugs.size() != ids.size())
-        {
-            throw DrugServiceException(DrugServiceError::NotFound);
-        }
-        ensureSameTenant(drugs);
-        ensureTenantAccess(dao, payload, drugs.front()->getTenantId());
-        for (const auto &drug : drugs)
-        {
-            if (drug->getStatusEnum() != DrugConstants::STATUS_INACTIVE || drug->getActiveFlag())
-            {
-                throw DrugServiceException(DrugServiceError::InvalidStatus);
-            }
-        }
-
-        // 被业务引用时禁止删除。
-        const auto referenceCheck = dao.selectReferenceCheck(ids);
-        if (!referenceCheck)
-        {
-            throw DrugServiceException(DrugServiceError::DatabaseFailure);
-        }
-        if (referenceCheck->referenced)
-        {
-            throw DrugServiceException(DrugServiceError::Referenced);
-        }
-
-        const std::string auditOperator = operatorId(payload);
-        const std::string operationTime = SimpleDateTimeFormat::format();
-        // 先删除价格，再删除药品。
-        dao.softDeleteAllPrices(ids, drugs.front()->getTenantId(), auditOperator, operationTime);
-        const auto activePricePresence = dao.selectActivePricePresence(ids, drugs.front()->getTenantId());
-        if (!activePricePresence || activePricePresence->satisfied)
-        {
-            throw DrugServiceException(DrugServiceError::DatabaseFailure);
-        }
-        if (dao.softDeleteDrugs(ids, drugs.front()->getTenantId(), auditOperator, operationTime) !=
-            static_cast<int>(ids.size()))
-        {
-            throw DrugServiceException(DrugServiceError::ConcurrentModification);
-        }
-        transaction.commit();
-        return true;
-    }
-    catch (...)
-    {
-        // 整批回滚并抛出原异常。
-        const auto originalError = std::current_exception();
-        try
-        {
-            dao.getSqlSession()->rollbackTransaction();
-        }
-        catch (...)
-        {
-        }
-        dao.releaseSqlSession();
-        std::rethrow_exception(originalError);
-    }
-}
-
-bool DrugService::enableDisableDrugs(const DrugEnableDisableDTO::Wrapper &dto)
-{
-    // 校验目标状态和批量编号。
-    if (!dto || dto->activeFlag == nullptr || dto->getPayload() == nullptr)
-    {
-        throw DrugServiceException(DrugServiceError::InvalidInput);
-    }
-    const PayloadDTO &payload = *dto->getPayload();
-    const auto ids = normalizeIds(dto->ids);
-    const bool enable = dto->activeFlag.getValue(false);
-    const std::string expectedStatus =
-        enable ? DrugConstants::STATUS_INACTIVE : DrugConstants::STATUS_ACTIVE;
-    const std::string targetStatus =
-        enable ? DrugConstants::STATUS_ACTIVE : DrugConstants::STATUS_INACTIVE;
-
-    DrugDAO dao;
-    try
-    {
-        // 锁定批次并校验原状态。
-        TransactionManager transaction(&dao);
-        const auto drugs = dao.selectStatesForUpdate(ids);
-        if (drugs.size() != ids.size())
-        {
-            throw DrugServiceException(DrugServiceError::NotFound);
-        }
-        ensureSameTenant(drugs);
-        ensureTenantAccess(dao, payload, drugs.front()->getTenantId());
-        for (const auto &drug : drugs)
-        {
-            if (drug->getStatusEnum() != expectedStatus || drug->getActiveFlag() == enable)
-            {
-                throw DrugServiceException(DrugServiceError::InvalidStatus);
-            }
-        }
-        if (enable)
-        {
-            // 启用前校验主数据、单位和售价。
-            const auto readiness = dao.selectEnableReadiness(ids, drugs.front()->getTenantId());
-            if (!readiness)
-            {
-                throw DrugServiceException(DrugServiceError::DatabaseFailure);
-            }
-            if (!readiness->satisfied)
+            DrugEnumDictionaryDAO dictionaryDAO;
+            const auto displays = dictionaryDAO.findActiveDisplays(
+                DrugEnumDictionaryDAO::ORDER_CALC_RULE_ENUM, ruleCodes);
+            if (displays.size() != ruleCodes.size())
             {
                 throw DrugServiceException(DrugServiceError::InvalidInput);
             }
@@ -535,19 +224,51 @@ bool DrugService::enableDisableDrugs(const DrugEnableDisableDTO::Wrapper &dto)
 
         const std::string auditOperator = operatorId(payload);
         const std::string operationTime = SimpleDateTimeFormat::format();
-        // 条件更新整批状态。
-        if (dao.updateActiveStatus(ids, drugs.front()->getTenantId(), expectedStatus, targetStatus, enable,
-                                   auditOperator, operationTime) !=
-            static_cast<int>(ids.size()))
+        MedMedicationDefinitionDO data;
+        fillMedicineV2Patch(data, id, dto, auditOperator, operationTime);
+        if (dao.updateEditableByVersion(data, current->getTenantId(), current->getVersion()) != 1)
         {
             throw DrugServiceException(DrugServiceError::ConcurrentModification);
         }
+
+        // 三种价格分别更新，未传价格保持不变。
+        auto updatePrice = [&](const std::string &priceType, const oatpp::Float64 &value)
+        {
+            if (value &&
+                dao.updateBasePriceValue(id, current->getTenantId(), priceType, value.getValue(0.0),
+                                         auditOperator, operationTime) != 1)
+            {
+                throw DrugServiceException(DrugServiceError::InvalidInput);
+            }
+        };
+        updatePrice(DrugConstants::PRICE_TYPE_PURCHASE, dto->purchasePrice);
+        updatePrice(DrugConstants::PRICE_TYPE_SALE, dto->retailPrice);
+        updatePrice(DrugConstants::PRICE_TYPE_LIMIT, dto->maximumRetailPrice);
+
+        if (dto->financeTypeCode &&
+            dao.updateBasePriceFinanceType(id, current->getTenantId(), dto->financeTypeCode.getValue(""),
+                                           auditOperator, operationTime) <= 0)
+        {
+            throw DrugServiceException(DrugServiceError::InvalidInput);
+        }
+        if (dto->ybType &&
+            dao.updateBasePriceInsuranceType(id, current->getTenantId(), dto->ybType.getValue(""),
+                                             auditOperator, operationTime) <= 0)
+        {
+            throw DrugServiceException(DrugServiceError::InvalidInput);
+        }
+        if (dto->name &&
+            dao.updateBasePriceChargeName(id, current->getTenantId(), dto->name.getValue(""),
+                                          auditOperator, operationTime) <= 0)
+        {
+            throw DrugServiceException(DrugServiceError::InvalidInput);
+        }
+
         transaction.commit();
-        return true;
+        return makeMedicineVersionItem(id, current->getVersion() + 1);
     }
     catch (...)
     {
-        // 整批回滚并抛出原异常。
         const auto originalError = std::current_exception();
         try
         {
@@ -560,6 +281,207 @@ bool DrugService::enableDisableDrugs(const DrugEnableDisableDTO::Wrapper &dto)
         std::rethrow_exception(originalError);
     }
 }
+
+MedicineBatchResultDTO::Wrapper DrugService::updateMedicineStatusV2(
+    const MedicineStatusUpdateDTO::Wrapper &dto)
+{
+    if (!dto || dto->getPayload() == nullptr)
+    {
+        throw DrugServiceException(DrugServiceError::InvalidInput);
+    }
+    const PayloadDTO &payload = *dto->getPayload();
+    const std::string auditOperator = operatorId(payload);
+    const bool enable = dto->status == DrugConstants::STATUS_ACTIVE;
+    const std::string expectedStatus =
+        enable ? DrugConstants::STATUS_INACTIVE : DrugConstants::STATUS_ACTIVE;
+    const std::string targetStatus =
+        enable ? DrugConstants::STATUS_ACTIVE : DrugConstants::STATUS_INACTIVE;
+    auto result = MedicineBatchResultDTO::createEmpty();
+
+    // 每个药品使用独立事务，失败项不会回滚成功项。
+    for (const auto &item : *dto->items.get())
+    {
+        DrugDAO dao;
+        oatpp::Int32 currentVersion = nullptr;
+        int failureCode = MedicineV2BusinessCode::BUSINESS_VALIDATION_FAILED;
+        std::string failureMessage = ZH_WORDS_GETTER("drug.v2.message.businessFailed");
+        try
+        {
+            TransactionManager transaction(&dao);
+            const std::string id = item->id.getValue("");
+            const auto current = dao.selectById(id, true);
+            if (!current)
+            {
+                throw DrugServiceException(DrugServiceError::NotFound);
+            }
+            if (!dao.hasTenantAccess(payload.getId(), payload.getUsername(), current->getTenantId()))
+            {
+                throw DrugServiceException(DrugServiceError::CrossTenant);
+            }
+            currentVersion = current->getVersion();
+            if (item->version.getValue(-1) != current->getVersion())
+            {
+                failureCode = MedicineV2BusinessCode::VERSION_CONFLICT;
+                failureMessage = ZH_WORDS_GETTER("drug.v2.message.versionConflict");
+                throw DrugServiceException(DrugServiceError::ConcurrentModification);
+            }
+            if (current->getStatusEnum() != expectedStatus || current->getActiveFlag() == enable)
+            {
+                throw DrugServiceException(DrugServiceError::InvalidStatus);
+            }
+            const std::list<std::string> ids = {id};
+            if (enable)
+            {
+                const auto readiness = dao.selectEnableReadiness(ids, current->getTenantId());
+                if (!readiness || !readiness->satisfied)
+                {
+                    throw DrugServiceException(DrugServiceError::InvalidInput);
+                }
+            }
+
+            const std::string operationTime = SimpleDateTimeFormat::format();
+            if (dao.updateActiveStatusByVersion(id, current->getTenantId(), current->getVersion(), expectedStatus,
+                                                targetStatus, enable, auditOperator, operationTime) != 1)
+            {
+                failureCode = MedicineV2BusinessCode::VERSION_CONFLICT;
+                failureMessage = ZH_WORDS_GETTER("drug.v2.message.versionConflict");
+                throw DrugServiceException(DrugServiceError::ConcurrentModification);
+            }
+            transaction.commit();
+            result->successItems->push_back(makeMedicineVersionItem(id, current->getVersion() + 1));
+        }
+        catch (const DrugServiceException &error)
+        {
+            failureCode = medicineV2FailureCode(error.getError());
+            failureMessage = medicineV2FailureMessage(error.getError());
+            try
+            {
+                dao.getSqlSession()->rollbackTransaction();
+            }
+            catch (...)
+            {
+            }
+            dao.releaseSqlSession();
+            addMedicineV2Failure(result, item->id.getValue(""), failureCode, failureMessage,
+                                 currentVersion);
+        }
+        catch (...)
+        {
+            try
+            {
+                dao.getSqlSession()->rollbackTransaction();
+            }
+            catch (...)
+            {
+            }
+            dao.releaseSqlSession();
+            addMedicineV2Failure(result, item->id.getValue(""), MedicineV2BusinessCode::SERVER_ERROR,
+                                 ZH_WORDS_GETTER("drug.v2.message.serverError"), currentVersion);
+        }
+    }
+    return result;
+}
+
+MedicineBatchResultDTO::Wrapper DrugService::batchDeleteMedicinesV2(
+    const MedicineBatchDeleteDTO::Wrapper &dto)
+{
+    if (!dto || dto->getPayload() == nullptr)
+    {
+        throw DrugServiceException(DrugServiceError::InvalidInput);
+    }
+    const PayloadDTO &payload = *dto->getPayload();
+    const std::string auditOperator = operatorId(payload);
+    auto result = MedicineBatchResultDTO::createEmpty();
+
+    // 每个药品独立检查引用并提交软删除。
+    for (const auto &item : *dto->items.get())
+    {
+        DrugDAO dao;
+        oatpp::Int32 currentVersion = nullptr;
+        int failureCode = MedicineV2BusinessCode::BUSINESS_VALIDATION_FAILED;
+        std::string failureMessage = ZH_WORDS_GETTER("drug.v2.message.businessFailed");
+        try
+        {
+            TransactionManager transaction(&dao);
+            const std::string id = item->id.getValue("");
+            const auto current = dao.selectById(id, true);
+            if (!current)
+            {
+                throw DrugServiceException(DrugServiceError::NotFound);
+            }
+            if (!dao.hasTenantAccess(payload.getId(), payload.getUsername(), current->getTenantId()))
+            {
+                throw DrugServiceException(DrugServiceError::CrossTenant);
+            }
+            currentVersion = current->getVersion();
+            if (item->version.getValue(-1) != current->getVersion())
+            {
+                failureCode = MedicineV2BusinessCode::VERSION_CONFLICT;
+                failureMessage = ZH_WORDS_GETTER("drug.v2.message.versionConflict");
+                throw DrugServiceException(DrugServiceError::ConcurrentModification);
+            }
+            if (current->getStatusEnum() != DrugConstants::STATUS_INACTIVE || current->getActiveFlag())
+            {
+                throw DrugServiceException(DrugServiceError::InvalidStatus);
+            }
+
+            const std::list<std::string> ids = {id};
+            const auto referenceCheck = dao.selectReferenceCheck(ids);
+            if (!referenceCheck || referenceCheck->referenced)
+            {
+                throw DrugServiceException(referenceCheck ? DrugServiceError::Referenced
+                                                          : DrugServiceError::DatabaseFailure);
+            }
+
+            const std::string operationTime = SimpleDateTimeFormat::format();
+            dao.softDeleteAllPrices(ids, current->getTenantId(), auditOperator, operationTime);
+            const auto activePrices = dao.selectActivePricePresence(ids, current->getTenantId());
+            if (!activePrices || activePrices->satisfied)
+            {
+                throw DrugServiceException(DrugServiceError::DatabaseFailure);
+            }
+            if (dao.softDeleteDrugByVersion(id, current->getTenantId(), current->getVersion(), auditOperator,
+                                            operationTime) != 1)
+            {
+                failureCode = MedicineV2BusinessCode::VERSION_CONFLICT;
+                failureMessage = ZH_WORDS_GETTER("drug.v2.message.versionConflict");
+                throw DrugServiceException(DrugServiceError::ConcurrentModification);
+            }
+            transaction.commit();
+            result->successItems->push_back(makeMedicineVersionItem(id, current->getVersion() + 1));
+        }
+        catch (const DrugServiceException &error)
+        {
+            failureCode = medicineV2FailureCode(error.getError());
+            failureMessage = medicineV2FailureMessage(error.getError());
+            try
+            {
+                dao.getSqlSession()->rollbackTransaction();
+            }
+            catch (...)
+            {
+            }
+            dao.releaseSqlSession();
+            addMedicineV2Failure(result, item->id.getValue(""), failureCode, failureMessage,
+                                 currentVersion);
+        }
+        catch (...)
+        {
+            try
+            {
+                dao.getSqlSession()->rollbackTransaction();
+            }
+            catch (...)
+            {
+            }
+            dao.releaseSqlSession();
+            addMedicineV2Failure(result, item->id.getValue(""), MedicineV2BusinessCode::SERVER_ERROR,
+                                 ZH_WORDS_GETTER("drug.v2.message.serverError"), currentVersion);
+        }
+    }
+    return result;
+}
+
 DrugListPageDTO::Wrapper DrugService::listAll(const DrugQuery::Wrapper& query)
 {
     auto pages = DrugListPageDTO::createShared();
@@ -597,6 +519,38 @@ DrugListPageDTO::Wrapper DrugService::listAll(const DrugQuery::Wrapper& query)
     return pages;
 
 }
+DrugSelectPageDTO::Wrapper DrugService::SelectlistAll(const DrugSelectQuery::Wrapper& query)
+{
+    auto pages = DrugSelectPageDTO::createShared();
+    pages->pageIndex = query->pageIndex;
+    pages->pageSize = query->pageSize;
+
+    // 查询符合条件的药品总数。
+    DrugDAO dao;
+    uint64_t count = dao.count2(query);
+    if (count <= 0)
+    {
+        return pages;
+    }
+
+    // 分页查询并转换为列表 DTO。
+    pages->total = count;
+    pages->calcPages();
+    std::list<PtrMedMedicationDefinitionDO> result = dao.SElectWithPage(query);
+    for (const auto& sub : result)
+    {
+        if (!sub)
+        {
+            continue;
+        }
+        auto dto = DrugSelectDTO::createShared();
+        ZO_STAR_DOMAIN_DO_TO_DTO_1(dto, sub, code, Id, name, Name, danwei, StockUnitCode);
+        const std::string status = sub->getStatusEnum();
+        pages->addData(dto);
+    }
+    return pages;
+
+}
 DrugDetailDTO::Wrapper DrugService::getById(string id)
 {
     DrugDAO dao;
@@ -616,7 +570,12 @@ DrugDetailDTO::Wrapper DrugService::getById(string id)
                                guige, TotalVolume, danwei, DoseUnitCode, jixin, DoseFormCode,
                                yaopingyinma, PyStr, shangpingyinma, MerchandisePyStr,
                                shangwubima, MerchandiseWbStr, liujiuma, Drug69Code,
-                               yaopingstatus, StatusEnum, lingyu, DomainEnum);
+                               yaopingstatus, StatusEnum, lingyu, DomainEnum,yibaoduima,YbMatchFlag,xingzhi,Characteristic, beishu, DoseUnitRatio, pishipanbie, SkinTestFlag, zhusheyaopin, InjectFlag, yongliangxianding, UsageLimit, yongfa, MethodCode, pingci, RateCode, dancijiliang, Dose, dancizuida, ItemMaxQuantity, yongfashuoming, DosageInstruction, shiyongfanwei, RestrictedScope
+                          );
+    ZO_STAR_DOMAIN_DO_TO_DTO_1(dto, res, DDDzhi, DddCode, DDDdanwei, DddUnitCode, caigoudanwei, PurchaseUnitCode, caigoubeishu, PurchaseUnitRatio, menzhengshuxing, DefEncounterUnitCode, kucundanwei, StockUnitCode, kucunbeishu, StockUnitRatio, linshishuxing, DefInhospitalUnitCode, baozhuangbeishu, PackageUnitRatio, baozhuangdanwei, PackageUnitCode, chailingdanwei, SplitUnitCode, selfFlag, SelfFlag, antibioticFlag, AntibioticFlag, basicFlag, BasicFlag,
+        activeFlag, ActiveFlag, childrenFlag, ChildrenFlag,
+        restrictedFlag, RestrictedFlag, rxFlag, RxFlag);
+   
     return dto;
 
 }
@@ -634,7 +593,7 @@ string DrugService::saveData(const DrugAddDTO::Wrapper& dto)
 
     entity.setCreatedBy("");
     entity.setCreatedAt(SimpleDateTimeFormat::format());
-
+    
     // 樑扢蘇蚚
     entity.setActiveFlag(true);
 

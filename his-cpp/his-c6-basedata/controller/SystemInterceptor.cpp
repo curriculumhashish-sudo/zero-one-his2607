@@ -45,7 +45,7 @@ std::shared_ptr<oatpp::web::server::interceptor::RequestInterceptor::OutgoingRes
 	{
 		auto res = OutgoingResponse::createShared(Status::CODE_200, nullptr);
 		CROS_FIELD_SETTING(res)
-		return res;
+			return res;
 	}
 #endif
 	return nullptr;
@@ -56,7 +56,7 @@ std::shared_ptr<oatpp::web::server::interceptor::ResponseInterceptor::OutgoingRe
 #ifndef CLOSE_CROS_SUPPORT
 	CROS_FIELD_SETTING(response)
 #endif
-	return response;
+		return response;
 }
 
 std::shared_ptr<Response> createErrorRespone(std::string message, std::shared_ptr<oatpp::data::mapping::ObjectMapper> mapper) {
@@ -79,8 +79,8 @@ std::shared_ptr<oatpp::web::server::interceptor::RequestInterceptor::OutgoingRes
 	auto protocol = request->getStartingLine().protocol.toString().getValue("");
 	OATPP_LOGD("Interceptor", "%s:%s->%s", protocol.c_str(), method.c_str(), path.c_str());
 	// Swagger documentation and server requests are not intercepted
-	if (path.find("/swagger/") == 0 || 
-		path.find("/api-docs/") == 0 || 
+	if (path.find("/swagger/") == 0 ||
+		path.find("/api-docs/") == 0 ||
 		path.find("/system-kill/") == 0)
 	{
 		return nullptr;

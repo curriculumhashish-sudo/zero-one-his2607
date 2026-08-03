@@ -315,184 +315,6 @@ diagnose:
     western_medicine_diagnosis: "西医诊断"
     chinese_main_disease_diagnosis: "中医主病诊断"
     chinese_main_symptom_diagnosis: "中医主证诊断"
-
-medication:
-drug:
-    tag: 药品管理
-    modify:
-      summary: 修改药品
-    remove:
-      summary: 删除药品（支持批量）
-    enable-disable:
-      summary: 启/停用药品（支持批量）
-    body:
-      modify: 修改药品请求对象
-      remove: 删除药品请求对象
-      enableDisable: 药品启/停用请求对象，activeFlag为true时启用，为false时停用
-    query:
-      summary: 药品分页条件查询
-    add:
-      summary: 新增药品
-    query-one:
-      summary: 查看药品详情
-    select-query:
-      summary: 选择药品分页查询
-    example:
-      name: 阿莫西林胶囊
-      merchandiseName: 阿莫仙
-      purchaseUnitText: 盒
-      comprisedText: 一次性注射器
-      ingredient: 阿莫西林
-      doseFormText: 胶囊
-      approvalNumber: 国药准字H20060575
-      manufacturerText: 广州白云山医药集团股份有限公司
-      antibioticText: 青霉素类
-      typeText: 西药
-      doseUnitText: 克
-      ingredientItem: 阿莫西林
-      definition: 阿莫西林胶囊，用于敏感菌所致的呼吸道感染等
-      dosageInstruction: 饭后服用，每次1粒，每日3次
-      restrictedScope: 仅限呼吸内科使用
-      statusEnabled: 启用
-      locationText: 门诊药房
-      supplierText: 国药控股广州有限公司
-    field:
-      ids: 药品编号数组，单条操作传一个编号，批量操作传多个编号
-      authorization: 文档自测模式使用非空 Bearer 测试值，非文档模式使用项目真实鉴权
-      pageNo: 页码
-      pageSize: 每页数量
-      keyword: 名称、业务编码或拼音关键字
-      startDate: 查询开始时间
-      endDate: 查询结束时间
-      sortBy: 排序字段
-      sortDirection: 排序方向
-      where: 关键字匹配字段列表
-      id: 药品编号
-      drugDefId: 药品定义编号
-      tenantId: 租户编号
-      orgId: 机构编号
-      busNo: 药品业务编码
-      name: 药品名称
-      domainEnum: 适用范围枚举
-      medVersion: 药品业务版本
-      nameEn: 药品英文名称
-      pyStr: 药品名称拼音码
-      wbStr: 药品名称五笔码
-      categoryCode: 药品分类编码
-      merchandiseName: 商品名称
-      merchandisePyStr: 商品名称拼音码
-      merchandiseWbStr: 商品名称五笔码
-      purchaseUnitCode: 采购单位编码
-      splitUnitCode: 拆零单位编码
-      comprisedText: 组成说明
-      ingredient: 主要成分
-      doseFrom: 剂量形式编码
-      approvalNumber: 批准文号
-      ybMatchFlag: 是否医保匹配
-      ybNo: 医保编码
-      pharmacologyCategoryCode: 药理分类编码
-      skinTestFlag: 是否需要皮试
-      injectFlag: 是否注射药
-      manufacturerId: 生产厂家编号
-      manufacturerText: 生产厂家名称
-      supplyId: 供应商编号
-      restrictedFlag: 是否限制使用
-      restrictedScope: 限制范围
-      activeFlag: 是否启用，true表示启用，false表示停用
-      childrenFlag: 是否儿童用药
-      characteristic: 药品特征
-      itemMinQuantity: 库存下限
-      itemMaxQuantity: 库存上限
-      defEncounterUnitCode: 门诊默认单位编码
-      defInhospitalUnitCode: 住院默认单位编码
-      nationalDrugCode: 国家药品编码
-      partAttributeEnum: 拆分属性枚举
-      antibioticCode: 抗菌药物编码
-      restrictedEnum: 限制等级枚举
-      selfFlag: 是否为自制药品
-      antibioticFlag: 是否抗菌药
-      basicFlag: 是否基本药物
-      thoPartAttributeEnum: 住院临时医嘱拆分属性
-      chrgitmLv: 医保等级
-      typeCode: 财务类型编码
-      typeCodeText: 财务类型名称
-      ybType: 医保类别编码
-      rxFlag: 是否处方药
-      dosageInstruction: 用法说明
-      drug69Code: 药品69码
-      totalVolume: 药品规格
-      doseFormCode: 剂型编码
-      doseUnitCode: 剂量单位编码
-      packageUnitCode: 包装单位编码
-      stockUnitCode: 库存单位编码
-      methodCode: 给药途径编码
-      rateCode: 给药频次编码
-      dose: 默认剂量
-      maxUnit: 单次最大用药剂量
-      usageLimit: 单次最大用量限定
-      locationId: 药品位置编号
-      ingredientItem: 成分项目
-      definition: 药品定义说明
-      dddCode: 限定日剂量编码
-      dddUnitCode: 限定日剂量单位
-      minRateCode: 最小给药频次
-      maxRateCode: 最大给药频次
-      doseUnitRatio: 剂量单位换算比
-      purchaseUnitRatio: 采购单位换算比
-      stockUnitRatio: 库存单位换算比
-      packageUnitRatio: 包装单位换算比
-      purchasePrice: 采购价格
-      retailPrice: 零售价格
-      maximumRetailPrice: 最高零售价格
-      statusEnum: 药品状态枚举
-      statusEnumText: 药品状态名称
-      statusText: 药品状态文本
-      activeFlagText: 启停状态名称
-      specification: 列表展示规格
-      categoryCodeText: 药品分类名称
-      doseFromText: 剂量形式名称
-      doseUnitCodeText: 剂量单位名称
-      purchaseUnitCodeText: 采购单位名称
-      packageUnitCodeText: 包装单位名称
-      locationIdText: 药品位置名称
-      supplyIdText: 供应商名称
-      antibioticCodeText: 抗菌药物名称
-      potencyFlag: 是否效价药品
-      unitBandsJson: 药品单位带JSON文本
-      unitBands: 药品采购、拆零、包装、库存和剂量单位带
-      bandKind: 单位带类型
-      unitCode: 单位编码
-      unitName: 单位名称
-      ratioToSplit: 相对拆零单位换算比
-      unitPrice: 单位价格
-      isDeleted: 是否删除
-      version: 乐观锁版本
-      createdAt: 创建时间
-      updatedAt: 更新时间
-      createdBy: 创建人
-      updatedBy: 更新人
-      totalElements: 前端契约总记录数
-      totalCount: 参考系统实际总记录数
-      totalPages: 总页数
-      content: 当前页药品列表
-      optionValue: 初始化选项值
-      optionLabel: 初始化选项名称
-      optionSort: 初始化选项排序号
-      optionBusNo: 初始化选项业务编码
-      total: 总记录数
-      pages: 总页数
-      rows: 当前页药品列表
-      keywords: 检索关键词
-      status-enum: 状态枚举值
-      status-enum-text: 状态名称
-
-    status-text:
-      draft: 草稿
-      active: 已启用
-      inactive: 已停用
-      discarded: 已废弃
-      unknown: 未知状态
-
 ﻿diagnose:
  tags:
   t1: 诊断管理
@@ -605,3 +427,193 @@ drug:
  flag:
    yes: "是"
    no: "否"
+
+drug:
+  tags:
+    tag: 药品管理
+    tag2: 药品声明式服务
+  v2:
+    update:
+      summary: 修改药品
+    status:
+      summary: 启/停用药品（支持批量）
+    batchDelete:
+      summary: 删除药品（支持批量）
+    message:
+      success: 操作成功
+      paramInvalid: 请求参数格式或必填字段错误
+      unauthorized: 凭证缺失、失效或格式错误
+      partialSuccess: 批量操作部分成功
+      versionConflict: 版本冲突，请刷新后重试
+      businessFailed: 业务校验失败
+      forbidden: 当前用户无权操作该药品
+      notFound: 药品不存在或已删除
+      invalidStatus: 药品当前状态不允许执行该操作
+      referenced: 药品已被业务数据引用，不能删除
+      serverError: 药品数据操作失败
+  query:
+    summary: 药品分页条件查询
+  add:
+    summary: 新增药品
+  query-one:
+    summary: 查看药品详情
+  select-query:
+    summary: 选择药品分页查询
+  example:
+    name: 阿莫西林胶囊
+    merchandiseName: 阿莫仙
+    purchaseUnitText: 盒
+    comprisedText: 一次性注射器
+    ingredient: 阿莫西林
+    doseFormText: 胶囊
+    approvalNumber: 国药准字H20060575
+    manufacturerText: 广州白云山医药集团股份有限公司
+    antibioticText: 青霉素类
+    typeText: 西药
+    doseUnitText: 克
+    ingredientItem: 阿莫西林
+    definition: 阿莫西林胶囊，用于敏感菌所致的呼吸道感染等
+    dosageInstruction: 饭后服用，每次1粒，每日3次
+    restrictedScope: 仅限呼吸内科使用
+    statusEnabled: 已启用
+    statusDisabled: 已停用
+    locationText: 门诊药房
+    supplierText: 国药控股广州有限公司
+  status:
+    enabled: 已启用
+    disabled: 已停用
+  error:
+    invalidInput: 请求参数不完整或不符合药品业务规则
+    notFound: 未找到待操作的药品，或药品已被删除
+    invalidStatus: 药品当前状态不允许执行该操作
+    referenced: 药品已被医嘱、发药、库存或医嘱模板引用，不能删除
+    crossTenant: 当前用户无权访问药品所属租户，或批量药品跨租户
+    concurrentModification: 药品数据已发生变化，请刷新后重试
+    databaseFailure: 药品数据操作失败，请稍后重试
+  field:
+    items: 药品编号和乐观锁版本列表
+    ids: 药品编号数组，单条操作传一个编号，批量操作传多个编号
+    authorization: 文档自测模式使用非空 Bearer 测试值，非文档模式使用项目真实鉴权
+    pageNo: 页码
+    pageSize: 每页数量
+    keyword: 名称、业务编码或拼音关键字
+    startDate: 查询开始时间
+    endDate: 查询结束时间
+    sortBy: 排序字段
+    sortDirection: 排序方向
+    where: 关键字匹配字段列表
+    id: 药品编号
+    drugDefId: 药品定义编号
+    tenantId: 租户编号
+    orgId: 机构编号
+    busNo: 药品业务编码
+    name: 通用名称
+    domainEnum: 适用范围枚举
+    medVersion: 药品业务版本
+    nameEn: 药品英文名称
+    pyStr: 药品名称拼音码
+    wbStr: 药品名称五笔码
+    categoryCode: 药品分类编码
+    merchandiseName: 商品名称
+    merchandisePyStr: 商品名称拼音码
+    merchandiseWbStr: 商品名称五笔码
+    purchaseUnitCode: 采购单位编码
+    splitUnitCode: 拆零单位编码
+    comprisedText: 组成说明
+    ingredient: 主要成分
+    doseFrom: 剂量形式编码
+    approvalNumber: 批准文号
+    ybMatchFlag: 是否医保匹配
+    ybNo: 医保编码
+    pharmacologyCategoryCode: 药品性质
+    skinTestFlag: 是否需要皮试
+    injectFlag: 是否注射药
+    manufacturerId: 生产厂家编号
+    manufacturerText: 生产厂家名称
+    supplyId: 供应商编号
+    restrictedFlag: 是否限制使用
+    restrictedScope: 限制范围
+    activeFlag: 是否启用，true表示启用，false表示停用
+    childrenFlag: 是否儿童用药
+    characteristic: 药品特征
+    itemMinQuantity: 库存下限
+    itemMaxQuantity: 库存上限
+    defEncounterUnitCode: 门诊默认单位编码
+    defInhospitalUnitCode: 住院默认单位编码
+    nationalDrugCode: 国家药品编码
+    partAttributeEnum: 门诊拆分属性
+    antibioticCode: 抗菌药物编码
+    restrictedEnum: 限制等级枚举
+    selfFlag: 是否为自制药品
+    antibioticFlag: 是否抗菌药
+    basicFlag: 是否基本药物
+    thoPartAttributeEnum: 住院临时医嘱拆分属性
+    chrgitmLv: 医保等级
+    typeCode: 财务类型
+    typeCodeText: 财务类型名称
+    ybType: 医保类别编码
+    rxFlag: 是否处方药
+    dosageInstruction: 用法说明
+    drug69Code: 药品69码
+    totalVolume: 规格
+    doseFormCode: 剂型编码
+    doseUnitCode: 剂量单位编码
+    packageUnitCode: 包装单位编码
+    stockUnitCode: 库存单位编码
+    methodCode: 给药途径编码
+    rateCode: 给药频次编码
+    dose: 默认剂量
+    maxUnit: 单次最大用药剂量
+    usageLimit: 单次最大用量限定
+    locationId: 药品位置编号
+    ingredientItem: 成分项目
+    definition: 药品定义说明
+    dddCode: 限定日剂量编码
+    dddUnitCode: 限定日剂量单位
+    minRateCode: 最小给药频次
+    maxRateCode: 最大给药频次
+    doseUnitRatio: 剂量单位换算比
+    purchaseUnitRatio: 采购单位换算比
+    stockUnitRatio: 库存单位换算比
+    packageUnitRatio: 包装单位换算比
+    purchasePrice: 采购价格
+    retailPrice: 零售价格
+    maximumRetailPrice: 最高零售价格
+    statusEnum: 药品状态枚举
+    statusEnumText: 药品状态名称
+    statusText: 药品状态文本
+    activeFlagText: 启停状态名称
+    specification: 列表展示规格
+    categoryCodeText: 药品分类名称
+    doseFromText: 剂量形式名称
+    doseUnitCodeText: 剂量单位名称
+    purchaseUnitCodeText: 采购单位名称
+    packageUnitCodeText: 包装单位名称
+    locationIdText: 药品位置名称
+    supplyIdText: 供应商名称
+    antibioticCodeText: 抗菌药物名称
+    potencyFlag: 是否效价药品
+    unitBandsJson: 药品单位带JSON文本
+    unitBands: 药品采购、拆零、包装、库存和剂量单位带
+    bandKind: 单位带类型
+    unitCode: 单位编码
+    unitName: 单位名称
+    ratioToSplit: 相对拆零单位换算比
+    unitPrice: 单位价格
+    isDeleted: 是否删除
+    version: 乐观锁版本
+    createdAt: 创建时间
+    updatedAt: 更新时间
+    createdBy: 创建人
+    updatedBy: 更新人
+    totalElements: 前端契约总记录数
+    totalCount: 参考系统实际总记录数
+    totalPages: 总页数
+    content: 当前页药品列表
+    optionValue: 初始化选项值
+    optionLabel: 初始化选项名称
+    optionSort: 初始化选项排序号
+    optionBusNo: 初始化选项业务编码
+    total: 总记录数
+    pages: 总页数
+    rows: 当前页药品列表

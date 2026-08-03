@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -25,6 +25,8 @@
 #include "../../domain/do/adm/AdmChargeItemDefinitionDO.h"
 #include "DrugMapper.h"
 #include "domain/query/Drug/DrugQuery.h"
+#include "domain/query/Drug/DrugSelectQuery.h"
+
 /**
  * Persistence operations for the drug aggregate and its base prices.
  */
@@ -35,6 +37,7 @@ class DrugDAO : public BaseDAO
     static std::string placeholders(size_t count);
     static void appendIds(SqlParams &params, const std::list<std::string> &ids);
     std::string queryConditionBuilder(const DrugQuery::Wrapper &query, SqlParams &params);
+    std::string querySelectConditionBuilder(const DrugSelectQuery::Wrapper& query, SqlParams& params);
 
   public:
     void releaseSqlSession() noexcept;
@@ -45,12 +48,27 @@ class DrugDAO : public BaseDAO
     std::list<PtrMedMedicationDefinitionDO> selectStatesForUpdate(const std::list<std::string> &ids);
     int updateEditableByVersion(const MedMedicationDefinitionDO &data, const std::string &tenantId,
                                 int expectedVersion);
+    int updateBasePriceValue(const std::string &drugId, const std::string &tenantId,
+                             const std::string &priceType, double priceValue,
+                             const std::string &operatorId, const std::string &operationTime);
+    int updateBasePriceFinanceType(const std::string &drugId, const std::string &tenantId,
+                                   const std::string &financeTypeCode,
+                                   const std::string &operatorId, const std::string &operationTime);
+    int updateBasePriceInsuranceType(const std::string &drugId, const std::string &tenantId,
+                                     const std::string &insuranceType,
+                                     const std::string &operatorId, const std::string &operationTime);
+    int updateBasePriceChargeName(const std::string &drugId, const std::string &tenantId,
+                                  const std::string &chargeName,
+                                  const std::string &operatorId, const std::string &operationTime);
 
     int softDeleteBasePrices(const std::string &drugId, const std::string &tenantId, const std::string &operatorId,
                              const std::string &operationTime);
     int insertBasePrice(const AdmChargeItemDefinitionDO &price);
     std::list<PtrAdmChargeItemDefinitionDO> selectBasePrices(const std::string &drugId,
                                                              const std::string &tenantId);
+    PtrDrugModifyTextResult selectModifyResultTexts(const std::string &drugId,
+                                                    const std::string &tenantId,
+                                                    const std::string &typeCode);
 
     PtrDrugReferenceCheck selectReferenceCheck(const std::list<std::string> &ids);
     PtrDrugConditionCheck selectEnableReadiness(const std::list<std::string> &ids, const std::string &tenantId);
@@ -61,12 +79,21 @@ class DrugDAO : public BaseDAO
     int softDeleteDrugs(const std::list<std::string> &ids, const std::string &tenantId,
                         const std::string &operatorId,
                         const std::string &operationTime);
+    int softDeleteDrugByVersion(const std::string &id, const std::string &tenantId,
+                                int expectedVersion, const std::string &operatorId,
+                                const std::string &operationTime);
     int updateActiveStatus(const std::list<std::string> &ids, const std::string &tenantId,
                            const std::string &expectedStatus,
                            const std::string &targetStatus, bool activeFlag, const std::string &operatorId,
                            const std::string &operationTime);
+    int updateActiveStatusByVersion(const std::string &id, const std::string &tenantId,
+                                    int expectedVersion, const std::string &expectedStatus,
+                                    const std::string &targetStatus, bool activeFlag,
+                                    const std::string &operatorId, const std::string &operationTime);
     uint64_t count(const DrugQuery::Wrapper &query);
+    uint64_t count2(const DrugSelectQuery::Wrapper &query);
     std::list<PtrMedMedicationDefinitionDO> selectWithPage(const DrugQuery::Wrapper &query);
+    std::list<PtrMedMedicationDefinitionDO> SElectWithPage(const DrugSelectQuery::Wrapper& query);
     int insert(const MedMedicationDefinitionDO &entity);
 };
 

@@ -23,19 +23,19 @@ public:
 			return "gongyingshang invalidate.";
 		if (!caiwuleixin || caiwuleixin->empty())
 			return "caiwuleixin invalidate.";
-		if (!xingzhi || xingzhi->empty())
+		if (!xingzhi || xingzhi==NULL)
 			return "xingzhi invalidate.";
 		if (!guige || guige->empty())
 			return "guige invalidate.";
 		if (!danwei || danwei->empty())
 			return "danwei invalidate.";
-		if (!beishu || beishu->empty())
+		if (!beishu || beishu==NULL)
 			return "beishu invalidate.";
 		if (!jixin || jixin->empty())
 			return "jixin invalidate.";
 		if (!caigoudanwei || caigoudanwei->empty())
 			return " caigoudanwei invalidate.";
-		if (!caigoubeishu || caigoubeishu->empty())
+		if (!caigoubeishu || caigoubeishu==NULL)
 			return " caigoubeishu invalidate.";
 		if (!gourujia || gourujia->empty())
 			return "gourujia invalidate.";
@@ -43,7 +43,7 @@ public:
 			return "menzhengshuxing invalidate.";
 		if (!kucundanwei || kucundanwei->empty())
 			return "kucundanwei, invalidate.";
-		if (!kucunbeishu || kucunbeishu->empty())
+		if (!kucunbeishu || kucunbeishu==NULL)
 			return " kucunbeishu invalidate.";
 		if (!linghsoujia || linghsoujia->empty())
 			return "linghsoujia invalidate.";
@@ -51,19 +51,14 @@ public:
 			return "linshishuxing invalidate.";
 		if (!baozhuangdanwei || baozhuangdanwei->empty())
 			return "baozhuangdanwei invalidate.";
-		if (!baozhuangbeishu || baozhuangbeishu->empty())
-			return "baozhuangbeishu invalidate.";
-		if (!baozhuangbeishu || baozhuangbeishu->empty())
+		if (!baozhuangbeishu || baozhuangbeishu==NULL)
 			return "baozhuangbeishu invalidate.";
 		if (!chailingdanwei || chailingdanwei->empty())
 			return "chailingdanwei invalidate.";
 		return "";
 
 	};
-	std::string setPayload()
-	{
-		return "";
-	}
+
 };
 
 #include OATPP_CODEGEN_END(DTO);

@@ -22,14 +22,13 @@
 #include "stdafx.h"
 #include "id/UuidFacade.h"
 #include "SimpleDateTimeFormat.h"
-#include "domain/dto/drug/DrugEnableDisableDTO.h"
-#include "domain/dto/drug/DrugModifyDTO.h"
-#include "domain/dto/drug/DrugModifyResultDTO.h"
-#include "domain/dto/drug/DrugRemoveDTO.h"
+#include "domain/dto/drug/MedicineV2DTO.h"
 #include "domain/query/Drug/DrugQuery.h"
 #include "domain/dto/drug/DrugDetailDTO.h"
 #include "domain/dto/drug/DrugListDTO.h"
 #include "domain/dto/drug/DrugAddDTO.h"
+#include "domain/dto/drug/DrugSelectDTO.h"
+#include  "domain/query/Drug/DrugSelectQuery.h"
 #include <stdexcept>
 
 enum class DrugServiceError
@@ -57,12 +56,14 @@ class DrugServiceException : public std::runtime_error
 class DrugService
 {
   public:
-    DrugModifyResultDTO::Wrapper updateDrug(const DrugModifyDTO::Wrapper &dto);
-    bool removeDrugs(const DrugRemoveDTO::Wrapper &dto);
-    bool enableDisableDrugs(const DrugEnableDisableDTO::Wrapper &dto);
+    MedicineVersionItemDTO::Wrapper updateMedicineV2(const std::string &id,
+                                                      const MedicineUpdateDTO::Wrapper &dto);
+    MedicineBatchResultDTO::Wrapper updateMedicineStatusV2(const MedicineStatusUpdateDTO::Wrapper &dto);
+    MedicineBatchResultDTO::Wrapper batchDeleteMedicinesV2(const MedicineBatchDeleteDTO::Wrapper &dto);
     DrugListPageDTO::Wrapper listAll(const DrugQuery::Wrapper& query);
     DrugDetailDTO::Wrapper getById(string id);
     string saveData(const DrugAddDTO::Wrapper& dto);
+    DrugSelectPageDTO::Wrapper SelectlistAll(const DrugSelectQuery::Wrapper& query);
 };
 
 #endif // !_DRUG_SERVICE_H_

@@ -20,7 +20,11 @@
 #include "DrugController.h"
 #include "../../service/drug/DrugService.h"
 #include "../ApiDeclarativeServicesHelper.h"
+#include <algorithm>
+#include <cctype>
+#include <cstdlib>
 #include <exception>
+#include <sstream>
 
 DrugListPageJsonVO::Wrapper DrugController::execQueryDrug(const DrugQuery::Wrapper &query)
 {
@@ -31,8 +35,10 @@ DrugListPageJsonVO::Wrapper DrugController::execQueryDrug(const DrugQuery::Wrapp
 
 DrugSelectPageJsonVO::Wrapper DrugController::execQuerySelectDrug(const DrugSelectQuery::Wrapper &query)
 {
-    (void)query;
-    return {};
+    auto jvo = DrugSelectPageJsonVO::createShared();
+    jvo->success(DrugService().SelectlistAll(query));
+    return jvo;
+    
 }
 
 StringJsonVO::Wrapper DrugController::execAddDrug(const DrugAddDTO::Wrapper &dto, const PayloadDTO &payload)
@@ -70,168 +76,316 @@ DrugDetailJsonVO::Wrapper DrugController::execQueryById(const String &id)
     return jvo;
 }
 
-static ResultStatus mapDrugServiceError(DrugServiceError error)
+static ResultStatus medicineV2Status(int code)
+{
+    switch (code)
+    {
+    case MedicineV2BusinessCode::PARAM_INVALID:
+        return ResultStatus(ZH_WORDS_GETTER("drug.v2.message.paramInvalid"), code);
+    case MedicineV2BusinessCode::UNAUTHORIZED:
+        return ResultStatus(ZH_WORDS_GETTER("drug.v2.message.unauthorized"), code);
+    case MedicineV2BusinessCode::FORBIDDEN:
+        return ResultStatus(ZH_WORDS_GETTER("drug.v2.message.forbidden"), code);
+    case MedicineV2BusinessCode::NOT_FOUND:
+        return ResultStatus(ZH_WORDS_GETTER("drug.v2.message.notFound"), code);
+    case MedicineV2BusinessCode::PARTIAL_SUCCESS:
+        return ResultStatus(ZH_WORDS_GETTER("drug.v2.message.partialSuccess"), code);
+    case MedicineV2BusinessCode::VERSION_CONFLICT:
+        return ResultStatus(ZH_WORDS_GETTER("drug.v2.message.versionConflict"), code);
+    case MedicineV2BusinessCode::BUSINESS_VALIDATION_FAILED:
+        return ResultStatus(ZH_WORDS_GETTER("drug.v2.message.businessFailed"), code);
+    case MedicineV2BusinessCode::SERVER_ERROR:
+        return ResultStatus(ZH_WORDS_GETTER("drug.v2.message.serverError"), code);
+    case MedicineV2BusinessCode::SUCCESS:
+    default:
+        return ResultStatus(ZH_WORDS_GETTER("drug.v2.message.success"),
+                            MedicineV2BusinessCode::SUCCESS);
+    }
+}
+
+static int medicineV2ServiceCode(DrugServiceError error)
 {
     switch (error)
     {
-    case DrugServiceError::InvalidInput:
-        return ResultStatus(ZH_WORDS_GETTER("drug.error.invalidInput"), RS_PARAMS_INVALID.getCode());
     case DrugServiceError::NotFound:
-        return ResultStatus(ZH_WORDS_GETTER("drug.error.notFound"), RS_FAIL.getCode());
-    case DrugServiceError::InvalidStatus:
-        return ResultStatus(ZH_WORDS_GETTER("drug.error.invalidStatus"), RS_FAIL.getCode());
-    case DrugServiceError::Referenced:
-        return ResultStatus(ZH_WORDS_GETTER("drug.error.referenced"), RS_FAIL.getCode());
+        return MedicineV2BusinessCode::NOT_FOUND;
     case DrugServiceError::CrossTenant:
-        return ResultStatus(ZH_WORDS_GETTER("drug.error.crossTenant"), RS_FORBIDDEN.getCode());
+        return MedicineV2BusinessCode::FORBIDDEN;
     case DrugServiceError::ConcurrentModification:
-        return ResultStatus(ZH_WORDS_GETTER("drug.error.concurrentModification"), RS_FAIL.getCode());
+        return MedicineV2BusinessCode::VERSION_CONFLICT;
     case DrugServiceError::DatabaseFailure:
+        return MedicineV2BusinessCode::SERVER_ERROR;
+    case DrugServiceError::InvalidInput:
+    case DrugServiceError::InvalidStatus:
+    case DrugServiceError::Referenced:
     default:
-        return ResultStatus(ZH_WORDS_GETTER("drug.error.databaseFailure"), RS_SERVER_ERROR.getCode());
+        return MedicineV2BusinessCode::BUSINESS_VALIDATION_FAILED;
     }
 }
 
-DrugModifyJsonVO::Wrapper DrugController::execModifyDrug(const DrugModifyDTO::Wrapper &dto,
-                                                          const PayloadDTO &payload)
+static bool isValidMedicineV2Id(const String &id)
 {
-    // 创建响应对象。
-    auto jvo = DrugModifyJsonVO::createShared();
-
-    // 校验主键。
-    if (!dto || !dto->id)
+    if (!id)
     {
-        jvo->init(nullptr, RS_PARAMS_INVALID);
-        return jvo;
+        return false;
+    }
+    const std::string value = id.getValue("");
+    return !value.empty() && value.size() <= 64 &&
+           std::all_of(value.cbegin(), value.cend(), [](unsigned char character)
+                       { return std::isalnum(character) != 0 || character == '-' || character == '_'; });
+}
+
+static int medicineV2BatchCode(const MedicineBatchResultDTO::Wrapper &result)
+{
+    if (!result || !result->failedItems || result->failedItems->empty())
+    {
+        return MedicineV2BusinessCode::SUCCESS;
+    }
+    if (result->successItems && !result->successItems->empty())
+    {
+        return MedicineV2BusinessCode::PARTIAL_SUCCESS;
+    }
+    const auto allFailuresAre = [&](int code)
+    {
+        return std::all_of(result->failedItems->begin(), result->failedItems->end(),
+                           [code](const MedicineFailedItemDTO::Wrapper &item)
+                           { return item && item->code.getValue(0) == code; });
+    };
+    if (allFailuresAre(MedicineV2BusinessCode::SERVER_ERROR))
+    {
+        return MedicineV2BusinessCode::SERVER_ERROR;
+    }
+    if (allFailuresAre(MedicineV2BusinessCode::NOT_FOUND))
+    {
+        return MedicineV2BusinessCode::NOT_FOUND;
+    }
+    if (allFailuresAre(MedicineV2BusinessCode::FORBIDDEN))
+    {
+        return MedicineV2BusinessCode::FORBIDDEN;
+    }
+    if (allFailuresAre(MedicineV2BusinessCode::VERSION_CONFLICT))
+    {
+        return MedicineV2BusinessCode::VERSION_CONFLICT;
+    }
+    return MedicineV2BusinessCode::BUSINESS_VALIDATION_FAILED;
+}
+
+static bool hasConfiguredMedicineV2Authority(const std::list<std::string> &authorities,
+                                              const char *configurationName)
+{
+    // 管理员或现有药品菜单权限可执行；部署环境可追加更细粒度的操作权限。
+    if (std::find(authorities.cbegin(), authorities.cend(), "SUPER_ADMIN") != authorities.cend() ||
+        std::find(authorities.cbegin(), authorities.cend(), "Navigation.Medicine") != authorities.cend())
+    {
+        return true;
     }
 
-    // 校验修改表单。
-    const std::string validationError = dto->validate();
-    if (!validationError.empty())
+    if (configurationName == nullptr)
     {
-        jvo->init(nullptr, RS_PARAMS_INVALID);
-        return jvo;
+        return false;
+    }
+    const char *configuredValue = std::getenv(configurationName);
+    if (configuredValue == nullptr || *configuredValue == '\0')
+    {
+        return false;
     }
 
-    // 执行修改。
+    std::string configured(configuredValue);
+    std::replace(configured.begin(), configured.end(), ';', ',');
+    std::istringstream values(configured);
+    std::string requiredAuthority;
+    while (std::getline(values, requiredAuthority, ','))
+    {
+        const auto first = requiredAuthority.find_first_not_of(" \t\r\n");
+        const auto last = requiredAuthority.find_last_not_of(" \t\r\n");
+        if (first == std::string::npos)
+        {
+            continue;
+        }
+        requiredAuthority = requiredAuthority.substr(first, last - first + 1);
+        if (std::find(authorities.cbegin(), authorities.cend(), requiredAuthority) != authorities.cend())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+std::shared_ptr<CustomerAuthorizeObject> DrugController::authenticateMedicineV2(
+    const String &authorization)
+{
+    // 局部捕获认证异常，避免落入会改写状态码的全局错误处理器。
+    if (!authorization || !getDefaultAuthorizationHandler())
+    {
+        return nullptr;
+    }
+    try
+    {
+        const auto authorized = getDefaultAuthorizationHandler()->handleAuthorization(authorization);
+        return std::dynamic_pointer_cast<CustomerAuthorizeObject>(authorized);
+    }
+    catch (...)
+    {
+        return nullptr;
+    }
+}
+
+bool DrugController::hasMedicineV2Authority(const PayloadDTO &payload, MedicineV2Operation operation)
+{
+    const char *configurationName = nullptr;
+    switch (operation)
+    {
+    case MedicineV2Operation::Modify:
+        configurationName = "DRUG_V2_MODIFY_AUTHORITIES";
+        break;
+    case MedicineV2Operation::Status:
+        configurationName = "DRUG_V2_STATUS_AUTHORITIES";
+        break;
+    case MedicineV2Operation::Delete:
+        configurationName = "DRUG_V2_DELETE_AUTHORITIES";
+        break;
+    }
+    return hasConfiguredMedicineV2Authority(payload.getAuthorities(), configurationName);
+}
+
+std::shared_ptr<DrugController::OutgoingResponse> DrugController::medicineV2VersionErrorResponse(int code)
+{
+    auto body = MedicineVersionJsonVO::createShared();
+    body->init(MedicineVersionItemDTO::createShared(), medicineV2Status(code));
+    auto response = createDtoResponse(medicineV2HttpStatus(code), body);
+    if (code == MedicineV2BusinessCode::UNAUTHORIZED)
+    {
+        response->putHeader(Header::WWW_AUTHENTICATE, "Bearer realm=\"API\"");
+    }
+    return response;
+}
+
+std::shared_ptr<DrugController::OutgoingResponse> DrugController::medicineV2BatchErrorResponse(int code)
+{
+    auto body = MedicineBatchJsonVO::createShared();
+    body->init(MedicineBatchResultDTO::createEmpty(), medicineV2Status(code));
+    auto response = createDtoResponse(medicineV2HttpStatus(code), body);
+    if (code == MedicineV2BusinessCode::UNAUTHORIZED)
+    {
+        response->putHeader(Header::WWW_AUTHENTICATE, "Bearer realm=\"API\"");
+    }
+    return response;
+}
+
+MedicineVersionJsonVO::Wrapper DrugController::execUpdateMedicineV2(
+    const String &id, const MedicineUpdateDTO::Wrapper &dto, const PayloadDTO &payload)
+{
+    auto jvo = MedicineVersionJsonVO::createShared();
+    if (!isValidMedicineV2Id(id) || !dto || !dto->validate().empty())
+    {
+        jvo->init(MedicineVersionItemDTO::createShared(),
+                  medicineV2Status(MedicineV2BusinessCode::PARAM_INVALID));
+        return jvo;
+    }
     try
     {
         dto->setPayload(&payload);
-        auto result = DrugService().updateDrug(dto);
-        if (result)
-        {
-            jvo->success(result);
-        }
-        else
-        {
-            jvo->fail(nullptr);
-        }
+        jvo->init(DrugService().updateMedicineV2(id.getValue(""), dto),
+                  medicineV2Status(MedicineV2BusinessCode::SUCCESS));
     }
     catch (const DrugServiceException &error)
     {
-        jvo->init(nullptr, mapDrugServiceError(error.getError()));
+        jvo->init(MedicineVersionItemDTO::createShared(),
+                  medicineV2Status(medicineV2ServiceCode(error.getError())));
     }
     catch (const std::exception &)
     {
-        jvo->init(nullptr, RS_SERVER_ERROR);
+        jvo->init(MedicineVersionItemDTO::createShared(),
+                  medicineV2Status(MedicineV2BusinessCode::SERVER_ERROR));
     }
-
-    // 返回统一响应。
     return jvo;
 }
 
-NoDataJsonVO::Wrapper DrugController::execRemoveDrug(const DrugRemoveDTO::Wrapper &dto,
-                                                      const PayloadDTO &payload)
+MedicineBatchJsonVO::Wrapper DrugController::execUpdateMedicineStatusV2(
+    const MedicineStatusUpdateDTO::Wrapper &dto, const PayloadDTO &payload)
 {
-    // 创建响应对象。
-    auto jvo = NoDataJsonVO::createShared();
-
-    // 校验删除批次。
-    if (!dto)
+    auto jvo = MedicineBatchJsonVO::createShared();
+    if (!dto || !dto->validate().empty())
     {
-        jvo->init(RS_PARAMS_INVALID);
+        jvo->init(MedicineBatchResultDTO::createEmpty(),
+                  medicineV2Status(MedicineV2BusinessCode::PARAM_INVALID));
         return jvo;
     }
-    const std::string validationError = dto->validate();
-    if (!validationError.empty())
-    {
-        jvo->init(RS_PARAMS_INVALID);
-        return jvo;
-    }
-
-    // 执行批量删除。
     try
     {
         dto->setPayload(&payload);
-        if (DrugService().removeDrugs(dto))
-        {
-            jvo->init(RS_SUCCESS);
-        }
-        else
-        {
-            jvo->init(RS_FAIL);
-        }
+        auto result = DrugService().updateMedicineStatusV2(dto);
+        jvo->init(result, medicineV2Status(medicineV2BatchCode(result)));
     }
     catch (const DrugServiceException &error)
     {
-        jvo->init(mapDrugServiceError(error.getError()));
+        jvo->init(MedicineBatchResultDTO::createEmpty(),
+                  medicineV2Status(medicineV2ServiceCode(error.getError())));
     }
     catch (const std::exception &)
     {
-        jvo->init(RS_SERVER_ERROR);
+        jvo->init(MedicineBatchResultDTO::createEmpty(),
+                  medicineV2Status(MedicineV2BusinessCode::SERVER_ERROR));
     }
-
-    // 返回无 data 的统一响应。
     return jvo;
 }
 
-NoDataJsonVO::Wrapper DrugController::execEnableDisableDrug(const DrugEnableDisableDTO::Wrapper &dto,
-                                                             const PayloadDTO &payload)
+MedicineBatchJsonVO::Wrapper DrugController::execBatchDeleteMedicinesV2(
+    const MedicineBatchDeleteDTO::Wrapper &dto, const PayloadDTO &payload)
 {
-    // 创建响应对象。
-    auto jvo = NoDataJsonVO::createShared();
-
-    // 校验目标状态和批次。
-    if (!dto)
+    auto jvo = MedicineBatchJsonVO::createShared();
+    if (!dto || !dto->validate().empty())
     {
-        jvo->init(RS_PARAMS_INVALID);
+        jvo->init(MedicineBatchResultDTO::createEmpty(),
+                  medicineV2Status(MedicineV2BusinessCode::PARAM_INVALID));
         return jvo;
     }
-    const std::string validationError = dto->validate();
-    if (!validationError.empty())
-    {
-        jvo->init(RS_PARAMS_INVALID);
-        return jvo;
-    }
-
-    // 执行整批状态变更。
     try
     {
         dto->setPayload(&payload);
-        if (DrugService().enableDisableDrugs(dto))
-        {
-            jvo->init(RS_SUCCESS);
-        }
-        else
-        {
-            jvo->init(RS_FAIL);
-        }
+        auto result = DrugService().batchDeleteMedicinesV2(dto);
+        jvo->init(result, medicineV2Status(medicineV2BatchCode(result)));
     }
     catch (const DrugServiceException &error)
     {
-        jvo->init(mapDrugServiceError(error.getError()));
+        jvo->init(MedicineBatchResultDTO::createEmpty(),
+                  medicineV2Status(medicineV2ServiceCode(error.getError())));
     }
     catch (const std::exception &)
     {
-        jvo->init(RS_SERVER_ERROR);
+        jvo->init(MedicineBatchResultDTO::createEmpty(),
+                  medicineV2Status(MedicineV2BusinessCode::SERVER_ERROR));
     }
-
-    // 返回统一响应。
     return jvo;
 }
 
-DrugDetailJsonVO::Wrapper DrugController::execQueryOne(const String &id, const PayloadDTO &payload)
+oatpp::web::protocol::http::Status DrugController::medicineV2HttpStatus(int code)
 {
+    switch (code)
+    {
+    case MedicineV2BusinessCode::PARAM_INVALID:
+        return Status::CODE_400;
+    case MedicineV2BusinessCode::UNAUTHORIZED:
+        return Status::CODE_401;
+    case MedicineV2BusinessCode::FORBIDDEN:
+        return Status::CODE_403;
+    case MedicineV2BusinessCode::NOT_FOUND:
+        return Status::CODE_404;
+    case MedicineV2BusinessCode::VERSION_CONFLICT:
+        return Status::CODE_409;
+    case MedicineV2BusinessCode::BUSINESS_VALIDATION_FAILED:
+        return Status::CODE_422;
+    case MedicineV2BusinessCode::SERVER_ERROR:
+        return Status::CODE_500;
+    case MedicineV2BusinessCode::SUCCESS:
+    case MedicineV2BusinessCode::PARTIAL_SUCCESS:
+    default:
+        return Status::CODE_200;
+    }
+}
+
+/*DrugDetailJsonVO::Wrapper DrugController::execQueryOne(const String& id, const PayloadDTO& payload)
+  {
     // 创建声明式客户端并转发凭证。
     API_CLIENT_CREATE(client, objectMapper, DrugApiClient, "drug-api");
     const std::string token = PayloadDTO::getTokenPrefix() + payload.getToken();
@@ -252,3 +406,4 @@ DrugListPageJsonVO::Wrapper DrugController::execQueryAll(
                      URIUtil::urlEncode(query->keywords))
         ->readBodyToDto<DrugListPageJsonVO::Wrapper>(objectMapper);
 }
+*/
