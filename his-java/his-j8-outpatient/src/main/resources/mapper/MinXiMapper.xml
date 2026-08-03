@@ -232,10 +232,10 @@
             <!-- 3. 挂号科室（enc.organization_id）
                  🔴 MySQL 8 的 CAST(? AS CHAR) 默认是 utf8mb4_0900_ai_ci，表字段是 utf8mb4_general_ci
                     → COLLATE 统一到表侧，避免 Illegal mix of collations -->
-            <if test="q.deptId != null">
-                AND enc.organization_id COLLATE utf8mb4_general_ci = CAST(#{q.deptId} AS CHAR) COLLATE utf8mb4_general_ci
+            <if test="q.registrationDepartmentId != null and q.registrationDepartmentId != ''">
+                AND enc.organization_id COLLATE utf8mb4_general_ci = CAST(#{q.registrationDepartmentId} AS CHAR) COLLATE utf8mb4_general_ci
             </if>
-            <!-- 4. 费用大类 feeType：基于展示文案筛选（挂号/药品/耗材/医疗服务）
+            <!-- 4. 费用大类 feeCategoryCodes：基于展示文案筛选（挂号/药品/耗材/医疗服务）
                  🔴 优先级：aci.product_table（100% 准确）> def.type_code 兜底，不要搞反！
                     product_table 值：
                     - med_medication_definition = 药品（注意：def.type_code 可能是 1001/1003，不是 200x！）
@@ -243,7 +243,7 @@
                     - wkf_activity_definition   = 医疗服务
                     - NULL + generate_source_enum='registration' = 挂号
                  🔴 COLLATE 避免 utf8mb4_general_ci vs 0900_ai_ci 排序冲突 -->
-            <if test="q.feeType != null and q.feeType.size() > 0">
+            <if test="q.feeCategoryCodes != null and q.feeCategoryCodes.size() > 0">
                 AND (
                     CASE
                         WHEN aci.product_table = 'med_medication_definition' THEN '药品' COLLATE utf8mb4_general_ci
@@ -256,15 +256,15 @@
                         WHEN def.type_code LIKE '3%' THEN '耗材' COLLATE utf8mb4_general_ci
                         ELSE '其他' COLLATE utf8mb4_general_ci
                     END IN
-                    <foreach collection="q.feeType" item="item" open="(" separator="," close=")">
+                    <foreach collection="q.feeCategoryCodes" item="item" open="(" separator="," close=")">
                         #{item} COLLATE utf8mb4_general_ci
                     </foreach>
                 )
             </if>
-            <!-- 5. 费用细分类 feeTypeDetail：def 表暂缺 sub_type_code 字段，
-                 算法暂时与 feeType 一致（避免开了条件 Unknown column 报错）
+            <!-- 5. 费用细分类 subCategoryCodes：def 表暂缺 sub_type_code 字段，
+                 算法暂时与 feeCategoryCodes 一致（避免开了条件 Unknown column 报错）
                  🔴 COLLATE 避免排序冲突 -->
-            <if test="q.feeTypeDetail != null and q.feeTypeDetail.size() > 0">
+            <if test="q.subCategoryCodes != null and q.subCategoryCodes.size() > 0">
                 AND (
                     CASE
                         WHEN aci.product_table = 'med_medication_definition' THEN '药品' COLLATE utf8mb4_general_ci
@@ -277,7 +277,7 @@
                         WHEN def.type_code LIKE '3%' THEN '耗材' COLLATE utf8mb4_general_ci
                         ELSE '其他' COLLATE utf8mb4_general_ci
                     END IN
-                    <foreach collection="q.feeTypeDetail" item="item" open="(" separator="," close=")">
+                    <foreach collection="q.subCategoryCodes" item="item" open="(" separator="," close=")">
                         #{item} COLLATE utf8mb4_general_ci
                     </foreach>
                 )
@@ -292,22 +292,30 @@
             </if>
             <!-- 7. 项目名称：模糊匹配 wkf/med/dev 3 张产品表 name + def.charge_name 兜底 + 挂号写死"挂号费"
                  🔴 COLLATE 避免排序规则冲突 -->
-            <if test="q.projectName != null and q.projectName.trim() != ''">
+            <if test="q.productNameKeyword != null and q.productNameKeyword.trim() != ''">
                 AND (
-                    wkf.name COLLATE utf8mb4_general_ci LIKE CONCAT('%', #{q.projectName}, '%') COLLATE utf8mb4_general_ci
-                    OR med.name COLLATE utf8mb4_general_ci LIKE CONCAT('%', #{q.projectName}, '%') COLLATE utf8mb4_general_ci
-                    OR dev.name COLLATE utf8mb4_general_ci LIKE CONCAT('%', #{q.projectName}, '%') COLLATE utf8mb4_general_ci
-                    OR def.charge_name COLLATE utf8mb4_general_ci LIKE CONCAT('%', #{q.projectName}, '%') COLLATE utf8mb4_general_ci
-                    OR (aci.product_table IS NULL AND aci.generate_source_enum = 'registration' AND '挂号费' COLLATE utf8mb4_general_ci LIKE CONCAT('%', #{q.projectName}, '%') COLLATE utf8mb4_general_ci)
+                    wkf.name COLLATE utf8mb4_general_ci LIKE CONCAT('%', #{q.productNameKeyword}, '%') COLLATE utf8mb4_general_ci
+                    OR med.name COLLATE utf8mb4_general_ci LIKE CONCAT('%', #{q.productNameKeyword}, '%') COLLATE utf8mb4_general_ci
+                    OR dev.name COLLATE utf8mb4_general_ci LIKE CONCAT('%', #{q.productNameKeyword}, '%') COLLATE utf8mb4_general_ci
+                    OR def.charge_name COLLATE utf8mb4_general_ci LIKE CONCAT('%', #{q.productNameKeyword}, '%') COLLATE utf8mb4_general_ci
+                    OR (aci.product_table IS NULL AND aci.generate_source_enum = 'registration' AND '挂号费' COLLATE utf8mb4_general_ci LIKE CONCAT('%', #{q.productNameKeyword}, '%') COLLATE utf8mb4_general_ci)
                 )
             </if>
             <!-- 8. 院内编码：精确匹配 wkf/med/dev 3 张产品表 bus_no（def 表没有 bus_no）
                  🔴 COLLATE 避免 UTF8MB4 排序冲突 -->
-            <if test="q.internalCode != null and q.internalCode > 0">
+            <if test="q.productCodeKeyword != null and q.productCodeKeyword != ''">
                 AND (
-                    wkf.bus_no COLLATE utf8mb4_general_ci = CAST(#{q.internalCode} AS CHAR) COLLATE utf8mb4_general_ci
-                    OR med.bus_no COLLATE utf8mb4_general_ci = CAST(#{q.internalCode} AS CHAR) COLLATE utf8mb4_general_ci
-                    OR dev.bus_no COLLATE utf8mb4_general_ci = CAST(#{q.internalCode} AS CHAR) COLLATE utf8mb4_general_ci
+                    wkf.bus_no COLLATE utf8mb4_general_ci = CAST(#{q.productCodeKeyword} AS CHAR) COLLATE utf8mb4_general_ci
+                    OR med.bus_no COLLATE utf8mb4_general_ci = CAST(#{q.productCodeKeyword} AS CHAR) COLLATE utf8mb4_general_ci
+                    OR dev.bus_no COLLATE utf8mb4_general_ci = CAST(#{q.productCodeKeyword} AS CHAR) COLLATE utf8mb4_general_ci
+                )
+            </if>
+            <!-- 9. 收费员 cashierId：跨 whale_users + adm_practitioner 两张表
+                 rec.enterer_id 可能是系统用户 ID 或医护用户 ID -->
+            <if test="q.cashierId != null and q.cashierId != ''">
+                AND (
+                    cashier.id COLLATE utf8mb4_general_ci = #{q.cashierId} COLLATE utf8mb4_general_ci
+                    OR prac_cashier.id COLLATE utf8mb4_general_ci = #{q.cashierId} COLLATE utf8mb4_general_ci
                 )
             </if>
         </where>
@@ -460,7 +468,7 @@
             /* ============ 🏥 就诊级展示字段 ============ */
             enc.bus_no                                          AS outpatientNo,
             pat.name                                            AS patientName,
-            org.name                                            AS deptName,
+            org.name                                            AS registrationDepartmentName,
             -- ❌ enc.occurrence_time 不存在，改为 enc.start_time（挂号/就诊开始时间）
             DATE_FORMAT(enc.start_time, '%Y-%m-%d')             AS encounterDate,
 
@@ -579,7 +587,7 @@
             /* ============ 🏥 就诊级展示字段 ============ */
             enc.bus_no                                          AS outpatientNo,
             pat.name                                            AS patientName,
-            org.name                                            AS deptName,
+            org.name                                            AS registrationDepartmentName,
             DATE_FORMAT(enc.start_time, '%Y-%m-%d')             AS encounterDate,
 
             /* ============ 📋 收费项级展示字段 ============ */
