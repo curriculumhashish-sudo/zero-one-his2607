@@ -1,8 +1,8 @@
-﻿//<<<<<<< HEAD
+﻿
 // #include "DiagnoseService.h"
 //#include "../../dao/Diagnose/DiagnoseDAO.h"
 //#include "../../lib-common/include/id/UuidFacade.h"
-//=======
+
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -63,7 +63,7 @@ DiagnoseSelectDTO::Wrapper DiagnoseService::listDiagnoseSelect(const DiagnoseSel
 			id, Id,
 			diagnoseCode, ConditionCode,
 			diagnoseName, Name,
-			dictType, TenantId
+			dictType, TypeCode
 		);
 		page->addData(dto);
 	}
@@ -91,14 +91,14 @@ DiagnosePageDTO::Wrapper DiagnoseService::listDiagnosePage(const DiagnosePageQue
 	for (auto one : list)
 	{
 		//auto dto = DiagnosePageDTO::createShared();             修正
-		auto dto = DPageDTO::createShared();
+		auto dto = DPageDTO::createShared();//给自己做笔记:这里的类不能继承PageDTO
 		
 		ZO_STAR_DOMAIN_DO_TO_DTO_1(
 			dto, one,
 			id, Id,
 			diagnoseCode, ConditionCode,
 			diagnoseName, Name,
-			diagnoseType, TypeCode,
+			diagnoseType, SourceEnum,
 			medicalInsuranceCode, YbNo,
 			status, StatusEnum,
 			remark, Description
@@ -128,7 +128,7 @@ DiagnoseDetailDTO::Wrapper DiagnoseService::getDiagnoseDetail(const oatpp::Strin
 		id, Id,
 		diagnoseCode, ConditionCode,
 		diagnoseName, Name,
-		diagnoseType, TypeCode,
+		diagnoseType, SourceEnum,
 		medicalInsuranceCode, YbNo,
 		status, StatusEnum,
 		remark, Description
