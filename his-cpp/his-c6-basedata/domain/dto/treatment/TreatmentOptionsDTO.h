@@ -24,7 +24,7 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/** 新版诊疗选择列表单行数据，字段统一使用 lowerCamelCase。 */
+/** 诊疗选择列表单行数据，字段统一使用 lowerCamelCase。 */
 class TreatmentOptionV2DTO : public oatpp::DTO
 {
 	DTO_INIT(TreatmentOptionV2DTO, DTO);
@@ -75,7 +75,7 @@ class TreatmentOptionV2DTO : public oatpp::DTO
 	API_DTO_FIELD_REQUIRE(Int32, version, ZH_WORDS_GETTER("treatment.field.version"), true);
 };
 
-/** 新版诊疗选择列表分页数据。 */
+/** 诊疗选择列表分页数据。 */
 class TreatmentOptionsPageDTO : public PageDTO<TreatmentOptionV2DTO::Wrapper>
 {
 	DTO_INIT(TreatmentOptionsPageDTO, PageDTO<TreatmentOptionV2DTO::Wrapper>);

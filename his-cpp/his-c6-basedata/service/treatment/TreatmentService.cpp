@@ -18,26 +18,11 @@
 */
 #include "stdafx.h"
 #include "TreatmentService.h"
-#include "../../dao/common/TreatmentEnumDictionaryDAO.h"
 #include "../../dao/treatment/TreatmentDAO.h"
 #include "id/UuidFacade.h"
 #include "SimpleDateTimeFormat.h"
 #include "TransactionManager.h"
 #include <stdexcept>
-
-/** 将数据库状态枚举字符串转换为接口状态数值。 */
-static int treatmentStatusValue(const std::string& status)
-{
-	if (status == "DRAFT")
-		return 1;
-	if (status == "ACTIVE")
-		return 2;
-	if (status == "INACTIVE")
-		return 3;
-	if (status == "DISCARDED")
-		return 4;
-	return 0;
-}
 
 // 从新增/修改 DTO 填充主表业务字段（不含审计字段）。
 template<typename TDto>
@@ -377,84 +362,7 @@ TreatmentPageDTO::Wrapper TreatmentService::listAll(const TreatmentQuery::Wrappe
 	return pages;
 }
 
-TreatmentSelectPageDTO::Wrapper TreatmentService::listSelect(
-	const TreatmentSelectQuery::Wrapper& query,
-	const PayloadDTO& payload)
-{
-	if (!query || !query->validate().empty() || payload.getId().empty())
-	{
-		return nullptr;
-	}
-
-	TreatmentDAO dao;
-	// 按 JWT 用户解析出的有效租户过滤；查询始终按租户隔离。
-	const std::string tenantId = dao.selectCurrentTenantId(payload.getId());
-	if (tenantId.empty())
-	{
-		return nullptr;
-	}
-
-	// 初始化分页返回对象
-	auto pages = TreatmentSelectPageDTO::createShared();
-	pages->pageIndex = query->pageIndex;
-	pages->pageSize = query->pageSize;
-
-	const uint64_t count = dao.countSelect(query, tenantId);
-	pages->total = count;
-	pages->calcPages();
-	if (count == 0)
-	{
-		return pages;
-	}
-
-	// 将分页查询 BO 转换为接口 DTO
-	std::list<TreatmentSelectBO> result =
-		dao.selectSelectWithPage(query, tenantId);
-	std::vector<std::string> statusCodes;
-	for (const auto& sub : result)
-	{
-		statusCodes.emplace_back(sub.getStatusEnum());
-	}
-	// 状态显示文本统一从 MongoDB 枚举字典获取
-	const auto statusDisplays = TreatmentEnumDictionaryDAO().findActiveDisplays(
-		TreatmentEnumDictionaryDAO::PUBLICATION_STATUS_ENUM,
-		statusCodes);
-	for (TreatmentSelectBO& sub : result)
-	{
-		auto dto = TreatmentSelectDTO::createShared();
-		ZO_STAR_DOMAIN_DO_TO_DTO(
-			dto,
-			sub,
-			id, Id,
-			busNo, BusNo,
-			name, Name,
-			categoryCode, CategoryCode,
-			categoryCodeDictText, CategoryCodeDictText,
-			orgIdDictText, OrgIdDictText,
-			retailPrice, RetailPrice,
-			specification, Specification,
-			manufacturerText, ManufacturerText,
-			itemTypeCode, ItemTypeCode,
-			itemTypeCodeDictText, ItemTypeCodeDictText,
-			packageUnitCode, PackageUnitCode,
-			packageUnitCodeDictText, PackageUnitCodeDictText,
-			defEncounterUnitCode, DefEncounterUnitCode,
-			defEncounterUnitCodeDictText, DefEncounterUnitCodeDictText,
-			ybNo, YbNo);
-		const int status = treatmentStatusValue(sub.getStatusEnum());
-		dto->statusEnum = status;
-		const auto statusText = statusDisplays.find(sub.getStatusEnum());
-		if (status == 0 || statusText == statusDisplays.end())
-		{
-			throw std::runtime_error("invalid treatment status enum");
-		}
-		dto->statusEnumText = statusText->second;
-		pages->addData(dto);
-	}
-	return pages;
-}
-
-// 复用选择诊疗查询链路，按新版字段契约组装分页结果。
+// 按当前契约查询选择诊疗列表。
 TreatmentOptionsPageDTO::Wrapper TreatmentService::listOptionsV2(
 	const TreatmentOptionsQuery::Wrapper& query,
 	const PayloadDTO& payload)
@@ -471,17 +379,10 @@ TreatmentOptionsPageDTO::Wrapper TreatmentService::listOptionsV2(
 		return nullptr;
 	}
 
-	auto selectQuery = TreatmentSelectQuery::createShared();
-	selectQuery->pageIndex = query->pageIndex;
-	selectQuery->pageSize = query->pageSize;
-	selectQuery->keywords = query->keyword;
-	selectQuery->status = 2;
-	const std::string categoryCode = query->categoryCode.getValue("");
-
 	auto pages = TreatmentOptionsPageDTO::createShared();
 	pages->pageIndex = query->pageIndex;
 	pages->pageSize = query->pageSize;
-	const uint64_t count = dao.countSelect(selectQuery, tenantId, categoryCode);
+	const uint64_t count = dao.countSelect(query, tenantId);
 	pages->total = count;
 	pages->calcPages();
 	if (count == 0)
@@ -489,8 +390,7 @@ TreatmentOptionsPageDTO::Wrapper TreatmentService::listOptionsV2(
 		return pages;
 	}
 
-	for (const auto& sub : dao.selectSelectWithPage(
-		selectQuery, tenantId, categoryCode))
+	for (const auto& sub : dao.selectSelectWithPage(query, tenantId))
 	{
 		auto dto = TreatmentOptionV2DTO::createShared();
 		ZO_STAR_DOMAIN_DO_TO_DTO(

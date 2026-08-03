@@ -7,10 +7,8 @@
     summary: 通过ID获取单条数据
   query-one:
     summary: 使用声明式服务查询一条数据
-  query-select:
-    summary: 获取选择诊疗列表（条件+分页）
   options-v2:
-    summary: 获取新版诊疗选择列表（条件+分页）
+    summary: 获取选择诊疗列表（条件+分页）
   query:
     summary: 获取诊疗列表
   # 增改状态操作接口文案

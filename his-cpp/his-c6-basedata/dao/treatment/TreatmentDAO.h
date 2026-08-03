@@ -24,7 +24,7 @@
 #include "../../domain/do/treatment/WkfActivityDefinitionDo.h"
 #include "../../domain/do/treatment/WkfActivityDefinitionChildrenDo.h"
 #include "../../domain/query/treatment/TreatmentQuery.h"
-#include "../../domain/query/treatment/TreatmentSelectQuery.h"
+#include "../../domain/query/treatment/TreatmentOptionsQuery.h"
 
 /**
  * 诊疗表数据库操作实现
@@ -44,10 +44,9 @@ private:
 	inline std::string queryConditionBuilder(const TreatmentQuery::Wrapper& query, SqlParams& params);
 	// 构建选择诊疗列表的租户、关键字和状态条件。
 	inline std::string selectConditionBuilder(
-		const TreatmentSelectQuery::Wrapper& query,
+		const TreatmentOptionsQuery::Wrapper& query,
 		const std::string& tenantId,
-		SqlParams& params,
-		const std::string& categoryCode = "");
+		SqlParams& params);
 	
 public:
 	// 统计数据条数
@@ -58,14 +57,12 @@ public:
 	std::string selectCurrentTenantId(const std::string& userId);
 	// 统计可选诊疗数据。
 	uint64_t countSelect(
-		const TreatmentSelectQuery::Wrapper& query,
-		const std::string& tenantId,
-		const std::string& categoryCode = "");
+		const TreatmentOptionsQuery::Wrapper& query,
+		const std::string& tenantId);
 	// 分页查询可选诊疗数据。
 	std::list<TreatmentSelectBO> selectSelectWithPage(
-		const TreatmentSelectQuery::Wrapper& query,
-		const std::string& tenantId,
-		const std::string& categoryCode = "");
+		const TreatmentOptionsQuery::Wrapper& query,
+		const std::string& tenantId);
 	//乐观锁更新状态
 	int32_t updateStatusById(const std::string& id, const std::string& statusEnum,
 		const std::string& updatedBy, int32_t version);

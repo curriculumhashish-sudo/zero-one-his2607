@@ -27,10 +27,8 @@
 #include "domain/dto/treatment/TreatmentAddDTO.h"
 #include "domain/dto/treatment/TreatmentModifyDTO.h"
 #include "domain/query/treatment/TreatmentQuery.h"
-#include "domain/query/treatment/TreatmentSelectQuery.h"
 #include "domain/query/treatment/TreatmentOptionsQuery.h"
 #include "domain/dto/treatment/TreatmentPageDTO.h"
-#include "domain/dto/treatment/TreatmentSelectDTO.h"
 #include "domain/dto/treatment/TreatmentStatusDTO.h"
 #include "domain/dto/treatment/TreatmentRemoveDTO.h"
 
@@ -77,14 +75,7 @@ public: // 接口定义
 	// 删除诊疗（支持批量）：接口绑定
 	API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/treatment/remove-treatment", removeTreatment, BODY_DTO(List<String>, ids), execRemoveTreatment(ids));
 
-	// 获取选择诊疗列表（条件+分页）：接口信息
-	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("treatment.query-select.summary"), querySelectTreatment,
-		TreatmentSelectQuery, TreatmentSelectPageJsonVO::Wrapper, API_TAG);
-	// 获取选择诊疗列表（条件+分页）：接口绑定
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/treatment/query-select", querySelectTreatment,
-		TreatmentSelectQuery, execQuerySelect(query, authObject->getPayload()));
-
-	// 新版诊疗选择列表接口。
+	// 获取选择诊疗列表（条件+分页）。
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("treatment.options-v2.summary"), queryTreatmentOptionsV2,
 		TreatmentOptionsPageJsonVO::Wrapper, API_TAG,
 		API_DEF_QUERY_PARAM_BUILD(TreatmentOptionsQuery);
@@ -244,11 +235,7 @@ private: // 接口执行函数
 	// 演示删除数据
 	ListJsonVO<String>::Wrapper execRemoveTreatment(const List<String>& ids);
 
-	// 获取选择诊疗列表（条件+分页）：执行函数
-	TreatmentSelectPageJsonVO::Wrapper execQuerySelect(
-		const TreatmentSelectQuery::Wrapper& query, const PayloadDTO& payload);
-
-	// 新版诊疗选择列表执行函数。
+	// 获取选择诊疗列表执行函数。
 	TreatmentOptionsPageJsonVO::Wrapper execQueryOptionsV2(
 		const TreatmentOptionsQuery::Wrapper& query, const PayloadDTO& payload);
 

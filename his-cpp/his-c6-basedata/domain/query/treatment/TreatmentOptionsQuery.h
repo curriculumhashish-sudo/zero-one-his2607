@@ -26,7 +26,7 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/** 新版诊疗选择列表分页查询参数。 */
+/** 诊疗选择列表分页查询参数。 */
 class TreatmentOptionsQuery : public oatpp::DTO
 {
 	DTO_INIT(TreatmentOptionsQuery, DTO);

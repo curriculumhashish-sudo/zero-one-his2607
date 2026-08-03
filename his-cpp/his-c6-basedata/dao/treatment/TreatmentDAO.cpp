@@ -36,24 +36,6 @@ static const char* TREATMENT_CHILD_FULL_COLUMNS =
 	"id,tenant_id,created_at,updated_at,created_by,updated_by,is_deleted,deleted_at,deleted_by,version,"
 	"activity_id,children_id,children_num,children_name";
 
-/** ????????????????????? */
-static const char* treatmentStatusCode(int status)
-{
-	switch (status)
-	{
-	case 1:
-		return "DRAFT";
-	case 2:
-		return "ACTIVE";
-	case 3:
-		return "INACTIVE";
-	case 4:
-		return "DISCARDED";
-	default:
-		return "";
-	}
-}
-
 std::string TreatmentDAO::queryConditionBuilder(const TreatmentQuery::Wrapper& query, SqlParams& params)
 {
 	stringstream sqlCondition;
@@ -73,16 +55,16 @@ std::string TreatmentDAO::queryConditionBuilder(const TreatmentQuery::Wrapper& q
 }
 
 std::string TreatmentDAO::selectConditionBuilder(
-	const TreatmentSelectQuery::Wrapper& query,
+	const TreatmentOptionsQuery::Wrapper& query,
 	const std::string& tenantId,
-	SqlParams& params,
-	const std::string& categoryCode)
+	SqlParams& params)
 {
 	std::stringstream condition;
-	condition << " WHERE d.`is_deleted`=0 AND d.`tenant_id`=?";
+	condition << " WHERE d.`is_deleted`=0 AND d.`tenant_id`=?"
+		" AND d.`status_enum`='ACTIVE'";
 	SQLPARAMS_PUSH(params, "s", std::string, tenantId);
 
-	std::string keywords = query->keywords.getValue("");
+	std::string keywords = query->keyword.getValue("");
 	StringUtil::trim(&keywords);
 	if (!keywords.empty())
 	{
@@ -96,13 +78,7 @@ std::string TreatmentDAO::selectConditionBuilder(
 		}
 	}
 
-	if (query->status)
-	{
-		condition << " AND d.`status_enum`=?";
-		const std::string status =
-			treatmentStatusCode(query->status.getValue(0));
-		SQLPARAMS_PUSH(params, "s", std::string, status);
-	}
+	const std::string categoryCode = query->categoryCode.getValue("");
 	if (!categoryCode.empty())
 	{
 		condition << " AND d.`category_code`=?";
@@ -149,21 +125,19 @@ std::string TreatmentDAO::selectCurrentTenantId(const std::string& userId)
 }
 
 uint64_t TreatmentDAO::countSelect(
-	const TreatmentSelectQuery::Wrapper& query,
-	const std::string& tenantId,
-	const std::string& categoryCode)
+	const TreatmentOptionsQuery::Wrapper& query,
+	const std::string& tenantId)
 {
 	SqlParams params;
 	std::string sql =
 		"SELECT COUNT(d.`id`) FROM `wkf_activity_definition` d";
-	sql += selectConditionBuilder(query, tenantId, params, categoryCode);
+	sql += selectConditionBuilder(query, tenantId, params);
 	return sqlSession->executeQueryNumerical(sql, params);
 }
 
 std::list<TreatmentSelectBO> TreatmentDAO::selectSelectWithPage(
-	const TreatmentSelectQuery::Wrapper& query,
-	const std::string& tenantId,
-	const std::string& categoryCode)
+	const TreatmentOptionsQuery::Wrapper& query,
+	const std::string& tenantId)
 {
 	SqlParams params;
 	// ??????????????????????????? SELECT * ??????????
@@ -251,7 +225,7 @@ std::list<TreatmentSelectBO> TreatmentDAO::selectSelectWithPage(
 		"AND concept.`is_deleted`=0 AND concept.`is_active`=1 "
 		"AND (concept.`tenant_id`=d.`tenant_id` OR concept.`tenant_id` IS NULL) "
 		"ORDER BY (concept.`tenant_id`=d.`tenant_id`) DESC,concept.`id` DESC LIMIT 1)";
-	sql += selectConditionBuilder(query, tenantId, params, categoryCode);
+	sql += selectConditionBuilder(query, tenantId, params);
 	sql += " ORDER BY COALESCE(d.`updated_at`,d.`created_at`) DESC,d.`id` DESC";
 
 	const uint64_t pageIndex = query->pageIndex.getValue(1);

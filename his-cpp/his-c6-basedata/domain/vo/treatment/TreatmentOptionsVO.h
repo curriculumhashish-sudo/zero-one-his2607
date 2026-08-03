@@ -24,7 +24,7 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/** 新版诊疗选择列表统一响应包装。 */
+/** 诊疗选择列表统一响应包装。 */
 class TreatmentOptionsPageJsonVO : public JsonVO<TreatmentOptionsPageDTO::Wrapper>
 {
 	DTO_INIT(TreatmentOptionsPageJsonVO, JsonVO<TreatmentOptionsPageDTO::Wrapper>);

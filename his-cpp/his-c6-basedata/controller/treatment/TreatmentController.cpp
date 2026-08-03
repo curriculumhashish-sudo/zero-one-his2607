@@ -167,37 +167,7 @@ StringJsonVO::Wrapper TreatmentController::execAddTreatment(
 	return jvo;
 }
 
-// 获取选择诊疗列表（条件+分页）
-TreatmentSelectPageJsonVO::Wrapper TreatmentController::execQuerySelect(
-	const TreatmentSelectQuery::Wrapper& query, const PayloadDTO& payload)
-{
-	auto jvo = TreatmentSelectPageJsonVO::createShared();
-
-	// 校验查询条件与凭证
-	if (!query || !query->validate().empty())
-	{
-		jvo->init(nullptr, RS_PARAMS_INVALID);
-		return jvo;
-	}
-	if (payload.getId().empty())
-	{
-		jvo->init(nullptr, RS_FORBIDDEN);
-		return jvo;
-	}
-
-	// 查询当前用户所属租户的数据
-	auto result = TreatmentService().listSelect(query, payload);
-	if (!result)
-	{
-		jvo->init(nullptr, RS_FORBIDDEN);
-		return jvo;
-	}
-	jvo->success(result);
-	return jvo;
-}
-
-
-// 获取新版诊疗选择列表。
+// 获取选择诊疗列表。
 TreatmentOptionsPageJsonVO::Wrapper TreatmentController::execQueryOptionsV2(
 	const TreatmentOptionsQuery::Wrapper& query, const PayloadDTO& payload)
 {
