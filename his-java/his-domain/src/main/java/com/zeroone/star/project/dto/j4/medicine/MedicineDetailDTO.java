@@ -20,6 +20,9 @@ public class MedicineDetailDTO {
 
     @Schema(description = "版本号，无需填写")
     private Integer version;
+
+    @Schema(description = "药品定义聚合根")
+    private String busNo;
     /**
      * 药品名称
      */
