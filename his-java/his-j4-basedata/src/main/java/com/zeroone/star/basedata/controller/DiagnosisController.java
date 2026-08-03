@@ -48,7 +48,7 @@ public class DiagnosisController implements DiagnosisApis {
     @Operation(summary = "获取选择诊断列表（条件+分页）")
     @GetMapping("/query-select-list")
     public JsonVO<PageDTO<DiagnosisListVO>> queryDiagnosisSelectList(
-            @Valid DiagnosisSelectPageQuery query) {
+            DiagnosisSelectPageQuery query) {
         // ids 传入时查询前端已选择的诊断；未传入时按筛选条件查询可选诊断。
         return JsonVO.success(definitionService.queryDiagnosisSelectList(query));
     }
@@ -56,7 +56,7 @@ public class DiagnosisController implements DiagnosisApis {
     @Override
     @Operation(summary = "获取诊断列表（条件+分页）")
     @GetMapping("/query-list")
-    public JsonVO<PageDTO<DiagnosisListVO>> queryDiagnosisList(@Valid DiagnosisPageQuery query) {
+    public JsonVO<PageDTO<DiagnosisListVO>> queryDiagnosisList(DiagnosisPageQuery query) {
         return JsonVO.success(definitionService.queryDiagnosisList(query));
     }
 

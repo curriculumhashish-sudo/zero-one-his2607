@@ -38,7 +38,7 @@ public interface DiagnosisApis {
      * @param query 查询条件
      * @return 诊断管理分页数据
      */
-    JsonVO<PageDTO<DiagnosisListVO>> queryDiagnosisList(DiagnosisPageQuery query);
+    JsonVO<PageDTO<DiagnosisListVO>> queryDiagnosisList(@Valid DiagnosisPageQuery query);
 
     /**
      * 获取诊断详情。
