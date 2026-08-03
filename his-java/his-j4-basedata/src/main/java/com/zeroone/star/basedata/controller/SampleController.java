@@ -52,7 +52,7 @@ public class SampleController implements SampleApis {
     }
 
     @Operation(summary = "修改样本定义", description = "根据主键与乐观锁版本号，修改样本名称、标本种类")
-    @PostMapping("/update")
+    @PutMapping("/edit-sample")
     @Override
     public JsonVO<SpecimenDefinitionOperateVO> update(@Valid @RequestBody SpecimenDefinitionUpdateDTO dto) {
         return JsonVO.success(sampleService.updateSample(dto));
