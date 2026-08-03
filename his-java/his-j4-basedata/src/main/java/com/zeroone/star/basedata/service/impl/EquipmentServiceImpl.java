@@ -45,9 +45,6 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
 
     private final MsEquipmentMapper msEquipmentMapper;
     private final AdmChargeItemDefinitionMapper chargeItemMapper;
-    //TODO 调用编码服务
-//    private final TerConceptMapper conceptMapper;
-//    private final UserHolder userHolder;
 
     // UserHoler用于获取租户ID
     @Resource
