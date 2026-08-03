@@ -32,7 +32,7 @@ class DiagnoseAddDTO : public oatpp::DTO
 	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("diagnose.field.diag.name"), true);//诊断名称（非空） name
 	API_DTO_FIELD_DEFAULT(String, diagType, ZH_WORDS_GETTER("diagnose.field.diag.diag_type"));//诊断类型码   type_code
 	API_DTO_FIELD_DEFAULT(String, chronicCode, ZH_WORDS_GETTER("diagnose.field.diag.chronic_code"));//诊断编码/特慢病编码 disease_code
-	API_DTO_FIELD_DEFAULT(String, medicalInsuranceCode, ZH_WORDS_GETTER("diagnose.field.diag.medical_insurance_code"));//医保编码 yb_no
+	API_DTO_FIELD_DEFAULT(String, medicalInsuranceCode, ZH_WORDS_GETTER("diagnose.field.diag.medical_insurance_code"));//医保编码 condition_code 对应医保编码
 	API_DTO_FIELD_DEFAULT(String, status, ZH_WORDS_GETTER("diagnose.field.diag.status"));//状态枚举值【非空】（ACTIVE/STOP）  status_enum
 	API_DTO_FIELD_DEFAULT(Int32, medicalInsuranceTag, ZH_WORDS_GETTER("diagnose.field.diag.medical_insurance_tag"));//医保标签 yb_flag
 	API_DTO_FIELD_DEFAULT(Int32, medicalInsuranceMatch, ZH_WORDS_GETTER("diagnose.field.diag.medical_insurance_match"));//医保对码 yb_match_flag
@@ -40,9 +40,9 @@ class DiagnoseAddDTO : public oatpp::DTO
 	API_DTO_FIELD_DEFAULT(String, wubiCode, ZH_WORDS_GETTER("diagnose.field.diag.wubi_code"));//五笔助记 wb_str
 	API_DTO_FIELD_DEFAULT(Int32, isDelete, ZH_WORDS_GETTER("diagnose.field.diag.is_delete"));//【非空】逻辑删除 is_deleted
 	API_DTO_FIELD_DEFAULT(String, remark, ZH_WORDS_GETTER("diagnose.field.diag.remark"));//描述详情 description
-	API_DTO_FIELD_REQUIRE(String, catName, ZH_WORDS_GETTER("diagnose.field.category.cat_name"), true);//诊断目录/病情编码（非空）condition_code
+	API_DTO_FIELD_REQUIRE(String, catName, ZH_WORDS_GETTER("diagnose.field.category.cat_name"), true);//诊断目录/病情编码（非空）对应source_enum是获得诊断目录的
 	API_DTO_FIELD_REQUIRE(String, tenantId, ZH_WORDS_GETTER("diagnose.field.diag.tenant_id"), true);//租户标识 tenant_id
-	API_DTO_FIELD_REQUIRE(String, source_enum, ZH_WORDS_GETTER("diagnose.field.diag.source_enum"), true);//来源枚举值 source_enum
+	API_DTO_FIELD_REQUIRE(String, source_enum, ZH_WORDS_GETTER("diagnose.field.diag.source_enum"), true);//来源枚举值 source_enum对应诊断目录
 
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);//请求头token指针
 
@@ -58,14 +58,14 @@ public:
 			return "The category name cannot be empty";
 		}
 
-		if (diagType && !diagType->empty()
-			&& *diagType != "1"//western_medicine_diagnose
-			&& *diagType != "2"//chinese_main_disease_diagnose
-			&& *diagType != "3"//chinese_main_symptom_diagnose
-			)
-		{
-			return "The diagnose type is invalid";
-		}
+		//if (diagType && !diagType->empty()
+		//	&& *diagType != "1"//western_medicine_diagnose
+		//	&& *diagType != "2"//chinese_main_disease_diagnose
+		//	&& *diagType != "3"//chinese_main_symptom_diagnose
+		//	)
+		//{
+		//	return "The diagnose type is invalid";
+		//}
 
 		if (!status->empty() && *status != "ACTIVE" && *status != "STOP")
 		{

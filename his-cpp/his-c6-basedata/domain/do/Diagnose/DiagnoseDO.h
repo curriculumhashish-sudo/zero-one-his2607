@@ -105,13 +105,13 @@ public:
 		// 删除标记 is_deleted 
 		MYSQL_ADD_FIELD("is_deleted", "b", isDelete);
 		// 诊断目录 condition_code
-		MYSQL_ADD_FIELD("condition_code", "s", catName);
+		MYSQL_ADD_FIELD("condition_code", "s", medicalInsuranceCode);
 		// 租户标识 tenant_id
 		MYSQL_ADD_FIELD("tenant_id", "s", tenantId);
 		//乐观锁版本version
 		MYSQL_ADD_FIELD("version", "i", version);
 		//来源枚举值
-		MYSQL_ADD_FIELD("source_enum", "i", source_enum);
+		MYSQL_ADD_FIELD("source_enum", "s", source_enum);
 
 
 	}
@@ -126,7 +126,7 @@ class DiagnoseDO : public BaseDO
 	MYSQL_SYNTHESIZE(string, diagnoseCode, diagnoseCode);//诊断编码/特慢病编码 disease_code
 	// 诊断名称
 	MYSQL_SYNTHESIZE(string, diagnoseName, diagnoseName);//诊断名称 name
-	// 诊断分类
+	// 诊断类型
 	MYSQL_SYNTHESIZE(string, diagnoseType, diagnoseType);//诊断类型码 type_code:1,2,3,对应西医诊断，中医主证诊断，中医主治诊断三个
 	// 启用状态 0-停用 1-启用
 	MYSQL_SYNTHESIZE(string, status, Status);//状态 status_enum
@@ -204,7 +204,7 @@ public:
 		// 删除标记 is_deleted 
 		MYSQL_ADD_FIELD("is_deleted", "b", isDelete);
 		// 诊断目录 condition_code
-		MYSQL_ADD_FIELD("condition_code", "s", catName);
+		MYSQL_ADD_FIELD("condition_code", "s", medicalInsuranceCode);
 		// 租户标识 tenant_id
 		MYSQL_ADD_FIELD("tenant_id", "s", tenantId);
 		//乐观锁版本version

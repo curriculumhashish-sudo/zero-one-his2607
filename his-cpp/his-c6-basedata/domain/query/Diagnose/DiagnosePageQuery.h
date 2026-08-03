@@ -24,9 +24,9 @@ class DiagnosePageQuery : public PageQuery
 {
 	DTO_INIT(DiagnosePageQuery, PageQuery);
 	// keyword
-	API_DTO_FIELD_DEFAULT(String, keyword, ZH_WORDS_GETTER("diagnose.field.keyword"));
-	// from  catalog这个是诊断类型码
-	API_DTO_FIELD_DEFAULT(String, diagnoseType, ZH_WORDS_GETTER("diagnose.field.type"));
+	API_DTO_FIELD_DEFAULT(String, keyword, ZH_WORDS_GETTER("diagnose.query.page.keyword"));
+	// from  catalog(这个是诊断目录)
+	API_DTO_FIELD_DEFAULT(String, diagnoseType, ZH_WORDS_GETTER("diagnose.query.type"));
 };
 
 #include OATPP_CODEGEN_END(DTO)
