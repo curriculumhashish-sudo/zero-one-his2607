@@ -39,23 +39,6 @@ class TreatmentOptionV2DTO : public oatpp::DTO
 		info->description = ZH_WORDS_GETTER("treatment.field.category-code-text");
 		info->required = false;
 	}
-	DTO_FIELD(String, orgIdDictText, "orgId_dictText");
-	DTO_FIELD_INFO(orgIdDictText)
-	{
-		info->description = ZH_WORDS_GETTER("treatment.field.org-id-text");
-		info->required = false;
-	}
-	API_DTO_FIELD_REQUIRE(Float64, retailPrice, ZH_WORDS_GETTER("treatment.field.retail-price"), false);
-	API_DTO_FIELD_REQUIRE(String, specification, ZH_WORDS_GETTER("treatment.field.specification"), false);
-	API_DTO_FIELD_REQUIRE(String, manufacturerText, ZH_WORDS_GETTER("treatment.field.manufacturer-text"), false);
-	API_DTO_FIELD_REQUIRE(String, itemTypeCode, ZH_WORDS_GETTER("treatment.field.item-type-code"), false);
-	DTO_FIELD(String, itemTypeCodeDictText, "itemTypeCode_dictText");
-	DTO_FIELD_INFO(itemTypeCodeDictText)
-	{
-		info->description = ZH_WORDS_GETTER("treatment.field.item-type-code-text");
-		info->required = false;
-	}
-	API_DTO_FIELD_REQUIRE(String, typeCode, ZH_WORDS_GETTER("treatment.field.type-code"), false);
 	API_DTO_FIELD_REQUIRE(String, packageUnitCode, ZH_WORDS_GETTER("treatment.field.package-unit-code"), false);
 	DTO_FIELD(String, packageUnitCodeDictText, "packageUnitCode_dictText");
 	DTO_FIELD_INFO(packageUnitCodeDictText)
@@ -70,9 +53,6 @@ class TreatmentOptionV2DTO : public oatpp::DTO
 		info->description = ZH_WORDS_GETTER("treatment.field.def-encounter-unit-code-text");
 		info->required = false;
 	}
-	API_DTO_FIELD_REQUIRE(String, ybNo, ZH_WORDS_GETTER("treatment.field.yb-no"), false);
-	API_DTO_FIELD_REQUIRE(String, status, ZH_WORDS_GETTER("treatment.field.status"), true);
-	API_DTO_FIELD_REQUIRE(Int32, version, ZH_WORDS_GETTER("treatment.field.version"), true);
 };
 
 /** 诊疗选择列表分页数据。 */

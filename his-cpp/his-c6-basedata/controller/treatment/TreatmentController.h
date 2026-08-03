@@ -79,6 +79,10 @@ public: // 接口定义
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("treatment.options-v2.summary"), queryTreatmentOptionsV2,
 		TreatmentOptionsPageJsonVO::Wrapper, API_TAG,
 		API_DEF_QUERY_PARAM_BUILD(TreatmentOptionsQuery);
+		info->queryParams["pageIndex"].addExample("default", UInt64(1));
+		info->queryParams["pageSize"].addExample("default", UInt64(20));
+		info->queryParams["keyword"].addExample("example", String("肝功"));
+		info->queryParams["categoryCode"].addExample("example", String("22"));
 		info->authorization = "Bearer";
 		info->addResponse<TreatmentOptionsPageJsonVO::Wrapper>(Status::CODE_400, "application/json");
 		info->addResponse<TreatmentOptionsPageJsonVO::Wrapper>(Status::CODE_401, "application/json");

@@ -143,7 +143,7 @@ uint64_t TreatmentDAO::countSelect(
 	return sqlSession->executeQueryNumerical(sql, params);
 }
 
-// 分页查询诊疗，并联表补充字典文本、机构名称和售价。
+// 分页查询诊疗，并联表补充分类及单位字典文本。
 std::list<TreatmentSelectBO> TreatmentDAO::selectSelectWithPage(
 	const TreatmentOptionsQuery::Wrapper& query,
 	const std::string& tenantId)
@@ -153,13 +153,8 @@ std::list<TreatmentSelectBO> TreatmentDAO::selectSelectWithPage(
 	std::string sql =
 		"SELECT d.`id`,d.`bus_no`,d.`name`,d.`category_code`,"
 		"COALESCE(category_concept.`display`,''),"
-		"COALESCE(adm_org.`name`,whale_org.`display_name`,''),"
-		"price.`retail_price`,'' AS specification,"
-		"'' AS manufacturer_text,COALESCE(price.`item_type_code`,''),"
-		"COALESCE(item_type_concept.`display`,''),"
 		"d.`package_unit_code`,COALESCE(package_unit.`display`,''),"
-		"d.`def_encounter_unit_code`,COALESCE(encounter_unit.`display`,''),"
-		"d.`yb_no`,d.`status_enum`,d.`version`,CAST(d.`type_enum` AS CHAR) "
+		"d.`def_encounter_unit_code`,COALESCE(encounter_unit.`display`,'') "
 		"FROM `wkf_activity_definition` d "
 		"LEFT JOIN `ter_code_system` category_system "
 		"ON category_system.`id`=("
@@ -176,14 +171,6 @@ std::list<TreatmentSelectBO> TreatmentDAO::selectSelectWithPage(
 		"AND concept.`is_deleted`=0 AND concept.`is_active`=1 "
 		"AND (concept.`tenant_id`=d.`tenant_id` OR concept.`tenant_id` IS NULL) "
 		"ORDER BY (concept.`tenant_id`=d.`tenant_id`) DESC,concept.`id` DESC LIMIT 1) "
-		"LEFT JOIN `adm_organization` adm_org "
-		"ON adm_org.`id`=d.`org_id` AND adm_org.`is_deleted`=0 "
-		"AND (adm_org.`tenant_id`=d.`tenant_id` "
-		"OR adm_org.`tenant_id` IS NULL) "
-		"LEFT JOIN `whale_organization_units` whale_org "
-		"ON whale_org.`id`=d.`org_id` AND whale_org.`is_deleted`=0 "
-		"AND (whale_org.`tenant_id`=d.`tenant_id` "
-		"OR whale_org.`tenant_id` IS NULL) "
 		"LEFT JOIN `ter_code_system` unit_system "
 		"ON unit_system.`id`=("
 		"SELECT cs.`id` FROM `ter_code_system` cs "
@@ -204,33 +191,6 @@ std::list<TreatmentSelectBO> TreatmentDAO::selectSelectWithPage(
 		"SELECT concept.`id` FROM `ter_concept` concept "
 		"WHERE concept.`code_system_id`=unit_system.`id` "
 		"AND concept.`code`=d.`def_encounter_unit_code` "
-		"AND concept.`is_deleted`=0 AND concept.`is_active`=1 "
-		"AND (concept.`tenant_id`=d.`tenant_id` OR concept.`tenant_id` IS NULL) "
-		"ORDER BY (concept.`tenant_id`=d.`tenant_id`) DESC,concept.`id` DESC LIMIT 1) "
-		"LEFT JOIN ("
-		"SELECT `tenant_id`,`instance_id`,`price_value` AS retail_price,"
-		"`type_code` AS item_type_code FROM ("
-		"SELECT `tenant_id`,`instance_id`,`price_value`,`type_code`,"
-		"ROW_NUMBER() OVER (PARTITION BY `tenant_id`,`instance_id` "
-		"ORDER BY (`priority` IS NULL) ASC,`priority` ASC,`id` ASC) AS price_rank "
-		"FROM `adm_charge_item_definition` "
-		"WHERE `instance_table`='wkf_activity_definition' "
-		"AND `price_type_code`='SALE' AND `status_enum`='ACTIVE' "
-		"AND `is_deleted`=0) ranked_price WHERE price_rank=1"
-		") price ON price.`instance_id`=d.`id` "
-		"AND price.`tenant_id`=d.`tenant_id` "
-		"LEFT JOIN `ter_code_system` item_type_system "
-		"ON item_type_system.`id`=("
-		"SELECT cs.`id` FROM `ter_code_system` cs "
-		"WHERE cs.`name`='fin_type_code' "
-		"AND cs.`is_deleted`=0 AND cs.`status` IN ('ACTIVE','2') "
-		"AND (cs.`tenant_id`=d.`tenant_id` OR cs.`tenant_id` IS NULL) "
-		"ORDER BY (cs.`tenant_id`=d.`tenant_id`) DESC,cs.`id` DESC LIMIT 1) "
-		"LEFT JOIN `ter_concept` item_type_concept "
-		"ON item_type_concept.`id`=("
-		"SELECT concept.`id` FROM `ter_concept` concept "
-		"WHERE concept.`code_system_id`=item_type_system.`id` "
-		"AND concept.`code`=price.`item_type_code` "
 		"AND concept.`is_deleted`=0 AND concept.`is_active`=1 "
 		"AND (concept.`tenant_id`=d.`tenant_id` OR concept.`tenant_id` IS NULL) "
 		"ORDER BY (concept.`tenant_id`=d.`tenant_id`) DESC,concept.`id` DESC LIMIT 1)";

@@ -410,20 +410,10 @@ TreatmentOptionsPageDTO::Wrapper TreatmentService::listOptionsV2(
 			name, Name,
 			categoryCode, CategoryCode,
 			categoryCodeDictText, CategoryCodeDictText,
-			orgIdDictText, OrgIdDictText,
-			retailPrice, RetailPrice,
-			specification, Specification,
-			manufacturerText, ManufacturerText,
-			itemTypeCode, ItemTypeCode,
-			itemTypeCodeDictText, ItemTypeCodeDictText,
-			typeCode, TypeCode,
 			packageUnitCode, PackageUnitCode,
 			packageUnitCodeDictText, PackageUnitCodeDictText,
 			defEncounterUnitCode, DefEncounterUnitCode,
-			defEncounterUnitCodeDictText, DefEncounterUnitCodeDictText,
-			ybNo, YbNo,
-			version, Version);
-		dto->status = sub.getStatusEnum();
+			defEncounterUnitCodeDictText, DefEncounterUnitCodeDictText);
 		pages->addData(dto);
 	}
 	return pages;
