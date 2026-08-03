@@ -22,10 +22,6 @@
 #include "stdafx.h"
 #include "id/UuidFacade.h"
 #include "SimpleDateTimeFormat.h"
-#include "domain/dto/drug/DrugEnableDisableDTO.h"
-#include "domain/dto/drug/DrugModifyDTO.h"
-#include "domain/dto/drug/DrugModifyResultDTO.h"
-#include "domain/dto/drug/DrugRemoveDTO.h"
 #include "domain/dto/drug/MedicineV2DTO.h"
 #include "domain/query/Drug/DrugQuery.h"
 #include "domain/dto/drug/DrugDetailDTO.h"
@@ -60,9 +56,6 @@ class DrugServiceException : public std::runtime_error
 class DrugService
 {
   public:
-    DrugModifyResultDTO::Wrapper updateDrug(const DrugModifyDTO::Wrapper &dto);
-    bool removeDrugs(const DrugRemoveDTO::Wrapper &dto);
-    bool enableDisableDrugs(const DrugEnableDisableDTO::Wrapper &dto);
     MedicineVersionItemDTO::Wrapper updateMedicineV2(const std::string &id,
                                                       const MedicineUpdateDTO::Wrapper &dto);
     MedicineBatchResultDTO::Wrapper updateMedicineStatusV2(const MedicineStatusUpdateDTO::Wrapper &dto);

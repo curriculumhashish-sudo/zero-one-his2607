@@ -76,28 +76,6 @@ DrugDetailJsonVO::Wrapper DrugController::execQueryById(const String &id)
     return jvo;
 }
 
-static ResultStatus mapDrugServiceError(DrugServiceError error)
-{
-    switch (error)
-    {
-    case DrugServiceError::InvalidInput:
-        return ResultStatus(ZH_WORDS_GETTER("drug.error.invalidInput"), RS_PARAMS_INVALID.getCode());
-    case DrugServiceError::NotFound:
-        return ResultStatus(ZH_WORDS_GETTER("drug.error.notFound"), RS_FAIL.getCode());
-    case DrugServiceError::InvalidStatus:
-        return ResultStatus(ZH_WORDS_GETTER("drug.error.invalidStatus"), RS_FAIL.getCode());
-    case DrugServiceError::Referenced:
-        return ResultStatus(ZH_WORDS_GETTER("drug.error.referenced"), RS_FAIL.getCode());
-    case DrugServiceError::CrossTenant:
-        return ResultStatus(ZH_WORDS_GETTER("drug.error.crossTenant"), RS_FORBIDDEN.getCode());
-    case DrugServiceError::ConcurrentModification:
-        return ResultStatus(ZH_WORDS_GETTER("drug.error.concurrentModification"), RS_FAIL.getCode());
-    case DrugServiceError::DatabaseFailure:
-    default:
-        return ResultStatus(ZH_WORDS_GETTER("drug.error.databaseFailure"), RS_SERVER_ERROR.getCode());
-    }
-}
-
 static ResultStatus medicineV2Status(int code)
 {
     switch (code)
@@ -234,14 +212,9 @@ static bool hasConfiguredMedicineV2Authority(const std::list<std::string> &autho
 }
 
 std::shared_ptr<CustomerAuthorizeObject> DrugController::authenticateMedicineV2(
-    const std::shared_ptr<IncomingRequest> &request)
+    const String &authorization)
 {
     // 局部捕获认证异常，避免落入会改写状态码的全局错误处理器。
-    if (!request)
-    {
-        return nullptr;
-    }
-    const auto authorization = request->getHeader(Header::AUTHORIZATION);
     if (!authorization || !getDefaultAuthorizationHandler())
     {
         return nullptr;
@@ -249,7 +222,7 @@ std::shared_ptr<CustomerAuthorizeObject> DrugController::authenticateMedicineV2(
     try
     {
         const auto authorized = getDefaultAuthorizationHandler()->handleAuthorization(authorization);
-        return std::static_pointer_cast<CustomerAuthorizeObject>(authorized);
+        return std::dynamic_pointer_cast<CustomerAuthorizeObject>(authorized);
     }
     catch (...)
     {
@@ -297,144 +270,6 @@ std::shared_ptr<DrugController::OutgoingResponse> DrugController::medicineV2Batc
         response->putHeader(Header::WWW_AUTHENTICATE, "Bearer realm=\"API\"");
     }
     return response;
-}
-
-DrugModifyJsonVO::Wrapper DrugController::execModifyDrug(const DrugModifyDTO::Wrapper &dto,
-                                                          const PayloadDTO &payload)
-{
-    // 创建响应对象。
-    auto jvo = DrugModifyJsonVO::createShared();
-
-    // 校验主键。
-    if (!dto || !dto->id)
-    {
-        jvo->init(nullptr, RS_PARAMS_INVALID);
-        return jvo;
-    }
-
-    // 校验修改表单。
-    const std::string validationError = dto->validate();
-    if (!validationError.empty())
-    {
-        jvo->init(nullptr, RS_PARAMS_INVALID);
-        return jvo;
-    }
-
-    // 执行修改。
-    try
-    {
-        dto->setPayload(&payload);
-        auto result = DrugService().updateDrug(dto);
-        if (result)
-        {
-            jvo->success(result);
-        }
-        else
-        {
-            jvo->fail(nullptr);
-        }
-    }
-    catch (const DrugServiceException &error)
-    {
-        jvo->init(nullptr, mapDrugServiceError(error.getError()));
-    }
-    catch (const std::exception &)
-    {
-        jvo->init(nullptr, RS_SERVER_ERROR);
-    }
-
-    // 返回统一响应。
-    return jvo;
-}
-
-NoDataJsonVO::Wrapper DrugController::execRemoveDrug(const DrugRemoveDTO::Wrapper &dto,
-                                                      const PayloadDTO &payload)
-{
-    // 创建响应对象。
-    auto jvo = NoDataJsonVO::createShared();
-
-    // 校验删除批次。
-    if (!dto)
-    {
-        jvo->init(RS_PARAMS_INVALID);
-        return jvo;
-    }
-    const std::string validationError = dto->validate();
-    if (!validationError.empty())
-    {
-        jvo->init(RS_PARAMS_INVALID);
-        return jvo;
-    }
-
-    // 执行批量删除。
-    try
-    {
-        dto->setPayload(&payload);
-        if (DrugService().removeDrugs(dto))
-        {
-            jvo->init(RS_SUCCESS);
-        }
-        else
-        {
-            jvo->init(RS_FAIL);
-        }
-    }
-    catch (const DrugServiceException &error)
-    {
-        jvo->init(mapDrugServiceError(error.getError()));
-    }
-    catch (const std::exception &)
-    {
-        jvo->init(RS_SERVER_ERROR);
-    }
-
-    // 返回无 data 的统一响应。
-    return jvo;
-}
-
-NoDataJsonVO::Wrapper DrugController::execEnableDisableDrug(const DrugEnableDisableDTO::Wrapper &dto,
-                                                             const PayloadDTO &payload)
-{
-    // 创建响应对象。
-    auto jvo = NoDataJsonVO::createShared();
-
-    // 校验目标状态和批次。
-    if (!dto)
-    {
-        jvo->init(RS_PARAMS_INVALID);
-        return jvo;
-    }
-    const std::string validationError = dto->validate();
-    if (!validationError.empty())
-    {
-        jvo->init(RS_PARAMS_INVALID);
-        return jvo;
-    }
-
-    // 执行整批状态变更。
-    try
-    {
-        dto->setPayload(&payload);
-        if (DrugService().enableDisableDrugs(dto))
-        {
-            jvo->init(RS_SUCCESS);
-        }
-        else
-        {
-            jvo->init(RS_FAIL);
-        }
-    }
-    catch (const DrugServiceException &error)
-    {
-        jvo->init(mapDrugServiceError(error.getError()));
-    }
-    catch (const std::exception &)
-    {
-        jvo->init(RS_SERVER_ERROR);
-    }
-
-    // 返回统一响应。
-    return jvo;
 }
 
 MedicineVersionJsonVO::Wrapper DrugController::execUpdateMedicineV2(

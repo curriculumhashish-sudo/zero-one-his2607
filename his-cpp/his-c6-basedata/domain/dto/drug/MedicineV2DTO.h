@@ -29,7 +29,7 @@
 #include <cmath>
 #include <set>
 
-/** 新版接口业务码。 */
+/** 药品写接口业务码。 */
 class MedicineV2BusinessCode final
 {
   public:
@@ -46,7 +46,7 @@ class MedicineV2BusinessCode final
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/** 新版接口的药品编号和乐观锁版本。 */
+/** 药品编号和乐观锁版本。 */
 class MedicineVersionItemDTO : public oatpp::DTO
 {
     DTO_INIT(MedicineVersionItemDTO, DTO);
@@ -76,7 +76,7 @@ class MedicineVersionItemDTO : public oatpp::DTO
     }
 };
 
-/** 新版 PATCH 药品请求，仅修改显式传入的字段。 */
+/** PATCH 药品请求，仅修改显式传入的字段。 */
 class MedicineUpdateDTO : public oatpp::DTO
 {
     DTO_INIT(MedicineUpdateDTO, DTO);
@@ -363,7 +363,7 @@ class MedicineUpdateDTO : public oatpp::DTO
     }
 };
 
-/** 新版批量启停请求。 */
+/** 批量启停请求。 */
 class MedicineStatusUpdateDTO : public oatpp::DTO
 {
     DTO_INIT(MedicineStatusUpdateDTO, DTO);
@@ -411,7 +411,7 @@ class MedicineStatusUpdateDTO : public oatpp::DTO
     }
 };
 
-/** 新版批量删除请求。 */
+/** 批量删除请求。 */
 class MedicineBatchDeleteDTO : public oatpp::DTO
 {
     DTO_INIT(MedicineBatchDeleteDTO, DTO);
@@ -436,7 +436,7 @@ class MedicineBatchDeleteDTO : public oatpp::DTO
     }
 };
 
-/** 新版批量操作失败项。 */
+/** 批量操作失败项。 */
 class MedicineFailedItemDTO : public oatpp::DTO
 {
     DTO_INIT(MedicineFailedItemDTO, DTO);
@@ -447,7 +447,7 @@ class MedicineFailedItemDTO : public oatpp::DTO
     DTO_FIELD(Int32, currentVersion, "currentVersion");
 };
 
-/** 新版批量操作结果。 */
+/** 批量操作结果。 */
 class MedicineBatchResultDTO : public oatpp::DTO
 {
     DTO_INIT(MedicineBatchResultDTO, DTO);

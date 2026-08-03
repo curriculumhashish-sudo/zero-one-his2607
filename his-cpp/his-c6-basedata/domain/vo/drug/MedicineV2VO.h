@@ -25,7 +25,7 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-/** 新版单项写操作响应。 */
+/** 单项写操作响应。 */
 class MedicineVersionJsonVO : public JsonVO<MedicineVersionItemDTO::Wrapper>
 {
     DTO_INIT(MedicineVersionJsonVO, JsonVO<MedicineVersionItemDTO::Wrapper>);
@@ -66,7 +66,7 @@ class MedicineVersionJsonVO : public JsonVO<MedicineVersionItemDTO::Wrapper>
     }
 };
 
-/** 新版批量写操作响应。 */
+/** 批量写操作响应。 */
 class MedicineBatchJsonVO : public JsonVO<MedicineBatchResultDTO::Wrapper>
 {
     DTO_INIT(MedicineBatchJsonVO, JsonVO<MedicineBatchResultDTO::Wrapper>);

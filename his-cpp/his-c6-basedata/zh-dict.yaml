@@ -2,19 +2,13 @@ drug:
   tags:
     tag: 药品管理
     tag2: 药品声明式服务
-  modify:
-    summary: 修改药品
-  remove:
-    summary: 删除药品（支持批量）
-  enable-disable:
-    summary: 启/停用药品（支持批量）
   v2:
     update:
-      summary: 新版部分修改药品
+      summary: 修改药品
     status:
-      summary: 新版批量启用或停用药品
+      summary: 启/停用药品（支持批量）
     batchDelete:
-      summary: 新版批量删除药品
+      summary: 删除药品（支持批量）
     message:
       success: 操作成功
       paramInvalid: 请求参数格式或必填字段错误
@@ -27,10 +21,6 @@ drug:
       invalidStatus: 药品当前状态不允许执行该操作
       referenced: 药品已被业务数据引用，不能删除
       serverError: 药品数据操作失败
-  body:
-    modify: 修改药品请求对象
-    remove: 删除药品请求对象
-    enableDisable: 药品启/停用请求对象，activeFlag为true时启用，为false时停用
   query:
     summary: 药品分页条件查询
   add:
