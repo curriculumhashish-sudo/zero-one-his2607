@@ -101,7 +101,7 @@
                     <!-- Docker 远程管理地址-->
                     <dockerHost>https://39.106.111.242:2375</dockerHost>
                     <!-- CA 证书位置 -->
-                    <certPath>D:\17_Develop\Docker\docker-ca</certPath>
+                    <certPath>/home/docker-ca</certPath>
                     <!-- 镜像设置 -->
                     <images>
                         <image>
