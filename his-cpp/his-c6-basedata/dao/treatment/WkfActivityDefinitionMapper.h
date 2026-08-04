@@ -23,8 +23,11 @@
 #include "../../domain/do/treatment/WkfActivityDefinitionDo.h"
 
 /**
- * 诊疗主表字段映射（列表等返回值对象）
- * 对应表：wkf_activity_definition
+ * Main table mapper for wkf_activity_definition (1-based column index).
+ * Matches TREATMENT_FULL_COLUMNS (37 columns, no price column).
+ * Prices are loaded separately via adm_charge_item_definition.
+ *
+ * 1 id ... 10 version, 11 category_code ... 37 def_inhospital_unit_code
  */
 class WkfActivityDefinitionMapper : public Mapper<TreatmentDO>
 {
@@ -32,51 +35,52 @@ public:
 	TreatmentDO mapper(ResultSet* resultSet) const override
 	{
 		TreatmentDO data;
-		data.setId(resultSet->getString("id"));
-		data.setTenantId(resultSet->getString("tenant_id"));
-		data.setCreatedAt(resultSet->getString("created_at"));
-		data.setUpdatedAt(resultSet->getString("updated_at"));
-		data.setCreatedBy(resultSet->getString("created_by"));
-		data.setUpdatedBy(resultSet->getString("updated_by"));
-		data.setIsDeleted(resultSet->getInt("is_deleted"));
-		data.setDeletedAt(resultSet->getString("deleted_at"));
-		data.setDeletedBy(resultSet->getString("deleted_by"));
-		data.setVersion(resultSet->getInt("version"));
+		data.setId(resultSet->getString(1));
+		data.setTenantId(resultSet->getString(2));
+		data.setCreatedAt(resultSet->getString(3));
+		data.setUpdatedAt(resultSet->getString(4));
+		data.setCreatedBy(resultSet->getString(5));
+		data.setUpdatedBy(resultSet->getString(6));
+		data.setIsDeleted(resultSet->getInt(7));
+		data.setDeletedAt(resultSet->getString(8));
+		data.setDeletedBy(resultSet->getString(9));
+		data.setVersion(resultSet->getInt(10));
 
-		data.setCategoryCode(resultSet->getString("category_code"));
-		data.setBusNo(resultSet->getString("bus_no"));
-		data.setName(resultSet->getString("name"));
-		data.setPyStr(resultSet->getString("py_str"));
-		data.setWbStr(resultSet->getString("wb_str"));
-		data.setPackageUnitCode(resultSet->getString("package_unit_code"));
-		data.setTypeEnum(resultSet->getString("type_enum"));
-		data.setStatusEnum(resultSet->getString("status_enum"));
-		data.setDescriptionText(resultSet->getString("description_text"));
-		data.setBodySiteCode(resultSet->getString("body_site_code"));
-		data.setSpecimenCode(resultSet->getString("specimen_code"));
-		data.setOrgId(resultSet->getString("org_id"));
-		data.setLocationId(resultSet->getString("location_id"));
-		data.setRuleId(resultSet->getInt("rule_id"));
-		data.setPricingFlag(resultSet->getInt("pricing_flag"));
-		data.setYbFlag(resultSet->getInt("yb_flag"));
-		data.setYbNo(resultSet->getString("yb_no"));
-		data.setYbMatchFlag(resultSet->getInt("yb_match_flag"));
-		data.setChrgitmLv(resultSet->getInt("chrgitm_lv"));
-		data.setChildrenJson(resultSet->getString("children_json"));
-		data.setChildrenFlag(resultSet->getInt("children_flag"));
-		data.setActivityVersion(resultSet->getString("activity_version"));
-		data.setMerchandiseName(resultSet->getString("merchandise_name"));
-		data.setMerchandisePyStr(resultSet->getString("merchandise_py_str"));
-		data.setMerchandiseWbStr(resultSet->getString("merchandise_wb_str"));
-		data.setDefEncounterUnitCode(resultSet->getString("def_encounter_unit_code"));
-		data.setDefInhospitalUnitCode(resultSet->getString("def_inhospital_unit_code"));
+		data.setCategoryCode(resultSet->getString(11));
+		data.setBusNo(resultSet->getString(12));
+		data.setName(resultSet->getString(13));
+		data.setPyStr(resultSet->getString(14));
+		data.setWbStr(resultSet->getString(15));
+		data.setPackageUnitCode(resultSet->getString(16));
+		data.setTypeEnum(resultSet->getString(17));
+		data.setStatusEnum(resultSet->getString(18));
+		data.setDescriptionText(resultSet->getString(19));
+		data.setBodySiteCode(resultSet->getString(20));
+		data.setSpecimenCode(resultSet->getString(21));
+		data.setOrgId(resultSet->getString(22));
+		data.setLocationId(resultSet->getString(23));
+		data.setRuleId(resultSet->getInt(24));
+		data.setPricingFlag(resultSet->getInt(25));
+		data.setYbFlag(resultSet->getInt(26));
+		data.setYbNo(resultSet->getString(27));
+		data.setYbMatchFlag(resultSet->getInt(28));
+		data.setChrgitmLv(resultSet->getInt(29));
+		data.setChildrenJson(resultSet->getString(30));
+		data.setChildrenFlag(resultSet->getInt(31));
+		data.setActivityVersion(resultSet->getString(32));
+		data.setMerchandiseName(resultSet->getString(33));
+		data.setMerchandisePyStr(resultSet->getString(34));
+		data.setMerchandiseWbStr(resultSet->getString(35));
+		data.setDefEncounterUnitCode(resultSet->getString(36));
+		data.setDefInhospitalUnitCode(resultSet->getString(37));
+		// No column 38 here; retail price comes from charge table (fillPrices).
 		return data;
 	}
 };
 
 /**
- * 诊疗主表字段映射（详情等返回智能指针，无数据时为 nullptr）
- * 对应表：wkf_activity_definition
+ * Pointer mapper for detail query (nullptr when empty).
+ * Same 37-column layout as WkfActivityDefinitionMapper.
  */
 class PtrWkfActivityDefinitionMapper : public Mapper<PtrTreatmentDO>
 {
@@ -84,44 +88,45 @@ public:
 	PtrTreatmentDO mapper(ResultSet* resultSet) const override
 	{
 		auto data = std::make_shared<TreatmentDO>();
-		data->setId(resultSet->getString("id"));
-		data->setTenantId(resultSet->getString("tenant_id"));
-		data->setCreatedAt(resultSet->getString("created_at"));
-		data->setUpdatedAt(resultSet->getString("updated_at"));
-		data->setCreatedBy(resultSet->getString("created_by"));
-		data->setUpdatedBy(resultSet->getString("updated_by"));
-		data->setIsDeleted(resultSet->getInt("is_deleted"));
-		data->setDeletedAt(resultSet->getString("deleted_at"));
-		data->setDeletedBy(resultSet->getString("deleted_by"));
-		data->setVersion(resultSet->getInt("version"));
+		data->setId(resultSet->getString(1));
+		data->setTenantId(resultSet->getString(2));
+		data->setCreatedAt(resultSet->getString(3));
+		data->setUpdatedAt(resultSet->getString(4));
+		data->setCreatedBy(resultSet->getString(5));
+		data->setUpdatedBy(resultSet->getString(6));
+		data->setIsDeleted(resultSet->getInt(7));
+		data->setDeletedAt(resultSet->getString(8));
+		data->setDeletedBy(resultSet->getString(9));
+		data->setVersion(resultSet->getInt(10));
 
-		data->setCategoryCode(resultSet->getString("category_code"));
-		data->setBusNo(resultSet->getString("bus_no"));
-		data->setName(resultSet->getString("name"));
-		data->setPyStr(resultSet->getString("py_str"));
-		data->setWbStr(resultSet->getString("wb_str"));
-		data->setPackageUnitCode(resultSet->getString("package_unit_code"));
-		data->setTypeEnum(resultSet->getString("type_enum"));
-		data->setStatusEnum(resultSet->getString("status_enum"));
-		data->setDescriptionText(resultSet->getString("description_text"));
-		data->setBodySiteCode(resultSet->getString("body_site_code"));
-		data->setSpecimenCode(resultSet->getString("specimen_code"));
-		data->setOrgId(resultSet->getString("org_id"));
-		data->setLocationId(resultSet->getString("location_id"));
-		data->setRuleId(resultSet->getInt("rule_id"));
-		data->setPricingFlag(resultSet->getInt("pricing_flag"));
-		data->setYbFlag(resultSet->getInt("yb_flag"));
-		data->setYbNo(resultSet->getString("yb_no"));
-		data->setYbMatchFlag(resultSet->getInt("yb_match_flag"));
-		data->setChrgitmLv(resultSet->getInt("chrgitm_lv"));
-		data->setChildrenJson(resultSet->getString("children_json"));
-		data->setChildrenFlag(resultSet->getInt("children_flag"));
-		data->setActivityVersion(resultSet->getString("activity_version"));
-		data->setMerchandiseName(resultSet->getString("merchandise_name"));
-		data->setMerchandisePyStr(resultSet->getString("merchandise_py_str"));
-		data->setMerchandiseWbStr(resultSet->getString("merchandise_wb_str"));
-		data->setDefEncounterUnitCode(resultSet->getString("def_encounter_unit_code"));
-		data->setDefInhospitalUnitCode(resultSet->getString("def_inhospital_unit_code"));
+		data->setCategoryCode(resultSet->getString(11));
+		data->setBusNo(resultSet->getString(12));
+		data->setName(resultSet->getString(13));
+		data->setPyStr(resultSet->getString(14));
+		data->setWbStr(resultSet->getString(15));
+		data->setPackageUnitCode(resultSet->getString(16));
+		data->setTypeEnum(resultSet->getString(17));
+		data->setStatusEnum(resultSet->getString(18));
+		data->setDescriptionText(resultSet->getString(19));
+		data->setBodySiteCode(resultSet->getString(20));
+		data->setSpecimenCode(resultSet->getString(21));
+		data->setOrgId(resultSet->getString(22));
+		data->setLocationId(resultSet->getString(23));
+		data->setRuleId(resultSet->getInt(24));
+		data->setPricingFlag(resultSet->getInt(25));
+		data->setYbFlag(resultSet->getInt(26));
+		data->setYbNo(resultSet->getString(27));
+		data->setYbMatchFlag(resultSet->getInt(28));
+		data->setChrgitmLv(resultSet->getInt(29));
+		data->setChildrenJson(resultSet->getString(30));
+		data->setChildrenFlag(resultSet->getInt(31));
+		data->setActivityVersion(resultSet->getString(32));
+		data->setMerchandiseName(resultSet->getString(33));
+		data->setMerchandisePyStr(resultSet->getString(34));
+		data->setMerchandiseWbStr(resultSet->getString(35));
+		data->setDefEncounterUnitCode(resultSet->getString(36));
+		data->setDefInhospitalUnitCode(resultSet->getString(37));
+		// No column 38 here; retail price comes from charge table (fillPrices).
 		return data;
 	}
 };

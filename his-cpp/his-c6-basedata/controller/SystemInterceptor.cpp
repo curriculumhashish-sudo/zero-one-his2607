@@ -24,6 +24,7 @@
 #include "SystemInterceptor.h"
 #include "Message.h"
 #include "domain/vo/NoDataJsonVO.h"
+#include "domain/vo/treatment/TreatmentOptionsVO.h"
 #include "ApiHelper.h"
 
 using namespace oatpp::web::protocol::http;
@@ -67,6 +68,18 @@ std::shared_ptr<Response> createErrorRespone(std::string message, std::shared_pt
 	return response;
 }
 
+// 构造诊疗选择接口的 401 统一响应。
+static std::shared_ptr<Response> createTreatmentOptionsV2UnauthorizedResponse(
+	const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& mapper)
+{
+	auto error = TreatmentOptionsPageJsonVO::createShared();
+	error->init(nullptr, ResultStatus(
+		ZH_WORDS_GETTER("treatment.message.unauthorized"), 10002));
+	auto response = ResponseFactory::createResponse(Status::CODE_401, error, mapper);
+	response->putHeader(Header::WWW_AUTHENTICATE, "Bearer realm=\"API\"");
+	return response;
+}
+
 CheckRequestInterceptor::CheckRequestInterceptor(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper)
 {
 	m_objectMapper = objectMapper;
@@ -88,6 +101,10 @@ std::shared_ptr<oatpp::web::server::interceptor::RequestInterceptor::OutgoingRes
 	// Get request credentials
 	oatpp::String token = request->getHeader(API_H_TOKEN);
 	if (!token || token->empty()) {
+		const std::string optionsPath = "/api/v2/treatments/options";
+		if (path == optionsPath || path.rfind(optionsPath + "?", 0) == 0) {
+			return createTreatmentOptionsV2UnauthorizedResponse(m_objectMapper);
+		}
 		return createErrorRespone("empty token", m_objectMapper);
 	}
 	return nullptr;

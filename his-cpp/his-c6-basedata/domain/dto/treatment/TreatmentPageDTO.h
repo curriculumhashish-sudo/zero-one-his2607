@@ -22,7 +22,6 @@
 
 #include "../../GlobalInclude.h"
 #include "TreatmentDetailDTO.h"
-#include "TreatmentSelectDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
@@ -32,14 +31,6 @@
 class TreatmentPageDTO : public PageDTO<TreatmentDetailDTO::Wrapper>
 {
     DTO_INIT(TreatmentPageDTO, PageDTO<TreatmentDetailDTO::Wrapper>);
-};
-
-/**
- * 诊疗分页列表 DTO（选择/下拉 简化）
- */
-class TreatmentSelectPageDTO : public PageDTO<TreatmentSelectDTO::Wrapper>
-{
-    DTO_INIT(TreatmentSelectPageDTO, PageDTO<TreatmentSelectDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)

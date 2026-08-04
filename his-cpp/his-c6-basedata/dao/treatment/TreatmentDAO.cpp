@@ -1,4 +1,4 @@
-/*
+Ôªø/*
  Copyright Zero One Star. All rights reserved.
 
  @Author: awei
@@ -22,8 +22,8 @@
 #include "WkfActivityDefinitionMapper.h"
 #include "WkfActivityDefinitionChildrenMapper.h"
 #include "StringUtil.h"
-
-// ÷˜±ÌÕÍ’˚◊÷∂Œ¡–±Ì£®∂‘∆Î WkfActivityDefinitionMapper£¨±‹√‚ SELECT *£©
+#include "TreatmentMapper.h"
+// ????????????????????? WkfActivityDefinitionMapper?????? SELECT *??
 static const char* TREATMENT_FULL_COLUMNS =
 	"id,tenant_id,created_at,updated_at,created_by,updated_by,is_deleted,deleted_at,deleted_by,version,"
 	"category_code,bus_no,name,py_str,wb_str,package_unit_code,type_enum,status_enum,description_text,"
@@ -31,57 +31,41 @@ static const char* TREATMENT_FULL_COLUMNS =
 	"chrgitm_lv,children_json,children_flag,activity_version,merchandise_name,merchandise_py_str,"
 	"merchandise_wb_str,def_encounter_unit_code,def_inhospital_unit_code";
 
-// ◊”±ÌÕÍ’˚◊÷∂Œ¡–±Ì£®∂‘∆Î WkfActivityDefinitionChildrenMapper£©
+// ???????????????????? WkfActivityDefinitionChildrenMapper??
 static const char* TREATMENT_CHILD_FULL_COLUMNS =
 	"id,tenant_id,created_at,updated_at,created_by,updated_by,is_deleted,deleted_at,deleted_by,version,"
 	"activity_id,children_id,children_num,children_name";
 
-/** Ω´Ω”ø⁄◊¥Ã¨÷µ◊™ªªŒ™ ˝æ›ø‚√∂æŸ°£ */
-static const char* treatmentStatusCode(int status)
-{
-	switch (status)
-	{
-	case 1:
-		return "DRAFT";
-	case 2:
-		return "ACTIVE";
-	case 3:
-		return "INACTIVE";
-	case 4:
-		return "DISCARDED";
-	default:
-		return "";
-	}
-}
-
 std::string TreatmentDAO::queryConditionBuilder(const TreatmentQuery::Wrapper& query, SqlParams& params)
 {
 	stringstream sqlCondition;
-	sqlCondition << " WHERE is_deleted=0";
-	// πÿº¸¥ £∫√˚≥∆ªÚ“µŒÒ±‡¬Îƒ£∫˝∆•≈‰
+	sqlCondition << " WHERE w.is_deleted=0";
+	// ???????????????????????
 	if (query->keywords) {
 		sqlCondition << " AND (`name` LIKE CONCAT('%',?,'%') OR `bus_no` LIKE CONCAT('%',?,'%'))";
 		SQLPARAMS_PUSH(params, "s", std::string, query->keywords.getValue(""));
 		SQLPARAMS_PUSH(params, "s", std::string, query->keywords.getValue(""));
 	}
-	// ∑÷¿‡π˝¬À
+	// ???????
 	if (query->classification) {
-		sqlCondition << " AND `category_code`=?";
+		sqlCondition << " AND w.`category_code`=?";
 		SQLPARAMS_PUSH(params, "s", std::string, query->classification.getValue(""));
 	}
 	return sqlCondition.str();
 }
 
+// ÊûÑÂª∫ÂΩìÂâçÁßüÊà∑‰∏ãÂ∑≤ÂêØÁî®ËØäÁñóÁöÑÂÖ≥ÈîÆÂ≠ó‰∏éÂàÜÁ±ªÁ≠õÈÄâÊù°‰ª∂„ÄÇ
 std::string TreatmentDAO::selectConditionBuilder(
-	const TreatmentSelectQuery::Wrapper& query,
+	const TreatmentOptionsQuery::Wrapper& query,
 	const std::string& tenantId,
 	SqlParams& params)
 {
 	std::stringstream condition;
-	condition << " WHERE d.`is_deleted`=0 AND d.`tenant_id`=?";
+	condition << " WHERE d.`is_deleted`=0 AND d.`tenant_id`=?"
+		" AND d.`status_enum`='ACTIVE'";
 	SQLPARAMS_PUSH(params, "s", std::string, tenantId);
 
-	std::string keywords = query->keywords.getValue("");
+	std::string keywords = query->keyword.getValue("");
 	StringUtil::trim(&keywords);
 	if (!keywords.empty())
 	{
@@ -95,24 +79,28 @@ std::string TreatmentDAO::selectConditionBuilder(
 		}
 	}
 
-	if (query->status)
+	const std::string categoryCode = query->categoryCode.getValue("");
+	if (!categoryCode.empty())
 	{
-		condition << " AND d.`status_enum`=?";
-		const std::string status =
-			treatmentStatusCode(query->status.getValue(0));
-		SQLPARAMS_PUSH(params, "s", std::string, status);
+		condition << " AND d.`category_code`=?";
+		SQLPARAMS_PUSH(params, "s", std::string, categoryCode);
 	}
 	return condition.str();
 }
 
+// Êü•ËØ¢ÂΩìÂâçÁôªÂΩïÁî®Êà∑ÂîØ‰∏ÄÊúâÊïàÁöÑÁßüÊà∑„ÄÇ
 std::string TreatmentDAO::selectCurrentTenantId(const std::string& userId)
 {
 	if (userId.empty())
 	{
 		return "";
 	}
+	if (!sqlSession || !sqlSession->getConnection())
+	{
+		throw std::runtime_error("database connection is unavailable");
+	}
 
-	// ”≈œ» π”√◊ÓΩ¸µ«¬º◊‚ªß£¨Ωˆ”–“ª∏ˆ”––ß◊‚ªß ±∞≤»´ªÿÕÀ°£
+	// ‰ºòÂÖàËØªÂèñÊúÄËøëÁôªÂΩï‰ºöËØùÁßüÊà∑ÔºõÊó†‰ºöËØùÊó∂‰ªÖÊé•ÂèóÂîØ‰∏ÄÊúâÊïàÁßüÊà∑„ÄÇ
 	const std::string sql =
 		"SELECT COALESCE("
 		"(SELECT s.`tenant_id` FROM `whale_user_login_session` s "
@@ -142,10 +130,12 @@ std::string TreatmentDAO::selectCurrentTenantId(const std::string& userId)
 		params);
 }
 
+// ÁªüËÆ°Á¨¶ÂêàÈÄâÊã©Êù°‰ª∂ÁöÑËØäÁñóÊï∞Èáè„ÄÇ
 uint64_t TreatmentDAO::countSelect(
-	const TreatmentSelectQuery::Wrapper& query,
+	const TreatmentOptionsQuery::Wrapper& query,
 	const std::string& tenantId)
 {
+	// Â§çÁî®Áõ∏ÂêåÊü•ËØ¢Êù°‰ª∂ÁªüËÆ°ÂàÜÈ°µÊÄªÊï∞„ÄÇ
 	SqlParams params;
 	std::string sql =
 		"SELECT COUNT(d.`id`) FROM `wkf_activity_definition` d";
@@ -153,81 +143,57 @@ uint64_t TreatmentDAO::countSelect(
 	return sqlSession->executeQueryNumerical(sql, params);
 }
 
+// ÂàÜÈ°µÊü•ËØ¢ËØäÁñóÔºåÂπ∂ËÅîË°®Ë°•ÂÖÖÂàÜÁ±ªÂèäÂçï‰ΩçÂ≠óÂÖ∏ÊñáÊú¨„ÄÇ
 std::list<TreatmentSelectBO> TreatmentDAO::selectSelectWithPage(
-	const TreatmentSelectQuery::Wrapper& query,
+	const TreatmentOptionsQuery::Wrapper& query,
 	const std::string& tenantId)
 {
 	SqlParams params;
-	// ¡™±Ì“ª¥Œ∑µªÿΩ”ø⁄–Ë“™µƒ◊÷∂Œ£¨±‹√‚ SELECT * ∫Õ÷Ãı≤π≤È°£
+	// ÊòæÂºèÂàóÂá∫ËøîÂõûÂ≠óÊÆµÔºåÈÅøÂÖç‰ΩøÁî® SELECT *„ÄÇ
 	std::string sql =
 		"SELECT d.`id`,d.`bus_no`,d.`name`,d.`category_code`,"
 		"COALESCE(category_concept.`display`,''),"
-		"COALESCE(adm_org.`name`,whale_org.`display_name`,''),"
-		"COALESCE(price.`retail_price`,0),'' AS specification,"
-		"'' AS manufacturer_text,COALESCE(price.`item_type_code`,''),"
-		"COALESCE(item_type_concept.`display`,''),"
 		"d.`package_unit_code`,COALESCE(package_unit.`display`,''),"
-		"d.`def_encounter_unit_code`,COALESCE(encounter_unit.`display`,''),"
-		"d.`yb_no`,d.`status_enum` "
+		"d.`def_encounter_unit_code`,COALESCE(encounter_unit.`display`,'') "
 		"FROM `wkf_activity_definition` d "
 		"LEFT JOIN `ter_code_system` category_system "
-		"ON category_system.`name`='activity_category_code' "
-		"AND category_system.`is_deleted`=0 "
-		"AND (category_system.`tenant_id`=d.`tenant_id` "
-		"OR category_system.`tenant_id` IS NULL) "
+		"ON category_system.`id`=("
+		"SELECT cs.`id` FROM `ter_code_system` cs "
+		"WHERE cs.`name`='activity_category_code' "
+		"AND cs.`is_deleted`=0 AND cs.`status` IN ('ACTIVE','2') "
+		"AND (cs.`tenant_id`=d.`tenant_id` OR cs.`tenant_id` IS NULL) "
+		"ORDER BY (cs.`tenant_id`=d.`tenant_id`) DESC,cs.`id` DESC LIMIT 1) "
 		"LEFT JOIN `ter_concept` category_concept "
-		"ON category_concept.`code_system_id`=category_system.`id` "
-		"AND category_concept.`code`=d.`category_code` "
-		"AND category_concept.`is_deleted`=0 "
-		"AND category_concept.`is_active`=1 "
-		"AND (category_concept.`tenant_id`=d.`tenant_id` "
-		"OR category_concept.`tenant_id` IS NULL) "
-		"LEFT JOIN `adm_organization` adm_org "
-		"ON adm_org.`id`=d.`org_id` AND adm_org.`is_deleted`=0 "
-		"AND (adm_org.`tenant_id`=d.`tenant_id` "
-		"OR adm_org.`tenant_id` IS NULL) "
-		"LEFT JOIN `whale_organization_units` whale_org "
-		"ON whale_org.`id`=d.`org_id` AND whale_org.`is_deleted`=0 "
-		"AND (whale_org.`tenant_id`=d.`tenant_id` "
-		"OR whale_org.`tenant_id` IS NULL) "
+		"ON category_concept.`id`=("
+		"SELECT concept.`id` FROM `ter_concept` concept "
+		"WHERE concept.`code_system_id`=category_system.`id` "
+		"AND concept.`code`=d.`category_code` "
+		"AND concept.`is_deleted`=0 AND concept.`is_active`=1 "
+		"AND (concept.`tenant_id`=d.`tenant_id` OR concept.`tenant_id` IS NULL) "
+		"ORDER BY (concept.`tenant_id`=d.`tenant_id`) DESC,concept.`id` DESC LIMIT 1) "
 		"LEFT JOIN `ter_code_system` unit_system "
-		"ON unit_system.`name`='unit_code' "
-		"AND unit_system.`is_deleted`=0 "
-		"AND (unit_system.`tenant_id`=d.`tenant_id` "
-		"OR unit_system.`tenant_id` IS NULL) "
+		"ON unit_system.`id`=("
+		"SELECT cs.`id` FROM `ter_code_system` cs "
+		"WHERE cs.`name`='unit_code' "
+		"AND cs.`is_deleted`=0 AND cs.`status` IN ('ACTIVE','2') "
+		"AND (cs.`tenant_id`=d.`tenant_id` OR cs.`tenant_id` IS NULL) "
+		"ORDER BY (cs.`tenant_id`=d.`tenant_id`) DESC,cs.`id` DESC LIMIT 1) "
 		"LEFT JOIN `ter_concept` package_unit "
-		"ON package_unit.`code_system_id`=unit_system.`id` "
-		"AND package_unit.`code`=d.`package_unit_code` "
-		"AND package_unit.`is_deleted`=0 AND package_unit.`is_active`=1 "
-		"AND (package_unit.`tenant_id`=d.`tenant_id` "
-		"OR package_unit.`tenant_id` IS NULL) "
+		"ON package_unit.`id`=("
+		"SELECT concept.`id` FROM `ter_concept` concept "
+		"WHERE concept.`code_system_id`=unit_system.`id` "
+		"AND concept.`code`=d.`package_unit_code` "
+		"AND concept.`is_deleted`=0 AND concept.`is_active`=1 "
+		"AND (concept.`tenant_id`=d.`tenant_id` OR concept.`tenant_id` IS NULL) "
+		"ORDER BY (concept.`tenant_id`=d.`tenant_id`) DESC,concept.`id` DESC LIMIT 1) "
 		"LEFT JOIN `ter_concept` encounter_unit "
-		"ON encounter_unit.`code_system_id`=unit_system.`id` "
-		"AND encounter_unit.`code`=d.`def_encounter_unit_code` "
-		"AND encounter_unit.`is_deleted`=0 AND encounter_unit.`is_active`=1 "
-		"AND (encounter_unit.`tenant_id`=d.`tenant_id` "
-		"OR encounter_unit.`tenant_id` IS NULL) "
-		"LEFT JOIN ("
-		"SELECT `tenant_id`,`instance_id`,MAX(`price_value`) AS retail_price,"
-		"MAX(`type_code`) AS item_type_code "
-		"FROM `adm_charge_item_definition` "
-		"WHERE `instance_table`='wkf_activity_definition' "
-		"AND `price_type_code`='SALE' AND `status_enum`='ACTIVE' "
-		"AND `is_deleted`=0 GROUP BY `tenant_id`,`instance_id`"
-		") price ON price.`instance_id`=d.`id` "
-		"AND price.`tenant_id`=d.`tenant_id` "
-		"LEFT JOIN `ter_code_system` item_type_system "
-		"ON item_type_system.`name`='fin_type_code' "
-		"AND item_type_system.`is_deleted`=0 "
-		"AND (item_type_system.`tenant_id`=d.`tenant_id` "
-		"OR item_type_system.`tenant_id` IS NULL) "
-		"LEFT JOIN `ter_concept` item_type_concept "
-		"ON item_type_concept.`code_system_id`=item_type_system.`id` "
-		"AND item_type_concept.`code`=price.`item_type_code` "
-		"AND item_type_concept.`is_deleted`=0 "
-		"AND item_type_concept.`is_active`=1 "
-		"AND (item_type_concept.`tenant_id`=d.`tenant_id` "
-		"OR item_type_concept.`tenant_id` IS NULL)";
+		"ON encounter_unit.`id`=("
+		"SELECT concept.`id` FROM `ter_concept` concept "
+		"WHERE concept.`code_system_id`=unit_system.`id` "
+		"AND concept.`code`=d.`def_encounter_unit_code` "
+		"AND concept.`is_deleted`=0 AND concept.`is_active`=1 "
+		"AND (concept.`tenant_id`=d.`tenant_id` OR concept.`tenant_id` IS NULL) "
+		"ORDER BY (concept.`tenant_id`=d.`tenant_id`) DESC,concept.`id` DESC LIMIT 1)";
 	sql += selectConditionBuilder(query, tenantId, params);
 	sql += " ORDER BY COALESCE(d.`updated_at`,d.`created_at`) DESC,d.`id` DESC";
 
@@ -246,28 +212,43 @@ std::list<TreatmentSelectBO> TreatmentDAO::selectSelectWithPage(
 uint64_t TreatmentDAO::count(const TreatmentQuery::Wrapper& query)
 {
 	SqlParams params;
-	string sql = "SELECT COUNT(*) FROM wkf_activity_definition ";
-	// ππΩ®≤È—ØÃıº˛
+	string sql = "SELECT COUNT(*) FROM wkf_activity_definition w JOIN adm_charge_item_definition a";
+	// ???????????
 	sql += queryConditionBuilder(query, params);
-	// ÷¥––≤È—Ø
+	// ??????
 	return sqlSession->executeQueryNumerical(sql, params);
 }
-
+const std::string Cols = R"(
+w.id,w.tenant_id,w.created_at,w.updated_at,w.created_by,w.updated_by,
+w.is_deleted,w.deleted_at,w.deleted_by,w.version,w.category_code,w.bus_no,w.name,w.py_str,w.wb_str,
+w.package_unit_code,w.type_enum,w.status_enum,w.description_text,w.body_site_code,w.specimen_code,
+w.org_id,w.location_id,w.rule_id,w.pricing_flag,w.yb_flag,w.yb_no,w.yb_match_flag,w.chrgitm_lv,
+w.children_json,w.children_flag,w.activity_version,w.merchandise_name,w.merchandise_py_str,w.merchandise_wb_str,
+w.def_encounter_unit_code,w.def_inhospital_unit_code,
+a.limit_price
+)";
 std::list<TreatmentDO> TreatmentDAO::selectWithPage(const TreatmentQuery::Wrapper& query)
 {
 	SqlParams params;
 	string sql = "SELECT ";
-	sql += TREATMENT_FULL_COLUMNS;
-	sql += " FROM wkf_activity_definition ";
-	// ππΩ®≤È—ØÃıº˛
+	sql += Cols;
+	sql += " FROM wkf_activity_definition w LEFT JOIN ( "
+		"SELECT instance_id,tenant_id,"
+		"MAX(CASE price_type_code WHEN 'PURCHASE' THEN price_value END) AS purchase_price,"
+		"MAX(CASE price_type_code WHEN 'SALE' THEN price_value END) AS sale_price,"
+		"MAX(CASE price_type_code WHEN 'LIMIT' THEN price_value END) AS limit_price,"
+		"yb_type FROM adm_charge_item_definition "
+		"GROUP BY instance_id,tenant_id, yb_type "
+		") a ON w.id = a.instance_id AND w.tenant_id = a.tenant_id ";
+	// ???????????
 	sql += queryConditionBuilder(query, params);
-	// ππΩ®≈≈–Ú”Ôæ‰
-	sql += " ORDER BY IFNULL(`updated_at`, `created_at`) DESC, `id` DESC ";
-	// ππΩ®∑÷“≥Ãıº˛
+	// ???????????
+	sql += " ORDER BY IFNULL(w.`updated_at`, w.`created_at`) DESC, `id` DESC ";
+	// ???????????
 	sql += " LIMIT " + std::to_string(((query->pageIndex - 1) * query->pageSize)) + "," + std::to_string(query->pageSize);
 
-	// ÷¥––≤È—Ø
-	return sqlSession->executeQuery<TreatmentDO>(sql, WkfActivityDefinitionMapper(), params);
+	// ??????
+	return sqlSession->executeQuery<TreatmentDO>(sql, TreatmentMapper(), params);
 }
 
 std::list<TreatmentDO> TreatmentDAO::selectByName(const string& name)
@@ -310,11 +291,37 @@ int32_t TreatmentDAO::softDeleteChildrenByActivityId(const std::string& activity
 	return sqlSession->executeUpdate(sql, "%s%s%s", deletedBy, deletedAt, activityId);
 }
 
+// Price columns for adm_charge_item_definition
+static const char* CHARGE_FULL_COLUMNS =
+	"id,tenant_id,created_at,updated_at,created_by,updated_by,is_deleted,deleted_at,deleted_by,version,"
+	"instance_table,instance_id,charge_name,status_enum,org_id,type_code,yb_type,price_type_code,"
+	"lot_no,price_value,priority";
+
+std::list<AdmChargeItemDefinitionDO> TreatmentDAO::selectPricesByInstanceId(const std::string& instanceId)
+{
+	string sql = "SELECT ";
+	sql += CHARGE_FULL_COLUMNS;
+	sql += " FROM adm_charge_item_definition "
+		"WHERE instance_table='wkf_activity_definition' AND instance_id=? AND is_deleted=0 "
+		"AND price_type_code IN ('PURCHASE','SALE','LIMIT')";
+	return sqlSession->executeQuery<AdmChargeItemDefinitionDO>(
+		sql, AdmChargeItemDefinitionMapper(), "%s", instanceId);
+}
+
+int32_t TreatmentDAO::softDeletePricesByInstanceId(const std::string& instanceId, const std::string& deletedBy, const std::string& deletedAt)
+{
+	string sql = "UPDATE adm_charge_item_definition SET is_deleted=1, deleted_by=?, deleted_at=? "
+		"WHERE instance_table='wkf_activity_definition' AND instance_id=? AND is_deleted=0 "
+		"AND price_type_code IN ('PURCHASE','SALE','LIMIT')";
+	return sqlSession->executeUpdate(sql, "%s%s%s", deletedBy, deletedAt, instanceId);
+}
+
 int32_t TreatmentDAO::removeData(std::list<std::string>& ids)
 {
 	if (ids.empty()) return 0;
 
-	std::string sql = "UPDATE wkf_activity_definition SET is_deleted=1, deleted_at=NOW() WHERE id IN (";
+	std::string sql = "UPDATE wkf_activity_definition w LEFT JOIN adm_charge_item_definition a SET "
+		"w.is_deleted = 1, w.deleted_at = NOW(),a.is_deleted=1,a.deleted_at = NOW() WHERE w.id IN(";
 	SqlParams params;
 	bool first = true;
 
@@ -325,7 +332,7 @@ int32_t TreatmentDAO::removeData(std::list<std::string>& ids)
 		sql += "?";
 		SQLPARAMS_PUSH(params, "s", std::string, item);
 	}
-	sql += ") AND is_deleted=0";
+	sql += ") AND w.is_deleted=0";
 
 	return sqlSession->executeUpdate(sql, params);
 }
