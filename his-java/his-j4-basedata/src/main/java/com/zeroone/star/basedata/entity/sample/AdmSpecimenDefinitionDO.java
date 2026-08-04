@@ -2,6 +2,7 @@ package com.zeroone.star.basedata.entity.sample;
 
 
 import com.baomidou.mybatisplus.annotation.*;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -25,13 +26,15 @@ public class AdmSpecimenDefinitionDO {
 
     /** 租户标识 */
     @TableField("tenant_id")
+    @Schema(description = "租户标识")
     private String tenantId;
 
     /** 创建时间（insert 时由 MetaObjectHandler 自动填充） */
     @TableField(value = "created_at", fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 
-    /** 最后更新时间（insert/update 时由 MetaObjectHandler 自动填充） */
+
+    /** 最后更新时间 */
     @TableField(value = "updated_at", fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updatedAt;
 
