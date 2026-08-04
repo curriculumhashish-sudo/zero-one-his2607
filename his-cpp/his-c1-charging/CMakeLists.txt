@@ -38,8 +38,8 @@ if(WIN32)
 	ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" SC_FILES)
 endif()
 
-# 编译可执行文件
-add_executable (${appName} ${SC_FILES} "domain/query/pay_manage/Pay_ManageGetPatientQueueQuery.h" "domain/query/pay_manage/Pay_ManageGetPatientDetailsQuery.h" "domain/query/pay_manage/Pay_ManageGetPatientPayRecordsQuery.h"  "domain/vo/pay_manage/Pay_ManageGetPatientPayRecordsVO.h" "domain/vo/pay_manage/Pay_ManageGetPatientQueueVO.h" "domain/dto/pay_manage/Pay_ManageGetPatientDetailsDTO.h" "domain/dto/pay_manage/Pay_ManageGetPatientPayRecordsDTO.h" "domain/dto/pay_manage/Pay_ManageGetPatientQueueDTO.h" "controller/pay_manage/Pay_ManageGetPatientDetailsController.h" "controller/pay_manage/Pay_ManageGetPatientPayRecordsController.h" "controller/pay_manage/Pay_ManageGetPatientQueueController.h" "controller/pay_manage/Pay_ManageGetPatientDetailsController.cpp" "controller/pay_manage/Pay_ManageGetPatientPayRecordsController.cpp" "controller/pay_manage/Pay_ManageGetPatientQueueController.cpp")
+# Compile executable
+add_executable (${appName} ${SC_FILES} "domain/query/pay_manage/Pay_ManageGetPatientQueueQuery.h" "domain/query/pay_manage/Pay_ManageGetPatientDetailsQuery.h" "domain/query/pay_manage/Pay_ManageGetPatientPayRecordsQuery.h"  "domain/vo/pay_manage/Pay_ManageGetPatientPayRecordsVO.h" "domain/vo/pay_manage/Pay_ManageGetPatientQueueVO.h" "domain/dto/pay_manage/Pay_ManageGetPatientDetailsDTO.h" "domain/dto/pay_manage/Pay_ManageGetPatientPayRecordsDTO.h" "domain/dto/pay_manage/Pay_ManageGetPatientQueueDTO.h" "controller/pay_manage/Pay_ManageGetPatientDetailsController.h" "controller/pay_manage/Pay_ManageGetPatientPayRecordsController.h" "controller/pay_manage/Pay_ManageGetPatientQueueController.h")
 
 # 发布Swagger文档包宏定义
 if(DEFINED _RELEASE_DOC_)

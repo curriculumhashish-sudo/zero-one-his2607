@@ -939,7 +939,20 @@ byj:
    cost_attr: 费用性质
    rest: 账户余额
    ward: 病区
-   VisitStatus: 就诊状态
+   visit_status: 就诊状态
+   male: 男
+   female: 女
+   pay_type_cash: 现金
+   pay_type_wechat: 微信
+   pay_type_alipay: 支付宝
+   pay_type_bank_card: 银行卡
+   pay_type_insurance: 医保
+   service_type_prepay: 收预交金
+   service_type_settlement: 结算
+   service_type_refund: 退费
+   status_completed: 成功（收款已完成）
+   status_pending: 处理中
+   status_cancelled: 已取消
 yiguang:
  charging:
   admission:
