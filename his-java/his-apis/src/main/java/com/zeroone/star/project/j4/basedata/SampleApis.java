@@ -30,7 +30,7 @@ public interface SampleApis {
      * @param dto 启停用请求数据
      * @return 操作结果
      */
-    JsonVO<SpecimenDefinitionOperateVO> updateStatus(SpecimenDefinitionStatusDTO dto);
+    JsonVO<SpecimenDefinitionOperateVO> updateSampleStatus(SpecimenDefinitionStatusDTO dto);
 
     /**
      * 删除样本定义
@@ -38,7 +38,7 @@ public interface SampleApis {
      * @param dto 删除请求数据
      * @return 操作结果
      */
-    JsonVO<SpecimenDefinitionOperateVO> delete(SpecimenDefinitionDeleteDTO dto);
+    JsonVO<SpecimenDefinitionOperateVO> deleteSample(SpecimenDefinitionDeleteDTO dto);
 
     /**
      * 修改样本定义
@@ -46,7 +46,7 @@ public interface SampleApis {
      * @param dto 修改请求数据
      * @return 操作结果
      */
-    JsonVO<SpecimenDefinitionOperateVO> update(SpecimenDefinitionUpdateDTO dto);
+    JsonVO<SpecimenDefinitionOperateVO> updateSample(SpecimenDefinitionUpdateDTO dto);
 
     /**
      * 获取样本名称（下拉选项）
