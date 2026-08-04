@@ -16,13 +16,13 @@ class PatientAddDTO : public oatpp::DTO
 	// 患者业务编号
 	DTO_FIELD(String, busNo);
 	DTO_FIELD_INFO(busNo) {
-		info->description = ZH_WORDS_GETTER("patient.field.id");
+		info->description = ZH_WORDS_GETTER("pat.field.id");
 	}
 
 	// 患者姓名
 	DTO_FIELD(String, name);
 	DTO_FIELD_INFO(name) {
-		info->description = ZH_WORDS_GETTER("patient.field.name");
+		info->description = ZH_WORDS_GETTER("pat.field.name");
 	}
 
 	// 姓名扩展JSON

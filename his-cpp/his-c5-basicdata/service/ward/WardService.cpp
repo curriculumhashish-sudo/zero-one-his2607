@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "WardService.h"
 #include "StringUtil.h"
 #include "dao/ward/WardDAO.h"
@@ -6,6 +6,7 @@
 #include "id/SnowFlake.h"
 #include "SimpleDateTimeFormat.h"
 #include "TransactionManager.h"
+#include "picojson/picojson.h"
 
 namespace
 {
@@ -107,6 +108,42 @@ namespace
         }
 
         return keywordResult;
+    }
+
+    LocationMutationResult mutationFailure(
+        const std::string& message)
+    {
+        LocationMutationResult result;
+        result.message = message;
+        return result;
+    }
+
+    LocationMutationResult mutationSuccess(
+        const PtrWardLocationDO& data)
+    {
+        LocationMutationResult result;
+        result.success = true;
+        result.data = data;
+        return result;
+    }
+
+    std::string resolveActor(const PayloadDTO& payload)
+    {
+        std::string actor = payload.getUsername();
+        if (actor.empty() || actor == "none")
+        {
+            actor = payload.getId();
+        }
+        return actor.empty() ? "unknown" : actor;
+    }
+
+    bool isValidJsonObject(const std::string& value)
+    {
+        picojson::value parsed;
+        const std::string error =
+            picojson::parse(parsed, value);
+        return error.empty() &&
+            parsed.is<picojson::object>();
     }
 }
 
@@ -240,6 +277,68 @@ oatpp::List<WardTreeNodeVO::Wrapper> WardService::GetTree(WardTreeQuery::Wrapper
     }
 
     return applyTreeFilters(result, statusEnum, keyword);
+}
+
+// ============================================================
+// 根据病房ID查询病房信息
+// 业务逻辑: 从adm_location表中按ID查询HOUSE类型记录
+// 步骤: ① trim ID → ② WardDAO只读查询 → ③ 校验formEnum=="HOUSE"
+//      → ④ 将parent_id映射为wardAreaId返回
+// 返回: {id, name, wardAreaId}，ID无效或记录不存在返回nullptr
+// ============================================================
+WardRoomDTO::Wrapper WardService::queryRoomById(const std::string& rawId)
+{
+    std::string id = rawId;
+    StringUtil::trim(&id);
+    if (id.empty())
+        return nullptr;
+
+    WardDAO dao;
+    auto row = dao.selectLocationById(id);
+    if (!row || row->getFormEnum() != "HOUSE")
+        return nullptr;
+
+    auto dto = WardRoomDTO::createShared();
+    dto->id = row->getId();
+    dto->name = row->getName();
+    dto->wardAreaId = row->getParentId();  // 所属病区ID = parent_id
+    return dto;
+}
+
+// ============================================================
+// 根据病床ID查询病床信息
+// 业务逻辑: 从adm_location表中按ID查询BED类型记录
+// 步骤: ① trim ID → ② WardDAO只读查询 → ③ 校验formEnum=="BED"
+//      → ④ 将parent_id映射为wardRoomId，status_enum/operational_enum映射为Int32状态码
+// 状态映射: status_enum=="DISABLED" → 2(停用)
+//           operational_enum=="IN_USE" → 1(占用)
+//           其他 → 0(空闲)
+// 返回: {id, name, status, wardRoomId}，ID无效或记录不存在返回nullptr
+// ============================================================
+WardBedDTO::Wrapper WardService::queryBedById(const std::string& rawId)
+{
+    std::string id = rawId;
+    StringUtil::trim(&id);
+    if (id.empty())
+        return nullptr;
+
+    WardDAO dao;
+    auto row = dao.selectLocationById(id);
+    if (!row || row->getFormEnum() != "BED")
+        return nullptr;
+
+    auto dto = WardBedDTO::createShared();
+    dto->id = row->getId();
+    dto->name = row->getName();
+    dto->wardRoomId = row->getParentId();  // 所属病房ID = parent_id
+    // status: 0 = 空闲, 1 = 占用, 2 = 停用
+    if (row->getStatusEnum() == "DISABLED")
+        dto->status = 2;
+    else if (row->getOperationalEnum() == "IN_USE")
+        dto->status = 1;
+    else
+        dto->status = 0;
+    return dto;
 }
 
 std::string WardService::createLocation(
@@ -387,4 +486,506 @@ std::string WardService::createLocation(
         transaction.rollback();
         return "";
     }
+}
+
+LocationMutationResult WardService::modifyWard(
+    const WardModifyDTO::Wrapper& dto,
+    const PayloadDTO& payload)
+{
+    if (!dto)
+    {
+        return mutationFailure("Request body is required.");
+    }
+
+    return modifyLocation(
+        dto->id.getValue(""),
+        dto->name.getValue(""),
+        dto->organizationId.getValue(""),
+        "",
+        dto->displayOrder.getValue(0),
+        dto->pyStr.getValue(""),
+        dto->wbStr.getValue(""),
+        "",
+        dto->version.getValue(-1),
+        "WARD",
+        payload);
+}
+
+LocationMutationResult WardService::modifyRoom(
+    const RoomModifyDTO::Wrapper& dto,
+    const PayloadDTO& payload)
+{
+    if (!dto)
+    {
+        return mutationFailure("Request body is required.");
+    }
+
+    return modifyLocation(
+        dto->id.getValue(""),
+        dto->name.getValue(""),
+        dto->organizationId.getValue(""),
+        dto->parentId.getValue(""),
+        dto->displayOrder.getValue(0),
+        dto->pyStr.getValue(""),
+        dto->wbStr.getValue(""),
+        "",
+        dto->version.getValue(-1),
+        "HOUSE",
+        payload);
+}
+
+LocationMutationResult WardService::modifyBed(
+    const BedModifyDTO::Wrapper& dto,
+    const PayloadDTO& payload)
+{
+    if (!dto)
+    {
+        return mutationFailure("Request body is required.");
+    }
+
+    return modifyLocation(
+        dto->id.getValue(""),
+        dto->name.getValue(""),
+        dto->organizationId.getValue(""),
+        dto->parentId.getValue(""),
+        dto->displayOrder.getValue(0),
+        "",
+        "",
+        dto->typeJson.getValue("{}"),
+        dto->version.getValue(-1),
+        "BED",
+        payload);
+}
+
+LocationMutationResult WardService::modifyLocation(
+    const std::string& rawId,
+    const std::string& rawName,
+    const std::string& rawOrganizationId,
+    const std::string& rawParentId,
+    int displayOrder,
+    const std::string& rawPyStr,
+    const std::string& rawWbStr,
+    const std::string& typeJson,
+    int version,
+    const std::string& formEnum,
+    const PayloadDTO& payload)
+{
+    std::string id = rawId;
+    std::string name = rawName;
+    std::string organizationId = rawOrganizationId;
+    std::string parentId = rawParentId;
+    std::string pyStr = rawPyStr;
+    std::string wbStr = rawWbStr;
+
+    StringUtil::trim(&id);
+    StringUtil::trim(&name);
+    StringUtil::trim(&organizationId);
+    StringUtil::trim(&parentId);
+    StringUtil::trim(&pyStr);
+    StringUtil::trim(&wbStr);
+
+    if (id.empty() || name.empty() || organizationId.empty() ||
+        id.size() > 64 ||
+        name.size() > 255 ||
+        organizationId.size() > 64 ||
+        parentId.size() > 64 ||
+        pyStr.size() > 255 ||
+        wbStr.size() > 255 ||
+        typeJson.size() > 255 ||
+        version < 0 ||
+        displayOrder < 0)
+    {
+        return mutationFailure("Invalid location modification parameters.");
+    }
+
+    if (formEnum != "WARD" && parentId.empty())
+    {
+        return mutationFailure("Parent location ID is required.");
+    }
+
+    if (formEnum == "BED" &&
+        !isValidJsonObject(typeJson.empty() ? "{}" : typeJson))
+    {
+        return mutationFailure("Bed type JSON must be a valid object.");
+    }
+
+    WardDAO dao;
+    TransactionManager transaction(&dao);
+
+    try
+    {
+        auto current = dao.selectLocationByIdForUpdate(id);
+        if (!current || current->getFormEnum() != formEnum)
+        {
+            transaction.rollback();
+            return mutationFailure("Location does not exist or has an unexpected type.");
+        }
+
+        if (current->getVersion() != version)
+        {
+            transaction.rollback();
+            return mutationFailure("Location version conflict.");
+        }
+
+        const std::string targetTenantId =
+            dao.selectOrganizationTenantIdForUpdate(organizationId);
+        if (targetTenantId.empty() ||
+            targetTenantId != current->getTenantId())
+        {
+            transaction.rollback();
+            return mutationFailure("Organization does not belong to the location tenant.");
+        }
+
+        PtrWardLocationDO parent;
+        if (formEnum != "WARD")
+        {
+            parent = dao.selectLocationByIdForUpdate(parentId);
+            const std::string expectedParentForm =
+                formEnum == "HOUSE" ? "WARD" : "HOUSE";
+
+            if (!parent ||
+                parent->getFormEnum() != expectedParentForm ||
+                parent->getOrganizationId() != organizationId ||
+                parent->getTenantId() != targetTenantId)
+            {
+                transaction.rollback();
+                return mutationFailure("Parent location is invalid.");
+            }
+
+            if (parent->getStatusEnum() != "ACTIVE")
+            {
+                transaction.rollback();
+                return mutationFailure("Parent location must be active.");
+            }
+        }
+
+        const bool organizationChanged =
+            current->getOrganizationId() != organizationId;
+        const bool parentChanged =
+            formEnum != "WARD" &&
+            current->getParentId() != parentId;
+
+        if (organizationChanged &&
+            dao.hasChildren(id, false))
+        {
+            transaction.rollback();
+            return mutationFailure("A location with children cannot change organization.");
+        }
+
+        if (formEnum == "BED" &&
+            current->getOperationalEnum() == "IN_USE" &&
+            (organizationChanged || parentChanged))
+        {
+            transaction.rollback();
+            return mutationFailure("An in-use bed cannot move to another room.");
+        }
+
+        if (dao.existsSiblingName(
+            organizationId,
+            formEnum,
+            parentId,
+            name,
+            id))
+        {
+            transaction.rollback();
+            return mutationFailure("A sibling location with the same name already exists.");
+        }
+
+        current->setName(name);
+        current->setOrganizationId(organizationId);
+        current->setDisplayOrder(displayOrder);
+        current->setUpdatedAt(SimpleDateTimeFormat::format());
+        current->setUpdatedBy(resolveActor(payload));
+
+        if (formEnum == "WARD")
+        {
+            current->setPyStr(pyStr);
+            current->setWbStr(wbStr);
+        }
+        else if (formEnum == "HOUSE")
+        {
+            current->setParentId(parentId);
+            current->setPyStr(pyStr);
+            current->setWbStr(wbStr);
+        }
+        else
+        {
+            current->setParentId(parentId);
+            current->setTypeJson(typeJson.empty() ? "{}" : typeJson);
+        }
+
+        if (dao.updateLocation(*current, version) != 1)
+        {
+            transaction.rollback();
+            return mutationFailure("Location update failed because its data changed.");
+        }
+
+        current->setVersion(version + 1);
+        transaction.commit();
+        return mutationSuccess(current);
+    }
+    catch (...)
+    {
+        transaction.rollback();
+        return mutationFailure("Location update failed.");
+    }
+}
+
+LocationMutationResult WardService::removeWard(
+    const std::string& id,
+    const PayloadDTO& payload)
+{
+    return removeLocation(id, "WARD", payload);
+}
+
+LocationMutationResult WardService::removeRoom(
+    const std::string& id,
+    const PayloadDTO& payload)
+{
+    return removeLocation(id, "HOUSE", payload);
+}
+
+LocationMutationResult WardService::removeBed(
+    const std::string& id,
+    const PayloadDTO& payload)
+{
+    return removeLocation(id, "BED", payload);
+}
+
+LocationMutationResult WardService::removeLocation(
+    const std::string& rawId,
+    const std::string& formEnum,
+    const PayloadDTO& payload)
+{
+    std::string id = rawId;
+    StringUtil::trim(&id);
+
+    if (id.empty() || id.size() > 64)
+    {
+        return mutationFailure("Location ID is required.");
+    }
+
+    WardDAO dao;
+    TransactionManager transaction(&dao);
+
+    try
+    {
+        auto current = dao.selectLocationByIdForUpdate(id);
+        if (!current || current->getFormEnum() != formEnum)
+        {
+            transaction.rollback();
+            return mutationFailure("Location does not exist or has an unexpected type.");
+        }
+
+        if (dao.hasChildren(id, false))
+        {
+            transaction.rollback();
+            return mutationFailure("A location with child locations cannot be removed.");
+        }
+
+        if (formEnum == "BED" &&
+            current->getOperationalEnum() == "IN_USE")
+        {
+            transaction.rollback();
+            return mutationFailure("An in-use bed cannot be removed.");
+        }
+
+        const std::string now = SimpleDateTimeFormat::format();
+        if (dao.softDeleteLocation(
+            id,
+            formEnum,
+            current->getVersion(),
+            now,
+            resolveActor(payload)) != 1)
+        {
+            transaction.rollback();
+            return mutationFailure("Location removal failed because its data changed.");
+        }
+
+        current->setIsDeleted(true);
+        current->setVersion(current->getVersion() + 1);
+        transaction.commit();
+        return mutationSuccess(current);
+    }
+    catch (...)
+    {
+        transaction.rollback();
+        return mutationFailure("Location removal failed.");
+    }
+}
+
+LocationMutationResult WardService::changeWardStatus(
+    const WardStatusDTO::Wrapper& dto,
+    const PayloadDTO& payload)
+{
+    if (!dto)
+    {
+        return mutationFailure("Request body is required.");
+    }
+
+    return changeLocationStatus(
+        dto->id.getValue(""),
+        dto->statusEnum.getValue(""),
+        dto->version.getValue(-1),
+        "WARD",
+        payload);
+}
+
+LocationMutationResult WardService::changeRoomStatus(
+    const RoomStatusDTO::Wrapper& dto,
+    const PayloadDTO& payload)
+{
+    if (!dto)
+    {
+        return mutationFailure("Request body is required.");
+    }
+
+    return changeLocationStatus(
+        dto->id.getValue(""),
+        dto->statusEnum.getValue(""),
+        dto->version.getValue(-1),
+        "HOUSE",
+        payload);
+}
+
+LocationMutationResult WardService::changeBedStatus(
+    const BedStatusDTO::Wrapper& dto,
+    const PayloadDTO& payload)
+{
+    if (!dto)
+    {
+        return mutationFailure("Request body is required.");
+    }
+
+    return changeLocationStatus(
+        dto->id.getValue(""),
+        dto->statusEnum.getValue(""),
+        dto->version.getValue(-1),
+        "BED",
+        payload);
+}
+
+LocationMutationResult WardService::changeLocationStatus(
+    const std::string& rawId,
+    const std::string& rawStatusEnum,
+    int version,
+    const std::string& formEnum,
+    const PayloadDTO& payload)
+{
+    std::string id = rawId;
+    std::string statusEnum = rawStatusEnum;
+    StringUtil::trim(&id);
+    StringUtil::trim(&statusEnum);
+
+    if (id.empty() || id.size() > 64 || version < 0 ||
+        (statusEnum != "ACTIVE" && statusEnum != "DISABLED"))
+    {
+        return mutationFailure("Invalid status modification parameters.");
+    }
+
+    WardDAO dao;
+    TransactionManager transaction(&dao);
+
+    try
+    {
+        auto current = dao.selectLocationByIdForUpdate(id);
+        if (!current || current->getFormEnum() != formEnum)
+        {
+            transaction.rollback();
+            return mutationFailure("Location does not exist or has an unexpected type.");
+        }
+
+        if (current->getVersion() != version)
+        {
+            transaction.rollback();
+            return mutationFailure("Location version conflict.");
+        }
+
+        if (current->getStatusEnum() == statusEnum)
+        {
+            transaction.commit();
+            return mutationSuccess(current);
+        }
+
+        if (statusEnum == "DISABLED")
+        {
+            if (dao.hasChildren(id, true))
+            {
+                transaction.rollback();
+                return mutationFailure("Active child locations must be disabled first.");
+            }
+
+            if (formEnum == "BED" &&
+                current->getOperationalEnum() == "IN_USE")
+            {
+                transaction.rollback();
+                return mutationFailure("An in-use bed cannot be disabled.");
+            }
+        }
+        else if (formEnum != "WARD")
+        {
+            auto parent =
+                dao.selectLocationByIdForUpdate(current->getParentId());
+            const std::string expectedParentForm =
+                formEnum == "HOUSE" ? "WARD" : "HOUSE";
+
+            if (!parent ||
+                parent->getFormEnum() != expectedParentForm ||
+                parent->getStatusEnum() != "ACTIVE")
+            {
+                transaction.rollback();
+                return mutationFailure("Parent location must be active before enabling this location.");
+            }
+        }
+
+        if (dao.updateLocationStatus(
+            id,
+            formEnum,
+            statusEnum,
+            version,
+            SimpleDateTimeFormat::format(),
+            resolveActor(payload)) != 1)
+        {
+            transaction.rollback();
+            return mutationFailure("Status update failed because its data changed.");
+        }
+
+        current->setStatusEnum(statusEnum);
+        current->setVersion(version + 1);
+        transaction.commit();
+        return mutationSuccess(current);
+    }
+    catch (...)
+    {
+        transaction.rollback();
+        return mutationFailure("Location status update failed.");
+    }
+}
+
+// ============================================================
+// Ward/Bed query methods (c5-ward-pb)
+// ============================================================
+
+std::string WardService::validateQueryRoomById(const oatpp::String& id)
+{
+    if (!id || id->empty()) return "id invalidate.";
+    return "";
+}
+
+PtrWardDO WardService::getRoomById(const std::string& id)
+{
+    WardDAO dao;
+    return dao.selectRoomById(id);
+}
+
+std::string WardService::validateQueryBedById(const oatpp::String& id)
+{
+    if (!id || id->empty()) return "id invalidate.";
+    return "";
+}
+
+PtrBedDO WardService::getBedById(const std::string& id)
+{
+    WardDAO dao;
+    return dao.selectBedById(id);
 }

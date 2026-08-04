@@ -29,10 +29,11 @@ elseif(WIN32)
 	link_directories (${PROJECT_SOURCE_DIR}/lib-mysql/${ZO_LB_NAME}/vs14/${ZO_LBT_NAME})
 endif()
 
-# 获取要编译的源代码
-file (GLOB_RECURSE SC_FILES ./*.cpp)
-list (REMOVE_ITEM SC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/./stdafx.cpp")
+# 获取要编译的源代码；新增或删除 cpp 后让 CMake 自动重新扫描
+file (GLOB_RECURSE SC_FILES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+list (REMOVE_ITEM SC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/stdafx.cpp")
 list(FILTER SC_FILES EXCLUDE REGEX ".*/out/.*")
+list(FILTER SC_FILES EXCLUDE REGEX ".*/tests/.*")
 
 # 设置预编译标头
 if(WIN32)
@@ -63,6 +64,55 @@ else()
 endif()
 target_link_libraries (${appName} oatpp-websocket oatpp-swagger oatpp )
 target_link_libraries (${appName} mysqlcppconn )
+
+# Build ward business integration tests only for test configurations.
+if(UNIT_TEST)
+	enable_testing()
+	set(wardTestName ward-business-integration-test)
+	add_executable(${wardTestName}
+		"tests/ward/WardBusinessIntegrationTest.cpp"
+		"tests/ward/WardServiceTestSource.cpp"
+		"tests/ward/WardDAOTestSource.cpp")
+	if(MSVC)
+		target_compile_options(${wardTestName} PRIVATE /bigobj)
+	endif()
+	target_link_libraries(${wardTestName}
+		"lib-common"
+		"lib-oatpp"
+		"lib-mysql"
+		oatpp-websocket
+		oatpp-swagger
+		oatpp
+		mysqlcppconn)
+	if(UNIX)
+		target_link_libraries(${wardTestName}
+			jsoncpp
+			pthread
+			stdc++fs
+			OpenSSL::SSL
+			CURL::libcurl
+			uuid
+			yaml-cpp)
+	else()
+		target_link_libraries(${wardTestName}
+			libcrypto
+			libssl
+			ws2_32)
+		if(ZO_BT STREQUAL "r")
+			target_link_libraries(${wardTestName} yaml-cpp)
+		else()
+			target_link_libraries(${wardTestName} yaml-cppd)
+		endif()
+	endif()
+	add_test(
+		NAME ward-business-integration
+		COMMAND ${wardTestName})
+	set_tests_properties(
+		ward-business-integration
+		PROPERTIES
+		WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/${appName}")
+endif()
+
 # 链接xlnt
 if(USE_XLNT)
 	if(ZO_BT STREQUAL "r" OR UNIX)

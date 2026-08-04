@@ -1,8 +1,8 @@
 /*
  Copyright Zero One Star. All rights reserved.
 
- @Author: your name
- @Date: 2026/7/22
+ @Author: Lfff
+ @Date: 2026/08/01 10:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -22,23 +22,24 @@
 #include "domain/dto/pharm/PharmDTO.h"
 #include "domain/dto/pharm/PharmPageDTO.h"
 #include "SimpleDateTimeFormat.h"
+#include "id/SnowFlake.h"
 
 PharmPageJsonVO::Wrapper PharmService::getPage(const PharmQuery::Wrapper& query)
 {
     auto result = PharmPageJsonVO::createShared();
     PharmDAO dao;
 
-    // 查询总条数
+    // Query total count
     uint64_t total = dao.count(query);
 
-    // 先构造分页DTO，空数据也返回完整结构
+    // Build page DTO envelope
     auto pageDto = PharmPageDTO::createShared();
     pageDto->pageIndex = query->pageIndex.getValue(1);
     pageDto->pageSize = query->pageSize.getValue(10);
     pageDto->total = total;
     pageDto->rows = oatpp::List<PharmDTO::Wrapper>::createShared();
 
-    // 有数据时再查询列表并做DO转DTO
+    // Query list and map DO to DTO
     if (total > 0)
     {
         std::list<PtrPharmDO> dataList = dao.selectPage(query);
@@ -46,16 +47,20 @@ PharmPageJsonVO::Wrapper PharmService::getPage(const PharmQuery::Wrapper& query)
         for (const auto& item : dataList)
         {
             auto dto = PharmDTO::createShared();
-            dto->id = item->getId();
+            dto->id = oatpp::String(item->getId());
             dto->name = oatpp::String(item->getName());
-            dto->type = oatpp::String(item->getType());
-            dto->status = item->getStatus();
-            dto->sort = item->getSort();
-            dto->remark = oatpp::String(item->getRemark());
-            dto->create_by = oatpp::String(item->getCreate_By());
-            dto->update_by = oatpp::String(item->getUpdate_By());
-            dto->create_time = oatpp::String(item->getCreate_Time());
-            dto->update_time = oatpp::String(item->getUpdate_Time());
+            dto->formEnum = oatpp::String(item->getFormEnum());
+            dto->statusEnum = oatpp::String(item->getStatusEnum());
+            dto->busNo = oatpp::String(item->getBusNo());
+            dto->organizationId = oatpp::String(item->getOrganizationId());
+            dto->displayOrder = item->getDisplayOrder();
+            dto->pyStr = oatpp::String(item->getPyStr());
+            dto->wbStr = oatpp::String(item->getWbStr());
+            dto->parentId = oatpp::String(item->getParentId());
+            dto->createdBy = oatpp::String(item->getCreatedBy());
+            dto->updatedBy = oatpp::String(item->getUpdatedBy());
+            dto->createdAt = oatpp::String(item->getCreatedAt());
+            dto->updatedAt = oatpp::String(item->getUpdatedAt());
             rows->push_back(dto);
         }
         pageDto->rows = rows;
@@ -65,34 +70,75 @@ PharmPageJsonVO::Wrapper PharmService::getPage(const PharmQuery::Wrapper& query)
     return result;
 }
 
+PharmNameListJsonVO::Wrapper PharmService::nameList(const oatpp::String& formEnum)
+{
+    auto result = PharmNameListJsonVO::createShared();
+    PharmDAO dao;
+
+    std::string formEnumStr;
+    if (formEnum)
+    {
+        formEnumStr = formEnum.getValue("");
+    }
+
+    std::list<PtrPharmDO> dataList = dao.nameList(formEnumStr);
+    auto rows = oatpp::List<PharmNameDTO::Wrapper>::createShared();
+    for (const auto& item : dataList)
+    {
+        auto dto = PharmNameDTO::createShared();
+        dto->id = oatpp::String(item->getId());
+        dto->name = oatpp::String(item->getName());
+        rows->push_back(dto);
+    }
+
+    result->success(rows);
+    return result;
+}
+
 StringJsonVO::Wrapper PharmService::add(const PharmAddDTO::Wrapper& dto)
 {
     auto result = StringJsonVO::createShared();
 
-    // DTO 转 DO
-    PharmDO data;
-    data.setName(dto->name.getValue(""));
-    data.setType(dto->type.getValue(""));
-    data.setSort(dto->sort.getValue(0));
-    data.setRemark(dto->remark.getValue(""));
+    // Generate snowflake ID
+    std::string id = std::to_string(SnowFlake::getInstance()->nextId());
 
-    // 获取操作人：payload存在用真实用户名，不存在用默认admin兜底
+    // Map DTO to DO
+    PharmDO data;
+    data.setId(id);
+    data.setName(dto->name.getValue(""));
+    data.setFormEnum(dto->formEnum.getValue(""));
+    data.setBusNo(dto->busNo.getValue(""));
+    data.setOrganizationId(dto->organizationId.getValue(""));
+    data.setDisplayOrder(dto->displayOrder.getValue(0));
+    data.setPyStr(dto->pyStr.getValue(""));
+    data.setWbStr(dto->wbStr.getValue(""));
+    data.setParentId(dto->parentId.getValue(""));
+
+    // Set user audit fields from JWT payload (default to "admin")
     std::string username = "admin";
     if (dto->getPayload())
     {
         username = dto->getPayload()->getUsername();
     }
-    data.setCreate_By(username);
-    data.setUpdate_By(username);
     std::string now = SimpleDateTimeFormat::format();
-    data.setCreate_Time(now);
-    data.setUpdate_Time(now);
+    data.setCreatedBy(username);
+    data.setUpdatedBy(username);
+    data.setCreatedAt(now);
+    data.setUpdatedAt(now);
 
-    // 新增默认启用状态
-    data.setStatus(1);
+    // Set default status
+    data.setStatusEnum("ACTIVE");
+    data.setModeEnum("PHARM");
 
-    // 执行数据库插入
+    // Check for duplicate name before insert
     PharmDAO dao;
+    if (dao.existsName(data.getName()))
+    {
+        result->fail(oatpp::String(ZH_WORDS_GETTER("pharm.result.name_duplicate")));
+        return result;
+    }
+
+    // Execute database insert
     int rows = dao.insert(data);
     if (rows > 0)
     {
@@ -109,21 +155,26 @@ StringJsonVO::Wrapper PharmService::modify(const PharmModifyDTO::Wrapper& dto)
 {
     auto result = StringJsonVO::createShared();
 
+    // Map DTO to DO
     PharmDO data;
-    data.setId(dto->id.getValue(0));
+    data.setId(dto->id.getValue(""));
     data.setName(dto->name.getValue(""));
-    data.setType(dto->type.getValue(""));
-    data.setSort(dto->sort.getValue(0));
-    data.setRemark(dto->remark.getValue(""));
+    data.setFormEnum(dto->formEnum.getValue(""));
+    data.setBusNo(dto->busNo.getValue(""));
+    data.setOrganizationId(dto->organizationId.getValue(""));
+    data.setDisplayOrder(dto->displayOrder.getValue(0));
+    data.setPyStr(dto->pyStr.getValue(""));
+    data.setWbStr(dto->wbStr.getValue(""));
+    data.setParentId(dto->parentId.getValue(""));
 
-    // 获取操作人：payload存在用真实用户名，不存在用默认admin兜底
+    // Set user audit fields from JWT payload
     std::string username = "admin";
     if (dto->getPayload())
     {
         username = dto->getPayload()->getUsername();
     }
-    data.setUpdate_By(username);
-    data.setUpdate_Time(SimpleDateTimeFormat::format());
+    data.setUpdatedBy(username);
+    data.setUpdatedAt(SimpleDateTimeFormat::format());
 
     PharmDAO dao;
     if (dao.update(data) == 1)
@@ -137,7 +188,7 @@ StringJsonVO::Wrapper PharmService::modify(const PharmModifyDTO::Wrapper& dto)
     return result;
 }
 
-StringJsonVO::Wrapper PharmService::remove(uint64_t id)
+StringJsonVO::Wrapper PharmService::remove(const std::string& id)
 {
     auto result = StringJsonVO::createShared();
     PharmDAO dao;
@@ -152,11 +203,11 @@ StringJsonVO::Wrapper PharmService::remove(uint64_t id)
     return result;
 }
 
-StringJsonVO::Wrapper PharmService::updateStatus(uint64_t id, int status)
+StringJsonVO::Wrapper PharmService::updateStatus(const std::string& id, const std::string& statusEnum)
 {
     auto result = StringJsonVO::createShared();
     PharmDAO dao;
-    if (dao.updateStatus(id, status) == 1)
+    if (dao.updateStatus(id, statusEnum) == 1)
     {
         result->success(oatpp::String(ZH_WORDS_GETTER("pharm.result.status_success")));
     }

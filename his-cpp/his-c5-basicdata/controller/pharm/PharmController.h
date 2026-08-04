@@ -3,7 +3,7 @@
  Copyright Zero One Star. All rights reserved.
 
  @Author: Lfff
- @Date: 2026/07/23 10:00:00
+ @Date: 2026/08/01 10:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -39,18 +39,13 @@
 /**
  * PharmController - Pharmacy/warehouse management API controller.
  *
- * c5-pharm endpoints (real implementation via PharmService):
- *   1. GET    /pharm/list       - Paginated query list
- *   2. POST   /pharm            - Add pharmacy/warehouse
- *   3. PUT    /pharm            - Modify pharmacy/warehouse
- *   4. DELETE /pharm/{id}       - Remove pharmacy/warehouse
- *   5. PUT    /pharm/status     - Toggle pharmacy/warehouse status
- *
- * c5 (mengsuibizhi) additional endpoints (stubs):
- *   6. GET    /pharm/select-list       - Dropdown selection list
- *   7. GET    /pharm/query-all         - Paginated query (GET params)
- *   8. POST   /pharm/statusEnum/modify - Status modify via enum
- *   9. POST   /pharm/list/query        - Paginated query (POST body)
+ * Endpoints (6 total):
+ *   1. GET    /pharm/name-list  - Name list for dropdown (id + name), optional form_enum filter
+ *   2. GET    /pharm/list       - Paginated query list with conditions (full data for form fill)
+ *   3. POST   /pharm            - Add pharmacy/warehouse
+ *   4. PUT    /pharm            - Modify pharmacy/warehouse
+ *   5. DELETE /pharm/{id}       - Soft-delete pharmacy/warehouse
+ *   6. PUT    /pharm/status     - Toggle pharmacy/warehouse status
  */
 class PharmController : public oatpp::web::server::api::ApiController
 {
@@ -62,11 +57,23 @@ public:
     {
     }
 
-    // ============================================================
-    // c5-pharm endpoints (real implementation)
-    // ============================================================
+    // 1. GET /pharm/name-list — Pharmacy/warehouse name list (id + name, optional form_enum filter)
+    API_DEF_ENDPOINT_INFO_AUTH(
+        ZH_WORDS_GETTER("pharm.endpoints.nameList"),
+        nameList,
+        PharmNameListJsonVO::Wrapper,
+        API_TAG,
+        API_DEF_ADD_QUERY_PARAMS(String, "formEnum", ZH_WORDS_GETTER("pharm.field.formEnum"), "", false);
+    );
+    API_HANDLER_ENDPOINT_AUTH(
+        API_M_GET,
+        "/pharm/name-list",
+        nameList,
+        QUERY(String, formEnum),
+        execNameList(formEnum)
+    );
 
-    // 1. GET /pharm/list — Paginated query list
+    // 2. GET /pharm/list — Paginated query list with conditions
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(
         ZH_WORDS_GETTER("pharm.endpoints.list"),
         getPharmList,
@@ -82,7 +89,7 @@ public:
         execGetPharmList(query)
     );
 
-    // 2. POST /pharm — Add pharmacy/warehouse
+    // 3. POST /pharm — Add pharmacy/warehouse
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("pharm.endpoints.add"),
         addPharm,
@@ -97,7 +104,7 @@ public:
         execAddPharm(dto)
     );
 
-    // 3. PUT /pharm — Modify pharmacy/warehouse
+    // 4. PUT /pharm — Modify pharmacy/warehouse
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("pharm.endpoints.modify"),
         modifyPharm,
@@ -112,7 +119,7 @@ public:
         execModifyPharm(dto)
     );
 
-    // 4. DELETE /pharm/{id} — Remove pharmacy/warehouse
+    // 5. DELETE /pharm/{id} — Soft-delete pharmacy/warehouse
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("pharm.endpoints.remove"),
         removePharm,
@@ -131,7 +138,7 @@ public:
         execRemovePharm(id)
     );
 
-    // 5. PUT /pharm/status — Toggle status
+    // 6. PUT /pharm/status — Toggle pharmacy/warehouse status
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("pharm.endpoints.status"),
         updatePharmStatus,
@@ -143,88 +150,22 @@ public:
         "/pharm/status",
         updatePharmStatus,
         BODY_DTO(PharmModifyDTO::Wrapper, dto),
-        execUpdatePharmStatus(dto->id.getValue(0), dto->status.getValue(0))
-    );
-
-    // ============================================================
-    // c5 (mengsuibizhi) additional endpoints (stubs)
-    // ============================================================
-
-    // 6. GET /pharm/select-list — Dropdown selection list
-    API_DEF_ENDPOINT_INFO_AUTH(
-        ZH_WORDS_GETTER("pharm.select-list.summary"),
-        selectList,
-        PharmSelectListJsonVO::Wrapper,
-        API_TAG,
-        API_DEF_ADD_QUERY_PARAMS(String, "type", ZH_WORDS_GETTER("pharm.field.type"), "", false);
-    );
-    API_HANDLER_ENDPOINT_AUTH(
-        API_M_GET,
-        "/pharm/select-list",
-        selectList,
-        QUERY(String, type),
-        execSelectList(type)
-    );
-
-    // 7. GET /pharm/query-all — Paginated query (GET params)
-    API_DEF_ENDPOINT_INFO_QUERY_AUTH(
-        ZH_WORDS_GETTER("pharm.query-all.summary"),
-        queryAll,
-        PharmQuery,
-        PharmPageJsonVO::Wrapper,
-        API_TAG
-    );
-    API_HANDLER_ENDPOINT_QUERY_AUTH(
-        API_M_GET,
-        "/pharm/query-all",
-        queryAll,
-        PharmQuery,
-        execQueryAll(query)
-    );
-
-    // 8. POST /pharm/statusEnum/modify — Status modify via enum
-    API_DEF_ENDPOINT_INFO_AUTH(
-        ZH_WORDS_GETTER("pharm.statusEnum.modify"),
-        modifyPharmStatusEnum,
-        PharmPageJsonVO::Wrapper,
-        API_TAG
-    );
-    API_HANDLER_ENDPOINT_AUTH(
-        API_M_POST,
-        "/pharm/statusEnum/modify",
-        modifyPharmStatusEnum,
-        BODY_DTO(PharmModifyStatusEnumDTO::Wrapper, dto),
-        execModifyPharmStatusEnum(dto)
-    );
-
-    // 9. POST /pharm/list/query — Paginated query (POST body)
-    API_DEF_ENDPOINT_INFO_AUTH(
-        ZH_WORDS_GETTER("pharm.list.query"),
-        queryPharmList,
-        PharmPageJsonVO::Wrapper,
-        API_TAG
-    );
-    API_HANDLER_ENDPOINT_AUTH(
-        API_M_POST,
-        "/pharm/list/query",
-        queryPharmList,
-        BODY_DTO(PharmQuery::Wrapper, dto),
-        execQueryPharmList(dto)
+        execUpdatePharmStatus(dto->id.getValue(""), dto->statusEnum.getValue(""))
     );
 
 private:
-    // ---- c5-pharm real implementations ----
+    // Name list for dropdown
+    PharmNameListJsonVO::Wrapper execNameList(const String& formEnum);
+    // Paginated query list
     PharmPageJsonVO::Wrapper execGetPharmList(const PharmQuery::Wrapper& query);
+    // Add pharmacy/warehouse
     StringJsonVO::Wrapper execAddPharm(const PharmAddDTO::Wrapper& dto);
+    // Modify pharmacy/warehouse
     StringJsonVO::Wrapper execModifyPharm(const PharmModifyDTO::Wrapper& dto);
+    // Soft-delete pharmacy/warehouse
     StringJsonVO::Wrapper execRemovePharm(const String& id);
-    StringJsonVO::Wrapper execUpdatePharmStatus(uint64_t id, int status);
-
-    // ---- c5 (mengsuibizhi) stub implementations ----
-    PharmSelectListJsonVO::Wrapper execSelectList(const String& type);
-    PharmPageJsonVO::Wrapper execQueryAll(const PharmQuery::Wrapper& query);
-    StringJsonVO::Wrapper execModifyPharmStatusEnum(const PharmModifyStatusEnumDTO::Wrapper& dto);
-    PharmPageJsonVO::Wrapper execQueryPharmList(const PharmQuery::Wrapper& query);
+    // Toggle status
+    StringJsonVO::Wrapper execUpdatePharmStatus(const std::string& id, const std::string& statusEnum);
 };
 
 #undef API_TAG

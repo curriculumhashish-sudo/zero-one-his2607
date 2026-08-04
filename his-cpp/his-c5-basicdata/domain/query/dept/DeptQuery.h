@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef _DEPT_QUERY_
 #define _DEPT_QUERY_
@@ -9,17 +9,21 @@
 
 class DeptDeleteQuery : public oatpp::DTO
 {
-	DTO_INIT(DeptDeleteQuery, DTO);
+    DTO_INIT(DeptDeleteQuery, DTO);
 
-	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("dept.field.id"), true)
+    // 科室编号
+    API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("dept.field.id"), true)
+
+    // 关联一个PayloadDTO负载数据对象
+    CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 
 public:
-	std::string validate() const
-	{
-		if (!id || id->empty())
-			return "id is required.";
-		return "";
-	}
+    std::string validate() const
+    {
+        if (!id || id->empty())
+            return "id is required.";
+        return "";
+    }
 };
 
 #include OATPP_CODEGEN_END(DTO)

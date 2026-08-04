@@ -23,17 +23,18 @@
 #include "../../GlobalInclude.h"
 #include "../../dto/pharm/PharmDTO.h"
 #include "../../dto/pharm/PharmPageDTO.h"
+using namespace oatpp;
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * PharmSelectListJsonVO - Dropdown selection list response (c5 mengsuibizhi).
+ * PharmNameListJsonVO - Pharmacy/warehouse name list response.
  *
  * Note: PharmJsonVO and PharmPageJsonVO are defined in
- * PharmDetailVO.h and PharmPageVO.h (c5-pharm) respectively.
+ * PharmDetailVO.h and PharmPageVO.h respectively.
  */
-class PharmSelectListJsonVO : public JsonVO<List<PharmSelectDTO::Wrapper>> {
-    DTO_INIT(PharmSelectListJsonVO, JsonVO<List<PharmSelectDTO::Wrapper>>);
+class PharmNameListJsonVO : public JsonVO<List<PharmNameDTO::Wrapper>> {
+    DTO_INIT(PharmNameListJsonVO, JsonVO<List<PharmNameDTO::Wrapper>>);
 };
 
 #include OATPP_CODEGEN_END(DTO)

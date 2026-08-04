@@ -3,7 +3,7 @@
  Copyright Zero One Star. All rights reserved.
 
  @Author: Lfff
- @Date: 2026/07/23 10:00:00
+ @Date: 2026/08/01 10:00:00
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -28,8 +28,7 @@
 /**
  * PharmQuery - Pharmacy/warehouse paginated query parameters.
  *
- * Used by both c5-pharm (/pharm/list) and c5 mengsuibizhi
- * (/pharm/query-all, /pharm/list/query) endpoints.
+ * Used by GET /pharm/list endpoint.
  */
 class PharmQuery : public PageQuery
 {
@@ -38,29 +37,11 @@ class PharmQuery : public PageQuery
     // Keyword search (fuzzy match on name)
     API_DTO_FIELD_DEFAULT(oatpp::String, keyword, ZH_WORDS_GETTER("pharm.queries.keyword"));
 
-    // Filter by type
-    API_DTO_FIELD_DEFAULT(oatpp::String, type, ZH_WORDS_GETTER("pharm.queries.type"));
+    // Filter by form_enum (PHARMACY / WAREHOUSE)
+    API_DTO_FIELD_DEFAULT(oatpp::String, formEnum, ZH_WORDS_GETTER("pharm.queries.formEnum"));
 
-    // Filter by status
-    API_DTO_FIELD_DEFAULT(oatpp::Int32, status, ZH_WORDS_GETTER("pharm.queries.status"));
-
-    // Filter by name (c5 mengsuibizhi)
-    DTO_FIELD(String, name);
-    DTO_FIELD_INFO(name) {
-        info->description = ZH_WORDS_GETTER("pharm.field.name");
-    }
-
-    // Filter by type enum (c5 mengsuibizhi)
-    DTO_FIELD(String, typeEnum);
-    DTO_FIELD_INFO(typeEnum) {
-        info->description = ZH_WORDS_GETTER("pharm.field.typeEnum");
-    }
-
-    // Filter by status enum (c5 mengsuibizhi)
-    DTO_FIELD(String, statusEnum);
-    DTO_FIELD_INFO(statusEnum) {
-        info->description = ZH_WORDS_GETTER("pharm.field.statusEnum");
-    }
+    // Filter by status_enum (ACTIVE / INACTIVE)
+    API_DTO_FIELD_DEFAULT(oatpp::String, statusEnum, ZH_WORDS_GETTER("pharm.queries.statusEnum"));
 };
 
 #include OATPP_CODEGEN_END(DTO)

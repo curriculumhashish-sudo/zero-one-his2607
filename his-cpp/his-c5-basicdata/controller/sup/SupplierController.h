@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -22,110 +22,56 @@
 #define _SUPLIER_CONTROLLER_
 
 #include "domain/vo/BaseJsonVO.h"
-#include "domain/query/sup/SupplierQuery.h"
-#include "domain/dto/sup/SupplierDTO.h"
 #include "domain/vo/sup/SupplierVO.h"
+#include "domain/dto/sup/SupplierDTO.h"
+#include "domain/query/sup/SupplierQuery.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 #define API_TAG ZH_WORDS_GETTER("sup.tag")
+
 /**
- * SupplierController ¡ª¡ª ¹©Ó¦ÉÌ¹ÜÀí¿ØÖÆÆ÷
+ * SupplierController - supplier batch enable/disable & batch delete
  *
- * ÕâÊÇÇ°ºó¶Ë½»»¥µÄ"½Ó¿ÚºÏÍ¬"¡£
- * ¶¨Òå 6 ¸ö API ¶Ëµã£¬º­¸Ç CRUD + ÅúÁ¿ÆôÍ£ + ÅúÁ¿É¾³ý¡£
- * Ã¿¸ö¶ËµãÓÃºêÉùÃ÷£¬Í¬Ê±Éú³É Swagger ÎÄµµ¡£
+ * Provides 4 endpoints: query, batch enable/disable, and batch remove.
+ * Add/update is handled by SupplierAddUpdateController.
  */
 class SupplierController : public oatpp::web::server::api::ApiController {
     API_ACCESS_DECLARE(SupplierController);
 
 public:
-    // ============================================================
-    // 1. GET /sup/query-one ¡ª¡ª ¸ù¾Ý ID ²éÑ¯µ¥¸ö¹©Ó¦ÉÌ
-    // ============================================================
-    /* Swagger ÎÄµµ¶¨Òå£º
-       - ½Ó¿Ú±êÌâ´Ó´Êµä¶ÁÈ¡
-       - ÏìÓ¦ÀàÐÍ SupplierJsonVO
-       - ±êÇ© API_TAG
-       - Ìí¼ÓÒ»¸ö±ØÌîµÄ²éÑ¯²ÎÊý id
-    */
-    API_DEF_ENDPOINT_INFO_AUTH(
-        ZH_WORDS_GETTER("sup.query-one.summary"),   // ½Ó¿ÚÃèÊö
-        queryOne,                                    // ·½·¨Ãû
-        SupplierJsonVO::Wrapper,                     // ÏìÓ¦ÀàÐÍ
-        API_TAG,                                     // Swagger ±êÇ©
-        API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("sup.field.id"), "", true);
+    // GET /sup/query-one â€” Query single supplier by ID or code
+    API_DEF_ENDPOINT_INFO_QUERY_AUTH(
+        ZH_WORDS_GETTER("sup.query-one.summary"),
+        queryOne,
+        SupplierDetailQuery,
+        SupplierJsonVO::Wrapper,
+        API_TAG
     );
-    /* Êµ¼Ê½Ó¿ÚÉùÃ÷£º
-       - HTTP GET
-       - Â·¾¶ /sup/query-one
-       - ´Ó URL È¡ id ²ÎÊý£¬´«¸ø execQueryOne
-    */
-    API_HANDLER_ENDPOINT_AUTH(
+    API_HANDLER_ENDPOINT_QUERY_AUTH(
         API_M_GET,
         "/sup/query-one",
         queryOne,
-        QUERY(String, id),
-        execQueryOne(id)
+        SupplierDetailQuery,
+        execQueryOne(query)
     );
 
-    // ============================================================
-    // 2. GET /sup/query-all ¡ª¡ª ·ÖÒ³²éÑ¯¹©Ó¦ÉÌÁÐ±í£¨´øÉ¸Ñ¡£©
-    // ============================================================
-    /* ·ÖÒ³²éÑ¯×¨ÓÃµÄÎÄµµºê£¬×Ô¶¯°Ñ SupplierQuery µÄ×Ö¶ÎÉú³ÉÎÄµµ */
+    // GET /sup/query-all â€” Paginated query with filters
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(
         ZH_WORDS_GETTER("sup.query-all.summary"),
         queryAll,
-        SupplierQuery,                           // ²éÑ¯²ÎÊýÀàÐÍ
-        SupplierPageJsonVO::Wrapper,             // ·ÖÒ³ÏìÓ¦ÀàÐÍ
+        SupplierQuery,
+        SupplierPageJsonVO::Wrapper,
         API_TAG
     );
     API_HANDLER_ENDPOINT_QUERY_AUTH(
         API_M_GET,
         "/sup/query-all",
         queryAll,
-        SupplierQuery,                           // ×Ô¶¯½âÎö²éÑ¯²ÎÊýµ½ SupplierQuery ¶ÔÏó
+        SupplierQuery,
         execQueryAll(query)
     );
 
-    // ============================================================
-    // 3. POST /sup/add ¡ª¡ª ÐÂÔö¹©Ó¦ÉÌ
-    // ============================================================
-    API_DEF_ENDPOINT_INFO_AUTH(
-        ZH_WORDS_GETTER("sup.add.summary"),
-        addSupplier,
-        StringJsonVO::Wrapper,    // ·µ»ØÐÂÔöµÄ ID
-        API_TAG
-    );
-    API_HANDLER_ENDPOINT_AUTH(
-        API_M_POST,
-        "/sup/add",
-        addSupplier,
-        BODY_DTO(SupplierDTO::Wrapper, dto),  // ´ÓÇëÇóÌå JSON ·´ÐòÁÐ»¯³É SupplierDTO
-        execAddSupplier(dto)
-    );
-
-    // ============================================================
-    // 4. PUT /sup/modify ¡ª¡ª ÐÞ¸Ä¹©Ó¦ÉÌ
-    // ============================================================
-    API_DEF_ENDPOINT_INFO_AUTH(
-        ZH_WORDS_GETTER("sup.modify.summary"),
-        modifySupplier,
-        StringJsonVO::Wrapper,
-        API_TAG
-    );
-    API_HANDLER_ENDPOINT_AUTH(
-        API_M_PUT,
-        "/sup/modify",
-        modifySupplier,
-        BODY_DTO(SupplierDTO::Wrapper, dto),  // ÇëÇóÌå´«ÍêÕûµÄ SupplierDTO£¨º¬ id£©
-        execModifySupplier(dto)
-    );
-
-    // ============================================================
-    // 5. PUT /sup/batch-enable-disable ¡ª¡ª ÅúÁ¿Æô/Í£ÓÃ¹©Ó¦ÉÌ
-    //    ÇëÇóÌå: {"ids": ["id1","id2",...], "statusEnum": "NORMAL"}
-    //    statusEnum = "NORMAL" ±íÊ¾ÆôÓÃ£¬"DISABLED" ±íÊ¾Í£ÓÃ
-    // ============================================================
+    // PUT /sup/batch-enable-disable â€” Batch enable/disable
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("sup.batch-enable-disable.summary"),
         batchEnableDisable,
@@ -136,40 +82,34 @@ public:
         API_M_PUT,
         "/sup/batch-enable-disable",
         batchEnableDisable,
-        BODY_DTO(SupplierBatchEnableDisableDTO::Wrapper, dto),  // ×Ô¶¨Òå DTO£ºids + statusEnum
+        BODY_DTO(SupplierBatchEnableDisableDTO::Wrapper, dto),
         execBatchEnableDisable(dto)
     );
 
-    // ============================================================
-    // 6. DELETE /sup/batch-remove ¡ª¡ª ÅúÁ¿É¾³ý¹©Ó¦ÉÌ
-    //    ÇëÇóÌå: ["id1", "id2", "id3"]
-    //    Ö±½Ó´«×Ö·û´®Êý×é£¬²»ÐèÒª¶îÍâ DTO
-    // ============================================================
+    // DELETE /sup/batch-remove â€” Batch delete suppliers
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("sup.batch-remove.summary"),
         batchRemove,
-        ListJsonVO<String>::Wrapper,   // ·µ»Ø±»É¾³ýµÄ ID ÁÐ±í
+        ListJsonVO<String>::Wrapper,
         API_TAG
     );
     API_HANDLER_ENDPOINT_AUTH(
         API_M_DEL,
         "/sup/batch-remove",
         batchRemove,
-        BODY_DTO(List<String>, ids),   // ÇëÇóÌåÖ±½Ó´« List<String>
+        BODY_DTO(List<String>, ids),
         execBatchRemove(ids)
     );
 
 private:
-        // ----------------------------------------------------------
-        // Ë½ÓÐ execute ·½·¨ ¡ª¡ª ÕæÕýµÄÒµÎñÂß¼­ÔÚÕâÀï
-        // Ä¿Ç°·µ»Ø {} ¿Õ¶ÔÏóÕ¼Î»£¬ºóÐø¼¯³É Service ºóÌæ»»
-        // ----------------------------------------------------------
-        SupplierJsonVO::Wrapper execQueryOne(const String& id);
-        SupplierPageJsonVO::Wrapper execQueryAll(const SupplierQuery::Wrapper& query);
-        StringJsonVO::Wrapper execAddSupplier(const SupplierDTO::Wrapper& dto);
-        StringJsonVO::Wrapper execModifySupplier(const SupplierDTO::Wrapper& dto);
-        StringJsonVO::Wrapper execBatchEnableDisable(const SupplierBatchEnableDisableDTO::Wrapper& dto);
-        ListJsonVO<String>::Wrapper execBatchRemove(const List<String>& ids);
+    // Query single supplier by ID or code
+    SupplierJsonVO::Wrapper execQueryOne(const SupplierDetailQuery::Wrapper& query);
+    // Paginated query with filters
+    SupplierPageJsonVO::Wrapper execQueryAll(const SupplierQuery::Wrapper& query);
+    // Batch enable/disable
+    StringJsonVO::Wrapper execBatchEnableDisable(const SupplierBatchEnableDisableDTO::Wrapper& dto);
+    // Batch delete suppliers
+    ListJsonVO<String>::Wrapper execBatchRemove(const List<String>& ids);
 };
 
 #undef API_TAG

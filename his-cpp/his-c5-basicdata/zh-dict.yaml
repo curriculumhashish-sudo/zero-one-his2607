@@ -4,7 +4,7 @@
 # ============================================================
 
 # ============================================================
-# 患者管理 (pat) — 患者查询/分页/删除
+# 患者管理 (pat) — 患者查询/分页/删除/CRUD
 # ============================================================
 pat:
   tag: 患者管理
@@ -28,6 +28,9 @@ pat:
     page:
       summary: 分页查询弹窗可选患者列表
       success: 查询可选患者列表成功
+    gender:
+      male: 男性
+      female: 女性
     query:
       field:
         keyword: 搜索关键词(姓名/病历号/证件号)
@@ -40,26 +43,17 @@ pat:
         age: 年龄
         phone: 联系电话
         idCard: 身份证号
-  field:
-    id: 患者ID
-    age: 年龄
-    sex: 性别
-
-# ============================================================
-# 患者详情管理 (patient) — 单个患者 CRUD
-# ============================================================
-patient:
-  tag: 患者详情
   query-by-id:
     summary: 根据ID查询患者详情
-  put:
-    summary: 修改患者信息
-  post:
+  add:
     summary: 新增患者
+  modify:
+    summary: 修改患者信息
   field:
-    id: 患者编号
+    id: 患者ID
     name: 患者姓名
-    age: 患者年龄
+    age: 年龄
+    sex: 性别
 
 # ============================================================
 # 科室管理 (dept) — 科室 CRUD + 批量启停 + 组织架构树
@@ -79,6 +73,27 @@ dept:
       disable: 批量停用科室成功
     fail:
       empty: 批量操作失败，无匹配科室数据
+    validate:
+      body-invalid: 请求体JSON格式错误
+      id-list-required: deptIdList不能为空
+      id-list-empty: deptIdList不能为空
+      id-empty: 科室ID不能为空字符串
+      id-not-digit: 科室ID仅允许数字字符
+      id-type-string: 科室ID必须为字符串类型
+      id-duplicate: 存在重复的科室ID
+      status-required: targetStatus不能为空
+      status-invalid: targetStatus仅支持0(停用)或1(启用)
+    error:
+      id-convert-fail: 科室ID格式转换失败
+      no-match: 批量操作失败，无匹配科室数据
+      partial-fail: 批量操作部分失败，已全部回滚
+      cascade-fail: 级联启用子科室失败，已全部回滚
+      has-active-child: 存在启用的子科室，请先停用子科室
+      parent-inactive: 父科室未启用，请先启用父科室
+  endpoints:
+    nameTree: 获取科室名称树
+    listTree: 获取科室列表树
+    detail: 获取科室详情
   organizationQuery:
     endpoints:
       nameTree: 获取科室名称树
@@ -150,9 +165,9 @@ dept:
 sup:
   tag: 供应商管理
   query-one:
-    summary: 根据ID查询供应商
+    summary: 根据ID或编号查询供应商详情
   query-all:
-    summary: 分页查询供应商列表
+    summary: 条件分页查询供应商列表
   add:
     summary: 新增供应商
   modify:
@@ -161,18 +176,25 @@ sup:
     summary: 批量启/停用供应商
   batch-remove:
     summary: 批量删除供应商
+  name:
+    query: 供应商/生产厂商名称
   field:
     id: 主键编号
+    supId: 供应商编号
+    code: 供应商编号
     ids: 供应商ID列表
     keyword: 搜索关键字(名称)
     busNo: 业务编号
     name: 供应商名称
-    typeEnum: 类型枚举值
+    typeEnum: 供应商类型(生产厂家/供应商等)
     creditCode: 统一信用代码
     legalRepresentative: 法定代表人
     address: 地址
+    contact: 电话邮箱
     pyStr: 拼音码
     wbStr: 五笔码
+    pinyin: 拼音
+    wubi: 五笔
     phone: 电话
     email: 邮箱
     bankName: 开户银行
@@ -181,6 +203,12 @@ sup:
     displayOrder: 显示顺序
     statusEnum: 状态枚举值(NORMAL/DISABLED)
     note: 备注说明
+  query:
+    code: 供应商编号
+    name: 供应商名称
+    type: 供应商类型
+    keyword: 搜索关键词
+    statusEnum: 按状态筛选
 
 # ============================================================
 # 库房药房管理 (pharm)
@@ -188,46 +216,36 @@ sup:
 pharm:
   tag: 库房药房管理
   endpoints:
-    list: 分页查询库房药房列表
+    nameList: 获取库房药房名称
+    list: 获取库房药房列表条件+分页
     add: 新增库房药房
     modify: 修改库房药房
     remove: 删除库房药房
-    status: 切换库房药房状态
-  select-list:
-    summary: 获取库房药房下拉选择列表
-  query-all:
-    summary: 分页查询库房药房列表(GET参数)
-  statusEnum:
-    modify: 修改库房药房启停状态
-  list:
-    query: 分页查询库房药房列表(POST参数)
+    status: 切换库房药房启停状态
   field:
     id: 编号
-    name: 药房名称
-    type: 药房类型
-    typeEnum: 类型枚举值
-    classRoom: 上级科室
-    sort: 排序号
-    remark: 备注
-    status: 状态
-    statusEnum: 状态枚举(NORMAL/DISABLED)
+    name: 库房药房名称
+    formEnum: 类型(PHARMACY药房/WAREHOUSE库房)
+    statusEnum: 状态(ACTIVE启用/INACTIVE停用)
+    busNo: 业务编号
+    organizationId: 所属机构
+    displayOrder: 显示顺序
     pyStr: 拼音码
     wbStr: 五笔码
-    displayOrder: 显示顺序
-    note: 备注
-    keyword: 搜索关键词(名称/拼音/五笔)
+    parentId: 上级库房药房
     createBy: 创建人
     updateBy: 修改人
     createTime: 创建时间
     updateTime: 修改时间
   queries:
-    keyword: 搜索关键词
-    type: 按类型筛选
-    status: 按状态筛选
+    keyword: 搜索关键词(模糊匹配名称)
+    formEnum: 按类型筛选(PHARMACY/WAREHOUSE)
+    statusEnum: 按状态筛选(ACTIVE/INACTIVE)
   result:
     empty: 暂无数据
     add_success: 新增成功
     add_fail: 新增失败
+    name_duplicate: 库房药房名称已存在
     modify_success: 修改成功
     modify_fail: 修改失败
     remove_success: 删除成功
@@ -236,10 +254,10 @@ pharm:
     status_fail: 状态更新失败
 
 # ============================================================
-# 病区管理 (ward) — 病区/病房/床位 + 地点管理
+# 病区病房管理 (ward) — 病区/病房/床位 + 地点管理
 # ============================================================
 ward:
-  tag: 病区管理
+  tag: 病区病房
   name-list:
     summary: 获取病区名称列表
   tree-list:
@@ -256,44 +274,25 @@ ward:
     summary: 删除病区
   status:
     summary: 切换病区启停状态
+  bed-modify:
+    summary: 修改床位信息
+  bed-remove:
+    summary: 删除床位
+  bed-status:
+    summary: 切换床位启停状态
+  room-modify:
+    summary: 修改病房信息
+  room-remove:
+    summary: 删除病房
+  room-status:
+    summary: 切换病房启停状态
   field:
-    id: 病区编号
-    name: 病区名称
+    id: 病区/病房/床位编号
+    name: 名称
     organization-id: 机构编号
     roomId: 病房编号
     bedId: 病床编号
     wardAreaId: 病区编号
     wardRoomId: 病房编号
     status: 状态
-
-# ============================================================
-# 床位管理 (bed)
-# ============================================================
-bed:
-  tag: 床位管理
-  modify:
-    summary: 修改床位信息
-  remove:
-    summary: 删除床位
-  status:
-    summary: 切换床位启停状态
-  field:
-    id: 床位编号
-    name: 床位名称
-    statusEnum: 状态枚举(ACTIVE/DISABLED)
-
-# ============================================================
-# 病房管理 (room)
-# ============================================================
-room:
-  tag: 病房管理
-  modify:
-    summary: 修改病房信息
-  remove:
-    summary: 删除病房
-  status:
-    summary: 切换病房启停状态
-  field:
-    id: 病房编号
-    name: 病房名称
     statusEnum: 状态枚举(ACTIVE/DISABLED)

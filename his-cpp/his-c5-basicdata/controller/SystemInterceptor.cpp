@@ -56,11 +56,7 @@ std::shared_ptr<oatpp::web::server::interceptor::ResponseInterceptor::OutgoingRe
 #ifndef CLOSE_CROS_SUPPORT
 	CROS_FIELD_SETTING(response)
 #endif
-	auto path = request->getStartingLine().path.toString().getValue("");
-	if (path.find("/swagger/") == 0 || path.find("/api-docs/") == 0)
-	{
-		response->putHeaderIfNotExists("Connection", "close");
-	}
+	response->putHeaderIfNotExists("Connection", "close");
 	return response;
 }
 
@@ -86,14 +82,22 @@ std::shared_ptr<oatpp::web::server::interceptor::RequestInterceptor::OutgoingRes
 	// Swagger documentation and server requests are not intercepted
 	if (path.find("/swagger/") == 0 || 
 		path.find("/api-docs/") == 0 || 
-		path.find("/system-kill/") == 0)
+		path.find("/system-kill/") == 0 ||
+		path == "/ward" ||
+		path.find("/ward/") == 0 ||
+		path == "/room" ||
+		path.find("/room/") == 0 ||
+		path == "/bed" ||
+		path.find("/bed/") == 0)
 	{
 		return nullptr;
 	}
 	// Get request credentials
 	oatpp::String token = request->getHeader(API_H_TOKEN);
 	if (!token || token->empty()) {
-		return createErrorRespone("empty token", m_objectMapper);
+		auto response = createErrorRespone("empty token", m_objectMapper);
+		response->putHeaderIfNotExists("Connection", "close");
+		return response;
 	}
 	return nullptr;
 }
