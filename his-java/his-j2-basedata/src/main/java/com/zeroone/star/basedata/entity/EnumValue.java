@@ -82,6 +82,7 @@ public class EnumValue {
     private Boolean isDeleted;
 
 
+    /*
     public static EnumDTO toDTO(EnumValue enumValue) {
         EnumDTO enumDTO = new EnumDTO();
         enumDTO.setEnumTypeId(enumValue.getEnumTypeId());
@@ -117,6 +118,7 @@ public class EnumValue {
 
         return pageDTO;
     }
+    */
 }
 
 /**

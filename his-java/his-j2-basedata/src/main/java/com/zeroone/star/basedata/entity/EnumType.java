@@ -61,6 +61,7 @@ public class EnumType {
     @Indexed
     private Boolean isDeleted;
 
+    /*
     public static EnumTypeDTO toDTO(EnumType enumType) {
         if (enumType == null) {
             return null;
@@ -97,6 +98,7 @@ public class EnumType {
 
         return pageDTO;
     }
+    */
 }
 
 /**

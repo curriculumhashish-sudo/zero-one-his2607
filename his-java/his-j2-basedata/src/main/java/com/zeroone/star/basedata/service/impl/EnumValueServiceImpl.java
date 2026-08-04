@@ -125,8 +125,7 @@ public class EnumValueServiceImpl implements EnumValueService {
                 // continue;
             }
             String enumTypeId = enumType.getId();
-            List<EnumSimpleDTO> enumDTOList = EnumValue.toSimpleDTOList(
-                    enumValueRepository.findByEnumTypeIdAndIsDeletedFalse(TENANT_ID, enumTypeId));
+            List<EnumSimpleDTO> enumDTOList = enumValueRepository.findByEnumTypeIdAndIsDeletedFalse(TENANT_ID, enumTypeId);
             enumTypeMap.put(enumTypeKey, enumDTOList);
         }
 

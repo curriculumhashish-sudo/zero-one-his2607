@@ -2,6 +2,7 @@ package com.zeroone.star.basedata.repository;
 
 
 import com.zeroone.star.basedata.entity.EnumType;
+import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumTypeDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -28,7 +29,7 @@ public interface EnumTypeRepository extends MongoRepository<EnumType, String> {
             + "{'displayName': {$regex: ?1, $options: 'i'}}, "
             + "]}"
             + "]}")
-    Page<EnumType> findByKeyword(
+    Page<EnumTypeDTO> findByKeyword(
             String tenatId,
             String keyword,
             Pageable pageable);

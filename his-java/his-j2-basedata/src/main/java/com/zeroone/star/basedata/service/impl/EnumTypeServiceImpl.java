@@ -36,13 +36,13 @@ public class EnumTypeServiceImpl implements EnumTypeService {
                 Sort.by(Sort.Direction.DESC, "updatedAt")
         );
 
-        Page<EnumType> page = enumTypeRepository.findByKeyword(
+        Page<EnumTypeDTO> page = enumTypeRepository.findByKeyword(
                 TENANT_ID,
                 query.getEnumTypeKeyword(),
                 pageable
         );
 
-        return EnumType.toPageDTO(page);
+        return EnumTypeDTO.create(page);
     }
 
     @Override
