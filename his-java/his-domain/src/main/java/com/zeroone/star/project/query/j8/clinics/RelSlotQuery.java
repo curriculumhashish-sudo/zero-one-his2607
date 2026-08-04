@@ -19,8 +19,8 @@ import java.time.LocalDate;
  * @version 1.0.0
  */
 @Data
-@Schema(description = "获取以放号源查询对象")
-public class RelSlotQuery{
+@Schema(description = "获取已放号源查询对象")
+public class RelSlotQuery extends PageQuery{
     @NotBlank(message = "机构ID不能为空")
     @Schema(description = "机构ID", example = "322663218269917184",requiredMode = Schema.RequiredMode.REQUIRED)
     private String organizationId;
@@ -32,5 +32,11 @@ public class RelSlotQuery{
     @NotBlank(message = "排班ID不能为空")
     @Schema(description = "排班ID", example = "329700000000000001",requiredMode = Schema.RequiredMode.REQUIRED)
     private String scheduleId;
+
+    @Schema(description = "接诊医生id", example = "",requiredMode = Schema.RequiredMode.REQUIRED)
+    private String practitionerId;
+
+    @Schema(description = "状态编码", example = "",requiredMode = Schema.RequiredMode.REQUIRED)
+    private String statusCode;
 
 }

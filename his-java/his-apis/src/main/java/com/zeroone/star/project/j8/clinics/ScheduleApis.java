@@ -1,18 +1,17 @@
 package com.zeroone.star.project.j8.clinics;
 
 
+import com.zeroone.star.project.dto.j8.clinics.BatchDeleteSlotDTO;
 import com.zeroone.star.project.dto.j8.clinics.RetireScheduleDTO;
 import com.zeroone.star.project.dto.j8.clinics.SlotBatchReleaseDTO;
 import com.zeroone.star.project.query.j8.clinics.RelSlotQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j8.clinics.ResumeScheduleVO;
 import com.zeroone.star.project.vo.j8.clinics.SlotBatchReleaseVO;
-import com.zeroone.star.project.vo.j8.clinics.SlotVO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 
-import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -27,18 +26,19 @@ public interface ScheduleApis {
 
     /**
      * 获取已放号源列表
+     *
      * @param query 查询参数
      * @return 响应对象
      */
-    JsonVO<List<SlotVO>> getRelNumberSource(@Valid RelSlotQuery query);
+    JsonVO<Map<String, Object>> getRelNumberSource(@Valid RelSlotQuery query);
 
 
     /**
      * 删除号源
-     * @param slotId 待删除的号源时段主键id
+     * @param slotIds 待删除的号源时段主键id
      * @return 响应对象
      */
-    JsonVO<String> deleteNumberSource(@Schema(description = "号源时段主键id", example = "335659579333414912")String slotId);
+    JsonVO<String> deleteNumberSource(@Valid BatchDeleteSlotDTO slotIds);
 
     /**
      * 批量放号
