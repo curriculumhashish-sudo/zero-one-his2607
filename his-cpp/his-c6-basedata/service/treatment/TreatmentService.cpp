@@ -16,12 +16,12 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-#include "stdafx.h"
-#include "TreatmentService.h"
 #include "../../dao/treatment/TreatmentDAO.h"
 #include "id/UuidFacade.h"
 #include "SimpleDateTimeFormat.h"
+#include "stdafx.h"
 #include "TransactionManager.h"
+#include "TreatmentService.h"
 
 /** 将数据库状态转换为接口数值。 */
 static int treatmentStatusValue(const std::string& status)
@@ -162,7 +162,7 @@ TreatmentDetailDTO::Wrapper TreatmentService::getById(std::string id)
 }
 
 bool TreatmentService::modifyStatus(const std::string& id, int32_t targetStatus, const std::string& operatorId, std::string& errorMsg) {
-	std::string statusStr = std::to_string(targetStatus);
+	std::string statusStr = targetStatus == 1 ? "ACTIVE" : "INACTIVE";
 	auto record = TreatmentDAO().selectById(id);
 	if (!record) {
 		errorMsg = "record is not existed or deleted";
