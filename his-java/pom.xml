@@ -9,7 +9,7 @@
         <relativePath/>
     </parent>
     <artifactId>his-java</artifactId>
-    <version>${revision}</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <licenses>
         <license>
@@ -44,8 +44,8 @@
         <module>his-j8-statdata</module>
     </modules>
     <properties>
-        <!-- 项目版本号 -->
         <revision>1.0.0-SNAPSHOT</revision>
+        <docker.skip>true</docker.skip>
     </properties>
     <dependencyManagement>
         <dependencies>
