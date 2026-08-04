@@ -111,6 +111,22 @@ if(UNIT_TEST)
 		ward-business-integration
 		PROPERTIES
 		WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/${appName}")
+	set(patientDtoTestName patient-dto-validation-test)
+	add_executable(${patientDtoTestName}
+		"tests/pat/PatientDTOValidationTest.cpp")
+	if(MSVC)
+		target_compile_options(${patientDtoTestName} PRIVATE /bigobj)
+	endif()
+	target_link_libraries(${patientDtoTestName}
+		"lib-common"
+		"lib-oatpp"
+		oatpp)
+	if(WIN32)
+		target_link_libraries(${patientDtoTestName} ws2_32)
+	endif()
+	add_test(
+		NAME patient-dto-validation
+		COMMAND ${patientDtoTestName})
 endif()
 
 # 链接xlnt
