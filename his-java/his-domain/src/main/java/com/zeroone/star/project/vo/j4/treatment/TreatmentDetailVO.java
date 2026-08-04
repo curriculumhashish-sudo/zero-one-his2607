@@ -27,7 +27,7 @@ import java.util.List;
  * │ 销售/计价单位 │ packageUnitCode  │ 否       │ 下拉框，字典接口（unit_code）            │
  * │ 拼音         │ pyStr            │ 否       │ 文本输入框（可由名称自动生成）            │
  * │ 五笔         │ wbStr            │ 否       │ 文本输入框（可由名称自动生成）            │
- * │ 财务类型      │ itemTypeCode     │ 否       │ 下拉框，字典接口（fin_type_code）        │
+ * │ 财务类型      │ typeCode        │ 否       │ 下拉框，字典接口（fin_type_code）        │
  * │ 成本价        │ purchasePrice    │ 否       │ 数字输入框，单位元，保留2位小数           │
  * │ 零售价        │ retailPrice      │ 否       │ 数字输入框，单位元，保留2位小数           │
  * │ 最高零售价    │ maximumRetailPrice│ 否      │ 数字输入框，单位元，保留2位小数           │
@@ -69,7 +69,7 @@ import java.util.List;
  * 2. 【字典编码字段（String）】：前端必须通过字典接口动态获取选项，不要写死。
  *    - categoryCode: 字典code_system = activity_category_code（目录分类）
  *    - packageUnitCode: 字典code_system = unit_code（销售/计价单位）
- *    - itemTypeCode: 字典code_system = fin_type_code（财务类型）
+ *    - typeCode: 字典code_system = fin_type_code（财务类型）
  *    - ybType: 字典code_system = med_chrgitm_type（医保类别）
  *
  * 3. 【价格字段（BigDecimal）】：单位人民币"元"，保留2位小数，展示格式化为 ¥xx.xx。
@@ -147,7 +147,7 @@ public class TreatmentDetailVO implements Serializable {
      * 2001=麻醉, 2002=膳食, 2003=输血费, 2005=医用耗材, 2009=检查, 2010=中成药
      */
     @Schema(description = "【下拉框】财务类别编码，字典数据源fin_type_code，常用值：1008=治疗费/1009=护理费/1013=其他费", example = "1008")
-    private String itemTypeCode;
+    private String typeCode;
 
     @Schema(description = "【数字输入框】成本价/购入价（单位：元，保留2位小数）", example = "3.00")
     private BigDecimal purchasePrice;

@@ -32,11 +32,11 @@ public class WkfActivityDefinitionChildDO implements Serializable {
     @Schema(description = "最后更新时间", example = "2026-01-01 12:00:00")
     private LocalDateTime updatedAt;
 
-    @TableField("created_by")
+    @TableField(value = "created_by", fill = FieldFill.INSERT)
     @Schema(description = "创建人", example = "admin")
     private String createdBy;
 
-    @TableField("updated_by")
+    @TableField(value = "updated_by", fill = FieldFill.INSERT_UPDATE)
     @Schema(description = "最后更新人", example = "admin")
     private String updatedBy;
 

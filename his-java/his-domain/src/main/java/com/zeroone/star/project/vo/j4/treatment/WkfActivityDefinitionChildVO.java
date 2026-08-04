@@ -1,7 +1,5 @@
 package com.zeroone.star.project.vo.j4.treatment;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -42,15 +40,12 @@ public class WkfActivityDefinitionChildVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @JsonSerialize(using = ToStringSerializer.class)
     @Schema(description = "子项记录主键ID（系统生成，新增不传，编辑回显有值，提交时原样传回）", example = "1890000000000000002")
     private String id;
 
-    @JsonSerialize(using = ToStringSerializer.class)
     @Schema(description = "父项ID（外键，指向父诊疗项目id，系统字段，新增不传，提交时原样传回）", example = "1890000000000000001")
     private String activityId;
 
-    @JsonSerialize(using = ToStringSerializer.class)
     @Schema(description = "【必填·隐藏字段】子项诊疗项目ID（被引用的诊疗项目主键，从选择弹窗回填）", example = "323001764504670208", requiredMode = Schema.RequiredMode.REQUIRED)
     private String childrenId;
 
