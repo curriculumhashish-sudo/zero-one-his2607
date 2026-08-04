@@ -39,7 +39,7 @@
  */
 class outpatientrecord3Service
 {
-	EmrDocument3DAO EmrDocument3DAO;
+	EmrDocument3DAO emrDocument3DAO;
 	AdmEncounterDAO admEncounterDAO;
 
 	// Content size limit in bytes (512 KB)

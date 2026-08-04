@@ -8,18 +8,18 @@
 #include <map>
 
 // ===================================================================
-//                         å¤„æ–¹æ’¤å›å®ç° Revoke
+//                         ´¦·½³·»ØÊµÏÖ Revoke
 // ===================================================================
 
 /**
- * @brief å¤„æ–¹æ’¤å›æ¥å£ä¸šåŠ¡é€»è¾‘
- * @param dto å¤„æ–¹æ’¤å›å…¥å‚DTOï¼ŒåŒ…å«å¾…æ’¤å›å¤„æ–¹ç¼–å·åˆ—è¡¨
- * @param payload JWTèº«ä»½è½½ä½“ï¼Œæºå¸¦å½“å‰ç™»å½•ç”¨æˆ·ã€ç§Ÿæˆ·ç­‰ä¿¡æ¯
- * @return chinapres3RevokeResultVO::Wrapper æ’¤å›ç»“æœVOï¼ŒåŒ…å«æˆåŠŸè®¡æ•°ã€å¤±è´¥æ¸…å•
- * ä¸šåŠ¡è§„åˆ™ï¼š
- * 1. å¤šæ¡å¤„æ–¹ç‹¬ç«‹äº‹åŠ¡ï¼Œå•å¼ å¤„æ–¹å¤±è´¥ä¸å½±å“å…¶ä»–å¤„æ–¹å¤„ç†
- * 2. ä»…å…è®¸æ’¤å›ã€å·²ç­¾å‘(ACTIVE)ã€‘ä¸”ã€æœªå‘è¯(PREPARATION)ã€‘çš„å¤„æ–¹
- * 3. æ‰§è¡Œé€»è¾‘ï¼šæ›´æ–°ç”¨è¯ç”³è¯·çŠ¶æ€ â†’ é€»è¾‘åˆ é™¤å‘è¯è®°å½• â†’ é€»è¾‘åˆ é™¤æ”¶è´¹æ˜ç»†
+ * @brief ´¦·½³·»Ø½Ó¿ÚÒµÎñÂß¼­
+ * @param dto ´¦·½³·»ØÈë²ÎDTO£¬°üº¬´ı³·»Ø´¦·½±àºÅÁĞ±í
+ * @param payload JWTÉí·İÔØÌå£¬Ğ¯´øµ±Ç°µÇÂ¼ÓÃ»§¡¢×â»§µÈĞÅÏ¢
+ * @return chinapres3RevokeResultVO::Wrapper ³·»Ø½á¹ûVO£¬°üº¬³É¹¦¼ÆÊı¡¢Ê§°ÜÇåµ¥
+ * ÒµÎñ¹æÔò£º
+ * 1. ¶àÌõ´¦·½¶ÀÁ¢ÊÂÎñ£¬µ¥ÕÅ´¦·½Ê§°Ü²»Ó°ÏìÆäËû´¦·½´¦Àí
+ * 2. ½öÔÊĞí³·»Ø¡¾ÒÑÇ©·¢(ACTIVE)¡¿ÇÒ¡¾Î´·¢Ò©(PREPARATION)¡¿µÄ´¦·½
+ * 3. Ö´ĞĞÂß¼­£º¸üĞÂÓÃÒ©ÉêÇë×´Ì¬ ¡ú Âß¼­É¾³ı·¢Ò©¼ÇÂ¼ ¡ú Âß¼­É¾³ıÊÕ·ÑÃ÷Ï¸
  */
 chinapres3RevokeResultVO::Wrapper chinapres3Service::revoke(
 	const chinapres3RevokeDTO::Wrapper& dto,
@@ -27,7 +27,7 @@ chinapres3RevokeResultVO::Wrapper chinapres3Service::revoke(
 {
 	auto resultVo = chinapres3RevokeResultVO::createShared();
 
-	// ---- 1. å‚æ•°æ ¡éªŒ ----
+	// ---- 1. ²ÎÊıĞ£Ñé ----
 	auto prescriptionNos = dto->prescriptionNos;
 	if (!prescriptionNos || prescriptionNos->size() == 0) {
 		resultVo->code = 400;
@@ -38,20 +38,20 @@ chinapres3RevokeResultVO::Wrapper chinapres3Service::revoke(
 	auto now = SimpleDateTimeFormat::format();
 	auto currentUser = payload.getUsername();
 
-	v_int32 revokedPresCount = 0;         // æˆåŠŸæ’¤å›å¤„æ–¹æ•°é‡
-	v_int32 revokedMedCount = 0;          // æˆåŠŸæ’¤å›è¯å“æ¡ç›®æ•°é‡
+	v_int32 revokedPresCount = 0;         // ³É¹¦³·»Ø´¦·½ÊıÁ¿
+	v_int32 revokedMedCount = 0;          // ³É¹¦³·»ØÒ©Æ·ÌõÄ¿ÊıÁ¿
 	auto failureList = oatpp::Vector<oatpp::Object<chinapres3RevokeFailureDTO>>::createShared();
 
-	// ---- 2. å¾ªç¯é€æ¡å¤„ç†å¤„æ–¹ï¼ˆæ¯å¼ å¤„æ–¹ç‹¬ç«‹äº‹åŠ¡ï¼‰ ----
+	// ---- 2. Ñ­»·ÖğÌõ´¦Àí´¦·½£¨Ã¿ÕÅ´¦·½¶ÀÁ¢ÊÂÎñ£© ----
 	for (auto& presNo : *prescriptionNos) {
 		auto presNoStr = std::string(presNo.getValue(""));
 		if (presNoStr.empty()) continue;
 
 		try {
-			// æ¯å¼ å¤„æ–¹å•ç‹¬å¼€å¯äº‹åŠ¡
+			// Ã¿ÕÅ´¦·½µ¥¶À¿ªÆôÊÂÎñ
 			TransactionManager tm(&medReqDAO, &medDispDAO, &chargeDAO);
 
-			// ---- 2a. æŸ¥è¯¢è¯¥å¤„æ–¹ä¸‹ã€æœ‰æ•ˆçŠ¶æ€ã€‘çš„ç”¨è¯ç”³è¯·è®°å½• ----
+			// ---- 2a. ²éÑ¯¸Ã´¦·½ÏÂ¡¾ÓĞĞ§×´Ì¬¡¿µÄÓÃÒ©ÉêÇë¼ÇÂ¼ ----
 			auto reqQuery = chinapres3MedicationRequestQuery::createShared();
 			reqQuery->prescriptionNo = presNoStr;
 			reqQuery->statusEnum = "ACTIVE";
@@ -68,7 +68,7 @@ chinapres3RevokeResultVO::Wrapper chinapres3Service::revoke(
 				continue;
 			}
 
-			// ---- 2b. æ ¡éªŒå‘è¯è®°å½•ï¼šå¿…é¡»ä¸ºã€å¾…è°ƒé…PREPARATIONã€‘ä¸”æœªé€»è¾‘åˆ é™¤ ----
+			// ---- 2b. Ğ£Ñé·¢Ò©¼ÇÂ¼£º±ØĞëÎª¡¾´ıµ÷ÅäPREPARATION¡¿ÇÒÎ´Âß¼­É¾³ı ----
 			std::vector<Ptrchinapres3MedicationDispenseDO> dispensesToUpdate;
 			bool dispenseFailed = false;
 
@@ -100,16 +100,16 @@ chinapres3RevokeResultVO::Wrapper chinapres3Service::revoke(
 				continue;
 			}
 
-			// ---- 2c. æ›´æ–°medication_requestï¼šçŠ¶æ€ä¿®æ”¹ä¸ºè‰ç¨¿ DRAFT ----
+			// ---- 2c. ¸üĞÂmedication_request£º×´Ì¬ĞŞ¸ÄÎª²İ¸å DRAFT ----
 			for (auto& req : requests) {
 				req->setStatusEnum("DRAFT");
-				// rx_type_code ä¿æŒ "TCM" ä¸æ”¹å˜
+				// rx_type_code ±£³Ö "TCM" ²»¸Ä±ä
 				req->setUpdatedBy(currentUser);
 				req->setUpdatedAt(now);
 				medReqDAO.update(*req);
 			}
 
-			// ---- 2d. æ›´æ–°medication_dispenseï¼šé€»è¾‘åˆ é™¤ is_deleted = 1 ----
+			// ---- 2d. ¸üĞÂmedication_dispense£ºÂß¼­É¾³ı is_deleted = 1 ----
 			for (auto& d : dispensesToUpdate) {
 				d->setIsDeleted("1");
 				d->setUpdatedBy(currentUser);
@@ -117,7 +117,7 @@ chinapres3RevokeResultVO::Wrapper chinapres3Service::revoke(
 				medDispDAO.update(*d);
 			}
 
-			// ---- 2e. æ›´æ–°adm_charge_itemæ”¶è´¹æ˜ç»†ï¼šé€»è¾‘åˆ é™¤ is_deleted = 1 ----
+			// ---- 2e. ¸üĞÂadm_charge_itemÊÕ·ÑÃ÷Ï¸£ºÂß¼­É¾³ı is_deleted = 1 ----
 			auto chargeQuery = chinapres3ChargeItemQuery::createShared();
 			chargeQuery->prescriptionNo = presNoStr;
 			chargeQuery->isDeleted = "0";
@@ -132,7 +132,7 @@ chinapres3RevokeResultVO::Wrapper chinapres3Service::revoke(
 				chargeDAO.update(*c);
 			}
 
-			// ---- æäº¤å½“å‰å¤„æ–¹äº‹åŠ¡ ----
+			// ---- Ìá½»µ±Ç°´¦·½ÊÂÎñ ----
 			tm.commit();
 
 			revokedPresCount++;
@@ -149,7 +149,7 @@ chinapres3RevokeResultVO::Wrapper chinapres3Service::revoke(
 		}
 	}
 
-	// ---- 3. ç»„è£…è¿”å›ç»“æœ ----
+	// ---- 3. ×é×°·µ»Ø½á¹û ----
 	auto resultData = chinapres3RevokeResultDTO::createShared();
 	resultData->revokedPrescriptionCount = revokedPresCount;
 	resultData->revokedMedicationCount = revokedMedCount;
@@ -161,18 +161,18 @@ chinapres3RevokeResultVO::Wrapper chinapres3Service::revoke(
 }
 
 // ===================================================================
-//                         å¤„æ–¹ç­¾å‘å®ç° Issue
+//                         ´¦·½Ç©·¢ÊµÏÖ Issue
 // ===================================================================
 
 /**
- * @brief å¤„æ–¹ç­¾å‘ä¸šåŠ¡é€»è¾‘ï¼ˆè‰ç¨¿å¤„æ–¹æ­£å¼ç”Ÿæ•ˆï¼‰
- * @param dto å¤„æ–¹ç­¾å‘å…¥å‚DTOï¼Œå°±è¯ŠIDã€æ‚£è€…IDã€å¾…ç­¾å‘è¯å“æ¡ç›®åˆ—è¡¨
- * @param payload JWTèº«ä»½è½½ä½“ï¼Œæºå¸¦å½“å‰ç™»å½•ç”¨æˆ·ã€ç§Ÿæˆ·ID
- * @return chinapres3IssueResultVO::Wrapper ç­¾å‘ç»“æœVOï¼Œè¿”å›ä¸šåŠ¡æµæ°´å·
- * ä¸šåŠ¡è§„åˆ™ï¼š
- * 1. ä»…ã€è‰ç¨¿DRAFTã€‘çŠ¶æ€å¤„æ–¹å…è®¸ç­¾å‘
- * 2. ç­¾å‘äº‹åŠ¡åŸå­æ€§ï¼šå…¨éƒ¨æˆåŠŸæˆ–å…¨éƒ¨å›æ»š
- * 3. æ‰§è¡Œæµç¨‹ï¼šæ›´æ–°ç”¨è¯ç”³è¯·çŠ¶æ€ â†’ ç”Ÿæˆå‘è¯è®°å½• â†’ ç”Ÿæˆé—¨è¯Šæ”¶è´¹é¡¹ç›®
+ * @brief ´¦·½Ç©·¢ÒµÎñÂß¼­£¨²İ¸å´¦·½ÕıÊ½ÉúĞ§£©
+ * @param dto ´¦·½Ç©·¢Èë²ÎDTO£¬¾ÍÕïID¡¢»¼ÕßID¡¢´ıÇ©·¢Ò©Æ·ÌõÄ¿ÁĞ±í
+ * @param payload JWTÉí·İÔØÌå£¬Ğ¯´øµ±Ç°µÇÂ¼ÓÃ»§¡¢×â»§ID
+ * @return chinapres3IssueResultVO::Wrapper Ç©·¢½á¹ûVO£¬·µ»ØÒµÎñÁ÷Ë®ºÅ
+ * ÒµÎñ¹æÔò£º
+ * 1. ½ö¡¾²İ¸åDRAFT¡¿×´Ì¬´¦·½ÔÊĞíÇ©·¢
+ * 2. Ç©·¢ÊÂÎñÔ­×ÓĞÔ£ºÈ«²¿³É¹¦»òÈ«²¿»Ø¹ö
+ * 3. Ö´ĞĞÁ÷³Ì£º¸üĞÂÓÃÒ©ÉêÇë×´Ì¬ ¡ú Éú³É·¢Ò©¼ÇÂ¼ ¡ú Éú³ÉÃÅÕïÊÕ·ÑÏîÄ¿
  */
 chinapres3IssueResultVO::Wrapper chinapres3Service::issue(
 	const chinapres3IssueDTO::Wrapper& dto,
@@ -180,19 +180,14 @@ chinapres3IssueResultVO::Wrapper chinapres3Service::issue(
 {
 	auto resultVo = chinapres3IssueResultVO::createShared();
 
-	// ==================== 1. å‚æ•°æ ¡éªŒ ====================
+	// ==================== 1. ²ÎÊıĞ£Ñé ====================
 	auto encounterId = dto->encounterId;
 	if (!encounterId || encounterId.getValue("") == "") {
 		resultVo->code = 400;
 		resultVo->message = "Parameter cannot be empty, please pass encounter ID";
 		return resultVo;
 	}
-	auto patientId = dto->patientId;
-	if (!patientId || patientId.getValue("") == "") {
-		resultVo->code = 400;
-		resultVo->message = "Parameter cannot be empty, please pass patient ID";
-		return resultVo;
-	}
+	// patientId removed from DTO: already present in med_medication_request, used directly
 	auto signTargets = dto->signTargets;
 	if (!signTargets || signTargets->size() == 0) {
 		resultVo->code = 400;
@@ -200,7 +195,7 @@ chinapres3IssueResultVO::Wrapper chinapres3Service::issue(
 		return resultVo;
 	}
 
-	// ==================== 2. å¾ªç¯æ ¡éªŒå¾…ç­¾å‘å¤„æ–¹æ¡ç›® ====================
+	// ==================== 2. Ñ­»·Ğ£Ñé´ıÇ©·¢´¦·½ÌõÄ¿ ====================
 	std::vector<Ptrchinapres3MedicationRequestDO> validRequests;
 	std::stringstream errStream;
 
@@ -226,7 +221,7 @@ chinapres3IssueResultVO::Wrapper chinapres3Service::issue(
 			resultVo->message = errStream.str();
 			return resultVo;
 		}
-		// æ ¡éªŒå°±è¯ŠIDä¸€è‡´æ€§
+		// Ğ£Ñé¾ÍÕïIDÒ»ÖÂĞÔ
 		auto reqEncounterId = req->getEncounterId();
 		if (!reqEncounterId.empty() && reqEncounterId != encounterId.getValue("")) {
 			resultVo->code = 400;
@@ -234,18 +229,38 @@ chinapres3IssueResultVO::Wrapper chinapres3Service::issue(
 				+ medReqId.getValue("");
 			return resultVo;
 		}
-		// æ ¡éªŒæ‚£è€…IDä¸€è‡´æ€§
-		auto reqPatientId = req->getPatientId();
-		if (!reqPatientId.empty() && reqPatientId != patientId.getValue("")) {
-			resultVo->code = 400;
-			resultVo->message = "Patient ID mismatches prescription, prescription ID="
-				+ medReqId.getValue("");
-			return resultVo;
-		}
+		// patientId consistency no longer checked here:
+		// patientId is derived from the medication request record,
+		// and all sign targets must belong to the same encounter
 		validRequests.push_back(req);
 	}
 
-	// ==================== 3. äº‹åŠ¡å†…æ›´æ–°å¤„æ–¹ã€ç”Ÿæˆå‘è¯è®°å½•ä¸æ”¶è´¹è®°å½• ====================
+	// ==================== 2b. All-or-nothing completeness check ====================
+	// Group valid requests by prescription_no and verify every DRAFT drug line
+	// under the same prescription is included in signTargets
+	{
+		std::map<std::string, v_int32> presCounts;
+		for (auto& req : validRequests) {
+			auto presNo = req->getPrescriptionNo();
+			if (!presNo.empty()) {
+				presCounts[presNo]++;
+			}
+		}
+		for (auto& entry : presCounts) {
+			uint64_t dbCount = medReqDAO.countByPrescriptionNo(entry.first, "DRAFT");
+			if (static_cast<uint64_t>(entry.second) != dbCount) {
+				std::ostringstream errMsg;
+				errMsg << "Incomplete prescription: " << entry.first
+					<< " has " << dbCount << " drug line(s) but only "
+					<< entry.second << " selected. Please sign all or none.";
+				resultVo->code = 400;
+				resultVo->message = errMsg.str();
+				return resultVo;
+			}
+		}
+	}
+
+	// ==================== 3. ÊÂÎñÄÚ¸üĞÂ´¦·½¡¢Éú³É·¢Ò©¼ÇÂ¼ÓëÊÕ·Ñ¼ÇÂ¼ ====================
 	try
 	{
 		TransactionManager tm(&medReqDAO, &medDispDAO, &chargeDAO);
@@ -254,10 +269,10 @@ chinapres3IssueResultVO::Wrapper chinapres3Service::issue(
 		auto currentUser = payload.getUsername();
 		auto orgId = payload.getId();
 
-		std::vector<std::string> busNos;               // å­˜å‚¨ç”Ÿæˆçš„å‘è¯ä¸šåŠ¡æµæ°´å·
-		std::set<std::string> processedPrescriptions;  // å»é‡ï¼šè®°å½•æœ¬æ¬¡å¤„ç†çš„å¤„æ–¹å·
+		std::vector<std::string> busNos;               // ´æ´¢Éú³ÉµÄ·¢Ò©ÒµÎñÁ÷Ë®ºÅ
+		std::set<std::string> processedPrescriptions;  // È¥ÖØ£º¼ÇÂ¼±¾´Î´¦ÀíµÄ´¦·½ºÅ
 
-		// ----- 3a. æ›´æ–°å¤„æ–¹çŠ¶æ€ä¸ºã€å·²ç­¾å‘ACTIVEã€‘ -----
+		// ----- 3a. ¸üĞÂ´¦·½×´Ì¬Îª¡¾ÒÑÇ©·¢ACTIVE¡¿ -----
 		for (auto& req : validRequests) {
 			req->setStatusEnum("ACTIVE");
 			req->setRxTypeCode("TCM");
@@ -266,8 +281,8 @@ chinapres3IssueResultVO::Wrapper chinapres3Service::issue(
 			medReqDAO.update(*req);
 		}
 
-		// ----- 3b. æ–°å¢å‘è¯æ˜ç»†è®°å½• medication_dispense -----
-		// key:å¤„æ–¹å·, value:ç¬¬ä¸€æ¡ç”¨è¯ç”³è¯·IDï¼Œç”¨äºç”Ÿæˆæ”¶è´¹è®°å½•
+		// ----- 3b. ĞÂÔö·¢Ò©Ã÷Ï¸¼ÇÂ¼ medication_dispense -----
+		// key:´¦·½ºÅ, value:µÚÒ»ÌõÓÃÒ©ÉêÇëID£¬ÓÃÓÚÉú³ÉÊÕ·Ñ¼ÇÂ¼
 		std::map<std::string, std::string> presNoToReqId;
 		for (auto& req : validRequests) {
 			chinapres3MedicationDispenseDO dispDO;
@@ -275,12 +290,12 @@ chinapres3IssueResultVO::Wrapper chinapres3Service::issue(
 			auto busNo = "BUS" + std::to_string(snowFlake->nextId());
 			dispDO.setBusNo(busNo);
 			busNos.push_back(busNo);
-			dispDO.setStatusEnum("PREPARATION");        // å¾…è°ƒé…çŠ¶æ€
-			dispDO.setDispenseEnum("OUTPATIENT");       // é—¨è¯Šå‘è¯ç±»å‹
+			dispDO.setStatusEnum("PREPARATION");        // ´ıµ÷Åä×´Ì¬
+			dispDO.setDispenseEnum("OUTPATIENT");       // ÃÅÕï·¢Ò©ÀàĞÍ
 			dispDO.setMedReqId(req->getId());
-			dispDO.setPatientId(patientId.getValue(""));
+			dispDO.setPatientId(req->getPatientId());
 			dispDO.setEncounterId(encounterId.getValue(""));
-			// ä»ç”¨è¯ç”³è¯·å¤åˆ¶è¯å“ç›¸å…³å¿…å¡«ä¿¡æ¯
+			// ´ÓÓÃÒ©ÉêÇë¸´ÖÆÒ©Æ·Ïà¹Ø±ØÌîĞÅÏ¢
 			dispDO.setMedicationId(req->getMedicationId());
 			dispDO.setQuantity(req->getQuantity());
 			dispDO.setUnitCode(req->getUnitCode());
@@ -292,21 +307,21 @@ chinapres3IssueResultVO::Wrapper chinapres3Service::issue(
 			auto presNo = req->getPrescriptionNo();
 			if (!presNo.empty()) {
 				processedPrescriptions.insert(presNo);
-				// æ¯ä¸ªå¤„æ–¹ä»…è®°å½•ç¬¬ä¸€æ¡ç”¨è¯ç”³è¯·ï¼Œç”¨äºæ”¶è´¹ç”Ÿæˆ
+				// Ã¿¸ö´¦·½½ö¼ÇÂ¼µÚÒ»ÌõÓÃÒ©ÉêÇë£¬ÓÃÓÚÊÕ·ÑÉú³É
 				if (presNoToReqId.find(presNo) == presNoToReqId.end()) {
 					presNoToReqId[presNo] = req->getId();
 				}
 			}
 		}
 
-		// ----- 3c. ç”Ÿæˆé—¨è¯Šæ”¶è´¹é¡¹ç›® adm_charge_item -----
+		// ----- 3c. Éú³ÉÃÅÕïÊÕ·ÑÏîÄ¿ adm_charge_item -----
 		for (auto& presNo : processedPrescriptions) {
 			chinapres3ChargeItemDO newCharge;
 			newCharge.setId(std::to_string(snowFlake->nextId()));
 			newCharge.setServiceTable("med_medication_request");
 			newCharge.setServiceId(presNoToReqId[presNo]);
 			newCharge.setPrescriptionNo(presNo);
-			newCharge.setPatientId(patientId.getValue(""));
+			newCharge.setPatientId(validRequests.front()->getPatientId());
 			newCharge.setEncounterId(encounterId.getValue(""));
 			newCharge.setGenerateSourceEnum("TCM_ISSUE");
 			newCharge.setContextEnum("OUTPATIENT");
@@ -319,21 +334,32 @@ chinapres3IssueResultVO::Wrapper chinapres3Service::issue(
 			chargeDAO.insert(newCharge);
 		}
 
-		// ----- 3d. æäº¤æ•°æ®åº“äº‹åŠ¡ -----
+		// ----- 3d. Ìá½»Êı¾İ¿âÊÂÎñ -----
 		tm.commit();
 
-		// ----- 4. ç»„è£…è¿”å›ç»“æœæ•°æ® -----
-		auto resultData = chinapres3IssueResultDTO::createShared();
-		resultData->processedCount = static_cast<oatpp::Int32>(validRequests.size());
-		resultData->prescriptionCount = static_cast<oatpp::Int32>(processedPrescriptions.size());
-		auto busNoList = oatpp::Vector<oatpp::String>::createShared();
-		for (auto& bno : busNos) {
-			busNoList->push_back(oatpp::String(bno.c_str()));
-		}
-		resultData->busNos = busNoList;
+		// ==================== 4. Assemble result ====================
+	auto resultData = chinapres3IssueResultDTO::createShared();
+	resultData->processedCount = static_cast<oatpp::Int32>(validRequests.size());
+	resultData->prescriptionCount = static_cast<oatpp::Int32>(processedPrescriptions.size());
 
-		resultVo->success(resultData);
-		resultVo->message = "Prescription issued successfully";
+	// Collect prescription numbers
+	auto presNoList = oatpp::Vector<oatpp::String>::createShared();
+	for (auto& presNo : processedPrescriptions) {
+		presNoList->push_back(oatpp::String(presNo.c_str()));
+	}
+	resultData->prescriptionNos = presNoList;
+	resultData->statusEnum = "ACTIVE";
+	resultData->issuedAt = now.c_str();
+
+	// Dispense business serial numbers (bus_no for pharmacy lookup)
+	auto busNoList = oatpp::Vector<oatpp::String>::createShared();
+	for (auto& bno : busNos) {
+		busNoList->push_back(oatpp::String(bno.c_str()));
+	}
+	resultData->busNos = busNoList;
+
+	resultVo->success(resultData);
+	resultVo->message = "Prescription issued successfully";
 	}
 	catch (const std::exception& e)
 	{

@@ -4,7 +4,7 @@
 
 #include "BaseDAO.h"
 #include "AdmEncounterMapper.h"
-#include "../../domain/do/adm/AdmEncounterDO.h"
+#include "../../domain/do/outpatientrecord3/AdmEncounterDO.h"
 
 /**
  * Data access object for adm_encounter table.

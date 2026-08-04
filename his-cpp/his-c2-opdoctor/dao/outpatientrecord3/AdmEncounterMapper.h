@@ -3,7 +3,7 @@
 #define _AdmEncounterMapper_H_
 
 #include "Mapper.h"
-#include "../../domain/do/adm/AdmEncounterDO.h"
+#include "../../domain/do/outpatientrecord3/AdmEncounterDO.h"
 
 /**
  * Result-set mapper for adm_encounter table.

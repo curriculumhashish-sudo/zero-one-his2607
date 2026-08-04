@@ -131,7 +131,7 @@ outpatientrecord3SaveResultVO::Wrapper outpatientrecord3Service::save(
 	}
 
 	// ===================== 7. Upsert logic =====================
-	auto existing = EmrDocument3DAO.selectByEncounterId(encId);
+	auto existing = emrDocument3DAO.selectByEncounterId(encId);
 
 	if (!existing) {
 		// ---------- Insert new record ----------
@@ -156,7 +156,7 @@ outpatientrecord3SaveResultVO::Wrapper outpatientrecord3Service::save(
 		doc.setCreatedBy(currentUser);
 		doc.setTenantId(orgId);
 
-		EmrDocument3DAO.insert(doc);
+		emrDocument3DAO.insert(doc);
 
 		// Assemble response
 		auto resultData = outpatientrecord3SaveResultDTO::createShared();
@@ -193,7 +193,7 @@ outpatientrecord3SaveResultVO::Wrapper outpatientrecord3Service::save(
 		existing->setUpdatedAt(now);
 		existing->setUpdatedBy(currentUser);
 
-		EmrDocument3DAO.update(*existing);
+		emrDocument3DAO.update(*existing);
 
 		// Assemble response
 		auto resultData = outpatientrecord3SaveResultDTO::createShared();
