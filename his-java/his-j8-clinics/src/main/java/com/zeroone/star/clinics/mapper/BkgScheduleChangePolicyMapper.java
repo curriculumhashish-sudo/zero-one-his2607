@@ -9,7 +9,7 @@ import com.zeroone.star.clinics.entity.BkgScheduleChangePolicy;
  * </p>
  *
  * @author aike
- * @since 2026-07-25
+ * @since 2026-08-01
  */
 public interface BkgScheduleChangePolicyMapper extends BaseMapper<BkgScheduleChangePolicy> {
 

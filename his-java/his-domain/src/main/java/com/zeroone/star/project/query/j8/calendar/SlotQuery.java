@@ -28,6 +28,9 @@ public class SlotQuery extends PageQuery {
     @NotNull(message = "查询日期不能为空")
     private LocalDate date;
 
+    @Schema(description = "日程主键（可选，筛选指定日程下的号源）")
+    private String scheduleId;
+
     @Schema(description = "医师主键（可选，筛选指定医师的号源）")
     private String practitionerId;
 

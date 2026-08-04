@@ -1,10 +1,8 @@
 package com.zeroone.star.project.j8.statdata;
 
-import com.zeroone.star.project.dto.j8.statdata.HourTrendDTO;
-import com.zeroone.star.project.dto.j8.statdata.MonthTrendDTO;
+import com.zeroone.star.project.query.j8.statdata.HourTrendQuery;
 import com.zeroone.star.project.vo.JsonVO;
-
-import java.util.List;
+import com.zeroone.star.project.vo.j8.statdata.HourTrendVO;
 
 /**
  * <p>
@@ -18,16 +16,16 @@ import java.util.List;
 public interface VisitAppApis {
 
     /**
-     * 获取当日各小时访问流量趋势
-     * @param day 统计日期(yyyy-MM-dd)
-     * @return 小时流量列表
+     * 获取小时访问趋势
+     * @param query 查询参数（日期范围、粒度、组织ID）
+     * @return 小时访问趋势
      */
-    JsonVO<List<HourTrendDTO>> getHourTrend(String day);
+    JsonVO<HourTrendVO> getHourTrend(HourTrendQuery query);
 
     /**
-     * 获取当月每日访问量趋势
-     * @param month 统计月份(yyyy-MM)
-     * @return 月份流量列表
+     * 获取月访问量
+     * @param query 查询参数（日期范围、粒度、组织ID）
+     * @return 月访问量趋势
      */
-    JsonVO<List<MonthTrendDTO>> getMonthVisitTrend(String month);
+    JsonVO<HourTrendVO> getMonthVisitTrend(HourTrendQuery query);
 }

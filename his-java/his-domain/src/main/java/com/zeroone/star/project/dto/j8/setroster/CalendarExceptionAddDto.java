@@ -21,7 +21,6 @@ public class CalendarExceptionAddDto {
 
     /**
      * 例外类型
-     * 对应数据库: exception_type
      * 枚举值: CLOSED, REDUCED, OVERRIDE, EXTRA
      */
     @NotBlank(message = "例外类型不能为空")
@@ -30,32 +29,38 @@ public class CalendarExceptionAddDto {
 
     /**
      * 起始日期
-     * 对应数据库: exception_date
      */
     @NotNull(message = "起始日期不能为空")
     @Schema(description = "起始日期", example = "2026-07-14", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDate exceptionDate;
 
     /**
-     * 结束日期
-     * 对应数据库: range_end
-     * 业务逻辑: 若为空，则默认为起始日期（单日）
+     * 结束日期（为空则默认为单日）
      */
     @Schema(description = "结束日期(为空则默认为单日)", example = "2026-07-16", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private LocalDate rangeEnd;
 
     /**
+     * 机构/科室ID（空=全院）
+     */
+    @Schema(description = "机构/科室ID", example = "DEPT001", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String organizationId;
+
+    /**
+     * REDUCED/OVERRIDE/EXTRA 时关联的排班模板ID
+     */
+    @Schema(description = "关联排班模板ID", example = "TPL001", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String overrideScheduleTemplateId;
+
+    /**
      * 说明/备注
-     * 对应数据库: reason
      */
     @Schema(description = "说明/备注", example = "国庆节调休", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String reason;
 
     /**
-     * 是否参与自动生成
-     * 对应数据库: auto_apply_on_generate
-     * 1: 是, 0: 否
+     * 从模板生成排班时是否自动应用
      */
-    @Schema(description = "是否参与自动生成(1是 0否)", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private Integer autoApplyOnGenerate;
+    @Schema(description = "是否参与自动生成", example = "true", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private Boolean autoApplyOnGenerate;
 }
