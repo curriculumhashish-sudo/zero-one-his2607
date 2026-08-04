@@ -1,10 +1,16 @@
 cyclectrl2:
  test:
-  tag: 周期循环    
+  tag: 周期循环
  refund:
   tag: 退费
   apply: 提交退费申请
   query: 获取退费清单
+  applicationId: 申请ID
+  applicationNo: 申请单号
+  status: 状态码
+  statusName: 状态名称
+  refundAmount: 退费金额
+  createdAt: 创建时间
  patient:
   patientNo: 病历号
   patientName: 姓名
@@ -23,16 +29,39 @@ cyclectrl2:
   applySum: 已选合计费用
   paymentNo: 支付单号
   itemName: 收费项目名称
+  itemCode: 项目编码
+  itemType: 项目类型
   quantity: 数量
+  quantityUnit: 计量单位
   amount: 金额
+  chargeTime: 收费时间
   chargeStatus: 收费状态
+  chargeStatusName: 收费状态名
   refundStatus: 退费状态
+  refundStatusName: 退费状态名
+  refundableQuantity: 可退数量
+  refundableAmount: 可退金额
+  refundedAmount: 已退金额
+  canRefund: 是否可退
+  cannotRefundReason: 不可退原因
+  encounterId: 就诊ID
+  reason: 申请原因
+  idempotencyKey: 幂等键
+  timetype: 时间类型
+  page: 页码
+  pageSize: 每页条数
  prescription:
   tag: 处方单
   query: 处方单
+  rxId: 处方记录ID
+  encounterId: 就诊ID
   prescriptionNo: 处方号
   costType: 费用性质
   date: 日期
+  issuedTime: 签发时间
+  status: 状态码
+  statusName: 状态名
+  rxType: 处方类型
   doctor: 开单医生
   diagnosis: 诊断
   totalPrice: 合计金额
@@ -43,6 +72,11 @@ cyclectrl2:
  admission:
   tag: 办理住院
   apply: 办理住院
+  applicationId: 申请ID
+  applicationNo: 申请单号
+  status: 状态码
+  statusName: 状态名称
+  createdAt: 创建时间
   admissionDepartment: 入院科室
   admissionWard: 入院病区
   diagnosisType: 诊断类型

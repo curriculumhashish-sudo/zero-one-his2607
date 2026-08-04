@@ -7,13 +7,14 @@
 
 class Prescription2Query :public oatpp::DTO
 {
-	DTO_INIT(Prescription2Query, DTO);
-	//患者病例号
-	API_DTO_FIELD_DEFAULT(String, num, ZH_WORDS_GETTER("cyclectrl2.patient.patientNo"));
-	//本次/历史处方
-	API_DTO_FIELD_DEFAULT(String, type, ZH_WORDS_GETTER("cyclectrl2.patient.timetype"));
+    DTO_INIT(Prescription2Query, DTO);
+    API_DTO_FIELD_DEFAULT(String, num, ZH_WORDS_GETTER("cyclectrl2.patient.patientNo"));
+    API_DTO_FIELD_DEFAULT(String, encounterId, ZH_WORDS_GETTER("cyclectrl2.patient.encounterId"));
+    API_DTO_FIELD_DEFAULT(String, type, ZH_WORDS_GETTER("cyclectrl2.patient.timetype"));
+    API_DTO_FIELD_DEFAULT(Int32, page, ZH_WORDS_GETTER("cyclectrl2.patient.page"));
+    API_DTO_FIELD_DEFAULT(Int32, pageSize, ZH_WORDS_GETTER("cyclectrl2.patient.pageSize"));
 };
 
 #include OATPP_CODEGEN_END(DTO)
 
-#endif // !_QUERY_H_
+#endif

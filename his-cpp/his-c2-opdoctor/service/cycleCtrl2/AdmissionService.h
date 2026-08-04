@@ -20,12 +20,13 @@
 #ifndef _ADMISSION_SERVICE_
 #define _ADMISSION_SERVICE_
 #include "domain/query/cycleCtrl2-admission/AdmissionQuery.h"
+#include "domain/dto/doctor/Admission2ResultDTO.h"
 
 class AdmissionService
 {
 public:
-	std::string applyAdmission(const Admission2Query::Wrapper& query, const std::string& patientId,
-		const std::string& operatorId);
+    oatpp::Object<Admission2ResultDTO> applyAdmission(const Admission2Query::Wrapper& query,
+        const std::string& operatorId);
 };
 
 #endif // !_ADMISSION_SERVICE_
