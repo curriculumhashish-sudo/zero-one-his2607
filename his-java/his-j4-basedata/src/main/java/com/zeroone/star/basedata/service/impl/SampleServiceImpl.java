@@ -46,8 +46,8 @@ public class SampleServiceImpl extends ServiceImpl<SampleMapper, AdmSpecimenDefi
     @Override
     public List<SpecimenOptionVO> listSampleNames() {
         // 1. 获取当前租户ID
-//        String tenantId = userHolder.getCurrentTenantId();
-        String tenantId = "1";
+        String tenantId = userHolder.getCurrentTenantId();
+//        String tenantId = "1";
         // 2. 查询当前租户下所有未删除样本的名称下拉选项
         return baseMapper.selectSampleOptions(tenantId);
     }
@@ -55,16 +55,13 @@ public class SampleServiceImpl extends ServiceImpl<SampleMapper, AdmSpecimenDefi
     @Override
     public PageDTO<SpecimenDefinitionDetailVO> querySamplePage(SpecimenDefinitionQuery query) {
         // 1. 获取当前租户ID
-//        String tenantId = userHolder.getCurrentTenantId();
-        String tenantId = "1";
+        String tenantId = userHolder.getCurrentTenantId();
+//        String tenantId = "1";
         // 2. 构建分页对象并按租户查询
         Page<SpecimenDefinitionDetailVO> page = new Page<>(query.getPageIndex(), query.getPageSize());
         Page<SpecimenDefinitionDetailVO> result = baseMapper.selectSamplePage(page, query, tenantId);
         // 3. 填充枚举中文名
-        result.getRecords().forEach(vo -> {
-            vo.setTypeName(SampleConstants.getTypeName(vo.getTypeEnum()));
-            vo.setStatusName(SampleConstants.getStatusName(vo.getStatusEnum()));
-        });
+
         return PageDTO.create(result);
     }
 
@@ -72,14 +69,15 @@ public class SampleServiceImpl extends ServiceImpl<SampleMapper, AdmSpecimenDefi
     @Transactional(rollbackFor = Exception.class)
     public String addSample(SpecimenDefinitionAddDTO dto) {
         // 1. 获取当前租户ID
-//        String tenantId = userHolder.getCurrentTenantId();
-        String tenantId = "1";
+        String tenantId = userHolder.getCurrentTenantId();
+//        String tenantId = "1";
         // 2. 校验同租户内业务编码唯一
         checkBusNoUnique(dto.getBusNo(), null, tenantId);
         // 3. DTO转实体并绑定租户，状态调用 PublicationStatus 枚举默认置为启用
         AdmSpecimenDefinitionDO entity = msSampleMapper.saveDtoToEntity(dto);
         entity.setTenantId(tenantId);
         entity.setStatusEnum(SampleConstants.STATUS_ACTIVE);
+        entity.setVersion(0);
         // 4. 保存到数据库
         baseMapper.insert(entity);
         return "新增样本定义成功";
@@ -89,8 +87,8 @@ public class SampleServiceImpl extends ServiceImpl<SampleMapper, AdmSpecimenDefi
     @Transactional(rollbackFor = Exception.class)
     public SpecimenDefinitionOperateVO updateSample(SpecimenDefinitionUpdateDTO dto) {
         // 1. 获取当前租户ID并校验记录归属
-//        String tenantId = userHolder.getCurrentTenantId();
-        String tenantId = "1";
+        String tenantId = userHolder.getCurrentTenantId();
+//        String tenantId = "1";
         AdmSpecimenDefinitionDO existing = baseMapper.selectById(dto.getId());
         if (existing == null || !tenantId.equals(existing.getTenantId())) {
             throw new RuntimeException("样本记录不存在");
@@ -125,12 +123,13 @@ public class SampleServiceImpl extends ServiceImpl<SampleMapper, AdmSpecimenDefi
     @Transactional(rollbackFor = Exception.class)
     public SpecimenDefinitionOperateVO deleteSample(SpecimenDefinitionDeleteDTO dto) {
         // 1. 获取当前租户ID
-//        String tenantId = userHolder.getCurrentTenantId();
-        String tenantId = "1";
+        String tenantId = userHolder.getCurrentTenantId();
+//        String tenantId = "1";
         // 2. 带租户条件的逻辑删除（@TableLogic 自动转为 update is_deleted = 1），并填充删除审计信息
         boolean removed = lambdaUpdate()
                 .eq(AdmSpecimenDefinitionDO::getId, dto.getId())
                 .eq(AdmSpecimenDefinitionDO::getTenantId, tenantId)
+                .eq(AdmSpecimenDefinitionDO::getVersion, dto.getVersion())
                 .set(AdmSpecimenDefinitionDO::getDeletedAt, LocalDateTime.now())
                 .set(AdmSpecimenDefinitionDO::getDeletedBy, currentUsername())
                 .remove();
@@ -148,8 +147,9 @@ public class SampleServiceImpl extends ServiceImpl<SampleMapper, AdmSpecimenDefi
     @Transactional(rollbackFor = Exception.class)
     public SpecimenDefinitionOperateVO updateSampleStatus(SpecimenDefinitionStatusDTO dto) {
         // 1. 获取当前租户ID并校验记录归属
-//        String tenantId = userHolder.getCurrentTenantId();
-        String tenantId = "1";
+        // 1. 获取当前租户ID并校验记录归属
+        String tenantId = userHolder.getCurrentTenantId();
+//        String tenantId = "1";
         AdmSpecimenDefinitionDO existing = baseMapper.selectById(dto.getId());
         if (existing == null || !tenantId.equals(existing.getTenantId())) {
             throw new RuntimeException("样本记录不存在");
@@ -162,7 +162,9 @@ public class SampleServiceImpl extends ServiceImpl<SampleMapper, AdmSpecimenDefi
         boolean updated = lambdaUpdate()
                 .eq(AdmSpecimenDefinitionDO::getId, dto.getId())
                 .eq(AdmSpecimenDefinitionDO::getTenantId, tenantId)
+                .eq(AdmSpecimenDefinitionDO::getVersion, dto.getVersion())
                 .set(AdmSpecimenDefinitionDO::getStatusEnum, dto.getStatusEnum())
+                .setSql("version = version + 1")
                 .update();
         if (!updated) {
             throw new RuntimeException("样本记录不存在");

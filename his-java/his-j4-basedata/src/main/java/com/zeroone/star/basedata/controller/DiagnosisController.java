@@ -2,7 +2,6 @@ package com.zeroone.star.basedata.controller;
 
 import com.zeroone.star.basedata.service.IDiagnosisService;
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisDefinitionDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisSaveDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisUpdateDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisIdsDTO;
@@ -13,12 +12,10 @@ import com.zeroone.star.project.query.j4.diagnosis.DiagnosisSelectPageQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisDetailVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisListVO;
-import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisOptionVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,10 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 /**
  * <p>
@@ -53,8 +47,9 @@ public class DiagnosisController implements DiagnosisApis {
     @Override
     @Operation(summary = "获取选择诊断列表（条件+分页）")
     @GetMapping("/query-select-list")
-    public JsonVO<PageDTO<DiagnosisOptionVO>> queryDiagnosisSelectList(
+    public JsonVO<PageDTO<DiagnosisListVO>> queryDiagnosisSelectList(
             DiagnosisSelectPageQuery query) {
+        // ids 传入时查询前端已选择的诊断；未传入时按筛选条件查询可选诊断。
         return JsonVO.success(definitionService.queryDiagnosisSelectList(query));
     }
 

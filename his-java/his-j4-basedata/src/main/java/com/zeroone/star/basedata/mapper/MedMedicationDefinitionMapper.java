@@ -23,7 +23,8 @@ public interface MedMedicationDefinitionMapper
 
     Page<MedicineListVO> selectMedicinePage(
             Page<MedicineListVO> page,
-            @Param("query") MedicinePageQuery query
+            @Param("query") MedicinePageQuery query,
+            @Param("tenantId") String tenantId
     );
 
     /**
@@ -37,6 +38,7 @@ public interface MedMedicationDefinitionMapper
     Page<MedicineSelectVO> selectMedicineSelectPage(
             Page<MedicineSelectVO> page,
             @Param("query") MedicineSelectPageQuery query,
-            @Param("locationId") String locationId
+            @Param("locationId") String locationId,
+            @Param("tenantId") String tenantId
     );
 }

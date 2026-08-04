@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
+
 /**
  * 选择诊断目录列表分页查询对象。
  *
@@ -26,4 +28,8 @@ public class DiagnosisSelectPageQuery extends PageQuery {
     @Size(max = 50, message = "诊断目录编码长度不能超过50个字符")
     @Schema(description = "诊断目录编码精确筛选", example = "general_dx")
     private String sourceEnum;
+
+    @Schema(description = "前端已选择的诊断ID列表；传入后仅查询这些诊断")
+    private List<String> ids;
+
 }

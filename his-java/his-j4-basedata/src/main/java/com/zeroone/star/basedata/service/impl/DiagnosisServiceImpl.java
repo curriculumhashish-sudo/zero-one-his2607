@@ -6,32 +6,25 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zeroone.star.basedata.constant.DiagnosisConstants;
 import com.zeroone.star.basedata.entity.diagnosis.ClnConditionDefinitionDO;
-import com.zeroone.star.basedata.entity.diagnosis.TerConceptDO;
-import com.zeroone.star.basedata.mapper.DiagnosisCatalogMapper;
 import com.zeroone.star.basedata.mapper.DiagnosisMapper;
 import com.zeroone.star.basedata.service.IDiagnosisService;
-
 import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisDefinitionDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisSaveDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisUpdateDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisIdsDTO;
 import com.zeroone.star.project.dto.j4.diagnosis.DiagnosisStatusDTO;
-
 import com.zeroone.star.project.query.j4.diagnosis.DiagnosisDefinitionQuery;
 import com.zeroone.star.project.query.j4.diagnosis.DiagnosisPageQuery;
 import com.zeroone.star.project.query.j4.diagnosis.DiagnosisSelectPageQuery;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisDefinitionDetailVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisDetailVO;
 import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisListVO;
-import com.zeroone.star.project.vo.j4.diagnosis.DiagnosisOptionVO;
-
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -50,9 +43,6 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
 
     @Resource
     private MsDiagnosisMapper msDiagnosisMapper;
-
-    @Resource
-    private DiagnosisCatalogMapper diagnosisCatalogMapper;
 
     @Resource
     private UserHolder userHolder;
@@ -90,58 +80,72 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
     @Override
     @Transactional
     public String saveDefinition(DiagnosisSaveDTO dto) {
-        // 1. DTO转实体
+        // 1. 获取当前租户ID并校验病情编码唯一
+        String tenantId = userHolder.getCurrentTenantId();
+        checkConditionCodeUnique(dto.getConditionCode(), null, tenantId);
+        
+        // 2. DTO转实体
         ClnConditionDefinitionDO entity = new ClnConditionDefinitionDO();
         BeanUtil.copyProperties(dto, entity);
-        
-        // 生成病情编码（格式：CDF + 8位数字序号）
-        entity.setConditionCode(generateConditionCode());
         
         // 设置创建时间
         entity.setCreatedAt(LocalDateTime.now());
         entity.setUpdatedAt(LocalDateTime.now());
         
         // 设置租户ID
-        entity.setTenantId(userHolder.getCurrentTenantId());
+        entity.setTenantId(tenantId);
         
-        // 2. 保存到数据库
+        // 新增默认状态为"已启用"
+        entity.setStatusEnum(DiagnosisConstants.STATUS_ACTIVE);
+        
+        // 3. 保存到数据库
         baseMapper.insert(entity);
         
-        // 3. 返回新增记录ID
+        // 4. 返回新增记录ID
         return entity.getId();
     }
     
     /**
-     * 生成病情编码，格式为 CDF + 8位数字
+     * 校验同租户内病情编码是否唯一
+     * @param conditionCode 病情编码
+     * @param excludeId     需要排除的主键ID（新增传null，修改传当前ID）
+     * @param tenantId      当前租户ID
      */
-    private String generateConditionCode() {
-        // 简单实现：使用当前时间戳的一部分作为唯一编码
-        // 实际项目中可能需要更复杂的逻辑来确保全局唯一性
-        return "CDF" + System.currentTimeMillis() % 100000000L;
+    private void checkConditionCodeUnique(String conditionCode, String excludeId, String tenantId) {
+        Long count = lambdaQuery()
+                .eq(ClnConditionDefinitionDO::getTenantId, tenantId)
+                .eq(ClnConditionDefinitionDO::getConditionCode, conditionCode)
+                .ne(excludeId != null, ClnConditionDefinitionDO::getId, excludeId)
+                .count();
+        if (count != null && count > 0) {
+            throw new RuntimeException("病情编码 [" + conditionCode + "] 已存在");
+        }
     }
 
     @Override
     @Transactional
     public void modifyDefinition(DiagnosisUpdateDTO dto) {
-        // 1. 检查记录是否存在
+        // 1. 获取当前租户ID并检查记录是否存在
+        String tenantId = userHolder.getCurrentTenantId();
         ClnConditionDefinitionDO existing = baseMapper.selectById(dto.getId());
         if (existing == null) {
             throw new RuntimeException("诊断记录不存在");
         }
-        // 2. DTO转实体
+        // 2. 校验同租户内病情编码唯一（排除自身）
+        checkConditionCodeUnique(dto.getConditionCode(), dto.getId(), tenantId);
+        // 3. DTO转实体
         ClnConditionDefinitionDO entity = new ClnConditionDefinitionDO();
         BeanUtil.copyProperties(dto, entity);
-        // 3. 保留系统字段
+        // 4. 保留系统字段
         entity.setCreatedAt(existing.getCreatedAt());
         entity.setCreatedBy(existing.getCreatedBy());
         entity.setIsDeleted(existing.getIsDeleted());
         entity.setDeletedAt(existing.getDeletedAt());
         entity.setDeletedBy(existing.getDeletedBy());
         entity.setVersion(existing.getVersion());
-        entity.setConditionCode(existing.getConditionCode()); // 保留原编码
-        entity.setTenantId(existing.getTenantId()); // 保留租户ID
-        entity.setUpdatedAt(LocalDateTime.now()); // 更新时间
-        // 4. 更新数据库
+        entity.setTenantId(existing.getTenantId());
+        entity.setUpdatedAt(LocalDateTime.now());
+        // 5. 更新数据库
         baseMapper.updateById(entity);
     }
 
@@ -153,8 +157,8 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
             throw new IllegalArgumentException("诊断ID列表不能为空");
         }
         // 2. 检查状态值是否有效
-        if (!"ACTIVE".equals(dto.getStatus()) && !"INACTIVE".equals(dto.getStatus())) {
-            throw new IllegalArgumentException("状态值必须为ACTIVE或INACTIVE");
+        if (!DiagnosisConstants.isValidStatus(dto.getStatus())) {
+            throw new IllegalArgumentException("状态值无效，必须为 DRAFT / ACTIVE / INACTIVE / DISCARDED");
         }
         // 3. 批量更新状态（限定租户）
         LambdaUpdateWrapper<ClnConditionDefinitionDO> updateWrapper = new LambdaUpdateWrapper<>();
@@ -212,62 +216,86 @@ public class DiagnosisServiceImpl extends ServiceImpl<DiagnosisMapper, ClnCondit
     }
 
     @Override
-    public PageDTO<DiagnosisOptionVO> queryDiagnosisSelectList(DiagnosisSelectPageQuery query) {
-        Page<TerConceptDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
-        LambdaQueryWrapper<TerConceptDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(TerConceptDO::getTenantId, userHolder.getCurrentTenantId())
-                .eq(TerConceptDO::getCodeSystemId, "279125561775755266")
-                .eq(TerConceptDO::getIsActive, true);
-
-        if (StrUtil.isNotBlank(query.getKeyword())) {
-            wrapper.and(item -> item
-                    .like(TerConceptDO::getDisplay, query.getKeyword())
-                    .or()
-                    .like(TerConceptDO::getCode, query.getKeyword()));
-        }
-        if (StrUtil.isNotBlank(query.getSourceEnum())) {
-            wrapper.eq(TerConceptDO::getCode, query.getSourceEnum());
-        }
-        wrapper.orderByAsc(TerConceptDO::getSortOrder)
-                .orderByAsc(TerConceptDO::getId);
-
-        Page<TerConceptDO> result = diagnosisCatalogMapper.selectPage(page, wrapper);
-        return PageDTO.create(result, msDiagnosisMapper::conceptToOptionVo);
-    }
-
-    @Override
-    public PageDTO<DiagnosisListVO> queryDiagnosisList(DiagnosisPageQuery query) {
+    public PageDTO<DiagnosisListVO> queryDiagnosisSelectList(DiagnosisSelectPageQuery query) {
+        // 1. 创建分页对象，并按前端传入的选中ID处理查询范围。
         Page<ClnConditionDefinitionDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
+
+        // 空列表表示前端没有选中记录，不能被当作未传条件而查询全部数据。
+        if (query.getIds() != null && query.getIds().isEmpty()) {
+            page.setTotal(0L);
+            page.setRecords(List.of());
+            return PageDTO.create(page, msDiagnosisMapper::entityToListVo);
+        }
+
+        // 2. 复用诊断列表的关键字、目录和租户过滤条件。
         LambdaQueryWrapper<ClnConditionDefinitionDO> wrapper = buildQueryWrapper(
                 query.getKeyword(), query.getSourceEnum());
-        wrapper.orderByAsc(ClnConditionDefinitionDO::getConditionCode);
+        if (query.getIds() != null) {
+            wrapper.in(ClnConditionDefinitionDO::getId, query.getIds());
+        }
+        wrapper.orderByAsc(ClnConditionDefinitionDO::getConditionCode)
+                .orderByAsc(ClnConditionDefinitionDO::getId);
 
+        // 3. 查询实际保存的诊断记录，并转换为选择列表返回对象。
         Page<ClnConditionDefinitionDO> result = baseMapper.selectPage(page, wrapper);
         return PageDTO.create(result, msDiagnosisMapper::entityToListVo);
     }
 
     @Override
+    public PageDTO<DiagnosisListVO> queryDiagnosisList(DiagnosisPageQuery query) {
+        // 1. 处理分页参数
+        Page<ClnConditionDefinitionDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
+
+        // 2. 按关键字、诊断目录和当前租户构造组合查询条件
+        LambdaQueryWrapper<ClnConditionDefinitionDO> wrapper = buildQueryWrapper(
+                query.getKeyword(), query.getSourceEnum());
+        wrapper.orderByAsc(ClnConditionDefinitionDO::getConditionCode)
+                .orderByAsc(ClnConditionDefinitionDO::getId);
+
+        // 3. 按诊断编码和主键稳定排序后查询诊断定义表
+        Page<ClnConditionDefinitionDO> result = baseMapper.selectPage(page, wrapper);
+
+        // 4. 将数据库实体转换为列表 VO，避免向前端暴露系统字段
+        return PageDTO.create(result, msDiagnosisMapper::entityToListVo);
+    }
+
+    @Override
     public DiagnosisDetailVO queryDiagnosisDetail(String id) {
-        ClnConditionDefinitionDO entity = baseMapper.selectById(id);
-        return entity == null ? null : msDiagnosisMapper.entityToDiagnosisDetailVo(entity);
+        // 1. 校验诊断 ID，防止绕过 Controller 时发起无效查询
+        if (StrUtil.isBlank(id)) {
+            throw new IllegalArgumentException("诊断ID不能为空");
+        }
+        ClnConditionDefinitionDO entity = lambdaQuery()
+                .eq(ClnConditionDefinitionDO::getId, id)
+                .eq(ClnConditionDefinitionDO::getTenantId, userHolder.getCurrentTenantId())
+                .one();
+        if (entity == null) {
+            throw new RuntimeException("诊断记录不存在");
+        }
+
+        // 2. 按诊断 ID 和当前租户查询，避免跨租户读取
+        return msDiagnosisMapper.entityToDiagnosisDetailVo(entity);
     }
 
     private LambdaQueryWrapper<ClnConditionDefinitionDO> buildQueryWrapper(
             String keyword, String sourceEnum) {
+        // 关键字条件使用括号分组，确保 OR 只作用于名称、编码、拼音和五笔字段
+        String normalizedKeyword = StrUtil.trim(keyword);
+        String normalizedSourceEnum = StrUtil.trim(sourceEnum);
         LambdaQueryWrapper<ClnConditionDefinitionDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(ClnConditionDefinitionDO::getTenantId, userHolder.getCurrentTenantId());
-        if (StrUtil.isNotBlank(keyword)) {
+        if (StrUtil.isNotBlank(normalizedKeyword)) {
             wrapper.and(item -> item
-                    .like(ClnConditionDefinitionDO::getName, keyword)
+                    .like(ClnConditionDefinitionDO::getName, normalizedKeyword)
                     .or()
-                    .like(ClnConditionDefinitionDO::getConditionCode, keyword)
+                    .like(ClnConditionDefinitionDO::getConditionCode, normalizedKeyword)
                     .or()
-                    .like(ClnConditionDefinitionDO::getPyStr, keyword)
+                    .like(ClnConditionDefinitionDO::getPyStr, normalizedKeyword)
                     .or()
-                    .like(ClnConditionDefinitionDO::getWbStr, keyword));
+                    .like(ClnConditionDefinitionDO::getWbStr, normalizedKeyword));
         }
-        if (StrUtil.isNotBlank(sourceEnum)) {
-            wrapper.eq(ClnConditionDefinitionDO::getSourceEnum, sourceEnum);
+        if (StrUtil.isNotBlank(normalizedSourceEnum)) {
+            wrapper.eq(ClnConditionDefinitionDO::getSourceEnum, normalizedSourceEnum);
         }
         return wrapper;
     }

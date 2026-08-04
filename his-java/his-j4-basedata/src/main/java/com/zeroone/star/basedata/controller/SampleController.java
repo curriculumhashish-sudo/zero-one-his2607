@@ -38,23 +38,23 @@ public class SampleController implements SampleApis {
     private ISampleService sampleService;
 
     @Operation(summary = "启用/停用样本定义", description = "根据主键与乐观锁版本号，更新样本定义的发布状态")
-    @PostMapping("/update-status")
+    @PutMapping("/update-sample-status")
     @Override
-    public JsonVO<SpecimenDefinitionOperateVO> updateStatus(@Valid @RequestBody SpecimenDefinitionStatusDTO dto) {
+    public JsonVO<SpecimenDefinitionOperateVO> updateSampleStatus(@Valid @RequestBody SpecimenDefinitionStatusDTO dto) {
         return JsonVO.success(sampleService.updateSampleStatus(dto));
     }
 
     @Operation(summary = "删除样本定义", description = "根据主键与乐观锁版本号，软删除样本定义")
-    @PostMapping("/delete")
+    @DeleteMapping("/delete-sample")
     @Override
-    public JsonVO<SpecimenDefinitionOperateVO> delete(@Valid @RequestBody SpecimenDefinitionDeleteDTO dto) {
+    public JsonVO<SpecimenDefinitionOperateVO> deleteSample(@Valid @RequestBody SpecimenDefinitionDeleteDTO dto) {
         return JsonVO.success(sampleService.deleteSample(dto));
     }
 
     @Operation(summary = "修改样本定义", description = "根据主键与乐观锁版本号，修改样本名称、标本种类")
-    @PostMapping("/update")
+    @PutMapping("/update-sample")
     @Override
-    public JsonVO<SpecimenDefinitionOperateVO> update(@Valid @RequestBody SpecimenDefinitionUpdateDTO dto) {
+    public JsonVO<SpecimenDefinitionOperateVO> updateSample(@Valid @RequestBody SpecimenDefinitionUpdateDTO dto) {
         return JsonVO.success(sampleService.updateSample(dto));
     }
 
@@ -73,7 +73,7 @@ public class SampleController implements SampleApis {
      * 获取样本列表（条件+分页）
      */
     @Operation(summary = "获取样本列表", description = "支持按名称/业务编码/拼音/五笔模糊查询，按标本种类/状态精确筛选，返回分页结果")
-    @PostMapping("query-sample-list")
+    @GetMapping("query-sample-list")
     @Override
     public JsonVO<PageDTO<SpecimenDefinitionDetailVO>> querySampleList(@Valid @RequestBody SpecimenDefinitionQuery query) {
         return JsonVO.success(sampleService.querySamplePage(query));
