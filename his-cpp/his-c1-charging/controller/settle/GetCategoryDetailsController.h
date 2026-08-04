@@ -15,11 +15,11 @@ public:
     API_ACCESS_DECLARE(GetCategoryDetailsController);
 
 public:
- 
+
     ENDPOINT_INFO(queryGetCategoryDetails) {
         API_DEF_ADD_TITLE(ZH_WORDS_GETTER("qi.charging.settle.summary3"));
         API_DEF_ADD_AUTH();
-      
+
         API_DEF_ADD_RSP_JSON_WRAPPER(GetCategoryDetailsJsonVO);
         API_DEF_ADD_TAG(API_TAG);
 
@@ -27,7 +27,7 @@ public:
         API_DEF_ADD_QUERY_PARAMS(String, "encounter_id", ZH_WORDS_GETTER("qi.charging.settle.encounter_id"), "", true);
     }
 
- 
+
     API_HANDLER_ENDPOINT_QUERY_AUTH(
         API_M_GET,
         "/charging/settle/getCategoryDetails",

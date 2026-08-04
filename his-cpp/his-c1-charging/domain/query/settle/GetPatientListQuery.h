@@ -63,13 +63,13 @@ class GetPatientListQuery : public PageQuery
 		info->description = ZH_WORDS_GETTER("qi.charging.settle.insurance_type");
 	}
 
-	// 新增：主治医生
+	
 	DTO_FIELD(String, doctor_name);
 	DTO_FIELD_INFO(doctor_name) {
 		info->description = ZH_WORDS_GETTER("qi.charging.settle.doctor_name");
 	}
 
-	// 删除了 encounter_status (截图中未体现)
+	
 };
 
 #include OATPP_CODEGEN_END(DTO)
