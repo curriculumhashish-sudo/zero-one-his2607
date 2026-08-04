@@ -54,7 +54,7 @@
 #include "chinapres2/Chinapres2Controller.h"
 
 #include "chinapres3/chinapres3Controller.h"
-#include "outpatientrecord3/outpatientrecord3Controller.h"
+#include "outpatientrecord3/Outpatientrecord3Controller.h"
 #include "outpatientrecord2/OutpatientRecordController.h"
 
 

@@ -18,7 +18,7 @@
 #ifndef _outpatientrecord3Service_H_
 #define _outpatientrecord3Service_H_
 
-#include "../../domain/dto/outpatientrecord3/outpatientrecord3SaveDTO.h"
+#include "../../domain/dto/outpatientrecord3/Outpatientrecord3SaveDTO.h"
 #include "domain/vo/BaseJsonVO.h"
 #include "../../dao/outpatientrecord3/EmrDocument3DAO.h"
 

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "outpatientrecord3Controller.h"
+#include "Outpatientrecord3Controller.h"
 
 StringJsonVO::Wrapper
 outpatientrecord33Controller::execSaveoutpatientrecord3(

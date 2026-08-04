@@ -19,8 +19,8 @@
 #define _outpatientrecord33Controller_H_
 
 #include "domain/vo/BaseJsonVO.h"
-#include "../../domain/dto/outpatientrecord3/outpatientrecord3SaveDTO.h"
-#include "../../service/outpatientrecord3/outpatientrecord3Service.h"
+#include "../../domain/dto/outpatientrecord3/Outpatientrecord3SaveDTO.h"
+#include "../../service/outpatientrecord3/Outpatientrecord3Service.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
