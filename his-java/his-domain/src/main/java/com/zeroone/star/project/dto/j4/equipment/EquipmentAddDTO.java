@@ -60,16 +60,6 @@ public class EquipmentAddDTO {
     @Schema(description = "拆零单位编码", example = "2", requiredMode = Schema.RequiredMode.REQUIRED)
     private String splitUnitCode;
 
-    /** 采购单位历史别名（purchaseUnitCode 为空时回落）；新接口请传 purchaseUnitCode */
-    @NotBlank(message = "采购单位历史别名不能为空")
-    @Schema(description = "采购单位历史别名（purchaseUnitCode 为空时回落）；新接口请传 purchaseUnitCode", example = "2")
-    private String unitCode;
-
-    /** 拆零单位历史别名（splitUnitCode 为空时回落）；新接口请传 splitUnitCode */
-    @NotBlank(message = "拆零单位历史别名不能为空")
-    @Schema(description = "拆零单位历史别名（splitUnitCode 为空时回落）；新接口请传 splitUnitCode", example = "2")
-    private String minUnitCode;
-
     /** 默认门诊/就诊单位编码 */
     @Schema(description = "默认门诊/就诊单位编码", example = "2")
     private String defEncounterUnitCode;
