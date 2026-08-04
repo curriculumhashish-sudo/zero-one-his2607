@@ -1,84 +1,96 @@
-#ifndef __GET_PATIENT_LIST_SERVICE__
-#define __GET_PATIENT_LIST_SERVICE__
+ï»¿#ifndef _GET_PATIENT_LIST_SERVICE_
+#define _GET_PATIENT_LIST_SERVICE_
 
-// Çë¸ù¾İÊµ¼ÊÂ·¾¶µ÷Õû include
 #include "domain/vo/settle/GetPatientListVO.h" 
 #include "domain/query/settle/GetPatientListQuery.h"
-#include "domain/dto/settle/GetPatientListDTO.h" 
+#include "domain/DTO/settle/GetPatientListDTO.h"
 #include "domain/do/settle/GetPatientListDO.h"
 #include "../../dao/settle/GetPatientListDAO.h"
+#include <iostream> // æ§åˆ¶å°è¾“å‡ºå¤´æ–‡ä»¶
 
 class GetPatientListService
 {
 public:
-    /**
-     * @brief »ñÈ¡»¼ÕßÁĞ±í£¨·ÖÒ³£©
-     * @param query ²éÑ¯Ìõ¼ş
-     * @return ·ÖÒ³½á¹û DTO
-     */
     GetPatientListPageDTO::Wrapper selectPatientList(const GetPatientListQuery::Wrapper& query)
     {
-        // 1. ´´½¨·ÖÒ³¶ÔÏó
+        // 1. åˆ›å»ºåˆ†é¡µå¯¹è±¡
         auto pages = GetPatientListPageDTO::createShared();
         pages->pageIndex = query->pageIndex;
         pages->pageSize = query->pageSize;
 
-        // 2. ³õÊ¼»¯ DAO ²¢²éÑ¯×ÜÊı
+        // 2. åˆå§‹åŒ– DAO å¹¶æŸ¥è¯¢æ€»æ•°
         GetPatientListDAO dao;
         uint64_t count = dao.count(query);
+        std::cout << "[DEBUG] total count = " << count << std::endl;
 
-        // Èç¹ûÃ»ÓĞÊı¾İ£¬Ö±½Ó·µ»Ø¿Õ·ÖÒ³¶ÔÏó
+        // å¦‚æœæ²¡æœ‰æ•°æ®ï¼Œç›´æ¥è¿”å›ç©ºåˆ†é¡µå¯¹è±¡
         if (count <= 0)
         {
+            std::cout << "[DEBUG] count <= 0ï¼Œç›´æ¥è¿”å›ç©ºåˆ†é¡µ" << std::endl;
             return pages;
         }
 
-        // 3. ÉèÖÃ·ÖÒ³ĞÅÏ¢
+        // 3. è®¾ç½®åˆ†é¡µä¿¡æ¯
         pages->total = count;
-        pages->calcPages(); // ¼ÆËã×ÜÒ³Êı
+        pages->calcPages();
 
-        // 4. ²éÑ¯Êı¾İÁĞ±í (×¢Òâ·½·¨ÃûÊÇ selectWithPage)
-        list<GetPatientListDO> result = dao.selectWithPage(query);
+        // 4. æŸ¥è¯¢æ•°æ®åˆ—è¡¨
+        std::list<GetPatientListDO> result = dao.selectWithPage(query);
+        std::cout << "[DEBUG] DOåˆ—è¡¨æ•°é‡ï¼š" << result.size() << std::endl;
 
-        
-               // 5. DO ×ª DTO (ÊÖ¶¯´¦ÀíÀàĞÍ×ª»»)
+        // ========== å¾ªç¯æ‰“å°DOï¼ŒåŒäº‹è¦æ±‚çš„è°ƒè¯•ä»£ç  ==========
+        for (auto& sub : result)
+        {
+            std::cout << "==== DOæ•°æ® ====" << std::endl;
+            std::cout << "encounter_id:" << sub.getId() << std::endl;
+            std::cout << "name:" << sub.getName() << std::endl;
+            std::cout << "bus_no:" << sub.getBus_no() << std::endl;
+            std::cout << "admit_date:" << sub.getAdmit_date() << std::endl;
+        }
+        // =================================================
+
+        // 5. DO è½¬ DTO (æ‰‹åŠ¨å¤„ç†ç±»å‹è½¬æ¢)
+        uint64_t startSort = (pages->pageIndex - 1) * pages->pageSize + 1;
         for (GetPatientListDO& sub : result)
         {
             auto dto = GetPatientListDTO::createShared();
+            //dto->sort_num = startSort++;
 
-            // --- 1. ´¦Àí String -> UInt64 (ĞèÒª std::stoull ×ª»») ---
-            // encounter_id
-            if (!sub.getEncounter_id().empty()) {
-                try { dto->encounter_id = std::stoull(sub.getEncounter_id()); }
-                catch (...) { dto->encounter_id = 0.0; } // ×ª»»Ê§°Ü¸øÄ¬ÈÏÖµ
+            // --- 1. å¤„ç† ID (String -> UInt64) ---
+            if (!sub.getId().empty()) {
+                try { dto->encounter_id = std::stoull(sub.getId()); }
+                catch (...) { dto->encounter_id = (v_uint64)0; }
             }
 
-            // admit_date
+            // âš ï¸è­¦å‘Šï¼š"2026-07-01"å­—ç¬¦ä¸²æ— æ³•ä½¿ç”¨stoullï¼Œå¿…ç„¶æ•è·å¼‚å¸¸ç½®0
             if (!sub.getAdmit_date().empty()) {
-                try { dto->admit_date = std::stoull(sub.getAdmit_date()); }
-                catch (...) { dto->admit_date = 0.0; }
+                try {
+                    dto->admit_date = (v_uint64)std::stoull(sub.getAdmit_date());
+                }
+                catch (...) {
+                    dto->admit_date = (v_uint64)0;
+                    std::cout << "[WARN] admit_date è½¬æ¢å¼‚å¸¸ï¼Œæ—¥æœŸå­—ç¬¦ä¸²æ— æ³•è½¬ä¸ºæ•°å­—" << std::endl;
+                }
             }
 
-            // --- 2. ´¦Àí String -> Oatpp::String (Í¨³£Ö§³ÖÒşÊ½×ª»») ---
-            dto->inpatient_no = sub.getInpatient_no();
-            dto->patient_name = sub.getPatient_name();
-            dto->dept_name = sub.getDept_name();
+            // --- 3. std::string â†’ oatpp::String ---
+            dto->inpatient_no = sub.getBus_no();
+            dto->patient_name = sub.getName();
+            dto->dept_name = sub.getOrg_name();
             dto->ward_name = sub.getWard_name();
             dto->bed_no = sub.getBed_no();
-            dto->doctor_name = sub.getDoctor_name();
+            // dto->doctor_name = sub.getDoctor_name(); // å·²æ³¨é‡Šï¼ŒDAOæ— æ­¤å­—æ®µ
 
-            // --- 3. ´¦Àí int -> UInt8/UInt32 (ĞèÒªÇ¿×ª) ---
-            dto->gender = (v_uint8)sub.getGender();
+            // --- 4. æ•°å€¼ç±»å‹è½¬æ¢ ---
+            dto->gender = (v_uint8)sub.getGender_enum();
             dto->age = (v_uint32)sub.getAge();
             dto->insurance_type = (v_uint8)sub.getInsurance_type();
 
-            // ½« DTO Ìí¼Óµ½·ÖÒ³ÁĞ±íÖĞ
             pages->addData(dto);
         }
-
-
+        //        std::cout << "[DEBUG] æœ€ç»ˆåˆ†é¡µdataæ•°é‡ï¼š" << pages->data->size() << std::endl;
         return pages;
     }
 };
 
-#endif // __GET_PATIENT_LIST_SERVICE__
+#endif // !_GET_PATIENT_LIST_SERVICE_

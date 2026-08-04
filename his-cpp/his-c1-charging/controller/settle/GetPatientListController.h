@@ -25,8 +25,8 @@ public:
 		API_DEF_ADD_RSP_JSON_WRAPPER(GetPatientListPageJsonVO);
 		API_DEF_ADD_TAG(API_TAG);
 		API_DEF_ADD_PAGE_PARAMS();
-		API_DEF_ADD_QUERY_PARAMS(UInt64, "encounter_id", ZH_WORDS_GETTER("qi.charging.settle.encounter_id"), 1, true);
-		API_DEF_ADD_QUERY_PARAMS(String, "inpatient_no", ZH_WORDS_GETTER("qi.charging.settle.inpatient_no"), "", true);
+		API_DEF_ADD_QUERY_PARAMS(UInt64, "encounter_id", ZH_WORDS_GETTER("qi.charging.settle.encounter_id"), 1, false);
+		API_DEF_ADD_QUERY_PARAMS(String, "inpatient_no", ZH_WORDS_GETTER("qi.charging.settle.inpatient_no"), "", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "patient_name", ZH_WORDS_GETTER("qi.charging.settle.patient_name"), "", false);
 		API_DEF_ADD_QUERY_PARAMS(UInt8, "gender", ZH_WORDS_GETTER("qi.charging.settle.gender"), 1, false);
 		API_DEF_ADD_QUERY_PARAMS(UInt32, "age", ZH_WORDS_GETTER("qi.charging.settle.age"), 18, false);

@@ -9,8 +9,8 @@ class GetTotalFeesQuery : public oatpp::DTO
 {
     DTO_INIT(GetTotalFeesQuery, DTO);
 
-    API_DTO_FIELD(oatpp::String, inpatient_no, ZH_WORDS_GETTER("qi.charging.settle.inpatient_no"), true, "");
-    API_DTO_FIELD(oatpp::String, encounter_id, ZH_WORDS_GETTER("qi.charging.settle.encounter_id"), true, "");
+    API_DTO_FIELD(oatpp::String, inpatient_no, ZH_WORDS_GETTER("qi.charging.settle.inpatient_no"), false, "");
+    API_DTO_FIELD(oatpp::String, encounter_id, ZH_WORDS_GETTER("qi.charging.settle.encounter_id"), false, "");
 
 };
 

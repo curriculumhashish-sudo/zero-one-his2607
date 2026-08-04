@@ -23,8 +23,8 @@ public:
         API_DEF_ADD_RSP_JSON_WRAPPER(GetCategoryDetailsJsonVO);
         API_DEF_ADD_TAG(API_TAG);
 
-        API_DEF_ADD_QUERY_PARAMS(String, "inpatient_no", ZH_WORDS_GETTER("qi.charging.settle.inpatient_no"), "", true);
-        API_DEF_ADD_QUERY_PARAMS(String, "encounter_id", ZH_WORDS_GETTER("qi.charging.settle.encounter_id"), "", true);
+        API_DEF_ADD_QUERY_PARAMS(String, "inpatient_no", ZH_WORDS_GETTER("qi.charging.settle.inpatient_no"), "", false);
+        API_DEF_ADD_QUERY_PARAMS(String, "encounter_id", ZH_WORDS_GETTER("qi.charging.settle.encounter_id"), "", false);
     }
 
 

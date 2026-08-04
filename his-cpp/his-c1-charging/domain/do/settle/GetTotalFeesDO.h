@@ -1,11 +1,11 @@
 #pragma once
 #ifndef _GET_TOTAL_FEES_DO_
 #define _GET_TOTAL_FEES_DO_
+
 #include "../DoInclude.h"
 
 /**
- * 患者费用合计DO（多表汇总查询结果实体）
- * 关联表：fin_cashier_settlement、fin_payment_rec_detail
+ * 患者费用合计DO (多表汇总查询结果实体)
  */
 class GetTotalFeesDO : public BaseDO
 {
@@ -40,3 +40,4 @@ public:
 typedef std::shared_ptr<GetTotalFeesDO> PtrGetTotalFeesDO;
 
 #endif // !_GET_TOTAL_FEES_DO_
+

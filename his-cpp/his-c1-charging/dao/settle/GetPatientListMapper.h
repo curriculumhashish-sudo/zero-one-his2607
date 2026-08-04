@@ -1,56 +1,74 @@
-// ======================================================
-// GetPatientListMapper.h - 患者列表 - 结果集映射器
-// Mapper 的工作流程：
-// 1. DAO 执行 SQL → 产生 ResultSet（N行）
-// 2. DAO 调用 sqlSession->executeQuery<GetPatientListDO>(sql, GetPatientListMapper(), params)
-// 3. 框架对 ResultSet 每行调用 mapper(resultSet) → 返回一个 GetPatientListDO
-// 4. 所有 DO 收集到 std::list<GetPatientListDO> 返回给 DAO
-// ======================================================
 #pragma once
 #include "Mapper.h"
 #include "../../domain/do/settle/GetPatientListDO.h"
 
-// 值语义Mapper，用于列表查询 (返回 std::list<GetPatientListDO>)
+// 值语义Mapper，用于列表查询（返回 std::list<GetPatientListDO>）
 class GetPatientListMapper : public Mapper<GetPatientListDO>
 {
 public:
-	GetPatientListDO mapper(ResultSet* resultSet) const override
-	{
-		GetPatientListDO data;
-		data.setEncounter_id(resultSet->getString("encounter_id"));
-		data.setInpatient_no(resultSet->getString("inpatient_no"));
-		data.setPatient_name(resultSet->getString("patient_name"));
-		data.setGender(resultSet->getInt("gender"));
-		data.setAge(resultSet->getInt("age"));
-		data.setDept_name(resultSet->getString("dept_name"));
-		data.setWard_name(resultSet->getString("ward_name"));
-		data.setBed_no(resultSet->getString("bed_no"));
-		data.setAdmit_date(resultSet->getString("admit_date"));
-		data.setInsurance_type(resultSet->getInt("insurance_type"));
-		data.setDoctor_name(resultSet->getString("doctor_name"));
-		return data;
-	}
+    GetPatientListDO mapper(ResultSet* resultSet) const override
+    {
+        GetPatientListDO data;
+
+        // 1. 映射 ID (SQL Alias: id)
+        data.setId(resultSet->getString("id"));
+
+        // 2. 映射住院号 (SQL Alias: bus_no) -> DO Setter: setBus_no
+        data.setBus_no(resultSet->getString("bus_no"));
+
+        // 3. 映射姓名 (SQL Alias: name) -> DO Setter: setName
+        data.setName(resultSet->getString("name"));
+
+        // 4. 映射性别 (SQL Alias: gender_enum) -> DO Setter: setGender_enum
+        data.setGender_enum(resultSet->getInt("gender_enum"));
+
+        // 5. 映射年龄 (SQL Alias: age) -> DO Setter: setAge
+        data.setAge(resultSet->getInt("age"));
+
+        // 6. 映射科室 (SQL Alias: org_name) -> DO Setter: setOrg_name
+        data.setOrg_name(resultSet->getString("org_name"));
+
+        // 7. 映射病区 (SQL Alias: ward_name) -> DO Setter: setWard_name
+        data.setWard_name(resultSet->getString("ward_name"));
+
+        // 8. 映射床位 (SQL Alias: bed_no) -> DO Setter: setBed_no
+        data.setBed_no(resultSet->getString("bed_no"));
+
+        // 9. 映射入院日期 (SQL Alias: admit_date) -> DO Setter: setAdmit_date
+        data.setAdmit_date(resultSet->getString("admit_date"));
+
+        // 10. 映射医保类型 (SQL Alias: insurance_type) -> DO Setter: setInsurance_type
+        data.setInsurance_type(resultSet->getInt("insurance_type"));
+
+        // 11. 映射医生 (SQL Alias: doctor_name) -> DO Setter: setDoctor_name
+        data.setDoctor_name(resultSet->getString("doctor_name"));
+
+        return data;
+    }
 };
 
-// 指针语义Mapper – 用于需要 shared_ptr 的场景
+// 指针语义Mapper - 用于需要 shared_ptr 的场景
 class PtrGetPatientListMapper : public Mapper<PtrGetPatientListDO>
 {
 public:
-	PtrGetPatientListDO mapper(ResultSet* resultSet) const override
-	{
-		auto data = std::make_shared<GetPatientListDO>();
-		data->setEncounter_id(resultSet->getString("encounter_id"));
-		data->setInpatient_no(resultSet->getString("inpatient_no"));
-		data->setPatient_name(resultSet->getString("patient_name"));
-		data->setGender(resultSet->getInt("gender"));
-		data->setAge(resultSet->getInt("age"));
-		data->setDept_name(resultSet->getString("dept_name"));
-		data->setWard_name(resultSet->getString("ward_name"));
-		data->setBed_no(resultSet->getString("bed_no"));
-		data->setAdmit_date(resultSet->getString("admit_date"));
-		data->setInsurance_type(resultSet->getInt("insurance_type"));
-		data->setDoctor_name(resultSet->getString("doctor_name"));
-		return data;
-	}
+    PtrGetPatientListDO mapper(ResultSet* resultSet) const override
+    {
+        auto data = std::make_shared<GetPatientListDO>();
+
+        data->setId(resultSet->getString("id"));
+        data->setBus_no(resultSet->getString("bus_no"));
+        data->setName(resultSet->getString("name"));
+        data->setGender_enum(resultSet->getInt("gender_enum"));
+        data->setAge(resultSet->getInt("age"));
+        data->setOrg_name(resultSet->getString("org_name"));
+        data->setWard_name(resultSet->getString("ward_name"));
+        data->setBed_no(resultSet->getString("bed_no"));
+        data->setAdmit_date(resultSet->getString("admit_date"));
+        data->setInsurance_type(resultSet->getInt("insurance_type"));
+        data->setDoctor_name(resultSet->getString("doctor_name"));
+
+        return data;
+    }
 };
+
 

@@ -1,127 +1,136 @@
-#include "stdafx.h"
+Ôªø#include "stdafx.h"
 #include "GetPatientListDAO.h"
 #include "GetPatientListMapper.h"
 
-
-inline std::string GetPatientListDAO::queryConditionBuilder(const GetPatientListQuery::Wrapper& query, SqlParams& params)
+// ÊûÑÂª∫Êü•ËØ¢Êù°‰ª∂
+inline std::string GetPatientListDAO::queryConditionBuilder(const GetPatientListQuery::Wrapper & query, SqlParams & params)
 {
-	std::ostringstream sqlCondition;
-	sqlCondition << " WHERE 1=1 ";
+    std::ostringstream sqlCondition;
+    sqlCondition << " WHERE 1=1 ";
 
-	// æÕ’ÔID
-	if (query->encounter_id)
-	{
-		sqlCondition << " AND e.encounter_id = ? ";
-		SQLPARAMS_PUSH(params, "ll", uint64_t, query->encounter_id);
-	}
-	// ◊°‘∫∫≈ æ´»∑∆•≈‰
-	if (query->inpatient_no && !query->inpatient_no->empty())
-	{
-		sqlCondition << " AND e.inpatient_no = ? ";
-		SQLPARAMS_PUSH(params, "s", std::string, query->inpatient_no);
-	}
-	// ªº’ﬂ–’√˚ ƒ£∫˝≤È—Ø
-	if (query->patient_name && !query->patient_name->empty())
-	{
-		sqlCondition << " AND p.patient_name LIKE ? ";
-		SQLPARAMS_PUSH(params, "s", std::string, "%" + (*query->patient_name) + "%");
-	}
-	// –‘±
-	if (query->gender)
-	{
-		sqlCondition << " AND p.gender = ? ";
-		SQLPARAMS_PUSH(params, "i", uint8_t, query->gender);
-	}
-	// ƒÍ¡‰
-	if (query->age)
-	{
-		sqlCondition << " AND p.age = ? ";
-		SQLPARAMS_PUSH(params, "i", uint32_t, query->age);
-	}
-	// ø∆ “√˚≥∆
-	if (query->dept_name && !query->dept_name->empty())
-	{
-		sqlCondition << " AND e.dept_name LIKE ? ";
-		SQLPARAMS_PUSH(params, "s", std::string, "%" + (*query->dept_name) + "%");
-	}
-	// ≤°«¯√˚≥∆
-	if (query->ward_name && !query->ward_name->empty())
-	{
-		sqlCondition << " AND e.ward_name LIKE ? ";
-		SQLPARAMS_PUSH(params, "s", std::string, "%" + (*query->ward_name) + "%");
-	}
-	// ¥≤∫≈
-	if (query->bed_no && !query->bed_no->empty())
-	{
-		sqlCondition << " AND e.bed_no = ? ";
-		SQLPARAMS_PUSH(params, "s", std::string, query->bed_no);
-	}
-	// »Î‘∫ ±º‰
-	if (query->admit_date)
-	{
-		sqlCondition << " AND e.admit_date = ? ";
-		SQLPARAMS_PUSH(params, "ll", uint64_t, query->admit_date);
-	}
-	// “Ω±£¿‡–Õ
-	if (query->insurance_type)
-	{
-		sqlCondition << " AND e.insurance_type = ? ";
-		SQLPARAMS_PUSH(params, "i", uint8_t, query->insurance_type);
-	}
-	// “Ω…˙–’√˚
-	if (query->doctor_name && !query->doctor_name->empty())
-	{
-		sqlCondition << " AND e.doctor_name LIKE ? ";
-		SQLPARAMS_PUSH(params, "s", std::string, "%" + (*query->doctor_name) + "%");
-	}
+    // Â∞±ËØäID
+    if (query->encounter_id)
+    {
+        sqlCondition << " AND enc.id = ? ";
+        SQLPARAMS_PUSH(params, "ll", uint64_t, query->encounter_id);
+    }
+    // ‰ΩèÈô¢Âè∑ Á≤æÁ°ÆÂåπÈÖç (ÂØπÂ∫î enc.bus_no)
+    if (query->inpatient_no && !query->inpatient_no->empty())
+    {
+        sqlCondition << " AND enc.bus_no = ? ";
+        SQLPARAMS_PUSH(params, "s", std::string, *query->inpatient_no);
+    }
+    // ÊÇ£ËÄÖÂßìÂêç Ê®°Á≥äÊü•ËØ¢ (ÂØπÂ∫î pat.name)
+    if (query->patient_name && !query->patient_name->empty())
+    {
+        sqlCondition << " AND pat.name LIKE ? ";
+        SQLPARAMS_PUSH(params, "s", std::string, "%" + (*query->patient_name) + "%");
+    }
+    // ÊÄßÂà´ (ÂØπÂ∫î pat.gender_enum)
+    if (query->gender)
+    {
+        sqlCondition << " AND pat.gender_enum = ? ";
+        SQLPARAMS_PUSH(params, "i", uint8_t, query->gender);
+    }
+    // ÁßëÂÆ§ÂêçÁß∞ (ÂØπÂ∫î loc_dept.name)
+    if (query->dept_name && !query->dept_name->empty())
+    {
+        sqlCondition << " AND loc_dept.name LIKE ? ";
+        SQLPARAMS_PUSH(params, "s", std::string, "%" + (*query->dept_name) + "%");
+    }
+    // ÁóÖÂå∫ÂêçÁß∞ (ÂØπÂ∫î loc_ward.name)
+    if (query->ward_name && !query->ward_name->empty())
+    {
+        sqlCondition << " AND loc_ward.name LIKE ? ";
+        SQLPARAMS_PUSH(params, "s", std::string, "%" + (*query->ward_name) + "%");
+    }
+    // Â∫äÂè∑ (ÂØπÂ∫î loc_bed.name)
+    if (query->bed_no && !query->bed_no->empty())
+    {
+        sqlCondition << " AND loc_bed.name LIKE ? ";
+        SQLPARAMS_PUSH(params, "s", std::string, "%" + (*query->bed_no) + "%");
+    }
+    // ÂÖ•Èô¢Êó∂Èó¥ ‚ö†Ô∏èÈáçË¶Å‰øÆÂ§çÔºöÂèÇÊï∞Á±ªÂûãÁî±Êï∞Â≠óiÊîπÊàêÂ≠óÁ¨¶‰∏≤s
+   /* if (query->admit_date && !query->admit_date->empty())
+    {
+        sqlCondition << " AND DATE(enc.start_time) = ? ";
+        SQLPARAMS_PUSH(params, "i", uint64_t, *query->admit_date);
+    }*/
+    // Âåª‰øùÁ±ªÂûã (ÂØπÂ∫î enc.yb_class_enum)
+    if (query->insurance_type)
+    {
+        sqlCondition << " AND enc.yb_class_enum = ? ";
+        SQLPARAMS_PUSH(params, "i", uint8_t, query->insurance_type);
+    }
+    //„Äê‰∏¥Êó∂Ê≥®Èáä„ÄëÂåªÁîüÂßìÂêçÔºåÂæÖÊâæÂà∞Ê≠£Á°ÆÂÖ≥ËÅîË°®ÂÜçÂêØÁî®
+    /*
+    if (query->doctor_name && !query->doctor_name->empty())
+    {
+        sqlCondition << " AND prac.name LIKE ? ";
+        SQLPARAMS_PUSH(params, "s", std::string, "%" + (*query->doctor_name) + "%");
+    }
+    */
 
-	return sqlCondition.str();
+    return sqlCondition.str();
 }
 
 // Count matching rows
 uint64_t GetPatientListDAO::count(const GetPatientListQuery::Wrapper& query)
 {
-	SqlParams params;
-	std::ostringstream sql;
+    SqlParams params;
+    std::ostringstream sql;
 
-	sql << " SELECT COUNT(DISTINCT e.encounter_id) "
-		<< " FROM adm_encounter e "
-		<< " LEFT JOIN adm_patient p ON e.patient_id = p.id ";
-	sql << queryConditionBuilder(query, params);
+    sql << " SELECT COUNT(DISTINCT enc.id) " // DISTINCT Ëß£ÂÜ≥Â§öÊù°JOINÈÄ†ÊàêËÆ°Êï∞ËôöÈ´ò
+        << " FROM adm_encounter enc "
+        << " LEFT JOIN adm_patient pat ON enc.patient_id = pat.id "
+        << " LEFT JOIN bkg_bed_reservation_ext bed ON enc.id = bed.appointment_id "
+        << " LEFT JOIN adm_location loc_bed ON bed.location_id = loc_bed.id "
+        << " LEFT JOIN adm_encounter_location enc_loc ON enc.id = enc_loc.encounter_id "
+        << " LEFT JOIN adm_location loc_dept ON enc_loc.location_id = loc_dept.id "
+        << " LEFT JOIN adm_location loc_ward ON bed.ward_location_id = loc_ward.id ";
 
-	return sqlSession->executeQueryNumerical(sql.str(), params);
+    sql << queryConditionBuilder(query, params);
+
+    return sqlSession->executeQueryNumerical(sql.str(), params);
 }
 
-// Paginated query ®C multi-table JOIN
+// Paginated query - multi-table JOIN
 std::list<GetPatientListDO> GetPatientListDAO::selectWithPage(const GetPatientListQuery::Wrapper& query)
 {
-	SqlParams params;
-	std::ostringstream sql;
+    SqlParams params;
+    std::ostringstream sql;
 
-	sql << "SELECT "
-		<< " e.encounter_id,"
-		<< " e.inpatient_no,"
-		<< " p.patient_name,"
-		<< " p.gender,"
-		<< " p.age,"
-		<< " e.dept_name,"
-		<< " e.ward_name,"
-		<< " e.bed_no,"
-		<< " e.admit_date,"
-		<< " e.insurance_type,"
-		<< " e.doctor_name "
-		<< " FROM adm_encounter e "
-		<< " LEFT JOIN adm_patient p ON e.patient_id = p.id ";
+    sql << "SELECT DISTINCT " // DISTINCT Ê∂àÈô§ÈáçÂ§çÂ∞±ËØäËÆ∞ÂΩï
+        << " enc.id AS id, "
+        << " enc.bus_no AS bus_no, "
+        << " pat.name AS name, "
+        << " pat.gender_enum AS gender_enum, "
+        << " TIMESTAMPDIFF(YEAR, pat.birth_date, CURDATE()) AS age, "
+        << " loc_dept.name AS org_name, "
+        << " loc_ward.name AS ward_name, "
+        << " loc_bed.name AS bed_no, "
+        << " enc.start_time, "
+        << " DATE_FORMAT(enc.start_time, '%Y-%m-%d') AS admit_date, "
+        << " enc.yb_class_enum AS insurance_type, "
+        << " NULL AS doctor_name "
+        << " FROM adm_encounter enc "
+        << " LEFT JOIN adm_patient pat ON enc.patient_id = pat.id "
+        << " LEFT JOIN bkg_bed_reservation_ext bed ON enc.id = bed.appointment_id "
+        << " LEFT JOIN adm_location loc_bed ON bed.location_id = loc_bed.id "
+        << " LEFT JOIN adm_encounter_location enc_loc ON enc.id = enc_loc.encounter_id "
+        << " LEFT JOIN adm_location loc_dept ON enc_loc.location_id = loc_dept.id "
+        << " LEFT JOIN adm_location loc_ward ON bed.ward_location_id = loc_ward.id ";
 
-	sql << queryConditionBuilder(query, params);
+    sql << queryConditionBuilder(query, params);
 
-	sql << " ORDER BY e.admit_date DESC "
-		<< " LIMIT " << std::to_string((int64_t)(query->pageIndex.getValue(1) - 1) * query->pageSize.getValue(10))
-		<< " ," << std::to_string((int64_t)query->pageSize.getValue(10));
+    sql << " ORDER BY admit_date DESC "
+        << " LIMIT " << std::to_string((int64_t)(query->pageIndex.getValue(1) - 1) * query->pageSize.getValue(10))
+        << ", " << std::to_string((int64_t)query->pageSize.getValue(10));
 
-	GetPatientListMapper mapper;
-	return sqlSession->executeQuery<GetPatientListDO>(
-		sql.str(), GetPatientListMapper(), params);
+    GetPatientListMapper mapper;
+    return sqlSession->executeQuery<GetPatientListDO>(
+        sql.str(), GetPatientListMapper(), params);
 }
+
 
 

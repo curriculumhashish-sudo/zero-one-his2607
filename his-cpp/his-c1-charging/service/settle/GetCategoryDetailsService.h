@@ -1,5 +1,5 @@
-#ifndef __GET_CATEGORY_DETAILS_SERVICE__
-#define __GET_CATEGORY_DETAILS_SERVICE__
+#ifndef _GET_CATEGORY_DETAILS_SERVICE_
+#define _GET_CATEGORY_DETAILS_SERVICE_
 
 #include "domain/do/settle/GetCategoryDetailsDO.h"
 #include "domain/dto/settle/GetCategoryDetailsDTO.h"
@@ -12,37 +12,28 @@
 class GetCategoryDetailsService
 {
 public:
-    
     oatpp::Vector<GetCategoryDetailsDTO::Wrapper> listAll(const GetCategoryDetailsQuery::Wrapper& query)
     {
         GetCategoryDetailsDAO dao;
-
-        
         std::list<GetCategoryDetailsDO> doList = dao.selectWithPage(query);
 
         // ´´½¨ Oat++ Vector ÈÝÆ÷
         auto dtoList = oatpp::Vector<GetCategoryDetailsDTO::Wrapper>::createShared();
 
+        int index = 1;
         for (const auto& sub : doList)
         {
             auto dto = GetCategoryDetailsDTO::createShared();
-
-           
-            dto->sort_num = (v_uint32)sub.getSort_num();
-
-          
+            dto->sort_num = (UInt32)sub.getSort_num();
             dto->charge_type_name = sub.getCharge_type_name();
-
-          
-            dto->type_total_fee = (v_float64)sub.getType_total_fee();
-
-            
+            dto->type_total_fee = (Float64)sub.getType_total_fee();
             dtoList->push_back(dto);
+            index++;
         }
 
         return dtoList;
     }
 };
 
-#endif // __GET_CATEGORY_DETAILS_SERVICE__
+#endif // _GET_CATEGORY_DETAILS_SERVICE_
 

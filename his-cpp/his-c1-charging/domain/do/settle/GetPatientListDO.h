@@ -1,46 +1,49 @@
-#pragma once
+ï»¿#pragma once
 #ifndef _GET_PATIENT_LIST_DO_
 #define _GET_PATIENT_LIST_DO_
 #include "../DoInclude.h"
 
-
 class GetPatientListDO : public BaseDO
 {
-    // ¾ÍÕïID
-    MYSQL_SYNTHESIZE(string, encounter_id, Encounter_id);
-    // ×¡ÔººÅ
-    MYSQL_SYNTHESIZE(string, inpatient_no, Inpatient_no);
-    // »¼ÕßĞÕÃû
-    MYSQL_SYNTHESIZE(string, patient_name, Patient_name);
-    // ĞÔ±ğ
-    MYSQL_SYNTHESIZE(int, gender, Gender);
-    // ÄêÁä
+    // å°±è¯ŠID
+    MYSQL_SYNTHESIZE(string, id, Id);
+    // ä½é™¢å· (å¯¹åº” enc.bus_no)
+    MYSQL_SYNTHESIZE(string, bus_no, Bus_no);
+    // æ‚£è€…å§“å (å¯¹åº” pat.name)
+    MYSQL_SYNTHESIZE(string, name, Name);
+    // æ€§åˆ« (å¯¹åº” pat.gender_enum)
+    MYSQL_SYNTHESIZE(int, gender_enum, Gender_enum);
+    // å¹´é¾„ (SQLä¸­è®¡ç®—å¾—å‡º)
     MYSQL_SYNTHESIZE(int, age, Age);
-    // ¿ÆÊÒÃû³Æ
-    MYSQL_SYNTHESIZE(string, dept_name, Dept_name);
-    // ²¡ÇøÃû³Æ
+    // ç§‘å®¤åç§° (å¯¹åº” loc_dept.name)
+    MYSQL_SYNTHESIZE(string, org_name, Org_name);
+    // ç—…åŒºåç§° (å¯¹åº” loc_ward.name)
     MYSQL_SYNTHESIZE(string, ward_name, Ward_name);
-    // ´²ºÅ
+    // åºŠå· (å¯¹åº” loc_bed.name)
     MYSQL_SYNTHESIZE(string, bed_no, Bed_no);
-    // ÈëÔºÊ±¼ä´Á
+    //ã€æ–°å¢ã€‘åŸå§‹å…¥é™¢æ—¶é—´ï¼Œç”¨äº ORDER BY è¯­æ³•å…¼å®¹
+    MYSQL_SYNTHESIZE(string, start_time, Start_time);
+    // å…¥é™¢æ—¥æœŸå­—ç¬¦ä¸²ï¼ˆæ ¼å¼åŒ–åå±•ç¤ºï¼‰
     MYSQL_SYNTHESIZE(string, admit_date, Admit_date);
-    // Ò½±£ÀàĞÍ
+    // åŒ»ä¿ç±»å‹ (å¯¹åº” enc.yb_class_enum)
     MYSQL_SYNTHESIZE(int, insurance_type, Insurance_type);
-    // Ò½ÉúĞÕÃû
+    // åŒ»ç”Ÿå§“å (å¯¹åº” prac.name)
     MYSQL_SYNTHESIZE(string, doctor_name, Doctor_name);
 
 public:
-    // ¶à±íJOIN²éÑ¯DO£¬²»°ó¶¨µ¥±íÃû£¬¹¹Ôì²ÎÊıÌî¿Õ×Ö·û´®
+    // å¤šè¡¨JOINæŸ¥è¯¢DOï¼Œä¸ç»‘å®šå•è¡¨åï¼Œæ„é€ å‚æ•°å¡«ç©ºå­—ç¬¦ä¸²
     GetPatientListDO() : BaseDO("")
     {
-        MYSQL_ADD_FIELD_PK("encounter_id", "s", encounter_id);
-        MYSQL_ADD_FIELD("inpatient_no", "s", inpatient_no);
-        MYSQL_ADD_FIELD("patient_name", "s", patient_name);
-        MYSQL_ADD_FIELD("gender", "i", gender);
+        MYSQL_ADD_FIELD_PK("id", "s", id);
+        MYSQL_ADD_FIELD("bus_no", "s", bus_no);
+        MYSQL_ADD_FIELD("name", "s", name);
+        MYSQL_ADD_FIELD("gender_enum", "i", gender_enum);
         MYSQL_ADD_FIELD("age", "i", age);
-        MYSQL_ADD_FIELD("dept_name", "s", dept_name);
+        MYSQL_ADD_FIELD("org_name", "s", org_name);
         MYSQL_ADD_FIELD("ward_name", "s", ward_name);
         MYSQL_ADD_FIELD("bed_no", "s", bed_no);
+        // âœ…æ–°å¢å­—æ®µæ˜ å°„ï¼Œé¡ºåºå¿…é¡»å’ŒSQL SELECTä¿æŒä¸€è‡´
+        MYSQL_ADD_FIELD("start_time", "s", start_time);
         MYSQL_ADD_FIELD("admit_date", "s", admit_date);
         MYSQL_ADD_FIELD("insurance_type", "i", insurance_type);
         MYSQL_ADD_FIELD("doctor_name", "s", doctor_name);
@@ -50,3 +53,4 @@ public:
 typedef std::shared_ptr<GetPatientListDO> PtrGetPatientListDO;
 
 #endif // !_GET_PATIENT_LIST_DO_
+
