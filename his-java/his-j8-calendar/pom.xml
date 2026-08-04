@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.zeroone.star</groupId>
         <artifactId>his-java</artifactId>
-        <version>${revision}</version>
+        <version>1.0.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>his-j8-calendar</artifactId>
@@ -86,9 +86,11 @@
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
+                <version>0.43.4</version>
                 <configuration>
-                    <dockerHost>https://192.168.220.128:2375</dockerHost>
-                    <certPath>/home/docker-ca</certPath>
+                    <dockerHost>https://47.99.167.11:2375</dockerHost>
+                    <certPath>D:/Dr.BIG/docker-ca-calendar</certPath>
+                    <skip>false</skip>
                     <images>
                         <image>
                             <name>01star/${project.artifactId}:${project.version}</name>
@@ -109,7 +111,7 @@
                                 </volumes>
                                 <env>
                                     <JAVA_OPTS>-Xms256m -Xmx256m</JAVA_OPTS>
-                                    <SPRING_ARGS>--spring.profiles.active=test --spring.cloud.nacos.discovery.ip=192.168.220.128</SPRING_ARGS>
+                                    <SPRING_ARGS>--spring.profiles.active=test --spring.cloud.nacos.discovery.ip=47.99.167.11</SPRING_ARGS>
                                 </env>
                             </run>
                         </image>

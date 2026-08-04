@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.zeroone.star</groupId>
         <artifactId>his-java</artifactId>
-        <version>${revision}</version>
+        <version>1.0.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>his-j8-statdata</artifactId>
@@ -71,6 +71,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -90,6 +94,7 @@
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
+                <version>0.43.4</version>
                 <configuration>
                     <dockerHost>https://47.98.154.109:2375</dockerHost>
                     <certPath>D:/Dr.BIG/docker-ca</certPath>
