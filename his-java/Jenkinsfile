@@ -32,6 +32,8 @@ pipeline {
                                 rm -f /tmp/star-deps.zip
                             fi
                             echo "私有依赖安装完成"
+                            # 清理 Maven 之前下载失败生成的 .lastUpdated 缓存文件，避免 Maven 跳过依赖解析
+                            find ~/.m2/repository/com/zeroone -name "*.lastUpdated" -type f -delete 2>/dev/null || true
                             ls -la ~/.m2/repository/com/zeroone/star/zero-one-cloud-build/2.0.0-SNAPSHOT/ || true
                         else
                             echo "警告：star-deps.zip 不存在，跳过"
