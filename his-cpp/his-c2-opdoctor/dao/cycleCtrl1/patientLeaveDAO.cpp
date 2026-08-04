@@ -15,7 +15,7 @@ std::shared_ptr<AdmEncounterDO> PatientLeaveDAO::selectEncounterById(const oatpp
 
 bool PatientLeaveDAO::updateEncounterToLeave(const oatpp::String& tenantId, const oatpp::String& encounterId)
 {
-    // ÔİÀë½öĞŞ¸Ä¾ÍÕï×´Ì¬
+    // ÔİÀë½öĞŞ¸Ä¾ÍÕï×´Ì¬ --> ÔÚÕï±ä³É´ıÕï
     std::string sql = "UPDATE adm_encounter SET status_enum = 'arrived' WHERE id = ? AND tenant_id = ? AND is_deleted = 0";
     SqlParams params;
     SQLPARAMS_PUSH(params, "s", std::string, encounterId->c_str());

@@ -27,7 +27,7 @@ PatientLeaveJsonVO::Wrapper PatientLeaveService::execLeavePatient(const oatpp::S
     }
 
    
-    //3. 执行更新到离院状态 --> 前端要求在诊变成待诊
+    //3. 执行更新到离院状态 --> 前端要求在诊变成待诊(inProgress -> arrived)
     uint64_t affectRows = dao.updateEncounterToLeave(tenantId, encounterId);
     if (affectRows == 0)
     {

@@ -20,7 +20,7 @@ PatientLeaveJsonVO::Wrapper PatientLeaveController::execLeavePatient(const Patie
     if(tenantId.empty() || encounterId == nullptr)
     {
         tenantId = "tenant_001";
-        encounterId = "enc_001";
+        encounterId = "enc_002";
 	}
 
     PatientLeaveService service;
