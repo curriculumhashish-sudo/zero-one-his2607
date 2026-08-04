@@ -16,28 +16,18 @@ pipeline {
 
         stage('安装私有依赖') {
             steps {
-                dir('his-java') {
+                dir('his-java/star-deps') {
                     sh '''
-                        # 确保 Jenkins 用户 Maven 仓库目录存在
-                        mkdir -p ~/.m2/repository
-                        # 解压私有依赖包（父 POM + zeroone 私有 jar）到 Maven 仓库
-                        if [ -f star-deps.zip ]; then
-                            if command -v unzip >/dev/null 2>&1; then
-                                unzip -o star-deps.zip -d ~/.m2/repository
-                            else
-                                # 没有 unzip 则用 jar 命令解压
-                                cp star-deps.zip /tmp/star-deps.zip
-                                cd ~/.m2/repository
-                                jar xf /tmp/star-deps.zip
-                                rm -f /tmp/star-deps.zip
-                            fi
-                            echo "私有依赖安装完成"
-                            # 清理 Maven 之前下载失败生成的 .lastUpdated 缓存文件，避免 Maven 跳过依赖解析
-                            find ~/.m2/repository/com/zeroone -name "*.lastUpdated" -type f -delete 2>/dev/null || true
-                            ls -la ~/.m2/repository/com/zeroone/star/zero-one-cloud-build/2.0.0-SNAPSHOT/ || true
-                        else
-                            echo "警告：star-deps.zip 不存在，跳过"
-                        fi
+                        # 安装父 POM 到 Jenkins 用户 Maven 本地仓库
+                        # star-deps 目录无 pom.xml，install:install-file 可独立执行
+                        mvn install:install-file \
+                            -Dfile=zero-one-cloud-build-2.0.0-SNAPSHOT.pom \
+                            -DgroupId=com.zeroone.star \
+                            -DartifactId=zero-one-cloud-build \
+                            -Dversion=2.0.0-SNAPSHOT \
+                            -Dpackaging=pom
+                        echo "父 POM 安装完成"
+                        ls -la ~/.m2/repository/com/zeroone/star/zero-one-cloud-build/2.0.0-SNAPSHOT/
                     '''
                 }
             }
