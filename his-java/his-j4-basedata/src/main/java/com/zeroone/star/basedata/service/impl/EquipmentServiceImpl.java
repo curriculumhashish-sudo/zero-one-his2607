@@ -11,6 +11,7 @@ import com.zeroone.star.basedata.mapper.AdmChargeItemDefinitionMapper;
 import com.zeroone.star.basedata.mapper.EquipmentMapper;
 import com.zeroone.star.basedata.service.IEquipmentService;
 import com.zeroone.star.project.components.user.UserHolder;
+import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentAddDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentStatusDTO;
 import com.zeroone.star.project.dto.j4.equipment.EquipmentUpdateDTO;
@@ -57,33 +58,33 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
      * @return 器材信息分页列表
      */
     @Override
-    public Page<AdmDeviceDefinitionDO> queryEquipmentPage(EquipmentPageQuery query) {
+    public PageDTO<EquipmentVO> queryEquipmentPage(EquipmentPageQuery query) {
         // 1.构建查询条件
         LambdaQueryWrapper<AdmDeviceDefinitionDO> wrapper = new LambdaQueryWrapper<>();
-        String tenantId = userHolder.getCurrentTenantId();
-//        String tenantId = "1";
-        // 添加租户ID检查
+        String tenantId = userHolder.getCurrentTenantId(); // 租户ID
         wrapper.eq(AdmDeviceDefinitionDO::getTenantId, tenantId);
-        if (StringUtils.hasText(query.getKeyword())) {
-            // 关键词查询
+        if (StringUtils.hasText(query.getKeyword())) { //关键词
             wrapper.and(w -> w.like(AdmDeviceDefinitionDO::getName, query.getKeyword())
                     .or()
                     .like(AdmDeviceDefinitionDO::getBusNo, query.getKeyword()));
         }
-
-        // 2.分类筛选
-        if (StringUtils.hasText(query.getCategoryCode())) {
+        if (StringUtils.hasText(query.getCategoryCode())) { //分类编码
             wrapper.eq(AdmDeviceDefinitionDO::getCategoryCode, query.getCategoryCode());
         }
+        wrapper.orderByAsc(AdmDeviceDefinitionDO::getBusNo); //业务编号升序
 
-        // 3.排序
-        wrapper.orderByAsc(AdmDeviceDefinitionDO::getBusNo);
-
-        // 4.构建分页对象
+        // 2.构建分页对象
         Page<AdmDeviceDefinitionDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
 
-        // 5.执行分页查询
-        return baseMapper.selectPage(page, wrapper);
+        // 3.执行分页查询
+        Page<AdmDeviceDefinitionDO> entityPage = baseMapper.selectPage(page, wrapper);
+
+        // 4. Entity→VO转换+分类名称填充
+        return PageDTO.create(entityPage, entity -> {
+            EquipmentVO vo = msEquipmentMapper.entityToVo(entity);
+            vo.setCategoryName(EquipmentCategoryConstants.getCategoryName(entity.getCategoryCode()));
+            return vo;
+        });
     }
 
     /**
@@ -95,16 +96,12 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public AdmDeviceDefinitionDO updateEquipment(EquipmentUpdateDTO dto) {
+    public EquipmentVO updateEquipment(EquipmentUpdateDTO dto) {
         String id = dto.getId();
         if (!StringUtils.hasText(id)) {
             throw new IllegalArgumentException("修改器材时主键不可为空");
         }
-        // 获取当前租户ID
         String currentTenantId = userHolder.getCurrentTenantId();
-        // 硬编码测试
-//        String currentTenantId = "1";
-        // 校验器材存在且属于当前租户
         AdmDeviceDefinitionDO existing = baseMapper.selectById(id);
         if (existing == null || !currentTenantId.equals(existing.getTenantId())) {
             throw new IllegalArgumentException("器材不存在，主键：" + id);
@@ -114,12 +111,8 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
         // 复制属性（ignoreNullValue 保留 version 不被覆盖，乐观锁生效）
         cn.hutool.core.bean.BeanUtil.copyProperties(dtoEntity, existing,
                 cn.hutool.core.bean.copier.CopyOptions.create().ignoreNullValue());
-        // 乐观锁冲突检查
-        // 执行更新
         int updated = baseMapper.updateById(existing);
-        // 检查更新结果，0代表被并发修改，需要重新检查
         if (updated == 0) {
-            // 乐观锁冲突，需要重新检查
             AdmDeviceDefinitionDO latest = baseMapper.selectById(id);
             if (latest == null || !Objects.equals(latest.getVersion(), existing.getVersion())) {
                 throw new RuntimeException("数据已被他人修改，请刷新后重试");
@@ -133,11 +126,14 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
         saveOrUpdatePrice(deviceId, "SALE", dto.getRetailPrice(), "零售价", dto.getItemTypeCode(), orgIdStr, dto.getYbType());
         saveOrUpdatePrice(deviceId, "LIMIT", dto.getMaximumRetailPrice(), "限价", dto.getItemTypeCode(), orgIdStr, dto.getYbType());
 
-        return existing;
+        // Entity→VO 转换 + 零售价填充
+        EquipmentVO vo = msEquipmentMapper.entityToVo(existing);
+        vo.setRetailPrice(getRetailPrice(id));
+        return vo;
     }
 
-    @Override
-    public BigDecimal getRetailPrice(String deviceId) {
+    // 获取零售价格
+    private BigDecimal getRetailPrice(String deviceId) {
         LambdaQueryWrapper<AdmChargeItemDefinitionDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(AdmChargeItemDefinitionDO::getInstanceTable, "adm_device_definition")
                 .eq(AdmChargeItemDefinitionDO::getInstanceId, deviceId)
@@ -147,6 +143,7 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
         return priceRecord != null ? priceRecord.getPriceValue() : null;
     }
 
+    // 保存或更新价格
     private void saveOrUpdatePrice(String instanceId, String priceTypeCode, BigDecimal priceValue,
                                    String chargeName, String typeCode, String orgId, String ybType) {
         if (priceValue == null) {
