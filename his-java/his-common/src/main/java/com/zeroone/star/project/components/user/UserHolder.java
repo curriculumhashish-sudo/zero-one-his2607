@@ -113,6 +113,78 @@ public class UserHolder {
     }
 
     /**
+     * 获取当前请求的执行机构/科室ID (orgId)
+     * <p>优先从 Redis 登录上下文 {@code his:login:context:{userId}} 的 {@code deptId} 获取；</p>
+     * <p>若无科室，备选降级从 {@code user:session:{userId}} 的 {@code hospital_organization_id} 获取。</p>
+     * @return 执行机构/科室ID
+     * @throws RuntimeException 如果获取不到用户信息或机构/科室ID
+     */
+    public String getCurrentOrgId() {
+        try {
+            // 1. 获取当前用户ID
+            UserDTO currentUser = getCurrentUser();
+            String userId = currentUser.getId();
+
+            // 2. 优先从 his:login:context:{userId} 取 deptId (当前选中科室ID)
+            String loginContextKey = "his:login:context:" + userId;
+            Object deptObj = redisTemplate.opsForHash().get(loginContextKey, "deptId");
+            if (deptObj != null && StringUtils.hasText(deptObj.toString())) {
+                return deptObj.toString();
+            }
+
+            // 3. 降级方案：从 user:session:{userId} 取 hospital_organization_id (当前选中医院机构ID)
+            String sessionKey = "user:session:" + userId;
+            Object hospitalOrgObj = redisTemplate.opsForHash().get(sessionKey, "hospital_organization_id");
+            if (hospitalOrgObj != null && StringUtils.hasText(hospitalOrgObj.toString())) {
+                return hospitalOrgObj.toString();
+            }
+
+            throw new RuntimeException("未找到用户 [" + userId + "] 的执行机构/科室信息");
+
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("获取当前执行机构/科室ID失败", e);
+        }
+    }
+
+    /**
+     * 获取当前请求的默认存放位置ID (locationId)
+     * <p>数据来源：Redis Hash {@code his:login:context:{userId}} → field {@code locationId} 或 {@code deptId}</p>
+     * @return 默认存放位置ID
+     * @throws RuntimeException 如果获取不到用户信息或位置ID
+     */
+    public String getCurrentLocationId() {
+        try {
+            // 1. 获取当前用户ID
+            UserDTO currentUser = getCurrentUser();
+            String userId = currentUser.getId();
+
+            // 2. 构建 Redis Key
+            String redisKey = "his:login:context:" + userId;
+
+            // 3. 优先取 locationId 字段；若无则取 deptId (科室作为默认位置标识)
+            Object locationObj = redisTemplate.opsForHash().get(redisKey, "locationId");
+            if (locationObj != null && StringUtils.hasText(locationObj.toString())) {
+                return locationObj.toString();
+            }
+
+            // 若未单独配置 locationId，取当前科室 ID (deptId) 作为默认存放位置 ID
+            Object deptObj = redisTemplate.opsForHash().get(redisKey, "deptId");
+            if (deptObj != null && StringUtils.hasText(deptObj.toString())) {
+                return deptObj.toString();
+            }
+
+            throw new RuntimeException("未找到用户 [" + userId + "] 的位置/库位信息");
+
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("获取当前位置ID失败", e);
+        }
+    }
+
+    /**
      * 从请求头中获取当前请求的token
      * @return 没有获取到返回null
      */
