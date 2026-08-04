@@ -1,7 +1,7 @@
 server:
   port: ${sp.j8-calendar}
   servlet:
-    context-path: /calendar
+    context-path: /j8-calendar
 spring:
   application:
     name: ${sn.j8-calendar}

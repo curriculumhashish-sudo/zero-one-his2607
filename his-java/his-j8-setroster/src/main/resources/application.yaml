@@ -1,7 +1,7 @@
 server:
   port: ${sp.j8-setroster}
   servlet:
-    context-path: /setroster
+    context-path: /j8-setroster
 spring:
   application:
     name: ${sn.j8-setroster}
