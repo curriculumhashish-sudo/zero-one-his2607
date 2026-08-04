@@ -55,7 +55,7 @@ public interface EquipmentApis {
      * @param dto 切换状态请求
      * @return 切换后结果
      */
-    JsonVO<EquipmentVO> modifyStatus(@Valid EquipmentStatusDTO dto);
+    JsonVO<Boolean> modifyStatus(@Valid EquipmentStatusDTO dto);
 
     /**
      * 获取器材详情
