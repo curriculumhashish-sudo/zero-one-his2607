@@ -7,204 +7,183 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * 患者新增数据传输对象
+ * Request body for creating a patient.
+ * Server-owned fields such as id, tenant, audit data and version are not accepted.
  */
 class PatientAddDTO : public oatpp::DTO
 {
-	DTO_INIT(PatientAddDTO, DTO);
+    DTO_INIT(PatientAddDTO, DTO);
 
-	// 患者业务编号
-	DTO_FIELD(String, busNo);
-	DTO_FIELD_INFO(busNo) {
-		info->description = ZH_WORDS_GETTER("pat.field.id");
-	}
+    DTO_FIELD(String, busNo);
+    DTO_FIELD(String, name);
+    DTO_FIELD(String, nameJson);
+    DTO_FIELD(String, genderEnum);
+    DTO_FIELD(String, birthDate);
+    DTO_FIELD(String, statusEnum) = "ACTIVE";
+    DTO_FIELD(Boolean, activeFlag) = true;
+    DTO_FIELD(Boolean, tempFlag) = false;
+    DTO_FIELD(String, idCard);
+    DTO_FIELD(String, maritalStatusEnum);
+    DTO_FIELD(String, prfsEnum);
+    DTO_FIELD(String, phone);
+    DTO_FIELD(String, address);
+    DTO_FIELD(String, addressProvince);
+    DTO_FIELD(String, addressCity);
+    DTO_FIELD(String, addressDistrict);
+    DTO_FIELD(String, addressStreet);
+    DTO_FIELD(String, addressExtendJson);
+    DTO_FIELD(String, nationalityCode);
+    DTO_FIELD(String, pyStr);
+    DTO_FIELD(String, wbStr);
+    DTO_FIELD(Int32, bloodTypeAbo);
+    DTO_FIELD(Int32, bloodTypeRh);
+    DTO_FIELD(String, workCompany);
+    DTO_FIELD(String, nativePlace);
+    DTO_FIELD(String, countryCode);
+    DTO_FIELD(String, linkName);
+    DTO_FIELD(Int32, linkRelationCode);
+    DTO_FIELD(String, linkTelcom);
+    DTO_FIELD(String, linkJsons);
+    DTO_FIELD(String, organizationId);
 
-	// 患者姓名
-	DTO_FIELD(String, name);
-	DTO_FIELD_INFO(name) {
-		info->description = ZH_WORDS_GETTER("pat.field.name");
-	}
+    CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 
-	// 姓名扩展JSON
-	DTO_FIELD(String, nameJson);
-
-	// 性别编码
-	DTO_FIELD(String, genderEnum);
-
-	// 出生日期
-	DTO_FIELD(String, birthDate);
-
-	// 患者状态
-	DTO_FIELD(String, statusEnum);
-
-	// 启用标记
-	DTO_FIELD(Boolean, activeFlag);
-
-
-	// 临时建档标记
-	DTO_FIELD(Boolean, tempFlag);
-
-
-	// 身份证号
-	DTO_FIELD(String, idCard);
-
-	// 婚姻状态
-	DTO_FIELD(String, maritalStatusEnum);
-
-	// 职业编码
-	DTO_FIELD(String, prfsEnum);
-
-	// 联系电话
-	DTO_FIELD(String, phone);
-
-	// 地址
-	DTO_FIELD(String, address);
-	DTO_FIELD(String, addressProvince);
-	DTO_FIELD(String, addressCity);
-	DTO_FIELD(String, addressDistrict);
-	DTO_FIELD(String, addressStreet);
-
-	// 地址扩展
-	DTO_FIELD(String, addressExtendJson);
-
-	// 民族编码
-	DTO_FIELD(String, nationalityCode);
-
-	// 拼音码
-	DTO_FIELD(String, pyStr);
-	// 五笔码
-	DTO_FIELD(String, wbStr);
-
-
-	// ABO血型
-	DTO_FIELD(Int32, bloodTypeAbo);
-	// RH血型
-	DTO_FIELD(Int32, bloodTypeRh);
-
-	// 工作单位
-	DTO_FIELD(String, workCompany);
-
-	// 籍贯
-	DTO_FIELD(String, nativePlace);
-	// 国家地区
-	DTO_FIELD(String, countryCode);
-
-
-	// 联系人姓名
-	DTO_FIELD(String, linkName);
-	// 联系关系
-	DTO_FIELD(Int32, linkRelationCode);
-	// 联系电话
-	DTO_FIELD(String, linkTelcom);
-	// 联系人JSON
-	DTO_FIELD(String, linkJsons);
-
-
-	// 建档机构
-	DTO_FIELD(String, organizationId);
-
-	// 校验
-	std::string validate()
-	{
-		if (!name || name->empty())
-			return "patient name invalidate.";
-
-		if (!genderEnum || genderEnum->empty())
-			return "gender invalidate.";
-
-		if (!organizationId || organizationId->empty())
-			return "organization invalidate.";
-
-		return "";
-	}
+public:
+    std::string validate() const
+    {
+        if (!name || name->empty()) return "name is required.";
+        if (name->size() > 255) return "name must not exceed 255 characters.";
+        if (!genderEnum || genderEnum->empty()) return "genderEnum is required.";
+        if (genderEnum->size() > 255) return "genderEnum must not exceed 255 characters.";
+        if (!statusEnum || statusEnum->empty()) return "statusEnum is required.";
+        if (statusEnum->size() > 255) return "statusEnum must not exceed 255 characters.";
+        if (activeFlag.get() == nullptr) return "activeFlag is required.";
+        if (tempFlag.get() == nullptr) return "tempFlag is required.";
+        if (!organizationId || organizationId->empty()) return "organizationId is required.";
+        if (organizationId->size() > 64) return "organizationId must not exceed 64 characters.";
+        if (busNo && busNo->size() > 255) return "busNo must not exceed 255 characters.";
+        if (idCard && idCard->size() > 255) return "idCard must not exceed 255 characters.";
+        if (birthDate && !birthDate->empty() && birthDate->size() != 10)
+            return "birthDate must use yyyy-MM-dd format.";
+        return "";
+    }
 };
 
-
 /**
- * 患者完整传输对象
- */
-class PatientDTO : public PatientAddDTO
-{
-	DTO_INIT(PatientDTO, PatientAddDTO);
-
-	// 主键
-	DTO_FIELD(String, id);
-	// 租户
-	DTO_FIELD(String, tenantId);
-
-
-	// 创建时间
-	DTO_FIELD(String, createdAt);
-	// 更新时间
-	DTO_FIELD(String, updatedAt);
-	// 创建人
-	DTO_FIELD(String, createdBy);
-	// 更新人
-	DTO_FIELD(String, updatedBy);
-
-
-	// 删除标记
-	DTO_FIELD(Boolean, isDeleted);
-
-	// 版本号
-	DTO_FIELD(Int32, version);
-
-	// 死亡时间
-	DTO_FIELD(String, deceasedDate);
-	// 死亡原因
-	DTO_FIELD(String, deceasedReason);
-
-
-	// 合并目标患者
-	DTO_FIELD(String, mergedTargetPatientId);
-
-	// 合并时间
-	DTO_FIELD(String, mergedAt);
-};
-
-
-/**
- * 患者修改DTO
+ * Patch request for updating a patient.
+ * A null field is left unchanged; an empty string clears a nullable string field.
  */
 class PatientUpdateDTO : public oatpp::DTO
 {
-	DTO_INIT(PatientUpdateDTO, DTO);
+    DTO_INIT(PatientUpdateDTO, DTO);
 
-	// 患者ID
-	DTO_FIELD(String, id);
+    DTO_FIELD(String, id);
+    DTO_FIELD(Int32, version);
+    DTO_FIELD(String, busNo);
+    DTO_FIELD(String, name);
+    DTO_FIELD(String, nameJson);
+    DTO_FIELD(String, genderEnum);
+    DTO_FIELD(String, birthDate);
+    DTO_FIELD(String, statusEnum);
+    DTO_FIELD(Boolean, activeFlag);
+    DTO_FIELD(Boolean, tempFlag);
+    DTO_FIELD(String, idCard);
+    DTO_FIELD(String, maritalStatusEnum);
+    DTO_FIELD(String, prfsEnum);
+    DTO_FIELD(String, phone);
+    DTO_FIELD(String, address);
+    DTO_FIELD(String, addressProvince);
+    DTO_FIELD(String, addressCity);
+    DTO_FIELD(String, addressDistrict);
+    DTO_FIELD(String, addressStreet);
+    DTO_FIELD(String, addressExtendJson);
+    DTO_FIELD(String, nationalityCode);
+    DTO_FIELD(String, pyStr);
+    DTO_FIELD(String, wbStr);
+    DTO_FIELD(Int32, bloodTypeAbo);
+    DTO_FIELD(Int32, bloodTypeRh);
+    DTO_FIELD(String, workCompany);
+    DTO_FIELD(String, nativePlace);
+    DTO_FIELD(String, countryCode);
+    DTO_FIELD(String, linkName);
+    DTO_FIELD(Int32, linkRelationCode);
+    DTO_FIELD(String, linkTelcom);
+    DTO_FIELD(String, linkJsons);
+    DTO_FIELD(String, deceasedDate);
+    DTO_FIELD(String, deceasedReason);
+    DTO_FIELD(String, organizationId);
+    DTO_FIELD(String, mergedTargetPatientId);
+    DTO_FIELD(String, mergedAt);
 
-	// 患者姓名
-	DTO_FIELD(String, name);
+    CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 
-	// 联系电话
-	DTO_FIELD(String, phone);
+public:
+    std::string validate() const
+    {
+        if (!id || id->empty()) return "id is required.";
+        if (id->size() > 64) return "id must not exceed 64 characters.";
+        if (!version) return "version is required.";
+        if (version.getValue(-1) < 0) return "version must be greater than or equal to 0.";
+        if (name && name->empty()) return "name must not be empty.";
+        if (name && name->size() > 255) return "name must not exceed 255 characters.";
+        if (genderEnum && genderEnum->empty()) return "genderEnum must not be empty.";
+        if (statusEnum && statusEnum->empty()) return "statusEnum must not be empty.";
+        if (organizationId && organizationId->empty()) return "organizationId must not be empty.";
+        if (organizationId && organizationId->size() > 64)
+            return "organizationId must not exceed 64 characters.";
+        if (busNo && busNo->empty()) return "busNo must not be empty.";
+        if (busNo && busNo->size() > 255) return "busNo must not exceed 255 characters.";
+        if (idCard && idCard->size() > 255) return "idCard must not exceed 255 characters.";
+        if (birthDate && !birthDate->empty() && birthDate->size() != 10)
+            return "birthDate must use yyyy-MM-dd format.";
+        return "";
+    }
+};
 
-	// 地址
-	DTO_FIELD(String, address);
-	DTO_FIELD(String, addressProvince);
-	DTO_FIELD(String, addressCity);
-	DTO_FIELD(String, addressDistrict);
-	DTO_FIELD(String, addressStreet);
+/**
+ * Patient detail returned to clients. Tenant, deletion and audit fields are intentionally hidden.
+ */
+class PatientDetailDTO : public oatpp::DTO
+{
+    DTO_INIT(PatientDetailDTO, DTO);
 
-
-	// 婚姻状态
-	DTO_FIELD(String, maritalStatusEnum);
-
-	// 职业
-	DTO_FIELD(String, prfsEnum);
-
-	// 联系人
-	DTO_FIELD(String, linkName);
-	DTO_FIELD(Int32, linkRelationCode);
-	DTO_FIELD(String, linkTelcom);
-
-	std::string validate()
-	{
-		if (!id || id->empty())
-			return "patient id invalidate.";
-
-		return "";
-	}
+    DTO_FIELD(String, id);
+    DTO_FIELD(Int32, version);
+    DTO_FIELD(String, busNo);
+    DTO_FIELD(String, name);
+    DTO_FIELD(String, nameJson);
+    DTO_FIELD(String, genderEnum);
+    DTO_FIELD(String, birthDate);
+    DTO_FIELD(String, statusEnum);
+    DTO_FIELD(Boolean, activeFlag);
+    DTO_FIELD(Boolean, tempFlag);
+    DTO_FIELD(String, idCard);
+    DTO_FIELD(String, maritalStatusEnum);
+    DTO_FIELD(String, prfsEnum);
+    DTO_FIELD(String, phone);
+    DTO_FIELD(String, address);
+    DTO_FIELD(String, addressProvince);
+    DTO_FIELD(String, addressCity);
+    DTO_FIELD(String, addressDistrict);
+    DTO_FIELD(String, addressStreet);
+    DTO_FIELD(String, addressExtendJson);
+    DTO_FIELD(String, nationalityCode);
+    DTO_FIELD(String, pyStr);
+    DTO_FIELD(String, wbStr);
+    DTO_FIELD(Int32, bloodTypeAbo);
+    DTO_FIELD(Int32, bloodTypeRh);
+    DTO_FIELD(String, workCompany);
+    DTO_FIELD(String, nativePlace);
+    DTO_FIELD(String, countryCode);
+    DTO_FIELD(String, linkName);
+    DTO_FIELD(Int32, linkRelationCode);
+    DTO_FIELD(String, linkTelcom);
+    DTO_FIELD(String, linkJsons);
+    DTO_FIELD(String, deceasedDate);
+    DTO_FIELD(String, deceasedReason);
+    DTO_FIELD(String, organizationId);
+    DTO_FIELD(String, mergedTargetPatientId);
+    DTO_FIELD(String, mergedAt);
 };
 
 #include OATPP_CODEGEN_END(DTO)

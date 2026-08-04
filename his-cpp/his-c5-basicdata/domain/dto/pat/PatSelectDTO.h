@@ -13,6 +13,11 @@ class PatSelectDTO : public oatpp::DTO
 {
 	DTO_INIT(PatSelectDTO, DTO);
 
+	DTO_FIELD(String, id);
+	DTO_FIELD_INFO(id) {
+		info->description = ZH_WORDS_GETTER("pat.dto.field.id");
+	}
+
 	// Medical record number (bus_no)
 	DTO_FIELD(String, busNo);
 	DTO_FIELD_INFO(busNo) {

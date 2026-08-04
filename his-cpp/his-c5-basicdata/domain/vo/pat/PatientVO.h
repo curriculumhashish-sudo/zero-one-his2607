@@ -1,5 +1,4 @@
-#pragma once
-
+﻿#pragma once
 #ifndef _PATIENT_VO_
 #define _PATIENT_VO_
 
@@ -8,8 +7,9 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class PatientJsonVO : public JsonVO<PatientDTO::Wrapper> {
-	DTO_INIT(PatientJsonVO, JsonVO<PatientDTO::Wrapper>);
+class PatientDetailJsonVO : public JsonVO<PatientDetailDTO::Wrapper>
+{
+    DTO_INIT(PatientDetailJsonVO, JsonVO<PatientDetailDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)
