@@ -1,5 +1,6 @@
 package com.zeroone.star.project.dto.j4.treatment;
 
+import com.zeroone.star.project.vo.j4.treatment.WkfActivityDefinitionChildVO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -18,7 +19,7 @@ import java.util.List;
  * 2. busNo业务编号需保证唯一，建议按"AD"+序号规则生成
  * 3. statusEnum不传默认ACTIVE（启用）
  * 4. 价格字段（purchasePrice/retailPrice/maximumRetailPrice）可选，传了则同时写入收费表adm_charge_item_definition
- * 5. itemTypeCode为财务类型编码，ybType为医保类别，两者也写入收费表
+ * 5. typeCode为财务类型编码，ybType为医保类别，两者也写入收费表
  * 6. children子项列表：组合项目/套餐时传入，单项目传空数组或不传
  */
 @Data
@@ -150,5 +151,5 @@ public class TreatmentAddDTO {
     // ========== 以下为关联子项子表 wkf_activity_definition_children 字段 ==========
 
     @Schema(description = "【子项表】子项列表，组合项目/套餐时传入，单项目传空数组[]或不传")
-    private List<com.zeroone.star.project.vo.j4.treatment.WkfActivityDefinitionChildVO> children;
+    private List<WkfActivityDefinitionChildVO> children;
 }

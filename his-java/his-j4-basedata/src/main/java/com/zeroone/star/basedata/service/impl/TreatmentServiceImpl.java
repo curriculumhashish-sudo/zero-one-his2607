@@ -309,7 +309,7 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
     /**
      * 保存价格记录到收费表
      */
-    private void savePriceLines(String instanceId, String tenantId, String itemTypeCode, String ybType,
+    private void savePriceLines(String instanceId, String tenantId, String typeCode, String ybType,
                                 BigDecimal purchasePrice, BigDecimal retailPrice, BigDecimal maximumRetailPrice) {
         String username = currentUsername();
         LocalDateTime now = LocalDateTime.now();
@@ -319,7 +319,7 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
             AdmChargeItemDefinitionDO purchase = new AdmChargeItemDefinitionDO();
             purchase.setInstanceTable(INSTANCE_TABLE);
             purchase.setInstanceId(instanceId);
-            purchase.setTypeCode(itemTypeCode);
+            purchase.setTypeCode(typeCode);
             purchase.setYbType(ybType);
             purchase.setPriceTypeCode(PRICE_TYPE_PURCHASE);
             purchase.setPriceValue(purchasePrice);
@@ -333,7 +333,7 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
             AdmChargeItemDefinitionDO sale = new AdmChargeItemDefinitionDO();
             sale.setInstanceTable(INSTANCE_TABLE);
             sale.setInstanceId(instanceId);
-            sale.setTypeCode(itemTypeCode);
+            sale.setTypeCode(typeCode);
             sale.setYbType(ybType);
             sale.setPriceTypeCode(PRICE_TYPE_SALE);
             sale.setPriceValue(retailPrice);
@@ -347,7 +347,7 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
             AdmChargeItemDefinitionDO limit = new AdmChargeItemDefinitionDO();
             limit.setInstanceTable(INSTANCE_TABLE);
             limit.setInstanceId(instanceId);
-            limit.setTypeCode(itemTypeCode);
+            limit.setTypeCode(typeCode);
             limit.setYbType(ybType);
             limit.setPriceTypeCode(PRICE_TYPE_LIMIT);
             limit.setPriceValue(maximumRetailPrice);
@@ -380,6 +380,7 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
                 WkfActivityDefinitionChildDO::getChildrenId, WkfActivityDefinitionChildDO::getChildrenNum,
                 WkfActivityDefinitionChildDO::getChildrenName);
         wrapper.eq(WkfActivityDefinitionChildDO::getActivityId, activityId)
+                .eq(WkfActivityDefinitionChildDO::getIsDeleted, 0)
                 .eq(WkfActivityDefinitionChildDO::getTenantId, tenantId);
         List<WkfActivityDefinitionChildDO> children = childMapper.selectList(wrapper);
         return children != null ? children : Collections.emptyList();
