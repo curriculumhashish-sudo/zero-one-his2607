@@ -16,31 +16,37 @@ pipeline {
 
         stage('Maven 打包') {
             steps {
-                sh '''
-                    mvn clean package -DskipTests \
-                        -pl his-j5-ons,his-j5-configuration \
-                        -am \
-                        -Dmaven.test.skip=true
-                '''
+                dir('his-java') {
+                    sh '''
+                        mvn clean package -DskipTests \
+                            -pl his-j5-ons,his-j5-configuration \
+                            -am \
+                            -Dmaven.test.skip=true
+                    '''
+                }
             }
         }
 
         stage('构建 Docker 镜像') {
             steps {
-                sh '''
-                    docker compose build his-j5-ons his-j5-configuration
-                '''
+                dir('his-java') {
+                    sh '''
+                        docker compose build his-j5-ons his-j5-configuration
+                    '''
+                }
             }
         }
 
         stage('部署服务') {
             steps {
-                sh '''
-                    docker compose down
-                    docker compose up -d
-                    echo "等待服务启动..."
-                    sleep 30
-                '''
+                dir('his-java') {
+                    sh '''
+                        docker compose down
+                        docker compose up -d
+                        echo "等待服务启动..."
+                        sleep 30
+                    '''
+                }
             }
         }
 
