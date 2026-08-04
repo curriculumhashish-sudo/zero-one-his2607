@@ -81,7 +81,7 @@ public class TreatmentController implements TreatmentApis {
 
     @Operation(summary = "修改诊疗", description = "编辑诊疗项目（携带编辑校验码，支持并发编辑保护）")
     @ApiResponse(description = "编辑确认结果")
-    @PostMapping("/modify-treatment")
+    @PutMapping("/modify-treatment")
     @Override
     public JsonVO<TreatmentDetailVO> modifyTreatment(@Validated @RequestBody TreatmentEditDTO dto) {
         return JsonVO.success(treatmentService.modifyTreatment(dto));

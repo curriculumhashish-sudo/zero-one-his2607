@@ -64,23 +64,12 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
     @Resource
     private UserHolder userHolder;
 
-    /**
-     * 安全获取当前租户ID
-     * 正常登录场景：从Redis中获取登录用户绑定的租户ID
-     * 本地开发/测试场景：未携带token时返回默认租户ID "1"（与数据库测试数据一致）
-     */
-    private String getCurrentTenantIdSafely() {
-//
-        String tenantId = userHolder.getCurrentTenantId();
-        return tenantId;
-    }
-
     @Override
     public PageDTO<TreatmentSelectVO> listTreatmentOptions(TreatmentQuery query) {
         long pageIndex = (query.getPageIndex() <= 0) ? DEFAULT_PAGE_INDEX : query.getPageIndex();
         long pageSize = (query.getPageSize() <= 0) ? DEFAULT_PAGE_SIZE : query.getPageSize();
 
-        String tenantId = getCurrentTenantId();
+        String tenantId = userHolder.getCurrentTenantId();
         Page<WkfActivityDefinitionDO> page = new Page<>(pageIndex, pageSize);
         LambdaQueryWrapper<WkfActivityDefinitionDO> wrapper = new LambdaQueryWrapper<>();
         // 只查询选择VO需要的字段，避免select *
@@ -113,7 +102,7 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
         long pageIndex = query.getPageIndex() <= 0 ? DEFAULT_PAGE_INDEX : query.getPageIndex();
         long pageSize = query.getPageSize() <= 0 ? DEFAULT_PAGE_SIZE : query.getPageSize();
 
-        String tenantId = getCurrentTenantId();
+        String tenantId = userHolder.getCurrentTenantId();
         Page<TreatmentListVO> page = new Page<>(pageIndex, pageSize);
         Page<TreatmentListVO> result = baseMapper.selectTreatmentListPage(page, query, tenantId);
         return PageDTO.create(result);
@@ -121,7 +110,7 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
 
     @Override
     public TreatmentDetailVO getTreatmentById(String id) {
-        String tenantId = getCurrentTenantId();
+        String tenantId = userHolder.getCurrentTenantId();
 
         // 主键查询加租户条件，只查询详情VO需要的字段，避免select *
         LambdaQueryWrapper<WkfActivityDefinitionDO> wrapper = new LambdaQueryWrapper<>();
@@ -160,7 +149,7 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
             wkfActivityDefinitionDO.setTypeEnum("1");
         }
         // 新增时写入租户ID，与查询侧按租户过滤保持一致
-        wkfActivityDefinitionDO.setTenantId(getCurrentTenantId());
+        wkfActivityDefinitionDO.setTenantId(userHolder.getCurrentTenantId());
         this.save(wkfActivityDefinitionDO);
     }
 
