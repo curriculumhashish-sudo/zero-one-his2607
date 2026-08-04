@@ -30,14 +30,7 @@ class MonthVisitDTO : public oatpp::DTO
 {
 	DTO_INIT(MonthVisitDTO, DTO);
 
-	// Month label (e.g. "2026-07")
-	DTO_FIELD(String, month);
-	DTO_FIELD_INFO(month) {
-		info->description = ZH_WORDS_GETTER("Lin.form.data_statistics.field.month");
-	}
-
-
-	DTO_FIELD(Int32, totalVisit);
+	DTO_FIELD(String, totalVisit);
 	DTO_FIELD_INFO(totalVisit) {
 		info->description = ZH_WORDS_GETTER("Lin.form.data_statistics.field.total_visit");
 	}

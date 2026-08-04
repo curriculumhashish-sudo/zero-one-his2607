@@ -12,7 +12,7 @@ class TrafficTrendDAO : public BaseDAO
 private:
 	MongoClient* mc = nullptr;
 public:
-	std::list<std::string> findFlowTreand(const TrafficTrendQuery::Wrapper& query)
+	string findFlowTreand(const TrafficTrendQuery::Wrapper& query)
 	{
 		#ifdef LINUX
 		// 获取Nacos中的数据库配置
@@ -32,13 +32,15 @@ public:
 
 		// 创建连接对象
 		this->mc = new MongoClient(uri);
-		std::list<std::string>result;
+		string result;
 		bool res = mc->execute("（access_daily_trend",
 			[query,&result](mongocxx::collection* collection) {
-				auto cursor = collection->find(bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("date", *(query->date.get()))));
+				mongocxx::options::find opt{};
+				opt.projection(bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("hourlyCounts", 1)));
+				auto cursor = collection->find(bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("date", *(query->date.get()))),opt);
 				for (auto doc : cursor) {
 					cout << bsoncxx::to_json(doc) << endl;
-					result.push_back(bsoncxx::to_json(doc));
+					result=bsoncxx::to_json(doc);
 				}
 			});
 		delete this->mc;

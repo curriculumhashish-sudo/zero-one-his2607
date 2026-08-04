@@ -18,13 +18,15 @@
 */
 #include "stdafx.h"
 #include "controller/data_statistics/MonthVisitController.h"
+#include"../../service/data_statistics/MonthVisitService.h"
 
 
-
-MonthVisitPageJsonVO::Wrapper MonthVisitController::execQueryMonthVisit(
-	const MonthVisitQuery::Wrapper& query,
-	const PayloadDTO& payload
+MonthVisitVO::Wrapper MonthVisitController::execQueryMonthVisit(
+	const MonthVisitQuery::Wrapper& query
 )
 {
-	return MonthVisitPageJsonVO::createShared();
+	auto result = MonthVisitService().findflow(query);
+	auto jvo = MonthVisitVO::createShared();
+	jvo->success(result);
+	return jvo;
 }

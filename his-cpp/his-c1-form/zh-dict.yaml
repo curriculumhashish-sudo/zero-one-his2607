@@ -102,3 +102,5 @@ Lin:
       field:
         date: 日期
         visited: 每小时的流量（索引代表0-23小时）
+        month: 月份（格式：年-月）
+        total_visit: 月总访问量

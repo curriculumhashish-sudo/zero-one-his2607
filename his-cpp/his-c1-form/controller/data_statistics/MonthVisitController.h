@@ -41,33 +41,28 @@ class MonthVisitController : public oatpp::web::server::api::ApiController
 public:
 
 
-	API_DEF_ENDPOINT_INFO_QUERY_AUTH(
+	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("Lin.form.data_statistics.query_month_visit.summary"),
 		queryMonthVisit,
-		MonthVisitQuery,
-		MonthVisitPageJsonVO::Wrapper,
-		API_TAG
+		MonthVisitVO::Wrapper,
+		API_TAG,
+		API_DEF_ADD_QUERY_PARAMS(String, "month", ZH_WORDS_GETTER("Lin.form.data_statistics.field.month"), "", true);
 	);
 
 
-
-
-	API_HANDLER_ENDPOINT_QUERY_AUTH(
-		API_M_GET,
-		"/data-statistics/month-visit",
-		queryMonthVisit,
-		MonthVisitQuery,
-		execQueryMonthVisit(query, authObject->getPayload())
-	);
-
+	ENDPOINT(API_M_GET, "/data-statistics/month-visit", queryMonthVisit, QUERIES(QueryParams, queryParams), API_HANDLER_AUTH_PARAME) {
+		// 解析查询参数为Query领域模型
+		API_HANDLER_QUERY_PARAM(query, MonthVisitQuery, queryParams);
+		// 呼叫执行函数响应结果
+		API_HANDLER_RESP_VO(execQueryMonthVisit(query));
+	}
 
 
 private:
 
 
-	MonthVisitPageJsonVO::Wrapper execQueryMonthVisit(
-		const MonthVisitQuery::Wrapper& query,
-		const PayloadDTO& payload
+	MonthVisitVO::Wrapper execQueryMonthVisit(
+		const MonthVisitQuery::Wrapper& query
 	);
 
 };

@@ -11,11 +11,8 @@ public:
 	{
 		TrafficTrendDAO dao;
 		auto dto= TrafficTrendDTO::createShared();
-		list<string>result = dao.findFlowTreand(query);
-		for (auto sub:result)
-		{
-			dto->visited->push_back(sub);
-		}
+		string result = dao.findFlowTreand(query);
+		dto->visited=result;
 		return dto;
 	}
 

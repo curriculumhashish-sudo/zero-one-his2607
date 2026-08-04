@@ -30,22 +30,9 @@ class MonthVisitQuery : public PageQuery
 {
 	DTO_INIT(MonthVisitQuery, PageQuery);
 
-	// Start date
-	DTO_FIELD(String, startDate);
-	DTO_FIELD_INFO(startDate) {
-		info->description = ZH_WORDS_GETTER("Lin.form.data_statistics.field.start_date");
-	}
-
-	// End date
-	DTO_FIELD(String, endDate);
-	DTO_FIELD_INFO(endDate) {
-		info->description = ZH_WORDS_GETTER("Lin.form.data_statistics.field.end_date");
-	}
-
-	// Organization ID
-	DTO_FIELD(UInt32, orgId);
-	DTO_FIELD_INFO(orgId) {
-		info->description = ZH_WORDS_GETTER("Lin.form.data_statistics.field.org_id");
+	DTO_FIELD(String, month);
+	DTO_FIELD_INFO(month) {
+		info->description = ZH_WORDS_GETTER("Lin.form.data_statistics.field.month");
 	}
 
 };
