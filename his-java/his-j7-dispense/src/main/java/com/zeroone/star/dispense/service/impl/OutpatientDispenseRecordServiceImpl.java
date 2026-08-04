@@ -57,7 +57,10 @@ public class OutpatientDispenseRecordServiceImpl implements IOutpatientDispenseR
         }
 
         // 按处方号分组，保持顺序
+        //先把flatRows转换成流,可以使用collect,groupingBy等方法
         Map<String, List<DispenseFlatDTO>> grouped = flatRows.stream()
+                //收集方法,传入一个收集器,按照指定的规则收集成一个
+                //第一个参数是收集规则,第二个参数是用LinkHashMap类型存储结果,可以保证按照插入顺序排序,
                 .collect(Collectors.groupingBy(
                         f -> f.getPrescriptionNo() == null ? "" : f.getPrescriptionNo(),
                         LinkedHashMap::new,
