@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.repository.Query;
 
 public interface EnumTypeRepository extends MongoRepository<EnumType, String> {
 
-    @Query(value = "{ 'enumTypeKey': ?1, $or: [ { 'tenantId': ?0 }, { 'tenantId': '1' } ] }", exists = true)
+    @Query(value = "{ 'enumTypeKey': ?1, $or: [ { 'tenantId': ?0 }, { 'tenantId': 'sys_tenant' } ] }", exists = true)
     boolean existsByEnumTypeKey(String tenantId, String enumTypeKey);
 
     /**
@@ -21,7 +21,7 @@ public interface EnumTypeRepository extends MongoRepository<EnumType, String> {
      * @return 枚举类型列表
      */
     @Query("{$and: ["
-            + "{'tenantId': {$in: ['1', ?0]}}, "
+            + "{'tenantId': {$in: ['sys_tenant', ?0]}}, "
             + "{'isDeleted': false}, "
             + "{$or: ["
             + "{'enumTypeKey': {$regex: ?1, $options: 'i'}}, "
@@ -42,7 +42,7 @@ public interface EnumTypeRepository extends MongoRepository<EnumType, String> {
      * @param enumTypeKey 枚举类型关键字
      * @return 枚举类型ID
      */
-    @Query("{'enumTypeKey': ?1, 'tenantId': {$in: ['1', ?0]}, 'isDeleted': false}")
+    @Query("{'enumTypeKey': ?1, 'tenantId': {$in: ['sys_tenant', ?0]}, 'isDeleted': false}")
     EnumType findActiveByEnumTypeKey(String tenantId, String enumTypeKey);
 
 }

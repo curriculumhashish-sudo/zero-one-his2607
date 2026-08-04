@@ -2,6 +2,7 @@ package com.zeroone.star.basedata.entity;
 
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumDTO;
+import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumSimpleDTO;
 import lombok.Data;
 import org.springframework.data.annotation.*;
 import org.springframework.data.domain.Page;
@@ -96,6 +97,12 @@ public class EnumValue {
 
     public static List<EnumDTO> toDTOList(List<EnumValue> enumValues) {
         return enumValues.stream().map(EnumValue::toDTO).toList();
+    }
+
+    public static List<EnumSimpleDTO> toSimpleDTOList(List<EnumValue> enumValues) {
+        return enumValues.stream().map(e -> {
+            return new EnumSimpleDTO(e.getId(), e.getEnumTypeId(), e.getEnumKey(), e.getEnumCode(), e.getDisplay());
+        }).toList();
     }
 
     public static PageDTO<EnumDTO> toPageDTO(Page<EnumValue> enumValuePage) {

@@ -3,6 +3,7 @@ package com.zeroone.star.basedata.service;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumAddDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumModifyDTO;
+import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumSimpleDTO;
 import com.zeroone.star.project.query.j2.basedata.EnumQuery;
 
 import java.util.List;
@@ -16,5 +17,5 @@ public interface EnumValueService {
 
     public void deleteEnum(String enumValueId);
 
-    public Map<String, List<EnumDTO>> initTableEnums(List<String> enumTypeKeys);
+    public Map<String, List<EnumSimpleDTO>> initTableEnums(List<String> enumTypeKeys);
 }

@@ -8,6 +8,7 @@ import com.zeroone.star.basedata.service.EnumValueService;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumAddDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumModifyDTO;
+import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumSimpleDTO;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -43,6 +44,8 @@ public class EnumValueServiceImpl implements EnumValueService {
             throw new RuntimeException("同一枚举类型下标签已存在，不能同名");
         }
 
+        // TODO: 是否需要特别设定其id字符串？
+
         EnumValue enumValue = new EnumValue();
         BeanUtils.copyProperties(dto, enumValue);
 
@@ -76,6 +79,11 @@ public class EnumValueServiceImpl implements EnumValueService {
             throw new RuntimeException("同一枚举类型下标签已存在，不能同名");
         }
 
+
+//        if (!existing.getEnumKey().equals(dto.getEnumKey()) || !existing.getEnumCode().equals(dto.getEnumCode())) {
+//            throw new RuntimeException("枚举值键或枚举值码不可修改");
+//        }
+
         existing.setDisplay(dto.getDisplay());
         existing.setOrder(dto.getOrder());
         existing.setStatus(dto.getStatus());
@@ -103,9 +111,9 @@ public class EnumValueServiceImpl implements EnumValueService {
 
 
     @Override
-    public Map<String, List<EnumDTO>> initTableEnums(List<String> enumTypeKeys) {
+    public Map<String, List<EnumSimpleDTO>> initTableEnums(List<String> enumTypeKeys) {
 
-        Map<String, List<EnumDTO>> enumTypeMap = new HashMap<>();
+        Map<String, List<EnumSimpleDTO>> enumTypeMap = new HashMap<>();
 
         for (String enumTypeKey : enumTypeKeys) {
             EnumType enumType = enumTypeRepository.findActiveByEnumTypeKey(TENANT_ID, enumTypeKey);
@@ -117,7 +125,7 @@ public class EnumValueServiceImpl implements EnumValueService {
                 // continue;
             }
             String enumTypeId = enumType.getId();
-            List<EnumDTO> enumDTOList = EnumValue.toDTOList(
+            List<EnumSimpleDTO> enumDTOList = EnumValue.toSimpleDTOList(
                     enumValueRepository.findByEnumTypeIdAndIsDeletedFalse(TENANT_ID, enumTypeId));
             enumTypeMap.put(enumTypeKey, enumDTOList);
         }
