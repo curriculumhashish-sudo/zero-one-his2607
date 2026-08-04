@@ -106,8 +106,13 @@ std::string SettlementValidator::validateSettleHistoryQuery(
 	if (isBlank(patientId) || patientId.size() > 64) {
 		return ZH_WORDS_GETTER("ovo.charging.settle.patient_id_invalid");
 	}
-	if (!encounterId.empty() && (isBlank(encounterId) || encounterId.size() > 64)) {
-		return ZH_WORDS_GETTER("ovo.charging.settle.encounter_id_too_long");
+	if (!encounterId.empty()) {
+		if (isBlank(encounterId)) {
+			return ZH_WORDS_GETTER("ovo.charging.settle.encounter_id_invalid");
+		}
+		if (encounterId.size() > 64) {
+			return ZH_WORDS_GETTER("ovo.charging.settle.encounter_id_too_long");
+		}
 	}
 
 	const uint64_t pageIndex = query->pageIndex.getValue(0);
