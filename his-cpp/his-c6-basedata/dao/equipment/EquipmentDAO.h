@@ -45,9 +45,9 @@ public:
 	int updateStatusByIds(const std::list<std::string>& ids, const std::string& statusEnum, const std::string& updatedBy, const std::string& updatedAt);
 
 	//批量启停用
-	int EquipmentDAO::updateActiveFlagByIds(const std::list<std::string>& ids, int activeFlag, const std::string& updatedBy, const std::string& updatedAt);
+	int updateActiveFlagByIds(const std::list<std::string>& ids, int activeFlag, const std::string& updatedBy, const std::string& updatedAt);
 
 	//检查名称是否重复
-	bool EquipmentDAO::checkNameExists(const std::string& name, const std::string& excludeId);
+	bool checkNameExists(const std::string& name, const std::string& excludeId);
 };
 #endif // !_RENTCONTROLLER_DAO_
