@@ -84,7 +84,7 @@ public class EquipmentController implements EquipmentApis {
      * @return 修改确认结果
      */
     @Override
-    @PostMapping("/update-equipment")
+    @PutMapping("/update-equipment")
     @Operation(summary = "修改器材", description = "修改器材")
     public JsonVO<EquipmentVO> updateEquipment(@RequestBody @Validated EquipmentUpdateDTO dto) {
         return JsonVO.success(equipmentService.updateEquipment(dto));
