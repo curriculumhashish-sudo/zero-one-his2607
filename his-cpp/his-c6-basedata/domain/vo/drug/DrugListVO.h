@@ -16,5 +16,5 @@ class DrugDetailJsonVO : public JsonVO<DrugDetailDTO::Wrapper>
 {
 	DTO_INIT(DrugDetailJsonVO, JsonVO<DrugDetailDTO::Wrapper>);
 };
-#include OATPP_CODEGEN_END(DTO);
+#include OATPP_CODEGEN_END(DTO)
 #endif // !

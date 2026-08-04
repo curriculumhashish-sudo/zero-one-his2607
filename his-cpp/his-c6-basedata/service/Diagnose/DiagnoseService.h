@@ -37,7 +37,7 @@ public:
 	//带鉴权逻辑批量删除
 	bool execRemoveData(const DiagnoseRemoveDTO::Wrapper& dto);
 	//物理批量删除
-	bool DiagnoseService::RemoveData(const oatpp::List<oatpp::String>& ids);
+	bool RemoveData(const oatpp::List<oatpp::String>& ids);
 
 };
 

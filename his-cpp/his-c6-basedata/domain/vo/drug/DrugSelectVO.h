@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef  _DrugSelectVO_H_
 #define  _DrugSelectVO_H_
 #include "../../GlobalInclude.h"
@@ -9,5 +9,5 @@ class DrugSelectPageJsonVO : public JsonVO<DrugSelectPageDTO ::Wrapper>
 {
     DTO_INIT(DrugSelectPageJsonVO,JsonVO<DrugSelectPageDTO::Wrapper>);
 };
-#include OATPP_CODEGEN_END(DTO);
+#include OATPP_CODEGEN_END(DTO)
 #endif // !

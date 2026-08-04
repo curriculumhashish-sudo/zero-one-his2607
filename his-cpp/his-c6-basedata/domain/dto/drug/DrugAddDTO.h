@@ -21,7 +21,7 @@ public:
 			return "changjia invalidate.";
 		if (!gongyingshang || gongyingshang->empty())
 			return "gongyingshang invalidate.";
-		if (!caiwuleixin || caiwuleixin->empty())
+		if (!caiwuleixin || caiwuleixin==NULL)
 			return "caiwuleixin invalidate.";
 		if (!xingzhi || xingzhi==NULL)
 			return "xingzhi invalidate.";
@@ -37,7 +37,7 @@ public:
 			return " caigoudanwei invalidate.";
 		if (!caigoubeishu || caigoubeishu==NULL)
 			return " caigoubeishu invalidate.";
-		if (!gourujia || gourujia->empty())
+		if (!gourujia || gourujia==NULL)
 			return "gourujia invalidate.";
 		if (!menzhengshuxing || menzhengshuxing->empty())
 			return "menzhengshuxing invalidate.";
@@ -61,5 +61,5 @@ public:
 
 };
 
-#include OATPP_CODEGEN_END(DTO);
+#include OATPP_CODEGEN_END(DTO)
 #endif // !

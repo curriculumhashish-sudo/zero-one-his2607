@@ -7,12 +7,12 @@
 class DrugQuery : public PageQuery
 {
 	DTO_INIT(DrugQuery, PageQuery);
-	API_DTO_FIELD_DEFAULT(String, keywords, ZH_WORDS_GETTER("Drug.field.keywords"), false);
+	API_DTO_FIELD_REQUIRE(String, keywords, ZH_WORDS_GETTER("Drug.field.keywords"), false);
 	//关键词
-	API_DTO_FIELD_DEFAULT(String, name, ZH_WORDS_GETTER("Drug.field.name"), false);
+	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("Drug.field.name"), false);
 	//名称
-	API_DTO_FIELD_DEFAULT(String, kind, ZH_WORDS_GETTER("Drug.field.kind"), false);
+	API_DTO_FIELD_REQUIRE(String, kind, ZH_WORDS_GETTER("Drug.field.kind"), false);
 	//分类
 };
-#include OATPP_CODEGEN_END(DTO);
+#include OATPP_CODEGEN_END(DTO)
 #endif // !

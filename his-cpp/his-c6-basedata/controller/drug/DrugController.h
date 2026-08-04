@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -32,10 +32,6 @@
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-#ifndef API_M_PATCH
-#define API_M_PATCH "PATCH"
-#endif
-
 #define API_TAG ZH_WORDS_GETTER("drug.tags.tag")
 #define API_TAG2 ZH_WORDS_GETTER("drug.tags.tag2")
 #define MEDICINE_V2_ERROR_RESPONSES(_TYPE_)                                                                        \
@@ -62,7 +58,7 @@ class DrugController : public oatpp::web::server::api::ApiController
 {
     API_ACCESS_DECLARE(DrugController);
 
-  private:
+private:
     enum class MedicineV2Operation
     {
         Modify,
@@ -70,46 +66,46 @@ class DrugController : public oatpp::web::server::api::ApiController
         Delete
     };
 
-  public:
+public:
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("drug.query.summary"), queryDrug, DrugQuery,
-                                     DrugListPageJsonVO::Wrapper, API_TAG);
+        DrugListPageJsonVO::Wrapper, API_TAG);
     API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/Drug", queryDrug, DrugQuery, execQueryDrug(query));
 
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("drug.select-query.summary"), querySelectDrug, DrugSelectQuery,
-                                     DrugSelectPageJsonVO::Wrapper, API_TAG);
+        DrugSelectPageJsonVO::Wrapper, API_TAG);
     API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/DrugSelect", querySelectDrug, DrugSelectQuery,
-                                    execQuerySelectDrug(query));
+        execQuerySelectDrug(query));
 
     API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("drug.add.summary"), addDrug, StringJsonVO::Wrapper, API_TAG);
     API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/Drug/add", addDrug, BODY_DTO(DrugAddDTO::Wrapper, dto),
-                              execAddDrug(dto, authObject->getPayload()));
+        execAddDrug(dto, authObject->getPayload()));
 
     API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("drug.query-one.summary"), queryDrugById, DrugDetailJsonVO::Wrapper,
-                               API_TAG,
-                               API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("drug.field.id"),
-                                                        "ae65c714d48d4f34b52479f5482c0edd", true););
+        API_TAG,
+        API_DEF_ADD_QUERY_PARAMS(String, "id", ZH_WORDS_GETTER("drug.field.id"),
+            "ae65c714d48d4f34b52479f5482c0edd", true););
     API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/drug/query-by-id", queryDrugById, QUERY(String, id), execQueryById(id));
 
     API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("drug.v2.status.summary"), updateMedicineStatusV2,
-                               MedicineBatchJsonVO::Wrapper, API_TAG,
-                               MEDICINE_V2_BODY_SCHEMA(MedicineStatusUpdateDTO::Wrapper,
-                                                       MedicineStatusUpdateDTO::createExample());
-                               MEDICINE_V2_ERROR_RESPONSES(MedicineBatchJsonVO::Wrapper);
-                               info->responses[Status::CODE_400].addExample(
-                                   "invalidBody", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::PARAM_INVALID));
-                               info->responses[Status::CODE_401].addExample(
-                                   "unauthorized", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::UNAUTHORIZED));
-                               info->responses[Status::CODE_200].addExample(
-                                   "success", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::SUCCESS));
-                               info->responses[Status::CODE_200].addExample(
-                                   "partial", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::PARTIAL_SUCCESS));
-                               info->responses[Status::CODE_409].addExample(
-                                   "versionConflict", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::VERSION_CONFLICT));
-                               info->responses[Status::CODE_422].addExample(
-                                   "businessValidation", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::BUSINESS_VALIDATION_FAILED)););
-    ENDPOINT(API_M_PATCH, "/api/v2/medicines/status", updateMedicineStatusV2,
-             BODY_DTO(MedicineStatusUpdateDTO::Wrapper, dto),
-             HEADER(String, authorization, API_H_TOKEN))
+        MedicineBatchJsonVO::Wrapper, API_TAG,
+        MEDICINE_V2_BODY_SCHEMA(MedicineStatusUpdateDTO::Wrapper,
+            MedicineStatusUpdateDTO::createExample());
+    MEDICINE_V2_ERROR_RESPONSES(MedicineBatchJsonVO::Wrapper);
+    info->responses[Status::CODE_400].addExample(
+        "invalidBody", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::PARAM_INVALID));
+    info->responses[Status::CODE_401].addExample(
+        "unauthorized", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::UNAUTHORIZED));
+    info->responses[Status::CODE_200].addExample(
+        "success", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::SUCCESS));
+    info->responses[Status::CODE_200].addExample(
+        "partial", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::PARTIAL_SUCCESS));
+    info->responses[Status::CODE_409].addExample(
+        "versionConflict", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::VERSION_CONFLICT));
+    info->responses[Status::CODE_422].addExample(
+        "businessValidation", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::BUSINESS_VALIDATION_FAILED)););
+    ENDPOINT(API_M_PUT, "/api/v2/medicines/status", updateMedicineStatusV2,
+        BODY_DTO(MedicineStatusUpdateDTO::Wrapper, dto),
+        HEADER(String, authorization, API_H_TOKEN))
     {
         auto authObject = authenticateMedicineV2(authorization);
         if (!authObject)
@@ -129,25 +125,25 @@ class DrugController : public oatpp::web::server::api::ApiController
     }
 
     API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("drug.v2.batchDelete.summary"), batchDeleteMedicinesV2,
-                               MedicineBatchJsonVO::Wrapper, API_TAG,
-                               MEDICINE_V2_BODY_SCHEMA(MedicineBatchDeleteDTO::Wrapper,
-                                                       MedicineBatchDeleteDTO::createExample());
-                               MEDICINE_V2_ERROR_RESPONSES(MedicineBatchJsonVO::Wrapper);
-                               info->responses[Status::CODE_400].addExample(
-                                   "invalidBody", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::PARAM_INVALID));
-                               info->responses[Status::CODE_401].addExample(
-                                   "unauthorized", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::UNAUTHORIZED));
-                               info->responses[Status::CODE_200].addExample(
-                                   "success", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::SUCCESS));
-                               info->responses[Status::CODE_200].addExample(
-                                   "partial", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::PARTIAL_SUCCESS));
-                               info->responses[Status::CODE_409].addExample(
-                                   "versionConflict", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::VERSION_CONFLICT));
-                               info->responses[Status::CODE_422].addExample(
-                                   "businessValidation", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::BUSINESS_VALIDATION_FAILED)););
-    ENDPOINT(API_M_POST, "/api/v2/medicines/batch-delete", batchDeleteMedicinesV2,
-             BODY_DTO(MedicineBatchDeleteDTO::Wrapper, dto),
-             HEADER(String, authorization, API_H_TOKEN))
+        MedicineBatchJsonVO::Wrapper, API_TAG,
+        MEDICINE_V2_BODY_SCHEMA(MedicineBatchDeleteDTO::Wrapper,
+            MedicineBatchDeleteDTO::createExample());
+    MEDICINE_V2_ERROR_RESPONSES(MedicineBatchJsonVO::Wrapper);
+    info->responses[Status::CODE_400].addExample(
+        "invalidBody", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::PARAM_INVALID));
+    info->responses[Status::CODE_401].addExample(
+        "unauthorized", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::UNAUTHORIZED));
+    info->responses[Status::CODE_200].addExample(
+        "success", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::SUCCESS));
+    info->responses[Status::CODE_200].addExample(
+        "partial", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::PARTIAL_SUCCESS));
+    info->responses[Status::CODE_409].addExample(
+        "versionConflict", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::VERSION_CONFLICT));
+    info->responses[Status::CODE_422].addExample(
+        "businessValidation", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::BUSINESS_VALIDATION_FAILED)););
+    ENDPOINT(API_M_DEL, "/api/v2/medicines/batch-delete", batchDeleteMedicinesV2,
+        BODY_DTO(MedicineBatchDeleteDTO::Wrapper, dto),
+        HEADER(String, authorization, API_H_TOKEN))
     {
         auto authObject = authenticateMedicineV2(authorization);
         if (!authObject)
@@ -167,25 +163,25 @@ class DrugController : public oatpp::web::server::api::ApiController
     }
 
     API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("drug.v2.update.summary"), updateMedicineV2,
-                               MedicineVersionJsonVO::Wrapper, API_TAG,
-                               API_DEF_ADD_PATH_PARAMS(String, "id", ZH_WORDS_GETTER("drug.field.id"), "10001",
-                                                       true);
-                               MEDICINE_V2_BODY_SCHEMA(MedicineUpdateDTO::Wrapper,
-                                                       MedicineUpdateDTO::createExample());
-                               MEDICINE_V2_ERROR_RESPONSES(MedicineVersionJsonVO::Wrapper);
-                               info->responses[Status::CODE_400].addExample(
-                                   "invalidBody", MedicineVersionJsonVO::createExample(MedicineV2BusinessCode::PARAM_INVALID));
-                               info->responses[Status::CODE_401].addExample(
-                                   "unauthorized", MedicineVersionJsonVO::createExample(MedicineV2BusinessCode::UNAUTHORIZED));
-                               info->responses[Status::CODE_200].addExample(
-                                   "success", MedicineVersionJsonVO::createExample(MedicineV2BusinessCode::SUCCESS));
-                               info->responses[Status::CODE_409].addExample(
-                                   "versionConflict", MedicineVersionJsonVO::createExample(MedicineV2BusinessCode::VERSION_CONFLICT));
-                               info->responses[Status::CODE_422].addExample(
-                                   "businessValidation", MedicineVersionJsonVO::createExample(MedicineV2BusinessCode::BUSINESS_VALIDATION_FAILED)););
-    ENDPOINT(API_M_PATCH, "/api/v2/medicines/{id}", updateMedicineV2, PATH(String, id),
-             BODY_DTO(MedicineUpdateDTO::Wrapper, dto),
-             HEADER(String, authorization, API_H_TOKEN))
+        MedicineVersionJsonVO::Wrapper, API_TAG,
+        API_DEF_ADD_PATH_PARAMS(String, "id", ZH_WORDS_GETTER("drug.field.id"), "10001",
+            true);
+    MEDICINE_V2_BODY_SCHEMA(MedicineUpdateDTO::Wrapper,
+        MedicineUpdateDTO::createExample());
+    MEDICINE_V2_ERROR_RESPONSES(MedicineVersionJsonVO::Wrapper);
+    info->responses[Status::CODE_400].addExample(
+        "invalidBody", MedicineVersionJsonVO::createExample(MedicineV2BusinessCode::PARAM_INVALID));
+    info->responses[Status::CODE_401].addExample(
+        "unauthorized", MedicineVersionJsonVO::createExample(MedicineV2BusinessCode::UNAUTHORIZED));
+    info->responses[Status::CODE_200].addExample(
+        "success", MedicineVersionJsonVO::createExample(MedicineV2BusinessCode::SUCCESS));
+    info->responses[Status::CODE_409].addExample(
+        "versionConflict", MedicineVersionJsonVO::createExample(MedicineV2BusinessCode::VERSION_CONFLICT));
+    info->responses[Status::CODE_422].addExample(
+        "businessValidation", MedicineVersionJsonVO::createExample(MedicineV2BusinessCode::BUSINESS_VALIDATION_FAILED)););
+    ENDPOINT(API_M_PUT, "/api/v2/medicines/{id}", updateMedicineV2, PATH(String, id),
+        BODY_DTO(MedicineUpdateDTO::Wrapper, dto),
+        HEADER(String, authorization, API_H_TOKEN))
     {
         auto authObject = authenticateMedicineV2(authorization);
         if (!authObject)
@@ -204,30 +200,30 @@ class DrugController : public oatpp::web::server::api::ApiController
         return createDtoResponse(medicineV2HttpStatus(response->code.getValue(10099)), response);
     }
 
-   
 
-  private:
-    DrugListPageJsonVO::Wrapper execQueryDrug(const DrugQuery::Wrapper &query);
-    DrugSelectPageJsonVO::Wrapper execQuerySelectDrug(const DrugSelectQuery::Wrapper &query);
-    StringJsonVO::Wrapper execAddDrug(const DrugAddDTO::Wrapper &dto, const PayloadDTO &payload);
-    DrugDetailJsonVO::Wrapper execQueryById(const String &id);
+
+private:
+    DrugListPageJsonVO::Wrapper execQueryDrug(const DrugQuery::Wrapper& query);
+    DrugSelectPageJsonVO::Wrapper execQuerySelectDrug(const DrugSelectQuery::Wrapper& query);
+    StringJsonVO::Wrapper execAddDrug(const DrugAddDTO::Wrapper& dto, const PayloadDTO& payload);
+    DrugDetailJsonVO::Wrapper execQueryById(const String& id);
 
     // 部分修改药品。
-    MedicineVersionJsonVO::Wrapper execUpdateMedicineV2(const String &id,
-                                                         const MedicineUpdateDTO::Wrapper &dto,
-                                                         const PayloadDTO &payload);
+    MedicineVersionJsonVO::Wrapper execUpdateMedicineV2(const String& id,
+        const MedicineUpdateDTO::Wrapper& dto,
+        const PayloadDTO& payload);
 
     // 批量启停药品。
-    MedicineBatchJsonVO::Wrapper execUpdateMedicineStatusV2(const MedicineStatusUpdateDTO::Wrapper &dto,
-                                                             const PayloadDTO &payload);
+    MedicineBatchJsonVO::Wrapper execUpdateMedicineStatusV2(const MedicineStatusUpdateDTO::Wrapper& dto,
+        const PayloadDTO& payload);
 
     // 批量删除药品。
-    MedicineBatchJsonVO::Wrapper execBatchDeleteMedicinesV2(const MedicineBatchDeleteDTO::Wrapper &dto,
-                                                             const PayloadDTO &payload);
+    MedicineBatchJsonVO::Wrapper execBatchDeleteMedicinesV2(const MedicineBatchDeleteDTO::Wrapper& dto,
+        const PayloadDTO& payload);
 
     std::shared_ptr<CustomerAuthorizeObject> authenticateMedicineV2(
-        const String &authorization);
-    static bool hasMedicineV2Authority(const PayloadDTO &payload, MedicineV2Operation operation);
+        const String& authorization);
+    static bool hasMedicineV2Authority(const PayloadDTO& payload, MedicineV2Operation operation);
     std::shared_ptr<OutgoingResponse> medicineV2VersionErrorResponse(int code);
     std::shared_ptr<OutgoingResponse> medicineV2BatchErrorResponse(int code);
 
