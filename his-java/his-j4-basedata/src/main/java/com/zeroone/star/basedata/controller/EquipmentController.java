@@ -39,6 +39,12 @@ public class EquipmentController implements EquipmentApis {
     @Resource
     private IEquipmentService equipmentService;
 
+    /**
+     * 获取器材列表（条件+分页）
+     *
+     * @param query 分页查询条件
+     * @return 器材列表分页结果
+     */
     @Override
     @GetMapping("/query-equipment-list")
     @Operation(summary = "获取器材列表（条件+分页）", description = "获取器材列表（条件+分页）")
@@ -65,8 +71,7 @@ public class EquipmentController implements EquipmentApis {
         } catch (Exception e) {
             log.error("新增失败:{}", e);
             return JsonVO.fail("新增器材失败:" + e.getMessage());
-        }
-        finally {
+        } finally {
             log.info("<======================>");
         }
     }
@@ -112,7 +117,7 @@ public class EquipmentController implements EquipmentApis {
         log.info("查询器材详情:{}", equipmentId);
         try {
             EquipmentVO vo = equipmentService.getEquipmentById(equipmentId);
-            if(vo == null){
+            if (vo == null) {
                 log.info("器材不存在");
                 return JsonVO.fail("器材不存在");
             }
@@ -121,8 +126,7 @@ public class EquipmentController implements EquipmentApis {
         } catch (Exception e) {
             log.error("出现异常:{}", e);
             return JsonVO.fail(e.getMessage());
-        }
-        finally {
+        } finally {
             log.info("<======================>");
         }
     }
@@ -140,7 +144,7 @@ public class EquipmentController implements EquipmentApis {
         log.info("查询选择耗材列表");
         try {
             List<EquipmentCategoryVO> voList = equipmentService.queryEquipmentCategoryList();
-            if(voList == null){
+            if (voList == null) {
                 voList = new ArrayList<>();
             }
             log.info("查询结果:{}", voList);
@@ -148,8 +152,7 @@ public class EquipmentController implements EquipmentApis {
         } catch (Exception e) {
             log.error("查询异常:{}", e);
             return JsonVO.fail(e.getMessage());
-        }
-        finally {
+        } finally {
             log.info("<======================>");
         }
     }
@@ -172,8 +175,7 @@ public class EquipmentController implements EquipmentApis {
         } catch (Exception e) {
             log.error("删除异常:{}", e);
             return JsonVO.fail(e.getMessage());
-        }
-        finally {
+        } finally {
             log.info("<======================>");
         }
     }
