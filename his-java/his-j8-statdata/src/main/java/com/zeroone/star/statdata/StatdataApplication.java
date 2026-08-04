@@ -13,7 +13,10 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * @author 01star
  * @version 1.0.0
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {
+    "com.zeroone.star.statdata",
+    "com.zeroone.star.project.config.redis"
+})
 @EnableDiscoveryClient
 public class StatdataApplication {
     public static void main(String[] args) {

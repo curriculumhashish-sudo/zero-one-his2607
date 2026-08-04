@@ -1,5 +1,5 @@
-FROM amazoncorretto:17
-MAINTAINER 01star
+FROM docker.m.daocloud.io/library/eclipse-temurin:17-jre-alpine
+MAINTAINER Zzen
 ADD target/his-j8-outpatient-1.0.0-SNAPSHOT.jar app.jar
 ENV JAVA_OPTS="-Xms256m -Xmx256m"
 ENV SPRING_ARGS=""
