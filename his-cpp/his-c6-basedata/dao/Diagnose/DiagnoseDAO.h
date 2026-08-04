@@ -53,8 +53,8 @@ public:
 	//	const DiagnoseSelectQuery::Wrapper& query,
 	//	const std::string& tenantId);
 	//std::list<DiagnoseDO> selectByName(const std::string& name);
-	uint64_t DiagnoseDAO::count(const DiagnoseSelectQuery::Wrapper& query);
-	std::list<PtrClnConditionDefinitionDO> DiagnoseDAO::selectAll(const DiagnoseSelectQuery::Wrapper& query);
+	uint64_t count(const DiagnoseSelectQuery::Wrapper& query);
+	std::list<PtrClnConditionDefinitionDO> selectAll(const DiagnoseSelectQuery::Wrapper& query);
 
 
 };
