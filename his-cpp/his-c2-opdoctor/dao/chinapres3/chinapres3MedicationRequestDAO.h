@@ -26,10 +26,10 @@
 #include "../../domain/query/chinapres3/chinapres3MedicationRequestQuery.h"
 
 /**
- * 中药处方单据数据访问对象
+ * 处方药品申请数据访问对象
  *
- * 对应 med_medication_request 表查询逻辑
- * 新增/修改/删除操作直接使用 BaseDAO 提供的 insert/update/deleteById 方法
+ * 对应 med_medication_request 查询逻辑
+ * 新增/修改/删除直接使用 BaseDAO 提供的 insert/update/deleteById 方法
  */
 class chinapres3MedicationRequestDAO : public BaseDAO
 {
@@ -38,7 +38,10 @@ private:
 
 public:
 	uint64_t count(const chinapres3MedicationRequestQuery::Wrapper& query);
-	// BaseDO 为智能指针封装，selectWithPage/selectById 返回 shared_ptr 容器
+	// Count DRAFT drug?line rows for a given prescription number
+	// Used for all?or?nothing issue validation
+	uint64_t countByPrescriptionNo(const std::string& prescriptionNo, const std::string& statusEnum);
+	// BaseDO 为模板封装 selectWithPage/selectById 返回 shared_ptr 列表
 	std::list<Ptrchinapres3MedicationRequestDO> selectWithPage(const chinapres3MedicationRequestQuery::Wrapper& query);
 	Ptrchinapres3MedicationRequestDO selectById(const std::string& id);
 };

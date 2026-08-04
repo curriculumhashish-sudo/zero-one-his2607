@@ -523,8 +523,9 @@ chinapres3:
   prescriptionGroupKey: "处方组标识"
   processedCount: "处理的药品行数"
   prescriptionCount: "涉及的处方数量"
-  busNos: "发药流水号列表"
+  busNos: "发药业务流水号（签发时生成，格式\"BUS\"+雪花ID，下游药房系统凭此查询发药状态）"
   prescriptionNos: "处方号列表"
+  issuedAt: "签发时间"
   revokedPrescriptionCount: "撤回处方数"
   revokedMedicationCount: "撤回药品行数"
   failures: "撤回失败项"
@@ -534,11 +535,11 @@ chinapres3:
 outpatientrecord3:
  field:
   outpatientrecord3Id: "病历ID（为空表示新增，不为空表示修改）"
-  patientId: "患者ID"
   encounterId: "就诊ID"
   title: "病历标题"
   templateId: "模板ID"
   content: "病历正文"
+  updatedAt: "最后更新时间"
  tags:
   tag: "门诊病历"
  save:

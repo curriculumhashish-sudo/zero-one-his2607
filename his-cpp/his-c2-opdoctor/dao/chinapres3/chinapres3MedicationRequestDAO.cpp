@@ -80,3 +80,14 @@ Ptrchinapres3MedicationRequestDO chinapres3MedicationRequestDAO::selectById(cons
 		return nullptr;
 	return list.front();
 }
+
+uint64_t chinapres3MedicationRequestDAO::countByPrescriptionNo(const std::string& prescriptionNo, const std::string& statusEnum)
+{
+	std::ostringstream sql;
+	sql << "SELECT COUNT(*) FROM med_medication_request WHERE prescription_no=? AND status_enum=? AND is_deleted=0";
+	SqlParams params = {
+		SqlParam("s", std::make_shared<std::string>(prescriptionNo)),
+		SqlParam("s", std::make_shared<std::string>(statusEnum))
+	};
+	return sqlSession->executeQueryNumerical(sql.str(), params);
+}

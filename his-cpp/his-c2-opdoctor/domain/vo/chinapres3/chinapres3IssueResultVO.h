@@ -26,32 +26,56 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * 开立操作结果数据对象（嵌套在chinapres3IssueResultVO的data字段内）
+ * Issue result data transfer object.
  *
- * 记录单次处方开立操作的汇总信息：
- *   - 处理成功的处方单据条数
- *   - 参与开立的处方单总数
- *   * 生成的业务流水号集合（发药记录流水号busNos）
+ * Records summary info for the current issue batch:
+ *   - Count of processed medication items
+ *   - Count of involved prescriptions
+ *   - Prescription numbers that were issued
+ *   - Resulting status and issue timestamp
+ *   - Dispense business serial numbers (busNos): used by pharmacy
+ *     system to track and update dispensing status.
+ *     Format: "BUS" + snowflake ID, generated per drug line.
  */
 class chinapres3IssueResultDTO : public oatpp::DTO
 {
     DTO_INIT(chinapres3IssueResultDTO, DTO);
 
-    // 处理成功的中药处方单据数量
+    // Number of medication drug-line rows successfully processed
     API_DTO_FIELD_REQUIRE(
         Int32,
         processedCount,
         ZH_WORDS_GETTER("chinapres3.field.processedCount"),
         true);
 
-    // 实际处理的处方单总数（数值可小于processedCount，一张处方包含多条药品记录）
+    // Number of distinct prescriptions involved (one prescription may have multiple drug lines)
     API_DTO_FIELD_REQUIRE(
         Int32,
         prescriptionCount,
         ZH_WORDS_GETTER("chinapres3.field.prescriptionCount"),
         true);
 
-    // 生成的发药业务流水号列表（每条发药记录对应的busNo）
+    // List of issued prescription numbers, for front-end display
+    DTO_FIELD(Vector<String>, prescriptionNos);
+    DTO_FIELD_INFO(prescriptionNos) {
+        info->description = ZH_WORDS_GETTER("chinapres3.field.prescriptionNos");
+    }
+
+    // Prescription status after successful issue, always "ACTIVE"
+    DTO_FIELD(String, statusEnum);
+    DTO_FIELD_INFO(statusEnum) {
+        info->description = ZH_WORDS_GETTER("chinapres3.field.statusEnum");
+    }
+
+    // Issue timestamp (server time when the transaction committed)
+    DTO_FIELD(String, issuedAt);
+    DTO_FIELD_INFO(issuedAt) {
+        info->description = ZH_WORDS_GETTER("chinapres3.field.issuedAt");
+    }
+
+    // Dispense business serial numbers (busNos).
+    // One busNo per drug line, format "BUS" + snowflake ID.
+    // Used by downstream pharmacy system via bus_no lookup.
     DTO_FIELD(Vector<String>, busNos);
     DTO_FIELD_INFO(busNos) {
         info->description = ZH_WORDS_GETTER("chinapres3.field.busNos");
@@ -59,10 +83,10 @@ class chinapres3IssueResultDTO : public oatpp::DTO
 };
 
 /**
- * 处方开立返回视图对象
+ * Issue result standard JSON response wrapper.
  *
- * 继承通用JSON返回体模板 JsonVO<chinapres3IssueResultDTO::Wrapper>。
- * 接口响应格式：code业务状态码、message提示信息、data开立结果详情。
+ * Outer envelope: { code, message, data: { processedCount, prescriptionCount,
+ *   prescriptionNos, statusEnum, issuedAt, busNos } }
  */
 class chinapres3IssueResultVO : public JsonVO<chinapres3IssueResultDTO::Wrapper>
 {
