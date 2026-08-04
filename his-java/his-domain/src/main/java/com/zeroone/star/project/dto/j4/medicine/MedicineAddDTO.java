@@ -21,6 +21,12 @@ public class MedicineAddDTO {
     @Schema(description = "药品业务编码")
     private String busNo;
 
+    /**
+     * 生命周期状态编码（DRAFT/ACTIVE/INACTIVE/DISCARDED）
+     */
+    @Schema(description = "药品状态",example = "ACTIVE")
+    private String statusEnum;
+
     @Schema(description = "药品版本")
     private String medVersion;
 

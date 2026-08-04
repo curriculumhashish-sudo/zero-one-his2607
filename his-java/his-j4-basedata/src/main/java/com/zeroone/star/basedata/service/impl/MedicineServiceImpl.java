@@ -118,9 +118,6 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
         medicine.setTenantId(tenantId);
         medicine.setIsDeleted(false);
         medicine.setVersion(0);
-
-        // 生命周期状态由后端统一维护。
-        medicine.setStatusEnum(STATUS_ACTIVE);
     }
 
     /**
