@@ -119,37 +119,37 @@ knife4j:
     strategy: manual
     routes:
       - name: J3-部门管理
-        service-name: his-j3-department
+        service-name: J3_DEPARTMENT
         url: /j3-department/j3-basedata/v3/api-docs
         context-path: /j3-department/j3-basedata
         order: 1
       - name: J3-患者管理
-        service-name: his-j3-patient
+        service-name: J3_PATIENT
         url: /j3-patient/j3-basedata/v3/api-docs
         context-path: /j3-patient/j3-basedata
         order: 2
       - name: J3-挂号管理
-        service-name: his-j3-register
+        service-name: J3_REGISTER
         url: /j3-register/j3-basedata/v3/api-docs
         context-path: /j3-register/j3-basedata
         order: 3
       - name: J3-库房管理
-        service-name: his-j3-storehouse
+        service-name: J3_STOREHOUSE
         url: /j3-storehouse/j3-basedata/v3/api-docs
         context-path: /j3-storehouse/j3-basedata
         order: 4
       - name: J3-费用管理
-        service-name: his-j3-fee
+        service-name: J3_FEE
         url: /j3-fee/j3-basedata/v3/api-docs
         context-path: /j3-fee/j3-basedata
         order: 5
       - name: J3-供应商管理
-        service-name: his-j3-supplier
+        service-name: J3_SUPPLIER
         url: /j3-supplier/j3-basedata/v3/api-docs
         context-path: /j3-supplier/j3-basedata
         order: 6
       - name: J3-病房管理
-        service-name: his-j3-ward
+        service-name: J3_WARD
         url: /j3-ward/j3-basedata/v3/api-docs
         context-path: /j3-ward/j3-basedata
         order: 7

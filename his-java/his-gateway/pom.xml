@@ -71,8 +71,9 @@
                 <artifactId>docker-maven-plugin</artifactId>
                 <configuration>
                     <!-- Docker 远程管理地址-->
-                    <dockerHost>tcp://115.29.213.118:2375</dockerHost>
-                    <!-- CA 证书位置 -->
+                    <dockerHost>https://115.29.213.118:2375</dockerHost>
+                    <!-- CA 证书位置：证书未申请下来，先留空；申请后填写证书目录 -->
+                    <certPath></certPath>
                     <!-- 镜像设置 -->
                     <images>
                         <image>
@@ -105,7 +106,8 @@
                                     <JAVA_OPTS>-Xms256m -Xmx256m</JAVA_OPTS>
                                     <!-- 启动替换参数 -->
                                     <SPRING_ARGS>
-                                        --spring.profiles.active=test --spring.cloud.nacos.discovery.ip=172.21.169.44
+                                        --spring.profiles.active=test
+                                        --spring.cloud.nacos.server-addr=115.29.213.118
                                     </SPRING_ARGS>
                                 </env>
                             </run>

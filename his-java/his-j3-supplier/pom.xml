@@ -34,28 +34,44 @@
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
                 <configuration>
-                    <dockerHost>tcp://47.96.2.145:2375</dockerHost>
+                    <!-- Docker 远程管理地址 -->
+                    <dockerHost>https://47.96.2.145:2375</dockerHost>
+                    <!-- CA 证书位置：证书未申请下来，先留空；申请后填写证书目录 -->
+                    <certPath></certPath>
                     <images>
                         <image>
+                            <!-- Docker 镜像名称定义 -->
                             <name>01star/${project.artifactId}:${project.version}</name>
+                            <!-- 指定 Dockerfile 所在目录 -->
                             <build>
                                 <contextDir>${project.basedir}</contextDir>
                             </build>
+                            <!-- 别名用于容器命名 -->
                             <alias>${project.artifactId}</alias>
+                            <!-- 容器 run 相关配置 -->
                             <run>
+                                <!-- 配置运行时容器命名策略为：别名 -->
                                 <namingStrategy>alias</namingStrategy>
+                                <!-- 端口映射 -->
                                 <ports>
                                     <port>10206:10206</port>
                                 </ports>
+                                <!-- 数据卷 -->
                                 <volumes>
                                     <bind>
                                         <volume>/etc/localtime:/etc/localtime</volume>
                                         <volume>/home/app/${project.artifactId}/logs:/tmp/logs</volume>
                                     </bind>
                                 </volumes>
+                                <!-- 设置环境变量 -->
                                 <env>
+                                    <!-- JVM 参数 -->
                                     <JAVA_OPTS>-Xms256m -Xmx256m</JAVA_OPTS>
-                                    <SPRING_ARGS>--spring.profiles.active=test --spring.cloud.nacos.discovery.ip=172.17.219.51</SPRING_ARGS>
+                                    <!-- 启动替换参数 -->
+                                    <SPRING_ARGS>
+                                        --spring.profiles.active=test
+                                        --spring.cloud.nacos.server-addr=47.96.2.145
+                                    </SPRING_ARGS>
                                 </env>
                             </run>
                         </image>

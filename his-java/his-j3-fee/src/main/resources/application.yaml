@@ -1,5 +1,5 @@
 server:
-  port: ${sp.j3-supplier:10205}
+  port: ${sp.j3-fee:10205}
   servlet:
     context-path: /j3-basedata
   address: 0.0.0.0
