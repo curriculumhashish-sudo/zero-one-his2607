@@ -18,16 +18,25 @@ pipeline {
             steps {
                 dir('his-java/star-deps') {
                     sh '''
-                        # 安装父 POM 到 Jenkins 用户 Maven 本地仓库
-                        # star-deps 目录无 pom.xml，install:install-file 可独立执行
+                        # 安装根父 POM（dependencyManagement 版本管理）
                         mvn install:install-file \
                             -Dfile=zero-one-cloud-build-2.0.0-SNAPSHOT.pom \
                             -DgroupId=com.zeroone.star \
                             -DartifactId=zero-one-cloud-build \
                             -Dversion=2.0.0-SNAPSHOT \
                             -Dpackaging=pom
-                        echo "父 POM 安装完成"
-                        ls -la ~/.m2/repository/com/zeroone/star/zero-one-cloud-build/2.0.0-SNAPSHOT/
+                        # 安装 zero-one-cloud-starter POM（fastdfs 的父 POM）
+                        mvn install:install-file \
+                            -Dfile=zero-one-cloud-starter-2.0.0-SNAPSHOT.pom \
+                            -DgroupId=com.zeroone.star \
+                            -DartifactId=zero-one-cloud-starter \
+                            -Dversion=2.0.0-SNAPSHOT \
+                            -Dpackaging=pom
+                        # 安装 fastdfs-spring-boot-starter jar 及其 pom（his-common 直接依赖）
+                        mvn install:install-file \
+                            -Dfile=fastdfs-spring-boot-starter-2.0.0-SNAPSHOT.jar \
+                            -DpomFile=fastdfs-spring-boot-starter-2.0.0-SNAPSHOT.pom
+                        echo "所有私有依赖安装完成"
                     '''
                 }
             }
