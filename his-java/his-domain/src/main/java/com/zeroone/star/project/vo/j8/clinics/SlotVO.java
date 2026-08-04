@@ -1,5 +1,6 @@
 package com.zeroone.star.project.vo.j8.clinics;
 
+import com.zeroone.star.project.vo.JsonVO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @Schema(description = "号源响应对象")
-public class SlotVO {
+public class SlotVO{
     @Schema(description = "号源时段主键id")
     private String slotId;
 

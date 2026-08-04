@@ -3,6 +3,7 @@ package com.zeroone.star.clinics.controller;
 
 
 import com.zeroone.star.clinics.service.IWkfSlotService;
+import com.zeroone.star.project.dto.j8.clinics.BatchDeleteSlotDTO;
 import com.zeroone.star.project.dto.j8.clinics.RetireScheduleDTO;
 import com.zeroone.star.project.dto.j8.clinics.SlotBatchReleaseDTO;
 import com.zeroone.star.project.j8.clinics.ScheduleApis;
@@ -19,8 +20,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Tag(name = "门诊排班管理")
@@ -35,15 +37,22 @@ public class MZScheduleController implements ScheduleApis {
     @Operation(summary = "获取已放号源列表")
     @GetMapping("/get-rel-number-source")
     @Override
-    public JsonVO<List<SlotVO>> getRelNumberSource(@Valid RelSlotQuery query) {
+    public JsonVO<Map<String, Object>> getRelNumberSource(@RequestBody @Valid RelSlotQuery query) {
         List<SlotVO> slotVOList = wkfSlotService.getRelNumberSource(query);
-        return JsonVO.success(slotVOList);
+        Map<String,Object> dataMap = new HashMap<>();
+        dataMap.put("content", slotVOList);
+        dataMap.put("totalCount", slotVOList.size());
+        dataMap.put("pageNo", 1);
+        dataMap.put("pageSize", 500);
+        return JsonVO.success(dataMap);
+
     }
 
     @Operation(summary = "删除号源")
-    @DeleteMapping("/delete-number-source/{slotId}")
+    @DeleteMapping("/delete-number-source")
     @Override
-    public JsonVO<String> deleteNumberSource(@PathVariable String slotId) {
+    public JsonVO<String> deleteNumberSource(@RequestBody @Valid BatchDeleteSlotDTO slotIds) {
+        String slotId = slotIds.getSlotIds().get(0);
         wkfSlotService.deleteNumberSource(slotId);
         return JsonVO.success(null);
     }
