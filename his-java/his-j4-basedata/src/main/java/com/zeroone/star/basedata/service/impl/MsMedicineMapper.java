@@ -53,7 +53,6 @@ public interface MsMedicineMapper {
     /**
      * 新增药品DTO转换为药品实体。
      */
-    @Mapping(source = "definition", target = "medicationdefinition")
     MedMedicationDefinitionDO addDtoToEntity(MedicineAddDTO dto);
 
     /**
