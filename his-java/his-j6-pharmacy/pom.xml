@@ -103,7 +103,7 @@
                     <!-- Docker 远程管理地址-->
                     <dockerHost>https://39.106.111.242:2375</dockerHost>
                     <!-- CA 证书位置 -->
-                    <certPath>/home/docker-ca</certPath>
+                    <certPath>D:\17_Develop\Docker\docker-ca</certPath>
                     <!-- 镜像设置 -->
                     <images>
                         <image>
@@ -121,7 +121,7 @@
                                 <namingStrategy>alias</namingStrategy>
                                 <!-- 端口映射 -->
                                 <ports>
-                                    <port>10201:10201</port>
+                                    <port>10234:10234</port>
                                 </ports>
                                 <!-- 数据卷 -->
                                 <volumes>
@@ -136,7 +136,8 @@
                                     <JAVA_OPTS>-Xms256m -Xmx256m</JAVA_OPTS>
                                     <!-- 启动替换参数 -->
                                     <SPRING_ARGS>
-                                        --spring.profiles.active=test --spring.cloud.nacos.discovery.ip=39.106.111.242
+                                        --spring.profiles.active=test
+                                        --spring.cloud.nacos.discovery.ip=39.106.111.242
                                     </SPRING_ARGS>
                                 </env>
                             </run>

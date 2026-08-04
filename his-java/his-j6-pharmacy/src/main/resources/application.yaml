@@ -1,8 +1,8 @@
 server:
-  port: ${sp.pharmacy}
+  port: ${sp.j6-pharmacy}
   servlet:
     # 设置应用上下文路径
     context-path: /j6-pharmacy
 spring:
   application:
-    name: ${sn.pharmacy}
+    name: ${sn.j6-pharmacy}
