@@ -67,9 +67,9 @@ public class MedicineController implements MedicineApis {
         if(id.isBlank()){
             return JsonVO.fail("id不能为空");
         }
-        MedicineDetailDTO detailDTO = medicineService.queryMedicineDetailById(id);
-        MedicineDetailVO detailVO = msMedicineMapper.medicineDetailDtoToVo(detailDTO);
-        if(detailDTO!=null){
+        MedicineDetailVO detailVO = medicineService.queryMedicineDetailById(id);
+
+        if(detailVO!=null){
             return JsonVO.success(detailVO);
         }
         return JsonVO.fail("获取失败");

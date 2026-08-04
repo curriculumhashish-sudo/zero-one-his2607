@@ -6,6 +6,7 @@ import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j4.medicine.*;
 import com.zeroone.star.project.query.j4.medicine.MedicinePageQuery;
 import com.zeroone.star.project.query.j4.medicine.MedicineSelectPageQuery;
+import com.zeroone.star.project.vo.j4.medicine.MedicineDetailVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineListVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineSelectVO;
 
@@ -42,7 +43,7 @@ public interface IMedicineService extends IService<MedMedicationDefinitionDO> {
      * @param id 药品ID
      * @return 药品详情
      */
-    MedicineDetailDTO queryMedicineDetailById(String id);
+    MedicineDetailVO queryMedicineDetailById(String id);
 
     /**
      * 更新单条药品记录

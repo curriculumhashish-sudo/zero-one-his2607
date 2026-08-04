@@ -22,6 +22,7 @@ import com.zeroone.star.basedata.mapper.MedMedicationDefinitionMapper;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.query.j4.medicine.MedicinePageQuery;
 import com.zeroone.star.project.query.j4.medicine.MedicineSelectPageQuery;
+import com.zeroone.star.project.vo.j4.medicine.MedicineDetailVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineListVO;
 import com.zeroone.star.project.vo.j4.medicine.MedicineSelectVO;
 import jakarta.annotation.Resource;
@@ -176,7 +177,7 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public MedicineDetailDTO queryMedicineDetailById(String id) {
+    public MedicineDetailVO queryMedicineDetailById(String id) {
         //获取租户id
         String tenantId = userHolder.getCurrentTenantId();
 
@@ -212,8 +213,9 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
                 detailDTO.setMaxRetailPrice(definitionDO.getPriceValue());
             }
         }
+
         //TODO 考虑将其存入Redis
-        return detailDTO;
+        return msMedicineMapper.medicineDetailDtoToVo(detailDTO);
 
 
     }
