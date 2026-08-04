@@ -2,9 +2,8 @@ pipeline {
     agent any
 
     environment {
-        GIT_CREDENTIAL_ID  = 'codeup-credentials'
-        JAVA_HOME          = '/usr/lib/jvm/java-17-openjdk'
-        PATH               = '/usr/lib/jvm/java-17-openjdk/bin:/usr/bin:${env.PATH}'
+        JAVA_HOME = '/usr/lib/jvm/java-17-openjdk'
+        PATH      = '/usr/lib/jvm/java-17-openjdk/bin:/usr/bin:${env.PATH}'
     }
 
     options {
@@ -14,19 +13,6 @@ pipeline {
     }
 
     stages {
-
-        stage('拉取代码') {
-            steps {
-                checkout([
-                    $class: 'GitSCM',
-                    branches: [[name: '*/j5']],
-                    userRemoteConfigs: [[
-                        url: 'https://codeup.aliyun.com/zero-one-star/zero-awei/zero-one-his2607.git',
-                        credentialsId: "${GIT_CREDENTIAL_ID}"
-                    ]]
-                ])
-            }
-        }
 
         stage('Maven 打包') {
             steps {
