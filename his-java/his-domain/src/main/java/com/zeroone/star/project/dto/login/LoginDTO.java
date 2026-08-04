@@ -35,8 +35,15 @@ public class LoginDTO {
     private String password;
 
     /**
+     * 验证码UUID
+     */
+    @Schema(description = "验证码UUID（调用 /api/captcha/generate 获取）", example = "a1b2c3d4e5f6")
+    private String captchaUuid;
+
+    /**
      * 验证码
      */
-    @Schema(description = "验证码", example = "999818")
+    @Schema(description = "验证码", example = "8")
+    @NotBlank(message = "验证码不能为空")
     private String code;
 }

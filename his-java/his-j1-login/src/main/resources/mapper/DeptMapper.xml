@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zeroone.star.sysmgr.entity.dept.mapper.DeptMapper">
 
-    <select id="selectUserDeptList" resultType="com.zerone.star.sysqc.entity.dept.WhaleOrganizationUnitDO">
+    <select id="selectDoctorDeptList" resultType="com.zerone.star.sysqc.entity.dept.WaterOrganizationUnits">
         SELECT
         ou.id,
         ou.display_name AS displayName,

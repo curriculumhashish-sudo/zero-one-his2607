@@ -5,9 +5,7 @@ import com.zeroone.star.project.dto.j1.login.SelectTenantDTO;
 import com.zeroone.star.project.dto.login.LoginDTO;
 import com.zeroone.star.project.dto.login.Oauth2TokenDTO;
 import com.zeroone.star.project.query.j1.login.HospitalQuery;
-import com.zeroone.star.project.query.j1.login.TenantQuery;
 import com.zeroone.star.project.vo.j1.login.HospitalVO;
-import com.zeroone.star.project.vo.j1.login.SelectResultVO;
 import com.zeroone.star.project.vo.j1.login.TenantVO;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.login.LoginVO;
@@ -76,9 +74,7 @@ public interface LoginApi {
             description = "根据当前登录用户获取其可选的租户列表，如：默认租户、测试租户"
     )
     @GetMapping("tenants")
-    JsonVO<List<TenantVO>> getTenantList(
-            @Parameter(description = "租户查询条件") TenantQuery query
-    );
+    JsonVO<List<TenantVO>> getTenantList();
 
     /**
      * 选择租户
@@ -90,7 +86,7 @@ public interface LoginApi {
             description = "服务端记住当前登录用户选择的租户，后续操作基于此租户"
     )
     @PostMapping("select")
-    JsonVO<SelectResultVO> selectTenant(
+    JsonVO<TenantVO> selectTenant(
             @Parameter(description = "选择租户请求", required = true) @RequestBody SelectTenantDTO dto
     );
 
@@ -118,7 +114,7 @@ public interface LoginApi {
             description = "服务端记住当前用户选择的医院。虽然租户和医院一一绑定，为了支持扩展设计此接口"
     )
     @PostMapping("hospital/select")
-    JsonVO<SelectResultVO> selectHospital(
+    JsonVO<HospitalVO> selectHospital(
             @Parameter(description = "选择医院请求", required = true) @RequestBody SelectHospitalDTO dto
     );
 }

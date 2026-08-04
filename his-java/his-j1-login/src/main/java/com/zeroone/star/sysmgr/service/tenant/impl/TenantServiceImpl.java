@@ -81,13 +81,26 @@ public class TenantServiceImpl implements TenantService {
 
     private TenantVO convertTenant(TenantDO t) {
         TenantVO vo = new TenantVO();
-        vo.setTenantId(t.getId());
-        vo.setTenantCode(t.getCode());
-        vo.setTenantName(t.getName());
+        vo.setId(t.getId());
+        vo.setCode(t.getCode());
+        vo.setName(t.getName());
         vo.setDescription(t.getDescription());
-        // 首字母：取名称第一个字符
-        vo.setInitial(StringUtils.hasText(t.getName()) ? t.getName().substring(0, 1) : "");
+        vo.setIsActive(t.getIsActive());
+        vo.setExtraProperties(t.getExtraProperties());
+        vo.setCreatedAt(t.getCreatedAt());
+        vo.setUpdatedAt(t.getUpdatedAt());
+        vo.setCreatedBy(t.getCreatedBy());
+        vo.setUpdatedBy(t.getUpdatedBy());
         return vo;
+    }
+
+    @Override
+    public TenantVO getTenantById(Long tenantId) {
+        TenantDO tenant = TenantMapper.selectById(tenantId);
+        if (tenant == null || tenant.getIsActive() == null || tenant.getIsActive() != 1 || tenant.getIsDeleted() != 0) {
+            return null;
+        }
+        return convertTenant(tenant);
     }
 
     // ==================== 医院列表（带缓存） ====================
@@ -117,7 +130,7 @@ public class TenantServiceImpl implements TenantService {
         List<AdmOrganizationDO> list = admOrganizationMapper.selectList(wrapper);
         List<HospitalVO> voList = list.stream()
                 .map(this::convertHospital)
-                .filter(vo -> vo.getHospitalId() != null) // 过滤掉 ID 转 Long 失败的
+                .filter(vo -> vo.getId() != null) // 过滤掉 ID 转 Long 失败的
                 .collect(Collectors.toList());
 
         // 3. 写入缓存
@@ -131,16 +144,27 @@ public class TenantServiceImpl implements TenantService {
         HospitalVO vo = new HospitalVO();
         // adm_organization.id 是 String(varchar64)，VO 是 Long，尝试转换
         try {
-            vo.setHospitalId(Long.valueOf(h.getId()));
+            vo.setId(Long.valueOf(h.getId()));
         } catch (NumberFormatException e) {
             log.warn("医院ID转Long失败, id={}", h.getId());
-            return vo; // hospitalId 为 null，外层过滤
+            return vo; // id 为 null，外层过滤
         }
-        vo.setHospitalCode(h.getBusNo());
-        vo.setHospitalName(h.getName());
-        vo.setLevel(h.getMedinsLv());
-        // adm_organization 当前无 address 字段，留空
-        vo.setAddress(null);
+        vo.setCode(h.getBusNo());
+        vo.setName(h.getName());
+        vo.setDisplayName(h.getName());
+        return vo;
+    }
+
+    @Override
+    public HospitalVO getHospitalById(String hospitalId) {
+        AdmOrganizationDO org = admOrganizationMapper.selectById(hospitalId);
+        if (org == null || org.getActiveFlag() == null || org.getActiveFlag() != 1 || org.getIsDeleted() != 0) {
+            return null;
+        }
+        HospitalVO vo = convertHospital(org);
+        if (vo.getId() == null) {
+            return null;
+        }
         return vo;
     }
 
@@ -150,8 +174,8 @@ public class TenantServiceImpl implements TenantService {
         }
         String kw = query.getKeyword().trim();
         return list.stream()
-                .filter(vo -> (vo.getHospitalName() != null && vo.getHospitalName().contains(kw))
-                        || (vo.getHospitalCode() != null && vo.getHospitalCode().contains(kw)))
+                .filter(vo -> (vo.getName() != null && vo.getName().contains(kw))
+                        || (vo.getCode() != null && vo.getCode().contains(kw)))
                 .collect(Collectors.toList());
     }
 

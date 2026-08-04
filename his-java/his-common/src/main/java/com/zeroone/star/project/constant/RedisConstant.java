@@ -30,4 +30,5 @@ public interface RedisConstant {
      * 用户会话上下文缓存的key前缀（Hash）
      */
     String USER_SESSION_PREFIX = "user:session:";
+    String LOGIN_CONTEXT_PREFIX =  "user:login:";
 }

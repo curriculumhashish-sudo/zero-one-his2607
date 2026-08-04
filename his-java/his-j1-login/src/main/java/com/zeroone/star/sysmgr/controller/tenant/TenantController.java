@@ -6,9 +6,7 @@ import com.zeroone.star.project.constant.RedisConstant;
 import com.zeroone.star.project.dto.j1.login.SelectHospitalDTO;
 import com.zeroone.star.project.dto.j1.login.SelectTenantDTO;
 import com.zeroone.star.project.query.j1.login.HospitalQuery;
-import com.zeroone.star.project.query.j1.login.TenantQuery;
 import com.zeroone.star.project.vo.j1.login.HospitalVO;
-import com.zeroone.star.project.vo.j1.login.SelectResultVO;
 import com.zeroone.star.project.vo.j1.login.TenantVO;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.sysmgr.service.tenant.TenantService;
@@ -52,7 +50,7 @@ public class TenantController {
 
     @Operation(summary = "获取可选租户列表")
     @GetMapping("tenants")
-    public JsonVO<List<TenantVO>> getTenantList(TenantQuery query) {
+    public JsonVO<List<TenantVO>> getTenantList() {
         String userId = getCurrentUserId();
         if (userId == null) {
             return JsonVO.fail("未登录");
@@ -60,10 +58,6 @@ public class TenantController {
         Long uid = parseUserId(userId);
         if (uid == null) {
             return JsonVO.fail("用户ID格式异常");
-        }
-        // Query 里的 userId 仅做校验，实际以登录态为准
-        if (query.getUserId() != null && !query.getUserId().equals(uid)) {
-            return JsonVO.fail("请求用户ID与登录态不一致");
         }
 
         List<TenantVO> list = tenantService.getTenantList(uid);
@@ -83,10 +77,6 @@ public class TenantController {
         if (currentTenantId == null) {
             return JsonVO.fail("请先选择租户");
         }
-        // 如果 Query 传了 tenantId，必须和当前选中租户一致（防篡改）
-        if (query.getTenantId() != null && !query.getTenantId().equals(currentTenantId)) {
-            return JsonVO.fail("租户选择异常");
-        }
 
         List<HospitalVO> list = tenantService.getHospitalList(currentTenantId, query);
         return JsonVO.success(list);
@@ -96,7 +86,7 @@ public class TenantController {
 
     @Operation(summary = "选择租户")
     @PostMapping("select")
-    public JsonVO<SelectResultVO> selectTenant(@RequestBody SelectTenantDTO dto) {
+    public JsonVO<TenantVO> selectTenant(@RequestBody SelectTenantDTO dto) {
         String validErr = validate(dto);
         if (validErr != null) {
             return JsonVO.fail(validErr);
@@ -118,17 +108,18 @@ public class TenantController {
 
         tenantService.cacheSelectedTenant(userId, dto.getTenantId());
 
-        SelectResultVO result = new SelectResultVO();
-        result.setSuccess(true);
-        result.setCurrentTenantId(dto.getTenantId());
-        return JsonVO.success(result);
+        TenantVO tenant = tenantService.getTenantById(dto.getTenantId());
+        if (tenant == null) {
+            return JsonVO.fail("租户不存在或已停用");
+        }
+        return JsonVO.success(tenant);
     }
 
     // ==================== 接口 4：选择医院 ====================
 
     @Operation(summary = "选择医院")
     @PostMapping("hospital/select")
-    public JsonVO<SelectResultVO> selectHospital(@RequestBody SelectHospitalDTO dto) {
+    public JsonVO<HospitalVO> selectHospital(@RequestBody SelectHospitalDTO dto) {
         String validErr = validate(dto);
         if (validErr != null) {
             return JsonVO.fail(validErr);
@@ -150,16 +141,11 @@ public class TenantController {
 
         tenantService.cacheSelectedHospital(userId, dto.getHospitalId());
 
-        SelectResultVO result = new SelectResultVO();
-        result.setSuccess(true);
-        // adm_organization.id 是 String，VO 是 Long，做安全转换
-        try {
-            result.setCurrentHospitalId(Long.valueOf(dto.getHospitalId()));
-        } catch (NumberFormatException e) {
-            log.warn("医院ID转Long失败: {}", dto.getHospitalId());
-            result.setCurrentHospitalId(null);
+        HospitalVO hospital = tenantService.getHospitalById(dto.getHospitalId());
+        if (hospital == null) {
+            return JsonVO.fail("医院不存在或已停用");
         }
-        return JsonVO.success(result);
+        return JsonVO.success(hospital);
     }
 
     // ==================== 私有工具方法 ====================

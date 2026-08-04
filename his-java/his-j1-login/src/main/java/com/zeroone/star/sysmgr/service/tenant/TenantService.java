@@ -14,6 +14,11 @@ public interface TenantService {
     List<TenantVO> getTenantList(Long userId);
 
     /**
+     * 根据ID获取单个租户信息
+     */
+    TenantVO getTenantById(Long tenantId);
+
+    /**
      * 校验用户是否有指定租户权限
      */
     boolean checkUserTenant(Long userId, Long tenantId);
@@ -22,6 +27,11 @@ public interface TenantService {
      * 获取租户下的医院列表（带 Redis 缓存）
      */
     List<HospitalVO> getHospitalList(Long tenantId, HospitalQuery query);
+
+    /**
+     * 根据ID获取单个医院信息
+     */
+    HospitalVO getHospitalById(String hospitalId);
 
     /**
      * 校验医院是否属于指定租户且状态正常

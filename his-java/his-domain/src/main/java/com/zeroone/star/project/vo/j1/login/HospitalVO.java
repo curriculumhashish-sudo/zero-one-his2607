@@ -8,17 +8,14 @@ import lombok.Data;
 public class HospitalVO {
 
     @Schema(description = "医院ID", example = "1")
-    private Long hospitalId;
+    private Long id;
 
     @Schema(description = "医院编码", example = "H001")
-    private String hospitalCode;
+    private String code;
 
     @Schema(description = "医院名称", example = "XX市人民医院")
-    private String hospitalName;
+    private String name;
 
-    @Schema(description = "医院等级", example = "三级甲等")
-    private String level;
-
-    @Schema(description = "医院地址")
-    private String address;
+    @Schema(description = "医院显示名称", example = "XX市人民医院")
+    private String displayName;
 }
