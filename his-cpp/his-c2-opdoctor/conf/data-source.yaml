@@ -11,4 +11,4 @@ spring:
       port: 6379
       password: 01star
     mongodb:
-      uri: mongodb://awei:123456@192.168.28.132:27017/firstDb
+      uri: mongodb://kobe:123456@192.168.204.132:27017/firstDb

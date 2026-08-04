@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "MedicalRecordService.h"
 #include "dao/outpatientrecord/EmrDocumentDAO.h"
+#include "dao/mongo/MongoDictDAO.h"
 
 MedicalRecordPageDTO::Wrapper MedicalRecordService::queryList(const MedicalRecordQuery::Wrapper& query)
 {
@@ -17,12 +18,14 @@ MedicalRecordPageDTO::Wrapper MedicalRecordService::queryList(const MedicalRecor
 	page->calcPages();
 
 	auto list = dao.selectList(query);
+	MongoDictDAO mongoDao;
 	for (auto& record : list) {
 		auto dto = MedicalRecordDTO::createShared();
 		dto->recordId = record->getId();
 		dto->recordName = record->getTitle();
 		dto->status = record->getStatus();
-		dto->createTime = record->getCreatedAt();
+		dto->updatedTime = record->getUpdatedAt();
+		dto->statusName = mongoDao.getDictName("emr_document_status", record->getStatus());
 		page->addData(dto);
 	}
 	return page;

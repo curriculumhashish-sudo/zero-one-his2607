@@ -1,18 +1,13 @@
 #include "stdafx.h"
-#include"ChinapresController1.h"
-#include"service/chinapres1/ChinapresService1.h"
+#include "ChinapresController1.h"
+#include "service/chinapres1/ChinapresService1.h"
 
-ChinapresPageJsonVO1::Wrapper ChinapresController1::executeQueryChinapres(const ChinapresQuery1::Wrapper& query)
+ChinapresJsonVO1::Wrapper ChinapresController1::executeQueryChinapres(const ChinapresQuery1::Wrapper& query)
 {
 	ChinapresService1 service;
-	auto jvo = ChinapresPageJsonVO1::createShared();
-	auto page = service.queryList(query);
-	if (page) {
-		jvo->success(page);
-	}
-	else {
-		jvo->fail({});
-	}
+	auto jvo = ChinapresJsonVO1::createShared();
+	auto list = service.queryList(query);
+	jvo->success(list);
 	return jvo;
 }
 

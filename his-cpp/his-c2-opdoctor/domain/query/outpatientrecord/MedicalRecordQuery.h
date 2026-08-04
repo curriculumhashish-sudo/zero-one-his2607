@@ -12,9 +12,9 @@ class MedicalRecordQuery : public PageQuery
 	//»¼Õß²¡ÀúºÅ
 	API_DTO_FIELD_REQUIRE(String, patientId, ZH_WORDS_GETTER("medicalrecord.field.patientid"), true);
 	//¾ÍÕïºÅ
-	API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("medicalrecord.field.encounterid"), false);
-	//ËÑË÷²¡ÀúÃû³Æ
-	API_DTO_FIELD_REQUIRE(String, recordName, ZH_WORDS_GETTER("medicalrecord.field.recordname"), false);
+	API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("medicalrecord.field.encounterid"), true);
+	//ËÑË÷
+	API_DTO_FIELD_REQUIRE(String, keyWord, ZH_WORDS_GETTER("medicalrecord.field.keyword"), false);
 };
 
 #include OATPP_CODEGEN_END(DTO)
