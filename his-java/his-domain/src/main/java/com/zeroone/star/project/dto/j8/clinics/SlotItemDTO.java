@@ -23,12 +23,12 @@ public class SlotItemDTO {
 
     @NotNull(message = "时段开始时间不能为空")
     @Schema(description = "时段开始时间", example = "2026-07-22T00:19:38")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    //@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime startTime;
 
     @NotNull(message = "时段结束时间不能为空")
     @Schema(description = "时段结束时间", example = "2026-07-22T01:04:38")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    //@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime endTime;
 
     @NotNull(message = "放号容量不能为空")

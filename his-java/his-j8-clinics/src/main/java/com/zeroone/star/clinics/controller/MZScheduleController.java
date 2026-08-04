@@ -35,7 +35,7 @@ public class MZScheduleController implements ScheduleApis {
 
 
     @Operation(summary = "获取已放号源列表")
-    @GetMapping("/get-rel-number-source")
+    @PostMapping("/get-rel-number-source")
     @Override
     public JsonVO<Map<String, Object>> getRelNumberSource(@RequestBody @Valid RelSlotQuery query) {
         List<SlotVO> slotVOList = wkfSlotService.getRelNumberSource(query);
