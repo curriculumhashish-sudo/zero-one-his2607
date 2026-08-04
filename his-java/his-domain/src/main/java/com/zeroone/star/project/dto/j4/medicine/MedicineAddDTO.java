@@ -18,6 +18,21 @@ public class MedicineAddDTO {
 
     // 基础信息
 
+    @Schema(description = "药品业务编码")
+    private String busNo;
+
+    /**
+     * 生命周期状态编码（DRAFT/ACTIVE/INACTIVE/DISCARDED）
+     */
+    @Schema(description = "药品状态",example = "ACTIVE")
+    private String statusEnum;
+
+    @Schema(description = "药品版本")
+    private String medVersion;
+
+    @Schema(description = "英文药名")
+    private String nameEn;
+
     @NotBlank(message = "通用名称不能为空")
     @Size(max = 255, message = "通用名称不能超过255个字符")
     @Schema(description = "通用名称", example = "阿莫西林胶囊",
@@ -40,6 +55,9 @@ public class MedicineAddDTO {
     @Schema(description = "生产厂家", example = "某某制药有限公司",
             requiredMode = Schema.RequiredMode.REQUIRED)
     private String manufacturerText;
+
+    @Schema(description = "生产厂家ID")
+    private String manufacturerId;
 
     @NotBlank(message = "供应商不能为空")
     @Schema(description = "供应商ID", example = "4100000000000000004",
@@ -68,6 +86,12 @@ public class MedicineAddDTO {
 
     @Schema(description = "医保类别")
     private String ybType;
+
+    @Schema(description = "药品成分")
+    private String ingredient;
+
+    @Schema(description = "剂量形式编码")
+    private Integer doseFrom;
 
     // 临床信息
 
@@ -150,8 +174,11 @@ public class MedicineAddDTO {
     @Schema(description = "限制使用范围")
     private String restrictedScope;
 
+    @Schema(description = "成分项")
+    private String ingredientItem;
+
     @Schema(description = "药品说明")
-    private String definition;
+    private String medicationdefinition;
 
     // 库存与价格信息
 
@@ -215,6 +242,9 @@ public class MedicineAddDTO {
     @Schema(description = "默认采购入库库房ID")
     private String locationId;
 
+    @Schema(description = "所属机构ID")
+    private String orgId;
+
     @DecimalMin(value = "0", message = "警戒线最高值不能小于0")
     @Schema(description = "警戒线最高值")
     private BigDecimal itemMaxQuantity;
@@ -222,6 +252,18 @@ public class MedicineAddDTO {
     @DecimalMin(value = "0", message = "警戒线最低值不能小于0")
     @Schema(description = "警戒线最低值")
     private BigDecimal itemMinQuantity;
+
+    @Schema(description = "产品特性编码")
+    private Integer characteristic;
+
+    @Schema(description = "耗材描述")
+    private String comprisedText;
+
+    @Schema(description = "默认门诊单位编码")
+    private String defEncounterUnitCode;
+
+    @Schema(description = "默认住院单位编码")
+    private String defInhospitalUnitCode;
 
     // 检索与业务信息
 
@@ -239,6 +281,12 @@ public class MedicineAddDTO {
 
     @Schema(description = "药品69码")
     private String drug69Code;
+
+    @Schema(description = "抗生素分类编码")
+    private String antibioticCode;
+
+    @Schema(description = "权限限制枚举编码")
+    private String restrictedEnum;
 
     @Schema(description = "领域编码")
     private String domainEnum;
@@ -262,4 +310,8 @@ public class MedicineAddDTO {
 
     @Schema(description = "处方药标识", example = "false")
     private Boolean rxFlag;
+
+    @Schema(description = "启用标识", example = "true")
+    private Boolean activeFlag;
+
 }

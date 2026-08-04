@@ -28,7 +28,6 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -55,18 +54,6 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
     private static final String PRICE_TYPE_SALE = "SALE";
     private static final String PRICE_TYPE_MAX_RETAIL = "MAX_RETAIL";
 
-    /**
-     * TODO 登录选择科室功能完成后，
-     * 根据当前用户ID从Redis读取本次会话选择的科室orgId。
-     */
-    private static final String TEMP_ORG_ID = "322663105141149696";
-
-    /**
-     * TODO 用户药房选择功能完成后，
-     * 从当前登录状态中获取对应的药房或库房locationId。
-     */
-    private static final String TEMP_LOCATION_ID = "322954949549363200";
-
     @Resource
     private MsMedicineMapper msMedicineMapper;
 
@@ -78,15 +65,17 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
 
     @Override
     public PageDTO<MedicineListVO> queryMedicinePage(MedicinePageQuery query) {
+        String tenantId = userHolder.getCurrentTenantId();
         Page<MedicineListVO> page = new Page<>(query.getPageIndex(), query.getPageSize());
-        Page<MedicineListVO> result = baseMapper.selectMedicinePage(page, query);
+        Page<MedicineListVO> result = baseMapper.selectMedicinePage(page, query, tenantId);
         return PageDTO.create(result);
     }
 
     @Override
     public PageDTO<MedicineSelectVO> queryMedicineSelectPage(MedicineSelectPageQuery query) {
+        String tenantId = userHolder.getCurrentTenantId();
         Page<MedicineSelectVO> page = new Page<>(query.getPageIndex(), query.getPageSize());
-        Page<MedicineSelectVO> result = baseMapper.selectMedicineSelectPage(page, query, TEMP_LOCATION_ID);
+        Page<MedicineSelectVO> result = baseMapper.selectMedicineSelectPage(page, query, query.getLocationId(), tenantId);
         return PageDTO.create(result);
     }
 
@@ -95,25 +84,25 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
     public MedicineListVO addMedicine(MedicineAddDTO dto) {
         validatePrice(dto);
         validateInventoryRange(dto);
-
-        LocalDateTime now = LocalDateTime.now();
+        //获取租户id
+        String tenantId = userHolder.getCurrentTenantId();
         String medicineId = IdWorker.getIdStr();
 
         MedMedicationDefinitionDO medicine = msMedicineMapper.addDtoToEntity(dto);
 
-        fillMedicineFields(medicine, medicineId, now);
+        fillMedicineFields(medicine, medicineId, tenantId);
 
         int medicineRows = baseMapper.insert(medicine);
         if (medicineRows != 1) {
             throw new IllegalStateException("新增药品主体失败");
         }
 
-        savePrice(medicine, dto, PRICE_TYPE_PURCHASE, dto.getPurchasePrice(), now);
+        savePrice(medicine, dto, PRICE_TYPE_PURCHASE, dto.getPurchasePrice());
 
-        savePrice(medicine, dto, PRICE_TYPE_SALE, dto.getRetailPrice(), now);
+        savePrice(medicine, dto, PRICE_TYPE_SALE, dto.getRetailPrice());
 
         if (dto.getMaximumRetailPrice() != null) {
-            savePrice(medicine, dto, PRICE_TYPE_MAX_RETAIL, dto.getMaximumRetailPrice(), now);
+            savePrice(medicine, dto, PRICE_TYPE_MAX_RETAIL, dto.getMaximumRetailPrice());
         }
 
         MedicineListVO vo = msMedicineMapper.entityToListVO(medicine);
@@ -124,27 +113,21 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
     /**
      * 补充不允许由前端控制的系统字段。
      */
-    private void fillMedicineFields(MedMedicationDefinitionDO medicine, String medicineId, LocalDateTime now) {
+    private void fillMedicineFields(MedMedicationDefinitionDO medicine, String medicineId, String tenantId) {
         medicine.setId(medicineId);
-        medicine.setBusNo("MD" + medicineId);
-        medicine.setCreatedAt(now);
-        medicine.setUpdatedAt(now);
+        medicine.setTenantId(tenantId);
         medicine.setIsDeleted(false);
         medicine.setVersion(0);
-        medicine.setOrgId(TEMP_ORG_ID);
-
-        // 新增药品统一以启用状态保存，状态不由前端传入。
-        medicine.setStatusEnum(STATUS_ACTIVE);
-        medicine.setActiveFlag(true);
     }
 
     /**
      * 保存一种价格定义。
      */
-    private void savePrice(MedMedicationDefinitionDO medicine, MedicineAddDTO dto, String priceType, BigDecimal priceValue, LocalDateTime now) {
+    private void savePrice(MedMedicationDefinitionDO medicine, MedicineAddDTO dto, String priceType, BigDecimal priceValue) {
         AdmChargeItemDefinitionDO price = new AdmChargeItemDefinitionDO();
 
         price.setId(IdWorker.getIdStr());
+        price.setTenantId(medicine.getTenantId());
         price.setIsDeleted(false);
         price.setVersion(0);
 
