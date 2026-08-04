@@ -1,11 +1,13 @@
 package com.zeroone.star.project.j8.clinics;
 
-import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j8.clinics.FormalRosterDTO;
 import com.zeroone.star.project.dto.j8.clinics.ScheduleAddDTO;
-import com.zeroone.star.project.dto.j8.clinics.ScheduleDTO;
 import com.zeroone.star.project.query.j8.clinics.ScheduleListQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j8.clinics.GenerateRosterVO;
+import com.zeroone.star.project.vo.j8.clinics.ScheduleCreateVO;
+import com.zeroone.star.project.vo.j8.clinics.ScheduleItemVO;
+import com.zeroone.star.project.vo.j8.clinics.ScheduleListVO;
 
 /**
  * <p>
@@ -18,31 +20,32 @@ import com.zeroone.star.project.vo.JsonVO;
  */
 public interface ClinicsApis {
     /**
-     * 获取日程列表
+     * 查询日程列表
      * @param scheduleListQuery 查询门诊日程参数
-     * @return 门诊日程分页结果
+     * @return 日程列表响应
      */
-    JsonVO<PageDTO<ScheduleDTO>> querySchedule(ScheduleListQuery scheduleListQuery);
+    JsonVO<ScheduleListVO> querySchedule(ScheduleListQuery scheduleListQuery);
+
 
     /**
      * 获取日程详情
      * @param scheduleId 日程ID
      * @return 日程详情
      */
-    JsonVO<ScheduleDTO> queryScheduleDetail(Long scheduleId);
+    JsonVO<ScheduleItemVO> queryScheduleDetail(String scheduleId);
 
     /**
      * 新建日程
      * @param scheduleAddDTO 新建日程参数
      * @return 新建日程结果
      */
-    JsonVO<String> createSchedule(ScheduleAddDTO scheduleAddDTO);
+    JsonVO<ScheduleCreateVO> createSchedule(ScheduleAddDTO scheduleAddDTO);
 
     /**
      * 生成正式排班
      * @return 生成正式排班结果
      */
-    JsonVO<String> generateFormalRoster(FormalRosterDTO formalRosterDTO);
+    JsonVO<GenerateRosterVO> generateFormalRoster(FormalRosterDTO formalRosterDTO);
 
 
 

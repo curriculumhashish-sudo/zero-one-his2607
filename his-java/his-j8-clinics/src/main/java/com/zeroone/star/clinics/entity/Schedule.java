@@ -26,11 +26,11 @@ public class Schedule implements Serializable {
 
     @Schema(description = "主键")
     @TableId(value = "id", type = IdType.INPUT)
-    private Long id;
+    private String id;
 
     @Schema(description = "租户标识")
     @TableField("tenant_id")
-    private Long tenantId;
+    private String tenantId;
 
     @Schema(description = "创建时间")
     @TableField(value = "created_at", fill = FieldFill.INSERT)
@@ -42,11 +42,11 @@ public class Schedule implements Serializable {
 
     @Schema(description = "创建人")
     @TableField(value = "created_by", fill = FieldFill.INSERT)
-    private Long createdBy;
+    private String createdBy;
 
     @Schema(description = "最后更新人")
     @TableField(value = "updated_by", fill = FieldFill.INSERT_UPDATE)
-    private Long updatedBy;
+    private String updatedBy;
 
     @Schema(description = "软删标记")
     @TableField("is_deleted")
@@ -58,7 +58,7 @@ public class Schedule implements Serializable {
 
     @Schema(description = "删除人")
     @TableField(value = "deleted_by", fill = FieldFill.UPDATE)
-    private Long deletedBy;
+    private String deletedBy;
 
     @Schema(description = "乐观锁版本号")
     @TableField("version")
@@ -66,7 +66,7 @@ public class Schedule implements Serializable {
 
     @Schema(description = "机构标识")
     @TableField("organization_id")
-    private Long organizationId;
+    private String organizationId;
 
     @Schema(description = "日程显示名称")
     @TableField("name")
@@ -94,7 +94,7 @@ public class Schedule implements Serializable {
 
     @Schema(description = "医疗服务引用")
     @TableField("healthcare_service_id")
-    private Long healthcareServiceId;
+    private String healthcareServiceId;
 
     @Schema(description = "服务大类快照 JSON")
     @TableField("service_category_json")
@@ -110,11 +110,19 @@ public class Schedule implements Serializable {
 
     @Schema(description = "替诊医师主键（顶班 B；原医师仍保留在 Actor）")
     @TableField("substitute_practitioner_id")
-    private Long substitutePractitionerId;
+    private String substitutePractitionerId;
 
     @Schema(description = "替诊原因说明")
     @TableField("substitute_reason")
     private String substituteReason;
+
+    @Schema(description = "来源日程模板ID")
+    @TableField("source_schedule_template_id")
+    private String sourceScheduleTemplateId;
+
+    @Schema(description = "号源模板ID")
+    @TableField("slot_provision_template_id")
+    private String slotProvisionTemplateId;
 
 
 }

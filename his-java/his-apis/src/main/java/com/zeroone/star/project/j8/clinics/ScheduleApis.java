@@ -1,6 +1,7 @@
 package com.zeroone.star.project.j8.clinics;
 
 
+import com.zeroone.star.project.dto.j8.clinics.RetireScheduleDTO;
 import com.zeroone.star.project.dto.j8.clinics.BatchDeleteSlotDTO;
 import com.zeroone.star.project.dto.j8.clinics.RetireScheduleDTO;
 import com.zeroone.star.project.dto.j8.clinics.SlotBatchReleaseDTO;

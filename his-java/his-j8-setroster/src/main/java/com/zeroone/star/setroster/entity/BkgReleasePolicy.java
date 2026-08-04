@@ -60,10 +60,10 @@ public class BkgReleasePolicy implements Serializable {
     private String channelQuotaJson;
 
     @TableField(value = "created_at", fill = FieldFill.INSERT)// 创建时间
-    private LocalDateTime createdAt;
+    private LocalDateTime createTime;
 
     @TableField(value = "updated_at", fill = FieldFill.INSERT_UPDATE)// 更新时间
-    private LocalDateTime updatedAt;
+    private LocalDateTime updateTime;
 
     @TableField(value = "created_by", fill = FieldFill.INSERT)// 创建人
     private String createdBy;

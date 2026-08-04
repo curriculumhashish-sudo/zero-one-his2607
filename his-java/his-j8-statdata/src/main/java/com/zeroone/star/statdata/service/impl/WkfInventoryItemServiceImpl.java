@@ -1,11 +1,11 @@
 package com.zeroone.star.statdata.service.impl;
 
-import com.zeroone.star.project.dto.j8.statdata.ExpireWarningDTO;
+import com.zeroone.star.project.query.j8.statdata.HourTrendQuery;
+import com.zeroone.star.project.vo.j8.statdata.ExpireWarningVO;
 import com.zeroone.star.statdata.entity.WkfInventoryItem;
 import com.zeroone.star.statdata.mapper.WkfInventoryItemMapper;
 import com.zeroone.star.statdata.service.IWkfInventoryItemService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ import java.util.Map;
 public class WkfInventoryItemServiceImpl extends ServiceImpl<WkfInventoryItemMapper, WkfInventoryItem> implements IWkfInventoryItemService {
 
     private static final Map<String, String> GOODS_TYPE_MAP = new HashMap<>();
-    
+
     static {
         GOODS_TYPE_MAP.put("drug", "med_medication_definition");
         GOODS_TYPE_MAP.put("consumable", "med_consumable_definition");
@@ -33,33 +33,38 @@ public class WkfInventoryItemServiceImpl extends ServiceImpl<WkfInventoryItemMap
     }
 
     @Override
-    public List<ExpireWarningDTO> getExpireWarningData(String goodsType) {
+    public ExpireWarningVO getExpireWarningData(HourTrendQuery query) {
+        String goodsType = query.getGranularity();
+
         String itemTable = null;
         if (goodsType != null && !goodsType.isEmpty() && !"all".equalsIgnoreCase(goodsType)) {
             itemTable = GOODS_TYPE_MAP.get(goodsType.toLowerCase());
         }
-        
+
         List<Map<String, Object>> data = getBaseMapper().getExpireWarningData(itemTable);
-        
-        List<ExpireWarningDTO> result = new ArrayList<>();
+
         Map<String, Integer> dataMap = new HashMap<>();
         dataMap.put("expireInOneMonth", 0);
         dataMap.put("expireInThreeMonth", 0);
         dataMap.put("safe", 0);
-        
+
         for (Map<String, Object> row : data) {
             String name = (String) row.get("name");
             Integer value = row.get("value") != null ? ((Number) row.get("value")).intValue() : 0;
             dataMap.put(name, value);
         }
-        
+
+        List<ExpireWarningVO.ExpireWarningItem> items = new ArrayList<>();
         for (String key : dataMap.keySet()) {
-            ExpireWarningDTO dto = new ExpireWarningDTO();
-            dto.setName(key);
-            dto.setValue(dataMap.get(key));
-            result.add(dto);
+            ExpireWarningVO.ExpireWarningItem item = new ExpireWarningVO.ExpireWarningItem();
+            item.setName(key);
+            item.setValue(dataMap.get(key));
+            items.add(item);
         }
-        
-        return result;
+
+        ExpireWarningVO vo = new ExpireWarningVO();
+        vo.setItems(items);
+        vo.setUnit("种");
+        return vo;
     }
 }

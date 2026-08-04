@@ -1,7 +1,7 @@
 package com.zeroone.star.statdata.service;
 
-import com.zeroone.star.project.dto.j8.statdata.StockChartDTO;
-import com.zeroone.star.project.query.j8.statdata.StockChartQuery;
+import com.zeroone.star.project.query.j8.statdata.HourTrendQuery;
+import com.zeroone.star.project.vo.j8.statdata.StockInOutVO;
 import com.zeroone.star.statdata.entity.WkfSupplyRequest;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -15,9 +15,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IWkfSupplyRequestService extends IService<WkfSupplyRequest> {
     /**
-     * 获取库存出入库图表数据
+     * 获取出入库堆叠柱状图数据
      * @param query 查询参数
-     * @return 库存图表数据
+     * @return 堆叠柱状图数据
      */
-    StockChartDTO getStockChartDTO(StockChartQuery query);
+    StockInOutVO getStockChartDTO(HourTrendQuery query);
 }

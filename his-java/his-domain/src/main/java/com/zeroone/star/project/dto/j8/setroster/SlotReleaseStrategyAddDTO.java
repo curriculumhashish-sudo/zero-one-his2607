@@ -1,8 +1,8 @@
 package com.zeroone.star.project.dto.j8.setroster;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -15,7 +15,7 @@ import java.util.Map;
 
 /**
  * <p>
- * 描述：新增放号策略DTO
+ * 描述：新建放号策略DTO
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
@@ -24,7 +24,7 @@ import java.util.Map;
  * @version 1.0.0
  */
 @Data
-@Schema(description = "新增放号策略参数")
+@Schema(description = "新建放号策略参数")
 public class SlotReleaseStrategyAddDTO {
 
     @NotBlank(message = "策略名称不能为空")
@@ -34,7 +34,8 @@ public class SlotReleaseStrategyAddDTO {
             example = "门诊默认放号",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
-    private String strategyName;
+    @JsonAlias("strategyName")
+    private String policyName;
 
     @NotNull(message = "提前天数不能为空")
     @Min(value = 0, message = "提前天数不能小于0")
@@ -54,7 +55,8 @@ public class SlotReleaseStrategyAddDTO {
             example = "30",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
-    private Integer slotDurationMinutes;
+    @JsonAlias("slotDurationMinutes")
+    private Integer slotMinutes;
 
     @NotNull(message = "单段容量不能为空")
     @Min(value = 1, message = "单段容量必须大于0")
@@ -64,28 +66,23 @@ public class SlotReleaseStrategyAddDTO {
             example = "10",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
-    private Integer slotCapacity;
+    @JsonAlias("slotCapacity")
+    private Integer capacityPerSlot;
 
-    @Valid
-    @Size(max = 20, message = "渠道数量不能超过20个")
     @Schema(
-            description = "各渠道配额百分比，渠道编码为键，百分比为值；配置时百分比总和应为100",
+            description = "渠道配额JSON",
             example = "{\"WINDOW\":60,\"MINIAPP\":40}"
     )
-    private Map<
-            @NotBlank(message = "渠道编码不能为空") String,
-            @NotNull(message = "渠道配额不能为空")
-            @Min(value = 0, message = "渠道配额不能小于0")
-            @Max(value = 100, message = "渠道配额不能超过100")
-                    Integer> channelQuota;
+    @JsonAlias("channelQuota")
+    private Map<String, Integer> channelQuotaJson;
 
     @AssertTrue(message = "渠道配额百分比总和必须为100")
     @JsonIgnore
     @Schema(hidden = true)
     public boolean isChannelQuotaTotalValid() {
-        return channelQuota == null
-                || channelQuota.isEmpty()
-                || channelQuota.values().stream().allMatch(value -> value != null)
-                && channelQuota.values().stream().mapToInt(Integer::intValue).sum() == 100;
+        return channelQuotaJson == null
+                || channelQuotaJson.isEmpty()
+                || channelQuotaJson.values().stream().allMatch(value -> value != null)
+                && channelQuotaJson.values().stream().mapToInt(Integer::intValue).sum() == 100;
     }
 }

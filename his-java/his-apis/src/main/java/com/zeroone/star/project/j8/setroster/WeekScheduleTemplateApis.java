@@ -31,7 +31,7 @@ public interface WeekScheduleTemplateApis {
      * @param id 周排班模板ID
      * @return 周排班模板详情
      */
-    JsonVO<WeekScheduleTemplateDetailVO> getWeekScheduleTemplate(Long id);
+    JsonVO<WeekScheduleTemplateDetailVO> getWeekScheduleTemplate(String id);
 
     /**
      * 新增周排班模板
@@ -52,6 +52,5 @@ public interface WeekScheduleTemplateApis {
      * @param id 周排班模板ID
      * @return 删除周排班模板ID
      */
-    JsonVO<String> deleteWeekScheduleTemplate(Long id);
+    JsonVO<String> deleteWeekScheduleTemplate(String id);
 }
-

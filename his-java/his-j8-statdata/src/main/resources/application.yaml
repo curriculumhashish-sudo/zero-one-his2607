@@ -1,7 +1,7 @@
 server:
-  port: ${sp.statdata}
+  port: ${sp.j8-statdata}
   servlet:
     context-path: /statdata
 spring:
   application:
-    name: ${sn.statdata}
+    name: ${sn.j8-statdata}
