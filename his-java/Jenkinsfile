@@ -18,6 +18,9 @@ pipeline {
             steps {
                 dir('his-java') {
                     sh '''
+                        # 先安装根 POM 到本地仓库
+                        mvn install -N -DskipTests
+                        # 再打包目标模块及其依赖
                         mvn clean package -DskipTests \
                             -pl his-j5-ons,his-j5-configuration \
                             -am \
