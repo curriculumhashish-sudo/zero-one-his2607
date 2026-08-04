@@ -2,9 +2,8 @@ pipeline {
     agent any
 
     environment {
-        JAVA_HOME     = '/usr/lib/jvm/java-17-openjdk'
-        PATH          = '/usr/lib/jvm/java-17-openjdk/bin:/usr/bin:${env.PATH}'
-        MAVEN_OPTS    = '-Dmaven.repo.local=/root/.m2/repository'
+        JAVA_HOME = '/usr/lib/jvm/java-17-openjdk'
+        PATH      = '/opt/maven/bin:/usr/lib/jvm/java-17-openjdk/bin:/usr/bin:${env.PATH}'
     }
 
     options {
