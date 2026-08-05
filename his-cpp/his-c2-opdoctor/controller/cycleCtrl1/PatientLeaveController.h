@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #ifndef _PATIENTLEAVECONTROLLER_H_
 #define _PATIENTLEAVECONTROLLER_H_
 
