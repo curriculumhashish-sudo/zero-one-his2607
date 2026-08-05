@@ -1,6 +1,55 @@
 title:
  tags:
   text: "周期循环"
+chinapres1:
+ field:
+  patientid: "病历号"
+  presid: "处方号"
+  keyword: "搜索组套/历史处方"
+  id: "处方ID"
+  name: "处方名称"
+  herbs: "药材摘要"
+  prescno: "处方号"
+  status: "处方状态"
+  usage: "用法"
+  frequency: "频次"
+  days: "天数"
+  doses: "付数"
+  decoct: "代煎"
+  diagnosis: "诊断"
+  remark: "备注"
+  totalcount: "总味数"
+  doseamount: "单剂金额"
+  totalamount: "合计金额"
+  details: "药材明细"
+  herbname: "药材名称"
+  dosage: "剂量"
+  unitprice: "单价"
+  subtotal: "小计"
+  prescriptionno: "处方号"
+  count: "味数"
+  prescriptionid: "处方记录ID"
+  encounterid: "就诊ID"
+  statusname: "处方状态名称"
+  copies: "付数"
+  decoction: "代煎"
+  version: "版本号"
+  createdat: "创建时间"
+  statuschangedat: "状态变更时间"
+  medicineid: "药品定义ID"
+  medicinecode: "药材编码"
+  quantity: "数量"
+  unit: "单位"
+  dose: "单剂量"
+  doseunit: "剂量单位"
+  sortnumber: "排序号"
+  records: "历史处方列表"
+ tags:
+  tag: "中医处方"
+ query:
+  summary: "获取历史处方"
+ detail:
+  summary: "获取指定患者本次就诊中医处方单"
 
 queue:
  dto:
@@ -363,7 +412,6 @@ chinapres2:
   encounterId: "就诊ID"
   requesterId: "开方医生ID"
 
-
 outpatientrecord:
  field:
   outpatientrecordId: "病历ID（为空表示新增，不为空表示修改）"
@@ -411,7 +459,16 @@ createOrder:
   keyword: "关键词"
  order:
   tags:
-   tag: "开立医嘱"
+   tag: "病历管理"
+  field:
+   patientid1: "患者病历号"
+   encounterid: "本次就诊号"
+   recordid: "病历ID"
+   keyword: "搜索关键词"
+   status1: "状态"
+   statusname: "状态名称"
+   updatetime: "更新时间"
+   data: "分页数据"
   query:
    summary: "分页查询医嘱"
   add:

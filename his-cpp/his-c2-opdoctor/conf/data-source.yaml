@@ -12,4 +12,3 @@
       password: 01star
     mongodb:
       uri: mongodb://hisuser:123456@192.168.26.135:27017/firstDb
-

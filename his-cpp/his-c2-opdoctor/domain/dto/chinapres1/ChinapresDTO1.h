@@ -13,7 +13,7 @@ class ChinapresDTO1 : public  oatpp::DTO
 	//处方编号
 	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("chinapres1.field.id"), true);
 	//处方数量
-	API_DTO_FIELD_REQUIRE(String, count, ZH_WORDS_GETTER("chinapres1.field.count"),true);
+	API_DTO_FIELD_REQUIRE(String, count, ZH_WORDS_GETTER("chinapres1.field.count"), true);
 	//哪些药材
 	API_DTO_FIELD_REQUIRE(String, herbs, ZH_WORDS_GETTER("chinapres1.field.herbs"), false);
 };

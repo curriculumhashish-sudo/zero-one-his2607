@@ -13,7 +13,6 @@ class ChinapresDAO1 :public BaseDAO
 {
 public:
 	//查处方
-	uint64_t count(const ChinapresQuery1::Wrapper& query);
 	std::list<PtrChinapresDO> selectAll(const ChinapresQuery1::Wrapper& query);
 	//查处方详情
 	std::list<PtrChinapresDO> selectDetail(const ChinapresDetailQuery1::Wrapper& query);

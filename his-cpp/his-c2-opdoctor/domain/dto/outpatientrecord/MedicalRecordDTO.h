@@ -14,8 +14,10 @@ class MedicalRecordDTO : public oatpp::DTO
 	API_DTO_FIELD_REQUIRE(String, recordName, ZH_WORDS_GETTER("medicalrecord.field.recordname"), true);
 	//状态
 	API_DTO_FIELD_REQUIRE(String, status, ZH_WORDS_GETTER("medicalrecord.field.status1"), true);
-	//创建时间
-	API_DTO_FIELD_REQUIRE(String, createTime, ZH_WORDS_GETTER("medicalrecord.field.createtime"), true);
+	//时间
+	API_DTO_FIELD_REQUIRE(String, updatedTime, ZH_WORDS_GETTER("medicalrecord.field.updatetime"), true);
+	//
+	API_DTO_FIELD_REQUIRE(String, statusName, ZH_WORDS_GETTER("medicalrecord.field.statusname"), true);
 };
 
 #include OATPP_CODEGEN_END(DTO)
