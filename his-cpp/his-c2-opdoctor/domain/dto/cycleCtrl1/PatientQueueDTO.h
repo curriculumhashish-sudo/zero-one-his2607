@@ -6,44 +6,44 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-// »¼Õß¶ÓÁĞÁĞ±í·µ»ØVO
+// æ‚£è€…é˜Ÿåˆ—åˆ—è¡¨è¿”å›VO
 class PatientQueueDTO : public oatpp::DTO
 {
-    // VO×¨ÓÃ³õÊ¼»¯±êÊ¶£¬¿ò¼ÜÇø·Ö·µ»ØÄ£ĞÍ
+    // VOä¸“ç”¨åˆå§‹åŒ–æ ‡è¯†ï¼Œæ¡†æ¶åŒºåˆ†è¿”å›æ¨¡å‹
     DTO_INIT(PatientQueueDTO, DTO);
 
-    //»¼ÕßID
+    //æ‚£è€…ID
     API_DTO_FIELD_REQUIRE(String, patientId, ZH_WORDS_GETTER("queue.dto.patientId"), false);
 
-    //¾ÍÕïID
+    //å°±è¯ŠID
     API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("queue.dto.encounterId"), false);
 
-    // »¼ÕßĞÕÃû
+    // æ‚£è€…å§“å
     API_DTO_FIELD_REQUIRE(String, patientName, ZH_WORDS_GETTER("queue.dto.patientName"), true);
 
-    // ĞÔ±ğ
+    // æ€§åˆ«
     API_DTO_FIELD_REQUIRE(String, gender, ZH_WORDS_GETTER("queue.dto.gender"), true);
-    // ÄêÁä
+    // å¹´é¾„
     API_DTO_FIELD_REQUIRE(Int32, age, ZH_WORDS_GETTER("queue.dto.age"), true);
-    // ¹ÒºÅÀàĞÍ£¨ÆÕÍ¨ºÅ/×¨¼ÒºÅ£©
+    // æŒ‚å·ç±»å‹ï¼ˆæ™®é€šå·/ä¸“å®¶å·ï¼‰
     API_DTO_FIELD_REQUIRE(String, registerType, ZH_WORDS_GETTER("queue.dto.registerType"), true);
 
-    // ¾ÍÕïÊ±¼ä
+    // å°±è¯Šæ—¶é—´
     API_DTO_FIELD_REQUIRE(String, visitTime, ZH_WORDS_GETTER("queue.dto.visitTime"), true);
-    // ²¡ÀúºÅ
+    // ç—…å†å·
     API_DTO_FIELD_REQUIRE(String, visitNo, ZH_WORDS_GETTER("queue.dto.visitNum"), true);
-    // Ö§¸¶ÀàĞÍ ×Ô·Ñ/Ê¡Ò½±£/ÊĞÒ½±£
+    // æ”¯ä»˜ç±»å‹ è‡ªè´¹/çœåŒ»ä¿/å¸‚åŒ»ä¿
     API_DTO_FIELD_REQUIRE(String, payType, ZH_WORDS_GETTER("queue.dto.payType"), true);
-    // ¾ÍÕï×´Ì¬ ´ıÕï¡¢ÔÚÕï¡¢ÍêÕï
+    // å°±è¯ŠçŠ¶æ€ å¾…è¯Šã€åœ¨è¯Šã€å®Œè¯Š
     API_DTO_FIELD_REQUIRE(String, visitStatus, ZH_WORDS_GETTER("queue.dto.visitStatus"), true);
 
-    //ÅÅ¶ÓºÅ
+    //æ’é˜Ÿå·
     API_DTO_FIELD_REQUIRE(Int32, queueNumber, ZH_WORDS_GETTER("queue.dto.queueNum"), false);
 
-    //¹ÒºÅ¿ÆÊÒ
+    //æŒ‚å·ç§‘å®¤
     API_DTO_FIELD_REQUIRE(String, departmentName, ZH_WORDS_GETTER("queue.dto.departmentName"), false);
     
-    //ÓÅÏÈ¼¶Ãû³Æ
+    //ä¼˜å…ˆçº§åç§°
     API_DTO_FIELD_REQUIRE(String, priorityName, ZH_WORDS_GETTER("queue.dto.priorityName"), false);
 
 };
