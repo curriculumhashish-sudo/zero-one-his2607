@@ -101,7 +101,7 @@
                 <version>0.40.2</version>
                 <configuration>
                     <dockerHost>https://47.116.98.7:2375</dockerHost>
-                    <certPath>C:\Users\yaotoucong\.docker</certPath>
+                    <certPath>/home/docker-ca</certPath>
                     <images>
                         <image>
                             <name>01star/${project.artifactId}:${project.version}</name>
