@@ -17,17 +17,17 @@ class PatientFinishController : public oatpp::web::server::api::ApiController
 {
     API_ACCESS_DECLARE(PatientFinishController);
 public:
-    // 完诊接口 PUT
+    // 瀹岃瘖鎺ュ彛 PUT
     ENDPOINT(API_M_PUT, "/cycleCtrl/finish", finishPatient, BODY_DTO(Object<PatientFinishQuery>, finishParam), API_HANDLER_AUTH_PARAME)
     {
         API_HANDLER_RESP_VO(execFinishPatient(finishParam, authObject->getPayload()));
     }
     ENDPOINT_INFO(finishPatient)
     {
-        // 定义授权描述
+        // 瀹氫箟鎺堟潈鎻忚堪
         API_DEF_ADD_AUTH();
         API_DEF_ADD_TITLE(ZH_WORDS_GETTER("finish.get.summary"));
-        // 定义标签
+        // 瀹氫箟鏍囩
         API_DEF_ADD_TAG(API_TAG);
         API_DEF_ADD_RSP_JSON_WRAPPER(PatientFinishJsonVO);
     }
