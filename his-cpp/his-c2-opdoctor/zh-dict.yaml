@@ -310,82 +310,83 @@ order:
   summary: "新增医嘱"
  modify:
   summary: "修改医嘱"
+ batchAdd:
+  summary: "批量新增医嘱"
  catalog:
   summary: "分页查询项目"
  field:
-  visitid: "就诊ID"
-  patientid: "患者ID"
-  departmentId: "科室ID"
-  excludeCodes: "排除编码"
-  strictStock: "严格库存检查"
+  # === 上下文 ===
+  encounterId: "就诊ID"
+  patientId: "患者ID"
+  catalogId: "项目目录ID"
+  orderType: "医嘱类型"
+  expenseType: "费用性质"
+
+  # === 查询筛选 ===
+  keyword: "关键词"
+  status: "状态"
+
+  # === 项目信息 ===
   itemCode: "项目编码"
   itemName: "项目名称"
   category: "类别"
+  categoryCode: "分类编码"
+  categoryName: "分类名称"
   spec: "规格"
-  stock: "库存"
   unitPrice: "单价"
-  diagnosis: "诊断"
-  expenseType: "费用性质"
-  orderType: "类型"
+
+  # === 临床决策 ===
   dosage: "用量"
+  dose: "单次剂量"
+  doseUnit: "剂量单位"
   frequency: "频次"
   routeCode: "给药途径"
   useDays: "使用天数"
   quantity: "数量"
+  quantityUnit: "数量单位"
+  contentPerUnit: "每单位含量"
   isSkinTest: "是否皮试"
   remark: "备注"
-  orderid: "医嘱ID"
+
+  # === 分组与排序 ===
+  groupId: "组套ID"
+  orderNo: "排序号"
+  version: "版本号"
+
+  # === 医嘱标识 ===
+  orderId: "医嘱ID"
+  prescriptionNo: "处方号"
+
+  # === 医生信息 ===
   doctorId: "医生ID"
   doctorName: "医生姓名"
-  status: "状态"
+
+  # === 状态与时间 ===
   createTime: "开立时间"
+  updatedAt: "更新时间"
   totalPrice: "总价"
 
-chinapres1:
- field:
-  patientid: "病历号"
-  presid: "处方号"
-  keyword: "搜索组套/历史处方"
-  id: "处方ID"
-  name: "处方名称"
-  herbs: "药材摘要"
-  prescno: "处方号"
-  status: "处方状态"
-  usage: "用法"
-  frequency: "频次"
-  days: "天数"
-  doses: "付数"
-  decoct: "代煎"
-  diagnosis: "诊断"
-  remark: "备注"
-  totalcount: "总味数"
-  doseamount: "单剂金额"
-  totalamount: "合计金额"
-  details: "药材明细"
-  herbname: "药材名称"
-  dosage: "剂量"
-  unitprice: "单价"
-  subtotal: "小计"
- tags:
-  tag: "中医处方"
- query:
-  summary: "获取历史处方"
- detail:
-  summary: "获取指定患者本次就诊中医处方单"
+  # === 显示名 ===
+  routeDisplay: "途径显示名"
+  frequencyDisplay: "频次显示名"
+  statusDisplay: "状态显示名"
+  orderTypeDisplay: "医嘱类型显示名"
 
-medicalrecord:
- tags:
-  tag: "门诊病历"
- field:
-  patientid1: "患者病历号"
-  keyword1: "搜索关键词"
-  recordid: "病历ID"
-  recordname: "病历名称"
-  status1: "状态"
-  createtime: "创建时间"
-  data: "分页数据"
- query:
-  summary: "获取历史病历列表"
+  # === 批量新增 ===
+  orderList: "医嘱列表"
+
+ audit:
+  orderId: "医嘱ID"
+  orderType: "医嘱类型"
+  operationType: "操作类型"
+  operatorId: "操作人ID"
+  operatorName: "操作人姓名"
+  operatorOrgId: "操作人机构ID"
+  operationTime: "操作时间"
+  beforeData: "变更前数据"
+  afterData: "变更后数据"
+  changedFields: "变更字段列表"
+  remark: "备注"
 
 chinapres2:
  tags:
@@ -514,7 +515,7 @@ createOrder:
    status: "状态"
    createTime: "开立时间"
    totalPrice: "总价"
-   orderId: "医嘱 ID，长度 1-64"
+   orderId: "医嘱 ID，长度 1‑64"
    deleteOrders: "待删除医嘱；选择组内成员会自动扩展为整个组，最多传 200 项"
    mergeOrders: "待并组医嘱；至少包含两个独立医嘱或已有组，最多传 200 项"
    splitOrders: "待拆组医嘱；可传组内任意成员，后端按完整组拆分，最多传 200 项"

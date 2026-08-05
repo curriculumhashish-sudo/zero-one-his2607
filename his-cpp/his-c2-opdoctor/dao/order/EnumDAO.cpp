@@ -1,16 +1,14 @@
 // dao/order/EnumDAO.cpp
 #include "stdafx.h"
-#include "EnumDAO.h"
+#include "../../dao/order/EnumDAO.h"
 #include <bsoncxx/builder/stream/document.hpp>
 #include <bsoncxx/builder/stream/array.hpp>
 #include <bsoncxx/json.hpp>
 #include <bsoncxx/types.hpp>
+#include <bsoncxx/oid.hpp>
+#include <iostream>
 
-EnumDAO::EnumDAO(std::shared_ptr<MongoClient> client)
-    : m_mongoClient(client) {
-}
-
-// ========== 辅助函数：安全获取 int 值（兼容 int32 / int64 / double） ==========
+// ========== 辅助函数：安全获取 int 值 ==========
 static int getIntValue(bsoncxx::document::element elem) {
     if (!elem) {
         return 0;
@@ -56,12 +54,83 @@ static std::string getStringValue(bsoncxx::document::element elem) {
     return "";
 }
 
+// ========== 辅助函数：安全获取 OID 值 ==========
+static bsoncxx::oid getOidValue(bsoncxx::document::element elem) {
+    if (!elem || elem.type() != bsoncxx::type::k_oid) {
+        return bsoncxx::oid();
+    }
+    return elem.get_oid().value;
+}
+
+// ========== 构造函数 ==========
+EnumDAO::EnumDAO(std::shared_ptr<MongoClient> client)
+    : m_mongoClient(client) {
+}
+
+// ========== 根据 enumTypeKey 获取 enum_type 的 _id ==========
+bool EnumDAO::getEnumTypeId(const std::string& enumTypeKey, bsoncxx::oid& outTypeId) {
+    if (!m_mongoClient || enumTypeKey.empty()) {
+        return false;
+    }
+
+    using bsoncxx::builder::stream::document;
+    using bsoncxx::builder::stream::finalize;
+
+    auto filter = document{}
+        << "enumTypeKey" << enumTypeKey
+        << "status" << "active"
+        << "isDeleted" << false
+        << finalize;
+
+    bool found = false;
+
+    m_mongoClient->execute(ENUM_TYPE_COLLECTION,
+        [&](mongocxx::collection* collection) {
+            try {
+                auto doc = collection->find_one(filter.view());
+                if (doc) {
+                    const auto& docView = *doc;
+                    outTypeId = getOidValue(docView["_id"]);
+                    found = !(outTypeId == bsoncxx::oid());
+                }
+            }
+            catch (const std::exception& e) {
+                std::cerr << "EnumDAO::getEnumTypeId failed: " << e.what() << std::endl;
+            }
+        }
+    );
+
+    return found;
+}
+
+// ========== 从文档构建 EnumValue ==========
+EnumValue EnumDAO::buildEnumValueFromDoc(const bsoncxx::document::view& doc) {
+    EnumValue val;
+
+    val.code = getStringValue(doc["enumKey"]);
+    val.name = getStringValue(doc["display"]);
+    val.nameEn = getStringValue(doc["nameEn"]);
+    val.sortOrder = getIntValue(doc["order"]);
+    val.isDefault = getBoolValue(doc["isDefault"]);
+
+    int status = getIntValue(doc["status"]);
+    val.active = (status == 1);
+
+    return val;
+}
+
 // ========== 获取所有枚举值 ==========
-std::vector<EnumValue> EnumDAO::getEnumValues(const std::string& enumType) {
+std::vector<EnumValue> EnumDAO::getEnumValues(const std::string& enumTypeKey) {
     std::vector<EnumValue> result;
 
-    if (!m_mongoClient) {
-        std::cerr << "EnumDAO: MongoClient is null" << std::endl;
+    if (!m_mongoClient || enumTypeKey.empty()) {
+        std::cerr << "EnumDAO: MongoClient is null or enumTypeKey is empty" << std::endl;
+        return result;
+    }
+
+    bsoncxx::oid enumTypeId;
+    if (!getEnumTypeId(enumTypeKey, enumTypeId)) {
+        std::cerr << "EnumDAO: enumTypeKey not found: " << enumTypeKey << std::endl;
         return result;
     }
 
@@ -69,13 +138,14 @@ std::vector<EnumValue> EnumDAO::getEnumValues(const std::string& enumType) {
     using bsoncxx::builder::stream::finalize;
 
     auto filter = document{}
-        << "enumType" << enumType
-        << "active" << true
+        << "enumTypeId" << enumTypeId
+        << "status" << 1
+        << "isDeleted" << false
         << finalize;
 
-    auto sort = document{} << "sortOrder" << 1 << finalize;
+    auto sort = document{} << "order" << 1 << finalize;
 
-    m_mongoClient->execute(COLLECTION_NAME,
+    m_mongoClient->execute(ENUM_VALUE_COLLECTION,
         [&](mongocxx::collection* collection) {
             try {
                 mongocxx::options::find opts;
@@ -83,17 +153,7 @@ std::vector<EnumValue> EnumDAO::getEnumValues(const std::string& enumType) {
                 auto cursor = collection->find(filter.view(), opts);
 
                 for (auto&& doc : cursor) {
-                    EnumValue val;
-                    // 关键修复：doc 本身就是 document::view，直接使用，不调用 .view()
-                    // 不能写 auto docView = doc.view(); 
-
-                    val.code = getStringValue(doc["code"]);
-                    val.name = getStringValue(doc["name"]);
-                    val.sortOrder = getIntValue(doc["sortOrder"]);
-                    val.isDefault = getBoolValue(doc["isDefault"]);
-                    val.active = getBoolValue(doc["active"]);
-
-                    result.push_back(val);
+                    result.push_back(buildEnumValueFromDoc(doc));
                 }
             }
             catch (const std::exception& e) {
@@ -106,13 +166,13 @@ std::vector<EnumValue> EnumDAO::getEnumValues(const std::string& enumType) {
 }
 
 // ========== 根据类型和编码获取单个枚举值 ==========
-bool EnumDAO::getEnumValue(const std::string& enumType, const std::string& code, EnumValue& out) {
-    if (!m_mongoClient) {
-        std::cerr << "EnumDAO: MongoClient is null" << std::endl;
+bool EnumDAO::getEnumValue(const std::string& enumTypeKey, const std::string& code, EnumValue& out) {
+    if (!m_mongoClient || enumTypeKey.empty() || code.empty()) {
         return false;
     }
 
-    if (code.empty()) {
+    bsoncxx::oid enumTypeId;
+    if (!getEnumTypeId(enumTypeKey, enumTypeId)) {
         return false;
     }
 
@@ -120,27 +180,21 @@ bool EnumDAO::getEnumValue(const std::string& enumType, const std::string& code,
     using bsoncxx::builder::stream::finalize;
 
     auto filter = document{}
-        << "enumType" << enumType
-        << "code" << code
-        << "active" << true
+        << "enumTypeId" << enumTypeId
+        << "enumKey" << code
+        << "status" << 1
+        << "isDeleted" << false
         << finalize;
 
     bool found = false;
 
-    m_mongoClient->execute(COLLECTION_NAME,
+    m_mongoClient->execute(ENUM_VALUE_COLLECTION,
         [&](mongocxx::collection* collection) {
             try {
                 auto doc = collection->find_one(filter.view());
                 if (doc) {
-                    // find_one 返回 optional<document::value>，需要用 ->view()
-                    auto docView = doc->view();  // 这里需要 .view()
-
-                    out.code = getStringValue(docView["code"]);
-                    out.name = getStringValue(docView["name"]);
-                    out.sortOrder = getIntValue(docView["sortOrder"]);
-                    out.isDefault = getBoolValue(docView["isDefault"]);
-                    out.active = getBoolValue(docView["active"]);
-
+                    const auto& docView = *doc;
+                    out = buildEnumValueFromDoc(docView);
                     found = true;
                 }
             }
@@ -154,18 +208,106 @@ bool EnumDAO::getEnumValue(const std::string& enumType, const std::string& code,
 }
 
 // ========== 获取枚举名称 ==========
-std::string EnumDAO::getEnumName(const std::string& enumType, const std::string& code) {
+std::string EnumDAO::getEnumName(const std::string& enumTypeKey, const std::string& code) {
     EnumValue val;
-    if (getEnumValue(enumType, code, val)) {
+    if (getEnumValue(enumTypeKey, code, val)) {
         return val.name;
     }
     return code;
 }
 
+// ========== 批量获取枚举名称（使用 $in 优化） ==========
+std::map<std::string, std::string> EnumDAO::getEnumNamesMap(
+    const std::string& enumTypeKey,
+    const std::list<std::string>& codes
+) {
+    std::map<std::string, std::string> result;
+
+    if (!m_mongoClient || enumTypeKey.empty() || codes.empty()) {
+        return result;
+    }
+
+    bsoncxx::oid enumTypeId;
+    if (!getEnumTypeId(enumTypeKey, enumTypeId)) {
+        for (const std::string& code : codes) {
+            result[code] = code;
+        }
+        return result;
+    }
+
+    using bsoncxx::builder::stream::document;
+    using bsoncxx::builder::stream::array;
+    using bsoncxx::builder::stream::finalize;
+
+    // 构建 $in 数组
+    auto inArray = array{};
+    for (const std::string& code : codes) {
+        if (!code.empty()) {
+            inArray << code;
+        }
+    }
+
+    // 获取数组视图并检查长度
+    bsoncxx::array::view arrView = inArray;
+    if (arrView.length() == 0) {
+        return result;
+    }
+
+    //  先构建子文档：{"$in": [...]}
+    auto inDoc = document{} << "$in" << arrView << finalize;
+
+    //  再构建主文档
+    auto filter = document{}
+        << "enumTypeId" << enumTypeId
+        << "status" << 1
+        << "isDeleted" << false
+        << "enumKey" << inDoc
+        << finalize;
+
+    m_mongoClient->execute(ENUM_VALUE_COLLECTION,
+        [&](mongocxx::collection* collection) {
+            try {
+                auto cursor = collection->find(filter.view());
+
+                std::map<std::string, std::string> foundMap;
+                for (auto&& doc : cursor) {
+                    std::string code = getStringValue(doc["enumKey"]);
+                    std::string display = getStringValue(doc["display"]);
+                    if (!code.empty()) {
+                        foundMap[code] = display;
+                    }
+                }
+
+                for (const std::string& code : codes) {
+                    auto it = foundMap.find(code);
+                    if (it != foundMap.end()) {
+                        result[code] = it->second;
+                    }
+                    else {
+                        result[code] = code;
+                    }
+                }
+            }
+            catch (const std::exception& e) {
+                std::cerr << "EnumDAO::getEnumNamesMap failed: " << e.what() << std::endl;
+                for (const std::string& code : codes) {
+                    result[code] = code;
+                }
+            }
+        }
+    );
+
+    return result;
+}
+
 // ========== 获取默认枚举值 ==========
-bool EnumDAO::getDefaultEnumValue(const std::string& enumType, EnumValue& out) {
-    if (!m_mongoClient) {
-        std::cerr << "EnumDAO: MongoClient is null" << std::endl;
+bool EnumDAO::getDefaultEnumValue(const std::string& enumTypeKey, EnumValue& out) {
+    if (!m_mongoClient || enumTypeKey.empty()) {
+        return false;
+    }
+
+    bsoncxx::oid enumTypeId;
+    if (!getEnumTypeId(enumTypeKey, enumTypeId)) {
         return false;
     }
 
@@ -173,31 +315,25 @@ bool EnumDAO::getDefaultEnumValue(const std::string& enumType, EnumValue& out) {
     using bsoncxx::builder::stream::finalize;
 
     auto filter = document{}
-        << "enumType" << enumType
+        << "enumTypeId" << enumTypeId
         << "isDefault" << true
-        << "active" << true
+        << "status" << 1
+        << "isDeleted" << false
         << finalize;
 
-    auto sort = document{} << "sortOrder" << 1 << finalize;
+    auto sort = document{} << "order" << 1 << finalize;
 
     bool found = false;
 
-    m_mongoClient->execute(COLLECTION_NAME,
+    m_mongoClient->execute(ENUM_VALUE_COLLECTION,
         [&](mongocxx::collection* collection) {
             try {
                 mongocxx::options::find opts;
                 opts.sort(sort.view());
                 auto doc = collection->find_one(filter.view(), opts);
                 if (doc) {
-                    // find_one 返回 optional<document::value>，需要用 ->view()
-                    auto docView = doc->view();  // 这里需要 .view()
-
-                    out.code = getStringValue(docView["code"]);
-                    out.name = getStringValue(docView["name"]);
-                    out.sortOrder = getIntValue(docView["sortOrder"]);
-                    out.isDefault = getBoolValue(docView["isDefault"]);
-                    out.active = getBoolValue(docView["active"]);
-
+                    const auto& docView = *doc;
+                    out = buildEnumValueFromDoc(docView);
                     found = true;
                 }
             }
@@ -211,38 +347,7 @@ bool EnumDAO::getDefaultEnumValue(const std::string& enumType, EnumValue& out) {
 }
 
 // ========== 创建索引 ==========
+/* 建库时自行添加索引，不在代码中实现此逻辑 */
 bool EnumDAO::ensureCollectionAndIndexes() {
-    if (!m_mongoClient) {
-        std::cerr << "EnumDAO: MongoClient is null" << std::endl;
-        return false;
-    }
-
-    return m_mongoClient->execute(COLLECTION_NAME,
-        [&](mongocxx::collection* collection) {
-            try {
-                // 1. 唯一索引：enumType + code
-                bsoncxx::builder::stream::document index1;
-                index1 << "enumType" << 1 << "code" << 1;
-                collection->create_index(index1.view(),
-                    mongocxx::options::index{}.unique(true));
-
-                // 2. 普通索引：enumType + isDefault + active
-                bsoncxx::builder::stream::document index2;
-                index2 << "enumType" << 1 << "isDefault" << 1 << "active" << 1;
-                collection->create_index(index2.view());
-
-                // 3. 普通索引：enumType + active + sortOrder
-                bsoncxx::builder::stream::document index3;
-                index3 << "enumType" << 1 << "active" << 1 << "sortOrder" << 1;
-                collection->create_index(index3.view());
-
-                std::cout << "[MongoDB] enum_definitions indexes created." << std::endl;
-                return true;
-            }
-            catch (const std::exception& e) {
-                std::cerr << "[MongoDB] create indexes failed: " << e.what() << std::endl;
-                return false;
-            }
-        }
-    );
+    return true;
 }

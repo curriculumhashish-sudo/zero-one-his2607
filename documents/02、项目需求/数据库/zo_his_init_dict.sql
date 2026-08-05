@@ -2,7 +2,10 @@
 USE `zo_his`;
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
-
+set @@global.sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+set global max_allowed_packet=1024102416;
+TRUNCATE TABLE ter_concept;
+TRUNCATE TABLE ter_code_system;
 -- 编码系统
 INSERT INTO `ter_code_system` VALUES
   (1, 'sys_user_sex', '用户性别', '用户性别列表', '1.0', '2', 1, '2025-02-05 23:09:36', '2025-02-24 21:30:07.171', 1, 1, 0, NULL, NULL),
