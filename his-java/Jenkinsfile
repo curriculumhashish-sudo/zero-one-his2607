@@ -85,7 +85,7 @@ pipeline {
             steps {
                 sh '''
                     for i in $(seq 1 12); do
-                        if curl -sf http://localhost:10500/actuator/health | grep -q "UP"; then
+                        if curl -sf http://localhost:10500/j5-ons/actuator/health | grep -q "UP"; then
                             echo "his-j5-ons 健康检查通过"
                             break
                         fi
@@ -94,7 +94,7 @@ pipeline {
                     done
 
                     for i in $(seq 1 12); do
-                        if curl -sf http://localhost:10501/actuator/health | grep -q "UP"; then
+                        if curl -sf http://localhost:10501/j5-configuration/actuator/health | grep -q "UP"; then
                             echo "his-j5-configuration 健康检查通过"
                             break
                         fi
@@ -102,8 +102,8 @@ pipeline {
                         sleep 10
                     done
 
-                    curl -sf http://localhost:10500/actuator/health || exit 1
-                    curl -sf http://localhost:10501/actuator/health || exit 1
+                    curl -sf http://localhost:10500/j5-ons/actuator/health || exit 1
+                    curl -sf http://localhost:10501/j5-configuration/actuator/health || exit 1
                     echo "所有服务健康检查通过"
                 '''
             }
@@ -113,8 +113,8 @@ pipeline {
     post {
         success {
             echo '部署成功！服务地址：'
-            echo "  - his-j5-ons:           http://121.199.54.234:10500"
-            echo "  - his-j5-configuration: http://121.199.54.234:10501"
+            echo "  - his-j5-ons:           http://121.199.54.234:10500/j5-ons/doc.html"
+            echo "  - his-j5-configuration: http://121.199.54.234:10501/j5-configuration/doc.html"
             echo "  - Nacos 控制台:          http://121.199.54.234:8848/nacos"
             echo "  - Jenkins:              http://121.199.54.234:8080"
         }
