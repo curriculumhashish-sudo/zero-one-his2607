@@ -3,7 +3,7 @@
 
 std::shared_ptr<AdmEncounterDO> PatientLeaveDAO::selectEncounterById(const oatpp::String& tenantId, const oatpp::String& encounterId)
 {
-    //selectÊ±×Ö¶ÎÒªºÍMapperÀï¶ÔÓ¦£¬²»È»dataÀïÃ»ÓĞÖµ
+    //selectæ—¶å­—æ®µè¦å’ŒMapperé‡Œå¯¹åº”ï¼Œä¸ç„¶dataé‡Œæ²¡æœ‰å€¼
     std::string sql = "SELECT id, tenant_id, status_enum, is_deleted "
                       "FROM adm_encounter "
                       "WHERE id = ? AND tenant_id = ? AND is_deleted = 0";
@@ -15,7 +15,7 @@ std::shared_ptr<AdmEncounterDO> PatientLeaveDAO::selectEncounterById(const oatpp
 
 bool PatientLeaveDAO::updateEncounterToLeave(const oatpp::String& tenantId, const oatpp::String& encounterId)
 {
-    // ÔİÀë½öĞŞ¸Ä¾ÍÕï×´Ì¬ --> ÔÚÕï±ä³É´ıÕï
+    // æš‚ç¦»ä»…ä¿®æ”¹å°±è¯ŠçŠ¶æ€ --> åœ¨è¯Šå˜æˆå¾…è¯Š
     std::string sql = "UPDATE adm_encounter SET status_enum = 'arrived' WHERE id = ? AND tenant_id = ? AND is_deleted = 0";
     SqlParams params;
     SQLPARAMS_PUSH(params, "s", std::string, encounterId->c_str());
