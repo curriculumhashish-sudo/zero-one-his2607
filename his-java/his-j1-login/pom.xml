@@ -95,6 +95,15 @@
                     <mainClass>com.zeroone.star.sysmgr.J1LoginApplication</mainClass>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.40.2</version>
+                <configuration>
+                    <dockerHost>https://47.116.98.7:2375</dockerHost>
+                    <certPath>C:\Users\yaotoucong\.docker</certPath>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
