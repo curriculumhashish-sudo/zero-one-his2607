@@ -19,10 +19,10 @@ import java.util.List;
 @Data
 @Schema(description = "病区-病房-床位查询条件")
 public class WardTreeQuery extends PageQuery {
-    @Schema(description = "唯一标识", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long id;
+    @Schema(description = "唯一标识", example = "322663218269917184")
+    private String id;
 
-    @Schema(description = "名称", example = "内科疗区", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "名称（支持模糊匹配）", example = "内科疗区")
     private String name;
 
     @Schema(description = "机构名称", example = "住院内科")

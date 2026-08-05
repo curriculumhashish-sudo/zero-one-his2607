@@ -22,8 +22,8 @@ import java.io.Serializable;
 @Schema(description = "通用下拉选项")
 public class OptionVO implements Serializable {
 
-    @Schema(description = "选项ID", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long id;
+    @Schema(description = "选项ID", example = "322663218269917184", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String id;
 
     @Schema(description = "选项名称", example = "内科疗区", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;

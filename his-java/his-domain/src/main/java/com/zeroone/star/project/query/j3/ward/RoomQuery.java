@@ -15,9 +15,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Data
 @Schema(description = "病房查询条件")
 public class RoomQuery {
-    @Schema(description = "唯一标识", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long id;
+    @Schema(description = "唯一标识", example = "322663218269917184")
+    private String id;
 
-    @Schema(description = "名称", example = "101", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "名称", example = "101")
     private String roomName;
 }

@@ -16,5 +16,5 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface AdmOrganizationMapper extends BaseMapper<AdmOrganization> {
 
-    Long getTenantIdByUserId(Long userId);
+    String getTenantIdByUserId(String userId);
 }

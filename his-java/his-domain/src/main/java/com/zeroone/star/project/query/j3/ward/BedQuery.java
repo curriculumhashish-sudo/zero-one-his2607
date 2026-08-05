@@ -15,10 +15,10 @@ import lombok.Data;
 @Data
 @Schema(description = "病床查询条件")
 public class BedQuery {
-    @Schema(description = "唯一标识", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long id;
+    @Schema(description = "唯一标识", example = "322663218269917184")
+    private String id;
 
-    @Schema(description = "名称", example = "1号床", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "名称", example = "1号床")
     private String bedName;
 
     @Schema(description = "状态", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)

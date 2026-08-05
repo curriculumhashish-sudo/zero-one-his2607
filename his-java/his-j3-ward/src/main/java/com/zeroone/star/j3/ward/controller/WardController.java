@@ -56,7 +56,7 @@ public class WardController implements WardApis {
             @ApiResponse(responseCode = "404", description = "数据不存在")
     })
     @Override
-    public JsonVO<List<WardTreeVO>> getWardTree(@RequestBody WardTreeQuery query) {
+    public JsonVO<List<WardTreeVO>> getWardTree(@Valid @RequestBody WardTreeQuery query) {
         List<WardTreeVO> result = wardService.getWardTree(query);
         return JsonVO.success(result);
     }
@@ -98,8 +98,8 @@ public class WardController implements WardApis {
     })
     @Override
     public JsonVO<String> updateWard(
-            @Parameter(description = "病区ID", example = "1", required = true)
-            @PathVariable("id") Long id,
+            @Parameter(description = "病区ID", example = "322663218269917184", required = true)
+            @PathVariable("id") String id,
             @Valid @RequestBody WardDTO wardDTO) {
         wardService.updateWard(id, wardDTO);
         return JsonVO.success("修改病区成功");
@@ -115,8 +115,8 @@ public class WardController implements WardApis {
     })
     @Override
     public JsonVO<String> deleteWard(
-            @Parameter(description = "病区ID", example = "1", required = true)
-            @PathVariable("id") Long id) {
+            @Parameter(description = "病区ID", example = "322663218269917184", required = true)
+            @PathVariable("id") String id) {
         wardService.deleteWard(id);
         return JsonVO.success("删除病区成功");
     }
@@ -132,8 +132,8 @@ public class WardController implements WardApis {
     })
     @Override
     public JsonVO<List<OptionVO>> getRoomListByWard(
-            @Parameter(description = "病区ID", example = "1", required = true)
-            @RequestParam("wardId") Long wardId) {
+            @Parameter(description = "病区ID", example = "322663218269917184", required = true)
+            @RequestParam("wardId") String wardId) {
         List<OptionVO> result = wardService.getRoomListByWard(wardId);
         return JsonVO.success(result);
     }
@@ -161,8 +161,8 @@ public class WardController implements WardApis {
     })
     @Override
     public JsonVO<String> updateRoom(
-            @Parameter(description = "病房ID", example = "1", required = true)
-            @PathVariable("id") Long id,
+            @Parameter(description = "病房ID", example = "322663218269917184", required = true)
+            @PathVariable("id") String id,
             @Valid @RequestBody RoomDTO roomDTO) {
         wardService.updateRoom(id, roomDTO);
         return JsonVO.success("修改病房成功");
@@ -178,8 +178,8 @@ public class WardController implements WardApis {
     })
     @Override
     public JsonVO<String> deleteRoom(
-            @Parameter(description = "病房ID", example = "1", required = true)
-            @PathVariable("id") Long id) {
+            @Parameter(description = "病房ID", example = "322663218269917184", required = true)
+            @PathVariable("id") String id) {
         wardService.deleteRoom(id);
         return JsonVO.success("删除病房成功");
     }
@@ -195,8 +195,8 @@ public class WardController implements WardApis {
     })
     @Override
     public JsonVO<List<BedOptionVO>> getBedListByRoom(
-            @Parameter(description = "病房ID", example = "1", required = true)
-            @RequestParam("roomId") Long roomId) {
+            @Parameter(description = "病房ID", example = "322663218269917184", required = true)
+            @RequestParam("roomId") String roomId) {
         List<BedOptionVO> result = wardService.getBedListByRoom(roomId);
         return JsonVO.success(result);
     }
@@ -224,8 +224,8 @@ public class WardController implements WardApis {
     })
     @Override
     public JsonVO<String> updateBed(
-            @Parameter(description = "床位ID", example = "1", required = true)
-            @PathVariable("id") Long id,
+            @Parameter(description = "床位ID", example = "322663218269917184", required = true)
+            @PathVariable("id") String id,
             @Valid @RequestBody BedDTO bedDTO) {
         wardService.updateBed(id, bedDTO);
         return JsonVO.success("修改床位成功");
@@ -241,8 +241,8 @@ public class WardController implements WardApis {
     })
     @Override
     public JsonVO<String> deleteBed(
-            @Parameter(description = "床位ID", example = "1", required = true)
-            @PathVariable("id") Long id) {
+            @Parameter(description = "床位ID", example = "322663218269917184", required = true)
+            @PathVariable("id") String id) {
         wardService.deleteBed(id);
         return JsonVO.success("删除床位成功");
     }

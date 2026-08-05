@@ -17,6 +17,6 @@ import lombok.Data;
 public class BedAddDTO {
     @Schema(description = "床位名称", example = "1号床", requiredMode = Schema.RequiredMode.REQUIRED)
     private String bedName;
-    @Schema(description = "关联病房", example = "302")
+    @Schema(description = "所属病房编号", example = "ROOM_xxx", requiredMode = Schema.RequiredMode.REQUIRED)
     private String roomCode;
 }

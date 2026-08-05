@@ -22,8 +22,8 @@ import java.io.Serializable;
 @Schema(description = "床位下拉选项")
 public class BedOptionVO implements Serializable {
 
-    @Schema(description = "床位ID", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long id;
+    @Schema(description = "床位ID", example = "322663218269917184", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String id;
 
     @Schema(description = "床位名称", example = "1号床", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
