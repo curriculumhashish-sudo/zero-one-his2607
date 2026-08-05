@@ -8,24 +8,24 @@ RecePatientJsonVO::Wrapper RecePatientController::execQueryRece(const RecePatien
 {
     auto jvo = RecePatientJsonVO::createShared();
 
-    // ²ÎÊıĞ£Ñé
+    // å‚æ•°æ ¡éªŒ
     if (!query || !query->date)
     {
         jvo->init(nullptr, RS_PARAMS_INVALID);
         return jvo;
     }
 
-    // ´Ópayload¶ÁÈ¡practitionerId
+    // ä»payloadè¯»å–practitionerId
     std::string practitionerId = payload.getPractitionerId();
 
-    // ´´½¨ Redis ¿Í»§¶ËÒÔ»ñÈ¡ tenantId
+    // åˆ›å»º Redis å®¢æˆ·ç«¯ä»¥è·å– tenantId
     RedisClient re("127.0.0.1", 6379, "01star");
     std::string tenantId = re.execute<std::string>([](Redis* r) {
         auto res = r->hget("his:login:context:u001", "tenantId");
         return res.value();
         });
 
-	//Èç¹ûpractitioneridºÍtenantIdÎª¿Õ£¬ÔòÊ¹ÓÃÄ¬ÈÏÖµ
+	//å¦‚æœpractitioneridå’ŒtenantIdä¸ºç©ºï¼Œåˆ™ä½¿ç”¨é»˜è®¤å€¼
     if (practitionerId.empty() || tenantId.empty())
     {
         practitionerId = "doc_001";
@@ -34,7 +34,7 @@ RecePatientJsonVO::Wrapper RecePatientController::execQueryRece(const RecePatien
 
     auto dto = ReceptionPatientService().getRecePatient(query, tenantId, practitionerId);
 
-    // °ü×°Îª³É¹¦ÏìÓ¦
+    // åŒ…è£…ä¸ºæˆåŠŸå“åº”
     jvo->success(dto);
     return jvo;
 }
