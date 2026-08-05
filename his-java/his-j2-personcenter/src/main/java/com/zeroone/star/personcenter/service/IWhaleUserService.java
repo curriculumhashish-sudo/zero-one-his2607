@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 
 import com.zeroone.star.personcenter.entity.WhaleUser;
 import com.zeroone.star.project.dto.j2.personcenter.userdto.ChangePasswordDTO;
-import com.zeroone.star.project.dto.j2.personcenter.UserDTO.UpdateUserDTO;
+import com.zeroone.star.project.dto.j2.personcenter.userdto.UpdateUserDTO;
 import com.zeroone.star.project.dto.j2.personcenter.userdto.UserInfoDTO;
 
 

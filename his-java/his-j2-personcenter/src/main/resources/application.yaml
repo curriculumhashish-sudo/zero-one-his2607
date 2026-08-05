@@ -1,12 +1,14 @@
 sn:
-  personcenter: personcenter
+  basedata: J2_BASEDATA
+
 sp:
-  personcenter: 10203
+  basedata: 10400
+
 server:
-  port: ${sp.personcenter}
+  port: ${sp.basedata}
   servlet:
-    # 设置应用上下文路径
-    context-path: /personcenter
+    context-path: /basedata
+
 spring:
   application:
-    name: ${sn.personcenter}
+    name: ${sn.basedata}
