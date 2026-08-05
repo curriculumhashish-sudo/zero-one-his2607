@@ -56,7 +56,7 @@ public class OutpatientDispenseRecordServiceImpl implements IOutpatientDispenseR
             return empty;
         }
 
-        // 按处方号分组，保持顺序
+        //按处方号分组,保持顺序
         Map<String, List<DispenseFlatDTO>> grouped = flatRows.stream()
                 .collect(Collectors.groupingBy(
                         f -> f.getPrescriptionNo() == null ? "" : f.getPrescriptionNo(),
