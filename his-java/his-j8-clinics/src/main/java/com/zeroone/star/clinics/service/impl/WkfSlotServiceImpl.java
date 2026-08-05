@@ -7,6 +7,7 @@ import com.zeroone.star.clinics.mapper.WkfScheduleMapper;
 import com.zeroone.star.clinics.mapper.WkfSlotMapper;
 import com.zeroone.star.clinics.service.IWkfSlotService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.j8.clinics.RetireScheduleDTO;
 import com.zeroone.star.project.dto.j8.clinics.SlotBatchReleaseDTO;
 import com.zeroone.star.project.query.j8.clinics.RelSlotQuery;
@@ -19,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * <p>
@@ -35,6 +35,9 @@ public class WkfSlotServiceImpl extends ServiceImpl<WkfSlotMapper, WkfSlot> impl
 
     @Resource
     private WkfScheduleMapper scheduleMapper;
+
+    @Resource
+    private UserHolder userHolder;
 
     /**
      * 获取已放号源列表
@@ -73,13 +76,13 @@ public class WkfSlotServiceImpl extends ServiceImpl<WkfSlotMapper, WkfSlot> impl
      * @param dto 批量放号参数
      * @return 批量放号结果
      */
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public SlotBatchReleaseVO batchReleaseNumberSource(SlotBatchReleaseDTO dto) {
         List<WkfSlot> slots = new java.util.ArrayList<>();
         for (var item : dto.getSlotTemplates()) {
             WkfSlot slot = new WkfSlot();
-            slot.setId(UUID.randomUUID().toString().replace("-", ""));
             slot.setOrganizationId(dto.getOrganizationId());
             slot.setScheduleId(dto.getScheduleId());
             slot.setStartTime(item.getStartTime());
@@ -89,7 +92,19 @@ public class WkfSlotServiceImpl extends ServiceImpl<WkfSlotMapper, WkfSlot> impl
             slot.setStatusCode("free");
             slot.setOverbookedFlag(false);
             slot.setCreatedAt(java.time.LocalDateTime.now());
+            slot.setTenantId(getCurrentTenantId());
             slots.add(slot);
+        }
+
+        // 时间段冲突检测
+        for (var item : dto.getSlotTemplates()) {
+            long conflictCount = count(new LambdaQueryWrapper<WkfSlot>()
+                    .eq(WkfSlot::getScheduleId, dto.getScheduleId())
+                    .lt(WkfSlot::getStartTime, item.getEndTime())
+                    .gt(WkfSlot::getEndTime, item.getStartTime()));
+            if (conflictCount > 0) {
+                throw new RuntimeException("时段与同科室其他日程已占用的时间窗冲突，或已在待放号列表中");
+            }
         }
 
         try {
@@ -163,6 +178,21 @@ public class WkfSlotServiceImpl extends ServiceImpl<WkfSlotMapper, WkfSlot> impl
         scheduleMapper.updateById(schedule);
 
         log.info("作废日程成功，scheduleId: {}, 原因: {}", dto.getScheduleId(), dto.getReason());
+    }
+
+    /**
+     * 从当前用户上下文获取租户ID
+     */
+    private String getCurrentTenantId() {
+        try {
+            var user = userHolder.getCurrentUser();
+            if (user.getOrganizationUnits() != null && !user.getOrganizationUnits().isEmpty()) {
+                return user.getOrganizationUnits().keySet().iterator().next();
+            }
+        } catch (Exception e) {
+            log.warn("获取当前用户租户信息失败，使用默认值: {}", e.getMessage());
+        }
+        return "1";
     }
 
 
