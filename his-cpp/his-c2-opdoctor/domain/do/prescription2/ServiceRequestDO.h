@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef _SERVICEREQUESTDO_H_
 #define _SERVICEREQUESTDO_H_
@@ -7,25 +7,25 @@
 
 class ServiceRequestDO : public BaseDO
 {
-    // Service request identifier.
+    // 服务申请单标识
     MYSQL_SYNTHESIZE(std::string, id, Id);
-    // Encounter identifier.
+    // 就诊标识
     MYSQL_SYNTHESIZE(std::string, encounterId, EncounterId);
-    // Optimistic lock version.
+    // 乐观锁版本号
     MYSQL_SYNTHESIZE(int, version, Version);
-    // Service request status.
+    // 服务申请单状态
     MYSQL_SYNTHESIZE(std::string, statusEnum, StatusEnum);
-    // Service request category.
+    // 服务申请单类别
     MYSQL_SYNTHESIZE(std::string, categoryEnum, CategoryEnum);
-    // Completed print count.
+    // 已完成打印次数
     MYSQL_SYNTHESIZE(int, printCount, PrintCount);
-    // Last update user.
+
     MYSQL_SYNTHESIZE(std::string, updatedBy, UpdatedBy);
-    // Last update time.
+    // 最后更新时间
     MYSQL_SYNTHESIZE(std::string, updatedAt, UpdatedAt);
 
 public:
-    // Bind fields to the wkf_service_request table.
+    // 将字段绑定到 wkf_service_request 表
     ServiceRequestDO() : BaseDO("wkf_service_request")
     {
         MYSQL_ADD_FIELD_PK("id", "s", id);

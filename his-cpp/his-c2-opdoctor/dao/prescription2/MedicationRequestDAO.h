@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef _MEDICATIONREQUESTDAO_H_
 #define _MEDICATIONREQUESTDAO_H_
@@ -9,16 +9,16 @@
 class MedicationRequestDAO : public BaseDAO
 {
 public:
-    // Query one medical advice record within an encounter.
+    // 按就诊查询一条医嘱记录
     PtrMedicationRequestDO selectById(const std::string& id,
         const std::string& encounterId);
-    // Query and lock one medical advice record for a status transition.
+    // 查询并锁定一条用于状态流转的医嘱记录
     PtrMedicationRequestDO selectByIdForUpdate(const std::string& id,
         const std::string& encounterId);
-    // Query and lock all medical advice identifiers in one order group.
+    // 查询并锁定同一医嘱组中的全部医嘱标识
     std::list<std::string> selectIdsByGroupForUpdate(
         const std::string& encounterId, const std::string& groupId);
-    // Update status with version and expected status validation.
+    // 结合版本号和期望状态校验更新医嘱状态
     int updateStatus(const MedicationRequestDO& data, const std::string& expectedStatus,
         int expectedVersion, bool updateCheckFields);
 };

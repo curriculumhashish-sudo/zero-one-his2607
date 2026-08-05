@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "MedicalAdviceService.h"
 #include "dao/prescription2/MedicationRequestDAO.h"
 #include "dao/prescription2/ServiceRequestDAO.h"
@@ -8,19 +8,19 @@
 
 namespace
 {
-// Status required before a medical advice record can be signed.
+// 医嘱记录签发前必须具备的状态
 const std::string MEDICAL_ADVICE_DRAFT_STATUS = "DRAFT";
-// Status assigned after a successful signing operation.
+// 签发成功后设置的状态
 const std::string MEDICAL_ADVICE_ACTIVE_STATUS = "ACTIVE";
-// Status assigned after a successful withdrawal operation.
+// 撤回成功后设置的状态
 const std::string MEDICAL_ADVICE_CANCELLED_STATUS = "CANCELLED";
-// Check that all records from an order group are selected together.
+// 检查同一医嘱组的所有记录是否被一起选中
 bool containsWholeGroup(MedicationRequestDAO& dao, const std::string& encounterId,
     const std::string& groupId,
     const std::set<std::string>& selectedIds,
     std::set<std::string>& checkedGroupIds)
 {
-    // Empty group identifiers represent independent medical advice records.
+    // 空医嘱组标识表示该医嘱记录独立存在
     if (groupId.empty() || !checkedGroupIds.insert(groupId).second)
     {
         return true;
@@ -81,7 +81,7 @@ std::list<std::string> MedicalAdviceService::signMedicalAdvice(
         return {};
     }
 
-    // Keep a set for efficient validation of complete order groups.
+    // 使用集合高效校验完整的医嘱组
     const std::set<std::string> selectedIds(ids.begin(), ids.end());
     MedicationRequestDAO dao;
     TransactionManager transaction(&dao);
@@ -92,7 +92,7 @@ std::list<std::string> MedicalAdviceService::signMedicalAdvice(
     {
         for (const auto& id : ids)
         {
-            // Lock the current record before validating and changing its status.
+            // 校验并变更状态前先锁定当前记录
             auto medicalAdvice = dao.selectByIdForUpdate(id, encounterId);
             if (!medicalAdvice ||
                 medicalAdvice->getStatusEnum() != MEDICAL_ADVICE_DRAFT_STATUS ||
@@ -104,7 +104,7 @@ std::list<std::string> MedicalAdviceService::signMedicalAdvice(
                 return {};
             }
 
-            // Build the update data without modifying fields outside the signing scope.
+            // 构建更新数据，不修改签发范围之外的字段
             MedicationRequestDO updateData;
             updateData.setId(id);
             updateData.setEncounterId(encounterId);
@@ -150,7 +150,7 @@ std::list<std::string> MedicalAdviceService::withdrawMedicalAdvice(
         return {};
     }
 
-    // Keep a set for efficient validation of complete order groups.
+    // 使用集合高效校验完整的医嘱组
     const std::set<std::string> selectedIds(ids.begin(), ids.end());
     MedicationRequestDAO dao;
     TransactionManager transaction(&dao);
@@ -161,7 +161,7 @@ std::list<std::string> MedicalAdviceService::withdrawMedicalAdvice(
     {
         for (const auto& id : ids)
         {
-            // Lock the current record before validating and changing its status.
+            // 校验并变更状态前先锁定当前记录
             auto medicalAdvice = dao.selectByIdForUpdate(id, encounterId);
             if (!medicalAdvice ||
                 medicalAdvice->getStatusEnum() != MEDICAL_ADVICE_ACTIVE_STATUS ||
@@ -174,7 +174,7 @@ std::list<std::string> MedicalAdviceService::withdrawMedicalAdvice(
                 return {};
             }
 
-            // Build the update data without modifying fields outside the withdrawal scope.
+            // 构建更新数据，不修改撤回范围之外的字段
             MedicationRequestDO updateData;
             updateData.setId(id);
             updateData.setEncounterId(encounterId);
@@ -220,7 +220,7 @@ std::string MedicalAdviceService::printApplicationForm(
     TransactionManager transaction(&dao);
     try
     {
-        // Lock the request to prevent concurrent print count updates from being lost.
+        // 锁定申请单，避免并发更新打印次数时发生数据丢失
         auto serviceRequest = dao.selectByIdForUpdate(serviceRequestId);
         if (!serviceRequest)
         {
@@ -228,7 +228,7 @@ std::string MedicalAdviceService::printApplicationForm(
             return "";
         }
 
-        // Only update the print counter and audit fields.
+        // 仅更新打印次数和审计字段
         ServiceRequestDO updateData;
         updateData.setId(serviceRequestId);
         updateData.setPrintCount(serviceRequest->getPrintCount() + 1);

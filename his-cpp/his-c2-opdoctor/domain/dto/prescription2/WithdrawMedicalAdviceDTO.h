@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef _WITHDRAWMEDICALADVICEDTO_H_
 #define _WITHDRAWMEDICALADVICEDTO_H_
@@ -13,13 +13,13 @@ class WithdrawMedicalAdviceDTO : public oatpp::DTO
 {
     DTO_INIT(WithdrawMedicalAdviceDTO, DTO);
 
-    // Encounter identifier containing the medical advice records.
+    // 包含医嘱记录的就诊标识
     API_DTO_FIELD_REQUIRE(String, encounterId,
         ZH_WORDS_GETTER("medical-advice.field.encounter-id"), true);
-    // Expected optimistic lock version.
+    // 期望的乐观锁版本号
     API_DTO_FIELD_REQUIRE(Int32, version,
         ZH_WORDS_GETTER("medical-advice.field.version"), true);
-    // Medical advice identifiers to withdraw.
+    // 待撤回的医嘱标识列表
     API_DTO_FIELD_REQUIRE(List<String>, adviceIds,
         ZH_WORDS_GETTER("medical-advice.field.advice-ids"), true);
 };

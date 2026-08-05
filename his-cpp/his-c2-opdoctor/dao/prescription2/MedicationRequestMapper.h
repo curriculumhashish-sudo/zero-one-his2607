@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef _MEDICATIONREQUESTMAPPER_H_
 #define _MEDICATIONREQUESTMAPPER_H_
@@ -9,7 +9,7 @@
 class PtrMedicationRequestMapper : public Mapper<PtrMedicationRequestDO>
 {
 public:
-    // Map medical advice query columns to a database object.
+    // 将医嘱查询列映射为数据库对象
     PtrMedicationRequestDO mapper(ResultSet* resultSet) const override
     {
         auto data = std::make_shared<MedicationRequestDO>();
@@ -31,7 +31,7 @@ public:
 class MedicationRequestIdMapper : public Mapper<std::string>
 {
 public:
-    // Map the first query result column to a medical advice identifier.
+    // 将查询结果的第一列映射为医嘱标识
     std::string mapper(ResultSet* resultSet) const override
     {
         return resultSet->getString(1);

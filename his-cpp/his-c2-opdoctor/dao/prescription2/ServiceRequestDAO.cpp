@@ -1,10 +1,10 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "ServiceRequestDAO.h"
 #include "ServiceRequestMapper.h"
 
 namespace
 {
-// Fields required for service request printing.
+// 服务申请单打印所需字段
 const std::string SERVICE_REQUEST_COLUMNS =
     "id, encounter_id, version, status_enum, category_enum, print_count, updated_by, updated_at ";
 }
@@ -12,7 +12,7 @@ const std::string SERVICE_REQUEST_COLUMNS =
 PtrServiceRequestDO ServiceRequestDAO::selectById(
     const std::string& id)
 {
-    // Query one active service request.
+    // 查询一条有效的服务申请单
     const std::string sql =
         "SELECT " + SERVICE_REQUEST_COLUMNS +
         "FROM wkf_service_request "
@@ -26,7 +26,7 @@ PtrServiceRequestDO ServiceRequestDAO::selectById(
 PtrServiceRequestDO ServiceRequestDAO::selectByIdForUpdate(
     const std::string& id)
 {
-    // Lock the matching request for the surrounding transaction.
+    // 锁定匹配申请单，供外层事务使用
     const std::string sql =
         "SELECT " + SERVICE_REQUEST_COLUMNS +
         "FROM wkf_service_request "
@@ -40,7 +40,7 @@ PtrServiceRequestDO ServiceRequestDAO::selectByIdForUpdate(
 int ServiceRequestDAO::incrementPrintCount(
     const ServiceRequestDO& data, int expectedVersion)
 {
-    // Update only the print count and audit fields.
+    // 仅更新打印次数和审计字段
     const std::string sql =
         "UPDATE wkf_service_request "
         "SET print_count=?, updated_by=?, updated_at=?, version=? "

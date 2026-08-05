@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef _SERVICEREQUESTMAPPER_H_
 #define _SERVICEREQUESTMAPPER_H_
@@ -9,7 +9,7 @@
 class PtrServiceRequestMapper : public Mapper<PtrServiceRequestDO>
 {
 public:
-    // Map service request query columns to a database object.
+    // 将服务申请单查询列映射为数据库对象
     PtrServiceRequestDO mapper(ResultSet* resultSet) const override
     {
         auto data = std::make_shared<ServiceRequestDO>();

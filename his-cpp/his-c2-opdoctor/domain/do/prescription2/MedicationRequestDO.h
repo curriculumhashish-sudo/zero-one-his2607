@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef _MEDICATIONREQUESTDO_H_
 #define _MEDICATIONREQUESTDO_H_
@@ -7,31 +7,31 @@
 
 class MedicationRequestDO : public BaseDO
 {
-    // Medical advice identifier.
+    // 医嘱标识
     MYSQL_SYNTHESIZE(std::string, id, Id);
-    // Encounter identifier.
+    // 就诊标识
     MYSQL_SYNTHESIZE(std::string, encounterId, EncounterId);
-    // Optimistic lock version.
+    // 乐观锁版本号
     MYSQL_SYNTHESIZE(int, version, Version);
-    // Order group identifier.
+    // 医嘱组标识
     MYSQL_SYNTHESIZE(std::string, groupId, GroupId);
-    // Medical advice status.
+    // 医嘱状态
     MYSQL_SYNTHESIZE(std::string, statusEnum, StatusEnum);
-    // Number of completed executions.
+    // 已完成执行次数
     MYSQL_SYNTHESIZE(int, executeNum, ExecuteNum);
-    // Status change time.
+    // 状态变更时间
     MYSQL_SYNTHESIZE(std::string, statusChangedTime, StatusChangedTime);
-    // Signing practitioner identifier.
+    // 签发医生标识
     MYSQL_SYNTHESIZE(std::string, performerCheckId, PerformerCheckId);
-    // Signing time.
+    // 签发时间
     MYSQL_SYNTHESIZE(std::string, checkTime, CheckTime);
-    // Last update user.
+
     MYSQL_SYNTHESIZE(std::string, updatedBy, UpdatedBy);
-    // Last update time.
+    // 最后更新时间
     MYSQL_SYNTHESIZE(std::string, updatedAt, UpdatedAt);
 
 public:
-    // Bind fields to the med_medication_request table.
+    // 将字段绑定到 med_medication_request 表
     MedicationRequestDO() : BaseDO("med_medication_request")
     {
         MYSQL_ADD_FIELD_PK("id", "s", id);

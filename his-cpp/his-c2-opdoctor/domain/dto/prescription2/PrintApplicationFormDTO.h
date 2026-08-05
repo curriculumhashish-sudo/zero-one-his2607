@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef _PRINTAPPLICATIONFORMDTO_H_
 #define _PRINTAPPLICATIONFORMDTO_H_
@@ -13,7 +13,7 @@ class PrintApplicationFormDTO : public oatpp::DTO
 {
     DTO_INIT(PrintApplicationFormDTO, DTO);
 
-    // Service request identifier to print.
+    // 待打印服务申请单标识
     API_DTO_FIELD_REQUIRE(String, serviceRequestId,
         ZH_WORDS_GETTER("medical-advice.field.service-request-id"), true);
 };

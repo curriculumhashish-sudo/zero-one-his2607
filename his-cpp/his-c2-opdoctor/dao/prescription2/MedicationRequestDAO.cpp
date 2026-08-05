@@ -1,10 +1,10 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "MedicationRequestDAO.h"
 #include "MedicationRequestMapper.h"
 
 namespace
 {
-// Fields required for medical advice state transitions.
+// 医嘱状态流转所需字段
 const std::string MEDICATION_REQUEST_COLUMNS =
     "id, encounter_id, version, group_id, status_enum, execute_num, "
     "status_changed_time, performer_check_id, check_time, updated_by, updated_at ";
@@ -13,7 +13,7 @@ const std::string MEDICATION_REQUEST_COLUMNS =
 PtrMedicationRequestDO MedicationRequestDAO::selectById(
     const std::string& id, const std::string& encounterId)
 {
-    // Restrict the read operation to the specified encounter.
+    // 将查询限制在指定就诊范围内
     const std::string sql =
         "SELECT " + MEDICATION_REQUEST_COLUMNS +
         "FROM med_medication_request "
@@ -28,7 +28,7 @@ PtrMedicationRequestDO MedicationRequestDAO::selectById(
 PtrMedicationRequestDO MedicationRequestDAO::selectByIdForUpdate(
     const std::string& id, const std::string& encounterId)
 {
-    // Lock the matching record for the surrounding transaction.
+    // 锁定匹配记录，供外层事务使用
     const std::string sql =
         "SELECT " + MEDICATION_REQUEST_COLUMNS +
         "FROM med_medication_request "
@@ -43,7 +43,7 @@ PtrMedicationRequestDO MedicationRequestDAO::selectByIdForUpdate(
 std::list<std::string> MedicationRequestDAO::selectIdsByGroupForUpdate(
     const std::string& encounterId, const std::string& groupId)
 {
-    // Lock all records in the group before validating its completeness.
+    // 校验医嘱组完整性前锁定其中的全部记录
     const std::string sql =
         "SELECT id FROM med_medication_request "
         "WHERE encounter_id=? AND group_id=? AND is_deleted=0 FOR UPDATE";
@@ -58,7 +58,7 @@ int MedicationRequestDAO::updateStatus(const MedicationRequestDO& data,
     const std::string& expectedStatus, int expectedVersion,
     bool updateCheckFields)
 {
-    // Build a conditional update to protect against concurrent state changes.
+    // 构建带条件的更新，防止并发状态变更
     std::string sql =
         "UPDATE med_medication_request "
         "SET status_enum=?, status_changed_time=?, updated_by=?, updated_at=?";
@@ -70,7 +70,7 @@ int MedicationRequestDAO::updateStatus(const MedicationRequestDO& data,
 
     if (updateCheckFields)
     {
-        // Signing also records the signing user and time.
+        // 签发操作还会记录签发用户和签发时间
         sql += ", performer_check_id=?, check_time=?";
         SQLPARAMS_PUSH(params, "s", std::string, data.getPerformerCheckId());
         SQLPARAMS_PUSH(params, "s", std::string, data.getCheckTime());

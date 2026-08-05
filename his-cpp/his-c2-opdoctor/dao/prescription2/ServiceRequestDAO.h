@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef _SERVICEREQUESTDAO_H_
 #define _SERVICEREQUESTDAO_H_
@@ -9,11 +9,11 @@
 class ServiceRequestDAO : public BaseDAO
 {
 public:
-    // Query one service request.
+    // 查询一条服务申请单
     PtrServiceRequestDO selectById(const std::string& id);
-    // Query and lock one service request for a print operation.
+    // 查询并锁定一条用于打印操作的服务申请单
     PtrServiceRequestDO selectByIdForUpdate(const std::string& id);
-    // Increment the print count with version validation.
+    // 通过版本校验增加打印次数
     int incrementPrintCount(const ServiceRequestDO& data, int expectedVersion);
 };
 

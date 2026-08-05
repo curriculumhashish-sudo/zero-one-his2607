@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef _MEDICAL_ADVICE_VO_
 #define _MEDICAL_ADVICE_VO_
@@ -12,19 +12,19 @@ using namespace oatpp;
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-// JSON response returned after medical advice signing succeeds.
+// 医嘱签发成功时返回的 JSON 响应
 class SignMedicalAdviceJsonVO : public JsonVO<List<String>>
 {
     DTO_INIT(SignMedicalAdviceJsonVO, JsonVO<List<String>>);
 };
 
-// JSON response returned after medical advice withdrawal succeeds.
+// 医嘱撤回成功时返回的 JSON 响应
 class WithdrawMedicalAdviceJsonVO : public JsonVO<List<String>>
 {
     DTO_INIT(WithdrawMedicalAdviceJsonVO, JsonVO<List<String>>);
 };
 
-// JSON response returned after service request printing succeeds.
+// 服务申请单打印成功时返回的 JSON 响应
 class PrintApplicationFormJsonVO : public JsonVO<String>
 {
     DTO_INIT(PrintApplicationFormJsonVO, JsonVO<String>);

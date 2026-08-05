@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Prescription2Controller.h"
 #include "service/prescription2/MedicalAdviceService.h"
 
@@ -6,7 +6,7 @@ SignMedicalAdviceJsonVO::Wrapper Prescription2Controller::execSignMedicalAdvice(
     const SignMedicalAdviceDTO::Wrapper& dto, const PayloadDTO& payload)
 {
     auto response = SignMedicalAdviceJsonVO::createShared();
-    // Validate request fields before starting the signing process.
+    // 开始签发前校验请求字段
     if (!dto || !dto->encounterId || dto->encounterId->empty() ||
         !dto->version || dto->version < 0 || !dto->adviceIds || dto->adviceIds->empty())
     {
@@ -14,7 +14,7 @@ SignMedicalAdviceJsonVO::Wrapper Prescription2Controller::execSignMedicalAdvice(
         return response;
     }
 
-    // Delegate the status transition to the service layer.
+    // 将状态流转委托给服务层
     const auto signedIds = MedicalAdviceService().signMedicalAdvice(dto, payload);
     if (signedIds.empty())
     {
@@ -22,7 +22,7 @@ SignMedicalAdviceJsonVO::Wrapper Prescription2Controller::execSignMedicalAdvice(
         return response;
     }
 
-    // Convert signed identifiers to the response payload.
+    // 将已签发标识转换为响应数据
     auto data = oatpp::List<oatpp::String>::createShared();
     for (const auto& id : signedIds)
     {
@@ -36,7 +36,7 @@ WithdrawMedicalAdviceJsonVO::Wrapper Prescription2Controller::execWithdrawMedica
     const WithdrawMedicalAdviceDTO::Wrapper& dto, const PayloadDTO& payload)
 {
     auto response = WithdrawMedicalAdviceJsonVO::createShared();
-    // Validate request fields before starting the withdrawal process.
+    // 开始撤回前校验请求字段
     if (!dto || !dto->encounterId || dto->encounterId->empty() ||
         !dto->version || dto->version < 0 || !dto->adviceIds || dto->adviceIds->empty())
     {
@@ -44,7 +44,7 @@ WithdrawMedicalAdviceJsonVO::Wrapper Prescription2Controller::execWithdrawMedica
         return response;
     }
 
-    // Delegate the status transition to the service layer.
+    // 将状态流转委托给服务层
     const auto withdrawnIds = MedicalAdviceService().withdrawMedicalAdvice(dto, payload);
     if (withdrawnIds.empty())
     {
@@ -52,7 +52,7 @@ WithdrawMedicalAdviceJsonVO::Wrapper Prescription2Controller::execWithdrawMedica
         return response;
     }
 
-    // Convert withdrawn identifiers to the response payload.
+    // 将已撤回标识转换为响应数据
     auto data = oatpp::List<oatpp::String>::createShared();
     for (const auto& id : withdrawnIds)
     {
@@ -66,14 +66,14 @@ PrintApplicationFormJsonVO::Wrapper Prescription2Controller::execPrintApplicatio
     const PrintApplicationFormDTO::Wrapper& dto, const PayloadDTO& payload)
 {
     auto response = PrintApplicationFormJsonVO::createShared();
-    // A print operation must target one service request.
+    // 打印操作必须指定一个服务申请单
     if (!dto || !dto->serviceRequestId || dto->serviceRequestId->empty())
     {
         response->init(nullptr, RS_PARAMS_INVALID);
         return response;
     }
 
-    // Delegate the print count update to the service layer.
+    // 将打印次数更新委托给服务层
     const std::string serviceRequestId = MedicalAdviceService().printApplicationForm(dto, payload);
     if (serviceRequestId.empty())
     {
