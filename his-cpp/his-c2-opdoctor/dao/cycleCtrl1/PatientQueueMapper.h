@@ -5,7 +5,7 @@
 #include "domain/do/cycleCtrl1/AdmHealthcareServiceDO.h"
 #include "domain/do/cycleCtrl1/AdmAccountDO.h"
 
-// »¼Õß¶ÓÁĞ×éºÏÓ³Éä¶ÔÏó£¬¶à±íJOINÊ±¿ÉÒÔÓÃÓÚ²»Í¬×Ö¶Î²éÑ¯
+// æ‚£è€…é˜Ÿåˆ—ç»„åˆæ˜ å°„å¯¹è±¡ï¼Œå¤šè¡¨JOINæ—¶å¯ä»¥ç”¨äºä¸åŒå­—æ®µæŸ¥è¯¢
 class PatientQueueCombineDO
 {
 public:
