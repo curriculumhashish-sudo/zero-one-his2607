@@ -8,25 +8,55 @@
 
 namespace
 {
-// 医嘱签发流程允许的状态。
+// Status required before a medical advice record can be signed.
 const std::string MEDICAL_ADVICE_DRAFT_STATUS = "DRAFT";
-const std::string MEDICAL_ADVICE_COMPLETED_STATUS = "COMPLETED";
+// Status assigned after a successful signing operation.
+const std::string MEDICAL_ADVICE_ACTIVE_STATUS = "ACTIVE";
+// Status assigned after a successful withdrawal operation.
+const std::string MEDICAL_ADVICE_CANCELLED_STATUS = "CANCELLED";
+// Check that all records from an order group are selected together.
+bool containsWholeGroup(MedicationRequestDAO& dao, const std::string& encounterId,
+    const std::string& groupId,
+    const std::set<std::string>& selectedIds,
+    std::set<std::string>& checkedGroupIds)
+{
+    // Empty group identifiers represent independent medical advice records.
+    if (groupId.empty() || !checkedGroupIds.insert(groupId).second)
+    {
+        return true;
+    }
+
+    const auto groupMemberIds = dao.selectIdsByGroupForUpdate(encounterId, groupId);
+    if (groupMemberIds.empty())
+    {
+        return false;
+    }
+
+    for (const auto& memberId : groupMemberIds)
+    {
+        if (selectedIds.find(memberId) == selectedIds.end())
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
-std::list<std::string> MedicalAdviceService::normalizeMedicalAdviceIds(
-    const oatpp::List<oatpp::String>& medicalAdviceIds) const
+}
+
+std::list<std::string> MedicalAdviceService::normalizeAdviceIds(
+    const oatpp::List<oatpp::String>& adviceIds) const
 {
-    // 保留请求顺序，并确保每个标识只执行一次。
     std::list<std::string> ids;
     std::set<std::string> uniqueIds;
-    if (!medicalAdviceIds)
+    if (!adviceIds)
     {
         return ids;
     }
 
-    for (const auto& medicalAdviceId : *medicalAdviceIds)
+    for (const auto& adviceId : *adviceIds)
     {
-        const std::string id = medicalAdviceId.getValue("");
+        const std::string id = adviceId.getValue("");
         if (!id.empty() && uniqueIds.insert(id).second)
         {
             ids.emplace_back(id);
@@ -38,39 +68,55 @@ std::list<std::string> MedicalAdviceService::normalizeMedicalAdviceIds(
 std::list<std::string> MedicalAdviceService::signMedicalAdvice(
     const SignMedicalAdviceDTO::Wrapper& dto, const PayloadDTO& payload)
 {
-    // 空批次无需执行状态流转。
-    const auto ids = normalizeMedicalAdviceIds(dto->medicalAdviceIds);
-    if (ids.empty())
+    if (!dto)
     {
         return {};
     }
 
+    const std::string encounterId = dto->encounterId.getValue("");
+    const int expectedVersion = dto->version.getValue(-1);
+    const auto ids = normalizeAdviceIds(dto->adviceIds);
+    if (encounterId.empty() || expectedVersion < 0 || ids.empty())
+    {
+        return {};
+    }
+
+    // Keep a set for efficient validation of complete order groups.
+    const std::set<std::string> selectedIds(ids.begin(), ids.end());
     MedicationRequestDAO dao;
     TransactionManager transaction(&dao);
     const std::string currentTime = SimpleDateTimeFormat::format();
+    std::set<std::string> checkedGroupIds;
     std::list<std::string> signedIds;
     try
     {
         for (const auto& id : ids)
         {
-            // 锁定记录，避免其状态在事务期间发生变化。
-            auto medicalAdvice = dao.selectByIdForUpdate(id);
-            if (!medicalAdvice || medicalAdvice->getStatusEnum() != MEDICAL_ADVICE_DRAFT_STATUS)
+            // Lock the current record before validating and changing its status.
+            auto medicalAdvice = dao.selectByIdForUpdate(id, encounterId);
+            if (!medicalAdvice ||
+                medicalAdvice->getStatusEnum() != MEDICAL_ADVICE_DRAFT_STATUS ||
+                medicalAdvice->getVersion() != expectedVersion ||
+                !containsWholeGroup(dao, encounterId, medicalAdvice->getGroupId(),
+                    selectedIds, checkedGroupIds))
             {
                 transaction.rollback();
                 return {};
             }
 
-            // 请求传入的是 ID 列表，因此为当前记录构建一个更新对象。
+            // Build the update data without modifying fields outside the signing scope.
             MedicationRequestDO updateData;
             updateData.setId(id);
-            updateData.setStatusEnum(MEDICAL_ADVICE_COMPLETED_STATUS);
+            updateData.setEncounterId(encounterId);
+            updateData.setVersion(medicalAdvice->getVersion() + 1);
+            updateData.setStatusEnum(MEDICAL_ADVICE_ACTIVE_STATUS);
             updateData.setStatusChangedTime(currentTime);
             updateData.setPerformerCheckId(payload.getId());
             updateData.setCheckTime(currentTime);
             updateData.setUpdatedBy(payload.getUsername());
             updateData.setUpdatedAt(currentTime);
-            if (dao.update(updateData) != 1)
+            if (dao.updateStatus(updateData, MEDICAL_ADVICE_DRAFT_STATUS,
+                medicalAdvice->getVersion(), true) != 1)
             {
                 transaction.rollback();
                 return {};
@@ -91,37 +137,54 @@ std::list<std::string> MedicalAdviceService::signMedicalAdvice(
 std::list<std::string> MedicalAdviceService::withdrawMedicalAdvice(
     const WithdrawMedicalAdviceDTO::Wrapper& dto, const PayloadDTO& payload)
 {
-    // 空批次无需执行状态流转。
-    const auto ids = normalizeMedicalAdviceIds(dto->medicalAdviceIds);
-    if (ids.empty())
+    if (!dto)
     {
         return {};
     }
 
+    const std::string encounterId = dto->encounterId.getValue("");
+    const int expectedVersion = dto->version.getValue(-1);
+    const auto ids = normalizeAdviceIds(dto->adviceIds);
+    if (encounterId.empty() || expectedVersion < 0 || ids.empty())
+    {
+        return {};
+    }
+
+    // Keep a set for efficient validation of complete order groups.
+    const std::set<std::string> selectedIds(ids.begin(), ids.end());
     MedicationRequestDAO dao;
     TransactionManager transaction(&dao);
     const std::string currentTime = SimpleDateTimeFormat::format();
+    std::set<std::string> checkedGroupIds;
     std::list<std::string> withdrawnIds;
     try
     {
         for (const auto& id : ids)
         {
-            // 锁定记录，避免其状态在事务期间发生变化。
-            auto medicalAdvice = dao.selectByIdForUpdate(id);
-            if (!medicalAdvice || medicalAdvice->getStatusEnum() != MEDICAL_ADVICE_COMPLETED_STATUS)
+            // Lock the current record before validating and changing its status.
+            auto medicalAdvice = dao.selectByIdForUpdate(id, encounterId);
+            if (!medicalAdvice ||
+                medicalAdvice->getStatusEnum() != MEDICAL_ADVICE_ACTIVE_STATUS ||
+                medicalAdvice->getVersion() != expectedVersion ||
+                medicalAdvice->getExecuteNum() > 0 ||
+                !containsWholeGroup(dao, encounterId, medicalAdvice->getGroupId(),
+                    selectedIds, checkedGroupIds))
             {
                 transaction.rollback();
                 return {};
             }
 
-            // 请求传入的是 ID 列表，因此为当前记录构建一个更新对象。
+            // Build the update data without modifying fields outside the withdrawal scope.
             MedicationRequestDO updateData;
             updateData.setId(id);
-            updateData.setStatusEnum(MEDICAL_ADVICE_DRAFT_STATUS);
+            updateData.setEncounterId(encounterId);
+            updateData.setVersion(medicalAdvice->getVersion() + 1);
+            updateData.setStatusEnum(MEDICAL_ADVICE_CANCELLED_STATUS);
             updateData.setStatusChangedTime(currentTime);
             updateData.setUpdatedBy(payload.getUsername());
             updateData.setUpdatedAt(currentTime);
-            if (dao.update(updateData) != 1)
+            if (dao.updateStatus(updateData, MEDICAL_ADVICE_ACTIVE_STATUS,
+                medicalAdvice->getVersion(), false) != 1)
             {
                 transaction.rollback();
                 return {};
@@ -142,7 +205,11 @@ std::list<std::string> MedicalAdviceService::withdrawMedicalAdvice(
 std::string MedicalAdviceService::printApplicationForm(
     const PrintApplicationFormDTO::Wrapper& dto, const PayloadDTO& payload)
 {
-    // 打印操作必须指定一个服务申请单。
+    if (!dto)
+    {
+        return "";
+    }
+
     const std::string serviceRequestId = dto->serviceRequestId.getValue("");
     if (serviceRequestId.empty())
     {
@@ -153,7 +220,7 @@ std::string MedicalAdviceService::printApplicationForm(
     TransactionManager transaction(&dao);
     try
     {
-        // 锁定记录，避免并发打印请求丢失次数更新。
+        // Lock the request to prevent concurrent print count updates from being lost.
         auto serviceRequest = dao.selectByIdForUpdate(serviceRequestId);
         if (!serviceRequest)
         {
@@ -161,10 +228,14 @@ std::string MedicalAdviceService::printApplicationForm(
             return "";
         }
 
-        serviceRequest->setPrintCount(serviceRequest->getPrintCount() + 1);
-        serviceRequest->setUpdatedBy(payload.getUsername());
-        serviceRequest->setUpdatedAt(SimpleDateTimeFormat::format());
-        if (dao.update(*serviceRequest) != 1)
+        // Only update the print counter and audit fields.
+        ServiceRequestDO updateData;
+        updateData.setId(serviceRequestId);
+        updateData.setPrintCount(serviceRequest->getPrintCount() + 1);
+        updateData.setUpdatedBy(payload.getUsername());
+        updateData.setUpdatedAt(SimpleDateTimeFormat::format());
+        updateData.setVersion(serviceRequest->getVersion() + 1);
+        if (dao.incrementPrintCount(updateData, serviceRequest->getVersion()) != 1)
         {
             transaction.rollback();
             return "";

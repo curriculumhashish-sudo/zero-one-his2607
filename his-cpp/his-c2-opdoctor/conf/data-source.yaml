@@ -7,8 +7,8 @@ spring:
      max-active: 5
   data:
     redis:
-      host: 192.168.28.132
+      host: 192.168.18.141
       port: 6379
       password: 01star
     mongodb:
-      uri: mongodb://awei:123456@192.168.28.132:27017/firstDb
+      uri: mongodb://lyp:123456@127.0.0.1:27017/firstDb

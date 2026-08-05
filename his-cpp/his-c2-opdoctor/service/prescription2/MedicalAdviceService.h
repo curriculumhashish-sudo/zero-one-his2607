@@ -1,4 +1,5 @@
 #pragma once
+
 #ifndef _MEDICAL_ADVICESERVICE_H_
 #define _MEDICAL_ADVICESERVICE_H_
 
@@ -7,24 +8,24 @@
 #include "domain/dto/prescription2/WithdrawMedicalAdviceDTO.h"
 #include <list>
 
-// 提供医嘱及打印记录的事务性操作。
+// Medical advice business service.
 class MedicalAdviceService
 {
 public:
-    // 将处于 DRAFT 状态的医嘱记录变更为 COMPLETED。
+    // Change medical advice records from draft to signed status.
     std::list<std::string> signMedicalAdvice(
         const SignMedicalAdviceDTO::Wrapper& dto, const PayloadDTO& payload);
-    // 将处于 COMPLETED 状态的医嘱记录恢复为 DRAFT。
+    // Change signed medical advice records to withdrawn status.
     std::list<std::string> withdrawMedicalAdvice(
         const WithdrawMedicalAdviceDTO::Wrapper& dto, const PayloadDTO& payload);
-    // 增加服务申请单的打印次数。
+    // Record one service request print operation.
     std::string printApplicationForm(
         const PrintApplicationFormDTO::Wrapper& dto, const PayloadDTO& payload);
 
 private:
-    // 在保留原顺序的前提下移除空标识和重复标识。
-    std::list<std::string> normalizeMedicalAdviceIds(
-        const oatpp::List<oatpp::String>& medicalAdviceIds) const;
+    // Remove empty and duplicate identifiers while preserving request order.
+    std::list<std::string> normalizeAdviceIds(
+        const oatpp::List<oatpp::String>& adviceIds) const;
 };
 
 #endif // !_MEDICAL_ADVICESERVICE_H_

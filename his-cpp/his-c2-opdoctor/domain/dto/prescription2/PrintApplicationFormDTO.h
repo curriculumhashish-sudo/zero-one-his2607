@@ -9,13 +9,13 @@ using namespace oatpp;
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-// 记录申请单打印操作的请求体。
 class PrintApplicationFormDTO : public oatpp::DTO
 {
-	DTO_INIT(PrintApplicationFormDTO, DTO);
-	// 待打印服务申请单的标识。
-	API_DTO_FIELD_REQUIRE(String, serviceRequestId,
-		ZH_WORDS_GETTER("medical-advice.field.service-request-id"), true);
+    DTO_INIT(PrintApplicationFormDTO, DTO);
+
+    // Service request identifier to print.
+    API_DTO_FIELD_REQUIRE(String, serviceRequestId,
+        ZH_WORDS_GETTER("medical-advice.field.service-request-id"), true);
 };
 
 #include OATPP_CODEGEN_END(DTO)

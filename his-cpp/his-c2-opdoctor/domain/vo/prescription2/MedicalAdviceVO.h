@@ -12,19 +12,19 @@ using namespace oatpp;
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-// 包含已成功签发医嘱标识的响应。
+// JSON response returned after medical advice signing succeeds.
 class SignMedicalAdviceJsonVO : public JsonVO<List<String>>
 {
     DTO_INIT(SignMedicalAdviceJsonVO, JsonVO<List<String>>);
 };
 
-// 包含已成功撤回医嘱标识的响应。
+// JSON response returned after medical advice withdrawal succeeds.
 class WithdrawMedicalAdviceJsonVO : public JsonVO<List<String>>
 {
     DTO_INIT(WithdrawMedicalAdviceJsonVO, JsonVO<List<String>>);
 };
 
-// 包含已打印服务申请单标识的响应。
+// JSON response returned after service request printing succeeds.
 class PrintApplicationFormJsonVO : public JsonVO<String>
 {
     DTO_INIT(PrintApplicationFormJsonVO, JsonVO<String>);
