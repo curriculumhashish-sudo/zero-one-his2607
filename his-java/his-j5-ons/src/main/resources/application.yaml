@@ -6,6 +6,11 @@ server:
 # 微服务变量（小组前缀避免冲突）
 sn: J5ONS
 sp: 10500
+
+management:
+  server:
+    servlet:
+      context-path: /j5-ons
 spring:
   application:
     name: his-j5-ons

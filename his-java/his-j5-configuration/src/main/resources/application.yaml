@@ -7,6 +7,11 @@ server:
 sn: J5CONFIGURATION
 sp: 10501
 
+management:
+  server:
+    servlet:
+      context-path: /j5-configuration
+
 spring:
   application:
     name: his-j5-configuration
