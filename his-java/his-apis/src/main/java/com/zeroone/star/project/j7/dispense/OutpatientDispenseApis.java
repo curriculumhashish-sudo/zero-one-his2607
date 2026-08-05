@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.io.IOException;
 
-@Tag(name = "门诊发退药记录")
+@Tag(name = "门诊发退药记录", description = "门诊药房发药/退药记录查询与导出")
 public interface OutpatientDispenseApis {
 
     @Operation(summary = "分页查询发退药记录（按处方分组）")
