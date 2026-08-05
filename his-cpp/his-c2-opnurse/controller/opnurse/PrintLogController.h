@@ -13,12 +13,8 @@
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-<<<<<<< HEAD:his-cpp/his-c2-opnurse/controller/opnurse3/PrintLogController.h
-#define API_TAG ZH_WORDS_GETTER("print.tag.text")
 
-=======
 #define API_TAG ZH_WORDS_GETTER("opnurse3.tags.log")
->>>>>>> origin/c2-opnurse-idontknow:his-cpp/his-c2-opnurse/controller/opnurse/PrintLogController.h
 
 class PrintLogController : public oatpp::web::server::api::ApiController
 {

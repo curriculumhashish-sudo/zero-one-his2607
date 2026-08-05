@@ -30,8 +30,6 @@
 // If the macro for disabling Swagger documentation is defined
 
 
-#include "opnurse3/PrintJobController.h"
-#include "opnurse3/PrintLogController.h"
 
 #include "opnurse/PrintJobController.h"
 #include "opnurse/PrintLogController.h"
@@ -53,7 +51,6 @@ Router::Router(Endpoints* docEndpoints, HttpRouter* router)
 void Router::initRouter()
 {
 	ROUTER_SIMPLE_BIND(PrintJobController);
-	ROUTER_SIMPLE_BIND(PrintLogController);
 	// #TIP: Add system extension route definitions below
 
 	ROUTER_SIMPLE_BIND(PatientController);
