@@ -94,19 +94,20 @@
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
+                <version>0.43.4</version>
                 <configuration>
                     <dockerHost>https://47.98.165.254:2375</dockerHost>
-                    <certPath>D:\Dr.BIG\docker-ca</certPath>
+                    <certPath>D:/Dr.BIG/docker-ca</certPath>
+                    <skip>false</skip>
                     <images>
                         <image>
                             <name>01star/${project.artifactId}:${project.version}</name>
-                            <alias>${project.artifactId}</alias>
                             <build>
                                 <contextDir>${project.basedir}</contextDir>
                             </build>
+                            <alias>${project.artifactId}</alias>
                             <run>
                                 <namingStrategy>alias</namingStrategy>
-                                <forceRemove>true</forceRemove>
                                 <ports>
                                     <port>10133:10133</port>
                                 </ports>
