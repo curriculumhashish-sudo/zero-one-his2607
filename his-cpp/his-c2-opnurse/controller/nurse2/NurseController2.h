@@ -1,63 +1,53 @@
+/*
+ Copyright Zero One Star. All rights reserved.
+
+ @Author: fa-mian-tuan
+ @Date: 2026/08/01
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+*/
 #pragma once
 #ifndef _NURSECONTROLLER_H_
 #define _NURSECONTROLLER_H_
 
-#include "domain/query/nurse2/NurseQuery2.h"
-#include "domain/vo/BaseJsonVO.h"
-#include "domain/vo/nurse2/NurseVO2.h"
-#include "../../domain/dto/nurse2/NurseDetailDTO2.h"
-//#include "../../domain/dto/nurse/NurseCancelDTO2.h"
+#include "domain/vo/nurse2/NurseExecutionResultJsonVO2.h"
 #include "domain/dto/nurse2/NurseCancelDTO2.h"
-//#include "../../domain/dto/nurse/NurseOperateDTO2.h"
 #include "domain/dto/nurse2/NurseOperateDTO2.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 #define API_TAG ZH_WORDS_GETTER("nurse2.tags.tag")
 
-class NurseController2:public oatpp::web::server::api::ApiController
+class NurseController2 : public oatpp::web::server::api::ApiController
 {
-	//定义控制器访问接口
 	API_ACCESS_DECLARE(NurseController2);
 
-public:  //定义接口   从 arch-demo下的/controller/samplecontroller。h   3.1 定义导出接口描述 3.2 定义导出接口描述
-/*
-	// 3.1 定义分页获取患者队列接口描述
-	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("nurse.query.summary"), queryNurse, NurseQuery2, NurseDetailPageJsonVO2::Wrapper, API_TAG);
-	// 3.2  定义分页获取患者队列接口处理
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/nurse/query", queryNurse, NurseQuery2, executeQueryNurse(query));
+public:
+	// Execute endpoint
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("nurse2.modify.operate1"), operateNurse2, NurseExecutionResultJsonVO2::Wrapper, API_TAG);
+	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/opnurse/operate1", operateNurse2, BODY_DTO(NurseOperateDTO2::Wrapper, dto), execOperateNurse(dto, authObject->getPayload()));
 
-	// 3.1 定义删除接口描述  ---> 这些在arch-demo下的/controller/samplecontroller。h
-	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("nurse.remove.summary"), removeSample, BooleanJsonVO::Wrapper, API_TAG);
-	// 3.2 定义删除接口处理
-	API_HANDLER_ENDPOINT_AUTH(API_M_DEL, "/nurse/{id}", removeSample, BODY_DTO(String, id), execRemoveNurse(id));
-	*/
+	// Cancel execute endpoint
+	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("nurse2.modify.operate2"), cancelNurse2, NurseExecutionResultJsonVO2::Wrapper, API_TAG);
+	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/opnurse/operate2", cancelNurse2, BODY_DTO(NurseCancelDTO2::Wrapper, dto), execCancelNurse(dto, authObject->getPayload()));
 
-	// 3.1 定义修改接口描述  --->也就是执行接口
-	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("nurse2.modify.operate1"), operateNurse2, StringJsonVO::Wrapper, API_TAG);
-	// 3.2 定义修改接口处理
-	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/opnurse/operate1", operateNurse2, BODY_DTO(NurseOperateDTO2::Wrapper,dto), execOperateNurse(dto, authObject->getPayload()));
-	
-
-	// 3.1 定义修改接口描述  --->也就是取消执行接口
-	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("nurse2.modify.operate2"), cancelNurse2, StringJsonVO::Wrapper, API_TAG);
-	// 3.2 定义修改接口处理
-	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/opnurse/operate2", cancelNurse2, BODY_DTO(NurseCancelDTO2::Wrapper,dto), execCancelNurse(dto,authObject->getPayload()));
-
-private://定义接口执行函数
-	//3.3定义定义分页获取患者队列接口处理
-	//NurseDetailPageJsonVO2::Wrapper executeQueryNurse(const NurseQuery2::Wrapper& query);
-	
-	//定义删除接口执行函数
-	//BooleanJsonVO::Wrapper execRemoveNurse(const String& id);
-
-	// 3.3 演示修改数据  ---> 执行 取消执行
-	StringJsonVO::Wrapper execOperateNurse(const NurseOperateDTO2::Wrapper& dto, const PayloadDTO& payload);
-	StringJsonVO::Wrapper execCancelNurse(const NurseCancelDTO2::Wrapper& dto, const PayloadDTO& payload);
-
+private:
+	// Execute implementation
+	NurseExecutionResultJsonVO2::Wrapper execOperateNurse(const NurseOperateDTO2::Wrapper& dto, const PayloadDTO& payload);
+	// Cancel execute implementation
+	NurseExecutionResultJsonVO2::Wrapper execCancelNurse(const NurseCancelDTO2::Wrapper& dto, const PayloadDTO& payload);
 };
 
 #undef API_TAG
-#include  OATPP_CODEGEN_END(ApiController)
-
+#include OATPP_CODEGEN_END(ApiController)
 
 #endif // !_NURSECONTROLLER_H_

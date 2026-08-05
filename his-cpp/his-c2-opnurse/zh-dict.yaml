@@ -122,6 +122,13 @@ nurse2:
   amount: "已执行次数"
   person: "执行人"
   operate: "操作"
+  encounter_id: "就诊ID"
+  item_id: "项目ID"
+  version: "版本号"
+  cancel_reason: "取消原因"
+  remark: "备注"
+  success: "是否成功"
+  message: "结果消息"
  modify:
   operate1: "执行"
   operate2: "取消执行"
