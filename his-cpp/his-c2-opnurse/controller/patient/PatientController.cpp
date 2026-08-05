@@ -24,11 +24,12 @@
 #define MAX_PAGE_SIZE 100
 
 PatientQueuePageJsonVO::Wrapper PatientController::execQueryPatient(
-	const PatientQuery::Wrapper& query)
+	const PatientQuery::Wrapper& query, const std::string& userId)
 {
 	// --- Extract parameters (with defaults) ---
-	std::string name = query->name ? query->name.getValue("") : "";
-	std::string date = query->date ? query->date.getValue("") : "";
+	std::string keyword = query->keyword ? query->keyword.getValue("") : "";
+	std::string startDate = query->startDate ? query->startDate.getValue("") : "";
+	std::string endDate = query->endDate ? query->endDate.getValue("") : "";
 
 	int pageIndex = 1;
 	int pageSize = 10;
@@ -49,21 +50,25 @@ PatientQueuePageJsonVO::Wrapper PatientController::execQueryPatient(
 		return vo;
 	}
 	// Validate date format (yyyy-MM-dd)
-	if (!date.empty()) {
-		std::regex datePattern(R"(^\d{4}-\d{2}-\d{2}$)");
-		if (!std::regex_match(date, datePattern)) {
-			auto vo = PatientQueuePageJsonVO::createShared();
-			vo->code = 9995;
-			vo->message = "date format must be yyyy-MM-dd";
-			return vo;
-		}
+	std::regex datePattern(R"(^\d{4}-\d{2}-\d{2}$)");
+	if (!startDate.empty() && !std::regex_match(startDate, datePattern)) {
+		auto vo = PatientQueuePageJsonVO::createShared();
+		vo->code = 9995;
+		vo->message = "startDate format must be yyyy-MM-dd";
+		return vo;
+	}
+	if (!endDate.empty() && !std::regex_match(endDate, datePattern)) {
+		auto vo = PatientQueuePageJsonVO::createShared();
+		vo->code = 9995;
+		vo->message = "endDate format must be yyyy-MM-dd";
+		return vo;
 	}
 
 	// --- Exception handling ---
 	try {
 		// Call service layer
 		PatientQueueService service;
-		auto pageData = service.queryPatientQueue(name, date, pageIndex, pageSize);
+		auto pageData = service.queryPatientQueue(keyword, startDate, endDate, userId, pageIndex, pageSize);
 
 		// Build JSON response
 		auto vo = PatientQueuePageJsonVO::createShared();

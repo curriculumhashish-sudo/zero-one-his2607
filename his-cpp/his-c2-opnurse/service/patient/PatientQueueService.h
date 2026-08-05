@@ -31,15 +31,19 @@ class PatientQueueService
 public:
 	/*
 	 * Query patient queue with pagination.
-	 * @param name optional patient name filter
-	 * @param date optional visit date filter
+	 * @param keyword optional filter (patient name or queue number)
+	 * @param startDate optional start date filter
+	 * @param endDate optional end date filter
+	 * @param userId current user ID for tenant lookup
 	 * @param pageIndex page index (1-based)
 	 * @param pageSize page size
 	 * @return page DTO with patient queue items and total count
 	 */
 	PatientQueuePageDTO::Wrapper queryPatientQueue(
-		const std::string& name,
-		const std::string& date,
+		const std::string& keyword,
+		const std::string& startDate,
+		const std::string& endDate,
+		const std::string& userId,
 		int pageIndex,
 		int pageSize);
 
@@ -53,6 +57,11 @@ private:
 	 * Convert gender enum code to display text.
 	 */
 	std::string convertGender(const std::string& genderEnum);
+
+	/*
+	 * Get tenant ID from Redis by user ID.
+	 */
+	std::string getTenantIdFromRedis(const std::string& userId);
 };
 
 #endif // !_PATIENTQUEUESERVICE_H_

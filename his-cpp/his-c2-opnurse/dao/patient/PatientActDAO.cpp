@@ -54,9 +54,7 @@ ServiceRequestDO ServiceRequestMapper::mapper(ResultSet* rs) const
 	return d;
 }
 
-std::list<ServiceRequestDO> PatientActDAO::queryServiceRequests(
-	const std::string& patientId, const std::string& encounterId,
-	const std::string& categoryEnum, const std::string& statusEnum)
+std::list<ServiceRequestDO> PatientActDAO::queryServiceRequests(const std::string& encounterId)
 {
 	std::ostringstream sql;
 	sql << "SELECT sr.id, sr.patient_id, sr.encounter_id, sr.status_enum, "
@@ -69,21 +67,9 @@ std::list<ServiceRequestDO> PatientActDAO::queryServiceRequests(
 		<< "WHERE sr.is_deleted = 0 ";
 
 	SqlParams params;
-	if (!patientId.empty()) {
-		sql << "AND sr.patient_id = ? ";
-		SQLPARAMS_PUSH(params, "s", std::string, patientId);
-	}
 	if (!encounterId.empty()) {
 		sql << "AND sr.encounter_id = ? ";
 		SQLPARAMS_PUSH(params, "s", std::string, encounterId);
-	}
-	if (!categoryEnum.empty()) {
-		sql << "AND sr.category_enum = ? ";
-		SQLPARAMS_PUSH(params, "s", std::string, categoryEnum);
-	}
-	if (!statusEnum.empty()) {
-		sql << "AND sr.status_enum = ? ";
-		SQLPARAMS_PUSH(params, "s", std::string, statusEnum);
 	}
 
 	sql << "ORDER BY sr.authored_time DESC";

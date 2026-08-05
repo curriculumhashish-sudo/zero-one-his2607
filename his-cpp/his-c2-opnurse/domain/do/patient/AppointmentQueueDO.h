@@ -41,6 +41,8 @@ class AppointmentQueueDO : public BaseDO {
     MYSQL_SYNTHESIZE(std::string, triageLevel, TriageLevel);
     // Last called time
     MYSQL_SYNTHESIZE(std::string, calledAt, CalledAt);
+    // Tenant ID
+    MYSQL_SYNTHESIZE(std::string, tenantId, TenantId);
 
 public:
     AppointmentQueueDO() : BaseDO("wkf_appointment_queue") {
@@ -53,6 +55,7 @@ public:
         MYSQL_ADD_FIELD("booking_date", "s", bookingDate);
         MYSQL_ADD_FIELD("triage_level", "s", triageLevel);
         MYSQL_ADD_FIELD("called_at", "s", calledAt);
+        MYSQL_ADD_FIELD("tenant_id", "s", tenantId);
     }
 };
 

@@ -17,11 +17,13 @@ class PatientQueuePageJsonVO : public JsonVO<PatientQueuePageDTO::Wrapper>
 };
 
 /**
- * Non-paginated JSON VO for patient act list response.
+ * Wrapper JSON VO for patient act response.
+ * Contains patient info at top level and items list below.
+ * Example: { "code":0, "msg":"success", "data":{ "name":"...", "items":[...] } }
  */
-class PatientActListJsonVO : public ListJsonVO<PatientActDTO::Wrapper>
+class PatientActListJsonVO : public JsonVO<PatientActWrapperDTO::Wrapper>
 {
-	DTO_INIT(PatientActListJsonVO, ListJsonVO<PatientActDTO::Wrapper>);
+	DTO_INIT(PatientActListJsonVO, JsonVO<PatientActWrapperDTO::Wrapper>);
 };
 
 /**

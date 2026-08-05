@@ -17,12 +17,16 @@ public:
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("patient1.query.summary"),
 		queryPatient, PatientQuery, PatientQueuePageJsonVO::Wrapper, API_TAG);
 	// Endpoint binding
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/patient/query",
-		queryPatient, PatientQuery, execQueryPatient(query));
+	API_HANDLER_ENDPOINT_OPTION_AUTH(API_M_GET, "/patient/query",
+		queryPatient, QUERIES(QueryParams, queryParams),
+		API_HANDLER_QUERY_PARAM(query, PatientQuery, queryParams);
+		std::string userId = authObject->getPayload().getId();
+		API_HANDLER_RESP_VO(execQueryPatient(query, userId));
+	)
 
 private:
 	// Execute paginated patient queue query
-	PatientQueuePageJsonVO::Wrapper execQueryPatient(const PatientQuery::Wrapper& query);
+	PatientQueuePageJsonVO::Wrapper execQueryPatient(const PatientQuery::Wrapper& query, const std::string& userId);
 };
 
 #undef API_TAG

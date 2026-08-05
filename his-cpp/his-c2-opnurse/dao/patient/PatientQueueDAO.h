@@ -25,13 +25,46 @@
 #include "domain/do/patient/PatientDO.h"
 
 /**
- *患者队列查询的组合结果 (JOIN wkf_appointment_queue + adm_patient + adm_encounter).
+ * Simple struct for patient queue info, using only std::string types
+ * to avoid copy issues with BaseDO (which deletes copy constructor).
+ */
+struct PatientInfoResult
+{
+	std::string name;
+	std::string gender;
+	std::string birthDate;
+};
+
+/**
+ * Mapper for PatientInfoResult (simple struct, copy-safe).
+ */
+class PatientInfoMapper : public Mapper<PatientInfoResult>
+{
+public:
+	PatientInfoResult mapper(ResultSet* rs) const override;
+};
+
+/**
+ * Combined result of patient queue query (JOIN wkf_appointment_queue + adm_patient + adm_encounter).
  */
 struct PatientQueueResult
 {
 	AppointmentQueueDO queue;
 	PatientDO patient;
+	// Extended joined fields from adm_encounter and dict tables
+	std::string encounterId;
+	std::string medicalRecordNo;
+	std::string visitNo;
+	std::string registeredAt;
+	std::string departmentName;
+	std::string visitTypeName;
+	std::string statusEnum;
+	std::string statusName;
 	std::string paymentType;
+	std::string paymentTypeName;
+	std::string priorityName;
+	std::string riskHint;
+	int pendingCount = 0;
 };
 
 /**
@@ -51,25 +84,42 @@ class PatientQueueDAO : public BaseDAO
 public:
 	/*
 	 * Query patient queue list with patient info.
-	 * @param name optional patient name filter
-	 * @param date optional visit date filter
+	 * @param keyword optional filter (patient name or queue number)
+	 * @param startDate optional start date filter
+	 * @param endDate optional end date filter
+	 * @param tenantId tenant ID filter
 	 * @param pageIndex page index (1-based)
 	 * @param pageSize page size
 	 * @return list of PatientQueueResult
 	 */
 	std::list<PatientQueueResult> queryPatientQueue(
-		const std::string& name,
-		const std::string& date,
+		const std::string& keyword,
+		const std::string& startDate,
+		const std::string& endDate,
+		const std::string& tenantId,
 		int pageIndex,
 		int pageSize);
 
 	/*
 	 * Count total patient queue records.
-	 * @param name optional patient name filter
-	 * @param date optional visit date filter
+	 * @param keyword optional filter (patient name or queue number)
+	 * @param startDate optional start date filter
+	 * @param endDate optional end date filter
+	 * @param tenantId tenant ID filter
 	 * @return total count
 	 */
-	uint64_t countPatientQueue(const std::string& name, const std::string& date);
+	uint64_t countPatientQueue(
+		const std::string& keyword,
+		const std::string& startDate,
+		const std::string& endDate,
+		const std::string& tenantId);
+
+	/*
+	 * Query patient queue info by encounter ID.
+	 * @param encounterId encounter ID
+	 * @return PatientInfoResult with patient name, gender, age, visit time, queue number, payment type
+	 */
+	PatientInfoResult queryByEncounterId(const std::string& encounterId);
 };
 
 #endif // !_PATIENTQUEUEDAO_H_

@@ -9,6 +9,8 @@
 class PatientQueueDTO : public oatpp::DTO
 {
 	DTO_INIT(PatientQueueDTO, DTO);
+	// Encounter ID (used to link act and consumable queries)
+	API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("patient1.field.encounterId"), true);
 	// Patient name
 	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("patient1.field.name"), true);
 	// Gender
