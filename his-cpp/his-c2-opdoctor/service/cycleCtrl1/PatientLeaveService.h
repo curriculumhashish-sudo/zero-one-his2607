@@ -10,7 +10,7 @@
 class PatientLeaveService
 {
 public:
-    // 暂离业务入口
+    // 脭脻脌毛脪碌脦帽脠毛驴脷
     PatientLeaveJsonVO::Wrapper execLeavePatient(const oatpp::String& tenantId, const oatpp::String& encounterId);
 
 private:
