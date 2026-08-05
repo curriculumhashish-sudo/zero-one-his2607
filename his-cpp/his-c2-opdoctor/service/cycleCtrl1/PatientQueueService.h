@@ -16,7 +16,7 @@
 class PatientQueueService
 {
 public:
-    // ·µ»Ø»¼Õß¶ÓÁÐÁÐ±í
+    // è¿”å›žæ‚£è€…é˜Ÿåˆ—åˆ—è¡¨
     oatpp::Vector<PatientQueueDTO::Wrapper> getPatientQueueList(const PatientQueueQuery::Wrapper& query,
         const std::string& tenantId,
         const std::string& practitionerId);
