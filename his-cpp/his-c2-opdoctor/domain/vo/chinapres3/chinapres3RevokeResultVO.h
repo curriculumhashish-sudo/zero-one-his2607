@@ -22,19 +22,15 @@
 
 #include "../../GlobalInclude.h"
 #include "domain/vo/JsonVO.h"
-// ---- revoke-related include ----
-// Must be included BEFORE OATPP_CODEGEN_BEGIN(DTO) because
-// chinapres3RevokeFailureDTO.h itself opens and closes the DTO codegen block.
-// Including it inside the current block would prematurely undefine all DTO macros.
-#include "../../dto/chinapres3/chinapres3RevokeFailureDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * Revoke result data DTO, nested inside chinapres3RevokeResultVO.data.
+ * Revoke result data DTO.
  *
- * Reports how many prescriptions / medication lines were successfully
- * revoked, and lists any prescriptions that could not be processed.
+ * Reports how many prescriptions and medication lines were revoked,
+ * along with the revoke timestamp. The operation is atomic: all
+ * requested prescriptions succeed together or fail together.
  */
 class chinapres3RevokeResultDTO : public oatpp::DTO
 {
@@ -47,26 +43,30 @@ class chinapres3RevokeResultDTO : public oatpp::DTO
         ZH_WORDS_GETTER("chinapres3.field.revokedPrescriptionCount"),
         true);
 
-    // Number of medication-request rows successfully reverted to DRAFT
+    // Number of medication-request rows reverted to DRAFT
     API_DTO_FIELD_REQUIRE(
         Int32,
         revokedMedicationCount,
         ZH_WORDS_GETTER("chinapres3.field.revokedMedicationCount"),
         true);
 
-    // Prescriptions that could not be revoked, together with the reason
-    DTO_FIELD(Vector<Object<chinapres3RevokeFailureDTO>>, failures);
-    DTO_FIELD_INFO(failures)
-    {
-        info->description = ZH_WORDS_GETTER("chinapres3.field.failures");
+    // Prescription numbers that were revoked
+    DTO_FIELD(Vector<String>, revokedPrescriptionNos);
+    DTO_FIELD_INFO(revokedPrescriptionNos) {
+        info->description = ZH_WORDS_GETTER("chinapres3.field.revokedPrescriptionNos");
+    }
+
+    // Revoke timestamp (server time when the transaction committed)
+    DTO_FIELD(String, revokedAt);
+    DTO_FIELD_INFO(revokedAt) {
+        info->description = ZH_WORDS_GETTER("chinapres3.field.revokedAt");
     }
 };
 
 /**
  * Revoke result view object.
  *
- * Inherits JsonVO<chinapres3RevokeResultDTO::Wrapper> so the HTTP response
- * follows the standard { code, message, data } envelope.
+ * Standard JSON response: { code, message, data: { ... } }
  */
 class chinapres3RevokeResultVO : public JsonVO<chinapres3RevokeResultDTO::Wrapper>
 {

@@ -25,21 +25,20 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /**
- * 处方撤回请求DTO
+ * Revoke request DTO.
  *
- * 用于传递需要执行撤回操作的处方单号集合
- * 单次撤回接口请求，会撤销传入处方号下所有药品明细行，
- * 并同步作废关联的发药记录、收费结算记录
+ * Accepts a list of medication record IDs (med_medication_request.id).
+ * All drug lines under the same prescription must be included (all-or-nothing).
  */
 class chinapres3RevokeDTO : public oatpp::DTO
 {
     DTO_INIT(chinapres3RevokeDTO, DTO);
 
-    // 需要撤回的处方单号数组，同一个处方号对应多条同处方的药品申请明细数据
+    // Medication request record IDs to revoke
     API_DTO_FIELD_REQUIRE(
         Vector<String>,
-        prescriptionNos,
-        ZH_WORDS_GETTER("chinapres3.field.prescriptionNos"),
+        medicationRequestIds,
+        ZH_WORDS_GETTER("chinapres3.field.medicationRequestId"),
         true);
 };
 
