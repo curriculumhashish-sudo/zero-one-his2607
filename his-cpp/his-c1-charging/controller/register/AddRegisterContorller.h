@@ -4,7 +4,7 @@
 #define _ADD_REGISTER_CONTROLLER_
 
 #include "domain/vo/BaseJsonVO.h"
-#include "domain/DTO/register/AddRegisterDTO.h"
+#include "domain/dto/register/AddRegisterDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 

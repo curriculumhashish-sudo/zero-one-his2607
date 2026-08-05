@@ -41,7 +41,11 @@ RefundPreparePrintDTO::Wrapper RefundPreparePrintService::prepare(const RefundPr
 
     time_t now = time(nullptr);
     struct tm tmInfo;
+#ifdef LINUX
+    localtime_r(&now, &tmInfo);
+#else
     localtime_s(&tmInfo, &now);
+#endif
     char dateBuf[16];
     strftime(dateBuf, sizeof(dateBuf), "%Y%m%d", &tmInfo);
     std::ostringstream busNoStream;

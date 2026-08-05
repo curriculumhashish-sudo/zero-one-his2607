@@ -6,7 +6,7 @@
 #include "domain/vo/BaseJsonVO.h"
 #include "domain/query/settle/GetTotalFeesQuery.h"
 #include "domain/vo/settle/GetTotalFeesVO.h"
-#include "domain/DTO/settle/GetTotalFeesDTO.h"
+#include "domain/dto/settle/GetTotalFeesDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 

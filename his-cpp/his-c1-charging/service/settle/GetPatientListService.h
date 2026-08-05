@@ -3,7 +3,7 @@
 
 #include "domain/vo/settle/GetPatientListVO.h" 
 #include "domain/query/settle/GetPatientListQuery.h"
-#include "domain/DTO/settle/GetPatientListDTO.h"
+#include "domain/dto/settle/GetPatientListDTO.h"
 #include "domain/do/settle/GetPatientListDO.h"
 #include "../../dao/settle/GetPatientListDAO.h"
 #include <iostream> // 控制台输出头文件

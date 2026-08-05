@@ -152,10 +152,10 @@ ConfirmPrintResponseDTO::Wrapper PrintChargeReceiptService::confirmPrint(const C
         return resp;
     }
 
-    int version = dto->templateVersion ? dto->templateVersion : 0;
+    int version = dto->templateVersion ? *dto->templateVersion.get() : 0;
     std::string status = dto->status ? dto->status->c_str() : "SUCCESS";
     std::string printer = dto->printer ? dto->printer->c_str() : "";
-    int copies = dto->copies ? dto->copies : 1;
+    int copies = dto->copies ? *dto->copies.get() : 1;
     std::string clientType = dto->clientType ? dto->clientType->c_str() : "electron-hiprint";
     std::string errorCode = dto->errorCode ? dto->errorCode->c_str() : "";
     std::string errorMessage = dto->errorMessage ? dto->errorMessage->c_str() : "";

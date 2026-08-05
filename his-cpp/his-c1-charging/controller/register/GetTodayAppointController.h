@@ -6,7 +6,7 @@
 #include "domain/vo/BaseJsonVO.h"
 #include "domain/query/register/GetTodayAppointQuery.h"
 #include "domain/vo/register/GetTodayAppointVO.h"
-#include "domain/DTO/register/GetTodayAppointDTO.h"
+#include "domain/dto/register/GetTodayAppointDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 

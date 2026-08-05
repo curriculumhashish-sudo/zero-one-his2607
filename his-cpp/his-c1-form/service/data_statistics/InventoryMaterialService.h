@@ -4,7 +4,7 @@
 
 #include "domain/vo/data_statistics/InventoryMaterialVo.h"
 #include "domain/query/data_statistics/InventoryMaterialQuery.h"
-#include "domain/dto/data_statistics/InventoryMaterialDTO.h"
+#include "domain/dto/data_statistics/InventoryMaterialDto.h"
 
 class InventoryMaterialService {
 public:

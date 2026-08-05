@@ -6,7 +6,7 @@
 #include "domain/vo/BaseJsonVO.h"
 #include "domain/query/register/GetSeeQuery.h"
 #include "domain/vo/register/GetSeeVO.h"
-#include "domain/DTO/register/GetSeeDTO.h"
+#include "domain/dto/register/GetSeeDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 

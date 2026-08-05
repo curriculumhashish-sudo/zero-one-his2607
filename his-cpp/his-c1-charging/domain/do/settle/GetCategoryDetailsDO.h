@@ -1,7 +1,7 @@
 #pragma once
 #ifndef GETCATEGORYDETAILSDO_H
 #define GETCATEGORYDETAILSDO_H
-#include "../DOInclude.h"
+#include "../DoInclude.h"
 
 class GetCategoryDetailsDO : public BaseDO
 {

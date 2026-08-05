@@ -68,7 +68,10 @@ Pay_ManageGetPatientQueuePageDTO::Wrapper Pay_ManageGetPatientQueueService::list
         // Direct mapping fields
         dto->name = dobj.getPatientName().empty() ? oatpp::String() : oatpp::String(dobj.getPatientName());
         dto->sex = translateGender(dobj.getGenderCode());
-        dto->age = computeAge(dobj.getBirthDate()).empty() ? oatpp::UInt64(0ULL) : oatpp::UInt64(std::stoull(computeAge(dobj.getBirthDate())));
+        uint64_t ageNum = 0;
+        if (!computeAge(dobj.getBirthDate()).empty())
+            ageNum = std::stoull(computeAge(dobj.getBirthDate()));
+        dto->age = oatpp::UInt64(ageNum);
         dto->hospitalized_number = dobj.getHospitalizedNumber().empty() ? oatpp::String() : oatpp::String(dobj.getHospitalizedNumber());
         dto->hospitalized_time = dobj.getAdmissionTime().empty() ? oatpp::String() : oatpp::String(dobj.getAdmissionTime());
         dto->depart = dobj.getDepartmentName().empty() ? oatpp::String() : oatpp::String(dobj.getDepartmentName());

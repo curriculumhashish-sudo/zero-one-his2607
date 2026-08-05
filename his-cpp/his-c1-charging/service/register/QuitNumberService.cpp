@@ -1,5 +1,7 @@
 #include "QuitNumberService.h"
 #include "../../dao/register/QuitNumberDAO.h"
+#include <random>
+#include <chrono>
 #include <string>
 static std::string generateSimpleId() {
     auto now = std::chrono::system_clock::now();

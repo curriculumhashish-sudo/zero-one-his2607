@@ -48,7 +48,11 @@ RefundGetPatientPageDTO::Wrapper RefundGetPatientService::listAll(const RefundGe
     // Get current year for age calculation
     time_t now = time(nullptr);
     struct tm tmInfo;
+#ifdef LINUX
+    localtime_r(&now, &tmInfo);
+#else
     localtime_s(&tmInfo, &now);
+#endif
     int currentYear = tmInfo.tm_year + 1900;
 
     // Query paginated data and convert DO → DTO

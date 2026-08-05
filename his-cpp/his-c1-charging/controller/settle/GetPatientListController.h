@@ -6,7 +6,7 @@
 #include "domain/vo/BaseJsonVO.h"
 #include "domain/query/settle/GetPatientListQuery.h"
 #include "domain/vo/settle/GetPatientListVO.h"
-#include "domain/DTO/settle/GetPatientListDTO.h"
+#include "domain/dto/settle/GetPatientListDTO.h"
 
 
 #include OATPP_CODEGEN_BEGIN(ApiController)

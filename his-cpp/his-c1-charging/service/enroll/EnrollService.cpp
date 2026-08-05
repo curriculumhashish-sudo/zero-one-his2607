@@ -196,9 +196,11 @@ int EnrollService::calculateAge(const std::string& birthDate)
     std::tm currentDate
     {
     };
-
+#ifdef LINUX
+    localtime_r(&now, &currentDate);
+#else
     localtime_s(&currentDate, &now);
-
+#endif
     int currentYear = currentDate.tm_year + 1900;
     int currentMonth = currentDate.tm_mon + 1;
     int currentDay = currentDate.tm_mday;
