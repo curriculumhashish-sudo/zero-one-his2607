@@ -15,7 +15,7 @@
 class PatientQueueDAO : public BaseDAO
 {
 public:
-	//ÈÕÆÚÊÇ±ØĞë´«Èë£¬»¼ÕßÃûËÑË÷ÊÇ¿ÉÑ¡µÄ£¬×´Ì¬ÊÇ¿ÉÑ¡µÄ£¨Ä¬ÈÏÊÇÈ«²¿£©
+	//æ—¥æœŸæ˜¯å¿…é¡»ä¼ å…¥ï¼Œæ‚£è€…åæœç´¢æ˜¯å¯é€‰çš„ï¼ŒçŠ¶æ€æ˜¯å¯é€‰çš„ï¼ˆé»˜è®¤æ˜¯å…¨éƒ¨ï¼‰
 	std::list<PtrPatientQueueCombineDO> queryPatientQueue(const PatientQueueQuery::Wrapper& query,
 		const std::string& tenantId,const std::string& practitionerId);
 		
