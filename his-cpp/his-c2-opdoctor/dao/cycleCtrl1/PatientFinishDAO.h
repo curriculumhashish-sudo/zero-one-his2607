@@ -9,10 +9,10 @@
 class PatientFinishDAO : public BaseDAO
 {
 public:
-    // 根据encounterId查询就诊记录
+    // 鏍规嵁encounterId鏌ヨ灏辫瘖璁板綍
     std::shared_ptr<AdmEncounterDO> selectEncounterById(const oatpp::String& tenantId, const oatpp::String& encounterId);
 
-    // 更新就诊状态为完诊
+    // 鏇存柊灏辫瘖鐘舵�佷负瀹岃瘖
     bool updateEncounterToFinish(const oatpp::String& tenantId, const oatpp::String& encounterId);
 };
 
