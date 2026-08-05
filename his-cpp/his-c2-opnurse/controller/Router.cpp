@@ -33,6 +33,9 @@
 #include "opnurse3/PrintJobController.h"
 #include "opnurse3/PrintLogController.h"
 
+#include "opnurse/PrintJobController.h"
+#include "opnurse/PrintLogController.h"
+
 #ifdef CLOSE_SWAGGER_DOC
 #define ROUTER_SIMPLE_BIND(__CLASS__) \
 router->addController(__CLASS__::createShared())

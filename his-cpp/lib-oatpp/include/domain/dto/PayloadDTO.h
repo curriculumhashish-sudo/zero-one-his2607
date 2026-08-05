@@ -75,47 +75,35 @@ private:
 	std::string id;
 	// 用户拥有的权限列表
 	std::list<std::string> authorities;
-
-	// TIP：新增字段请在这里扩展
-
+	// TIP：新增属性字段在后面添加即可
+	//-------------------------------
 	/**
-	 * 用户名称，登录人员姓名
+	 * 用户名称（真实姓名）
 	 */
 	std::string name;
 	/**
-	 * 组织机构信息
-	 * 每条元素：key为组织机构ID，value为组织机构名称
+	 * 组织单元信息
+	 * 每个元素：key为组织单元编号，value为组织单元名称
 	 */
 	std::map<std::string, std::string> organizationUnits;
 	/**
-	 * 对应的执业人员ID
+	 * 对应的医务人员编号
 	 */
 	std::string practitionerId;
 	/**
-	 * 对应的执业人员名称
+	 * 对应的医务人员名称
 	 */
 	std::string practitionerName;
 	/**
-	 * 职称名称，例如：医师、药师、护士
+	 * 职称名称，如：主任医师、护士、药师、技师等
+
 	 */
 	std::string titleName;
 	/**
 	 * 职称编码，职称名称对应的编码值
 	 */
 	std::string titleCode;
-
-	std::string tenantId;
-	std::string orgId;
-
-
 public:
-
-	void setTenantId(std::string val) { tenantId = val; }
-	std::string getTenantId() const { return tenantId; }
-
-	void setOrgId(std::string val) { orgId = val; }
-	std::string getOrgId() const { return orgId; }
-
 
 	PayloadDTO();
 	/**
@@ -168,11 +156,15 @@ public:
 	void setTitleName(std::string val) { titleName = val; }
 	std::string getTitleCode() const { return titleCode; }
 	void setTitleCode(std::string val) { titleCode = val; }
-
+	//-------------------------------
 	// 添加权限
 	void putAuthority(std::string authstr);
-	void putOrg(std::string orgId, std::string orgName);
 
+	//-------------------------------
+	// 添加组织
+	void putOrg(std::string orgId, std::string orgName);
+	//-------------------------------
+	
 	// 将Payload的属性转换到jwt builder中
 	// 注意：新增属性字段后需要维护此方法的定义
 	void propToJwt(jwt::builder<jwt::default_clock, jwt::traits::kazuho_picojson>& builder) const;
