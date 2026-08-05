@@ -20,15 +20,15 @@ class RecePatientController : public oatpp::web::server::api::ApiController
 	API_ACCESS_DECLARE(RecePatientController);
 
 public:
-	//2.1 ½Ó¿Ú£º½«Æ¾Ö¤´«Èë execQueryRece
+	//2.1 æ¥å£ï¼šå°†å‡­è¯ä¼ å…¥ execQueryRece
 	ENDPOINT(API_M_GET, "/cycleCtrl/reception", recePatient, QUERIES(QueryParams, queryParams), API_HANDLER_AUTH_PARAME)
 	{
-		// ½« query ½âÎöÎª DTO
+		// å°† query è§£æä¸º DTO
 		API_HANDLER_QUERY_PARAM(userQuery, RecePatientQuery, queryParams);
-		// °Ñ authObject->getPayload() 
+		// æŠŠ authObject->getPayload() 
 		API_HANDLER_RESP_VO(execQueryRece(userQuery, authObject->getPayload()));
 	}
-	//2.2 ½Ó¿ÚĞÅÏ¢±£³Ö²»±ä
+	//2.2 æ¥å£ä¿¡æ¯ä¿æŒä¸å˜
 	ENDPOINT_INFO(recePatient)
 	{
 		API_DEF_ADD_AUTH();
@@ -36,12 +36,12 @@ public:
 		API_DEF_ADD_RSP_JSON_WRAPPER(RecePatientJsonVO);
 		API_DEF_ADD_TAG(API_TAG);
 
-		//Ö»ÊäÈëÈÕÆÚ¼´¿É
+		//åªè¾“å…¥æ—¥æœŸå³å¯
 		API_DEF_ADD_QUERY_PARAMS(String, "date", ZH_WORDS_GETTER("rece.param.visitTime"), "", true);
 	}
 
 private:
-	// ĞŞ¸ÄÇ©Ãû£ºÔö¼Ó payload ²ÎÊı
+	// ä¿®æ”¹ç­¾åï¼šå¢åŠ  payload å‚æ•°
 	RecePatientJsonVO::Wrapper execQueryRece(const RecePatientQuery::Wrapper& query, const PayloadDTO& payload);
 
 };
