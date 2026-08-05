@@ -4,7 +4,7 @@
 
 std::shared_ptr<AdmEncounterDO> PatientFinishDAO::selectEncounterById(const oatpp::String& tenantId, const oatpp::String& encounterId)
 {
-    // Ôö¼Ó tenant_id µ½ SELECT ÖĞ£¬±£Ö¤ mapper ÄÜ¶ÁÈ¡µ½ tenant_id
+    // å¢åŠ  tenant_id åˆ° SELECT ä¸­ï¼Œä¿è¯ mapper èƒ½è¯»å–åˆ° tenant_id
     std::string sql = "SELECT id, tenant_id, status_enum, is_deleted FROM adm_encounter WHERE id = ? AND tenant_id = ? AND is_deleted = 0";
     SqlParams params;
     SQLPARAMS_PUSH(params, "s", std::string, encounterId->c_str());
@@ -14,7 +14,7 @@ std::shared_ptr<AdmEncounterDO> PatientFinishDAO::selectEncounterById(const oatp
 
 bool PatientFinishDAO::updateEncounterToFinish(const oatpp::String& tenantId, const oatpp::String& encounterId)
 {
-    // ¸ù¾İÖ÷¼üid¸üĞÂ
+    // æ ¹æ®ä¸»é”®idæ›´æ–°
     std::string sql = "UPDATE adm_encounter SET status_enum = 'finished', end_time = NOW() WHERE id = ? AND tenant_id = ? AND is_deleted = 0";
     SqlParams params;
     SQLPARAMS_PUSH(params, "s", std::string, encounterId->c_str());
