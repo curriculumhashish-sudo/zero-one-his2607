@@ -2,6 +2,10 @@ server:
   port: 10500
   servlet:
     context-path: /j5-ons
+
+# 微服务变量（小组前缀避免冲突）
+sn: J5ONS
+sp: 10500
 spring:
   application:
     name: his-j5-ons

@@ -3,6 +3,10 @@ server:
   servlet:
     context-path: /j5-configuration
 
+# 微服务变量（小组前缀避免冲突）
+sn: J5CONFIGURATION
+sp: 10501
+
 spring:
   application:
     name: his-j5-configuration
