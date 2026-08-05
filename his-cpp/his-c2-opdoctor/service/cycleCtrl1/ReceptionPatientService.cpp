@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ReceptionPatientService.h"
 #include "EnumDictUtil.h"
-#include <mongocxx/client.hpp>
+#include "mongocxx/client.hpp"
 
 RecePatientDTO::Wrapper ReceptionPatientService::getRecePatient(const RecePatientQuery::Wrapper& query,
     const string& tenantId, const string& practitionerId)
@@ -49,7 +49,8 @@ RecePatientDTO::Wrapper ReceptionPatientService::getRecePatient(const RecePatien
     dto->visitStatus = statusText;
 
 
-    if (data->getPatientDO()->getGenderEnum() == "MAIL")
+    // 修复：原来写成 "MAIL"，应为 "MALE"
+    if (data->getPatientDO()->getGenderEnum() == "MALE")
     {
         dto->gender = u8"男性";
     }

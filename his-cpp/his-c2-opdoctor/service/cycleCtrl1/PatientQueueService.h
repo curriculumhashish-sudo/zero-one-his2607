@@ -12,6 +12,7 @@
 #include "EnumDictUtil.h"
 #include <memory>
 #include <string>
+#include "service/ClientManager.h"
 
 class PatientQueueService
 {
@@ -24,8 +25,8 @@ public:
     static int calcAge(const std::string& birthDate);
 
     PatientQueueService()
-        : m_mongoClient(new MongoClient("mongodb://hisuser:123456@192.168.26.135:27017/firstDb"))
     {
+        m_mongoClient = ClientManager::getMongoClient();
     }
 
 private:

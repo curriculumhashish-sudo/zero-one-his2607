@@ -31,10 +31,14 @@ if (!initPool()) return {}; \
 auto client = m_pool->acquire(); \
 auto __VAR__ = client->database(m_db); 
 
-mongocxx::instance MongoClient::m_inst;
+// 删除文件级静态实例定义，改为在 initPool() 内延迟构造
+// mongocxx::instance MongoClient::m_inst;
 
 bool MongoClient::initPool()
 {
+	// 确保 mongocxx 在首次需要时初始化（C++11 起线程安全）
+	static mongocxx::instance inst;
+
 	// 判断是否已经初始化
 	if (isInit) return true;
 	// 构造初始化错误安全处理
