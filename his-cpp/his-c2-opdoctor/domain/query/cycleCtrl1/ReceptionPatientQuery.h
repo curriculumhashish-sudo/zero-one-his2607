@@ -10,7 +10,7 @@ class RecePatientQuery : public oatpp::DTO
 {
 	DTO_INIT(RecePatientQuery, DTO);
 
-	//¾ÍÕïÊ±¼ä
+	//Â¾ÃÃ•Ã¯ÃŠÂ±Â¼Ã¤
 	API_DTO_FIELD_REQUIRE(String, date, ZH_WORDS_GETTER("recp.query.data"), true);
 
 };
