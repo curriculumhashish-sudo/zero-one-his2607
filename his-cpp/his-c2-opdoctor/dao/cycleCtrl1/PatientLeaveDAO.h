@@ -10,10 +10,10 @@
 class PatientLeaveDAO : public BaseDAO
 {
 public:
-    // ¸ù¾İencounterId²éÑ¯¾ÍÕï¼ÇÂ¼£¨ÀëÔº×¨ÓÃ£¬·µ»ØÍêÕû×Ö¶Î£©
+    // æ ¹æ®encounterIdæŸ¥è¯¢å°±è¯Šè®°å½•ï¼ˆç¦»é™¢ä¸“ç”¨ï¼Œè¿”å›å®Œæ•´å­—æ®µï¼‰
     std::shared_ptr<AdmEncounterDO> selectEncounterById(const oatpp::String& tenantId, const oatpp::String& encounterId);
 
-    // ¸üĞÂ¾ÍÕï×´Ì¬ÎªÀëÔº£¨LEFT£©
+    // æ›´æ–°å°±è¯ŠçŠ¶æ€ä¸ºç¦»é™¢ï¼ˆLEFTï¼‰
     bool updateEncounterToLeave(const oatpp::String& tenantId, const oatpp::String& encounterId);
 
 };
