@@ -17,41 +17,41 @@
 
 class PatientQueueController : public oatpp::web::server::api::ApiController
 {
-	//¶¨Òå½Ó¿Ú¿ØÖÆÆ÷·ÃÎÊÈë¿Ú
+	//å®šä¹‰æ¥å£æ§åˆ¶å™¨è®¿é—®å…¥å£
 	API_ACCESS_DECLARE(PatientQueueController);
 
 public:
-	//1.1¶¨Òå»¼Õß¶ÓÁĞµÄ²éÑ¯½Ó¿Ú´¦Àí
+	//1.1å®šä¹‰æ‚£è€…é˜Ÿåˆ—çš„æŸ¥è¯¢æ¥å£å¤„ç†
 	ENDPOINT(API_M_GET, "/cycleCtrl/queue", queryQueue, QUERIES(QueryParams, queryParams), API_HANDLER_AUTH_PARAME)
 	{
-		//½âÎö²éÑ¯²ÎÊıÎªqueryµÄÁìÓòÄ£ĞÍ
+		//è§£ææŸ¥è¯¢å‚æ•°ä¸ºqueryçš„é¢†åŸŸæ¨¡å‹
 		API_HANDLER_QUERY_PARAM(userQuery, PatientQueueQuery, queryParams);
-		//µ÷ÓÃÖ´ĞĞº¯Êı
+		//è°ƒç”¨æ‰§è¡Œå‡½æ•°
 		API_HANDLER_RESP_VO(execQueryQueue(userQuery, authObject->getPayload()));
 	}
-	//1.2¶¨Òå»¼Õß¶ÓÁĞµÄ²éÑ¯½Ó¿ÚÃèÊö	
+	//1.2å®šä¹‰æ‚£è€…é˜Ÿåˆ—çš„æŸ¥è¯¢æ¥å£æè¿°	
 	ENDPOINT_INFO(queryQueue)
 	{
-		//¶¨ÒåÊÚÈ¨ÃèÊö
+		//å®šä¹‰æˆæƒæè¿°
 		API_DEF_ADD_AUTH();
-		//¶¨Òå½Ó¿Ú±êÌâ
+		//å®šä¹‰æ¥å£æ ‡é¢˜
 		API_DEF_ADD_TITLE(ZH_WORDS_GETTER("queue.get.summary"));
-		//¶¨ÒåÏìÓ¦²ÎÊı¸ñÊ½
+		//å®šä¹‰å“åº”å‚æ•°æ ¼å¼
 		API_DEF_ADD_RSP_JSON_WRAPPER(PatientQueueJsonVO);
-		//¶¨Òå±êÇ©
+		//å®šä¹‰æ ‡ç­¾
 		API_DEF_ADD_TAG(API_TAG);
 
 		
-		// 1. ÈÕÆÚ -> PatientQueueQuery ÖĞ×Ö¶ÎÃûÎª `date`
+		// 1. æ—¥æœŸ -> PatientQueueQuery ä¸­å­—æ®µåä¸º `date`
 		API_DEF_ADD_QUERY_PARAMS(String, "date", ZH_WORDS_GETTER("queue.param.startDate"), "", true);
-		// 2. »¼ÕßĞÕÃû -> `patientName`
+		// 2. æ‚£è€…å§“å -> `patientName`
 		API_DEF_ADD_QUERY_PARAMS(String, "patientName", ZH_WORDS_GETTER("queue.param.patientName"), "", false);
-		// 3. ´ıÕï/ÔÚÕï/ÍêÕï -> DTO ×Ö¶ÎÎª `visitStatus` ×´Ì¬ -> DTO ×Ö¶ÎÎª `visitStatus`
+		// 3. å¾…è¯Š/åœ¨è¯Š/å®Œè¯Š -> DTO å­—æ®µä¸º `visitStatus` çŠ¶æ€ -> DTO å­—æ®µä¸º `visitStatus`
 		API_DEF_ADD_QUERY_PARAMS(String, "visitStatus", ZH_WORDS_GETTER("queue.param.Status"), "", false);
 	}
 
 private:
-	//1.3Ö´ĞĞ²éÑ¯¶ÓÁĞÀïµÄÊı¾İ
+	//1.3æ‰§è¡ŒæŸ¥è¯¢é˜Ÿåˆ—é‡Œçš„æ•°æ®
 	PatientQueueJsonVO::Wrapper execQueryQueue(const PatientQueueQuery::Wrapper& query, const PayloadDTO& payload);
 };
 
