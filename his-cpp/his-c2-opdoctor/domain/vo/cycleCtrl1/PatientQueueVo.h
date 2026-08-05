@@ -7,7 +7,7 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-// �����б�ʱ��VO ��ģ�����ӦΪ Vector<DTO::Wrapper>
+// 返回列表时，VO 的模板参数应为 Vector<DTO::Wrapper>
 class PatientQueueJsonVO : public JsonVO<oatpp::Vector<PatientQueueDTO::Wrapper>>
 {
 	DTO_INIT(PatientQueueJsonVO, JsonVO<oatpp::Vector<PatientQueueDTO::Wrapper>>);
