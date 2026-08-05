@@ -45,13 +45,26 @@ public:
 };
 
 /**
- *患者队列查询的组合结果 (JOIN wkf_appointment_queue + adm_patient + adm_encounter).
+ * Combined result of patient queue query (JOIN wkf_appointment_queue + adm_patient + adm_encounter).
  */
 struct PatientQueueResult
 {
 	AppointmentQueueDO queue;
 	PatientDO patient;
+	// Extended joined fields from adm_encounter and dict tables
+	std::string encounterId;
+	std::string medicalRecordNo;
+	std::string visitNo;
+	std::string registeredAt;
+	std::string departmentName;
+	std::string visitTypeName;
+	std::string statusEnum;
+	std::string statusName;
 	std::string paymentType;
+	std::string paymentTypeName;
+	std::string priorityName;
+	std::string riskHint;
+	int pendingCount = 0;
 };
 
 /**

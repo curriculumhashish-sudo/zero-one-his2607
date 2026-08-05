@@ -67,8 +67,10 @@ PatientQueueResult PatientQueueMapper::mapper(ResultSet* rs) const
 		result.statusEnum = rs->getString("encounter_status");
 	if (!rs->isNull("status_name"))
 		result.statusName = rs->getString("status_name");
-	if (!rs->isNull("payment_type_name"))
+	if (!rs->isNull("payment_type_name")) {
+		result.paymentType = rs->getString("payment_type_name");
 		result.paymentTypeName = rs->getString("payment_type_name");
+	}
 	if (!rs->isNull("priority_name"))
 		result.priorityName = rs->getString("priority_name");
 	if (!rs->isNull("risk_hint"))
