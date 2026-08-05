@@ -85,7 +85,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.zeroone.star.j7.PhamanagerApplication</mainClass>
+                    <mainClass>com.zeroone.star.pharmacy.PharmacyApplication</mainClass>
                 </configuration>
             </plugin>
             <plugin>
