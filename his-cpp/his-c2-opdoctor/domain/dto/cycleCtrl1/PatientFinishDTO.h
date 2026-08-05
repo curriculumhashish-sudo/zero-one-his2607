@@ -11,18 +11,18 @@ class PatientFinishDTO : public oatpp::DTO
     DTO_INIT(PatientFinishDTO, DTO);
 
   
-    // ¸üĞÂºó×îĞÂ¾ÍÕï×´Ì¬
+    // æ›´æ–°åæœ€æ–°å°±è¯ŠçŠ¶æ€
     API_DTO_FIELD_REQUIRE(String, visitStatus, ZH_WORDS_GETTER("finish.dto.newVisitStatus"), true);
 
-    //¾ÍÕïID
+    //å°±è¯ŠID
     API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("finish.dto.encounterId"),true);
 
-    //Ïà¹Ø¾ÍÕï×´Ì¬arrived - ´ıÕï£¬in-progress - ÔÚÕï£¬finished - ÍêÕï
+    //ç›¸å…³å°±è¯ŠçŠ¶æ€arrived - å¾…è¯Šï¼Œin-progress - åœ¨è¯Šï¼Œfinished - å®Œè¯Š
     API_DTO_FIELD_REQUIRE(String, arrived, ZH_WORDS_GETTER("finish.dto.arrived"),false);
     API_DTO_FIELD_REQUIRE(String, inProgress, ZH_WORDS_GETTER("finish.dto.inProgress"),false);
     API_DTO_FIELD_REQUIRE(String, finished, ZH_WORDS_GETTER("finish.dto.finished"),false);
 
-    //ÍêÕïÊ±¼ä
+    //å®Œè¯Šæ—¶é—´
     API_DTO_FIELD_REQUIRE(String, completedAt, ZH_WORDS_GETTER("finish.dto.completedAt"),true);
 
 };
