@@ -7,10 +7,10 @@ PatientLeaveJsonVO::Wrapper PatientLeaveController::execLeavePatient(const Patie
 {
     auto vo = PatientLeaveJsonVO::createShared();
 
-    //ÇëÇóÌå»ñÈ¡²ÎÊı
+    //è¯·æ±‚ä½“è·å–å‚æ•°
     oatpp::String encounterId = dto->encounterId;
    
-    // ´´½¨ Redis ¿Í»§¶ËÒÔ»ñÈ¡ tenantId
+    // åˆ›å»º Redis å®¢æˆ·ç«¯ä»¥è·å– tenantId
     RedisClient re("127.0.0.1", 6379, "01star");
     std::string tenantId = re.execute<std::string>([](Redis* r) {
         auto res = r->hget("his:login:context:u001", "tenantId");
