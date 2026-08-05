@@ -1,4 +1,4 @@
-﻿#include "PatientQueueService.h"
+#include "PatientQueueService.h"
 #include "dao/cycleCtrl1/PatientQueueDAO.h"
 #include <ctime>
 #include <iostream>
