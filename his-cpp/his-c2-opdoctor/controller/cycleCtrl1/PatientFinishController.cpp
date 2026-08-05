@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
 #include "PatientFinishController.h"
 #include "domain/query/cycleCtrl1/PatientFinishQuery.h"
 #include "service/cycleCtrl1/PatientFinishService.h"
