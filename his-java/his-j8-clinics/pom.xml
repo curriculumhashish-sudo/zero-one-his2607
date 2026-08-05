@@ -100,13 +100,12 @@
                     <images>
                         <image>
                             <name>01star/${project.artifactId}:${project.version}</name>
+                            <alias>${project.artifactId}</alias>
                             <build>
                                 <contextDir>${project.basedir}</contextDir>
                             </build>
-                            <alias>${project.artifactId}</alias>
                             <run>
                                 <namingStrategy>alias</namingStrategy>
-                                <skipPull>true</skipPull>
                                 <forceRemove>true</forceRemove>
                                 <ports>
                                     <port>10133:10133</port>
