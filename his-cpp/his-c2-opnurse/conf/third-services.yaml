@@ -1,5 +1,5 @@
 rocket-mq:
-  name-server: 192.168.141.133:9876
+  name-server: 192.168.26.135:9876
 fastdfs:
   charset: UTF-8
   connect-timeout: 5
