@@ -5,7 +5,7 @@
 #include "domain/do/cycleCtrl1/AdmEncounterDO.h"
 #include "Mapper.h"
 
-// µ¥Ìõ¾ÍÕï²éÑ¯Ó³ÉäMapper
+// ÂµÂ¥ÃŒÃµÂ¾ÃÃ•Ã¯Â²Ã©Ã‘Â¯Ã“Â³Ã‰Ã¤Mapper
 class PatientFinishMapper : public Mapper<PtrAdmEncounterDO>
 {
 public:
