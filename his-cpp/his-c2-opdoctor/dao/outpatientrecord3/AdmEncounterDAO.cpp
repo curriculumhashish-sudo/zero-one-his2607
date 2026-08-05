@@ -4,7 +4,7 @@
 #include "SqlSession.h"
 #include <sstream>
 
-PtrAdmEncounterDO AdmEncounterDAO::selectById(const std::string& id, const std::string& tenantId)
+PtrAdmEncounter3DO AdmEncounterDAO::selectById(const std::string& id, const std::string& tenantId)
 {
 	std::ostringstream sql;
 	sql << "SELECT id, patient_id, status_enum FROM adm_encounter "
@@ -14,7 +14,7 @@ PtrAdmEncounterDO AdmEncounterDAO::selectById(const std::string& id, const std::
 		SqlParam("s", std::make_shared<std::string>(id)),
 		SqlParam("s", std::make_shared<std::string>(tenantId))
 	};
-	auto list = sqlSession->executeQuery<PtrAdmEncounterDO>(sql.str(), mapper, params);
+	auto list = sqlSession->executeQuery<PtrAdmEncounter3DO>(sql.str(), mapper, params);
 	if (list.empty())
 		return nullptr;
 	return list.front();

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Outpatientrecord3Controller.h"
+#include "outpatientrecord3Controller.h"
 
 outpatientrecord3SaveResultVO::Wrapper
 outpatientrecord33Controller::execSaveoutpatientrecord3(

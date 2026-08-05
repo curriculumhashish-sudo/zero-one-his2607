@@ -5,6 +5,7 @@
 #include "ServerInfo.h"
 #include "../dao/order/EnumDAO.h"
 #include "../dao/order/OrderAuditDAO1.h"
+#include <NacosClient.h>
 
 // 静态成员定义
 std::shared_ptr<RedisClient> ClientManager::m_redisClient = nullptr;

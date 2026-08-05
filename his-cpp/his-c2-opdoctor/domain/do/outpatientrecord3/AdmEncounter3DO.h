@@ -9,7 +9,7 @@
  * Lightweight DO: only maps fields needed by outpatientrecord3Service
  * (patient_id for derivation, status_enum for editability check).
  */
-class AdmEncounterDO : public BaseDO
+class AdmEncounter3DO : public BaseDO
 {
 	// Primary key
 	MYSQL_SYNTHESIZE(string, id, Id);
@@ -19,7 +19,7 @@ class AdmEncounterDO : public BaseDO
 	MYSQL_SYNTHESIZE(string, statusEnum, StatusEnum);
 
 public:
-	AdmEncounterDO() : BaseDO("adm_encounter")
+	AdmEncounter3DO() : BaseDO("adm_encounter")
 	{
 		MYSQL_ADD_FIELD_PK("id", "s", id);
 		MYSQL_ADD_FIELD("patient_id", "s", patientId);
@@ -27,6 +27,6 @@ public:
 	}
 };
 
-typedef std::shared_ptr<AdmEncounterDO> PtrAdmEncounterDO;
+typedef std::shared_ptr<AdmEncounter3DO> PtrAdmEncounter3DO;
 
 #endif // !_AdmEncounterDO_H_

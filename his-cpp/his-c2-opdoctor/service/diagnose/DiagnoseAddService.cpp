@@ -9,6 +9,7 @@
 #include "DiagnoseAddService.h"
 #include "domain/do/diagnose/AdmEncounterDiagnosisDO.h"
 
+
 namespace
 {
 	std::string currentDateTime()

@@ -2,6 +2,8 @@
 
 #include "domain/dto/diagnose/DiagnoseAddDTO.h"
 #include "domain/vo/diagnose/DiagnoseAddVO.h"
+#include "../include/id/UuidFacade.h"
+
 
 class DiagnoseAddService
 {
