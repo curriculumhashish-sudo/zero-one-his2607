@@ -1,7 +1,7 @@
 server:
   port: ${sp.j3-patient:10202}
   servlet:
-    context-path: /j3-patient
+    context-path: /j3-basedata
     encoding:
       charset: UTF-8
       force-response: true
