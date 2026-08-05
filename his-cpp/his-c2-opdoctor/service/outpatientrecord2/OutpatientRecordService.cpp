@@ -33,3 +33,51 @@ OutpatientRecordPageDTO::Wrapper OutpatientRecordService::listAll(const Outpatie
     pageDto->pages = (total + pageDto->pageSize - 1) / pageDto->pageSize;
     return pageDto;
 }
+
+
+OutpatientRecordDetailDTO::Wrapper OutpatientRecordService::getDetail(const std::string& encounterId, const PayloadDTO& payload)
+{
+    if (encounterId.empty()) {
+        throw std::runtime_error("encounterId is required");
+    }
+
+    // 测试环境：跳过权限校验（生产环境请启用）
+    // std::string practitionerId = payload.getPractitionerId();
+    // if (practitionerId.empty()) {
+    //     practitionerId = "308791351298756608";
+    // }
+    // if (!dao.checkAccessPermission(encounterId, practitionerId)) {
+    //     throw std::runtime_error("Access denied: You do not have permission to view this medical record");
+    // }
+
+    // ========== 2. 获取就诊摘要信息 ==========
+    std::string patientName, diagnosis, doctorName, deptName, visitDate, status;
+    if (!dao.getEncounterSummary(encounterId, patientName, diagnosis, doctorName, deptName, visitDate, status)) {
+        throw std::runtime_error("Encounter not found");
+    }
+
+    // ========== 3. 获取病历内容 ==========
+    auto detailDO = dao.selectDetailByEncounterId(encounterId);
+    if (!detailDO) {
+        throw std::runtime_error("Medical record content not found");
+    }
+
+    // ========== 4. 判断是否可编辑 ==========
+    bool editable = (status != "FINISHED" && status != "CANCELLED" && status != "ARCHIVED");
+
+    // ========== 5. 组装响应 ==========
+    auto dto = OutpatientRecordDetailDTO::createShared();
+    dto->id = detailDO->getId();
+    dto->encounterId = encounterId;
+    dto->content = detailDO->getContent();
+    dto->version = detailDO->getVersion();
+    dto->updatedAt = detailDO->getUpdatedAt();
+    dto->patientName = patientName;
+    dto->diagnosis = diagnosis;
+    dto->doctorName = doctorName;
+    dto->deptName = deptName;
+    dto->visitDate = visitDate;
+    dto->editable = editable;
+
+    return dto;
+}

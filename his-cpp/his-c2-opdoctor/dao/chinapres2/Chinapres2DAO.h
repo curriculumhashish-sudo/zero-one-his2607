@@ -26,26 +26,31 @@ private:
      * @param params 输出参数，用于参数化查询
      * @return WHERE 子句字符串
      */
-    inline std::string queryConditionBuilder(const Chinapres2Query::Wrapper& query, SqlParams& params);
+     // inline std::string queryConditionBuilder(const Chinapres2Query::Wrapper& query, SqlParams& params);
 
 public:
+
+    // 新增：检查就诊是否存在且未删除
+    bool isEncounterEditable(const std::string& encounterId);
+    // 新增：检查单位编码是否在字典表中且有效
+    bool isUnitValid(const std::string& unitCode);
     // ========== 统计 ==========
     /**
      * 统计符合条件的处方总数（用于分页）
      */
-    uint64_t count(const Chinapres2Query::Wrapper& query);
+     //uint64_t count(const Chinapres2Query::Wrapper& query);
 
-    // ========== 查询 ==========
-    /**
-     * 分页查询处方列表（联查诊断名、医生名、药材汇总）
-     * @return 视图 DO 列表（包含扩展字段）
-     */
-    std::list<PtrChinapres2ViewDO> selectWithPage(const Chinapres2Query::Wrapper& query);
+     // ========== 查询 ==========
+     /**
+      * 分页查询处方列表（联查诊断名、医生名、药材汇总）
+      * @return 视图 DO 列表（包含扩展字段）
+      */
+      //std::list<PtrChinapres2ViewDO> selectWithPage(const Chinapres2Query::Wrapper& query);
 
-    /**
-     * 根据主表 ID 查询单条处方
-     * @return 主表 DO
-     */
+      /**
+       * 根据主表 ID 查询单条处方
+       * @return 主表 DO
+       */
     PtrChinapres2MainDO selectById(const std::string& id);
 
     /**
@@ -90,6 +95,13 @@ public:
      * @return 是否成功
      */
     bool softDeleteBatch(const std::list<std::string>& ids);
+
+
+    // 新增：带条件删除（乐观锁 + 状态 + 就诊校验）
+    bool removeWithCondition(const std::string& id, const std::string& encounterId, int64_t version, const std::string& operatorId, std::string& newVersion, std::string& updatedAt);
+
+    // 查询处方状态和版本（用于幂等判断）
+    bool getPresenceStatus(const std::string& id, std::string& status, int64_t& version, std::string& encounterId);
 };
 
 #endif // !_CHINAPRES2_DAO_

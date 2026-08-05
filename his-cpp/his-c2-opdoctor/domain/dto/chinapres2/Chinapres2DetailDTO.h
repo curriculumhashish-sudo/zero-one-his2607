@@ -1,3 +1,4 @@
+#if 0
 #ifndef __CHINAPRES2DETAILDTO_H_
 #define __CHINAPRES2DETAILDTO_H_
 
@@ -24,3 +25,5 @@ class Chinapres2DetailPageDTO : public PageDTO<Chinapres2DetailDTO::Wrapper>
 #include OATPP_CODEGEN_END(DTO)
 
 #endif // !__CHINAPRES2DETAILDTO_H_
+
+#endif

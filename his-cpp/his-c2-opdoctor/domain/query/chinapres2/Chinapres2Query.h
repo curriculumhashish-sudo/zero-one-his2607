@@ -1,3 +1,4 @@
+#if 0
 #ifndef _CHINAPRES2QUERY_H_
 #define _CHINAPRES2QUERY_H_
 
@@ -18,3 +19,5 @@ class Chinapres2Query : public PageQuery
 #include OATPP_CODEGEN_END(DTO)
 
 #endif // !_CHINAPRES2QUERY_H_
+
+#endif

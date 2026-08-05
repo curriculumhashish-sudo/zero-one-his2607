@@ -1,3 +1,4 @@
+#if 0
 #pragma once
 /*
  Copyright Zero One Star. All rights reserved.
@@ -37,3 +38,5 @@ public:
 typedef std::shared_ptr<Chinapres2ViewDO> PtrChinapres2ViewDO;
 
 #endif // !_CHINAPRES2_VIEW_DO_
+
+#endif
