@@ -7,6 +7,10 @@ opnurse3:
   records:
     summary: 执行记录查询
   field:
+    encounterId: 就诊ID
+    documentIds: 要打印的单据ID列表
+    documentType: 单据类型
+    patientId: 患者ID
     id: 编号
     printJobId: 打印任务ID
     docType: 单据类型
@@ -59,9 +63,10 @@ opnurse3:
     printTime: 打印时间
     printerName: 打印机名称
     isReprint: 是否补打
+    startDate: 开始日期
+    endDate: 结束日期
     timefrom: 打印时间起
     timeto: 打印时间止
-    printIds: 要打印的单据ID列表
     reprint: 是否补打
     printSuccess: 打印是否成功
     printMsg: 打印结果消息

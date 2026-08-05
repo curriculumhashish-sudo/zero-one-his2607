@@ -25,11 +25,10 @@ public:
 		API_DEF_ADD_TAG(API_TAG);
 		API_DEF_ADD_RSP_JSON_WRAPPER(PrintLogPageJsonVO);
 		API_DEF_ADD_PAGE_PARAMS();
-		API_DEF_ADD_QUERY_PARAMS(String, "docType", ZH_WORDS_GETTER("opnurse3.field.docType"), "", false);
-		API_DEF_ADD_QUERY_PARAMS(String, "pname", ZH_WORDS_GETTER("opnurse3.field.patientName"), "", false);
-		API_DEF_ADD_QUERY_PARAMS(Int32, "isReprint", ZH_WORDS_GETTER("opnurse3.field.isReprint"), 0, false);
-		API_DEF_ADD_QUERY_PARAMS(String, "timefrom", ZH_WORDS_GETTER("opnurse3.field.timefrom"), "", false);
-		API_DEF_ADD_QUERY_PARAMS(String, "timeto", ZH_WORDS_GETTER("opnurse3.field.timeto"), "", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "patientId", ZH_WORDS_GETTER("opnurse3.field.patientId"), "", false);
+		API_DEF_ADD_QUERY_PARAMS(Int32, "status", ZH_WORDS_GETTER("opnurse3.field.status"), -1, false);
+		API_DEF_ADD_QUERY_PARAMS(String, "startDate", ZH_WORDS_GETTER("opnurse3.field.startDate"), "", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "endDate", ZH_WORDS_GETTER("opnurse3.field.endDate"), "", false);
 	}
 	// GET /opnurse/records
 	ENDPOINT(API_M_GET, "/opnurse/records", queryRecords, QUERIES(QueryParams, params), API_HANDLER_AUTH_PARAME) {

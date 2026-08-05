@@ -7,7 +7,6 @@
 #ifndef _PRINT_API_DTO_
 #define _PRINT_API_DTO_
 #include "../../GlobalInclude.h"
-#include "PrintDataDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
@@ -15,28 +14,28 @@
 class PrintRequestDTO : public oatpp::DTO
 {
 	DTO_INIT(PrintRequestDTO, DTO);
-	// ids — must be non-empty
-	DTO_FIELD(List<String>, ids);
-	DTO_FIELD_INFO(ids) {
-		info->description = ZH_WORDS_GETTER("opnurse3.field.printIds");
+	// encounterId
+	DTO_FIELD(String, encounterId);
+	DTO_FIELD_INFO(encounterId) {
+		info->description = ZH_WORDS_GETTER("opnurse3.field.encounterId");
 		info->required = true;
 	}
-	// docType — one of: treatment/prescription/charge_receipt/reg_receipt/infusion_label/daily_settlement/exam_request/lab_request
-	DTO_FIELD(String, docType);
-	DTO_FIELD_INFO(docType) {
-		info->description = ZH_WORDS_GETTER("opnurse3.field.docType");
+	// documentIds
+	DTO_FIELD(List<String>, documentIds);
+	DTO_FIELD_INFO(documentIds) {
+		info->description = ZH_WORDS_GETTER("opnurse3.field.documentIds");
 		info->required = true;
 	}
-	// reprint — false=first print, true=reprint
+	// documentType
+	DTO_FIELD(String, documentType);
+	DTO_FIELD_INFO(documentType) {
+		info->description = ZH_WORDS_GETTER("opnurse3.field.documentType");
+		info->required = true;
+	}
+	// reprint
 	DTO_FIELD(Boolean, reprint);
 	DTO_FIELD_INFO(reprint) {
 		info->description = ZH_WORDS_GETTER("opnurse3.field.reprint");
-	}
-	// data — print payload, specific fields vary by docType
-	DTO_FIELD(PrintDataDTO::Wrapper, data);
-	DTO_FIELD_INFO(data) {
-		info->description = ZH_WORDS_GETTER("opnurse3.field.printData");
-		info->required = true;
 	}
 };
 

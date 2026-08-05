@@ -11,25 +11,18 @@ std::string PrintLogDAO::queryConditionBuilder(const PrintLogQuery::Wrapper& que
 {
 	stringstream sqlCondition;
 	sqlCondition << " WHERE 1=1";
-	if (query->docType) {
-		sqlCondition << " AND doc_type=?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->docType.getValue(""));
+	// TODO: patientId needs to be mapped to print_log via teammate's tables
+	if (query->status && query->status.getValue(-1) >= 0) {
+		sqlCondition << " AND status=?";
+		SQLPARAMS_PUSH(params, "i", int, query->status.getValue(0));
 	}
-	if (query->pname) {
-		sqlCondition << " AND patient_name LIKE CONCAT('%',?,'%')";
-		SQLPARAMS_PUSH(params, "s", std::string, query->pname.getValue(""));
-	}
-	if (query->isReprint) {
-		sqlCondition << " AND is_reprint=?";
-		SQLPARAMS_PUSH(params, "i", int, query->isReprint.getValue(0));
-	}
-	if (query->timefrom) {
+	if (query->startDate) {
 		sqlCondition << " AND print_time>=?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->timefrom.getValue(""));
+		SQLPARAMS_PUSH(params, "s", std::string, query->startDate.getValue(""));
 	}
-	if (query->timeto) {
+	if (query->endDate) {
 		sqlCondition << " AND print_time<=?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->timeto.getValue(""));
+		SQLPARAMS_PUSH(params, "s", std::string, query->endDate.getValue(""));
 	}
 	return sqlCondition.str();
 }
