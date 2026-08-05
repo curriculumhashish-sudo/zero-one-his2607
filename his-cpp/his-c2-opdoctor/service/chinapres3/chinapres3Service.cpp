@@ -8,118 +8,122 @@
 #include <map>
 
 // ===================================================================
-//                         处方撤回实现 Revoke
+//                         //////// Revoke
 // ===================================================================
 
-/**
- * @brief 处方撤回接口业务逻辑
- * @param dto 处方撤回入参DTO，包含待撤回处方编号列表
- * @param payload JWT身份载体，携带当前登录用户、租户等信息
- * @return chinapres3RevokeResultVO::Wrapper 撤回结果VO，包含成功计数、失败清单
- * 业务规则：
- * 1. 多条处方独立事务，单张处方失败不影响其他处方处理
- * 2. 仅允许撤回【已签发(ACTIVE)】且【未发药(PREPARATION)】的处方
- * 3. 执行逻辑：更新用药申请状态 → 逻辑删除发药记录 → 逻辑删除收费明细
- */
 chinapres3RevokeResultVO::Wrapper chinapres3Service::revoke(
 	const chinapres3RevokeDTO::Wrapper& dto,
 	const PayloadDTO& payload)
 {
 	auto resultVo = chinapres3RevokeResultVO::createShared();
 
-	// ---- 1. 参数校验 ----
-	auto prescriptionNos = dto->prescriptionNos;
-	if (!prescriptionNos || prescriptionNos->size() == 0) {
+	// ---- 1. ////////// ----
+	auto medReqIds = dto->medicationRequestIds;
+	if (!medReqIds || medReqIds->size() == 0) {
 		resultVo->code = 400;
-		resultVo->message = "Parameter cannot be empty, please pass prescription numbers";
+		resultVo->message = "Parameter cannot be empty, please pass medication request IDs";
 		return resultVo;
 	}
 
 	auto now = SimpleDateTimeFormat::format();
 	auto currentUser = payload.getUsername();
 
-	v_int32 revokedPresCount = 0;         // 成功撤回处方数量
-	v_int32 revokedMedCount = 0;          // 成功撤回药品条目数量
-	auto failureList = oatpp::Vector<oatpp::Object<chinapres3RevokeFailureDTO>>::createShared();
+	// ---- 2. ////////////////////////////////////// ----
+	// // prescription_no /////////////////// all-or-nothing ///
+	std::map<std::string, std::vector<Ptrchinapres3MedicationRequestDO>> presGroups;
 
-	// ---- 2. 循环逐条处理处方（每张处方独立事务） ----
-	for (auto& presNo : *prescriptionNos) {
-		auto presNoStr = std::string(presNo.getValue(""));
-		if (presNoStr.empty()) continue;
+	for (auto& mid : *medReqIds) {
+		auto midStr = std::string(mid.getValue(""));
+		if (midStr.empty()) continue;
 
-		try {
-			// 每张处方单独开启事务
-			TransactionManager tm(&medReqDAO, &medDispDAO, &chargeDAO);
+		auto req = medReqDAO.selectById(midStr);
+		if (!req) {
+			resultVo->code = 404;
+			resultVo->message = "Medication request not found, ID=" + midStr;
+			return resultVo;
+		}
+		if (req->getStatusEnum() != "ACTIVE") {
+			resultVo->code = 404;
+			resultVo->message = "Medication request not in issued status, current status="
+				+ req->getStatusEnum() + ", ID=" + midStr;
+			return resultVo;
+		}
 
-			// ---- 2a. 查询该处方下【有效状态】的用药申请记录 ----
-			auto reqQuery = chinapres3MedicationRequestQuery::createShared();
-			reqQuery->prescriptionNo = presNoStr;
-			reqQuery->statusEnum = "ACTIVE";
-			reqQuery->pageIndex = 1;
-			reqQuery->pageSize = 1000;
-			auto requests = medReqDAO.selectWithPage(reqQuery);
+		auto presNo = req->getPrescriptionNo();
+		presGroups[presNo].push_back(req);
+	}
 
-			if (requests.empty()) {
-				tm.rollback();
-				auto failure = chinapres3RevokeFailureDTO::createShared();
-				failure->prescriptionNo = presNoStr;
-				failure->reason = "Prescription not found or not in issued status";
-				failureList->push_back(failure);
-				continue;
+	// ---- 3. All-or-nothing ////////////////////// ----
+	for (auto& entry : presGroups) {
+		uint64_t dbCount = medReqDAO.countByPrescriptionNo(entry.first, "ACTIVE");
+		if (entry.second.size() != dbCount) {
+			resultVo->code = 400;
+			std::ostringstream errMsg;
+			errMsg << "Incomplete prescription: " << entry.first
+				<< " has " << dbCount << " issued drug line(s) but only "
+				<< entry.second.size() << " selected. Please revoke all or none.";
+			resultVo->message = errMsg.str();
+			return resultVo;
+		}
+	}
+
+	// ---- 4. ////////////////////////////////////// ----
+	// //////////////////// PREPARATION /////////////////////
+	std::vector<Ptrchinapres3MedicationDispenseDO> allDispenses;
+
+	for (auto& entry : presGroups) {
+		for (auto& req : entry.second) {
+			auto dispQuery = chinapres3MedicationDispenseQuery::createShared();
+			dispQuery->medReqId = req->getId();
+			dispQuery->statusEnum = "PREPARATION";
+			dispQuery->isDeleted = "0";
+			dispQuery->pageIndex = 1;
+			dispQuery->pageSize = 1000;
+			auto dispList = medDispDAO.selectWithPage(dispQuery);
+
+			if (dispList.empty()) {
+				resultVo->code = 409;
+				resultVo->message = "Some medication has been dispensed or already revoked, cannot revoke. "
+					"Medication request ID=" + req->getId();
+				return resultVo;
 			}
 
-			// ---- 2b. 校验发药记录：必须为【待调配PREPARATION】且未逻辑删除 ----
-			std::vector<Ptrchinapres3MedicationDispenseDO> dispensesToUpdate;
-			bool dispenseFailed = false;
-
-			for (auto& req : requests) {
-				auto dispQuery = chinapres3MedicationDispenseQuery::createShared();
-				dispQuery->medReqId = req->getId();
-				dispQuery->statusEnum = "PREPARATION";
-				dispQuery->isDeleted = "0";
-				dispQuery->pageIndex = 1;
-				dispQuery->pageSize = 1000;
-				auto dispList = medDispDAO.selectWithPage(dispQuery);
-
-				if (dispList.empty()) {
-					dispenseFailed = true;
-					break;
-				}
-
-				for (auto& d : dispList) {
-					dispensesToUpdate.push_back(d);
-				}
+			for (auto& d : dispList) {
+				allDispenses.push_back(d);
 			}
+		}
+	}
 
-			if (dispenseFailed) {
-				tm.rollback();
-				auto failure = chinapres3RevokeFailureDTO::createShared();
-				failure->prescriptionNo = presNoStr;
-				failure->reason = "Some medication has been dispensed or already revoked, cannot revoke";
-				failureList->push_back(failure);
-				continue;
-			}
+	// ---- 5. ///////// ////////////////// ----
+	try {
+		TransactionManager tm(&medReqDAO, &medDispDAO, &chargeDAO);
 
-			// ---- 2c. 更新medication_request：状态修改为草稿 DRAFT ----
-			for (auto& req : requests) {
+		// 5a. ///////////////////// DRAFT
+		for (auto& entry : presGroups) {
+			for (auto& req : entry.second) {
 				req->setStatusEnum("DRAFT");
-				// rx_type_code 保持 "TCM" 不改变
 				req->setUpdatedBy(currentUser);
 				req->setUpdatedAt(now);
 				medReqDAO.update(*req);
 			}
+		}
 
-			// ---- 2d. 更新medication_dispense：逻辑删除 is_deleted = 1 ----
-			for (auto& d : dispensesToUpdate) {
-				d->setIsDeleted("1");
-				d->setUpdatedBy(currentUser);
-				d->setUpdatedAt(now);
-				medDispDAO.update(*d);
-			}
+		// 5b. //////////////////// is_deleted = 1
+		for (auto& d : allDispenses) {
+			d->setIsDeleted("1");
+			d->setUpdatedBy(currentUser);
+			d->setUpdatedAt(now);
+			medDispDAO.update(*d);
+		}
 
-			// ---- 2e. 更新adm_charge_item收费明细：逻辑删除 is_deleted = 1 ----
+		// 5c. ////////////////////// is_deleted = 1
+		std::set<std::string> uniquePresNos;
+		for (auto& entry : presGroups) {
+			uniquePresNos.insert(entry.first);
+		}
+		for (auto& presNo : uniquePresNos) {
 			auto chargeQuery = chinapres3ChargeItemQuery::createShared();
-			chargeQuery->prescriptionNo = presNoStr;
+			chargeQuery->prescriptionNo = presNo;
 			chargeQuery->isDeleted = "0";
 			chargeQuery->pageIndex = 1;
 			chargeQuery->pageSize = 1000;
@@ -131,56 +135,51 @@ chinapres3RevokeResultVO::Wrapper chinapres3Service::revoke(
 				c->setUpdatedAt(now);
 				chargeDAO.update(*c);
 			}
-
-			// ---- 提交当前处方事务 ----
-			tm.commit();
-
-			revokedPresCount++;
-			revokedMedCount += static_cast<v_int32>(requests.size());
-
 		}
-		catch (const std::exception& e) {
-			auto failure = chinapres3RevokeFailureDTO::createShared();
-			failure->prescriptionNo = presNoStr;
-			std::stringstream errMsg;
-			errMsg << "Transaction failed: " << e.what();
-			failure->reason = errMsg.str();
-			failureList->push_back(failure);
+
+		tm.commit();
+
+		// ---- 6. ////////// ----
+		v_int32 revokedMedCount = 0;
+		for (auto& entry : presGroups) {
+			revokedMedCount += static_cast<v_int32>(entry.second.size());
 		}
+
+		auto resultData = chinapres3RevokeResultDTO::createShared();
+		resultData->revokedPrescriptionCount = static_cast<oatpp::Int32>(presGroups.size());
+		resultData->revokedMedicationCount = revokedMedCount;
+
+		auto presNoList = oatpp::Vector<oatpp::String>::createShared();
+		for (auto& presNo : uniquePresNos) {
+			presNoList->push_back(oatpp::String(presNo.c_str()));
+		}
+		resultData->revokedPrescriptionNos = presNoList;
+		resultData->revokedAt = now.c_str();
+
+		resultVo->success(resultData);
+		resultVo->message = "Revoke completed successfully";
+		return resultVo;
+
+	} catch (const std::exception& e) {
+		resultVo->code = 500;
+		std::ostringstream errMsg;
+		errMsg << "Transaction failed: " << e.what();
+		resultVo->message = errMsg.str();
+		return resultVo;
 	}
-
-	// ---- 3. 组装返回结果 ----
-	auto resultData = chinapres3RevokeResultDTO::createShared();
-	resultData->revokedPrescriptionCount = revokedPresCount;
-	resultData->revokedMedicationCount = revokedMedCount;
-	resultData->failures = failureList;
-
-	resultVo->success(resultData);
-	resultVo->message = "Revoke completed";
-	return resultVo;
 }
 
 // ===================================================================
-//                         处方签发实现 Issue
+//                         //////// Issue
 // ===================================================================
 
-/**
- * @brief 处方签发业务逻辑（草稿处方正式生效）
- * @param dto 处方签发入参DTO，就诊ID、患者ID、待签发药品条目列表
- * @param payload JWT身份载体，携带当前登录用户、租户ID
- * @return chinapres3IssueResultVO::Wrapper 签发结果VO，返回业务流水号
- * 业务规则：
- * 1. 仅【草稿DRAFT】状态处方允许签发
- * 2. 签发事务原子性：全部成功或全部回滚
- * 3. 执行流程：更新用药申请状态 → 生成发药记录 → 生成门诊收费项目
- */
 chinapres3IssueResultVO::Wrapper chinapres3Service::issue(
 	const chinapres3IssueDTO::Wrapper& dto,
 	const PayloadDTO& payload)
 {
 	auto resultVo = chinapres3IssueResultVO::createShared();
 
-	// ==================== 1. 参数校验 ====================
+	// ==================== 1. ////////// ====================
 	auto encounterId = dto->encounterId;
 	if (!encounterId || encounterId.getValue("") == "") {
 		resultVo->code = 400;
@@ -195,7 +194,7 @@ chinapres3IssueResultVO::Wrapper chinapres3Service::issue(
 		return resultVo;
 	}
 
-	// ==================== 2. 循环校验待签发处方条目 ====================
+	// ==================== 2. ////////////////////////////////////// ====================
 	std::vector<Ptrchinapres3MedicationRequestDO> validRequests;
 	std::stringstream errStream;
 
@@ -221,7 +220,7 @@ chinapres3IssueResultVO::Wrapper chinapres3Service::issue(
 			resultVo->message = errStream.str();
 			return resultVo;
 		}
-		// 校验就诊ID一致性
+		// /////////ID//////
 		auto reqEncounterId = req->getEncounterId();
 		if (!reqEncounterId.empty() && reqEncounterId != encounterId.getValue("")) {
 			resultVo->code = 400;
@@ -260,7 +259,7 @@ chinapres3IssueResultVO::Wrapper chinapres3Service::issue(
 		}
 	}
 
-	// ==================== 3. 事务内更新处方、生成发药记录与收费记录 ====================
+	// ==================== 3. /////////////////////////////////////////////////////// ====================
 	try
 	{
 		TransactionManager tm(&medReqDAO, &medDispDAO, &chargeDAO);
@@ -269,10 +268,10 @@ chinapres3IssueResultVO::Wrapper chinapres3Service::issue(
 		auto currentUser = payload.getUsername();
 		auto orgId = payload.getId();
 
-		std::vector<std::string> busNos;               // 存储生成的发药业务流水号
-		std::set<std::string> processedPrescriptions;  // 去重：记录本次处理的处方号
+		std::vector<std::string> busNos;               // //////////////////////
+		std::set<std::string> processedPrescriptions;  // ////////////////////////////////
 
-		// ----- 3a. 更新处方状态为【已签发ACTIVE】 -----
+		// ----- 3a. ////////////////////////ACTIVE -----
 		for (auto& req : validRequests) {
 			req->setStatusEnum("ACTIVE");
 			req->setRxTypeCode("TCM");
@@ -281,8 +280,8 @@ chinapres3IssueResultVO::Wrapper chinapres3Service::issue(
 			medReqDAO.update(*req);
 		}
 
-		// ----- 3b. 新增发药明细记录 medication_dispense -----
-		// key:处方号, value:第一条用药申请ID，用于生成收费记录
+		// ----- 3b. ////////////////////////////// medication_dispense -----
+		// key://///// value:////////////////ID///////////////
 		std::map<std::string, std::string> presNoToReqId;
 		for (auto& req : validRequests) {
 			chinapres3MedicationDispenseDO dispDO;
@@ -290,12 +289,12 @@ chinapres3IssueResultVO::Wrapper chinapres3Service::issue(
 			auto busNo = "BUS" + std::to_string(snowFlake->nextId());
 			dispDO.setBusNo(busNo);
 			busNos.push_back(busNo);
-			dispDO.setStatusEnum("PREPARATION");        // 待调配状态
-			dispDO.setDispenseEnum("OUTPATIENT");       // 门诊发药类型
+			dispDO.setStatusEnum("PREPARATION");        // ////////
+			dispDO.setDispenseEnum("OUTPATIENT");       // //////////
 			dispDO.setMedReqId(req->getId());
 			dispDO.setPatientId(req->getPatientId());
 			dispDO.setEncounterId(encounterId.getValue(""));
-			// 从用药申请复制药品相关必填信息
+			// ////////////////////////////////////////
 			dispDO.setMedicationId(req->getMedicationId());
 			dispDO.setQuantity(req->getQuantity());
 			dispDO.setUnitCode(req->getUnitCode());
@@ -307,14 +306,14 @@ chinapres3IssueResultVO::Wrapper chinapres3Service::issue(
 			auto presNo = req->getPrescriptionNo();
 			if (!presNo.empty()) {
 				processedPrescriptions.insert(presNo);
-				// 每个处方仅记录第一条用药申请，用于收费生成
+				// ///////////////////////////////////////
 				if (presNoToReqId.find(presNo) == presNoToReqId.end()) {
 					presNoToReqId[presNo] = req->getId();
 				}
 			}
 		}
 
-		// ----- 3c. 生成门诊收费项目 adm_charge_item -----
+		// ----- 3c. ////////////////////// adm_charge_item -----
 		for (auto& presNo : processedPrescriptions) {
 			chinapres3ChargeItemDO newCharge;
 			newCharge.setId(std::to_string(snowFlake->nextId()));
@@ -334,7 +333,7 @@ chinapres3IssueResultVO::Wrapper chinapres3Service::issue(
 			chargeDAO.insert(newCharge);
 		}
 
-		// ----- 3d. 提交数据库事务 -----
+		// ----- 3d. ///////////////////// -----
 		tm.commit();
 
 		// ==================== 4. Assemble result ====================
