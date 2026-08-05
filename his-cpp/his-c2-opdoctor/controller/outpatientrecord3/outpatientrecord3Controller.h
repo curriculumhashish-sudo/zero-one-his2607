@@ -22,7 +22,7 @@
 
 #include "../../domain/dto/outpatientrecord3/outpatientrecord3SaveDTO.h"
 #include "../../domain/vo/outpatientrecord3/outpatientrecord3SaveResultVO.h"
-#include "../../service/outpatientrecord3/outpatientrecord3Service.h"
+#include "../../service/outpatientrecord3/Outpatientrecord3Service.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
