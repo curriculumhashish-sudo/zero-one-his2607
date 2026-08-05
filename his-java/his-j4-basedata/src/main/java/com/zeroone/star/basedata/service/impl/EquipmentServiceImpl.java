@@ -121,7 +121,8 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
 
         // 同步价格表
         String deviceId = id;
-        String orgIdStr = dto.getOrgId() != null ? dto.getOrgId().toString() : null;
+        // 执行机构ID由登录上下文决定，不信任前端传入
+        String orgIdStr = userHolder.getCurrentOrgId();
         saveOrUpdatePrice(deviceId, "PURCHASE", dto.getPurchasePrice(), "采购价", dto.getItemTypeCode(), orgIdStr, dto.getYbType());
         saveOrUpdatePrice(deviceId, "SALE", dto.getRetailPrice(), "零售价", dto.getItemTypeCode(), orgIdStr, dto.getYbType());
         saveOrUpdatePrice(deviceId, "LIMIT", dto.getMaximumRetailPrice(), "限价", dto.getItemTypeCode(), orgIdStr, dto.getYbType());
@@ -210,7 +211,12 @@ public class EquipmentServiceImpl extends ServiceImpl<EquipmentMapper, AdmDevice
         AdmDeviceDefinitionDO equipmentEntity = msEquipmentMapper.saveDtoToEntity(equipmentAddDTO);
         equipmentEntity.setStatusEnum("ACTIVE");
         equipmentEntity.setActiveFlag(true);
+        // 执行机构/默认存放位置由登录上下文决定，不信任前端传入
+        equipmentEntity.setOrgId(userHolder.getCurrentOrgId());
+        equipmentEntity.setLocationId(userHolder.getCurrentLocationId());
         AdmChargeItemDefinitionDO chargeItemDefinitionEntity = msEquipmentMapper.saveDtoToChargeItemDefinitionEntity(equipmentAddDTO);
+        // 收费项目所属机构同样取登录上下文
+        chargeItemDefinitionEntity.setOrgId(userHolder.getCurrentOrgId());
         //2.数据持久化
         this.baseMapper.insert(equipmentEntity);
         //3.设置关联表数据

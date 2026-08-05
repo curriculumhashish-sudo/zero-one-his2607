@@ -160,6 +160,9 @@ public class TreatmentServiceImpl extends ServiceImpl<TreatmentMapper, WkfActivi
 
         WkfActivityDefinitionDO entity = msTreatmentMapper.addDtoToEntity(dto);
         entity.setTenantId(tenantId);
+        // 所属机构/位置由登录上下文决定，不信任前端传入
+        entity.setOrgId(userHolder.getCurrentOrgId());
+        entity.setLocationId(userHolder.getCurrentLocationId());
 
         // 默认状态ACTIVE
         if (StrUtil.isBlank(entity.getStatusEnum())) {

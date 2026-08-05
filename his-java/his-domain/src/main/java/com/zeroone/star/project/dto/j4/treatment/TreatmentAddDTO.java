@@ -74,12 +74,6 @@ public class TreatmentAddDTO {
     @Schema(description = "标本编码", example = "SPEC_BLOOD")
     private String specimenCode;
 
-    @Schema(description = "所属机构标识", example = "1001")
-    private String orgId;
-
-    @Schema(description = "位置标识", example = "2001")
-    private String locationId;
-
     @Schema(description = "计费规则标识", example = "1")
     private Integer ruleId;
 

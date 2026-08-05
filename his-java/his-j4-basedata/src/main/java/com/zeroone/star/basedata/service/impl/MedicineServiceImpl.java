@@ -76,7 +76,8 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
     public PageDTO<MedicineSelectVO> queryMedicineSelectPage(MedicineSelectPageQuery query) {
         String tenantId = userHolder.getCurrentTenantId();
         Page<MedicineSelectVO> page = new Page<>(query.getPageIndex(), query.getPageSize());
-        Page<MedicineSelectVO> result = baseMapper.selectMedicineSelectPage(page, query, query.getLocationId(), tenantId);
+        // 当前药房/库房ID由登录上下文决定，不信任前端传入
+        Page<MedicineSelectVO> result = baseMapper.selectMedicineSelectPage(page, query, userHolder.getCurrentLocationId(), tenantId);
         return PageDTO.create(result);
     }
 
@@ -119,6 +120,9 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
         medicine.setTenantId(tenantId);
         medicine.setIsDeleted(false);
         medicine.setVersion(0);
+        // 所属机构/默认采购入库库房由登录上下文决定，不信任前端传入
+        medicine.setOrgId(userHolder.getCurrentOrgId());
+        medicine.setLocationId(userHolder.getCurrentLocationId());
     }
 
     /**
@@ -214,8 +218,12 @@ public class MedicineServiceImpl extends ServiceImpl<MedMedicationDefinitionMapp
             }
         }
 
+        // 库房/机构按实体存储值回显（非前端传入）
+        MedicineDetailVO vo = msMedicineMapper.medicineDetailDtoToVo(detailDTO);
+        vo.setLocationId(medicationDefinitionDO.getLocationId());
+        vo.setOrgId(medicationDefinitionDO.getOrgId());
         //TODO 考虑将其存入Redis
-        return msMedicineMapper.medicineDetailDtoToVo(detailDTO);
+        return vo;
 
 
     }

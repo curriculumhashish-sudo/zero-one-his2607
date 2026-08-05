@@ -83,14 +83,6 @@ public class EquipmentAddDTO {
     @Schema(description = "剂量单位编码（给药/化验口径）", example = "2")
     private String doseUnitCode;
 
-    /** 执行机构主键 */
-    @Schema(description = "执行机构主键", example = "1001")
-    private Long orgId;
-
-    /** 默认存放位置主键 */
-    @Schema(description = "默认存放位置主键", example = "2001")
-    private Long locationId;
-
     /** 设备型号 */
     @NotBlank(message = "设备型号不能为空")
     @Schema(description = "设备型号", example = "KL-5ML")

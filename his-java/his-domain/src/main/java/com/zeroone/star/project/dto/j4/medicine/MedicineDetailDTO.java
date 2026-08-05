@@ -349,24 +349,10 @@ public class MedicineDetailDTO {
     private BigDecimal usageLimit;
 
     /**
-     * 采购入库位置（他域事实列）
-     */
-    @Schema(description = "默认采购入库库房id",example = "默认采购入库库房id")
-    private String locationId;
-
-    @Schema(description = "默认采购入库库房文字",example = "默认采购入库库房文字")
-    private String locationId_dictText;
-
-    /**
      * 生命周期状态编码（DRAFT/ACTIVE/INACTIVE/DISCARDED）
      */
     @Schema(description = "药品状态",example = "ACTIVE")
     private String statusEnum;
-
-    /**
-     * 机构标识
-     */
-    private String orgId;
 
     /**
      * 成分项

@@ -2,7 +2,6 @@ package com.zeroone.star.project.query.j4.medicine;
 
 import com.zeroone.star.project.query.PageQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,10 +21,6 @@ import lombok.ToString;
 @ToString(callSuper = true)
 @Schema(description = "选择药品条件分页查询对象")
 public class MedicineSelectPageQuery extends PageQuery {
-
-    @NotBlank(message = "药房或库房ID不能为空")
-    @Schema(description = "当前药房或库房ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String locationId;
 
     @Size(max = 100, message = "关键字长度不能超过100个字符")
     @Schema(description = "查询关键字",example="阿莫西林")

@@ -239,12 +239,6 @@ public class MedicineAddDTO {
             requiredMode = Schema.RequiredMode.REQUIRED)
     private String splitUnitCode;
 
-    @Schema(description = "默认采购入库库房ID")
-    private String locationId;
-
-    @Schema(description = "所属机构ID")
-    private String orgId;
-
     @DecimalMin(value = "0", message = "警戒线最高值不能小于0")
     @Schema(description = "警戒线最高值")
     private BigDecimal itemMaxQuantity;
