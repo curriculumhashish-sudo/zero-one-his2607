@@ -31,7 +31,7 @@ std::list<PtrPatientQueueCombineDO> PatientQueueDAO::queryPatientQueue(
 
     SqlParams params;
 
-    // ¿ÉÑ¡µÄ tenantId / practitionerId£ºÖ»ÓĞ·Ç¿Õ²Å¼ÓÈë¹ıÂËÌõ¼şºÍ²ÎÊı
+    // å¯é€‰çš„ tenantId / practitionerIdï¼šåªæœ‰éç©ºæ‰åŠ å…¥è¿‡æ»¤æ¡ä»¶å’Œå‚æ•°
     if (!tenantId.empty())
     {
         sql += " AND enc.tenant_id = ? ";
@@ -44,18 +44,18 @@ std::list<PtrPatientQueueCombineDO> PatientQueueDAO::queryPatientQueue(
         SQLPARAMS_PUSH(params, "s", std::string, practitionerId);
     }
 
-    // ÈÕÆÚÊÇ±ØĞëµÄ£¨ÄãËµÖ»´«ÈÕÆÚ£©£¬°ÑËü¼ÓÈëÌõ¼ş
+    // æ—¥æœŸæ˜¯å¿…é¡»çš„ï¼ˆä½ è¯´åªä¼ æ—¥æœŸï¼‰ï¼ŒæŠŠå®ƒåŠ å…¥æ¡ä»¶
     sql += " AND DATE(enc.reception_time) = ? ";
     SQLPARAMS_PUSH(params, "s", std::string, query->date->c_str());
 
-    // »¼ÕßĞÕÃûÄ£ºı²éÑ¯
+    // æ‚£è€…å§“åæ¨¡ç³ŠæŸ¥è¯¢
     if (query->patientName && !query->patientName->empty())
     {
         sql += " AND pat.name LIKE CONCAT('%', ?, '%') ";
         SQLPARAMS_PUSH(params, "s", std::string, query->patientName->c_str());
     }
 
-    // allStatus=false ²Å½øĞĞ×´Ì¬É¸Ñ¡
+    // allStatus=false æ‰è¿›è¡ŒçŠ¶æ€ç­›é€‰
     
         if (query->visitStatus && !query->visitStatus->empty())
         {
