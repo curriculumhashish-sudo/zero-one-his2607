@@ -10,7 +10,7 @@ class PatientLeaveQuery : public oatpp::DTO
 {
 	DTO_INIT(PatientLeaveQuery, DTO);
 
-	//Ψһ��ʶ
+	//╬ем╗▒Ж╩Х
 	API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("leave.query.encounterId"), true);
 };
 
