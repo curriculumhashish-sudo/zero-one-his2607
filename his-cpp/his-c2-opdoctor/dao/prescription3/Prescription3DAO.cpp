@@ -96,6 +96,19 @@ Prescription3OrderDO mapOrder(
     return order;
 }
 
+Prescription3EncounterDO mapEncounter(sql::ResultSet& result)
+{
+    Prescription3EncounterDO encounter;
+    encounter.found = true;
+    encounter.id = nullableString(result, "id");
+    encounter.tenantId = nullableString(result, "tenant_id");
+    encounter.patientId = nullableString(result, "patient_id");
+    encounter.status = nullableString(result, "status_enum");
+    encounter.version = result.getInt("version");
+    encounter.updatedAt = nullableString(result, "updated_at_text");
+    return encounter;
+}
+
 sql::Connection& requireConnection(Prescription3DAO& dao)
 {
     auto* session = dao.getSqlSession();
@@ -154,37 +167,83 @@ int executeUpdateByType(
 }
 }
 
+Prescription3EncounterDO Prescription3DAO::selectEncounterForUpdate(
+    const std::string& encounterId)
+{
+    auto& connection = requireConnection(*this);
+    const std::string sqlText =
+        "SELECT id, tenant_id, patient_id, status_enum, version, "
+        "DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s.%f') "
+        "AS updated_at_text FROM adm_encounter "
+        "WHERE id = ? AND is_deleted = 0 FOR UPDATE";
+
+    std::unique_ptr<sql::PreparedStatement> statement(
+        connection.prepareStatement(sqlText));
+    statement->setString(1, encounterId);
+    std::unique_ptr<sql::ResultSet> rows(statement->executeQuery());
+    return rows->next() ? mapEncounter(*rows) : Prescription3EncounterDO{};
+}
+
+Prescription3EncounterDO Prescription3DAO::incrementEncounterVersion(
+    const std::string& encounterId,
+    int expectedVersion,
+    const std::string& operatorId)
+{
+    auto& connection = requireConnection(*this);
+    const std::string updateText =
+        "UPDATE adm_encounter SET version = version + 1, "
+        "updated_at = NOW(6), updated_by = ? "
+        "WHERE id = ? AND version = ? AND is_deleted = 0";
+
+    std::unique_ptr<sql::PreparedStatement> updateStatement(
+        connection.prepareStatement(updateText));
+    updateStatement->setString(1, operatorId);
+    updateStatement->setString(2, encounterId);
+    updateStatement->setInt(3, expectedVersion);
+    if (updateStatement->executeUpdate() != 1)
+    {
+        return {};
+    }
+
+    const std::string selectText =
+        "SELECT id, tenant_id, patient_id, status_enum, version, "
+        "DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s.%f') "
+        "AS updated_at_text FROM adm_encounter WHERE id = ?";
+    std::unique_ptr<sql::PreparedStatement> selectStatement(
+        connection.prepareStatement(selectText));
+    selectStatement->setString(1, encounterId);
+    std::unique_ptr<sql::ResultSet> rows(selectStatement->executeQuery());
+    return rows->next() ? mapEncounter(*rows) : Prescription3EncounterDO{};
+}
+
 std::vector<Prescription3OrderDO>
-Prescription3DAO::selectByOrdersForUpdate(
-    const std::vector<Prescription3OrderDO>& orders)
+Prescription3DAO::selectByAdviceIdsForUpdate(
+    const std::vector<std::string>& adviceIds)
 {
     std::vector<Prescription3OrderDO> result;
-    auto& connection = requireConnection(*this);
-    const auto grouped = groupIdsByType(orders);
-
-    for (const auto& entry : grouped)
+    if (adviceIds.empty())
     {
-        const auto& ids = entry.second;
-        if (ids.empty())
-        {
-            continue;
-        }
+        return result;
+    }
 
-        const auto& spec = tableFor(entry.first);
+    auto& connection = requireConnection(*this);
+    for (const auto& spec : TABLES)
+    {
         const std::string sqlText =
             std::string("SELECT id, tenant_id, ") + spec.groupColumn +
             " AS group_value, status_enum, patient_id, encounter_id, "
             "requester_id, org_id, location_id, is_deleted FROM " +
             spec.table +
-            " WHERE id IN (" + makePlaceholders(ids.size()) + ") FOR UPDATE";
+            " WHERE id IN (" + makePlaceholders(adviceIds.size()) +
+            ") FOR UPDATE";
 
         std::unique_ptr<sql::PreparedStatement> statement(
             connection.prepareStatement(sqlText));
-        bindStrings(*statement, 1, ids);
+        bindStrings(*statement, 1, adviceIds);
         std::unique_ptr<sql::ResultSet> rows(statement->executeQuery());
         while (rows->next())
         {
-            result.push_back(mapOrder(*rows, entry.first));
+            result.push_back(mapOrder(*rows, spec.type));
         }
     }
     return result;

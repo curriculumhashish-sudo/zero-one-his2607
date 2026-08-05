@@ -67,37 +67,6 @@ std::string trim(const std::string& value)
     return first < last ? std::string(first, last) : std::string();
 }
 
-std::string upper(std::string value)
-{
-    std::transform(
-        value.begin(), value.end(), value.begin(),
-        [](unsigned char character)
-        {
-            return static_cast<char>(std::toupper(character));
-        });
-    return value;
-}
-
-Prescription3OrderType parseType(const std::string& value)
-{
-    const auto normalized = upper(trim(value));
-    if (normalized == "MEDICATION")
-    {
-        return Prescription3OrderType::Medication;
-    }
-    if (normalized == "SERVICE")
-    {
-        return Prescription3OrderType::Service;
-    }
-    if (normalized == "DEVICE")
-    {
-        return Prescription3OrderType::Device;
-    }
-    throw Prescription3BusinessException(
-        PRESCRIPTION3_INVALID_REQUEST,
-        "Order type must be MEDICATION, SERVICE, or DEVICE");
-}
-
 bool sameScope(
     const Prescription3OrderDO& left,
     const Prescription3OrderDO& right)
@@ -156,50 +125,47 @@ sql::Connection& serviceConnection(Prescription3DAO& dao)
 }
 }
 
-std::vector<Prescription3OrderDO>
-Prescription3Service::extractOrders(
-    const oatpp::List<
-        oatpp::Object<Prescription3OrderItemDTO>>& orders)
+std::vector<std::string>
+Prescription3Service::extractAdviceIds(
+    const oatpp::List<oatpp::String>& adviceIds)
 {
-    if (!orders || orders->empty())
+    if (!adviceIds || adviceIds->empty())
     {
         throw Prescription3BusinessException(
             PRESCRIPTION3_INVALID_REQUEST,
             "At least one order is required");
     }
-    if (orders->size() > MAX_BATCH_SIZE)
+    if (adviceIds->size() > MAX_BATCH_SIZE)
     {
         throw Prescription3BusinessException(
             PRESCRIPTION3_INVALID_REQUEST,
             "A request can contain at most 200 orders");
     }
 
-    std::vector<Prescription3OrderDO> result;
+    std::vector<std::string> result;
     std::unordered_set<std::string> seen;
-    result.reserve(orders->size());
+    result.reserve(adviceIds->size());
 
-    for (const auto& item : *orders)
+    for (const auto& value : *adviceIds)
     {
-        if (!item || !item->id || !item->type)
+        if (!value)
         {
             throw Prescription3BusinessException(
                 PRESCRIPTION3_INVALID_REQUEST,
-                "Every order requires id and type");
+                "Every advice id is required");
         }
 
-        Prescription3OrderDO order;
-        order.id = trim(*item->id);
-        order.type = parseType(*item->type);
-        if (order.id.empty() || order.id.size() > 64)
+        const auto id = trim(*value);
+        if (id.empty() || id.size() > 64)
         {
             throw Prescription3BusinessException(
                 PRESCRIPTION3_INVALID_REQUEST,
                 "Order id must contain between 1 and 64 characters");
         }
 
-        if (seen.insert(order.key()).second)
+        if (seen.insert(id).second)
         {
-            result.push_back(order);
+            result.push_back(id);
         }
     }
 
@@ -210,6 +176,37 @@ Prescription3Service::extractOrders(
             "At least one distinct order is required");
     }
     return result;
+}
+
+std::string Prescription3Service::extractEncounterId(
+    const oatpp::String& encounterId)
+{
+    if (!encounterId)
+    {
+        throw Prescription3BusinessException(
+            PRESCRIPTION3_INVALID_REQUEST,
+            "Encounter id is required");
+    }
+
+    const auto value = trim(*encounterId);
+    if (value.empty() || value.size() > 64)
+    {
+        throw Prescription3BusinessException(
+            PRESCRIPTION3_INVALID_REQUEST,
+            "Encounter id must contain between 1 and 64 characters");
+    }
+    return value;
+}
+
+int Prescription3Service::extractVersion(const oatpp::Int32& version)
+{
+    if (!version || *version < 0)
+    {
+        throw Prescription3BusinessException(
+            PRESCRIPTION3_INVALID_REQUEST,
+            "Version must be a non-negative integer");
+    }
+    return *version;
 }
 
 void Prescription3Service::validateOperator(
@@ -225,20 +222,67 @@ void Prescription3Service::validateOperator(
 
 void Prescription3Service::validateRowsExist(
     const std::vector<Prescription3OrderDO>& rows,
-    const std::vector<Prescription3OrderDO>& requested)
+    const std::vector<std::string>& requestedIds)
 {
     std::unordered_set<std::string> found;
     for (const auto& row : rows)
     {
-        found.insert(row.key());
+        if (!found.insert(row.id).second)
+        {
+            throw Prescription3BusinessException(
+                PRESCRIPTION3_DATABASE_ERROR,
+                "An advice id matched more than one order table");
+        }
     }
-    for (const auto& order : requested)
+    for (const auto& id : requestedIds)
     {
-        if (found.find(order.key()) == found.end())
+        if (found.find(id) == found.end())
         {
             throw Prescription3BusinessException(
                 PRESCRIPTION3_NOT_FOUND,
                 "One or more selected orders do not exist");
+        }
+    }
+}
+
+void Prescription3Service::validateEncounterState(
+    const Prescription3EncounterDO& encounter,
+    int expectedVersion)
+{
+    if (!encounter.found)
+    {
+        throw Prescription3BusinessException(
+            PRESCRIPTION3_NOT_FOUND,
+            "The requested encounter does not exist");
+    }
+    if (encounter.status != "IN_PROGRESS")
+    {
+        throw Prescription3BusinessException(
+            PRESCRIPTION3_INVALID_STATUS,
+            "Only an IN_PROGRESS encounter can change orders");
+    }
+    if (encounter.version != expectedVersion)
+    {
+        throw Prescription3BusinessException(
+            PRESCRIPTION3_CONCURRENT_CHANGE,
+            "The order list version is stale; refresh and retry");
+    }
+}
+
+void Prescription3Service::validateEncounter(
+    const std::vector<Prescription3OrderDO>& rows,
+    const Prescription3EncounterDO& encounter)
+{
+    for (const auto& row : rows)
+    {
+        if (row.encounterId != encounter.id ||
+            row.tenantId != encounter.tenantId ||
+            row.patientId != encounter.patientId)
+        {
+            throw Prescription3BusinessException(
+                PRESCRIPTION3_SCOPE_MISMATCH,
+                "All selected orders must belong to the encounter tenant "
+                "and patient");
         }
     }
 }
@@ -353,14 +397,19 @@ Prescription3OperationResult Prescription3Service::batchDelete(
             "Request body is required");
     }
 
-    const auto requested = extractOrders(dto->orders);
+    const auto encounterId = extractEncounterId(dto->encounterId);
+    const auto expectedVersion = extractVersion(dto->version);
+    const auto requestedIds = extractAdviceIds(dto->adviceIds);
     TransactionGuard transaction(serviceConnection(dao_));
-    const auto selected = dao_.selectByOrdersForUpdate(requested);
-    validateRowsExist(selected, requested);
+    const auto encounter = dao_.selectEncounterForUpdate(encounterId);
+    validateEncounterState(encounter, expectedVersion);
+    const auto selected = dao_.selectByAdviceIdsForUpdate(requestedIds);
+    validateRowsExist(selected, requestedIds);
     validateDraft(selected);
 
     const auto targets = expandGroups(dao_, selected);
     validateDraft(targets);
+    validateEncounter(targets, encounter);
     validateGroupScopes(targets);
 
     const int affected = dao_.softDelete(targets, operatorId);
@@ -371,8 +420,23 @@ Prescription3OperationResult Prescription3Service::batchDelete(
             "Order data changed while the delete was running");
     }
 
+    const auto snapshot = dao_.incrementEncounterVersion(
+        encounterId, expectedVersion, operatorId);
+    if (!snapshot.found)
+    {
+        throw Prescription3BusinessException(
+            PRESCRIPTION3_CONCURRENT_CHANGE,
+            "The order list changed while the delete was running");
+    }
+
     transaction.commit();
-    return {affected, ""};
+    auto affectedOrders = targets;
+    for (auto& order : affectedOrders)
+    {
+        order.groupId.clear();
+    }
+    return {affected, "", affectedOrders,
+        snapshot.version, snapshot.updatedAt};
 }
 
 Prescription3OperationResult Prescription3Service::mergeGroup(
@@ -387,10 +451,14 @@ Prescription3OperationResult Prescription3Service::mergeGroup(
             "Request body is required");
     }
 
-    const auto requested = extractOrders(dto->orders);
+    const auto encounterId = extractEncounterId(dto->encounterId);
+    const auto expectedVersion = extractVersion(dto->version);
+    const auto requestedIds = extractAdviceIds(dto->adviceIds);
     TransactionGuard transaction(serviceConnection(dao_));
-    const auto selected = dao_.selectByOrdersForUpdate(requested);
-    validateRowsExist(selected, requested);
+    const auto encounter = dao_.selectEncounterForUpdate(encounterId);
+    validateEncounterState(encounter, expectedVersion);
+    const auto selected = dao_.selectByAdviceIdsForUpdate(requestedIds);
+    validateRowsExist(selected, requestedIds);
     validateDraft(selected);
 
     std::set<std::string> groupUnits;
@@ -415,6 +483,7 @@ Prescription3OperationResult Prescription3Service::mergeGroup(
 
     const auto targets = expandGroups(dao_, selected);
     validateDraft(targets);
+    validateEncounter(targets, encounter);
     validateSameScope(targets);
 
     const auto groupId = generateGroupId();
@@ -427,8 +496,23 @@ Prescription3OperationResult Prescription3Service::mergeGroup(
             "Order data changed while the merge was running");
     }
 
+    auto affectedOrders = targets;
+    for (auto& order : affectedOrders)
+    {
+        order.groupId = groupId;
+    }
+    const auto snapshot = dao_.incrementEncounterVersion(
+        encounterId, expectedVersion, operatorId);
+    if (!snapshot.found)
+    {
+        throw Prescription3BusinessException(
+            PRESCRIPTION3_CONCURRENT_CHANGE,
+            "The order list changed while the merge was running");
+    }
+
     transaction.commit();
-    return {affected, groupId};
+    return {affected, groupId, affectedOrders,
+        snapshot.version, snapshot.updatedAt};
 }
 
 Prescription3OperationResult Prescription3Service::splitGroup(
@@ -443,10 +527,14 @@ Prescription3OperationResult Prescription3Service::splitGroup(
             "Request body is required");
     }
 
-    const auto requested = extractOrders(dto->orders);
+    const auto encounterId = extractEncounterId(dto->encounterId);
+    const auto expectedVersion = extractVersion(dto->version);
+    const auto requestedIds = extractAdviceIds(dto->adviceIds);
     TransactionGuard transaction(serviceConnection(dao_));
-    const auto selected = dao_.selectByOrdersForUpdate(requested);
-    validateRowsExist(selected, requested);
+    const auto encounter = dao_.selectEncounterForUpdate(encounterId);
+    validateEncounterState(encounter, expectedVersion);
+    const auto selected = dao_.selectByAdviceIdsForUpdate(requestedIds);
+    validateRowsExist(selected, requestedIds);
     validateDraft(selected);
 
     for (const auto& row : selected)
@@ -461,6 +549,7 @@ Prescription3OperationResult Prescription3Service::splitGroup(
 
     const auto targets = expandGroups(dao_, selected);
     validateDraft(targets);
+    validateEncounter(targets, encounter);
     validateGroupScopes(targets);
 
     std::map<std::string, int> groupSizes;
@@ -489,6 +578,21 @@ Prescription3OperationResult Prescription3Service::splitGroup(
             "Order data changed while the split was running");
     }
 
+    auto affectedOrders = targets;
+    for (auto& order : affectedOrders)
+    {
+        order.groupId.clear();
+    }
+    const auto snapshot = dao_.incrementEncounterVersion(
+        encounterId, expectedVersion, operatorId);
+    if (!snapshot.found)
+    {
+        throw Prescription3BusinessException(
+            PRESCRIPTION3_CONCURRENT_CHANGE,
+            "The order list changed while the split was running");
+    }
+
     transaction.commit();
-    return {affected, ""};
+    return {affected, "", affectedOrders,
+        snapshot.version, snapshot.updatedAt};
 }
