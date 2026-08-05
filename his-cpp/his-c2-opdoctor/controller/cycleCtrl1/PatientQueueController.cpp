@@ -9,37 +9,37 @@ PatientQueueJsonVO::Wrapper PatientQueueController::execQueryQueue(const Patient
 {
     auto jvo = PatientQueueJsonVO::createShared();
 
-    // ±ØĞëµÄ query ºÍ date
+    // å¿…é¡»çš„ query å’Œ date
     if (!query || !query->date) {
         jvo->init(nullptr, RS_PARAMS_INVALID);
         return jvo;
     }
 
-    // ´Ó payload »ñÈ¡ userId £¬ºóĞø¿ÉÄÜĞèÒª
+    // ä» payload è·å– userId ï¼Œåç»­å¯èƒ½éœ€è¦
     /*std::string userId = payload.getId();
     if (userId.empty()) {
         jvo->init(nullptr, RS_PARAMS_INVALID);
         return jvo;
     }*/
 
-    // ´Ó payload »ñÈ¡ practitionerId
+    // ä» payload è·å– practitionerId
     std::string practitionerId = payload.getPractitionerId();
 
-    // ´´½¨ Redis ¿Í»§¶ËÒÔ»ñÈ¡ tenantId
+    // åˆ›å»º Redis å®¢æˆ·ç«¯ä»¥è·å– tenantId
     RedisClient re("127.0.0.1", 6379, "01star");
     std::string tenantId = re.execute<std::string>([](Redis* r) {
         auto res = r->hget("his:login:context:u001", "tenantId");
         return res.value();
     });
 
-    // Èç¹û practitionerId »ò tenantId Îª¿Õ£¬ÔòÊ¹ÓÃÄ¬ÈÏÖµ
+    // å¦‚æœ practitionerId æˆ– tenantId ä¸ºç©ºï¼Œåˆ™ä½¿ç”¨é»˜è®¤å€¼
     if (practitionerId.empty() || tenantId.empty())
     {
         practitionerId = "";
         tenantId = "tenant_001";
     }
 
-    // µ÷ÓÃ service »ñÈ¡Êı¾İ
+    // è°ƒç”¨ service è·å–æ•°æ®
     PatientQueueService service;
     auto dto = service.getPatientQueueList(query, tenantId, practitionerId);
 
