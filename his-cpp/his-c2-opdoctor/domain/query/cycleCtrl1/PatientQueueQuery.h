@@ -8,16 +8,16 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 
-//»¼Õß¶ÓÁĞ²éÑ¯queryÀà
+//æ‚£è€…é˜Ÿåˆ—æŸ¥è¯¢queryç±»
 class PatientQueueQuery : public oatpp::DTO
 {
 	DTO_INIT(PatientQueueQuery,DTO);
 
-	//ÈÕÆÚ
+	//æ—¥æœŸ
 	API_DTO_FIELD_REQUIRE(String, date, ZH_WORDS_GETTER("queue.query.date"), true);
-	//ËÑË÷»¼Õß
+	//æœç´¢æ‚£è€…
 	API_DTO_FIELD_REQUIRE(String, patientName, ZH_WORDS_GETTER("queue.query.patientName"), false);
-	//visitStatus -> ´ıÕï¡¢ÔÚÕï¡¢ÍêÕï
+	//visitStatus -> å¾…è¯Šã€åœ¨è¯Šã€å®Œè¯Š
 	API_DTO_FIELD_REQUIRE(String, visitStatus, ZH_WORDS_GETTER("queue.query.visitStatus"), false);
 
 	
