@@ -1,7 +1,7 @@
 server:
   port: ${sp.j3-fee:10205}
   servlet:
-    context-path: /j3-basedata
+    context-path: /j3-fee
   address: 0.0.0.0
 
 spring:

@@ -1,7 +1,7 @@
 server:
   port: ${sp.j3-register:10203}
   servlet:
-    context-path: /j3-basedata
+    context-path: /j3-register
   address: 0.0.0.0
 
 spring:

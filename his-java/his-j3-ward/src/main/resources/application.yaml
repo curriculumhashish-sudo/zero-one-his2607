@@ -1,7 +1,7 @@
 server:
   port: ${sp.j3-ward:10207}
   servlet:
-    context-path: /j3-basedata
+    context-path: /j3-ward
   address: 0.0.0.0
 
 spring:
