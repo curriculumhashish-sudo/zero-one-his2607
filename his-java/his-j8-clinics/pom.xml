@@ -108,7 +108,6 @@
                             <alias>${project.artifactId}</alias>
                             <run>
                                 <namingStrategy>alias</namingStrategy>
-                                <pullPolicy>Never</pullPolicy>
                                 <ports>
                                     <port>10133:10133</port>
                                 </ports>
