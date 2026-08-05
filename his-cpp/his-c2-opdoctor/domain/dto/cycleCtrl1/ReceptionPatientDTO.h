@@ -10,48 +10,48 @@ class RecePatientDTO : public oatpp::DTO
 {
 	DTO_INIT(RecePatientDTO, DTO);
 
-    // »¼ÕßID
+    // æ‚£è€…ID
     API_DTO_FIELD_REQUIRE(String, patientId, ZH_WORDS_GETTER("rece.dto.patientId"), false);
 
-    //¾ÍÕïºÅ
+    //å°±è¯Šå·
     API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("rece.dto.encounterId"), false);
 
-    // »¼ÕßĞÕÃû
+    // æ‚£è€…å§“å
     API_DTO_FIELD_REQUIRE(String, patientName, ZH_WORDS_GETTER("rece.dto.name"), true);
 
-    // ¾ÍÕï×´Ì¬ -- ÔÚÕï
+    // å°±è¯ŠçŠ¶æ€ -- åœ¨è¯Š
     API_DTO_FIELD_REQUIRE(String, visitStatus, ZH_WORDS_GETTER("rece.dto.visitStatus"), true);
 
-    // ĞÔ±ğ
+    // æ€§åˆ«
     API_DTO_FIELD_REQUIRE(String, gender, ZH_WORDS_GETTER("rece.dto.gender"), true);
-    // ÄêÁä
+    // å¹´é¾„
     API_DTO_FIELD_REQUIRE(Int32, age, ZH_WORDS_GETTER("rece.dto.age"), true);
-    // ¹ÒºÅÀàĞÍ£¨ÆÕÍ¨ºÅ/×¨¼ÒºÅ£©
+    // æŒ‚å·ç±»å‹ï¼ˆæ™®é€šå·/ä¸“å®¶å·ï¼‰
     API_DTO_FIELD_REQUIRE(String, registerType, ZH_WORDS_GETTER("rece.dto.registerType"), true);
 
-    //²¡ÕïºÅ
+    //ç—…è¯Šå·
     API_DTO_FIELD_REQUIRE(String, visitNo, ZH_WORDS_GETTER("rece.dto.medicalRecordNum"), true);
-    //²¡ÀúĞÔÖÊ£¨×Ô·Ñ/Ò½±££©
+    //ç—…å†æ€§è´¨ï¼ˆè‡ªè´¹/åŒ»ä¿ï¼‰
     API_DTO_FIELD_REQUIRE(String, payType, ZH_WORDS_GETTER("rece.dto.recordType"), true);
-    //¾ÍÕïÊ±¼ä
+    //å°±è¯Šæ—¶é—´
     API_DTO_FIELD_REQUIRE(Int32, visitTime, ZH_WORDS_GETTER("rece.dto.time"), true);
-    //¹ÒºÅ¿ÆÊÒ
+    //æŒ‚å·ç§‘å®¤
     API_DTO_FIELD_REQUIRE(String, registerDept, ZH_WORDS_GETTER("rece.dto.registerDept"), true);
-    //µç»°ºÅ
+    //ç”µè¯å·
     API_DTO_FIELD_REQUIRE(String, phoneNum, ZH_WORDS_GETTER("rece.dto.phoneNum"), true);
-    //¹ıÃôÊ·
+    //è¿‡æ•å²
     API_DTO_FIELD_REQUIRE(String, allergyHistory, ZH_WORDS_GETTER("rece.dto.allergyHistory"), false);
     
-    //½ÓÕïÒ½ÉúÃû×Ö
+    //æ¥è¯ŠåŒ»ç”Ÿåå­—
     API_DTO_FIELD_REQUIRE(String, attendingDoctorName, ZH_WORDS_GETTER("rece.dto.attendingDoctorName"), false);
 
-    //Ö÷Ëß
+    //ä¸»è¯‰
     API_DTO_FIELD_REQUIRE(String, chiefComplaint, ZH_WORDS_GETTER("rece.dto.chiefComplaint"), false);
 
-    //½ô¼±ÁªÏµÈË
+    //ç´§æ€¥è”ç³»äºº
     API_DTO_FIELD_REQUIRE(String, emergencyContact, ZH_WORDS_GETTER("rece.dto.emergencyContact"), false);
 
-    //·ÖÕï±¸×¢
+    //åˆ†è¯Šå¤‡æ³¨
     API_DTO_FIELD_REQUIRE(String, triageNote, ZH_WORDS_GETTER("rece.dto.triageNote"), false);
 
 };
