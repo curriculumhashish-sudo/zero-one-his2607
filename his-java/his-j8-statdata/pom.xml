@@ -98,6 +98,7 @@
                 <configuration>
                     <dockerHost>https://47.98.154.109:2375</dockerHost>
                     <certPath>D:/Dr.BIG/docker-ca</certPath>
+                    <skip>false</skip>
                     <images>
                         <image>
                             <name>01star/${project.artifactId}:${project.version}</name>

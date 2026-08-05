@@ -34,7 +34,7 @@ import java.util.List;
 public class WkfSlotServiceImpl extends ServiceImpl<WkfSlotMapper, WkfSlot> implements IWkfSlotService {
 
     @Resource
-    private WkfScheduleMapper scheduleMapper;
+    private WkfScheduleMapper wkfScheduleMapper;
 
     @Resource
     private UserHolder userHolder;
@@ -134,7 +134,7 @@ public class WkfSlotServiceImpl extends ServiceImpl<WkfSlotMapper, WkfSlot> impl
     @Transactional(rollbackFor = Exception.class)
     public ResumeScheduleVO reactivateSchedule(String scheduleId) {
         // 查询日程
-        WkfSchedule schedule = scheduleMapper.selectById(scheduleId);
+        WkfSchedule schedule = wkfScheduleMapper.selectById(scheduleId);
         if (schedule == null) {
             throw new RuntimeException("日程不存在");
         }
@@ -145,7 +145,7 @@ public class WkfSlotServiceImpl extends ServiceImpl<WkfSlotMapper, WkfSlot> impl
         // 更新状态为开诊
         schedule.setStatusEnum("active");
         schedule.setActiveFlag(true);
-        scheduleMapper.updateById(schedule);
+        wkfScheduleMapper.updateById(schedule);
 
         // 检查是否需要重新生成号源
         boolean hasSlots = count(new LambdaQueryWrapper<WkfSlot>()
@@ -165,7 +165,7 @@ public class WkfSlotServiceImpl extends ServiceImpl<WkfSlotMapper, WkfSlot> impl
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void retireSchedule(RetireScheduleDTO dto) {
-        WkfSchedule schedule = scheduleMapper.selectById(dto.getScheduleId());
+        WkfSchedule schedule = wkfScheduleMapper.selectById(dto.getScheduleId());
         if (schedule == null) {
             throw new RuntimeException("日程不存在");
         }
@@ -175,7 +175,7 @@ public class WkfSlotServiceImpl extends ServiceImpl<WkfSlotMapper, WkfSlot> impl
 
         schedule.setStatusEnum("retired");
         schedule.setActiveFlag(false);
-        scheduleMapper.updateById(schedule);
+        wkfScheduleMapper.updateById(schedule);
 
         log.info("作废日程成功，scheduleId: {}, 原因: {}", dto.getScheduleId(), dto.getReason());
     }
