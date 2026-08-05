@@ -6,38 +6,38 @@ PatientLeaveJsonVO::Wrapper PatientLeaveService::execLeavePatient(const oatpp::S
 {
     auto vo = PatientLeaveJsonVO::createShared();
 
-    //1. ²éÑ¯¾ÍÕï¼ÇÂ¼
+    //1. æŸ¥è¯¢å°±è¯Šè®°å½•
     auto encounterDO = dao.selectEncounterById(tenantId, encounterId);
     if (!encounterDO)
     {
         vo->code = 10001;
-        vo->message = u8"¾ÍÕï¼ÇÂ¼²»´æÔÚ";
+        vo->message = u8"å°±è¯Šè®°å½•ä¸å­˜åœ¨";
         vo->data = nullptr;
         return vo;
     }
 
-    //2. ×´Ì¬Ð£Ñé
+    //2. çŠ¶æ€æ ¡éªŒ
     oatpp::String status = encounterDO->getStatusEnum();
     if (status == "onHold" || status == "finished")
     {
         vo->code = 10002;
-        vo->message = u8"¸Ã»¼ÕßÒÑÀëÔº»òÒÑÍêÕï£¬²»ÄÜÖØ¸´²Ù×÷";
+        vo->message = u8"è¯¥æ‚£è€…å·²ç¦»é™¢æˆ–å·²å®Œè¯Šï¼Œä¸èƒ½é‡å¤æ“ä½œ";
         vo->data = nullptr;
         return vo;
     }
 
    
-    //3. Ö´ÐÐ¸üÐÂµ½ÀëÔº×´Ì¬ --> Ç°¶ËÒªÇóÔÚÕï±ä³É´ýÕï(inProgress -> arrived)
+    //3. æ‰§è¡Œæ›´æ–°åˆ°ç¦»é™¢çŠ¶æ€ --> å‰ç«¯è¦æ±‚åœ¨è¯Šå˜æˆå¾…è¯Š(inProgress -> arrived)
     uint64_t affectRows = dao.updateEncounterToLeave(tenantId, encounterId);
     if (affectRows == 0)
     {
         vo->code = 10004;
-        vo->message = u8"ÀëÔº²Ù×÷Ê§°Ü";
+        vo->message = u8"ç¦»é™¢æ“ä½œå¤±è´¥";
         vo->data = nullptr;
         return vo;
     }
 
-    //4. ·µ»Ø³É¹¦
+    //4. è¿”å›žæˆåŠŸ
     auto dto = PatientLeaveDTO::createShared();
     dto->encounterId = encounterId;
     
