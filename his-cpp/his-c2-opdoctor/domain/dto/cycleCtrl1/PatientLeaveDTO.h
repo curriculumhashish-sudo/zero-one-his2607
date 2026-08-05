@@ -10,21 +10,21 @@ class PatientLeaveDTO : public oatpp::DTO
 {
     DTO_INIT(PatientLeaveDTO, DTO);
 
-    // ¾ÍÕï×´Ì¬
+    // å°±è¯ŠçŠ¶æ€
     API_DTO_FIELD_REQUIRE(String, visitStatus, ZH_WORDS_GETTER("leave.dto.newVisitStatus"), false);
 
-	//Ïà¹Ø×´Ì¬arrived - ´ıÕï£¬in-progress - ÔÚÕï£¬finished - ÍêÕï
+	//ç›¸å…³çŠ¶æ€arrived - å¾…è¯Šï¼Œin-progress - åœ¨è¯Šï¼Œfinished - å®Œè¯Š
     API_DTO_FIELD_REQUIRE(String, arrived, ZH_WORDS_GETTER("leave.dto.arrived"), false);
 	API_DTO_FIELD_REQUIRE(String, inProgress, ZH_WORDS_GETTER("leave.dto.inProgress"), false);
     API_DTO_FIELD_REQUIRE(String, finished, ZH_WORDS_GETTER("leave.dto.finished"), false);
 
-    // ¾ÍÕïid
+    // å°±è¯Šid
     API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("leave.dto.encounterId"), true);
     
-    //½ÓÕïÒ½Éú
+    //æ¥è¯ŠåŒ»ç”Ÿ
     API_DTO_FIELD_REQUIRE(String, attendingDoctorName, ZH_WORDS_GETTER("leave.dto.attendingDoctorName"), false);
 
-    //½ÓÕïÊ±¼ä
+    //æ¥è¯Šæ—¶é—´
     API_DTO_FIELD_REQUIRE(String, acceptedAt, ZH_WORDS_GETTER("leave.dto.acceptedAt"), false);
 
 
