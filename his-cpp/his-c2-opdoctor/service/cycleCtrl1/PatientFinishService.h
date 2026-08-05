@@ -10,7 +10,7 @@
 class PatientFinishService
 {
 public:
-    // 完诊业务入口
+    // 瀹岃瘖涓氬姟鍏ュ彛
     PatientFinishJsonVO::Wrapper execFinishPatient(const oatpp::String& tenantId, const oatpp::String& encounterId);
 
 private:
