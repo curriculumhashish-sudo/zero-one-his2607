@@ -460,7 +460,7 @@ createOrder:
   keyword: "关键词"
  order:
   tags:
-   tag: "病历管理"
+   tag: "开立医嘱"
   field:
    patientid1: "患者病历号"
    encounterid: "本次就诊号"
@@ -483,7 +483,6 @@ createOrder:
    unitPrice: "单价"
    diagnosis: "诊断"
    expenseType: "费用性质"
-   orderType: "类型"
    dosage: "用量"
    frequency: "频次"
    routeCode: "给药途径"
@@ -505,6 +504,16 @@ createOrder:
    affectedCount: "实际受影响的医嘱条数"
    groupId: "后端生成的雪花分组 ID"
    message: "操作结果说明"
+   version: "当前医嘱列表整体版本，非负整数；取最近一次查询或操作响应中的 version"
+   deleteAdviceIds: "待删除医嘱 ID；选择组内成员会自动扩展为整个组，最多传 200 项"
+   mergeAdviceIds: "待并组医嘱 ID；至少包含两个独立医嘱或已有组，最多传 200 项"
+   splitAdviceIds: "待拆组医嘱 ID；可传组内任意成员，后端按完整组拆分，最多传 200 项"
+   adviceId: "医嘱 ID，长度 1‑64"
+   orderType: "医嘱类型：MEDICATION（药品）、SERVICE（服务）、DEVICE（器材）"
+   affectedOrders: "操作实际影响的医嘱及操作后的分组结果"
+   resultVersion: "操作完成后的最新医嘱列表整体版本"
+   updatedAt: "医嘱列表版本更新时间，格式：YYYY‑MM‑DD HH:mm:ss.SSSSSS"
+   resultGroupId: "操作后的分组 ID；拆组后为空字符串"
   query:
    summary: "分页查询医嘱"
   add:
@@ -515,15 +524,13 @@ createOrder:
    summary: "分页查询项目"
   batchDelete:
    summary: "删除待签发医嘱"
-   description: "软删除 DRAFT 医嘱；选中组内任意医嘱时删除整个组。支持药品、服务和器材医嘱。业务码：21001 参数错误、21002 医嘱不存在、21003 状态错误、21004 分组错误、21005 范围不一致、21006 并发更新、21007 数据库错误。"
+   description: "软删除 DRAFT 医嘱；选中组内任意医嘱时删除整个组。仅允许 IN_PROGRESS 就诊，version 为当前医嘱列表整体版本。支持药品、服务和器材医嘱。业务码：21001 参数错误、21002 记录不存在、21003 状态错误、21004 分组错误、21005 范围不一致、21006 版本冲突、21007 数据库错误。"
   mergeGroup:
    summary: "合并待签发医嘱组"
-   description: "将至少两个独立医嘱或已有医嘱组合并为新组。允许跨医嘱类型，groupId 由后端生成。业务码：21001 参数错误、21002 医嘱不存在、21003 状态错误、21004 分组错误、21005 范围不一致、21006 并发更新、21007 数据库错误。"
+   description: "将至少两个独立医嘱或已有医嘱组合并为新组。仅允许 IN_PROGRESS 就诊，version 为当前医嘱列表整体版本。允许跨医嘱类型，groupId 由后端生成。业务码：21001 参数错误、21002 记录不存在、21003 状态错误、21004 分组错误、21005 范围不一致、21006 版本冲突、21007 数据库错误。"
   splitGroup:
    summary: "拆分待签发医嘱组"
-   description: "选中组内任意医嘱后拆分整个组，全部成员恢复为独立医嘱，不恢复历史分组。业务码：21001 参数错误、21002 医嘱不存在、21003 状态错误、21004 分组错误、21005 范围不一致、21006 并发更新、21007 数据库错误。"
-
-   
+   description: "选中组内任意医嘱后拆分整个组，全部成员恢复为独立医嘱，不恢复历史分组。仅允许 IN_PROGRESS 就诊，version 为当前医嘱列表整体版本。业务码：21001 参数错误、21002 记录不存在、21003 状态错误、21004 分组错误、21005 范围不一致、21006 版本冲突、21007 数据库错误。"
 
  chinapres3:
   tags:

@@ -27,6 +27,9 @@ struct Prescription3OperationResult
 {
     int affectedRows = 0;
     std::string groupId;
+    std::vector<Prescription3OrderDO> affectedOrders;
+    int version = 0;
+    std::string updatedAt;
 };
 
 class Prescription3BusinessException : public std::runtime_error
@@ -66,14 +69,22 @@ private:
 
     Prescription3DAO dao_;
 
-    static std::vector<Prescription3OrderDO> extractOrders(
-        const oatpp::List<
-            oatpp::Object<Prescription3OrderItemDTO>>& orders);
+    static std::vector<std::string> extractAdviceIds(
+        const oatpp::List<oatpp::String>& adviceIds);
+    static std::string extractEncounterId(
+        const oatpp::String& encounterId);
+    static int extractVersion(const oatpp::Int32& version);
 
     static void validateOperator(const std::string& operatorId);
+    static void validateEncounterState(
+        const Prescription3EncounterDO& encounter,
+        int expectedVersion);
     static void validateRowsExist(
         const std::vector<Prescription3OrderDO>& rows,
-        const std::vector<Prescription3OrderDO>& requested);
+        const std::vector<std::string>& requestedIds);
+    static void validateEncounter(
+        const std::vector<Prescription3OrderDO>& rows,
+        const Prescription3EncounterDO& encounter);
     static void validateDraft(
         const std::vector<Prescription3OrderDO>& rows);
     static void validateSameScope(
