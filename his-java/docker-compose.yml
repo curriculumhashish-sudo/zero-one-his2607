@@ -9,17 +9,19 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: "123456"
       MYSQL_DATABASE: "zo_his"
+      MYSQL_USER: "his_app"
+      MYSQL_PASSWORD: "LvvJ7Db@2026_Q8mR4xK2"
       TZ: Asia/Shanghai
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci --default-authentication-plugin=mysql_native_password
     ports:
-      - "3306:3306"
+      - "23306:23306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./init-sql:/docker-entrypoint-initdb.d
     networks:
       - his-net
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p123456"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uhis_app", "-pLvvJ7Db@2026_Q8mR4xK2"]
       interval: 10s
       timeout: 5s
       retries: 20
@@ -41,7 +43,7 @@ services:
       - NACOS_AUTH_IDENTITY_VALUE=security
       - TZ=Asia/Shanghai
     ports:
-      - "8848:8848"
+      - "9080:9080"
       - "9848:9848"
     volumes:
       - nacos_data:/home/nacos/data
@@ -49,7 +51,7 @@ services:
     networks:
       - his-net
     healthcheck:
-      test: ["CMD", "curl", "-s", "http://localhost:8848/nacos/"]
+      test: ["CMD", "curl", "-s", "http://localhost:9080/nacos/"]
       interval: 10s
       timeout: 5s
       retries: 30
@@ -84,7 +86,7 @@ services:
         condition: service_healthy
     environment:
       - JAVA_OPTS=-Xms256m -Xmx256m
-      - SPRING_ARGS=--spring.profiles.active=docker --spring.cloud.nacos.server-addr=nacos:8848 --spring.cloud.nacos.username=nacos --spring.cloud.nacos.password=nacos
+      - SPRING_ARGS=--spring.profiles.active=docker --spring.cloud.nacos.server-addr=nacos:9080 --spring.cloud.nacos.username=nacos --spring.cloud.nacos.password=nacos
     ports:
       - "10500:10500"
     networks:
@@ -105,7 +107,7 @@ services:
         condition: service_healthy
     environment:
       - JAVA_OPTS=-Xms256m -Xmx256m
-      - SPRING_ARGS=--spring.profiles.active=docker --spring.cloud.nacos.server-addr=nacos:8848 --spring.cloud.nacos.username=nacos --spring.cloud.nacos.password=nacos
+      - SPRING_ARGS=--spring.profiles.active=docker --spring.cloud.nacos.server-addr=nacos:9080 --spring.cloud.nacos.username=nacos --spring.cloud.nacos.password=nacos
     ports:
       - "10501:10501"
     networks:

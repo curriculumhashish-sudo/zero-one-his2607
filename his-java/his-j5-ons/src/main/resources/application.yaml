@@ -18,7 +18,7 @@ spring:
     active: dev
   cloud:
     nacos:
-      server-addr: 192.168.56.1:8848
+      server-addr: 121.43.236.176:9080
       username: nacos
       password: nacos
       discovery:
@@ -30,9 +30,9 @@ spring:
         file-extension: yaml
         remote-first: true
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/example_db?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    username: root
-    password: root
+    url: jdbc:mysql://127.0.0.1:23306/zo_his?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: his_app
+    password: LvvJ7Db@2026_Q8mR4xK2
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 springdoc:
