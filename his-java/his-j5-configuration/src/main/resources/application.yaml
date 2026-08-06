@@ -28,6 +28,10 @@ spring:
         group: DEFAULT_GROUP
         file-extension: yaml
         remote-first: true
+        shared-configs:
+          - data-id: j5-data-source.yaml
+            group: DEFAULT_GROUP
+            refresh: true
   datasource:
     url: jdbc:mysql://8.137.103.174:23306/zo_his?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: his_app
