@@ -52,14 +52,14 @@ public interface WardService {
      * @param id  病区ID
      * @param dto 病区数据
      */
-    void updateWard(Long id, WardDTO dto);
+    void updateWard(String id, WardDTO dto);
 
     /**
      * 删除病区
      *
      * @param id 病区ID
      */
-    void deleteWard(Long id);
+    void deleteWard(String id);
 
     /**
      * 根据病区获取病房列表（用于下拉框）
@@ -67,7 +67,7 @@ public interface WardService {
      * @param wardId 病区ID
      * @return 病房下拉选项列表
      */
-    List<OptionVO> getRoomListByWard(Long wardId);
+    List<OptionVO> getRoomListByWard(String wardId);
 
     /**
      * 添加病房
@@ -82,14 +82,14 @@ public interface WardService {
      * @param id  病房ID
      * @param dto 病房数据
      */
-    void updateRoom(Long id, RoomDTO dto);
+    void updateRoom(String id, RoomDTO dto);
 
     /**
      * 删除病房
      *
      * @param id 病房ID
      */
-    void deleteRoom(Long id);
+    void deleteRoom(String id);
 
     /**
      * 根据病房获取病床列表
@@ -97,7 +97,7 @@ public interface WardService {
      * @param roomId 病房ID
      * @return 病床列表
      */
-    List<BedOptionVO> getBedListByRoom(Long roomId);
+    List<BedOptionVO> getBedListByRoom(String roomId);
 
     /**
      * 添加床位
@@ -112,12 +112,12 @@ public interface WardService {
      * @param id  床位ID
      * @param dto 床位数据
      */
-    void updateBed(Long id, BedDTO dto);
+    void updateBed(String id, BedDTO dto);
 
     /**
      * 删除床位
      *
      * @param id 床位ID
      */
-    void deleteBed(Long id);
+    void deleteBed(String id);
 }

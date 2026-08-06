@@ -59,7 +59,7 @@ public interface WardApis {
      * @param wardDTO 病区数据
      * @return 修改结果
      */
-    JsonVO<String> updateWard(Long id, WardDTO wardDTO);
+    JsonVO<String> updateWard(String id, WardDTO wardDTO);
 
     /**
      * 删除病区
@@ -67,7 +67,7 @@ public interface WardApis {
      * @param id 病区ID
      * @return 删除结果
      */
-    JsonVO<String> deleteWard(Long id);
+    JsonVO<String> deleteWard(String id);
 
     /** ==================== 病房管理 ==================== */
 
@@ -77,7 +77,7 @@ public interface WardApis {
      * @param wardId 病区ID
      * @return 病房下拉选项列表
      */
-    JsonVO<List<OptionVO>> getRoomListByWard(Long wardId);
+    JsonVO<List<OptionVO>> getRoomListByWard(String wardId);
 
     /**
      * 添加病房
@@ -94,7 +94,7 @@ public interface WardApis {
      * @param roomDTO 病房数据
      * @return 修改结果
      */
-    JsonVO<String> updateRoom(Long id, RoomDTO roomDTO);
+    JsonVO<String> updateRoom(String id, RoomDTO roomDTO);
 
     /**
      * 删除病房
@@ -102,7 +102,7 @@ public interface WardApis {
      * @param id 病房ID
      * @return 删除结果
      */
-    JsonVO<String> deleteRoom(Long id);
+    JsonVO<String> deleteRoom(String id);
 
     /** ==================== 床位管理 ==================== */
 
@@ -112,7 +112,7 @@ public interface WardApis {
      * @param roomId 病房ID
      * @return 病床列表（含名称、唯一标识、状态）
      */
-    JsonVO<List<BedOptionVO>> getBedListByRoom(Long roomId);
+    JsonVO<List<BedOptionVO>> getBedListByRoom(String roomId);
 
     /**
      * 添加床位
@@ -129,7 +129,7 @@ public interface WardApis {
      * @param bedDTO 床位数据
      * @return 修改结果
      */
-    JsonVO<String> updateBed(Long id, BedDTO bedDTO);
+    JsonVO<String> updateBed(String id, BedDTO bedDTO);
 
     /**
      * 删除床位
@@ -137,5 +137,5 @@ public interface WardApis {
      * @param id 床位ID
      * @return 删除结果
      */
-    JsonVO<String> deleteBed(Long id);
+    JsonVO<String> deleteBed(String id);
 }

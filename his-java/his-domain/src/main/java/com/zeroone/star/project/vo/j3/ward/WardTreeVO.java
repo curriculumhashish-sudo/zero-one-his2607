@@ -19,8 +19,8 @@ import java.util.List;
 @Schema(description = "病区树形节点")
 public class WardTreeVO implements Serializable {
 
-    @Schema(description = "节点ID", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long id;
+    @Schema(description = "节点ID", example = "322663218269917184", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String id;
 
     @Schema(description = "节点名称", example = "内科病区", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;

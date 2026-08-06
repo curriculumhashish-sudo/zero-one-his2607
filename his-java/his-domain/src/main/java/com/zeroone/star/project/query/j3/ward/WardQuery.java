@@ -17,9 +17,9 @@ import lombok.Data;
 @Data
 @Schema(description = "病区查询条件")
 public class WardQuery {
-    @Schema(description = "唯一标识", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long id;
-    @Schema(description = "病区名称", example = "内科疗区", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "唯一标识", example = "322663218269917184")
+    private String id;
+    @Schema(description = "病区名称", example = "内科疗区")
     private String wardName;
 }
 

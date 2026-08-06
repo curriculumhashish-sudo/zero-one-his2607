@@ -1,5 +1,7 @@
 package com.zeroone.star.j3.ward.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -28,11 +30,12 @@ import java.time.LocalDateTime;
 @Schema(description = "管理域地点实体", name = "AdmLocation")
 public class AdmLocation {
 
+    @TableId(type = IdType.ASSIGN_ID)
     @Schema(description = "主键ID", example = "322663218269917184", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long id;
+    private String id;
 
     @Schema(description = "租户标识", example = "1")
-    private Long tenantId;
+    private String tenantId;
 
     @Schema(description = "创建时间", example = "2026-07-20T12:33:49+08:00", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDateTime createdAt;
@@ -80,7 +83,7 @@ public class AdmLocation {
     private String typeJson;
 
     @Schema(description = "机构标识", example = "322663105141149696", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long organizationId;
+    private String organizationId;
 
     @Schema(description = "显示顺序", example = "1")
     private Integer displayOrder;
@@ -92,6 +95,5 @@ public class AdmLocation {
     private String wbStr;
 
     @Schema(description = "父节点标识", example = "322663105157926912")
-    private Long parentId;
+    private String parentId;
 }
-
