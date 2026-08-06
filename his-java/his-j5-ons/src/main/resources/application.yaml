@@ -24,6 +24,8 @@ spring:
       discovery:
         namespace: his-test
         group: DEFAULT_GROUP
+        # 注册公网 IP，避免 Docker 内部 IP
+        ip: 121.199.54.234
       config:
         namespace: his-test
         group: DEFAULT_GROUP
