@@ -91,7 +91,7 @@ public:
     // 定义批量启用/停用接口描述
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("diagnose.field.diag.status"), batchChangeDiagnoseStatus, StringJsonVO::Wrapper, API_TAG);
 	// 定义批量启用/停用接口处理
-	API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/diagnose/batch/status", batchChangeDiagnoseStatus, BODY_DTO(DiagnoseBatchStatusDTO::Wrapper, dto), execBatchChangeDiagnoseStatus(dto, authObject->getPayload()));
+	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/diagnose/batch/status", batchChangeDiagnoseStatus, BODY_DTO(DiagnoseBatchStatusDTO::Wrapper, dto), execBatchChangeDiagnoseStatus(dto, authObject->getPayload()));
 private:
 	
 	 //1.select
