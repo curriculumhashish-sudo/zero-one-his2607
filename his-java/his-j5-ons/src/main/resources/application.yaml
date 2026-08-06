@@ -18,14 +18,14 @@ spring:
     active: dev
   cloud:
     nacos:
-      server-addr: 121.43.236.176:9080
+      server-addr: 121.43.236.176:8848
       username: nacos
       password: nacos
       discovery:
-        namespace: public
+        namespace: his-test
         group: DEFAULT_GROUP
       config:
-        namespace: public
+        namespace: his-test
         group: DEFAULT_GROUP
         file-extension: yaml
         remote-first: true

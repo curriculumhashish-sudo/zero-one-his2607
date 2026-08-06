@@ -11,7 +11,7 @@ services:
     restart: unless-stopped
     environment:
       - JAVA_OPTS=-Xms256m -Xmx256m
-      - SPRING_ARGS=--spring.profiles.active=docker --spring.cloud.nacos.server-addr=121.43.236.176:9080 --spring.cloud.nacos.username=nacos --spring.cloud.nacos.password=nacos
+      - SPRING_ARGS=--spring.profiles.active=docker --spring.cloud.nacos.server-addr=121.43.236.176:8848 --spring.cloud.nacos.username=nacos --spring.cloud.nacos.password=nacos --spring.cloud.nacos.discovery.namespace=his-test --spring.cloud.nacos.config.namespace=his-test
     ports:
       - "10500:10500"
     networks:
@@ -27,7 +27,7 @@ services:
     restart: unless-stopped
     environment:
       - JAVA_OPTS=-Xms256m -Xmx256m
-      - SPRING_ARGS=--spring.profiles.active=docker --spring.cloud.nacos.server-addr=121.43.236.176:9080 --spring.cloud.nacos.username=nacos --spring.cloud.nacos.password=nacos
+      - SPRING_ARGS=--spring.profiles.active=docker --spring.cloud.nacos.server-addr=121.43.236.176:8848 --spring.cloud.nacos.username=nacos --spring.cloud.nacos.password=nacos --spring.cloud.nacos.discovery.namespace=his-test --spring.cloud.nacos.config.namespace=his-test
     ports:
       - "10501:10501"
     networks:
