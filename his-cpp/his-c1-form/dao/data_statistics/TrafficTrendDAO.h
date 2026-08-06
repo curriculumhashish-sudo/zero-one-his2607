@@ -16,7 +16,7 @@ public:
 	{
 		#ifdef LINUX
 		// 获取Nacos中的数据库配置
-		std::string nacosAddr = "";
+		std::string nacosAddr = "121.43.236.176";
 		std::string nacosNs = "";
 		std::string nacosUsername = "nacos";
 		std::string nacosPassword = "nacos";
