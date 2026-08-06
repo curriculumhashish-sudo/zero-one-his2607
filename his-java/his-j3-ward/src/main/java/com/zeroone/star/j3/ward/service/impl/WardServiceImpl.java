@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -33,22 +34,18 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-/**
- * <p>
- * 描述：病区病房管理服务实现
- * </p>
- * <p>版权：&copy;01星球</p>
- * <p>地址：01星球总部</p>
- * @author zhujian
- * @version 1.0.0
- */
 @Slf4j
 @Service
 public class WardServiceImpl implements WardService {
 
-    /** 床位名称格式：数字+号床 */
+    private static final String FORM_WARD = "WARD";
+    private static final String FORM_ROOM = "ROOM";
+    private static final String FORM_BED = "BED";
+    private static final String STATUS_ENABLED = "ENABLED";
+    private static final String STATUS_DISABLED = "DISABLED";
+    private static final String MODE_INPATIENT = "INPATIENT";
+    private static final String OPERATIONAL_OPEN = "OPEN";
     private static final Pattern BED_NAME_PATTERN = Pattern.compile("^\\d+号床$");
-    /** 病房名称格式：纯数字 */
     private static final Pattern ROOM_NAME_PATTERN = Pattern.compile("^\\d+$");
 
     @Resource
@@ -60,527 +57,514 @@ public class WardServiceImpl implements WardService {
     @Resource
     private UserHolder userHolder;
 
-    /**
-     * 获取当前用户的租户ID
-     */
-    private String getCurrentTenantId() {
-        String currentUserId = "1";
-        try {
-            UserDTO currentUser = userHolder.getCurrentUser();
-            if (currentUser != null && currentUser.getId() != null) {
-                currentUserId = currentUser.getId();
-            }
-        } catch (Exception e) {
-            log.warn("获取当前用户失败，使用默认用户ID: {}", e.getMessage());
-        }
-        String tenantId = admOrganizationMapper.getTenantIdByUserId(currentUserId);
-        if (tenantId == null || tenantId.isEmpty()) {
-            throw new WardBusinessException("未找到当前用户的租户信息");
-        }
-        return tenantId;
-    }
-
-    // ==================== 树形结构 ====================
-
     @Override
     public List<WardTreeVO> getWardTree(WardTreeQuery query) {
+        if (query == null) {
+            query = new WardTreeQuery();
+        }
+        validatePage(query.getPageIndex(), query.getPageSize());
         String tenantId = getCurrentTenantId();
 
         LambdaQueryWrapper<AdmLocation> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(AdmLocation::getIsDeleted, false);
-        wrapper.eq(AdmLocation::getTenantId, tenantId);
+        wrapper.eq(AdmLocation::getTenantId, tenantId)
+                .eq(AdmLocation::getIsDeleted, false);
 
-        // name 关键词筛选：对地点名称进行模糊匹配
-        if (query.getName() != null && !query.getName().isEmpty()) {
-            wrapper.like(AdmLocation::getName, query.getName());
-        }
-
-        // orgName 筛选：通过关联科室名称过滤
-        if (query.getOrgName() != null && !query.getOrgName().isEmpty()) {
-            LambdaQueryWrapper<AdmOrganization> orgWrapper = new LambdaQueryWrapper<>();
-            orgWrapper.like(AdmOrganization::getName, query.getOrgName());
-            List<AdmOrganization> orgs = admOrganizationMapper.selectList(orgWrapper);
-            List<String> orgIds = orgs.stream().map(AdmOrganization::getId).collect(Collectors.toList());
-            if (!orgIds.isEmpty()) {
-                wrapper.in(AdmLocation::getOrganizationId, orgIds);
-            } else {
+        if (hasText(query.getOrgName())) {
+            List<String> organizationIds = selectOrganizationIdsByName(query.getOrgName(), tenantId);
+            if (organizationIds.isEmpty()) {
                 return Collections.emptyList();
             }
+            wrapper.in(AdmLocation::getOrganizationId, organizationIds);
         }
 
         List<AdmLocation> allLocations = admLocationMapper.selectList(wrapper);
-
-        // 构建 parentId -> children 映射
         Map<String, List<AdmLocation>> parentMap = allLocations.stream()
-                .filter(l -> l.getParentId() != null)
+                .filter(item -> hasText(item.getParentId()))
                 .collect(Collectors.groupingBy(AdmLocation::getParentId));
 
-        // 找出根节点（parentId 为 null 的节点）
-        List<AdmLocation> roots = allLocations.stream()
-                .filter(l -> l.getParentId() == null)
+        final WardTreeQuery finalQuery = query;
+        List<WardTreeVO> filteredRoots = allLocations.stream()
+                .filter(item -> !hasText(item.getParentId()))
+                .map(root -> buildFilteredTreeNode(root, parentMap, finalQuery))
+                .filter(item -> item != null)
                 .collect(Collectors.toList());
 
-        // 分页处理：对根节点分页
-        int pageIndex = Math.max(1, (int) query.getPageIndex());
-        int pageSize = Math.max(1, (int) query.getPageSize());
+        int pageIndex = (int) query.getPageIndex();
+        int pageSize = (int) query.getPageSize();
         int fromIndex = (pageIndex - 1) * pageSize;
-        if (fromIndex >= roots.size()) {
+        if (fromIndex >= filteredRoots.size()) {
             return Collections.emptyList();
         }
-        int toIndex = Math.min(fromIndex + pageSize, roots.size());
-        List<AdmLocation> pagedRoots = roots.subList(fromIndex, toIndex);
-
-        // 构建树
-        List<WardTreeVO> treeList = new ArrayList<>();
-        for (AdmLocation root : pagedRoots) {
-            treeList.add(buildTreeNode(root, parentMap));
-        }
-        return treeList;
+        int toIndex = Math.min(fromIndex + pageSize, filteredRoots.size());
+        return filteredRoots.subList(fromIndex, toIndex);
     }
-
-    private WardTreeVO buildTreeNode(AdmLocation location, Map<String, List<AdmLocation>> parentMap) {
-        WardTreeVO vo = new WardTreeVO();
-        vo.setId(location.getId());
-        vo.setName(location.getName());
-        vo.setType(location.getFormEnum() != null ? location.getFormEnum().toLowerCase() : null);
-        vo.setStatus("ENABLED".equals(location.getStatusEnum()) ? 1 : 0);
-        List<AdmLocation> children = parentMap.getOrDefault(location.getId(), Collections.emptyList());
-        vo.setSubCount(children.size());
-        if (!children.isEmpty()) {
-            List<WardTreeVO> childVos = new ArrayList<>();
-            for (AdmLocation child : children) {
-                childVos.add(buildTreeNode(child, parentMap));
-            }
-            vo.setChildren(childVos);
-        }
-        return vo;
-    }
-
-    // ==================== 病区管理 ====================
 
     @Override
     public List<OptionVO> getWardList() {
-        LambdaQueryWrapper<AdmLocation> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(AdmLocation::getFormEnum, "WARD")
-                .eq(AdmLocation::getIsDeleted, false)
-                .eq(AdmLocation::getTenantId, getCurrentTenantId());
-        List<AdmLocation> wards = admLocationMapper.selectList(wrapper);
+        String tenantId = getCurrentTenantId();
+        List<AdmLocation> wards = admLocationMapper.selectList(new LambdaQueryWrapper<AdmLocation>()
+                .eq(AdmLocation::getFormEnum, FORM_WARD)
+                .eq(AdmLocation::getTenantId, tenantId)
+                .eq(AdmLocation::getIsDeleted, false));
         return wards.stream()
-                .map(w -> new OptionVO(w.getId(), w.getName()))
+                .map(item -> new OptionVO(item.getId(), item.getName()))
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
     public void addWard(WardAddDTO dto) {
-        if (dto.getWardName() == null || dto.getWardName().isEmpty()) {
+        if (dto == null || !hasText(dto.getWardName())) {
             throw new WardBusinessException("病区名称不能为空");
         }
-        if (dto.getDepartmentCode() == null || dto.getDepartmentCode().isEmpty()) {
+        if (!hasText(dto.getDepartmentCode())) {
             throw new WardBusinessException("关联科室编号不能为空");
         }
 
-        // 查找关联科室
-        LambdaQueryWrapper<AdmOrganization> orgWrapper = new LambdaQueryWrapper<>();
-        orgWrapper.eq(AdmOrganization::getBusNo, dto.getDepartmentCode());
-        AdmOrganization org = admOrganizationMapper.selectOne(orgWrapper);
-        if (org == null) {
+        String tenantId = getCurrentTenantId();
+        AdmOrganization organization = admOrganizationMapper.selectOne(new LambdaQueryWrapper<AdmOrganization>()
+                .eq(AdmOrganization::getBusNo, dto.getDepartmentCode().trim())
+                .eq(AdmOrganization::getTenantId, tenantId)
+                .eq(AdmOrganization::getIsDeleted, false));
+        if (organization == null) {
             throw new WardBusinessException("未找到关联科室：" + dto.getDepartmentCode());
         }
 
-        String tenantId = org.getTenantId();
+        String wardName = dto.getWardName().trim();
+        assertUniqueName(wardName, FORM_WARD, null, tenantId, null);
 
-        // 病区名称唯一性校验
-        Long count = admLocationMapper.selectCount(new LambdaQueryWrapper<AdmLocation>()
-                .eq(AdmLocation::getName, dto.getWardName())
-                .eq(AdmLocation::getFormEnum, "WARD")
-                .eq(AdmLocation::getIsDeleted, false)
-                .eq(AdmLocation::getTenantId, tenantId));
-        if (count > 0) {
-            throw new WardBusinessException("病区名称已存在：" + dto.getWardName());
-        }
-
-        AdmLocation entity = AdmLocation.builder()
-                .name(dto.getWardName())
-                .formEnum("WARD")
-                .statusEnum("ENABLED")
-                .busNo(generateBusNo("WARD"))
-                .organizationId(org.getId())
-                .tenantId(tenantId)
-                .modeEnum("INPATIENT")
-                .operationalEnum("OPEN")
-                .isDeleted(false)
-                .version(0)
-                .build();
+        AdmLocation entity = baseLocation(wardName, FORM_WARD, tenantId);
+        entity.setBusNo(generateBusNo(FORM_WARD));
+        entity.setOrganizationId(organization.getId());
+        fillCreateFields(entity);
         admLocationMapper.insert(entity);
     }
 
     @Override
     @Transactional
     public void updateWard(String id, WardDTO dto) {
-        // 校验记录存在且未被删除
-        AdmLocation existing = admLocationMapper.selectById(id);
-        if (existing == null || Boolean.TRUE.equals(existing.getIsDeleted())) {
-            throw new WardBusinessException("病区不存在或已删除");
-        }
-        if (!"WARD".equals(existing.getFormEnum())) {
-            throw new WardBusinessException("该ID对应的不是病区记录");
+        String tenantId = getCurrentTenantId();
+        AdmLocation existing = getActiveLocation(id, FORM_WARD, tenantId);
+        String wardName = dto == null ? null : trimToNull(dto.getWardName());
+        if (wardName != null && !wardName.equals(existing.getName())) {
+            assertUniqueName(wardName, FORM_WARD, null, tenantId, id);
         }
 
-        // 名称唯一性校验（仅当修改了名称时）
-        if (dto.getWardName() != null && !dto.getWardName().equals(existing.getName())) {
-            Long count = admLocationMapper.selectCount(new LambdaQueryWrapper<AdmLocation>()
-                    .eq(AdmLocation::getName, dto.getWardName())
-                    .eq(AdmLocation::getFormEnum, "WARD")
-                    .eq(AdmLocation::getIsDeleted, false)
-                    .eq(AdmLocation::getTenantId, existing.getTenantId())
-                    .ne(AdmLocation::getId, id));
-            if (count > 0) {
-                throw new WardBusinessException("病区名称已存在：" + dto.getWardName());
-            }
-        }
-
-        LambdaUpdateWrapper<AdmLocation> wrapper = new LambdaUpdateWrapper<>();
-        wrapper.eq(AdmLocation::getId, id)
-                .eq(AdmLocation::getFormEnum, "WARD");
         AdmLocation entity = new AdmLocation();
-        if (dto.getWardName() != null) {
-            entity.setName(dto.getWardName());
+        if (wardName != null) {
+            entity.setName(wardName);
         }
-        if (dto.getStatus() != null) {
-            entity.setStatusEnum(dto.getStatus() == 1 ? "ENABLED" : "DISABLED");
+        if (dto != null && dto.getStatus() != null) {
+            entity.setStatusEnum(statusToEnum(dto.getStatus()));
         }
-        admLocationMapper.update(entity, wrapper);
+        fillUpdateFields(entity);
+        updateByIdAndForm(id, FORM_WARD, tenantId, entity);
     }
 
     @Override
     @Transactional
     public void deleteWard(String id) {
-        // 校验记录存在且未被删除
-        AdmLocation existing = admLocationMapper.selectById(id);
-        if (existing == null || Boolean.TRUE.equals(existing.getIsDeleted())) {
-            throw new WardBusinessException("病区不存在或已删除");
-        }
-        if (!"WARD".equals(existing.getFormEnum())) {
-            throw new WardBusinessException("该ID对应的不是病区记录");
-        }
-
-        // 校验是否存在下级病房
+        String tenantId = getCurrentTenantId();
+        getActiveLocation(id, FORM_WARD, tenantId);
         Long childCount = admLocationMapper.selectCount(new LambdaQueryWrapper<AdmLocation>()
-                .eq(AdmLocation::getParentId, id)
-                .eq(AdmLocation::getFormEnum, "ROOM")
+                .eq(AdmLocation::getParentId, id.trim())
+                .eq(AdmLocation::getFormEnum, FORM_ROOM)
+                .eq(AdmLocation::getTenantId, tenantId)
                 .eq(AdmLocation::getIsDeleted, false));
         if (childCount > 0) {
-            throw new WardBusinessException("该病区下仍有" + childCount + "个病房，请先删除病房后再删除病区");
+            throw new WardBusinessException("该病区下仍有病房，请先删除病房后再删除病区");
         }
 
         AdmLocation entity = new AdmLocation();
-        entity.setId(id);
+        entity.setId(id.trim());
         entity.setIsDeleted(true);
+        fillDeleteFields(entity);
         admLocationMapper.updateById(entity);
     }
 
-    // ==================== 病房管理 ====================
-
     @Override
     public List<OptionVO> getRoomListByWard(String wardId) {
-        // 参数校验
-        if (wardId == null || wardId.isEmpty()) {
-            throw new WardBusinessException("病区ID不能为空");
-        }
-
-        // 验证病区是否存在
-        AdmLocation ward = admLocationMapper.selectOne(new LambdaQueryWrapper<AdmLocation>()
-                .eq(AdmLocation::getId, wardId)
-                .eq(AdmLocation::getFormEnum, "WARD")
+        String tenantId = getCurrentTenantId();
+        getActiveLocation(wardId, FORM_WARD, tenantId);
+        List<AdmLocation> rooms = admLocationMapper.selectList(new LambdaQueryWrapper<AdmLocation>()
+                .eq(AdmLocation::getFormEnum, FORM_ROOM)
+                .eq(AdmLocation::getParentId, wardId.trim())
+                .eq(AdmLocation::getTenantId, tenantId)
                 .eq(AdmLocation::getIsDeleted, false));
-        if (ward == null) {
-            throw new WardBusinessException("病区不存在，ID：" + wardId);
-        }
-
-        LambdaQueryWrapper<AdmLocation> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(AdmLocation::getFormEnum, "ROOM")
-                .eq(AdmLocation::getParentId, wardId)
-                .eq(AdmLocation::getIsDeleted, false)
-                .eq(AdmLocation::getTenantId, getCurrentTenantId());
-        List<AdmLocation> rooms = admLocationMapper.selectList(wrapper);
         return rooms.stream()
-                .map(r -> new OptionVO(r.getId(), r.getName()))
+                .map(item -> new OptionVO(item.getId(), item.getName()))
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
     public void addRoom(RoomAddDTO dto) {
-        if (dto.getRoomName() == null || dto.getRoomName().isEmpty()) {
+        if (dto == null || !hasText(dto.getRoomName())) {
             throw new WardBusinessException("病房名称不能为空");
         }
-        if (dto.getWardCode() == null || dto.getWardCode().isEmpty()) {
+        if (!hasText(dto.getWardCode())) {
             throw new WardBusinessException("所属病区编号不能为空");
         }
 
-        // 校验病房名称格式：只能为数字
-        if (!ROOM_NAME_PATTERN.matcher(dto.getRoomName()).matches()) {
-            throw new WardBusinessException("病房名称只能为数字，例如：302");
+        String roomName = dto.getRoomName().trim();
+        if (!ROOM_NAME_PATTERN.matcher(roomName).matches()) {
+            throw new WardBusinessException("病房名称只能为数字");
         }
 
-        // 查找所属病区
-        LambdaQueryWrapper<AdmLocation> parentWrapper = new LambdaQueryWrapper<>();
-        parentWrapper.eq(AdmLocation::getBusNo, dto.getWardCode())
-                .eq(AdmLocation::getFormEnum, "WARD")
-                .eq(AdmLocation::getIsDeleted, false);
-        AdmLocation parentWard = admLocationMapper.selectOne(parentWrapper);
+        String tenantId = getCurrentTenantId();
+        AdmLocation parentWard = admLocationMapper.selectOne(new LambdaQueryWrapper<AdmLocation>()
+                .eq(AdmLocation::getBusNo, dto.getWardCode().trim())
+                .eq(AdmLocation::getFormEnum, FORM_WARD)
+                .eq(AdmLocation::getTenantId, tenantId)
+                .eq(AdmLocation::getIsDeleted, false));
         if (parentWard == null) {
             throw new WardBusinessException("未找到所属病区：" + dto.getWardCode());
         }
+        assertUniqueName(roomName, FORM_ROOM, parentWard.getId(), tenantId, null);
 
-        String tenantId = parentWard.getTenantId();
-
-        // 同一病区下病房名称唯一性校验
-        Long count = admLocationMapper.selectCount(new LambdaQueryWrapper<AdmLocation>()
-                .eq(AdmLocation::getName, dto.getRoomName())
-                .eq(AdmLocation::getFormEnum, "ROOM")
-                .eq(AdmLocation::getParentId, parentWard.getId())
-                .eq(AdmLocation::getIsDeleted, false));
-        if (count > 0) {
-            throw new WardBusinessException("该病区下病房名称已存在：" + dto.getRoomName());
-        }
-
-        AdmLocation entity = AdmLocation.builder()
-                .name(dto.getRoomName())
-                .formEnum("ROOM")
-                .statusEnum("ENABLED")
-                .busNo(generateBusNo("ROOM"))
-                .parentId(parentWard.getId())
-                .tenantId(tenantId)
-                .organizationId(parentWard.getOrganizationId())
-                .modeEnum("INPATIENT")
-                .operationalEnum("OPEN")
-                .isDeleted(false)
-                .version(0)
-                .build();
+        AdmLocation entity = baseLocation(roomName, FORM_ROOM, tenantId);
+        entity.setBusNo(generateBusNo(FORM_ROOM));
+        entity.setParentId(parentWard.getId());
+        entity.setOrganizationId(parentWard.getOrganizationId());
+        fillCreateFields(entity);
         admLocationMapper.insert(entity);
     }
 
     @Override
     @Transactional
     public void updateRoom(String id, RoomDTO dto) {
-        // 校验记录存在且未被删除
-        AdmLocation existing = admLocationMapper.selectById(id);
-        if (existing == null || Boolean.TRUE.equals(existing.getIsDeleted())) {
-            throw new WardBusinessException("病房不存在或已删除");
-        }
-        if (!"ROOM".equals(existing.getFormEnum())) {
-            throw new WardBusinessException("该ID对应的不是病房记录");
-        }
-
-        // 名称校验和唯一性校验
-        if (dto.getRoomName() != null) {
-            if (!ROOM_NAME_PATTERN.matcher(dto.getRoomName()).matches()) {
-                throw new WardBusinessException("病房名称只能为数字，例如：302");
+        String tenantId = getCurrentTenantId();
+        AdmLocation existing = getActiveLocation(id, FORM_ROOM, tenantId);
+        String roomName = dto == null ? null : trimToNull(dto.getRoomName());
+        if (roomName != null) {
+            if (!ROOM_NAME_PATTERN.matcher(roomName).matches()) {
+                throw new WardBusinessException("病房名称只能为数字");
             }
-            if (!dto.getRoomName().equals(existing.getName())) {
-                Long count = admLocationMapper.selectCount(new LambdaQueryWrapper<AdmLocation>()
-                        .eq(AdmLocation::getName, dto.getRoomName())
-                        .eq(AdmLocation::getFormEnum, "ROOM")
-                        .eq(AdmLocation::getParentId, existing.getParentId())
-                        .eq(AdmLocation::getIsDeleted, false)
-                        .ne(AdmLocation::getId, id));
-                if (count > 0) {
-                    throw new WardBusinessException("该病区下病房名称已存在：" + dto.getRoomName());
-                }
+            if (!roomName.equals(existing.getName())) {
+                assertUniqueName(roomName, FORM_ROOM, existing.getParentId(), tenantId, id);
             }
         }
 
-        LambdaUpdateWrapper<AdmLocation> wrapper = new LambdaUpdateWrapper<>();
-        wrapper.eq(AdmLocation::getId, id)
-                .eq(AdmLocation::getFormEnum, "ROOM");
         AdmLocation entity = new AdmLocation();
-        if (dto.getRoomName() != null) {
-            entity.setName(dto.getRoomName());
+        if (roomName != null) {
+            entity.setName(roomName);
         }
-        if (dto.getStatus() != null) {
-            entity.setStatusEnum(dto.getStatus() == 1 ? "ENABLED" : "DISABLED");
+        if (dto != null && dto.getStatus() != null) {
+            entity.setStatusEnum(statusToEnum(dto.getStatus()));
         }
-        admLocationMapper.update(entity, wrapper);
+        fillUpdateFields(entity);
+        updateByIdAndForm(id, FORM_ROOM, tenantId, entity);
     }
 
     @Override
     @Transactional
     public void deleteRoom(String id) {
-        // 校验记录存在且未被删除
-        AdmLocation existing = admLocationMapper.selectById(id);
-        if (existing == null || Boolean.TRUE.equals(existing.getIsDeleted())) {
-            throw new WardBusinessException("病房不存在或已删除");
-        }
-        if (!"ROOM".equals(existing.getFormEnum())) {
-            throw new WardBusinessException("该ID对应的不是病房记录");
-        }
-
-        // 校验是否存在下级床位
+        String tenantId = getCurrentTenantId();
+        getActiveLocation(id, FORM_ROOM, tenantId);
         Long childCount = admLocationMapper.selectCount(new LambdaQueryWrapper<AdmLocation>()
-                .eq(AdmLocation::getParentId, id)
-                .eq(AdmLocation::getFormEnum, "BED")
+                .eq(AdmLocation::getParentId, id.trim())
+                .eq(AdmLocation::getFormEnum, FORM_BED)
+                .eq(AdmLocation::getTenantId, tenantId)
                 .eq(AdmLocation::getIsDeleted, false));
         if (childCount > 0) {
-            throw new WardBusinessException("该病房下仍有" + childCount + "个床位，请先删除床位后再删除病房");
+            throw new WardBusinessException("该病房下仍有床位，请先删除床位后再删除病房");
         }
 
         AdmLocation entity = new AdmLocation();
-        entity.setId(id);
+        entity.setId(id.trim());
         entity.setIsDeleted(true);
+        fillDeleteFields(entity);
         admLocationMapper.updateById(entity);
     }
 
-    // ==================== 床位管理 ====================
-
     @Override
     public List<BedOptionVO> getBedListByRoom(String roomId) {
-        // 参数校验
-        if (roomId == null || roomId.isEmpty()) {
-            throw new WardBusinessException("病房ID不能为空");
-        }
-
-        // 验证病房是否存在
-        AdmLocation room = admLocationMapper.selectOne(new LambdaQueryWrapper<AdmLocation>()
-                .eq(AdmLocation::getId, roomId)
-                .eq(AdmLocation::getFormEnum, "ROOM")
+        String tenantId = getCurrentTenantId();
+        getActiveLocation(roomId, FORM_ROOM, tenantId);
+        List<AdmLocation> beds = admLocationMapper.selectList(new LambdaQueryWrapper<AdmLocation>()
+                .eq(AdmLocation::getFormEnum, FORM_BED)
+                .eq(AdmLocation::getParentId, roomId.trim())
+                .eq(AdmLocation::getTenantId, tenantId)
                 .eq(AdmLocation::getIsDeleted, false));
-        if (room == null) {
-            throw new WardBusinessException("病房不存在，ID：" + roomId);
-        }
-
-        LambdaQueryWrapper<AdmLocation> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(AdmLocation::getFormEnum, "BED")
-                .eq(AdmLocation::getParentId, roomId)
-                .eq(AdmLocation::getIsDeleted, false)
-                .eq(AdmLocation::getTenantId, getCurrentTenantId());
-        List<AdmLocation> beds = admLocationMapper.selectList(wrapper);
         return beds.stream()
-                .map(b -> new BedOptionVO(
-                        b.getId(),
-                        b.getName(),
-                        "ENABLED".equals(b.getStatusEnum()) ? 1 : 0))
+                .map(item -> new BedOptionVO(
+                        item.getId(),
+                        item.getName(),
+                        STATUS_ENABLED.equals(item.getStatusEnum()) ? 1 : 0))
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
     public void addBed(BedAddDTO dto) {
-        if (dto.getBedName() == null || dto.getBedName().isEmpty()) {
+        if (dto == null || !hasText(dto.getBedName())) {
             throw new WardBusinessException("床位名称不能为空");
         }
-        if (dto.getRoomCode() == null || dto.getRoomCode().isEmpty()) {
+        if (!hasText(dto.getRoomCode())) {
             throw new WardBusinessException("所属病房编号不能为空");
         }
 
-        // 校验床位名称格式：数字+号床
-        if (!BED_NAME_PATTERN.matcher(dto.getBedName()).matches()) {
-            throw new WardBusinessException("床位名称格式错误，应为数字+号床，例如：1号床");
+        String bedName = dto.getBedName().trim();
+        if (!BED_NAME_PATTERN.matcher(bedName).matches()) {
+            throw new WardBusinessException("床位名称格式错误，应为X号床");
         }
 
-        // 查找所属病房
-        LambdaQueryWrapper<AdmLocation> parentWrapper = new LambdaQueryWrapper<>();
-        parentWrapper.eq(AdmLocation::getBusNo, dto.getRoomCode())
-                .eq(AdmLocation::getFormEnum, "ROOM")
-                .eq(AdmLocation::getIsDeleted, false);
-        AdmLocation parentRoom = admLocationMapper.selectOne(parentWrapper);
+        String tenantId = getCurrentTenantId();
+        AdmLocation parentRoom = admLocationMapper.selectOne(new LambdaQueryWrapper<AdmLocation>()
+                .eq(AdmLocation::getBusNo, dto.getRoomCode().trim())
+                .eq(AdmLocation::getFormEnum, FORM_ROOM)
+                .eq(AdmLocation::getTenantId, tenantId)
+                .eq(AdmLocation::getIsDeleted, false));
         if (parentRoom == null) {
             throw new WardBusinessException("未找到所属病房：" + dto.getRoomCode());
         }
+        assertUniqueName(bedName, FORM_BED, parentRoom.getId(), tenantId, null);
 
-        String tenantId = parentRoom.getTenantId();
-
-        // 同一病房下床位名称唯一性校验
-        Long count = admLocationMapper.selectCount(new LambdaQueryWrapper<AdmLocation>()
-                .eq(AdmLocation::getName, dto.getBedName())
-                .eq(AdmLocation::getFormEnum, "BED")
-                .eq(AdmLocation::getParentId, parentRoom.getId())
-                .eq(AdmLocation::getIsDeleted, false));
-        if (count > 0) {
-            throw new WardBusinessException("该病房下床位名称已存在：" + dto.getBedName());
-        }
-
-        AdmLocation entity = AdmLocation.builder()
-                .name(dto.getBedName())
-                .formEnum("BED")
-                .statusEnum("ENABLED")
-                .busNo(generateBusNo("BED"))
-                .parentId(parentRoom.getId())
-                .tenantId(tenantId)
-                .organizationId(parentRoom.getOrganizationId())
-                .modeEnum("INPATIENT")
-                .operationalEnum("OPEN")
-                .isDeleted(false)
-                .version(0)
-                .build();
+        AdmLocation entity = baseLocation(bedName, FORM_BED, tenantId);
+        entity.setBusNo(generateBusNo(FORM_BED));
+        entity.setParentId(parentRoom.getId());
+        entity.setOrganizationId(parentRoom.getOrganizationId());
+        fillCreateFields(entity);
         admLocationMapper.insert(entity);
     }
 
     @Override
     @Transactional
     public void updateBed(String id, BedDTO dto) {
-        // 校验记录存在且未被删除
-        AdmLocation existing = admLocationMapper.selectById(id);
-        if (existing == null || Boolean.TRUE.equals(existing.getIsDeleted())) {
-            throw new WardBusinessException("床位不存在或已删除");
-        }
-        if (!"BED".equals(existing.getFormEnum())) {
-            throw new WardBusinessException("该ID对应的不是床位记录");
-        }
-
-        // 名称校验和唯一性校验
-        if (dto.getBedName() != null) {
-            if (!BED_NAME_PATTERN.matcher(dto.getBedName()).matches()) {
-                throw new WardBusinessException("床位名称格式错误，应为数字+号床，例如：1号床");
+        String tenantId = getCurrentTenantId();
+        AdmLocation existing = getActiveLocation(id, FORM_BED, tenantId);
+        String bedName = dto == null ? null : trimToNull(dto.getBedName());
+        if (bedName != null) {
+            if (!BED_NAME_PATTERN.matcher(bedName).matches()) {
+                throw new WardBusinessException("床位名称格式错误，应为X号床");
             }
-            if (!dto.getBedName().equals(existing.getName())) {
-                Long count = admLocationMapper.selectCount(new LambdaQueryWrapper<AdmLocation>()
-                        .eq(AdmLocation::getName, dto.getBedName())
-                        .eq(AdmLocation::getFormEnum, "BED")
-                        .eq(AdmLocation::getParentId, existing.getParentId())
-                        .eq(AdmLocation::getIsDeleted, false)
-                        .ne(AdmLocation::getId, id));
-                if (count > 0) {
-                    throw new WardBusinessException("该病房下床位名称已存在：" + dto.getBedName());
-                }
+            if (!bedName.equals(existing.getName())) {
+                assertUniqueName(bedName, FORM_BED, existing.getParentId(), tenantId, id);
             }
         }
 
-        LambdaUpdateWrapper<AdmLocation> wrapper = new LambdaUpdateWrapper<>();
-        wrapper.eq(AdmLocation::getId, id)
-                .eq(AdmLocation::getFormEnum, "BED");
         AdmLocation entity = new AdmLocation();
-        if (dto.getBedName() != null) {
-            entity.setName(dto.getBedName());
+        if (bedName != null) {
+            entity.setName(bedName);
         }
-        if (dto.getStatus() != null) {
-            entity.setStatusEnum(dto.getStatus() == 1 ? "ENABLED" : "DISABLED");
+        if (dto != null && dto.getStatus() != null) {
+            entity.setStatusEnum(statusToEnum(dto.getStatus()));
         }
-        admLocationMapper.update(entity, wrapper);
+        fillUpdateFields(entity);
+        updateByIdAndForm(id, FORM_BED, tenantId, entity);
     }
 
     @Override
     @Transactional
     public void deleteBed(String id) {
-        // 校验记录存在且未被删除
-        AdmLocation existing = admLocationMapper.selectById(id);
-        if (existing == null || Boolean.TRUE.equals(existing.getIsDeleted())) {
-            throw new WardBusinessException("床位不存在或已删除");
-        }
-        if (!"BED".equals(existing.getFormEnum())) {
-            throw new WardBusinessException("该ID对应的不是床位记录");
-        }
+        String tenantId = getCurrentTenantId();
+        getActiveLocation(id, FORM_BED, tenantId);
 
         AdmLocation entity = new AdmLocation();
-        entity.setId(id);
+        entity.setId(id.trim());
         entity.setIsDeleted(true);
+        fillDeleteFields(entity);
         admLocationMapper.updateById(entity);
     }
 
-    /**
-     * 生成业务编号：前缀 + UUID前16位
-     */
+    private String getCurrentTenantId() {
+        String tenantId = userHolder.getCurrentTenantId();
+        if (!hasText(tenantId)) {
+            throw new WardBusinessException("未找到当前用户的租户信息");
+        }
+        return tenantId.trim();
+    }
+
+    private List<String> selectOrganizationIdsByName(String orgName, String tenantId) {
+        return admOrganizationMapper.selectList(new LambdaQueryWrapper<AdmOrganization>()
+                        .like(AdmOrganization::getName, orgName.trim())
+                        .eq(AdmOrganization::getTenantId, tenantId)
+                        .eq(AdmOrganization::getIsDeleted, false))
+                .stream()
+                .map(AdmOrganization::getId)
+                .collect(Collectors.toList());
+    }
+
+    private WardTreeVO buildTreeNode(AdmLocation location, Map<String, List<AdmLocation>> parentMap) {
+        WardTreeVO node = toTreeNode(location);
+        List<WardTreeVO> children = parentMap.getOrDefault(location.getId(), Collections.emptyList())
+                .stream()
+                .map(child -> buildTreeNode(child, parentMap))
+                .collect(Collectors.toList());
+        node.setSubCount(children.size());
+        if (!children.isEmpty()) {
+            node.setChildren(children);
+        }
+        return node;
+    }
+
+    private WardTreeVO buildFilteredTreeNode(AdmLocation location, Map<String, List<AdmLocation>> parentMap, WardTreeQuery query) {
+        boolean currentMatches = matchesQuery(location, query);
+        List<WardTreeVO> children = new ArrayList<>();
+        for (AdmLocation child : parentMap.getOrDefault(location.getId(), Collections.emptyList())) {
+            WardTreeVO childNode = currentMatches
+                    ? buildTreeNode(child, parentMap)
+                    : buildFilteredTreeNode(child, parentMap, query);
+            if (childNode != null) {
+                children.add(childNode);
+            }
+        }
+        if (!currentMatches && children.isEmpty()) {
+            return null;
+        }
+        WardTreeVO node = toTreeNode(location);
+        node.setSubCount(children.size());
+        if (!children.isEmpty()) {
+            node.setChildren(children);
+        }
+        return node;
+    }
+
+    private boolean matchesQuery(AdmLocation location, WardTreeQuery query) {
+        if (hasText(query.getId()) && !query.getId().trim().equals(location.getId())) {
+            return false;
+        }
+        return !hasText(query.getName())
+                || location.getName() != null && location.getName().contains(query.getName().trim());
+    }
+
+    private WardTreeVO toTreeNode(AdmLocation location) {
+        WardTreeVO node = new WardTreeVO();
+        node.setId(location.getId());
+        node.setName(location.getName());
+        node.setType(location.getFormEnum() == null ? null : location.getFormEnum().toLowerCase());
+        node.setStatus(STATUS_ENABLED.equals(location.getStatusEnum()) ? 1 : 0);
+        return node;
+    }
+
+    private AdmLocation baseLocation(String name, String formEnum, String tenantId) {
+        return AdmLocation.builder()
+                .name(name)
+                .formEnum(formEnum)
+                .statusEnum(STATUS_ENABLED)
+                .tenantId(tenantId)
+                .modeEnum(MODE_INPATIENT)
+                .operationalEnum(OPERATIONAL_OPEN)
+                .isDeleted(false)
+                .version(0)
+                .build();
+    }
+
+    private AdmLocation getActiveLocation(String id, String formEnum, String tenantId) {
+        validateId(id, "id");
+        AdmLocation location = admLocationMapper.selectOne(new LambdaQueryWrapper<AdmLocation>()
+                .eq(AdmLocation::getId, id.trim())
+                .eq(AdmLocation::getFormEnum, formEnum)
+                .eq(AdmLocation::getTenantId, tenantId)
+                .eq(AdmLocation::getIsDeleted, false));
+        if (location == null) {
+            throw new WardBusinessException("记录不存在或已删除");
+        }
+        return location;
+    }
+
+    private void assertUniqueName(String name, String formEnum, String parentId, String tenantId, String excludeId) {
+        LambdaQueryWrapper<AdmLocation> wrapper = new LambdaQueryWrapper<AdmLocation>()
+                .eq(AdmLocation::getName, name)
+                .eq(AdmLocation::getFormEnum, formEnum)
+                .eq(AdmLocation::getTenantId, tenantId)
+                .eq(AdmLocation::getIsDeleted, false);
+        if (parentId == null) {
+            wrapper.isNull(AdmLocation::getParentId);
+        } else {
+            wrapper.eq(AdmLocation::getParentId, parentId);
+        }
+        if (hasText(excludeId)) {
+            wrapper.ne(AdmLocation::getId, excludeId.trim());
+        }
+        if (admLocationMapper.selectCount(wrapper) > 0) {
+            throw new WardBusinessException("名称已存在：" + name);
+        }
+    }
+
+    private void updateByIdAndForm(String id, String formEnum, String tenantId, AdmLocation entity) {
+        admLocationMapper.update(entity, new LambdaUpdateWrapper<AdmLocation>()
+                .eq(AdmLocation::getId, id.trim())
+                .eq(AdmLocation::getFormEnum, formEnum)
+                .eq(AdmLocation::getTenantId, tenantId)
+                .eq(AdmLocation::getIsDeleted, false));
+    }
+
+    private String statusToEnum(Integer status) {
+        if (status == 1) {
+            return STATUS_ENABLED;
+        }
+        if (status == 0) {
+            return STATUS_DISABLED;
+        }
+        throw new WardBusinessException("状态只能为0或1");
+    }
+
+    private void validatePage(long pageIndex, long pageSize) {
+        if (pageIndex < 1 || pageSize < 1) {
+            throw new WardBusinessException("pageIndex和pageSize必须大于0");
+        }
+    }
+
+    private void validateId(String id, String fieldName) {
+        if (!hasText(id)) {
+            throw new WardBusinessException(fieldName + "不能为空");
+        }
+        try {
+            if (Long.parseLong(id.trim()) < 0) {
+                throw new WardBusinessException(fieldName + "不能为负数");
+            }
+        } catch (NumberFormatException ignored) {
+            // ASSIGN_ID is stored as a string; non-numeric strings are left to the existence check.
+        }
+    }
+
+    private void fillCreateFields(AdmLocation entity) {
+        LocalDateTime now = LocalDateTime.now();
+        String operator = getCurrentOperator();
+        entity.setCreatedAt(now);
+        entity.setUpdatedAt(now);
+        entity.setCreatedBy(operator);
+        entity.setUpdatedBy(operator);
+    }
+
+    private void fillUpdateFields(AdmLocation entity) {
+        entity.setUpdatedAt(LocalDateTime.now());
+        entity.setUpdatedBy(getCurrentOperator());
+    }
+
+    private void fillDeleteFields(AdmLocation entity) {
+        LocalDateTime now = LocalDateTime.now();
+        String operator = getCurrentOperator();
+        entity.setUpdatedAt(now);
+        entity.setDeletedAt(now);
+        entity.setUpdatedBy(operator);
+        entity.setDeletedBy(operator);
+    }
+
+    private String getCurrentOperator() {
+        try {
+            UserDTO currentUser = userHolder.getCurrentUser();
+            if (currentUser != null && hasText(currentUser.getUsername())) {
+                return currentUser.getUsername().trim();
+            }
+            if (currentUser != null && hasText(currentUser.getId())) {
+                return currentUser.getId().trim();
+            }
+        } catch (Exception e) {
+            log.warn("Failed to read current user for audit fields: {}", e.getMessage());
+        }
+        return "system";
+    }
+
+    private String trimToNull(String value) {
+        return hasText(value) ? value.trim() : null;
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.trim().isEmpty();
+    }
+
     private String generateBusNo(String prefix) {
         return prefix + "_" + UUID.randomUUID().toString().replace("-", "").substring(0, 16);
     }
