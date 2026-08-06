@@ -38,43 +38,43 @@ spring:
               predicates:
                 - Path=/login/**
             - id: j3-department-route
-              uri: http://localhost:10201
+              uri: http://115.29.213.118:10201
               predicates:
                 - Path=/j3-department/**
               filters:
                 - StripPrefix=1
             - id: j3-patient-route
-              uri: http://localhost:10202
+              uri: http://115.29.213.118:10202
               predicates:
                 - Path=/j3-patient/**
               filters:
                 - StripPrefix=1
             - id: j3-register-route
-              uri: http://localhost:10203
+              uri: http://115.29.213.118:10203
               predicates:
                 - Path=/j3-register/**
               filters:
                 - StripPrefix=1
             - id: j3-storehouse-route
-              uri: http://localhost:10204
+              uri: http://115.29.213.118:10204
               predicates:
                 - Path=/j3-storehouse/**
               filters:
                 - StripPrefix=1
             - id: j3-fee-route
-              uri: http://localhost:10205
+              uri: http://47.96.2.145:10205
               predicates:
                 - Path=/j3-fee/**
               filters:
                 - StripPrefix=1
             - id: j3-supplier-route
-              uri: http://localhost:10206
+              uri: http://47.96.2.145:10206
               predicates:
                 - Path=/j3-supplier/**
               filters:
                 - StripPrefix=1
             - id: j3-ward-route
-              uri: http://localhost:10207
+              uri: http://47.96.2.145:10207
               predicates:
                 - Path=/j3-ward/**
               filters:
