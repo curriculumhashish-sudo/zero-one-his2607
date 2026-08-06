@@ -30,7 +30,7 @@ spring:
         file-extension: yaml
         remote-first: true
   datasource:
-    url: jdbc:mysql://127.0.0.1:23306/zo_his?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://8.137.103.174:23306/zo_his?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: his_app
     password: LvvJ7Db@2026_Q8mR4xK2
     driver-class-name: com.mysql.cj.jdbc.Driver
