@@ -50,6 +50,10 @@ public:
 			ZH_WORDS_GETTER("encountermanage.field.wardId"), "334526584536674304", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "houseId",
 			ZH_WORDS_GETTER("encountermanage.field.houseId"), "334526625720438784", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "wardIds",
+			ZH_WORDS_GETTER("encountermanage.field.wardIds"), "334526584536674304,334526584536674305", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "houseIds",
+			ZH_WORDS_GETTER("encountermanage.field.houseIds"), "334526640208363520,334526640208363521", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "nurseStationExecutionDate",
 			ZH_WORDS_GETTER("encountermanage.field.nurseStationExecutionDate"), "2026-07-21", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "nurseStationTaskFilter",
@@ -81,6 +85,10 @@ public:
 			ZH_WORDS_GETTER("encountermanage.field.wardId"), "334526584536674304", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "houseId",
 			ZH_WORDS_GETTER("encountermanage.field.houseId"), "334526625720438784", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "wardIds",
+			ZH_WORDS_GETTER("encountermanage.field.wardIds"), "334526584536674304,334526584536674305", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "houseIds",
+			ZH_WORDS_GETTER("encountermanage.field.houseIds"), "334526640208363520,334526640208363521", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "nurseStationExecutionDate",
 			ZH_WORDS_GETTER("encountermanage.field.nurseStationExecutionDate"), "2026-07-21", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "nurseStationTaskFilter",

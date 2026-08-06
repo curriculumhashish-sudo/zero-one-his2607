@@ -47,6 +47,16 @@ public:
 	}
 };
 
+class TemperatureInitJsonVO : public JsonVO<TemperatureInitDTO::Wrapper>
+{
+	DTO_INIT(TemperatureInitJsonVO, JsonVO<TemperatureInitDTO::Wrapper>);
+public:
+	TemperatureInitJsonVO()
+	{
+		this->data = TemperatureInitDTO::createShared();
+	}
+};
+
 #include OATPP_CODEGEN_END(DTO)
 
 #endif // !_TEMPERATURE_RECORD_VO_

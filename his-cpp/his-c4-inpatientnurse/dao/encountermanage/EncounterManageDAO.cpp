@@ -21,6 +21,28 @@
 #include "EncounterManageMapper.h"
 
 namespace {
+void appendIdListFilter(const oatpp::String& value, const char* column,
+	std::string& sql, SqlParams& params)
+{
+	if (!value || value->empty()) return;
+	std::stringstream stream(value->c_str());
+	std::string id;
+	std::vector<std::string> ids;
+	while (std::getline(stream, id, ',')) {
+		if (!id.empty()) ids.push_back(id);
+	}
+	if (ids.empty()) return;
+	sql += " AND ";
+	sql += column;
+	sql += " IN (";
+	for (size_t i = 0; i < ids.size(); ++i) {
+		if (i) sql += ",";
+		sql += "?";
+		SQLPARAMS_PUSH(params, "s", std::string, ids[i]);
+	}
+	sql += ")";
+}
+
 template<class T>
 void appendEncounterFilter(const T& query, std::string& sql, SqlParams& params)
 {
@@ -28,17 +50,36 @@ void appendEncounterFilter(const T& query, std::string& sql, SqlParams& params)
 		sql += " AND (p.name LIKE CONCAT('%',?,'%') OR p.py_str LIKE CONCAT('%',?,'%') OR p.wb_str LIKE CONCAT('%',?,'%') OR bed.name LIKE CONCAT('%',?,'%'))";
 		for (int i = 0; i < 4; ++i) SQLPARAMS_PUSH(params, "s", std::string, query->keyword.getValue(""));
 	}
-	if (query->wardId && !query->wardId->empty()) {
-		sql += " AND ward.id = ?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->wardId.getValue(""));
-	}
-	if (query->houseId && !query->houseId->empty()) {
-		sql += " AND house.id = ?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->houseId.getValue(""));
+	if (query->houseIds && !query->houseIds->empty()) {
+		appendIdListFilter(query->houseIds, "house.id", sql, params);
+	} else {
+		if (query->wardIds && !query->wardIds->empty()) {
+			appendIdListFilter(query->wardIds, "ward.id", sql, params);
+		} else if (query->wardId && !query->wardId->empty()) {
+			sql += " AND ward.id = ?";
+			SQLPARAMS_PUSH(params, "s", std::string, query->wardId.getValue(""));
+		}
+		if (query->houseId && !query->houseId->empty()) {
+			sql += " AND house.id = ?";
+			SQLPARAMS_PUSH(params, "s", std::string, query->houseId.getValue(""));
+		}
 	}
 	if (query->nurseStationStatusFilter && !query->nurseStationStatusFilter->empty()) {
-		sql += " AND e.status_enum = ?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->nurseStationStatusFilter.getValue(""));
+		const std::string status = query->nurseStationStatusFilter.getValue("");
+		if (status == "SETTLED_DISCHARGED") {
+			sql += " AND e.status_enum IN ('COMPLETED','DISCHARGED')";
+		} else {
+			sql += " AND e.status_enum = ?";
+			SQLPARAMS_PUSH(params, "s", std::string, status);
+		}
+	}
+	if (query->nurseStationTaskFilter && !query->nurseStationTaskFilter->empty()) {
+		const std::string task = query->nurseStationTaskFilter.getValue("");
+		if (task == "pending-audit") {
+			sql += " AND (EXISTS(SELECT 1 FROM med_medication_request mr WHERE mr.encounter_id=e.id AND mr.is_deleted=0 AND mr.status_enum='ACTIVE') OR EXISTS(SELECT 1 FROM wkf_service_request sr WHERE sr.encounter_id=e.id AND sr.is_deleted=0 AND sr.status_enum='ACTIVE'))";
+		} else if (task == "pending-execute") {
+			sql += " AND (EXISTS(SELECT 1 FROM med_medication_request mr WHERE mr.encounter_id=e.id AND mr.is_deleted=0 AND mr.status_enum='VERIFIED') OR EXISTS(SELECT 1 FROM wkf_service_request sr WHERE sr.encounter_id=e.id AND sr.is_deleted=0 AND sr.status_enum='VERIFIED'))";
+		}
 	}
 }
 
@@ -68,7 +109,7 @@ std::list<PatientQueueItemDTO::Wrapper> EncounterManageDAO::selectPatients(const
 	std::string sql = "SELECT e.id encounter_id,e.bus_no encounter_bus_no,e.patient_id,p.name patient_name,p.gender_enum,"
 		"CONCAT(TIMESTAMPDIFF(YEAR,p.birth_date,CURDATE()),'" + ageSuffix + "') age_text,p.py_str pinyin_code,p.wb_str wubi_code,"
 		"e.status_enum,e.priority_enum,e.start_time,e.end_time,e.organization_id,org.name organization_name,"
-		"bed.id bed_id,bed.name bed_name,ward.id ward_id,ward.name ward_name,house.name house_name,"
+		"bed.id bed_id,bed.name bed_name,ward.id ward_id,ward.name ward_name,house.id house_id,house.name house_name,"
 		"COALESCE((SELECT GROUP_CONCAT(d.description ORDER BY d.primary_flag DESC,d.rank SEPARATOR '" + diagnosisSeparator + "') FROM adm_encounter_diagnosis d WHERE d.encounter_id=e.id AND d.is_deleted=0),'') diagnosis_summary,"
 		"COALESCE((SELECT pr.name FROM adm_encounter_participant ep JOIN adm_practitioner pr ON pr.id=ep.practitioner_id AND pr.is_deleted=0 WHERE ep.encounter_id=e.id AND ep.is_deleted=0 AND ep.status_enum='ACTIVE' AND ep.role_code IN ('ATTENDING_DOCTOR','DOCTOR') LIMIT 1),'') doctor_name,"
 		"COALESCE((SELECT pr.name FROM adm_encounter_participant ep JOIN adm_practitioner pr ON pr.id=ep.practitioner_id AND pr.is_deleted=0 WHERE ep.encounter_id=e.id AND ep.is_deleted=0 AND ep.status_enum='ACTIVE' AND ep.role_code IN ('PRIMARY_NURSE','NURSE') LIMIT 1),'') nurse_name,"

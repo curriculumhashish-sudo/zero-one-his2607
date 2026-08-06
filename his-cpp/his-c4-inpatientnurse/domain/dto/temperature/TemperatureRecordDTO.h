@@ -46,8 +46,26 @@ class TemperatureSheetTemperaturePointDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("temperature.field.recordedAt"), false);
 	API_DTO_FIELD_REQUIRE(String, temperature,
 		ZH_WORDS_GETTER("temperature.field.temperature"), false);
+	API_DTO_FIELD_REQUIRE(String, cooledTemperature,
+		ZH_WORDS_GETTER("temperature.field.cooledTemperature"), false);
+	API_DTO_FIELD_REQUIRE(String, pulse,
+		ZH_WORDS_GETTER("temperature.field.pulse"), false);
+	API_DTO_FIELD_REQUIRE(String, heartRate,
+		ZH_WORDS_GETTER("temperature.field.heartRate"), false);
+	API_DTO_FIELD_REQUIRE(String, respiration,
+		ZH_WORDS_GETTER("temperature.field.respiration"), false);
+	API_DTO_FIELD_REQUIRE(String, systolicPressure,
+		ZH_WORDS_GETTER("temperature.field.systolicPressure"), false);
+	API_DTO_FIELD_REQUIRE(String, diastolicPressure,
+		ZH_WORDS_GETTER("temperature.field.diastolicPressure"), false);
+	API_DTO_FIELD_REQUIRE(String, specialEventCode,
+		ZH_WORDS_GETTER("temperature.field.specialEventCode"), false);
+	API_DTO_FIELD_REQUIRE(String, specialEventTime,
+		ZH_WORDS_GETTER("temperature.field.specialEventTime"), false);
 	API_DTO_FIELD_REQUIRE(String, vitalSignId,
 		ZH_WORDS_GETTER("temperature.field.vitalSignId"), false);
+	API_DTO_FIELD_REQUIRE(Int64, version,
+		ZH_WORDS_GETTER("temperature.field.version"), false);
 };
 
 class TemperatureSheetGridSlotCellDTO : public oatpp::DTO
@@ -60,6 +78,8 @@ class TemperatureSheetGridSlotCellDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("temperature.field.timeSlot"), false);
 	API_DTO_FIELD_REQUIRE(String, vitalSignId,
 		ZH_WORDS_GETTER("temperature.field.vitalSignId"), false);
+	API_DTO_FIELD_REQUIRE(Int64, version,
+		ZH_WORDS_GETTER("temperature.field.version"), false);
 };
 
 class TemperatureSheetGridRowDTO : public oatpp::DTO
@@ -90,10 +110,12 @@ class TemperatureSheetDerivedMetaDTO : public oatpp::DTO
 {
 	DTO_INIT(TemperatureSheetDerivedMetaDTO, DTO);
 
-	API_DTO_FIELD_REQUIRE(String, hospitalizationDaysByDate,
+	API_DTO_FIELD_REQUIRE(Fields<Int32>, hospitalizationDaysByDate,
 		ZH_WORDS_GETTER("temperature.field.hospitalizationDaysByDate"), false);
-	API_DTO_FIELD_REQUIRE(String, postoperativeDaysByDate,
+	API_DTO_FIELD_REQUIRE(Fields<Int32>, postoperativeDaysByDate,
 		ZH_WORDS_GETTER("temperature.field.postoperativeDaysByDate"), false);
+	API_DTO_FIELD_REQUIRE(Fields<Int32>, weekNoByDate,
+		ZH_WORDS_GETTER("temperature.field.weekNoByDate"), false);
 };
 
 class TemperatureSheetFillSlotDTO : public oatpp::DTO
@@ -106,6 +128,76 @@ class TemperatureSheetFillSlotDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("temperature.field.timeSlot"), false);
 	API_DTO_FIELD_REQUIRE(String, vitalSignId,
 		ZH_WORDS_GETTER("temperature.field.vitalSignId"), false);
+	API_DTO_FIELD_REQUIRE(Int64, version,
+		ZH_WORDS_GETTER("temperature.field.version"), false);
+};
+
+class TemperatureInitOptionDTO : public oatpp::DTO
+{
+	DTO_INIT(TemperatureInitOptionDTO, DTO);
+	API_DTO_FIELD_REQUIRE(String, code, ZH_WORDS_GETTER("temperature.field.code"), true);
+	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("temperature.field.name"), true);
+	API_DTO_FIELD_REQUIRE(String, unit, ZH_WORDS_GETTER("temperature.field.unit"), false);
+	API_DTO_FIELD_REQUIRE(String, valueFormat, ZH_WORDS_GETTER("temperature.field.valueFormat"), false);
+	API_DTO_FIELD_REQUIRE(String, reasonableRange, ZH_WORDS_GETTER("temperature.field.reasonableRange"), false);
+	API_DTO_FIELD_REQUIRE(Boolean, requiresEventTime, ZH_WORDS_GETTER("temperature.field.requiresEventTime"), false);
+	API_DTO_FIELD_REQUIRE(Boolean, verticalDisplay, ZH_WORDS_GETTER("temperature.field.verticalDisplay"), false);
+	API_DTO_FIELD_REQUIRE(Boolean, requiresCooledTemperature, ZH_WORDS_GETTER("temperature.field.requiresCooledTemperature"), false);
+	API_DTO_FIELD_REQUIRE(Int32, displayOrder, ZH_WORDS_GETTER("temperature.field.displayOrder"), false);
+};
+
+class TemperatureInitDTO : public oatpp::DTO
+{
+	DTO_INIT(TemperatureInitDTO, DTO);
+	API_DTO_FIELD_REQUIRE(String, defaultWindowRange, ZH_WORDS_GETTER("temperature.field.defaultWindowRange"), false);
+	API_DTO_FIELD_REQUIRE(List<TemperatureInitOptionDTO::Wrapper>, windowRanges, ZH_WORDS_GETTER("temperature.field.windowRanges"), false);
+	API_DTO_FIELD_REQUIRE(List<TemperatureInitOptionDTO::Wrapper>, timeSlots, ZH_WORDS_GETTER("temperature.field.timeSlots"), false);
+	API_DTO_FIELD_REQUIRE(List<TemperatureInitOptionDTO::Wrapper>, specialEvents, ZH_WORDS_GETTER("temperature.field.specialEvents"), false);
+	API_DTO_FIELD_REQUIRE(List<TemperatureInitOptionDTO::Wrapper>, measurementItems, ZH_WORDS_GETTER("temperature.field.measurementItems"), false);
+
+public:
+	TemperatureInitDTO()
+	{
+		defaultWindowRange = "7d";
+		windowRanges = List<TemperatureInitOptionDTO::Wrapper>::createShared();
+		timeSlots = List<TemperatureInitOptionDTO::Wrapper>::createShared();
+		specialEvents = List<TemperatureInitOptionDTO::Wrapper>::createShared();
+		measurementItems = List<TemperatureInitOptionDTO::Wrapper>::createShared();
+		auto append = [](const List<TemperatureInitOptionDTO::Wrapper>& target,
+			const char* code, const oatpp::String& name, const char* unit = nullptr) {
+			auto option = TemperatureInitOptionDTO::createShared();
+			option->code = code;
+			option->name = name;
+			if (unit) option->unit = unit;
+			target->push_back(option);
+		};
+		append(windowRanges, "3d", ZH_WORDS_GETTER("business-text.temperature.window-3d"));
+		append(windowRanges, "7d", ZH_WORDS_GETTER("business-text.temperature.window-7d"));
+		append(windowRanges, "14d", ZH_WORDS_GETTER("business-text.temperature.window-14d"));
+		for (const char* value : {"02", "06", "10", "14", "18", "22"})
+		{
+			auto option = TemperatureInitOptionDTO::createShared();
+			option->code = value;
+			option->name = value;
+			timeSlots->push_back(option);
+		}
+		append(specialEvents, "ADMISSION", ZH_WORDS_GETTER("business-text.temperature.event-admission"));
+		append(specialEvents, "TRANSFER", ZH_WORDS_GETTER("business-text.temperature.event-transfer"));
+		append(specialEvents, "SURGERY", ZH_WORDS_GETTER("business-text.temperature.event-surgery"));
+		append(specialEvents, "DELIVERY", ZH_WORDS_GETTER("business-text.temperature.event-delivery"));
+		append(specialEvents, "DISCHARGE", ZH_WORDS_GETTER("business-text.temperature.event-discharge"));
+		append(specialEvents, "DEATH", ZH_WORDS_GETTER("business-text.temperature.event-death"));
+		append(specialEvents, "EXTERNAL_EXAM", ZH_WORDS_GETTER("business-text.temperature.event-external-exam"));
+		append(specialEvents, "REFUSED", ZH_WORDS_GETTER("business-text.temperature.event-refused"));
+		append(specialEvents, "PHYSICAL_COOLING", ZH_WORDS_GETTER("business-text.temperature.event-physical-cooling"));
+		append(specialEvents, "DRUG_COOLING", ZH_WORDS_GETTER("business-text.temperature.event-drug-cooling"));
+		append(specialEvents, "TEMP_NOT_RISING", ZH_WORDS_GETTER("business-text.temperature.event-temp-not-rising"));
+		append(specialEvents, "PULSE_DEFICIT", ZH_WORDS_GETTER("business-text.temperature.event-pulse-deficit"));
+		append(measurementItems, "TEMP", ZH_WORDS_GETTER("temperature.field.temperature"), "C");
+		append(measurementItems, "PULSE", ZH_WORDS_GETTER("temperature.field.pulse"), "bpm");
+		append(measurementItems, "HEART_RATE", ZH_WORDS_GETTER("temperature.field.heartRate"), "bpm");
+		append(measurementItems, "RESPIRATION", ZH_WORDS_GETTER("temperature.field.respiration"), "breaths/min");
+	}
 };
 
 class TemperatureSheetGetDataRequestDTO : public oatpp::DTO
@@ -211,7 +303,6 @@ public:
 		add("WEIGHT", "65");
 		add("WAIST", "80");
 		add("HEIGHT", "170");
-		add("SKIN_TEST_POSITIVE", "");
 		// Previous-day summary (saved on date X, displayed on date X-1)
 		add("STOOL", "1");
 		add("URINE_FREQ", "6");

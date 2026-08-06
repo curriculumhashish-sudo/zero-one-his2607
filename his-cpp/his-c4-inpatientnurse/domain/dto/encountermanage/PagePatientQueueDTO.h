@@ -71,6 +71,8 @@ class PatientQueueItemDTO : public oatpp::DTO
 		ZH_WORDS_GETTER("encountermanage.field.genderEnumText"), false);
 	API_DTO_FIELD_REQUIRE(String, houseName,
 		ZH_WORDS_GETTER("encountermanage.field.houseName"), false);
+	API_DTO_FIELD_REQUIRE(String, houseId,
+		ZH_WORDS_GETTER("encountermanage.field.houseId"), false);
 	API_DTO_FIELD_REQUIRE(Boolean, lowBalanceWarning,
 		ZH_WORDS_GETTER("encountermanage.field.lowBalanceWarning"), false);
 	API_DTO_FIELD_REQUIRE(String, organizationId,
@@ -137,6 +139,7 @@ public:
 		genderEnum = "FEMALE";
 		genderEnumText = ZH_WORDS_GETTER("business-text.enum.gender-female");
 		houseName = "301";
+		houseId = "334526640208363520";
 		lowBalanceWarning = false;
 		organizationId = "327170091059744768";
 		organizationName = ZH_WORDS_GETTER("business-text.sample.department-name");

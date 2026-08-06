@@ -127,6 +127,8 @@ encountermanage:
     keyword: 姓名、病区或床号模糊搜索
     wardId: 病区ID
     houseId: 病房ID
+    wardIds: 病区ID列表（多个ID使用英文逗号分隔）
+    houseIds: 病房ID列表（多个ID使用英文逗号分隔）
     nurseStationExecutionDate: 护士站任务执行日期
     nurseStationTaskFilter: 任务筛选（不传为全部；pending-audit待校对、pending-execute待执行、processed已处理）
     nurseStationStatusFilter: 列表状态筛选（不传为在院；SETTLED_DISCHARGED为已出院结算）
@@ -370,6 +372,7 @@ temperature:
   derivedMeta: 衍生元数据
   nextTimeSlot: 下个时次
 nursing:
+
  tags:
   tag: 护理接口
  query:
@@ -378,6 +381,8 @@ nursing:
   summary: 通过ID查询护理记录
  add:
   summary: 保存患者护理记录
+ delete:
+  summary: 删除护理记录
  field:
   id: 记录编号
   patientId: 患者标识
@@ -455,6 +460,12 @@ nursing:
   records: 保存记录列表
   savedCount: 保存条数
   success: 是否成功
+  version: 数据版本
+  clientRowId: 前端临时行标识
+  expectedVersion: 预期数据版本
+  idempotencyKey: 幂等键
+  reason: 删除原因
+  statusEnum: 记录状态编码
   rowType: 行类型
 # ============================================================
 # Nursing Record - 护理记录 (flat keys for new controller)
@@ -510,6 +521,7 @@ nursing.field.rowType: 行类型
 # Temperature Sheet - 体温单 (flat keys for new controller)
 # ============================================================
 temperature.tag: 体温单接口
+temperature.init.summary: 获取体温单初始化配置
 temperature.get-data.summary: 获取患者体温单数据
 temperature.save-record.summary: 保存患者体温单记录
 temperature.field.recordedAt: 测量时间
@@ -537,6 +549,46 @@ temperature.field.temperaturePoints: 体温曲线点列表
 temperature.field.derivedMeta: 衍生元数据
 temperature.field.busNo: 业务单号
 temperature.field.nextTimeSlot: 下个时次
+temperature.field.temperature: 体温
+temperature.field.cooledTemperature: 降温后体温
+temperature.field.pulse: 脉搏
+temperature.field.heartRate: 心率
+temperature.field.respiration: 呼吸
+temperature.field.systolicPressure: 收缩压
+temperature.field.diastolicPressure: 舒张压
+temperature.field.specialEventCode: 特殊事件编码
+temperature.field.specialEventTime: 特殊事件时间
+temperature.field.version: 数据版本
+temperature.field.weekNoByDate: 周序号日期映射
+temperature.field.code: 编码
+temperature.field.name: 名称
+temperature.field.unit: 单位
+temperature.field.valueFormat: 允许格式
+temperature.field.reasonableRange: 合理范围
+temperature.field.requiresEventTime: 是否必须填写事件时间
+temperature.field.verticalDisplay: 是否在曲线区竖排显示
+temperature.field.requiresCooledTemperature: 是否需要降温后体温
+temperature.field.displayOrder: 显示顺序
+temperature.field.defaultWindowRange: 默认时间窗口
+temperature.field.windowRanges: 时间窗口选项
+temperature.field.timeSlots: 固定时次列表
+temperature.field.specialEvents: 特殊事件列表
+temperature.field.measurementItems: 生命体征和日汇总项目
+business-text.temperature.window-3d: 三天
+business-text.temperature.window-7d: 七天
+business-text.temperature.window-14d: 十四天
+business-text.temperature.event-admission: 入院
+business-text.temperature.event-transfer: 转科
+business-text.temperature.event-surgery: 手术
+business-text.temperature.event-delivery: 分娩
+business-text.temperature.event-discharge: 出院
+business-text.temperature.event-death: 死亡
+business-text.temperature.event-external-exam: 外出检查
+business-text.temperature.event-refused: 拒测
+business-text.temperature.event-physical-cooling: 物理降温
+business-text.temperature.event-drug-cooling: 药物降温
+business-text.temperature.event-temp-not-rising: 体温不升
+business-text.temperature.event-pulse-deficit: 脉搏短绌
 
 # ============================================================
 # Medical Order Verification additions - 医嘱校对追加

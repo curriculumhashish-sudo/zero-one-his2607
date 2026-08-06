@@ -78,11 +78,29 @@ public:
 		BODY_DTO(NursingRecordSaveRequestDTO::Wrapper, dto),
 		execSaveNursingRecords(dto));
 
+	API_DEF_ENDPOINT_INFO_AUTH(
+		ZH_WORDS_GETTER("nursing.delete.summary"),
+		deleteNursingRecord,
+		NursingRecordDeleteJsonVO::Wrapper,
+		API_TAG,
+		info->body.addExample("default", NursingRecordDeleteRequestDTO::createShared());
+		info->responses[Status::CODE_200].addExample(
+			"success", NursingRecordDeleteJsonVO::createShared());
+	);
+	API_HANDLER_ENDPOINT_AUTH(
+		API_M_POST,
+		"/nursing/delete-record",
+		deleteNursingRecord,
+		BODY_DTO(NursingRecordDeleteRequestDTO::Wrapper, dto),
+		execDeleteNursingRecord(dto, authObject->getPayload()));
+
 private:
 	NursingRecordListJsonVO::Wrapper execListNursingRecords(
 		const NursingRecordQuery::Wrapper& query);
 	NursingRecordSaveJsonVO::Wrapper execSaveNursingRecords(
 		const NursingRecordSaveRequestDTO::Wrapper& dto);
+	NursingRecordDeleteJsonVO::Wrapper execDeleteNursingRecord(
+		const NursingRecordDeleteRequestDTO::Wrapper& dto, const PayloadDTO& payload);
 };
 
 #undef API_TAG

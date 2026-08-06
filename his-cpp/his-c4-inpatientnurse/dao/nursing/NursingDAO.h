@@ -60,6 +60,10 @@ public:
     int softDeleteById(const std::string& id);
 
     int deleteByVitalSignId(const std::string& vitalSignId);
+	int softDeleteOwnedRecord(const std::string& id, const std::string& encounterId,
+		const std::string& patientId, int version, const std::string& operatorId,
+		const std::string& reason);
+	int softDeleteDetails(const std::string& vitalSignId, const std::string& operatorId);
 };
 
 #endif // !_NURSING_DAO_

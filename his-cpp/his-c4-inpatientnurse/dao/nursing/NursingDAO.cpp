@@ -210,3 +210,29 @@ int NursingDAO::deleteByVitalSignId(const std::string& vitalSignId)
     std::string sql = "DELETE FROM dia_vital_sign_detail WHERE vital_sign_id = ?";
     return sqlSession->executeUpdate(sql, "%s", vitalSignId);
 }
+
+int NursingDAO::softDeleteOwnedRecord(const std::string& id, const std::string& encounterId,
+    const std::string& patientId, int version, const std::string& operatorId,
+    const std::string& reason)
+{
+    SqlParams params;
+    SQLPARAMS_PUSH(params, "s", std::string, operatorId);
+    SQLPARAMS_PUSH(params, "s", std::string, reason);
+    SQLPARAMS_PUSH(params, "s", std::string, id);
+    SQLPARAMS_PUSH(params, "s", std::string, encounterId);
+    SQLPARAMS_PUSH(params, "s", std::string, patientId);
+    SQLPARAMS_PUSH(params, "i", int, version);
+    return sqlSession->executeUpdate(
+        "UPDATE dia_vital_sign SET is_deleted=1,deleted_at=NOW(),deleted_by=?,remark=?,version=version+1 "
+        "WHERE id=? AND encounter_id=? AND patient_id=? AND version=? AND is_deleted=0 AND type_enum='NURSING_RECORD'", params);
+}
+
+int NursingDAO::softDeleteDetails(const std::string& vitalSignId, const std::string& operatorId)
+{
+    SqlParams params;
+    SQLPARAMS_PUSH(params, "s", std::string, operatorId);
+    SQLPARAMS_PUSH(params, "s", std::string, vitalSignId);
+    return sqlSession->executeUpdate(
+        "UPDATE dia_vital_sign_detail SET is_deleted=1,deleted_at=NOW(),deleted_by=?,version=version+1 "
+        "WHERE vital_sign_id=? AND is_deleted=0", params);
+}

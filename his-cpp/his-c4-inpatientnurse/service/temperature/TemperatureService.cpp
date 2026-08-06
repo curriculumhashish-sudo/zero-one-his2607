@@ -126,15 +126,21 @@ static TemperatureSheetTemperaturePointDTO::Wrapper buildTemperaturePoint(const 
     auto pt = TemperatureSheetTemperaturePointDTO::createShared();
     pt->vitalSignId = vs.getId();
     pt->recordedAt  = vs.getRecordedAt();
+	pt->version = static_cast<v_int64>(vs.getVersion());
 
     // Find the TEMP detail item
     for (auto& d : details)
     {
-        if (d.getItemCode() == "TEMP")
-        {
-            pt->temperature = d.getItemValue();
-            break;
-        }
+		const auto& code = d.getItemCode();
+		if (code == "TEMP") pt->temperature = d.getItemValue();
+		else if (code == "TEMP_AFTER_PHYSICAL_COOLING" || code == "TEMP_AFTER_DRUG_COOLING") pt->cooledTemperature = d.getItemValue();
+		else if (code == "PULSE") pt->pulse = d.getItemValue();
+		else if (code == "HEART_RATE") pt->heartRate = d.getItemValue();
+		else if (code == "RESPIRATION") pt->respiration = d.getItemValue();
+		else if (code == "SYSTOLIC_PRESSURE") pt->systolicPressure = d.getItemValue();
+		else if (code == "DIASTOLIC_PRESSURE") pt->diastolicPressure = d.getItemValue();
+		else if (code == "SPECIAL_EVENT") pt->specialEventCode = d.getItemValue();
+		else if (code == "SPECIAL_EVENT_TIME") pt->specialEventTime = d.getItemValue();
     }
     return pt;
 }
@@ -210,6 +216,7 @@ TemperatureSheetGetDataResponseDTO::Wrapper TemperatureService::getTemperatureDa
 
 
     std::map<std::string, std::map<std::string, std::string>> grid;
+	std::map<std::string, int> versions;
     struct PrevDayEntry { std::string vsId; std::string origDate; std::string slot; };
     std::map<std::string, std::map<std::string, std::vector<PrevDayEntry>>> prevDayGrid;
 
@@ -222,6 +229,7 @@ TemperatureSheetGetDataResponseDTO::Wrapper TemperatureService::getTemperatureDa
         std::string hour = extractHour(vs.getRecordedAt());
         dateSet.insert(date);
         grid[date][hour] = vs.getId();
+		versions[vs.getId()] = vs.getVersion();
 
         auto& details = detailMap[vs.getId()];
         for (auto& d : details)
@@ -276,12 +284,14 @@ TemperatureSheetGetDataResponseDTO::Wrapper TemperatureService::getTemperatureDa
             auto cell = TemperatureSheetGridSlotCellDTO::createShared();
             cell->timeSlot    = slotHour;
             cell->vitalSignId = vsId;
+			cell->version = static_cast<v_int64>(versions[vsId]);
             cell->detailItems = detailItems;
             slotCells->push_back(cell);
 
             auto fill = TemperatureSheetFillSlotDTO::createShared();
             fill->timeSlot    = slotHour;
             fill->vitalSignId = vsId;
+			fill->version = static_cast<v_int64>(versions[vsId]);
             fill->detailItems = detailItems;
             fillSlots->push_back(fill);
         }
@@ -325,8 +335,9 @@ TemperatureSheetGetDataResponseDTO::Wrapper TemperatureService::getTemperatureDa
     pagination->totalPages = 1; // Single-page for temperature sheet
 
     auto meta = TemperatureSheetDerivedMetaDTO::createShared();
-    meta->hospitalizationDaysByDate  = "";
-    meta->postoperativeDaysByDate    = "";
+    meta->hospitalizationDaysByDate = oatpp::Fields<oatpp::Int32>::createShared();
+    meta->postoperativeDaysByDate = oatpp::Fields<oatpp::Int32>::createShared();
+    meta->weekNoByDate = oatpp::Fields<oatpp::Int32>::createShared();
 
     resp->derivedMeta       = meta;
     resp->gridRows          = gridRows;

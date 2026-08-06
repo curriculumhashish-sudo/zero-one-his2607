@@ -34,6 +34,19 @@ class TemperatureController : public oatpp::web::server::api::ApiController
 	API_ACCESS_DECLARE(TemperatureController);
 
 public:
+	API_DEF_ENDPOINT_INFO_AUTH(
+		ZH_WORDS_GETTER("temperature.init.summary"),
+		getTemperatureInit,
+		TemperatureInitJsonVO::Wrapper,
+		API_TAG,
+		info->responses[Status::CODE_200].addExample(
+			"success", TemperatureInitJsonVO::createShared());
+	);
+	ENDPOINT(API_M_GET, "/temperature/init", getTemperatureInit, API_HANDLER_AUTH_PARAME)
+	{
+		API_HANDLER_RESP_VO(execGetTemperatureInit());
+	}
+
 	// Get temperature sheet data
 	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("temperature.query-by-date.summary"),
@@ -78,6 +91,7 @@ public:
 		execSaveTemperatureRecord(dto));
 
 private:
+	TemperatureInitJsonVO::Wrapper execGetTemperatureInit();
 	TemperatureSheetDataJsonVO::Wrapper execGetTemperatureData(
 		const TemperatureSheetGetDataRequestDTO::Wrapper& query);
 	TemperatureSheetSaveJsonVO::Wrapper execSaveTemperatureRecord(

@@ -32,6 +32,8 @@ public:
     NursingRecordListResponseDTO::Wrapper listRecords(const NursingRecordQuery::Wrapper& query);
 
     NursingRecordSaveResponseDTO::Wrapper saveRecords(const NursingRecordSaveRequestDTO::Wrapper& dto);
+	NursingRecordDeleteResponseDTO::Wrapper deleteRecord(const NursingRecordDeleteRequestDTO::Wrapper& dto,
+		const std::string& operatorId);
 
 private:
 

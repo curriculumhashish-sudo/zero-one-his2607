@@ -20,6 +20,13 @@
 #include "TemperatureController.h"
 #include "service/temperature/TemperatureService.h"
 
+TemperatureInitJsonVO::Wrapper TemperatureController::execGetTemperatureInit()
+{
+    auto jvo = TemperatureInitJsonVO::createShared();
+    jvo->success(TemperatureInitDTO::createShared());
+    return jvo;
+}
+
 TemperatureSheetDataJsonVO::Wrapper TemperatureController::execGetTemperatureData(
     const TemperatureSheetGetDataRequestDTO::Wrapper& query)
 {

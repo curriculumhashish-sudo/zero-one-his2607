@@ -68,3 +68,20 @@ NursingRecordSaveJsonVO::Wrapper NursingController::execSaveNursingRecords(
     jvo->success(data);
     return jvo;
 }
+
+NursingRecordDeleteJsonVO::Wrapper NursingController::execDeleteNursingRecord(
+    const NursingRecordDeleteRequestDTO::Wrapper& dto, const PayloadDTO& payload)
+{
+    auto jvo = NursingRecordDeleteJsonVO::createShared();
+    if (!dto || !dto->encounterId || dto->encounterId->empty() ||
+        !dto->patientId || dto->patientId->empty() ||
+        !dto->vitalSignId || dto->vitalSignId->empty() ||
+        !dto->idempotencyKey || dto->idempotencyKey->empty())
+    {
+        jvo->init(nullptr, RS_PARAMS_INVALID);
+        return jvo;
+    }
+    auto data = NursingService().deleteRecord(dto, payload.getUsername());
+    data->success ? jvo->success(data) : jvo->fail(data);
+    return jvo;
+}

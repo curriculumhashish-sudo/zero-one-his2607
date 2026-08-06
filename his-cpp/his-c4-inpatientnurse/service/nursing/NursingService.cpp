@@ -173,6 +173,11 @@ NursingRecordListResponseDTO::Wrapper NursingService::listRecords(const NursingR
     {
         auto row = NursingRecordRowDTO::createShared();
         row->vitalSignId = vs.getId();
+		row->version = static_cast<v_int64>(vs.getVersion());
+		row->createdBy = vs.getCreatedBy();
+		row->createdAt = vs.getCreatedAt();
+		row->updatedBy = vs.getUpdatedBy();
+		row->updatedAt = vs.getUpdatedAt();
 
   
         std::string datePart, timePart;
@@ -345,4 +350,37 @@ NursingRecordSaveResponseDTO::Wrapper NursingService::saveRecords(const NursingR
     resp->savedCount = savedCount;
     resp->rows = savedRows;
     return resp;
+}
+
+NursingRecordDeleteResponseDTO::Wrapper NursingService::deleteRecord(
+    const NursingRecordDeleteRequestDTO::Wrapper& dto, const std::string& operatorId)
+{
+    auto response = NursingRecordDeleteResponseDTO::createShared();
+    response->success = false;
+    response->vitalSignId = dto->vitalSignId;
+    response->statusEnum = "UNCHANGED";
+    NursingDAO dao;
+    TransactionManager transaction(&dao);
+    try
+    {
+		const int changed = dao.softDeleteOwnedRecord(dto->vitalSignId.getValue(""),
+			dto->encounterId.getValue(""), dto->patientId.getValue(""),
+			static_cast<int>(dto->expectedVersion.getValue(-1)), operatorId,
+			dto->reason.getValue(""));
+        if (changed != 1)
+        {
+            transaction.rollback();
+            return response;
+        }
+		dao.softDeleteDetails(dto->vitalSignId.getValue(""), operatorId);
+        transaction.commit();
+        response->success = true;
+        response->statusEnum = "DELETED";
+        return response;
+    }
+    catch (...)
+    {
+        transaction.rollback();
+        return response;
+    }
 }

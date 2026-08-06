@@ -49,6 +49,7 @@ public:
 		dto->wardId = rs->getString("ward_id").asStdString();
 		dto->wardName = rs->getString("ward_name").asStdString();
 		dto->houseName = rs->getString("house_name").asStdString();
+		dto->houseId = rs->getString("house_id").asStdString();
 		dto->diagnosisSummary = rs->getString("diagnosis_summary").asStdString();
 		dto->diagnosisList = oatpp::List<oatpp::String>::createShared();
 		if (!dto->diagnosisSummary->empty()) dto->diagnosisList->push_back(dto->diagnosisSummary);
