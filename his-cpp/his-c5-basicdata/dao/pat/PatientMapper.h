@@ -31,6 +31,7 @@ public:
     {
         auto data = std::make_shared<PatientDO>();
         data->setId(resultSet->getString("id"));
+        data->setBusNo(resultSet->getString("bus_no"));
         data->setName(resultSet->getString("name"));
         data->setGender(resultSet->getString("gender_enum"));
         if (!resultSet->isNull("birth_date")) data->setBirthDate(resultSet->getString("birth_date"));

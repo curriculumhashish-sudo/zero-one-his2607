@@ -20,6 +20,7 @@ pat:
     dto:
       field:
         id: 患者主键ID
+        busNo: 病历号
         name: 患者姓名
         idCard: 身份证号
         gender: 性别(1男/2女)

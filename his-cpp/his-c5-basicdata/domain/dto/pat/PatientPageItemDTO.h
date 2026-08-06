@@ -16,6 +16,11 @@ class PatientPageItemDTO : public oatpp::DTO
         info->description = ZH_WORDS_GETTER("pat.dto.field.id");
     }
 
+    DTO_FIELD(String, busNo);
+    DTO_FIELD_INFO(busNo) {
+        info->description = ZH_WORDS_GETTER("pat.dto.field.busNo");
+    }
+
     DTO_FIELD(String, name);
     DTO_FIELD_INFO(name) {
         info->description = ZH_WORDS_GETTER("pat.dto.field.name");

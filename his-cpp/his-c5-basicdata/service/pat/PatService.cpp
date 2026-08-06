@@ -202,6 +202,7 @@ PageDTO<PatientPageItemDTO::Wrapper>::Wrapper PatService::queryPatPage(
     {
         auto dto = PatientPageItemDTO::createShared();
         dto->id = patient->getId();
+        dto->busNo = patient->getBusNo();
         dto->name = patient->getName();
         dto->gender = toGenderCode(patient->getGender());
         if (patient->getBirthDatePtr()) dto->age = calcAge(patient->getBirthDate());

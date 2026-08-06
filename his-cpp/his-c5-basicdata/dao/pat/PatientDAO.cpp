@@ -124,7 +124,7 @@ std::list<PtrPatientDO> PatientDAO::queryPatPage(
     const std::string& tenantId)
 {
     SqlParams params;
-    std::string sql = "SELECT id, name, gender_enum, birth_date, phone, id_card FROM adm_patient";
+    std::string sql = "SELECT id, bus_no, name, gender_enum, birth_date, phone, id_card FROM adm_patient";
     sql += buildPatPageCondition(query, tenantId, params);
     sql += " ORDER BY created_at DESC";
 
