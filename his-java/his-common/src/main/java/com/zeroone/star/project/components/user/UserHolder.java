@@ -32,7 +32,7 @@ public class UserHolder {
     @Value("${spring.application.name:}")
     private String applicationName;
 
-    @Value("${j3.auth-bypass.enabled:true}")
+    @Value("${j3.auth-bypass.enabled:false}")
     private boolean j3AuthBypassEnabled;
 
     @Resource
