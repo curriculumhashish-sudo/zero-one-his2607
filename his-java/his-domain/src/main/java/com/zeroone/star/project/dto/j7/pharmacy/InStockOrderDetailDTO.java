@@ -14,8 +14,9 @@ import java.time.LocalDate;
  * 描述：入库单明细数据传输对象
  * </p>
  * <p>
- * 功能说明：封装一条药品入库明细信息，包含行号、药品名称、规格、厂家、数量、单价、
- * 有效期、批号、追溯码等。行合计金额由服务端自动计算，前端无需传递。
+ * 功能说明：封装一条药品入库明细信息，包含行号、药品标识、药品名称、规格、厂家、数量、单价、
+ * 有效期、批号、追溯码（跟踪号）等。行合计金额由服务端自动计算，前端无需传递。
+ * 字段命名与实体类 {@code InStockOrderDetail} 严格对应。
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
@@ -33,6 +34,10 @@ public class InStockOrderDetailDTO implements Serializable {
     @NotNull(message = "行号不能为空")
     @Schema(description = "行号", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer seqNo;
+
+    @Schema(description = "药品/物资项标识（可选）", example = "ITEM001")
+    @Size(max = 64, message = "项目标识长度不能超过64个字符")
+    private String itemId;
 
     @NotBlank(message = "药品名称不能为空")
     @Size(max = 120, message = "药品名称长度不能超过120个字符")
@@ -70,8 +75,8 @@ public class InStockOrderDetailDTO implements Serializable {
     private LocalDate expireDate;
 
     @Size(max = 64, message = "追溯码长度不能超过64个字符")
-    @Schema(description = "追溯码", example = "TRC-123456789")
-    private String traceCode;
+    @Schema(description = "追溯码（跟踪号）", example = "TRC-123456789")
+    private String traceNo;
 
     @Size(max = 300, message = "明细备注长度不能超过300个字符")
     @Schema(description = "明细备注")
