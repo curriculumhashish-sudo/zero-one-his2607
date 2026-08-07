@@ -141,6 +141,11 @@ class SupplierDTO : public oatpp::DTO {
     DTO_FIELD_INFO(note) {
         info->description = ZH_WORDS_GETTER("sup.field.note");
     }
+    // Version for optimistic locking )
+    DTO_FIELD(Int32, version);
+    DTO_FIELD_INFO(version) {
+        info->description = ZH_WORDS_GETTER("sup.field.version");
+    }
 };
 
 /**

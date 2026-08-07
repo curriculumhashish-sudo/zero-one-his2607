@@ -51,6 +51,7 @@ namespace
         dto->displayOrder = row->getDisplayOrder();
         dto->statusEnum = row->getStatusEnum();
         dto->note = row->getNote();
+        dto->version = row->getVersion();
         return dto;
     }
 }
