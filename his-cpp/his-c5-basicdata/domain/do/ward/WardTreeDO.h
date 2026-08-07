@@ -18,6 +18,14 @@ class WardTreeDO : public BaseDO
     );
     MYSQL_SYNTHESIZE(int, displayOrder, DisplayOrder);
 
+   
+    MYSQL_SYNTHESIZE(std::string, busNo, BusNo);
+    MYSQL_SYNTHESIZE(std::string, organizationId, OrganizationId);
+    MYSQL_SYNTHESIZE(std::string, pyStr, PyStr);
+    MYSQL_SYNTHESIZE(std::string, wbStr, WbStr);
+    MYSQL_SYNTHESIZE(std::string, typeJson, TypeJson);
+    MYSQL_SYNTHESIZE(int, version, Version);
+
 public:
     WardTreeDO()
         : BaseDO("adm_location")
@@ -37,6 +45,14 @@ public:
             "i",
             displayOrder
         );
+
+       
+        MYSQL_ADD_FIELD("bus_no", "s", busNo);
+        MYSQL_ADD_FIELD("organization_id", "s", organizationId);
+        MYSQL_ADD_FIELD("py_str", "s", pyStr);
+        MYSQL_ADD_FIELD("wb_str", "s", wbStr);
+        MYSQL_ADD_FIELD("type_json", "s", typeJson);
+        MYSQL_ADD_FIELD("version", "i", version);
     }
 };
 

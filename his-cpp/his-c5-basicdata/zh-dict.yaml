@@ -290,10 +290,21 @@ ward:
   field:
     id: 病区/病房/床位编号
     name: 名称
+    formEnum: 节点形态(病区/病房/床位)
+    parentId: 上级节点编号
+    statusEnum: 启停状态枚举(ACTIVE/DISABLED)
+    operationalEnum: 运营/业务状态
+    displayOrder: 显示顺序
+    busNo: 位置编码/业务编号
+    organizationId: 机构编号
     organization-id: 机构编号
+    pyStr: 拼音码
+    wbStr: 五笔码
+    typeJson: 类型属性JSON
+    version: 乐观锁版本号
+    children: 子节点列表
     roomId: 病房编号
     bedId: 病床编号
     wardAreaId: 病区编号
     wardRoomId: 病房编号
     status: 状态
-    statusEnum: 状态枚举(ACTIVE/DISABLED)

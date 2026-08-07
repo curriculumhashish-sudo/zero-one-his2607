@@ -192,6 +192,16 @@ oatpp::List<WardTreeNodeVO::Wrapper> WardService::GetTree(WardTreeQuery::Wrapper
         node->statusEnum = row.getStatusEnum();
         node->parentId = row.getParentId();
         node->formEnum = row.getFormEnum();
+
+      
+        node->busNo = row.getBusNo();
+        node->organizationId = row.getOrganizationId();
+        node->pyStr = row.getPyStr();
+        node->wbStr = row.getWbStr();
+        node->typeJson = row.getTypeJson();
+        node->version = row.getVersion();
+      
+
         node->children =
             oatpp::List<Node>::createShared();
 
