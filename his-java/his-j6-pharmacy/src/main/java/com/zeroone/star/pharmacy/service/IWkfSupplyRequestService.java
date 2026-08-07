@@ -13,8 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import com.zeroone.star.project.dto.j6.pharmacy.inbound.InboundReceiptSaveDTO;
-import com.zeroone.star.project.vo.j6.pharmacy.inbound.InboundReceiptSaveResultVO;
+import com.zeroone.star.project.dto.j6.pharmacy.inbound.InboundReceiptAddDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.inbound.InboundReceiptSaveRequestDTO;
+import com.zeroone.star.project.vo.j6.pharmacy.inbound.InboundReceiptDetailVO;
 
 /**
  * <p>
@@ -29,26 +30,26 @@ public interface IWkfSupplyRequestService extends IService<WkfSupplyRequest> {
     /**
      * 新增药库进货单草稿。
      *
-     * @param dto 新增数据
-     * @return 新增结果
+     * @param dto 新增数据（简洁上下文）
+     * @return 完整的空文档结构
      */
-    InboundReceiptSaveResultVO addInboundReceipt(InboundReceiptSaveDTO dto);
+    InboundReceiptDetailVO addInboundReceipt(InboundReceiptAddDTO dto);
 
     /**
      * 保存药库进货单草稿。
      *
-     * @param dto 保存数据
-     * @return 保存结果
+     * @param dto 保存数据（与新增返回结构一致）
+     * @return 更新后的完整文档结构
      */
-    InboundReceiptSaveResultVO saveInboundReceipt(InboundReceiptSaveDTO dto);
+    InboundReceiptDetailVO saveInboundReceipt(InboundReceiptSaveRequestDTO dto);
 
     /**
      * 保存药库进货单并提交审批。
      *
-     * @param dto 保存并提交数据
-     * @return 提交结果
+     * @param dto 保存并提交数据（与新增返回结构一致）
+     * @return 更新后的完整文档结构
      */
-    InboundReceiptSaveResultVO saveAndSubmitInboundReceipt(InboundReceiptSaveDTO dto);
+    InboundReceiptDetailVO saveAndSubmitInboundReceipt(InboundReceiptSaveRequestDTO dto);
     /**
      * 根据单据号逻辑删除盘点单据
      * @param busNo 单据号

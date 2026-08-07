@@ -15,7 +15,11 @@ import com.zeroone.star.pharmacy.service.IWkfSupplyRequestService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zeroone.star.project.components.user.UserDTO;
 import com.zeroone.star.project.components.user.UserHolder;
+import com.zeroone.star.project.dto.j6.pharmacy.inbound.InboundReceiptAddDTO;
 import com.zeroone.star.project.dto.j6.pharmacy.inbound.InboundReceiptSaveDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.inbound.InboundReceiptSaveRequestDTO;
+import com.zeroone.star.project.vo.j6.pharmacy.inbound.InboundReceiptDetailLineVO;
+import com.zeroone.star.project.vo.j6.pharmacy.inbound.InboundReceiptDetailVO;
 import com.zeroone.star.project.vo.j6.pharmacy.inbound.InboundReceiptSaveResultVO;
 import jakarta.annotation.Resource;
 import com.zeroone.star.project.query.j6.pharmacy.PharmacyInventoryDetailQuery;
@@ -62,39 +66,66 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
     @Resource
     private UserHolder userHolder;
 
+    private static final String DEFAULT_SOURCE_TYPE = "SUPPLIER";
+    private static final String DEFAULT_PURPOSE_TYPE = "WAREHOUSE";
+    private static final String DEFAULT_CATEGORY = "PURCHASE";
+
+    @Resource
+    private CusSupplierMapper cusSupplierMapper;
+
+    // ==================== 1. 新增空白草稿 ====================
+
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public InboundReceiptSaveResultVO addInboundReceipt(InboundReceiptSaveDTO dto) {
-        validateSaveRequest(dto);
-        String busNo = StringUtils.hasText(dto.getBusNo()) ? dto.getBusNo() : generateBusNo();
+    public InboundReceiptDetailVO addInboundReceipt(InboundReceiptAddDTO dto) {
+        if (dto == null) {
+            throw new IllegalArgumentException("新增药库进货单入参不能为空");
+        }
+        if (!StringUtils.hasText(dto.getPurposeLocationId())) {
+            throw new IllegalArgumentException("目的库房不能为空");
+        }
+        if (!StringUtils.hasText(dto.getSupplierId())) {
+            throw new IllegalArgumentException("供应商不能为空");
+        }
+
+        String busNo = generateBusNo();
         if (existsActive(busNo)) {
             throw new IllegalArgumentException("药库进货单已存在：" + busNo);
         }
         LocalDateTime now = LocalDateTime.now();
         String userId = currentUserId();
-        List<WkfSupplyRequest> rows = buildRows(dto, busNo, STATUS_DRAFT, 0, now, userId, null);
-        saveBatch(rows);
-        return buildResult(rows.get(0), "新增成功");
+        String practitionerId = StringUtils.hasText(dto.getPractitionerId())
+                ? dto.getPractitionerId() : userId;
+
+        // 插入一条仅含头信息的锚点行（无明细行数据）
+        WkfSupplyRequest anchor = buildAnchorRow(busNo, dto, practitionerId, now, userId);
+        save(anchor);
+
+        return buildEnrichedDetailVO(anchor, List.of(), now, userId);
     }
+
+    // ==================== 2. 保存草稿 ====================
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public InboundReceiptSaveResultVO saveInboundReceipt(InboundReceiptSaveDTO dto) {
+    public InboundReceiptDetailVO saveInboundReceipt(InboundReceiptSaveRequestDTO dto) {
         validateSaveRequest(dto);
-        String busNo = requireBusNo(dto);
+        String busNo = requireBusNoFromSaveRequest(dto);
         List<WkfSupplyRequest> oldRows = requireEditableRows(busNo, dto.getVersion());
         int nextVersion = nextVersion(oldRows);
         LocalDateTime now = LocalDateTime.now();
         String userId = currentUserId();
         softDeleteRows(busNo, now, userId);
-        List<WkfSupplyRequest> newRows = buildRows(dto, busNo, STATUS_DRAFT, nextVersion, now, userId, null);
+        List<WkfSupplyRequest> newRows = buildRowsFromSaveRequest(dto, busNo, STATUS_DRAFT, nextVersion, now, userId, null);
         saveBatch(newRows);
-        return buildResult(newRows.get(0), "保存成功");
+        return buildEnrichedDetailVO(newRows.get(0), newRows, now, userId);
     }
+
+    // ==================== 3. 保存并提交审批 ====================
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public InboundReceiptSaveResultVO saveAndSubmitInboundReceipt(InboundReceiptSaveDTO dto) {
+    public InboundReceiptDetailVO saveAndSubmitInboundReceipt(InboundReceiptSaveRequestDTO dto) {
         validateSaveRequest(dto);
         String busNo = StringUtils.hasText(dto.getBusNo()) ? dto.getBusNo() : generateBusNo();
         List<WkfSupplyRequest> oldRows = listActive(busNo);
@@ -104,10 +135,242 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
         if (!oldRows.isEmpty()) {
             softDeleteRows(busNo, now, userId);
         }
-        List<WkfSupplyRequest> newRows = buildRows(dto, busNo, STATUS_PENDING_APPROVAL, nextVersion, now, userId, now);
+        List<WkfSupplyRequest> newRows = buildRowsFromSaveRequest(dto, busNo, STATUS_PENDING_APPROVAL, nextVersion, now, userId, now);
         saveBatch(newRows);
-        return buildResult(newRows.get(0), "保存并提交审批成功");
+        return buildEnrichedDetailVO(newRows.get(0), newRows, now, userId);
     }
+
+    // ==================== 校验 ====================
+
+    private void validateSaveRequest(InboundReceiptSaveRequestDTO dto) {
+        if (dto == null) {
+            throw new IllegalArgumentException("药库进货单入参不能为空");
+        }
+        if (dto.getLines() == null || dto.getLines().isEmpty()) {
+            throw new IllegalArgumentException("药库进货单明细不能为空");
+        }
+        for (int i = 0; i < dto.getLines().size(); i++) {
+            InboundReceiptSaveRequestDTO.InboundReceiptLineDTO line = dto.getLines().get(i);
+            if (line == null) {
+                throw new IllegalArgumentException("药库进货单第" + (i + 1) + "行明细不能为空");
+            }
+            if (!StringUtils.hasText(line.getItemTable())) {
+                throw new IllegalArgumentException("药库进货单第" + (i + 1) + "行项目表不能为空");
+            }
+            if (!StringUtils.hasText(line.getItemId())) {
+                throw new IllegalArgumentException("药库进货单第" + (i + 1) + "行项目标识不能为空");
+            }
+            if (!StringUtils.hasText(line.getUnitCode())) {
+                throw new IllegalArgumentException("药库进货单第" + (i + 1) + "行单位编码不能为空");
+            }
+            if (line.getItemQuantity() == null || line.getItemQuantity().compareTo(BigDecimal.ZERO) <= 0) {
+                throw new IllegalArgumentException("药库进货单第" + (i + 1) + "行数量必须大于0");
+            }
+        }
+    }
+
+    // ==================== 构建锚点行（新增时） ====================
+
+    private WkfSupplyRequest buildAnchorRow(String busNo, InboundReceiptAddDTO dto,
+                                            String practitionerId, LocalDateTime now, String userId) {
+        WkfSupplyRequest row = new WkfSupplyRequest();
+        row.setId(IdWorker.getIdStr());
+        row.setTenantId(DEFAULT_TENANT_ID);
+        row.setCreatedAt(now);
+        row.setUpdatedAt(now);
+        row.setCreatedBy(userId);
+        row.setUpdatedBy(userId);
+        row.setIsDeleted(false);
+        row.setVersion(0);
+        row.setBusNo(busNo);
+        row.setOriginalBusNo(dto.getOriginalBusNo());
+        row.setTypeEnum(DEFAULT_TYPE_INBOUND);
+        row.setStatusEnum(STATUS_DRAFT);
+        row.setCategoryEnum(DEFAULT_CATEGORY);
+        row.setPractitionerId(practitionerId);
+        row.setSupplierId(dto.getSupplierId());
+        row.setSourceTypeEnum(DEFAULT_SOURCE_TYPE);
+        row.setPurposeTypeEnum(DEFAULT_PURPOSE_TYPE);
+        row.setPurposeLocationId(dto.getPurposeLocationId());
+        row.setReason(dto.getReason());
+        row.setApplicantId(userId);
+        // 锚点行无实际明细，填入 NOT NULL 字段的空默认值
+        row.setItemTable("");
+        row.setItemId("");
+        row.setItemQuantity(BigDecimal.ZERO);
+        row.setUnitCode("");
+        return row;
+    }
+
+    // ==================== 构建保存行 ====================
+
+    private List<WkfSupplyRequest> buildRowsFromSaveRequest(InboundReceiptSaveRequestDTO dto, String busNo,
+                                                            String status, Integer version,
+                                                            LocalDateTime now, String userId,
+                                                            LocalDateTime applyTime) {
+        return dto.getLines().stream()
+                .map(line -> buildRowFromSaveLine(dto, line, busNo, status, version, now, userId, applyTime))
+                .toList();
+    }
+
+    private WkfSupplyRequest buildRowFromSaveLine(InboundReceiptSaveRequestDTO dto,
+                                                  InboundReceiptSaveRequestDTO.InboundReceiptLineDTO line,
+                                                  String busNo, String status, Integer version,
+                                                  LocalDateTime now, String userId, LocalDateTime applyTime) {
+        WkfSupplyRequest row = new WkfSupplyRequest();
+        row.setId(IdWorker.getIdStr());
+        row.setTenantId(DEFAULT_TENANT_ID);
+        row.setCreatedAt(now);
+        row.setUpdatedAt(now);
+        row.setCreatedBy(userId);
+        row.setUpdatedBy(userId);
+        row.setIsDeleted(false);
+        row.setVersion(version);
+        row.setBusNo(busNo);
+        row.setOriginalBusNo(dto.getOriginalBusNo());
+        row.setTypeEnum(valueOrDefault(dto.getTypeEnum(), DEFAULT_TYPE_INBOUND));
+        row.setStatusEnum(status);
+        row.setCategoryEnum(valueOrDefault(dto.getCategoryEnum(), DEFAULT_CATEGORY));
+        row.setItemTable(line.getItemTable());
+        row.setItemQuantity(line.getItemQuantity());
+        row.setItemId(line.getItemId());
+        row.setUnitCode(line.getUnitCode());
+        row.setOccurrenceTime(line.getOccurrenceTime() == null ? now : line.getOccurrenceTime());
+        row.setPractitionerId(dto.getPractitionerId());
+        row.setSupplierId(dto.getSupplierId());
+        row.setReason(dto.getReason());
+        row.setSourceTypeEnum(valueOrDefault(dto.getSourceTypeEnum(), DEFAULT_SOURCE_TYPE));
+        row.setSourceLocationId(dto.getSourceLocationId());
+        row.setPurposeTypeEnum(valueOrDefault(dto.getPurposeTypeEnum(), DEFAULT_PURPOSE_TYPE));
+        row.setPurposeLocationId(dto.getPurposeLocationId());
+        row.setApplicantId(StringUtils.hasText(dto.getApplicantId()) ? dto.getApplicantId() : userId);
+        row.setApplyTime(applyTime);
+        row.setStartTime(line.getStartTime());
+        row.setEndTime(line.getEndTime());
+        row.setLotNumber(line.getLotNumber());
+        row.setTraceNo(line.getTraceNo());
+        row.setPrice(line.getPrice());
+        row.setTotalPrice(line.getTotalPrice());
+        row.setRemake(line.getRemake());
+        return row;
+    }
+
+    // ==================== 构建返回VO ====================
+
+    /**
+     * 组装完整的文档详情视图（含头信息名称解析 + 明细行）。
+     */
+    private InboundReceiptDetailVO buildEnrichedDetailVO(WkfSupplyRequest header,
+                                                         List<WkfSupplyRequest> rows,
+                                                         LocalDateTime now, String userId) {
+        InboundReceiptDetailVO vo = new InboundReceiptDetailVO();
+        vo.setBusNo(header.getBusNo());
+        vo.setOriginalBusNo(header.getOriginalBusNo());
+        vo.setTypeEnum(header.getTypeEnum());
+        vo.setStatusEnum(header.getStatusEnum());
+        vo.setSupplierId(header.getSupplierId());
+        vo.setSourceLocationId(header.getSourceLocationId());
+        vo.setPurposeLocationId(header.getPurposeLocationId());
+        vo.setSourceTypeEnum(header.getSourceTypeEnum());
+        vo.setPurposeTypeEnum(header.getPurposeTypeEnum());
+        vo.setCategoryEnum(header.getCategoryEnum());
+        vo.setRowVersion(header.getVersion());
+        vo.setApplyTime(header.getApplyTime());
+        vo.setApplicantId(header.getApplicantId());
+        vo.setApprovalTime(header.getApprovalTime());
+        vo.setReason(header.getReason());
+        vo.setPractitionerId(header.getPractitionerId());
+        vo.setCreatorId(header.getCreatedBy());
+        vo.setApproverId(header.getApproverId());
+
+        // ---- 解析名称 ----
+        // 供应商名称
+        if (StringUtils.hasText(header.getSupplierId())) {
+            try {
+                com.zeroone.star.pharmacy.entity.CusSupplier supplier =
+                        cusSupplierMapper.selectById(header.getSupplierId());
+                if (supplier != null) {
+                    vo.setSupplierName(supplier.getName());
+                }
+            } catch (Exception ignored) { /* ignore */ }
+        }
+        // 库房名称
+        if (StringUtils.hasText(header.getPurposeLocationId())) {
+            try {
+                AdmLocation location = admLocationMapper.selectById(header.getPurposeLocationId());
+                if (location != null) {
+                    vo.setPurposeLocationName(location.getName());
+                }
+            } catch (Exception ignored) { /* ignore */ }
+        }
+        // 制单人名称
+        if (StringUtils.hasText(header.getCreatedBy())) {
+            try {
+                AdmPractitioner creator = admPractitionerMapper.selectById(header.getCreatedBy());
+                if (creator != null) {
+                    vo.setCreatorName(creator.getName());
+                }
+            } catch (Exception ignored) { /* ignore */ }
+        }
+        // 申请人名称
+        if (StringUtils.hasText(header.getApplicantId())) {
+            try {
+                AdmPractitioner applicant = admPractitionerMapper.selectById(header.getApplicantId());
+                if (applicant != null) {
+                    vo.setApplicantName(applicant.getName());
+                }
+            } catch (Exception ignored) { /* ignore */ }
+        }
+        // 审批人名称
+        if (StringUtils.hasText(header.getApproverId())) {
+            try {
+                AdmPractitioner approver = admPractitionerMapper.selectById(header.getApproverId());
+                if (approver != null) {
+                    vo.setApproverName(approver.getName());
+                }
+            } catch (Exception ignored) { /* ignore */ }
+        }
+
+        // ---- 总金额 ----
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        if (rows != null) {
+            for (WkfSupplyRequest row : rows) {
+                if (row.getTotalPrice() != null) {
+                    totalAmount = totalAmount.add(row.getTotalPrice());
+                }
+            }
+        }
+        vo.setTotalAmount(totalAmount);
+
+        // ---- 明细行 ----
+        if (rows != null && !rows.isEmpty()) {
+            List<InboundReceiptDetailLineVO> lines = rows.stream().map(r -> {
+                InboundReceiptDetailLineVO line = new InboundReceiptDetailLineVO();
+                line.setId(r.getId());
+                line.setItemTable(r.getItemTable());
+                line.setItemId(r.getItemId());
+                line.setItemQuantity(r.getItemQuantity());
+                line.setUnitCode(r.getUnitCode());
+                line.setUnitCodeDictText(r.getUnitCode());
+                line.setLotNumber(r.getLotNumber());
+                line.setTraceNo(r.getTraceNo());
+                line.setPrice(r.getPrice());
+                line.setTotalPrice(r.getTotalPrice());
+                line.setOccurrenceTime(r.getOccurrenceTime());
+                line.setStartTime(r.getStartTime());
+                line.setEndTime(r.getEndTime());
+                line.setRemake(r.getRemake());
+                return line;
+            }).toList();
+            vo.setLines(lines);
+        } else {
+            vo.setLines(List.of());
+        }
+
+        return vo;
+    }
+
+    // ==================== 旧版 validateSaveRequest（保留兼容） ====================
 
     private void validateSaveRequest(InboundReceiptSaveDTO dto) {
         if (dto == null) {
@@ -130,65 +393,10 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
             if (!StringUtils.hasText(line.getUnitCode())) {
                 throw new IllegalArgumentException("药库进货单第" + (i + 1) + "行单位编码不能为空");
             }
-            if (line.getItemQuantity() == null || line.getItemQuantity().compareTo(java.math.BigDecimal.ZERO) <= 0) {
+            if (line.getItemQuantity() == null || line.getItemQuantity().compareTo(BigDecimal.ZERO) <= 0) {
                 throw new IllegalArgumentException("药库进货单第" + (i + 1) + "行数量必须大于0");
             }
         }
-    }
-
-    private List<WkfSupplyRequest> buildRows(InboundReceiptSaveDTO dto, String busNo, String status, Integer version,
-                                             LocalDateTime now, String userId, LocalDateTime applyTime) {
-        return dto.getLines().stream()
-                .map(line -> buildRow(dto, line, busNo, status, version, now, userId, applyTime))
-                .toList();
-    }
-
-    private WkfSupplyRequest buildRow(InboundReceiptSaveDTO dto, InboundReceiptSaveDTO.InboundReceiptLineDTO line,
-                                      String busNo, String status, Integer version, LocalDateTime now,
-                                      String userId, LocalDateTime applyTime) {
-        WkfSupplyRequest row = new WkfSupplyRequest();
-        row.setId(IdWorker.getIdStr());
-        row.setTenantId(DEFAULT_TENANT_ID);
-        row.setCreatedAt(now);
-        row.setUpdatedAt(now);
-        row.setCreatedBy(userId);
-        row.setUpdatedBy(userId);
-        row.setIsDeleted(false);
-        row.setVersion(version);
-        row.setBusNo(busNo);
-        row.setOriginalBusNo(dto.getOriginalBusNo());
-        row.setTypeEnum(DEFAULT_TYPE_INBOUND);
-        row.setStatusEnum(status);
-        row.setCategoryEnum(valueOrDefault(dto.getCategoryEnum(), DEFAULT_CATEGORY_STOCK_SUPPLY));
-        row.setItemTable(line.getItemTable());
-        row.setItemQuantity(line.getItemQuantity());
-        row.setItemId(line.getItemId());
-        row.setUnitCode(line.getUnitCode());
-        row.setOccurrenceTime(line.getOccurrenceTime() == null ? now : line.getOccurrenceTime());
-        row.setPractitionerId(dto.getPractitionerId());
-        row.setSupplierId(dto.getSupplierId());
-        row.setReason(dto.getReason());
-        row.setSourceTypeEnum(dto.getSourceTypeEnum());
-        row.setSourceLocationId(dto.getSourceLocationId());
-        row.setPurposeTypeEnum(dto.getPurposeTypeEnum());
-        row.setPurposeLocationId(dto.getPurposeLocationId());
-        row.setApplicantId(userId);
-        row.setApplyTime(applyTime);
-        row.setStartTime(line.getStartTime());
-        row.setEndTime(line.getEndTime());
-        row.setLotNumber(line.getLotNumber());
-        row.setTraceNo(line.getTraceNo());
-        row.setPrice(line.getPrice());
-        row.setTotalPrice(line.getTotalPrice());
-        row.setRemake(line.getRemake());
-        return row;
-    }
-
-    private String requireBusNo(InboundReceiptSaveDTO dto) {
-        if (!StringUtils.hasText(dto.getBusNo())) {
-            throw new IllegalArgumentException("保存药库进货单时业务单号不能为空");
-        }
-        return dto.getBusNo();
     }
 
     private List<WkfSupplyRequest> requireEditableRows(String busNo, Integer expectedVersion) {
@@ -213,6 +421,13 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
 
     private boolean existsActive(String busNo) {
         return baseMapper.countActiveRowsByBusNo(busNo) > 0;
+    }
+
+    private String requireBusNoFromSaveRequest(InboundReceiptSaveRequestDTO dto) {
+        if (!StringUtils.hasText(dto.getBusNo())) {
+            throw new IllegalArgumentException("保存药库进货单时业务单号不能为空");
+        }
+        return dto.getBusNo();
     }
 
     private void softDeleteRows(String busNo, LocalDateTime now, String userId) {

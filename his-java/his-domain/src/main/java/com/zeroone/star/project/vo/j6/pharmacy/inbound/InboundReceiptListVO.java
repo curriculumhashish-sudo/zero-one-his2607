@@ -9,27 +9,30 @@ import java.time.LocalDateTime;
 @Data
 @Schema(name = "InboundReceiptListVO", description = "药库进货单列表行")
 public class InboundReceiptListVO {
-    @Schema(description = "业务单号", example = "JHD202607190001")
+    @Schema(description = "业务单号", example = "CIR202608070001")
     private String busNo;
 
-    @Schema(description = "供应商名称", example = "华南医疗设备制造有限公司")
+    @Schema(description = "供应商名称", example = "华中药品配送有限公司")
     private String supplierName;
 
-    @Schema(description = "供应状态编码", example = "DRAFT")
+    @Schema(description = "供应状态编码（DRAFT=草稿, PENDING_APPROVAL=待审批, AGREE=已通过, REJECT=已驳回）", example = "DRAFT")
     private String statusEnum;
 
-    @Schema(description = "创建人名称", example = "药库管理员")
+    @Schema(description = "创建人/制单人名称", example = "库管")
     private String creatorName;
 
-    @Schema(description = "审批人名称", example = "财务审批员")
+    @Schema(description = "审批人名称", example = "admin")
     private String approverName;
 
-    @Schema(description = "单据总金额", example = "730.000000")
+    @Schema(description = "单据总金额", example = "17147.00")
     private BigDecimal totalAmount;
 
-    @Schema(description = "审批时间", example = "2026-07-19T11:00:00")
+    @Schema(description = "审批时间")
     private LocalDateTime approvalTime;
 
-    @Schema(description = "申请时间", example = "2026-07-19T10:35:00")
+    @Schema(description = "申请时间")
     private LocalDateTime applyTime;
+
+    @Schema(description = "库房名称", example = "西药库")
+    private String purposeLocationName;
 }

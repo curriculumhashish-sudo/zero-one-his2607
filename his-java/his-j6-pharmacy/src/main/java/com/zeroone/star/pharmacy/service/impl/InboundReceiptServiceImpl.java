@@ -2,7 +2,13 @@ package com.zeroone.star.pharmacy.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zeroone.star.pharmacy.entity.AdmLocation;
+import com.zeroone.star.pharmacy.entity.AdmPractitioner;
+import com.zeroone.star.pharmacy.entity.CusSupplier;
 import com.zeroone.star.pharmacy.entity.WkfSupplyRequest;
+import com.zeroone.star.pharmacy.mapper.AdmLocationMapper;
+import com.zeroone.star.pharmacy.mapper.AdmPractitionerMapper;
+import com.zeroone.star.pharmacy.mapper.CusSupplierMapper;
 import com.zeroone.star.pharmacy.mapper.WkfSupplyRequestMapper;
 import com.zeroone.star.pharmacy.service.IInboundReceiptService;
 import com.zeroone.star.project.components.user.UserDTO;
@@ -18,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -35,6 +42,15 @@ public class InboundReceiptServiceImpl implements IInboundReceiptService {
 
     @Resource
     private WkfSupplyRequestMapper supplyRequestMapper;
+
+    @Resource
+    private CusSupplierMapper cusSupplierMapper;
+
+    @Resource
+    private AdmLocationMapper admLocationMapper;
+
+    @Resource
+    private AdmPractitionerMapper admPractitionerMapper;
 
     @Resource
     private UserHolder userHolder;
@@ -84,8 +100,57 @@ public class InboundReceiptServiceImpl implements IInboundReceiptService {
         vo.setApplicantId(header.getApplicantId());
         vo.setApprovalTime(header.getApprovalTime());
         vo.setReason(header.getReason());
-        vo.setLines(lines);
+        vo.setPractitionerId(header.getPractitionerId());
+        vo.setCreatorId(header.getCreatedBy());
+        vo.setApproverId(header.getApproverId());
 
+        // ---- 解析名称 ----
+        // 供应商名称
+        if (StringUtils.hasText(header.getSupplierId())) {
+            CusSupplier supplier = cusSupplierMapper.selectById(header.getSupplierId());
+            if (supplier != null) {
+                vo.setSupplierName(supplier.getName());
+            }
+        }
+        // 库房名称
+        if (StringUtils.hasText(header.getPurposeLocationId())) {
+            AdmLocation location = admLocationMapper.selectById(header.getPurposeLocationId());
+            if (location != null) {
+                vo.setPurposeLocationName(location.getName());
+            }
+        }
+        // 制单人名称
+        if (StringUtils.hasText(header.getCreatedBy())) {
+            AdmPractitioner creator = admPractitionerMapper.selectById(header.getCreatedBy());
+            if (creator != null) {
+                vo.setCreatorName(creator.getName());
+            }
+        }
+        // 申请人名称
+        if (StringUtils.hasText(header.getApplicantId())) {
+            AdmPractitioner applicant = admPractitionerMapper.selectById(header.getApplicantId());
+            if (applicant != null) {
+                vo.setApplicantName(applicant.getName());
+            }
+        }
+        // 审批人名称
+        if (StringUtils.hasText(header.getApproverId())) {
+            AdmPractitioner approver = admPractitionerMapper.selectById(header.getApproverId());
+            if (approver != null) {
+                vo.setApproverName(approver.getName());
+            }
+        }
+
+        // ---- 总金额 ----
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        for (InboundReceiptDetailLineVO line : lines) {
+            if (line.getTotalPrice() != null) {
+                totalAmount = totalAmount.add(line.getTotalPrice());
+            }
+        }
+        vo.setTotalAmount(totalAmount);
+
+        vo.setLines(lines);
         return vo;
     }
 

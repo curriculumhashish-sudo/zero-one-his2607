@@ -226,12 +226,13 @@
     <select id="selectInboundReceiptListPage" resultType="com.zeroone.star.project.vo.j6.pharmacy.inbound.InboundReceiptListVO">
         SELECT t.bus_no           AS busNo,
                t.status_enum      AS statusEnum,
-               sub.supplier_name  AS supplierName,
-               sub.creator_name   AS creatorName,
-               sub.approver_name  AS approverName,
+               sup.name           AS supplierName,
+               creator.name       AS creatorName,
+               approver.name      AS approverName,
                sub.total_amount   AS totalAmount,
                sub.approval_time  AS approvalTime,
-               sub.apply_time     AS applyTime
+               sub.apply_time     AS applyTime,
+               loc.name           AS purposeLocationName
         FROM wkf_supply_request t
         INNER JOIN (
             SELECT bus_no,
@@ -239,14 +240,31 @@
                    SUM(COALESCE(total_price, 0))         AS total_amount,
                    MAX(approval_time)                    AS approval_time,
                    MAX(apply_time)                       AS apply_time,
-                   MAX(created_by)                       AS creator_name,
-                   MAX(approver_id)                      AS approver_name,
-                   MAX(supplier_id)                      AS supplier_name
+                   MAX(created_by)                       AS created_by,
+                   MAX(approver_id)                      AS approver_id,
+                   MAX(supplier_id)                      AS supplier_id,
+                   MAX(purpose_location_id)              AS purpose_location_id
             FROM wkf_supply_request
             WHERE is_deleted = 0
               AND type_enum = 'CABINET_INBOUND_RECEIPT'
+            <if test="query.keyword != null and query.keyword != ''">
+                AND bus_no LIKE CONCAT('%', #{query.keyword}, '%')
+            </if>
+            <if test="query.applyTimeFrom != null">
+                AND created_at >= #{query.applyTimeFrom}
+            </if>
+            <if test="query.applyTimeTo != null">
+                AND created_at &lt;= #{query.applyTimeTo}
+            </if>
+            <if test="query.purposeLocationId != null and query.purposeLocationId != ''">
+                AND purpose_location_id = #{query.purposeLocationId}
+            </if>
             GROUP BY bus_no
         ) sub ON t.id = sub.min_id
+        LEFT JOIN cus_supplier sup ON sup.id = sub.supplier_id AND sup.is_deleted = 0
+        LEFT JOIN adm_practitioner creator ON creator.id = sub.created_by
+        LEFT JOIN adm_practitioner approver ON approver.id = sub.approver_id
+        LEFT JOIN adm_location loc ON loc.id = sub.purpose_location_id AND loc.is_deleted = 0
         WHERE t.is_deleted = 0
         ORDER BY t.created_at DESC
     </select>

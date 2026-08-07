@@ -4,8 +4,9 @@ import com.zeroone.star.pharmacy.service.IInboundReceiptApprovalService;
 import com.zeroone.star.pharmacy.service.IInboundReceiptService;
 import com.zeroone.star.pharmacy.service.IWkfSupplyRequestService;
 import com.zeroone.star.project.dto.j6.pharmacy.inbound.AgreeInboundReceiptDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.inbound.InboundReceiptAddDTO;
 import com.zeroone.star.project.dto.j6.pharmacy.inbound.InboundReceiptDeleteDTO;
-import com.zeroone.star.project.dto.j6.pharmacy.inbound.InboundReceiptSaveDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.inbound.InboundReceiptSaveRequestDTO;
 import com.zeroone.star.project.dto.j6.pharmacy.inbound.RejectInboundReceiptDTO;
 import com.zeroone.star.project.dto.j6.pharmacy.inbound.SubmitInboundReceiptApprovalDTO;
 import com.zeroone.star.project.dto.j6.pharmacy.inbound.WithdrawInboundReceiptApprovalDTO;
@@ -16,7 +17,6 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j6.pharmacy.inbound.InboundApprovalResultVO;
 import com.zeroone.star.project.vo.j6.pharmacy.inbound.InboundReceiptDetailVO;
 import com.zeroone.star.project.vo.j6.pharmacy.inbound.InboundReceiptListVO;
-import com.zeroone.star.project.vo.j6.pharmacy.inbound.InboundReceiptSaveResultVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -70,23 +69,35 @@ public class WarehouseInboundController implements WarehouseInboundApis {
 
     @Override
     @PostMapping("/add")
-    @Operation(summary = "新增单据", description = "新增一张药库进货单草稿，按明细行写入 wkf_supply_request。")
-    public JsonVO<InboundReceiptSaveResultVO> addInboundReceipt(@Valid @RequestBody InboundReceiptSaveDTO dto) {
-        return executeSave(dto, () -> supplyRequestService.addInboundReceipt(dto));
+    @Operation(summary = "新增单据", description = "发送简洁上下文（库房、供应商等），返回空白草稿的完整文档结构（空卡片+空明细）。")
+    public JsonVO<InboundReceiptDetailVO> addInboundReceipt(@Valid @RequestBody InboundReceiptAddDTO dto) {
+        try {
+            return JsonVO.success(supplyRequestService.addInboundReceipt(dto));
+        } catch (Exception e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 
     @Override
     @PutMapping("/save")
-    @Operation(summary = "保存单据", description = "保存已存在的药库进货单草稿，校验版本后重建单据明细。")
-    public JsonVO<InboundReceiptSaveResultVO> saveInboundReceipt(@Valid @RequestBody InboundReceiptSaveDTO dto) {
-        return executeSave(dto, () -> supplyRequestService.saveInboundReceipt(dto));
+    @Operation(summary = "保存单据", description = "保存已存在的药库进货单草稿（请求结构同新增返回），校验版本后重建单据明细。")
+    public JsonVO<InboundReceiptDetailVO> saveInboundReceipt(@Valid @RequestBody InboundReceiptSaveRequestDTO dto) {
+        try {
+            return JsonVO.success(supplyRequestService.saveInboundReceipt(dto));
+        } catch (Exception e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 
     @Override
     @PostMapping("/submit")
-    @Operation(summary = "保存并提交审批", description = "保存单据并提交审批，提交后进入待审批状态并写入申请人、申请时间。")
-    public JsonVO<InboundReceiptSaveResultVO> saveAndSubmitInboundReceipt(@Valid @RequestBody InboundReceiptSaveDTO dto) {
-        return executeSave(dto, () -> supplyRequestService.saveAndSubmitInboundReceipt(dto));
+    @Operation(summary = "保存并提交审批", description = "保存单据并提交审批（请求结构同新增返回），提交后进入待审批状态。")
+    public JsonVO<InboundReceiptDetailVO> saveAndSubmitInboundReceipt(@Valid @RequestBody InboundReceiptSaveRequestDTO dto) {
+        try {
+            return JsonVO.success(supplyRequestService.saveAndSubmitInboundReceipt(dto));
+        } catch (Exception e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 
     @Override
@@ -128,46 +139,4 @@ public class WarehouseInboundController implements WarehouseInboundApis {
         return JsonVO.success(inboundApprovalService.reject(dto));
     }
 
-    private JsonVO<InboundReceiptSaveResultVO> executeSave(InboundReceiptSaveDTO dto, InboundReceiptSaveAction action) {
-        try {
-            validateSaveRequest(dto);
-            return JsonVO.success(action.execute());
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            return JsonVO.fail(e.getMessage());
-        } catch (Exception e) {
-            return JsonVO.fail("药库进货单处理失败：" + e.getMessage());
-        }
-    }
-
-    private void validateSaveRequest(InboundReceiptSaveDTO dto) {
-        if (dto == null) {
-            throw new IllegalArgumentException("药库进货单入参不能为空");
-        }
-        if (dto.getLines() == null || dto.getLines().isEmpty()) {
-            throw new IllegalArgumentException("药库进货单明细不能为空");
-        }
-        for (int i = 0; i < dto.getLines().size(); i++) {
-            InboundReceiptSaveDTO.InboundReceiptLineDTO line = dto.getLines().get(i);
-            if (line == null) {
-                throw new IllegalArgumentException("药库进货单第" + (i + 1) + "行明细不能为空");
-            }
-            if (line.getItemQuantity() == null || line.getItemQuantity().compareTo(BigDecimal.ZERO) <= 0) {
-                throw new IllegalArgumentException("药库进货单第" + (i + 1) + "行数量必须大于0");
-            }
-            if (line.getItemTable() == null || line.getItemTable().isBlank()) {
-                throw new IllegalArgumentException("药库进货单第" + (i + 1) + "行项目表不能为空");
-            }
-            if (line.getItemId() == null || line.getItemId().isBlank()) {
-                throw new IllegalArgumentException("药库进货单第" + (i + 1) + "行项目标识不能为空");
-            }
-            if (line.getUnitCode() == null || line.getUnitCode().isBlank()) {
-                throw new IllegalArgumentException("药库进货单第" + (i + 1) + "行单位编码不能为空");
-            }
-        }
-    }
-
-    @FunctionalInterface
-    private interface InboundReceiptSaveAction {
-        InboundReceiptSaveResultVO execute();
-    }
 }

@@ -7,7 +7,6 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j6.pharmacy.inbound.InboundApprovalResultVO;
 import com.zeroone.star.project.vo.j6.pharmacy.inbound.InboundReceiptDetailVO;
 import com.zeroone.star.project.vo.j6.pharmacy.inbound.InboundReceiptListVO;
-import com.zeroone.star.project.vo.j6.pharmacy.inbound.InboundReceiptSaveResultVO;
 
 import java.util.List;
 
@@ -57,22 +56,25 @@ public interface WarehouseInboundApis {
 
     /**
      * 新增药库进货单。
-     * @param dto 新增数据
-     * @return 新增结果
+     * 发送简洁上下文，返回左侧空卡片数据 + 右侧空明细表格结构。
+     * @param dto 新增上下文（库房、供应商等）
+     * @return 完整的空白文档结构
      */
-    JsonVO<InboundReceiptSaveResultVO> addInboundReceipt(InboundReceiptSaveDTO dto);
+    JsonVO<InboundReceiptDetailVO> addInboundReceipt(InboundReceiptAddDTO dto);
 
     /**
      * 保存药库进货单。
+     * 请求参数与新增返回响应结构一致。
      * @param dto 保存数据
-     * @return 保存结果
+     * @return 更新后的完整文档结构
      */
-    JsonVO<InboundReceiptSaveResultVO> saveInboundReceipt(InboundReceiptSaveDTO dto);
+    JsonVO<InboundReceiptDetailVO> saveInboundReceipt(InboundReceiptSaveRequestDTO dto);
 
     /**
      * 保存并提交药库进货单审批。
+     * 请求参数与新增返回响应结构一致。
      * @param dto 保存并提交数据
-     * @return 提交结果
+     * @return 更新后的完整文档结构
      */
-    JsonVO<InboundReceiptSaveResultVO> saveAndSubmitInboundReceipt(InboundReceiptSaveDTO dto);
+    JsonVO<InboundReceiptDetailVO> saveAndSubmitInboundReceipt(InboundReceiptSaveRequestDTO dto);
 }
