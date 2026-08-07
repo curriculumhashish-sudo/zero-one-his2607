@@ -11,15 +11,15 @@
 class GetSettleHistoryQuery : public PageQuery {
 	DTO_INIT(GetSettleHistoryQuery, PageQuery);
 
-	// »¼ÕßÖ÷¼ü
+	// æ‚£è€…ä¸»é”®
 	API_DTO_FIELD_REQUIRE(
 		String, patientId, ZH_WORDS_GETTER("ovo.charging.settle.patient_id"), true);
 
-	// ¿ÉÑ¡µÄ×¡Ôº¾ÍÕï¼ÇÂ¼Ö÷¼ü
+	// å¯é€‰çš„ä½é™¢å°±è¯Šè®°å½•ä¸»é”®
 	API_DTO_FIELD(
 		String, encounterId, ZH_WORDS_GETTER("ovo.charging.settle.history_encounter_id"), false, "");
 
-	// ½áËã×´Ì¬É¸Ñ¡Ìõ¼ş
+	// ç»“ç®—çŠ¶æ€ç­›é€‰æ¡ä»¶
 	API_DTO_FIELD(
 		String, statusEnum, ZH_WORDS_GETTER("ovo.charging.settle.history_status_filter"), false, "ALL");
 };

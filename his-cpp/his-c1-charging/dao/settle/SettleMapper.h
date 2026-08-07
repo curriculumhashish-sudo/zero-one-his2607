@@ -6,7 +6,7 @@
 #include "Mapper.h"
 #include "domain/do/settle/SettleDO.h"
 
-// ½áËãÕË»§Ó³ÉäÆ÷
+// ç»“ç®—è´¦æˆ·æ˜ å°„å™¨
 class SettlementAccountMapper : public Mapper<PtrSettlementAccountDO>
 {
 public:
@@ -30,7 +30,7 @@ public:
 	}
 };
 
-// ´ı½áËãÊÕ·ÑÏîÄ¿Ó³ÉäÆ÷
+// å¾…ç»“ç®—æ”¶è´¹é¡¹ç›®æ˜ å°„å™¨
 class SettlementChargeItemMapper : public Mapper<PtrSettlementChargeItemDO>
 {
 public:

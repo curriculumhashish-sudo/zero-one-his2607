@@ -9,18 +9,18 @@
 #include "domain/query/settle/GetSettleHistoryQuery.h"
 #include "domain/dto/settle/SettleDTO.h"
 
-// ×¡Ôº½áËã½Ó¿Ú²ÎÊıĞ£ÑéÆ÷
+// ä½é™¢ç»“ç®—æ¥å£å‚æ•°æ ¡éªŒå™¨
 class SettlementValidator {
 public:
-	// Ğ£Ñé»¼Õß·ÑÓÃÃ÷Ï¸²éÑ¯²ÎÊı
+	// æ ¡éªŒæ‚£è€…è´¹ç”¨æ˜ç»†æŸ¥è¯¢å‚æ•°
 	static std::string validateCostDetailQuery(
 		const GetCostDetailQuery::Wrapper &query);
 
-	// Ğ£Ñé»¼ÕßÀúÊ·½áËã²éÑ¯²ÎÊı
+	// æ ¡éªŒæ‚£è€…å†å²ç»“ç®—æŸ¥è¯¢å‚æ•°
 	static std::string validateSettleHistoryQuery(
 		const GetSettleHistoryQuery::Wrapper &query);
 
-	// Ğ£Ñé×¡Ôº½áËãÇëÇó²ÎÊı
+	// æ ¡éªŒä½é™¢ç»“ç®—è¯·æ±‚å‚æ•°
 	static std::string validateSettleRequest(
 		const SettleRequestDTO::Wrapper &dto);
 };

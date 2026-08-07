@@ -10,15 +10,15 @@
 class GetCostDetailQuery : public oatpp::DTO {
 	DTO_INIT(GetCostDetailQuery, DTO);
 
-	// ×¡Ôº¾ÍÕï¼ÇÂ¼Ö÷¼ü
+	// ä½é™¢å°±è¯Šè®°å½•ä¸»é”®
 	API_DTO_FIELD_REQUIRE(
 		String, encounterId, ZH_WORDS_GETTER("ovo.charging.settle.encounter_id"), true);
 
-	// »¼ÕßÖ÷¼üÓÃÓÚĞ£Ñé×¡Ôº¼ÇÂ¼¹éÊô
+	// æ‚£è€…ä¸»é”®ç”¨äºæ ¡éªŒä½é™¢è®°å½•å½’å±
 	API_DTO_FIELD_REQUIRE(
 		String, patientId, ZH_WORDS_GETTER("ovo.charging.settle.patient_id"), true);
 
-	// ÊÕ·ÑÃ÷Ï¸×´Ì¬É¸Ñ¡Ìõ¼ş
+	// æ”¶è´¹æ˜ç»†çŠ¶æ€ç­›é€‰æ¡ä»¶
 	API_DTO_FIELD(
 		String, statusEnum, ZH_WORDS_GETTER("ovo.charging.settle.cost_status_filter"), false, "ALL");
 };

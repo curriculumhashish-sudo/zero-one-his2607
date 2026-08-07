@@ -5,8 +5,8 @@
 
 #include "../DoInclude.h"
 
-// µ¥Ìõ×¡Ôº½áËã»òÍË½áËã¼ÇÂ¼Ö»¶ÁÍ¶Ó°
-// Êı¾İÓÉ fin_payment_reconciliation¡¢adm_patient¡¢adm_encounter ºÍ fin_payment_yb_settlement ÁªºÏ²éÑ¯µÃµ½
+// å•æ¡ä½é™¢ç»“ç®—æˆ–é€€ç»“ç®—è®°å½•åªè¯»æŠ•å½±
+// æ•°æ®ç”± fin_payment_reconciliationã€adm_patientã€adm_encounter å’Œ fin_payment_yb_settlement è”åˆæŸ¥è¯¢å¾—åˆ°
 class GetSettleHistoryDO : public BaseDO {
 	MYSQL_SYNTHESIZE(std::string, settlementId, SettlementId);
 	MYSQL_SYNTHESIZE(std::string, paymentNo, PaymentNo);
@@ -44,7 +44,7 @@ public:
 
 typedef std::shared_ptr<GetSettleHistoryDO> PtrGetSettleHistoryDO;
 
-// µ¥Ìõ½áËãÖ§¸¶ÇşµÀÃ÷Ï¸Ö»¶ÁÍ¶Ó°
+// å•æ¡ç»“ç®—æ”¯ä»˜æ¸ é“æ˜ç»†åªè¯»æŠ•å½±
 class SettleHistoryPaymentDetailDO : public BaseDO {
 	MYSQL_SYNTHESIZE(std::string, paymentDetailId, PaymentDetailId);
 	MYSQL_SYNTHESIZE(std::string, reconciliationId, ReconciliationId);

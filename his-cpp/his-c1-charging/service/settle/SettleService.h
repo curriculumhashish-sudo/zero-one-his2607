@@ -6,10 +6,10 @@
 #include "domain/dto/PayloadDTO.h"
 #include "domain/dto/settle/SettleDTO.h"
 
-// ×¡Ôº½áËãÒµÎñ·şÎñ
+// ä½é™¢ç»“ç®—ä¸šåŠ¡æœåŠ¡
 class SettleService {
 public:
-	// ÔÚÍ¬Ò»ÊÂÎñÖĞÍê³É·ÑÓÃĞ£Ñé¡¢Ö§¸¶Âä¿âºÍ½áËã×´Ì¬¸üĞÂ
+	// åœ¨åŒä¸€äº‹åŠ¡ä¸­å®Œæˆè´¹ç”¨æ ¡éªŒã€æ”¯ä»˜è½åº“å’Œç»“ç®—çŠ¶æ€æ›´æ–°
 	SettleResultDTO::Wrapper settle(const SettleRequestDTO::Wrapper &dto, const PayloadDTO &payload);
 };
 

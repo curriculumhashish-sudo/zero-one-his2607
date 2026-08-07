@@ -10,17 +10,17 @@
 #include "domain/do/settle/GetCostDetailDO.h"
 #include "domain/query/settle/GetCostDetailQuery.h"
 
-// »ñÈ¡»¼Õß×¡Ôº·ÑÓÃÃ÷Ï¸µÄÊı¾İ·ÃÎÊ¶ÔÏó
+// è·å–æ‚£è€…ä½é™¢è´¹ç”¨æ˜ç»†çš„æ•°æ®è®¿é—®å¯¹è±¡
 class GetCostDetailDAO : public BaseDAO {
 private:
-	// ¹¹½¨ÊÕ·ÑÃ÷Ï¸µÄ¶¯Ì¬²éÑ¯Ìõ¼ş
+	// æ„å»ºæ”¶è´¹æ˜ç»†çš„åŠ¨æ€æŸ¥è¯¢æ¡ä»¶
 	inline std::string queryConditionBuilder(const GetCostDetailQuery::Wrapper &query, SqlParams &params);
 
 public:
-	// ²éÑ¯»¼Õß¡¢×¡Ôº¼ÇÂ¼¼°·ÑÓÃ»ã×ÜĞÅÏ¢
+	// æŸ¥è¯¢æ‚£è€…ã€ä½é™¢è®°å½•åŠè´¹ç”¨æ±‡æ€»ä¿¡æ¯
 	PtrGetCostDetailDO selectSummary(const GetCostDetailQuery::Wrapper &query);
 
-	// ²éÑ¯»¼Õß×¡Ôº·ÑÓÃÃ÷Ï¸
+	// æŸ¥è¯¢æ‚£è€…ä½é™¢è´¹ç”¨æ˜ç»†
 	std::list<PtrCostDetailItemDO> selectItems(const GetCostDetailQuery::Wrapper &query);
 };
 

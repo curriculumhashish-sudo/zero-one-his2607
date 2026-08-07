@@ -6,7 +6,7 @@
 #include "Mapper.h"
 #include "domain/do/settle/GetSettleHistoryDO.h"
 
-// »¼ÕßÀúÊ·½áËã¼ÇÂ¼Ó³ÉäÆ÷
+// æ‚£è€…å†å²ç»“ç®—è®°å½•æ˜ å°„å™¨
 class GetSettleHistoryMapper : public Mapper<PtrGetSettleHistoryDO>
 {
 public:
@@ -31,7 +31,7 @@ public:
 	}
 };
 
-// ÀúÊ·½áËãÖ§¸¶Ã÷Ï¸Ó³ÉäÆ÷
+// å†å²ç»“ç®—æ”¯ä»˜æ˜ç»†æ˜ å°„å™¨
 class SettleHistoryPaymentDetailMapper :
 	public Mapper<PtrSettleHistoryPaymentDetailDO>
 {

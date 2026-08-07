@@ -10,45 +10,45 @@
 #include "BaseDAO.h"
 #include "domain/do/settle/SettleDO.h"
 
-// ×¡Ôº½áËãÊı¾İ·ÃÎÊ¶ÔÏó
-// Ğ´²Ù×÷±£³ÖÔ­×Ó»¯£¬ºóĞøÒµÎñ²ã¿ÉÍ¨¹ı¹²Ïí SqlSession ½«ÕâĞ©²Ù×÷ÄÉÈëÍ¬Ò»ÊÂÎñ
+// ä½é™¢ç»“ç®—æ•°æ®è®¿é—®å¯¹è±¡
+// å†™æ“ä½œä¿æŒåŸå­åŒ–ï¼Œåç»­ä¸šåŠ¡å±‚å¯é€šè¿‡å…±äº« SqlSession å°†è¿™äº›æ“ä½œçº³å…¥åŒä¸€äº‹åŠ¡
 class SettleDAO : public BaseDAO {
 public:
-	// Ëø¶¨²¢²éÑ¯±¾´Î½áËãÊ¹ÓÃµÄ»¼ÕßÕË»§
+	// é”å®šå¹¶æŸ¥è¯¢æœ¬æ¬¡ç»“ç®—ä½¿ç”¨çš„æ‚£è€…è´¦æˆ·
 	PtrSettlementAccountDO selectAccountForUpdate(
 		const std::string &patientId,
 		const std::string &encounterId,
 		const std::string &accountId);
 
-	// Ëø¶¨²¢²éÑ¯±¾´Î½áËãµÄÊÕ·ÑÏîÄ¿
+	// é”å®šå¹¶æŸ¥è¯¢æœ¬æ¬¡ç»“ç®—çš„æ”¶è´¹é¡¹ç›®
 	std::list<PtrSettlementChargeItemDO> selectChargeItemsForUpdate(
 		const std::string &patientId,
 		const std::string &encounterId,
 		const std::string &accountId,
 		const std::vector<std::string> &chargeItemIds);
 
-	// ÅĞ¶Ï½áËãºÏÍ¬ÊÇ·ñÎªÒ½±£ºÏÍ¬
+	// åˆ¤æ–­ç»“ç®—åˆåŒæ˜¯å¦ä¸ºåŒ»ä¿åˆåŒ
 	bool isInsuranceContract(const std::string &tenantId, const std::string &contractNo);
 
-	// ĞÂÔö½áËãÖ§¸¶Á÷Ë®
+	// æ–°å¢ç»“ç®—æ”¯ä»˜æµæ°´
 	int insertPayment(const SettlementPaymentDO &data);
 
-	// ĞÂÔö½áËãÖ§¸¶Ã÷Ï¸
+	// æ–°å¢ç»“ç®—æ”¯ä»˜æ˜ç»†
 	int insertPaymentDetails(const std::list<SettlementPaymentDetailDO> &dataList);
 
-	// ĞÂÔö½áËã·¢Æ±
+	// æ–°å¢ç»“ç®—å‘ç¥¨
 	int insertInvoice(const SettlementInvoiceDO &data);
 
-	// ĞÂÔöÒ½±£Ô¤½áËã¼ÇÂ¼
+	// æ–°å¢åŒ»ä¿é¢„ç»“ç®—è®°å½•
 	int insertPreSettle(const InpatientPreSettleDO &data);
 
-	// ĞÂÔöÒ½±£ÕıÊ½½áËã¼ÇÂ¼
+	// æ–°å¢åŒ»ä¿æ­£å¼ç»“ç®—è®°å½•
 	int insertYbSettlementRecord(const InpatientYbSettlementRecordDO &data);
 
-	// ĞÂÔöÖ§¸¶Á÷Ë®ÓëÒ½±£ÕıÊ½½áËã¼ÇÂ¼µÄ¹ØÁª
+	// æ–°å¢æ”¯ä»˜æµæ°´ä¸åŒ»ä¿æ­£å¼ç»“ç®—è®°å½•çš„å…³è”
 	int insertYbLink(const SettlementYbLinkDO &data);
 
-	// ½«Ö¸¶¨ÊÕ·ÑÏîÄ¿¸üĞÂÎªÒÑ½áËã×´Ì¬
+	// å°†æŒ‡å®šæ”¶è´¹é¡¹ç›®æ›´æ–°ä¸ºå·²ç»“ç®—çŠ¶æ€
 	int updateChargeItemsToSettled(
 		const std::string &patientId,
 		const std::string &encounterId,
@@ -57,13 +57,13 @@ public:
 		const std::string &updatedAt,
 		const std::string &updatedBy);
 
-	// Í³¼Æ¾ÍÕïÕË»§ÏÂÊ£ÓàµÄ´ı½áËãÊÕ·ÑÏîÄ¿
+	// ç»Ÿè®¡å°±è¯Šè´¦æˆ·ä¸‹å‰©ä½™çš„å¾…ç»“ç®—æ”¶è´¹é¡¹ç›®
 	uint64_t countUnsettledChargeItems(
 		const std::string &patientId,
 		const std::string &encounterId,
 		const std::string &accountId);
 
-	// Ê¹ÓÃÀÖ¹ÛËø¸üĞÂÕË»§Óà¶î¼°½áÕË×´Ì¬
+	// ä½¿ç”¨ä¹è§‚é”æ›´æ–°è´¦æˆ·ä½™é¢åŠç»“è´¦çŠ¶æ€
 	int updateAccountAfterSettlement(
 		const std::string &accountId,
 		const std::string &patientId,
