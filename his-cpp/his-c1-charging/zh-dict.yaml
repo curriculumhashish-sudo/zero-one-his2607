@@ -693,6 +693,12 @@ lhfc:
       ConfirmPrintResponseDTO:
         ok:
           description: 审计落库是否成功
+        status:
+          description: 打印结果状态 SUCCESS / FAILED
+        errorCode:
+          description: 失败时的错误码
+        errorMessage:
+          description: 失败时的错误信息
       # ---- 字典翻译 ----
       dict:
         gender:
