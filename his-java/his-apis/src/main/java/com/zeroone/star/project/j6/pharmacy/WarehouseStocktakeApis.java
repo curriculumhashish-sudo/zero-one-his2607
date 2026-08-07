@@ -1,7 +1,6 @@
 package com.zeroone.star.project.j6.pharmacy;
 
 import com.zeroone.star.project.dto.j6.pharmacy.stocktake.*;
-import com.zeroone.star.project.dto.j6.pharmacy.stocktake.StocktakeSaveDTO;
 import com.zeroone.star.project.query.j6.pharmacy.PharmacyInventoryDetailQuery;
 import com.zeroone.star.project.query.j6.pharmacy.stocktake.PharmacyInventoryQuery;
 import com.zeroone.star.project.vo.JsonVO;
@@ -11,96 +10,74 @@ import com.zeroone.star.project.vo.j6.pharmacy.stocktake.StocktakeDetailVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 
 public interface WarehouseStocktakeApis {
 
     /**
      * 分页+多条件查询盘点单据列表
-     * @param query 封装：分页参数 + 筛选条件（单据号、日期、药库、项目类型）
-     * @return JsonVO包裹分页数据
      */
     JsonVO<PharmacyInventoryListVO> listInventory(PharmacyInventoryQuery query);
 
     /**
      * 根据id查询盘点单详情
-     * @param query 封装单据id
-     * @return JsonVO包裹完整单据详情（表头+明细）
      */
     JsonVO<PharmacyInventoryDetailVO> getInventoryDetail(PharmacyInventoryDetailQuery query);
 
     /**
      * 删除盘点单据
-     * @param busNo
-     * @return JsonVO包裹删除后的单据基础信息
      */
     JsonVO<Boolean> deleteStocktake(@Parameter(description = "盘点单号") String busNo);
 
     /**
-     * 新增盘点单
-     * <p>服务端根据头信息生成空明细行（占位），状态标记为草稿</p>
-     *
-     * @param dto 头信息（purposeLocationId、categoryEnum 必填，busNo 由服务端生成，无需传入）
-     * @return 含空明细行的盘点单详情
+     * 新增盘点单。
+     * 发送简洁上下文，返回空草稿的完整文档结构。
+     * @param dto 新增上下文（库房、盘点人等）
+     * @return 完整的空白文档结构
      */
-    @Operation(summary = "新增盘点单", description = "生成空盘点单, 状态=草稿")
-    @PostMapping("/warehouse/stocktake/create")
-    JsonVO<StocktakeDetailVO> createStocktake(StocktakeSaveDTO dto);
+    @Operation(summary = "新增盘点单", description = "生成空盘点单，状态=草稿")
+    JsonVO<StocktakeDetailVO> createStocktake(StocktakeAddDTO dto);
 
     /**
-     * 保存盘点单
-     * <p>填入完整实盘数据，快照锁定当前账面数（通过 inventoryItemId 关联 wkf_inventory_item），状态保持草稿</p>
-     *
-     * @param busNo 盘点单号（路径参数）
-     * @param dto   头信息 + 明细行列表(明细行仅含 inventoryItemId, traceNo, remake, actualQuantity, profitLossQuantity, unitCode, lotNumber)
+     * 保存盘点单。
+     * 请求参数与新增返回响应结构一致。
+     * @param busNo 盘点单号
+     * @param dto   保存数据
      * @return 更新后的盘点单详情
      */
     @Operation(summary = "保存盘点单", description = "填入实盘数据 + 快照锁定账面数，状态=草稿")
-    @PutMapping("/warehouse/stocktake/{busNo}/save")
-    JsonVO<StocktakeDetailVO> saveStocktake(@PathVariable @Parameter(description = "盘点单号", required = true) String busNo, StocktakeSaveDTO dto);
+    JsonVO<StocktakeDetailVO> saveStocktake(
+            @PathVariable @Parameter(description = "盘点单号", required = true) String busNo,
+            StocktakeSaveRequestDTO dto);
 
     /**
-     * 保存盘点单并提交审批
-     * <p>将盘点明细数据更新到库中，获取申请人和申请时间，将状态从草稿更新为待审批</p>
-     *
-     * @param busNo 盘点单号（路径参数）
-     * @param dto   头信息 + 明细行列表(明细行含 inventoryItemId, unitCode, lotNumber, actualQuantity, profitLossQuantity, traceNo, remake)
+     * 保存盘点单并提交审批。
+     * 请求参数与新增返回响应结构一致。
+     * @param busNo 盘点单号
+     * @param dto   保存并提交数据
      * @return 更新后的盘点单详情（状态=PENDING_APPROVAL）
      */
-    @Operation(summary = "保存盘点单并提交审批", description = "填入实盘数据，状态草稿→待审批")
-    @PutMapping("/warehouse/stocktake/{busNo}/submit")
-    JsonVO<StocktakeDetailVO> submitStocktake(@PathVariable @Parameter(description = "盘点单号", required = true) String busNo, StocktakeSaveDTO dto);
+    @Operation(summary = "保存并提交审批", description = "填入实盘数据，状态草稿→待审批")
+    JsonVO<StocktakeDetailVO> submitStocktake(
+            @PathVariable @Parameter(description = "盘点单号", required = true) String busNo,
+            StocktakeSaveRequestDTO dto);
 
     /**
      * 提交药库盘点审批
-     *
-     * @param dto 提交审批参数
-     * @return JsonVO<Boolean> 提交结果
      */
     JsonVO<Boolean> submitStocktakeApproval(StocktakeSubmitApprovalDTO dto);
 
     /**
      * 撤回药库盘点审批
-     *
-     * @param dto 撤回审批参数
-     * @return JsonVO<Boolean> 撤回结果
      */
     JsonVO<Boolean> withdrawStocktakeApproval(StocktakeWithdrawApprovalDTO dto);
 
     /**
      * 通过药库盘点审批
-     *
-     * @param dto 审批通过参数
-     * @return JsonVO<Boolean> 审批结果
      */
     JsonVO<Boolean> agreeStocktakeApproval(StocktakeAgreeApprovalDTO dto);
 
     /**
      * 驳回药库盘点审批
-     *
-     * @param dto 审批驳回参数
-     * @return JsonVO<Boolean> 驳回结果
      */
     JsonVO<Boolean> rejectStocktakeApproval(StocktakeRejectApprovalDTO dto);
 }

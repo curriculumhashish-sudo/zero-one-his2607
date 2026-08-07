@@ -33,7 +33,7 @@ public class WarehouseStocktakeController implements WarehouseStocktakeApis {
     @GetMapping("list")
     @Operation(summary = "获取单据列表（条件+分页）")
     public JsonVO<PharmacyInventoryListVO> listInventory(PharmacyInventoryQuery query) {
-        PharmacyInventoryListVO pageResult=IwkfSupplyRequestService.listInventory(query);
+        PharmacyInventoryListVO pageResult = IwkfSupplyRequestService.listInventory(query);
         return JsonVO.success(pageResult);
     }
 
@@ -41,7 +41,7 @@ public class WarehouseStocktakeController implements WarehouseStocktakeApis {
     @GetMapping("/detail")
     @Operation(summary = "获取单据详情")
     public JsonVO<PharmacyInventoryDetailVO> getInventoryDetail(PharmacyInventoryDetailQuery query) {
-        PharmacyInventoryDetailVO vo=IwkfSupplyRequestService.getStocktakeDetail(query);
+        PharmacyInventoryDetailVO vo = IwkfSupplyRequestService.getStocktakeDetail(query);
         return JsonVO.success(vo);
     }
 
@@ -49,84 +49,84 @@ public class WarehouseStocktakeController implements WarehouseStocktakeApis {
     @DeleteMapping("/{busNo}")
     @Operation(summary = "删除单据")
     public JsonVO<Boolean> deleteStocktake(@PathVariable String busNo) {
-        PharmacyInventoryDeleteVO vo=IwkfSupplyRequestService.deleteStocktake(busNo);
+        PharmacyInventoryDeleteVO vo = IwkfSupplyRequestService.deleteStocktake(busNo);
         return JsonVO.success(vo.getSuccess());
     }
 
-    /**
-     * 新增盘点单
-     * <p>生成空盘点单头，不生成明细行（明细由前端逐行添加后通过 saveStocktake 保存）</p>
-     */
     @Override
-    @Operation(summary = "新增单据", description = "生成空盘点单, 状态=草稿")
     @PostMapping("/create")
-    public JsonVO<StocktakeDetailVO> createStocktake(@RequestBody StocktakeSaveDTO dto) {
-        return JsonVO.success(stocktakeService.createStocktake(dto));
+    @Operation(summary = "新增单据", description = "发送简洁上下文（库房、盘点人等），返回空白草稿的完整文档结构。")
+    public JsonVO<StocktakeDetailVO> createStocktake(@RequestBody StocktakeAddDTO dto) {
+        try {
+            return JsonVO.success(stocktakeService.createStocktake(dto));
+        } catch (Exception e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 
-    /**
-     * 保存盘点单
-     * <p>先删后插策略：快照锁定账面数 + 从库存项补全物品信息 + 批量写入明细行</p>
-     */
     @Override
-    @Operation(summary = "保存单据", description = "填入实盘数据 + 快照锁定账面数，状态=草稿")
     @PutMapping("/{busNo}/save")
-    public JsonVO<StocktakeDetailVO> saveStocktake(@PathVariable String busNo, @RequestBody StocktakeSaveDTO dto) {
-        return JsonVO.success(stocktakeService.saveStocktake(busNo, dto));
+    @Operation(summary = "保存单据", description = "填入实盘数据 + 快照锁定账面数（请求结构同新增返回），状态=草稿")
+    public JsonVO<StocktakeDetailVO> saveStocktake(@PathVariable String busNo, @RequestBody StocktakeSaveRequestDTO dto) {
+        try {
+            return JsonVO.success(stocktakeService.saveStocktake(busNo, dto));
+        } catch (Exception e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 
-    /**
-     * 保存盘点单并提交审批
-     * <p>保存盘点数据 + 状态流转 DRAFT → PENDING_APPROVAL</p>
-     */
     @Override
-    @Operation(summary = "保存并提交审批", description = "填入实盘数据，状态草稿→待审批")
     @PutMapping("/{busNo}/submit")
-    public JsonVO<StocktakeDetailVO> submitStocktake(@PathVariable String busNo, @RequestBody StocktakeSaveDTO dto) {
-        return JsonVO.success(stocktakeService.submitStocktake(busNo, dto));
+    @Operation(summary = "保存并提交审批", description = "填入实盘数据 + 快照锁定账面数（请求结构同新增返回），状态草稿→待审批")
+    public JsonVO<StocktakeDetailVO> submitStocktake(@PathVariable String busNo, @RequestBody StocktakeSaveRequestDTO dto) {
+        try {
+            return JsonVO.success(stocktakeService.submitStocktake(busNo, dto));
+        } catch (Exception e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 
     @Resource
     private IStocktakeApprovalService stocktakeApprovalService;
 
     @Override
-    @Operation(summary = "提交审批")
     @PostMapping("/submit-approval")
+    @Operation(summary = "提交审批")
     public JsonVO<Boolean> submitStocktakeApproval(@Valid @RequestBody StocktakeSubmitApprovalDTO dto) {
-        return execute(() -> stocktakeApprovalService.submit(dto));
+        return execute(stocktakeApprovalService::submit, dto);
     }
 
     @Override
-    @Operation(summary = "撤回审批")
     @PostMapping("/withdraw-approval")
+    @Operation(summary = "撤回审批")
     public JsonVO<Boolean> withdrawStocktakeApproval(@Valid @RequestBody StocktakeWithdrawApprovalDTO dto) {
-        return execute(() -> stocktakeApprovalService.withdraw(dto));
+        return execute(stocktakeApprovalService::withdraw, dto);
     }
 
     @Override
-    @Operation(summary = "审批通过")
     @PostMapping("/approve")
+    @Operation(summary = "审批通过")
     public JsonVO<Boolean> agreeStocktakeApproval(@Valid @RequestBody StocktakeAgreeApprovalDTO dto) {
-        return execute(() -> stocktakeApprovalService.agree(dto));
+        return execute(stocktakeApprovalService::agree, dto);
     }
 
     @Override
-    @Operation(summary = "驳回审批")
     @PostMapping("/reject")
+    @Operation(summary = "驳回审批")
     public JsonVO<Boolean> rejectStocktakeApproval(@Valid @RequestBody StocktakeRejectApprovalDTO dto) {
-        return execute(() -> stocktakeApprovalService.reject(dto));
-    }
-
-    private JsonVO<Boolean> execute(ApprovalAction action) {
-        try {
-            return JsonVO.success(action.execute());
-        } catch (Exception e) {
-            return JsonVO.fail(e.getMessage());
-        }
+        return execute(stocktakeApprovalService::reject, dto);
     }
 
     @FunctionalInterface
-    private interface ApprovalAction {
-        Boolean execute();
+    private interface ApprovalAction<T> {
+        Boolean execute(T dto);
+    }
+
+    private <T> JsonVO<Boolean> execute(ApprovalAction<T> action, T dto) {
+        try {
+            return JsonVO.success(action.execute(dto));
+        } catch (Exception e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 }

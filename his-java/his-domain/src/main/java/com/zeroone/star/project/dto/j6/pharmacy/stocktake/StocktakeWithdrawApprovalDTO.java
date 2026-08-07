@@ -4,10 +4,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
+/**
+ * 盘点单撤回审批入参。
+ */
 @Data
-@Schema(description = "Withdraw warehouse stocktake approval request")
+@Schema(description = "药库盘点单撤回审批入参")
 public class StocktakeWithdrawApprovalDTO {
-    @Schema(description = "Stocktake order business number", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "busNo cannot be blank")
+
+    @Schema(description = "盘点单号", example = "CST202608070001", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "业务单号不能为空")
     private String busNo;
 }

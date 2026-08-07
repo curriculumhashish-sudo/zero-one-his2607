@@ -73,16 +73,16 @@ public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean agree(StocktakeAgreeApprovalDTO dto) {
-        requireAgreeStatus(dto.getStatus());
         List<WkfSupplyRequest> rows = requireWarehouseStocktake(dto.getBusNo());
         requireSameStatus(rows);
         requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_PENDING_APPROVAL);
 
         LocalDateTime now = LocalDateTime.now();
         String userId = currentUserId();
+        String approverId = StringUtils.hasText(dto.getApproverId()) ? dto.getApproverId() : userId;
         adjustInventory(rows, now, userId);
         int affectedRows = supplyRequestMapper.updateStocktakeToAgree(
-                dto.getBusNo(), TYPE_WAREHOUSE_STOCKTAKE, rows.get(0).getStatusEnum(), userId, now, now, userId);
+                dto.getBusNo(), TYPE_WAREHOUSE_STOCKTAKE, rows.get(0).getStatusEnum(), approverId, now, now, userId);
         requireUpdated(affectedRows);
         return true;
     }
@@ -99,9 +99,10 @@ public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
 
         LocalDateTime now = LocalDateTime.now();
         String userId = currentUserId();
+        String approverId = StringUtils.hasText(dto.getApproverId()) ? dto.getApproverId() : userId;
         String reason = buildReason(dto);
         int affectedRows = supplyRequestMapper.updateStocktakeToReject(
-                dto.getBusNo(), TYPE_WAREHOUSE_STOCKTAKE, rows.get(0).getStatusEnum(), userId, now, reason, now, userId);
+                dto.getBusNo(), TYPE_WAREHOUSE_STOCKTAKE, rows.get(0).getStatusEnum(), approverId, now, reason, now, userId);
         requireUpdated(affectedRows);
         return true;
     }
@@ -130,12 +131,6 @@ public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
             }
         }
         throw new IllegalStateException("current status " + currentStatus + " does not allow this approval action");
-    }
-
-    private void requireAgreeStatus(String status) {
-        if (StringUtils.hasText(status) && !STATUS_AGREE.equals(status)) {
-            throw new IllegalArgumentException("status must be AGREE when approving stocktake");
-        }
     }
 
     private void requireUpdated(int affectedRows) {
