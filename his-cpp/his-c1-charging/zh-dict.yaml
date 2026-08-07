@@ -688,6 +688,7 @@ QQQQ:
     priority_enum_text: 患者病情
     contract_id: 费用性质ID
     contract_name: 费用性质
+    cancelable: 是否可取消登记
   status:
     planned: 待登记
     registered: 已登记

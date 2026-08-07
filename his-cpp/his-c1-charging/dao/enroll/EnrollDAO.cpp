@@ -162,11 +162,15 @@ std::list<EnrollListDO> EnrollDAO::selectWithPage(const EnrollQuery::Wrapper& qu
     sql << R"(
         SELECT DISTINCT
             e.id AS encounter_id,
+            e.patient_id AS patient_id,
             e.bus_no AS encounter_bus_no,
             p.name AS patient_name,
             e.status_enum AS status_enum,
+            e.organization_id AS organization_id,
             o.name AS organization_name,
+            loc.ward_id AS ward_id,
             loc.ward_name AS ward_name,
+            loc.bed_id AS bed_id,
             loc.bed_name AS bed_name,
             e.start_time AS start_time
         FROM adm_encounter e
@@ -184,6 +188,15 @@ std::list<EnrollListDO> EnrollDAO::selectWithPage(const EnrollQuery::Wrapper& qu
         (
             SELECT
                 el.encounter_id,
+
+                MAX(
+                    CASE
+                        WHEN el.form_enum = 'WARD'
+                        AND el.status_enum = 'ACTIVE'
+                        THEN l.id
+                    END
+                ) AS ward_id,
+
                 MAX(
                     CASE
                         WHEN el.form_enum = 'WARD'
@@ -191,6 +204,15 @@ std::list<EnrollListDO> EnrollDAO::selectWithPage(const EnrollQuery::Wrapper& qu
                         THEN l.name
                     END
                 ) AS ward_name,
+
+                MAX(
+                    CASE
+                        WHEN el.form_enum = 'BED'
+                        AND el.status_enum = 'ACTIVE'
+                        THEN l.id
+                    END
+                ) AS bed_id,
+
                 MAX(
                     CASE
                         WHEN el.form_enum = 'BED'
