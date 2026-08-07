@@ -14,6 +14,19 @@ pipeline {
 
     stages {
 
+        stage('清理工作区') {
+            steps {
+                sh '''
+                    # 清理可能有权限问题的 git 缓存
+                    if [ -d ".git" ]; then
+                        chmod -R 755 .git 2>/dev/null || true
+                        chown -R $(whoami) .git 2>/dev/null || true
+                    fi
+                    echo "工作区清理完成"
+                '''
+            }
+        }
+
         stage('安装私有依赖') {
             steps {
                 dir('his-java/star-deps') {
