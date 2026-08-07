@@ -8,13 +8,11 @@ inline std::string GetSeeDAO::queryConditionBuilder(const GetSeeQuery::Wrapper& 
 	sqlCondition << " WHERE 1=1";
 	if (query->number) {
 
-		sqlCondition << " AND `bus_no`=?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->number.getValue(""));
+		sqlCondition << " AND `bus_no`="<<query->number.get();
 	}
 	if (query->name) {
 
-		sqlCondition << " AND name=?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->name.getValue(""));
+		sqlCondition << " AND name="<<query->name.get();
 	}
 	if (query->start_time) {
 

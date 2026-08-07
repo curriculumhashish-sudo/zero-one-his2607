@@ -7,14 +7,12 @@ inline std::string GetTodayAppointDAO::queryConditionBuilder(const GetTodayAppoi
 	sqlCondition << " WHERE 1=1 AND DATE(s.start_time) = CURDATE()";
 	if (query->doctor) {
 
-		sqlCondition << " AND `doctor`=?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->doctor.getValue(""));
+		sqlCondition << " AND `doctor`="<<query->doctor.get();
 	}
 
 	if (query->register_type) {
 
-		sqlCondition << " AND `register_type`=?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->register_type.getValue(""));
+		sqlCondition << " AND `register_type`="<<query->register_type.get();
 	}
 	return sqlCondition.str();
 }
