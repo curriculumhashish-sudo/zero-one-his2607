@@ -34,6 +34,7 @@
         COALESCE(med.bus_no, dev.bus_no)                       AS productBusNo,
         COALESCE(med.merchandise_name, dev.merchandise_name)   AS merchandiseName,
         COALESCE(med.manufacturer_text, dev.manufacturer_text) AS manufacturer,
+        COALESCE(med.total_volume, dev.total_volume) AS specification,
         COALESCE(med.approval_number, dev.approval_number)     AS approvalNumber,
         COALESCE(med.yb_no, dev.yb_no)                        AS ybNo,
         COALESCE(med.chrgitm_lv, dev.chrgitm_lv)              AS chrgitmLv,

@@ -36,6 +36,9 @@ public class InventoryDetailVO {
     @Schema(description = "生产厂家", example = "珠海联邦制药股份有限公司")
     private String manufacturer;
 
+    @Schema(description = "规格", example = "0.25g*24粒")
+    private String specification;
+
     @Schema(description = "批准文号", example = "国药准字H44021351")
     private String approvalNumber;
 

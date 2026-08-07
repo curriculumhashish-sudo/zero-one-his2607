@@ -45,9 +45,7 @@ public class WarehouseInventoryDetailController implements WarehouseInventoryDet
     @ResponseBody
     @Operation(
             summary = "获取库存明细列表（条件+分页）",
-            description = "携带筛选条件分页查询库存明细数据",
-            responses = @ApiResponse(responseCode = "200", description = "查询成功",
-                    content = @Content(schema = @Schema(implementation = JsonVO.class)))
+            description = "携带筛选条件分页查询库存明细数据"
     )
     public JsonVO<IPage<InventoryDetailVO>> pageInventoryDetailCurrent(@RequestBody InventoryDetailQuery inventoryDetailQueryDTO) {
         Page<InventoryDetailVO> inventoryDetailVOPage = inventoryDetailService.pageInventoryDetailCurrent(inventoryDetailQueryDTO);
