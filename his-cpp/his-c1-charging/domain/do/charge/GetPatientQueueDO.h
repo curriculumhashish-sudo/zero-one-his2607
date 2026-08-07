@@ -40,6 +40,8 @@ class GetPatientQueueDO : public BaseDO
     MYSQL_SYNTHESIZE(string, paidAmount, PaidAmount);
     // 最近一次成功支付的 payment ID
     MYSQL_SYNTHESIZE(string, paymentId, PaymentId);
+    // 支付方式编码（CASH/WECHAT/ALIPAY/SCAN_PAY/BANK_CARD）
+    MYSQL_SYNTHESIZE(string, paymentType, PaymentType);
 
 public:
     GetPatientQueueDO() : BaseDO("")
@@ -65,6 +67,7 @@ public:
         MYSQL_ADD_FIELD("total_amount", "s", totalAmount);
         MYSQL_ADD_FIELD("paid_amount", "s", paidAmount);
         MYSQL_ADD_FIELD("payment_id", "s", paymentId);
+        MYSQL_ADD_FIELD("payment_type", "s", paymentType);
     }
 };
 

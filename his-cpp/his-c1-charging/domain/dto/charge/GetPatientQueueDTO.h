@@ -85,6 +85,9 @@ class GetPatientQueueDTO : public oatpp::DTO
 
 	//最近一次成功支付流水主键
 	API_DTO_FIELD(String, paymentId, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.paymentId.description"), false, "335373637774217216");
+
+	//支付方式编码
+	API_DTO_FIELD(String, paymentType, ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueDTO.paymentType.description"), false, "");
 public:
 	// 数据校验（如需启用可自行解除注释并按需实现）
 	//std::string validate()

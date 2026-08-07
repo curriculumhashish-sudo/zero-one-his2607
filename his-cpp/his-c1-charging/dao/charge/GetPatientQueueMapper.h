@@ -39,6 +39,7 @@ public:
         data.setTotalAmount(resultSet->getString("total_amount"));
         data.setPaidAmount(resultSet->getString("paid_amount"));
         data.setPaymentId(resultSet->getString("payment_id"));
+        data.setPaymentType(resultSet->getString("payment_type"));
 
         return data;
     }

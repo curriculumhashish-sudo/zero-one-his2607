@@ -134,7 +134,8 @@ GetPatientQueuePageDTO::Wrapper GetPatientQueueService::listAll(
             organizationName, OrganizationName,
             doctorName, DoctorName,
             startTime, StartTime,
-            paymentId, PaymentId
+            paymentId, PaymentId,
+            paymentType, PaymentType
         );
 
         // 字典翻译字段
