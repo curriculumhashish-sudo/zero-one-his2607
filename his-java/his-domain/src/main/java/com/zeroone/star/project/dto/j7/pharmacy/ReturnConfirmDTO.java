@@ -1,6 +1,9 @@
 package com.zeroone.star.project.dto.j7.pharmacy;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,18 +32,23 @@ import java.util.List;
 @NoArgsConstructor
 @Schema(description = "住院退药确认DTO")
 public class ReturnConfirmDTO {
-    @Schema(description = "退药申请单ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "退药申请单ID不能为空")
+    @Size(max = 64, message = "退药申请单ID长度不能超过64个字符")
+    @Schema(description = "退药申请单ID", example = "326940849401761792", requiredMode = Schema.RequiredMode.REQUIRED)
     private String returnId;
 
-    @Schema(description = "患者ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "患者ID不能为空")
+    @Size(max = 64, message = "患者ID长度不能超过64个字符")
+    @Schema(description = "患者ID", example = "326940849401761792", requiredMode = Schema.RequiredMode.REQUIRED)
     private String patientId;
 
-    @Schema(description = "患者姓名")
+    @Schema(description = "患者姓名", example = "周女士")
     private String patientName;
 
-    @Schema(description = "确认退药的药品明细ID列表", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotEmpty(message = "确认退药的药品明细不能为空")
+    @Schema(description = "确认退药的药品明细ID列表", example = "[\"329891909520592897\"]", requiredMode = Schema.RequiredMode.REQUIRED)
     private List<String> itemIds;
 
-    @Schema(description = "操作人")
+    @Schema(description = "操作人", example = "prac_001")
     private String operator;
 }

@@ -50,10 +50,10 @@ public class InpatientDispenseRecordServiceImpl implements IInpatientDispenseRec
         normalizeAndValidate(query);
         List<InpatientDispenseRecordDTO> records = mapper.selectInpatientDispenseList(query, EXPORT_LIMIT + 1);
         if (records.size() > EXPORT_LIMIT) {
-            throw new IllegalStateException("导出记录不能超过10000条，请缩小筛选范围");
+            throw new IllegalArgumentException("导出记录不能超过10000条，请缩小筛选范围");
         }
         if (records.isEmpty()) {
-            throw new IllegalStateException("没有可导出的住院发退药记录");
+            throw new IllegalArgumentException("没有可导出的住院发退药记录");
         }
         return records;
     }

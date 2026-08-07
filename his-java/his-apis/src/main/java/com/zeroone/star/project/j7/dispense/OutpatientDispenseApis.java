@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,17 +16,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.io.IOException;
 
-@Tag(name = "门诊发退药记录")
+@Tag(name = "门诊发退药记录", description = "门诊药房发药/退药记录查询与导出")
 public interface OutpatientDispenseApis {
 
     @Operation(summary = "分页查询发退药记录（按处方分组）")
+    @PostMapping("/page")
     JsonVO<PageDTO<DispenseGroupVO>> queryPage(
-            @Parameter(description = "查询参数", required = true) DispenseQuery query
+            @RequestBody @Valid DispenseQuery query
     );
 
     @Operation(summary = "导出发退药记录（平铺格式）")
+    @PostMapping("/export")
     void export(
-            @Parameter(description = "查询参数") DispenseQuery query,
+            @RequestBody DispenseQuery query,
             HttpServletResponse response
     ) throws IOException;
 }

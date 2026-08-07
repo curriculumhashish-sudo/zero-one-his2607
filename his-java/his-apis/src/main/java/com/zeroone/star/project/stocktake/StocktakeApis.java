@@ -2,7 +2,6 @@ package com.zeroone.star.project.stocktake;
 
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.stocktake.StocktakeSaveDTO;
-import com.zeroone.star.project.dto.stocktake.StocktakeSubmitDTO;
 import com.zeroone.star.project.query.stocktake.StocktakeQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.stocktake.StocktakeDetailVO;
@@ -47,10 +46,9 @@ public interface StocktakeApis {
      * @return 盘点单分页列表
      */
     @Operation(summary = "获取盘点单列表")
-    @GetMapping("/list")
+    @PostMapping("/list")
     JsonVO<PageDTO<StocktakeListVO>> queryStocktakeList(
-            @Parameter(description = "分页及筛选条件", required = true)
-            @Valid @ModelAttribute StocktakeQuery query
+            @RequestBody @Valid StocktakeQuery query
     );
 
     /**
@@ -92,15 +90,4 @@ public interface StocktakeApis {
             @Valid @RequestBody StocktakeSaveDTO dto
     );
 
-    /**
-     * 提交盘点单审批
-     * @param dto 提交审批数据
-     * @return 提交结果
-     */
-    @Operation(summary = "提交盘点单审批")
-    @PostMapping("/submit")
-    JsonVO<String> submitStocktake(
-            @Parameter(description = "盘点单提交审批参数", required = true)
-            @Valid @RequestBody StocktakeSubmitDTO dto
-    );
 }

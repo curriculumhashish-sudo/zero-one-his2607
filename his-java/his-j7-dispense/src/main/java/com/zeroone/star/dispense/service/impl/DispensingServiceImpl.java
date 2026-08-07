@@ -7,10 +7,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zeroone.star.dispense.entity.InventoryItem;
 import com.zeroone.star.dispense.entity.MedMedicationDispense;
 import com.zeroone.star.dispense.mapper.InventoryItemMapper;
-import com.zeroone.star.dispense.mapper.MedicationDispenseMapper;
+import com.zeroone.star.dispense.mapper.MedMedicationDispenseMapper;
 import com.zeroone.star.dispense.service.IDispensingService;
 import com.zeroone.star.project.dto.ExtendPageDTO;
 import com.zeroone.star.project.dto.j7.dispense.DispenseVerifyDTO;
+import com.zeroone.star.project.query.j7.dispense.DispenseRejectQuery;
 import com.zeroone.star.project.query.j7.dispense.DispensingSummaryQuery;
 import com.zeroone.star.project.vo.j7.dispense.DispensingSummaryVO;
 import com.zeroone.star.project.vo.j7.dispense.PatientMedicationVO;
@@ -26,7 +27,7 @@ import java.util.List;
 @Service
 public class DispensingServiceImpl implements IDispensingService {
     @Resource
-    private MedicationDispenseMapper medicationDispenseMapper;
+    private MedMedicationDispenseMapper medicationDispenseMapper;
     @Resource
     private InventoryItemMapper inventoryItemMapper;
     @Override
@@ -78,6 +79,8 @@ public class DispensingServiceImpl implements IDispensingService {
                             .ge(MedMedicationDispense::getQuantity, item.getDispenseQuantity())
                             .set(MedMedicationDispense::getDispenseQuantity, item.getDispenseQuantity())
                             .set(MedMedicationDispense::getLotNumber, item.getLotNumber())
+                            .set(MedMedicationDispense::getPractitionerId, verifyDTO.getPractitionerId())
+                            .set(MedMedicationDispense::getRecPractitionerId, verifyDTO.getRecPractitionerId())
                             .set(MedMedicationDispense::getStatusEnum, "COMPLETED")
                             .set(MedMedicationDispense::getDispenseTime, LocalDateTime.now()));
             if (rows == 0) {
@@ -93,14 +96,39 @@ public class DispensingServiceImpl implements IDispensingService {
                             .ge(InventoryItem::getQuantity, item.getDispenseQuantity())
                             .setSql("quantity = quantity - " + item.getDispenseQuantity()));
             if (invRows == 0) {
-                throw new RuntimeException("库存不足，药品ID：" + dispense.getMedicationId()
+                throw new IllegalArgumentException("库存不足，药品ID：" + dispense.getMedicationId()
                         + "，批号：" + item.getLotNumber());
             }
         }
 
         if (!failedIds.isEmpty()) {
-            throw new RuntimeException("以下记录发药失败（已发药或超卖）：" + String.join(",", failedIds));
+            throw new IllegalArgumentException("以下记录发药失败（已发药或超卖）：" + String.join(",", failedIds));
         }
         return "发药成功";
+    }
+
+    /**
+     * 驳回患者发药单据，同步驳回汇总单
+     * <p>
+     * 在同一事务中执行：
+     * 1. 根据汇总单号找到所有待发药的记录
+     * 2. 将状态更新为"已拒绝"，记录驳回原因
+     * </p>
+     *
+     * @param dto 发药驳回参数（包含汇总单号和驳回原因）
+     */
+    @Override
+    @Transactional
+    public void rejectDispensing(DispenseRejectQuery dto) {
+        if (StrUtil.isBlank(dto.getSummaryNo())) {
+            throw new IllegalArgumentException("汇总单号不能为空");
+        }
+        medicationDispenseMapper.update(null,
+                new LambdaUpdateWrapper<MedMedicationDispense>()
+                        .eq(MedMedicationDispense::getSummaryNo, dto.getSummaryNo())
+                        .eq(MedMedicationDispense::getStatusEnum, "PENDING")
+                        .set(MedMedicationDispense::getStatusEnum, "DECLINED")
+                        .set(MedMedicationDispense::getNotPerformedReasonEnum, dto.getRejectReason())
+        );
     }
 }

@@ -69,7 +69,7 @@ class InboundApprovalServiceImplTest {
 
         assertEquals(BUS_NO, dto.getBusNo());
         assertEquals("填写有误", dto.getRemark());
-        assertEquals("WITHDRAW", result.getStatus());
+        assertEquals("WITHDRAWN", result.getStatus());
         verify(inboundApprovalMapper).update(isNull(), any(Wrapper.class));
     }
 
@@ -80,7 +80,7 @@ class InboundApprovalServiceImplTest {
         var result = service.approveApproval(new InboundApprovalDTO(BUS_NO, "同意入库"));
 
         assertEquals(BUS_NO, result.getBusNo());
-        assertEquals("AGREE", result.getStatus());
+        assertEquals("APPROVED", result.getStatus());
         assertEquals("审批通过", result.getMessage());
     }
 
@@ -95,7 +95,7 @@ class InboundApprovalServiceImplTest {
 
         mockPendingOrderAndUpdatedRows(1);
         var result = service.rejectApproval(new InboundApprovalDTO(BUS_NO, "数量不符"));
-        assertEquals("REJECT", result.getStatus());
+        assertEquals("REJECTED", result.getStatus());
     }
 
     @Test
@@ -113,7 +113,7 @@ class InboundApprovalServiceImplTest {
 
     @Test
     void operationRejectsOrderOutsidePendingStatus() {
-        pendingOrder.setStatusEnum("AGREE");
+        pendingOrder.setStatusEnum("APPROVED");
         when(inboundApprovalMapper.selectOne(any(Wrapper.class))).thenReturn(pendingOrder);
 
         IllegalArgumentException error = assertThrows(
@@ -121,7 +121,7 @@ class InboundApprovalServiceImplTest {
                 () -> service.approveApproval(new InboundApprovalDTO(BUS_NO, null))
         );
 
-        assertEquals("入库单不在待审批状态，当前状态：AGREE", error.getMessage());
+        assertEquals("入库单不在待审批状态，当前状态：APPROVED", error.getMessage());
     }
 
     @Test
@@ -151,6 +151,20 @@ class InboundApprovalServiceImplTest {
         );
 
         assertEquals("审批流转失败，单据可能已被其他操作处理：" + BUS_NO, error.getMessage());
+    }
+
+    @Test
+    void operationRequiresAuthenticatedUser() throws Exception {
+        when(inboundApprovalMapper.selectOne(any(Wrapper.class))).thenReturn(pendingOrder);
+        when(userHolder.getCurrentUser()).thenReturn(null);
+
+        IllegalArgumentException error = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.approveApproval(new InboundApprovalDTO(BUS_NO, null))
+        );
+
+        assertEquals("未获取到当前登录用户，无法执行审批流转", error.getMessage());
+        verify(inboundApprovalMapper, never()).update(isNull(), any(Wrapper.class));
     }
 
     private void mockPendingOrderAndUpdatedRows(int rows) {

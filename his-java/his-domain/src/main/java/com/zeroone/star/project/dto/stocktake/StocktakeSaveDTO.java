@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -22,6 +23,7 @@ import java.util.List;
 @Schema(description = "盘点单保存参数")
 public class StocktakeSaveDTO {
 
+    @Size(max = 255, message = "业务单号长度不能超过255个字符")
     @Schema(description = "业务单号（新增时可为空）", example = "PST202607300001")
     private String busNo;
 
@@ -29,6 +31,7 @@ public class StocktakeSaveDTO {
     private String tenantId;
 
     @NotBlank(message = "库房标识不能为空")
+    @Size(max = 64, message = "库房标识长度不能超过64个字符")
     @Schema(description = "库房标识", example = "322954949549363200", requiredMode = Schema.RequiredMode.REQUIRED)
     private String warehouseId;
 

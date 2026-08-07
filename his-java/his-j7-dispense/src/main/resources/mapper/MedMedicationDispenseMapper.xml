@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.dispense.mapper.MedMedicationDispenseMapper">
+
+    <sql id="staySubQuery">
+        LEFT JOIN (
+            SELECT
+                ranked_el.encounter_id,
+                MAX(CASE WHEN UPPER(ranked_el.form_enum) = 'BED' THEN location.name END) AS bed_no,
+                COALESCE(
+                    MAX(CASE WHEN UPPER(ranked_el.form_enum) = 'WARD' THEN location.name END),
+                    MAX(CASE WHEN UPPER(parent.form_enum) = 'WARD' THEN parent.name END),
+                    MAX(CASE WHEN UPPER(grandparent.form_enum) = 'WARD' THEN grandparent.name END)
+                ) AS ward_name,
+                COALESCE(
+                    MAX(CASE WHEN UPPER(ranked_el.form_enum) = 'WARD' THEN location.id END),
+                    MAX(CASE WHEN UPPER(parent.form_enum) = 'WARD' THEN parent.id END),
+                    MAX(CASE WHEN UPPER(grandparent.form_enum) = 'WARD' THEN grandparent.id END)
+                ) AS ward_id
+            FROM (
+                SELECT
+                    el.*,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY el.encounter_id, UPPER(el.form_enum)
+                        ORDER BY
+                            CASE WHEN UPPER(el.status_enum) = 'ACTIVE' AND el.end_time IS NULL THEN 0 ELSE 1 END,
+                            el.start_time DESC,
+                            el.created_at DESC,
+                            el.id DESC
+                    ) AS position_rank
+                FROM adm_encounter_location el
+                WHERE el.is_deleted = 0
+                  AND UPPER(el.form_enum) IN ('WARD', 'BED')
+            ) ranked_el
+            INNER JOIN adm_location location ON location.id = ranked_el.location_id AND location.is_deleted = 0
+            LEFT JOIN adm_location parent ON parent.id = location.parent_id AND parent.is_deleted = 0
+            LEFT JOIN adm_location grandparent ON grandparent.id = parent.parent_id AND grandparent.is_deleted = 0
+            WHERE ranked_el.position_rank = 1
+            GROUP BY ranked_el.encounter_id
+        ) stay ON stay.encounter_id = e.id
+    </sql>
+
+    <select id="selectSummaryPage"
+            resultType="com.zeroone.star.project.vo.j7.dispense.DispensingSummaryVO">
+        SELECT
+        d.summary_no AS summaryNo,
+        stay.ward_id AS wardId,
+        stay.ward_name AS wardName,
+        d.location_id AS deptId,
+        loc.name AS deptName,
+        SUM(d.quantity) AS totalQty,
+        COUNT(DISTINCT d.patient_id) AS patientCount,
+        MAX(d.status_enum) AS status,
+        MIN(d.created_at) AS createTime,
+        MAX(d.dispense_time) AS dispenseTime,
+        MAX(prac.name) AS operatorName
+        FROM med_medication_dispense d
+        LEFT JOIN adm_encounter e ON e.id = d.encounter_id AND e.is_deleted = 0
+        LEFT JOIN adm_location loc ON loc.id = d.location_id AND loc.is_deleted = 0
+        LEFT JOIN adm_practitioner prac ON prac.id = d.practitioner_id AND prac.is_deleted = 0
+        <include refid="staySubQuery"/>
+        WHERE d.is_deleted = 0
+        AND UPPER(d.dispense_enum) = 'INPATIENT'
+        AND UPPER(e.class_enum) IN ('INPATIENT', 'IMP')
+        AND d.summary_no IS NOT NULL
+        <if test="summaryNo != null and summaryNo != ''">
+            AND d.summary_no LIKE CONCAT('%', #{summaryNo}, '%')
+        </if>
+        <if test="wardId != null and wardId != ''">
+            AND stay.ward_id = #{wardId}
+        </if>
+        <if test="wardName != null and wardName != ''">
+            AND stay.ward_name LIKE CONCAT('%', #{wardName}, '%')
+        </if>
+        <if test="status != null and status != ''">
+            AND d.status_enum = #{status}
+        </if>
+        <if test="createTimeStart != null and createTimeStart != ''">
+            AND d.created_at &gt;= #{createTimeStart}
+        </if>
+        <if test="createTimeEnd != null and createTimeEnd != ''">
+            AND d.created_at &lt;= #{createTimeEnd}
+        </if>
+        GROUP BY d.summary_no, stay.ward_id, stay.ward_name, d.location_id, loc.name
+        ORDER BY MIN(d.created_at) DESC
+    </select>
+
+    <select id="selectPatientMedications"
+            resultType="com.zeroone.star.project.vo.j7.dispense.PatientMedicationVO">
+        SELECT
+        d.id AS id,
+        d.summary_no AS summaryNo,
+        d.patient_id AS patientId,
+        p.name AS patientName,
+        stay.bed_no AS bedNo,
+        d.medication_id AS medicationId,
+        md.bus_no AS drugCode,
+        md.name AS drugName,
+        md.total_volume AS spec,
+        d.unit_code AS unit,
+        d.quantity AS quantity,
+        d.dispense_quantity AS dispenseQuantity,
+        d.dosage_instruction AS dosageInstruction,
+        d.frequency_code AS frequencyCode,
+        d.lot_number AS lotNumber
+        FROM med_medication_dispense d
+        LEFT JOIN adm_patient p ON p.id = d.patient_id AND p.is_deleted = 0
+        LEFT JOIN med_medication_definition md ON md.id = d.medication_id AND md.is_deleted = 0
+        LEFT JOIN adm_encounter e ON e.id = d.encounter_id AND e.is_deleted = 0
+        <include refid="staySubQuery"/>
+        WHERE d.is_deleted = 0
+        AND UPPER(d.dispense_enum) = 'INPATIENT'
+        AND d.summary_no = #{summaryNo}
+        ORDER BY p.name, md.name
+    </select>
+
+    <!-- 门诊退药：查询退药患者分页列表 -->
+    <select id="selectRefundPatientPage"
+            resultType="com.zeroone.star.project.vo.j7.dispense.PatientQueueVO">
+        SELECT
+        d.patient_id          AS patientId,
+        d.encounter_id        AS encounterId,
+        p.name                AS name,
+        TIMESTAMPDIFF(YEAR, p.birth_date, CURDATE()) AS age,
+        p.gender_enum         AS genderEnum,
+        p.phone               AS phone,
+        MAX(d.status_enum)    AS statusEnum,
+        d.dispense_enum       AS dispenseEnum,
+        COUNT(d.id)           AS drugCount,
+        MAX(d.created_at)     AS createdAt
+        FROM med_medication_dispense d
+        JOIN adm_patient p ON p.id = d.patient_id AND p.is_deleted = 0
+        WHERE d.is_deleted = 0
+        AND d.dispense_enum = 'REFUND'
+
+        <if test="query.patientId != null and query.patientId != ''">
+            AND d.patient_id = #{query.patientId}
+        </if>
+
+        <if test="query.encounterId != null and query.encounterId != ''">
+            AND d.encounter_id = #{query.encounterId}
+        </if>
+
+        <if test="query.statusEnum != null and query.statusEnum != ''">
+            AND d.status_enum = #{query.statusEnum}
+        </if>
+
+        <if test="query.name != null and query.name != ''">
+            AND p.name LIKE CONCAT('%', #{query.name}, '%')
+        </if>
+
+        <if test="query.startTime != null">
+            AND d.created_at <![CDATA[ >= ]]> #{query.startTime}
+        </if>
+
+        <if test="query.endTime != null">
+            AND d.created_at <![CDATA[ <= ]]> #{query.endTime}
+        </if>
+
+        GROUP BY d.encounter_id, d.patient_id, p.name, p.birth_date, p.gender_enum, p.phone, d.dispense_enum
+        ORDER BY MAX(d.created_at) DESC
+    </select>
+
+    <!-- 门诊退药：查询退药明细列表 -->
+    <select id="selectRefundDrugItems"
+            resultType="com.zeroone.star.project.vo.j7.dispense.PatientDrugItemVO">
+        SELECT
+        d.id AS id,
+        d.tenant_id AS tenantId,
+        d.bus_no AS busNo,
+        d.status_enum AS statusEnum,
+        d.dispense_enum AS dispenseEnum,
+        d.medication_id AS medicationId,
+        d.patient_id AS patientId,
+        d.encounter_id AS encounterId,
+        d.med_req_id AS medReqId,
+        d.quantity AS quantity,
+        d.unit_code AS unitCode,
+        d.dispense_quantity AS dispenseQuantity,
+        d.lot_number AS lotNumber,
+        d.preparer_id AS preparerId,
+        d.prepare_time AS prepareTime,
+        d.practitioner_id AS practitionerId,
+        d.dispense_time AS dispenseTime,
+        d.dosage_instruction AS dosageInstruction,
+        d.method_code AS methodCode,
+        d.frequency_code AS frequencyCode,
+        d.dose AS dose,
+        d.dose_unit_code AS doseUnitCode,
+        d.summary_no AS summaryNo,
+        md.name AS name,
+        md.merchandise_name AS merchandiseName,
+        md.category_code AS categoryCode,
+        md.total_volume AS totalVolume,
+        md.comprised_text AS comprisedText,
+        md.ingredient AS ingredient,
+        md.approval_number AS approvalNumber,
+        md.skin_test_flag AS skinTestFlag,
+        md.inject_flag AS injectFlag,
+        md.manufacturer_text AS manufacturerText,
+        md.antibiotic_flag AS antibioticFlag,
+        md.rx_flag AS rxFlag,
+        md.dose_form_code AS doseFormCode,
+        md.package_unit_code AS packageUnitCode,
+        md.py_str AS pyStr
+        FROM med_medication_dispense d
+        LEFT JOIN med_medication_definition md ON md.id = d.medication_id AND md.is_deleted = 0
+        WHERE d.is_deleted = 0
+        AND d.dispense_enum = 'REFUND'
+
+        <if test="query.patientId != null and query.patientId != ''">
+            AND d.patient_id = #{query.patientId}
+        </if>
+
+        <if test="query.encounterId != null and query.encounterId != ''">
+            AND d.encounter_id = #{query.encounterId}
+        </if>
+
+        <if test="query.statusEnum != null and query.statusEnum != ''">
+            AND d.status_enum = #{query.statusEnum}
+        </if>
+
+        <if test="query.busNo != null and query.busNo != ''">
+            AND d.bus_no = #{query.busNo}
+        </if>
+
+        ORDER BY d.created_at DESC
+    </select>
+
+</mapper>

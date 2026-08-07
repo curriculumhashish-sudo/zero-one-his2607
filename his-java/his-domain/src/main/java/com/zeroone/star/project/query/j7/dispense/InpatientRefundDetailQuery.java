@@ -25,7 +25,7 @@ public class InpatientRefundDetailQuery {
      * 就诊ID
      */
     @NotBlank(message = "就诊ID不能为空")
-    @Schema(description = "就诊ID", example = "329874660147597312", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "就诊ID", example = "330316881840836608", requiredMode = Schema.RequiredMode.REQUIRED)
     private String encounterId;
 
     /**

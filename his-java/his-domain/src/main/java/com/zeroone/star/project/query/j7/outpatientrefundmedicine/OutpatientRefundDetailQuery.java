@@ -1,4 +1,4 @@
-package com.zeroone.star.project.query.j7.refundmedicine;
+package com.zeroone.star.project.query.j7.outpatientrefundmedicine;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
