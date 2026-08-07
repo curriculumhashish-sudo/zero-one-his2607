@@ -38,6 +38,7 @@ class TreatmentSelectBO
 	CC_SYNTHESIZE(std::string, packageUnitCodeDictText, PackageUnitCodeDictText);
 	CC_SYNTHESIZE(std::string, defEncounterUnitCode, DefEncounterUnitCode);
 	CC_SYNTHESIZE(std::string, defEncounterUnitCodeDictText, DefEncounterUnitCodeDictText);
+	CC_SYNTHESIZE(int32_t, version, Version);
 };
 
 #endif // !_TREATMENT_SELECT_BO_H_
