@@ -98,6 +98,30 @@
         SELECT name FROM adm_healthcare_service WHERE id = #{id}
     </select>
 
+    <!-- 批量查询医师名称 -->
+    <select id="selectPractitionerNames" resultType="map">
+        SELECT id, name FROM adm_practitioner WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 批量查询地点名称 -->
+    <select id="selectLocationNames" resultType="map">
+        SELECT id, name FROM adm_location WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 批量查询医疗服务名称 -->
+    <select id="selectHealthcareServiceNames" resultType="map">
+        SELECT id, name FROM adm_healthcare_service WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
     <!-- 查询日排班模板 -->
     <select id="selectDayTemplate" resultType="map">
         SELECT

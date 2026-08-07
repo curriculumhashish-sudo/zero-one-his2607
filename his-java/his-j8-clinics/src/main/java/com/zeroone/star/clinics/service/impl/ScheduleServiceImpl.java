@@ -94,6 +94,9 @@ public class ScheduleServiceImpl implements ScheduleService {
             days.add(dayVO);
         }
 
+        // 4.5 批量解析名称（医师/地点/医疗服务）
+        resolveNames(schedules, actorMap, days);
+
         // 5. 汇总
         ScheduleSummaryVO summary = new ScheduleSummaryVO();
         summary.setPublishedDayCount(activeDaySet.size());
@@ -145,18 +148,15 @@ public class ScheduleServiceImpl implements ScheduleService {
             vo.setHealthcareServiceName(scheduleMapper.selectHealthcareServiceName(s.getHealthcareServiceId()));
         }
 
-        // 从参与者中提取医师名称和地点名称
+        // 从参与者中提取医师名称和地点名称（按 actorType 区分）
         for (ScheduleActor actor : actors) {
             if (actor.getActorId() == null) continue;
-            // 尝试从医师表查询
-            String practitionerName = scheduleMapper.selectPractitionerName(actor.getActorId());
-            if (practitionerName != null) {
-                vo.setPractitionerName(practitionerName);
-            }
-            // 尝试从地点表查询
-            String locationName = scheduleMapper.selectLocationName(actor.getActorId());
-            if (locationName != null) {
-                vo.setLocationName(locationName);
+            if (Integer.valueOf(1).equals(actor.getActorType())) {
+                String name = scheduleMapper.selectPractitionerName(actor.getActorId());
+                if (name != null) vo.setPractitionerName(name);
+            } else if (Integer.valueOf(2).equals(actor.getActorType())) {
+                String name = scheduleMapper.selectLocationName(actor.getActorId());
+                if (name != null) vo.setLocationName(name);
             }
         }
 
@@ -367,5 +367,58 @@ public class ScheduleServiceImpl implements ScheduleService {
         vo.setActorId(a.getActorId() != null ? a.getActorId() : null);
         vo.setSortNo(a.getSortNo());
         return vo;
+    }
+
+    private void resolveNames(List<Schedule> schedules, Map<String, List<ScheduleActor>> actorMap,
+                              List<ScheduleDayVO> days) {
+        // 收集所有需要解析的ID
+        Set<String> healthcareServiceIds = schedules.stream()
+                .map(Schedule::getHealthcareServiceId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        Set<String> practitionerIds = new HashSet<>();
+        Set<String> locationIds = new HashSet<>();
+        for (List<ScheduleActor> actorList : actorMap.values()) {
+            for (ScheduleActor actor : actorList) {
+                if (actor.getActorId() == null) continue;
+                if (Integer.valueOf(1).equals(actor.getActorType())) {
+                    practitionerIds.add(actor.getActorId());
+                } else if (Integer.valueOf(2).equals(actor.getActorType())) {
+                    locationIds.add(actor.getActorId());
+                }
+            }
+        }
+
+        // 批量查询名称
+        Map<String, String> practitionerNameMap = practitionerIds.isEmpty() ? Collections.emptyMap() :
+                scheduleMapper.selectPractitionerNames(new ArrayList<>(practitionerIds)).stream()
+                        .collect(Collectors.toMap(m -> (String) m.get("id"), m -> (String) m.get("name")));
+        Map<String, String> locationNameMap = locationIds.isEmpty() ? Collections.emptyMap() :
+                scheduleMapper.selectLocationNames(new ArrayList<>(locationIds)).stream()
+                        .collect(Collectors.toMap(m -> (String) m.get("id"), m -> (String) m.get("name")));
+        Map<String, String> healthcareServiceNameMap = healthcareServiceIds.isEmpty() ? Collections.emptyMap() :
+                scheduleMapper.selectHealthcareServiceNames(new ArrayList<>(healthcareServiceIds)).stream()
+                        .collect(Collectors.toMap(m -> (String) m.get("id"), m -> (String) m.get("name")));
+
+        // 回填名称到每个 ScheduleItemVO
+        for (ScheduleDayVO dayVO : days) {
+            for (ScheduleItemVO item : dayVO.getSchedules()) {
+                if (item.getHealthcareServiceId() != null) {
+                    item.setHealthcareServiceName(healthcareServiceNameMap.get(item.getHealthcareServiceId()));
+                }
+                if (item.getActors() != null) {
+                    for (ScheduleActorVO actorVO : item.getActors()) {
+                        if (actorVO.getActorId() == null) continue;
+                        if ("1".equals(actorVO.getActorType())) {
+                            String name = practitionerNameMap.get(actorVO.getActorId());
+                            if (name != null) item.setPractitionerName(name);
+                        } else if ("2".equals(actorVO.getActorType())) {
+                            String name = locationNameMap.get(actorVO.getActorId());
+                            if (name != null) item.setLocationName(name);
+                        }
+                    }
+                }
+            }
+        }
     }
 }

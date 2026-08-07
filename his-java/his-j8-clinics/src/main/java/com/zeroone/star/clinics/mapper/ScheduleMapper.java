@@ -49,6 +49,21 @@ public interface ScheduleMapper extends BaseMapper<Schedule> {
     String selectHealthcareServiceName(@Param("id") String id);
 
     /**
+     * 批量查询医师名称
+     */
+    List<Map<String, Object>> selectPractitionerNames(@Param("ids") List<String> ids);
+
+    /**
+     * 批量查询地点名称
+     */
+    List<Map<String, Object>> selectLocationNames(@Param("ids") List<String> ids);
+
+    /**
+     * 批量查询医疗服务名称
+     */
+    List<Map<String, Object>> selectHealthcareServiceNames(@Param("ids") List<String> ids);
+
+    /**
      * 新增日程
      */
     void insertSchedule(Schedule schedule);

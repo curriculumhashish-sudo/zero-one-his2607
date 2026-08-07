@@ -1,13 +1,13 @@
 package com.zeroone.star.project.query.j8.clinics;
 
-import com.zeroone.star.project.query.PageQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+
+import java.io.Serializable;
 
 /**
  * <p>
- * 描述：日程列表查询参数
+ * 描述：日程列表查询参数（日历视图，非分页）
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
@@ -16,9 +16,10 @@ import lombok.EqualsAndHashCode;
  */
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 @Schema(description = "日程列表查询参数对象")
-public class ScheduleListQuery extends PageQuery {
+public class ScheduleListQuery implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Schema(description = "机构标识")
     private String organizationId;
