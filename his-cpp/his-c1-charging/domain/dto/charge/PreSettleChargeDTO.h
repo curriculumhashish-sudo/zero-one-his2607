@@ -22,6 +22,26 @@ class PreSettleChargeRequestDTO : public oatpp::DTO
     API_DTO_FIELD(Vector<String>, chargeItemIds,
         ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeRequestDTO.chargeItemIds.description"),
         true, {});
+
+    // 费用性质合同主键（医保结算时必传）
+    API_DTO_FIELD(String, contractId,
+        ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeRequestDTO.contractId.description"),
+        false, "");
+
+    // 医保类型编码
+    API_DTO_FIELD(String, insuranceTypeCode,
+        ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeRequestDTO.insuranceTypeCode.description"),
+        false, "");
+
+    // 个人医保编号
+    API_DTO_FIELD(String, personalInsuranceNo,
+        ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeRequestDTO.personalInsuranceNo.description"),
+        false, "");
+
+    // 社保卡号
+    API_DTO_FIELD(String, insuranceCardNo,
+        ZH_WORDS_GETTER("lhfc.charging.charge.PreSettleChargeRequestDTO.insuranceCardNo.description"),
+        false, "");
 };
 
 /*

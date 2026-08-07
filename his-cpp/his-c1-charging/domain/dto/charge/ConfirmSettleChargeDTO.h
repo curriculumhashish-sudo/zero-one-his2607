@@ -107,6 +107,15 @@ class ConfirmSettleChargeResponseDTO : public oatpp::DTO
 
     // 医保结算 ID（多组逗号分隔）
     API_DTO_FIELD(String, ybSetlId, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeResponseDTO.ybSetlId.description"), false, "");
+
+    // 支付流水号（格式 PMR-YYYY-MM-DDNNNN）
+    API_DTO_FIELD(String, paymentNo, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeResponseDTO.paymentNo.description"), false, "");
+
+    // 支付流水状态枚举
+    API_DTO_FIELD(String, statusEnum, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeResponseDTO.statusEnum.description"), false, "SUCCESS");
+
+    // 结算完成时间
+    API_DTO_FIELD(String, settledAt, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmSettleChargeResponseDTO.settledAt.description"), false, "");
 };
 
 #include OATPP_CODEGEN_END(DTO)
