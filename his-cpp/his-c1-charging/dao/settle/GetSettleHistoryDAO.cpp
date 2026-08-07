@@ -6,8 +6,8 @@
 
 std::string GetSettleHistoryDAO::queryConditionBuilder(const GetSettleHistoryQuery::Wrapper& query, SqlParams& params) {
 	std::stringstream sqlCondition;
+	// 不按流水类型过滤，ALL状态下同时包含结算和退结算记录
 	sqlCondition << " WHERE fpr.is_deleted=0"
-		<< " AND fpr.kind_enum='SETTLEMENT'"
 		<< " AND fpr.patient_id=?";
 	SQLPARAMS_PUSH(params, "s", std::string, query->patientId.getValue(""));
 
@@ -33,8 +33,14 @@ std::string GetSettleHistoryDAO::queryConditionBuilder(const GetSettleHistoryQue
 }
 
 uint64_t GetSettleHistoryDAO::count(const GetSettleHistoryQuery::Wrapper& query) {
+	// 与分页查询保持相同的联表口径，避免患者或就诊被软删后总数与行数不一致
 	SqlParams params;
-	std::string sql = "SELECT COUNT(fpr.id) FROM fin_payment_reconciliation fpr";
+	std::string sql = "SELECT COUNT(fpr.id)"
+		" FROM fin_payment_reconciliation fpr"
+		" INNER JOIN adm_patient p"
+		" ON p.id=fpr.patient_id AND p.is_deleted=0"
+		" INNER JOIN adm_encounter e"
+		" ON e.id=fpr.encounter_id AND e.is_deleted=0";
 	sql += queryConditionBuilder(query, params);
 	return sqlSession->executeQueryNumerical(sql, params);
 }
