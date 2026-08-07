@@ -28,7 +28,8 @@ CostInfoDataDTO::Wrapper CostInfoService::listAll(const CostInfoQuery::Wrapper& 
 		auto dto = CostInfoDTO::createShared();
 
 		ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub,
-			id, Id, clinicNo, ClinicNo, name, Name, room, Room,
+			chargeID, ChargeID, encounterID, EncounterID, paymentID, PaymentID,
+			cashierID, CashierID, name, Name, room, Room,
 			date, Date, feeClass, FeeClass, detailClass, DetailClass,
 			projectName, ProjectName, hisID, HisID, spec, Spec,
 			number, Number, unit, Unit, doctor, Doctor, checker, Checker,
@@ -69,7 +70,8 @@ CostInfoDataDTO::Wrapper CostInfoService::exportAll(const CostInfoQuery::Wrapper
 		auto dto = CostInfoDTO::createShared();
 
 		ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub,
-			id, Id, clinicNo, ClinicNo, name, Name, room, Room,
+			chargeID, ChargeID, encounterID, EncounterID, paymentID, PaymentID,
+			cashierID, CashierID, name, Name, room, Room,
 			date, Date, feeClass, FeeClass, detailClass, DetailClass,
 			projectName, ProjectName, hisID, HisID, spec, Spec,
 			number, Number, unit, Unit, doctor, Doctor, checker, Checker,

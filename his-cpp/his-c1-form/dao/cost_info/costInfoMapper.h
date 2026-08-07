@@ -28,8 +28,10 @@ public:
 	CostInfoDO mapper(ResultSet* resultSet) const override
 	{
 		CostInfoDO data;
-		data.setId(resultSet->getString("id"));
-		data.setClinicNo(resultSet->getString("clinicNo"));
+		data.setChargeID(resultSet->getString("chargeID"));
+		data.setEncounterID(resultSet->getString("encounterID"));
+		data.setPaymentID(resultSet->getString("paymentID"));
+		data.setCashierID(resultSet->getString("cashierID"));
 		data.setName(resultSet->getString("name"));
 		data.setRoom(resultSet->getString("room"));
 		data.setDate(resultSet->getString("date"));
@@ -65,8 +67,10 @@ public:
 	PtrCostInfoDO mapper(ResultSet* resultSet) const override
 	{
 		PtrCostInfoDO file = std::make_shared<CostInfoDO>();
-		file->setId(resultSet->getString("id"));
-		file->setClinicNo(resultSet->getString("clinicNo"));
+		file->setChargeID(resultSet->getString("chargeID"));
+		file->setEncounterID(resultSet->getString("encounterID"));
+		file->setPaymentID(resultSet->getString("paymentID"));
+		file->setCashierID(resultSet->getString("cashierID"));
 		file->setName(resultSet->getString("name"));
 		file->setRoom(resultSet->getString("room"));
 		file->setDate(resultSet->getString("date"));

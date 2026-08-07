@@ -5,31 +5,33 @@
 
 
 /*
- ±íËõĞ´²Î¿¼
- aci    = adm_charge_item            ÊÕ·ÑÌõÄ¿±í
- ae     = adm_encounter              ¾ÍÕï¼ÇÂ¼±í
- a_pa   = adm_patient                »¼Õß±í
- ael    = adm_encounter_location     ¾ÍÕï¿ÆÊÒ¹ØÁª±í
- al     = adm_location               ¿ÆÊÒ/µØµã±í
- acid   = adm_charge_item_definition ÊÕ·ÑÏîÄ¿¶¨Òå±í
- tc     = ter_concept                ×Öµä¸ÅÄî±í(ÊÕ·Ñ´óÀà, code_system_id=236)
- mmd    = med_medication_definition  Ò©Æ·¶¨Òå±í
- add    = adm_device_definition      Æ÷²Ä¶¨Òå±í
- wad    = wkf_activity_definition    ÕïÁÆÏîÄ¿¶¨Òå±í
- tc_mmd = ter_concept                Ò©Æ··ÖÀà×Öµä(code_system_id=900006)
- tc_add = ter_concept                Æ÷²Ä·ÖÀà×Öµä(code_system_id=253)
- tc_wad = ter_concept                ÕïÁÆ·ÖÀà×Öµä(code_system_id=255)
- a_pr_d = adm_practitioner           Ò½ÎñÈËÔ±±í(¿ªµ¥Ò½Éú)
- ycfu   = yb_clinic_fee_upload       Ò½±£ÃÅÕï·ÑÓÃÉÏ´«±í
- ysr    = yb_settlement_record       Ò½±£½áËã¼ÇÂ¼±í
- fpr    = fin_payment_reconciliation Ö§¸¶¶ÔÕË/ÊÕ¿î¼ÇÂ¼±í
- fcs    = fin_cashier_settlement     ÊÕ·ÑÔ±½áËã±í
- a_pr_c = adm_practitioner           Ò½ÎñÈËÔ±±í(ÊÕ·ÑÔ±)
+ è¡¨ç¼©å†™å‚è€ƒ
+ aci    = adm_charge_item            æ”¶è´¹æ¡ç›®è¡¨
+ ae     = adm_encounter              å°±è¯Šè®°å½•è¡¨
+ a_pa   = adm_patient                æ‚£è€…è¡¨
+ ael    = adm_encounter_location     å°±è¯Šç§‘å®¤å…³è”è¡¨
+ al     = adm_location               ç§‘å®¤/åœ°ç‚¹è¡¨
+ acid   = adm_charge_item_definition æ”¶è´¹é¡¹ç›®å®šä¹‰è¡¨
+ tc     = ter_concept                å­—å…¸æ¦‚å¿µè¡¨(æ”¶è´¹å¤§ç±», code_system_id=236)
+ mmd    = med_medication_definition  è¯å“å®šä¹‰è¡¨
+ add    = adm_device_definition      å™¨æå®šä¹‰è¡¨
+ wad    = wkf_activity_definition    è¯Šç–—é¡¹ç›®å®šä¹‰è¡¨
+ tc_mmd = ter_concept                è¯å“åˆ†ç±»å­—å…¸(code_system_id=900006)
+ tc_add = ter_concept                å™¨æåˆ†ç±»å­—å…¸(code_system_id=253)
+ tc_wad = ter_concept                è¯Šç–—åˆ†ç±»å­—å…¸(code_system_id=255)
+ a_pr_d = adm_practitioner           åŒ»åŠ¡äººå‘˜è¡¨(å¼€å•åŒ»ç”Ÿ)
+ ycfu   = yb_clinic_fee_upload       åŒ»ä¿é—¨è¯Šè´¹ç”¨ä¸Šä¼ è¡¨
+ ysr    = yb_settlement_record       åŒ»ä¿ç»“ç®—è®°å½•è¡¨
+ fpr    = fin_payment_reconciliation æ”¯ä»˜å¯¹è´¦/æ”¶æ¬¾è®°å½•è¡¨
+ fcs    = fin_cashier_settlement     æ”¶è´¹å‘˜ç»“ç®—è¡¨
+ a_pr_c = adm_practitioner           åŒ»åŠ¡äººå‘˜è¡¨(æ”¶è´¹å‘˜)
 */
 
 #define MAIN_SQL_COLUMNS \
-	" aci.`id` AS id," \
-	" ae.`bus_no` AS clinicNo," \
+	" aci.`id` AS chargeID," \
+	" ae.`id` AS encounterID," \
+	" fpr.`id` AS paymentID," \
+	" fcs.`cashier_id` AS cashierID," \
 	" a_pa.`name` AS name," \
 	" al.`name` AS room," \
 	" aci.`occurrence_time` AS date," \
@@ -80,7 +82,7 @@ inline std::string CostInfoDAO::queryConditionBuilder(const CostInfoQuery::Wrapp
 	std::stringstream sqlCondition;
 	sqlCondition << " WHERE 1=1";
 
-	// ¼ì²âÊÇ·ñÓĞÕâÁ½¸ö±ØÒªÌõ¼ş£¬Ò»°ã²»»á½øÕâ¸ö·ÖÖ§
+	// æ£€æµ‹æ˜¯å¦æœ‰è¿™ä¸¤ä¸ªå¿…è¦æ¡ä»¶ï¼Œä¸€èˆ¬ä¸ä¼šè¿›è¿™ä¸ªåˆ†æ”¯
 	if (!query->start_time || !query->end_time) {
 		sqlCondition.clear();
 		sqlCondition << "error";
@@ -88,7 +90,7 @@ inline std::string CostInfoDAO::queryConditionBuilder(const CostInfoQuery::Wrapp
 	}
 
 
-	// »ñÈ¡queryÖĞµÄ²éÑ¯Ìõ¼ş
+	// è·å–queryä¸­çš„æŸ¥è¯¢æ¡ä»¶
 	if (query->start_time) {
 		sqlCondition << " AND aci.`occurrence_time`>=?";
 		SQLPARAMS_PUSH(params, "s", std::string, query->start_time.getValue(""));
@@ -125,7 +127,7 @@ inline std::string CostInfoDAO::queryConditionBuilder(const CostInfoQuery::Wrapp
 		sqlCondition << " AND a_pr_c.`name` LIKE CONCAT('%',?,'%')";
 		SQLPARAMS_PUSH(params, "s", std::string, query->checker.getValue(""));
 	}
-	// feedir: 1=refund, 0=charge£¨ÊÕ·ÑÍË·Ñ£©
+	// feedir: 1=refund, 0=chargeï¼ˆæ”¶è´¹é€€è´¹ï¼‰
 	if (query->feeDir) {
 		std::string feeDirVal = query->feeDir.getValue("");
 		if (feeDirVal == "1") {
@@ -152,7 +154,7 @@ std::list<CostInfoDO> CostInfoDAO::selectWithPage(const CostInfoQuery::Wrapper& 
 	string refund = ZH_WORDS_GETTER("rhqm.form.cost_info.other.refund");
 
 	string sqlStr = "SELECT DISTINCT" MAIN_SQL_COLUMNS;
-	// ÊÕ·ÑÍË·ÑÎªÁËÖĞÎÄ±íÊ¾ĞèÒª²ğ¿ªsql
+	// æ”¶è´¹é€€è´¹ä¸ºäº†ä¸­æ–‡è¡¨ç¤ºéœ€è¦æ‹†å¼€sql
 	sqlStr += ", IF(aci.`refund_id` IS NULL, '" + charge + "', '" + refund + "') AS source";
 	sqlStr += MAIN_SQL_JOINS;
 	sqlStr += queryConditionBuilder(query, params);
@@ -169,7 +171,7 @@ std::list<CostInfoDO> CostInfoDAO::selectAll(const CostInfoQuery::Wrapper& query
 	string refund = ZH_WORDS_GETTER("rhqm.form.cost_info.other.refund");
 
 	string sqlStr = "SELECT DISTINCT" MAIN_SQL_COLUMNS;
-	// ÊÕ·ÑÍË·ÑÎªÁËÖĞÎÄ±íÊ¾ĞèÒª²ğ¿ªsql
+	// æ”¶è´¹é€€è´¹ä¸ºäº†ä¸­æ–‡è¡¨ç¤ºéœ€è¦æ‹†å¼€sql
 	sqlStr += ", IF(aci.`refund_id` IS NULL, '" + charge + "', '" + refund + "') AS source";
 	sqlStr += MAIN_SQL_JOINS;
 	sqlStr += queryConditionBuilder(query, params);
