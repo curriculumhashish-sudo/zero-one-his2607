@@ -143,7 +143,7 @@
                         <!-- 数据库用户名 -->
                         <username>his_app</username>
                         <!-- 数据库密码 -->
-                        <password>LvvJ7Db@2026_Q8mR4xK2/password>
+                        <password>LvvJ7Db@2026_Q8mR4xK2</password>
                     </dbConfig>
                     <!-- 生成代码输出根目录 -->
                     <outDir>${project.basedir}/src/main/java</outDir>
