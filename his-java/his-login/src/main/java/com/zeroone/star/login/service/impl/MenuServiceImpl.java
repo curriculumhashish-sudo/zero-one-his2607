@@ -38,7 +38,7 @@ class MenuTreeNodMapper implements TreeNodeMapper<Menu> {
         treeNode.setIcon(menu.getIcon());
         treeNode.setText(menu.getName());
         treeNode.setHref(menu.getPath());
-        treeNode.setPid(menu.getParentMenuId());
+        treeNode.setPid(String.valueOf(menu.getParentMenuId()));
         return treeNode;
     }
 }
