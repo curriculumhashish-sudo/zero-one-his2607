@@ -53,6 +53,11 @@ GetChargeItemDTO::Wrapper GetChargeItemService::listAll(const GetChargeItemsQuer
             try { row->totalPrice = std::stod(item.getTotalPrice()); }
             catch (...) { row->totalPrice = 0.0; }
 
+            // 金额拆分：当前无医保，全部为自费金额
+            row->amount = row->totalPrice;
+            row->insuranceAmount = 0.0;
+            row->selfPayAmount = row->totalPrice;
+
             // 计算字段：数量展示文本
             std::ostringstream qd;
             qd << std::fixed << std::setprecision(0) << row->quantityValue;

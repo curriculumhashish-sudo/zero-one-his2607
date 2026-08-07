@@ -54,6 +54,15 @@ class GetChargeItemRowDTO : public oatpp::DTO
     // 行总价
     API_DTO_FIELD(Float64, totalPrice, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.totalPrice.description"), false, 0.35);
 
+    // 行应收金额（= totalPrice）
+    API_DTO_FIELD(Float64, amount, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.amount.description"), false, 0.0);
+
+    // 医保支付金额（无医保时为 0.0）
+    API_DTO_FIELD(Float64, insuranceAmount, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.insuranceAmount.description"), false, 0.0);
+
+    // 自费支付金额（= totalPrice - insuranceAmount）
+    API_DTO_FIELD(Float64, selfPayAmount, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.selfPayAmount.description"), false, 0.0);
+
     // 收款人系统用户主键
     API_DTO_FIELD(String, cashierUserId, ZH_WORDS_GETTER("lhfc.charging.charge.GetChargeItemRowDTO.cashierUserId.description"), false, "308791351298756608");
 

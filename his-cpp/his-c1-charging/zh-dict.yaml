@@ -244,6 +244,12 @@ lhfc:
           value: 已结算
         totalPrice:
           description: 行总价
+        amount:
+          description: 行应收金额
+        insuranceAmount:
+          description: 医保支付金额
+        selfPayAmount:
+          description: 自费支付金额
         cashierUserId:
           description: 收款人系统用户主键
         cashierName:
