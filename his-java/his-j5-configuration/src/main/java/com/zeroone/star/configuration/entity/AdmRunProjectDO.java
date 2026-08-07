@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * <p>
- * 描述：执行项目DO
+ * 描述：执行项目DO（映射adm_healthcare_service表）
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
@@ -15,41 +15,76 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("adm_run_project")
+@TableName("adm_healthcare_service")
 public class AdmRunProjectDO extends BaseEntity {
-
-    /**
-     * 项目编码
-     */
-    private String itemCode;
 
     /**
      * 项目名称
      */
-    private String itemName;
+    private String name;
 
     /**
-     * 执行科室ID
+     * 类型编码
      */
-    private String execDeptId;
+    private String typeCode;
 
     /**
-     * 执行科室名称
+     * 分类编码
      */
-    private String execDeptName;
+    private String categoryCode;
 
     /**
-     * 排序号
+     * 执行机构ID
      */
-    private Integer sortOrder;
+    private String offeredOrgId;
 
     /**
-     * 是否启用：0-禁用，1-启用
+     * 专科编码
      */
-    private Integer isEnabled;
+    private String specialtyCode;
+
+    /**
+     * 执行地点ID
+     */
+    private String locationId;
+
+    /**
+     * 状态枚举
+     */
+    private String statusEnum;
+
+    /**
+     * 启用标志
+     */
+    private Integer activeFlag;
+
+    /**
+     * 是否需要预约
+     */
+    private Integer appointmentRequiredFlag;
+
+    /**
+     * 医保编号
+     */
+    private String ybNo;
+
+    /**
+     * 业务编号
+     */
+    private String busNo;
 
     /**
      * 备注
      */
-    private String remark;
+    private String comment;
+
+    /**
+     * 扩展详情
+     */
+    private String extraDetails;
+
+    /**
+     * 联系方式
+     */
+    private String contact;
 }

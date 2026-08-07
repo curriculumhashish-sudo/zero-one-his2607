@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Select;
 
 /**
  * <p>
- * 描述：诊疗绑定Mapper（避免select *）
+ * 描述：诊疗绑定Mapper（映射cus_service_device_template表）
  * </p>
  *
  * @author 扶舒
@@ -18,8 +18,8 @@ import org.apache.ibatis.annotations.Select;
 public interface TreatmentBindingMapper extends BaseMapper<TreatmentBinding> {
 
     /**
-     * 根据诊疗项目ID统计绑定数量
+     * 根据项目ID统计绑定数量
      */
-    @Select("SELECT COUNT(1) FROM t_treatment_binding WHERE treatment_id = #{treatmentId} AND is_deleted = 0")
-    Long countByTreatmentId(@Param("treatmentId") Long treatmentId);
+    @Select("SELECT COUNT(1) FROM cus_service_device_template WHERE item_id = #{itemId} AND is_deleted = 0")
+    Long countByItemId(@Param("itemId") String itemId);
 }

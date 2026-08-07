@@ -5,10 +5,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * <p>
- * 描述：取药科室库存DO
+ * 描述：取药科室库存DO（映射wkf_inventory_item表）
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
@@ -17,18 +18,18 @@ import java.math.BigDecimal;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("dept_stock")
+@TableName("wkf_inventory_item")
 public class DeptStockDO extends BaseEntity {
 
     /**
-     * 科室ID
+     * 分类编码
      */
-    private String deptId;
+    private String categoryCode;
 
     /**
-     * 科室名称
+     * 物品表（如：drug, consumable）
      */
-    private String deptName;
+    private String itemTable;
 
     /**
      * 物品ID
@@ -38,45 +39,85 @@ public class DeptStockDO extends BaseEntity {
     /**
      * 物品名称
      */
-    private String itemName;
+    private String name;
 
     /**
-     * 物品编码
+     * 拼音码
      */
-    private String itemCode;
+    private String pyStr;
 
     /**
-     * 物品类型：DRUG-药品,CONSUMABLE-耗材
+     * 五笔码
      */
-    private String itemType;
+    private String wbStr;
 
     /**
-     * 规格
+     * 库存状态枚举
      */
-    private String specification;
+    private String inventoryStatusEnum;
 
     /**
-     * 单位
+     * 供应商ID
      */
-    private String unit;
+    private String supplierId;
 
     /**
-     * 库存数量
+     * 描述文本
      */
-    private BigDecimal stockQuantity;
+    private String descriptionText;
 
     /**
-     * 安全库存
+     * 单位编码
      */
-    private BigDecimal safetyStock;
+    private String unitCode;
 
     /**
-     * 是否启用：0-禁用，1-启用
+     * 数量
      */
-    private Integer isEnabled;
+    private BigDecimal quantity;
 
     /**
-     * 备注
+     * 特性JSON
      */
-    private String remark;
+    private String characteristicJson;
+
+    /**
+     * 批号
+     */
+    private String lotNumber;
+
+    /**
+     * 生产日期
+     */
+    private LocalDateTime productionDate;
+
+    /**
+     * 有效期
+     */
+    private LocalDateTime expirationDate;
+
+    /**
+     * 有效期（月）
+     */
+    private Integer validityMon;
+
+    /**
+     * 库存地点ID
+     */
+    private String locationStoreId;
+
+    /**
+     * 执行科室ID
+     */
+    private String locationId;
+
+    /**
+     * 追踪号
+     */
+    private String traceNo;
+
+    /**
+     * 包装层级
+     */
+    private Integer packagingLevels;
 }

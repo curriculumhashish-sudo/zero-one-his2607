@@ -1,12 +1,14 @@
 package com.zeroone.star.project.dto.j5.bindingMapping;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+
+import java.time.LocalTime;
 
 /**
  * <p>
- * 描述：用法绑定数据传输对象
+ * 描述：用法绑定数据传输对象（映射cus_service_location_template表）
  * </p>
  *
  * @author 扶舒
@@ -19,24 +21,40 @@ public class UsageBindingDTO {
     @Schema(description = "主键ID（编辑时必传）")
     private String id;
 
-    @NotNull(message = "用法ID不能为空")
-    @Schema(description = "用法ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long usageId;
+    @NotBlank(message = "机构ID不能为空")
+    @Schema(description = "机构ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String organizationId;
 
-    @NotNull(message = "绑定目标类型不能为空")
-    @Schema(description = "绑定目标类型：1=诊疗，2=耗材", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Integer targetType;
+    @NotBlank(message = "项目表不能为空")
+    @Schema(description = "项目表（如：healthcare_service）", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String itemTable;
 
-    @NotNull(message = "绑定目标名称不能为空")
-    @Schema(description = "绑定目标名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String targetName;
+    @NotBlank(message = "分配分类编码不能为空")
+    @Schema(description = "分配分类编码", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String distributionCategoryCode;
 
-    @Schema(description = "数量", example = "1")
-    private Integer quantity;
+    @NotBlank(message = "默认执行地点ID不能为空")
+    @Schema(description = "默认执行地点ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String defLocationId;
 
-    @Schema(description = "单位")
-    private String unit;
+    @Schema(description = "项目定义ID")
+    private String itemDefinitionId;
 
-    @Schema(description = "状态：1启用，0停用", example = "1")
-    private Integer status;
+    @Schema(description = "方法编码")
+    private String methodCode;
+
+    @Schema(description = "开始时间")
+    private LocalTime startTime;
+
+    @Schema(description = "结束时间")
+    private LocalTime endTime;
+
+    @Schema(description = "优先级")
+    private Integer priority;
+
+    @Schema(description = "显示顺序")
+    private Integer displayOrder;
+
+    @Schema(description = "备注")
+    private String remark;
 }

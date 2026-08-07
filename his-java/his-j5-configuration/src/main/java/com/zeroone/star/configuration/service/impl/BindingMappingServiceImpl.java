@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 诊疗/用法绑定映射服务实现
+ * 诊疗/用法绑定映射服务实现（映射cus_service_device_template和cus_service_location_template表）
  */
 @Service
 @RequiredArgsConstructor
@@ -37,25 +37,19 @@ public class BindingMappingServiceImpl implements BindingMappingService {
     private final UsageBindingMapper usageMapper;
     private final UserHolder userHolder;
 
-    /**
-     * 返回绑定映射初始化下拉选项
-     */
+    @Override
     public BindingInitDTO initBindingOptions() {
         BindingInitDTO dto = new BindingInitDTO();
 
-        // 诊疗类型下拉
         List<BindingInitDTO.OptionItem> treatmentOptions = new ArrayList<>();
         dto.setTreatmentOptions(treatmentOptions);
 
-        // 用法类型下拉
         List<BindingInitDTO.OptionItem> usageOptions = new ArrayList<>();
         dto.setUsageOptions(usageOptions);
 
-        // 科室下拉
         List<BindingInitDTO.OptionItem> orgOptions = new ArrayList<>();
         dto.setOrgOptions(orgOptions);
 
-        // 物品类型下拉
         List<BindingInitDTO.OptionItem> itemTypeOptions = new ArrayList<>();
         dto.setItemTypeOptions(itemTypeOptions);
 
@@ -66,8 +60,14 @@ public class BindingMappingServiceImpl implements BindingMappingService {
     public JsonVO<PageDTO<TreatmentBindingDTO>> queryAllTreatmentBindings(TreatmentBindingQuery query) {
         Page<TreatmentBinding> page = new Page<>(query.getPageIndex(), query.getPageSize());
         LambdaQueryWrapper<TreatmentBinding> wrapper = new LambdaQueryWrapper<>();
-        if (query.getTreatmentId() != null) {
-            wrapper.eq(TreatmentBinding::getTreatmentId, query.getTreatmentId());
+        if (StringUtils.hasText(query.getItemId())) {
+            wrapper.eq(TreatmentBinding::getItemId, query.getItemId());
+        }
+        if (StringUtils.hasText(query.getRangeCode())) {
+            wrapper.eq(TreatmentBinding::getRangeCode, query.getRangeCode());
+        }
+        if (StringUtils.hasText(query.getTypeCode())) {
+            wrapper.eq(TreatmentBinding::getTypeCode, query.getTypeCode());
         }
         wrapper.orderByDesc(TreatmentBinding::getUpdatedAt);
 
@@ -92,8 +92,14 @@ public class BindingMappingServiceImpl implements BindingMappingService {
     public JsonVO<PageDTO<UsageBindingDTO>> queryAllUsageBindings(UsageBindingQuery query) {
         Page<UsageBinding> page = new Page<>(query.getPageIndex(), query.getPageSize());
         LambdaQueryWrapper<UsageBinding> wrapper = new LambdaQueryWrapper<>();
-        if (query.getUsageId() != null) {
-            wrapper.eq(UsageBinding::getUsageId, query.getUsageId());
+        if (StringUtils.hasText(query.getItemDefinitionId())) {
+            wrapper.eq(UsageBinding::getItemDefinitionId, query.getItemDefinitionId());
+        }
+        if (StringUtils.hasText(query.getOrganizationId())) {
+            wrapper.eq(UsageBinding::getOrganizationId, query.getOrganizationId());
+        }
+        if (StringUtils.hasText(query.getDistributionCategoryCode())) {
+            wrapper.eq(UsageBinding::getDistributionCategoryCode, query.getDistributionCategoryCode());
         }
         wrapper.orderByDesc(UsageBinding::getUpdatedAt);
 
@@ -119,8 +125,8 @@ public class BindingMappingServiceImpl implements BindingMappingService {
     public JsonVO<String> addTreatmentBinding(TreatmentBindingDTO data) {
         TreatmentBinding entity = new TreatmentBinding();
         BeanUtils.copyProperties(data, entity);
-        if (entity.getStatus() == null) {
-            entity.setStatus(1);
+        if (!StringUtils.hasText(entity.getStatusEnum())) {
+            entity.setStatusEnum("ENABLED");
         }
         fillTreatmentAudit(entity, true);
         treatmentMapper.insert(entity);
@@ -132,9 +138,6 @@ public class BindingMappingServiceImpl implements BindingMappingService {
     public JsonVO<String> addUsageBinding(UsageBindingDTO data) {
         UsageBinding entity = new UsageBinding();
         BeanUtils.copyProperties(data, entity);
-        if (entity.getStatus() == null) {
-            entity.setStatus(1);
-        }
         fillUsageAudit(entity, true);
         usageMapper.insert(entity);
         return JsonVO.success(entity.getId());

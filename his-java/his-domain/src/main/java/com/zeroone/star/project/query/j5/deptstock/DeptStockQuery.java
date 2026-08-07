@@ -6,28 +6,28 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 取药科室查询条件
+ * 取药科室库存查询条件（映射wkf_inventory_item表）
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Schema(description = "取药科室查询条件")
+@Schema(description = "取药科室库存查询条件")
 public class DeptStockQuery extends PageQuery {
 
-    @Schema(description = "科室ID", example = "1816800000000000001")
-    private String deptId;
+    @Schema(description = "分类编码")
+    private String categoryCode;
 
-    @Schema(description = "科室名称", example = "门诊药房")
-    private String deptName;
+    @Schema(description = "物品表（如：drug, consumable）")
+    private String itemTable;
 
-    @Schema(description = "物品名称", example = "阿莫西林")
-    private String itemName;
+    @Schema(description = "物品名称")
+    private String name;
 
-    @Schema(description = "物品编码", example = "AMOXICILLIN001")
-    private String itemCode;
+    @Schema(description = "物品ID")
+    private String itemId;
 
-    @Schema(description = "物品类型", example = "DRUG")
-    private String itemType;
+    @Schema(description = "库存状态枚举")
+    private String inventoryStatusEnum;
 
-    @Schema(description = "是否启用", example = "1")
-    private Integer isEnabled;
+    @Schema(description = "执行科室ID")
+    private String locationId;
 }

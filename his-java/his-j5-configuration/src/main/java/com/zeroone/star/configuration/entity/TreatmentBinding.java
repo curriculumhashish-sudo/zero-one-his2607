@@ -4,9 +4,11 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
+
 /**
  * <p>
- * 描述：诊疗绑定实体
+ * 描述：诊疗绑定实体（映射cus_service_device_template表）
  * </p>
  *
  * @author 扶舒
@@ -14,36 +16,51 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_treatment_binding")
+@TableName("cus_service_device_template")
 public class TreatmentBinding extends BaseEntity {
 
     /**
-     * 诊疗项目ID
+     * 范围编码
      */
-    private Long treatmentId;
+    private String rangeCode;
 
     /**
-     * 绑定目标类型：1=诊疗，2=耗材
+     * 类型编码
      */
-    private Integer targetType;
+    private String typeCode;
 
     /**
-     * 绑定目标名称
+     * 项目表（如：healthcare_service）
      */
-    private String targetName;
+    private String itemTable;
+
+    /**
+     * 项目ID
+     */
+    private String itemId;
+
+    /**
+     * 设备行为表（如：device_definition）
+     */
+    private String devActTable;
+
+    /**
+     * 设备行为ID
+     */
+    private String devActId;
 
     /**
      * 数量
      */
-    private Integer quantity;
+    private BigDecimal quantity;
 
     /**
-     * 单位
+     * 单位编码
      */
-    private String unit;
+    private String unitCode;
 
     /**
-     * 状态：1启用，0停用
+     * 状态枚举
      */
-    private Integer status;
+    private String statusEnum;
 }

@@ -1,6 +1,7 @@
 package com.zeroone.star.configuration.service;
 
 import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j5.bindingMapping.BindingInitDTO;
 import com.zeroone.star.project.dto.j5.bindingMapping.TreatmentBindingDTO;
 import com.zeroone.star.project.dto.j5.bindingMapping.UsageBindingDTO;
 import com.zeroone.star.project.query.j5.bindingMapping.TreatmentBindingQuery;
@@ -16,6 +17,13 @@ import com.zeroone.star.project.vo.JsonVO;
  * @version 1.0.0
  */
 public interface BindingMappingService {
+
+    /**
+     * 初始化绑定选项
+     *
+     * @return 初始化数据
+     */
+    BindingInitDTO initBindingOptions();
 
     /**
      * 查询诊疗绑定列表

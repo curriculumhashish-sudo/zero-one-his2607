@@ -4,9 +4,11 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalTime;
+
 /**
  * <p>
- * 描述：用法绑定实体
+ * 描述：用法绑定实体（映射cus_service_location_template表）
  * </p>
  *
  * @author 扶舒
@@ -14,36 +16,61 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_usage_binding")
+@TableName("cus_service_location_template")
 public class UsageBinding extends BaseEntity {
 
     /**
-     * 用法ID
+     * 机构ID
      */
-    private Long usageId;
+    private String organizationId;
 
     /**
-     * 绑定目标类型：1=诊疗，2=耗材
+     * 项目表（如：healthcare_service）
      */
-    private Integer targetType;
+    private String itemTable;
 
     /**
-     * 绑定目标名称
+     * 分配分类编码
      */
-    private String targetName;
+    private String distributionCategoryCode;
 
     /**
-     * 数量
+     * 默认执行地点ID
      */
-    private Integer quantity;
+    private String defLocationId;
 
     /**
-     * 单位
+     * 项目定义ID
      */
-    private String unit;
+    private String itemDefinitionId;
 
     /**
-     * 状态：1启用，0停用
+     * 方法编码
      */
-    private Integer status;
+    private String methodCode;
+
+    /**
+     * 开始时间
+     */
+    private LocalTime startTime;
+
+    /**
+     * 结束时间
+     */
+    private LocalTime endTime;
+
+    /**
+     * 优先级
+     */
+    private Integer priority;
+
+    /**
+     * 显示顺序
+     */
+    private Integer displayOrder;
+
+    /**
+     * 备注
+     */
+    private String remark;
 }

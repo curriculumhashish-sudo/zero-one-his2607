@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Select;
 
 /**
  * <p>
- * 描述：用法绑定Mapper（避免select *）
+ * 描述：用法绑定Mapper（映射cus_service_location_template表）
  * </p>
  *
  * @author 扶舒
@@ -18,8 +18,8 @@ import org.apache.ibatis.annotations.Select;
 public interface UsageBindingMapper extends BaseMapper<UsageBinding> {
 
     /**
-     * 根据用法ID统计绑定数量
+     * 根据项目定义ID统计绑定数量
      */
-    @Select("SELECT COUNT(1) FROM t_usage_binding WHERE usage_id = #{usageId} AND is_deleted = 0")
-    Long countByUsageId(@Param("usageId") Long usageId);
+    @Select("SELECT COUNT(1) FROM cus_service_location_template WHERE item_definition_id = #{itemDefinitionId} AND is_deleted = 0")
+    Long countByItemDefinitionId(@Param("itemDefinitionId") String itemDefinitionId);
 }

@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 配置管理-执行地点服务实现
+ * 配置管理-执行地点服务实现（映射adm_healthcare_service表）
  */
 @Service
 @RequiredArgsConstructor
@@ -55,19 +55,25 @@ public class PlaceServiceImpl implements PlaceService {
         Page<AdmRunProjectDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
 
         LambdaQueryWrapper<AdmRunProjectDO> wrapper = new LambdaQueryWrapper<>();
-        if (StringUtils.hasText(query.getItemName())) {
-            wrapper.like(AdmRunProjectDO::getItemName, query.getItemName());
+        if (StringUtils.hasText(query.getName())) {
+            wrapper.like(AdmRunProjectDO::getName, query.getName());
         }
-        if (StringUtils.hasText(query.getItemCode())) {
-            wrapper.eq(AdmRunProjectDO::getItemCode, query.getItemCode());
+        if (StringUtils.hasText(query.getTypeCode())) {
+            wrapper.eq(AdmRunProjectDO::getTypeCode, query.getTypeCode());
         }
-        if (StringUtils.hasText(query.getExecDeptId())) {
-            wrapper.eq(AdmRunProjectDO::getExecDeptId, query.getExecDeptId());
+        if (StringUtils.hasText(query.getCategoryCode())) {
+            wrapper.eq(AdmRunProjectDO::getCategoryCode, query.getCategoryCode());
         }
-        if (query.getIsEnabled() != null) {
-            wrapper.eq(AdmRunProjectDO::getIsEnabled, query.getIsEnabled());
+        if (StringUtils.hasText(query.getLocationId())) {
+            wrapper.eq(AdmRunProjectDO::getLocationId, query.getLocationId());
         }
-        wrapper.orderByAsc(AdmRunProjectDO::getSortOrder);
+        if (StringUtils.hasText(query.getStatusEnum())) {
+            wrapper.eq(AdmRunProjectDO::getStatusEnum, query.getStatusEnum());
+        }
+        if (query.getActiveFlag() != null) {
+            wrapper.eq(AdmRunProjectDO::getActiveFlag, query.getActiveFlag());
+        }
+        wrapper.orderByDesc(AdmRunProjectDO::getUpdatedAt);
 
         Page<AdmRunProjectDO> result = runProMapper.selectPage(page, wrapper);
         List<RunProListDTO> dtoList = new ArrayList<>();
@@ -90,30 +96,18 @@ public class PlaceServiceImpl implements PlaceService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public JsonVO<String> addRunPro(RunProAddDTO dto) {
-        // 校验项目编码是否重复
-        Long count = runProMapper.countByItemCode(dto.getItemCode());
+        Long count = runProMapper.countByName(dto.getName());
         if (count > 0) {
-            throw new BusinessException("项目编码已存在");
+            throw new BusinessException("项目名称已存在");
         }
 
         AdmRunProjectDO entity = new AdmRunProjectDO();
         BeanUtils.copyProperties(dto, entity);
-        if (entity.getIsEnabled() == null) {
-            entity.setIsEnabled(1);
-        }
-        if (entity.getSortOrder() == null) {
-            entity.setSortOrder(0);
+        if (entity.getActiveFlag() == null) {
+            entity.setActiveFlag(1);
         }
 
-        // 填充审计字段
         fillAuditFields(entity, true);
-
-        // 如果有科室ID，补充科室名称
-        if (StringUtils.hasText(dto.getExecDeptId())) {
-            String deptName = orgMapper.selectNameById(dto.getExecDeptId());
-            entity.setExecDeptName(deptName);
-        }
-
         runProMapper.insert(entity);
         return JsonVO.success(entity.getId());
     }
@@ -129,22 +123,14 @@ public class PlaceServiceImpl implements PlaceService {
             throw new BusinessException("执行项目不存在");
         }
 
-        // 如果修改了编码，校验是否重复
-        if (!entity.getItemCode().equals(dto.getItemCode())) {
-            Long count = runProMapper.countByItemCode(dto.getItemCode());
+        if (!entity.getName().equals(dto.getName())) {
+            Long count = runProMapper.countByName(dto.getName());
             if (count > 0) {
-                throw new BusinessException("项目编码已存在");
+                throw new BusinessException("项目名称已存在");
             }
         }
 
         BeanUtils.copyProperties(dto, entity);
-
-        // 如果有科室ID，补充科室名称
-        if (StringUtils.hasText(dto.getExecDeptId()) && !dto.getExecDeptId().equals(entity.getExecDeptId())) {
-            String deptName = orgMapper.selectNameById(dto.getExecDeptId());
-            entity.setExecDeptName(deptName);
-        }
-
         fillAuditFields(entity, false);
         runProMapper.updateById(entity);
         return JsonVO.success(entity.getId());

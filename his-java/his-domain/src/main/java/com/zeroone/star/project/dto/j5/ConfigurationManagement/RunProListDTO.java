@@ -5,10 +5,8 @@ import lombok.Data;
 
 /**
  * <p>
- * 描述：执行项目列表DTO
+ * 描述：执行项目列表DTO（映射adm_healthcare_service表）
  * </p>
- * <p>版权：&copy;01星球</p>
- * <p>地址：01星球总部</p>
  * @author zeroone
  * @version 1.0.0
  */
@@ -16,21 +14,39 @@ import lombok.Data;
 @Schema(description = "执行项目列表DTO")
 public class RunProListDTO {
 
-    @Schema(description = "项目ID", example = "1816800000000000001")
+    @Schema(description = "项目ID")
     private String id;
 
-    @Schema(description = "项目名称", example = "血常规")
-    private String itemName;
+    @Schema(description = "项目名称")
+    private String name;
 
-    @Schema(description = "项目编码", example = "CBC001")
-    private String itemCode;
+    @Schema(description = "类型编码")
+    private String typeCode;
 
-    @Schema(description = "执行科室ID", example = "1816800000000000002")
-    private String execDeptId;
+    @Schema(description = "分类编码")
+    private String categoryCode;
 
-    @Schema(description = "执行科室名称", example = "检验科")
-    private String execDeptName;
+    @Schema(description = "执行机构ID")
+    private String offeredOrgId;
 
-    @Schema(description = "是否启用", example = "1")
-    private Integer isEnabled;
+    @Schema(description = "专科编码")
+    private String specialtyCode;
+
+    @Schema(description = "执行地点ID")
+    private String locationId;
+
+    @Schema(description = "状态枚举")
+    private String statusEnum;
+
+    @Schema(description = "启用标志")
+    private Integer activeFlag;
+
+    @Schema(description = "医保编号")
+    private String ybNo;
+
+    @Schema(description = "业务编号")
+    private String busNo;
+
+    @Schema(description = "备注")
+    private String comment;
 }

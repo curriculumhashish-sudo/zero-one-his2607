@@ -7,10 +7,8 @@ import lombok.EqualsAndHashCode;
 
 /**
  * <p>
- * 描述：执行项目列表查询
+ * 描述：执行项目列表查询（映射adm_healthcare_service表）
  * </p>
- * <p>版权：&copy;01星球</p>
- * <p>地址：01星球总部</p>
  * @author zeroone
  * @version 1.0.0
  */
@@ -19,15 +17,21 @@ import lombok.EqualsAndHashCode;
 @Schema(description = "执行项目列表查询")
 public class RunProListQuery extends PageQuery {
 
-    @Schema(description = "项目名称", example = "血常规")
-    private String itemName;
+    @Schema(description = "项目名称")
+    private String name;
 
-    @Schema(description = "项目编码", example = "CBC001")
-    private String itemCode;
+    @Schema(description = "类型编码")
+    private String typeCode;
 
-    @Schema(description = "执行科室ID", example = "1816800000000000001")
-    private String execDeptId;
+    @Schema(description = "分类编码")
+    private String categoryCode;
 
-    @Schema(description = "是否启用：0-禁用，1-启用", example = "1")
-    private Integer isEnabled;
+    @Schema(description = "执行地点ID")
+    private String locationId;
+
+    @Schema(description = "状态枚举")
+    private String statusEnum;
+
+    @Schema(description = "启用标志")
+    private Integer activeFlag;
 }

@@ -10,10 +10,8 @@ import java.util.List;
 
 /**
  * <p>
- * 描述：执行项目Mapper（避免select *，指定字段）
+ * 描述：执行项目Mapper（映射adm_healthcare_service表）
  * </p>
- * <p>版权：&copy;01星球</p>
- * <p>地址：01星球总部</p>
  * @author zeroone
  * @version 1.0.0
  */
@@ -21,16 +19,16 @@ import java.util.List;
 public interface AdmRunProjectMapper extends BaseMapper<AdmRunProjectDO> {
 
     /**
-     * 根据执行科室ID查询执行项目列表
+     * 根据执行地点ID查询执行项目列表
      */
-    @Select("SELECT id, item_code, item_name, exec_dept_id, exec_dept_name, sort_order, is_enabled " +
-            "FROM adm_run_project WHERE exec_dept_id = #{deptId} AND is_deleted = 0 " +
-            "ORDER BY sort_order ASC, created_at DESC")
-    List<AdmRunProjectDO> selectByDeptId(@Param("deptId") String deptId);
+    @Select("SELECT id, name, type_code, category_code, location_id, status_enum, active_flag, comment " +
+            "FROM adm_healthcare_service WHERE location_id = #{locationId} AND is_deleted = 0 " +
+            "ORDER BY created_at DESC")
+    List<AdmRunProjectDO> selectByLocationId(@Param("locationId") String locationId);
 
     /**
-     * 根据项目编码查询（去重校验）
+     * 根据名称查询（去重校验）
      */
-    @Select("SELECT COUNT(1) FROM adm_run_project WHERE item_code = #{itemCode} AND is_deleted = 0")
-    Long countByItemCode(@Param("itemCode") String itemCode);
+    @Select("SELECT COUNT(1) FROM adm_healthcare_service WHERE name = #{name} AND is_deleted = 0")
+    Long countByName(@Param("name") String name);
 }

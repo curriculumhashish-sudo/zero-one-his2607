@@ -5,19 +5,19 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * <p>
- * 描述：患者耗材项目DO
+ * 描述：患者耗材项目DO（映射 wkf_device_dispense 表）
  * </p>
  * <p>版权：&copy;01星球</p>
- * <p>地址：01星球总部</p>
  * @author zeroone
  * @version 1.0.0
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("patient_consumable_item")
+@TableName("wkf_device_dispense")
 public class PatientConsumableItemDO extends BaseEntity {
 
     /**
@@ -26,34 +26,34 @@ public class PatientConsumableItemDO extends BaseEntity {
     private String busNo;
 
     /**
-     * 患者ID
+     * 设备申请ID
      */
-    private String patientId;
+    private String deviceReqId;
 
     /**
-     * 就诊ID
+     * 状态枚举
      */
-    private String encounterId;
+    private String statusEnum;
 
     /**
-     * 项目ID
+     * 基于的表
      */
-    private String itemId;
+    private String basedOnTable;
 
     /**
-     * 项目名称
+     * 基于的ID
      */
-    private String itemName;
+    private String basedOnId;
 
     /**
-     * 项目编码
+     * 未执行原因枚举
      */
-    private String itemCode;
+    private String notPerformedReasonEnum;
 
     /**
-     * 耗材类型
+     * 发药类别枚举
      */
-    private String consumableType;
+    private String dispenseCategoryEnum;
 
     /**
      * 数量
@@ -66,67 +66,102 @@ public class PatientConsumableItemDO extends BaseEntity {
     private String unitCode;
 
     /**
-     * 单位名称
-     */
-    private String unitName;
-
-    /**
-     * 单价
-     */
-    private BigDecimal unitPrice;
-
-    /**
-     * 总价
-     */
-    private BigDecimal totalPrice;
-
-    /**
-     * 库存数量
-     */
-    private BigDecimal stockQuantity;
-
-    /**
-     * 库存单位
-     */
-    private String stockUnit;
-
-    /**
-     * 生产厂家
-     */
-    private String manufacturer;
-
-    /**
      * 批号
      */
-    private String batchNo;
+    private String lotNumber;
 
     /**
-     * 有效期
+     * 设备定义ID
      */
-    private String expiryDate;
+    private String deviceDefId;
+
+    /**
+     * 患者ID
+     */
+    private String patientId;
+
+    /**
+     * 就诊ID
+     */
+    private String encounterId;
+
+    /**
+     * 执行者ID
+     */
+    private String performerId;
 
     /**
      * 执行科室ID
      */
-    private String execDeptId;
+    private String locationId;
 
     /**
-     * 执行科室名称
+     * 部分类型代码
      */
-    private String execDeptName;
+    private String partTypeCode;
 
     /**
-     * 状态
+     * 发药数量
      */
-    private String status;
+    private BigDecimal dispenseQuantity;
 
     /**
-     * 执行状态
+     * 准备者ID
      */
-    private Integer executionStatus;
+    private String preparerId;
 
     /**
-     * 备注
+     * 准备时间
      */
-    private String remark;
+    private LocalDateTime prepareTime;
+
+    /**
+     * 发药时间
+     */
+    private LocalDateTime dispenseTime;
+
+    /**
+     * 限制时间
+     */
+    private LocalDateTime limitTime;
+
+    /**
+     * 计划发药时间
+     */
+    private LocalDateTime plannedDispenseTime;
+
+    /**
+     * 目标位置ID
+     */
+    private String desLocationId;
+
+    /**
+     * 推荐从业者ID
+     */
+    private String recPractitionerId;
+
+    /**
+     * 支持信息
+     */
+    private String supportInfo;
+
+    /**
+     * 用法说明
+     */
+    private String usageInstruction;
+
+    /**
+     * 发药频率代码
+     */
+    private String dispenseFrequencyCode;
+
+    /**
+     * 追踪号
+     */
+    private String traceNo;
+
+    /**
+     * 操作ID
+     */
+    private String procedureId;
 }

@@ -4,80 +4,102 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
- * 患者耗材项目VO
+ * 患者耗材项目VO（映射wkf_device_dispense表）
  */
 @Data
 @Schema(description = "患者耗材项目VO")
 public class PatientConsumableItemVO {
 
-    @Schema(description = "记录ID", example = "1816800000000000001")
+    @Schema(description = "记录ID")
     private String id;
 
-    @Schema(description = "业务编号", example = "BIZ20250101001")
-    private String bus_no;
+    @Schema(description = "业务编号")
+    private String busNo;
 
-    @Schema(description = "项目ID", example = "ITEM001")
-    private String item_id;
+    @Schema(description = "设备申请ID")
+    private String deviceReqId;
 
-    @Schema(description = "项目名称", example = "一次性注射器")
-    private String item_name;
+    @Schema(description = "状态枚举")
+    private String statusEnum;
 
-    @Schema(description = "项目编码", example = "SYRINGE001")
-    private String item_code;
+    @Schema(description = "基于的表")
+    private String basedOnTable;
 
-    @Schema(description = "耗材类型", example = "INJECTION")
-    private String consumable_type;
+    @Schema(description = "基于的ID")
+    private String basedOnId;
 
-    @Schema(description = "耗材类型名称", example = "注射类")
-    private String consumable_type_name;
+    @Schema(description = "未执行原因枚举")
+    private String notPerformedReasonEnum;
 
-    @Schema(description = "数量", example = "2")
+    @Schema(description = "发药类别枚举")
+    private String dispenseCategoryEnum;
+
+    @Schema(description = "数量")
     private BigDecimal quantity;
 
-    @Schema(description = "单位代码", example = "AMP")
-    private String unit_code;
+    @Schema(description = "单位代码")
+    private String unitCode;
 
-    @Schema(description = "单位名称", example = "安瓿")
-    private String unit_name;
+    @Schema(description = "批号")
+    private String lotNumber;
 
-    @Schema(description = "单价", example = "0.50")
-    private BigDecimal unit_price;
+    @Schema(description = "设备定义ID")
+    private String deviceDefId;
 
-    @Schema(description = "总价", example = "1.00")
-    private BigDecimal total_price;
+    @Schema(description = "患者ID")
+    private String patientId;
 
-    @Schema(description = "库存数量", example = "100")
-    private BigDecimal stock_quantity;
+    @Schema(description = "就诊ID")
+    private String encounterId;
 
-    @Schema(description = "库存单位", example = "BOX")
-    private String stock_unit;
+    @Schema(description = "执行者ID")
+    private String performerId;
 
-    @Schema(description = "生产厂家", example = "XX制药")
-    private String manufacturer;
+    @Schema(description = "执行科室ID")
+    private String locationId;
 
-    @Schema(description = "批号", example = "LOT20250101")
-    private String batch_no;
+    @Schema(description = "部分类型代码")
+    private String partTypeCode;
 
-    @Schema(description = "有效期")
-    private String expiry_date;
+    @Schema(description = "发药数量")
+    private BigDecimal dispenseQuantity;
 
-    @Schema(description = "执行科室ID", example = "1816800000000000001")
-    private String exec_dept_id;
+    @Schema(description = "准备者ID")
+    private String preparerId;
 
-    @Schema(description = "执行科室名称", example = "门诊注射室")
-    private String exec_dept_name;
+    @Schema(description = "准备时间")
+    private LocalDateTime prepareTime;
 
-    @Schema(description = "状态", example = "PENDING")
-    private String status;
+    @Schema(description = "发药时间")
+    private LocalDateTime dispenseTime;
 
-    @Schema(description = "状态名称", example = "待执行")
-    private String status_name;
+    @Schema(description = "限制时间")
+    private LocalDateTime limitTime;
 
-    @Schema(description = "执行状态", example = "0")
-    private Integer execution_status;
+    @Schema(description = "计划发药时间")
+    private LocalDateTime plannedDispenseTime;
 
-    @Schema(description = "备注")
-    private String remark;
+    @Schema(description = "目标位置ID")
+    private String desLocationId;
+
+    @Schema(description = "推荐从业者ID")
+    private String recPractitionerId;
+
+    @Schema(description = "支持信息")
+    private String supportInfo;
+
+    @Schema(description = "用法说明")
+    private String usageInstruction;
+
+    @Schema(description = "发药频率代码")
+    private String dispenseFrequencyCode;
+
+    @Schema(description = "追踪号")
+    private String traceNo;
+
+    @Schema(description = "操作ID")
+    private String procedureId;
 }

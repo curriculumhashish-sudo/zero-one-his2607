@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 配置管理-取药科室服务实现
+ * 配置管理-取药科室库存服务实现（映射wkf_inventory_item表）
  */
 @Service
 @RequiredArgsConstructor
@@ -37,23 +37,23 @@ public class DeptStockServiceImpl implements DeptStockService {
         Page<DeptStockDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
 
         LambdaQueryWrapper<DeptStockDO> wrapper = new LambdaQueryWrapper<>();
-        if (StringUtils.hasText(query.getDeptId())) {
-            wrapper.eq(DeptStockDO::getDeptId, query.getDeptId());
+        if (StringUtils.hasText(query.getCategoryCode())) {
+            wrapper.eq(DeptStockDO::getCategoryCode, query.getCategoryCode());
         }
-        if (StringUtils.hasText(query.getDeptName())) {
-            wrapper.like(DeptStockDO::getDeptName, query.getDeptName());
+        if (StringUtils.hasText(query.getItemTable())) {
+            wrapper.eq(DeptStockDO::getItemTable, query.getItemTable());
         }
-        if (StringUtils.hasText(query.getItemName())) {
-            wrapper.like(DeptStockDO::getItemName, query.getItemName());
+        if (StringUtils.hasText(query.getName())) {
+            wrapper.like(DeptStockDO::getName, query.getName());
         }
-        if (StringUtils.hasText(query.getItemCode())) {
-            wrapper.eq(DeptStockDO::getItemCode, query.getItemCode());
+        if (StringUtils.hasText(query.getItemId())) {
+            wrapper.eq(DeptStockDO::getItemId, query.getItemId());
         }
-        if (StringUtils.hasText(query.getItemType())) {
-            wrapper.eq(DeptStockDO::getItemType, query.getItemType());
+        if (StringUtils.hasText(query.getInventoryStatusEnum())) {
+            wrapper.eq(DeptStockDO::getInventoryStatusEnum, query.getInventoryStatusEnum());
         }
-        if (query.getIsEnabled() != null) {
-            wrapper.eq(DeptStockDO::getIsEnabled, query.getIsEnabled());
+        if (StringUtils.hasText(query.getLocationId())) {
+            wrapper.eq(DeptStockDO::getLocationId, query.getLocationId());
         }
         wrapper.orderByDesc(DeptStockDO::getUpdatedAt);
 
@@ -86,7 +86,6 @@ public class DeptStockServiceImpl implements DeptStockService {
         for (DeptStockSaveDTO.DeptStockItemDTO item : dto.getItems()) {
             DeptStockDO entity;
 
-            // ID存在则更新，不存在则新增
             if (StringUtils.hasText(item.getId())) {
                 entity = deptStockMapper.selectById(item.getId());
                 if (entity == null) {
