@@ -6,48 +6,42 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 /**
- * <p>
- * 描述：药房盘点单据列表行VO
- * </p>
- * <p>版权：&copy;01星球</p>
- * <p>地址：01星球总部</p>
- * @author 01星球
- * @version 1.0.0
+ * 药库盘点单据列表行VO。
  */
 @Data
-@Schema(description = "药房盘点单据列表(条件+分页)")
+@Schema(description = "药库盘点单据列表行")
 public class PharmacyInventoryVO {
-    @Schema(description = "盘点业务单号", example = "CST2026-07-190004")
+    @Schema(description = "盘点单号", example = "CST202608070001")
     private String busNo;
 
-    @Schema(description = "状态编码", example = "AGREE")
+    @Schema(description = "状态编码", example = "DRAFT")
     private String statusEnum;
 
-    @Schema(description = "状态名称", example = "同意")
+    @Schema(description = "状态名称", example = "草稿")
     private String statusEnumText;
 
-    @Schema(description = "目标库房ID")
+    @Schema(description = "目标库房ID", example = "322954885380706304")
     private String purposeLocationId;
 
     @Schema(description = "目标库房名称", example = "西药库")
     private String purposeLocationName;
 
-    @Schema(description = "药品条目数量", example = "1")
+    @Schema(description = "药品条目数量", example = "2")
     private Integer itemCount;
 
-    @Schema(description = "盈亏总数量", example = "20.00")
+    @Schema(description = "盈亏总数量", example = "0.00")
     private BigDecimal profitLossQuantitySum;
 
-    @Schema(description = "实际总金额", example = "6.99")
+    @Schema(description = "实际总金额", example = "1336.00")
     private BigDecimal actualAmountSum;
 
     @Schema(description = "申请人ID")
     private String applicantId;
 
-    @Schema(description = "申请人名称", example = "admin")
+    @Schema(description = "申请人名称", example = "库管")
     private String applicantName;
 
-    @Schema(description = "申请时间", example = "2026-07-19 21:06:20")
+    @Schema(description = "申请时间", example = "2026-08-07 10:00:00")
     private String applyTime;
 
     @Schema(description = "审批人ID")
@@ -56,9 +50,9 @@ public class PharmacyInventoryVO {
     @Schema(description = "审批人名称", example = "admin")
     private String approverName;
 
-    @Schema(description = "审批时间", example = "2026-07-19 21:06:21")
+    @Schema(description = "审批时间", example = "2026-08-07 15:00:00")
     private String approvalTime;
 
-    @Schema(description = "盘点发生时间", example = "2026-07-19 21:06:14")
+    @Schema(description = "盘点发生时间", example = "2026-08-07 09:00:00")
     private String occurrenceTime;
 }

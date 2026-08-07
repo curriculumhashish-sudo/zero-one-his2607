@@ -78,11 +78,12 @@ public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
         requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_PENDING_APPROVAL);
 
         LocalDateTime now = LocalDateTime.now();
+        LocalDateTime approvalTime = resolveApprovalClock(dto.getApprovalClock());
         String userId = currentUserId();
         String approverId = StringUtils.hasText(dto.getApproverId()) ? dto.getApproverId() : userId;
         adjustInventory(rows, now, userId);
         int affectedRows = supplyRequestMapper.updateStocktakeToAgree(
-                dto.getBusNo(), TYPE_WAREHOUSE_STOCKTAKE, rows.get(0).getStatusEnum(), approverId, now, now, userId);
+                dto.getBusNo(), TYPE_WAREHOUSE_STOCKTAKE, rows.get(0).getStatusEnum(), approverId, approvalTime, now, userId);
         requireUpdated(affectedRows);
         return true;
     }
@@ -98,11 +99,12 @@ public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
         requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_PENDING_APPROVAL);
 
         LocalDateTime now = LocalDateTime.now();
+        LocalDateTime approvalTime = resolveApprovalClock(dto.getApprovalClock());
         String userId = currentUserId();
         String approverId = StringUtils.hasText(dto.getApproverId()) ? dto.getApproverId() : userId;
         String reason = buildReason(dto);
         int affectedRows = supplyRequestMapper.updateStocktakeToReject(
-                dto.getBusNo(), TYPE_WAREHOUSE_STOCKTAKE, rows.get(0).getStatusEnum(), approverId, now, reason, now, userId);
+                dto.getBusNo(), TYPE_WAREHOUSE_STOCKTAKE, rows.get(0).getStatusEnum(), approverId, approvalTime, reason, now, userId);
         requireUpdated(affectedRows);
         return true;
     }
@@ -170,6 +172,15 @@ public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
             // Keep service usable in local tests without gateway headers.
         }
         return "system";
+    }
+
+    private LocalDateTime resolveApprovalClock(String approvalClock) {
+        if (StringUtils.hasText(approvalClock)) {
+            try {
+                return LocalDateTime.parse(approvalClock.replace("T", "T").substring(0, 19));
+            } catch (Exception ignored) {}
+        }
+        return LocalDateTime.now();
     }
 
     private String buildReason(StocktakeRejectApprovalDTO dto) {

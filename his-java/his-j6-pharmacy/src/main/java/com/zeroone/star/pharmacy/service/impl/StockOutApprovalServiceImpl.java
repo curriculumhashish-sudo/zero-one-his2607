@@ -122,9 +122,10 @@ public class StockOutApprovalServiceImpl implements IStockoutApprovalService {
         String approverId = StringUtils.hasText(dto.getApproverId()) ? dto.getApproverId() : userId;
         // 5. 更新状态为已批准
         LocalDateTime now = LocalDateTime.now();
+        LocalDateTime approvalTime = resolveApprovalClock(dto.getApprovalClock());
         updateStatus(dto.getBusNo(), STATUS_AGREE, wrapper -> wrapper
                 .set("approver_id", approverId)
-                .set("approval_time", now)
+                .set("approval_time", approvalTime)
                 .set("updated_at", now)
                 .set("updated_by", userId));
 
@@ -157,9 +158,10 @@ public class StockOutApprovalServiceImpl implements IStockoutApprovalService {
         String approverId2 = StringUtils.hasText(dto.getApproverId()) ? dto.getApproverId() : userId;
         // 5. 更新状态为被驳回(写入驳回原因)
         LocalDateTime now = LocalDateTime.now();
+        LocalDateTime approvalTime = resolveApprovalClock(dto.getApprovalClock());
         updateStatus(dto.getBusNo(), STATUS_REJECT, wrapper -> wrapper
                 .set("approver_id", approverId2)
-                .set("approval_time",now)
+                .set("approval_time", approvalTime)
                 .set("reason", dto.getRejectReason())//写入驳回原因
                 .set("updated_at", now)
                 .set("updated_by", userId));
@@ -489,6 +491,18 @@ public class StockOutApprovalServiceImpl implements IStockoutApprovalService {
         // Fallback: 当天日期 + 序号
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyyMMdd");
         return "CSI" + LocalDate.now().format(fmt) + "0001";
+    }
+
+    /**
+     * 解析审批时间：优先 DTO 传入值，否则当前时间
+     */
+    private LocalDateTime resolveApprovalClock(String approvalClock) {
+        if (StringUtils.hasText(approvalClock)) {
+            try {
+                return LocalDateTime.parse(approvalClock.replace("T", "T").substring(0, 19));
+            } catch (Exception ignored) {}
+        }
+        return LocalDateTime.now();
     }
 
     @FunctionalInterface

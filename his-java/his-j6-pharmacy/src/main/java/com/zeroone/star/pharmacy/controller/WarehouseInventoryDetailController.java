@@ -11,14 +11,11 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j6.pharmacy.inventory.ExcelExportVO;
 import com.zeroone.star.project.vo.j6.pharmacy.inventory.InventoryDetailVO;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -59,9 +56,7 @@ public class WarehouseInventoryDetailController implements WarehouseInventoryDet
     @ResponseBody
     @Operation(
             summary = "停供/取消停供",
-            description = "批量修改商品停供状态，返回受影响行数",
-            responses = @ApiResponse(responseCode = "200", description = "操作成功",
-                    content = @Content(schema = @Schema(implementation = JsonVO.class)))
+            description = "批量修改商品停供状态，返回受影响行数"
     )
     public JsonVO<Integer> updateStatus(@RequestBody InventoryStatusDTO inventoryStatusDTO) {
         int row = iWkfInventoryItemService.resumeInventoryItems(inventoryStatusDTO);
@@ -91,22 +86,4 @@ public class WarehouseInventoryDetailController implements WarehouseInventoryDet
     }
 
 
-    // 药库管理模块中库存明细业务产品原型修改, 以下方案废除
-    /*
-      导出库存明细Excel
-     */
-    /*
-     *
-     *     @PostMapping("/exportInventoryDetailCurrent")
-     *     @Operation(
-     *             summary = "导出数据",
-     *             description = "根据筛选条件生成Excel文件，返回base64文件信息",
-     *             responses = @ApiResponse(responseCode = "200", description = "导出成功",
-     *                     content = @Content(schema = @Schema(implementation = JsonVO.class)))
-     *     )
-     *     public JsonVO<ExcelExportVO> exportInventoryDetailCurrent(@RequestBody InventoryDetailQuery inventoryDetailQueryDTO) {
-     *         ExcelExportVO excelExportVO = inventoryDetailService.exportToExcel(inventoryDetailQueryDTO);
-     *         return JsonVO.success(excelExportVO);
-     *     }
-     */
 }

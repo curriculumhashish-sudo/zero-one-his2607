@@ -88,7 +88,7 @@ public class StockOutSaveRequestDTO {
     @Schema(description = "审批时间")
     private LocalDateTime approvalTime;
 
-    @Schema(description = "单据总金额（展示用，后端忽略）", example = "17147.00")
+    @Schema(description = "单据总金额（展示用，后端忽略）", example = "1336.00")
     private BigDecimal totalAmount;
 
     @Schema(description = "备注", example = "门诊药房调拨出库")

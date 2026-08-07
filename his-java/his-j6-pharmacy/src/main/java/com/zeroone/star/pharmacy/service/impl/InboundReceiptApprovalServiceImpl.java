@@ -108,6 +108,7 @@ public class InboundReceiptApprovalServiceImpl implements IInboundReceiptApprova
         requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_PENDING_APPROVAL);
 
         LocalDateTime now = LocalDateTime.now();
+        LocalDateTime approvalTime = resolveApprovalClock(dto.getApprovalClock());
         String userId = currentUserId();
         String approverId = StringUtils.hasText(dto.getApproverId()) ? dto.getApproverId() : userId;
 
@@ -116,7 +117,7 @@ public class InboundReceiptApprovalServiceImpl implements IInboundReceiptApprova
 
         int affected = supplyRequestMapper.updateInboundToAgree(
                 dto.getBusNo(), TYPE_INBOUND_RECEIPT, rows.get(0).getStatusEnum(),
-                approverId, now, now, userId);
+                approverId, approvalTime, now, userId);
         requireUpdated(affected);
 
         return new InboundApprovalResultVO(true, STATUS_AGREE);
@@ -270,6 +271,15 @@ public class InboundReceiptApprovalServiceImpl implements IInboundReceiptApprova
     }
 
     // ==================== 用户辅助 ====================
+
+    private LocalDateTime resolveApprovalClock(String approvalClock) {
+        if (StringUtils.hasText(approvalClock)) {
+            try {
+                return LocalDateTime.parse(approvalClock.replace("T", "T").substring(0, 19));
+            } catch (Exception ignored) {}
+        }
+        return LocalDateTime.now();
+    }
 
     private String currentUserId() {
         try {

@@ -8,6 +8,6 @@ import lombok.Data;
 @Schema(name = "InboundReceiptDetailQuery", description = "药库进货单详情查询条件")
 public class InboundReceiptDetailQuery {
     @NotBlank(message = "业务单号不能为空")
-    @Schema(description = "业务单号", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "业务单号", example = "CIR202608070001", requiredMode = Schema.RequiredMode.REQUIRED)
     private String busNo;
 }
