@@ -235,4 +235,14 @@ class PtrDrugConditionCheckMapper : public Mapper<PtrDrugConditionCheck>
     }
 };
 
+/** Maps a single-column query result to a string. */
+class DrugStringMapper : public Mapper<std::string>
+{
+  public:
+    std::string mapper(ResultSet *resultSet) const override
+    {
+        return resultSet->getString(1);
+    }
+};
+
 #endif // !_DRUG_MAPPER_H_

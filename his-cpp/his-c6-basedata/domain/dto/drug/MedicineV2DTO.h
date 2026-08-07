@@ -63,6 +63,7 @@ class MedicineVersionItemDTO : public oatpp::DTO
         return dto;
     }
 
+    /** 校验药品编号格式和乐观锁版本。 */
     bool isValid() const
     {
         if (!id || !version || version.getValue(-1) < 0)
@@ -167,6 +168,7 @@ class MedicineUpdateDTO : public oatpp::DTO
         return dto;
     }
 
+    /** 校验修改字段、长度、数值范围和必填组合。 */
     std::string validate() const
     {
         if (!version || version.getValue(-1) < 0 || !hasAnyChange())
@@ -206,6 +208,7 @@ class MedicineUpdateDTO : public oatpp::DTO
     }
 
   private:
+    /** 判断请求中是否至少包含一个待修改字段。 */
     bool hasAnyChange() const
     {
         return busNo || name || domainEnum || medVersion || nameEn || pyStr || wbStr || categoryCode ||
@@ -384,6 +387,7 @@ class MedicineStatusUpdateDTO : public oatpp::DTO
         return dto;
     }
 
+    /** 校验目标状态和批量药品版本列表。 */
     std::string validate() const
     {
         if (!status || (status != "ACTIVE" && status != "INACTIVE"))
@@ -393,6 +397,7 @@ class MedicineStatusUpdateDTO : public oatpp::DTO
         return validateItems(items);
     }
 
+    /** 校验批量数量、编号、版本和重复项。 */
     static std::string validateItems(const oatpp::List<MedicineVersionItemDTO::Wrapper> &source)
     {
         if (!source || source->empty() || source->size() > DrugConstants::MAX_BATCH_SIZE)
@@ -430,6 +435,7 @@ class MedicineBatchDeleteDTO : public oatpp::DTO
         return dto;
     }
 
+    /** 复用批量药品版本列表校验。 */
     std::string validate() const
     {
         return MedicineStatusUpdateDTO::validateItems(items);

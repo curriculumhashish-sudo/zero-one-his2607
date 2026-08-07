@@ -58,9 +58,21 @@ class MedicineVersionJsonVO : public JsonVO<MedicineVersionItemDTO::Wrapper>
         {
             return ZH_WORDS_GETTER("drug.v2.message.unauthorized");
         }
+        if (code == MedicineV2BusinessCode::FORBIDDEN)
+        {
+            return ZH_WORDS_GETTER("drug.v2.message.forbidden");
+        }
+        if (code == MedicineV2BusinessCode::NOT_FOUND)
+        {
+            return ZH_WORDS_GETTER("drug.v2.message.notFound");
+        }
         if (code == MedicineV2BusinessCode::BUSINESS_VALIDATION_FAILED)
         {
             return ZH_WORDS_GETTER("drug.v2.message.businessFailed");
+        }
+        if (code == MedicineV2BusinessCode::SERVER_ERROR)
+        {
+            return ZH_WORDS_GETTER("drug.v2.message.serverError");
         }
         return ZH_WORDS_GETTER("drug.v2.message.success");
     }
@@ -124,9 +136,21 @@ class MedicineBatchJsonVO : public JsonVO<MedicineBatchResultDTO::Wrapper>
         {
             return ZH_WORDS_GETTER("drug.v2.message.unauthorized");
         }
+        if (code == MedicineV2BusinessCode::FORBIDDEN)
+        {
+            return ZH_WORDS_GETTER("drug.v2.message.forbidden");
+        }
+        if (code == MedicineV2BusinessCode::NOT_FOUND)
+        {
+            return ZH_WORDS_GETTER("drug.v2.message.notFound");
+        }
         if (code == MedicineV2BusinessCode::BUSINESS_VALIDATION_FAILED)
         {
             return ZH_WORDS_GETTER("drug.v2.message.businessFailed");
+        }
+        if (code == MedicineV2BusinessCode::SERVER_ERROR)
+        {
+            return ZH_WORDS_GETTER("drug.v2.message.serverError");
         }
         return ZH_WORDS_GETTER("drug.v2.message.success");
     }

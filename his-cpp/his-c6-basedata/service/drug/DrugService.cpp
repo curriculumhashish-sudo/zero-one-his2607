@@ -30,6 +30,7 @@
 #include <cctype>
 #include <exception>
 
+// 校验药品编号是否可安全用于业务查询。
 static bool isValidId(const oatpp::String &id)
 {
     if (!id)
@@ -45,6 +46,7 @@ static bool isValidId(const oatpp::String &id)
                        { return std::isalnum(character) != 0 || character == '-' || character == '_'; });
 }
 
+// 从凭证中取得审计操作人编号。
 static std::string operatorId(const PayloadDTO &payload)
 {
     if (!payload.getId().empty())
@@ -58,6 +60,7 @@ static std::string operatorId(const PayloadDTO &payload)
     throw DrugServiceException(DrugServiceError::InvalidInput);
 }
 
+// 阻止当前用户跨租户修改药品数据。
 static void ensureTenantAccess(DrugDAO &dao, const PayloadDTO &payload, const std::string &tenantId)
 {
     if (!dao.hasTenantAccess(payload.getId(), payload.getUsername(), tenantId))
@@ -66,6 +69,7 @@ static void ensureTenantAccess(DrugDAO &dao, const PayloadDTO &payload, const st
     }
 }
 
+// 使用领域转换宏填充请求中显式传入的修改字段。
 static void fillMedicineV2Patch(MedMedicationDefinitionDO &data, const std::string &id,
                                 const MedicineUpdateDTO::Wrapper &dto,
                                 const std::string &updatedBy, const std::string &updatedAt)
@@ -102,6 +106,7 @@ static void fillMedicineV2Patch(MedMedicationDefinitionDO &data, const std::stri
     data.setUpdatedAt(updatedAt);
 }
 
+// 构造包含最新乐观锁版本的成功项。
 static MedicineVersionItemDTO::Wrapper makeMedicineVersionItem(const std::string &id, int version)
 {
     auto item = MedicineVersionItemDTO::createShared();
@@ -110,6 +115,7 @@ static MedicineVersionItemDTO::Wrapper makeMedicineVersionItem(const std::string
     return item;
 }
 
+// 向批量结果追加失败药品及失败原因。
 static void addMedicineV2Failure(const MedicineBatchResultDTO::Wrapper &result, const std::string &id,
                                  int code, const std::string &message,
                                  const oatpp::Int32 &currentVersion = nullptr)
@@ -122,6 +128,7 @@ static void addMedicineV2Failure(const MedicineBatchResultDTO::Wrapper &result, 
     result->failedItems->push_back(item);
 }
 
+// 将业务异常转换为批量失败项业务码。
 static int medicineV2FailureCode(DrugServiceError error)
 {
     switch (error)
@@ -142,6 +149,7 @@ static int medicineV2FailureCode(DrugServiceError error)
     }
 }
 
+// 从中文词典读取业务异常对应的提示文本。
 static std::string medicineV2FailureMessage(DrugServiceError error)
 {
     switch (error)
@@ -174,6 +182,7 @@ DrugServiceError DrugServiceException::getError() const noexcept
     return error;
 }
 
+// 在事务中完成药品字段、价格和审计信息更新。
 MedicineVersionItemDTO::Wrapper DrugService::updateMedicineV2(const std::string &id,
                                                                const MedicineUpdateDTO::Wrapper &dto)
 {
@@ -282,6 +291,7 @@ MedicineVersionItemDTO::Wrapper DrugService::updateMedicineV2(const std::string 
     }
 }
 
+// 每个药品独立事务处理启停，避免单个失败影响其他成功项。
 MedicineBatchResultDTO::Wrapper DrugService::updateMedicineStatusV2(
     const MedicineStatusUpdateDTO::Wrapper &dto)
 {
@@ -382,6 +392,7 @@ MedicineBatchResultDTO::Wrapper DrugService::updateMedicineStatusV2(
     return result;
 }
 
+// 检查状态和引用后软删除药品及其价格记录。
 MedicineBatchResultDTO::Wrapper DrugService::batchDeleteMedicinesV2(
     const MedicineBatchDeleteDTO::Wrapper &dto)
 {
@@ -582,20 +593,55 @@ DrugDetailDTO::Wrapper DrugService::getById(string id)
 }
 string DrugService::saveData(const DrugAddDTO::Wrapper& dto)
 {
+    if (!dto || dto->getPayload() == nullptr)
+    {
+        return "";
+    }
+
     DrugDAO dao;
     MedMedicationDefinitionDO entity;
+    const PayloadDTO &payload = *dto->getPayload();
+    const std::string auditOperator = operatorId(payload);
+    const std::string tenantId = dao.selectCurrentTenantId(payload.getId());
+    const std::string orgId = dao.selectCurrentHospitalOrgId(payload.getId(), tenantId);
+    if (tenantId.empty() || orgId.empty())
+    {
+        return "";
+    }
 
     UuidFacade uuidFacade;
     std::string newId = uuidFacade.genUuid();
     entity.setId(newId);
 
-    entity.setName(dto->name.getValue(""));
+    // 由服务端补齐租户、机构、状态和乐观锁初值。
+    entity.setTenantId(tenantId);
+    entity.setOrgId(orgId);
+    entity.setBusNo(newId);
+    entity.setStatusEnum(DrugConstants::STATUS_ACTIVE);
+    entity.setVersion(0);
+    entity.setIsDeleted(false);
+    entity.setName(dto->tongyongname.getValue(""));
+    entity.setMerchandiseName(dto->name.getValue(""));
     entity.setCategoryCode(dto->kinds.getValue(""));
+    entity.setManufacturerText(dto->changjia.getValue(""));
+    entity.setSupplyId(dto->gongyingshang.getValue(""));
+    entity.setCharacteristic(dto->xingzhi.getValue(0));
+    entity.setTotalVolume(dto->guige.getValue(""));
+    entity.setDoseUnitCode(dto->danwei.getValue(""));
+    entity.setDoseUnitRatio(dto->beishu.getValue(0.0));
+    entity.setDoseFormCode(dto->jixin.getValue(""));
+    entity.setPurchaseUnitCode(dto->caigoudanwei.getValue(""));
+    entity.setPurchaseUnitRatio(dto->caigoubeishu.getValue(0.0));
+    entity.setDefEncounterUnitCode(dto->menzhengshuxing.getValue(""));
+    entity.setStockUnitCode(dto->kucundanwei.getValue(""));
+    entity.setStockUnitRatio(dto->kucunbeishu.getValue(0.0));
+    entity.setDefInhospitalUnitCode(dto->linshishuxing.getValue(""));
+    entity.setPackageUnitCode(dto->baozhuangdanwei.getValue(""));
+    entity.setPackageUnitRatio(dto->baozhuangbeishu.getValue(0.0));
+    entity.setSplitUnitCode(dto->chailingdanwei.getValue(""));
 
-    entity.setCreatedBy("");
+    entity.setCreatedBy(auditOperator);
     entity.setCreatedAt(SimpleDateTimeFormat::format());
-    
-    // 樑扢蘇蚚
     entity.setActiveFlag(true);
 
     if (dao.insert(entity) > 0) {

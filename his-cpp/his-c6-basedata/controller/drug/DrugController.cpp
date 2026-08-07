@@ -76,6 +76,7 @@ DrugDetailJsonVO::Wrapper DrugController::execQueryById(const String &id)
     return jvo;
 }
 
+// 将业务码转换为中文词典中的响应状态。
 static ResultStatus medicineV2Status(int code)
 {
     switch (code)
@@ -103,6 +104,7 @@ static ResultStatus medicineV2Status(int code)
     }
 }
 
+// 将业务层异常类型转换为统一业务码。
 static int medicineV2ServiceCode(DrugServiceError error)
 {
     switch (error)
@@ -123,6 +125,7 @@ static int medicineV2ServiceCode(DrugServiceError error)
     }
 }
 
+// 校验路径中的药品编号格式。
 static bool isValidMedicineV2Id(const String &id)
 {
     if (!id)
@@ -135,6 +138,7 @@ static bool isValidMedicineV2Id(const String &id)
                        { return std::isalnum(character) != 0 || character == '-' || character == '_'; });
 }
 
+// 根据批量成功、失败明细计算整体业务码。
 static int medicineV2BatchCode(const MedicineBatchResultDTO::Wrapper &result)
 {
     if (!result || !result->failedItems || result->failedItems->empty())
@@ -170,6 +174,7 @@ static int medicineV2BatchCode(const MedicineBatchResultDTO::Wrapper &result)
     return MedicineV2BusinessCode::BUSINESS_VALIDATION_FAILED;
 }
 
+// 校验管理员、药品菜单或配置的细粒度权限。
 static bool hasConfiguredMedicineV2Authority(const std::list<std::string> &authorities,
                                               const char *configurationName)
 {
@@ -211,6 +216,7 @@ static bool hasConfiguredMedicineV2Authority(const std::list<std::string> &autho
     return false;
 }
 
+// 解析并校验药品接口使用的 Bearer 凭证。
 std::shared_ptr<CustomerAuthorizeObject> DrugController::authenticateMedicineV2(
     const String &authorization)
 {
@@ -230,6 +236,7 @@ std::shared_ptr<CustomerAuthorizeObject> DrugController::authenticateMedicineV2(
     }
 }
 
+// 根据操作类型读取权限配置并校验当前用户。
 bool DrugController::hasMedicineV2Authority(const PayloadDTO &payload, MedicineV2Operation operation)
 {
     const char *configurationName = nullptr;
@@ -248,6 +255,7 @@ bool DrugController::hasMedicineV2Authority(const PayloadDTO &payload, MedicineV
     return hasConfiguredMedicineV2Authority(payload.getAuthorities(), configurationName);
 }
 
+// 生成单项写操作的标准错误响应。
 std::shared_ptr<DrugController::OutgoingResponse> DrugController::medicineV2VersionErrorResponse(int code)
 {
     auto body = MedicineVersionJsonVO::createShared();
@@ -260,6 +268,7 @@ std::shared_ptr<DrugController::OutgoingResponse> DrugController::medicineV2Vers
     return response;
 }
 
+// 生成批量写操作的标准错误响应。
 std::shared_ptr<DrugController::OutgoingResponse> DrugController::medicineV2BatchErrorResponse(int code)
 {
     auto body = MedicineBatchJsonVO::createShared();
@@ -272,6 +281,7 @@ std::shared_ptr<DrugController::OutgoingResponse> DrugController::medicineV2Batc
     return response;
 }
 
+// 校验修改请求并调用业务服务。
 MedicineVersionJsonVO::Wrapper DrugController::execUpdateMedicineV2(
     const String &id, const MedicineUpdateDTO::Wrapper &dto, const PayloadDTO &payload)
 {
@@ -301,6 +311,7 @@ MedicineVersionJsonVO::Wrapper DrugController::execUpdateMedicineV2(
     return jvo;
 }
 
+// 校验批量启停请求并汇总每个药品的处理结果。
 MedicineBatchJsonVO::Wrapper DrugController::execUpdateMedicineStatusV2(
     const MedicineStatusUpdateDTO::Wrapper &dto, const PayloadDTO &payload)
 {
@@ -330,6 +341,7 @@ MedicineBatchJsonVO::Wrapper DrugController::execUpdateMedicineStatusV2(
     return jvo;
 }
 
+// 校验批量删除请求并汇总每个药品的处理结果。
 MedicineBatchJsonVO::Wrapper DrugController::execBatchDeleteMedicinesV2(
     const MedicineBatchDeleteDTO::Wrapper &dto, const PayloadDTO &payload)
 {
@@ -359,6 +371,7 @@ MedicineBatchJsonVO::Wrapper DrugController::execBatchDeleteMedicinesV2(
     return jvo;
 }
 
+// 将统一业务码映射为 HTTP 状态码。
 oatpp::web::protocol::http::Status DrugController::medicineV2HttpStatus(int code)
 {
     switch (code)

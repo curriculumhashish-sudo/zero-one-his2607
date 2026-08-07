@@ -31,6 +31,7 @@
 #include  "domain/query/Drug/DrugSelectQuery.h"
 #include <stdexcept>
 
+// 药品写操作可能返回的业务异常类型。
 enum class DrugServiceError
 {
     InvalidInput,
@@ -42,6 +43,7 @@ enum class DrugServiceError
     DatabaseFailure
 };
 
+// 在事务边界传递可识别的药品业务异常。
 class DrugServiceException : public std::runtime_error
 {
   private:
@@ -56,9 +58,12 @@ class DrugServiceException : public std::runtime_error
 class DrugService
 {
   public:
+    // 按乐观锁版本部分修改药品及其价格。
     MedicineVersionItemDTO::Wrapper updateMedicineV2(const std::string &id,
                                                       const MedicineUpdateDTO::Wrapper &dto);
+    // 按乐观锁版本批量启用或停用药品。
     MedicineBatchResultDTO::Wrapper updateMedicineStatusV2(const MedicineStatusUpdateDTO::Wrapper &dto);
+    // 检查业务引用后按版本批量软删除药品。
     MedicineBatchResultDTO::Wrapper batchDeleteMedicinesV2(const MedicineBatchDeleteDTO::Wrapper &dto);
     DrugListPageDTO::Wrapper listAll(const DrugQuery::Wrapper& query);
     DrugDetailDTO::Wrapper getById(string id);

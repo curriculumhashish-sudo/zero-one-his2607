@@ -143,6 +143,7 @@ std::string DrugDAO::querySelectConditionBuilder(const DrugSelectQuery::Wrapper&
 
 
 }
+// 超级管理员可跨租户，普通用户必须属于目标租户。
 bool DrugDAO::hasTenantAccess(const std::string &userId, const std::string &username,
                               const std::string &tenantId)
 {
@@ -171,6 +172,65 @@ bool DrugDAO::hasTenantAccess(const std::string &userId, const std::string &user
     return sqlSession->executeQueryNumerical(sql, params) > 0;
 }
 
+// 优先使用最近登录会话；无会话时仅接受唯一有效租户。
+std::string DrugDAO::selectCurrentTenantId(const std::string &userId)
+{
+    if (userId.empty() || !sqlSession || !sqlSession->getConnection())
+    {
+        return "";
+    }
+    const std::string sql =
+        "SELECT COALESCE("
+        "(SELECT s.tenant_id FROM whale_user_login_session s "
+        "INNER JOIN whale_users u ON u.id=s.user_id AND u.is_deleted=0 "
+        "AND u.is_active=1 AND u.is_locked_out=0 "
+        "INNER JOIN whale_user_tenants ut ON ut.user_id=s.user_id "
+        "AND ut.tenant_id=s.tenant_id AND ut.is_deleted=0 "
+        "INNER JOIN whale_tenants t ON t.id=s.tenant_id "
+        "AND t.is_deleted=0 AND t.is_active=1 "
+        "WHERE s.user_id=? AND s.tenant_id IS NOT NULL AND s.tenant_id<>'' "
+        "ORDER BY s.updated_at DESC LIMIT 1),"
+        "(SELECT CASE WHEN COUNT(DISTINCT ut.tenant_id)=1 "
+        "THEN MIN(ut.tenant_id) ELSE NULL END FROM whale_user_tenants ut "
+        "INNER JOIN whale_users u ON u.id=ut.user_id AND u.is_deleted=0 "
+        "AND u.is_active=1 AND u.is_locked_out=0 "
+        "INNER JOIN whale_tenants t ON t.id=ut.tenant_id "
+        "AND t.is_deleted=0 AND t.is_active=1 "
+        "WHERE ut.user_id=? AND ut.is_deleted=0))";
+    SqlParams params;
+    SQLPARAMS_PUSH(params, "s", std::string, userId);
+    SQLPARAMS_PUSH(params, "s", std::string, userId);
+    return sqlSession->executeQueryOne<std::string>(sql, DrugStringMapper(), params);
+}
+
+// 优先使用登录会话中的医院；无会话时仅接受唯一有效医院。
+std::string DrugDAO::selectCurrentHospitalOrgId(const std::string &userId,
+                                                 const std::string &tenantId)
+{
+    if (userId.empty() || tenantId.empty() || !sqlSession || !sqlSession->getConnection())
+    {
+        return "";
+    }
+    const std::string sql =
+        "SELECT COALESCE("
+        "(SELECT s.hospital_organization_id FROM whale_user_login_session s "
+        "INNER JOIN adm_organization o ON o.id=s.hospital_organization_id "
+        "AND o.tenant_id=s.tenant_id AND o.is_deleted=0 "
+        "AND o.type_enum='HOSPITAL' AND o.status_enum='ACTIVE' AND o.active_flag=1 "
+        "WHERE s.user_id=? AND s.tenant_id=? "
+        "AND s.hospital_organization_id IS NOT NULL AND s.hospital_organization_id<>'' "
+        "ORDER BY s.updated_at DESC LIMIT 1),"
+        "(SELECT CASE WHEN COUNT(o.id)=1 THEN MIN(o.id) ELSE NULL END "
+        "FROM adm_organization o WHERE o.tenant_id=? AND o.is_deleted=0 "
+        "AND o.type_enum='HOSPITAL' AND o.status_enum='ACTIVE' AND o.active_flag=1))";
+    SqlParams params;
+    SQLPARAMS_PUSH(params, "s", std::string, userId);
+    SQLPARAMS_PUSH(params, "s", std::string, tenantId);
+    SQLPARAMS_PUSH(params, "s", std::string, tenantId);
+    return sqlSession->executeQueryOne<std::string>(sql, DrugStringMapper(), params);
+}
+
+// 查询未删除药品；写操作可通过 FOR UPDATE 锁定记录。
 PtrMedMedicationDefinitionDO DrugDAO::selectById(const std::string &id, bool forUpdate)
 {
     std::string sql = "SELECT " + fullDrugColumns() +
@@ -198,6 +258,7 @@ std::list<PtrMedMedicationDefinitionDO> DrugDAO::selectStatesForUpdate(const std
     return sqlSession->executeQuery<PtrMedMedicationDefinitionDO>(sql, PtrDrugStateMapper(), params);
 }
 
+// 动态生成 SET 子句，只更新 DTO 实际传入的字段。
 int DrugDAO::updateEditableByVersion(const MedMedicationDefinitionDO &data, const std::string &tenantId,
                                      int expectedVersion)
 {
@@ -235,6 +296,7 @@ int DrugDAO::updateEditableByVersion(const MedMedicationDefinitionDO &data, cons
     return sqlSession->executeUpdate(sql.str(), params);
 }
 
+// 更新无批号基础价格，并同步审计信息和版本号。
 int DrugDAO::updateBasePriceValue(const std::string &drugId, const std::string &tenantId,
                                   const std::string &priceType, double priceValue,
                                   const std::string &operatorId, const std::string &operationTime)
@@ -433,6 +495,7 @@ PtrDrugModifyTextResult DrugDAO::selectModifyResultTexts(const std::string &drug
     return sqlSession->executeQueryOne<PtrDrugModifyTextResult>(sql, PtrDrugModifyTextMapper(), params);
 }
 
+// 汇总检查删除前必须为空的业务引用。
 PtrDrugReferenceCheck DrugDAO::selectReferenceCheck(const std::list<std::string> &ids)
 {
     if (ids.empty())
@@ -472,6 +535,7 @@ PtrDrugReferenceCheck DrugDAO::selectReferenceCheck(const std::list<std::string>
     return sqlSession->executeQueryOne<PtrDrugReferenceCheck>(sql, PtrDrugReferenceCheckMapper(), params);
 }
 
+// 同时校验必填字段、单位换算和有效销售价格。
 PtrDrugConditionCheck DrugDAO::selectEnableReadiness(const std::list<std::string> &ids,
                                                      const std::string &tenantId)
 {
@@ -485,7 +549,6 @@ PtrDrugConditionCheck DrugDAO::selectEnableReadiness(const std::list<std::string
         "TRIM(COALESCE(d.name,''))<>'' AND TRIM(COALESCE(d.category_code,''))<>'' "
         "AND TRIM(COALESCE(d.merchandise_name,''))<>'' "
         "AND TRIM(COALESCE(d.purchase_unit_code,''))<>'' AND TRIM(COALESCE(d.split_unit_code,''))<>'' "
-        "AND TRIM(COALESCE(d.pharmacology_category_code,''))<>'' "
         "AND TRIM(COALESCE(d.manufacturer_text,''))<>'' AND TRIM(COALESCE(d.supply_id,''))<>'' "
         "AND TRIM(COALESCE(d.part_attribute_enum,''))<>'' "
         "AND TRIM(COALESCE(d.tho_part_attribute_enum,''))<>'' "
@@ -525,6 +588,7 @@ PtrDrugConditionCheck DrugDAO::selectEnableReadiness(const std::list<std::string
     return sqlSession->executeQueryOne<PtrDrugConditionCheck>(sql, PtrDrugConditionCheckMapper(), params);
 }
 
+// 确认软删除后不存在仍有效的价格记录。
 PtrDrugConditionCheck DrugDAO::selectActivePricePresence(const std::list<std::string> &ids,
                                                          const std::string &tenantId)
 {
@@ -545,6 +609,7 @@ PtrDrugConditionCheck DrugDAO::selectActivePricePresence(const std::list<std::st
     return sqlSession->executeQueryOne<PtrDrugConditionCheck>(sql, PtrDrugConditionCheckMapper(), params);
 }
 
+// 将药品关联价格统一标记为停用和已删除。
 int DrugDAO::softDeleteAllPrices(const std::list<std::string> &ids, const std::string &tenantId,
                                  const std::string &operatorId, const std::string &operationTime)
 {
@@ -597,6 +662,7 @@ int DrugDAO::softDeleteDrugs(const std::list<std::string> &ids, const std::strin
     return sqlSession->executeUpdate(sql, params);
 }
 
+// 仅当版本和停用状态匹配时软删除药品。
 int DrugDAO::softDeleteDrugByVersion(const std::string &id, const std::string &tenantId,
                                      int expectedVersion, const std::string &operatorId,
                                      const std::string &operationTime)
@@ -644,6 +710,7 @@ int DrugDAO::updateActiveStatus(const std::list<std::string> &ids, const std::st
     return sqlSession->executeUpdate(sql, params);
 }
 
+// 仅当当前状态和版本匹配时切换启停状态。
 int DrugDAO::updateActiveStatusByVersion(const std::string &id, const std::string &tenantId,
                                          int expectedVersion, const std::string &expectedStatus,
                                          const std::string &targetStatus, bool activeFlag,

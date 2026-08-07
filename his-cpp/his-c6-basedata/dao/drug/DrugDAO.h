@@ -40,14 +40,23 @@ class DrugDAO : public BaseDAO
     std::string querySelectConditionBuilder(const DrugSelectQuery::Wrapper& query, SqlParams& params);
 
   public:
+    // 提前释放当前 DAO 持有的数据库会话。
     void releaseSqlSession() noexcept;
 
+    // 校验当前用户是否可以访问指定租户的数据。
     bool hasTenantAccess(const std::string &userId, const std::string &username,
                          const std::string &tenantId);
+    // 解析当前登录用户唯一有效的租户和医院机构。
+    std::string selectCurrentTenantId(const std::string &userId);
+    std::string selectCurrentHospitalOrgId(const std::string &userId,
+                                           const std::string &tenantId);
+    // 按主键查询药品，可选择加行锁。
     PtrMedMedicationDefinitionDO selectById(const std::string &id, bool forUpdate = false);
     std::list<PtrMedMedicationDefinitionDO> selectStatesForUpdate(const std::list<std::string> &ids);
+    // 按版本更新请求中显式传入的药品字段。
     int updateEditableByVersion(const MedMedicationDefinitionDO &data, const std::string &tenantId,
                                 int expectedVersion);
+    // 更新指定价格类型的基础价格。
     int updateBasePriceValue(const std::string &drugId, const std::string &tenantId,
                              const std::string &priceType, double priceValue,
                              const std::string &operatorId, const std::string &operationTime);
@@ -70,15 +79,20 @@ class DrugDAO : public BaseDAO
                                                     const std::string &tenantId,
                                                     const std::string &typeCode);
 
+    // 检查药品是否仍被医嘱、发药、过敏、模板或库存引用。
     PtrDrugReferenceCheck selectReferenceCheck(const std::list<std::string> &ids);
+    // 检查停用药品是否满足重新启用条件。
     PtrDrugConditionCheck selectEnableReadiness(const std::list<std::string> &ids, const std::string &tenantId);
+    // 检查药品是否还存在未删除的价格记录。
     PtrDrugConditionCheck selectActivePricePresence(const std::list<std::string> &ids,
-                                                    const std::string &tenantId);
+                                                     const std::string &tenantId);
+    // 软删除指定药品关联的全部价格记录。
     int softDeleteAllPrices(const std::list<std::string> &ids, const std::string &tenantId,
                             const std::string &operatorId, const std::string &operationTime);
     int softDeleteDrugs(const std::list<std::string> &ids, const std::string &tenantId,
                         const std::string &operatorId,
                         const std::string &operationTime);
+    // 按版本软删除单个停用药品。
     int softDeleteDrugByVersion(const std::string &id, const std::string &tenantId,
                                 int expectedVersion, const std::string &operatorId,
                                 const std::string &operationTime);
@@ -86,6 +100,7 @@ class DrugDAO : public BaseDAO
                            const std::string &expectedStatus,
                            const std::string &targetStatus, bool activeFlag, const std::string &operatorId,
                            const std::string &operationTime);
+    // 按版本切换单个药品的启停状态。
     int updateActiveStatusByVersion(const std::string &id, const std::string &tenantId,
                                     int expectedVersion, const std::string &expectedStatus,
                                     const std::string &targetStatus, bool activeFlag,
