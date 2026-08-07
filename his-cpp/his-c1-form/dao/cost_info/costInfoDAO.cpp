@@ -3,6 +3,30 @@
 #include "costInfoDAO.h"
 #include "costInfoMapper.h"
 
+
+/*
+ 表缩写参考
+ aci    = adm_charge_item            收费条目表
+ ae     = adm_encounter              就诊记录表
+ a_pa   = adm_patient                患者表
+ ael    = adm_encounter_location     就诊科室关联表
+ al     = adm_location               科室/地点表
+ acid   = adm_charge_item_definition 收费项目定义表
+ tc     = ter_concept                字典概念表(收费大类, code_system_id=236)
+ mmd    = med_medication_definition  药品定义表
+ add    = adm_device_definition      器材定义表
+ wad    = wkf_activity_definition    诊疗项目定义表
+ tc_mmd = ter_concept                药品分类字典(code_system_id=900006)
+ tc_add = ter_concept                器材分类字典(code_system_id=253)
+ tc_wad = ter_concept                诊疗分类字典(code_system_id=255)
+ a_pr_d = adm_practitioner           医务人员表(开单医生)
+ ycfu   = yb_clinic_fee_upload       医保门诊费用上传表
+ ysr    = yb_settlement_record       医保结算记录表
+ fpr    = fin_payment_reconciliation 支付对账/收款记录表
+ fcs    = fin_cashier_settlement     收费员结算表
+ a_pr_c = adm_practitioner           医务人员表(收费员)
+*/
+
 #define MAIN_SQL_COLUMNS \
 	" aci.`id` AS id," \
 	" ae.`bus_no` AS clinicNo," \
