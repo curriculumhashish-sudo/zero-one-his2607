@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zeroone.star.pharmacy.entity.InStockOrder;
 import com.zeroone.star.pharmacy.entity.InStockOrderDetail;
+import com.zeroone.star.pharmacy.entity.InventoryLock;
 import com.zeroone.star.pharmacy.mapper.InStockOrderDetailMapper;
 import com.zeroone.star.pharmacy.mapper.InStockOrderMapper;
 import com.zeroone.star.pharmacy.mapper.InventoryLockMapper;
@@ -376,6 +377,7 @@ public class InStockOrderServiceImpl implements InStockOrderService {
             InStockOrderDetail item = new InStockOrderDetail();
             item.setPharmacyId(orderId);
             item.setSeqNo(dto.getSeqNo());
+            item.setItemId(dto.getItemId());
             item.setDrugName(dto.getDrugName());
             item.setSpec(dto.getSpec());
             item.setManufacturer(dto.getManufacturer());
@@ -383,6 +385,7 @@ public class InStockOrderServiceImpl implements InStockOrderService {
             item.setUnitPrice(dto.getUnitPrice());
             item.setTotalAmount(dto.getUnitPrice().multiply(BigDecimal.valueOf(dto.getQuantity())));
             item.setBatchNo(dto.getBatchNo());
+            item.setTraceNo(dto.getTraceNo());
             item.setExpireDate(dto.getExpireDate());
             item.setItemRemark(dto.getItemRemark());
             items.add(item);
