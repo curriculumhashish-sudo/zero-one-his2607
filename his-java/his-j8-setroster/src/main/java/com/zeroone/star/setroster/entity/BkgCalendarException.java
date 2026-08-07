@@ -31,7 +31,7 @@ public class BkgCalendarException implements Serializable {
      * 主键
      */
     @TableId(value = "id", type = IdType.ASSIGN_ID)
-    private String id;
+    private Long id;
 
     /**
      * 租户标识

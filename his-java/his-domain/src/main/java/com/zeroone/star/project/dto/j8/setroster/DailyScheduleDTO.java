@@ -16,7 +16,7 @@ import lombok.Data;
  */
 
 @Data
-@Schema(description = "日排班模板传输对象")
+@Schema(description = "日排班模板传输对象（编辑请求）")
 public class DailyScheduleDTO extends AddDailyScheduleDTO{
     @NotBlank(message = "id不能为空")
     @Schema(description = "排班ID（修改时必填，新增时忽略）", example = "328058080426201088", requiredMode = Schema.RequiredMode.REQUIRED)

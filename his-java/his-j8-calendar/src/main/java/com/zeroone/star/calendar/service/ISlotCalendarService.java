@@ -36,19 +36,19 @@ public interface ISlotCalendarService {
      * @param dto 封锁参数
      * @return 操作结果
      */
-    JsonVO<String> blockSlots(SlotBlockDTO dto);
+    JsonVO<Void> blockSlots(SlotBlockDTO dto);
 
     /**
      * 批量解封号源
      * @param dto 解封参数
      * @return 操作结果
      */
-    JsonVO<String> unblockSlots(SlotUnblockDTO dto);
+    JsonVO<Void> unblockSlots(SlotUnblockDTO dto);
 
     /**
      * 标记超售
      * @param dto 超售参数
      * @return 操作结果
      */
-    JsonVO<String> setOverbooked(SlotOverbookDTO dto);
+    JsonVO<Void> setOverbooked(SlotOverbookDTO dto);
 }

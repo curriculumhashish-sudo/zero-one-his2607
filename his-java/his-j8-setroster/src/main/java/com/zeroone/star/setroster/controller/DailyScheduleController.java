@@ -1,12 +1,14 @@
 package com.zeroone.star.setroster.controller;
 
-import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j8.setroster.AddDailyScheduleDTO;
 import com.zeroone.star.project.dto.j8.setroster.DailyScheduleDTO;
 import com.zeroone.star.project.j8.setroster.DailyScheduleApis;
+import com.zeroone.star.project.query.j8.setroster.DailyScheduleOptionQuery;
 import com.zeroone.star.project.query.j8.setroster.DailyScheduleQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j8.setroster.DailyScheduleOptionVO;
+import com.zeroone.star.project.vo.j8.setroster.DailyScheduleIdVO;
+import com.zeroone.star.project.vo.j8.setroster.DailySchedulePageVO;
+import com.zeroone.star.project.vo.j8.setroster.DailyScheduleVO;
 import com.zeroone.star.setroster.service.IBkgScheduleTemplateService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,7 +16,6 @@ import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 /**
  * <p>
@@ -29,7 +30,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/j8/setroster") // 统一模块路径前缀
-@Tag(name = "日排班模板接口")
+@Tag(name = "日排班模板管理")
 @Validated
 public class DailyScheduleController implements DailyScheduleApis {
 
@@ -39,39 +40,40 @@ public class DailyScheduleController implements DailyScheduleApis {
     private static final String TEMPLATE_NOT_FOUND_MSG = "日排班模板不存在或已删除";
 
     @Override
-    @Operation(summary = "获取日排班模板下拉选项")
+    @Operation(summary = "获取日排班名称")
     @GetMapping("/listDailyScheduleOptions")
-    public JsonVO<List<DailyScheduleOptionVO>> listDailyScheduleOptions(@RequestParam(required = false) String organizationId) {
-        return JsonVO.success(service.listOptions(organizationId));
+    public JsonVO<DailySchedulePageVO<DailyScheduleVO>> listDailyScheduleOptions(@Valid DailyScheduleOptionQuery query) {
+        return JsonVO.success(service.listDailyScheduleOptions(query));
     }
 
     @Override
-    @Operation(summary = "分页查询日排班模板列表")
+    @Operation(summary = "获取日排班列表（条件+分页）")
     @GetMapping("/pageDailySchedule")
-    public JsonVO<PageDTO<DailyScheduleDTO>> pageDailySchedule(@Valid DailyScheduleQuery query) {
+    public JsonVO<DailySchedulePageVO<DailyScheduleVO>> pageDailySchedule(@Valid DailyScheduleQuery query) {
         return JsonVO.success(service.pageDailySchedule(query));
     }
 
     @Override
-    @Operation(summary = "新增日排班模板")
+    @Operation(summary = "新建日排班")
     @PostMapping("/addDailySchedule")
-    public JsonVO<String> addDailySchedule(@Valid @RequestBody AddDailyScheduleDTO dto) {
-        return JsonVO.success(service.addDailySchedule(dto));
+    public JsonVO<DailyScheduleIdVO> addDailySchedule(@Valid @RequestBody AddDailyScheduleDTO dto) {
+        String id = service.addDailySchedule(dto);
+        return id != null ? JsonVO.success(new DailyScheduleIdVO(id)) : JsonVO.fail("新增日排班模板失败");
     }
 
     @Override
-    @Operation(summary = "编辑日排班模板")
+    @Operation(summary = "修改日排班")
     @PutMapping("/modifyDailySchedule")
-    public JsonVO<String> modifyDailySchedule(@Valid @RequestBody DailyScheduleDTO dto) {
-        String result = service.modifyDailySchedule(dto);
-        return result != null ? JsonVO.success(result) : JsonVO.fail(TEMPLATE_NOT_FOUND_MSG);
+    public JsonVO<DailyScheduleIdVO> modifyDailySchedule(@Valid @RequestBody DailyScheduleDTO dto) {
+        String id = service.modifyDailySchedule(dto);
+        return id != null ? JsonVO.success(new DailyScheduleIdVO(id)) : JsonVO.fail(TEMPLATE_NOT_FOUND_MSG);
     }
 
     @Override
-    @Operation(summary = "删除日排班模板")
+    @Operation(summary = "删除日排班")
     @DeleteMapping("/deleteDailySchedule/{id}")
-    public JsonVO<String> deleteDailySchedule(@PathVariable String id) {
+    public JsonVO<DailyScheduleIdVO> deleteDailySchedule(@PathVariable String id) {
         String result = service.deleteDailySchedule(id);
-        return result != null ? JsonVO.success(result) : JsonVO.fail(TEMPLATE_NOT_FOUND_MSG);
+        return result != null ? JsonVO.success(new DailyScheduleIdVO(result)) : JsonVO.fail(TEMPLATE_NOT_FOUND_MSG);
     }
 }

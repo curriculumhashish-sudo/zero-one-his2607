@@ -2,6 +2,7 @@ package com.zeroone.star.project.dto.j8.setroster;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -29,7 +30,8 @@ public class AddWeekScheduleTemplateDTO {
     @Schema(description = "模板名称", example = "内科周排班模板", requiredMode = Schema.RequiredMode.REQUIRED)
     private String templateName;
 
-    @Schema(description = "机构/科室ID", example = "org-001")
+    @NotBlank(message = "出诊科室不能为空")
+    @Schema(description = "机构/科室ID", example = "org-001", requiredMode = Schema.RequiredMode.REQUIRED)
     private String organizationId;
 
     @Schema(description = "无排班时是否允许预约", example = "false")
@@ -47,6 +49,7 @@ public class AddWeekScheduleTemplateDTO {
     @Schema(description = "生效日期止", example = "2026-12-31")
     private LocalDate effectiveEnd;
 
-    @Schema(description = "明细项（周一~周日）")
+    @NotEmpty(message = "周明细不能为空")
+    @Schema(description = "明细项（周一~周日）", requiredMode = Schema.RequiredMode.REQUIRED)
     private List<WeekScheduleTemplateItemDTO> items;
 }

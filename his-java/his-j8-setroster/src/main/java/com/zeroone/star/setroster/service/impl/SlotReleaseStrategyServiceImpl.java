@@ -9,11 +9,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zeroone.star.project.components.user.UserDTO;
 import com.zeroone.star.project.components.user.UserHolder;
-import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotReleaseStrategyAddDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotReleaseStrategyDTO;
+import com.zeroone.star.project.dto.j8.setroster.SlotReleaseStrategyIdVO;
 import com.zeroone.star.project.dto.j8.setroster.SlotReleaseStrategyModifyDTO;
-import com.zeroone.star.project.dto.j8.setroster.SlotReleaseStrategyNameDTO;
+import com.zeroone.star.project.dto.j8.setroster.SlotReleaseStrategyPageVO;
 import com.zeroone.star.project.query.j8.setroster.SlotReleaseStrategyQuery;
 import com.zeroone.star.setroster.entity.BkgReleasePolicy;
 import com.zeroone.star.setroster.mapper.BkgReleasePolicyMapper;
@@ -42,43 +42,23 @@ public class SlotReleaseStrategyServiceImpl implements ISlotReleaseStrategyServi
     private final UserHolder userHolder;
 
     @Override
-    public PageDTO<SlotReleaseStrategyDTO> listStrategies(SlotReleaseStrategyQuery query) {
+    public SlotReleaseStrategyPageVO<SlotReleaseStrategyDTO> listStrategies(SlotReleaseStrategyQuery query) {
         Page<BkgReleasePolicy> page = new Page<>(query.getPageIndex(), query.getPageSize());
-        LambdaQueryWrapper<BkgReleasePolicy> wrapper = Wrappers.lambdaQuery(BkgReleasePolicy.class)
-                .select(
-                        BkgReleasePolicy::getId,
-                        BkgReleasePolicy::getPolicyCode,
-                        BkgReleasePolicy::getPolicyName,
-                        BkgReleasePolicy::getAdvanceDays,
-                        BkgReleasePolicy::getSlotMinutes,
-                        BkgReleasePolicy::getCapacityPerSlot,
-                        BkgReleasePolicy::getChannelQuotaJson)
-                .and(StringUtils.hasText(query.getKeyword()), condition -> condition
-                        .like(BkgReleasePolicy::getPolicyCode, query.getKeyword().trim())
-                        .or()
-                        .like(BkgReleasePolicy::getPolicyName, query.getKeyword().trim()))
-                .orderByDesc(BkgReleasePolicy::getCreateTime);
-
+        LambdaQueryWrapper<BkgReleasePolicy> wrapper = buildQueryWrapper(query);
         Page<BkgReleasePolicy> result = releasePolicyMapper.selectPage(page, wrapper);
-        PageDTO<SlotReleaseStrategyDTO> pageDTO = PageDTO.create(result, this::toListDTO);
-        if (pageDTO.getRows() == null) {
-            pageDTO.setRows(List.of());
-        }
-        return pageDTO;
+        return toPageVO(result);
     }
 
     @Override
-    public List<SlotReleaseStrategyNameDTO> listStrategyNames() {
-        LambdaQueryWrapper<BkgReleasePolicy> wrapper = Wrappers.lambdaQuery(BkgReleasePolicy.class)
-                .select(BkgReleasePolicy::getId, BkgReleasePolicy::getPolicyName)
-                .orderByAsc(BkgReleasePolicy::getPolicyName);
-        return releasePolicyMapper.selectList(wrapper).stream()
-                .map(this::toNameDTO)
-                .toList();
+    public SlotReleaseStrategyPageVO<SlotReleaseStrategyDTO> listStrategyNames(SlotReleaseStrategyQuery query) {
+        Page<BkgReleasePolicy> page = new Page<>(query.getPageIndex(), query.getPageSize());
+        LambdaQueryWrapper<BkgReleasePolicy> wrapper = buildQueryWrapper(query);
+        Page<BkgReleasePolicy> result = releasePolicyMapper.selectPage(page, wrapper);
+        return toPageVO(result);
     }
 
     @Override
-    public String saveStrategy(SlotReleaseStrategyAddDTO addDTO) {
+    public SlotReleaseStrategyIdVO saveStrategy(SlotReleaseStrategyAddDTO addDTO) {
         BkgReleasePolicy policy = new BkgReleasePolicy();
         policy.setId(IdWorker.getIdStr());
         policy.setPolicyCode(generatePolicyCode());
@@ -90,22 +70,25 @@ public class SlotReleaseStrategyServiceImpl implements ISlotReleaseStrategyServi
             throw new IllegalArgumentException("策略名称已存在：" + policy.getPolicyName());
         }
         if (releasePolicyMapper.insert(policy) != 1) {
-            throw new IllegalStateException("新增放号策略失败");
+            throw new IllegalStateException("新建放号策略失败");
         }
-        return policy.getId();
+        return new SlotReleaseStrategyIdVO(policy.getId());
     }
 
     @Override
-    public boolean updateStrategy(SlotReleaseStrategyModifyDTO modifyDTO) {
+    public SlotReleaseStrategyIdVO updateStrategy(SlotReleaseStrategyModifyDTO modifyDTO) {
         BkgReleasePolicy policy = releasePolicyMapper.selectById(modifyDTO.getId());
         if (policy == null) {
-            return false;
+            throw new IllegalArgumentException("更新失败：策略不存在");
         }
         copyEditableFields(modifyDTO, policy);
         if (existsByPolicyName(policy.getPolicyName(), policy.getId())) {
             throw new IllegalArgumentException("策略名称已存在：" + policy.getPolicyName());
         }
-        return releasePolicyMapper.updateById(policy) == 1;
+        if (releasePolicyMapper.updateById(policy) != 1) {
+            throw new IllegalStateException("修改放号策略失败");
+        }
+        return new SlotReleaseStrategyIdVO(policy.getId());
     }
 
     @Override
@@ -121,30 +104,57 @@ public class SlotReleaseStrategyServiceImpl implements ISlotReleaseStrategyServi
                 currentUserId()) == 1;
     }
 
+    private LambdaQueryWrapper<BkgReleasePolicy> buildQueryWrapper(SlotReleaseStrategyQuery query) {
+        LambdaQueryWrapper<BkgReleasePolicy> wrapper = Wrappers.lambdaQuery(BkgReleasePolicy.class)
+                .select(
+                        BkgReleasePolicy::getId,
+                        BkgReleasePolicy::getPolicyCode,
+                        BkgReleasePolicy::getPolicyName,
+                        BkgReleasePolicy::getAdvanceDays,
+                        BkgReleasePolicy::getSlotMinutes,
+                        BkgReleasePolicy::getCapacityPerSlot,
+                        BkgReleasePolicy::getChannelQuotaJson)
+                .and(StringUtils.hasText(query.getKeyword()), condition -> condition
+                        .like(BkgReleasePolicy::getPolicyCode, query.getKeyword().trim())
+                        .or()
+                        .like(BkgReleasePolicy::getPolicyName, query.getKeyword().trim()))
+                .orderByDesc(BkgReleasePolicy::getCreateTime);
+
+        if (StringUtils.hasText(query.getOrganizationId())) {
+            wrapper.eq(BkgReleasePolicy::getOrganizationId, query.getOrganizationId().trim());
+        }
+        return wrapper;
+    }
+
+    private SlotReleaseStrategyPageVO<SlotReleaseStrategyDTO> toPageVO(Page<BkgReleasePolicy> result) {
+        List<SlotReleaseStrategyDTO> content = result.getRecords().stream()
+                .map(this::toListDTO)
+                .toList();
+        SlotReleaseStrategyPageVO<SlotReleaseStrategyDTO> pageVO = new SlotReleaseStrategyPageVO<>();
+        pageVO.setContent(content);
+        pageVO.setTotalCount(result.getTotal());
+        pageVO.setPageNo(result.getCurrent());
+        pageVO.setPageSize(result.getSize());
+        return pageVO;
+    }
+
     private void copyEditableFields(SlotReleaseStrategyAddDTO source, BkgReleasePolicy target) {
-        target.setPolicyName(source.getStrategyName().trim());
+        target.setPolicyName(source.getPolicyName().trim());
         target.setAdvanceDays(source.getAdvanceDays());
-        target.setSlotMinutes(source.getSlotDurationMinutes());
-        target.setCapacityPerSlot(source.getSlotCapacity());
-        target.setChannelQuotaJson(writeChannelQuota(source.getChannelQuota()));
+        target.setSlotMinutes(source.getSlotMinutes());
+        target.setCapacityPerSlot(source.getCapacityPerSlot());
+        target.setChannelQuotaJson(writeChannelQuota(source.getChannelQuotaJson()));
     }
 
     private SlotReleaseStrategyDTO toListDTO(BkgReleasePolicy policy) {
         SlotReleaseStrategyDTO dto = new SlotReleaseStrategyDTO();
         dto.setId(policy.getId());
-        dto.setStrategyCode(policy.getPolicyCode());
-        dto.setStrategyName(policy.getPolicyName());
+        dto.setPolicyCode(policy.getPolicyCode());
+        dto.setPolicyName(policy.getPolicyName());
         dto.setAdvanceDays(policy.getAdvanceDays());
-        dto.setSlotDurationMinutes(policy.getSlotMinutes());
-        dto.setSlotCapacity(policy.getCapacityPerSlot());
-        dto.setChannelQuota(readChannelQuota(policy.getChannelQuotaJson()));
-        return dto;
-    }
-
-    private SlotReleaseStrategyNameDTO toNameDTO(BkgReleasePolicy policy) {
-        SlotReleaseStrategyNameDTO dto = new SlotReleaseStrategyNameDTO();
-        dto.setId(policy.getId());
-        dto.setStrategyName(policy.getPolicyName());
+        dto.setSlotMinutes(policy.getSlotMinutes());
+        dto.setCapacityPerSlot(policy.getCapacityPerSlot());
+        dto.setChannelQuotas(readChannelQuota(policy.getChannelQuotaJson()));
         return dto;
     }
 

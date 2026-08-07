@@ -22,11 +22,11 @@ import java.util.List;
 @Schema(description = "批量放号传输数据DTO")
 public class SlotBatchReleaseDTO {
     @NotBlank(message = "机构id不能为空")
-    @Schema(description = "机构id")
+    @Schema(description = "机构id", example = "322663218269917184")
     private String organizationId;
 
     @NotBlank(message = "排班id不能为空")
-    @Schema(description = "排班id")
+    @Schema(description = "排班id", example = "335659579333414912")
     private String scheduleId;
 
     @NotEmpty(message = "待放号时段列表不能为空，至少传入一个时段")
@@ -34,3 +34,5 @@ public class SlotBatchReleaseDTO {
     @Schema(description = "待放号时段列表")
     private List<SlotItemDTO> slotTemplates;
 }
+
+

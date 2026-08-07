@@ -3,12 +3,14 @@ package com.zeroone.star.project.j8.setroster;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotProvisionTemplateAddDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotProvisionTemplateDTO;
-import com.zeroone.star.project.dto.j8.setroster.SlotProvisionTemplateDetailDTO;
 import com.zeroone.star.project.dto.j8.setroster.SlotProvisionTemplateModifyDTO;
 import com.zeroone.star.project.query.j8.setroster.SlotProvisionTemplateQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j8.setroster.SlotProvisionTemplateOptionVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import java.util.List;
 
 /**
  * <p>
@@ -24,6 +26,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public interface SlotProvisionTemplateApis {
 
     /**
+     * 获取放号时段模板名称（下拉选项）
+     * @param organizationId 机构/科室ID，为空则查询所有
+     * @return 放号时段模板名称选项列表
+     */
+    @Operation(summary = "获取放号时段模板名称")
+    JsonVO<List<SlotProvisionTemplateOptionVO>> listSlotProvisionTemplateOptions(String organizationId);
+
+    /**
      * 分页查询放号时段模板列表
      * @param query 查询条件
      * @return 放号时段模板列表
@@ -32,19 +42,11 @@ public interface SlotProvisionTemplateApis {
     JsonVO<PageDTO<SlotProvisionTemplateDTO>> querySlotProvisionTemplates(SlotProvisionTemplateQuery query);
 
     /**
-     * 查询放号时段模板详情
-     * @param id 放号时段模板主键ID
-     * @return 放号时段模板详情
+     * 新建放号时段模板
+     * @param addDTO 新建放号时段模板参数
+     * @return 新建结果
      */
-    @Operation(summary = "查询放号时段模板详情")
-    JsonVO<SlotProvisionTemplateDetailDTO> getSlotProvisionTemplate(String id);
-
-    /**
-     * 新增放号时段模板
-     * @param addDTO 新增放号时段模板参数
-     * @return 新增结果
-     */
-    @Operation(summary = "新增放号时段模板")
+    @Operation(summary = "新建放号时段模板")
     JsonVO<String> addSlotProvisionTemplate(SlotProvisionTemplateAddDTO addDTO);
 
     /**

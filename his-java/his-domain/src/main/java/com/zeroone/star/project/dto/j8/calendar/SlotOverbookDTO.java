@@ -23,5 +23,5 @@ public class SlotOverbookDTO {
 
     @Schema(description = "是否开启超售", requiredMode = Schema.RequiredMode.REQUIRED, example = "true")
     @NotNull(message = "超售标记不能为空")
-    private Boolean overbooked;
+    private Boolean overbookedFlag;
 }

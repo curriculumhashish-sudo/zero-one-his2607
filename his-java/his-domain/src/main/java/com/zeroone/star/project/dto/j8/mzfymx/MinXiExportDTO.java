@@ -45,8 +45,8 @@ public class MinXiExportDTO {
 
     @ExcelProperty("挂号科室")
     @ColumnWidth(14)
-    @Schema(description = "挂号科室（来源 adm_organization.name）")
-    private String deptName;
+    @Schema(description = "挂号科室名称（来源 adm_organization.name）")
+    private String registrationDepartmentName;
 
     @ExcelProperty("就诊日期")
     @ColumnWidth(14)

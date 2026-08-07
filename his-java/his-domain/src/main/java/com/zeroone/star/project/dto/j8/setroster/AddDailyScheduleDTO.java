@@ -1,10 +1,10 @@
 package com.zeroone.star.project.dto.j8.setroster;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+
+import java.time.LocalDate;
 
 /**
  * <p>
@@ -49,5 +49,18 @@ public class AddDailyScheduleDTO {
 
     @Schema(description = "机构/科室ID，为空则全院共享", example = "322663218269917184", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String organizationId;
+
+    @Schema(description = "模板编码", example = "T2-2011f503dd7e")
+    private String templateCode;
+
+    @Schema(description = "生效开始日期", example = "2026-01-01")
+    private LocalDate effectiveStart;
+
+    @Schema(description = "生效结束日期", example = "2028-01-01")
+    private LocalDate effectiveEnd;
+
+    @Schema(description = "优先级", example = "0")
+    private Integer priority;
+
 
 }

@@ -22,27 +22,27 @@ public class SlotReleaseStrategyDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "放号策略主键ID，前端无需展示", example = "329973511193890816")
+    @Schema(description = "放号策略主键ID", example = "329973511193890816")
     private String id;
 
     @Schema(description = "放号策略编码", example = "SR000001")
-    private String strategyCode;
+    private String policyCode;
 
     @Schema(description = "放号策略名称", example = "提前7天就医")
-    private String strategyName;
+    private String policyName;
 
     @Schema(description = "提前放号天数，0表示当天放号", example = "7")
     private Integer advanceDays;
 
     @Schema(description = "时段粒度，单位为分钟", example = "30")
-    private Integer slotDurationMinutes;
+    private Integer slotMinutes;
 
     @Schema(description = "每个时段的号源容量", example = "10")
-    private Integer slotCapacity;
+    private Integer capacityPerSlot;
 
     @Schema(
-            description = "各渠道配额百分比，供编辑表单回填",
+            description = "各渠道配额，渠道编码为键，百分比为值",
             example = "{\"WINDOW\":60,\"MINIAPP\":40}"
     )
-    private Map<String, Integer> channelQuota;
+    private Map<String, Integer> channelQuotas;
 }
