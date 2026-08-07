@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include "BaseDAO.h"
+#include "domain/do/settle/GetCostDetailDO.h"
 #include "domain/do/settle/GetSettleHistoryDO.h"
 #include "domain/query/settle/GetSettleHistoryQuery.h"
 
@@ -26,6 +27,9 @@ public:
 
 	// 批量查询多条结算记录的支付明细，供业务层按结算主键组装
 	std::list<PtrSettleHistoryPaymentDetailDO> selectPaymentDetails(const std::vector<std::string> &settlementIds);
+
+	// 按收费明细主键批量查询结算费用明细，供业务层组装明细行和分类汇总
+	std::list<PtrCostDetailItemDO> selectChargeItemsByIds(const std::vector<std::string> &chargeItemIds);
 };
 
 #endif

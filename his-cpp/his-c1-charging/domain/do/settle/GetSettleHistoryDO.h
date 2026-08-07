@@ -22,6 +22,7 @@ class GetSettleHistoryDO : public BaseDO {
 	MYSQL_SYNTHESIZE(std::string, billDate, BillDate);
 	MYSQL_SYNTHESIZE(std::string, invoiceId, InvoiceId);
 	MYSQL_SYNTHESIZE(std::string, setlId, SetlId);
+	MYSQL_SYNTHESIZE(std::string, chargeItemIds, ChargeItemIds);
 
 public:
 	GetSettleHistoryDO() : BaseDO("") {
@@ -39,6 +40,7 @@ public:
 		MYSQL_ADD_FIELD("bill_date", "s", billDate);
 		MYSQL_ADD_FIELD("invoice_id", "s", invoiceId);
 		MYSQL_ADD_FIELD("setl_id", "s", setlId);
+		MYSQL_ADD_FIELD("charge_item_ids", "s", chargeItemIds);
 	}
 };
 

@@ -19,7 +19,7 @@ public:
 		ZH_WORDS_GETTER("ovo.charging.settle.get_settle_history_summary"), getSettleHistory, GetSettleHistoryQuery, GetSettleHistoryJsonVO::Wrapper, API_TAG);
 
 	API_HANDLER_ENDPOINT_QUERY_AUTH(
-		API_M_GET, "/charging/settle/gethistory", getSettleHistory, GetSettleHistoryQuery, execGetSettleHistory(query));
+		API_M_GET, "/charging/settle/getSettleHistory", getSettleHistory, GetSettleHistoryQuery, execGetSettleHistory(query));
 
 private:
 	GetSettleHistoryJsonVO::Wrapper execGetSettleHistory(const GetSettleHistoryQuery::Wrapper &query);

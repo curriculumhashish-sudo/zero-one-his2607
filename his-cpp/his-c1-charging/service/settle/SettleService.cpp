@@ -101,6 +101,10 @@ SettleResultDTO::Wrapper SettleService::settle(
 	const std::string accountId = dto->accountId.getValue("");
 	const std::string operatorId = resolveOperatorId(payload);
 
+	// 医保预结算相关标识
+	const std::string ybPreSettleId = dto->ybPreSettleId.getValue("");
+	const std::string ybChrgBchno = dto->ybChrgBchno.getValue("");
+
 	std::vector<std::string> chargeItemIds;
 	chargeItemIds.reserve(dto->chargeItemIds->size());
 	for (const auto &chargeItemId : *dto->chargeItemIds.get()) {
@@ -240,7 +244,8 @@ SettleResultDTO::Wrapper SettleService::settle(
 		payment.setContractNo(effectiveContractNo);
 		payment.setChargeItemIds(chargeItemIdText);
 		payment.setInvoiceId(invoiceId);
-		payment.setYbClearFlag(0);
+		// 传入医保预结算标识或收费批次号时标记为医保结算流水
+		payment.setYbClearFlag(ybPreSettleId.empty() && ybChrgBchno.empty() ? 0 : 1);
 
 		std::list<SettlementPaymentDetailDO> paymentDetailData;
 		for (const auto &paymentDto : *dto->paymentDetails.get()) {
@@ -335,6 +340,11 @@ SettleResultDTO::Wrapper SettleService::settle(
 			static_cast<double>(displayAmount) / MONEY_SCALE;
 		result->statusEnum = "CONFIRMED";
 		result->settledAt = settledAt;
+
+		// 回显医保预结算标识
+		if (!ybPreSettleId.empty()) {
+			result->preSettleId = ybPreSettleId;
+		}
 
 		transaction.commit();
 		return result;

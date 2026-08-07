@@ -17,6 +17,9 @@ private:
 	inline std::string queryConditionBuilder(const GetCostDetailQuery::Wrapper &query, SqlParams &params);
 
 public:
+	// 收费明细联表查询的公共SELECT前缀，供明细及历史结算明细复用
+	static std::string selectItemSqlPrefix();
+
 	// 查询患者、住院记录及费用汇总信息
 	PtrGetCostDetailDO selectSummary(const GetCostDetailQuery::Wrapper &query);
 

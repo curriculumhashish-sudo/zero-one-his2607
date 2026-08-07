@@ -1,9 +1,10 @@
 #include "stdafx.h"
 #include "GetSettleHistoryDAO.h"
 #include "GetSettleHistoryMapper.h"
+#include "GetCostDetailDAO.h"
+#include "GetCostDetailMapper.h"
 
-std::string GetSettleHistoryDAO::queryConditionBuilder(const GetSettleHistoryQuery::Wrapper& query, SqlParams& params)
-{
+std::string GetSettleHistoryDAO::queryConditionBuilder(const GetSettleHistoryQuery::Wrapper& query, SqlParams& params) {
 	std::stringstream sqlCondition;
 	sqlCondition << " WHERE fpr.is_deleted=0"
 		<< " AND fpr.kind_enum='SETTLEMENT'"
@@ -11,31 +12,34 @@ std::string GetSettleHistoryDAO::queryConditionBuilder(const GetSettleHistoryQue
 	SQLPARAMS_PUSH(params, "s", std::string, query->patientId.getValue(""));
 
 	const std::string encounterId = query->encounterId.getValue("");
-	if (!encounterId.empty())
-	{
+	if (!encounterId.empty()) {
 		sqlCondition << " AND fpr.encounter_id=?";
 		SQLPARAMS_PUSH(params, "s", std::string, encounterId);
 	}
 
 	const std::string statusEnum = query->statusEnum.getValue("");
-	if (!statusEnum.empty() && statusEnum != "ALL")
-	{
+	if (!statusEnum.empty() && statusEnum != "ALL") {
 		sqlCondition << " AND fpr.status_enum=?";
 		SQLPARAMS_PUSH(params, "s", std::string, statusEnum);
+	}
+
+	// 支付流水主键筛选
+	const std::string paymentId = query->paymentId.getValue("");
+	if (!paymentId.empty()) {
+		sqlCondition << " AND fpr.id=?";
+		SQLPARAMS_PUSH(params, "s", std::string, paymentId);
 	}
 	return sqlCondition.str();
 }
 
-uint64_t GetSettleHistoryDAO::count(const GetSettleHistoryQuery::Wrapper& query)
-{
+uint64_t GetSettleHistoryDAO::count(const GetSettleHistoryQuery::Wrapper& query) {
 	SqlParams params;
 	std::string sql = "SELECT COUNT(fpr.id) FROM fin_payment_reconciliation fpr";
 	sql += queryConditionBuilder(query, params);
 	return sqlSession->executeQueryNumerical(sql, params);
 }
 
-std::list<PtrGetSettleHistoryDO> GetSettleHistoryDAO::selectWithPage(const GetSettleHistoryQuery::Wrapper& query)
-{
+std::list<PtrGetSettleHistoryDO> GetSettleHistoryDAO::selectWithPage(const GetSettleHistoryQuery::Wrapper& query) {
 	std::string sql =
 		"SELECT fpr.id AS settlement_id,"
 		" fpr.payment_no AS payment_no,"
@@ -50,6 +54,7 @@ std::list<PtrGetSettleHistoryDO> GetSettleHistoryDAO::selectWithPage(const GetSe
 		" COALESCE(fpr.returned_amount,0) AS returned_amount,"
 		" fpr.bill_date AS bill_date,"
 		" fpr.invoice_id AS invoice_id,"
+		" fpr.charge_item_ids AS charge_item_ids,"
 		" (SELECT ybs.setl_id"
 		" FROM fin_payment_yb_settlement ybs"
 		" WHERE ybs.reconciliation_id=fpr.id"
@@ -77,10 +82,8 @@ std::list<PtrGetSettleHistoryDO> GetSettleHistoryDAO::selectWithPage(const GetSe
 }
 
 std::list<PtrSettleHistoryPaymentDetailDO>
-GetSettleHistoryDAO::selectPaymentDetails(const std::vector<std::string>& settlementIds)
-{
-	if (settlementIds.empty())
-	{
+GetSettleHistoryDAO::selectPaymentDetails(const std::vector<std::string>& settlementIds) {
+	if (settlementIds.empty()) {
 		return {};
 	}
 
@@ -98,10 +101,8 @@ GetSettleHistoryDAO::selectPaymentDetails(const std::vector<std::string>& settle
 		<< " WHERE d.is_deleted=0"
 		<< " AND d.reconciliation_id IN (";
 
-	for (size_t index = 0; index < settlementIds.size(); ++index)
-	{
-		if (index > 0)
-		{
+	for (size_t index = 0; index < settlementIds.size(); ++index) {
+		if (index > 0) {
 			sql << ",";
 		}
 		sql << "?";
@@ -109,4 +110,26 @@ GetSettleHistoryDAO::selectPaymentDetails(const std::vector<std::string>& settle
 	}
 	sql << ") ORDER BY d.reconciliation_id ASC,d.created_at ASC,d.id ASC";
 	return sqlSession->executeQuery<PtrSettleHistoryPaymentDetailDO>(sql.str(), SettleHistoryPaymentDetailMapper(), params);
+}
+
+std::list<PtrCostDetailItemDO>
+GetSettleHistoryDAO::selectChargeItemsByIds(const std::vector<std::string>& chargeItemIds) {
+	if (chargeItemIds.empty()) {
+		return {};
+	}
+
+	std::string sql = GetCostDetailDAO::selectItemSqlPrefix();
+	SqlParams params;
+	sql += " WHERE ci.is_deleted=0"
+		" AND ci.id IN (";
+
+	for (size_t index = 0; index < chargeItemIds.size(); ++index) {
+		if (index > 0) {
+			sql += ",";
+		}
+		sql += "?";
+		SQLPARAMS_PUSH(params, "s", std::string, chargeItemIds[index]);
+	}
+	sql += ")";
+	return sqlSession->executeQuery<PtrCostDetailItemDO>(sql, CostDetailItemMapper(), params);
 }

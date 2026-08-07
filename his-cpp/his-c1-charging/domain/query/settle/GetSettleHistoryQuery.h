@@ -22,6 +22,14 @@ class GetSettleHistoryQuery : public PageQuery {
 	// 结算状态筛选条件
 	API_DTO_FIELD(
 		String, statusEnum, ZH_WORDS_GETTER("ovo.charging.settle.history_status_filter"), false, "ALL");
+
+	// 可选的支付流水主键，用于定位单条结算记录
+	API_DTO_FIELD(
+		String, paymentId, ZH_WORDS_GETTER("ovo.charging.settle.payment_id"), false, "");
+
+	// 显示模式，SUMMARY仅返回汇总，DETAIL返回汇总、支付记录和费用明细
+	API_DTO_FIELD(
+		String, presentationMode, ZH_WORDS_GETTER("ovo.charging.settle.history_presentation_mode"), false, "DETAIL");
 };
 
 #include OATPP_CODEGEN_END(DTO)
