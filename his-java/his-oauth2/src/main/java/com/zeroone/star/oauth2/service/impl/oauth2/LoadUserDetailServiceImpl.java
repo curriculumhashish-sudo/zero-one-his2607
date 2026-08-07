@@ -71,8 +71,8 @@ public class LoadUserDetailServiceImpl implements LoadUserDetailService {
         // 2 通过用户ID获取角色列表
         List<Role> roles = roleService.listRoleByUserId(user.getId());
 
-        // 4 加载医务人员信息与组织单元（关联键 = whale_users.id 转字符串）
-        String uid = String.valueOf(user.getId());
+        // 4 加载医务人员信息与组织单元
+        String uid = user.getId();
         Practitioner practitioner = practitionerMapper.selectOne(
                 new QueryWrapper<Practitioner>().eq("user_id", uid).eq("is_deleted", 0));
         if (practitioner != null) {
@@ -91,7 +91,7 @@ public class LoadUserDetailServiceImpl implements LoadUserDetailService {
         user.setOrganizationUnits(orgUnits);
 
         // 3 构建权限角色对象
-        return SecurityUser.create(user, user.getUsername(), user.getPassword(), roles.stream().map(Role::getKeyword).collect(Collectors.toList()));
+        return SecurityUser.create(user, user.getUsername(), user.getPassword(), roles.stream().map(Role::getCode).collect(Collectors.toList()));
     }
 
     private SecurityUser loadUserDetailForUser(String username) throws UsernameNotFoundException {

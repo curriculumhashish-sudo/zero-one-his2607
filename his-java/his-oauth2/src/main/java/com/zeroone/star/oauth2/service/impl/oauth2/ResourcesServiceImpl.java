@@ -46,14 +46,14 @@ public class ResourcesServiceImpl {
         // TODO：缓存权限资源逻辑,需要根据自己数据库设计来初始化--start
         // 定义缓存map
         Map<String, List<String>> resourceRolesMap = new TreeMap<>();
-        // 1 获取所有菜单
+        // 1 获取所有菜单路径
         List<Menu> tMenus = menuService.listAllLinkUrl();
         tMenus.forEach(menu -> {
-            // 2 获取菜单对应的角色
-            List<Role> rolesMenu = roleService.listRoleByMenuPath(menu.getLinkUrl());
+            // 2 获取菜单路径对应的角色
+            List<Role> rolesMenu = roleService.listRoleByMenuPath(menu.getPath());
             List<String> roles = new ArrayList<>();
-            rolesMenu.forEach(role -> roles.add(role.getKeyword()));
-            resourceRolesMap.put(menu.getLinkUrl(), roles);
+            rolesMenu.forEach(role -> roles.add(role.getCode()));
+            resourceRolesMap.put(menu.getPath(), roles);
         });
         // TODO：缓存权限资源逻辑,需要根据自己数据库设计来初始化--end
 

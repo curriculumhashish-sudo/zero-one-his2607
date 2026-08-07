@@ -4,6 +4,7 @@ import com.zeroone.star.sysmgr.entity.captcha.CaptchaDo;
 
 import com.wf.captcha.ArithmeticCaptcha;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -11,6 +12,7 @@ import org.springframework.util.StringUtils;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 public class CaptchaServiceImpl implements ICaptchaService {
 
@@ -29,12 +31,16 @@ public class CaptchaServiceImpl implements ICaptchaService {
         result.setCode(captcha.text());
         result.setImageBase64(captcha.toBase64());
 
-        stringRedisTemplate.opsForValue().set(
-                PREFIX + result.getUuid(),
-                result.getCode(),
-                EXPIRE,
-                TimeUnit.SECONDS
-        );
+        try {
+            stringRedisTemplate.opsForValue().set(
+                    PREFIX + result.getUuid(),
+                    result.getCode(),
+                    EXPIRE,
+                    TimeUnit.SECONDS
+            );
+        } catch (Exception e) {
+            log.warn("验证码存入Redis失败，uuid={}，错误信息：{}", result.getUuid(), e.getMessage());
+        }
 
         return result;
     }

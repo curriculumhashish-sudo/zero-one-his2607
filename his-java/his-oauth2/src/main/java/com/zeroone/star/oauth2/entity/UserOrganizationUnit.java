@@ -1,6 +1,7 @@
 package com.zeroone.star.oauth2.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,6 +23,12 @@ import java.io.Serializable;
 public class UserOrganizationUnit implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    /**
+     * 主键
+     */
+    @TableId(value = "id")
+    private String id;
 
     /**
      * 关联用户编号（whale_user_organization_units.user_id）

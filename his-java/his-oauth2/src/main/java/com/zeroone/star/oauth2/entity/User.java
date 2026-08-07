@@ -1,6 +1,5 @@
 package com.zeroone.star.oauth2.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -28,8 +27,8 @@ public class User implements Serializable {
     /**
      * 用户编号
      */
-    @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
+    @TableId(value = "id")
+    private String id;
 
     /**
      * 账户名（whale_users.user_name）
