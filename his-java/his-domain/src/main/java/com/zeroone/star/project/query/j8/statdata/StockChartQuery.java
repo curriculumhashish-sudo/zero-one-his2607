@@ -13,7 +13,7 @@ public class StockChartQuery {
     @Schema(description = "结束日期(yyyy-MM-dd)", example = "2026-07-20")
     private String dateTo;
 
-    @Schema(description = "粒度", example = "day")
+    @Schema(description = "粒度", example = "drug/consumable/device")
     private String granularity;
 
     @Schema(description = "组织ID", example = "org001")
