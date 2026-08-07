@@ -31,25 +31,25 @@ public class InboundReceiptDetailLineVO {
     @Schema(description = "单位显示文本", example = "盒")
     private String unitCodeDictText;
 
-    @Schema(description = "批号", example = "20260801")
+    @Schema(description = "批号", example = "001-002")
     private String lotNumber;
 
     @Schema(description = "追溯码", example = "TR2026080100001")
     private String traceNo;
 
-    @Schema(description = "单价（包装整包进价）", example = "28.00")
+    @Schema(description = "单价（包装整包进价）", example = "13.36")
     private BigDecimal price;
 
-    @Schema(description = "行合计金额", example = "560.00")
+    @Schema(description = "行合计金额", example = "2672.00")
     private BigDecimal totalPrice;
 
     @Schema(description = "发生时间", example = "2026-08-07T10:30:00")
     private LocalDateTime occurrenceTime;
 
-    @Schema(description = "效期区间起点（生产日期）", example = "2026-08-01T00:00:00")
+    @Schema(description = "效期区间起点（生产日期）", example = "2026-06-01T00:00:00")
     private LocalDateTime startTime;
 
-    @Schema(description = "效期区间止点（有效期至）", example = "2028-08-01T00:00:00")
+    @Schema(description = "效期区间止点（有效期至）", example = "2027-07-31T00:00:00")
     private LocalDateTime endTime;
 
     @Schema(description = "行备注", example = "首批到货")

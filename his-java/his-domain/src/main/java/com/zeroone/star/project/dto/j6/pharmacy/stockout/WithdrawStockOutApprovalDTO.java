@@ -19,7 +19,7 @@ public class WithdrawStockOutApprovalDTO {
     /**
      * 业务单号
      */
-    @Schema(description = "业务单号", example = "SO202607180001", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "业务单号", example = "CSO202608070001", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "业务单号不能为空")
     private String busNo;
 }

@@ -19,16 +19,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AgreeInboundReceiptDTO {
 
-    @Schema(description = "单据号", example = "IR202607180001", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "单据号", example = "CIR202608070001", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "单据号不能为空")
     private String busNo;
 
-    @Schema(description = "审批人ID（不传则由服务端从当前登录用户获取）", example = "1001")
+    @Schema(description = "审批人ID（不传则由服务端从当前登录用户获取）", example = "308791351298756608")
     private String approverId;
 
-    @Schema(description = "审批时间（不传则由服务端写入当前时间）", example = "2026-07-18T14:00:00")
+    @Schema(description = "审批时间（不传则由服务端写入当前时间）", example = "2026-08-07T15:00:00")
     private String approvalClock;
 
-    @Schema(description = "医保契约单号（需上传医保时填写）", example = "YB202607180001")
+    @Schema(description = "医保契约单号（需上传医保时填写）", example = "CT202607180001")
     private String contractBusNo;
 }

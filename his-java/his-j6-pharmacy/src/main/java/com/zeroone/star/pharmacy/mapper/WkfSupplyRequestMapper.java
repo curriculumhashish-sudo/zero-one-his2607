@@ -9,6 +9,7 @@ import com.zeroone.star.project.query.j6.pharmacy.stockout.StockOutQuery;
 import com.zeroone.star.project.vo.j6.pharmacy.inbound.InboundReceiptDetailLineVO;
 import com.zeroone.star.project.vo.j6.pharmacy.inbound.InboundReceiptListVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutLineVO;
+import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutListVO;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
@@ -162,7 +163,7 @@ public interface WkfSupplyRequestMapper extends BaseMapper<WkfSupplyRequest> {
      * @param query 查询条件（keyword, status, time range）
      * @return 分页结果
      */
-    IPage<WkfSupplyRequest> selectDistinctBusNoPage(Page<WkfSupplyRequest> page,
+    IPage<StockOutListVO> selectDistinctBusNoPage(Page<StockOutListVO> page,
                                                     @Param("query") StockOutQuery query);
 
     /**

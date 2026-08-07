@@ -1,8 +1,6 @@
 package com.zeroone.star.pharmacy.controller;
 
 import com.zeroone.star.pharmacy.service.IStockOutService;
-import com.zeroone.star.project.dto.j6.pharmacy.stockout.StockOutSaveDTO;
-import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutSaveResultVO;
 import com.zeroone.star.pharmacy.service.IStockoutApprovalService;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j6.pharmacy.stockout.*;
@@ -24,41 +22,50 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/stockout")
 @RequiredArgsConstructor
 @Tag(name = "药库出库单", description = "药库管理相关接口")
-@Valid
 public class WarehouseStockOutController implements WarehouseStockOutApis {
 
     @Resource
     private IStockOutService stockOutService;
 
-    @PostMapping("/save-and-submit")
-    @Operation(summary = "保存并提交审批")
-    @Override
-    public JsonVO<StockOutApprovalResultVO> saveAndSubmitApproval(@Valid @RequestBody StockOutSaveDTO dto) {
-        return stockOutService.saveAndSubmitApproval(dto);
-    }
+    @Resource
+    private IStockoutApprovalService stockoutApprovalService;
 
+    @Override
     @PostMapping("/add")
-    @Operation(summary = "新增单据")
-    @Override
-    public JsonVO<StockOutSaveResultVO> addStockOut(@Valid @RequestBody StockOutSaveDTO dto) {
-        // 新增时 busNo 为空，系统生成
-        dto.setBusNo(null);
-        return stockOutService.saveStockOut(dto);
+    @Operation(summary = "新增单据", description = "发送简洁上下文（源药库、目的药房等），返回空白草稿的完整文档结构（空卡片+空明细）。")
+    public JsonVO<StockOutDetailVO> addStockOut(@Valid @RequestBody StockOutAddDTO dto) {
+        try {
+            return JsonVO.success(stockOutService.addStockOut(dto));
+        } catch (Exception e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 
-
+    @Override
     @PostMapping("/save")
-    @Operation(summary = "保存单据")
-    @Override
-    public JsonVO<StockOutSaveResultVO> saveStockOut(@Valid @RequestBody StockOutSaveDTO dto) {
-        // 调用 Service
-        return stockOutService.saveStockOut(dto);
+    @Operation(summary = "保存单据", description = "保存已存在的药库出库单草稿（请求结构同新增返回），校验版本后重建单据明细。")
+    public JsonVO<StockOutDetailVO> saveStockOut(@Valid @RequestBody StockOutSaveRequestDTO dto) {
+        try {
+            return JsonVO.success(stockOutService.saveStockOut(dto));
+        } catch (Exception e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 
-
-    @Operation(summary = "删除单据")
-    @DeleteMapping("/{busNo}/delete")
     @Override
+    @PostMapping("/save-and-submit")
+    @Operation(summary = "保存并提交审批", description = "保存单据并提交审批（请求结构同新增返回），提交后进入待审批状态。")
+    public JsonVO<StockOutApprovalResultVO> saveAndSubmitApproval(@Valid @RequestBody StockOutSaveRequestDTO dto) {
+        try {
+            return JsonVO.success(stockOutService.saveAndSubmitApproval(dto));
+        } catch (Exception e) {
+            return JsonVO.fail(e.getMessage());
+        }
+    }
+
+    @Override
+    @DeleteMapping("/{busNo}/delete")
+    @Operation(summary = "删除单据")
     public JsonVO<String> removeStockOut(@PathVariable String busNo) {
         String result = stockOutService.deleteDraftByBusNo(busNo);
         if ("success".equals(result)) {
@@ -68,54 +75,49 @@ public class WarehouseStockOutController implements WarehouseStockOutApis {
         }
     }
 
-    @Operation(summary = "获取单据详情")
-    @GetMapping("/{busNo}")
     @Override
+    @GetMapping("/{busNo}")
+    @Operation(summary = "获取单据详情")
     public JsonVO<StockOutDetailVO> getStockOutDetail(@PathVariable String busNo) {
         StockOutDetailVO detail = stockOutService.getDetailByBusNo(busNo);
         return detail != null ? JsonVO.success(detail) : JsonVO.fail("单据不存在");
     }
 
-    @Operation(summary = "获取单据列表（条件+分页）")
-    @GetMapping("/getPharmacy")
     @Override
+    @GetMapping("/getPharmacy")
+    @Operation(summary = "获取单据列表（条件+分页）")
     public JsonVO<PageDTO<StockOutListVO>> getPharmacy(@Valid StockOutQuery stockOutQuery) {
         PageDTO<StockOutListVO> pageDTO = stockOutService.getPharmacyList(stockOutQuery);
         return JsonVO.success(pageDTO);
     }
 
-
-    private final IStockoutApprovalService stockoutApprovalService;
-
+    @Override
     @PostMapping("/submit-approval")
     @Operation(summary = "提交审批")
-    @Override
     public JsonVO<StockOutApprovalResultVO> submitStockOutApproval(@Validated @RequestBody SubmitStockOutApprovalDTO dto) {
         Boolean submitted = stockoutApprovalService.submitStockOutApproval(dto);
-        if(submitted){
+        if (submitted) {
             return JsonVO.success(new StockOutApprovalResultVO(true, "APPROVAL"));
-        }else{
+        } else {
             return JsonVO.fail("提交审批失败");
         }
-
     }
 
+    @Override
     @PostMapping("/withdraw-approval")
     @Operation(summary = "撤回审批")
-    @Override
     public JsonVO<StockOutApprovalResultVO> withdrawStockOutApproval(@Validated @RequestBody WithdrawStockOutApprovalDTO dto) {
-        // TODO: 桩实现，待后续对接Service层
         Boolean withdrawn = stockoutApprovalService.withdrawStockOutApproval(dto);
-        if(withdrawn){
+        if (withdrawn) {
             return JsonVO.success(new StockOutApprovalResultVO(true, "WITHDRAW"));
-        }else{
+        } else {
             return JsonVO.fail("撤回审批失败");
         }
     }
 
+    @Override
     @PostMapping("/agree")
     @Operation(summary = "审批通过")
-    @Override
     public JsonVO<StockOutApprovalResultVO> agreeStockOut(@Validated @RequestBody AgreeStockOutDTO dto) {
         Boolean agreed = stockoutApprovalService.agreeStockOut(dto);
         if (agreed) {
@@ -125,14 +127,14 @@ public class WarehouseStockOutController implements WarehouseStockOutApis {
         }
     }
 
+    @Override
     @PostMapping("/reject")
     @Operation(summary = "驳回审批")
-    @Override
     public JsonVO<StockOutApprovalResultVO> rejectStockOut(@Validated @RequestBody RejectStockOutDTO dto) {
         Boolean rejected = stockoutApprovalService.rejectStockOut(dto);
-        if(rejected){
+        if (rejected) {
             return JsonVO.success(new StockOutApprovalResultVO(true, "REJECT"));
-        }else{
+        } else {
             return JsonVO.fail("驳回审批失败");
         }
     }

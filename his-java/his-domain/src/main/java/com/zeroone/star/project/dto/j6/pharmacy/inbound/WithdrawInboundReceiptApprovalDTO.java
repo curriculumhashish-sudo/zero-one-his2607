@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class WithdrawInboundReceiptApprovalDTO {
 
-    @Schema(description = "单据号", example = "IR202607180001", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "单据号", example = "CIR202608070001", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "单据号不能为空")
     private String busNo;
 }

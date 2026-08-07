@@ -1,6 +1,5 @@
 package com.zeroone.star.project.vo.j6.pharmacy.stockout;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -8,67 +7,60 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * 出库单行明细 VO
- * @author wanfengzhiyunyi
+ * 出库单明细行 VO。
  */
-
 @Data
-@Schema(description = "出库单行明细 VO")
+@Schema(name = "StockOutLineVO", description = "药库出库单明细行")
 public class StockOutLineVO {
 
-    @Schema(description = "主键", example = "1001", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "明细主键", example = "330263864072474624")
     private String id;
 
-    @Schema(description = "项目表", example = "drug_info", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "项目物理表", example = "med_medication_definition")
     private String itemTable;
 
-    @Schema(description = "项目ID", example = "ITEM-5001", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "项目定义主键", example = "322994478289784832")
     private String itemId;
 
-    @Schema(description = "药品名称", example = "阿莫西林胶囊", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String name;
+    @Schema(description = "项目名称", example = "替米沙坦片")
+    private String productName;
 
-    @Schema(description = "规格", example = "0.5g*24粒", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String totalVolume;
+    @Schema(description = "规格", example = "40mg")
+    private String specification;
 
-    @Schema(description = "生产厂家", example = "华北制药", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String manufacturerText;
+    @Schema(description = "生产厂家", example = "上海信谊天平药业有限公司")
+    private String manufacturer;
 
-    @Schema(description = "项目数量", example = "100", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "行数量（拆零最小单位）", example = "100.00")
     private BigDecimal itemQuantity;
 
-    @Schema(description = "单位代码", example = "BOX", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "单位编码", example = "1")
     private String unitCode;
 
-    @Schema(description = "批号", example = "B20240701", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "单位编码显示文本", example = "盒")
+    private String unitCodeDictText;
+
+    @Schema(description = "批号", example = "001-002")
     private String lotNumber;
 
-    @Schema(description = "开始时间", example = "2024-07-19 00:00:00", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private LocalDateTime startTime;
-
-    @Schema(description = "结束时间", example = "2024-07-19 23:59:59", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private LocalDateTime endTime;
-
-    @Schema(description = "追溯编号", example = "TR20240719001", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "追溯码", example = "TR2026080100001")
     private String traceNo;
 
-    @Schema(description = "备注", example = "加急处理", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String remake;
-
-    @Schema(description = "价格", example = "12.50", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "单价", example = "13.36")
     private BigDecimal price;
 
-    @Schema(description = "总价", example = "1250.00", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "行合计金额", example = "1336.00")
     private BigDecimal totalPrice;
 
-    @Schema(description = "发生时间", example = "2024-07-19 10:30:00", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "发生时间", example = "2026-08-07T10:30:00")
     private LocalDateTime occurrenceTime;
 
-    @Schema(description = "单位代码描述", example = "盒", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String purchaseUnitText;
+    @Schema(description = "效期区间起点（生产日期）", example = "2026-06-01T00:00:00")
+    private LocalDateTime startTime;
 
-    @TableField(exist = false)
-    @Schema(description = "单位代码编码", example = "盒", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String purchaseUnitCode;
+    @Schema(description = "效期区间止点（有效期至）", example = "2027-07-31T00:00:00")
+    private LocalDateTime endTime;
 
+    @Schema(description = "行备注", example = "首批调拨")
+    private String remake;
 }

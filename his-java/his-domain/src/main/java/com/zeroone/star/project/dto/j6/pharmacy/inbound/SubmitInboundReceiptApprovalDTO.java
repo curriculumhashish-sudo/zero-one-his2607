@@ -19,11 +19,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SubmitInboundReceiptApprovalDTO {
 
-    @Schema(description = "单据号", example = "IR202607180001", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "单据号", example = "CIR202608070001", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "单据号不能为空")
     private String busNo;
 
-    @Schema(description = "指定的审批人ID",requiredMode = Schema.RequiredMode.REQUIRED, example = "1001")
+    @Schema(description = "审批人ID", example = "308791351298756608", requiredMode = Schema.RequiredMode.REQUIRED)
     private String approverId;
 
     @Schema(description = "申请时间（不传则由服务端写入当前时间）", example = "2026-07-18T10:30:00")

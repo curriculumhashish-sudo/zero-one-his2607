@@ -117,12 +117,13 @@ public class StockOutApprovalServiceImpl implements IStockoutApprovalService {
         requireSameStatus(rows);
         // 3. 校验当前状态允许审批（待审批）
         requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_PENDING_APPROVAL);
-        // 4. 获取当前用户作为审批人
+        // 4. 审批人优先取 DTO 传入的值，否则用当前用户
         String userId = currentUserId();
+        String approverId = StringUtils.hasText(dto.getApproverId()) ? dto.getApproverId() : userId;
         // 5. 更新状态为已批准
         LocalDateTime now = LocalDateTime.now();
         updateStatus(dto.getBusNo(), STATUS_AGREE, wrapper -> wrapper
-                .set("approver_id", userId)
+                .set("approver_id", approverId)
                 .set("approval_time", now)
                 .set("updated_at", now)
                 .set("updated_by", userId));
@@ -151,12 +152,13 @@ public class StockOutApprovalServiceImpl implements IStockoutApprovalService {
         requireSameStatus(rows);
         // 3. 校验当前状态允许提交审批（待审批）
         requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_PENDING_APPROVAL);
-        // 4. 获取当前用户作为审批人
+        // 4. 审批人优先取 DTO 传入的值，否则用当前用户
         String userId = currentUserId();
+        String approverId2 = StringUtils.hasText(dto.getApproverId()) ? dto.getApproverId() : userId;
         // 5. 更新状态为被驳回(写入驳回原因)
         LocalDateTime now = LocalDateTime.now();
         updateStatus(dto.getBusNo(), STATUS_REJECT, wrapper -> wrapper
-                .set("approver_id",userId)
+                .set("approver_id", approverId2)
                 .set("approval_time",now)
                 .set("reason", dto.getRejectReason())//写入驳回原因
                 .set("updated_at", now)
@@ -306,6 +308,7 @@ public class StockOutApprovalServiceImpl implements IStockoutApprovalService {
             }
 
             // 目标药房库存增加（purposeLocationId = 目标药房库位）
+            // 先尝试 UPDATE 已有批次，匹配不到则 INSERT 新行
             UpdateWrapper<WkfInventoryItem> addWrapper = new UpdateWrapper<WkfInventoryItem>()
                     .eq("item_table", row.getItemTable())
                     .eq("item_id", row.getItemId())
@@ -318,8 +321,33 @@ public class StockOutApprovalServiceImpl implements IStockoutApprovalService {
                     .set("updated_by", userId);
             int affected = inventoryItemMapper.update(null, addWrapper);
             if (affected <= 0) {
-                throw new IllegalStateException("目标药房库存记录不存在，locationId: "
-                        + row.getPurposeLocationId() + ", itemId: " + row.getItemId());
+                // 目标药房无此批次，插入新库存行
+                // supplier_id 从源库库存行带入
+                String supplierId = getInventorySupplier(row.getItemTable(), row.getItemId(),
+                        row.getSourceLocationId(), row.getLotNumber(), row.getUnitCode());
+
+                WkfInventoryItem newItem = new WkfInventoryItem();
+                newItem.setId(UUID.randomUUID().toString().replace("-", ""));
+                newItem.setTenantId(row.getTenantId());
+                newItem.setItemTable(row.getItemTable());
+                newItem.setItemId(row.getItemId());
+                newItem.setName(row.getItemTable() + ":" + row.getItemId());
+                newItem.setUnitCode(row.getUnitCode());
+                newItem.setQuantity(quantity);
+                newItem.setLotNumber(row.getLotNumber());
+                newItem.setLocationId(row.getPurposeLocationId());
+                newItem.setSupplierId(supplierId);
+                newItem.setInventoryStatusEnum("ACTIVE");
+                newItem.setProductionDate(row.getStartTime());
+                newItem.setExpirationDate(row.getEndTime());
+                newItem.setTraceNo(row.getTraceNo());
+                newItem.setCreatedAt(now);
+                newItem.setCreatedBy(userId);
+                newItem.setUpdatedAt(now);
+                newItem.setUpdatedBy(userId);
+                newItem.setIsDeleted(false);
+                newItem.setVersion(0);
+                inventoryItemMapper.insert(newItem);
             }
 
             // 源库库存充足性校验
@@ -348,6 +376,24 @@ public class StockOutApprovalServiceImpl implements IStockoutApprovalService {
                     .set("updated_by", userId);
             inventoryItemMapper.update(null, deductWrapper);
         }
+    }
+
+    /**
+     * 查询指定库存项的 supplier_id（用于目标药房 INSERT 时带入）
+     */
+    private String getInventorySupplier(String itemTable, String itemId, String locationId,
+                                         String lotNumber, String unitCode) {
+        WkfInventoryItem item = inventoryItemMapper.selectOne(
+                new QueryWrapper<WkfInventoryItem>()
+                        .eq("item_table", itemTable)
+                        .eq("item_id", itemId)
+                        .eq("location_id", locationId)
+                        .eq("lot_number", lotNumber)
+                        .eq("unit_code", unitCode)
+                        .eq("is_deleted", 0)
+                        .last("LIMIT 1"));
+        return (item != null && StringUtils.hasText(item.getSupplierId()))
+                ? item.getSupplierId() : "";
     }
 
     /**

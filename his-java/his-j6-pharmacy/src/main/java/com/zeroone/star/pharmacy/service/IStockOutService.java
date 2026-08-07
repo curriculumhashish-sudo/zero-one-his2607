@@ -1,27 +1,40 @@
 package com.zeroone.star.pharmacy.service;
 
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j6.pharmacy.stockout.StockOutSaveDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.stockout.StockOutAddDTO;
+import com.zeroone.star.project.dto.j6.pharmacy.stockout.StockOutSaveRequestDTO;
 import com.zeroone.star.project.dto.j6.pharmacy.stockout.SubmitStockOutApprovalDTO;
 import com.zeroone.star.project.query.j6.pharmacy.stockout.StockOutQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutApprovalResultVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutDetailVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutListVO;
-import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutSaveResultVO;
 
 /**
  * 药库出库单服务接口
  */
 public interface IStockOutService {
+
     /**
-     * 保存并提交审批
+     * 新增药库出库单草稿。
+     * @param dto 新增上下文（源药库、目的药房等）
+     * @return 完整的空白文档结构
      */
-    JsonVO<StockOutApprovalResultVO> saveAndSubmitApproval(StockOutSaveDTO dto);
+    StockOutDetailVO addStockOut(StockOutAddDTO dto);
+
     /**
-     * 保存出库单
+     * 保存药库出库单草稿。
+     * @param dto 保存数据（与新增返回结构一致）
+     * @return 更新后的完整文档结构
      */
-    JsonVO<StockOutSaveResultVO> saveStockOut(StockOutSaveDTO dto);
+    StockOutDetailVO saveStockOut(StockOutSaveRequestDTO dto);
+
+    /**
+     * 保存并提交出库审批。
+     * @param dto 保存并提交数据（与新增返回结构一致）
+     * @return 操作结果
+     */
+    StockOutApprovalResultVO saveAndSubmitApproval(StockOutSaveRequestDTO dto);
 
     /**
      * 提交审批

@@ -7,51 +7,45 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutApprovalResultVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutDetailVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutListVO;
-import com.zeroone.star.project.vo.j6.pharmacy.stockout.StockOutSaveResultVO;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 public interface WarehouseStockOutApis {
 
-    @PostMapping("/save-and-submit")
-    @Operation(summary = "保存并提交审批")
-    JsonVO<StockOutApprovalResultVO> saveAndSubmitApproval(@Valid @RequestBody StockOutSaveDTO dto);
-
-    @PostMapping("/add")
-    @Operation(summary = "新增单据")
-    JsonVO<StockOutSaveResultVO> addStockOut(@Valid @RequestBody StockOutSaveDTO dto);
+    /**
+     * 新增药库出库单。
+     * 发送简洁上下文，返回左侧空卡片数据 + 右侧空明细表格结构。
+     * @param dto 新增上下文（源药库、目的药房等）
+     * @return 完整的空白文档结构
+     */
+    JsonVO<StockOutDetailVO> addStockOut(@Valid @RequestBody StockOutAddDTO dto);
 
     /**
-     * 保存出库单（新增/编辑）
-     *
-     * <p>支持新增和编辑两种场景：
-     * <ul>
-     *   <li>新增：busNo为空，系统自动生成单据号，状态为草稿</li>
-     *   <li>编辑：busNo不为空，根据单据号更新数据</li>
-     * </ul>
-     * </p>
-     *
-     * @param dto 出库单数据
-     * @return 保存结果（含单据号和状态）
+     * 保存出库单（编辑已有草稿）。
+     * 请求参数与新增返回响应结构一致。
+     * @param dto 保存数据
+     * @return 更新后的完整文档结构
      */
-    @Operation(summary = "保存出库单", description = "新增或编辑出库单")
-    JsonVO<StockOutSaveResultVO> saveStockOut(
-            @Parameter(description = "出库单数据", required = true) StockOutSaveDTO dto);
+    JsonVO<StockOutDetailVO> saveStockOut(@Valid @RequestBody StockOutSaveRequestDTO dto);
+
+    /**
+     * 保存并提交出库审批。
+     * 请求参数与新增返回响应结构一致。
+     * @param dto 保存并提交数据
+     * @return 操作结果
+     */
+    JsonVO<StockOutApprovalResultVO> saveAndSubmitApproval(@Valid @RequestBody StockOutSaveRequestDTO dto);
 
     /**
      * 删除出库单
-     * @param id 出库单ID
+     * @param id 出库单busNo
      * @return 是否成功
      */
     JsonVO<String> removeStockOut(String id);
 
     /**
      * 获取出库单详情
-     * @param id 出库单ID
+     * @param id 出库单busNo
      * @return 详情
      */
     JsonVO<StockOutDetailVO> getStockOutDetail(String id);
@@ -65,7 +59,7 @@ public interface WarehouseStockOutApis {
 
     /**
      * 提交出库审批
-     * @param dto 提交审批参数（busNo）
+     * @param dto 提交审批参数（busNo + approverId）
      * @return 操作结果（含操作后状态）
      */
     JsonVO<StockOutApprovalResultVO> submitStockOutApproval(SubmitStockOutApprovalDTO dto);
@@ -79,14 +73,14 @@ public interface WarehouseStockOutApis {
 
     /**
      * 通过出库审批
-     * @param dto 通过审批参数（busNo + 可选contractBusNo）
+     * @param dto 通过审批参数（busNo + approverId + approvalClock + 可选contractBusNo）
      * @return 操作结果（含操作后状态 + 药房入库壳单号）
      */
     JsonVO<StockOutApprovalResultVO> agreeStockOut(AgreeStockOutDTO dto);
 
     /**
      * 驳回出库审批
-     * @param dto 驳回审批参数（busNo + rejectReason）
+     * @param dto 驳回审批参数（busNo + approverId + approvalClock + rejectReason）
      * @return 操作结果（含操作后状态）
      */
     JsonVO<StockOutApprovalResultVO> rejectStockOut(RejectStockOutDTO dto);

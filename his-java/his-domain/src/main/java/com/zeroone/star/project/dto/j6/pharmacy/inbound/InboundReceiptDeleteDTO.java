@@ -11,6 +11,6 @@ import lombok.Data;
 @Schema(name = "InboundReceiptDeleteDTO", description = "药库进货单删除请求")
 public class InboundReceiptDeleteDTO {
     @NotBlank(message = "业务单号不能为空")
-    @Schema(description = "业务单号", example = "JHD202607190001", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "业务单号", example = "CIR202608070001", requiredMode = Schema.RequiredMode.REQUIRED)
     private String busNo;
 }
