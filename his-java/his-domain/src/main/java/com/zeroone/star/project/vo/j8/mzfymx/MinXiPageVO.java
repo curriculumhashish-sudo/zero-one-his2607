@@ -30,16 +30,16 @@ public class MinXiPageVO {
     private List<MinXiDTO> content = new ArrayList<>();
 
     @Schema(description = "满足条件的明细总行数（全量，不含 LIMIT，用于前端分页栏显示总条数）")
-    private Long totalCount = 0L;
+    private Integer totalCount = 0;
 
     // ============================================
     // 分页栏高亮用（你要求新增返回，= 入参 pageIndex / pageSize 原值，不动 PageQuery 父类）
     // ============================================
     @Schema(description = "当前页码（= 入参 pageIndex 原值，前端分页栏高亮当前页用）")
-    private Long pageNo;
+    private Integer pageNo;
 
     @Schema(description = "每页大小（= 入参 pageSize 原值，前端分页栏下拉高亮用）")
-    private Long pageSize;
+    private Integer pageSize;
 
     // ============================================
     //  全量合计（原型图顶部红色 8 个数字，SUM 全量数据，不带 LIMIT）

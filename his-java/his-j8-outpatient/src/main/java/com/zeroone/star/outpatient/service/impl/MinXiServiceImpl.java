@@ -121,10 +121,10 @@ public class MinXiServiceImpl implements MinXiService {
         }
 
         // ② 分页明细
-        //   ⚠️ pageIndex/pageSize 继承自 PageQuery（基本类型 long，默认值 0，不可能为 null）
+        //   ⚠️ pageIndex/pageSize 继承自 PageQuery（包装类型 Integer，默认值 1）
         //      ⚠️ @Min(value=1) 校验：如果前端传 0/-1，<1 会被全局异常处理器拦截，Service 层兜底 <1 给默认值
-        long pageIndex = query.getPageIndex() < 1 ? 1 : query.getPageIndex();
-        long pageSize  = query.getPageSize()  < 1 ? 10 : query.getPageSize();
+        int pageIndex = (query.getPageIndex() == null || query.getPageIndex() < 1) ? 1 : query.getPageIndex();
+        int pageSize  = (query.getPageSize()  == null || query.getPageSize()  < 1) ? 10 : query.getPageSize();
         Page<MinXiDTO> mpPage = new Page<>(pageIndex, pageSize);
         List<MinXiDTO> rows = minXiMapper.selectRows(mpPage, query);
         if (rows == null) {
@@ -132,14 +132,14 @@ public class MinXiServiceImpl implements MinXiService {
         }
 
         // ③ set 分页序号（sequenceNo 是前端列表的第 1 列"序号"，跨页连续递增）
-        long startNo = (pageIndex - 1) * pageSize + 1;
+        int startNo = (pageIndex - 1) * pageSize + 1;
         for (int i = 0; i < rows.size(); i++) {
             rows.get(i).setSequenceNo(startNo + i);
         }
 
         // 组装返回
         totals.setContent(rows);
-        totals.setTotalCount(mpPage.getTotal());
+        totals.setTotalCount((int) mpPage.getTotal());
         // ④ 你明确要求新增返回 pageNo / pageSize（不动 PageQuery 父类，只在返回值里加这俩字段）
         totals.setPageNo(pageIndex);
         totals.setPageSize(pageSize);

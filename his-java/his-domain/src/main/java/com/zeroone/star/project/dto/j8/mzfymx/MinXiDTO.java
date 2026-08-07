@@ -34,7 +34,7 @@ public class MinXiDTO {
     // ⚠️ 同一次就诊多条收费项 → 这 4 列完全相同（如小赵上午挂号+开药，两行都重复"小赵/ENxxxx/门诊内科/2026-07-15"）
     // ============================================
     @Schema(description = "序号（分页连续递增：(pageIndex-1)*pageSize + rowIndex+1）")
-    private Long sequenceNo;
+    private Integer sequenceNo;
 
     @Schema(description = "门诊号（就诊号，来源 adm_encounter.bus_no，如 EN2026-07-150001）")
     private String outpatientNo;
