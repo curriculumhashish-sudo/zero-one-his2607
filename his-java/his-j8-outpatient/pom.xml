@@ -138,8 +138,8 @@
                 <artifactId>docker-maven-plugin</artifactId>
                 <version>0.43.4</version>
                 <configuration>
-                    <dockerHost>https://47.110.92.50:2375</dockerHost>
-                    <certPath>D:/Dr.BIG/docker-ca</certPath>
+                    <dockerHost>https://47.110.92.50:2376</dockerHost>
+                    <certPath>D:/Dr.BIG/ca/docker-ca-outpatient</certPath>
                     <skip>false</skip>
                     <images>
                         <image>
