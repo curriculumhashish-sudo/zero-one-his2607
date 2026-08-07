@@ -14,8 +14,10 @@ import com.zeroone.star.pharmacy.mapper.InventoryLockMapper;
 import com.zeroone.star.pharmacy.service.InStockOrderService;
 import com.zeroone.star.project.components.user.UserDTO;
 import com.zeroone.star.project.components.user.UserHolder;
+import com.zeroone.star.project.dto.j7.pharmacy.InStockOrderCreateDTO;
 import com.zeroone.star.project.dto.j7.pharmacy.InStockOrderDTO;
 import com.zeroone.star.project.dto.j7.pharmacy.InStockOrderDetailDTO;
+import com.zeroone.star.project.dto.j7.pharmacy.InStockOrderSaveDTO;
 import com.zeroone.star.project.dto.j7.pharmacy.PurchaseInboundSubmitDTO;
 import com.zeroone.star.project.query.j7.pharmacy.PurchaseInboundQuery;
 import com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundDetailVO;
@@ -214,7 +216,7 @@ public class InStockOrderServiceImpl implements InStockOrderService {
 
     @Override
     @Transactional
-    public String create(InStockOrderDTO dto) {
+    public InStockOrderSaveDTO create(InStockOrderCreateDTO dto) {
         LocalDateTime now = LocalDateTime.now();
         String userId = getCurrentUserId();
 
@@ -242,12 +244,14 @@ public class InStockOrderServiceImpl implements InStockOrderService {
 
         saveItems(order.getId(), dto.getItems());
         updateTotalPrice(order.getId());
-        return order.getId();
+
+        InStockOrder savedOrder = inStockOrderMapper.selectById(order.getId());
+        return toSaveDTO(savedOrder);
     }
 
     @Override
     @Transactional
-    public void update(String orderId, InStockOrderDTO dto) {
+    public void update(String orderId, InStockOrderSaveDTO dto) {
         InStockOrder existOrder = inStockOrderMapper.selectById(orderId);
         if (existOrder == null) {
             throw new IllegalArgumentException("入库单不存在");
@@ -272,7 +276,25 @@ public class InStockOrderServiceImpl implements InStockOrderService {
 
     @Override
     @Transactional
-    public void submit(String orderId, InStockOrderDTO dto) {
+    public void submitByOrderId(String orderId) {
+        InStockOrder order = inStockOrderMapper.selectById(orderId);
+        if (order == null) {
+            throw new IllegalArgumentException("入库单不存在");
+        }
+        if (!STATUS_DRAFT.equals(order.getStatusEnum())
+                && !STATUS_PENDING_APPROVAL.equals(order.getStatusEnum())) {
+            throw new IllegalArgumentException("当前状态不允许提交审批");
+        }
+        order.setStatusEnum(STATUS_PENDING);
+        order.setApplyTime(LocalDateTime.now());
+        order.setUpdatedAt(LocalDateTime.now());
+        order.setUpdatedBy(getCurrentUserId());
+        inStockOrderMapper.updateById(order);
+    }
+
+    @Override
+    @Transactional
+    public void submit(String orderId, InStockOrderSaveDTO dto) {
         update(orderId, dto);
 
         int rows = inStockOrderMapper.update(null,
@@ -333,7 +355,7 @@ public class InStockOrderServiceImpl implements InStockOrderService {
 
     // ==================== 私有方法 ====================
 
-    private InStockOrder buildOrder(InStockOrderDTO dto) {
+    private InStockOrder buildOrder(InStockOrderCreateDTO dto) {
         InStockOrder order = new InStockOrder();
         order.setBusNo(dto.getOrderNo());
         order.setSourceLocationId(dto.getSourceLocationId());
@@ -385,6 +407,27 @@ public class InStockOrderServiceImpl implements InStockOrderService {
         order.setId(orderId);
         order.setTotalPrice(total);
         inStockOrderMapper.updateById(order);
+    }
+
+    private InStockOrderSaveDTO toSaveDTO(InStockOrder order) {
+        InStockOrderSaveDTO dto = new InStockOrderSaveDTO();
+        dto.setOrderNo(order.getBusNo());
+        dto.setSourceLocationId(order.getSourceLocationId());
+        dto.setWarehouseId(order.getPurposeLocationId());
+        dto.setProjectType(order.getCategoryEnum());
+        dto.setSupplierId(order.getSupplierId() != null ?
+                Long.valueOf(order.getSupplierId()) : null);
+        dto.setInDate(order.getOccurrenceTime() != null ?
+                order.getOccurrenceTime().toLocalDate() : null);
+        dto.setRemark(order.getRemake());
+        dto.setId(order.getId());
+        dto.setStatusEnum(order.getStatusEnum());
+        dto.setCreatedBy(order.getCreatedBy());
+        dto.setCreatedAt(order.getCreatedAt());
+        dto.setApproverId(order.getApproverId());
+        dto.setApprovalTime(order.getApprovalTime());
+        dto.setTotalPrice(order.getTotalPrice());
+        return dto;
     }
 
     private String getCurrentUserId() {

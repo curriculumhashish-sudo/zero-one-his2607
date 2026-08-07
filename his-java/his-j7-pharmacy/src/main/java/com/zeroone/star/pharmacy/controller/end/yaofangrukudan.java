@@ -3,7 +3,8 @@ package com.zeroone.star.pharmacy.controller.end;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zeroone.star.pharmacy.service.InStockOrderService;
-import com.zeroone.star.project.dto.j7.pharmacy.InStockOrderDTO;
+import com.zeroone.star.project.dto.j7.pharmacy.InStockOrderCreateDTO;
+import com.zeroone.star.project.dto.j7.pharmacy.InStockOrderSaveDTO;
 import com.zeroone.star.project.dto.j7.pharmacy.InboundApprovalDTO;
 import com.zeroone.star.project.query.j7.pharmacy.PurchaseInboundQuery;
 import com.zeroone.star.project.vo.JsonVO;
@@ -106,10 +107,10 @@ public class yaofangrukudan {
                 example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":\"329874660147597312\"}")))
     })
     @PostMapping("/addInStockOrder")
-    public JsonVO<String> addInOrder(@Valid @RequestBody InStockOrderDTO dto) {
+    public JsonVO<InStockOrderSaveDTO> addInOrder(@Valid @RequestBody InStockOrderCreateDTO dto) {
         try {
-            String orderId = inStockOrderService.create(dto);
-            return JsonVO.success(orderId);
+            InStockOrderSaveDTO result = inStockOrderService.create(dto);
+            return JsonVO.success(result);
         } catch (IllegalArgumentException e) {
             return JsonVO.fail(e.getMessage());
         }
@@ -123,7 +124,8 @@ public class yaofangrukudan {
                 example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":\"保存入库单据成功\"}")))
     })
     @PutMapping("/{orderId}/saveInStockOrder")
-    public JsonVO<String> updateInOrder(@PathVariable String orderId, @Valid @RequestBody InStockOrderDTO dto) {
+    public JsonVO<String> updateInOrder(@PathVariable String orderId,
+                                        @Valid @RequestBody InStockOrderSaveDTO dto) {
         try {
             inStockOrderService.update(orderId, dto);
             return JsonVO.success("保存入库单据成功");
@@ -140,10 +142,27 @@ public class yaofangrukudan {
                 example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":\"保存并提交审批成功\"}")))
     })
     @PutMapping("/{orderId}/submitInStockOrder")
-    public JsonVO<String> submitInOrder(@PathVariable String orderId, @Valid @RequestBody InStockOrderDTO dto) {
+    public JsonVO<String> submitInOrder(@PathVariable String orderId, @Valid @RequestBody InStockOrderSaveDTO dto) {
         try {
             inStockOrderService.submit(orderId, dto);
             return JsonVO.success("保存并提交审批成功");
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        }
+    }
+
+    // 提交审批（纯状态流转，仅传单据号）
+    @Operation(summary = "提交审批", description = "将草稿或待审批状态的入库单提交审批，状态变更为'待审批'。仅需传单据号。")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":\"提交审批成功\"}")))
+    })
+    @PutMapping("/{orderId}/submitApproval")
+    public JsonVO<String> submitApproval(@PathVariable String orderId) {
+        try {
+            inStockOrderService.submitByOrderId(orderId);
+            return JsonVO.success("提交审批成功");
         } catch (IllegalArgumentException e) {
             return JsonVO.fail(e.getMessage());
         }
@@ -191,7 +210,7 @@ public class yaofangrukudan {
             content = @Content(schema = @Schema(implementation = JsonVO.class,
                 example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":\"保存并提交审批成功\"}")))
     })
-    public JsonVO<String> saveAndSubmitInOrder(@PathVariable String orderId, @Valid @RequestBody InStockOrderDTO dto) {
+    public JsonVO<String> saveAndSubmitInOrder(@PathVariable String orderId, @Valid @RequestBody InStockOrderSaveDTO dto) {
         try {
             inStockOrderService.submit(orderId, dto);
             return JsonVO.success("保存并提交审批成功");
