@@ -1,0 +1,13 @@
+doctor2:
+  tags:
+    tag: 医生站
+  field:
+    value: 选项值
+    label: 选项名称
+    code: 选项编码
+    department_options: 住院科室选项列表
+    admission_type_options: 入院类型选项列表
+    admission_way_options: 入院方式选项列表
+    priority_options: 病情优先级选项列表
+  options:
+    summary: 加载办理住院固定选项
