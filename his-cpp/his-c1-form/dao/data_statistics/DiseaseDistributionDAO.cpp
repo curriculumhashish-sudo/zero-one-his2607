@@ -25,19 +25,19 @@ std::string DiseaseDistributionDAO::queryConditionBuilder(const DiseaseDistribut
     std::stringstream sqlCondition;
     sqlCondition << " WHERE e.is_deleted =0";
     // Start date filter
-    if (query->startDate) {
+    if (query->dateFrom) {
         sqlCondition << " AND e.start_time >=?";
-        SQLPARAMS_PUSH(params, "s", std::string, query->startDate.getValue(""));
+        SQLPARAMS_PUSH(params, "s", std::string, query->dateFrom.getValue(""));
     }
     // End date filter
-    if (query->endDate) {
+    if (query->dateTo) {
         sqlCondition << " AND e.start_time <=?";
-        SQLPARAMS_PUSH(params, "s", std::string, query->endDate.getValue(""));
+        SQLPARAMS_PUSH(params, "s", std::string, query->dateTo.getValue(""));
     }
     // Organization filter (data isolation)
-    if (query->orgId) {
+    if (query->organizationId) {
         sqlCondition << " AND e.organization_id =?";
-        SQLPARAMS_PUSH(params, "s", std::string, query->orgId.getValue(""));
+        SQLPARAMS_PUSH(params, "s", std::string, query->organizationId.getValue(""));
     }
     return sqlCondition.str();
 }
@@ -62,33 +62,33 @@ std::list<DiseaseDistributionDO> DiseaseDistributionDAO::selectDistribution(cons
     // Build subquery condition first (parameter order matters for positional binding)
     std::stringstream subCond;
     subCond << " WHERE e2.is_deleted =0";
-    if (query->startDate) {
+    if (query->dateFrom) {
         subCond << " AND e2.start_time >=?";
-        SQLPARAMS_PUSH(params, "s", std::string, query->startDate.getValue(""));
+        SQLPARAMS_PUSH(params, "s", std::string, query->dateFrom.getValue(""));
     }
-    if (query->endDate) {
+    if (query->dateTo) {
         subCond << " AND e2.start_time <=?";
-        SQLPARAMS_PUSH(params, "s", std::string, query->endDate.getValue(""));
+        SQLPARAMS_PUSH(params, "s", std::string, query->dateTo.getValue(""));
     }
-    if (query->orgId) {
+    if (query->organizationId) {
         subCond << " AND e2.organization_id =?";
-        SQLPARAMS_PUSH(params, "s", std::string, query->orgId.getValue(""));
+        SQLPARAMS_PUSH(params, "s", std::string, query->organizationId.getValue(""));
     }
 
     // Build outer query condition (same values, for outer query placeholders)
     std::stringstream outerCond;
     outerCond << " WHERE e.is_deleted =0";
-    if (query->startDate) {
+    if (query->dateFrom) {
         outerCond << " AND e.start_time >=?";
-        SQLPARAMS_PUSH(params, "s", std::string, query->startDate.getValue(""));
+        SQLPARAMS_PUSH(params, "s", std::string, query->dateFrom.getValue(""));
     }
-    if (query->endDate) {
+    if (query->dateTo) {
         outerCond << " AND e.start_time <=?";
-        SQLPARAMS_PUSH(params, "s", std::string, query->endDate.getValue(""));
+        SQLPARAMS_PUSH(params, "s", std::string, query->dateTo.getValue(""));
     }
-    if (query->orgId) {
+    if (query->organizationId) {
         outerCond << " AND e.organization_id =?";
-        SQLPARAMS_PUSH(params, "s", std::string, query->orgId.getValue(""));
+        SQLPARAMS_PUSH(params, "s", std::string, query->organizationId.getValue(""));
     }
 
     // Four-table JOIN + CROSS JOIN denominator subquery to calculate percentage

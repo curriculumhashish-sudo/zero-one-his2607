@@ -29,22 +29,28 @@ class DiseaseDistributionQuery : public PageQuery
 {
 	DTO_INIT(DiseaseDistributionQuery, PageQuery);
 
-	// start date (ISO format, optional: if empty, query all or current month)
-	DTO_FIELD(String, startDate);
-	DTO_FIELD_INFO(startDate) {
-		info->description = ZH_WORDS_GETTER("W.form.data_statistics.field.start_date");
+	// start date (format: YYYY-MM-DD)
+	DTO_FIELD(String, dateFrom);
+	DTO_FIELD_INFO(dateFrom) {
+		info->description = ZH_WORDS_GETTER("W.form.data_statistics.field.date_from");
 	}
 
-	// end date (ISO format, optional)
-	DTO_FIELD(String, endDate);
-	DTO_FIELD_INFO(endDate) {
-		info->description = ZH_WORDS_GETTER("W.form.data_statistics.field.end_date");
+	// end date (format: YYYY-MM-DD)
+	DTO_FIELD(String, dateTo);
+	DTO_FIELD_INFO(dateTo) {
+		info->description = ZH_WORDS_GETTER("W.form.data_statistics.field.date_to");
+	}
+
+	// granularity: day / month / year
+	DTO_FIELD(String, granularity);
+	DTO_FIELD_INFO(granularity) {
+		info->description = ZH_WORDS_GETTER("W.form.data_statistics.field.granularity");
 	}
 
 	// organization id (optional, for data isolation)
-	DTO_FIELD(String, orgId);
-	DTO_FIELD_INFO(orgId) {
-		info->description = ZH_WORDS_GETTER("W.form.data_statistics.field.org_id");
+	DTO_FIELD(String, organizationId);
+	DTO_FIELD_INFO(organizationId) {
+		info->description = ZH_WORDS_GETTER("W.form.data_statistics.field.organization_id");
 	}
 };
 

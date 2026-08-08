@@ -28,16 +28,16 @@ class OutpatientTrendItemDTO : public oatpp::DTO
 {
 	DTO_INIT(OutpatientTrendItemDTO, DTO);
 
-	// X-axis label text (e.g. "Monday", "07-01")
-	DTO_FIELD(String, xLabel);
-	DTO_FIELD_INFO(xLabel) {
-		info->description = ZH_WORDS_GETTER("W.form.data_statistics.field.x_label");
+	// X-axis label (e.g. "Monday", "07-01")
+	DTO_FIELD(String, label);
+	DTO_FIELD_INFO(label) {
+		info->description = ZH_WORDS_GETTER("W.form.data_statistics.field.label");
 	}
 
-	// total patient count for this period
-	DTO_FIELD(Int32, patientCount);
-	DTO_FIELD_INFO(patientCount) {
-		info->description = ZH_WORDS_GETTER("W.form.data_statistics.field.patient_count");
+	// data value for this period
+	DTO_FIELD(Int32, value);
+	DTO_FIELD_INFO(value) {
+		info->description = ZH_WORDS_GETTER("W.form.data_statistics.field.value");
 	}
 };
 

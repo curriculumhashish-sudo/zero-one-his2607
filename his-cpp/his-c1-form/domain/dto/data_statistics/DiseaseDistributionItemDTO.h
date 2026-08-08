@@ -29,21 +29,15 @@ class DiseaseDistributionItemDTO : public oatpp::DTO
 	DTO_INIT(DiseaseDistributionItemDTO, DTO);
 
 	// disease type name (e.g. "hypertension", "respiratory infection")
-	DTO_FIELD(String, diseaseName);
-	DTO_FIELD_INFO(diseaseName) {
+	DTO_FIELD(String, name);
+	DTO_FIELD_INFO(name) {
 		info->description = ZH_WORDS_GETTER("W.form.data_statistics.field.disease_name");
 	}
 
-	// total patient count for this disease type
-	DTO_FIELD(Int32, patientCount);
-	DTO_FIELD_INFO(patientCount) {
-		info->description = ZH_WORDS_GETTER("W.form.data_statistics.field.patient_count");
-	}
-
-	// percentage of total (redundant for ECharts, but provided as fallback)
-	DTO_FIELD(Float64, percentage);
-	DTO_FIELD_INFO(percentage) {
-		info->description = ZH_WORDS_GETTER("W.form.data_statistics.field.percentage");
+	// total count for this disease type
+	DTO_FIELD(Int32, value);
+	DTO_FIELD_INFO(value) {
+		info->description = ZH_WORDS_GETTER("W.form.data_statistics.field.value");
 	}
 };
 

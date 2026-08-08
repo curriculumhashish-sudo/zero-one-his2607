@@ -33,39 +33,57 @@ class OutpatientStatController : public oatpp::web::server::api::ApiController
 {
 	API_ACCESS_DECLARE(OutpatientStatController);
 public:
-	// 1. Outpatient visit trend (weekly / monthly, controlled by timeType)
-	ENDPOINT_INFO(queryTrend) {
-		API_DEF_ADD_TITLE(ZH_WORDS_GETTER("W.form.data_statistics.query_trend.summary"));
+	// 1. Weekly outpatient visit trend
+	ENDPOINT_INFO(queryWeeklyTrend) {
+		API_DEF_ADD_TITLE(ZH_WORDS_GETTER("W.form.data_statistics.query_weekly_trend.summary"));
 		API_DEF_ADD_AUTH();
 		API_DEF_ADD_RSP_JSON_WRAPPER(OutpatientTrendJsonVO);
 		API_DEF_ADD_TAG(API_TAG);
-		API_DEF_ADD_QUERY_PARAMS(Int32, "timeType", ZH_WORDS_GETTER("W.form.data_statistics.field.time_type"), 1, true);
-		API_DEF_ADD_QUERY_PARAMS(String, "startDate", ZH_WORDS_GETTER("W.form.data_statistics.field.start_date"), "2026-07-14", true);
-		API_DEF_ADD_QUERY_PARAMS(String, "endDate", ZH_WORDS_GETTER("W.form.data_statistics.field.end_date"), "2026-07-20", true);
-		API_DEF_ADD_QUERY_PARAMS(String, "orgId", ZH_WORDS_GETTER("W.form.data_statistics.field.org_id"), "1001", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "dateFrom", ZH_WORDS_GETTER("W.form.data_statistics.field.date_from"), "", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "dateTo", ZH_WORDS_GETTER("W.form.data_statistics.field.date_to"), "", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "granularity", ZH_WORDS_GETTER("W.form.data_statistics.field.granularity"), "", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "organizationId", ZH_WORDS_GETTER("W.form.data_statistics.field.organization_id"), "", false);
 	}
-	ENDPOINT(API_M_GET, "/form/data_statistics/query_trend", queryTrend, QUERIES(QueryParams, queryParams), API_HANDLER_AUTH_PARAME) {
+	ENDPOINT(API_M_GET, "/outpatient/visit-trend/weekly", queryWeeklyTrend, QUERIES(QueryParams, queryParams), API_HANDLER_AUTH_PARAME) {
 		API_HANDLER_QUERY_PARAM(query, OutpatientTrendQuery, queryParams);
-		API_HANDLER_RESP_VO(execQueryTrend(query));
+		API_HANDLER_RESP_VO(execQueryWeeklyTrend(query));
 	}
 
-	// 2. Disease type distribution
+	// 2. Monthly outpatient visit trend
+	ENDPOINT_INFO(queryMonthlyTrend) {
+		API_DEF_ADD_TITLE(ZH_WORDS_GETTER("W.form.data_statistics.query_monthly_trend.summary"));
+		API_DEF_ADD_AUTH();
+		API_DEF_ADD_RSP_JSON_WRAPPER(OutpatientTrendJsonVO);
+		API_DEF_ADD_TAG(API_TAG);
+		API_DEF_ADD_QUERY_PARAMS(String, "dateFrom", ZH_WORDS_GETTER("W.form.data_statistics.field.date_from"), "", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "dateTo", ZH_WORDS_GETTER("W.form.data_statistics.field.date_to"), "", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "granularity", ZH_WORDS_GETTER("W.form.data_statistics.field.granularity"), "", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "organizationId", ZH_WORDS_GETTER("W.form.data_statistics.field.organization_id"), "", false);
+	}
+	ENDPOINT(API_M_GET, "/outpatient/visit-trend/monthly", queryMonthlyTrend, QUERIES(QueryParams, queryParams), API_HANDLER_AUTH_PARAME) {
+		API_HANDLER_QUERY_PARAM(query, OutpatientTrendQuery, queryParams);
+		API_HANDLER_RESP_VO(execQueryMonthlyTrend(query));
+	}
+
+	// 3. Disease type distribution
 	ENDPOINT_INFO(queryDiseaseDistribution) {
 		API_DEF_ADD_TITLE(ZH_WORDS_GETTER("W.form.data_statistics.query_disease_distribution.summary"));
 		API_DEF_ADD_AUTH();
 		API_DEF_ADD_RSP_JSON_WRAPPER(DiseaseDistributionJsonVO);
 		API_DEF_ADD_TAG(API_TAG);
-		API_DEF_ADD_QUERY_PARAMS(String, "startDate", ZH_WORDS_GETTER("W.form.data_statistics.field.start_date"), "", false);
-		API_DEF_ADD_QUERY_PARAMS(String, "endDate", ZH_WORDS_GETTER("W.form.data_statistics.field.end_date"), "", false);
-		API_DEF_ADD_QUERY_PARAMS(String, "orgId", ZH_WORDS_GETTER("W.form.data_statistics.field.org_id"), "1001", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "dateFrom", ZH_WORDS_GETTER("W.form.data_statistics.field.date_from"), "", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "dateTo", ZH_WORDS_GETTER("W.form.data_statistics.field.date_to"), "", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "granularity", ZH_WORDS_GETTER("W.form.data_statistics.field.granularity"), "", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "organizationId", ZH_WORDS_GETTER("W.form.data_statistics.field.organization_id"), "", false);
 	}
-	ENDPOINT(API_M_GET, "/form/data_statistics/query_disease_distribution", queryDiseaseDistribution, QUERIES(QueryParams, queryParams), API_HANDLER_AUTH_PARAME) {
+	ENDPOINT(API_M_GET, "/outpatient/disease-distribution", queryDiseaseDistribution, QUERIES(QueryParams, queryParams), API_HANDLER_AUTH_PARAME) {
 		API_HANDLER_QUERY_PARAM(query, DiseaseDistributionQuery, queryParams);
 		API_HANDLER_RESP_VO(execQueryDiseaseDistribution(query));
 	}
 
 private:
-	OutpatientTrendJsonVO::Wrapper execQueryTrend(const OutpatientTrendQuery::Wrapper& query);
+	OutpatientTrendJsonVO::Wrapper execQueryWeeklyTrend(const OutpatientTrendQuery::Wrapper& query);
+	OutpatientTrendJsonVO::Wrapper execQueryMonthlyTrend(const OutpatientTrendQuery::Wrapper& query);
 	DiseaseDistributionJsonVO::Wrapper execQueryDiseaseDistribution(const DiseaseDistributionQuery::Wrapper& query);
 };
 
