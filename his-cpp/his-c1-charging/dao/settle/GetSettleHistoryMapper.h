@@ -27,6 +27,7 @@ public:
 		data->setBillDate(resultSet->getString("bill_date"));
 		data->setInvoiceId(resultSet->getString("invoice_id"));
 		data->setSetlId(resultSet->getString("setl_id"));
+		data->setChargeItemIds(resultSet->getString("charge_item_ids"));
 		return data;
 	}
 };
