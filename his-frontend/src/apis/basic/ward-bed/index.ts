@@ -1,108 +1,60 @@
-import { toMutationResult, toPageResult, unwrap } from '../remote'
+import { useUserStore } from '@/stores/user'
 import { useHttp } from '@/plugins/http'
-import type {
-  WardBedForm,
-  WardBedNameOption,
-  WardBedQuery,
-  WardBedRecord,
-  WardBedSavePayload
-} from './type'
+import { toMutationResult, toPageResult, unwrap } from '../remote'
+import type { WardBedForm, WardBedNameOption, WardBedQuery, WardBedRecord, WardBedSavePayload } from './type'
 
-const baseUrl = '/j3-ward/wards'
-
-export async function loadBedNameOptions(keyword = '') { return loadNames('BED', keyword) }
-export async function loadRoomNameOptions(keyword = '') { return loadNames('HOUSE', keyword) }
-export async function loadWardNameOptions(keyword = '') { return loadNames('WARD', keyword) }
-
-async function loadNames(form: WardBedForm, keyword: string): Promise<WardBedNameOption[]> {
-  const tree = unwrap(await useHttp().post<BackendWardNode[]>(`${baseUrl}/tree`, {}))
-  const term = keyword.trim().toLowerCase()
-  return flattenTree(tree)
-    .filter((row) => row.formEnum === form && (!term || row.name.toLowerCase().includes(term)))
-    .map((row) => ({ label: row.name, value: row.id }))
+const baseUrl = '/ward'
+interface BackendWardNode {
+  id: string | number; name: string; busNo?: string; organizationId?: string | number; pyStr?: string; wbStr?: string
+  typeJson?: string; version?: number; type?: string; formEnum?: WardBedForm; statusEnum?: string | number; children?: BackendWardNode[]
 }
 
+function organizationId(value?: string) {
+  return value || String(useUserStore().departmentId || import.meta.env.VITE_DEV_ORGANIZATION_ID || '')
+}
+async function loadTree(id?: string) {
+  return unwrap(await useHttp().get<BackendWardNode[]>('/ward/tree-list', { organizationId: organizationId(id) }))
+}
 export async function pageWardBeds(query: WardBedQuery) {
-  const tree = unwrap(await useHttp().post<BackendWardNode[]>(`${baseUrl}/tree`, {
-    name: query.keyword || undefined
-  }))
-  const rows = flattenTree(tree)
-  const pageIndex = Math.max(1, query.pageIndex)
-  const pageSize = Math.max(1, query.pageSize)
-  const start = (pageIndex - 1) * pageSize
-  return toPageResult({ pageIndex, pageSize, total: rows.length, pages: Math.ceil(rows.length / pageSize), rows: rows.slice(start, start + pageSize) })
+  const rows = flattenTree(await loadTree(query.organizationId))
+  const pageIndex = Math.max(1, query.pageIndex); const pageSize = Math.max(1, query.pageSize)
+  const filtered = query.keyword ? rows.filter((row) => row.name.includes(query.keyword!) || row.busNo.includes(query.keyword!)) : rows
+  return toPageResult({ pageIndex, pageSize, total: filtered.length, pages: Math.ceil(filtered.length / pageSize), rows: filtered.slice((pageIndex - 1) * pageSize, pageIndex * pageSize) })
 }
+async function loadNames(form: WardBedForm, keyword: string): Promise<WardBedNameOption[]> {
+  const term = keyword.trim().toLowerCase()
+  return flattenTree(await loadTree()).filter((row) => row.formEnum === form && (!term || row.name.toLowerCase().includes(term))).map((row) => ({ label: row.name, value: row.id }))
+}
+export const loadBedNameOptions = (keyword = '') => loadNames('BED', keyword)
+export const loadRoomNameOptions = (keyword = '') => loadNames('HOUSE', keyword)
+export const loadWardNameOptions = (keyword = '') => loadNames('WARD', keyword)
 
 export async function createWardBed(data: WardBedSavePayload) {
-  const http = useHttp()
-  if (data.formEnum === 'WARD') {
-    return toMutationResult(unwrap(await http.post<string>(baseUrl, { wardName: data.name, departmentCode: data.organizationId })))
-  }
-  if (data.formEnum === 'HOUSE') {
-    return toMutationResult(unwrap(await http.post<string>(`${baseUrl}/room`, { roomName: data.name, wardCode: data.parentId })))
-  }
-  return toMutationResult(unwrap(await http.post<string>(`${baseUrl}/bed`, { bedName: data.name, roomCode: data.parentId })))
+  const payload = { name: data.name, parentId: data.parentId || null, organizationId: organizationId(data.organizationId), type: data.formEnum, pyStr: data.pyStr, wbStr: data.wbStr, typeJson: data.typeJson }
+  return toMutationResult(unwrap(await useHttp().post<string>(`${baseUrl}/location`, payload)))
 }
-
 export async function updateWardBed(id: string, data: WardBedSavePayload) {
-  const status = data.statusEnum === 'ACTIVE' ? 1 : 0
-  if (data.formEnum === 'WARD') return unwrap(await useHttp().put<string>(`${baseUrl}/${id}`, { wardName: data.name, status }))
-  if (data.formEnum === 'HOUSE') return unwrap(await useHttp().put<string>(`${baseUrl}/room/${id}`, { roomName: data.name, status }))
-  return unwrap(await useHttp().put<string>(`${baseUrl}/bed/${id}`, { bedName: data.name, status }))
+  const path = data.formEnum === 'WARD' ? '/ward' : data.formEnum === 'HOUSE' ? '/room' : '/bed'
+  return toMutationResult(unwrap(await useHttp().put<string>(path, { id, version: data.version, name: data.name, parentId: data.parentId || null, organizationId: organizationId(data.organizationId), statusEnum: data.statusEnum, pyStr: data.pyStr, wbStr: data.wbStr, typeJson: data.typeJson })))
 }
-
 export async function removeWardBed(id: string) {
-  const row = await findWardBed(id)
-  const path = row.formEnum === 'WARD' ? baseUrl : row.formEnum === 'HOUSE' ? `${baseUrl}/room` : `${baseUrl}/bed`
+  const row = (await pageWardBeds({ pageIndex: 1, pageSize: 10000 })).rows.find((item) => item.id === id)
+  if (!row) throw new Error('病区、病房或床位不存在')
+  const path = row.formEnum === 'WARD' ? '/ward' : row.formEnum === 'HOUSE' ? '/room' : '/bed'
   unwrap(await useHttp().delete<string>(`${path}/${id}`))
 }
-
 export async function setWardBedEnabled(id: string, enabled: boolean) {
-  const row = await findWardBed(id)
-  return updateWardBed(id, { ...row, statusEnum: enabled ? 'ACTIVE' : 'INACTIVE' })
-}
-
-async function findWardBed(id: string) {
-  const tree = unwrap(await useHttp().post<BackendWardNode[]>(`${baseUrl}/tree`, {}))
-  const row = flattenTree(tree).find((item) => item.id === id)
+  const row = (await pageWardBeds({ pageIndex: 1, pageSize: 10000 })).rows.find((item) => item.id === id)
   if (!row) throw new Error('病区、病房或床位不存在')
-  return row
+  const path = row.formEnum === 'WARD' ? '/ward/status' : row.formEnum === 'HOUSE' ? '/room/status' : '/bed/status'
+  return toMutationResult(unwrap(await useHttp().put<string>(path, { id, statusEnum: enabled ? 'ACTIVE' : 'INACTIVE' })))
 }
-
-interface BackendWardNode {
-  id: string
-  name: string
-  type?: string
-  formEnum?: WardBedForm
-  status?: number
-  statusEnum?: string
-  children?: BackendWardNode[]
-}
-
 function flattenTree(items: BackendWardNode[], parent?: WardBedRecord): WardBedRecord[] {
   return items.flatMap((item) => {
     const formEnum = item.formEnum ?? (item.type === 'ROOM' ? 'HOUSE' : item.type === 'BED' ? 'BED' : 'WARD')
-    const enabled = item.status === 1 || item.statusEnum === 'ACTIVE'
-    const row: WardBedRecord = {
-      id: String(item.id),
-      busNo: '',
-      name: item.name,
-      formEnum,
-      formEnumText: formText[formEnum],
-      organizationId: '',
-      organizationName: '',
-      parentId: parent?.id ?? '',
-      parentName: parent?.name ?? '',
-      displayOrder: 0,
-      statusEnum: enabled ? 'ACTIVE' : 'INACTIVE',
-      statusEnumText: enabled ? '启用' : '停用',
-      operationalEnum: 'NOT_IN_USE',
-      operationalEnumText: '未使用'
-    }
+    const enabled = String(item.statusEnum ?? '') === '1' || item.statusEnum === 'ACTIVE'
+    const row: WardBedRecord = { id: String(item.id), version: item.version, busNo: item.busNo ?? '', name: item.name, formEnum, formEnumText: { WARD: '病区', HOUSE: '病房', BED: '床位' }[formEnum], organizationId: item.organizationId == null ? '' : String(item.organizationId), organizationName: '', parentId: parent?.id ?? '', parentName: parent?.name ?? '', displayOrder: 0, statusEnum: enabled ? 'ACTIVE' : 'INACTIVE', statusEnumText: enabled ? '启用' : '停用', operationalEnum: 'NOT_IN_USE', operationalEnumText: '未使用', typeJson: item.typeJson, pyStr: item.pyStr, wbStr: item.wbStr, typeCode: item.type }
     return [row, ...flattenTree(item.children ?? [], row)]
   })
 }
-
-const formText: Record<WardBedForm, string> = { WARD: '病区', HOUSE: '病房', BED: '床位' }
-
 export type * from './type'

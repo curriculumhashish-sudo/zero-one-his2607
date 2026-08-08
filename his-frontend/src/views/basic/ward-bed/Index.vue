@@ -55,8 +55,7 @@ const formItems: MyFormItemAttr[] = [
   ], true),
   requiredInput('name', '名称'),
   select('organizationId', '关联科室', [
-    { label: '内科', value: 'dept-001' },
-    { label: '外科', value: 'dept-002' }
+    { label: '当前组织', value: import.meta.env.VITE_DEV_ORGANIZATION_ID || '' }
   ], true),
   select('parentId', '上级位置', [
     { label: '无上级', value: '' },
@@ -83,7 +82,7 @@ const formItems: MyFormItemAttr[] = [
 const defaultForm = {
   name: '',
   formEnum: 'WARD',
-  organizationId: 'dept-001',
+  organizationId: import.meta.env.VITE_DEV_ORGANIZATION_ID || '',
   parentId: '',
   displayOrder: 0,
   statusEnum: 'ACTIVE',

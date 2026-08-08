@@ -50,8 +50,7 @@ const formItems: MyFormItemAttr[] = [
   requiredInput('name', '供应商名称'),
   requiredInput('creditCode', '统一信用代码'),
   select('organizationId', '所属部门', [
-    { label: '药剂科', value: 'org-001' },
-    { label: '设备科', value: 'org-002' }
+    { label: '当前组织', value: import.meta.env.VITE_DEV_ORGANIZATION_ID || '' }
   ], true),
   select('typeEnum', '类型', [
     { label: '企业', value: '1' },
@@ -72,7 +71,7 @@ const defaultForm = {
   busNo: '',
   name: '',
   creditCode: '',
-  organizationId: 'org-001',
+  organizationId: import.meta.env.VITE_DEV_ORGANIZATION_ID || '',
   typeEnum: '1',
   address: '',
   phone: '',
