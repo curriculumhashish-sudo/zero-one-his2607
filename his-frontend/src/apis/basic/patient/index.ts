@@ -21,20 +21,24 @@ export async function loadPatientNameOptions(keyword = ''): Promise<PatientNameO
   return page.rows.map((row) => ({ label: `${row.name}（${row.busNo ?? row.id}）`, value: String(row.id) }))
 }
 export async function pagePatients(query: PatientQuery) {
-  const page = unwrap(await useHttp().get<BackendPage>(`${baseUrl}/page`, query))
+  const page = unwrap(await useHttp().get<BackendPage>(`${baseUrl}/page`, {
+    pageIndex: query.pageIndex,
+    pageSize: query.pageSize,
+    name: query.keyword || undefined
+  }))
   return toPageResult({ ...page, rows: page.rows.map(toRecord) })
 }
 export async function getPatientDetail(id: string) {
   return toRecord(unwrap(await useHttp().get<BackendPatient>(`${baseUrl}/query-by-id`, { id })))
 }
 export async function createPatient(data: PatientSavePayload) {
-  return toMutationResult<PatientRecord>(unwrap(await useHttp().post<string>(`${baseUrl}/add`, toPayload(data))))
+  return toMutationResult<PatientRecord>(unwrap(await useHttp().post<string>(`${baseUrl}/add`, toPayload(data, false))))
 }
 export async function updatePatient(id: string, data: PatientSavePayload) {
-  return toMutationResult<PatientRecord>(unwrap(await useHttp().put<string>(`${baseUrl}/modify`, { id, version: data.version, ...toPayload(data) })))
+  return toMutationResult<PatientRecord>(unwrap(await useHttp().put<string>(`${baseUrl}/modify`, { id, version: data.version, ...toPayload(data, true) })))
 }
 export async function removePatient(id: string) {
-  unwrap(await useHttp().delete<string>(`${baseUrl}/delete`, undefined, { params: { id } }))
+  unwrap(await useHttp().delete<string>(`${baseUrl}/delete`, [id]))
 }
 
 function toRecord(item: BackendPatient): PatientRecord {
@@ -54,17 +58,19 @@ function toRecord(item: BackendPatient): PatientRecord {
     statusEnum: item.statusEnum ?? '', activeFlag: active
   }
 }
-function toPayload(data: PatientSavePayload) {
+function toPayload(data: PatientSavePayload, isUpdate: boolean) {
   return {
-    name: data.name, genderEnum: data.genderEnum, birthDate: data.birthDate || null, age: data.age, idCard: data.idCard,
+    name: data.name, nameJson: data.nameJson, genderEnum: data.genderEnum, birthDate: data.birthDate || null,
+    idCard: data.idCard,
     maritalStatusEnum: data.maritalStatusEnum, phone: data.phone, address: data.address, addressProvince: data.addressProvince,
     addressCity: data.addressCity, addressDistrict: data.addressDistrict, addressStreet: data.addressStreet, addressExtendJson: data.addressExtendJson,
-    nationalityCode: data.nationalityCode, bloodTypeAbo: ({ A: 1, B: 2, AB: 3, O: 4, 未知: 0 } as Record<string, number>)[data.bloodAbo] ?? 0,
+    countryCode: data.nationalityCode, bloodTypeAbo: ({ A: 1, B: 2, AB: 3, O: 4, 未知: 0 } as Record<string, number>)[data.bloodAbo] ?? 0,
     bloodTypeRh: ({ POSITIVE: 1, NEGATIVE: 2, UNKNOWN: 0 } as Record<string, number>)[data.bloodRh] ?? 0, workCompany: data.workCompany,
     linkName: data.linkName, linkTelcom: data.linkTelcom, linkRelationCode: data.linkRelationCode === '' ? null : data.linkRelationCode,
     prfsEnum: data.prfsEnum, pyStr: data.pyStr, wbStr: data.wbStr, nativePlace: data.nativePlace, tempFlag: data.tempFlag,
-    deceasedDate: data.deceasedDate || null, organizationId: data.organizationId, activeFlag: data.activeFlag,
-    statusEnum: data.activeFlag ? 'ACTIVE' : 'INACTIVE'
+    organizationId: data.organizationId, activeFlag: data.activeFlag,
+    statusEnum: data.activeFlag ? 'ACTIVE' : 'INACTIVE',
+    ...(isUpdate ? { deceasedDate: data.deceasedDate || null } : {})
   }
 }
 export type * from './type'

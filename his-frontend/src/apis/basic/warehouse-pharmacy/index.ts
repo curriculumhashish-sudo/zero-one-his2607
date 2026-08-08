@@ -19,7 +19,7 @@ export async function createWarehousePharmacy(data: WarehousePharmacySavePayload
 export async function updateWarehousePharmacy(id: string, data: WarehousePharmacySavePayload) {
   return toMutationResult(unwrap(await useHttp().put<string>(baseUrl, { id, ...toPayload(data) })))
 }
-export async function removeWarehousePharmacy(id: string) { unwrap(await useHttp().delete<string>(baseUrl, { id })) }
+export async function removeWarehousePharmacy(id: string) { unwrap(await useHttp().delete<string>(`${baseUrl}/${id}`)) }
 export async function setWarehousePharmacyEnabled(id: string, enabled: boolean) {
   return toMutationResult(unwrap(await useHttp().put<string>(`${baseUrl}/status`, { id, statusEnum: enabled ? 'ACTIVE' : 'INACTIVE' })))
 }

@@ -30,7 +30,7 @@ export const loadRoomNameOptions = (keyword = '') => loadNames('HOUSE', keyword)
 export const loadWardNameOptions = (keyword = '') => loadNames('WARD', keyword)
 
 export async function createWardBed(data: WardBedSavePayload) {
-  const payload = { name: data.name, parentId: data.parentId || null, organizationId: organizationId(data.organizationId), type: data.formEnum, pyStr: data.pyStr, wbStr: data.wbStr, typeJson: data.typeJson }
+  const payload = { name: data.name, parentId: data.parentId || null, organizationId: organizationId(data.organizationId), formEnum: data.formEnum, statusEnum: 'ACTIVE', operationalEnum: data.operationalEnum || 'NOT_IN_USE', displayOrder: data.displayOrder ?? 0 }
   return toMutationResult(unwrap(await useHttp().post<string>(`${baseUrl}/location`, payload)))
 }
 export async function updateWardBed(id: string, data: WardBedSavePayload) {
@@ -47,12 +47,12 @@ export async function setWardBedEnabled(id: string, enabled: boolean) {
   const row = (await pageWardBeds({ pageIndex: 1, pageSize: 10000 })).rows.find((item) => item.id === id)
   if (!row) throw new Error('病区、病房或床位不存在')
   const path = row.formEnum === 'WARD' ? `${baseUrl}/status` : row.formEnum === 'HOUSE' ? '/c5-basicdata-api/room/status' : '/c5-basicdata-api/bed/status'
-  return toMutationResult(unwrap(await useHttp().put<string>(path, { id, statusEnum: enabled ? 'ACTIVE' : 'INACTIVE' })))
+  return toMutationResult(unwrap(await useHttp().put<string>(path, { id, version: row.version, statusEnum: enabled ? 'ACTIVE' : 'DISABLED' })))
 }
 function flattenTree(items: BackendWardNode[], parent?: WardBedRecord): WardBedRecord[] {
   return items.flatMap((item) => {
     const formEnum = item.formEnum ?? (item.type === 'ROOM' ? 'HOUSE' : item.type === 'BED' ? 'BED' : 'WARD')
-    const enabled = String(item.statusEnum ?? '') === '1' || item.statusEnum === 'ACTIVE'
+    const enabled = String(item.statusEnum ?? '') === '1' || item.statusEnum === 'ACTIVE' || item.statusEnum === 'NORMAL'
     const row: WardBedRecord = { id: String(item.id), version: item.version, busNo: item.busNo ?? '', name: item.name, formEnum, formEnumText: { WARD: '病区', HOUSE: '病房', BED: '床位' }[formEnum], organizationId: item.organizationId == null ? '' : String(item.organizationId), organizationName: '', parentId: parent?.id ?? '', parentName: parent?.name ?? '', displayOrder: 0, statusEnum: enabled ? 'ACTIVE' : 'INACTIVE', statusEnumText: enabled ? '启用' : '停用', operationalEnum: 'NOT_IN_USE', operationalEnumText: '未使用', typeJson: item.typeJson, pyStr: item.pyStr, wbStr: item.wbStr, typeCode: item.type }
     return [row, ...flattenTree(item.children ?? [], row)]
   })

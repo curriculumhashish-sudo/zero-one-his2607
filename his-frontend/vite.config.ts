@@ -22,6 +22,11 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 3000,
     proxy: {
+      '/api/c5-basicdata-api': {
+        changeOrigin: true,
+        target: c5BasicDataServerUrl,
+        rewrite: (path) => path.replace(/^\/api\/c5-basicdata-api/, '')
+      },
       '/api/j1-sysmgr-api': {
         changeOrigin: true,
         target: j1SysmgrServerUrl,
@@ -48,11 +53,6 @@ export default defineConfig({
         changeOrigin: true,
         target: c7ConfigurationServerUrl,
         rewrite: (path) => path.replace(/^\/c7-configuration-api/, '')
-      },
-      '/c5-basicdata-api': {
-        changeOrigin: true,
-        target: c5BasicDataServerUrl,
-        rewrite: (path) => path.replace(/^\/c5-basicdata-api/, '')
       },
       '/j1-sysmgr-api': {
         changeOrigin: true,
