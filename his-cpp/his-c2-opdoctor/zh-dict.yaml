@@ -7,6 +7,19 @@
   common:
     keyword: 关键词
     catalog: 项目目录
+  
+  orderCatalog:
+    tag: 医嘱目录
+    query:
+      summary: 分页查询医嘱项目目录
+    field:
+      keyword: 关键词（编码/名称/拼音/五笔/商品名）
+      category: 项目分类（DRUG/LAB/EXAM/TREATMENT，空表示全部）
+    categoryNames:
+      DRUG: 西药
+      LAB: 检验
+      EXAM: 检查
+      TREATMENT: 治疗
 
   order:
     tags:
@@ -28,7 +41,7 @@
       catalogId: 项目目录ID
       orderType: 医嘱类型
       expenseType: 费用性质
-
+      
       # === 查询筛选 ===
       keyword: 关键词
       status: 状态
@@ -41,6 +54,7 @@
       categoryName: 分类名称
       spec: 规格
       unitPrice: 单价
+      serviceRequestId: 服务请求ID
 
       # === 临床决策 ===
       dosage: 用量
