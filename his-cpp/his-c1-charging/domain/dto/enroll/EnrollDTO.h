@@ -37,6 +37,13 @@ class EnrollListDTO : public oatpp::DTO
 		info->description = ZH_WORDS_GETTER("QQQQ.field.encounter_id");
 	}
 
+    // Patient ID.
+    DTO_FIELD(String, patientId);
+    DTO_FIELD_INFO(patientId)
+    {
+        info->description = ZH_WORDS_GETTER("QQQQ.field.patient_id");
+    }
+
 	// Inpatient number.
 	DTO_FIELD(String, encounterBusNo);
 	DTO_FIELD_INFO(encounterBusNo)
@@ -65,6 +72,13 @@ class EnrollListDTO : public oatpp::DTO
 		info->description = ZH_WORDS_GETTER("QQQQ.field.status_enum_text");
 	}
 
+    // Department ID.
+    DTO_FIELD(String, organizationId);
+    DTO_FIELD_INFO(organizationId)
+    {
+        info->description = ZH_WORDS_GETTER("QQQQ.field.organization_id");
+    }
+
 	// Department name.
 	DTO_FIELD(String, organizationName);
 	DTO_FIELD_INFO(organizationName)
@@ -72,12 +86,26 @@ class EnrollListDTO : public oatpp::DTO
 		info->description = ZH_WORDS_GETTER("QQQQ.field.organization_name");
 	}
 
+    // Ward ID.
+    DTO_FIELD(String, wardId);
+    DTO_FIELD_INFO(wardId)
+    {
+        info->description = ZH_WORDS_GETTER("QQQQ.field.ward_id");
+    }
+
 	// Ward name.
 	DTO_FIELD(String, wardName);
 	DTO_FIELD_INFO(wardName)
 	{
 		info->description = ZH_WORDS_GETTER("QQQQ.field.ward_name");
 	}
+
+    // Bed ID.
+    DTO_FIELD(String, bedId);
+    DTO_FIELD_INFO(bedId)
+    {
+        info->description = ZH_WORDS_GETTER("QQQQ.field.bed_id");
+    }
 
 	// Bed name.
 	DTO_FIELD(String, bedName);
@@ -92,6 +120,13 @@ class EnrollListDTO : public oatpp::DTO
 	{
 		info->description = ZH_WORDS_GETTER("QQQQ.field.start_time");
 	}
+
+    // Whether the registration can be cancelled.
+    DTO_FIELD(Boolean, cancelable);
+    DTO_FIELD_INFO(cancelable)
+    {
+        info->description = ZH_WORDS_GETTER("QQQQ.field.cancelable");
+    }
 };
 
 /**
@@ -108,13 +143,6 @@ class EnrollPageDTO : public PageDTO<EnrollListDTO::Wrapper>
 class EnrollDetailDTO : public EnrollListDTO
 {
 	DTO_INIT(EnrollDetailDTO, EnrollListDTO);
-
-	// Patient ID.
-	DTO_FIELD(String, patientId);
-	DTO_FIELD_INFO(patientId)
-	{
-		info->description = ZH_WORDS_GETTER("QQQQ.field.patient_id");
-	}
 
 	// Patient identity card number.
 	DTO_FIELD(String, idCard);
@@ -163,27 +191,6 @@ class EnrollDetailDTO : public EnrollListDTO
 	DTO_FIELD_INFO(admissionCount)
 	{
 		info->description = ZH_WORDS_GETTER("QQQQ.field.admission_count");
-	}
-
-	// Department ID.
-	DTO_FIELD(String, organizationId);
-	DTO_FIELD_INFO(organizationId)
-	{
-		info->description = ZH_WORDS_GETTER("QQQQ.field.organization_id");
-	}
-
-	// Ward ID.
-	DTO_FIELD(String, wardId);
-	DTO_FIELD_INFO(wardId)
-	{
-		info->description = ZH_WORDS_GETTER("QQQQ.field.ward_id");
-	}
-
-	// Bed ID.
-	DTO_FIELD(String, bedId);
-	DTO_FIELD_INFO(bedId)
-	{
-		info->description = ZH_WORDS_GETTER("QQQQ.field.bed_id");
 	}
 
 	// Outpatient doctor name.

@@ -14,6 +14,18 @@ class EnrollService
 {
 private:
     /**
+     * @brief 判断住院登记是否允许普通取消。
+     *
+     * @param statusEnum 当前住院登记状态代码。
+     * @return 可普通取消时返回 true，否则返回 false。
+     *
+     * @details
+     * 根据高保真原型，待登记和待入科状态可以取消；
+     * 已在院及后续状态不允许普通取消。
+     */
+    bool isCancelable(const std::string& statusEnum);
+
+    /**
      * @brief 将住院登记状态代码转换为页面展示文字。
      *
      * @param statusEnum 数据库中的住院登记状态代码。
