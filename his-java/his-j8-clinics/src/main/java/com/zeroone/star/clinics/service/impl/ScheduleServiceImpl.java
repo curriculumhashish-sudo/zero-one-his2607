@@ -134,7 +134,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         ScheduleItemVO vo = new ScheduleItemVO();
         vo.setScheduleId(s.getId());
         vo.setName(s.getName());
-        vo.setStatusEnum(s.getStatusEnum());
+        vo.setStatusEnum(mapStatusToFrontend(s.getStatusEnum()));
         vo.setPlanningHorizonStart(s.getPlanningHorizonStart());
         vo.setPlanningHorizonEnd(s.getPlanningHorizonEnd());
         vo.setHealthcareServiceId(s.getHealthcareServiceId());
@@ -345,11 +345,23 @@ public class ScheduleServiceImpl implements ScheduleService {
         return "DRAFT".equalsIgnoreCase(s.getStatusEnum());
     }
 
+    private String mapStatusToFrontend(String statusEnum) {
+        if (statusEnum == null) return null;
+        String upper = statusEnum.toUpperCase();
+        switch (upper) {
+            case "DRAFT":   return "draft";
+            case "FORMAL":  return "published";
+            case "INACTIVE":
+            case "RETIRED": return "stopped";
+            default:        return statusEnum;
+        }
+    }
+
     private ScheduleItemVO toItemVO(Schedule s, Map<String, List<ScheduleActor>> actorMap) {
         ScheduleItemVO vo = new ScheduleItemVO();
         vo.setScheduleId(s.getId() != null ? s.getId() : null);
         vo.setName(s.getName());
-        vo.setStatusEnum(s.getStatusEnum());
+        vo.setStatusEnum(mapStatusToFrontend(s.getStatusEnum()));
         vo.setPlanningHorizonStart(s.getPlanningHorizonStart());
         vo.setPlanningHorizonEnd(s.getPlanningHorizonEnd());
         vo.setHealthcareServiceId(s.getHealthcareServiceId() != null ? s.getHealthcareServiceId() : null);
