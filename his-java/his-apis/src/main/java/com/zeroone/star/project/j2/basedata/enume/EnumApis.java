@@ -4,6 +4,7 @@ package com.zeroone.star.project.j2.basedata.enume;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.*;
 import com.zeroone.star.project.query.j2.basedata.EnumListQuery;
+import com.zeroone.star.project.query.j2.basedata.EnumQuery;
 import com.zeroone.star.project.query.j2.basedata.EnumTypeQuery;
 import com.zeroone.star.project.vo.JsonVO;
 

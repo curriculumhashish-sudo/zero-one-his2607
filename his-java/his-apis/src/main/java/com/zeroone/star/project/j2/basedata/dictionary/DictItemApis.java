@@ -30,7 +30,7 @@ public interface DictItemApis {
      * @param query 字典查询条件
      * @return 字典分页结果
      */
-    JsonVO<PageDTO<DictItemDTO>> queryAll(DictItemQuery query);
+    JsonVO<PageDTO<DictItemDTO>> queryAllDictItems(DictItemQuery query);
     /**
      * 新增字典
      * @param addDTO 字典添加信息

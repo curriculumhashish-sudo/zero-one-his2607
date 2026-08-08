@@ -46,7 +46,7 @@ public class SettingsController implements SettingDefinitionApis, SettingsApis {
     @Override
     @GetMapping("definitions")
     @Operation(summary = "获取配置列表")
-    public JsonVO<PageDTO<SettingDefinitionDTO>> queryAll(SettingDefinitionQuery query) {
+    public JsonVO<PageDTO<SettingDefinitionDTO>> queryAllSettings(SettingDefinitionQuery query) {
         PageDTO<SettingDefinitionDTO> page = settingsService.listDefinitions(query);
         return JsonVO.success(page);
     }

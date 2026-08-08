@@ -45,7 +45,7 @@ public class DictionaryTypeController implements DictionaryTypeApis {
 
 
     @Override
-    @PostMapping("/updateConcept")
+    @PutMapping("/updateConcept")
     @Operation(summary = "修改字典类型")
     public JsonVO<String> updateDictionaryType(@Valid @RequestBody DictionaryTypeUpdateDTO data) {
         return JsonVO.success(dictionaryTypeService.updateDictionaryType(data));
@@ -53,7 +53,7 @@ public class DictionaryTypeController implements DictionaryTypeApis {
 
 
     @Override
-    @PostMapping("/deleteConcept")
+    @DeleteMapping("/deleteConcept")
     @Operation(summary = "删除字典类型")
     public JsonVO<String> deleteDictionaryType(@Valid @RequestBody DictionaryTypeDeleteDTO data) {
         return JsonVO.success(dictionaryTypeService.deleteDictionaryType(data));

@@ -17,11 +17,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
-
+import org.springframework.data.mongodb.core.query.Update;
 import org.bson.Document;
 import java.util.Date;
 import java.util.List;
@@ -108,31 +107,28 @@ public class EnumTypeServiceImpl implements EnumTypeService {
         if (!StringUtils.hasText(id)) {
             return JsonVO.fail(null);
         }
-
-        // 1. 聚合管道：$addFields 将 _id 转 _idStr → $match → $lookup 关联 EnumValue
-        Aggregation aggregation = Aggregation.newAggregation(
-                ctx -> new Document("$addFields",
-                        new Document("_idStr", new Document("$toString", "$_id"))),
-                Aggregation.match(Criteria.where("_idStr").is(id)),
-                Aggregation.lookup("EnumValue", "_idStr", "enumTypeId", "enumValueList")
-        );
-
-        List<Document> results = template.aggregate(aggregation, "EnumType", Document.class)
-                .getMappedResults();
-
-        if (results.isEmpty()) {
-            return JsonVO.fail("枚举类型不存在");
+        // 1. 查找枚举类型，校验存在性、租户归属、是否已删除
+        EnumType enumType = enumTypeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("枚举类型不存在"));
+        if (Boolean.TRUE.equals(enumType.getIsDeleted())) {
+            return JsonVO.fail("枚举类型已被删除");
         }
-
-        // 2. 删除所有关联的 EnumValue（enumTypeId 本身就是 String，无类型问题）
-        Query valueQuery = new Query(Criteria.where("enumTypeId").is(id));
-        template.remove(valueQuery, "EnumValue");
-
-        // 3. 删除 EnumType 自身（用聚合查到的 _id 精确删除）
-        Object rawId = results.get(0).get("_id");
-        Query typeQuery = new Query(Criteria.where("_id").is(rawId));
-        template.remove(typeQuery, EnumType.class, "EnumType");
-
+        if (!enumType.getTenantId().equals(TENANT_ID)) {
+            return JsonVO.fail("枚举类型不属于当前租户");
+        }
+        // 2. 逻辑删除枚举类型
+        enumType.setIsDeleted(true);
+        enumType.setUpdatedAt(new Date());
+        enumType.setUpdatedBy("test");
+        enumTypeRepository.save(enumType);
+        // 3. 逻辑删除所有关联的未删除枚举值
+        Query valueQuery = new Query(Criteria.where("enumTypeId").is(id)
+                .and("isDeleted").is(false));
+        Update update = new Update()
+                .set("isDeleted", true)
+                .set("updatedAt", new Date())
+                .set("updatedBy", "test");
+        template.updateMulti(valueQuery, update, "EnumValue");
         return JsonVO.success("success");
     }
 

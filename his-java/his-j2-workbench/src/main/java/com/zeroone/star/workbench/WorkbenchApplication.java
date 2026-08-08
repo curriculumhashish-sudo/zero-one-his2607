@@ -13,7 +13,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * @author 阿伟学长
  * @version 1.0.0
  */
-//http://localhost:10500/workbench/doc.html
+//http://localhost:10500/j2-workbench/doc.html
 @SpringBootApplication
 @EnableDiscoveryClient
 public class WorkbenchApplication {

@@ -1,14 +1,13 @@
 sn:
-  basedata: J2_BASEDATA
-
+  personcenter: personcenter
 sp:
-  basedata: 10400
+  personcenter: 10600
 
 server:
-  port: ${sp.basedata}
+  port: ${sp.personcenter}
   servlet:
-    context-path: /basedata
+    context-path: /j2-personcenter
 
 spring:
   application:
-    name: ${sn.basedata}
+    name: ${sn.personcenter}

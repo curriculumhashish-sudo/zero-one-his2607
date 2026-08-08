@@ -22,6 +22,6 @@ public interface SettingDefinitionApis {
      * @param query 查询参数
      * @return 配置分页结果
      */
-    JsonVO<PageDTO<SettingDefinitionDTO>> queryAll(SettingDefinitionQuery query);
+    JsonVO<PageDTO<SettingDefinitionDTO>> queryAllSettings(SettingDefinitionQuery query);
 
 }

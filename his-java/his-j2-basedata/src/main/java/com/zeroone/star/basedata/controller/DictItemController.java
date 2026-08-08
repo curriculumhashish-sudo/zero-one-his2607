@@ -55,7 +55,7 @@ public class DictItemController implements DictItemApis {
     @Operation(summary = "获取字典列表(条件+分页)")
     @GetMapping("/queryDictItem")
     @Override
-    public JsonVO<PageDTO<DictItemDTO>> queryAll(DictItemQuery query) {
+    public JsonVO<PageDTO<DictItemDTO>> queryAllDictItems(DictItemQuery query) {
         Page<Dict> page = new Page<>(query.getPageIndex(), query.getPageSize());
         LambdaQueryWrapper<Dict> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(StringUtils.hasText(query.getDictCode()), Dict::getCode, query.getDictCode());

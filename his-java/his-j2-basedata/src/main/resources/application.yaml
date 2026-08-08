@@ -1,6 +1,7 @@
 server:
   port: ${sp.j2-basedata}
-
+  servlet:
+    context-path: /j2-basedata
 spring:
   application:
     name: ${sn.j2-basedata}
