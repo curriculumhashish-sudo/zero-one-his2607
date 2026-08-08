@@ -98,6 +98,15 @@ class ConfirmPrintResponseDTO : public oatpp::DTO
 
     // 审计落库是否成功
     API_DTO_FIELD(Boolean, ok, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintResponseDTO.ok.description"), true, true);
+
+    // 打印结果状态 SUCCESS / FAILED
+    API_DTO_FIELD(String, status, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintResponseDTO.status.description"), false, "SUCCESS");
+
+    // 失败时的错误码
+    API_DTO_FIELD(String, errorCode, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintResponseDTO.errorCode.description"), false, "");
+
+    // 失败时的错误信息
+    API_DTO_FIELD(String, errorMessage, ZH_WORDS_GETTER("lhfc.charging.charge.ConfirmPrintResponseDTO.errorMessage.description"), false, "");
 };
 
 #include OATPP_CODEGEN_END(DTO)

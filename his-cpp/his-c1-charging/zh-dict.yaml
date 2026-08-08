@@ -250,6 +250,12 @@ lhfc:
           value: 已结算
         totalPrice:
           description: 行总价
+        amount:
+          description: 行应收金额
+        insuranceAmount:
+          description: 医保支付金额
+        selfPayAmount:
+          description: 自费支付金额
         cashierUserId:
           description: 收款人系统用户主键
         cashierName:
@@ -286,6 +292,14 @@ lhfc:
           description: 就诊主键
         chargeItemIds:
           description: 待收收费项ID列表
+        contractId:
+          description: 费用性质合同主键
+        insuranceTypeCode:
+          description: 医保类型编码
+        personalInsuranceNo:
+          description: 个人医保编号
+        insuranceCardNo:
+          description: 社保卡号
       PreSettleChargeLinePreviewDTO:
         chargeItemId:
           description: 收费明细主键
@@ -400,6 +414,12 @@ lhfc:
           description: 成功语义码
         ybSetlId:
           description: 医保结算ID
+        paymentNo:
+          description: 支付流水号
+        statusEnum:
+          description: 支付流水状态枚举
+        settledAt:
+          description: 结算完成时间
       # ---- 功能4A: 打印门诊收费小票 ----
       PrintChargeReceipt:
         summary: 打印门诊收费小票
@@ -679,6 +699,12 @@ lhfc:
       ConfirmPrintResponseDTO:
         ok:
           description: 审计落库是否成功
+        status:
+          description: 打印结果状态 SUCCESS / FAILED
+        errorCode:
+          description: 失败时的错误码
+        errorMessage:
+          description: 失败时的错误信息
       # ---- 字典翻译 ----
       dict:
         gender:
