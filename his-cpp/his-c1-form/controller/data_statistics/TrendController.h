@@ -45,9 +45,12 @@ public:
 	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("Lin.form.data_statistics.query_flow_trend.summary"),
 		queryFlowTrend,
-		TrafficTrendVO::Wrapper,
+		TrafficTrendPageJsonVO::Wrapper,
 		API_TAG,
-		API_DEF_ADD_QUERY_PARAMS(String, "date", ZH_WORDS_GETTER("Lin.form.data_statistics.field.date"), "", true);
+		API_DEF_ADD_PAGE_PARAMS();
+		API_DEF_ADD_QUERY_PARAMS(String, "dateFrom", ZH_WORDS_GETTER("Lin.form.data_statistics.field.dateFrom"), "", true);
+		API_DEF_ADD_QUERY_PARAMS(String, "dateTo", ZH_WORDS_GETTER("Lin.form.data_statistics.field.dateTo"), "", true);
+		API_DEF_ADD_QUERY_PARAMS(String, "organizationId", ZH_WORDS_GETTER("Lin.form.data_statistics.field.organizationId"), "", false);
 	);
 
 	ENDPOINT(API_M_GET, "/data-statistics/flow-trend", queryFlowTrend, QUERIES(QueryParams, queryParams), API_HANDLER_AUTH_PARAME) {
@@ -62,7 +65,7 @@ public:
 private:
 
 
-	TrafficTrendVO::Wrapper execQueryFlowTrend(
+	TrafficTrendPageJsonVO::Wrapper execQueryFlowTrend(
 		const TrafficTrendQuery::Wrapper& query
 	);
 

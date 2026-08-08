@@ -20,12 +20,12 @@
 #include"../../service/data_statistics/TrafficTrendService.h"
 #include "controller/data_statistics/TrendController.h"
 
-TrafficTrendVO::Wrapper FlowTrendController::execQueryFlowTrend(
+TrafficTrendPageJsonVO::Wrapper FlowTrendController::execQueryFlowTrend(
 	const TrafficTrendQuery::Wrapper& query
 )
 {
 	auto result = TrafficTrendService().findflow(query);
-	auto jvo = TrafficTrendVO::createShared();
+	auto jvo = TrafficTrendPageJsonVO::createShared();
 	jvo->success(result);
 	return jvo;
 }

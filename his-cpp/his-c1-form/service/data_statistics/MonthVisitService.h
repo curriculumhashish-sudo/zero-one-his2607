@@ -7,13 +7,24 @@
 class MonthVisitService
 {
 public:
-	MonthVisitDTO::Wrapper findflow(const MonthVisitQuery::Wrapper& query)
+	MonthVisitPageDTO::Wrapper findflow(const MonthVisitQuery::Wrapper& query)
 	{
 		MonthVisitDAO dao;
-		auto dto = MonthVisitDTO::createShared();
-		string result = dao.findMonthVisit(query);
-			dto->totalVisit= result;
-		return dto;
+		auto pages = MonthVisitPageDTO::createShared();
+		u_int64 count = dao.count(query);
+		if (count <= 0)
+		{
+			cout << 2 << endl;
+			return pages;
+		}
+		pages->total = count;
+		pages->calcPages();
+		auto result = dao.findMonthVisit(query);
+		for(auto dto:result)
+		{
+			pages->addData(dto);
+		}
+		return pages;
 	}
 
 };

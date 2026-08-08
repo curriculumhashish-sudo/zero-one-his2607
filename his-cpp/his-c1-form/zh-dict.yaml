@@ -100,7 +100,11 @@ Lin:
       query_month_visit:
         summary: "获取月访问量"
       field:
-        date: 日期
-        visited: 每小时的流量（索引代表0-23小时）
-        month: 月份（格式：年-月）
+        visit_list: 一天每小时流量的列表（索引代表0-23小时）
+        monthFrom: 开始月份（格式：yyyy-MM）示例值(2026-07)
+        monthTo: 结束月份（格式：yyyy-MM）示例值(2026-07)
         total_visit: 月总访问量
+        dateFrom: 开始日期(yyyy-MM-dd),示例值(2026-07-20)
+        dateTo: 结束日期(yyyy-MM-dd),示例值(2026-07-20)
+        organizationId: 组织ID,示例值(org001)
+        daytList: 一个月日流量的列表（索引代表号数，索引1就代表1号）

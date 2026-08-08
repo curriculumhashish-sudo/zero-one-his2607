@@ -44,9 +44,12 @@ public:
 	API_DEF_ENDPOINT_INFO_AUTH(
 		ZH_WORDS_GETTER("Lin.form.data_statistics.query_month_visit.summary"),
 		queryMonthVisit,
-		MonthVisitVO::Wrapper,
+		MonthVisitPageJsonVO::Wrapper,
 		API_TAG,
-		API_DEF_ADD_QUERY_PARAMS(String, "month", ZH_WORDS_GETTER("Lin.form.data_statistics.field.month"), "", true);
+		API_DEF_ADD_PAGE_PARAMS();
+		API_DEF_ADD_QUERY_PARAMS(String, "monthFrom", ZH_WORDS_GETTER("Lin.form.data_statistics.field.monthFrom"), "", true);
+	API_DEF_ADD_QUERY_PARAMS(String, "monthTo", ZH_WORDS_GETTER("Lin.form.data_statistics.field.monthTo"), "", true);
+	API_DEF_ADD_QUERY_PARAMS(String, "organizationId", ZH_WORDS_GETTER("Lin.form.data_statistics.field.organizationId"), "", false);
 	);
 
 
@@ -61,7 +64,7 @@ public:
 private:
 
 
-	MonthVisitVO::Wrapper execQueryMonthVisit(
+	MonthVisitPageJsonVO::Wrapper execQueryMonthVisit(
 		const MonthVisitQuery::Wrapper& query
 	);
 

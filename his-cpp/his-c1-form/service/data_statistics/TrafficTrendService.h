@@ -7,13 +7,25 @@
 class TrafficTrendService
 {
 public:
-	TrafficTrendDTO::Wrapper findflow(const TrafficTrendQuery::Wrapper& query)
+	TrafficTrendPageDTO::Wrapper findflow(const TrafficTrendQuery::Wrapper& query)
 	{
 		TrafficTrendDAO dao;
-		auto dto= TrafficTrendDTO::createShared();
-		string result = dao.findFlowTreand(query);
-		dto->visited=result;
-		return dto;
+		auto pages = TrafficTrendPageDTO::createShared();
+		
+		u_int64 count = dao.count(query);
+		if (count <= 0)
+		{
+			cout << 2 << endl;
+			return pages;
+		}
+		pages->total = count;
+		pages->calcPages();
+		std::list<TrafficTrendDTO::Wrapper> result = dao.findFlowTreand(query);
+		for(auto sub:result)
+		{
+			pages->addData(sub);
+		}
+		return pages;
 	}
 
 };
