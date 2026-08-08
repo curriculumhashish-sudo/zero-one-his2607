@@ -49,8 +49,8 @@ private:
 	std::list<std::string> generateDateList(const std::string& start, const std::string& end);
 
 public:
-	// Query outpatient visit trend (daily detail within week when timeType=1, within month when timeType=2)
-	OutpatientTrendDataDTO::Wrapper queryTrend(const OutpatientTrendQuery::Wrapper& query);
+	// Query outpatient visit trend (timeType: 1=weekly, 2=monthly)
+	OutpatientTrendDataDTO::Wrapper queryTrend(const OutpatientTrendQuery::Wrapper& query, int timeType);
 	// Query disease type distribution (including percentage calculation)
 	DiseaseDistributionDataDTO::Wrapper queryDiseaseDistribution(const DiseaseDistributionQuery::Wrapper& query);
 };

@@ -110,34 +110,34 @@ std::list<std::string> OutpatientStatService::generateDateList(const std::string
 
 // ============ Business logic ============
 
-OutpatientTrendDataDTO::Wrapper OutpatientStatService::queryTrend(const OutpatientTrendQuery::Wrapper& query)
+OutpatientTrendDataDTO::Wrapper OutpatientStatService::queryTrend(const OutpatientTrendQuery::Wrapper& query, int timeType)
 {
 	// Build response data object
 	auto result = OutpatientTrendDataDTO::createShared();
-	result->trendList = oatpp::List<oatpp::Object<OutpatientTrendItemDTO>>::createShared();
+	result->points = oatpp::List<oatpp::Object<OutpatientTrendItemDTO>>::createShared();
+	result->unit = ZH_WORDS_GETTER("W.form.data_statistics.field.unit_person_times");
 
-	// Get time dimension: 1=weekly, 2=monthly
-	int timeType = query->timeType.getValue(1);
-	std::string startDate = query->startDate.getValue("");
+	// timeType: 1=weekly, 2=monthly
+	std::string dateFrom = query->dateFrom.getValue("");
 
 	// Determine the period range from the requested date
 	std::string periodStart, periodEnd;
 	if (timeType == 1)
 	{
-		periodStart = getMondayOfWeek(startDate);
-		periodEnd = getSundayOfWeek(startDate);
+		periodStart = getMondayOfWeek(dateFrom);
+		periodEnd = getSundayOfWeek(dateFrom);
 	}
 	else
 	{
-		periodStart = getFirstOfMonth(startDate);
-		periodEnd = getLastOfMonth(startDate);
+		periodStart = getFirstOfMonth(dateFrom);
+		periodEnd = getLastOfMonth(dateFrom);
 	}
 
 	// Build a query with the computed period range (override original params)
 	auto periodQuery = OutpatientTrendQuery::createShared();
-	periodQuery->startDate = periodStart;
-	periodQuery->endDate = periodEnd;
-	periodQuery->orgId = query->orgId;
+	periodQuery->dateFrom = periodStart;
+	periodQuery->dateTo = periodEnd;
+	periodQuery->organizationId = query->organizationId;
 	periodQuery->pageIndex = 1;
 	periodQuery->pageSize = 9999; // fetch all
 
@@ -158,9 +158,9 @@ OutpatientTrendDataDTO::Wrapper OutpatientStatService::queryTrend(const Outpatie
 	for (auto& date : dateList)
 	{
 		auto item = OutpatientTrendItemDTO::createShared();
-		item->xLabel = date;
-		item->patientCount = dailyCount[date]; // 0 if not present
-		result->trendList->push_back(item);
+		item->label = date;
+		item->value = dailyCount[date]; // 0 if not present
+		result->points->push_back(item);
 	}
 
 	return result;
@@ -170,7 +170,8 @@ DiseaseDistributionDataDTO::Wrapper OutpatientStatService::queryDiseaseDistribut
 {
 	// Build response data object
 	auto result = DiseaseDistributionDataDTO::createShared();
-	result->distributionList = oatpp::List<oatpp::Object<DiseaseDistributionItemDTO>>::createShared();
+	result->items = oatpp::List<oatpp::Object<DiseaseDistributionItemDTO>>::createShared();
+	result->unit = ZH_WORDS_GETTER("W.form.data_statistics.field.unit_persons");
 
 	// Query disease distribution data via DAO
 	DiseaseDistributionDAO dao;
@@ -184,10 +185,9 @@ DiseaseDistributionDataDTO::Wrapper OutpatientStatService::queryDiseaseDistribut
 	{
 		auto item = DiseaseDistributionItemDTO::createShared();
 		ZO_STAR_DOMAIN_DO_TO_DTO(item, dist,
-			diseaseName, DiseaseName,
-			patientCount, PatientCount,
-			percentage, Percentage);
-		result->distributionList->push_back(item);
+			name, DiseaseName,
+			value, PatientCount);
+		result->items->push_back(item);
 	}
 
 	return result;

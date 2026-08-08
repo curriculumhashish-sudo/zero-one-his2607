@@ -27,19 +27,19 @@ std::string OutpatientTrendDAO::queryConditionBuilder(const OutpatientTrendQuery
 	// Exclude soft-deleted records
 	sqlCondition << " AND is_deleted = 0";
 	// Encounter start time lower bound
-	if (query->startDate) {
+	if (query->dateFrom) {
 		sqlCondition << " AND start_time >=?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->startDate.getValue(""));
+		SQLPARAMS_PUSH(params, "s", std::string, query->dateFrom.getValue(""));
 	}
 	// Encounter start time upper bound
-	if (query->endDate) {
+	if (query->dateTo) {
 		sqlCondition << " AND start_time <=?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->endDate.getValue(""));
+		SQLPARAMS_PUSH(params, "s", std::string, query->dateTo.getValue(""));
 	}
 	// Organization filter (data isolation)
-	if (query->orgId) {
+	if (query->organizationId) {
 		sqlCondition << " AND organization_id = ?";
-		SQLPARAMS_PUSH(params, "s", std::string, query->orgId.getValue(""));
+		SQLPARAMS_PUSH(params, "s", std::string, query->organizationId.getValue(""));
 	}
 	return sqlCondition.str();
 }
