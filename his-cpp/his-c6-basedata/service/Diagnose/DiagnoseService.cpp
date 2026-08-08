@@ -29,6 +29,8 @@
 #include "SimpleDateTimeFormat.h"
 #include "RedisClient.h"
 #include "MongoClient.h"
+#include"../../lib-common/include/NacosClient.h"
+#include"../../domain/GlobalInclude.h"
 #include "bsoncxx/json.hpp"
 //#include "StringUtil.h"
 //
@@ -285,8 +287,8 @@ std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
 		diagnoseType, diagType,//传诊断类型，对应去mongodb找诊断类型码插入
 		diagnoseCode, chronicCode,
 		MedicalInsuranceCode, medicalInsuranceCode,
-		Status, status,
-		IsDelete, isDelete
+		Status, status
+		//IsDelete, isDelete
 	);
 
 	ZO_STAR_DOMAIN_DTO_TO_DO(
@@ -299,17 +301,18 @@ std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
 		Remark, remark
 		//CatName, catName
 		//,TenantId,tenantId//前端可以不传，从redis中拿取
-		, Source_enum, source_enum  //前端可以不传，用catName也就是诊断目录名去mongodb找来源枚举值插入
+		//, Source_enum, source_enum  //前端可以不传，用catName也就是诊断目录名去mongodb找来源枚举值插入
 	);
 	data.setSource_enum(dto->catName);//如果不走mongodb查询，那么诊断目录就是来源枚举值
 	UuidFacade uuidFacade;
 	data.setId(uuidFacade.genUuid());
 	data.setCreateBy(dto->getPayload()->getUsername());
 	data.setCreateTime(SimpleDateTimeFormat::format());
-	//data.setIsDelete(0);
+	data.setIsDelete(0);
 	data.setVersion(1);
 
-	RedisClient rc("127.0.0.1", 6379, "");
+	//RedisClient rc("127.0.0.1", 6379, "");
+	ZO_CREATE_REDIS_CLIENT(rc);
 	std::string getr = rc.execute<std::string>([](Redis* r) {
 		return r->hget("user:session:10001","tenant_id").value();
 		});
@@ -321,10 +324,16 @@ std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
 
 	std::string catname = *dto->catName;
 	std::string diagtype = *dto->diagType;
+	
 		//MongoClient mc("mongodb://root:123456@127.0.0.1:27017/test");
-	MongoClient mc("mongodb://root:123456@127.0.0.1:27017/test");
+	//MongoClient mc("mongodb://root:123456@127.0.0.1:27017/test");
+	YamlHelper yaml;
+	string uri = yaml.getString(&_config, "spring.data.mongodb.uri"); 
+		/** 创建MongoClient对象 */
+		MongoClient mc(uri);
 	using bsoncxx::builder::basic::kvp;
 		using bsoncxx::builder::basic::make_document;
+
 		mc.execute("dict_condition_definition_source", [&](mongocxx::collection* conn)
 			{				std::cout << "execute" << std::endl;
 
@@ -391,7 +400,7 @@ bool DiagnoseService::updateData(const DiagnoseDTO::Wrapper& dto)
 		MedicalInsuranceCode, medicalInsuranceCode,
 		Status, status,
 		//TenantId, tenantId,//前端可以不传，可以从redis中获取
-		IsDelete, isDelete,
+		//IsDelete, isDelete,
 		Id, id);
 
 	ZO_STAR_DOMAIN_DTO_TO_DO(
@@ -402,13 +411,15 @@ bool DiagnoseService::updateData(const DiagnoseDTO::Wrapper& dto)
 		PinyinCode, pinyinCode,
 		WubiCode, wubiCode,
 		Remark, remark,
-		Source_enum, source_enum,//前端可以不传，从mongodb中获取
+		//Source_enum, source_enum,//前端可以不传，从mongodb中获取
 		Version,version
 	);
 	data.setSource_enum(dto->catName);//如果不走mongodb查询，那么诊断目录就是来源枚举值
+
 	//租户id获取
-	RedisClient rc("127.0.0.1", 6379, "");
-	std::string getr = rc.execute<std::string>([](Redis* r) {
+	//RedisClient rc("127.0.0.1", 6379, "");
+	ZO_CREATE_REDIS_CLIENT(rc);
+		std::string getr = rc.execute<std::string>([](Redis* r) {
 		return r->hget("user:session:10001", "tenant_id").value();
 		});
 	if (getr != "")
@@ -420,7 +431,15 @@ bool DiagnoseService::updateData(const DiagnoseDTO::Wrapper& dto)
 	std::string catname = *dto->catName;
 	std::string diagtype = *dto->diagType;
 	//MongoClient mc("mongodb://root:123456@127.0.0.1:27017/test");
-	MongoClient mc("mongodb://root:123456@127.0.0.1:27017/test");
+	//ZO_CREATE_MONGO_CLIENT(mc);
+	//ZO_CREATE_DS_CONFIG_NODE(_ns, _config); 
+		/** 获取Mongo相关配置 */ 
+		YamlHelper yaml; 
+		string uri = yaml.getString(&_config, "spring.data.mongodb.uri"); 
+			/** 创建MongoClient对象 */
+			MongoClient mc(uri);
+
+	//MongoClient mc("mongodb://root:123456@127.0.0.1:27017/test");
 	using bsoncxx::builder::basic::kvp;
 	using bsoncxx::builder::basic::make_document;
 	mc.execute("dict_condition_definition_source", [&](mongocxx::collection* conn)
