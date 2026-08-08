@@ -11,60 +11,80 @@ static std::string generateSimpleId() {
 }
 
 bool QuitNumberService::confirmQuitNumber(const oatpp::Object<QuitNumberDTO>& request, const PayloadDTO& payload) {
-    // 1. ²ÎÊıĞ£Ñé£¨»ùÓÚÏÖÓĞDTO×Ö¶Î£©
+    // 1. å‚æ•°æ ¡éªŒï¼ˆåŸºäºç°æœ‰DTOå­—æ®µï¼‰
     if (!request->visitNumber || request->visitNumber->empty()) {
-        return false; // ¾ÍÕïºÅ²»ÄÜÎª¿Õ
+        return false; // å°±è¯Šå·ä¸èƒ½ä¸ºç©º
     }
     if (!request->refundAmount || request->refundAmount <= 0) {
-        return false; // ÍË¿î½ğ¶î±ØĞë´óÓÚ0
+        return false; // é€€æ¬¾é‡‘é¢å¿…é¡»å¤§äº0
     }
 
-    // 2. ´Ópayload»ñÈ¡²Ù×÷Ô±ĞÅÏ¢
+    // 2. ä»payloadè·å–æ“ä½œå‘˜ä¿¡æ¯
     std::string entererId = payload.getId();
     std::string entererName = payload.getUsername();
 
-    // 3. ´ÓDTOÖĞÌáÈ¡ºËĞÄ×Ö¶Î£¨Ö±½ÓÊ¹ÓÃÏÖÓĞ×Ö¶Î£©
-    std::string encounterId = request->visitNumber.getValue({}); // ¾ÍÕïºÅ×÷Îª¾ÍÕï¼ÇÂ¼ID
-    oatpp::Float64 refundAmount = request->refundAmount;        // Ó¦ÍË½ğ¶î
-    std::string status = request->status.getValue({});         // µ±Ç°×´Ì¬£¨Èç"REGISTERED"£©
-    int version = 1;                 // °æ±¾ºÅ£¨ÀÖ¹ÛËø£©
-    // 4. Éú³ÉÒµÎñÖ÷¼ü£¨ÍË¿îÎ¨Ò»±êÊ¶£©
-    std::string refundId = generateSimpleId(); // ¼ÙÉègenerateSimpleIdÊÇÉú³ÉÎ¨Ò»IDµÄº¯Êı
+    // 3. Extract core fields from DTO with field name mapping support
+    std::string encounterId = request->visitNumber.getValue({}); // Use visitNumber as encounter record ID
+    oatpp::Float64 refundAmount = request->refundAmount;        // Refund amount
+    std::string status = request->status.getValue({});         // Current status (e.g., "REGISTERED")
+    int version = 1;                                            // Version number for optimistic locking
 
-    // 5. Ö´ĞĞDAO²Ù×÷£¨°´ÒµÎñË³ĞòÖ´ĞĞ£¬Ê§°ÜÔò·µ»Øfalse£©
+    // Support both old and new field names for backward compatibility
+    std::string chargeItemIds;
+    if (request->refundingChargeItemIds && !request->refundingChargeItemIds->empty()) {
+        // Use new field name: refundingChargeItemIds
+        chargeItemIds = request->refundingChargeItemIds.getValue({});
+    } else if (request->refundingChargeItemIds && !request->refundingChargeItemIds->empty()) {
+        // Use old field name: chargeItemIds
+        chargeItemIds = request->refundingChargeItemIds.getValue({});
+    }
+
+    std::string refundId;
+    if (request->refundRequestId && !request->refundRequestId->empty()) {
+        // Use new field name: refundRequestId
+        refundId = request->refundRequestId.getValue({});
+    } else if (request->refundRequestId && !request->refundRequestId->empty()) {
+        // Use old field name: refundId
+        refundId = request->refundRequestId.getValue({});
+    } else {
+        // Generate unique refund ID if neither field is provided
+        refundId = generateSimpleId();
+    }
+
+    // 5. æ‰§è¡ŒDAOæ“ä½œï¼ˆæŒ‰ä¸šåŠ¡é¡ºåºæ‰§è¡Œï¼Œå¤±è´¥åˆ™è¿”å›falseï¼‰
     QuitNumberDAO dao;
 
-    // ²½Öè1£º¸üĞÂ¾ÍÕï¼ÇÂ¼×´Ì¬£¨REGISTERED ¡ú CANCELLED£©
+    // æ­¥éª¤1ï¼šæ›´æ–°å°±è¯Šè®°å½•çŠ¶æ€ï¼ˆREGISTERED â†’ CANCELLEDï¼‰
     int result1 = dao.updateEncounterToCancelled(encounterId, version);
     if (result1 <= 0) return false;
 
-    // ²½Öè2£º±ê¼ÇºòÕï¶ÓÁĞÎªÈ¡Ïû
+    // æ­¥éª¤2ï¼šæ ‡è®°å€™è¯Šé˜Ÿåˆ—ä¸ºå–æ¶ˆ
     int result2 = dao.updateQueueToCancelled(encounterId, ZH_WORDS_GETTER("macchiato.charging.register.summary2"));
     if (result2 <= 0) return false;
 
-    // ²½Öè3£ºÊÍ·ÅºÅÔ´
+    // æ­¥éª¤3ï¼šé‡Šæ”¾å·æº
     int result3 = dao.releaseSlot(request->slotId);
     if (result3 <= 0) return false;
 
-    // ²½Öè4£º¸üĞÂÊÕ·ÑÏîÄ¿×´Ì¬
-    int result4 = dao.updateChargeItemToRefunded(request->chargeItemId, request->refundId, version);
+    // æ­¥éª¤4ï¼šæ›´æ–°æ”¶è´¹é¡¹ç›®çŠ¶æ€
+    int result4 = dao.updateChargeItemToRefunded(request->chargeItemId, request->refundRequestId, version);
     if (result4 <= 0) return false;
 
-    // ²½Öè5£º²åÈëÍË¿îÖ§¸¶¶ÔÕË¼ÇÂ¼
-     int result5 = dao.insertRefundPayment(refundId, request->patientId, encounterId, request->paymentNo, request->payEnum, refundAmount, request->chargeItemIds, entererId);
+    // Operation 5: Insert refund payment reconciliation record
+    int result5 = dao.insertRefundPayment(refundId, request->patientId, encounterId, request->paymentNo, request->payEnum, refundAmount, chargeItemIds, entererId);
     if (result5 <= 0) return false;
 
-    // ²½Öè6£º²åÈëÍË¿îÖ§¸¶Ã÷Ï¸
+    // æ­¥éª¤6ï¼šæ’å…¥é€€æ¬¾æ”¯ä»˜æ˜ç»†
     int result6 = dao.insertRefundDetail(request->detailId, refundId, request->payEnum, refundAmount);
     if (result6 <= 0) return false;
 
-    // ²½Öè7£º¸üĞÂ·¢Æ±×´Ì¬
+    // æ­¥éª¤7ï¼šæ›´æ–°å‘ç¥¨çŠ¶æ€
     int result7 = dao.updateInvoiceToCancelled(request->invoiceId, ZH_WORDS_GETTER("macchiato.charging.register.summary2"));
     if (result7 <= 0) return false;
 
-    // ²½Öè8£ºÍË»¹ÕË»§Óà¶î
+    // æ­¥éª¤8ï¼šé€€è¿˜è´¦æˆ·ä½™é¢
     int result8 = dao.updateAccountBalanceRefund(request->accountId, refundAmount);
     if (result8 <= 0) return false;
 
-    return true; // È«²¿ºËĞÄ²½Öè³É¹¦
+    return true; // å…¨éƒ¨æ ¸å¿ƒæ­¥éª¤æˆåŠŸ
 }

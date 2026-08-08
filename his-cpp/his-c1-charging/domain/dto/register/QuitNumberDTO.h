@@ -103,10 +103,10 @@ class QuitNumberDTO : public oatpp::DTO {
         info->required = false;
     }
 
-    // Refund ID
-    DTO_FIELD(String, refundId);
-    DTO_FIELD_INFO(refundId) {
-        info->description = ZH_WORDS_GETTER("macchiato.charging.register.refundId");
+    // refundRequestId
+    DTO_FIELD(String, refundRequestId);
+    DTO_FIELD_INFO(refundRequestId) {
+        info->description = ZH_WORDS_GETTER("macchiato.charging.register.refundRequestId");
         info->required = false;
     }
 
@@ -146,9 +146,9 @@ class QuitNumberDTO : public oatpp::DTO {
     }
 
     // Charge item IDs
-    DTO_FIELD(String, chargeItemIds);
-    DTO_FIELD_INFO(chargeItemIds) {
-        info->description = ZH_WORDS_GETTER("macchiato.charging.register.chargeItemIds");
+    DTO_FIELD(String, refundingChargeItemIds);
+    DTO_FIELD_INFO(refundingChargeItemIds) {
+        info->description = ZH_WORDS_GETTER("macchiato.charging.register.refundingChargeItemIds");
         info->required = false;
     }
 
