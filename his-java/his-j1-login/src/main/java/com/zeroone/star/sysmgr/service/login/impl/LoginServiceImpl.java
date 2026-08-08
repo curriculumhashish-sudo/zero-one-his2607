@@ -81,7 +81,7 @@ public class LoginServiceImpl implements ILoginService {
         // 第 4 步：登录成功后写入统一登录上下文（his:login:context:{userId}）
         String userId = loginUserMapper.selectIdByUsername(loginDTO.getUsername());
         LoginUserProfileDO profile = StringUtils.hasText(userId)
-                ? loginUserMapper.selectProfileById(userId) : null;
+                ? loginUserMapper.selectProfileList(userId).stream().findFirst().orElse(null) : null;
         if (!StringUtils.hasText(userId)) {
             return JsonVO.fail("认证成功但未找到用户资料");
         }
@@ -139,7 +139,7 @@ public class LoginServiceImpl implements ILoginService {
             // context 不存在时先读取 user:info。它只保存设计规定的基础资料，
             // 为保证 LoginVO 和数据库路径字段完全一致，仍以 DB 查询补齐会话/医护字段。
             Map<String, String> userInfo = loginContextService.loadUserInfo(userId);
-            LoginUserProfileDO profile = loginUserMapper.selectProfileById(userId);
+            LoginUserProfileDO profile = loginUserMapper.selectProfileList(userId).stream().findFirst().orElse(null);
             if (profile == null) {
                 return JsonVO.fail("用户不存在或已被删除");
             }

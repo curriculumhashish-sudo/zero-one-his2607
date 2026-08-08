@@ -24,8 +24,6 @@ public class TenantDO {
 
     private String extraProperties;
 
-    private Long tenantId;
-
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

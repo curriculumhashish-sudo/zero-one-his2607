@@ -133,7 +133,7 @@ public class DeptServiceImpl implements DeptService {
      */
     private String getTenantIdByUserId(String userId) {
         String sessionKey = RedisConstant.USER_SESSION_PREFIX + userId;
-        Object tenantObj = redisTemplate.opsForHash().get(sessionKey, "tenantId");
+        Object tenantObj = redisTemplate.opsForHash().get(sessionKey, "tenant_id");
         if (tenantObj == null) {
             throw new RuntimeException("会话租户信息缺失，请重新登录");
         }

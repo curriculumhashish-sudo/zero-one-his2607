@@ -96,7 +96,12 @@ public class TenantServiceImpl implements TenantService {
 
     @Override
     public TenantVO getTenantById(Long tenantId) {
-        TenantDO tenant = TenantMapper.selectById(tenantId);
+        // 使用 selectList + LIMIT 1，避免 whale_tenants 表存在重复 id 时 selectById 报 TooManyResults
+        TenantDO tenant = TenantMapper.selectList(
+                new LambdaQueryWrapper<TenantDO>()
+                        .eq(TenantDO::getId, tenantId)
+                        .last("LIMIT 1")
+        ).stream().findFirst().orElse(null);
         if (tenant == null || tenant.getIsActive() == null || tenant.getIsActive() != 1 || tenant.getIsDeleted() != 0) {
             return null;
         }
@@ -211,6 +216,7 @@ public class TenantServiceImpl implements TenantService {
     public void cacheSelectedTenant(String userId, Long tenantId) {
         try {
             String key = LoginRedisConstant.userSessionKey(userId);
+            redisTemplate.opsForHash().put(key, "tenant_id", tenantId.toString());
             redisTemplate.expire(key, LoginRedisConstant.USER_SESSION_TTL, TimeUnit.SECONDS);
 
                 // 同步更新 his:login:context（如果存在）
