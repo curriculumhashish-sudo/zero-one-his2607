@@ -9,9 +9,9 @@ charging:
   age: 年龄
   sex: 性别
   phone: 联系方式
-  admissionDept: 入院科室
-  admission_ward: 入院病区
-  attending_doctor: 主治医师
+  admissionDept: 入院科室(旧字段,优先使用 organizationId)
+  admission_ward: 入院病区(旧字段,优先使用 wardId)
+  attending_doctor: 主治医师(旧字段,优先使用 attendingDoctorId)
   admissionDiagnosis: 入院诊断
   diagnosisDesc: 诊断描述
   patientCondition: 患者病情
@@ -19,9 +19,25 @@ charging:
   admissionMode: 入院方式
   feeNature: 费用性质
   admissionDate: 入院日期
-  prepayAmount: 预交金金额
-  payWay: 支付方式
+  prepayAmount: 预交金金额(paymentDetails 合计为空时使用)
+  payWay: 支付方式(CASH/WECHAT/ALIPAY/BANK_CARD/ACCOUNT/INSURANCE)
   delete: 取消原因
+  encounterId: 住院登记记录ID
+  organizationId: 入院科室ID
+  wardId: 入院病区ID
+  attendingDoctorId: 主治医生ID
+  contractId: 费用性质合同ID(写入账户 contract_no)
+  paymentDetails: 预交金支付明细列表
+  paymentAmount: 支付金额
+  insuranceRevoked: 医保是否已撤销(仅记录标记,不做冲正)
+  add_success: 住院登记成功
+  delete_success: 取消登记成功
+  add_error_codes: "错误码说明:200-成功;401-未登录或TOKEN过期;403-无权限;9995-参数校验失败;9999-业务失败(日期格式无效/登记失败);9994-服务器异常"
+  delete_error_codes: "错误码说明:200-成功;401-未登录或TOKEN过期;403-无权限;9995-参数校验失败(encounterId、cancelReason 必填);9999-业务失败(登记不存在/状态不可取消/取消失败);9994-服务器异常"
+  error_date_invalid: 入院日期或出生日期格式无效(需 YYYY-MM-DD)
+  error_encounter_not_found: 未找到对应的住院登记记录
+  error_status_not_cancelable: 当前登记状态不可取消
+  error_operation_failed: 操作失败,请稍后重试
  register:
   tag: 收费工作站-门诊挂号
  settle:
