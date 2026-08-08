@@ -438,7 +438,7 @@ public class StockOutApprovalServiceImpl implements IStockoutApprovalService {
             // 单据信息
             inbound.setBusNo(inboundBusNo);
             inbound.setTypeEnum("WAREHOUSE_STOCKIN");
-            inbound.setStatusEnum("DRAFT");
+            inbound.setStatusEnum("PENDING_APPROVAL");
             inbound.setOriginalBusNo(row.getBusNo());  // 关联源出库单
             inbound.setCategoryEnum(row.getCategoryEnum());
             inbound.setIntentEnum(row.getIntentEnum());
