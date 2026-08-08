@@ -1,5 +1,6 @@
 package com.zeroone.star.project.j8.setroster;
 
+import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j8.setroster.CalendarExceptionAddDto;
 import com.zeroone.star.project.dto.j8.setroster.CalendarExceptionUpdateDto;
 import com.zeroone.star.project.query.j8.setroster.CalendarExceptionQuery;
@@ -8,8 +9,6 @@ import com.zeroone.star.project.vo.j8.setroster.CalendarExceptionVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
-import java.util.List;
 
 /**
  * <p>描述: 排班设置-节日例外 API 接口定义</p>
@@ -29,7 +28,7 @@ public interface CalendarExceptionApi {
      * @return 节日例外列表
      */
     @Operation(summary = "获取节日例外列表", description = "根据条件筛选系统中配置的节日例外数据")
-    JsonVO<List<CalendarExceptionVo>> queryCalendarExceptions(CalendarExceptionQuery query);
+    JsonVO<PageDTO<CalendarExceptionVo>> queryCalendarExceptions(CalendarExceptionQuery query);
 
     /**
      * 新建节日例外

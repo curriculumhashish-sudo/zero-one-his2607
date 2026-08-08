@@ -3,8 +3,10 @@ package com.zeroone.star.setroster.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zeroone.star.project.components.user.UserDTO;
 import com.zeroone.star.project.components.user.UserHolder;
+import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j8.setroster.CalendarExceptionAddDto;
 import com.zeroone.star.project.dto.j8.setroster.CalendarExceptionUpdateDto;
 import com.zeroone.star.project.query.j8.setroster.CalendarExceptionQuery;
@@ -18,7 +20,6 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -44,7 +45,8 @@ public class BkgCalendarExceptionServiceImpl implements IBkgCalendarExceptionSer
     private final UserHolder userHolder;
 
     @Override
-    public List<CalendarExceptionVo> queryCalendarExceptions(CalendarExceptionQuery query) {
+    public PageDTO<CalendarExceptionVo> queryCalendarExceptions(CalendarExceptionQuery query) {
+        Page<BkgCalendarException> page = new Page<>(query.getPageIndex(), query.getPageSize());
         LambdaQueryWrapper<BkgCalendarException> wrapper = Wrappers.lambdaQuery(BkgCalendarException.class)
                 .eq(StringUtils.hasText(query.getOrganizationId()),
                         BkgCalendarException::getOrganizationId, query.getOrganizationId())
@@ -57,9 +59,8 @@ public class BkgCalendarExceptionServiceImpl implements IBkgCalendarExceptionSer
                 .like(StringUtils.hasText(query.getKeyword()),
                         BkgCalendarException::getReason, query.getKeyword())
                 .orderByDesc(BkgCalendarException::getExceptionDate);
-        return mapper.selectList(wrapper).stream()
-                .map(this::toVo)
-                .toList();
+        mapper.selectPage(page, wrapper);
+        return PageDTO.create(page, this::toVo);
     }
 
     @Override
