@@ -6,6 +6,7 @@ import com.zeroone.star.project.dto.j7.pharmacy.ReturnRejectDTO;
 import com.zeroone.star.project.query.j7.pharmacy.PatientQueueQuery;
 import com.zeroone.star.project.vo.j7.pharmacy.DrugItemVO;
 import com.zeroone.star.project.vo.j7.pharmacy.PatientQueueVO;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -31,12 +32,12 @@ public interface IOutpatientPharmacyService {
     List<DrugItemVO> getReturnDrugItems(String returnId);
 
     /**
-     * 执行确认退药（回补库存）
-     */
-    void confirmReturn(ReturnConfirmDTO dto);
-
-    /**
      * 执行拒绝退药
      */
     void rejectReturn(ReturnRejectDTO dto);
+
+    /**
+     * 执行确认退药
+     */
+    void confirmReturn(ReturnConfirmDTO dto);
 }

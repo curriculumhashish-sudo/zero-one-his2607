@@ -1,7 +1,7 @@
 package com.zeroone.star.pharmacy.service;
 
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j7.pharmacy.DispensingRejectDTO;
+import com.zeroone.star.project.dto.j7.dispense.DispenseRejectDTO;
 import com.zeroone.star.project.dto.j7.pharmacy.ReturnConfirmDTO;
 import com.zeroone.star.project.query.j7.pharmacy.PatientQueueQuery;
 import com.zeroone.star.project.vo.j7.pharmacy.DrugItemVO;
@@ -41,7 +41,7 @@ public interface IInpatientPharmacyService {
     /**
      * 驳回患者发药单据，同步驳回汇总单
      */
-    void rejectDispensing(DispensingRejectDTO dto);
+    void rejectDispensing(DispenseRejectDTO dto);
 
     // ==================== 住院退药确认 ====================
 

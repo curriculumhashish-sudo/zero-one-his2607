@@ -60,6 +60,16 @@
                  OR m.py_str LIKE CONCAT('%', #{query.drugKeyword}, '%')
                  OR m.wb_str LIKE CONCAT('%', #{query.drugKeyword}, '%'))
         </if>
+        <if test="query.patientKeyword != null and query.patientKeyword != ''">
+            AND (p.name LIKE CONCAT('%', #{query.patientKeyword}, '%')
+                 OR p.py_str LIKE CONCAT('%', #{query.patientKeyword}, '%')
+                 OR p.wb_str LIKE CONCAT('%', #{query.patientKeyword}, '%'))
+        </if>
+        <if test="query.practitionerKeyword != null and query.practitionerKeyword != ''">
+            AND (practitioner.name LIKE CONCAT('%', #{query.practitionerKeyword}, '%')
+                 OR practitioner.py_str LIKE CONCAT('%', #{query.practitionerKeyword}, '%')
+                 OR practitioner.wb_str LIKE CONCAT('%', #{query.practitionerKeyword}, '%'))
+        </if>
         <if test="query.projectType != null and query.projectType != ''">
             AND r.rx_type_code = #{query.projectType}
         </if>

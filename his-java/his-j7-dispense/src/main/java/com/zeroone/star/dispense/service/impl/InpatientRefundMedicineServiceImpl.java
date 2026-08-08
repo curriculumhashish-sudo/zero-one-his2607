@@ -1,17 +1,27 @@
 package com.zeroone.star.dispense.service.impl;
 
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zeroone.star.dispense.entity.InventoryItem;
+import com.zeroone.star.dispense.entity.MedMedicationDispense;
 import com.zeroone.star.dispense.mapper.InpatientRefundMedicineMapper;
+import com.zeroone.star.dispense.mapper.InventoryItemMapper;
+import com.zeroone.star.dispense.mapper.MedMedicationDispenseMapper;
 import com.zeroone.star.dispense.service.IInpatientRefundMedicineService;
 import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j7.pharmacy.ReturnConfirmDTO;
 import com.zeroone.star.project.query.j7.dispense.InpatientRefundDetailQuery;
 import com.zeroone.star.project.query.j7.dispense.InpatientRefundPatientQuery;
 import com.zeroone.star.project.vo.j7.dispense.InpatientRefundDetailVO;
 import com.zeroone.star.project.vo.j7.dispense.InpatientRefundPatientVO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -35,6 +45,10 @@ public class InpatientRefundMedicineServiceImpl implements IInpatientRefundMedic
 
     @Resource
     private InpatientRefundMedicineMapper inpatientRefundMedicineMapper;
+    @Resource
+    private MedMedicationDispenseMapper medicationDispenseMapper;
+    @Resource
+    private InventoryItemMapper inventoryItemMapper;
 
     @Override
     public PageDTO<InpatientRefundPatientVO> queryPatientQueue(InpatientRefundPatientQuery query) {
@@ -98,5 +112,59 @@ public class InpatientRefundMedicineServiceImpl implements IInpatientRefundMedic
         }
         String trimmed = value.strip();
         return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    /**
+     * 确认退药（对勾选药品执行退药，同步回补药品库存）
+     * <p>
+     * 两步操作在同一事务中执行：
+     * 1. 更新供应请求状态为"已确认"，记录审批人和审批时间
+     * 2. 对勾选的药品回补库存：查询 wkf_inventory_item 找到对应库存记录，
+     *    将库存数量增加退药数量
+     * </p>
+     *
+     * @param dto 退药确认参数
+     */
+    @Override
+    @Transactional
+    public void confirmReturn(ReturnConfirmDTO dto) {
+        if (dto.getItemIds() == null || dto.getItemIds().isEmpty()) {
+            return;
+        }
+        // 1. 查询勾选的退药明细记录
+        List<MedMedicationDispense> returnItems = medicationDispenseMapper.selectList(
+                new LambdaQueryWrapper<MedMedicationDispense>()
+                        .in(MedMedicationDispense::getId, dto.getItemIds())
+                        .eq(MedMedicationDispense::getStatusEnum, "PENDING")
+        );
+        // 2. 逐条更新状态为已退药，并回补库存
+        for (MedMedicationDispense item : returnItems) {
+            medicationDispenseMapper.update(null,
+                    new LambdaUpdateWrapper<MedMedicationDispense>()
+                            .eq(MedMedicationDispense::getId, item.getId())
+                            .set(MedMedicationDispense::getStatusEnum, "REFUNDED")
+                            .set(MedMedicationDispense::getDispenseTime, LocalDateTime.now())
+                            .set(MedMedicationDispense::getPractitionerId, dto.getOperator())
+            );
+            // 回补库存：根据物品表名、物品标识和批号查找库存记录
+            InventoryItem stock = inventoryItemMapper.selectOne(
+                    new LambdaQueryWrapper<InventoryItem>()
+                            .eq(InventoryItem::getItemTable, "med_medication_definition")
+                            .eq(InventoryItem::getItemId, item.getMedicationId())
+                            .eq(InventoryItem::getLotNumber, item.getLotNumber())
+            );
+            if (stock != null) {
+                BigDecimal returnQty = item.getDispenseQuantity() != null
+                        ? item.getDispenseQuantity()
+                        : (item.getQuantity() != null ? item.getQuantity() : BigDecimal.ZERO);
+                BigDecimal newQty = (stock.getQuantity() != null ? stock.getQuantity() : BigDecimal.ZERO)
+                        .add(returnQty);
+                inventoryItemMapper.update(null,
+                        new LambdaUpdateWrapper<InventoryItem>()
+                                .eq(InventoryItem::getId, stock.getId())
+                                .set(InventoryItem::getQuantity, newQty)
+                );
+            }
+        }
     }
 }

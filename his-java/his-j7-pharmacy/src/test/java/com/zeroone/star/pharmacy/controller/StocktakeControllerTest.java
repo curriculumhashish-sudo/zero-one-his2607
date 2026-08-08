@@ -7,10 +7,11 @@ import com.zeroone.star.pharmacy.entity.WkfSupplyRequest;
 import com.zeroone.star.pharmacy.mapper.WkfSupplyRequestMapper;
 import com.zeroone.star.pharmacy.service.IStocktakeService;
 import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j7.pharmacy.StocktakeDeleteDTO;
 import com.zeroone.star.project.dto.stocktake.StocktakeItemSaveDTO;
 import com.zeroone.star.project.dto.stocktake.StocktakeSaveDTO;
-import com.zeroone.star.project.dto.stocktake.StocktakeSubmitDTO;
 import com.zeroone.star.project.query.stocktake.StocktakeQuery;
+import com.zeroone.star.project.vo.j7.pharmacy.SupplyDocumentDeleteVO;
 import com.zeroone.star.project.vo.stocktake.StocktakeDetailVO;
 import com.zeroone.star.project.vo.stocktake.StocktakeListVO;
 import com.zeroone.star.project.vo.stocktake.StocktakeSaveVO;
@@ -194,7 +195,7 @@ class StocktakeControllerTest {
         }
 
         @Override
-        public String submitStocktake(StocktakeSubmitDTO dto) {
+        public SupplyDocumentDeleteVO deleteStocktake(StocktakeDeleteDTO dto) {
             throw new UnsupportedOperationException("not used in this test");
         }
     }

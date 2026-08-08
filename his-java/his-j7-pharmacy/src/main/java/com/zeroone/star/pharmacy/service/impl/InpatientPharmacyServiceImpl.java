@@ -11,7 +11,7 @@ import com.zeroone.star.pharmacy.mapper.WkfSupplyDeliveryMapper;
 import com.zeroone.star.pharmacy.mapper.WkfSupplyRequestMapper;
 import com.zeroone.star.pharmacy.service.IInpatientPharmacyService;
 import com.zeroone.star.project.dto.PageDTO;
-import com.zeroone.star.project.dto.j7.pharmacy.DispensingRejectDTO;
+import com.zeroone.star.project.dto.j7.dispense.DispenseRejectDTO;
 import com.zeroone.star.project.dto.j7.pharmacy.ReturnConfirmDTO;
 import com.zeroone.star.project.query.j7.pharmacy.PatientQueueQuery;
 import com.zeroone.star.project.vo.j7.pharmacy.DrugItemVO;
@@ -164,7 +164,7 @@ public class InpatientPharmacyServiceImpl implements IInpatientPharmacyService {
      */
     @Override
     @Transactional
-    public void rejectDispensing(DispensingRejectDTO dto) {
+    public void rejectDispensing(DispenseRejectDTO dto) {
         // 1. 更新指定请求：状态=已驳回，记录驳回原因
         wkfSupplyRequestMapper.update(null,
                 new LambdaUpdateWrapper<WkfSupplyRequest>()

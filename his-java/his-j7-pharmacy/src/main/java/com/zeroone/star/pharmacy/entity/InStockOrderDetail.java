@@ -33,6 +33,7 @@ public class InStockOrderDetail implements Serializable {
     private String pharmacyId;
 
     private Integer seqNo;
+    private String itemId;
     private String drugName;
     private String spec;
     private String manufacturer;
@@ -40,6 +41,7 @@ public class InStockOrderDetail implements Serializable {
     private BigDecimal unitPrice;
     private BigDecimal totalAmount;
     private String batchNo;
+    private String traceNo;
     private LocalDate expireDate;
     private String itemRemark;
 }

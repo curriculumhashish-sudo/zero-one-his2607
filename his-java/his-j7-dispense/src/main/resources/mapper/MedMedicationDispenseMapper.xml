@@ -61,7 +61,8 @@
         LEFT JOIN adm_practitioner prac ON prac.id = d.practitioner_id AND prac.is_deleted = 0
         <include refid="staySubQuery"/>
         WHERE d.is_deleted = 0
-        AND d.dispense_enum IN ('OUTPATIENT', 'INPATIENT')
+        AND UPPER(d.dispense_enum) = 'INPATIENT'
+        AND UPPER(e.class_enum) IN ('INPATIENT', 'IMP')
         AND d.summary_no IS NOT NULL
         <if test="summaryNo != null and summaryNo != ''">
             AND d.summary_no LIKE CONCAT('%', #{summaryNo}, '%')
@@ -94,6 +95,7 @@
         p.name AS patientName,
         stay.bed_no AS bedNo,
         d.medication_id AS medicationId,
+        md.bus_no AS drugCode,
         md.name AS drugName,
         md.total_volume AS spec,
         d.unit_code AS unit,
@@ -108,8 +110,122 @@
         LEFT JOIN adm_encounter e ON e.id = d.encounter_id AND e.is_deleted = 0
         <include refid="staySubQuery"/>
         WHERE d.is_deleted = 0
+        AND UPPER(d.dispense_enum) = 'INPATIENT'
         AND d.summary_no = #{summaryNo}
         ORDER BY p.name, md.name
+    </select>
+
+    <!-- 门诊退药：查询退药患者分页列表 -->
+    <select id="selectRefundPatientPage"
+            resultType="com.zeroone.star.project.vo.j7.dispense.PatientQueueVO">
+        SELECT
+        d.patient_id          AS patientId,
+        d.encounter_id        AS encounterId,
+        p.name                AS name,
+        TIMESTAMPDIFF(YEAR, p.birth_date, CURDATE()) AS age,
+        p.gender_enum         AS genderEnum,
+        p.phone               AS phone,
+        MAX(d.status_enum)    AS statusEnum,
+        d.dispense_enum       AS dispenseEnum,
+        COUNT(d.id)           AS drugCount,
+        MAX(d.created_at)     AS createdAt
+        FROM med_medication_dispense d
+        JOIN adm_patient p ON p.id = d.patient_id AND p.is_deleted = 0
+        WHERE d.is_deleted = 0
+        AND d.dispense_enum = 'REFUND'
+
+        <if test="query.patientId != null and query.patientId != ''">
+            AND d.patient_id = #{query.patientId}
+        </if>
+
+        <if test="query.encounterId != null and query.encounterId != ''">
+            AND d.encounter_id = #{query.encounterId}
+        </if>
+
+        <if test="query.statusEnum != null and query.statusEnum != ''">
+            AND d.status_enum = #{query.statusEnum}
+        </if>
+
+        <if test="query.name != null and query.name != ''">
+            AND p.name LIKE CONCAT('%', #{query.name}, '%')
+        </if>
+
+        <if test="query.startTime != null">
+            AND d.created_at <![CDATA[ >= ]]> #{query.startTime}
+        </if>
+
+        <if test="query.endTime != null">
+            AND d.created_at <![CDATA[ <= ]]> #{query.endTime}
+        </if>
+
+        GROUP BY d.encounter_id, d.patient_id, p.name, p.birth_date, p.gender_enum, p.phone, d.dispense_enum
+        ORDER BY MAX(d.created_at) DESC
+    </select>
+
+    <!-- 门诊退药：查询退药明细列表 -->
+    <select id="selectRefundDrugItems"
+            resultType="com.zeroone.star.project.vo.j7.dispense.PatientDrugItemVO">
+        SELECT
+        d.id AS id,
+        d.tenant_id AS tenantId,
+        d.bus_no AS busNo,
+        d.status_enum AS statusEnum,
+        d.dispense_enum AS dispenseEnum,
+        d.medication_id AS medicationId,
+        d.patient_id AS patientId,
+        d.encounter_id AS encounterId,
+        d.med_req_id AS medReqId,
+        d.quantity AS quantity,
+        d.unit_code AS unitCode,
+        d.dispense_quantity AS dispenseQuantity,
+        d.lot_number AS lotNumber,
+        d.preparer_id AS preparerId,
+        d.prepare_time AS prepareTime,
+        d.practitioner_id AS practitionerId,
+        d.dispense_time AS dispenseTime,
+        d.dosage_instruction AS dosageInstruction,
+        d.method_code AS methodCode,
+        d.frequency_code AS frequencyCode,
+        d.dose AS dose,
+        d.dose_unit_code AS doseUnitCode,
+        d.summary_no AS summaryNo,
+        md.name AS name,
+        md.merchandise_name AS merchandiseName,
+        md.category_code AS categoryCode,
+        md.total_volume AS totalVolume,
+        md.comprised_text AS comprisedText,
+        md.ingredient AS ingredient,
+        md.approval_number AS approvalNumber,
+        md.skin_test_flag AS skinTestFlag,
+        md.inject_flag AS injectFlag,
+        md.manufacturer_text AS manufacturerText,
+        md.antibiotic_flag AS antibioticFlag,
+        md.rx_flag AS rxFlag,
+        md.dose_form_code AS doseFormCode,
+        md.package_unit_code AS packageUnitCode,
+        md.py_str AS pyStr
+        FROM med_medication_dispense d
+        LEFT JOIN med_medication_definition md ON md.id = d.medication_id AND md.is_deleted = 0
+        WHERE d.is_deleted = 0
+        AND d.dispense_enum = 'REFUND'
+
+        <if test="query.patientId != null and query.patientId != ''">
+            AND d.patient_id = #{query.patientId}
+        </if>
+
+        <if test="query.encounterId != null and query.encounterId != ''">
+            AND d.encounter_id = #{query.encounterId}
+        </if>
+
+        <if test="query.statusEnum != null and query.statusEnum != ''">
+            AND d.status_enum = #{query.statusEnum}
+        </if>
+
+        <if test="query.busNo != null and query.busNo != ''">
+            AND d.bus_no = #{query.busNo}
+        </if>
+
+        ORDER BY d.created_at DESC
     </select>
 
 </mapper>

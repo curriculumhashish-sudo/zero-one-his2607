@@ -20,8 +20,6 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,13 +29,19 @@ import java.util.stream.Collectors;
  * 描述：门诊药房服务实现类
  * </p>
  * <p>
- * 功能说明：实现门诊拒绝退药业务功能。
+ * 功能说明：实现门诊退药业务功能，包括确认退药（回补库存）和拒绝退药。
  * 涉及的表包括：
  * - wkf_supply_request（供应请求表）：退药主单据，退药类型为"门诊退药"
  * - wkf_supply_delivery（供应交付表）：退药明细
+ * - wkf_inventory_item（库存项表）：库存记录，确认退药时回补库存数量
  * </p>
- * <p>版权：&copy;01星球</p>
- * <p>地址：01星球总部</p>
+ * <p>
+ * 版权：&copy;01星球
+ * </p>
+ * <p>
+ * 地址：01星球总部
+ * </p>
+ * 
  * @author 01star
  * @version 1.0.0
  */
@@ -95,8 +99,7 @@ public class OutpatientPharmacyServiceImpl implements IOutpatientPharmacyService
     public List<DrugItemVO> getReturnDrugItems(String returnId) {
         List<WkfSupplyDelivery> deliveries = wkfSupplyDeliveryMapper.selectList(
                 new LambdaQueryWrapper<WkfSupplyDelivery>()
-                        .eq(WkfSupplyDelivery::getRequestId, returnId)
-        );
+                        .eq(WkfSupplyDelivery::getRequestId, returnId));
         if (deliveries.isEmpty()) {
             return Collections.emptyList();
         }
@@ -109,84 +112,6 @@ public class OutpatientPharmacyServiceImpl implements IOutpatientPharmacyService
             vo.setBatchNo(item.getLotNumber());
             return vo;
         }).collect(Collectors.toList());
-    }
-
-    /**
-     * 执行确认退药（回补库存）
-     * <p>
-     * 根据勾选的药品明细ID列表，回补 wkf_inventory_item 表库存数量，
-     * 并更新 wkf_supply_request 表状态为"已完成"。
-     * 业务流程：
-     * 1. 校验退药单据存在且状态为"待处理"
-     * 2. 根据勾选的明细ID查询 wkf_supply_delivery 获取药品信息
-     * 3. 根据药品ID、批号、库房查询 wkf_inventory_item 库存项
-     * 4. 回补库存数量（增加 quantity）
-     * 5. 更新 wkf_supply_request 状态为"已完成"
-     * 6. 更新 wkf_supply_delivery 状态为"已完成"
-     * </p>
-     *
-     * @param dto 退药确认参数
-     */
-    @Override
-    @Transactional
-    public void confirmReturn(ReturnConfirmDTO dto) {
-        // 1. 查询退药请求
-        WkfSupplyRequest request = wkfSupplyRequestMapper.selectById(dto.getReturnId());
-        if (request == null) {
-            throw new IllegalArgumentException("退药单据不存在");
-        }
-        if (!"RETURN_OUTPATIENT".equals(request.getTypeEnum())) {
-            throw new IllegalArgumentException("单据类型错误");
-        }
-        if (!"PENDING".equals(request.getStatusEnum())) {
-            throw new IllegalArgumentException("单据状态错误，只有待处理状态才能确认退药");
-        }
-
-        // 2. 根据勾选的明细ID查询交付记录
-        List<WkfSupplyDelivery> deliveries = wkfSupplyDeliveryMapper.selectBatchIds(dto.getItemIds());
-        if (deliveries.isEmpty()) {
-            throw new IllegalArgumentException("退药明细为空");
-        }
-
-        // 3. 回补库存
-        for (WkfSupplyDelivery delivery : deliveries) {
-            WkfInventoryItem inventoryItem = wkfInventoryItemMapper.findByItemLotAndLocation(
-                    delivery.getItemId(),
-                    delivery.getLotNumber(),
-                    request.getSourceLocationId() != null ? request.getSourceLocationId() : request.getPurposeLocationId()
-            );
-
-            if (inventoryItem != null) {
-                // 回补库存数量
-                BigDecimal delta = delivery.getQuantity() != null ? delivery.getQuantity() : BigDecimal.ZERO;
-                int updated = wkfInventoryItemMapper.updateQuantity(
-                        inventoryItem.getId(),
-                        delta,
-                        inventoryItem.getVersion(),
-                        dto.getOperator()
-                );
-                if (updated == 0) {
-                    throw new IllegalArgumentException("库存更新失败，请重试");
-                }
-            }
-        }
-
-        // 4. 更新 wkf_supply_request 状态为"已完成"
-        wkfSupplyRequestMapper.update(null,
-                new LambdaUpdateWrapper<WkfSupplyRequest>()
-                        .eq(WkfSupplyRequest::getId, dto.getReturnId())
-                        .set(WkfSupplyRequest::getStatusEnum, "COMPLETED")
-                        .set(WkfSupplyRequest::getApprovalTime, LocalDateTime.now())
-                        .set(WkfSupplyRequest::getUpdatedBy, dto.getOperator())
-        );
-
-        // 5. 更新 wkf_supply_delivery 状态为"已完成"
-        wkfSupplyDeliveryMapper.update(null,
-                new LambdaUpdateWrapper<WkfSupplyDelivery>()
-                        .in(WkfSupplyDelivery::getId, dto.getItemIds())
-                        .set(WkfSupplyDelivery::getStatusEnum, "COMPLETED")
-                        .set(WkfSupplyDelivery::getReceiveTime, LocalDateTime.now())
-        );
     }
 
     /**
@@ -206,7 +131,92 @@ public class OutpatientPharmacyServiceImpl implements IOutpatientPharmacyService
                         .eq(WkfSupplyRequest::getId, dto.getReturnId())
                         .eq(WkfSupplyRequest::getTypeEnum, "RETURN_OUTPATIENT")
                         .set(WkfSupplyRequest::getStatusEnum, "REJECTED")
-                        .set(WkfSupplyRequest::getReason, dto.getRejectReason())
-        );
+                        .set(WkfSupplyRequest::getReason, dto.getRejectReason()));
+    }
+
+    /**
+     * 执行确认退药（回补库存）
+     * <p>
+     * 药师核对退药明细后点击确认退药，在一个事务内完成以下操作：
+     * </p>
+     * <ol>
+     *   <li><b>校验退药主单据</b>：查询 wkf_supply_request，确认单据存在、类型为 RETURN_OUTPATIENT、状态为 PENDING</li>
+     *   <li><b>校验退药明细</b>：批量查询 wkf_supply_delivery，确认勾选的明细属于该退药单</li>
+     *   <li><b>回补库存</b>：遍历每条明细，按 item_id + lot_number + purpose_location_id 匹配
+     *       wkf_inventory_item 库存记录，调用 updateQuantity（乐观锁）增加库存数量</li>
+     *   <li><b>更新状态</b>：将 wkf_supply_request.status_enum 从 PENDING 更新为 COMPLETED</li>
+     * </ol>
+     *
+     * @param dto 退药确认参数（退药单ID、患者信息、勾选的药品明细ID列表、操作人）
+     * @throws IllegalArgumentException 单据不存在、状态不合法、明细不匹配、库存记录缺失或并发冲突时抛出
+     */
+    @Override
+    @Transactional
+    public void confirmReturn(ReturnConfirmDTO dto) {
+        // ========== 1. 校验退药主单据 ==========
+        WkfSupplyRequest supplyRequest = wkfSupplyRequestMapper.selectById(dto.getReturnId());
+        if (supplyRequest == null) {
+            throw new IllegalArgumentException("退药单据不存在");
+        }
+        if (!"RETURN_OUTPATIENT".equals(supplyRequest.getTypeEnum())) {
+            throw new IllegalArgumentException("该单据不是门诊退药单据");
+        }
+        if (!"PENDING".equals(supplyRequest.getStatusEnum())) {
+            throw new IllegalArgumentException("该退药单据已处理，不允许重复确认");
+        }
+
+        // ========== 2. 校验退药明细 ==========
+        if (dto.getItemIds() == null || dto.getItemIds().isEmpty()) {
+            throw new IllegalArgumentException("请至少勾选一条退药明细");
+        }
+        List<WkfSupplyDelivery> deliveries = wkfSupplyDeliveryMapper.selectBatchIds(dto.getItemIds());
+        if (deliveries.isEmpty()) {
+            throw new IllegalArgumentException("退药明细不存在");
+        }
+        for (WkfSupplyDelivery delivery : deliveries) {
+            if (!dto.getReturnId().equals(delivery.getRequestId())) {
+                throw new IllegalArgumentException("退药明细 " + delivery.getId() + " 不属于该退药单");
+            }
+        }
+
+        // ========== 3. 遍历明细，回补库存 ==========
+        // 以退药主单据的 purpose_location_id 作为库存库房定位依据
+        String locationId = supplyRequest.getPurposeLocationId();
+        for (WkfSupplyDelivery delivery : deliveries) {
+            // 3a. 按药品ID + 批号 + 库房定位库存记录
+            WkfInventoryItem inventoryItem = wkfInventoryItemMapper.findByItemLotAndLocation(
+                    delivery.getItemId(),
+                    delivery.getLotNumber(),
+                    locationId);
+            if (inventoryItem == null) {
+                throw new IllegalArgumentException(
+                        "未找到药品库存记录：药品ID=" + delivery.getItemId()
+                                + "，批号=" + delivery.getLotNumber()
+                                + "，库房=" + locationId);
+            }
+            // 3b. 乐观锁更新库存数量（delta 为正数 = 回补）
+            int inventoryUpdated = wkfInventoryItemMapper.updateQuantity(
+                    inventoryItem.getId(),
+                    delivery.getQuantity(),      // 退药数量，正数表示库存增加
+                    inventoryItem.getVersion(),  // 乐观锁版本号
+                    dto.getOperator());
+            if (inventoryUpdated == 0) {
+                throw new IllegalArgumentException(
+                        "库存更新失败（并发冲突），请重试：药品ID=" + delivery.getItemId()
+                                + "，批号=" + delivery.getLotNumber());
+            }
+        }
+
+        // ========== 4. 更新退药主单据状态为"已完成" ==========
+        int requestUpdated = wkfSupplyRequestMapper.update(null,
+                new LambdaUpdateWrapper<WkfSupplyRequest>()
+                        .eq(WkfSupplyRequest::getId, dto.getReturnId())
+                        .eq(WkfSupplyRequest::getTypeEnum, "RETURN_OUTPATIENT")
+                        .eq(WkfSupplyRequest::getStatusEnum, "PENDING")
+                        .set(WkfSupplyRequest::getStatusEnum, "COMPLETED")
+                        .set(WkfSupplyRequest::getUpdatedBy, dto.getOperator()));
+        if (requestUpdated == 0) {
+            throw new IllegalArgumentException("退药单据状态更新失败，可能已被其他操作修改");
+        }
     }
 }
