@@ -29,7 +29,12 @@ public class CaptchaServiceImpl implements ICaptchaService {
         CaptchaDo result = new CaptchaDo();
         result.setUuid(UUID.randomUUID().toString().replace("-", ""));
         result.setCode(captcha.text());
-        result.setImageBase64(captcha.toBase64());
+        try {
+            result.setImageBase64(captcha.toBase64());
+        } catch (Exception e) {
+            log.error("验证码图片生成失败，异常信息：{}", e.getMessage(), e);
+            throw new RuntimeException("验证码图片生成失败，请稍后重试", e);
+        }
 
         try {
             stringRedisTemplate.opsForValue().set(

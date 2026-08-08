@@ -13,6 +13,13 @@ server:
 spring:
   application:
     name: ${sn.auth}
+  cloud:
+    nacos:
+      discovery:
+        # Docker 容器部署时默认注册容器内网 IP（如 172.17.0.x），外部服务无法访问；
+        # 必须指定宿主机公网 IP（120.55.15.33），与容器端口映射 -p 10400:10400 配合使用。
+        # 本地开发启动如需覆盖：设置环境变量 NACOS_DISCOVERY_IP 或加 -Dspring.cloud.nacos.discovery.ip=<本机IP>
+        ip: ${NACOS_DISCOVERY_IP:120.55.15.33}
   session:
     # session超时时间
     timeout: 3600s
