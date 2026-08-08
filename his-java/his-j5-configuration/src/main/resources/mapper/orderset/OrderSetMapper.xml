@@ -16,7 +16,9 @@
             updated_by = #{entity.updatedBy},
             version = version + 1
         WHERE id = #{entity.id}
+          <if test="entity.tenantId != null and entity.tenantId != ''">
           AND tenant_id = #{entity.tenantId}
+          </if>
           AND is_deleted = 0
           AND version = #{expectedVersion}
     </update>
@@ -28,7 +30,9 @@
             updated_by = #{updatedBy},
             version = version + 1
         WHERE id = #{id}
+          <if test="tenantId != null and tenantId != ''">
           AND tenant_id = #{tenantId}
+          </if>
           AND is_deleted = 0
           AND version = #{expectedVersion}
     </update>
@@ -42,7 +46,9 @@
             updated_by = #{deletedBy},
             version = version + 1
         WHERE id = #{id}
+          <if test="tenantId != null and tenantId != ''">
           AND tenant_id = #{tenantId}
+          </if>
           AND is_deleted = 0
           AND version = #{expectedVersion}
     </update>

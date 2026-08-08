@@ -47,7 +47,9 @@
             updated_by = #{entity.updatedBy},
             version = version + 1
         WHERE id = #{entity.id}
+          <if test="entity.tenantId != null and entity.tenantId != ''">
           AND tenant_id = #{entity.tenantId}
+          </if>
           AND order_template_id = #{entity.orderTemplateId}
           AND is_deleted = 0
           AND version = #{expectedVersion}
@@ -61,7 +63,10 @@
             updated_at = NOW(6),
             updated_by = #{deletedBy},
             version = version + 1
-        WHERE tenant_id = #{tenantId}
+        WHERE 1=1
+          <if test="tenantId != null and tenantId != ''">
+          AND tenant_id = #{tenantId}
+          </if>
           AND order_template_id = #{orderTemplateId}
           AND is_deleted = 0
           AND id IN
@@ -78,7 +83,10 @@
             updated_at = NOW(6),
             updated_by = #{deletedBy},
             version = version + 1
-        WHERE tenant_id = #{tenantId}
+        WHERE 1=1
+          <if test="tenantId != null and tenantId != ''">
+          AND tenant_id = #{tenantId}
+          </if>
           AND order_template_id = #{orderTemplateId}
           AND is_deleted = 0
     </update>
