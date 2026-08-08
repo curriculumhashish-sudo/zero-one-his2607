@@ -42,6 +42,7 @@
 #include"cycleCtrl2/RefundController.h"
 #include"cycleCtrl2/PrescriptionController.h"
 #include"cycleCtrl2/AdmissionController.h"
+#include"cycleCtrl2/InpatientAdmissionController.h"
 
 
 #include "controller/prescription3/Prescription3Controller.h"
@@ -90,6 +91,7 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(Refund2Controller);
 	ROUTER_SIMPLE_BIND(PrescriptionController2);
 	ROUTER_SIMPLE_BIND(Admission2Controller);
+	ROUTER_SIMPLE_BIND(InpatientAdmissionController);
 
 
 	ROUTER_SIMPLE_BIND(Prescription3Controller);

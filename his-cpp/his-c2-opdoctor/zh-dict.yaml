@@ -1,4 +1,4 @@
-title:
+﻿title:
  tags:
   text: "周期循环"
 chinapres1:
@@ -75,6 +75,16 @@ queue:
   startDate: "就诊时间"
   Status: "待诊/在诊/完诊"
   finishStatus: "完成状态"
+  status:
+   arrived: "待诊"
+   inProgress: "在诊"
+   onHold: "暂离"
+   finished: "完诊"
+   unknown: "未知"
+  gender:
+   male: "男性"
+   female: "女性"
+   unknown: "未知"
 
 rece:
  dto:
@@ -123,6 +133,11 @@ finish:
   visitStatus: "其他状态"
  get:
   summary: "完诊"
+ error:
+  encounterNotFound: "就诊记录不存在"
+  alreadyFinished: "该患者已经完诊，请勿重复操作"
+  statusNotAllowed: "当前就诊状态不允许执行完诊"
+  updateFailed: "完诊操作失败"
 
 leave:
  dto:
@@ -138,6 +153,10 @@ leave:
   visitStatus: "其他状态"
  get:
   summary: "暂离"
+ error:
+  encounterNotFound: "就诊记录不存在"
+  alreadyLeftOrFinished: "该患者已离院或已完诊，不能重复操作"
+  updateFailed: "离院操作失败"
 
 cyclectrl2:
  test:
@@ -192,6 +211,11 @@ cyclectrl2:
   admissionType: "入院类型"
   admissionMethod: "入院方式"
   priority: "病情优先级"
+  listWards: "查询可选入院病区"
+  departmentId: "入院科室ID"
+  wardId: "病区ID"
+  wardName: "病区名称"
+  deptNotFound: "入院科室不存在或已停用"
 
 diagnose:
  add:
