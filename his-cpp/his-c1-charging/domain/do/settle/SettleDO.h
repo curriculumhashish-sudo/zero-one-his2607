@@ -5,7 +5,7 @@
 
 #include "../DoInclude.h"
 
-// ×¡Ôº½áËãÉú³ÉµÄÖ§¸¶Á÷Ë®
+// ä½é™¢ç»“ç®—ç”Ÿæˆçš„æ”¯ä»˜æµæ°´
 class SettlementPaymentDO : public BaseDO {
 	MYSQL_SYNTHESIZE(std::string, id, Id);
 	MYSQL_SYNTHESIZE(std::string, tenantId, TenantId);
@@ -83,7 +83,7 @@ public:
 
 typedef std::shared_ptr<SettlementPaymentDO> PtrSettlementPaymentDO;
 
-// ×¡Ôº½áËãÉú³ÉµÄÖ§¸¶ÇşµÀÃ÷Ï¸
+// ä½é™¢ç»“ç®—ç”Ÿæˆçš„æ”¯ä»˜æ¸ é“æ˜ç»†
 class SettlementPaymentDetailDO : public BaseDO {
 	MYSQL_SYNTHESIZE(std::string, id, Id);
 	MYSQL_SYNTHESIZE(std::string, tenantId, TenantId);
@@ -145,7 +145,7 @@ public:
 
 typedef std::shared_ptr<SettlementPaymentDetailDO> PtrSettlementPaymentDetailDO;
 
-// ×¡Ôº½áËãÉú³ÉµÄ·¢Æ±
+// ä½é™¢ç»“ç®—ç”Ÿæˆçš„å‘ç¥¨
 class SettlementInvoiceDO : public BaseDO {
 	MYSQL_SYNTHESIZE(std::string, id, Id);
 	MYSQL_SYNTHESIZE(std::string, tenantId, TenantId);
@@ -199,7 +199,7 @@ public:
 
 typedef std::shared_ptr<SettlementInvoiceDO> PtrSettlementInvoiceDO;
 
-// ÓÃÓÚ½áËãĞ£Ñé¼°×´Ì¬¸üĞÂµÄÊÕ·ÑÏîÄ¿ÊµÌå
+// ç”¨äºç»“ç®—æ ¡éªŒåŠçŠ¶æ€æ›´æ–°çš„æ”¶è´¹é¡¹ç›®å®ä½“
 class SettlementChargeItemDO : public BaseDO {
 	MYSQL_SYNTHESIZE(std::string, id, Id);
 	MYSQL_SYNTHESIZE(std::string, tenantId, TenantId);
@@ -231,7 +231,7 @@ public:
 
 typedef std::shared_ptr<SettlementChargeItemDO> PtrSettlementChargeItemDO;
 
-// ÓÃÓÚĞ£Ñé½áËã¹éÊô¹ØÏµ¼°½áÕË×´Ì¬µÄ¾ÍÕïÕË»§ÊµÌå
+// ç”¨äºæ ¡éªŒç»“ç®—å½’å±å…³ç³»åŠç»“è´¦çŠ¶æ€çš„å°±è¯Šè´¦æˆ·å®ä½“
 class SettlementAccountDO : public BaseDO {
 	MYSQL_SYNTHESIZE(std::string, id, Id);
 	MYSQL_SYNTHESIZE(std::string, tenantId, TenantId);
@@ -267,7 +267,7 @@ public:
 
 typedef std::shared_ptr<SettlementAccountDO> PtrSettlementAccountDO;
 
-// Ö§¸¶Á÷Ë®ÓëÒ½±£ÕıÊ½½áËã¼ÇÂ¼µÄ¹ØÁªÊµÌå
+// æ”¯ä»˜æµæ°´ä¸åŒ»ä¿æ­£å¼ç»“ç®—è®°å½•çš„å…³è”å®ä½“
 class SettlementYbLinkDO : public BaseDO {
 	MYSQL_SYNTHESIZE(std::string, id, Id);
 	MYSQL_SYNTHESIZE(std::string, reconciliationId, ReconciliationId);
@@ -305,7 +305,7 @@ public:
 
 typedef std::shared_ptr<SettlementYbLinkDO> PtrSettlementYbLinkDO;
 
-// ÕıÊ½½áËãÊ¹ÓÃµÄ×¡ÔºÒ½±£Ô¤½áËã¼ÇÂ¼
+// æ­£å¼ç»“ç®—ä½¿ç”¨çš„ä½é™¢åŒ»ä¿é¢„ç»“ç®—è®°å½•
 class InpatientPreSettleDO : public BaseDO {
 	MYSQL_SYNTHESIZE(std::string, id, Id);
 	MYSQL_SYNTHESIZE(std::string, paymentDraftId, PaymentDraftId);
@@ -383,7 +383,7 @@ public:
 
 typedef std::shared_ptr<InpatientPreSettleDO> PtrInpatientPreSettleDO;
 
-// ×¡ÔºÒ½±£ÕıÊ½½áËã¼ÇÂ¼
+// ä½é™¢åŒ»ä¿æ­£å¼ç»“ç®—è®°å½•
 class InpatientYbSettlementRecordDO : public BaseDO {
 	MYSQL_SYNTHESIZE(std::string, id, Id);
 	MYSQL_SYNTHESIZE(std::string, contractId, ContractId);

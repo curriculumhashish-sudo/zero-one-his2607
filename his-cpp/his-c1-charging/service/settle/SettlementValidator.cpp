@@ -69,6 +69,19 @@ namespace {
 			30, 31, 30, 31, 31, 30, 31, 30, 31};
 		return day >= 1 && day <= daysInMonth[month - 1];
 	}
+
+	// 校验yyyy-MM-dd或yyyy-MM-dd HH:mm:ss格式的日期时间
+	bool isValidDateOrDateTime(const std::string &value) {
+		if (value.size() == 10) {
+			return isValidDateTime(value + " 00:00:00");
+		}
+		return isValidDateTime(value);
+	}
+
+	// 日期时间统一补全到yyyy-MM-dd HH:mm:ss格式，便于字符串比较
+	std::string normalizeDateTime(const std::string &value) {
+		return value.size() == 10 ? value + " 00:00:00" : value;
+	}
 }
 
 std::string SettlementValidator::validateCostDetailQuery(
@@ -91,6 +104,28 @@ std::string SettlementValidator::validateCostDetailQuery(
 		"ALL", "DRAFT", "UNSETTLED", "SETTLED", "REFUNDED"};
 	if (!isAllowedValue(statusEnum, allowedStatuses)) {
 		return ZH_WORDS_GETTER("ovo.charging.settle.cost_status_invalid");
+	}
+
+	// 显示模式校验
+	const std::string presentationMode = query->presentationMode.getValue("DETAIL");
+	const std::set<std::string> allowedPresentationModes = {
+		"SUMMARY", "DETAIL"};
+	if (!isAllowedValue(presentationMode, allowedPresentationModes)) {
+		return ZH_WORDS_GETTER("ovo.charging.settle.cost_presentation_mode_invalid");
+	}
+
+	// 费用日期区间校验
+	const std::string chargeDateFrom = query->chargeDateFrom.getValue("");
+	const std::string chargeDateTo = query->chargeDateTo.getValue("");
+	if (!chargeDateFrom.empty() && !isValidDateOrDateTime(chargeDateFrom)) {
+		return ZH_WORDS_GETTER("ovo.charging.settle.charge_date_invalid");
+	}
+	if (!chargeDateTo.empty() && !isValidDateOrDateTime(chargeDateTo)) {
+		return ZH_WORDS_GETTER("ovo.charging.settle.charge_date_invalid");
+	}
+	if (!chargeDateFrom.empty() && !chargeDateTo.empty() &&
+		normalizeDateTime(chargeDateFrom) > normalizeDateTime(chargeDateTo)) {
+		return ZH_WORDS_GETTER("ovo.charging.settle.charge_date_range_invalid");
 	}
 	return "";
 }
@@ -129,6 +164,20 @@ std::string SettlementValidator::validateSettleHistoryQuery(
 		"ALL", "CONFIRMED", "SUCCESS", "REFUNDED", "CANCELLED"};
 	if (!isAllowedValue(statusEnum, allowedStatuses)) {
 		return ZH_WORDS_GETTER("ovo.charging.settle.history_status_invalid");
+	}
+
+	// 支付流水主键筛选校验
+	const std::string paymentId = query->paymentId.getValue("");
+	if (paymentId.size() > 64) {
+		return ZH_WORDS_GETTER("ovo.charging.settle.payment_id_too_long");
+	}
+
+	// 显示模式校验
+	const std::string presentationMode = query->presentationMode.getValue("DETAIL");
+	const std::set<std::string> allowedPresentationModes = {
+		"SUMMARY", "DETAIL"};
+	if (!isAllowedValue(presentationMode, allowedPresentationModes)) {
+		return ZH_WORDS_GETTER("ovo.charging.settle.history_presentation_mode_invalid");
 	}
 	return "";
 }
@@ -235,6 +284,24 @@ std::string SettlementValidator::validateSettleRequest(
 	const std::string remark = dto->remark.getValue("");
 	if (remark.size() > 255) {
 		return ZH_WORDS_GETTER("ovo.charging.settle.remark_too_long");
+	}
+
+	// 预结算草稿标识校验
+	const std::string paymentDraftId = dto->paymentDraftId.getValue("");
+	if (paymentDraftId.size() > 64) {
+		return ZH_WORDS_GETTER("ovo.charging.settle.payment_draft_id_too_long");
+	}
+
+	// 医保预结算标识校验
+	const std::string ybPreSettleId = dto->ybPreSettleId.getValue("");
+	if (ybPreSettleId.size() > 64) {
+		return ZH_WORDS_GETTER("ovo.charging.settle.yb_pre_settle_id_too_long");
+	}
+
+	// 医保收费批次号校验
+	const std::string ybChrgBchno = dto->ybChrgBchno.getValue("");
+	if (ybChrgBchno.size() > 64) {
+		return ZH_WORDS_GETTER("ovo.charging.settle.yb_chrg_bchno_too_long");
 	}
 	return "";
 }

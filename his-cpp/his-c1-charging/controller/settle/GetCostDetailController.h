@@ -28,13 +28,12 @@
 
 #define API_TAG ZH_WORDS_GETTER("charging.settle.tag")
 
-class GetCostDetailController : public oatpp::web::server::api::ApiController
-{
+class GetCostDetailController : public oatpp::web::server::api::ApiController {
 	API_ACCESS_DECLARE(GetCostDetailController);
 
 public:
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(
-		ZH_WORDS_GETTER("ovo.charging.settle.GetCostDetail.summary"),
+		ZH_WORDS_GETTER("ovo.charging.settle.get_cost_detail_summary"),
 		getCostDetail,
 		GetCostDetailQuery,
 		GetCostDetailJsonVO::Wrapper,
@@ -42,7 +41,7 @@ public:
 
 	API_HANDLER_ENDPOINT_QUERY_AUTH(
 		API_M_GET,
-		"/charging/settle/getcostdetail",
+		"/charging/settle/getCostDetail",
 		getCostDetail,
 		GetCostDetailQuery,
 		execGetCostDetail(query));

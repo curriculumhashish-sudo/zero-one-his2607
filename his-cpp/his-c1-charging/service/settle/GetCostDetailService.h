@@ -6,10 +6,10 @@
 #include "domain/query/settle/GetCostDetailQuery.h"
 #include "domain/dto/settle/GetCostDetailDTO.h"
 
-// »¼Õß×¡Ôº·ÑÓÃÃ÷Ï¸ÒµÎñ·şÎñ
+// æ‚£è€…ä½é™¢è´¹ç”¨æ˜ç»†ä¸šåŠ¡æœåŠ¡
 class GetCostDetailService {
 public:
-	// »ñÈ¡»¼Õß±¾´Î×¡ÔºµÄ·ÑÓÃ»ã×Ü¼°Ã÷Ï¸
+	// è·å–æ‚£è€…æœ¬æ¬¡ä½é™¢çš„è´¹ç”¨æ±‡æ€»åŠæ˜ç»†
 	GetCostDetailDTO::Wrapper getCostDetail(
 		const GetCostDetailQuery::Wrapper &query);
 };

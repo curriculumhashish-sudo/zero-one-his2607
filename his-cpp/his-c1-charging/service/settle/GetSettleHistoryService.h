@@ -6,10 +6,10 @@
 #include "domain/query/settle/GetSettleHistoryQuery.h"
 #include "domain/dto/settle/GetSettleHistoryDTO.h"
 
-// »¼ÕßÀúÊ·½áËã¼ÇÂ¼ÒµÎñ·şÎñ
+// æ‚£è€…å†å²ç»“ç®—è®°å½•ä¸šåŠ¡æœåŠ¡
 class GetSettleHistoryService {
 public:
-	// ·ÖÒ³»ñÈ¡»¼ÕßÀúÊ·½áËã¼ÇÂ¼¼°Ö§¸¶Ã÷Ï¸
+	// åˆ†é¡µè·å–æ‚£è€…å†å²ç»“ç®—è®°å½•åŠæ”¯ä»˜æ˜ç»†
 	GetSettleHistoryPageDTO::Wrapper getSettleHistory(
 		const GetSettleHistoryQuery::Wrapper &query);
 };

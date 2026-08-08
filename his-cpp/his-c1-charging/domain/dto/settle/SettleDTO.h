@@ -15,6 +15,14 @@ class SettlePaymentDTO : public oatpp::DTO {
 	API_DTO_FIELD_DEFAULT(String, payTransNo, ZH_WORDS_GETTER("ovo.charging.settle.pay_trans_no"));
 };
 
+// 扫码支付回执，仅扫码支付时传入
+// 类名带Settle前缀，避免与门诊收费模块的ClientScanResultDTO冲突
+class SettleClientScanResultDTO : public oatpp::DTO {
+	DTO_INIT(SettleClientScanResultDTO, DTO);
+
+	// 预留字段，暂不展开
+};
+
 class SettleRequestDTO : public oatpp::DTO {
 	DTO_INIT(SettleRequestDTO, DTO);
 
@@ -27,6 +35,10 @@ class SettleRequestDTO : public oatpp::DTO {
 	API_DTO_FIELD_DEFAULT(String, contractNo, ZH_WORDS_GETTER("ovo.charging.settle.contract_no"));
 	API_DTO_FIELD_REQUIRE(String, billDate, ZH_WORDS_GETTER("ovo.charging.settle.bill_date"), true);
 	API_DTO_FIELD_DEFAULT(String, remark, ZH_WORDS_GETTER("ovo.charging.settle.remark"));
+	API_DTO_FIELD_DEFAULT(String, paymentDraftId, ZH_WORDS_GETTER("ovo.charging.settle.payment_draft_id"));
+	API_DTO_FIELD_DEFAULT(String, ybPreSettleId, ZH_WORDS_GETTER("ovo.charging.settle.yb_pre_settle_id"));
+	API_DTO_FIELD_DEFAULT(String, ybChrgBchno, ZH_WORDS_GETTER("ovo.charging.settle.yb_chrg_bchno"));
+	API_DTO_FIELD_DEFAULT(Object<SettleClientScanResultDTO>, clientScanResult, ZH_WORDS_GETTER("ovo.charging.settle.client_scan_result"));
 
 public:
 	SettleRequestDTO() {

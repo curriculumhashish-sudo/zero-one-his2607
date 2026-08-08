@@ -8,24 +8,28 @@
 #include <string>
 #include <vector>
 #include "BaseDAO.h"
+#include "domain/do/settle/GetCostDetailDO.h"
 #include "domain/do/settle/GetSettleHistoryDO.h"
 #include "domain/query/settle/GetSettleHistoryQuery.h"
 
-// »ñÈ¡»¼ÕßÀúÊ·½áËã¼ÇÂ¼µÄÊı¾İ·ÃÎÊ¶ÔÏó
+// è·å–æ‚£è€…å†å²ç»“ç®—è®°å½•çš„æ•°æ®è®¿é—®å¯¹è±¡
 class GetSettleHistoryDAO : public BaseDAO {
 private:
-	// ¹¹½¨ÀúÊ·½áËã¼ÇÂ¼µÄ¶¯Ì¬²éÑ¯Ìõ¼ş
+	// æ„å»ºå†å²ç»“ç®—è®°å½•çš„åŠ¨æ€æŸ¥è¯¢æ¡ä»¶
 	inline std::string queryConditionBuilder(const GetSettleHistoryQuery::Wrapper &query, SqlParams &params);
 
 public:
-	// Í³¼Æ·ûºÏÌõ¼şµÄÀúÊ·½áËã¼ÇÂ¼ÊıÁ¿
+	// ç»Ÿè®¡ç¬¦åˆæ¡ä»¶çš„å†å²ç»“ç®—è®°å½•æ•°é‡
 	uint64_t count(const GetSettleHistoryQuery::Wrapper &query);
 
-	// ·ÖÒ³²éÑ¯ÀúÊ·½áËã¼ÇÂ¼
+	// åˆ†é¡µæŸ¥è¯¢å†å²ç»“ç®—è®°å½•
 	std::list<PtrGetSettleHistoryDO> selectWithPage(const GetSettleHistoryQuery::Wrapper &query);
 
-	// ÅúÁ¿²éÑ¯¶àÌõ½áËã¼ÇÂ¼µÄÖ§¸¶Ã÷Ï¸£¬¹©ÒµÎñ²ã°´½áËãÖ÷¼ü×é×°
+	// æ‰¹é‡æŸ¥è¯¢å¤šæ¡ç»“ç®—è®°å½•çš„æ”¯ä»˜æ˜ç»†ï¼Œä¾›ä¸šåŠ¡å±‚æŒ‰ç»“ç®—ä¸»é”®ç»„è£…
 	std::list<PtrSettleHistoryPaymentDetailDO> selectPaymentDetails(const std::vector<std::string> &settlementIds);
+
+	// æŒ‰æ”¶è´¹æ˜ç»†ä¸»é”®æ‰¹é‡æŸ¥è¯¢ç»“ç®—è´¹ç”¨æ˜ç»†ï¼Œä¾›ä¸šåŠ¡å±‚ç»„è£…æ˜ç»†è¡Œå’Œåˆ†ç±»æ±‡æ€»
+	std::list<PtrCostDetailItemDO> selectChargeItemsByIds(const std::vector<std::string> &chargeItemIds);
 };
 
 #endif

@@ -6,7 +6,7 @@
 #include "Mapper.h"
 #include "domain/do/settle/GetCostDetailDO.h"
 
-// 患者住院费用汇总结果映射器
+// 鎮ｈ�呬綇闄㈣垂鐢ㄦ眹鎬荤粨鏋滄槧灏勫櫒
 class GetCostDetailMapper : public Mapper<PtrGetCostDetailDO>
 {
 public:
@@ -24,7 +24,7 @@ public:
 	}
 };
 
-// 患者住院费用明细结果映射器
+// 鎮ｈ�呬綇闄㈣垂鐢ㄦ槑缁嗙粨鏋滄槧灏勫櫒
 class CostDetailItemMapper : public Mapper<PtrCostDetailItemDO>
 {
 public:

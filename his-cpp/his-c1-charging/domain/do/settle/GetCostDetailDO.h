@@ -5,8 +5,8 @@
 
 #include "../DoInclude.h"
 
-// »¼Õß±¾´Î×¡Ôº·ÑÓÃ»ã×ÜÖ»¶ÁÍ¶Ó°
-// Êı¾İÓÉ adm_patient¡¢adm_encounter ºÍ adm_charge_item ÁªºÏ²éÑ¯µÃµ½£¬Òò´Ë²»°ó¶¨µ¥ÕÅÊı¾İ¿â±í
+// æ‚£è€…æœ¬æ¬¡ä½é™¢è´¹ç”¨æ±‡æ€»åªè¯»æŠ•å½±
+// æ•°æ®ç”± adm_patientã€adm_encounter å’Œ adm_charge_item è”åˆæŸ¥è¯¢å¾—åˆ°ï¼Œå› æ­¤ä¸ç»‘å®šå•å¼ æ•°æ®åº“è¡¨
 class GetCostDetailDO : public BaseDO {
 	MYSQL_SYNTHESIZE(std::string, patientId, PatientId);
 	MYSQL_SYNTHESIZE(std::string, patientName, PatientName);
@@ -30,8 +30,8 @@ public:
 
 typedef std::shared_ptr<GetCostDetailDO> PtrGetCostDetailDO;
 
-// µ¥Ìõ×¡Ôº·ÑÓÃÃ÷Ï¸Ö»¶ÁÍ¶Ó°
-// Êı¾İÓÉ adm_charge_item¡¢adm_charge_item_definition¡¢adm_organization ºÍ adm_practitioner ÁªºÏ²éÑ¯µÃµ½
+// å•æ¡ä½é™¢è´¹ç”¨æ˜ç»†åªè¯»æŠ•å½±
+// æ•°æ®ç”± adm_charge_itemã€adm_charge_item_definitionã€adm_organization å’Œ adm_practitioner è”åˆæŸ¥è¯¢å¾—åˆ°
 class CostDetailItemDO : public BaseDO {
 	MYSQL_SYNTHESIZE(std::string, chargeItemId, ChargeItemId);
 	MYSQL_SYNTHESIZE(std::string, busNo, BusNo);
