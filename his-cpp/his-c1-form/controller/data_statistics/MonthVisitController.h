@@ -49,7 +49,7 @@ public:
 		API_DEF_ADD_PAGE_PARAMS();
 		API_DEF_ADD_QUERY_PARAMS(String, "monthFrom", ZH_WORDS_GETTER("Lin.form.data_statistics.field.monthFrom"), "", true);
 	API_DEF_ADD_QUERY_PARAMS(String, "monthTo", ZH_WORDS_GETTER("Lin.form.data_statistics.field.monthTo"), "", true);
-	API_DEF_ADD_QUERY_PARAMS(String, "organizationId", ZH_WORDS_GETTER("Lin.form.data_statistics.field.organizationId"), "", false);
+	API_DEF_ADD_QUERY_PARAMS(String, "organizationId", ZH_WORDS_GETTER("Lin.form.data_statistics.field.organizationId"), "", true);
 	);
 
 

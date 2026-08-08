@@ -50,7 +50,7 @@ public:
 		API_DEF_ADD_PAGE_PARAMS();
 		API_DEF_ADD_QUERY_PARAMS(String, "dateFrom", ZH_WORDS_GETTER("Lin.form.data_statistics.field.dateFrom"), "", true);
 		API_DEF_ADD_QUERY_PARAMS(String, "dateTo", ZH_WORDS_GETTER("Lin.form.data_statistics.field.dateTo"), "", true);
-		API_DEF_ADD_QUERY_PARAMS(String, "organizationId", ZH_WORDS_GETTER("Lin.form.data_statistics.field.organizationId"), "", false);
+		API_DEF_ADD_QUERY_PARAMS(String, "organizationId", ZH_WORDS_GETTER("Lin.form.data_statistics.field.organizationId"), "", true);
 	);
 
 	ENDPOINT(API_M_GET, "/data-statistics/flow-trend", queryFlowTrend, QUERIES(QueryParams, queryParams), API_HANDLER_AUTH_PARAME) {
