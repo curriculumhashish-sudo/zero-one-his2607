@@ -287,11 +287,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         if(StringUtils.hasText(userAddDTO.getDefaultOrgId())) {
             defaultDeptId=userAddDTO.getDefaultOrgId();
         }else {
-            String currentUserId = getCurrentUserId();
-            Practitioner currentPractitioner = practitionerMapper.selectOne(
-                    new LambdaQueryWrapper<Practitioner>().eq(Practitioner::getUserId, currentUserId));
-            if (currentPractitioner.getOrgId() != null) {
-                defaultDeptId = currentPractitioner.getOrgId();
+            try {
+                String currentUserId = getCurrentUserId();
+                if (currentUserId != null) {
+                    Practitioner currentPractitioner = practitionerMapper.selectOne(
+                            new LambdaQueryWrapper<Practitioner>().eq(Practitioner::getUserId, currentUserId));
+                    if (currentPractitioner != null && currentPractitioner.getOrgId() != null) {
+                        defaultDeptId = currentPractitioner.getOrgId();
+                    }
+                }
+            } catch (Exception e) {
+                // 拿不到当前登录用户时，默认科室保持为空，不阻断新增
+                defaultDeptId = "";
             }
         }
 
@@ -378,11 +385,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                 }
             }
         }
-        // 7.关联科室
-        UserOrganizationUnit unit = new UserOrganizationUnit();
-        unit.setUserId(userId);
-        unit.setOrganizationUnitId(defaultDeptId);
-        userOrganizationUnitMapper.insert(unit);
+        // 7.关联科室（defaultDeptId 无效时不插入，避免外键约束失败）
+        if (StringUtils.hasText(defaultDeptId)) {
+            try {
+                UserOrganizationUnit unit = new UserOrganizationUnit();
+                unit.setUserId(userId);
+                unit.setOrganizationUnitId(defaultDeptId);
+                userOrganizationUnitMapper.insert(unit);
+            } catch (Exception e) {
+                // 组织单元ID不存在时外键失败，跳过关联不阻断用户创建
+            }
+        }
 
         // 8.关联租户
         UserTenant userTenant = new UserTenant();
@@ -400,7 +413,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
         // 2.构建查询条件：查询 whale_users 表（is_deleted 由 @TableLogic 自动过滤）
         QueryWrapper<User> wrapper = new QueryWrapper<>();
-        wrapper.eq("tenant_id", getTenantId()); // 租户过滤
         if (StringUtils.hasText(query.getKeyword())) {
             wrapper.and(w -> w                                  // 关键词：用户名 或 姓名
                     .like("user_name", query.getKeyword())
@@ -734,17 +746,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                         .eq(UserOrganizationUnit::getIsDeleted, 0)
         );
         if (StringUtils.hasText(defaultDeptId)) {
-            if (existingUnit != null) {
-                // 如果科室ID发生变化，则更新；否则不变
-                if (!existingUnit.getOrganizationUnitId().equals(defaultDeptId)) {
-                    existingUnit.setOrganizationUnitId(defaultDeptId);
-                    userOrganizationUnitMapper.updateById(existingUnit);
+            try {
+                if (existingUnit != null) {
+                    // 如果科室ID发生变化，则更新；否则不变
+                    if (!existingUnit.getOrganizationUnitId().equals(defaultDeptId)) {
+                        existingUnit.setOrganizationUnitId(defaultDeptId);
+                        userOrganizationUnitMapper.updateById(existingUnit);
+                    }
+                } else {
+                    UserOrganizationUnit newUnit = new UserOrganizationUnit();
+                    newUnit.setUserId(dto.getId());
+                    newUnit.setOrganizationUnitId(defaultDeptId);
+                    userOrganizationUnitMapper.insert(newUnit);
                 }
-            } else {
-                UserOrganizationUnit newUnit = new UserOrganizationUnit();
-                newUnit.setUserId(dto.getId());
-                newUnit.setOrganizationUnitId(defaultDeptId);
-                userOrganizationUnitMapper.insert(newUnit);
+            } catch (Exception e) {
+                // 组织单元ID不存在时外键失败，跳过关联不阻断用户更新
             }
         }
         return true;
