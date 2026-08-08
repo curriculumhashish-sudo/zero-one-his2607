@@ -1,18 +1,18 @@
 // ============================================================================
-// RefundGetItemMapper.h ¡ª ÍË·ÑÏîÄ¿ ¡ª ½á¹û¼¯Ó³ÉäÆ÷
+// RefundGetItemMapper.h ï¿½ï¿½ ï¿½Ë·ï¿½ï¿½ï¿½Ä¿ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ó³ï¿½ï¿½ï¿½ï¿½
 // ============================================================================
-// Mapper µÄ¹¤×÷Á÷³Ì£º
-//   1. DAO Ö´ÐÐ SQL ²úÉú ResultSet£¨N ÐÐ£©
-//   2. DAO µ÷ÓÃ sqlSession->executeQuery<RefundGetItemDO>(sql, RefundGetItemMapper(), params)
-//   3. ¿ò¼Ü¶Ô ResultSet Ã¿ÐÐµ÷ÓÃ mapper(resultSet) ¡ú ²úÉúÒ»¸ö RefundGetItemDO
-//   4. ËùÓÐ DO ÊÕ¼¯µ½ std::list<RefundGetItemDO> ·µ»Ø¸ø DAO
+// Mapper ï¿½Ä¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì£ï¿½
+//   1. DAO Ö´ï¿½ï¿½ SQL ï¿½ï¿½ï¿½ï¿½ ResultSetï¿½ï¿½N ï¿½Ð£ï¿½
+//   2. DAO ï¿½ï¿½ï¿½ï¿½ sqlSession->executeQuery<RefundGetItemDO>(sql, RefundGetItemMapper(), params)
+//   3. ï¿½ï¿½Ü¶ï¿½ ResultSet Ã¿ï¿½Ðµï¿½ï¿½ï¿½ mapper(resultSet) ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ RefundGetItemDO
+//   4. ï¿½ï¿½ï¿½ï¿½ DO ï¿½Õ¼ï¿½ï¿½ï¿½ std::list<RefundGetItemDO> ï¿½ï¿½ï¿½Ø¸ï¿½ DAO
 // ============================================================================
 
 #pragma once
 #include "Mapper.h"
 #include "../../domain/do/refund/RefundGetItemDO.h"
 
-// ÖµÀàÐÍ Mapper ¡ª ÓÃÓÚÁÐ±í²éÑ¯£¬·µ»Ø std::list<RefundGetItemDO>
+// Öµï¿½ï¿½ï¿½ï¿½ Mapper ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ std::list<RefundGetItemDO>
 class RefundGetItemMapper : public Mapper<RefundGetItemDO>
 {
 public:
@@ -20,12 +20,12 @@ public:
     {
         RefundGetItemDO data;
 
-        // resultSet->getString("ÁÐÃû") ´Óµ±Ç°ÐÐ¶ÁÈ¡Ö¸¶¨ÁÐµÄÖµ
-        // ÁÐÃû±ØÐëÓë SQL ÖÐ SELECT ... AS xxx ÍêÈ«Ò»ÖÂ£¨Çø·Ö´óÐ¡Ð´£©
-        // ¾ÍÕï + Ö§¸¶×é²ã¼¶
+        // resultSet->getString("ï¿½ï¿½ï¿½ï¿½") ï¿½Óµï¿½Ç°ï¿½Ð¶ï¿½È¡Ö¸ï¿½ï¿½ï¿½Ðµï¿½Öµ
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ SQL ï¿½ï¿½ SELECT ... AS xxx ï¿½ï¿½È«Ò»ï¿½Â£ï¿½ï¿½ï¿½ï¿½Ö´ï¿½Ð¡Ð´ï¿½ï¿½
+        // ï¿½ï¿½ï¿½ï¿½ + Ö§ï¿½ï¿½ï¿½ï¿½ã¼¶
         data.setEncounterId(resultSet->getString("encounter_id"));
-        data.setPaymentId(resultSet->getString("payment_id"));
-        data.setPaymentBusNo(resultSet->getString("payment_bus_no"));
+        data.setPaymentRecordId(resultSet->getString("payment_record_id"));
+        data.setPaymentNo(resultSet->getString("payment_no"));
         data.setPaymentStatusEnum(resultSet->getString("payment_status_enum"));
         data.setPaymentStatusEnumText(resultSet->getString("payment_status_enum_text"));
         data.setEntererUserId(resultSet->getString("enterer_user_id"));
@@ -33,27 +33,27 @@ public:
         data.setHalfRefundOnPayment(resultSet->getString("half_refund_on_payment"));
         data.setRefundableAmount(resultSet->getString("refundable_amount"));
         data.setOriginalPayChannelCodes(resultSet->getString("original_pay_channel_codes"));
-        // ÊÕ·ÑÏîÄ¿ÐÐ²ã¼¶
+        // ï¿½Õ·ï¿½ï¿½ï¿½Ä¿ï¿½Ð²ã¼¶
         data.setChargeItemId(resultSet->getString("charge_item_id"));
         data.setChargeItemStatusEnum(resultSet->getString("charge_item_status_enum"));
         data.setChargeItemStatusEnumText(resultSet->getString("charge_item_status_enum_text"));
-        data.setItemDisplayName(resultSet->getString("item_display_name"));
+        data.setItemName(resultSet->getString("item_name"));
         data.setLineTotalAmount(resultSet->getString("line_total_amount"));
         return data;
     }
 };
 
-// Ö¸ÕëÀàÐÍ Mapper ¡ª ÓÃÓÚÐèÒª shared_ptr µÄ³¡¾°
+// Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Mapper ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òª shared_ptr ï¿½Ä³ï¿½ï¿½ï¿½
 class PtrRefundGetItemMapper : public Mapper<PtrRefundGetItemDO>
 {
 public:
     PtrRefundGetItemDO mapper(ResultSet* resultSet) const override
     {
         auto data = std::make_shared<RefundGetItemDO>();
-        // ¾ÍÕï + Ö§¸¶×é²ã¼¶
+        // ï¿½ï¿½ï¿½ï¿½ + Ö§ï¿½ï¿½ï¿½ï¿½ã¼¶
         data->setEncounterId(resultSet->getString("encounter_id"));
-        data->setPaymentId(resultSet->getString("payment_id"));
-        data->setPaymentBusNo(resultSet->getString("payment_bus_no"));
+        data->setPaymentRecordId(resultSet->getString("payment_record_id"));
+        data->setPaymentNo(resultSet->getString("payment_no"));
         data->setPaymentStatusEnum(resultSet->getString("payment_status_enum"));
         data->setPaymentStatusEnumText(resultSet->getString("payment_status_enum_text"));
         data->setEntererUserId(resultSet->getString("enterer_user_id"));
@@ -61,11 +61,11 @@ public:
         data->setHalfRefundOnPayment(resultSet->getString("half_refund_on_payment"));
         data->setRefundableAmount(resultSet->getString("refundable_amount"));
         data->setOriginalPayChannelCodes(resultSet->getString("original_pay_channel_codes"));
-        // ÊÕ·ÑÏîÄ¿ÐÐ²ã¼¶
+        // ï¿½Õ·ï¿½ï¿½ï¿½Ä¿ï¿½Ð²ã¼¶
         data->setChargeItemId(resultSet->getString("charge_item_id"));
         data->setChargeItemStatusEnum(resultSet->getString("charge_item_status_enum"));
         data->setChargeItemStatusEnumText(resultSet->getString("charge_item_status_enum_text"));
-        data->setItemDisplayName(resultSet->getString("item_display_name"));
+        data->setItemName(resultSet->getString("item_name"));
         data->setLineTotalAmount(resultSet->getString("line_total_amount"));
         return data;
     }

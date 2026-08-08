@@ -90,7 +90,7 @@ class RefundGetPatientDTO : public oatpp::DTO
 };
 
 // 分页响应 DTO — 字段名与 sample-json 严格一一对应，不使用框架 PageDTO
-// sample-json 响应: {content:[{...}], totalCount:"1", pageNo:1, pageSize:1}
+// sample-json 响应: {content:[{...}], totalCount:1, pageIndex:1, pageSize:1, pages:1}
 class RefundGetPatientPageDTO : public oatpp::DTO
 {
     DTO_INIT(RefundGetPatientPageDTO, DTO);
@@ -100,20 +100,25 @@ class RefundGetPatientPageDTO : public oatpp::DTO
     DTO_FIELD_INFO(content) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.content");
     };
-    // 总记录数 — 对应 sample-json: "totalCount"
-    DTO_FIELD(String, totalCount);
+    // 总记录数 — 对应 sample-json: "totalCount"（数字类型）
+    DTO_FIELD(UInt64, totalCount);
     DTO_FIELD_INFO(totalCount) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.totalCount");
     };
-    // 当前页码 — 对应 sample-json: "pageNo"
-    DTO_FIELD(UInt64, pageNo) = 1;
-    DTO_FIELD_INFO(pageNo) {
-        info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.pageNo");
+    // 当前页码 — 对应 sample-json: "pageIndex"
+    DTO_FIELD(UInt64, pageIndex) = 1;
+    DTO_FIELD_INFO(pageIndex) {
+        info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.pageIndex");
     };
     // 每页条数 — 对应 sample-json: "pageSize"
     DTO_FIELD(UInt64, pageSize) = 10;
     DTO_FIELD_INFO(pageSize) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.pageSize");
+    };
+    // 总页数 — 对应 sample-json: "pages"
+    DTO_FIELD(UInt64, pages);
+    DTO_FIELD_INFO(pages) {
+        info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.pages");
     };
 
 public:

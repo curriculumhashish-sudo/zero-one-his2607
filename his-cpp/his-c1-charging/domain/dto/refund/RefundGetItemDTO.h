@@ -24,10 +24,10 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-// ==================== ÊÕ·ÑÏîÄ¿ÐÐ DTO ====================
-// ¶ÔÓ¦ JSON: paymentGroups[].refundingLines[] ºÍ preservedLines[] µÄÃ¿¸öÔªËØ
-// Ê¾Àý: {"chargeItemId":"...","paymentId":"...","chargeItemStatusEnum":"REFUNDING",
-//        "chargeItemStatusEnumText":"ÍË¿îÖÐ","itemDisplayName":"»ÆÜÎ","lineTotalAmount":0.85}
+// ==================== ï¿½Õ·ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ DTO ====================
+// ï¿½ï¿½Ó¦ JSON: paymentGroups[].refundingLines[] ï¿½ï¿½ preservedLines[] ï¿½ï¿½Ã¿ï¿½ï¿½Ôªï¿½ï¿½
+// Ê¾ï¿½ï¿½: {"chargeItemId":"...","paymentId":"...","chargeItemStatusEnum":"REFUNDING",
+//        "chargeItemStatusEnumText":"ï¿½Ë¿ï¿½ï¿½ï¿½","itemDisplayName":"ï¿½ï¿½ï¿½ï¿½","lineTotalAmount":0.85}
 class RefundChargeItemLineDTO : public oatpp::DTO
 {
     DTO_INIT(RefundChargeItemLineDTO, DTO);
@@ -48,9 +48,9 @@ class RefundChargeItemLineDTO : public oatpp::DTO
     DTO_FIELD_INFO(chargeItemStatusEnumText) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.chargeItemStatusEnumText");
     };
-    DTO_FIELD(String, itemDisplayName);
-    DTO_FIELD_INFO(itemDisplayName) {
-        info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.itemDisplayName");
+    DTO_FIELD(String, itemName);
+    DTO_FIELD_INFO(itemName) {
+        info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.itemName");
     };
     DTO_FIELD(Float64, lineTotalAmount);
     DTO_FIELD_INFO(lineTotalAmount) {
@@ -58,10 +58,10 @@ class RefundChargeItemLineDTO : public oatpp::DTO
     };
 };
 
-// ==================== Ö§¸¶×é DTO ====================
-// ¶ÔÓ¦ JSON: paymentGroups[] µÄÃ¿¸öÔªËØ
-// Ê¾Àý: {"paymentId":"...","paymentBusNo":"PMR-2026-07-190015",
-//        "paymentStatusEnum":"SUCCESS","paymentStatusEnumText":"³É¹¦£¨ÊÕ¿îÒÑÍê³É£©",
+// ==================== Ö§ï¿½ï¿½ï¿½ï¿½ DTO ====================
+// ï¿½ï¿½Ó¦ JSON: paymentGroups[] ï¿½ï¿½Ã¿ï¿½ï¿½Ôªï¿½ï¿½
+// Ê¾ï¿½ï¿½: {"paymentId":"...","paymentBusNo":"PMR-2026-07-190015",
+//        "paymentStatusEnum":"SUCCESS","paymentStatusEnumText":"ï¿½É¹ï¿½ï¿½ï¿½ï¿½Õ¿ï¿½ï¿½ï¿½ï¿½ï¿½É£ï¿½",
 //        "entererUserId":"...","collectorName":"admin","halfRefundOnPayment":false,
 //        "refundingLines":[...],"preservedLines":[],
 //        "refundableAmount":24.91,"originalPayChannelCodes":["CASH"]}
@@ -69,13 +69,13 @@ class RefundPaymentGroupDTO : public oatpp::DTO
 {
     DTO_INIT(RefundPaymentGroupDTO, DTO);
 
-    DTO_FIELD(String, paymentId);
-    DTO_FIELD_INFO(paymentId) {
-        info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.paymentId");
+    DTO_FIELD(String, paymentRecordId);
+    DTO_FIELD_INFO(paymentRecordId) {
+        info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.paymentRecordId");
     };
-    DTO_FIELD(String, paymentBusNo);
-    DTO_FIELD_INFO(paymentBusNo) {
-        info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.paymentBusNo");
+    DTO_FIELD(String, paymentNo);
+    DTO_FIELD_INFO(paymentNo) {
+        info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.paymentNo");
     };
     DTO_FIELD(String, paymentStatusEnum);
     DTO_FIELD_INFO(paymentStatusEnum) {
@@ -97,12 +97,12 @@ class RefundPaymentGroupDTO : public oatpp::DTO
     DTO_FIELD_INFO(halfRefundOnPayment) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.halfRefundOnPayment");
     };
-    // ÍË·ÑÐÐÁÐ±í£¨Ç¶Ì×Êý×é£©
+    // ï¿½Ë·ï¿½ï¿½ï¿½ï¿½Ð±ï¿½ï¿½ï¿½Ç¶ï¿½ï¿½ï¿½ï¿½ï¿½é£©
     DTO_FIELD(oatpp::List<RefundChargeItemLineDTO::Wrapper>, refundingLines);
     DTO_FIELD_INFO(refundingLines) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.refundingLines");
     };
-    // ±£ÁôÐÐÁÐ±í£¨Ç¶Ì×Êý×é£¬½á¹¹Í¬ refundingLines£©
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½ï¿½ï¿½Ç¶ï¿½ï¿½ï¿½ï¿½ï¿½é£¬ï¿½á¹¹Í¬ refundingLinesï¿½ï¿½
     DTO_FIELD(oatpp::List<RefundChargeItemLineDTO::Wrapper>, preservedLines);
     DTO_FIELD_INFO(preservedLines) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.preservedLines");
@@ -111,16 +111,16 @@ class RefundPaymentGroupDTO : public oatpp::DTO
     DTO_FIELD_INFO(refundableAmount) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.refundableAmount");
     };
-    // Ô­Ê¼Ö§¸¶ÇþµÀ±àÂëÁÐ±í£¨×Ö·û´®Êý×é£¬Èç ["CASH"]£©
+    // Ô­Ê¼Ö§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½é£¬ï¿½ï¿½ ["CASH"]ï¿½ï¿½
     DTO_FIELD(oatpp::List<String>, originalPayChannelCodes);
     DTO_FIELD_INFO(originalPayChannelCodes) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.originalPayChannelCodes");
     };
 };
 
-// ==================== ÍË·ÑÏîÄ¿¶¥²ãÏìÓ¦ DTO ====================
-// ¶ÔÓ¦ JSON: data ×Ö¶Î
-// Ê¾Àý: {"encounterId":"...","paymentGroups":[{...},...]}
+// ==================== ï¿½Ë·ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ DTO ====================
+// ï¿½ï¿½Ó¦ JSON: data ï¿½Ö¶ï¿½
+// Ê¾ï¿½ï¿½: {"encounterId":"...","paymentGroups":[{...},...]}
 class RefundGetItemDTO : public oatpp::DTO
 {
     DTO_INIT(RefundGetItemDTO, DTO);
@@ -129,7 +129,7 @@ class RefundGetItemDTO : public oatpp::DTO
     DTO_FIELD_INFO(encounterId) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.encounterId");
     };
-    // Ö§¸¶×éÁÐ±í£¨Ç¶Ì×Êý×é£©
+    // Ö§ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½ï¿½ï¿½Ç¶ï¿½ï¿½ï¿½ï¿½ï¿½é£©
     DTO_FIELD(oatpp::List<RefundPaymentGroupDTO::Wrapper>, paymentGroups);
     DTO_FIELD_INFO(paymentGroups) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.paymentGroups");

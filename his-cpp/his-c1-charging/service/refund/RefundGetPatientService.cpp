@@ -26,33 +26,33 @@
 
 // Paginated query for refund patient queue
 // Input: query (keyword, queueTabCode, pageIndex, pageSize)
-// Output: RefundGetPatientPageDTO with content[], totalCount, pageNo, pageSize
+// Output: RefundGetPatientPageDTO with content[], totalCount, pageIndex, pageSize, pages
 RefundGetPatientPageDTO::Wrapper RefundGetPatientService::listAll(const RefundGetPatientQuery::Wrapper& query)
 {
     // Build page response skeleton
     auto pages = RefundGetPatientPageDTO::createShared();
     // Initialize content as empty list — ensures JSON always contains "content":[...]
     pages->content = oatpp::List<RefundGetPatientDTO::Wrapper>::createShared();
-    pages->pageNo = query->pageIndex;
+    pages->pageIndex = query->pageIndex;
     pages->pageSize = query->pageSize;
 
     // Query total count — return empty page if none found
     RefundGetPatientDAO dao;
     uint64_t count = dao.count(query);
     if (count <= 0) {
-        pages->totalCount = "0";
+        pages->totalCount = (uint64_t)0;
+        pages->pages = (uint64_t)0;
         return pages;
     }
-    pages->totalCount = std::to_string(count);
+    pages->totalCount = (uint64_t)count;
+    // Calculate total pages (ceiling division)
+    uint64_t ps = query->pageSize.getValue(10);
+    pages->pages = (count + ps - 1) / ps;
 
     // Get current year for age calculation
     time_t now = time(nullptr);
     struct tm tmInfo;
-#ifdef LINUX
-    localtime_r(&now, &tmInfo);
-#else
     localtime_s(&tmInfo, &now);
-#endif
     int currentYear = tmInfo.tm_year + 1900;
 
     // Query paginated data and convert DO → DTO

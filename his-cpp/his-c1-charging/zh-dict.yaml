@@ -935,6 +935,8 @@ xbzml:
         # get patient
         keyword: 查询关键字（患者姓名、就诊ID等）
         queueTabCode: 队列标签（ALL-全部、PENDING-待退费、SETTLED-已退费）
+        startDate: 就诊开始日期下界
+        endDate: 就诊开始日期上界
         encounterId: 就诊ID
         encounterBusNo: 就诊流水号
         patientId: 患者ID
@@ -951,8 +953,9 @@ xbzml:
         paidAmount: 已付金额
         # get item
         detailViewCode: 视图类型编码（PENDING-待退费 / SETTLED-已退费）
-        paymentId: 支付记录ID
-        paymentBusNo: 支付流水号
+        paymentRecordId: 支付记录ID（支付组级）
+        paymentId: 支付记录ID（明细行级）
+        paymentNo: 支付流水号（支付组级）
         paymentStatusEnum: 支付状态枚举码
         paymentStatusEnumText: 支付状态枚举显示文本
         entererUserId: 录入人用户ID
@@ -963,7 +966,7 @@ xbzml:
         chargeItemId: 收费项目ID
         chargeItemStatusEnum: 收费项目状态枚举码
         chargeItemStatusEnumText: 收费项目状态枚举显示文本
-        itemDisplayName: 项目显示名称
+        itemName: 项目显示名称
         lineTotalAmount: 行合计金额
         refundableAmount: 可退总金额
         originalPayChannelCodes: 原始支付渠道编码列表
@@ -971,7 +974,8 @@ xbzml:
         # pagination
         content: 当前页数据列表
         totalCount: 总记录数
-        pageNo: 当前页码
+        pageIndex: 当前页码
+        pages: 总页数
         # verify refund
         refundingChargeItemIds: 待退费收费项目ID列表
         allowed: 是否允许退费
@@ -980,6 +984,9 @@ xbzml:
         billDate: 账单日期
         originalPaymentId: 原始支付记录ID
         refundPaymentDetails: 退费支付明细列表
+        clientRefundResult: 客户端退款回执
+        refundRequestId: 退款请求标识（幂等键）
+        preservedNewChargeItemIds: 保留不退费项目标识
         amount: 退款金额
         payChannelCode: 支付渠道编码
         success: 是否执行成功

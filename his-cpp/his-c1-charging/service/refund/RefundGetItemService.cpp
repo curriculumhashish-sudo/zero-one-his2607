@@ -69,7 +69,7 @@ RefundGetItemDTO::Wrapper RefundGetItemService::listAll(const RefundGetItemQuery
     std::string currentPaymentId;
 
     for (RefundGetItemDO& row : flatList) {
-        std::string pid = row.getPaymentId();
+        std::string pid = row.getPaymentRecordId();
 
         // New payment group
         if (pid != currentPaymentId) {
@@ -83,8 +83,8 @@ RefundGetItemDTO::Wrapper RefundGetItemService::listAll(const RefundGetItemQuery
             currentGroup->preservedLines = oatpp::List<RefundChargeItemLineDTO::Wrapper>::createShared();
 
             // Payment-level fields from first row
-            currentGroup->paymentId = row.getPaymentId();
-            currentGroup->paymentBusNo = row.getPaymentBusNo();
+            currentGroup->paymentRecordId = row.getPaymentRecordId();
+            currentGroup->paymentNo = row.getPaymentNo();
             currentGroup->paymentStatusEnum = row.getPaymentStatusEnum();
             currentGroup->paymentStatusEnumText = fallbackPaymentStatusText(row.getPaymentStatusEnum());
             currentGroup->entererUserId = row.getEntererUserId();
@@ -110,8 +110,8 @@ RefundGetItemDTO::Wrapper RefundGetItemService::listAll(const RefundGetItemQuery
         // Build charge item line for this row
         auto line = RefundChargeItemLineDTO::createShared();
         line->chargeItemId = row.getChargeItemId();
-        line->paymentId = row.getPaymentId();
-        line->itemDisplayName = row.getItemDisplayName();
+        line->paymentId = row.getPaymentRecordId();
+        line->itemName = row.getItemName();
         line->lineTotalAmount = std::stod(row.getLineTotalAmount());
 
         std::string statusEnum = row.getChargeItemStatusEnum();
