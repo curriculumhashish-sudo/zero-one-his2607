@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -41,4 +42,10 @@ public interface WkfInventoryItemMapper extends BaseMapper<WkfInventoryItem> {
             "AND DATEDIFF(i.expiration_date, NOW()) <= #{expireWithinDays} " +
             "ORDER BY `remainingDays` ASC")
     List<ExpirationWarningVO> selectExpirationWarningList(@Param("expireWithinDays") Integer expireWithinDays);
+
+    @Select("SELECT i.name AS `name`, COUNT(*) AS `count` "
+            + "FROM wkf_inventory_item i WHERE i.is_deleted = 0 AND i.expiration_date IS NOT NULL "
+            + "AND DATEDIFF(i.expiration_date, NOW()) <= #{expireWithinDays} "
+            + "GROUP BY i.name ORDER BY `count` DESC")
+    List<Map<String, Object>> selectExpirationWarningRaw(@Param("expireWithinDays") Integer expireWithinDays);
 }

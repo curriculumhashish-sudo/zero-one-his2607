@@ -115,6 +115,12 @@ public class FeeDetailVO {
         @Schema(description = "单价(元)", example = "10.00")
         private BigDecimal unitAmount;
 
+        @Schema(description = "单价(元) — 前端字段名")
+        private BigDecimal unitPrice;
+
+        @Schema(description = "行金额(元) = 数量×单价", example = "20.00")
+        private BigDecimal lineAmount;
+
         @Schema(description = "实收金额(元)", example = "20.00")
         private BigDecimal actualReceivedAmount;
 

@@ -2,25 +2,32 @@ package com.zeroone.star.project.query.j6.report;
 
 import com.zeroone.star.project.query.PageQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
-@Schema(description = "门诊费用明细列表查询条件")
+@Schema(description = "门诊费用明细列表查询")
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class FeeDetailQuery extends PageQuery {
 
-    @Schema(description = "收退方向 (ALL:全部, CHARGE:收费, REFUND:退费)", example = "ALL")
+    @Schema(description = "开始日期", example = "2026-01-01")
+    private String dateFrom;
+
+    @Schema(description = "结束日期", example = "2026-12-31")
+    private String dateTo;
+
+    @Schema(description = "收退方向 (ALL/CHARGE/REFUND)", example = "ALL")
     private String tradeDirection;
 
-    @Schema(description = "挂号科室id", example = "340298242043940864")
+    @Schema(description = "挂号科室ID", example = "322663218269917184")
     private String registrationDepartmentId;
 
-    @Schema(description = "项目类别", example = "[\"1004\"]")
+    @Schema(description = "费用大类", example = "[\"MEDICATION\"]")
+    private List<String> feeCategoryCodes;
+
+    @Schema(description = "费用细分类", example = "[\"1004\"]")
     private List<String> subCategoryCodes;
 
     @Schema(description = "患者（姓名/门诊号）", example = "张三")
@@ -32,14 +39,11 @@ public class FeeDetailQuery extends PageQuery {
     @Schema(description = "项目编码", example = "YP0001")
     private String productCodeKeyword;
 
-    @Schema(description = "收费员Id", example = "308791351298756608")
+    @Schema(description = "收费员ID", example = "308791351298756608")
     private String cashierId;
 
-    @Schema(description = "结算日期起始 (YYYY-MM-DD)", example = "2026-01-01")
-    @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}")
-    private String settlementDateFrom;
+    // ===== 向后兼容（Mapper XML 仍引用旧名） =====
 
-    @Schema(description = "结算日期截至 (YYYY-MM-DD)", example = "2026-12-31")
-    @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}")
-    private String settlementDateTo;
+    public String getSettlementDateFrom() { return dateFrom; }
+    public String getSettlementDateTo() { return dateTo; }
 }

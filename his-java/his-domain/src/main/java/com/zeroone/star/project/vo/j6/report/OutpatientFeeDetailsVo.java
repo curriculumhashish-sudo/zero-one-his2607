@@ -1,21 +1,29 @@
 package com.zeroone.star.project.vo.j6.report;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.zeroone.star.project.dto.PageDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
+import java.util.List;
 
-@Schema(description = "门诊费用列表数据")
+/**
+ * 门诊费用明细分页响应 — 对齐前端 PageOutpatientFeeDetailBackendResponse。
+ */
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class OutpatientFeeDetailsVo extends PageDTO<FeeDetailVO> {
-    @Schema(description = "列表门诊费用汇总")
-    FeeSummaryVo summary;
+@Schema(description = "门诊费用明细分页响应")
+public class OutpatientFeeDetailsVo {
+
+    @Schema(description = "费用明细行列表")
+    private List<FeeDetailVO> content;
+
+    @Schema(description = "总行数", example = "150")
+    private Long totalCount;
+
+    @Schema(description = "当前页码", example = "1")
+    private Long pageNo;
+
+    @Schema(description = "每页大小", example = "10")
+    private Long pageSize;
+
+    @Schema(description = "全量金额合计")
+    private FeeSummaryVo summary;
 }
-
-

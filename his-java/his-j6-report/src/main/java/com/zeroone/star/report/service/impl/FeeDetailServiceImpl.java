@@ -119,11 +119,10 @@ public class FeeDetailServiceImpl implements IFeeDetailService {
 
         // 6. 构建分页结果
         OutpatientFeeDetailsVo result = new OutpatientFeeDetailsVo();
-        result.setPageIndex(pageIndex);
+        result.setPageNo(pageIndex);
         result.setPageSize(pageSize);
-        result.setTotal(total);
-        result.setPages(pages);
-        result.setRows(rows);
+        result.setTotalCount(total);
+        result.setContent(rows);
 
         // 7. 全局汇总
         FeeDetailSummaryDO summary = admEncounterMapper.selectFeeDetailSummary(query);
@@ -186,6 +185,8 @@ public class FeeDetailServiceImpl implements IFeeDetailService {
         d.setInsuranceTypeDisplay(l.getInsuranceTypeDisplay());
         d.setBaseAmount(nvl(l.getBaseAmount()));
         d.setUnitAmount(nvl(l.getUnitAmount()));
+        d.setUnitPrice(nvl(l.getUnitAmount()));                  // 前端字段名
+        d.setLineAmount(nvl(l.getDiscountedAmount()));          // 行金额
         d.setDiscountAmount(nvl(l.getDiscountedAmount()));      // 折扣金额 ← SQL discountedAmount(折扣)
         d.setDiscountedAmount(nvl(l.getDiscountAmount()));      // 折后金额 ← SQL discountAmount(base-discount)
         d.setReceivableAmount(nvl(l.getDiscountedAmount()));    // 应收金额 ≈ 折扣金额

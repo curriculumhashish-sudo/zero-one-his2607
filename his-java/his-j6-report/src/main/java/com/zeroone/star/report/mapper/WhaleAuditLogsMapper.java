@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 描述：安全审计日志 Mapper 数据操作层
@@ -30,4 +31,9 @@ public interface WhaleAuditLogsMapper extends BaseMapper<WhaleAuditLogs> {
             "ORDER BY `month` ASC")
 
     List<MonthlyAccessVO> selectMonthlyAccessCount(@Param("year") Integer year);
+
+    @Select("SELECT MONTH(created_at) AS `month`, COUNT(*) AS `count` "
+            + "FROM whale_security_logs WHERE YEAR(created_at) = #{year} "
+            + "GROUP BY MONTH(created_at) ORDER BY `month` ASC")
+    List<Map<String, Object>> selectMonthlyAccessCountRaw(@Param("year") Integer year);
 }

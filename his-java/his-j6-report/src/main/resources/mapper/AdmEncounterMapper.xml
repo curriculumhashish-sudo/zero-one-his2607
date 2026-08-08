@@ -569,8 +569,8 @@
         WHERE is_deleted = 0
     </select>
 
-    <!-- ===== 流量趋势：按时间粒度统计门诊数量 ===== -->
-    <select id="selectTrafficTrend" resultType="com.zeroone.star.project.vo.j6.report.TrafficTrendVO">
+    <!-- ===== 流量趋势：按时间粒度统计门诊数量（原始 Map） ===== -->
+    <select id="selectTrafficTrendRaw" resultType="java.util.Map">
         SELECT
             <choose>
                 <when test="granularity == 'MONTH'">

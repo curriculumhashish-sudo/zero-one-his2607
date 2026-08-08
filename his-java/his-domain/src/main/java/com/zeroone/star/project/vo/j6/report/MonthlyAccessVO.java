@@ -1,18 +1,20 @@
 package com.zeroone.star.project.vo.j6.report;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Schema(description = "月访问量数据点")
+import java.util.List;
+
+/**
+ * 月访问量 — 对齐 J8 TrendChartVO 结构（points + unit）。
+ */
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Schema(description = "月访问量趋势")
 public class MonthlyAccessVO {
-    @Schema(description = "月份 (1-12)", example = "1")
-    private Integer month;
 
-    @Schema(description = "访问次数(登录成功量)", example = "1500")
-    private Long count;
+    @Schema(description = "数据点列表")
+    private List<TrendPointVO> points;
+
+    @Schema(description = "单位", example = "次")
+    private String unit;
 }

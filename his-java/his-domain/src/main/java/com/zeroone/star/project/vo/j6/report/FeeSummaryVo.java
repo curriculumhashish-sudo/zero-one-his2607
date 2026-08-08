@@ -28,4 +28,7 @@ public class FeeSummaryVo {
 
     @Schema(description = "自付金额合计", example = "100.00")
     private BigDecimal selfPayAmountTotal;
+
+    @Schema(description = "行金额合计（数量×单价全量SUM）", example = "100.00")
+    private BigDecimal lineAmountTotal;
 }

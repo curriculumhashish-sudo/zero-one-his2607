@@ -1,11 +1,23 @@
 package com.zeroone.star.report.service.impl;
 
+import com.zeroone.star.project.dto.j6.report.DiseaseDistributionDTO;
+import com.zeroone.star.project.dto.j6.report.EncounterTrendDTO;
+import com.zeroone.star.project.query.j6.report.DiseaseStatisticQuery;
+import com.zeroone.star.project.query.j6.report.EncounterMonthTrendQuery;
+import com.zeroone.star.project.query.j6.report.EncounterWeekTrendQuery;
 import com.zeroone.star.project.query.j6.report.ExpirationWarningQuery;
 import com.zeroone.star.project.query.j6.report.MonthlyAccessQuery;
 import com.zeroone.star.project.query.j6.report.SupplyAmountCompareQuery;
+import com.zeroone.star.project.vo.j6.report.DiseaseDistributionVO;
+import com.zeroone.star.project.vo.j6.report.DistributionItemVO;
+import com.zeroone.star.project.vo.j6.report.EncounterMonthTrendVO;
+import com.zeroone.star.project.vo.j6.report.EncounterWeekTrendVO;
 import com.zeroone.star.project.vo.j6.report.ExpirationWarningVO;
 import com.zeroone.star.project.vo.j6.report.MonthlyAccessVO;
 import com.zeroone.star.project.vo.j6.report.SupplyAmountCompareVO;
+import com.zeroone.star.project.vo.j6.report.TrendPointVO;
+import com.zeroone.star.report.mapper.AdmEncounterDiagnosisMapper;
+import com.zeroone.star.report.mapper.AdmEncounterMapper;
 import com.zeroone.star.report.mapper.WhaleAuditLogsMapper;
 import com.zeroone.star.report.mapper.WkfInventoryItemMapper;
 import com.zeroone.star.report.mapper.WkfSupplyRequestMapper;
@@ -19,13 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * <p>
- * 描述：报表中心 业务逻辑实现类
- * </p>
- * @author j6
- * @version 1.0.0
- */
 @Service
 public class ReportServiceImpl implements IReportService {
 
@@ -38,55 +43,165 @@ public class ReportServiceImpl implements IReportService {
     @Resource
     private WkfInventoryItemMapper wkfInventoryItemMapper;
 
+    @Resource
+    private AdmEncounterMapper admEncounterMapper;
+
+    @Resource
+    private AdmEncounterDiagnosisMapper admEncounterDiagnosisMapper;
+
     @Override
-    public List<MonthlyAccessVO> getMonthlyAccess(MonthlyAccessQuery query) {
-        // 1. 获取入参年份，若未传参则默认使用 2026 年
+    public MonthlyAccessVO getMonthlyAccess(MonthlyAccessQuery query) {
         Integer year = (query != null && query.getYear() != null) ? query.getYear() : 2026;
+        List<Map<String, Object>> rawList = whaleAuditLogsMapper.selectMonthlyAccessCountRaw(year);
 
-        // 2. 调用 Mapper 执行 SQL，查询数据库中存在的访问量统计
-        List<MonthlyAccessVO> dbList = whaleAuditLogsMapper.selectMonthlyAccessCount(year);
+        Map<Integer, Long> countMap = rawList.stream()
+                .collect(Collectors.toMap(
+                        r -> ((Number) r.get("month")).intValue(),
+                        r -> ((Number) r.get("count")).longValue(),
+                        (v1, v2) -> v1));
 
-        // 3. 将数据库查询出的结果转为 Map<月份, 访问次数> 结构
-        Map<Integer, Long> countMap = (dbList != null) ?
-                dbList.stream().collect(Collectors.toMap(MonthlyAccessVO::getMonth, MonthlyAccessVO::getCount, (v1, v2) -> v1)) :
-                Collections.emptyMap();
-
-        // 4. 循环 1 到 12 月，进行“数据补零”填充
-        List<MonthlyAccessVO> resultList = new ArrayList<>();
-        for (int month = 1; month <= 12; month++) {
-            // 若数据库中有该月记录，取其真实 count；无记录则补 0L
-            Long count = countMap.getOrDefault(month, 0L);
-            resultList.add(new MonthlyAccessVO(month, count));
+        List<TrendPointVO> points = new ArrayList<>();
+        for (int m = 1; m <= 12; m++) {
+            points.add(new TrendPointVO(m + "月", countMap.getOrDefault(m, 0L).intValue()));
         }
 
-        // 5. 返回 12 个月份完整的统计列表
-        return resultList;
+        MonthlyAccessVO vo = new MonthlyAccessVO();
+        vo.setPoints(points);
+        vo.setUnit("次");
+        return vo;
     }
 
     @Override
-    public List<SupplyAmountCompareVO> getSupplyAmountCompare(SupplyAmountCompareQuery query) {
-        // 1. 参数默认值防空处理
-        String start = (query != null && query.getStart() != null) ? query.getStart() : "2026-01-01";
-        String end = (query != null && query.getEnd() != null) ? query.getEnd() : "2026-12-31";
+    public SupplyAmountCompareVO getSupplyAmountCompare(SupplyAmountCompareQuery query) {
+        String start = query != null && query.getDateFrom() != null ? query.getDateFrom() : "2026-01-01";
+        String end = query != null && query.getDateTo() != null ? query.getDateTo() : "2026-12-31";
+        List<Map<String, Object>> rawList = wkfSupplyRequestMapper.selectSupplyAmountCompareRaw(start, end);
 
-        // 2. 调用 Mapper 查数据库中物资出入库的统计金额
-        List<SupplyAmountCompareVO> list = wkfSupplyRequestMapper.selectSupplyAmountCompare(start, end);
+        // 聚合：period → 入库金额 / 出库金额
+        Map<String, Double> inboundMap = new java.util.LinkedHashMap<>();
+        Map<String, Double> outboundMap = new java.util.LinkedHashMap<>();
+        for (Map<String, Object> row : rawList) {
+            String period = (String) row.get("period");
+            String type = (String) row.get("type");
+            double amount = ((Number) row.get("totalAmount")).doubleValue();
+            if ("INBOUND".equals(type)) {
+                inboundMap.merge(period, amount, Double::sum);
+            } else {
+                outboundMap.merge(period, amount, Double::sum);
+            }
+        }
 
-        // 3. 若无数据返回空集合
-        return (list != null) ? list : Collections.emptyList();
+        List<String> categories = new ArrayList<>(inboundMap.keySet());
+        for (String k : outboundMap.keySet()) {
+            if (!categories.contains(k)) categories.add(k);
+        }
+        Collections.sort(categories);
+
+        List<Double> inboundValues = new ArrayList<>();
+        List<Double> outboundValues = new ArrayList<>();
+        for (String cat : categories) {
+            inboundValues.add(inboundMap.getOrDefault(cat, 0.0));
+            outboundValues.add(outboundMap.getOrDefault(cat, 0.0));
+        }
+
+        SupplyAmountCompareVO.SupplySeriesItem inSeries = new SupplyAmountCompareVO.SupplySeriesItem();
+        inSeries.setName("药品/耗材");
+        inSeries.setDirection("入库");
+        inSeries.setValues(inboundValues);
+
+        SupplyAmountCompareVO.SupplySeriesItem outSeries = new SupplyAmountCompareVO.SupplySeriesItem();
+        outSeries.setName("药品/耗材");
+        outSeries.setDirection("出库");
+        outSeries.setValues(outboundValues);
+
+        SupplyAmountCompareVO vo = new SupplyAmountCompareVO();
+        vo.setCategories(categories);
+        vo.setSeries(List.of(inSeries, outSeries));
+        vo.setUnit("元");
+        return vo;
     }
 
     @Override
-    public List<ExpirationWarningVO> getExpirationWarning(ExpirationWarningQuery query) {
-        // 1. 获取预警天数参数，若为空默认查询 90 天内预警记录
-        Integer expireWithinDays = (query != null && query.getExpireWithinDays() != null) ? query.getExpireWithinDays() : 90;
+    public ExpirationWarningVO getExpirationWarning(ExpirationWarningQuery query) {
+        Integer expireWithinDays = query != null && query.getExpireWithinDays() != null
+                ? query.getExpireWithinDays() : 90;
+        List<Map<String, Object>> rawList = wkfInventoryItemMapper.selectExpirationWarningRaw(expireWithinDays);
 
-        // 2. 调用 Mapper 执行有效期计算 SQL 查库
-        List<ExpirationWarningVO> list = wkfInventoryItemMapper.selectExpirationWarningList(expireWithinDays);
+        List<DistributionItemVO> items = rawList.stream()
+                .map(r -> new DistributionItemVO(
+                        (String) r.get("name"),
+                        ((Number) r.get("count")).intValue()))
+                .collect(Collectors.toList());
 
-        // 3. 防空处理
-        return (list != null) ? list : Collections.emptyList();
+        ExpirationWarningVO vo = new ExpirationWarningVO();
+        vo.setItems(items);
+        vo.setUnit("种");
+        return vo;
+    }
+
+    @Override
+    public EncounterWeekTrendVO getWeekTrend(EncounterWeekTrendQuery query) {
+        List<EncounterTrendDTO> raw = queryDailyTrend(query.getStartDate(), query.getEndDate());
+        List<TrendPointVO> points = raw.stream()
+                .map(d -> new TrendPointVO(d.getDate(), d.getValue()))
+                .collect(Collectors.toList());
+        EncounterWeekTrendVO vo = new EncounterWeekTrendVO();
+        vo.setPoints(points);
+        vo.setUnit("人次");
+        return vo;
+    }
+
+    @Override
+    public EncounterMonthTrendVO getMonthTrend(EncounterMonthTrendQuery query) {
+        List<EncounterTrendDTO> raw = queryDailyTrend(query.getStartDate(), query.getEndDate());
+        List<TrendPointVO> points = raw.stream()
+                .map(d -> new TrendPointVO(d.getDate(), d.getValue()))
+                .collect(Collectors.toList());
+        EncounterMonthTrendVO vo = new EncounterMonthTrendVO();
+        vo.setPoints(points);
+        vo.setUnit("人次");
+        return vo;
+    }
+
+    @Override
+    public DiseaseDistributionVO getDiseaseDistribution(DiseaseStatisticQuery query) {
+        int total = admEncounterMapper.selectTotalEncounterCount();
+        List<Map<String, Object>> rawList = admEncounterDiagnosisMapper.selectDiseaseDistribution();
+
+        List<DistributionItemVO> items = new ArrayList<>();
+        for (Map<String, Object> row : rawList) {
+            String name = (String) row.get("diseaseName");
+            int count = ((Number) row.get("count")).intValue();
+            items.add(new DistributionItemVO(name, count));
+        }
+
+        DiseaseDistributionVO vo = new DiseaseDistributionVO();
+        vo.setItems(items);
+        vo.setUnit("人");
+        return vo;
+    }
+
+    // ========== 辅助 ==========
+
+    private List<EncounterTrendDTO> queryDailyTrend(java.time.LocalDate startDate, java.time.LocalDate endDate) {
+        if (startDate == null) startDate = java.time.LocalDate.now().minusDays(30);
+        if (endDate == null) endDate = java.time.LocalDate.now();
+        List<Map<String, Object>> rawList = admEncounterMapper.selectDailyEncounterCount(startDate, endDate);
+        Map<String, Integer> dateCountMap = rawList.stream()
+                .collect(Collectors.toMap(
+                        r -> (String) r.get("date"),
+                        r -> ((Number) r.get("value")).intValue()));
+
+        List<EncounterTrendDTO> result = new ArrayList<>();
+        java.time.LocalDate current = startDate;
+        while (!current.isAfter(endDate)) {
+            String dateStr = current.toString();
+            EncounterTrendDTO dto = new EncounterTrendDTO();
+            dto.setDate(dateStr);
+            dto.setValue(dateCountMap.getOrDefault(dateStr, 0));
+            result.add(dto);
+            current = current.plusDays(1);
+        }
+        return result;
     }
 }
-
-

@@ -57,4 +57,9 @@ public interface AdmEncounterMapper extends BaseMapper<AdmEncounter> {
     List<TrafficTrendVO> selectTrafficTrend(@Param("start") String start,
                                             @Param("end") String end,
                                             @Param("granularity") String granularity);
+
+    /** 门诊流量趋势原始数据（返回 Map 供 Service 层转换） */
+    List<Map<String, Object>> selectTrafficTrendRaw(@Param("start") String start,
+                                                     @Param("end") String end,
+                                                     @Param("granularity") String granularity);
 }
