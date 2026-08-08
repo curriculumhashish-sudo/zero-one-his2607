@@ -32,6 +32,11 @@ class GetPatientQueueQuery : public PageQuery {
 	API_DTO_FIELD(String, queueTabCode,
 		ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueQuery.queueTabCode.description"),
 		true,"PENDING");
+
+	//科室/机构 ID 筛选（可选，为空查全部）
+	API_DTO_FIELD(String, organizationId,
+		ZH_WORDS_GETTER("lhfc.charging.charge.GetPatientQueueQuery.organizationId.description"),
+		false, "");
 };
 
 

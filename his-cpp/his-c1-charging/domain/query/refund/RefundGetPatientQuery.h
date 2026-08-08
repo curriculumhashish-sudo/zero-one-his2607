@@ -40,6 +40,18 @@ class RefundGetPatientQuery : public PageQuery
     DTO_FIELD_INFO(queueTabCode) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.queueTabCode");
     };
+
+    // Start date filter (encounter start_time >= startDate)
+    DTO_FIELD(String, startDate);
+    DTO_FIELD_INFO(startDate) {
+        info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.startDate");
+    };
+
+    // End date filter (encounter start_time <= endDate)
+    DTO_FIELD(String, endDate);
+    DTO_FIELD_INFO(endDate) {
+        info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.endDate");
+    };
 };
 
 #include OATPP_CODEGEN_END(DTO)

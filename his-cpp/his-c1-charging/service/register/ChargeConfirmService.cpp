@@ -30,6 +30,28 @@ bool ChargeConfirmService::confirmPayment(const ChargeConfirmDTO::Wrapper& dto, 
         return false;
     }
 
+    // Validate scan payment receipt for wechat/alipay payment
+    if (dto->paymentMethod == 2 || dto->paymentMethod == 3) { // Wechat or Alipay
+        // Validate required scan payment receipt fields
+        if (!dto->transactionId || dto->transactionId->empty()) {
+            return false; // Transaction ID is required for scan payment
+        }
+        if (!dto->thirdPartyTransactionId || dto->thirdPartyTransactionId->empty()) {
+            return false; // Third party transaction ID is required
+        }
+        if (!dto->paymentTime || dto->paymentTime->empty()) {
+            return false; // Payment time is required
+        }
+        if (!dto->paymentStatus || dto->paymentStatus != 1) {
+            return false; // Payment status must be success (1)
+        }
+        
+        // Check for failure reason if payment failed
+        if (dto->paymentStatus == 2 && (!dto->failureReason || dto->failureReason->empty())) {
+            return false; // Failure reason is required if payment failed
+        }
+    }
+
     // Get current time as transaction time
     std::string transactionTime = SimpleDateTimeFormat::format();
 
@@ -98,6 +120,19 @@ bool ChargeConfirmService::confirmPayment(const ChargeConfirmDTO::Wrapper& dto, 
 
     // Insert invoice record
     dao.insertInvoice(invoiceId, patientId, reconciliationId, detailId, busNo, invoiceNo, paymentMethodStr, amount, emptyChargeItemIds, transactionTime, paymentMethodStr);
+
+    // Save scan payment receipt if wechat/alipay payment
+    if (paymentMethod == 2 || paymentMethod == 3) {
+        dao.insertScanPaymentReceipt(
+            reconciliationId,
+            dto->transactionId.getValue({}),
+            dto->thirdPartyTransactionId.getValue({}),
+            dto->paymentTime.getValue({}),
+            dto->receiptData.getValue({}),
+            dto->paymentStatus,
+            dto->failureReason.getValue({})
+        );
+    }
 
     // Update encounter status to registered
     dao.updateEncounterToRegistered(visitNumber, version);

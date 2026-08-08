@@ -52,23 +52,43 @@ EnrollPageDTO::Wrapper EnrollService::queryAll(const EnrollQuery::Wrapper& query
             dto,
             data,
             encounterId, EncounterId,
+            patientId, PatientId,
             encounterBusNo, EncounterBusNo,
             patientName, PatientName,
             statusEnum, StatusEnum,
+            organizationId, OrganizationId,
             organizationName, OrganizationName,
+            wardId, WardId,
             wardName, WardName,
+            bedId, BedId,
             bedName, BedName,
             startTime, StartTime
         );
 
         // 将数据库状态代码转换为页面需要的中文状态文字。
         dto->statusEnumText = getStatusEnumText(data.getStatusEnum());
+        dto->cancelable = isCancelable(data.getStatusEnum());
 
         // 将当前记录加入分页结果列表。
         page->addData(dto);
     }
 
     return page;
+}
+
+/**
+ * @brief 判断住院登记是否允许普通取消。
+ *
+ * @param statusEnum 当前住院登记状态代码。
+ * @return 可普通取消时返回 true，否则返回 false。
+ *
+ * @details
+ * PLANNED 表示待登记，REGISTERED 表示待入科；
+ * 当前接口按原型规则将这两种状态标记为可取消。
+ */
+bool EnrollService::isCancelable(const std::string& statusEnum)
+{
+    return statusEnum == "PLANNED" || statusEnum == "REGISTERED";
 }
 
 /**
@@ -281,6 +301,7 @@ EnrollDetailDTO::Wrapper EnrollService::queryById(const std::string& encounterId
     );
 
     dto->statusEnumText = getStatusEnumText(data->getStatusEnum());
+    dto->cancelable = isCancelable(data->getStatusEnum());
     dto->genderEnumText = getGenderEnumText(data->getGenderEnum());
     dto->age = calculateAge(data->getBirthDate());
 

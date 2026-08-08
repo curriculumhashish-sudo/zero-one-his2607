@@ -37,7 +37,14 @@ inline std::string GetPatientQueueDAO::queryConditionBuilder(
         }
     }
 
-    // 3. 页签过滤：按收费项状态聚合过滤
+    // 3. 科室/机构筛选
+    if (query->organizationId && !query->organizationId->empty())
+    {
+        sql << " AND e.organization_id = ? ";
+        SQLPARAMS_PUSH(params, "s", std::string, query->organizationId);
+    }
+
+    // 4. 页签过滤：按收费项状态聚合过滤
     if (query->queueTabCode && !query->queueTabCode->empty())
     {
         std::string tab = query->queueTabCode;
@@ -108,7 +115,8 @@ std::list<GetPatientQueueDO> GetPatientQueueDAO::selectWithPage(
         << " doc.name AS doctor_name,"
         << " COALESCE(amt.total_amount, 0) AS total_amount,"
         << " COALESCE(pay.paid_amount, 0) AS paid_amount,"
-        << " pay.payment_id AS payment_id"
+        << " pay.payment_id AS payment_id,"
+        << " pay.payment_type AS payment_type"
         << " FROM adm_encounter e"
         << " LEFT JOIN adm_patient p ON e.patient_id = p.id"
         << " LEFT JOIN adm_organization org ON e.organization_id = org.id"
@@ -127,6 +135,7 @@ std::list<GetPatientQueueDO> GetPatientQueueDAO::selectWithPage(
         << " LEFT JOIN ("
         << "   SELECT encounter_id,"
         << "     MAX(id) AS payment_id,"
+        << "     MAX(payment_enum) AS payment_type,"
         << "     SUM(CASE WHEN status_enum = 'SUCCESS' THEN tendered_amount ELSE 0 END) AS paid_amount"
         << "   FROM fin_payment_reconciliation"
         << "   GROUP BY encounter_id"

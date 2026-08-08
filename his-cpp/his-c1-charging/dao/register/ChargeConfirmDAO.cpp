@@ -103,7 +103,7 @@ int ChargeConfirmDAO::updateEncounterToRegistered(const std::string& encounterId
     return sqlSession->executeUpdate(sql, "%s%i", std::string(encounterId), version);
 }
 
-// --------------------- 更新账户余额（扣减） ---------------------
+// --------------------- Update account balance (deduction) ---------------------
 int ChargeConfirmDAO::updateAccountBalance(const std::string& accountId, double amount, int version) {
     std::string sql = "UPDATE adm_account SET "
         "balance = balance - ?, "
@@ -111,4 +111,27 @@ int ChargeConfirmDAO::updateAccountBalance(const std::string& accountId, double 
         "WHERE id = ? AND version = ?";
     return sqlSession->executeUpdate(sql, "%d%s%i", amount, std::string(accountId), version);
 }
+
+// --------------------- Insert scan payment receipt record ---------------------
+int ChargeConfirmDAO::insertScanPaymentReceipt(const std::string& reconciliationId, const std::string& transactionId,
+    const std::string& thirdPartyTransactionId, const std::string& paymentTime,
+    const std::string& receiptData, int paymentStatus, const std::string& failureReason) {
+    std::string sql = "INSERT INTO fin_scan_payment_receipt ("
+        "id, "
+        "reconciliation_id, "
+        "transaction_id, "
+        "third_party_transaction_id, "
+        "payment_time, "
+        "receipt_data, "
+        "payment_status, "
+        "failure_reason, "
+        "created_at, "
+        "version) "
+        "VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, NOW(), 0)";
+    return sqlSession->executeUpdate(sql, "%s%s%s%s%s%i%s",
+        std::string(reconciliationId), std::string(transactionId),
+        std::string(thirdPartyTransactionId), std::string(paymentTime),
+        std::string(receiptData), paymentStatus, std::string(failureReason));
+}
+
 

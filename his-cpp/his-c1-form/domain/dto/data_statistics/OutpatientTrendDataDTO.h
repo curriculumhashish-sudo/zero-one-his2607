@@ -30,9 +30,15 @@ class OutpatientTrendDataDTO : public oatpp::DTO
 	DTO_INIT(OutpatientTrendDataDTO, DTO);
 
 	// trend data point list
-	DTO_FIELD(List<Object<OutpatientTrendItemDTO>>, trendList);
-	DTO_FIELD_INFO(trendList) {
-		info->description = ZH_WORDS_GETTER("W.form.data_statistics.field.trend_list");
+	DTO_FIELD(List<Object<OutpatientTrendItemDTO>>, points);
+	DTO_FIELD_INFO(points) {
+		info->description = ZH_WORDS_GETTER("W.form.data_statistics.field.points");
+	}
+
+	// unit label (e.g. "person-times")
+	DTO_FIELD(String, unit);
+	DTO_FIELD_INFO(unit) {
+		info->description = ZH_WORDS_GETTER("W.form.data_statistics.field.unit");
 	}
 };
 

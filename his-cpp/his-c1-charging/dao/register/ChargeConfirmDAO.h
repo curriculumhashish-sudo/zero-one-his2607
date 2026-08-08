@@ -113,16 +113,34 @@ public:
     int updateEncounterToRegistered(const std::string& encounterId, int version);
 
     /**
-     * 更新账户余额（扣减）
-     * 表：adm_account
-     * 字段：balance, version
+     * Update account balance (deduction)
+     * Table: adm_account
+     * Fields: balance, version
      *
-     * @param accountId 账户ID（const引用）
-     * @param amount 扣减金额
-     * @param version 乐观锁版本号
-     * @return 影响行数
+     * @param accountId Account ID (const reference)
+     * @param amount Deduction amount
+     * @param version Optimistic locking version number
+     * @return Affected rows
      */
     int updateAccountBalance(const std::string& accountId, double amount, int version);
+
+    /**
+     * Insert scan payment receipt record
+     * Table: fin_scan_payment_receipt
+     * Fields: id, reconciliation_id, transaction_id, third_party_transaction_id, payment_time, receipt_data, payment_status, failure_reason
+     *
+     * @param reconciliationId Reconciliation ID (const reference)
+     * @param transactionId Transaction ID (const reference)
+     * @param thirdPartyTransactionId Third party transaction ID (const reference)
+     * @param paymentTime Payment completion time (const reference)
+     * @param receiptData Complete receipt data from third party payment platform (const reference)
+     * @param paymentStatus Payment status (0-pending, 1-success, 2-failed)
+     * @param failureReason Payment failure reason (const reference)
+     * @return Affected rows
+     */
+    int insertScanPaymentReceipt(const std::string& reconciliationId, const std::string& transactionId,
+        const std::string& thirdPartyTransactionId, const std::string& paymentTime,
+        const std::string& receiptData, int paymentStatus, const std::string& failureReason);
 };
 
 #endif // !_CHARGE_CONFIRM_DAO_

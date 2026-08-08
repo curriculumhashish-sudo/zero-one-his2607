@@ -176,5 +176,8 @@ ConfirmPrintResponseDTO::Wrapper PrintChargeReceiptService::confirmPrint(const C
         bizRefJson);
 
     resp->ok = (rows > 0);
+    resp->status = status;
+    resp->errorCode = errorCode;
+    resp->errorMessage = errorMessage;
     return resp;
 }

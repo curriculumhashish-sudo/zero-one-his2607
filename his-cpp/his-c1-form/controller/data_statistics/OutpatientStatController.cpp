@@ -20,10 +20,19 @@
 #include "controller/data_statistics/OutpatientStatController.h"
 #include "../../service/data_statistics/OutpatientStatService.h"
 
-OutpatientTrendJsonVO::Wrapper OutpatientStatController::execQueryTrend(const OutpatientTrendQuery::Wrapper& query)
+OutpatientTrendJsonVO::Wrapper OutpatientStatController::execQueryWeeklyTrend(const OutpatientTrendQuery::Wrapper& query)
 {
-	// Call Service layer to query outpatient visit trend
-	auto result = OutpatientStatService().queryTrend(query);
+	// Call Service layer to query weekly outpatient visit trend
+	auto result = OutpatientStatService().queryTrend(query, 1);
+	auto jvo = OutpatientTrendJsonVO::createShared();
+	jvo->success(result);
+	return jvo;
+}
+
+OutpatientTrendJsonVO::Wrapper OutpatientStatController::execQueryMonthlyTrend(const OutpatientTrendQuery::Wrapper& query)
+{
+	// Call Service layer to query monthly outpatient visit trend
+	auto result = OutpatientStatService().queryTrend(query, 2);
 	auto jvo = OutpatientTrendJsonVO::createShared();
 	jvo->success(result);
 	return jvo;

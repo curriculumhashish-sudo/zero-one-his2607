@@ -63,6 +63,22 @@ inline std::string RefundGetPatientDAO::queryConditionBuilder(const RefundGetPat
         // "ALL" or empty: no queue filter
     }
 
+    // Date range filter on encounter start_time
+    if (query->startDate) {
+        std::string sd = query->startDate.getValue("");
+        if (!sd.empty()) {
+            sqlCondition << " AND e.start_time >= ?";
+            SQLPARAMS_PUSH(params, "s", std::string, sd + " 00:00:00");
+        }
+    }
+    if (query->endDate) {
+        std::string ed = query->endDate.getValue("");
+        if (!ed.empty()) {
+            sqlCondition << " AND e.start_time <= ?";
+            SQLPARAMS_PUSH(params, "s", std::string, ed + " 23:59:59");
+        }
+    }
+
     return sqlCondition.str();
 }
 

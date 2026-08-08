@@ -29,10 +29,16 @@ class DiseaseDistributionDataDTO : public oatpp::DTO
 {
 	DTO_INIT(DiseaseDistributionDataDTO, DTO);
 
-	// distribution data list
-	DTO_FIELD(List<Object<DiseaseDistributionItemDTO>>, distributionList);
-	DTO_FIELD_INFO(distributionList) {
-		info->description = ZH_WORDS_GETTER("W.form.data_statistics.field.distribution_list");
+	// distribution data items
+	DTO_FIELD(List<Object<DiseaseDistributionItemDTO>>, items);
+	DTO_FIELD_INFO(items) {
+		info->description = ZH_WORDS_GETTER("W.form.data_statistics.field.items");
+	}
+
+	// unit label (e.g. "persons")
+	DTO_FIELD(String, unit);
+	DTO_FIELD_INFO(unit) {
+		info->description = ZH_WORDS_GETTER("W.form.data_statistics.field.unit");
 	}
 };
 

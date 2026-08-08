@@ -197,6 +197,9 @@ ConfirmSettleChargeResponseDTO::Wrapper SettleChargeService::confirmSettle(
     resp->paymentId = paymentId;
     resp->invoiceId = invoiceId;
     resp->invoiceStatus = "DRAFT";
+    resp->paymentNo = paymentNo;
+    resp->statusEnum = "SUCCESS";
+    resp->settledAt = nowStr;
     resp->successMessageCode = "EX-OPC-410";
 
     return resp;
