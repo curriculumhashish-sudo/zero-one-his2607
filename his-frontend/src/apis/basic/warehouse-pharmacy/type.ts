@@ -11,6 +11,12 @@ export interface WarehousePharmacyRecord {
   statusEnum: 'ACTIVE' | 'INACTIVE'
   statusEnumText: string
   displayOrder: number
+  organizationId?: string
+  parentId?: string
+  pyStr?: string
+  wbStr?: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface WarehousePharmacyQuery extends BasicPageQuery {}

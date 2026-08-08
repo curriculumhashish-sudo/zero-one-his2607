@@ -63,8 +63,8 @@
     >
       <el-table-column prop="name" label="科室名称" min-width="220" fixed="left" />
       <el-table-column prop="code" label="科室编码" width="110" />
-      <el-table-column prop="type" label="类型" width="110" />
-      <el-table-column prop="category" label="类别" width="90" />
+      <el-table-column prop="typeText" label="类型" width="110" />
+      <el-table-column prop="categoryText" label="类别" width="90" />
       <el-table-column prop="leaderName" label="负责人" width="110">
         <template #default="{ row }">{{ row.leaderName || '-' }}</template>
       </el-table-column>

@@ -48,20 +48,20 @@ const columns: MyTableColumn[] = [
 const formItems: MyFormItemAttr[] = [
   requiredInput('busNo', '供应商编号'),
   requiredInput('name', '供应商名称'),
+  requiredInput('creditCode', '统一信用代码'),
   select('organizationId', '所属部门', [
     { label: '药剂科', value: 'org-001' },
     { label: '设备科', value: 'org-002' }
   ], true),
   select('typeEnum', '类型', [
-    { label: '药品', value: 'DRUG' },
-    { label: '器械', value: 'DEVICE' },
-    { label: '综合', value: 'GENERAL' }
+    { label: '企业', value: '1' },
+    { label: '个体', value: '2' }
   ], true),
   input('address', '地址'),
   input('phone', '电话'),
   input('email', '邮箱'),
-  input('pyStr', '拼音'),
-  input('wbStr', '五笔'),
+  requiredInput('pyStr', '拼音'),
+  requiredInput('wbStr', '五笔'),
   select('statusEnum', '状态', [
     { label: '启用', value: 'ACTIVE' },
     { label: '停用', value: 'INACTIVE' }
@@ -71,8 +71,9 @@ const formItems: MyFormItemAttr[] = [
 const defaultForm = {
   busNo: '',
   name: '',
+  creditCode: '',
   organizationId: 'org-001',
-  typeEnum: 'DRUG',
+  typeEnum: '1',
   address: '',
   phone: '',
   email: '',

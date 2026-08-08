@@ -82,7 +82,7 @@ export async function mockGetCaptcha(): Promise<CaptchaResult> {
 
 export async function mockVerifyCaptcha(data: CaptchaVerifyData): Promise<void> {
   await delay(30)
-  if (!data.id.trim()) throw new Error('验证码验证失败，请重试')
+  if (!(data.id ?? data.uuid ?? '').trim()) throw new Error('验证码验证失败，请重试')
 }
 
 export async function mockLoginAccount(data: LoginParams): Promise<LoginResult> {

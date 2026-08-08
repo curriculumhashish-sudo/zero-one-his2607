@@ -2,10 +2,19 @@ import type { BasicPageQuery } from '@/apis/basic/crud-mock'
 
 export interface SupplierRecord {
   id: string
+  /** 后端乐观锁版本；C5 查询响应当前未返回。 */
+  version?: number
+  code?: string
+  legalRepresentative?: string
+  bankName?: string
+  bankAccount?: string
+  displayOrder?: number
+  note?: string
   busNo: string
   name: string
   typeEnum: string
   typeEnumText: string
+  creditCode: string
   organizationId: string
   organizationName: string
   address: string

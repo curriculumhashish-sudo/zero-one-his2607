@@ -3,18 +3,20 @@ import type { ActionToolbarItem, StatusDisplayOption } from '@/components/common
 
 export const DEPARTMENT_TYPE_OPTIONS = [
   { label: '全部类型', value: '' },
-  { label: '医院', value: '医院' },
-  { label: '临床科室', value: '临床科室' },
-  { label: '医技科室', value: '医技科室' },
-  { label: '行政科室', value: '行政科室' }
+  { label: '医院', value: 'HOSPITAL' },
+  { label: '科室', value: 'DEPARTMENT' }
 ]
 
 export const DEPARTMENT_CATEGORY_OPTIONS = [
   { label: '全部类别', value: '' },
-  { label: '门诊', value: '门诊' },
-  { label: '住院', value: '住院' },
-  { label: '医技', value: '医技' },
-  { label: '职能', value: '职能' }
+  { label: '门诊', value: 'OUTPATIENT' },
+  { label: '住院', value: 'INPATIENT' },
+  { label: '药房', value: 'PHARMACY' },
+  { label: '库房', value: 'WAREHOUSE' },
+  { label: '财务', value: 'FINANCE' },
+  { label: '护士站', value: 'NURSE_STATION' },
+  { label: '管理', value: 'MANAGEMENT' },
+  { label: '后勤支持', value: 'LOGISTICS_SUPPORT' }
 ]
 
 export const DEPARTMENT_ENABLED_OPTIONS = [

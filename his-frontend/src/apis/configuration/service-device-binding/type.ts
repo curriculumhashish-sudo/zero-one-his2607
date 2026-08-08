@@ -2,18 +2,28 @@ import type { BasicPageQuery } from '@/apis/basic/crud-mock'
 
 export interface ServiceDeviceBindingRecord {
   id: string
-  serviceName: string
-  serviceCategory: string
-  deviceName: string
-  specification: string
+  typeCode?: string
+  typeName?: string
+  sourceId?: string
+  devActTable: string
+  devActId: string
+  devActName?: string
   quantity: number
-  unit: string
-  enabled: boolean
+  unitCode: string
+  unitName?: string
+  statusEnum: string
+  statusName?: string
 }
 
-export interface ServiceDeviceBindingQuery extends BasicPageQuery {}
-export type ServiceDeviceBindingSavePayload = Omit<ServiceDeviceBindingRecord, 'id'>
-export interface ServiceDeviceBindingInitData {
-  serviceCategories: string[]
-  units: string[]
+export interface ServiceDeviceBindingQuery extends BasicPageQuery {
+  bindType?: string
+  sourceId?: string
 }
+
+export type ServiceDeviceBindingSavePayload = Omit<ServiceDeviceBindingRecord, 'id' | 'typeName' | 'devActName' | 'unitName' | 'statusName'>
+
+export interface ServiceDeviceBindingInitData {
+  usageOptions?: Array<{ sort: string; value: string; label: string }>
+  activityOptions?: Array<{ sort: string; value: string; label: string }>
+}
+

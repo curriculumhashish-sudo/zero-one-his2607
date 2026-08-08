@@ -1,6 +1,8 @@
 export interface LoginParams {
   password: string
   username: string
+  captchaUuid?: string
+  code?: string
 }
 
 export interface LoginUser {
@@ -129,17 +131,24 @@ export interface Menu {
 }
 
 export interface CaptchaResult {
-  id: string
+  uuid?: string
+  imageBase64?: string
+  id?: string
 }
 
 export interface CaptchaVerifyData {
-  id: string
+  uuid?: string
+  code?: string
+  id?: string
 }
 
 export interface Oauth2TokenDTO {
   token: string
   refreshToken: string
   tokenHead: string
+  expiresIn?: number
+  user: LoginUser
+  configuration?: LoginConfiguration
 }
 
 export type LoginDTO = LoginParams

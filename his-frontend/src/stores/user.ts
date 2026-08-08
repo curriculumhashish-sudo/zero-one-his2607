@@ -60,6 +60,21 @@ export const useUserStore = defineStore('user', {
     getMenus: (state) => mergeFrontendMenus(state.menus)
   },
   actions: {
+    enableDevBypass() {
+      this.loaded = true
+      this.user = {
+        id: 'dev-user',
+        userId: 'dev-user',
+        username: 'dev-user',
+        realName: '开发测试用户',
+        roles: ['dev'],
+        avatar: '',
+        desc: '仅用于本地接口联调',
+        homePath: '/home',
+        token: ''
+      }
+      this.menus = createFrontendMenus()
+    },
     async loadUser() {
       if (!this.token) this.token = localStorage.getItem('token')
       this.loadRefreshToken()

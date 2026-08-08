@@ -1,11 +1,20 @@
+import { toC7PageResult, unwrap } from '@/apis/basic/remote'
+import { useHttp } from '@/plugins/http'
 import type { MedicationLocationRuleQuery, MedicationLocationRuleSavePayload } from './type'
-import { mockPageMedicationLocationRules, mockSaveMedicationLocationRules } from './mock'
 
-/** 获取科室项目列表（条件 + 分页）。 */
-export const pageMedicationLocationRules = (query: MedicationLocationRuleQuery) =>
-  mockPageMedicationLocationRules(query)
-/** 保存科室项目。该接口以当前页面的完整规则集为保存单位。 */
-export const saveMedicationLocationRules = (data: MedicationLocationRuleSavePayload) =>
-  mockSaveMedicationLocationRules(data)
+const baseUrl = '/c7-configuration-api/pharmacy'
+
+export async function pageMedicationLocationRules(query: MedicationLocationRuleQuery) {
+  const page = unwrap(await useHttp().get(`${baseUrl}/query-all-pharmacy-item`, {
+    organizationId: query.organizationId,
+    pageNo: query.pageIndex,
+    pageSize: query.pageSize
+  }))
+  return toC7PageResult(page, query.pageIndex, query.pageSize)
+}
+
+export async function saveMedicationLocationRules(data: MedicationLocationRuleSavePayload) {
+  return unwrap(await useHttp().post<boolean>(`${baseUrl}/save-pharmacy-item`, data))
+}
 
 export type * from './type'

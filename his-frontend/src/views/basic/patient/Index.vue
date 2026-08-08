@@ -1,3 +1,6 @@
+Exit code: 0
+Wall time: 0.3 seconds
+Output:
 <template>
   <BasicCrudPage
     title="患者"
@@ -61,6 +64,7 @@ const formItems: MyFormItemAttr[] = [
   number('age', '年龄', 0, 150),
   date('birthDate', '出生日期'),
   input('nationalityCode', '国籍', '如 CN'),
+  requiredInput('organizationId', '所属组织', '请输入所属组织 ID'),
   input('workCompany', '工作单位', '请输入工作单位'),
   select('maritalStatusEnum', '婚姻状况', [
     { label: '未婚', value: 'UNMARRIED' },
@@ -73,12 +77,16 @@ const formItems: MyFormItemAttr[] = [
     { label: '阴性', value: 'NEGATIVE' },
     { label: '未知', value: 'UNKNOWN' }
   ]),
+  input('addressStreet', '街道', '请输入街道'),
   input('addressProvince', '省份', '请输入省份'),
   input('addressCity', '城市', '请输入城市'),
   input('addressDistrict', '区县', '请输入区县'),
   input('address', '详细地址', '请输入详细地址'),
   input('linkName', '联系人姓名', '请输入紧急联系人'),
   input('linkTelcom', '联系人电话', '请输入联系人电话'),
+  input('prfsEnum', '职业编码', '可选'),
+  input('linkRelationCode', '联系人关系', '可选'),
+  input('deceasedDate', '死亡日期', '可选'),
   select('activeFlag', '状态', [
     { label: '启用', value: true },
     { label: '停用', value: false }
@@ -93,16 +101,21 @@ const defaultForm = {
   phone: '',
   idCard: '',
   nationalityCode: 'CN',
+  organizationId: '',
   workCompany: '',
   maritalStatusEnum: 'UNKNOWN',
   bloodAbo: '未知',
   bloodRh: 'UNKNOWN',
+  addressStreet: '',
   addressProvince: '',
   addressCity: '',
   addressDistrict: '',
   address: '',
   linkName: '',
   linkTelcom: '',
+  prfsEnum: '',
+  linkRelationCode: '',
+  deceasedDate: '',
   activeFlag: true
 }
 

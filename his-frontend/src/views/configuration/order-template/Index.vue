@@ -1,27 +1,19 @@
 <template>
   <BasicCrudPage
-    title="组套模板"
-    description="维护常用药品、检查和治疗项目的组合。当前页面先维护组套头信息和项目摘要，后续可接入明细编辑器。"
+    title="医嘱组合模板"
+    description="维护 C7 医嘱组合模板的表头和明细。"
     :service="service"
     :columns="columns"
     :form-items="formItems"
     :default-form="defaultForm"
-    :resolve-enabled="(row) => row.status === 'ENABLED'"
-    dialog-width="820px"
+    dialog-width="900px"
   />
 </template>
 
 <script setup lang="ts">
 import type { MyFormItemAttr, MyFormSelectProps } from '@/components/myform/type'
 import type { MyTableColumn } from '@/components/mytable/type'
-import {
-  createOrderTemplate,
-  getOrderTemplateDetail,
-  pageOrderTemplates,
-  removeOrderTemplate,
-  setOrderTemplateEnabled,
-  updateOrderTemplate
-} from '@/apis/configuration/order-template'
+import { createOrderTemplate, getOrderTemplateDetail, pageOrderTemplates, removeOrderTemplate, updateOrderTemplate } from '@/apis/configuration/order-template'
 import type { OrderTemplateSavePayload } from '@/apis/configuration/order-template'
 import BasicCrudPage from '@/views/basic/components/BasicCrudPage.vue'
 import type { BasicCrudService } from '@/views/basic/components/basic-crud'
@@ -29,71 +21,52 @@ import type { BasicCrudService } from '@/views/basic/components/basic-crud'
 const service = {
   page: pageOrderTemplates,
   detail: getOrderTemplateDetail,
-  create: (data: Record<string, unknown>) => createOrderTemplate(data as OrderTemplateSavePayload),
-  update: (id: string, data: Record<string, unknown>) =>
-    updateOrderTemplate(id, data as OrderTemplateSavePayload),
-  remove: removeOrderTemplate,
-  setEnabled: setOrderTemplateEnabled
+  create: (data: Record<string, unknown>) => createOrderTemplate(data as unknown as OrderTemplateSavePayload),
+  update: (id: string, data: Record<string, unknown>) => updateOrderTemplate(id, data as unknown as OrderTemplateSavePayload),
+  remove: removeOrderTemplate
 } as unknown as BasicCrudService
 
 const columns: MyTableColumn[] = [
-  { prop: 'code', label: '组套编码', width: '150px' },
-  { prop: 'name', label: '组套名称', width: '180px' },
-  { prop: 'templateType', label: '组套类型', width: '110px' },
-  { prop: 'departmentName', label: '适用科室', width: '130px' },
-  { prop: 'itemSummary', label: '项目摘要', 'min-width': 220, 'show-overflow-tooltip': true },
-  { prop: 'statusText', label: '状态', width: '90px', align: 'center' }
+  { prop: 'templateCode', label: '模板编码', width: '150px' },
+  { prop: 'name', label: '模板名称', width: '180px' },
+  { prop: 'bindingEnum', label: '绑定类型', width: '110px' },
+  { prop: 'sceneEnum', label: '适用场景', width: '120px' },
+  { prop: 'templateKindEnum', label: '模板种类', width: '110px' },
+  { prop: 'statusEnum', label: '状态', width: '100px' }
 ]
 
 const formItems: MyFormItemAttr[] = [
-  requiredInput('code', '组套编码', '请输入组套编码'),
-  requiredInput('name', '组套名称', '请输入组套名称'),
-  select('templateType', '组套类型', [
-    { label: '普通组套', value: 'GENERAL' },
-    { label: '中药组套', value: 'TCM' },
-    { label: '计价组套', value: 'PRICING' }
+  requiredInput('templateCode', '模板编码', '请输入模板编码'),
+  requiredInput('name', '模板名称', '请输入模板名称'),
+  input('objectId', '绑定对象 ID', '可选'),
+  select('bindingEnum', '绑定类型', [
+    { label: '个人', value: 'PERSONAL' }, { label: '科室', value: 'DEPARTMENT' },
+    { label: '全院', value: 'HOSPITAL' }, { label: '协议', value: 'AGREEMENT' }
   ]),
-  input('departmentName', '适用科室', '请输入适用科室'),
-  input('itemSummary', '项目摘要', '用顿号或逗号分隔项目'),
-  select('status', '启用状态', [
-    { label: '启用', value: 'ENABLED' },
-    { label: '停用', value: 'DISABLED' }
+  select('sceneEnum', '适用场景', [
+    { label: '门诊', value: 'OUTPATIENT' }, { label: '住院', value: 'INPATIENT' }
   ]),
-  input('description', '说明', '请输入组套说明')
+  select('templateKindEnum', '模板种类', [
+    { label: '普通', value: 'GENERAL' }, { label: '中药', value: 'TCM' }, { label: '计价', value: 'PRICING' }
+  ]),
+  input('description', '说明', '可选'),
+  input('remark', '备注', '可选'),
+  input('lines', '明细 JSON', '请输入 C7 OrderTemplateLine 数组 JSON')
 ]
 
 const defaultForm = {
-  code: '',
-  name: '',
-  templateType: 'GENERAL',
-  departmentName: '',
-  itemSummary: '',
-  status: 'ENABLED',
-  description: ''
+  objectId: import.meta.env.VITE_DEV_ORGANIZATION_ID || '', name: '', bindingEnum: 'DEPARTMENT', sceneEnum: 'OUTPATIENT',
+  templateKindEnum: 'GENERAL', templateCode: '', description: '', sortWeight: 0, remark: '', lines: '[]',
+  defaultChineseHerbsDoseQuantity: 0, defaultSufferingFlag: false
 }
 
 function input(prop: string, label: string, placeholder: string): MyFormItemAttr {
   return { type: 'input', prop, label, fprops: { placeholder, clearable: true } }
 }
-
 function requiredInput(prop: string, label: string, placeholder: string): MyFormItemAttr {
-  return {
-    ...input(prop, label, placeholder),
-    required: true,
-    rules: [{ required: true, message: placeholder, trigger: 'blur' }]
-  }
+  return { ...input(prop, label, placeholder), required: true, rules: [{ required: true, message: placeholder, trigger: 'blur' }] }
 }
-
-function select(
-  prop: string,
-  label: string,
-  options: Array<{ label: string; value: string }>
-): MyFormItemAttr {
-  return {
-    type: 'select',
-    prop,
-    label,
-    fprops: { placeholder: `请选择${label}`, options } as MyFormSelectProps
-  }
+function select(prop: string, label: string, options: Array<{ label: string; value: string }>): MyFormItemAttr {
+  return { type: 'select', prop, label, fprops: { placeholder: `请选择${label}`, options } as MyFormSelectProps }
 }
 </script>

@@ -1,5 +1,5 @@
 import { fileURLToPath, URL } from 'node:url'
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import AutoImport from 'unplugin-auto-import/vite'
@@ -10,6 +10,12 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 // import mkcert from 'vite-plugin-mkcert'
 
 // https://vite.dev/config/
+const env = loadEnv(process.env.NODE_ENV || 'development', process.cwd(), '')
+const gatewayUrl = env.VITE_GATEWAY_URL || 'http://124.223.72.139:10001'
+const loginServerUrl = env.VITE_LOGIN_SERVER_URL || 'http://47.116.98.7:10500'
+const c7ConfigurationServerUrl =
+  env.VITE_C7_CONFIGURATION_SERVER_URL || 'http://localhost:8090'
+
 export default defineConfig({
   server: {
     host: '0.0.0.0',
@@ -18,7 +24,7 @@ export default defineConfig({
       '/api': {
         changeOrigin: true,
         //FIXME[TEST_CODE]:使用Apifox云MOCK,联调阶段需要修改成网关地址
-        target: 'https://apifoxmock.com/m1/5579661-5257590-default',
+        target: gatewayUrl,
         rewrite: (path) => path.replace(/^\/api/, '')
       },
       '/captcha': {
@@ -26,6 +32,16 @@ export default defineConfig({
         //FIXME[TEST_CODE]:联调阶段需要修改成网关地址
         target: 'http://localhost:10010',
         rewrite: (path) => path.replace(/^\/captcha/, '')
+      },
+      '/login-api': {
+        changeOrigin: true,
+        target: loginServerUrl,
+        rewrite: (path) => path.replace(/^\/login-api/, '/j1-login')
+      },
+      '/c7-configuration-api': {
+        changeOrigin: true,
+        target: c7ConfigurationServerUrl,
+        rewrite: (path) => path.replace(/^\/c7-configuration-api/, '')
       },
       '/ai': {
         changeOrigin: true,

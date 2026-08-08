@@ -77,6 +77,14 @@ const router = createRouter({
 
 // 添加一个路由的全局前置守卫
 router.beforeEach(async function (to, _from) {
+  const skipLogin = import.meta.env.DEV && import.meta.env.VITE_SKIP_LOGIN === 'true'
+  if (skipLogin) {
+    const store = useUserStore()
+    store.enableDevBypass()
+    if (to.name === 'Login') return { name: 'Home', replace: true }
+    return true
+  }
+
   // 放行可匿名访问的页面
   if (to.meta.anonymous) {
     return true

@@ -27,6 +27,7 @@ function seed(
     name,
     typeEnum,
     typeEnumText: typeText[typeEnum] ?? '',
+    creditCode: '',
     organizationId,
     organizationName: organizationText[organizationId] ?? '',
     address: '示例产业园区',

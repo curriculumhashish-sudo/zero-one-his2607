@@ -1,16 +1,29 @@
-import type { BasicPageQuery, BasicPageResult } from '@/apis/basic/crud-mock'
+import type { BasicPageQuery } from '@/apis/basic/crud-mock'
 
 export interface MedicationLocationRuleRecord {
   id: string
-  departmentName: string
-  itemType: 'DRUG' | 'HERBAL' | 'DEVICE'
-  itemName: string
-  pharmacyName: string
-  routeName: string
+  organizationId: string
+  itemTable: string
+  distributionCategoryCode: string
+  defLocationId: string
+  itemDefinitionId?: string
+  methodCode?: string
   priority: number
-  enabled: boolean
+  displayOrder?: number
+  startTime?: string
+  endTime?: string
+  remark?: string
+  organizationName?: string
+  defLocationName?: string
+  itemDefinitionName?: string
 }
 
-export interface MedicationLocationRuleQuery extends BasicPageQuery {}
-export type MedicationLocationRuleSavePayload = MedicationLocationRuleRecord[]
-export type MedicationLocationRulePageResult = BasicPageResult<MedicationLocationRuleRecord>
+export interface MedicationLocationRuleQuery extends BasicPageQuery {
+  organizationId: string
+}
+
+export type MedicationLocationRuleSavePayload = {
+  organizationId: string
+  checkedItems: MedicationLocationRuleRecord[]
+}
+

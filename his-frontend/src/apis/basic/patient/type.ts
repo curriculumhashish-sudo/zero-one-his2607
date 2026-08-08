@@ -2,6 +2,9 @@ import type { BasicPageQuery } from '@/apis/basic/crud-mock'
 
 export interface PatientRecord {
   id: string
+  /** 后端乐观锁版本；详情接口用于修改时必须保留。 */
+  version?: number
+  nameJson?: string
   busNo: string
   name: string
   genderEnum: string
@@ -19,8 +22,19 @@ export interface PatientRecord {
   addressCity: string
   addressDistrict: string
   address: string
+  addressStreet?: string
+  addressExtendJson?: string
   linkName: string
   linkTelcom: string
+  linkRelationCode?: number | string
+  prfsEnum?: string | number
+  pyStr?: string
+  wbStr?: string
+  nativePlace?: string
+  tempFlag?: boolean
+  deceasedDate?: string
+  organizationId?: string
+  statusEnum?: string
   activeFlag: boolean
 }
 

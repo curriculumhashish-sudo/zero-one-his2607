@@ -10,11 +10,22 @@ export interface DepartmentQuery {
 export interface DepartmentRecord {
   id: string
   code: string
+  ybNo?: string
+  ybName?: string
+  medinsId?: string
+  medinsAdmdvs?: string
+  medinsType?: string
+  medinsLv?: string
+  caty?: string
+  pyStr?: string
+  wbStr?: string
   name: string
   parentId: string | null
   parentName: string
   type: string
+  typeText?: string
   category: string
+  categoryText?: string
   leaderId: string
   leaderName: string
   sort: number
@@ -25,6 +36,7 @@ export interface DepartmentRecord {
 }
 
 export interface DepartmentSavePayload {
+  code?: string
   name: string
   parentId: string | null
   type: string
@@ -32,6 +44,15 @@ export interface DepartmentSavePayload {
   leaderId: string
   sort: number
   enabled: DepartmentEnabled
+  ybNo?: string
+  ybName?: string
+  medinsId?: string
+  medinsAdmdvs?: string
+  medinsType?: string
+  medinsLv?: string
+  caty?: string
+  pyStr?: string
+  wbStr?: string
 }
 
 export interface SelectOption {

@@ -1,38 +1,85 @@
+import { useHttp } from '@/plugins/http'
+import { toMutationResult, toPageResult, unwrap } from '../remote'
 import type {
   RegistrationTypeNameOption,
   RegistrationTypeQuery,
+  RegistrationTypeRecord,
   RegistrationTypeSavePayload
 } from './type'
-import { registrationTypeStore } from './mock'
 
-/** 获取挂号类型名称。 */
+const baseUrl = '/j3-register/register-types'
+
 export async function loadRegistrationTypeNameOptions(
-  keyword = ''
+  _keyword = ''
 ): Promise<RegistrationTypeNameOption[]> {
-  const term = keyword.trim().toLowerCase()
-  return (await registrationTypeStore.list())
-    .filter((row) => !term || row.name.toLowerCase().includes(term) || row.busNo.includes(term))
-    .map((row) => ({ label: row.name, value: row.id }))
+  const http = useHttp()
+  const rows = unwrap(await http.get<BackendRegistrationName[]>(`${baseUrl}/query-names`))
+  return rows.map((row) => ({ label: row.name, value: String(row.id) }))
 }
-/** 获取挂号类型列表。 */
-export const pageRegistrationTypes = (query: RegistrationTypeQuery) =>
-  registrationTypeStore.page(query)
-/** 添加挂号类型。 */
+
+export async function pageRegistrationTypes(query: RegistrationTypeQuery) {
+  const http = useHttp()
+  const page = unwrap(await http.get<BackendPageRegistration>(`${baseUrl}/query-list`, query))
+  return toPageResult({ ...page, rows: page.rows.map(toRecord) })
+}
+
 export async function createRegistrationType(data: RegistrationTypeSavePayload) {
-  const rows = await registrationTypeStore.list()
-  return registrationTypeStore.create({
-    ...data,
-    busNo: `REG${String(rows.length + 1).padStart(3, '0')}`,
-    activeFlagText: data.activeFlag === 1 ? '启用' : '停用'
-  })
+  const http = useHttp()
+  return toMutationResult(unwrap(await http.post<boolean>(`${baseUrl}/save-add`, toPayload(data))))
 }
-/** 修改挂号类型。 */
-export const updateRegistrationType = (id: string, data: RegistrationTypeSavePayload) =>
-  registrationTypeStore.update(id, {
-    ...data,
-    activeFlagText: data.activeFlag === 1 ? '启用' : '停用'
-  })
-/** 删除挂号类型。 */
-export const removeRegistrationType = (id: string) => registrationTypeStore.remove(id)
+
+export async function updateRegistrationType(id: string, data: RegistrationTypeSavePayload) {
+  const http = useHttp()
+  return toMutationResult(unwrap(await http.put<boolean>(`${baseUrl}/save-modify/${id}`, toPayload(data))))
+}
+
+export async function removeRegistrationType(id: string) {
+  const http = useHttp()
+  unwrap(await http.delete<boolean>(`${baseUrl}/remove-by-id/${id}`))
+}
+
+interface BackendPageRegistration {
+  pageIndex: number
+  pageSize: number
+  total: number
+  pages?: number
+  rows: BackendRegistration[]
+}
+
+interface BackendRegistrationName {
+  id: number
+  name: string
+}
+
+interface BackendRegistration {
+  id: number
+  name: string
+  mdtrtCertNo?: string
+  businessCode?: string
+  amount: number
+  status?: number
+}
+
+function toRecord(item: BackendRegistration): RegistrationTypeRecord {
+  const activeFlag = item.status ?? 0
+  return {
+    id: String(item.id),
+    busNo: item.businessCode ?? '',
+    name: item.name,
+    ybNo: item.mdtrtCertNo ?? '',
+    amount: item.amount,
+    activeFlag,
+    activeFlagText: activeFlag === 1 ? '启用' : '停用'
+  }
+}
+
+function toPayload(data: RegistrationTypeSavePayload) {
+  return {
+    name: data.name,
+    mdtrtCertNo: data.ybNo,
+    amount: data.amount,
+    status: data.activeFlag
+  }
+}
 
 export type * from './type'

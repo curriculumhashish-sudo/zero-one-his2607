@@ -151,6 +151,7 @@ async function loadData() {
 
 function handleSearchModelChange(prop: string, value: unknown) {
   if (prop === 'keyword') query.keyword = String(value ?? '')
+  else (query as Record<string, unknown>)[prop] = value
 }
 
 function handleSearch() {

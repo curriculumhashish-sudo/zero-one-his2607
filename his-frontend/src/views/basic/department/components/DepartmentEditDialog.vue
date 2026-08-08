@@ -27,6 +27,11 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
+            <el-form-item label="科室编码" prop="code">
+              <el-input v-model="form.code" maxlength="64" clearable disabled />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
             <el-form-item label="上级科室" prop="parentId">
               <el-tree-select
                 v-model="form.parentId"
@@ -62,6 +67,21 @@
                   :value="option.value"
                 />
               </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="医保编码" prop="ybNo">
+              <el-input v-model="form.ybNo" clearable />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="医保名称" prop="ybName">
+              <el-input v-model="form.ybName" clearable />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="科别" prop="caty">
+              <el-input v-model="form.caty" clearable />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -196,12 +216,16 @@ async function submit() {
   try {
     const payload = {
       name: form.name,
-      parentId: form.type === '医院' ? null : form.parentId,
+      code: form.code,
+      parentId: form.type === '1' ? null : form.parentId,
       type: form.type,
       category: form.category,
       leaderId: form.leaderId,
       sort: form.sort,
       enabled: form.enabled
+      ,ybNo: form.ybNo, ybName: form.ybName, medinsId: form.medinsId,
+      medinsAdmdvs: form.medinsAdmdvs, medinsType: form.medinsType, medinsLv: form.medinsLv,
+      caty: form.caty, pyStr: form.pyStr, wbStr: form.wbStr
     }
     // 医院节点必须位于组织树根部，避免产生“医院隶属于科室”的无效层级。
     if (form.id) await updateDepartment(form.id, payload)
