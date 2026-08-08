@@ -2,7 +2,7 @@
 #define __ADD_REGISTER_DAO__
 #include"stdafx.h"
 #include "BaseDAO.h"
-#include "common/utils/UuidFacade.h"
+#include "id/UuidFacade.h"
 class AddRegisterDAO : public BaseDAO
 {
 public:
