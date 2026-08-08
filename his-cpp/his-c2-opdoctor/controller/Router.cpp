@@ -20,6 +20,7 @@
 #include "Router.h"
 #include "ApiHelper.h"
 
+#include "controller/pageTcmHerbCatalog/PageTcmHerbCatalogController.h"
 #include "controller/prescription3/Prescription3Controller.h"
 
 // If the macro for disabling Swagger documentation is defined
@@ -42,5 +43,6 @@ Router::Router(Endpoints* docEndpoints, HttpRouter* router)
 void Router::initRouter()
 {
 	// #TIP: Add system extension route definitions below
+	ROUTER_SIMPLE_BIND(PageTcmHerbCatalogController);
 	ROUTER_SIMPLE_BIND(Prescription3Controller);
 }

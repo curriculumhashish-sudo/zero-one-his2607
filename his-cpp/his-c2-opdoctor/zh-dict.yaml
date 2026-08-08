@@ -33,3 +33,28 @@ prescription3:
     groupId: 后端生成的雪花分组 ID
     resultGroupId: "操作后的分组 ID；拆组后为空字符串"
     message: 操作结果说明
+
+pageTcmHerbCatalog:
+  tags:
+    tag: 中药处方
+
+  page:
+    summary: 中药材目录分页
+    description: "分页查询当前租户和医院范围内可开立的中药材。scope=outpatient 使用门诊中药房库存，scope=inpatient 使用住院中药房库存。仅返回启用、价格有效、库存大于零且未过期的数据。业务码：9995 参数错误、9999 服务不可用。"
+
+  field:
+    scope: "使用范围：outpatient（门诊）或 inpatient（住院），默认 outpatient"
+    pageIndex: "页码，从 1 开始，默认 1"
+    pageSize: "每页数量，范围 1-100，默认 20"
+    keyword: "可选关键字，匹配药材编码、名称或规格，默认空字符串"
+    id: 药品定义主键
+    code: 药材编码
+    name: 药材名称
+    specification: "规格；无规格时返回空字符串"
+    defaultDose: "默认单次剂量；药品定义未配置时按 10 返回"
+    doseUnit: 默认剂量单位
+    retailPrice: "有效 SALE 零售价，单位为元"
+    categoryCode: 药品分类编码
+    category: 药品分类名称
+    inventoryQuantity: "对应门诊或住院中药房的有效库存汇总数量"
+    inventoryUnit: 库存单位
