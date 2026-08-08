@@ -41,7 +41,7 @@ class RefundPaymentDetailDTO : public oatpp::DTO
 };
 
 // Execute refund request DTO
-// sample-json: {billDate, encounterId, originalPaymentId, refundingChargeItemIds, refundPaymentDetails}
+// sample-json: {billDate, encounterId, originalPaymentId, refundingChargeItemIds, refundPaymentDetails, clientRefundResult, refundRequestId, preservedNewChargeItemIds}
 class RefundExecuteRefundRequestDTO : public oatpp::DTO
 {
     DTO_INIT(RefundExecuteRefundRequestDTO, DTO);
@@ -65,6 +65,24 @@ class RefundExecuteRefundRequestDTO : public oatpp::DTO
     DTO_FIELD(oatpp::List<RefundPaymentDetailDTO::Wrapper>, refundPaymentDetails);
     DTO_FIELD_INFO(refundPaymentDetails) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.refundPaymentDetails");
+    };
+
+    // Client refund receipt (e.g. WeChat/Alipay callback raw data) — reserved, not processed yet
+    DTO_FIELD(String, clientRefundResult, "clientRefundResult");
+    DTO_FIELD_INFO(clientRefundResult) {
+        info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.clientRefundResult");
+    };
+
+    // Refund request id (idempotency key from client) — reserved, not processed yet
+    DTO_FIELD(String, refundRequestId, "refundRequestId");
+    DTO_FIELD_INFO(refundRequestId) {
+        info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.refundRequestId");
+    };
+
+    // Preserved (non-refunded) charge item ids — reserved, not processed yet
+    DTO_FIELD(oatpp::List<String>, preservedNewChargeItemIds, "preservedNewChargeItemIds");
+    DTO_FIELD_INFO(preservedNewChargeItemIds) {
+        info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.preservedNewChargeItemIds");
     };
 };
 

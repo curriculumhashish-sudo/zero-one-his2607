@@ -6,53 +6,53 @@
 #include "../DoInclude.h"
 
 /**
- * ÍË·Ñ»¼Õß¶ÓÁÐÊý¾Ý¶ÔÏó
- * ¶ÔÓ¦¶à±í JOIN ²éÑ¯½á¹û£¬²»ÊÇµ¥±íÓ³Éä
+ * ï¿½Ë·Ñ»ï¿½ï¿½ß¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¶ï¿½ï¿½ï¿½
+ * ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ JOIN ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Çµï¿½ï¿½ï¿½Ó³ï¿½ï¿½
  */
 class RefundGetItemDO : public BaseDO
 {
-    // ==================== ¾ÍÕï + Ö§¸¶×é²ã¼¶ ====================
-    // ¾ÍÕïID
+    // ==================== ï¿½ï¿½ï¿½ï¿½ + Ö§ï¿½ï¿½ï¿½ï¿½ã¼¶ ====================
+    // ï¿½ï¿½ï¿½ï¿½ID
     MYSQL_SYNTHESIZE(string, encounterId, EncounterId);
-    // Ö§¸¶¼ÇÂ¼ID
-    MYSQL_SYNTHESIZE(string, paymentId, PaymentId);
-    // Ö§¸¶Á÷Ë®ºÅ£¨Èç PMR-2026-07-190015£©
-    MYSQL_SYNTHESIZE(string, paymentBusNo, PaymentBusNo);
-    // Ö§¸¶×´Ì¬Ã¶¾ÙÂë£¨SUCCESS / REFUNDING / ...£©
+    // Ö§ï¿½ï¿½ï¿½ï¿½Â¼ID
+    MYSQL_SYNTHESIZE(string, paymentRecordId, PaymentRecordId);
+    // Ö§ï¿½ï¿½ï¿½ï¿½Ë®ï¿½Å£ï¿½ï¿½ï¿½ PMR-2026-07-190015ï¿½ï¿½
+    MYSQL_SYNTHESIZE(string, paymentNo, PaymentNo);
+    // Ö§ï¿½ï¿½×´Ì¬Ã¶ï¿½ï¿½ï¿½ë£¨SUCCESS / REFUNDING / ...ï¿½ï¿½
     MYSQL_SYNTHESIZE(string, paymentStatusEnum, PaymentStatusEnum);
-    // Ö§¸¶×´Ì¬Ã¶¾ÙÏÔÊ¾ÎÄ±¾£¨Èç"³É¹¦£¨ÊÕ¿îÒÑÍê³É£©"£©
+    // Ö§ï¿½ï¿½×´Ì¬Ã¶ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½Ä±ï¿½ï¿½ï¿½ï¿½ï¿½"ï¿½É¹ï¿½ï¿½ï¿½ï¿½Õ¿ï¿½ï¿½ï¿½ï¿½ï¿½É£ï¿½"ï¿½ï¿½
     MYSQL_SYNTHESIZE(string, paymentStatusEnumText, PaymentStatusEnumText);
-    // Â¼ÈëÈËÓÃ»§ID
+    // Â¼ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ID
     MYSQL_SYNTHESIZE(string, entererUserId, EntererUserId);
-    // ÊÕ¿îÈËÐÕÃû
+    // ï¿½Õ¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     MYSQL_SYNTHESIZE(string, collectorName, CollectorName);
-    // ÊÇ·ñÎªÖ§¸¶¼¶±ð°ëÍË
+    // ï¿½Ç·ï¿½ÎªÖ§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     MYSQL_SYNTHESIZE(string, halfRefundOnPayment, HalfRefundOnPayment);
-    // ¿ÉÍË×Ü½ð¶î
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Ü½ï¿½ï¿½
     MYSQL_SYNTHESIZE(string, refundableAmount, RefundableAmount);
-    // Ô­Ê¼Ö§¸¶ÇþµÀ±àÂë£¨¶ººÅ·Ö¸ô£¬Èç "CASH"£©
+    // Ô­Ê¼Ö§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ë£¨ï¿½ï¿½ï¿½Å·Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ "CASH"ï¿½ï¿½
     MYSQL_SYNTHESIZE(string, originalPayChannelCodes, OriginalPayChannelCodes);
 
-    // ==================== ÊÕ·ÑÏîÄ¿ÐÐ²ã¼¶ ====================
-    // ÊÕ·ÑÏîÄ¿ID
+    // ==================== ï¿½Õ·ï¿½ï¿½ï¿½Ä¿ï¿½Ð²ã¼¶ ====================
+    // ï¿½Õ·ï¿½ï¿½ï¿½Ä¿ID
     MYSQL_SYNTHESIZE(string, chargeItemId, ChargeItemId);
-    // ÊÕ·ÑÏîÄ¿×´Ì¬Ã¶¾ÙÂë£¨REFUNDING-ÍË¿îÖÐ / PRESERVED-±£Áô£©
+    // ï¿½Õ·ï¿½ï¿½ï¿½Ä¿×´Ì¬Ã¶ï¿½ï¿½ï¿½ë£¨REFUNDING-ï¿½Ë¿ï¿½ï¿½ï¿½ / PRESERVED-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     MYSQL_SYNTHESIZE(string, chargeItemStatusEnum, ChargeItemStatusEnum);
-    // ÊÕ·ÑÏîÄ¿×´Ì¬Ã¶¾ÙÏÔÊ¾ÎÄ±¾£¨Èç"ÍË¿îÖÐ"£©
+    // ï¿½Õ·ï¿½ï¿½ï¿½Ä¿×´Ì¬Ã¶ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½Ä±ï¿½ï¿½ï¿½ï¿½ï¿½"ï¿½Ë¿ï¿½ï¿½ï¿½"ï¿½ï¿½
     MYSQL_SYNTHESIZE(string, chargeItemStatusEnumText, ChargeItemStatusEnumText);
-    // ÏîÄ¿ÏÔÊ¾Ãû³Æ£¨Èç"»ÆÜÎ"¡¢"¾²Âö×¢Éä"£©
-    MYSQL_SYNTHESIZE(string, itemDisplayName, ItemDisplayName);
-    // ÐÐºÏ¼Æ½ð¶î
+    // ï¿½ï¿½Ä¿ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½Æ£ï¿½ï¿½ï¿½"ï¿½ï¿½ï¿½ï¿½"ï¿½ï¿½"ï¿½ï¿½ï¿½ï¿½×¢ï¿½ï¿½"ï¿½ï¿½
+    MYSQL_SYNTHESIZE(string, itemName, ItemName);
+    // ï¿½ÐºÏ¼Æ½ï¿½ï¿½
     MYSQL_SYNTHESIZE(string, lineTotalAmount, LineTotalAmount);
 
 public:
-    // ¶à±í JOIN ÊÓÍ¼£¬·Çµ¥±íÓ³Éä£¬±íÃûÎª¿Õ×Ö·û´®
+    // ï¿½ï¿½ï¿½ JOIN ï¿½ï¿½Í¼ï¿½ï¿½ï¿½Çµï¿½ï¿½ï¿½Ó³ï¿½ä£¬ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½
     RefundGetItemDO() : BaseDO("")
     {
-        // ¾ÍÕï + Ö§¸¶×é²ã¼¶
+        // ï¿½ï¿½ï¿½ï¿½ + Ö§ï¿½ï¿½ï¿½ï¿½ã¼¶
         MYSQL_ADD_FIELD("encounter_id", "s", encounterId);
-        MYSQL_ADD_FIELD_PK("payment_id", "s", paymentId);
-        MYSQL_ADD_FIELD("payment_bus_no", "s", paymentBusNo);
+        MYSQL_ADD_FIELD_PK("payment_record_id", "s", paymentRecordId);
+        MYSQL_ADD_FIELD("payment_no", "s", paymentNo);
         MYSQL_ADD_FIELD("payment_status_enum", "s", paymentStatusEnum);
         MYSQL_ADD_FIELD("payment_status_enum_text", "s", paymentStatusEnumText);
         MYSQL_ADD_FIELD("enterer_user_id", "s", entererUserId);
@@ -60,16 +60,16 @@ public:
         MYSQL_ADD_FIELD("half_refund_on_payment", "s", halfRefundOnPayment);
         MYSQL_ADD_FIELD("refundable_amount", "s", refundableAmount);
         MYSQL_ADD_FIELD("original_pay_channel_codes", "s", originalPayChannelCodes);
-        // ÊÕ·ÑÏîÄ¿ÐÐ²ã¼¶
+        // ï¿½Õ·ï¿½ï¿½ï¿½Ä¿ï¿½Ð²ã¼¶
         MYSQL_ADD_FIELD("charge_item_id", "s", chargeItemId);
         MYSQL_ADD_FIELD("charge_item_status_enum", "s", chargeItemStatusEnum);
         MYSQL_ADD_FIELD("charge_item_status_enum_text", "s", chargeItemStatusEnumText);
-        MYSQL_ADD_FIELD("item_display_name", "s", itemDisplayName);
+        MYSQL_ADD_FIELD("item_name", "s", itemName);
         MYSQL_ADD_FIELD("line_total_amount", "s", lineTotalAmount);
     }
 };
 
-// ¶¨ÒåÖÇÄÜÖ¸Õë±ðÃû
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½
 typedef std::shared_ptr<RefundGetItemDO> PtrRefundGetItemDO;
 
 

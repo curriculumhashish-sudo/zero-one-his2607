@@ -71,8 +71,8 @@ std::list<RefundGetItemDO> RefundGetItemDAO::selectWithPage(const RefundGetItemQ
 
     sql << "SELECT"
         << " fpr.encounter_id AS encounter_id,"
-        << " fpr.id AS payment_id,"
-        << " fpr.payment_no AS payment_bus_no,"
+        << " fpr.id AS payment_record_id,"
+        << " fpr.payment_no AS payment_no,"
         << " fpr.status_enum AS payment_status_enum,"
         << " fpr.enterer_id AS enterer_user_id,"
         << " MAX(ap.name) AS collector_name,"
@@ -89,7 +89,7 @@ std::list<RefundGetItemDO> RefundGetItemDAO::selectWithPage(const RefundGetItemQ
         // Charge item columns
         << " ci.id AS charge_item_id,"
         << " ci.status_enum AS charge_item_status_enum,"
-        << " COALESCE(MAX(cid.charge_name), '') AS item_display_name,"
+        << " COALESCE(MAX(cid.charge_name), '') AS item_name,"
         << " ci.total_price AS line_total_amount"
 
         // Dictionary columns filled by Service fallback (DB dict uses numeric codes)
