@@ -58,9 +58,11 @@ public class LoadUserDetailServiceImpl implements LoadUserDetailService {
     private SecurityUser loadUserDetailForMgr(String username) throws UsernameNotFoundException {
         // TODO：通过用户名查询用户,需要根据你的数据库设计来修改代码
         // 1 通过用户名查找用户对象
+        // 注意：whale_users 中同一 user_name 可能存在多条历史重复数据，
+        // getOne(wrapper, false) 取第一条且不抛 TooManyResultsException，避免登录 500。
         User user = new User();
         user.setUsername(username);
-        user = userService.getOne(new QueryWrapper<>(user));
+        user = userService.getOne(new QueryWrapper<>(user), false);
         if (user == null) {
             throw new UsernameNotFoundException("用户名或密码错误");
         }
@@ -72,9 +74,11 @@ public class LoadUserDetailServiceImpl implements LoadUserDetailService {
         List<Role> roles = roleService.listRoleByUserId(user.getId());
 
         // 4 加载医务人员信息与组织单元
+        // 同一 user_id 在 adm_practitioner 中可能有多条记录，取第一条（selectOne 会抛异常）
         String uid = user.getId();
-        Practitioner practitioner = practitionerMapper.selectOne(
-                new QueryWrapper<Practitioner>().eq("user_id", uid).eq("is_deleted", 0));
+        Practitioner practitioner = practitionerMapper.selectList(
+                        new QueryWrapper<Practitioner>().eq("user_id", uid).eq("is_deleted", 0))
+                .stream().findFirst().orElse(null);
         if (practitioner != null) {
             user.setPractitionerId(practitioner.getId());
             user.setPractitionerName(practitioner.getName());
