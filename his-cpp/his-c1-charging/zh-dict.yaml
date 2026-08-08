@@ -73,19 +73,30 @@ macchiato:
    operatorName: 操作员名称
    clientType: 客户端类型
    bizRefJson: 业务参考JSON
+   printRequest: 打印请求数据
    encounterId: 就诊ID
    version: 版本号
    slotId: 时段ID
    chargeItemId: 收费项目ID
-   refundId: 退费ID
+   refundRequestId: 退费ID
    accountId: 账户ID
    entererId: 录入人ID
    payEnum: 支付方式枚举
    patientId: 患者ID
    paymentNo: 支付流水号
-   chargeItemIds: 收费项目ID集合
+   refundingChargeItemIds: 收费项目ID集合
    detailId: 支付明细记录ID
    invoiceId: 发票ID
+   printSuccess: 打印是否成功
+   printErrorMessage: 打印失败错误信息
+   printerStatus: 打印机状态
+   transactionId: 交易ID
+   thirdPartyTransactionId: 第三方平台交易号
+   paymentTime: 支付完成时间
+   receiptData: 完整回执数据
+   paymentStatus: 支付状态(0-待支付,1-成功,2-失败)
+   failureReason: 支付失败原因
+   scanPaymentReceipt: 扫码支付回执
 yxy:
  charging:
   register:
