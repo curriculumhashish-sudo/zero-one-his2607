@@ -62,7 +62,9 @@ class StocktakeControllerTest {
                 .andExpect(jsonPath("$.code").value(10000))
                 .andExpect(jsonPath("$.data.busNo").value("PST202608010001"))
                 .andExpect(jsonPath("$.data.statusEnum").value("DRAFT"))
-                .andExpect(jsonPath("$.data.itemCount").value(0));
+                .andExpect(jsonPath("$.data.itemCount").value(0))
+                .andExpect(jsonPath("$.data.warehouseName").value("西药房"))
+                .andExpect(jsonPath("$.data.items").isArray());
 
         assertEquals("addStocktake", stocktakeService.calledMethod);
     }
@@ -79,7 +81,9 @@ class StocktakeControllerTest {
                 .andExpect(jsonPath("$.data.busNo").value("PST202608010002"))
                 .andExpect(jsonPath("$.data.statusEnum").value("DRAFT"))
                 .andExpect(jsonPath("$.data.itemCount").value(1))
-                .andExpect(jsonPath("$.data.totalPrice").value(1225.00));
+                .andExpect(jsonPath("$.data.totalPrice").value(1225.00))
+                .andExpect(jsonPath("$.data.items[0].manufacturer").value("广州白云山制药"))
+                .andExpect(jsonPath("$.data.items[0].totalPrice").value(1225.00));
 
         assertEquals("saveStocktake", stocktakeService.calledMethod);
     }
@@ -96,7 +100,8 @@ class StocktakeControllerTest {
                 .andExpect(jsonPath("$.data.busNo").value("PST202608010003"))
                 .andExpect(jsonPath("$.data.statusEnum").value("PENDING_APPROVAL"))
                 .andExpect(jsonPath("$.data.itemCount").value(1))
-                .andExpect(jsonPath("$.data.totalPrice").value(1225.00));
+                .andExpect(jsonPath("$.data.totalPrice").value(1225.00))
+                .andExpect(jsonPath("$.data.warehouseName").value("西药房"));
 
         assertEquals("saveAndSubmitStocktake", stocktakeService.calledMethod);
     }
@@ -122,11 +127,34 @@ class StocktakeControllerTest {
 
     private StocktakeSaveVO buildSaveVO(String busNo, String status, int itemCount, BigDecimal totalPrice) {
         StocktakeSaveVO vo = new StocktakeSaveVO();
+        vo.setId(busNo);
         vo.setBusNo(busNo);
         vo.setStatusEnum(status);
+        vo.setWarehouseId("322954949549363200");
+        vo.setWarehouseName("西药房");
+        vo.setStocktakePharmacy("西药房");
         vo.setItemCount(itemCount);
         vo.setTotalPrice(totalPrice);
         vo.setOperateTime(LocalDateTime.of(2026, 8, 1, 10, 0));
+        if (itemCount > 0) {
+            com.zeroone.star.project.vo.stocktake.StocktakeItemVO item =
+                    new com.zeroone.star.project.vo.stocktake.StocktakeItemVO();
+            item.setId("1");
+            item.setItemName("阿莫西林胶囊");
+            item.setSpecification("0.25g*24粒");
+            item.setManufacturer("广州白云山制药");
+            item.setLotNumber("001-009");
+            item.setBookQuantity(new BigDecimal("100.00"));
+            item.setTotalQuantity(new BigDecimal("98.00"));
+            item.setItemQuantity(new BigDecimal("-2.00"));
+            item.setPrice(new BigDecimal("12.50"));
+            item.setTotalPrice(new BigDecimal("1225.00"));
+            item.setProfitLossPrice(new BigDecimal("-25.00"));
+            item.setRemark("正常损耗");
+            vo.setItems(List.of(item));
+        } else {
+            vo.setItems(List.of());
+        }
         return vo;
     }
 

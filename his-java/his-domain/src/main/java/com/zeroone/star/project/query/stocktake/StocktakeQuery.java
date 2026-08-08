@@ -30,6 +30,9 @@ public class StocktakeQuery extends PageQuery {
     @Schema(description = "库房标识", example = "1")
     private String warehouseId;
 
+    @Schema(description = "盘点药房名称（支持模糊查询）", example = "西药房")
+    private String warehouseName;
+
     @Schema(description = "申请人标识", example = "1")
     private String applicantId;
 

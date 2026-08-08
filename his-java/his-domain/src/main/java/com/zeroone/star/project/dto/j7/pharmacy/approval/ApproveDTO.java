@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Schema(description = "审批DTO")
 @Data
 public class ApproveDTO {
@@ -24,4 +26,7 @@ public class ApproveDTO {
 
     @Schema(description = "备注(驳回需要备注)")
     private String remark;
+
+    @Schema(description = "审批时间；不传时由后端使用当前时间", example = "2026-08-08 10:00:00")
+    private LocalDateTime approvalTime;
 }

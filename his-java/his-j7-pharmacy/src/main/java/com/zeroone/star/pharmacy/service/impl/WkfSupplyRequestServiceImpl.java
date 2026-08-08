@@ -178,8 +178,10 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
             }
         }
 
+        LocalDateTime approvalTime = dto.getApprovalTime() == null ? LocalDateTime.now() : dto.getApprovalTime();
+
         //2.改状态
-        wkfSupplyRequestMapper.updateStatusForApprove("AGREE", dto.getApproverId(), LocalDateTime.now(), dto.getBusNo());
+        wkfSupplyRequestMapper.updateStatusForApprove("AGREE", dto.getApproverId(), approvalTime, dto.getBusNo());
         log.info("审批状态修改成功: {}", dto.getBusNo());
 
         //3.逐行更新库存
@@ -230,7 +232,7 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
         vo.setApplicantId(first.getApplicantId());
         vo.setApplyTime(first.getApplyTime());
         vo.setApproverId(dto.getApproverId());
-        vo.setApprovalTime(LocalDateTime.now());
+        vo.setApprovalTime(approvalTime);
 
         log.info("盘点单审批通过: {}", dto.getBusNo());
         return vo;
@@ -255,8 +257,10 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
             }
         }
 
+        LocalDateTime approvalTime = dto.getApprovalTime() == null ? LocalDateTime.now() : dto.getApprovalTime();
+
         // 2. 改状态 → REJECT
-        wkfSupplyRequestMapper.updateStatusForApprove("REJECT", dto.getApproverId(), LocalDateTime.now(), dto.getBusNo());
+        wkfSupplyRequestMapper.updateStatusForApprove("REJECT", dto.getApproverId(), approvalTime, dto.getBusNo());
         log.info("审批状态修改为驳回: {}", dto.getBusNo());
 
         // 3. 释放锁（库存不动）
@@ -274,7 +278,7 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
         vo.setApplicantId(first.getApplicantId());
         vo.setApplyTime(first.getApplyTime());
         vo.setApproverId(dto.getApproverId());
-        vo.setApprovalTime(LocalDateTime.now());
+        vo.setApprovalTime(approvalTime);
 
         log.info("盘点单审批驳回: {}", dto.getBusNo());
         return vo;
