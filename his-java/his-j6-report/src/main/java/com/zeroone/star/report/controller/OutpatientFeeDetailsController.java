@@ -27,7 +27,7 @@ public class OutpatientFeeDetailsController implements OutpatientFeeDetailsApis 
     @Resource
     private IFeeDetailService feeDetailService;
 
-    @Operation(summary = "获取明细列表（条件+分页）")
+    @Operation(summary = "获取明细列表（条件+分页）", description = "对应 J8 GET /j8/mzfymx/getMinXiList")
     @PostMapping("fee-detail")
     @Override
     public JsonVO<OutpatientFeeDetailsVo> queryFeeDetail(@RequestBody FeeDetailQuery query) {
@@ -35,7 +35,7 @@ public class OutpatientFeeDetailsController implements OutpatientFeeDetailsApis 
         return JsonVO.success(result);
     }
 
-    @Operation(summary = "导出报表")
+    @Operation(summary = "导出报表", description = "对应 J8 POST /j8/mzfymx/exportMinXi")
     @PostMapping("fee-detail-export")
     @Override
     public void exportFeeDetail(@RequestBody FeeDetailExportQuery query, HttpServletResponse response) {

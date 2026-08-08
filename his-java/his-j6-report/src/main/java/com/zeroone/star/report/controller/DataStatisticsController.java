@@ -16,7 +16,6 @@ import com.zeroone.star.project.vo.j6.report.ExpirationWarningVO;
 import com.zeroone.star.project.vo.j6.report.MonthlyAccessVO;
 import com.zeroone.star.project.vo.j6.report.SupplyAmountCompareVO;
 import com.zeroone.star.project.vo.j6.report.TrafficTrendVO;
-import com.zeroone.star.report.service.IDataStatisticsService;
 import com.zeroone.star.report.service.IReportService;
 import com.zeroone.star.report.service.ITrafficTrendService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,8 +37,6 @@ public class DataStatisticsController implements DataStatisticsApis {
 
     @Resource
     private IReportService reportService;
-
-    private final IDataStatisticsService dataStatisticsService;
 
     @Operation(summary = "获取月访问量", description = "对应 J8 getMonthlyVisitTrend")
     @GetMapping("monthly-access")
