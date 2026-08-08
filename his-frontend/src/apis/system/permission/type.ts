@@ -6,8 +6,9 @@ export interface PermissionRecord {
   displayName: string
   parentName: string
   description: string
-  providerName: string
-  grantable: boolean
+  providerName?: string
+  grantable?: boolean
+  children?: PermissionRecord[]
 }
 
 export interface PermissionQuery extends BasicPageQuery {}

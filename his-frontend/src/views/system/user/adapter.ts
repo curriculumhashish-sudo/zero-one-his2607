@@ -9,7 +9,9 @@ export function createEmptyUserForm(): UserFormModel {
     phone: '',
     email: '',
     roleIds: [],
-    enabled: true
+    enabled: true,
+    password: '',
+    genderEnum: 0
   }
 }
 
@@ -21,6 +23,8 @@ export function toUserForm(user: UserRecord): UserFormModel {
     phone: user.phone,
     email: user.email,
     roleIds: [...user.roleIds],
-    enabled: user.enabled
+    enabled: user.enabled,
+    password: '',
+    genderEnum: user.genderEnum ?? 0
   }
 }

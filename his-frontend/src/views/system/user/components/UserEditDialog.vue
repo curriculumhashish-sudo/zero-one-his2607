@@ -37,6 +37,25 @@
               <el-input v-model="form.realName" maxlength="30" placeholder="请输入姓名" />
             </el-form-item>
           </el-col>
+          <el-col v-if="!form.id" :span="12">
+            <el-form-item label="初始密码" prop="password">
+              <el-input
+                v-model="form.password"
+                type="password"
+                show-password
+                placeholder="至少 8 位"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="性别" prop="genderEnum">
+              <el-select v-model="form.genderEnum" style="width: 100%">
+                <el-option label="未知" :value="0" />
+                <el-option label="女" :value="1" />
+                <el-option label="男" :value="2" />
+              </el-select>
+            </el-form-item>
+          </el-col>
           <el-col :span="12">
             <el-form-item label="手机号" prop="phone">
               <el-input v-model="form.phone" maxlength="11" placeholder="请输入手机号" />
@@ -117,6 +136,7 @@ const rules: FormRules<UserFormModel> = {
     }
   ],
   realName: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
+  password: [{ min: 8, message: '初始密码不能少于 8 位', trigger: 'blur' }],
   phone: [
     { required: true, message: '请输入手机号', trigger: 'blur' },
     { pattern: /^1\d{10}$/, message: '请输入11位手机号', trigger: 'blur' }
@@ -163,6 +183,10 @@ async function submit() {
   if (saving.value || loading.value) return
   const valid = await formRef.value?.validate().catch(() => false)
   if (!valid) return
+  if (!form.id && (form.password ?? '').length < 8) {
+    ElMessage.error('初始密码不能少于 8 位')
+    return
+  }
 
   saving.value = true
   try {
@@ -172,7 +196,9 @@ async function submit() {
       phone: form.phone,
       email: form.email,
       roleIds: [...form.roleIds],
-      enabled: form.enabled
+      enabled: form.enabled,
+      password: form.password,
+      genderEnum: form.genderEnum
     }
     if (form.id) await updateUser(form.id, payload)
     else await createUser(payload)

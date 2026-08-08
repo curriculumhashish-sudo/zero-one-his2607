@@ -20,6 +20,7 @@ export interface UserRecord {
   lockoutEnd: string
   createdAt: string
   updatedAt: string
+  genderEnum?: number
 }
 
 export interface UserSavePayload {
@@ -29,6 +30,8 @@ export interface UserSavePayload {
   email: string
   roleIds: string[]
   enabled: boolean
+  password?: string
+  genderEnum?: number
 }
 
 export interface RoleOption extends Record<string, unknown> {

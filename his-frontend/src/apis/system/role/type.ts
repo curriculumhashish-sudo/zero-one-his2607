@@ -8,6 +8,11 @@ export interface RoleRecord {
   permissionIds: string[]
   permissionNames: string[]
   isDefault: boolean
+  code?: string
+  isStatic?: boolean
+  tenantId?: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface RoleQuery extends BasicPageQuery {}
