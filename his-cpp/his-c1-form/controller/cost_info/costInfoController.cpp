@@ -54,6 +54,7 @@ std::shared_ptr<oatpp::web::server::api::ApiController::OutgoingResponse> CostIn
 				ZH_WORDS_GETTER("rhqm.form.cost_info.data.actualAmount"),
 				ZH_WORDS_GETTER("rhqm.form.cost_info.data.insuranceAmount"),
 				ZH_WORDS_GETTER("rhqm.form.cost_info.data.selfPayAmount"),
+				ZH_WORDS_GETTER("rhqm.form.cost_info.data.summary"),
 				});
 			// 写入数据
 			int row = 2;
@@ -91,6 +92,9 @@ std::shared_ptr<oatpp::web::server::api::ApiController::OutgoingResponse> CostIn
 				ex->setCellValue(row, col++, std::to_string(item->selfPayAmount));
 				ex->setRowProperties(row++);
 			}
+			// summary row, one row at the end of the table
+			ex->setCellValue(row, 30, std::to_string(result->summary));
+			ex->setRowProperties(row++);
 		});
 
 	// 组装下发数据

@@ -22,7 +22,10 @@ CostInfoDataDTO::Wrapper CostInfoService::listAll(const CostInfoQuery::Wrapper& 
 	// 分页
 	pages->total = count;
 	pages->calcPages();
+	// full-summary over all rows, charge add and refund subtract
+	pages->summary = dao.calcuSummary(query);
 	list<CostInfoDO> result = dao.selectWithPage(query);
+
 	for (CostInfoDO& sub : result)
 	{
 		auto dto = CostInfoDTO::createShared();
@@ -42,6 +45,7 @@ CostInfoDataDTO::Wrapper CostInfoService::listAll(const CostInfoQuery::Wrapper& 
 
 		pages->addData(dto);
 	}
+
 	return pages;
 }
 
@@ -63,6 +67,8 @@ CostInfoDataDTO::Wrapper CostInfoService::exportAll(const CostInfoQuery::Wrapper
 	// 获取全部数据
 	pages->total = count;
 	pages->calcPages();
+	// full-summary over all rows, charge add and refund subtract
+	pages->summary = dao.calcuSummary(query);
 	list<CostInfoDO> result = dao.selectAll(query);
 
 	for (CostInfoDO& sub : result)
@@ -84,6 +90,7 @@ CostInfoDataDTO::Wrapper CostInfoService::exportAll(const CostInfoQuery::Wrapper
 
 		pages->addData(dto);
 	}
+
 	return pages;
 }
 

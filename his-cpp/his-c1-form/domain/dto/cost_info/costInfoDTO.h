@@ -190,6 +190,13 @@ class CostInfoDTO : public oatpp::DTO
 class CostInfoDataDTO : public PageDTO<CostInfoDTO::Wrapper>
 {
 	DTO_INIT(CostInfoDataDTO, PageDTO<CostInfoDTO::Wrapper>);
+	
+	// 合计金额
+	DTO_FIELD(Float64, summary);
+	DTO_FIELD_INFO(summary) {
+		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.summary");
+	}
+
 };
 
 

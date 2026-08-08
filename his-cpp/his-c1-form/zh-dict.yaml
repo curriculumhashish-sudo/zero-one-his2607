@@ -69,6 +69,7 @@ rhqm:
     actualAmount: 实收金额
     insuranceAmount: 医保金额
     selfPayAmount: 自费金额
+    summary: 合计金额
    other:
     charge: 收费
     refund: 退费

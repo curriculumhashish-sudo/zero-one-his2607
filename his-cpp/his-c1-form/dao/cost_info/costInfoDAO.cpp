@@ -179,3 +179,22 @@ std::list<CostInfoDO> CostInfoDAO::selectAll(const CostInfoQuery::Wrapper& query
 
 	return sqlSession->executeQuery<CostInfoDO>(sqlStr, CostInfoMapper(), params);
 }
+
+double CostInfoDAO::calcuSummary(const CostInfoQuery::Wrapper& query) {
+
+	SqlParams params;
+	// charge rows add, refund rows subtract; sum in cents to keep 2 decimals (executeQueryNumerical returns uint64_t)
+	string sqlStr = "SELECT FLOOR(SUM(IF(t.is_refund, -t.receivableAmount, t.receivableAmount)) * 100 + 0.5) \
+					FROM (SELECT DISTINCT (aci.`refund_id` IS NULL) AS is_refund,\
+					 acid.`price_value` AS originalPrice,\
+					 aci.`discount_amount` AS discountAmount, aci.`base_amount` AS receivableAmount,\
+					 aci.`system_discount_price` AS discountedPrice, aci.`total_price` AS lineAmount,\
+					 fpr.`tendered_amount` AS actualAmount, ysr.`fund_pay_sumamt` AS insuranceAmount,\
+					 ysr.`psn_cash_pay` AS selfPayAmount ";
+	sqlStr += MAIN_SQL_JOINS;
+	sqlStr += queryConditionBuilder(query, params);
+	sqlStr += " ) t";
+
+	uint64_t cents = sqlSession->executeQueryNumerical(sqlStr, params);
+	return static_cast<int64_t>(cents) / 100.0;
+}
