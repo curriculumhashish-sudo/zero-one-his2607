@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.calendar.mapper.WkfSlotMapper">
+
+    <!-- ==================== 号源列表 ResultMap ==================== -->
+    <resultMap id="SlotResultMap" type="com.zeroone.star.project.dto.j8.calendar.SlotDTO">
+        <id column="slot_id" property="slotId" />
+        <result column="schedule_id" property="scheduleId" />
+        <result column="organization_id" property="organizationId" />
+        <result column="organization_name" property="organizationName" />
+        <result column="practitioner_id" property="practitionerId" />
+        <result column="practitioner_name" property="practitionerName" />
+        <result column="healthcare_service_id" property="healthcareServiceId" />
+        <result column="healthcare_service_name" property="healthcareServiceName" />
+        <result column="start_time" property="startTime" />
+        <result column="end_time" property="endTime" />
+        <result column="status_code" property="statusCode" />
+        <result column="capacity" property="capacity" />
+        <result column="booked_count" property="bookedCount" />
+        <result column="remaining_count" property="remainingCount" />
+        <result column="overbooked_flag" property="overbookedFlag" />
+    </resultMap>
+
+    <!-- ==================== 号源详情 ResultMap（继承列表映射，追加备注） ==================== -->
+    <resultMap id="SlotDetailResultMap" type="com.zeroone.star.project.dto.j8.calendar.SlotDetailDTO"
+               extends="SlotResultMap">
+        <result column="comment_text" property="commentText" />
+    </resultMap>
+
+    <!-- ==================== 分页查询号源列表 ==================== -->
+    <select id="selectSlotPage" resultMap="SlotResultMap">
+        SELECT
+            s.id                        AS slot_id,
+            s.schedule_id               AS schedule_id,
+            s.organization_id           AS organization_id,
+            ao.name                     AS organization_name,
+            sa.actor_id                 AS practitioner_id,
+            ap.name                     AS practitioner_name,
+            sch.healthcare_service_id   AS healthcare_service_id,
+            hs.name                     AS healthcare_service_name,
+            s.start_time                AS start_time,
+            s.end_time                  AS end_time,
+            s.status_code               AS status_code,
+            s.capacity                  AS capacity,
+            s.booked_count              AS booked_count,
+            (s.capacity - s.booked_count) AS remaining_count,
+            s.overbooked_flag           AS overbooked_flag
+        FROM wkf_slot s
+        INNER JOIN wkf_schedule sch
+            ON s.schedule_id = sch.id AND sch.is_deleted = 0
+        LEFT JOIN wkf_schedule_actor sa
+            ON sch.id = sa.schedule_id
+            AND sa.actor_type = 1
+            AND sa.sort_no = 1
+            AND sa.is_deleted = 0
+        LEFT JOIN adm_organization ao
+            ON s.organization_id = ao.id AND ao.is_deleted = 0
+        LEFT JOIN adm_practitioner ap
+            ON sa.actor_id = ap.id AND ap.is_deleted = 0
+        LEFT JOIN adm_healthcare_service hs
+            ON sch.healthcare_service_id = hs.id AND hs.is_deleted = 0
+        WHERE s.is_deleted = 0
+        <if test="query.organizationId != null and query.organizationId != ''">
+            AND s.organization_id = #{query.organizationId}
+        </if>
+        <if test="query.scheduleId != null and query.scheduleId != ''">
+            AND s.schedule_id = #{query.scheduleId}
+        </if>
+        <if test="query.date != null">
+            AND s.start_time &gt;= #{query.date}
+            AND s.start_time &lt;  DATE_ADD(#{query.date}, INTERVAL 1 DAY)
+        </if>
+        <if test="query.practitionerId != null and query.practitionerId != ''">
+            AND sa.actor_id = #{query.practitionerId}
+        </if>
+        <if test="query.statusCode != null and query.statusCode != ''">
+            AND s.status_code = #{query.statusCode}
+        </if>
+        ORDER BY s.start_time ASC
+    </select>
+
+    <!-- ==================== 查询号源详情 ==================== -->
+    <select id="selectSlotDetail" resultMap="SlotDetailResultMap">
+        SELECT
+            s.id                        AS slot_id,
+            s.schedule_id               AS schedule_id,
+            s.organization_id           AS organization_id,
+            ao.name                     AS organization_name,
+            sa.actor_id                 AS practitioner_id,
+            ap.name                     AS practitioner_name,
+            sch.healthcare_service_id   AS healthcare_service_id,
+            hs.name                     AS healthcare_service_name,
+            s.start_time                AS start_time,
+            s.end_time                  AS end_time,
+            s.status_code               AS status_code,
+            s.capacity                  AS capacity,
+            s.booked_count              AS booked_count,
+            (s.capacity - s.booked_count) AS remaining_count,
+            s.overbooked_flag           AS overbooked_flag,
+            s.comment_text              AS comment_text
+        FROM wkf_slot s
+        INNER JOIN wkf_schedule sch
+            ON s.schedule_id = sch.id AND sch.is_deleted = 0
+        LEFT JOIN wkf_schedule_actor sa
+            ON sch.id = sa.schedule_id
+            AND sa.actor_type = 1
+            AND sa.sort_no = 1
+            AND sa.is_deleted = 0
+        LEFT JOIN adm_organization ao
+            ON s.organization_id = ao.id AND ao.is_deleted = 0
+        LEFT JOIN adm_practitioner ap
+            ON sa.actor_id = ap.id AND ap.is_deleted = 0
+        LEFT JOIN adm_healthcare_service hs
+            ON sch.healthcare_service_id = hs.id AND hs.is_deleted = 0
+        WHERE s.id = #{slotId} AND s.is_deleted = 0
+    </select>
+
+</mapper>

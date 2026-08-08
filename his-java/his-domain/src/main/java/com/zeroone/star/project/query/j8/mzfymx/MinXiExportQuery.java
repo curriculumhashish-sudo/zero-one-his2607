@@ -53,6 +53,9 @@ public class MinXiExportQuery {
 
     @Pattern(regexp = "^(ALL|CHARGE|REFUND)$", message = "收退方向只能是 ALL(全部) / CHARGE(收费) / REFUND(退费)")
     @Schema(description = "收退方向", example = "ALL", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private String shouTui;
+    private String tradeDirection;
+
+    @Schema(description = "租户ID（后端注入，无需前端传）", hidden = true)
+    private String tenantId;
 
 }
