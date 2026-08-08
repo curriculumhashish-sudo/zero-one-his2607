@@ -99,8 +99,8 @@ yxy:
    today_id: 时刻表id
    number: 就诊号
    name: 患者姓名
-   start_time: 开始时间
-   end_time: 结束时间
+   start_time: 开始时间(uint64类型时间戳)
+   end_time: 结束时间（uint64类型时间戳）
    sex: 患者性别
    phone: 患者联系方式
    organization: 科室
@@ -124,6 +124,12 @@ yxy:
    operator_id: 操作者id
    tenant_id: 租户id
    register_def_id: 收费项目定义id
+   encounterId: 就诊标识
+   encounterBusNo: 就诊业务号
+   serviceTypeId: 挂号服务类型标识
+   statusEnum: 挂号状态枚举(IN_PROGRESS:就诊已开始，患者正在接受诊疗，其他:未知)
+   slotId: 号源标识
+   contractNo: 合同/医保类型标识
 lhfc:
   charging:
     charge:
@@ -1088,3 +1094,28 @@ ovo:
       insert_invoice_failed: 新增住院结算发票失败
       charge_item_state_changed: 收费项目状态已变化，请刷新后重试
       account_state_changed: 就诊账户状态已变化，请刷新后重试
+      cost_presentation_mode: 显示模式，SUMMARY仅返回汇总，DETAIL返回汇总和费用明细
+      charge_date_from: 费用开始日期，格式yyyy-MM-dd或yyyy-MM-dd HH:mm:ss
+      charge_date_to: 费用结束日期，格式yyyy-MM-dd或yyyy-MM-dd HH:mm:ss
+      cost_presentation_mode_invalid: 显示模式仅支持SUMMARY或DETAIL
+      charge_date_invalid: 费用日期必须使用yyyy-MM-dd或yyyy-MM-dd HH:mm:ss格式且日期有效
+      charge_date_range_invalid: 费用开始日期不能晚于费用结束日期
+      history_presentation_mode: 显示模式，SUMMARY仅返回汇总，DETAIL返回汇总、支付记录和费用明细
+      history_presentation_mode_invalid: 显示模式仅支持SUMMARY或DETAIL
+      payment_id_too_long: 支付流水主键长度不能超过64个字符
+      active_payment_id: 当前支付流水主键
+      receivable_total: 应收合计
+      net_settle_total: 净结算合计（实收金额减找零金额）
+      settle_time: 结算时间
+      history_categories: 结算费用分类汇总列表
+      history_lines: 结算费用明细列表
+      history_payments: 结算支付记录列表
+      category_line_count: 分类下的明细条数
+      category_total_amount: 分类金额合计
+      payment_draft_id: 预结算草稿标识（防重防换单，本期不强制校验）
+      yb_pre_settle_id: 医保预结算记录标识
+      yb_chrg_bchno: 医保收费批次号
+      client_scan_result: 扫码支付回执（预留，暂不展开）
+      payment_draft_id_too_long: 预结算草稿标识长度不能超过64个字符
+      yb_pre_settle_id_too_long: 医保预结算记录标识长度不能超过64个字符
+      yb_chrg_bchno_too_long: 医保收费批次号长度不能超过64个字符

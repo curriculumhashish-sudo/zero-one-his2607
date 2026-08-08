@@ -23,11 +23,15 @@ class GetSeeDO : public BaseDO
 	//参保地
 	MYSQL_SYNTHESIZE(string,addr,Addr);
 	//挂号类型
-	MYSQL_SYNTHESIZE(string, register_type, Register_type)
+	MYSQL_SYNTHESIZE(string, register_type, Register_type);
 	//挂号费
-	MYSQL_SYNTHESIZE(double, cost, Cost)
+	MYSQL_SYNTHESIZE(double, cost, Cost);
 	//挂号时间
-	MYSQL_SYNTHESIZE(string, time, Time)
+	MYSQL_SYNTHESIZE(string, time, Time);
+
+	MYSQL_SYNTHESIZE(string, serviceTypeId, ServiceTypeId);
+
+	MYSQL_SYNTHESIZE(string, statusEnum, StatusEnum);
 
 public:
 	GetSeeDO() : BaseDO("GetSee"){
@@ -43,6 +47,8 @@ public:
 		MYSQL_ADD_FIELD("register_type", "s", register_type);
 		MYSQL_ADD_FIELD("cost", "d", cost);
 		MYSQL_ADD_FIELD("time", "dt", time);
+		MYSQL_ADD_FIELD("serviceTypeId", "s", serviceTypeId);
+		MYSQL_ADD_FIELD("statusEnum", "s", statusEnum);
 
 	}
 };

@@ -23,9 +23,14 @@ class AddRegisterDO : public BaseDO
 	MYSQL_SYNTHESIZE(std::string, tenant_id, Tenant_id);
 	MYSQL_SYNTHESIZE(std::string, encounter_bus_no, Encounter_bus_no);
 	MYSQL_SYNTHESIZE(std::string, patient_bus_no, Patient_bus_no);
+	MYSQL_SYNTHESIZE(std::string, account_bus_no, Account_bus_no);
 	MYSQL_SYNTHESIZE(std::string, now, Now);
 	MYSQL_SYNTHESIZE(std::string, participant_id, Participant_id);
 	MYSQL_SYNTHESIZE(std::string, location_id, Location_id); 
+	MYSQL_SYNTHESIZE(std::string, account_id, Account_id);
+	MYSQL_SYNTHESIZE(std::string, serviceTypeId, ServiceTypeId);
+	MYSQL_SYNTHESIZE(std::string, slotId, SlotId);
+	MYSQL_SYNTHESIZE(std::string, contractNo, ContractNo);
 public:
 	AddRegisterDO() : BaseDO("AddRegister") {
 		MYSQL_ADD_FIELD_PK("id", "s", id);
@@ -46,6 +51,11 @@ public:
 		MYSQL_ADD_FIELD("now", "dt", now);
 		MYSQL_ADD_FIELD("participant_id", "s", participant_id);
 		MYSQL_ADD_FIELD("location_id", "s", location_id);
+		MYSQL_ADD_FIELD("serviceTypeId", "s", serviceTypeId);
+		MYSQL_ADD_FIELD("slotId", "s", slotId);
+		MYSQL_ADD_FIELD("contractNo", "s", contractNo);
+		MYSQL_ADD_FIELD("account_id", "s", account_id);
+		MYSQL_ADD_FIELD("account_bus_no", "s", account_bus_no);
 	}
 };
 

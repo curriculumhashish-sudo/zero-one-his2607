@@ -21,12 +21,12 @@
 #include"../../service/data_statistics/MonthVisitService.h"
 
 
-MonthVisitVO::Wrapper MonthVisitController::execQueryMonthVisit(
+MonthVisitPageJsonVO::Wrapper MonthVisitController::execQueryMonthVisit(
 	const MonthVisitQuery::Wrapper& query
 )
 {
 	auto result = MonthVisitService().findflow(query);
-	auto jvo = MonthVisitVO::createShared();
+	auto jvo = MonthVisitPageJsonVO::createShared();
 	jvo->success(result);
 	return jvo;
 }

@@ -67,6 +67,18 @@ class AddRegisterDTO :public oatpp::DTO
 	DTO_FIELD_INFO(tenant_id) {
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.tenant_id");
 	}
+	DTO_FIELD(String, serviceTypeId);
+	DTO_FIELD_INFO(serviceTypeId) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.serviceTypeId");
+	}
+	DTO_FIELD(String, slotId);
+	DTO_FIELD_INFO(slotId) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.slotId");
+	}
+	DTO_FIELD(String, contractNo);
+	DTO_FIELD_INFO(contractNo) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.contractNo");
+	}
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 };
 

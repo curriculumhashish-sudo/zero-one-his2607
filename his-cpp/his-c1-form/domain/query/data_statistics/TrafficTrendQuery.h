@@ -33,10 +33,19 @@ class TrafficTrendQuery : public PageQuery
 	DTO_INIT(TrafficTrendQuery, PageQuery);
 
 	// Time dimension type: 1=weekly, 2=monthly
-	DTO_FIELD(String, date);
-	DTO_FIELD_INFO(date) {
-		info->description = ZH_WORDS_GETTER("Lin.form.data_statistics.field.date");
+	DTO_FIELD(String, dateFrom);
+	DTO_FIELD_INFO(dateFrom) {
+		info->description = ZH_WORDS_GETTER("Lin.form.data_statistics.field.dateFrom");
 	}
+	DTO_FIELD(String, dateTo);
+	DTO_FIELD_INFO(dateTo) {
+		info->description = ZH_WORDS_GETTER("Lin.form.data_statistics.field.dateTo");
+	}
+	DTO_FIELD(String, organizationId);
+	DTO_FIELD_INFO(organizationId) {
+		info->description = ZH_WORDS_GETTER("Lin.form.data_statistics.field.organizationId");
+	}
+
 
 };
 

@@ -57,7 +57,11 @@ uint64_t GetSeeDAO::count(const GetSeeQuery::Wrapper& query)
 std::list<GetSeeDO> GetSeeDAO::selectSeeWithPage(const GetSeeQuery::Wrapper& query)
 {
 	SqlParams params;
-	string sql = "SELECT e.id AS id,e.bus_no AS bus_no,p.name AS name,p.gender_enum AS gender_enum,p.phone AS phone,o.name AS org_name,pr.name AS doctor,fc.name AS cost_type,dict.dict_label AS addr,h.name AS register_type,SUM(ci.total_price) AS cost,e.start_time AS time FROM adm_encounter e ";
+	string sql = "SELECT e.id AS id,e.bus_no AS bus_no,p.name AS name,p.gender_enum AS gender_enum,p.phone AS phone,o.name AS org_name,pr.name AS doctor,fc.name AS cost_type,dict.dict_label AS addr,";
+	
+	sql+= "h.name AS register_type, SUM(ci.total_price) AS cost, e.start_time AS time, e.service_type_id AS serviceTypeId, e.status_enum AS statusEnum, ";
+		
+	sql+=  " FROM adm_encounter e ";
 
 	sql += "LEFT JOIN adm_patient p ON e.patient_id = p.id ";
 

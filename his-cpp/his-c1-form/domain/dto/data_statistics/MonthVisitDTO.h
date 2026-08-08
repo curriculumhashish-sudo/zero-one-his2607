@@ -30,7 +30,12 @@ class MonthVisitDTO : public oatpp::DTO
 {
 	DTO_INIT(MonthVisitDTO, DTO);
 
-	DTO_FIELD(String, totalVisit);
+	DTO_FIELD(List<Int64>, daytList);
+	DTO_FIELD_INFO(daytList) {
+		info->description = ZH_WORDS_GETTER("Lin.form.data_statistics.field.daytList");
+	}
+
+	DTO_FIELD(Int64, totalVisit);
 	DTO_FIELD_INFO(totalVisit) {
 		info->description = ZH_WORDS_GETTER("Lin.form.data_statistics.field.total_visit");
 	}
