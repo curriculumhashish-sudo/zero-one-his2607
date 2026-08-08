@@ -14,7 +14,7 @@ public class PharmacyInventoryVO {
     @Schema(description = "盘点单号", example = "CST202608070001")
     private String busNo;
 
-    @Schema(description = "状态编码", example = "DRAFT")
+    @Schema(description = "状态编码", example = "PENDING_APPROVAL")
     private String statusEnum;
 
     @Schema(description = "状态名称", example = "草稿")

@@ -15,7 +15,7 @@ public class InboundReceiptListVO {
     @Schema(description = "供应商名称", example = "华中药品配送有限公司")
     private String supplierName;
 
-    @Schema(description = "供应状态编码（DRAFT=草稿, PENDING_APPROVAL=待审批, AGREE=已通过, REJECT=已驳回）", example = "DRAFT")
+    @Schema(description = "供应状态编码（PENDING_APPROVAL=待审核, APPROVAL=审核中, AGREE=已通过, REJECT=已驳回, WITHDRAW=已撤回）", example = "PENDING_APPROVAL")
     private String statusEnum;
 
     @Schema(description = "创建人/制单人名称", example = "库管")

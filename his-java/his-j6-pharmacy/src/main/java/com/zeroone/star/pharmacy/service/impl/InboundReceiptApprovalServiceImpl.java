@@ -40,8 +40,8 @@ public class InboundReceiptApprovalServiceImpl implements IInboundReceiptApprova
     /** 进货单类型编码，与前端 WHS_IN_SUPPLY_TYPE_CODE 一致 */
     private static final String TYPE_INBOUND_RECEIPT = "CABINET_INBOUND_RECEIPT";
 
-    private static final String STATUS_DRAFT = "DRAFT";
     private static final String STATUS_PENDING_APPROVAL = "PENDING_APPROVAL";
+    private static final String STATUS_APPROVAL = "APPROVAL";
     private static final String STATUS_WITHDRAW = "WITHDRAW";
     private static final String STATUS_AGREE = "AGREE";
     private static final String STATUS_REJECT = "REJECT";
@@ -65,7 +65,7 @@ public class InboundReceiptApprovalServiceImpl implements IInboundReceiptApprova
     public InboundApprovalResultVO submit(SubmitInboundReceiptApprovalDTO dto) {
         List<WkfSupplyRequest> rows = requireInboundReceipt(dto.getBusNo());
         requireSameStatus(rows);
-        requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_DRAFT, STATUS_WITHDRAW, STATUS_REJECT);
+        requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_PENDING_APPROVAL, STATUS_WITHDRAW, STATUS_REJECT);
 
         String approverId = StringUtils.hasText(dto.getApproverId()) ? dto.getApproverId() : null;
         LocalDateTime now = LocalDateTime.now();
@@ -76,7 +76,7 @@ public class InboundReceiptApprovalServiceImpl implements IInboundReceiptApprova
                 approverId, userId, now, now, userId);
         requireUpdated(affected);
 
-        return new InboundApprovalResultVO(true, STATUS_PENDING_APPROVAL);
+        return new InboundApprovalResultVO(true, STATUS_APPROVAL);
     }
 
     // ==================== 2. 撤回审批 ====================
@@ -86,7 +86,7 @@ public class InboundReceiptApprovalServiceImpl implements IInboundReceiptApprova
     public InboundApprovalResultVO withdraw(WithdrawInboundReceiptApprovalDTO dto) {
         List<WkfSupplyRequest> rows = requireInboundReceipt(dto.getBusNo());
         requireSameStatus(rows);
-        requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_PENDING_APPROVAL);
+        requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_APPROVAL);
 
         LocalDateTime now = LocalDateTime.now();
         String userId = currentUserId();
@@ -105,7 +105,7 @@ public class InboundReceiptApprovalServiceImpl implements IInboundReceiptApprova
     public InboundApprovalResultVO agree(AgreeInboundReceiptDTO dto) {
         List<WkfSupplyRequest> rows = requireInboundReceipt(dto.getBusNo());
         requireSameStatus(rows);
-        requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_PENDING_APPROVAL);
+        requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_APPROVAL);
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime approvalTime = resolveApprovalClock(dto.getApprovalClock());
@@ -134,7 +134,7 @@ public class InboundReceiptApprovalServiceImpl implements IInboundReceiptApprova
 
         List<WkfSupplyRequest> rows = requireInboundReceipt(dto.getBusNo());
         requireSameStatus(rows);
-        requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_PENDING_APPROVAL);
+        requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_APPROVAL);
 
         LocalDateTime now = LocalDateTime.now();
         String userId = currentUserId();

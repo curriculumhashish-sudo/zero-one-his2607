@@ -19,7 +19,7 @@ public class StocktakeDetailVO {
     @Schema(description = "盘点单号", example = "CST202608070001")
     private String busNo;
 
-    @Schema(description = "单据状态（DRAFT/PENDING_APPROVAL/AGREE/REJECT）", example = "DRAFT")
+    @Schema(description = "单据状态（PENDING_APPROVAL=待审核, APPROVAL=审核中, AGREE=已通过, REJECT=已驳回, WITHDRAW=已撤回）", example = "PENDING_APPROVAL")
     private String statusEnum;
 
     @Schema(description = "库房ID", example = "322954885380706304")

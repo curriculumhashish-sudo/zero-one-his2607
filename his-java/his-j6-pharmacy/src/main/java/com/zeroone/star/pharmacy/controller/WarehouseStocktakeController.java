@@ -11,6 +11,7 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j6.pharmacy.PharmacyInventoryDeleteVO;
 import com.zeroone.star.project.vo.j6.pharmacy.PharmacyInventoryDetailVO;
 import com.zeroone.star.project.vo.j6.pharmacy.PharmacyInventoryListVO;
+import com.zeroone.star.project.vo.j6.pharmacy.stocktake.StocktakeApprovalResultVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stocktake.StocktakeDetailVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -92,41 +93,29 @@ public class WarehouseStocktakeController implements WarehouseStocktakeApis {
     @Override
     @PostMapping("/submit-approval")
     @Operation(summary = "提交审批")
-    public JsonVO<Boolean> submitStocktakeApproval(@Valid @RequestBody StocktakeSubmitApprovalDTO dto) {
-        return execute(stocktakeApprovalService::submit, dto);
+    public JsonVO<StocktakeApprovalResultVO> submitStocktakeApproval(@Valid @RequestBody StocktakeSubmitApprovalDTO dto) {
+        return JsonVO.success(new StocktakeApprovalResultVO(stocktakeApprovalService.submit(dto), "APPROVAL"));
     }
 
     @Override
     @PostMapping("/withdraw-approval")
     @Operation(summary = "撤回审批")
-    public JsonVO<Boolean> withdrawStocktakeApproval(@Valid @RequestBody StocktakeWithdrawApprovalDTO dto) {
-        return execute(stocktakeApprovalService::withdraw, dto);
+    public JsonVO<StocktakeApprovalResultVO> withdrawStocktakeApproval(@Valid @RequestBody StocktakeWithdrawApprovalDTO dto) {
+        return JsonVO.success(new StocktakeApprovalResultVO(stocktakeApprovalService.withdraw(dto), "WITHDRAW"));
     }
 
     @Override
     @PostMapping("/approve")
     @Operation(summary = "审批通过")
-    public JsonVO<Boolean> agreeStocktakeApproval(@Valid @RequestBody StocktakeAgreeApprovalDTO dto) {
-        return execute(stocktakeApprovalService::agree, dto);
+    public JsonVO<StocktakeApprovalResultVO> agreeStocktakeApproval(@Valid @RequestBody StocktakeAgreeApprovalDTO dto) {
+        return JsonVO.success(new StocktakeApprovalResultVO(stocktakeApprovalService.agree(dto), "AGREE"));
     }
 
     @Override
     @PostMapping("/reject")
     @Operation(summary = "驳回审批")
-    public JsonVO<Boolean> rejectStocktakeApproval(@Valid @RequestBody StocktakeRejectApprovalDTO dto) {
-        return execute(stocktakeApprovalService::reject, dto);
+    public JsonVO<StocktakeApprovalResultVO> rejectStocktakeApproval(@Valid @RequestBody StocktakeRejectApprovalDTO dto) {
+        return JsonVO.success(new StocktakeApprovalResultVO(stocktakeApprovalService.reject(dto), "REJECT"));
     }
 
-    @FunctionalInterface
-    private interface ApprovalAction<T> {
-        Boolean execute(T dto);
-    }
-
-    private <T> JsonVO<Boolean> execute(ApprovalAction<T> action, T dto) {
-        try {
-            return JsonVO.success(action.execute(dto));
-        } catch (Exception e) {
-            return JsonVO.fail(e.getMessage());
-        }
-    }
 }

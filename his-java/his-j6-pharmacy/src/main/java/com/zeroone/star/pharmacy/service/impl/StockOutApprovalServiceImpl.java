@@ -40,14 +40,15 @@ public class StockOutApprovalServiceImpl implements IStockoutApprovalService {
     //
     private static final String TYPE_WAREHOUSE_STOCKOUT = "WAREHOUSE_STOCKOUT";
     //
-    private static final String STATUS_DRAFT = "DRAFT";
-    //待审批
+    //待审核
     private static final String STATUS_PENDING_APPROVAL = "PENDING_APPROVAL";
+    //审核中
+    private static final String STATUS_APPROVAL = "APPROVAL";
     //已撤回
     private static final String STATUS_WITHDRAW = "WITHDRAW";
-    //已审批
+    //已通过
     private static final String STATUS_AGREE = "AGREE";
-    //被驳回
+    //已驳回
     private static final String STATUS_REJECT = "REJECT";
 
     @Resource
@@ -67,11 +68,11 @@ public class StockOutApprovalServiceImpl implements IStockoutApprovalService {
         // 2. 校验行状态一致
         requireSameStatus(rows);
         // 3. 校验当前状态允许提交审批（草稿/已撤回/已驳回）
-        requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_DRAFT, STATUS_WITHDRAW, STATUS_REJECT);
+        requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_PENDING_APPROVAL, STATUS_WITHDRAW, STATUS_REJECT);
         // 4. 更新状态为待审批
         LocalDateTime now = LocalDateTime.now();
         String userId = currentUserId();
-        updateStatus(dto.getBusNo(), STATUS_PENDING_APPROVAL, wrapper -> wrapper
+        updateStatus(dto.getBusNo(), STATUS_APPROVAL, wrapper -> wrapper
                 .set("applicant_id", userId)
                 .set("apply_time", now)
                 .set("approver_id", dto.getApproverId())//指定审批人id
@@ -90,7 +91,7 @@ public class StockOutApprovalServiceImpl implements IStockoutApprovalService {
         // 2. 校验行状态一致
         requireSameStatus(rows);
         // 3. 校验当前状态允许撤回审批（待审批）
-        requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_PENDING_APPROVAL);
+        requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_APPROVAL);
         //校验当前用户能否撤回该审批（applicantId 为 null 时跳过校验，兼容旧数据）
         String userId = currentUserId();
         String applicantId = rows.get(0).getApplicantId();
@@ -116,7 +117,7 @@ public class StockOutApprovalServiceImpl implements IStockoutApprovalService {
         // 2. 校验行状态一致
         requireSameStatus(rows);
         // 3. 校验当前状态允许审批（待审批）
-        requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_PENDING_APPROVAL);
+        requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_APPROVAL);
         // 4. 审批人优先取 DTO 传入的值，否则用当前用户
         String userId = currentUserId();
         String approverId = StringUtils.hasText(dto.getApproverId()) ? dto.getApproverId() : userId;
@@ -152,7 +153,7 @@ public class StockOutApprovalServiceImpl implements IStockoutApprovalService {
         // 2. 校验行状态一致
         requireSameStatus(rows);
         // 3. 校验当前状态允许提交审批（待审批）
-        requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_PENDING_APPROVAL);
+        requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_APPROVAL);
         // 4. 审批人优先取 DTO 传入的值，否则用当前用户
         String userId = currentUserId();
         String approverId2 = StringUtils.hasText(dto.getApproverId()) ? dto.getApproverId() : userId;

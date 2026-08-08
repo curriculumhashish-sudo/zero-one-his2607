@@ -17,7 +17,7 @@ public class InboundReceiptSaveResultVO {
     @Schema(description = "业务单号", example = "JHD202607190001")
     private String busNo;
 
-    @Schema(description = "供应状态编码", example = "DRAFT")
+    @Schema(description = "供应状态编码", example = "PENDING_APPROVAL")
     private String statusEnum;
 
     @Schema(description = "乐观锁版本号", example = "0")

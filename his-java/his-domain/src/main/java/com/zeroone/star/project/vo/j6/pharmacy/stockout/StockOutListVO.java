@@ -19,7 +19,7 @@ public class StockOutListVO {
     @Schema(description = "单据类型编码", example = "WAREHOUSE_STOCKOUT")
     private String typeEnum;
 
-    @Schema(description = "状态编码（DRAFT/PENDING_APPROVAL/AGREE/REJECT/WITHDRAW）", example = "DRAFT")
+    @Schema(description = "状态编码（PENDING_APPROVAL=待审核, APPROVAL=审核中, AGREE=已通过, REJECT=已驳回, WITHDRAW=已撤回）", example = "PENDING_APPROVAL")
     private String statusEnum;
 
     @Schema(description = "状态文本", example = "草稿")

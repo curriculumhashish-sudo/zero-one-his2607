@@ -6,6 +6,7 @@ import com.zeroone.star.project.query.j6.pharmacy.stocktake.PharmacyInventoryQue
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j6.pharmacy.PharmacyInventoryDetailVO;
 import com.zeroone.star.project.vo.j6.pharmacy.PharmacyInventoryListVO;
+import com.zeroone.star.project.vo.j6.pharmacy.stocktake.StocktakeApprovalResultVO;
 import com.zeroone.star.project.vo.j6.pharmacy.stocktake.StocktakeDetailVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -64,20 +65,11 @@ public interface WarehouseStocktakeApis {
     /**
      * 提交药库盘点审批
      */
-    JsonVO<Boolean> submitStocktakeApproval(StocktakeSubmitApprovalDTO dto);
+    JsonVO<StocktakeApprovalResultVO> submitStocktakeApproval(StocktakeSubmitApprovalDTO dto);
 
-    /**
-     * 撤回药库盘点审批
-     */
-    JsonVO<Boolean> withdrawStocktakeApproval(StocktakeWithdrawApprovalDTO dto);
+    JsonVO<StocktakeApprovalResultVO> withdrawStocktakeApproval(StocktakeWithdrawApprovalDTO dto);
 
-    /**
-     * 通过药库盘点审批
-     */
-    JsonVO<Boolean> agreeStocktakeApproval(StocktakeAgreeApprovalDTO dto);
+    JsonVO<StocktakeApprovalResultVO> agreeStocktakeApproval(StocktakeAgreeApprovalDTO dto);
 
-    /**
-     * 驳回药库盘点审批
-     */
-    JsonVO<Boolean> rejectStocktakeApproval(StocktakeRejectApprovalDTO dto);
+    JsonVO<StocktakeApprovalResultVO> rejectStocktakeApproval(StocktakeRejectApprovalDTO dto);
 }

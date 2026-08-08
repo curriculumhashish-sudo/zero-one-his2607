@@ -23,7 +23,7 @@ public class StockOutDetailVO {
     @Schema(description = "出库单类型编码", example = "WAREHOUSE_STOCKOUT")
     private String typeEnum;
 
-    @Schema(description = "供应状态编码", example = "DRAFT")
+    @Schema(description = "供应状态编码", example = "PENDING_APPROVAL")
     private String statusEnum;
 
     @Schema(description = "供应类别编码", example = "STOCK_OUT")

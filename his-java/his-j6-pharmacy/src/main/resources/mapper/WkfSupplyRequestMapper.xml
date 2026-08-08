@@ -21,7 +21,7 @@
 
     <update id="updateStocktakeToPending">
         update wkf_supply_request
-        set status_enum = 'PENDING_APPROVAL',
+        set status_enum = 'APPROVAL',
             applicant_id = #{applicantId},
             apply_time = #{applyTime},
             approver_id = #{approverId},
@@ -169,7 +169,7 @@
     <!-- 提交审批 -->
     <update id="updateInboundToPending">
         UPDATE wkf_supply_request
-        SET status_enum = 'PENDING_APPROVAL',
+        SET status_enum = 'APPROVAL',
             approver_id = #{approverId},
             applicant_id = #{applicantId},
             apply_time = #{applyTime},

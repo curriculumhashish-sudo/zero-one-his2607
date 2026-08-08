@@ -24,10 +24,9 @@ import java.util.stream.Collectors;
 @Service
 public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
     private static final String TYPE_WAREHOUSE_STOCKTAKE = "PHARMACY_STOCKTAKE";
-    private static final String STATUS_DRAFT = "DRAFT";
     private static final String STATUS_PENDING_APPROVAL = "PENDING_APPROVAL";
+    private static final String STATUS_APPROVAL = "APPROVAL";
     private static final String STATUS_WITHDRAW = "WITHDRAW";
-    private static final String STATUS_AGREE = "AGREE";
     private static final String STATUS_REJECT = "REJECT";
 
     @Resource
@@ -44,7 +43,7 @@ public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
     public Boolean submit(StocktakeSubmitApprovalDTO dto) {
         List<WkfSupplyRequest> rows = requireWarehouseStocktake(dto.getBusNo());
         requireSameStatus(rows);
-        requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_DRAFT, STATUS_WITHDRAW, STATUS_REJECT);
+        requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_PENDING_APPROVAL, STATUS_WITHDRAW, STATUS_REJECT);
 
         LocalDateTime now = LocalDateTime.now();
         String userId = currentUserId();
@@ -60,7 +59,7 @@ public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
     public Boolean withdraw(StocktakeWithdrawApprovalDTO dto) {
         List<WkfSupplyRequest> rows = requireWarehouseStocktake(dto.getBusNo());
         requireSameStatus(rows);
-        requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_PENDING_APPROVAL);
+        requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_APPROVAL);
 
         LocalDateTime now = LocalDateTime.now();
         String userId = currentUserId();
@@ -75,7 +74,7 @@ public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
     public Boolean agree(StocktakeAgreeApprovalDTO dto) {
         List<WkfSupplyRequest> rows = requireWarehouseStocktake(dto.getBusNo());
         requireSameStatus(rows);
-        requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_PENDING_APPROVAL);
+        requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_APPROVAL);
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime approvalTime = resolveApprovalClock(dto.getApprovalClock());
@@ -96,7 +95,7 @@ public class StocktakeApprovalServiceImpl implements IStocktakeApprovalService {
         }
         List<WkfSupplyRequest> rows = requireWarehouseStocktake(dto.getBusNo());
         requireSameStatus(rows);
-        requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_PENDING_APPROVAL);
+        requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_APPROVAL);
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime approvalTime = resolveApprovalClock(dto.getApprovalClock());

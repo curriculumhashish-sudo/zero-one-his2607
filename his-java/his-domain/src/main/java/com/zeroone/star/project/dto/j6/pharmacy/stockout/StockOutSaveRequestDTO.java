@@ -33,7 +33,7 @@ public class StockOutSaveRequestDTO {
     @Schema(description = "供应类别编码", example = "STOCK_OUT")
     private String categoryEnum;
 
-    @Schema(description = "供应状态编码", example = "DRAFT")
+    @Schema(description = "供应状态编码", example = "PENDING_APPROVAL")
     private String statusEnum;
 
     @NotBlank(message = "源类型不能为空")
@@ -94,7 +94,7 @@ public class StockOutSaveRequestDTO {
     @Schema(description = "备注", example = "门诊药房调拨出库")
     private String remark;
 
-    @Schema(description = "乐观锁版本号（保存已有单据时必传）", example = "0")
+    @Schema(description = "乐观锁版本号（新增时为0，保存已有单据时传上次返回值）", example = "0")
     private Integer version;
 
     @Valid

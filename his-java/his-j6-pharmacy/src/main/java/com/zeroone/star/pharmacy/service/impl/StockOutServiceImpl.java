@@ -46,8 +46,8 @@ public class StockOutServiceImpl implements IStockOutService {
     /** 出库单类型编码 */
     private static final String TYPE_WAREHOUSE_STOCKOUT = "WAREHOUSE_STOCKOUT";
 
-    private static final String STATUS_DRAFT = "DRAFT";
     private static final String STATUS_PENDING_APPROVAL = "PENDING_APPROVAL";
+    private static final String STATUS_APPROVAL = "APPROVAL";
 
     private static final String DEFAULT_TENANT_ID = "1";
 
@@ -107,7 +107,7 @@ public class StockOutServiceImpl implements IStockOutService {
         String userId = currentUserId();
         softDeleteRows(busNo, now, userId);
         List<WkfSupplyRequest> newRows = buildRowsFromSaveRequest(dto, busNo,
-                oldRows.get(0).getStatusEnum(), nextVersion, now, userId, null);
+                STATUS_PENDING_APPROVAL, nextVersion, now, userId, null);
         for (WkfSupplyRequest row : newRows) {
             wkfSupplyRequestMapper.insert(row);
         }
@@ -130,7 +130,7 @@ public class StockOutServiceImpl implements IStockOutService {
             String practitionerId = StringUtils.hasText(dto.getPractitionerId())
                     ? dto.getPractitionerId() : userId;
             List<WkfSupplyRequest> newRows = buildRowsFromSaveRequest(dto, busNo,
-                    STATUS_PENDING_APPROVAL, 0, now, userId, userId);
+                    STATUS_APPROVAL, 0, now, userId, userId);
             for (WkfSupplyRequest row : newRows) {
                 wkfSupplyRequestMapper.insert(row);
             }
@@ -141,14 +141,14 @@ public class StockOutServiceImpl implements IStockOutService {
             if (oldRows.isEmpty()) {
                 throw new IllegalArgumentException("单据不存在: " + busNo);
             }
-            if (!STATUS_DRAFT.equals(oldRows.get(0).getStatusEnum())) {
+            if (!STATUS_PENDING_APPROVAL.equals(oldRows.get(0).getStatusEnum())) {
                 throw new IllegalArgumentException("当前状态不允许提交审批，当前状态: "
                         + oldRows.get(0).getStatusEnum());
             }
             int nextVersion = oldRows.get(0).getVersion() + 1;
             softDeleteRows(busNo, now, userId);
             List<WkfSupplyRequest> newRows = buildRowsFromSaveRequest(dto, busNo,
-                    STATUS_PENDING_APPROVAL, nextVersion, now, userId, userId);
+                    STATUS_APPROVAL, nextVersion, now, userId, userId);
             for (WkfSupplyRequest row : newRows) {
                 wkfSupplyRequestMapper.insert(row);
             }
@@ -156,7 +156,7 @@ public class StockOutServiceImpl implements IStockOutService {
 
         StockOutApprovalResultVO result = new StockOutApprovalResultVO();
         result.setSuccess(true);
-        result.setStatusEnum(STATUS_PENDING_APPROVAL);
+        result.setStatusEnum(STATUS_APPROVAL);
         return result;
     }
 
@@ -169,7 +169,9 @@ public class StockOutServiceImpl implements IStockOutService {
         if (rows.isEmpty()) {
             return JsonVO.fail("单据不存在");
         }
-        if (!STATUS_DRAFT.equals(rows.get(0).getStatusEnum())) {
+        String cur = rows.get(0).getStatusEnum();
+        if (!STATUS_PENDING_APPROVAL.equals(cur)
+                && !"WITHDRAW".equals(cur) && !"REJECT".equals(cur)) {
             return JsonVO.fail("当前状态不允许提交审批");
         }
 
@@ -178,7 +180,7 @@ public class StockOutServiceImpl implements IStockOutService {
         for (WkfSupplyRequest row : rows) {
             WkfSupplyRequest update = new WkfSupplyRequest();
             update.setId(row.getId());
-            update.setStatusEnum(STATUS_PENDING_APPROVAL);
+            update.setStatusEnum(STATUS_APPROVAL);
             update.setApplicantId(userId);
             update.setApplyTime(now);
             update.setApproverId(userId);
@@ -189,7 +191,7 @@ public class StockOutServiceImpl implements IStockOutService {
 
         StockOutApprovalResultVO result = new StockOutApprovalResultVO();
         result.setSuccess(true);
-        result.setStatusEnum(STATUS_PENDING_APPROVAL);
+        result.setStatusEnum(STATUS_APPROVAL);
         return JsonVO.success(result);
     }
 
@@ -202,7 +204,7 @@ public class StockOutServiceImpl implements IStockOutService {
             return "单据不存在或已删除";
         }
         String currentStatus = rows.get(0).getStatusEnum();
-        if (!STATUS_DRAFT.equals(currentStatus)
+        if (!STATUS_PENDING_APPROVAL.equals(currentStatus)
                 && !"WITHDRAW".equals(currentStatus)
                 && !"REJECT".equals(currentStatus)) {
             return "当前状态不允许删除，当前状态: " + currentStatus;
@@ -276,7 +278,7 @@ public class StockOutServiceImpl implements IStockOutService {
         row.setTenantId(DEFAULT_TENANT_ID);
         row.setBusNo(busNo);
         row.setTypeEnum(TYPE_WAREHOUSE_STOCKOUT);
-        row.setStatusEnum(STATUS_DRAFT);
+        row.setStatusEnum(STATUS_PENDING_APPROVAL);
         row.setCategoryEnum("STOCK_OUT");
         row.setSourceTypeEnum("WAREHOUSE");
         row.setSourceLocationId(dto.getSourceLocationId());

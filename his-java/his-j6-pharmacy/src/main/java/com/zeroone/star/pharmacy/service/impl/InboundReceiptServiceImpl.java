@@ -159,6 +159,16 @@ public class InboundReceiptServiceImpl implements IInboundReceiptService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public String removeInboundReceipt(InboundReceiptDeleteDTO dto) {
+        // 状态校验：APPROVAL 和 AGREE 不可删除
+        List<WkfSupplyRequest> rows = supplyRequestMapper.selectInboundRowsForApproval(
+                dto.getBusNo(), "CABINET_INBOUND_RECEIPT");
+        if (!rows.isEmpty()) {
+            String status = rows.get(0).getStatusEnum();
+            if ("APPROVAL".equals(status) || "AGREE".equals(status)) {
+                throw new IllegalStateException("当前状态不允许删除，当前状态: " + status);
+            }
+        }
+
         LocalDateTime now = LocalDateTime.now();
         String userId = currentUserId();
 

@@ -55,8 +55,8 @@ import java.util.stream.Collectors;
 public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMapper, WkfSupplyRequest> implements IWkfSupplyRequestService {
     private static final String DEFAULT_TYPE_INBOUND = "CABINET_INBOUND_RECEIPT";
     private static final String DEFAULT_CATEGORY_STOCK_SUPPLY = "STOCK_SUPPLY";
-    private static final String STATUS_DRAFT = "DRAFT";
     private static final String STATUS_PENDING_APPROVAL = "PENDING_APPROVAL";
+    private static final String STATUS_APPROVAL = "APPROVAL";
     private static final String STATUS_WITHDRAW = "WITHDRAW";
     private static final String STATUS_REJECT = "REJECT";
     private static final String SYSTEM_USER_ID = "system";
@@ -111,12 +111,12 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
     public InboundReceiptDetailVO saveInboundReceipt(InboundReceiptSaveRequestDTO dto) {
         validateSaveRequest(dto);
         String busNo = requireBusNoFromSaveRequest(dto);
-        List<WkfSupplyRequest> oldRows = requireEditableRows(busNo, dto.getVersion());
+        List<WkfSupplyRequest> oldRows = requireEditableRows(busNo, null);
         int nextVersion = nextVersion(oldRows);
         LocalDateTime now = LocalDateTime.now();
         String userId = currentUserId();
         softDeleteRows(busNo, now, userId);
-        List<WkfSupplyRequest> newRows = buildRowsFromSaveRequest(dto, busNo, STATUS_DRAFT, nextVersion, now, userId, null);
+        List<WkfSupplyRequest> newRows = buildRowsFromSaveRequest(dto, busNo, STATUS_PENDING_APPROVAL, nextVersion, now, userId, null);
         saveBatch(newRows);
         return buildEnrichedDetailVO(newRows.get(0), newRows, now, userId);
     }
@@ -129,13 +129,13 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
         validateSaveRequest(dto);
         String busNo = StringUtils.hasText(dto.getBusNo()) ? dto.getBusNo() : generateBusNo();
         List<WkfSupplyRequest> oldRows = listActive(busNo);
-        int nextVersion = oldRows.isEmpty() ? 0 : nextVersion(requireEditableRows(busNo, dto.getVersion()));
+        int nextVersion = oldRows.isEmpty() ? 0 : nextVersion(requireEditableRows(busNo, null));
         LocalDateTime now = LocalDateTime.now();
         String userId = currentUserId();
         if (!oldRows.isEmpty()) {
             softDeleteRows(busNo, now, userId);
         }
-        List<WkfSupplyRequest> newRows = buildRowsFromSaveRequest(dto, busNo, STATUS_PENDING_APPROVAL, nextVersion, now, userId, now);
+        List<WkfSupplyRequest> newRows = buildRowsFromSaveRequest(dto, busNo, STATUS_APPROVAL, nextVersion, now, userId, now);
         saveBatch(newRows);
         return buildEnrichedDetailVO(newRows.get(0), newRows, now, userId);
     }
@@ -185,7 +185,7 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
         row.setBusNo(busNo);
         row.setOriginalBusNo(dto.getOriginalBusNo());
         row.setTypeEnum(DEFAULT_TYPE_INBOUND);
-        row.setStatusEnum(STATUS_DRAFT);
+        row.setStatusEnum(STATUS_PENDING_APPROVAL);
         row.setCategoryEnum(DEFAULT_CATEGORY);
         row.setPractitionerId(practitionerId);
         row.setSupplierId(dto.getSupplierId());
@@ -405,7 +405,7 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
             throw new IllegalArgumentException("药库进货单不存在：" + busNo);
         }
         requireSameStatus(rows);
-        requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_DRAFT, STATUS_WITHDRAW, STATUS_REJECT);
+        requireAnyStatus(rows.get(0).getStatusEnum(), STATUS_PENDING_APPROVAL, STATUS_WITHDRAW, STATUS_REJECT);
         if (expectedVersion != null) {
             Integer currentVersion = rows.get(0).getVersion();
             if (!Objects.equals(currentVersion, expectedVersion)) {
@@ -524,7 +524,7 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
         }
         // 2. 业务规则校验：已通过和审批中的单据不允许删除
         String status = stocktake.getStatusEnum();
-        if ("PENDING_APPROVAL".equals(status) || "AGREE".equals(status)) {
+        if ("APPROVAL".equals(status) || "AGREE".equals(status)) {
             throw new RuntimeException("当前状态不允许删除，当前状态: " + status);
         }
         // 3. 逻辑删除主单据主键ID更新
@@ -700,10 +700,11 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
             return "";
         }
         return switch (statusEnum) {
-            case "PENDING_APPROVAL" -> "待提交审批";
+            case "PENDING_APPROVAL" -> "待审核";
             case "APPROVAL" -> "审核中";
-            case "AGREE" -> "同意";
-            case "REJECT" -> "驳回";
+            case "AGREE" -> "已通过";
+            case "REJECT" -> "已驳回";
+            case "WITHDRAW" -> "已撤回";
             default -> "未知状态";
         };
     }

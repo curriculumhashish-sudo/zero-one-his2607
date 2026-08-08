@@ -36,8 +36,8 @@ import java.util.concurrent.ThreadLocalRandom;
 public class StocktakeServiceImpl implements IStocktakeService {
 
     private static final String TYPE_WAREHOUSE_STOCKTAKE = "PHARMACY_STOCKTAKE";
-    private static final String STATUS_DRAFT = "DRAFT";
     private static final String STATUS_PENDING_APPROVAL = "PENDING_APPROVAL";
+    private static final String STATUS_APPROVAL = "APPROVAL";
 
     @Resource
     private WkfSupplyRequestMapper supplyRequestMapper;
@@ -86,7 +86,7 @@ public class StocktakeServiceImpl implements IStocktakeService {
         anchor.setId(UUID.randomUUID().toString().replace("-", ""));
         anchor.setBusNo(busNo);
         anchor.setTypeEnum(TYPE_WAREHOUSE_STOCKTAKE);
-        anchor.setStatusEnum(STATUS_DRAFT);
+        anchor.setStatusEnum(STATUS_PENDING_APPROVAL);
         anchor.setCategoryEnum(dto.getCategoryEnum());
         anchor.setPurposeLocationId(dto.getPurposeLocationId());
         anchor.setPractitionerId(practitionerId);
@@ -132,7 +132,8 @@ public class StocktakeServiceImpl implements IStocktakeService {
             throw new IllegalArgumentException("盘点单不存在: " + busNo);
         }
         String currentStatus = existingRows.get(0).getStatusEnum();
-        if (!STATUS_DRAFT.equals(currentStatus)) {
+        if (!STATUS_PENDING_APPROVAL.equals(currentStatus)
+                && !"WITHDRAW".equals(currentStatus) && !"REJECT".equals(currentStatus)) {
             throw new IllegalArgumentException("当前状态不允许编辑，当前状态: " + currentStatus);
         }
 
@@ -158,7 +159,7 @@ public class StocktakeServiceImpl implements IStocktakeService {
             row.setId(UUID.randomUUID().toString().replace("-", ""));
             row.setBusNo(busNo);
             row.setTypeEnum(TYPE_WAREHOUSE_STOCKTAKE);
-            row.setStatusEnum(currentStatus);
+            row.setStatusEnum(STATUS_PENDING_APPROVAL);
             row.setCategoryEnum(dto.getCategoryEnum());
             row.setPurposeLocationId(dto.getPurposeLocationId());
             row.setPractitionerId(dto.getPractitionerId());
@@ -186,7 +187,7 @@ public class StocktakeServiceImpl implements IStocktakeService {
         }
 
         // 组装 VO
-        StocktakeDetailVO vo = buildEnrichedVOFromLines(busNo, currentStatus, dto, detailLines);
+        StocktakeDetailVO vo = buildEnrichedVOFromLines(busNo, STATUS_PENDING_APPROVAL, dto, detailLines);
         return vo;
     }
 
@@ -206,14 +207,14 @@ public class StocktakeServiceImpl implements IStocktakeService {
         updateWrapper.eq("bus_no", busNo);
         updateWrapper.eq("type_enum", TYPE_WAREHOUSE_STOCKTAKE);
         updateWrapper.eq("is_deleted", 0);
-        updateWrapper.set("status_enum", STATUS_PENDING_APPROVAL);
+        updateWrapper.set("status_enum", STATUS_APPROVAL);
         updateWrapper.set("applicant_id", userId);
         updateWrapper.set("apply_time", now);
         updateWrapper.set("updated_at", now);
         updateWrapper.set("updated_by", userId);
         supplyRequestMapper.update(null, updateWrapper);
 
-        vo.setStatusEnum(STATUS_PENDING_APPROVAL);
+        vo.setStatusEnum(STATUS_APPROVAL);
         vo.setApplicantId(userId);
         vo.setApplyTime(now);
         return vo;

@@ -34,7 +34,7 @@ public class InboundReceiptSaveRequestDTO {
     @Schema(description = "供应类别编码", example = "PURCHASE")
     private String categoryEnum;
 
-    @Schema(description = "供应状态编码", example = "DRAFT")
+    @Schema(description = "供应状态编码", example = "PENDING_APPROVAL")
     private String statusEnum;
 
     @Schema(description = "来源位置类型", example = "SUPPLIER")
@@ -94,7 +94,7 @@ public class InboundReceiptSaveRequestDTO {
     @Schema(description = "原因/备注", example = "按药库订货单到货入库")
     private String reason;
 
-    @Schema(description = "乐观锁版本号（保存已有单据时必传）", example = "0")
+    @Schema(description = "乐观锁版本号（新增时为0，保存已有单据时传上次返回值）", example = "0")
     private Integer version;
 
     @Valid

@@ -23,7 +23,7 @@ public class InboundReceiptDetailVO {
     @Schema(description = "供应类型编码", example = "CABINET_INBOUND_RECEIPT")
     private String typeEnum;
 
-    @Schema(description = "供应状态编码", example = "DRAFT")
+    @Schema(description = "供应状态编码", example = "PENDING_APPROVAL")
     private String statusEnum;
 
     @Schema(description = "供应商ID", example = "4100000000000000004")

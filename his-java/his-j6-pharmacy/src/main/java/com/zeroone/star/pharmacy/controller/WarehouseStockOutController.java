@@ -97,7 +97,7 @@ public class WarehouseStockOutController implements WarehouseStockOutApis {
     public JsonVO<StockOutApprovalResultVO> submitStockOutApproval(@Validated @RequestBody SubmitStockOutApprovalDTO dto) {
         Boolean submitted = stockoutApprovalService.submitStockOutApproval(dto);
         if (submitted) {
-            return JsonVO.success(new StockOutApprovalResultVO(true, "APPROVAL"));
+            return JsonVO.success(new StockOutApprovalResultVO(true, "PENDING_APPROVAL"));
         } else {
             return JsonVO.fail("提交审批失败");
         }
