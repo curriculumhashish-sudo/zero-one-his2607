@@ -46,9 +46,9 @@ public:
 				this->mc = new MongoClient(uri);
 	}
 
-	u_int64 count(const TrafficTrendQuery::Wrapper& query)
+	uint64_t count(const TrafficTrendQuery::Wrapper& query)
 	{
-		u_int64 result;
+		uint64_t result;
 		bool res = mc->execute("access_daily_trend",
 			[query, &result](mongocxx::collection* collection) {
 				auto dateFrom = query->dateFrom.get();

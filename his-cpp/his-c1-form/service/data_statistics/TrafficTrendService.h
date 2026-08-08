@@ -12,7 +12,7 @@ public:
 		TrafficTrendDAO dao;
 		auto pages = TrafficTrendPageDTO::createShared();
 		
-		u_int64 count = dao.count(query);
+		uint64_t count = dao.count(query);
 		if (count <= 0)
 		{
 			cout << 2 << endl;

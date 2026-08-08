@@ -36,9 +36,9 @@ public:
 	}
 
 
-	u_int64 count(const MonthVisitQuery::Wrapper& query)
+	uint64_t count(const MonthVisitQuery::Wrapper& query)
 	{
-		u_int64 result;
+		uint64_t result;
 		bool res = mc->execute("access_monthly_vector",
 			[query, &result](mongocxx::collection* collection) {
 				auto monthFrom = query->monthFrom.get();
