@@ -133,5 +133,9 @@ void PrepaymentDAO::insertPrepayment(
         << (predecessorId.empty() ? "" : ",?")
         << ")";
 
-    sqlSession->executeUpdate(sql.str(), params);
+    int row = sqlSession->executeUpdate(sql.str(), params);
+    if (row != 1)
+    {
+        throw std::runtime_error("insertPrepayment failed: rows affected=" + std::to_string(row));
+    }
 }

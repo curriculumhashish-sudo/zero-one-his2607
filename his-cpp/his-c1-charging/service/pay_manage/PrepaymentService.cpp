@@ -8,38 +8,62 @@ PrepaymentAddResponseDTO::Wrapper PrepaymentService::addPrepayment(const Prepaym
 {
     auto response = PrepaymentAddResponseDTO::createShared();
     std::string inpatientNo = dto->inpatientNo.getValue("");
-    double amount = dto->amount.getValue(0.0);
-    std::string paymentMethod = dto->paymentMethod.getValue("1");
+    std::string operatorId = dto->operatorId.getValue("");
     std::string operatorName = dto->operatorName.getValue("");
+    std::string paymentDraftId = dto->paymentDraftId.getValue("");
     std::string remark = dto->remark.getValue("");
 
+    // Calculate total amount from payment details
+    double totalAmount = 0.0;
+    std::ostringstream payTextBuilder;
+    bool first = true;
+    if (dto->paymentDetails)
+    {
+        for (auto& detail : *dto->paymentDetails)
+        {
+            double detailAmount = detail->amount.getValue(0.0);
+            std::string channel = detail->payChannelCode.getValue("CASH");
+            totalAmount += detailAmount;
+            if (!first) payTextBuilder << "|";
+            else first = false;
+            payTextBuilder << channel << ":" << detailAmount;
+        }
+    }
+    if (!remark.empty()) payTextBuilder << "|" << remark;
+    std::string payText = payTextBuilder.str();
+
+    // Validate total amount
+    if (totalAmount <= 0)
+    {
+        throw std::runtime_error("total amount must be greater than 0");
+    }
+
     UuidFacade uf;
-    std::string uuid = uf.genUuid();
+    std::string paymentId = uf.genUuid();
+    std::string transactionNo = "TXN" + paymentId.substr(0, 8);
     std::string now = SimpleDateTimeFormat::format();
 
-    // 获取最新账户快照用于余额链接
+    // Get latest account snapshot for balance chain
     PrepaymentDAO dao;
     auto snap = dao.getAccountSnapshot(inpatientNo);
-    double afterBalance = snap.balance + amount;
+    double afterBalance = snap.balance + totalAmount;
 
-    // 构建支付说明：支付方式 + 可选备注
-    std::string payText = paymentMethod;
-    if (!remark.empty()) payText += "," + remark;
-
-    // 通过原生SQL插入（charge模块风格）
+    // Insert via native SQL
     dao.insertPrepayment(
-        uuid, now, "01xq", operatorName,
+        paymentId, now, "01xq", operatorName,
         snap.accountId, inpatientNo,
-        "CHARGE", amount, amount, 0.0,
-        uuid, payText, now,
+        "CHARGE", totalAmount, totalAmount, 0.0,
+        transactionNo, payText, now,
         snap.balance, afterBalance,
         snap.predecessorId);
 
-    // 构建响应
-    response->prepaymentId = uuid;
+    // Build response
+    response->paymentId = paymentId;
+    response->transactionNo = transactionNo;
+    response->encounterId = inpatientNo;   // TODO: resolve encounterId from inpatientNo
     response->inpatientNo = inpatientNo;
-    response->amount = amount;
-    response->paymentMethod = paymentMethod;
+    response->amount = totalAmount;
+    response->statusEnum = "SUCCESS";
     response->createTime = now;
 
     return response;
@@ -49,47 +73,71 @@ PrepaymentRefundResponseDTO::Wrapper PrepaymentService::refundPrepayment(const P
 {
     auto response = PrepaymentRefundResponseDTO::createShared();
     std::string inpatientNo = dto->inpatientNo.getValue("");
-    double amount = dto->amount.getValue(0.0);
-    std::string refundMethod = dto->refundMethod.getValue("1");
+    std::string operatorId = dto->operatorId.getValue("");
     std::string operatorName = dto->operatorName.getValue("");
+    std::string paymentDraftId = dto->paymentDraftId.getValue("");
     std::string reason = dto->reason.getValue("");
     std::string remark = dto->remark.getValue("");
 
+    // Calculate total refund amount from payment details
+    double totalAmount = 0.0;
+    std::ostringstream payTextBuilder;
+    bool first = true;
+    if (dto->paymentDetails)
+    {
+        for (auto& detail : *dto->paymentDetails)
+        {
+            double detailAmount = detail->amount.getValue(0.0);
+            std::string channel = detail->payChannelCode.getValue("CASH");
+            totalAmount += detailAmount;
+            if (!first) payTextBuilder << "|";
+            else first = false;
+            payTextBuilder << channel << ":" << detailAmount;
+        }
+    }
+    if (!reason.empty()) payTextBuilder << "|reason:" << reason;
+    if (!remark.empty()) payTextBuilder << "|" << remark;
+    std::string payText = payTextBuilder.str();
+
+    // Validate total amount
+    if (totalAmount <= 0)
+    {
+        throw std::runtime_error("total refund amount must be greater than 0");
+    }
+
     UuidFacade uf;
-    std::string uuid = uf.genUuid();
+    std::string paymentId = uf.genUuid();
+    std::string transactionNo = "TXN" + paymentId.substr(0, 8);
     std::string now = SimpleDateTimeFormat::format();
 
-    // 获取最新账户快照用于余额链接
+    // Get latest account snapshot for balance chain
     PrepaymentDAO dao;
     auto snap = dao.getAccountSnapshot(inpatientNo);
 
-    // 检查余额是否充足
-    if (amount > snap.balance)
+    // Check sufficient balance
+    if (totalAmount > snap.balance)
     {
         throw std::runtime_error("insufficient balance: available="
-            + std::to_string(snap.balance) + ", refund=" + std::to_string(amount));
+            + std::to_string(snap.balance) + ", refund=" + std::to_string(totalAmount));
     }
-    double afterBalance = snap.balance - amount;
+    double afterBalance = snap.balance - totalAmount;
 
-    // 构建支付说明：退款方式 + 退款原因 + 备注
-    std::string payText = refundMethod;
-    if (!reason.empty()) payText += "," + reason;
-    if (!remark.empty()) payText += "," + remark;
-
-    // 通过原生SQL插入（charge模块风格）
+    // Insert via native SQL
     dao.insertPrepayment(
-        uuid, now, "01xq", operatorName,
+        paymentId, now, "01xq", operatorName,
         snap.accountId, inpatientNo,
-        "REFUND", amount, 0.0, amount,
-        uuid, payText, now,
+        "REFUND", totalAmount, 0.0, totalAmount,
+        transactionNo, payText, now,
         snap.balance, afterBalance,
         snap.predecessorId);
 
-    // 构建响应
-    response->prepaymentId = uuid;
+    // Build response
+    response->paymentId = paymentId;
+    response->transactionNo = transactionNo;
+    response->encounterId = inpatientNo;   // TODO: resolve encounterId from inpatientNo
     response->inpatientNo = inpatientNo;
-    response->amount = amount;
-    response->refundMethod = refundMethod;
+    response->amount = totalAmount;
+    response->statusEnum = "SUCCESS";
     response->createTime = now;
 
     return response;

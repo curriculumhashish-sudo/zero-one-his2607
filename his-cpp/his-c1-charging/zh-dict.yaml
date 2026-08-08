@@ -700,58 +700,69 @@ Jack:
           summary: 退预交金
         query:
           summary: 查询预交金流水
+      PrepaymentPaymentDetailDTO:
+        payChannelCode:
+          description: 支付渠道编码（CASH/WECHAT/ALIPAY/BANK_CARD）
+        amount:
+          description: 支付金额
       PrepaymentAddDTO:
         inpatientNo:
           description: 住院号
-        amount:
-          description: 收款金额
-        paymentMethod:
-          description: 支付方式（1-现金,2-微信,3-支付宝,4-银行卡）
-        operator:
-          description: 收款操作员
+        paymentDetails:
+          description: 支付明细数组
+        paymentDraftId:
+          description: 支付草稿ID（预结算流程生成）
+        operatorId:
+          description: 操作员ID
+        operatorName:
+          description: 操作员姓名
         remark:
           description: 备注
       PrepaymentRefundDTO:
         inpatientNo:
           description: 住院号
-        amount:
-          description: 退款金额
-        refundMethod:
-          description: 退款方式（1-现金,2-微信,3-支付宝,4-银行卡）
-        operator:
-          description: 退款操作员
+        paymentDetails:
+          description: 退款支付明细数组
+        paymentDraftId:
+          description: 退款草稿ID（预结算流程生成）
+        operatorId:
+          description: 退款操作员ID
+        operatorName:
+          description: 退款操作员姓名
         reason:
           description: 退款原因
         remark:
           description: 备注
       PrepaymentAddResponseDTO:
-        prepaymentId:
-          description: 预交金流水号
+        paymentId:
+          description: 支付流水主键
+        transactionNo:
+          description: 交易流水号
+        encounterId:
+          description: 就诊ID
         inpatientNo:
           description: 住院号
         amount:
-          description: 收款金额
-        paymentMethod:
-          description: 支付方式
-          value: 现金
+          description: 收款总金额
+        statusEnum:
+          description: 状态（SUCCESS-成功）
         createTime:
           description: 收款时间
-        afterBalance:
-          description: 交易后余额
       PrepaymentRefundResponseDTO:
-        prepaymentId:
-          description: 预交金流水号
+        paymentId:
+          description: 支付流水主键
+        transactionNo:
+          description: 交易流水号
+        encounterId:
+          description: 就诊ID
         inpatientNo:
           description: 住院号
         amount:
-          description: 退款金额
-        refundMethod:
-          description: 退款方式
-          value: 现金
+          description: 退款总金额
+        statusEnum:
+          description: 状态（SUCCESS-成功）
         createTime:
           description: 退款时间
-        afterBalance:
-          description: 退款后余额
       PrepaymentRecordDTO:
         prepaymentId:
           description: 预交金流水号
