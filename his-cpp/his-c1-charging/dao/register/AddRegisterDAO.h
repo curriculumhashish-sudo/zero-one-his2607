@@ -7,12 +7,53 @@
 class AddRegisterDAO : public BaseDAO
 {
 public:
-    uint64_t update_slot(const SlotDO& slot)
-    {
+    int add_register(const EncounterDO& encounter, const ParticipantDO& participant, const LocationDO& location, const PatientDO& patient,const SlotDO& slot, const AccountDO& account,bool is_insert_pa)
+    {   
+        sqlSession->beginTransaction();
+
+        if (this->insert(encounter) != 1) 
+        {
+            sqlSession->rollbackTransaction();
+            return -1; 
+        }
+        cout << "encounter seccuss" << endl;
+        if (this->insert(participant) != 1)
+        {
+            sqlSession->rollbackTransaction();
+            return -1;
+        }
+        cout << "participant seccuss" << endl;
+        if (this->insert(location) != 1)
+        {
+            sqlSession->rollbackTransaction();
+            return -1;
+        }
+        cout << "location seccuss" << endl;
+
+        if (is_insert_pa) {
+            if (this->insert(patient) != 1)
+            {
+                sqlSession->rollbackTransaction();
+                return -1;
+            }
+            cout << "patient seccuss" << endl;
+        }
         ostringstream sql;
         sql << "UPDATE wkf_slot SET booked_count=booked_count+1 WHERE id=" <<"'" << slot.getId() << "';";
         cout << sql.str() << endl;;
-        return sqlSession->executeUpdate(sql.str());
+        if (sqlSession->executeUpdate(sql.str()) < 0) { 
+            sqlSession->rollbackTransaction();
+            return -1; 
+        }
+        cout << "slot seccuss" << endl;
+        if (this->insert(account) != 1)
+        {
+            sqlSession->rollbackTransaction();
+            return -1;
+        }
+        cout << "account seccuss" << endl;
+        sqlSession->commitTransaction();
+        return 1;
     }
 };
 

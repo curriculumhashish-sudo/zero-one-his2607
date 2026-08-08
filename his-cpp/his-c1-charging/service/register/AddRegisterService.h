@@ -24,8 +24,10 @@ public:
 		std::string loc_id = uf.genUuid();
 		std::string account_id = uf.genUuid();
 		std::string pa_id = dto->patient_id.getValue("");
+		bool is_insert_pa = false;
 		if(pa_id=="")
 		{
+			is_insert_pa = true;
 			pa_id = uf.genUuid();
 			pa.setId(pa_id);
 			ZO_STAR_DOMAIN_DTO_TO_DO(pa, dto, Created_by, operator_id, Tenant_id, tenant_id, Name, name, Id_card, id_number, Phone, phone, Gender_enum, sex, Birth_date, birth_date, Organization_id, organization_id)
@@ -37,8 +39,6 @@ public:
 			pa.setStatus_enum("ACTIVE");
 			pa.setActive_flag(1);
 			pa.setTemp_flag(0);
-			if (dao.insert(pa) != 1)return "";
-			cout << "pa seccuss" << endl;
 		}
 
 		ZO_STAR_DOMAIN_DTO_TO_DO(encounter, dto, Service_type_id, serviceTypeId, Organization_id,organization_id, Created_by, operator_id,Registrar_id,operator_id, Tenant_id, tenant_id);
@@ -52,8 +52,6 @@ public:
 		encounter.setStatus_enum("IN_PROGRESS");
 		encounter.setClass_enum("AMB");
 		encounter.setStart_time(now);
-		if (dao.insert(encounter) != 1)return "";
-		cout << "encounter seccuss" << endl;
 
 		ZO_STAR_DOMAIN_DTO_TO_DO(part, dto, Created_by, operator_id, Tenant_id,tenant_id, Practitioner_id,doctor_id, Role_code, role_code);
 		part.setId(part_id);
@@ -64,8 +62,6 @@ public:
 		part.setVersion(0);
 		part.setStatus_enum("ACTIVE");
 		part.setStart_time(now);
-		if (dao.insert(part) != 1)return "";
-		cout << "part seccuss" << endl;
 
 		ZO_STAR_DOMAIN_DTO_TO_DO(loc, dto, Created_by, operator_id, Tenant_id, tenant_id, Location_id, organization_id);
 		loc.setId(loc_id);
@@ -77,12 +73,8 @@ public:
 		loc.setStatus_enum("ACTIVE");
 		loc.setStart_time(now);
 		loc.setForm_enum("HOUSE");
-		if (dao.insert(loc) != 1)return "";
-		cout << "loc seccuss" << endl;
 
 		ZO_STAR_DOMAIN_DTO_TO_DO(slot,dto, Id, slotId);
-		if (dao.update_slot(slot) <0)return "";
-		cout << "slot seccuss" << endl;
 
 		ZO_STAR_DOMAIN_DTO_TO_DO(account, dto, Created_by, operator_id, Tenant_id, tenant_id, Contract_no, contractNo, Balance,balance,Type_code,type_code);
 		account.setId(account_id);
@@ -96,8 +88,8 @@ public:
 		account.setBus_no("AC" + GetCurrentDate() + uf.genUuid());
 		account.setBilling_status_enum("open");
 		account.setDefault_flag(1);
-		if (dao.insert(account) != 1)return "";
-		cout << "account seccuss" << endl;
+		
+		if (dao.add_register(encounter, part, loc, pa, slot, account,is_insert_pa) != 1)return "";
 		return encounter_id;
 	}
 private:
