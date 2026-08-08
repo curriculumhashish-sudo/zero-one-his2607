@@ -157,6 +157,9 @@ yxy:
    statusEnum: 挂号状态枚举(IN_PROGRESS:就诊已开始，患者正在接受诊疗，其他:未知)
    slotId: 号源标识
    contractNo: 合同/医保类型标识
+   role_code: 就诊参与者角色编码（REGISTRATION_DOCTOR等）
+   balance: 账号余额
+   type_code: account表中的type代码
 lhfc:
   charging:
     charge:

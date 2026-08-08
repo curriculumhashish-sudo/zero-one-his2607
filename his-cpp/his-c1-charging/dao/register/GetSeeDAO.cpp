@@ -8,11 +8,13 @@ inline std::string GetSeeDAO::queryConditionBuilder(const GetSeeQuery::Wrapper& 
 	sqlCondition << " WHERE 1=1";
 	if (query->number) {
 
-		sqlCondition << " AND `bus_no`="<<query->number.get();
+		sqlCondition << " AND e.bus_no=?";
+		SQLPARAMS_PUSH(params, "s", std::string, query->number.getValue(""));
 	}
 	if (query->name) {
 
-		sqlCondition << " AND name="<<query->name.get();
+		sqlCondition << " AND p.name=?";
+		SQLPARAMS_PUSH(params, "s", std::string, query->name.getValue(""));
 	}
 	if (query->start_time) {
 
@@ -59,7 +61,7 @@ std::list<GetSeeDO> GetSeeDAO::selectSeeWithPage(const GetSeeQuery::Wrapper& que
 	SqlParams params;
 	string sql = "SELECT e.id AS id,e.bus_no AS bus_no,p.name AS name,p.gender_enum AS gender_enum,p.phone AS phone,o.name AS org_name,pr.name AS doctor,fc.name AS cost_type,dict.dict_label AS addr,";
 	
-	sql+= "h.name AS register_type, SUM(ci.total_price) AS cost, e.start_time AS time, e.service_type_id AS serviceTypeId, e.status_enum AS statusEnum, ";
+	sql+= "h.name AS register_type, SUM(ci.total_price) AS cost, e.start_time AS time, e.service_type_id AS serviceTypeId, e.status_enum AS statusEnum ";
 		
 	sql+=  " FROM adm_encounter e ";
 

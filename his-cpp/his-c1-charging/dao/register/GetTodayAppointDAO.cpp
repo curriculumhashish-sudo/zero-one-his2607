@@ -7,12 +7,14 @@ inline std::string GetTodayAppointDAO::queryConditionBuilder(const GetTodayAppoi
 	sqlCondition << " WHERE 1=1 AND DATE(s.start_time) = CURDATE()";
 	if (query->doctor) {
 
-		sqlCondition << " AND `doctor`="<<query->doctor.get();
+		sqlCondition << " AND p.name=?";
+		SQLPARAMS_PUSH(params, "s", std::string, query->doctor.getValue(""));
 	}
 
 	if (query->register_type) {
 
-		sqlCondition << " AND `register_type`="<<query->register_type.get();
+		sqlCondition << " AND hs.name=";
+		SQLPARAMS_PUSH(params, "s", std::string, query->register_type.getValue(""));
 	}
 	return sqlCondition.str();
 }
@@ -40,7 +42,7 @@ uint64_t GetTodayAppointDAO::count(const GetTodayAppointQuery::Wrapper& query)
 std::list<GetTodayAppointDO> GetTodayAppointDAO::selectTodayWithPage(const GetTodayAppointQuery::Wrapper & query)
 {
 	SqlParams params;
-	string sql = "SELECT s.id AS id, s.status_code AS status,s.capacity AS capacity, s.booked_count AS booked_count, hs.name AS register_type.loc.name AS organization,MIN(s.start_time) AS start_time, MAX(s.end_time) AS end_time FROM wkf_slot s ";
+	string sql = "SELECT s.id AS id, s.status_code AS status,s.capacity AS capacity, s.booked_count AS booked_count, hs.name AS register_type,loc.name AS organization,s.start_time AS start_time, s.end_time AS end_time FROM wkf_slot s ";
 
 	sql += "INNER JOIN wkf_schedule sch ON s.schedule_id = sch.id ";
 
