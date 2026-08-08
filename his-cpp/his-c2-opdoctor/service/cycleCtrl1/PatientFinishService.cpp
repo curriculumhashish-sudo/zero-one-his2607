@@ -48,7 +48,7 @@ PatientFinishJsonVO::Wrapper PatientFinishService::execFinishPatient(const oatpp
     //4. 成功返回
     auto dto = PatientFinishDTO::createShared();
     dto->encounterId = encounterId;
-    dto->visitStatus = "finished";
+    dto->visitStatus = u8"finished";
 
     auto vo = PatientFinishJsonVO::createShared();
     vo->code = 10000;

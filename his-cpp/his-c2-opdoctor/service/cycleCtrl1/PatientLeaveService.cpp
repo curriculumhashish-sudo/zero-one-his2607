@@ -43,7 +43,7 @@ PatientLeaveJsonVO::Wrapper PatientLeaveService::execLeavePatient(const oatpp::S
     
 
     vo->code = 10000;
-    vo->message = u8"success";
+    vo->message = "success";
     vo->data = dto;
     return vo;
 }

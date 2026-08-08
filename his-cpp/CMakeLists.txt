@@ -165,5 +165,5 @@ if(UNIX)
 endif()
 
 # 在后面添加你的模块
-add_subdirectory("his-c2-opdoctor")
 add_subdirectory("his-c2-opnurse")
+add_subdirectory("his-c2-opdoctor")
