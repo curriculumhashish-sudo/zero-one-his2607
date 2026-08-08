@@ -3,6 +3,7 @@
 #include"stdafx.h"
 #include "BaseDAO.h"
 #include "id/UuidFacade.h"
+#include"domain/do/register/AddRegisterDO.h"
 class AddRegisterDAO : public BaseDAO
 {
 public:
