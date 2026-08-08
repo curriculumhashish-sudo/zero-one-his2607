@@ -2,7 +2,8 @@ import { toPageResult, unwrap, type BackendPage } from '@/apis/basic/remote'
 import { useHttp } from '@/plugins/http'
 import type { UserQuery, UserRecord, UserSavePayload } from './type'
 
-const baseUrl = '/sysmgr/user'
+const sysmgrBaseUrl = import.meta.env.VITE_J1_SYSMGR_API_URL || '/sysmgr'
+const baseUrl = `${sysmgrBaseUrl}/user`
 
 /** 页面只依赖本文件；后端完成后在此替换 Mock 实现即可。 */
 export async function pageUsers(query: UserQuery) {
@@ -16,14 +17,41 @@ export async function pageUsers(query: UserQuery) {
     })
   )
   const result = toPageResult(page)
-  result.rows = result.rows.map(normalizeUser)
+  result.rows = (result.rows ?? []).map(normalizeUser)
   return result
 }
 /** 获取可选择用户列表（条件 + 分页）。 */
-export const pageSelectableUsers = pageUsers
+export async function pageSelectableUsers(query: UserQuery) {
+  const page = unwrap(
+    await useHttp().post<BackendPage<UserListRecord>>(`${baseUrl}/list`, {
+      pageIndex: query.page,
+      pageSize: query.pageSize,
+      keyword: query.keyword,
+      isActive: query.enabled == null ? undefined : query.enabled ? 1 : 0
+    })
+  )
+  const result = toPageResult(page)
+  result.rows = (result.rows ?? []).map(normalizeUser)
+  return result
+}
 /** 获取用于下拉或选择表格的可选择用户。 */
 export async function loadUserSelectOptions(keyword = '') {
-  return pageUsers({ keyword, enabled: true, locked: false, page: 1, pageSize: 20 })
+  const result = await pageSelectableUsers({
+    keyword,
+    enabled: true,
+    locked: false,
+    page: 1,
+    pageSize: 20
+  })
+  return result.rows.map((row) => {
+    const user = normalizeUser(row)
+    return {
+      id: user.id,
+      username: user.username,
+      realName: user.realName,
+      label: `${user.realName}（${user.username}）`
+    }
+  })
 }
 export async function getUserDetail(id: string) {
   return normalizeUser(unwrap(await useHttp().get<any>(`${baseUrl}/${id}`)))
@@ -57,7 +85,9 @@ export async function setUserLocked(id: string, locked: boolean): Promise<any> {
 export const unlockUser = (id: string) => setUserLocked(id, false)
 export async function loadRoleOptions(keyword: string, _signal?: AbortSignal) {
   const rows = unwrap(
-    await useHttp().get<Array<{ id: string; displayName: string }>>('/sysmgr/role/list-role-names')
+    await useHttp().get<Array<{ id: string; displayName: string }>>(
+      `${sysmgrBaseUrl}/role/list-role-names`
+    )
   )
   return rows
     .filter((row) => !keyword || row.displayName.includes(keyword))
@@ -88,6 +118,15 @@ function normalizeUser(row: any): UserRecord {
     roleNames: Array.isArray(row.roleNames) ? row.roleNames : [],
     lockoutEnd: row.lockoutEnd ?? ''
   }
+}
+
+interface UserListRecord {
+  id: string
+  username: string
+  name?: string
+  email?: string
+  phoneNumber?: string
+  isActive?: number
 }
 
 export type * from './type'

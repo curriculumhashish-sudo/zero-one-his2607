@@ -15,12 +15,16 @@ import type {
 const baseUrl = '/c7-configuration-api'
 
 export async function loadDocumentTypeNameOptions() {
-  const rows = unwrap(await useHttp().get<Array<{ id: string; name: string }>>(`${baseUrl}/DocType/query-names`))
+  const page = unwrap(await useHttp().get<{ rows?: Array<{ id: string; name: string }> }>(`${baseUrl}/DocType/query-names`, {
+    pageIndex: 1,
+    pageSize: 1000
+  }))
+  const rows = Array.isArray(page.rows) ? page.rows : []
   return rows.map((row) => ({ label: row.name, value: row.id }))
 }
 
 export async function pageDocumentTypes(query: DocumentTypeQuery) {
-  const page = unwrap(await useHttp().get(`${baseUrl}/DocType`, toC7Query(query)))
+  const page = unwrap(await useHttp().get(`${baseUrl}/DocType`, toC7Query(query, ['code', 'name', 'isEnabled'])))
   return toC7PageResult(page, query.pageIndex, query.pageSize)
 }
 
@@ -41,7 +45,9 @@ export async function removeDocumentType(id: string) {
 }
 
 export async function pageEmrTemplates(query: EmrTemplateQuery) {
-  const page = unwrap(await useHttp().get(`${baseUrl}/casetemplate/query-all-emr-template`, toC7Query(query)))
+  const page = unwrap(await useHttp().get(`${baseUrl}/casetemplate/query-all-emr-template`, toC7Query(query, [
+    'name', 'code', 'documentTypeCode', 'isEnabled', 'scopeLevel'
+  ])))
   return toC7PageResult(page, query.pageIndex, query.pageSize)
 }
 
@@ -50,11 +56,11 @@ export async function getEmrTemplateDetail(id: string) {
 }
 
 export async function createEmrTemplate(data: EmrTemplateSavePayload) {
-  return toMutationResult(unwrap(await useHttp().post<string>(`${baseUrl}/casetemplate/add-emr-template`, data)))
+  return toMutationResult(unwrap(await useHttp().post<string>(`${baseUrl}/casetemplate/add-emr-template`, toEmrTemplatePayload(data))))
 }
 
 export async function updateEmrTemplate(id: string, data: EmrTemplateSavePayload) {
-  return toMutationResult(unwrap(await useHttp().post<string>(`${baseUrl}/casetemplate/modify-emr-template`, { id, ...data })))
+  return toMutationResult(unwrap(await useHttp().post<string>(`${baseUrl}/casetemplate/modify-emr-template`, toEmrTemplatePayload({ id, ...data }))))
 }
 
 export async function removeEmrTemplate(id: string) {
@@ -67,7 +73,9 @@ export async function loadMetadataFieldNameOptions() {
 }
 
 export async function pageMetadataFields(query: MetadataFieldQuery) {
-  const page = unwrap(await useHttp().get(`${baseUrl}/casetemplate/query-all-metadata-field`, toC7Query(query)))
+  const page = unwrap(await useHttp().get(`${baseUrl}/casetemplate/query-all-metadata-field`, toC7Query(query, [
+    'keyword', 'valueSource', 'isEnabled'
+  ])))
   return toC7PageResult(page, query.pageIndex, query.pageSize)
 }
 
@@ -87,9 +95,39 @@ export async function removeMetadataField(id: string) {
   unwrap(await useHttp().post(`${baseUrl}/casetemplate/remove-metadata-field`, id))
 }
 
-function toC7Query(query: { pageIndex: number; pageSize: number } & object) {
+function toC7Query(query: { pageIndex: number; pageSize: number } & object, fields: string[]) {
   const { pageIndex, pageSize, ...filters } = query
-  return { pageNo: pageIndex, pageSize, ...filters }
+  const params: Record<string, unknown> = { pageIndex, pageSize }
+  const filterValues = filters as Record<string, unknown>
+  for (const field of fields) {
+    if (filterValues[field] !== undefined && filterValues[field] !== '') params[field] = filterValues[field]
+  }
+  return params
+}
+
+function toEmrTemplatePayload(data: EmrTemplateSavePayload & { id?: string }) {
+  const payload = {
+    name: data.name,
+    code: data.code,
+    documentTypeCode: data.documentTypeCode,
+    organizationId: data.organizationId,
+    encounterClassEnum: Number(data.encounterClassEnum),
+    encounterTypeEnum: Number(data.encounterTypeEnum),
+    content: data.content,
+    isEnabled: Number(data.isEnabled),
+    scopeLevel: data.scopeLevel,
+    ownerPractitionerId: data.ownerPractitionerId,
+    encounterClassCode: data.encounterClassCode
+  }
+  if (data.id) {
+    return {
+      id: data.id,
+      ...payload
+    }
+  }
+  return {
+    ...payload,
+  }
 }
 
 export type * from './type'

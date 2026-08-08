@@ -27,11 +27,9 @@ const service = {
 } as unknown as BasicCrudService
 
 const columns: MyTableColumn[] = [
-  { prop: 'templateCode', label: '模板编码', width: '150px' },
+  { prop: 'id', label: '模板 ID', width: '180px' },
   { prop: 'name', label: '模板名称', width: '180px' },
-  { prop: 'bindingEnum', label: '绑定类型', width: '110px' },
-  { prop: 'sceneEnum', label: '适用场景', width: '120px' },
-  { prop: 'templateKindEnum', label: '模板种类', width: '110px' },
+  { prop: 'description', label: '说明', width: '180px' },
   { prop: 'statusEnum', label: '状态', width: '100px' }
 ]
 
@@ -56,7 +54,8 @@ const formItems: MyFormItemAttr[] = [
 
 const defaultForm = {
   objectId: import.meta.env.VITE_DEV_ORGANIZATION_ID || '', name: '', bindingEnum: 'DEPARTMENT', sceneEnum: 'OUTPATIENT',
-  templateKindEnum: 'GENERAL', templateCode: '', description: '', sortWeight: 0, remark: '', lines: '[]',
+  templateKindEnum: 'GENERAL', templateCode: '', description: '', sortWeight: 0, remark: '',
+  lines: '[{"lineKindEnum":"MEDICATION","sortOrder":1}]',
   defaultChineseHerbsDoseQuantity: 0, defaultSufferingFlag: false
 }
 

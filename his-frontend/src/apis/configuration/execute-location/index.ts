@@ -23,7 +23,12 @@ export async function removeExecuteLocation(id: string) {
 
 function toC7Query(query: { pageIndex: number; pageSize: number } & object) {
   const { pageIndex, pageSize, ...filters } = query
-  return { pageNo: pageIndex, pageSize, ...filters }
+  const itemTable = (filters as Record<string, unknown>).itemTable
+  return {
+    pageIndex,
+    pageSize,
+    ...(itemTable ? { itemTable } : {})
+  }
 }
 
 export type * from './type'

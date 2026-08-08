@@ -13,16 +13,20 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 const env = loadEnv(process.env.NODE_ENV || 'development', process.cwd(), '')
 const gatewayUrl = env.VITE_GATEWAY_URL || 'http://124.223.72.139:10001'
 const loginServerUrl = env.VITE_LOGIN_SERVER_URL || 'http://47.116.98.7:10500'
-const c7ConfigurationServerUrl =
-  env.VITE_C7_CONFIGURATION_SERVER_URL || 'http://localhost:8090'
-const c5BasicDataServerUrl =
-  env.VITE_C5_BASICDATA_SERVER_URL || 'http://116.62.31.155:8090'
+const c7ConfigurationServerUrl = env.VITE_C7_CONFIGURATION_SERVER_URL || 'http://47.99.54.215:8090'
+const c5BasicDataServerUrl = env.VITE_C5_BASICDATA_SERVER_URL || 'http://116.62.31.155:8090'
+const j1SysmgrServerUrl = env.VITE_J1_SYSMGR_SERVER_URL || 'http://123.57.144.180:10600'
 
 export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 3000,
     proxy: {
+      '/api/j1-sysmgr-api': {
+        changeOrigin: true,
+        target: j1SysmgrServerUrl,
+        rewrite: (path) => path.replace(/^\/api\/j1-sysmgr-api/, '/sysmgr')
+      },
       '/api': {
         changeOrigin: true,
         //FIXME[TEST_CODE]:使用Apifox云MOCK,联调阶段需要修改成网关地址
@@ -49,6 +53,11 @@ export default defineConfig({
         changeOrigin: true,
         target: c5BasicDataServerUrl,
         rewrite: (path) => path.replace(/^\/c5-basicdata-api/, '')
+      },
+      '/j1-sysmgr-api': {
+        changeOrigin: true,
+        target: j1SysmgrServerUrl,
+        rewrite: (path) => path.replace(/^\/j1-sysmgr-api/, '/sysmgr')
       },
       '/ai': {
         changeOrigin: true,

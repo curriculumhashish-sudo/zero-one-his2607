@@ -2,7 +2,7 @@ import { unwrap, toPageResult, type BackendPage } from '@/apis/basic/remote'
 import { useHttp } from '@/plugins/http'
 import type { PermissionQuery, PermissionRecord, PermissionSavePayload } from './type'
 
-const baseUrl = '/sysmgr/permission'
+const baseUrl = `${import.meta.env.VITE_J1_SYSMGR_API_URL || '/sysmgr'}/permission`
 
 /** 获取权限名称树。 */
 export async function loadPermissionNameTree() {
@@ -18,7 +18,9 @@ export async function pagePermissions(query: PermissionQuery) {
       keyword: query.keyword
     })
   )
-  return toPageResult(page)
+  const result = toPageResult(page)
+  result.rows = result.rows ?? []
+  return result
 }
 /** 新增权限。 */
 export async function createPermission(data: PermissionSavePayload) {

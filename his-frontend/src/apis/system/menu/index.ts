@@ -2,7 +2,7 @@ import { toPageResult, unwrap, type BackendPage } from '@/apis/basic/remote'
 import { useHttp } from '@/plugins/http'
 import type { MenuQuery, MenuRecord, MenuSavePayload } from './type'
 
-const baseUrl = '/sysmgr/menu'
+const baseUrl = `${import.meta.env.VITE_J1_SYSMGR_API_URL || '/sysmgr'}/menu`
 
 /** 获取菜单名称树。 */
 export async function loadMenuNameTree() {
@@ -19,7 +19,7 @@ export async function pageMenus(query: MenuQuery) {
     })
   )
   const result = toPageResult(page)
-  result.rows = result.rows.map(normalizeMenu)
+  result.rows = (result.rows ?? []).map(normalizeMenu)
   return result
 }
 /** 获取指定菜单详情。 */

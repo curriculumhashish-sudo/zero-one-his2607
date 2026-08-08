@@ -2,7 +2,7 @@ import { toPageResult, unwrap, type BackendPage } from '@/apis/basic/remote'
 import { useHttp } from '@/plugins/http'
 import type { RoleQuery, RoleRecord, RoleSavePayload } from './type'
 
-const baseUrl = '/sysmgr/role'
+const baseUrl = `${import.meta.env.VITE_J1_SYSMGR_API_URL || '/sysmgr'}/role`
 
 /** 获取角色名称。 */
 export async function loadRoleNameOptions() {
@@ -20,7 +20,9 @@ export async function pageRoles(query: RoleQuery) {
       keyword: query.keyword
     })
   )
-  return toPageResult(page)
+  const result = toPageResult(page)
+  result.rows = result.rows ?? []
+  return result
 }
 /** 获取指定角色详情。 */
 export async function getRoleDetail(id: string) {
