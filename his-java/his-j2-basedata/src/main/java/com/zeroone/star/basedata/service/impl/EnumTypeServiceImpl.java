@@ -30,7 +30,7 @@ import java.util.List;
 public class EnumTypeServiceImpl implements EnumTypeService {
 
     // TODO: 临时设定，后续需要从jwt中获取
-    private static final String TENANT_ID = "1";
+    private static final String TENANT_ID = "sys_tenant";
 
     @Resource
     private EnumTypeRepository enumTypeRepository;
@@ -47,13 +47,13 @@ public class EnumTypeServiceImpl implements EnumTypeService {
                 Sort.by(Sort.Direction.DESC, "updatedAt")
         );
 
-        Page<EnumType> page = enumTypeRepository.findByKeyword(
+        Page<EnumTypeDTO> page = enumTypeRepository.findByKeyword(
                 TENANT_ID,
                 query.getEnumTypeKeyword(),
                 pageable
         );
 
-        return EnumType.toPageDTO(page);
+        return EnumTypeDTO.create(page);
     }
 
     @Override
@@ -65,8 +65,9 @@ public class EnumTypeServiceImpl implements EnumTypeService {
 
         EnumType enumType = new EnumType();
         BeanUtils.copyProperties(dto, enumType);
+        // TODO: 是否需要特别设定其id字符串？
 
-        // 暂时设定
+        // TODO: 暂时设定
         enumType.setTenantId(TENANT_ID);
         enumType.setCreatedAt(new Date());
         enumType.setCreatedBy("test");

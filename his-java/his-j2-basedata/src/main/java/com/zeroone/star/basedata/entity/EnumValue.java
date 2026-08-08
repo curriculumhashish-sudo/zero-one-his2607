@@ -2,6 +2,7 @@ package com.zeroone.star.basedata.entity;
 
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumDTO;
+import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumSimpleDTO;
 import lombok.Data;
 import org.springframework.data.annotation.*;
 import org.springframework.data.domain.Page;
@@ -81,6 +82,7 @@ public class EnumValue {
     private Boolean isDeleted;
 
 
+    /*
     public static EnumDTO toDTO(EnumValue enumValue) {
         EnumDTO enumDTO = new EnumDTO();
         enumDTO.setEnumTypeId(enumValue.getEnumTypeId());
@@ -98,6 +100,12 @@ public class EnumValue {
         return enumValues.stream().map(EnumValue::toDTO).toList();
     }
 
+    public static List<EnumSimpleDTO> toSimpleDTOList(List<EnumValue> enumValues) {
+        return enumValues.stream().map(e -> {
+            return new EnumSimpleDTO(e.getId(), e.getEnumTypeId(), e.getEnumKey(), e.getEnumCode(), e.getDisplay());
+        }).toList();
+    }
+
     public static PageDTO<EnumDTO> toPageDTO(Page<EnumValue> enumValuePage) {
         PageDTO<EnumDTO> pageDTO = new PageDTO<>();
 
@@ -110,6 +118,7 @@ public class EnumValue {
 
         return pageDTO;
     }
+    */
 }
 
 /**
@@ -120,7 +129,8 @@ public class EnumValue {
  *   "tenantId": "tenant_001",           // 冗余字段，便于按租户分片
  *   "enumKey": "SHIPPED",                 // 存储字符
  *   "enumCode": 1                             // 枚举对应的实数值，一个枚举类型的枚举值的code，string互不相同
- *   "display": "已发货",                  // 显示文本（支持多语言）
+ *   "display": "已发货",                  // 显示文本
+ *   "description": "已发货的订单",         // 描述
  *   "order": 10,                        // 排序权重，数值越小越靠前
  *   "status": 1,                // active/inactive/deleted
  *

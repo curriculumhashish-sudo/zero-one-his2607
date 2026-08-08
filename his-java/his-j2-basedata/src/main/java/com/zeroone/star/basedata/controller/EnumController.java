@@ -38,7 +38,7 @@ public class EnumController implements EnumApis {
     @Override
     @Operation(summary = "根据枚举类型key查询枚举列表", description = "注意这里使用的是key")
     @GetMapping("/sys/init-table-enum")
-    public JsonVO<Map<String, List<EnumDTO>>> initTableEnums(@RequestParam List<String> enumTypeKeys) {
+    public JsonVO<Map<String, List<EnumSimpleDTO>>> initTableEnums(@RequestParam List<String> enumTypeKeys) {
         return JsonVO.success(enumValueService.initTableEnums(enumTypeKeys));
     }
 
@@ -50,8 +50,8 @@ public class EnumController implements EnumApis {
 
     @Override
     @Operation(summary = "获取枚举类型列表(条件+分页)")
-    @PostMapping("/sys/query-all-enum-type")
-    public JsonVO<PageDTO<EnumTypeDTO>> queryAllEnumType(@RequestBody @Valid EnumTypeQuery query) {
+    @GetMapping("/sys/query-all-enum-type")
+    public JsonVO<PageDTO<EnumTypeDTO>> queryAllEnumType(@Valid EnumTypeQuery query) {
         return JsonVO.success(enumTypeService.queryAllEnumType(query));
     }
 

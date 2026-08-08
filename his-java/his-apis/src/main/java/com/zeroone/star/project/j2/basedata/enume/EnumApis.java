@@ -32,7 +32,7 @@ public interface EnumApis {
      * @param enumTypeKeys 枚举类型列表，这里不同于枚举类型ID，而是枚举类型名称的列表，即EnumTypeKey对应的字符串
      * @return 枚举类型映射列表DTO
      */
-    JsonVO<Map<String, List<EnumDTO>>> initTableEnums(List<String> enumTypeKeys);
+    JsonVO<Map<String, List<EnumSimpleDTO>>> initTableEnums(List<String> enumTypeKeys);
 
     /**
      * 添加枚举

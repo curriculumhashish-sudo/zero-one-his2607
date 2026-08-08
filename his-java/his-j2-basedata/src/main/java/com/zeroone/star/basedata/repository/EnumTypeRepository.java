@@ -2,19 +2,16 @@ package com.zeroone.star.basedata.repository;
 
 
 import com.zeroone.star.basedata.entity.EnumType;
-import com.zeroone.star.basedata.entity.EnumValue;
+import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumTypeDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
-
-import java.util.List;
 
 
 public interface EnumTypeRepository extends MongoRepository<EnumType, String> {
 
-    @Query(value = "{ 'enumTypeKey': ?1, $or: [ { 'tenantId': ?0 }, { 'tenantId': '1' } ] }", exists = true)
+    @Query(value = "{ 'enumTypeKey': ?1, $or: [ { 'tenantId': ?0 }, { 'tenantId': 'sys_tenant' } ] }", exists = true)
     boolean existsByEnumTypeKey(String tenantId, String enumTypeKey);
 
     /**
@@ -25,14 +22,14 @@ public interface EnumTypeRepository extends MongoRepository<EnumType, String> {
      * @return 枚举类型列表
      */
     @Query("{$and: ["
-            + "{'tenantId': {$in: ['1', ?0]}}, "
+            + "{'tenantId': {$in: ['sys_tenant', ?0]}}, "
             + "{'isDeleted': false}, "
             + "{$or: ["
             + "{'enumTypeKey': {$regex: ?1, $options: 'i'}}, "
             + "{'displayName': {$regex: ?1, $options: 'i'}}, "
             + "]}"
             + "]}")
-    Page<EnumType> findByKeyword(
+    Page<EnumTypeDTO> findByKeyword(
             String tenatId,
             String keyword,
             Pageable pageable);
@@ -46,15 +43,7 @@ public interface EnumTypeRepository extends MongoRepository<EnumType, String> {
      * @param enumTypeKey 枚举类型关键字
      * @return 枚举类型ID
      */
-    @Query("{'enumTypeKey': ?1, 'tenantId': {$in: ['1', ?0]}, 'isDeleted': false}")
+    @Query("{'enumTypeKey': ?1, 'tenantId': {$in: ['sys_tenant', ?0]}, 'isDeleted': false}")
     EnumType findActiveByEnumTypeKey(String tenantId, String enumTypeKey);
 
-    @Aggregation(pipeline = {
-            "{$addFields: {_idStr: {$toString: '$_id'}}}",
-            "{$match: {_idStr: ?0}}",
-            "{$lookup: {from: 'EnumValue', localField: '_idStr', foreignField: 'enumTypeId', as: 'enum_List'}}",
-            "{$unwind: {path: '$enum_List', preserveNullAndEmptyArrays: false}}",
-            "{$replaceRoot: {newRoot: '$enum_List'}}"
-    })
-    List<EnumValue> findByEnumTypeId(String id);
 }

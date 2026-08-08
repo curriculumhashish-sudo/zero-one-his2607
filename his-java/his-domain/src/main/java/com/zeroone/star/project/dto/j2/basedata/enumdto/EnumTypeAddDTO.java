@@ -23,10 +23,11 @@ public class EnumTypeAddDTO {
     @Schema(description = "枚举类型键，必须唯一", example = "enumTypeKey", requiredMode = Schema.RequiredMode.REQUIRED)
     private String enumTypeKey;
 
-    @Size(min = 1, max = 500, message = "枚举类型名称长度必须在1到500个字符之间")
+    @Size(min = 1, max = 100, message = "枚举类型名称长度必须在1到500个字符之间")
     @Schema(description = "枚举类型名称", example = "enumTypeName", requiredMode = Schema.RequiredMode.REQUIRED)
     private String displayName;
 
+    @Size(max = 500, message = "枚举类型描述长度不能超过500个字符")
     @Schema(description = "枚举类型描述", example = "enumTypeDescription", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String description;
 

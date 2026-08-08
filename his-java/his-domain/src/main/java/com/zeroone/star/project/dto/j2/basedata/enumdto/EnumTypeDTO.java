@@ -1,8 +1,10 @@
 package com.zeroone.star.project.dto.j2.basedata.enumdto;
 
+import com.zeroone.star.project.dto.PageDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.ToString;
+import org.springframework.data.domain.Page;
 
 import java.util.Date;
 
@@ -31,4 +33,16 @@ public class EnumTypeDTO extends EnumTypeModifyDTO {
 
     @Schema(description = "更新人", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String updatedBy;
+
+    public static PageDTO<EnumTypeDTO> create(Page<EnumTypeDTO> page) {
+        PageDTO<EnumTypeDTO> pageDTO = new PageDTO<>();
+
+        pageDTO.setPageIndex((long) page.getNumber());
+        pageDTO.setPageSize((long) page.getSize());
+        pageDTO.setTotal(page.getTotalElements());
+        pageDTO.setPages((long) page.getTotalPages());
+        pageDTO.setRows(page.getContent());
+
+        return pageDTO;
+    }
 }

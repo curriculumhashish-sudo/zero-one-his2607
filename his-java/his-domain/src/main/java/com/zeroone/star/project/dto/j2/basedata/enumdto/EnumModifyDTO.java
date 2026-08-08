@@ -1,10 +1,7 @@
 package com.zeroone.star.project.dto.j2.basedata.enumdto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.ToString;
 
@@ -23,11 +20,17 @@ public class EnumModifyDTO {
     @Schema(description = "枚举类型ID，和EnumType的id关联", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private String enumTypeId;
 
-    @Size(min = 1, max = 500, message = "标签长度必须在1到500个字符之间")
+    @Schema(description = "枚举键，仅用于提供渲染", example = "enumKey", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String enumKey;
+
+    @Schema(description = "枚举码，仅用于提供渲染", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Integer enumCode;
+
+    @Size(min = 1, max = 100, message = "标签长度必须在1到100个字符之间")
     @Schema(description = "标签，必须唯一", example = "label", requiredMode = Schema.RequiredMode.REQUIRED)
     private String display;
 
-    @Size(min = 1, max = 500, message = "描述长度必须在1到500个字符之间")
+    @Size(max = 500, message = "描述长度必须在1到500个字符之间")
     @Schema(description = "描述", example = "描述", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String description;
 
