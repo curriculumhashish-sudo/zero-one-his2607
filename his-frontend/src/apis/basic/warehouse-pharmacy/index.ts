@@ -2,7 +2,7 @@ import { useHttp } from '@/plugins/http'
 import { toMutationResult, toPageResult, unwrap } from '../remote'
 import type { WarehousePharmacyNameOption, WarehousePharmacyQuery, WarehousePharmacyRecord, WarehousePharmacySavePayload } from './type'
 
-const baseUrl = '/pharm'
+const baseUrl = '/c5-basicdata-api/pharm'
 interface BackendStore { id: string | number; busNo?: string; name: string; formEnum?: 'WAREHOUSE' | 'PHARMACY'; formEnumText?: string; statusEnum?: string; statusEnumText?: string; displayOrder?: number; organizationId?: string | number; parentId?: string | number; pyStr?: string; wbStr?: string; createdAt?: string; updatedAt?: string }
 interface BackendPage { pageIndex: number; pageSize: number; total: number; pages?: number; rows: BackendStore[] }
 export async function loadWarehousePharmacyNameOptions(keyword = ''): Promise<WarehousePharmacyNameOption[]> {

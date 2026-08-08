@@ -2,7 +2,7 @@ import { useHttp } from '@/plugins/http'
 import { toMutationResult, unwrap } from '../remote'
 import type { DepartmentFormOptions, DepartmentQuery, DepartmentRecord, DepartmentSavePayload, DepartmentTreeOption } from './type'
 
-const baseUrl = '/dept'
+const baseUrl = '/c5-basicdata-api/dept'
 
 interface BackendDepartment {
   id: string | number

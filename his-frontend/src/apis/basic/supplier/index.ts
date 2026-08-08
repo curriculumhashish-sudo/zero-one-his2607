@@ -2,7 +2,7 @@ import { useHttp } from '@/plugins/http'
 import { toMutationResult, toPageResult, unwrap } from '../remote'
 import type { SupplierNameOption, SupplierQuery, SupplierRecord, SupplierSavePayload } from './type'
 
-const baseUrl = '/sup'
+const baseUrl = '/c5-basicdata-api/sup'
 interface BackendSupplier { id: string | number; version?: number; busNo?: string; name: string; typeEnum?: string | number; creditCode?: string; address?: string; pyStr?: string; wbStr?: string; phone?: string; email?: string; organizationId?: string | number; orgId?: string | number; legalRepresentative?: string; bankName?: string; bankAccount?: string; displayOrder?: number; note?: string; statusEnum?: string }
 interface BackendPage { pageIndex: number; pageSize: number; total: number; pages?: number; rows: BackendSupplier[] }
 export async function loadSupplierNameOptions(keyword = ''): Promise<SupplierNameOption[]> {
@@ -14,11 +14,11 @@ export async function pageSuppliers(query: SupplierQuery) {
   return toPageResult({ ...page, rows: page.rows.map(toRecord) })
 }
 export async function getSupplierDetail(id: string) { return toRecord(unwrap(await useHttp().get<BackendSupplier>(`${baseUrl}/query-one`, { id }))) }
-export async function createSupplier(data: SupplierSavePayload) { return toMutationResult(unwrap(await useHttp().post<string>('/supplier/add-supplier', toPayload(data, true)))) }
-export async function updateSupplier(id: string, data: SupplierSavePayload) { return toMutationResult(unwrap(await useHttp().put<string>('/supplier/modify-supplier', { id, version: data.version, ...toPayload(data, false) }))) }
+export async function createSupplier(data: SupplierSavePayload) { return toMutationResult(unwrap(await useHttp().post<string>('/c5-basicdata-api/supplier/add-supplier', toPayload(data, true)))) }
+export async function updateSupplier(id: string, data: SupplierSavePayload) { return toMutationResult(unwrap(await useHttp().put<string>('/c5-basicdata-api/supplier/modify-supplier', { id, version: data.version, ...toPayload(data, false) }))) }
 export async function removeSupplier(id: string) { unwrap(await useHttp().delete<string>(`${baseUrl}/delete`, undefined, { params: { id } })) }
 export async function setSuppliersEnabled(ids: string[], enabled: boolean) {
-  unwrap(await useHttp().put<string>('/supplier/batch-enable-disable', { ids, enabled }))
+  unwrap(await useHttp().put<string>('/c5-basicdata-api/supplier/batch-enable-disable', { ids, enabled }))
   return ids.map((id) => ({ id, statusEnum: enabled ? 'ACTIVE' as const : 'INACTIVE' as const }))
 }
 function toRecord(item: BackendSupplier): SupplierRecord {

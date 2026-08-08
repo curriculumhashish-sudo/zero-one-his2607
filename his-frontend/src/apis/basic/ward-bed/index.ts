@@ -3,7 +3,7 @@ import { useHttp } from '@/plugins/http'
 import { toMutationResult, toPageResult, unwrap } from '../remote'
 import type { WardBedForm, WardBedNameOption, WardBedQuery, WardBedRecord, WardBedSavePayload } from './type'
 
-const baseUrl = '/ward'
+const baseUrl = '/c5-basicdata-api/ward'
 interface BackendWardNode {
   id: string | number; name: string; busNo?: string; organizationId?: string | number; pyStr?: string; wbStr?: string
   typeJson?: string; version?: number; type?: string; formEnum?: WardBedForm; statusEnum?: string | number; children?: BackendWardNode[]
@@ -13,7 +13,7 @@ function organizationId(value?: string) {
   return value || String(useUserStore().departmentId || import.meta.env.VITE_DEV_ORGANIZATION_ID || '')
 }
 async function loadTree(id?: string) {
-  return unwrap(await useHttp().get<BackendWardNode[]>('/ward/tree-list', { organizationId: organizationId(id) }))
+  return unwrap(await useHttp().get<BackendWardNode[]>(`${baseUrl}/tree-list`, { organizationId: organizationId(id) }))
 }
 export async function pageWardBeds(query: WardBedQuery) {
   const rows = flattenTree(await loadTree(query.organizationId))
@@ -34,19 +34,19 @@ export async function createWardBed(data: WardBedSavePayload) {
   return toMutationResult(unwrap(await useHttp().post<string>(`${baseUrl}/location`, payload)))
 }
 export async function updateWardBed(id: string, data: WardBedSavePayload) {
-  const path = data.formEnum === 'WARD' ? '/ward' : data.formEnum === 'HOUSE' ? '/room' : '/bed'
+  const path = data.formEnum === 'WARD' ? `${baseUrl}` : data.formEnum === 'HOUSE' ? '/c5-basicdata-api/room' : '/c5-basicdata-api/bed'
   return toMutationResult(unwrap(await useHttp().put<string>(path, { id, version: data.version, name: data.name, parentId: data.parentId || null, organizationId: organizationId(data.organizationId), statusEnum: data.statusEnum, pyStr: data.pyStr, wbStr: data.wbStr, typeJson: data.typeJson })))
 }
 export async function removeWardBed(id: string) {
   const row = (await pageWardBeds({ pageIndex: 1, pageSize: 10000 })).rows.find((item) => item.id === id)
   if (!row) throw new Error('病区、病房或床位不存在')
-  const path = row.formEnum === 'WARD' ? '/ward' : row.formEnum === 'HOUSE' ? '/room' : '/bed'
+  const path = row.formEnum === 'WARD' ? baseUrl : row.formEnum === 'HOUSE' ? '/c5-basicdata-api/room' : '/c5-basicdata-api/bed'
   unwrap(await useHttp().delete<string>(`${path}/${id}`))
 }
 export async function setWardBedEnabled(id: string, enabled: boolean) {
   const row = (await pageWardBeds({ pageIndex: 1, pageSize: 10000 })).rows.find((item) => item.id === id)
   if (!row) throw new Error('病区、病房或床位不存在')
-  const path = row.formEnum === 'WARD' ? '/ward/status' : row.formEnum === 'HOUSE' ? '/room/status' : '/bed/status'
+  const path = row.formEnum === 'WARD' ? `${baseUrl}/status` : row.formEnum === 'HOUSE' ? '/c5-basicdata-api/room/status' : '/c5-basicdata-api/bed/status'
   return toMutationResult(unwrap(await useHttp().put<string>(path, { id, statusEnum: enabled ? 'ACTIVE' : 'INACTIVE' })))
 }
 function flattenTree(items: BackendWardNode[], parent?: WardBedRecord): WardBedRecord[] {

@@ -15,6 +15,8 @@ const gatewayUrl = env.VITE_GATEWAY_URL || 'http://124.223.72.139:10001'
 const loginServerUrl = env.VITE_LOGIN_SERVER_URL || 'http://47.116.98.7:10500'
 const c7ConfigurationServerUrl =
   env.VITE_C7_CONFIGURATION_SERVER_URL || 'http://localhost:8090'
+const c5BasicDataServerUrl =
+  env.VITE_C5_BASICDATA_SERVER_URL || 'http://116.62.31.155:8090'
 
 export default defineConfig({
   server: {
@@ -42,6 +44,11 @@ export default defineConfig({
         changeOrigin: true,
         target: c7ConfigurationServerUrl,
         rewrite: (path) => path.replace(/^\/c7-configuration-api/, '')
+      },
+      '/c5-basicdata-api': {
+        changeOrigin: true,
+        target: c5BasicDataServerUrl,
+        rewrite: (path) => path.replace(/^\/c5-basicdata-api/, '')
       },
       '/ai': {
         changeOrigin: true,

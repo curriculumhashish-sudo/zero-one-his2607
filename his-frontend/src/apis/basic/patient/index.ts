@@ -2,7 +2,7 @@ import { useHttp } from '@/plugins/http'
 import { toMutationResult, toPageResult, unwrap } from '../remote'
 import type { PatientNameOption, PatientQuery, PatientRecord, PatientSavePayload } from './type'
 
-const baseUrl = '/pat'
+const baseUrl = '/c5-basicdata-api/pat'
 
 interface BackendPatient {
   id: string | number; version?: number; busNo?: string; name: string; nameJson?: string; age?: number
