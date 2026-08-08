@@ -99,8 +99,8 @@ yxy:
    today_id: 时刻表id
    number: 就诊号
    name: 患者姓名
-   start_time: 开始时间
-   end_time: 结束时间
+   start_time: 开始时间(uint64类型时间戳)
+   end_time: 结束时间（uint64类型时间戳）
    sex: 患者性别
    phone: 患者联系方式
    organization: 科室
@@ -124,6 +124,12 @@ yxy:
    operator_id: 操作者id
    tenant_id: 租户id
    register_def_id: 收费项目定义id
+   encounterId: 就诊标识
+   encounterBusNo: 就诊业务号
+   serviceTypeId: 挂号服务类型标识
+   statusEnum: 挂号状态枚举(IN_PROGRESS:就诊已开始，患者正在接受诊疗，其他:未知)
+   slotId: 号源标识
+   contractNo: 合同/医保类型标识
 lhfc:
   charging:
     charge:

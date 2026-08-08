@@ -30,7 +30,7 @@ public:
 		{
 			auto dto = GetSeeDTO::createShared();
 			ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub, id, Id, number, Bus_no, name, Name, sex, Gender_enum, phone, Phone);
-			ZO_STAR_DOMAIN_DO_TO_DTO(dto,sub, organization,Org_name, doctor, Doctor, cost_type, Cost_type, addr, Addr, register_type, Register_type, cost,Cost,time,Time);
+			ZO_STAR_DOMAIN_DO_TO_DTO(dto,sub, organization,Org_name, doctor, Doctor, cost_type, Cost_type, addr, Addr, register_type, Register_type, cost,Cost,time,Time, serviceTypeId, ServiceTypeId, statusEnum, StatusEnum);
 			pages->addData(dto);
 		}
 		cout << 1 << endl;

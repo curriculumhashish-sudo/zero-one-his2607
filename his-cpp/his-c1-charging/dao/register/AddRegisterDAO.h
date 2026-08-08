@@ -3,7 +3,6 @@
 #include"stdafx.h"
 #include "BaseDAO.h"
 #include"../../domain/do/register/AddRegisterDO.h"
-#include "id/UuidFacade.h"
 class AddRegisterDAO : public BaseDAO
 {
 public:
@@ -39,12 +38,19 @@ public:
         const std::string& patient_bus_no = data.getPatient_bus_no();
         const std::string& participant_id = data.getParticipant_id();
         const std::string& location_id = data.getLocation_id();
+        const std::string& service_Type_Id = data.getServiceTypeId();
+        const std::string& slot_Id = data.getSlotId();
+        const std::string& account_Id = data.getAccount_id();
+        const std::string& account_bus_no = data.getAccount_bus_no();
+        const std::string& contract_no = data.getContractNo();
         uint64_t result;
         // 4. 开始构造 SQL
         std::ostringstream sql1;
         std::ostringstream sql2;
         std::ostringstream sql3;
         std::ostringstream sql4;
+        std::ostringstream sql5;
+        std::ostringstream sql6;
         // 插入就诊主表
         sql1 << "INSERT INTO adm_encounter ("
             << "id, tenant_id, created_at, updated_at, created_by, updated_by, "
@@ -63,9 +69,9 @@ public:
             << "0, NULL, NULL, 0, "
             << "'" << patient_id << "', NULL, "
             << "'" << encounter_bus_no << "', "
-            << "'ACTIVE', 'AMB', "
+            << "'IN_PROGRESS', 'AMB', "
             << "NULL, NULL, NULL, "
-            << "NULL, NULL, NULL, NULL, "
+            << "NULL, NULL," <<"'" << service_Type_Id<<"'"<< ", NULL, "
             << "'" << now << "', NULL, "
             << "'" << organization_id << "', NULL, NULL, "
             << "NULL, NULL, "
@@ -109,6 +115,7 @@ public:
             << "NULL, 'ACTIVE', '" << now << "', NULL);";
         uint64_t location = sqlSession->executeUpdate(sql3.str());
         cout << location << endl;
+        if(location != 1)return location;
         if (data.getPatient_id() == "")
         {
             sql4 << "INSERT INTO adm_patient ("
@@ -125,15 +132,39 @@ public:
                 << "'" << birth_date << "', "
                 << "'" << "ACTIVE" << "', "
                 << "1,0,"
-                << "'" << "id_card" << "',"
-                << "'" << "phone" << "');";
+                << "'" << id_card << "',"
+                << "'" << phone << "');";
            uint64_t patient = sqlSession->executeUpdate(sql4.str());
            cout << patient << endl;
            if (patient != 1)return patient;
         }
-        return location;
+        sql5 << "UPDATE wkf_slot SET booked_count=booked_count+1 WHERE id=; "<<slot_Id<<"'" << "'";
+        uint64_t slot = sqlSession->executeUpdate(sql5.str());
+        cout << slot << endl;
+        return slot;
+        sql6 << "INSERT INTO adm_account ("
+            << "id, tenant_id, created_at, updated_at, created_by, updated_by, "
+            << "is_deleted, deleted_at, deleted_by, version, "
+            << "patient_id, encounter_id, type_code, bus_no, name, "
+            << "balance, billing_status_enum, contract_no, yb_area_no, "
+            << "encounter_flag, insutype, default_flag, status_enum) "
+            << "VALUES ("
+            << "'" << account_Id << "', "
+            << "'" << tenant_id << "', "
+            << "'" << now << "', '" << now << "', "
+            << "'" << operator_id << "', NULL, "
+            << "0, NULL, NULL, 0, "
+            << "'" << patient_id << "', "
+            << "'" << id << "', "
+            << "'PERSONAL_CASH_ACCOUNT', " 
+            << "'" << account_bus_no << "', "
+            << "'自费账户', "
+            << "0.000000, 'open', "
+            << "'" << contract_no << "', NULL, "  
+            << "NULL, NULL, 1, 'ACTIVE');";
+        return sqlSession->executeUpdate(sql6.str());
+	}
 
-	}	
 };
 
 

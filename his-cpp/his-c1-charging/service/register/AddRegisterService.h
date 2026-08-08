@@ -13,13 +13,15 @@ public:
 		AddRegisterDO data;
 		ZO_STAR_DOMAIN_DTO_TO_DO(data, dto, Name, name, Id_number, id_number, Phone, phone, Sex, sex, Birth_date, birth_date, Age, age, Organization, organization, Doctor, doctor);
 		ZO_STAR_DOMAIN_DTO_TO_DO(data, dto, Patient_id, patient_id, Doctor_id, doctor_id, Organization_id, organization_id);
-		ZO_STAR_DOMAIN_DTO_TO_DO(data, dto, Operator_id, operator_id, Tenant_id, tenant_id);
+		ZO_STAR_DOMAIN_DTO_TO_DO(data, dto, Operator_id, operator_id, Tenant_id, tenant_id, ServiceTypeId, serviceTypeId, SlotId, slotId, ContractNo, contractNo);
 		UuidFacade uf;
 		data.setId(uf.genUuid());
 		data.setParticipant_id(uf.genUuid());
 		data.setLocation_id(uf.genUuid());
+		data.setAccount_id(uf.genUuid());
 		data.setEncounter_bus_no("EN-" + GetCurrentDate() + "-"+uf.genUuid());
-		data.setPatient_bus_no("PA"+ uf.genUuid());
+		data.setPatient_bus_no("PA"+ GetCurrentDate () + uf.genUuid());
+		data.setAccount_bus_no("AC" + GetCurrentDate () + uf.genUuid());
 		data.setNow(GetCurrentDateTime());
 		AddRegisterDAO dao;
 		uint64_t result=dao.InsertRegister(data);

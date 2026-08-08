@@ -10,12 +10,12 @@ class GetSeeDTO:public oatpp::DTO
 
 	DTO_FIELD(String, id);
 	DTO_FIELD_INFO(id) {
-		info->description = ZH_WORDS_GETTER("yxy.charging,register.getsee_id");
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.encounterId");
 	}
 
 	DTO_FIELD(String, number);
 	DTO_FIELD_INFO(number) {
-		info->description = ZH_WORDS_GETTER("yxy.charging,register.number");
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.encounterBusNo");
 	}
 
 	DTO_FIELD(String, name);
@@ -67,15 +67,14 @@ class GetSeeDTO:public oatpp::DTO
 	DTO_FIELD_INFO(time) {
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.time");
 	}
-	DTO_FIELD(String, patient_id);
-	DTO_FIELD_INFO(patient_id) {
-		info->description = ZH_WORDS_GETTER("yxy.charging,register.patient_id");
+	DTO_FIELD(String, serviceTypeId);
+	DTO_FIELD_INFO(serviceTypeId) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.serviceTypeId");
 	}
-	DTO_FIELD(String, doctor_id);
-	DTO_FIELD_INFO(doctor_id) {
-		info->description = ZH_WORDS_GETTER("yxy.charging,register.patient_id");
+	DTO_FIELD(String, statusEnum);
+	DTO_FIELD_INFO(statusEnum) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.statusEnum");
 	}
-
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 };
 

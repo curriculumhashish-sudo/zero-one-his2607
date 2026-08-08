@@ -22,6 +22,8 @@ public:
 		data.setRegister_type(resultSet->getString(10));
 		data.setCost(resultSet->getDouble(11));
 		data.setTime(resultSet->getString(12));
+		data.setServiceTypeId(resultSet->getString(13));
+		data.setStatusEnum(resultSet->getString(14));
 		return data;
 	}
 };
