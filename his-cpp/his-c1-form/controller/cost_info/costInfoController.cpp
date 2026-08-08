@@ -25,8 +25,10 @@ std::shared_ptr<oatpp::web::server::api::ApiController::OutgoingResponse> CostIn
 		[result](ExcelComponent* ex) {
 			// 写入表头
 			ex->addHeader({
-				ZH_WORDS_GETTER("rhqm.form.cost_info.data.id"),
-				ZH_WORDS_GETTER("rhqm.form.cost_info.data.clinicNo"),
+				ZH_WORDS_GETTER("rhqm.form.cost_info.data.chargeID"),
+				ZH_WORDS_GETTER("rhqm.form.cost_info.data.encounterID"),
+				ZH_WORDS_GETTER("rhqm.form.cost_info.data.paymentID"),
+				ZH_WORDS_GETTER("rhqm.form.cost_info.data.cashierID"),
 				ZH_WORDS_GETTER("rhqm.form.cost_info.data.name"),
 				ZH_WORDS_GETTER("rhqm.form.cost_info.data.room"),
 				ZH_WORDS_GETTER("rhqm.form.cost_info.data.date"),
@@ -52,14 +54,17 @@ std::shared_ptr<oatpp::web::server::api::ApiController::OutgoingResponse> CostIn
 				ZH_WORDS_GETTER("rhqm.form.cost_info.data.actualAmount"),
 				ZH_WORDS_GETTER("rhqm.form.cost_info.data.insuranceAmount"),
 				ZH_WORDS_GETTER("rhqm.form.cost_info.data.selfPayAmount"),
+				ZH_WORDS_GETTER("rhqm.form.cost_info.data.summary"),
 				});
 			// 写入数据
 			int row = 2;
 			int col = 1;
 			for (auto item : *(result->rows.get())) {
 				col = 1;
-				ex->setCellValue(row, col++, item->id);
-				ex->setCellValue(row, col++, item->clinicNo);
+				ex->setCellValue(row, col++, item->chargeID);
+				ex->setCellValue(row, col++, item->encounterID);
+				ex->setCellValue(row, col++, item->paymentID);
+				ex->setCellValue(row, col++, item->cashierID);
 				ex->setCellValue(row, col++, item->name);
 				ex->setCellValue(row, col++, item->room);
 				ex->setCellValue(row, col++, item->date);
@@ -87,6 +92,9 @@ std::shared_ptr<oatpp::web::server::api::ApiController::OutgoingResponse> CostIn
 				ex->setCellValue(row, col++, std::to_string(item->selfPayAmount));
 				ex->setRowProperties(row++);
 			}
+			// summary row, one row at the end of the table
+			ex->setCellValue(row, 30, std::to_string(result->summary));
+			ex->setRowProperties(row++);
 		});
 
 	// 组装下发数据

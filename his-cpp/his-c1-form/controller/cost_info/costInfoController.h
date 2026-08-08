@@ -45,7 +45,7 @@ public:
 	ENDPOINT_INFO(exportCostInfo) {
 		API_DEF_ADD_TITLE(ZH_WORDS_GETTER("rhqm.form.cost_info.export.title"));
 		API_DEF_ADD_AUTH();
-		API_DEF_ADD_RSP_JSON_WRAPPER(ExportVO);
+		API_DEF_ADD_RSP_JSON(Void);
 		API_DEF_ADD_TAG(API_TAG);
 		API_DEF_ADD_QUERY_PARAMS(String, "start_time", ZH_WORDS_GETTER("rhqm.form.cost_info.query.start_time"), "", true);
 		API_DEF_ADD_QUERY_PARAMS(String, "end_time", ZH_WORDS_GETTER("rhqm.form.cost_info.query.end_time"), "", true);

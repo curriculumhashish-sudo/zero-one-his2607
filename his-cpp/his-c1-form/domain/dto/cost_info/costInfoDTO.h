@@ -12,16 +12,28 @@ class CostInfoDTO : public oatpp::DTO
 {
 	DTO_INIT(CostInfoDTO, DTO);
 
-	// 序号
-	DTO_FIELD(String, id);
-	DTO_FIELD_INFO(id) {
-		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.id");
+	// 收费条目ID
+	DTO_FIELD(String, chargeID);
+	DTO_FIELD_INFO(chargeID) {
+		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.chargeID");
 	}
 
-	// 门诊号
-	DTO_FIELD(String, clinicNo);
-	DTO_FIELD_INFO(clinicNo) {
-		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.clinicNo");
+	// 就诊条目ID
+	DTO_FIELD(String, encounterID);
+	DTO_FIELD_INFO(encounterID) {
+		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.encounterID");
+	}
+
+	// 支付条目ID
+	DTO_FIELD(String, paymentID);
+	DTO_FIELD_INFO(paymentID) {
+		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.paymentID");
+	}
+
+	// 收费员ID
+	DTO_FIELD(String, cashierID);
+	DTO_FIELD_INFO(cashierID) {
+		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.cashierID");
 	}
 
 	// 患者
@@ -178,6 +190,13 @@ class CostInfoDTO : public oatpp::DTO
 class CostInfoDataDTO : public PageDTO<CostInfoDTO::Wrapper>
 {
 	DTO_INIT(CostInfoDataDTO, PageDTO<CostInfoDTO::Wrapper>);
+	
+	// 合计金额
+	DTO_FIELD(Float64, summary);
+	DTO_FIELD_INFO(summary) {
+		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.summary");
+	}
+
 };
 
 

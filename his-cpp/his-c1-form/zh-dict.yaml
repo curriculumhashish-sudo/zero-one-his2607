@@ -28,24 +28,26 @@ rhqm:
    query:
     title: 门诊费用明细(条件+分页)
     id: 编号
-    start_time: 开始时间
-    end_time: 结束时间
-    name: 患者姓名
-    room: 挂号科室
-    feeClass: 费用大类编号
-    detailClass: 细分类编号
-    projectName: 项目名称
-    hisID: 院内编号
-    checker: 收银员
-    feeDir: 收退方向编号（0 / 1）
+    start_time: 开始时间(dateFrom)
+    end_time: 结束时间(dateTo)
+    name: 患者姓名(patientKeyword)
+    room: 挂号科室(deptId)
+    feeClass: 费用大类编号(feeType)
+    detailClass: 细分类编号(feeTypeDetail)
+    projectName: 项目名称(projectName)
+    hisID: 院内编号(internalCode)
+    checker: 收银员(cashierId)
+    feeDir: 收退方向编号（0 / 1）(tradeDirection)
    export:
     tag: "导出报表"
     fileID: "文件ID"
     title: 导出报表
    data:
-    id: 序号
-    clinicNo: 门诊号
-    name: 患者
+    chargeID: 收费条目ID
+    encounterID: 就诊条目ID
+    paymentID: 支付条目ID
+    cashierID: 收费员ID
+    name: 患者姓名
     room: 挂号科室
     date: 就诊日期
     feeClass: 大类
@@ -56,7 +58,6 @@ rhqm:
     number: 数量
     unit: 单位
     doctor: 开单医生
-    checker: 收费人
     settleTime: 结算时间
     source: 来源
     insuranceLevel: 医保等级
@@ -70,6 +71,7 @@ rhqm:
     actualAmount: 实收金额
     insuranceAmount: 医保金额
     selfPayAmount: 自费金额
+    summary: 合计金额
    other:
     charge: 收费
     refund: 退费

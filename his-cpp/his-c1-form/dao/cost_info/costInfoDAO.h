@@ -20,5 +20,7 @@ public:
 	std::list<CostInfoDO> selectWithPage(const CostInfoQuery::Wrapper& query);
 	// 查询全部数据
 	std::list<CostInfoDO> selectAll(const CostInfoQuery::Wrapper& query);
+	// statistics total amount
+	double calcuSummary(const CostInfoQuery::Wrapper& query);
 };
 #endif // !_COSTINFO_DAO_H
