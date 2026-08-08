@@ -15,7 +15,6 @@ ChinapresListDTO1::Wrapper ChinapresService1::queryList(const ChinapresQuery1::W
 	for (auto& one : preList) {
 		groupMap[one->getPrescriptionNo()].push_back(one);
 	}
-
 	MedicationDefinitionDAO1 medDao;
 	auto result = ChinapresListDTO1::createShared();
 	result->records = oatpp::List<oatpp::Object<ChinapresDTO1>>::createShared();
@@ -23,18 +22,25 @@ ChinapresListDTO1::Wrapper ChinapresService1::queryList(const ChinapresQuery1::W
 	for (auto& pair : groupMap) {
 		auto& records = pair.second;
 		auto dto = ChinapresDTO1::createShared();
-		dto->id = pair.first;
-		dto->count = std::to_string(records.size());
+		dto->prescriptionNo = pair.first;
+		if (!records.empty()) {
+			dto->authoredAt = records.front()->getCreatedAt();
+		}
 
-		std::string herbsStr;
+		auto herbNamesList = oatpp::List<oatpp::String>::createShared();
+		std::string summaryStr;
 		for (auto& record : records) {
 			auto medDef = medDao.selectById(record->getMedicationId());
 			if (medDef && !medDef->getName().empty()) {
-				if (!herbsStr.empty()) herbsStr += ",";
-				herbsStr += medDef->getName();
+				// ศ๛ฝ๘สýื้
+				herbNamesList->push_back(medDef->getName());
+				if (!summaryStr.empty()) summaryStr += ",";
+				summaryStr += medDef->getName();
 			}
 		}
-		dto->herbs = herbsStr;
+		dto->herbNames = herbNamesList;
+		dto->summary = summaryStr;
+
 		result->records->push_back(dto);
 	}
 	return result;
