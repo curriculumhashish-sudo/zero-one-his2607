@@ -3,6 +3,7 @@
 #include "ApiHelper.h"
 #include "dept/DeptController.h"
 #include "dept/DeptBatchStatusController.h"
+#include "dept/PractitionerOptionController.h"
 #include "pat/Patcontroller.h"
 #include "dept/OrganizationController.h"
 #include "sup/SupplierController.h"
@@ -37,6 +38,7 @@ void Router::initRouter()
 	// #TIP: Add system extension route definitions below
 	ROUTER_SIMPLE_BIND(DeptController);
 	ROUTER_SIMPLE_BIND(DeptBatchStatusController);
+	ROUTER_SIMPLE_BIND(PractitionerOptionController);
 	ROUTER_SIMPLE_BIND(PatController);
 	ROUTER_SIMPLE_BIND(OrganizationController);
 	ROUTER_SIMPLE_BIND(SupplierAddUpdateController);
