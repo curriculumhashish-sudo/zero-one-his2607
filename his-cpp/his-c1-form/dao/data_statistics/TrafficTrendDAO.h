@@ -12,17 +12,6 @@ class TrafficTrendDAO : public BaseDAO
 private:
 	MongoClient* mc = nullptr;
 
-	bsoncxx::types::b_date parse_date(const std::string& date_str) {
-		std::tm tm = {};
-		std::istringstream ss(date_str);
-		// 解析 "YYYY-MM-DD" 格式
-		ss >> std::get_time(&tm, "%Y-%m-%d");
-		// 将 std::tm 转换为 std::time_t
-		std::time_t time = std::mktime(&tm);
-		// 将 std::time_t 转换为 std::chrono::system_clock::time_point
-		auto time_point = std::chrono::system_clock::from_time_t(time);
-		return bsoncxx::types::b_date{ time_point };
-	}
 public:
 	TrafficTrendDAO()
 	{
