@@ -77,7 +77,7 @@ static void fillMedicineV2Patch(MedMedicationDefinitionDO &data, const std::stri
     // 仅映射请求中出现的字段，未传字段不会进入 UPDATE。
     data.setId(id);
     ZO_STAR_DOMAIN_DTO_TO_DO(
-        data, dto, BusNo, busNo, Name, name, DomainEnum, domainEnum, PyStr, pyStr, WbStr, wbStr,
+        data, dto, Name, name, DomainEnum, domainEnum, PyStr, pyStr, WbStr, wbStr,
         CategoryCode, categoryCode, MerchandiseName, merchandiseName,
         MerchandisePyStr, merchandisePyStr, MerchandiseWbStr, merchandiseWbStr, PurchaseUnitCode,
         purchaseUnitCode, SplitUnitCode, splitUnitCode, ApprovalNumber, approvalNumber, YbMatchFlag, ybMatchFlag,

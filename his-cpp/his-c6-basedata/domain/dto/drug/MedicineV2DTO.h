@@ -90,7 +90,6 @@ class MedicineUpdateDTO : public oatpp::DTO
 
     API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("drug.field.id"), true);
     API_DTO_FIELD_REQUIRE(Int32, version, ZH_WORDS_GETTER("drug.field.version"), true);
-    API_DTO_FIELD_DEFAULT(String, busNo, ZH_WORDS_GETTER("drug.field.busNo"));
     API_DTO_FIELD_DEFAULT(String, name, ZH_WORDS_GETTER("drug.field.name"));
     API_DTO_FIELD_DEFAULT(String, domainEnum, ZH_WORDS_GETTER("drug.field.domainEnum"));
     API_DTO_FIELD_DEFAULT(String, categoryCode, ZH_WORDS_GETTER("drug.field.categoryCode"));
@@ -223,7 +222,7 @@ class MedicineUpdateDTO : public oatpp::DTO
     /** 判断请求中是否至少包含一个待修改字段。 */
     bool hasAnyChange() const
     {
-        return busNo || name || domainEnum || pyStr || wbStr || categoryCode ||
+        return name || domainEnum || pyStr || wbStr || categoryCode ||
                merchandiseName || merchandisePyStr || merchandiseWbStr || purchaseUnitCode || splitUnitCode ||
                approvalNumber || ybMatchFlag || ybNo || pharmacologyCategoryCode || skinTestFlag || injectFlag ||
                manufacturerText || supplyId || restrictedFlag || restrictedScope || childrenFlag || itemMinQuantity ||
@@ -370,8 +369,7 @@ class MedicineUpdateDTO : public oatpp::DTO
 
     bool allTextLengthsValid() const
     {
-        const oatpp::String values[] = {busNo,
-                                        name,
+        const oatpp::String values[] = {name,
                                         domainEnum,
                                         categoryCode,
                                         merchandiseName,
