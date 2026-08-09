@@ -77,30 +77,38 @@ static void fillMedicineV2Patch(MedMedicationDefinitionDO &data, const std::stri
     // 仅映射请求中出现的字段，未传字段不会进入 UPDATE。
     data.setId(id);
     ZO_STAR_DOMAIN_DTO_TO_DO(
-        data, dto, BusNo, busNo, Name, name, DomainEnum, domainEnum, MedVersion, medVersion, NameEn, nameEn,
-        PyStr, pyStr, WbStr, wbStr, CategoryCode, categoryCode, MerchandiseName, merchandiseName,
+        data, dto, BusNo, busNo, Name, name, DomainEnum, domainEnum, PyStr, pyStr, WbStr, wbStr,
+        CategoryCode, categoryCode, MerchandiseName, merchandiseName,
         MerchandisePyStr, merchandisePyStr, MerchandiseWbStr, merchandiseWbStr, PurchaseUnitCode,
-        purchaseUnitCode, SplitUnitCode, splitUnitCode, ComprisedText, comprisedText, Ingredient, ingredient,
-        DoseFrom, doseFrom, ApprovalNumber, approvalNumber, YbMatchFlag, ybMatchFlag, YbNo, ybNo,
+        purchaseUnitCode, SplitUnitCode, splitUnitCode, ApprovalNumber, approvalNumber, YbMatchFlag, ybMatchFlag,
+        YbNo, ybNo,
         PharmacologyCategoryCode, pharmacologyCategoryCode, SkinTestFlag, skinTestFlag, InjectFlag, injectFlag,
-        ManufacturerId, manufacturerId, ManufacturerText, manufacturerText, SupplyId, supplyId, RestrictedFlag,
-        restrictedFlag, RestrictedScope, restrictedScope);
+        ManufacturerText, manufacturerText, SupplyId, supplyId, RestrictedFlag, restrictedFlag,
+        RestrictedScope, restrictedScope);
     ZO_STAR_DOMAIN_DTO_TO_DO(
-        data, dto, ChildrenFlag, childrenFlag, Characteristic, characteristic, ItemMinQuantity, itemMinQuantity,
+        data, dto, ChildrenFlag, childrenFlag, ItemMinQuantity, itemMinQuantity,
         ItemMaxQuantity, itemMaxQuantity, NationalDrugCode, nationalDrugCode, PartAttributeEnum, partAttributeEnum,
-        AntibioticCode, antibioticCode, RestrictedEnum, restrictedEnum, SelfFlag, selfFlag, AntibioticFlag,
-        antibioticFlag, BasicFlag, basicFlag, ThoPartAttributeEnum, thoPartAttributeEnum, ChrgitmLv, chrgitmLv,
+        SelfFlag, selfFlag, AntibioticFlag, antibioticFlag, BasicFlag, basicFlag, ThoPartAttributeEnum,
+        thoPartAttributeEnum,
         RxFlag, rxFlag, DosageInstruction, dosageInstruction, Drug69Code, drug69Code, DoseFormCode, doseFormCode,
         DoseUnitCode, doseUnitCode, PackageUnitCode, packageUnitCode, StockUnitCode, stockUnitCode, MethodCode,
-        methodCode, RateCode, rateCode, Dose, dose, MaxUnit, maxUnit, UsageLimit, usageLimit, LocationId, locationId,
-        IngredientItem, ingredientItem, MedicationDefinition, definition, DddCode, dddCode, DddUnitCode,
-        dddUnitCode);
+        methodCode, RateCode, rateCode, Dose, dose, LocationId, locationId, MedicationDefinition, definition,
+        DddCode, dddCode, DddUnitCode, dddUnitCode);
     ZO_STAR_DOMAIN_DTO_TO_DO(data, dto, MinRateCode, minRateCode, MaxRateCode, maxRateCode, DoseUnitRatio,
                              doseUnitRatio, PurchaseUnitRatio, purchaseUnitRatio, StockUnitRatio, stockUnitRatio,
                              PackageUnitRatio, packageUnitRatio);
-    if (dto->specification)
+    ZO_STAR_DOMAIN_DTO_TO_DO(data, dto, TotalVolume, totalVolume);
+    if (dto->chrgitmLv)
     {
-        data.setTotalVolume(dto->specification.getValue(""));
+        data.setChrgitmLv(std::stoi(dto->chrgitmLv.getValue("")));
+    }
+    if (dto->maxUnit)
+    {
+        data.setMaxUnit(std::stod(dto->maxUnit.getValue("")));
+    }
+    if (dto->usageLimit)
+    {
+        data.setUsageLimit(std::stod(dto->usageLimit.getValue("")));
     }
     data.setUpdatedBy(updatedBy);
     data.setUpdatedAt(updatedAt);
@@ -254,8 +262,8 @@ MedicineVersionItemDTO::Wrapper DrugService::updateMedicineV2(const std::string 
         updatePrice(DrugConstants::PRICE_TYPE_SALE, dto->retailPrice);
         updatePrice(DrugConstants::PRICE_TYPE_LIMIT, dto->maximumRetailPrice);
 
-        if (dto->financeTypeCode &&
-            dao.updateBasePriceFinanceType(id, current->getTenantId(), dto->financeTypeCode.getValue(""),
+        if (dto->typeCode &&
+            dao.updateBasePriceFinanceType(id, current->getTenantId(), dto->typeCode.getValue(""),
                                            auditOperator, operationTime) <= 0)
         {
             throw DrugServiceException(DrugServiceError::InvalidInput);
@@ -301,7 +309,7 @@ MedicineBatchResultDTO::Wrapper DrugService::updateMedicineStatusV2(
     }
     const PayloadDTO &payload = *dto->getPayload();
     const std::string auditOperator = operatorId(payload);
-    const bool enable = dto->status == DrugConstants::STATUS_ACTIVE;
+    const bool enable = dto->status == MedicineStatusEnum::ACTIVE;
     const std::string expectedStatus =
         enable ? DrugConstants::STATUS_INACTIVE : DrugConstants::STATUS_ACTIVE;
     const std::string targetStatus =

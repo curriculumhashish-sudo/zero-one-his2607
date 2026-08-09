@@ -34,15 +34,6 @@
 
 #define API_TAG ZH_WORDS_GETTER("drug.tags.tag")
 #define API_TAG2 ZH_WORDS_GETTER("drug.tags.tag2")
-#define MEDICINE_V2_ERROR_RESPONSES(_TYPE_)                                                                        \
-    info->authorization = "Bearer";                                                                               \
-    info->addResponse<_TYPE_>(Status::CODE_400, "application/json");                                                \
-    info->addResponse<_TYPE_>(Status::CODE_401, "application/json");                                                \
-    info->addResponse<_TYPE_>(Status::CODE_403, "application/json");                                                \
-    info->addResponse<_TYPE_>(Status::CODE_404, "application/json");                                                \
-    info->addResponse<_TYPE_>(Status::CODE_409, "application/json");                                                \
-    info->addResponse<_TYPE_>(Status::CODE_422, "application/json");                                                \
-    info->addResponse<_TYPE_>(Status::CODE_500, "application/json")
 #define MEDICINE_V2_BODY_SCHEMA(_TYPE_, _EXAMPLE_)                                                                 \
     info->body.name = "body";                                                                                       \
     info->body.required = true;                                                                                     \
@@ -91,30 +82,12 @@ class DrugController : public oatpp::web::server::api::ApiController
                                MedicineBatchJsonVO::Wrapper, API_TAG,
                                MEDICINE_V2_BODY_SCHEMA(MedicineStatusUpdateDTO::Wrapper,
                                                        MedicineStatusUpdateDTO::createExample());
-                               MEDICINE_V2_ERROR_RESPONSES(MedicineBatchJsonVO::Wrapper);
-                               info->responses[Status::CODE_400].addExample(
-                                   "invalidBody", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::PARAM_INVALID));
-                               info->responses[Status::CODE_401].addExample(
-                                   "unauthorized", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::UNAUTHORIZED));
-                               info->responses[Status::CODE_403].addExample(
-                                   "forbidden", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::FORBIDDEN));
-                               info->responses[Status::CODE_404].addExample(
-                                   "notFound", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::NOT_FOUND));
                                info->responses[Status::CODE_200].addExample(
-                                   "success", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::SUCCESS));
-                               info->responses[Status::CODE_200].addExample(
-                                   "partial", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::PARTIAL_SUCCESS));
-                               info->responses[Status::CODE_409].addExample(
-                                   "versionConflict", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::VERSION_CONFLICT));
-                               info->responses[Status::CODE_422].addExample(
-                                   "businessValidation", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::BUSINESS_VALIDATION_FAILED));
-                               info->responses[Status::CODE_500].addExample(
-                                   "serverError", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::SERVER_ERROR)););
-    ENDPOINT("PATCH", "/api/v2/medicines/status", updateMedicineStatusV2,
-             BODY_DTO(MedicineStatusUpdateDTO::Wrapper, dto),
-             HEADER(String, authorization, API_H_TOKEN))
+                                   "success", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::SUCCESS)););
+    ENDPOINT(API_M_PUT, "/drug/modify-status", updateMedicineStatusV2,
+              BODY_DTO(MedicineStatusUpdateDTO::Wrapper, dto),
+             API_HANDLER_AUTH_PARAME)
     {
-        auto authObject = authenticateMedicineV2(authorization);
         if (!authObject)
         {
             return medicineV2BatchErrorResponse(MedicineV2BusinessCode::UNAUTHORIZED);
@@ -136,30 +109,12 @@ class DrugController : public oatpp::web::server::api::ApiController
                                MedicineBatchJsonVO::Wrapper, API_TAG,
                                MEDICINE_V2_BODY_SCHEMA(MedicineBatchDeleteDTO::Wrapper,
                                                        MedicineBatchDeleteDTO::createExample());
-                               MEDICINE_V2_ERROR_RESPONSES(MedicineBatchJsonVO::Wrapper);
-                               info->responses[Status::CODE_400].addExample(
-                                   "invalidBody", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::PARAM_INVALID));
-                               info->responses[Status::CODE_401].addExample(
-                                   "unauthorized", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::UNAUTHORIZED));
-                               info->responses[Status::CODE_403].addExample(
-                                   "forbidden", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::FORBIDDEN));
-                               info->responses[Status::CODE_404].addExample(
-                                   "notFound", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::NOT_FOUND));
                                info->responses[Status::CODE_200].addExample(
-                                   "success", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::SUCCESS));
-                               info->responses[Status::CODE_200].addExample(
-                                   "partial", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::PARTIAL_SUCCESS));
-                               info->responses[Status::CODE_409].addExample(
-                                   "versionConflict", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::VERSION_CONFLICT));
-                               info->responses[Status::CODE_422].addExample(
-                                   "businessValidation", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::BUSINESS_VALIDATION_FAILED));
-                               info->responses[Status::CODE_500].addExample(
-                                   "serverError", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::SERVER_ERROR)););
-    ENDPOINT(API_M_POST, "/api/v2/medicines/batch-delete", batchDeleteMedicinesV2,
-             BODY_DTO(MedicineBatchDeleteDTO::Wrapper, dto),
-             HEADER(String, authorization, API_H_TOKEN))
+                                   "success", MedicineBatchJsonVO::createExample(MedicineV2BusinessCode::SUCCESS)););
+    ENDPOINT(API_M_DEL, "/drug/remove-drug", batchDeleteMedicinesV2,
+              BODY_DTO(MedicineBatchDeleteDTO::Wrapper, dto),
+             API_HANDLER_AUTH_PARAME)
     {
-        auto authObject = authenticateMedicineV2(authorization);
         if (!authObject)
         {
             return medicineV2BatchErrorResponse(MedicineV2BusinessCode::UNAUTHORIZED);
@@ -181,28 +136,12 @@ class DrugController : public oatpp::web::server::api::ApiController
                                MedicineVersionJsonVO::Wrapper, API_TAG,
                                MEDICINE_V2_BODY_SCHEMA(MedicineUpdateDTO::Wrapper,
                                                        MedicineUpdateDTO::createExample());
-                               MEDICINE_V2_ERROR_RESPONSES(MedicineVersionJsonVO::Wrapper);
-                               info->responses[Status::CODE_400].addExample(
-                                   "invalidBody", MedicineVersionJsonVO::createExample(MedicineV2BusinessCode::PARAM_INVALID));
-                               info->responses[Status::CODE_401].addExample(
-                                   "unauthorized", MedicineVersionJsonVO::createExample(MedicineV2BusinessCode::UNAUTHORIZED));
-                               info->responses[Status::CODE_403].addExample(
-                                   "forbidden", MedicineVersionJsonVO::createExample(MedicineV2BusinessCode::FORBIDDEN));
-                               info->responses[Status::CODE_404].addExample(
-                                   "notFound", MedicineVersionJsonVO::createExample(MedicineV2BusinessCode::NOT_FOUND));
                                info->responses[Status::CODE_200].addExample(
-                                   "success", MedicineVersionJsonVO::createExample(MedicineV2BusinessCode::SUCCESS));
-                               info->responses[Status::CODE_409].addExample(
-                                   "versionConflict", MedicineVersionJsonVO::createExample(MedicineV2BusinessCode::VERSION_CONFLICT));
-                               info->responses[Status::CODE_422].addExample(
-                                   "businessValidation", MedicineVersionJsonVO::createExample(MedicineV2BusinessCode::BUSINESS_VALIDATION_FAILED));
-                               info->responses[Status::CODE_500].addExample(
-                                   "serverError", MedicineVersionJsonVO::createExample(MedicineV2BusinessCode::SERVER_ERROR)););
-    ENDPOINT("PATCH", "/api/v2/medicines/{id}", updateMedicineV2, PATH(String, id),
+                                   "success", MedicineVersionJsonVO::createExample(MedicineV2BusinessCode::SUCCESS)););
+    ENDPOINT(API_M_PUT, "/drug/modify", updateMedicineV2,
              BODY_DTO(MedicineUpdateDTO::Wrapper, dto),
-             HEADER(String, authorization, API_H_TOKEN))
+             API_HANDLER_AUTH_PARAME)
     {
-        auto authObject = authenticateMedicineV2(authorization);
         if (!authObject)
         {
             return medicineV2VersionErrorResponse(MedicineV2BusinessCode::UNAUTHORIZED);
@@ -215,7 +154,7 @@ class DrugController : public oatpp::web::server::api::ApiController
         {
             return medicineV2VersionErrorResponse(MedicineV2BusinessCode::PARAM_INVALID);
         }
-        auto response = execUpdateMedicineV2(id, dto, authObject->getPayload());
+        auto response = execUpdateMedicineV2(dto, authObject->getPayload());
         return createDtoResponse(medicineV2HttpStatus(response->code.getValue(10099)), response);
     }
 
@@ -228,8 +167,7 @@ class DrugController : public oatpp::web::server::api::ApiController
     DrugDetailJsonVO::Wrapper execQueryById(const String &id);
 
     // 部分修改药品。
-    MedicineVersionJsonVO::Wrapper execUpdateMedicineV2(const String &id,
-                                                         const MedicineUpdateDTO::Wrapper &dto,
+    MedicineVersionJsonVO::Wrapper execUpdateMedicineV2(const MedicineUpdateDTO::Wrapper &dto,
                                                          const PayloadDTO &payload);
 
     // 批量启停药品。
@@ -256,7 +194,6 @@ class DrugController : public oatpp::web::server::api::ApiController
 
 #undef API_TAG
 #undef API_TAG2
-#undef MEDICINE_V2_ERROR_RESPONSES
 #undef MEDICINE_V2_BODY_SCHEMA
 
 #include OATPP_CODEGEN_END(ApiController)
