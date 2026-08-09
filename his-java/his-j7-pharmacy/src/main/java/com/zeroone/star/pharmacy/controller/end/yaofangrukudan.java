@@ -1,7 +1,6 @@
 package com.zeroone.star.pharmacy.controller.end;
 
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zeroone.star.pharmacy.service.InStockOrderService;
 import com.zeroone.star.project.dto.j7.pharmacy.InStockOrderCreateDTO;
 import com.zeroone.star.project.dto.j7.pharmacy.InStockOrderSaveDTO;
@@ -11,11 +10,12 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j7.pharmacy.InboundApprovalVO;
 import com.zeroone.star.pharmacy.service.IInboundApprovalService;
 import com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundDetailVO;
-import com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundListVO;
+import com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundPageVO;
 import com.zeroone.star.project.dto.j7.pharmacy.InStockOrderDeleteDTO;
 import com.zeroone.star.project.vo.j7.pharmacy.SupplyDocumentDeleteVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -175,11 +175,11 @@ public class yaofangrukudan {
     @Operation(summary = "获取单据列表", description = "根据条件分页查询药房入库单列表")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"records\":[],\"total\":0,\"size\":10,\"current\":1,\"pages\":0}}")))
+            content = @Content(mediaType = "application/json",
+                examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"records\":[{\"id\":\"1\",\"busNo\":\"PSI2026-06-300001\",\"statusName\":\"同意\",\"createByName\":\"张三\",\"approverName\":\"李四\",\"applyTime\":\"2026-06-30 16:35:00\",\"transferPath\":\"西药库 → 门诊西药房\",\"totalPrice\":1500.00}],\"total\":1,\"size\":10,\"current\":1,\"pages\":1}}")))
     })
-    public JsonVO<IPage<PurchaseInboundListVO>> listInboundOrders(@Valid @RequestBody PurchaseInboundQuery query) {
-        return JsonVO.success(inStockOrderService.listInboundOrders(query));
+    public JsonVO<PurchaseInboundPageVO> listInboundOrders(@Valid @RequestBody PurchaseInboundQuery query) {
+        return JsonVO.success(PurchaseInboundPageVO.from(inStockOrderService.listInboundOrders(query)));
     }
 
     /**
