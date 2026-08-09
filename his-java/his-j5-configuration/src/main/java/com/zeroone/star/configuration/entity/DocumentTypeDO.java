@@ -1,10 +1,10 @@
 package com.zeroone.star.configuration.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -16,9 +16,36 @@ import lombok.EqualsAndHashCode;
  * @version 1.0.0
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @TableName("emr_document_type")
-public class DocumentTypeDO extends BaseEntity {
+public class DocumentTypeDO implements Serializable {
+
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
+    private String id;
+
+    @TableField("tenant_id")
+    private String tenantId;
+
+    @TableField(value = "created_at", fill = FieldFill.INSERT)
+    private LocalDateTime createdAt;
+
+    @TableField(value = "updated_at", fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updatedAt;
+
+    @TableField("created_by")
+    private String createdBy;
+
+    @TableField("updated_by")
+    private String updatedBy;
+
+    @TableField("is_deleted")
+    @TableLogic
+    private Integer isDeleted;
+
+    @TableField("deleted_at")
+    private LocalDateTime deletedAt;
+
+    @TableField("deleted_by")
+    private String deletedBy;
 
     /**
      * 文书类型编码

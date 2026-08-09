@@ -68,6 +68,9 @@ public class OrderSetDetailVO {
     @Schema(description = "更新人")
     private String updatedBy;
 
+    @Schema(description = "版本号（编辑时必须回传，用于乐观锁）", example = "0")
+    private Integer version;
+
     @Schema(description = "明细列表")
     private List<OrderSetLineVO> lines;
 

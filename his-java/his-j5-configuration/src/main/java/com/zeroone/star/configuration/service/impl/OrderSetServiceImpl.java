@@ -140,6 +140,7 @@ public class OrderSetServiceImpl implements IOrderSetService {
         vo.setRemark(orderSet.getRemark());
         vo.setCreatedAt(orderSet.getCreatedAt());
         vo.setUpdatedAt(orderSet.getUpdatedAt());
+        vo.setVersion(orderSet.getVersion());
         return vo;
     }
 
@@ -163,6 +164,7 @@ public class OrderSetServiceImpl implements IOrderSetService {
         vo.setUpdatedAt(orderSet.getUpdatedAt());
         vo.setCreatedBy(orderSet.getCreatedBy());
         vo.setUpdatedBy(orderSet.getUpdatedBy());
+        vo.setVersion(orderSet.getVersion());
 
         List<OrderSetDetailVO.OrderSetLineVO> lineVOs = lines.stream()
                 .map(this::convertToLineVO)

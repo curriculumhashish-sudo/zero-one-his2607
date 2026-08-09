@@ -54,4 +54,7 @@ public class OrderSetListVO {
 
     @Schema(description = "更新时间")
     private LocalDateTime updatedAt;
+
+    @Schema(description = "版本号（编辑/启停用/删除时必须回传，用于乐观锁）", example = "0")
+    private Integer version;
 }
