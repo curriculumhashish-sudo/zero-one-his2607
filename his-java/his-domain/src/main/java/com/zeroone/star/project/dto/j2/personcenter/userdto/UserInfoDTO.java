@@ -1,4 +1,4 @@
-package com.zeroone.star.project.dto.j2.personcenter.userdtovary;
+package com.zeroone.star.project.dto.j2.personcenter.userdto;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
