@@ -74,13 +74,11 @@ public:
 	std::list<TreatmentChildDO> selectChildrenByActivityId(const std::string& activityId);
 	// 按 activity_id 软删除子项
 	int32_t softDeleteChildrenByActivityId(const std::string& activityId, const std::string& deletedBy, const std::string& deletedAt);
-	// Query price rows by treatment id 
+	// Query price rows by treatment id (PURCHASE/SALE/LIMIT)
 	std::list<AdmChargeItemDefinitionDO> selectPricesByInstanceId(const std::string& instanceId);
 	// Soft-delete price rows by treatment id
 	int32_t softDeletePricesByInstanceId(const std::string& instanceId, const std::string& deletedBy, const std::string& deletedAt);
 	// 按主键列表软删除
 	int32_t removeData(std::list<std::string>& ids);
-	// 编码更新
-	uint64_t nextSequenceValue(const std::string& seqKey);
 };
 #endif // !_TREATMENT_DAO_
