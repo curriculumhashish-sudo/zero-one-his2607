@@ -8,7 +8,7 @@ class DrugDetailDTO : public oatpp::DTO
 {
 	DTO_INIT(DrugDetailDTO, DTO);
 	API_DTO_FIELD_REQUIRE(String, tongyongname, ZH_WORDS_GETTER("Drug.field.tongyongname"), true);
-	API_DTO_FIELD_REQUIRE(String, id ,ZH_WORDS_GETTER("Drug.field.id"), true);
+	API_DTO_FIELD_REQUIRE(String, id ,ZH_WORDS_GETTER("Drug.field.id"), false);
 	API_DTO_FIELD_REQUIRE(String, name, ZH_WORDS_GETTER("Drug.field.shangpinname"), true);
 	//名称
 	API_DTO_FIELD_REQUIRE(String, kinds, ZH_WORDS_GETTER("Drug.field.kinds"), true);
