@@ -41,14 +41,14 @@ public:
 		uint64_t result;
 		bool res = mc->execute("access_monthly_vector",
 			[query, &result](mongocxx::collection* collection) {
-				auto monthFrom = query->monthFrom.get();
-				auto monthTo = query->monthTo.get();
+				auto monthFrom = query->monthFrom.getValue("");
+				auto monthTo = query->monthTo.getValue("");
 				auto filter = bsoncxx::builder::basic::make_document(
 					bsoncxx::builder::basic::kvp("yearMonth", bsoncxx::builder::basic::make_document(
-						bsoncxx::builder::basic::kvp("$gte", *monthFrom),
-						bsoncxx::builder::basic::kvp("$lte", *monthTo)
+						bsoncxx::builder::basic::kvp("$gte", monthFrom),
+						bsoncxx::builder::basic::kvp("$lte", monthTo)
 					)),
-					bsoncxx::builder::basic::kvp("hospitalId", *(query->organizationId.get()))
+					bsoncxx::builder::basic::kvp("hospitalId", query->organizationId.getValue(""))
 				);
 				result = collection->count_documents(filter.view());
 			});
@@ -60,14 +60,14 @@ public:
 		std::list<MonthVisitDTO::Wrapper> result;
 		bool res = mc->execute("£¨access_monthly_vector",
 			[query, &result](mongocxx::collection* collection) {
-				auto monthFrom = query->monthFrom.get();
-				auto monthTo = query->monthTo.get();
+				auto monthFrom = query->monthFrom.getValue("");
+				auto monthTo = query->monthTo.getValue("");
 				auto filter = bsoncxx::builder::basic::make_document(
 					bsoncxx::builder::basic::kvp("yearMonth", bsoncxx::builder::basic::make_document(
-						bsoncxx::builder::basic::kvp("$gte", *monthFrom),
-						bsoncxx::builder::basic::kvp("$lte", *monthTo)
+						bsoncxx::builder::basic::kvp("$gte", monthFrom),
+						bsoncxx::builder::basic::kvp("$lte", monthTo)
 					)),
-					bsoncxx::builder::basic::kvp("hospitalId", *(query->organizationId.get()))
+					bsoncxx::builder::basic::kvp("hospitalId", query->organizationId.getValue(""))
 				);
 				mongocxx::options::find opts{};
 				opts.projection(bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("_id", 0), bsoncxx::builder::basic::kvp("dailyCounts", 1), bsoncxx::builder::basic::kvp("totalCount", 1)));

@@ -40,14 +40,14 @@ public:
 		uint64_t result;
 		bool res = mc->execute("access_daily_trend",
 			[query, &result](mongocxx::collection* collection) {
-				auto dateFrom = query->dateFrom.get();
-				auto dateTo = query->dateTo.get();
+				auto dateFrom = query->dateFrom.getValue("");
+				auto dateTo = query->dateTo.getValue("");
 				auto filter = bsoncxx::builder::basic::make_document(
 					bsoncxx::builder::basic::kvp("date", bsoncxx::builder::basic::make_document(
-						bsoncxx::builder::basic::kvp("$gte", *dateFrom),
-						bsoncxx::builder::basic::kvp("$lte", *dateTo)
+						bsoncxx::builder::basic::kvp("$gte", dateFrom),
+						bsoncxx::builder::basic::kvp("$lte", dateTo)
 					)),
-					bsoncxx::builder::basic::kvp("hospitalId", *(query->organizationId.get()))
+					bsoncxx::builder::basic::kvp("hospitalId",query->organizationId.getValue(""))
 				);
 				result = collection->count_documents(filter.view());
 			});
@@ -60,18 +60,18 @@ public:
 		bool res = mc->execute("access_daily_trend",
 			[query,&result](mongocxx::collection* collection) {
 				mongocxx::options::find opts{};
-				auto dateFrom = query->dateFrom.get();
-				auto dateTo = query->dateTo.get();
+				auto dateFrom = query->dateFrom.getValue("");
+				auto dateTo = query->dateTo.getValue("");
 				opts.projection(bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("_id", 0),bsoncxx::builder::basic::kvp("hourlyCounts", 1)));
 				opts.skip((query->pageIndex - 1) * query->pageSize);
 				opts.limit(query->pageSize);
 				opts.sort(bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("date", 1)));
 				auto filter = bsoncxx::builder::basic::make_document(
 					bsoncxx::builder::basic::kvp("date", bsoncxx::builder::basic::make_document(
-						bsoncxx::builder::basic::kvp("$gte", *dateFrom),
-						bsoncxx::builder::basic::kvp("$lte", *dateTo)
+						bsoncxx::builder::basic::kvp("$gte", dateFrom),
+						bsoncxx::builder::basic::kvp("$lte", dateTo)
 					)),
-					bsoncxx::builder::basic::kvp("hospitalId", *(query->organizationId.get()))
+					bsoncxx::builder::basic::kvp("hospitalId",query->organizationId.getValue(""))
 				);
 				auto cursor = collection->find(filter.view(), opts);
 				for (auto&& doc : cursor) {
