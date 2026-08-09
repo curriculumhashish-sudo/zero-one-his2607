@@ -9,8 +9,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import org.yaml.snakeyaml.util.UriEncoder;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -52,7 +53,10 @@ public class UserHolder {
                 userJsonObject = new JSONObject();
             }
         } else {
-            userStr = UriEncoder.decode(userStr);
+            try {
+                userStr = URLDecoder.decode(userStr, StandardCharsets.UTF_8);
+            } catch (Exception ignore) {
+            }
             userJsonObject = new JSONObject(userStr);
         }
 
