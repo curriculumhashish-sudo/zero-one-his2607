@@ -563,7 +563,7 @@ DrugSelectPageDTO::Wrapper DrugService::SelectlistAll(const DrugSelectQuery::Wra
             continue;
         }
         auto dto = DrugSelectDTO::createShared();
-        ZO_STAR_DOMAIN_DO_TO_DTO_1(dto, sub, code, Id, name, Name, danwei, StockUnitCode);
+        ZO_STAR_DOMAIN_DO_TO_DTO_1(dto, sub, code, BusNo, name, Name, danwei, StockUnitCode);
         const std::string status = sub->getStatusEnum();
         pages->addData(dto);
     }
