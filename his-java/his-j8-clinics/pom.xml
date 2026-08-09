@@ -94,7 +94,7 @@
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
-                <version>0.43.4</version>
+                <version>0.45.2</version>
                 <configuration>
                     <dockerHost>https://47.98.165.254:2375</dockerHost>
                     <certPath>D:/Dr.BIG/docker-ca</certPath>
