@@ -5,6 +5,7 @@ import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zeroone.star.project.components.jwt.JwtComponent;
 import com.zeroone.star.project.components.user.UserDTO;
 import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.PageDTO;
@@ -16,9 +17,11 @@ import com.zeroone.star.project.utils.tree.TreeUtils;
 import com.zeroone.star.project.vo.j1.permission.PermissionTreeVO;
 import com.zeroone.star.project.vo.j1.permission.PermissionVO;
 import com.zeroone.star.sysmgr.entity.permission.Permission;
+import com.zeroone.star.sysmgr.entity.user.UserTenant;
 import com.zeroone.star.sysmgr.exception.PermissionStatus;
 import com.zeroone.star.project.exception.SystemException;
 import com.zeroone.star.sysmgr.mapper.permission.PermissionMapper;
+import com.zeroone.star.sysmgr.mapper.user.UserTenantMapper;
 import com.zeroone.star.sysmgr.service.permission.IPermissionService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +48,12 @@ public class PermissionServiceImpl
     @Resource
     private UserHolder userHolder;
 
+    @Resource
+    private JwtComponent jwtComponent;
+
+    @Resource
+    private UserTenantMapper userTenantMapper;
+
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${his.cache.reload-url:http://localhost:10400/open/resources/cache/reload}")
@@ -57,7 +66,7 @@ public class PermissionServiceImpl
         String tenantId = getTenantId();
         List<Permission> permissions = baseMapper.selectList(
                 new QueryWrapper<Permission>()
-                        .eq("tenant_id", tenantId)
+                        .and(w -> w.eq("tenant_id", tenantId).or().isNull("tenant_id"))
                         .orderByAsc("display_name"));
         return TreeUtils.listToTree(permissions, p -> {
             PermissionTreeVO node = new PermissionTreeVO();
@@ -74,7 +83,7 @@ public class PermissionServiceImpl
     public PageDTO<PermissionVO> listPermissions(PermissionQuery query) {
         String tenantId = getTenantId();
         QueryWrapper<Permission> wrapper = new QueryWrapper<>();
-        wrapper.eq("tenant_id", tenantId);
+        wrapper.and(w -> w.eq("tenant_id", tenantId).or().isNull("tenant_id"));
         if (StringUtils.hasText(query.getKeyword())) {
             wrapper.and(w -> w.like("name", query.getKeyword())
                     .or().like("display_name", query.getKeyword()));
@@ -199,15 +208,38 @@ public class PermissionServiceImpl
             return "1";
         }
         String userStr = attrs.getRequest().getHeader("user");
-        if (!StringUtils.hasText(userStr)) {
-            return "1";
+        if (StringUtils.hasText(userStr)) {
+            JSONObject userJson = new JSONObject(userStr);
+            String tenantId = userJson.getStr("tenant_id");
+            if (StringUtils.hasText(tenantId)) {
+                return tenantId;
+            }
         }
-        JSONObject userJson = new JSONObject(userStr);
-        String tenantId = userJson.getStr("tenant_id");
-        if (!StringUtils.hasText(tenantId)) {
-            return "1";
+        String authHeader = attrs.getRequest().getHeader("Authorization");
+        if (StringUtils.hasText(authHeader)) {
+            try {
+                String token = authHeader.replace("Bearer ", "");
+                String jwtPayload = jwtComponent.defaultRsaVerify(token);
+                JSONObject jwtJson = new JSONObject(jwtPayload);
+                String tenantId = jwtJson.getStr("tenant_id");
+                if (StringUtils.hasText(tenantId)) {
+                    return tenantId;
+                }
+                String userId = jwtJson.getStr("id");
+                if (StringUtils.hasText(userId)) {
+                    UserTenant ut = userTenantMapper.selectOne(
+                            new QueryWrapper<UserTenant>()
+                                    .eq("user_id", userId)
+                                    .last("LIMIT 1"));
+                    if (ut != null && StringUtils.hasText(ut.getTenantId())) {
+                        return ut.getTenantId();
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("从 Authorization 头解析 JWT 失败: {}", e.getMessage());
+            }
         }
-        return tenantId;
+        return "1";
     }
 
     private String getCurrentUserId() {
