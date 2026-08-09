@@ -171,6 +171,37 @@ oatpp::Object<Refund2ApplyResultDTO> RefundService::applyRefund(const Refund2App
     BaseDAO dao;
     auto* ss = dao.getSqlSession();
 
+    if (encounterId.empty())
+    {
+        std::string patientNo = dto->patientNo.getValue("");
+        if (patientNo.empty())
+        {
+            result->status = "FAILED";
+            result->statusName = "encounterId or patientNo is required";
+            return result;
+        }
+        std::string pid = ss->executeQueryOne<ScalarStr>(
+            "SELECT id FROM adm_patient WHERE bus_no = ? AND is_deleted = 0 LIMIT 1",
+            ScalarStrMapper(), "%s", patientNo).val;
+        if (pid.empty())
+        {
+            result->status = "FAILED";
+            result->statusName = "patient not found";
+            return result;
+        }
+        encounterId = ss->executeQueryOne<ScalarStr>(
+            "SELECT id FROM adm_encounter "
+            "WHERE patient_id = ? AND class_enum = 'AMB' AND status_enum = 'arrived' "
+            "AND is_deleted = 0 ORDER BY start_time DESC LIMIT 1",
+            ScalarStrMapper(), "%s", pid).val;
+        if (encounterId.empty())
+        {
+            result->status = "FAILED";
+            result->statusName = "no valid outpatient encounter found";
+            return result;
+        }
+    }
+
     std::string pid = ss->executeQueryOne<ScalarStr>(
         "SELECT patient_id FROM adm_encounter WHERE id = ? AND is_deleted = 0",
         ScalarStrMapper(), "%s", encounterId).val;

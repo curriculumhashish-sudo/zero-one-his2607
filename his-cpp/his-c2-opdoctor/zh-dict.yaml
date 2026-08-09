@@ -86,3 +86,34 @@ cyclectrl2:
   admissionType: 入院类型
   admissionMethod: 入院方式
   priority: 病情优先级
+doctor-station:
+ inpatient:
+  check:
+   tag: 住院申请检查
+   summary: 检查是否存在住院申请
+   encounterId: 就诊ID
+   exists: 是否存在
+   applicationId: 申请ID
+   inpatientEncounterId: 住院就诊ID
+   inpatientEncounterNo: 住院号
+   status: 状态码
+   statusName: 状态名称
+adm-req:
+ encounterId: 就诊ID
+ patientId: 患者ID
+ targetDepartmentId: 目标科室ID
+ wardId: 病区ID
+ admissionTypeCode: 入院类型编码
+ admissionWayCode: 入院方式编码
+ priorityCode: 优先级编码
+ admissionDiagnoses: 入院诊断列表
+adm-diag:
+ catalogId: 目录ID
+ code: ICD编码
+ name: 诊断名称
+ diagnosisRecordId: 诊断记录ID
+ description: 诊断说明
+ primary: 是否主诊断
+adm-result:
+ inpatientEncounterId: 住院就诊ID
+ inpatientEncounterNo: 住院号

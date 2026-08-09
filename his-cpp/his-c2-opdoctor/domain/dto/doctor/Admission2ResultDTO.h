@@ -12,6 +12,8 @@ class Admission2ResultDTO :public oatpp::DTO
 
     API_DTO_FIELD_DEFAULT(String, applicationId, ZH_WORDS_GETTER("cyclectrl2.admission.applicationId"));
     API_DTO_FIELD_DEFAULT(String, applicationNo, ZH_WORDS_GETTER("cyclectrl2.admission.applicationNo"));
+    API_DTO_FIELD_DEFAULT(String, inpatientEncounterId, ZH_WORDS_GETTER("adm-result.inpatientEncounterId"));
+    API_DTO_FIELD_DEFAULT(String, inpatientEncounterNo, ZH_WORDS_GETTER("adm-result.inpatientEncounterNo"));
     API_DTO_FIELD_DEFAULT(String, status, ZH_WORDS_GETTER("cyclectrl2.admission.status"));
     API_DTO_FIELD_DEFAULT(String, statusName, ZH_WORDS_GETTER("cyclectrl2.admission.statusName"));
     API_DTO_FIELD_DEFAULT(String, createdAt, ZH_WORDS_GETTER("cyclectrl2.admission.createdAt"));

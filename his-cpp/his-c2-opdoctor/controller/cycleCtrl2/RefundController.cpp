@@ -20,11 +20,12 @@ Refund2DetailJsonVO::Wrapper Refund2Controller::executeQueryRefund(const Refund2
 Refund2ApplyResultJsonVO::Wrapper Refund2Controller::execApplyRefund(const Refund2ApplyDTO::Wrapper& dto, const PayloadDTO& payload)
 {
     auto jvo = Refund2ApplyResultJsonVO::createShared();
-    if (!dto->encounterId || dto->encounterId.getValue("").empty())
+    if ((!dto->encounterId || dto->encounterId.getValue("").empty()) &&
+        (!dto->patientNo || dto->patientNo.getValue("").empty()))
     {
         auto err = Refund2ApplyResultDTO::createShared();
         err->status = "FAILED";
-        err->statusName = "encounter id is required";
+        err->statusName = "encounterId or patientNo is required";
         jvo->init(err, RS_PARAMS_INVALID);
         return jvo;
     }
