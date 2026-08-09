@@ -41,6 +41,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(value = Exception.class)
     public Object exceptionHandler(Exception e) {
+        e.printStackTrace();
         if (e instanceof HttpMediaTypeException) {
             return wrapper.getResult(e.getMessage(), ResultStatus.CONTENT_TYPE_ERR);
         }
