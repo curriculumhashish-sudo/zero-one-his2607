@@ -19,7 +19,10 @@ public class PurchaseInboundListVO {
     @Schema(description = "单据编号", example = "PSI2026-06-300001")
     private String busNo;
 
-    @Schema(description = "单据状态 (中文展示: 同意/待审核)", example = "APPROVED")
+    @Schema(
+            description = "单据状态中文名称。对应关系：DRAFT-编辑中, PENDING-待审核, APPROVED-同意, REJECTED-驳回",
+            example = "同意"
+    )
     private String statusName;
 
     @Schema(description = "制单人姓名", example = "张三")
