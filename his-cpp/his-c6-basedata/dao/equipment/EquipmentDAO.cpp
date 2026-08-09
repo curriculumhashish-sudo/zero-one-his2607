@@ -329,7 +329,7 @@ int EquipmentDAO::updateStatusByIds(const std::list<std::string>& ids, const std
 // ============================================================================
 // 9. 批量启停用
 // ============================================================================
-int EquipmentDAO::updateActiveFlagByIds(const std::list<std::string>& ids, int activeFlag, const std::string& updatedBy, const std::string& updatedAt)
+int EquipmentDAO::updateActiveFlagByIds(const std::list<std::string>& ids, int activeFlag, const std::string& statusEnum, const std::string& updatedBy, const std::string& updatedAt)
 {
 	if (ids.empty()) return 0;
 
@@ -337,10 +337,11 @@ int EquipmentDAO::updateActiveFlagByIds(const std::list<std::string>& ids, int a
 	SqlParams params;
 
 	// 注意：这里更新的是 active_flag
-	sql << "UPDATE adm_device_definition SET `active_flag` = ?, `updated_by` = ?, `updated_at` = ? WHERE `id` IN (";
+	sql << "UPDATE adm_device_definition SET `active_flag` = ?, `status_enum` = ?, `updated_by` = ?, `updated_at` = ? WHERE `id` IN (";
 
 	// 压入状态 (0或1)、更新人、更新时间参数
 	SQLPARAMS_PUSH(params, "i", int, activeFlag);
+	SQLPARAMS_PUSH(params, "s", std::string, statusEnum);
 	SQLPARAMS_PUSH(params, "s", std::string, updatedBy);
 	SQLPARAMS_PUSH(params, "s", std::string, updatedAt);
 
@@ -374,4 +375,68 @@ bool EquipmentDAO::checkNameExists(const std::string& name, const std::string& e
 
 	uint64_t count = sqlSession->executeQueryNumerical(sql, params);
 	return count > 0;
+}
+
+// ============================================================================
+// 11. 删除指定实例的所有关联价格 (物理删除，供更新价格时清理旧数据)
+// ============================================================================
+int EquipmentDAO::deleteChargeItemsByInstanceId(const std::string& instanceId)
+{
+	SqlParams params;
+	std::string sql = "DELETE FROM adm_charge_item_definition WHERE `instance_id` = ?";
+	SQLPARAMS_PUSH(params, "s", std::string, instanceId);
+
+	return sqlSession->executeUpdate(sql, params);
+}
+
+// ============================================================================
+// 12. 插入或更新收费/价格项目数据 (UPSERT)
+// ============================================================================
+int EquipmentDAO::upsertChargeItem(const AdmChargeItemDefinitionDO& entity, const std::string& updatedAt, const std::string& updatedBy)
+{
+	std::string sql = "INSERT INTO adm_charge_item_definition ("
+		"`id`, `tenant_id`, `created_at`, `created_by`, `is_deleted`, `version`, "
+		"`instance_table`, `instance_id`, `charge_name`, `status_enum`, `type_code`, "
+		"`price_type_code`, `price_value`, `yb_type`"
+		") VALUES ("
+		"?, ?, ?, ?, 0, 0, "
+		"?, ?, ?, ?, ?, ?, ?, ?) "
+		"ON DUPLICATE KEY UPDATE "
+		"`price_value` = VALUES(`price_value`), "
+		"`updated_at` = ?, "
+		"`updated_by` = ?";
+
+	SqlParams params;
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getId());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getTenantId());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getCreatedAt());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getCreatedBy());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getInstanceTable());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getInstanceId());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getChargeName());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getStatusEnum());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getTypeCode());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getPriceTypeCode());
+	SQLPARAMS_PUSH(params, "d", double, entity.getPriceValue());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getYbType());
+	SQLPARAMS_PUSH(params, "s", std::string, updatedAt);
+	SQLPARAMS_PUSH(params, "s", std::string, updatedBy);
+
+	return sqlSession->executeUpdate(sql, params);
+}
+
+// ============================================================================
+// 13. 清理前端删掉的价格记录
+// ============================================================================
+int EquipmentDAO::deleteRemovedPrices(const std::string& instanceId, const std::string& keepPurchase, const std::string& keepSale, const std::string& keepLimit)
+{
+	// 仅删除未包含在保留名单中的价格记录
+	std::string sql = "DELETE FROM adm_charge_item_definition WHERE `instance_id` = ? AND `price_type_code` NOT IN (?, ?, ?)";
+	SqlParams params;
+	SQLPARAMS_PUSH(params, "s", std::string, instanceId);
+	SQLPARAMS_PUSH(params, "s", std::string, keepPurchase);
+	SQLPARAMS_PUSH(params, "s", std::string, keepSale);
+	SQLPARAMS_PUSH(params, "s", std::string, keepLimit);
+
+	return sqlSession->executeUpdate(sql, params);
 }

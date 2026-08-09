@@ -45,9 +45,21 @@ public:
 	int updateStatusByIds(const std::list<std::string>& ids, const std::string& statusEnum, const std::string& updatedBy, const std::string& updatedAt);
 
 	//批量启停用
-	int updateActiveFlagByIds(const std::list<std::string>& ids, int activeFlag, const std::string& updatedBy, const std::string& updatedAt);
+	int updateActiveFlagByIds(const std::list<std::string>& ids, int activeFlag, const std::string& statusEnum, const std::string& updatedBy, const std::string& updatedAt);
 
 	//检查名称是否重复
 	bool checkNameExists(const std::string& name, const std::string& excludeId);
+
+	// 删除指定实例的所有价格记录 (供修改数据时，先清理旧价格使用)
+	int deleteChargeItemsByInstanceId(const std::string& instanceId);
+
+	// 插入单条收费项目定义 (价格信息)
+	int insertChargeItem(const AdmChargeItemDefinitionDO& entity);
+
+	// 插入或更新价格 (UPSERT，完美保留审计记录)
+	int upsertChargeItem(const AdmChargeItemDefinitionDO& entity, const std::string& updatedAt, const std::string& updatedBy);
+
+	// 删除被前端清空的价格
+	int deleteRemovedPrices(const std::string& instanceId, const std::string& keepPurchase, const std::string& keepSale, const std::string& keepLimit);
 };
 #endif // !_RENTCONTROLLER_DAO_

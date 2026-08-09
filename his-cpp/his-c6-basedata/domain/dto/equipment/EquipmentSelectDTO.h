@@ -13,14 +13,12 @@ class EquipmentSelectDTO : public oatpp::DTO
 
 	// 器材ID
 	API_DTO_FIELD_DEFAULT(String, id, ZH_WORDS_GETTER("equipment.field.id"));
-	// 器材名称
-	API_DTO_FIELD_DEFAULT(String, name, ZH_WORDS_GETTER("equipment.field.name"));
 	// 器材编码
 	API_DTO_FIELD_DEFAULT(String, code, ZH_WORDS_GETTER("equipment.field.code"));
-	// 规格
-	API_DTO_FIELD_DEFAULT(String, specification, ZH_WORDS_GETTER("equipment.field.specification"));
-	// 生产厂家
-	API_DTO_FIELD_DEFAULT(String, manufacturer, ZH_WORDS_GETTER("equipment.field.manufacturer"));
+	// 器材名称
+	API_DTO_FIELD_DEFAULT(String, name, ZH_WORDS_GETTER("equipment.field.name"));
+	// 单位
+	API_DTO_FIELD_DEFAULT(String, unit, ZH_WORDS_GETTER("equipment.field.unit"));
 };
 
 class EquipmentSelectPageDTO : public PageDTO<EquipmentSelectDTO::Wrapper>
