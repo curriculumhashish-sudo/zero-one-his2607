@@ -97,7 +97,7 @@
                 <version>0.43.4</version>
                 <configuration>
                     <dockerHost>https://47.98.154.109:2375</dockerHost>
-                    <certPath>D:/Dr.BIG/docker-ca</certPath>
+                    <certPath>D:/Dr.BIG/docker-ca-sta</certPath>
                     <skip>false</skip>
                     <images>
                         <image>
