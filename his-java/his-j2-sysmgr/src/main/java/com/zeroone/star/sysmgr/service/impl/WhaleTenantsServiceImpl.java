@@ -63,19 +63,28 @@ public class WhaleTenantsServiceImpl extends ServiceImpl<WhaleTenantsMapper, Wha
         // 审计日志
         try {
             UserDTO currentUser = userHolder.getCurrentUser();
-            log.debug("用户[{}]查询租户名称列表", currentUser.getId());
+            log.debug("用户[{}]查询租户名称下拉列表", currentUser.getId());
         } catch (Exception e) {
             log.warn("JWT解析失败，无法获取当前用户信息", e);
         }
 
-        // 下拉场景数据量小，固定查询前100条
+        // 下拉固定最多100条
         Page<WhaleTenants> page = new Page<>(1, 100);
         LambdaQueryWrapper<WhaleTenants> wrapper = new LambdaQueryWrapper<>();
 
         // 只查需要的3个字段 + 过滤软删除 + 按编码升序
         wrapper.select(WhaleTenants::getId, WhaleTenants::getName, WhaleTenants::getCode)
                 .eq(WhaleTenants::getIsDeleted, 0)
-                .orderByAsc(WhaleTenants::getCode);
+                .eq(WhaleTenants::getIsActive,1); //下拉只加载启用租户
+        //keyword模糊搜索：租户名称、租户编码
+        if (StringUtils.hasText(rentNameQuery.getKeyword())){
+            wrapper.and(w -> w
+                    .like(WhaleTenants::getName,rentNameQuery.getKeyword())
+                    .or()
+                    .like(WhaleTenants::getCode,rentNameQuery.getKeyword())
+            );
+        }
+        wrapper.orderByAsc(WhaleTenants::getCode);
 
         // 执行查询并转换为RentNameDTO
         Page<WhaleTenants> resultPage = baseMapper.selectPage(page, wrapper);

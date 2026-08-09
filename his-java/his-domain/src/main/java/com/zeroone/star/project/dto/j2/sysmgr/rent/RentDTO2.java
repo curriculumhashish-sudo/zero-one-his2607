@@ -21,7 +21,7 @@ public class RentDTO2 extends RentNameDTO{
     @Schema(description = "租户描述", example = "系统默认租户", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String description;
 
-    @Schema(description = "租户状态", example = "true", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "租户状态 1启用 0禁用", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer isActive;
 
     @Schema(description = "扩展属性", requiredMode = Schema.RequiredMode.NOT_REQUIRED)

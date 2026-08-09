@@ -15,7 +15,7 @@ import lombok.Data;
 @Data
 @Schema(description = "租户名称数据传输对象")
 public class RentNameDTO {
-    @Schema(description = "租户ID",example = "1",requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "租户主键id（提供者键存储值",example = "1",requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
     @Schema(description = "租户名称",example = "默认用户",requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;

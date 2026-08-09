@@ -38,7 +38,7 @@ public class RentController implements RentApis {
     @Operation(summary = "获取租户名称")
     @GetMapping("/query-name")
     @Override
-    public JsonVO<PageDTO<RentNameDTO>> queryName(RentNameQuery rentNameQuery) {
+    public JsonVO<PageDTO<RentNameDTO>> queryName(@Validated RentNameQuery rentNameQuery) {
         try {
             PageDTO<RentNameDTO> result = whaleTenantsService.queryTenantNames(rentNameQuery);
             return JsonVO.success(result);

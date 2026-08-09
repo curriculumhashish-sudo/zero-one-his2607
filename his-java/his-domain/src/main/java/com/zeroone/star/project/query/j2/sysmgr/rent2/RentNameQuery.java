@@ -15,6 +15,6 @@ import lombok.Data;
 @Data
 @Schema(description = "租户名称查询对象")
 public class RentNameQuery {
-    @Schema(description = "提供者名称：T",example = "T",requiredMode = Schema.RequiredMode.REQUIRED)
-    private String providerName;
+    @Schema(description = "租户名称、编码模糊搜索关键字", example = "默认")
+    private String keyword;
 }
