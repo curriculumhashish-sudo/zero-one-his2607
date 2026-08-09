@@ -135,6 +135,8 @@ OrderDetailDTO1::Wrapper OrderDAO1::buildMedicationDTO(
     dto->patientId = oatpp::String(item.getPatientId());
     dto->doctorId = oatpp::String(item.getRequesterId());
     dto->doctorName = oatpp::String(doctorName);
+    // ===== 新增：药品医嘱没有服务申请单 =====
+    dto->serviceRequestId = oatpp::String("");
 
     // 目录信息
     dto->catalogId = oatpp::String(def.getId());
@@ -145,6 +147,8 @@ OrderDetailDTO1::Wrapper OrderDAO1::buildMedicationDTO(
 
     // 分类信息
     dto->categoryCode = oatpp::String(def.getCategoryCode());
+    // ===== 药品固定为 DRUG =====
+    dto->category = oatpp::String("DRUG");
     // categoryName 由 Service 层通过枚举转换填充
 
     // 临床决策字段
@@ -213,6 +217,7 @@ OrderDetailDTO1::Wrapper OrderDAO1::buildServiceDTO(
     dto->patientId = oatpp::String(item.getPatientId());
     dto->doctorId = oatpp::String(item.getRequesterId());
     dto->doctorName = oatpp::String(doctorName);
+    dto->serviceRequestId = oatpp::String(item.getId());
 
     // 目录信息
     dto->catalogId = oatpp::String(def.getId());
@@ -223,6 +228,16 @@ OrderDetailDTO1::Wrapper OrderDAO1::buildServiceDTO(
 
     // 分类信息
     dto->categoryCode = oatpp::String(def.getCategoryCode());
+    std::string category = "TREATMENT";
+    std::string categoryEnum = item.getCategoryEnum();
+    if (categoryEnum == "22") {
+        category = "LAB";
+    }
+    else if (categoryEnum == "23") {
+        category = "EXAM";
+    }
+    // 其他值（21/24/25/26/31等）统一为 TREATMENT
+    dto->category = oatpp::String(category);
 
     // 临床决策字段（诊疗部分字段为空）
     dto->dose = oatpp::Float64(0.0);
@@ -289,6 +304,7 @@ OrderDetailDTO1::Wrapper OrderDAO1::buildDeviceDTO(
     dto->patientId = oatpp::String(item.getPatientId());
     dto->doctorId = oatpp::String(item.getRequesterId());
     dto->doctorName = oatpp::String(doctorName);
+    dto->serviceRequestId = oatpp::String(item.getId());
 
     // 目录信息
     dto->catalogId = oatpp::String(def.getId());
@@ -299,6 +315,8 @@ OrderDetailDTO1::Wrapper OrderDAO1::buildDeviceDTO(
 
     // 分类信息
     dto->categoryCode = oatpp::String(def.getCategoryCode());
+    // ===== 耗材固定为 TREATMENT（前端暂无 DEVICE 分类） =====
+    dto->category = oatpp::String("TREATMENT");
 
     // 临床决策字段
     dto->dose = oatpp::Float64(0.0);

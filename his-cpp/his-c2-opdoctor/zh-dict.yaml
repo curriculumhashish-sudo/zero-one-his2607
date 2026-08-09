@@ -51,93 +51,145 @@ chinapres1:
  detail:
   summary: "获取本次就诊中医处方详情"
 
-queue:
- dto:
-  patientName: "姓名"
-  gender: "性别"
-  age: "年龄"
-  registerType: "挂号类型"
-  visitTime: "就诊时间"
-  visitNum: "病历号"
-  payType: "支付类型(自费/医保)"
-  visitStatus: "就诊状态"
-  encounterId: "就诊ID"
-  patientId: "患者ID"
-  queueNum: "排队号"
-  departmentName: "科室名称"
-  priorityName: "优先级名称"
- query:
-  date: "日期"
-  patient: "患者"
-  visitStatus: "就诊状态"
- param:
-  patientName: "姓名"
-  startDate: "就诊时间"
-  Status: "待诊/在诊/完诊"
-  finishStatus: "完成状态"
+ queue:
+  dto:
+   patientName: "姓名"
+   gender: "性别"
+   age: "年龄"
+   registerType: "挂号类型"
+   visitTime: "就诊时间"
+   visitNum: "病历号"
+   payType: "支付类型(自费/医保)"
+   visitStatus: "就诊状态"
+   encounterId: "就诊ID"
+   patientId: "患者ID"
+   queueNum: "排队号"
+   departmentName: "科室名称"
+   priorityName: "优先级名称"
+  query:
+   date: "日期"
+   patient: "患者"
+   visitStatus: "就诊状态"
+  param:
+   patientName: "姓名"
+   startDate: "就诊时间"
+   Status: "待诊/在诊/完诊"
+   finishStatus: "完成状态"
 
-rece:
- dto:
-  name: "姓名"
-  visitStatus: "在诊状态"
-  gender: "性别"
-  age: "年龄"
-  registerType: "挂号类型"
-  medicalRecordNum: "病历号"
-  recordType: "病历类型"
-  time: "就诊时间"
-  registerDept: "挂号科室"
-  phoneNum: "电话号码"
-  allergyHistory: "过敏史"
-  encounterId: "就诊号"
-  patientId: "患者ID"
-  attendingDoctorName: "接诊医生姓名"
-  chiefComplaint: "主诉"
-  emergencyContact: "紧急联系人"
-  triageRemark: "分诊备注"
- query:
-  data: "日期"
- param:
-  name: "姓名"
-  gender: "性别"
-  age: "年龄"
-  registerType: "挂号类型"
-  visitTime: "就诊时间"
-  visitNum: "就诊号"
-  payType: "支付类型"
-  visitStatus: "就诊状态"
- get:
-  summary: "获取接诊患者"
+ rece:
+  dto:
+   name: "姓名"
+   visitStatus: "在诊状态"
+   gender: "性别"
+   age: "年龄"
+   registerType: "挂号类型"
+   medicalRecordNum: "病历号"
+   recordType: "病历类型"
+   time: "就诊时间"
+   registerDept: "挂号科室"
+   phoneNum: "电话号码"
+   allergyHistory: "过敏史"
+   encounterId: "就诊号"
+   patientId: "患者ID"
+   attendingDoctorName: "接诊医生姓名"
+   chiefComplaint: "主诉"
+   emergencyContact: "紧急联系人"
+   triageRemark: "分诊备注"
+  query:
+   data: "日期"
+  param:
+   name: "姓名"
+   gender: "性别"
+   age: "年龄"
+   registerType: "挂号类型"
+   visitTime: "就诊时间"
+   visitNum: "就诊号"
+   payType: "支付类型"
+   visitStatus: "就诊状态"
+  get:
+   summary: "获取接诊患者"
 
-finish:
- dto:
-  newVisitStatus: "就诊状态"
-  encounterId: "就诊ID"
-  visitNo: "病历号"
-  version: "版本号"
-  arrived: "待诊"
-  inProgress: "在诊"
-  finished: "完诊"
-  completedAt: "完诊时间"
- query:
-  visitStatus: "其他状态"
- get:
-  summary: "完诊"
+ finish:
+  dto:
+   newVisitStatus: "就诊状态"
+   encounterId: "就诊ID"
+   visitNo: "病历号"
+   version: "版本号"
+   arrived: "待诊"
+   inProgress: "在诊"
+   finished: "完诊"
+   completedAt: "完诊时间"
+  query:
+   visitStatus: "其他状态"
+  get:
+   summary: "完诊"
 
-leave:
- dto:
-  newVisitStatus: "暂离状态"
-  encounterId: "就诊ID"
-  version: "版本号"
-  arrived: "待诊"
-  inProgress: "在诊"
-  finished: "完诊"
-  attendingDoctorName: "接诊医生名字"
-  acceptedAt: "接诊时间"
- query:
-  visitStatus: "其他状态"
- get:
-  summary: "暂离"
+ leave:
+  dto:
+   newVisitStatus: "暂离状态"
+   encounterId: "就诊ID"
+   version: "版本号"
+   arrived: "待诊"
+   inProgress: "在诊"
+   finished: "完诊"
+   attendingDoctorName: "接诊医生名字"
+   acceptedAt: "接诊时间"
+  query:
+   visitStatus: "其他状态"
+  get:
+   summary: "暂离"
+
+ common:
+  keyword: 关键词
+  catalog: 项目目录
+
+ orderCatalog:
+  tag: 医嘱目录
+  query:
+   summary: 分页查询医嘱项目目录
+  field:
+   keyword: 关键词（编码/名称/拼音/五笔/商品名）
+   category: 项目分类（DRUG/LAB/EXAM/TREATMENT，空表示全部）
+  categoryNames:
+   DRUG: 西药
+   LAB: 检验
+   EXAM: 检查
+   TREATMENT: 治疗
+
+ order:
+  tags:
+   tag: 开立医嘱
+  query:
+   summary: 分页查询医嘱
+  add:
+   summary: 新增医嘱
+  modify:
+   summary: 修改医嘱
+  batchAdd:
+   summary: 批量新增医嘱
+  catalog:
+   summary: 分页查询项目
+  field:
+   # === 上下文 ===
+   encounterId: 就诊ID
+   patientId: 患者ID
+   catalogId: 项目目录ID
+   orderType: 医嘱类型
+   expenseType: 费用性质
+
+   # === 查询筛选 ===
+   keyword: 关键词
+   status: 状态
+
+   # === 项目信息 ===
+   itemCode: 项目编码
+   itemName: 项目名称
+   category: 类别
+   categoryCode: 分类编码
+   categoryName: 分类名称
+   spec: 规格
+   unitPrice: 单价
+   serviceRequestId: 服务请求ID
 
 cyclectrl2:
  test:

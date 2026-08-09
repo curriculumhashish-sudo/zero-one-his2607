@@ -18,6 +18,7 @@ class OrderDetailDTO1 : public oatpp::DTO {
     API_DTO_FIELD_REQUIRE(String, patientId, ZH_WORDS_GETTER("createOrder.order.field.patientId"), true);
     API_DTO_FIELD_REQUIRE(String, doctorId, ZH_WORDS_GETTER("createOrder.order.field.doctorId"), true);
     API_DTO_FIELD_REQUIRE(String, doctorName, ZH_WORDS_GETTER("createOrder.order.field.doctorName"), true);
+    API_DTO_FIELD_REQUIRE(String, serviceRequestId, "createOrder.order.field.serviceRequestId", false);
 
     // 目录信息
     API_DTO_FIELD_REQUIRE(String, catalogId, ZH_WORDS_GETTER("createOrder.order.field.catalogId"), true);
@@ -30,6 +31,8 @@ class OrderDetailDTO1 : public oatpp::DTO {
     // 分类信息
     API_DTO_FIELD_REQUIRE(String, categoryCode, ZH_WORDS_GETTER("createOrder.order.field.categoryCode"), false);
     API_DTO_FIELD_REQUIRE(String, categoryName, ZH_WORDS_GETTER("createOrder.order.field.categoryName"), false);
+    // ===== 新增：前端分类枚举（DRUG/LAB/EXAM/TREATMENT）=====
+    API_DTO_FIELD_REQUIRE(String, category, "createOrder.order.field.category", false);
 
     // 临床决策
     API_DTO_FIELD_REQUIRE(Float64, dose, ZH_WORDS_GETTER("createOrder.order.field.dose"), false);

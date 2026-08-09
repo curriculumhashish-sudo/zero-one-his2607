@@ -50,6 +50,7 @@
 
 
 #include "order/OrderController1.h"
+#include "orderCatalog/OrderCatalogController1.h"
 
 
 #include "chinapres2/Chinapres2Controller.h"
@@ -114,10 +115,14 @@ void Router::initRouter()
 
 	ROUTER_SIMPLE_BIND(OrderController1);
 
+
 	ROUTER_SIMPLE_BIND(OutpatientRecordController);
 
 	ROUTER_SIMPLE_BIND(outpatientrecord33Controller);
 
 	ROUTER_SIMPLE_BIND(PageDiagnosisDictionaryController);
+
+
+	ROUTER_SIMPLE_BIND(OrderCatalogController1);
 
 }
