@@ -3,6 +3,8 @@ package com.zeroone.star.ons.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zeroone.star.ons.dto.QueueWithPatientDTO;
+import com.zeroone.star.ons.dto.ServiceRequestWithNamesDTO;
 import com.zeroone.star.ons.entity.PatientConsumableItemDO;
 import com.zeroone.star.ons.entity.WkfAppointmentQueue;
 import com.zeroone.star.ons.entity.WkfServiceRequest;
@@ -287,7 +289,7 @@ public class OnsServiceImpl implements IOnsService {
             query = new ExecutionRecordQuery();
         }
 
-        Page<WkfServiceRequest> page = new Page<>(query.getPageIndex(), query.getPageSize());
+        Page<ServiceRequestWithNamesDTO> page = new Page<>(query.getPageIndex(), query.getPageSize());
         LambdaQueryWrapper<WkfServiceRequest> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(WkfServiceRequest::getIsDeleted, 0);
 
@@ -318,7 +320,8 @@ public class OnsServiceImpl implements IOnsService {
 
         wrapper.orderByDesc(WkfServiceRequest::getCreatedAt);
 
-        IPage<WkfServiceRequest> resultPage = wkfServiceRequestMapper.selectPage(page, wrapper);
+        // LEFT JOIN adm_practitioner+adm_location+adm_healthcare_service/med_medication_definition 带出名称
+        IPage<ServiceRequestWithNamesDTO> resultPage = wkfServiceRequestMapper.selectPageWithNames(page, wrapper);
 
         List<ExecutionRecordVO> voList = resultPage.getRecords().stream()
                 .map(this::convertToExecutionRecordVO)
@@ -340,7 +343,7 @@ public class OnsServiceImpl implements IOnsService {
             query = new PatientQueueQuery();
         }
 
-        Page<WkfAppointmentQueue> page = new Page<>(query.getPageIndex(), query.getPageSize());
+        Page<QueueWithPatientDTO> page = new Page<>(query.getPageIndex(), query.getPageSize());
         LambdaQueryWrapper<WkfAppointmentQueue> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(WkfAppointmentQueue::getIsDeleted, 0);
 
@@ -373,7 +376,8 @@ public class OnsServiceImpl implements IOnsService {
         wrapper.orderByAsc(WkfAppointmentQueue::getDisplayOrder);
         wrapper.orderByDesc(WkfAppointmentQueue::getCreatedAt);
 
-        IPage<WkfAppointmentQueue> resultPage = wkfAppointmentQueueMapper.selectPage(page, wrapper);
+        // LEFT JOIN adm_patient 带出患者姓名/性别/出生日期
+        IPage<QueueWithPatientDTO> resultPage = wkfAppointmentQueueMapper.selectPageWithPatient(page, wrapper);
 
         List<PatientQueueVO> voList = resultPage.getRecords().stream()
                 .map(this::convertToPatientQueueVO)
@@ -395,12 +399,7 @@ public class OnsServiceImpl implements IOnsService {
             return JsonVO.fail("患者ID不能为空");
         }
 
-        LambdaQueryWrapper<WkfServiceRequest> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(WkfServiceRequest::getIsDeleted, 0);
-        wrapper.eq(WkfServiceRequest::getPatientId, patientId);
-        wrapper.orderByDesc(WkfServiceRequest::getCreatedAt);
-
-        List<WkfServiceRequest> items = wkfServiceRequestMapper.selectList(wrapper);
+        List<ServiceRequestWithNamesDTO> items = wkfServiceRequestMapper.selectListByPatientIdWithNames(patientId);
         List<ExecutionRecordVO> voList = items.stream()
                 .map(this::convertToExecutionRecordVO)
                 .collect(Collectors.toList());
@@ -456,7 +455,7 @@ public class OnsServiceImpl implements IOnsService {
         return vo;
     }
 
-    private ExecutionRecordVO convertToExecutionRecordVO(WkfServiceRequest record) {
+    private ExecutionRecordVO convertToExecutionRecordVO(ServiceRequestWithNamesDTO record) {
         if (record == null) {
             return null;
         }
@@ -475,7 +474,7 @@ public class OnsServiceImpl implements IOnsService {
         vo.setPriority_name(getPriorityName(record.getPriorityEnum()));
         vo.setPerform_flag(record.getPerformFlag());
         vo.setActivity_id(record.getActivityId());
-        vo.setItem_name(record.getBasedOnId() != null ? "项目" + record.getBasedOnId() : "未知项目");
+        vo.setItem_name(record.getItemName());
         vo.setQuantity(record.getQuantity());
         vo.setUnit_code(record.getUnitCode());
         vo.setUnit_name(getUnitName(record.getUnitCode()));
@@ -484,15 +483,15 @@ public class OnsServiceImpl implements IOnsService {
         vo.setAuthored_time(record.getAuthoredTime() != null ?
                 record.getAuthoredTime().format(DATE_TIME_FORMATTER) : null);
         vo.setRequester_id(record.getRequesterId());
-        vo.setRequester_name(record.getRequesterId() != null ? "医生" + record.getRequesterId() : null);
+        vo.setRequester_name(record.getRequesterName());
         vo.setPerformer_type_code(record.getPerformerTypeCode());
         vo.setPerformer_id(record.getPerformerId());
-        vo.setPerformer_name(record.getPerformerId() != null ? "护士" + record.getPerformerId() : null);
+        vo.setPerformer_name(record.getPerformerName());
         vo.setPerformer_check_id(record.getPerformerCheckId());
         vo.setCheck_time(record.getCheckTime() != null ?
                 record.getCheckTime().format(DATE_TIME_FORMATTER) : null);
         vo.setLocation_id(record.getLocationId());
-        vo.setLocation_name(record.getLocationId() != null ? "科室" + record.getLocationId() : null);
+        vo.setLocation_name(record.getLocationName());
         vo.setOrg_id(record.getOrgId());
         vo.setReason_text(record.getReasonText());
         vo.setOccurrence_start_time(record.getOccurrenceStartTime() != null ?
@@ -514,7 +513,7 @@ public class OnsServiceImpl implements IOnsService {
         return vo;
     }
 
-    private PatientQueueVO convertToPatientQueueVO(WkfAppointmentQueue queue) {
+    private PatientQueueVO convertToPatientQueueVO(QueueWithPatientDTO queue) {
         if (queue == null) {
             return null;
         }
@@ -523,10 +522,13 @@ public class OnsServiceImpl implements IOnsService {
         vo.setAppointment_kind(queue.getAppointmentKind());
         vo.setBus_no(queue.getBusNo());
         vo.setPatient_id(queue.getPatientId());
+        vo.setPatient_name(queue.getPatientName());
+        vo.setPatient_gender(queue.getPatientGenderEnum());
+        vo.setPatient_age(calculateAge(queue.getPatientBirthDate()));
         vo.setEncounter_id(queue.getEncounterId());
         vo.setOrganization_id(queue.getOrganizationId());
         vo.setDestination_location_id(queue.getDestinationLocationId());
-        vo.setDestination_location_name(queue.getDestinationLocationId() != null ? "诊室" + queue.getDestinationLocationId() : null);
+        vo.setDestination_location_name(queue.getDestinationLocationName());
         vo.setTriage_level(queue.getTriageLevel());
         vo.setTriage_level_name(getTriageLevelName(queue.getTriageLevel()));
         vo.setTriage_priority_code(queue.getTriagePriorityCode());
@@ -557,6 +559,23 @@ public class OnsServiceImpl implements IOnsService {
         vo.setCreated_at(queue.getCreatedAt() != null ?
                 queue.getCreatedAt().format(DATE_TIME_FORMATTER) : null);
         return vo;
+    }
+
+    /**
+     * 根据出生日期计算年龄字符串。
+     * 未提供出生日期时返回 null。
+     */
+    private String calculateAge(java.time.LocalDate birthDate) {
+        if (birthDate == null) {
+            return null;
+        }
+        int age = java.time.LocalDate.now().getYear() - birthDate.getYear();
+        java.time.MonthDay birth = java.time.MonthDay.from(birthDate);
+        java.time.MonthDay now = java.time.MonthDay.now();
+        if (now.isBefore(birth)) {
+            age--;
+        }
+        return String.valueOf(Math.max(age, 0));
     }
 
     private void addFailedItem(BatchExecuteResultVO result, String recordId, String errorCode, String reason) {
