@@ -31,7 +31,7 @@ class TreatmentApiClient : public oatpp::web::client::ApiClient
 	// 新增诊疗
 	API_CALL(API_M_POST, "treatment/add-treatment", addTreatment, API_HANDLER_AUTN_HEADER, BODY_DTO(TreatmentAddDTO::Wrapper, dto));
 	// 修改诊疗
-	API_CALL(API_M_POST, "treatment/modify-treatment", modifyTreatment, API_HANDLER_AUTN_HEADER, BODY_DTO(TreatmentModifyDTO::Wrapper, dto));
+	API_CALL(API_M_PUT, "treatment/modify-treatment", modifyTreatment, API_HANDLER_AUTN_HEADER, BODY_DTO(TreatmentModifyDTO::Wrapper, dto));
 
 #include OATPP_CODEGEN_END(ApiClient)
 	// 3 取消ApiClient控制器使用宏---结束

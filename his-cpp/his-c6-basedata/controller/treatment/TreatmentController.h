@@ -61,7 +61,7 @@ public: // 接口定义
 	// 修改诊疗：接口信息
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("treatment.modify.summary"), modifyTreatment, StringJsonVO::Wrapper, API_TAG);
 	// 修改诊疗：接口绑定
-	API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/treatment/modify-treatment", modifyTreatment,
+	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/treatment/modify-treatment", modifyTreatment,
 		BODY_DTO(TreatmentModifyDTO::Wrapper, dto), execModifyTreatment(dto, authObject->getPayload()));
 
 	// 启/停用诊疗（支持批量）：接口信息
