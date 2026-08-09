@@ -52,6 +52,15 @@ public class PurchaseInboundDetailVO {
     @Schema(description = "备注", example = "紧急补货")
     private String remake;
 
+    @Schema(description = "制单人姓名", example = "张三")
+    private String createByName;
+
+    @Schema(description = "审批人姓名", example = "李四")
+    private String approverName;
+
+    @Schema(description = "审批时间", example = "2026-08-09 09:15")
+    private LocalDateTime approveTime;
+
     // --- 单据明细列表 ---
     @Schema(description = "入库明细列表")
     private List<PurchaseInboundItemVO> items;

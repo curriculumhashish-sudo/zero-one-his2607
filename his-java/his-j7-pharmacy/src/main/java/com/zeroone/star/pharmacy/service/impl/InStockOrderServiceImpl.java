@@ -128,6 +128,9 @@ public class InStockOrderServiceImpl implements InStockOrderService {
         detailVO.setStatusEnum(order.getStatusEnum());
         detailVO.setApplyTime(order.getApplyTime());
         detailVO.setRemake(order.getRemake());
+        detailVO.setCreateByName(order.getCreatedBy());
+        detailVO.setApproverName(order.getApproverId());
+        detailVO.setApproveTime(order.getApprovalTime());
 
         List<InStockOrderDetail> detailItems = detailMapper.selectList(
                 new LambdaQueryWrapper<InStockOrderDetail>()
@@ -138,12 +141,17 @@ public class InStockOrderServiceImpl implements InStockOrderService {
             PurchaseInboundItemVO itemVO = new PurchaseInboundItemVO();
             itemVO.setId(String.valueOf(item.getId()));
             itemVO.setItemId(item.getItemId());
+            itemVO.setItemName(item.getDrugName());
+            itemVO.setSpec(item.getSpec());
+            itemVO.setManufacturer(item.getManufacturer());
             itemVO.setLotNumber(item.getBatchNo());
             itemVO.setQuantity(item.getQuantity() != null ?
                     BigDecimal.valueOf(item.getQuantity()) : null);
             itemVO.setUnit(null);
             itemVO.setPrice(item.getUnitPrice());
             itemVO.setSubTotal(item.getTotalAmount());
+            itemVO.setTraceCode(item.getTraceNo());
+            itemVO.setRemark(item.getItemRemark());
             return itemVO;
         }).collect(Collectors.toList());
 
@@ -180,6 +188,7 @@ public class InStockOrderServiceImpl implements InStockOrderService {
 
         // 4. TODO: 如果前端传了新的明细，这里需要处理明细的增删改逻辑
     }
+
 
     @Override
     @Transactional

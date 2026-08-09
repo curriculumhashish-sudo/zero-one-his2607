@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -27,12 +28,30 @@ public class StocktakeSaveDTO {
     @Schema(description = "业务单号（新增时可为空）", example = "PST202607300001")
     private String busNo;
 
+    @Schema(description = "单据ID", example = "329874660147597312")
+    private String id;
+
+    @Schema(description = "单据状态", example = "DRAFT")
+    private String statusEnum;
+
+    @Schema(description = "制单人", example = "张三")
+    private String createdByName;
+
+    @Schema(description = "制单时间", example = "2026-07-30 10:00:00")
+    private LocalDateTime createdAt;
+
+    @Schema(description = "审批人", example = "李四")
+    private String approverName;
+
+    @Schema(description = "审批时间", example = "2026-07-30 14:00:00")
+    private LocalDateTime approvalTime;
+
     @Schema(description = "租户标识", example = "1")
     private String tenantId;
 
     @NotBlank(message = "库房标识不能为空")
     @Size(max = 64, message = "库房标识长度不能超过64个字符")
-    @Schema(description = "库房标识", example = "322954949549363200", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "盘点药房", example = "322954949549363200", requiredMode = Schema.RequiredMode.REQUIRED)
     private String warehouseId;
 
     @Schema(description = "盘点发生时间", example = "2026-07-30 10:00:00")
@@ -46,6 +65,9 @@ public class StocktakeSaveDTO {
 
     @Schema(description = "申请人标识（未登录场景可回填）", example = "308791351298756608")
     private String applicantId;
+
+    @Schema(description = "总金额", example = "1187.50")
+    private BigDecimal totalPrice;
 
     @NotEmpty(message = "盘点明细不能为空")
     @Valid
