@@ -22,12 +22,13 @@
 #include "domain/query/cycleCtrl2-refund/RefundQuery.h"
 #include "domain/dto/doctor/Refund2ApplyDTO.h"
 #include "domain/dto/doctor/Refund2DetailDTO.h"
+#include "domain/dto/doctor/Refund2ApplyResultDTO.h"
 
 class RefundService
 {
 public:
-	oatpp::List<oatpp::Object<Refund2DetailDTO>> queryRefundList(const Refund2Query::Wrapper& query);
-	bool applyRefund(const Refund2ApplyDTO::Wrapper& dto, const std::string& operatorId);
+    oatpp::List<oatpp::Object<Refund2DetailDTO>> queryRefundList(const Refund2Query::Wrapper& query);
+    oatpp::Object<Refund2ApplyResultDTO> applyRefund(const Refund2ApplyDTO::Wrapper& dto, const std::string& operatorId);
 };
 
 #endif // !_REFUND_SERVICE_

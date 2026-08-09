@@ -2,32 +2,40 @@
 #include"AdmissionController.h"
 #include"../../service/cycleCtrl2/AdmissionService.h"
 
-StringJsonVO::Wrapper Admission2Controller::executeApplyAdmission(const Admission2Query::Wrapper& query)
+Admission2ResultJsonVO::Wrapper Admission2Controller::execApplyAdmission(const RequestInpatientAdmissionDTO::Wrapper& dto, const PayloadDTO& payload)
 {
-	auto jvo = StringJsonVO::createShared();
+    auto jvo = Admission2ResultJsonVO::createShared();
 
-	// 必填校验
-	if (!query->num || query->num.getValue("").empty())
-		{ jvo->init(nullptr, RS_PARAMS_INVALID); return jvo; }
-	if (!query->admissionDepartment || query->admissionDepartment.getValue("").empty())
-		{ jvo->init(nullptr, RS_PARAMS_INVALID); return jvo; }
-	if (!query->admissionWard || query->admissionWard.getValue("").empty())
-		{ jvo->init(nullptr, RS_PARAMS_INVALID); return jvo; }
-	if (!query->diagnosisType || query->diagnosisType.getValue("").empty())
-		{ jvo->init(nullptr, RS_PARAMS_INVALID); return jvo; }
-	if (!query->admissionDiagnosis || query->admissionDiagnosis.getValue("").empty())
-		{ jvo->init(nullptr, RS_PARAMS_INVALID); return jvo; }
-	if (!query->admissionType || query->admissionType.getValue("").empty())
-		{ jvo->init(nullptr, RS_PARAMS_INVALID); return jvo; }
-	if (!query->admissionMethod || query->admissionMethod.getValue("").empty())
-		{ jvo->init(nullptr, RS_PARAMS_INVALID); return jvo; }
-	if (!query->priority || query->priority.getValue("").empty())
-		{ jvo->init(nullptr, RS_PARAMS_INVALID); return jvo; }
+    if (!dto->encounterId || dto->encounterId.getValue("").empty())
+    {
+        auto err = Admission2ResultDTO::createShared();
+        err->status = "FAILED";
+        err->statusName = "encounterId is required";
+        jvo->init(err, RS_PARAMS_INVALID);
+        return jvo;
+    }
+    if (!dto->patientId || dto->patientId.getValue("").empty())
+    {
+        auto err = Admission2ResultDTO::createShared();
+        err->status = "FAILED";
+        err->statusName = "patientId is required";
+        jvo->init(err, RS_PARAMS_INVALID);
+        return jvo;
+    }
+    if (!dto->targetDepartmentId || dto->targetDepartmentId.getValue("").empty())
+    {
+        auto err = Admission2ResultDTO::createShared();
+        err->status = "FAILED";
+        err->statusName = "targetDepartmentId is required";
+        jvo->init(err, RS_PARAMS_INVALID);
+        return jvo;
+    }
 
-	std::string result = AdmissionService().applyAdmission(query, query->num.getValue(""), "");
-	if (!result.empty())
-		jvo->success(result);
-	else
-		jvo->fail(nullptr);
-	return jvo;
+    std::string operatorId = payload.getUsername();
+    auto result = AdmissionService().applyAdmission(dto, operatorId);
+    if (result->status == "SUCCESS")
+        jvo->success(result);
+    else
+        jvo->fail(result);
+    return jvo;
 }

@@ -1,6 +1,122 @@
-﻿title:
- tags:
-  text: "周期循环"
+cyclectrl2:
+ test:
+  tag: 周期循环
+ refund:
+  tag: 退费
+  apply: 提交退费申请
+  query: 获取退费清单
+  applicationId: 申请ID
+  applicationNo: 申请单号
+  status: 状态码
+  statusName: 状态名称
+  refundAmount: 退费金额
+  createdAt: 创建时间
+ patient:
+  patientNo: 病历号
+  patientName: 姓名
+  age: 年龄
+  gender: 性别
+  department: 科室
+  patientId: 门诊号
+  phone: 联系电话
+  idNumber: 证件号码
+  registrationType: 号别
+  visitStatus: 就诊状态
+  admissionTime: 接诊时间
+  doctor: 接诊医师
+  apply: 勾选项
+  applyNo: 勾选数
+  applySum: 已选合计费用
+  paymentNo: 支付单号
+  itemName: 收费项目名称
+  itemCode: 项目编码
+  itemType: 项目类型
+  quantity: 数量
+  quantityUnit: 计量单位
+  amount: 金额
+  chargeTime: 收费时间
+  chargeStatus: 收费状态
+  chargeStatusName: 收费状态名
+  refundStatus: 退费状态
+  refundStatusName: 退费状态名
+  refundableQuantity: 可退数量
+  refundableAmount: 可退金额
+  refundedAmount: 已退金额
+  canRefund: 是否可退
+  cannotRefundReason: 不可退原因
+  encounterId: 就诊ID
+  reason: 申请原因
+  idempotencyKey: 幂等键
+  timetype: 时间类型
+  page: 页码
+  pageSize: 每页条数
+ prescription:
+  tag: 处方单
+  query: 处方单
+  rxId: 处方记录ID
+  encounterId: 就诊ID
+  prescriptionNo: 处方号
+  costType: 费用性质
+  date: 日期
+  issuedTime: 签发时间
+  status: 状态码
+  statusName: 状态名
+  rxType: 处方类型
+  doctor: 开单医生
+  diagnosis: 诊断
+  totalPrice: 合计金额
+  pharmacist: 调配
+  dispenser: 发药
+  priceChecker: 划价
+  items: Rp
+ admission:
+  tag: 办理住院
+  apply: 办理住院
+  applicationId: 申请ID
+  applicationNo: 申请单号
+  status: 状态码
+  statusName: 状态名称
+  createdAt: 创建时间
+  admissionDepartment: 入院科室
+  admissionWard: 入院病区
+  diagnosisType: 诊断类型
+  admissionDiagnosis: 入院主诊断
+  diagnosisSyndrome: 中医证候
+  diagnosisDesc: 诊断描述
+  admissionType: 入院类型
+  admissionMethod: 入院方式
+  priority: 病情优先级
+doctor-station:
+ inpatient:
+  check:
+   tag: 住院申请检查
+   summary: 检查是否存在住院申请
+   encounterId: 就诊ID
+   exists: 是否存在
+   applicationId: 申请ID
+   inpatientEncounterId: 住院就诊ID
+   inpatientEncounterNo: 住院号
+   status: 状态码
+   statusName: 状态名称
+adm-req:
+ encounterId: 就诊ID
+ patientId: 患者ID
+ targetDepartmentId: 目标科室ID
+ wardId: 病区ID
+ admissionTypeCode: 入院类型编码
+ admissionWayCode: 入院方式编码
+ priorityCode: 优先级编码
+ admissionDiagnoses: 入院诊断列表
+adm-diag:
+ catalogId: 目录ID
+ code: ICD编码
+ name: 诊断名称
+ diagnosisRecordId: 诊断记录ID
+ description: 诊断说明
+ primary: 是否主诊断
+adm-result:
+ inpatientEncounterId: 住院就诊ID
+ inpatientEncounterNo: 住院号
 chinapres1:
  field:
   patientid: "病历号"
@@ -89,38 +205,38 @@ queue:
   summary: "患者队列"
 
 rece:
-  dto:
-   name: "姓名"
-   visitStatus: "在诊状态"
-   gender: "性别"
-   age: "年龄"
-   registerType: "挂号类型"
-   medicalRecordNum: "病历号"
-   recordType: "病历类型"
-   time: "就诊时间"
-   registerDept: "挂号科室"
-   phoneNum: "电话号码"
-   allergyHistory: "过敏史"
-   encounterId: "就诊号"
-   patientId: "患者ID"
-   attendingDoctorName: "接诊医生姓名"
-   chiefComplaint: "主诉"
-   emergencyContact: "紧急联系人"
-   triageRemark: "分诊备注"
-  query:
-   data: "日期"
-  param:
-   name: "姓名"
-   gender: "性别"
-   age: "年龄"
-   registerType: "挂号类型"
-   visitTime: "就诊时间"
-   visitNum: "就诊号"
-   payType: "支付类型"
-   visitStatus: "就诊状态"
-   encounterId: "就诊号"
-  get:
-   summary: "接诊患者"
+ dto:
+  name: "姓名"
+  visitStatus: "在诊状态"
+  gender: "性别"
+  age: "年龄"
+  registerType: "挂号类型"
+  medicalRecordNum: "病历号"
+  recordType: "病历类型"
+  time: "就诊时间"
+  registerDept: "挂号科室"
+  phoneNum: "电话号码"
+  allergyHistory: "过敏史"
+  encounterId: "就诊号"
+  patientId: "患者ID"
+  attendingDoctorName: "接诊医生姓名"
+  chiefComplaint: "主诉"
+  emergencyContact: "紧急联系人"
+  triageRemark: "分诊备注"
+ query:
+  data: "日期"
+ param:
+  name: "姓名"
+  gender: "性别"
+  age: "年龄"
+  registerType: "挂号类型"
+  visitTime: "就诊时间"
+  visitNum: "就诊号"
+  payType: "支付类型"
+  visitStatus: "就诊状态"
+  encounterId: "就诊号"
+ get:
+  summary: "接诊患者"
 
 finish:
  dto:

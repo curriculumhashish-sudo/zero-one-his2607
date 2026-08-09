@@ -44,6 +44,7 @@
 #include"cycleCtrl2/RefundController.h"
 #include"cycleCtrl2/PrescriptionController.h"
 #include"cycleCtrl2/AdmissionController.h"
+
 #include"cycleCtrl2/InpatientAdmissionController.h"
 
 
@@ -65,6 +66,9 @@
 
 
 #include "pageDiagnosisDictionary/PageDiagnosisDictionaryController.h"
+
+#include"doctor-station/CheckInpatientAdmissionController.h"
+
 
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
@@ -101,6 +105,7 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(Refund2Controller);
 	ROUTER_SIMPLE_BIND(PrescriptionController2);
 	ROUTER_SIMPLE_BIND(Admission2Controller);
+
 	ROUTER_SIMPLE_BIND(InpatientAdmissionController);
 
 
@@ -134,5 +139,8 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(OrderCatalogController1);
 
 	ROUTER_SIMPLE_BIND(DoctorStationController);
+
+
+		ROUTER_SIMPLE_BIND(CheckInpatientAdmissionController);
 
 }
