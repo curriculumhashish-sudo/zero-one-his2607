@@ -1,4 +1,4 @@
-title:
+﻿title:
  tags:
   text: "周期循环"
 chinapres1:
@@ -51,30 +51,40 @@ chinapres1:
  detail:
   summary: "获取本次就诊中医处方详情"
 
- queue:
-  dto:
-   patientName: "姓名"
-   gender: "性别"
-   age: "年龄"
-   registerType: "挂号类型"
-   visitTime: "就诊时间"
-   visitNum: "病历号"
-   payType: "支付类型(自费/医保)"
-   visitStatus: "就诊状态"
-   encounterId: "就诊ID"
-   patientId: "患者ID"
-   queueNum: "排队号"
-   departmentName: "科室名称"
-   priorityName: "优先级名称"
-  query:
-   date: "日期"
-   patient: "患者"
-   visitStatus: "就诊状态"
-  param:
-   patientName: "姓名"
-   startDate: "就诊时间"
-   Status: "待诊/在诊/完诊"
-   finishStatus: "完成状态"
+queue:
+ dto:
+  patientName: "姓名"
+  gender: "性别"
+  age: "年龄"
+  registerType: "挂号类型"
+  visitTime: "就诊时间"
+  visitNum: "病历号"
+  payType: "支付类型(自费/医保)"
+  visitStatus: "就诊状态"
+  encounterId: "就诊ID"
+  patientId: "患者ID"
+  queueNum: "排队号"
+  departmentName: "科室名称"
+  priorityName: "优先级名称"
+ query:
+  date: "日期"
+  patient: "患者"
+  visitStatus: "就诊状态"
+ param:
+  patientName: "姓名"
+  startDate: "就诊时间"
+  Status: "待诊/在诊/完诊"
+  finishStatus: "完成状态"
+  status:
+   arrived: "待诊"
+   inProgress: "在诊"
+   onHold: "暂离"
+   finished: "完诊"
+   unknown: "未知"
+  gender:
+   male: "男性"
+   female: "女性"
+   unknown: "未知"
 
  rece:
   dto:
@@ -109,35 +119,44 @@ chinapres1:
   get:
    summary: "获取接诊患者"
 
- finish:
-  dto:
-   newVisitStatus: "就诊状态"
-   encounterId: "就诊ID"
-   visitNo: "病历号"
-   version: "版本号"
-   arrived: "待诊"
-   inProgress: "在诊"
-   finished: "完诊"
-   completedAt: "完诊时间"
-  query:
-   visitStatus: "其他状态"
-  get:
-   summary: "完诊"
+finish:
+ dto:
+  newVisitStatus: "就诊状态"
+  encounterId: "就诊ID"
+  visitNo: "病历号"
+  version: "版本号"
+  arrived: "待诊"
+  inProgress: "在诊"
+  finished: "完诊"
+  completedAt: "完诊时间"
+ query:
+  visitStatus: "其他状态"
+ get:
+  summary: "完诊"
+ error:
+  encounterNotFound: "就诊记录不存在"
+  alreadyFinished: "该患者已经完诊，请勿重复操作"
+  statusNotAllowed: "当前就诊状态不允许执行完诊"
+  updateFailed: "完诊操作失败"
 
- leave:
-  dto:
-   newVisitStatus: "暂离状态"
-   encounterId: "就诊ID"
-   version: "版本号"
-   arrived: "待诊"
-   inProgress: "在诊"
-   finished: "完诊"
-   attendingDoctorName: "接诊医生名字"
-   acceptedAt: "接诊时间"
-  query:
-   visitStatus: "其他状态"
-  get:
-   summary: "暂离"
+leave:
+ dto:
+  newVisitStatus: "暂离状态"
+  encounterId: "就诊ID"
+  version: "版本号"
+  arrived: "待诊"
+  inProgress: "在诊"
+  finished: "完诊"
+  attendingDoctorName: "接诊医生名字"
+  acceptedAt: "接诊时间"
+ query:
+  visitStatus: "其他状态"
+ get:
+  summary: "暂离"
+ error:
+  encounterNotFound: "就诊记录不存在"
+  alreadyLeftOrFinished: "该患者已离院或已完诊，不能重复操作"
+  updateFailed: "离院操作失败"
 
  common:
   keyword: 关键词
@@ -244,6 +263,11 @@ cyclectrl2:
   admissionType: "入院类型"
   admissionMethod: "入院方式"
   priority: "病情优先级"
+  listWards: "查询可选入院病区"
+  departmentId: "入院科室ID"
+  wardId: "病区ID"
+  wardName: "病区名称"
+  deptNotFound: "入院科室不存在或已停用"
 
 diagnose:
  add:
