@@ -21,7 +21,7 @@ public:
 			return "changjia invalidate.";
 		if (!gongyingshang || gongyingshang->empty())
 			return "gongyingshang invalidate.";
-		if (!caiwuleixin || caiwuleixin==NULL)
+		if (!caiwuleixin || caiwuleixin->empty())
 			return "caiwuleixin invalidate.";
 		if (!xingzhi || xingzhi==NULL)
 			return "xingzhi invalidate.";
@@ -37,7 +37,7 @@ public:
 			return " caigoudanwei invalidate.";
 		if (!caigoubeishu || caigoubeishu==NULL)
 			return " caigoubeishu invalidate.";
-		if (!gourujia || gourujia==NULL)
+		if (!gourujia || gourujia->empty())
 			return "gourujia invalidate.";
 		if (!menzhengshuxing || menzhengshuxing->empty())
 			return "menzhengshuxing invalidate.";
@@ -45,7 +45,7 @@ public:
 			return "kucundanwei, invalidate.";
 		if (!kucunbeishu || kucunbeishu==NULL)
 			return " kucunbeishu invalidate.";
-		if (!linghsoujia || linghsoujia->empty())
+		if (!lingsoujia || lingsoujia->empty())
 			return "linghsoujia invalidate.";
 		if (!linshishuxing || linshishuxing->empty())
 			return "linshishuxing invalidate.";

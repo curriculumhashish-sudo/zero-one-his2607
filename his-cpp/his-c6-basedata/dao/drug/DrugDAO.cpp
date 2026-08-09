@@ -121,16 +121,16 @@ std::string DrugDAO::querySelectConditionBuilder(const DrugSelectQuery::Wrapper&
             SQLPARAMS_PUSH(params, "s", std::string, pron);
         }
     }
-    if (query->itemMinQuantity && !query->itemMinQuantity->empty())
+    if (query->dose && !query->dose->empty())
     {
-        const std::string zuixiao = query->itemMinQuantity.getValue("");
-        sqlCondition << " AND item_min_quantity =?";
+        const std::string zuixiao = query->dose.getValue("");
+        sqlCondition << " AND dose =?";
         SQLPARAMS_PUSH(params, "s", std::string, zuixiao);
     }
-    if (query->itemMaxQuantity && !query->itemMaxQuantity->empty())
+    if (query->maxUnit && !query->maxUnit->empty())
     {
-        const std::string zuida = query->itemMaxQuantity.getValue("");
-        sqlCondition << " AND item_min_quantity=?";
+        const std::string zuida = query->maxUnit.getValue("");
+        sqlCondition << " AND max_unit =?";
         SQLPARAMS_PUSH(params, "s", std::string, zuida);
     }
     if (query->yongfa && !query->yongfa->empty())
