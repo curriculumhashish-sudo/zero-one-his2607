@@ -56,7 +56,7 @@ public:
 	uint64_t count(const DiagnoseSelectQuery::Wrapper& query);
 	std::list<PtrClnConditionDefinitionDO> selectAll(const DiagnoseSelectQuery::Wrapper& query);
 
-
+	PtrTERconceptDO selectdtic(std::string catname);
 };
 
 

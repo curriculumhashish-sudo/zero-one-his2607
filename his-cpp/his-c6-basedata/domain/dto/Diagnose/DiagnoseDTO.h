@@ -38,11 +38,11 @@ class DiagnoseAddDTO : public oatpp::DTO
 	API_DTO_FIELD_DEFAULT(Int32, medicalInsuranceMatch, ZH_WORDS_GETTER("diagnose.field.diag.medical_insurance_match"));//医保对码 yb_match_flag
 	API_DTO_FIELD_DEFAULT(String, pinyinCode, ZH_WORDS_GETTER("diagnose.field.diag.pinyin_code"));//拼音助记  py_str
 	API_DTO_FIELD_DEFAULT(String, wubiCode, ZH_WORDS_GETTER("diagnose.field.diag.wubi_code"));//五笔助记 wb_str
-	API_DTO_FIELD_DEFAULT(Int32, isDelete, ZH_WORDS_GETTER("diagnose.field.diag.is_delete"));//【非空】逻辑删除 is_deleted
+	//API_DTO_FIELD_DEFAULT(Int32, isDelete, ZH_WORDS_GETTER("diagnose.field.diag.is_delete"));//【非空】逻辑删除 is_deleted
 	API_DTO_FIELD_DEFAULT(String, remark, ZH_WORDS_GETTER("diagnose.field.diag.remark"));//描述详情 description
 	API_DTO_FIELD_REQUIRE(String, catName, ZH_WORDS_GETTER("diagnose.field.category.cat_name"), true);//诊断目录/病情编码（非空）对应source_enum是获得诊断目录的
-	API_DTO_FIELD_REQUIRE(String, tenantId, ZH_WORDS_GETTER("diagnose.field.diag.tenant_id"), true);//租户标识 tenant_id
-	API_DTO_FIELD_REQUIRE(String, source_enum, ZH_WORDS_GETTER("diagnose.field.diag.source_enum"), true);//来源枚举值 source_enum对应诊断目录
+	//API_DTO_FIELD_REQUIRE(String, tenantId, ZH_WORDS_GETTER("diagnose.field.diag.tenant_id"), true);//租户标识 tenant_id
+	//API_DTO_FIELD_REQUIRE(String, source_enum, ZH_WORDS_GETTER("diagnose.field.diag.source_enum"), true);//来源枚举值 source_enum对应诊断目录
 
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);//请求头token指针
 
@@ -79,10 +79,10 @@ public:
 		{
 			return "The medical insurance match flag only allows 0 or 1";
 		}
-		if (isDelete && *isDelete != 0 && *isDelete != 1)
-		{
-			return "The delete flag only allows 0 or 1";
-		}
+		//if (isDelete && *isDelete != 0 && *isDelete != 1)
+		//{
+		//	return "The delete flag only allows 0 or 1";
+		//}
 
 		return "";
 	}
@@ -94,7 +94,7 @@ class DiagnoseDTO : public DiagnoseAddDTO
 	DTO_INIT(DiagnoseDTO, DiagnoseAddDTO);
 
 	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("diagnose.field.diag.id"), true);//主键id  id
-	API_DTO_FIELD_REQUIRE(Int32, version, ZH_WORDS_GETTER("diagnose.field.diag.version"), true);//来源枚举值 source_enum
+	API_DTO_FIELD_REQUIRE(Int32, version, ZH_WORDS_GETTER("diagnose.field.diag.version"), true);
 
 };
 

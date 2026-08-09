@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
  @Author: awei
@@ -22,21 +22,21 @@
 class DiagnoseRecordAddDTO : public oatpp::DTO
 {
 	DTO_INIT(DiagnoseRecordAddDTO, DTO);
-	// Õï¶Ï×ÖµäID
+	// è¯Šæ–­å­—å…¸ID
 	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("diagnose.field.id"), true);
-	// Õï¶Ï±àÂë
+	// è¯Šæ–­ç¼–ç 
 	API_DTO_FIELD_REQUIRE(String, diagnoseCode, ZH_WORDS_GETTER("diagnose.field.code"), true);
-	// Õï¶ÏÃû³Æ
+	// è¯Šæ–­åç§°
 	API_DTO_FIELD_REQUIRE(String, diagnoseName, ZH_WORDS_GETTER("diagnose.field.name"), true);
 	// dictType:0,1,2
 	API_DTO_FIELD_REQUIRE(String, dictType, ZH_WORDS_GETTER("diagnose.field.dictType"), true);
-	// ÊÇ·ñÖ÷Õï:0,1
+	// æ˜¯å¦ä¸»è¯Š:0,1
 	API_DTO_FIELD_DEFAULT(Int32, isMain, ZH_WORDS_GETTER("diagnose.field.isMain"));
-	// ÊÇ·ñ´æÎª³£ÓÃ:0,1
+	// æ˜¯å¦å­˜ä¸ºå¸¸ç”¨:0,1
 	API_DTO_FIELD_DEFAULT(Int32, saveToCommon, ZH_WORDS_GETTER("diagnose.field.saveToCommon"));
 
 
-CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);//ÇëÇóÍ·tokenÖ¸Õë
+CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);//è¯·æ±‚å¤´tokenæŒ‡é’ˆ
 
 public:
 	std::string validate()

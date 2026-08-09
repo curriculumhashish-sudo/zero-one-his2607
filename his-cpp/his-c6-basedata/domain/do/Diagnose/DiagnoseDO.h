@@ -214,19 +214,42 @@ public:
 		MYSQL_ADD_FIELD("yb_flag", "b", medicalInsuranceTag);
 		// 删除标记 is_deleted 
 		MYSQL_ADD_FIELD("is_deleted", "b", isDelete);
-		// 诊断目录 condition_code
+		// 诊断病情码 condition_code
 		MYSQL_ADD_FIELD("condition_code", "s", medicalInsuranceCode);
 		// 租户标识 tenant_id
 		MYSQL_ADD_FIELD("tenant_id", "s", tenantId);
 		//乐观锁版本version
 		MYSQL_ADD_FIELD("version", "i", version);
-		//来源枚举值
+		//来源枚举值（需要查mongodb）--对应本地诊断目录
 		MYSQL_ADD_FIELD("source_enum", "s", source_enum);
 
 
 	}
 };
 typedef std::shared_ptr<DiagnoseDO> PtrDiagnoseDO;
+
+
+
+
+class TERconceptDO :public BaseDO
+{
+	MYSQL_SYNTHESIZE(string, code, Code);//source_enum
+	//MYSQL_SYNTHESIZE(string, diagnoseCode, diagnoseCode);//诊断编码/特慢病编码 disease_code
+
+public:
+	TERconceptDO() : BaseDO("ter_concept")
+	{
+		MYSQL_ADD_FIELD("code", "s", code);
+		//MYSQL_ADD_FIELD("disease_code", "s", diagnoseCode);
+
+	}
+
+};
+typedef std::shared_ptr<TERconceptDO> PtrTERconceptDO;
+
+
+
+
 
 
 #endif // !_diagnose_DO_
