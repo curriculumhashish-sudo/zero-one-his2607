@@ -97,7 +97,7 @@
                 <version>0.43.4</version>
                 <configuration>
                     <dockerHost>https://47.98.154.109:2375</dockerHost>
-                    <certPath>D:/Dr.BIG/docker-ca</certPath>
+                    <certPath>D:/Dr.BIG/docker-ca-sta</certPath>
                     <skip>false</skip>
                     <images>
                         <image>
@@ -118,7 +118,7 @@
                                     </bind>
                                 </volumes>
                                 <env>
-                                    <JAVA_OPTS>-Xms256m -Xmx256m</JAVA_OPTS>
+                                    <JAVA_OPTS>-Xms512m -Xmx512m -XX:+UseG1GC</JAVA_OPTS>
                                     <SPRING_ARGS>--spring.profiles.active=test --spring.cloud.nacos.discovery.ip=47.98.154.109</SPRING_ARGS>
                                 </env>
                             </run>
