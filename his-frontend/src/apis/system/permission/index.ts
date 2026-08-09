@@ -6,7 +6,7 @@ const baseUrl = `${import.meta.env.VITE_J1_SYSMGR_API_URL || '/sysmgr'}/permissi
 
 /** 获取权限名称树。 */
 export async function loadPermissionNameTree() {
-  const tree = unwrap(await useHttp().get<PermissionRecord[]>(`${baseUrl}/tree`))
+  const tree = unwrap(await useHttp().get<PermissionRecord[]>(`${baseUrl}/tree`)) ?? []
   return flattenPermissionTree(tree).map((item) => ({ label: item.displayName, value: item.name }))
 }
 /** 获取权限列表（条件 + 分页）。 */
