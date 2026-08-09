@@ -23,8 +23,7 @@
 #include "cycleCtrl1/ReceptionPatientController.h"
 #include "cycleCtrl1/PatientFinishController.h"
 #include "cycleCtrl1/PatientLeaveController.h"
-
-
+#include "pageDiagnosisDictionary/PageDiagnosisDictionaryController.h"
 // If the macro for disabling Swagger documentation is defined
 #ifdef CLOSE_SWAGGER_DOC
 // Simplified controller binding macro
@@ -49,4 +48,5 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(RecePatientController);
 	ROUTER_SIMPLE_BIND(PatientFinishController);
 	ROUTER_SIMPLE_BIND(PatientLeaveController);
+	ROUTER_SIMPLE_BIND(PageDiagnosisDictionaryController);
 }
