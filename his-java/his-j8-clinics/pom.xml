@@ -108,6 +108,8 @@
                             <alias>${project.artifactId}</alias>
                             <run>
                                 <namingStrategy>alias</namingStrategy>
+                                <keepContainer>false</keepContainer>
+                                <removeVolumes>false</removeVolumes>
                                 <ports>
                                     <port>10133:10133</port>
                                 </ports>
