@@ -41,6 +41,7 @@
         <foreach collection="permissionNames" item="pn" open="(" separator="," close=")">
             #{pn}
         </foreach>
+          AND tenant_id = #{tenantId}
           AND is_deleted = 0
     </update>
 
