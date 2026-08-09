@@ -47,6 +47,7 @@
 #include"cycleCtrl2/InpatientAdmissionController.h"
 
 
+#include "controller/pageTcmHerbCatalog/PageTcmHerbCatalogController.h"
 #include "controller/prescription3/Prescription3Controller.h"
 
 
@@ -87,6 +88,7 @@ void Router::initRouter()
 	// #TIP: Add system extension route definitions below
 
 
+
 	ROUTER_SIMPLE_BIND(PatientQueueController);
 	ROUTER_SIMPLE_BIND(RecePatientController);
 	ROUTER_SIMPLE_BIND(PatientFinishController);
@@ -101,6 +103,8 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(Admission2Controller);
 	ROUTER_SIMPLE_BIND(InpatientAdmissionController);
 
+
+	ROUTER_SIMPLE_BIND(PageTcmHerbCatalogController);
 
 	ROUTER_SIMPLE_BIND(Prescription3Controller);
 
