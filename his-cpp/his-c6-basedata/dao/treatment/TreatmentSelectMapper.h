@@ -40,6 +40,7 @@ public:
 		data.setPackageUnitCodeDictText(resultSet->getString(7));
 		data.setDefEncounterUnitCode(resultSet->getString(8));
 		data.setDefEncounterUnitCodeDictText(resultSet->getString(9));
+		data.setVersion(resultSet->getInt(10));
 		return data;
 	}
 };
