@@ -121,6 +121,17 @@ EquipmentDTO::Wrapper EquipmentService::getById(std::string id)
 		// 五笔检索码
 		wubi, WbStr
 	);
+	ZO_STAR_DOMAIN_DO_TO_DTO_1(
+		dto, res,
+		// 医保对码标记
+		ybmatchflag, YbMatchFlag,
+		// 过敏标记
+		allergenflag, AllergenFlag,
+		// 医保标记
+		ybflag, YbFlag,
+		// 高值器材标志
+		hvcmflag, HvcmFlag
+	)
 	return dto;
 }
 

@@ -70,8 +70,14 @@ class EquipmentAddDTO : public oatpp::DTO
 	API_DTO_FIELD_REQUIRE(String, wubi, ZH_WORDS_GETTER("equipment.field.wubi"), false);
 	// 目录编码Catalog Code
 	API_DTO_FIELD_REQUIRE(String, catalogcode, ZH_WORDS_GETTER("equipment.field.catalogcode"), false);
-
-
+	// 医保对码标记
+	API_DTO_FIELD_REQUIRE(Boolean, ybmatchflag, ZH_WORDS_GETTER("equipment.field.ybmatchflag"), false);
+	// 过敏标记
+	API_DTO_FIELD_REQUIRE(Boolean, allergenflag, ZH_WORDS_GETTER("equipment.field.allergenflag"), false);
+	// 医保标记
+	API_DTO_FIELD_REQUIRE(Boolean, ybflag, ZH_WORDS_GETTER("equipment.field.ybflag"), false);
+	// 高值器材标志
+	API_DTO_FIELD_REQUIRE(Boolean, hvcmflag, ZH_WORDS_GETTER("equipment.field.hvcmflag"), false);
 	// 关联一个PayloadDTO负载数据对象
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 
