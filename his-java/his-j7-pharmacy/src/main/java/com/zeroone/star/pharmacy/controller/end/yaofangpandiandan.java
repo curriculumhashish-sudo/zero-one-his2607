@@ -12,6 +12,7 @@ import com.zeroone.star.project.vo.j7.pharmacy.SupplyDocumentDeleteJsonVO;
 import com.zeroone.star.project.vo.j7.pharmacy.SupplyDocumentDeleteVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -39,8 +40,9 @@ public class yaofangpandiandan {
     @Operation(summary = "提交审批")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = StocktakeStatusJsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"status\":\"PENDING_APPROVAL\"}}")))
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = StocktakeStatusJsonVO.class),
+                examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"busNo\":\"PST202608080001\",\"typeEnum\":\"PHARMACY_STOCKTAKE\",\"statusEnum\":\"PENDING_APPROVAL\",\"createdBy\":\"308791351298756608\",\"createdAt\":\"2026-08-08 09:00:00\",\"applicantId\":\"308791351298756608\",\"applyTime\":\"2026-08-08 09:30:00\",\"approverId\":null,\"approvalTime\":null,\"totalAmount\":1187.50}}")))
     })
     public JsonVO<StocktakeStatusVO> submit(@Valid @RequestBody OperatorDTO dto) {
         try {
@@ -54,8 +56,9 @@ public class yaofangpandiandan {
     @Operation(summary = "审批通过")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = StocktakeStatusJsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"status\":\"APPROVED\"}}")))
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = StocktakeStatusJsonVO.class),
+                examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"busNo\":\"PST202608080001\",\"typeEnum\":\"PHARMACY_STOCKTAKE\",\"statusEnum\":\"AGREE\",\"createdBy\":\"308791351298756608\",\"createdAt\":\"2026-08-08 09:00:00\",\"applicantId\":\"308791351298756608\",\"applyTime\":\"2026-08-08 09:30:00\",\"approverId\":\"308791351298756609\",\"approvalTime\":\"2026-08-08 10:00:00\",\"totalAmount\":1187.50}}")))
     })
     public JsonVO<StocktakeStatusVO> approve(@Valid @RequestBody ApproveDTO dto) {
         try {
@@ -69,8 +72,9 @@ public class yaofangpandiandan {
     @Operation(summary = "审批驳回")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = StocktakeStatusJsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"status\":\"REJECTED\"}}")))
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = StocktakeStatusJsonVO.class),
+                examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"busNo\":\"PST202608080001\",\"typeEnum\":\"PHARMACY_STOCKTAKE\",\"statusEnum\":\"REJECT\",\"createdBy\":\"308791351298756608\",\"createdAt\":\"2026-08-08 09:00:00\",\"applicantId\":\"308791351298756608\",\"applyTime\":\"2026-08-08 09:30:00\",\"approverId\":\"308791351298756609\",\"approvalTime\":\"2026-08-08 10:00:00\",\"totalAmount\":1187.50}}")))
     })
     public JsonVO<StocktakeStatusVO> reject(@Valid @RequestBody ApproveDTO dto) {
         try {
@@ -84,8 +88,9 @@ public class yaofangpandiandan {
     @Operation(summary = "撤回审批")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = StocktakeStatusJsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"status\":\"WITHDRAWN\"}}")))
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = StocktakeStatusJsonVO.class),
+                examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"busNo\":\"PST202608080001\",\"typeEnum\":\"PHARMACY_STOCKTAKE\",\"statusEnum\":\"DRAFT\",\"createdBy\":\"308791351298756608\",\"createdAt\":\"2026-08-08 09:00:00\",\"applicantId\":\"308791351298756608\",\"applyTime\":\"2026-08-08 09:30:00\",\"approverId\":null,\"approvalTime\":null,\"totalAmount\":1187.50}}")))
     })
     public JsonVO<StocktakeStatusVO> withdraw(@Valid @RequestBody OperatorDTO dto) {
         try {
@@ -99,8 +104,9 @@ public class yaofangpandiandan {
     @Operation(summary = "删除盘点单据", description = "软删除指定单据号的盘点单，仅草稿/待审核状态可删，同时解锁关联的库存锁定记录")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = SupplyDocumentDeleteJsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"deleted\":true}}")))
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = SupplyDocumentDeleteJsonVO.class),
+                examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"busNo\":\"PST202608080001\",\"deleted\":true,\"message\":\"删除成功\"}}")))
     })
     public JsonVO<SupplyDocumentDeleteVO> deleteStocktake(@Valid @RequestBody StocktakeDeleteDTO dto) {
         try {

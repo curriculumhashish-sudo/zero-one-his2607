@@ -1,10 +1,13 @@
 package com.zeroone.star.pharmacy.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zeroone.star.pharmacy.entity.InStockOrder;
+import com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundListVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -37,4 +40,16 @@ public interface InStockOrderMapper extends BaseMapper<InStockOrder> {
     int softDeleteByBusNo(@Param("busNo") String busNo,
                           @Param("deletedBy") String deletedBy,
                           @Param("deletedAt") String deletedAt);
+
+    /**
+     * 分页查询药房入库单列表，按业务单号聚合明细行。
+     */
+    IPage<PurchaseInboundListVO> selectPurchaseInboundPage(
+            IPage<PurchaseInboundListVO> page,
+            @Param("busNo") String busNo,
+            @Param("sourceLocationId") String sourceLocationId,
+            @Param("purposeLocationId") String purposeLocationId,
+            @Param("statusEnum") String statusEnum,
+            @Param("startTime") LocalDateTime startTime,
+            @Param("endTime") LocalDateTime endTime);
 }

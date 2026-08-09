@@ -97,20 +97,23 @@ public class StocktakeServiceImpl
      */
     @Override
     public PageDTO<StocktakeListVO> queryStocktakeList(StocktakeQuery query) {
-        Page<StocktakeListVO> page = new Page<>(query.getPageIndex(), query.getPageSize());
+        StocktakeQuery safeQuery = query == null ? new StocktakeQuery() : query;
+        Page<StocktakeListVO> page = new Page<>(
+                normalizePageIndex(safeQuery.getPageIndex()),
+                normalizePageSize(safeQuery.getPageSize()));
 
-        String startTimeStr = query.getStartTime() == null ? null
-                : query.getStartTime().format(DATE_TIME_FORMATTER);
-        String endTimeStr = query.getEndTime() == null ? null
-                : query.getEndTime().format(DATE_TIME_FORMATTER);
+        String startTimeStr = safeQuery.getStartTime() == null ? null
+                : safeQuery.getStartTime().format(DATE_TIME_FORMATTER);
+        String endTimeStr = safeQuery.getEndTime() == null ? null
+                : safeQuery.getEndTime().format(DATE_TIME_FORMATTER);
 
         IPage<StocktakeListVO> result = stocktakeMapper.selectStocktakePage(
                 page,
-                query.getBusNo(),
-                query.getStatusEnum(),
-                query.getWarehouseId(),
-                query.getWarehouseName(),
-                query.getApplicantId(),
+                safeQuery.getBusNo(),
+                safeQuery.getStatusEnum(),
+                safeQuery.getWarehouseId(),
+                safeQuery.getWarehouseName(),
+                safeQuery.getApplicantId(),
                 startTimeStr,
                 endTimeStr
         );
@@ -439,5 +442,16 @@ public class StocktakeServiceImpl
 
     private String trimToNull(String value) {
         return StringUtils.hasText(value) ? value.trim() : null;
+    }
+
+    private long normalizePageIndex(long pageIndex) {
+        return pageIndex < 1 ? 1 : pageIndex;
+    }
+
+    private long normalizePageSize(long pageSize) {
+        if (pageSize < 1) {
+            return 10;
+        }
+        return Math.min(pageSize, 100);
     }
 }

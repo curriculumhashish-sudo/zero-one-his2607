@@ -1,9 +1,24 @@
-// 文件路径：D:\01HIS\zero-one-his2607\his-java\his-domain\src\main\java\com\zeroone\star\project\vo\stocktake\StocktakeSaveJsonVO.java
 package com.zeroone.star.project.vo.stocktake;
 
-import com.zeroone.star.project.vo.JsonVO;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
 
+/**
+ * 盘点单保存响应包装对象。
+ *
+ * @author 北海
+ * @version 1.0.0
+ */
+@Data
 @Schema(description = "盘点单保存响应")
-public class StocktakeSaveJsonVO extends JsonVO<StocktakeSaveVO> {
+public class StocktakeSaveJsonVO {
+
+    @Schema(description = "状态码", example = "10000", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Integer code;
+
+    @Schema(description = "提示消息", example = "操作成功", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String message;
+
+    @Schema(description = "盘点单保存结果")
+    private StocktakeSaveVO data;
 }
