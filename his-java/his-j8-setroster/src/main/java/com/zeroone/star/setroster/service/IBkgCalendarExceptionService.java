@@ -1,11 +1,10 @@
 package com.zeroone.star.setroster.service;
 
+import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j8.setroster.CalendarExceptionAddDto;
 import com.zeroone.star.project.dto.j8.setroster.CalendarExceptionUpdateDto;
 import com.zeroone.star.project.query.j8.setroster.CalendarExceptionQuery;
 import com.zeroone.star.project.vo.j8.setroster.CalendarExceptionVo;
-
-import java.util.List;
 
 /**
  * <p>
@@ -25,7 +24,7 @@ public interface IBkgCalendarExceptionService {
      * @param query 查询条件
      * @return 节日例外 VO 列表
      */
-    List<CalendarExceptionVo> queryCalendarExceptions(CalendarExceptionQuery query);
+    PageDTO<CalendarExceptionVo> queryCalendarExceptions(CalendarExceptionQuery query);
 
     /**
      * 新增节日例外

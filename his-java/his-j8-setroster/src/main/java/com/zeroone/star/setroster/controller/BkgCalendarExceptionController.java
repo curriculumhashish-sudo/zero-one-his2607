@@ -1,5 +1,6 @@
 package com.zeroone.star.setroster.controller;
 
+import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j8.setroster.CalendarExceptionAddDto;
 import com.zeroone.star.project.dto.j8.setroster.CalendarExceptionUpdateDto;
 import com.zeroone.star.project.j8.setroster.CalendarExceptionApi;
@@ -12,8 +13,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * <p>
@@ -42,7 +41,7 @@ public class BkgCalendarExceptionController implements CalendarExceptionApi {
     @Operation(summary = "获取节日例外列表")
     @GetMapping("/queryCalendarExceptions")
     @Override
-    public JsonVO<List<CalendarExceptionVo>> queryCalendarExceptions(@Valid CalendarExceptionQuery query) {
+    public JsonVO<PageDTO<CalendarExceptionVo>> queryCalendarExceptions(@Valid CalendarExceptionQuery query) {
         return JsonVO.success(service.queryCalendarExceptions(query));
     }
 
