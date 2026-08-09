@@ -24,6 +24,11 @@
             <groupId>com.zeroone.star</groupId>
             <artifactId>his-common</artifactId>
         </dependency>
+        <!-- his-common 中 Redis 依赖为 provided，不会传递到业务模块运行时 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
         <!--nacos discovery-->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
