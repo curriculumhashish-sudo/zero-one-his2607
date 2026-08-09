@@ -20,9 +20,9 @@ import lombok.ToString;
 @ToString
 public class PageQuery {
     @Min(value = 1, message = "页码最小值为1")
-    @Schema(description = "查询页码", example = "1")
+    @Schema(description = "查询页码", example = "1", type = "integer")
     private Integer pageIndex = 1;
     @Min(value = 1, message = "条数最小值为1")
-    @Schema(description = "查询条数", example = "10")
+    @Schema(description = "查询条数", example = "10", type = "integer")
     private Integer pageSize = 10;
 }
