@@ -561,3 +561,16 @@ outpatientrecord3:
   tag: "门诊病历"
  save:
   summary: "保存门诊病历"
+
+dict:
+ query:
+  keyword: "诊断编码或诊断名称"
+ dto:
+  id: "ID"
+  code: "诊断编码"
+  name: "诊断名称"
+  type: "诊断分类"
+ tags:
+  text: "诊断(ICD)字典分页"
+ controller:
+  summary: "诊断(ICD)字典分页"
