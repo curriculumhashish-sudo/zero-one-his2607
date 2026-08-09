@@ -119,7 +119,7 @@ public class FeeDetailServiceImpl implements IFeeDetailService {
 
         // 6. 构建分页结果
         OutpatientFeeDetailsVo result = new OutpatientFeeDetailsVo();
-        result.setPageNo(pageIndex);
+        result.setPageIndex(pageIndex);
         result.setPageSize(pageSize);
         result.setTotalCount(total);
         result.setContent(rows);
@@ -132,6 +132,7 @@ public class FeeDetailServiceImpl implements IFeeDetailService {
             summaryVo.setDiscountAmountTotal(nvl(summary.getDiscountAmountTotal()));
             summaryVo.setDiscountedAmountTotal(nvl(summary.getDiscountedAmountTotal()));
             summaryVo.setReceivableAmountTotal(nvl(summary.getReceivableAmountTotal()));
+            summaryVo.setLineAmountTotal(nvl(summary.getDiscountedAmountTotal()));
             summaryVo.setActualReceivedAmountTotal(nvl(summary.getActualReceivedAmountTotal()));
             summaryVo.setInsuranceAmountTotal(nvl(summary.getInsuranceAmountTotal()));
             summaryVo.setSelfPayAmountTotal(nvl(summary.getSelfPayAmountTotal()));

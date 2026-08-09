@@ -5,9 +5,6 @@ import lombok.Data;
 
 import java.util.List;
 
-/**
- * 门诊费用明细分页响应 — 对齐前端 PageOutpatientFeeDetailBackendResponse。
- */
 @Data
 @Schema(description = "门诊费用明细分页响应")
 public class OutpatientFeeDetailsVo {
@@ -19,7 +16,7 @@ public class OutpatientFeeDetailsVo {
     private Long totalCount;
 
     @Schema(description = "当前页码", example = "1")
-    private Long pageNo;
+    private Long pageIndex;
 
     @Schema(description = "每页大小", example = "10")
     private Long pageSize;
