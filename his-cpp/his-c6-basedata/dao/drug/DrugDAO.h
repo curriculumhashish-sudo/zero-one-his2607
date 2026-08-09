@@ -42,7 +42,7 @@ class DrugDAO : public BaseDAO
   public:
     // 提前释放当前 DAO 持有的数据库会话。
     void releaseSqlSession() noexcept;
-
+    uint64_t generateSequence(const std::string& seqKey);
     // 校验当前用户是否可以访问指定租户的数据。
     bool hasTenantAccess(const std::string &userId, const std::string &username,
                          const std::string &tenantId);

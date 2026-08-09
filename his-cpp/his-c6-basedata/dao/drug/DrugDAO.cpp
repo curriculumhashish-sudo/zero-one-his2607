@@ -777,4 +777,32 @@ int DrugDAO::insert(const MedMedicationDefinitionDO &entity)
 {
     return BaseDAO::insert(entity);
 }
+uint64_t DrugDAO::generateSequence(const std::string& seqKey)
+{
+
+    std::string currentTime = SimpleDateTimeFormat::format();
+    SqlParams params;
+
+    std::string updateSql = "UPDATE `whale_sequence` SET `current_value` = `current_value` + 1, `updated_at` = ? WHERE `seq_key` = ?";
+    SQLPARAMS_PUSH(params, "s", std::string, currentTime);
+    SQLPARAMS_PUSH(params, "s", std::string, seqKey);
+
+    int affectedRows = sqlSession->executeUpdate(updateSql, params);
+
+    // 彆荌砒俴杅峈 0ㄛ佽隴涴跺 seqKey 岆菴珨棒妏蚚ㄛ桶笢羶衄杅擂ㄛ剒硒俴脣
+    if (affectedRows == 0) {
+        params.clear(); // 諾統杅笭陔揤
+        std::string insertSql = "INSERT INTO `whale_sequence` (`seq_key`, `current_value`, `updated_at`) VALUES (?, 1, ?)";
+        SQLPARAMS_PUSH(params, "s", std::string, seqKey);
+        SQLPARAMS_PUSH(params, "s", std::string, currentTime);
+        sqlSession->executeUpdate(insertSql, params);
+    }
+
+    params.clear();
+    std::string selectSql = "SELECT `current_value` FROM `whale_sequence` WHERE `seq_key` = ?";
+    SQLPARAMS_PUSH(params, "s", std::string, seqKey);
+
+    return sqlSession->executeQueryNumerical(selectSql, params);
+}
+
 
