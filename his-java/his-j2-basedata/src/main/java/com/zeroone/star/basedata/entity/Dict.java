@@ -1,32 +1,20 @@
-package com.zeroone.star.sysmgr.entity;
+package com.zeroone.star.basedata.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Getter;
-import lombok.Setter;
+import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-
-/**
- * <p>
- * 字典项表
- * </p>
- *
- * @author xingluo
- */
-@Getter
-@Setter
+@Data
 @TableName("ter_concept")
-public class TerConcept implements Serializable {
+public class Dict{
 
     private static final long serialVersionUID = 1L;
 
     /**
      * 主键ID
      */
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
 
     /**

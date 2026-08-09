@@ -1,7 +1,7 @@
 sn:
   sysmgr: sysmgr
 sp:
-  sysmgr: 10300
+  sysmgr: 10400
 server:
   port: ${sp.sysmgr}
   servlet:

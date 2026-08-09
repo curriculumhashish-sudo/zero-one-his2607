@@ -2,6 +2,7 @@ package com.zeroone.star.basedata.controller;
 
 import com.zeroone.star.basedata.service.BodyPartBusinessException;
 import com.zeroone.star.basedata.service.BodyPartService;
+import com.zeroone.star.basedata.service.IBodyPartService;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j2.basedata.bodypartdto.BodyPartAddDTO;
 import com.zeroone.star.project.dto.j2.basedata.bodypartdto.BodyPartModifyDTO;
@@ -39,25 +40,76 @@ public class BodyPartController implements BodyPartApis {
 
     private final BodyPartService bodyPartService;
 
+    private final IBodyPartService bodyPartService2;
+
     @Override
-    @Operation(summary = "获取部位名称树")
+    @Operation(
+            summary = "获取部位名称树",
+            description = """
+            成功：code=10000，data 返回部位树列表
+            失败：code=401 未登录或TOKEN过期
+                  code=403 无权限
+                  code=9999 查询部位树失败
+            """
+    )
     @GetMapping("/tree")
     public JsonVO<List<BodyPartTreeVO>> getTree() {
-        return JsonVO.success(new ArrayList<>());
+        try {
+            return JsonVO.success(bodyPartService2.getTree());
+        } catch (Exception e) {
+            return JsonVO.fail("查询部位树失败：" + e.getMessage());
+        }
     }
 
     @Override
-    @Operation(summary = "获取部位列表（条件+分页）")
+    @Operation(
+            summary = "获取部位列表（条件+分页）",
+            description = """
+            查询参数：
+              keyword  部位编码/名称模糊匹配，可空
+              parentId 0=查询顶级；大于0=查询指定父级子节点；可空
+              status   ACTIVE=启用 INACTIVE=停用，可空
+              pageIndex 当前页码，默认1
+              pageSize  每页条数，默认20
+            成功：code=10000，data 返回 PageDTO（rows 为当前页数据）
+            失败：code=401 未登录或TOKEN过期
+                  code=403 无权限
+                  code=9995 参数异常（pageIndex/pageSize 不合法等）
+                  code=9999 查询部位列表失败
+            """
+    )
     @GetMapping("/list")
     public JsonVO<PageDTO<BodyPartListVO>> getList(@Valid BodyPartPageQuery query) {
-        return JsonVO.success(new PageDTO<>());
+        try {
+            return JsonVO.success(bodyPartService2.getList(query));
+        } catch (Exception e) {
+            return JsonVO.fail("查询部位列表失败：" + e.getMessage());
+        }
     }
 
     @Override
-    @Operation(summary = "添加部位")
+    @Operation(
+            summary = "添加部位",
+            description = """
+            请求体：
+              partName 部位名称，必填
+              parentId 上级部位ID，可空；空表示顶级
+            成功：code=10000，data 返回新增部位ID
+            失败：code=401 未登录或TOKEN过期
+                  code=403 无权限
+                  code=9999 部位名称为空，或添加部位失败
+            """
+    )
     @PostMapping
     public JsonVO<String> add(@Valid @RequestBody BodyPartAddDTO dto) {
-        return JsonVO.success(null);
+        if (dto.getPartName() == null || dto.getPartName().trim().isEmpty()) {
+            return JsonVO.fail("部位名称不能为空");
+        }
+        try {
+            return JsonVO.success(bodyPartService2.add(dto));
+        } catch (Exception e) {
+            return JsonVO.fail("添加部位失败：" + e.getMessage());
+        }
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.zeroone.star.basedata.repository;
 
-
+import com.zeroone.star.basedata.entity.EnumValue;
+import org.springframework.data.mongodb.repository.Aggregation;
 import com.zeroone.star.basedata.entity.EnumType;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumTypeDTO;
 import org.springframework.data.domain.Page;
@@ -8,12 +9,22 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
-
+import java.util.List;
+import org.springframework.data.mongodb.repository.Query;
 public interface EnumTypeRepository extends MongoRepository<EnumType, String> {
 
     @Query(value = "{ 'enumTypeKey': ?1, $or: [ { 'tenantId': ?0 }, { 'tenantId': 'sys_tenant' } ] }", exists = true)
     boolean existsByEnumTypeKey(String tenantId, String enumTypeKey);
+    @Aggregation(pipeline = {
+            "{$addFields: {_idStr: {$toString: '$_id'}}}",
+            "{$match: {_idStr: ?0}}",
+            "{$lookup: {from: 'EnumValue', localField: '_idStr', foreignField: 'enumTypeId', as: 'enum_List'}}",
+            "{$unwind: {path: '$enum_List', preserveNullAndEmptyArrays: false}}",
+            "{$replaceRoot: {newRoot: '$enum_List'}}"
+    })
+    List<EnumValue> findByEnumTypeId(String id);
 
+    boolean existsByTenantIdAndEnumTypeKey(String tenantId, String enumTypeKey);
     /**
      * 根据关键字查询枚举类型，这里会额外查询默认系统租户的枚举类型
      * @param tenatId 枚举类型所属租户ID

@@ -82,7 +82,7 @@ public class EnumValue {
     private Boolean isDeleted;
 
 
-    /*
+
     public static EnumDTO toDTO(EnumValue enumValue) {
         EnumDTO enumDTO = new EnumDTO();
         enumDTO.setEnumTypeId(enumValue.getEnumTypeId());
@@ -92,7 +92,7 @@ public class EnumValue {
         enumDTO.setOrder(enumValue.getOrder());
         enumDTO.setEnumKey(enumValue.getEnumKey());
         enumDTO.setId(enumValue.getId());
-
+        enumDTO.setDescription(enumValue.getDescription());
         return enumDTO;
     }
 
@@ -118,7 +118,7 @@ public class EnumValue {
 
         return pageDTO;
     }
-    */
+
 }
 
 /**

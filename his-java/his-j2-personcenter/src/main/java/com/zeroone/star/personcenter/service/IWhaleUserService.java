@@ -7,6 +7,7 @@ import com.zeroone.star.project.dto.j2.personcenter.userdto.ChangePasswordDTO;
 import com.zeroone.star.project.dto.j2.personcenter.userdto.UpdateUserDTO;
 import com.zeroone.star.project.dto.j2.personcenter.userdto.UserInfoDTO;
 
+
 /**
  * <p>
  * 描述：系统用户服务接口
@@ -23,7 +24,7 @@ public interface IWhaleUserService extends IService<WhaleUser> {
      * @param userId 用户ID
      * @return 用户信息 DTO
      */
-    UserInfoDTO getUserInfo(Long userId);
+    UserInfoDTO getUserInfo(String userId);
 
     /**
      * 更新用户信息

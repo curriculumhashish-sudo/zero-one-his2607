@@ -1,11 +1,12 @@
-package com.zeroone.star.sysmgr.service.impl;
+package com.zeroone.star.basedata.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zeroone.star.project.dto.j2.basedata.DictItemUpdateDTO;
-import com.zeroone.star.sysmgr.entity.TerConcept;
-import com.zeroone.star.sysmgr.mapper.TerConceptMapper;
-import com.zeroone.star.sysmgr.service.ITerConceptService;
+import com.zeroone.star.basedata.entity.TerConcept;
+import com.zeroone.star.basedata.mapper.TerConceptMapper;
+import com.zeroone.star.basedata.service.ITerConceptService;
+
+import com.zeroone.star.project.dto.j2.basedata.dictionarydto.DictItemUpdateDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,8 +21,7 @@ import java.time.LocalDateTime;
  * @author xingluo
  */
 @Service
-public class TerConceptServiceImpl extends ServiceImpl<TerConceptMapper, TerConcept> 
-        implements ITerConceptService {
+public class TerConceptServiceImpl extends ServiceImpl<TerConceptMapper, TerConcept> implements ITerConceptService {
 
     @Autowired
     private MSDictItemMapper msDictItemMapper;

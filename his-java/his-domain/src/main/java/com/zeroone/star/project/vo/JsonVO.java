@@ -1,5 +1,6 @@
 package com.zeroone.star.project.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zeroone.star.project.enums.ResultStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -43,6 +44,7 @@ public class JsonVO<T> implements Serializable {
      * 通过结果枚举设置状态码和提示消息
      * @param resultStatus 结果状态枚举
      */
+    @JsonIgnore
     private void setStatus(ResultStatus resultStatus) {
         this.setMessage(resultStatus.getMessage());
         this.setCode(resultStatus.getCode());

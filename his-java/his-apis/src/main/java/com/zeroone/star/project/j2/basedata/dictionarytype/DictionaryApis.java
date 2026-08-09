@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 /**
  * 字典项管理接口。
  */
-@Tag(name = "字典项管理")
 public interface DictionaryApis {
 
     /**

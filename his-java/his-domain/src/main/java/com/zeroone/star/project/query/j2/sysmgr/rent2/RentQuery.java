@@ -17,13 +17,12 @@ import lombok.Data;
 @Schema(description = "租户管理查询对象")
 public class RentQuery extends PageQuery {
 
-    @Schema(description = "租户编码",example = "0001",requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "租户编码", example = "DEFAULT")
     private String code;
 
-    @Schema(description = "关键词：可以是租户名称或描述",example = "默认用户",requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "关键词：匹配租户名称/描述", example = "默认")
     private String rentKeywords;
 
-    @Schema(description = "租户状态:1启用 0禁用",example = "1",requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private Integer is_active;
-
+    @Schema(description = "租户状态：1启用 0禁用", example = "1")
+    private Integer isActive;
 }

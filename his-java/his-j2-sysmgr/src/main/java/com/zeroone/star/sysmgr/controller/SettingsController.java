@@ -16,12 +16,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * <p>
@@ -33,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("settings")
 @Tag(name = "系统配置管理")
 public class SettingsController implements SettingDefinitionApis, SettingsApis {
@@ -40,12 +38,15 @@ public class SettingsController implements SettingDefinitionApis, SettingsApis {
     @Resource
     private SettingsService settingsService;
 
+    private final SettingsService settingsService2;
+
+
     // ==================== 获取配置定义列表 (SettingDefinitionApis) ====================
 
     @Override
     @GetMapping("definitions")
-    @Operation(summary = "获取配置定义列表")
-    public JsonVO<PageDTO<SettingDefinitionDTO>> queryAll(SettingDefinitionQuery query) {
+    @Operation(summary = "获取配置列表")
+    public JsonVO<PageDTO<SettingDefinitionDTO>> queryAllSettings(SettingDefinitionQuery query) {
         PageDTO<SettingDefinitionDTO> page = settingsService.listDefinitions(query);
         return JsonVO.success(page);
     }
@@ -81,13 +82,27 @@ public class SettingsController implements SettingDefinitionApis, SettingsApis {
 
     // ==================== 以下仅提供接口 ====================
 
+    @Operation(summary = "更新配置项")
+    @PutMapping("setting-update")
     @Override
-    public JsonVO<String> updateSetting(SettingUpdateDTO settingUpdateDTO) {
-        return JsonVO.fail("更新");
+    public JsonVO<String> updateSetting(@RequestBody SettingUpdateDTO settingUpdateDTO) throws Exception {
+        Boolean result = settingsService2.updateSetting(settingUpdateDTO);
+
+        if(!result){
+            return JsonVO.success("更新失败");
+        }
+        return JsonVO.success("更新成功");
     }
 
+    @Operation(summary = "删除配置项")
+    @DeleteMapping("setting-delete")
     @Override
-    public JsonVO<String> deleteSetting(SettingDeleteDTO settingDeleteDTO) {
-        return JsonVO.fail("删除");
+    public JsonVO<String> deleteSetting(@RequestBody SettingDeleteDTO settingDeleteDTO) throws Exception {
+        Boolean result = settingsService2.deleteSetting(settingDeleteDTO);
+
+        if(!result){
+            return JsonVO.success("更新失败");
+        }
+        return JsonVO.success("更新成功");
     }
 }

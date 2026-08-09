@@ -1,8 +1,13 @@
+sn:
+  workbench: workbench
+sp:
+  workbench: 10500
+
 server:
   port: ${sp.workbench}
   servlet:
-    # 设置应用上下文路径
-    context-path: /workbench
+    context-path: /j2-workbench
+
 spring:
   application:
     name: ${sn.workbench}

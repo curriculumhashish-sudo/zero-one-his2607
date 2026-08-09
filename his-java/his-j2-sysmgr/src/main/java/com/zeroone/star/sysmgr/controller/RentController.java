@@ -75,10 +75,14 @@ public class RentController implements RentApis {
     }
 
     @Operation(summary = "修改租户")
-    @PutMapping("/updateRent")
+    @PutMapping("/updateRent/{id}")
     @Override
-    public JsonVO<String> updateRent(@RequestBody @Validated RentDTO updateDTO) {
+    public JsonVO<String> updateRent(
+            @PathVariable("id") String id,
+            @RequestBody @Validated RentDTO updateDTO) {
         try {
+            // 将路径中的 id 设置到 DTO 中，确保一致性
+            updateDTO.setId(id);
             whaleTenantsService.updateRent(updateDTO);
             return JsonVO.success("修改租户成功");
         } catch (Exception e) {

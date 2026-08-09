@@ -18,16 +18,30 @@ import java.io.Serializable;
 @Schema(description = "工作台功能卡片")
 //whale_menus
 public class WorkbenchMenuVO implements Serializable {
-    @Schema(description = "ID",example = "1000",requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "菜单ID", example = "wb_op_doctor", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
-    @Schema(description = "前端图标",example = "lucide:folder-tree")
+
+    @Schema(description = "菜单编码", example = "outpatient_doctor")
+    private String code;
+
+    @Schema(description = "菜单名称（英文标识）", example = "OutpatientDoctor")
+    private String name;
+
+    @Schema(description = "显示名称", example = "门诊医生站")
+    private String displayName;
+
+    @Schema(description = "前端图标", example = "lucide:stethoscope")
     private String icon;
-    @Schema(description = "名称",example = "项目管理")
-    private String display_name;
-    @Schema(description = "前端路由地址",example = "/system")
+
+    @Schema(description = "前端路由地址", example = "/outpatient/doctor")
     private String path;
-    @Schema(description = "权限标识")
-    private String permission_name;
-    @Schema(description = "排序号")
-    private Integer sort_order;
+
+    @Schema(description = "前端组件路径", example = "outpatient/doctor/index")
+    private String component;
+
+    @Schema(description = "权限标识", example = "outpatient:doctor:view")
+    private String permissionName;
+
+    @Schema(description = "排序号", example = "1")
+    private Integer sortOrder;
 }

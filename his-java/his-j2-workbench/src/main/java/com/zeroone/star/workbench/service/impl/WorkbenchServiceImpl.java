@@ -46,6 +46,7 @@ public class WorkbenchServiceImpl extends ServiceImpl<WhaleMenusMapper, WhaleMen
 
     @Override
     public List<UserWorkbenchVO> queryUserWorkbench(UserWorkbenchQuery query) {
+        // 1. 获取当前用户ID：优先从JWT解析，降级使用query参数
         String userId;
         try {
             UserDTO currentUser = userHolder.getCurrentUser();
@@ -54,26 +55,42 @@ public class WorkbenchServiceImpl extends ServiceImpl<WhaleMenusMapper, WhaleMen
             log.warn("JWT解析失败，降级使用query中的userId", e);
             userId = query.getUserId();
         }
+        if (userId == null || userId.isEmpty()) {
+            userId = query.getUserId();
+        }
 
         String tenantId = query.getTenantId();
         String keyword = query.getKeyword();
 
+        // 2. 参数校验
+        if (userId == null || userId.isBlank()) {
+            log.warn("用户ID为空，无法查询工作台菜单");
+            return Collections.emptyList();
+        }
+        if (tenantId == null || tenantId.isBlank()) {
+            log.warn("租户ID为空，无法查询工作台菜单");
+            return Collections.emptyList();
+        }
+
+        // 3. Redis缓存：无关键字搜索时走缓存
         // boolean useCache = !StringUtils.hasText(keyword);
         // if (useCache) {
         //     String cacheKey = RedisConstant.WORKBENCH_MENU_PREFIX + tenantId + ":" + userId;
         //     Object cached = redisTemplate.opsForValue().get(cacheKey);
-        //     if (cached instanceof List<?> cacheList) {
+        //     if (cached instanceof List<?> cacheList && !cacheList.isEmpty()) {
         //         log.debug("命中工作台缓存, userId={}, tenantId={}", userId, tenantId);
         //         return (List<UserWorkbenchVO>) cacheList;
         //     }
         // }
 
+        // 4. 查询数据库：一条SQL按角色分组返回
         List<UserWorkbenchVO> result = whaleRolesMapper.selectUserWorkbench(tenantId, userId, keyword);
         if (result == null || result.isEmpty()) {
             log.info("用户[{}]在租户[{}]下未查询到工作台菜单数据", userId, tenantId);
             return Collections.emptyList();
         }
 
+        // 5. 写入缓存
         // if (useCache) {
         //     String cacheKey = RedisConstant.WORKBENCH_MENU_PREFIX + tenantId + ":" + userId;
         //     redisTemplate.opsForValue().set(cacheKey, result, CACHE_TTL_MINUTES, TimeUnit.MINUTES);

@@ -9,9 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-/**
- * 字典项管理接口。
- */
+
 public interface DictionaryApis {
 
     /**

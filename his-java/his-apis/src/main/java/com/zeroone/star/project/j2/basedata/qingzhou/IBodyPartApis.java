@@ -18,7 +18,6 @@ import java.util.List;
 /**
  * 部位管理 API 接口定义
  */
-@Tag(name = "部位管理")
 public interface IBodyPartApis {
 
     @Operation(summary = "获取部位名称树")

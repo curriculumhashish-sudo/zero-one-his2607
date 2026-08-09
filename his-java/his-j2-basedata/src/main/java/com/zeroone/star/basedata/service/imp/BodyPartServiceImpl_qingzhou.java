@@ -18,7 +18,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class BodyPartServiceImpl implements IBodyPartService {
+public class BodyPartServiceImpl_qingzhou implements IBodyPartService {
 
     private final BodyPartMapper mapper;
 

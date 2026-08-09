@@ -16,7 +16,9 @@ import lombok.Data;
 @Data
 @Schema(description = "新增字典编码数据传输对象")
 public class DictItemAddDTO {
-    @Schema(description = "字典编码", example = "ADMISSION", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "代码体系ID", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Long codeSystemId;  // ✅ 新增
+    @Schema(description = "字典编码(只读，传参后端自动忽略)", accessMode = Schema.AccessMode.READ_ONLY)
     private String dicCode;
     @Schema(description = "字典名称", example = "入院", requiredMode = Schema.RequiredMode.REQUIRED)
     private String dicName;

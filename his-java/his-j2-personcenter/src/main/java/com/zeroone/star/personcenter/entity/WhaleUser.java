@@ -18,22 +18,18 @@ import java.time.LocalDateTime;
 @TableName("whale_users")
 public class WhaleUser {
 
-    @TableId(value = "user_id", type = IdType.ASSIGN_ID)
-    private Long userId;
-
-    private Long tenantId;
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
+    private String userId;
 
     private String userName;
 
-    private String realName;
+    private String name;
 
-    private String avatar;
+    private String surname;
 
     private String email;
 
     private String phoneNumber;
-
-    private String introduction;
 
     private String passwordHash;
 
@@ -45,9 +41,7 @@ public class WhaleUser {
 
     private Integer accessFailedCount;
 
-    private Long organizationId;
-
-    private Long practitionerId;
+    private String extraProperties;
 
     private LocalDateTime createdAt;
 
@@ -64,6 +58,7 @@ public class WhaleUser {
 
     private String deletedBy;
 
-    @Version
-    private Integer version;
+    private String ukeyId;
+
+    private String ukeySrcId;
 }
