@@ -32,6 +32,15 @@ public class StocktakeItemSaveDTO {
     @Schema(description = "物品标识", example = "322998385762111488", requiredMode = Schema.RequiredMode.REQUIRED)
     private String itemId;
 
+    @Schema(description = "项目名称（药品名称）", example = "阿莫西林胶囊")
+    private String itemName;
+
+    @Schema(description = "规格", example = "0.25g*24粒")
+    private String specification;
+
+    @Schema(description = "厂家", example = "哈药集团")
+    private String manufacturer;
+
     @Size(max = 255, message = "批号长度不能超过255个字符")
     @Schema(description = "批号", example = "001-009")
     private String lotNumber;
@@ -59,6 +68,9 @@ public class StocktakeItemSaveDTO {
 
     @Schema(description = "行合计金额", example = "1187.50")
     private BigDecimal totalPrice;
+
+    @Schema(description = "实盘金额（实盘数量 × 单价）", example = "1187.50")
+    private BigDecimal actualAmount;
 
     @Schema(description = "盘点盈亏金额", example = "-62.50")
     private BigDecimal profitLossPrice;

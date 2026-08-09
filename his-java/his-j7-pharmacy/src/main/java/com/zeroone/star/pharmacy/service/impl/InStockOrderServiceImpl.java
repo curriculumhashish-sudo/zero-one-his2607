@@ -135,6 +135,9 @@ public class InStockOrderServiceImpl implements InStockOrderService {
         detailVO.setStatusEnum(order.getStatusEnum());
         detailVO.setApplyTime(order.getApplyTime());
         detailVO.setRemake(order.getRemake());
+        detailVO.setCreateByName(order.getCreatedBy());
+        detailVO.setApproverName(order.getApproverId());
+        detailVO.setApproveTime(order.getApprovalTime());
 
         List<InStockOrderDetail> detailItems = detailMapper.selectList(
                 new LambdaQueryWrapper<InStockOrderDetail>()
@@ -145,12 +148,17 @@ public class InStockOrderServiceImpl implements InStockOrderService {
             PurchaseInboundItemVO itemVO = new PurchaseInboundItemVO();
             itemVO.setId(String.valueOf(item.getId()));
             itemVO.setItemId(item.getItemId());
+            itemVO.setItemName(item.getDrugName());
+            itemVO.setSpec(item.getSpec());
+            itemVO.setManufacturer(item.getManufacturer());
             itemVO.setLotNumber(item.getBatchNo());
             itemVO.setQuantity(item.getQuantity() != null ?
                     BigDecimal.valueOf(item.getQuantity()) : null);
             itemVO.setUnit(null);
             itemVO.setPrice(item.getUnitPrice());
             itemVO.setSubTotal(item.getTotalAmount());
+            itemVO.setTraceCode(item.getTraceNo());
+            itemVO.setRemark(item.getItemRemark());
             return itemVO;
         }).collect(Collectors.toList());
 
@@ -197,16 +205,14 @@ public class InStockOrderServiceImpl implements InStockOrderService {
         PurchaseInboundListVO vo = new PurchaseInboundListVO();
         vo.setId(order.getId());
         vo.setBusNo(order.getBusNo());
-        vo.setStatusName(order.getStatusEnum()); // TODO: 建议转为中文枚举
+        vo.setStatusName(order.getStatusEnum());
+        vo.setCreateByName(order.getCreatedBy());
         vo.setApplyTime(order.getApplyTime());
+        vo.setApproverName(order.getApproverId());
+        vo.setApproveTime(order.getApprovalTime());
         vo.setTotalPrice(order.getTotalPrice());
-        // TODO: 关联查询制单人姓名和审批人姓名
-
-        // 核心逻辑：拼接流转路径 (西药库 → 门诊西药房)
-        // TODO: 通过 sourceLocationId 和 purposeLocationId 查出对应的中文名称
-        String sourceName = "未知来源"; // 替换为字典查询结果
-        String purposeName = "未知目的"; // 替换为字典查询结果
-        vo.setTransferPath(sourceName + " → " + purposeName);
+        vo.setSourceLocationName(order.getSourceLocationId());
+        vo.setPurposeLocationName(order.getPurposeLocationId());
 
         return vo;
     }

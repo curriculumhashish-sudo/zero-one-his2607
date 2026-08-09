@@ -63,7 +63,7 @@ class InboundApprovalServiceImplTest {
     @Test
     void withdrawUpdatesAllDetailsAndNormalizesInput() {
         mockPendingOrderAndUpdatedRows(2);
-        InboundApprovalDTO dto = new InboundApprovalDTO("  " + BUS_NO + "  ", "  填写有误  ");
+        InboundApprovalDTO dto = new InboundApprovalDTO("  " + BUS_NO + "  ", "  填写有误  ", "user-001", null);
 
         var result = service.withdrawApproval(dto);
 
@@ -77,7 +77,7 @@ class InboundApprovalServiceImplTest {
     void approveUpdatesAllDetails() {
         mockPendingOrderAndUpdatedRows(2);
 
-        var result = service.approveApproval(new InboundApprovalDTO(BUS_NO, "同意入库"));
+        var result = service.approveApproval(new InboundApprovalDTO(BUS_NO, "同意入库", "user-001", null));
 
         assertEquals(BUS_NO, result.getBusNo());
         assertEquals("APPROVED", result.getStatus());
@@ -88,13 +88,13 @@ class InboundApprovalServiceImplTest {
     void rejectRequiresReasonAndUpdatesAllDetails() {
         IllegalArgumentException blankReason = assertThrows(
                 IllegalArgumentException.class,
-                () -> service.rejectApproval(new InboundApprovalDTO(BUS_NO, "   "))
+                () -> service.rejectApproval(new InboundApprovalDTO(BUS_NO, "   ", "user-001", null))
         );
         assertEquals("驳回原因不能为空", blankReason.getMessage());
         verify(inboundApprovalMapper, never()).selectOne(any(Wrapper.class));
 
         mockPendingOrderAndUpdatedRows(1);
-        var result = service.rejectApproval(new InboundApprovalDTO(BUS_NO, "数量不符"));
+        var result = service.rejectApproval(new InboundApprovalDTO(BUS_NO, "数量不符", "user-001", null));
         assertEquals("REJECTED", result.getStatus());
     }
 
@@ -104,7 +104,7 @@ class InboundApprovalServiceImplTest {
 
         IllegalArgumentException error = assertThrows(
                 IllegalArgumentException.class,
-                () -> service.approveApproval(new InboundApprovalDTO(BUS_NO, null))
+                () -> service.approveApproval(new InboundApprovalDTO(BUS_NO, null, "user-001", null))
         );
 
         assertEquals("入库单不存在：" + BUS_NO, error.getMessage());
@@ -118,7 +118,7 @@ class InboundApprovalServiceImplTest {
 
         IllegalArgumentException error = assertThrows(
                 IllegalArgumentException.class,
-                () -> service.approveApproval(new InboundApprovalDTO(BUS_NO, null))
+                () -> service.approveApproval(new InboundApprovalDTO(BUS_NO, null, "user-001", null))
         );
 
         assertEquals("入库单不在待审批状态，当前状态：APPROVED", error.getMessage());
@@ -134,7 +134,7 @@ class InboundApprovalServiceImplTest {
 
         IllegalArgumentException error = assertThrows(
                 IllegalArgumentException.class,
-                () -> service.withdrawApproval(new InboundApprovalDTO(BUS_NO, "撤回"))
+                () -> service.withdrawApproval(new InboundApprovalDTO(BUS_NO, "撤回", "other-user", null))
         );
 
         assertEquals("只能由申请人撤回该入库单：" + BUS_NO, error.getMessage());
@@ -147,7 +147,7 @@ class InboundApprovalServiceImplTest {
 
         IllegalArgumentException error = assertThrows(
                 IllegalArgumentException.class,
-                () -> service.approveApproval(new InboundApprovalDTO(BUS_NO, null))
+                () -> service.approveApproval(new InboundApprovalDTO(BUS_NO, null, "user-001", null))
         );
 
         assertEquals("审批流转失败，单据可能已被其他操作处理：" + BUS_NO, error.getMessage());
@@ -160,7 +160,7 @@ class InboundApprovalServiceImplTest {
 
         IllegalArgumentException error = assertThrows(
                 IllegalArgumentException.class,
-                () -> service.approveApproval(new InboundApprovalDTO(BUS_NO, null))
+                () -> service.approveApproval(new InboundApprovalDTO(BUS_NO, null, "user-001", null))
         );
 
         assertEquals("未获取到当前登录用户，无法执行审批流转", error.getMessage());

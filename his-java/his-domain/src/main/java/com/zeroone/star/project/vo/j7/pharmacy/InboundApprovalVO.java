@@ -4,6 +4,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+
 /**
  * 入库单审批流转响应数据。
  *
@@ -25,4 +28,14 @@ public class InboundApprovalVO {
     private String status;
     @Schema(description = "操作结果说明", example = "审批通过")
     private String message;
+    @Schema(description = "审批人姓名", example = "李四")
+    private String approverName;
+    @Schema(description = "审批时间", example = "2026-08-09 09:15")
+    private LocalDateTime approveTime;
+
+    public InboundApprovalVO(String busNo, String status, String message) {
+        this.busNo = busNo;
+        this.status = status;
+        this.message = message;
+    }
 }
