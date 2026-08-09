@@ -337,38 +337,3 @@ int32_t TreatmentDAO::removeData(std::list<std::string>& ids)
 
 	return sqlSession->executeUpdate(sql, params);
 }
-
-uint64_t TreatmentDAO::nextSequenceValue(const std::string& seqKey)
-{
-	if (seqKey.empty())
-	{
-		return 0;
-	}
-
-	SqlParams keyParams;
-	SQLPARAMS_PUSH(keyParams, "s", std::string, seqKey);
-
-	// Query whether the sequence key already exists.
-	const uint64_t count = sqlSession->executeQueryNumerical(
-		"SELECT COUNT(*) FROM `whale_sequence` WHERE `seq_key`=?", keyParams);
-	if (count == 0)
-	{
-		// First use of this key: insert starting value 1.
-		const int rows = sqlSession->executeUpdate(
-			"INSERT INTO `whale_sequence`(`seq_key`, `current_value`, `updated_at`) VALUES(?, 1, NOW(6))",
-			"%s", seqKey);
-		return rows == 1 ? 1 : 0;
-	}
-
-	// Query current value with row lock, then increment and write back.
-	const uint64_t current = sqlSession->executeQueryNumerical(
-		"SELECT `current_value` FROM `whale_sequence` WHERE `seq_key`=? FOR UPDATE", keyParams);
-	const uint64_t next = current + 1;
-	SqlParams updateParams;
-	SQLPARAMS_PUSH(updateParams, "ull", uint64_t, next);
-	SQLPARAMS_PUSH(updateParams, "s", std::string, seqKey);
-	const int rows = sqlSession->executeUpdate(
-		"UPDATE `whale_sequence` SET `current_value`=?, `updated_at`=NOW(6) WHERE `seq_key`=?",
-		updateParams);
-	return rows == 1 ? next : 0;
-}
