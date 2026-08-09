@@ -2,8 +2,8 @@
 #include "OrderCatalogDAO1.h"
 #include "../../domain/do/order/MedicationDefinitionDO1.h"
 #include "../../domain/do/order/ActivityDefinitionDO1.h"
-#include "../order/mapper/MedicationDefinitionMapper1.h"
-#include "../order/mapper/ActivityDefinitionMapper1.h"
+#include "../order/Mapper/MedicationDefinitionMapper1.h"
+#include "../order/Mapper/ActivityDefinitionMapper1.h"
 #include <algorithm>
 
 static std::string buildLikeClause(const std::string& keyword) {
@@ -21,7 +21,7 @@ std::list<OrderCatalogDAO1::CatalogItem> OrderCatalogDAO1::queryCatalogList(
 {
     std::list<CatalogItem> allItems;
 
-    // ========== 1. ²éÑ¯Ò©Æ·£¨med_medication_definition£©==========
+    // ========== 1. æŸ¥è¯¢è¯å“ï¼ˆmed_medication_definitionï¼‰==========
     bool queryDrug = category.empty() || category == "DRUG";
     if (queryDrug) {
         std::string sql = "SELECT * FROM med_medication_definition "
@@ -60,7 +60,7 @@ std::list<OrderCatalogDAO1::CatalogItem> OrderCatalogDAO1::queryCatalogList(
         }
     }
 
-    // ========== 2. ²éÑ¯ÕïÁÆ»î¶¯£¨wkf_activity_definition£©==========
+    // ========== 2. æŸ¥è¯¢è¯Šç–—æ´»åŠ¨ï¼ˆwkf_activity_definitionï¼‰==========
     bool queryActivity = category.empty() || category == "LAB" || category == "EXAM" || category == "TREATMENT";
     if (queryActivity) {
         std::string typeCondition;
@@ -108,7 +108,7 @@ std::list<OrderCatalogDAO1::CatalogItem> OrderCatalogDAO1::queryCatalogList(
                 item.category = "TREATMENT";
             }
 
-            // Èç¹û category ²»Îª¿ÕÇÒÓëµ±Ç°Ïî²»Æ¥Åä£¬Ìø¹ı
+            // å¦‚æœ category ä¸ä¸ºç©ºä¸”ä¸å½“å‰é¡¹ä¸åŒ¹é…ï¼Œè·³è¿‡
             if (!category.empty() && category != item.category) {
                 continue;
             }
@@ -126,14 +126,14 @@ std::list<OrderCatalogDAO1::CatalogItem> OrderCatalogDAO1::queryCatalogList(
         }
     }
 
-    // ========== 3. ÅÅĞò£¨°´±àÂëÉıĞò£©==========
+    // ========== 3. æ’åºï¼ˆæŒ‰ç¼–ç å‡åºï¼‰==========
     allItems.sort([](const CatalogItem& a, const CatalogItem& b) {
         return a.code < b.code;
         });
 
     total = allItems.size();
 
-    // ========== 4. ·ÖÒ³½ØÈ¡ ==========
+    // ========== 4. åˆ†é¡µæˆªå– ==========
     uint64_t start = (pageIndex - 1) * pageSize;
     uint64_t end = std::min(start + pageSize, total);
 
