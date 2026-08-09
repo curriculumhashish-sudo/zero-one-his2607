@@ -20,57 +20,62 @@
     summary: 服务1
   query-all: 
     summary: 服务2
+
   field:
-    # 基础通用字段
-    id: 序号
+    # ================= 基础通用字段 =================
+    id: 器材主键ID
     ids: 待操作的器材ID集合
-    code: 编码
-    name: 器材名称
-    status: 器材状态 1-启用 0-禁用
-    desc: 器材描述
+    code: 耗材编码
+    name: 耗材名称
+    status: 器材状态 (1-启用 0-停用)
+    description: 说明
     createBy: 创建人
     updatBy: 更新人
-    keywords: 关键字,请输入器材名称或编码
-    classification: 器材分类
-    specification: 器材规格
+    keywords: 关键字 (请输入耗材名称或拼音码)
+    classification: 耗材分类
+    specification: 包装规格
+    unit: 单位
+    price: 单价/零售价
 
-
-# 器材业务基础字段
+    # ================= 业务基础信息字段 =================
     goods: 商品名称
     manufacturer: 生产厂家
-    price: 器材价格
     supplier: 供应商
-    apprno: 批注文号
+    apprno: 批准文号
+    catalogcode: 目录编码
 
-# 财务医保相关字段
+    # ================= 财务医保结算字段 =================
     finantype: 财务类型
+    medcode: 医保编码
     medinscat: 医保类别
     medinsgra: 医保等级
+    medrecsettle: 病案结算类型
+    is_medins_match: 医保对码
 
-# 采购、库存、价格相关字段
+    # ================= 采购与单位倍数字段 =================
     purchaunit: 采购单位
     purmin: 采购/拆零倍数
-    purchase: 购入价（包装单位）
     inventory: 库存单位
     invsplit: 库存/拆零倍数
-    retail: 零售价（包装单位）
-    maxretail: 最高零售价（包装单位）
-
-# 包装、拆零相关字段
     packaging: 包装单位
     packsplit: 包装/拆零倍数
     split: 拆零单位
+    traceunit: 追溯码单位
+    tracesplit: 追溯码/拆零倍数
 
-# 库存警戒阈值字段
+    # ================= 价格字段 =================
+    purchase: 采购参考价（包装单位）
+    retail: 销售参考价（包装单位）
+    maxretail: 最高零售价（包装单位）
+
+    # ================= 库存警戒阈值字段 =================
     warningmax: 警戒线最高值(库存单位)
     warningmin: 警戒线最低值(库存单位)
 
-# 辅助检索字段
+    # ================= 业务标记与辅助检索字段 =================
     pinyin: 拼音码
     wubi: 五笔码
-# 补充字段
-    catalogcode: 目录编码
-    ybmatchflag: 医保对码标记
-    allergenflag: 过敏标记
-    ybflag: 医保标记
-    hvcmflag: 高值器材标志
+    is_allergic: 过敏标记
+    is_medins: 医保标记
+    is_high_value: 高值耗材标志
+    is_chargeable: 是否收费耗材
