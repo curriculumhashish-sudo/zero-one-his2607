@@ -166,4 +166,8 @@ endif()
 
 # 在后面添加你的模块
 add_subdirectory("his-c2-opnurse")
+<<<<<<< HEAD
 add_subdirectory("his-c2-opdoctor")
+=======
+add_subdirectory("his-c2-opdoctor")
+>>>>>>> origin/c2-opnurse-he40

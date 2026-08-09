@@ -19,6 +19,7 @@
 #include "stdafx.h"
 #include "Router.h"
 #include "ApiHelper.h"
+#include "doctor2/DoctorStationController.h"
 
 
 #include "prescription2/Prescription2Controller.h"
@@ -84,6 +85,7 @@ void Router::initRouter()
 {
 	// #TIP: Add system extension route definitions below
 
+
 	ROUTER_SIMPLE_BIND(PatientQueueController);
 	ROUTER_SIMPLE_BIND(RecePatientController);
 	ROUTER_SIMPLE_BIND(PatientFinishController);
@@ -124,5 +126,7 @@ void Router::initRouter()
 
 
 	ROUTER_SIMPLE_BIND(OrderCatalogController1);
+
+	ROUTER_SIMPLE_BIND(DoctorStationController);
 
 }
