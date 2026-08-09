@@ -1,14 +1,14 @@
 // dao/order/OrderDAO1.cpp
 #include "stdafx.h"
 #include "../../dao/order/OrderDAO1.h"
-#include "Mapper/MedicationDefinitionMapper1.h"
-#include "Mapper/ActivityDefinitionMapper1.h"
-#include "Mapper/DeviceDefinitionMapper1.h"
-#include "Mapper/MedicationRequestMapper1.h"
-#include "Mapper/ServiceRequestMapper1.h"
-#include "Mapper/DeviceRequestMapper1.h"
-#include "Mapper/ChargeItemDefinitionMapper1.h"
-#include "Mapper/EncounterMapper1.h"
+#include "mapper/MedicationDefinitionMapper1.h"
+#include "mapper/ActivityDefinitionMapper1.h"
+#include "mapper/DeviceDefinitionMapper1.h"
+#include "mapper/MedicationRequestMapper1.h"
+#include "mapper/ServiceRequestMapper1.h"
+#include "mapper/DeviceRequestMapper1.h"
+#include "mapper/ChargeItemDefinitionMapper1.h"
+#include "mapper/EncounterMapper1.h"
 
 #include "SimpleDateTimeFormat.h"
 #include <sstream>
