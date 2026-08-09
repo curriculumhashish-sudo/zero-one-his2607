@@ -9,11 +9,16 @@ import com.zeroone.star.project.query.j7.pharmacy.PurchaseInboundQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j7.pharmacy.InboundApprovalVO;
 import com.zeroone.star.pharmacy.service.IInboundApprovalService;
+import com.zeroone.star.project.vo.j7.pharmacy.InboundApprovalJsonVO;
+import com.zeroone.star.project.vo.j7.pharmacy.InStockOrderSaveJsonVO;
 import com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundDetailVO;
+import com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundDetailJsonVO;
 import com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundPageJsonVO;
 import com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundPageVO;
 import com.zeroone.star.project.dto.j7.pharmacy.InStockOrderDeleteDTO;
 import com.zeroone.star.project.vo.j7.pharmacy.SupplyDocumentDeleteVO;
+import com.zeroone.star.project.vo.j7.pharmacy.SupplyDocumentDeleteJsonVO;
+import com.zeroone.star.project.vo.j7.pharmacy.StringDataJsonVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -49,8 +54,9 @@ public class yaofangrukudan {
     @Operation(summary = "撤回审批", description = "仅原申请人可撤回 PENDING_APPROVAL 状态的入库单；撤回原因必填")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"busNo\":\"PSI2026-06-300001\",\"status\":\"WITHDRAWN\",\"message\":\"撤回成功\"}}")))
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = InboundApprovalJsonVO.class),
+                examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"busNo\":\"PSI2026-06-300001\",\"status\":\"WITHDRAWN\",\"message\":\"撤回成功\"}}")))
     })
     public JsonVO<InboundApprovalVO> withdrawApproval(@Valid @RequestBody InboundApprovalDTO dto) {
         try {
@@ -67,8 +73,9 @@ public class yaofangrukudan {
     @Operation(summary = "审批通过", description = "登录审批人通过 PENDING_APPROVAL 状态的入库单，状态变为 APPROVED")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"busNo\":\"PSI2026-06-300001\",\"status\":\"APPROVED\",\"message\":\"审批通过\"}}")))
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = InboundApprovalJsonVO.class),
+                examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"busNo\":\"PSI2026-06-300001\",\"status\":\"APPROVED\",\"message\":\"审批通过\"}}")))
     })
     public JsonVO<InboundApprovalVO> approveApproval(@Valid @RequestBody InboundApprovalDTO dto) {
         try {
@@ -85,8 +92,9 @@ public class yaofangrukudan {
     @Operation(summary = "驳回审批", description = "登录审批人驳回 PENDING_APPROVAL 状态的入库单；驳回原因必填，状态变为 REJECTED")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"busNo\":\"PSI2026-06-300001\",\"status\":\"REJECTED\",\"message\":\"驳回成功\"}}")))
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = InboundApprovalJsonVO.class),
+                examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"busNo\":\"PSI2026-06-300001\",\"status\":\"REJECTED\",\"message\":\"驳回成功\"}}")))
     })
     public JsonVO<InboundApprovalVO> rejectApproval(@Valid @RequestBody InboundApprovalDTO dto) {
         try {
@@ -104,8 +112,9 @@ public class yaofangrukudan {
     @Operation(summary = "新增入库单据", description = "创建一张新的入库单，状态为草稿。返回入库单主表ID。")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":\"329874660147597312\"}")))
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = InStockOrderSaveJsonVO.class),
+                examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"id\":\"322955305339588608\",\"orderNo\":\"PSI2026-06-300001\",\"statusEnum\":\"DRAFT\",\"sourceLocationId\":\"322954949549363200\",\"warehouseId\":\"322955305339588608\",\"projectType\":\"DRUG\",\"supplierId\":322954949549363200,\"inDate\":\"2026-07-30\",\"remark\":\"常规入库\",\"createdBy\":\"user_001\",\"createdAt\":\"2026-07-30 10:15:30\",\"totalPrice\":12500.00,\"items\":[]}}")))
     })
     @PostMapping("/addInStockOrder")
     public JsonVO<InStockOrderSaveDTO> addInOrder(@Valid @RequestBody InStockOrderCreateDTO dto) {
@@ -121,8 +130,9 @@ public class yaofangrukudan {
     @Operation(summary = "保存入库单据", description = "修改草稿态的入库单，支持对明细的全量增删改。")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":\"保存入库单据成功\"}")))
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = StringDataJsonVO.class),
+                examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":\"保存入库单据成功\"}")))
     })
     @PutMapping("/{orderId}/saveInStockOrder")
     public JsonVO<String> updateInOrder(@PathVariable String orderId,
@@ -139,8 +149,9 @@ public class yaofangrukudan {
     @Operation(summary = "保存并提交审批", description = "保存草稿并立即提交审批，状态变更为'待审批'。")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":\"保存并提交审批成功\"}")))
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = StringDataJsonVO.class),
+                examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":\"保存并提交审批成功\"}")))
     })
     @PutMapping("/{orderId}/submitInStockOrder")
     public JsonVO<String> submitInOrder(@PathVariable String orderId, @Valid @RequestBody InStockOrderSaveDTO dto) {
@@ -156,8 +167,9 @@ public class yaofangrukudan {
     @Operation(summary = "提交审批", description = "将草稿或待审批状态的入库单提交审批，状态变更为'待审批'。仅需传单据号。")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":\"提交审批成功\"}")))
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = StringDataJsonVO.class),
+                examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":\"提交审批成功\"}")))
     })
     @PutMapping("/{orderId}/submitApproval")
     public JsonVO<String> submitApproval(@PathVariable String orderId) {
@@ -191,8 +203,9 @@ public class yaofangrukudan {
     @Operation(summary = "获取单据详情", description = "根据入库单ID查询单据的详细信息，包含主表和明细")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"id\":\"329874660147597312\",\"busNo\":\"PSI2026-06-300001\"}}")))
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = PurchaseInboundDetailJsonVO.class),
+                examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"id\":\"329874660147597312\",\"busNo\":\"PSI2026-06-300001\",\"supplierId\":\"SUP_1001\",\"supplierName\":\"某某药业有限公司\",\"purposeLocationId\":\"WH_OUTPATIENT\",\"purposeLocationName\":\"门诊西药房\",\"totalPrice\":1500.00,\"statusEnum\":\"PENDING_APPROVAL\",\"applyTime\":\"2026-06-30T16:35:00\",\"remake\":\"紧急补货\",\"items\":[{\"id\":\"101\",\"itemId\":\"MED_001\",\"itemName\":\"阿莫西林胶囊\",\"spec\":\"0.25g*24粒\",\"lotNumber\":\"20260701\",\"productionDate\":\"2026-01-01\",\"expirationDate\":\"2028-01-01\",\"quantity\":100,\"unit\":\"盒\",\"price\":15.00,\"subTotal\":1500.00}]}}")))
     })
     public JsonVO<PurchaseInboundDetailVO> getInboundDetail(@PathVariable("id") String id) {
         try {
@@ -209,8 +222,9 @@ public class yaofangrukudan {
     @Operation(summary = "保存并提交审批", description = "保存入库单草稿并立即提交审批，状态变更为'待审批'")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":\"保存并提交审批成功\"}")))
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = StringDataJsonVO.class),
+                examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":\"保存并提交审批成功\"}")))
     })
     public JsonVO<String> saveAndSubmitInOrder(@PathVariable String orderId, @Valid @RequestBody InStockOrderSaveDTO dto) {
         try {
@@ -225,8 +239,9 @@ public class yaofangrukudan {
     @Operation(summary = "删除入库单据", description = "软删除指定单据号的入库单，仅草稿/待审核状态可删，同时解锁关联的库存锁定记录")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"deleted\":true}}")))
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = SupplyDocumentDeleteJsonVO.class),
+                examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"busNo\":\"PSI2026-06-300001\",\"deletedLines\":3,\"unlockedLocks\":3}}")))
     })
     public JsonVO<SupplyDocumentDeleteVO> deleteInStockOrder(@Valid @RequestBody InStockOrderDeleteDTO dto) {
         try {
