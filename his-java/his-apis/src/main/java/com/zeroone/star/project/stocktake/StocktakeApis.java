@@ -46,10 +46,9 @@ public interface StocktakeApis {
      * @return 盘点单分页列表
      */
     @Operation(summary = "获取盘点单列表")
-    @GetMapping("/list")
+    @PostMapping("/list")
     JsonVO<PageDTO<StocktakeListVO>> queryStocktakeList(
-            @Parameter(description = "分页及筛选条件", required = true)
-            @Valid @ModelAttribute StocktakeQuery query
+            @RequestBody @Valid StocktakeQuery query
     );
 
     /**

@@ -30,6 +30,9 @@ public class StocktakeItemVO {
     @Schema(description = "规格", example = "0.25g*24粒")
     private String specification;
 
+    @Schema(description = "厂家", example = "广州白云山制药")
+    private String manufacturer;
+
     @Schema(description = "批号", example = "20260101")
     private String lotNumber;
 
@@ -50,6 +53,9 @@ public class StocktakeItemVO {
 
     @Schema(description = "单价", example = "12.50")
     private BigDecimal price;
+
+    @Schema(description = "实盘金额", example = "1187.50")
+    private BigDecimal totalPrice;
 
     @Schema(description = "盈亏金额（盘盈为正，盘亏为负）", example = "-62.50")
     private BigDecimal profitLossPrice;

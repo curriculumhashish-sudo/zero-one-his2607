@@ -27,15 +27,15 @@ import lombok.ToString;
 @ToString
 public class PatientQueueQuery extends PageQuery {
 
-    @Schema(description = "患者姓名（模糊查询）")
+    @Schema(description = "患者姓名（模糊查询）", example = "周女士")
     private String patientName;
 
-    @Schema(description = "病历号")
+    @Schema(description = "病历号", example = "MR20260701001")
     private String medicalNo;
 
-    @Schema(description = "科室名称")
+    @Schema(description = "科室名称", example = "内科")
     private String deptName;
 
-    @Schema(description = "单据状态（0-待处理 1-已处理）")
+    @Schema(description = "单据状态（0-待处理 1-已处理）", example = "0")
     private Integer status;
 }

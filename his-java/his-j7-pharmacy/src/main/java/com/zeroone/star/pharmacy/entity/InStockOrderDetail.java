@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -33,6 +35,7 @@ public class InStockOrderDetail implements Serializable {
     private String pharmacyId;
 
     private Integer seqNo;
+    private String itemId;
     private String drugName;
     private String spec;
     private String manufacturer;
@@ -40,6 +43,7 @@ public class InStockOrderDetail implements Serializable {
     private BigDecimal unitPrice;
     private BigDecimal totalAmount;
     private String batchNo;
+    private String traceNo;
     private LocalDate expireDate;
     private String itemRemark;
 }

@@ -27,8 +27,11 @@ public class StocktakeQuery extends PageQuery {
     @Schema(description = "单据状态：DRAFT-草稿，PENDING_APPROVAL-待审批，APPROVED-已审批，REJECTED-已驳回，WITHDRAWN-已撤回", example = "DRAFT")
     private String statusEnum;
 
-    @Schema(description = "库房标识", example = "1")
+    @Schema(description = "盘点药房", example = "322954949549363200")
     private String warehouseId;
+
+    @Schema(description = "盘点药房名称（支持模糊查询）", example = "西药房")
+    private String warehouseName;
 
     @Schema(description = "申请人标识", example = "1")
     private String applicantId;

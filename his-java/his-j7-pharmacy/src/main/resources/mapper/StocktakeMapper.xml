@@ -10,18 +10,28 @@
     <!-- 按 bus_no 聚合，关联库房、申请人、审批人 -->
     <select id="selectStocktakePage" resultType="com.zeroone.star.project.vo.stocktake.StocktakeListVO">
         SELECT
-            t.bus_no                                   AS id,
+            MIN(t.id)                                  AS id,
             t.bus_no                                   AS busNo,
             t.status_enum                              AS statusEnum,
+            t.created_by                               AS createdBy,
+            creator.name                               AS createdByName,
+            MIN(t.created_at)                          AS createdAt,
+            t.purpose_location_id                      AS warehouseId,
             o.name                                     AS warehouseName,
+            o.name                                     AS stocktakePharmacy,
+            IFNULL(SUM(t.total_price), 0)              AS totalPrice,
             IFNULL(SUM(t.profit_loss_price), 0)        AS profitLossPrice,
+            t.applicant_id                             AS applicantId,
             app.name                                   AS applicantName,
             t.apply_time                               AS applyTime,
+            t.approver_id                              AS approverId,
             appr.name                                  AS approverName,
             t.approval_time                            AS approvalTime
         FROM wkf_supply_request t
         LEFT JOIN adm_organization o
             ON o.id = t.purpose_location_id AND o.is_deleted = 0
+        LEFT JOIN adm_practitioner creator
+            ON creator.id = t.created_by AND creator.is_deleted = 0
         LEFT JOIN adm_practitioner app
             ON app.id = t.applicant_id AND app.is_deleted = 0
         LEFT JOIN adm_practitioner appr
@@ -37,6 +47,9 @@
         <if test="warehouseId != null and warehouseId != ''">
             AND t.purpose_location_id = #{warehouseId}
         </if>
+        <if test="warehouseName != null and warehouseName != ''">
+            AND o.name LIKE CONCAT('%', #{warehouseName}, '%')
+        </if>
         <if test="applicantId != null and applicantId != ''">
             AND t.applicant_id = #{applicantId}
         </if>
@@ -46,9 +59,11 @@
         <if test="endTime != null and endTime != ''">
             AND t.created_at &lt;= #{endTime}
         </if>
-        GROUP BY t.bus_no, t.status_enum, o.name, app.name, appr.name,
+        GROUP BY t.bus_no, t.status_enum, t.created_by, creator.name,
+                 t.purpose_location_id, o.name,
+                 t.applicant_id, app.name, t.approver_id, appr.name,
                  t.apply_time, t.approval_time
-        ORDER BY t.apply_time DESC, t.bus_no DESC
+        ORDER BY MIN(t.created_at) DESC, t.bus_no DESC
     </select>
 
     <!-- ==================== 查询盘点单汇总信息 ==================== -->
@@ -71,15 +86,19 @@
             END                                        AS statusDesc,
             t.purpose_location_id                      AS warehouseId,
             o.name                                     AS warehouseName,
+            o.name                                     AS stocktakePharmacy,
             CASE t.type_enum
                 WHEN 'CABINET_STOCKTAKE'   THEN 'WAREHOUSE'
                 WHEN 'PHARMACY_STOCKTAKE'  THEN 'PHARMACY'
                 ELSE 'INVENTORY'
             END                                        AS stocktakeType,
+            IFNULL(SUM(t.total_price), 0)              AS totalPrice,
             SUM(CASE WHEN t.profit_loss_price &gt; 0 THEN t.profit_loss_price ELSE 0 END) AS totalProfitPrice,
             SUM(CASE WHEN t.profit_loss_price &lt; 0 THEN ABS(t.profit_loss_price) ELSE 0 END) AS totalLossPrice,
             IFNULL(SUM(t.profit_loss_price), 0)        AS profitLossPrice,
             COUNT(*)                                   AS itemCount,
+            t.created_by                               AS createdBy,
+            creator.name                               AS createdByName,
             t.applicant_id                             AS applicantId,
             app.name                                   AS applicantName,
             t.apply_time                               AS applyTime,
@@ -91,6 +110,8 @@
         FROM wkf_supply_request t
         LEFT JOIN adm_organization o
             ON o.id = t.purpose_location_id AND o.is_deleted = 0
+        LEFT JOIN adm_practitioner creator
+            ON creator.id = t.created_by AND creator.is_deleted = 0
         LEFT JOIN adm_practitioner app
             ON app.id = t.applicant_id AND app.is_deleted = 0
         LEFT JOIN adm_practitioner appr
@@ -99,6 +120,7 @@
           AND t.type_enum IN ('INVENTORY_CHECK', 'PHARMACY_STOCKTAKE', 'CABINET_STOCKTAKE')
           AND t.bus_no = #{busNo}
         GROUP BY t.bus_no, t.status_enum, t.purpose_location_id, o.name,
+                 t.created_by, creator.name,
                  t.applicant_id, app.name, t.apply_time,
                  t.approver_id, appr.name, t.approval_time, t.remake
         LIMIT 1
@@ -112,6 +134,7 @@
             t.item_id                                  AS itemId,
             md.name                                    AS itemName,
             md.total_volume                            AS specification,
+            md.manufacturer_text                       AS manufacturer,
             t.lot_number                               AS lotNumber,
             (t.total_quantity - t.item_quantity)       AS bookQuantity,
             t.total_quantity                           AS totalQuantity,
@@ -120,6 +143,7 @@
             <!-- 注：数据库无独立单位名称表，unitName 暂返回单位编码 -->
             t.unit_code                                AS unitName,
             t.price                                    AS price,
+            t.total_price                              AS totalPrice,
             t.profit_loss_price                        AS profitLossPrice,
             t.remake                                   AS remark
         FROM wkf_supply_request t

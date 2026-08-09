@@ -1,13 +1,12 @@
 package com.zeroone.star.pharmacy.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.zeroone.star.project.dto.j7.pharmacy.InStockOrderDTO;
-import com.zeroone.star.project.dto.j7.pharmacy.InStockOrderDeleteDTO;
-import com.zeroone.star.project.dto.j7.pharmacy.PurchaseInboundSubmitDTO;
+import com.zeroone.star.project.dto.j7.pharmacy.*;
 import com.zeroone.star.project.query.j7.pharmacy.PurchaseInboundQuery;
 import com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundDetailVO;
 import com.zeroone.star.project.vo.j7.pharmacy.PurchaseInboundListVO;
 import com.zeroone.star.project.vo.j7.pharmacy.SupplyDocumentDeleteVO;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
@@ -25,18 +24,36 @@ import com.zeroone.star.project.vo.j7.pharmacy.SupplyDocumentDeleteVO;
 public interface InStockOrderService {
     /**
      * 新增入库单据
+     * @return 包含完整信息的入库单（基础字段 + 单据状态/制单人/审批人/审批时间/总金额）
      */
-    String create(InStockOrderDTO dto);
+    InStockOrderSaveDTO create(InStockOrderCreateDTO dto);
 
     /**
      * 保存入库单据（编辑草稿）
      */
-    void update(String orderId, InStockOrderDTO dto);
+    void update(String orderId, InStockOrderSaveDTO dto);
 
     /**
-     * 提交审批入库单据
+     * 提交审批入库单据（纯状态流转，仅需单据号）
      */
-    void submit(String orderId, InStockOrderDTO dto);
+    void submitByOrderId(String orderId);
+
+//    default IPage<PurchaseInboundListVO> listInboundOrders(PurchaseInboundQuery query) {
+//        throw new UnsupportedOperationException("入库单列表查询接口暂未实现");
+//    }
+//
+//    default PurchaseInboundDetailVO getInboundDetail(String id) {
+//        throw new UnsupportedOperationException("入库单详情查询接口暂未实现");
+//    }
+//
+//    default void submitInboundOrder(PurchaseInboundSubmitDTO dto) {
+//        throw new UnsupportedOperationException("入库单提交审批接口暂未实现");
+//    }
+
+    /**
+     * 保存并提交审批
+     */
+    void submit(String orderId, InStockOrderSaveDTO dto);
 
 //    default IPage<PurchaseInboundListVO> listInboundOrders(PurchaseInboundQuery query) {
 //        throw new UnsupportedOperationException("入库单列表查询接口暂未实现");

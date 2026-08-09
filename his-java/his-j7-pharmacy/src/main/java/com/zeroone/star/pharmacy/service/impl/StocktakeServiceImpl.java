@@ -109,6 +109,7 @@ public class StocktakeServiceImpl
                 query.getBusNo(),
                 query.getStatusEnum(),
                 query.getWarehouseId(),
+                query.getWarehouseName(),
                 query.getApplicantId(),
                 startTimeStr,
                 endTimeStr
@@ -245,13 +246,13 @@ public class StocktakeServiceImpl
             );
             int rows = stocktakeMapper.insert(record);
             if (rows <= 0) {
-                throw new IllegalStateException("保存盘点单明细失败：" + item.getItemId());
+                throw new IllegalArgumentException("保存盘点单明细失败：" + item.getItemId());
             }
             totalPrice = addIfNotNull(totalPrice, record.getTotalPrice());
             itemCount++;
         }
 
-        return buildSaveVO(busNo, targetStatus, itemCount, totalPrice, now);
+        return buildSaveVO(busNo, targetStatus, itemCount, totalPrice, now, dto.getWarehouseId());
     }
 
     private WkfSupplyRequest buildStocktakeRecord(StocktakeSaveDTO dto,
@@ -371,12 +372,43 @@ public class StocktakeServiceImpl
                                         int itemCount,
                                         BigDecimal totalPrice,
                                         LocalDateTime operateTime) {
+        return buildSaveVO(busNo, statusEnum, itemCount, totalPrice, operateTime, null);
+    }
+
+    private StocktakeSaveVO buildSaveVO(String busNo,
+                                        String statusEnum,
+                                        int itemCount,
+                                        BigDecimal totalPrice,
+                                        LocalDateTime operateTime,
+                                        String warehouseId) {
         StocktakeSaveVO vo = new StocktakeSaveVO();
+        vo.setId(busNo);
         vo.setBusNo(busNo);
         vo.setStatusEnum(statusEnum);
+        vo.setCreatedAt(operateTime);
+        vo.setWarehouseId(warehouseId);
         vo.setItemCount(itemCount);
         vo.setTotalPrice(totalPrice);
         vo.setOperateTime(operateTime);
+        vo.setItems(Collections.emptyList());
+
+        StocktakeDetailVO detailVO = stocktakeMapper.selectStocktakeDetail(busNo);
+        if (detailVO != null) {
+            vo.setId(detailVO.getId());
+            vo.setCreatedBy(detailVO.getCreatedBy());
+            vo.setCreatedByName(detailVO.getCreatedByName());
+            vo.setCreatedAt(detailVO.getCreatedAt());
+            vo.setApproverId(detailVO.getApproverId());
+            vo.setApproverName(detailVO.getApproverName());
+            vo.setApprovalTime(detailVO.getApprovalTime());
+            vo.setWarehouseId(detailVO.getWarehouseId());
+            vo.setWarehouseName(detailVO.getWarehouseName());
+            vo.setStocktakePharmacy(detailVO.getStocktakePharmacy());
+            vo.setTotalPrice(detailVO.getTotalPrice());
+            vo.setItemCount(detailVO.getItemCount());
+            List<StocktakeItemVO> items = stocktakeMapper.selectStocktakeItems(busNo);
+            vo.setItems(items == null ? Collections.emptyList() : items);
+        }
         return vo;
     }
 

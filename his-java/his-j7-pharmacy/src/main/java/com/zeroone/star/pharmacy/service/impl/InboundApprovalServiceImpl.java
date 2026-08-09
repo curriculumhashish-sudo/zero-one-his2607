@@ -45,34 +45,19 @@ public class InboundApprovalServiceImpl implements IInboundApprovalService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public InboundApprovalVO withdrawApproval(InboundApprovalDTO dto) {
-        normalize(dto);
-        requireRemark(dto, "撤回原因不能为空");
-        WkfSupplyRequest record = requirePendingInboundOrder(dto.getBusNo());
-        UserDTO operator = requireCurrentUser();
-
-        // lvv：撤回必须由原申请人本人操作。
-        if (StringUtils.hasText(record.getApplicantId())
-                && !operator.getId().equals(record.getApplicantId())) {
-            throw new IllegalArgumentException("只能由申请人撤回该入库单：" + dto.getBusNo());
-        }
-
-        int rows = updatePendingOrder(dto, STATUS_WITHDRAWN, operator, false);
-        ensureUpdated(rows, dto.getBusNo());
-        log.info("lvv：入库单 {} 已撤回，更新明细 {} 行", dto.getBusNo(), rows);
-        return new InboundApprovalVO(dto.getBusNo(), STATUS_WITHDRAWN, "撤回审批成功");
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
     public InboundApprovalVO approveApproval(InboundApprovalDTO dto) {
         normalize(dto);
         requirePendingInboundOrder(dto.getBusNo());
         UserDTO operator = requireCurrentUser();
-        int rows = updatePendingOrder(dto, STATUS_APPROVED, operator, true);
+        LocalDateTime now = dto.getApprovalTime() != null ? dto.getApprovalTime() : LocalDateTime.now();
+        String approverId = StringUtils.hasText(dto.getApproverId()) ? dto.getApproverId() : operator.getId();
+        int rows = updatePendingOrder(dto, STATUS_APPROVED, operator, true, approverId, now);
         ensureUpdated(rows, dto.getBusNo());
         log.info("lvv：入库单 {} 审批通过，更新明细 {} 行", dto.getBusNo(), rows);
-        return new InboundApprovalVO(dto.getBusNo(), STATUS_APPROVED, "审批通过");
+        InboundApprovalVO vo = new InboundApprovalVO(dto.getBusNo(), STATUS_APPROVED, "审批通过");
+        vo.setApproverName(operator.getUsername());
+        vo.setApproveTime(now);
+        return vo;
     }
 
     @Override
@@ -82,10 +67,15 @@ public class InboundApprovalServiceImpl implements IInboundApprovalService {
         requireRemark(dto, "驳回原因不能为空");
         requirePendingInboundOrder(dto.getBusNo());
         UserDTO operator = requireCurrentUser();
-        int rows = updatePendingOrder(dto, STATUS_REJECTED, operator, true);
+        LocalDateTime now = dto.getApprovalTime() != null ? dto.getApprovalTime() : LocalDateTime.now();
+        String approverId = StringUtils.hasText(dto.getApproverId()) ? dto.getApproverId() : operator.getId();
+        int rows = updatePendingOrder(dto, STATUS_REJECTED, operator, true, approverId, now);
         ensureUpdated(rows, dto.getBusNo());
         log.info("lvv：入库单 {} 已驳回，更新明细 {} 行", dto.getBusNo(), rows);
-        return new InboundApprovalVO(dto.getBusNo(), STATUS_REJECTED, "驳回审批成功");
+        InboundApprovalVO vo = new InboundApprovalVO(dto.getBusNo(), STATUS_REJECTED, "驳回审批成功");
+        vo.setApproverName(operator.getUsername());
+        vo.setApproveTime(now);
+        return vo;
     }
 
     /**
@@ -113,9 +103,10 @@ public class InboundApprovalServiceImpl implements IInboundApprovalService {
     private int updatePendingOrder(InboundApprovalDTO dto,
                                    String targetStatus,
                                    UserDTO operator,
-                                   boolean approvalOperation) {
+                                   boolean approvalOperation,
+                                   String approverId,
+                                   LocalDateTime approvalTime) {
         LocalDateTime now = LocalDateTime.now();
-        String operatorId = operator.getId();
         String operatorName = operator.getUsername();
 
         LambdaUpdateWrapper<WkfSupplyRequest> update = new LambdaUpdateWrapper<>();
@@ -129,8 +120,8 @@ public class InboundApprovalServiceImpl implements IInboundApprovalService {
                 .setSql("version = version + 1");
 
         if (approvalOperation) {
-            update.set(WkfSupplyRequest::getApproverId, operatorId)
-                    .set(WkfSupplyRequest::getApprovalTime, now);
+            update.set(WkfSupplyRequest::getApproverId, approverId)
+                    .set(WkfSupplyRequest::getApprovalTime, approvalTime);
         } else {
             update.set(WkfSupplyRequest::getApproverId, null)
                     .set(WkfSupplyRequest::getApprovalTime, null);
@@ -179,5 +170,25 @@ public class InboundApprovalServiceImpl implements IInboundApprovalService {
             log.warn("lvv：获取当前登录用户失败：{}", e.getMessage());
             throw new IllegalArgumentException("未获取到当前登录用户，无法执行审批流转");
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public InboundApprovalVO withdrawApproval(InboundApprovalDTO dto) {
+        normalize(dto);
+        requireRemark(dto, "撤回原因不能为空");
+        WkfSupplyRequest record = requirePendingInboundOrder(dto.getBusNo());
+        UserDTO operator = requireCurrentUser();
+
+        // lvv：撤回必须由原申请人本人操作。
+        if (StringUtils.hasText(record.getApplicantId())
+                && !operator.getId().equals(record.getApplicantId())) {
+            throw new IllegalArgumentException("只能由申请人撤回该入库单：" + dto.getBusNo());
+        }
+
+        int rows = updatePendingOrder(dto, STATUS_WITHDRAWN, operator, false, null, null);
+        ensureUpdated(rows, dto.getBusNo());
+        log.info("lvv：入库单 {} 已撤回，更新明细 {} 行", dto.getBusNo(), rows);
+        return new InboundApprovalVO(dto.getBusNo(), STATUS_WITHDRAWN, "撤回审批成功");
     }
 }

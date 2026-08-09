@@ -1,6 +1,8 @@
 package com.zeroone.star.project.dto.j7.dispense;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,18 +28,26 @@ import lombok.Setter;
 @NoArgsConstructor
 @Schema(description = "住院发药驳回DTO")
 public class DispenseRejectDTO {
-    @Schema(description = "患者ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "患者ID不能为空")
+    @Size(max = 64, message = "患者ID长度不能超过64个字符")
+    @Schema(description = "患者ID", example = "326940849401761792", requiredMode = Schema.RequiredMode.REQUIRED)
     private String patientId;
 
-    @Schema(description = "患者姓名")
+    @Size(max = 64, message = "患者姓名长度不能超过64个字符")
+    @Schema(description = "患者姓名", example = "张三")
     private String patientName;
 
-    @Schema(description = "汇总单ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "汇总单ID不能为空")
+    @Size(max = 64, message = "汇总单ID长度不能超过64个字符")
+    @Schema(description = "汇总单ID", example = "SUM20260719001", requiredMode = Schema.RequiredMode.REQUIRED)
     private String summaryId;
 
-    @Schema(description = "发药单据ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "发药单据ID不能为空")
+    @Size(max = 64, message = "发药单据ID长度不能超过64个字符")
+    @Schema(description = "发药单据ID", example = "d12345678901234567890", requiredMode = Schema.RequiredMode.REQUIRED)
     private String dispensingId;
 
-    @Schema(description = "驳回原因")
+    @Size(max = 255, message = "驳回原因长度不能超过255个字符")
+    @Schema(description = "驳回原因", example = "药品库存不足，驳回")
     private String rejectReason;
 }

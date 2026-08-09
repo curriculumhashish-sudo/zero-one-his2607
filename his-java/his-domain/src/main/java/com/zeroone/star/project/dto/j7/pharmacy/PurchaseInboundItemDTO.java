@@ -1,6 +1,10 @@
 package com.zeroone.star.project.dto.j7.pharmacy;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,9 +25,12 @@ import java.time.LocalDate;
 @Schema(description = "入库单明细提交对象")
 public class PurchaseInboundItemDTO {
 
+    @NotBlank(message = "药品/物资ID不能为空")
+    @Size(max = 64, message = "药品/物资ID长度不能超过64个字符")
     @Schema(description = "药品/物资ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "MED_001")
     private String itemId;
 
+    @Size(max = 255, message = "批号长度不能超过255个字符")
     @Schema(description = "批号", example = "20260701")
     private String lotNumber;
 
@@ -33,15 +40,20 @@ public class PurchaseInboundItemDTO {
     @Schema(description = "有效期至", example = "2028-01-01")
     private LocalDate expirationDate;
 
+    @NotNull(message = "入库数量不能为空")
+    @Min(value = 1, message = "入库数量必须大于0")
     @Schema(description = "入库数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "100")
     private BigDecimal quantity;
 
+    @Size(max = 64, message = "单位编码长度不能超过64个字符")
     @Schema(description = "单位编码", example = "BOX")
     private String unitCode;
 
+    @Min(value = 0, message = "单价不能为负数")
     @Schema(description = "单价", example = "15.00")
     private BigDecimal price;
 
+    @Size(max = 255, message = "备注长度不能超过255个字符")
     @Schema(description = "备注", example = "需冷藏")
     private String remark;
 }

@@ -151,7 +151,7 @@ public class OutpatientRefundServiceImpl implements IOutpatientRefundService {
                             .eq(InventoryItem::getLotNumber, item.getLotNumber())
                             .setSql("quantity = quantity + " + item.getDispenseQuantity()));
             if (invRows == 0) {
-                throw new RuntimeException("库存回补失败，药品ID：" + dispense.getMedicationId()
+                throw new IllegalArgumentException("库存回补失败，药品ID：" + dispense.getMedicationId()
                         + "，批号：" + item.getLotNumber());
             }
 
@@ -171,7 +171,7 @@ public class OutpatientRefundServiceImpl implements IOutpatientRefundService {
         }
 
         if (!failedIds.isEmpty()) {
-            throw new RuntimeException("以下记录退药失败（已退药或数量异常）：" + String.join(",", failedIds));
+            throw new IllegalArgumentException("以下记录退药失败（已退药或数量异常）：" + String.join(",", failedIds));
         }
         return "退药成功";
     }

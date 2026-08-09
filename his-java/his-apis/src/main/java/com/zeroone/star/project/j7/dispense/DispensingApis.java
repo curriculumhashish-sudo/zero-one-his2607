@@ -8,6 +8,7 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j7.dispense.DispensingSummaryVO;
 import com.zeroone.star.project.vo.j7.dispense.PatientMedicationVO;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,7 +33,7 @@ public interface DispensingApis {
      * @return 分页的汇总单列表
      */
     @PostMapping("query-summary-list")
-    JsonVO<ExtendPageDTO<DispensingSummaryVO>> querySummaryList(@RequestBody DispensingSummaryQuery query);
+    JsonVO<ExtendPageDTO<DispensingSummaryVO>> querySummaryList(@Valid @RequestBody DispensingSummaryQuery query);
 
     /**
      * 获取患者药品项目（点击汇总单后查看明细）
@@ -48,10 +49,10 @@ public interface DispensingApis {
      * @return 核对发药结果
      */
     @PostMapping("verify-dispense")
-    JsonVO<String> verifyDispense(@RequestBody DispenseVerifyDTO verifyDTO);
+    JsonVO<String> verifyDispense(@Valid @RequestBody DispenseVerifyDTO verifyDTO);
 
     // =================== 住院发药驳回 ====================
     @Operation(summary = "驳回患者发药单据", description = "驳回指定患者的发药单据，并同步更新对应汇总单状态为已驳回")
     @PostMapping("/reject-dispensing")
-    JsonVO<String> rejectDispensing(@RequestBody DispenseRejectQuery dto);
+    JsonVO<String> rejectDispensing(@Valid @RequestBody DispenseRejectQuery dto);
 }

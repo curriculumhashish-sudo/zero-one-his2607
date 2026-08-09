@@ -9,6 +9,10 @@ import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j7.pharmacy.StocktakeStatusVO;
 import com.zeroone.star.project.vo.j7.pharmacy.SupplyDocumentDeleteVO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -31,31 +35,76 @@ public class yaofangpandiandan {
 
     @PutMapping("/submit")
     @Operation(summary = "提交审批")
-    public JsonVO<StocktakeStatusVO> submit(@RequestBody OperatorDTO dto) {
-        return JsonVO.success(wkfSupplyRequestService.submit(dto));
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"status\":\"PENDING_APPROVAL\"}}")))
+    })
+    public JsonVO<StocktakeStatusVO> submit(@Valid @RequestBody OperatorDTO dto) {
+        try {
+            return JsonVO.success(wkfSupplyRequestService.submit(dto));
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 
     @PutMapping("/approve")
     @Operation(summary = "审批通过")
-    public JsonVO<StocktakeStatusVO> approve(@RequestBody ApproveDTO dto) {
-        return JsonVO.success(wkfSupplyRequestService.approve(dto));
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"status\":\"APPROVED\"}}")))
+    })
+    public JsonVO<StocktakeStatusVO> approve(@Valid @RequestBody ApproveDTO dto) {
+        try {
+            return JsonVO.success(wkfSupplyRequestService.approve(dto));
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 
     @PutMapping("/reject")
     @Operation(summary = "审批驳回")
-    public JsonVO<StocktakeStatusVO> reject(@RequestBody ApproveDTO dto) {
-        return JsonVO.success(wkfSupplyRequestService.reject(dto));
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"status\":\"REJECTED\"}}")))
+    })
+    public JsonVO<StocktakeStatusVO> reject(@Valid @RequestBody ApproveDTO dto) {
+        try {
+            return JsonVO.success(wkfSupplyRequestService.reject(dto));
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 
     @PutMapping("/withdraw")
     @Operation(summary = "撤回审批")
-    public JsonVO<StocktakeStatusVO> withdraw(@RequestBody OperatorDTO dto) {
-        return JsonVO.success(wkfSupplyRequestService.withdraw(dto));
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"status\":\"WITHDRAWN\"}}")))
+    })
+    public JsonVO<StocktakeStatusVO> withdraw(@Valid @RequestBody OperatorDTO dto) {
+        try {
+            return JsonVO.success(wkfSupplyRequestService.withdraw(dto));
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 
     @DeleteMapping("/delete")
     @Operation(summary = "删除盘点单据", description = "软删除指定单据号的盘点单，仅草稿/待审核状态可删，同时解锁关联的库存锁定记录")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "操作成功",
+            content = @Content(schema = @Schema(implementation = JsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"deleted\":true}}")))
+    })
     public JsonVO<SupplyDocumentDeleteVO> deleteStocktake(@Valid @RequestBody StocktakeDeleteDTO dto) {
-        return JsonVO.success(stocktakeService.deleteStocktake(dto));
+        try {
+            return JsonVO.success(stocktakeService.deleteStocktake(dto));
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 }

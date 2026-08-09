@@ -217,7 +217,7 @@ public interface PharmacyApis {
          * @param dto 入库单数据传输对象，包含主表信息及药品明细列表
          * @return 操作结果，data 中包含新创建的入库单主键 ID
          */
-        JsonVO<String> addInOrder(InStockOrderDTO dto);
+        JsonVO<InStockOrderSaveDTO> addInOrder(InStockOrderCreateDTO dto);
 
         /**
          * 保存入库单据
@@ -230,7 +230,7 @@ public interface PharmacyApis {
          * @param dto     更新后的入库单数据
          * @return 操作结果
          */
-        JsonVO<String> updateInOrder(Long orderId, InStockOrderDTO dto);
+        JsonVO<String> updateInOrder(String orderId, InStockOrderSaveDTO dto);
 
         /**
          * 保存并提交审批
@@ -243,6 +243,6 @@ public interface PharmacyApis {
          * @param dto     最终版本的入库单数据
          * @return 操作结果
          */
-        JsonVO<String> submitInOrder(Long orderId, InStockOrderDTO dto);
+        JsonVO<String> submitInOrder(String orderId, InStockOrderSaveDTO dto);
 
 }

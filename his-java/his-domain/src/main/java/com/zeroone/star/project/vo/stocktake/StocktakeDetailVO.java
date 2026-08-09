@@ -38,8 +38,14 @@ public class StocktakeDetailVO {
     @Schema(description = "库房名称", example = "门诊药房")
     private String warehouseName;
 
+    @Schema(description = "盘点药房名称", example = "西药房")
+    private String stocktakePharmacy;
+
     @Schema(description = "盘点类型：PHARMACY-药房盘点，WAREHOUSE-药库盘点，DEPARTMENT-科室盘点", example = "PHARMACY")
     private String stocktakeType;
+
+    @Schema(description = "总金额", example = "3220.10")
+    private BigDecimal totalPrice;
 
     @Schema(description = "总盘盈金额", example = "500.00")
     private BigDecimal totalProfitPrice;
@@ -52,6 +58,12 @@ public class StocktakeDetailVO {
 
     @Schema(description = "明细条目数", example = "50")
     private Integer itemCount;
+
+    @Schema(description = "制单人标识", example = "308791351298756608")
+    private String createdBy;
+
+    @Schema(description = "制单人名称", example = "张三")
+    private String createdByName;
 
     @Schema(description = "申请人标识", example = "1")
     private String applicantId;
