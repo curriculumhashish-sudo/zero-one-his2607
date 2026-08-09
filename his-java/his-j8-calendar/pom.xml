@@ -88,8 +88,8 @@
                 <artifactId>docker-maven-plugin</artifactId>
                 <version>0.43.4</version>
                 <configuration>
-                    <dockerHost>https://47.99.167.11:2375</dockerHost>
-                    <certPath>D:/Dr.BIG/docker-ca-calendar</certPath>
+                    <dockerHost>https://47.99.167.11:2376</dockerHost>
+                    <certPath>D:/Dr.BIG/ca/docker-ca-calendar</certPath>
                     <skip>false</skip>
                     <images>
                         <image>
@@ -110,7 +110,7 @@
                                     </bind>
                                 </volumes>
                                 <env>
-                                    <JAVA_OPTS>-Xms256m -Xmx256m</JAVA_OPTS>
+                                    <JAVA_OPTS>-Xms512m -Xmx512m -XX:+UseG1GC</JAVA_OPTS>
                                     <SPRING_ARGS>--spring.profiles.active=test --spring.cloud.nacos.discovery.ip=47.99.167.11</SPRING_ARGS>
                                 </env>
                             </run>
