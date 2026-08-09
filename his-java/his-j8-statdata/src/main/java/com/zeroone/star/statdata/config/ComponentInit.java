@@ -20,7 +20,8 @@ import org.springframework.context.annotation.Configuration;
         "com.zeroone.star.project.config.swagger",
         "com.zeroone.star.project.exception",
         "com.zeroone.star.project.components.jwt",
-        "com.zeroone.star.project.components.user"
+        "com.zeroone.star.project.components.user",
+        "com.zeroone.star.statdata.filter"
 })
 public class ComponentInit {
     @Bean
