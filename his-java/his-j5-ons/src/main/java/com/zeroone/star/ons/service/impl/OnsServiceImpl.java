@@ -1,6 +1,7 @@
 package com.zeroone.star.ons.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zeroone.star.ons.dto.QueueWithPatientDTO;
@@ -290,35 +291,35 @@ public class OnsServiceImpl implements IOnsService {
         }
 
         Page<ServiceRequestWithNamesDTO> page = new Page<>(query.getPageIndex(), query.getPageSize());
-        LambdaQueryWrapper<WkfServiceRequest> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(WkfServiceRequest::getIsDeleted, 0);
+        QueryWrapper<WkfServiceRequest> wrapper = new QueryWrapper<>();
+        wrapper.eq("r.is_deleted", 0);
 
         if (StringUtils.hasText(query.getPatient_id())) {
-            wrapper.eq(WkfServiceRequest::getPatientId, query.getPatient_id());
+            wrapper.eq("r.patient_id", query.getPatient_id());
         }
         if (StringUtils.hasText(query.getEncounter_id())) {
-            wrapper.eq(WkfServiceRequest::getEncounterId, query.getEncounter_id());
+            wrapper.eq("r.encounter_id", query.getEncounter_id());
         }
         if (StringUtils.hasText(query.getStatus_enum())) {
-            wrapper.eq(WkfServiceRequest::getStatusEnum, query.getStatus_enum());
+            wrapper.eq("r.status_enum", query.getStatus_enum());
         }
         if (StringUtils.hasText(query.getCategory_enum())) {
-            wrapper.eq(WkfServiceRequest::getCategoryEnum, query.getCategory_enum());
+            wrapper.eq("r.category_enum", query.getCategory_enum());
         }
         if (StringUtils.hasText(query.getPriority_enum())) {
-            wrapper.eq(WkfServiceRequest::getPriorityEnum, query.getPriority_enum());
+            wrapper.eq("r.priority_enum", query.getPriority_enum());
         }
         if (StringUtils.hasText(query.getPrescription_no())) {
-            wrapper.like(WkfServiceRequest::getPrescriptionNo, query.getPrescription_no());
+            wrapper.like("r.prescription_no", query.getPrescription_no());
         }
         if (StringUtils.hasText(query.getStart_date())) {
-            wrapper.ge(WkfServiceRequest::getAuthoredTime, query.getStart_date() + " 00:00:00");
+            wrapper.ge("r.authored_time", query.getStart_date() + " 00:00:00");
         }
         if (StringUtils.hasText(query.getEnd_date())) {
-            wrapper.le(WkfServiceRequest::getAuthoredTime, query.getEnd_date() + " 23:59:59");
+            wrapper.le("r.authored_time", query.getEnd_date() + " 23:59:59");
         }
 
-        wrapper.orderByDesc(WkfServiceRequest::getCreatedAt);
+        wrapper.orderByDesc("r.created_at");
 
         // LEFT JOIN adm_practitioner+adm_location+adm_healthcare_service/med_medication_definition 带出名称
         IPage<ServiceRequestWithNamesDTO> resultPage = wkfServiceRequestMapper.selectPageWithNames(page, wrapper);
@@ -344,37 +345,37 @@ public class OnsServiceImpl implements IOnsService {
         }
 
         Page<QueueWithPatientDTO> page = new Page<>(query.getPageIndex(), query.getPageSize());
-        LambdaQueryWrapper<WkfAppointmentQueue> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(WkfAppointmentQueue::getIsDeleted, 0);
+        QueryWrapper<WkfAppointmentQueue> wrapper = new QueryWrapper<>();
+        wrapper.eq("q.is_deleted", 0);
 
         if (StringUtils.hasText(query.getOrganization_id())) {
-            wrapper.eq(WkfAppointmentQueue::getOrganizationId, query.getOrganization_id());
+            wrapper.eq("q.organization_id", query.getOrganization_id());
         }
         if (StringUtils.hasText(query.getPatient_id())) {
-            wrapper.eq(WkfAppointmentQueue::getPatientId, query.getPatient_id());
+            wrapper.eq("q.patient_id", query.getPatient_id());
         }
         if (StringUtils.hasText(query.getEncounter_id())) {
-            wrapper.eq(WkfAppointmentQueue::getEncounterId, query.getEncounter_id());
+            wrapper.eq("q.encounter_id", query.getEncounter_id());
         }
         if (StringUtils.hasText(query.getAppointment_kind())) {
-            wrapper.eq(WkfAppointmentQueue::getAppointmentKind, query.getAppointment_kind());
+            wrapper.eq("q.appointment_kind", query.getAppointment_kind());
         }
         if (StringUtils.hasText(query.getService_type_code())) {
-            wrapper.eq(WkfAppointmentQueue::getServiceTypeCode, query.getService_type_code());
+            wrapper.eq("q.service_type_code", query.getService_type_code());
         }
         if (StringUtils.hasText(query.getDestination_location_id())) {
-            wrapper.eq(WkfAppointmentQueue::getDestinationLocationId, query.getDestination_location_id());
+            wrapper.eq("q.destination_location_id", query.getDestination_location_id());
         }
         if (StringUtils.hasText(query.getTriage_level())) {
-            wrapper.eq(WkfAppointmentQueue::getTriageLevel, query.getTriage_level());
+            wrapper.eq("q.triage_level", query.getTriage_level());
         }
         if (StringUtils.hasText(query.getBooking_date())) {
-            wrapper.ge(WkfAppointmentQueue::getStartInstant, query.getBooking_date() + " 00:00:00");
-            wrapper.le(WkfAppointmentQueue::getStartInstant, query.getBooking_date() + " 23:59:59");
+            wrapper.ge("q.start_instant", query.getBooking_date() + " 00:00:00");
+            wrapper.le("q.start_instant", query.getBooking_date() + " 23:59:59");
         }
 
-        wrapper.orderByAsc(WkfAppointmentQueue::getDisplayOrder);
-        wrapper.orderByDesc(WkfAppointmentQueue::getCreatedAt);
+        wrapper.orderByAsc("q.display_order");
+        wrapper.orderByDesc("q.created_at");
 
         // LEFT JOIN adm_patient 带出患者姓名/性别/出生日期
         IPage<QueueWithPatientDTO> resultPage = wkfAppointmentQueueMapper.selectPageWithPatient(page, wrapper);
