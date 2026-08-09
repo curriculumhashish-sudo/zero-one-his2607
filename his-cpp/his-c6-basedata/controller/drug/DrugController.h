@@ -69,15 +69,15 @@ class DrugController : public oatpp::web::server::api::ApiController
   public:
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("drug.query.summary"), queryDrug, DrugQuery,
                                      DrugListPageJsonVO::Wrapper, API_TAG);
-    API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/Drug", queryDrug, DrugQuery, execQueryDrug(query));
+    API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/drug", queryDrug, DrugQuery, execQueryDrug(query));
 
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("drug.select-query.summary"), querySelectDrug, DrugSelectQuery,
                                      DrugSelectPageJsonVO::Wrapper, API_TAG);
-    API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/DrugSelect", querySelectDrug, DrugSelectQuery,
+    API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/drugselect", querySelectDrug, DrugSelectQuery,
                                     execQuerySelectDrug(query));
 
     API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("drug.add.summary"), addDrug, StringJsonVO::Wrapper, API_TAG);
-    API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/Drug/add", addDrug, BODY_DTO(DrugAddDTO::Wrapper, dto),
+    API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/drug/add", addDrug, BODY_DTO(DrugAddDTO::Wrapper, dto),
                               execAddDrug(dto, authObject->getPayload()));
 
     API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("drug.query-one.summary"), queryDrugById, DrugDetailJsonVO::Wrapper,
