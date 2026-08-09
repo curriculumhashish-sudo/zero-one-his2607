@@ -32,6 +32,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.yaml.snakeyaml.util.UriEncoder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -191,7 +192,7 @@ public class PermissionServiceImpl
         return baseMapper.selectOne(
                 new QueryWrapper<Permission>()
                         .eq("id", id)
-                        .eq("tenant_id", tenantId));
+                        .and(w -> w.eq("tenant_id", tenantId).or().isNull("tenant_id")));
     }
 
     private boolean validateParentExists(String parentName, String tenantId) {
@@ -209,7 +210,7 @@ public class PermissionServiceImpl
         }
         String userStr = attrs.getRequest().getHeader("user");
         if (StringUtils.hasText(userStr)) {
-            JSONObject userJson = new JSONObject(userStr);
+            JSONObject userJson = new JSONObject(UriEncoder.decode(userStr));
             String tenantId = userJson.getStr("tenant_id");
             if (StringUtils.hasText(tenantId)) {
                 return tenantId;
