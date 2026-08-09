@@ -75,7 +75,7 @@ static std::shared_ptr<Response> createMedicineV2UnauthorizedResponse(
 	const ResultStatus status(ZH_WORDS_GETTER("drug.v2.message.unauthorized"),
 		MedicineV2BusinessCode::UNAUTHORIZED);
 	std::shared_ptr<Response> response;
-	if (path == "/api/v2/medicines/status" || path == "/api/v2/medicines/batch-delete")
+	if (path == "/drug/modify-status" || path == "/drug/remove-drug")
 	{
 		auto error = MedicineBatchJsonVO::createShared();
 		error->init(MedicineBatchResultDTO::createEmpty(), status);
@@ -113,9 +113,10 @@ std::shared_ptr<oatpp::web::server::interceptor::RequestInterceptor::OutgoingRes
 	oatpp::String token = request->getHeader(API_H_TOKEN);
 	if (!token || token->empty()) {
 		// 新版药品接口按联调协议返回真实 HTTP 401 和业务码 10002。
-		if (path == "/api/v2/medicines/status" ||
-			path == "/api/v2/medicines/batch-delete" ||
-			path.find("/api/v2/medicines/") == 0)
+		const bool isMedicineModifyPath = path == "/drug/modify";
+		if (path == "/drug/modify-status" ||
+			path == "/drug/remove-drug" ||
+			isMedicineModifyPath)
 		{
 			return createMedicineV2UnauthorizedResponse(path, m_objectMapper);
 		}

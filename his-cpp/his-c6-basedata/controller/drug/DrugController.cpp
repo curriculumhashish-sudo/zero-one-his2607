@@ -283,10 +283,10 @@ std::shared_ptr<DrugController::OutgoingResponse> DrugController::medicineV2Batc
 
 // 校验修改请求并调用业务服务。
 MedicineVersionJsonVO::Wrapper DrugController::execUpdateMedicineV2(
-    const String &id, const MedicineUpdateDTO::Wrapper &dto, const PayloadDTO &payload)
+    const MedicineUpdateDTO::Wrapper &dto, const PayloadDTO &payload)
 {
     auto jvo = MedicineVersionJsonVO::createShared();
-    if (!isValidMedicineV2Id(id) || !dto || !dto->validate().empty())
+    if (!dto || !isValidMedicineV2Id(dto->id) || !dto->validate().empty())
     {
         jvo->init(MedicineVersionItemDTO::createShared(),
                   medicineV2Status(MedicineV2BusinessCode::PARAM_INVALID));
@@ -295,7 +295,7 @@ MedicineVersionJsonVO::Wrapper DrugController::execUpdateMedicineV2(
     try
     {
         dto->setPayload(&payload);
-        jvo->init(DrugService().updateMedicineV2(id.getValue(""), dto),
+        jvo->init(DrugService().updateMedicineV2(dto->id.getValue(""), dto),
                   medicineV2Status(MedicineV2BusinessCode::SUCCESS));
     }
     catch (const DrugServiceException &error)

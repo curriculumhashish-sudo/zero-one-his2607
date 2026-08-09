@@ -25,8 +25,10 @@
 #include "domain/dto/PayloadDTO.h"
 
 #include <algorithm>
+#include <cerrno>
 #include <cctype>
 #include <cmath>
+#include <cstdlib>
 #include <set>
 
 /** 药品写接口业务码。 */
@@ -45,6 +47,10 @@ class MedicineV2BusinessCode final
 };
 
 #include OATPP_CODEGEN_BEGIN(DTO)
+
+ENUM(MedicineStatusEnum, v_int32,
+     VALUE(ACTIVE, 0, "ACTIVE"),
+     VALUE(INACTIVE, 1, "INACTIVE"));
 
 /** 药品编号和乐观锁版本。 */
 class MedicineVersionItemDTO : public oatpp::DTO
@@ -77,54 +83,46 @@ class MedicineVersionItemDTO : public oatpp::DTO
     }
 };
 
-/** PATCH 药品请求，仅修改显式传入的字段。 */
+/** 修改药品请求，仅修改显式传入的字段。 */
 class MedicineUpdateDTO : public oatpp::DTO
 {
     DTO_INIT(MedicineUpdateDTO, DTO);
 
+    API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("drug.field.id"), true);
     API_DTO_FIELD_REQUIRE(Int32, version, ZH_WORDS_GETTER("drug.field.version"), true);
     API_DTO_FIELD_DEFAULT(String, busNo, ZH_WORDS_GETTER("drug.field.busNo"));
     API_DTO_FIELD_DEFAULT(String, name, ZH_WORDS_GETTER("drug.field.name"));
     API_DTO_FIELD_DEFAULT(String, domainEnum, ZH_WORDS_GETTER("drug.field.domainEnum"));
-    API_DTO_FIELD_DEFAULT(String, medVersion, ZH_WORDS_GETTER("drug.field.medVersion"));
-    API_DTO_FIELD_DEFAULT(String, nameEn, ZH_WORDS_GETTER("drug.field.nameEn"));
     API_DTO_FIELD_DEFAULT(String, categoryCode, ZH_WORDS_GETTER("drug.field.categoryCode"));
     API_DTO_FIELD_DEFAULT(String, merchandiseName, ZH_WORDS_GETTER("drug.field.merchandiseName"));
     API_DTO_FIELD_DEFAULT(String, purchaseUnitCode, ZH_WORDS_GETTER("drug.field.purchaseUnitCode"));
     API_DTO_FIELD_DEFAULT(String, splitUnitCode, ZH_WORDS_GETTER("drug.field.splitUnitCode"));
-    API_DTO_FIELD_DEFAULT(String, comprisedText, ZH_WORDS_GETTER("drug.field.comprisedText"));
-    API_DTO_FIELD_DEFAULT(String, ingredient, ZH_WORDS_GETTER("drug.field.ingredient"));
-    API_DTO_FIELD_DEFAULT(Int32, doseFrom, ZH_WORDS_GETTER("drug.field.doseFrom"));
     API_DTO_FIELD_DEFAULT(Boolean, ybMatchFlag, ZH_WORDS_GETTER("drug.field.ybMatchFlag"));
     API_DTO_FIELD_DEFAULT(String, pharmacologyCategoryCode,
                           ZH_WORDS_GETTER("drug.field.pharmacologyCategoryCode"));
     API_DTO_FIELD_DEFAULT(Boolean, skinTestFlag, ZH_WORDS_GETTER("drug.field.skinTestFlag"));
     API_DTO_FIELD_DEFAULT(Boolean, injectFlag, ZH_WORDS_GETTER("drug.field.injectFlag"));
-    API_DTO_FIELD_DEFAULT(String, manufacturerId, ZH_WORDS_GETTER("drug.field.manufacturerId"));
     API_DTO_FIELD_DEFAULT(String, manufacturerText, ZH_WORDS_GETTER("drug.field.manufacturerText"));
     API_DTO_FIELD_DEFAULT(String, supplyId, ZH_WORDS_GETTER("drug.field.supplyId"));
     API_DTO_FIELD_DEFAULT(Boolean, restrictedFlag, ZH_WORDS_GETTER("drug.field.restrictedFlag"));
     API_DTO_FIELD_DEFAULT(String, restrictedScope, ZH_WORDS_GETTER("drug.field.restrictedScope"));
     API_DTO_FIELD_DEFAULT(Boolean, childrenFlag, ZH_WORDS_GETTER("drug.field.childrenFlag"));
-    API_DTO_FIELD_DEFAULT(Int32, characteristic, ZH_WORDS_GETTER("drug.field.characteristic"));
     API_DTO_FIELD_DEFAULT(Float64, itemMinQuantity, ZH_WORDS_GETTER("drug.field.itemMinQuantity"));
     API_DTO_FIELD_DEFAULT(Float64, itemMaxQuantity, ZH_WORDS_GETTER("drug.field.itemMaxQuantity"));
     API_DTO_FIELD_DEFAULT(String, approvalNumber, ZH_WORDS_GETTER("drug.field.approvalNumber"));
     API_DTO_FIELD_DEFAULT(String, nationalDrugCode, ZH_WORDS_GETTER("drug.field.nationalDrugCode"));
     API_DTO_FIELD_DEFAULT(String, partAttributeEnum, ZH_WORDS_GETTER("drug.field.partAttributeEnum"));
-    API_DTO_FIELD_DEFAULT(String, antibioticCode, ZH_WORDS_GETTER("drug.field.antibioticCode"));
-    API_DTO_FIELD_DEFAULT(String, restrictedEnum, ZH_WORDS_GETTER("drug.field.restrictedEnum"));
     API_DTO_FIELD_DEFAULT(Boolean, selfFlag, ZH_WORDS_GETTER("drug.field.selfFlag"));
     API_DTO_FIELD_DEFAULT(Boolean, antibioticFlag, ZH_WORDS_GETTER("drug.field.antibioticFlag"));
     API_DTO_FIELD_DEFAULT(Boolean, basicFlag, ZH_WORDS_GETTER("drug.field.basicFlag"));
     API_DTO_FIELD_DEFAULT(String, thoPartAttributeEnum, ZH_WORDS_GETTER("drug.field.thoPartAttributeEnum"));
     API_DTO_FIELD_DEFAULT(String, ybNo, ZH_WORDS_GETTER("drug.field.ybNo"));
-    API_DTO_FIELD_DEFAULT(Int32, chrgitmLv, ZH_WORDS_GETTER("drug.field.chrgitmLv"));
+    API_DTO_FIELD_DEFAULT(String, chrgitmLv, ZH_WORDS_GETTER("drug.field.chrgitmLv"));
     API_DTO_FIELD_DEFAULT(String, ybType, ZH_WORDS_GETTER("drug.field.ybType"));
     API_DTO_FIELD_DEFAULT(Boolean, rxFlag, ZH_WORDS_GETTER("drug.field.rxFlag"));
     API_DTO_FIELD_DEFAULT(String, dosageInstruction, ZH_WORDS_GETTER("drug.field.dosageInstruction"));
     API_DTO_FIELD_DEFAULT(String, drug69Code, ZH_WORDS_GETTER("drug.field.drug69Code"));
-    API_DTO_FIELD_DEFAULT(String, specification, ZH_WORDS_GETTER("drug.field.specification"));
+    API_DTO_FIELD_DEFAULT(String, totalVolume, ZH_WORDS_GETTER("drug.field.totalVolume"));
     API_DTO_FIELD_DEFAULT(String, doseUnitCode, ZH_WORDS_GETTER("drug.field.doseUnitCode"));
     API_DTO_FIELD_DEFAULT(String, doseFormCode, ZH_WORDS_GETTER("drug.field.doseFormCode"));
     API_DTO_FIELD_DEFAULT(String, packageUnitCode, ZH_WORDS_GETTER("drug.field.packageUnitCode"));
@@ -132,10 +130,9 @@ class MedicineUpdateDTO : public oatpp::DTO
     API_DTO_FIELD_DEFAULT(String, methodCode, ZH_WORDS_GETTER("drug.field.methodCode"));
     API_DTO_FIELD_DEFAULT(String, rateCode, ZH_WORDS_GETTER("drug.field.rateCode"));
     API_DTO_FIELD_DEFAULT(Float64, dose, ZH_WORDS_GETTER("drug.field.dose"));
-    API_DTO_FIELD_DEFAULT(Float64, maxUnit, ZH_WORDS_GETTER("drug.field.maxUnit"));
-    API_DTO_FIELD_DEFAULT(Float64, usageLimit, ZH_WORDS_GETTER("drug.field.usageLimit"));
+    API_DTO_FIELD_DEFAULT(String, maxUnit, ZH_WORDS_GETTER("drug.field.maxUnit"));
+    API_DTO_FIELD_DEFAULT(String, usageLimit, ZH_WORDS_GETTER("drug.field.usageLimit"));
     API_DTO_FIELD_DEFAULT(String, locationId, ZH_WORDS_GETTER("drug.field.locationId"));
-    API_DTO_FIELD_DEFAULT(String, ingredientItem, ZH_WORDS_GETTER("drug.field.ingredientItem"));
     API_DTO_FIELD_DEFAULT(String, definition, ZH_WORDS_GETTER("drug.field.definition"));
     API_DTO_FIELD_DEFAULT(String, dddCode, ZH_WORDS_GETTER("drug.field.dddCode"));
     API_DTO_FIELD_DEFAULT(String, dddUnitCode, ZH_WORDS_GETTER("drug.field.dddUnitCode"));
@@ -149,7 +146,7 @@ class MedicineUpdateDTO : public oatpp::DTO
     API_DTO_FIELD_DEFAULT(String, wbStr, ZH_WORDS_GETTER("drug.field.wbStr"));
     API_DTO_FIELD_DEFAULT(String, merchandisePyStr, ZH_WORDS_GETTER("drug.field.merchandisePyStr"));
     API_DTO_FIELD_DEFAULT(String, merchandiseWbStr, ZH_WORDS_GETTER("drug.field.merchandiseWbStr"));
-    API_DTO_FIELD_DEFAULT(String, financeTypeCode, ZH_WORDS_GETTER("drug.field.typeCode"));
+    API_DTO_FIELD_DEFAULT(String, typeCode, ZH_WORDS_GETTER("drug.field.typeCode"));
     API_DTO_FIELD_DEFAULT(Float64, purchasePrice, ZH_WORDS_GETTER("drug.field.purchasePrice"));
     API_DTO_FIELD_DEFAULT(Float64, retailPrice, ZH_WORDS_GETTER("drug.field.retailPrice"));
     API_DTO_FIELD_DEFAULT(Float64, maximumRetailPrice, ZH_WORDS_GETTER("drug.field.maximumRetailPrice"));
@@ -160,20 +157,35 @@ class MedicineUpdateDTO : public oatpp::DTO
     static Wrapper createExample()
     {
         auto dto = createShared();
-        dto->version = 3;
+        dto->id = "322994171216400384";
+        dto->version = 0;
         dto->name = ZH_WORDS_GETTER("drug.example.name");
+        dto->merchandiseName = ZH_WORDS_GETTER("drug.example.merchandiseName");
+        dto->categoryCode = "2";
         dto->manufacturerText = ZH_WORDS_GETTER("drug.example.manufacturerText");
-        dto->purchasePrice = 15.50;
-        dto->retailPrice = 20.00;
+        dto->supplyId = "4100000000000000004";
+        dto->pharmacologyCategoryCode = "1";
+        dto->totalVolume = "0.1g";
+        dto->doseFormCode = "5";
+        dto->doseUnitCode = "10";
+        dto->purchaseUnitCode = "2";
+        dto->splitUnitCode = "5";
+        dto->packageUnitCode = "2";
+        dto->stockUnitCode = "2";
+        dto->partAttributeEnum = "2";
+        dto->thoPartAttributeEnum = "2";
+        dto->typeCode = "1001";
+        dto->purchasePrice = 6.99;
+        dto->retailPrice = 6.99;
         return dto;
     }
 
     /** 校验修改字段、长度、数值范围和必填组合。 */
     std::string validate() const
     {
-        if (!version || version.getValue(-1) < 0 || !hasAnyChange())
+        if (!isValidRequiredId(id) || !version || version.getValue(-1) < 0 || !hasAnyChange())
         {
-            return "version or patch field invalid.";
+            return "id, version or update field invalid.";
         }
         if ((name && !hasText(name)) || (manufacturerText && !hasText(manufacturerText)) ||
             (categoryCode && !hasText(categoryCode)) || (merchandiseName && !hasText(merchandiseName)) ||
@@ -181,19 +193,19 @@ class MedicineUpdateDTO : public oatpp::DTO
             (pharmacologyCategoryCode && !hasText(pharmacologyCategoryCode)) ||
             (supplyId && !hasText(supplyId)) || (partAttributeEnum && !hasText(partAttributeEnum)) ||
             (thoPartAttributeEnum && !hasText(thoPartAttributeEnum)) ||
-            (specification && !hasText(specification)) || (doseUnitCode && !hasText(doseUnitCode)) ||
+            (totalVolume && !hasText(totalVolume)) || (doseUnitCode && !hasText(doseUnitCode)) ||
             (doseFormCode && !hasText(doseFormCode)) || (packageUnitCode && !hasText(packageUnitCode)) ||
             (stockUnitCode && !hasText(stockUnitCode)) ||
-            (financeTypeCode && !hasText(financeTypeCode)))
+            (typeCode && !hasText(typeCode)))
         {
-            return "required patch text invalid.";
+            return "required update text invalid.";
         }
-        if (!isValidOptionalId(manufacturerId) || !isValidOptionalId(supplyId) ||
-            !isValidOptionalId(locationId) || !allTextLengthsValid() ||
+        if (!isValidOptionalId(supplyId) || !isValidOptionalId(locationId) || !allTextLengthsValid() ||
             !isNonNegative(itemMinQuantity, 9999999999999999.0) ||
             !isNonNegative(itemMaxQuantity, 9999999999999999.0) ||
-            !isNonNegative(dose, 9999999999999999.0) || !isNonNegative(maxUnit, 9999999999999999.0) ||
-            !isNonNegative(usageLimit, 9999999999999999.0) || !isPositiveRatio(doseUnitRatio) ||
+            !isNonNegative(dose, 9999999999999999.0) || !isNonNegativeText(maxUnit, 9999999999999999.0) ||
+            !isNonNegativeText(usageLimit, 9999999999999999.0) || !isNonNegativeIntegerText(chrgitmLv) ||
+            !isPositiveRatio(doseUnitRatio) ||
             !isPositiveRatio(purchaseUnitRatio) || !isPositiveRatio(stockUnitRatio) ||
             !isPositiveRatio(packageUnitRatio) || !isPriceValid(purchasePrice) ||
             !isPriceValid(retailPrice) || !isPriceValid(maximumRetailPrice) ||
@@ -202,7 +214,7 @@ class MedicineUpdateDTO : public oatpp::DTO
             (retailPrice && maximumRetailPrice &&
              retailPrice.getValue(0.0) > maximumRetailPrice.getValue(0.0)))
         {
-            return "patch field range invalid.";
+            return "update field range invalid.";
         }
         return "";
     }
@@ -211,16 +223,15 @@ class MedicineUpdateDTO : public oatpp::DTO
     /** 判断请求中是否至少包含一个待修改字段。 */
     bool hasAnyChange() const
     {
-        return busNo || name || domainEnum || medVersion || nameEn || pyStr || wbStr || categoryCode ||
+        return busNo || name || domainEnum || pyStr || wbStr || categoryCode ||
                merchandiseName || merchandisePyStr || merchandiseWbStr || purchaseUnitCode || splitUnitCode ||
-               comprisedText || ingredient || doseFrom || approvalNumber || ybMatchFlag || ybNo ||
-               pharmacologyCategoryCode || skinTestFlag || injectFlag || manufacturerId || manufacturerText ||
-               supplyId || restrictedFlag || restrictedScope || childrenFlag || characteristic || itemMinQuantity ||
-               itemMaxQuantity || nationalDrugCode || partAttributeEnum || antibioticCode || restrictedEnum ||
-               selfFlag || antibioticFlag || basicFlag || thoPartAttributeEnum || chrgitmLv || financeTypeCode ||
-               ybType || rxFlag || dosageInstruction || drug69Code || specification || doseFormCode || doseUnitCode ||
+               approvalNumber || ybMatchFlag || ybNo || pharmacologyCategoryCode || skinTestFlag || injectFlag ||
+               manufacturerText || supplyId || restrictedFlag || restrictedScope || childrenFlag || itemMinQuantity ||
+               itemMaxQuantity || nationalDrugCode || partAttributeEnum ||
+               selfFlag || antibioticFlag || basicFlag || thoPartAttributeEnum || chrgitmLv || typeCode ||
+               ybType || rxFlag || dosageInstruction || drug69Code || totalVolume || doseFormCode || doseUnitCode ||
                packageUnitCode || stockUnitCode || methodCode || rateCode || dose || maxUnit || usageLimit ||
-               locationId || ingredientItem || definition || dddCode || dddUnitCode || minRateCode || maxRateCode ||
+               locationId || definition || dddCode || dddUnitCode || minRateCode || maxRateCode ||
                doseUnitRatio || purchaseUnitRatio || stockUnitRatio || packageUnitRatio || purchasePrice ||
                retailPrice || maximumRetailPrice;
     }
@@ -234,6 +245,18 @@ class MedicineUpdateDTO : public oatpp::DTO
         const std::string text = value.getValue("");
         return std::any_of(text.cbegin(), text.cend(), [](unsigned char character)
                            { return std::isspace(character) == 0; });
+    }
+
+    static bool isValidRequiredId(const oatpp::String &value)
+    {
+        if (!value)
+        {
+            return false;
+        }
+        const std::string text = value.getValue("");
+        return !text.empty() && text.size() <= 64 &&
+               std::all_of(text.cbegin(), text.cend(), [](unsigned char character)
+                           { return std::isalnum(character) != 0 || character == '-' || character == '_'; });
     }
 
     static bool isValidOptionalId(const oatpp::String &value)
@@ -304,6 +327,37 @@ class MedicineUpdateDTO : public oatpp::DTO
         return std::isfinite(number) && number >= 0.0 && number <= maximum;
     }
 
+    /** 校验前端文本输入的非负小数。 */
+    static bool isNonNegativeText(const oatpp::String &value, double maximum)
+    {
+        if (!value)
+        {
+            return true;
+        }
+        const std::string text = value.getValue("");
+        if (text.empty())
+        {
+            return false;
+        }
+        char *end = nullptr;
+        errno = 0;
+        const double number = std::strtod(text.c_str(), &end);
+        return errno != ERANGE && end == text.c_str() + text.size() && std::isfinite(number) &&
+               number >= 0.0 && number <= maximum;
+    }
+
+    /** 校验下拉框提交的非负整数字符串。 */
+    static bool isNonNegativeIntegerText(const oatpp::String &value)
+    {
+        if (!value)
+        {
+            return true;
+        }
+        const std::string text = value.getValue("");
+        return !text.empty() && std::all_of(text.cbegin(), text.cend(), [](unsigned char character)
+                                            { return std::isdigit(character) != 0; });
+    }
+
     static bool isPositiveRatio(const oatpp::Float64 &value)
     {
         if (!value)
@@ -319,16 +373,11 @@ class MedicineUpdateDTO : public oatpp::DTO
         const oatpp::String values[] = {busNo,
                                         name,
                                         domainEnum,
-                                        medVersion,
-                                        nameEn,
                                         categoryCode,
                                         merchandiseName,
                                         purchaseUnitCode,
                                         splitUnitCode,
-                                        comprisedText,
-                                        ingredient,
                                         manufacturerText,
-                                        manufacturerId,
                                         supplyId,
                                         approvalNumber,
                                         nationalDrugCode,
@@ -336,21 +385,21 @@ class MedicineUpdateDTO : public oatpp::DTO
                                         pharmacologyCategoryCode,
                                         restrictedScope,
                                         partAttributeEnum,
-                                        antibioticCode,
-                                        restrictedEnum,
                                         thoPartAttributeEnum,
+                                        chrgitmLv,
                                         ybType,
                                         dosageInstruction,
                                         drug69Code,
-                                        specification,
+                                        totalVolume,
                                         doseUnitCode,
                                         doseFormCode,
                                         packageUnitCode,
                                         stockUnitCode,
                                         methodCode,
                                         rateCode,
+                                        maxUnit,
+                                        usageLimit,
                                         locationId,
-                                        ingredientItem,
                                         definition,
                                         dddCode,
                                         dddUnitCode,
@@ -360,7 +409,7 @@ class MedicineUpdateDTO : public oatpp::DTO
                                         wbStr,
                                         merchandisePyStr,
                                         merchandiseWbStr,
-                                        financeTypeCode};
+                                        typeCode};
         return std::all_of(std::begin(values), std::end(values), [](const oatpp::String &value)
                            { return hasValidUtf8Length(value, 255); });
     }
@@ -372,7 +421,8 @@ class MedicineStatusUpdateDTO : public oatpp::DTO
     DTO_INIT(MedicineStatusUpdateDTO, DTO);
 
     API_DTO_FIELD_REQUIRE(List<MedicineVersionItemDTO::Wrapper>, items, ZH_WORDS_GETTER("drug.field.items"), true);
-    API_DTO_FIELD_REQUIRE(String, status, ZH_WORDS_GETTER("drug.field.statusEnum"), true);
+    API_DTO_FIELD_REQUIRE(Enum<MedicineStatusEnum>::AsString, status,
+                          ZH_WORDS_GETTER("drug.field.targetStatus"), true);
 
     CC_SYNTHESIZE(const PayloadDTO *, _payload, Payload);
 
@@ -381,16 +431,15 @@ class MedicineStatusUpdateDTO : public oatpp::DTO
     {
         auto dto = createShared();
         dto->items = oatpp::List<MedicineVersionItemDTO::Wrapper>::createShared();
-        dto->items->push_back(MedicineVersionItemDTO::createExample("10001", 3));
-        dto->items->push_back(MedicineVersionItemDTO::createExample("10002", 1));
-        dto->status = "INACTIVE";
+        dto->items->push_back(MedicineVersionItemDTO::createExample("323999010000000015", 3));
+        dto->status = MedicineStatusEnum::INACTIVE;
         return dto;
     }
 
     /** 校验目标状态和批量药品版本列表。 */
     std::string validate() const
     {
-        if (!status || (status != "ACTIVE" && status != "INACTIVE"))
+        if (!status)
         {
             return "status invalid.";
         }
@@ -430,8 +479,7 @@ class MedicineBatchDeleteDTO : public oatpp::DTO
     {
         auto dto = createShared();
         dto->items = oatpp::List<MedicineVersionItemDTO::Wrapper>::createShared();
-        dto->items->push_back(MedicineVersionItemDTO::createExample("10001", 3));
-        dto->items->push_back(MedicineVersionItemDTO::createExample("10002", 1));
+        dto->items->push_back(MedicineVersionItemDTO::createExample("323999010000000015", 3));
         return dto;
     }
 
