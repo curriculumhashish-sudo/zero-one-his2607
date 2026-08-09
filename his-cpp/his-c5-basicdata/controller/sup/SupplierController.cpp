@@ -72,21 +72,6 @@ StringJsonVO::Wrapper SupplierController::execBatchEnableDisable(
     return vo;
 }
 
-// GET /sup/query-one — Query single supplier by ID or code (stub)
-SupplierJsonVO::Wrapper SupplierController::execQueryOne(const SupplierDetailQuery::Wrapper& query)
-{
-    // TODO: Build dynamic SQL from query->id or query->code; return single SupplierDTO
-    return {};
-}
-
-// Paginated query with code/name/type/keyword/statusEnum filters (stub)
-SupplierPageJsonVO::Wrapper SupplierController::execQueryAll(const SupplierQuery::Wrapper& query)
-{
-    // TODO: Build dynamic SQL from query->code, query->name, query->type,
-    //       query->keyword, query->statusEnum; paginate with query->pageIndex/pageSize
-    return {};
-}
-
 // DELETE /sup/batch-remove
 ListJsonVO<String>::Wrapper SupplierController::execBatchRemove(const List<String>& ids)
 {

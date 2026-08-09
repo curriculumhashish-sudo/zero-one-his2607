@@ -49,8 +49,9 @@ SupplierPageJsonVO::Wrapper SupController::execQueryAll(const SupplierQuery::Wra
     return service.queryAll(query);
 }
 
-// POST /sup/statusEnum/modify — Modify supplier name/status (existing stub)
-StringJsonVO::Wrapper SupController::execQuerySupName(const SupNameDTO::Wrapper& dto)
+// POST /sup/statusEnum/modify — Query supplier names by keyword for dropdown/selector
+SupPageJsonVO::Wrapper SupController::execQuerySupName(const SupNameDTO::Wrapper& dto)
 {
-    return {};
+    SupService service;
+    return service.querySupNames(dto);
 }

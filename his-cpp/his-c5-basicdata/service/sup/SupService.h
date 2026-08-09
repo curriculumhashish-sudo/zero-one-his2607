@@ -21,12 +21,15 @@
 #define _SUP_SERVICE_H_
 
 #include "domain/vo/sup/SupplierVO.h"
+#include "domain/vo/sup/SupVO.h"
 #include "domain/query/sup/SupplierQuery.h"
+#include "domain/dto/sup/SupDTO.h"
 
 /**
  * SupService - Business logic for supplier query operations.
  *
- * Provides query-one (detail) and query-all (paginated list) methods.
+ * Provides query-one (detail), query-all (paginated list),
+ * and query-sup-name (name search for dropdown) methods.
  * Write operations (add/update/delete/batch) are in SupplierService.
  */
 class SupService
@@ -40,6 +43,10 @@ public:
     // Paginated query with dynamic filter conditions.
     // Returns SupplierPageJsonVO with page metadata and row list.
     SupplierPageJsonVO::Wrapper queryAll(const SupplierQuery::Wrapper& query);
+
+    // Query supplier names by name keyword or id.
+    // Returns SupPageJsonVO with SupDTO list for dropdown/selector use.
+    SupPageJsonVO::Wrapper querySupNames(const SupNameDTO::Wrapper& dto);
 };
 
 #endif // !_SUP_SERVICE_H_

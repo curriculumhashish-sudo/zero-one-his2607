@@ -137,3 +137,57 @@ std::list<PtrSupplierDO> SupDAO::selectByCondition(
     return sqlSession->executeQuery<PtrSupplierDO>(
         sql.str(), SupplierMapper(), params);
 }
+
+uint64_t SupDAO::countBySupName(
+    const std::string& name,
+    const std::string& idStr)
+{
+    std::ostringstream sql;
+    sql << "SELECT COUNT(1) FROM cus_supplier WHERE is_deleted = 0";
+    SqlParams params;
+
+    if (!name.empty())
+    {
+        sql << " AND name LIKE ?";
+        std::string likeValue = "%" + name + "%";
+        SQLPARAMS_PUSH(params, "s", std::string, likeValue);
+    }
+    if (!idStr.empty())
+    {
+        sql << " AND id = ?";
+        SQLPARAMS_PUSH(params, "s", std::string, idStr);
+    }
+
+    return sqlSession->executeQueryNumerical(sql.str(), params);
+}
+
+std::list<PtrSupplierDO> SupDAO::selectBySupName(
+    const std::string& name,
+    const std::string& idStr,
+    uint64_t offset,
+    uint64_t limit)
+{
+    std::ostringstream sql;
+    sql << "SELECT " << SUPPLIER_COLUMNS << " FROM cus_supplier WHERE is_deleted = 0";
+    SqlParams params;
+
+    if (!name.empty())
+    {
+        sql << " AND name LIKE ?";
+        std::string likeValue = "%" + name + "%";
+        SQLPARAMS_PUSH(params, "s", std::string, likeValue);
+    }
+    if (!idStr.empty())
+    {
+        sql << " AND id = ?";
+        SQLPARAMS_PUSH(params, "s", std::string, idStr);
+    }
+
+    sql << " ORDER BY COALESCE(display_order, 2147483647) ASC, name ASC, id ASC";
+    sql << " LIMIT ? OFFSET ?";
+    SQLPARAMS_PUSH(params, "ull", uint64_t, limit);
+    SQLPARAMS_PUSH(params, "ull", uint64_t, offset);
+
+    return sqlSession->executeQuery<PtrSupplierDO>(
+        sql.str(), SupplierMapper(), params);
+}

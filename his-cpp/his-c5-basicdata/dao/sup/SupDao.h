@@ -57,6 +57,18 @@ public:
         const std::string& statusEnum,
         uint64_t offset,
         uint64_t limit);
+
+    // Count rows matching name/id search for the SupName query endpoint.
+    uint64_t countBySupName(
+        const std::string& name,
+        const std::string& idStr);
+
+    // Paginated query by name (fuzzy) or id (exact) for the SupName dropdown.
+    std::list<PtrSupplierDO> selectBySupName(
+        const std::string& name,
+        const std::string& idStr,
+        uint64_t offset,
+        uint64_t limit);
 };
 
 #endif // !_SUP_DAO_H_

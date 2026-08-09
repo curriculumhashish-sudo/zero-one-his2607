@@ -133,3 +133,54 @@ SupplierPageJsonVO::Wrapper SupService::queryAll(const SupplierQuery::Wrapper& q
     vo->success(pageDTO);
     return vo;
 }
+
+SupPageJsonVO::Wrapper SupService::querySupNames(const SupNameDTO::Wrapper& dto)
+{
+    auto vo = SupPageJsonVO::createShared();
+
+    if (!dto)
+    {
+        auto pageDTO = SupPageDTO::createShared();
+        pageDTO->pageIndex = 1;
+        pageDTO->pageSize = 10;
+        pageDTO->total = v_int64(0);
+        pageDTO->calcPages();
+        pageDTO->rows = oatpp::List<SupDTO::Wrapper>::createShared();
+        vo->fail(pageDTO);
+        return vo;
+    }
+
+    std::string name = safeValue(dto->name);
+    std::string idStr = dto->id ? std::to_string(dto->id.getValue(0)) : "";
+
+    SupDAO dao;
+    uint64_t total = dao.countBySupName(name, idStr);
+
+    auto pageDTO = SupPageDTO::createShared();
+    pageDTO->pageIndex = 1;
+    pageDTO->pageSize = v_uint64(total > 0 ? total : static_cast<uint64_t>(10));
+    pageDTO->total = v_int64(static_cast<int64_t>(total));
+    pageDTO->calcPages();
+
+    auto rows = dao.selectBySupName(name, idStr, 0, total > 0 ? total : 100);
+
+    auto rowList = oatpp::List<SupDTO::Wrapper>::createShared();
+    for (const auto& row : rows)
+    {
+        auto d = SupDTO::createShared();
+        d->id = v_uint64(0);                // numeric id not in cus_supplier
+        d->supId = row->getId();            // cus_supplier.id is VARCHAR
+        d->name = row->getName();
+        d->typeEnum = row->getTypeEnum();
+        d->address = row->getAddress();
+        d->contact = row->getPhone();       // phone doubles as contact
+        d->pinyin = row->getPyStr();
+        d->wubi = row->getWbStr();
+        d->statusEnum = row->getStatusEnum();
+        rowList->push_back(d);
+    }
+    pageDTO->rows = rowList;
+
+    vo->success(pageDTO);
+    return vo;
+}

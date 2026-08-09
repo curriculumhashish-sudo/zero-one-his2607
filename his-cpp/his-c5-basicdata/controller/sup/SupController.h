@@ -37,9 +37,9 @@
 /**
  * SupController - Supplier query endpoints.
  *
- * Provides endpoints for querying supplier detail by ID/code
- * and paginated supplier list with dynamic filters.
- * Status modification is handled via POST /sup/statusEnum/modify.
+ * Provides endpoints for querying supplier detail by ID/code,
+ * paginated supplier list with dynamic filters, and supplier name
+ * search for dropdown/selector components.
  * Add/update/delete operations are handled by SupplierController
  * and SupplierAddUpdateController.
  */
@@ -84,7 +84,7 @@ public:
         execQueryAll(query)
     );
 
-    // POST /sup/statusEnum/modify — Modify supplier name/status (deprecated, use SupplierController)
+    // POST /sup/statusEnum/modify — Query supplier names by keyword (dropdown/selector data source)
     API_DEF_ENDPOINT_INFO_AUTH(
         ZH_WORDS_GETTER("sup.name.query"),
         querySupName,
@@ -104,8 +104,8 @@ private:
     SupplierJsonVO::Wrapper execQueryOne(const SupplierDetailQuery::Wrapper& query);
     // Paginated query with filters
     SupplierPageJsonVO::Wrapper execQueryAll(const SupplierQuery::Wrapper& query);
-    // Modify supplier name/status (existing stub)
-    StringJsonVO::Wrapper execQuerySupName(const SupNameDTO::Wrapper& dto);
+    // Query supplier names by keyword (dropdown/selector data source)
+    SupPageJsonVO::Wrapper execQuerySupName(const SupNameDTO::Wrapper& dto);
 };
 
 #undef API_TAG

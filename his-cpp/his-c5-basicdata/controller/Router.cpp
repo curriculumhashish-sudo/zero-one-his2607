@@ -42,9 +42,9 @@ void Router::initRouter()
 	ROUTER_SIMPLE_BIND(PatController);
 	ROUTER_SIMPLE_BIND(OrganizationController);
 	ROUTER_SIMPLE_BIND(SupplierAddUpdateController);
-	// Supplier management routes
+	// Supplier batch operations (enable/disable, delete)
 	ROUTER_SIMPLE_BIND(SupplierController);
-	// Supplier name query routes
+	// Supplier query routes (query-one, query-all)
 	ROUTER_SIMPLE_BIND(SupController);
 	ROUTER_SIMPLE_BIND(WardController);
 	ROUTER_SIMPLE_BIND(PharmController);
