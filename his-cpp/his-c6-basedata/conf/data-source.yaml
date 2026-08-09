@@ -11,4 +11,4 @@
       port: 6379
       password: 01star
     mongodb:
-      uri: mongodb://root:123456@127.0.0.1:27017/test
+      uri: mongodb://root:123456@127.0.0.1:27017/firstdb

@@ -311,7 +311,7 @@ std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
 	data.setIsDelete(0);
 	data.setVersion(1);
 
-	//RedisClient rc("127.0.0.1", 6379, "");
+	//RedisClient rc("127.0.0.1", 6379, "01star");
 	ZO_CREATE_REDIS_CLIENT(rc);
 	std::string getr = rc.execute<std::string>([](Redis* r) {
 		return r->hget("user:session:10001","tenant_id").value();
@@ -324,17 +324,22 @@ std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
 
 	std::string catname = *dto->catName;
 	std::string diagtype = *dto->diagType;
-	
+	//ZO_CREATE_MONGO_CLIENT
+	// 
 		//MongoClient mc("mongodb://root:123456@127.0.0.1:27017/test");
-	//MongoClient mc("mongodb://root:123456@127.0.0.1:27017/test");
+	//MongoClient mc("mongodb://root:123456@127.0.0.1:27017/firstdb");
+	NacosClient ns(ServerInfo::getInstance().getNacosAddr(), ServerInfo::getInstance().getNacosNs(), ServerInfo::getInstance().getNacosUser(), ServerInfo::getInstance().getNacosPwd()); \
+		/** 获取配置 */ 
+		ZO_CREATE_DS_CONFIG_NODE(ns, config); 
 	YamlHelper yaml;
-	string uri = yaml.getString(&_config, "spring.data.mongodb.uri"); 
+	string uri = yaml.getString(&config, "spring.data.mongodb.uri"); 
 		/** 创建MongoClient对象 */
 		MongoClient mc(uri);
+
 	using bsoncxx::builder::basic::kvp;
 		using bsoncxx::builder::basic::make_document;
 
-		mc.execute("dict_condition_definition_source", [&](mongocxx::collection* conn)
+		mc.execute("condition_definition_source", [&](mongocxx::collection* conn)
 			{				std::cout << "execute" << std::endl;
 
 
@@ -364,7 +369,7 @@ std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
 
 			});
 		
-		mc.execute("ipt_dise_type_code", [&](mongocxx::collection* conn)
+		mc.execute("diag_type", [&](mongocxx::collection* conn)
 			{
 				auto result = conn->find_one(make_document(kvp("itemName", diagtype)));
 				if (result)
@@ -433,16 +438,18 @@ bool DiagnoseService::updateData(const DiagnoseDTO::Wrapper& dto)
 	//MongoClient mc("mongodb://root:123456@127.0.0.1:27017/test");
 	//ZO_CREATE_MONGO_CLIENT(mc);
 	//ZO_CREATE_DS_CONFIG_NODE(_ns, _config); 
-		/** 获取Mongo相关配置 */ 
-		YamlHelper yaml; 
-		string uri = yaml.getString(&_config, "spring.data.mongodb.uri"); 
-			/** 创建MongoClient对象 */
-			MongoClient mc(uri);
+	NacosClient ns(ServerInfo::getInstance().getNacosAddr(), ServerInfo::getInstance().getNacosNs(), ServerInfo::getInstance().getNacosUser(), ServerInfo::getInstance().getNacosPwd()); \
+		/** 获取配置 */
+		ZO_CREATE_DS_CONFIG_NODE(ns, config);
+	YamlHelper yaml;
+	string uri = yaml.getString(&config, "spring.data.mongodb.uri");
+	/** 创建MongoClient对象 */
+	MongoClient mc(uri);
 
 	//MongoClient mc("mongodb://root:123456@127.0.0.1:27017/test");
 	using bsoncxx::builder::basic::kvp;
 	using bsoncxx::builder::basic::make_document;
-	mc.execute("dict_condition_definition_source", [&](mongocxx::collection* conn)
+	mc.execute("condition_definition_source", [&](mongocxx::collection* conn)
 		{				std::cout << "execute" << std::endl;
 
 
@@ -473,7 +480,7 @@ bool DiagnoseService::updateData(const DiagnoseDTO::Wrapper& dto)
 		});
 	std::cout << "到达两段execute中间位置" << std::endl;  //新增
 
-	mc.execute("ipt_dise_type_code", [&](mongocxx::collection* conn)
+	mc.execute("diag_type", [&](mongocxx::collection* conn)
 		{
 			std::cout << "enter ipt_dise_type_code" << std::endl;
 			auto result = conn->find_one(make_document(kvp("itemName", diagtype)));
