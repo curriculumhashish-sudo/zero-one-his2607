@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zeroone.star.calendar.entity.WkfSlot;
 import com.zeroone.star.calendar.mapper.WkfSlotMapper;
 import com.zeroone.star.calendar.service.ISlotCalendarService;
+import com.zeroone.star.project.dto.j8.calendar.PractitionerOptionDTO;
 import com.zeroone.star.project.dto.j8.calendar.SlotBlockDTO;
 import com.zeroone.star.project.dto.j8.calendar.SlotDTO;
 import com.zeroone.star.project.dto.j8.calendar.SlotDetailDTO;
@@ -146,6 +147,12 @@ public class SlotCalendarServiceImpl extends ServiceImpl<WkfSlotMapper, WkfSlot>
         slot.setOverbookedFlag(targetFlag);
         this.updateById(slot);
         return JsonVO.success(null);
+    }
+
+    @Override
+    public JsonVO<List<PractitionerOptionDTO>> listPractitioners(String organizationId) {
+        List<PractitionerOptionDTO> list = baseMapper.selectPractitioners(organizationId);
+        return JsonVO.success(list);
     }
 
     /**

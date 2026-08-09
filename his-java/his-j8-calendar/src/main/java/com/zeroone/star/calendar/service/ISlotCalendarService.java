@@ -1,5 +1,6 @@
 package com.zeroone.star.calendar.service;
 
+import com.zeroone.star.project.dto.j8.calendar.PractitionerOptionDTO;
 import com.zeroone.star.project.dto.j8.calendar.SlotBlockDTO;
 import com.zeroone.star.project.dto.j8.calendar.SlotDetailDTO;
 import com.zeroone.star.project.dto.j8.calendar.SlotOverbookDTO;
@@ -7,6 +8,8 @@ import com.zeroone.star.project.dto.j8.calendar.SlotPageResultDTO;
 import com.zeroone.star.project.dto.j8.calendar.SlotUnblockDTO;
 import com.zeroone.star.project.query.j8.calendar.SlotQuery;
 import com.zeroone.star.project.vo.JsonVO;
+
+import java.util.List;
 
 /**
  * <p>
@@ -51,4 +54,11 @@ public interface ISlotCalendarService {
      * @return 操作结果
      */
     JsonVO<Void> setOverbooked(SlotOverbookDTO dto);
+
+    /**
+     * 获取可用医师下拉选项
+     * @param organizationId 科室主键
+     * @return 医师列表
+     */
+    JsonVO<List<PractitionerOptionDTO>> listPractitioners(String organizationId);
 }

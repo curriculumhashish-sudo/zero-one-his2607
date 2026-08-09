@@ -1,6 +1,7 @@
 package com.zeroone.star.calendar.controller;
 
 import com.zeroone.star.calendar.service.ISlotCalendarService;
+import com.zeroone.star.project.dto.j8.calendar.PractitionerOptionDTO;
 import com.zeroone.star.project.dto.j8.calendar.SlotBlockDTO;
 import com.zeroone.star.project.dto.j8.calendar.SlotDetailDTO;
 import com.zeroone.star.project.dto.j8.calendar.SlotOverbookDTO;
@@ -20,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * <p>
@@ -71,5 +74,12 @@ public class SlotCalendarController implements SlotApis {
     @PutMapping("/setOverbooked")
     public JsonVO<Void> setOverbooked(@Valid @RequestBody SlotOverbookDTO dto) {
         return slotCalendarService.setOverbooked(dto);
+    }
+
+    @Operation(summary = "获取医师选项列表")
+    @Override
+    @GetMapping("/listPractitioners")
+    public JsonVO<List<PractitionerOptionDTO>> listPractitioners(@RequestParam String organizationId) {
+        return slotCalendarService.listPractitioners(organizationId);
     }
 }

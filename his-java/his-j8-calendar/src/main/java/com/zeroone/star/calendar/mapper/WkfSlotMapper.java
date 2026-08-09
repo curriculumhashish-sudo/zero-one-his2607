@@ -3,10 +3,13 @@ package com.zeroone.star.calendar.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zeroone.star.calendar.entity.WkfSlot;
+import com.zeroone.star.project.dto.j8.calendar.PractitionerOptionDTO;
 import com.zeroone.star.project.dto.j8.calendar.SlotDTO;
 import com.zeroone.star.project.dto.j8.calendar.SlotDetailDTO;
 import com.zeroone.star.project.query.j8.calendar.SlotQuery;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * <p>
@@ -33,4 +36,12 @@ public interface WkfSlotMapper extends BaseMapper<WkfSlot> {
      * @return 号源详情，不存在返回 null
      */
     SlotDetailDTO selectSlotDetail(@Param("slotId") String slotId);
+
+    /**
+     * 查询该科室下有排班的医师列表
+     *
+     * @param organizationId 科室主键
+     * @return 医师下拉选项
+     */
+    List<PractitionerOptionDTO> selectPractitioners(@Param("organizationId") String organizationId);
 }

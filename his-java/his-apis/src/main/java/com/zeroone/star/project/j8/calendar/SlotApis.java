@@ -1,5 +1,6 @@
 package com.zeroone.star.project.j8.calendar;
 
+import com.zeroone.star.project.dto.j8.calendar.PractitionerOptionDTO;
 import com.zeroone.star.project.dto.j8.calendar.SlotBlockDTO;
 import com.zeroone.star.project.dto.j8.calendar.SlotDetailDTO;
 import com.zeroone.star.project.dto.j8.calendar.SlotOverbookDTO;
@@ -7,6 +8,9 @@ import com.zeroone.star.project.dto.j8.calendar.SlotPageResultDTO;
 import com.zeroone.star.project.dto.j8.calendar.SlotUnblockDTO;
 import com.zeroone.star.project.query.j8.calendar.SlotQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import io.swagger.v3.oas.annotations.Parameter;
+
+import java.util.List;
 
 /**
  * <p>
@@ -21,6 +25,7 @@ import com.zeroone.star.project.vo.JsonVO;
  *   <tr><td>blockSlots</td><td>PUT</td><td>/calendar/blockSlots</td><td>批量封锁号源</td></tr>
  *   <tr><td>unblockSlots</td><td>PUT</td><td>/calendar/unblockSlots</td><td>批量解封号源</td></tr>
  *   <tr><td>setOverbooked</td><td>PUT</td><td>/calendar/setOverbooked</td><td>标记超售</td></tr>
+ *   <tr><td>listPractitioners</td><td>GET</td><td>/calendar/listPractitioners</td><td>获取医师下拉选项</td></tr>
  * </table>
  *
  * <h3>号源状态说明</h3>
@@ -55,7 +60,8 @@ public interface SlotApis {
      * @param slotId 号源主键
      * @return 号源详情（比列表多备注等字段）
      */
-    JsonVO<SlotDetailDTO> getSlotDetail(String slotId);
+    JsonVO<SlotDetailDTO> getSlotDetail(
+            @Parameter(description = "号源主键", required = true) String slotId);
 
     /**
      * 批量封锁号源（将选中号源状态置为 busy-unavailable）
@@ -77,7 +83,16 @@ public interface SlotApis {
      * 标记超售（设置号源的超售开关）
      *
      * @param dto 超售请求（号源ID + 超售标记）
-     * @return 操作结果（通过 code 判断）
+     * @return 操作结果（通过 code 判断）要封锁的号源主键列表
      */
     JsonVO<Void> setOverbooked(SlotOverbookDTO dto);
+
+    /**
+     * 获取可用医师列表（对应该科室有排班的医师）
+     *
+     * @param organizationId 科室/机构主键
+     * @return 医师下拉选项列表
+     */
+    JsonVO<List<PractitionerOptionDTO>> listPractitioners(
+            @Parameter(description = "科室主键", required = true) String organizationId);
 }
