@@ -3,7 +3,6 @@ package com.zeroone.star.setroster.controller;
 import com.zeroone.star.project.dto.j8.setroster.AddDailyScheduleDTO;
 import com.zeroone.star.project.dto.j8.setroster.DailyScheduleDTO;
 import com.zeroone.star.project.j8.setroster.DailyScheduleApis;
-import com.zeroone.star.project.query.j8.setroster.DailyScheduleOptionQuery;
 import com.zeroone.star.project.query.j8.setroster.DailyScheduleQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j8.setroster.DailyScheduleIdVO;
@@ -42,14 +41,14 @@ public class DailyScheduleController implements DailyScheduleApis {
     @Override
     @Operation(summary = "获取日排班名称")
     @GetMapping("/listDailyScheduleOptions")
-    public JsonVO<DailySchedulePageVO<DailyScheduleVO>> listDailyScheduleOptions(@Valid DailyScheduleOptionQuery query) {
+    public JsonVO<DailySchedulePageVO<DailyScheduleVO>> listDailyScheduleOptions(@Valid @ModelAttribute DailyScheduleQuery query) {
         return JsonVO.success(service.listDailyScheduleOptions(query));
     }
 
     @Override
     @Operation(summary = "获取日排班列表（条件+分页）")
     @GetMapping("/pageDailySchedule")
-    public JsonVO<DailySchedulePageVO<DailyScheduleVO>> pageDailySchedule(@Valid DailyScheduleQuery query) {
+    public JsonVO<DailySchedulePageVO<DailyScheduleVO>> pageDailySchedule(@Valid @ModelAttribute DailyScheduleQuery query) {
         return JsonVO.success(service.pageDailySchedule(query));
     }
 

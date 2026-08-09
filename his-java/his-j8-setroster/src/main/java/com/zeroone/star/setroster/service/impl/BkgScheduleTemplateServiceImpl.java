@@ -8,7 +8,6 @@ import com.zeroone.star.project.components.user.UserDTO;
 import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.j8.setroster.AddDailyScheduleDTO;
 import com.zeroone.star.project.dto.j8.setroster.DailyScheduleDTO;
-import com.zeroone.star.project.query.j8.setroster.DailyScheduleOptionQuery;
 import com.zeroone.star.project.query.j8.setroster.DailyScheduleQuery;
 import com.zeroone.star.project.vo.j8.setroster.DailySchedulePageVO;
 import com.zeroone.star.project.vo.j8.setroster.DailyScheduleVO;
@@ -44,11 +43,8 @@ public class BkgScheduleTemplateServiceImpl extends ServiceImpl<BkgScheduleTempl
      * @return 排班日模板选项列表
      */
     @Override
-    public DailySchedulePageVO<DailyScheduleVO> listDailyScheduleOptions(DailyScheduleOptionQuery query) {
-        long pageIndex = query.getPageIndex() != null ? query.getPageIndex() : 1;
-        long pageSize = query.getPageSize() != null ? query.getPageSize() : 200;
-
-        Page<BkgScheduleTemplate> page = new Page<>(pageIndex, pageSize);
+    public DailySchedulePageVO<DailyScheduleVO> listDailyScheduleOptions(DailyScheduleQuery query) {
+        Page<BkgScheduleTemplate> page = new Page<>(query.getPageIndex(), query.getPageSize());
         LambdaQueryWrapper<BkgScheduleTemplate> lqw = new LambdaQueryWrapper<>();
         lqw.eq(BkgScheduleTemplate::getEnabled, true);
 

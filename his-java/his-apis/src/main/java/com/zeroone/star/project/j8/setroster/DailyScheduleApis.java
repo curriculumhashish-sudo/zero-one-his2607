@@ -2,7 +2,6 @@ package com.zeroone.star.project.j8.setroster;
 
 import com.zeroone.star.project.dto.j8.setroster.AddDailyScheduleDTO;
 import com.zeroone.star.project.dto.j8.setroster.DailyScheduleDTO;
-import com.zeroone.star.project.query.j8.setroster.DailyScheduleOptionQuery;
 import com.zeroone.star.project.query.j8.setroster.DailyScheduleQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j8.setroster.DailyScheduleIdVO;
@@ -26,7 +25,7 @@ public interface DailyScheduleApis {
      * 获取日排班模板下拉选项（用于周排班选择）
      * @return 日排班模板下拉选项列表
      */
-    JsonVO<DailySchedulePageVO<DailyScheduleVO>> listDailyScheduleOptions(@Valid DailyScheduleOptionQuery query);
+    JsonVO<DailySchedulePageVO<DailyScheduleVO>> listDailyScheduleOptions(@Valid DailyScheduleQuery query);
 
     /**
      * 获取日排班模板列表(条件+分页)

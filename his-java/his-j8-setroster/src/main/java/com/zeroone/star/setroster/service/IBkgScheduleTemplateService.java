@@ -2,7 +2,6 @@ package com.zeroone.star.setroster.service;
 
 import com.zeroone.star.project.dto.j8.setroster.AddDailyScheduleDTO;
 import com.zeroone.star.project.dto.j8.setroster.DailyScheduleDTO;
-import com.zeroone.star.project.query.j8.setroster.DailyScheduleOptionQuery;
 import com.zeroone.star.project.query.j8.setroster.DailyScheduleQuery;
 import com.zeroone.star.project.vo.j8.setroster.DailySchedulePageVO;
 import com.zeroone.star.project.vo.j8.setroster.DailyScheduleVO;
@@ -23,7 +22,7 @@ public interface IBkgScheduleTemplateService extends IService<BkgScheduleTemplat
      * 查询排班日模板选项列表
      * @return 排班日模板选项列表
      */
-    DailySchedulePageVO<DailyScheduleVO> listDailyScheduleOptions(DailyScheduleOptionQuery query);
+    DailySchedulePageVO<DailyScheduleVO> listDailyScheduleOptions(DailyScheduleQuery query);
 
     /**
      * 分页查询排班日模板
