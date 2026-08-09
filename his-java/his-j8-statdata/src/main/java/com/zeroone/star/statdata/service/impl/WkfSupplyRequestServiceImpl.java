@@ -9,6 +9,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,45 +37,46 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
 
     @Override
     public StockInOutVO getStockChartDTO(HourTrendQuery query) {
-        String startMonth = query.getDateFrom();
-        String endMonth = query.getDateTo();
+        String dateFrom = query.getDateFrom();
+        String dateTo = query.getDateTo();
 
-        if (startMonth == null || startMonth.isEmpty() || endMonth == null || endMonth.isEmpty()) {
-            int currentMonth = LocalDate.now().getMonthValue();
-            int year = LocalDate.now().getYear();
+        LocalDate startDate;
+        LocalDate endDate;
+
+        if (dateFrom == null || dateFrom.isEmpty() || dateTo == null || dateTo.isEmpty()) {
+            LocalDate now = LocalDate.now();
+            int currentMonth = now.getMonthValue();
+            int year = now.getYear();
             if (currentMonth <= 6) {
-                startMonth = year + "-01";
-                endMonth = year + "-06";
+                startDate = LocalDate.of(year, 1, 1);
+                endDate = LocalDate.of(year, 6, 30);
             } else {
-                startMonth = year + "-07";
-                endMonth = year + "-12";
+                startDate = LocalDate.of(year, 7, 1);
+                endDate = LocalDate.of(year, 12, 31);
             }
+        } else {
+            startDate = LocalDate.parse(dateFrom);
+            endDate = LocalDate.parse(dateTo);
         }
 
-        List<String> months = generateMonthList(startMonth, endMonth);
+        List<String> months = generateMonthList(startDate, endDate);
 
-        List<Map<String, Object>> inData = getBaseMapper().getStockInByMonth(startMonth, endMonth);
-        List<Map<String, Object>> outData = getBaseMapper().getStockOutByMonth(startMonth, endMonth);
+        String startDateStr = startDate.toString();
+        String endDateStr = endDate.plusDays(1).toString();
+
+        List<Map<String, Object>> inData = getBaseMapper().getStockInByMonth(startDateStr, endDateStr);
+        List<Map<String, Object>> outData = getBaseMapper().getStockOutByMonth(startDateStr, endDateStr);
 
         return buildResult(months, inData, outData);
     }
 
-    private List<String> generateMonthList(String start, String end) {
+    private List<String> generateMonthList(LocalDate start, LocalDate end) {
         List<String> list = new ArrayList<>();
-        int startYear = Integer.parseInt(start.substring(0, 4));
-        int startMonth = Integer.parseInt(start.substring(5));
-        int endYear = Integer.parseInt(end.substring(0, 4));
-        int endMonth = Integer.parseInt(end.substring(5));
-
-        int y = startYear;
-        int m = startMonth;
-        while (y < endYear || (y == endYear && m <= endMonth)) {
-            list.add(String.format("%04d-%02d", y, m));
-            m++;
-            if (m > 12) {
-                m = 1;
-                y++;
-            }
+        YearMonth ym = YearMonth.from(start);
+        YearMonth endYm = YearMonth.from(end);
+        while (!ym.isAfter(endYm)) {
+            list.add(ym.format(DateTimeFormatter.ofPattern("yyyy-MM")));
+            ym = ym.plusMonths(1);
         }
         return list;
     }

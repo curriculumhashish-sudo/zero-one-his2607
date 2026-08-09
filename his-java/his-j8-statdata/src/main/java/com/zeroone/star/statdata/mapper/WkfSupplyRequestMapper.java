@@ -10,10 +10,10 @@ import java.util.Map;
 public interface WkfSupplyRequestMapper extends BaseMapper<WkfSupplyRequest> {
 
     List<Map<String, Object>> getStockInByMonth(
-            @Param("startMonth") String startMonth,
-            @Param("endMonth") String endMonth);
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate);
 
     List<Map<String, Object>> getStockOutByMonth(
-            @Param("startMonth") String startMonth,
-            @Param("endMonth") String endMonth);
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate);
 }

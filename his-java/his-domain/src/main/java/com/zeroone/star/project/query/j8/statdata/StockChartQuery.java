@@ -7,9 +7,15 @@ import lombok.Data;
 @Schema(description = "库存图表查询参数")
 public class StockChartQuery {
 
-    @Schema(description = "起始月份(yyyy-MM)，不传则自动获取上半年(1-6月)或下半年(7-12月)", example = "2026-01")
-    private String startMonth;
+    @Schema(description = "开始日期(yyyy-MM-dd)", example = "2026-07-20")
+    private String dateFrom;
 
-    @Schema(description = "结束月份(yyyy-MM)，不传则自动获取上半年(1-6月)或下半年(7-12月)", example = "2026-06")
-    private String endMonth;
+    @Schema(description = "结束日期(yyyy-MM-dd)", example = "2026-07-20")
+    private String dateTo;
+
+    @Schema(description = "粒度", example = "drug/consumable/device")
+    private String granularity;
+
+    @Schema(description = "组织ID", example = "org001")
+    private String organizationId;
 }

@@ -11,8 +11,8 @@
         WHERE is_deleted = 0
           AND type_enum IN ('CABINET_INBOUND_RECEIPT', 'PHARMACY_STOCK_IN')
           AND status_enum IN ('AGREE', 'APPROVAL')
-          AND DATE_FORMAT(occurrence_time, '%Y-%m') &gt;= #{startMonth}
-          AND DATE_FORMAT(occurrence_time, '%Y-%m') &lt;= #{endMonth}
+          AND occurrence_time &gt;= #{startDate}
+          AND occurrence_time &lt; #{endDate}
         GROUP BY month, item_table
         ORDER BY month, item_table
     </select>
@@ -26,8 +26,8 @@
         WHERE is_deleted = 0
           AND type_enum = 'CABINET_STOCK_OUT'
           AND status_enum IN ('AGREE', 'APPROVAL')
-          AND DATE_FORMAT(occurrence_time, '%Y-%m') &gt;= #{startMonth}
-          AND DATE_FORMAT(occurrence_time, '%Y-%m') &lt;= #{endMonth}
+          AND occurrence_time &gt;= #{startDate}
+          AND occurrence_time &lt; #{endDate}
         GROUP BY month, item_table
         ORDER BY month, item_table
     </select>
