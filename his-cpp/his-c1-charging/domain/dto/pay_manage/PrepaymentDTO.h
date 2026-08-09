@@ -8,6 +8,22 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
+// Payment detail item (shared by add and refund)
+class PrepaymentPaymentDetailDTO : public oatpp::DTO
+{
+    DTO_INIT(PrepaymentPaymentDetailDTO, DTO);
+
+    // Payment channel code: CASH, WECHAT, ALIPAY, BANK_CARD
+    API_DTO_FIELD(String, payChannelCode,
+        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentPaymentDetailDTO.payChannelCode.description"),
+        true, "CASH");
+
+    // Payment amount
+    API_DTO_FIELD(Float64, amount,
+        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentPaymentDetailDTO.amount.description"),
+        true, 1000.00);
+};
+
 // Add prepayment request DTO
 class PrepaymentAddDTO : public oatpp::DTO
 {
@@ -18,20 +34,26 @@ class PrepaymentAddDTO : public oatpp::DTO
         ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentAddDTO.inpatientNo.description"),
         true, "ZY202607190001");
 
-    // Amount received
-    API_DTO_FIELD(Float64, amount,
-        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentAddDTO.amount.description"),
-        true, 1000.00);
+    // Payment details array
+    DTO_FIELD(oatpp::List<PrepaymentPaymentDetailDTO::Wrapper>, paymentDetails);
+    DTO_FIELD_INFO(paymentDetails) {
+        info->description = ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentAddDTO.paymentDetails.description");
+    };
 
-    // Payment method: 1-Cash, 2-WeChat, 3-Alipay, 4-Bank Card
-    API_DTO_FIELD(String, paymentMethod,
-        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentAddDTO.paymentMethod.description"),
-        true, "1");
+    // Payment draft ID (from pre-settle workflow)
+    API_DTO_FIELD(String, paymentDraftId,
+        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentAddDTO.paymentDraftId.description"),
+        false, "");
 
-    // Operator
-    API_DTO_FIELD(String, operatorName,
-        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentAddDTO.operator.description"),
+    // Operator ID
+    API_DTO_FIELD(String, operatorId,
+        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentAddDTO.operatorId.description"),
         true, "");
+
+    // Operator name
+    API_DTO_FIELD(String, operatorName,
+        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentAddDTO.operatorName.description"),
+        false, "");
 
     // Remark
     API_DTO_FIELD(String, remark,
@@ -49,20 +71,26 @@ class PrepaymentRefundDTO : public oatpp::DTO
         ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentRefundDTO.inpatientNo.description"),
         true, "ZY202607190001");
 
-    // Refund amount
-    API_DTO_FIELD(Float64, amount,
-        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentRefundDTO.amount.description"),
-        true, 200.00);
+    // Payment details array
+    DTO_FIELD(oatpp::List<PrepaymentPaymentDetailDTO::Wrapper>, paymentDetails);
+    DTO_FIELD_INFO(paymentDetails) {
+        info->description = ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentRefundDTO.paymentDetails.description");
+    };
 
-    // Refund method: 1-Cash, 2-WeChat, 3-Alipay, 4-Bank Card
-    API_DTO_FIELD(String, refundMethod,
-        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentRefundDTO.refundMethod.description"),
-        true, "1");
+    // Payment draft ID (from pre-settle workflow)
+    API_DTO_FIELD(String, paymentDraftId,
+        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentRefundDTO.paymentDraftId.description"),
+        false, "");
 
-    // Operator
-    API_DTO_FIELD(String, operatorName,
-        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentRefundDTO.operator.description"),
+    // Operator ID
+    API_DTO_FIELD(String, operatorId,
+        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentRefundDTO.operatorId.description"),
         true, "");
+
+    // Operator name
+    API_DTO_FIELD(String, operatorName,
+        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentRefundDTO.operatorName.description"),
+        false, "");
 
     // Refund reason
     API_DTO_FIELD(String, reason,
@@ -80,25 +108,35 @@ class PrepaymentAddResponseDTO : public oatpp::DTO
 {
     DTO_INIT(PrepaymentAddResponseDTO, DTO);
 
-    // Prepayment transaction ID
-    API_DTO_FIELD(String, prepaymentId,
-        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentAddResponseDTO.prepaymentId.description"),
-        true, "demo-prepay-001");
+    // Payment ID
+    API_DTO_FIELD(String, paymentId,
+        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentAddResponseDTO.paymentId.description"),
+        true, "pay-001");
+
+    // Transaction number
+    API_DTO_FIELD(String, transactionNo,
+        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentAddResponseDTO.transactionNo.description"),
+        true, "TXN202608040001");
+
+    // Encounter ID
+    API_DTO_FIELD(String, encounterId,
+        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentAddResponseDTO.encounterId.description"),
+        false, "");
 
     // Inpatient number
     API_DTO_FIELD(String, inpatientNo,
         ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentAddResponseDTO.inpatientNo.description"),
         true, "ZY202607190001");
 
-    // Amount received
+    // Total amount
     API_DTO_FIELD(Float64, amount,
         ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentAddResponseDTO.amount.description"),
         true, 1000.00);
 
-    // Payment method
-    API_DTO_FIELD(String, paymentMethod,
-        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentAddResponseDTO.paymentMethod.description"),
-        true, ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentAddResponseDTO.paymentMethod.value"));
+    // Status enum
+    API_DTO_FIELD(String, statusEnum,
+        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentAddResponseDTO.statusEnum.description"),
+        true, "SUCCESS");
 
     // Transaction time
     API_DTO_FIELD(String, createTime,
@@ -111,25 +149,35 @@ class PrepaymentRefundResponseDTO : public oatpp::DTO
 {
     DTO_INIT(PrepaymentRefundResponseDTO, DTO);
 
-    // Prepayment transaction ID
-    API_DTO_FIELD(String, prepaymentId,
-        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentRefundResponseDTO.prepaymentId.description"),
-        true, "demo-prepay-002");
+    // Payment ID
+    API_DTO_FIELD(String, paymentId,
+        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentRefundResponseDTO.paymentId.description"),
+        true, "pay-002");
+
+    // Transaction number
+    API_DTO_FIELD(String, transactionNo,
+        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentRefundResponseDTO.transactionNo.description"),
+        true, "TXN202608040002");
+
+    // Encounter ID
+    API_DTO_FIELD(String, encounterId,
+        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentRefundResponseDTO.encounterId.description"),
+        false, "");
 
     // Inpatient number
     API_DTO_FIELD(String, inpatientNo,
         ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentRefundResponseDTO.inpatientNo.description"),
         true, "ZY202607190001");
 
-    // Refund amount
+    // Total refund amount
     API_DTO_FIELD(Float64, amount,
         ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentRefundResponseDTO.amount.description"),
         true, 200.00);
 
-    // Refund method
-    API_DTO_FIELD(String, refundMethod,
-        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentRefundResponseDTO.refundMethod.description"),
-        true, ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentRefundResponseDTO.refundMethod.value"));
+    // Status enum
+    API_DTO_FIELD(String, statusEnum,
+        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentRefundResponseDTO.statusEnum.description"),
+        true, "SUCCESS");
 
     // Transaction time
     API_DTO_FIELD(String, createTime,
