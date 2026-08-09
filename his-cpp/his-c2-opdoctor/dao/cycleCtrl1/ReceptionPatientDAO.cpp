@@ -16,16 +16,13 @@ PtrCurrentReceptionCombineDO ReceptionPatientDAO::queryReceptionPatient(
             e.class_enum,
             e.yb_class_text,
             UNIX_TIMESTAMP(e.reception_time) AS reception_time,
-
             p.id AS patient_id,
             p.name AS patient_name,
             p.gender_enum,
             p.birth_date,
             p.phone AS phone_num,
-
             org.name AS org_name,
             ai.description AS allergy_content,
-
             serv.name AS service_name,
             acc.type_code AS pay_type,
             e.service_type_id AS service_type_id
@@ -47,7 +44,6 @@ PtrCurrentReceptionCombineDO ReceptionPatientDAO::queryReceptionPatient(
             ON e.id = acc.encounter_id AND acc.default_flag = 1
         LEFT JOIN adm_healthcare_service serv
             ON e.service_type_id = serv.id AND serv.is_deleted = 0
-
         WHERE e.is_deleted = 0
           AND e.tenant_id = ?
           AND DATE(e.reception_time) = ?

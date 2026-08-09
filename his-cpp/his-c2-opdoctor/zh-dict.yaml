@@ -85,8 +85,10 @@ queue:
    male: "男性"
    female: "女性"
    unknown: "未知"
+ get:
+  summary: "患者队列"
 
- rece:
+rece:
   dto:
    name: "姓名"
    visitStatus: "在诊状态"
@@ -116,8 +118,9 @@ queue:
    visitNum: "就诊号"
    payType: "支付类型"
    visitStatus: "就诊状态"
+   encounterId: "就诊号"
   get:
-   summary: "获取接诊患者"
+   summary: "接诊患者"
 
 finish:
  dto:

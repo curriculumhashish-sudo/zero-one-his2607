@@ -38,6 +38,7 @@ public:
 
 		//只输入日期即可
 		API_DEF_ADD_QUERY_PARAMS(String, "date", ZH_WORDS_GETTER("rece.param.visitTime"), "", true);
+
 	}
 
 private:
