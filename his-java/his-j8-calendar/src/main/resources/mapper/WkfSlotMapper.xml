@@ -50,7 +50,7 @@
             ON s.schedule_id = sch.id AND sch.is_deleted = 0
         LEFT JOIN wkf_schedule_actor sa
             ON sch.id = sa.schedule_id
-            AND sa.actor_type = 1
+            AND sa.actor_type = 10
             AND sa.sort_no = 1
             AND sa.is_deleted = 0
         LEFT JOIN adm_organization ao
@@ -103,7 +103,7 @@
             ON s.schedule_id = sch.id AND sch.is_deleted = 0
         LEFT JOIN wkf_schedule_actor sa
             ON sch.id = sa.schedule_id
-            AND sa.actor_type = 1
+            AND sa.actor_type = 10
             AND sa.sort_no = 1
             AND sa.is_deleted = 0
         LEFT JOIN adm_organization ao
@@ -113,6 +113,24 @@
         LEFT JOIN adm_healthcare_service hs
             ON sch.healthcare_service_id = hs.id AND hs.is_deleted = 0
         WHERE s.id = #{slotId} AND s.is_deleted = 0
+    </select>
+
+    <!-- ==================== 查询医师选项 ==================== -->
+    <select id="selectPractitioners" resultType="com.zeroone.star.project.dto.j8.calendar.PractitionerOptionDTO">
+        SELECT DISTINCT
+            sa.actor_id     AS practitionerId,
+            ap.name         AS practitionerName
+        FROM wkf_schedule sch
+        INNER JOIN wkf_schedule_actor sa
+            ON sch.id = sa.schedule_id
+            AND sa.actor_type = 10
+            AND sa.is_deleted = 0
+        INNER JOIN adm_practitioner ap
+            ON sa.actor_id = ap.id
+            AND ap.is_deleted = 0
+        WHERE sch.organization_id = #{organizationId}
+            AND sch.is_deleted = 0
+        ORDER BY ap.name ASC
     </select>
 
 </mapper>
