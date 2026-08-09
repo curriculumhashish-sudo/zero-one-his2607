@@ -626,7 +626,16 @@ string DrugService::saveData(const DrugAddDTO::Wrapper& dto)
     // 由服务端补齐租户、机构、状态和乐观锁初值。
     entity.setTenantId(tenantId);
     entity.setOrgId(orgId);
-    entity.setBusNo(newId);
+    std::string dynamicPrefix = "1"; // 項菁蘇硉
+    auto orgMap = payload.getOrganizationUnits();
+    if (!orgMap.empty()) {
+        dynamicPrefix = orgMap.begin()->first;
+    }
+    std::string seqKey = dynamicPrefix + ":MD";
+    uint64_t nextSeq = dao.generateSequence(seqKey);
+    std::ostringstream oss;
+    oss << "DD" << std::setw(8) << std::setfill('0') << nextSeq;
+    entity.setBusNo(oss.str());
     entity.setStatusEnum(DrugConstants::STATUS_ACTIVE);
     entity.setVersion(0);
     entity.setIsDeleted(false);

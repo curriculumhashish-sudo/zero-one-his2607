@@ -21,7 +21,7 @@
 #include "../../domain/DrugConstants.h"
 #include "domain/query/Drug/DrugSelectQuery.h"
 #include <sstream>
-
+#include "SimpleDateTimeFormat.h"
 static const std::string &drugTableName()
 {
     static const std::string tableName = MedMedicationDefinitionDO().getTable();
