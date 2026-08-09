@@ -22,6 +22,14 @@ Chinapres2Controller::execAddChinapre(const Chinapres2AddDTO::Wrapper& dto, cons
     return service.saveData(dto, payload);
 }
 
+Chinapres2AddRespDTO::Wrapper
+Chinapres2Controller::execUpdateChinapre(const Chinapres2UpdateDTO::Wrapper& dto, const PayloadDTO& payload) {
+    if (!dto) {
+        throw std::runtime_error("dto is null");
+    }
+    Chinapres2Service service;
+    return service.updateData(dto, payload);
+}
 
 // ========== 2. Query Prescription List ==========
 /*

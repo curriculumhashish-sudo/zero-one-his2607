@@ -7,6 +7,7 @@ oatpp::List<OutpatientRecordDTO::Wrapper> OutpatientRecordService::convertToDTOL
     for (auto& doItem : doList) {
         auto dto = OutpatientRecordDTO::createShared();
         dto->id = doItem->getId();
+        dto->encounterId = doItem->getId();   // 🆕 增加这一行
         dto->patientName = doItem->getPatientName();
         dto->gender = doItem->getGender();
         dto->visitDate = doItem->getStartTime();   // 使用 start_time

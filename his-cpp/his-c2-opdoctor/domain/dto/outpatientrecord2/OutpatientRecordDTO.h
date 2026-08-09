@@ -11,6 +11,8 @@ class OutpatientRecordDTO : public oatpp::DTO
 
     // 就诊ID
     API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("outpatientRecord.field.id"), true);
+    // 🆕 显式提供 encounterId（与 id 值相同，便于前端语义理解）
+    API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("outpatientRecord.field.encounterId"), true);
     // 患者姓名
     API_DTO_FIELD_REQUIRE(String, patientName, ZH_WORDS_GETTER("outpatientRecord.field.patientName"), true);
     // 性别（字典编码，如 MALE/FEMALE）

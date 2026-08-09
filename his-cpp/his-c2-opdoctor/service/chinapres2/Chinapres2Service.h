@@ -10,6 +10,7 @@
 #include "../../domain/query/chinapres2/Chinapres2Query.h"
 #include "../../domain/vo/chinapres2/Chinapres2VO.h"
 #include "../../domain/dto/chinapres2/Chinapres2AddDTO.h"
+#include "../../domain/dto/chinapres2/Chinapres2UpdateDTO.h"
 #include "../../domain/dto/chinapres2/Chinapres2DetailDTO.h"
 #include "../../dao/chinapres2/Chinapres2DAO.h"
 #include "../../domain/dto/chinapres2/Chinapres2AddRespDTO.h"
@@ -45,7 +46,10 @@ public:
       * @param payload 用户信息
       * @return 新生成的处方 ID
       */
+
     Chinapres2AddRespDTO::Wrapper saveData(const Chinapres2AddDTO::Wrapper& dto, const PayloadDTO& payload);
+
+    Chinapres2AddRespDTO::Wrapper updateData(const Chinapres2UpdateDTO::Wrapper& dto, const PayloadDTO& payload);
     // ========== 删除 ==========
     /**
      * 软删除处方（主表 + 明细表）

@@ -8,7 +8,15 @@
 #include "Chinapres2Mapper.h"
 #include "Chinapres2DetailMapper.h"
 #include <iomanip>
-#include <ctime>
+
+static std::string getCurrentTime() {
+    auto now = std::chrono::system_clock::now();
+    auto in_time_t = std::chrono::system_clock::to_time_t(now);
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %H:%M:%S");
+    return ss.str();
+}
+
 
 // 用于 getPresenceStatus 查询结果映射（仅包含查询的三个字段）
 struct PresenceInfo {
@@ -307,54 +315,130 @@ bool Chinapres2DAO::insertDetailsPtr(const std::list<PtrChinapres2DetailDO>& det
 }
 
 // ========== 更新主表 ==========
-bool Chinapres2DAO::updateMain(const Chinapres2MainDO& data)
-{
-    std::string sql =
-        "UPDATE med_medication_request SET "
-        "bus_no = ?, "
-        "prescription_no = ?, "
-        "group_id = ?, "
-        "status_enum = ?, "
-        "is_deleted = ?, "
-        "patient_id = ?, "
-        "encounter_id = ?, "
-        "requester_id = ?, "
-        "org_id = ?, "
-        "method_code = ?, "
-        "rate_code = ?, "
-        "execute_num = ?, "
-        "chinese_herbs_dose_quantity = ?, "
-        "suffering_flag = ?, "
-        "encounter_diagnosis_id = ?, "
-        "condition_definition_id = ?, "
-        "dosage_instruction = ?, "
-        "remark = ?, "
-        "status_reason = ? "
-        "WHERE id = ?";
+bool Chinapres2DAO::updateMain(const Chinapres2MainDO& data) {
+    try {
+        std::string sql =
+            "UPDATE med_medication_request SET "
+            "bus_no = ?, "
+            "prescription_no = ?, "
+            "group_id = ?, "
+            "status_enum = ?, "
+            "is_deleted = ?, "
+            "patient_id = ?, "
+            "encounter_id = ?, "
+            "requester_id = ?, "
+            "org_id = ?, "
+            "method_code = ?, "
+            "rate_code = ?, "
+            "execute_num = ?, "
+            "chinese_herbs_dose_quantity = ?, "
+            "suffering_flag = ?, "
+            "encounter_diagnosis_id = ?, "
+            "condition_definition_id = ?, "
+            "dosage_instruction = ?, "
+            "remark = ?, "
+            "status_reason = ?, "
+            "updated_at = ?, "
+            "version = version + 1 "
+            "WHERE id = ?";
 
-    SqlParams params;
-    SQLPARAMS_PUSH(params, "s", std::string, data.getBusNo());
-    SQLPARAMS_PUSH(params, "s", std::string, data.getPrescriptionNo());
-    SQLPARAMS_PUSH(params, "s", std::string, data.getGroupId());
-    SQLPARAMS_PUSH(params, "s", std::string, data.getStatusEnum());
-    SQLPARAMS_PUSH(params, "i", int, data.getIsDeleted());
-    SQLPARAMS_PUSH(params, "s", std::string, data.getPatientId());
-    SQLPARAMS_PUSH(params, "s", std::string, data.getEncounterId());
-    SQLPARAMS_PUSH(params, "s", std::string, data.getRequesterId());
-    SQLPARAMS_PUSH(params, "s", std::string, data.getOrgId());
-    SQLPARAMS_PUSH(params, "s", std::string, data.getMethodCode());
-    SQLPARAMS_PUSH(params, "s", std::string, data.getRateCode());
-    SQLPARAMS_PUSH(params, "i", int, data.getExecuteNum());
-    SQLPARAMS_PUSH(params, "d", double, data.getChineseHerbsDoseQuantity());
-    SQLPARAMS_PUSH(params, "i", int, data.getSufferingFlag());
-    SQLPARAMS_PUSH(params, "s", std::string, data.getEncounterDiagnosisId());
-    SQLPARAMS_PUSH(params, "s", std::string, data.getConditionDefinitionId());
-    SQLPARAMS_PUSH(params, "s", std::string, data.getDosageInstruction());
-    SQLPARAMS_PUSH(params, "s", std::string, data.getRemark());
-    SQLPARAMS_PUSH(params, "s", std::string, data.getStatusReason());
-    SQLPARAMS_PUSH(params, "s", std::string, data.getId());
+        // 安全取值（防止空字符串/空指针）
+        std::string busNoVal = data.getBusNo();
+        if (busNoVal.empty()) busNoVal = "DEFAULT_BUS";
+        std::string presNoVal = data.getPrescriptionNo();
+        if (presNoVal.empty()) presNoVal = "DEFAULT_PRES";
+        std::string groupIdVal = data.getGroupId();
+        if (groupIdVal.empty()) groupIdVal = "DEFAULT_GROUP";
+        std::string statusVal = data.getStatusEnum();
+        if (statusVal.empty()) statusVal = "UNSIGNED";
+        int isDeletedVal = data.getIsDeleted();
+        std::string patientIdVal = data.getPatientId();
+        if (patientIdVal.empty()) patientIdVal = "DEFAULT_PATIENT";
+        std::string encounterIdVal = data.getEncounterId();
+        if (encounterIdVal.empty()) encounterIdVal = "DEFAULT_ENCOUNTER";
+        std::string requesterIdVal = data.getRequesterId();
+        if (requesterIdVal.empty()) requesterIdVal = "DEFAULT_REQUESTER";
+        std::string orgIdVal = data.getOrgId();
+        if (orgIdVal.empty()) orgIdVal = "DEFAULT_ORG";
+        std::string methodCodeVal = data.getMethodCode();
+        if (methodCodeVal.empty()) methodCodeVal = "DEFAULT_METHOD";
+        std::string rateCodeVal = data.getRateCode();
+        if (rateCodeVal.empty()) rateCodeVal = "DEFAULT_RATE";
+        int executeNumVal = data.getExecuteNum();
+        double doseQuantityVal = data.getChineseHerbsDoseQuantity();
+        int sufferingFlagVal = data.getSufferingFlag();
+        std::string diagIdVal = data.getEncounterDiagnosisId();
+        if (diagIdVal.empty()) diagIdVal = "DEFAULT_DIAG";
+        std::string conditionIdVal = data.getConditionDefinitionId();
+        if (conditionIdVal.empty()) conditionIdVal = "DEFAULT_COND";
+        std::string dosageInstVal = data.getDosageInstruction();
+        if (dosageInstVal.empty()) dosageInstVal = "";
+        std::string remarkVal = data.getRemark();
+        if (remarkVal.empty()) remarkVal = "";
+        std::string statusReasonVal = data.getStatusReason();
+        if (statusReasonVal.empty()) statusReasonVal = "";
+        std::string updatedAtVal = data.getUpdatedAt();
+        if (updatedAtVal.empty()) updatedAtVal = getCurrentTime();
+        std::string idVal = data.getId();
+        if (idVal.empty()) {
+            std::cerr << "[ERROR] updateMain: id is empty" << std::endl;
+            return false;
+        }
 
-    return sqlSession->executeUpdate(sql, params) > 0;
+        SqlParams params;
+        SQLPARAMS_PUSH(params, "s", std::string, busNoVal);
+        SQLPARAMS_PUSH(params, "s", std::string, presNoVal);
+        SQLPARAMS_PUSH(params, "s", std::string, groupIdVal);
+        SQLPARAMS_PUSH(params, "s", std::string, statusVal);
+        SQLPARAMS_PUSH(params, "i", int, isDeletedVal);
+        SQLPARAMS_PUSH(params, "s", std::string, patientIdVal);
+        SQLPARAMS_PUSH(params, "s", std::string, encounterIdVal);
+        SQLPARAMS_PUSH(params, "s", std::string, requesterIdVal);
+        SQLPARAMS_PUSH(params, "s", std::string, orgIdVal);
+        SQLPARAMS_PUSH(params, "s", std::string, methodCodeVal);
+        SQLPARAMS_PUSH(params, "s", std::string, rateCodeVal);
+        SQLPARAMS_PUSH(params, "i", int, executeNumVal);
+        SQLPARAMS_PUSH(params, "d", double, doseQuantityVal);
+        SQLPARAMS_PUSH(params, "i", int, sufferingFlagVal);
+        SQLPARAMS_PUSH(params, "s", std::string, diagIdVal);
+        SQLPARAMS_PUSH(params, "s", std::string, conditionIdVal);
+        SQLPARAMS_PUSH(params, "s", std::string, dosageInstVal);
+        SQLPARAMS_PUSH(params, "s", std::string, remarkVal);
+        SQLPARAMS_PUSH(params, "s", std::string, statusReasonVal);
+        SQLPARAMS_PUSH(params, "s", std::string, updatedAtVal);
+        SQLPARAMS_PUSH(params, "s", std::string, idVal);
+
+        int affected = sqlSession->executeUpdate(sql, params);
+        return affected > 0;
+    }
+    catch (const std::exception& e) {
+        std::cerr << "[ERROR] updateMain: " << e.what() << std::endl;
+        return false;
+    }
+    catch (...) {
+        std::cerr << "[ERROR] updateMain: unknown exception" << std::endl;
+        return false;
+    }
+}
+
+bool Chinapres2DAO::deleteDetailsByRequestId(const std::string& requestId) {
+    if (requestId.empty()) return false;
+    try {
+        std::string sql = "DELETE FROM med_medication_request_detail WHERE request_id = ?";
+        SqlParams params;
+        SQLPARAMS_PUSH(params, "s", std::string, requestId);
+        int affected = sqlSession->executeUpdate(sql, params);
+        // 即使 affected = 0（没有明细），也视为成功
+        return true;
+    }
+    catch (const std::exception& e) {
+        std::cerr << "[ERROR] deleteDetailsByRequestId: " << e.what() << std::endl;
+        return false;
+    }
+    catch (...) {
+        std::cerr << "[ERROR] deleteDetailsByRequestId: unknown exception" << std::endl;
+        return false;
+    }
 }
 
 // ========== 根据 ID 软删除（主表 + 明细表） ==========
@@ -391,13 +475,6 @@ bool Chinapres2DAO::softDeleteBatch(const std::list<std::string>& ids)
     return sqlSession->executeUpdate(mainSql, params) > 0;
 }
 
-static std::string getCurrentTime() {
-    auto now = std::chrono::system_clock::now();
-    auto in_time_t = std::chrono::system_clock::to_time_t(now);
-    std::stringstream ss;
-    ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %H:%M:%S");
-    return ss.str();
-}
 
 bool Chinapres2DAO::getPresenceStatus(const std::string& id, std::string& status, int64_t& version, std::string& encounterId) {
     if (id.empty()) return false;

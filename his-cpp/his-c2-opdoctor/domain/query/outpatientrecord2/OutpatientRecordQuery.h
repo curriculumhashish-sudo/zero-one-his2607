@@ -12,12 +12,16 @@ class OutpatientRecordQuery : public PageQuery
 
     // 患者姓名（模糊）
     API_DTO_FIELD_REQUIRE(String, patientName, ZH_WORDS_GETTER("outpatientRecord.field.patientName"), false);
+    // 🆕 患者ID（精确）
+    API_DTO_FIELD_REQUIRE(String, patientId, ZH_WORDS_GETTER("outpatientRecord.field.patientId"), false);
     // 就诊开始日期（格式 yyyy-MM-dd）
     API_DTO_FIELD_REQUIRE(String, startDate, ZH_WORDS_GETTER("outpatientRecord.field.startDate"), false);
     // 就诊结束日期
     API_DTO_FIELD_REQUIRE(String, endDate, ZH_WORDS_GETTER("outpatientRecord.field.endDate"), false);
     // 诊断名称（模糊）
     API_DTO_FIELD_REQUIRE(String, diagnosis, ZH_WORDS_GETTER("outpatientRecord.field.diagnosis"), false);
+    // 🆕 全局关键词（模糊搜索：就诊号、科室、医生、诊断、患者姓名）
+    API_DTO_FIELD_REQUIRE(String, keyword, ZH_WORDS_GETTER("outpatientRecord.field.keyword"), false);
 };
 
 #include OATPP_CODEGEN_END(DTO)

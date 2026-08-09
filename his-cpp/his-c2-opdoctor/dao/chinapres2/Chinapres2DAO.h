@@ -81,6 +81,9 @@ public:
      */
     bool updateMain(const Chinapres2MainDO& data);
 
+    // 删除指定处方的所有明细
+    bool deleteDetailsByRequestId(const std::string& requestId);
+
     // ========== 删除（软删除） ==========
     /**
      * 根据 ID 软删除单条处方（主表+明细表）

@@ -87,10 +87,17 @@ std::string OutpatientRecordDAO::queryConditionBuilder(const OutpatientRecordQue
     std::stringstream sql;
     sql << " WHERE e.is_deleted = 0";
 
-    if (query->patientName && !query->patientName->empty()) {
+    // 精确患者ID（优先）
+    if (query->patientId && !query->patientId->empty()) {
+        sql << " AND e.patient_id = ?";
+        SQLPARAMS_PUSH(params, "s", std::string, query->patientId.getValue(""));
+    }
+    // 患者姓名模糊（当没有 patientId 时生效）
+    else if (query->patientName && !query->patientName->empty()) {
         sql << " AND p.name LIKE CONCAT('%', ?, '%')";
         SQLPARAMS_PUSH(params, "s", std::string, query->patientName.getValue(""));
     }
+
     if (query->startDate && !query->startDate->empty()) {
         sql << " AND DATE(e.start_time) >= ?";
         SQLPARAMS_PUSH(params, "s", std::string, query->startDate.getValue(""));
@@ -103,8 +110,27 @@ std::string OutpatientRecordDAO::queryConditionBuilder(const OutpatientRecordQue
         sql << " AND c.description LIKE CONCAT('%', ?, '%')";
         SQLPARAMS_PUSH(params, "s", std::string, query->diagnosis.getValue(""));
     }
+
+    // 🆕 全局关键词（OR 组合，匹配就诊号、科室、医生、诊断、患者姓名）
+    if (query->keyword && !query->keyword->empty()) {
+        std::string keyword = query->keyword.getValue("");
+        sql << " AND (";
+        sql << " e.bus_no LIKE CONCAT('%', ?, '%')";
+        SQLPARAMS_PUSH(params, "s", std::string, keyword);
+        sql << " OR org.name LIKE CONCAT('%', ?, '%')";
+        SQLPARAMS_PUSH(params, "s", std::string, keyword);
+        sql << " OR pr.name LIKE CONCAT('%', ?, '%')";
+        SQLPARAMS_PUSH(params, "s", std::string, keyword);
+        sql << " OR c.description LIKE CONCAT('%', ?, '%')";
+        SQLPARAMS_PUSH(params, "s", std::string, keyword);
+        sql << " OR p.name LIKE CONCAT('%', ?, '%')";
+        SQLPARAMS_PUSH(params, "s", std::string, keyword);
+        sql << " )";
+    }
+
     return sql.str();
 }
+
 
 uint64_t OutpatientRecordDAO::count(const OutpatientRecordQuery::Wrapper& query)
 {

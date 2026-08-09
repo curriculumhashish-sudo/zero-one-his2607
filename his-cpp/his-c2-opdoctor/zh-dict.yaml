@@ -213,64 +213,83 @@ leave:
    unitPrice: 单价
    serviceRequestId: 服务请求ID
 
-cyclectrl2:
- test:
-  tag: "周期循环"
- refund:
-  tag: "退费"
-  apply: "申请退费"
-  query: "查询退费清单"
- patient:
-  patientNo: "病历号"
-  patientName: "姓名"
-  age: "年龄"
-  gender: "性别"
-  department: "科室"
-  patientId: "门诊号"
-  phone: "联系电话"
-  idNumber: "证件号"
-  registrationType: "挂号类型"
-  visitStatus: "就诊状态"
-  admissionTime: "接诊时间"
-  doctor: "接诊医师"
-  apply: "勾选项"
-  applyNo: "勾选数量"
-  applySum: "合计费用"
-  paymentNo: "支付单号"
-  itemName: "收费项目名称"
-  quantity: "数量"
-  amount: "金额"
-  chargeStatus: "收费状态"
-  refundStatus: "退费状态"
- prescription:
-  tag: "处方单"
-  query: "查询处方单"
-  prescriptionNo: "处方号"
-  costType: "费用类型"
-  date: "日期"
-  doctor: "开单医生"
-  diagnosis: "诊断"
-  totalPrice: "总金额"
-  pharmacist: "调配人"
-  dispenser: "发药人"
-  priceChecker: "划价人"
-  items: "Rp"
- admission:
-  tag: "办理入院"
-  apply: "办理入院"
-  admissionDepartment: "入院科室"
-  admissionWard: "入院病区"
-  diagnosisType: "诊断类型"
-  admissionDiagnosis: "入院主诊断"
-  diagnosisDesc: "诊断描述"
-  admissionType: "入院类型"
-  admissionMethod: "入院方式"
-  priority: "病情优先级"
-  listWards: "查询可选入院病区"
-  departmentId: "入院科室ID"
-  wardId: "病区ID"
-  wardName: "病区名称"
-  deptNotFound: "入院科室不存在或已停用"
+chinapres2:
+ tags:
+  tag: 中医处方
+ query:
+  summary: 获取历史处方
+ add:
+  summary: 新增处方
+ remove:
+  summary: 删除处方
+ update:
+  summary: 修改处方
+ field:
+  id: 处方编号
+  usage: 用法
+  frequency: 频次
+  days: 天数
+  copies: 付数
+  decoction: 代煎
+  diagnosis: 诊断
+  remark: 备注
+  medicine: 药材
+  preNum: 位数
+  details: 药材列表
+  patientId: 患者ID
+  encounterId: 就诊ID
+  requesterId: 开方医生ID
+  encounterDiagnosisId: 就诊诊断ID
+  version: 版本号
+  updatedAt: 更新时间
+  createdAt: 创建时间
+  prescriptionNo: 处方号
+  status: 状态
+  herbCount: 味数
+  singleDoseAmount: 单剂金额
+  totalAmount: 总金额
+  medicineId: 药材ID
+  quantity: 数量
+  unit: 单位
+  dose: 单次剂量
+  doseUnit: 剂量单位
+  sortNo: 排序号
+ resp:
+  id: 处方ID
+  prescriptionNo: 处方号
+  status: 状态
+  version: 版本号
+  createdAt: 创建时间
+  herbCount: 味数
+  singleDoseAmount: 单剂金额
+  totalAmount: 总金额
+
+outpatientRecord:
+ tags:
+  tag: 门诊病历
+ queryList:
+  summary: 查询门诊病历列表
+ detail:
+  summary: 获取门诊病历详情
+ field:
+  id: 就诊编号
+  encounterId: 就诊ID       # 🆕
+  patientName: 患者姓名
+  patientId: 患者ID         # 🆕
+  gender: 性别
+  visitDate: 就诊日期
+  diagnosis: 诊断
+  doctorName: 医生
+  deptName: 科室
+  remark: 备注
+  content: 病历内容
+  version: 版本号
+  updatedAt: 更新时间
+  editable: 是否可编辑
+  startDate: 开始日期
+  endDate: 结束日期
+  keyword: 关键词            # 🆕
+
 
 diagnose:
  add:

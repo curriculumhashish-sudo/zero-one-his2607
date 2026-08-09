@@ -41,6 +41,7 @@ class Chinapres2MainDO : public BaseDO
 
     // ---------- 时间与状态 ----------
     MYSQL_SYNTHESIZE(string, createdAt, CreatedAt);
+    MYSQL_SYNTHESIZE(string, updatedAt, UpdatedAt);
     MYSQL_SYNTHESIZE(string, statusReason, StatusReason);        // 撤回原因等
 
 public:

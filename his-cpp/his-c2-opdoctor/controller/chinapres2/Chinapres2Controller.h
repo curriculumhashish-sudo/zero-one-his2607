@@ -3,9 +3,10 @@
 
 #include "domain/vo/BaseJsonVO.h"
 #include "domain/dto/chinapres2/Chinapres2AddDTO.h"
+#include "domain/dto/chinapres2/Chinapres2UpdateDTO.h"
 #include "domain/dto/chinapres2/Chinapres2AddRespDTO.h"
 #include "domain/dto/chinapres2/Chinapres2RemoveDTO.h"
-#include "domain/dto/chinapres2/Chinapres2RemoveRespDTO.h" // 确保头文件已包含
+#include "domain/dto/chinapres2/Chinapres2RemoveRespDTO.h"
 #include OATPP_CODEGEN_BEGIN(ApiController)
 #define API_TAG ZH_WORDS_GETTER("chinapres2.tags.tag")
 class Chinapres2Controller : public oatpp::web::server::api::ApiController
@@ -39,6 +40,15 @@ public:
         BODY_DTO(Chinapres2RemoveDTO::Wrapper, dto),
         execRemoveChinapreEnhanced(dto, authObject->getPayload()));
 
+    // 在 public 区域新增
+// 修改处方（草稿）
+    API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("chinapres2.update.summary"), updatePrescription,
+        Chinapres2AddRespDTO::Wrapper, API_TAG);
+    API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/chinapres2/update", updatePrescription,
+        BODY_DTO(Chinapres2UpdateDTO::Wrapper, dto),
+        execUpdateChinapre(dto, authObject->getPayload()));
+
+
 private: // 定义接口执行函数
     //Chinapres2DetailPageJsonVO::Wrapper execQueryChinapre(const Chinapres2Query::Wrapper& query);
 
@@ -46,6 +56,8 @@ private: // 定义接口执行函数
     // 执行函数声明（返回类型与接口宏一致）
     Chinapres2AddRespDTO::Wrapper execAddChinapre(const Chinapres2AddDTO::Wrapper& dto,
         const PayloadDTO& payload);
+
+    Chinapres2AddRespDTO::Wrapper execUpdateChinapre(const Chinapres2UpdateDTO::Wrapper& dto, const PayloadDTO& payload);
 
     Chinapres2RemoveRespDTO::Wrapper execRemoveChinapreEnhanced(const Chinapres2RemoveDTO::Wrapper& dto, const PayloadDTO& payload);
 

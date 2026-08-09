@@ -1,5 +1,4 @@
 #pragma once
-
 #ifndef _MEDICATION_MAPPER_
 #define _MEDICATION_MAPPER_
 #include "Mapper.h"
