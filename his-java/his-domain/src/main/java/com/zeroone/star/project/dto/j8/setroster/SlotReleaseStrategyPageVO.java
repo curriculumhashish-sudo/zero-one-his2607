@@ -33,7 +33,7 @@ public class SlotReleaseStrategyPageVO<T> implements Serializable {
     private Long totalCount;
 
     @Schema(description = "当前页码", example = "1")
-    private Long pageNo;
+    private Long pageIndex;
 
     @Schema(description = "每页显示条数", example = "10")
     private Long pageSize;

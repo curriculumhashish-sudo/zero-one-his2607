@@ -63,6 +63,12 @@ public class SlotReleaseStrategyServiceImpl implements ISlotReleaseStrategyServi
         policy.setId(IdWorker.getIdStr());
         policy.setPolicyCode(generatePolicyCode());
         copyEditableFields(addDTO, policy);
+        LocalDateTime now = LocalDateTime.now();
+        policy.setCreateTime(now);
+        policy.setUpdateTime(now);
+        String userId = currentUserId();
+        policy.setCreatedBy(userId);
+        policy.setUpdatedBy(userId);
         policy.setIsDeleted(0);
         policy.setVersion(0);
 
@@ -82,6 +88,8 @@ public class SlotReleaseStrategyServiceImpl implements ISlotReleaseStrategyServi
             throw new IllegalArgumentException("更新失败：策略不存在");
         }
         copyEditableFields(modifyDTO, policy);
+        policy.setUpdateTime(LocalDateTime.now());
+        policy.setUpdatedBy(currentUserId());
         if (existsByPolicyName(policy.getPolicyName(), policy.getId())) {
             throw new IllegalArgumentException("策略名称已存在：" + policy.getPolicyName());
         }
@@ -133,7 +141,7 @@ public class SlotReleaseStrategyServiceImpl implements ISlotReleaseStrategyServi
         SlotReleaseStrategyPageVO<SlotReleaseStrategyDTO> pageVO = new SlotReleaseStrategyPageVO<>();
         pageVO.setContent(content);
         pageVO.setTotalCount(result.getTotal());
-        pageVO.setPageNo(result.getCurrent());
+        pageVO.setPageIndex(result.getCurrent());
         pageVO.setPageSize(result.getSize());
         return pageVO;
     }
