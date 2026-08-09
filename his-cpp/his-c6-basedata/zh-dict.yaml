@@ -68,3 +68,9 @@
 # 辅助检索字段
     pinyin: 拼音码
     wubi: 五笔码
+# 补充字段
+    catalogcode: 目录编码
+    ybmatchflag: 医保对码标记
+    allergenflag: 过敏标记
+    ybflag: 医保标记
+    hvcmflag: 高值器材标志
