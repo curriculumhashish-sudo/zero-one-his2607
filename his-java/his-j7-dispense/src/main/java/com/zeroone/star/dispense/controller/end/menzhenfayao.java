@@ -9,6 +9,9 @@ import com.zeroone.star.project.query.j7.dispense.PatientQueueQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j7.dispense.PatientDrugItemVO;
 import com.zeroone.star.project.vo.j7.dispense.PatientQueueVO;
+import com.zeroone.star.project.vo.j7.dispense.BatchDispenseResultJsonVO;
+import com.zeroone.star.project.vo.j7.dispense.PatientDrugItemPageJsonVO;
+import com.zeroone.star.project.vo.j7.dispense.PatientQueuePageJsonVO;
 import com.zeroone.star.project.dto.j7.dispense.BatchDispenseCommand;
 import com.zeroone.star.project.vo.j7.dispense.BatchDispenseResultVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,7 +47,7 @@ public class menzhenfayao implements OutPharmApis {
     )
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class,
+            content = @Content(schema = @Schema(implementation = PatientQueuePageJsonVO.class,
                 example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"records\":[],\"total\":0,\"size\":10,\"current\":1,\"pages\":0}}")))
     })
     @PostMapping("/patient-queue")
@@ -60,7 +63,7 @@ public class menzhenfayao implements OutPharmApis {
     )
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class,
+            content = @Content(schema = @Schema(implementation = PatientDrugItemPageJsonVO.class,
                 example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"records\":[],\"total\":0,\"size\":10,\"current\":1,\"pages\":0}}")))
     })
     @PostMapping("/patient-drug-items")
@@ -76,7 +79,7 @@ public class menzhenfayao implements OutPharmApis {
     )
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class,
+            content = @Content(schema = @Schema(implementation = BatchDispenseResultJsonVO.class,
                 example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"successCount\":2,\"failCount\":0,\"successIds\":[\"d001\",\"d002\"],\"failIds\":[],\"message\":\"批量发药完成\"}}")))
     })
     @PostMapping("/batch-dispense")

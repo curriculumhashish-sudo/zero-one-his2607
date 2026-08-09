@@ -7,6 +7,7 @@ import com.zeroone.star.project.dto.j7.dispense.InpatientDispenseRecordDTO;
 import com.zeroone.star.project.j7.dispense.InpatientDispenseRecordApis;
 import com.zeroone.star.project.query.j7.dispense.InpatientDispenseRecordQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j7.dispense.InpatientDispenseRecordPageJsonVO;
 import com.zeroone.star.project.vo.j7.dispense.InpatientDispenseRecordVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -40,7 +41,7 @@ public class zhuyuanfatuiyaojilu implements InpatientDispenseRecordApis {
     @Override
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class,
+            content = @Content(schema = @Schema(implementation = InpatientDispenseRecordPageJsonVO.class,
                 example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"pageIndex\":1,\"pageSize\":10,\"total\":1,\"pages\":1,\"rows\":[{\"id\":\"DISP-001\",\"dispenseTypeName\":\"发药\",\"dispenseStatusName\":\"已完成\",\"prescriptionNo\":\"RX-20260701-001\",\"patientName\":\"张三\",\"inpatientNo\":\"IP-20260701-001\",\"wardName\":\"内科一病区\",\"bedNo\":\"08床\",\"drugName\":\"阿托伐他汀钙片\",\"spec\":\"20mg*7片\",\"dispenseQuantity\":2,\"unitCode\":\"盒\",\"lotNumber\":\"LOT-20260701\",\"traceNo\":\"TRACE-001\",\"pharmacistName\":\"李药师\",\"dispenseTime\":\"2026-07-01 19:25:06\"}]}}")))
     })
     public JsonVO<PageDTO<InpatientDispenseRecordVO>> queryPage(InpatientDispenseRecordQuery query) {

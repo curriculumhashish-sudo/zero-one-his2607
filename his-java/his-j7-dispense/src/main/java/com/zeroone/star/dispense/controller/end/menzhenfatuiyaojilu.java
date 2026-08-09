@@ -7,6 +7,7 @@ import com.zeroone.star.project.dto.j7.dispense.OutpatientDispenseRecordDTO;
 import com.zeroone.star.project.j7.dispense.OutpatientDispenseApis;
 import com.zeroone.star.project.query.j7.dispense.DispenseQuery;
 import com.zeroone.star.project.vo.JsonVO;
+import com.zeroone.star.project.vo.j7.dispense.DispenseGroupPageJsonVO;
 import com.zeroone.star.project.vo.j7.dispense.DispenseGroupVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -48,7 +49,7 @@ public class menzhenfatuiyaojilu implements OutpatientDispenseApis {
     @Operation(summary = "分页查询发退药记录", description = "按处方分组展示门诊发药/退药记录")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = JsonVO.class,
+            content = @Content(schema = @Schema(implementation = DispenseGroupPageJsonVO.class,
                 example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"pageIndex\":1,\"pageSize\":10,\"total\":1,\"pages\":1,\"rows\":[{\"recordNo\":\"DP2026-07-010001\",\"statusEnum\":\"COMPLETED\",\"prescriptionNo\":\"CP2026-07-010003\",\"recordTypeName\":\"发药\",\"patientName\":\"马化腾\",\"clinicNo\":\"EN2026-07-010001\",\"deptName\":\"门诊内科\",\"dispenseTime\":\"2026-07-01 19:25:06\",\"pharmacyName\":\"门诊中药房\",\"dispenserName\":\"admin\",\"drugItems\":[]}]}}")))
     })
     public JsonVO<PageDTO<DispenseGroupVO>> queryPage(
