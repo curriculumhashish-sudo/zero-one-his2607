@@ -83,4 +83,18 @@ public:
 //	}
 //};这。。。这是
 
+
+
+class DiagnoseDticMapper :public Mapper<PtrTERconceptDO>
+{
+public:
+	PtrTERconceptDO mapper(ResultSet* resultSet) const override
+	{
+		PtrTERconceptDO terdo = std::make_shared<TERconceptDO>();
+		terdo->setCode(resultSet->getString("code"));
+		return terdo;
+	}
+
+};
+
 #endif // !_diagnose_SELECT_MAPPER_H_

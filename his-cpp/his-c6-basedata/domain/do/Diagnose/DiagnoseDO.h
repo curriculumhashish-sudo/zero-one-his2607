@@ -229,4 +229,27 @@ public:
 typedef std::shared_ptr<DiagnoseDO> PtrDiagnoseDO;
 
 
+
+
+class TERconceptDO :public BaseDO
+{
+	MYSQL_SYNTHESIZE(string, code, Code);//source_enum
+	//MYSQL_SYNTHESIZE(string, diagnoseCode, diagnoseCode);//诊断编码/特慢病编码 disease_code
+
+public:
+	TERconceptDO() : BaseDO("ter_concept")
+	{
+		MYSQL_ADD_FIELD("code", "s", code);
+		//MYSQL_ADD_FIELD("disease_code", "s", diagnoseCode);
+
+	}
+
+};
+typedef std::shared_ptr<TERconceptDO> PtrTERconceptDO;
+
+
+
+
+
+
 #endif // !_diagnose_DO_

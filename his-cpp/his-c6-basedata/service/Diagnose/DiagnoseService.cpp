@@ -324,73 +324,82 @@ std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
 
 	std::string catname = *dto->catName;
 	std::string diagtype = *dto->diagType;
+
+	DiagnoseDAO dao;
+	PtrTERconceptDO data2 = dao.selectdtic(catname);
+	PtrTERconceptDO data3 = dao.selectdtic(diagtype);
+	data.setSource_enum(data2->getCode());
+	data.setdiagnoseType(data3->getCode());
+
+
+
 	//ZO_CREATE_MONGO_CLIENT
 	// 
 		//MongoClient mc("mongodb://root:123456@127.0.0.1:27017/test");
 	//MongoClient mc("mongodb://root:123456@127.0.0.1:27017/firstdb");
-	NacosClient ns(ServerInfo::getInstance().getNacosAddr(), ServerInfo::getInstance().getNacosNs(), ServerInfo::getInstance().getNacosUser(), ServerInfo::getInstance().getNacosPwd()); \
-		/** 获取配置 */ 
-		ZO_CREATE_DS_CONFIG_NODE(ns, config); 
-	YamlHelper yaml;
-	string uri = yaml.getString(&config, "spring.data.mongodb.uri"); 
-		/** 创建MongoClient对象 */
-		MongoClient mc(uri);
+	//NacosClient ns(ServerInfo::getInstance().getNacosAddr(), ServerInfo::getInstance().getNacosNs(), ServerInfo::getInstance().getNacosUser(), ServerInfo::getInstance().getNacosPwd()); \
+	//	/** 获取配置 */ 
+	//	ZO_CREATE_DS_CONFIG_NODE(ns, config); 
+	//YamlHelper yaml;
+	//string uri = yaml.getString(&config, "spring.data.mongodb.uri"); 
+	//	/** 创建MongoClient对象 */
+	//	MongoClient mc(uri);
 
-	using bsoncxx::builder::basic::kvp;
-		using bsoncxx::builder::basic::make_document;
+	//using bsoncxx::builder::basic::kvp;
+	//	using bsoncxx::builder::basic::make_document;
 
-		mc.execute("condition_definition_source", [&](mongocxx::collection* conn)
-			{				std::cout << "execute" << std::endl;
+	//	mc.execute("condition_definition_source", [&](mongocxx::collection* conn)
+	//		{				std::cout << "execute" << std::endl;
 
 
-				auto result = conn->find_one(make_document(kvp("name", catname)));
-				std::cout << "execute find_one" << std::endl;
-				if (result)
-				{
-					std::cout << "execute view" << std::endl;
-					auto field = result->view().find("code");
+	//			auto result = conn->find_one(make_document(kvp("name", catname)));
+	//			std::cout << "execute find_one" << std::endl;
+	//			if (result)
+	//			{
+	//				std::cout << "execute view" << std::endl;
+	//				auto field = result->view().find("code");
 
-					if (field!= result->view().end())
-					{
-						auto bstr = field->get_string();
-						std::string source_str(bstr.value);
-						std::cout << source_str << std::endl;
-						data.setSource_enum(source_str);//添加来源枚举值
-					}
-					else
-					{
-						std::cout << "No field found" << std::endl;
-					}
-				}
-				else
-				{
-					std::cout << "No result found" << std::endl;
-				}
+	//				if (field!= result->view().end())
+	//				{
+	//					auto bstr = field->get_string();
+	//					std::string source_str(bstr.value);
+	//					std::cout << source_str << std::endl;
+	//					data.setSource_enum(source_str);//添加来源枚举值
+	//				}
+	//				else
+	//				{
+	//					std::cout << "No field found" << std::endl;
+	//				}
+	//			}
+	//			else
+	//			{
+	//				std::cout << "No result found" << std::endl;
+	//			}
 
-			});
-		
-		mc.execute("diag_type", [&](mongocxx::collection* conn)
-			{
-				auto result = conn->find_one(make_document(kvp("itemName", diagtype)));
-				if (result)
-				{
-					auto field = result->view().find("itemCode");
+	//		});
+	//	
+	//	mc.execute("diag_type", [&](mongocxx::collection* conn)
+	//		{
+	//			auto result = conn->find_one(make_document(kvp("itemName", diagtype)));
+	//			if (result)
+	//			{
+	//				auto field = result->view().find("itemCode");
 
-					if (field!= result->view().end())
-					{
-						data.setdiagnoseType(std::string(field->get_string().value));//添加诊断类型码
-					}
-				}
-				else
-				{
-					std::cout << "No result found" << std::endl;
-				}
+	//				if (field!= result->view().end())
+	//				{
+	//					data.setdiagnoseType(std::string(field->get_string().value));//添加诊断类型码
+	//				}
+	//			}
+	//			else
+	//			{
+	//				std::cout << "No result found" << std::endl;
+	//			}
 
-			});
+	//		});
 	
 
-	DiagnoseDAO dao;
-	return dao.insert(data) == 1 ? data.getId() : "";
+	DiagnoseDAO dao1;
+	return dao1.insert(data) == 1 ? data.getId() : "";
 }
 
 bool DiagnoseService::updateData(const DiagnoseDTO::Wrapper& dto)
@@ -435,82 +444,89 @@ bool DiagnoseService::updateData(const DiagnoseDTO::Wrapper& dto)
 
 	std::string catname = *dto->catName;
 	std::string diagtype = *dto->diagType;
-	//MongoClient mc("mongodb://root:123456@127.0.0.1:27017/test");
-	//ZO_CREATE_MONGO_CLIENT(mc);
-	//ZO_CREATE_DS_CONFIG_NODE(_ns, _config); 
-	NacosClient ns(ServerInfo::getInstance().getNacosAddr(), ServerInfo::getInstance().getNacosNs(), ServerInfo::getInstance().getNacosUser(), ServerInfo::getInstance().getNacosPwd()); \
-		/** 获取配置 */
-		ZO_CREATE_DS_CONFIG_NODE(ns, config);
-	YamlHelper yaml;
-	string uri = yaml.getString(&config, "spring.data.mongodb.uri");
-	/** 创建MongoClient对象 */
-	MongoClient mc(uri);
 
-	//MongoClient mc("mongodb://root:123456@127.0.0.1:27017/test");
-	using bsoncxx::builder::basic::kvp;
-	using bsoncxx::builder::basic::make_document;
-	mc.execute("condition_definition_source", [&](mongocxx::collection* conn)
-		{				std::cout << "execute" << std::endl;
+	DiagnoseDAO dao;
+	PtrTERconceptDO data2 = dao.selectdtic(catname);
+	PtrTERconceptDO data3 = dao.selectdtic(diagtype);
+	data.setSource_enum(data2->getCode());
+	data.setdiagnoseType(data3->getCode());
 
 
-	auto result = conn->find_one(make_document(kvp("name", catname)));
-	std::cout << "execute find_one" << std::endl;
-	if (result)
-	{
-		std::cout << "execute view" << std::endl;
-		auto field = result->view().find("code");
+	////MongoClient mc("mongodb://root:123456@127.0.0.1:27017/test");
+	////ZO_CREATE_MONGO_CLIENT(mc);
+	////ZO_CREATE_DS_CONFIG_NODE(_ns, _config); 
+	//NacosClient ns(ServerInfo::getInstance().getNacosAddr(), ServerInfo::getInstance().getNacosNs(), ServerInfo::getInstance().getNacosUser(), ServerInfo::getInstance().getNacosPwd()); \
+	//	/** 获取配置 */
+	//	ZO_CREATE_DS_CONFIG_NODE(ns, config);
+	//YamlHelper yaml;
+	//string uri = yaml.getString(&config, "spring.data.mongodb.uri");
+	///** 创建MongoClient对象 */
+	//MongoClient mc(uri);
 
-		if (field != result->view().end())
-		{
-			auto bstr = field->get_string();
-			std::string source_str(bstr.value);
-			std::cout << source_str << std::endl;
-			data.setSource_enum(source_str);//添加来源枚举值
-		}
-		else
-		{
-			std::cout << "No field found" << std::endl;
-		}
-	}
-	else
-	{
-		std::cout << "No result found" << std::endl;
-	}
+	////MongoClient mc("mongodb://root:123456@127.0.0.1:27017/test");
+	//using bsoncxx::builder::basic::kvp;
+	//using bsoncxx::builder::basic::make_document;
+	//mc.execute("condition_definition_source", [&](mongocxx::collection* conn)
+	//	{				std::cout << "execute" << std::endl;
 
-		});
-	std::cout << "到达两段execute中间位置" << std::endl;  //新增
 
-	mc.execute("diag_type", [&](mongocxx::collection* conn)
-		{
-			std::cout << "enter ipt_dise_type_code" << std::endl;
-			auto result = conn->find_one(make_document(kvp("itemName", diagtype)));
-			std::cout << "execute ipt's find_one" << std::endl;
-			if (result)
-			{
-				auto field = result->view().find("itemCode");
-				std::cout << "get view" << std::endl;
-				if (field != result->view().end())
-				{
-					data.setdiagnoseType(std::string(field->get_string().value));//添加诊断类型码
-				}
-			}
-			else
-			{
-				std::cout << "No result found" << std::endl;
-			}
+	//auto result = conn->find_one(make_document(kvp("name", catname)));
+	//std::cout << "execute find_one" << std::endl;
+	//if (result)
+	//{
+	//	std::cout << "execute view" << std::endl;
+	//	auto field = result->view().find("code");
 
-		});
+	//	if (field != result->view().end())
+	//	{
+	//		auto bstr = field->get_string();
+	//		std::string source_str(bstr.value);
+	//		std::cout << source_str << std::endl;
+	//		data.setSource_enum(source_str);//添加来源枚举值
+	//	}
+	//	else
+	//	{
+	//		std::cout << "No field found" << std::endl;
+	//	}
+	//}
+	//else
+	//{
+	//	std::cout << "No result found" << std::endl;
+	//}
+
+	//	});
+	//std::cout << "到达两段execute中间位置" << std::endl;  //新增
+
+	//mc.execute("diag_type", [&](mongocxx::collection* conn)
+	//	{
+	//		std::cout << "enter ipt_dise_type_code" << std::endl;
+	//		auto result = conn->find_one(make_document(kvp("itemName", diagtype)));
+	//		std::cout << "execute ipt's find_one" << std::endl;
+	//		if (result)
+	//		{
+	//			auto field = result->view().find("itemCode");
+	//			std::cout << "get view" << std::endl;
+	//			if (field != result->view().end())
+	//			{
+	//				data.setdiagnoseType(std::string(field->get_string().value));//添加诊断类型码
+	//			}
+	//		}
+	//		else
+	//		{
+	//			std::cout << "No result found" << std::endl;
+	//		}
+
+	//	});
 
 	//如果version前端不传，就从数据库查
-
 
 
 
 	data.setUpdateBy(dto->getPayload()->getUsername());
 	data.setUpdateTime(SimpleDateTimeFormat::format());
 	data.setVersion(*(dto->version)+1);
-	DiagnoseDAO dao;
-	return dao.update(data) == 1;
+	DiagnoseDAO dao1;
+	return dao1.update(data) == 1;
 }
 
 //删除一条数据（前端有）

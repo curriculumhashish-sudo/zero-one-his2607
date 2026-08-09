@@ -264,3 +264,16 @@ PtrClnConditionDefinitionDO DiagnoseDAO::selectById(const std::string& id)
 	std::string sql = "SELECT id,tenant_id,created_at,updated_at,created_by,updated_by,is_deleted,deleted_at,deleted_by,version,source_enum,condition_code,name,py_str,wb_str,type_code,description,yb_flag,disease_code,yb_no,yb_match_flag,status_enum FROM cln_condition_definition WHERE id = ? AND is_deleted = 0";
 	return sqlSession->executeQueryOne<PtrClnConditionDefinitionDO>(sql, DiagnoseMapper(), "%s", id);
 }
+
+PtrTERconceptDO DiagnoseDAO::selectdtic(std::string catname)
+{
+	std::string sql = "SELECT code FROM ter_concept WHERE display= ?";
+	SqlParams params;
+	/*if (!catname.empty())
+	{
+		sql += " display= ? ";
+		SQLPARAMS_PUSH(params, "s", std::string, catname);
+	}*/
+	return sqlSession->executeQueryOne<PtrTERconceptDO>(sql, DiagnoseDticMapper(), "%s", catname);
+
+}
