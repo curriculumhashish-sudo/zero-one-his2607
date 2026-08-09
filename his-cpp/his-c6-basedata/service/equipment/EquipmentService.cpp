@@ -163,7 +163,7 @@ std::string EquipmentService::saveData(const EquipmentAddDTO::Wrapper& dto, cons
 {
 	EquipmentDAO dao;
 	if (dao.checkNameExists(dto->name.getValue(""), "")) {
-		throw std::runtime_error("新增失败：已存在同名耗材，请勿重复录入！");
+		throw std::runtime_error("Add failed: Equipment name already exists!");
 	}
 	AdmDeviceDefinitionDO entity;
 	UuidFacade uuidFacade;
@@ -245,7 +245,7 @@ bool EquipmentService::modifyData(const EquipmentModifyDTO::Wrapper& dto, const 
 {
 	EquipmentDAO dao;
 	if (dao.checkNameExists(dto->name.getValue(""), dto->id.getValue(""))) {
-		throw std::runtime_error("修改失败：该耗材名称已被其他记录占用！");
+		throw std::runtime_error("Modify failed: Equipment name already exists!！");
 	}
 	AdmDeviceDefinitionDO entity;
 	std::string currentTime = SimpleDateTimeFormat::format();
