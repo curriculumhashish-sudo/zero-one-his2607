@@ -51,14 +51,14 @@ public class InboundReceiptSaveRequestDTO {
     @Schema(description = "目的库房标识", example = "322954885380706304")
     private String purposeLocationId;
 
-    @Schema(description = "库房名称（展示用，后端忽略）", example = "西药库")
+    @Schema(description = "库房名称", example = "西药库")
     private String purposeLocationName;
 
     @NotBlank(message = "供应商不能为空")
     @Schema(description = "供应商标识", example = "4100000000000000004")
     private String supplierId;
 
-    @Schema(description = "供应商名称（展示用，后端忽略）", example = "华中药品配送有限公司")
+    @Schema(description = "供应商名称", example = "华中药品配送有限公司")
     private String supplierName;
 
     @Schema(description = "经办人ID", example = "322932096108597248")
@@ -67,19 +67,19 @@ public class InboundReceiptSaveRequestDTO {
     @Schema(description = "制单人ID", example = "322932096108597248")
     private String creatorId;
 
-    @Schema(description = "制单人名称（展示用，后端忽略）", example = "库管")
+    @Schema(description = "制单人名称", example = "库管")
     private String creatorName;
 
     @Schema(description = "申请人ID", example = "322932096108597248")
     private String applicantId;
 
-    @Schema(description = "申请人名称（展示用，后端忽略）", example = "库管")
+    @Schema(description = "申请人名称", example = "库管")
     private String applicantName;
 
     @Schema(description = "审批人ID", example = "308791351298756608")
     private String approverId;
 
-    @Schema(description = "审批人名称（展示用，后端忽略）", example = "admin")
+    @Schema(description = "审批人名称", example = "admin")
     private String approverName;
 
     @Schema(description = "申请时间（提交审批时服务端写入）")
@@ -88,7 +88,7 @@ public class InboundReceiptSaveRequestDTO {
     @Schema(description = "审批时间（审批时服务端写入）")
     private LocalDateTime approvalTime;
 
-    @Schema(description = "单据总金额（展示用，后端忽略）", example = "1090.00")
+    @Schema(description = "单据总金额", example = "1090.00")
     private BigDecimal totalAmount;
 
     @Schema(description = "原因/备注", example = "按药库订货单到货入库")
@@ -126,13 +126,13 @@ public class InboundReceiptSaveRequestDTO {
         @Schema(description = "单位编码", example = "1")
         private String unitCode;
 
-        @Schema(description = "项目名称（展示用，后端忽略）", example = "替米沙坦片")
+        @Schema(description = "项目名称", example = "替米沙坦片")
         private String productName;
 
-        @Schema(description = "规格（展示用，后端忽略）", example = "40mg")
+        @Schema(description = "规格", example = "40mg")
         private String specification;
 
-        @Schema(description = "厂家（展示用，后端忽略）", example = "上海信谊天平药业有限公司")
+        @Schema(description = "厂家", example = "上海信谊天平药业有限公司")
         private String manufacturer;
 
         @Schema(description = "批号", example = "001-002")

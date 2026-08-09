@@ -44,7 +44,7 @@ public class StockOutSaveRequestDTO {
     @Schema(description = "源药库ID", example = "322954885380706304")
     private String sourceLocationId;
 
-    @Schema(description = "源药库名称（展示用，后端忽略）", example = "西药库")
+    @Schema(description = "源药库名称", example = "西药库")
     private String sourceLocationName;
 
     @NotBlank(message = "目的类型不能为空")
@@ -55,31 +55,31 @@ public class StockOutSaveRequestDTO {
     @Schema(description = "目的药房ID", example = "322954949549363200")
     private String purposeLocationId;
 
-    @Schema(description = "目的药房名称（展示用，后端忽略）", example = "门诊西药房")
+    @Schema(description = "目的药房名称", example = "门诊西药房")
     private String purposeLocationName;
 
     @Schema(description = "制单人员ID", example = "322932096108597248")
     private String practitionerId;
 
-    @Schema(description = "制单人名称（展示用，后端忽略）", example = "库管")
+    @Schema(description = "制单人名称", example = "库管")
     private String practitionerName;
 
     @Schema(description = "创建人ID")
     private String creatorId;
 
-    @Schema(description = "创建人名称（展示用，后端忽略）", example = "库管")
+    @Schema(description = "创建人名称", example = "库管")
     private String creatorName;
 
     @Schema(description = "申请人ID")
     private String applicantId;
 
-    @Schema(description = "申请人名称（展示用，后端忽略）", example = "库管")
+    @Schema(description = "申请人名称", example = "库管")
     private String applicantName;
 
     @Schema(description = "审批人ID")
     private String approverId;
 
-    @Schema(description = "审批人名称（展示用，后端忽略）", example = "admin")
+    @Schema(description = "审批人名称", example = "admin")
     private String approverName;
 
     @Schema(description = "制单/申请时间")
@@ -88,7 +88,7 @@ public class StockOutSaveRequestDTO {
     @Schema(description = "审批时间")
     private LocalDateTime approvalTime;
 
-    @Schema(description = "单据总金额（展示用，后端忽略）", example = "1336.00")
+    @Schema(description = "单据总金额", example = "1336.00")
     private BigDecimal totalAmount;
 
     @Schema(description = "备注", example = "门诊药房调拨出库")
@@ -126,13 +126,13 @@ public class StockOutSaveRequestDTO {
         @Schema(description = "单位编码", example = "1")
         private String unitCode;
 
-        @Schema(description = "项目名称（展示用，后端忽略）", example = "替米沙坦片")
+        @Schema(description = "项目名称", example = "替米沙坦片")
         private String productName;
 
-        @Schema(description = "规格（展示用，后端忽略）", example = "40mg")
+        @Schema(description = "规格", example = "40mg")
         private String specification;
 
-        @Schema(description = "厂家/产地（展示用，后端忽略）", example = "上海信谊天平药业有限公司")
+        @Schema(description = "厂家/产地", example = "上海信谊天平药业有限公司")
         private String manufacturer;
 
         @Schema(description = "批号（必须与源库 wkf_inventory_item.lot_number 一致）", example = "001-002")

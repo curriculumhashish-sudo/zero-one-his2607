@@ -29,31 +29,31 @@ public class StocktakeSaveRequestDTO {
     @Schema(description = "盘点库房ID", example = "322954885380706304")
     private String purposeLocationId;
 
-    @Schema(description = "库房名称（展示用，后端忽略）", example = "西药库")
+    @Schema(description = "库房名称", example = "西药库")
     private String purposeLocationName;
 
     @Schema(description = "盘点人ID", example = "322932096108597248")
     private String practitionerId;
 
-    @Schema(description = "盘点人名称（展示用，后端忽略）", example = "库管")
+    @Schema(description = "盘点人名称", example = "库管")
     private String practitionerName;
 
     @Schema(description = "制单人ID")
     private String creatorId;
 
-    @Schema(description = "制单人名称（展示用，后端忽略）", example = "库管")
+    @Schema(description = "制单人名称", example = "库管")
     private String creatorName;
 
     @Schema(description = "申请人ID")
     private String applicantId;
 
-    @Schema(description = "申请人名称（展示用，后端忽略）", example = "库管")
+    @Schema(description = "申请人名称", example = "库管")
     private String applicantName;
 
     @Schema(description = "审批人ID")
     private String approverId;
 
-    @Schema(description = "审批人名称（展示用，后端忽略）", example = "admin")
+    @Schema(description = "审批人名称", example = "admin")
     private String approverName;
 
     @Schema(description = "制单/申请时间")
@@ -62,7 +62,7 @@ public class StocktakeSaveRequestDTO {
     @Schema(description = "审批时间")
     private LocalDateTime approvalTime;
 
-    @Schema(description = "单据总金额（展示用，后端忽略）", example = "2510.00")
+    @Schema(description = "单据总金额", example = "2510.00")
     private BigDecimal totalAmount;
 
     @Schema(description = "盘点类型", example = "PHARMACY_STOCKTAKE")
