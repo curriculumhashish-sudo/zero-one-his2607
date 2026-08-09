@@ -53,7 +53,7 @@ public class yaofangrukudan {
     @PostMapping("/withdraw")
     @Operation(summary = "撤回审批", description = "仅原申请人可撤回 PENDING_APPROVAL 状态的入库单；撤回原因必填")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "操作成功",
+        @ApiResponse(responseCode = "200", description = "10000 操作成功；9999 参数错误；9995 业务失败",
             content = @Content(mediaType = "application/json",
                 schema = @Schema(implementation = InboundApprovalJsonVO.class),
                 examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"busNo\":\"PSI2026-06-300001\",\"status\":\"WITHDRAWN\",\"message\":\"撤回成功\"}}")))
@@ -72,7 +72,7 @@ public class yaofangrukudan {
     @PostMapping("/approve")
     @Operation(summary = "审批通过", description = "登录审批人通过 PENDING_APPROVAL 状态的入库单，状态变为 APPROVED")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "操作成功",
+        @ApiResponse(responseCode = "200", description = "10000 操作成功；9999 参数错误；9995 业务失败",
             content = @Content(mediaType = "application/json",
                 schema = @Schema(implementation = InboundApprovalJsonVO.class),
                 examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"busNo\":\"PSI2026-06-300001\",\"status\":\"APPROVED\",\"message\":\"审批通过\"}}")))
@@ -91,7 +91,7 @@ public class yaofangrukudan {
     @PostMapping("/reject")
     @Operation(summary = "驳回审批", description = "登录审批人驳回 PENDING_APPROVAL 状态的入库单；驳回原因必填，状态变为 REJECTED")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "操作成功",
+        @ApiResponse(responseCode = "200", description = "10000 操作成功；9999 参数错误；9995 业务失败",
             content = @Content(mediaType = "application/json",
                 schema = @Schema(implementation = InboundApprovalJsonVO.class),
                 examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"busNo\":\"PSI2026-06-300001\",\"status\":\"REJECTED\",\"message\":\"驳回成功\"}}")))
