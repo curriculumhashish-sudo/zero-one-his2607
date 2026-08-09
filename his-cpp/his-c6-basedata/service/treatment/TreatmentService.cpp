@@ -17,14 +17,35 @@
  limitations under the License.
 */
 #include "../../dao/treatment/TreatmentDAO.h"
-#include "id/UuidFacade.h"
+#include "id/SnowFlake.h"
 #include "SimpleDateTimeFormat.h"
 #include "stdafx.h"
 #include "TransactionManager.h"
 #include "TreatmentService.h"
+#include <iomanip>
 #include <mutex>
+#include <sstream>
 #include <stdexcept>
 
+
+// Business code prefix for treatment (Activity Definition).
+static const char* TREATMENT_BUS_NO_PREFIX = "AD";
+// Zero-pad width for AD codes, e.g. AD00000015.
+static const int TREATMENT_BUS_NO_PAD_WIDTH = 8;
+
+// Build bus_no from prefix and sequence value, e.g. AD + 15 -> AD00000015.
+static std::string buildTreatmentBusNo(const std::string& prefix, uint64_t seqValue, int padWidth)
+{
+	std::ostringstream oss;
+	oss << prefix << std::setw(padWidth) << std::setfill('0') << seqValue;
+	return oss.str();
+}
+
+// Generate unique primary key as snowflake string (module-local).
+static std::string nextPrimaryId()
+{
+	return std::to_string(SnowFlake::getInstance()->nextId());
+}
 static std::mutex TREATMENT_OPTIONS_QUERY_MUTEX;
 
 // 从新增/修改 DTO 填充主表业务字段（不含审计字段）。
@@ -55,11 +76,10 @@ static bool insertChildren(TreatmentDAO& dao, const std::string& activityId,
 	if (!children || children->size() == 0)
 		return true;
 
-	UuidFacade uf;
 	for (auto childDto : *children.get())
 	{
 		TreatmentChildDO child;
-		child.setId(uf.genUuid());
+		child.setId(nextPrimaryId());
 		child.setActivityId(activityId);
 		if (childDto->childrenId) child.setChildrenId(childDto->childrenId.getValue(""));
 		if (childDto->childrenName) child.setChildrenName(childDto->childrenName.getValue(""));
@@ -170,14 +190,13 @@ static bool insertPrices(TreatmentDAO& dao, const std::string& activityId,
 	std::string ybType = dto->ybType ? dto->ybType.getValue("") : "";
 	std::string chargeName = dto->name ? dto->name.getValue("") : "";
 
-	UuidFacade uf;
 	for (auto& item : items)
 	{
 		if (!item.hasValue)
 			continue;
 
 		AdmChargeItemDefinitionDO price;
-		price.setId(uf.genUuid());
+		price.setId(nextPrimaryId());
 		price.setInstanceTable("wkf_activity_definition");
 		price.setInstanceId(activityId);
 		price.setChargeName(chargeName);
@@ -236,26 +255,41 @@ bool TreatmentService::modifyStatus(const std::string& id, int32_t targetStatus,
 std::string TreatmentService::saveData(const TreatmentAddDTO::Wrapper& dto)
 {
 	TreatmentDO data;
-	UuidFacade uf;
-	std::string id = uf.genUuid();
+	std::string id = nextPrimaryId();
 	std::string now = SimpleDateTimeFormat::format();
 	std::string username = dto->getPayload() ? dto->getPayload()->getUsername() : "";
 
 	data.setId(id);
-	// 业务编码暂用 id；有生成器后再替换。
-	data.setBusNo(id);
 	data.setStatusEnum("ACTIVE");
 	data.setIsDeleted(0);
 	data.setVersion(0);
-	// 设置创建人
 	data.setCreatedBy(username);
-	// 设置创建时间
 	data.setCreatedAt(now);
 	fillMainFromAddDto(data, dto);
 
-	// 事务内新增：主表 + 子项 + 价格。
+	// Transaction: allocate bus_no, then insert main/children/prices.
 	TreatmentDAO dao;
 	TransactionManager tm(&dao);
+
+	// Resolve tenant for seq_key like "1:AD"; fall back to "1" when unavailable.
+	std::string tenantId = "1";
+	if (dto->getPayload() && !dto->getPayload()->getId().empty())
+	{
+		const std::string currentTenantId = dao.selectCurrentTenantId(dto->getPayload()->getId());
+		if (!currentTenantId.empty())
+		{
+			tenantId = currentTenantId;
+		}
+	}
+	const std::string seqKey = tenantId + ":" + TREATMENT_BUS_NO_PREFIX;
+	const uint64_t seqValue = dao.nextSequenceValue(seqKey);
+	if (seqValue == 0)
+	{
+		tm.rollback();
+		return "";
+	}
+	data.setBusNo(buildTreatmentBusNo(TREATMENT_BUS_NO_PREFIX, seqValue, TREATMENT_BUS_NO_PAD_WIDTH));
+
 	if (dao.insert(data) != 1)
 	{
 		tm.rollback();

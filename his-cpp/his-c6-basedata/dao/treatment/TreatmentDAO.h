@@ -80,5 +80,7 @@ public:
 	int32_t softDeletePricesByInstanceId(const std::string& instanceId, const std::string& deletedBy, const std::string& deletedAt);
 	// 按主键列表软删除
 	int32_t removeData(std::list<std::string>& ids);
+	// Next value from whale_sequence: query -> +1 -> update (or insert 1 if missing). Returns 0 on failure.
+	uint64_t nextSequenceValue(const std::string& seqKey);
 };
 #endif // !_TREATMENT_DAO_
