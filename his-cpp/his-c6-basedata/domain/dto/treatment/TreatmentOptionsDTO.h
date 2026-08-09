@@ -25,9 +25,9 @@
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 /** 诊疗选择列表单行数据，字段统一使用 lowerCamelCase。 */
-class TreatmentOptionV2DTO : public oatpp::DTO
+class TreatmentOptionDTO : public oatpp::DTO
 {
-	DTO_INIT(TreatmentOptionV2DTO, DTO);
+	DTO_INIT(TreatmentOptionDTO, DTO);
 
 	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("treatment.field.id"), true);
 	API_DTO_FIELD_REQUIRE(String, code, ZH_WORDS_GETTER("treatment.field.code"), true);
@@ -39,27 +39,13 @@ class TreatmentOptionV2DTO : public oatpp::DTO
 		info->description = ZH_WORDS_GETTER("treatment.field.category-code-text");
 		info->required = false;
 	}
-	API_DTO_FIELD_REQUIRE(String, packageUnitCode, ZH_WORDS_GETTER("treatment.field.package-unit-code"), false);
-	DTO_FIELD(String, packageUnitCodeDictText, "packageUnitCode_dictText");
-	DTO_FIELD_INFO(packageUnitCodeDictText)
-	{
-		info->description = ZH_WORDS_GETTER("treatment.field.package-unit-code-text");
-		info->required = false;
-	}
-	API_DTO_FIELD_REQUIRE(String, defEncounterUnitCode, ZH_WORDS_GETTER("treatment.field.def-encounter-unit-code"), false);
-	DTO_FIELD(String, defEncounterUnitCodeDictText, "defEncounterUnitCode_dictText");
-	DTO_FIELD_INFO(defEncounterUnitCodeDictText)
-	{
-		info->description = ZH_WORDS_GETTER("treatment.field.def-encounter-unit-code-text");
-		info->required = false;
-	}
 	API_DTO_FIELD_REQUIRE(Int32, version, ZH_WORDS_GETTER("treatment.field.version"), true);
 };
 
 /** 诊疗选择列表分页数据。 */
-class TreatmentOptionsPageDTO : public PageDTO<TreatmentOptionV2DTO::Wrapper>
+class TreatmentOptionsPageDTO : public PageDTO<TreatmentOptionDTO::Wrapper>
 {
-	DTO_INIT(TreatmentOptionsPageDTO, PageDTO<TreatmentOptionV2DTO::Wrapper>);
+	DTO_INIT(TreatmentOptionsPageDTO, PageDTO<TreatmentOptionDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)

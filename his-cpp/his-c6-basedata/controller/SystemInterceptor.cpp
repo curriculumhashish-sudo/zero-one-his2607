@@ -69,7 +69,7 @@ std::shared_ptr<Response> createErrorRespone(std::string message, std::shared_pt
 }
 
 // 构造诊疗选择接口的 401 统一响应。
-static std::shared_ptr<Response> createTreatmentOptionsV2UnauthorizedResponse(
+static std::shared_ptr<Response> createTreatmentSelectUnauthorizedResponse(
 	const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& mapper)
 {
 	auto error = TreatmentOptionsPageJsonVO::createShared();
@@ -101,9 +101,9 @@ std::shared_ptr<oatpp::web::server::interceptor::RequestInterceptor::OutgoingRes
 	// Get request credentials
 	oatpp::String token = request->getHeader(API_H_TOKEN);
 	if (!token || token->empty()) {
-		const std::string optionsPath = "/api/v2/treatments/options";
+		const std::string optionsPath = "/treatment/select-treatment";
 		if (path == optionsPath || path.rfind(optionsPath + "?", 0) == 0) {
-			return createTreatmentOptionsV2UnauthorizedResponse(m_objectMapper);
+			return createTreatmentSelectUnauthorizedResponse(m_objectMapper);
 		}
 		return createErrorRespone("empty token", m_objectMapper);
 	}

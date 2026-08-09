@@ -401,7 +401,7 @@ TreatmentOptionsPageDTO::Wrapper TreatmentService::listOptionsV2(
 	// 将联表查询结果转换为接口 DTO。
 	for (const auto& sub : dao.selectSelectWithPage(query, tenantId))
 	{
-		auto dto = TreatmentOptionV2DTO::createShared();
+		auto dto = TreatmentOptionDTO::createShared();
 		ZO_STAR_DOMAIN_DO_TO_DTO(
 			dto,
 			sub,
@@ -410,10 +410,6 @@ TreatmentOptionsPageDTO::Wrapper TreatmentService::listOptionsV2(
 			name, Name,
 			categoryCode, CategoryCode,
 			categoryCodeDictText, CategoryCodeDictText,
-			packageUnitCode, PackageUnitCode,
-			packageUnitCodeDictText, PackageUnitCodeDictText,
-			defEncounterUnitCode, DefEncounterUnitCode,
-			defEncounterUnitCodeDictText, DefEncounterUnitCodeDictText,
 			version, Version);
 		pages->addData(dto);
 	}

@@ -25,6 +25,8 @@
 #include "SimpleDateTimeFormat.h"
 #include "PdfComponent.h"
 
+#include <algorithm>
+
 // 列表分页
 TreatmentPageJsonVO::Wrapper TreatmentController::execQueryTreatment(const TreatmentQuery::Wrapper& query)
 {
@@ -168,7 +170,7 @@ StringJsonVO::Wrapper TreatmentController::execAddTreatment(
 }
 
 // 获取选择诊疗列表。
-TreatmentOptionsPageJsonVO::Wrapper TreatmentController::execQueryOptionsV2(
+TreatmentOptionsPageJsonVO::Wrapper TreatmentController::execSelectTreatment(
 	const TreatmentOptionsQuery::Wrapper& query, const PayloadDTO& payload)
 {
 	// 定义统一响应对象。
@@ -181,6 +183,17 @@ TreatmentOptionsPageJsonVO::Wrapper TreatmentController::execQueryOptionsV2(
 		return jvo;
 	}
 	if (payload.getId().empty())
+	{
+		jvo->init(nullptr, ResultStatus(
+			ZH_WORDS_GETTER("treatment.message.forbidden"), 10003));
+		return jvo;
+	}
+	const auto& authorities = payload.getAuthorities();
+	const bool permitted =
+		std::find(authorities.begin(), authorities.end(), "SUPER_ADMIN") != authorities.end() ||
+		std::find(authorities.begin(), authorities.end(),
+			"Navigation.Diagnosistreatment") != authorities.end();
+	if (!permitted)
 	{
 		jvo->init(nullptr, ResultStatus(
 			ZH_WORDS_GETTER("treatment.message.forbidden"), 10003));
