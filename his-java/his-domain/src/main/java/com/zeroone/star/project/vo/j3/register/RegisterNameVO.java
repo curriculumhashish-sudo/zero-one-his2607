@@ -24,7 +24,7 @@ import java.io.Serializable;
 public class RegisterNameVO implements Serializable {
 
     @Schema(description = "挂号类型唯一标识", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long id;
+    private String id;
 
     @Schema(description = "挂号类型名称", example = "普通号", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;

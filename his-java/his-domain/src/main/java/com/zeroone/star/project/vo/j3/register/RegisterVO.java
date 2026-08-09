@@ -21,10 +21,10 @@ import java.math.BigDecimal;
 public class RegisterVO implements Serializable {
 
     /**
-     * 挂号类型唯一标识（序号）
+     * 挂号类型唯一标识（雪花ID超出JS安全整数范围，用String避免前端精度丢失）
      */
     @Schema(description = "挂号类型唯一标识", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long id;
+    private String id;
 
     /**
      * 挂号类型名称
