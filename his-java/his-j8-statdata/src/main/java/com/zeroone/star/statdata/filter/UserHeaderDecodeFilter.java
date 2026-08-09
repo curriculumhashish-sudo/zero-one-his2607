@@ -1,15 +1,13 @@
 package com.zeroone.star.statdata.filter;
 
+import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -19,17 +17,16 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component
-@Order(Ordered.HIGHEST_PRECEDENCE)
-public class UserHeaderDecodeFilter extends OncePerRequestFilter {
+public class UserHeaderDecodeFilter implements Filter {
 
     private static final String USER_HEADER = "user";
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
-        String rawUser = request.getHeader(USER_HEADER);
+    public void doFilter(ServletRequest request,
+                         ServletResponse response,
+                         FilterChain chain) throws IOException, ServletException {
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        String rawUser = httpRequest.getHeader(USER_HEADER);
         if (StringUtils.hasText(rawUser)) {
             String decoded;
             try {
@@ -37,9 +34,9 @@ public class UserHeaderDecodeFilter extends OncePerRequestFilter {
             } catch (IllegalArgumentException e) {
                 decoded = rawUser;
             }
-            filterChain.doFilter(new UserHeaderOverrideRequest(request, decoded), response);
+            chain.doFilter(new UserHeaderOverrideRequest(httpRequest, decoded), response);
         } else {
-            filterChain.doFilter(request, response);
+            chain.doFilter(request, response);
         }
     }
 
