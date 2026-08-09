@@ -36,7 +36,11 @@ public:
 		data.setName(resultSet->getString(3));
 		data.setCategoryCode(resultSet->getString(4));
 		data.setCategoryCodeDictText(resultSet->getString(5));
-		data.setVersion(resultSet->getInt(6));
+		data.setPackageUnitCode(resultSet->getString(6));
+		data.setPackageUnitCodeDictText(resultSet->getString(7));
+		data.setDefEncounterUnitCode(resultSet->getString(8));
+		data.setDefEncounterUnitCodeDictText(resultSet->getString(9));
+		data.setVersion(resultSet->getInt(10));
 		return data;
 	}
 };

@@ -410,6 +410,10 @@ TreatmentOptionsPageDTO::Wrapper TreatmentService::listOptionsV2(
 			name, Name,
 			categoryCode, CategoryCode,
 			categoryCodeDictText, CategoryCodeDictText,
+			packageUnitCode, PackageUnitCode,
+			packageUnitCodeDictText, PackageUnitCodeDictText,
+			defEncounterUnitCode, DefEncounterUnitCode,
+			defEncounterUnitCodeDictText, DefEncounterUnitCodeDictText,
 			version, Version);
 		pages->addData(dto);
 	}

@@ -34,6 +34,10 @@ class TreatmentSelectBO
 	CC_SYNTHESIZE(std::string, name, Name);
 	CC_SYNTHESIZE(std::string, categoryCode, CategoryCode);
 	CC_SYNTHESIZE(std::string, categoryCodeDictText, CategoryCodeDictText);
+	CC_SYNTHESIZE(std::string, packageUnitCode, PackageUnitCode);
+	CC_SYNTHESIZE(std::string, packageUnitCodeDictText, PackageUnitCodeDictText);
+	CC_SYNTHESIZE(std::string, defEncounterUnitCode, DefEncounterUnitCode);
+	CC_SYNTHESIZE(std::string, defEncounterUnitCodeDictText, DefEncounterUnitCodeDictText);
 	CC_SYNTHESIZE(int32_t, version, Version);
 };
 

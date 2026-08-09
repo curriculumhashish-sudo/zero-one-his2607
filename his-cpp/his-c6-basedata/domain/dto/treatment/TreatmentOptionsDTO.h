@@ -39,6 +39,20 @@ class TreatmentOptionDTO : public oatpp::DTO
 		info->description = ZH_WORDS_GETTER("treatment.field.category-code-text");
 		info->required = false;
 	}
+	API_DTO_FIELD_REQUIRE(String, packageUnitCode, ZH_WORDS_GETTER("treatment.field.package-unit-code"), false);
+	DTO_FIELD(String, packageUnitCodeDictText, "packageUnitCode_dictText");
+	DTO_FIELD_INFO(packageUnitCodeDictText)
+	{
+		info->description = ZH_WORDS_GETTER("treatment.field.package-unit-code-text");
+		info->required = false;
+	}
+	API_DTO_FIELD_REQUIRE(String, defEncounterUnitCode, ZH_WORDS_GETTER("treatment.field.def-encounter-unit-code"), false);
+	DTO_FIELD(String, defEncounterUnitCodeDictText, "defEncounterUnitCode_dictText");
+	DTO_FIELD_INFO(defEncounterUnitCodeDictText)
+	{
+		info->description = ZH_WORDS_GETTER("treatment.field.def-encounter-unit-code-text");
+		info->required = false;
+	}
 	API_DTO_FIELD_REQUIRE(Int32, version, ZH_WORDS_GETTER("treatment.field.version"), true);
 };
 

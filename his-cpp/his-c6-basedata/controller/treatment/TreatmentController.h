@@ -84,6 +84,8 @@ public: // 接口定义
 		exampleRow->name = u8"\u9759\u8109\u6ce8\u5c04";
 		exampleRow->categoryCode = "21";
 		exampleRow->categoryCodeDictText = u8"\u6cbb\u7597";
+		exampleRow->packageUnitCode = "6";
+		exampleRow->packageUnitCodeDictText = u8"\u6b21";
 		exampleRow->version = 0;
 		auto examplePage = TreatmentOptionsPageDTO::createShared();
 		examplePage->pageIndex = 1;
