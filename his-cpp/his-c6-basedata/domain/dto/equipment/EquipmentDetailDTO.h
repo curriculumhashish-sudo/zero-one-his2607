@@ -13,7 +13,7 @@
 class EquipmentDetailDTO : public oatpp::DTO
 {
 	DTO_INIT(EquipmentDetailDTO, DTO);
-	// Æ÷²ÄID
+	// ÐòºÅ
 	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("equipment.field.id"), true);
 	// Æ÷²Ä±àÂë
 	API_DTO_FIELD_REQUIRE(String, code, ZH_WORDS_GETTER("equipment.field.code"), false);
