@@ -28,17 +28,41 @@ public class StocktakeListVO {
     @Schema(description = "单据状态：DRAFT-草稿，PENDING_APPROVAL-待审批，APPROVED-已审批，REJECTED-已驳回，WITHDRAWN-已撤回", example = "DRAFT", requiredMode = Schema.RequiredMode.REQUIRED)
     private String statusEnum;
 
+    @Schema(description = "制单人标识", example = "308791351298756608")
+    private String createdBy;
+
+    @Schema(description = "制单人名称", example = "张三")
+    private String createdByName;
+
+    @Schema(description = "制单时间", example = "2026-08-05 08:00:00")
+    private LocalDateTime createdAt;
+
+    @Schema(description = "盘点药房标识", example = "322954949549363200")
+    private String warehouseId;
+
     @Schema(description = "库房名称", example = "门诊药房")
     private String warehouseName;
 
+    @Schema(description = "盘点药房名称", example = "西药房")
+    private String stocktakePharmacy;
+
+    @Schema(description = "总金额", example = "3220.10")
+    private BigDecimal totalPrice;
+
     @Schema(description = "盘点盈亏金额（盘盈为正，盘亏为负）", example = "1250.50")
     private BigDecimal profitLossPrice;
+
+    @Schema(description = "申请人标识", example = "308791351298756608")
+    private String applicantId;
 
     @Schema(description = "申请人名称", example = "张三")
     private String applicantName;
 
     @Schema(description = "申请时间", example = "2026-07-01 10:30:00")
     private LocalDateTime applyTime;
+
+    @Schema(description = "审批人标识", example = "308791351298756608")
+    private String approverId;
 
     @Schema(description = "审批人名称", example = "李四")
     private String approverName;

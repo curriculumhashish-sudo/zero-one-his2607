@@ -36,6 +36,7 @@ public interface StocktakeMapper extends BaseMapper<WkfSupplyRequest> {
      * @param busNo        业务单号（模糊查询）
      * @param statusEnum   状态枚举
      * @param warehouseId  库房标识（purpose_location_id）
+     * @param warehouseName 库房/盘点药房名称（模糊查询）
      * @param applicantId  申请人标识
      * @param startTime    创建时间起
      * @param endTime      创建时间止
@@ -45,6 +46,7 @@ public interface StocktakeMapper extends BaseMapper<WkfSupplyRequest> {
                                                @Param("busNo") String busNo,
                                                @Param("statusEnum") String statusEnum,
                                                @Param("warehouseId") String warehouseId,
+                                               @Param("warehouseName") String warehouseName,
                                                @Param("applicantId") String applicantId,
                                                @Param("startTime") String startTime,
                                                @Param("endTime") String endTime);
