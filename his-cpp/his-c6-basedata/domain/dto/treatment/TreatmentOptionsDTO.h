@@ -53,6 +53,7 @@ class TreatmentOptionV2DTO : public oatpp::DTO
 		info->description = ZH_WORDS_GETTER("treatment.field.def-encounter-unit-code-text");
 		info->required = false;
 	}
+	API_DTO_FIELD_REQUIRE(Int32, version, ZH_WORDS_GETTER("treatment.field.version"), true);
 };
 
 /** 诊疗选择列表分页数据。 */

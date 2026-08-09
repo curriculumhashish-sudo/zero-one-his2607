@@ -413,7 +413,8 @@ TreatmentOptionsPageDTO::Wrapper TreatmentService::listOptionsV2(
 			packageUnitCode, PackageUnitCode,
 			packageUnitCodeDictText, PackageUnitCodeDictText,
 			defEncounterUnitCode, DefEncounterUnitCode,
-			defEncounterUnitCodeDictText, DefEncounterUnitCodeDictText);
+			defEncounterUnitCodeDictText, DefEncounterUnitCodeDictText,
+			version, Version);
 		pages->addData(dto);
 	}
 	return pages;
