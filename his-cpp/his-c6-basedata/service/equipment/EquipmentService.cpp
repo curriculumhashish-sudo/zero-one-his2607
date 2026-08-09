@@ -3,6 +3,8 @@
 #include "../../dao/equipment/EquipmentDAO.h"
 #include "id/UuidFacade.h"
 #include "SimpleDateTimeFormat.h"
+#include <iomanip>
+#include <sstream>
 
 
 // 内部辅助函数：用于插入三个价格到 adm_charge_item_definition
@@ -160,6 +162,9 @@ EquipmentDTO::Wrapper EquipmentService::getById(std::string id)
 std::string EquipmentService::saveData(const EquipmentAddDTO::Wrapper& dto, const PayloadDTO& payload)
 {
 	EquipmentDAO dao;
+	if (dao.checkNameExists(dto->name.getValue(""), "")) {
+		throw std::runtime_error("新增失败：已存在同名耗材，请勿重复录入！");
+	}
 	AdmDeviceDefinitionDO entity;
 	UuidFacade uuidFacade;
 
@@ -181,6 +186,19 @@ std::string EquipmentService::saveData(const EquipmentAddDTO::Wrapper& dto, cons
 	// 映射基础与业务信息
 	entity.setName(dto->name.getValue(""));
 	entity.setMerchandiseName(dto->goods.getValue(""));
+
+	//bus_no相关
+	std::string dynamicPrefix = "1"; // 兜底默认值
+	auto orgMap = payload.getOrganizationUnits();
+	if (!orgMap.empty()) {
+		dynamicPrefix = orgMap.begin()->first;
+	}
+	std::string seqKey = dynamicPrefix + ":DD";
+	uint64_t nextSeq = dao.generateSequence(seqKey);
+	std::ostringstream oss;
+	oss << "DD" << std::setw(8) << std::setfill('0') << nextSeq;
+	entity.setBusNo(oss.str());
+
 	entity.setCategoryCode(dto->classification.getValue(""));
 	entity.setTypeCode(dto->finantype.getValue(""));
 	entity.setManufacturerText(dto->manufacturer.getValue(""));
@@ -226,6 +244,9 @@ std::string EquipmentService::saveData(const EquipmentAddDTO::Wrapper& dto, cons
 bool EquipmentService::modifyData(const EquipmentModifyDTO::Wrapper& dto, const PayloadDTO& payload)
 {
 	EquipmentDAO dao;
+	if (dao.checkNameExists(dto->name.getValue(""), dto->id.getValue(""))) {
+		throw std::runtime_error("修改失败：该耗材名称已被其他记录占用！");
+	}
 	AdmDeviceDefinitionDO entity;
 	std::string currentTime = SimpleDateTimeFormat::format();
 
@@ -286,13 +307,18 @@ bool EquipmentService::modifyData(const EquipmentModifyDTO::Wrapper& dto, const 
 	entity.setItemMinQuantity(safeStod(dto->warningmin.getValue("0.0")));
 	entity.setItemMaxQuantity(safeStod(dto->warningmax.getValue("0.0")));
 
-	// 1. 更新主表
-	if (dao.update(entity) > 0) {
+	std::cout << "========== 准备修改主表 ==========" << std::endl;
 
+	// 执行主表更新 (注意：如果主表信息完全没变，MySQL返回受影响行数为0，所以用 >= 0 判断)
+	int updateRows = dao.update(entity);
 
-		// 3. 构建代理 DTO 传给辅助函数
+	if (updateRows >= 0) {
+		std::cout << "[主表修改成功] 受影响行数: " << updateRows << std::endl;
+
+		// 构建代理 DTO 传给辅助函数处理价格
 		auto priceProxyDto = EquipmentAddDTO::createShared();
 
+		// 安全解析 String 到 Float64
 		if (dto->purchase && !dto->purchase->empty()) {
 			try { priceProxyDto->purchase = oatpp::Float64(std::stod(dto->purchase->c_str())); }
 			catch (...) {}
@@ -306,10 +332,13 @@ bool EquipmentService::modifyData(const EquipmentModifyDTO::Wrapper& dto, const 
 			catch (...) {}
 		}
 
-		// 4. 插入新价格
+		// 插入新价格 (内部是 UPSERT 逻辑)
 		_savePrices(dao, entity.getId(), entity.getName(), entity.getTypeCode(), dto->medinscat.getValue(""), priceProxyDto, payload);
 
 		return true;
+	}
+	else {
+		std::cout << "[主表修改失败] 数据库返回错误！" << std::endl;
 	}
 	return false;
 }

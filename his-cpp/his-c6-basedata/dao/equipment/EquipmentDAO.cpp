@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "EquipmentDAO.h"
 #include "EquipmentMapper.h"
+#include "SimpleDateTimeFormat.h"
 
 // ============================================================================
 // 1. 查询条件构建器 
@@ -117,7 +118,7 @@ int EquipmentDAO::insert(const AdmDeviceDefinitionDO& entity)
 		"`is_deleted`, `version`, `status_enum`, `active_flag`, "
 
 		// 基础信息 (11个)
-		"`name`, `merchandise_name`, `category_code`, `type_code`, `manufacturer_text`, "
+		"`name`, `bus_no` , `merchandise_name`, `category_code`, `type_code`, `manufacturer_text`, "
 		"`supply_id`, `approval_number`, `total_volume`, `yb_no`, `yb_org_no`, `chrgitm_lv`, "
 
 		// 业务及标记信息 (6个)
@@ -131,7 +132,7 @@ int EquipmentDAO::insert(const AdmDeviceDefinitionDO& entity)
 		// 10 + 11 + 6 + 11 = 38 个字段
 		"?, ?, ?, ?, ?, ?, "    // id -> updated_by
 		"0, 0, ?, ?, "          // is_deleted(0), version(0), status, active
-		"?, ?, ?, ?, ?, "       // name -> mfr_text
+		"?, ?, ?, ?, ?, ?, "    // name -> mfr_text
 		"?, ?, ?, ?, ?, ?, "    // supply -> chrgitm_lv
 		"?, ?, ?, ?, ?, ?, "    // py_str -> description
 		"?, ?, ?, ?, "          // purchase -> stock ratio
@@ -153,6 +154,7 @@ int EquipmentDAO::insert(const AdmDeviceDefinitionDO& entity)
 
 	// ================== 页面：基础信息模块 ==================
 	SQLPARAMS_PUSH(params, "s", std::string, entity.getName());
+	SQLPARAMS_PUSH(params, "s", std::string, entity.getBusNo());
 	SQLPARAMS_PUSH(params, "s", std::string, entity.getMerchandiseName());
 	SQLPARAMS_PUSH(params, "s", std::string, entity.getCategoryCode());
 	SQLPARAMS_PUSH(params, "s", std::string, entity.getTypeCode());        // 映射前端:财务类型
@@ -394,19 +396,25 @@ int EquipmentDAO::deleteChargeItemsByInstanceId(const std::string& instanceId)
 // ============================================================================
 int EquipmentDAO::upsertChargeItem(const AdmChargeItemDefinitionDO& entity, const std::string& updatedAt, const std::string& updatedBy)
 {
+	// 【修复】：在 ON DUPLICATE KEY UPDATE 中加入 charge_name, type_code, yb_type 的同步更新
 	std::string sql = "INSERT INTO adm_charge_item_definition ("
 		"`id`, `tenant_id`, `created_at`, `created_by`, `is_deleted`, `version`, "
 		"`instance_table`, `instance_id`, `charge_name`, `status_enum`, `type_code`, "
-		"`price_type_code`, `price_value`, `yb_type`"
+		"`price_type_code`, `price_value`, `yb_type`, `updated_at`, `updated_by`"
 		") VALUES ("
 		"?, ?, ?, ?, 0, 0, "
-		"?, ?, ?, ?, ?, ?, ?, ?) "
+		"?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
 		"ON DUPLICATE KEY UPDATE "
 		"`price_value` = VALUES(`price_value`), "
+		"`charge_name` = VALUES(`charge_name`), " 
+		"`type_code` = VALUES(`type_code`), "     
+		"`yb_type` = VALUES(`yb_type`), "         
 		"`updated_at` = ?, "
 		"`updated_by` = ?";
 
 	SqlParams params;
+
+	// === 压入 INSERT 所需的 14 个参数 (保持不变) ===
 	SQLPARAMS_PUSH(params, "s", std::string, entity.getId());
 	SQLPARAMS_PUSH(params, "s", std::string, entity.getTenantId());
 	SQLPARAMS_PUSH(params, "s", std::string, entity.getCreatedAt());
@@ -419,6 +427,12 @@ int EquipmentDAO::upsertChargeItem(const AdmChargeItemDefinitionDO& entity, cons
 	SQLPARAMS_PUSH(params, "s", std::string, entity.getPriceTypeCode());
 	SQLPARAMS_PUSH(params, "d", double, entity.getPriceValue());
 	SQLPARAMS_PUSH(params, "s", std::string, entity.getYbType());
+	SQLPARAMS_PUSH(params, "s", std::string, updatedAt);
+	SQLPARAMS_PUSH(params, "s", std::string, updatedBy);
+
+	// === 压入 UPDATE 所需的 2 个审计参数 (保持不变) ===
+	// （因为我们在 SQL 里用了 VALUES(`charge_name`) 这个高级函数，
+	// 它会自动去取上面 INSERT 尝试塞进去的那个新名字，所以不需要在这里额外传参！）
 	SQLPARAMS_PUSH(params, "s", std::string, updatedAt);
 	SQLPARAMS_PUSH(params, "s", std::string, updatedBy);
 
@@ -439,4 +453,35 @@ int EquipmentDAO::deleteRemovedPrices(const std::string& instanceId, const std::
 	SQLPARAMS_PUSH(params, "s", std::string, keepLimit);
 
 	return sqlSession->executeUpdate(sql, params);
+}
+
+// ============================================================================
+// 14. 分布式发号器：从 whale_sequence 表获取自增序列
+// ============================================================================
+uint64_t EquipmentDAO::generateSequence(const std::string& seqKey)
+{
+
+	std::string currentTime = SimpleDateTimeFormat::format();
+	SqlParams params;
+
+	std::string updateSql = "UPDATE `whale_sequence` SET `current_value` = `current_value` + 1, `updated_at` = ? WHERE `seq_key` = ?";
+	SQLPARAMS_PUSH(params, "s", std::string, currentTime);
+	SQLPARAMS_PUSH(params, "s", std::string, seqKey);
+
+	int affectedRows = sqlSession->executeUpdate(updateSql, params);
+
+	// 如果影响行数为 0，说明这个 seqKey 是第一次使用，表中没有数据，需执行插入
+	if (affectedRows == 0) {
+		params.clear(); // 清空参数重新压入
+		std::string insertSql = "INSERT INTO `whale_sequence` (`seq_key`, `current_value`, `updated_at`) VALUES (?, 1, ?)";
+		SQLPARAMS_PUSH(params, "s", std::string, seqKey);
+		SQLPARAMS_PUSH(params, "s", std::string, currentTime);
+		sqlSession->executeUpdate(insertSql, params);
+	}
+
+	params.clear();
+	std::string selectSql = "SELECT `current_value` FROM `whale_sequence` WHERE `seq_key` = ?";
+	SQLPARAMS_PUSH(params, "s", std::string, seqKey);
+
+	return sqlSession->executeQueryNumerical(selectSql, params);
 }

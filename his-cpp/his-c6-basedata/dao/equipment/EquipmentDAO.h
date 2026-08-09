@@ -61,5 +61,8 @@ public:
 
 	// 删除被前端清空的价格
 	int deleteRemovedPrices(const std::string& instanceId, const std::string& keepPurchase, const std::string& keepSale, const std::string& keepLimit);
+
+	//获取最大bus_no编号
+	uint64_t generateSequence(const std::string& seqKey);
 };
 #endif // !_RENTCONTROLLER_DAO_
