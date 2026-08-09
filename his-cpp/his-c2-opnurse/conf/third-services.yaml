@@ -1,5 +1,5 @@
 rocket-mq:
-  name-server: 192.168.26.135:9876
+  name-server: 81.70.16.110:9876
 fastdfs:
   charset: UTF-8
   connect-timeout: 5
@@ -9,5 +9,5 @@ fastdfs:
   connection-pool-max-idle: 20
   connection-pool-max-total: 20
   connection-pool-min-idle: 2
-  nginx-servers: 127.0.0.1:8888
-  tracker-servers: 127.0.0.1:22122
+  nginx-servers: 182.92.130.33:8888
+  tracker-servers: 182.92.130.33:22122
