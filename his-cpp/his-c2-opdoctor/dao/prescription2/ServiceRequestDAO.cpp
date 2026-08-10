@@ -6,7 +6,9 @@ namespace
 {
 // 服务申请单打印所需字段
 const std::string SERVICE_REQUEST_COLUMNS =
-    "id, encounter_id, version, status_enum, category_enum, print_count, updated_by, updated_at ";
+    "id, prescription_no, encounter_id, patient_id, status_enum, category_enum, "
+    "quantity, unit_code, authored_time, requester_id, performer_id, location_id, "
+    "org_id, remark, print_count, version, updated_by, updated_at ";
 }
 
 PtrServiceRequestDO ServiceRequestDAO::selectById(

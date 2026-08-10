@@ -4,6 +4,7 @@
 #define _MEDICAL_ADVICE_VO_
 
 #include "../../GlobalInclude.h"
+#include "../../dto/prescription2/ApplicationFormDetailDTO.h"
 #include "../../dto/prescription2/PrintApplicationFormDTO.h"
 #include "../../dto/prescription2/SignMedicalAdviceDTO.h"
 #include "../../dto/prescription2/WithdrawMedicalAdviceDTO.h"
@@ -24,10 +25,10 @@ class WithdrawMedicalAdviceJsonVO : public JsonVO<List<String>>
     DTO_INIT(WithdrawMedicalAdviceJsonVO, JsonVO<List<String>>);
 };
 
-// 服务申请单打印成功时返回的 JSON 响应
-class PrintApplicationFormJsonVO : public JsonVO<String>
+// 服务申请单打印响应
+class PrintApplicationFormJsonVO : public JsonVO<ApplicationFormDetailDTO::Wrapper>
 {
-    DTO_INIT(PrintApplicationFormJsonVO, JsonVO<String>);
+    DTO_INIT(PrintApplicationFormJsonVO, JsonVO<ApplicationFormDetailDTO::Wrapper>);
 };
 
 #include OATPP_CODEGEN_END(DTO)
