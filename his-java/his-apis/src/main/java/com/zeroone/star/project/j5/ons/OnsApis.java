@@ -26,17 +26,21 @@ public interface OnsApis {
     @GetMapping("/patient-queue")
     JsonVO<PageDTO<PatientQueueVO>> getPatientQueue(PatientQueueQuery query);
 
-    @Operation(summary = "获取患者执行项目", description = "根据患者ID获取执行项目列表")
+    @Operation(summary = "获取患者执行项目", description = "根据患者ID和就诊ID获取执行项目列表")
     @GetMapping("/patient/{patientId}/service-requests")
     JsonVO<List<ExecutionRecordVO>> getPatientServiceRequests(
             @Parameter(description = "患者ID", required = true, example = "1")
-            @PathVariable String patientId);
+            @PathVariable String patientId,
+            @Parameter(description = "就诊ID（encounterId）", required = true, example = "1")
+            @RequestParam String encounter_id);
 
-    @Operation(summary = "获取患者耗材项目", description = "根据患者ID获取耗材项目列表")
+    @Operation(summary = "获取患者耗材项目", description = "根据患者ID和就诊ID获取耗材项目列表")
     @GetMapping("/patient/{patientId}/consumable-items")
     JsonVO<List<PatientConsumableItemVO>> getPatientConsumableItems(
             @Parameter(description = "患者ID", required = true, example = "1")
-            @PathVariable String patientId);
+            @PathVariable String patientId,
+            @Parameter(description = "就诊ID（encounterId）", required = true, example = "1")
+            @RequestParam String encounter_id);
 
     @Operation(summary = "执行服务请求（支持批量）", description = "批量执行医嘱/服务请求")
     @PostMapping("/execute")

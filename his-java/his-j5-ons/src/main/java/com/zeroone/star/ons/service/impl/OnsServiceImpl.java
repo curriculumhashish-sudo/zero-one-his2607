@@ -15,7 +15,6 @@ import com.zeroone.star.ons.mapper.WkfServiceRequestMapper;
 import com.zeroone.star.ons.service.IOnsService;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j5.ons.*;
-import com.zeroone.star.project.enums.ResultStatus;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.project.vo.j5.ons.BatchExecuteResultVO;
 import com.zeroone.star.project.vo.j5.ons.ExecutionRecordVO;
@@ -134,10 +133,7 @@ public class OnsServiceImpl implements IOnsService {
         result.setFailedCount(failedCount);
         result.setHasPartialSuccess(successCount > 0 && failedCount > 0);
 
-        if (successCount == 0) {
-            return JsonVO.create(result, ResultStatus.FAIL.getCode(), "执行失败");
-        }
-
+        // 即使全部失败也返回code=10000，前端可读取failedItems显示每一项失败原因
         return JsonVO.success(result);
     }
 
@@ -193,7 +189,20 @@ public class OnsServiceImpl implements IOnsService {
                     continue;
                 }
 
-                requestDO.setStatusEnum("CANCELLED");
+                // 校验必须是已执行状态才能取消
+                if (requestDO.getPerformFlag() == null || requestDO.getPerformFlag() != 1) {
+                    addFailedItem(result, recordId, "NOT_EXECUTED", "记录未执行，无法取消");
+                    failedCount++;
+                    continue;
+                }
+
+                // 取消执行：恢复为可执行状态
+                requestDO.setPerformFlag(0);
+                requestDO.setStatusEnum("ACTIVE");
+                requestDO.setExecutionCount(requestDO.getExecutionCount() != null && requestDO.getExecutionCount() > 0 ? requestDO.getExecutionCount() - 1 : 0);
+                requestDO.setOccurrenceStartTime(null);
+                requestDO.setOccurrenceEndTime(null);
+                requestDO.setCheckTime(null);
                 requestDO.setReasonText(request.getCancel_reason());
                 requestDO.setRemark("取消原因: " + request.getCancel_reason());
 
@@ -215,10 +224,7 @@ public class OnsServiceImpl implements IOnsService {
         result.setFailedCount(failedCount);
         result.setHasPartialSuccess(successCount > 0 && failedCount > 0);
 
-        if (successCount == 0) {
-            return JsonVO.create(result, ResultStatus.FAIL.getCode(), "取消失败");
-        }
-
+        // 即使全部失败也返回code=10000，前端可读取failedItems显示每一项失败原因
         return JsonVO.success(result);
     }
 
@@ -395,12 +401,15 @@ public class OnsServiceImpl implements IOnsService {
     }
 
     @Override
-    public JsonVO<List<ExecutionRecordVO>> getPatientServiceRequests(String patientId) {
+    public JsonVO<List<ExecutionRecordVO>> getPatientServiceRequests(String patientId, String encounterId) {
         if (!StringUtils.hasText(patientId)) {
             return JsonVO.fail("患者ID不能为空");
         }
+        if (!StringUtils.hasText(encounterId)) {
+            return JsonVO.fail("就诊ID不能为空");
+        }
 
-        List<ServiceRequestWithNamesDTO> items = wkfServiceRequestMapper.selectListByPatientIdWithNames(patientId);
+        List<ServiceRequestWithNamesDTO> items = wkfServiceRequestMapper.selectListByPatientIdAndEncounterIdWithNames(patientId, encounterId);
         List<ExecutionRecordVO> voList = items.stream()
                 .map(this::convertToExecutionRecordVO)
                 .collect(Collectors.toList());
@@ -409,12 +418,15 @@ public class OnsServiceImpl implements IOnsService {
     }
 
     @Override
-    public JsonVO<List<PatientConsumableItemVO>> getPatientConsumableItems(String patientId) {
+    public JsonVO<List<PatientConsumableItemVO>> getPatientConsumableItems(String patientId, String encounterId) {
         if (!StringUtils.hasText(patientId)) {
             return JsonVO.fail("患者ID不能为空");
         }
+        if (!StringUtils.hasText(encounterId)) {
+            return JsonVO.fail("就诊ID不能为空");
+        }
 
-        List<PatientConsumableItemDO> doList = patientConsumableItemMapper.selectByPatientId(patientId);
+        List<PatientConsumableItemDO> doList = patientConsumableItemMapper.selectByPatientIdAndEncounterId(patientId, encounterId);
         List<PatientConsumableItemVO> voList = doList.stream()
                 .map(this::convertToConsumableVO)
                 .collect(Collectors.toList());
@@ -507,8 +519,21 @@ public class OnsServiceImpl implements IOnsService {
         vo.setRemark(record.getRemark());
         vo.setEntrust_content(record.getEntrustContent());
         vo.setExecution_count(record.getExecutionCount());
-        vo.setExecution_status(record.getPerformFlag() != null ? record.getPerformFlag() : 0);
-        vo.setExecution_status_name(record.getPerformFlag() != null && record.getPerformFlag() == 1 ? "已执行" : "待执行");
+        // 统一执行状态计算：0-待执行、1-已执行、2-已取消
+        Integer executionStatus;
+        String executionStatusName;
+        if ("CANCELLED".equals(record.getStatusEnum())) {
+            executionStatus = 2;
+            executionStatusName = "已取消";
+        } else if (record.getPerformFlag() != null && record.getPerformFlag() == 1) {
+            executionStatus = 1;
+            executionStatusName = "已执行";
+        } else {
+            executionStatus = 0;
+            executionStatusName = "待执行";
+        }
+        vo.setExecution_status(executionStatus);
+        vo.setExecution_status_name(executionStatusName);
         vo.setCreated_at(record.getCreatedAt() != null ?
                 record.getCreatedAt().format(DATE_TIME_FORMATTER) : null);
         return vo;

@@ -22,7 +22,7 @@ public interface IOnsService {
 
     JsonVO<PageDTO<PatientQueueVO>> getPatientQueue(PatientQueueQuery query);
 
-    JsonVO<List<ExecutionRecordVO>> getPatientServiceRequests(String patientId);
+    JsonVO<List<ExecutionRecordVO>> getPatientServiceRequests(String patientId, String encounterId);
 
-    JsonVO<List<PatientConsumableItemVO>> getPatientConsumableItems(String patientId);
+    JsonVO<List<PatientConsumableItemVO>> getPatientConsumableItems(String patientId, String encounterId);
 }
