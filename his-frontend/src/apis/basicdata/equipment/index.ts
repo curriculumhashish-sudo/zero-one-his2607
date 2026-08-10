@@ -1,4 +1,6 @@
-import { useHttp } from '@/plugins/http'
+import { useProfiledHttp } from '../client'
+import { getApiProfile, mockOrThrow } from '../profile'
+import { asNumber, asString, normalizePage, parseStatus, type BackendPage } from '../shared'
 import {
   mockCreateEquipment,
   mockGetEquipmentDetail,
@@ -9,6 +11,7 @@ import {
   mockUpdateEquipment
 } from './mock'
 import type {
+  EquipmentCategory,
   EquipmentDetail,
   EquipmentFormOptions,
   EquipmentQuery,
@@ -16,99 +19,220 @@ import type {
   EquipmentSavePayload
 } from './type'
 
-const currBaseUrl = '/equipment'
+interface BackendEquipment {
+  id?: unknown
+  busNo?: unknown
+  code?: unknown
+  medcode?: unknown
+  name?: unknown
+  pyStr?: unknown
+  pinyin?: unknown
+  categoryCode?: unknown
+  categoryName?: unknown
+  classification?: unknown
+  specification?: unknown
+  modelNumber?: unknown
+  model?: unknown
+  unitCode?: unknown
+  unitCode_dictText?: unknown
+  packageUnitCode?: unknown
+  price?: unknown
+  retailPrice?: unknown
+  retail?: unknown
+  status?: unknown
+  statusEnum?: unknown
+  activeFlag?: unknown
+  sortNo?: unknown
+  description?: unknown
+  remark?: unknown
+  updatedAt?: unknown
+}
 
-/** 分页查询器材（后端未就绪时自动回退 Mock） */
+function mapEquipment(item: BackendEquipment): EquipmentRecord {
+  return {
+    id: asString(item.id),
+    code: asString(item.busNo ?? item.code ?? item.medcode),
+    name: asString(item.name),
+    pyCode: asString(item.pyStr ?? item.pinyin),
+    category: asString(item.categoryCode ?? item.classification),
+    categoryName: asString(item.categoryName ?? item.classification),
+    specification: asString(item.specification),
+    model: asString(item.modelNumber ?? item.model),
+    unit: asString(item.unitCode ?? item.packageUnitCode),
+    price: asNumber(item.retailPrice ?? item.retail ?? item.price),
+    enabled: parseStatus(item.activeFlag ?? item.statusEnum ?? item.status),
+    sort: asNumber(item.sortNo),
+    remark: asString(item.description ?? item.remark),
+    updatedAt: asString(item.updatedAt)
+  }
+}
+
+function mapDetail(item: BackendEquipment): EquipmentDetail {
+  const record = mapEquipment(item)
+  return {
+    id: record.id,
+    code: record.code,
+    name: record.name,
+    pyCode: record.pyCode,
+    category: record.category as EquipmentCategory,
+    specification: record.specification,
+    model: record.model,
+    unit: record.unit,
+    price: record.price,
+    enabled: record.enabled,
+    sort: record.sort,
+    remark: record.remark
+  }
+}
+
+function toC6DTO(data: EquipmentSavePayload, id?: string) {
+  return {
+    id,
+    name: data.name,
+    classification: data.category,
+    code: data.code,
+    medcode: data.code,
+    specification: data.specification,
+    status: data.enabled ? 1 : 0,
+    price: String(data.price),
+    retail: data.price,
+    pinyin: data.pyCode,
+    packaging: data.unit
+  }
+}
+
+function toJ4DTO(data: EquipmentSavePayload, id?: string) {
+  return {
+    id,
+    busNo: data.code,
+    name: data.name,
+    pyStr: data.pyCode,
+    categoryCode: data.category,
+    specification: data.specification,
+    modelNumber: data.model,
+    unitCode: data.unit,
+    packageUnitCode: data.unit,
+    retailPrice: data.price,
+    activeFlag: data.enabled,
+    statusEnum: data.enabled ? 'ACTIVE' : 'INACTIVE',
+    sortNo: data.sort,
+    description: data.remark
+  }
+}
+
+function localDetail(id: string | undefined, data: EquipmentSavePayload): EquipmentDetail {
+  return { ...data, id }
+}
+
 export const listEquipment = async (
   query: EquipmentQuery
 ): Promise<{ rows: EquipmentRecord[]; total: number }> => {
   try {
-    const http = useHttp()
-    const res = await http.post<{
-      rows?: EquipmentRecord[]
-      content?: EquipmentRecord[]
-      total?: number
-      totalElements?: number
-    }>(currBaseUrl + '/pageEquipment', query)
-    const data = res.data
-    return {
-      rows: data?.rows ?? data?.content ?? [],
-      total: data?.total ?? data?.totalElements ?? 0
-    }
-  } catch {
-    return mockListEquipment(query)
+    const http = useProfiledHttp()
+    const profile = getApiProfile()
+    const res =
+      profile === 'c6'
+        ? await http.get<BackendPage<BackendEquipment>>('/equipment/query', {
+            keywords: query.keyword ?? '',
+            classification: query.category ?? '',
+            pageIndex: query.pageIndex,
+            pageSize: query.pageSize
+          })
+        : await http.get<BackendPage<BackendEquipment>>('/equipment/query-equipment-list', {
+            keyword: query.keyword ?? '',
+            categoryCode: query.category ?? '',
+            pageIndex: query.pageIndex,
+            pageSize: query.pageSize
+          })
+    const page = normalizePage(res.data)
+    const rows = page.rows
+      .map(mapEquipment)
+      .filter((row) => (query.enabled == null ? true : row.enabled === query.enabled))
+    return { rows, total: query.enabled == null ? page.total : rows.length }
+  } catch (error) {
+    return mockOrThrow(error, () => mockListEquipment(query))
   }
 }
 
-/** 获取器材详情 */
 export const getEquipmentDetail = async (id: string): Promise<EquipmentDetail> => {
   try {
-    const http = useHttp()
-    const res = await http.post<EquipmentDetail>(currBaseUrl + '/getEquipment', { id })
+    const http = useProfiledHttp()
+    const profile = getApiProfile()
+    const res =
+      profile === 'c6'
+        ? await http.get<BackendEquipment>('/equipment/query-by-id', { id })
+        : await http.get<BackendEquipment>('/equipment/get-by-id', { equipmentId: id })
     if (!res.data) throw new Error('获取器材详情失败')
-    return res.data
-  } catch {
-    return mockGetEquipmentDetail(id)
+    return mapDetail(res.data)
+  } catch (error) {
+    return mockOrThrow(error, () => mockGetEquipmentDetail(id))
   }
 }
 
-/** 新增器材 */
 export const createEquipment = async (data: EquipmentSavePayload): Promise<EquipmentDetail> => {
   try {
-    const http = useHttp()
-    const res = await http.post<EquipmentDetail>(currBaseUrl + '/add', data)
-    if (!res.data) throw new Error('新增器材失败')
-    return res.data
-  } catch {
-    return mockCreateEquipment(data)
+    const http = useProfiledHttp()
+    const profile = getApiProfile()
+    const res =
+      profile === 'c6'
+        ? await http.post<BackendEquipment | string>('/equipment/add', toC6DTO(data))
+        : await http.post<BackendEquipment | string>('/equipment/add-equipment', toJ4DTO(data))
+    return typeof res.data === 'object' && res.data
+      ? mapDetail(res.data)
+      : localDetail(asString(res.data), data)
+  } catch (error) {
+    return mockOrThrow(error, () => mockCreateEquipment(data))
   }
 }
 
-/** 修改器材 */
 export const updateEquipment = async (
   id: string,
   data: EquipmentSavePayload
 ): Promise<EquipmentDetail> => {
   try {
-    const http = useHttp()
-    const res = await http.put<EquipmentDetail>(`${currBaseUrl}/update/${id}`, data)
-    if (!res.data) throw new Error('修改器材失败')
-    return res.data
-  } catch {
-    return mockUpdateEquipment(id, data)
+    const http = useProfiledHttp()
+    const profile = getApiProfile()
+    const res =
+      profile === 'c6'
+        ? await http.put<BackendEquipment | string>('/equipment/modify', toC6DTO(data, id))
+        : await http.put<BackendEquipment | string>(
+            '/equipment/update-equipment',
+            toJ4DTO(data, id)
+          )
+    return typeof res.data === 'object' && res.data ? mapDetail(res.data) : localDetail(id, data)
+  } catch (error) {
+    return mockOrThrow(error, () => mockUpdateEquipment(id, data))
   }
 }
 
-/** 启用/停用器材 */
 export const setEquipmentEnabled = async (id: string, enabled: boolean): Promise<void> => {
   try {
-    const http = useHttp()
-    await http.post(currBaseUrl + '/setEnabled', { id, enabled })
-  } catch {
-    await mockSetEquipmentEnabled(id, enabled)
+    const http = useProfiledHttp()
+    if (getApiProfile() === 'c6') {
+      await http.put('/equipment/status', { ids: [id], status: enabled ? 1 : 0 })
+    } else {
+      await http.put('/equipment/modify-equipment-status', { ids: [id], activeFlag: enabled })
+    }
+  } catch (error) {
+    await mockOrThrow(error, () => mockSetEquipmentEnabled(id, enabled))
   }
 }
 
-/** 删除器材 */
 export const removeEquipment = async (id: string): Promise<void> => {
   try {
-    const http = useHttp()
-    await http.delete(currBaseUrl + `/delete/${id}`)
-  } catch {
-    await mockRemoveEquipment(id)
+    const http = useProfiledHttp()
+    if (getApiProfile() === 'c6') {
+      await http.delete('/equipment/delete', { ids: [id] })
+    } else {
+      await http.delete('/equipment/remove-by-ids', [id])
+    }
+  } catch (error) {
+    await mockOrThrow(error, () => mockRemoveEquipment(id))
   }
 }
 
-/** 获取表单选项 */
-export const loadEquipmentFormOptions = async (): Promise<EquipmentFormOptions> => {
-  try {
-    const http = useHttp()
-    const res = await http.post<EquipmentFormOptions>(currBaseUrl + '/getEquipmentInit', {})
-    if (!res.data) throw new Error('获取表单选项失败')
-    return res.data
-  } catch {
-    return mockLoadEquipmentFormOptions()
-  }
-}
+/** 分类与单位选项尚未形成两端一致的接口，明确使用本地配置。 */
+export const loadEquipmentFormOptions = async (): Promise<EquipmentFormOptions> =>
+  mockLoadEquipmentFormOptions()
 
 export type * from './type'

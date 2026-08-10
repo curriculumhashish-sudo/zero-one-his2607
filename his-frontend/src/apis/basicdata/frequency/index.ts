@@ -1,4 +1,6 @@
-import { useHttp } from '@/plugins/http'
+import { useProfiledHttp } from '../client'
+import { getApiProfile, mockOrThrow } from '../profile'
+import { asNumber, asString, normalizePage, parseStatus, type BackendPage } from '../shared'
 import {
   mockCreateFrequency,
   mockGetFrequencyDetail,
@@ -16,99 +18,206 @@ import type {
   FrequencySavePayload
 } from './type'
 
-const currBaseUrl = '/frequency'
+interface BackendFrequency {
+  id?: unknown
+  code?: unknown
+  rateCode?: unknown
+  name?: unknown
+  cycleType?: unknown
+  dayCount?: unknown
+  totalExecutionCount?: unknown
+  executionPeriod?: unknown
+  executionPeriodUnit?: unknown
+  dayTimes?: unknown
+  activeFlag?: unknown
+  status?: unknown
+  sortNo?: unknown
+  description?: unknown
+  remark?: unknown
+  updatedAt?: unknown
+}
 
-/** 分页查询频次（后端未就绪时自动回退 Mock） */
+function mapFrequency(item: BackendFrequency): FrequencyRecord {
+  return {
+    id: asString(item.id),
+    code: asString(item.rateCode ?? item.code),
+    name: asString(item.name),
+    type: asString(item.cycleType),
+    typeName: asString(item.cycleType),
+    timesPerDay: asNumber(item.totalExecutionCount ?? item.dayCount),
+    intervalHours: asNumber(item.executionPeriod),
+    timePoints: asString(item.dayTimes),
+    enabled: parseStatus(item.activeFlag ?? item.status),
+    sort: asNumber(item.sortNo),
+    updatedAt: asString(item.updatedAt)
+  }
+}
+
+function mapDetail(item: BackendFrequency): FrequencyDetail {
+  const record = mapFrequency(item)
+  return {
+    id: record.id,
+    code: record.code,
+    name: record.name,
+    type: record.type,
+    timesPerDay: record.timesPerDay,
+    intervalHours: record.intervalHours,
+    timePoints: record.timePoints,
+    enabled: record.enabled,
+    sort: record.sort,
+    remark: asString(item.description ?? item.remark)
+  }
+}
+
+function toC6DTO(data: FrequencySavePayload, id?: string) {
+  return {
+    id,
+    code: data.code,
+    name: data.name,
+    status: data.enabled ? 1 : 0,
+    cycleType: data.type,
+    dayTimes: data.timePoints,
+    dayCount: data.timesPerDay,
+    executionPeriod: data.intervalHours,
+    executionPeriodUnit: 'h',
+    totalExecutionCount: data.timesPerDay,
+    /** Swagger FrequencyDTO 必填字段，默认不允许跨日 */
+    allowCrossDay: 'N',
+    sortNo: data.sort
+  }
+}
+
+function toJ4DTO(data: FrequencySavePayload, id?: string) {
+  return {
+    id,
+    rateCode: data.code,
+    name: data.name,
+    cycleType: data.type,
+    dayTimes: data.timePoints,
+    dayCount: data.timesPerDay,
+    totalExecutionCount: data.timesPerDay,
+    executionPeriod: data.intervalHours,
+    executionPeriodUnit: 'h',
+    /** J4 FrequencySaveDTO 必填字段 */
+    applicableScenes: 'all',
+    allowCrossDay: 'same-day',
+    activeFlag: data.enabled ? '1' : '0',
+    sortNo: data.sort
+  }
+}
+
+function localDetail(id: string | undefined, data: FrequencySavePayload): FrequencyDetail {
+  return { ...data, id }
+}
+
 export const listFrequency = async (
   query: FrequencyQuery
 ): Promise<{ rows: FrequencyRecord[]; total: number }> => {
   try {
-    const http = useHttp()
-    const res = await http.post<{
-      rows?: FrequencyRecord[]
-      content?: FrequencyRecord[]
-      total?: number
-      totalElements?: number
-    }>(currBaseUrl + '/pageFrequency', query)
-    const data = res.data
-    return {
-      rows: data?.rows ?? data?.content ?? [],
-      total: data?.total ?? data?.totalElements ?? 0
-    }
-  } catch {
-    return mockListFrequency(query)
+    const http = useProfiledHttp()
+    const profile = getApiProfile()
+    const res =
+      profile === 'c6'
+        ? await http.get<BackendPage<BackendFrequency>>('/frequency/query-all', {
+            keywords: query.keyword ?? '',
+            status: query.enabled == null ? undefined : query.enabled ? 1 : 0,
+            pageIndex: query.pageIndex,
+            pageSize: query.pageSize
+          })
+        : await http.get<BackendPage<BackendFrequency>>('/frequency/query-frequency-list', {
+            keyword: query.keyword ?? '',
+            pageIndex: query.pageIndex,
+            pageSize: query.pageSize
+          })
+    const page = normalizePage(res.data)
+    return { rows: page.rows.map(mapFrequency), total: page.total }
+  } catch (error) {
+    return mockOrThrow(error, () => mockListFrequency(query))
   }
 }
 
-/** 获取频次详情 */
 export const getFrequencyDetail = async (id: string): Promise<FrequencyDetail> => {
   try {
-    const http = useHttp()
-    const res = await http.post<FrequencyDetail>(currBaseUrl + '/getFrequency', { id })
+    const http = useProfiledHttp()
+    const path =
+      getApiProfile() === 'c6' ? '/frequency/query-one' : '/frequency/query-frequency-detail'
+    const res = await http.get<BackendFrequency>(path, { id })
     if (!res.data) throw new Error('获取频次详情失败')
-    return res.data
-  } catch {
-    return mockGetFrequencyDetail(id)
+    return mapDetail(res.data)
+  } catch (error) {
+    return mockOrThrow(error, () => mockGetFrequencyDetail(id))
   }
 }
 
-/** 新增频次 */
 export const createFrequency = async (data: FrequencySavePayload): Promise<FrequencyDetail> => {
   try {
-    const http = useHttp()
-    const res = await http.post<FrequencyDetail>(currBaseUrl + '/add', data)
-    if (!res.data) throw new Error('新增频次失败')
-    return res.data
-  } catch {
-    return mockCreateFrequency(data)
+    const http = useProfiledHttp()
+    const profile = getApiProfile()
+    const res =
+      profile === 'c6'
+        ? await http.post<BackendFrequency | string>('/frequency/add', toC6DTO(data))
+        : await http.post<BackendFrequency | string>('/frequency/add-frequency', toJ4DTO(data))
+    return typeof res.data === 'object' && res.data
+      ? mapDetail(res.data)
+      : localDetail(asString(res.data), data)
+  } catch (error) {
+    return mockOrThrow(error, () => mockCreateFrequency(data))
   }
 }
 
-/** 修改频次 */
 export const updateFrequency = async (
   id: string,
   data: FrequencySavePayload
 ): Promise<FrequencyDetail> => {
   try {
-    const http = useHttp()
-    const res = await http.put<FrequencyDetail>(`${currBaseUrl}/update/${id}`, data)
-    if (!res.data) throw new Error('修改频次失败')
-    return res.data
-  } catch {
-    return mockUpdateFrequency(id, data)
+    const http = useProfiledHttp()
+    const profile = getApiProfile()
+    const res =
+      profile === 'c6'
+        ? await http.put<BackendFrequency | string>('/frequency/modify', toC6DTO(data, id))
+        : await http.put<BackendFrequency | string>(
+            '/frequency/modify-frequency',
+            toJ4DTO(data, id)
+          )
+    return typeof res.data === 'object' && res.data ? mapDetail(res.data) : localDetail(id, data)
+  } catch (error) {
+    return mockOrThrow(error, () => mockUpdateFrequency(id, data))
   }
 }
 
-/** 启用/停用频次 */
 export const setFrequencyEnabled = async (id: string, enabled: boolean): Promise<void> => {
   try {
-    const http = useHttp()
-    await http.post(currBaseUrl + '/setEnabled', { id, enabled })
-  } catch {
-    await mockSetFrequencyEnabled(id, enabled)
+    const http = useProfiledHttp()
+    if (getApiProfile() === 'c6') {
+      await http.put('/frequency/modify-status', undefined, {
+        params: { id, status: enabled ? 1 : 0 }
+      })
+    } else {
+      await http.put('/frequency/modify-frequency-status', {
+        id,
+        activeFlag: enabled ? '1' : '0'
+      })
+    }
+  } catch (error) {
+    await mockOrThrow(error, () => mockSetFrequencyEnabled(id, enabled))
   }
 }
 
-/** 删除频次 */
 export const removeFrequency = async (id: string): Promise<void> => {
   try {
-    const http = useHttp()
-    await http.delete(currBaseUrl + `/delete/${id}`)
-  } catch {
-    await mockRemoveFrequency(id)
+    const http = useProfiledHttp()
+    if (getApiProfile() === 'c6') {
+      await http.delete('/frequency/remove', undefined, { params: { id } })
+    } else {
+      await http.delete(`/frequency/remove-frequency/${encodeURIComponent(id)}`)
+    }
+  } catch (error) {
+    await mockOrThrow(error, () => mockRemoveFrequency(id))
   }
 }
 
-/** 获取表单选项 */
-export const loadFrequencyFormOptions = async (): Promise<FrequencyFormOptions> => {
-  try {
-    const http = useHttp()
-    const res = await http.post<FrequencyFormOptions>(currBaseUrl + '/getFrequencyInit', {})
-    if (!res.data) throw new Error('获取表单选项失败')
-    return res.data
-  } catch {
-    return mockLoadFrequencyFormOptions()
-  }
-}
+/** 表单类型选项暂无统一后端接口，明确使用本地配置。 */
+export const loadFrequencyFormOptions = async (): Promise<FrequencyFormOptions> =>
+  mockLoadFrequencyFormOptions()
 
 export type * from './type'

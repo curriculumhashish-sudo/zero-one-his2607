@@ -4,9 +4,9 @@ import type {
   DiagnosisPageResult,
   DiagnosisQuery,
   DiagnosisRecord,
-  DiagnosisSavePayload
+  DiagnosisSavePayload,
+  SelectOption
 } from './type'
-import type { SelectOption } from '../../basicdata/type'
 
 // ==================== 下拉选项 ====================
 

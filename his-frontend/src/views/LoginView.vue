@@ -24,6 +24,7 @@ import {
   verifyCaptcha
 } from '@/apis/login'
 import PolygonBackground from '@/components/background/PolygonBackground.vue'
+import ArithmeticCaptcha from '@/components/captcha/ArithmeticCaptcha.vue'
 import TianaiCaptcha from '@/components/captcha/TianaiCaptcha.vue'
 import { useTabStore } from '@/stores/tab'
 import { useUserStore } from '@/stores/user'
@@ -39,12 +40,16 @@ const tabStore = useTabStore()
 const formData = reactive({ username: '', password: '' })
 const step = ref<LoginStep>('account')
 const loading = ref(false)
+const isDevelopment = import.meta.env.DEV
+const enableVerify = ref(true)
+const useArithmeticCaptcha = import.meta.env.VITE_CAPTCHA_MODE === 'arithmetic'
 const showCaptcha = ref(false)
 const loginResult = ref<LoginResult>()
 const tenants = ref<TenantInfo[]>([])
 const hospitals = ref<LoginOrganizationOption[]>([])
 const departments = ref<OrganizationInfo[]>([])
 const captchaData = ref<CaptchaResult>()
+const captchaImage = ref('')
 const pendingCaptcha = ref<{ id: string; code: string }>()
 const selectedTenantId = ref<number | string>()
 const selectedHospitalId = ref<number | string>()
@@ -59,9 +64,14 @@ async function submitAccount() {
     ElMessage.warning('请输入账号和密码')
     return
   }
+  if (!enableVerify.value) {
+    await completeAccountLogin()
+    return
+  }
   try {
     loading.value = true
     captchaData.value = await getCaptcha()
+    captchaImage.value = captchaData.value.imageBase64 ?? ''
     pendingCaptcha.value = undefined
     showCaptcha.value = true
   } catch (error) {
@@ -81,7 +91,7 @@ async function refreshCaptcha() {
 
 async function handleCaptchaSuccess(payload: string | { id: string; code: string }) {
   const id = typeof payload === 'string' ? payload : payload.id
-  const code = typeof payload === 'string' ? '' : payload.code
+  const code = typeof payload === 'string' ? (useArithmeticCaptcha ? payload : '') : payload.code
   try {
     loading.value = true
     await verifyCaptcha(code ? { id, code } : { id })
@@ -237,6 +247,7 @@ function backStep() {
       <el-form v-if="step === 'account'" :model="formData" class="login-form" @submit.prevent="submitAccount">
         <el-form-item><el-input v-model="formData.username" autocomplete="username" placeholder="账号" :prefix-icon="User" clearable @keyup.enter="submitAccount" /></el-form-item>
         <el-form-item><el-input v-model="formData.password" autocomplete="current-password" type="password" placeholder="密码" :prefix-icon="Lock" show-password @keyup.enter="submitAccount" /></el-form-item>
+        <div v-if="isDevelopment" class="captcha-switch"><span>登录验证码</span><el-switch v-model="enableVerify" /></div>
         <el-button native-type="button" type="primary" class="primary-action" :loading="loading" @click="submitAccount">登录</el-button>
       </el-form>
 
@@ -255,6 +266,7 @@ function backStep() {
       <div class="login-panel__footer"><OfficeBuilding /><span>零壹医院信息系统</span></div>
     </section>
     <TianaiCaptcha
+      v-if="!useArithmeticCaptcha"
       v-model="showCaptcha"
       mode="popup"
       type="WORD_IMAGE_CLICK"
@@ -262,6 +274,13 @@ function backStep() {
       @refresh="refreshCaptcha"
       @success="handleCaptchaSuccess"
       @error="ElMessage.error('验证码加载失败，请重试')"
+    />
+    <ArithmeticCaptcha
+      v-else
+      v-model="showCaptcha"
+      :image="captchaImage"
+      @success="handleCaptchaSuccess"
+      @error="ElMessage.error('验证码验证失败，请重试')"
     />
   </main>
 </template>

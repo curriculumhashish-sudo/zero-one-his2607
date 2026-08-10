@@ -21,6 +21,21 @@
     </div>
     <!-- 导航栏 -->
     <div class="header-nav">
+      <el-dropdown v-if="showApiProfileSwitch" trigger="click" @command="handleApiProfileCommand">
+        <el-button class="api-profile-button" size="small" plain>
+          接口：{{ apiProfileLabel }}
+        </el-button>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item command="j4" :disabled="apiProfile === 'j4'">
+              J4 接口
+            </el-dropdown-item>
+            <el-dropdown-item command="c6" :disabled="apiProfile === 'c6'">
+              C6 接口
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
       <el-avatar :size="30" :src="user?.avatar" />{{ userInfo }}
       <el-dropdown trigger="click" @command="handleUserSettings">
         <el-icon :size="22" color="white">
@@ -166,15 +181,21 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useUserStore } from '@/stores/user'
 import { useTabStore } from '@/stores/tab'
 import { useAiChatStore } from '@/stores/ai-chat'
 import type { TabPaneName, TabsPaneContext } from 'element-plus'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import type { ChatImage, ChatMessage } from '@/components/ai-chat/type'
 import AiChatWidget from '@/components/ai-chat/AiChatWidget.vue'
+import {
+  getApiProfile,
+  getApiProfileLabel,
+  setApiProfile,
+  type ApiProfile
+} from '@/apis/basicdata/profile'
 // 应用名称
 const appName = import.meta.env.VITE_APP_TITLE
 // 当前用户信息
@@ -182,6 +203,32 @@ const ustore = useUserStore()
 // 用户信息提示
 const { user, getMenus: menus } = storeToRefs(ustore)
 const userInfo = computed(() => `欢迎用户：${user.value?.username ?? '游客'}`)
+
+const apiProfile = ref<ApiProfile>(getApiProfile())
+const apiProfileLabel = computed(() => getApiProfileLabel(apiProfile.value))
+const route = useRoute()
+const showApiProfileSwitch = computed(() => route.path.startsWith('/basicdata/'))
+
+async function handleApiProfileCommand(command: string | number | object) {
+  if (command !== 'c6' && command !== 'j4') return
+  if (command === apiProfile.value) return
+  const targetLabel = getApiProfileLabel(command)
+  try {
+    await ElMessageBox.confirm(
+      `切换到 ${targetLabel} 后将刷新页面，并清空当前页面的临时数据。是否继续？`,
+      '切换接口来源',
+      {
+        confirmButtonText: '切换并刷新',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+  } catch {
+    return
+  }
+  setApiProfile(command)
+  window.location.reload()
+}
 
 // 用户设置点击事件
 const handleUserSettings = async (command: string | number | object) => {
@@ -361,6 +408,13 @@ const requestAi = (text: string, history: ChatMessage[], images?: ChatImage[]) =
     padding-right: 15px;
     color: #f8f8f8;
     text-align: right;
+
+    .api-profile-button {
+      border-color: rgba(255, 255, 255, 0.72);
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      font-weight: 600;
+    }
   }
 }
 

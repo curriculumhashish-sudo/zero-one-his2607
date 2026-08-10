@@ -8,6 +8,14 @@ interface ImportMetaEnv {
   readonly VITE_API_TIMEOUT: number
   /** 后端接口请求地址 */
   readonly VITE_API_URL: string
+  /** 默认基础数据接口来源 */
+  readonly VITE_API_PROFILE?: 'c6' | 'j4'
+  /** C6 接口请求地址，未配置时使用 VITE_API_URL */
+  readonly VITE_C6_API_URL?: string
+  /** J4 接口请求地址，未配置时使用 VITE_API_URL */
+  readonly VITE_J4_API_URL?: string
+  /** 是否允许接口异常时使用 Mock 数据 */
+  readonly VITE_USE_MOCK?: string
   /** 验证码请求地址 */
   readonly VITE_CAPTCHA_URL: string
   /** 验证码请求前缀 */

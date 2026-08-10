@@ -25,7 +25,11 @@ import type {
   UserInfo
 } from './type'
 
-const useMock = import.meta.env.MODE === 'test' || import.meta.env.VITE_LOGIN_MOCK === 'true'
+const useMock = import.meta.env.MODE === 'test' || import.meta.env.VITE_LOGIN_MOCK === 'true' || import.meta.env.VITE_USE_MOCK === 'true'
+let captchaStore: { id: string; imageBase64?: string } | null = null
+
+export const getCaptchaImage = () => captchaStore?.imageBase64 ?? ''
+export const getCaptchaUuid = () => captchaStore?.id ?? ''
 
 const authHttp = new HttpClient(
   // 登录服务单独走自己的代理前缀，避免被通用 /api 网关代理改写。
@@ -199,9 +203,11 @@ function toLoginResult(data: Partial<LoginResult> & { token?: string; accessToke
   }
 }
 
-export const getCaptcha = (): Promise<CaptchaResult> => {
+export const getCaptcha = async (): Promise<CaptchaResult> => {
   if (useMock) return mockGetCaptcha()
-  return unwrap<{ uuid?: string; id?: string; imageBase64?: string }>(authHttp.post('/auth/captcha/generate')).then(toCaptchaResult)
+  const result = toCaptchaResult(await unwrap<{ uuid?: string; id?: string; imageBase64?: string }>(authHttp.post('/auth/captcha/generate')))
+  captchaStore = result
+  return result
 }
 
 export const verifyCaptcha = (data: CaptchaVerifyData): Promise<void> => {

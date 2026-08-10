@@ -167,6 +167,15 @@ export default class HttpClient {
     return this.request<T>('put', url, { upType: DataUpType.json, ...config, data })
   }
 
+  /** PATCH请求，提交部分更新数据。 */
+  public patch<T = any>(
+    url: string,
+    data?: any,
+    config?: CustomAxiosRequestConfig
+  ): Promise<JsonVO<T>> {
+    return this.request<T>('patch', url, { upType: DataUpType.json, ...config, data })
+  }
+
   /**
    * DELETE请求,数据提交格式为JSON，如果要使用表单方式上传数据需要指定配置upType:DataUpType.form
    * @param url 请求地址

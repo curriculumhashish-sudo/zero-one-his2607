@@ -93,6 +93,21 @@ export default defineConfig({
         target: 'http://39.105.18.251:8090',
         rewrite: (path) => path.replace(/^\/c1-charge/, '')
       },
+      '/c6-api': {
+        changeOrigin: true,
+        target: 'http://47.102.133.197:8090',
+        rewrite: (path) => path.replace(/^\/c6-api/, '')
+      },
+      '/j4-api': {
+        changeOrigin: true,
+        target: 'http://8.149.141.110:10300',
+        rewrite: (path) => path.replace(/^\/j4-api/, '/j4-basedata')
+      },
+      '/j1-api': {
+        changeOrigin: true,
+        target: 'http://47.116.98.7:10500',
+        rewrite: (path) => path.replace(/^\/j1-api/, '/j1-login')
+      },
       '/api': {
         changeOrigin: true,
         //FIXME[TEST_CODE]:使用Apifox云MOCK,联调阶段需要修改成网关地址

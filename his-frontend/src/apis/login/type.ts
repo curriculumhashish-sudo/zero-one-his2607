@@ -138,6 +138,11 @@ export interface CaptchaResult {
   imageBase64?: string
 }
 
+export interface CaptchaImage {
+  uuid: string
+  imageBase64: string
+}
+
 export interface CaptchaVerifyData {
   id: string
   uuid?: string
