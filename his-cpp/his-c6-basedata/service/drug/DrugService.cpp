@@ -60,9 +60,21 @@ static std::string operatorId(const PayloadDTO &payload)
     throw DrugServiceException(DrugServiceError::InvalidInput);
 }
 
-// 阻止当前用户跨租户修改药品数据。
+// 判断凭证是否属于系统管理员。
+static bool isSystemAdministrator(const PayloadDTO &payload)
+{
+    const auto &authorities = payload.getAuthorities();
+    return std::find(authorities.cbegin(), authorities.cend(), "ROLE_ADMIN") != authorities.cend() ||
+           std::find(authorities.cbegin(), authorities.cend(), "SUPER_ADMIN") != authorities.cend();
+}
+
+// 管理员允许跨租户，普通用户必须属于目标租户。
 static void ensureTenantAccess(DrugDAO &dao, const PayloadDTO &payload, const std::string &tenantId)
 {
+    if (isSystemAdministrator(payload))
+    {
+        return;
+    }
     if (!dao.hasTenantAccess(payload.getId(), payload.getUsername(), tenantId))
     {
         throw DrugServiceException(DrugServiceError::CrossTenant);
@@ -332,10 +344,7 @@ MedicineBatchResultDTO::Wrapper DrugService::updateMedicineStatusV2(
             {
                 throw DrugServiceException(DrugServiceError::NotFound);
             }
-            if (!dao.hasTenantAccess(payload.getId(), payload.getUsername(), current->getTenantId()))
-            {
-                throw DrugServiceException(DrugServiceError::CrossTenant);
-            }
+            ensureTenantAccess(dao, payload, current->getTenantId());
             currentVersion = current->getVersion();
             if (item->version.getValue(-1) != current->getVersion())
             {
@@ -428,10 +437,7 @@ MedicineBatchResultDTO::Wrapper DrugService::batchDeleteMedicinesV2(
             {
                 throw DrugServiceException(DrugServiceError::NotFound);
             }
-            if (!dao.hasTenantAccess(payload.getId(), payload.getUsername(), current->getTenantId()))
-            {
-                throw DrugServiceException(DrugServiceError::CrossTenant);
-            }
+            ensureTenantAccess(dao, payload, current->getTenantId());
             currentVersion = current->getVersion();
             if (item->version.getValue(-1) != current->getVersion())
             {

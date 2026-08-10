@@ -179,7 +179,8 @@ static bool hasConfiguredMedicineV2Authority(const std::list<std::string> &autho
                                               const char *configurationName)
 {
     // 管理员或现有药品菜单权限可执行；部署环境可追加更细粒度的操作权限。
-    if (std::find(authorities.cbegin(), authorities.cend(), "SUPER_ADMIN") != authorities.cend() ||
+    if (std::find(authorities.cbegin(), authorities.cend(), "ROLE_ADMIN") != authorities.cend() ||
+        std::find(authorities.cbegin(), authorities.cend(), "SUPER_ADMIN") != authorities.cend() ||
         std::find(authorities.cbegin(), authorities.cend(), "Navigation.Medicine") != authorities.cend())
     {
         return true;

@@ -143,7 +143,7 @@ std::string DrugDAO::querySelectConditionBuilder(const DrugSelectQuery::Wrapper&
 
 
 }
-// 超级管理员可跨租户，普通用户必须属于目标租户。
+// 校验普通用户是否属于目标租户；管理员放行由业务层处理。
 bool DrugDAO::hasTenantAccess(const std::string &userId, const std::string &username,
                               const std::string &tenantId)
 {
