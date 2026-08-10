@@ -17,6 +17,9 @@ import lombok.ToString;
 @Schema(description = "枚举类型查询")
 public class EnumTypeQuery extends PageQuery {
 
-    @Schema(description = "枚举类型关键字，将会查询具有该关键字的枚举类型，不区分大小写", example = "gender", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "枚举类型关键字，将会查询具有该关键字的枚举类型，不区分大小写",
+            example = "gender",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+            pattern = ".*")
     private String enumTypeKeyword;
 }

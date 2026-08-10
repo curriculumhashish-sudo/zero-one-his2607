@@ -110,7 +110,7 @@ public class EnumType {
  *   "displayName": "订单状态",           // 显示名称
  *   "description": "订单的生命周期状态",   // 描述
  *   "isSystem": false,                 // 是否系统内置（保护不可删）
- *   "status": "active",                // active/archived
+ *   "status": 1,                       // active/archived
  *   "validationRules": {               // 扩展校验规则
  *     "min": 1,
  *     "max": 100,

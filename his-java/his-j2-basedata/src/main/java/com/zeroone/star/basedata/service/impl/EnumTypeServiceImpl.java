@@ -4,6 +4,7 @@ import com.alibaba.nacos.common.utils.StringUtils;
 import com.zeroone.star.basedata.entity.EnumType;
 import com.zeroone.star.basedata.repository.EnumTypeRepository;
 import com.zeroone.star.basedata.service.EnumTypeService;
+import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumTypeAddDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumTypeDTO;
@@ -35,7 +36,10 @@ public class EnumTypeServiceImpl implements EnumTypeService {
     private EnumTypeRepository enumTypeRepository;
 
     @Resource
-    MongoTemplate template;
+    private MongoTemplate template;
+
+    @Resource
+    private UserHolder userHolder;
 
     @Override
     public PageDTO<EnumTypeDTO> queryAllEnumType(EnumTypeQuery query) {

@@ -5,6 +5,7 @@ import com.zeroone.star.basedata.entity.EnumValue;
 import com.zeroone.star.basedata.repository.EnumTypeRepository;
 import com.zeroone.star.basedata.repository.EnumValueRepository;
 import com.zeroone.star.basedata.service.EnumValueService;
+import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumAddDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumDTO;
@@ -46,11 +47,10 @@ public class EnumValueServiceImpl implements EnumValueService {
     private EnumTypeRepository enumTypeRepository;
 
     @Resource
-    MongoTemplate template;
-
+    private MongoTemplate mongoTemplate;
 
     @Resource
-    MongoTemplate mongoTemplate;
+    private UserHolder userHolder;
 
     @Override
     public void saveEnum(EnumAddDTO dto) {
