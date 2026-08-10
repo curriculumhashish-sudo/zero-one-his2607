@@ -132,7 +132,7 @@ public class UserHolder {
                     RedisConstant.LOGIN_CONTEXT_PREFIX + userId,
                     RedisConstant.LOGIN_CONTEXT_TENANT_ID_FIELD
             );
-            if (tenantId == null) {
+            if (tenantId == null || !StringUtils.hasText(tenantId.toString())) {
                 tenantId = getRedisHashValue(
                         RedisConstant.USER_SESSION_PREFIX + userId,
                         RedisConstant.USER_SESSION_TENANT_ID_FIELD
