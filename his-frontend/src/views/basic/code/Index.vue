@@ -1,7 +1,7 @@
 <template>
   <section class="code-page">
     <!-- ==================== 左侧：类型管理 ==================== -->
-    <aside class="code-page__left">
+    <aside class="code-page__left" :style="{ width: leftPanelWidth + 'px' }">
       <el-input
         v-model="leftKeyword"
         placeholder="请输入关键词"
@@ -20,7 +20,7 @@
 
       <ul v-loading="typeLoading" class="type-list">
         <li
-          v-for="item in filteredTypeList"
+          v-for="item in displayTypeList"
           :key="item.id"
           class="type-list__item"
           :class="{ 'type-list__item--active': item.id === selectedTypeId }"
@@ -28,11 +28,34 @@
         >
           <span class="type-list__text">{{ item.title }}-{{ item.name }}</span>
         </li>
-        <li v-if="!typeLoading && filteredTypeList.length === 0" class="type-list__empty">
+        <li v-if="!typeLoading && displayTypeList.length === 0" class="type-list__empty">
           暂无数据
         </li>
       </ul>
+
+      <!-- 左侧分页 -->
+      <div class="type-list__pagination">
+        <el-pagination
+          v-model:current-page="typePageIndex"
+          v-model:page-size="typePageSize"
+          :total="typeTotal"
+          :page-sizes="[5, 10, 20, 50]"
+          :pager-count="3"
+          layout="prev, pager, next, sizes"
+          small
+          background
+          @current-change="onTypePageChange"
+          @size-change="onTypePageSizeChange"
+        />
+      </div>
     </aside>
+
+    <!-- 左右拖拽分隔条 -->
+    <div
+      class="code-page__resizer"
+      :class="{ 'code-page__resizer--active': isResizing }"
+      @mousedown="onResizeStart"
+    />
 
     <!-- ==================== 右侧：编码项管理 ==================== -->
     <main class="code-page__right">
@@ -53,7 +76,12 @@
         <el-button @click="resetQuery">重置</el-button>
       </div>
 
-      <el-button type="primary" :disabled="!selectedTypeId" style="align-self: flex-start" @click="openItemDialog('create')">
+      <el-button
+        type="primary"
+        :disabled="!selectedTypeId"
+        style="align-self: flex-start"
+        @click="openItemDialog('create')"
+      >
         新增
       </el-button>
 
@@ -99,11 +127,8 @@
           <el-form-item label="名称" prop="name">
             <el-input v-model="typeForm.name" placeholder="请输入名称" />
           </el-form-item>
-          <el-form-item label="标题" prop="title">
-            <el-input v-model="typeForm.title" placeholder="请输入标题" />
-          </el-form-item>
-          <el-form-item label="版本" prop="version">
-            <el-input v-model="typeForm.version" placeholder="请输入版本" />
+          <el-form-item label="编码" prop="title">
+            <el-input v-model="typeForm.title" placeholder="请输入编码" />
           </el-form-item>
           <el-form-item label="描述" prop="description">
             <el-input
@@ -173,12 +198,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, reactive, ref } from 'vue'
+import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import MyDialog from '@/components/mydialog/MyDialog.vue'
 import {
-  pageDictionaryTypes,
+  pageDictionaryTypes, // 已接入真实接口
   pageDictionaryItems,
   createDictionaryType,
   createDictionaryItem,
@@ -192,10 +217,7 @@ import {
   removeEnumItem
 } from '@/apis/basic/code'
 import type { CodeItemRecord, CodeTypeRecord } from '@/apis/basic/code'
-import {
-  createEmptyItemForm,
-  createEmptyTypeForm
-} from './type'
+import { createEmptyItemForm, createEmptyTypeForm } from './type'
 import type { CodeSystem, ItemFormMode, ItemFormModel, TypeFormMode, TypeFormModel } from './type'
 
 interface DialogExpose {
@@ -216,6 +238,41 @@ const itemLoading = ref(false)
 const leftKeyword = ref('')
 const throttledKeyword = ref('')
 let throttleTimer: ReturnType<typeof setTimeout> | null = null
+
+// 左侧分页
+const typePageIndex = ref(1)
+const typePageSize = ref(10)
+const typeTotal = ref(0)
+
+// 左侧面板拖拽调整宽度
+const leftPanelWidth = ref(400)
+const isResizing = ref(false)
+const MIN_LEFT_WIDTH = 200
+const MAX_LEFT_WIDTH = 500
+
+function onResizeStart(e: MouseEvent) {
+  isResizing.value = true
+  const startX = e.clientX
+  const startWidth = leftPanelWidth.value
+
+  const onMove = (ev: MouseEvent) => {
+    const delta = ev.clientX - startX
+    leftPanelWidth.value = Math.min(MAX_LEFT_WIDTH, Math.max(MIN_LEFT_WIDTH, startWidth + delta))
+  }
+
+  const onUp = () => {
+    isResizing.value = false
+    document.removeEventListener('mousemove', onMove)
+    document.removeEventListener('mouseup', onUp)
+    document.body.style.cursor = ''
+    document.body.style.userSelect = ''
+  }
+
+  document.addEventListener('mousemove', onMove)
+  document.addEventListener('mouseup', onUp)
+  document.body.style.cursor = 'col-resize'
+  document.body.style.userSelect = 'none'
+}
 
 // 右侧查询
 const rightQuery = reactive({ keyword: '', name: '' })
@@ -245,6 +302,28 @@ const filteredTypeList = computed(() => {
   )
 })
 
+/** 带分页的最终展示列表 — dict 由服务端分页，enum 由客户端分页 */
+const displayTypeList = computed(() => {
+  if (activeSystem.value === 'dict') {
+    // 服务端已分页，直接返回
+    return filteredTypeList.value
+  }
+  // enum mock 使用客户端分页
+  const start = (typePageIndex.value - 1) * typePageSize.value
+  return filteredTypeList.value.slice(start, start + typePageSize.value)
+})
+
+// enum 模式下同步总数（dict 由服务端返回的 total 决定）
+watch(
+  [filteredTypeList, activeSystem],
+  ([list, system]) => {
+    if (system === 'enum') {
+      typeTotal.value = list.length
+    }
+  },
+  { immediate: true }
+)
+
 const typeDialogTitle = computed(() => {
   const prefix = activeSystem.value === 'dict' ? '字典' : '枚举'
   return typeFormMode.value === 'create' ? `新增${prefix}` : `编辑${prefix}`
@@ -257,8 +336,7 @@ const itemDialogTitle = computed(() => {
 
 const typeFormRules: FormRules<TypeFormModel> = {
   name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
-  title: [{ required: true, message: '请输入标题', trigger: 'blur' }],
-  version: [{ required: true, message: '请输入版本', trigger: 'blur' }]
+  title: [{ required: true, message: '请输入编码', trigger: 'blur' }]
 }
 
 const itemFormRules: FormRules<ItemFormModel> = {
@@ -273,9 +351,22 @@ async function loadTypes() {
   typeLoading.value = true
   try {
     const fetcher = activeSystem.value === 'dict' ? pageDictionaryTypes : pageEnumTypes
-    typeList.value = await fetcher({})
+    const kw = throttledKeyword.value.trim()
+    const result = await fetcher({
+      keyword: kw || undefined,
+      pageIndex: typePageIndex.value,
+      pageSize: typePageSize.value
+    })
+    if (Array.isArray(result)) {
+      typeList.value = result
+      typeTotal.value = result.length
+    } else {
+      typeList.value = result.rows
+      typeTotal.value = result.total ?? result.rows.length
+    }
   } catch (error) {
     typeList.value = []
+    typeTotal.value = 0
     ElMessage.error(error instanceof Error ? error.message : '类型列表加载失败')
   } finally {
     typeLoading.value = false
@@ -300,10 +391,30 @@ function onLeftSearchInput() {
 function onSystemChange() {
   leftKeyword.value = ''
   throttledKeyword.value = ''
+  typePageIndex.value = 1
   selectedTypeId.value = null
   itemList.value = []
   void loadTypes()
 }
+
+/** 分页切换 */
+function onTypePageChange(page: number) {
+  typePageIndex.value = page
+  void loadTypes()
+}
+
+/** 每页条数切换 */
+function onTypePageSizeChange(size: number) {
+  typePageSize.value = size
+  typePageIndex.value = 1
+  void loadTypes()
+}
+
+// 关键词变化时重置页码并重新加载
+watch(throttledKeyword, () => {
+  typePageIndex.value = 1
+  void loadTypes()
+})
 
 // ==================== 左侧：类型弹框 ====================
 
@@ -325,14 +436,14 @@ async function submitTypeForm() {
 
   typeSaving.value = true
   try {
+    const codeSystemId = typeList.value[0]?.codeSystemId ?? 1
     const payload = {
       name: typeForm.name,
       title: typeForm.title,
-      version: typeForm.version,
-      description: typeForm.description
+      description: typeForm.description,
+      codeSystemId
     }
-    const creator =
-      activeSystem.value === 'dict' ? createDictionaryType : createEnumType
+    const creator = activeSystem.value === 'dict' ? createDictionaryType : createEnumType
     await creator(payload)
     ElMessage.success('类型创建成功')
     typeDialogRef.value?.closeDialog()
@@ -351,11 +462,14 @@ async function loadItems() {
   const seq = ++requestSequence
   itemLoading.value = true
   try {
+    const selectedType = typeList.value.find((t) => t.id === selectedTypeId.value)
+    const dictCode = selectedType?.title ?? ''
     const fetcher = activeSystem.value === 'dict' ? pageDictionaryItems : pageEnumItems
     itemList.value = await fetcher({
       typeId: selectedTypeId.value,
       keyword: rightQuery.keyword,
-      name: rightQuery.name
+      name: rightQuery.name,
+      ...(activeSystem.value === 'dict' ? { dictCode } : {})
     })
   } catch (error) {
     if (seq !== requestSequence) return
@@ -415,13 +529,11 @@ async function submitItemForm() {
       sort: itemForm.sort
     }
     if (itemFormMode.value === 'edit') {
-      const updater =
-        activeSystem.value === 'dict' ? updateDictionaryItem : updateEnumItem
+      const updater = activeSystem.value === 'dict' ? updateDictionaryItem : updateEnumItem
       await updater(itemForm.id, payload)
       ElMessage.success('编码项编辑成功')
     } else {
-      const creator =
-        activeSystem.value === 'dict' ? createDictionaryItem : createEnumItem
+      const creator = activeSystem.value === 'dict' ? createDictionaryItem : createEnumItem
       await creator(selectedTypeId.value!, payload)
       ElMessage.success('编码项创建成功')
     }
@@ -446,8 +558,7 @@ async function deleteItem(source: unknown) {
     return
   }
   try {
-    const remover =
-      activeSystem.value === 'dict' ? removeDictionaryItem : removeEnumItem
+    const remover = activeSystem.value === 'dict' ? removeDictionaryItem : removeEnumItem
     await remover(row.id)
     ElMessage.success('编码项已删除')
     await loadItems()
@@ -476,13 +587,27 @@ onMounted(async () => {
 .code-page__left {
   display: flex;
   flex-direction: column;
-  width: 260px;
-  min-width: 260px;
-  border-right: 1px solid #e4e7ed;
+  flex-shrink: 0;
   padding: 14px;
   gap: 12px;
   box-sizing: border-box;
   background: #fafafa;
+}
+
+/* ===== 拖拽分隔条 ===== */
+.code-page__resizer {
+  width: 4px;
+  cursor: col-resize;
+  background: transparent;
+  flex-shrink: 0;
+  transition: background 0.15s;
+  position: relative;
+  z-index: 2;
+}
+
+.code-page__resizer:hover,
+.code-page__resizer--active {
+  background: #409eff;
 }
 
 .code-page__tabs {
@@ -533,6 +658,12 @@ onMounted(async () => {
   text-align: center;
   color: #c0c4cc;
   font-size: 13px;
+}
+
+.type-list__pagination {
+  display: flex;
+  justify-content: center;
+  padding-top: 4px;
 }
 
 /* ===== 右侧面板 ===== */

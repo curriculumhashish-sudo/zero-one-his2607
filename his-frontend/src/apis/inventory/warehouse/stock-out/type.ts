@@ -1,90 +1,171 @@
-export type PurchaseInboundStatus = 0 | 1 | 2 | 3
+/** 后端接口 StockOutListVO 原始响应字段 */
+export interface RawStockOutItem {
+  busNo: string
+  typeEnum: string
+  statusEnum: string
+  statusEnumText: string
+  sourceLocationId: string
+  sourceLocationName: string
+  purposeLocationId: string
+  purposeLocationName: string
+  applyTime: string
+  approvalTime: string
+  occurrenceTime: string
+  applicantId: string
+  createdBy: string
+  approverId: string
+  approverName: string
+  totalAmount: number
+  originalBusNo: string
+}
 
-/** 当前页面沿用原目录名，实际展示的是药房盘点单。 */
-export interface PurchaseInboundOrder {
+/** 后端详情接口 StockOutDetailVO.lines 行数据 */
+export interface RawStockOutLine {
   id: string
-  docNo: string
-  date: string
-  handler: string
-  counterparty: string
-  /** 0 编辑中、1 待审批、2 已完成、3 已驳回。 */
-  status: PurchaseInboundStatus
-  /** 当前盘点药房。 */
-  type: string
-  /** 药品或耗材。 */
-  category: string
-  rejectReason?: string
-}
-
-export interface PurchaseInboundQuery {
-  keyword?: string
-  dateRange?: [string, string] | null
-  type?: string | number
-  category?: string | number
-}
-
-export interface PageResult<T> {
-  rows: T[]
-  total: number
-}
-
-/** 药房盘点明细。金额由数量与单价计算，不接收页面写死结果。 */
-export interface PurchaseInboundDetail {
-  id: string
-  itemCode: string
-  itemName: string
+  itemTable: string
+  itemId: string
+  productName: string
   specification: string
   manufacturer: string
-  batchNo: string
-  bookQuantity: number
-  actualQuantity: number
-  actualUnit: string
-  profitLoss: number
-  unitPrice: number
-  actualAmount: number
-  profitLossAmount: number
+  itemQuantity: number
+  unitCode: string
+  unitCodeDictText: string
+  lotNumber: string
+  traceNo: string
+  price: number
+  totalPrice: number
+  occurrenceTime: string
+  startTime: string
+  endTime: string
+  remake: string
+}
+
+/** 后端详情接口 StockOutDetailVO 响应体 */
+export interface RawStockOutDetail {
+  busNo: string
+  originalBusNo: string
+  typeEnum: string
+  statusEnum: string
+  categoryEnum: string
+  sourceLocationId: string
+  sourceLocationName: string
+  purposeLocationId: string
+  purposeLocationName: string
+  sourceTypeEnum: string
+  purposeTypeEnum: string
+  version: number
+  applyTime: string
+  approvalTime: string
+  practitionerId: string
+  practitionerName: string
+  creatorId: string
+  creatorName: string
+  applicantId: string
+  applicantName: string
+  approverId: string
+  approverName: string
   remark: string
+  totalAmount: number
+  lines: RawStockOutLine[]
 }
 
-export interface PurchaseInboundSavePayload {
-  pharmacy: string
-  itemType: string
-  details: PurchaseInboundDetail[]
+/** 前端 列表查询 请求参数（对接后端 /getPharmacy） */
+export interface StockOutQuery {
+  busNokey?: string
+  startDate?: string
+  endDate?: string
+  drugDatabase?: string
+  pharmacyWarehouse?: string
+  pageIndex: number
+  pageSize: number
 }
 
-export interface PurchaseInboundDetailResult {
-  order: PurchaseInboundOrder
-  details: PurchaseInboundDetail[]
+/** 新增出库单请求体 POST /stockout/add */
+export interface StockOutAddDTO {
+  sourceLocationId: string
+  purposeLocationId: string
+  practitionerId?: string
+  relatedReqNo?: string
+  remark?: string
 }
 
-/** 表单列配置（由父组件传入） */
-export interface FormColumnConfig {
-  prop: string
-  label: string
-  width?: number | string
-  minWidth?: number | string
-  fixed?: 'left' | 'right'
-  editable?: boolean
-  editorType?: 'input' | 'number' | 'select' | 'date'
-  editorProps?: Record<string, any>
+/** 保存出库单明细行 */
+export interface StockOutSaveLineDTO {
+  itemTable: string
+  itemId: string
+  itemQuantity: number
+  unitCode: string
+  productName?: string
+  specification?: string
+  manufacturer?: string
+  lotNumber?: string
+  traceNo?: string
+  price?: number
+  totalPrice?: number
+  occurrenceTime?: string
+  startTime?: string
+  endTime?: string
+  remake?: string
 }
 
-/** 表单配置（mock 接口返回） */
-export interface FormConfig {
-  columns: FormColumnConfig[]
-  rowDefaults: Record<string, any>
-  selectTableColumns: { prop: string; label: string; width?: number | string; minWidth?: number | string }[]
+/** 审批类接口通用响应体 */
+export interface StockOutApprovalResult {
+  success: boolean
+  statusEnum: string
 }
 
-/** 药品选择表格数据源。 */
-export interface SupplierItem extends Record<string, unknown> {
-  itemCode: string
-  itemName: string
-  manufacturer: string
-  purchasePrice: number
-  retailPrice: number
-  packageUnit: string
-  specification: string
-  stockQuantity: number
-  approvalNo: string
+/** 提交审批请求体 POST /stockout/submit-approval */
+export interface StockOutSubmitDTO {
+  busNo: string
+  approverId: string
+}
+
+/** 撤回审批请求体 POST /stockout/withdraw-approval */
+export interface StockOutWithdrawDTO {
+  busNo: string
+}
+
+/** 审批通过请求体 POST /stockout/agree */
+export interface StockOutApproveDTO {
+  busNo: string
+  approverId?: string
+  approvalClock?: string
+  contractBusNo?: string
+}
+
+/** 驳回审批请求体 POST /stockout/reject */
+export interface StockOutRejectDTO {
+  busNo: string
+  approverId?: string
+  approvalClock?: string
+  rejectReason: string
+}
+
+/** 保存出库单完整请求体 POST /stockout/save */
+export interface StockOutSaveDTO {
+  busNo: string
+  originalBusNo?: string
+  typeEnum: string
+  categoryEnum: string
+  statusEnum?: string
+  sourceTypeEnum: string
+  sourceLocationId: string
+  sourceLocationName?: string
+  purposeTypeEnum: string
+  purposeLocationId: string
+  purposeLocationName?: string
+  practitionerId?: string
+  practitionerName?: string
+  creatorId?: string
+  creatorName?: string
+  applicantId?: string
+  applicantName?: string
+  approverId?: string
+  approverName?: string
+  applyTime?: string
+  approvalTime?: string
+  totalAmount?: number
+  remark?: string
+  version: number
+  lines: StockOutSaveLineDTO[]
 }

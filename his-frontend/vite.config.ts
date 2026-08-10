@@ -117,7 +117,7 @@ export default defineConfig({
       '/captcha': {
         changeOrigin: true,
         //FIXME[TEST_CODE]:联调阶段需要修改成网关地址
-        target: 'http://localhost:10010',
+        target: 'https://124.223.72.139:10001',
         rewrite: (path) => path.replace(/^\/captcha/, '')
       },
       '/login-api': {
@@ -138,8 +138,23 @@ export default defineConfig({
       '/ai': {
         changeOrigin: true,
         //FIXME[TEST_CODE]:正式环境直接走网关地址，不走这里了
-        target: 'http://localhost:10250',
+        target: 'https://124.223.72.139:10001',
         rewrite: (path) => path.replace(/^\/ai/, '')
+      },
+      '/j2-basedata': {
+        // 基础数据-编码管理
+        changeOrigin: true,
+        target: 'http://118.31.56.25:10300'
+      },
+      '/j6-pharmacy': {
+        // 药库进货/出库/盘点/库存明细
+        changeOrigin: true,
+        target: 'http://39.106.111.242:10234'
+      },
+      '/j7-pharmacy': {
+        // 药房入库/盘点
+        changeOrigin: true,
+        target: 'http://121.199.165.157:10500'
       }
     }
   },

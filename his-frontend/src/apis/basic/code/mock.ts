@@ -6,7 +6,6 @@ import type {
   CodeTypeRecord,
   CodeTypeSavePayload
 } from './type'
-
 // ---------- 模拟数据 ----------
 
 let typeSeq = 20
@@ -18,30 +17,30 @@ function now() {
 
 // 字典类型种子数据
 const dictTypes: CodeTypeRecord[] = [
-  seedType('dt-001', 'vital_signs_code', '生命体特征', '1.0', '生命体特征相关编码'),
-  seedType('dt-002', 'diagnosis_code', '诊断编码', '1.0', '疾病诊断相关编码'),
-  seedType('dt-003', 'medication_code', '药品编码', '2.0', '药品信息相关编码'),
-  seedType('dt-004', 'surgery_code', '手术编码', '1.0', '手术操作相关编码'),
-  seedType('dt-005', 'examination_code', '检查编码', '1.0', '医学检查相关编码'),
-  seedType('dt-006', 'laboratory_code', '检验编码', '1.0', '检验项目相关编码'),
-  seedType('dt-007', 'department_code', '科室编码', '1.0', '医院科室相关编码'),
-  seedType('dt-008', 'charge_code', '收费编码', '1.0', '收费项目相关编码'),
-  seedType('dt-009', 'material_code', '材料编码', '2.0', '医用材料相关编码'),
-  seedType('dt-010', 'nursing_code', '护理编码', '1.0', '护理项目相关编码')
+  seedType('dt-001', 'vital_signs_code', '生命体特征', '生命体特征相关编码'),
+  seedType('dt-002', 'diagnosis_code', '诊断编码', '疾病诊断相关编码'),
+  seedType('dt-003', 'medication_code', '药品编码', '药品信息相关编码'),
+  seedType('dt-004', 'surgery_code', '手术编码', '手术操作相关编码'),
+  seedType('dt-005', 'examination_code', '检查编码', '医学检查相关编码'),
+  seedType('dt-006', 'laboratory_code', '检验编码', '检验项目相关编码'),
+  seedType('dt-007', 'department_code', '科室编码', '医院科室相关编码'),
+  seedType('dt-008', 'charge_code', '收费编码', '收费项目相关编码'),
+  seedType('dt-009', 'material_code', '材料编码', '医用材料相关编码'),
+  seedType('dt-010', 'nursing_code', '护理编码', '护理项目相关编码')
 ]
 
 // 枚举类型种子数据
 const enumTypes: CodeTypeRecord[] = [
-  seedType('et-001', 'gender', '性别', '1.0', '患者性别枚举'),
-  seedType('et-002', 'blood_type', '血型', '1.0', '血型分类枚举'),
-  seedType('et-003', 'marital_status', '婚姻状况', '1.0', '婚姻状况枚举'),
-  seedType('et-004', 'education_level', '学历', '1.0', '学历等级枚举'),
-  seedType('et-005', 'nationality', '国籍', '1.0', '国籍枚举'),
-  seedType('et-006', 'nation', '民族', '1.0', '民族枚举'),
-  seedType('et-007', 'occupation', '职业', '1.0', '职业分类枚举'),
-  seedType('et-008', 'payment_method', '支付方式', '1.0', '支付方式枚举'),
-  seedType('et-009', 'patient_status', '患者状态', '1.0', '患者就诊状态枚举'),
-  seedType('et-010', 'visit_type', '就诊类型', '1.0', '就诊类型枚举')
+  seedType('et-001', 'gender', '性别', '患者性别枚举'),
+  seedType('et-002', 'blood_type', '血型', '血型分类枚举'),
+  seedType('et-003', 'marital_status', '婚姻状况', '婚姻状况枚举'),
+  seedType('et-004', 'education_level', '学历', '学历等级枚举'),
+  seedType('et-005', 'nationality', '国籍', '国籍枚举'),
+  seedType('et-006', 'nation', '民族', '民族枚举'),
+  seedType('et-007', 'occupation', '职业', '职业分类枚举'),
+  seedType('et-008', 'payment_method', '支付方式', '支付方式枚举'),
+  seedType('et-009', 'patient_status', '患者状态', '患者就诊状态枚举'),
+  seedType('et-010', 'visit_type', '就诊类型', '就诊类型枚举')
 ]
 
 // 字典项
@@ -171,14 +170,8 @@ const enumItems: CodeItemRecord[] = [
 
 // ---------- 工具函数 ----------
 
-function seedType(
-  id: string,
-  name: string,
-  title: string,
-  version: string,
-  description: string
-): CodeTypeRecord {
-  return { id, name, title, version, description, createdAt: now(), updatedAt: now() }
+function seedType(id: string, name: string, title: string, description: string): CodeTypeRecord {
+  return { id, name, title, description, createdAt: now(), updatedAt: now() }
 }
 
 function seedItem(
@@ -211,33 +204,34 @@ function clone<T>(value: T): T {
 // ---------- 类型 CRUD ----------
 
 export async function mockPageCodeTypes(query: CodeTypeQuery) {
+  // 模拟网络延迟
   await delay()
+  // 根据系统类型获取对应的数据存储
   const store = typeStore(query.system)
+  // 处理关键词（去除首尾空格并转小写）
   const keyword = query.keyword?.trim().toLowerCase()
+  // 默认返回全部数据
   let list = store
+  // 如果有关键词，进行模糊筛选
   if (keyword) {
     list = store.filter(
       (t) => t.name.toLowerCase().includes(keyword) || t.title.toLowerCase().includes(keyword)
     )
   }
+  // 深拷贝后返回结果（避免外部修改原始数据）
   return clone(list)
 }
 
-export async function mockCreateCodeType(
-  system: 'dict' | 'enum',
-  payload: CodeTypeSavePayload
-) {
+export async function mockCreateCodeType(system: 'dict' | 'enum', payload: CodeTypeSavePayload) {
   await delay()
   if (!payload.name.trim()) throw new Error('名称不能为空')
   if (!payload.title.trim()) throw new Error('标题不能为空')
-  if (!payload.version.trim()) throw new Error('版本不能为空')
   typeSeq += 1
   const store = typeStore(system)
   const record: CodeTypeRecord = {
     id: `${system === 'dict' ? 'dt' : 'et'}-${String(typeSeq).padStart(3, '0')}`,
     name: payload.name.trim(),
     title: payload.title.trim(),
-    version: payload.version.trim(),
     description: payload.description.trim(),
     createdAt: now(),
     updatedAt: now()
@@ -254,14 +248,12 @@ export async function mockUpdateCodeType(
   await delay()
   if (!payload.name.trim()) throw new Error('名称不能为空')
   if (!payload.title.trim()) throw new Error('标题不能为空')
-  if (!payload.version.trim()) throw new Error('版本不能为空')
   const store = typeStore(system)
   const target = store.find((t) => t.id === id)
   if (!target) throw new Error('类型不存在')
   Object.assign(target, {
     name: payload.name.trim(),
     title: payload.title.trim(),
-    version: payload.version.trim(),
     description: payload.description.trim(),
     updatedAt: now()
   })

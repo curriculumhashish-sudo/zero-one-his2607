@@ -11,16 +11,18 @@
 
 import { ref, type Ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import {
-  createPurchaseInbound,
-  updatePurchaseInbound,
-  removePurchaseInbound,
-  submitPurchaseInbound,
-  withdrawPurchaseInbound,
-  approvePurchaseInbound,
-  rejectPurchaseInbound,
-} from '@/apis/inventory/pharmacy/stocktake'
 import type { PurchaseInboundDetail, PurchaseInboundStatus } from '@/apis/warehouse/purchase-inbound'
+
+/** 审批流依赖的 API 函数集合 */
+export interface ApprovalFlowApis {
+  createPurchaseInbound: (payload: any) => Promise<{ order: Record<string, unknown>; details: any[] }>
+  updatePurchaseInbound: (id: string, payload: any) => Promise<{ order: Record<string, unknown>; details: any[] }>
+  removePurchaseInbound: (id: string) => Promise<void>
+  submitPurchaseInbound: (id: string) => Promise<Record<string, unknown>>
+  withdrawPurchaseInbound: (id: string) => Promise<Record<string, unknown>>
+  approvePurchaseInbound: (id: string) => Promise<Record<string, unknown>>
+  rejectPurchaseInbound: (id: string, reason: string) => Promise<Record<string, unknown>>
+}
 
 export function useApprovalFlow(options: {
   orders: Ref<Record<string, unknown>[]>
@@ -29,8 +31,16 @@ export function useApprovalFlow(options: {
   getDetails: () => Record<string, unknown>[]
   /** 状态变更后刷新 MainPane */
   refreshMainPane: () => void
+  /** 获取检索区选中值 */
+  getSearchPharmacy: () => string
+  /** 获取检索区"目的药房"选中值（stock-in 用，其他为空字符串） */
+  getSearchTargetPharmacy: () => string
+  /** 获取检索区"供应商"选中值（purchase-inbound2 用，其他为空字符串） */
+  getSearchSupplier: () => string
+  /** API 函数集（各页面注入自己的 API 模块） */
+  apis: ApprovalFlowApis
 }) {
-  const { orders, selectedOrder, getDetails, refreshMainPane } = options
+  const { orders, selectedOrder, getDetails, refreshMainPane, getSearchPharmacy, getSearchTargetPharmacy, getSearchSupplier, apis } = options
 
   // ==================== 驳回弹窗 ====================
 
@@ -61,32 +71,67 @@ export function useApprovalFlow(options: {
     return selectedOrder.value as Record<string, any> | null
   }
 
+  /** 当前时间字符串 YYYY-MM-DD HH:mm */
+  function nowTime(): string {
+    const d = new Date()
+    const pad = (n: number) => String(n).padStart(2, '0')
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
+  }
+
+  /** 记录被 patchCardFields 修改过的字段，syncOrder 时优先保留 */
+  const patchedFields = new Set<string>()
+
   /** 操作后同步卡片列表和选中状态 */
   function syncOrder(updated: Record<string, any>, oldOrder?: Record<string, any> | null) {
-    // 草稿保存后 id 会变，先移除旧草稿
     if (oldOrder?._draft) {
       const draftIdx = orders.value.findIndex((o) => o._draft && o._clientDraftId === oldOrder._clientDraftId)
       if (draftIdx !== -1) orders.value.splice(draftIdx, 1)
     }
     const idx = orders.value.findIndex((o) => o.id === updated.id)
-    if (idx !== -1) {
-      orders.value.splice(idx, 1, updated)
-    } else {
-      orders.value.unshift(updated)
+    // merge: 保留被 patchCardFields 修改过的字段
+    const existing = idx !== -1 ? orders.value[idx]! : {}
+    const merged = { ...updated }
+    for (const k of patchedFields) {
+      if (existing[k]) merged[k] = existing[k]
     }
-    selectedOrder.value = updated
-    // 通知 MainPane 刷新（当 orderId 未变时也需要同步状态到右侧）
+    if (idx !== -1) {
+      orders.value.splice(idx, 1, merged)
+    } else {
+      orders.value.unshift(merged)
+    }
+    selectedOrder.value = merged
     refreshMainPane()
   }
 
+  /** 对 selectedOrder / orders 中当前卡片打补丁字段 */
+  function patchCardFields(patch: Record<string, unknown>) {
+    const o = selectedOrder.value
+    if (!o) return
+    Object.assign(o, patch)
+    Object.keys(patch).forEach((k) => patchedFields.add(k))
+    const idx = orders.value.findIndex((item) => item.id === o.id)
+    if (idx !== -1) orders.value.splice(idx, 1, { ...orders.value[idx], ...patch })
+  }
+
   /** 从 selectedOrder 中提取保存参数 */
-  function buildSavePayload(targetStatus: PurchaseInboundStatus): { pharmacy: string; itemType: string; targetStatus: PurchaseInboundStatus; details: PurchaseInboundDetail[] } {
+  function buildSavePayload(targetStatus: PurchaseInboundStatus) {
     const o = currentOrder()
     return {
       pharmacy: (o?.sourceLocationId_dictText as string) ?? '',
       itemType: (o?.category as string) ?? '',
       targetStatus,
       details: getDetails() as unknown as PurchaseInboundDetail[],
+      applicantId_dictText: (o?.applicantId_dictText as string) ?? '',
+      sourceLocationId: (o?.sourceLocationId as string) ?? '',
+      sourceLocationId_dictText: (o?.sourceLocationId_dictText as string) ?? '',
+      purposeLocationId: (o?.purposeLocationId as string) ?? '',
+      purposeLocationId_dictText: (o?.purposeLocationId_dictText as string) ?? getSearchTargetPharmacy(),
+      targetPharmacy: getSearchTargetPharmacy(),
+      // purchase-inbound2 专用：进货单 addInbound 需要的库房和供应商
+      // 优先从当前选中单据取值（handleQueueAdd 在 resetSearchValues 前已写入），再回退检索区
+      warehouse: (o?.sourceLocationId_dictText as string) ?? getSearchPharmacy(),
+      supplierId_dictText: (o?.supplierId_dictText as string) ?? '',
+      supplier: (o?.supplierId_dictText as string) ?? getSearchSupplier(),
     }
   }
 
@@ -105,27 +150,29 @@ export function useApprovalFlow(options: {
     if (!validateBeforeSave(payload as any)) return
     try {
       const result = isDraft(o)
-        ? await createPurchaseInbound(payload as any)
-        : await updatePurchaseInbound(o.id as string, payload as any)
+        ? await apis.createPurchaseInbound(payload as any)
+        : await apis.updatePurchaseInbound(o.id as string, payload as any)
       syncOrder(result.order as unknown as Record<string, unknown>, o)
+      patchCardFields({ applicantId_dictText: 'admin', sourceLocationId_dictText: (o?.sourceLocationId_dictText as string) || getSearchPharmacy(), purposeLocationId_dictText: getSearchTargetPharmacy(), supplierId_dictText: (o?.supplierId_dictText as string) || getSearchSupplier() })
       ElMessage.success('保存成功')
     } catch {
       ElMessage.error('保存失败')
     }
   }
 
-  /** 保存并提交审批：编辑中(0) → 审核中(2) */
+  /** 保存并提交审批：编辑中(0) → 待审核(1) → 审核中(2) */
   async function handleSaveAndSubmit() {
     const o = currentOrder()
     if (!o) return
-    const payload = buildSavePayload(2)
+    const payload = buildSavePayload(1)
     if (!validateBeforeSave(payload as any)) return
     try {
       const result = isDraft(o)
-        ? await createPurchaseInbound(payload as any)
-        : await updatePurchaseInbound(o.id as string, payload as any)
-      const submitted = await submitPurchaseInbound(result.order.id as string)
+        ? await apis.createPurchaseInbound(payload as any)
+        : await apis.updatePurchaseInbound(o.id as string, payload as any)
+      const submitted = await apis.submitPurchaseInbound(result.order.id as string)
       syncOrder(submitted as unknown as Record<string, unknown>, o)
+      patchCardFields({ applicantId_dictText: 'admin', sourceLocationId_dictText: (o?.sourceLocationId_dictText as string) || getSearchPharmacy(), purposeLocationId_dictText: getSearchTargetPharmacy(), supplierId_dictText: (o?.supplierId_dictText as string) || getSearchSupplier(), applyTime: nowTime() })
       ElMessage.success('已保存并提交审批')
     } catch {
       ElMessage.error('操作失败')
@@ -142,7 +189,7 @@ export function useApprovalFlow(options: {
         cancelButtonText: '取消',
         type: 'warning',
       })
-      await removePurchaseInbound(o.id as string)
+      await apis.removePurchaseInbound(o.id as string)
       const idx = orders.value.findIndex((item) => item.id === o.id)
       if (idx !== -1) orders.value.splice(idx, 1)
       selectedOrder.value = orders.value.length > 0 ? orders.value[0]! : null
@@ -157,8 +204,9 @@ export function useApprovalFlow(options: {
     const o = currentOrder()
     if (!o) return
     try {
-      const result = await submitPurchaseInbound(o.id as string)
+      const result = await apis.submitPurchaseInbound(o.id as string)
       syncOrder(result as unknown as Record<string, unknown>)
+      patchCardFields({ applyTime: nowTime() })
       ElMessage.success('已提交审批')
     } catch {
       ElMessage.error('提交失败')
@@ -170,7 +218,7 @@ export function useApprovalFlow(options: {
     const o = currentOrder()
     if (!o) return
     try {
-      const result = await withdrawPurchaseInbound(o.id as string)
+      const result = await apis.withdrawPurchaseInbound(o.id as string)
       syncOrder(result as unknown as Record<string, unknown>)
       ElMessage.success('已撤回')
     } catch {
@@ -183,8 +231,9 @@ export function useApprovalFlow(options: {
     const o = currentOrder()
     if (!o) return
     try {
-      const result = await approvePurchaseInbound(o.id as string)
+      const result = await apis.approvePurchaseInbound(o.id as string)
       syncOrder(result as unknown as Record<string, unknown>)
+      patchCardFields({ approverId_dictText: 'admin', approvalTime: nowTime() })
       ElMessage.success('审批通过')
     } catch {
       ElMessage.error('审批失败')
@@ -202,8 +251,9 @@ export function useApprovalFlow(options: {
     const o = currentOrder()
     if (!o) return
     try {
-      const result = await rejectPurchaseInbound(o.id as string, reason)
+      const result = await apis.rejectPurchaseInbound(o.id as string, reason)
       syncOrder(result as unknown as Record<string, unknown>)
+      patchCardFields({ approverId_dictText: 'admin', approvalTime: nowTime() })
       ElMessage.success('已驳回')
     } catch {
       ElMessage.error('驳回失败')

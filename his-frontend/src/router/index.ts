@@ -37,6 +37,11 @@ routes.push(
       anonymous: true
     },
     component: () => import('@/components/auth/SigninCallback.vue')
+  },
+  // 跳过登录
+  {
+    path: '/',
+    redirect: '/dashboard'
   }
 )
 

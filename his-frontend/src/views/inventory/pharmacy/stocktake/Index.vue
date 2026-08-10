@@ -35,26 +35,22 @@
         :form-columns="formColumns"
         :row-defaults="rowDefaults"
         :select-table-columns="selectTableColumns"
-        :select-table-load-page="loadSupplierOptions"
+        :select-table-load-page="handleSelectTableLoad"
         :on-supplier-fill="onSupplierFill"
+        :on-quantity-change="onQuantityChange"
+        :load-detail-fn="getPurchaseInboundDetail"
         @action="handleAction"
       />
     </template>
-
-    <!-- 驳回原因弹窗 -->
-    <el-dialog v-model="rejectVisible" title="驳回原因" width="400px">
-      <el-input
-        v-model="rejectReason"
-        type="textarea"
-        :rows="3"
-        placeholder="请输入驳回原因"
-      />
-      <template #footer>
-        <el-button @click="cancelReject()">取消</el-button>
-        <el-button type="primary" @click="confirmReject()">确定</el-button>
-      </template>
-    </el-dialog>
   </DocumentWorkstationShell>
+
+  <el-dialog v-model="rejectVisible" title="驳回原因" width="400px">
+    <el-input v-model="rejectReason" type="textarea" :rows="3" placeholder="请输入驳回原因" />
+    <template #footer>
+      <el-button @click="cancelReject()">取消</el-button>
+      <el-button type="primary" @click="confirmReject()">确定</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
@@ -64,13 +60,26 @@ import PurchaseInboundQueuePane from '@/views/inventory/components/PurchaseInbou
 import type { QueueSearchParams } from '@/views/inventory/components/PurchaseInboundQueuePane.vue'
 import PurchaseInboundMainPane from '@/views/inventory/components/PurchaseInboundMainPane.vue'
 import type { ExtraSearchField } from '@/views/inventory/components/PurchaseInboundMainPane.vue'
-import {
-  getFormConfig,
-  loadSupplierOptions,
-  pagePurchaseInboundOrders
-} from '@/apis/inventory/pharmacy/stocktake'
 import { useApprovalFlow } from '@/views/inventory/common/useApprovalFlow'
-import { computeBatchNo, computeActualAmount } from './utils'
+import {
+  loadSupplierOptions,
+  pagePurchaseInboundOrders,
+  getPurchaseInboundDetail,
+  createPurchaseInbound,
+  updatePurchaseInbound,
+  removePurchaseInbound,
+  submitPurchaseInbound,
+  withdrawPurchaseInbound,
+  approvePurchaseInbound,
+  rejectPurchaseInbound
+} from '@/apis/inventory/pharmacy/stocktake'
+import { FORM_COLUMNS, ROW_DEFAULTS, SELECT_TABLE_COLUMNS } from './type'
+import {
+  computeBatchNo,
+  computeActualAmount,
+  computeProfitLoss,
+  computeProfitLossAmount
+} from '@/views/inventory/common/utils'
 
 // ==================== 药房列表（静态数据） ====================
 
@@ -105,7 +114,19 @@ const approval = useApprovalFlow({
   orders,
   selectedOrder,
   getDetails: () => mainPaneRef.value?.details ?? [],
-  refreshMainPane: () => mainPaneRef.value?.loadDetail()
+  refreshMainPane: () => mainPaneRef.value?.loadDetail(),
+  getSearchPharmacy: () => (mainPaneRef.value?.getSearchValue('pharmacy') as string) ?? '',
+  getSearchTargetPharmacy: () => '',
+  getSearchSupplier: () => '',
+  apis: {
+    createPurchaseInbound,
+    updatePurchaseInbound,
+    removePurchaseInbound,
+    submitPurchaseInbound,
+    withdrawPurchaseInbound,
+    approvePurchaseInbound,
+    rejectPurchaseInbound
+  } as any
 })
 const { handleAction, rejectVisible, rejectReason, confirmReject, cancelReject } = approval
 /** 新增空单据自增计数器 */
@@ -127,6 +148,9 @@ async function handleQueueSearch(params: QueueSearchParams) {
     })
     // 双重类型断言：先转为 unknown，再转为目标类型，绕过 TypeScript 的类型检查
     orders.value = result.rows as unknown as Record<string, unknown>[]
+    orders.value.forEach((o) => {
+      o.purposeLocationId_dictText = ''
+    })
   } catch {
     // 加载失败保持现有列表
   } finally {
@@ -140,17 +164,14 @@ function handleQueueSelect(order: Record<string, unknown>) {
 
 function handleQueueAdd() {
   idCounter++
-  const now = new Date()
-  const pad = (n: number) => String(n).padStart(2, '0')
-  const applyTime = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`
   const newOrder: Record<string, unknown> = {
     id: `pi-new-${idCounter}`,
     status: 0,
     category: '',
     statusEnum: 0,
     statusEnum_enumText: '编辑中',
-    applicantId_dictText: '当前用户',
-    applyTime,
+    applicantId_dictText: '',
+    applyTime: '',
     approverId_dictText: '',
     approvalTime: '',
     supplierId_dictText: '',
@@ -208,26 +229,47 @@ const mainSearchFields = reactive<ExtraSearchField[]>([
 
 // ==================== Main 区表单配置（从 mock 加载） ====================
 
-const formColumns = ref<any[]>([])
-const rowDefaults = ref<Record<string, any>>({})
-const selectTableColumns = ref<any[]>([])
+const formColumns = ref(FORM_COLUMNS)
+const rowDefaults = ref(ROW_DEFAULTS)
+const selectTableColumns = ref(SELECT_TABLE_COLUMNS)
+
+/** SelectTable 数据加载：仅"门诊西药房"返回 mock 数据，其余为空 */
+function handleSelectTableLoad(query: { keyword: string; pageIndex: number; pageSize: number }) {
+  const pharmacy = mainPaneRef.value?.getSearchValue('pharmacy') as string | undefined
+  if (pharmacy !== '门诊西药房') return Promise.resolve({ rows: [], total: 0 })
+  return loadSupplierOptions(query)
+}
 
 /** SelectTable 回填业务逻辑 */
 function onSupplierFill(row: Record<string, any>, item: Record<string, any>) {
-  const actualAmount = computeActualAmount(item.purchasePrice, item.stockQuantity)
+  const bookQuantity = item.stockQuantity
+  const actualQuantity = item.stockQuantity
+  const profitLoss = computeProfitLoss(actualQuantity, bookQuantity)
+  const actualAmount = computeActualAmount(item.purchasePrice, actualQuantity)
+  const profitLossAmount = computeProfitLossAmount(profitLoss, item.purchasePrice)
   return {
     ...row,
     itemName: item.itemName,
     specification: item.specification,
     manufacturer: item.manufacturer,
     batchNo: computeBatchNo(item.itemCode),
-    bookQuantity: item.stockQuantity,
-    profitLoss: 0,
+    bookQuantity,
+    actualQuantity,
+    actualUnit: item.packageUnit,
+    profitLoss,
     unitPrice: item.purchasePrice,
     actualAmount,
-    profitLossAmount: 0,
+    profitLossAmount,
     remark: ''
   }
+}
+
+/** 实盘数量变更时重算盈亏和金额 */
+function onQuantityChange(row: Record<string, any>, value: number) {
+  const profitLoss = computeProfitLoss(value, row.bookQuantity)
+  const actualAmount = computeActualAmount(row.unitPrice, value)
+  const profitLossAmount = computeProfitLossAmount(profitLoss, row.unitPrice)
+  return { ...row, actualQuantity: value, profitLoss, actualAmount, profitLossAmount }
 }
 
 onMounted(() => {
@@ -240,16 +282,6 @@ onMounted(() => {
     endDate: '',
     pageIndex: 1
   })
-  // 加载弹出表单数据
-  getFormConfig()
-    .then((config) => {
-      formColumns.value = config.columns
-      rowDefaults.value = config.rowDefaults
-      selectTableColumns.value = config.selectTableColumns
-    })
-    .catch(() => {
-      // 加载失败使用默认空值
-    })
 })
 </script>
 

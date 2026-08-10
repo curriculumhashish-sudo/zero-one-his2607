@@ -238,7 +238,7 @@ function defaultIsApproved(row: Record<string, unknown>): boolean {
   if (row.statusEnum_enumText === '同意') return true
   const s = row.statusEnum
   if (s === 'AGREE' || s === 'agree') return true
-  return s === 3 || s === '3'
+  return s === 4 || s === '4'
 }
 
 function isRowSelected(row: Record<string, unknown>): boolean {

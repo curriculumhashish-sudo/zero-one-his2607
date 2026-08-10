@@ -33,8 +33,8 @@ export interface TableColumnConfig {
 // ==================== 下拉选项 ====================
 
 export const warehouseOptions: SelectOption[] = [
-  { label: '耗材库', value: '耗材库' },
-  { label: '西药库', value: '西药库' },
+  { label: '耗材库', value: '322954857622802432' },
+  { label: '西药库', value: '322954885380706304' },
   { label: '中药库', value: '中药库' },
   { label: '门诊西药库', value: '门诊西药库' },
   { label: '门诊中药库', value: '门诊中药库' },
@@ -45,17 +45,17 @@ export const warehouseOptions: SelectOption[] = [
 ]
 
 export const supplierOptions: SelectOption[] = [
-  { label: '华东医疗器械制造有限公司', value: '华东医疗器械制造有限公司' },
-  { label: '华南中药饮品供应公司', value: '华南中药饮品供应公司' },
-  { label: '华中药品配送有限公司', value: '华中药品配送有限公司' },
-  { label: '西南医用耗材制造有限公司', value: '西南医用耗材制造有限公司' },
-  { label: '华北诊断试剂制造厂', value: '华北诊断试剂制造厂' },
-  { label: '东部医疗物流供应链有限公司', value: '东部医疗物流供应链有限公司' },
-  { label: '华南医疗设备制造有限公司', value: '华南医疗设备制造有限公司' },
-  { label: '北方疫苗冷链供应有限公司', value: '北方疫苗冷链供应有限公司' },
-  { label: '华东一次性耗材制造有限公司', value: '华东一次性耗材制造有限公司' },
-  { label: '中原中药材供应有限公司', value: '中原中药材供应有限公司' },
-  { label: '华西影像设备制造有限公司', value: '华西影像设备制造有限公司' }
+  { label: '华东医疗器械制造有限公司', value: '4100000000000000002' },
+  { label: '华南中药饮片供应中心', value: '4100000000000000004' },
+  { label: '华中药品配送有限公司', value: '4100000000000000005' },
+  { label: '西南医用耗材制造有限公司', value: '4100000000000000006' },
+  { label: '华北诊断试剂制造厂', value: '4100000000000000007' },
+  { label: '东部医疗物流供应链有限公司', value: '4100000000000000008' },
+  { label: '华南医疗设备制造有限公司', value: '4100000000000000009' },
+  { label: '北方疫苗冷链供应有限公司', value: '4100000000000000010' },
+  { label: '华东一次性耗材制造有限公司', value: '4100000000000000011' },
+  { label: '华西影像设备制造有限公司', value: '4100000000000000012' },
+  { label: '中原中药材供应有限公司', value: '中原中药材供应有限公司' }
 ]
 
 export const medicationCategoryOptions: SelectOption[] = [
@@ -82,8 +82,8 @@ export const deviceCategoryOptions: SelectOption[] = [
 ]
 
 export const inventoryStatusOptions: SelectOption[] = [
-  { label: '已启用', value: '已启用' },
-  { label: '已停用', value: '已停用' }
+  { label: '正常', value: 'NORMAL' },
+  { label: '停供', value: 'STOP_SUPPLY' }
 ]
 
 export const chrgitmLvOptions: SelectOption[] = [

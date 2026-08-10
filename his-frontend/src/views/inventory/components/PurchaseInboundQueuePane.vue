@@ -117,10 +117,11 @@ interface ApiOptionItem {
 export interface QueueSearchParams {
   checkNo?: string // 盘点单号
   pageSize: number // 每页显示条数
-  checkType?: string // 盘点类型
+  checkType?: string // 盘点类型 / 药源库
   startDate?: string // 开始时间
   endDate?: string // 结束时间
   pageIndex: number // 当前页码
+  purposeLocationId?: string // 目的药房（showDropdown2 时有效）
 }
 
 // ==================== Props ====================
@@ -210,7 +211,8 @@ function handleSearch() {
     checkType: dropdown1Value.value,
     startDate: dateRange.value ? formatDate(dateRange.value[0]) : undefined,
     endDate: dateRange.value ? formatDate(dateRange.value[1]) : undefined,
-    pageIndex: 1
+    pageIndex: 1,
+    purposeLocationId: dropdown2Value.value || undefined
   })
 }
 

@@ -1,7 +1,8 @@
 const routes = [
   {
     path: '/login',
-    alias: '/',
+    // 跳过登录
+    // alias: '/',
     name: 'Login',
     meta: {
       anonymous: true

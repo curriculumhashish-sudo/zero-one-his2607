@@ -1,33 +1,17 @@
 <template>
   <section class="doc-head-panel" :class="{ 'is-readonly': readonly }">
-    <!-- ==================== Header：标题 + 状态下拉 + 操作 ==================== -->
+    <!-- ==================== Header：标题 + 状态 ==================== -->
     <header class="doc-head-panel__header">
       <slot name="title">
         <div class="doc-head-panel__title">{{ title }}</div>
       </slot>
       <div class="doc-head-panel__header-right">
-        <!-- 状态下拉切换 -->
-        <el-select
-          v-if="statusMap.length > 0"
-          :model-value="status"
-          :disabled="readonly || loading"
-          size="small"
-          class="doc-head-panel__status-select"
-          @update:model-value="emit('update:status', $event)"
-        >
-          <el-option
-            v-for="opt in statusMap"
-            :key="String(opt.value)"
-            :label="opt.label"
-            :value="opt.value"
-          />
-        </el-select>
         <slot name="status">
           <StatusDisplay
             v-if="status !== undefined && status !== null"
             :value="status"
             :options="statusMap"
-            size="small"
+            size="default"
           />
         </slot>
         <slot name="actions" />
@@ -67,7 +51,10 @@
     </div>
 
     <!-- ==================== Footer：页面配置的操作按钮 ==================== -->
-    <footer v-if="visibleActions.length || $slots.auditInfo || $slots.extra" class="doc-head-panel__footer">
+    <footer
+      v-if="visibleActions.length || $slots.auditInfo || $slots.extra"
+      class="doc-head-panel__footer"
+    >
       <div class="doc-head-panel__footer-btns">
         <template v-for="btn in visibleActions" :key="btn.key">
           <el-button
@@ -204,9 +191,7 @@ const actionContext = computed<DocumentHeadActionContext>(() => ({
 
 const visibleActions = computed(() =>
   props.actions.filter((item) =>
-    typeof item.visible === 'function'
-      ? item.visible(actionContext.value)
-      : item.visible !== false
+    typeof item.visible === 'function' ? item.visible(actionContext.value) : item.visible !== false
   )
 )
 

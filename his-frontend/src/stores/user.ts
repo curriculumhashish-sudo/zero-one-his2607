@@ -1,5 +1,11 @@
 import { defineStore } from 'pinia'
-import type { LoginResult, Menu, Oauth2TokenDTO, RouteMenuRecord, UserInfo } from '@/apis/login/type'
+import type {
+  LoginResult,
+  Menu,
+  Oauth2TokenDTO,
+  RouteMenuRecord,
+  UserInfo
+} from '@/apis/login/type'
 import { loadCurrentMenus, loadCurrentUser, logout } from '@/apis/login'
 import { DataUpType, useHttp } from '@/plugins/http'
 import { useAuthManager } from '@/plugins/auth-manager'
@@ -36,7 +42,12 @@ function toMenu(route: RouteMenuRecord, parentId?: string): Menu {
 export const useUserStore = defineStore('user', {
   state: () => ({
     token: null as string | null,
+    // token:
+    //   'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJhZG1pbiIsInNjb3BlIjpbImFsbCJdLCJpZCI6MSwiZXhwIjoxNjAwNzU4NjEzLCJhdXRob3JpdGllcyI6WyJBRE1JTiJdLCJqdGkiOiI2ZWY3MTkzNS04Yjk0LTQ0YzQtOGRhNC0wODhhMTVmOGQ5NzkiLCJjbGllbnRfaWQiOiJoZWFsdGgtY2xpZW50In0.RY6Eu9O35SRbtxOKrP0Db-kl7A9QK8XBr7KCP2Qnx1bGCoHm9v3OnXbOgZ95QMuo117wS3t8KyCAHIhclrDykl5kf_sV2_FrnrzZWYb8kSDB6pPKSSJLTWTud1eN9W07K2OKh9DHtDEW3CdnHXeV9I3yGJhIYuSaWcmq4pqOSd3UFktEcvUIQewcbdppsgT_CWngaXn88wNCmHjClvBuFuXL9r67_QwvWqJr1iCMrF9tOo993PzxP1P2zDkRwnINy9lRxly7lIkJ4Um5w7v4eeJmYo5e3VliagACKM-MOKqB6cy8nqUMkLW5r-t_74h_yxcjKdan0jRcjcpCXcHsrA',
     refreshToken: null as string | null,
+    // refreshToken:
+    //   'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJhZG1pbiIsInNjb3BlIjpbImFsbCJdLCJhdGkiOiI2ZWY3MTkzNS04Yjk0LTQ0YzQtOGRhNC0wODhhMTVmOGQ5NzkiLCJpZCI6MSwiZXhwIjoxNjAwODQxNDEzLCJhdXRob3JpdGllcyI6WyJBRE1JTiJdLCJqdGkiOiJlMjU3ZDFjNi02Mzk0LTRkODItYmIxOC1mY2I4ZDBkOTczNzciLCJjbGllbnRfaWQiOiJoZWFsdGgtY2xpZW50In0.I2kxj_sOJZ2Ui2Hd8aPCPzCE-vP8kq4L6WXjBgrFUXahismN2ipRuqaMTzxC_sWBPaSjTSsElmYiN5q95ktm_QwLZbQkPb0wi2l9CggVKWSOpoz6QorIfpCh63Tc_GR3vPT6W9M2tdBiDtX477O5ddAmgAoXf62foOL-AjcCxSryTLrdICGbBq2ZArOGvKhF5NInF7BHX2LYTJF5Yt9B0y5YMdKdmIoMJwQLgPWwxktfHOjx2s-DordJEKjKSmLWkq9qa6MgxgYJQM7Ex-8obEtoxkEDDloC3SAZK_53YffnO14kY4025cWLH4N0p_RbrGPPz9bBthVO8YOog9nfGA',
+    // tokenHead: 'Bearer ',
     loaded: false,
     user: null as StoredUser | null,
     menus: createFrontendMenus(),
@@ -98,7 +109,11 @@ export const useUserStore = defineStore('user', {
     async reloadToken() {
       this.loadRefreshToken()
       if (!this.refreshToken) return
-      const data = await useHttp().post<Oauth2TokenDTO>('/login/refresh-token', { refreshToken: this.refreshToken, token: this.token }, { upType: DataUpType.form })
+      const data = await useHttp().post<Oauth2TokenDTO>(
+        '/login/refresh-token',
+        { refreshToken: this.refreshToken, token: this.token },
+        { upType: DataUpType.form }
+      )
       this.setToken(data.data)
     },
     setLoaded(loaded: boolean) {
@@ -112,15 +127,22 @@ export const useUserStore = defineStore('user', {
       if (this.refreshToken) localStorage.setItem('refreshToken', this.refreshToken)
       if ('tokenHead' in data && data.tokenHead) localStorage.setItem('tokenHead', data.tokenHead.trim())
     },
-    setLoginContext(context: { tenantId?: string | number | null; hospitalId?: string | number | null; departmentId?: string | null }) {
+    setLoginContext(context: {
+      tenantId?: string | number | null
+      hospitalId?: string | number | null
+      departmentId?: string | null
+    }) {
       if ('tenantId' in context) this.tenantId = context.tenantId ?? null
       if ('hospitalId' in context) this.hospitalId = context.hospitalId ?? null
       if ('departmentId' in context) this.departmentId = context.departmentId ?? null
-      localStorage.setItem(LOGIN_CONTEXT_KEY, JSON.stringify({
-        tenantId: this.tenantId,
-        hospitalId: this.hospitalId,
-        departmentId: this.departmentId
-      }))
+      localStorage.setItem(
+        LOGIN_CONTEXT_KEY,
+        JSON.stringify({
+          tenantId: this.tenantId,
+          hospitalId: this.hospitalId,
+          departmentId: this.departmentId
+        })
+      )
     },
     async logoutSession() {
       try {

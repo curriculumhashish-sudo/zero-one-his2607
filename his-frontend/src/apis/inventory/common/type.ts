@@ -28,8 +28,12 @@ export interface PurchaseInboundOrder {
   approvalTime?: string
   /** 供应商展示名（showSupplier=true 时显示） */
   supplierId_dictText?: string
+  /** 源库房ID（调拨出库方向） */
+  sourceLocationId?: string
   /** 源库房展示名（调拨出库方向） */
   sourceLocationId_dictText?: string
+  /** 目标库房ID（调拨入库方向） */
+  purposeLocationId?: string
   /** 目标库房展示名（调拨入库方向） */
   purposeLocationId_dictText?: string
   /** 总金额 */
@@ -118,6 +122,8 @@ export interface SupplierItem extends Record<string, unknown> {
   purchasePrice: number
   retailPrice: number
   packageUnit: string
+  /** 单位编码（如 "1"=盒），后端 SelectTable API 返回 */
+  unitCode?: string
   specification: string
   stockQuantity: number
   approvalNo: string

@@ -79,7 +79,7 @@
             </div>
           </template>
 
-          <!-- 实盘数量：number输入框 + 单位下拉 -->
+          <!-- 实盘数量：number输入框 + 单位输入框 -->
           <template v-if="hasColumn('actualQuantity')" #cell-actualQuantity="{ row }">
             <div class="main-pane__cell-edit">
               <el-icon><Edit /></el-icon>
@@ -91,20 +91,13 @@
                 style="width: 80px"
                 @change="(v: number | undefined) => handleActualQuantityChange(row, v ?? 0)"
               />
-              <el-select
-                :model-value="row.actualUnit"
-                size="default"
-                style="width: 70px"
-                @change="(v: string) => (row.actualUnit = v)"
-              >
-                <el-option
-                  v-for="u in unitOptions"
-                  :key="u.value"
-                  :label="u.label"
-                  :value="u.value"
-                />
-              </el-select>
+              <el-input :model-value="row.actualUnit" size="default" style="width: 70px" readonly />
             </div>
+          </template>
+
+          <!-- 账面数量：只读输入框 -->
+          <template v-if="hasColumn('bookQuantity')" #cell-bookQuantity="{ row }">
+            <el-input :model-value="row.bookQuantity" size="default" readonly />
           </template>
 
           <!-- 盈亏数量：计算展示 -->
@@ -129,6 +122,19 @@
             }}</span>
           </template>
 
+          <!-- 生产日期~有效期至：日期范围选择器 -->
+          <template v-if="hasColumn('timeRange')" #cell-timeRange="{ row }">
+            <el-date-picker
+              :model-value="row.timeRange"
+              type="daterange"
+              start-placeholder="生产日期"
+              end-placeholder="有效期至"
+              style="width: 230px"
+              @update:model-value="(v: string) => (row.timeRange = v)"
+            >
+            </el-date-picker>
+          </template>
+
           <!-- 追溯码：输入框 -->
           <template v-if="hasColumn('traceCode')" #cell-traceCode="{ row }">
             <el-input
@@ -148,7 +154,7 @@
           </template>
 
           <!-- 操作：删除链接 -->
-          <template #actions="{ row, index }">
+          <template #actions="{ index }">
             <el-link type="danger" :underline="false" @click="deleteRow(index)">删除</el-link>
           </template>
         </DocumentDetailEditableTable>
@@ -157,53 +163,49 @@
       <!-- ==================== 底部按钮 ==================== -->
       <template #extra>
         <div class="main-pane__footer">
-          <el-button
-            color="#006BE6"
-            size="default"
-            :disabled="!btnVisible.save"
-            @click="emit('action', 'save')"
-          >保存单据</el-button>
+          <el-button color="#006BE6" :disabled="!btnVisible.save" @click="emit('action', 'save')"
+            >保存单据</el-button
+          >
           <el-button
             color="#006BE6"
             plain
-            size="default"
             :disabled="!btnVisible.saveAndSubmit"
             @click="emit('action', 'saveAndSubmit')"
-          >保存并提交审批</el-button>
+            >保存并提交审批</el-button
+          >
           <el-button
             color="#FF3860"
             plain
-            size="default"
             :disabled="!btnVisible.delete"
             @click="emit('action', 'delete')"
-          >删除单据</el-button>
+            >删除单据</el-button
+          >
           <span class="main-pane__divider" />
           <el-button
             color="#006BE6"
             plain
-            size="default"
             :disabled="!btnVisible.submit"
             @click="emit('action', 'submit')"
-          >提交审批</el-button>
-          <el-button
-            :disabled="!btnVisible.withdraw"
-            @click="emit('action', 'withdraw')"
-          ><el-icon><RefreshLeft /></el-icon>&nbsp;撤回</el-button>
+            >提交审批</el-button
+          >
+          <el-button :disabled="!btnVisible.withdraw" @click="emit('action', 'withdraw')"
+            ><el-icon><RefreshLeft /></el-icon>&nbsp;撤回</el-button
+          >
           <span class="main-pane__divider" />
           <el-button
             color="#57D188"
-            size="default"
             style="color: #ffffff"
             :disabled="!btnVisible.approve"
             @click="emit('action', 'approve')"
-          ><el-icon><Check /></el-icon>审批</el-button>
+            ><el-icon><Check /></el-icon>审批</el-button
+          >
           <el-button
             color="#EFBD48"
-            size="default"
             style="color: #ffffff"
             :disabled="!btnVisible.reject"
             @click="emit('action', 'reject')"
-          >驳回</el-button>
+            >驳回</el-button
+          >
         </div>
       </template>
     </DocumentHeadPanel>
@@ -226,7 +228,6 @@ import { Edit, RefreshLeft, Check } from '@element-plus/icons-vue'
 import DocumentHeadPanel from '@/components/warehouse/DocumentHeadPanel.vue'
 import DocumentDetailEditableTable from '@/components/warehouse/DocumentDetailEditableTable.vue'
 import SelectTable from '@/components/common/SelectTable.vue'
-import { getPurchaseInboundDetail } from '@/apis/warehouse/purchase-inbound'
 
 // ==================== 类型 ====================
 
@@ -287,6 +288,8 @@ const props = withDefaults(
     onQuantityChange?: (row: Record<string, any>, value: number) => Record<string, any>
     /** 需要隐藏的底部按钮 action key 列表 */
     hiddenFooterActions?: string[]
+    /** 自定义加载详情的函数（不传则用默认 import） */
+    loadDetailFn?: (id: string) => Promise<{ order: any; details: any[] }>
   }>(),
   {
     orderId: '',
@@ -301,7 +304,8 @@ const props = withDefaults(
     orderData: null,
     onSupplierFill: undefined,
     onQuantityChange: undefined,
-    hiddenFooterActions: () => []
+    hiddenFooterActions: () => [],
+    loadDetailFn: undefined
   }
 )
 
@@ -321,13 +325,6 @@ const statusMap = [
   { label: '已撤回', value: 3 },
   { label: '同意', value: 4 },
   { label: '驳回', value: 5 }
-]
-
-const unitOptions = [
-  { label: '支', value: '支' },
-  { label: '瓶', value: '瓶' },
-  { label: '盒', value: '盒' },
-  { label: '袋', value: '袋' }
 ]
 
 // ==================== 检索状态 ====================
@@ -359,13 +356,13 @@ const canEditRows = computed(() => currentStatus.value === 0 || currentStatus.va
 const btnVisible = computed(() => {
   const s = currentStatus.value
   return {
-    save: s === 0 || s === 1,
-    saveAndSubmit: s === 0 || s === 1,
-    delete: s === 0 || s === 1,
-    submit: s === 1 || s === 3,
-    withdraw: s === 2,
-    approve: s === 2,
-    reject: s === 2
+    save: s === 0 || s === 1, // 保存单据
+    saveAndSubmit: s === 0 || s === 1, // 保存并提交审批
+    delete: s === 0 || s === 1, // 删除单据
+    submit: s === 0 || s === 1 || s === 3, // 提交审批
+    withdraw: s === 2, // 撤回
+    approve: s === 2, // 审批
+    reject: s === 2 // 驳回
   }
 })
 /** SelectTable 弹窗状态 */
@@ -411,11 +408,6 @@ function hasColumn(prop: string): boolean {
   return props.formColumns.some((c: any) => c.prop === prop)
 }
 
-/** 底部按钮是否可见 */
-function footerVisible(key: string): boolean {
-  return !props.hiddenFooterActions.includes(key)
-}
-
 function deleteRow(index: number) {
   details.value.splice(index, 1)
 }
@@ -431,11 +423,29 @@ async function loadDetail() {
     details.value = []
     return
   }
+
   loading.value = true
   try {
-    const data = await getPurchaseInboundDetail(props.orderId)
+    const fetcher = props.loadDetailFn
+    if (!fetcher) {
+      console.error('[PurchaseInboundMainPane] loadDetailFn 未提供，请在父组件传入 :load-detail-fn')
+      order.value = null
+      details.value = []
+      loading.value = false
+      return
+    }
+    const data = await fetcher(props.orderId)
     order.value = data.order as unknown as Record<string, any>
     details.value = (data.details as any[]) ?? []
+
+    // 检索区同步卡片数据
+    if (data.order) {
+      searchValues['docNo'] = data.order.busNo ?? ''
+      searchValues['pharmacy'] = data.order.sourceLocationId_dictText ?? ''
+      searchValues['warehouse'] = data.order.sourceLocationId_dictText ?? ''
+      searchValues['itemType'] = data.order.category ?? ''
+      searchValues['targetPharmacy'] = data.order.purposeLocationId_dictText ?? ''
+    }
   } catch {
     order.value = null
     details.value = []
@@ -453,7 +463,19 @@ onMounted(() => {
   if (props.orderId) loadDetail()
 })
 
-defineExpose({ details, loadDetail, resetSearchValues: () => { for (const k of Object.keys(searchValues)) delete searchValues[k]; buildSearchValues() } })
+// 向父组件暴露的属性
+defineExpose({
+  details,
+  loadDetail,
+  getSearchValue: (key: string) => searchValues[key],
+  setSearchValue: (key: string, val: unknown) => {
+    searchValues[key] = val
+  },
+  resetSearchValues: () => {
+    for (const k of Object.keys(searchValues)) delete searchValues[k]
+    buildSearchValues()
+  }
+})
 </script>
 
 <style scoped>

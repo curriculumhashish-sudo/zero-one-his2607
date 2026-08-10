@@ -67,7 +67,7 @@
         <template #default="{ row }">
           <el-button link type="primary" @click="handleTrace(row)">追溯码</el-button>
           <el-button
-            v-if="row.inventoryStatusEnum === 'ACTIVE'"
+            v-if="row.inventoryStatusEnum !== 'STOP_SUPPLY'"
             link
             type="danger"
             @click="handleRetire(row)"
@@ -113,7 +113,7 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { Search, RefreshRight, Download, ArrowUp, ArrowDown } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { StockListQuery } from '@/apis/inventory/stock-list'
-import { queryStockList, retireItem, resumeItem } from '@/apis/inventory/stock-list'
+import { queryStockList, retireItem, resumeItem, exportStockList } from '@/apis/inventory/stock-list'
 import { formFieldConfigs, tableColumnConfigs, sumLineCostTotal, sumLinePriceTotal } from './type'
 
 defineOptions({ name: 'InventoryStockListPage' })
@@ -154,12 +154,12 @@ function buildQuery(): StockListQuery {
     pageNo: pagination.pageNo,
     pageSize: pagination.pageSize,
     keyword: queryParams.keyword?.trim() || undefined,
-    warehouseNames: emptyToUndef(queryParams.warehouseIds),
-    supplierNames: emptyToUndef(queryParams.supplierIds),
+    warehouseIds: emptyToUndef(queryParams.warehouseIds),
+    supplierIds: emptyToUndef(queryParams.supplierIds),
     medicationCategoryCodes: emptyToUndef(queryParams.medicationCategoryCodes),
     deviceCategoryCodes: emptyToUndef(queryParams.deviceCategoryCodes),
-    inventoryStatusLabels: emptyToUndef(queryParams.inventoryStatusEnums),
-    chrgitmLvLabels: emptyToUndef(queryParams.chrgitmLvList),
+    inventoryStatusEnums: emptyToUndef(queryParams.inventoryStatusEnums),
+    chrgitmLvList: emptyToUndef(queryParams.chrgitmLvList),
     expireWithinDays: ed && /^\d+$/.test(ed) ? Number(ed) : undefined,
     zeroStockOnly:
       queryParams.zeroStockFilter === '数量等于0'
@@ -207,8 +207,25 @@ function handleSizeChange(size: number) {
   fetchData()
 }
 
-function handleExport() {
-  ElMessage.info('导出功能待对接')
+async function handleExport() {
+  try {
+    ElMessage.info('正在生成导出文件...')
+    const blob = await exportStockList(buildQuery())
+    if (!blob || blob.size === 0) {
+      ElMessage.warning('暂无数据可导出')
+      return
+    }
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `库存明细_${new Date().toISOString().slice(0, 10)}.xlsx`
+    link.click()
+    URL.revokeObjectURL(url)
+    ElMessage.success('导出成功')
+  } catch (e) {
+    console.error('export error:', e)
+    ElMessage.error('导出失败')
+  }
 }
 
 // ==================== 追溯码 ====================
@@ -225,13 +242,13 @@ function handleTrace(row: any) {
 }
 
 // ==================== 停供 / 取消停供 ====================
-function toggleRowStatus(id: string, status: 'INACTIVE' | 'ACTIVE') {
+function toggleRowStatus(id: string, status: 'STOP_SUPPLY' | 'NORMAL') {
   const idx = tableData.value.findIndex((r: any) => r.id === id)
   if (idx === -1) return
   tableData.value.splice(idx, 1, {
     ...tableData.value[idx],
     inventoryStatusEnum: status,
-    inventoryStatusLabel: status === 'INACTIVE' ? '已停用' : '已启用'
+    inventoryStatusLabel: status === 'STOP_SUPPLY' ? '停供' : '正常'
   })
 }
 
@@ -243,7 +260,7 @@ async function handleRetire(row: any) {
       cancelButtonText: '取消'
     })
     await retireItem(row.id)
-    toggleRowStatus(row.id, 'INACTIVE')
+    toggleRowStatus(row.id, 'STOP_SUPPLY')
     ElMessage.success('停供成功')
   } catch {
     /* 取消或报错由框架处理 */
@@ -258,7 +275,7 @@ async function handleResume(row: any) {
       cancelButtonText: '取消'
     })
     await resumeItem(row.id)
-    toggleRowStatus(row.id, 'ACTIVE')
+    toggleRowStatus(row.id, 'NORMAL')
     ElMessage.success('已恢复供应')
   } catch {
     /* 取消或报错由框架处理 */

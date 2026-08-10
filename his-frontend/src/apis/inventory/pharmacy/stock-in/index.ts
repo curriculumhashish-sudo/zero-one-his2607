@@ -1,86 +1,68 @@
+import { useHttp, DataUpType } from '@/plugins/http'
 import type {
-  FormConfig,
   PageResult,
-  PurchaseInboundDetailResult,
   PurchaseInboundOrder,
-  PurchaseInboundQuery,
-  PurchaseInboundSavePayload,
-  SupplierItem
-} from './type'
-import {
-  mockApprovePurchaseInbound,
-  mockCreatePurchaseInbound,
-  mockGetFormConfig,
-  mockGetPurchaseInboundDetail,
-  mockLoadPurchaseInboundInit,
-  mockLoadSupplierOptions,
-  mockPagePurchaseInboundOrders,
-  mockRejectPurchaseInbound,
-  mockRemovePurchaseInbound,
-  mockSubmitPurchaseInbound,
-  mockUpdatePurchaseInbound,
-  mockWithdrawPurchaseInbound
-} from './mock'
+  PurchaseInboundStatus
+} from '@/apis/inventory/common/type'
+import { mockPagePurchaseInboundOrders } from '@/apis/inventory/common/mock'
+import { STATUS_NAME_MAP, STATUS_TEXT } from './type.ts'
+import type { PharmacyInboundRecord } from './type.ts'
+// 复用公共 API 实现，可在此覆写差异接口
+export * from '@/apis/inventory/common/index'
+export type * from '@/apis/inventory/common/type'
 
-/** 页面初始化选项。后端接入时只替换本文件内部实现。 */
-export function loadPurchaseInboundInit() {
-  return mockLoadPurchaseInboundInit()
-}
+/** j7药房管理模块 baseURL */
+const baseURL = '/j7-pharmacy'
 
-export function pagePurchaseInboundOrders(
-  query: PurchaseInboundQuery
+// ==================== 列表查询 ====================
+
+/**
+ * 分页查询药房入库单列表（左侧卡片队列）
+ * 对接后端 POST /j7-pharmacy/j7/inbound-approval/list
+ */
+export async function pagePurchaseInboundOrders(
+  query: Record<string, any>
 ): Promise<PageResult<PurchaseInboundOrder>> {
-  return mockPagePurchaseInboundOrders(query)
+  try {
+    const http = useHttp()
+    const res = await http.post<{ records: PharmacyInboundRecord[]; total: number }>(
+      '/j7/inbound-approval/list',
+      {
+        pageIndex: query.pageIndex,
+        pageSize: query.pageSize,
+        busNo: query.checkNo || undefined,
+        sourceLocationId: query.checkType || undefined,
+        purposeLocationId: query.purposeLocationId || undefined,
+        statusEnum: query.statusEnum || undefined,
+        startTime: query.startDate || undefined,
+        endTime: query.endDate || undefined
+      },
+      { baseURL, upType: DataUpType.json }
+    )
+    const data = res.data!
+    const rows: PurchaseInboundOrder[] = (data.records ?? []).map((item) => {
+      const status: PurchaseInboundStatus = STATUS_NAME_MAP[item.statusName] ?? 0
+      return {
+        id: item.id,
+        status,
+        category: '',
+        busNo: item.busNo,
+        statusEnum: status,
+        statusEnum_enumText: STATUS_TEXT[item.statusName] ?? '',
+        applicantId_dictText: item.createByName,
+        applyTime: item.applyTime,
+        approverId_dictText: item.approverName,
+        approvalTime: item.approveTime,
+        supplierId_dictText: '',
+        sourceLocationId: '',
+        sourceLocationId_dictText: item.sourceLocationName,
+        purposeLocationId: '',
+        purposeLocationId_dictText: item.purposeLocationName,
+        totalAmount: item.totalPrice
+      }
+    })
+    return { rows, total: data.total ?? 0 }
+  } catch {
+    return mockPagePurchaseInboundOrders(query as any)
+  }
 }
-
-export function getPurchaseInboundDetail(id: string): Promise<PurchaseInboundDetailResult> {
-  return mockGetPurchaseInboundDetail(id)
-}
-
-export function createPurchaseInbound(
-  payload: PurchaseInboundSavePayload
-): Promise<PurchaseInboundDetailResult> {
-  return mockCreatePurchaseInbound(payload)
-}
-
-export function updatePurchaseInbound(
-  id: string,
-  payload: PurchaseInboundSavePayload
-): Promise<PurchaseInboundDetailResult> {
-  return mockUpdatePurchaseInbound(id, payload)
-}
-
-export function removePurchaseInbound(id: string): Promise<void> {
-  return mockRemovePurchaseInbound(id)
-}
-
-export function submitPurchaseInbound(id: string): Promise<PurchaseInboundOrder> {
-  return mockSubmitPurchaseInbound(id)
-}
-
-export function withdrawPurchaseInbound(id: string): Promise<PurchaseInboundOrder> {
-  return mockWithdrawPurchaseInbound(id)
-}
-
-export function approvePurchaseInbound(id: string): Promise<PurchaseInboundOrder> {
-  return mockApprovePurchaseInbound(id)
-}
-
-export function rejectPurchaseInbound(id: string, reason: string): Promise<PurchaseInboundOrder> {
-  return mockRejectPurchaseInbound(id, reason)
-}
-
-/** 获取表单配置（列定义、默认值、SelectTable 配置） */
-export function getFormConfig(): Promise<FormConfig> {
-  return mockGetFormConfig()
-}
-
-export function loadSupplierOptions(query: {
-  keyword: string
-  pageIndex: number
-  pageSize: number
-}): Promise<{ rows: SupplierItem[]; total: number }> {
-  return mockLoadSupplierOptions(query)
-}
-
-export type * from './type'

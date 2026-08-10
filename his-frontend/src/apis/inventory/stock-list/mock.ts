@@ -13,8 +13,8 @@ const SUPPLIERS = [
 
 const CHRGITMLV = ['甲类', '乙类', '自费']
 const STATUSES: { label: string; enum: string }[] = [
-  { label: '已启用', enum: 'ACTIVE' },
-  { label: '已停用', enum: 'INACTIVE' },
+  { label: '正常', enum: 'NORMAL' },
+  { label: '停供', enum: 'STOP_SUPPLY' },
 ]
 
 /** 按近似度分配供应商 */
@@ -178,12 +178,12 @@ function filterData(query: StockListQuery): StockListRow[] {
   const kw = query.keyword?.trim().toLowerCase() || ''
   return MOCK_DATA.filter((row) => {
     if (kw && !matchKeyword(row, kw)) return false
-    if (query.warehouseNames?.length && !query.warehouseNames.includes(row.warehouseName)) return false
-    if (query.supplierNames?.length && !query.supplierNames.includes(row.supplierName)) return false
+    if (query.warehouseIds?.length && !query.warehouseIds.includes(row.warehouseName)) return false
+    if (query.supplierIds?.length && !query.supplierIds.includes(row.supplierName)) return false
     if (query.medicationCategoryCodes?.length && !query.medicationCategoryCodes.includes(row.medicationCategoryCode ?? '')) return false
     if (query.deviceCategoryCodes?.length && !query.deviceCategoryCodes.includes(row.deviceCategoryCode ?? '')) return false
-    if (query.inventoryStatusLabels?.length && !query.inventoryStatusLabels.includes(row.inventoryStatusLabel)) return false
-    if (query.chrgitmLvLabels?.length && !query.chrgitmLvLabels.includes(row.chrgitmLvLabel ?? '')) return false
+    if (query.inventoryStatusEnums?.length && !query.inventoryStatusEnums.includes(row.inventoryStatusEnum)) return false
+    if (query.chrgitmLvList?.length && !query.chrgitmLvList.includes(row.chrgitmLvLabel ?? '')) return false
     if (query.expireWithinDays != null && (row.remainingDays == null || row.remainingDays > query.expireWithinDays)) return false
     if (query.zeroStockOnly === true) {
       if (parseQty(row.packageStockText) !== 0 || parseQty(row.splitStockText) !== 0) return false
@@ -212,8 +212,8 @@ export async function mockRetireItem(id: string): Promise<void> {
   await delay()
   const row = MOCK_DATA.find((r) => r.id === id)
   if (row) {
-    row.inventoryStatusEnum = 'INACTIVE'
-    row.inventoryStatusLabel = '已停用'
+    row.inventoryStatusEnum = 'STOP_SUPPLY'
+    row.inventoryStatusLabel = '停供'
   }
 }
 
@@ -221,7 +221,7 @@ export async function mockResumeItem(id: string): Promise<void> {
   await delay()
   const row = MOCK_DATA.find((r) => r.id === id)
   if (row) {
-    row.inventoryStatusEnum = 'ACTIVE'
-    row.inventoryStatusLabel = '已启用'
+    row.inventoryStatusEnum = 'NORMAL'
+    row.inventoryStatusLabel = '正常'
   }
 }
