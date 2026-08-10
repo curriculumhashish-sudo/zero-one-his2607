@@ -113,7 +113,7 @@
                             <run>
                                 <namingStrategy>alias</namingStrategy>
                                 <ports>
-                                    <port>10400:10400</port>
+                                    <port>10300:10300</port>
                                 </ports>
                                 <volumes>
                                     <bind>
