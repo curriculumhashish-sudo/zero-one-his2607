@@ -26,10 +26,10 @@ public class StoreHouseDO {
 
     @Schema(description = "主键ID")
     @TableId(type = IdType.ASSIGN_ID)
-    private Long id;
+    private String id;
 
     @Schema(description = "租户标识")
-    private Long tenantId;
+    private String tenantId;
 
     @Schema(description = "创建时间")
     private LocalDateTime createdAt;
@@ -79,7 +79,7 @@ public class StoreHouseDO {
     private String typeJson;
 
     @Schema(description = "机构标识")
-    private Long organizationId;
+    private String organizationId;
 
     @Schema(description = "显示顺序")
     private Integer displayOrder;
@@ -91,5 +91,5 @@ public class StoreHouseDO {
     private String wbStr;
 
     @Schema(description = "父节点标识")
-    private Long parentId;
+    private String parentId;
 }

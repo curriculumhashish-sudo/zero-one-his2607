@@ -50,7 +50,7 @@ public interface StoreHouseApis {
      * @param id 库房药房ID
      * @return 操作结果
      */
-    JsonVO<String> delete(Long id);
+    JsonVO<String> delete(String id);
 
     /**
      * 启/停用库房药房
@@ -58,7 +58,7 @@ public interface StoreHouseApis {
      * @param isEnabled 1启用 0停用
      * @return 操作结果
      */
-    JsonVO<String> toggleEnabled(Long id, Byte isEnabled);
+    JsonVO<String> toggleEnabled(String id, Byte isEnabled);
 
     /**
      * 获取上级科室列表（科室药房选择上级用）

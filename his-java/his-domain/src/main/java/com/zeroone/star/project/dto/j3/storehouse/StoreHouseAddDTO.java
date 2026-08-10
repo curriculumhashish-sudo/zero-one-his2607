@@ -24,5 +24,5 @@ public class StoreHouseAddDTO implements Serializable {
     private String formEnum;
 
     @Schema(description = "机构ID，不传默认0", example = "322663105141149696")
-    private Long organizationId;
+    private String organizationId;
 }

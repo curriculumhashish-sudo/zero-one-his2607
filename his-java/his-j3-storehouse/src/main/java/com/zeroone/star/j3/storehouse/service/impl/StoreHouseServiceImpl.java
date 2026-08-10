@@ -61,7 +61,7 @@ public class StoreHouseServiceImpl implements StoreHouseService {
 
     @Override
     public List<StoreHouseVO> getStoreHouseNames(String formEnum) {
-        Long tenantId = resolveCurrentTenantId();
+        String tenantId = resolveCurrentTenantId();
         // 非空时校验 formEnum 必须属于库房药房允许范围
         if (formEnum != null && !formEnum.isBlank()) {
             validateFormEnum(formEnum);
@@ -75,13 +75,13 @@ public class StoreHouseServiceImpl implements StoreHouseService {
         wrapper.orderByAsc(StoreHouseDO::getDisplayOrder)
                 .orderByAsc(StoreHouseDO::getCreatedAt);
         List<StoreHouseDO> list = storeHouseMapper.selectList(wrapper);
-        Map<Long, String> parentNameMap = buildParentNameMap(list);
+        Map<String, String> parentNameMap = buildParentNameMap(list);
         return list.stream().map(e -> convertToVO(e, parentNameMap)).collect(Collectors.toList());
     }
 
     @Override
     public PageDTO<StoreHouseVO> list(StoreHouseQuery query) {
-        Long tenantId = resolveCurrentTenantId();
+        String tenantId = resolveCurrentTenantId();
         LambdaQueryWrapper<StoreHouseDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(StoreHouseDO::getTenantId, tenantId)
                 .in(StoreHouseDO::getFormEnum, STOREHOUSE_FORMS);
@@ -97,14 +97,14 @@ public class StoreHouseServiceImpl implements StoreHouseService {
         Page<StoreHouseDO> page = new Page<>(query.getPageIndex(), query.getPageSize());
         Page<StoreHouseDO> result = storeHouseMapper.selectPage(page, wrapper);
 
-        Map<Long, String> parentNameMap = buildParentNameMap(result.getRecords());
+        Map<String, String> parentNameMap = buildParentNameMap(result.getRecords());
         return PageDTO.create(result, e -> convertToVO(e, parentNameMap));
     }
 
     @Override
     @Transactional
     public void add(StoreHouseAddDTO dto) {
-        Long tenantId = resolveCurrentTenantId();
+        String tenantId = resolveCurrentTenantId();
         // 校验 formEnum 必须属于库房药房允许范围
         validateFormEnum(dto.getFormEnum());
         // 校验 organizationId 是否真实存在、属于当前租户、为有效机构
@@ -136,7 +136,7 @@ public class StoreHouseServiceImpl implements StoreHouseService {
     @Override
     @Transactional
     public void update(StoreHouseUpdateDTO dto) {
-        Long tenantId = resolveCurrentTenantId();
+        String tenantId = resolveCurrentTenantId();
         // 校验 formEnum 必须属于库房药房允许范围
         validateFormEnum(dto.getFormEnum());
         // 校验 organizationId 是否真实存在、属于当前租户、为有效机构
@@ -170,8 +170,8 @@ public class StoreHouseServiceImpl implements StoreHouseService {
 
     @Override
     @Transactional
-    public void delete(Long id) {
-        Long tenantId = resolveCurrentTenantId();
+    public void delete(String id) {
+        String tenantId = resolveCurrentTenantId();
         StoreHouseDO existing = storeHouseMapper.selectById(id);
         if (existing == null || !STOREHOUSE_FORMS.contains(existing.getFormEnum())) {
             throw new StoreHouseNotFoundException("库房药房不存在，ID: " + id);
@@ -184,12 +184,12 @@ public class StoreHouseServiceImpl implements StoreHouseService {
 
     @Override
     @Transactional
-    public void toggleEnabled(Long id, Byte isEnabled) {
+    public void toggleEnabled(String id, Byte isEnabled) {
         if (isEnabled == null || (isEnabled != 0 && isEnabled != 1)) {
             throw new IllegalArgumentException("isEnabled 参数非法，仅允许 0(停用) 或 1(启用)，当前值: " + isEnabled);
         }
 
-        Long tenantId = resolveCurrentTenantId();
+        String tenantId = resolveCurrentTenantId();
         StoreHouseDO existing = storeHouseMapper.selectById(id);
         if (existing == null || !STOREHOUSE_FORMS.contains(existing.getFormEnum())) {
             throw new StoreHouseNotFoundException("库房药房不存在，ID: " + id);
@@ -220,7 +220,7 @@ public class StoreHouseServiceImpl implements StoreHouseService {
     /**
      * DO 转 VO
      */
-    private StoreHouseVO convertToVO(StoreHouseDO entity, Map<Long, String> parentNameMap) {
+    private StoreHouseVO convertToVO(StoreHouseDO entity, Map<String, String> parentNameMap) {
         if (entity == null) return null;
         StoreHouseVO vo = new StoreHouseVO();
         vo.setId(entity.getId() != null ? entity.getId().toString() : null);
@@ -250,8 +250,8 @@ public class StoreHouseServiceImpl implements StoreHouseService {
     /**
      * 批量查询上级科室名称
      */
-    private Map<Long, String> buildParentNameMap(List<StoreHouseDO> list) {
-        Set<Long> parentIds = list.stream()
+    private Map<String, String> buildParentNameMap(List<StoreHouseDO> list) {
+        Set<String> parentIds = list.stream()
                 .map(StoreHouseDO::getParentId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
@@ -265,7 +265,7 @@ public class StoreHouseServiceImpl implements StoreHouseService {
 
     @Override
     public List<DepartmentSimpleVO> listParentDepartments() {
-        Long tenantId = resolveCurrentTenantId();
+        String tenantId = resolveCurrentTenantId();
         LambdaQueryWrapper<DepartmentDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(DepartmentDO::getTenantId, tenantId)
                 .eq(DepartmentDO::getTypeEnum, "DEPARTMENT")
@@ -309,7 +309,7 @@ public class StoreHouseServiceImpl implements StoreHouseService {
     /**
      * 校验 organizationId 是否真实存在、是否属于当前租户、是否为有效机构
      */
-    private void validateOrganizationId(Long organizationId, Long tenantId) {
+    private void validateOrganizationId(String organizationId, String tenantId) {
         if (organizationId == null) {
             return;
         }
@@ -328,7 +328,7 @@ public class StoreHouseServiceImpl implements StoreHouseService {
     /**
      * 停用前业务引用校验：检查子节点、库存、入出库单据、发药记录等业务引用
      */
-    private void checkBusinessReferenceBeforeDisable(StoreHouseDO storeHouse, Long tenantId) {
+    private void checkBusinessReferenceBeforeDisable(StoreHouseDO storeHouse, String tenantId) {
         String locationId = storeHouse.getId().toString();
 
         // 1. 检查是否存在启用中的子节点
@@ -362,13 +362,13 @@ public class StoreHouseServiceImpl implements StoreHouseService {
     /**
      * 获取当前登录用户的租户ID，获取失败抛出越权异常
      */
-    private Long resolveCurrentTenantId() {
+    private String resolveCurrentTenantId() {
         try {
             String tenantIdStr = userHolder.getCurrentTenantId();
             if (StrUtil.isBlank(tenantIdStr)) {
                 throw new StoreHouseTenantAccessException("无法获取当前用户的租户信息，请重新登录");
             }
-            return Long.parseLong(tenantIdStr);
+            return tenantIdStr.trim();
         } catch (StoreHouseTenantAccessException e) {
             throw e;
         } catch (Exception e) {

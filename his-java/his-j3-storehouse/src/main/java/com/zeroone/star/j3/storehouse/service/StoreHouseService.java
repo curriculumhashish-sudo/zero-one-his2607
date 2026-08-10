@@ -39,12 +39,12 @@ public interface StoreHouseService {
     /**
      * 删除库房药房
      */
-    void delete(Long id);
+    void delete(String id);
 
     /**
      * 启/停用库房药房
      */
-    void toggleEnabled(Long id, Byte isEnabled);
+    void toggleEnabled(String id, Byte isEnabled);
 
     /**
      * 获取上级科室列表（科室药房选择上级用）

@@ -18,7 +18,7 @@ public class StoreHouseUpdateDTO implements Serializable {
 
     @NotNull(message = "ID不能为空")
     @Schema(description = "主键ID", example = "322954885380706304", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long id;
+    private String id;
 
     @NotBlank(message = "名称不能为空")
     @Schema(description = "名称", example = "西药库", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -35,7 +35,7 @@ public class StoreHouseUpdateDTO implements Serializable {
     private String modeEnum;
 
     @Schema(description = "机构ID", example = "322663105141149696")
-    private Long organizationId;
+    private String organizationId;
 
     @Schema(description = "显示顺序", example = "0")
     private Integer displayOrder;
@@ -47,5 +47,5 @@ public class StoreHouseUpdateDTO implements Serializable {
     private String wbStr;
 
     @Schema(description = "父节点ID")
-    private Long parentId;
+    private String parentId;
 }

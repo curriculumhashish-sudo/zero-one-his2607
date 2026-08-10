@@ -79,7 +79,7 @@ class WardServiceImplTest {
 
             assertThat(entity.getName()).isEqualTo("internal ward");
             assertThat(entity.getFormEnum()).isEqualTo("WARD");
-            assertThat(entity.getStatusEnum()).isEqualTo("ENABLED");
+            assertThat(entity.getStatusEnum()).isEqualTo("ACTIVE");
             assertThat(entity.getOrganizationId()).isEqualTo("322663105141149696");
             assertThat(entity.getTenantId()).isEqualTo(TEST_TENANT_ID);
             assertThat(entity.getModeEnum()).isEqualTo("INPATIENT");
@@ -138,7 +138,7 @@ class WardServiceImplTest {
             AdmLocation entity = captor.getValue();
 
             assertThat(entity.getName()).isEqualTo("302");
-            assertThat(entity.getFormEnum()).isEqualTo("ROOM");
+            assertThat(entity.getFormEnum()).isEqualTo("HOUSE");
             assertThat(entity.getParentId()).isEqualTo("100");
             assertThat(entity.getTenantId()).isEqualTo(TEST_TENANT_ID);
             assertThat(entity.getOrganizationId()).isEqualTo("ORG_1");
@@ -167,7 +167,7 @@ class WardServiceImplTest {
             AdmLocation parentRoom = AdmLocation.builder()
                     .id("200")
                     .name("302")
-                    .formEnum("ROOM")
+                    .formEnum("HOUSE")
                     .busNo("ROOM_9876543210")
                     .tenantId(TEST_TENANT_ID)
                     .organizationId("ORG_1")
@@ -257,7 +257,7 @@ class WardServiceImplTest {
         void getBedListByRoomShouldFilterByTenantId() {
             AdmLocation parentRoom = AdmLocation.builder()
                     .id("200")
-                    .formEnum("ROOM")
+                    .formEnum("HOUSE")
                     .tenantId(TEST_TENANT_ID)
                     .build();
             when(admLocationMapper.selectOne(any(LambdaQueryWrapper.class))).thenReturn(parentRoom);

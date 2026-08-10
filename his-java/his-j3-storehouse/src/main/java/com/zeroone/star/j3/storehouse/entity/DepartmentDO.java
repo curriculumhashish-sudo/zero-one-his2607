@@ -13,9 +13,9 @@ import lombok.Data;
 @TableName("adm_organization")
 public class DepartmentDO {
 
-    private Long id;
+    private String id;
 
-    private Long tenantId;
+    private String tenantId;
 
     private String name;
 

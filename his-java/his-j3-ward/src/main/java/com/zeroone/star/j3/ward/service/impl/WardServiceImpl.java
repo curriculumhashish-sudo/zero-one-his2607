@@ -39,10 +39,10 @@ import java.util.stream.Collectors;
 public class WardServiceImpl implements WardService {
 
     private static final String FORM_WARD = "WARD";
-    private static final String FORM_ROOM = "ROOM";
+    private static final String FORM_ROOM = "HOUSE";
     private static final String FORM_BED = "BED";
-    private static final String STATUS_ENABLED = "ENABLED";
-    private static final String STATUS_DISABLED = "DISABLED";
+    private static final String STATUS_ENABLED = "ACTIVE";
+    private static final String STATUS_DISABLED = "INACTIVE";
     private static final String MODE_INPATIENT = "INPATIENT";
     private static final String OPERATIONAL_OPEN = "OPEN";
     private static final Pattern BED_NAME_PATTERN = Pattern.compile("^\\d+号床$");
@@ -432,9 +432,16 @@ public class WardServiceImpl implements WardService {
         WardTreeVO node = new WardTreeVO();
         node.setId(location.getId());
         node.setName(location.getName());
-        node.setType(location.getFormEnum() == null ? null : location.getFormEnum().toLowerCase());
+        node.setType(toNodeType(location.getFormEnum()));
         node.setStatus(STATUS_ENABLED.equals(location.getStatusEnum()) ? 1 : 0);
         return node;
+    }
+
+    private String toNodeType(String formEnum) {
+        if (FORM_ROOM.equals(formEnum)) {
+            return "room";
+        }
+        return formEnum == null ? null : formEnum.toLowerCase();
     }
 
     private AdmLocation baseLocation(String name, String formEnum, String tenantId) {
