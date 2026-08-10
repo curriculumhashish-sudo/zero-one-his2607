@@ -15,7 +15,7 @@
 #include <iomanip>
 #include <ctime>
 
-// ========== ¸¨Öú²éÑ¯ ==========
+// ========== è¾…åŠ©æŸ¥è¯¢ ==========
 
 std::string OrderDAO1::getMedicationIdByBusNo(const std::string& busNo)
 {
@@ -77,7 +77,7 @@ std::string OrderDAO1::getPatientIdByEncounterId(const std::string& encounterId)
     return "";
 }
 
-// ========== ¹¹½¨¹Ø¼ü´Ê EXISTS ×Ó²éÑ¯ ==========
+// ========== æ„å»ºå…³é”®è¯ EXISTS å­æŸ¥è¯¢ ==========
 std::string OrderDAO1::buildKeywordCondition(const std::string& keyword,
     const std::string& defTable,
     const std::string& idField,
@@ -103,7 +103,7 @@ std::string OrderDAO1::buildKeywordCondition(const std::string& keyword,
     return cond.str();
 }
 
-// ========== ¹¹½¨×´Ì¬ IN ×Ó¾ä ==========
+// ========== æ„å»ºçŠ¶æ€ IN å­å¥ ==========
 std::string OrderDAO1::buildStatusCondition(const std::list<std::string>& statusList)
 {
     if (statusList.empty()) return "";
@@ -120,7 +120,7 @@ std::string OrderDAO1::buildStatusCondition(const std::list<std::string>& status
     return cond.str();
 }
 
-// ========== ´Ó DO ¹¹½¨ DTO ==========
+// ========== ä» DO æ„å»º DTO ==========
 
 OrderDetailDTO1::Wrapper OrderDAO1::buildMedicationDTO(
     const MedicationRequestDO1& item,
@@ -129,29 +129,29 @@ OrderDetailDTO1::Wrapper OrderDAO1::buildMedicationDTO(
 {
     auto dto = OrderDetailDTO1::createShared();
 
-    // »ù´¡ĞÅÏ¢
+    // åŸºç¡€ä¿¡æ¯
     dto->orderId = oatpp::String(item.getId());
     dto->encounterId = oatpp::String(item.getEncounterId());
     dto->patientId = oatpp::String(item.getPatientId());
     dto->doctorId = oatpp::String(item.getRequesterId());
     dto->doctorName = oatpp::String(doctorName);
-    // ===== ĞÂÔö£ºÒ©Æ·Ò½ÖöÃ»ÓĞ·şÎñÉêÇëµ¥ =====
+    // ===== æ–°å¢ï¼šè¯å“åŒ»å˜±æ²¡æœ‰æœåŠ¡ç”³è¯·å• =====
     dto->serviceRequestId = oatpp::String("");
 
-    // Ä¿Â¼ĞÅÏ¢
+    // ç›®å½•ä¿¡æ¯
     dto->catalogId = oatpp::String(def.getId());
     dto->itemCode = oatpp::String(def.getBusNo());
     dto->itemName = oatpp::String(def.getName());
     dto->spec = oatpp::String(def.getTotalVolume());
     dto->orderType = oatpp::String("medication");
 
-    // ·ÖÀàĞÅÏ¢
+    // åˆ†ç±»ä¿¡æ¯
     dto->categoryCode = oatpp::String(def.getCategoryCode());
-    // ===== Ò©Æ·¹Ì¶¨Îª DRUG =====
+    // ===== è¯å“å›ºå®šä¸º DRUG =====
     dto->category = oatpp::String("DRUG");
-    // categoryName ÓÉ Service ²ãÍ¨¹ıÃ¶¾Ù×ª»»Ìî³ä
+    // categoryName ç”± Service å±‚é€šè¿‡æšä¸¾è½¬æ¢å¡«å……
 
-    // ÁÙ´²¾ö²ß×Ö¶Î
+    // ä¸´åºŠå†³ç­–å­—æ®µ
     dto->dose = oatpp::Float64(item.getDose());
     dto->doseUnit = oatpp::String(item.getDoseUnitCode());
     dto->frequency = oatpp::String(item.getRateCode());
@@ -160,7 +160,7 @@ OrderDetailDTO1::Wrapper OrderDAO1::buildMedicationDTO(
     dto->quantityUnit = oatpp::String(item.getUnitCode());
     dto->isSkinTest = oatpp::Boolean(item.getSkinTestFlag() == 1);
 
-    // Ê¹ÓÃÌìÊı¼ÆËã
+    // ä½¿ç”¨å¤©æ•°è®¡ç®—
     int days = 0;
     if (!item.getEffectiveDoseStart().empty() && !item.getEffectiveDoseEnd().empty()) {
         std::tm tmStart = {}, tmEnd = {};
@@ -177,27 +177,27 @@ OrderDetailDTO1::Wrapper OrderDAO1::buildMedicationDTO(
     }
     dto->useDays = oatpp::Int32(days);
 
-    // Ã¿µ¥Î»º¬Á¿£¨´Ó¹æ¸ñÖĞÌáÈ¡£¬»òÖ±½ÓÊ¹ÓÃ×Ü¹æ¸ñ£©
+    // æ¯å•ä½å«é‡ï¼ˆä»è§„æ ¼ä¸­æå–ï¼Œæˆ–ç›´æ¥ä½¿ç”¨æ€»è§„æ ¼ï¼‰
     dto->contentPerUnit = oatpp::String(def.getTotalVolume());
 
-    // µ¥¼ÛºÍ×Ü¼Û
+    // å•ä»·å’Œæ€»ä»·
     double unitPrice = getUnitPrice("med_medication_definition", item.getMedicationId());
     dto->unitPrice = oatpp::Float64(unitPrice);
     dto->totalPrice = oatpp::Float64(unitPrice * item.getQuantity());
 
-    // ×´Ì¬
+    // çŠ¶æ€
     dto->status = oatpp::String(item.getStatusEnum());
 
-    // ·Ö×éÓëÅÅĞò
+    // åˆ†ç»„ä¸æ’åº
     dto->groupId = oatpp::String(item.getGroupId());
     dto->orderNo = oatpp::Int32(item.getSortNumber());
 
-    // Ê±¼äÓë°æ±¾
+    // æ—¶é—´ä¸ç‰ˆæœ¬
     dto->createTime = oatpp::String(item.getCreatedAt());
     dto->updatedAt = oatpp::String(item.getUpdatedAt());
     dto->version = oatpp::Int32(item.getVersion());
 
-    // ÆäËû
+    // å…¶ä»–
     dto->prescriptionNo = oatpp::String(item.getPrescriptionNo());
     dto->remark = oatpp::String(item.getRemark());
 
@@ -211,7 +211,7 @@ OrderDetailDTO1::Wrapper OrderDAO1::buildServiceDTO(
 {
     auto dto = OrderDetailDTO1::createShared();
 
-    // »ù´¡ĞÅÏ¢
+    // åŸºç¡€ä¿¡æ¯
     dto->orderId = oatpp::String(item.getId());
     dto->encounterId = oatpp::String(item.getEncounterId());
     dto->patientId = oatpp::String(item.getPatientId());
@@ -219,14 +219,14 @@ OrderDetailDTO1::Wrapper OrderDAO1::buildServiceDTO(
     dto->doctorName = oatpp::String(doctorName);
     dto->serviceRequestId = oatpp::String(item.getId());
 
-    // Ä¿Â¼ĞÅÏ¢
+    // ç›®å½•ä¿¡æ¯
     dto->catalogId = oatpp::String(def.getId());
     dto->itemCode = oatpp::String(def.getBusNo());
     dto->itemName = oatpp::String(def.getName());
     dto->spec = oatpp::String(def.getDescriptionText());
     dto->orderType = oatpp::String("service");
 
-    // ·ÖÀàĞÅÏ¢
+    // åˆ†ç±»ä¿¡æ¯
     dto->categoryCode = oatpp::String(def.getCategoryCode());
     std::string category = "TREATMENT";
     std::string categoryEnum = item.getCategoryEnum();
@@ -236,10 +236,10 @@ OrderDetailDTO1::Wrapper OrderDAO1::buildServiceDTO(
     else if (categoryEnum == "23") {
         category = "EXAM";
     }
-    // ÆäËûÖµ£¨21/24/25/26/31µÈ£©Í³Ò»Îª TREATMENT
+    // å…¶ä»–å€¼ï¼ˆ21/24/25/26/31ç­‰ï¼‰ç»Ÿä¸€ä¸º TREATMENT
     dto->category = oatpp::String(category);
 
-    // ÁÙ´²¾ö²ß×Ö¶Î£¨ÕïÁÆ²¿·Ö×Ö¶ÎÎª¿Õ£©
+    // ä¸´åºŠå†³ç­–å­—æ®µï¼ˆè¯Šç–—éƒ¨åˆ†å­—æ®µä¸ºç©ºï¼‰
     dto->dose = oatpp::Float64(0.0);
     dto->doseUnit = oatpp::String("");
     dto->frequency = oatpp::String(item.getRateCode());
@@ -248,7 +248,7 @@ OrderDetailDTO1::Wrapper OrderDAO1::buildServiceDTO(
     dto->quantityUnit = oatpp::String(item.getUnitCode());
     dto->isSkinTest = oatpp::Boolean(false);
 
-    // Ê¹ÓÃÌìÊı¼ÆËã
+    // ä½¿ç”¨å¤©æ•°è®¡ç®—
     int days = 0;
     if (!item.getOccurrenceStartTime().empty() && !item.getOccurrenceEndTime().empty()) {
         std::tm tmStart = {}, tmEnd = {};
@@ -267,24 +267,24 @@ OrderDetailDTO1::Wrapper OrderDAO1::buildServiceDTO(
 
     dto->contentPerUnit = oatpp::String(def.getDescriptionText());
 
-    // µ¥¼ÛºÍ×Ü¼Û
+    // å•ä»·å’Œæ€»ä»·
     double unitPrice = getUnitPrice("wkf_activity_definition", item.getActivityId());
     dto->unitPrice = oatpp::Float64(unitPrice);
     dto->totalPrice = oatpp::Float64(unitPrice * item.getQuantity());
 
-    // ×´Ì¬
+    // çŠ¶æ€
     dto->status = oatpp::String(item.getStatusEnum());
 
-    // ·Ö×éÓëÅÅĞò
+    // åˆ†ç»„ä¸æ’åº
     dto->groupId = oatpp::String(item.getGroupId());
     dto->orderNo = oatpp::Int32(item.getSortNumber());
 
-    // Ê±¼äÓë°æ±¾
+    // æ—¶é—´ä¸ç‰ˆæœ¬
     dto->createTime = oatpp::String(item.getCreatedAt());
     dto->updatedAt = oatpp::String(item.getUpdatedAt());
     dto->version = oatpp::Int32(item.getVersion());
 
-    // ÆäËû
+    // å…¶ä»–
     dto->prescriptionNo = oatpp::String(item.getPrescriptionNo());
     dto->remark = oatpp::String(item.getRemark());
 
@@ -298,7 +298,7 @@ OrderDetailDTO1::Wrapper OrderDAO1::buildDeviceDTO(
 {
     auto dto = OrderDetailDTO1::createShared();
 
-    // »ù´¡ĞÅÏ¢
+    // åŸºç¡€ä¿¡æ¯
     dto->orderId = oatpp::String(item.getId());
     dto->encounterId = oatpp::String(item.getEncounterId());
     dto->patientId = oatpp::String(item.getPatientId());
@@ -306,19 +306,19 @@ OrderDetailDTO1::Wrapper OrderDAO1::buildDeviceDTO(
     dto->doctorName = oatpp::String(doctorName);
     dto->serviceRequestId = oatpp::String(item.getId());
 
-    // Ä¿Â¼ĞÅÏ¢
+    // ç›®å½•ä¿¡æ¯
     dto->catalogId = oatpp::String(def.getId());
     dto->itemCode = oatpp::String(def.getBusNo());
     dto->itemName = oatpp::String(def.getName());
     dto->spec = oatpp::String(def.getTotalVolume());
     dto->orderType = oatpp::String("device");
 
-    // ·ÖÀàĞÅÏ¢
+    // åˆ†ç±»ä¿¡æ¯
     dto->categoryCode = oatpp::String(def.getCategoryCode());
-    // ===== ºÄ²Ä¹Ì¶¨Îª TREATMENT£¨Ç°¶ËÔİÎŞ DEVICE ·ÖÀà£© =====
+    // ===== è€—æå›ºå®šä¸º TREATMENTï¼ˆå‰ç«¯æš‚æ—  DEVICE åˆ†ç±»ï¼‰ =====
     dto->category = oatpp::String("TREATMENT");
 
-    // ÁÙ´²¾ö²ß×Ö¶Î
+    // ä¸´åºŠå†³ç­–å­—æ®µ
     dto->dose = oatpp::Float64(0.0);
     dto->doseUnit = oatpp::String("");
     dto->frequency = oatpp::String(item.getRateCode());
@@ -327,7 +327,7 @@ OrderDetailDTO1::Wrapper OrderDAO1::buildDeviceDTO(
     dto->quantityUnit = oatpp::String(item.getUnitCode());
     dto->isSkinTest = oatpp::Boolean(false);
 
-    // Ê¹ÓÃÌìÊı¼ÆËã
+    // ä½¿ç”¨å¤©æ•°è®¡ç®—
     int days = 0;
     if (!item.getUseStartTime().empty() && !item.getUseEndTime().empty()) {
         std::tm tmStart = {}, tmEnd = {};
@@ -346,31 +346,31 @@ OrderDetailDTO1::Wrapper OrderDAO1::buildDeviceDTO(
 
     dto->contentPerUnit = oatpp::String(def.getTotalVolume());
 
-    // µ¥¼ÛºÍ×Ü¼Û
+    // å•ä»·å’Œæ€»ä»·
     double unitPrice = getUnitPrice("adm_device_definition", item.getDeviceDefId());
     dto->unitPrice = oatpp::Float64(unitPrice);
     dto->totalPrice = oatpp::Float64(unitPrice * item.getQuantity());
 
-    // ×´Ì¬
+    // çŠ¶æ€
     dto->status = oatpp::String(item.getStatusEnum());
 
-    // ·Ö×éÓëÅÅĞò
+    // åˆ†ç»„ä¸æ’åº
     dto->groupId = oatpp::String("");
     dto->orderNo = oatpp::Int32(item.getSortNumber());
 
-    // Ê±¼äÓë°æ±¾
+    // æ—¶é—´ä¸ç‰ˆæœ¬
     dto->createTime = oatpp::String(item.getCreatedAt());
     dto->updatedAt = oatpp::String(item.getUpdatedAt());
     dto->version = oatpp::Int32(item.getVersion());
 
-    // ÆäËû
+    // å…¶ä»–
     dto->prescriptionNo = oatpp::String(item.getPrescriptionNo());
     dto->remark = oatpp::String(item.getRemark());
 
     return dto;
 }
 
-// ========== ²éÑ¯¶¨Òå±í ==========
+// ========== æŸ¥è¯¢å®šä¹‰è¡¨ ==========
 
 PtrMedicationDefinitionDO1 OrderDAO1::selectMedicationDefinitionById(const std::string& id)
 {
@@ -393,7 +393,7 @@ PtrDeviceDefinitionDO1 OrderDAO1::selectDeviceDefinitionById(const std::string& 
     return sqlSession->executeQueryOne<PtrDeviceDefinitionDO1>(sql, PtrDeviceDefinitionMapper1(), "%s", id);
 }
 
-// ========== ²éÑ¯Ò½ÖöÁĞ±í£¨ºËĞÄ·½·¨£© ==========
+// ========== æŸ¥è¯¢åŒ»å˜±åˆ—è¡¨ï¼ˆæ ¸å¿ƒæ–¹æ³•ï¼‰ ==========
 
 std::list<OrderDetailDTO1::Wrapper> OrderDAO1::queryOrderList(
     const std::string& encounterId,
@@ -410,18 +410,18 @@ std::list<OrderDetailDTO1::Wrapper> OrderDAO1::queryOrderList(
     if (pageIndex < 1) pageIndex = 1;
     if (pageSize < 1) pageSize = 10;
 
-    // ¹¹½¨×´Ì¬Ìõ¼ş
+    // æ„å»ºçŠ¶æ€æ¡ä»¶
     std::string statusCond = buildStatusCondition(statusList);
 
-    // ¾ö¶¨²éÑ¯ÄÄĞ©±í
+    // å†³å®šæŸ¥è¯¢å“ªäº›è¡¨
     bool queryMedication = (orderType.empty() || orderType == "medication");
     bool queryService = (orderType.empty() || orderType == "service");
     bool queryDevice = (orderType.empty() || orderType == "device");
 
-    // ºÏ²¢ÁĞ±í£º<´´½¨Ê±¼ä, DTO>
+    // åˆå¹¶åˆ—è¡¨ï¼š<åˆ›å»ºæ—¶é—´, DTO>
     std::list<std::pair<std::string, OrderDetailDTO1::Wrapper>> mergedList;
 
-    // 1. ²éÑ¯Ò©Æ·Ò½Öö
+    // 1. æŸ¥è¯¢è¯å“åŒ»å˜±
     if (queryMedication) {
         std::string keywordCond = buildKeywordCondition(keyword, "med_medication_definition", "id", "medication_id");
         std::string sql = "SELECT * FROM med_medication_request "
@@ -442,7 +442,7 @@ std::list<OrderDetailDTO1::Wrapper> OrderDAO1::queryOrderList(
         }
     }
 
-    // 2. ²éÑ¯ÕïÁÆÒ½Öö
+    // 2. æŸ¥è¯¢è¯Šç–—åŒ»å˜±
     if (queryService) {
         std::string keywordCond = buildKeywordCondition(keyword, "wkf_activity_definition", "id", "activity_id");
         std::string sql = "SELECT * FROM wkf_service_request "
@@ -463,7 +463,7 @@ std::list<OrderDetailDTO1::Wrapper> OrderDAO1::queryOrderList(
         }
     }
 
-    // 3. ²éÑ¯ºÄ²ÄÒ½Öö
+    // 3. æŸ¥è¯¢è€—æåŒ»å˜±
     if (queryDevice) {
         std::string keywordCond = buildKeywordCondition(keyword, "adm_device_definition", "id", "device_def_id");
         std::string sql = "SELECT * FROM wkf_device_request "
@@ -484,7 +484,7 @@ std::list<OrderDetailDTO1::Wrapper> OrderDAO1::queryOrderList(
         }
     }
 
-    // ÅÅĞò£ºÏÈ°´ sortNumber£¨orderNo£©ÉıĞò£¬ÔÙ°´´´½¨Ê±¼ä½µĞò
+    // æ’åºï¼šå…ˆæŒ‰ sortNumberï¼ˆorderNoï¼‰å‡åºï¼Œå†æŒ‰åˆ›å»ºæ—¶é—´é™åº
     mergedList.sort([](const auto& a, const auto& b) {
         int sortA = a.second->orderNo ? a.second->orderNo.getValue(0) : 0;
         int sortB = b.second->orderNo ? b.second->orderNo.getValue(0) : 0;
@@ -494,7 +494,7 @@ std::list<OrderDetailDTO1::Wrapper> OrderDAO1::queryOrderList(
 
     total = mergedList.size();
 
-    // ·ÖÒ³½ØÈ¡
+    // åˆ†é¡µæˆªå–
     uint64_t start = (pageIndex - 1) * pageSize;
     uint64_t end = std::min(start + pageSize, total);
 
@@ -508,7 +508,7 @@ std::list<OrderDetailDTO1::Wrapper> OrderDAO1::queryOrderList(
     return resultList;
 }
 
-// ========== ²åÈë ==========
+// ========== æ’å…¥ ==========
 
 bool OrderDAO1::insertMedicationOrder(const MedicationRequestDO1& data)
 {
@@ -525,7 +525,7 @@ bool OrderDAO1::insertDeviceOrder(const DeviceRequestDO1& data)
     return insert(data) == 1;
 }
 
-// ========== ¸üĞÂ ==========
+// ========== æ›´æ–° ==========
 
 bool OrderDAO1::updateMedicationOrder(const MedicationRequestDO1& data)
 {
@@ -542,7 +542,7 @@ bool OrderDAO1::updateDeviceOrder(const DeviceRequestDO1& data)
     return update(data) == 1;
 }
 
-// ========== ²éÑ¯µ¥Ìõ ==========
+// ========== æŸ¥è¯¢å•æ¡ ==========
 
 PtrMedicationRequestDO1 OrderDAO1::selectMedicationOrderById(const std::string& id)
 {
