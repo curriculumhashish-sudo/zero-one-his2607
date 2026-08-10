@@ -3,7 +3,7 @@ export interface ChargePageQuery {
   startDate: string | null
   endDate: string | null
   status: 'all' | 'pending' | 'settled'
-  page: number
+  pageIndex: number
   pageSize: number
 }
 

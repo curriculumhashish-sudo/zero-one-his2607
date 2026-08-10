@@ -29,6 +29,7 @@
           width="50"
           align="center"
           fixed="left"
+          :selectable="rowSelectable"
         />
 
         <!-- 空状态 -->
@@ -92,6 +93,8 @@ interface DataTablePanelProps {
   minHeight?: string
   /** 是否显示行选择列 */
   selectable?: boolean
+  /** 行是否允许被勾选 */
+  rowSelectable?: (row: any, index: number) => boolean
   /** 是否显示序号列 */
   showIndex?: boolean
 }
@@ -104,6 +107,7 @@ withDefaults(defineProps<DataTablePanelProps>(), {
   pageSize: 10,
   minHeight: '400px',
   selectable: false,
+  rowSelectable: undefined,
   showIndex: false
 })
 

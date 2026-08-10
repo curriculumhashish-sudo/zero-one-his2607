@@ -38,7 +38,7 @@ const query = reactive<SlotQueryModel>({
   keyword: '',
   departmentId: null,
   doctorId: null,
-  pageNo: 1,
+  pageIndex: 1,
   pageSize: 100
 })
 const departments = ref<BookingOption[]>([])
@@ -114,8 +114,11 @@ async function initialize() {
   initErrorMessage.value = ''
   try {
     const result = await loadSlotInit()
+    if (!result.organizationId) {
+      throw new Error('当前登录上下文没有科室编号，无法查询号源')
+    }
     organizationId.value = result.organizationId
-    query.departmentId = query.departmentId ?? result.departments[0]?.value ?? null
+    query.departmentId = query.departmentId ?? result.departments[0]?.value ?? result.organizationId
     departments.value = result.departments
     doctors.value = result.doctors
     await loadSlots()
@@ -151,8 +154,8 @@ async function loadSlots() {
       organizationId: query.departmentId ?? organizationId.value,
       date: query.date,
       practitionerId: query.doctorId,
-      PageIndex: query.keyword.trim() ? 1 : query.pageNo,
-      PageSize: query.pageSize
+      pageIndex: query.keyword.trim() ? 1 : query.pageIndex,
+      pageSize: query.pageSize
     }
     const firstPage = await pageSlotsByDate(request, { signal: currentController.signal })
     if (sequence !== requestSequence || currentController.signal.aborted) return
@@ -165,7 +168,7 @@ async function loadSlots() {
     const pageCount = Math.ceil(firstPage.totalCount / query.pageSize)
     const remainingPages = await Promise.all(
       Array.from({ length: Math.max(0, pageCount - 1) }, (_, index) =>
-        pageSlotsByDate({ ...request, PageIndex: index + 2 }, { signal: currentController.signal })
+        pageSlotsByDate({ ...request, pageIndex: index + 2 }, { signal: currentController.signal })
       )
     )
     if (sequence !== requestSequence || currentController.signal.aborted) return
@@ -176,7 +179,7 @@ async function loadSlots() {
           .toLocaleLowerCase()
           .includes(keyword)
       )
-    const start = (query.pageNo - 1) * query.pageSize
+    const start = (query.pageIndex - 1) * query.pageSize
     rows.value = filtered.slice(start, start + query.pageSize)
     total.value = filtered.length
   } catch (error) {
@@ -195,25 +198,25 @@ function resetQuery() {
     keyword: '',
     departmentId: departments.value[0]?.value ?? null,
     doctorId: null,
-    pageNo: 1
+    pageIndex: 1
   })
   void loadSlots()
 }
 
 function submitQuery() {
-  query.pageNo = 1
+  query.pageIndex = 1
   void loadSlots()
 }
 
 function handleDepartmentChange() {
   const doctor = doctors.value.find((item) => item.value === query.doctorId)
   if (doctor && doctor.departmentId !== query.departmentId) query.doctorId = null
-  query.pageNo = 1
+  query.pageIndex = 1
 }
 
 function handlePaginationChange(payload: { page: number; pageSize: number }) {
   const pageSizeChanged = payload.pageSize !== query.pageSize
-  query.pageNo = pageSizeChanged ? 1 : payload.page
+  query.pageIndex = pageSizeChanged ? 1 : payload.page
   query.pageSize = payload.pageSize
   void loadSlots()
 }
@@ -469,7 +472,7 @@ onBeforeUnmount(() => {
       <PaginationBar
         v-if="total > 0"
         class="slot-pagination"
-        :page="query.pageNo"
+        :page="query.pageIndex"
         :page-size="query.pageSize"
         :total="total"
         :disabled="loading"

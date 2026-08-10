@@ -1,4 +1,5 @@
 import * as mock from './mock'
+import * as c1 from '@/apis/c1/charge-client'
 import type {
   AttendingDoctorQuery,
   RegistrationQueueMockFilter,
@@ -9,16 +10,17 @@ import type {
 import { useUserStore } from '@/stores/user'
 import { loadRegisterBenefitPreview as loadSharedRegisterBenefitPreview } from '@/apis/outpatient/charge/register'
 import type { LoadRegisterBenefitPreviewParams } from '@/apis/outpatient/charge/register'
+const useC1 = import.meta.env.VITE_CHARGE_PROVIDER === 'c1'
 
-export const loadInpatientRegistrationInit = mock.mockLoadInpatientRegistrationInit
-export const pageRegistrationPatientOptions = mock.mockPageRegistrationPatientOptions
+export const loadInpatientRegistrationInit = (useC1 ? c1.c1LoadInpatientRegistrationInit : mock.mockLoadInpatientRegistrationInit) as typeof mock.mockLoadInpatientRegistrationInit
+export const pageRegistrationPatientOptions = (useC1 ? c1.c1PageRegistrationPatientOptions : mock.mockPageRegistrationPatientOptions) as typeof mock.mockPageRegistrationPatientOptions
 
 export function pageInpatientRegistrationQueue(
   query: RegistrationQueueQuery,
   context: RequestContext = {},
   mockFilter: RegistrationQueueMockFilter = {}
 ) {
-  return mock.mockPageInpatientRegistrationQueue(query, context, mockFilter)
+  return (useC1 ? c1.c1PageInpatientRegistrationQueue(query, context, mockFilter) : mock.mockPageInpatientRegistrationQueue(query, context, mockFilter)) as ReturnType<typeof mock.mockPageInpatientRegistrationQueue>
 }
 
 export function loadInpatientRegistrationBenefitPreview(
@@ -32,23 +34,23 @@ export function getInpatientRegistrationContext(
   encounterId?: string,
   context: RequestContext = {}
 ) {
-  return mock.mockGetInpatientRegistrationContext({ encounterId }, context)
+  return (useC1 ? c1.c1GetInpatientRegistrationContext(encounterId, context) : mock.mockGetInpatientRegistrationContext({ encounterId }, context)) as ReturnType<typeof mock.mockGetInpatientRegistrationContext>
 }
 
 export function listRegistrationWards(departmentId: string, context: RequestContext = {}) {
-  return mock.mockListRegistrationWards({ organizationId: departmentId }, context)
+  return (useC1 ? c1.c1ListRegistrationWards(departmentId, context) : mock.mockListRegistrationWards({ organizationId: departmentId }, context)) as ReturnType<typeof mock.mockListRegistrationWards>
 }
 
 export function getWardCapacity(wardId: string, context: RequestContext = {}) {
-  return mock.mockGetWardCapacity({ wardId }, context)
+  return (useC1 ? c1.c1GetWardCapacity(wardId, context) : mock.mockGetWardCapacity({ wardId }, context)) as ReturnType<typeof mock.mockGetWardCapacity>
 }
 
 export function listAttendingDoctors(query: AttendingDoctorQuery, context: RequestContext = {}) {
-  return mock.mockListAttendingDoctors(query, context)
+  return (useC1 ? c1.c1ListAttendingDoctors(query, context) : mock.mockListAttendingDoctors(query, context)) as ReturnType<typeof mock.mockListAttendingDoctors>
 }
 
 export function submitInpatientRegistration(data: SubmitRegistrationPayload) {
-  return mock.mockSubmitInpatientRegistration(data)
+  return (useC1 ? c1.c1SubmitInpatientRegistration(data) : mock.mockSubmitInpatientRegistration(data)) as ReturnType<typeof mock.mockSubmitInpatientRegistration>
 }
 
 function getOperatorId() {
@@ -62,10 +64,8 @@ export function cancelInpatientRegistration(
   reason?: string,
   context: RequestContext = {}
 ) {
-  return mock.mockCancelInpatientRegistration(
-    { cancelReason: reason, encounterId: id, operatorId: getOperatorId() },
-    context
-  )
+  const payload = { cancelReason: reason, encounterId: id, operatorId: getOperatorId() }
+  return (useC1 ? c1.c1CancelInpatientRegistration(payload, context) : mock.mockCancelInpatientRegistration(payload, context)) as ReturnType<typeof mock.mockCancelInpatientRegistration>
 }
 
 export function revokeInsuranceAdmission(
@@ -73,10 +73,8 @@ export function revokeInsuranceAdmission(
   reason?: string,
   context: RequestContext = {}
 ) {
-  return mock.mockRevokeInsuranceAdmission(
-    { cancelReason: reason, encounterId: id, operatorId: getOperatorId() },
-    context
-  )
+  const payload = { cancelReason: reason, encounterId: id, operatorId: getOperatorId() }
+  return (useC1 ? c1.c1RevokeInsuranceAdmission(payload, context) : mock.mockRevokeInsuranceAdmission(payload, context)) as ReturnType<typeof mock.mockRevokeInsuranceAdmission>
 }
 
 export type * from './type'

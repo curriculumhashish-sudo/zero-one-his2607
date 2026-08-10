@@ -3,8 +3,8 @@ import * as legacy from './index'
 export type PageRefundPatientQueueContractRequest = {
   endDate?: string
   keyword?: string
-  PageIndex?: number
-  PageSize?: number
+  pageIndex?: number
+  pageSize?: number
   queueTabCode?: string
   startDate?: string
 }
@@ -26,7 +26,7 @@ export type PageRefundPatientQueueContractResponse = {
     startTime?: string
     totalAmount?: number | string
   }>
-  pageNo?: number
+  pageIndex?: number
   pageSize?: number
   records?: Array<{
     ageText?: string

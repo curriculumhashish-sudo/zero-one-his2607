@@ -14,7 +14,7 @@ export interface RegistrationPageQuery {
   idCard: string
   status: RegistrationStatus | ''
   dateRange: [string, string] | null
-  pageNo: number
+  pageIndex: number
   pageSize: number
 }
 

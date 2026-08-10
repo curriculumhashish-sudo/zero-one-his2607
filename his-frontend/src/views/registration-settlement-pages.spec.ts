@@ -81,7 +81,7 @@ describe('B组三轮登记结算接口', () => {
     expect(Object.keys(registrationInit)).toEqual(['paymentChannelOptions'])
 
     const registrationByDate = await pageInpatientRegistrationQueue(
-      { PageIndex: 1, PageSize: 20 },
+      { pageIndex: 1, pageSize: 20 },
       {},
       { dateFrom: '2026-07-28', dateTo: '2026-07-28' }
     )
@@ -107,8 +107,8 @@ describe('B组三轮登记结算接口', () => {
 
   it('患者选择表格可直接加载数据，身份证自动识别出生日期、年龄和性别', async () => {
     const [inpatientPatients, outpatientPatients] = await Promise.all([
-      pageRegistrationPatientOptions({ PageIndex: 1, PageSize: 20 }),
-      pageRegisterPatientOptions({ PageIndex: 1, PageSize: 20 })
+      pageRegistrationPatientOptions({ pageIndex: 1, pageSize: 20 }),
+      pageRegisterPatientOptions({ pageIndex: 1, pageSize: 20 })
     ])
     expect(inpatientPatients.records.length).toBeGreaterThan(0)
     expect(outpatientPatients.records.length).toBeGreaterThan(0)
@@ -126,7 +126,7 @@ describe('B组三轮登记结算接口', () => {
   })
 
   it('住院登记支持上下文、登记和取消状态流转', async () => {
-    const queue = await pageInpatientRegistrationQueue({ PageIndex: 1, PageSize: 20 })
+    const queue = await pageInpatientRegistrationQueue({ pageIndex: 1, pageSize: 20 })
     const source = queue.content.find((item) => item.statusEnum === 'WAIT_ADMISSION')!
     const context = await getInpatientRegistrationContext(source.encounterId)
     expect(context.patient?.patientId).toBe(source.patientId)
@@ -150,8 +150,8 @@ describe('B组三轮登记结算接口', () => {
   it('住院结算支持费用明细、预结算、确认和反结', async () => {
     const queue = await pageInpatientSettleQueue({
       settleQueueTab: 'PENDING_SETTLE',
-      PageIndex: 1,
-      PageSize: 20
+      pageIndex: 1,
+      pageSize: 20
     })
     const patient = queue.content[0]!
     const detail = await listInpatientSettleCharges(
@@ -230,8 +230,8 @@ describe('B组三轮登记结算接口', () => {
     const history = await pageOutpatientRegisterHistory({
       dateFrom: todayText(),
       dateTo: todayText(),
-      PageIndex: 1,
-      PageSize: 20
+      pageIndex: 1,
+      pageSize: 20
     })
     const record = history.records.find((item) => item.encounterId === confirmed.encounterId)!
     expect((await validateRegisterCancellation(record.encounterId)).cancelable).toBe(true)
@@ -276,8 +276,8 @@ describe('B组三轮登记结算接口', () => {
   it('住院结算扫码结果可使用同一支付草稿补结算且不会重复扣款', async () => {
     const queue = await pageInpatientSettleQueue({
       settleQueueTab: 'PENDING_SETTLE',
-      PageIndex: 1,
-      PageSize: 20
+      pageIndex: 1,
+      pageSize: 20
     })
     const patient = queue.content[0]!
     const detail = await listInpatientSettleCharges(

@@ -1,6 +1,6 @@
 export interface PageOutpatientFeeDetailParams {
-  PageIndex: number
-  PageSize: number
+  pageIndex: number
+  pageSize: number
   dateFrom: string
   dateTo: string
   registrationDepartmentId?: string
@@ -69,15 +69,21 @@ export interface OutpatientFeeDetailEncounterBlockDto {
 export interface PageOutpatientFeeDetailResponse {
   content?: OutpatientFeeDetailEncounterBlockDto[]
   totalCount?: number
-  pageNo?: number
+  pageIndex?: number
   pageSize?: number
   summary?: OutpatientFeeDetailAmountSummaryDto
 }
 
 /** Backend response before the frontend normalizes the eight flat totals. */
 export interface PageOutpatientFeeDetailBackendResponse {
-  content?: OutpatientFeeDetailEncounterBlockDto[]
+  rows?: OutpatientFeeDetailBackendRowDto[]
+  summary?: OutpatientFeeDetailAmountSummaryDto
+  totalRowCount?: number
+  // The deployed J8 response uses content as a flat charge-item row list.
+  // Mock responses may already contain grouped encounter blocks.
+  content?: OutpatientFeeDetailBackendRowDto[] | OutpatientFeeDetailEncounterBlockDto[]
   totalCount?: number
+  pageIndex?: number
   pageNo?: number
   pageSize?: number
   baseAmountSum?: number | string
@@ -90,9 +96,20 @@ export interface PageOutpatientFeeDetailBackendResponse {
   selfPayAmountSum?: number | string
 }
 
+/** J8 返回的单条收费项目；同一次就诊的字段会在每行重复。 */
+export interface OutpatientFeeDetailBackendRowDto extends OutpatientFeeDetailLineDto {
+  sequenceNo?: number
+  outpatientNo?: string
+  patientName?: string
+  registrationDepartmentName?: string
+  deptName?: string
+  encounterDate?: string
+  sourceDisplay?: string
+}
+
 export type ExportOutpatientFeeDetailParams = Omit<
   PageOutpatientFeeDetailParams,
-  'PageIndex' | 'PageSize'
+  'pageIndex' | 'pageSize'
 >
 
 export interface ExportOutpatientFeeDetailResponse {

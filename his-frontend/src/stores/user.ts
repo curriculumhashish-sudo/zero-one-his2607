@@ -110,6 +110,7 @@ export const useUserStore = defineStore('user', {
       this.refreshToken = data.refreshToken
       if (this.token) localStorage.setItem('token', this.token)
       if (this.refreshToken) localStorage.setItem('refreshToken', this.refreshToken)
+      if ('tokenHead' in data && data.tokenHead) localStorage.setItem('tokenHead', data.tokenHead.trim())
     },
     setLoginContext(context: { tenantId?: string | number | null; hospitalId?: string | number | null; departmentId?: string | null }) {
       if ('tenantId' in context) this.tenantId = context.tenantId ?? null
@@ -139,6 +140,7 @@ export const useUserStore = defineStore('user', {
       this.departmentId = null
       localStorage.removeItem('token')
       localStorage.removeItem('refreshToken')
+      localStorage.removeItem('tokenHead')
       localStorage.removeItem(LOGIN_CONTEXT_KEY)
     }
   }

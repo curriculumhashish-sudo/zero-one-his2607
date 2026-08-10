@@ -8,8 +8,7 @@
 
 左侧队列用于快速浏览，顶部“选择住院患者”使用 `SelectTable` 按姓名或住院号远程分页查询，并展示性别、年龄、科室、病区、床号、就诊状态和账户状态。切换队列、筛选条件或患者时会清空旧费用、勾选、试算和历史记录。
 
-左侧患者队列也复用公共 `PaginationBar`，提供总记录数、每页条数、页码和跳页。页码变化后按原型 `pageNo/pageSize` 重新请求，修改每页条数时回到第 1 页，并清空旧患者与结算明细。
-左侧患者队列也复用公共 `PaginationBar`，提供总记录数、每页条数、页码和跳页。页码变化后按原型 `pageNo/pageSize` 重新请求，修改每页条数时回到第 1 页，并清空旧患者与结算明细。
+左侧患者队列也复用公共 `PaginationBar`，提供总记录数、每页条数、页码和跳页。页码变化后按统一接口字段 `pageIndex/pageSize` 重新请求，修改每页条数时回到第 1 页，并清空旧患者与结算明细。
 ## 接口契约
 
 `src/apis/inpatient/charge/settle/type.ts` 与原型 `inpatient-settle.types.ts` 对齐：主键使用字符串，金额兼容 `number | string`，扫码结果严格使用 `merTradeNo/tradeNo/payType/respCode/respMsg/txnAmtFen`。页面使用任务书规定的稳定函数参数，`index.ts` 内部组装原型请求对象。

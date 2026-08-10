@@ -90,7 +90,7 @@ const loading = ref(false)
 const slotLoading = ref(false)
 const submitting = ref(false)
 const benefitLoading = ref(false)
-const historyQuery = reactive({ pageNo: 1, pageSize: 20 })
+const historyQuery = reactive({ pageIndex: 1, pageSize: 20 })
 const pendingRegisterPayload = ref<ConfirmOutpatientRegisterPayload | null>(null)
 const pendingRegisterMessage = ref('')
 const errorMessage = ref('')
@@ -167,13 +167,13 @@ function requestReset() {
 }
 
 function changeHistoryPage(value: number) {
-  historyQuery.pageNo = value
+  historyQuery.pageIndex = value
   void loadDashboard()
 }
 
 function changeHistoryPageSize(value: number) {
   historyQuery.pageSize = value
-  historyQuery.pageNo = 1
+  historyQuery.pageIndex = 1
   void loadDashboard()
 }
 
@@ -185,6 +185,12 @@ async function initialize() {
   loading.value = true
   try {
     init.value = await loadOutpatientRegisterInit()
+    if (!init.value.serviceTypeOptions.some((item) => item.value === form.serviceTypeId)) {
+      form.serviceTypeId = init.value.serviceTypeOptions[0]?.value ?? ''
+    }
+    if (!init.value.contractOptions.some((item) => item.value === form.contractId)) {
+      form.contractId = init.value.contractOptions[0]?.value ?? ''
+    }
     await loadDashboard()
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : '门诊挂号初始化失败'
@@ -206,8 +212,8 @@ async function loadDashboard() {
         {
           dateFrom: today,
           dateTo: today,
-          PageIndex: historyQuery.pageNo,
-          PageSize: historyQuery.pageSize
+          pageIndex: historyQuery.pageIndex,
+          pageSize: historyQuery.pageSize
         },
         { signal: controller.signal }
       ),
@@ -283,7 +289,7 @@ const loadPatients: SelectTableLoadPage<RegisterPatient & Record<string, unknown
   context
 ) => {
   const result = await pageRegisterPatientOptions(
-    { keyword: request.keyword, PageIndex: request.pageIndex, PageSize: request.pageSize },
+    { keyword: request.keyword, pageIndex: request.pageIndex, pageSize: request.pageSize },
     { signal: context.signal }
   )
   return {
@@ -467,7 +473,7 @@ async function completeRegister(payload: ConfirmOutpatientRegisterPayload) {
   ElMessage.success('缴费成功，挂号已完成')
   resetForm()
   slots.value = []
-  historyQuery.pageNo = 1
+  historyQuery.pageIndex = 1
   await loadDashboard()
 }
 
@@ -659,7 +665,7 @@ onBeforeUnmount(() => {
           ><RegisterHistoryPanel
             :records="history"
             :total="historyTotal"
-            :page="historyQuery.pageNo"
+            :page="historyQuery.pageIndex"
             :page-size="historyQuery.pageSize"
             :loading="loading"
             @cancel="cancelRegister"

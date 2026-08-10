@@ -332,7 +332,8 @@ async function departmentChanged() {
     await loadWardOptions('', { signal: controller.signal })
   } catch (error) {
     if (!controller.signal.aborted) {
-      ElMessage.error(error instanceof Error ? error.message : '病区选项加载失败')
+      const reason = error instanceof Error ? error.message : '未知错误'
+      ElMessage.error(`病区选项加载失败：${reason}`)
     }
   }
 }

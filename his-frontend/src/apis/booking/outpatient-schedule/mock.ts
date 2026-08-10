@@ -701,16 +701,16 @@ export async function mockListReleasedSlots(
   query: ListReleasedSlotsQuery
 ): Promise<ReleasedSlotPage> {
   await delay()
-  const { scheduleId, PageIndex, PageSize } = query
+  const { scheduleId, pageIndex, pageSize } = query
   const record = schedules.find((item) => item.id === scheduleId)
   if (!record) throw new Error('排班不存在')
   const rows = slotsOf(record)
-  const start = (PageIndex - 1) * PageSize
+  const start = (pageIndex - 1) * pageSize
   return {
-    content: clone(rows.slice(start, start + PageSize)),
+    content: clone(rows.slice(start, start + pageSize)),
     totalCount: rows.length,
-    pageNo: PageIndex,
-    pageSize: PageSize
+    pageIndex,
+    pageSize: pageSize
   }
 }
 

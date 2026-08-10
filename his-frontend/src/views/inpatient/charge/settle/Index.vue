@@ -39,7 +39,7 @@ import SelectTable from '@/components/common/SelectTable.vue'
 import StatusDisplay from '@/components/common/StatusDisplay.vue'
 import PatientInfoBar from '@/components/patient/PatientInfoBar.vue'
 import PatientQueuePanel from '@/components/patient/PatientQueuePanel.vue'
-import { toSettlePatientSummary, toSettleSummaryItems } from './adapter'
+import { getSettlePatientCardId, toSettlePatientSummary, toSettleSummaryItems } from './adapter'
 import InpatientSettleDialog from './components/InpatientSettleDialog.vue'
 import { SETTLEMENT_RECORD_STATUS_OPTIONS, SETTLE_LINE_STATUS_OPTIONS } from './constants'
 import type { InpatientSettlePageQuery } from './type'
@@ -49,7 +49,7 @@ defineOptions({ name: 'InpatientChargeSettle' })
 const query = reactive<InpatientSettlePageQuery>({
   admissionDate: null,
   keyword: '',
-  pageNo: 1,
+  pageIndex: 1,
   pageSize: 20,
   presentationMode: 'DETAIL',
   settleQueueTab: 'PENDING_SETTLE'
@@ -75,6 +75,8 @@ const submitting = ref(false)
 const pendingSettlePayload = ref<ConfirmInpatientSettlePayload | null>(null)
 const pendingSettleMessage = ref('')
 const errorMessage = ref('')
+// C1 当前结算队列仍可能返回已完成结算的患者；本地先隐藏已成功结算的记录，避免页面继续显示。
+const locallySettledEncounterIds = new Set<string>()
 let queueSequence = 0
 let detailSequence = 0
 let summarySequence = 0
@@ -156,15 +158,18 @@ async function loadQueue() {
       {
         admissionDate: query.admissionDate ?? undefined,
         keyword: query.keyword,
-        PageIndex: query.pageNo,
-        PageSize: query.pageSize,
+        pageIndex: query.pageIndex,
+        pageSize: query.pageSize,
         settleQueueTab: query.settleQueueTab
       },
       { signal: controller.signal }
     )
     if (sequence !== queueSequence) return
-    queueRows.value = result.content
-    total.value = result.totalCount
+    const visibleRows = result.content.filter(
+      (item) => !locallySettledEncounterIds.has(item.encounterId)
+    )
+    queueRows.value = visibleRows
+    total.value = Math.max(0, result.totalCount - (result.content.length - visibleRows.length))
     if (
       selectedPatient.value &&
       !result.content.some((item) => item.encounterId === selectedPatient.value?.encounterId)
@@ -191,7 +196,7 @@ async function loadPatientData(patient: InpatientSettlePatient) {
   detailLoading.value = true
   errorMessage.value = ''
   try {
-    const [summaryResult, chargeResult, historyResult] = await Promise.all([
+    const [summaryResult, chargeResult, historyResult] = await Promise.allSettled([
       getInpatientSettleSummary(patient.encounterId, patient.patientId, [], {
         signal: controller.signal
       }),
@@ -203,13 +208,34 @@ async function loadPatientData(patient: InpatientSettlePatient) {
       })
     ])
     if (sequence !== detailSequence) return
-    summary.value = summaryResult
-    categories.value = chargeResult.categories ?? []
-    lines.value = chargeResult.lines ?? []
-    history.value = historyResult
-    selectedLines.value = (chargeResult.lines ?? []).filter(
+    if (chargeResult.status === 'rejected' && historyResult.status === 'rejected') {
+      throw chargeResult.reason
+    }
+    const chargeData = chargeResult.status === 'fulfilled' ? chargeResult.value : null
+    summary.value = summaryResult.status === 'fulfilled'
+      ? summaryResult.value
+      : {
+          encounterBusNo: patient.encounterBusNo,
+          encounterId: patient.encounterId,
+          patientId: patient.patientId,
+          patientName: patient.patientName,
+          pendingSettlementTotal: chargeData?.pendingSettlementTotal ?? 0,
+          selectedTotal: 0,
+          prepayNetBalance: 0,
+          displayAccountBalance: 0,
+          balanceHint: 0,
+          statusEnum: patient.statusEnum,
+          statusEnumText: patient.statusEnumText
+        }
+    categories.value = chargeData?.categories ?? []
+    lines.value = chargeData?.lines ?? []
+    history.value = historyResult.status === 'fulfilled' ? historyResult.value : null
+    selectedLines.value = (chargeData?.lines ?? []).filter(
       (line) => line.statusEnum === 'PENDING' && line.selected
     )
+    if (summaryResult.status === 'rejected') {
+      ElMessage.warning('费用汇总接口暂时不可用，已继续加载费用明细和历史结算')
+    }
   } catch (error) {
     if (controller.signal.aborted || sequence !== detailSequence) return
     clearDetail()
@@ -224,6 +250,12 @@ function activatePatient(patient: InpatientSettlePatient) {
     if (pendingSettlePayload.value) ElMessage.warning('请先完成待补结算交易')
     return
   }
+  // C1 结算详情接口同时要求有效的患者主键和就诊标识；列表缺少这些字段时不要发送必然失败的请求。
+  if (!patient.patientId?.trim() || !patient.encounterId?.trim() || patient.encounterId === '0') {
+    clearDetail()
+    ElMessage.warning('当前患者列表缺少有效的患者主键或就诊标识，暂时无法加载费用明细，请后端补充返回 patientId 和 encounterId')
+    return
+  }
   clearDetail()
   selectedPatient.value = patient
   selectedPatientId.value = patient.encounterId
@@ -231,7 +263,7 @@ function activatePatient(patient: InpatientSettlePatient) {
 }
 
 function selectPatient(source: PatientSummary) {
-  const patient = queueRows.value.find((item) => item.encounterId === String(source.id))
+  const patient = queueRows.value.find((item) => getSettlePatientCardId(item) === String(source.id))
   if (patient) activatePatient(patient)
 }
 
@@ -242,8 +274,8 @@ const loadSelectablePatients: SelectTableLoadPage<
     {
       admissionDate: query.admissionDate ?? undefined,
       keyword: request.keyword,
-      PageIndex: request.pageIndex,
-      PageSize: request.pageSize,
+      pageIndex: request.pageIndex,
+      pageSize: request.pageSize,
       settleQueueTab: query.settleQueueTab
     },
     { signal: context.signal }
@@ -268,7 +300,7 @@ function search(keyword: string) {
     return
   }
   query.keyword = keyword
-  query.pageNo = 1
+  query.pageIndex = 1
   selectedPatient.value = null
   selectedPatientId.value = null
   clearDetail()
@@ -281,7 +313,7 @@ function changeDate(value: DateRangeValue) {
     return
   }
   query.admissionDate = value?.[0] ?? null
-  query.pageNo = 1
+  query.pageIndex = 1
   selectedPatient.value = null
   selectedPatientId.value = null
   clearDetail()
@@ -295,7 +327,7 @@ function changeQueueTab(value: string | number | boolean | undefined) {
     return
   }
   query.settleQueueTab = value
-  query.pageNo = 1
+  query.pageIndex = 1
   selectedPatient.value = null
   selectedPatientId.value = null
   patientSelectorVisible.value = false
@@ -305,7 +337,7 @@ function changeQueueTab(value: string | number | boolean | undefined) {
 
 function handleQueuePaginationChange(payload: { page: number; pageSize: number }) {
   const pageSizeChanged = payload.pageSize !== query.pageSize
-  query.pageNo = pageSizeChanged ? 1 : payload.page
+  query.pageIndex = pageSizeChanged ? 1 : payload.page
   query.pageSize = payload.pageSize
   selectedPatient.value = null
   selectedPatientId.value = null
@@ -389,6 +421,7 @@ async function completeSettlement(payload: ConfirmInpatientSettlePayload) {
   pendingSettleMessage.value = ''
   dialogVisible.value = false
   ElMessage.success('住院结算成功')
+  if (payload.encounterId) locallySettledEncounterIds.add(payload.encounterId)
   selectedPatient.value = null
   selectedPatientId.value = null
   clearDetail()
@@ -536,17 +569,18 @@ onBeforeUnmount(() => {
       </div>
       <PatientQueuePanel
         :patients="patientCards"
-        :selected-id="selectedPatient?.encounterId"
+        :selected-id="selectedPatient ? getSettlePatientCardId(selectedPatient) : null"
         :loading="queueLoading"
         @search="search"
         @date-change="changeDate"
         @refresh="loadQueue"
         @select="selectPatient"
+        @view="selectPatient"
       />
       <PaginationBar
         v-if="total > 0"
         class="queue-pagination"
-        :page="query.pageNo"
+        :page="query.pageIndex"
         :page-size="query.pageSize"
         :total="total"
         :disabled="queueLoading || submitting"

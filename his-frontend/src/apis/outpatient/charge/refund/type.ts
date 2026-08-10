@@ -7,7 +7,7 @@ export interface PageResult<T> {
   content: T[]
   total: number
   totalCount: number
-  pageNo: number
+  pageIndex: number
   pageSize: number
 }
 export interface RefundPatient {
@@ -87,12 +87,10 @@ export interface RefundQueueQuery {
   queueTabCode?: 'ALL' | 'PENDING' | 'SETTLED'
   startDate?: string | null
   endDate?: string | null
-  status: RefundQueueStatus
-  page?: number
-  pageNo?: number
+  /** 仅兼容旧 mock；正式接口使用 queueTabCode。 */
+  status?: RefundQueueStatus
   pageSize?: number
-  PageIndex?: number
-  PageSize?: number
+  pageIndex?: number
 }
 export interface RefundVerification {
   allowed: boolean

@@ -1,4 +1,4 @@
-# B组：门诊排班管理
+# B组：门诊排班
 
 ## 页面信息
 
@@ -62,7 +62,7 @@ partialStopSchedule(id, data)
 unlockPartialStop(id, data)
 resumeSchedule(id)
 voidSchedule(id, reason)
-listReleasedSlots({ scheduleId, PageIndex, PageSize })
+listReleasedSlots({ scheduleId, pageIndex, pageSize })
 provisionScheduleSlots(id, data)
 deleteReleasedSlots(id, data)
 ```

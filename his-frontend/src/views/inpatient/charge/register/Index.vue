@@ -44,7 +44,7 @@ const query = reactive<RegistrationPageQuery>({
   idCard: '',
   status: '',
   dateRange: null,
-  pageNo: 1,
+  pageIndex: 1,
   pageSize: 20
 })
 const rows = ref<RegistrationQueueRecord[]>([])
@@ -104,11 +104,11 @@ async function loadRows() {
   try {
     const result = await pageInpatientRegistrationQueue(
       {
-        PageIndex: query.pageNo,
-        PageSize: query.pageSize,
+        pageIndex: query.pageIndex,
+        pageSize: query.pageSize,
         keyword: query.keyword,
         idCard: query.idCard,
-        registrationListStatus: query.status
+        registrationListStatuses: query.status ? [query.status] : []
       },
       { signal: controller.signal },
       { dateFrom: query.dateRange?.[0], dateTo: query.dateRange?.[1] }
@@ -127,12 +127,12 @@ async function loadRows() {
 }
 
 function search() {
-  query.pageNo = 1
+  query.pageIndex = 1
   void loadRows()
 }
 
 function reset() {
-  Object.assign(query, { keyword: '', idCard: '', status: '', dateRange: null, pageNo: 1 })
+  Object.assign(query, { keyword: '', idCard: '', status: '', dateRange: null, pageIndex: 1 })
   void loadRows()
 }
 
@@ -152,13 +152,12 @@ async function openDialog(record?: RegistrationQueueRecord) {
 async function save(payload: RegistrationSubmitData) {
   if (submitting.value) return
   const operatorId = userStore.getUser?.id
-  if (!operatorId) {
-    ElMessage.error('当前登录用户信息未加载，无法办理住院登记')
-    return
-  }
   submitting.value = true
   try {
-    const result = await submitInpatientRegistration({ ...payload, operatorId })
+    const result = await submitInpatientRegistration({
+      ...payload,
+      ...(operatorId ? { operatorId } : {})
+    })
     dialogRef.value?.resetDirty()
     dialogVisible.value = false
     ElMessage.success(result.paymentId ? '住院登记成功，预交金支付已完成' : '住院登记成功')
@@ -233,7 +232,7 @@ const loadPatients = async (
   context: { signal: AbortSignal }
 ) => {
   const result = await pageRegistrationPatientOptions(
-    { keyword: request.keyword, PageIndex: request.pageIndex, PageSize: request.pageSize },
+    { keyword: request.keyword, pageIndex: request.pageIndex, pageSize: request.pageSize },
     { signal: context.signal }
   )
   return {
@@ -264,12 +263,13 @@ onBeforeUnmount(() => {
       @reset="reset"
     >
       <template #header>
-        <div class="query-field">
-          <label>身份证号</label><el-input v-model="query.idCard" clearable />
+        <div class="query-shell__field">
+          <label class="query-shell__label">身份证号</label>
+          <el-input v-model="query.idCard" clearable />
         </div>
-        <div class="query-field">
-          <label>申请日期</label
-          ><DateRangeField :model-value="query.dateRange" @update:model-value="updateDateRange" />
+        <div class="query-shell__field">
+          <label class="query-shell__label">申请日期</label>
+          <DateRangeField :model-value="query.dateRange" @update:model-value="updateDateRange" />
         </div>
       </template>
     </SearchPanel>
@@ -281,20 +281,20 @@ onBeforeUnmount(() => {
       :data="rows"
       :loading="loading"
       :total="total"
-      :page="query.pageNo"
+      :page="query.pageIndex"
       :page-size="query.pageSize"
       show-index
       min-height="430px"
       @update:page="
         (value: number) => {
-          query.pageNo = value
+          query.pageIndex = value
           loadRows()
         }
       "
       @update:page-size="
         (value: number) => {
           query.pageSize = value
-          query.pageNo = 1
+          query.pageIndex = 1
           loadRows()
         }
       "
@@ -367,15 +367,10 @@ onBeforeUnmount(() => {
   min-height: calc(100vh - 96px);
   padding: 16px;
 }
-.query-field {
-  display: flex;
-  min-width: 220px;
-  flex-direction: column;
-  gap: 6px;
-}
-.query-field label {
-  color: var(--el-text-color-regular);
-  font-size: 14px;
+:deep(.query-shell__field > .el-input),
+:deep(.query-shell__field > .date-range-field) {
+  min-width: 0;
+  flex: 1;
 }
 :deep(.el-button.is-link.is-disabled) {
   color: #6b7280;

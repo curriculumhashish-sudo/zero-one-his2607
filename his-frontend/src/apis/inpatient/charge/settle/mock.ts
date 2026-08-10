@@ -252,8 +252,8 @@ export async function mockPageInpatientSettleQueue(
   context: RequestContext = {}
 ) {
   await wait(context)
-  const pageIndex = query.PageIndex ?? query.pageNo ?? 1
-  const pageSize = query.PageSize ?? query.pageSize ?? 20
+  const pageIndex = query.pageIndex ?? 1
+  const pageSize = query.pageSize ?? 20
   const keyword = query.keyword?.trim().toLowerCase() ?? ''
   const filtered = patients.filter(
     (patient) =>
@@ -265,7 +265,7 @@ export async function mockPageInpatientSettleQueue(
   const start = (pageIndex - 1) * pageSize
   const result: InpatientSettleQueuePage = {
     content: clone(filtered.slice(start, start + pageSize)),
-    pageNo: pageIndex,
+    pageIndex,
     pageSize,
     totalCount: filtered.length,
     totalElements: filtered.length

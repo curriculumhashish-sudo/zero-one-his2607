@@ -194,16 +194,16 @@ export async function mockPageInpatientQueue(
         `${item.name}${item.patientNo}${item.visitNo}${item.bedNo}`.toLowerCase().includes(key))
   )
   patients.forEach(syncPatientFields)
-  const pageNo = query.PageIndex ?? query.pageNo ?? query.page ?? 1
-  const pageSize = query.PageSize ?? query.pageSize ?? 20
-  const start = (pageNo - 1) * pageSize
+  const pageIndex = query.pageIndex ?? 1
+  const pageSize = query.pageSize ?? 20
+  const start = (pageIndex - 1) * pageSize
   const pageRows = clone(rows.slice(start, start + pageSize))
   return {
     rows: pageRows,
     content: clone(pageRows),
     total: rows.length,
     totalCount: rows.length,
-    pageNo,
+    pageIndex,
     pageSize
   }
 }
@@ -236,15 +236,15 @@ export async function mockPagePrepayRecords(
   await delay(context)
   patientOf(encounterId)
   const rows = records.get(encounterId) ?? []
-  const pageNo = query.PageIndex ?? query.pageNo ?? query.page ?? 1
-  const pageSize = query.PageSize ?? query.pageSize ?? 20
-  const start = (pageNo - 1) * pageSize
+  const pageIndex = query.pageIndex ?? 1
+  const pageSize = query.pageSize ?? 20
+  const start = (pageIndex - 1) * pageSize
   const pageRows = clone(rows.slice(start, start + pageSize))
   return {
     rows: pageRows,
     records: clone(pageRows),
     total: rows.length,
-    pageNo,
+    pageIndex,
     pageSize
   }
 }

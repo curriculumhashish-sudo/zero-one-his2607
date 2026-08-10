@@ -225,9 +225,9 @@ export async function mockPageRegisterPatientOptions(
       .toLowerCase()
       .includes(keyword)
   )
-  const pageNo = query.PageIndex ?? query.pageNo ?? query.page ?? 1
-  const pageSize = query.PageSize ?? query.pageSize ?? 20
-  const start = (pageNo - 1) * pageSize
+  const pageIndex = query.pageIndex ?? 1
+  const pageSize = query.pageSize ?? 20
+  const start = (pageIndex - 1) * pageSize
   const result: RegisterPatientPage = {
     records: clone(filtered.slice(start, start + pageSize)),
     total: filtered.length
@@ -513,9 +513,9 @@ export async function mockPageOutpatientRegisterHistory(
         .includes(keyword)
     )
   })
-  const pageNo = query.PageIndex ?? query.pageNo ?? query.page ?? 1
-  const pageSize = query.PageSize ?? query.pageSize ?? 20
-  const start = (pageNo - 1) * pageSize
+  const pageIndex = query.pageIndex ?? 1
+  const pageSize = query.pageSize ?? 20
+  const start = (pageIndex - 1) * pageSize
   const result: RegisterHistoryPage = {
     records: clone(filtered.slice(start, start + pageSize)),
     total: filtered.length

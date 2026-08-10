@@ -127,6 +127,8 @@ export interface PublishScheduleRequest {
 
 export interface DeactivateScheduleRequest {
   scheduleId: string
+  /** 后端 organizationId 按当前项目约定传科室 ID。 */
+  organizationId?: string
   reason?: string
 }
 
@@ -197,14 +199,18 @@ export interface ReleasedSlotRecord {
 export interface ReleasedSlotPage {
   content: ReleasedSlotRecord[]
   totalCount: number
-  pageNo: number
+  pageIndex: number
   pageSize: number
 }
 
 export interface ListReleasedSlotsQuery {
   scheduleId: string
-  PageIndex: number
-  PageSize: number
+  /** 当前项目按后端约定承载科室 ID；未填写时由登录上下文/开发默认值补齐。 */
+  organizationId?: string
+  /** 真实接口必填；保留可选以兼容仅使用 mock 的旧单元测试。 */
+  date?: string
+  pageIndex: number
+  pageSize: number
 }
 
 export interface ScheduleImpactItem {

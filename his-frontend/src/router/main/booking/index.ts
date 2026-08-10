@@ -10,7 +10,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/booking/slot-calendar',
     name: 'BookingSlotCalendar',
-    meta: { label: '号源查看' },
+    meta: { label: '号源日历' },
     component: () => import('@/views/booking/slot-calendar/Index.vue')
   }
 ]

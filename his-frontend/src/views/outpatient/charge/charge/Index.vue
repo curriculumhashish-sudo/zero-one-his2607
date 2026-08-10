@@ -39,7 +39,7 @@ const query = reactive<ChargePageQuery>({
   startDate: null,
   endDate: null,
   status: 'pending',
-  page: 1,
+  pageIndex: 1,
   pageSize: 10
 })
 const patients = ref<ChargePatient[]>([])
@@ -60,6 +60,12 @@ const dialog = ref<InstanceType<typeof SettlementDialog>>()
 let queueSequence = 0
 let detailSequence = 0
 const queueRows = computed(() => patients.value.map(toChargePatientSummary))
+const visibleChargeItems = computed(() => {
+  const items = detail.value?.items ?? []
+  if (query.status === 'pending') return items.filter((item) => item.status === 'pending')
+  if (query.status === 'settled') return items.filter((item) => item.status !== 'pending')
+  return items
+})
 const currentPatient = computed<PatientSummary | null>(() =>
   detail.value ? toChargePatientSummary(detail.value.patient) : null
 )
@@ -85,6 +91,9 @@ const summaryItems = computed(() =>
       ]
     : []
 )
+function isChargeItemSelectable(row: ChargeItem) {
+  return row.status === 'pending' && !/SETTLE|PAID|COMPLET|REFUND/i.test(row.statusCode ?? '')
+}
 const toolbarActions = computed(() => [
   {
     key: 'settle',
@@ -112,9 +121,10 @@ async function loadQueue() {
       keyword: query.keyword,
       startDate: query.startDate,
       endDate: query.endDate,
-      status: query.status,
-      PageIndex: query.page,
-      PageSize: query.pageSize
+      queueTabCode:
+        query.status === 'pending' ? 'PENDING' : query.status === 'settled' ? 'SETTLED' : 'ALL',
+      pageIndex: query.pageIndex,
+      pageSize: query.pageSize
     })
     if (seq !== queueSequence) return
     patients.value = result.rows
@@ -144,6 +154,55 @@ function clearSelection() {
   lastRecordId.value = ''
   dialog.value?.close()
 }
+
+function hasPatientValue(value: unknown) {
+  return value !== undefined && value !== null && (typeof value !== 'string' || value.trim() !== '')
+}
+
+/**
+ * C1 的费用明细接口有时只返回费用项目，不返回 patient 对象。
+ * 这时不能用空对象覆盖左侧已经选中的患者，否则右侧会显示“无档案登记”。
+ */
+function mergeSelectedPatient(
+  detailPatient: ChargePatient,
+  queuePatient: ChargePatient | undefined,
+  encounterId: string
+): ChargePatient {
+  const merged = {
+    ...(queuePatient ?? {}),
+    ...Object.fromEntries(
+      Object.entries(detailPatient).filter(([, value]) => hasPatientValue(value))
+    )
+  } as Partial<ChargePatient>
+
+  return {
+    id: String(merged.id || encounterId),
+    encounterId: String(merged.encounterId || encounterId),
+    patientId: merged.patientId,
+    patientNo: String(merged.patientNo || merged.patientId || ''),
+    encounterBusNo: merged.encounterBusNo,
+    visitNo: String(merged.visitNo || merged.encounterBusNo || encounterId),
+    patientName: merged.patientName,
+    name: String(merged.name || merged.patientName || ''),
+    genderCode: merged.genderCode,
+    genderEnumText: merged.genderEnumText,
+    gender: String(merged.gender || merged.genderEnumText || ''),
+    ageText: merged.ageText,
+    age: typeof merged.age === 'number' ? merged.age : Number.parseInt(String(merged.ageText ?? ''), 10) || 0,
+    organizationName: merged.organizationName,
+    doctorName: merged.doctorName,
+    departmentName: String(merged.departmentName || merged.organizationName || ''),
+    startTime: merged.startTime,
+    visitTime: String(merged.visitTime || merged.startTime || ''),
+    queueLabelCode: merged.queueLabelCode,
+    totalAmount: merged.totalAmount,
+    paidAmount: merged.paidAmount,
+    paymentId: merged.paymentId,
+    status: merged.status === 'settled' ? 'settled' : 'pending',
+    paymentType: String(merged.paymentType || '')
+  }
+}
+
 async function selectPatient(patient: PatientSummary) {
   clearSelection()
   const encounterId = String(patient.id)
@@ -153,7 +212,11 @@ async function selectPatient(patient: PatientSummary) {
   try {
     const result = await getPendingChargeDetail(encounterId)
     if (seq !== detailSequence) return
-    detail.value = result
+    const queuePatient = patients.value.find((row) => row.encounterId === encounterId)
+    detail.value = {
+      ...result,
+      patient: mergeSelectedPatient(result.patient, queuePatient, encounterId)
+    }
     pendingPaymentId.value = result.interruptedPaymentId ?? ''
     lastRecordId.value = result.latestSettledRecordId ?? ''
   } catch (error) {
@@ -167,27 +230,27 @@ async function selectPatient(patient: PatientSummary) {
 }
 function changeStatus(value: 'all' | 'pending' | 'settled') {
   query.status = value
-  query.page = 1
+  query.pageIndex = 1
   clearSelection()
   void loadQueue()
 }
 function handleSearch(keyword: string) {
   query.keyword = keyword
-  query.page = 1
+  query.pageIndex = 1
   clearSelection()
   void loadQueue()
 }
 function handleDateFilterChange(value: DateRangeValue) {
   query.startDate = value?.[0] ?? null
   query.endDate = value?.[1] ?? null
-  query.page = 1
+  query.pageIndex = 1
   clearSelection()
   void loadQueue()
 }
 
 function handleQueuePaginationChange(payload: { page: number; pageSize: number }) {
   const pageSizeChanged = payload.pageSize !== query.pageSize
-  query.page = pageSizeChanged ? 1 : payload.page
+  query.pageIndex = pageSizeChanged ? 1 : payload.page
   query.pageSize = payload.pageSize
   clearSelection()
   void loadQueue()
@@ -372,7 +435,7 @@ onBeforeUnmount(() => {
       <PaginationBar
         v-if="total > 0"
         class="queue-pagination"
-        :page="query.page"
+        :page="query.pageIndex"
         :page-size="query.pageSize"
         :total="total"
         :disabled="queueLoading"
@@ -416,10 +479,11 @@ onBeforeUnmount(() => {
           :selection-count="selectedItems.length"
           @action="handleToolbar"
         /><DataTablePanel
-          :data="detail?.items ?? []"
+          :data="visibleChargeItems"
           :loading="detailLoading"
-          :total="detail?.items.length ?? 0"
+          :total="visibleChargeItems.length"
           selectable
+          :row-selectable="isChargeItemSelectable"
           min-height="320px"
           @selectable="selectedItems = $event"
           ><el-table-column prop="category" label="类别" width="90" /><el-table-column
@@ -446,8 +510,8 @@ onBeforeUnmount(() => {
             ></el-table-column
           ><el-table-column label="状态" width="90"
             ><template #default="{ row }"
-              ><el-tag :type="row.status === 'pending' ? 'warning' : 'success'">{{
-                row.status === 'pending' ? '待收费' : '已收费'
+              ><el-tag :type="row.status === 'pending' ? 'warning' : /REFUND/i.test(row.statusCode ?? '') ? 'info' : 'success'">{{
+                row.statusText || (row.status === 'pending' ? '待收费' : '已收费')
               }}</el-tag></template
             ></el-table-column
           ></DataTablePanel

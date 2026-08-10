@@ -3,6 +3,6 @@ export interface SlotQueryModel {
   keyword: string
   departmentId: string | null
   doctorId: string | null
-  pageNo: number
+  pageIndex: number
   pageSize: number
 }

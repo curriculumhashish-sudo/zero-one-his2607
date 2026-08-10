@@ -43,4 +43,14 @@ describe('登录后主页面导航', () => {
     expect(router.currentRoute.value.path).toBe('/dashboard')
     expect(router.currentRoute.value.matched.map((record) => record.name)).toEqual(['Home', 'Dashboard'])
   })
+
+  it('未登录直接访问业务地址时必须回到登录页', async () => {
+    await router.replace({ name: 'ReportDataStatistics' })
+
+    expect(router.currentRoute.value.name).toBe('Login')
+    expect(router.currentRoute.value.path).toBe('/login')
+
+    await router.replace({ name: 'PharmacyOutpatientDispense' })
+    expect(router.currentRoute.value.name).toBe('Login')
+  })
 })

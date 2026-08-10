@@ -62,13 +62,15 @@ export interface LoginConfiguration {
 export interface LoginResult {
   accessToken: string
   refreshToken: string
+  tokenHead?: string
   expiresIn: number
   user: LoginUser
   configuration: LoginConfiguration
 }
 
 export interface TenantInfo {
-  id: number
+  /** 后端为 int64；前端保留字符串，避免超过 JS 安全整数范围后丢失精度。 */
+  id: number | string
   name: string
   code: string
   description: string
@@ -88,18 +90,18 @@ export interface LoginOrganizationOption {
 }
 
 export interface OrganizationInfo {
-  children: null
+  children: OrganizationInfo[] | null
   code: string
   createdAt: string
   displayName: string
   id: string
   isEnabled: boolean
-  parentDisplayName: null
-  parentId: null
-  remark: null
+  parentDisplayName: null | string
+  parentId: null | string
+  remark: null | string
   sortOrder: number
   tenantId: string
-  updatedAt: null
+  updatedAt: null | string
 }
 
 export interface UserInfo {
@@ -131,24 +133,21 @@ export interface Menu {
 }
 
 export interface CaptchaResult {
+  id: string
   uuid?: string
   imageBase64?: string
-  id?: string
 }
 
 export interface CaptchaVerifyData {
+  id: string
   uuid?: string
   code?: string
-  id?: string
 }
 
 export interface Oauth2TokenDTO {
   token: string
   refreshToken: string
-  tokenHead: string
-  expiresIn?: number
-  user: LoginUser
-  configuration?: LoginConfiguration
+  tokenHead?: string
 }
 
 export type LoginDTO = LoginParams

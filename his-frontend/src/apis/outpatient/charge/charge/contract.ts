@@ -4,8 +4,8 @@ export type PageChargePatientQueueContractRequest = {
   endDate?: string
   keyword?: string
   organizationId?: string
-  PageIndex?: number
-  PageSize?: number
+  pageIndex?: number
+  pageSize?: number
   queueTabCode?: string
   startDate?: string
 }

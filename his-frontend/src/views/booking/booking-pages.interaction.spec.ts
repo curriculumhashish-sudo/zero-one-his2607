@@ -359,7 +359,7 @@ describe('B组页面事件连接', () => {
     expect(slotApi.pageSlotsByDate).toHaveBeenLastCalledWith(
       expect.objectContaining({
         organizationId: 'dept-internal',
-        PageIndex: 1
+        pageIndex: 1
       }),
       expect.objectContaining({ signal: expect.any(AbortSignal) })
     )
@@ -370,7 +370,7 @@ describe('B组页面事件连接', () => {
     await flushPromises()
 
     expect(slotApi.pageSlotsByDate).toHaveBeenLastCalledWith(
-      expect.objectContaining({ PageIndex: 1 }),
+      expect.objectContaining({ pageIndex: 1 }),
       expect.objectContaining({ signal: expect.any(AbortSignal) })
     )
 
@@ -379,7 +379,7 @@ describe('B组页面事件连接', () => {
     expect(slotApi.pageSlotsByDate).toHaveBeenLastCalledWith(
       expect.objectContaining({
         organizationId: 'dept-internal',
-        PageIndex: 1
+        pageIndex: 1
       }),
       expect.objectContaining({ signal: expect.any(AbortSignal) })
     )
@@ -413,7 +413,7 @@ describe('B组页面事件连接', () => {
     await flushPromises()
 
     expect(slotApi.pageSlotsByDate).toHaveBeenLastCalledWith(
-      expect.objectContaining({ PageIndex: 2, PageSize: 100 }),
+      expect.objectContaining({ pageIndex: 2, pageSize: 100 }),
       expect.objectContaining({ signal: expect.any(AbortSignal) })
     )
     expect(grid.props('modelValue')).toBeNull()
@@ -421,7 +421,7 @@ describe('B组页面事件连接', () => {
     pagination.vm.$emit('change', { page: 2, pageSize: 20 })
     await flushPromises()
     expect(slotApi.pageSlotsByDate).toHaveBeenLastCalledWith(
-      expect.objectContaining({ PageIndex: 1, PageSize: 20 }),
+      expect.objectContaining({ pageIndex: 1, pageSize: 20 }),
       expect.objectContaining({ signal: expect.any(AbortSignal) })
     )
   })

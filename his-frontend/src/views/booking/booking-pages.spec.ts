@@ -36,8 +36,8 @@ function slotQuery(date: string) {
   return {
     organizationId: 'dept-internal',
     date,
-    PageIndex: 1,
-    PageSize: 100
+    pageIndex: 1,
+    pageSize: 100
   }
 }
 
@@ -263,7 +263,7 @@ describe('B组门诊排班和号源业务', () => {
     })
     expect(provisioned.generatedCount).toBe(1)
     expect(
-      (await listReleasedSlots({ scheduleId: schedule!.id, PageIndex: 1, PageSize: 100 })).content
+      (await listReleasedSlots({ scheduleId: schedule!.id, pageIndex: 1, pageSize: 100 })).content
     ).toHaveLength(1)
 
     const slotPage = await pageSlotsByDate(slotQuery(date))
@@ -317,7 +317,7 @@ describe('B组门诊排班和号源业务', () => {
     const schedule = (
       await pageSchedulesByRange({ organizationId: 'org-main', rangeStart: date, rangeEnd: date })
     ).records.find((item) => item.status === 'published')!
-    const slot = (await listReleasedSlots({ scheduleId: schedule.id, PageIndex: 1, PageSize: 100 }))
+    const slot = (await listReleasedSlots({ scheduleId: schedule.id, pageIndex: 1, pageSize: 100 }))
       .content[0]
     expect(slot).toBeTruthy()
     await expect(

@@ -3,7 +3,7 @@ import type { HolidayExceptionType, ScheduleMode, TemplateStatus } from '@/apis/
 export interface ScheduleTemplatePageQuery {
   keyword: string
   status: TemplateStatus | ''
-  page: number
+  pageIndex: number
   pageSize: number
 }
 

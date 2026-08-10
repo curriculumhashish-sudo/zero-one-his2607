@@ -64,7 +64,7 @@ let requestSequence = 0
 const query = reactive<ScheduleTemplatePageQuery>({
   keyword: '',
   status: '',
-  page: 1,
+  pageIndex: 1,
   pageSize: 10
 })
 const periods = ref<TimePeriod[]>([])
@@ -184,7 +184,7 @@ async function initialize() {
     init.value = await loadScheduleTemplateInit()
     await loadCurrentTab()
   } catch (error) {
-    initError.value = error instanceof Error ? error.message : '号源设置初始化失败'
+    initError.value = error instanceof Error ? error.message : '排班设置初始化失败'
   } finally {
     initLoading.value = false
   }
@@ -202,8 +202,8 @@ async function loadCurrentTab() {
         {
           keyword: query.keyword,
           status: query.status || null,
-          PageIndex: query.page,
-          PageSize: query.pageSize
+          pageIndex: query.pageIndex,
+          pageSize: query.pageSize
         },
         { signal: controller.signal }
       )
@@ -214,41 +214,41 @@ async function loadCurrentTab() {
         {
           keyword: query.keyword,
           status: query.status || null,
-          PageIndex: query.page,
-          PageSize: query.pageSize
+          pageIndex: query.pageIndex,
+          pageSize: query.pageSize
         },
         { signal: controller.signal }
       )
       dailyRows.value = result.content
       dailyTotal.value = result.totalCount
       periods.value = (
-        await pageTimePeriods({ PageIndex: 1, PageSize: 200 }, { signal: controller.signal })
+        await pageTimePeriods({ pageIndex: 1, pageSize: 200 }, { signal: controller.signal })
       ).content
       policyRows.value = (
-        await pageReleasePolicies({ PageIndex: 1, PageSize: 200 }, { signal: controller.signal })
+        await pageReleasePolicies({ pageIndex: 1, pageSize: 200 }, { signal: controller.signal })
       ).content
     } else if (activeTab.value === 'weekly') {
       const result = await pageWeeklyTemplates(
         {
           keyword: query.keyword,
           status: query.status || null,
-          PageIndex: query.page,
-          PageSize: query.pageSize
+          pageIndex: query.pageIndex,
+          pageSize: query.pageSize
         },
         { signal: controller.signal }
       )
       weeklyRows.value = result.content
       weeklyTotal.value = result.totalCount
       dailyRows.value = (
-        await pageDailyTemplates({ PageIndex: 1, PageSize: 200 }, { signal: controller.signal })
+        await pageDailyTemplates({ pageIndex: 1, pageSize: 200 }, { signal: controller.signal })
       ).content
     } else if (activeTab.value === 'policy') {
       const result = await pageReleasePolicies(
         {
           organizationId: init.value?.organizationId,
           keyword: query.keyword,
-          PageIndex: query.page,
-          PageSize: query.pageSize
+          pageIndex: query.pageIndex,
+          pageSize: query.pageSize
         },
         { signal: controller.signal }
       )
@@ -263,15 +263,15 @@ async function loadCurrentTab() {
           rangeStart: range.start,
           rangeEnd: range.end,
           keyword: query.keyword,
-          PageIndex: query.page,
-          PageSize: query.pageSize
+          pageIndex: query.pageIndex,
+          pageSize: query.pageSize
         },
         { signal: controller.signal }
       )
       holidays.value = result.content
       holidayTotal.value = result.totalCount
       dailyRows.value = (
-        await pageDailyTemplates({ PageIndex: 1, PageSize: 200 }, { signal: controller.signal })
+        await pageDailyTemplates({ pageIndex: 1, pageSize: 200 }, { signal: controller.signal })
       ).content
     }
   } catch (error) {
@@ -284,20 +284,20 @@ async function loadCurrentTab() {
 function resetQuery() {
   query.keyword = ''
   query.status = ''
-  query.page = 1
+  query.pageIndex = 1
   void loadCurrentTab()
 }
 function searchCurrentTab() {
-  query.page = 1
+  query.pageIndex = 1
   void loadCurrentTab()
 }
 function changePage(page: number) {
-  query.page = page
+  query.pageIndex = page
   void loadCurrentTab()
 }
 function changePageSize(pageSize: number) {
   query.pageSize = pageSize
-  query.page = 1
+  query.pageIndex = 1
   void loadCurrentTab()
 }
 function rowActions(): RowActionItem[] {
@@ -675,7 +675,7 @@ function removeSegment(index: number) {
 watch(activeTab, () => {
   query.keyword = ''
   query.status = ''
-  query.page = 1
+  query.pageIndex = 1
   void loadCurrentTab()
 })
 watch(holidayCalendarDate, () => {
@@ -689,7 +689,7 @@ onBeforeUnmount(() => requestController.value?.abort())
   <main class="template-page" v-loading="initLoading">
     <header class="page-heading">
       <div>
-        <h1>号源设置</h1>
+        <h1>排班设置</h1>
         <p>{{ init?.department.label || '当前科室加载中' }} · 排班模板与放号规则</p>
       </div>
       <el-button :icon="ArrowRight" @click="router.push('/booking/outpatient-schedule')"
@@ -769,7 +769,7 @@ onBeforeUnmount(() => requestController.value?.abort())
       :data="periods"
       :loading="loading"
       :total="periodTotal"
-      :page="query.page"
+      :page="query.pageIndex"
       :page-size="query.pageSize"
       min-height="300px"
       @update:page="changePage"
@@ -800,7 +800,7 @@ onBeforeUnmount(() => requestController.value?.abort())
       :data="dailyRows"
       :loading="loading"
       :total="dailyTotal"
-      :page="query.page"
+      :page="query.pageIndex"
       :page-size="query.pageSize"
       min-height="300px"
       @update:page="changePage"
@@ -841,7 +841,7 @@ onBeforeUnmount(() => requestController.value?.abort())
       :data="weeklyRows"
       :loading="loading"
       :total="weeklyTotal"
-      :page="query.page"
+      :page="query.pageIndex"
       :page-size="query.pageSize"
       min-height="300px"
       @update:page="changePage"
@@ -874,7 +874,7 @@ onBeforeUnmount(() => requestController.value?.abort())
       :data="policyRows"
       :loading="loading"
       :total="policyTotal"
-      :page="query.page"
+      :page="query.pageIndex"
       :page-size="query.pageSize"
       min-height="300px"
       @update:page="changePage"
@@ -913,7 +913,7 @@ onBeforeUnmount(() => requestController.value?.abort())
           :data="holidays"
           :loading="loading"
           :total="holidayTotal"
-          :page="query.page"
+          :page="query.pageIndex"
           :page-size="query.pageSize"
           min-height="280px"
           @update:page="changePage"

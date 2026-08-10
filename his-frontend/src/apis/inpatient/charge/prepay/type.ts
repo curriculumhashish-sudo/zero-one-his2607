@@ -6,7 +6,7 @@ export interface PageResult<T> {
   records?: T[]
   total: number
   totalCount?: number
-  pageNo?: number
+  pageIndex?: number
   pageSize?: number
 }
 export interface InpatientPatient {
@@ -76,18 +76,12 @@ export interface InpatientQueueQuery {
   admissionStartDate?: string | null
   admissionEndDate?: string | null
   keyword?: string
-  page?: number
-  pageNo?: number
   pageSize?: number
-  PageIndex?: number
-  PageSize?: number
+  pageIndex?: number
 }
 export interface PrepayRecordQuery {
-  page?: number
-  pageNo?: number
   pageSize?: number
-  PageIndex?: number
-  PageSize?: number
+  pageIndex?: number
 }
 export interface CollectPrepayAdvanceDepositParams {
   encounterId: string

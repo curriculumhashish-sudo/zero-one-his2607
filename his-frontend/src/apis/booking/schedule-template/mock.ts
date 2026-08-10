@@ -202,7 +202,7 @@ function toPage<T>(rows: T[], page = 1, pageSize = 10): PageResult<T> {
   return {
     content: clone(pageRows),
     totalCount: rows.length,
-    pageNo: page,
+    pageIndex: page,
     pageSize
   }
 }
@@ -316,8 +316,8 @@ export async function mockPageTimePeriods(query: TimePeriodQuery, context: Reque
         (!keyword || item.name.toLowerCase().includes(keyword)) &&
         (!query.status || item.status === query.status)
     ),
-    query.PageIndex,
-    query.PageSize
+    query.pageIndex,
+    query.pageSize
   )
 }
 export async function mockSaveTimePeriod(
@@ -379,8 +379,8 @@ export async function mockPageDailyTemplates(
           `${item.name}${item.doctorName}${item.roomName}`.toLowerCase().includes(keyword)) &&
         (!query.status || item.status === query.status)
     ),
-    query.PageIndex,
-    query.PageSize
+    query.pageIndex,
+    query.pageSize
   )
 }
 export async function mockSaveDailyTemplate(
@@ -496,8 +496,8 @@ export async function mockPageWeeklyTemplates(
         (!keyword || item.name.toLowerCase().includes(keyword)) &&
         (!query.status || item.status === query.status)
     ),
-    query.PageIndex,
-    query.PageSize
+    query.pageIndex,
+    query.pageSize
   )
 }
 export async function mockSaveWeeklyTemplate(
@@ -566,8 +566,8 @@ export async function mockPageReleasePolicies(
         !keyword ||
         `${item.policyCode ?? ''}${item.policyName ?? ''}`.toLowerCase().includes(keyword)
     ),
-    query.PageIndex,
-    query.PageSize
+    query.pageIndex,
+    query.pageSize
   )
 }
 export async function mockSaveReleasePolicy(
@@ -656,8 +656,8 @@ export async function mockPageHolidayExceptions(
             .toLowerCase()
             .includes(keyword))
     ),
-    query.PageIndex,
-    query.PageSize
+    query.pageIndex,
+    query.pageSize
   )
 }
 export async function mockSaveHolidayException(

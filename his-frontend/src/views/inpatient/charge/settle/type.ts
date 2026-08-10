@@ -6,7 +6,7 @@ import type {
 export interface InpatientSettlePageQuery {
   admissionDate: string | null
   keyword: string
-  pageNo: number
+  pageIndex: number
   pageSize: number
   presentationMode: InpatientSettlePresentationMode
   settleQueueTab: InpatientSettleQueueTab

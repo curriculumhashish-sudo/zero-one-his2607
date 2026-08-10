@@ -99,16 +99,16 @@ describe('第四轮 B 组功能与接口契约', () => {
     const dateTo = dayjs().format('YYYY-MM-DD')
     const dateFrom = dayjs().subtract(30, 'day').format('YYYY-MM-DD')
     const page = await feeDetailApi.pageOutpatientFeeDetails({
-      PageIndex: 1,
-      PageSize: 2,
+      pageIndex: 1,
+      pageSize: 2,
       dateFrom,
       dateTo,
       tradeDirection: 'ALL'
     })
-    expect(page).toMatchObject({ pageNo: 1, pageSize: 2, totalCount: 18 })
+    expect(page).toMatchObject({ pageIndex: 1, pageSize: 2, totalCount: 18 })
     expect(Object.keys(page).sort()).toEqual([
       'content',
-      'pageNo',
+      'pageIndex',
       'pageSize',
       'summary',
       'totalCount'
@@ -138,15 +138,15 @@ describe('第四轮 B 组功能与接口契约', () => {
     const dateTo = dayjs().format('YYYY-MM-DD')
     const dateFrom = dayjs().subtract(30, 'day').format('YYYY-MM-DD')
     const firstPage = await feeDetailApi.pageOutpatientFeeDetails({
-      PageIndex: 1,
-      PageSize: 1,
+      pageIndex: 1,
+      pageSize: 1,
       dateFrom,
       dateTo,
       tradeDirection: 'ALL'
     })
     const fullPage = await feeDetailApi.pageOutpatientFeeDetails({
-      PageIndex: 1,
-      PageSize: firstPage.totalCount!,
+      pageIndex: 1,
+      pageSize: firstPage.totalCount!,
       dateFrom,
       dateTo,
       tradeDirection: 'ALL'

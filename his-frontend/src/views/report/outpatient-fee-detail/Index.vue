@@ -24,7 +24,7 @@ defineOptions({ name: 'ReportOutpatientFeeDetail' })
 
 const today = dayjs().format('YYYY-MM-DD')
 const query = reactive<FeeDetailQuery>({
-  pageNo: 1,
+  pageIndex: 1,
   pageSize: 10,
   dateRange: [today, today],
   tradeDirection: 'ALL'
@@ -65,8 +65,8 @@ function buildPayload() {
     return null
   }
   return {
-    PageIndex: query.pageNo,
-    PageSize: query.pageSize,
+    pageIndex: query.pageIndex,
+    pageSize: query.pageSize,
     dateFrom,
     dateTo,
     registrationDepartmentId: query.registrationDepartmentId,
@@ -109,7 +109,7 @@ async function loadRows() {
 
 function resetQuery() {
   Object.assign(query, {
-    pageNo: 1,
+    pageIndex: 1,
     pageSize: 10,
     dateRange: [today, today],
     tradeDirection: 'ALL',
@@ -125,12 +125,12 @@ function resetQuery() {
 }
 
 function handleSearch() {
-  query.pageNo = 1
+  query.pageIndex = 1
   void loadRows()
 }
 
 function handlePaginationChange(payload: { page: number; pageSize: number }) {
-  query.pageNo = payload.pageSize !== query.pageSize ? 1 : payload.page
+  query.pageIndex = payload.pageSize !== query.pageSize ? 1 : payload.page
   query.pageSize = payload.pageSize
   void loadRows()
 }
@@ -179,7 +179,7 @@ async function handlePrint() {
   printing.value = true
   try {
     const result = await pageOutpatientFeeDetails(
-      { ...payload, PageIndex: 1, PageSize: total.value },
+      { ...payload, pageIndex: 1, pageSize: total.value },
       { signal: currentController.signal }
     )
     if (currentController.signal.aborted) return
@@ -268,7 +268,7 @@ onBeforeUnmount(() => {
       <el-table-column prop="selfPayAmount" label="自费金额" width="100" />
       <el-table-column label="行类型" width="90"><template #default="{ row }">{{ isSubtotal(row) ? '就诊小计' : '明细' }}</template></el-table-column>
     </DataTablePanel>
-    <PaginationBar v-if="total > 0" :page="query.pageNo" :page-size="query.pageSize" :total="total" :disabled="loading" @change="handlePaginationChange" />
+    <PaginationBar v-if="total > 0" :page="query.pageIndex" :page-size="query.pageSize" :total="total" :disabled="loading" @change="handlePaginationChange" />
 
     <section class="print-sheet" aria-hidden="true">
       <h1>门诊费用明细</h1>

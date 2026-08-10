@@ -4,7 +4,8 @@ import type { ScheduleEvent, ScheduleResource } from '@/components/schedule/type
 export function toScheduleEvents(rows: ScheduleRecord[]): ScheduleEvent[] {
   return rows.map((row) => ({
     key: row.scheduleId ?? row.id,
-    date: row.planningHorizonStart?.slice(0, 10) ?? row.date,
+    // planningHorizonStart 是排班有效期，不是日历当天；日历日期必须使用 days[].date。
+    date: row.date || row.planningHorizonStart?.slice(0, 10) || '',
     title: `${row.doctorName} · ${row.roomName}`,
     start: row.planningHorizonStart?.slice(11, 16) ?? row.startTime,
     end: row.planningHorizonEnd?.slice(11, 16) ?? row.endTime,

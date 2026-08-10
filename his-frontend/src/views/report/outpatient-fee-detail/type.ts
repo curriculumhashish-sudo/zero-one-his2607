@@ -11,7 +11,7 @@ export type FeeDetailTableRow = OutpatientFeeDetailLineDto & {
 }
 
 export interface FeeDetailQuery {
-  pageNo: number
+  pageIndex: number
   pageSize: number
   dateRange: [string, string]
   registrationDepartmentId?: string

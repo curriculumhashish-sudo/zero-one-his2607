@@ -15,7 +15,11 @@ interface ImportMetaEnv {
   /** 客户端id */
   readonly VITE_CLIENT_ID: string
   /** 认证服务器地址 */
-  readonly VITE_AUTH_SERVER_URL: string
+    readonly VITE_AUTH_SERVER_URL: string
+    /** 是否启用页面登录拦截 */
+    readonly VITE_AUTH_GUARD_ENABLED: string
+    /** C1 收费工作站本地开发代理 */
+    readonly VITE_C1_CHARGE_SERVER_URL: string
 }
 
 interface TianaiCaptchaInstance {

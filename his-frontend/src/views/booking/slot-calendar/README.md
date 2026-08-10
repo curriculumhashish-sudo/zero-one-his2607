@@ -1,8 +1,8 @@
-# B组：号源查看
+# B组：号源日历
 
 ## 页面信息
 
-- 菜单位置：排班预约 -> 号源查看
+- 菜单位置：排班预约 -> 号源日历
 - 页面地址：`/booking/slot-calendar`
 - 页面入口：`Index.vue`
 - 对应路由：`src/router/main/booking/index.ts`
@@ -60,7 +60,7 @@ markSlotOverbooked(data)
 - 已满、停诊、已封锁和过期号源不可选择，点击时显示不可用原因；当天号源以时段结束时间判断是否过期。
 - 详情按原型 `SlotDetailDto` 展示科室、医师、号源类型、状态、日期、时段、容量、已约、剩余、超售、停诊/不可用原因、备注、号源 ID 和日程 ID。
 - 重新查询前清空旧号源选择并关闭旧详情弹窗，避免详情与当前结果不一致。
-- 号源结果使用公共 `PaginationBar` 展示总记录数、每页条数、页码和跳页；翻页会按 `pageNo/pageSize` 重新查询，修改每页条数时回到第 1 页并清空旧选择。
+- 号源结果使用公共 `PaginationBar` 展示总记录数、每页条数、页码和跳页；翻页会按 `pageIndex/pageSize` 重新查询，修改每页条数时回到第 1 页并清空旧选择。
 - 日期、科室、医生或关键词作为新条件提交时统一回到第 1 页；页面顶部数量明确为当前页汇总。
 - 列表和详情均使用请求取消与请求序号保护，快速查询或切换号源时旧结果不能覆盖新结果。
 - 初始化错误和号源列表错误分别显示，并提供对应重试操作。
@@ -80,7 +80,7 @@ markSlotOverbooked(data)
 
 | 模块 | 原型/后端字段 | 页面兼容字段或说明 |
 | --- | --- | --- |
-| 查询 | `organizationId`、`date`、`practitionerId`、`scheduleId`、`statusCode`、`pageNo`、`pageSize` | 页面提供日期、科室、医生和关键词查询；所选科室主键通过 `organizationId` 传递 |
+| 查询 | `organizationId`、`date`、`practitionerId`、`scheduleId`、`statusCode`、`pageIndex`、`pageSize` | 页面提供日期、科室、医生和关键词查询；所选科室主键通过 `organizationId` 传递 |
 | 标识与关联 | `slotId`、`scheduleId`、`practitionerId`、`healthcareServiceId` | 页面兼容 `id`、`doctorId`、`departmentId` |
 | 时段 | `startTime`、`endTime` | `group` 由 adapter/mock 按上午、下午、晚间计算 |
 | 数量 | `capacity`、`bookedCount`、`remainingCount` | 页面兼容 `used`、`remaining` |

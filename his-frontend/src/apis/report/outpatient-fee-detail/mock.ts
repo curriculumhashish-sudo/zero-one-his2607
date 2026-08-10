@@ -116,7 +116,7 @@ const blocks: OutpatientFeeDetailEncounterBlockDto[] = Array.from({ length: 18 }
   }
 })
 
-function matches(block: OutpatientFeeDetailEncounterBlockDto, query: Omit<PageOutpatientFeeDetailParams, 'PageIndex' | 'PageSize'>) {
+function matches(block: OutpatientFeeDetailEncounterBlockDto, query: Omit<PageOutpatientFeeDetailParams, 'pageIndex' | 'pageSize'>) {
   const keyword = query.patientKeyword?.trim().toLowerCase()
   const productName = query.productNameKeyword?.trim().toLowerCase()
   const productCode = query.productCodeKeyword?.trim().toLowerCase()
@@ -146,14 +146,14 @@ export async function mockPageOutpatientFeeDetails(
   await delay(context)
   const filters = { ...query }
   const filtered = blocks.filter((block) => matches(block, filters))
-  const start = (query.PageIndex - 1) * query.PageSize
-  const content = structuredClone(filtered.slice(start, start + query.PageSize))
+  const start = (query.pageIndex - 1) * query.pageSize
+  const content = structuredClone(filtered.slice(start, start + query.pageSize))
   const summary = sumLines(flattenLines(filtered))
   return {
     content,
     totalCount: filtered.length,
-    pageNo: query.PageIndex,
-    pageSize: query.PageSize,
+    pageNo: query.pageIndex,
+    pageSize: query.pageSize,
     baseAmountSum: summary.baseAmountTotal,
     discountAmountSum: summary.discountAmountTotal,
     receivableAmountSum: summary.receivableAmountTotal,

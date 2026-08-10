@@ -2,9 +2,16 @@ import type { InpatientSettlePatient, InpatientSettleSummary } from '@/apis/inpa
 import type { DetailSummaryItem } from '@/components/common/type'
 import type { PatientSummary } from '@/components/patient/type'
 
+export function getSettlePatientCardId(row: InpatientSettlePatient): string {
+  const encounterId = String(row.encounterId ?? '').trim()
+  if (encounterId && encounterId !== '0') return encounterId
+
+  return String(row.encounterBusNo ?? row.patientId ?? encounterId).trim()
+}
+
 export function toSettlePatientSummary(row: InpatientSettlePatient): PatientSummary {
   return {
-    id: row.encounterId,
+    id: getSettlePatientCardId(row),
     name: row.patientName,
     gender: row.genderEnumText,
     age: row.ageText,

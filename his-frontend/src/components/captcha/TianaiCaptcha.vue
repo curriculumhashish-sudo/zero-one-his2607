@@ -10,11 +10,12 @@
       id="captcha-div"
       @click.self="close"
     >
-      <section v-if="localFallback" class="captcha-fallback" role="dialog" aria-modal="true" aria-labelledby="captcha-title">
+      <section class="captcha-fallback" role="dialog" aria-modal="true" aria-labelledby="captcha-title">
         <h2 id="captcha-title">安全验证</h2>
         <div class="captcha-image-row">
-          <canvas ref="captchaCanvas" width="132" height="48" role="img" aria-label="图片验证码" />
-          <button type="button" class="captcha-refresh" aria-label="刷新图片验证码" title="刷新图片验证码" @click="generateLocalCaptcha">刷新</button>
+          <img v-if="props.captcha?.imageBase64" :src="toImageSrc(props.captcha.imageBase64)" width="132" height="48" alt="图片验证码" />
+          <canvas v-else ref="captchaCanvas" width="132" height="48" role="img" aria-label="图片验证码" />
+          <button type="button" class="captcha-refresh" aria-label="刷新图片验证码" title="刷新图片验证码" @click="handleRefresh">刷新</button>
         </div>
         <input
           v-model="localInput"
@@ -25,14 +26,15 @@
           placeholder="请输入图片中的字符"
           @keyup.enter="completeLocalFallback"
         />
-        <button type="button" class="captcha-confirm" :disabled="localInput.length !== 4" @click="completeLocalFallback">验证</button>
+        <button type="button" class="captcha-confirm" :disabled="props.captcha?.imageBase64 ? !localInput.trim() : localInput.length !== 4" @click="completeLocalFallback">验证</button>
       </section>
     </div>
   </Teleport>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { computed, ref, watch, onMounted, onUnmounted, nextTick, type PropType } from 'vue'
+import type { CaptchaResult } from '@/apis/login'
 
 // 属性支持
 const props = defineProps({
@@ -43,14 +45,16 @@ const props = defineProps({
   /** 验证码参数 */
   options: { type: Object, default: () => ({}) },
   /** 验证码类型 可以指定的值 SLIDER|ROTATE|CONCAT|WORD_IMAGE_CLICK */
-  type: { type: String, default: '' }
+  type: { type: String, default: '' },
+  /** 后端返回的图片验证码；未提供时使用本地开发回退验证码 */
+  captcha: { type: Object as PropType<CaptchaResult>, default: undefined }
 })
 
 // 事件支持
-const emit = defineEmits(['update:modelValue', 'success', 'error'])
+const emit = defineEmits(['update:modelValue', 'success', 'error', 'refresh'])
 // 弹窗显隐控制变量
 const visible = ref(props.modelValue)
-const localFallback = import.meta.env.DEV
+const localFallback = computed(() => !props.captcha?.imageBase64)
 const captchaCanvas = ref<HTMLCanvasElement>()
 const localCode = ref('')
 const localInput = ref('')
@@ -86,7 +90,28 @@ function generateLocalCaptcha() {
   })
 }
 
+function toImageSrc(value: string) {
+  return value.startsWith('data:') ? value : 'data:image/png;base64,' + value
+}
+
+function handleRefresh() {
+  if (props.captcha?.imageBase64) {
+    emit('refresh')
+  } else {
+    generateLocalCaptcha()
+  }
+}
+
 const completeLocalFallback = () => {
+  if (props.captcha?.imageBase64) {
+    if (!localInput.value.trim()) {
+      emit('error')
+      return
+    }
+    emit('success', { id: props.captcha.id, code: localInput.value.trim() })
+    close()
+    return
+  }
   if (localInput.value.trim().toUpperCase() !== localCode.value) {
     emit('error')
     generateLocalCaptcha()
@@ -137,7 +162,7 @@ let captchaInstance: any = null
 
 // 初始化逻辑
 const init = () => {
-  if (localFallback) return
+  if (localFallback.value || props.captcha?.imageBase64) return
   window
     .initTAC('static/tac', captchaConfig, style)
     .then((tac) => {
@@ -165,7 +190,8 @@ watch(
   (newVal) => {
     visible.value = newVal
     if (newVal) {
-      if (localFallback) generateLocalCaptcha()
+      if (localFallback.value) generateLocalCaptcha()
+      else if (props.captcha?.imageBase64) return
       else nextTick(() => init())
     }
   }

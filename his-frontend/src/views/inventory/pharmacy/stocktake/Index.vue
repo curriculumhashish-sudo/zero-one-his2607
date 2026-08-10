@@ -37,8 +37,6 @@
         :select-table-columns="selectTableColumns"
         :select-table-load-page="loadSupplierOptions"
         :on-supplier-fill="onSupplierFill"
-      />
-    </template>
         @action="handleAction"
       />
     </template>

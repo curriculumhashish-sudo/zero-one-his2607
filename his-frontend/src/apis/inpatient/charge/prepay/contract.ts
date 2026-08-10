@@ -3,8 +3,8 @@ import * as legacy from './index'
 export type PageInpatientQueueContractRequest = {
   admissionDate?: string
   keyword?: string
-  PageIndex?: number
-  PageSize?: number
+  pageIndex?: number
+  pageSize?: number
 }
 
 export type PageInpatientQueueContractResponse = {
@@ -32,7 +32,7 @@ export type PageInpatientQueueContractResponse = {
     statusEnumText?: string
     wardName?: string
   }>
-  pageNo?: number
+  pageIndex?: number
   pageSize?: number
   totalCount?: number
   totalElements?: number
@@ -49,8 +49,8 @@ export async function pageInpatientQueueContract(
 export type PagePrepayRecordsContractRequest = {
   encounterId?: string
   patientId?: string
-  PageIndex?: number
-  PageSize?: number
+  pageIndex?: number
+  pageSize?: number
 }
 
 export type PagePrepayRecordsContractResponse = {
@@ -72,7 +72,7 @@ export async function pagePrepayRecordsContract(
   request: PagePrepayRecordsContractRequest
 ): Promise<PagePrepayRecordsContractResponse> {
   return legacy.pagePrepayRecords(String(request.encounterId), {
-    PageIndex: request.PageIndex ?? 1,
-    PageSize: request.PageSize ?? 200
+    pageIndex: request.pageIndex ?? 1,
+    pageSize: request.pageSize ?? 200
   }) as unknown as Promise<PagePrepayRecordsContractResponse>
 }

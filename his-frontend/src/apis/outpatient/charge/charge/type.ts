@@ -11,7 +11,7 @@ export interface PageResult<T> {
   content?: T[]
   total: number
   totalCount?: number
-  pageNo?: number
+  pageIndex?: number
   pageSize?: number
 }
 export interface ChargePatient {
@@ -94,22 +94,17 @@ export interface ChargeQueueQuery {
   queueTabCode?: 'ALL' | 'PENDING' | 'SETTLED'
   startDate?: string | null
   endDate?: string | null
-  status: ChargeQueueStatus
-  page?: number
-  pageNo?: number
+  /** 仅兼容旧 mock；正式接口使用 queueTabCode。 */
+  status?: ChargeQueueStatus
   pageSize?: number
-  PageIndex?: number
-  PageSize?: number
+  pageIndex?: number
 }
 export interface PageOutpatientChargeQueueRequest {
   endDate?: string | null
   keyword?: string
   organizationId?: string | null
-  page?: number
-  pageNo?: number
   pageSize?: number
-  PageIndex?: number
-  PageSize?: number
+  pageIndex?: number
   queueTabCode: 'ALL' | 'PENDING' | 'SETTLED'
   startDate?: string | null
 }

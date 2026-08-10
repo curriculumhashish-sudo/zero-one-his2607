@@ -75,6 +75,8 @@ const router = createRouter({
   routes
 })
 
+const authGuardEnabled = String(import.meta.env.VITE_AUTH_GUARD_ENABLED ?? 'true').toLowerCase() !== 'false'
+
 // 添加一个路由的全局前置守卫
 router.beforeEach(async function (to, _from) {
   const skipLogin = import.meta.env.DEV && import.meta.env.VITE_SKIP_LOGIN === 'true'
@@ -90,11 +92,10 @@ router.beforeEach(async function (to, _from) {
     return true
   }
 
-  // 放行示例模块与基础数据模块访问（开发环境）
-  if (import.meta.env.DEV) {
-    if (to.path.indexOf('sample') !== -1 || to.path.indexOf('basicdata') !== -1) {
-      return true
-    }
+  // 开发联调时可通过 VITE_AUTH_GUARD_ENABLED=false 直接访问业务页面。
+  // 生产环境默认开启，避免绕过登录校验。
+  if (!authGuardEnabled) {
+    return true
   }
 
   // 判断本地是否记录token值
@@ -152,7 +153,11 @@ router.beforeEach(async function (to, _from) {
   // 如果没有token值，直接进入登录
   else {
     ElMessage.warning('在未登录时，禁止访问其他页面！')
-    return { name: 'Login' }
+    return {
+      name: 'Login',
+      query: { redirect: to.fullPath },
+      replace: true
+    }
   }
 })
 

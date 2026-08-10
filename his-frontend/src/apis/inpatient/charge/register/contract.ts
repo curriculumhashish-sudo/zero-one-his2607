@@ -5,8 +5,8 @@ export type PageInpatientRegistrationQueueContractRequest = {
   keyword?: string
   registrationListStatus?: string
   registrationListStatuses?: string[]
-  PageIndex?: number
-  PageSize?: number
+  pageIndex?: number
+  pageSize?: number
 }
 
 export type PageInpatientRegistrationQueueContractResponse = {
@@ -30,7 +30,7 @@ export type PageInpatientRegistrationQueueContractResponse = {
     wardId?: string
     wardName?: string
   }>
-  pageNo?: number
+  pageIndex?: number
   pageSize?: number
   totalCount?: number
   totalElements?: number

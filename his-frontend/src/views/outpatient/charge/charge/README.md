@@ -12,7 +12,7 @@
 
 | 模块 | 原型/后端字段 |
 | --- | --- |
-| 队列查询 | `organizationId`、`queueTabCode`、`keyword`、`startDate`、`endDate`、`pageNo`、`pageSize` |
+| 队列查询 | `organizationId`、`queueTabCode`、`keyword`、`startDate`、`endDate`、`pageIndex`、`pageSize` |
 | 患者队列 | `encounterId`、`patientId`、`patientName`、`encounterBusNo`、`genderCode/genderEnumText`、`ageText`、`organizationName`、`doctorName`、`startTime`、`totalAmount`、`paidAmount`、`paymentId`、`queueLabelCode` |
 | 收费项目 | `chargeItemId`、`busNo`、`cashierName`、`chargeCategoryCode/chargeCategoryDisplay`、`itemName`、`medicalInsuranceCode`、`feeNatureDisplay`、`quantityDisplay/quantityValue/quantityUnit`、`unitPrice`、`totalPrice`、`statusCode/statusText` |
 | 预结算 | `chargeItemIds`、`paymentDraftId`、`displayAmount`、`previews`、`insuranceGroups`、`selfPayRollup`、`ybFundPaySumamt`、`ybAcctPay`、`ybPsnCashPay` |

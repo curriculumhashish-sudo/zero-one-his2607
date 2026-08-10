@@ -89,6 +89,7 @@ const weeklyTemplateOptions = ref<BookingOption[]>([])
 
 let listController: AbortController | undefined
 let listSequence = 0
+const scheduleNameCache = new Map<string, Pick<ScheduleRecord, 'practitionerName' | 'locationName' | 'healthcareServiceName'>>()
 
 const scheduleEvents = computed(() => toScheduleEvents(rows.value))
 const doctorResources = computed(() => toDoctorResources(doctors.value))
@@ -102,6 +103,40 @@ const toolbarActions = computed<ActionToolbarItem[]>(() => [
   { key: 'refresh', label: '刷新', icon: Refresh, loading: loading.value }
 ])
 
+/**
+ * 排班列表接口只返回 actorId，名称字段由详情接口提供。
+ * 这里按排班 ID 去重补齐名称，避免日历卡片直接显示医生 ID。
+ */
+async function hydrateScheduleNames(records: ScheduleRecord[]) {
+  const ids = [...new Set(records.map((item) => item.id).filter((id): id is string => Boolean(id)))]
+  const pending = ids.filter((id) => !scheduleNameCache.has(id))
+  if (pending.length) {
+    const results = await Promise.allSettled(pending.map((id) => getScheduleDetail(id)))
+    results.forEach((result, index) => {
+      if (result.status !== 'fulfilled') return
+      const detail = result.value
+      const scheduleId = pending[index]
+      if (!scheduleId) return
+      scheduleNameCache.set(scheduleId, {
+        practitionerName: detail.practitionerName,
+        locationName: detail.locationName,
+        healthcareServiceName: detail.healthcareServiceName
+      })
+    })
+  }
+  return records.map((record) => {
+    const names = scheduleNameCache.get(record.id)
+    if (!names) return record
+    return {
+      ...record,
+      ...names,
+      doctorName: names.practitionerName || record.doctorName,
+      roomName: names.locationName || record.roomName,
+      departmentName: names.healthcareServiceName || record.departmentName
+    }
+  })
+}
+
 async function initialize() {
   initLoading.value = true
   initErrorMessage.value = ''
@@ -109,6 +144,7 @@ async function initialize() {
     const result = await loadScheduleInit()
     organizationId.value = result.organizationId
     departments.value = result.departments
+    query.departmentId = query.departmentId ?? result.departments[0]?.value ?? result.organizationId
     doctors.value = result.doctors
     rooms.value = result.rooms
     return true
@@ -131,24 +167,27 @@ async function loadSchedules(range = currentRange.value) {
   try {
     const result = await pageSchedulesByRange(
       {
-        organizationId: organizationId.value,
+        // 当前项目约定 organizationId 承载科室 ID；选择科室后将筛选值直接传给后端。
+        organizationId: query.departmentId || organizationId.value,
         rangeStart: range.start,
         rangeEnd: range.end,
         practitionerId: query.doctorId,
         locationId: query.roomId,
-        healthcareServiceId: query.departmentId
+        healthcareServiceId: undefined
       },
       { signal: controller.signal }
     )
     if (sequence !== listSequence || controller.signal.aborted) return
+    const hydratedRecords = await hydrateScheduleNames(result.records)
+    if (sequence !== listSequence || controller.signal.aborted) return
     const keyword = query.keyword.trim().toLocaleLowerCase()
     const records = keyword
-      ? result.records.filter((item) =>
+      ? hydratedRecords.filter((item) =>
           `${item.doctorName}${item.departmentName}${item.roomName}`
             .toLocaleLowerCase()
             .includes(keyword)
         )
-      : result.records
+      : hydratedRecords
     rows.value = records
     if (selectedSchedule.value && !records.some((item) => item.id === selectedSchedule.value?.id)) {
       selectedSchedule.value = null
@@ -194,7 +233,14 @@ async function openScheduleDetail(event: ScheduleEvent) {
   detailLoading.value = true
   selectedSchedule.value = event.raw as ScheduleRecord
   try {
-    selectedSchedule.value = await getScheduleDetail(String(event.key))
+    const detail = await getScheduleDetail(String(event.key))
+    const calendarRecord = event.raw as ScheduleRecord
+    // 详情接口返回的 planningHorizonStart 是有效期起点，不能覆盖日历当天日期。
+    selectedSchedule.value = {
+      ...detail,
+      date: calendarRecord.date,
+      organizationId: detail.organizationId ?? calendarRecord.organizationId
+    }
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '排班详情加载失败')
     detailVisible.value = false
@@ -239,17 +285,18 @@ async function handleSave(id: string | undefined, payload: ScheduleSavePayload) 
       scheduleId = created.scheduleId
     }
     if (!scheduleId) throw new Error('排班保存成功但未返回 scheduleId')
-    await provisionScheduleSlots({
-      scheduleId,
-      organizationId: organizationId.value,
-      slotTemplates: [
-        { startTime: payload.startTime, endTime: payload.endTime, capacity: payload.capacity }
-      ]
-    })
-    if (payload.publish)
+    // 保存只负责创建/更新排班状态；号源通过详情中的“批量放号”单独生成。
+    if (payload.publish) {
       await publishSchedule({ scheduleId, planningHorizonStart, planningHorizonEnd })
+    }
     editDialog.value?.close()
-    ElMessage.success(id ? '排班已更新' : '排班已新增')
+    ElMessage.success(
+      payload.publish
+        ? '排班已发布，请在更多操作中批量放号'
+        : id
+          ? '排班草稿已更新'
+          : '排班草稿已保存'
+    )
     await loadSchedules()
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '排班保存失败')
@@ -311,7 +358,11 @@ async function handleStop(record: ScheduleRecord) {
         ...disposition
       })
     } else {
-      await stopSchedule({ scheduleId: record.id, reason: reason.trim() })
+      await stopSchedule({
+        scheduleId: record.id,
+        organizationId: record.organizationId ?? query.departmentId ?? organizationId.value,
+        reason: reason.trim()
+      })
     }
     ElMessage.success('排班已停诊')
     await refreshSelected(record.id)
@@ -341,7 +392,7 @@ async function openGenerateDialog() {
     dailyTemplateOptions.value = options.dailyTemplates
     weeklyTemplateOptions.value = options.weeklyTemplates
     if (!options.dailyTemplates.length && !options.weeklyTemplates.length) {
-      ElMessage.warning('没有可用的日排班或周排班，请先到“号源设置”中维护模板')
+      ElMessage.warning('没有可用的日排班或周排班，请先到“排班设置”中维护模板')
       return
     }
     await nextTick()
@@ -458,7 +509,13 @@ async function partialStop(record: ScheduleRecord) {
   if (actionLoading.value) return
   try {
     const [slots, impact] = await Promise.all([
-      listReleasedSlots({ scheduleId: record.id, PageIndex: 1, PageSize: 100 }),
+      listReleasedSlots({
+        scheduleId: record.id,
+        organizationId: record.organizationId ?? query.departmentId ?? organizationId.value,
+        date: record.date,
+        pageIndex: 1,
+        pageSize: 100
+      }),
       previewScheduleImpact(record.id)
     ])
     const defaultIds = slots.content
@@ -555,7 +612,13 @@ async function provision(record: ScheduleRecord) {
 async function deleteSlots(record: ScheduleRecord) {
   if (actionLoading.value) return
   try {
-    const result = await listReleasedSlots({ scheduleId: record.id, PageIndex: 1, PageSize: 100 })
+    const result = await listReleasedSlots({
+      scheduleId: record.id,
+      organizationId: record.organizationId ?? query.departmentId ?? organizationId.value,
+      date: record.date,
+      pageIndex: 1,
+      pageSize: 100
+    })
     if (!result.content.length) throw new Error('当前日程没有已放号源')
     await ElMessageBox.confirm(`确认删除 ${result.content.length} 个未使用号源？`, '删除号源', {
       type: 'warning'

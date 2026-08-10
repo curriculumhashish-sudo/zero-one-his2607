@@ -52,6 +52,47 @@ export default defineConfig({
       '/api/j3-fee': j3Proxy(j3FeeServerUrl),
       '/api/j3-supplier': j3Proxy(j3SupplierServerUrl),
       '/api/j3-ward': j3Proxy(j3WardServerUrl),
+      '/j1-login': {
+        changeOrigin: true,
+        // J1 登录服务的本地开发代理；生产环境由网关统一配置。
+        target: 'http://47.116.98.7:10500'
+      },
+      '/j8-calendar': {
+        changeOrigin: true,
+        // J8 号源日历服务的本地开发代理；生产环境由网关统一配置。
+        target: 'http://47.99.167.11:10144'
+      },
+      '/j8-outpatient': {
+        changeOrigin: true,
+        // J8 门诊费用明细服务的本地开发代理；生产环境由网关统一配置。
+        target: 'http://47.110.92.50:10155'
+      },
+      '/j8-statdata': {
+        changeOrigin: true,
+        target: 'http://47.98.154.109:10166'
+      },
+      '/j8-setroster': {
+        changeOrigin: true,
+        target: 'http://121.40.180.171:10122'
+      },
+      '/j8-clinics': {
+        changeOrigin: true,
+        target: 'http://47.98.165.254:10133'
+      },
+      '/j6-report': {
+        changeOrigin: true,
+        target: 'http://39.106.111.242:10235'
+      },
+      '/c1-report': {
+        changeOrigin: true,
+        target: 'http://47.109.52.229:8090',
+        rewrite: (path) => path.replace(/^\/c1-report/, '')
+      },
+      '/c1-charge': {
+        changeOrigin: true,
+        target: 'http://39.105.18.251:8090',
+        rewrite: (path) => path.replace(/^\/c1-charge/, '')
+      },
       '/api': {
         changeOrigin: true,
         //FIXME[TEST_CODE]:使用Apifox云MOCK,联调阶段需要修改成网关地址

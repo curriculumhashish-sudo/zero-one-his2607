@@ -52,12 +52,17 @@ const modelValue = defineModel<SelectValue | SelectValue[] | null>({ default: nu
 
 const options = shallowRef<T[]>([])
 const loading = shallowRef(false)
+const searchPending = shallowRef(false)
+const hasLoaded = shallowRef(false)
 const errorMessage = shallowRef('')
 const lastKeyword = shallowRef('')
 
 let debounceTimer: ReturnType<typeof setTimeout> | undefined
 let requestController: AbortController | undefined
 let requestSequence = 0
+// 首次打开下拉框时，Element Plus 会先用空关键字触发一次远程查询。
+// 只要用户还没有输入过关键字且当前已有选项，就直接复用现有列表。
+let skipOpeningEmptySearch = true
 
 function getOptionValue(option: T) {
   return option[props.valueKey] as SelectValue | undefined
@@ -93,9 +98,21 @@ function getSelectedOptions(candidates: T[]) {
 watch(
   () => props.initialOptions,
   (initialOptions) => {
-    options.value = mergeOptions(initialOptions, options.value)
+    // initialOptions 是上层筛选后的当前候选集（例如当前科室的医生）。
+    // 仅保留当前候选项和仍被选中的远程项，避免科室切换后混入旧科室医生。
+    const selectedOptions = getSelectedOptions(options.value)
+    options.value = mergeOptions(initialOptions, selectedOptions)
   },
   { immediate: true }
+)
+
+watch(
+  modelValue,
+  () => {
+    // 上层切换筛选条件后通常会先清空已选医生；同步裁剪旧候选项。
+    options.value = mergeOptions(props.initialOptions, getSelectedOptions(options.value))
+  },
+  { deep: true }
 )
 
 function cancelPendingRequest() {
@@ -104,6 +121,7 @@ function cancelPendingRequest() {
 }
 
 async function load(keyword: string) {
+  searchPending.value = false
   const normalizedKeyword = keyword.trim()
   lastKeyword.value = normalizedKeyword
   errorMessage.value = ''
@@ -112,6 +130,8 @@ async function load(keyword: string) {
     cancelPendingRequest()
     options.value = [...props.initialOptions]
     loading.value = false
+    hasLoaded.value = true
+    skipOpeningEmptySearch = true
     return
   }
 
@@ -130,11 +150,14 @@ async function load(keyword: string) {
     if (controller.signal.aborted || currentSequence !== requestSequence) return
     const selectedOptions = getSelectedOptions(mergeOptions(props.initialOptions, options.value))
     options.value = mergeOptions(selectedOptions, loadedOptions)
+    hasLoaded.value = true
+    if (!normalizedKeyword) skipOpeningEmptySearch = true
   } catch (error) {
     if (controller.signal.aborted || currentSequence !== requestSequence) return
 
     errorMessage.value = '选项加载失败，请重试'
     options.value = getSelectedOptions(mergeOptions(props.initialOptions, options.value))
+    hasLoaded.value = true
     emit('loadError', error, normalizedKeyword)
   } finally {
     if (currentSequence === requestSequence) loading.value = false
@@ -142,7 +165,26 @@ async function load(keyword: string) {
 }
 
 function search(keyword: string) {
+  const normalizedKeyword = keyword.trim()
+
+  // 打开下拉框时 Element Plus 可能会用空关键字触发一次 remote-method。
+  // 已有选项时直接保留当前列表，避免列表先清空再重新加载造成闪烁。
+  // 用户主动清空已输入的关键字时不走这里，仍然按空关键字重新查询完整列表。
+  if (!normalizedKeyword && skipOpeningEmptySearch && options.value.length > 0) {
+    if (debounceTimer) clearTimeout(debounceTimer)
+    debounceTimer = undefined
+    searchPending.value = false
+    options.value = mergeOptions(props.initialOptions, options.value)
+    return
+  }
+
+  if (normalizedKeyword) skipOpeningEmptySearch = false
+
   if (debounceTimer) clearTimeout(debounceTimer)
+
+  // Element Plus 会在防抖期间先按新关键字过滤旧选项，
+  // 此时也要显示加载状态，避免短暂出现“暂无匹配数据”。
+  searchPending.value = true
 
   debounceTimer = setTimeout(() => {
     debounceTimer = undefined
@@ -173,7 +215,9 @@ function handleChange(value: SelectValue | SelectValue[] | null) {
 }
 
 function handleVisibleChange(visible: boolean) {
-  if (visible && options.value.length === 0 && !loading.value) void load(lastKeyword.value)
+  if (visible && options.value.length === 0 && !loading.value && !searchPending.value) {
+    void load(lastKeyword.value)
+  }
 }
 
 const loadingText = computed(() => (errorMessage.value ? '加载失败' : '正在加载'))
@@ -230,7 +274,7 @@ defineExpose({
       <template #empty>
         <slot name="empty" :loading="loading" :error="errorMessage" :retry="retry">
           <div class="remote-select-field__empty">
-            <span>{{ errorMessage || '暂无匹配数据' }}</span>
+            <span>{{ errorMessage || (loading || searchPending || !hasLoaded ? loadingText : '暂无匹配数据') }}</span>
             <el-button v-if="errorMessage" type="primary" link @click="retry">重试</el-button>
           </div>
         </slot>

@@ -12,7 +12,7 @@
 
 | 模块 | 原型/后端字段 |
 | --- | --- |
-| 队列查询 | `admissionDate`、`keyword`、`pageNo`、`pageSize` |
+| 队列查询 | `admissionDate`、`keyword`、`pageIndex`、`pageSize` |
 | 在院患者 | `encounterId`、`patientId`、`patientName`、`encounterBusNo`、`genderEnum/genderEnumText`、`ageText`、`organizationName`、`wardName`、`bedName`、`startTime`、`statusEnum/statusEnumText`、`contractDisplay` |
 | 余额 | `accountBalance`、`availableBalance`、`prepayNetBalance`、`pendingSettlementTotal`、`lowBalanceWarning` |
 | 流水 | `paymentId`、`tradeTime`、`bizTypeText`、`amount`、`payMethodText`、`paymentEnum`、`operatorName`、`ticketNo`、`statusEnum/statusEnumText` |

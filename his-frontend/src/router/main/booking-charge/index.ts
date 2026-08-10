@@ -4,7 +4,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/booking/schedule-template',
     name: 'BookingScheduleTemplate',
-    meta: { label: '号源设置' },
+    meta: { label: '排班设置' },
     component: () => import('@/views/booking/schedule-template/Index.vue')
   },
   {

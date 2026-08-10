@@ -27,6 +27,6 @@ export interface OutpatientRegisterFormModel {
 
 export interface RegisterHistoryQueryModel {
   keyword: string
-  pageNo: number
+  pageIndex: number
   pageSize: number
 }

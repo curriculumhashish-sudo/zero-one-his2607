@@ -116,9 +116,10 @@ async function loadQueue() {
       keyword: query.keyword,
       startDate: query.startDate,
       endDate: query.endDate,
-      status: query.status,
-      PageIndex: query.page,
-      PageSize: query.pageSize
+      queueTabCode:
+        query.status === 'pending' ? 'PENDING' : query.status === 'refunded' ? 'SETTLED' : 'ALL',
+      pageIndex: query.page,
+      pageSize: query.pageSize
     })
     if (seq !== queueSequence) return
     patients.value = result.rows
@@ -160,6 +161,10 @@ async function selectPatient(patient: PatientSummary) {
   try {
     const result = await getRefundableExecutionDetail(id)
     if (seq === detailSequence) {
+      const queuePatient = patients.value.find(
+        (item) => String(item.encounterId ?? item.id) === id
+      )
+      if (queuePatient) result.patient = { ...result.patient, ...queuePatient }
       detail.value = result
       pendingRefundId.value = result.interruptedRefundId ?? ''
     }

@@ -12,7 +12,7 @@
 
 | 模块 | 原型/后端字段 |
 | --- | --- |
-| 队列查询 | `queueTabCode`、`keyword`、`startDate`、`endDate`、`pageNo`、`pageSize` |
+| 队列查询 | `queueTabCode`、`keyword`、`startDate`、`endDate`、`pageIndex`、`pageSize` |
 | 患者队列 | `encounterId`、`patientId`、`patientName`、`encounterBusNo`、`genderCode/genderEnumText`、`ageText`、`organizationName`、`doctorName`、`startTime`、`totalAmount`、`paidAmount`、`queueLabelCode` |
 | 原支付分组 | `paymentId`、`paymentBusNo`、`halfRefundOnPayment`、`originalPayChannelCodes`、`paymentStatusEnum`、`refundableAmount`、`refundingLines`、`preservedLines` |
 | 退费行 | `chargeItemId`、`chargeItemStatusEnum`、`itemDisplayName`、`lineTotalAmount` |

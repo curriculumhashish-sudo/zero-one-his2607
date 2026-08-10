@@ -56,8 +56,8 @@ export interface PageSlotsByDateRequest {
   practitionerId?: string | null
   scheduleId?: string | null
   statusCode?: string | null
-  PageIndex: number
-  PageSize: number
+  pageIndex: number
+  pageSize: number
 }
 export type SlotQuery = PageSlotsByDateRequest
 
@@ -73,16 +73,30 @@ export interface SlotInitResult {
 
 export interface SlotPageResult {
   content: SlotRecord[]
-  pageNo: number
+  pageIndex: number
   pageSize: number
   totalCount: number
+  pages?: number
+  stats?: {
+    totalSlots?: number
+    totalCapacity?: number
+    totalBooked?: number
+    totalRemaining?: number
+  }
 }
 
 export interface SlotPageResponse {
   content?: SlotListItemDto[]
   totalCount?: number
-  pageNo?: number
+  pageIndex?: number
   pageSize?: number
+  pages?: number
+  stats?: {
+    totalSlots?: number
+    totalCapacity?: number
+    totalBooked?: number
+    totalRemaining?: number
+  }
 }
 
 export interface BatchBlockSlotsPayload {

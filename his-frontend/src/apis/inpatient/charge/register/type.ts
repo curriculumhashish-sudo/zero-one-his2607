@@ -38,11 +38,8 @@ export interface RegistrationQueueRecord {
 }
 
 export interface RegistrationQueueQuery {
-  page?: number
-  pageNo?: number
   pageSize?: number
-  PageIndex?: number
-  PageSize?: number
+  pageIndex?: number
   keyword?: string
   idCard?: string
   registrationListStatus?: RegistrationStatus | ''
@@ -57,7 +54,7 @@ export interface RegistrationQueueMockFilter {
 
 export interface RegistrationPageResult {
   content: RegistrationQueueRecord[]
-  pageNo: number
+  pageIndex: number
   pageSize: number
   totalCount: number
   totalElements: number
@@ -125,11 +122,8 @@ export interface RegistrationPageInitResult {
 
 export interface RegistrationPatientQuery {
   keyword?: string
-  page?: number
-  pageNo?: number
   pageSize?: number
-  PageIndex?: number
-  PageSize?: number
+  pageIndex?: number
 }
 
 export interface RegistrationPatientPage {
@@ -199,7 +193,7 @@ export interface SubmitRegistrationPayload {
   insutype?: string
   inWayCode?: string
   medType?: string
-  operatorId: string
+  operatorId?: string
   organizationId: string
   patientId?: string
   patientName?: string

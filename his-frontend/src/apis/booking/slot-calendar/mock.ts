@@ -176,12 +176,12 @@ export async function mockPageSlotsByDate(query: SlotQuery, context: RequestCont
       return false
     return true
   })
-  const pageNo = query.PageIndex
-  const pageSize = query.PageSize
+  const pageNo = query.pageIndex
+  const pageSize = query.pageSize
   const start = (pageNo - 1) * pageSize
   const result: SlotPageResult = {
     content: structuredClone(filtered.slice(start, start + pageSize)),
-    pageNo,
+    pageIndex: pageNo,
     pageSize,
     totalCount: filtered.length
   }

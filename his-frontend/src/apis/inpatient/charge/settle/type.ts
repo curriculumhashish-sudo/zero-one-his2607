@@ -45,15 +45,13 @@ export interface InpatientSettleQueueQuery {
   admissionDate?: string
   keyword?: string
   settleQueueTab: InpatientSettleQueueTab
-  pageNo?: number
+  pageIndex?: number
   pageSize?: number
-  PageIndex?: number
-  PageSize?: number
 }
 
 export interface InpatientSettleQueuePage {
   content: InpatientSettlePatient[]
-  pageNo: number
+  pageIndex: number
   pageSize: number
   totalCount: number
   totalElements: number

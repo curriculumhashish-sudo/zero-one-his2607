@@ -229,14 +229,14 @@ const FRONTEND_MENUS: Menu[] = [
       {
         id: 'frontend-booking-slots',
         pid: 'frontend-booking',
-        text: '号源查看',
+        text: '号源日历',
         icon: 'IconTickets',
         href: '/booking/slot-calendar'
       },
       {
         id: 'frontend-booking-template',
         pid: 'frontend-booking',
-        text: '号源设置',
+        text: '排班设置',
         icon: 'IconTickets',
         href: '/booking/schedule-template'
       }

@@ -41,7 +41,7 @@ const query = reactive<PrepayPageQuery>({
   admissionStartDate: null,
   admissionEndDate: null,
   keyword: '',
-  page: 1,
+  pageIndex: 1,
   pageSize: 10
 })
 const patients = ref<InpatientPatient[]>([])
@@ -51,7 +51,9 @@ const detailLoading = ref(false)
 const submitting = ref(false)
 const polling = ref(false)
 const errorMessage = ref('')
+const detailErrorMessage = ref('')
 const selectedEncounterId = ref<string | null>(null)
+const selectedQueuePatient = ref<InpatientPatient | null>(null)
 const summary = ref<PrepaySummary | null>(null)
 const records = ref<PrepayRecord[]>([])
 const recordPage = ref(1)
@@ -66,7 +68,11 @@ let detailSequence = 0
 let paymentPollTimer: ReturnType<typeof setInterval> | undefined
 const queueRows = computed(() => patients.value.map(toPrepayPatientSummary))
 const currentPatient = computed(() =>
-  summary.value ? toPrepayPatientSummary(summary.value.patient) : null
+  summary.value
+    ? toPrepayPatientSummary(summary.value.patient)
+    : selectedQueuePatient.value
+      ? toPrepayPatientSummary(selectedQueuePatient.value)
+      : null
 )
 const summaryItems = computed(() =>
   summary.value
@@ -117,8 +123,8 @@ async function loadQueue() {
       admissionStartDate: query.admissionStartDate,
       admissionEndDate: query.admissionEndDate,
       keyword: query.keyword,
-      PageIndex: query.page,
-      PageSize: query.pageSize
+      pageIndex: query.pageIndex,
+      pageSize: query.pageSize
     })
     if (seq !== queueSequence) return
     patients.value = result.rows
@@ -141,35 +147,76 @@ function clearSelection() {
   stopPaymentPolling()
   detailSequence += 1
   selectedEncounterId.value = null
+  selectedQueuePatient.value = null
   summary.value = null
   records.value = []
+  detailErrorMessage.value = ''
   pendingPaymentId.value = ''
   refundRecord.value = null
   collectDialog.value?.close()
   refundDialog.value?.close()
 }
+
+function getPrepayLoadError(error: unknown, fallback: string) {
+  const message = error instanceof Error ? error.message : ''
+  return /登录令牌|empty token|\b401\b/i.test(message) ? message : fallback
+}
+
 async function selectPatient(patient: PatientSummary) {
   clearSelection()
   const id = String(patient.id)
+  selectedQueuePatient.value = patients.value.find((item) => item.encounterId === id) ?? ({
+    ...patient,
+    encounterId: id,
+    patientName: patient.name,
+    name: patient.name,
+    patientNo: patient.patientNo ?? '',
+    visitNo: patient.visitNo ?? '',
+    departmentName: patient.departmentName ?? '',
+    wardName: patient.serviceType ?? '',
+    bedNo: '',
+    admissionDate: patient.visitTime ?? '',
+    age: patient.age ?? 0,
+    gender: patient.gender ?? '',
+    status: 'in-hospital',
+    paymentType: patient.paymentType ?? '',
+    balance: 0
+  } as InpatientPatient)
   selectedEncounterId.value = id
   const seq = ++detailSequence
   detailLoading.value = true
   try {
-    const [summaryResult, recordResult] = await Promise.all([
+    const [summaryResult, recordResult] = await Promise.allSettled([
       getInpatientPrepaySummary(id),
-      pagePrepayRecords(id, { PageIndex: recordPage.value, PageSize: recordPageSize.value })
+      pagePrepayRecords(id, { pageIndex: recordPage.value, pageSize: recordPageSize.value })
     ])
     if (seq !== detailSequence) return
-    summary.value = summaryResult
-    records.value = recordResult.rows
-    recordTotal.value = recordResult.total
+    if (summaryResult.status === 'fulfilled') summary.value = summaryResult.value
+    else {
+      detailErrorMessage.value = getPrepayLoadError(
+        summaryResult.reason,
+        '预交金账户详情暂时无法读取，请后端检查 getpatientdetails 接口。'
+      )
+    }
+    if (recordResult.status === 'fulfilled') {
+      records.value = recordResult.value.rows
+      recordTotal.value = recordResult.value.total
+    } else {
+      records.value = []
+      recordTotal.value = 0
+      detailErrorMessage.value = detailErrorMessage.value || getPrepayLoadError(
+        recordResult.reason,
+        '预交金流水暂时无法读取，请后端检查 getpatientpayrecords 接口。'
+      )
+    }
+    if (detailErrorMessage.value) ElMessage.warning(detailErrorMessage.value)
     pendingPaymentId.value =
-      recordResult.rows.find((item) => item.status === 'processing')?.id ?? ''
+      (recordResult.status === 'fulfilled' ? recordResult.value.rows.find((item) => item.status === 'processing')?.id : '') ?? ''
     if (pendingPaymentId.value) startPaymentPolling(pendingPaymentId.value)
   } catch (error) {
     if (seq === detailSequence) {
-      clearSelection()
-      ElMessage.error(error instanceof Error ? error.message : '预交金数据加载失败')
+      detailErrorMessage.value = error instanceof Error ? error.message : '预交金数据加载失败'
+      ElMessage.warning(detailErrorMessage.value)
     }
   } finally {
     if (seq === detailSequence) detailLoading.value = false
@@ -182,7 +229,7 @@ async function refreshCurrent() {
 }
 function handleSearch(keyword: string) {
   query.keyword = keyword
-  query.page = 1
+  query.pageIndex = 1
   clearSelection()
   void loadQueue()
 }
@@ -190,13 +237,13 @@ function handleAdmissionDateChange(value: DateRangeValue) {
   query.admissionStartDate = value?.[0] ?? null
   query.admissionEndDate = value?.[1] ?? null
   query.admissionDate = value?.[0] === value?.[1] ? (value?.[0] ?? null) : null
-  query.page = 1
+  query.pageIndex = 1
   clearSelection()
   void loadQueue()
 }
 function handleQueuePaginationChange(payload: { page: number; pageSize: number }) {
   const pageSizeChanged = payload.pageSize !== query.pageSize
-  query.page = pageSizeChanged ? 1 : payload.page
+  query.pageIndex = pageSizeChanged ? 1 : payload.page
   query.pageSize = payload.pageSize
   clearSelection()
   void loadQueue()
@@ -397,7 +444,7 @@ onBeforeUnmount(() => {
       <PaginationBar
         v-if="queueTotal > 0"
         class="queue-pagination"
-        :page="query.page"
+        :page="query.pageIndex"
         :page-size="query.pageSize"
         :total="queueTotal"
         :disabled="queueLoading"
@@ -414,6 +461,11 @@ onBeforeUnmount(() => {
         description="选择患者后查看余额并办理收退预交金"
       /><template v-else
         ><PatientInfoBar :patient="currentPatient" /><el-alert
+          v-if="detailErrorMessage"
+          type="warning"
+          :closable="false"
+          :title="detailErrorMessage"
+        /><el-alert
           v-if="pendingPaymentId"
           type="warning"
           :closable="false"

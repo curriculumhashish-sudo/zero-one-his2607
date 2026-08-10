@@ -152,7 +152,7 @@ defineExpose({ open, close })
           />
         </el-select>
         <div v-if="!currentTemplates.length" class="generate-dialog__error">
-          当前没有可用模板，请先到“号源设置”中维护并启用模板。
+          当前没有可用模板，请先到“排班设置”中维护并启用模板。
         </div>
       </el-form-item>
       <el-form-item label="生成区间" required>

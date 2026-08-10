@@ -8,7 +8,7 @@ export interface BookingOption {
 export interface PageResult<T> {
   content: T[]
   totalCount: number
-  pageNo: number
+  pageIndex: number
   pageSize: number
 }
 
@@ -113,8 +113,8 @@ export interface ReleasePolicy {
 export interface ReleasePolicyQuery {
   organizationId?: string
   keyword?: string
-  PageIndex: number
-  PageSize: number
+  pageIndex: number
+  pageSize: number
 }
 
 export interface SaveReleasePolicyRequest {
@@ -158,31 +158,31 @@ export interface TimePeriodQuery {
   organizationId?: string
   keyword?: string
   status?: TemplateStatus | null
-  PageIndex?: number
-  PageSize?: number
+  pageIndex?: number
+  pageSize?: number
 }
 
 export interface PageTemplatesRequest {
   organizationId?: string
   keyword?: string
-  PageIndex: number
-  PageSize: number
+  pageIndex: number
+  pageSize: number
 }
 
 export interface DailyTemplateQuery {
   organizationId?: string
   keyword?: string
   status?: TemplateStatus | null
-  PageIndex?: number
-  PageSize?: number
+  pageIndex?: number
+  pageSize?: number
 }
 
 export interface WeeklyTemplateQuery {
   organizationId?: string
   keyword?: string
   status?: TemplateStatus | null
-  PageIndex?: number
-  PageSize?: number
+  pageIndex?: number
+  pageSize?: number
 }
 
 export interface SaveSlotProvisionTemplateRequest {
@@ -256,8 +256,8 @@ export interface HolidayExceptionQuery {
   rangeStart?: string
   rangeEnd?: string
   keyword?: string
-  PageIndex: number
-  PageSize: number
+  pageIndex: number
+  pageSize: number
 }
 
 export interface RequestContext {

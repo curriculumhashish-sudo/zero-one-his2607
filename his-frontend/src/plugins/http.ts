@@ -88,7 +88,8 @@ export default {
           // 登录后优先使用当前会话 token；固定 token 仅作为无登录联调时的兜底。
           const token = store.getToken || import.meta.env.VITE_DEV_AUTH_TOKEN || ''
           if (token) {
-            config.headers['Authorization'] = 'Bearer ' + token
+            const tokenHead = (localStorage.getItem('tokenHead') || 'Bearer').trim()
+            config.headers['Authorization'] = tokenHead ? `${tokenHead} ${token}` : token
           }
           // 处理提交方式参数序列化操作
           const ut = config.upType

@@ -114,6 +114,6 @@ describe('LoginView', () => {
     expect(mocks.selectHospital).toHaveBeenCalledWith('hospital-1')
     expect(mocks.loadCurrentMenus).toHaveBeenCalledOnce()
     expect(mocks.loadCurrentUser).toHaveBeenCalledOnce()
-    expect(mocks.replace).toHaveBeenCalledWith({ name: 'Dashboard' })
+    expect(mocks.replace).toHaveBeenCalledWith('/home')
   })
 })

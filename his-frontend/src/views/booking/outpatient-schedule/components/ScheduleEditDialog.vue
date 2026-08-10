@@ -84,7 +84,7 @@ function close() {
 async function submit() {
   const valid = await formRef.value?.validate().catch(() => false)
   if (!valid || form.endTime <= form.startTime || props.saving) return
-  emit('submit', editingId.value, { ...form })
+  emit('submit', editingId.value, { ...form, publish: form.publish === true })
 }
 
 function handleDepartmentChange() {

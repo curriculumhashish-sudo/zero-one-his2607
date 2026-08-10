@@ -42,9 +42,9 @@ import {
 
 describe('第二轮 B 组 API 流程', () => {
   it('收费患者队列分页返回原型页码、每页条数、内容和总数', async () => {
-    const chargePage = await pageChargePatientQueue({ status: 'all', PageIndex: 2, PageSize: 1 })
+    const chargePage = await pageChargePatientQueue({ status: 'all', pageIndex: 2, pageSize: 1 })
     expect(chargePage).toMatchObject({
-      pageNo: 2,
+      pageIndex: 2,
       pageSize: 1,
       totalCount: chargePage.total
     })
@@ -53,22 +53,22 @@ describe('第二轮 B 组 API 流程', () => {
 
     const refundPage = await pageRefundPatientQueue({
       status: 'all',
-      PageIndex: 2,
-      PageSize: 1
+      pageIndex: 2,
+      pageSize: 1
     })
-    expect(refundPage).toMatchObject({ pageNo: 2, pageSize: 1, totalCount: refundPage.total })
+    expect(refundPage).toMatchObject({ pageIndex: 2, pageSize: 1, totalCount: refundPage.total })
     expect(refundPage.content).toEqual(refundPage.rows)
 
-    const inpatientPage = await pageInpatientQueue({ PageIndex: 2, PageSize: 1 })
+    const inpatientPage = await pageInpatientQueue({ pageIndex: 2, pageSize: 1 })
     expect(inpatientPage).toMatchObject({
-      pageNo: 2,
+      pageIndex: 2,
       pageSize: 1,
       totalCount: inpatientPage.total
     })
     expect(inpatientPage.content).toEqual(inpatientPage.rows)
   })
 
-  it('号源设置初始化和时段单参数保存可用', async () => {
+  it('排班设置初始化和时段单参数保存可用', async () => {
     const init = await loadScheduleTemplateInit()
     expect(init.department.label).toBeTruthy()
     expect((await getReleasePolicy()).openDays).toBeGreaterThan(0)
@@ -128,8 +128,8 @@ describe('第二轮 B 组 API 流程', () => {
       rangeStart: '2026-11-01',
       rangeEnd: '2026-11-30',
       keyword: '测试减量',
-      PageIndex: 1,
-      PageSize: 10
+      pageIndex: 1,
+      pageSize: 10
     })
     expect(paged.content).toHaveLength(1)
   })
@@ -163,7 +163,7 @@ describe('第二轮 B 组 API 流程', () => {
     })
     expect(Object.keys(created).sort()).toEqual(['id'])
     expect(
-      (await pageReleasePolicies({ keyword: 'TEST_POLICY', PageIndex: 1, PageSize: 10 })).content
+      (await pageReleasePolicies({ keyword: 'TEST_POLICY', pageIndex: 1, pageSize: 10 })).content
     ).toHaveLength(1)
     const updated = await saveReleasePolicy({
       id: created.id,
@@ -176,7 +176,7 @@ describe('第二轮 B 组 API 流程', () => {
     })
     expect(Object.keys(updated).sort()).toEqual(['id'])
     expect(
-      (await pageReleasePolicies({ keyword: 'TEST_POLICY', PageIndex: 1, PageSize: 10 })).content[0]
+      (await pageReleasePolicies({ keyword: 'TEST_POLICY', pageIndex: 1, pageSize: 10 })).content[0]
     ).toMatchObject({
       policyName: '测试放号策略（已修改）',
       advanceDays: 10,
@@ -186,12 +186,12 @@ describe('第二轮 B 组 API 流程', () => {
     })
     await removeReleasePolicy(created.id!)
     expect(
-      (await pageReleasePolicies({ keyword: 'TEST_POLICY', PageIndex: 1, PageSize: 10 })).content
+      (await pageReleasePolicies({ keyword: 'TEST_POLICY', pageIndex: 1, pageSize: 10 })).content
     ).toHaveLength(0)
   })
 
   it('门诊收费支持预结算和成功状态流转', async () => {
-    const queue = await pageChargePatientQueue({ status: 'pending', PageIndex: 1, PageSize: 10 })
+    const queue = await pageChargePatientQueue({ status: 'pending', pageIndex: 1, pageSize: 10 })
     const patient = queue.rows[0]!
     expect(patient).toMatchObject({
       patientId: patient.id,
@@ -347,7 +347,7 @@ describe('第二轮 B 组 API 流程', () => {
       amount: 300,
       paymentDetails: [{ amount: 300, payChannelCode: 'card' }]
     })
-    const rows = await pagePrepayRecords('inp-3001', { PageIndex: 1, PageSize: 20 })
+    const rows = await pagePrepayRecords('inp-3001', { pageIndex: 1, pageSize: 20 })
     const source = rows.rows.find((row) => row.id === collected.paymentId)!
     expect(source).toMatchObject({
       paymentId: source.id,
@@ -384,7 +384,7 @@ describe('第二轮 B 组 API 流程', () => {
     await cancelPrepayPayment(pendingCollect.paymentId)
     expect((await getInpatientPrepaySummary('inp-3002')).balance).toBe(beforeCancel.balance)
 
-    const source = (await pagePrepayRecords('inp-3002', { PageIndex: 1, PageSize: 20 })).rows.find(
+    const source = (await pagePrepayRecords('inp-3002', { pageIndex: 1, pageSize: 20 })).rows.find(
       (row) => row.id === 'prepay-3'
     )!
     const beforeRefund = await getInpatientPrepaySummary('inp-3002')

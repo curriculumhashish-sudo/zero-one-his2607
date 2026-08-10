@@ -3,6 +3,6 @@ export interface PrepayPageQuery {
   admissionDate: string | null
   admissionStartDate: string | null
   admissionEndDate: string | null
-  page: number
+  pageIndex: number
   pageSize: number
 }
