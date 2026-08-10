@@ -44,29 +44,6 @@ bool containsWholeGroup(MedicationRequestDAO& dao, const std::string& encounterI
 
 }
 
-ApplicationFormDetailDTO::Wrapper MedicalAdviceService::buildApplicationFormDetail(
-    const ServiceRequestDO& data) const
-{
-    auto result = ApplicationFormDetailDTO::createShared();
-    result->serviceRequestId = data.getId().c_str();
-    result->prescriptionNo = data.getPrescriptionNo().c_str();
-    result->encounterId = data.getEncounterId().c_str();
-    result->patientId = data.getPatientId().c_str();
-    result->status = data.getStatusEnum().c_str();
-    result->category = data.getCategoryEnum().c_str();
-    result->quantity = data.getQuantity();
-    result->unitCode = data.getUnitCode().c_str();
-    result->requestTime = data.getAuthoredTime().c_str();
-    result->requesterId = data.getRequesterId().c_str();
-    result->performerId = data.getPerformerId().c_str();
-    result->locationId = data.getLocationId().c_str();
-    result->organizationId = data.getOrgId().c_str();
-    result->remark = data.getRemark().c_str();
-    result->printCount = data.getPrintCount();
-    result->version = data.getVersion();
-    return result;
-}
-
 std::list<std::string> MedicalAdviceService::normalizeAdviceIds(
     const oatpp::List<oatpp::String>& adviceIds) const
 {
@@ -225,18 +202,18 @@ std::list<std::string> MedicalAdviceService::withdrawMedicalAdvice(
     return withdrawnIds;
 }
 
-ApplicationFormDetailDTO::Wrapper MedicalAdviceService::printApplicationForm(
+std::string MedicalAdviceService::printApplicationForm(
     const PrintApplicationFormDTO::Wrapper& dto, const PayloadDTO& payload)
 {
     if (!dto)
     {
-        return nullptr;
+        return "";
     }
 
     const std::string serviceRequestId = dto->serviceRequestId.getValue("");
     if (serviceRequestId.empty())
     {
-        return nullptr;
+        return "";
     }
 
     ServiceRequestDAO dao;
@@ -248,7 +225,7 @@ ApplicationFormDetailDTO::Wrapper MedicalAdviceService::printApplicationForm(
         if (!serviceRequest)
         {
             transaction.rollback();
-            return nullptr;
+            return "";
         }
 
         // 仅更新打印次数和审计字段
@@ -261,20 +238,15 @@ ApplicationFormDetailDTO::Wrapper MedicalAdviceService::printApplicationForm(
         if (dao.incrementPrintCount(updateData, serviceRequest->getVersion()) != 1)
         {
             transaction.rollback();
-            return nullptr;
+            return "";
         }
 
-        serviceRequest->setPrintCount(updateData.getPrintCount());
-        serviceRequest->setVersion(updateData.getVersion());
-        serviceRequest->setUpdatedBy(updateData.getUpdatedBy());
-        serviceRequest->setUpdatedAt(updateData.getUpdatedAt());
-        const auto result = buildApplicationFormDetail(*serviceRequest);
         transaction.commit();
-        return result;
+        return serviceRequestId;
     }
     catch (...)
     {
         transaction.rollback();
-        return nullptr;
+        return "";
     }
 }

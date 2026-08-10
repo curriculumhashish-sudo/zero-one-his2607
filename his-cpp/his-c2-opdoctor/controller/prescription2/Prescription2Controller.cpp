@@ -73,14 +73,14 @@ PrintApplicationFormJsonVO::Wrapper Prescription2Controller::execPrintApplicatio
         return response;
     }
 
-    // 将打印操作委托给服务层
-    const auto applicationForm = MedicalAdviceService().printApplicationForm(dto, payload);
-    if (!applicationForm)
+    // 将打印次数更新委托给服务层
+    const std::string serviceRequestId = MedicalAdviceService().printApplicationForm(dto, payload);
+    if (serviceRequestId.empty())
     {
         response->fail(nullptr);
         return response;
     }
 
-    response->success(applicationForm);
+    response->success(serviceRequestId.c_str());
     return response;
 }

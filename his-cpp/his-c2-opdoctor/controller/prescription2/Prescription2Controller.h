@@ -25,14 +25,14 @@ public:
         BODY_DTO(SignMedicalAdviceDTO::Wrapper, dto),
         execSignMedicalAdvice(dto, authObject->getPayload()));
 
-    // 撤回选中的已签发医嘱记录
+    // 撤回选中的有效医嘱记录
     API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medical-advice.withdraw.summary"),
         withdrawMedicalAdvice, WithdrawMedicalAdviceJsonVO::Wrapper, API_TAG);
     API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/medical-advice/withdraw", withdrawMedicalAdvice,
         BODY_DTO(WithdrawMedicalAdviceDTO::Wrapper, dto),
         execWithdrawMedicalAdvice(dto, authObject->getPayload()));
 
-    // 增加服务申请单的打印次数
+    // 增加一条服务申请单的打印次数
     API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medical-advice.print-application-form.summary"),
         printApplicationForm, PrintApplicationFormJsonVO::Wrapper, API_TAG);
     API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/medical-advice/print-application-form", printApplicationForm,
