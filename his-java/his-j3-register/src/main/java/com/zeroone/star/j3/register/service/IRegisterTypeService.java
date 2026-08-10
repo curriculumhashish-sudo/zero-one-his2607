@@ -41,11 +41,11 @@ public interface IRegisterTypeService extends IService<RegisterType> {
     /**
      * 修改挂号类型
      *
-     * @param id  待修改的挂号类型唯一标识
+     * @param id  待修改的挂号类型唯一标识（雪花ID用String传递，避免前端精度丢失）
      * @param dto 修改数据
      * @return 是否成功
      */
-    boolean modifyRegister(Long id, RegisterDTO dto);
+    boolean modifyRegister(String id, RegisterDTO dto);
 
     /**
      * 删除挂号类型
@@ -53,7 +53,7 @@ public interface IRegisterTypeService extends IService<RegisterType> {
      * @param id 挂号类型唯一标识
      * @return 是否成功
      */
-    boolean removeRegister(Long id);
+    boolean removeRegister(String id);
 
     /**
      * 获取挂号类型名称列表（不分页，仅启用的，用于下拉选择号源类型）

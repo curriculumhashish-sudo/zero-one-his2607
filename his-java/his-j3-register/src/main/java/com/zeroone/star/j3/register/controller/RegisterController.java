@@ -88,7 +88,7 @@ public class RegisterController implements RegisterApis {
     @Operation(summary = "修改挂号类型", description = "根据 id 修改一条挂号类型记录")
     @Parameter(name = "id", description = "挂号类型唯一标识", example = "1", required = true)
     @Override
-    public JsonVO<Boolean> modifyRegister(@PathVariable Long id, @Valid @RequestBody RegisterDTO dto) {
+    public JsonVO<Boolean> modifyRegister(@PathVariable String id, @Valid @RequestBody RegisterDTO dto) {
         boolean success = registerTypeService.modifyRegister(id, dto);
         return JsonVO.success(success);
     }
@@ -103,7 +103,7 @@ public class RegisterController implements RegisterApis {
     @Operation(summary = "删除挂号类型", description = "根据 id 删除一条挂号类型记录")
     @Parameter(name = "id", description = "挂号类型唯一标识", example = "1", required = true)
     @Override
-    public JsonVO<Boolean> removeRegister(@PathVariable Long id) {
+    public JsonVO<Boolean> removeRegister(@PathVariable String id) {
         boolean success = registerTypeService.removeRegister(id);
         return JsonVO.success(success);
     }

@@ -63,7 +63,7 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
     private RegisterVO toVO(RegisterType entity) {
         if (entity == null) return null;
         RegisterVO vo = new RegisterVO();
-        vo.setId(entity.getId() != null ? Long.parseLong(entity.getId()) : null);
+        vo.setId(entity.getId());
         vo.setName(entity.getName());
         vo.setMdtrtCertNo(entity.getMdtrtCertNo());
         // JOIN来的业务编码优先，否则用 type_code
@@ -150,11 +150,14 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
 
     /**
      * 校验挂号类型是否存在且未删除
-     * @param id 挂号类型ID
+     * @param id 挂号类型ID（雪花ID用String传递，避免前端精度丢失）
      * @return 存在的记录
      */
-    private RegisterType requireExisting(Long id) {
-        RegisterType existing = baseMapper.selectById(String.valueOf(id));
+    private RegisterType requireExisting(String id) {
+        if (id == null || id.isBlank()) {
+            throw new IllegalArgumentException("参数不能为空：id 缺失");
+        }
+        RegisterType existing = baseMapper.selectById(id);
         if (existing == null || Integer.valueOf(1).equals(existing.getIsDeleted())) {
             throw new RegisterNotFoundException("挂号类型不存在或已删除，id: " + id);
         }
@@ -163,13 +166,12 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean modifyRegister(Long id, RegisterDTO dto) {
-        if (id == null) throw new IllegalArgumentException("修改参数不能为空：id 缺失");
+    public boolean modifyRegister(String id, RegisterDTO dto) {
         // 先校验记录存在且未删除，避免把已删除数据改活
         RegisterType existing = requireExisting(id);
 
         RegisterType entity = new RegisterType();
-        entity.setId(String.valueOf(id));
+        entity.setId(id);
         entity.setName(dto.getName());
         entity.setMdtrtCertNo(dto.getMdtrtCertNo());
         entity.setAmount(dto.getAmount());
@@ -192,19 +194,12 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
     }
 
     @Override
-    public boolean removeRegister(Long id) {
-        if (id == null) throw new IllegalArgumentException("删除参数不能为空：id 缺失");
+    public boolean removeRegister(String id) {
         // 先校验存在且未删除，重复删除/删除不存在返回明确失败
         requireExisting(id);
 
-        RegisterType entity = new RegisterType();
-        entity.setId(String.valueOf(id));
-        entity.setIsDeleted(1);
-        boolean deleted = updateById(entity);
-        if (!deleted) {
-            throw new RegisterNotFoundException("挂号类型不存在或已删除，id: " + id);
-        }
-        return true;
+        // isDeleted 带 @TableLogic，必须用 removeById 走逻辑删除（手动 updateById 会被忽略）
+        return removeById(id);
     }
 
 
@@ -218,7 +213,7 @@ public class RegisterTypeServiceImpl extends ServiceImpl<RegisterTypeMapper, Reg
                 .eq(RegisterType::getStatus, "ACTIVE")
                 .orderByAsc(RegisterType::getCreatedAt))
                 .stream()
-                .map(rt -> new RegisterNameVO(Long.valueOf(rt.getId()), rt.getName()))
+                .map(rt -> new RegisterNameVO(rt.getId(), rt.getName()))
                 .toList();
     }
 }
