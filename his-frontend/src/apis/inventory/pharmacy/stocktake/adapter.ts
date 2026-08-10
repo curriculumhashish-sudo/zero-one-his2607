@@ -5,7 +5,7 @@ import type {
   PurchaseInboundSavePayload,
   PurchaseInboundStatus,
   SupplierItem
-} from './type'
+} from '@/apis/inventory/common/type'
 
 /** 后端状态字符串 → 前端状态数字 */
 const STATUS_MAP: Record<string, PurchaseInboundStatus> = {

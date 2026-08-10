@@ -6,17 +6,12 @@ import 'element-plus/es/components/message/style/css'
 import 'element-plus/es/components/message-box/style/css'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import './assets/main.css'
-import { DEV_BEARER_TOKEN } from './config/dev-token'
 
 // 使用ElementPlus和FcDesigner
 import FcDesigner from '@form-create/designer'
 import ElementPlus from 'element-plus'
 
 /** 开发联调固定 JWT，用于跳过前端登录页。 */
-if (import.meta.env.DEV) {
-  localStorage.setItem('token', DEV_BEARER_TOKEN)
-}
-
 const app = createApp(App)
 
 app.use(createPinia())

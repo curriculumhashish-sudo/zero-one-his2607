@@ -88,7 +88,8 @@ export default {
           // J5 配置服务通过本地直连代理访问，避免被全局 /api 转发到网关。
           // 提交的时候携带登录凭证
           // 登录后优先使用当前会话 token；固定 token 仅作为无登录联调时的兜底。
-          const token = store.getToken || import.meta.env.VITE_DEV_AUTH_TOKEN || DEV_BEARER_TOKEN
+          const useDevToken = import.meta.env.DEV && import.meta.env.VITE_SKIP_LOGIN === 'true'
+          const token = store.getToken || (useDevToken ? import.meta.env.VITE_DEV_AUTH_TOKEN || DEV_BEARER_TOKEN : '')
           if (token) {
             const tokenHead = (localStorage.getItem('tokenHead') || 'Bearer').trim()
             config.headers['Authorization'] = tokenHead ? `${tokenHead} ${token}` : token

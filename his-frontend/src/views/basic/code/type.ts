@@ -22,7 +22,7 @@ export interface ItemFormModel extends CodeItemSavePayload {
 
 /** 创建空的类型表单 */
 export function createEmptyTypeForm(): TypeFormModel {
-  return { id: '', name: '', title: '', version: '', description: '' }
+  return { id: '', name: '', title: '', description: '' }
 }
 
 /** 创建空的编码项表单 */

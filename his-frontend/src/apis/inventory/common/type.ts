@@ -4,6 +4,12 @@ export type PurchaseInboundStatus = 0 | 1 | 2 | 3 | 4 | 5
 /** 当前页面沿用原目录名，实际展示的是药房盘点单。 */
 export interface PurchaseInboundOrder {
   id: string
+  /** 旧版药房入库适配器使用的兼容展示字段。 */
+  docNo?: string
+  date?: string
+  handler?: string
+  counterparty?: string
+  type?: string
   /** 0=编辑中 1=待审核 2=审核中 3=已撤回 4=同意 5=驳回 */
   status: PurchaseInboundStatus
   /** 药品或耗材。 */

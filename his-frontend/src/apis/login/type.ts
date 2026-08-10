@@ -146,7 +146,7 @@ export interface CaptchaImage {
 }
 
 export interface CaptchaVerifyData {
-  id: string
+  id?: string
   uuid?: string
   code?: string
 }
@@ -155,6 +155,8 @@ export interface Oauth2TokenDTO {
   token: string
   refreshToken: string
   tokenHead?: string
+  user: LoginUser
+  configuration?: LoginConfiguration
 }
 
 export type LoginDTO = LoginParams
