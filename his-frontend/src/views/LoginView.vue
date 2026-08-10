@@ -122,13 +122,8 @@ async function confirmTenant() {
     userStore.setLoginContext({ tenantId: selectedTenantId.value, hospitalId: null, departmentId: null })
     hospitals.value = await loadAvailableHospitals()
     if (!hospitals.value.length) throw new Error('当前租户没有可用医院')
-    if (hospitals.value.length === 1) {
-      selectedHospitalId.value = hospitals.value[0]!.id
-      loading.value = false
-      await confirmHospital()
-    } else {
-      step.value = 'hospital'
-    }
+    selectedHospitalId.value = hospitals.value.length === 1 ? hospitals.value[0]!.id : undefined
+    step.value = 'hospital'
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '租户选择失败，请重试')
   } finally {
@@ -142,20 +137,18 @@ async function confirmHospital() {
   try {
     await selectHospital(selectedHospitalId.value)
     userStore.setLoginContext({ hospitalId: selectedHospitalId.value, departmentId: null })
-    const doctor = userStore.getUser?.roles?.includes('doctor') ?? false
+    const doctor = userStore.getUser?.roles?.some((role) => {
+      const normalized = role.toUpperCase()
+      return normalized === 'DOCTOR' || normalized === 'ROLE_DOCTOR'
+    }) ?? false
     if (!doctor) {
       await finishLogin()
       return
     }
     departments.value = await loadAvailableDepartments()
     if (!departments.value.length) throw new Error('当前医生没有可用机构（科室）')
-    if (departments.value.length === 1) {
-      selectedDepartmentId.value = departments.value[0]!.id
-      loading.value = false
-      await confirmDepartment()
-    } else {
-      step.value = 'department'
-    }
+    selectedDepartmentId.value = departments.value.length === 1 ? departments.value[0]!.id : undefined
+    step.value = 'department'
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '医院选择失败，请重试')
   } finally {

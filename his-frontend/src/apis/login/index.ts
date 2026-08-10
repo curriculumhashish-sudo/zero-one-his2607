@@ -39,16 +39,20 @@ export const verifyCaptcha = (data: CaptchaVerifyData) =>
   })
 
 export const loginAccount = (data: LoginParams) =>
-  request(authHttp.post<Oauth2TokenDTO>('/auth-login', data))
+  request(authHttp.post<Oauth2TokenDTO>('/login', data))
 
 export const loadAvailableTenants = () =>
   request(authHttp.get<TenantInfo[]>('/auth/tenants'))
 
 export const selectTenant = (tenantId: number | string) =>
-  request(authHttp.post<TenantInfo>('/auth/select', { tenantId: Number(tenantId) }))
+  request(authHttp.post<TenantInfo>('/auth/select', { tenantId: String(tenantId) }))
 
 export const loadAvailableHospitals = () =>
-  request(authHttp.get<LoginOrganizationOption[]>('/auth/hospitals'))
+  request(
+    authHttp.get<LoginOrganizationOption[]>('/auth/hospitals', undefined, {
+      transformResponse: [(data: unknown) => parseHospitalResponse(data)]
+    })
+  )
 
 export const selectHospital = (hospitalId: number | string) =>
   request(authHttp.post<LoginOrganizationOption>('/auth/hospital/select', {
@@ -64,10 +68,10 @@ export const selectDepartment = (departmentId: string) =>
   }))
 
 export const loadCurrentMenus = () =>
-  request<RouteMenuRecord[]>(authHttp.get('/get-menus'))
+  request<RouteMenuRecord[]>(authHttp.get('/auth/menus'))
 
 export async function loadCurrentUser(): Promise<UserInfo> {
-  const user = await request<BackendLoginUser>(authHttp.get('/current-user'))
+  const user = await request<BackendLoginUser>(authHttp.get('/user/info'))
   return {
     avatar: user.avatar ?? '',
     realName: user.realName ?? user.name ?? user.username ?? '',
@@ -78,6 +82,14 @@ export async function loadCurrentUser(): Promise<UserInfo> {
     homePath: user.homePath ?? '/home',
     token: typeof localStorage === 'undefined' ? '' : localStorage.getItem('token') ?? ''
   }
+}
+
+function parseHospitalResponse(data: unknown) {
+  if (typeof data !== 'string') return data
+
+  // 医院 ID 超过 JavaScript 安全整数范围，先转成字符串再交给业务层。
+  const safeJson = data.replace(/("id"\s*:\s*)(\d{16,})(?=\s*[,}])/g, '$1"$2"')
+  return JSON.parse(safeJson)
 }
 
 interface BackendLoginUser {
