@@ -44,6 +44,6 @@ public class OutpatientRefundDetailQuery {
     /**
      * 药品分类（对应 med_medication_definition.category_code）
      */
-    @Schema(description = "药品分类编码", example = "western")
+    @Schema(description = "药品分类编码（2-西药 4-中药）", example = "4")
     private String categoryCode;
 }

@@ -23,7 +23,7 @@ import jakarta.validation.constraints.NotBlank;
 public class DispenseRejectQuery {
 
     @NotBlank(message = "汇总单号不能为空")
-    @Schema(description = "汇总单号", example = "HZ20240719001", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "汇总单号（测试库暂无住院发药汇总单数据）", example = "HZ20240719001", requiredMode = Schema.RequiredMode.REQUIRED)
     private String summaryNo;
 
     @NotBlank(message = "驳回原因不能为空")

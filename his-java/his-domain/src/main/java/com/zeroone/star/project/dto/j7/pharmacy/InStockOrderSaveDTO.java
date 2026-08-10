@@ -27,25 +27,25 @@ import java.time.LocalDateTime;
 @Schema(description = "入库单全量信息DTO（保存/提交审批用）")
 public class InStockOrderSaveDTO extends InStockOrderCreateDTO {
 
-    @Schema(description = "单据ID（保存时必填，新增时不传）", example = "322955305339588608")
+    @Schema(description = "单据ID（保存时必填，新增时不传）", example = "330265145864359936")
     private String id;
 
-    @Schema(description = "单据状态", example = "DRAFT")
+    @Schema(description = "单据状态（PENDING_APPROVAL-待审批 APPROVAL-审批中 AGREE-已通过 WITHDRAW-已撤回）", example = "AGREE")
     @Size(max = 32, message = "单据状态长度不能超过32个字符")
     private String statusEnum;
 
-    @Schema(description = "制单人ID", example = "user_001")
+    @Schema(description = "制单人ID", example = "308791351298756608")
     private String createdBy;
 
-    @Schema(description = "制单时间", example = "2026-07-30 10:15:30")
+    @Schema(description = "制单时间", example = "2026-06-30 16:35:46")
     private LocalDateTime createdAt;
 
-    @Schema(description = "审批人ID", example = "approver_01")
+    @Schema(description = "审批人ID", example = "308791351298756608")
     private String approverId;
 
-    @Schema(description = "审批时间", example = "2026-07-30 11:20:00")
+    @Schema(description = "审批时间", example = "2026-06-30 16:35:46")
     private LocalDateTime approvalTime;
 
-    @Schema(description = "整单总金额（由后端汇总）", example = "12500.00")
+    @Schema(description = "整单总金额（由后端汇总）", example = "55.92")
     private BigDecimal totalPrice;
 }

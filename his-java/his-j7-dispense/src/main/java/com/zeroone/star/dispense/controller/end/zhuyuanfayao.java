@@ -39,7 +39,7 @@ public class zhuyuanfayao implements DispensingApis {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
             content = @Content(schema = @Schema(implementation = DispensingSummaryPageJsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"pageIndex\":1,\"pageSize\":10,\"total\":1,\"pages\":1,\"rows\":[{\"summaryNo\":\"HZ20240719001\",\"wardId\":\"loc001\",\"wardName\":\"内科一病区\",\"deptId\":\"org001\",\"deptName\":\"住院药房\",\"totalQty\":50.00,\"patientCount\":5,\"status\":\"PENDING\",\"createTime\":\"2026-07-19 10:30:00\",\"dispenseTime\":null,\"operatorName\":\"药师张三\"}]}}")))
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"pageIndex\":1,\"pageSize\":10,\"total\":0,\"pages\":0,\"rows\":[]}}")))
     })
     @PostMapping("query-summary-list")
     @Override
@@ -52,7 +52,7 @@ public class zhuyuanfayao implements DispensingApis {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
             content = @Content(schema = @Schema(implementation = PatientMedicationListJsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":[{\"id\":\"d001\",\"summaryNo\":\"HZ20240719001\",\"patientId\":\"pat001\",\"patientName\":\"张三\",\"bedNo\":\"01床\",\"medicationId\":\"med001\",\"drugCode\":\"YP0001\",\"drugName\":\"阿莫西林胶囊\",\"spec\":\"0.25g*24粒\",\"unit\":\"盒\",\"quantity\":10.00,\"dispenseQuantity\":null,\"dosageInstruction\":\"口服，每日三次\",\"frequencyCode\":\"TID\",\"lotNumber\":null}]}")))
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":[]}")))
     })
     @GetMapping("query-patient-medications")
     @Override

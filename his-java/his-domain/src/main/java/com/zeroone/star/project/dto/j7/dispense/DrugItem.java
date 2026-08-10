@@ -27,10 +27,10 @@ public class DrugItem {
     @Schema(description = "拼音码", example = "DG")
     private String pyStr;
 
-    @Schema(description = "剂型", example = "片剂")
+    @Schema(description = "剂型", example = "饮片")
     private String doseForm;
 
-    @Schema(description = "生产厂家", example = "广州白云山制药")
+    @Schema(description = "生产厂家", example = "安国市中药材市场")
     private String manufacturer;
 
     @Schema(description = "国药准字", example = "Z62020001")
@@ -42,7 +42,7 @@ public class DrugItem {
     @Schema(description = "实发数量", example = "30.00")
     private BigDecimal dispenseQuantity;
 
-    @Schema(description = "单位", example = "盒")
+    @Schema(description = "单位", example = "g")
     private String unit;
 
     @Schema(description = "批号", example = "001-011")
@@ -51,7 +51,7 @@ public class DrugItem {
     @Schema(description = "用法用量", example = "口服，每日三次")
     private String dosageInstruction;
 
-    @Schema(description = "状态", example = "PENDING")
+    @Schema(description = "状态", example = "COMPLETED")
     private String statusEnum;
 
     @Schema(description = "追溯码", example = "TRACE-001")

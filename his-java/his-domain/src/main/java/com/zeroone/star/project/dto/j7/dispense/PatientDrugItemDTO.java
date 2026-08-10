@@ -13,23 +13,23 @@ import lombok.EqualsAndHashCode;
 @Schema(description = "患者药品项目查询请求参数")
 public class PatientDrugItemDTO extends PageDTO {
 
-    @Schema(description = "租户ID", example = "t001")
+    @Schema(description = "租户ID", example = "1")
     private String tenantId;
 
     @Schema(description = "患者ID（必传，关联患者表）",
             requiredMode = Schema.RequiredMode.REQUIRED,
-            example = "p123456")
+            example = "326940849401761792")
     private String patientId;
 
-    @Schema(description = "就诊ID（可选，精确筛选单次就诊处方）", example = "e789012")
+    @Schema(description = "就诊ID（可选，精确筛选单次就诊处方）", example = "329874660147597312")
     private String encounterId;
 
-    @Schema(description = "发药状态枚举(dispense_enum)：0-未发药 1-部分发药 2-已发药", example = "2")
+    @Schema(description = "发药状态枚举(dispense_enum)：OUTPATIENT-门诊发药 REFUND-退药 INPATIENT-住院发药", example = "REFUND")
     private String dispenseEnum;
 
-    @Schema(description = "处方状态枚举(status_enum)：0-待发药 1-已完成 2-已取消", example = "1")
+    @Schema(description = "处方状态枚举(status_enum)：PENDING-待执行 COMPLETED-已完成 REFUNDED-已退药 DECLINED-退药拒绝", example = "REFUNDED")
     private String statusEnum;
 
-    @Schema(description = "开单业务号(bus_no)", example = "RX20260101001")
+    @Schema(description = "开单业务号(bus_no,退药单号)", example = "MDP2026-06-290009")
     private String busNo;
 }

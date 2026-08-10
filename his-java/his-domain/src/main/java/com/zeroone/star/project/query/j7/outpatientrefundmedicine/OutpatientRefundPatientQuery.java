@@ -1,4 +1,4 @@
-package com.zeroone.star.project.query.j7.refundmedicine;
+package com.zeroone.star.project.query.j7.outpatientrefundmedicine;
 
 import com.zeroone.star.project.query.PageQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,30 +24,30 @@ public class OutpatientRefundPatientQuery extends PageQuery {
     /**
      * 药房位置ID（对应 med_medication_request.location_id / perform_location）
      */
-    @Schema(description = "药房位置ID", example = "322663218269917184")
+    @Schema(description = "药房位置ID", example = "322954984441778176")
     private String locationId;
 
     /**
      * 病区/科室ID（对应 med_medication_request.org_id）
      */
-    @Schema(description = "病区/科室ID", example = "322963602326687744")
+    @Schema(description = "病区/科室ID", example = "322663218269917184")
     private String orgId;
 
     /**
      * 申请开始日期
      */
-    @Schema(description = "申请开始日期", example = "2026-07-01")
+    @Schema(description = "申请开始日期", example = "2026-06-29")
     private String applyStartDate;
 
     /**
      * 申请结束日期
      */
-    @Schema(description = "申请结束日期", example = "2026-07-19")
+    @Schema(description = "申请结束日期", example = "2026-06-30")
     private String applyEndDate;
 
     /**
      * 患者关键字（姓名/住院号）
      */
-    @Schema(description = "患者关键字（姓名/住院号）", example = "张三")
+    @Schema(description = "患者关键字（姓名/住院号）", example = "周女士")
     private String keyword;
 }

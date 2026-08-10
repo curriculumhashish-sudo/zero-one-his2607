@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Data
 public class ApproveDTO {
 
-    @Schema(description = "盘点单明细编号", example = "PST20260630120000001")
+    @Schema(description = "盘点单明细编号", example = "PST2026-06-300001")
     @NotBlank(message = "盘点单明细编号不能为空")
     @Size(max = 255, message = "盘点单明细编号长度不能超过255个字符")
     private String busNo;

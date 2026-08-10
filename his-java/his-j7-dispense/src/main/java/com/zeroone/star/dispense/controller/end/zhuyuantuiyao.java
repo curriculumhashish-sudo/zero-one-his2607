@@ -38,7 +38,7 @@ public class zhuyuantuiyao implements InpatientRefundMedicineApis {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
             content = @Content(schema = @Schema(implementation = InpatientRefundPatientPageJsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"pageIndex\":1,\"pageSize\":10,\"total\":1,\"pages\":1,\"rows\":[{\"id\":\"329874660147597312\",\"patientName\":\"张三\",\"genderEnum\":\"1\",\"genderEnumText\":\"男\",\"ageLabel\":\"45岁\",\"wardName\":\"内科病区\",\"bedName\":\"08床\",\"hospitalizationNo\":\"ZY20260719001\",\"refundEnum\":\"PENDING_REFUND\",\"refundEnumText\":\"待退药\"}]}}")))
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"pageIndex\":1,\"pageSize\":10,\"total\":2,\"pages\":1,\"rows\":[{\"id\":\"330317605098229760\",\"patientName\":\"小赵\",\"genderEnum\":\"MALE\",\"genderEnumText\":\"MALE\",\"ageLabel\":\"17岁\",\"wardName\":\"内科疗区\",\"bedName\":\"1号床\",\"hospitalizationNo\":\"ZY2026-06-300002\",\"refundEnum\":\"PENDING_REFUND\",\"refundEnumText\":\"待退药\"},{\"id\":\"330316881840836608\",\"patientName\":\"周女士\",\"genderEnum\":\"FEMALE\",\"genderEnumText\":\"FEMALE\",\"ageLabel\":\"26岁\",\"wardName\":\"内科疗区\",\"bedName\":\"1号床\",\"hospitalizationNo\":\"ZY2026-06-300001\",\"refundEnum\":\"PENDING_REFUND\",\"refundEnumText\":\"待退药\"}]}}")))
     })
     @Override
     public JsonVO<PageDTO<InpatientRefundPatientVO>> queryPatientQueue(
@@ -51,7 +51,7 @@ public class zhuyuantuiyao implements InpatientRefundMedicineApis {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
             content = @Content(schema = @Schema(implementation = InpatientRefundDetailListJsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":[{\"id\":\"329906419476205568\",\"dispenseId\":\"329906419476205568\",\"requestId\":\"329891428408758272\",\"itemId\":\"322997883812974592\",\"itemName\":\"阿莫西林胶囊\",\"lotNumber\":\"20260501\",\"quantity\":1.00,\"unitCode\":\"8\",\"unitText\":\"瓶\",\"doctorName\":\"王医生\",\"refundEnum\":\"PENDING_REFUND\",\"refundEnumText\":\"待退药\",\"traceNo\":null,\"selectable\":true}]}")))
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":[{\"id\":\"990000000000000002\",\"dispenseId\":\"990000000000000002\",\"requestId\":\"990000000000000102\",\"itemId\":\"323999010000000013\",\"itemName\":\"白芍\",\"lotNumber\":\"LOT-TEST-002\",\"quantity\":5.00,\"unitCode\":\"10\",\"unitText\":\"g\",\"doctorName\":\"\",\"refundEnum\":\"PENDING_REFUND\",\"refundEnumText\":\"待退药\",\"traceNo\":null,\"selectable\":true},{\"id\":\"990000000000000001\",\"dispenseId\":\"990000000000000001\",\"requestId\":\"990000000000000101\",\"itemId\":\"323999010000000012\",\"itemName\":\"当归\",\"lotNumber\":\"LOT-TEST-001\",\"quantity\":10.00,\"unitCode\":\"10\",\"unitText\":\"g\",\"doctorName\":\"\",\"refundEnum\":\"PENDING_REFUND\",\"refundEnumText\":\"待退药\",\"traceNo\":null,\"selectable\":true}]}")))
     })
     @Override
     public JsonVO<List<InpatientRefundDetailVO>> queryRefundDetail(

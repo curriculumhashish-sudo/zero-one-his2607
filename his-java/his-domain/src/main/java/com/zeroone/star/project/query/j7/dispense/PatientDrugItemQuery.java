@@ -13,21 +13,21 @@ import lombok.EqualsAndHashCode;
 @Schema(description = "患者药品项目数据库查询条件")
 public class PatientDrugItemQuery extends PageQuery {
 
-    @Schema(description = "租户ID", example = "t001")
+    @Schema(description = "租户ID", example = "1")
     private String tenantId;
 
-    @Schema(description = "患者ID", example = "p123456")
+    @Schema(description = "患者ID", example = "326940849401761792")
     private String patientId;
 
-    @Schema(description = "就诊ID", example = "e789012")
+    @Schema(description = "就诊ID", example = "329874660147597312")
     private String encounterId;
 
-    @Schema(description = "发药状态枚举(dispense_enum)", example = "2")
+    @Schema(description = "发放类型枚举(dispense_enum)：OUTPATIENT-门诊发药 REFUND-退药", example = "REFUND")
     private String dispenseEnum;
 
-    @Schema(description = "处方状态枚举(status_enum)", example = "1")
+    @Schema(description = "执行状态枚举(status_enum)：PENDING/COMPLETED/REFUNDED/DECLINED", example = "REFUNDED")
     private String statusEnum;
 
-    @Schema(description = "开单业务号", example = "RX20260101001")
+    @Schema(description = "开单业务号(退药单号)", example = "MDP2026-06-290009")
     private String busNo;
 }

@@ -27,30 +27,30 @@ public class PurchaseInboundItemDTO {
 
     @NotBlank(message = "药品/物资ID不能为空")
     @Size(max = 64, message = "药品/物资ID长度不能超过64个字符")
-    @Schema(description = "药品/物资ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "MED_001")
+    @Schema(description = "药品/物资ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "322994171216400384")
     private String itemId;
 
     @Size(max = 255, message = "批号长度不能超过255个字符")
-    @Schema(description = "批号", example = "20260701")
+    @Schema(description = "批号", example = "001-001")
     private String lotNumber;
 
-    @Schema(description = "生产日期", example = "2026-01-01")
+    @Schema(description = "生产日期", example = "2026-06-30")
     private LocalDate productionDate;
 
-    @Schema(description = "有效期至", example = "2028-01-01")
+    @Schema(description = "有效期至", example = "2028-07-30")
     private LocalDate expirationDate;
 
     @NotNull(message = "入库数量不能为空")
     @Min(value = 1, message = "入库数量必须大于0")
-    @Schema(description = "入库数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "100")
+    @Schema(description = "入库数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "160")
     private BigDecimal quantity;
 
     @Size(max = 64, message = "单位编码长度不能超过64个字符")
-    @Schema(description = "单位编码", example = "BOX")
+    @Schema(description = "单位编码", example = "5")
     private String unitCode;
 
     @Min(value = 0, message = "单价不能为负数")
-    @Schema(description = "单价", example = "15.00")
+    @Schema(description = "单价", example = "6.99")
     private BigDecimal price;
 
     @Size(max = 255, message = "备注长度不能超过255个字符")

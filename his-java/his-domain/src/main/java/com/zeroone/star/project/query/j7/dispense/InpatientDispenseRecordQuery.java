@@ -24,13 +24,13 @@ public class InpatientDispenseRecordQuery extends PageQuery {
         setPageSize(20);
     }
 
-    @Schema(description = "病区ID", example = "WARD-001")
+    @Schema(description = "病区ID", example = "322955305339588608")
     private String wardId;
 
-    @Schema(description = "患者姓名或住院号", example = "张三")
+    @Schema(description = "患者姓名或住院号", example = "周女士")
     private String patientKeyword;
 
-    @Schema(description = "床号", example = "08床")
+    @Schema(description = "床号", example = "1号床")
     private String bedNo;
 
     @Schema(description = "发退药状态枚举值", example = "COMPLETED")
@@ -47,7 +47,7 @@ public class InpatientDispenseRecordQuery extends PageQuery {
     @Pattern(regexp = "^$|^\\d{4}-\\d{2}-\\d{2}( \\d{2}:\\d{2}:\\d{2})?$", message = "结束时间格式应为yyyy-MM-dd或yyyy-MM-dd HH:mm:ss")
     private String endTime;
 
-    @Schema(description = "药品名称、拼音码或五笔码", example = "阿托伐他汀")
+    @Schema(description = "药品名称、拼音码或五笔码", example = "当归")
     private String drugKeyword;
 
     @JsonIgnore

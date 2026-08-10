@@ -14,6 +14,6 @@ public class BatchDispenseCommand {
     @NotEmpty(message = "发药记录ID列表不能为空")
     private List<String> dispenseIds;
 
-    @Schema(description = "发药人ID（不传则取当前登录用户）", example = "prac_001")
+    @Schema(description = "发药人ID（不传则取当前登录用户）", example = "308791351298756608")
     private String practitionerId;
 }

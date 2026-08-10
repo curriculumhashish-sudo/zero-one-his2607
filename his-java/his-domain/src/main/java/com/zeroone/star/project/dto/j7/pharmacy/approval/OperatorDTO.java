@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 public class OperatorDTO {
 
-    @Schema(description = "业务编号", example = "PST20260630120000001")
+    @Schema(description = "业务编号", example = "PST2026-06-300001")
     @NotBlank(message = "busNo不能为空")
     @Size(max = 255, message = "busNo长度不能超过255个字符")
     private String busNo;

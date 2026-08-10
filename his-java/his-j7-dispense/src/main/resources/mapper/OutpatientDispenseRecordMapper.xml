@@ -42,7 +42,7 @@
 
     <sql id="outpatientDispenseWhere">
         WHERE d.is_deleted = 0
-          AND UPPER(e.class_enum) = 'OUTPATIENT'
+          AND UPPER(e.class_enum) IN ('OUTPATIENT', 'AMB')
         <if test="query.startDate != null and query.startDate != ''">
             AND d.dispense_time &gt;= #{query.startDate}
         </if>

@@ -75,7 +75,7 @@ public class menzhentuiyao {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
             content = @Content(schema = @Schema(implementation = PatientQueuePageJsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"records\":[],\"total\":0,\"size\":10,\"current\":1,\"pages\":0}}")))
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"records\":[{\"patientId\":\"326940849401761792\",\"encounterId\":\"329874660147597312\",\"name\":\"周女士\",\"age\":26,\"genderEnum\":\"FEMALE\",\"phone\":\"13854489876\",\"statusEnum\":\"REFUNDED\",\"dispenseEnum\":\"REFUND\",\"drugCount\":2,\"createdAt\":\"2026-06-29 16:50:19\"}],\"total\":1,\"size\":10,\"current\":1,\"pages\":1}}")))
     })
     public JsonVO<IPage<PatientQueueVO>> getPatientQueue(@RequestBody PatientQueueQuery query) {
         return JsonVO.success(outpatientRefundService.queryRefundPatientQueue(query));
@@ -96,7 +96,7 @@ public class menzhentuiyao {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
             content = @Content(schema = @Schema(implementation = PatientDrugItemListJsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":[]}")))
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":[{\"id\":\"329906419664949248\",\"tenantId\":\"1\",\"busNo\":\"MDP2026-06-290010\",\"statusEnum\":\"DECLINED\",\"dispenseEnum\":\"REFUND\",\"medicationId\":\"323999010000000013\",\"patientId\":\"326940849401761792\",\"encounterId\":\"329874660147597312\",\"medReqId\":\"329906419656560640\",\"quantity\":30.00,\"unitCode\":\"10\",\"dispenseQuantity\":null,\"lotNumber\":\"001-012\",\"preparerId\":null,\"prepareTime\":null,\"practitionerId\":\"308791351298756608\",\"dispenseTime\":\"2026-06-29 16:58:42\",\"dosageInstruction\":null,\"methodCode\":null,\"frequencyCode\":null,\"dose\":null,\"doseUnitCode\":null,\"summaryNo\":null,\"name\":\"白芍\",\"merchandiseName\":\"白芍\",\"categoryCode\":\"4\",\"totalVolume\":\"饮片\",\"comprisedText\":\"饮片\",\"ingredient\":null,\"approvalNumber\":null,\"skinTestFlag\":0,\"injectFlag\":0,\"manufacturerText\":\"安国市中药材市场\",\"antibioticFlag\":0,\"rxFlag\":1,\"doseFormCode\":\"11\",\"packageUnitCode\":\"10\",\"pyStr\":\"BX\"},{\"id\":\"329906419635589120\",\"tenantId\":\"1\",\"busNo\":\"MDP2026-06-290009\",\"statusEnum\":\"REFUNDED\",\"dispenseEnum\":\"REFUND\",\"medicationId\":\"323999010000000012\",\"patientId\":\"326940849401761792\",\"encounterId\":\"329874660147597312\",\"medReqId\":\"329906419623006208\",\"quantity\":30.00,\"unitCode\":\"10\",\"dispenseQuantity\":30.00,\"lotNumber\":\"001-011\",\"preparerId\":null,\"prepareTime\":null,\"practitionerId\":\"308791351298756608\",\"dispenseTime\":\"2026-06-29 16:57:52\",\"dosageInstruction\":null,\"methodCode\":null,\"frequencyCode\":null,\"dose\":null,\"doseUnitCode\":null,\"summaryNo\":null,\"name\":\"当归\",\"merchandiseName\":\"当归\",\"categoryCode\":\"4\",\"totalVolume\":\"饮片\",\"comprisedText\":\"饮片\",\"ingredient\":null,\"approvalNumber\":null,\"skinTestFlag\":0,\"injectFlag\":0,\"manufacturerText\":\"安国市中药材市场\",\"antibioticFlag\":0,\"rxFlag\":1,\"doseFormCode\":\"11\",\"packageUnitCode\":\"10\",\"pyStr\":\"DG\"}]}")))
     })
     public JsonVO<List<PatientDrugItemVO>> getRefundDrugItems(@RequestBody PatientDrugItemQuery query) {
         return JsonVO.success(outpatientRefundService.queryRefundDrugItems(query));

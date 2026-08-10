@@ -48,7 +48,7 @@ public class menzhenfayao implements OutPharmApis {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
             content = @Content(schema = @Schema(implementation = PatientQueuePageJsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"records\":[],\"total\":0,\"size\":10,\"current\":1,\"pages\":0}}")))
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"records\":[{\"patientId\":\"326940849401761792\",\"encounterId\":\"329874660147597312\",\"name\":\"周女士\",\"age\":26,\"genderEnum\":\"FEMALE\",\"phone\":\"13854489876\",\"statusEnum\":\"COMPLETED\",\"dispenseEnum\":\"OUTPATIENT\",\"drugCount\":6,\"createdAt\":\"2026-06-29 16:54:17\"}],\"total\":1,\"size\":10,\"current\":1,\"pages\":1}}")))
     })
     @PostMapping("/patient-queue")
     @Override
@@ -64,7 +64,7 @@ public class menzhenfayao implements OutPharmApis {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
             content = @Content(schema = @Schema(implementation = PatientDrugItemPageJsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"records\":[],\"total\":0,\"size\":10,\"current\":1,\"pages\":0}}")))
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"records\":[{\"id\":\"329907418609750016\",\"tenantId\":\"1\",\"busNo\":\"MDP2026-06-290013\",\"statusEnum\":\"COMPLETED\",\"dispenseEnum\":\"OUTPATIENT\",\"medicationId\":\"322997883812974592\",\"patientId\":\"326940849401761792\",\"encounterId\":\"329874660147597312\",\"medReqId\":\"329906419476205568\",\"quantity\":1.00,\"unitCode\":\"8\",\"dispenseQuantity\":1.00,\"lotNumber\":\"001-008\",\"preparerId\":\"322932010683207680\",\"prepareTime\":\"2026-06-29 19:43:25\",\"practitionerId\":\"308791351298756608\",\"dispenseTime\":\"2026-06-29 19:43:25\",\"dosageInstruction\":null,\"methodCode\":null,\"frequencyCode\":null,\"dose\":null,\"doseUnitCode\":null,\"summaryNo\":null,\"name\":\"注射用头孢呋辛钠\",\"merchandiseName\":\"注射用头孢呋辛钠\",\"categoryCode\":\"8\",\"totalVolume\":\"0.75g\",\"comprisedText\":null,\"ingredient\":null,\"approvalNumber\":null,\"skinTestFlag\":0,\"injectFlag\":1,\"manufacturerText\":\"山东润泽制药有限公司\",\"antibioticFlag\":0,\"rxFlag\":1,\"doseFormCode\":\"4\",\"packageUnitCode\":\"10\",\"pyStr\":\"ZSYTBFXN\"}],\"total\":1,\"size\":10,\"current\":1,\"pages\":1}}")))
     })
     @PostMapping("/patient-drug-items")
     @Override
@@ -80,7 +80,7 @@ public class menzhenfayao implements OutPharmApis {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
             content = @Content(schema = @Schema(implementation = BatchDispenseResultJsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"successCount\":2,\"failCount\":0,\"successIds\":[\"d001\",\"d002\"],\"failIds\":[],\"message\":\"批量发药完成\"}}")))
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"successCount\":0,\"failCount\":2,\"successIds\":[],\"failIds\":[\"329907418504892416\",\"329907418609750016\"],\"message\":\"发药完成：成功 0 条，失败 2 条\"}}")))
     })
     @PostMapping("/batch-dispense")
     @Override

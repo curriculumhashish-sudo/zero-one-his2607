@@ -32,7 +32,7 @@ import java.util.List;
 public class ReturnRejectDTO {
     @NotBlank(message = "退药申请单ID不能为空")
     @Size(max = 64, message = "退药申请单ID长度不能超过64个字符")
-    @Schema(description = "退药申请单ID", example = "326940849401761792", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "退药申请单ID", example = "329906419664949248", requiredMode = Schema.RequiredMode.REQUIRED)
     private String returnId;
 
     @NotBlank(message = "患者ID不能为空")
@@ -40,13 +40,13 @@ public class ReturnRejectDTO {
     @Schema(description = "患者ID", example = "326940849401761792", requiredMode = Schema.RequiredMode.REQUIRED)
     private String patientId;
 
-    @Schema(description = "患者姓名", example = "张三")
+    @Schema(description = "患者姓名", example = "周女士")
     private String patientName;
 
     @Size(max = 255, message = "驳回原因长度不能超过255个字符")
-    @Schema(description = "驳回原因", example = "药品已拆封，不符合退药条件")
+    @Schema(description = "驳回原因", example = "药品已开封")
     private String rejectReason;
 
-    @Schema(description = "驳回的药品明细ID列表", example = "[\"329891909520592897\"]")
+    @Schema(description = "驳回的药品明细ID列表", example = "[\"329906419664949248\"]")
     private List<String> itemIds;
 }

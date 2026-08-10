@@ -29,7 +29,7 @@ public class DispenseVerifyDTO {
 
     @NotBlank(message = "汇总单号不能为空")
     @Size(max = 255, message = "汇总单号长度不能超过255个字符")
-    @Schema(description = "汇总单号", example = "HZ20240719001", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "汇总单号（测试库暂无住院发药汇总单数据）", example = "HZ20240719001", requiredMode = Schema.RequiredMode.REQUIRED)
     private String summaryNo;
 
     @NotEmpty(message = "发药明细不能为空")
@@ -37,10 +37,10 @@ public class DispenseVerifyDTO {
     @Schema(description = "发药明细核对列表", requiredMode = Schema.RequiredMode.REQUIRED)
     private List<VerifyItem> items;
 
-    @Schema(description = "调配药师ID（对应 practitioner_id）", example = "prac1234567890123456789")
+    @Schema(description = "调配药师ID（对应 practitioner_id）", example = "308791351298756608")
     private String practitionerId;
 
-    @Schema(description = "领药人ID（对应 rec_practitioner_id）", example = "prac9876543210987654321")
+    @Schema(description = "领药人ID（对应 rec_practitioner_id）", example = "322932010683207680")
     private String recPractitionerId;
 
     @Data
@@ -51,15 +51,15 @@ public class DispenseVerifyDTO {
 
         @NotBlank(message = "发药记录主键不能为空")
         @Size(max = 64, message = "发药记录主键长度不能超过64个字符")
-        @Schema(description = "发药记录主键", example = "d12345678901234567890", requiredMode = Schema.RequiredMode.REQUIRED)
+        @Schema(description = "发药记录主键", example = "990000000000000001", requiredMode = Schema.RequiredMode.REQUIRED)
         private String dispenseId;
 
         @NotNull(message = "实发数量不能为空")
-        @Schema(description = "实发数量", example = "2", requiredMode = Schema.RequiredMode.REQUIRED)
+        @Schema(description = "实发数量", example = "10", requiredMode = Schema.RequiredMode.REQUIRED)
         private java.math.BigDecimal dispenseQuantity;
 
         @Size(max = 255, message = "批号长度不能超过255个字符")
-        @Schema(description = "批号", example = "BATCH20240701")
+        @Schema(description = "批号", example = "LOT-TEST-001")
         private String lotNumber;
     }
 }

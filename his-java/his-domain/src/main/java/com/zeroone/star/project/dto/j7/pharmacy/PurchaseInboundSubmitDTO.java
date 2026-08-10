@@ -16,7 +16,7 @@ public class PurchaseInboundSubmitDTO {
 
     @NotBlank(message = "入库单ID不能为空")
     @Size(max = 64, message = "入库单ID长度不能超过64个字符")
-    @Schema(description = "入库单ID (若为纯状态流转接口则必填)", example = "1")
+    @Schema(description = "入库单ID (若为纯状态流转接口则必填)", example = "330265145864359936")
     private String id;
 
     @Valid

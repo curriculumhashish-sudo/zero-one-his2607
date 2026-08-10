@@ -34,7 +34,7 @@ import java.util.List;
 public class ReturnConfirmDTO {
     @NotBlank(message = "退药申请单ID不能为空")
     @Size(max = 64, message = "退药申请单ID长度不能超过64个字符")
-    @Schema(description = "退药申请单ID", example = "326940849401761792", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "退药申请单ID", example = "990000000000000001", requiredMode = Schema.RequiredMode.REQUIRED)
     private String returnId;
 
     @NotBlank(message = "患者ID不能为空")
@@ -46,9 +46,9 @@ public class ReturnConfirmDTO {
     private String patientName;
 
     @NotEmpty(message = "确认退药的药品明细不能为空")
-    @Schema(description = "确认退药的药品明细ID列表", example = "[\"329891909520592897\"]", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "确认退药的药品明细ID列表", example = "[\"990000000000000001\",\"990000000000000002\"]", requiredMode = Schema.RequiredMode.REQUIRED)
     private List<String> itemIds;
 
-    @Schema(description = "操作人", example = "prac_001")
+    @Schema(description = "操作人", example = "308791351298756608")
     private String operator;
 }

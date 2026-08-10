@@ -34,17 +34,17 @@ public class DispenseRejectDTO {
     private String patientId;
 
     @Size(max = 64, message = "患者姓名长度不能超过64个字符")
-    @Schema(description = "患者姓名", example = "张三")
+    @Schema(description = "患者姓名", example = "周女士")
     private String patientName;
 
     @NotBlank(message = "汇总单ID不能为空")
     @Size(max = 64, message = "汇总单ID长度不能超过64个字符")
-    @Schema(description = "汇总单ID", example = "SUM20260719001", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "汇总单ID（测试库暂无住院发药汇总单数据）", example = "SUM20260719001", requiredMode = Schema.RequiredMode.REQUIRED)
     private String summaryId;
 
     @NotBlank(message = "发药单据ID不能为空")
     @Size(max = 64, message = "发药单据ID长度不能超过64个字符")
-    @Schema(description = "发药单据ID", example = "d12345678901234567890", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "发药单据ID", example = "990000000000000001", requiredMode = Schema.RequiredMode.REQUIRED)
     private String dispensingId;
 
     @Size(max = 255, message = "驳回原因长度不能超过255个字符")
