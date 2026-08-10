@@ -522,6 +522,7 @@ drug:
     retailPrice: 零售价格
     maximumRetailPrice: 最高零售价格
     statusEnum: 药品状态枚举
+    targetStatus: 目标状态，仅允许 ACTIVE（启用）或 INACTIVE（停用）
     statusEnumText: 药品状态名称
     statusText: 药品状态文本
     activeFlagText: 启停状态名称

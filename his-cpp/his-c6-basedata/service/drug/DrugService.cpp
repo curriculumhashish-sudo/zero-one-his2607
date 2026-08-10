@@ -30,6 +30,7 @@
 #include <cctype>
 #include <exception>
 
+// 校验药品编号是否可安全用于业务查询。
 static bool isValidId(const oatpp::String &id)
 {
     if (!id)
@@ -45,6 +46,7 @@ static bool isValidId(const oatpp::String &id)
                        { return std::isalnum(character) != 0 || character == '-' || character == '_'; });
 }
 
+// 从凭证中取得审计操作人编号。
 static std::string operatorId(const PayloadDTO &payload)
 {
     if (!payload.getId().empty())
@@ -58,6 +60,7 @@ static std::string operatorId(const PayloadDTO &payload)
     throw DrugServiceException(DrugServiceError::InvalidInput);
 }
 
+// 阻止当前用户跨租户修改药品数据。
 static void ensureTenantAccess(DrugDAO &dao, const PayloadDTO &payload, const std::string &tenantId)
 {
     if (!dao.hasTenantAccess(payload.getId(), payload.getUsername(), tenantId))
@@ -66,6 +69,7 @@ static void ensureTenantAccess(DrugDAO &dao, const PayloadDTO &payload, const st
     }
 }
 
+// 使用领域转换宏填充请求中显式传入的修改字段。
 static void fillMedicineV2Patch(MedMedicationDefinitionDO &data, const std::string &id,
                                 const MedicineUpdateDTO::Wrapper &dto,
                                 const std::string &updatedBy, const std::string &updatedAt)
@@ -73,35 +77,44 @@ static void fillMedicineV2Patch(MedMedicationDefinitionDO &data, const std::stri
     // 仅映射请求中出现的字段，未传字段不会进入 UPDATE。
     data.setId(id);
     ZO_STAR_DOMAIN_DTO_TO_DO(
-        data, dto, BusNo, busNo, Name, name, DomainEnum, domainEnum, MedVersion, medVersion, NameEn, nameEn,
-        PyStr, pyStr, WbStr, wbStr, CategoryCode, categoryCode, MerchandiseName, merchandiseName,
+        data, dto, Name, name, DomainEnum, domainEnum, PyStr, pyStr, WbStr, wbStr,
+        CategoryCode, categoryCode, MerchandiseName, merchandiseName,
         MerchandisePyStr, merchandisePyStr, MerchandiseWbStr, merchandiseWbStr, PurchaseUnitCode,
-        purchaseUnitCode, SplitUnitCode, splitUnitCode, ComprisedText, comprisedText, Ingredient, ingredient,
-        DoseFrom, doseFrom, ApprovalNumber, approvalNumber, YbMatchFlag, ybMatchFlag, YbNo, ybNo,
+        purchaseUnitCode, SplitUnitCode, splitUnitCode, ApprovalNumber, approvalNumber, YbMatchFlag, ybMatchFlag,
+        YbNo, ybNo,
         PharmacologyCategoryCode, pharmacologyCategoryCode, SkinTestFlag, skinTestFlag, InjectFlag, injectFlag,
-        ManufacturerId, manufacturerId, ManufacturerText, manufacturerText, SupplyId, supplyId, RestrictedFlag,
-        restrictedFlag, RestrictedScope, restrictedScope);
+        ManufacturerText, manufacturerText, SupplyId, supplyId, RestrictedFlag, restrictedFlag,
+        RestrictedScope, restrictedScope);
     ZO_STAR_DOMAIN_DTO_TO_DO(
-        data, dto, ChildrenFlag, childrenFlag, Characteristic, characteristic, ItemMinQuantity, itemMinQuantity,
+        data, dto, ChildrenFlag, childrenFlag, ItemMinQuantity, itemMinQuantity,
         ItemMaxQuantity, itemMaxQuantity, NationalDrugCode, nationalDrugCode, PartAttributeEnum, partAttributeEnum,
-        AntibioticCode, antibioticCode, RestrictedEnum, restrictedEnum, SelfFlag, selfFlag, AntibioticFlag,
-        antibioticFlag, BasicFlag, basicFlag, ThoPartAttributeEnum, thoPartAttributeEnum, ChrgitmLv, chrgitmLv,
+        SelfFlag, selfFlag, AntibioticFlag, antibioticFlag, BasicFlag, basicFlag, ThoPartAttributeEnum,
+        thoPartAttributeEnum,
         RxFlag, rxFlag, DosageInstruction, dosageInstruction, Drug69Code, drug69Code, DoseFormCode, doseFormCode,
         DoseUnitCode, doseUnitCode, PackageUnitCode, packageUnitCode, StockUnitCode, stockUnitCode, MethodCode,
-        methodCode, RateCode, rateCode, Dose, dose, MaxUnit, maxUnit, UsageLimit, usageLimit, LocationId, locationId,
-        IngredientItem, ingredientItem, MedicationDefinition, definition, DddCode, dddCode, DddUnitCode,
-        dddUnitCode);
+        methodCode, RateCode, rateCode, Dose, dose, LocationId, locationId, MedicationDefinition, definition,
+        DddCode, dddCode, DddUnitCode, dddUnitCode);
     ZO_STAR_DOMAIN_DTO_TO_DO(data, dto, MinRateCode, minRateCode, MaxRateCode, maxRateCode, DoseUnitRatio,
                              doseUnitRatio, PurchaseUnitRatio, purchaseUnitRatio, StockUnitRatio, stockUnitRatio,
                              PackageUnitRatio, packageUnitRatio);
-    if (dto->specification)
+    ZO_STAR_DOMAIN_DTO_TO_DO(data, dto, TotalVolume, totalVolume);
+    if (dto->chrgitmLv)
     {
-        data.setTotalVolume(dto->specification.getValue(""));
+        data.setChrgitmLv(std::stoi(dto->chrgitmLv.getValue("")));
+    }
+    if (dto->maxUnit)
+    {
+        data.setMaxUnit(std::stod(dto->maxUnit.getValue("")));
+    }
+    if (dto->usageLimit)
+    {
+        data.setUsageLimit(std::stod(dto->usageLimit.getValue("")));
     }
     data.setUpdatedBy(updatedBy);
     data.setUpdatedAt(updatedAt);
 }
 
+// 构造包含最新乐观锁版本的成功项。
 static MedicineVersionItemDTO::Wrapper makeMedicineVersionItem(const std::string &id, int version)
 {
     auto item = MedicineVersionItemDTO::createShared();
@@ -110,6 +123,7 @@ static MedicineVersionItemDTO::Wrapper makeMedicineVersionItem(const std::string
     return item;
 }
 
+// 向批量结果追加失败药品及失败原因。
 static void addMedicineV2Failure(const MedicineBatchResultDTO::Wrapper &result, const std::string &id,
                                  int code, const std::string &message,
                                  const oatpp::Int32 &currentVersion = nullptr)
@@ -122,6 +136,7 @@ static void addMedicineV2Failure(const MedicineBatchResultDTO::Wrapper &result, 
     result->failedItems->push_back(item);
 }
 
+// 将业务异常转换为批量失败项业务码。
 static int medicineV2FailureCode(DrugServiceError error)
 {
     switch (error)
@@ -142,6 +157,7 @@ static int medicineV2FailureCode(DrugServiceError error)
     }
 }
 
+// 从中文词典读取业务异常对应的提示文本。
 static std::string medicineV2FailureMessage(DrugServiceError error)
 {
     switch (error)
@@ -174,6 +190,7 @@ DrugServiceError DrugServiceException::getError() const noexcept
     return error;
 }
 
+// 在事务中完成药品字段、价格和审计信息更新。
 MedicineVersionItemDTO::Wrapper DrugService::updateMedicineV2(const std::string &id,
                                                                const MedicineUpdateDTO::Wrapper &dto)
 {
@@ -245,8 +262,8 @@ MedicineVersionItemDTO::Wrapper DrugService::updateMedicineV2(const std::string 
         updatePrice(DrugConstants::PRICE_TYPE_SALE, dto->retailPrice);
         updatePrice(DrugConstants::PRICE_TYPE_LIMIT, dto->maximumRetailPrice);
 
-        if (dto->financeTypeCode &&
-            dao.updateBasePriceFinanceType(id, current->getTenantId(), dto->financeTypeCode.getValue(""),
+        if (dto->typeCode &&
+            dao.updateBasePriceFinanceType(id, current->getTenantId(), dto->typeCode.getValue(""),
                                            auditOperator, operationTime) <= 0)
         {
             throw DrugServiceException(DrugServiceError::InvalidInput);
@@ -282,6 +299,7 @@ MedicineVersionItemDTO::Wrapper DrugService::updateMedicineV2(const std::string 
     }
 }
 
+// 每个药品独立事务处理启停，避免单个失败影响其他成功项。
 MedicineBatchResultDTO::Wrapper DrugService::updateMedicineStatusV2(
     const MedicineStatusUpdateDTO::Wrapper &dto)
 {
@@ -291,7 +309,7 @@ MedicineBatchResultDTO::Wrapper DrugService::updateMedicineStatusV2(
     }
     const PayloadDTO &payload = *dto->getPayload();
     const std::string auditOperator = operatorId(payload);
-    const bool enable = dto->status == DrugConstants::STATUS_ACTIVE;
+    const bool enable = dto->status == MedicineStatusEnum::ACTIVE;
     const std::string expectedStatus =
         enable ? DrugConstants::STATUS_INACTIVE : DrugConstants::STATUS_ACTIVE;
     const std::string targetStatus =
@@ -382,6 +400,7 @@ MedicineBatchResultDTO::Wrapper DrugService::updateMedicineStatusV2(
     return result;
 }
 
+// 检查状态和引用后软删除药品及其价格记录。
 MedicineBatchResultDTO::Wrapper DrugService::batchDeleteMedicinesV2(
     const MedicineBatchDeleteDTO::Wrapper &dto)
 {
@@ -544,7 +563,7 @@ DrugSelectPageDTO::Wrapper DrugService::SelectlistAll(const DrugSelectQuery::Wra
             continue;
         }
         auto dto = DrugSelectDTO::createShared();
-        ZO_STAR_DOMAIN_DO_TO_DTO_1(dto, sub, code, Id, name, Name, danwei, StockUnitCode);
+        ZO_STAR_DOMAIN_DO_TO_DTO_1(dto, sub, code, BusNo, name, Name, danwei, StockUnitCode);
         const std::string status = sub->getStatusEnum();
         pages->addData(dto);
     }
@@ -570,32 +589,78 @@ DrugDetailDTO::Wrapper DrugService::getById(string id)
                                guige, TotalVolume, danwei, DoseUnitCode, jixin, DoseFormCode,
                                yaopingyinma, PyStr, shangpingyinma, MerchandisePyStr,
                                shangwubima, MerchandiseWbStr, liujiuma, Drug69Code,
-                               yaopingstatus, StatusEnum, lingyu, DomainEnum,yibaoduima,YbMatchFlag,xingzhi,Characteristic, beishu, DoseUnitRatio, pishipanbie, SkinTestFlag, zhusheyaopin, InjectFlag, yongliangxianding, UsageLimit, yongfa, MethodCode, pingci, RateCode, dancijiliang, Dose, dancizuida, ItemMaxQuantity, yongfashuoming, DosageInstruction, shiyongfanwei, RestrictedScope
+                               yaopingstatus, StatusEnum, lingyu, DomainEnum,      yibaoduima,YbMatchFlag,xingzhi,Characteristic, beishu, DoseUnitRatio, pishipanbie, SkinTestFlag, zhusheyaopin, InjectFlag, yongliangxianding, UsageLimit, yongfa, MethodCode, pingci, RateCode, dancijiliang, Dose, dancizuida, MaxUnit, yongfashuoming, DosageInstruction, shiyongfanwei, RestrictedScope
                           );
-    ZO_STAR_DOMAIN_DO_TO_DTO_1(dto, res, DDDzhi, DddCode, DDDdanwei, DddUnitCode, caigoudanwei, PurchaseUnitCode, caigoubeishu, PurchaseUnitRatio, menzhengshuxing, DefEncounterUnitCode, kucundanwei, StockUnitCode, kucunbeishu, StockUnitRatio, linshishuxing, DefInhospitalUnitCode, baozhuangbeishu, PackageUnitRatio, baozhuangdanwei, PackageUnitCode, chailingdanwei, SplitUnitCode, selfFlag, SelfFlag, antibioticFlag, AntibioticFlag, basicFlag, BasicFlag,
-        activeFlag, ActiveFlag, childrenFlag, ChildrenFlag,
-        restrictedFlag, RestrictedFlag, rxFlag, RxFlag);
-    ZO_STAR_DOMAIN_DO_TO_DTO_1(dto, res, caiwuleixin, ChrgitmLv, yibaodengji, RestrictedEnum, jiesuanleixin, PartAttributeEnum, yibaoleibie, ThoPartAttributeEnum, yaopingshuoming, Ingredient, gourujia, MaxUnit, zuigaolinshoujia, MaxUnit);
+    ZO_STAR_DOMAIN_DO_TO_DTO_1(dto, res, DDDzhi, DddCode, DDDdanwei, DddUnitCode, caigoudanwei, PurchaseUnitCode, caigoubeishu, PurchaseUnitRatio, menzhengshuxing, PartAttributeEnum, kucundanwei, StockUnitCode, kucunbeishu, StockUnitRatio, linshishuxing, ThoPartAttributeEnum, baozhuangbeishu, PackageUnitRatio, baozhuangdanwei, PackageUnitCode, chailingdanwei, SplitUnitCode, selfFlag, SelfFlag, antibioticFlag, AntibioticFlag, basicFlag, BasicFlag,
+        activeFlag, ActiveFlag, childrenFlag, ChildrenFlag, jinjiezuidi, ItemMinQuantity, jinjiezuigao, ItemMaxQuantity,restrictedFlag, RestrictedFlag, rxFlag, RxFlag, yaopingshuoming, MedicationDefinition);
+    ZO_STAR_DOMAIN_DO_TO_DTO_1(dto, res, caiwuleixin, PharmacologyCategoryCode, yibaodengji, ChrgitmLv);
+    ZO_STAR_DOMAIN_DO_TO_DTO_1(dto, res,
+        gourujia, ComprisedText, lingsoujia, Ingredient, zuigaolinshoujia, BusNo, jiesuanleixin, RestrictedEnum, yibaoleibie, AntibioticCode
+    );
    
     return dto;
 
 }
 string DrugService::saveData(const DrugAddDTO::Wrapper& dto)
 {
+    if (!dto || dto->getPayload() == nullptr)
+    {
+        return "";
+    }
+
     DrugDAO dao;
     MedMedicationDefinitionDO entity;
+    const PayloadDTO &payload = *dto->getPayload();
+    const std::string auditOperator = operatorId(payload);
+    const std::string tenantId = dao.selectCurrentTenantId(payload.getId());
+    const std::string orgId = dao.selectCurrentHospitalOrgId(payload.getId(), tenantId);
+    if (tenantId.empty() || orgId.empty())
+    {
+        return "";
+    }
 
     UuidFacade uuidFacade;
     std::string newId = uuidFacade.genUuid();
     entity.setId(newId);
 
-    entity.setName(dto->name.getValue(""));
+    // 由服务端补齐租户、机构、状态和乐观锁初值。
+    entity.setTenantId(tenantId);
+    entity.setOrgId(orgId);
+    std::string dynamicPrefix = "1"; // 項菁蘇硉
+    auto orgMap = payload.getOrganizationUnits();
+    if (!orgMap.empty()) {
+        dynamicPrefix = orgMap.begin()->first;
+    }
+    std::string seqKey = dynamicPrefix + ":MD";
+    uint64_t nextSeq = dao.generateSequence(seqKey);
+    std::ostringstream oss;
+    oss << "DD" << std::setw(8) << std::setfill('0') << nextSeq;
+    entity.setBusNo(oss.str());
+    entity.setStatusEnum(DrugConstants::STATUS_ACTIVE);
+    entity.setVersion(0);
+    entity.setIsDeleted(false);
+    entity.setName(dto->tongyongname.getValue(""));
+    entity.setMerchandiseName(dto->name.getValue(""));
     entity.setCategoryCode(dto->kinds.getValue(""));
-
-    entity.setCreatedBy("");
+    entity.setManufacturerText(dto->changjia.getValue(""));
+    entity.setSupplyId(dto->gongyingshang.getValue(""));
+    entity.setCharacteristic(dto->xingzhi.getValue(0));
+    entity.setTotalVolume(dto->guige.getValue(""));
+    entity.setDoseUnitCode(dto->danwei.getValue(""));
+    entity.setDoseUnitRatio(dto->beishu.getValue(0.0));
+    entity.setDoseFormCode(dto->jixin.getValue(""));
+    entity.setPurchaseUnitCode(dto->caigoudanwei.getValue(""));
+    entity.setPurchaseUnitRatio(dto->caigoubeishu.getValue(0.0));
+    entity.setDefEncounterUnitCode(dto->menzhengshuxing.getValue(""));
+    entity.setStockUnitCode(dto->kucundanwei.getValue(""));
+    entity.setStockUnitRatio(dto->kucunbeishu.getValue(0.0));
+    entity.setDefInhospitalUnitCode(dto->linshishuxing.getValue(""));
+    entity.setPackageUnitCode(dto->baozhuangdanwei.getValue(""));
+    entity.setPackageUnitRatio(dto->baozhuangbeishu.getValue(0.0));
+    entity.setSplitUnitCode(dto->chailingdanwei.getValue(""));
+  
+    entity.setCreatedBy(auditOperator);
     entity.setCreatedAt(SimpleDateTimeFormat::format());
-    
-    // 樑扢蘇蚚
     entity.setActiveFlag(true);
 
     if (dao.insert(entity) > 0) {

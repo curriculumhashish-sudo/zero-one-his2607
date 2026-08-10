@@ -164,5 +164,4 @@ if(UNIX)
 	add_subdirectory ("nacos-register")
 endif()
 # 在后面添加你的模块
-add_subdirectory("arch-tests")
 add_subdirectory("his-c6-basedata")

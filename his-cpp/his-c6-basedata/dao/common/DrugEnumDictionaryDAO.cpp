@@ -33,6 +33,7 @@ std::map<std::string, std::string> DrugEnumDictionaryDAO::findActiveDisplays(
     const std::string& codeSystemName,
     const std::vector<std::string>& codes) const
 {
+    // 空条件直接返回，避免无范围查询 MongoDB。
     std::map<std::string, std::string> result;
     if (codeSystemName.empty() || codes.empty())
     {
@@ -46,6 +47,7 @@ std::map<std::string, std::string> DrugEnumDictionaryDAO::findActiveDisplays(
     }
     using bsoncxx::builder::basic::kvp;
     using bsoncxx::builder::basic::make_document;
+    // 只查询指定字典中启用的代码。
     const auto filter = make_document(
         kvp("codeSystemName", codeSystemName),
         kvp("code", make_document(kvp("$in", codeArray.extract()))),

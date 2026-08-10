@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 
-/** Accesses drug enum dictionaries in MongoDB. */
+/** 访问 MongoDB 中的药品枚举字典。 */
 class DrugEnumDictionaryDAO
 {
 public:
@@ -32,7 +32,7 @@ public:
     static constexpr const char* ORDER_CALC_RULE_ENUM = "OrderCalcRuleEnum";
     static constexpr const char* PUBLICATION_STATUS_ENUM = "PublicationStatus";
 
-    /** Returns active code-to-display mappings. */
+    /** 查询有效枚举代码与中文名称的映射。 */
     std::map<std::string, std::string> findActiveDisplays(
         const std::string& codeSystemName,
         const std::vector<std::string>& codes) const;
