@@ -46,7 +46,7 @@ public class ReturnConfirmDTO {
     private String patientName;
 
     @NotEmpty(message = "确认退药的药品明细不能为空")
-    @Schema(description = "确认退药的药品明细ID列表", example = "[\"990000000000000001\",\"990000000000000002\"]", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "确认退药的药品明细ID列表，对应 get-refund-detail 返回的 id 字段（明细行ID，非药品ID itemId）", example = "[\"990000000000000001\",\"990000000000000002\"]", requiredMode = Schema.RequiredMode.REQUIRED)
     private List<String> itemIds;
 
     @Schema(description = "操作人", example = "308791351298756608")

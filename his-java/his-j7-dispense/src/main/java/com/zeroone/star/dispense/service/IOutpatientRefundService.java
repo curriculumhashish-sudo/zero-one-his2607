@@ -8,8 +8,6 @@ import com.zeroone.star.project.query.j7.dispense.PatientQueueQuery;
 import com.zeroone.star.project.vo.j7.dispense.PatientDrugItemVO;
 import com.zeroone.star.project.vo.j7.dispense.PatientQueueVO;
 
-import java.util.List;
-
 /**
  * <p>
  * 描述：门诊退药服务接口
@@ -44,15 +42,15 @@ public interface IOutpatientRefundService {
     IPage<PatientQueueVO> queryRefundPatientQueue(PatientQueueQuery query);
 
     /**
-     * 获取患者退药明细信息
+     * 分页获取患者退药明细信息
      * <p>
-     * 查询 med_medication_dispense 表中指定患者的所有退药明细记录。
+     * 分页查询 med_medication_dispense 表中指定患者的退药明细记录。
      * </p>
      *
-     * @param query 查询参数（包含患者ID、就诊ID等）
-     * @return 药品明细列表
+     * @param query 查询参数（包含患者ID、就诊ID、分页参数等）
+     * @return 药品明细分页数据
      */
-    List<PatientDrugItemVO> queryRefundDrugItems(PatientDrugItemQuery query);
+    IPage<PatientDrugItemVO> queryRefundDrugItems(PatientDrugItemQuery query);
 
     /**
      * 执行确认退药（回补库存）

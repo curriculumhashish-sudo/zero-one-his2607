@@ -49,7 +49,7 @@
     <select id="selectPatientQueuePage"
             resultType="com.zeroone.star.project.vo.j7.dispense.InpatientRefundPatientVO">
         SELECT
-            e.id AS id,
+            e.id AS encounterId,
             p.name AS patientName,
             p.gender_enum AS genderEnum,
             CASE p.gender_enum

@@ -45,9 +45,11 @@ public interface MedMedicationDispenseMapper extends BaseMapper<MedMedicationDis
                                                   @Param("query") PatientQueueQuery query);
 
     /**
-     * 查询门诊退药明细列表
+     * 分页查询门诊退药明细列表
+     * @param page 分页参数
      * @param query 查询条件
-     * @return 药品明细列表
+     * @return 药品明细分页数据
      */
-    List<PatientDrugItemVO> selectRefundDrugItems(@Param("query") PatientDrugItemQuery query);
+    IPage<PatientDrugItemVO> selectRefundDrugItems(Page<PatientDrugItemVO> page,
+                                                   @Param("query") PatientDrugItemQuery query);
 }

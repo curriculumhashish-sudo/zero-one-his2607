@@ -80,7 +80,7 @@ public class menzhenfayao implements OutPharmApis {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
             content = @Content(schema = @Schema(implementation = BatchDispenseResultJsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"successCount\":0,\"failCount\":2,\"successIds\":[],\"failIds\":[\"329907418504892416\",\"329907418609750016\"],\"message\":\"发药完成：成功 0 条，失败 2 条\"}}")))
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"successCount\":0,\"failCount\":2,\"successIds\":[],\"failIds\":[\"329907418504892416\",\"329907418609750016\"],\"failMessage\":\"发药完成：成功 0 条，失败 2 条\"}}")))
     })
     @PostMapping("/batch-dispense")
     @Override

@@ -38,7 +38,7 @@ public class zhuyuantuiyao implements InpatientRefundMedicineApis {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
             content = @Content(schema = @Schema(implementation = InpatientRefundPatientPageJsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"pageIndex\":1,\"pageSize\":10,\"total\":2,\"pages\":1,\"rows\":[{\"id\":\"330317605098229760\",\"patientName\":\"小赵\",\"genderEnum\":\"MALE\",\"genderEnumText\":\"MALE\",\"ageLabel\":\"17岁\",\"wardName\":\"内科疗区\",\"bedName\":\"1号床\",\"hospitalizationNo\":\"ZY2026-06-300002\",\"refundEnum\":\"PENDING_REFUND\",\"refundEnumText\":\"待退药\"},{\"id\":\"330316881840836608\",\"patientName\":\"周女士\",\"genderEnum\":\"FEMALE\",\"genderEnumText\":\"FEMALE\",\"ageLabel\":\"26岁\",\"wardName\":\"内科疗区\",\"bedName\":\"1号床\",\"hospitalizationNo\":\"ZY2026-06-300001\",\"refundEnum\":\"PENDING_REFUND\",\"refundEnumText\":\"待退药\"}]}}")))
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"pageIndex\":1,\"pageSize\":10,\"total\":2,\"pages\":1,\"rows\":[{\"encounterId\":\"330317605098229760\",\"patientName\":\"小赵\",\"genderEnum\":\"MALE\",\"genderEnumText\":\"MALE\",\"ageLabel\":\"17岁\",\"wardName\":\"内科疗区\",\"bedName\":\"1号床\",\"hospitalizationNo\":\"ZY2026-06-300002\",\"refundEnum\":\"PENDING_REFUND\",\"refundEnumText\":\"待退药\"},{\"encounterId\":\"330316881840836608\",\"patientName\":\"周女士\",\"genderEnum\":\"FEMALE\",\"genderEnumText\":\"FEMALE\",\"ageLabel\":\"26岁\",\"wardName\":\"内科疗区\",\"bedName\":\"1号床\",\"hospitalizationNo\":\"ZY2026-06-300001\",\"refundEnum\":\"PENDING_REFUND\",\"refundEnumText\":\"待退药\"}]}}")))
     })
     @Override
     public JsonVO<PageDTO<InpatientRefundPatientVO>> queryPatientQueue(

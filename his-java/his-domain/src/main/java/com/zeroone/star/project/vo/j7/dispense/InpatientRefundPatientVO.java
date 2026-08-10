@@ -17,10 +17,11 @@ import lombok.Data;
 public class InpatientRefundPatientVO {
 
     /**
-     * 就诊ID（对应 adm_encounter.id / med_medication_dispense.encounter_id；前端选中主键）
+     * 就诊ID（对应 adm_encounter.id / med_medication_dispense.encounter_id；
+     * 前端选中后请使用该值作为 get-refund-detail 接口的 encounterId 参数查询退药明细）
      */
-    @Schema(description = "就诊ID", example = "329874660147597312", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String id;
+    @Schema(description = "就诊ID（作为 get-refund-detail 接口的 encounterId 参数使用）", example = "330316881840836608", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String encounterId;
 
     /**
      * 患者姓名（对应 adm_patient.name）

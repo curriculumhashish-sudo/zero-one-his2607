@@ -22,6 +22,6 @@ public class BatchDispenseResultVO {
     @Schema(description = "失败的记录ID列表")
     private List<String> failIds = new ArrayList<>();
 
-    @Schema(description = "操作结果消息")
-    private String message;
+    @Schema(description = "操作结果失败详情消息（与外层 message 区分，避免字段重名）")
+    private String failMessage;
 }

@@ -76,20 +76,25 @@ public class OutpatientRefundServiceImpl implements IOutpatientRefundService {
     }
 
     /**
-     * 获取患者退药明细信息
+     * 分页获取患者退药明细信息
      * <p>
-     * 查询 med_medication_dispense 表中指定患者的所有退药明细记录。
+     * 分页查询 med_medication_dispense 表中指定患者的退药明细记录。
      * </p>
      *
-     * @param query 查询参数（包含患者ID、就诊ID等）
-     * @return 药品明细列表
+     * @param query 查询参数（包含患者ID、就诊ID、分页参数等）
+     * @return 药品明细分页数据
      */
     @Override
-    public List<PatientDrugItemVO> queryRefundDrugItems(PatientDrugItemQuery query) {
+    public IPage<PatientDrugItemVO> queryRefundDrugItems(PatientDrugItemQuery query) {
+        long pageIndex = query.getPageIndex() > 0 ? query.getPageIndex() : 1;
+        long pageSize = query.getPageSize() > 0 ? query.getPageSize() : 10;
+
+        Page<PatientDrugItemVO> page = new Page<>(pageIndex, pageSize);
+
         // 设置退药类型
         query.setDispenseEnum("REFUND");
 
-        return medicationDispenseMapper.selectRefundDrugItems(query);
+        return medicationDispenseMapper.selectRefundDrugItems(page, query);
     }
 
     /**

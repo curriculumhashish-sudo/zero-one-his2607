@@ -54,7 +54,7 @@ public class DrugServiceImpl implements DrugService {
             result.setSuccessCount(0);
             result.setFailCount(dispenseIds.size());
             result.setFailIds(new ArrayList<>(dispenseIds));
-            result.setMessage("未找到有效的发药记录");
+            result.setFailMessage("未找到有效的发药记录");
             return result;
         }
 
@@ -96,7 +96,7 @@ public class DrugServiceImpl implements DrugService {
         result.setFailCount(failIds.size());
         result.setSuccessIds(successIds);
         result.setFailIds(failIds);
-        result.setMessage("发药完成：成功 " + successIds.size() + " 条"
+        result.setFailMessage("发药完成：成功 " + successIds.size() + " 条"
                 + (failIds.isEmpty() ? "" : "，失败 " + failIds.size() + " 条"));
 
         return result;

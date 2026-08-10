@@ -7,7 +7,7 @@ import com.zeroone.star.project.dto.j7.pharmacy.ReturnRejectDTO;
 import com.zeroone.star.project.query.j7.dispense.PatientDrugItemQuery;
 import com.zeroone.star.project.query.j7.dispense.PatientQueueQuery;
 import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.j7.dispense.PatientDrugItemListJsonVO;
+import com.zeroone.star.project.vo.j7.dispense.PatientDrugItemPageJsonVO;
 import com.zeroone.star.project.vo.j7.dispense.PatientDrugItemVO;
 import com.zeroone.star.project.vo.j7.dispense.PatientQueuePageJsonVO;
 import com.zeroone.star.project.vo.j7.dispense.PatientQueueVO;
@@ -82,23 +82,23 @@ public class menzhentuiyao {
     }
 
     /**
-     * 获取患者退药明细信息
+     * 分页获取患者退药明细信息
      * <p>
-     * 点击左栏患者后，中栏展示该患者的退药药品明细，
+     * 点击左栏患者后，中栏分页展示该患者的退药药品明细，
      * 供药师核对后确认退药。
      * </p>
      *
-     * @param query 查询参数（包含患者ID、就诊ID等）
-     * @return 药品明细列表
+     * @param query 查询参数（包含患者ID、就诊ID、分页参数等）
+     * @return 药品明细分页数据
      */
     @PostMapping("/drug-items")
-    @Operation(summary = "获取退药明细", description = "获取患者退药明细信息，供药师核对")
+    @Operation(summary = "获取退药明细", description = "分页获取患者退药明细信息，供药师核对")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
-            content = @Content(schema = @Schema(implementation = PatientDrugItemListJsonVO.class,
-                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":[{\"id\":\"329906419664949248\",\"tenantId\":\"1\",\"busNo\":\"MDP2026-06-290010\",\"statusEnum\":\"DECLINED\",\"dispenseEnum\":\"REFUND\",\"medicationId\":\"323999010000000013\",\"patientId\":\"326940849401761792\",\"encounterId\":\"329874660147597312\",\"medReqId\":\"329906419656560640\",\"quantity\":30.00,\"unitCode\":\"10\",\"dispenseQuantity\":null,\"lotNumber\":\"001-012\",\"preparerId\":null,\"prepareTime\":null,\"practitionerId\":\"308791351298756608\",\"dispenseTime\":\"2026-06-29 16:58:42\",\"dosageInstruction\":null,\"methodCode\":null,\"frequencyCode\":null,\"dose\":null,\"doseUnitCode\":null,\"summaryNo\":null,\"name\":\"白芍\",\"merchandiseName\":\"白芍\",\"categoryCode\":\"4\",\"totalVolume\":\"饮片\",\"comprisedText\":\"饮片\",\"ingredient\":null,\"approvalNumber\":null,\"skinTestFlag\":0,\"injectFlag\":0,\"manufacturerText\":\"安国市中药材市场\",\"antibioticFlag\":0,\"rxFlag\":1,\"doseFormCode\":\"11\",\"packageUnitCode\":\"10\",\"pyStr\":\"BX\"},{\"id\":\"329906419635589120\",\"tenantId\":\"1\",\"busNo\":\"MDP2026-06-290009\",\"statusEnum\":\"REFUNDED\",\"dispenseEnum\":\"REFUND\",\"medicationId\":\"323999010000000012\",\"patientId\":\"326940849401761792\",\"encounterId\":\"329874660147597312\",\"medReqId\":\"329906419623006208\",\"quantity\":30.00,\"unitCode\":\"10\",\"dispenseQuantity\":30.00,\"lotNumber\":\"001-011\",\"preparerId\":null,\"prepareTime\":null,\"practitionerId\":\"308791351298756608\",\"dispenseTime\":\"2026-06-29 16:57:52\",\"dosageInstruction\":null,\"methodCode\":null,\"frequencyCode\":null,\"dose\":null,\"doseUnitCode\":null,\"summaryNo\":null,\"name\":\"当归\",\"merchandiseName\":\"当归\",\"categoryCode\":\"4\",\"totalVolume\":\"饮片\",\"comprisedText\":\"饮片\",\"ingredient\":null,\"approvalNumber\":null,\"skinTestFlag\":0,\"injectFlag\":0,\"manufacturerText\":\"安国市中药材市场\",\"antibioticFlag\":0,\"rxFlag\":1,\"doseFormCode\":\"11\",\"packageUnitCode\":\"10\",\"pyStr\":\"DG\"}]}")))
+            content = @Content(schema = @Schema(implementation = PatientDrugItemPageJsonVO.class,
+                example = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"records\":[{\"id\":\"329906419664949248\",\"tenantId\":\"1\",\"busNo\":\"MDP2026-06-290010\",\"statusEnum\":\"DECLINED\",\"dispenseEnum\":\"REFUND\",\"medicationId\":\"323999010000000013\",\"patientId\":\"326940849401761792\",\"encounterId\":\"329874660147597312\",\"medReqId\":\"329906419656560640\",\"quantity\":30.00,\"unitCode\":\"10\",\"dispenseQuantity\":null,\"lotNumber\":\"001-012\",\"preparerId\":null,\"prepareTime\":null,\"practitionerId\":\"308791351298756608\",\"dispenseTime\":\"2026-06-29 16:58:42\",\"dosageInstruction\":null,\"methodCode\":null,\"frequencyCode\":null,\"dose\":null,\"doseUnitCode\":null,\"summaryNo\":null,\"name\":\"白芍\",\"merchandiseName\":\"白芍\",\"categoryCode\":\"4\",\"totalVolume\":\"饮片\",\"comprisedText\":\"饮片\",\"ingredient\":null,\"approvalNumber\":null,\"skinTestFlag\":0,\"injectFlag\":0,\"manufacturerText\":\"安国市中药材市场\",\"antibioticFlag\":0,\"rxFlag\":1,\"doseFormCode\":\"11\",\"packageUnitCode\":\"10\",\"pyStr\":\"BX\"},{\"id\":\"329906419635589120\",\"tenantId\":\"1\",\"busNo\":\"MDP2026-06-290009\",\"statusEnum\":\"REFUNDED\",\"dispenseEnum\":\"REFUND\",\"medicationId\":\"323999010000000012\",\"patientId\":\"326940849401761792\",\"encounterId\":\"329874660147597312\",\"medReqId\":\"329906419623006208\",\"quantity\":30.00,\"unitCode\":\"10\",\"dispenseQuantity\":30.00,\"lotNumber\":\"001-011\",\"preparerId\":null,\"prepareTime\":null,\"practitionerId\":\"308791351298756608\",\"dispenseTime\":\"2026-06-29 16:57:52\",\"dosageInstruction\":null,\"methodCode\":null,\"frequencyCode\":null,\"dose\":null,\"doseUnitCode\":null,\"summaryNo\":null,\"name\":\"当归\",\"merchandiseName\":\"当归\",\"categoryCode\":\"4\",\"totalVolume\":\"饮片\",\"comprisedText\":\"饮片\",\"ingredient\":null,\"approvalNumber\":null,\"skinTestFlag\":0,\"injectFlag\":0,\"manufacturerText\":\"安国市中药材市场\",\"antibioticFlag\":0,\"rxFlag\":1,\"doseFormCode\":\"11\",\"packageUnitCode\":\"10\",\"pyStr\":\"DG\"}],\"total\":2,\"size\":10,\"current\":1,\"pages\":1}}")))
     })
-    public JsonVO<List<PatientDrugItemVO>> getRefundDrugItems(@RequestBody PatientDrugItemQuery query) {
+    public JsonVO<IPage<PatientDrugItemVO>> getRefundDrugItems(@RequestBody PatientDrugItemQuery query) {
         return JsonVO.success(outpatientRefundService.queryRefundDrugItems(query));
     }
 
