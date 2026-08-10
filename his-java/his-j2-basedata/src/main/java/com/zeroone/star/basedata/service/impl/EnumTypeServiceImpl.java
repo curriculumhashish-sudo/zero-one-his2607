@@ -20,6 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.data.mongodb.core.query.Update;
 import org.bson.Document;
@@ -41,8 +42,28 @@ public class EnumTypeServiceImpl implements EnumTypeService {
     @Resource
     private UserHolder userHolder;
 
+    // TODO: redis上对于租户id是怎么存储的？
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
+
+    private String getCurrentUserTenantId() {
+
+        try {
+            String currentUserId = userHolder.getCurrentUser().getId();
+
+            String tenantId = (String) redisTemplate.opsForValue().get("tenantId:" + currentUserId);
+
+            return tenantId;
+        } catch (Exception e) {
+            // TODO: 实际部署的时候，这里应当记录日志或者抛出异常
+            return TENANT_ID;
+        }
+    }
+
     @Override
     public PageDTO<EnumTypeDTO> queryAllEnumType(EnumTypeQuery query) {
+
+        String tenantId = getCurrentUserTenantId();
 
         Pageable pageable = PageRequest.of(
                 (int) query.getPageIndex() - 1,
@@ -50,11 +71,16 @@ public class EnumTypeServiceImpl implements EnumTypeService {
                 Sort.by(Sort.Direction.DESC, "updatedAt")
         );
 
-        Page<EnumTypeDTO> page = enumTypeRepository.findByKeyword(
-                TENANT_ID,
-                query.getEnumTypeKeyword(),
-                pageable
-        );
+        Page<EnumTypeDTO> page;
+        if (query.getEnumTypeKeyword() != null) {
+            page = enumTypeRepository.findByKeyword(
+                    tenantId,
+                    query.getEnumTypeKeyword(),
+                    pageable
+            );
+        } else {
+            page = enumTypeRepository.findByTenantIdAndIsDeletedFalse(tenantId, pageable);
+        }
 
         return EnumTypeDTO.create(page);
     }
@@ -62,16 +88,19 @@ public class EnumTypeServiceImpl implements EnumTypeService {
     @Override
     public void saveEnumType(EnumTypeAddDTO dto) {
 
-        if (enumTypeRepository.existsByEnumTypeKey(TENANT_ID, dto.getEnumTypeKey())) {
+        String tenantId = getCurrentUserTenantId();
+
+        if (enumTypeRepository.existsByEnumTypeKey(tenantId, dto.getEnumTypeKey())) {
             throw new RuntimeException("枚举类型键已经存在");
         }
 
         EnumType enumType = new EnumType();
         BeanUtils.copyProperties(dto, enumType);
-        // TODO: 是否需要特别设定其id字符串？
+
+        enumType.setId(dto.getEnumTypeKey() + "_" + tenantId);
 
         // TODO: 暂时设定
-        enumType.setTenantId(TENANT_ID);
+        enumType.setTenantId(tenantId);
         enumType.setCreatedAt(new Date());
         enumType.setCreatedBy("test");
         enumType.setIsDeleted(false);
@@ -82,6 +111,8 @@ public class EnumTypeServiceImpl implements EnumTypeService {
     @Override
     public void updateEnumType(EnumTypeModifyDTO dto) {
 
+        String tenantId = getCurrentUserTenantId();
+
         EnumType existing = enumTypeRepository.findById(dto.getId())
                 .orElseThrow(() -> new RuntimeException("枚举类型不存在"));
 
@@ -89,13 +120,13 @@ public class EnumTypeServiceImpl implements EnumTypeService {
             throw new RuntimeException("枚举类型已删除");
         }
 
-        if (!existing.getTenantId().equals(TENANT_ID)) {
+        if (!existing.getTenantId().equals(tenantId)) {
             throw new RuntimeException("枚举类型不属于当前租户");
         }
 
         // 如果枚举类型键修改了，并且新的枚举类型键已经存在，则抛出异常
         if (!existing.getEnumTypeKey().equals(dto.getEnumTypeKey())
-                && enumTypeRepository.existsByEnumTypeKey(TENANT_ID, dto.getEnumTypeKey())) {
+                && enumTypeRepository.existsByEnumTypeKey(tenantId, dto.getEnumTypeKey())) {
             throw new RuntimeException("枚举类型键已经存在");
         }
 
@@ -108,6 +139,9 @@ public class EnumTypeServiceImpl implements EnumTypeService {
 
     @Override
     public JsonVO<String> deleteEnumType(String id) {
+
+        String tenantId = getCurrentUserTenantId();
+
         if (!StringUtils.hasText(id)) {
             return JsonVO.fail(null);
         }
@@ -117,7 +151,7 @@ public class EnumTypeServiceImpl implements EnumTypeService {
         if (Boolean.TRUE.equals(enumType.getIsDeleted())) {
             return JsonVO.fail("枚举类型已被删除");
         }
-        if (!enumType.getTenantId().equals(TENANT_ID)) {
+        if (!enumType.getTenantId().equals(tenantId)) {
             return JsonVO.fail("枚举类型不属于当前租户");
         }
         // 2. 逻辑删除枚举类型

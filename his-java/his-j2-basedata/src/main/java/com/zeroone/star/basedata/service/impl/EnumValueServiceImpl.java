@@ -69,10 +69,10 @@ public class EnumValueServiceImpl implements EnumValueService {
             throw new RuntimeException("同一枚举类型下标签已存在，不能同名");
         }
 
-        // TODO: 是否需要特别设定其id字符串？
-
         EnumValue enumValue = new EnumValue();
         BeanUtils.copyProperties(dto, enumValue);
+
+        enumValue.setId(enumValue.getEnumTypeId() + "_" + enumValue.getEnumKey().toUpperCase() + "_" + TENANT_ID);
 
         enumValue.setTenantId(TENANT_ID);
         enumValue.setIsDeleted(false);

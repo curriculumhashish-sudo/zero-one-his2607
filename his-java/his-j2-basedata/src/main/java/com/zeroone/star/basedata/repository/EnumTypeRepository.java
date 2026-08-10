@@ -47,7 +47,8 @@ public interface EnumTypeRepository extends MongoRepository<EnumType, String> {
             Pageable pageable);
 
 
-    String findEnumTypeIdByEnumTypeKey(String enumTypeKey);
+    @Query("{'tenantId': {$in: ['sys_tenant', ?0]}, 'isDeleted': false}")
+    Page<EnumTypeDTO> findByTenantIdAndIsDeletedFalse(String tenantId, Pageable pageable);
 
     /**
      * 根据枚举类型关键字查询枚举类型ID，包含默认系统租户的枚举类型
