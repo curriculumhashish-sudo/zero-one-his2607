@@ -16,6 +16,19 @@ const loginServerUrl = env.VITE_LOGIN_SERVER_URL || 'http://47.116.98.7:10500'
 const c7ConfigurationServerUrl = env.VITE_C7_CONFIGURATION_SERVER_URL || 'http://47.99.54.215:8090'
 const c5BasicDataServerUrl = env.VITE_C5_BASICDATA_SERVER_URL || 'http://116.62.31.155:8090'
 const j1SysmgrServerUrl = env.VITE_J1_SYSMGR_SERVER_URL || 'http://123.57.144.180:10600'
+const j3DepartmentServerUrl = env.VITE_J3_DEPARTMENT_SERVER_URL || 'http://115.29.213.118:10201'
+const j3PatientServerUrl = env.VITE_J3_PATIENT_SERVER_URL || 'http://115.29.213.118:10202'
+const j3RegisterServerUrl = env.VITE_J3_REGISTER_SERVER_URL || 'http://115.29.213.118:10203'
+const j3StorehouseServerUrl = env.VITE_J3_STOREHOUSE_SERVER_URL || 'http://115.29.213.118:10204'
+const j3FeeServerUrl = env.VITE_J3_FEE_SERVER_URL || 'http://47.96.2.145:10205'
+const j3SupplierServerUrl = env.VITE_J3_SUPPLIER_SERVER_URL || 'http://47.96.2.145:10206'
+const j3WardServerUrl = env.VITE_J3_WARD_SERVER_URL || 'http://47.96.2.145:10207'
+
+const j3Proxy = (target: string) => ({
+  changeOrigin: true,
+  target,
+  rewrite: (path: string) => path.replace(/^\/api/, '')
+})
 
 export default defineConfig({
   server: {
@@ -32,6 +45,13 @@ export default defineConfig({
         target: j1SysmgrServerUrl,
         rewrite: (path) => path.replace(/^\/api\/j1-sysmgr-api/, '/sysmgr')
       },
+      '/api/j3-department': j3Proxy(j3DepartmentServerUrl),
+      '/api/j3-patient': j3Proxy(j3PatientServerUrl),
+      '/api/j3-register': j3Proxy(j3RegisterServerUrl),
+      '/api/j3-storehouse': j3Proxy(j3StorehouseServerUrl),
+      '/api/j3-fee': j3Proxy(j3FeeServerUrl),
+      '/api/j3-supplier': j3Proxy(j3SupplierServerUrl),
+      '/api/j3-ward': j3Proxy(j3WardServerUrl),
       '/api': {
         changeOrigin: true,
         //FIXME[TEST_CODE]:使用Apifox云MOCK,联调阶段需要修改成网关地址
