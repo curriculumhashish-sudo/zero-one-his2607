@@ -22,17 +22,21 @@ ChinapresListDTO1::Wrapper ChinapresService1::queryList(const ChinapresQuery1::W
 	for (auto& pair : groupMap) {
 		auto& records = pair.second;
 		auto dto = ChinapresDTO1::createShared();
-		dto->prescriptionNo = pair.first;
-		if (!records.empty()) {
-			dto->authoredAt = records.front()->getCreatedAt();
-		}
 
+		// 取第一条记录的主键ID和就诊ID（同一处方号下相同）
+		if (!records.empty()) {
+			auto first = records.front();
+			dto->id = first->getId();              // 数据库主键，前端签发/撤回要用
+			dto->encounterId = first->getEncounterId();
+			dto->authoredAt = first->getCreatedAt();
+		}
+		dto->prescriptionNo = pair.first;
 		auto herbNamesList = oatpp::List<oatpp::String>::createShared();
 		std::string summaryStr;
+
 		for (auto& record : records) {
 			auto medDef = medDao.selectById(record->getMedicationId());
 			if (medDef && !medDef->getName().empty()) {
-				// 塞进数组
 				herbNamesList->push_back(medDef->getName());
 				if (!summaryStr.empty()) summaryStr += ",";
 				summaryStr += medDef->getName();
@@ -55,6 +59,7 @@ ChinapresDetailDTO1::Wrapper ChinapresService1::queryDetail(const ChinapresDetai
 	}
 	auto first = detailList.front();
 	auto dto = ChinapresDetailDTO1::createShared();
+	dto->id = first->getId();
 	dto->prescriptionId = first->getPrescriptionNo();
 	dto->encounterId = first->getEncounterId();
 	dto->patientId = first->getPatientId();
@@ -79,7 +84,7 @@ ChinapresDetailDTO1::Wrapper ChinapresService1::queryDetail(const ChinapresDetai
 	ChargeItemDefinitionDAO1 chargeDao;
 	auto herbList = oatpp::List<oatpp::Object<ChinapresHerbDTO>>::createShared();
 	double totalDoseAmount = 0.0;
-	for (auto record : detailList) {
+	for (auto& record : detailList) {
 		auto herb = ChinapresHerbDTO::createShared();
 		auto medDef = medDao.selectById(record->getMedicationId());
 		herb->medicineId = record->getMedicationId();

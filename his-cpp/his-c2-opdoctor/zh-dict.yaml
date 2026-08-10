@@ -6,6 +6,9 @@
     id: "处方ID"
     name: "处方名称"
     herbs: "药材摘要"
+    summary: "药材摘要"           
+    herbnames: "药材名称"         
+    authoredat: "开方时间"       
     prescno: "处方号"
     status: "处方状态"
     usage: "用法"
@@ -47,19 +50,3 @@
     summary: "获取历史处方"
   detail:
     summary: "获取指定患者本次就诊中医处方单"
-
-
-medicalrecord:
-  tags:
-    tag: "病历管理"
-  field:
-    patientid1: "患者病历号"
-    encounterid: "本次就诊号"
-    recordid: "病历ID"
-    keyword: "搜索关键词"
-    status1: "状态"
-    statusname: "状态名称"
-    updatetime: "更新时间"
-    data: "分页数据"
-  query:
-    summary: "获取历史病历列表"
