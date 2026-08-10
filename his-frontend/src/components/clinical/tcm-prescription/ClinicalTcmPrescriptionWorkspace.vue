@@ -1,17 +1,15 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { Delete, Plus, Refresh, Select } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 import {
-  cancelStopTcmPrescription,
   deleteTcmPrescription,
   listTcmPrescriptionHistory,
   listTcmPrescriptions,
   pageTcmHerbCatalog,
   saveTcmPrescriptionDraft,
   signTcmPrescription,
-  stopTcmPrescription,
   withdrawTcmPrescription,
   type SaveTcmPrescriptionDTO,
   type TcmHerbCatalogItemVO,
@@ -37,12 +35,21 @@ const props = withDefaults(
     patientSelected?: boolean
     accepted?: boolean
     readonly?: boolean
+    /** 是否显示工作区内保存按钮；统一保存型页面可以关闭。 */
+    showSaveAction?: boolean
+    /** 编辑内容校验通过后是否自动保存。 */
+    autoSave?: boolean
+    /** 是否显示手动刷新按钮。 */
+    showRefreshAction?: boolean
   }>(),
   {
     context: null,
     patientSelected: false,
     accepted: false,
-    readonly: false
+    readonly: false,
+    showSaveAction: true,
+    autoSave: false,
+    showRefreshAction: true
   }
 )
 
@@ -60,11 +67,24 @@ const mutationLoading = ref(false)
 const error = ref('')
 const selectorVisible = ref(false)
 let latestRequestId = 0
+let autoSaveTimer: ReturnType<typeof setTimeout> | undefined
+
+function cancelAutoSave() {
+  if (autoSaveTimer) clearTimeout(autoSaveTimer)
+  autoSaveTimer = undefined
+}
 
 const activePrescription = computed(
   () => prescriptions.value.find((item) => item.key === activeKey.value) ?? null
 )
-const supportsTherapyType = computed(() => props.context?.scope === 'inpatient')
+const isDecoction = computed({
+  get: () => activePrescription.value?.decoctionMethod === '代煎',
+  set: (value: boolean) => {
+    if (activePrescription.value) {
+      activePrescription.value.decoctionMethod = value ? '代煎' : '自煎'
+    }
+  }
+})
 const editable = computed(
   () =>
     Boolean(props.context) &&
@@ -92,14 +112,13 @@ const totalAmount = computed(() => {
 
 const methodOptions = ['水煎服', '冲服', '泡服', '煎汤外洗']
 const frequencyOptions = ['每日一剂', '每日两次', '隔日一剂', '必要时']
-const decoctionOptions = ['自煎', '代煎', '免煎颗粒']
-const specialDecoctionOptions = ['', '先煎', '后下', '包煎', '另煎', '烊化', '冲服']
 
 function serializePrescriptions(items: ClinicalTcmPrescriptionDraft[]) {
   return JSON.stringify(
     items.map((item) => ({
       id: item.id,
-      therapyType: item.therapyType,
+      version: item.version,
+      encounterDiagnosisId: item.encounterDiagnosisId,
       syndromeName: item.syndromeName,
       doseCount: item.doseCount,
       method: item.method,
@@ -113,7 +132,6 @@ function serializePrescriptions(items: ClinicalTcmPrescriptionDraft[]) {
         catalogId: line.catalogId,
         dose: line.dose,
         doseUnit: line.doseUnit,
-        decoctionMethod: line.decoctionMethod,
         orderNo: line.orderNo
       }))
     }))
@@ -125,7 +143,7 @@ function toDraft(record: TcmPrescriptionVO): ClinicalTcmPrescriptionDraft {
     key: record.id,
     id: record.id,
     prescriptionNo: record.prescriptionNo,
-    therapyType: record.therapyType,
+    encounterDiagnosisId: record.encounterDiagnosisId,
     syndromeName: record.syndromeName,
     doseCount: record.doseCount,
     method: record.method,
@@ -146,10 +164,11 @@ function toDraft(record: TcmPrescriptionVO): ClinicalTcmPrescriptionDraft {
 
 function createDraft(): ClinicalTcmPrescriptionDraft {
   const key = `draft-tcm-${Date.now()}-${prescriptions.value.length}`
+  const diagnosis = props.context?.diagnoses?.[0]
   return {
     key,
-    therapyType: supportsTherapyType.value ? 'LONG_TERM' : undefined,
-    syndromeName: '',
+    encounterDiagnosisId: diagnosis?.id || '',
+    syndromeName: diagnosis?.name || '',
     doseCount: 7,
     method: '水煎服',
     frequency: '每日一剂',
@@ -157,8 +176,7 @@ function createDraft(): ClinicalTcmPrescriptionDraft {
     decoctionMethod: '自煎',
     status: 'DRAFT',
     statusName: '待签发',
-    lines: [],
-    version: 0
+    lines: []
   }
 }
 
@@ -187,6 +205,7 @@ async function reload() {
     const [current, history] = await Promise.all([
       listTcmPrescriptions(context),
       listTcmPrescriptionHistory({
+        scope: context.scope,
         patientId: context.patientId,
         currentEncounterId: context.encounterId
       })
@@ -241,7 +260,6 @@ function addHerbs(items: TcmHerbCatalogItemVO[]) {
       specification: item.specification,
       dose: item.defaultDose,
       doseUnit: item.doseUnit,
-      decoctionMethod: item.defaultDecoctionMethod,
       retailPrice: item.retailPrice,
       orderNo: prescription.lines.length + index + 1
     }))
@@ -256,14 +274,19 @@ function removeHerb(key: string) {
     .map((line, index) => ({ ...line, orderNo: index + 1 }))
 }
 
+function changeDiagnosis(id: string) {
+  const prescription = activePrescription.value
+  if (!prescription) return
+  prescription.syndromeName = props.context?.diagnoses?.find((item) => item.id === id)?.name || ''
+}
+
 function validate(prescription: ClinicalTcmPrescriptionDraft) {
-  if (!prescription.syndromeName.trim()) return '请填写中医病证'
-  if (supportsTherapyType.value && !prescription.therapyType) return '请选择长期或临时处方'
+  if (!prescription.encounterDiagnosisId) return '请选择已保存的就诊诊断'
   if (prescription.doseCount <= 0) return '付数必须大于 0'
   if (!prescription.method) return '请选择用法'
   if (!prescription.frequency) return '请选择频次'
   if (prescription.days <= 0) return '疗程天数必须大于 0'
-  if (prescription.lines.length === 0) return '请至少添加一味中药饮片'
+  if (prescription.lines.length === 0) return '请至少添加一味中药材'
   const invalidLine = prescription.lines.find((line) => line.dose <= 0)
   if (invalidLine) return `${invalidLine.name}的单剂用量必须大于 0`
   return ''
@@ -300,27 +323,23 @@ function toSaveDTO(
     encounterId: context.encounterId,
     patientId: context.patientId,
     id: prescription.id,
-    therapyType: context.scope === 'inpatient' ? prescription.therapyType : undefined,
-    syndromeName: prescription.syndromeName.trim(),
-    doseCount: prescription.doseCount,
-    method: prescription.method,
+    version: prescription.version,
+    encounterDiagnosisId: prescription.encounterDiagnosisId,
+    diagnosisName: prescription.syndromeName,
+    copies: prescription.doseCount,
+    usage: prescription.method,
     frequency: prescription.frequency,
     days: prescription.days,
-    decoctionMethod: prescription.decoctionMethod,
+    decoction: prescription.decoctionMethod === '代煎' ? 1 : 0,
     remark: prescription.remark?.trim() || undefined,
-    lines: prescription.lines.map((line, index) => ({
-      id: line.id,
-      catalogId: line.catalogId,
-      code: line.code,
-      name: line.name,
-      specification: line.specification,
+    details: prescription.lines.map((line, index) => ({
+      medicineId: line.catalogId,
+      quantity: line.dose,
+      unit: line.doseUnit,
       dose: line.dose,
       doseUnit: line.doseUnit,
-      decoctionMethod: line.decoctionMethod,
-      retailPrice: line.retailPrice,
-      orderNo: index + 1
-    })),
-    version: prescription.version
+      sortNo: index + 1
+    }))
   }
 }
 
@@ -344,7 +363,9 @@ async function save(showMessage = true) {
     let nextActiveKey = activePrescription.value?.id ?? activeKey.value
     for (const prescription of pendingDrafts) {
       const saved = await saveTcmPrescriptionDraft(toSaveDTO(prescription, context))
-      if (prescription.key === activeKey.value) nextActiveKey = saved.id
+      if (prescription.key === activeKey.value) {
+        nextActiveKey = saved.id
+      }
     }
     activeKey.value = nextActiveKey
     await reload()
@@ -366,13 +387,12 @@ function actionDTO(
   return {
     scope: context.scope,
     encounterId: context.encounterId,
-    patientId: context.patientId,
-    id: prescription.id,
+    id: prescription.id || prescription.prescriptionNo || '',
     version: prescription.version
   }
 }
 
-async function performAction(action: 'delete' | 'sign' | 'withdraw' | 'stop' | 'cancelStop') {
+async function performAction(action: 'delete' | 'sign' | 'withdraw') {
   let prescription = activePrescription.value
   const context = props.context
   if (!prescription || !context || mutationLoading.value) return
@@ -389,13 +409,11 @@ async function performAction(action: 'delete' | 'sign' | 'withdraw' | 'stop' | '
   const labels = {
     delete: '删除',
     sign: '签发',
-    withdraw: '撤回',
-    stop: '停嘱',
-    cancelStop: '取消停嘱'
+    withdraw: '撤回'
   }
   try {
     await ElMessageBox.confirm(`确定要${labels[action]}当前中医处方吗？`, `${labels[action]}处方`, {
-      type: action === 'delete' || action === 'stop' ? 'warning' : 'info',
+      type: action === 'delete' ? 'warning' : 'info',
       confirmButtonText: `确定${labels[action]}`,
       cancelButtonText: '取消'
     })
@@ -414,9 +432,7 @@ async function performAction(action: 'delete' | 'sign' | 'withdraw' | 'stop' | '
     const data = actionDTO(prescription, context)
     if (action === 'delete') await deleteTcmPrescription(data)
     else if (action === 'sign') await signTcmPrescription(data)
-    else if (action === 'withdraw') await withdrawTcmPrescription(data)
-    else if (action === 'stop') await stopTcmPrescription(data)
-    else await cancelStopTcmPrescription(data)
+    else await withdrawTcmPrescription(data)
     await reload()
     ElMessage.success(`${labels[action]}成功`)
   } catch (caught) {
@@ -429,14 +445,40 @@ async function performAction(action: 'delete' | 'sign' | 'withdraw' | 'stop' | '
 function statusTagType(status: ClinicalTcmPrescriptionDraft['status']) {
   if (status === 'DRAFT') return 'primary'
   if (status === 'SIGNED') return 'success'
-  if (status === 'STOPPED') return 'danger'
   return 'info'
 }
 
 watch(
   () => [props.context?.scope, props.context?.encounterId, props.context?.patientId],
-  () => void reload(),
+  () => {
+    cancelAutoSave()
+    void reload()
+  },
   { immediate: true }
+)
+watch(
+  () => serializePrescriptions(prescriptions.value),
+  () => {
+    cancelAutoSave()
+    const context = props.context
+    if (!props.autoSave || !context || !props.accepted || props.readonly) return
+    const contextKey = `${context.scope}:${context.encounterId}:${context.patientId}`
+    autoSaveTimer = setTimeout(() => {
+      autoSaveTimer = undefined
+      const current = props.context
+      if (
+        !current ||
+        `${current.scope}:${current.encounterId}:${current.patientId}` !== contextKey ||
+        !dirty.value ||
+        loading.value ||
+        mutationLoading.value ||
+        validateDirtyPrescriptions()
+      ) {
+        return
+      }
+      void save(false)
+    }, 800)
+  }
 )
 watch(dirty, (value) => emit('dirtyChange', value), { immediate: true })
 watch(
@@ -444,6 +486,8 @@ watch(
   (value) => emit('loadingChange', value),
   { immediate: true }
 )
+
+onBeforeUnmount(cancelAutoSave)
 
 defineExpose<ClinicalTcmPrescriptionWorkspaceExpose>({
   save,
@@ -510,9 +554,8 @@ defineExpose<ClinicalTcmPrescriptionWorkspaceExpose>({
             暂无历史处方
           </div>
           <article v-for="history in historyRows" :key="history.id">
-            <strong>{{ history.prescriptionNo }}</strong>
+            <strong>{{ history.id }}</strong>
             <span>{{ history.summary }}</span>
-            <small>{{ history.herbNames.join('、') }}</small>
           </article>
         </div>
       </aside>
@@ -535,14 +578,21 @@ defineExpose<ClinicalTcmPrescriptionWorkspaceExpose>({
               <el-tag :type="statusTagType(activePrescription.status)">
                 {{ activePrescription.statusName }}
               </el-tag>
-              <span v-if="dirty" class="is-dirty">有未保存修改</span>
+              <span v-if="dirty" class="is-dirty">
+                {{ autoSave ? '待自动保存' : '有未保存修改' }}
+              </span>
             </div>
             <div>
-              <el-button :icon="Refresh" :disabled="mutationLoading || dirty" @click="reload">
+              <el-button
+                v-if="showRefreshAction"
+                :icon="Refresh"
+                :disabled="mutationLoading || dirty"
+                @click="reload"
+              >
                 刷新
               </el-button>
               <el-button
-                v-if="editable"
+                v-if="editable && showSaveAction"
                 type="primary"
                 :icon="Select"
                 :loading="mutationLoading"
@@ -569,33 +619,6 @@ defineExpose<ClinicalTcmPrescriptionWorkspaceExpose>({
                 撤回
               </el-button>
               <el-button
-                v-if="
-                  supportsTherapyType &&
-                  activePrescription.status === 'SIGNED' &&
-                  activePrescription.therapyType === 'LONG_TERM' &&
-                  !readonly
-                "
-                type="warning"
-                :disabled="mutationLoading"
-                @click="performAction('stop')"
-              >
-                停嘱
-              </el-button>
-              <el-button
-                v-if="
-                  supportsTherapyType &&
-                  activePrescription.status === 'STOPPED' &&
-                  activePrescription.therapyType === 'LONG_TERM' &&
-                  !readonly
-                "
-                type="warning"
-                plain
-                :disabled="mutationLoading"
-                @click="performAction('cancelStop')"
-              >
-                取消停嘱
-              </el-button>
-              <el-button
                 v-if="activePrescription.status === 'DRAFT' && !readonly"
                 type="danger"
                 plain
@@ -609,18 +632,20 @@ defineExpose<ClinicalTcmPrescriptionWorkspaceExpose>({
           </header>
 
           <el-form class="clinical-tcm-prescription__form" label-position="top">
-            <el-form-item v-if="supportsTherapyType" label="医嘱类型">
-              <el-radio-group v-model="activePrescription.therapyType" :disabled="!editable">
-                <el-radio-button value="LONG_TERM">长期</el-radio-button>
-                <el-radio-button value="TEMPORARY">临时</el-radio-button>
-              </el-radio-group>
-            </el-form-item>
-            <el-form-item label="中医病证">
-              <el-input
-                v-model="activePrescription.syndromeName"
+            <el-form-item label="关联诊断">
+              <el-select
+                v-model="activePrescription.encounterDiagnosisId"
                 :disabled="!editable"
-                placeholder="例如：气虚血瘀证"
-              />
+                placeholder="请选择已保存的就诊诊断"
+                @change="changeDiagnosis"
+              >
+                <el-option
+                  v-for="diagnosis in context?.diagnoses ?? []"
+                  :key="diagnosis.id"
+                  :label="diagnosis.name"
+                  :value="diagnosis.id"
+                />
+              </el-select>
             </el-form-item>
             <el-form-item label="付数">
               <el-input-number
@@ -663,15 +688,13 @@ defineExpose<ClinicalTcmPrescriptionWorkspaceExpose>({
                 :disabled="!editable"
               />
             </el-form-item>
-            <el-form-item label="煎药方式">
-              <el-select v-model="activePrescription.decoctionMethod" :disabled="!editable">
-                <el-option
-                  v-for="item in decoctionOptions"
-                  :key="item"
-                  :label="item"
-                  :value="item"
-                />
-              </el-select>
+            <el-form-item label="是否代煎">
+              <el-switch
+                v-model="isDecoction"
+                :disabled="!editable"
+                active-text="是"
+                inactive-text="否"
+              />
             </el-form-item>
             <el-form-item label="备注">
               <el-input
@@ -685,7 +708,7 @@ defineExpose<ClinicalTcmPrescriptionWorkspaceExpose>({
           <section class="clinical-tcm-prescription__herbs">
             <header>
               <div>
-                <strong>中药饮片</strong>
+                <strong>中药材</strong>
                 <el-tag size="small" effect="plain">
                   {{ activePrescription.lines.length }} 味
                 </el-tag>
@@ -697,12 +720,12 @@ defineExpose<ClinicalTcmPrescriptionWorkspaceExpose>({
                 :icon="Plus"
                 @click="selectorVisible = true"
               >
-                添加饮片
+                添加药材
               </el-button>
             </header>
 
-            <el-table :data="activePrescription.lines" empty-text="暂无饮片，请点击“添加饮片”">
-              <el-table-column prop="name" label="饮片" min-width="150">
+            <el-table :data="activePrescription.lines" empty-text="暂无药材，请点击“添加药材”">
+              <el-table-column prop="name" label="药材" min-width="150">
                 <template #default="{ row }">
                   <strong>{{ row.name }}</strong>
                   <small class="clinical-tcm-prescription__spec">{{ row.specification }}</small>
@@ -720,18 +743,6 @@ defineExpose<ClinicalTcmPrescriptionWorkspaceExpose>({
                     />
                     <span>{{ row.doseUnit }}</span>
                   </div>
-                </template>
-              </el-table-column>
-              <el-table-column prop="decoctionMethod" label="特殊煎法" width="140">
-                <template #default="{ row }">
-                  <el-select v-model="row.decoctionMethod" :disabled="!editable">
-                    <el-option
-                      v-for="item in specialDecoctionOptions"
-                      :key="item || 'none'"
-                      :label="item || '无'"
-                      :value="item"
-                    />
-                  </el-select>
                 </template>
               </el-table-column>
               <el-table-column label="总量" width="110" align="right">
@@ -772,7 +783,7 @@ defineExpose<ClinicalTcmPrescriptionWorkspaceExpose>({
       :load-page="loadHerbCatalog"
       :existing-catalog-ids="existingCatalogIds"
       @confirm="addHerbs"
-      @load-error="ElMessage.error('中药饮片目录加载失败，请重试')"
+      @load-error="ElMessage.error('中药材目录加载失败，请重试')"
     />
   </section>
 </template>
@@ -875,8 +886,7 @@ defineExpose<ClinicalTcmPrescriptionWorkspaceExpose>({
   font-size: 12px;
 }
 
-.clinical-tcm-prescription__history article span,
-.clinical-tcm-prescription__history article small {
+.clinical-tcm-prescription__history article span {
   color: var(--el-text-color-secondary);
 }
 

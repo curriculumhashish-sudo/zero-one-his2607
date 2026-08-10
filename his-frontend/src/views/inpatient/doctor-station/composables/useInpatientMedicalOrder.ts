@@ -13,6 +13,7 @@ import {
   updateInpatientMedicalOrder,
   withdrawInpatientMedicalOrders,
   type InpatientMedicalOrderBatchActionDTO,
+  type InpatientMedicalOrderBatchResultVO,
   type InpatientMedicalOrderRecordVO
 } from '@/apis/inpatient/doctor-station'
 import type {
@@ -95,6 +96,7 @@ export function useInpatientMedicalOrder() {
   const ordersLoading = ref(false)
   const orderMutationLoading = ref(false)
   const ordersError = ref('')
+  const lastOrderActionResult = ref<InpatientMedicalOrderBatchResultVO | undefined>()
 
   const ordersDirty = computed(
     () =>
@@ -109,6 +111,12 @@ export function useInpatientMedicalOrder() {
         .sort((left, right) => right.localeCompare(left))[0] ?? ''
   )
   const selectedOrderCount = computed(() => selectedOrders.value.length)
+  const realLifecycleFieldsReady = computed(() =>
+    selectedOrders.value.every((order) => {
+      const record = order.raw as InpatientMedicalOrderRecordVO | undefined
+      return record?.source !== 'real' || Boolean(record.id && record.productTableName)
+    })
+  )
   const allSelectedDraft = computed(
     () =>
       selectedOrders.value.length > 0 &&
@@ -130,14 +138,18 @@ export function useInpatientMedicalOrder() {
       selectedOrders.value.length >= 2 &&
       allSelectedDraft.value &&
       selectedOrders.value.every((order) => order.category === 'DRUG' && !order.group),
-    ungroup: allSelectedDraft.value && selectedOrders.value.every((order) => Boolean(order.group)),
-    sign: allSelectedDraft.value,
-    withdraw: allSelectedSigned.value,
+    ungroup:
+      allSelectedDraft.value &&
+      selectedOrders.value.every((order) => Boolean(order.group)),
+    sign: allSelectedDraft.value && realLifecycleFieldsReady.value,
+    withdraw: allSelectedSigned.value && realLifecycleFieldsReady.value,
     stop:
       allSelectedSigned.value &&
+      realLifecycleFieldsReady.value &&
       selectedOrders.value.every((order) => order.therapyType === 'LONG_TERM'),
     cancelStop:
       allSelectedStopped.value &&
+      realLifecycleFieldsReady.value &&
       selectedOrders.value.every((order) => order.therapyType === 'LONG_TERM')
   }))
 
@@ -152,10 +164,11 @@ export function useInpatientMedicalOrder() {
     savedOrderSnapshot.value = '[]'
     ordersLoading.value = false
     orderMutationLoading.value = false
+    lastOrderActionResult.value = undefined
     ordersError.value = ''
   }
 
-  async function loadOrders(encounterId: string) {
+  async function loadOrders(encounterId: string, patientId = '') {
     const requestId = ++latestOrderRequestId
     loadedEncounterId.value = encounterId
     orderRecords.value = []
@@ -169,11 +182,18 @@ export function useInpatientMedicalOrder() {
       const result = await pageInpatientMedicalOrders({
         pageIndex: 1,
         pageSize: 200,
-        encounterId
+        encounterId,
+        patientId: patientId || undefined
       })
       if (requestId !== latestOrderRequestId || loadedEncounterId.value !== encounterId) return
 
       const records = (result.rows ?? [])
+        .map((record) => ({
+          ...record,
+          source: record.source ?? ('mock' as const),
+          encounterMismatch: record.encounterId !== encounterId,
+          readonly: Boolean(record.readonly || record.encounterId !== encounterId)
+        }))
         .slice()
         .sort((left, right) => left.orderNo - right.orderNo)
       const clinicalRows = records.map(toInpatientClinicalOrder)
@@ -203,11 +223,20 @@ export function useInpatientMedicalOrder() {
   }
 
   function canEditOrder(order: ClinicalOrderDraft) {
-    return !order.recordId || order.statusCode === 'DRAFT'
+    const record = order.raw as InpatientMedicalOrderRecordVO | undefined
+    return (
+      !record?.encounterMismatch &&
+      !record?.readonly &&
+      (!order.recordId || order.statusCode === 'DRAFT')
+    )
   }
 
   function selectionDisabledRow(order: ClinicalOrderDraft) {
-    return !order.recordId || order.statusCode === 'WITHDRAWN'
+    const record = order.raw as InpatientMedicalOrderRecordVO | undefined
+    return (
+      Boolean(record?.encounterMismatch || record?.readonly) ||
+      order.statusCode === 'WITHDRAWN'
+    )
   }
 
   function selectOrders(rows: ClinicalOrderDraft[]) {
@@ -227,7 +256,11 @@ export function useInpatientMedicalOrder() {
       orders.value.map((order) => order.recordId).filter((id): id is string => Boolean(id))
     )
     const deletedDrafts = orderRecords.value.filter(
-      (record) => record.status === 'DRAFT' && !currentIds.has(record.id)
+      (record) =>
+        record.encounterId === context.encounterKey &&
+        !record.readonly &&
+        record.status === 'DRAFT' &&
+        !currentIds.has(record.id)
     )
     let changedCount = 0
     orderMutationLoading.value = true
@@ -250,21 +283,32 @@ export function useInpatientMedicalOrder() {
         }
 
         const saved = savedById.get(order.recordId)
-        if (!saved || saved.status !== 'DRAFT' || !orderChanged(saved, order, index)) continue
-        await updateInpatientMedicalOrder(
-          saved.id,
-          toUpdateInpatientMedicalOrderDTO(order, index, saved.version)
-        )
+        if (
+          !saved ||
+          saved.encounterId !== context.encounterKey ||
+          saved.readonly ||
+          saved.status !== 'DRAFT' ||
+          !orderChanged(saved, order, index)
+        ) continue
+        const updateData = toUpdateInpatientMedicalOrderDTO(order, index, saved.version)
+        if (saved.source === 'real') {
+          await updateInpatientMedicalOrder(saved.id, updateData, {
+            source: saved.source,
+            current: saved
+          })
+        } else {
+          await updateInpatientMedicalOrder(saved.id, updateData)
+        }
         changedCount += 1
       }
 
       if (loadedEncounterId.value === context.encounterKey) {
-        await loadOrders(context.encounterKey)
+        await loadOrders(context.encounterKey, context.patientId)
       }
       return changedCount
     } catch (error) {
       if (loadedEncounterId.value === context.encounterKey) {
-        await loadOrders(context.encounterKey)
+        await loadOrders(context.encounterKey, context.patientId)
       }
       throw error
     } finally {
@@ -272,27 +316,67 @@ export function useInpatientMedicalOrder() {
     }
   }
 
-  function selectedBatchData(context: ClinicalOrderContext): InpatientMedicalOrderBatchActionDTO {
+  function selectedBatchData(
+    context: ClinicalOrderContext,
+    options: { stopReason?: number } = {}
+  ): InpatientMedicalOrderBatchActionDTO {
     const recordsById = new Map(orderRecords.value.map((record) => [record.id, record]))
-    return {
+    const result: InpatientMedicalOrderBatchActionDTO = {
       encounterId: context.encounterKey,
       patientId: context.patientId,
       items: selectedOrders.value.map((order) => {
         const record = order.recordId ? recordsById.get(order.recordId) : undefined
         if (!record) throw new Error('所选医嘱尚未保存或已经失效，请刷新后重试')
-        return { id: record.id, version: record.version }
+        if (record.encounterId !== context.encounterKey || record.readonly) {
+          throw new Error('历史住院医嘱不能执行当前操作')
+        }
+        const item: InpatientMedicalOrderBatchActionDTO['items'][number] = {
+          id: record.id,
+          version: record.version
+        }
+        if (record.source === 'real') {
+          item.productTableName = record.productTableName
+          item.groupId = record.groupId
+        }
+        return item
       })
     }
+    if (options.stopReason !== undefined) result.stopReason = options.stopReason
+    return result
   }
 
   async function executeOrderAction(
     action: InpatientMedicalOrderAction,
-    context: ClinicalOrderContext
+    context: ClinicalOrderContext,
+    options: { stopReason?: number } = {}
   ) {
     if (ordersDirty.value) throw new Error('请先保存当前医嘱修改')
     if (!actionAvailability.value[action]) throw new Error('所选医嘱状态不支持当前操作')
-    const data = selectedBatchData(context)
+    if (
+      action === 'stop' &&
+      options.stopReason === undefined &&
+      selectedOrders.value.some(
+        (order) => (order.raw as InpatientMedicalOrderRecordVO | undefined)?.source === 'real'
+      )
+    ) {
+      throw new Error('请填写有效的停嘱原因码')
+    }
+    /*
+    if (
+      action === 'stop' &&
+      options.stopReason === undefined &&
+      selectedOrders.value.some(
+        (order) => (order.raw as InpatientMedicalOrderRecordVO | undefined)?.source === 'real'
+      )
+    ) {
+    if (ordersDirty.value) throw new Error('请先保存当前医嘱修改')
+    if (!actionAvailability.value[action]) throw new Error('所选医嘱状态不支持当前操作')
+      throw new Error('当前后端尚未提供完整医嘱生命周期字段，暂不能执行该操作')
+    }
+    */
+    const data = selectedBatchData(context, options)
     orderMutationLoading.value = true
+    lastOrderActionResult.value = undefined
 
     try {
       const result =
@@ -311,8 +395,9 @@ export function useInpatientMedicalOrder() {
                     : await cancelStopInpatientMedicalOrders(data)
 
       if (loadedEncounterId.value === context.encounterKey) {
-        await loadOrders(context.encounterKey)
+        await loadOrders(context.encounterKey, context.patientId)
       }
+      lastOrderActionResult.value = result
       return result.updatedCount
     } finally {
       orderMutationLoading.value = false
@@ -323,6 +408,7 @@ export function useInpatientMedicalOrder() {
     actionAvailability,
     canEditOrder,
     executeOrderAction,
+    lastOrderActionResult,
     loadOrderCatalog,
     loadOrders,
     orderMutationLoading,

@@ -16,7 +16,7 @@ export interface ClinicalDiagnosisItem {
   recordId?: string
   /** 诊断字典项目 ID */
   catalogId: string
-  /** ICD 编码 */
+  /** 诊断编码 */
   code: string
   /** 诊断名称 */
   name: string
@@ -35,7 +35,7 @@ export interface ClinicalDiagnosisItem {
 export interface ClinicalDiagnosisCandidate extends Record<string, unknown> {
   /** 诊断字典项目 ID */
   id: string
-  /** ICD 编码 */
+  /** 诊断编码 */
   code: string
   /** 诊断名称 */
   name: string

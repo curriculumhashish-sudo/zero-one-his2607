@@ -5,6 +5,7 @@ import { defineComponent, nextTick } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import * as nurseStationApi from '@/apis/outpatient/nurse-station'
+import type { NurseConsumableItemVO } from '@/apis/outpatient/nurse-station'
 import NurseRightSidebar from './NurseRightSidebar.vue'
 
 vi.mock('@/apis/outpatient/nurse-station', () => ({
@@ -30,7 +31,41 @@ beforeEach(() => {
 })
 
 describe('NurseRightSidebar', () => {
-  it('提供耗材、打印和执行记录三个标签页', () => {
+  it('耗材卡片只展示后端真实字段并以器械定义 ID 作为兜底', () => {
+    const item: NurseConsumableItemVO = {
+      deviceDefId: 'device-001',
+      quantity: 2,
+      unitCode: '盒',
+      usageInstruction: '外用',
+      lotNumber: 'LOT-001',
+      statusEnum: 'PENDING',
+      dispenseTime: '2026-08-10 09:00'
+    }
+    const wrapper = mount(NurseRightSidebar, {
+      props: { items: [item] },
+      global: {
+        stubs: {
+          ElTabs: { template: '<div class="tabs"><slot /></div>' },
+          ElTabPane: TabPaneStub,
+          ElTag: { template: '<span><slot /></span>' },
+          EmptyState: true
+        },
+        directives: {
+          loading: () => undefined
+        }
+      }
+    })
+
+    const card = wrapper.find('.supply-card')
+    expect(card.text()).toContain('device-001')
+    expect(card.text()).toContain('外用')
+    expect(card.text()).toContain('LOT-001')
+    expect(card.text()).toContain('PENDING')
+    expect(card.text()).not.toContain('耗材 device-001')
+    expect(card.text()).not.toContain('未提供发放位置')
+  })
+
+  it('提供耗材和执行记录两个标签页', () => {
     const wrapper = mount(NurseRightSidebar, {
       global: {
         stubs: {
@@ -43,8 +78,7 @@ describe('NurseRightSidebar', () => {
             template: '<div class="pagination"><slot /></div>',
             emits: ['current-change']
           },
-          EmptyState: true,
-          Printer: true
+          EmptyState: true
         },
         directives: {
           loading: () => undefined
@@ -53,7 +87,7 @@ describe('NurseRightSidebar', () => {
     })
     const panes = wrapper.findAllComponents(TabPaneStub)
 
-    expect(panes.map((pane) => pane.props('label'))).toEqual(['耗材项目', '打印', '执行记录'])
+    expect(panes.map((pane) => pane.props('label'))).toEqual(['耗材项目', '执行记录'])
   })
 
   it('未选择患者时执行记录标签显示空状态提示', () => {
@@ -73,9 +107,9 @@ describe('NurseRightSidebar', () => {
           EmptyState: defineComponent({
             name: 'EmptyState',
             props: { title: String, description: String, compact: Boolean },
-            template: '<div class="empty-state"><strong>{{ title }}</strong><p>{{ description }}</p></div>'
-          }),
-          Printer: true
+            template:
+              '<div class="empty-state"><strong>{{ title }}</strong><p>{{ description }}</p></div>'
+          })
         },
         directives: {
           loading: () => undefined
@@ -93,20 +127,17 @@ describe('NurseRightSidebar', () => {
       rows: [
         {
           itemId: 'exec-done',
-          requestId: 'request-done',
-          requestType: 'SERVICE',
-          requestTypeName: '处置',
-          orderContent: '已执行项目',
-          specification: '规格说明',
+          encounterId: 'enc-001',
+          categoryCode: 'SERVICE',
+          categoryName: '处置',
+          itemName: '已执行项目',
+          quantity: 1,
+          unitName: '次',
           status: 'COMPLETED',
           statusName: '已完成',
-          plannedCount: 1,
-          executedCount: 1,
+          executionCount: 1,
           executorName: '模拟护士',
           executedAt: '2026-07-29 09:00:00',
-          version: 1,
-          printTypes: ['TREATMENT_SHEET'],
-          encounterId: 'enc-001',
           visitNo: 'V20260729001'
         }
       ],
@@ -128,8 +159,7 @@ describe('NurseRightSidebar', () => {
             template: '<div class="pagination"><slot /></div>',
             emits: ['current-change']
           },
-          EmptyState: true,
-          Printer: true
+          EmptyState: true
         },
         directives: {
           loading: () => undefined
@@ -163,8 +193,7 @@ describe('NurseRightSidebar', () => {
             template: '<div class="pagination"><slot /></div>',
             emits: ['current-change']
           },
-          EmptyState: true,
-          Printer: true
+          EmptyState: true
         },
         directives: {
           loading: () => undefined
@@ -179,44 +208,5 @@ describe('NurseRightSidebar', () => {
     // When patientId is cleared, no API call should be made
     // (records are cleared locally in the watch when patientId is empty)
     expect(nurseStationApi.pagePatientExecutionHistory).not.toHaveBeenCalled()
-  })
-
-  it('打印页提供原型的七种打印入口并上报类型', async () => {
-    const wrapper = mount(NurseRightSidebar, {
-      props: { canPrint: true },
-      global: {
-        stubs: {
-          ElTabs: { template: '<div class="tabs"><slot /></div>' },
-          ElTabPane: TabPaneStub,
-          ElButton: { template: '<button @click="$emit(\'click\')"><slot /></button>' },
-          ElIcon: { template: '<i><slot /></i>' },
-          ElTag: { template: '<span><slot /></span>' },
-          ElPagination: {
-            template: '<div class="pagination"><slot /></div>',
-            emits: ['current-change']
-          },
-          EmptyState: true,
-          Printer: true
-        },
-        directives: {
-          loading: () => undefined
-        }
-      }
-    })
-    const printPane = wrapper.find('[data-name="print"]')
-    const buttons = printPane.findAll('button')
-
-    expect(buttons.map((button) => button.text())).toEqual([
-      '打印瓶贴',
-      '打印处置单',
-      '打印采血码',
-      '打印处方单',
-      '皮试标签',
-      '雾化标签',
-      '处置申请单'
-    ])
-
-    await buttons[0]?.trigger('click')
-    expect(wrapper.emitted('print')?.[0]).toEqual(['BOTTLE_LABEL'])
   })
 })

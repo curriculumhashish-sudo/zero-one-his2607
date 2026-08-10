@@ -5,10 +5,12 @@ import HttpClient, { closeLoading, DataUpType, showLoading } from '@/apis/http'
 import type { Router } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
+import { DEV_BEARER_TOKEN } from '@/config/dev-token'
 
 /** 插件标识符 */
 const PLUGIN_SYMBOL = Symbol('http')
 
+/** 联调固定 JWT；存在正常登录 Token 时优先使用登录 Token。 */
 /** 全局HTTP实例 */
 let globalHttp: HttpClient | null = null
 
@@ -86,7 +88,7 @@ export default {
           // J5 配置服务通过本地直连代理访问，避免被全局 /api 转发到网关。
           // 提交的时候携带登录凭证
           // 登录后优先使用当前会话 token；固定 token 仅作为无登录联调时的兜底。
-          const token = store.getToken || import.meta.env.VITE_DEV_AUTH_TOKEN || ''
+          const token = store.getToken || import.meta.env.VITE_DEV_AUTH_TOKEN || DEV_BEARER_TOKEN
           if (token) {
             const tokenHead = (localStorage.getItem('tokenHead') || 'Bearer').trim()
             config.headers['Authorization'] = tokenHead ? `${tokenHead} ${token}` : token

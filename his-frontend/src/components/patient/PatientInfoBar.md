@@ -165,9 +165,9 @@ function clearPatient() {
 </template>
 ```
 
-## 风险标签示例
+## 优先级标签示例
 
-`priority` 使用警告色，`riskHint` 使用危险色。
+`priority` 使用警告色。
 
 ```vue
 <script setup lang="ts">
@@ -183,7 +183,6 @@ const highRiskPatient: PatientSummary = {
   patientNo: 'ZY20260088',
   departmentName: '神经内科',
   priority: '重点关注',
-  riskHint: '高跌倒风险，磺胺类药物过敏',
   status: '在院',
   statusTone: 'success'
 }
@@ -193,8 +192,6 @@ const highRiskPatient: PatientSummary = {
   <PatientInfoBar :patient="highRiskPatient" />
 </template>
 ```
-
-风险提示过长时会在标签内省略，鼠标悬停可查看完整文本。
 
 ## 门诊场景示例
 
@@ -265,8 +262,7 @@ export function toInpatientSummary(dto: InpatientDto): PatientSummary {
     status: dto.statusName,
     statusTone: dto.discharged ? 'info' : 'success',
     paymentType: dto.insuranceType,
-    priority: dto.priorityName,
-    riskHint: dto.riskDescription
+    priority: dto.priorityName
   }
 }
 ```
@@ -344,7 +340,6 @@ const loading = ref(true)
 - `serviceType`、`status`、`paymentType` 以标签展示
 - `statusTone` 未传时使用 `info`
 - `priority` 使用警告标签
-- `riskHint` 使用危险标签
 - 小屏幕下详细信息自动换行，右侧操作区保持靠右
 
 ## PatientSummary 常用字段
@@ -365,7 +360,6 @@ const loading = ref(true)
 | `statusTone` | `PatientStatusTone` | 状态标签语义色 |
 | `paymentType` | `string \| null` | 支付或医保类型 |
 | `priority` | `string \| null` | 优先级或重点关注标识 |
-| `riskHint` | `string \| null` | 风险提示 |
 
 ## 职责边界
 

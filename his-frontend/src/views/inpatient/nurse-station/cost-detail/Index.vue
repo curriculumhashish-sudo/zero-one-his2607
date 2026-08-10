@@ -4,13 +4,11 @@ import dayjs from 'dayjs'
 import { ElMessage, type TagProps } from 'element-plus'
 
 import {
-  loadNurseStationCostDetailInit,
   queryNurseStationCostDetail,
-  type NurseStationCostDetailInitVO,
+  queryNurseStationCostSummary,
   type NurseStationCostDetailLineVO,
   type NurseStationCostPresentationMode,
-  type NurseStationCostSummaryLineVO,
-  type NurseStationCostTotalsVO
+  type NurseStationCostSummaryLineVO
 } from '@/apis/inpatient/nurse-station'
 
 import type { NurseStationPatientSummary } from '../type'
@@ -18,7 +16,6 @@ import type { NurseStationPatientSummary } from '../type'
 defineOptions({ name: 'NurseStationCostDetail' })
 
 const props = defineProps<{
-  /** 费用明细必须基于一个明确的住院账户，因此正常情况下数组中只有一位患者。 */
   patients: NurseStationPatientSummary[]
 }>()
 
@@ -26,22 +23,19 @@ type QuickDay = 'today' | 'yesterday'
 
 const selectedPatient = computed(() => (props.patients.length === 1 ? props.patients[0] : null))
 const loading = ref(false)
-const initialized = ref(false)
-const initData = ref<NurseStationCostDetailInitVO | null>(null)
 const quickDay = ref<QuickDay>('today')
-const dateRange = ref<string[]>([])
+const today = dayjs().format('YYYY-MM-DD')
+const dateRange = ref<string[]>([today, today])
 const presentationMode = ref<NurseStationCostPresentationMode>('DETAIL')
 const detailLines = ref<NurseStationCostDetailLineVO[]>([])
 const summaryLines = ref<NurseStationCostSummaryLineVO[]>([])
-const totals = ref<NurseStationCostTotalsVO | null>(null)
 const totalDetailCount = ref(0)
-const summaryItemCount = ref(0)
 const pageIndex = ref(1)
 const pageSize = ref(20)
 let requestSerial = 0
 
 const activeItemCount = computed(() =>
-  presentationMode.value === 'DETAIL' ? totalDetailCount.value : summaryItemCount.value
+  presentationMode.value === 'DETAIL' ? totalDetailCount.value : summaryLines.value.length
 )
 
 function formatMoney(value: number | undefined) {
@@ -53,61 +47,40 @@ function formatUnitPrice(value: number | undefined) {
 }
 
 function formatDetailQuantity(row: NurseStationCostDetailLineVO) {
-  return `${row.quantity} ${row.quantityUnitDisplay}`
+  return `${row.quantityValue} ${row.quantityUnit || ''}`.trim()
 }
 
-/** Element Plus 表格插槽将行声明为通用对象，此适配函数恢复费用明细行类型。 */
 function formatDetailQuantityFromTable(row: unknown) {
   return formatDetailQuantity(row as NurseStationCostDetailLineVO)
 }
 
-/** 汇总数量优先显示整包装，剩余数量再使用拆零单位。 */
-function formatSummaryQuantity(row: NurseStationCostSummaryLineVO) {
-  const parts: string[] = []
-  if (row.packageQuantity) {
-    parts.push(`${row.packageQuantity}${row.packageUnitDisplay ?? row.packageUnitCode ?? ''}`)
+function formatStatus(statusEnum: string) {
+  const statusText: Record<string, string> = {
+    CHARGED: '已收费',
+    PENDING: '待收费',
+    PENDING_SETTLEMENT: '待结算',
+    REFUNDED: '已退费',
+    SETTLED: '已结算'
   }
-  if (row.splitUnitQuantity) {
-    parts.push(`${row.splitUnitQuantity}${row.splitUnitDisplay ?? row.splitUnitCode ?? ''}`)
-  }
-  return parts.length ? parts.join(' + ') : '0'
+  return statusText[statusEnum] ?? statusEnum ?? '—'
 }
 
-/** Element Plus 表格插槽行类型适配：格式化汇总后的包装和拆零数量。 */
-function formatSummaryQuantityFromTable(row: unknown) {
-  return formatSummaryQuantity(row as NurseStationCostSummaryLineVO)
-}
-
-function resolveStatusTagType(statusDisplay: string): TagProps['type'] {
-  if (statusDisplay.includes('退')) return 'danger'
-  if (statusDisplay.includes('待')) return 'warning'
-  if (statusDisplay.includes('已')) return 'success'
+function resolveStatusTagType(statusEnum: string): TagProps['type'] {
+  if (statusEnum.includes('REFUND')) return 'danger'
+  if (statusEnum.includes('PENDING')) return 'warning'
+  if (statusEnum.includes('SETTLED') || statusEnum.includes('CHARGED')) return 'success'
   return 'info'
 }
 
-/** Element Plus 通过返回类名给退费行添加醒目的浅红背景。 */
-function resolveDetailRowClass({ row }: { row: NurseStationCostDetailLineVO }) {
-  return row.refundHighlight ? 'cost-detail-row--refund' : ''
+function resolveSummaryRowKey(row: NurseStationCostSummaryLineVO) {
+  return `${row.typeCode}-${row.summaryDate}`
 }
 
-async function ensureInit() {
-  if (initialized.value) return
-  const result = await loadNurseStationCostDetailInit()
-  initData.value = result
-  dateRange.value = [result.dateFrom, result.dateTo]
-  initialized.value = true
-}
-
-/**
- * 查询前保存当前患者 ID 和请求序号。用户快速切换患者或连续点击查询时，只允许最后一次
- * 请求写入页面，防止较慢的旧请求覆盖新条件。
- */
 async function queryCostDetail() {
-  await ensureInit()
   const patient = selectedPatient.value
   if (!patient) return
-  const [dateFrom, dateTo] = dateRange.value
-  if (!dateFrom || !dateTo || dayjs(dateFrom).isAfter(dayjs(dateTo))) {
+  const [startDate, endDate] = dateRange.value
+  if (!startDate || !endDate || dayjs(startDate).isAfter(dayjs(endDate))) {
     ElMessage.warning('请选择有效的查询日期')
     return
   }
@@ -116,21 +89,24 @@ async function queryCostDetail() {
   const encounterId = patient.encounterId
   loading.value = true
   try {
-    const result = await queryNurseStationCostDetail({
-      pageIndex: pageIndex.value,
-      pageSize: pageSize.value,
-      encounterId,
-      patientId: patient.patientId,
-      dateFrom,
-      dateTo,
-      presentationMode: presentationMode.value
-    })
+    if (presentationMode.value === 'DETAIL') {
+      const result = await queryNurseStationCostDetail({
+        pageIndex: pageIndex.value,
+        pageSize: pageSize.value,
+        encounterId,
+        patientId: patient.patientId,
+        startDate,
+        endDate
+      })
+      if (serial !== requestSerial || selectedPatient.value?.encounterId !== encounterId) return
+      detailLines.value = result.rows ?? []
+      totalDetailCount.value = result.total
+    } else {
+      const result = await queryNurseStationCostSummary({ encounterId, startDate, endDate })
+      if (serial !== requestSerial || selectedPatient.value?.encounterId !== encounterId) return
+      summaryLines.value = result
+    }
     if (serial !== requestSerial || selectedPatient.value?.encounterId !== encounterId) return
-    detailLines.value = result.detailPage.rows ?? []
-    summaryLines.value = result.summaryLines
-    totals.value = result.totals
-    totalDetailCount.value = result.totalDetailCount
-    summaryItemCount.value = result.summaryItemCount
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '查询费用明细失败')
   } finally {
@@ -138,16 +114,13 @@ async function queryCostDetail() {
   }
 }
 
-/** 切换患者时清空旧数据并自动查询默认日期，未选患者时保持空状态。 */
 watch(
   selectedPatient,
   async () => {
     requestSerial += 1
     detailLines.value = []
     summaryLines.value = []
-    totals.value = null
     totalDetailCount.value = 0
-    summaryItemCount.value = 0
     pageIndex.value = 1
     if (!selectedPatient.value) return
     await queryCostDetail()
@@ -204,10 +177,6 @@ function handlePageChange(page: number) {
             <dd>{{ selectedPatient.encounterBusNo || '—' }}</dd>
           </div>
           <div>
-            <dt>费别</dt>
-            <dd>{{ selectedPatient.paymentTypeText || '自费' }}</dd>
-          </div>
-          <div>
             <dt>诊断</dt>
             <dd>{{ selectedPatient.diagnosisSummary || '—' }}</dd>
           </div>
@@ -247,7 +216,10 @@ function handlePageChange(page: number) {
         <header class="cost-data-header">
           <nav class="presentation-tabs" aria-label="费用展示模式">
             <button
-              v-for="option in initData?.presentationOptions ?? []"
+              v-for="option in [
+                { code: 'DETAIL' as const, display: '明细' },
+                { code: 'SUMMARY' as const, display: '汇总' }
+              ]"
               :key="option.code"
               :class="{ 'is-active': presentationMode === option.code }"
               @click="changePresentationMode(option.code)"
@@ -255,22 +227,6 @@ function handlePageChange(page: number) {
               {{ option.display }}
             </button>
           </nav>
-          <div v-if="totals" class="cost-totals" data-testid="cost-totals">
-            <span><small>药品合计</small>{{ formatMoney(totals.medicationTotal) }}</span>
-            <span><small>诊疗合计</small>{{ formatMoney(totals.serviceTotal) }}</span>
-            <span><small>耗材合计</small>{{ formatMoney(totals.deviceTotal) }}</span>
-            <span
-              v-for="item in totals.categoryTotals"
-              :key="item.categoryCode"
-              class="category-total"
-            >
-              <small>{{ item.categoryDisplay }}</small
-              >{{ formatMoney(item.amount) }}
-            </span>
-            <span class="grand-total"
-              ><small>总合计</small>{{ formatMoney(totals.grandTotal) }}</span
-            >
-          </div>
           <div class="cost-item-count">
             {{ presentationMode === 'DETAIL' ? '明细' : '汇总' }}项数：{{ activeItemCount }} 项
           </div>
@@ -283,19 +239,15 @@ function handlePageChange(page: number) {
             border
             stripe
             height="100%"
-            row-key="chargeItemId"
-            :row-class-name="resolveDetailRowClass"
+            row-key="id"
             data-testid="cost-detail-table"
           >
             <el-table-column
-              prop="itemName"
+              prop="chargeName"
               label="项目名称"
               min-width="180"
               show-overflow-tooltip
             />
-            <el-table-column label="规格" min-width="100" show-overflow-tooltip>
-              <template #default="{ row }">{{ row.itemSpec || '—' }}</template>
-            </el-table-column>
             <el-table-column label="数量" width="92" align="center">
               <template #default="{ row }">{{ formatDetailQuantityFromTable(row) }}</template>
             </el-table-column>
@@ -304,21 +256,18 @@ function handlePageChange(page: number) {
             </el-table-column>
             <el-table-column label="金额" width="108" align="right">
               <template #default="{ row }">
-                <strong :class="{ 'refund-money': row.refundHighlight }">{{
-                  formatMoney(row.totalPrice)
-                }}</strong>
+                <strong>{{ formatMoney(row.totalPrice) }}</strong>
               </template>
             </el-table-column>
-            <el-table-column prop="categoryDisplay" label="费用分类" width="104" />
-            <el-table-column prop="businessDateTime" label="业务时间" min-width="148" />
-            <el-table-column label="费用状态" width="92" align="center">
+            <el-table-column prop="typeCode" label="费用分类" width="110" />
+            <el-table-column prop="occurrenceTime" label="业务时间" min-width="156" />
+            <el-table-column label="费用状态" width="110" align="center">
               <template #default="{ row }">
-                <el-tag size="small" :type="resolveStatusTagType(row.statusDisplay)">{{
-                  row.statusDisplay
+                <el-tag size="small" :type="resolveStatusTagType(row.statusEnum)">{{
+                  formatStatus(row.statusEnum)
                 }}</el-tag>
               </template>
             </el-table-column>
-            <el-table-column prop="generateSourceDisplay" label="来源" width="96" align="center" />
           </el-table>
 
           <el-table
@@ -327,36 +276,20 @@ function handlePageChange(page: number) {
             border
             stripe
             height="100%"
-            row-key="summaryKey"
+            :row-key="resolveSummaryRowKey"
             data-testid="cost-summary-table"
           >
-            <el-table-column
-              prop="itemName"
-              label="项目名称"
-              min-width="190"
-              show-overflow-tooltip
-            />
-            <el-table-column label="规格" min-width="110" show-overflow-tooltip>
-              <template #default="{ row }">{{ row.itemSpec || '—' }}</template>
+            <el-table-column prop="summaryDate" label="汇总日期" min-width="140" />
+            <el-table-column prop="typeCode" label="费用类型编码" min-width="140" />
+            <el-table-column label="费用类型" min-width="160">
+              <template #default="{ row }">{{ row.typeName || row.typeCode }}</template>
             </el-table-column>
-            <el-table-column prop="categoryDisplay" label="分类" width="110" />
-            <el-table-column label="单价" width="105" align="right">
-              <template #default="{ row }">{{ formatUnitPrice(row.unitPrice) }}</template>
-            </el-table-column>
-            <el-table-column label="净数量" width="130" align="center">
-              <template #default="{ row }">{{ formatSummaryQuantityFromTable(row) }}</template>
-            </el-table-column>
-            <el-table-column label="行合计" width="115" align="right">
+            <el-table-column prop="count" label="笔数" width="100" align="center" />
+            <el-table-column label="总金额" width="140" align="right">
               <template #default="{ row }"
-                ><strong>{{ formatMoney(row.lineTotalAmount) }}</strong></template
+                ><strong>{{ formatMoney(row.totalAmount) }}</strong></template
               >
             </el-table-column>
-            <el-table-column
-              prop="expenseBlockDisplay"
-              label="费用大类"
-              width="100"
-              align="center"
-            />
           </el-table>
 
           <el-empty
@@ -539,38 +472,8 @@ function handlePageChange(page: number) {
   content: '';
 }
 
-.cost-totals {
-  display: flex;
-  min-width: max-content;
-  flex: 1;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 14px;
-}
-.cost-totals > span {
-  display: inline-flex;
-  flex-direction: column;
-  color: #303133;
-  -webkit-text-fill-color: #303133;
-  font-weight: 600;
-  line-height: 1.35;
-  white-space: nowrap;
-}
-.cost-totals small {
-  color: #6b7280;
-  -webkit-text-fill-color: #6b7280;
-  font-size: 11px;
-  font-weight: 400;
-}
-.cost-totals .category-total {
-  display: none;
-}
-.cost-totals .grand-total {
-  color: #f56c6c;
-  -webkit-text-fill-color: #f56c6c;
-  font-size: 17px;
-}
 .cost-item-count {
+  margin-left: auto;
   flex: 0 0 auto;
   color: #606266;
   -webkit-text-fill-color: #606266;
@@ -589,15 +492,6 @@ function handlePageChange(page: number) {
 .cost-table-wrap :deep(.el-table td.el-table__cell) {
   color: #303133;
   -webkit-text-fill-color: #303133;
-}
-.cost-table-wrap :deep(.cost-detail-row--refund td.el-table__cell) {
-  background: #fef2f2 !important;
-  color: #b91c1c;
-  -webkit-text-fill-color: #b91c1c;
-}
-.refund-money {
-  color: #dc2626;
-  -webkit-text-fill-color: #dc2626;
 }
 .cost-empty {
   position: absolute;
@@ -625,9 +519,6 @@ function handlePageChange(page: number) {
   .cost-patient-header dl {
     grid-template-columns: repeat(3, minmax(130px, 1fr));
     gap: 6px 12px;
-  }
-  .cost-totals {
-    gap: 10px;
   }
   .cost-data-header {
     min-height: 52px;

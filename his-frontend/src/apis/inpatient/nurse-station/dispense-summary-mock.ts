@@ -11,11 +11,9 @@ import type {
   NurseStationDispensePatientGroupVO,
   NurseStationDispensePendingQueryDTO,
   NurseStationDispensePendingResultVO,
-  NurseStationDispenseSummaryDetailVO,
   NurseStationDispenseSummaryHeaderVO,
   NurseStationDispenseSummaryLineVO,
   NurseStationDispenseSummaryQueryDTO,
-  NurseStationDispenseSummaryStatus,
   NurseStationDispenseSummaryWriteResultVO,
   NurseStationDispenseTimePointVO,
   NurseStationSubmitDispenseSummariesDTO
@@ -231,30 +229,18 @@ const dispenseRecords: MockDispenseRecord[] = [
 const summaryHeaders: NurseStationDispenseSummaryHeaderVO[] = [
   {
     summaryNo: 'MS-HISTORY-0001',
-    pharmacyId: 'pharmacy-inpatient-west',
-    pharmacyName: '住院西药房',
-    applicantId: 'nurse-001',
-    applicantName: '李护士',
-    applyTime: `${today} 07:30:00`,
-    status: 'PENDING_SUBMIT',
-    statusText: '待发送',
-    itemCount: 1,
-    version: 1
+    desLocationId: 'ward-301',
+    plannedDispenseTime: `${today} 08:00:00`,
+    statusEnum: 'SUMMARIZED',
+    itemCount: 1
   },
   {
     summaryNo: 'MS-HISTORY-0002',
-    pharmacyId: 'pharmacy-inpatient-west',
-    pharmacyName: '住院西药房',
-    applicantId: 'nurse-002',
-    applicantName: '周护士',
-    applyTime: `${today} 06:50:00`,
-    receiverId: 'nurse-002',
-    receiverName: '周护士',
+    desLocationId: 'ward-301',
+    plannedDispenseTime: `${today} 07:00:00`,
     dispenseTime: `${today} 07:20:00`,
-    status: 'DISPENSED',
-    statusText: '已发药',
-    itemCount: 1,
-    version: 3
+    statusEnum: 'DISPENSED',
+    itemCount: 1
   }
 ]
 
@@ -263,16 +249,10 @@ const summaryLines = new Map<string, NurseStationDispenseSummaryLineVO[]>([
     'MS-HISTORY-0001',
     [
       {
-        lineId: 'summary-line-history-001',
-        medicationId: 'drug-vitamin-c',
-        medicationName: '维生素C片',
-        specificationText: '0.1g*100片/瓶',
-        itemQuantity: 6,
-        unitCode: 'TABLET',
-        unitCodeText: '片',
-        displayQuantityText: '6片',
-        unitPrice: 0.12,
-        totalPrice: 0.72
+        id: 'summary-line-history-001',
+        name: '维生素C片',
+        quantity: 6,
+        unitCode: 'TABLET'
       }
     ]
   ],
@@ -280,51 +260,24 @@ const summaryLines = new Map<string, NurseStationDispenseSummaryLineVO[]>([
     'MS-HISTORY-0002',
     [
       {
-        lineId: 'summary-line-history-002',
-        medicationId: 'drug-sodium-chloride',
-        medicationName: '0.9%氯化钠注射液',
-        specificationText: '250ml/袋',
-        itemQuantity: 2,
-        unitCode: 'BAG',
-        unitCodeText: '袋',
-        displayQuantityText: '2袋',
-        unitPrice: 4.5,
-        totalPrice: 9
+        id: 'summary-line-history-002',
+        name: '0.9%氯化钠注射液',
+        quantity: 2,
+        unitCode: 'BAG'
       }
     ]
   ]
 ])
 
 let summarySequence = 1
-const createIdempotency = new Map<string, NurseStationCreateDispenseSummaryResultVO>()
-const submitIdempotency = new Map<string, NurseStationDispenseSummaryWriteResultVO>()
-const cancelIdempotency = new Map<string, NurseStationDispenseSummaryWriteResultVO>()
 
 function clone<T>(value: T): T {
   return structuredClone(value)
 }
 
-function roundMoney(value: number) {
-  return Number(value.toFixed(2))
-}
-
 function assertPage(pageIndex: number, pageSize: number) {
   if (!Number.isInteger(pageIndex) || pageIndex < 1) throw new Error('页码必须从 1 开始')
   if (!Number.isInteger(pageSize) || pageSize < 1) throw new Error('每页条数必须大于 0')
-}
-
-function assertIdempotencyKey(key: string) {
-  if (!key.trim()) throw new Error('幂等键不能为空')
-}
-
-function statusText(status: NurseStationDispenseSummaryStatus) {
-  const text: Record<NurseStationDispenseSummaryStatus, string> = {
-    CANCELLED: '已撤销',
-    DISPENSED: '已发药',
-    PENDING_SUBMIT: '待发送',
-    SUBMITTED: '已发送'
-  }
-  return text[status]
 }
 
 /** 把分页后的扁平时点重新组装为页面需要的患者折叠卡结构。 */
@@ -416,70 +369,39 @@ export async function mockQueryNurseStationDispensePending(
   }
 }
 
-function buildDisplayQuantity(record: MockDispenseRecord, quantity: number) {
-  const ratio = record.packageRatio ?? 0
-  if (!ratio || !record.packageUnitText) return `${quantity}${record.point.unitCodeText}`
-  const packages = Math.floor(quantity / ratio)
-  const remainder = roundMoney(quantity - packages * ratio)
-  const parts: string[] = []
-  if (packages) parts.push(`${packages}${record.packageUnitText}`)
-  if (remainder) parts.push(`${remainder}${record.point.unitCodeText}`)
-  return parts.join('') || `0${record.point.unitCodeText}`
-}
-
-/** 同一药房内按药品合并数量，生成详情弹窗的数据。 */
+/** Build raw dispense detail rows using the backend response contract. */
 function buildSummaryLines(summaryNo: string, records: MockDispenseRecord[]) {
-  const grouped = new Map<string, MockDispenseRecord[]>()
-  for (const record of records) {
-    const rows = grouped.get(record.medicationId) ?? []
-    rows.push(record)
-    grouped.set(record.medicationId, rows)
-  }
-  return [...grouped.values()].map((rows, index): NurseStationDispenseSummaryLineVO => {
-    const first = rows[0]!
-    const quantity = roundMoney(rows.reduce((sum, row) => sum + row.point.quantity, 0))
-    return {
-      lineId: `${summaryNo}-line-${index + 1}`,
-      medicationId: first.medicationId,
-      medicationName: first.medicationName,
-      specificationText: first.specificationText,
-      itemQuantity: quantity,
-      unitCode: first.point.unitCode,
-      unitCodeText: first.point.unitCodeText,
-      displayQuantityText: buildDisplayQuantity(first, quantity),
-      unitPrice: first.point.chargeUnitPrice,
-      totalPrice: roundMoney(quantity * first.point.chargeUnitPrice)
-    }
-  })
+  return records.map(
+    (record, index): NurseStationDispenseSummaryLineVO => ({
+      id: `${summaryNo}-line-${index + 1}`,
+      name: record.medicationName,
+      quantity: record.point.quantity,
+      unitCode: record.point.unitCode
+    })
+  )
 }
 
-/** 创建汇总单；相同幂等键重复调用只返回第一次结果。 */
+/** Create summary slips with the same minimal contract as the backend. */
 export async function mockCreateNurseStationDispenseSummary(
   data: NurseStationCreateDispenseSummaryDTO
 ): Promise<NurseStationCreateDispenseSummaryResultVO> {
-  assertIdempotencyKey(data.idempotencyKey)
-  const cached = createIdempotency.get(data.idempotencyKey)
-  if (cached) return clone(cached)
   if (!data.dispenseItems.length) throw new Error('请至少选择一个待发药时点')
   if (data.dispenseItems.length > 500) throw new Error('单次最多汇总 500 个发药时点')
 
   const seen = new Set<string>()
   const accepted: MockDispenseRecord[] = []
-  const results = data.dispenseItems.map((item) => {
+  for (const item of data.dispenseItems) {
     const key = `${item.encounterId}|${item.dispenseId}`
     const record = dispenseRecords.find(
       (candidate) =>
         candidate.encounterId === item.encounterId && candidate.point.dispenseId === item.dispenseId
     )
-    if (seen.has(key)) return { targetId: item.dispenseId, success: false, message: '重复提交' }
+    if (seen.has(key)) throw new Error('不能重复提交同一发药时点')
     seen.add(key)
-    if (!record) return { targetId: item.dispenseId, success: false, message: '发药时点不存在' }
-    if (record.reservedSummaryNo) {
-      return { targetId: item.dispenseId, success: false, message: '该时点已被其他汇总单占用' }
-    }
+    if (!record) throw new Error('发药时点不存在')
+    if (record.reservedSummaryNo) throw new Error('该时点已被其他汇总单占用')
     accepted.push(record)
-    return { targetId: item.dispenseId, success: true, message: '汇总成功' }
-  })
+  }
 
   const byPharmacy = new Map<string, MockDispenseRecord[]>()
   for (const record of accepted) {
@@ -490,35 +412,29 @@ export async function mockCreateNurseStationDispenseSummary(
 
   const createdNos: string[] = []
   for (const records of byPharmacy.values()) {
-    const first = records[0]!
     const summaryNo = `MS${dayjs().format('YYYYMMDD')}${String(summarySequence++).padStart(4, '0')}`
     createdNos.push(summaryNo)
     for (const record of records) record.reservedSummaryNo = summaryNo
     const lines = buildSummaryLines(summaryNo, records)
     summaryHeaders.unshift({
       summaryNo,
-      pharmacyId: first.pharmacyId,
-      pharmacyName: first.pharmacyName,
-      applicantId: 'nurse-current',
-      applicantName: '李护士',
-      applyTime: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-      status: 'PENDING_SUBMIT',
-      statusText: statusText('PENDING_SUBMIT'),
-      itemCount: lines.length,
-      version: 1
+      desLocationId: 'ward-301',
+      plannedDispenseTime: records
+        .map((record) => record.point.plannedDispenseTime)
+        .sort()
+        .at(-1)!,
+      statusEnum: 'SUMMARIZED',
+      itemCount: lines.length
     })
     summaryLines.set(summaryNo, lines)
   }
 
   const response: NurseStationCreateDispenseSummaryResultVO = {
     summaryNos: createdNos,
-    processedCount: accepted.length,
-    results,
     message: createdNos.length
       ? `已生成 ${createdNos.length} 张汇总单，请在“汇总单”页签发送`
       : '没有可汇总的发药时点'
   }
-  createIdempotency.set(data.idempotencyKey, clone(response))
   return response
 }
 
@@ -527,19 +443,12 @@ export async function mockQueryNurseStationDispenseSummaries(
   data: NurseStationDispenseSummaryQueryDTO
 ) {
   assertPage(data.pageIndex, data.pageSize)
-  const keyword = data.keyword?.trim().toLowerCase()
   const rows = summaryHeaders
-    .filter((row) => !data.pharmacyId || row.pharmacyId === data.pharmacyId)
-    .filter((row) => !data.status || row.status === data.status)
-    .filter((row) => !data.dateFrom || row.applyTime.slice(0, 10) >= data.dateFrom)
-    .filter((row) => !data.dateTo || row.applyTime.slice(0, 10) <= data.dateTo)
-    .filter((row) => {
-      if (!keyword) return true
-      return [row.summaryNo, row.applicantName, row.pharmacyName].some((value) =>
-        value.toLowerCase().includes(keyword)
-      )
-    })
-    .sort((left, right) => right.applyTime.localeCompare(left.applyTime))
+    .filter((row) => !data.statusEnum || row.statusEnum === data.statusEnum)
+    .filter(
+      (row) => !data.dispenseDate || row.plannedDispenseTime.slice(0, 10) === data.dispenseDate
+    )
+    .sort((left, right) => right.summaryNo.localeCompare(left.summaryNo))
   const start = (data.pageIndex - 1) * data.pageSize
   return createPageDTO({
     pageIndex: data.pageIndex,
@@ -549,62 +458,47 @@ export async function mockQueryNurseStationDispenseSummaries(
   })
 }
 
-/** 按统一单号读取单头和合并后的药品明细。 */
+/** Read raw medication rows for one summary slip. */
 export async function mockGetNurseStationDispenseSummaryDetail(
   summaryNo: string
-): Promise<NurseStationDispenseSummaryDetailVO> {
+): Promise<NurseStationDispenseSummaryLineVO[]> {
   const header = summaryHeaders.find((row) => row.summaryNo === summaryNo)
   const lines = summaryLines.get(summaryNo)
   if (!header || !lines) throw new Error('汇总单不存在')
-  return { header: clone(header), lines: clone(lines) }
+  return clone(lines)
 }
 
 async function changeSummaryStatus(
   data: NurseStationSubmitDispenseSummariesDTO | NurseStationCancelDispenseSummariesDTO,
   action: 'CANCEL' | 'SUBMIT'
 ): Promise<NurseStationDispenseSummaryWriteResultVO> {
-  assertIdempotencyKey(data.idempotencyKey)
-  const cache = action === 'SUBMIT' ? submitIdempotency : cancelIdempotency
-  const cached = cache.get(data.idempotencyKey)
-  if (cached) return clone(cached)
-  if (!data.summaries.length) throw new Error('请至少选择一张汇总单')
-  if (data.summaries.length > 50) throw new Error('单次最多处理 50 张汇总单')
+  if (!data.summaryNos.length) throw new Error('请至少选择一张汇总单')
+  if (data.summaryNos.length > 50) throw new Error('单次最多处理 50 张汇总单')
 
-  const results = data.summaries.map((item) => {
-    const header = summaryHeaders.find((row) => row.summaryNo === item.summaryNo)
-    if (!header) return { targetId: item.summaryNo, success: false, message: '汇总单不存在' }
-    if (header.version !== item.version) {
-      return { targetId: item.summaryNo, success: false, message: '单据已更新，请刷新后重试' }
-    }
-    if (header.status !== 'PENDING_SUBMIT') {
-      return { targetId: item.summaryNo, success: false, message: '仅待发送汇总单可操作' }
-    }
-
-    if (action === 'SUBMIT') {
-      header.status = 'SUBMITTED'
-      header.statusText = statusText('SUBMITTED')
-    } else {
-      header.status = 'CANCELLED'
-      header.statusText = statusText('CANCELLED')
-      for (const record of dispenseRecords) {
-        if (record.reservedSummaryNo === header.summaryNo) record.reservedSummaryNo = undefined
-      }
-    }
-    header.version += 1
-    return {
-      targetId: item.summaryNo,
-      success: true,
-      message: action === 'SUBMIT' ? '发送成功' : '撤销成功'
-    }
+  const headers = data.summaryNos.map((summaryNo) => {
+    const header = summaryHeaders.find((row) => row.summaryNo === summaryNo)
+    if (!header) throw new Error('汇总单不存在')
+    if (header.statusEnum !== 'SUMMARIZED') throw new Error('仅待发送汇总单可操作')
+    return header
   })
 
-  const response: NurseStationDispenseSummaryWriteResultVO = {
-    processedCount: results.filter((item) => item.success).length,
-    results,
-    message: action === 'SUBMIT' ? '汇总单发送处理完成' : '汇总单撤销处理完成'
+  for (const header of headers) {
+    if (action === 'SUBMIT') {
+      header.statusEnum = 'WAIT_REVIEW'
+      continue
+    }
+    for (const record of dispenseRecords) {
+      if (record.reservedSummaryNo === header.summaryNo) record.reservedSummaryNo = undefined
+    }
+    const index = summaryHeaders.indexOf(header)
+    if (index >= 0) summaryHeaders.splice(index, 1)
+    summaryLines.delete(header.summaryNo)
   }
-  cache.set(data.idempotencyKey, clone(response))
-  return response
+
+  return {
+    summaryNos: clone(data.summaryNos),
+    message: action === 'SUBMIT' ? '汇总单发送成功' : '汇总单撤销成功'
+  }
 }
 
 /** 发送待发送汇总单至药房。 */

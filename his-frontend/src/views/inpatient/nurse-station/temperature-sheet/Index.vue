@@ -4,6 +4,7 @@ import dayjs from 'dayjs'
 import { ElMessage } from 'element-plus'
 
 import {
+  isNurseStationRealApiEnabled,
   queryNurseStationTemperatureSheet,
   saveNurseStationTemperatureSheet,
   type NurseStationTemperatureDailySupplementVO,
@@ -216,7 +217,16 @@ async function loadSheet() {
       encounterId: patient.encounterId,
       patientId: patient.patientId,
       windowRange: '7d',
-      pageIndex: pageIndex.value
+      pageIndex: pageIndex.value,
+      patientContext: {
+        patientName: patient.patientName,
+        genderText: patient.genderText,
+        ageText: patient.ageText,
+        wardName: patient.wardName,
+        bedName: patient.bedName,
+        encounterBusNo: patient.encounterBusNo,
+        admissionDate: patient.admissionTime?.slice(0, 10)
+      }
     })
     if (serial !== requestSerial) return
     paperHeader.value = result.paperHeader
@@ -705,7 +715,14 @@ async function saveSheet() {
           </tbody>
         </table>
 
-        <section class="daily-supplement">
+        <el-alert
+          v-if="isNurseStationRealApiEnabled"
+          title="当前后端单时次保存接口不支持当日补充项目，以下数据仅供查看"
+          type="info"
+          show-icon
+          :closable="false"
+        />
+        <section v-else class="daily-supplement">
           <h4>当日补充项目</h4>
           <div class="supplement-grid">
             <label>大便（次）<el-input v-model="dailySupplement.stoolCount" /></label>

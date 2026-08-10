@@ -1,15 +1,5 @@
-import type {
-  NurseExecutionStatus,
-  NursePatientQueueItemVO,
-  NursePatientStatus
-} from '@/apis/outpatient/nurse-station'
-import type { PatientStatusTone, PatientSummary } from '@/components/patient/type'
-
-const patientStatusTone: Record<NursePatientStatus, PatientStatusTone> = {
-  WAITING: 'warning',
-  READY: 'primary',
-  COMPLETED: 'success'
-}
+import type { NurseExecutionStatus, NursePatientQueueItemVO } from '@/apis/outpatient/nurse-station'
+import type { PatientSummary } from '@/components/patient/type'
 
 /** 将护士站患者 DTO 转为公共患者摘要。 */
 export function toNursePatientSummary(patient: NursePatientQueueItemVO): PatientSummary {
@@ -20,16 +10,20 @@ export function toNursePatientSummary(patient: NursePatientQueueItemVO): Patient
     age: patient.ageText,
     patientType: 'outpatient',
     serviceType: patient.visitTypeName,
-    patientNo: patient.medicalRecordNo,
+    // 后端暂未提供病历号，患者号位置直接展示 patientId。
+    patientNo: patient.patientId,
     visitNo: patient.visitNo,
     queueNumber: patient.queueNumber,
     visitTime: patient.registeredAt,
     departmentName: patient.departmentName,
-    status: patient.statusName,
-    statusTone: patientStatusTone[patient.status],
-    paymentType: patient.paymentTypeName,
     priority: patient.priorityName,
-    riskHint: patient.riskHint
+    status: patient.statusName,
+    statusTone:
+      patient.status === 'COMPLETED'
+        ? 'success'
+        : patient.status === 'READY'
+          ? 'warning'
+          : 'primary'
   }
 }
 

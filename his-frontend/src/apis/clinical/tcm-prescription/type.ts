@@ -4,12 +4,9 @@ import type { PageQuery } from '../../type'
 export type TcmPrescriptionStationScope = 'outpatient' | 'inpatient'
 
 /** 中医处方状态。 */
-export type TcmPrescriptionStatus = 'DRAFT' | 'SIGNED' | 'STOPPED' | 'WITHDRAWN'
+export type TcmPrescriptionStatus = 'DRAFT' | 'SIGNED'
 
-/** 住院中医处方长临类型。 */
-export type TcmPrescriptionTherapyType = 'LONG_TERM' | 'TEMPORARY'
-
-/** 中药饮片目录项目。 */
+/** 中药材目录项目。 */
 export interface TcmHerbCatalogItemVO extends Record<string, unknown> {
   /** 药品定义 ID。 */
   id: string
@@ -25,11 +22,9 @@ export interface TcmHerbCatalogItemVO extends Record<string, unknown> {
   doseUnit: string
   /** 零售价。 */
   retailPrice: number
-  /** 默认特殊煎法。 */
-  defaultDecoctionMethod?: string
 }
 
-/** 中药饮片目录查询条件。 */
+/** 中药材目录查询条件。 */
 export interface TcmHerbCatalogQuery extends PageQuery {
   /** 医生站场景。 */
   scope: TcmPrescriptionStationScope
@@ -53,8 +48,6 @@ export interface TcmPrescriptionLineVO {
   dose: number
   /** 剂量单位。 */
   doseUnit: string
-  /** 特殊煎法。 */
-  decoctionMethod?: string
   /** 零售价。 */
   retailPrice: number
   /** 排序号。 */
@@ -73,8 +66,8 @@ export interface TcmPrescriptionVO {
   patientId: string
   /** 处方号；草稿阶段为空。 */
   prescriptionNo?: string
-  /** 住院长临类型；门诊为空。 */
-  therapyType?: TcmPrescriptionTherapyType
+  /** 本次就诊诊断记录 ID。 */
+  encounterDiagnosisId: string
   /** 关联中医病证。 */
   syndromeName: string
   /** 付数。 */
@@ -97,14 +90,10 @@ export interface TcmPrescriptionVO {
   lines: TcmPrescriptionLineVO[]
   /** 开立时间。 */
   authoredAt: string
-  /** 签发时间。 */
-  signedAt?: string
-  /** 停嘱时间。 */
-  stoppedAt?: string
   /** 最近更新时间。 */
   updatedAt: string
-  /** 并发版本。 */
-  version: number
+  /** 处方版本；保存/删除时由 API 层自动携带，页面无需感知。 */
+  version?: number
 }
 
 /** 查询当前就诊中医处方。 */
@@ -137,6 +126,8 @@ export interface TcmPrescriptionHistoryVO {
 
 /** 查询患者历史中医处方。 */
 export interface TcmPrescriptionHistoryQuery {
+  /** 医生站场景。 */
+  scope: TcmPrescriptionStationScope
   /** 患者档案 ID。 */
   patientId: string
   /** 当前就诊 ID，用于排除当前处方。 */
@@ -147,26 +138,18 @@ export interface TcmPrescriptionHistoryQuery {
 
 /** 保存时提交的单味药材。 */
 export interface SaveTcmPrescriptionLineDTO {
-  /** 已保存明细 ID。 */
-  id?: string
-  /** 药品目录 ID。 */
-  catalogId: string
-  /** 药品编码。 */
-  code: string
-  /** 药品名称。 */
-  name: string
-  /** 规格。 */
-  specification: string
-  /** 单剂用量。 */
-  dose: number
+  /** 药品定义 ID。 */
+  medicineId: string
+  /** 单剂数量。 */
+  quantity: number
+  /** 数量单位。 */
+  unit?: string
+  /** 单次剂量。 */
+  dose?: number
   /** 剂量单位。 */
-  doseUnit: string
-  /** 特殊煎法。 */
-  decoctionMethod?: string
-  /** 零售价。 */
-  retailPrice: number
+  doseUnit?: string
   /** 排序号。 */
-  orderNo: number
+  sortNo: number
 }
 
 /** 新增或保存中医处方草稿。 */
@@ -179,26 +162,26 @@ export interface SaveTcmPrescriptionDTO {
   patientId: string
   /** 已保存处方 ID；新增处方为空。 */
   id?: string
-  /** 住院长临类型。 */
-  therapyType?: TcmPrescriptionTherapyType
-  /** 关联中医病证。 */
-  syndromeName: string
+  /** 处方版本；修改已有处方时 API 层自动携带，页面无需感知。 */
+  version?: number
+  /** 本次就诊诊断记录 ID。 */
+  encounterDiagnosisId: string
+  /** 诊断名称，仅用于前端草稿和 Mock 展示，不提交真实接口。 */
+  diagnosisName: string
   /** 付数。 */
-  doseCount: number
+  copies: number
   /** 用法。 */
-  method: string
+  usage: string
   /** 频次。 */
   frequency: string
   /** 疗程天数。 */
   days: number
-  /** 煎药方式。 */
-  decoctionMethod?: string
+  /** 是否代煎。 */
+  decoction?: number
   /** 处方备注。 */
   remark?: string
   /** 药材明细。 */
-  lines: SaveTcmPrescriptionLineDTO[]
-  /** 并发版本；新增时为 0。 */
-  version: number
+  details: SaveTcmPrescriptionLineDTO[]
 }
 
 /** 中医处方生命周期操作参数。 */
@@ -207,10 +190,8 @@ export interface TcmPrescriptionActionDTO {
   scope: TcmPrescriptionStationScope
   /** 就诊记录 ID。 */
   encounterId: string
-  /** 患者档案 ID。 */
-  patientId: string
   /** 处方 ID。 */
   id: string
-  /** 当前并发版本。 */
-  version: number
+  /** 处方版本；API 层自动携带，页面无需感知。 */
+  version?: number
 }

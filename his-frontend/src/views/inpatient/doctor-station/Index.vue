@@ -3,7 +3,10 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { DocumentAdd, EditPen, Refresh, Select, SwitchButton } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
-import type { InpatientMedicalRecordHistoryItemVO } from '@/apis/inpatient/doctor-station'
+import {
+  isInpatientDoctorStationRealApiEnabled,
+  type InpatientMedicalRecordHistoryItemVO
+} from '@/apis/inpatient/doctor-station'
 import StationTriPaneLayout from '@/components/common/StationTriPaneLayout.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import type { ActionToolbarItem, CommonComponentKey } from '@/components/common/type'
@@ -30,7 +33,6 @@ import { inpatientAdviceAdapter } from './advice/inpatientAdviceAdapter'
 import InpatientDiagnosisHistoryPanel from './components/InpatientDiagnosisHistoryPanel.vue'
 import InpatientDischargeAdviceDialog from './components/InpatientDischargeAdviceDialog.vue'
 import InpatientMedicalRecordEditor from './components/InpatientMedicalRecordEditor.vue'
-import InpatientOrderActionBar from './components/InpatientOrderActionBar.vue'
 import InpatientPatientContextPanel from './components/InpatientPatientContextPanel.vue'
 import InpatientMedicalRecordHistoryPanel from './components/InpatientMedicalRecordHistoryPanel.vue'
 import { INPATIENT_DOCTOR_STATION_TABS } from './constants'
@@ -134,6 +136,7 @@ const {
   actionAvailability: orderActionAvailability,
   canEditOrder,
   executeOrderAction,
+  lastOrderActionResult,
   loadOrderCatalog,
   loadOrders,
   orderMutationLoading,
@@ -170,7 +173,10 @@ const tcmPrescriptionContext = computed<ClinicalTcmPrescriptionContext | null>((
   return {
     scope: 'inpatient',
     encounterId: patient.encounterId,
-    patientId: patient.patientId
+    patientId: patient.patientId,
+    diagnoses: diagnoses.value
+      .filter((item) => Boolean(item.recordId))
+      .map((item) => ({ id: item.recordId!, name: item.name }))
   }
 })
 
@@ -487,7 +493,7 @@ async function handleDischargeAdviceSuccess() {
   const encounterId = selectedQueueItem.value?.encounterId
   await loadPatients()
   if (encounterId && selectedQueueItem.value?.encounterId === encounterId) {
-    await loadOrders(encounterId)
+    await loadOrders(encounterId, selectedQueueItem.value.patientId)
   }
 }
 
@@ -528,16 +534,30 @@ async function handleOrderAction(action: InpatientMedicalOrderAction) {
 
   const actionText = orderActionText[action]
   try {
-    await ElMessageBox.confirm(
-      `确定要${actionText}已选择的 ${selectedOrderCount.value} 条医嘱吗？`,
-      `${actionText}医嘱`,
-      {
-        type: action === 'delete' || action === 'stop' ? 'warning' : 'info',
-        confirmButtonText: `确定${actionText}`,
+    let stopReason: number | undefined
+    if (action === 'stop' && isInpatientDoctorStationRealApiEnabled) {
+      const promptResult = await ElMessageBox.prompt('请输入停嘱原因码（整数）', '停嘱医嘱', {
+        inputPattern: /^\d+$/,
+        inputErrorMessage: '停嘱原因码必须是整数',
+        confirmButtonText: '确定停嘱',
         cancelButtonText: '取消'
-      }
-    )
-    const changedCount = await executeOrderAction(action, context)
+      })
+      stopReason = Number(promptResult.value)
+    } else {
+      await ElMessageBox.confirm(
+        `确定要${actionText}已选择的 ${selectedOrderCount.value} 条医嘱吗？`,
+        `${actionText}医嘱`,
+        {
+          type: action === 'delete' || action === 'stop' ? 'warning' : 'info',
+          confirmButtonText: `确定${actionText}`,
+          cancelButtonText: '取消'
+        }
+      )
+    }
+    const changedCount = await executeOrderAction(action, context, { stopReason })
+    if ((lastOrderActionResult.value?.failedCount ?? 0) > 0) {
+      ElMessage.warning(`部分医嘱${actionText}失败，请查看后端返回的失败原因`)
+    }
     ElMessage.success(`${actionText}成功，共处理 ${changedCount} 条医嘱`)
   } catch (error) {
     if (error === 'cancel' || error === 'close') return
@@ -617,7 +637,7 @@ watch(
       })(),
       loadDiagnoses(encounterId),
       loadUsageHistory(),
-      loadOrders(encounterId)
+      loadOrders(encounterId, patient.patientId)
     ])
   },
   { immediate: true }
@@ -654,7 +674,11 @@ onMounted(() => {
 
       <template #main>
         <section class="inpatient-doctor-station__main">
-          <PatientInfoBar :patient="selectedPatient" />
+          <PatientInfoBar
+            :patient="selectedPatient"
+            display-mode="inpatient-registration"
+            :doctor-name="selectedQueueItem?.attendingDoctorName"
+          />
 
           <DoctorStationHeader
             :active-tab="activeTab"
@@ -705,12 +729,6 @@ onMounted(() => {
             />
 
             <div v-else-if="activeTab === 'orders'" class="inpatient-doctor-station__orders">
-              <InpatientOrderActionBar
-                :selected-count="selectedOrderCount"
-                :loading="orderMutationLoading"
-                :availability="orderActionAvailability"
-                @action="handleOrderAction"
-              />
               <ClinicalOrderEditor
                 :model-value="orders"
                 :context="orderContext"
@@ -722,7 +740,11 @@ onMounted(() => {
                 :error="ordersError"
                 :dirty="ordersDirty"
                 :updated-at="ordersUpdatedAt"
-                selectable
+                :show-filters="false"
+                :show-stop-actions="true"
+                :stop-disabled="!orderActionAvailability.stop"
+                :cancel-stop-disabled="!orderActionAvailability.cancelStop"
+                :selectable="true"
                 :can-edit-order="canEditOrder"
                 :selection-disabled-row="selectionDisabledRow"
                 inactive-title="当前患者不可开立医嘱"
@@ -730,7 +752,14 @@ onMounted(() => {
                 readonly-text="住院医嘱只读"
                 @update:model-value="handleOrderChange"
                 @selection-change="selectOrders"
-                @retry="selectedQueueItem && loadOrders(selectedQueueItem.encounterId)"
+                @sign="handleOrderAction('sign')"
+                @withdraw="handleOrderAction('withdraw')"
+                @stop="handleOrderAction('stop')"
+                @cancel-stop="handleOrderAction('cancelStop')"
+                @retry="
+                  selectedQueueItem &&
+                  loadOrders(selectedQueueItem.encounterId, selectedQueueItem.patientId)
+                "
                 @catalog-error="ElMessage.error('医嘱项目目录加载失败，请重试')"
               />
             </div>
@@ -751,6 +780,7 @@ onMounted(() => {
               :context="tcmPrescriptionContext"
               :patient-selected="Boolean(selectedPatient)"
               :accepted="Boolean(selectedQueueItem)"
+              :show-save-action="false"
               @dirty-change="tcmDirty = $event"
               @loading-change="tcmLoading = $event"
             />
@@ -828,7 +858,8 @@ onMounted(() => {
   display: flex;
   min-height: 0;
   flex: 1;
-  align-items: center;
+  /* 内容超过可视高度时必须从顶部开始，避免居中布局产生负偏移并裁掉标题。 */
+  align-items: stretch;
   justify-content: center;
   overflow: auto;
   border: 1px solid var(--el-border-color-lighter);

@@ -9,32 +9,32 @@ import {
   getNurseExecutionItems,
   pageNursePatientQueue,
   performNurseExecutions,
-  printNurseDocuments,
   type NurseConsumableItemVO,
   type NurseExecutionItemVO,
-  type NursePatientQueueItemVO,
-  type NursePrintDocumentType
+  type NursePatientQueueItemVO
 } from '@/apis/outpatient/nurse-station'
 import StationTriPaneLayout from '@/components/common/StationTriPaneLayout.vue'
-import type { DateRangeValue } from '@/components/common/type'
 import PatientInfoBar from '@/components/patient/PatientInfoBar.vue'
 import PatientQueuePanel from '@/components/patient/PatientQueuePanel.vue'
 import type { PatientSummary } from '@/components/patient/type'
+import { useUserStore } from '@/stores/user'
 
 import { toNursePatientSummary } from './adapter'
 import NurseExecutionPanel from './components/NurseExecutionPanel.vue'
 import NurseFooterBar from './components/NurseFooterBar.vue'
 import NurseRightSidebar from './components/NurseRightSidebar.vue'
-import { NURSE_PRINT_EMPTY_MESSAGES, resolveNursePrintTargetIds } from './print-targets'
 
 defineOptions({
   name: 'OutpatientNurseStation'
 })
 
+const userStore = useUserStore()
 const today = dayjs().format('YYYY-MM-DD')
+const QUEUE_PAGE_SIZE = 10
 const queueRows = ref<NursePatientQueueItemVO[]>([])
-const keyword = ref('')
-const dateRange = ref<DateRangeValue>([today, today])
+const queueDate = ref(today)
+const queuePageIndex = ref(1)
+const queueTotal = ref(0)
 const selectedEncounterId = ref('')
 const executionItems = ref<NurseExecutionItemVO[]>([])
 const consumableItems = ref<NurseConsumableItemVO[]>([])
@@ -43,7 +43,6 @@ const queueLoading = ref(false)
 const workbenchLoading = ref(false)
 const executing = ref(false)
 const cancellingItemId = ref('')
-const printingType = ref<'' | NursePrintDocumentType>('')
 const executionPanelRef = ref<InstanceType<typeof NurseExecutionPanel> | null>(null)
 let workbenchRequestId = 0
 
@@ -59,21 +58,16 @@ const currentPatientId = computed(() => {
   return row?.patientId ?? ''
 })
 
-const pendingCount = computed(() => {
-  return executionItems.value.filter((item) => item.status === 'PENDING').length
-})
-
 async function loadPatientQueue() {
   queueLoading.value = true
   try {
     const result = await pageNursePatientQueue({
-      pageIndex: 1,
-      pageSize: 100,
-      keyword: keyword.value,
-      startDate: dateRange.value?.[0],
-      endDate: dateRange.value?.[1]
+      pageIndex: queuePageIndex.value,
+      pageSize: QUEUE_PAGE_SIZE,
+      bookingDate: queueDate.value
     })
     queueRows.value = result.rows ?? []
+    queueTotal.value = result.total
     if (
       selectedEncounterId.value &&
       !queueRows.value.some((item) => item.encounterId === selectedEncounterId.value)
@@ -98,13 +92,18 @@ function clearWorkbench() {
 
 async function loadWorkbench(encounterId: string) {
   const requestId = ++workbenchRequestId
+  const queueRow = queueRows.value.find((item) => item.encounterId === encounterId)
+  if (!queueRow?.patientId) {
+    ElMessage.error('当前队列记录缺少患者 ID，无法查询执行项目')
+    return
+  }
   workbenchLoading.value = true
   selectedExecutionIds.value = []
   executionPanelRef.value?.clearSelection()
   try {
     const [items, supplies] = await Promise.all([
-      getNurseExecutionItems(encounterId),
-      getNurseConsumables(encounterId)
+      getNurseExecutionItems(queueRow.patientId, encounterId),
+      getNurseConsumables(queueRow.patientId, encounterId)
     ])
     if (requestId !== workbenchRequestId || encounterId !== selectedEncounterId.value) return
     executionItems.value = items
@@ -120,13 +119,16 @@ async function loadWorkbench(encounterId: string) {
   }
 }
 
-function handleSearch(value: string) {
-  keyword.value = value
+function handleQueueDateChange(value: string) {
+  // 日期不可为空；清空或重置时恢复今天。
+  queueDate.value = value || today
+  queuePageIndex.value = 1
   void loadPatientQueue()
 }
 
-function handleDateChange(value: DateRangeValue) {
-  dateRange.value = value
+function handleQueuePageChange(pageIndex: number) {
+  if (pageIndex === queuePageIndex.value) return
+  queuePageIndex.value = pageIndex
   void loadPatientQueue()
 }
 
@@ -157,7 +159,7 @@ function selectedExecutionCommands() {
   const selectedIds = new Set(selectedExecutionIds.value)
   return executionItems.value
     .filter((item) => selectedIds.has(item.itemId))
-    .map((item) => ({ itemId: item.itemId, version: item.version }))
+    .map((item) => ({ itemId: item.itemId }))
 }
 
 async function handleExecuteEntry() {
@@ -165,6 +167,11 @@ async function handleExecuteEntry() {
   const commands = selectedExecutionCommands()
   if (commands.length === 0) {
     ElMessage.warning('请选择可执行项目')
+    return
+  }
+  const executorId = String(userStore.getUser?.practitionerId || userStore.getUser?.id || '').trim()
+  if (!executorId) {
+    ElMessage.error('缺少当前操作人信息，无法执行项目')
     return
   }
 
@@ -183,16 +190,18 @@ async function handleExecuteEntry() {
     const result = await performNurseExecutions({
       encounterId: selectedEncounterId.value,
       items: commands,
-      idempotencyKey: createIdempotencyKey()
+      idempotencyKey: createIdempotencyKey(),
+      executorId,
+      executorName: userStore.getUser?.realName || userStore.getUser?.username
     })
-    if (result.failedItems.length === 0) {
-      ElMessage.success(`成功执行 ${result.successItems.length} 个项目`)
-    } else if (result.successItems.length > 0) {
+    if (result.failedCount === 0) {
+      ElMessage.success(`成功执行 ${result.successCount} 个项目`)
+    } else if (result.successCount > 0) {
       ElMessage.warning(
-        `成功 ${result.successItems.length} 项，失败 ${result.failedItems.length} 项：${result.failedItems[0]?.message}`
+        `成功 ${result.successCount} 项，失败 ${result.failedCount} 项：${result.failedItems[0]?.reason}`
       )
     } else {
-      ElMessage.error(result.failedItems[0]?.message ?? '执行失败')
+      ElMessage.error(result.failedItems[0]?.reason ?? '执行失败')
     }
     await loadWorkbench(selectedEncounterId.value)
     await loadPatientQueue()
@@ -223,13 +232,18 @@ async function handleCancelExecute(item: NurseExecutionItemVO) {
   try {
     const result = await cancelNurseExecution({
       encounterId: selectedEncounterId.value,
-      item: { itemId: item.itemId, version: item.version },
-      reason
+      item: { itemId: item.itemId },
+      reason,
+      operatorId:
+        String(userStore.getUser?.practitionerId || userStore.getUser?.id || '').trim() ||
+        undefined,
+      operatorName: userStore.getUser?.realName || userStore.getUser?.username,
+      idempotencyKey: createIdempotencyKey()
     })
-    if (result.successItems.length > 0) {
+    if (result.successCount > 0) {
       ElMessage.success('已取消最近一次执行')
     } else {
-      ElMessage.error(result.failedItems[0]?.message ?? '取消执行失败')
+      ElMessage.error(result.failedItems[0]?.reason ?? '取消执行失败')
     }
     await loadWorkbench(selectedEncounterId.value)
     await loadPatientQueue()
@@ -237,38 +251,6 @@ async function handleCancelExecute(item: NurseExecutionItemVO) {
     ElMessage.error('取消执行失败')
   } finally {
     cancellingItemId.value = ''
-  }
-}
-
-async function handlePrint(documentType: NursePrintDocumentType) {
-  if (!selectedEncounterId.value || printingType.value) return
-  const documentIds = resolveNursePrintTargetIds(
-    executionItems.value,
-    documentType,
-    selectedExecutionIds.value
-  )
-  if (documentIds.length === 0) {
-    ElMessage.warning(NURSE_PRINT_EMPTY_MESSAGES[documentType])
-    return
-  }
-
-  printingType.value = documentType
-  try {
-    const result = await printNurseDocuments({
-      encounterId: selectedEncounterId.value,
-      documentIds,
-      documentType,
-      reprint: false
-    })
-    if (result.success) {
-      ElMessage.success(`${result.message}，打印机：${result.printer}`)
-    } else {
-      ElMessage.warning(result.message)
-    }
-  } catch {
-    ElMessage.error('打印任务提交失败')
-  } finally {
-    printingType.value = ''
   }
 }
 
@@ -282,12 +264,20 @@ onMounted(() => {
     <StationTriPaneLayout :left-width="300" :right-width="310">
       <template #left>
         <PatientQueuePanel
-          v-model:date-range="dateRange"
+          :date="queueDate"
           :patients="patients"
           :loading="queueLoading"
           :selected-id="selectedEncounterId"
-          @search="handleSearch"
-          @date-change="handleDateChange"
+          :show-department="false"
+          :show-keyword="false"
+          primary-number-mode="patient-no"
+          :pagination="{
+            pageIndex: queuePageIndex,
+            pageSize: QUEUE_PAGE_SIZE,
+            total: queueTotal
+          }"
+          @single-date-change="handleQueueDateChange"
+          @page-change="handleQueuePageChange"
           @refresh="loadPatientQueue"
           @select="handleSelectPatient"
           @view="handleSelectPatient"
@@ -296,7 +286,7 @@ onMounted(() => {
 
       <template #main>
         <section class="nurse-workbench">
-          <PatientInfoBar :patient="currentPatient" />
+          <PatientInfoBar :patient="currentPatient" display-mode="outpatient-registration" />
           <div class="nurse-workbench__content">
             <NurseExecutionPanel
               ref="executionPanelRef"
@@ -310,7 +300,6 @@ onMounted(() => {
           </div>
           <NurseFooterBar
             :selected-count="selectedExecutionIds.length"
-            :pending-count="pendingCount"
             :executing="executing || Boolean(cancellingItemId)"
             @clear="clearSelection"
             @execute="handleExecuteEntry"
@@ -323,11 +312,7 @@ onMounted(() => {
           :execution-items="executionItems"
           :items="consumableItems"
           :loading="workbenchLoading"
-          :printing-type="printingType"
-          :selected-count="selectedExecutionIds.length"
-          :can-print="Boolean(currentPatient) && !executing && !cancellingItemId && !printingType"
           :patient-id="currentPatientId"
-          @print="handlePrint"
         />
       </template>
     </StationTriPaneLayout>

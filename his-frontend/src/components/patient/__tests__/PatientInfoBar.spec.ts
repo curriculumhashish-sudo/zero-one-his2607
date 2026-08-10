@@ -19,8 +19,7 @@ const patient: PatientSummary = {
   status: '已接诊',
   statusTone: 'success',
   paymentType: '医保',
-  priority: '重点关注',
-  riskHint: '青霉素过敏'
+  priority: '重点关注'
 }
 
 describe('PatientInfoBar', () => {
@@ -40,15 +39,83 @@ describe('PatientInfoBar', () => {
     expect(wrapper.text()).toContain('医保')
   })
 
-  it('展示优先级和风险提示标签', () => {
+  it('门诊挂号摘要模式只展示参考界面要求的字段', () => {
+    const wrapper = mount(PatientInfoBar, {
+      props: {
+        patient,
+        displayMode: 'outpatient-registration',
+        phone: '138****0000',
+        doctorName: 'admin'
+      }
+    })
+
+    expect(wrapper.text()).toContain('患者：')
+    expect(wrapper.text()).toContain('张三')
+    expect(wrapper.text()).toContain('男')
+    expect(wrapper.text()).toContain('38岁')
+    expect(wrapper.text()).toContain('电话：')
+    expect(wrapper.text()).toContain('138****0000')
+    expect(wrapper.text()).toContain('病历号：')
+    expect(wrapper.text()).toContain('MR20260001')
+    expect(wrapper.text()).toContain('普通门诊')
+    expect(wrapper.text()).toContain('挂号时间：')
+    expect(wrapper.text()).toContain('07-20 09:30')
+    expect(wrapper.text()).toContain('医生：')
+    expect(wrapper.text()).toContain('admin')
+
+    expect(wrapper.text()).not.toContain('OP20260001')
+    expect(wrapper.text()).not.toContain('心内科')
+    expect(wrapper.text()).not.toContain('已接诊')
+    expect(wrapper.text()).not.toContain('医保')
+    expect(wrapper.text()).not.toContain('重点关注')
+  })
+
+  it('住院摘要模式只展示参考界面要求的字段', () => {
+    const wrapper = mount(PatientInfoBar, {
+      props: {
+        patient: {
+          ...patient,
+          patientType: 'inpatient',
+          serviceType: '心内一病区 · 08床',
+          patientNo: 'P10001',
+          visitNo: 'ZY20260701001',
+          visitTime: '2026-07-21 09:20',
+          departmentName: '心血管内科',
+          status: '在院',
+          paymentType: '职工医保'
+        },
+        displayMode: 'inpatient-registration',
+        doctorName: '李尔王'
+      }
+    })
+
+    expect(wrapper.text()).toContain('患者：')
+    expect(wrapper.text()).toContain('张三')
+    expect(wrapper.text()).toContain('男')
+    expect(wrapper.text()).toContain('38岁')
+    expect(wrapper.text()).toContain('病历号：')
+    expect(wrapper.text()).toContain('ZY20260701001')
+    expect(wrapper.text()).toContain('心内一病区 · 08床')
+    expect(wrapper.text()).toContain('挂号时间：')
+    expect(wrapper.text()).toContain('07-21 09:20')
+    expect(wrapper.text()).toContain('医生：')
+    expect(wrapper.text()).toContain('李尔王')
+
+    expect(wrapper.text()).not.toContain('电话：')
+    expect(wrapper.text()).not.toContain('P10001')
+    expect(wrapper.text()).not.toContain('心血管内科')
+    expect(wrapper.text()).not.toContain('在院')
+    expect(wrapper.text()).not.toContain('职工医保')
+    expect(wrapper.text()).not.toContain('重点关注')
+  })
+
+  it('展示优先级标签', () => {
     const wrapper = mount(PatientInfoBar, {
       props: { patient }
     })
 
     const risks = wrapper.get('.patient-info-bar__risks')
     expect(risks.text()).toContain('重点关注')
-    expect(risks.text()).toContain('青霉素过敏')
-    expect(wrapper.get('.patient-info-bar__risk-tag').attributes('title')).toBe('青霉素过敏')
   })
 
   it('未传患者时显示明确占位', () => {
@@ -97,7 +164,7 @@ describe('PatientInfoBar', () => {
     expect(wrapper.find('.patient-info-bar__actions').exists()).toBe(false)
   })
 
-  it('缺少可选详情和风险信息时不渲染对应区域', () => {
+  it('缺少可选详情和优先级时不渲染对应区域', () => {
     const wrapper = mount(PatientInfoBar, {
       props: {
         patient: {

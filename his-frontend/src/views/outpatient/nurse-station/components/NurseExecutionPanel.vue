@@ -32,8 +32,8 @@ const emit = defineEmits<{
 }>()
 
 interface NurseExecutionAdviceOrder extends AdviceOrder {
-  requestTypeName: string
-  executedCountText: string
+  categoryName: string
+  executionCountText: string
   executorName: string
   executedAt: string
   raw: NurseExecutionItemVO
@@ -42,10 +42,10 @@ interface NurseExecutionAdviceOrder extends AdviceOrder {
 const tableRef = ref<InstanceType<typeof AdviceOrderTable> | null>(null)
 
 const columns: AdviceColumn[] = [
-  { prop: 'requestTypeName', label: '类型', width: 80, align: 'center' },
-  { prop: 'name', label: '医嘱内容', minWidth: 190, showOverflowTooltip: true },
-  { prop: 'specification', label: '规格/剂量', minWidth: 180, showOverflowTooltip: true },
-  { prop: 'executedCountText', label: '执行次数', width: 96, align: 'center' },
+  { prop: 'categoryName', label: '类型', width: 80, align: 'center' },
+  { prop: 'name', label: '项目名称', minWidth: 190, showOverflowTooltip: true },
+  { prop: 'specification', label: '数量/单位', minWidth: 120, showOverflowTooltip: true },
+  { prop: 'executionCountText', label: '执行次数', width: 96, align: 'center' },
   { prop: 'status', label: '状态', width: 92, align: 'center' },
   { prop: 'executorName', label: '执行人', width: 96, align: 'center' },
   { prop: 'executedAt', label: '执行时间', width: 150, align: 'center' }
@@ -54,11 +54,11 @@ const columns: AdviceColumn[] = [
 const adviceRows = computed<NurseExecutionAdviceOrder[]>(() =>
   props.items.map((item) => ({
     key: item.itemId,
-    name: item.orderContent,
-    specification: item.specification,
+    name: item.itemName,
+    specification: [item.quantity, item.unitName].filter(Boolean).join(' ') || item.remark,
     status: item.status,
-    requestTypeName: item.requestTypeName,
-    executedCountText: `${item.executedCount}/${item.plannedCount}`,
+    categoryName: item.categoryName || item.categoryCode || '—',
+    executionCountText: String(item.executionCount),
     executorName: item.executorName || '—',
     executedAt: item.executedAt || '—',
     raw: item
@@ -124,7 +124,7 @@ function executionItem(row: AdviceOrder): NurseExecutionItemVO {
       </template>
       <template #actions="{ row }">
         <el-button
-          v-if="executionItem(row).executedCount > 0"
+          v-if="executionItem(row).executionCount > 0"
           link
           type="danger"
           @click="emit('cancelExecute', executionItem(row))"

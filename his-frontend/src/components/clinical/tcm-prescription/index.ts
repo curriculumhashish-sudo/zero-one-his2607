@@ -2,6 +2,7 @@ export { default as ClinicalTcmPrescriptionWorkspace } from './ClinicalTcmPrescr
 export { default as TcmHerbSelectorDialog } from './TcmHerbSelectorDialog.vue'
 export type {
   ClinicalTcmPrescriptionContext,
+  ClinicalTcmPrescriptionDiagnosisOption,
   ClinicalTcmPrescriptionDraft,
   ClinicalTcmPrescriptionLine,
   ClinicalTcmPrescriptionWorkspaceExpose,

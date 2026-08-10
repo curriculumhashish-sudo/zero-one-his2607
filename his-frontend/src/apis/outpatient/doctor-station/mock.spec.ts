@@ -1,19 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import dayjs from 'dayjs'
 
 import {
   mockAcceptPatient,
   mockCompletePatient,
+  mockCreateDiagnosis,
   mockGetAdviceOrders,
-  mockGetDiagnoses,
   mockGetMedicalRecord,
-  mockGetMedicalRecordTemplate,
-  mockGetPatientContext,
-  mockListMedicalRecordTemplates,
   mockLeavePatient,
   mockPageAdviceOrderCatalog,
   mockPageDiagnosisDictionary,
-  mockPageDoctorPatientQueue,
-  mockSaveDiagnoses,
+  mockListDoctorPatientQueue,
+  mockPagePatientMedicalRecordHistory,
   mockSaveAdviceOrders,
   mockSaveMedicalRecord
 } from './mock'
@@ -35,27 +33,51 @@ describe('doctor-station mock', () => {
     vi.useRealTimers()
   })
 
-  it('加载患者上下文，并将候诊患者接诊为在诊', async () => {
+  it('通过统一入口将候诊患者接诊为在诊', async () => {
     const encounterId = 'enc-20260723-001'
 
-    const beforeAccept = await resolveMockRequest(mockGetPatientContext(encounterId))
-    expect(beforeAccept.visitStatus).toBe('WAITING')
-
     const accepted = await resolveMockRequest(mockAcceptPatient(encounterId))
-    expect(accepted.visitStatus).toBe('IN_PROGRESS')
+    expect(accepted.visitStatus).toBe('in-progress')
     expect(accepted.visitStatusName).toBe('在诊')
     expect(accepted.attendingDoctorName).toBe('李尔王')
     expect(accepted.acceptedAt).toBeTruthy()
 
-    const inProgressPage = await resolveMockRequest(
-      mockPageDoctorPatientQueue({
-        pageIndex: 1,
-        pageSize: 50,
-        visitStatus: 'IN_PROGRESS'
+    const inProgressPatients = await resolveMockRequest(
+      mockListDoctorPatientQueue({
+        visitDate: dayjs().format('YYYY-MM-DD'),
+        visitStatus: 'in-progress'
       })
     )
 
-    expect(inProgressPage.rows?.some((patient) => patient.encounterId === encounterId)).toBe(true)
+    expect(inProgressPatients.some((patient) => patient.encounterId === encounterId)).toBe(true)
+  })
+
+  it('通过统一入口读取在诊和完诊患者时不改变状态', async () => {
+    const inProgress = await resolveMockRequest(mockAcceptPatient('enc-20260723-003'))
+    const finished = await resolveMockRequest(mockAcceptPatient('enc-20260723-005'))
+
+    expect(inProgress.visitStatus).toBe('in-progress')
+    expect(finished.visitStatus).toBe('finished')
+    expect(finished.visitStatusName).toBe('完诊')
+  })
+
+  it('患者队列按单日返回完整列表且不包含内部测试夹具', async () => {
+    const today = dayjs().format('YYYY-MM-DD')
+    const yesterday = dayjs().subtract(1, 'day').format('YYYY-MM-DD')
+    const todayPatients = await resolveMockRequest(mockListDoctorPatientQueue({ visitDate: today }))
+    const yesterdayPatients = await resolveMockRequest(
+      mockListDoctorPatientQueue({ visitDate: yesterday })
+    )
+
+    expect(todayPatients.length).toBeGreaterThan(0)
+    expect(yesterdayPatients.length).toBeGreaterThan(0)
+    expect(todayPatients.every((item) => item.visitTime.startsWith(today))).toBe(true)
+    expect(yesterdayPatients.every((item) => item.visitTime.startsWith(yesterday))).toBe(true)
+    expect(
+      [...todayPatients, ...yesterdayPatients].some((item) =>
+        item.patientName.startsWith('测试患者')
+      )
+    ).toBe(false)
   })
 
   it('暂离后将患者退回候诊队列，并隐藏本轮接诊信息', async () => {
@@ -63,69 +85,96 @@ describe('doctor-station mock', () => {
     await resolveMockRequest(mockAcceptPatient(encounterId))
 
     const left = await resolveMockRequest(mockLeavePatient(encounterId))
-    expect(left.visitStatus).toBe('WAITING')
+    expect(left.visitStatus).toBe('arrived')
     expect(left.visitStatusName).toBe('候诊')
     expect(left.attendingDoctorName).toBeUndefined()
     expect(left.acceptedAt).toBeUndefined()
 
-    const waitingPage = await resolveMockRequest(
-      mockPageDoctorPatientQueue({
-        pageIndex: 1,
-        pageSize: 50,
-        visitStatus: 'WAITING'
+    const waitingPatients = await resolveMockRequest(
+      mockListDoctorPatientQueue({
+        visitDate: dayjs().format('YYYY-MM-DD'),
+        visitStatus: 'arrived'
       })
     )
-    expect(waitingPage.rows?.some((patient) => patient.encounterId === encounterId)).toBe(true)
+    expect(waitingPatients.some((patient) => patient.encounterId === encounterId)).toBe(true)
   })
 
-  it('加载并保存门诊病历，同时递增版本号', async () => {
+  it('加载并保存门诊病历', async () => {
     const encounterId = 'enc-20260723-008'
     const beforeSave = await resolveMockRequest(mockGetMedicalRecord(encounterId))
     const changedContent = `${beforeSave.content}<p>补充：患者一般情况稳定。</p>`
 
     const saved = await resolveMockRequest(
       mockSaveMedicalRecord(encounterId, {
-        content: changedContent,
-        version: beforeSave.version
+        content: changedContent
       })
     )
 
     expect(saved.content).toBe(changedContent)
-    expect(saved.version).toBe(beforeSave.version + 1)
     expect(saved.updatedAt).toBeTruthy()
 
     const afterSave = await resolveMockRequest(mockGetMedicalRecord(encounterId))
     expect(afterSave).toEqual(saved)
   })
 
-  it('拒绝使用过期版本覆盖病历', async () => {
-    const encounterId = 'enc-20260723-009'
-    const current = await resolveMockRequest(mockGetMedicalRecord(encounterId))
+  it('按患者分页查询历史病历，并按就诊时间倒序返回', async () => {
+    const firstPage = await resolveMockRequest(
+      mockPagePatientMedicalRecordHistory({
+        patientId: 'patient-1003',
+        pageIndex: 1,
+        pageSize: 10
+      })
+    )
+    const secondPage = await resolveMockRequest(
+      mockPagePatientMedicalRecordHistory({
+        patientId: 'patient-1003',
+        pageIndex: 2,
+        pageSize: 10
+      })
+    )
 
-    // 先把 rejects 断言绑定到 Promise，再推进假计时器。
-    // 否则 Promise 可能先被拒绝，Vitest 会把它误判为“未处理的异步异常”。
-    const saveRequest = mockSaveMedicalRecord(encounterId, {
-      content: '<p>错误版本提交</p>',
-      version: current.version - 1
-    })
-    const rejection = expect(saveRequest).rejects.toThrow('病历已被其他操作修改')
-
-    await vi.runAllTimersAsync()
-    await rejection
+    expect(firstPage.total).toBe(12)
+    expect(firstPage.rows).toHaveLength(10)
+    expect(secondPage.rows).toHaveLength(2)
+    expect((firstPage.rows?.[0]?.visitDate ?? '') >= (firstPage.rows?.[1]?.visitDate ?? '')).toBe(
+      true
+    )
   })
 
-  it('返回模板树，并按模板 ID 加载正文', async () => {
-    const templateTree = await resolveMockRequest(mockListMedicalRecordTemplates())
-    const templateLeaves = templateTree.flatMap((category) => category.children ?? [])
+  it('历史病历支持科室和主诊断关键词，并可按需读取只读正文', async () => {
+    const result = await resolveMockRequest(
+      mockPagePatientMedicalRecordHistory({
+        patientId: 'patient-1008',
+        keyword: '糖尿病',
+        pageIndex: 1,
+        pageSize: 10
+      })
+    )
 
-    expect(templateLeaves).toHaveLength(6)
+    expect(result.total).toBe(1)
+    expect(result.rows?.[0]?.deptName).toBe('内分泌科')
 
-    const template = await resolveMockRequest(mockGetMedicalRecordTemplate('template-hypertension'))
-    expect(template.name).toBe('高血压随访')
-    expect(template.content).toContain('家庭血压')
+    const detail = await resolveMockRequest(
+      mockGetMedicalRecord(result.rows?.[0]?.encounterId ?? '')
+    )
+    expect(detail.id).toBeTruthy()
+    expect(detail.content).toContain('2 型糖尿病')
   })
 
-  it('搜索诊断字典并保存唯一主诊断', async () => {
+  it('历史病历查询按患者隔离数据', async () => {
+    const result = await resolveMockRequest(
+      mockPagePatientMedicalRecordHistory({
+        patientId: 'patient-without-history',
+        pageIndex: 1,
+        pageSize: 10
+      })
+    )
+
+    expect(result.total).toBe(0)
+    expect(result.rows).toEqual([])
+  })
+
+  it('搜索诊断字典并单条新增诊断', async () => {
     const dictionaryPage = await resolveMockRequest(
       mockPageDiagnosisDictionary({
         pageIndex: 1,
@@ -136,26 +185,20 @@ describe('doctor-station mock', () => {
     expect(dictionaryPage.rows?.[0]?.code).toBe('I10')
 
     const encounterId = 'enc-20260723-008'
-    const beforeSave = await resolveMockRequest(mockGetDiagnoses(encounterId))
-    const reversedRows = beforeSave.rows.slice().reverse()
-    const saved = await resolveMockRequest(
-      mockSaveDiagnoses(encounterId, {
-        version: beforeSave.version,
-        items: reversedRows.map((item, index) => ({
-          id: item.id,
-          catalogId: item.catalogId,
-          code: item.code,
-          name: item.name,
-          typeName: item.typeName,
-          primary: index === 0,
-          orderNo: index + 1
-        }))
+    const created = await resolveMockRequest(
+      mockCreateDiagnosis({
+        encounterId,
+        conditionId: 'diag-extra-hypertension',
+        diagCode: 'I10',
+        description: '原发性高血压',
+        diagTypeCode: '西医诊断',
+        primaryFlag: 0,
+        rank: 3
       })
     )
 
-    expect(saved.version).toBe(beforeSave.version + 1)
-    expect(saved.rows[0]?.catalogId).toBe(reversedRows[0]?.catalogId)
-    expect(saved.rows.filter((item) => item.primary)).toHaveLength(1)
+    expect(created.rows.some((item) => item.catalogId === 'diag-extra-hypertension')).toBe(true)
+    expect(created.rows.filter((item) => item.primary)).toHaveLength(1)
   })
 
   it('搜索医嘱项目并保存门诊医嘱', async () => {
@@ -170,9 +213,9 @@ describe('doctor-station mock', () => {
 
     const encounterId = 'enc-20260723-008'
     const beforeSave = await resolveMockRequest(mockGetAdviceOrders(encounterId))
+    const draftBeforeSave = beforeSave.rows.find((item) => item.status === 'DRAFT')!
     const saved = await resolveMockRequest(
       mockSaveAdviceOrders(encounterId, {
-        version: beforeSave.version,
         items: beforeSave.rows.map((item, index) => ({
           id: item.id,
           catalogId: item.catalogId,
@@ -186,7 +229,7 @@ describe('doctor-station mock', () => {
           frequency: item.frequency,
           route: item.route,
           days: item.days,
-          quantity: index === 0 ? item.quantity + 1 : item.quantity,
+          quantity: item.id === draftBeforeSave.id ? item.quantity + 1 : item.quantity,
           quantityUnit: item.quantityUnit,
           remark: item.remark,
           orderNo: index + 1
@@ -194,8 +237,9 @@ describe('doctor-station mock', () => {
       })
     )
 
-    expect(saved.version).toBe(beforeSave.version + 1)
-    expect(saved.rows[0]?.quantity).toBe((beforeSave.rows[0]?.quantity ?? 0) + 1)
+    expect(saved.rows.find((item) => item.id === draftBeforeSave.id)?.quantity).toBe(
+      draftBeforeSave.quantity + 1
+    )
   })
 
   it('拒绝未接诊患者直接完诊', async () => {
@@ -211,21 +255,19 @@ describe('doctor-station mock', () => {
     const recordBeforeComplete = await resolveMockRequest(mockGetMedicalRecord(encounterId))
 
     const completed = await resolveMockRequest(mockCompletePatient(encounterId))
-    expect(completed.visitStatus).toBe('COMPLETED')
+    expect(completed.visitStatus).toBe('finished')
     expect(completed.visitStatusName).toBe('完诊')
 
-    const completedPage = await resolveMockRequest(
-      mockPageDoctorPatientQueue({
-        pageIndex: 1,
-        pageSize: 50,
-        visitStatus: 'COMPLETED'
+    const completedPatients = await resolveMockRequest(
+      mockListDoctorPatientQueue({
+        visitDate: dayjs().format('YYYY-MM-DD'),
+        visitStatus: 'finished'
       })
     )
-    expect(completedPage.rows?.some((patient) => patient.encounterId === encounterId)).toBe(true)
+    expect(completedPatients.some((patient) => patient.encounterId === encounterId)).toBe(true)
 
     const saveRequest = mockSaveMedicalRecord(encounterId, {
-      content: recordBeforeComplete.content + '<p>不应允许的修改</p>',
-      version: recordBeforeComplete.version
+      content: recordBeforeComplete.content + '<p>不应允许的修改</p>'
     })
     const rejection = expect(saveRequest).rejects.toThrow('患者已完诊')
     await vi.runAllTimersAsync()

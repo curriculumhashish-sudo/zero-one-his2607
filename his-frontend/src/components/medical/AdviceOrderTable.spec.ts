@@ -15,7 +15,8 @@ const ColumnStub = defineComponent({
   name: 'ElTableColumn',
   props: {
     prop: { type: String, default: '' },
-    label: { type: String, default: '' }
+    label: { type: String, default: '' },
+    fixed: { type: [Boolean, String], default: false }
   },
   setup(props, { slots }) {
     const rows =
@@ -39,7 +40,9 @@ const TableStub = defineComponent({
   name: 'ElTable',
   props: {
     data: { type: Array, default: () => [] },
-    rowClassName: { type: Function, default: undefined }
+    rowClassName: { type: Function, default: undefined },
+    height: { type: [String, Number], default: undefined },
+    scrollbarAlwaysOn: { type: Boolean, default: false }
   },
   setup(props, { expose, slots }) {
     ;(globalThis as unknown as { __ADVICE_ROWS__?: AdviceOrder[] }).__ADVICE_ROWS__ =
@@ -107,6 +110,16 @@ describe('C54 AdviceOrderTable', () => {
     })
     // 两行均无 remark，应渲染占位符
     expect(wrapper.text()).toContain('-')
+  })
+
+  it('forwards constrained height and keeps the horizontal scrollbar visible', () => {
+    const wrapper = mount(AdviceOrderTable, {
+      props: { rows, height: '100%' },
+      global
+    })
+    const table = wrapper.getComponent(TableStub)
+    expect(table.props('height')).toBe('100%')
+    expect(table.props('scrollbarAlwaysOn')).toBe(true)
   })
 
   it('blocks row selection when readonly or disabledRow matches', () => {

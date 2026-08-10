@@ -9,8 +9,8 @@
 | 组件 | 用途 |
 | --- | --- |
 | `SearchPanel`（C01） | 关键词查询、查询按钮和重置按钮 |
-| `DateRangeField`（C02） | 日期范围输入 |
 | `EmptyState`（C05） | 无患者时的明确空状态 |
+| Element Plus `el-date-picker` | 单日就诊日期输入 |
 | `PatientCard` | 患者队列卡片 |
 
 组件只接收页面提供的状态并发出用户意图，不请求接口、不筛选患者，也不维护当前选中患者。当前患者摘要应放在中间业务区，由页面单独组合 `PatientInfoBar`。
@@ -27,11 +27,11 @@ src/components/patient/PatientQueuePanel.vue
 <script setup lang="ts">
 import { ref } from 'vue'
 import PatientQueuePanel from '@/components/patient/PatientQueuePanel.vue'
-import type { DateRangeValue } from '@/components/common/type'
 import type { PatientSummary } from '@/components/patient/type'
 
 const loading = ref(false)
 const selectedId = ref<string | number | null>(null)
+const visitDate = ref('2026-07-20')
 const patients = ref<PatientSummary[]>([
   {
     id: 'visit-1001',
@@ -50,8 +50,9 @@ function handleSearch(keyword: string) {
   console.log('查询关键词', keyword)
 }
 
-function handleDateChange(value: DateRangeValue) {
-  console.log('日期范围', value)
+function handleDateChange(value: string) {
+  visitDate.value = value
+  console.log('就诊日期', value)
 }
 
 function handleRefresh() {
@@ -69,6 +70,7 @@ function handleSelect(patient: PatientSummary) {
       :patients="patients"
       :loading="loading"
       :selected-id="selectedId"
+      :date="visitDate"
       @search="handleSearch"
       @date-change="handleDateChange"
       @refresh="handleRefresh"
@@ -93,6 +95,7 @@ function handleSelect(patient: PatientSummary) {
 | `patients` | `PatientSummary[]` | `[]` | 页面已经加载并转换好的患者摘要列表 |
 | `loading` | `boolean` | `false` | 查询按钮、刷新按钮和列表加载状态 |
 | `selectedId` | `string \| number \| null` | `null` | 当前选中患者 ID |
+| `date` | `string` | `''` | 页面当前实际使用的单日日期，格式为 `YYYY-MM-DD` |
 
 `selectedId` 只负责展示选中状态。组件不会自行修改它，页面收到 `select` 后决定是否更新。
 
@@ -101,7 +104,7 @@ function handleSelect(patient: PatientSummary) {
 | 事件 | 参数 | 触发方式 |
 | --- | --- | --- |
 | `search` | `keyword: string` | 点击查询或在关键词输入框按 Enter |
-| `dateChange` | `[start: string, end: string] \| null` | 选择或清空日期范围 |
+| `dateChange` | `date: string` | 选择单日日期；重置时传空字符串 |
 | `refresh` | 无 | 点击刷新按钮或空状态刷新 |
 | `select` | `patient: PatientSummary` | 点击患者卡片或卡片“查看” |
 
@@ -123,8 +126,8 @@ function handleSelect(patient: PatientSummary) {
 ```vue
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import dayjs from 'dayjs'
 import PatientQueuePanel from '@/components/patient/PatientQueuePanel.vue'
-import type { DateRangeValue } from '@/components/common/type'
 import type { PatientSummary } from '@/components/patient/type'
 import { getPatientQueue } from '@/apis/station'
 
@@ -133,15 +136,14 @@ const loading = ref(false)
 const selectedId = ref<string | number | null>(null)
 
 let keyword = ''
-let dateRange: DateRangeValue = null
+const visitDate = ref(dayjs().format('YYYY-MM-DD'))
 
 async function loadPatients() {
   loading.value = true
   try {
     const result = await getPatientQueue({
       keyword,
-      startDate: dateRange?.[0],
-      endDate: dateRange?.[1]
+      visitDate: visitDate.value
     })
 
     patients.value = result.map((item) => ({
@@ -163,8 +165,8 @@ function searchPatients(value: string) {
   void loadPatients()
 }
 
-function changeDate(value: DateRangeValue) {
-  dateRange = value
+function changeDate(value: string) {
+  visitDate.value = value || dayjs().format('YYYY-MM-DD')
   void loadPatients()
 }
 
@@ -180,6 +182,7 @@ onMounted(loadPatients)
     :patients="patients"
     :loading="loading"
     :selected-id="selectedId"
+    :date="visitDate"
     @search="searchPatients"
     @date-change="changeDate"
     @refresh="loadPatients"
@@ -245,8 +248,8 @@ const selectedPatient = computed(
 - 关键词输入框只维护输入值，不自行筛选 `patients`
 - 点击查询或按 Enter 时发出 `search`
 - 选择日期后立即发出 `dateChange`
-- 点击重置会清空关键词和日期
-- 重置后依次发出 `search('')` 和 `dateChange(null)`
+- 点击重置会清空关键词，并发出空日期值
+- 重置后依次发出 `search('')` 和 `dateChange('')`；医生站页面将空日期恢复为当天
 - 页面收到事件后决定是否重新请求
 
 ## 选中规则
@@ -271,21 +274,9 @@ const selectedPatient = computed(
 - 空状态中的刷新按钮同样发出 `refresh`
 - `patients` 有值时：使用 `PatientCard` 渲染列表
 
-## 日期范围
+## 单日日期
 
-日期事件类型定义在：
-
-```ts
-import type { DateRangeValue } from '@/components/common/type'
-```
-
-类型为：
-
-```ts
-type DateRangeValue = [start: string, end: string] | null
-```
-
-默认日期格式是 `YYYY-MM-DD`。队列面板隐藏 C02 的时间和未来日期选项，只使用日期范围输入。
+日期值使用 `YYYY-MM-DD` 字符串。患者队列只查询这一天的数据，不再接收开始日期、结束日期或分页参数；患者较多时由卡片列表区域独立滚动。
 
 ## 高度和滚动
 
@@ -306,7 +297,7 @@ type DateRangeValue = [start: string, end: string] | null
 
 组件内部负责：
 
-- 组合 C01、C02、C05
+- 组合 C01、单日日期选择器和 C05
 - 渲染患者卡片
 - 展示加载和空状态
 - 转发搜索、日期、刷新和选择意图
@@ -317,7 +308,7 @@ type DateRangeValue = [start: string, end: string] | null
 - 接口 DTO 转换
 - 搜索和日期参数保存
 - 更新 `patients`、`loading` 和 `selectedId`
-- 权限、分页和业务筛选
+- 权限和业务筛选
 - 选中患者后的业务区加载
 
 不要在 `PatientQueuePanel` 中加入：

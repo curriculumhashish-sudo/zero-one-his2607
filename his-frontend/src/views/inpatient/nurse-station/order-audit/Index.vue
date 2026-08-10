@@ -6,10 +6,8 @@ import {
   queryNurseStationOrderAudits,
   rejectNurseStationOrders,
   verifyNurseStationOrders,
-  type NurseStationOrderAuditMedicineCategory,
   type NurseStationOrderAuditRowVO,
-  type NurseStationOrderAuditStatus,
-  type NurseStationOrderAuditTherapyFilter
+  type NurseStationOrderAuditStatus
 } from '@/apis/inpatient/nurse-station'
 
 import type { NurseStationPatientSummary } from '../type'
@@ -29,24 +27,12 @@ interface PatientOrderCard {
   orders: NurseStationOrderAuditRowVO[]
 }
 
-const WRITE_BATCH_LIMIT = 50
 const statusTabs: Array<{ label: string; value: NurseStationOrderAuditStatus }> = [
   { label: '未校对', value: 'PENDING' },
-  { label: '已校对', value: 'PASSED' },
-  { label: '已停止', value: 'STOPPED' },
-  { label: '已作废', value: 'SUSPENDED' }
-]
-const medicineTabs: Array<{
-  label: string
-  value: NurseStationOrderAuditMedicineCategory
-}> = [
-  { label: '西药', value: 'WEST' },
-  { label: '中药', value: 'TCM' }
+  { label: '已校对', value: 'PASSED' }
 ]
 
 const activeStatus = ref<NurseStationOrderAuditStatus>('PENDING')
-const activeMedicineCategory = ref<NurseStationOrderAuditMedicineCategory>('WEST')
-const activeTherapyType = ref<NurseStationOrderAuditTherapyFilter>('ALL')
 const loading = ref(false)
 const actionLoading = ref(false)
 const ordersByEncounterId = ref(new Map<string, NurseStationOrderAuditRowVO[]>())
@@ -62,19 +48,29 @@ const visibleCards = computed<PatientOrderCard[]>(() =>
   }))
 )
 const allVisibleOrderRows = computed(() => visibleCards.value.flatMap((card) => card.orders))
+/** Deduplicate writable rows by backend request identity. */
+const writableVisibleOrderRows = computed(() => {
+  const seen = new Set<string>()
+  return allVisibleOrderRows.value.filter((row) => {
+    const key = `${row.orderType}:${row.requestId}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+})
 const writeActionsEnabled = computed(() => activeStatus.value === 'PENDING')
 const selectedAll = computed({
   get: () =>
-    allVisibleOrderRows.value.length > 0 &&
-    selectedRowKeys.value.size === allVisibleOrderRows.value.length,
+    writableVisibleOrderRows.value.length > 0 &&
+    selectedRowKeys.value.size === writableVisibleOrderRows.value.length,
   set: (checked: boolean) => {
     selectedRowKeys.value = checked
-      ? new Set(allVisibleOrderRows.value.map((row) => row.listRowKey))
+      ? new Set(writableVisibleOrderRows.value.map((row) => row.listRowKey))
       : new Set()
   }
 })
 
-/** 筛选或左侧患者变化时重新加载，并防止较慢请求覆盖新结果。 */
+/** Reload when the selected patients or status changes and ignore stale responses. */
 async function loadOrders() {
   const serial = ++requestSerial
   selectedRowKeys.value = new Set()
@@ -84,16 +80,18 @@ async function loadOrders() {
   loading.value = true
   try {
     const result = await queryNurseStationOrderAudits({
-      encounterIds: encounterIds.value,
-      auditStatus: activeStatus.value,
-      therapyType: activeTherapyType.value,
-      medicineCategory: activeMedicineCategory.value
+      patientContexts: props.patients.map(({ encounterId, patientId, patientName }) => ({
+        encounterId,
+        patientId,
+        patientName
+      })),
+      auditStatus: activeStatus.value
     })
     if (serial !== requestSerial) return
     ordersByEncounterId.value = new Map(
       result.groups.map((group) => [group.encounterId, group.orders])
     )
-    // 与原型一致，查询完成后默认勾选当前列表全部医嘱。
+    // Select all returned orders by default.
     selectedRowKeys.value = new Set(
       result.groups.flatMap((group) => group.orders.map((row) => row.listRowKey))
     )
@@ -105,11 +103,7 @@ async function loadOrders() {
   }
 }
 
-watch(
-  [encounterIds, activeStatus, activeMedicineCategory, activeTherapyType],
-  () => void loadOrders(),
-  { immediate: true }
-)
+watch([encounterIds, activeStatus], () => void loadOrders(), { immediate: true })
 
 watch(
   () => props.patients,
@@ -131,7 +125,7 @@ function toggleRowSelection(row: NurseStationOrderAuditRowVO, checked: boolean) 
 }
 
 function collectSelectedRows() {
-  return allVisibleOrderRows.value.filter((row) => selectedRowKeys.value.has(row.listRowKey))
+  return writableVisibleOrderRows.value.filter((row) => selectedRowKeys.value.has(row.listRowKey))
 }
 
 function validateSelection(rows: NurseStationOrderAuditRowVO[]) {
@@ -139,22 +133,13 @@ function validateSelection(rows: NurseStationOrderAuditRowVO[]) {
     ElMessage.warning('请先勾选医嘱')
     return false
   }
-  if (rows.length > WRITE_BATCH_LIMIT) {
-    ElMessage.warning(`单次最多处理 ${WRITE_BATCH_LIMIT} 条医嘱`)
-    return false
-  }
   return true
-}
-
-function createIdempotencyKey(action: string) {
-  return `${action}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
 }
 
 function mapWriteItems(rows: NurseStationOrderAuditRowVO[]) {
   return rows.map((row) => ({
     orderType: row.orderType,
-    requestId: row.requestId,
-    expectedVersion: row.version
+    requestId: row.requestId
   }))
 }
 
@@ -165,7 +150,7 @@ async function finishWrite(processedCount: number, actionText: string) {
   emit('patientsChanged')
 }
 
-/** 批量校对通过，仅未校对页签可执行。 */
+/** Verify selected orders on the pending tab. */
 async function handleVerify() {
   if (!writeActionsEnabled.value) return
   if (actionLoading.value) return
@@ -184,7 +169,6 @@ async function handleVerify() {
   actionLoading.value = true
   try {
     const result = await verifyNurseStationOrders({
-      idempotencyKey: createIdempotencyKey('verify'),
       items: mapWriteItems(rows)
     })
     await finishWrite(result.processedCount, '校对')
@@ -195,21 +179,25 @@ async function handleVerify() {
   }
 }
 
-/** 批量退回，并允许录入统一原因。 */
+/** Reject selected orders with one required reason. */
 async function handleReject() {
   if (!writeActionsEnabled.value) return
   if (actionLoading.value) return
   const rows = collectSelectedRows()
   if (!validateSelection(rows)) return
 
-  let reason = ''
+  let reason: string
   try {
-    const result = await ElMessageBox.prompt('请输入退回原因（可选）', '退回医嘱', {
+    const result = await ElMessageBox.prompt('请输入退回原因', '退回医嘱', {
       confirmButtonText: '确定退回',
       cancelButtonText: '取消',
       inputType: 'textarea',
       inputPlaceholder: '退回原因',
-      inputValidator: (value) => !value || value.length <= 500 || '退回原因最多 500 字'
+      inputValidator: (value) => {
+        const normalized = value.trim()
+        if (!normalized) return '请输入退回原因'
+        return normalized.length <= 500 || '退回原因最多 500 字'
+      }
     })
     reason = String(result.value ?? '').trim()
   } catch {
@@ -219,9 +207,8 @@ async function handleReject() {
   actionLoading.value = true
   try {
     const result = await rejectNurseStationOrders({
-      idempotencyKey: createIdempotencyKey('reject'),
       items: mapWriteItems(rows),
-      reason: reason || undefined
+      reason
     })
     await finishWrite(result.processedCount, '退回')
   } catch (error) {
@@ -235,33 +222,8 @@ function orderKindText(row: NurseStationOrderAuditRowVO) {
   return row.orderType === 'MED_REQUEST' ? '药品' : '诊疗'
 }
 
-function therapyClass(row: NurseStationOrderAuditRowVO) {
-  if (row.therapyEnum === 'LONG_TERM') return 'is-long'
-  if (row.therapyEnum === 'TEMPORARY') return 'is-temporary'
-  return 'is-discharge'
-}
-
-function orderTitle(row: NurseStationOrderAuditRowVO) {
-  if (row.tcmFlag) return row.adviceDisplayName
-  return row.specificationText
-    ? `${row.adviceDisplayName}【${row.specificationText}】`
-    : row.adviceDisplayName
-}
-
-function dosageText(row: NurseStationOrderAuditRowVO) {
-  const dose = row.dosageDisplay || '—'
-  return row.tcmFlag && row.chineseHerbsDoseQuantity
-    ? `${dose} ${row.chineseHerbsDoseQuantity}付`
-    : dose
-}
-
-function extensionText(row: NurseStationOrderAuditRowVO) {
-  return [row.usageDisplay, row.frequencyDisplay].filter(Boolean).join('，')
-}
-
 /**
- * Element Plus 表格插槽只提供通用 DefaultRow 类型。
- * 数据源本身已经由 NurseStationOrderAuditRowVO 约束，这里集中恢复类型，避免模板到处断言。
+ * Element Plus exposes a generic table row type, so restore the page row type here.
  */
 function asAuditRow(row: unknown): NurseStationOrderAuditRowVO {
   return row as NurseStationOrderAuditRowVO
@@ -277,16 +239,6 @@ function asAuditRow(row: unknown): NurseStationOrderAuditRowVO {
             {{ item.label }}
           </el-radio-button>
         </el-radio-group>
-        <el-radio-group v-model="activeMedicineCategory" size="small">
-          <el-radio-button v-for="item in medicineTabs" :key="item.value" :value="item.value">
-            {{ item.label }}
-          </el-radio-button>
-        </el-radio-group>
-        <el-radio-group v-model="activeTherapyType" size="small" class="therapy-filter">
-          <el-radio value="ALL">全部</el-radio>
-          <el-radio value="LONG_TERM">长期</el-radio>
-          <el-radio value="TEMPORARY">临时</el-radio>
-        </el-radio-group>
         <el-button size="small" plain @click="loadOrders">查询</el-button>
       </div>
       <div class="order-audit-toolbar__actions">
@@ -295,7 +247,7 @@ function asAuditRow(row: unknown): NurseStationOrderAuditRowVO {
           全选
           <el-switch
             v-model="selectedAll"
-            :disabled="allVisibleOrderRows.length === 0 || !writeActionsEnabled"
+            :disabled="writableVisibleOrderRows.length === 0 || !writeActionsEnabled"
             size="small"
           />
         </label>
@@ -366,52 +318,13 @@ function asAuditRow(row: unknown): NurseStationOrderAuditRowVO {
               <el-table-column label="类型" align="center" min-width="108">
                 <template #default="{ row }">
                   <span>{{ orderKindText(asAuditRow(row)) }}</span>
-                  <span class="type-divider"> / </span>
-                  <span class="therapy-text" :class="therapyClass(asAuditRow(row))">
-                    {{ row.therapyDisplay || '—' }}
-                  </span>
                 </template>
               </el-table-column>
               <el-table-column label="医嘱内容" min-width="330">
                 <template #default="{ row }">
-                  <div class="order-content">
-                    <div class="order-content__detail">
-                      <div>
-                        <strong>{{ orderTitle(asAuditRow(row)) }}</strong>
-                        <span>{{ dosageText(asAuditRow(row)) }}</span>
-                      </div>
-                      <small v-if="extensionText(asAuditRow(row))">
-                        {{ extensionText(asAuditRow(row)) }}
-                      </small>
-                    </div>
-                    <span
-                      v-if="row.statusEnum === 'STOPPED' && row.stopTime"
-                      class="stop-badge"
-                      title="已停嘱"
-                    >
-                      停
-                    </span>
-                  </div>
+                  <span>{{ row.content || '—' }}</span>
                 </template>
               </el-table-column>
-              <el-table-column
-                prop="performerLocationDisplay"
-                label="执行科室"
-                align="center"
-                min-width="105"
-              />
-              <el-table-column
-                prop="authoredTime"
-                label="签发时间"
-                align="center"
-                min-width="145"
-              />
-              <el-table-column
-                prop="requesterName"
-                label="开立医生"
-                align="center"
-                min-width="96"
-              />
             </el-table>
             <el-empty v-else :image-size="54" description="当前筛选下暂无医嘱" />
           </div>
@@ -463,11 +376,6 @@ function asAuditRow(row: unknown): NurseStationOrderAuditRowVO {
   justify-content: flex-end;
   color: var(--nurse-text-secondary, #6b7280);
   font-size: 12px;
-}
-
-.therapy-filter :deep(.el-radio) {
-  height: auto;
-  margin-right: 8px;
 }
 
 .select-all-control {
@@ -598,83 +506,6 @@ function asAuditRow(row: unknown): NurseStationOrderAuditRowVO {
 
 .order-audit-table :deep(.el-table__inner-wrapper::before) {
   display: none;
-}
-
-.type-divider {
-  color: var(--nurse-text-secondary, #6b7280);
-}
-
-.therapy-text {
-  font-weight: 500;
-}
-
-.therapy-text.is-long {
-  color: #94654f;
-}
-
-.therapy-text.is-temporary {
-  color: #267b9b;
-}
-
-.therapy-text.is-discharge {
-  color: #4e7c35;
-}
-
-.order-content {
-  display: flex;
-  min-width: 0;
-  align-items: center;
-  gap: 6px;
-}
-
-.order-content__detail {
-  min-width: 0;
-  flex: 1;
-}
-
-.order-content__detail > div {
-  display: flex;
-  min-width: 0;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.order-content__detail strong {
-  min-width: 0;
-  overflow: hidden;
-  color: var(--nurse-text-primary, #303133);
-  font-weight: 500;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.order-content__detail span {
-  flex-shrink: 0;
-  color: var(--nurse-text-regular, #606266);
-  font-size: 12px;
-}
-
-.order-content__detail small {
-  display: block;
-  margin-top: 3px;
-  padding-top: 2px;
-  border-top: 1px dashed #cbd5e1;
-  color: #2563eb;
-  font-size: 12px;
-}
-
-.stop-badge {
-  display: inline-flex;
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  background: var(--el-color-danger);
-  color: #fff;
-  font-size: 12px;
 }
 
 .patient-order-card__body :deep(.el-empty) {

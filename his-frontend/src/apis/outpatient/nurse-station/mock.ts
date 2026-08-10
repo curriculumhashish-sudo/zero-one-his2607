@@ -3,317 +3,209 @@ import dayjs from 'dayjs'
 import type {
   CancelNurseExecutionDTO,
   NurseConsumableItemVO,
-  NurseExecutionCommandResultVO,
   NurseExecutionHistoryQuery,
   NurseExecutionItemVO,
-  NursePrintDocumentType,
   NurseExecutionRecordVO,
+  NurseBatchResultVO,
   NursePatientQueueItemVO,
   NursePatientQueueQuery,
-  PerformNurseExecutionsDTO,
-  NursePrintRequestDTO,
-  NursePrintResultVO
+  PerformNurseExecutionsDTO
 } from './type'
 
 const MOCK_DELAY = 180
 const MOCK_TODAY = dayjs().format('YYYY-MM-DD')
+const MOCK_HISTORY_DATE = dayjs().subtract(7, 'day').format('YYYY-MM-DD')
 
-const printDocumentLabels: Record<NursePrintDocumentType, string> = {
-  BOTTLE_LABEL: '瓶贴',
-  TREATMENT_SHEET: '处置单',
-  SPECIMEN_BARCODE: '采血码',
-  PRESCRIPTION: '处方单',
-  SKIN_TEST_LABEL: '皮试标签',
-  NEBULIZATION_LABEL: '雾化标签',
-  PROCEDURE_APPLICATION: '处置申请单'
-}
+const FULL_DEMO_PATIENT_ID = 'mock-patient-001'
+const FULL_DEMO_ENCOUNTER_ID = 'mock-encounter-001'
+const FULL_DEMO_HISTORY_ENCOUNTER_ID = 'mock-encounter-001-history'
+const EMPTY_DEMO_PATIENT_ID = 'mock-patient-002'
+const EMPTY_DEMO_ENCOUNTER_ID = 'mock-encounter-002'
 
+/**
+ * 两位体验患者：
+ * - 林安然：覆盖批量执行、取消执行、耗材真实字段及历史记录分页。
+ * - 周远航：覆盖无耗材、无历史记录，以及执行后从空状态产生记录。
+ */
 const patients: NursePatientQueueItemVO[] = [
   {
-    encounterId: 'enc-nur-20260728-001',
-    patientId: 'pat-001',
+    encounterId: FULL_DEMO_ENCOUNTER_ID,
+    patientId: FULL_DEMO_PATIENT_ID,
     patientName: '林安然',
     genderName: '女',
     ageText: '32岁',
-    medicalRecordNo: 'M20260728001',
-    visitNo: 'V20260728001',
-    queueNumber: 8,
+    visitNo: 'MOCK-QUEUE-001',
+    queueNumber: 1,
     registeredAt: `${MOCK_TODAY} 08:35`,
     departmentName: '内科门诊',
     visitTypeName: '普通门诊',
     status: 'READY',
     statusName: '待执行',
-    paymentTypeName: '医保',
-    pendingCount: 4,
-    riskHint: '青霉素过敏'
+    priorityName: '全功能演示'
   },
   {
-    encounterId: 'enc-nur-20260725-001',
-    patientId: 'pat-001',
+    encounterId: FULL_DEMO_HISTORY_ENCOUNTER_ID,
+    patientId: FULL_DEMO_PATIENT_ID,
     patientName: '林安然',
     genderName: '女',
     ageText: '32岁',
-    medicalRecordNo: 'M20260728001',
-    visitNo: 'V20260725001',
+    visitNo: 'MOCK-HISTORY-001',
     queueNumber: 3,
-    registeredAt: '2026-07-25 09:12',
+    registeredAt: `${MOCK_HISTORY_DATE} 08:20`,
     departmentName: '内科门诊',
     visitTypeName: '普通门诊',
     status: 'COMPLETED',
-    statusName: '已完成',
-    paymentTypeName: '医保',
-    pendingCount: 0,
-    riskHint: '青霉素过敏'
+    statusName: '已完成'
   },
   {
-    encounterId: 'enc-nur-20260728-002',
-    patientId: 'pat-002',
+    encounterId: EMPTY_DEMO_ENCOUNTER_ID,
+    patientId: EMPTY_DEMO_PATIENT_ID,
     patientName: '周远航',
     genderName: '男',
     ageText: '46岁',
-    medicalRecordNo: 'M20260728002',
-    visitNo: 'V20260728002',
-    queueNumber: 11,
+    visitNo: 'MOCK-QUEUE-002',
+    queueNumber: 2,
     registeredAt: `${MOCK_TODAY} 09:05`,
     departmentName: '外科门诊',
     visitTypeName: '普通门诊',
     status: 'WAITING',
     statusName: '候诊',
-    paymentTypeName: '自费',
-    pendingCount: 2,
-    priorityName: '优先'
-  },
-  {
-    encounterId: 'enc-nur-20260728-003',
-    patientId: 'pat-003',
-    patientName: '许知夏',
-    genderName: '女',
-    ageText: '28岁',
-    medicalRecordNo: 'M20260728003',
-    visitNo: 'V20260728003',
-    queueNumber: 15,
-    registeredAt: `${MOCK_TODAY} 09:42`,
-    departmentName: '内科门诊',
-    visitTypeName: '专家门诊',
-    status: 'COMPLETED',
-    statusName: '已完成',
-    paymentTypeName: '医保',
-    pendingCount: 0
+    priorityName: '空状态演示'
   }
 ]
 
+const historyItemNames = [
+  '静脉采血',
+  '血压测量',
+  '血糖监测',
+  '皮下注射',
+  '心电图检查准备',
+  '雾化吸入治疗',
+  '伤口换药',
+  '输液巡视',
+  '标本送检',
+  '过敏试验观察',
+  '健康宣教'
+]
+
+const historicalExecutionItems: NurseExecutionItemVO[] = historyItemNames.map(
+  (itemName, index) => ({
+    itemId: `mock-exec-history-${String(index + 1).padStart(2, '0')}`,
+    encounterId: FULL_DEMO_HISTORY_ENCOUNTER_ID,
+    categoryCode: 'SERVICE',
+    categoryName: index === 8 ? '检验' : index === 10 ? '护理' : '处置',
+    itemName,
+    quantity: 1,
+    unitName: '次',
+    status: 'COMPLETED',
+    statusName: '已完成',
+    executionCount: 1,
+    executorName: index % 2 === 0 ? '护士李' : '护士王',
+    executedAt: dayjs(`${MOCK_HISTORY_DATE} 08:20`)
+      .add(index * 8, 'minute')
+      .format('YYYY-MM-DD HH:mm')
+  })
+)
+
 const executionItems: Record<string, NurseExecutionItemVO[]> = {
-  'enc-nur-20260725-001': [
+  [FULL_DEMO_HISTORY_ENCOUNTER_ID]: historicalExecutionItems,
+  [FULL_DEMO_ENCOUNTER_ID]: [
     {
-      itemId: 'exec-hist-001',
-      requestId: 'service-010',
-      requestType: 'SERVICE',
-      requestTypeName: '处置',
-      orderContent: '静脉采血',
-      specification: '静脉血 5ml',
-      status: 'COMPLETED',
-      statusName: '已完成',
-      plannedCount: 1,
-      executedCount: 1,
-      executorName: '护士甲',
-      executedAt: '2026-07-25 09:45',
-      version: 1,
-      printTypes: ['SPECIMEN_BARCODE']
+      itemId: 'mock-exec-pending-001',
+      encounterId: FULL_DEMO_ENCOUNTER_ID,
+      categoryCode: 'SERVICE',
+      categoryName: '处置',
+      itemName: '静脉输液',
+      quantity: 250,
+      unitName: 'ml',
+      status: 'PENDING',
+      statusName: '待执行',
+      executionCount: 0
     },
     {
-      itemId: 'exec-hist-002',
-      requestId: 'service-011',
-      requestType: 'SERVICE',
-      requestTypeName: '处置',
-      orderContent: '血压测量',
-      specification: '单次',
-      status: 'COMPLETED',
-      statusName: '已完成',
-      plannedCount: 1,
-      executedCount: 1,
-      executorName: '护士丙',
-      executedAt: '2026-07-25 09:30',
-      version: 1,
-      printTypes: ['TREATMENT_SHEET']
+      itemId: 'mock-exec-pending-002',
+      encounterId: FULL_DEMO_ENCOUNTER_ID,
+      categoryCode: 'SERVICE',
+      categoryName: '治疗',
+      itemName: '雾化吸入治疗',
+      quantity: 1,
+      unitName: '次',
+      status: 'PENDING',
+      statusName: '待执行',
+      executionCount: 0,
+      remark: '体验批量勾选后执行'
     },
     {
-      itemId: 'exec-hist-003',
-      requestId: 'medication-010',
-      requestType: 'MEDICATION',
-      requestTypeName: '药品',
-      orderContent: '阿莫西林皮试',
-      specification: '0.1ml 皮内注射',
+      itemId: 'mock-exec-completed-001',
+      encounterId: FULL_DEMO_ENCOUNTER_ID,
+      categoryCode: 'SERVICE',
+      categoryName: '护理',
+      itemName: '生命体征测量',
+      quantity: 1,
+      unitName: '次',
       status: 'COMPLETED',
       statusName: '已完成',
-      plannedCount: 1,
-      executedCount: 1,
-      executorName: '护士甲',
-      executedAt: '2026-07-25 09:20',
-      version: 1,
-      printTypes: ['SKIN_TEST_LABEL']
+      executionCount: 1,
+      executorName: '护士李',
+      executedAt: `${MOCK_TODAY} 08:50`,
+      remark: '可体验取消执行'
+    },
+    {
+      itemId: 'mock-exec-cancelled-001',
+      encounterId: FULL_DEMO_ENCOUNTER_ID,
+      categoryCode: 'SERVICE',
+      categoryName: '处置',
+      itemName: '肌内注射',
+      quantity: 1,
+      unitName: '次',
+      status: 'CANCELLED',
+      statusName: '已取消',
+      executionCount: 0,
+      remark: '展示取消状态'
     }
   ],
-  'enc-nur-20260728-001': [
+  [EMPTY_DEMO_ENCOUNTER_ID]: [
     {
-      itemId: 'exec-001',
-      requestId: 'service-001',
-      requestType: 'SERVICE',
-      requestTypeName: '处置',
-      orderContent: '静脉输液',
-      specification: '0.9%氯化钠注射液 250ml，静滴',
+      itemId: 'mock-exec-empty-001',
+      encounterId: EMPTY_DEMO_ENCOUNTER_ID,
+      categoryCode: 'SERVICE',
+      categoryName: '处置',
+      itemName: '伤口换药',
+      quantity: 1,
+      unitName: '次',
       status: 'PENDING',
       statusName: '待执行',
-      plannedCount: 1,
-      executedCount: 0,
-      version: 0,
-      printTypes: ['TREATMENT_SHEET', 'PROCEDURE_APPLICATION']
-    },
-    {
-      itemId: 'exec-002',
-      requestId: 'service-002',
-      requestType: 'SERVICE',
-      requestTypeName: '治疗',
-      orderContent: '雾化吸入治疗',
-      specification: '每日 1 次',
-      status: 'PENDING',
-      statusName: '待执行',
-      plannedCount: 2,
-      executedCount: 1,
-      version: 0,
-      printTypes: ['NEBULIZATION_LABEL']
-    },
-    {
-      itemId: 'exec-003',
-      requestId: 'medication-001',
-      requestType: 'MEDICATION',
-      requestTypeName: '药品',
-      orderContent: '维生素 C 注射液',
-      specification: '2ml:0.5g × 2 支',
-      status: 'PENDING',
-      statusName: '待执行',
-      plannedCount: 1,
-      executedCount: 0,
-      version: 0,
-      printTypes: ['BOTTLE_LABEL', 'PRESCRIPTION', 'SKIN_TEST_LABEL']
-    },
-    {
-      itemId: 'exec-007',
-      requestId: 'service-006',
-      requestType: 'SERVICE',
-      requestTypeName: '检验',
-      orderContent: '血常规',
-      specification: '静脉血 2ml',
-      status: 'PENDING',
-      statusName: '待执行',
-      plannedCount: 1,
-      executedCount: 0,
-      version: 0,
-      printTypes: ['SPECIMEN_BARCODE']
-    }
-  ],
-  'enc-nur-20260728-002': [
-    {
-      itemId: 'exec-004',
-      requestId: 'service-003',
-      requestType: 'SERVICE',
-      requestTypeName: '处置',
-      orderContent: '伤口换药',
-      specification: '小换药',
-      status: 'PENDING',
-      statusName: '待执行',
-      plannedCount: 1,
-      executedCount: 0,
-      version: 0,
-      printTypes: ['TREATMENT_SHEET', 'PROCEDURE_APPLICATION']
-    },
-    {
-      itemId: 'exec-005',
-      requestId: 'service-004',
-      requestType: 'SERVICE',
-      requestTypeName: '治疗',
-      orderContent: '红外线治疗',
-      specification: '20 分钟',
-      status: 'COMPLETED',
-      statusName: '已完成',
-      plannedCount: 1,
-      executedCount: 1,
-      executorName: '护士甲',
-      executedAt: '2026-07-28 09:36',
-      version: 0,
-      printTypes: ['TREATMENT_SHEET', 'PROCEDURE_APPLICATION']
-    }
-  ],
-  'enc-nur-20260728-003': [
-    {
-      itemId: 'exec-006',
-      requestId: 'service-005',
-      requestType: 'SERVICE',
-      requestTypeName: '处置',
-      orderContent: '肌内注射',
-      specification: '单次',
-      status: 'COMPLETED',
-      statusName: '已完成',
-      plannedCount: 1,
-      executedCount: 1,
-      executorName: '护士乙',
-      executedAt: '2026-07-28 10:02',
-      version: 0,
-      printTypes: ['TREATMENT_SHEET', 'PROCEDURE_APPLICATION']
+      executionCount: 0,
+      remark: '执行后可在执行记录标签中查看'
     }
   ]
 }
 
 const consumables: Record<string, NurseConsumableItemVO[]> = {
-  'enc-nur-20260728-001': [
+  [FULL_DEMO_ENCOUNTER_ID]: [
     {
-      dispenseItemId: 'dispense-001',
-      materialId: 'material-001',
-      materialName: '一次性使用输液器',
-      specification: '带针 0.7mm',
+      deviceDefId: 'MOCK-DEVICE-INFUSION-001',
       quantity: 1,
-      unitName: '套',
-      roomName: '门诊耗材室',
-      status: 'PENDING',
-      statusName: '待发放'
+      unitCode: '套',
+      usageInstruction: '静脉输液使用',
+      lotNumber: 'MOCK-LOT-001',
+      statusEnum: 'PENDING',
+      supportInfo: '一次性使用输液器'
     },
     {
-      dispenseItemId: 'dispense-002',
-      materialId: 'material-002',
-      materialName: '医用棉签',
-      specification: '10cm',
+      deviceDefId: 'MOCK-DEVICE-DRESSING-002',
       quantity: 2,
-      unitName: '包',
-      roomName: '门诊耗材室',
-      status: 'DISPENSED',
-      statusName: '已发放'
+      unitCode: '片',
+      usageInstruction: '10cm × 10cm，外用',
+      lotNumber: 'MOCK-LOT-002',
+      statusEnum: 'DISPENSED',
+      dispenseTime: `${MOCK_TODAY} 08:55`
     }
   ],
-  'enc-nur-20260728-002': [
-    {
-      dispenseItemId: 'dispense-003',
-      materialId: 'material-003',
-      materialName: '无菌敷贴',
-      specification: '10cm × 10cm',
-      quantity: 2,
-      unitName: '片',
-      roomName: '门诊耗材室',
-      status: 'PENDING',
-      statusName: '待发放'
-    }
-  ]
+  [EMPTY_DEMO_ENCOUNTER_ID]: []
 }
 
-const executionIdempotencyResults = new Map<string, NurseExecutionCommandResultVO>()
-
-function syncPatientPendingCount(encounterId: string) {
-  const patient = patients.find((item) => item.encounterId === encounterId)
-  if (!patient) return
-  patient.pendingCount = (executionItems[encounterId] ?? []).filter(
-    (item) => item.status === 'PENDING'
-  ).length
-  patient.status = patient.pendingCount > 0 ? 'READY' : 'COMPLETED'
-  patient.statusName = patient.pendingCount > 0 ? '待执行' : '已完成'
-}
+const executionIdempotencyResults = new Map<string, NurseBatchResultVO>()
 
 function delay<T>(value: T): Promise<T> {
   return new Promise((resolve) => {
@@ -329,18 +221,9 @@ function copy<T>(value: T): T {
 export async function mockPageNursePatientQueue(
   query: NursePatientQueueQuery
 ): Promise<PageDTO<NursePatientQueueItemVO>> {
-  const keyword = query.keyword?.trim().toLowerCase() ?? ''
-  const filtered = patients.filter((patient) => {
-    const matchedKeyword =
-      !keyword ||
-      [patient.patientName, patient.medicalRecordNo, patient.visitNo].some((value) =>
-        value.toLowerCase().includes(keyword)
-      )
-    const visitDate = patient.registeredAt.slice(0, 10)
-    const matchedStart = !query.startDate || visitDate >= query.startDate
-    const matchedEnd = !query.endDate || visitDate <= query.endDate
-    return matchedKeyword && matchedStart && matchedEnd
-  })
+  const filtered = patients.filter(
+    (patient) => !query.bookingDate || patient.registeredAt.slice(0, 10) === query.bookingDate
+  )
   const start = Math.max(0, (query.pageIndex - 1) * query.pageSize)
   const page = createPageDTO<NursePatientQueueItemVO>()
   page.pageIndex = query.pageIndex
@@ -351,35 +234,29 @@ export async function mockPageNursePatientQueue(
   return delay(page)
 }
 
-/** Mock：查询当前就诊的执行项目。 */
-export function mockGetNurseExecutionItems(encounterId: string) {
-  return delay(copy(executionItems[encounterId] ?? []))
+/** Mock：查询当前就诊的执行项目，签名与真实接口保持一致。 */
+export function mockGetNurseExecutionItems(patientId: string, encounterId?: string) {
+  const targetEncounterId = encounterId || patientId
+  return delay(copy(executionItems[targetEncounterId] ?? []))
 }
 
 function formatMockDateTime() {
-  return new Intl.DateTimeFormat('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false
-  })
-    .format(new Date())
-    .replaceAll('/', '-')
+  return dayjs().format('YYYY-MM-DD HH:mm:ss')
 }
 
 /** Mock：批量执行选中的护士项目，支持幂等与逐项版本检查。 */
 export function mockPerformNurseExecutions(
   request: PerformNurseExecutionsDTO
-): Promise<NurseExecutionCommandResultVO> {
+): Promise<NurseBatchResultVO> {
   const cached = executionIdempotencyResults.get(request.idempotencyKey)
   if (cached) return delay(copy(cached))
 
   const rows = executionItems[request.encounterId] ?? []
-  const result: NurseExecutionCommandResultVO = {
-    successItems: [],
+  const result: NurseBatchResultVO = {
+    totalCount: request.items.length,
+    successCount: 0,
+    failedCount: 0,
+    successIds: [],
     failedItems: []
   }
 
@@ -387,39 +264,31 @@ export function mockPerformNurseExecutions(
     const row = rows.find((item) => item.itemId === command.itemId)
     if (!row) {
       result.failedItems.push({
-        itemId: command.itemId,
-        code: 'ITEM_NOT_FOUND',
-        message: '执行项目不存在'
-      })
-      return
-    }
-    if (row.version !== command.version) {
-      result.failedItems.push({
-        itemId: command.itemId,
-        code: 'VERSION_CONFLICT',
-        message: '项目已被其他人修改，请刷新后重试'
+        recordId: command.itemId,
+        errorCode: 'ITEM_NOT_FOUND',
+        reason: '执行项目不存在'
       })
       return
     }
     if (row.status !== 'PENDING') {
       result.failedItems.push({
-        itemId: command.itemId,
-        code: 'INVALID_STATUS',
-        message: '当前状态不可执行'
+        recordId: command.itemId,
+        errorCode: 'INVALID_STATUS',
+        reason: '当前状态不可执行'
       })
       return
     }
 
-    row.executedCount += 1
-    row.status = row.executedCount >= row.plannedCount ? 'COMPLETED' : 'PENDING'
+    row.executionCount += 1
+    row.status = 'COMPLETED'
     row.statusName = row.status === 'COMPLETED' ? '已完成' : '待执行'
     row.executorName = '模拟护士'
     row.executedAt = formatMockDateTime()
-    row.version += 1
-    result.successItems.push(copy(row))
+    result.successIds.push(row.itemId)
   })
 
-  syncPatientPendingCount(request.encounterId)
+  result.successCount = result.successIds.length
+  result.failedCount = result.failedItems.length
   executionIdempotencyResults.set(request.idempotencyKey, copy(result))
   return delay(result)
 }
@@ -427,66 +296,47 @@ export function mockPerformNurseExecutions(
 /** Mock：取消项目最近一次执行。 */
 export function mockCancelNurseExecution(
   request: CancelNurseExecutionDTO
-): Promise<NurseExecutionCommandResultVO> {
+): Promise<NurseBatchResultVO> {
   const rows = executionItems[request.encounterId] ?? []
   const row = rows.find((item) => item.itemId === request.item.itemId)
-  const result: NurseExecutionCommandResultVO = {
-    successItems: [],
+  const result: NurseBatchResultVO = {
+    totalCount: 1,
+    successCount: 0,
+    failedCount: 0,
+    successIds: [],
     failedItems: []
   }
 
   if (!row) {
     result.failedItems.push({
-      itemId: request.item.itemId,
-      code: 'ITEM_NOT_FOUND',
-      message: '执行项目不存在'
+      recordId: request.item.itemId,
+      errorCode: 'ITEM_NOT_FOUND',
+      reason: '执行项目不存在'
     })
-  } else if (row.version !== request.item.version) {
+  } else if (row.executionCount <= 0 || row.status === 'CANCELLED') {
     result.failedItems.push({
-      itemId: request.item.itemId,
-      code: 'VERSION_CONFLICT',
-      message: '项目已被其他人修改，请刷新后重试'
-    })
-  } else if (row.executedCount <= 0 || row.status === 'CANCELLED') {
-    result.failedItems.push({
-      itemId: request.item.itemId,
-      code: 'INVALID_STATUS',
-      message: '当前项目没有可取消的执行记录'
+      recordId: request.item.itemId,
+      errorCode: 'INVALID_STATUS',
+      reason: '当前项目没有可取消的执行记录'
     })
   } else {
-    row.executedCount -= 1
+    row.executionCount -= 1
     row.status = 'PENDING'
     row.statusName = '待执行'
     row.executorName = undefined
     row.executedAt = undefined
-    row.version += 1
-    result.successItems.push(copy(row))
+    result.successIds.push(row.itemId)
   }
 
-  syncPatientPendingCount(request.encounterId)
+  result.successCount = result.successIds.length
+  result.failedCount = result.failedItems.length
   return delay(result)
 }
 
-/** Mock：查询当前就诊的耗材项目。 */
-export function mockGetNurseConsumables(encounterId: string) {
-  return delay(copy(consumables[encounterId] ?? []))
-}
-
-/** Mock：提交打印任务。 */
-export function mockPrintNurseDocuments(
-  request: NursePrintRequestDTO
-): Promise<NursePrintResultVO> {
-  const count = request.documentIds.length
-  return delay({
-    success: count > 0,
-    printer: '门诊护士站-01',
-    message:
-      count > 0
-        ? `已提交 ${count} 张${printDocumentLabels[request.documentType]}`
-        : '没有可打印的项目',
-    documentType: request.documentType,
-    count
-  })
+/** Mock：查询当前就诊的耗材项目，签名与真实接口保持一致。 */
+export function mockGetNurseConsumables(patientId: string, encounterId?: string) {
+  const targetEncounterId = encounterId || patientId
+  return delay(copy(consumables[targetEncounterId] ?? []))
 }
 
 /** Mock：分页查询患者历史执行记录（跨就诊）。 */
@@ -502,7 +352,7 @@ export async function mockPagePatientExecutionHistory(
     const items = executionItems[encounter.encounterId] ?? []
     items.forEach((item) => {
       // 只取已执行过的记录
-      if (item.executedCount <= 0 || !item.executedAt) return
+      if (item.executionCount <= 0 || !item.executedAt) return
       allRecords.push({
         ...copy(item),
         encounterId: encounter.encounterId,
@@ -519,10 +369,6 @@ export async function mockPagePatientExecutionHistory(
   if (query.endDate) {
     filtered = filtered.filter((r) => (r.executedAt ?? '').slice(0, 10) <= query.endDate!)
   }
-  if (query.status) {
-    filtered = filtered.filter((r) => r.status === query.status)
-  }
-
   // 按执行时间倒序
   filtered.sort((a, b) => String(b.executedAt).localeCompare(String(a.executedAt)))
 

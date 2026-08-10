@@ -168,7 +168,7 @@ export async function mockLoadCurrentUser(): Promise<UserInfo> {
   await delay()
   requireLogin()
   const profile = currentProfile()
-  return { avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png', realName: profile.realName, roles: profile.roles, userId: String(profile.id), username: currentUsername, desc: `零壹医院${profile.realName}`, homePath: '/home', token: typeof localStorage === 'undefined' ? '' : (localStorage.getItem('token') ?? '') }
+  return { avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png', realName: profile.realName, roles: profile.roles, userId: String(profile.id), practitionerId: profile.practitionerId ?? undefined, username: currentUsername, desc: `零壹医院${profile.realName}`, homePath: '/home', token: typeof localStorage === 'undefined' ? '' : (localStorage.getItem('token') ?? '') }
 }
 
 export async function mockLogout(): Promise<void> {

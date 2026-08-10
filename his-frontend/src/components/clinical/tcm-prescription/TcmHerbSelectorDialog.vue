@@ -28,7 +28,7 @@ const selectedIds = ref<SelectValue[]>([])
 
 const columns: SelectTableColumn<TcmHerbCatalogItemVO>[] = [
   { prop: 'code', label: '药品编码', width: 130 },
-  { prop: 'name', label: '饮片名称', minWidth: 180 },
+  { prop: 'name', label: '药材名称', minWidth: 180 },
   { prop: 'specification', label: '规格', width: 120 },
   { prop: 'defaultDose', label: '默认剂量', width: 100, align: 'right' },
   { prop: 'retailPrice', label: '单价', width: 90, align: 'right' }
@@ -47,15 +47,15 @@ watch(visible, (value) => {
   <SelectTable
     v-model="selectedIds"
     v-model:visible="visible"
-    title="选择中药饮片"
+    title="选择中药材"
     selection-mode="multiple"
     row-key="id"
     :columns="columns"
     :load-page="loadPage"
     :disabled-row="isExisting"
-    keyword-placeholder="请输入饮片编码或名称"
-    search-label="中药饮片"
-    empty-text="暂无匹配的中药饮片"
+    keyword-placeholder="请输入药材编码或名称"
+    search-label="中药材"
+    empty-text="暂无匹配的中药材"
     @confirm="
       (_value: SelectValue | SelectValue[] | null, rows: TcmHerbCatalogItemVO[]) =>
         emit('confirm', rows)

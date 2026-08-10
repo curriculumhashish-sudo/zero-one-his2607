@@ -6,11 +6,11 @@ import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 
 import {
   createInpatientDischargeAdvice,
-  getInpatientDischargeAdvicePreparation,
   type InpatientDischargeAdvicePreparationVO,
   type InpatientDischargeAdviceVO,
   type InpatientDoctorPatientQueueItemVO
 } from '@/apis/inpatient/doctor-station'
+import { INPATIENT_DISCHARGE_WAY_OPTIONS } from '@/apis/inpatient/doctor-station/adapter'
 import type { InpatientDoctorStationTab } from '../type'
 
 defineOptions({
@@ -92,10 +92,23 @@ async function loadPreparation() {
   loading.value = true
   error.value = ''
   try {
-    const result = await getInpatientDischargeAdvicePreparation(
-      patient.encounterId,
-      patient.patientId
-    )
+    const alreadyPending = patient.encounterStatus === 'DISCHARGE_PENDING'
+    const result: InpatientDischargeAdvicePreparationVO = {
+      encounterId: patient.encounterId,
+      patientId: patient.patientId,
+      encounterVersion: patient.version,
+      canCreate: !alreadyPending,
+      checks: alreadyPending
+        ? [
+            {
+              code: 'DISCHARGE_ALREADY_PENDING',
+              level: 'BLOCKER',
+              message: '该患者已经开立出院医嘱，不能重复开立'
+            }
+          ]
+        : [],
+      outWayOptions: INPATIENT_DISCHARGE_WAY_OPTIONS.map((item) => ({ ...item }))
+    }
     if (requestId !== latestRequestId) return
     preparation.value = result
   } catch (caught) {

@@ -23,15 +23,16 @@ const visible = defineModel<boolean>('visible', { required: true })
  * Element Plus 的标签颜色只负责辅助识别，状态文字本身仍保留，避免用户仅靠颜色判断。
  */
 const statusTagType = computed(() => {
-  if (props.header?.status === 'DISPENSED') return 'success'
-  if (props.header?.status === 'PENDING_SUBMIT') return 'warning'
-  if (props.header?.status === 'CANCELLED') return 'danger'
+  if (props.header?.statusEnum === 'DISPENSED') return 'success'
+  if (props.header?.statusEnum === 'SUMMARIZED') return 'warning'
   return 'info'
 })
 
-function formatMoney(value: number) {
-  return `￥${value.toFixed(2)}`
-}
+const statusText = computed(() => {
+  if (props.header?.statusEnum === 'SUMMARIZED') return '待发送'
+  if (props.header?.statusEnum === 'WAIT_REVIEW') return '已发送'
+  return '已发药'
+})
 </script>
 
 <template>
@@ -45,7 +46,7 @@ function formatMoney(value: number) {
     <template #header>
       <div class="dialog-title">
         <strong>汇总单详情</strong>
-        <el-tag v-if="header" size="small" :type="statusTagType">{{ header.statusText }}</el-tag>
+        <el-tag v-if="header" size="small" :type="statusTagType">{{ statusText }}</el-tag>
       </div>
     </template>
 
@@ -53,11 +54,18 @@ function formatMoney(value: number) {
       <section v-if="header" class="summary-header-card">
         <h3>{{ header.summaryNo }}</h3>
         <dl>
-          <div><dt>申请时间</dt><dd>{{ header.applyTime }}</dd></div>
-          <div><dt>发药时间</dt><dd>{{ header.dispenseTime || '—' }}</dd></div>
-          <div><dt>汇总药房</dt><dd>{{ header.pharmacyName }}</dd></div>
-          <div><dt>申请人</dt><dd>{{ header.applicantName }}</dd></div>
-          <div><dt>领药人</dt><dd>{{ header.receiverName || '—' }}</dd></div>
+          <div>
+            <dt>计划发药时间</dt>
+            <dd>{{ header.plannedDispenseTime }}</dd>
+          </div>
+          <div>
+            <dt>发药时间</dt>
+            <dd>{{ header.dispenseTime || '—' }}</dd>
+          </div>
+          <div>
+            <dt>目标位置</dt>
+            <dd>{{ header.desLocationId || '—' }}</dd>
+          </div>
         </dl>
       </section>
 
@@ -68,24 +76,9 @@ function formatMoney(value: number) {
         </header>
         <el-table :data="lines" border stripe max-height="360" empty-text="暂无药品明细">
           <el-table-column type="index" label="序号" width="60" align="center" />
-          <el-table-column
-            prop="medicationName"
-            label="药品名称"
-            min-width="180"
-            show-overflow-tooltip
-          />
-          <el-table-column
-            prop="specificationText"
-            label="规格"
-            min-width="130"
-            show-overflow-tooltip
-          />
-          <el-table-column prop="displayQuantityText" label="数量" width="100" align="center" />
-          <el-table-column label="单价" width="100" align="right">
-            <template #default="{ row }">{{ formatMoney(row.unitPrice) }}</template>
-          </el-table-column>
-          <el-table-column label="总价" width="110" align="right">
-            <template #default="{ row }"><strong>{{ formatMoney(row.totalPrice) }}</strong></template>
+          <el-table-column prop="name" label="药品名称" min-width="180" show-overflow-tooltip />
+          <el-table-column label="数量" width="160" align="center">
+            <template #default="{ row }">{{ row.quantity }} {{ row.unitCode }}</template>
           </el-table-column>
         </el-table>
       </section>

@@ -33,8 +33,11 @@ export function toInpatientClinicalOrder(order: InpatientMedicalOrderRecordVO): 
     quantity: order.quantity,
     quantityUnit: order.quantityUnit,
     remark: order.remark,
-    status: order.statusName,
+    // 公共编辑器使用门诊三态控制通用操作；住院“已停嘱”映射为不可编辑态，
+    // 真实住院状态仍由 statusCode/statusName 完整保留。
+    status: order.status === 'STOPPED' ? 'WITHDRAWN' : order.status,
     statusCode: order.status,
+    statusName: order.statusName,
     therapyType: order.therapyType,
     therapyTypeName: order.therapyTypeName,
     group: order.groupId,
@@ -136,8 +139,9 @@ export const inpatientAdviceAdapter = {
       days: candidate.defaultDays,
       quantity: candidate.defaultQuantity,
       quantityUnit: candidate.quantityUnit,
-      status: '未保存',
+      status: 'DRAFT',
       statusCode: 'DRAFT',
+      statusName: '未保存',
       therapyType,
       therapyTypeName: therapyType === 'LONG_TERM' ? '长期' : '临时'
     }

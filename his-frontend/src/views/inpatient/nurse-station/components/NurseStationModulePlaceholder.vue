@@ -11,11 +11,9 @@ defineOptions({
 const props = defineProps<{
   config: NurseStationOperationConfig
   selectedPatientCount: number
-  recallMode?: boolean
 }>()
 
 const selectionHint = computed(() => {
-  if (props.recallMode) return '已出院结算模式下仅支持从左侧患者列表发起召回'
   if (props.config.selectionPolicy === 'multiple') return '请从左侧选择一名或多名患者'
   return '请从左侧选择一名患者'
 })

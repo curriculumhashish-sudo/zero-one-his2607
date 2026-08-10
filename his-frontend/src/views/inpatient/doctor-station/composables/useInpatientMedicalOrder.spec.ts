@@ -133,7 +133,7 @@ describe('useInpatientMedicalOrder', () => {
       quantityUnit: '次',
       therapyType: 'TEMPORARY',
       therapyTypeName: '临时',
-      status: '未保存',
+      status: 'DRAFT',
       statusCode: 'DRAFT'
     }
     state.orders.value = [{ ...existing, quantity: 2 }, newDraft]
@@ -160,6 +160,20 @@ describe('useInpatientMedicalOrder', () => {
       })
     )
     expect(state.ordersDirty.value).toBe(false)
+  })
+
+  it('历史住院医嘱可展示但不能编辑或参与选择', async () => {
+    const current = record('order-current')
+    const history = { ...record('order-history'), encounterId: 'enc-old' }
+    vi.mocked(pageInpatientMedicalOrders).mockResolvedValue(page([current, history]))
+
+    const state = useInpatientMedicalOrder()
+    await state.loadOrders(context.encounterKey, context.patientId)
+
+    expect(state.orders.value).toHaveLength(2)
+    expect(state.canEditOrder(state.orders.value[0]!)).toBe(true)
+    expect(state.canEditOrder(state.orders.value[1]!)).toBe(false)
+    expect(state.selectionDisabledRow(state.orders.value[1]!)).toBe(true)
   })
 
   it('仅对符合状态和长临规则的选中医嘱开放生命周期操作', async () => {

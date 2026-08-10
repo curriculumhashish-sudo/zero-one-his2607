@@ -23,8 +23,7 @@ export function toSettlePatientSummary(row: InpatientSettlePatient): PatientSumm
     serviceType: [row.wardName, row.bedName].filter(Boolean).join(' · '),
     status: row.statusEnumText,
     statusTone: row.statusEnum === 'SETTLED' ? 'success' : 'warning',
-    paymentType: row.contractDisplay,
-    riskHint: row.accountBalanceSummaryText
+    paymentType: row.contractDisplay
   }
 }
 

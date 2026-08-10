@@ -104,15 +104,11 @@ const selectedAll = computed(
 )
 
 const pendingSummarySelection = computed(() =>
-  selectedSummaryRows.value.filter((row) => row.status === 'PENDING_SUBMIT')
+  selectedSummaryRows.value.filter((row) => row.statusEnum === 'SUMMARIZED')
 )
 
 function buildSlotKey(encounterId: string, dispenseId: string) {
   return `${encounterId}|${dispenseId}`
-}
-
-function makeIdempotencyKey(action: string) {
-  return `${action}-${Date.now()}-${Math.random().toString(36).slice(2)}`
 }
 
 function formatQuantity(point: NurseStationDispenseTimePointVO) {
@@ -275,7 +271,6 @@ async function createSummary() {
   actionLoading.value = true
   try {
     const result = await createNurseStationDispenseSummary({
-      idempotencyKey: makeIdempotencyKey('create'),
       dispenseItems: selected.map((item) => ({
         encounterId: item.encounterId,
         dispenseId: item.point.dispenseId
@@ -295,14 +290,19 @@ function handleSummarySelection(rows: NurseStationDispenseSummaryHeaderVO[]) {
 }
 
 function isPendingSummary(row: NurseStationDispenseSummaryHeaderVO) {
-  return row.status === 'PENDING_SUBMIT'
+  return row.statusEnum === 'SUMMARIZED'
 }
 
-function statusTagType(status: NurseStationDispenseSummaryHeaderVO['status']) {
+function statusTagType(status: NurseStationDispenseSummaryHeaderVO['statusEnum']) {
   if (status === 'DISPENSED') return 'success'
-  if (status === 'PENDING_SUBMIT') return 'warning'
-  if (status === 'CANCELLED') return 'danger'
+  if (status === 'SUMMARIZED') return 'warning'
   return 'info'
+}
+
+function summaryStatusText(status: NurseStationDispenseSummaryHeaderVO['statusEnum']) {
+  if (status === 'SUMMARIZED') return '待发送'
+  if (status === 'WAIT_REVIEW') return '已发送'
+  return '已发药'
 }
 
 async function viewDetail(row: NurseStationDispenseSummaryHeaderVO) {
@@ -311,9 +311,7 @@ async function viewDetail(row: NurseStationDispenseSummaryHeaderVO) {
   detailHeader.value = row
   detailLines.value = []
   try {
-    const detail = await getNurseStationDispenseSummaryDetail(row.summaryNo)
-    detailHeader.value = detail.header
-    detailLines.value = detail.lines
+    detailLines.value = await getNurseStationDispenseSummaryDetail(row.summaryNo)
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '读取汇总单详情失败')
   } finally {
@@ -337,12 +335,9 @@ async function submitRows(rows: NurseStationDispenseSummaryHeaderVO[]) {
   actionLoading.value = true
   try {
     const result = await submitNurseStationDispenseSummaries({
-      idempotencyKey: makeIdempotencyKey('submit'),
-      summaries: rows.map((row) => ({ summaryNo: row.summaryNo, version: row.version }))
+      summaryNos: rows.map((row) => row.summaryNo)
     })
-    if (result.processedCount) ElMessage.success(`已发送 ${result.processedCount} 张汇总单`)
-    const failed = result.results.filter((item) => !item.success)
-    if (failed.length) ElMessage.warning(failed.map((item) => item.message).join('；'))
+    ElMessage.success(result.message || `已发送 ${result.summaryNos.length} 张汇总单`)
     await loadSummaries()
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '发送汇总单失败，请刷新后重试')
@@ -370,10 +365,9 @@ async function cancelRows() {
   actionLoading.value = true
   try {
     const result = await cancelNurseStationDispenseSummaries({
-      idempotencyKey: makeIdempotencyKey('cancel'),
-      summaries: rows.map((row) => ({ summaryNo: row.summaryNo, version: row.version }))
+      summaryNos: rows.map((row) => row.summaryNo)
     })
-    if (result.processedCount) ElMessage.success(`已撤销 ${result.processedCount} 张汇总单`)
+    ElMessage.success(result.message || `已撤销 ${result.summaryNos.length} 张汇总单`)
     await loadSummaries()
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '撤销汇总单失败，请刷新后重试')
@@ -579,20 +573,23 @@ function submitSingleFromTable(row: unknown) {
               min-width="170"
               show-overflow-tooltip
             />
-            <el-table-column prop="pharmacyName" label="汇总药房" min-width="120" />
-            <el-table-column prop="applicantName" label="申请人" width="90" />
+            <el-table-column
+              prop="desLocationId"
+              label="目标位置"
+              min-width="120"
+              show-overflow-tooltip
+            />
             <el-table-column label="状态" width="100" align="center">
               <template #default="{ row }">
-                <el-tag size="small" :type="statusTagType(row.status)">{{ row.statusText }}</el-tag>
+                <el-tag size="small" :type="statusTagType(row.statusEnum)">
+                  {{ summaryStatusText(row.statusEnum) }}
+                </el-tag>
               </template>
             </el-table-column>
-            <el-table-column prop="itemCount" label="药品项数" width="90" align="center" />
-            <el-table-column prop="applyTime" label="申请时间" min-width="150" />
+            <el-table-column prop="itemCount" label="发药明细数" width="100" align="center" />
+            <el-table-column prop="plannedDispenseTime" label="计划发药时间" min-width="150" />
             <el-table-column label="发药时间" min-width="150">
               <template #default="{ row }">{{ row.dispenseTime || '—' }}</template>
-            </el-table-column>
-            <el-table-column label="领药人" width="90">
-              <template #default="{ row }">{{ row.receiverName || '—' }}</template>
             </el-table-column>
             <el-table-column label="操作" width="140" fixed="right" align="center">
               <template #default="{ row }">

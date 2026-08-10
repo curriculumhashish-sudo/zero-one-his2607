@@ -32,8 +32,8 @@ import '@wangeditor/editor/dist/css/style.css' // 引入 css
 import { onBeforeUnmount, ref, shallowRef, onMounted } from 'vue'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 import { ElMessage } from 'element-plus'
-import { useUserStore } from '@/stores/user'
 import { pinyin } from 'pinyin-pro'
+import { DEV_BEARER_TOKEN } from '@/config/dev-token'
 // 编辑器实例，必须用 shallowRef
 const editorRef = shallowRef()
 const mode = 'default' // 或 'simple'
@@ -53,8 +53,6 @@ onBeforeUnmount(() => {
 })
 
 // 获取登录凭证
-const store = useUserStore()
-const token = store.getToken
 
 // 组件相关配置
 const toolbarConfig = {}
@@ -69,7 +67,7 @@ const editorConfig = {
       fieldName: 'file',
       // 设置请求头
       headers: {
-        Authorization: 'Bearer ' + token
+        Authorization: 'Bearer ' + DEV_BEARER_TOKEN
       },
       // 单个文件上传失败
       onFailed(file: any, res: any) {

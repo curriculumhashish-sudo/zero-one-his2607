@@ -200,6 +200,14 @@ export interface InpatientDiagnosisRecordVO {
   updatedAt: string
   /** 记录版本号，用于修改和删除时的并发控制。 */
   version: number
+  /** 记录来源；Mock 记录继续使用本地接口，Real 记录使用后端写接口。 */
+  source?: 'mock' | 'real'
+  /** 真实后端诊断记录 ID；列表 Mock 记录没有该字段。 */
+  backendId?: string
+  /** 后端诊断类型编码；当前后端 modify 接口仅支持修改该字段。 */
+  typeCode?: string
+  /** 是否限制编辑后端未支持的字段。 */
+  readonlyFields?: boolean
 }
 
 /** 当前住院诊断记录分页查询条件。 */
@@ -346,12 +354,30 @@ export interface InpatientMedicalOrderRecordVO {
   updatedAt: string
   /** 记录版本号，用于并发控制。 */
   version: number
+  /** 记录来源；Real 模式记录使用真实写接口，Mock 模式记录使用本地接口。 */
+  source?: 'mock' | 'real'
+  /** 后端生命周期动作所需的产品表名；当前后端列表未返回。 */
+  productTableName?: string
+  /** 是否为历史住院记录或其他只读记录。 */
+  readonly?: boolean
+  /** 是否与当前工作区 encounterId 不一致。 */
+  encounterMismatch?: boolean
+  /** 后端原始状态值，用于兼容未纳入前端枚举的状态。 */
+  rawStatus?: string
+  /** 后端返回的开立医生标识。 */
+  authoredByName?: string
+  /** 后端返回的总价文本。 */
+  totalPrice?: string
+  /** 后端返回的皮试标志。 */
+  skinTest?: boolean
 }
 
 /** 当前住院医嘱分页查询条件。 */
 export interface InpatientMedicalOrderQuery extends PageQuery {
   /** 本次住院就诊 ID。 */
   encounterId: string
+  /** 患者档案 ID；Real 查询接口使用该字段，Mock 查询可不传。 */
+  patientId?: string
   /** 医嘱编码、名称、分类或备注关键词。 */
   keyword?: string
   /** 可选医嘱状态。 */
@@ -455,6 +481,10 @@ export interface InpatientMedicalOrderBatchItemDTO {
   id: string
   /** 当前记录版本号。 */
   version: number
+  /** 后端生命周期接口所需的产品定义表名。 */
+  productTableName?: string
+  /** 当前医嘱分组 ID，用于并组和拆组。 */
+  groupId?: string
 }
 
 /** 住院医嘱批量状态动作参数。 */
@@ -465,6 +495,8 @@ export interface InpatientMedicalOrderBatchActionDTO {
   patientId: string
   /** 目标医嘱。 */
   items: InpatientMedicalOrderBatchItemDTO[]
+  /** Real 停嘱接口要求的原因码。Mock 模式不使用。 */
+  stopReason?: number
 }
 
 /** 住院医嘱批量并组参数。 */
@@ -479,6 +511,12 @@ export interface InpatientMedicalOrderBatchResultVO {
   updatedCount: number
   /** 操作完成后的目标医嘱。 */
   rows: InpatientMedicalOrderRecordVO[]
+  /** 部分成功操作的失败数量。 */
+  failedCount?: number
+  /** 部分成功操作的失败原因。 */
+  failureMessages?: string[]
+  /** 并组成功后后端返回的分组 ID。 */
+  groupId?: string
 }
 
 /** 公共医嘱适配器使用的草稿保存行。 */

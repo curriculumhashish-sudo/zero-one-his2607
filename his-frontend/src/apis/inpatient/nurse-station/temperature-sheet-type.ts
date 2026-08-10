@@ -105,6 +105,8 @@ export interface NurseStationTemperatureSheetQueryDTO {
   pageIndex?: number
   /** 打开录入抽屉时聚焦的日期。 */
   focusRecordDate?: string
+  /** 后端旧接口未返回纸质单抬头时，页面提供的患者上下文。 */
+  patientContext?: NurseStationTemperatureSheetHeaderVO
 }
 
 /** 体温单查询结果。 */

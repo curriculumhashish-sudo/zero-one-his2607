@@ -1,10 +1,7 @@
 import type { PageQuery } from '../../type'
 
 /** 护士站患者任务筛选编码。 */
-export type NurseStationTaskFilterCode = 'pending-audit' | 'pending-execute' | 'processed'
-
-/** 护士站患者列表范围编码。 */
-export type NurseStationStatusFilterCode = 'SETTLED_DISCHARGED'
+export type NurseStationTaskFilterCode = 'pending-audit' | 'pending-execute'
 
 /** 住院就诊状态编码。 */
 export type InpatientEncounterStatusCode =
@@ -14,33 +11,6 @@ export type InpatientEncounterStatusCode =
   | 'PENDING'
   | 'COMPLETED'
   | 'DISCHARGED'
-
-/** 病房节点。 */
-export interface NurseStationHouseNodeVO {
-  /** 病房唯一标识。 */
-  houseId: string
-  /** 病房名称。 */
-  houseName: string
-  /** 展示顺序。 */
-  displayOrder?: number
-}
-
-/** 病区节点。 */
-export interface NurseStationWardNodeVO {
-  /** 病区唯一标识。 */
-  wardId: string
-  /** 病区名称。 */
-  wardName: string
-  /** 展示顺序。 */
-  displayOrder?: number
-  /** 病区下的病房。 */
-  houseNodes: NurseStationHouseNodeVO[]
-}
-
-/** 当前护士站管理范围内的病区病房树。 */
-export interface NurseStationWardTreeVO {
-  wardNodes: NurseStationWardNodeVO[]
-}
 
 /** 患者统计和患者队列共用的筛选条件。 */
 export interface NurseStationPatientFilterQuery {
@@ -54,12 +24,8 @@ export interface NurseStationPatientFilterQuery {
   wardIds?: string
   /** 多个病房 ID，以英文逗号分隔。 */
   houseIds?: string
-  /** 护士站任务执行日期。 */
-  nurseStationExecutionDate?: string
   /** 患者任务筛选。 */
   nurseStationTaskFilter?: NurseStationTaskFilterCode
-  /** 列表范围筛选；空值表示在院患者。 */
-  nurseStationStatusFilter?: NurseStationStatusFilterCode
 }
 
 /** 患者队列分页查询。 */
@@ -72,8 +38,6 @@ export interface NurseStationPatientQueueQuery extends PageQuery, NurseStationPa
   sortBy?: string
   /** 排序方向。 */
   sortDirection?: 'asc' | 'desc'
-  /** 服务端查询字段白名单。 */
-  where?: string
 }
 
 /** 患者队列返回项。 */
@@ -146,8 +110,6 @@ export interface NurseStationPatientQueueItemVO {
   primaryNurseName?: string
   /** 优先级编码。 */
   priorityEnum?: string
-  /** 已出院结算列表中是否允许召回。 */
-  recallEnabled?: boolean
   /** 就诊开始时间。 */
   startTime?: string
   /** 住院就诊状态。 */

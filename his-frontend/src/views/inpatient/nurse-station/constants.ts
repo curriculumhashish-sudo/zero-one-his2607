@@ -1,7 +1,6 @@
 import type {
   NurseStationOperationConfig,
   NurseStationOperationTab,
-  NurseStationQueueScope,
   NurseStationTaskFilter
 } from './type'
 
@@ -9,7 +8,7 @@ import type {
 export const NURSE_STATION_OPERATION_CONFIGS: readonly NurseStationOperationConfig[] = [
   {
     id: '入出转管理',
-    description: '办理入科分床、换床、出院、清床及出院召回。',
+    description: '办理床位预约、出院及结算后清床。',
     selectionPolicy: 'single'
   },
   {
@@ -51,22 +50,13 @@ export const NURSE_STATION_OPERATION_CONFIGS: readonly NurseStationOperationConf
 
 export const DEFAULT_NURSE_STATION_TAB: NurseStationOperationTab = '医嘱执行'
 
-export const NURSE_STATION_QUEUE_SCOPE_OPTIONS: readonly {
-  label: string
-  value: NurseStationQueueScope
-}[] = [
-  { label: '在院患者', value: 'in-hospital' },
-  { label: '已出院结算', value: 'settled-discharged' }
-]
-
 export const NURSE_STATION_TASK_FILTER_OPTIONS: readonly {
   label: string
   value: NurseStationTaskFilter
 }[] = [
   { label: '全部状态', value: 'all' },
   { label: '待校对', value: 'pending-audit' },
-  { label: '待执行', value: 'pending-execute' },
-  { label: '已处理', value: 'processed' }
+  { label: '待执行', value: 'pending-execute' }
 ]
 
 export function getNurseStationOperationConfig(tab: NurseStationOperationTab) {

@@ -1,17 +1,15 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { Printer } from '@element-plus/icons-vue'
 
 import { pagePatientExecutionHistory } from '@/apis/outpatient/nurse-station'
 import type {
   NurseConsumableItemVO,
   NurseExecutionItemVO,
-  NurseExecutionRecordVO,
-  NursePrintDocumentType
+  NurseExecutionRecordVO
 } from '@/apis/outpatient/nurse-station'
 import EmptyState from '@/components/common/EmptyState.vue'
 
-import { NURSE_PRINT_OPTIONS } from '../print-targets'
+import { executionStatusTagType } from '../adapter'
 
 defineOptions({
   name: 'NurseRightSidebar'
@@ -21,9 +19,6 @@ interface Props {
   executionItems?: NurseExecutionItemVO[]
   items?: NurseConsumableItemVO[]
   loading?: boolean
-  printingType?: '' | NursePrintDocumentType
-  canPrint?: boolean
-  selectedCount?: number
   patientId?: string
 }
 
@@ -31,17 +26,10 @@ const props = withDefaults(defineProps<Props>(), {
   executionItems: () => [],
   items: () => [],
   loading: false,
-  printingType: '',
-  canPrint: false,
-  selectedCount: 0,
   patientId: ''
 })
 
-const emit = defineEmits<{
-  print: [documentType: NursePrintDocumentType]
-}>()
-
-const activeTab = ref<'supplies' | 'print' | 'records'>('supplies')
+const activeTab = ref<'supplies' | 'records'>('supplies')
 
 // -- 执行记录（独立分页查询）-------------------------------------------
 const records = ref<NurseExecutionRecordVO[]>([])
@@ -84,12 +72,6 @@ function handleRecordsPageChange(page: number) {
   void loadRecords()
 }
 
-function handleRecordsSizeChange(size: number) {
-  recordsPageSize.value = size
-  recordsPageIndex.value = 1
-  void loadRecords()
-}
-
 // 切换到"执行记录"标签 或 患者变化时重新加载
 watch(
   () => [activeTab.value, props.patientId] as const,
@@ -114,42 +96,25 @@ watch(
             description="当前患者没有待展示的耗材"
           />
           <div v-else class="nurse-right-sidebar__scroll">
-            <article v-for="item in items" :key="item.dispenseItemId" class="supply-card">
+            <article
+              v-for="(item, index) in items"
+              :key="`${item.deviceDefId}-${index}`"
+              class="supply-card"
+            >
               <div class="supply-card__header">
-                <strong>{{ item.materialName }}</strong>
-                <el-tag :type="item.status === 'DISPENSED' ? 'success' : 'warning'" size="small">
-                  {{ item.statusName }}
-                </el-tag>
+                <strong>{{ item.supportInfo || item.deviceDefId || '—' }}</strong>
+                <el-tag size="small">{{ item.statusEnum || '—' }}</el-tag>
               </div>
-              <div class="supply-card__meta">{{ item.specification }}</div>
+              <div v-if="item.usageInstruction" class="supply-card__meta">
+                用法说明：{{ item.usageInstruction }}
+              </div>
+              <div v-if="item.lotNumber" class="supply-card__meta">批号：{{ item.lotNumber }}</div>
               <div class="supply-card__footer">
-                <span>{{ item.roomName }}</span>
-                <strong>{{ item.quantity }} {{ item.unitName }}</strong>
+                <span>发放时间：{{ item.dispenseTime || '—' }}</span>
+                <strong>{{ item.quantity ?? '—' }} {{ item.unitCode || '' }}</strong>
               </div>
             </article>
           </div>
-        </div>
-      </el-tab-pane>
-
-      <el-tab-pane label="打印" name="print">
-        <div class="nurse-right-sidebar__pane">
-          <div class="print-hint">
-            <el-icon><Printer /></el-icon>
-            <span>优先打印勾选项目；未勾选时打印全部待执行项目。</span>
-          </div>
-          <div class="print-action-grid">
-            <el-button
-              v-for="(option, index) in NURSE_PRINT_OPTIONS"
-              :key="option.type"
-              :type="index === 0 ? 'primary' : 'default'"
-              :loading="printingType === option.type"
-              :disabled="!canPrint"
-              @click="emit('print', option.type)"
-            >
-              {{ option.label }}
-            </el-button>
-          </div>
-          <p class="print-selection-summary">当前已选择 {{ selectedCount }} 项</p>
         </div>
       </el-tab-pane>
 
@@ -175,11 +140,13 @@ watch(
                 class="execution-record"
               >
                 <div class="execution-record__header">
-                  <strong>{{ item.orderContent }}</strong>
-                  <el-tag type="success" size="small">{{ item.statusName }}</el-tag>
+                  <strong>{{ item.itemName }}</strong>
+                  <el-tag :type="executionStatusTagType(item.status)" size="small">
+                    {{ item.statusName }}
+                  </el-tag>
                 </div>
-                <div v-if="item.specification" class="execution-record__specification">
-                  {{ item.specification }}
+                <div v-if="item.remark" class="execution-record__specification">
+                  {{ item.remark }}
                 </div>
                 <dl>
                   <div>
@@ -196,7 +163,7 @@ watch(
                   </div>
                   <div>
                     <dt>执行次数</dt>
-                    <dd>{{ item.executedCount }}/{{ item.plannedCount }}</dd>
+                    <dd>{{ item.executionCount }}</dd>
                   </div>
                 </dl>
               </article>
@@ -309,48 +276,6 @@ watch(
 
 .supply-card__meta {
   margin: 8px 0;
-}
-
-.print-hint {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 10px;
-  margin-bottom: 12px;
-  border-radius: 8px;
-  color: var(--el-text-color-secondary);
-  background: var(--el-fill-color-light);
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.print-hint .el-icon {
-  flex-shrink: 0;
-  margin-top: 2px;
-  color: var(--el-color-primary);
-  font-size: 18px;
-}
-
-.print-action-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.print-action-grid .el-button {
-  width: 100%;
-  min-width: 0;
-  min-height: 36px;
-  padding: 6px;
-  margin: 0;
-  white-space: normal;
-}
-
-.print-selection-summary {
-  margin: 12px 0 0;
-  color: var(--el-text-color-secondary);
-  font-size: 12px;
-  text-align: center;
 }
 
 .execution-record__specification {

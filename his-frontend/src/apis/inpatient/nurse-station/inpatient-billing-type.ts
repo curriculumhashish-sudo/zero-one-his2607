@@ -64,6 +64,16 @@ export interface NurseStationBillingCatalogItemVO {
   defaultDispenseLocationId?: string
   /** 耗材默认发放库房名称。 */
   defaultDispenseLocationName?: string
+  /** 后端原始收费类别编码，Real 模式用于保留接口信息。 */
+  backendCategoryCode?: string
+  /** 后端组织/执行科室 ID。 */
+  organizationUnitId?: string
+  /** 后端组织/执行科室名称。 */
+  organizationUnitName?: string
+  /** 当前行是否具备真实划价所需的完整字段。 */
+  writable?: boolean
+  /** 不可划价时缺失的后端字段。 */
+  missingFields?: string[]
 }
 
 /** 医嘱补费父医嘱查询条件。 */
@@ -191,6 +201,8 @@ export interface NurseStationPricedOrderVO {
   /** 页面只有在此字段为 true 时才允许勾选取消。 */
   cancellable: boolean
   cancelReasonDisabled?: string
+  /** Real 模式后端缺少状态字段时，用于页面提示。 */
+  backendFieldsIncomplete?: boolean
 }
 
 /** 取消划价单项。 */
@@ -228,79 +240,43 @@ export interface NurseStationAutoBillingQueryDTO {
   billDate?: string
 }
 
-/** 护理级别自动计费只读信息。 */
-export interface NurseStationNursingLevelBillingVO {
-  activityName: string
-  quantity: number
-  unitName: string
-  statusText: string
-  chargeDefinitionName: string
-  billDate: string
-}
-
 /** 自动计费规则。 */
 export interface NurseStationAutoBillingRuleVO {
   ruleId: string
-  version: number
-  encounterId: string
-  patientId: string
   ruleName: string
   status: NurseStationAutoBillingRuleStatus
   statusText: string
   activityId: string
   activityName: string
   chargeDefinitionId: string
-  chargeDefinitionName: string
   quantity: number
-  performingOrgId?: string
-  performingOrgName?: string
-  priority: number
-  remark?: string
-  updatedAt: string
 }
 
 /** 自动计费列表结果。 */
 export interface NurseStationAutoBillingDataVO {
-  nursingLevelReadonly: NurseStationNursingLevelBillingVO | null
   rules: NurseStationAutoBillingRuleVO[]
 }
 
 /** 新增或修改自动计费规则。 */
 export interface NurseStationSaveAutoBillingRuleDTO {
-  idempotencyKey: string
   encounterId: string
   patientId: string
   ruleId?: string
-  expectedVersion?: number
   ruleName: string
   activityId: string
-  activityName: string
   chargeDefinitionId: string
-  chargeDefinitionName: string
   quantity: number
-  performingOrgId?: string
-  performingOrgName?: string
-  priority: number
-  remark?: string
 }
 
 /** 删除自动计费规则。 */
 export interface NurseStationDeleteAutoBillingRuleDTO {
-  idempotencyKey: string
   encounterId: string
   patientId: string
   ruleId: string
-  expectedVersion: number
-}
-
-/** 显式修改自动计费状态。 */
-export interface NurseStationSetAutoBillingRuleStatusDTO extends NurseStationDeleteAutoBillingRuleDTO {
-  targetStatus: NurseStationAutoBillingRuleStatus
 }
 
 /** 自动计费规则写操作结果。 */
 export interface NurseStationAutoBillingMutationResultVO {
   success: boolean
   message: string
-  rule?: NurseStationAutoBillingRuleVO
 }

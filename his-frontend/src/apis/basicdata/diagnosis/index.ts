@@ -1,4 +1,5 @@
 import { useProfiledHttp } from '../client'
+import { useHttp } from '@/plugins/http'
 import { getApiProfile, mockOrThrow } from '../profile'
 import { asNumber, asString, normalizePage, parseStatus, type BackendPage } from '../shared'
 import {
@@ -241,5 +242,19 @@ export const removeDiagnosis = async (id: string): Promise<void> => {
 /** 诊断类型和分类暂无两端统一接口，明确使用本地配置。 */
 export const loadDiagnosisFormOptions = async (): Promise<DiagnosisFormOptions> =>
   mockLoadDiagnosisFormOptions()
+
+/** 医生站只读诊断字典接口，保留独立入口，不影响诊断管理接口。 */
+export async function listDoctorStationDiagnosis(
+  query: DiagnosisQuery
+): Promise<{ rows: DiagnosisRecord[]; total: number }> {
+  const response = await useHttp().get<{ rows?: DiagnosisRecord[]; total?: number }>(
+    '/doctor-station/page-diagnosis-dictionary',
+    { pageIndex: query.pageIndex, pageSize: query.pageSize, ...(query.keyword?.trim() ? { keyword: query.keyword.trim() } : {}) }
+  )
+  if (response.code !== 10000 || !response.data || !Array.isArray(response.data.rows)) {
+    throw new Error(response.message || '诊断字典加载失败')
+  }
+  return { rows: response.data.rows, total: Number(response.data.total ?? 0) }
+}
 
 export type * from './type'

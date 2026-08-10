@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+
 import ActionToolbar from '@/components/common/ActionToolbar.vue'
 import type { ActionToolbarItem, CommonComponentKey } from '@/components/common/type'
 import type { DoctorStationTabItem } from './type'
@@ -13,7 +15,7 @@ defineOptions({
  * 例如“何时允许接诊”属于门诊业务，“何时允许停嘱”属于住院业务，
  * 这些规则应该由各自页面计算后，通过 actions 传进来。
  */
-withDefaults(
+const props = withDefaults(
   defineProps<{
     activeTab: CommonComponentKey
     tabs?: DoctorStationTabItem[]
@@ -32,6 +34,37 @@ withDefaults(
     disabled: false
   }
 )
+
+const headerRef = ref<HTMLElement | null>(null)
+const containerWidth = ref(Number.POSITIVE_INFINITY)
+let resizeObserver: ResizeObserver | undefined
+
+/**
+ * 空间不足时不再强制把业务按钮收入“更多”，而是让页签和操作区分成上下两行。
+ * maxVisible 仍由使用方控制：门诊传入足够大的值即可完整展示全部操作，
+ * 住院等其他场景仍可主动保留“更多”菜单。
+ */
+const responsiveMaxVisible = computed(() => props.maxVisible)
+const stacked = computed(() => containerWidth.value < 980)
+
+function updateContainerWidth(width?: number) {
+  const nextWidth = width ?? headerRef.value?.getBoundingClientRect().width ?? 0
+  if (nextWidth > 0) containerWidth.value = nextWidth
+}
+
+onMounted(() => {
+  updateContainerWidth()
+  if (typeof ResizeObserver === 'undefined' || !headerRef.value) return
+
+  resizeObserver = new ResizeObserver((entries) => {
+    updateContainerWidth(entries[0]?.contentRect.width)
+  })
+  resizeObserver.observe(headerRef.value)
+})
+
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect()
+})
 
 /**
  * 公共组件把完整按钮对象和页签 key 原样交还给场景页面。
@@ -52,7 +85,7 @@ function handleTabChange(tab: CommonComponentKey) {
 </script>
 
 <template>
-  <section class="doctor-station-header">
+  <section ref="headerRef" class="doctor-station-header" :class="{ 'is-stacked': stacked }">
     <!-- 页签完全由使用方配置，因此门诊和住院可以展示不同的工作区。 -->
     <el-tabs
       :model-value="activeTab"
@@ -76,7 +109,7 @@ function handleTabChange(tab: CommonComponentKey) {
       class="doctor-station-header__toolbar"
       :compact="compact"
       :actions="actions"
-      :max-visible="maxVisible"
+      :max-visible="responsiveMaxVisible"
       :loading="loading"
       :disabled="disabled"
       @action="handleAction"
@@ -87,17 +120,22 @@ function handleTabChange(tab: CommonComponentKey) {
 <style scoped>
 .doctor-station-header {
   display: flex;
+  box-sizing: border-box;
+  width: 100%;
   min-width: 0;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  align-items: stretch;
+  overflow: hidden;
   border-bottom: 1px solid var(--el-border-color-lighter);
   background: var(--el-bg-color);
 }
 
 .doctor-station-header__tabs {
-  min-width: 260px;
-  padding-left: 16px;
+  box-sizing: border-box;
+  width: auto;
+  min-width: 0;
+  max-width: 52%;
+  flex: 0 1 auto;
+  padding: 0 12px;
 }
 
 .doctor-station-header__tabs :deep(.el-tabs__header) {
@@ -110,22 +148,56 @@ function handleTabChange(tab: CommonComponentKey) {
 }
 
 .doctor-station-header__toolbar {
-  flex: 1;
+  box-sizing: border-box;
+  width: auto;
+  min-width: 0;
+  flex: 1 1 auto;
   justify-content: flex-end;
   border: 0;
+  border-left: 1px solid var(--el-border-color-lighter);
 }
 
-/* 窄屏时改为上下两行，避免操作按钮挤压页签。 */
-@media (max-width: 1100px) {
-  .doctor-station-header {
-    align-items: stretch;
-    flex-direction: column;
-    gap: 0;
-  }
+/* 宽度充足时保持单行。 */
+.doctor-station-header__toolbar :deep(.action-toolbar__actions) {
+  min-width: 0;
+  max-width: 100%;
+  flex: 1 1 auto;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+}
 
-  .doctor-station-header__toolbar {
-    justify-content: flex-start;
-    border-top: 1px solid var(--el-border-color-lighter);
-  }
+/*
+ * 三栏医生站的中间栏通常比浏览器窗口窄。
+ * 当中栏不足 980px 时让操作区换到第二行，避免按钮被“更多”隐藏或互相重叠。
+ */
+.doctor-station-header.is-stacked {
+  flex-wrap: wrap;
+}
+
+.doctor-station-header.is-stacked .doctor-station-header__tabs {
+  width: 100%;
+  max-width: none;
+  flex: 1 0 100%;
+}
+
+.doctor-station-header.is-stacked .doctor-station-header__toolbar {
+  width: 100%;
+  flex: 1 0 100%;
+  border-top: 1px solid var(--el-border-color-lighter);
+  border-left: 0;
+}
+
+.doctor-station-header.is-stacked .doctor-station-header__toolbar :deep(.action-toolbar__actions) {
+  flex-wrap: wrap;
+}
+
+.doctor-station-header__toolbar :deep(.action-toolbar__main:empty) {
+  display: none;
+}
+
+.doctor-station-header__toolbar :deep(.el-button) {
+  min-width: 0;
+  padding-right: 10px;
+  padding-left: 10px;
 }
 </style>

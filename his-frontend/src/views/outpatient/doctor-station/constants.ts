@@ -11,7 +11,8 @@ import type { StatusDisplayOption } from '@/components/common/type'
 export const DOCTOR_STATION_TABS: DoctorStationTabOption[] = [
   { key: 'record', label: '病历' },
   { key: 'diagnosis', label: '诊断' },
-  { key: 'orders', label: '医嘱' }
+  { key: 'orders', label: '医嘱' },
+  { key: 'tcmPrescription', label: '中医处方' }
 ]
 
 /**
@@ -20,9 +21,9 @@ export const DOCTOR_STATION_TABS: DoctorStationTabOption[] = [
  */
 export const DOCTOR_QUEUE_STATUS_OPTIONS: DoctorQueueStatusOption[] = [
   { label: '全部', value: 'ALL' },
-  { label: '候诊', value: 'WAITING' },
-  { label: '在诊', value: 'IN_PROGRESS' },
-  { label: '完诊', value: 'COMPLETED' }
+  { label: '候诊', value: 'arrived' },
+  { label: '在诊', value: 'in-progress' },
+  { label: '完诊', value: 'finished' }
 ]
 
 /**
@@ -30,7 +31,7 @@ export const DOCTOR_QUEUE_STATUS_OPTIONS: DoctorQueueStatusOption[] = [
  * 业务状态与颜色在页面模块中定义，不写入公共 StatusDisplay。
  */
 export const DOCTOR_VISIT_STATUS_OPTIONS: StatusDisplayOption[] = [
-  { value: 'WAITING', label: '候诊', type: 'warning' },
-  { value: 'IN_PROGRESS', label: '在诊', type: 'primary' },
-  { value: 'COMPLETED', label: '完诊', type: 'success' }
+  { value: 'arrived', label: '候诊', type: 'warning' },
+  { value: 'in-progress', label: '在诊', type: 'primary' },
+  { value: 'finished', label: '完诊', type: 'success' }
 ]

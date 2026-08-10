@@ -114,6 +114,24 @@ export default defineConfig({
         target: gatewayUrl,
         rewrite: (path) => path.replace(/^\/api/, '')
       },
+      '/nurse-station-api': {
+        changeOrigin: true,
+        // 住院护士站联调专用代理，避免修改其他模块当前使用的 Mock 地址。
+        target: 'http://47.116.136.206:8090',
+        rewrite: (path) => path.replace(/^\/nurse-station-api/, '')
+      },
+      '/outpatient-nurse-station-api': {
+        changeOrigin: true,
+        // 门诊护士站 j5-ons 服务，使用独立前缀避免影响其他模块。
+        target: 'http://121.199.54.234:10500',
+        rewrite: (path) => path.replace(/^\/outpatient-nurse-station-api/, '/j5-ons')
+      },
+      '/inpatient-doctor-station-api': {
+        changeOrigin: true,
+        // 住院医生站联调专用代理，避免修改其他模块当前使用的 Mock 地址。
+        target: 'http://8.148.233.234:8070',
+        rewrite: (path) => path.replace(/^\/inpatient-doctor-station-api/, '')
+      },
       '/captcha': {
         changeOrigin: true,
         //FIXME[TEST_CODE]:联调阶段需要修改成网关地址

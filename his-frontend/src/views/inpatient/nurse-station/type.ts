@@ -12,11 +12,8 @@ export type NurseStationOperationTab =
 /** 页签对左侧患者列表的选择要求。 */
 export type NurseStationSelectionPolicy = 'single' | 'multiple'
 
-/** 左侧患者队列的业务范围。 */
-export type NurseStationQueueScope = 'in-hospital' | 'settled-discharged'
-
 /** 左侧患者队列的任务状态筛选。 */
-export type NurseStationTaskFilter = 'all' | 'pending-audit' | 'pending-execute' | 'processed'
+export type NurseStationTaskFilter = 'all' | 'pending-audit' | 'pending-execute'
 
 /**
  * 工作台使用的患者摘要模型。
@@ -38,12 +35,12 @@ export interface NurseStationPatientSummary {
   patientName: string
   /** 住院号。 */
   encounterBusNo?: string
+  /** 入院时间，分床时用于生成后端要求的预期入院日期。 */
+  admissionTime?: string
   /** 性别显示文本。 */
   genderText?: string
   /** 年龄显示文本。 */
   ageText?: string
-  /** 费别或支付方式。 */
-  paymentTypeText?: string
   /** 当前在院状态文本。 */
   statusText?: string
   /** 当前在院状态编码。 */
@@ -70,21 +67,6 @@ export interface NurseStationPatientSummary {
   availableBalance?: number
   /** 是否触发余额预警。 */
   lowBalanceWarning?: boolean
-  /** 已出院结算列表中是否允许召回。 */
-  recallEnabled?: boolean
-}
-
-/** 左侧病区筛选项。 */
-export interface NurseStationWardOption {
-  id: string
-  name: string
-}
-
-/** 左侧病房筛选项。 */
-export interface NurseStationHouseOption {
-  id: string
-  name: string
-  wardId: string
 }
 
 /** 工作台顶部的患者聚合统计。 */

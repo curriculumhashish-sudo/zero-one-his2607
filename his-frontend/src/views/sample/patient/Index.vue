@@ -3,7 +3,6 @@ import { computed, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 
 import StationTriPaneLayout from '@/components/common/StationTriPaneLayout.vue'
-import type { DateRangeValue } from '@/components/common/type'
 import PatientInfoBar from '@/components/patient/PatientInfoBar.vue'
 import PatientQueuePanel from '@/components/patient/PatientQueuePanel.vue'
 import type { PatientSummary } from '@/components/patient/type'
@@ -40,8 +39,7 @@ const allPatients: PatientSummary[] = [
     status: '待处置',
     statusTone: 'danger',
     paymentType: '自费',
-    priority: '优先',
-    riskHint: '青霉素过敏，高跌倒风险'
+    priority: '优先'
   },
   {
     id: 'inpatient-003',
@@ -95,7 +93,7 @@ const leftCollapsed = ref(false)
 const rightCollapsed = ref(false)
 const detailVisible = ref(false)
 const activeKeyword = ref('')
-const activeDateRange = ref<DateRangeValue>(null)
+const activeDate = ref('')
 const queueVersion = ref(0)
 const actionLogs = ref<string[]>(['演示页面已加载，默认选中张明'])
 
@@ -136,8 +134,6 @@ function addLog(message: string) {
 
 function applyFilters() {
   const keyword = activeKeyword.value.toLowerCase()
-  const startDate = activeDateRange.value?.[0]?.slice(0, 10)
-  const endDate = activeDateRange.value?.[1]?.slice(0, 10)
 
   visiblePatients.value = allPatients.filter((patient) => {
     const matchesKeyword =
@@ -147,8 +143,7 @@ function applyFilters() {
         .some((value) => String(value).toLowerCase().includes(keyword))
 
     const visitDate = patient.visitTime?.slice(0, 10)
-    const matchesDate =
-      !startDate || !endDate || !visitDate || (visitDate >= startDate && visitDate <= endDate)
+    const matchesDate = !activeDate.value || !visitDate || visitDate === activeDate.value
 
     return matchesKeyword && matchesDate
   })
@@ -164,10 +159,10 @@ function searchPatients(keyword: string) {
   addLog(`PatientQueuePanel search：${keyword || '清空关键词'}`)
 }
 
-function changeDate(value: DateRangeValue) {
-  activeDateRange.value = value
+function changeDate(value: string) {
+  activeDate.value = value
   applyFilters()
-  addLog(`PatientQueuePanel dateChange：${value?.join(' 至 ') || '清空日期'}`)
+  addLog(`PatientQueuePanel dateChange：${value || '清空日期'}`)
 }
 
 function refreshPatients() {
@@ -202,7 +197,7 @@ function resetDemo() {
   visiblePatients.value = [...allPatients]
   selectedId.value = allPatients[0]!.id
   activeKeyword.value = ''
-  activeDateRange.value = null
+  activeDate.value = ''
   queueVersion.value += 1
   leftCollapsed.value = false
   rightCollapsed.value = false
@@ -259,8 +254,9 @@ function acceptPatient(patient: PatientSummary) {
             :patients="visiblePatients"
             :loading="loading"
             :selected-id="selectedId"
+            :date="activeDate"
             @search="searchPatients"
-            @date-change="changeDate"
+            @single-date-change="changeDate"
             @refresh="refreshPatients"
             @select="selectPatient"
           />
@@ -403,9 +399,6 @@ function acceptPatient(patient: PatientSummary) {
         </el-descriptions-item>
         <el-descriptions-item label="就诊号">
           {{ selectedPatient.visitNo || '-' }}
-        </el-descriptions-item>
-        <el-descriptions-item label="风险提示">
-          {{ selectedPatient.riskHint || '无' }}
         </el-descriptions-item>
       </el-descriptions>
       <template #footer>

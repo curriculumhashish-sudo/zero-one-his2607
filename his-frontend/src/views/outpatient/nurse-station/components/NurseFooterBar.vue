@@ -6,13 +6,11 @@ defineOptions({
 interface Props {
   executing?: boolean
   selectedCount?: number
-  pendingCount?: number
 }
 
 withDefaults(defineProps<Props>(), {
   executing: false,
-  selectedCount: 0,
-  pendingCount: 0
+  selectedCount: 0
 })
 
 const emit = defineEmits<{
@@ -24,9 +22,6 @@ const emit = defineEmits<{
 <template>
   <footer class="nurse-footer-bar">
     <div class="nurse-footer-bar__summary">
-      <span
-        >待执行 <strong>{{ pendingCount }}</strong> 项</span
-      >
       <span
         >已选择 <strong>{{ selectedCount }}</strong> 项</span
       >

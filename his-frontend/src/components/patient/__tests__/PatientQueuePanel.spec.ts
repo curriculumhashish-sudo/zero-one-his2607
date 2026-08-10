@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 
-import DateRangeField from '@/components/common/DateRangeField.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
+import DateRangeField from '@/components/common/DateRangeField.vue'
 import SearchPanel from '@/components/common/SearchPanel.vue'
 import type { DateRangeValue } from '@/components/common/type'
 
@@ -34,21 +34,80 @@ const patients: PatientSummary[] = [
 ]
 
 describe('PatientQueuePanel', () => {
-  it('组合查询、日期、空状态和患者卡片组件', () => {
+  it('组合查询、单日日期和患者卡片组件', () => {
     const wrapper = mount(PatientQueuePanel, {
       props: {
         patients,
-        selectedId: 'visit-1001'
+        selectedId: 'visit-1001',
+        date: '2026-07-26'
       }
     })
 
     expect(wrapper.findComponent(SearchPanel).exists()).toBe(true)
-    expect(wrapper.findComponent(DateRangeField).exists()).toBe(true)
+    expect(wrapper.findComponent({ name: 'ElDatePicker' }).exists()).toBe(true)
+    expect(wrapper.find('.patient-queue-panel__pagination').exists()).toBe(false)
     expect(wrapper.findAllComponents(PatientCard)).toHaveLength(2)
     expect(wrapper.find('.patient-info-bar').exists()).toBe(false)
     expect(wrapper.findComponent(EmptyState).exists()).toBe(false)
     expect(wrapper.text()).toContain('张三')
     expect(wrapper.text()).toContain('2')
+  })
+
+  it('支持隐藏后端暂不支持的关键词查询框', () => {
+    const wrapper = mount(PatientQueuePanel, {
+      props: {
+        patients,
+        date: '2026-07-26',
+        showKeyword: false
+      }
+    })
+
+    const searchPanel = wrapper.findComponent(SearchPanel)
+    expect(searchPanel.props('showKeyword')).toBe(false)
+  })
+
+  it('把门诊患者卡片的精简展示配置传给每张卡片', () => {
+    const wrapper = mount(PatientQueuePanel, {
+      props: {
+        patients,
+        showDepartment: false,
+        showPrimaryNumber: false,
+        primaryNumberMode: 'patient-no'
+      }
+    })
+
+    for (const card of wrapper.findAllComponents(PatientCard)) {
+      expect(card.props('showDepartment')).toBe(false)
+      expect(card.props('showPrimaryNumber')).toBe(false)
+      expect(card.props('primaryNumberMode')).toBe('patient-no')
+    }
+  })
+
+  it('在底部显示分页器并转发页码变化', async () => {
+    const wrapper = mount(PatientQueuePanel, {
+      props: {
+        patients,
+        pagination: {
+          pageIndex: 2,
+          pageSize: 10,
+          total: 35
+        }
+      }
+    })
+
+    const pagination = wrapper.findComponent({ name: 'ElPagination' })
+    expect(pagination.exists()).toBe(true)
+    expect(pagination.props()).toMatchObject({
+      currentPage: 2,
+      pageSize: 10,
+      total: 35
+    })
+    expect(wrapper.get('.patient-queue-panel__title').text()).toContain('35')
+
+    pagination.vm.$emit('currentChange', 3)
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.emitted('pageChange')).toEqual([[3]])
   })
 
   it('根据 selectedId 展示卡片选中状态', () => {
@@ -77,17 +136,46 @@ describe('PatientQueuePanel', () => {
 
   it('日期变化时转发 dateChange', async () => {
     const wrapper = mount(PatientQueuePanel, {
-      props: { patients }
+      props: { patients, date: '2026-07-19' }
     })
-    const value: DateRangeValue = ['2026-07-01', '2026-07-20']
+    const value = '2026-07-20'
 
-    wrapper.findComponent(DateRangeField).vm.$emit('change', value)
+    wrapper.findComponent({ name: 'ElDatePicker' }).vm.$emit('change', value)
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.emitted('dateChange')).toEqual([[value]])
+    expect(wrapper.emitted('singleDateChange')).toEqual([[value]])
   })
 
-  it('受控日期范围会同步显示到日期控件', async () => {
+  it('将页面提供的默认日期显示在查询条件中', async () => {
+    const wrapper = mount(PatientQueuePanel, {
+      props: {
+        patients,
+        date: '2026-07-26'
+      }
+    })
+
+    expect(wrapper.findComponent({ name: 'ElDatePicker' }).props('modelValue')).toBe('2026-07-26')
+
+    await wrapper.setProps({
+      date: '2026-07-20'
+    })
+
+    expect(wrapper.findComponent({ name: 'ElDatePicker' }).props('modelValue')).toBe('2026-07-20')
+  })
+
+  it('重置时清空关键词和日期条件', async () => {
+    const wrapper = mount(PatientQueuePanel, {
+      props: { patients, date: '2026-07-20' }
+    })
+
+    await wrapper.get('.patient-queue-panel__search .el-input__inner').setValue('张三')
+    await wrapper.get('.query-shell__btn--reset').trigger('click')
+
+    expect(wrapper.emitted('search')).toEqual([['']])
+    expect(wrapper.emitted('singleDateChange')).toEqual([['']])
+  })
+
+  it('未传单日日期时兼容受控日期范围', async () => {
     const initial: DateRangeValue = ['2026-07-29', '2026-07-29']
     const wrapper = mount(PatientQueuePanel, {
       props: {
@@ -101,18 +189,6 @@ describe('PatientQueuePanel', () => {
     const changed: DateRangeValue = ['2026-07-30', '2026-07-30']
     await wrapper.setProps({ dateRange: changed })
     expect(wrapper.findComponent(DateRangeField).props('modelValue')).toEqual(changed)
-  })
-
-  it('重置时清空关键词和日期条件', async () => {
-    const wrapper = mount(PatientQueuePanel, {
-      props: { patients }
-    })
-
-    await wrapper.get('.patient-queue-panel__search .el-input__inner').setValue('张三')
-    await wrapper.get('.query-shell__btn--reset').trigger('click')
-
-    expect(wrapper.emitted('search')).toEqual([['']])
-    expect(wrapper.emitted('dateChange')).toEqual([[null]])
   })
 
   it('点击患者卡片发出 select，但不自行修改 selectedId', async () => {

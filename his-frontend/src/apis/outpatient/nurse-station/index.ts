@@ -5,93 +5,100 @@ import {
   mockGetNurseExecutionItems,
   mockPageNursePatientQueue,
   mockPagePatientExecutionHistory,
-  mockPerformNurseExecutions,
-  mockPrintNurseDocuments
+  mockPerformNurseExecutions
 } from './mock'
+import {
+  isOutpatientNurseStationRealApiEnabled,
+  realCancelNurseExecution,
+  realGetNurseConsumables,
+  realGetNurseExecutionItems,
+  realPageNursePatientQueue,
+  realPagePatientExecutionHistory,
+  realPerformNurseExecutions
+} from './real'
 import type {
   CancelNurseExecutionDTO,
   NurseConsumableItemVO,
-  NurseExecutionCommandResultVO,
   NurseExecutionHistoryQuery,
   NurseExecutionItemVO,
   NurseExecutionRecordVO,
+  NurseBatchResultVO,
   NursePatientQueueItemVO,
   NursePatientQueueQuery,
-  PerformNurseExecutionsDTO,
-  NursePrintRequestDTO,
-  NursePrintResultVO
+  PerformNurseExecutionsDTO
 } from './type'
 
-/**
- * 分页查询护士站患者队列。
- *
- * 当前由 Mock 提供数据；后端契约确定后只替换此文件内部实现。
- */
+/** 分页查询护士站患者队列。 */
 export function pageNursePatientQueue(
   query: NursePatientQueueQuery
 ): Promise<PageDTO<NursePatientQueueItemVO>> {
-  return mockPageNursePatientQueue(query)
+  return isOutpatientNurseStationRealApiEnabled
+    ? realPageNursePatientQueue(query)
+    : mockPageNursePatientQueue(query)
 }
 
 /** 查询当前就诊的执行项目。 */
-export function getNurseExecutionItems(encounterId: string): Promise<NurseExecutionItemVO[]> {
-  return mockGetNurseExecutionItems(encounterId)
+export function getNurseExecutionItems(
+  patientId: string,
+  encounterId?: string
+): Promise<NurseExecutionItemVO[]> {
+  return isOutpatientNurseStationRealApiEnabled
+    ? realGetNurseExecutionItems(patientId, encounterId)
+    : mockGetNurseExecutionItems(patientId, encounterId)
 }
 
 /** 查询当前就诊的耗材项目。 */
-export function getNurseConsumables(encounterId: string): Promise<NurseConsumableItemVO[]> {
-  return mockGetNurseConsumables(encounterId)
+export function getNurseConsumables(
+  patientId: string,
+  encounterId?: string
+): Promise<NurseConsumableItemVO[]> {
+  return isOutpatientNurseStationRealApiEnabled
+    ? realGetNurseConsumables(patientId, encounterId)
+    : mockGetNurseConsumables(patientId, encounterId)
 }
 
 /** 批量执行当前选择的护士项目。 */
 export function performNurseExecutions(
   request: PerformNurseExecutionsDTO
-): Promise<NurseExecutionCommandResultVO> {
-  return mockPerformNurseExecutions(request)
+): Promise<NurseBatchResultVO> {
+  return isOutpatientNurseStationRealApiEnabled
+    ? realPerformNurseExecutions(request)
+    : mockPerformNurseExecutions(request)
 }
 
 /** 取消项目最近一次执行。 */
 export function cancelNurseExecution(
   request: CancelNurseExecutionDTO
-): Promise<NurseExecutionCommandResultVO> {
-  return mockCancelNurseExecution(request)
+): Promise<NurseBatchResultVO> {
+  return isOutpatientNurseStationRealApiEnabled
+    ? realCancelNurseExecution(request)
+    : mockCancelNurseExecution(request)
 }
 
-/** 提交当前护士站的打印任务。 */
-export function printNurseDocuments(request: NursePrintRequestDTO): Promise<NursePrintResultVO> {
-  return mockPrintNurseDocuments(request)
-}
-
-/**
- * 分页查询患者历史执行记录（跨就诊）。
- *
- * 当前由 Mock 提供数据；后端契约确定后只替换此文件内部实现。
- */
+/** 分页查询患者历史执行记录（跨就诊）。 */
 export function pagePatientExecutionHistory(
   patientId: string,
   query: NurseExecutionHistoryQuery
 ): Promise<PageDTO<NurseExecutionRecordVO>> {
-  return mockPagePatientExecutionHistory(patientId, query)
+  return isOutpatientNurseStationRealApiEnabled
+    ? realPagePatientExecutionHistory(patientId, query)
+    : mockPagePatientExecutionHistory(patientId, query)
 }
+
+export { isOutpatientNurseStationRealApiEnabled }
 
 export type {
   CancelNurseExecutionDTO,
   NurseConsumableItemVO,
-  NurseConsumableStatus,
   NurseExecutionCommandItemDTO,
-  NurseExecutionCommandResultVO,
-  NurseExecutionFailureCode,
-  NurseExecutionFailureVO,
+  NurseBatchFailedItemVO,
+  NurseBatchResultVO,
   NurseExecutionHistoryQuery,
-  NurseExecutionItemType,
   NurseExecutionItemVO,
   NurseExecutionRecordVO,
   NurseExecutionStatus,
   NursePatientQueueItemVO,
   NursePatientQueueQuery,
   NursePatientStatus,
-  NursePrintDocumentType,
-  PerformNurseExecutionsDTO,
-  NursePrintRequestDTO,
-  NursePrintResultVO
+  PerformNurseExecutionsDTO
 } from './type'

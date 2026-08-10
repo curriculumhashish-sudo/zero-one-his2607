@@ -22,10 +22,7 @@ export interface NurseStationBedLocationVO {
   wardName: string
   houseId: string
   houseName: string
-  displayOrder: number
   operationalEnum: NurseStationBedOperationalStatus
-  /** 并发写入校验版本。 */
-  version: number
 }
 
 /** 床位占用患者摘要。 */
@@ -52,68 +49,19 @@ export interface NurseStationBedBoardVO {
   items: NurseStationBedBoardItemVO[]
 }
 
-/** 床位操作类型。 */
-export type NurseStationBedOperationType = 'ASSIGN' | 'TRANSFER' | 'SWAP'
-
-/** 入科体征。 */
-export interface NurseStationAdmissionVitalSignsDTO {
-  temperature?: string
-  pulse?: string
-  heartRate?: string
-  bloodPressureHigh?: string
-  bloodPressureLow?: string
-  heightCm?: string
-  weightKg?: string
-}
-
-/** 入科责任医护。 */
-export interface NurseStationAdmissionParticipantDTO {
-  practitionerId: string
-  roleCode: 'ATTENDING_DOCTOR' | 'PRIMARY_NURSE'
-}
-
-/** 分床、换床和床位互换请求。 */
-export interface NurseStationExecuteBedOperationDTO {
-  operationType: NurseStationBedOperationType
+/** 床位预约请求。 */
+export interface NurseStationAssignBedDTO {
   encounterId: string
+  patientId: string
+  intendedAdmissionDate?: string
   targetBedId: string
-  targetHouseId: string
-  swapEncounterId?: string
-  expectedBedVersion?: number
-  idempotencyKey: string
-  priorityEnum?: string
-  participants?: NurseStationAdmissionParticipantDTO[]
-  admissionVitalSigns?: NurseStationAdmissionVitalSignsDTO
 }
 
-/** 床位操作结果。 */
-export interface NurseStationBedOperationResultVO {
+/** 床位预约结果。 */
+export interface NurseStationAssignBedResultVO {
   encounterId: string
-  operationType: NurseStationBedOperationType
+  reservationId: string
   succeeded: boolean
-}
-
-/** 出院前待执行医嘱。 */
-export interface NurseStationDischargePendingExecutionVO {
-  requestId: string
-  therapyEnum?: 'LONG_TERM' | 'TEMPORARY'
-  reqAuthoredTime?: string
-  displayName?: string
-  doseText?: string
-  rateCode?: string
-  blockingReason?: string
-}
-
-/** 出院前待发或待退药。 */
-export interface NurseStationDischargePendingMedicationVO {
-  dispenseId: string
-  medicationName?: string
-  statusEnum?: string
-  statusEnumText?: string
-  quantity?: number
-  unitCode?: string
-  performLocationName?: string
-  plannedDispenseTime?: string
 }
 
 /** 住院状态转换请求。 */
@@ -125,8 +73,4 @@ export interface NurseStationEncounterTransitionDTO {
 export interface NurseStationEncounterTransitionResultVO {
   encounterId: string
   succeeded: boolean
-  previousStatusEnum?: string
-  targetStatusEnum?: string
-  bedReleased?: boolean
-  requiresBedAssignment?: boolean
 }

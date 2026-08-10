@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { Refresh } from '@element-plus/icons-vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 
 import {
-  executeNurseStationBedOperation,
+  assignNurseStationBed,
   queryNurseStationBedBoard,
-  type NurseStationAdmissionParticipantDTO,
-  type NurseStationAdmissionVitalSignsDTO,
   type NurseStationBedBoardItemVO,
   type NurseStationBedLocationVO
 } from '@/apis/inpatient/nurse-station'
@@ -19,14 +17,12 @@ import DischargePanel from './components/DischargePanel.vue'
 
 defineOptions({ name: 'NurseStationInOutTransfer' })
 
-type Panel = 'admission' | 'transfer-out' | 'discharge'
+type Panel = 'admission' | 'discharge'
 type BedFilter = 'all' | 'empty' | 'occupied'
 
 const props = defineProps<{
   patients: NurseStationPatientSummary[]
   selectedPatientIds: string[]
-  selectedWardIds: string[]
-  selectedHouseIds: string[]
 }>()
 
 const emit = defineEmits<{
@@ -53,47 +49,28 @@ const visibleBoardItems = computed(() => {
   )
 })
 const wardGroups = computed(() => groupNurseStationBedBoard(visibleBoardItems.value))
-const selectedPatient = computed(
-  () =>
-    props.patients.find((patient) => patient.encounterId === props.selectedPatientIds[0]) ?? null
-)
 const selectedDischargePatient = computed(() => {
   const selectedId = props.selectedPatientIds[0]
   return (
     boardItems.value.find((item) => item.occupant?.encounterId === selectedId)?.occupant ?? null
   )
 })
-const unassignedPatients = computed(() =>
-  props.patients.filter((patient) => {
-    if (patient.bedId) return false
-    if (props.selectedHouseIds.length && !props.selectedHouseIds.includes(patient.houseId ?? '')) {
-      return false
-    }
-    return !props.selectedWardIds.length || props.selectedWardIds.includes(patient.wardId ?? '')
-  })
-)
+const unassignedPatients = computed(() => props.patients.filter((patient) => !patient.bedId))
 
 function buildBoardQuery() {
   return {
-    panel: activePanel.value === 'discharge' ? ('DISCHARGE' as const) : ('ADMISSION' as const),
-    wardIds: props.selectedWardIds.length ? props.selectedWardIds.join(',') : undefined,
-    houseIds: props.selectedHouseIds.length ? props.selectedHouseIds.join(',') : undefined
+    panel: activePanel.value === 'discharge' ? ('DISCHARGE' as const) : ('ADMISSION' as const)
   }
 }
 
 async function loadBedBoard() {
   const serial = ++boardRequestSerial
   const requestedPanel = activePanel.value
-  if (requestedPanel === 'transfer-out') {
-    boardItems.value = []
-    boardLoading.value = false
-    return
-  }
   const query = buildBoardQuery()
   boardLoading.value = true
   try {
     const result = await queryNurseStationBedBoard(query)
-    // 用户快速切换入科、出院或病区时，只允许最后一次请求更新床位图。
+    // 用户快速切换床位预约或出院时，只允许最后一次请求更新床位图。
     if (serial !== boardRequestSerial || activePanel.value !== requestedPanel) return
     boardItems.value = result.items
     if (requestedPanel === 'discharge') {
@@ -115,10 +92,7 @@ async function loadBedBoard() {
   }
 }
 
-watch(
-  [activePanel, () => props.selectedWardIds.join(','), () => props.selectedHouseIds.join(',')],
-  () => void loadBedBoard()
-)
+watch(activePanel, () => void loadBedBoard())
 
 onMounted(() => void loadBedBoard())
 
@@ -137,41 +111,8 @@ function readDraggedEncounterId(event: DragEvent) {
   }
 }
 
-function startOccupiedBedDrag(event: DragEvent, item: NurseStationBedBoardItemVO) {
-  if (!item.occupant || !event.dataTransfer) return
-  const payload = JSON.stringify({ encounterId: item.occupant.encounterId })
-  event.dataTransfer.effectAllowed = 'move'
-  event.dataTransfer.setData(PATIENT_DRAG_MIME, payload)
-  event.dataTransfer.setData('text/plain', item.occupant.encounterId)
-}
-
-async function submitBedOperation(input: {
-  source: NurseStationPatientSummary
-  target: NurseStationBedBoardItemVO
-  operationType: 'TRANSFER' | 'SWAP'
-}) {
-  actionLoading.value = true
-  try {
-    await executeNurseStationBedOperation({
-      operationType: input.operationType,
-      encounterId: input.source.encounterId,
-      targetBedId: input.target.bed.bedId,
-      targetHouseId: input.target.bed.houseId,
-      swapEncounterId: input.target.occupant?.encounterId,
-      expectedBedVersion: input.target.bed.version,
-      idempotencyKey: `ATD-${input.source.encounterId}-${Date.now()}`
-    })
-    ElMessage.success(input.operationType === 'SWAP' ? '床位互换成功' : '换床成功')
-    emit('patientsChanged')
-    await loadBedBoard()
-  } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '床位操作失败，请刷新后重试')
-  } finally {
-    actionLoading.value = false
-  }
-}
-
-async function dropPatientOnBed(event: DragEvent, target: NurseStationBedBoardItemVO) {
+function dropPatientOnBed(event: DragEvent, target: NurseStationBedBoardItemVO) {
+  if (activePanel.value !== 'admission') return
   if (actionLoading.value) return
   hoverBedId.value = ''
   if (!isNurseStationBedAvailable(target.bed) && !target.occupant) {
@@ -180,69 +121,36 @@ async function dropPatientOnBed(event: DragEvent, target: NurseStationBedBoardIt
   }
   const encounterId = readDraggedEncounterId(event)
   const source = props.patients.find((patient) => patient.encounterId === encounterId)
-  if (!source || source.bedId === target.bed.bedId) return
-
-  if (!source.bedId) {
-    if (target.occupant) {
-      ElMessage.warning('待分床患者只能拖入空床')
-      return
-    }
-    assignmentPatient.value = source
-    assignmentBed.value = target.bed
-    assignmentDialogVisible.value = true
+  if (!source) return
+  if (source.bedId) {
+    ElMessage.warning('该患者已有床位，不能重复预约')
     return
   }
-
   if (target.occupant) {
-    try {
-      await ElMessageBox.confirm(
-        `确认将“${source.patientName}”与“${target.occupant.patientName}”互换床位？`,
-        '床位互换',
-        { type: 'warning' }
-      )
-    } catch {
-      return
-    }
-    await submitBedOperation({ source, target, operationType: 'SWAP' })
+    ElMessage.warning('待预约患者只能拖入空床')
     return
   }
-
-  try {
-    await ElMessageBox.confirm(
-      `确认将“${source.patientName}”换至 ${target.bed.houseName} ${target.bed.bedName}？`,
-      '换床确认',
-      { type: 'warning' }
-    )
-  } catch {
-    return
-  }
-  await submitBedOperation({ source, target, operationType: 'TRANSFER' })
+  assignmentPatient.value = source
+  assignmentBed.value = target.bed
+  assignmentDialogVisible.value = true
 }
 
-async function confirmAssignment(payload: {
-  priorityEnum: string
-  participants: NurseStationAdmissionParticipantDTO[]
-  admissionVitalSigns: NurseStationAdmissionVitalSignsDTO
-}) {
+async function confirmAssignment() {
   if (!assignmentPatient.value || !assignmentBed.value) return
   if (actionLoading.value) return
   actionLoading.value = true
   try {
-    await executeNurseStationBedOperation({
-      operationType: 'ASSIGN',
+    await assignNurseStationBed({
       encounterId: assignmentPatient.value.encounterId,
-      targetBedId: assignmentBed.value.bedId,
-      targetHouseId: assignmentBed.value.houseId,
-      expectedBedVersion: assignmentBed.value.version,
-      idempotencyKey: `ATD-${assignmentPatient.value.encounterId}-${Date.now()}`,
-      ...payload
+      patientId: assignmentPatient.value.patientId,
+      targetBedId: assignmentBed.value.bedId
     })
     assignmentDialogVisible.value = false
-    ElMessage.success('入科分床成功')
+    ElMessage.success('床位预约成功')
     emit('patientsChanged')
     await loadBedBoard()
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '入科分床失败，请刷新后重试')
+    ElMessage.error(error instanceof Error ? error.message : '床位预约失败，请刷新后重试')
   } finally {
     actionLoading.value = false
   }
@@ -260,8 +168,7 @@ async function handleDischargeChanged() {
       <el-segmented
         v-model="activePanel"
         :options="[
-          { label: '入科', value: 'admission' },
-          { label: '转出', value: 'transfer-out' },
+          { label: '床位预约', value: 'admission' },
           { label: '出院', value: 'discharge' }
         ]"
       />
@@ -278,7 +185,7 @@ async function handleDischargeChanged() {
             <el-radio-button value="occupied">占床</el-radio-button>
           </el-radio-group>
         </div>
-        <span class="toolbar-hint">从左侧拖动待入科患者分床；拖动占床患者可换床或互换</span>
+        <span class="toolbar-hint">从左侧拖动待预约患者至空床</span>
       </div>
 
       <el-alert
@@ -289,14 +196,14 @@ async function handleDischargeChanged() {
         class="atd-module__alert"
       >
         <template #title>
-          待分床 {{ unassignedPatients.length }} 人：{{
+          待预约床位 {{ unassignedPatients.length }} 人：{{
             unassignedPatients.map((item) => item.patientName).join('、')
           }}
         </template>
       </el-alert>
     </template>
 
-    <div v-if="activePanel !== 'transfer-out'" class="bed-board-scroll">
+    <div class="bed-board-scroll">
       <template v-if="wardGroups.length">
         <section v-for="ward in wardGroups" :key="ward.wardId" class="bed-ward">
           <h2>{{ ward.wardName }}</h2>
@@ -319,11 +226,9 @@ async function handleDischargeChanged() {
                   v-if="item.occupant"
                   class="bed-card bed-card--occupied"
                   :class="{ 'is-selected': selectedPatientIds.includes(item.occupant.encounterId) }"
-                  :draggable="activePanel === 'admission'"
                   tabindex="0"
                   @click="selectOccupant(item.occupant.encounterId)"
                   @keydown.enter="selectOccupant(item.occupant.encounterId)"
-                  @dragstart.stop="startOccupiedBedDrag($event, item)"
                 >
                   <span class="bed-card__stripe" />
                   <div class="bed-card__top">
@@ -353,21 +258,6 @@ async function handleDischargeChanged() {
       </template>
       <el-empty v-else description="当前范围暂无可展示床位" />
     </div>
-
-    <section v-else class="transfer-placeholder">
-      <div class="transfer-placeholder__header">
-        <div>
-          <h2>转出管理</h2>
-          <p v-if="selectedPatient">
-            当前患者：{{ selectedPatient.patientName }} · {{ selectedPatient.wardName }}
-            {{ selectedPatient.bedName }}
-          </p>
-          <p v-else>请先从左侧选择一名患者</p>
-        </div>
-        <el-button type="success" disabled>转科</el-button>
-      </div>
-      <el-empty description="原型中的转出流程尚未接入业务接口，本阶段保持同等占位状态" />
-    </section>
 
     <DischargePanel
       v-if="activePanel === 'discharge'"
@@ -559,45 +449,6 @@ async function handleDischargeChanged() {
 .bed-card--empty.is-disabled {
   background: var(--el-fill-color-light);
   color: var(--el-text-color-placeholder);
-}
-
-.transfer-placeholder {
-  display: flex;
-  min-height: 0;
-  flex: 1;
-  flex-direction: column;
-  padding: 16px;
-}
-
-.transfer-placeholder__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px;
-  border: 1px solid var(--el-border-color-lighter);
-  border-radius: var(--el-border-radius-base);
-  background: var(--el-bg-color);
-  color: var(--nurse-text-primary);
-}
-
-.transfer-placeholder__header h2,
-.transfer-placeholder__header p {
-  margin: 0;
-}
-
-.transfer-placeholder__header h2 {
-  color: var(--nurse-text-primary);
-  font-weight: 600;
-}
-
-.transfer-placeholder__header p {
-  margin-top: 4px;
-  color: var(--nurse-text-secondary);
-  font-size: 13px;
-}
-
-.transfer-placeholder > :deep(.el-empty) {
-  flex: 1;
 }
 
 @media (max-width: 1366px) {

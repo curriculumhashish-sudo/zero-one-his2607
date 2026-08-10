@@ -204,7 +204,7 @@ function viewPatient(patient: PatientSummary) {
 }
 ```
 
-## 风险患者示例
+## 优先患者示例
 
 ```vue
 <script setup lang="ts">
@@ -218,7 +218,6 @@ const patient: PatientSummary = {
   patientType: 'emergency',
   serviceType: '急诊',
   priority: '优先',
-  riskHint: '青霉素过敏，高跌倒风险',
   status: '待处置',
   statusTone: 'danger'
 }
@@ -229,7 +228,7 @@ const patient: PatientSummary = {
 </template>
 ```
 
-`riskHint` 会显示在卡片内容区。`priority` 在没有 `serviceType` 时显示在姓名右侧摘要中。
+`priority` 在没有 `serviceType` 时显示在姓名右侧摘要中。患者卡片不展示风险提示；诊疗信息应由患者详情或就诊信息组件按后端实际提供的字段展示。
 
 ## 住院患者示例
 
@@ -278,8 +277,7 @@ function toPatientSummary(dto: OutpatientDto): PatientSummary {
     departmentName: dto.departmentName,
     status: dto.statusName,
     statusTone: dto.urgent ? 'danger' : 'info',
-    paymentType: dto.paymentTypeName,
-    riskHint: dto.riskDescription
+    paymentType: dto.paymentTypeName
   }
 }
 ```
@@ -300,7 +298,7 @@ const patient: PatientSummary = {
 - 性别、年龄或就诊类别为空时显示 `-`
 - 数字年龄自动补“岁”；包含“岁”“月”“天”的年龄文本原样显示
 - 底部编号优先级为：`queueNumber`、`visitNo`、`patientNo`
-- `visitTime`、`departmentName`、`riskHint` 为空时不占位
+- `visitTime`、`departmentName` 为空时不占位
 - `paymentType` 和 `status` 为空时不显示标签
 - `statusTone` 未传时使用 `info`
 
@@ -323,7 +321,6 @@ const patient: PatientSummary = {
 | `statusTone` | `PatientStatusTone` | 状态标签语义色 |
 | `paymentType` | `string \| null` | 支付类型 |
 | `priority` | `string \| null` | 优先级文本 |
-| `riskHint` | `string \| null` | 风险提示 |
 
 ## 职责边界
 

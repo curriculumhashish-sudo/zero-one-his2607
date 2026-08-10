@@ -6,8 +6,7 @@ import {
   queryNurseStationAutoBillingRules,
   queryNurseStationBillingCatalog,
   queryNurseStationPricedOrders,
-  saveNurseStationAutoBillingRule,
-  setNurseStationAutoBillingRuleStatus
+  saveNurseStationAutoBillingRule
 } from './index'
 
 describe('住院护士站住院记账 Mock API', () => {
@@ -111,47 +110,30 @@ describe('住院护士站住院记账 Mock API', () => {
     expect(result.results[0]?.message).toBe('已收费项目需要走退费流程')
   })
 
-  it('自动计费规则使用版本校验并显式设置目标状态', async () => {
+  it('自动计费规则只提交后端当前支持的字段', async () => {
     const created = await saveNurseStationAutoBillingRule({
-      idempotencyKey: 'auto-billing-create-spec-001',
       encounterId: 'encounter-001',
       patientId: 'patient-001',
       ruleName: '测试雾化自动计费',
       activityId: 'activity-nebulization-spec',
-      activityName: '雾化吸入治疗',
       chargeDefinitionId: 'charge-nebulization',
-      chargeDefinitionName: '雾化吸入治疗费',
-      quantity: 1,
-      priority: 20
-    })
-    const rule = created.rule
-    expect(rule).toBeDefined()
-
-    const changed = await setNurseStationAutoBillingRuleStatus({
-      idempotencyKey: 'auto-billing-status-spec-001',
-      encounterId: 'encounter-001',
-      patientId: 'patient-001',
-      ruleId: rule!.ruleId,
-      expectedVersion: rule!.version,
-      targetStatus: 'INACTIVE'
-    })
-    const stale = await setNurseStationAutoBillingRuleStatus({
-      idempotencyKey: 'auto-billing-status-stale-spec-001',
-      encounterId: 'encounter-001',
-      patientId: 'patient-001',
-      ruleId: rule!.ruleId,
-      expectedVersion: rule!.version,
-      targetStatus: 'ACTIVE'
+      quantity: 1
     })
     const refreshed = await queryNurseStationAutoBillingRules({
       encounterId: 'encounter-001',
       patientId: 'patient-001'
     })
 
-    expect(changed.rule).toEqual(expect.objectContaining({ status: 'INACTIVE', version: 2 }))
-    expect(stale).toEqual(
-      expect.objectContaining({ success: false, message: '规则已被他人修改，请刷新后重试' })
+    expect(created).toEqual(expect.objectContaining({ success: true }))
+    expect(refreshed.rules).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          ruleName: '测试雾化自动计费',
+          activityId: 'activity-nebulization-spec',
+          chargeDefinitionId: 'charge-nebulization',
+          quantity: 1
+        })
+      ])
     )
-    expect(refreshed.rules.find((item) => item.ruleId === rule!.ruleId)?.status).toBe('INACTIVE')
   })
 })

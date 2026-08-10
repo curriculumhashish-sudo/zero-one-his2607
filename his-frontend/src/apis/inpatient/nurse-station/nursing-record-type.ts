@@ -90,6 +90,8 @@ export interface NurseStationNursingRecordQueryDTO {
   recordedAtTo?: string
   /** 是否按记录时间升序排列。 */
   sortAsc?: boolean
+  /** 后端旧接口可能不返回完整抬头时，页面提供的患者上下文。 */
+  patientContext?: NurseStationNursingRecordPaperHeaderVO
 }
 
 /** 护理记录纸质单查询结果。 */

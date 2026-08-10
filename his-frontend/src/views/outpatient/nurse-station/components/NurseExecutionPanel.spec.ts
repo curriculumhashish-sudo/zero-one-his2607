@@ -54,32 +54,27 @@ const global = {
 const items: NurseExecutionItemVO[] = [
   {
     itemId: 'pending',
-    requestId: 'request-pending',
-    requestType: 'SERVICE',
-    requestTypeName: '处置',
-    orderContent: '静脉输液',
-    specification: '250ml',
+    encounterId: 'enc-001',
+    categoryCode: 'SERVICE',
+    categoryName: '处置',
+    itemName: '静脉输液',
+    quantity: 250,
+    unitName: 'ml',
     status: 'PENDING',
     statusName: '待执行',
-    plannedCount: 1,
-    executedCount: 0,
-    version: 0,
-    printTypes: ['TREATMENT_SHEET']
+    executionCount: 0
   },
   {
     itemId: 'completed',
-    requestId: 'request-completed',
-    requestType: 'SERVICE',
-    requestTypeName: '治疗',
-    orderContent: '雾化治疗',
+    encounterId: 'enc-001',
+    categoryCode: 'SERVICE',
+    categoryName: '治疗',
+    itemName: '雾化治疗',
     status: 'COMPLETED',
     statusName: '已完成',
-    plannedCount: 1,
-    executedCount: 1,
+    executionCount: 1,
     executorName: '模拟护士',
-    executedAt: '2026-07-29 09:00:00',
-    version: 1,
-    printTypes: ['NEBULIZATION_LABEL']
+    executedAt: '2026-07-29 09:00:00'
   }
 ]
 
@@ -99,7 +94,7 @@ describe('NurseExecutionPanel', () => {
     expect(rows[0]).toMatchObject({
       key: 'pending',
       name: '静脉输液',
-      specification: '250ml',
+      specification: '250 ml',
       status: 'PENDING'
     })
   })

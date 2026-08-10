@@ -12,12 +12,19 @@
       :height="height"
       :border="border"
       :stripe="stripe"
+      :scrollbar-always-on="scrollbarAlwaysOn"
       highlight-current-row
       :row-class-name="rowClass"
       @selection-change="onSelectionChange"
       @current-change="onCurrentChange"
     >
-      <el-table-column v-if="selectable" type="selection" width="44" :selectable="canSelectRow" />
+      <el-table-column
+        v-if="selectable"
+        type="selection"
+        width="44"
+        fixed="left"
+        :selectable="canSelectRow"
+      />
       <el-table-column
         v-for="column in columns"
         :key="column.prop"
@@ -25,6 +32,7 @@
         :label="column.label"
         :width="column.width"
         :min-width="column.minWidth"
+        :fixed="column.fixed"
         :align="column.align"
         :show-overflow-tooltip="column.showOverflowTooltip"
       >
@@ -37,7 +45,7 @@
           </slot>
         </template>
       </el-table-column>
-      <el-table-column v-if="$slots.actions" label="操作" width="120">
+      <el-table-column v-if="$slots.actions" label="操作" width="120" fixed="right">
         <template #default="scope">
           <slot
             name="actions"
@@ -83,6 +91,10 @@ const props = withDefaults(
     columns?: AdviceColumn[]
     /** 加载中 */
     loading?: boolean
+    /** 表格内容区高度；传入 100% 时由父级 flex 布局分配剩余空间。 */
+    height?: string | number
+    /** 内容超宽时始终显示横向滚动条。 */
+    scrollbarAlwaysOn?: boolean
     /** 只读：禁用勾选 */
     readonly?: boolean
     /** 是否显示勾选列 */
@@ -95,8 +107,6 @@ const props = withDefaults(
     disabledRow?: (row: AdviceOrder) => boolean
     /** 空数据文案 */
     emptyText?: string
-    /** 表格高度；传入 100% 时填满业务容器。 */
-    height?: number | string
     /** 是否显示纵向边框。 */
     border?: boolean
     /** 是否显示斑马纹。 */
@@ -110,13 +120,14 @@ const props = withDefaults(
       { prop: 'status', label: '状态', width: 100 }
     ],
     loading: false,
+    height: undefined,
+    scrollbarAlwaysOn: true,
     readonly: false,
     selectable: false,
     groupBy: undefined,
     currentRowKey: null,
     disabledRow: () => false,
     emptyText: '暂无医嘱',
-    height: undefined,
     border: false,
     stripe: false
   }
@@ -179,11 +190,22 @@ defineExpose({
 
 <style scoped>
 .advice-order-table {
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
   min-width: 0;
+  min-height: 0;
   overflow: hidden;
+  flex-direction: column;
   background: var(--el-bg-color);
   border: 1px solid var(--el-border-color-light);
   border-radius: 6px;
+}
+
+.advice-order-table > :deep(.el-table) {
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
 }
 
 .advice-order-table__toolbar,

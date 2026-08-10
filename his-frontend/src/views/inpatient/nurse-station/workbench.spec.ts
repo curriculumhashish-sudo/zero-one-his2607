@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest'
+import { createPinia, setActivePinia } from 'pinia'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 
 import Index from './Index.vue'
@@ -6,10 +7,13 @@ import NurseStationPatientPanel from './components/NurseStationPatientPanel.vue'
 import {
   DEFAULT_NURSE_STATION_TAB,
   getNurseStationOperationConfig,
-  NURSE_STATION_OPERATION_CONFIGS
+  NURSE_STATION_OPERATION_CONFIGS,
+  NURSE_STATION_TASK_FILTER_OPTIONS
 } from './constants'
 
 describe('住院护士站工作台骨架', () => {
+  beforeEach(() => setActivePinia(createPinia()))
+
   it('展示本项目启用的八个业务页签及默认页签', () => {
     expect(NURSE_STATION_OPERATION_CONFIGS.map((item) => item.id)).toEqual([
       '入出转管理',
@@ -84,7 +88,7 @@ describe('住院护士站工作台骨架', () => {
     expect(wrapper.findAll('.order-audit-table .el-table__row')).toHaveLength(2)
   })
 
-  it('医嘱执行根据左侧患者展示可勾选的计划时点', async () => {
+  it('医嘱执行根据左侧患者展示可开始执行的诊疗医嘱', async () => {
     const wrapper = mount(Index)
     await flushPromises()
 
@@ -95,7 +99,9 @@ describe('住院护士站工作台骨架', () => {
     expect(wrapper.findAll('.patient-execute-card')).toHaveLength(1)
     expect(wrapper.find('.patient-execute-card__header').text()).toContain('孙晓梅')
     expect(wrapper.findAll('.order-execute-table .el-table__row')).toHaveLength(2)
-    expect(wrapper.findAll('.schedule-slot')).toHaveLength(3)
+    expect(wrapper.find('.order-execute-toolbar').text()).toContain('开始执行')
+    expect(wrapper.findAll('.schedule-slot')).toHaveLength(0)
+    expect(wrapper.text()).not.toContain('取消执行')
   })
 
   it('汇总领药按选中患者展示药品医嘱和可勾选领药时点', async () => {
@@ -170,7 +176,7 @@ describe('住院护士站工作台骨架', () => {
     expect(wrapper.find('[data-testid="temperature-footer"]').text()).not.toContain('皮试')
   })
 
-  it('住院记账按单患者展示非医嘱、医嘱和自动计费三类工作区', async () => {
+  it('住院记账按单患者只展示后端当前支持的自动计费规则', async () => {
     const wrapper = mount(Index)
     await flushPromises()
     const billingTab = wrapper
@@ -184,25 +190,15 @@ describe('住院护士站工作台骨架', () => {
     expect(wrapper.find('.inpatient-billing-module').exists()).toBe(true)
     expect(wrapper.find('.billing-patient-header').text()).toContain('孙晓梅')
     expect(wrapper.find('.billing-patient-header').text()).toContain('account-001')
-    expect(wrapper.findAll('[data-testid="priced-order-table"] .el-table__row')).toHaveLength(3)
-
-    const orderTab = wrapper
-      .findAll('.billing-tabs button')
-      .find((item) => item.text() === '医嘱计费')
-    await orderTab?.trigger('click')
-    await flushPromises()
-    expect(wrapper.findAll('[data-testid="supplement-order-table"] .el-table__row')).toHaveLength(2)
-
-    const autoTab = wrapper
-      .findAll('.billing-tabs button')
-      .find((item) => item.text() === '自动计费')
-    await autoTab?.trigger('click')
-    await flushPromises()
-    expect(wrapper.find('.nursing-readonly-card').text()).toContain('Ⅱ级护理')
     expect(wrapper.findAll('[data-testid="auto-billing-table"] .el-table__row')).toHaveLength(1)
+    expect(wrapper.text()).not.toContain('医嘱计费')
+    expect(wrapper.text()).not.toContain('非医嘱计费')
+    expect(wrapper.text()).not.toContain('取消划价')
+    expect(wrapper.text()).not.toContain('护理级别自动计费')
+    expect(wrapper.text()).not.toContain('停用')
   })
 
-  it('费用明细按单患者展示今日明细、退款高亮和项目汇总', async () => {
+  it('费用明细按单患者展示后端字段和分类日期汇总', async () => {
     const wrapper = mount(Index)
     await flushPromises()
     const costTab = wrapper
@@ -215,9 +211,10 @@ describe('住院护士站工作台骨架', () => {
 
     expect(wrapper.find('.cost-detail-module').exists()).toBe(true)
     expect(wrapper.find('.cost-patient-header').text()).toContain('孙晓梅')
-    expect(wrapper.findAll('[data-testid="cost-detail-table"] .el-table__row')).toHaveLength(7)
-    expect(wrapper.findAll('.cost-detail-row--refund')).toHaveLength(1)
-    expect(wrapper.find('[data-testid="cost-totals"]').text()).toContain('￥85.70')
+    expect(wrapper.findAll('[data-testid="cost-detail-table"] .el-table__row')).toHaveLength(3)
+    expect(wrapper.find('[data-testid="cost-detail-table"]').text()).toContain('费用分类')
+    expect(wrapper.text()).not.toContain('来源')
+    expect(wrapper.text()).not.toContain('药品合计')
 
     const summaryTab = wrapper
       .findAll('.presentation-tabs button')
@@ -225,11 +222,12 @@ describe('住院护士站工作台骨架', () => {
     await summaryTab?.trigger('click')
     await flushPromises()
 
-    expect(wrapper.findAll('[data-testid="cost-summary-table"] .el-table__row')).toHaveLength(6)
-    expect(wrapper.find('.cost-item-count').text()).toContain('汇总项数：6 项')
+    expect(wrapper.findAll('[data-testid="cost-summary-table"] .el-table__row')).toHaveLength(3)
+    expect(wrapper.find('[data-testid="cost-summary-table"]').text()).toContain('汇总日期')
+    expect(wrapper.find('.cost-item-count').text()).toContain('汇总项数：3 项')
   })
 
-  it('挂载后加载病区病房、患者队列和一致的顶部统计', async () => {
+  it('挂载后加载患者队列和一致的顶部统计', async () => {
     const wrapper = mount(Index)
     await flushPromises()
 
@@ -239,8 +237,7 @@ describe('住院护士站工作台骨架', () => {
       '11',
       '20'
     ])
-    expect(wrapper.findAll('.patient-panel__filter-group').at(0)?.text()).toContain('内科疗区')
-    expect(wrapper.findAll('.patient-panel__filter-group').at(1)?.text()).toContain('301病房')
+    expect(wrapper.find('.patient-panel__spatial').exists()).toBe(false)
   })
 
   it('任务筛选会同时刷新患者队列和统计', async () => {
@@ -259,22 +256,16 @@ describe('住院护士站工作台骨架', () => {
     ])
   })
 
-  it('切换已出院结算范围后清空选择并锁定右侧业务页签', async () => {
+  it('不再暴露后端未实现的已处理和召回筛选', async () => {
     const wrapper = mount(Index)
     await flushPromises()
-    const panel = wrapper.findComponent(NurseStationPatientPanel)
 
-    panel.vm.$emit('update:selectedPatientIds', ['encounter-001', 'encounter-002'])
-    await wrapper.vm.$nextTick()
-    panel.vm.$emit('update:queueScope', 'settled-discharged')
-    await flushPromises()
-
-    expect(wrapper.findAll('.patient-card')).toHaveLength(2)
-    expect(
-      wrapper
-        .findAll('.operation-tabs__item')
-        .every((item) => item.attributes('disabled') !== undefined)
-    ).toBe(true)
-    expect(wrapper.find('.module-placeholder__selection').text()).toContain('已选 0 人')
+    expect(NURSE_STATION_TASK_FILTER_OPTIONS.map((item) => item.value)).toEqual([
+      'all',
+      'pending-audit',
+      'pending-execute'
+    ])
+    expect(wrapper.text()).not.toContain('已出院结算')
+    expect(wrapper.text()).not.toContain('召回')
   })
 })

@@ -29,8 +29,12 @@ export function toClinicalOrder(order: DoctorAdviceOrderVO): ClinicalOrderDraft 
     days: order.days,
     quantity: order.quantity,
     quantityUnit: order.quantityUnit,
+    dosePerQuantityUnit: order.dosePerQuantityUnit,
     remark: order.remark,
-    status: order.status
+    status: order.status,
+    groupId: order.groupId,
+    prescriptionNo: order.prescriptionNo,
+    serviceRequestId: order.serviceRequestId
   }
 }
 
@@ -51,7 +55,8 @@ export function toClinicalOrderCandidate(
     defaultRoute: item.defaultRoute,
     defaultDays: item.defaultDays,
     defaultQuantity: item.defaultQuantity,
-    quantityUnit: item.quantityUnit
+    quantityUnit: item.quantityUnit,
+    dosePerQuantityUnit: item.dosePerQuantityUnit
   }
 }
 
@@ -83,6 +88,7 @@ export const outpatientAdviceAdapter = {
       days: candidate.defaultDays,
       quantity: candidate.defaultQuantity,
       quantityUnit: candidate.quantityUnit,
+      dosePerQuantityUnit: candidate.dosePerQuantityUnit,
       status: 'DRAFT'
     }
   },
@@ -93,29 +99,31 @@ export const outpatientAdviceAdapter = {
 
   mapSaveRequest(
     orders: ClinicalOrderDraft[],
-    _context: ClinicalOrderContext,
-    version: number
+    _context: ClinicalOrderContext
   ): SaveDoctorAdviceOrdersDTO {
     return {
-      version,
-      items: orders.map((order, index) => ({
-        id: order.recordId,
-        catalogId: order.catalogId,
-        code: order.code,
-        name: order.name,
-        category: order.category,
-        categoryName: order.categoryName,
-        specification: order.specification,
-        dose: order.dose === undefined ? undefined : Number(order.dose),
-        unit: order.unit,
-        frequency: order.frequency,
-        route: order.route,
-        days: order.days === undefined ? undefined : Number(order.days),
-        quantity: order.quantity ?? 0,
-        quantityUnit: order.quantityUnit ?? '项',
-        remark: order.remark,
-        orderNo: index + 1
-      }))
+      items: orders
+        .filter((order) => order.status === 'DRAFT')
+        .map((order, index) => ({
+          id: order.recordId,
+          catalogId: order.catalogId,
+          code: order.code,
+          name: order.name,
+          category: order.category,
+          categoryName: order.categoryName,
+          specification: order.specification,
+          dose: order.dose === undefined ? undefined : Number(order.dose),
+          unit: order.unit,
+          frequency: order.frequency,
+          route: order.route,
+          days: order.days === undefined ? undefined : Number(order.days),
+          quantity: order.quantity ?? 0,
+          quantityUnit: order.quantityUnit ?? '项',
+          dosePerQuantityUnit: order.dosePerQuantityUnit,
+          remark: order.remark,
+          groupId: order.groupId,
+          orderNo: index + 1
+        }))
     }
   }
 } satisfies AdviceScenarioAdapter

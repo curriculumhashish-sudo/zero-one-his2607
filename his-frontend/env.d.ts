@@ -23,11 +23,29 @@ interface ImportMetaEnv {
   /** 客户端id */
   readonly VITE_CLIENT_ID: string
   /** 认证服务器地址 */
-    readonly VITE_AUTH_SERVER_URL: string
+  /** 是否启用页面登录拦截 */
+  readonly VITE_AUTH_GUARD_ENABLED?: string
+  /** C1 收费工作站本地开发代理 */
+  readonly VITE_C1_CHARGE_SERVER_URL?: string
     /** 是否启用页面登录拦截 */
-    readonly VITE_AUTH_GUARD_ENABLED: string
     /** C1 收费工作站本地开发代理 */
-    readonly VITE_C1_CHARGE_SERVER_URL: string
+  readonly VITE_AUTH_SERVER_URL: string
+  /** 住院护士站接口模式：real 使用后端，mock 使用内存数据 */
+  readonly VITE_NURSE_STATION_API_MODE?: 'real' | 'mock'
+  /** 住院护士站后端代理前缀或网关地址 */
+  readonly VITE_NURSE_STATION_API_URL?: string
+  /** 门诊护士站后端代理前缀或网关地址 */
+  readonly VITE_OUTPATIENT_NURSE_STATION_API_URL?: string
+  /** 门诊护士站接口模式：real 使用后端，mock 使用内存数据 */
+  readonly VITE_OUTPATIENT_NURSE_STATION_API_MODE?: 'real' | 'mock'
+  /** 住院医生站接口模式：real 使用后端，mock 使用内存数据 */
+  readonly VITE_INPATIENT_DOCTOR_STATION_API_MODE?: 'real' | 'mock'
+  /** 住院医生站后端代理前缀或网关地址 */
+  readonly VITE_INPATIENT_DOCTOR_STATION_API_URL?: string
+  /** 门诊医生站接口模式：real 使用后端，mock 使用内存数据 */
+  readonly VITE_OUTPATIENT_DOCTOR_STATION_API_MODE?: 'real' | 'mock'
+  /** 门诊医生站后端代理前缀或网关地址 */
+  readonly VITE_OUTPATIENT_DOCTOR_STATION_API_URL?: string
 }
 
 interface TianaiCaptchaInstance {

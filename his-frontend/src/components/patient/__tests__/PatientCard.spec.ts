@@ -18,8 +18,7 @@ const patient: PatientSummary = {
   departmentName: '心内科',
   status: '候诊中',
   statusTone: 'warning',
-  paymentType: '医保',
-  riskHint: '青霉素过敏'
+  paymentType: '医保'
 }
 
 describe('PatientCard', () => {
@@ -34,10 +33,38 @@ describe('PatientCard', () => {
     expect(wrapper.text()).toContain('普通门诊')
     expect(wrapper.text()).toContain('2026-07-20 09:30')
     expect(wrapper.text()).toContain('心内科')
-    expect(wrapper.text()).toContain('青霉素过敏')
+    expect(wrapper.find('.patient-card__risk').exists()).toBe(false)
     expect(wrapper.text()).toContain('排队号 A012')
     expect(wrapper.text()).toContain('医保')
     expect(wrapper.text()).toContain('候诊中')
+  })
+
+  it('允许门诊医生队列隐藏科室和排队编号', () => {
+    const wrapper = mount(PatientCard, {
+      props: {
+        patient,
+        showDepartment: false,
+        showPrimaryNumber: false
+      }
+    })
+
+    expect(wrapper.text()).not.toContain('心内科')
+    expect(wrapper.text()).not.toContain('排队号 A012')
+    expect(wrapper.find('.patient-card__number').exists()).toBe(false)
+    expect(wrapper.text()).toContain('医保')
+  })
+
+  it('允许门诊医生队列在左下角固定显示病历号', () => {
+    const wrapper = mount(PatientCard, {
+      props: {
+        patient,
+        showDepartment: false,
+        primaryNumberMode: 'patient-no'
+      }
+    })
+
+    expect(wrapper.get('.patient-card__number').text()).toBe('MR20260001')
+    expect(wrapper.text()).not.toContain('排队号 A012')
   })
 
   it('点击卡片发出 select 并返回当前患者', async () => {

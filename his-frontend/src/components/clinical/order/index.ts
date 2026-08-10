@@ -7,12 +7,18 @@ export type {
   ClinicalOrderCategory,
   ClinicalOrderContext,
   ClinicalOrderDraft,
+  ClinicalOrderStatus,
   ClinicalOrderValidationError,
   ClinicalOrderValidationResult
 } from './type'
 export {
-  moveClinicalOrder,
+  buildClinicalOrderDraftChanges,
+  calculateSuggestedOrderQuantity,
+  groupClinicalOrders,
+  normalizeOrphanClinicalOrderGroups,
   removeClinicalOrder,
+  ungroupClinicalOrders,
   updateClinicalOrder,
   validateClinicalOrders
 } from './utils'
+export type { ClinicalOrderDraftChanges } from './utils'

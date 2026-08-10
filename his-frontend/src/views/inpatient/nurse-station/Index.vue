@@ -32,24 +32,21 @@ const activeOperationConfig = computed(() => {
 })
 
 const {
-  availableHouseOptions,
   bootstrapPatientWorkbench,
   errorMessage,
   keyword,
   loading: patientLoading,
   normalizeSelection,
+  pageIndex,
+  pageSize,
   patients,
-  queueScope,
   refreshPatients,
-  selectedHouseIds,
   selectedPatientIds,
-  selectedWardIds,
   statistics: patientStatistics,
   taskFilter,
-  wardOptions
+  total: patientTotal
 } = useNurseStationPatientWorkbench(() => activeOperationConfig.value.selectionPolicy)
 
-const isRecallListMode = computed(() => queueScope.value === 'settled-discharged')
 const selectedPatients = computed(() => {
   const selectedIds = new Set(selectedPatientIds.value)
   return patients.value.filter((patient) => selectedIds.has(patient.encounterId))
@@ -68,19 +65,17 @@ onMounted(() => void bootstrapPatientWorkbench())
     <div class="nurse-station-workbench">
       <NurseStationPatientPanel
         v-model:selected-patient-ids="selectedPatientIds"
-        v-model:queue-scope="queueScope"
         v-model:task-filter="taskFilter"
         v-model:keyword="keyword"
-        v-model:selected-ward-ids="selectedWardIds"
-        v-model:selected-house-ids="selectedHouseIds"
+        v-model:page-index="pageIndex"
         class="nurse-station-workbench__patient"
         :patients="patients"
         :statistics="patientStatistics"
         :selection-policy="activeOperationConfig.selectionPolicy"
         :loading="patientLoading"
         :error-message="errorMessage"
-        :ward-options="wardOptions"
-        :house-options="availableHouseOptions"
+        :page-size="pageSize"
+        :total="patientTotal"
         :enable-patient-drag="activeOperationTab === '入出转管理'"
         @refresh="refreshPatients"
       />
@@ -93,10 +88,8 @@ onMounted(() => void bootstrapPatientWorkbench())
             type="button"
             class="operation-tabs__item"
             :class="{
-              'is-active': activeOperationTab === item.id,
-              'is-disabled': isRecallListMode
+              'is-active': activeOperationTab === item.id
             }"
-            :disabled="isRecallListMode"
             :aria-current="activeOperationTab === item.id ? 'page' : undefined"
             @click="handleOperationTabChange(item.id)"
           >
@@ -107,47 +100,44 @@ onMounted(() => void bootstrapPatientWorkbench())
         <div class="nurse-station-workbench__content">
           <KeepAlive>
             <InOutTransfer
-              v-if="activeOperationTab === '入出转管理' && !isRecallListMode"
+              v-if="activeOperationTab === '入出转管理'"
               v-model:selected-patient-ids="selectedPatientIds"
               :patients="patients"
-              :selected-ward-ids="selectedWardIds"
-              :selected-house-ids="selectedHouseIds"
               @patients-changed="refreshPatients"
             />
             <OrderAudit
-              v-else-if="activeOperationTab === '医嘱校对' && !isRecallListMode"
+              v-else-if="activeOperationTab === '医嘱校对'"
               :patients="selectedPatients"
               @patients-changed="refreshPatients"
             />
             <OrderExecute
-              v-else-if="activeOperationTab === '医嘱执行' && !isRecallListMode"
+              v-else-if="activeOperationTab === '医嘱执行'"
               :patients="selectedPatients"
               @patients-changed="refreshPatients"
             />
             <NursingRecord
-              v-else-if="activeOperationTab === '护理记录' && !isRecallListMode"
+              v-else-if="activeOperationTab === '护理记录'"
               :patients="selectedPatients"
             />
             <TemperatureSheet
-              v-else-if="activeOperationTab === '体温单' && !isRecallListMode"
+              v-else-if="activeOperationTab === '体温单'"
               :patients="selectedPatients"
             />
             <InpatientBilling
-              v-else-if="activeOperationTab === '住院记账' && !isRecallListMode"
+              v-else-if="activeOperationTab === '住院记账'"
               :patients="selectedPatients"
             />
             <CostDetail
-              v-else-if="activeOperationTab === '费用明细' && !isRecallListMode"
+              v-else-if="activeOperationTab === '费用明细'"
               :patients="selectedPatients"
             />
             <DispenseSummary
-              v-else-if="activeOperationTab === '汇总领药' && !isRecallListMode"
+              v-else-if="activeOperationTab === '汇总领药'"
               :patients="selectedPatients"
             />
           </KeepAlive>
           <NurseStationModulePlaceholder
             v-if="
-              isRecallListMode ||
               ![
                 '入出转管理',
                 '医嘱校对',
@@ -162,7 +152,6 @@ onMounted(() => void bootstrapPatientWorkbench())
             :key="activeOperationTab"
             :config="activeOperationConfig"
             :selected-patient-count="selectedPatientIds.length"
-            :recall-mode="isRecallListMode"
           />
         </div>
       </section>

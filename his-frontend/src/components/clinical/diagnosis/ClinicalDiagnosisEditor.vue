@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { ArrowDown, ArrowUp, Delete, Plus, Star } from '@element-plus/icons-vue'
+import { Delete, Plus } from '@element-plus/icons-vue'
 
 import EmptyState from '@/components/common/EmptyState.vue'
 
@@ -10,12 +10,7 @@ import type {
   ClinicalDiagnosisDictionaryLoader,
   ClinicalDiagnosisItem
 } from './type'
-import {
-  addClinicalDiagnoses,
-  moveClinicalDiagnosis,
-  removeClinicalDiagnosis,
-  setPrimaryClinicalDiagnosis
-} from './utils'
+import { addClinicalDiagnoses, removeClinicalDiagnosis, setPrimaryClinicalDiagnosis } from './utils'
 
 defineOptions({
   name: 'ClinicalDiagnosisEditor'
@@ -31,12 +26,16 @@ const props = withDefaults(
     accepted?: boolean
     /** 完诊或无权限时设为只读 */
     readonly?: boolean
+    /** 是否允许手动设置主诊断；为 false 时仅只读展示主诊断标签 */
+    allowSetPrimary?: boolean
     /** 诊断列表是否正在加载 */
     loading?: boolean
     /** 诊断列表加载失败信息 */
     error?: string
     /** 当前列表是否存在未保存修改 */
     dirty?: boolean
+    /** 是否由场景页面在变更后自动保存。 */
+    autoSave?: boolean
     /** 最近保存时间 */
     updatedAt?: string
     /** 门诊或住院页面提供的诊断字典加载函数 */
@@ -47,9 +46,11 @@ const props = withDefaults(
     patientSelected: false,
     accepted: false,
     readonly: false,
+    allowSetPrimary: true,
     loading: false,
     error: '',
     dirty: false,
+    autoSave: false,
     updatedAt: '',
     loadDictionary: undefined
   }
@@ -59,6 +60,7 @@ const emit = defineEmits<{
   'update:modelValue': [items: ClinicalDiagnosisItem[]]
   change: [items: ClinicalDiagnosisItem[]]
   retry: []
+  openHistory: []
   dictionaryError: [error: unknown]
 }>()
 
@@ -86,11 +88,6 @@ function setPrimary(row: unknown) {
   if (item.primary) return
   commit(setPrimaryClinicalDiagnosis(props.modelValue, item.key))
 }
-
-function moveDiagnosis(row: unknown, direction: -1 | 1) {
-  const item = row as ClinicalDiagnosisItem
-  commit(moveClinicalDiagnosis(props.modelValue, item.key, direction))
-}
 </script>
 
 <template>
@@ -116,7 +113,9 @@ function moveDiagnosis(row: unknown, direction: -1 | 1) {
     <EmptyState
       v-else-if="!canDisplayDiagnoses"
       title="请先接诊患者"
-      description="接诊后才能新增、调整并保存本次诊断"
+      :description="
+        autoSave ? '接诊后可新增和调整诊断，修改会自动保存' : '接诊后才能新增、调整并保存本次诊断'
+      "
     />
 
     <div v-else class="clinical-diagnosis-editor__content">
@@ -125,14 +124,17 @@ function moveDiagnosis(row: unknown, direction: -1 | 1) {
           <strong>本次诊断</strong>
           <el-tag size="small" effect="plain">{{ modelValue.length }}</el-tag>
           <span v-if="readonly" class="is-readonly">已完诊，只读</span>
-          <span v-else-if="dirty" class="is-dirty">有未保存修改</span>
-          <span v-else class="is-saved">内容已保存</span>
+          <span v-else-if="dirty" class="is-dirty">
+            {{ autoSave ? '待自动保存' : '有未保存修改' }}
+          </span>
+          <span v-else class="is-saved">{{ autoSave ? '已自动保存' : '内容已保存' }}</span>
         </div>
 
         <div class="clinical-diagnosis-editor__actions">
           <span v-if="updatedAt" class="clinical-diagnosis-editor__time">
             最近保存：{{ updatedAt }}
           </span>
+          <el-button @click="emit('openHistory')">历史诊断</el-button>
           <el-button
             v-if="!readonly"
             type="primary"
@@ -156,35 +158,25 @@ function moveDiagnosis(row: unknown, direction: -1 | 1) {
         <el-table-column label="主诊断" width="110" align="center">
           <template #default="{ row }">
             <el-tag v-if="row.primary" type="danger" effect="light">主诊断</el-tag>
-            <el-button v-else-if="!readonly" type="primary" link @click="setPrimary(row)">
+            <el-button
+              v-else-if="allowSetPrimary && !readonly"
+              type="primary"
+              link
+              @click="setPrimary(row)"
+            >
               设为主诊断
             </el-button>
             <span v-else>—</span>
           </template>
         </el-table-column>
-        <el-table-column prop="code" label="ICD 编码" width="150" />
+        <el-table-column prop="code" label="诊断编码" width="150" />
         <el-table-column prop="name" label="诊断名称" min-width="220" />
         <el-table-column prop="typeName" label="诊断分类" width="130" />
         <el-table-column prop="diagnosedAt" label="诊断时间" min-width="170">
           <template #default="{ row }">{{ row.diagnosedAt || '保存后生成' }}</template>
         </el-table-column>
-        <el-table-column v-if="!readonly" label="操作" width="220" fixed="right">
-          <template #default="{ row, $index }">
-            <el-button link :icon="Star" :disabled="row.primary" @click="setPrimary(row)">
-              主诊断
-            </el-button>
-            <el-button
-              link
-              :icon="ArrowUp"
-              :disabled="$index === 0"
-              @click="moveDiagnosis(row, -1)"
-            />
-            <el-button
-              link
-              :icon="ArrowDown"
-              :disabled="$index === modelValue.length - 1"
-              @click="moveDiagnosis(row, 1)"
-            />
+        <el-table-column v-if="!readonly" label="操作" width="90" fixed="right">
+          <template #default="{ row }">
             <el-button type="danger" link :icon="Delete" @click="removeDiagnosis(row)">
               删除
             </el-button>
@@ -197,7 +189,11 @@ function moveDiagnosis(row: unknown, direction: -1 | 1) {
 
       <el-alert
         v-if="!readonly"
-        title="保存前至少需要一条诊断，并且只能设置一个主诊断。"
+        :title="
+          allowSetPrimary
+            ? '保存前至少需要一条诊断，并且只能设置一个主诊断。'
+            : '保存前至少需要一条诊断；新增的第一条诊断自动作为主诊断。'
+        "
         type="info"
         :closable="false"
         show-icon

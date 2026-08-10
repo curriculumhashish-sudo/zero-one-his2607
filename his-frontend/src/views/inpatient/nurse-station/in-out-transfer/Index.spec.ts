@@ -25,9 +25,7 @@ function createBoardResult(label: string): NurseStationBedBoardVO {
           wardName: `${label}疗区`,
           houseId: `house-${label}`,
           houseName: `${label}病房`,
-          displayOrder: 1,
-          operationalEnum: 'AVAILABLE',
-          version: 1
+          operationalEnum: 'AVAILABLE'
         },
         occupant: null
       }
@@ -40,32 +38,23 @@ afterEach(() => {
 })
 
 describe('入出转床位看板请求保护', () => {
-  it('快速切换筛选时只展示最后一次请求结果', async () => {
-    const firstRequest = createDeferred<NurseStationBedBoardVO>()
-    const secondRequest = createDeferred<NurseStationBedBoardVO>()
-    vi.spyOn(nurseStationApi, 'queryNurseStationBedBoard')
-      .mockImplementationOnce(() => firstRequest.promise)
-      .mockImplementationOnce(() => secondRequest.promise)
+  it('加载不依赖前端拼装病区筛选的完整床位看板', async () => {
+    const request = createDeferred<NurseStationBedBoardVO>()
+    const querySpy = vi
+      .spyOn(nurseStationApi, 'queryNurseStationBedBoard')
+      .mockImplementationOnce(() => request.promise)
 
     const wrapper = mount(Index, {
       props: {
         patients: [],
-        selectedPatientIds: [],
-        selectedWardIds: [],
-        selectedHouseIds: []
+        selectedPatientIds: []
       }
     })
     await flushPromises()
 
-    await wrapper.setProps({ selectedWardIds: ['ward-latest'] })
-    secondRequest.resolve(createBoardResult('最新'))
+    request.resolve(createBoardResult('完整'))
     await flushPromises()
-    expect(wrapper.text()).toContain('最新疗区')
-
-    // 较早请求最后才返回，也不能把已经显示的最新筛选结果覆盖掉。
-    firstRequest.resolve(createBoardResult('过期'))
-    await flushPromises()
-    expect(wrapper.text()).toContain('最新疗区')
-    expect(wrapper.text()).not.toContain('过期疗区')
+    expect(querySpy).toHaveBeenCalledWith({ panel: 'ADMISSION' })
+    expect(wrapper.text()).toContain('完整疗区')
   })
 })

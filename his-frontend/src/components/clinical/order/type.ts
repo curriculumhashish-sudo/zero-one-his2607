@@ -4,6 +4,9 @@ import type { AdviceOrder, MedicalKey } from '@/components/medical/type'
 /** 当前基础版支持的医嘱项目分类。 */
 export type ClinicalOrderCategory = 'DRUG' | 'LAB' | 'EXAM' | 'TREATMENT'
 
+/** 医嘱生命周期状态：撤回后保留记录，不再恢复为草稿。 */
+export type ClinicalOrderStatus = 'DRAFT' | 'SIGNED' | 'WITHDRAWN'
+
 /**
  * 门诊、住院共同使用的医嘱草稿。
  *
@@ -29,10 +32,22 @@ export interface ClinicalOrderDraft extends AdviceOrder {
   quantityUnit?: string
   /** 医嘱状态码 */
   statusCode?: string
+  /** 场景侧状态显示名称；为空时由公共编辑器根据 status 映射。 */
+  statusName?: string
   /** 疗程类型 */
   therapyType?: string
   /** 疗程类型名称 */
   therapyTypeName?: string
+  /** 医嘱状态；只有草稿允许编辑和改变分组。 */
+  status: ClinicalOrderStatus
+  /** 医嘱分组标识；相同标识的医嘱属于同一组。 */
+  groupId?: string
+  /** 签发后生成的处方号。 */
+  prescriptionNo?: string
+  /** 非药品医嘱签发后生成的服务申请 ID。 */
+  serviceRequestId?: string
+  /** 一个开立数量单位所含的剂量，用于计算建议数量。 */
+  dosePerQuantityUnit?: number
 }
 
 /** 医嘱项目选择弹窗中的候选项。 */
@@ -65,6 +80,8 @@ export interface ClinicalOrderCandidate extends Record<string, unknown> {
   quantityUnit?: string
   /** 默认疗程类型 */
   defaultTherapyType?: string
+  /** 一个数量单位所含剂量，例如每片 5mg。 */
+  dosePerQuantityUnit?: number
 }
 
 /** 公共医嘱工作区使用的最小诊疗上下文。 */

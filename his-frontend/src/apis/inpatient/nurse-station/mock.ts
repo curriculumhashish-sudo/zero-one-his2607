@@ -3,41 +3,8 @@ import type {
   NurseStationPatientFilterQuery,
   NurseStationPatientQueueItemVO,
   NurseStationPatientQueueQuery,
-  NurseStationPatientStatisticsVO,
-  NurseStationWardTreeVO
+  NurseStationPatientStatisticsVO
 } from './type'
-
-const wardTree: NurseStationWardTreeVO = {
-  wardNodes: [
-    {
-      wardId: 'ward-internal',
-      wardName: '内科疗区',
-      displayOrder: 1,
-      houseNodes: [
-        { houseId: 'house-301', houseName: '301病房', displayOrder: 1 },
-        { houseId: 'house-302', houseName: '302病房', displayOrder: 2 }
-      ]
-    },
-    {
-      wardId: 'ward-surgery',
-      wardName: '外科疗区',
-      displayOrder: 2,
-      houseNodes: [
-        { houseId: 'house-401', houseName: '401病房', displayOrder: 1 },
-        { houseId: 'house-402', houseName: '402病房', displayOrder: 2 }
-      ]
-    },
-    {
-      wardId: 'ward-pediatrics',
-      wardName: '儿科疗区',
-      displayOrder: 3,
-      houseNodes: [
-        { houseId: 'house-501', houseName: '501病房', displayOrder: 1 },
-        { houseId: 'house-502', houseName: '502病房', displayOrder: 2 }
-      ]
-    }
-  ]
-}
 
 const patientRows: NurseStationPatientQueueItemVO[] = [
   {
@@ -68,7 +35,6 @@ const patientRows: NurseStationPatientQueueItemVO[] = [
     pinyinCode: 'SXM',
     primaryNurseName: '周护士',
     priorityEnum: 'NORMAL',
-    recallEnabled: false,
     statusEnum: 'IN_PROGRESS',
     statusEnumText: '在院',
     wardId: 'ward-internal',
@@ -254,7 +220,6 @@ const patientRows: NurseStationPatientQueueItemVO[] = [
     pendingAuditCount: 0,
     pendingExecuteCount: 0,
     pinyinCode: 'ZBA',
-    recallEnabled: true,
     statusEnum: 'COMPLETED',
     statusEnumText: '已结算',
     wardId: 'ward-internal',
@@ -278,7 +243,6 @@ const patientRows: NurseStationPatientQueueItemVO[] = [
     pendingAuditCount: 0,
     pendingExecuteCount: 0,
     pinyinCode: 'JCH',
-    recallEnabled: true,
     statusEnum: 'DISCHARGED',
     statusEnumText: '已离院',
     wardId: 'ward-surgery',
@@ -324,11 +288,10 @@ function filterPatients(query: NurseStationPatientFilterQuery) {
   const wardIds = parseIds(query.wardIds || query.wardId)
   const houseIds = parseIds(query.houseIds || query.houseId)
   const keyword = query.keyword?.trim().toLowerCase() ?? ''
-  const settledMode = query.nurseStationStatusFilter === 'SETTLED_DISCHARGED'
 
   return patientRows.filter((row) => {
     const isSettled = row.statusEnum === 'COMPLETED' || row.statusEnum === 'DISCHARGED'
-    if (settledMode !== isSettled) return false
+    if (isSettled) return false
     if (houseIds.size > 0 && (!row.houseId || !houseIds.has(row.houseId))) return false
     if (houseIds.size === 0 && wardIds.size > 0 && (!row.wardId || !wardIds.has(row.wardId))) {
       return false
@@ -353,9 +316,6 @@ function filterPatients(query: NurseStationPatientFilterQuery) {
     if (query.nurseStationTaskFilter === 'pending-execute') {
       return (row.pendingExecuteCount ?? 0) > 0
     }
-    if (query.nurseStationTaskFilter === 'processed') {
-      return (row.pendingAuditCount ?? 0) === 0 && (row.pendingExecuteCount ?? 0) === 0
-    }
     return true
   })
 }
@@ -368,17 +328,6 @@ function comparePatients(a: NurseStationPatientQueueItemVO, b: NurseStationPatie
     if (compared !== 0) return compared
   }
   return 0
-}
-
-/** Mock：加载当前护士站管理范围内的病区病房树。 */
-export async function mockLoadNurseStationWardTree(): Promise<NurseStationWardTreeVO> {
-  await Promise.resolve()
-  return {
-    wardNodes: wardTree.wardNodes.map((ward) => ({
-      ...ward,
-      houseNodes: ward.houseNodes.map((house) => ({ ...house }))
-    }))
-  }
 }
 
 /** Mock：获取与患者队列相同范围下的顶部统计。 */

@@ -2,7 +2,7 @@
 
 import { defineComponent } from 'vue'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import DoctorStationHeader from './DoctorStationHeader.vue'
 import type { ActionToolbarItem } from '@/components/common/type'
@@ -82,5 +82,38 @@ describe('DoctorStationHeader', () => {
 
     toolbar.vm.$emit('action', actions[0])
     expect(wrapper.emitted('action')?.[0]).toEqual([actions[0]])
+  })
+
+  it('中栏较窄时改为上下布局并保留全部操作', async () => {
+    const rectSpy = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
+      width: 480,
+      height: 100,
+      top: 0,
+      right: 480,
+      bottom: 100,
+      left: 0,
+      x: 0,
+      y: 0,
+      toJSON: () => ({})
+    } as DOMRect)
+    const actions: ActionToolbarItem[] = Array.from({ length: 6 }, (_, index) => ({
+      key: `action-${index}`,
+      label: `操作${index + 1}`
+    }))
+
+    const wrapper = mount(DoctorStationHeader, {
+      props: {
+        activeTab: 'record',
+        tabs: [{ key: 'record', label: '病历' }],
+        actions,
+        maxVisible: 6
+      },
+      global
+    })
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.classes()).toContain('is-stacked')
+    expect(wrapper.getComponent(ActionToolbarStub).props('maxVisible')).toBe(6)
+    rectSpy.mockRestore()
   })
 })

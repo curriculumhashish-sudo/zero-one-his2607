@@ -25,6 +25,8 @@ export interface AdviceColumn {
   label: string
   width?: string | number
   minWidth?: string | number
+  /** 固定列位置；窄工作区横向滚动时仍保留关键内容。 */
+  fixed?: boolean | 'left' | 'right'
   formatter?: (row: AdviceOrder) => string
   align?: 'left' | 'center' | 'right'
   /** 内容溢出时是否显示 tooltip。 */

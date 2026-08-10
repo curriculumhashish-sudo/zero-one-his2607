@@ -6,8 +6,8 @@ import {
   mockGetNurseConsumables,
   mockGetNurseExecutionItems,
   mockPageNursePatientQueue,
-  mockPerformNurseExecutions,
-  mockPrintNurseDocuments
+  mockPagePatientExecutionHistory,
+  mockPerformNurseExecutions
 } from './mock'
 
 async function resolveMockRequest<T>(request: Promise<T>) {
@@ -24,54 +24,97 @@ describe('nurse-station mock', () => {
     vi.useRealTimers()
   })
 
-  it('按日期和关键词查询患者队列', async () => {
+  it('按预约日期查询患者队列', async () => {
     const today = dayjs().format('YYYY-MM-DD')
     const page = await resolveMockRequest(
       mockPageNursePatientQueue({
         pageIndex: 1,
         pageSize: 20,
-        keyword: 'M20260728001',
-        startDate: today,
-        endDate: today
+        bookingDate: today
       })
     )
 
-    expect(page.total).toBe(1)
-    expect(page.rows?.[0]?.patientName).toBe('林安然')
+    expect(page.total).toBe(2)
+    expect(page.rows?.map((row) => row.patientName)).toEqual(['林安然', '周远航'])
+    expect(page.rows?.map((row) => row.patientId)).toEqual(['mock-patient-001', 'mock-patient-002'])
   })
 
-  it('按就诊隔离执行项目和耗材', async () => {
-    const executionRequest = mockGetNurseExecutionItems('enc-nur-20260728-002')
-    const consumableRequest = mockGetNurseConsumables('enc-nur-20260728-002')
+  it('全功能患者覆盖待执行、已完成、已取消和耗材真实字段', async () => {
+    const executionRequest = mockGetNurseExecutionItems('mock-patient-001', 'mock-encounter-001')
+    const consumableRequest = mockGetNurseConsumables('mock-patient-001', 'mock-encounter-001')
 
     await vi.runAllTimersAsync()
     const [executionItems, consumables] = await Promise.all([executionRequest, consumableRequest])
 
-    expect(executionItems.map((item) => item.itemId)).toEqual(['exec-004', 'exec-005'])
-    expect(consumables.map((item) => item.dispenseItemId)).toEqual(['dispense-003'])
+    expect(executionItems.map((item) => item.status)).toEqual([
+      'PENDING',
+      'PENDING',
+      'COMPLETED',
+      'CANCELLED'
+    ])
+    expect(consumables).toEqual([
+      expect.objectContaining({
+        deviceDefId: 'MOCK-DEVICE-INFUSION-001',
+        supportInfo: '一次性使用输液器',
+        statusEnum: 'PENDING'
+      }),
+      expect.objectContaining({
+        deviceDefId: 'MOCK-DEVICE-DRESSING-002',
+        statusEnum: 'DISPENSED'
+      })
+    ])
+    expect(consumables[1]?.supportInfo).toBeUndefined()
   })
 
-  it('提交单一打印任务并返回打印机信息', async () => {
-    const result = await resolveMockRequest(
-      mockPrintNurseDocuments({
-        encounterId: 'enc-nur-20260728-001',
-        documentIds: ['exec-001', 'exec-002'],
-        documentType: 'TREATMENT_SHEET',
-        reprint: false
-      })
-    )
+  it('空状态患者可从无耗材、无历史记录开始体验执行', async () => {
+    const executionRequest = mockGetNurseExecutionItems('mock-patient-002', 'mock-encounter-002')
+    const consumableRequest = mockGetNurseConsumables('mock-patient-002', 'mock-encounter-002')
+    const historyRequest = mockPagePatientExecutionHistory('mock-patient-002', {
+      pageIndex: 1,
+      pageSize: 10
+    })
 
-    expect(result.success).toBe(true)
-    expect(result.printer).toBeTruthy()
-    expect(result.message).toContain('2')
-    expect(result.documentType).toBe('TREATMENT_SHEET')
+    await vi.runAllTimersAsync()
+    const [executionItems, consumables, history] = await Promise.all([
+      executionRequest,
+      consumableRequest,
+      historyRequest
+    ])
+
+    expect(executionItems).toEqual([
+      expect.objectContaining({ itemId: 'mock-exec-empty-001', status: 'PENDING' })
+    ])
+    expect(consumables).toEqual([])
+    expect(history.total).toBe(0)
+  })
+
+  it('全功能患者提供超过一页的历史执行记录', async () => {
+    const firstPageRequest = mockPagePatientExecutionHistory('mock-patient-001', {
+      pageIndex: 1,
+      pageSize: 10
+    })
+    await vi.runAllTimersAsync()
+    const firstPage = await firstPageRequest
+
+    const secondPageRequest = mockPagePatientExecutionHistory('mock-patient-001', {
+      pageIndex: 2,
+      pageSize: 10
+    })
+    await vi.runAllTimersAsync()
+    const secondPage = await secondPageRequest
+
+    expect(firstPage.total).toBe(12)
+    expect(firstPage.pages).toBe(2)
+    expect(firstPage.rows).toHaveLength(10)
+    expect(secondPage.rows).toHaveLength(2)
   })
 
   it('使用幂等键防止同一执行请求重复计数', async () => {
     const request = {
-      encounterId: 'enc-nur-20260728-001',
-      items: [{ itemId: 'exec-001', version: 0 }],
-      idempotencyKey: 'idempotency-exec-001'
+      encounterId: 'mock-encounter-001',
+      items: [{ itemId: 'mock-exec-pending-001' }],
+      idempotencyKey: 'idempotency-mock-exec-pending-001',
+      executorId: 'nurse-001'
     }
 
     const firstRequest = mockPerformNurseExecutions(request)
@@ -82,66 +125,62 @@ describe('nurse-station mock', () => {
     await vi.runAllTimersAsync()
     const repeated = await repeatedRequest
 
-    expect(first.successItems[0]?.executedCount).toBe(1)
+    expect(first.successIds).toEqual(['mock-exec-pending-001'])
     expect(repeated).toEqual(first)
 
     const rowsRequest = mockGetNurseExecutionItems(request.encounterId)
     await vi.runAllTimersAsync()
     const rows = await rowsRequest
-    expect(rows.find((item) => item.itemId === 'exec-001')?.executedCount).toBe(1)
+    expect(rows.find((item) => item.itemId === 'mock-exec-pending-001')?.executionCount).toBe(1)
 
     const queueRequest = mockPageNursePatientQueue({
       pageIndex: 1,
       pageSize: 20,
-      keyword: 'M20260728001'
+      bookingDate: dayjs().format('YYYY-MM-DD')
     })
     await vi.runAllTimersAsync()
     const queue = await queueRequest
-    expect(queue.rows?.[0]?.pendingCount).toBe(3)
+    expect(queue.rows?.[0]?.status).toBe('READY')
   })
 
   it('批量执行允许部分成功并返回逐项失败原因', async () => {
     const resultRequest = mockPerformNurseExecutions({
-      encounterId: 'enc-nur-20260728-002',
-      items: [
-        { itemId: 'exec-004', version: 0 },
-        { itemId: 'exec-005', version: 0 }
-      ],
-      idempotencyKey: 'partial-success'
+      encounterId: 'mock-encounter-001',
+      items: [{ itemId: 'mock-exec-pending-002' }, { itemId: 'mock-exec-completed-001' }],
+      idempotencyKey: 'partial-success',
+      executorId: 'nurse-001'
     })
     await vi.runAllTimersAsync()
     const result = await resultRequest
 
-    expect(result.successItems.map((item) => item.itemId)).toEqual(['exec-004'])
+    expect(result.successIds).toEqual(['mock-exec-pending-002'])
     expect(result.failedItems).toEqual([
-      expect.objectContaining({ itemId: 'exec-005', code: 'INVALID_STATUS' })
+      expect.objectContaining({
+        recordId: 'mock-exec-completed-001',
+        errorCode: 'INVALID_STATUS'
+      })
     ])
   })
 
-  it('取消最近一次执行并校验版本冲突', async () => {
+  it('取消最近一次执行并阻止重复取消', async () => {
     const cancelledRequest = mockCancelNurseExecution({
-      encounterId: 'enc-nur-20260728-003',
-      item: { itemId: 'exec-006', version: 0 },
+      encounterId: 'mock-encounter-001',
+      item: { itemId: 'mock-exec-completed-001' },
       reason: '登记错误'
     })
     await vi.runAllTimersAsync()
     const cancelled = await cancelledRequest
 
-    expect(cancelled.successItems[0]).toMatchObject({
-      itemId: 'exec-006',
-      status: 'PENDING',
-      executedCount: 0,
-      version: 1
-    })
+    expect(cancelled.successIds).toEqual(['mock-exec-completed-001'])
 
     const staleRequest = mockCancelNurseExecution({
-      encounterId: 'enc-nur-20260728-003',
-      item: { itemId: 'exec-006', version: 0 },
+      encounterId: 'mock-encounter-001',
+      item: { itemId: 'mock-exec-completed-001' },
       reason: '重复取消'
     })
     await vi.runAllTimersAsync()
     const stale = await staleRequest
 
-    expect(stale.failedItems[0]?.code).toBe('VERSION_CONFLICT')
+    expect(stale.failedItems[0]?.errorCode).toBe('INVALID_STATUS')
   })
 })

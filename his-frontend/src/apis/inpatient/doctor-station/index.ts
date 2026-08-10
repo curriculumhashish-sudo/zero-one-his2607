@@ -13,8 +13,8 @@ import {
   mockGroupInpatientMedicalOrders,
   mockListInpatientMedicalRecordDocumentTypes,
   mockPageInpatientDiagnosisDictionary,
-  mockPageInpatientDiagnosisRecords,
   mockPageInpatientDoctorPatientQueue,
+  mockPageInpatientDiagnosisRecords,
   mockPageInpatientMedicalOrderCatalog,
   mockPageInpatientMedicalOrders,
   mockPageInpatientMedicalRecordHistory,
@@ -27,6 +27,35 @@ import {
   mockUpdateInpatientMedicalOrder,
   mockWithdrawInpatientMedicalOrders
 } from './mock'
+import {
+  isInpatientDoctorStationRealApiEnabled,
+  realCreateInpatientDischargeAdvice,
+  realGetInpatientMedicalRecord,
+  realGetInpatientMedicalRecordHistoryDetail,
+  realPageInpatientDoctorPatientQueue,
+  realPageInpatientMedicalRecordHistory,
+  realSaveInpatientMedicalRecord,
+  realSignInpatientMedicalRecord
+} from './patient-real'
+import {
+  realCreateInpatientDiagnosis,
+  realDeleteInpatientDiagnosis,
+  realUpdateInpatientDiagnosis
+} from './diagnosis-real'
+import {
+  realCreateInpatientMedicalOrder,
+  realDeleteInpatientMedicalOrders,
+  realPageInpatientMedicalOrders,
+  realUpdateInpatientMedicalOrder
+} from './orders-real'
+import {
+  realCancelStopInpatientMedicalOrders,
+  realGroupInpatientMedicalOrders,
+  realSignInpatientMedicalOrders,
+  realStopInpatientMedicalOrders,
+  realUngroupInpatientMedicalOrders,
+  realWithdrawInpatientMedicalOrders
+} from './orders-lifecycle-real'
 import type {
   CreateInpatientDischargeAdviceDTO,
   CreateInpatientDiagnosisDTO,
@@ -59,30 +88,33 @@ import type {
   UpdateInpatientMedicalOrderDTO
 } from './type'
 
-/**
- * 分页查询住院医生工作站在院患者队列。
- *
- * 当前入口转调 Mock。真实接口就绪后，只需在这里替换为 useHttp() 请求，
- * 页面层和测试使用的函数签名保持不变。
- */
+export { isInpatientDoctorStationRealApiEnabled } from './patient-real'
+
+/** 分页查询住院医生工作站在院患者队列。 */
 export function pageInpatientDoctorPatientQueue(
   query: InpatientDoctorPatientQueueQuery
 ): Promise<PageDTO<InpatientDoctorPatientQueueItemVO>> {
-  return mockPageInpatientDoctorPatientQueue(query)
+  return isInpatientDoctorStationRealApiEnabled
+    ? realPageInpatientDoctorPatientQueue(query)
+    : mockPageInpatientDoctorPatientQueue(query)
 }
 
 /** 分页查询患者跨住院就诊的历史病历摘要。 */
 export function pageInpatientMedicalRecordHistory(
   query: InpatientMedicalRecordHistoryQuery
 ): Promise<PageDTO<InpatientMedicalRecordHistoryItemVO>> {
-  return mockPageInpatientMedicalRecordHistory(query)
+  return isInpatientDoctorStationRealApiEnabled
+    ? realPageInpatientMedicalRecordHistory(query)
+    : mockPageInpatientMedicalRecordHistory(query)
 }
 
 /** 获取单份历史病历详情；历史详情始终以只读方式展示。 */
 export function getInpatientMedicalRecordHistoryDetail(
   recordId: string
 ): Promise<InpatientMedicalRecordHistoryDetailVO> {
-  return mockGetInpatientMedicalRecordHistoryDetail(recordId)
+  return isInpatientDoctorStationRealApiEnabled
+    ? realGetInpatientMedicalRecordHistoryDetail(recordId)
+    : mockGetInpatientMedicalRecordHistoryDetail(recordId)
 }
 
 /** 获取允许新建的住院病历文书类型。 */
@@ -94,21 +126,27 @@ export function listInpatientMedicalRecordDocumentTypes(): Promise<
 
 /** 获取一份住院病历；当前住院草稿可编辑，已签名及历史文书只读。 */
 export function getInpatientMedicalRecord(recordId: string): Promise<InpatientMedicalRecordVO> {
-  return mockGetInpatientMedicalRecord(recordId)
+  return isInpatientDoctorStationRealApiEnabled
+    ? realGetInpatientMedicalRecord(recordId)
+    : mockGetInpatientMedicalRecord(recordId)
 }
 
 /** 新建或更新住院病历草稿。 */
 export function saveInpatientMedicalRecord(
   data: SaveInpatientMedicalRecordDTO
 ): Promise<InpatientMedicalRecordVO> {
-  return mockSaveInpatientMedicalRecord(data)
+  return isInpatientDoctorStationRealApiEnabled
+    ? realSaveInpatientMedicalRecord(data)
+    : mockSaveInpatientMedicalRecord(data)
 }
 
 /** 签名住院病历，签名后文书转为只读。 */
 export function signInpatientMedicalRecord(
   data: SignInpatientMedicalRecordDTO
 ): Promise<InpatientMedicalRecordVO> {
-  return mockSignInpatientMedicalRecord(data)
+  return isInpatientDoctorStationRealApiEnabled
+    ? realSignInpatientMedicalRecord(data)
+    : mockSignInpatientMedicalRecord(data)
 }
 
 /** 分页查询当前住院就诊的诊断记录。 */
@@ -136,19 +174,38 @@ export function getInpatientDiagnosisUsageHistory(
 export function createInpatientDiagnosis(
   data: CreateInpatientDiagnosisDTO
 ): Promise<InpatientDiagnosisRecordVO> {
-  return mockCreateInpatientDiagnosis(data)
+  return isInpatientDoctorStationRealApiEnabled
+    ? realCreateInpatientDiagnosis(data)
+    : mockCreateInpatientDiagnosis(data)
 }
 
 /** 修改一条住院诊断。 */
 export function updateInpatientDiagnosis(
   diagnosisId: string,
-  data: UpdateInpatientDiagnosisDTO
+  data: UpdateInpatientDiagnosisDTO,
+  options: {
+    source?: InpatientDiagnosisRecordVO['source']
+    current?: InpatientDiagnosisRecordVO
+  } = {}
 ): Promise<InpatientDiagnosisRecordVO> {
+  if (isInpatientDoctorStationRealApiEnabled && options.source === 'real' && options.current) {
+    return realUpdateInpatientDiagnosis(diagnosisId, data, options.current)
+  }
   return mockUpdateInpatientDiagnosis(diagnosisId, data)
 }
 
 /** 删除一条住院诊断。 */
-export function deleteInpatientDiagnosis(diagnosisId: string, version: number): Promise<void> {
+export function deleteInpatientDiagnosis(
+  diagnosisId: string,
+  version: number,
+  options: {
+    source?: InpatientDiagnosisRecordVO['source']
+    backendId?: string
+  } = {}
+): Promise<void> {
+  if (isInpatientDoctorStationRealApiEnabled && options.source === 'real') {
+    return realDeleteInpatientDiagnosis(diagnosisId, options.backendId)
+  }
   return mockDeleteInpatientDiagnosis(diagnosisId, version)
 }
 
@@ -156,7 +213,9 @@ export function deleteInpatientDiagnosis(diagnosisId: string, version: number): 
 export function pageInpatientMedicalOrders(
   query: InpatientMedicalOrderQuery
 ): Promise<PageDTO<InpatientMedicalOrderRecordVO>> {
-  return mockPageInpatientMedicalOrders(query)
+  return isInpatientDoctorStationRealApiEnabled
+    ? realPageInpatientMedicalOrders(query)
+    : mockPageInpatientMedicalOrders(query)
 }
 
 /** 分页搜索住院医嘱项目目录。 */
@@ -170,14 +229,23 @@ export function pageInpatientMedicalOrderCatalog(
 export function createInpatientMedicalOrder(
   data: CreateInpatientMedicalOrderDTO
 ): Promise<InpatientMedicalOrderRecordVO> {
-  return mockCreateInpatientMedicalOrder(data)
+  return isInpatientDoctorStationRealApiEnabled
+    ? realCreateInpatientMedicalOrder(data)
+    : mockCreateInpatientMedicalOrder(data)
 }
 
 /** 修改一条住院医嘱草稿。 */
 export function updateInpatientMedicalOrder(
   orderId: string,
-  data: UpdateInpatientMedicalOrderDTO
+  data: UpdateInpatientMedicalOrderDTO,
+  options: {
+    source?: InpatientMedicalOrderRecordVO['source']
+    current?: InpatientMedicalOrderRecordVO
+  } = {}
 ): Promise<InpatientMedicalOrderRecordVO> {
+  if (isInpatientDoctorStationRealApiEnabled && options.source === 'real' && options.current) {
+    return realUpdateInpatientMedicalOrder(orderId, data, options.current)
+  }
   return mockUpdateInpatientMedicalOrder(orderId, data)
 }
 
@@ -185,49 +253,63 @@ export function updateInpatientMedicalOrder(
 export function deleteInpatientMedicalOrders(
   data: InpatientMedicalOrderBatchActionDTO
 ): Promise<InpatientMedicalOrderBatchResultVO> {
-  return mockDeleteInpatientMedicalOrders(data)
+  return isInpatientDoctorStationRealApiEnabled
+    ? realDeleteInpatientMedicalOrders(data)
+    : mockDeleteInpatientMedicalOrders(data)
 }
 
 /** 批量并组待签发药品医嘱。 */
 export function groupInpatientMedicalOrders(
   data: GroupInpatientMedicalOrdersDTO
 ): Promise<InpatientMedicalOrderBatchResultVO> {
-  return mockGroupInpatientMedicalOrders(data)
+  return isInpatientDoctorStationRealApiEnabled
+    ? realGroupInpatientMedicalOrders(data)
+    : mockGroupInpatientMedicalOrders(data)
 }
 
 /** 批量拆组待签发药品医嘱。 */
 export function ungroupInpatientMedicalOrders(
   data: InpatientMedicalOrderBatchActionDTO
 ): Promise<InpatientMedicalOrderBatchResultVO> {
-  return mockUngroupInpatientMedicalOrders(data)
+  return isInpatientDoctorStationRealApiEnabled
+    ? realUngroupInpatientMedicalOrders(data)
+    : mockUngroupInpatientMedicalOrders(data)
 }
 
 /** 批量签发待签发住院医嘱。 */
 export function signInpatientMedicalOrders(
   data: InpatientMedicalOrderBatchActionDTO
 ): Promise<InpatientMedicalOrderBatchResultVO> {
-  return mockSignInpatientMedicalOrders(data)
+  return isInpatientDoctorStationRealApiEnabled
+    ? realSignInpatientMedicalOrders(data)
+    : mockSignInpatientMedicalOrders(data)
 }
 
 /** 批量撤回已签发住院医嘱。 */
 export function withdrawInpatientMedicalOrders(
   data: InpatientMedicalOrderBatchActionDTO
 ): Promise<InpatientMedicalOrderBatchResultVO> {
-  return mockWithdrawInpatientMedicalOrders(data)
+  return isInpatientDoctorStationRealApiEnabled
+    ? realWithdrawInpatientMedicalOrders(data)
+    : mockWithdrawInpatientMedicalOrders(data)
 }
 
 /** 批量停止已签发长期医嘱。 */
 export function stopInpatientMedicalOrders(
   data: InpatientMedicalOrderBatchActionDTO
 ): Promise<InpatientMedicalOrderBatchResultVO> {
-  return mockStopInpatientMedicalOrders(data)
+  return isInpatientDoctorStationRealApiEnabled
+    ? realStopInpatientMedicalOrders(data)
+    : mockStopInpatientMedicalOrders(data)
 }
 
 /** 批量取消长期医嘱停嘱。 */
 export function cancelStopInpatientMedicalOrders(
   data: InpatientMedicalOrderBatchActionDTO
 ): Promise<InpatientMedicalOrderBatchResultVO> {
-  return mockCancelStopInpatientMedicalOrders(data)
+  return isInpatientDoctorStationRealApiEnabled
+    ? realCancelStopInpatientMedicalOrders(data)
+    : mockCancelStopInpatientMedicalOrders(data)
 }
 
 /** 加载出院医嘱弹窗和前置校验信息。 */
@@ -242,7 +324,9 @@ export function getInpatientDischargeAdvicePreparation(
 export function createInpatientDischargeAdvice(
   data: CreateInpatientDischargeAdviceDTO
 ): Promise<InpatientDischargeAdviceVO> {
-  return mockCreateInpatientDischargeAdvice(data)
+  return isInpatientDoctorStationRealApiEnabled
+    ? realCreateInpatientDischargeAdvice(data)
+    : mockCreateInpatientDischargeAdvice(data)
 }
 
 export type {

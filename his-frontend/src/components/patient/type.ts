@@ -30,9 +30,10 @@ export interface PatientSummary {
   queueNumber?: string | number | null
   visitTime?: string | null
   departmentName?: string | null
+  /** 供业务流程判断使用的原始状态码；status 仍用于展示。 */
+  statusCode?: string | null
   status?: string | null
   statusTone?: PatientStatusTone
   paymentType?: string | null
   priority?: string | null
-  riskHint?: string | null
 }

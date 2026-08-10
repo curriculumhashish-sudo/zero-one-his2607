@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { Calendar, User } from '@element-plus/icons-vue'
 import type { PatientSummary } from './type'
 
 defineOptions({
@@ -8,10 +9,18 @@ defineOptions({
 
 interface PatientInfoBarProps {
   patient?: PatientSummary | null
+  /** 医生站摘要模式只展示对应场景要求的挂号/住院信息。 */
+  displayMode?: 'default' | 'outpatient-registration' | 'inpatient-registration'
+  /** 电话和接诊医生来自就诊上下文，不强行塞进公共患者摘要模型。 */
+  phone?: string | null
+  doctorName?: string | null
 }
 
 const props = withDefaults(defineProps<PatientInfoBarProps>(), {
-  patient: null
+  patient: null,
+  displayMode: 'default',
+  phone: '',
+  doctorName: ''
 })
 
 defineSlots<{
@@ -35,6 +44,20 @@ const identityMeta = computed(() => {
   return [props.patient.gender?.trim(), ageText.value].filter(Boolean).join(' · ')
 })
 
+const registrationTime = computed(() => {
+  const value = props.patient?.visitTime?.trim() ?? ''
+  // 标准时间去掉年份，与参考界面的“08-02 07:30”保持一致。
+  return /^\d{4}-\d{2}-\d{2}/.test(value) ? value.slice(5, 16) : value
+})
+
+const registrationRecordNo = computed(() => {
+  const patient = props.patient
+  if (!patient) return ''
+  return props.displayMode === 'inpatient-registration'
+    ? patient.visitNo?.trim()
+    : patient.patientNo?.trim()
+})
+
 const detailItems = computed(() => {
   const patient = props.patient
   if (!patient) return []
@@ -50,7 +73,58 @@ const detailItems = computed(() => {
 
 <template>
   <section class="patient-info-bar" aria-label="患者信息">
-    <div v-if="patient" class="patient-info-bar__layout">
+    <div
+      v-if="patient && displayMode !== 'default'"
+      class="patient-info-bar__outpatient"
+    >
+      <div class="patient-info-bar__outpatient-primary">
+        <div class="patient-info-bar__outpatient-person">
+          <el-icon class="patient-info-bar__outpatient-icon"><User /></el-icon>
+          <span class="patient-info-bar__outpatient-label">患者：</span>
+          <strong class="patient-info-bar__name">{{ displayName }}</strong>
+          <strong v-if="patient.gender" class="patient-info-bar__outpatient-gender">
+            {{ patient.gender }}
+          </strong>
+          <span v-if="ageText" class="patient-info-bar__outpatient-value">{{ ageText }}</span>
+        </div>
+        <div
+          v-if="displayMode === 'outpatient-registration'"
+          class="patient-info-bar__outpatient-field"
+        >
+          <span class="patient-info-bar__outpatient-label">电话：</span>
+          <span class="patient-info-bar__outpatient-value">{{ phone || '—' }}</span>
+        </div>
+        <div class="patient-info-bar__outpatient-field">
+          <span class="patient-info-bar__outpatient-label">病历号：</span>
+          <strong class="patient-info-bar__outpatient-value">
+            {{ registrationRecordNo || '—' }}
+          </strong>
+        </div>
+        <el-tag v-if="patient.serviceType" type="primary" effect="light">
+          {{ patient.serviceType }}
+        </el-tag>
+      </div>
+
+      <div class="patient-info-bar__outpatient-secondary">
+        <div class="patient-info-bar__outpatient-field">
+          <el-icon class="patient-info-bar__outpatient-icon"><Calendar /></el-icon>
+          <span class="patient-info-bar__outpatient-label">挂号时间：</span>
+          <span class="patient-info-bar__outpatient-value">
+            {{ registrationTime || '—' }}
+          </span>
+        </div>
+        <div class="patient-info-bar__outpatient-field">
+          <span class="patient-info-bar__outpatient-label">医生：</span>
+          <strong class="patient-info-bar__outpatient-value">{{ doctorName || '—' }}</strong>
+        </div>
+      </div>
+
+      <div v-if="$slots.actions" class="patient-info-bar__actions">
+        <slot name="actions" :patient="patient" />
+      </div>
+    </div>
+
+    <div v-else-if="patient" class="patient-info-bar__layout">
       <div class="patient-info-bar__main">
         <div class="patient-info-bar__identity">
           <span class="patient-info-bar__label">患者</span>
@@ -85,20 +159,9 @@ const detailItems = computed(() => {
         </span>
       </div>
 
-      <div v-if="patient.riskHint || patient.priority" class="patient-info-bar__risks">
+      <div v-if="patient.priority" class="patient-info-bar__risks">
         <el-tag v-if="patient.priority" type="warning" size="small" effect="light" round>
           {{ patient.priority }}
-        </el-tag>
-        <el-tag
-          v-if="patient.riskHint"
-          class="patient-info-bar__risk-tag"
-          type="danger"
-          size="small"
-          effect="light"
-          round
-          :title="patient.riskHint"
-        >
-          {{ patient.riskHint }}
         </el-tag>
       </div>
 
@@ -118,7 +181,7 @@ const detailItems = computed(() => {
 .patient-info-bar {
   container-type: inline-size;
   min-height: 56px;
-  padding: 10px 16px;
+  padding: 8px 12px;
   border: 1px solid var(--el-border-color-light);
   border-radius: 8px;
   color: var(--el-text-color-primary);
@@ -131,6 +194,66 @@ const detailItems = computed(() => {
   min-width: 0;
   align-items: center;
   gap: 12px 20px;
+}
+
+.patient-info-bar__outpatient {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.patient-info-bar__outpatient-primary,
+.patient-info-bar__outpatient-secondary {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.patient-info-bar__outpatient-person,
+.patient-info-bar__outpatient-field {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 3px;
+}
+
+.patient-info-bar__outpatient-person {
+  gap: 5px;
+}
+
+.patient-info-bar__outpatient-primary {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.patient-info-bar__outpatient-secondary {
+  flex-shrink: 0;
+  padding-left: 16px;
+  border-left: 1px solid var(--el-border-color-lighter);
+}
+
+.patient-info-bar__outpatient-icon {
+  flex-shrink: 0;
+  font-size: 20px;
+}
+
+.patient-info-bar__outpatient-label {
+  flex-shrink: 0;
+  color: var(--el-text-color-primary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.patient-info-bar__outpatient-gender,
+.patient-info-bar__outpatient-value {
+  flex-shrink: 0;
+  color: var(--el-text-color-primary);
+  font-size: 14px;
 }
 
 .patient-info-bar__main,
@@ -201,16 +324,6 @@ const detailItems = computed(() => {
   gap: 6px;
 }
 
-.patient-info-bar__risk-tag {
-  min-width: 0;
-}
-
-.patient-info-bar__risk-tag :deep(.el-tag__content) {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .patient-info-bar__actions {
   flex-shrink: 0;
   gap: 8px;
@@ -238,6 +351,26 @@ const detailItems = computed(() => {
 }
 
 @container (max-width: 820px) {
+  .patient-info-bar__outpatient {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .patient-info-bar__outpatient-primary {
+    width: 100%;
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+
+  .patient-info-bar__outpatient-secondary {
+    width: 100%;
+    padding-top: 6px;
+    padding-left: 0;
+    border-top: 1px solid var(--el-border-color-lighter);
+    border-left: 0;
+  }
+
   .patient-info-bar__layout {
     flex-wrap: wrap;
   }

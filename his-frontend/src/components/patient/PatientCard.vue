@@ -9,10 +9,19 @@ defineOptions({
 interface PatientCardProps {
   patient: PatientSummary
   selected?: boolean
+  /** 是否显示科室；门诊医生队列的科室固定，因此可以隐藏。 */
+  showDepartment?: boolean
+  /** 是否显示排队号、就诊号等卡片主编号。 */
+  showPrimaryNumber?: boolean
+  /** 主编号来源；门诊医生队列固定使用病历号。 */
+  primaryNumberMode?: 'auto' | 'patient-no'
 }
 
 const props = withDefaults(defineProps<PatientCardProps>(), {
-  selected: false
+  selected: false,
+  showDepartment: true,
+  showPrimaryNumber: true,
+  primaryNumberMode: 'auto'
 })
 
 const emit = defineEmits<{
@@ -42,6 +51,8 @@ const metaText = computed(() => {
 
 const primaryNumber = computed(() => {
   const patient = props.patient
+  if (props.primaryNumberMode === 'patient-no') return patient.patientNo?.trim() || ''
+
   if (patient.queueNumber !== null && patient.queueNumber !== undefined) {
     const queueNumber = String(patient.queueNumber).trim()
     if (queueNumber) return `排队号 ${queueNumber}`
@@ -97,20 +108,29 @@ function handleKeydown(event: KeyboardEvent) {
         <span class="patient-card__label">就诊时间</span>
         <span class="patient-card__value">{{ patient.visitTime }}</span>
       </div>
-      <div v-if="patient.departmentName" class="patient-card__row">
+      <div v-if="showDepartment && patient.departmentName" class="patient-card__row">
         <span class="patient-card__label">科室</span>
         <span class="patient-card__value">{{ patient.departmentName }}</span>
-      </div>
-      <div v-if="patient.riskHint" class="patient-card__risk">
-        {{ patient.riskHint }}
       </div>
     </div>
 
     <footer class="patient-card__footer">
-      <span class="patient-card__number" :title="primaryNumber">{{ primaryNumber }}</span>
+      <span
+        v-if="showPrimaryNumber && primaryNumber"
+        class="patient-card__number"
+        :title="primaryNumber"
+      >
+        {{ primaryNumber }}
+      </span>
 
       <div class="patient-card__actions">
-        <el-tag v-if="patient.paymentType" size="small" effect="light" round>
+        <el-tag
+          v-if="patient.paymentType"
+          :type="patient.paymentType === '自费' ? 'warning' : 'primary'"
+          size="small"
+          effect="light"
+          round
+        >
           {{ patient.paymentType }}
         </el-tag>
         <el-tag v-if="patient.status" :type="statusType" size="small" effect="light" round>
@@ -210,15 +230,6 @@ function handleKeydown(event: KeyboardEvent) {
   font-weight: 500;
 }
 
-.patient-card__risk {
-  margin-top: 8px;
-  padding: 5px 8px;
-  border-radius: 6px;
-  color: var(--el-color-warning-dark-2);
-  background: var(--el-color-warning-light-9);
-  line-height: 1.5;
-}
-
 .patient-card__footer {
   justify-content: space-between;
   gap: 10px;
@@ -239,6 +250,10 @@ function handleKeydown(event: KeyboardEvent) {
   flex-shrink: 0;
   align-items: center;
   gap: 8px;
+}
+
+.patient-card__footer > .patient-card__actions:only-child {
+  margin-left: auto;
 }
 
 .patient-card__view {

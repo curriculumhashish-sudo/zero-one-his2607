@@ -1,6 +1,8 @@
 // @vitest-environment jsdom
 
 import { flushPromises, mount } from '@vue/test-utils'
+import dayjs from 'dayjs'
+import { createPinia, setActivePinia } from 'pinia'
 import { defineComponent } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -17,8 +19,7 @@ const api = vi.hoisted(() => ({
   getNurseConsumables: vi.fn(),
   getNurseExecutionItems: vi.fn(),
   pageNursePatientQueue: vi.fn(),
-  performNurseExecutions: vi.fn(),
-  printNurseDocuments: vi.fn()
+  performNurseExecutions: vi.fn()
 }))
 
 vi.mock('@/apis/outpatient/nurse-station', () => api)
@@ -43,7 +44,6 @@ const patientRows: NursePatientQueueItemVO[] = [
     patientName: '患者甲',
     genderName: '女',
     ageText: '30岁',
-    medicalRecordNo: 'M-A',
     visitNo: 'V-A',
     queueNumber: 1,
     registeredAt: '2026-07-29 08:00',
@@ -51,8 +51,7 @@ const patientRows: NursePatientQueueItemVO[] = [
     visitTypeName: '普通门诊',
     status: 'READY',
     statusName: '待执行',
-    paymentTypeName: '医保',
-    pendingCount: 1
+    priorityName: '优先'
   },
   {
     encounterId: 'enc-b',
@@ -60,7 +59,6 @@ const patientRows: NursePatientQueueItemVO[] = [
     patientName: '患者乙',
     genderName: '男',
     ageText: '40岁',
-    medicalRecordNo: 'M-B',
     visitNo: 'V-B',
     queueNumber: 2,
     registeredAt: '2026-07-29 08:10',
@@ -68,24 +66,20 @@ const patientRows: NursePatientQueueItemVO[] = [
     visitTypeName: '普通门诊',
     status: 'READY',
     statusName: '待执行',
-    paymentTypeName: '自费',
-    pendingCount: 1
+    priorityName: '优先'
   }
 ]
 
 function executionItem(itemId: string): NurseExecutionItemVO {
   return {
     itemId,
-    requestId: `request-${itemId}`,
-    requestType: 'SERVICE',
-    requestTypeName: '处置',
-    orderContent: `项目-${itemId}`,
+    encounterId: 'enc-a',
+    categoryCode: 'SERVICE',
+    categoryName: '处置',
+    itemName: `项目-${itemId}`,
     status: 'PENDING',
     statusName: '待执行',
-    plannedCount: 1,
-    executedCount: 0,
-    version: 0,
-    printTypes: ['TREATMENT_SHEET']
+    executionCount: 0
   }
 }
 
@@ -93,10 +87,15 @@ const PatientQueuePanelStub = defineComponent({
   name: 'PatientQueuePanel',
   props: {
     patients: { type: Array, default: () => [] },
-    dateRange: { type: Array, default: null },
-    selectedId: { type: [String, Number], default: '' }
+    date: { type: String, default: '' },
+    pagination: { type: Object, default: undefined },
+    selectedId: { type: [String, Number], default: '' },
+    showDepartment: { type: Boolean, default: true },
+    showKeyword: { type: Boolean, default: true },
+    showPrimaryNumber: { type: Boolean, default: true },
+    primaryNumberMode: { type: String, default: 'auto' }
   },
-  emits: ['select', 'view', 'search', 'dateChange', 'refresh', 'update:dateRange'],
+  emits: ['select', 'view', 'search', 'singleDateChange', 'pageChange', 'refresh'],
   template: '<div class="patient-queue-stub" />'
 })
 
@@ -130,14 +129,62 @@ const global = {
 
 describe('OutpatientNurseStation', () => {
   beforeEach(() => {
+    setActivePinia(createPinia())
     vi.clearAllMocks()
-    api.pageNursePatientQueue.mockResolvedValue({
+    api.pageNursePatientQueue.mockImplementation((query: { pageIndex: number }) =>
+      Promise.resolve({
+        pageIndex: query.pageIndex,
+        pageSize: 10,
+        total: 22,
+        pages: 3,
+        rows: patientRows
+      })
+    )
+  })
+
+  it('分页查询患者并切换预约日期', async () => {
+    const wrapper = mount(NurseStation, { global })
+    await flushPromises()
+    const queue = wrapper.findComponent(PatientQueuePanelStub)
+
+    expect(queue.props('pagination')).toEqual({
       pageIndex: 1,
-      pageSize: 100,
-      total: patientRows.length,
-      pages: 1,
-      rows: patientRows
+      pageSize: 10,
+      total: 22
     })
+    expect(queue.props('showDepartment')).toBe(false)
+    expect(queue.props('showPrimaryNumber')).toBe(true)
+    expect(queue.props('primaryNumberMode')).toBe('patient-no')
+    expect(queue.props('date')).toBe(dayjs().format('YYYY-MM-DD'))
+    expect(api.pageNursePatientQueue).toHaveBeenCalledWith(
+      expect.objectContaining({
+        pageIndex: 1,
+        pageSize: 10,
+        bookingDate: dayjs().format('YYYY-MM-DD')
+      })
+    )
+
+    api.pageNursePatientQueue.mockClear()
+    queue.vm.$emit('singleDateChange', '2026-07-30')
+    await flushPromises()
+
+    expect(api.pageNursePatientQueue).toHaveBeenCalledWith(
+      expect.objectContaining({
+        pageIndex: 1,
+        pageSize: 10,
+        bookingDate: '2026-07-30'
+      })
+    )
+
+    api.pageNursePatientQueue.mockClear()
+    queue.vm.$emit('pageChange', 2)
+    await flushPromises()
+
+    expect(api.pageNursePatientQueue).toHaveBeenCalledWith(
+      expect.objectContaining({ pageIndex: 2, pageSize: 10 })
+    )
+
+    expect(queue.props('showKeyword')).toBe(false)
   })
 
   it('快速切换患者时忽略较晚返回的旧患者数据', async () => {
@@ -146,10 +193,10 @@ describe('OutpatientNurseStation', () => {
     const suppliesA = deferred<NurseConsumableItemVO[]>()
     const suppliesB = deferred<NurseConsumableItemVO[]>()
 
-    api.getNurseExecutionItems.mockImplementation((encounterId: string) =>
+    api.getNurseExecutionItems.mockImplementation((_patientId: string, encounterId: string) =>
       encounterId === 'enc-a' ? executionA.promise : executionB.promise
     )
-    api.getNurseConsumables.mockImplementation((encounterId: string) =>
+    api.getNurseConsumables.mockImplementation((_patientId: string, encounterId: string) =>
       encounterId === 'enc-a' ? suppliesA.promise : suppliesB.promise
     )
 

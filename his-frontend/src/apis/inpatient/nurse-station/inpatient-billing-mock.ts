@@ -4,7 +4,6 @@ import { createPageDTO } from '../../type'
 import { mockFindNurseStationPatient } from './mock'
 import type {
   NurseStationAutoBillingDataVO,
-  NurseStationAutoBillingMutationResultVO,
   NurseStationAutoBillingQueryDTO,
   NurseStationAutoBillingRuleVO,
   NurseStationBillingCatalogItemVO,
@@ -17,7 +16,6 @@ import type {
   NurseStationPricedOrderQueryDTO,
   NurseStationPricedOrderVO,
   NurseStationSaveAutoBillingRuleDTO,
-  NurseStationSetAutoBillingRuleStatusDTO,
   NurseStationSupplementOrderQueryDTO,
   NurseStationSupplementOrderVO
 } from './inpatient-billing-type'
@@ -240,10 +238,14 @@ const pricedOrders: NurseStationPricedOrderVO[] = [
   }
 ]
 
-const autoBillingRules: NurseStationAutoBillingRuleVO[] = [
+interface MockAutoBillingRule extends NurseStationAutoBillingRuleVO {
+  encounterId: string
+  patientId: string
+}
+
+const autoBillingRules: MockAutoBillingRule[] = [
   {
     ruleId: 'auto-rule-001',
-    version: 1,
     encounterId: 'encounter-001',
     patientId: 'patient-001',
     ruleName: '每日氧气吸入计费',
@@ -252,13 +254,7 @@ const autoBillingRules: NurseStationAutoBillingRuleVO[] = [
     activityId: 'activity-oxygen',
     activityName: '氧气吸入',
     chargeDefinitionId: 'charge-oxygen',
-    chargeDefinitionName: '氧气吸入费',
-    quantity: 2,
-    performingOrgId: 'dept-internal',
-    performingOrgName: '住院内科',
-    priority: 10,
-    remark: '每天执行一次',
-    updatedAt: '2026-08-01 08:00:00'
+    quantity: 2
   }
 ]
 
@@ -273,10 +269,6 @@ const cancelIdempotentResults = new Map<
   string,
   { fingerprint: string; result: NurseStationCancelBillingResultVO }
 >()
-const autoMutationIdempotentResults = new Map<
-  string,
-  { fingerprint: string; result: NurseStationAutoBillingMutationResultVO }
->()
 
 function clonePricedOrder(row: NurseStationPricedOrderVO): NurseStationPricedOrderVO {
   return {
@@ -286,13 +278,16 @@ function clonePricedOrder(row: NurseStationPricedOrderVO): NurseStationPricedOrd
 }
 
 function cloneRule(rule: NurseStationAutoBillingRuleVO): NurseStationAutoBillingRuleVO {
-  return { ...rule }
-}
-
-function cloneMutationResult(
-  result: NurseStationAutoBillingMutationResultVO
-): NurseStationAutoBillingMutationResultVO {
-  return { ...result, rule: result.rule ? cloneRule(result.rule) : undefined }
+  return {
+    ruleId: rule.ruleId,
+    ruleName: rule.ruleName,
+    status: rule.status,
+    statusText: rule.statusText,
+    activityId: rule.activityId,
+    activityName: rule.activityName,
+    chargeDefinitionId: rule.chargeDefinitionId,
+    quantity: rule.quantity
+  }
 }
 
 function assertPatient(encounterId: string, patientId: string, accountId?: string) {
@@ -530,33 +525,8 @@ export async function mockQueryNurseStationAutoBillingRules(
   await Promise.resolve()
   assertPatient(query.encounterId, query.patientId)
   return {
-    nursingLevelReadonly: {
-      activityName: 'Ⅱ级护理',
-      quantity: 1,
-      unitName: '日',
-      statusText: '随护理级别医嘱自动生成',
-      chargeDefinitionName: 'Ⅱ级护理费',
-      billDate: query.billDate ?? dayjs().format('YYYY-MM-DD')
-    },
     rules: autoBillingRules.filter((rule) => rule.encounterId === query.encounterId).map(cloneRule)
   }
-}
-
-function getCachedAutoMutation(key: string, data: object) {
-  assertIdempotencyKey(key)
-  const fingerprint = JSON.stringify(data)
-  const cached = autoMutationIdempotentResults.get(key)
-  if (cached && cached.fingerprint !== fingerprint) throw new Error('同一幂等键不能用于不同请求')
-  return { fingerprint, cached: cached ? cloneMutationResult(cached.result) : undefined }
-}
-
-function cacheAutoMutation(
-  key: string,
-  fingerprint: string,
-  result: NurseStationAutoBillingMutationResultVO
-) {
-  autoMutationIdempotentResults.set(key, { fingerprint, result: cloneMutationResult(result) })
-  return cloneMutationResult(result)
 }
 
 /** Mock：新增或更新自动计费规则。 */
@@ -565,13 +535,11 @@ export async function mockSaveNurseStationAutoBillingRule(
 ) {
   await Promise.resolve()
   assertPatient(data.encounterId, data.patientId)
-  const { fingerprint, cached } = getCachedAutoMutation(data.idempotencyKey, data)
-  if (cached) return cached
   if (!data.ruleName.trim() || !data.activityId || !data.chargeDefinitionId) {
-    return cacheAutoMutation(data.idempotencyKey, fingerprint, {
+    return {
       success: false,
       message: '规则名称、触发项目和收费项目不能为空'
-    })
+    }
   }
 
   const current = data.ruleId
@@ -580,44 +548,30 @@ export async function mockSaveNurseStationAutoBillingRule(
       )
     : undefined
   if (data.ruleId && !current) {
-    return cacheAutoMutation(data.idempotencyKey, fingerprint, {
+    return {
       success: false,
       message: '自动计费规则不存在'
-    })
-  }
-  if (current && current.version !== data.expectedVersion) {
-    return cacheAutoMutation(data.idempotencyKey, fingerprint, {
-      success: false,
-      message: '规则已被他人修改，请刷新后重试'
-    })
+    }
   }
 
-  const saved: NurseStationAutoBillingRuleVO = {
+  const saved: MockAutoBillingRule = {
     ruleId: current?.ruleId ?? `auto-rule-${++autoRuleSeed}`,
-    version: (current?.version ?? 0) + 1,
     encounterId: data.encounterId,
     patientId: data.patientId,
     ruleName: data.ruleName.trim(),
     status: current?.status ?? 'ACTIVE',
     statusText: (current?.status ?? 'ACTIVE') === 'ACTIVE' ? '启用' : '停用',
     activityId: data.activityId,
-    activityName: data.activityName,
+    activityName: current?.activityName ?? '',
     chargeDefinitionId: data.chargeDefinitionId,
-    chargeDefinitionName: data.chargeDefinitionName,
-    quantity: data.quantity,
-    performingOrgId: data.performingOrgId,
-    performingOrgName: data.performingOrgName,
-    priority: data.priority,
-    remark: data.remark,
-    updatedAt: dayjs().format('YYYY-MM-DD HH:mm:ss')
+    quantity: data.quantity
   }
   if (current) Object.assign(current, saved)
   else autoBillingRules.push(saved)
-  return cacheAutoMutation(data.idempotencyKey, fingerprint, {
+  return {
     success: true,
-    message: current ? '规则修改成功' : '规则新增成功',
-    rule: saved
-  })
+    message: current ? '规则修改成功' : '规则新增成功'
+  }
 }
 
 /** Mock：软删除自动计费规则。 */
@@ -626,61 +580,19 @@ export async function mockDeleteNurseStationAutoBillingRule(
 ) {
   await Promise.resolve()
   assertPatient(data.encounterId, data.patientId)
-  const { fingerprint, cached } = getCachedAutoMutation(data.idempotencyKey, data)
-  if (cached) return cached
   const index = autoBillingRules.findIndex(
     (rule) => rule.ruleId === data.ruleId && rule.encounterId === data.encounterId
   )
   const rule = autoBillingRules[index]
   if (!rule) {
-    return cacheAutoMutation(data.idempotencyKey, fingerprint, {
+    return {
       success: false,
       message: '自动计费规则不存在'
-    })
-  }
-  if (rule.version !== data.expectedVersion) {
-    return cacheAutoMutation(data.idempotencyKey, fingerprint, {
-      success: false,
-      message: '规则已被他人修改，请刷新后重试'
-    })
+    }
   }
   autoBillingRules.splice(index, 1)
-  return cacheAutoMutation(data.idempotencyKey, fingerprint, {
+  return {
     success: true,
     message: '规则删除成功'
-  })
-}
-
-/** Mock：把规则设置为明确的目标状态，重复请求不会把状态反向切换。 */
-export async function mockSetNurseStationAutoBillingRuleStatus(
-  data: NurseStationSetAutoBillingRuleStatusDTO
-) {
-  await Promise.resolve()
-  assertPatient(data.encounterId, data.patientId)
-  const { fingerprint, cached } = getCachedAutoMutation(data.idempotencyKey, data)
-  if (cached) return cached
-  const rule = autoBillingRules.find(
-    (item) => item.ruleId === data.ruleId && item.encounterId === data.encounterId
-  )
-  if (!rule) {
-    return cacheAutoMutation(data.idempotencyKey, fingerprint, {
-      success: false,
-      message: '自动计费规则不存在'
-    })
   }
-  if (rule.version !== data.expectedVersion) {
-    return cacheAutoMutation(data.idempotencyKey, fingerprint, {
-      success: false,
-      message: '规则已被他人修改，请刷新后重试'
-    })
-  }
-  rule.status = data.targetStatus
-  rule.statusText = data.targetStatus === 'ACTIVE' ? '启用' : '停用'
-  rule.version += 1
-  rule.updatedAt = dayjs().format('YYYY-MM-DD HH:mm:ss')
-  return cacheAutoMutation(data.idempotencyKey, fingerprint, {
-    success: true,
-    message: data.targetStatus === 'ACTIVE' ? '规则已启用' : '规则已停用',
-    rule
-  })
 }

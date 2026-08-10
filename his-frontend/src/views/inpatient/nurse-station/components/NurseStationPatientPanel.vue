@@ -1,16 +1,13 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { DArrowLeft, DArrowRight, Refresh, Search } from '@element-plus/icons-vue'
+import { computed } from 'vue'
+import { Refresh, Search } from '@element-plus/icons-vue'
 
-import { NURSE_STATION_QUEUE_SCOPE_OPTIONS, NURSE_STATION_TASK_FILTER_OPTIONS } from '../constants'
+import { NURSE_STATION_TASK_FILTER_OPTIONS } from '../constants'
 import type {
-  NurseStationHouseOption,
   NurseStationPatientStatistics,
   NurseStationPatientSummary,
-  NurseStationQueueScope,
   NurseStationSelectionPolicy,
-  NurseStationTaskFilter,
-  NurseStationWardOption
+  NurseStationTaskFilter
 } from '../type'
 
 defineOptions({
@@ -22,13 +19,11 @@ interface Props {
   statistics: NurseStationPatientStatistics
   selectedPatientIds: string[]
   selectionPolicy: NurseStationSelectionPolicy
-  queueScope: NurseStationQueueScope
   taskFilter: NurseStationTaskFilter
   keyword: string
-  wardOptions: NurseStationWardOption[]
-  houseOptions: NurseStationHouseOption[]
-  selectedWardIds: string[]
-  selectedHouseIds: string[]
+  pageIndex: number
+  pageSize: number
+  total: number
   /** 入出转页签中允许将患者卡片拖到床位图。 */
   enablePatientDrag?: boolean
   loading?: boolean
@@ -43,42 +38,19 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   'update:selectedPatientIds': [value: string[]]
-  'update:queueScope': [value: NurseStationQueueScope]
   'update:taskFilter': [value: NurseStationTaskFilter]
   'update:keyword': [value: string]
-  'update:selectedWardIds': [value: string[]]
-  'update:selectedHouseIds': [value: string[]]
+  'update:pageIndex': [value: number]
   refresh: []
 }>()
 
-const spatialFilterExpanded = ref(true)
-
 const selectedIdSet = computed(() => new Set(props.selectedPatientIds))
-
-const isRecallListMode = computed(() => props.queueScope === 'settled-discharged')
-
-function handleQueueScopeChange(value: NurseStationQueueScope) {
-  emit('update:queueScope', value)
-  if (value === 'settled-discharged') {
-    emit('update:selectedPatientIds', [])
-  }
-}
 
 function handleTaskFilterChange(value: NurseStationTaskFilter) {
   emit('update:taskFilter', value)
 }
 
-function handleWardIdsChange(values: Array<string | number | boolean>) {
-  emit('update:selectedWardIds', values.map(String))
-}
-
-function handleHouseIdsChange(values: Array<string | number | boolean>) {
-  emit('update:selectedHouseIds', values.map(String))
-}
-
 function togglePatient(patientId: string, checked?: boolean) {
-  if (isRecallListMode.value) return
-
   if (props.selectionPolicy === 'single') {
     emit('update:selectedPatientIds', checked === false ? [] : [patientId])
     return
@@ -97,7 +69,7 @@ function formatBalance(patient: NurseStationPatientSummary) {
 }
 
 function handlePatientDragStart(event: DragEvent, patient: NurseStationPatientSummary) {
-  if (!props.enablePatientDrag || isRecallListMode.value || !event.dataTransfer) return
+  if (!props.enablePatientDrag || !event.dataTransfer) return
   const payload = JSON.stringify({ encounterId: patient.encounterId })
   event.dataTransfer.effectAllowed = 'move'
   event.dataTransfer.setData('application/x-his-nurse-patient', payload)
@@ -129,7 +101,7 @@ function handlePatientDragStart(event: DragEvent, patient: NurseStationPatientSu
         <el-input
           :model-value="keyword"
           clearable
-          placeholder="姓名/病区/床号模糊搜索"
+          placeholder="姓名/床号/拼音码/五笔码"
           @update:model-value="emit('update:keyword', $event)"
           @keyup.enter="emit('refresh')"
         >
@@ -141,21 +113,8 @@ function handlePatientDragStart(event: DragEvent, patient: NurseStationPatientSu
       </div>
       <div class="patient-panel__search-row">
         <el-select
-          :model-value="queueScope"
-          aria-label="患者范围"
-          @update:model-value="handleQueueScopeChange"
-        >
-          <el-option
-            v-for="item in NURSE_STATION_QUEUE_SCOPE_OPTIONS"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
-        <el-select
           :model-value="taskFilter"
           aria-label="任务状态"
-          :disabled="isRecallListMode"
           @update:model-value="handleTaskFilterChange"
         >
           <el-option
@@ -169,53 +128,6 @@ function handlePatientDragStart(event: DragEvent, patient: NurseStationPatientSu
     </div>
 
     <div class="patient-panel__body">
-      <section
-        class="patient-panel__spatial"
-        :class="{ 'is-collapsed': !spatialFilterExpanded }"
-        aria-label="病区病房筛选"
-      >
-        <div class="patient-panel__spatial-toolbar">
-          <el-button
-            link
-            type="primary"
-            :title="spatialFilterExpanded ? '收起病区病房' : '展开病区病房'"
-            @click="spatialFilterExpanded = !spatialFilterExpanded"
-          >
-            <el-icon>
-              <DArrowLeft v-if="spatialFilterExpanded" />
-              <DArrowRight v-else />
-            </el-icon>
-          </el-button>
-        </div>
-        <div v-show="spatialFilterExpanded" class="patient-panel__spatial-content">
-          <h3>病区</h3>
-          <el-checkbox-group
-            :model-value="selectedWardIds"
-            class="patient-panel__filter-group"
-            @update:model-value="handleWardIdsChange"
-          >
-            <el-checkbox v-for="ward in wardOptions" :key="ward.id" :value="ward.id">
-              {{ ward.name }}
-            </el-checkbox>
-          </el-checkbox-group>
-          <el-empty v-if="wardOptions.length === 0" :image-size="42" description="暂无病区" />
-          <el-divider />
-          <h3>病房</h3>
-          <el-checkbox-group
-            :model-value="selectedHouseIds"
-            class="patient-panel__filter-group"
-            @update:model-value="handleHouseIdsChange"
-          >
-            <el-checkbox v-for="house in houseOptions" :key="house.id" :value="house.id">
-              {{ house.name }}
-            </el-checkbox>
-          </el-checkbox-group>
-          <el-empty v-if="houseOptions.length === 0" :image-size="42" description="请先选择病区" />
-        </div>
-      </section>
-
-      <div class="patient-panel__divider" />
-
       <section v-loading="loading" class="patient-panel__list" aria-live="polite">
         <el-alert
           v-if="errorMessage"
@@ -225,10 +137,7 @@ function handlePatientDragStart(event: DragEvent, patient: NurseStationPatientSu
           show-icon
           :closable="false"
         />
-        <el-empty
-          v-if="patients.length === 0"
-          :description="isRecallListMode ? '暂无已出院结算患者' : '暂无符合条件的在院患者'"
-        />
+        <el-empty v-if="patients.length === 0" description="暂无符合条件的在院患者" />
 
         <div v-else class="patient-card-list">
           <article
@@ -237,16 +146,15 @@ function handlePatientDragStart(event: DragEvent, patient: NurseStationPatientSu
             class="patient-card"
             :class="{
               'is-selected': selectedIdSet.has(patient.encounterId),
-              'is-draggable': enablePatientDrag && !isRecallListMode
+              'is-draggable': enablePatientDrag
             }"
-            :draggable="enablePatientDrag && !isRecallListMode"
+            :draggable="enablePatientDrag"
             @click="togglePatient(patient.encounterId)"
             @dragstart="handlePatientDragStart($event, patient)"
           >
             <div class="patient-card__header">
               <el-checkbox
                 :model-value="selectedIdSet.has(patient.encounterId)"
-                :disabled="isRecallListMode"
                 @click.stop
                 @change="togglePatient(patient.encounterId, Boolean($event))"
               />
@@ -276,6 +184,17 @@ function handlePatientDragStart(event: DragEvent, patient: NurseStationPatientSu
         </div>
       </section>
     </div>
+    <footer v-if="total > pageSize" class="patient-panel__pagination">
+      <el-pagination
+        small
+        background
+        layout="prev, pager, next"
+        :current-page="pageIndex"
+        :page-size="pageSize"
+        :total="total"
+        @current-change="emit('update:pageIndex', $event)"
+      />
+    </footer>
   </aside>
 </template>
 
@@ -355,85 +274,6 @@ function handlePatientDragStart(event: DragEvent, patient: NurseStationPatientSu
   flex: 1;
 }
 
-.patient-panel__spatial {
-  display: flex;
-  width: 112px;
-  min-width: 112px;
-  flex-direction: column;
-  overflow: hidden;
-  padding: 6px;
-  transition: width 0.2s ease;
-}
-
-.patient-panel__spatial.is-collapsed {
-  width: 34px;
-  min-width: 34px;
-  padding-inline: 2px;
-}
-
-.patient-panel__spatial-toolbar {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.patient-panel__spatial.is-collapsed .patient-panel__spatial-toolbar {
-  justify-content: center;
-}
-
-.patient-panel__spatial-content {
-  min-height: 0;
-  flex: 1;
-  overflow: auto;
-}
-
-.patient-panel__spatial-content h3 {
-  margin: 4px 0 0;
-  color: var(--el-text-color-primary);
-  font-size: 13px;
-}
-
-.patient-panel__filter-group {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 4px 0;
-}
-
-.patient-panel__filter-group :deep(.el-checkbox) {
-  height: auto;
-  margin-right: 0;
-  white-space: normal;
-}
-
-.patient-panel__filter-group :deep(.el-checkbox__label) {
-  overflow: hidden;
-  padding-left: 5px;
-  font-size: 12px;
-  text-overflow: ellipsis;
-}
-
-.patient-panel__spatial-content :deep(.el-empty) {
-  padding-block: 10px;
-}
-
-.patient-panel__spatial-content :deep(.el-empty__description) {
-  margin-top: 4px;
-}
-
-.patient-panel__spatial-content :deep(.el-empty__description p) {
-  font-size: 11px;
-}
-
-.patient-panel__spatial-content .el-divider {
-  margin-block: 4px;
-}
-
-.patient-panel__divider {
-  width: 1px;
-  margin-block: 8px;
-  background: var(--el-border-color-lighter);
-}
-
 .patient-panel__list {
   min-width: 0;
   min-height: 0;
@@ -448,6 +288,13 @@ function handlePatientDragStart(event: DragEvent, patient: NurseStationPatientSu
 
 .patient-panel__error {
   margin-bottom: 8px;
+}
+
+.patient-panel__pagination {
+  display: flex;
+  justify-content: center;
+  padding: 8px 4px;
+  border-top: 1px solid var(--el-border-color-lighter);
 }
 
 .patient-card-list {
@@ -555,11 +402,6 @@ function handlePatientDragStart(event: DragEvent, patient: NurseStationPatientSu
     flex-direction: column;
     justify-content: center;
     gap: 2px;
-  }
-
-  .patient-panel__spatial {
-    width: 96px;
-    min-width: 96px;
   }
 }
 </style>

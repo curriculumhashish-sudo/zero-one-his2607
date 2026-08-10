@@ -6,13 +6,19 @@ import type { DoctorVisitStatus } from '@/apis/outpatient/doctor-station'
  * 使用联合类型后，如果误写成 `activeTab = 'test'`，
  * TypeScript 会在开发阶段直接提示错误。
  */
-export type DoctorStationTab = 'record' | 'diagnosis' | 'orders'
+export type DoctorStationTab = 'record' | 'diagnosis' | 'orders' | 'tcmPrescription'
 
 /**
  * 顶部工具栏允许发出的业务动作。
  * 子组件只告诉父页面“用户点了什么”，真正的接口调用由 Index.vue 处理。
  */
-export type DoctorStationAction = 'accept' | 'save' | 'refresh' | 'leave' | 'complete'
+export type DoctorStationAction =
+  | 'accept'
+  | 'leave'
+  | 'admission'
+  | 'complete'
+  | 'prescription'
+  | 'refund'
 
 /**
  * 单个页签的显示配置。

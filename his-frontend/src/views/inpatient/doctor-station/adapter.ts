@@ -37,8 +37,7 @@ export function toInpatientPatientSummary(
     departmentName: patient.departmentName,
     status: patient.encounterStatusName,
     statusTone: statusToneMap[patient.encounterStatus],
-    paymentType: patient.paymentTypeName,
-    riskHint: patient.riskHint
+    paymentType: patient.paymentTypeName
   }
 }
 

@@ -1,34 +1,9 @@
 import type {
   NurseStationPatientFilterQuery,
-  NurseStationPatientQueueItemVO,
-  NurseStationWardTreeVO
+  NurseStationPatientQueueItemVO
 } from '@/apis/inpatient/nurse-station'
 
-import type {
-  NurseStationHouseOption,
-  NurseStationPatientSummary,
-  NurseStationQueueScope,
-  NurseStationTaskFilter,
-  NurseStationWardOption
-} from './type'
-
-export function mapWardTreeToOptions(tree: NurseStationWardTreeVO): {
-  wardOptions: NurseStationWardOption[]
-  houseOptions: NurseStationHouseOption[]
-} {
-  const wardOptions = tree.wardNodes.map((ward) => ({
-    id: ward.wardId,
-    name: ward.wardName
-  }))
-  const houseOptions = tree.wardNodes.flatMap((ward) =>
-    ward.houseNodes.map((house) => ({
-      id: house.houseId,
-      name: house.houseName,
-      wardId: ward.wardId
-    }))
-  )
-  return { wardOptions, houseOptions }
-}
+import type { NurseStationPatientSummary, NurseStationTaskFilter } from './type'
 
 export function mapPatientQueueItemToSummary(
   row: NurseStationPatientQueueItemVO
@@ -39,9 +14,9 @@ export function mapPatientQueueItemToSummary(
     patientId: row.patientId,
     patientName: row.patientName,
     encounterBusNo: row.encounterBusNo,
+    admissionTime: row.admissionTime,
     genderText: row.genderEnumText,
     ageText: row.ageText,
-    paymentTypeText: row.organizationName,
     statusCode: row.statusEnum,
     statusText: row.statusEnumText,
     diagnosisSummary: row.diagnosisSummary,
@@ -54,24 +29,16 @@ export function mapPatientQueueItemToSummary(
     pendingAuditCount: row.pendingAuditCount ?? 0,
     pendingExecuteCount: row.pendingExecuteCount ?? 0,
     availableBalance: row.availableBalance ?? row.accountBalance,
-    lowBalanceWarning: row.lowBalanceWarning,
-    recallEnabled: row.recallEnabled
+    lowBalanceWarning: row.lowBalanceWarning
   }
 }
 
 export function buildPatientFilterQuery(input: {
   keyword: string
-  queueScope: NurseStationQueueScope
   taskFilter: NurseStationTaskFilter
-  selectedWardIds: string[]
-  selectedHouseIds: string[]
 }): NurseStationPatientFilterQuery {
   return {
     keyword: input.keyword.trim() || undefined,
-    wardIds: input.selectedWardIds.length ? input.selectedWardIds.join(',') : undefined,
-    houseIds: input.selectedHouseIds.length ? input.selectedHouseIds.join(',') : undefined,
-    nurseStationTaskFilter: input.taskFilter === 'all' ? undefined : input.taskFilter,
-    nurseStationStatusFilter:
-      input.queueScope === 'settled-discharged' ? 'SETTLED_DISCHARGED' : undefined
+    nurseStationTaskFilter: input.taskFilter === 'all' ? undefined : input.taskFilter
   }
 }

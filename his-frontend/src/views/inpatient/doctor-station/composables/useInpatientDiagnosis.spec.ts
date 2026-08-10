@@ -66,6 +66,7 @@ const usageHistory: InpatientDiagnosisUsageHistoryVO = {
 describe('useInpatientDiagnosis', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    window.sessionStorage.clear()
     vi.mocked(getInpatientDiagnosisUsageHistory).mockResolvedValue([usageHistory])
   })
 
@@ -146,6 +147,41 @@ describe('useInpatientDiagnosis', () => {
       usageHistory.id
     ])
     expect(state.diagnosesDirty.value).toBe(true)
+  })
+
+  it('Real 新增诊断会合并到 Mock 列表并写入会话缓存', async () => {
+    const existing = record('record-1', 'catalog-1', 'I10', true, 1)
+    const created = {
+      ...record('real-1', 'catalog-real', '123', false, 2),
+      source: 'real' as const,
+      backendId: 'backend-real-1',
+      readonlyFields: true
+    }
+    vi.mocked(pageInpatientDiagnosisRecords)
+      .mockResolvedValueOnce(page([existing]))
+      .mockResolvedValueOnce(page([existing]))
+    vi.mocked(createInpatientDiagnosis).mockResolvedValue(created)
+
+    const state = useInpatientDiagnosis()
+    await state.loadDiagnoses('enc-1')
+    state.diagnoses.value = [
+      ...state.diagnoses.value,
+      {
+        key: 'draft-real',
+        catalogId: created.catalogId,
+        code: created.code,
+        name: created.name,
+        typeName: created.typeName,
+        primary: false
+      }
+    ]
+
+    await state.saveDiagnoses('enc-1', 'patient-1')
+
+    expect(state.diagnoses.value.map((item) => item.code)).toEqual(['I10', '123'])
+    expect(window.sessionStorage.getItem('inpatient-doctor-station:diagnosis:enc-1')).toContain(
+      'backend-real-1'
+    )
   })
 
   it('诊断字典加载器会适配公共选择弹窗模型', async () => {

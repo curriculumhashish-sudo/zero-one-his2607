@@ -3,7 +3,7 @@
     <!-- ==================== Header：查询条件区 ==================== -->
     <div class="query-shell__fields" :class="{ 'is-collapsed': isCollapsed }">
       <!-- 内置：关键词输入框 -->
-      <div class="query-shell__field">
+      <div v-if="showKeyword" class="query-shell__field">
         <label class="query-shell__label">{{ keywordLabel }}</label>
         <el-input
           :model-value="keyword"
@@ -88,6 +88,8 @@ const props = withDefaults(
   defineProps<{
     /** 关键词字段标签 */
     keywordLabel?: string
+    /** 是否显示关键词输入框 */
+    showKeyword?: boolean
     /** 关键词 v-model */
     keyword?: string
     /** 关键词占位文本 */
@@ -113,6 +115,7 @@ const props = withDefaults(
   }>(),
   {
     keywordLabel: '关键词',
+    showKeyword: true,
     keyword: '',
     keywordPlaceholder: '请输入关键词',
     dropdownLabel: '类别',
@@ -139,7 +142,7 @@ const emit = defineEmits<{
 // ==================== 折叠逻辑 ====================
 
 const TOTAL_HEADER_ITEMS = computed(() => {
-  let count = 1 // 关键词输入框始终存在
+  let count = props.showKeyword ? 1 : 0
   if (props.dropdownOptions?.length) count++ // 下拉菜单
   count += props.fieldCount // #header 插槽中的额外字段
   return count

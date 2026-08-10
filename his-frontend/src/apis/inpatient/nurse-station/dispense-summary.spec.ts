@@ -31,33 +31,21 @@ describe('住院护士站汇总领药 Mock API', () => {
     expect(result.patientGroups[0]?.orderRows[0]?.timePoints).toHaveLength(2)
   })
 
-  it('相同幂等键不会重复生成汇总单，撤销后恢复原发药时点', async () => {
-    const request = {
-      idempotencyKey: 'dispense-summary-create-and-cancel-test',
+  it('创建和撤销使用后端最小契约，并在撤销后恢复发药时点', async () => {
+    const created = await createNurseStationDispenseSummary({
       dispenseItems: [
         { encounterId: 'encounter-002', dispenseId: 'dispense-101' },
         { encounterId: 'encounter-002', dispenseId: 'dispense-102' }
       ]
-    }
-    const first = await createNurseStationDispenseSummary(request)
-    const repeated = await createNurseStationDispenseSummary(request)
-
-    expect(first.processedCount).toBe(2)
-    expect(first.summaryNos).toHaveLength(1)
-    expect(repeated).toEqual(first)
-
-    const detail = await getNurseStationDispenseSummaryDetail(first.summaryNos[0]!)
-    expect(detail.header.itemCount).toBe(2)
-    expect(detail.lines.map((item) => item.medicationName)).toEqual([
-      '替米沙坦片',
-      '布地奈德混悬液'
-    ])
-
-    const cancelled = await cancelNurseStationDispenseSummaries({
-      idempotencyKey: 'dispense-summary-cancel-test',
-      summaries: [{ summaryNo: detail.header.summaryNo, version: detail.header.version }]
     })
-    expect(cancelled.processedCount).toBe(1)
+
+    expect(created.summaryNos).toHaveLength(1)
+    const summaryNo = created.summaryNos[0]!
+    const detail = await getNurseStationDispenseSummaryDetail(summaryNo)
+    expect(detail.map((item) => item.name)).toEqual(['替米沙坦片', '布地奈德混悬液'])
+
+    const cancelled = await cancelNurseStationDispenseSummaries({ summaryNos: [summaryNo] })
+    expect(cancelled.summaryNos).toEqual([summaryNo])
 
     const pendingAgain = await queryNurseStationDispensePending({
       pageIndex: 1,
@@ -70,45 +58,32 @@ describe('住院护士站汇总领药 Mock API', () => {
     expect(pendingAgain.total).toBe(2)
   })
 
-  it('发送后状态和版本更新，已发送汇总单不能再撤销', async () => {
+  it('发送后状态改为待药房处理，不能再撤销', async () => {
     const created = await createNurseStationDispenseSummary({
-      idempotencyKey: 'dispense-summary-submit-create-test',
       dispenseItems: [{ encounterId: 'encounter-001', dispenseId: 'dispense-004' }]
     })
     const summaryNo = created.summaryNos[0]!
-    const detail = await getNurseStationDispenseSummaryDetail(summaryNo)
-    const submitted = await submitNurseStationDispenseSummaries({
-      idempotencyKey: 'dispense-summary-submit-test',
-      summaries: [{ summaryNo, version: detail.header.version }]
-    })
+    const submitted = await submitNurseStationDispenseSummaries({ summaryNos: [summaryNo] })
 
-    expect(submitted.processedCount).toBe(1)
-    const submittedDetail = await getNurseStationDispenseSummaryDetail(summaryNo)
-    expect(submittedDetail.header).toEqual(
-      expect.objectContaining({ status: 'SUBMITTED', statusText: '已发送', version: 2 })
-    )
-
-    const cancelResult = await cancelNurseStationDispenseSummaries({
-      idempotencyKey: 'dispense-summary-cancel-submitted-test',
-      summaries: [{ summaryNo, version: submittedDetail.header.version }]
-    })
-    expect(cancelResult.processedCount).toBe(0)
-    expect(cancelResult.results[0]?.message).toContain('仅待发送')
-  })
-
-  it('汇总单列表支持状态分页，错误版本不会覆盖新状态', async () => {
+    expect(submitted.summaryNos).toEqual([summaryNo])
     const page = await queryNurseStationDispenseSummaries({
       pageIndex: 1,
       pageSize: 20,
-      status: 'PENDING_SUBMIT'
+      statusEnum: 'WAIT_REVIEW'
+    })
+    expect(page.rows?.some((item) => item.summaryNo === summaryNo)).toBe(true)
+
+    await expect(cancelNurseStationDispenseSummaries({ summaryNos: [summaryNo] })).rejects.toThrow(
+      '仅待发送汇总单可操作'
+    )
+  })
+
+  it('汇总单列表按后端状态字段分页', async () => {
+    const page = await queryNurseStationDispenseSummaries({
+      pageIndex: 1,
+      pageSize: 20,
+      statusEnum: 'SUMMARIZED'
     })
     expect(page.rows?.some((item) => item.summaryNo === 'MS-HISTORY-0001')).toBe(true)
-
-    const result = await submitNurseStationDispenseSummaries({
-      idempotencyKey: 'dispense-summary-wrong-version-test',
-      summaries: [{ summaryNo: 'MS-HISTORY-0001', version: 99 }]
-    })
-    expect(result.processedCount).toBe(0)
-    expect(result.results[0]?.message).toContain('已更新')
   })
 })

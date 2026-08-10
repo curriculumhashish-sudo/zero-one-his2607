@@ -109,6 +109,8 @@ export interface UserInfo {
   realName: string
   roles?: string[]
   userId: string
+  /** 当前登录账号绑定的医护人员 ID。 */
+  practitionerId?: string
   username: string
   desc: string
   homePath: string

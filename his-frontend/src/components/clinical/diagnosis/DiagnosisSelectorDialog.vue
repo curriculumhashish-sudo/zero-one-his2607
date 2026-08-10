@@ -31,7 +31,7 @@ const visible = defineModel<boolean>('visible', { default: false })
 const selectedIds = ref<SelectValue[]>([])
 
 const columns: SelectTableColumn<ClinicalDiagnosisCandidate>[] = [
-  { prop: 'code', label: 'ICD 编码', width: 150 },
+  { prop: 'code', label: '诊断编码', width: 150 },
   { prop: 'name', label: '诊断名称', minWidth: 240 },
   { prop: 'typeName', label: '诊断分类', width: 130 }
 ]
@@ -63,7 +63,7 @@ watch(visible, (isVisible) => {
     :columns="columns"
     :load-page="loadPage"
     :disabled-row="isExistingDiagnosis"
-    keyword-placeholder="请输入 ICD 编码或诊断名称"
+    keyword-placeholder="请输入诊断编码或诊断名称"
     search-label="诊断"
     empty-text="暂无匹配诊断"
     @confirm="confirmSelection"

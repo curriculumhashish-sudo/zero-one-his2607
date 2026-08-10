@@ -51,7 +51,7 @@ function isAdded(diagnosis: InpatientDiagnosisUsageHistoryVO) {
       <el-input
         :model-value="keyword"
         clearable
-        placeholder="ICD 编码/诊断名称"
+        placeholder="诊断编码/诊断名称"
         @update:model-value="emit('update:keyword', String($event))"
         @keyup.enter="emit('search', keyword)"
         @clear="emit('search', '')"

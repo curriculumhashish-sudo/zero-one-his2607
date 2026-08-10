@@ -44,7 +44,7 @@ describe('useInpatientPatientQueue', () => {
     vi.clearAllMocks()
   })
 
-  it('首次加载后默认选中第一位患者', async () => {
+  it('首次加载后自动选择第一位患者', async () => {
     vi.mocked(pageInpatientDoctorPatientQueue).mockResolvedValue(
       page([patient('enc-1', '王建国'), patient('enc-2', '赵桂芳')])
     )
@@ -54,7 +54,7 @@ describe('useInpatientPatientQueue', () => {
 
     expect(state.patients.value.map((item) => item.name)).toEqual(['王建国', '赵桂芳'])
     expect(state.selectedPatientId.value).toBe('enc-1')
-    expect(state.selectedQueueItem.value?.patientId).toBe('patient-enc-1')
+    expect(state.selectedQueueItem.value?.patientName).toBe('王建国')
   })
 
   it('刷新队列后保留仍然存在的当前患者', async () => {
@@ -90,5 +90,19 @@ describe('useInpatientPatientQueue', () => {
     expect(state.queueQuery.keyword).toBe('新患者')
     expect(state.patients.value.map((item) => item.name)).toEqual(['新患者'])
     expect(state.selectedPatientId.value).toBe('enc-new')
+  })
+
+  it('刷新后当前患者不在队列时自动选择当前结果第一位', async () => {
+    vi.mocked(pageInpatientDoctorPatientQueue)
+      .mockResolvedValueOnce(page([patient('enc-1', '王建国'), patient('enc-2', '赵桂芳')]))
+      .mockResolvedValueOnce(page([patient('enc-2', '赵桂芳'), patient('enc-3', '陈志强')]))
+    const state = useInpatientPatientQueue()
+    await state.loadPatients()
+    state.selectPatient(state.patients.value[0]!)
+
+    await state.loadPatients()
+
+    expect(state.selectedPatientId.value).toBe('enc-2')
+    expect(state.selectedQueueItem.value?.patientName).toBe('赵桂芳')
   })
 })

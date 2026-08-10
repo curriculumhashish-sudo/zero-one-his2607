@@ -2,8 +2,11 @@ import { describe, expect, it } from 'vitest'
 
 import type { ClinicalOrderDraft } from './type'
 import {
-  moveClinicalOrder,
+  buildClinicalOrderDraftChanges,
+  calculateSuggestedOrderQuantity,
+  groupClinicalOrders,
   removeClinicalOrder,
+  ungroupClinicalOrders,
   updateClinicalOrder,
   validateClinicalOrders
 } from './utils'
@@ -22,7 +25,9 @@ const orders: ClinicalOrderDraft[] = [
     route: '口服',
     days: 7,
     quantity: 7,
-    quantityUnit: '片'
+    quantityUnit: '片',
+    dosePerQuantityUnit: 5,
+    status: 'DRAFT'
   },
   {
     key: 'o2',
@@ -32,7 +37,8 @@ const orders: ClinicalOrderDraft[] = [
     category: 'LAB',
     categoryName: '检验',
     quantity: 1,
-    quantityUnit: '次'
+    quantityUnit: '次',
+    status: 'DRAFT'
   }
 ]
 
@@ -44,11 +50,9 @@ describe('clinical order utils', () => {
     expect(orders[0]?.dose).toBe(5)
   })
 
-  it('支持医嘱排序和删除', () => {
-    const moved = moveClinicalOrder(orders, 'o2', -1)
-    const removed = removeClinicalOrder(moved, 'o1')
+  it('支持删除医嘱', () => {
+    const removed = removeClinicalOrder(orders, 'o1')
 
-    expect(moved[0]?.key).toBe('o2')
     expect(removed.map((item) => item.key)).toEqual(['o2'])
   })
 
@@ -66,5 +70,68 @@ describe('clinical order utils', () => {
     expect(result.valid).toBe(false)
     expect(result.errors.some((error) => error.field === 'dose')).toBe(true)
     expect(result.errors.some((error) => error.field === 'quantity')).toBe(true)
+  })
+
+  it('允许删除最后一条草稿并保存空列表', () => {
+    expect(validateClinicalOrders([])).toEqual({ valid: true, errors: [] })
+  })
+
+  it('已签发和已撤回医嘱只读且不参与草稿校验', () => {
+    const formalOrders: ClinicalOrderDraft[] = [
+      { ...orders[0]!, status: 'SIGNED', quantity: 0 },
+      { ...orders[1]!, status: 'WITHDRAWN', name: '' }
+    ]
+
+    expect(updateClinicalOrder(formalOrders, 'o1', { quantity: 9 })[0]?.quantity).toBe(0)
+    expect(validateClinicalOrders(formalOrders)).toEqual({ valid: true, errors: [] })
+  })
+
+  it('支持跨分类任意并组、重新并组和孤立组清理', () => {
+    const grouped = groupClinicalOrders(orders, ['o1', 'o2'], 'group-a')
+    expect(grouped.map((item) => item.groupId)).toEqual(['group-a', 'group-a'])
+
+    const third: ClinicalOrderDraft = {
+      ...orders[1]!,
+      key: 'o3',
+      recordId: 'record-3',
+      catalogId: 'exam-1',
+      category: 'EXAM',
+      categoryName: '检查'
+    }
+    const regrouped = groupClinicalOrders([...grouped, third], ['o2', 'o3'], 'group-b')
+    expect(regrouped.map((item) => item.groupId)).toEqual([undefined, 'group-b', 'group-b'])
+
+    const ungrouped = ungroupClinicalOrders(regrouped, ['o2'])
+    expect(ungrouped.map((item) => item.groupId)).toEqual([undefined, undefined, undefined])
+  })
+
+  it('按剂量、频次和疗程计算建议数量，必要时用药保留手工输入', () => {
+    expect(calculateSuggestedOrderQuantity(orders[0]!)).toBe(7)
+    expect(calculateSuggestedOrderQuantity({ ...orders[0]!, frequency: '每日三次', days: 5 })).toBe(
+      15
+    )
+    expect(calculateSuggestedOrderQuantity({ ...orders[0]!, frequency: '必要时' })).toBeUndefined()
+  })
+
+  it('计算统一保存所需的新增、修改和删除差异', () => {
+    const saved: ClinicalOrderDraft[] = [
+      { ...orders[0]!, recordId: 'record-1' },
+      { ...orders[1]!, recordId: 'record-2' }
+    ]
+    const current: ClinicalOrderDraft[] = [
+      { ...saved[0]!, quantity: 9 },
+      {
+        ...orders[1]!,
+        key: 'new-row',
+        catalogId: 'exam-2',
+        category: 'EXAM',
+        categoryName: '检查'
+      }
+    ]
+
+    const changes = buildClinicalOrderDraftChanges(current, saved)
+    expect(changes.updated.map((item) => item.recordId)).toEqual(['record-1'])
+    expect(changes.created.map((item) => item.key)).toEqual(['new-row'])
+    expect(changes.deletedRecordIds).toEqual(['record-2'])
   })
 })

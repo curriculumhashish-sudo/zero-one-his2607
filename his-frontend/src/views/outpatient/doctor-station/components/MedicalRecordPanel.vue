@@ -26,6 +26,8 @@ const props = withDefaults(
     dirty?: boolean
     /** 最近一次保存时间 */
     updatedAt?: string
+    /** 病历是否正在保存，用于锁定按钮避免重复提交 */
+    saving?: boolean
   }>(),
   {
     modelValue: '',
@@ -35,7 +37,8 @@ const props = withDefaults(
     loading: false,
     error: '',
     dirty: false,
-    updatedAt: ''
+    updatedAt: '',
+    saving: false
   }
 )
 
@@ -43,6 +46,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
   change: [value: string]
   retry: []
+  save: []
 }>()
 
 // 在诊和完诊患者都能查看病历，区别是完诊患者只能阅读。
@@ -92,7 +96,21 @@ function changeContent(value: string) {
           <span v-else-if="dirty" class="medical-record-panel__dirty">有未保存修改</span>
           <span v-else class="medical-record-panel__saved">内容已保存</span>
         </div>
-        <span v-if="updatedAt" class="medical-record-panel__time"> 最近保存：{{ updatedAt }} </span>
+        <div class="medical-record-panel__actions">
+          <span v-if="updatedAt" class="medical-record-panel__time">
+            最近保存：{{ updatedAt }}
+          </span>
+          <!-- 病历是门诊医生站唯一需要医生手动确认保存的编辑区。 -->
+          <el-button
+            v-if="accepted && !readonly"
+            type="success"
+            :loading="saving"
+            :disabled="!dirty || loading || saving"
+            @click="emit('save')"
+          >
+            保存病历
+          </el-button>
+        </div>
       </div>
 
       <!--
@@ -103,7 +121,7 @@ function changeContent(value: string) {
         :model-value="modelValue"
         :readonly="readonly"
         min-height="360px"
-        placeholder="请填写主诉、现病史、查体和处理意见，也可以从右侧套用病历模板"
+        placeholder="请填写主诉、现病史、查体和处理意见"
         @update:model-value="updateContent"
         @change="changeContent"
       />
@@ -171,11 +189,23 @@ function changeContent(value: string) {
   font-size: 12px;
 }
 
+.medical-record-panel__actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 12px;
+}
+
 @media (max-width: 1100px) {
   .medical-record-panel__status {
     align-items: flex-start;
     flex-direction: column;
     gap: 4px;
+  }
+
+  .medical-record-panel__actions {
+    width: 100%;
+    justify-content: space-between;
   }
 }
 </style>

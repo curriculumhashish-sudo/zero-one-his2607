@@ -52,6 +52,72 @@ function diagnosisChanged(
   )
 }
 
+const realDiagnosisCachePrefix = 'inpatient-doctor-station:diagnosis:'
+
+function diagnosisCacheKey(record: InpatientDiagnosisRecordVO) {
+  return record.backendId || record.id
+}
+
+function diagnosisBusinessKey(record: InpatientDiagnosisRecordVO) {
+  return [record.catalogId, record.code, record.name].join('|')
+}
+
+function readRealDiagnosisCache(encounterId: string): InpatientDiagnosisRecordVO[] {
+  try {
+    const raw = window.sessionStorage.getItem(`${realDiagnosisCachePrefix}${encounterId}`)
+    if (!raw) return []
+    const rows = JSON.parse(raw) as InpatientDiagnosisRecordVO[]
+    return Array.isArray(rows)
+      ? rows.filter((row) => row?.source === 'real' && row.encounterId === encounterId)
+      : []
+  } catch {
+    return []
+  }
+}
+
+function writeRealDiagnosisCache(encounterId: string, rows: InpatientDiagnosisRecordVO[]) {
+  try {
+    window.sessionStorage.setItem(
+      `${realDiagnosisCachePrefix}${encounterId}`,
+      JSON.stringify(rows.filter((row) => row.source === 'real'))
+    )
+  } catch {
+    // 会话缓存不可用时仍保留当前页面内的真实诊断结果。
+  }
+}
+
+function mergeDiagnosisRecords(
+  encounterId: string,
+  rows: InpatientDiagnosisRecordVO[]
+): InpatientDiagnosisRecordVO[] {
+  const cachedRows = readRealDiagnosisCache(encounterId)
+  const merged = new Map<string, InpatientDiagnosisRecordVO>()
+  for (const row of cachedRows) merged.set(diagnosisBusinessKey(row), row)
+  for (const row of rows) {
+    const normalized = { ...row, source: row.source ?? 'mock' as const }
+    if (!merged.has(diagnosisBusinessKey(normalized))) {
+      merged.set(diagnosisBusinessKey(normalized), normalized)
+    }
+  }
+  return [...merged.values()].sort((left, right) => left.orderNo - right.orderNo)
+}
+
+function updateRealDiagnosisCache(encounterId: string, record: InpatientDiagnosisRecordVO) {
+  const rows = readRealDiagnosisCache(encounterId)
+  const key = diagnosisCacheKey(record)
+  const next = rows.filter((row) => diagnosisCacheKey(row) !== key)
+  next.push(record)
+  writeRealDiagnosisCache(encounterId, next)
+}
+
+function removeRealDiagnosisCache(encounterId: string, record: InpatientDiagnosisRecordVO) {
+  const key = diagnosisCacheKey(record)
+  writeRealDiagnosisCache(
+    encounterId,
+    readRealDiagnosisCache(encounterId).filter((row) => diagnosisCacheKey(row) !== key)
+  )
+}
+
 export function useInpatientDiagnosis() {
   const diagnosisRecords = ref<InpatientDiagnosisRecordVO[]>([])
   const diagnoses = ref<ClinicalDiagnosisItem[]>([])
@@ -110,9 +176,7 @@ export function useInpatientDiagnosis() {
       })
       if (requestId !== latestDiagnosisRequestId || loadedEncounterId.value !== encounterId) return
 
-      const records = (result.rows ?? [])
-        .slice()
-        .sort((left, right) => left.orderNo - right.orderNo)
+      const records = mergeDiagnosisRecords(encounterId, result.rows ?? [])
       const clinicalRows = records.map(toInpatientClinicalDiagnosis)
       diagnosisRecords.value = records
       diagnoses.value = clinicalRows
@@ -193,15 +257,24 @@ export function useInpatientDiagnosis() {
 
     try {
       for (const record of deletedRecords) {
-        await deleteInpatientDiagnosis(record.id, record.version)
+        if (record.source === 'real') {
+          await deleteInpatientDiagnosis(record.id, record.version, {
+            source: record.source,
+            backendId: record.backendId
+          })
+        } else {
+          await deleteInpatientDiagnosis(record.id, record.version)
+        }
+        if (record.source === 'real') removeRealDiagnosisCache(encounterId, record)
         changedCount += 1
       }
 
       for (const [index, diagnosis] of diagnoses.value.entries()) {
         if (!diagnosis.recordId) {
-          await createInpatientDiagnosis(
+          const created = await createInpatientDiagnosis(
             toCreateInpatientDiagnosisDTO(diagnosis, index, encounterId, patientId)
           )
+          if (created.source === 'real') updateRealDiagnosisCache(encounterId, created)
           changedCount += 1
           continue
         }
@@ -210,10 +283,27 @@ export function useInpatientDiagnosis() {
         if (!saved) throw new Error('诊断原始记录不存在，请刷新后重试')
         if (!diagnosisChanged(saved, diagnosis, index)) continue
 
-        await updateInpatientDiagnosis(
-          diagnosis.recordId,
-          toUpdateInpatientDiagnosisDTO(diagnosis, index, saved.version)
-        )
+        const updateData = toUpdateInpatientDiagnosisDTO(diagnosis, index, saved.version)
+        if (saved.source === 'real') {
+          const unsupportedChanged =
+            saved.catalogId !== diagnosis.catalogId ||
+            saved.code !== diagnosis.code ||
+            saved.name !== diagnosis.name ||
+            saved.primary !== diagnosis.primary ||
+            saved.orderNo !== index + 1
+          if (unsupportedChanged) {
+            throw new Error('当前后端仅支持修改诊断类型，名称、编码、主诊断和顺序暂不可修改')
+          }
+        }
+
+        const updated =
+          saved.source === 'real'
+            ? await updateInpatientDiagnosis(diagnosis.recordId, updateData, {
+                source: saved.source,
+                current: saved
+              })
+            : await updateInpatientDiagnosis(diagnosis.recordId, updateData)
+        if (updated.source === 'real') updateRealDiagnosisCache(encounterId, updated)
         changedCount += 1
       }
 

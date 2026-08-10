@@ -3,6 +3,7 @@ import type {
   DoctorDiagnosisVO,
   DoctorPatientQueueItemVO,
   DoctorVisitStatus,
+  OpdoctorCreateDiagnosisDTO,
   SaveDoctorDiagnosisItemDTO
 } from '@/apis/outpatient/doctor-station'
 import type {
@@ -17,9 +18,26 @@ import type { PatientStatusTone, PatientSummary } from '@/components/patient/typ
  * 状态码属于医生站业务，不能写进公共 PatientCard。
  */
 const visitStatusToneMap: Record<DoctorVisitStatus, PatientStatusTone> = {
-  WAITING: 'warning',
-  IN_PROGRESS: 'primary',
-  COMPLETED: 'success'
+  arrived: 'warning',
+  'in-progress': 'primary',
+  finished: 'success'
+}
+
+/** 就诊状态码对应的中文名；后端不再返回名称，由前端根据 visitStatus 判断。 */
+const visitStatusNameMap: Record<DoctorVisitStatus, string> = {
+  arrived: '候诊',
+  'in-progress': '在诊',
+  finished: '完诊'
+}
+
+/** 根据就诊状态码返回中文状态名。 */
+export function getVisitStatusName(status: DoctorVisitStatus): string {
+  return visitStatusNameMap[status]
+}
+
+/** 门诊医生只需要区分医保和自费，医保子类型不在患者卡片中展开。 */
+function toSimplePaymentType(paymentTypeName: string): '医保' | '自费' {
+  return paymentTypeName.includes('自费') ? '自费' : '医保'
 }
 
 /**
@@ -32,20 +50,19 @@ export function toPatientSummary(patient: DoctorPatientQueueItemVO): PatientSumm
   return {
     id: patient.encounterId,
     name: patient.patientName,
-    gender: patient.genderName,
+    gender: patient.gender,
     age: patient.age,
     patientType: 'outpatient',
-    serviceType: patient.visitTypeName,
-    patientNo: patient.patientNo,
-    visitNo: patient.visitNo,
+    serviceType: patient.registerType,
+    patientNo: patient.visitNo,
     queueNumber: patient.queueNumber,
-    visitTime: patient.registeredAt,
+    visitTime: patient.visitTime,
     departmentName: patient.departmentName,
-    status: patient.visitStatusName,
+    statusCode: patient.visitStatus,
+    status: getVisitStatusName(patient.visitStatus),
     statusTone: visitStatusToneMap[patient.visitStatus],
-    paymentType: patient.paymentTypeName,
-    priority: patient.priorityName,
-    riskHint: patient.riskHint
+    paymentType: toSimplePaymentType(patient.paymentTypeName),
+    priority: patient.priorityName
   }
 }
 
@@ -88,5 +105,27 @@ export function toSaveDoctorDiagnosisItem(
     typeName: diagnosis.typeName,
     primary: diagnosis.primary,
     orderNo: index + 1
+  }
+}
+
+/**
+ * 将门诊诊断项映射为后端新增诊断请求体。
+ *
+ * conditionId（= catalogId）、diagCode（= ICD 编码）已与后端确认；
+ * diagTypeCode 的分类编码值待后端提供编码表，当前先直传分类名称。
+ * primary 转 primaryFlag（1/0）。
+ */
+export function toOpdoctorCreateDiagnosis(
+  encounterId: string,
+  item: SaveDoctorDiagnosisItemDTO
+): OpdoctorCreateDiagnosisDTO {
+  return {
+    encounterId,
+    conditionId: item.catalogId,
+    diagCode: item.code,
+    description: item.name,
+    diagTypeCode: item.typeName,
+    primaryFlag: item.primary ? 1 : 0,
+    rank: item.orderNo
   }
 }
