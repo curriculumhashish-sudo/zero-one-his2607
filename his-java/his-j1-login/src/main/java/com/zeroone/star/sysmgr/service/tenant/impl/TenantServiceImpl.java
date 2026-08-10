@@ -127,8 +127,8 @@ public class TenantServiceImpl implements TenantService {
         wrapper.eq(AdmOrganizationDO::getTenantId, tenantIdStr)
                 .eq(AdmOrganizationDO::getIsDeleted, 0)
                 .eq(AdmOrganizationDO::getActiveFlag, 1)
-                .eq(AdmOrganizationDO::getStatusEnum, "生效")
-                .eq(AdmOrganizationDO::getTypeEnum, "医院")
+                .eq(AdmOrganizationDO::getStatusEnum, "ACTIVE")
+                .eq(AdmOrganizationDO::getTypeEnum, "HOSPITAL")
                 .orderByAsc(AdmOrganizationDO::getDisplayOrder)
                 .orderByAsc(AdmOrganizationDO::getName);
 
