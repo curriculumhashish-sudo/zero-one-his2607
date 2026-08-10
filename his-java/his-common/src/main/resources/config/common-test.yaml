@@ -1,7 +1,5 @@
 spring:
   cloud:
-    #nacos配置
-    #https://github.com/alibaba/spring-cloud-alibaba/blob/2025.0.x/spring-cloud-alibaba-examples/nacos-example/readme-zh.md
     nacos:
       server-addr: 121.43.236.176:8848
       username: nacos
@@ -11,13 +9,12 @@ spring:
       config:
         namespace: his-test
 
-#日志级别
-#logging:
-#  level:
-#    root: debug
-
-
-#开启MP SQL日志打印
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+
+logging:
+  level:
+    com.zeroone.star.basedata.mapper: debug
+    org.springframework.data.mongodb.core.MongoTemplate: DEBUG

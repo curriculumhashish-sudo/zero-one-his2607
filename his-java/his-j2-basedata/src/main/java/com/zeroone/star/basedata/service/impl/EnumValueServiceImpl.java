@@ -37,7 +37,7 @@ import java.util.Map;
 public class EnumValueServiceImpl implements EnumValueService {
 
     // TODO: 临时设定，后续需要从jwt中获取
-    private static final String TENANT_ID = "1";
+    private static final String TENANT_ID = "sys_tenant";
 
     @Resource
     private EnumValueRepository enumValueRepository;

@@ -15,6 +15,13 @@ import java.util.Map;
 public interface EnumApis {
 
     /**
+     * 获取枚举列表(条件+分页)
+     * @param query 枚举查询对象DTO
+     * @return 枚举分页查询对象DTO
+     */
+    JsonVO<PageDTO<EnumDTO>> QueryAllEnum(EnumQuery query);
+
+    /**
      * 获取枚举名称列表
       * @param query 枚举查询对象DTO
       * @return 枚举查询对象DTO
@@ -84,5 +91,6 @@ public interface EnumApis {
      * @return 枚举值名称列表
      */
     JsonVO<List<String>> getEnumNameList(String enumKey);
+
 
 }

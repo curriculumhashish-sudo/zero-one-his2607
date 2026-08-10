@@ -6,6 +6,7 @@ import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.*;
 import com.zeroone.star.project.j2.basedata.enume.EnumApis;
 import com.zeroone.star.project.query.j2.basedata.EnumListQuery;
+import com.zeroone.star.project.query.j2.basedata.EnumQuery;
 import com.zeroone.star.project.query.j2.basedata.EnumTypeQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -104,5 +105,13 @@ public class EnumController implements EnumApis {
     @DeleteMapping("/sys/delete-enum-type/{id}")
     public JsonVO<String> deleteEnumType(@PathVariable(value = "id", required = true) String id) {
         return enumTypeService.deleteEnumType(id);
+    }
+
+
+    @Override
+    @Operation(summary = "获取枚举列表(条件+分页)")
+    @GetMapping("/sys/query-all-enum")
+    public JsonVO<PageDTO<EnumDTO>> QueryAllEnum(@Valid EnumQuery query) {
+        return enumValueService.QueryAllEnum(query);
     }
 }
