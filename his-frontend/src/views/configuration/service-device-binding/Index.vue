@@ -40,13 +40,20 @@ const searchItems: MyFormItemAttr[] = [
 ]
 
 const formItems: MyFormItemAttr[] = [
-  requiredInput('typeCode', '绑定类型编码', '请输入绑定类型编码'),
+  select('typeCode', '绑定类型编码', [
+    { label: '用法', value: 'USAGE' }, { label: '活动', value: 'ACTIVITY' }
+  ], true),
   requiredInput('sourceId', '来源 ID', '请输入服务或活动 ID'),
-  requiredInput('devActTable', '目标表', '例如 adm_device_definition'),
+  select('devActTable', '目标表', [
+    { label: '设备定义', value: 'adm_device_definition' },
+    { label: '活动定义', value: 'wkf_activity_definition' }
+  ], true),
   requiredInput('devActId', '目标 ID', '请输入耗材或设备 ID'),
   numberInput('quantity', '数量', 0.01),
-  requiredInput('unitCode', '单位编码', '请输入单位编码'),
-  select('statusEnum', '状态', [{ label: '启用', value: 'ACTIVE' }, { label: '停用', value: 'INACTIVE' }])
+  select('unitCode', '单位编码', [
+    '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '14', '71'
+  ].map((value) => ({ label: value, value })), true),
+  select('statusEnum', '状态', [{ label: '启用', value: 'ACTIVE' }, { label: '停用', value: 'INACTIVE' }], true)
 ]
 
 const defaultForm = {
@@ -63,7 +70,11 @@ function requiredInput(prop: string, label: string, placeholder: string): MyForm
 function numberInput(prop: string, label: string, min: number): MyFormItemAttr {
   return { type: 'number', prop, label, fprops: { min, max: 999999 } as MyFormInputNumberProps }
 }
-function select(prop: string, label: string, options: Array<{ label: string; value: string }>): MyFormItemAttr {
-  return { type: 'select', prop, label, fprops: { placeholder: `请选择${label}`, options } as MyFormSelectProps }
+function select(prop: string, label: string, options: Array<{ label: string; value: string }>, required = false): MyFormItemAttr {
+  return {
+    type: 'select', prop, label, required,
+    fprops: { placeholder: `请选择${label}`, options } as MyFormSelectProps,
+    ...(required ? { rules: [{ required: true, message: `请选择${label}`, trigger: 'change' }] } : {})
+  }
 }
 </script>

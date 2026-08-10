@@ -40,22 +40,22 @@ const formItems: MyFormItemAttr[] = [
   select('bindingEnum', '绑定类型', [
     { label: '个人', value: 'PERSONAL' }, { label: '科室', value: 'DEPARTMENT' },
     { label: '全院', value: 'HOSPITAL' }, { label: '协议', value: 'AGREEMENT' }
-  ]),
+  ], true),
   select('sceneEnum', '适用场景', [
     { label: '门诊', value: 'OUTPATIENT' }, { label: '住院', value: 'INPATIENT' }
-  ]),
+  ], true),
   select('templateKindEnum', '模板种类', [
     { label: '普通', value: 'GENERAL' }, { label: '中药', value: 'TCM' }, { label: '计价', value: 'PRICING' }
-  ]),
+  ], true),
   input('description', '说明', '可选'),
   input('remark', '备注', '可选'),
-  input('lines', '明细 JSON', '请输入 C7 OrderTemplateLine 数组 JSON')
+  input('lines', '明细内容', '请输入明细文字，系统会自动封装为一条药品明细')
 ]
 
 const defaultForm = {
   objectId: import.meta.env.VITE_DEV_ORGANIZATION_ID || '', name: '', bindingEnum: 'DEPARTMENT', sceneEnum: 'OUTPATIENT',
   templateKindEnum: 'GENERAL', templateCode: '', description: '', sortWeight: 0, remark: '',
-  lines: '[{"lineKindEnum":"MEDICATION","sortOrder":1}]',
+  lines: '默认明细',
   defaultChineseHerbsDoseQuantity: 0, defaultSufferingFlag: false
 }
 
@@ -65,7 +65,11 @@ function input(prop: string, label: string, placeholder: string): MyFormItemAttr
 function requiredInput(prop: string, label: string, placeholder: string): MyFormItemAttr {
   return { ...input(prop, label, placeholder), required: true, rules: [{ required: true, message: placeholder, trigger: 'blur' }] }
 }
-function select(prop: string, label: string, options: Array<{ label: string; value: string }>): MyFormItemAttr {
-  return { type: 'select', prop, label, fprops: { placeholder: `请选择${label}`, options } as MyFormSelectProps }
+function select(prop: string, label: string, options: Array<{ label: string; value: string }>, required = false): MyFormItemAttr {
+  return {
+    type: 'select', prop, label, required,
+    fprops: { placeholder: `请选择${label}`, options } as MyFormSelectProps,
+    ...(required ? { rules: [{ required: true, message: `请选择${label}`, trigger: 'change' }] } : {})
+  }
 }
 </script>

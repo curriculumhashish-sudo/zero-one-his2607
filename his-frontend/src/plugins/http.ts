@@ -85,7 +85,7 @@ export default {
           }
           // J5 配置服务通过本地直连代理访问，避免被全局 /api 转发到网关。
           // 提交的时候携带登录凭证
-          const token = store.getToken || import.meta.env.VITE_DEV_AUTH_TOKEN || ''
+          const token = import.meta.env.VITE_DEV_AUTH_TOKEN || store.getToken || ''
           if (token) {
             config.headers['Authorization'] = 'Bearer ' + token
           }

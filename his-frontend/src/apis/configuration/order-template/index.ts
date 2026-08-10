@@ -48,10 +48,19 @@ function toEnvelope(data: OrderTemplateSavePayload & { id?: string }): OrderTemp
   const { lines, ...header } = data
   let normalizedLines = lines
   if (typeof lines === 'string') {
-    try {
-      normalizedLines = JSON.parse(lines) as OrderTemplateSavePayload['lines']
-    } catch {
-      throw new Error('明细 JSON 格式错误，请填写有效的明细数组')
+    const text = String(lines).trim()
+    if (text.startsWith('[')) {
+      try {
+        normalizedLines = JSON.parse(text) as OrderTemplateSavePayload['lines']
+      } catch {
+        throw new Error('明细 JSON 格式错误，请填写有效的明细数组')
+      }
+    } else if (text) {
+      normalizedLines = [{
+        lineKindEnum: 'MEDICATION',
+        sortOrder: 1,
+        dosageText: text
+      }]
     }
   }
   if (!Array.isArray(normalizedLines) || normalizedLines.length === 0) {
@@ -60,7 +69,29 @@ function toEnvelope(data: OrderTemplateSavePayload & { id?: string }): OrderTemp
   if (normalizedLines.some((line) => line === null || typeof line !== 'object' || Array.isArray(line))) {
     throw new Error('明细 JSON 必须是由对象组成的数组')
   }
-  return { header: header as OrderTemplateEnvelope['header'], lines: normalizedLines }
+  return {
+    header: toOrderTemplateHeader(header),
+    lines: normalizedLines
+  }
+}
+
+function toOrderTemplateHeader(data: Record<string, unknown>): OrderTemplateEnvelope['header'] {
+  const fields = [
+    'id', 'objectId', 'name', 'bindingEnum', 'sceneEnum', 'templateKindEnum',
+    'templateCode', 'description', 'sortWeight', 'remark',
+    'defaultChineseHerbsDoseQuantity', 'defaultSufferingFlag',
+    'statusEnum', 'templateSourceEnum', 'createBy', 'createTime'
+  ]
+  const header: Record<string, unknown> = {}
+  for (const field of fields) {
+    if (data[field] !== undefined) header[field] = data[field]
+  }
+  for (const field of ['name', 'bindingEnum', 'sceneEnum', 'templateKindEnum']) {
+    if (typeof header[field] !== 'string' || !header[field].trim()) {
+      throw new Error(`组套模板${field}不能为空`)
+    }
+  }
+  return header as OrderTemplateEnvelope['header']
 }
 
 function toC7Query(query: { pageIndex: number; pageSize: number } & object) {
