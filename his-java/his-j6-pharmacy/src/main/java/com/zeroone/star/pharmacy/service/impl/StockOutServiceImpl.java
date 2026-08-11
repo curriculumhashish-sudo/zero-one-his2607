@@ -9,8 +9,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zeroone.star.pharmacy.entity.AdmLocation;
 import com.zeroone.star.pharmacy.entity.AdmPractitioner;
 import com.zeroone.star.pharmacy.entity.WkfSupplyRequest;
+import com.zeroone.star.pharmacy.mapper.AdmDeviceDefinitionMapper;
 import com.zeroone.star.pharmacy.mapper.AdmLocationMapper;
 import com.zeroone.star.pharmacy.mapper.AdmPractitionerMapper;
+import com.zeroone.star.pharmacy.mapper.MedMedicationDefinitionMapper;
 import com.zeroone.star.pharmacy.mapper.WkfSupplyRequestMapper;
 import com.zeroone.star.pharmacy.service.IStockOutService;
 import com.zeroone.star.project.components.user.UserDTO;
@@ -33,7 +35,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -59,6 +63,12 @@ public class StockOutServiceImpl implements IStockOutService {
 
     @Resource
     private AdmPractitionerMapper admPractitionerMapper;
+
+    @Resource
+    private MedMedicationDefinitionMapper medMedicationDefinitionMapper;
+
+    @Resource
+    private AdmDeviceDefinitionMapper admDeviceDefinitionMapper;
 
     @Resource
     private UserHolder userHolder;
@@ -428,8 +438,27 @@ public class StockOutServiceImpl implements IStockOutService {
         return vo;
     }
 
-    /** WkfSupplyRequest 实体行 → StockOutLineVO */
+    /** WkfSupplyRequest 实体行 → StockOutLineVO（含名称/规格/厂家） */
     private List<StockOutLineVO> convertRowsToLines(List<WkfSupplyRequest> rows) {
+        // 批量预加载药品/耗材定义
+        List<String> medIds = new ArrayList<>();
+        List<String> devIds = new ArrayList<>();
+        for (WkfSupplyRequest r : rows) {
+            if ("med_medication_definition".equals(r.getItemTable()) && StringUtils.hasText(r.getItemId())) {
+                medIds.add(r.getItemId());
+            } else if ("adm_device_definition".equals(r.getItemTable()) && StringUtils.hasText(r.getItemId())) {
+                devIds.add(r.getItemId());
+            }
+        }
+        Map<String, com.zeroone.star.pharmacy.entity.MedMedicationDefinition> medMap = new java.util.HashMap<>();
+        Map<String, com.zeroone.star.pharmacy.entity.AdmDeviceDefinition> devMap = new java.util.HashMap<>();
+        if (!medIds.isEmpty()) {
+            medMedicationDefinitionMapper.selectBatchIds(medIds).forEach(m -> medMap.put(m.getId(), m));
+        }
+        if (!devIds.isEmpty()) {
+            admDeviceDefinitionMapper.selectBatchIds(devIds).forEach(d -> devMap.put(d.getId(), d));
+        }
+
         List<StockOutLineVO> lines = new ArrayList<>();
         for (WkfSupplyRequest r : rows) {
             StockOutLineVO line = new StockOutLineVO();
@@ -447,6 +476,22 @@ public class StockOutServiceImpl implements IStockOutService {
             line.setStartTime(r.getStartTime());
             line.setEndTime(r.getEndTime());
             line.setRemake(r.getRemake());
+            // 补名称/规格/厂家
+            if ("med_medication_definition".equals(r.getItemTable())) {
+                var med = medMap.get(r.getItemId());
+                if (med != null) {
+                    line.setProductName(med.getName());
+                    line.setSpecification(med.getTotalVolume());
+                    line.setManufacturer(med.getManufacturerText());
+                }
+            } else if ("adm_device_definition".equals(r.getItemTable())) {
+                var dev = devMap.get(r.getItemId());
+                if (dev != null) {
+                    line.setProductName(dev.getName());
+                    line.setSpecification(dev.getTotalVolume());
+                    line.setManufacturer(dev.getManufacturerText());
+                }
+            }
             lines.add(line);
         }
         return lines;

@@ -2,6 +2,7 @@ package com.zeroone.star.pharmacy.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.zeroone.star.pharmacy.entity.AdmDeviceDefinition;
 import com.zeroone.star.pharmacy.entity.WkfSupplyRequest;
 import com.zeroone.star.pharmacy.mapper.WkfSupplyRequestMapper;
 
@@ -72,6 +73,9 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
 
     @Resource
     private CusSupplierMapper cusSupplierMapper;
+
+    @Resource
+    private AdmDeviceDefinitionMapper admDeviceDefinitionMapper;
 
     // ==================== 1. 新增空白草稿 ====================
 
@@ -344,6 +348,25 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
 
         // ---- 明细行 ----
         if (rows != null && !rows.isEmpty()) {
+            // 批量预加载药品/耗材定义
+            List<String> medIds = new ArrayList<>();
+            List<String> devIds = new ArrayList<>();
+            for (WkfSupplyRequest r : rows) {
+                if ("med_medication_definition".equals(r.getItemTable()) && StringUtils.hasText(r.getItemId())) {
+                    medIds.add(r.getItemId());
+                } else if ("adm_device_definition".equals(r.getItemTable()) && StringUtils.hasText(r.getItemId())) {
+                    devIds.add(r.getItemId());
+                }
+            }
+            Map<String, MedMedicationDefinition> medMap = new HashMap<>();
+            Map<String, AdmDeviceDefinition> devMap = new HashMap<>();
+            if (!medIds.isEmpty()) {
+                medMedicationDefinitionMapper.selectBatchIds(medIds).forEach(m -> medMap.put(m.getId(), m));
+            }
+            if (!devIds.isEmpty()) {
+                admDeviceDefinitionMapper.selectBatchIds(devIds).forEach(d -> devMap.put(d.getId(), d));
+            }
+
             List<InboundReceiptDetailLineVO> lines = rows.stream().map(r -> {
                 InboundReceiptDetailLineVO line = new InboundReceiptDetailLineVO();
                 line.setId(r.getId());
@@ -360,6 +383,22 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
                 line.setStartTime(r.getStartTime());
                 line.setEndTime(r.getEndTime());
                 line.setRemake(r.getRemake());
+                // 补名称/规格/厂家
+                if ("med_medication_definition".equals(r.getItemTable())) {
+                    MedMedicationDefinition med = medMap.get(r.getItemId());
+                    if (med != null) {
+                        line.setProductName(med.getName());
+                        line.setSpecification(med.getTotalVolume());
+                        line.setManufacturer(med.getManufacturerText());
+                    }
+                } else if ("adm_device_definition".equals(r.getItemTable())) {
+                    AdmDeviceDefinition dev = devMap.get(r.getItemId());
+                    if (dev != null) {
+                        line.setProductName(dev.getName());
+                        line.setSpecification(dev.getTotalVolume());
+                        line.setManufacturer(dev.getManufacturerText());
+                    }
+                }
                 return line;
             }).toList();
             vo.setLines(lines);
@@ -516,7 +555,9 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
         // 1. 查询单据是否存在且未逻辑删除
         LambdaQueryWrapper<WkfSupplyRequest> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(WkfSupplyRequest::getBusNo, busNo);
+        queryWrapper.eq(WkfSupplyRequest::getTypeEnum, "PHARMACY_STOCKTAKE");
         queryWrapper.eq(WkfSupplyRequest::getIsDeleted, false);
+        queryWrapper.last("LIMIT 1");
         WkfSupplyRequest stocktake = this.getOne(queryWrapper);
         // 判断单据是否存在
         if (stocktake == null) {
@@ -549,144 +590,77 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
 
     @Override
     public PharmacyInventoryDetailVO getStocktakeDetail(PharmacyInventoryDetailQuery query) {
-        // 1、获取前端传入业务单据号
         String stocktakeNo = query.getStocktakeNo();
         if (!StringUtils.hasText(stocktakeNo)) {
             throw new RuntimeException("盘点单据号不能为空");
         }
-        // 根据单据号busNo查询主单
+        // 查询所有明细行（从 wkf_supply_request 读）
         QueryWrapper<WkfSupplyRequest> reqWrapper = new QueryWrapper<>();
         reqWrapper.eq("bus_no", stocktakeNo);
         reqWrapper.eq("type_enum", "PHARMACY_STOCKTAKE");
         reqWrapper.eq("is_deleted", 0);
-        reqWrapper.last("LIMIT 1");
-        WkfSupplyRequest mainRequest = baseMapper.selectOne(reqWrapper);
-        if (mainRequest == null) {
+        List<WkfSupplyRequest> rows = baseMapper.selectList(reqWrapper);
+        if (rows.isEmpty()) {
             throw new RuntimeException("盘点单据不存在或已删除");
         }
-        // 2、查询库房名称
+        WkfSupplyRequest header = rows.get(0);
+
+        // 库房名称
         String locationName = null;
-        if (StringUtils.hasText(mainRequest.getPurposeLocationId())) {
-            AdmLocation location = admLocationMapper.selectById(mainRequest.getPurposeLocationId());
-            if (location != null) {
-                locationName = location.getName();
-            }
+        if (StringUtils.hasText(header.getPurposeLocationId())) {
+            AdmLocation location = admLocationMapper.selectById(header.getPurposeLocationId());
+            if (location != null) locationName = location.getName();
         }
-        // 3、查询单据明细
-        LambdaQueryWrapper<WkfSupplyDelivery> deliveryWrapper = new LambdaQueryWrapper<>();
-        deliveryWrapper.eq(WkfSupplyDelivery::getRequestId, mainRequest.getId());
-        deliveryWrapper.eq(WkfSupplyDelivery::getIsDeleted, false);
-        List<WkfSupplyDelivery> deliveryList = wkfSupplyDeliveryMapper.selectList(deliveryWrapper);
-        // 收集所有药品ID，批量查询药品基础信息
-        List<String> itemIdList = deliveryList.stream()
-                .map(WkfSupplyDelivery::getItemId)
-                .filter(StringUtils::hasText)
-                .distinct()
-                .collect(Collectors.toList());
+
+        // 批量查药品信息
+        List<String> itemIds = rows.stream()
+                .filter(r -> "med_medication_definition".equals(r.getItemTable()))
+                .map(WkfSupplyRequest::getItemId).filter(StringUtils::hasText).distinct().toList();
         Map<String, MedMedicationDefinition> medMap = new HashMap<>();
-        if (!CollectionUtils.isEmpty(itemIdList)) {
-            List<MedMedicationDefinition> medList = medMedicationDefinitionMapper.selectBatchIds(itemIdList);
-            medMap = medList.stream()
-                    .collect(Collectors.toMap(MedMedicationDefinition::getId, m -> m, (v1, v2) -> v1));
+        if (!itemIds.isEmpty()) {
+            medMedicationDefinitionMapper.selectBatchIds(itemIds)
+                    .forEach(m -> medMap.put(m.getId(), m));
         }
-        // 批量查询库存信息
-        Map<String, WkfInventoryItem> inventoryItemMap = new HashMap<>();
-        if (!CollectionUtils.isEmpty(itemIdList) && StringUtils.hasText(mainRequest.getPurposeLocationId())) {
-            LambdaQueryWrapper<WkfInventoryItem> invWrapper = new LambdaQueryWrapper<>();
-            invWrapper.in(WkfInventoryItem::getItemId, itemIdList);
-            invWrapper.eq(WkfInventoryItem::getLocationId, mainRequest.getPurposeLocationId());
-            invWrapper.eq(WkfInventoryItem::getIsDeleted, false);
-            List<WkfInventoryItem> inventoryItemList = wkfInventoryItemMapper.selectList(invWrapper);
-            inventoryItemMap = inventoryItemList.stream()
-                    .collect(Collectors.toMap(WkfInventoryItem::getItemId, item -> item, (v1, v2) -> v1));
-        }
-        // 批量查询药品收费单价
-        Map<String, BigDecimal> itemPriceMap = new HashMap<>();
-        if (!CollectionUtils.isEmpty(itemIdList)) {
-            LambdaQueryWrapper<AdmChargeItemDefinition> chargeWrapper = new LambdaQueryWrapper<>();
-            chargeWrapper.eq(AdmChargeItemDefinition::getInstanceTable, "med_medication_definition")
-                    .in(AdmChargeItemDefinition::getInstanceId, itemIdList)
-                    .eq(AdmChargeItemDefinition::getStatusEnum, "ACTIVE")
-                    .orderByAsc(AdmChargeItemDefinition::getPriority);
-            List<AdmChargeItemDefinition> chargeList = admChargeItemDefinitionMapper.selectList(chargeWrapper);
-            // 同一药品只保留优先级最高一条价格
-            for (AdmChargeItemDefinition charge : chargeList) {
-                if (!itemPriceMap.containsKey(charge.getInstanceId())) {
-                    itemPriceMap.put(charge.getInstanceId(), charge.getPriceValue());
-                }
-            }
-        }
-        // 4、组装外层VO
+
+        // 组装
         PharmacyInventoryDetailVO detailVO = new PharmacyInventoryDetailVO();
-        detailVO.setBusNo(mainRequest.getBusNo());
-        detailVO.setStatusEnum(mainRequest.getStatusEnum());
-        detailVO.setPurposeLocationId(mainRequest.getPurposeLocationId());
+        detailVO.setBusNo(header.getBusNo());
+        detailVO.setStatusEnum(header.getStatusEnum());
+        detailVO.setPurposeLocationId(header.getPurposeLocationId());
         detailVO.setPurposeLocationName(locationName);
-        detailVO.setApplicantId(mainRequest.getApplicantId());
-        detailVO.setPractitionerId(mainRequest.getPractitionerId());
-        detailVO.setApplyTime(mainRequest.getApplyTime() != null ? mainRequest.getApplyTime().format(FORMATTER) : null);
-        detailVO.setApproverId(mainRequest.getApproverId());
-        detailVO.setApprovalTime(mainRequest.getApprovalTime() != null ? mainRequest.getApprovalTime().format(FORMATTER) : null);
+        detailVO.setPractitionerId(header.getPractitionerId());
+        detailVO.setApplicantId(header.getApplicantId());
+        detailVO.setApplyTime(header.getApplyTime() != null ? header.getApplyTime().format(FORMATTER) : null);
+        detailVO.setApproverId(header.getApproverId());
+        detailVO.setApprovalTime(header.getApprovalTime() != null ? header.getApprovalTime().format(FORMATTER) : null);
+
+        BigDecimal totalAmount = BigDecimal.ZERO;
         List<PharmacyInventoryItemVO> lineVoList = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(deliveryList)) {
-            for (WkfSupplyDelivery delivery : deliveryList) {
-                PharmacyInventoryItemVO itemVO = new PharmacyInventoryItemVO();
-                // 明细基础主键
-                itemVO.setLineId(delivery.getId());
-                itemVO.setItemTable(delivery.getItemTable());
-                itemVO.setItemId(delivery.getItemId());
-                itemVO.setLotNumber(delivery.getLotNumber());
-                itemVO.setUnitCode(delivery.getUnitCode());
-                itemVO.setOccurrenceTime(delivery.getOccurrenceTime() != null ? delivery.getOccurrenceTime().format(FORMATTER) : null);
-
-                // 实盘数量
-                BigDecimal actualQuantity = Optional.ofNullable(delivery.getQuantity()).orElse(BigDecimal.ZERO);
-                itemVO.setActualQuantity(actualQuantity);
-
-                // 账面库存 + 补充有效期
-                BigDecimal bookQuantity = BigDecimal.ZERO;
-                WkfInventoryItem inventoryItem = inventoryItemMap.get(delivery.getItemId());
-                if (inventoryItem != null) {
-                    bookQuantity = Optional.ofNullable(inventoryItem.getQuantity()).orElse(BigDecimal.ZERO);
-                    // 从库存带出效期
-                    if (inventoryItem.getExpirationDate() != null) {
-                        itemVO.setExpirationDate(inventoryItem.getExpirationDate().format(FORMATTER));
-                    }
-                }
-                itemVO.setBookQuantity(bookQuantity);
-                // 获取药品基础信息
-                MedMedicationDefinition med = medMap.get(delivery.getItemId());
-                // 从收费项目取单价，无则0
-                BigDecimal price = itemPriceMap.getOrDefault(delivery.getItemId(), BigDecimal.ZERO);
-                ProductCatalogVO catalogVO = new ProductCatalogVO();
-                if (med != null) {
-                    itemVO.setProductName(med.getName());
-                    // 规格：实体 totalVolume
-                    itemVO.setSpecification(med.getTotalVolume());
-                    // 生产厂商
-                    itemVO.setManufacturer(med.getManufacturerText());
-                    // 填充ProductCatalogVO
-                    catalogVO.setMerchandiseName(med.getMerchandiseName());
-                    catalogVO.setCategoryCode(med.getCategoryCode());
-                    catalogVO.setProductBusNo(med.getBusNo());
-                    catalogVO.setTotalVolume(med.getTotalVolume());
-                    catalogVO.setMinUnitCode(med.getSplitUnitCode());
-                    catalogVO.setDefaultPurchaseUnitCode(med.getPurchaseUnitCode());
-                    catalogVO.setPurchaseUnitRatioToSplit(med.getPurchaseUnitRatio());
-                }
-                itemVO.setPrice(price);
-                // 盈亏数量 = 实际数量 - 账面数量
-                BigDecimal profitLossQuantity = actualQuantity.subtract(bookQuantity);
-                itemVO.setProfitLossQuantity(profitLossQuantity);
-                // 实际金额、盈亏金额计算
-                BigDecimal actualAmount = actualQuantity.multiply(price).setScale(2, BigDecimal.ROUND_HALF_UP);
-                itemVO.setActualAmount(actualAmount);
-                BigDecimal profitLossAmount = profitLossQuantity.multiply(price).setScale(2, BigDecimal.ROUND_HALF_UP);
-                itemVO.setProfitLossAmount(profitLossAmount);
-                itemVO.setProductCatalog(catalogVO);
-                lineVoList.add(itemVO);
+        for (WkfSupplyRequest r : rows) {
+            if (!StringUtils.hasText(r.getItemId())) continue; // 跳过锚点行
+            PharmacyInventoryItemVO itemVO = new PharmacyInventoryItemVO();
+            itemVO.setLineId(r.getId());
+            itemVO.setItemTable(r.getItemTable());
+            itemVO.setItemId(r.getItemId());
+            itemVO.setLotNumber(r.getLotNumber());
+            itemVO.setUnitCode(r.getUnitCode());
+            itemVO.setOccurrenceTime(r.getOccurrenceTime() != null ? r.getOccurrenceTime().format(FORMATTER) : null);
+            itemVO.setActualQuantity(r.getTotalQuantity() != null ? r.getTotalQuantity() : BigDecimal.ZERO);
+            itemVO.setProfitLossQuantity(r.getItemQuantity() != null ? r.getItemQuantity() : BigDecimal.ZERO);
+            itemVO.setBookQuantity(itemVO.getActualQuantity().subtract(itemVO.getProfitLossQuantity()));
+            itemVO.setPrice(r.getPrice() != null ? r.getPrice() : BigDecimal.ZERO);
+            itemVO.setActualAmount(r.getTotalPrice() != null ? r.getTotalPrice() : BigDecimal.ZERO);
+            itemVO.setProfitLossAmount(r.getProfitLossPrice() != null ? r.getProfitLossPrice() : BigDecimal.ZERO);
+            if (r.getTotalPrice() != null) totalAmount = totalAmount.add(r.getTotalPrice());
+            MedMedicationDefinition med = medMap.get(r.getItemId());
+            if (med != null) {
+                itemVO.setProductName(med.getName());
+                itemVO.setSpecification(med.getTotalVolume());
+                itemVO.setManufacturer(med.getManufacturerText());
             }
+            lineVoList.add(itemVO);
         }
+        detailVO.setTotalAmount(totalAmount);
         detailVO.setLines(lineVoList);
         return detailVO;
     }
@@ -804,10 +778,30 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
                     .collect(Collectors.toMap(AdmPractitioner::getId, AdmPractitioner::getName, (v1, v2) -> v1));
         }
 
-        // 4.批量统计明细条目数量 wkf_supply_delivery
-        List<RequestSummaryDTO> summaryList = wkfSupplyDeliveryMapper.selectSummaryByRequestIds(requestIdList);
-        Map<String, RequestSummaryDTO> summaryMap = summaryList.stream()
-                .collect(Collectors.toMap(RequestSummaryDTO::getRequestId, s -> s, (v1, v2) -> v1));
+        // 4.批量统计明细条目数量（从 wkf_supply_request 自身行数）
+        List<String> busNos = records.stream().map(WkfSupplyRequest::getBusNo).distinct().toList();
+        Map<String, Long> itemCountMap = new HashMap<>();
+        if (!busNos.isEmpty()) {
+            QueryWrapper<WkfSupplyRequest> countWrapper = new QueryWrapper<>();
+            countWrapper.select("bus_no, COUNT(*) AS cnt");
+            countWrapper.in("bus_no", busNos);
+            countWrapper.eq("type_enum", "PHARMACY_STOCKTAKE");
+            countWrapper.eq("is_deleted", 0);
+            countWrapper.ne("item_table", "");
+            countWrapper.groupBy("bus_no");
+            countWrapper.getSqlSelect(); // dummy to suppress warning
+            // use selectMaps
+            LambdaQueryWrapper<WkfSupplyRequest> cw = new LambdaQueryWrapper<>();
+            cw.in(WkfSupplyRequest::getBusNo, busNos);
+            cw.eq(WkfSupplyRequest::getTypeEnum, "PHARMACY_STOCKTAKE");
+            cw.eq(WkfSupplyRequest::getIsDeleted, false);
+            cw.ne(WkfSupplyRequest::getItemTable, "");
+            List<Map<String, Object>> countRows = baseMapper.selectMaps(cw);
+            for (Map<String, Object> row : countRows) {
+                String bn = (String) row.get("bus_no");
+                itemCountMap.merge(bn, 1L, Long::sum);
+            }
+        }
 
         // 5.实体转VO
         List<PharmacyInventoryVO> voContent = new ArrayList<>();
@@ -819,8 +813,7 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
             vo.setPurposeLocationId(req.getPurposeLocationId());
             vo.setPurposeLocationName(locationNameMap.get(req.getPurposeLocationId()));
             // 明细条目数量
-            RequestSummaryDTO summary = summaryMap.get(req.getId());
-            vo.setItemCount(summary != null ? summary.getItemCount() : 0);
+            vo.setItemCount(itemCountMap.getOrDefault(req.getBusNo(), 0L).intValue());
 
             // 盈亏金额、实际总金额（主表读取）
             vo.setProfitLossQuantitySum(req.getProfitLossPrice() == null ? BigDecimal.ZERO : req.getProfitLossPrice());
