@@ -49,7 +49,7 @@ public:
 	// Route binding: POST /outpatientrecord3/save
 	API_HANDLER_ENDPOINT_AUTH(
 		API_M_POST,
-		"/outpatientrecord3/save",
+		"/c2-opdoctor/outpatientrecord3/save",
 		saveoutpatientrecord3,
 		BODY_DTO(outpatientrecord3SaveDTO::Wrapper, dto),
 		execSaveoutpatientrecord3(dto, authObject->getPayload()));
