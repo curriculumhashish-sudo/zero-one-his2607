@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
  Copyright Zero One Star. All rights reserved.
 
@@ -36,7 +36,7 @@ public:
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("cyclectrl2.admission.listWards"),
 		listInpatientAdmissionWards, InpatientAdmissionWardListJsonVO::Wrapper, API_TAG2);
 	// 3.1.4 Handle the ward list request
-	API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/doctor-station/inpatient-admission/wards",
+	API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/c2-opdoctor/inpatient-admission/wards",
 		listInpatientAdmissionWards, BODY_DTO(InpatientAdmissionWardsQuery::Wrapper, query),
 		execListInpatientAdmissionWards(query));
 private:
