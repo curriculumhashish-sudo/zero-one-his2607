@@ -16,6 +16,8 @@ class Refund2ApplyDTO :public oatpp::DTO
 
     API_DTO_FIELD_DEFAULT(String, idempotencyKey, ZH_WORDS_GETTER("cyclectrl2.patient.idempotencyKey"));
 
+    API_DTO_FIELD_DEFAULT(Int32, applyNo, ZH_WORDS_GETTER("cyclectrl2.patient.applyNo"));
+
     API_DTO_FIELD_DEFAULT(List<Object<Refund2DetailDTO>>, apply, ZH_WORDS_GETTER("cyclectrl2.patient.apply"));
 
     API_DTO_FIELD_DEFAULT(Float64, applySum, ZH_WORDS_GETTER("cyclectrl2.patient.applySum"));

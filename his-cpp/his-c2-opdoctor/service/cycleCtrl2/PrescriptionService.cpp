@@ -171,13 +171,22 @@ oatpp::List<oatpp::Object<Prescription2DetailDTO>> PrescriptionService::queryPre
         dto->status = rx.getStatus_enum();
         dto->statusName = rxStatusName(rx.getStatus_enum());
         dto->rxType = rx.getRx_type_code();
-        dto->doctor = rx.getRequester_id();
         dto->items = rx.getContent_json();
 
-        dto->department = ss->executeQueryOne<ScalarStr>(
+        std::string docId = rx.getRequester_id();
+        std::string docName = ss->executeQueryOne<ScalarStr>(
+            "SELECT name FROM adm_staff WHERE id = ?",
+            ScalarStrMapper(), "%s", docId).val;
+        dto->doctor = docName.empty() ? docId : docName;
+
+        std::string orgId = ss->executeQueryOne<ScalarStr>(
             "SELECT organization_id FROM adm_encounter "
             "WHERE id = ? AND is_deleted = 0",
             ScalarStrMapper(), "%s", rx.getEncounter_id()).val;
+        std::string deptName = ss->executeQueryOne<ScalarStr>(
+            "SELECT name FROM adm_organization WHERE id = ?",
+            ScalarStrMapper(), "%s", orgId).val;
+        dto->department = deptName.empty() ? orgId : deptName;
 
         dto->diagnosis = ss->executeQueryOne<ScalarStr>(
             "SELECT description FROM adm_encounter_diagnosis "

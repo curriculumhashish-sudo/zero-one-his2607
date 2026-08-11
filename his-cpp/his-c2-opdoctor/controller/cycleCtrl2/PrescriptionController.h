@@ -29,15 +29,15 @@
 
 class Prescription2Controller : public oatpp::web::server::api::ApiController
 {
-	//Ìí¼Ó·ÃÎÊ¶¨Òå
+	//ï¿½ï¿½ï¿½Ó·ï¿½ï¿½Ê¶ï¿½ï¿½ï¿½
 	API_ACCESS_DECLARE(Prescription2Controller);
-public://¶¨Òå½Ó¿Ú
-	// 3.1.1 ¶¨Òå´¦·½µ¥µ¥½Ó¿ÚÃèÊö
+public://ï¿½ï¿½ï¿½ï¿½Ó¿ï¿½
+	// 3.1.1 ï¿½ï¿½ï¿½å´¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¿ï¿½ï¿½ï¿½ï¿½ï¿½
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("cyclectrl2.prescription.query"), query2Prescription, Prescription2Query, Prescription2DetailJsonVO::Wrapper, API_TAG1);
-	// 3.1.2 ¶¨Òå´¦·½µ¥½Ó¿Ú´¦Àí
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/cyclectrl/prescription_query", query2Prescription, Prescription2Query, executeQueryPrescription(query));
-private://¶¨Òå½Ó¿ÚÖ´ÐÐº¯Êý
-	//3.3¶¨Òå´¦·½µ¥½Ó¿ÚÖ´ÐÐº¯Êý
+	// 3.1.2 ï¿½ï¿½ï¿½å´¦ï¿½ï¿½ï¿½ï¿½ï¿½Ó¿Ú´ï¿½ï¿½ï¿½
+	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/c2-opdoctor/prescription_query", query2Prescription, Prescription2Query, executeQueryPrescription(query));
+private://ï¿½ï¿½ï¿½ï¿½Ó¿ï¿½Ö´ï¿½Ðºï¿½ï¿½ï¿½
+	//3.3ï¿½ï¿½ï¿½å´¦ï¿½ï¿½ï¿½ï¿½ï¿½Ó¿ï¿½Ö´ï¿½Ðºï¿½ï¿½ï¿½
 	Prescription2DetailJsonVO::Wrapper executeQueryPrescription(const Prescription2Query::Wrapper& query);
 };
 #undef API_TAG1

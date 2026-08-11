@@ -12,12 +12,16 @@ Prescription2DetailJsonVO::Wrapper Prescription2Controller::executeQueryPrescrip
         jvo->init(nullptr, RS_PARAMS_INVALID);
         return jvo;
     }
-    std::string type = query->type.getValue("today");
-    if (type != "today" && type != "history")
+    std::string type = query->type.getValue("CURRENT_ENCOUNTER");
+    if (type != "today" && type != "history" &&
+        type != "CURRENT_ENCOUNTER" && type != "HISTORY")
     {
         jvo->init(nullptr, RS_PARAMS_INVALID);
         return jvo;
     }
+    if (type == "CURRENT_ENCOUNTER") type = "today";
+    if (type == "HISTORY") type = "history";
+    query->type = type;
     auto result = PrescriptionService().queryPrescriptions(query);
     jvo->success(result);
     return jvo;
