@@ -527,7 +527,7 @@ DrugListPageDTO::Wrapper DrugService::listAll(const DrugQuery::Wrapper& query)
         }
         auto dto = DrugListDTO::createShared();
         ZO_STAR_DOMAIN_DO_TO_DTO_1(dto, sub, id, Id, code, BusNo, name, Name, guige, TotalVolume,
-                                   kinds, CategoryCode, changjia, ManufacturerText);
+                                   kinds, CategoryCode, changjia, ManufacturerText,price, ComprisedText);
         const std::string status = sub->getStatusEnum();
         dto->status = status == DrugConstants::STATUS_ACTIVE      ? 1
                       : status == DrugConstants::STATUS_INACTIVE ? 2
