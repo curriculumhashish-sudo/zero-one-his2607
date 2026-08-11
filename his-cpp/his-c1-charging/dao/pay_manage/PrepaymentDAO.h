@@ -25,12 +25,22 @@
 #include "domain/do/pay_manage/PrepaymentDO.h"
 #include "domain/query/pay_manage/PrepaymentQuery.h"
 
-// 预交金流水链接用的账户快照
+// Account snapshot for balance chain linking
 struct AccountSnapshot
 {
-    std::string accountId;      // 最新记录的account_id
-    std::string predecessorId;  // 最新记录ID（用于流水链接）
-    double balance;             // 最新余额
+    std::string accountId;      // Latest account_id
+    std::string predecessorId;  // Latest record ID for balance chain
+    double balance;             // Latest balance
+};
+
+// Resolved encounter info from inpatient number
+struct EncounterInfo
+{
+    std::string encounterId;    // adm_encounter.id
+    std::string patientId;      // adm_encounter.patient_id
+    std::string accountId;      // adm_account.id
+    std::string accountCode;    // adm_account.bus_no
+    double balance;             // adm_account.balance
 };
 
 class PrepaymentDAO : public BaseDAO
@@ -40,19 +50,37 @@ private:
         const PrepaymentQuery::Wrapper& query, SqlParams& params);
 
 public:
-    // 统计预交金记录数（分页用）
+    // Count prepayment records (for pagination)
     uint64_t count(const PrepaymentQuery::Wrapper& query);
 
-    // 分页查询预交金记录
+    // Paginated query for prepayment records
     std::list<PrepaymentDO> selectWithPage(const PrepaymentQuery::Wrapper& query);
 
-    // 获取最新账户快照用于余额链接
+    // Get latest account snapshot for balance chain
     AccountSnapshot getAccountSnapshot(const std::string& accountCode);
 
-    // 插入预交金记录（收或退）
+    // Resolve encounter info from inpatient number (adm_encounter JOIN adm_account)
+    EncounterInfo resolveEncounter(const std::string& inpatientNo);
+
+    // Insert payment reconciliation main record, returns reconciliation_id
+    std::string insertReconciliation(
+        const std::string& id, const std::string& nowStr,
+        const std::string& tenantId, const std::string& operatorId,
+        const std::string& paymentNo, const std::string& paymentEnum,
+        const std::string& patientId, const std::string& encounterId,
+        const std::string& accountId,
+        double tenderedAmount, double returnedAmount,
+        const std::string& billDate);
+
+    // Update account balance in adm_account
+    void updateAccountBalance(const std::string& accountId, double newBalance,
+        const std::string& nowStr);
+
+    // Insert prepayment detail record into fin_payment_rec_detail
     void insertPrepayment(
         const std::string& id, const std::string& nowStr,
         const std::string& tenantId, const std::string& operatorName,
+        const std::string& reconciliationId,
         const std::string& accountId, const std::string& accountCode,
         const std::string& payEnum, double amount,
         double chargeAmount, double returnAmount,
