@@ -5,6 +5,7 @@
 
 #include "domain/vo/BaseJsonVO.h"
 #include "domain/dto/register/AddRegisterDTO.h"
+#include "domain/vo/register/AddRegisterVO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
@@ -18,14 +19,14 @@ public:
 	ENDPOINT_INFO(addregitser) {
 		API_DEF_ADD_TITLE(ZH_WORDS_GETTER("yxy.charging.register.summary3"));
 		API_DEF_ADD_AUTH();
-		API_DEF_ADD_RSP_JSON_WRAPPER(StringJsonVO);
+		API_DEF_ADD_RSP_JSON_WRAPPER(AddRegisterJsonVO);
 		API_DEF_ADD_TAG(API_TAG);
 	}
 	ENDPOINT(API_M_POST, "/charging/register/add_register", addregitser, BODY_DTO(AddRegisterDTO::Wrapper, dto), API_HANDLER_AUTH_PARAME) {
 		API_HANDLER_RESP_VO(execQueryAddRegitser(dto, authObject->getPayload()));
 	}
 private:
-	StringJsonVO::Wrapper execQueryAddRegitser(const AddRegisterDTO::Wrapper& dto, const PayloadDTO& payload);
+	AddRegisterJsonVO::Wrapper execQueryAddRegitser(const AddRegisterDTO::Wrapper& dto, const PayloadDTO& payload);
 };
 
 #undef API_TAG

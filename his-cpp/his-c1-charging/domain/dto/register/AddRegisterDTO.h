@@ -4,6 +4,32 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
+
+class ResultDTO :public oatpp::DTO
+{
+	DTO_INIT(ResultDTO, DTO);
+
+	DTO_FIELD(String, encounter_id);
+	DTO_FIELD_INFO(encounter_id) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.encounter_id");
+	}
+
+	DTO_FIELD(String, chargItem_id);
+	DTO_FIELD_INFO(chargItem_id) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.chargItem_id");
+	}
+
+	DTO_FIELD(String, pay_id);
+	DTO_FIELD_INFO(pay_id) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.pay_id");
+	}
+
+	DTO_FIELD(Float64, cost);
+	DTO_FIELD_INFO(cost) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.cost");
+	}
+};
+
 class AddRegisterDTO :public oatpp::DTO
 {
 	DTO_INIT(AddRegisterDTO, DTO);
@@ -92,6 +118,11 @@ class AddRegisterDTO :public oatpp::DTO
 	DTO_FIELD_INFO(type_code) {
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.type_code");
 	}
+	DTO_FIELD(Float64, discount);
+	DTO_FIELD_INFO(discount) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.discount");
+	}
+
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 };
 

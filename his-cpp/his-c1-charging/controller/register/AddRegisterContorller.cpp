@@ -1,17 +1,17 @@
 #include"AddRegisterContorller.h"
 #include"../../service/register/AddRegisterService.h"
-StringJsonVO::Wrapper AddRegisterContorller::execQueryAddRegitser(const AddRegisterDTO::Wrapper& dto, const PayloadDTO& payload)
+AddRegisterJsonVO::Wrapper AddRegisterContorller::execQueryAddRegitser(const AddRegisterDTO::Wrapper& dto, const PayloadDTO& payload)
 {
-	auto jvo = StringJsonVO::createShared();
+	auto jvo = AddRegisterJsonVO::createShared();
 
 	dto->setPayload(&payload);
-	std::string id = AddRegisterService().Addregister(dto);
-	if (id != "") {
-		jvo->success(id);
+	auto result = AddRegisterService().Addregister(dto);
+	if (result!=nullptr) {
+		jvo->success(result);
 	}
 	else
 	{
-		jvo->fail("");
+		jvo->fail(nullptr);
 	}
 	return jvo;
 }

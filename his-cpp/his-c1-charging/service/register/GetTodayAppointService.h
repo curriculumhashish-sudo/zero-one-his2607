@@ -31,6 +31,7 @@ public:
 			auto dto = GetTodayAppointDTO::createShared();
 			ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub, id, Id, status, Status, capacity, Capacity, booked_count, Booked_count,
 				register_type, Register_type, organization, Organization,start_time, Start_time, end_time, End_time);
+			ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub, serviceTypeId, ServiceTypeId, cost, Cost, practitionerId, PractitionerId,org_id,Org_id);
 			pages->addData(dto);
 		}
 		return pages;

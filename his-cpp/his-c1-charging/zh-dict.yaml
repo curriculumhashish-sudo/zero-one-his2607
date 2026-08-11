@@ -160,6 +160,11 @@ yxy:
    role_code: 就诊参与者角色编码（REGISTRATION_DOCTOR等）
    balance: 账号余额
    type_code: account表中的type代码
+   discount: 折扣金额
+   encounter_id: 就诊表id
+   chargItem_id: 收费项目表id
+   pay_id: 支付流水表id
+
 lhfc:
   charging:
     charge:

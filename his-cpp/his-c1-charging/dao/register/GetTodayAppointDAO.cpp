@@ -42,7 +42,11 @@ uint64_t GetTodayAppointDAO::count(const GetTodayAppointQuery::Wrapper& query)
 std::list<GetTodayAppointDO> GetTodayAppointDAO::selectTodayWithPage(const GetTodayAppointQuery::Wrapper & query)
 {
 	SqlParams params;
-	string sql = "SELECT s.id AS id, s.status_code AS status,s.capacity AS capacity, s.booked_count AS booked_count, hs.name AS register_type,loc.name AS organization,s.start_time AS start_time, s.end_time AS end_time FROM wkf_slot s ";
+	string sql = "SELECT s.id AS id, s.status_code AS status,s.capacity AS capacity, s.booked_count AS booked_count, hs.name AS register_type,loc.name AS organization,s.start_time AS start_time, s.end_time AS end_time ,";
+
+	sql += "loc.id AS org_id ,p.id AS practitionerId ,hs.id AS serviceTypeId, cid.price_value AS csot";
+
+	sql +=  "FROM wkf_slot s ";
 
 	sql += "INNER JOIN wkf_schedule sch ON s.schedule_id = sch.id ";
 

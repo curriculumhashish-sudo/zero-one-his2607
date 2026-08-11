@@ -22,6 +22,14 @@ class GetTodayAppointDO:public BaseDO
 	MYSQL_SYNTHESIZE(string, start_time, Start_time);
 	//结束时间
 	MYSQL_SYNTHESIZE(string,end_time,End_time)
+	//服务类型
+	MYSQL_SYNTHESIZE(string, serviceTypeId, ServiceTypeId)
+	//挂号费
+	MYSQL_SYNTHESIZE(string, cost, Cost)
+	//医生id
+	MYSQL_SYNTHESIZE(string, practitionerId, PractitionerId)
+	//科室id
+	MYSQL_SYNTHESIZE(string, org_id, Org_id)
 
 public:
 	GetTodayAppointDO() : BaseDO("GetTodauApoint")
@@ -34,6 +42,10 @@ public:
 		MYSQL_ADD_FIELD("organization", "s", organization);
 		MYSQL_ADD_FIELD("start_time", "dt", start_time);
 		MYSQL_ADD_FIELD("end_time", "dt", end_time);
+		MYSQL_ADD_FIELD("serviceTypeId", "s", serviceTypeId);
+		MYSQL_ADD_FIELD("cost", "s", cost);
+		MYSQL_ADD_FIELD("practitionerId", "s", practitionerId);
+		MYSQL_ADD_FIELD("org_id", "s", org_id);
 	}
 };
 

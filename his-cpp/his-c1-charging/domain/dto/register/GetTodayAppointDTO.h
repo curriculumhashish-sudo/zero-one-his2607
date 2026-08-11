@@ -47,6 +47,22 @@ class GetTodayAppointDTO :public oatpp::DTO
 	DTO_FIELD_INFO(end_time) {
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.end_time");
 	}
+	DTO_FIELD(String, serviceTypeId);
+	DTO_FIELD_INFO(serviceTypeId) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.serviceTypeId");
+	}
+	DTO_FIELD(String, cost);
+	DTO_FIELD_INFO(cost) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.cost");
+	}
+	DTO_FIELD(String, practitionerId);
+	DTO_FIELD_INFO(practitionerId) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.doctor_id");
+	}
+	DTO_FIELD(String, org_id);
+	DTO_FIELD_INFO(org_id) {
+		info->description = ZH_WORDS_GETTER("yxy.charging,register.organization_id");
+	}
 
 
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);

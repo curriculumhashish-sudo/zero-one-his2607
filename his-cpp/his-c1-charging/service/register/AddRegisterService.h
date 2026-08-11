@@ -8,7 +8,7 @@
 class AddRegisterService
 {
 public:
-	std::string Addregister(const AddRegisterDTO::Wrapper& dto)
+	ResultDTO::Wrapper Addregister(const AddRegisterDTO::Wrapper& dto)
 	{
 		EncounterDO encounter;
 		ParticipantDO part;
@@ -16,13 +16,19 @@ public:
 		PatientDO pa;
 		SlotDO slot;
 		AccountDO account;
+		ChargItemDO chageItem;
+		PaymentDO pay;
 		UuidFacade uf;
 		AddRegisterDAO dao;
+		DefinitionDO def = dao.getCost(dto->serviceTypeId.getValue(""));
+		if(def.getIdPtr() == nullptr) return nullptr;
 		std::string now = GetCurrentDateTime();
 		std::string encounter_id = uf.genUuid();
 		std::string part_id = uf.genUuid();
 		std::string loc_id = uf.genUuid();
 		std::string account_id = uf.genUuid();
+		std::string charge_id = uf.genUuid();
+		std::string pay_id = uf.genUuid();
 		std::string pa_id = dto->patient_id.getValue("");
 		bool is_insert_pa = false;
 		if(pa_id=="")
@@ -89,8 +95,45 @@ public:
 		account.setBilling_status_enum("open");
 		account.setDefault_flag(1);
 		
-		if (dao.add_register(encounter, part, loc, pa, slot, account,is_insert_pa) != 1)return "";
-		return encounter_id;
+		ZO_STAR_DOMAIN_DTO_TO_DO(chageItem, dto, Service_id, serviceTypeId, Requesting_org_id, organization_id, Created_by, operator_id, Enterer_id, operator_id, Tenant_id, tenant_id);
+		ZO_STAR_DOMAIN_DTO_TO_DO(chageItem, dto, Performer_id,doctor_id, Discount_amount, discount);
+		chageItem.setId(charge_id);
+		chageItem.setEncounter_id(encounter_id);
+		chageItem.setCreated_at(now);
+		chageItem.setUpdated_at(now);
+		chageItem.setIs_deleted(0);
+		chageItem.setVersion(0);
+		chageItem.setBus_no("CI-" + GetCurrentDate() + "-" + uf.genUuid());
+		chageItem.setPatient_id(pa_id);
+		chageItem.setAccount_id(account_id);
+		chageItem.setOccurrence_time(now);
+		chageItem.setEntered_date(now);
+		chageItem.setDefinition_id(def.getId());
+		chageItem.setTotal_price(def.getPrice_value());
+		chageItem.setUnit_price(def.getPrice_value());
+		chageItem.setBase_amount(def.getPrice_value());
+
+
+		ZO_STAR_DOMAIN_DTO_TO_DO(pay, dto, Created_by, operator_id, Enterer_id, operator_id, Tenant_id, tenant_id, Display_amount, discount);
+		pay.setId(pay_id);
+		pay.setEncounter_id(encounter_id);
+		pay.setCreated_at(now);
+		pay.setUpdated_at(now);
+		pay.setIs_deleted(0);
+		pay.setVersion(0);
+		pay.setPayment_no("PMR-" + GetCurrentDate() + "-" + uf.genUuid());
+		pay.setPatient_id(pa_id);
+		pay.setAccount_id(account_id);
+		pay.setTendered_amount(def.getPrice_value());
+		pay.setCharge_item_ids(charge_id);
+
+		if (dao.add_register(chageItem,pay,encounter, part, loc, pa, slot, account,is_insert_pa) != 1)return nullptr;
+		auto result = ResultDTO::createShared();
+		result->cost = def.getPrice_value();
+		result->encounter_id = encounter_id;
+		result->pay_id = pay_id;
+		result->chargItem_id = charge_id;
+		return result;
 	}
 private:
 	std::string GetCurrentDate() {
