@@ -24,13 +24,19 @@ public class StocktakeItemVO {
     @Schema(description = "药品/物品标识", example = "1001")
     private String itemId;
 
-    @Schema(description = "药品名称", example = "阿莫西林胶囊")
+    @Schema(description = "药品名称", example = "阿司匹林肠溶片")
     private String itemName;
 
-    @Schema(description = "规格", example = "0.25g*24粒")
+    @Schema(description = "药品名称（drugName 别名，兼容前端字段命名）", example = "阿司匹林肠溶片")
+    private String drugName;
+
+    @Schema(description = "规格", example = "100mg*30片")
     private String specification;
 
-    @Schema(description = "厂家", example = "广州白云山制药")
+    @Schema(description = "规格（spec 别名，兼容前端字段命名）", example = "100mg*30片")
+    private String spec;
+
+    @Schema(description = "厂家", example = "拜耳医药保健有限公司")
     private String manufacturer;
 
     @Schema(description = "批号", example = "20260101")

@@ -151,6 +151,21 @@ public class WkfSupplyRequest implements Serializable {
     private String itemId;
 
     /**
+     * 项目名称（药品名称）快照，保存时由前端传入；详情关联药品字典失败时兜底回显
+     */
+    private String itemName;
+
+    /**
+     * 规格快照，保存时由前端传入；详情关联药品字典失败时兜底回显
+     */
+    private String specification;
+
+    /**
+     * 厂家快照，保存时由前端传入；详情关联药品字典失败时兜底回显
+     */
+    private String manufacturer;
+
+    /**
      * 单元编码
      */
     private String unitCode;

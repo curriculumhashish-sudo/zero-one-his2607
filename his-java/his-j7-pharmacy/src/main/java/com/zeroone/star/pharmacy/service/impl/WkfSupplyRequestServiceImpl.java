@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -67,13 +66,29 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
             throw new IllegalArgumentException("盘点单明细中没有数据: " + dto.getBusNo());
         }
         //校验审批状态
-        Iterator<WkfSupplyRequest> iterator = list.stream().iterator();
-        while (iterator.hasNext()){
-            WkfSupplyRequest next = iterator.next();
+        boolean allDraft = true;
+        boolean allPending = true;
+        for (WkfSupplyRequest next : list) {
             if (!"DRAFT".equals(next.getStatusEnum())) {
-                log.error("盘点单明细存在非草稿状态: {}", next.getId());
-                throw new IllegalArgumentException("盘点单明细存在非草稿状态: " + next.getId());
+                allDraft = false;
             }
+            if (!"PENDING_APPROVAL".equals(next.getStatusEnum())) {
+                allPending = false;
+            }
+        }
+        // 重复提交幂等：明细已全部待审批时直接返回当前状态，不重复加锁/冻结快照
+        if (allPending) {
+            log.info("盘点单已处于待审批状态，幂等返回: {}", dto.getBusNo());
+            return buildPendingApprovalVO(list.get(0), dto.getOperatorId());
+        }
+        if (!allDraft) {
+            WkfSupplyRequest illegal = list.stream()
+                    .filter(r -> !"DRAFT".equals(r.getStatusEnum()))
+                    .findFirst()
+                    .orElse(list.get(0));
+            log.error("盘点单明细存在非草稿状态: {}, 当前状态: {}", illegal.getId(), illegal.getStatusEnum());
+            throw new IllegalArgumentException("盘点单明细存在非草稿状态: " + illegal.getId()
+                    + ", 当前状态: " + illegal.getStatusEnum());
         }
 
         //修改审批状态
@@ -142,19 +157,8 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
 
 
         }
-        // 构造返回值
-        WkfSupplyRequest first = list.get(0);
-        StocktakeStatusVO vo = new StocktakeStatusVO();
-        vo.setBusNo(first.getBusNo());
-        vo.setTypeEnum(first.getTypeEnum());
-        vo.setStatusEnum("PENDING_APPROVAL");
-        vo.setCreatedBy(first.getCreatedBy());
-        vo.setCreatedAt(first.getCreatedAt());
-        vo.setApplicantId(dto.getOperatorId());
-        vo.setApplyTime(LocalDateTime.now());
-
         log.info("盘点单提交审批成功: {}", dto.getBusNo());
-        return vo;
+        return buildPendingApprovalVO(list.get(0), dto.getOperatorId());
     }
 
     /**
@@ -324,4 +328,21 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
         return vo;
     }
 
+    /**
+     * 构造待审批状态返回对象（正常提交与重复提交幂等返回共用）
+     * @param first 单据首行记录
+     * @param operatorId 操作人标识
+     * @return 待审批状态信息
+     */
+    private StocktakeStatusVO buildPendingApprovalVO(WkfSupplyRequest first, String operatorId) {
+        StocktakeStatusVO vo = new StocktakeStatusVO();
+        vo.setBusNo(first.getBusNo());
+        vo.setTypeEnum(first.getTypeEnum());
+        vo.setStatusEnum("PENDING_APPROVAL");
+        vo.setCreatedBy(first.getCreatedBy());
+        vo.setCreatedAt(first.getCreatedAt());
+        vo.setApplicantId(first.getApplicantId() != null ? first.getApplicantId() : operatorId);
+        vo.setApplyTime(first.getApplyTime() != null ? first.getApplyTime() : LocalDateTime.now());
+        return vo;
+    }
 }

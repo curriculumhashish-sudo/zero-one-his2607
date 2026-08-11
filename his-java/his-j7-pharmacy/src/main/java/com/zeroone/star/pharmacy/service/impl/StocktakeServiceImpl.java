@@ -8,9 +8,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zeroone.star.pharmacy.entity.WkfSupplyRequest;
 import com.zeroone.star.pharmacy.mapper.StocktakeMapper;
 import com.zeroone.star.pharmacy.service.IStocktakeService;
+import com.zeroone.star.pharmacy.service.IWkfSupplyRequestService;
 import com.zeroone.star.project.components.user.UserDTO;
 import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.PageDTO;
+import com.zeroone.star.project.dto.j7.pharmacy.approval.OperatorDTO;
 import com.zeroone.star.project.dto.stocktake.StocktakeItemSaveDTO;
 import com.zeroone.star.project.dto.stocktake.StocktakeSaveDTO;
 import com.zeroone.star.project.query.stocktake.StocktakeQuery;
@@ -82,6 +84,9 @@ public class StocktakeServiceImpl
 
     @Resource
     private UserHolder userHolder;
+
+    @Resource
+    private IWkfSupplyRequestService wkfSupplyRequestService;
 
     @Override
     public StocktakeSaveVO addStocktake() {
@@ -157,7 +162,21 @@ public class StocktakeServiceImpl
     @Override
     @Transactional(rollbackFor = Exception.class)
     public StocktakeSaveVO saveAndSubmitStocktake(StocktakeSaveDTO dto) {
-        return persistStocktake(dto, STATUS_PENDING_APPROVAL);
+        // 先以草稿落库，再走完整提交审批流程（状态流转 + 锁库存 + 冻结快照），
+        // 避免直接插入 PENDING_APPROVAL 导致与 /stocktake-approval/submit 校验冲突
+        StocktakeSaveVO draftVO = persistStocktake(dto, STATUS_DRAFT);
+
+        OperatorDTO operator = new OperatorDTO();
+        operator.setBusNo(draftVO.getBusNo());
+        UserDTO currentUser = getCurrentUserQuietly();
+        operator.setOperatorId(firstText(
+                currentUser == null ? null : currentUser.getId(),
+                dto.getApplicantId(),
+                "system"));
+        wkfSupplyRequestService.submit(operator);
+
+        return buildSaveVO(draftVO.getBusNo(), STATUS_PENDING_APPROVAL,
+                draftVO.getItemCount(), draftVO.getTotalPrice(), LocalDateTime.now(), dto.getWarehouseId());
     }
 
     @Override
@@ -290,6 +309,9 @@ public class StocktakeServiceImpl
         record.setItemQuantity(itemQuantity);
         record.setTotalQuantity(item.getTotalQuantity());
         record.setItemId(item.getItemId().trim());
+        record.setItemName(trimToNull(item.getItemName()));
+        record.setSpecification(trimToNull(item.getSpecification()));
+        record.setManufacturer(trimToNull(item.getManufacturer()));
         record.setUnitCode(item.getUnitCode().trim());
         record.setOccurrenceTime(dto.getOccurrenceTime() == null ? now : dto.getOccurrenceTime());
         record.setPurposeTypeEnum(firstText(dto.getPurposeTypeEnum(), PURPOSE_TYPE_PHARMACY));
