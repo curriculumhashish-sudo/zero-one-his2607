@@ -33,6 +33,8 @@ public class SlotCalendarServiceImpl extends ServiceImpl<WkfSlotMapper, WkfSlot>
 
     /** 封锁状态码 */
     private static final String STATUS_BUSY_UNAVAILABLE = "busy-unavailable";
+    /** 停诊状态码 */
+    private static final String STATUS_BUSY_STOP_CLINIC = "busy-stop-clinic";
     /** 可约状态码 */
     private static final String STATUS_FREE = "free";
 
@@ -100,10 +102,11 @@ public class SlotCalendarServiceImpl extends ServiceImpl<WkfSlotMapper, WkfSlot>
             return JsonVO.fail("号源不存在");
         }
 
-        // 只更新当前非封锁的号源（已封锁的不算失败），同时记录封锁原因
+        // 只更新当前非封锁且非停诊的号源（已封锁/停诊的不算失败），同时记录封锁原因
         LambdaUpdateWrapper<WkfSlot> wrapper = new LambdaUpdateWrapper<>();
         wrapper.in(WkfSlot::getId, dto.getSlotIds())
                .ne(WkfSlot::getStatusCode, STATUS_BUSY_UNAVAILABLE)
+               .ne(WkfSlot::getStatusCode, STATUS_BUSY_STOP_CLINIC)
                .set(WkfSlot::getStatusCode, STATUS_BUSY_UNAVAILABLE);
         if (dto.getReason() != null && !dto.getReason().isEmpty()) {
             wrapper.set(WkfSlot::getCommentText, dto.getReason());
@@ -158,6 +161,7 @@ public class SlotCalendarServiceImpl extends ServiceImpl<WkfSlotMapper, WkfSlot>
     /**
      * 根据号源数据计算展示状态
      * <ul>
+     *   <li>停诊（statusCode=busy-stop-clinic）→ "停诊"</li>
      *   <li>封锁（statusCode=busy-unavailable）→ "封锁"</li>
      *   <li>超售（overbookedFlag=1 且 已约>=容量）→ "超售"</li>
      *   <li>已满（已约>=容量且未开超售）→ "已满"</li>
@@ -165,6 +169,9 @@ public class SlotCalendarServiceImpl extends ServiceImpl<WkfSlotMapper, WkfSlot>
      * </ul>
      */
     private String computeDisplayStatus(SlotDTO row) {
+        if (STATUS_BUSY_STOP_CLINIC.equals(row.getStatusCode())) {
+            return "停诊";
+        }
         if (STATUS_BUSY_UNAVAILABLE.equals(row.getStatusCode())) {
             return "封锁";
         }
