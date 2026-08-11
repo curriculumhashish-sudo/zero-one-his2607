@@ -95,8 +95,8 @@ public class DeptServiceImpl implements DeptService {
             loginSessionMapper.updateSelectOrgUnitId(userId, selectDeptId);
 
             // 同步更新Redis会话缓存
-            String sessionRedisKey = "user:session:" + userId;
-            redisTemplate.opsForHash().put(sessionRedisKey, "organizationUnitId", selectDeptId);
+            String sessionRedisKey = "his:login:context:" + userId;
+            redisTemplate.opsForHash().put(sessionRedisKey, "deptId", selectDeptId);
 
             // 组装返回结果，填充完整科室信息
             DeptBindResultVO vo = new DeptBindResultVO();
