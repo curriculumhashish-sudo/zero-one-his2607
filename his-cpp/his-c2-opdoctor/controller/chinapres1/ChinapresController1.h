@@ -19,8 +19,8 @@ public:
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("chinapres1.query.summary"), queryChinapres, ChinapresQuery1, ChinapresJsonVO1::Wrapper, API_TAG);
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("chinapres1.detail.summary"), queryChinapresdetails, ChinapresDetailQuery1, ChinapresDetailJsonVO1::Wrapper, API_TAG);
 	//响应
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/chinapres", queryChinapres, ChinapresQuery1, executeQueryChinapres(query));
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/chinapres-detail", queryChinapresdetails, ChinapresDetailQuery1, executeQueryChinapresDetail(query));
+	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/c2-opdoctor/chinapres", queryChinapres, ChinapresQuery1, executeQueryChinapres(query));
+	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/c2-opdoctor/chinapres-detail", queryChinapresdetails, ChinapresDetailQuery1, executeQueryChinapresDetail(query));
 private:
 	ChinapresJsonVO1::Wrapper executeQueryChinapres(const ChinapresQuery1::Wrapper& query);
 	ChinapresDetailJsonVO1::Wrapper executeQueryChinapresDetail(const ChinapresDetailQuery1::Wrapper&query);
