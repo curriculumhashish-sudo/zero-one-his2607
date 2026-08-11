@@ -137,8 +137,10 @@ public class TenantServiceImpl implements TenantService {
                 .filter(vo -> vo.getId() != null) // 过滤掉 ID 转 Long 失败的
                 .collect(Collectors.toList());
 
-        // 3. 写入缓存
-        setCache(cacheKey, voList, LoginRedisConstant .HOSPITAL_LIST_TTL);
+        // 3. 写入缓存（仅在有数据时缓存，避免空列表永久挡住 DB 查询）
+        if (!voList.isEmpty()) {
+            setCache(cacheKey, voList, LoginRedisConstant.HOSPITAL_LIST_TTL);
+        }
 
         // 4. 内存过滤 keyword
         return filterByKeyword(voList, query);
