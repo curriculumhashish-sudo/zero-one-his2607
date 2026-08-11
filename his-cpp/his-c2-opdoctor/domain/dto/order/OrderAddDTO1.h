@@ -29,7 +29,8 @@ class OrderAddDTO1 : public oatpp::DTO {
 API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("createOrder.order.field.encounterId"), true);
 API_DTO_FIELD_REQUIRE(String, catalogId, ZH_WORDS_GETTER("createOrder.order.field.catalogId"), true);
 API_DTO_FIELD_REQUIRE(String, orderType, ZH_WORDS_GETTER("createOrder.order.field.orderType"), true);
-API_DTO_FIELD_REQUIRE(String, expenseType, ZH_WORDS_GETTER("createOrder.order.field.expenseType"), true);
+API_DTO_FIELD_REQUIRE(String, expenseType, ZH_WORDS_GETTER("createOrder.order.field.expenseType"), false);
+API_DTO_FIELD_REQUIRE(Int32, encounterVersion, ZH_WORDS_GETTER("createOrder.order.field.encounterVersion"), true);
 
 // ÁÙ´²¾ö²ß
 API_DTO_FIELD_REQUIRE(Float64, dose, ZH_WORDS_GETTER("createOrder.order.field.dose"), false);
@@ -45,6 +46,7 @@ API_DTO_FIELD_REQUIRE(String, remark, ZH_WORDS_GETTER("createOrder.order.field.r
 // ·Ö×éÓëÅÅÐò
 API_DTO_FIELD_REQUIRE(String, groupId, ZH_WORDS_GETTER("createOrder.order.field.groupId"), false);
 API_DTO_FIELD_REQUIRE(Int32, orderNo, ZH_WORDS_GETTER("createOrder.order.field.orderNo"), true);
+
 
 // ¼æÈÝ¾É×Ö¶Î
 API_DTO_FIELD_REQUIRE(String, itemCode, ZH_WORDS_GETTER("createOrder.order.field.itemCode"), false);

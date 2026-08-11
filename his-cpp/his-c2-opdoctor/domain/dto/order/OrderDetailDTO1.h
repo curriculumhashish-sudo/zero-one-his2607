@@ -57,7 +57,8 @@ class OrderDetailDTO1 : public oatpp::DTO {
     // 时间与版本
     API_DTO_FIELD_REQUIRE(String, createTime, ZH_WORDS_GETTER("createOrder.order.field.createTime"), true);
     API_DTO_FIELD_REQUIRE(String, updatedAt, ZH_WORDS_GETTER("createOrder.order.field.updatedAt"), false);
-    API_DTO_FIELD_REQUIRE(Int32, version, ZH_WORDS_GETTER("createOrder.order.field.version"), false);
+    API_DTO_FIELD_REQUIRE(Int32, orderVersion, ZH_WORDS_GETTER("createOrder.order.field.orderVersion"), false);
+    API_DTO_FIELD_REQUIRE(Int32, encounterVersion, ZH_WORDS_GETTER("createOrder.order.field.encounterVersion"), false);
 
     // 其他
     API_DTO_FIELD_REQUIRE(String, prescriptionNo, ZH_WORDS_GETTER("createOrder.order.field.prescriptionNo"), false);
@@ -74,6 +75,7 @@ class OrderDetailDTO1 : public oatpp::DTO {
  */
 class OrderDetailPageDTO1 : public PageDTO<OrderDetailDTO1::Wrapper> {
     DTO_INIT(OrderDetailPageDTO1, PageDTO<OrderDetailDTO1::Wrapper>);
+    API_DTO_FIELD_REQUIRE(Int32, encounterVersion, ZH_WORDS_GETTER("createOrder.order.field.encounterVersion"), false);
 };
 
 #include OATPP_CODEGEN_END(DTO)

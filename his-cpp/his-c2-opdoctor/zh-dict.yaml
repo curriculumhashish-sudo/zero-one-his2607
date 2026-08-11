@@ -72,7 +72,8 @@
       # === 分组与排序 ===
       groupId: 组套ID
       orderNo: 排序号
-      version: 版本号
+      orderVersion: 单条医嘱版本号
+      encounterVersion: 就诊版本号
 
       # === 医嘱标识 ===
       orderId: 医嘱ID

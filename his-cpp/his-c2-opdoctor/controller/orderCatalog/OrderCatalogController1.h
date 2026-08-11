@@ -31,7 +31,7 @@ public:
     );
     API_HANDLER_ENDPOINT_QUERY_AUTH(
         API_M_GET,
-        "/doctor-station/page-advice-order-catalog",
+        "/c2-opdoctor/doctor-station/page-advice-order-catalog",
         queryCatalog,
         OrderCatalogQuery1,
         execQueryCatalog(query, authObject->getPayload())
