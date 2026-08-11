@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -39,6 +40,15 @@ public class PurchaseInboundDetailVO {
 
     @Schema(description = "目的库房名称", example = "门诊西药房")
     private String purposeLocationName;
+
+    @Schema(description = "源药库标识 (对应 source_location_id)", example = "322954885380706304")
+    private String sourceLocationId;
+
+    @Schema(description = "入库日期 (对应 occurrence_time)", example = "2026-06-30")
+    private LocalDate inDate;
+
+    @Schema(description = "项目类型（药品/物资，对应 category_enum）", example = "DRUG")
+    private String projectType;
 
     @Schema(description = "总金额", example = "1500.00")
     private BigDecimal totalPrice;

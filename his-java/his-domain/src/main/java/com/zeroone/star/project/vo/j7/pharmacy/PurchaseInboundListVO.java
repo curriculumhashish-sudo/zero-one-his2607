@@ -20,8 +20,8 @@ public class PurchaseInboundListVO {
     private String busNo;
 
     @Schema(
-            description = "单据状态中文名称。对应关系：DRAFT-编辑中, PENDING-待审核, APPROVED-同意, REJECTED-驳回",
-            example = "同意"
+            description = "单据状态中文名称。对应关系：DRAFT-编辑中, PENDING_APPROVAL-待审批, APPROVAL-审批中, AGREE-已通过, REJECT-已驳回, WITHDRAW-已撤回",
+            example = "已通过"
     )
     private String statusName;
 

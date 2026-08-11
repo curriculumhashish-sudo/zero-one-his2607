@@ -54,7 +54,7 @@
         WHERE m.id = #{orderId}
           AND d.is_deleted = 0
           AND d.item_quantity &gt; 0
-          AND d.type_enum IN ('PHARMACY_STOCK_IN', 'INVENTORY_IN')
+          AND d.type_enum IN ('CABINET_INBOUND_RECEIPT', 'PHARMACY_STOCK_IN', 'INVENTORY_IN')
         ORDER BY d.created_at, d.id
     </select>
 
@@ -72,7 +72,7 @@
         WHERE m.id = #{orderId}
           AND d.is_deleted = 0
           AND d.item_quantity &gt; 0
-          AND d.type_enum IN ('PHARMACY_STOCK_IN', 'INVENTORY_IN')
+          AND d.type_enum IN ('CABINET_INBOUND_RECEIPT', 'PHARMACY_STOCK_IN', 'INVENTORY_IN')
     </update>
 
 </mapper>

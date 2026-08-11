@@ -21,9 +21,9 @@ public class InboundApprovalVO {
     @Schema(description = "入库单业务单号", example = "CIR2026-06-300001")
     private String busNo;
     @Schema(
-            description = "流转后的审批状态：WITHDRAWN-已撤回，APPROVED-已通过，REJECTED-已驳回",
-            example = "APPROVED",
-            allowableValues = {"WITHDRAWN", "APPROVED", "REJECTED"}
+            description = "流转后的审批状态：WITHDRAW-已撤回，AGREE-已通过，REJECT-已驳回",
+            example = "AGREE",
+            allowableValues = {"WITHDRAW", "AGREE", "REJECT"}
     )
     private String status;
     @Schema(description = "操作结果说明", example = "审批通过")

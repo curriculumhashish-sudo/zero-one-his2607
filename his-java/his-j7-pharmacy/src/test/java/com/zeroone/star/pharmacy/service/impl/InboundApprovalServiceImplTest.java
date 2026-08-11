@@ -69,7 +69,7 @@ class InboundApprovalServiceImplTest {
 
         assertEquals(BUS_NO, dto.getBusNo());
         assertEquals("填写有误", dto.getRemark());
-        assertEquals("WITHDRAWN", result.getStatus());
+        assertEquals("WITHDRAW", result.getStatus());
         verify(inboundApprovalMapper).update(isNull(), any(Wrapper.class));
     }
 
@@ -80,7 +80,7 @@ class InboundApprovalServiceImplTest {
         var result = service.approveApproval(new InboundApprovalDTO(BUS_NO, "同意入库", "user-001", null));
 
         assertEquals(BUS_NO, result.getBusNo());
-        assertEquals("APPROVED", result.getStatus());
+        assertEquals("AGREE", result.getStatus());
         assertEquals("审批通过", result.getMessage());
     }
 
@@ -95,7 +95,7 @@ class InboundApprovalServiceImplTest {
 
         mockPendingOrderAndUpdatedRows(1);
         var result = service.rejectApproval(new InboundApprovalDTO(BUS_NO, "数量不符", "user-001", null));
-        assertEquals("REJECTED", result.getStatus());
+        assertEquals("REJECT", result.getStatus());
     }
 
     @Test
@@ -121,7 +121,7 @@ class InboundApprovalServiceImplTest {
                 () -> service.approveApproval(new InboundApprovalDTO(BUS_NO, null, "user-001", null))
         );
 
-        assertEquals("入库单不在待审批状态，当前状态：APPROVED", error.getMessage());
+        assertEquals("入库单不在可审批状态（APPROVAL 审批中 / PENDING_APPROVAL 待审批），当前状态：APPROVED", error.getMessage());
     }
 
     @Test

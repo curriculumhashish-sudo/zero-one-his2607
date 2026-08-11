@@ -46,7 +46,7 @@ class InboundApprovalContractTest {
 
         assertNotNull(schema, "status 缺少 Swagger Schema");
         assertEquals(
-                Set.of("WITHDRAWN", "APPROVED", "REJECTED"),
+                Set.of("WITHDRAW", "AGREE", "REJECT"),
                 Set.copyOf(Arrays.asList(schema.allowableValues()))
         );
     }

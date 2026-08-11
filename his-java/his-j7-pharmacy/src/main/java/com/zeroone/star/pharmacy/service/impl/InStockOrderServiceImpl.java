@@ -47,7 +47,8 @@ import java.util.stream.Collectors;
  * - wkf_supply_request（供应请求主表）：充当入库单主表，管理状态与总金额。
  * - pharmacy_in_item（入库单明细表）：存储药品明细并参与汇总。
  * 在业务流程中，系统自动计算行合计金额和整单总金额，并严格控制状态流转
- * （草稿 DRAFT → 待审批 PENDING → 已审批 APPROVED → 入库完成 COMPLETED）。
+ * （编辑中 DRAFT → 待审批 PENDING_APPROVAL → 审批中 APPROVAL → 已通过 AGREE / 已驳回 REJECT / 已撤回 WITHDRAW）。
+ * 同一 bus_no 下的主表行与明细行状态始终批量同步，避免列表重复展示。
  * </p>
  * <p>版权：&copy;01星球</p>
  * <p>地址：01星球总部</p>
@@ -73,12 +74,34 @@ public class InStockOrderServiceImpl implements InStockOrderService {
     private static final String STATUS_DRAFT = "DRAFT";
     private static final String STATUS_PENDING = "PENDING";
     private static final String STATUS_PENDING_APPROVAL = "PENDING_APPROVAL";
+    private static final String STATUS_APPROVAL = "APPROVAL";
+    private static final String STATUS_REJECTED = "REJECTED";
+    private static final String STATUS_REJECT = "REJECT";
+    private static final String STATUS_WITHDRAWN = "WITHDRAWN";
+    private static final String STATUS_WITHDRAW = "WITHDRAW";
     private static final String CATEGORY_ENUM_PURCHASE_IN = "PURCHASE_IN";
     private static final String ITEM_TABLE_PHARMACY_IN = "pharmacy_in_item";
     private static final DateTimeFormatter BUS_NO_FORMATTER =
             DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
 
-    private static final List<String> DELETABLE_STATUSES = List.of(STATUS_DRAFT, STATUS_PENDING_APPROVAL);
+    /** 入库单全部 type_enum 取值（兼容新建单据与参考项目/测试数据）。 */
+    private static final List<String> INBOUND_TYPE_ENUMS =
+            List.of("CABINET_INBOUND_RECEIPT", "PHARMACY_STOCK_IN", "INVENTORY_IN");
+
+    /** 可删除状态：编辑中、待审批；PENDING 为历史脏数据，同样允许清理。 */
+    private static final List<String> DELETABLE_STATUSES =
+            List.of(STATUS_DRAFT, STATUS_PENDING, STATUS_PENDING_APPROVAL);
+
+    /** 可保存（编辑）状态：编辑中、待审批、已驳回（驳回后可编辑重新提交）。 */
+    private static final List<String> EDITABLE_STATUSES =
+            List.of(STATUS_DRAFT, STATUS_PENDING, STATUS_PENDING_APPROVAL,
+                    STATUS_REJECTED, STATUS_REJECT);
+
+    /** 可提交审批状态。 */
+    private static final List<String> SUBMITTABLE_STATUSES =
+            List.of(STATUS_DRAFT, STATUS_PENDING, STATUS_PENDING_APPROVAL,
+                    STATUS_REJECTED, STATUS_REJECT, STATUS_WITHDRAWN, STATUS_WITHDRAW);
+
     private static final DateTimeFormatter DATE_TIME_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -124,7 +147,11 @@ public class InStockOrderServiceImpl implements InStockOrderService {
         detailVO.setId(order.getId());
         detailVO.setBusNo(order.getBusNo());
         detailVO.setSupplierId(order.getSupplierId());
+        detailVO.setSourceLocationId(order.getSourceLocationId());
         detailVO.setPurposeLocationId(order.getPurposeLocationId());
+        detailVO.setInDate(order.getOccurrenceTime() != null ?
+                order.getOccurrenceTime().toLocalDate() : null);
+        detailVO.setProjectType(order.getCategoryEnum());
         detailVO.setTotalPrice(order.getTotalPrice());
         detailVO.setStatusEnum(order.getStatusEnum());
         detailVO.setApplyTime(order.getApplyTime());
@@ -149,6 +176,7 @@ public class InStockOrderServiceImpl implements InStockOrderService {
             itemVO.setSubTotal(item.getTotalAmount());
             itemVO.setTraceCode(item.getTraceNo());
             itemVO.setRemark(item.getItemRemark());
+            itemVO.setExpirationDate(item.getExpireDate());
             return itemVO;
         }).collect(Collectors.toList());
 
@@ -171,19 +199,24 @@ public class InStockOrderServiceImpl implements InStockOrderService {
             throw new IllegalArgumentException("入库单不存在");
         }
 
-        if (!"DRAFT".equals(order.getStatusEnum()) && !"REJECTED".equals(order.getStatusEnum())) {
-            throw new IllegalArgumentException("当前单据状态不允许提交审批");
+        if (!SUBMITTABLE_STATUSES.contains(order.getStatusEnum())) {
+            throw new IllegalArgumentException(
+                    "当前单据状态不允许提交审批，当前状态：" + order.getStatusEnum());
         }
 
-        // 3. 更新单据状态及提交时间
-        order.setStatusEnum("PENDING_APPROVAL");
-        order.setApplyTime(LocalDateTime.now());
         if (StringUtils.hasText(dto.getRemark())) {
-            order.setRemake(dto.getRemark());
+            InStockOrder remarkUpdate = new InStockOrder();
+            remarkUpdate.setId(order.getId());
+            remarkUpdate.setRemake(dto.getRemark());
+            inStockOrderMapper.updateById(remarkUpdate);
         }
-        inStockOrderMapper.updateById(order);
 
-        // 4. TODO: 如果前端传了新的明细，这里需要处理明细的增删改逻辑
+        // 提交审批：同一 bus_no 下主表与全部明细行整体流转为“审批中”，并写入申请时间
+        int rows = changeStatusByBusNo(order.getBusNo(), STATUS_APPROVAL,
+                LocalDateTime.now(), getCurrentUserId());
+        if (rows == 0) {
+            throw new IllegalArgumentException("提交审批失败，单据可能已被其他操作处理：" + order.getBusNo());
+        }
     }
 
 
@@ -229,8 +262,9 @@ public class InStockOrderServiceImpl implements InStockOrderService {
         if (existOrder == null) {
             throw new IllegalArgumentException("入库单不存在");
         }
-        if (!STATUS_DRAFT.equals(existOrder.getStatusEnum())) {
-            throw new IllegalArgumentException("只有草稿状态才能编辑");
+        if (!EDITABLE_STATUSES.contains(existOrder.getStatusEnum())) {
+            throw new IllegalArgumentException(
+                    "只有编辑中或待审批状态的入库单可以保存，当前状态：" + existOrder.getStatusEnum());
         }
 
         InStockOrder updateOrder = buildOrder(dto);
@@ -245,6 +279,9 @@ public class InStockOrderServiceImpl implements InStockOrderService {
         saveItems(orderId, dto.getItems());
 
         updateTotalPrice(orderId);
+
+        // 保存成功后单据进入“待审批”：主表行与新插入明细行按 bus_no 整体同步状态
+        changeStatusByBusNo(existOrder.getBusNo(), STATUS_PENDING_APPROVAL, null, getCurrentUserId());
     }
 
     @Override
@@ -254,15 +291,16 @@ public class InStockOrderServiceImpl implements InStockOrderService {
         if (order == null) {
             throw new IllegalArgumentException("入库单不存在");
         }
-        if (!STATUS_DRAFT.equals(order.getStatusEnum())
-                && !STATUS_PENDING_APPROVAL.equals(order.getStatusEnum())) {
-            throw new IllegalArgumentException("当前状态不允许提交审批");
+        if (!SUBMITTABLE_STATUSES.contains(order.getStatusEnum())) {
+            throw new IllegalArgumentException(
+                    "当前状态不允许提交审批，当前状态：" + order.getStatusEnum());
         }
-        order.setStatusEnum(STATUS_PENDING);
-        order.setApplyTime(LocalDateTime.now());
-        order.setUpdatedAt(LocalDateTime.now());
-        order.setUpdatedBy(getCurrentUserId());
-        inStockOrderMapper.updateById(order);
+        // 提交审批：同一 bus_no 下主表与全部明细行整体流转为“审批中”，并写入申请时间
+        int rows = changeStatusByBusNo(order.getBusNo(), STATUS_APPROVAL,
+                LocalDateTime.now(), getCurrentUserId());
+        if (rows == 0) {
+            throw new IllegalArgumentException("提交审批失败，单据可能已被其他操作处理：" + order.getBusNo());
+        }
     }
 
     @Override
@@ -270,12 +308,12 @@ public class InStockOrderServiceImpl implements InStockOrderService {
     public void submit(String orderId, InStockOrderSaveDTO dto) {
         update(orderId, dto);
 
-        int rows = inStockOrderMapper.update(null,
-                new LambdaUpdateWrapper<InStockOrder>()
-                        .eq(InStockOrder::getId, orderId)
-                        .eq(InStockOrder::getStatusEnum, STATUS_DRAFT)
-                        .set(InStockOrder::getStatusEnum, STATUS_PENDING));
-
+        InStockOrder order = inStockOrderMapper.selectById(orderId);
+        if (order == null) {
+            throw new IllegalArgumentException("入库单不存在");
+        }
+        int rows = changeStatusByBusNo(order.getBusNo(), STATUS_APPROVAL,
+                LocalDateTime.now(), getCurrentUserId());
         if (rows == 0) {
             throw new IllegalArgumentException("当前状态不允许提交审批");
         }
@@ -295,7 +333,7 @@ public class InStockOrderServiceImpl implements InStockOrderService {
         }
         if (!DELETABLE_STATUSES.contains(order.getStatusEnum())) {
             throw new IllegalArgumentException(
-                    "只有草稿或待审核状态的入库单可以删除，当前状态：" + order.getStatusEnum());
+                    "只有编辑中或待审批状态的入库单可以删除，当前状态：" + order.getStatusEnum());
         }
 
         int unlockedLocks = 0;
@@ -327,6 +365,28 @@ public class InStockOrderServiceImpl implements InStockOrderService {
     }
 
     // ==================== 私有方法 ====================
+
+    /**
+     * 按 bus_no 批量流转整张单据（主表行 + 明细行）的状态，保证同单各行状态一致。
+     *
+     * @param busNo        业务单号
+     * @param targetStatus 目标状态
+     * @param applyTime    申请时间；为 null 时不更新 apply_time（仅提交审批时写入）
+     * @param operatorId   操作人
+     * @return 受影响行数
+     */
+    private int changeStatusByBusNo(String busNo, String targetStatus,
+                                    LocalDateTime applyTime, String operatorId) {
+        LambdaUpdateWrapper<InStockOrder> wrapper = new LambdaUpdateWrapper<InStockOrder>()
+                .eq(InStockOrder::getBusNo, busNo)
+                .in(InStockOrder::getTypeEnum, INBOUND_TYPE_ENUMS)
+                .set(InStockOrder::getStatusEnum, targetStatus)
+                .set(applyTime != null, InStockOrder::getApplyTime, applyTime)
+                .set(InStockOrder::getUpdatedAt, LocalDateTime.now())
+                .set(InStockOrder::getUpdatedBy, operatorId)
+                .setSql("version = version + 1");
+        return inStockOrderMapper.update(null, wrapper);
+    }
 
     private InStockOrder buildOrder(InStockOrderCreateDTO dto) {
         InStockOrder order = new InStockOrder();

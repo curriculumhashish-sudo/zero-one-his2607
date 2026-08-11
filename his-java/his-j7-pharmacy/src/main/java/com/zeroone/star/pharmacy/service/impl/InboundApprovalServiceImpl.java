@@ -16,12 +16,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * G7 入库单审批流转服务实现。
  * <p>
  * 同一入库单号可能对应多条药品明细，本服务按 {@code bus_no} 批量流转，
  * 并在更新条件中限定原状态，防止重复审批或并发覆盖。
+ * 允许流转的状态：APPROVAL（审批中，提交后的标准状态）与 PENDING_APPROVAL（待审批，兼容既有数据）。
  * </p>
  *
  * @author lvv
@@ -31,11 +33,15 @@ import java.time.LocalDateTime;
 @Service
 public class InboundApprovalServiceImpl implements IInboundApprovalService {
 
-    private static final String TYPE_CABINET_INBOUND_RECEIPT = "CABINET_INBOUND_RECEIPT";
-    private static final String STATUS_PENDING_APPROVAL = "PENDING_APPROVAL";
-    private static final String STATUS_WITHDRAWN = "WITHDRAWN";
-    private static final String STATUS_APPROVED = "APPROVED";
-    private static final String STATUS_REJECTED = "REJECTED";
+    /** 入库单全部 type_enum 取值：新建单据为 INVENTORY_IN，参考项目/测试数据为 CABINET_INBOUND_RECEIPT 等。 */
+    private static final List<String> INBOUND_TYPE_ENUMS =
+            List.of("CABINET_INBOUND_RECEIPT", "PHARMACY_STOCK_IN", "INVENTORY_IN");
+    /** 允许审批流转的状态：审批中（已提交）、待审批（兼容存量数据）。 */
+    private static final List<String> TRANSITIONABLE_STATUSES =
+            List.of("APPROVAL", "PENDING_APPROVAL");
+    private static final String STATUS_AGREE = "AGREE";
+    private static final String STATUS_REJECT = "REJECT";
+    private static final String STATUS_WITHDRAW = "WITHDRAW";
 
     @Resource
     private InboundApprovalMapper inboundApprovalMapper;
@@ -47,14 +53,14 @@ public class InboundApprovalServiceImpl implements IInboundApprovalService {
     @Transactional(rollbackFor = Exception.class)
     public InboundApprovalVO approveApproval(InboundApprovalDTO dto) {
         normalize(dto);
-        requirePendingInboundOrder(dto.getBusNo());
+        requireTransitionableInboundOrder(dto.getBusNo());
         UserDTO operator = requireCurrentUser();
         LocalDateTime now = dto.getApprovalTime() != null ? dto.getApprovalTime() : LocalDateTime.now();
         String approverId = StringUtils.hasText(dto.getApproverId()) ? dto.getApproverId() : operator.getId();
-        int rows = updatePendingOrder(dto, STATUS_APPROVED, operator, true, approverId, now);
+        int rows = updateTransitionableOrder(dto, STATUS_AGREE, operator, true, approverId, now);
         ensureUpdated(rows, dto.getBusNo());
         log.info("lvv：入库单 {} 审批通过，更新明细 {} 行", dto.getBusNo(), rows);
-        InboundApprovalVO vo = new InboundApprovalVO(dto.getBusNo(), STATUS_APPROVED, "审批通过");
+        InboundApprovalVO vo = new InboundApprovalVO(dto.getBusNo(), STATUS_AGREE, "审批通过");
         vo.setApproverName(operator.getUsername());
         vo.setApproveTime(now);
         return vo;
@@ -65,54 +71,55 @@ public class InboundApprovalServiceImpl implements IInboundApprovalService {
     public InboundApprovalVO rejectApproval(InboundApprovalDTO dto) {
         normalize(dto);
         requireRemark(dto, "驳回原因不能为空");
-        requirePendingInboundOrder(dto.getBusNo());
+        requireTransitionableInboundOrder(dto.getBusNo());
         UserDTO operator = requireCurrentUser();
         LocalDateTime now = dto.getApprovalTime() != null ? dto.getApprovalTime() : LocalDateTime.now();
         String approverId = StringUtils.hasText(dto.getApproverId()) ? dto.getApproverId() : operator.getId();
-        int rows = updatePendingOrder(dto, STATUS_REJECTED, operator, true, approverId, now);
+        int rows = updateTransitionableOrder(dto, STATUS_REJECT, operator, true, approverId, now);
         ensureUpdated(rows, dto.getBusNo());
         log.info("lvv：入库单 {} 已驳回，更新明细 {} 行", dto.getBusNo(), rows);
-        InboundApprovalVO vo = new InboundApprovalVO(dto.getBusNo(), STATUS_REJECTED, "驳回审批成功");
+        InboundApprovalVO vo = new InboundApprovalVO(dto.getBusNo(), STATUS_REJECT, "驳回审批成功");
         vo.setApproverName(operator.getUsername());
         vo.setApproveTime(now);
         return vo;
     }
 
     /**
-     * lvv：查询并校验入库单存在且仍处于待审批状态。
+     * lvv：查询并校验入库单存在且仍处于可审批状态（审批中/待审批）。
      */
-    private WkfSupplyRequest requirePendingInboundOrder(String busNo) {
+    private WkfSupplyRequest requireTransitionableInboundOrder(String busNo) {
         LambdaQueryWrapper<WkfSupplyRequest> query = new LambdaQueryWrapper<>();
         query.eq(WkfSupplyRequest::getBusNo, busNo)
-                .eq(WkfSupplyRequest::getTypeEnum, TYPE_CABINET_INBOUND_RECEIPT)
+                .in(WkfSupplyRequest::getTypeEnum, INBOUND_TYPE_ENUMS)
                 .last("LIMIT 1");
         WkfSupplyRequest record = inboundApprovalMapper.selectOne(query);
         if (record == null) {
             throw new IllegalArgumentException("入库单不存在：" + busNo);
         }
-        if (!STATUS_PENDING_APPROVAL.equals(record.getStatusEnum())) {
+        if (!TRANSITIONABLE_STATUSES.contains(record.getStatusEnum())) {
             throw new IllegalArgumentException(
-                    "入库单不在待审批状态，当前状态：" + record.getStatusEnum());
+                    "入库单不在可审批状态（APPROVAL 审批中 / PENDING_APPROVAL 待审批），当前状态："
+                            + record.getStatusEnum());
         }
         return record;
     }
 
     /**
-     * lvv：使用“原状态=待审批”作为更新条件，批量更新单据全部明细。
+     * lvv：使用“原状态=审批中/待审批”作为更新条件，批量更新单据全部行。
      */
-    private int updatePendingOrder(InboundApprovalDTO dto,
-                                   String targetStatus,
-                                   UserDTO operator,
-                                   boolean approvalOperation,
-                                   String approverId,
-                                   LocalDateTime approvalTime) {
+    private int updateTransitionableOrder(InboundApprovalDTO dto,
+                                          String targetStatus,
+                                          UserDTO operator,
+                                          boolean approvalOperation,
+                                          String approverId,
+                                          LocalDateTime approvalTime) {
         LocalDateTime now = LocalDateTime.now();
         String operatorName = operator.getUsername();
 
         LambdaUpdateWrapper<WkfSupplyRequest> update = new LambdaUpdateWrapper<>();
         update.eq(WkfSupplyRequest::getBusNo, dto.getBusNo())
-                .eq(WkfSupplyRequest::getTypeEnum, TYPE_CABINET_INBOUND_RECEIPT)
-                .eq(WkfSupplyRequest::getStatusEnum, STATUS_PENDING_APPROVAL)
+                .in(WkfSupplyRequest::getTypeEnum, INBOUND_TYPE_ENUMS)
+                .in(WkfSupplyRequest::getStatusEnum, TRANSITIONABLE_STATUSES)
                 .set(WkfSupplyRequest::getStatusEnum, targetStatus)
                 .set(WkfSupplyRequest::getRemake, dto.getRemark())
                 .set(WkfSupplyRequest::getUpdatedBy, operatorName)
@@ -177,7 +184,7 @@ public class InboundApprovalServiceImpl implements IInboundApprovalService {
     public InboundApprovalVO withdrawApproval(InboundApprovalDTO dto) {
         normalize(dto);
         requireRemark(dto, "撤回原因不能为空");
-        WkfSupplyRequest record = requirePendingInboundOrder(dto.getBusNo());
+        WkfSupplyRequest record = requireTransitionableInboundOrder(dto.getBusNo());
         UserDTO operator = requireCurrentUser();
 
         // lvv：撤回必须由原申请人本人操作。
@@ -186,9 +193,9 @@ public class InboundApprovalServiceImpl implements IInboundApprovalService {
             throw new IllegalArgumentException("只能由申请人撤回该入库单：" + dto.getBusNo());
         }
 
-        int rows = updatePendingOrder(dto, STATUS_WITHDRAWN, operator, false, null, null);
+        int rows = updateTransitionableOrder(dto, STATUS_WITHDRAW, operator, false, null, null);
         ensureUpdated(rows, dto.getBusNo());
         log.info("lvv：入库单 {} 已撤回，更新明细 {} 行", dto.getBusNo(), rows);
-        return new InboundApprovalVO(dto.getBusNo(), STATUS_WITHDRAWN, "撤回审批成功");
+        return new InboundApprovalVO(dto.getBusNo(), STATUS_WITHDRAW, "撤回审批成功");
     }
 }

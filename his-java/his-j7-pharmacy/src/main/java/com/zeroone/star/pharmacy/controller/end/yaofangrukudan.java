@@ -51,12 +51,12 @@ public class yaofangrukudan {
      * lvv：撤回处于待审批状态的入库单。
      */
     @PostMapping("/withdraw")
-    @Operation(summary = "撤回审批", description = "仅原申请人可撤回 PENDING_APPROVAL 状态的入库单；撤回原因必填")
+    @Operation(summary = "撤回审批", description = "仅原申请人可撤回 APPROVAL（审批中）/ PENDING_APPROVAL（待审批）状态的入库单；撤回原因必填，状态变为 WITHDRAW")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "10000 操作成功；9999 参数错误；9995 业务失败",
             content = @Content(mediaType = "application/json",
                 schema = @Schema(implementation = InboundApprovalJsonVO.class),
-                examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"busNo\":\"PSI2026-06-300001\",\"status\":\"WITHDRAWN\",\"message\":\"撤回成功\"}}")))
+                examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"busNo\":\"PSI2026-06-300001\",\"status\":\"WITHDRAW\",\"message\":\"撤回审批成功\"}}")))
     })
     public JsonVO<InboundApprovalVO> withdrawApproval(@Valid @RequestBody InboundApprovalDTO dto) {
         try {
@@ -70,12 +70,12 @@ public class yaofangrukudan {
      * lvv：审批通过处于待审批状态的入库单。
      */
     @PostMapping("/approve")
-    @Operation(summary = "审批通过", description = "登录审批人通过 PENDING_APPROVAL 状态的入库单，状态变为 APPROVED")
+    @Operation(summary = "审批通过", description = "登录审批人通过 APPROVAL（审批中）/ PENDING_APPROVAL（待审批）状态的入库单，状态变为 AGREE")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "10000 操作成功；9999 参数错误；9995 业务失败",
             content = @Content(mediaType = "application/json",
                 schema = @Schema(implementation = InboundApprovalJsonVO.class),
-                examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"busNo\":\"PSI2026-06-300001\",\"status\":\"APPROVED\",\"message\":\"审批通过\"}}")))
+                examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"busNo\":\"PSI2026-06-300001\",\"status\":\"AGREE\",\"message\":\"审批通过\"}}")))
     })
     public JsonVO<InboundApprovalVO> approveApproval(@Valid @RequestBody InboundApprovalDTO dto) {
         try {
@@ -89,12 +89,12 @@ public class yaofangrukudan {
      * lvv：驳回处于待审批状态的入库单。
      */
     @PostMapping("/reject")
-    @Operation(summary = "驳回审批", description = "登录审批人驳回 PENDING_APPROVAL 状态的入库单；驳回原因必填，状态变为 REJECTED")
+    @Operation(summary = "驳回审批", description = "登录审批人驳回 APPROVAL（审批中）/ PENDING_APPROVAL（待审批）状态的入库单；驳回原因必填，状态变为 REJECT")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "10000 操作成功；9999 参数错误；9995 业务失败",
             content = @Content(mediaType = "application/json",
                 schema = @Schema(implementation = InboundApprovalJsonVO.class),
-                examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"busNo\":\"PSI2026-06-300001\",\"status\":\"REJECTED\",\"message\":\"驳回成功\"}}")))
+                examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"busNo\":\"PSI2026-06-300001\",\"status\":\"REJECT\",\"message\":\"驳回审批成功\"}}")))
     })
     public JsonVO<InboundApprovalVO> rejectApproval(@Valid @RequestBody InboundApprovalDTO dto) {
         try {
@@ -109,7 +109,7 @@ public class yaofangrukudan {
      */
 
     // 新增入库单据
-    @Operation(summary = "新增入库单据", description = "创建一张新的入库单，状态为草稿。返回入库单主表ID。")
+    @Operation(summary = "新增入库单据", description = "创建一张新的入库单，状态为 DRAFT（编辑中）。返回入库单主表ID。")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
             content = @Content(mediaType = "application/json",
@@ -127,7 +127,7 @@ public class yaofangrukudan {
     }
 
     // 保存入库单据（编辑）
-    @Operation(summary = "保存入库单据", description = "修改草稿态的入库单，支持对明细的全量增删改。")
+    @Operation(summary = "保存入库单据", description = "保存编辑中/待审批状态的入库单，支持对明细的全量增删改；保存成功后状态变为 PENDING_APPROVAL（待审批）。")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
             content = @Content(mediaType = "application/json",
@@ -146,7 +146,7 @@ public class yaofangrukudan {
     }
 
     // 保存并提交审批
-    @Operation(summary = "保存并提交审批", description = "保存草稿并立即提交审批，状态变更为'待审批'。")
+    @Operation(summary = "保存并提交审批", description = "保存草稿并立即提交审批，状态变更为 APPROVAL（审批中）。")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
             content = @Content(mediaType = "application/json",
@@ -164,7 +164,7 @@ public class yaofangrukudan {
     }
 
     // 提交审批（纯状态流转，仅传单据号）
-    @Operation(summary = "提交审批", description = "将草稿或待审批状态的入库单提交审批，状态变更为'待审批'。仅需传单据号。")
+    @Operation(summary = "提交审批", description = "将编辑中或待审批状态的入库单提交审批，同一 bus_no 下主表与明细行整体变更为 APPROVAL（审批中），并写入申请时间。仅需传单据号。")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
             content = @Content(mediaType = "application/json",
@@ -205,7 +205,7 @@ public class yaofangrukudan {
         @ApiResponse(responseCode = "200", description = "操作成功",
             content = @Content(mediaType = "application/json",
                 schema = @Schema(implementation = PurchaseInboundDetailJsonVO.class),
-                examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"id\":\"329874660147597312\",\"busNo\":\"PSI2026-06-300001\",\"supplierId\":\"SUP_1001\",\"supplierName\":\"某某药业有限公司\",\"purposeLocationId\":\"WH_OUTPATIENT\",\"purposeLocationName\":\"门诊西药房\",\"totalPrice\":1500.00,\"statusEnum\":\"PENDING_APPROVAL\",\"applyTime\":\"2026-06-30T16:35:00\",\"remake\":\"紧急补货\",\"items\":[{\"id\":\"101\",\"itemId\":\"MED_001\",\"itemName\":\"阿莫西林胶囊\",\"spec\":\"0.25g*24粒\",\"lotNumber\":\"20260701\",\"productionDate\":\"2026-01-01\",\"expirationDate\":\"2028-01-01\",\"quantity\":100,\"unit\":\"盒\",\"price\":15.00,\"subTotal\":1500.00}]}}")))
+                examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"id\":\"329874660147597312\",\"busNo\":\"PSI2026-06-300001\",\"supplierId\":\"4100000000000000003\",\"sourceLocationId\":\"322954885380706304\",\"purposeLocationId\":\"322954949549363200\",\"inDate\":\"2026-06-30\",\"projectType\":\"DRUG\",\"totalPrice\":1500.00,\"statusEnum\":\"PENDING_APPROVAL\",\"applyTime\":\"2026-06-30T16:35:00\",\"remake\":\"紧急补货\",\"items\":[{\"id\":\"101\",\"itemId\":\"MED_001\",\"itemName\":\"阿莫西林胶囊\",\"spec\":\"0.25g*24粒\",\"lotNumber\":\"20260701\",\"expirationDate\":\"2028-01-01\",\"quantity\":100,\"unit\":\"盒\",\"price\":15.00,\"subTotal\":1500.00}]}}")))
     })
     public JsonVO<PurchaseInboundDetailVO> getInboundDetail(@PathVariable("id") String id) {
         try {
@@ -219,7 +219,7 @@ public class yaofangrukudan {
      * chunmu：保存并提交审批
      */
     @PutMapping("/{orderId}/saveAndSubmit")
-    @Operation(summary = "保存并提交审批", description = "保存入库单草稿并立即提交审批，状态变更为'待审批'")
+    @Operation(summary = "保存并提交审批", description = "保存入库单草稿并立即提交审批，状态变更为 APPROVAL（审批中）")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
             content = @Content(mediaType = "application/json",
@@ -236,7 +236,7 @@ public class yaofangrukudan {
     }
 
     @DeleteMapping("/delete")
-    @Operation(summary = "删除入库单据", description = "软删除指定单据号的入库单，仅草稿/待审核状态可删，同时解锁关联的库存锁定记录")
+    @Operation(summary = "删除入库单据", description = "软删除指定单据号的入库单，仅编辑中(DRAFT)/待审批(PENDING_APPROVAL)状态可删，同时解锁关联的库存锁定记录")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "操作成功",
             content = @Content(mediaType = "application/json",
