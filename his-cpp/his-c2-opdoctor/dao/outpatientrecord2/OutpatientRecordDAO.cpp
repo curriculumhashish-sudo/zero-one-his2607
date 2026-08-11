@@ -82,10 +82,22 @@ public:
 };
 
 
-std::string OutpatientRecordDAO::queryConditionBuilder(const OutpatientRecordQuery::Wrapper& query, SqlParams& params)
+std::string OutpatientRecordDAO::queryConditionBuilder(const OutpatientRecordQuery::Wrapper& query, SqlParams& params, const PayloadDTO& payload)
 {
     std::stringstream sql;
     sql << " WHERE e.is_deleted = 0";
+
+    // 新增：门诊类型和已完成状态
+    sql << " AND e.class_enum = 'AMB'";
+    sql << " AND e.status_enum = 'FINISHED'";
+
+    // ========== 租户过滤 ==========
+    std::string tenantId = payload.getId();
+    if (tenantId.empty()) {
+        throw std::runtime_error("Tenant ID is missing");
+    }
+    sql << " AND e.tenant_id = ?";
+    SQLPARAMS_PUSH(params, "s", std::string, tenantId);
 
     // 精确患者ID（优先）
     if (query->patientId && !query->patientId->empty()) {
@@ -132,24 +144,26 @@ std::string OutpatientRecordDAO::queryConditionBuilder(const OutpatientRecordQue
 }
 
 
-uint64_t OutpatientRecordDAO::count(const OutpatientRecordQuery::Wrapper& query)
-{
+uint64_t OutpatientRecordDAO::count(const OutpatientRecordQuery::Wrapper& query, const PayloadDTO& payload) {
     SqlParams params;
     std::string sql =
-        "SELECT COUNT(*) "
+        "SELECT COUNT(DISTINCT e.id) "
         "FROM adm_encounter e "
+        "INNER JOIN emr_document d ON e.id = d.encounter_id AND d.is_deleted = 0 AND d.document_type_code = 'OUTPATIENT_RECORD' "
         "LEFT JOIN adm_patient p ON e.patient_id = p.id "
         "LEFT JOIN adm_encounter_diagnosis ed ON e.id = ed.encounter_id AND ed.primary_flag = 1 "
         "LEFT JOIN cln_condition c ON ed.condition_id = c.id";
-    sql += queryConditionBuilder(query, params);
-    return sqlSession->executeQueryNumerical(sql, params);
+    sql += queryConditionBuilder(query, params, payload);
+    try {
+        return sqlSession->executeQueryNumerical(sql, params);
+    }
+    catch (const std::exception& e) {
+        std::cerr << "[ERROR] count: " << e.what() << std::endl;
+        throw;
+    }
 }
-
-// ========== 关键实现：分页查询 ==========
-std::list<PtrOutpatientRecordViewDO> OutpatientRecordDAO::selectWithPage(const OutpatientRecordQuery::Wrapper& query)
-{
+std::list<PtrOutpatientRecordViewDO> OutpatientRecordDAO::selectWithPage(const OutpatientRecordQuery::Wrapper& query, const PayloadDTO& payload) {
     SqlParams params;
-
     std::string sql =
         "SELECT "
         "e.id, "
@@ -168,31 +182,33 @@ std::list<PtrOutpatientRecordViewDO> OutpatientRecordDAO::selectWithPage(const O
         "org.name AS dept_name, "
         "NULL AS remark "
         "FROM adm_encounter e "
+        "INNER JOIN emr_document d ON e.id = d.encounter_id AND d.is_deleted = 0 AND d.document_type_code = 'OUTPATIENT_RECORD' "
         "LEFT JOIN adm_patient p ON e.patient_id = p.id "
         "LEFT JOIN adm_encounter_diagnosis ed ON e.id = ed.encounter_id AND ed.primary_flag = 1 "
         "LEFT JOIN cln_condition c ON ed.condition_id = c.id "
         "LEFT JOIN adm_encounter_participant ep ON e.id = ep.encounter_id AND ep.role_code = 'ATTENDING_DOCTOR' AND ep.status_enum = 'ACTIVE' "
         "LEFT JOIN adm_practitioner pr ON ep.practitioner_id = pr.id "
         "LEFT JOIN adm_organization org ON e.organization_id = org.id";
-
-    sql += queryConditionBuilder(query, params);
-    sql += " ORDER BY e.start_time DESC, e.created_at DESC ";
-
-    int pageIndex = query->pageIndex ? query->pageIndex.getValue(1) : 1;
-    int pageSize = query->pageSize ? query->pageSize.getValue(10) : 10;
-    sql += " LIMIT " + std::to_string((pageIndex - 1) * pageSize) + "," + std::to_string(pageSize);
-
-    return sqlSession->executeQuery<PtrOutpatientRecordViewDO>(sql, OutpatientRecordViewMapper(), params);
+    sql += queryConditionBuilder(query, params, payload);
+    sql += " ORDER BY e.start_time DESC, e.id DESC ";
+    // 分页代码不变...
+    try {
+        return sqlSession->executeQuery<PtrOutpatientRecordViewDO>(sql, OutpatientRecordViewMapper(), params);
+    }
+    catch (const std::exception& e) {
+        std::cerr << "[ERROR] selectWithPage: " << e.what() << std::endl;
+        throw;
+    }
 }
-
 // ========== 实现 selectDetailByEncounterId ==========
-PtrOutpatientRecordDetailDO OutpatientRecordDAO::selectDetailByEncounterId(const std::string& encounterId)
+PtrOutpatientRecordDetailDO OutpatientRecordDAO::selectDetailByEncounterId(const std::string& encounterId, const std::string& tenantId)
 {
     if (encounterId.empty()) return nullptr;
     try {
-        std::string sql = "SELECT id, encounter_id, content, updated_at FROM emr_document WHERE encounter_id = ?";
+        std::string sql = "SELECT id, encounter_id, content, updated_at FROM emr_document WHERE encounter_id = ? AND is_deleted = 0 AND tenant_id = ? AND document_type_code = 'OUTPATIENT_RECORD'";
         SqlParams params;
         SQLPARAMS_PUSH(params, "s", std::string, encounterId);
+        SQLPARAMS_PUSH(params, "s", std::string, tenantId);
         auto results = sqlSession->executeQuery<DetailResult>(sql, DetailResultMapper(), params);
         if (!results.empty()) {
             const auto& info = results.front();

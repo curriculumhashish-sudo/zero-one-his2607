@@ -1,29 +1,24 @@
 #include "stdafx.h"
 #include "OutpatientRecordService.h"
-
+#include "RedisClient.h"
 oatpp::List<OutpatientRecordDTO::Wrapper> OutpatientRecordService::convertToDTOList(const std::list<PtrOutpatientRecordViewDO>& doList)
 {
     auto dtoList = oatpp::List<OutpatientRecordDTO::Wrapper>::createShared();
     for (auto& doItem : doList) {
         auto dto = OutpatientRecordDTO::createShared();
-        dto->id = doItem->getId();
-        dto->encounterId = doItem->getId();   // 🆕 增加这一行
-        dto->patientName = doItem->getPatientName();
-        dto->gender = doItem->getGender();
-        dto->visitDate = doItem->getStartTime();   // 使用 start_time
-        dto->diagnosis = doItem->getDiagnosis();
-        dto->doctorName = doItem->getDoctorName();
-        dto->deptName = doItem->getDeptName();
-        dto->remark = doItem->getRemark();
+        dto->encounterId = doItem->getId();        // 就诊ID
+        dto->visitDate = doItem->getStartTime();   // 就诊日期
+        dto->diagnosis = doItem->getDiagnosis();   // 诊断
+        dto->doctorName = doItem->getDoctorName(); // 医生
+        dto->deptName = doItem->getDeptName();     // 科室
         dtoList->push_back(dto);
     }
     return dtoList;
 }
 
-OutpatientRecordPageDTO::Wrapper OutpatientRecordService::listAll(const OutpatientRecordQuery::Wrapper& query)
-{
-    auto doList = dao.selectWithPage(query);
-    auto total = dao.count(query);
+OutpatientRecordPageDTO::Wrapper OutpatientRecordService::listAll(const OutpatientRecordQuery::Wrapper& query, const PayloadDTO& payload) {
+    auto doList = dao.selectWithPage(query, payload);
+    auto total = dao.count(query, payload);
     auto dtoList = convertToDTOList(doList);
 
     auto pageDto = OutpatientRecordPageDTO::createShared();
@@ -42,14 +37,31 @@ OutpatientRecordDetailDTO::Wrapper OutpatientRecordService::getDetail(const std:
         throw std::runtime_error("encounterId is required");
     }
 
-    // 测试环境：跳过权限校验（生产环境请启用）
-    // std::string practitionerId = payload.getPractitionerId();
-    // if (practitionerId.empty()) {
-    //     practitionerId = "308791351298756608";
-    // }
-    // if (!dao.checkAccessPermission(encounterId, practitionerId)) {
-    //     throw std::runtime_error("Access denied: You do not have permission to view this medical record");
-    // }
+
+    // 获取 practitionerId（优先 JWT，若空则从 Redis 获取）
+    std::string practitionerId = payload.getPractitionerId();
+    if (practitionerId.empty()) {
+        std::string username = payload.getUsername();
+        try {
+            RedisClient redisClient("192.168.112.130", 6379, "@1star");
+            std::string key = "user:" + username + ":practitionerId";
+            practitionerId = redisClient.execute<std::string>([&key](Redis* r) {
+                auto val = r->get(key).value();
+                return val;
+                });
+        }
+        catch (const std::exception& e) {
+            std::cerr << "Redis get practitionerId error: " << e.what() << std::endl;
+        }
+        if (practitionerId.empty()) {
+            throw std::runtime_error("User not authenticated");
+        }
+    }
+
+    // ========== 权限校验（恢复） ==========
+    if (!dao.checkAccessPermission(encounterId, practitionerId)) {
+        throw std::runtime_error("Access denied: You do not have permission to view this medical record");
+    }
 
     // ========== 2. 获取就诊摘要信息 ==========
     std::string patientName, diagnosis, doctorName, deptName, visitDate, status;
@@ -58,27 +70,23 @@ OutpatientRecordDetailDTO::Wrapper OutpatientRecordService::getDetail(const std:
     }
 
     // ========== 3. 获取病历内容 ==========
-    auto detailDO = dao.selectDetailByEncounterId(encounterId);
+    std::string tenantId = payload.getId();
+    if (tenantId.empty()) {
+        throw std::runtime_error("Tenant ID is missing");
+    }
+    auto detailDO = dao.selectDetailByEncounterId(encounterId, tenantId);
     if (!detailDO) {
         throw std::runtime_error("Medical record content not found");
     }
 
     // ========== 4. 判断是否可编辑 ==========
-    bool editable = (status != "FINISHED" && status != "CANCELLED" && status != "ARCHIVED");
+    bool editable = (status != "finished" && status != "cancelled" && status != "archived");
 
     // ========== 5. 组装响应 ==========
     auto dto = OutpatientRecordDetailDTO::createShared();
     dto->id = detailDO->getId();
     dto->encounterId = encounterId;
     dto->content = detailDO->getContent();
-    dto->version = detailDO->getVersion();
     dto->updatedAt = detailDO->getUpdatedAt();
-    dto->patientName = patientName;
-    dto->diagnosis = diagnosis;
-    dto->doctorName = doctorName;
-    dto->deptName = deptName;
-    dto->visitDate = visitDate;
-    dto->editable = editable;
-
     return dto;
 }

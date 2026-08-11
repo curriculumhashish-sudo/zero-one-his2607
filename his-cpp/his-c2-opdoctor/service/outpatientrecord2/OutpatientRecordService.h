@@ -14,7 +14,7 @@ private:
     oatpp::List<OutpatientRecordDTO::Wrapper> convertToDTOList(const std::list<PtrOutpatientRecordViewDO>& doList);
 
 public:
-    OutpatientRecordPageDTO::Wrapper listAll(const OutpatientRecordQuery::Wrapper& query);
+    OutpatientRecordPageDTO::Wrapper listAll(const OutpatientRecordQuery::Wrapper& query, const PayloadDTO& payload);
     // 新增详情方法
     OutpatientRecordDetailDTO::Wrapper getDetail(const std::string& encounterId, const PayloadDTO& payload);
 };

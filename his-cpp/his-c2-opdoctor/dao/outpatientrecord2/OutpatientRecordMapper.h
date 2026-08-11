@@ -14,23 +14,23 @@ public:
         auto data = std::make_shared<OutpatientRecordViewDO>();
 
         // 主表字段
-        data->setId(resultSet->getString("id"));
+        data->setId(resultSet->getString("id"));                       // 就诊ID
         data->setPatientId(resultSet->getString("patient_id"));
         data->setOrganizationId(resultSet->getString("organization_id"));
-        data->setStartTime(resultSet->getString("start_time"));
+        data->setStartTime(resultSet->getString("start_time"));        // 就诊日期
         data->setCreatedAt(resultSet->getString("created_at"));
         data->setStatusEnum(resultSet->getString("status_enum"));
         data->setClassEnum(resultSet->getString("class_enum"));
         data->setBusNo(resultSet->getString("bus_no"));
         data->setIsDeleted(resultSet->getInt("is_deleted"));
 
-        // 扩展字段
-        data->setPatientName(resultSet->getString("patient_name"));
-        data->setGender(resultSet->getString("gender"));
-        data->setDiagnosis(resultSet->getString("diagnosis"));
-        data->setDoctorName(resultSet->getString("doctor_name"));
-        data->setDeptName(resultSet->getString("dept_name"));
-        data->setRemark(resultSet->getString("remark"));   // 可能为NULL
+        // 扩展字段（用于列表展示）
+        data->setPatientName(resultSet->getString("patient_name"));    // 患者姓名
+        data->setGender(resultSet->getString("gender"));               // 性别
+        data->setDiagnosis(resultSet->getString("diagnosis"));         // 诊断
+        data->setDoctorName(resultSet->getString("doctor_name"));      // 医生姓名
+        data->setDeptName(resultSet->getString("dept_name"));          // 科室名称
+        data->setRemark(resultSet->getString("remark"));               // 备注
 
         return data;
     }

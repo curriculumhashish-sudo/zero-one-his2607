@@ -11,13 +11,13 @@
 class OutpatientRecordDAO : public BaseDAO
 {
 private:
-    inline std::string queryConditionBuilder(const OutpatientRecordQuery::Wrapper& query, SqlParams& params);
+    inline std::string queryConditionBuilder(const OutpatientRecordQuery::Wrapper& query, SqlParams& params, const PayloadDTO& payload);
 
 public:
-    uint64_t count(const OutpatientRecordQuery::Wrapper& query);
-    std::list<PtrOutpatientRecordViewDO> selectWithPage(const OutpatientRecordQuery::Wrapper& query);
+    uint64_t count(const OutpatientRecordQuery::Wrapper& query, const PayloadDTO& payload);
+    std::list<PtrOutpatientRecordViewDO> selectWithPage(const OutpatientRecordQuery::Wrapper& query, const PayloadDTO& payload);
     // 在 public 区域添加
-    PtrOutpatientRecordDetailDO selectDetailByEncounterId(const std::string& encounterId);
+    PtrOutpatientRecordDetailDO selectDetailByEncounterId(const std::string& encounterId, const std::string& tenantId);
     // 获取就诊摘要信息（用于详情响应）
     bool getEncounterSummary(const std::string& encounterId, std::string& patientName, std::string& diagnosis,
         std::string& doctorName, std::string& deptName, std::string& visitDate, std::string& status);

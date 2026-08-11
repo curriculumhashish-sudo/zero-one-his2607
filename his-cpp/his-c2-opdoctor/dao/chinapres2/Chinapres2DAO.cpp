@@ -7,7 +7,6 @@
 #include "Chinapres2DAO.h"
 #include "Chinapres2Mapper.h"
 #include "Chinapres2DetailMapper.h"
-#include <iomanip>
 
 static std::string getCurrentTime() {
     auto now = std::chrono::system_clock::now();
@@ -315,7 +314,7 @@ bool Chinapres2DAO::insertDetailsPtr(const std::list<PtrChinapres2DetailDO>& det
 }
 
 // ========== 更新主表 ==========
-bool Chinapres2DAO::updateMain(const Chinapres2MainDO& data) {
+bool Chinapres2DAO::updateMain(const Chinapres2MainDO& data, const std::string& encounterId, int64_t oldVersion) {
     try {
         std::string sql =
             "UPDATE med_medication_request SET "
@@ -340,9 +339,9 @@ bool Chinapres2DAO::updateMain(const Chinapres2MainDO& data) {
             "status_reason = ?, "
             "updated_at = ?, "
             "version = version + 1 "
-            "WHERE id = ?";
+            "WHERE id = ? AND encounter_id = ? AND version = ? AND status_enum = 'UNSIGNED'";
 
-        // 安全取值（防止空字符串/空指针）
+        // 安全取值（与之前一致）
         std::string busNoVal = data.getBusNo();
         if (busNoVal.empty()) busNoVal = "DEFAULT_BUS";
         std::string presNoVal = data.getPrescriptionNo();
@@ -407,6 +406,8 @@ bool Chinapres2DAO::updateMain(const Chinapres2MainDO& data) {
         SQLPARAMS_PUSH(params, "s", std::string, statusReasonVal);
         SQLPARAMS_PUSH(params, "s", std::string, updatedAtVal);
         SQLPARAMS_PUSH(params, "s", std::string, idVal);
+        SQLPARAMS_PUSH(params, "s", std::string, encounterId);
+        SQLPARAMS_PUSH(params, "i", int64_t, oldVersion);
 
         int affected = sqlSession->executeUpdate(sql, params);
         return affected > 0;
@@ -420,7 +421,6 @@ bool Chinapres2DAO::updateMain(const Chinapres2MainDO& data) {
         return false;
     }
 }
-
 bool Chinapres2DAO::deleteDetailsByRequestId(const std::string& requestId) {
     if (requestId.empty()) return false;
     try {
@@ -580,5 +580,39 @@ bool Chinapres2DAO::removeWithCondition(const std::string& id, const std::string
     }
     catch (...) {
         return false;
+    }
+}
+
+
+bool Chinapres2DAO::isPatientMatchEncounter(const std::string& patientId, const std::string& encounterId) {
+    if (patientId.empty() || encounterId.empty()) return false;
+    try {
+        std::string sql = "SELECT COUNT(*) FROM adm_encounter WHERE id = ? AND patient_id = ? AND is_deleted = 0";
+        SqlParams params;
+        SQLPARAMS_PUSH(params, "s", std::string, encounterId);
+        SQLPARAMS_PUSH(params, "s", std::string, patientId);
+        uint64_t count = sqlSession->executeQueryNumerical(sql, params);
+        return count > 0;
+    }
+    catch (...) {
+        return false;
+    }
+}
+
+void Chinapres2DAO::beginTransaction() {
+    if (sqlSession) {
+        sqlSession->beginTransaction();
+    }
+}
+
+void Chinapres2DAO::commit() {
+    if (sqlSession) {
+        sqlSession->commitTransaction();
+    }
+}
+
+void Chinapres2DAO::rollback() {
+    if (sqlSession) {
+        sqlSession->rollbackTransaction();
     }
 }

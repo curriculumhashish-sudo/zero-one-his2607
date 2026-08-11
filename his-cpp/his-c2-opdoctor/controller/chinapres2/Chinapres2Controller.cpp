@@ -4,34 +4,60 @@
 #include <chrono>
 #include "../../service/chinapres2/Chinapres2Service.h"
 
-Chinapres2AddRespDTO::Wrapper
+Chinapres2AddRespJsonVO::Wrapper
 Chinapres2Controller::execAddChinapre(const Chinapres2AddDTO::Wrapper& dto, const PayloadDTO& payload) {
-
-
-    if (!dto) {
-        std::cerr << "[ERROR] dto is nullptr, request body may be invalid JSON" << std::endl;
-        throw std::runtime_error("请求体格式错误或缺少必填字段");
+    auto resp = Chinapres2AddRespJsonVO::createShared();
+    try {
+        if (!dto) throw std::runtime_error("dto is null");
+        std::string err = dto->validate();
+        if (!err.empty()) throw std::runtime_error(err);
+        Chinapres2Service service;
+        resp->code = 0;
+        resp->message = "success";
+        resp->data = service.saveData(dto, payload);
     }
-
-    std::string err = dto->validate();
-    if (!err.empty()) {
-        throw std::runtime_error(err);
+    catch (const std::exception& e) {
+        resp->code = 9994;
+        resp->message = e.what();
     }
-
-    Chinapres2Service service;
-    return service.saveData(dto, payload);
+    return resp;
 }
 
-Chinapres2AddRespDTO::Wrapper
+Chinapres2AddRespJsonVO::Wrapper
 Chinapres2Controller::execUpdateChinapre(const Chinapres2UpdateDTO::Wrapper& dto, const PayloadDTO& payload) {
-    if (!dto) {
-        throw std::runtime_error("dto is null");
+    auto resp = Chinapres2AddRespJsonVO::createShared();
+    try {
+        if (!dto) throw std::runtime_error("dto is null");
+        Chinapres2Service service;
+        resp->code = 0;
+        resp->message = "success";
+        resp->data = service.updateData(dto, payload);
     }
-    Chinapres2Service service;
-    return service.updateData(dto, payload);
+    catch (const std::exception& e) {
+        resp->code = 9994;
+        resp->message = e.what();
+    }
+    return resp;
 }
 
-// ========== 2. Query Prescription List ==========
+Chinapres2RemoveRespJsonVO::Wrapper
+Chinapres2Controller::execRemoveChinapreEnhanced(const Chinapres2RemoveDTO::Wrapper& dto, const PayloadDTO& payload) {
+    auto resp = Chinapres2RemoveRespJsonVO::createShared();
+    try {
+        if (!dto) throw std::runtime_error("dto is null");
+        if (!dto->id || dto->id->empty() || !dto->encounterId || dto->encounterId->empty() || !dto->version)
+            throw std::runtime_error("id, encounterId, version are required");
+        Chinapres2Service service;
+        resp->code = 0;
+        resp->message = "success";
+        resp->data = service.removeDataEnhanced(dto->id->c_str(), dto->encounterId->c_str(), *dto->version, payload);
+    }
+    catch (const std::exception& e) {
+        resp->code = 9994;
+        resp->message = e.what();
+    }
+    return resp;
+}// ========== 2. Query Prescription List ==========
 /*
 Chinapres2DetailPageJsonVO::Wrapper Chinapres2Controller::execQueryChinapre(const Chinapres2Query::Wrapper& query) {
     auto jvo = Chinapres2DetailPageJsonVO::createShared();
@@ -44,41 +70,3 @@ Chinapres2DetailPageJsonVO::Wrapper Chinapres2Controller::execQueryChinapre(cons
 }
 */
 
-// ========== 3. Delete Prescription（使用 Service） ==========
-
-// ========== 增强删除 ==========
-Chinapres2RemoveRespDTO::Wrapper
-Chinapres2Controller::execRemoveChinapreEnhanced(const Chinapres2RemoveDTO::Wrapper& dto, const PayloadDTO& payload) {
-    if (!dto) throw std::runtime_error("dto is null");
-    if (!dto->id || dto->id->empty() || !dto->encounterId || dto->encounterId->empty() || !dto->version) {
-        throw std::runtime_error("id, encounterId, version are required");
-    }
-    Chinapres2Service service;
-    return service.removeDataEnhanced(
-        dto->id->c_str(),
-        dto->encounterId->c_str(),
-        *dto->version,
-        payload
-    );
-}
-
-
-BooleanJsonVO::Wrapper Chinapres2Controller::execRemoveChinapre(const String& id) {
-    auto jvo = BooleanJsonVO::createShared();
-
-    if (!id || id->empty()) {
-        jvo->fail("id is empty");
-        return jvo;
-    }
-
-    Chinapres2Service service;
-    bool ok = service.removeData(id.getValue(""));
-
-    if (ok) {
-        jvo->success(true);
-    }
-    else {
-        jvo->fail("delete failed");
-    }
-    return jvo;
-}

@@ -73,13 +73,8 @@ public:
      */
     bool insertDetailsPtr(const std::list<PtrChinapres2DetailDO>& details);
 
-    // ========== 更新 ==========
-    /**
-     * 更新主表
-     * @param data 主表 DO
-     * @return 是否成功
-     */
-    bool updateMain(const Chinapres2MainDO& data);
+    // 原有声明，修改为：
+    bool updateMain(const Chinapres2MainDO& data, const std::string& encounterId, int64_t oldVersion);
 
     // 删除指定处方的所有明细
     bool deleteDetailsByRequestId(const std::string& requestId);
@@ -105,6 +100,14 @@ public:
 
     // 查询处方状态和版本（用于幂等判断）
     bool getPresenceStatus(const std::string& id, std::string& status, int64_t& version, std::string& encounterId);
+
+
+    bool isPatientMatchEncounter(const std::string& patientId, const std::string& encounterId);
+
+    // 事务控制
+    void beginTransaction();
+    void commit();
+    void rollback();
 };
 
 #endif // !_CHINAPRES2_DAO_
