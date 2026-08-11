@@ -1,9 +1,14 @@
 package com.zeroone.star.basedata.service.impl;
 
 import com.alibaba.nacos.common.utils.StringUtils;
+import com.zeroone.star.basedata.constant.DefaultConstant;
 import com.zeroone.star.basedata.entity.EnumType;
+import com.zeroone.star.basedata.entity.EnumValue;
 import com.zeroone.star.basedata.repository.EnumTypeRepository;
+import com.zeroone.star.basedata.repository.EnumValueRepository;
 import com.zeroone.star.basedata.service.EnumTypeService;
+import com.zeroone.star.basedata.service.EnumValueService;
+import com.zeroone.star.project.components.user.UserDTO;
 import com.zeroone.star.project.components.user.UserHolder;
 import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumTypeAddDTO;
@@ -30,14 +35,11 @@ import java.util.List;
 @Service
 public class EnumTypeServiceImpl implements EnumTypeService {
 
-    // TODO: 临时设定，后续需要从jwt中获取
-    private static final String TENANT_ID = "sys_tenant";
-
     @Resource
     private EnumTypeRepository enumTypeRepository;
 
     @Resource
-    private MongoTemplate template;
+    private EnumValueRepository enumValueRepository;
 
     @Resource
     private UserHolder userHolder;
@@ -46,24 +48,30 @@ public class EnumTypeServiceImpl implements EnumTypeService {
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
 
-    private String getCurrentUserTenantId() {
-
+    private String getCurrentUserTenantId(String userId) {
         try {
-            String currentUserId = userHolder.getCurrentUser().getId();
-
-            String tenantId = (String) redisTemplate.opsForValue().get("tenantId:" + currentUserId);
-
-            return tenantId;
+            String tenantId = redisTemplate.opsForValue().get("user:session:" + userId).toString();
+            if (tenantId != null) {
+                return tenantId;
+            } else {
+                return DefaultConstant.DEFAULT_TENANT_ID;
+                // TODO: 这里在正式使用中也需要报错
+            }
         } catch (Exception e) {
-            // TODO: 实际部署的时候，这里应当记录日志或者抛出异常
-            return TENANT_ID;
+            throw new RuntimeException("获取用户租户id失败");
         }
     }
 
     @Override
     public PageDTO<EnumTypeDTO> queryAllEnumType(EnumTypeQuery query) {
 
-        String tenantId = getCurrentUserTenantId();
+        String currentUserId;
+        try {
+            currentUserId = userHolder.getCurrentUser().getId();
+        } catch (Exception e) {
+            currentUserId = DefaultConstant.DEFAULT_USER_ID;
+        }
+        String tenantId = getCurrentUserTenantId(currentUserId);
 
         Pageable pageable = PageRequest.of(
                 (int) query.getPageIndex() - 1,
@@ -88,7 +96,13 @@ public class EnumTypeServiceImpl implements EnumTypeService {
     @Override
     public void saveEnumType(EnumTypeAddDTO dto) {
 
-        String tenantId = getCurrentUserTenantId();
+        String currentUserId;
+        try {
+            currentUserId = userHolder.getCurrentUser().getId();
+        } catch (Exception e) {
+            currentUserId = DefaultConstant.DEFAULT_USER_ID;
+        }
+        String tenantId = getCurrentUserTenantId(currentUserId);
 
         if (enumTypeRepository.existsByEnumTypeKey(tenantId, dto.getEnumTypeKey())) {
             throw new RuntimeException("枚举类型键已经存在");
@@ -99,10 +113,9 @@ public class EnumTypeServiceImpl implements EnumTypeService {
 
         enumType.setId(dto.getEnumTypeKey() + "_" + tenantId);
 
-        // TODO: 暂时设定
         enumType.setTenantId(tenantId);
         enumType.setCreatedAt(new Date());
-        enumType.setCreatedBy("test");
+        enumType.setCreatedBy(currentUserId);
         enumType.setIsDeleted(false);
 
         enumTypeRepository.save(enumType);
@@ -111,7 +124,13 @@ public class EnumTypeServiceImpl implements EnumTypeService {
     @Override
     public void updateEnumType(EnumTypeModifyDTO dto) {
 
-        String tenantId = getCurrentUserTenantId();
+        String currentUserId;
+        try {
+            currentUserId = userHolder.getCurrentUser().getId();
+        } catch (Exception e) {
+            currentUserId = DefaultConstant.DEFAULT_USER_ID;
+        }
+        String tenantId = getCurrentUserTenantId(currentUserId);
 
         EnumType existing = enumTypeRepository.findById(dto.getId())
                 .orElseThrow(() -> new RuntimeException("枚举类型不存在"));
@@ -132,43 +151,51 @@ public class EnumTypeServiceImpl implements EnumTypeService {
 
         BeanUtils.copyProperties(dto, existing);
         existing.setUpdatedAt(new Date());
-        existing.setUpdatedBy("test");
+        existing.setUpdatedBy(currentUserId);
 
         enumTypeRepository.save(existing);
     }
 
     @Override
-    public JsonVO<String> deleteEnumType(String id) {
+    public void deleteEnumType(String id) {
 
-        String tenantId = getCurrentUserTenantId();
-
-        if (!StringUtils.hasText(id)) {
-            return JsonVO.fail(null);
+        String currentUserId;
+        try {
+            currentUserId = userHolder.getCurrentUser().getId();
+        } catch (Exception e) {
+            currentUserId = DefaultConstant.DEFAULT_USER_ID;
         }
-        // 1. 查找枚举类型，校验存在性、租户归属、是否已删除
-        EnumType enumType = enumTypeRepository.findById(id)
+        String tenantId = getCurrentUserTenantId(currentUserId);
+
+
+        EnumType existing = enumTypeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("枚举类型不存在"));
-        if (Boolean.TRUE.equals(enumType.getIsDeleted())) {
-            return JsonVO.fail("枚举类型已被删除");
+
+        if (Boolean.TRUE.equals(existing.getIsDeleted())) {
+            throw new RuntimeException("枚举类型已删除");
         }
-        if (!enumType.getTenantId().equals(tenantId)) {
-            return JsonVO.fail("枚举类型不属于当前租户");
+
+        if (!existing.getTenantId().equals(tenantId)) {
+            throw new RuntimeException("枚举类型不属于当前租户");
         }
-        // 2. 逻辑删除枚举类型
-        enumType.setIsDeleted(true);
-        enumType.setUpdatedAt(new Date());
-        enumType.setUpdatedBy("test");
-        enumTypeRepository.save(enumType);
-        // 3. 逻辑删除所有关联的未删除枚举值
-        Query valueQuery = new Query(Criteria.where("enumTypeId").is(id)
-                .and("isDeleted").is(false));
-        Update update = new Update()
-                .set("isDeleted", true)
-                .set("updatedAt", new Date())
-                .set("updatedBy", "test");
-        template.updateMulti(valueQuery, update, "EnumValue");
-        return JsonVO.success("success");
+
+        // 如果是系统枚举类型，则不能删除
+        if (existing.getIsSystem()) {
+            throw new RuntimeException("系统枚举类型不能删除");
+        }
+
+        // 逻辑删除枚举类型
+        existing.setIsDeleted(true);
+        existing.setUpdatedAt(new Date());
+        existing.setUpdatedBy(currentUserId);
+        enumTypeRepository.save(existing);
+
+        List<EnumValue> enumValues = enumValueRepository.findByEnumTypeId(id);
+        for (EnumValue enumValue : enumValues) {
+            enumValue.setIsDeleted(true);
+            enumValue.setUpdatedAt(new Date());
+            enumValue.setUpdatedBy(currentUserId);
+            enumValueRepository.save(enumValue);
+        }
     }
-
-
 }

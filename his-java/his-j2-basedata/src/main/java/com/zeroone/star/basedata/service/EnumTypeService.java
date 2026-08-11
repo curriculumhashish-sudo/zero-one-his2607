@@ -16,5 +16,5 @@ public interface EnumTypeService {
 
     public void updateEnumType(EnumTypeModifyDTO dto);
 
-    public JsonVO<String> deleteEnumType(String enumTypeId);
+    public void deleteEnumType(String enumTypeId);
 }

@@ -1,5 +1,6 @@
 package com.zeroone.star.basedata.service.impl;
 
+import com.zeroone.star.basedata.constant.DefaultConstant;
 import com.zeroone.star.basedata.entity.EnumType;
 import com.zeroone.star.basedata.entity.EnumValue;
 import com.zeroone.star.basedata.repository.EnumTypeRepository;
@@ -14,6 +15,7 @@ import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumSimpleDTO;
 import com.zeroone.star.project.query.j2.basedata.EnumQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import jakarta.annotation.Resource;
+import org.glassfish.jaxb.core.v2.model.core.EnumConstant;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -38,7 +40,7 @@ import java.util.Map;
 public class EnumValueServiceImpl implements EnumValueService {
 
     // TODO: 临时设定，后续需要从jwt中获取
-    private static final String TENANT_ID = "1";
+    private static final String TENANT_ID = DefaultConstant.DEFAULT_TENANT_ID;
 
     @Resource
     private EnumValueRepository enumValueRepository;
@@ -103,11 +105,6 @@ public class EnumValueServiceImpl implements EnumValueService {
                 TENANT_ID, dto.getEnumTypeId(), dto.getDisplay())) {
             throw new RuntimeException("同一枚举类型下标签已存在，不能同名");
         }
-
-
-//        if (!existing.getEnumKey().equals(dto.getEnumKey()) || !existing.getEnumCode().equals(dto.getEnumCode())) {
-//            throw new RuntimeException("枚举值键或枚举值码不可修改");
-//        }
 
         existing.setDisplay(dto.getDisplay());
         existing.setOrder(dto.getOrder());
