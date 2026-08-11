@@ -5,6 +5,7 @@
 #include "id/UuidFacade.h"
 
 #include <chrono>
+#include <cmath>
 #include <set>
 #include "SettleDraftStore.h"
 
@@ -144,6 +145,16 @@ ConfirmSettleChargeResponseDTO::Wrapper SettleChargeService::confirmSettle(
             try { totalAmount += detail->amount; } catch (...) {}
     }
     std::string totalAmountStr = std::to_string(totalAmount);
+
+    // 校验实付合计与预结算草稿金额一致
+    if (std::abs(totalAmount - draft.totalAmount) > 0.001)
+    {
+        resp->successMessageCode = "EX-DRAFT-AMOUNT_MISMATCH";
+        resp->paymentId = "";
+        resp->invoiceId = "";
+        resp->invoiceStatus = "";
+        return resp;
+    }
 
     // 拼接 chargeItemIds
     std::string chargeItemIdsStr;
