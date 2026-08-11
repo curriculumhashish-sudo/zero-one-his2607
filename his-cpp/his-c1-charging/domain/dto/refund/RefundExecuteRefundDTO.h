@@ -96,6 +96,11 @@ class RefundExecuteRefundDTO : public oatpp::DTO
     DTO_FIELD_INFO(success) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.success");
     };
+    // Error code — empty on success, set on failure (e.g. PAYMENT_NOT_FOUND, REFUND_AMOUNT_EXCEEDS)
+    DTO_FIELD(String, errorCode, "errorCode");
+    DTO_FIELD_INFO(errorCode) {
+        info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.errorCode");
+    };
     DTO_FIELD(String, reversePaymentId);
     DTO_FIELD_INFO(reversePaymentId) {
         info->description = ZH_WORDS_GETTER("xbzml.charging.refund.field.reversePaymentId");
