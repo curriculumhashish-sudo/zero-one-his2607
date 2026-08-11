@@ -12,6 +12,11 @@ class SettleChargeDAO : public BaseDAO
 {
 public:
     /**
+     * 根据 encounterId 查询真实 patientId
+     */
+    std::string selectPatientIdByEncounter(const std::string& encounterId);
+
+    /**
      * 插入支付流水记录
      */
     void insertPayment(const std::string& paymentId, const std::string& nowStr,

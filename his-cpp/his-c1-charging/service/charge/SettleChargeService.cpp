@@ -132,8 +132,9 @@ ConfirmSettleChargeResponseDTO::Wrapper SettleChargeService::confirmSettle(
 
     // 从DTO中获取Controller注入的操作人载荷
     std::string entererId = dto->getPayload() ? dto->getPayload()->getId() : "";
-    // 患者ID（目前从encounter取，后续可查adm_encounter表获取）
-    std::string patientId = encounterId;
+    // 根据就诊记录查询真实 patientId
+    SettleChargeDAO dao;
+    std::string patientId = dao.selectPatientIdByEncounter(encounterId);
 
     // 计算总金额
     double totalAmount = 0.0;
@@ -178,9 +179,6 @@ ConfirmSettleChargeResponseDTO::Wrapper SettleChargeService::confirmSettle(
     std::string paymentNo = std::string("PMR-") + dateBuf + seqBuf;
     // 发票业务号 IVYYYY-MM-DDNNNN
     std::string invoiceBusNo = std::string("IV") + dateBuf + seqBuf;
-
-    // 通过 DAO 执行写操作
-    SettleChargeDAO dao;
 
     // 1. 插入支付流水
     dao.insertPayment(paymentId, nowStr, paymentNo, entererId,

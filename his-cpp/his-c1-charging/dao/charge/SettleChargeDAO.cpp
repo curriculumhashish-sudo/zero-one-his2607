@@ -4,6 +4,39 @@
 // 防止 ODBC/MySQL 类型冲突
 #include "NacosClient.h"
 
+namespace
+{
+    struct EncounterPatient
+    {
+        std::string patientId;
+    };
+
+    class EncounterPatientMapper : public Mapper<EncounterPatient>
+    {
+    public:
+        EncounterPatient mapper(ResultSet* rs) const override
+        {
+            EncounterPatient result;
+            result.patientId = rs->getString("patient_id");
+            return result;
+        }
+    };
+}
+
+std::string SettleChargeDAO::selectPatientIdByEncounter(const std::string& encounterId)
+{
+    SqlParams params;
+    SQLPARAMS_PUSH(params, "s", std::string, encounterId);
+
+    std::ostringstream sql;
+    sql << "SELECT patient_id FROM adm_encounter"
+        << " WHERE id = ? AND is_deleted = 0";
+
+    auto result = sqlSession->executeQueryOne<EncounterPatient>(
+        sql.str(), EncounterPatientMapper(), params);
+    return result.patientId;
+}
+
 void SettleChargeDAO::insertPayment(const std::string& paymentId, const std::string& nowStr,
     const std::string& paymentNo, const std::string& entererId,
     const std::string& patientId, const std::string& totalAmountStr,
