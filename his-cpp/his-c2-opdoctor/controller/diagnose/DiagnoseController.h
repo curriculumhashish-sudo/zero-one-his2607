@@ -28,7 +28,7 @@ public:
 	);
 	API_HANDLER_ENDPOINT_AUTH(
 		API_M_POST,
-		"/opdoctor/diagnose/add",
+		"/c2-opdoctor/diagnose/add",
 		diagnoseAdd,
 		BODY_DTO(DiagnoseAddDTO::Wrapper, dto),
 		execDiagnoseAdd(dto)
@@ -43,7 +43,7 @@ public:
 	);
 	API_HANDLER_ENDPOINT_AUTH(
 		API_M_DEL,
-		"/opdoctor/diagnose/delete/{id}",
+		"/c2-opdoctor/diagnose/delete/{id}",
 		diagnoseDelete,
 		PATH(String, id),
 		execDiagnoseDelete(id)
@@ -59,7 +59,7 @@ public:
 	);
 	API_HANDLER_ENDPOINT_QUERY_AUTH(
 		API_M_GET,
-		"/opdoctor/diagnose/usage",
+		"/c2-opdoctor/diagnose/usage",
 		queryDiagnoseUsage,
 		DiagnoseUsageQuery,
 		execQueryDiagnoseUsage(query)
@@ -75,7 +75,7 @@ public:
 	);
 	API_HANDLER_ENDPOINT_QUERY_AUTH(
 		API_M_GET,
-		"/opdoctor/diagnose/patient",
+		"/c2-opdoctor/diagnose/patient",
 		queryPatientDiagnose,
 		PatientDiagnoseQuery,
 		execQueryPatientDiagnose(query)
