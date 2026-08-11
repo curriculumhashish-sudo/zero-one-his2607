@@ -474,51 +474,51 @@ public class OnsServiceImpl implements IOnsService {
         }
         ExecutionRecordVO vo = new ExecutionRecordVO();
         vo.setId(record.getId());
-        vo.setBus_no(record.getBusNo());
-        vo.setPrescription_no(record.getPrescriptionNo());
-        vo.setBased_on_table(record.getBasedOnTable());
-        vo.setBased_on_id(record.getBasedOnId());
-        vo.setStatus_enum(record.getStatusEnum());
-        vo.setStatus_name(getStatusName(record.getStatusEnum()));
-        vo.setIntent_enum(record.getIntentEnum());
-        vo.setCategory_enum(record.getCategoryEnum());
-        vo.setCategory_name(getCategoryName(record.getCategoryEnum()));
-        vo.setPriority_enum(record.getPriorityEnum());
-        vo.setPriority_name(getPriorityName(record.getPriorityEnum()));
-        vo.setPerform_flag(record.getPerformFlag());
-        vo.setActivity_id(record.getActivityId());
-        vo.setItem_name(record.getItemName());
+        vo.setBusNo(record.getBusNo());
+        vo.setPrescriptionNo(record.getPrescriptionNo());
+        vo.setBasedOnTable(record.getBasedOnTable());
+        vo.setBasedOnId(record.getBasedOnId());
+        vo.setStatusEnum(record.getStatusEnum());
+        vo.setStatusName(getStatusName(record.getStatusEnum()));
+        vo.setIntentEnum(record.getIntentEnum());
+        vo.setCategoryEnum(record.getCategoryEnum());
+        vo.setCategoryName(getCategoryName(record.getCategoryEnum()));
+        vo.setPriorityEnum(record.getPriorityEnum());
+        vo.setPriorityName(getPriorityName(record.getPriorityEnum()));
+        vo.setPerformFlag(record.getPerformFlag());
+        vo.setActivityId(record.getActivityId());
+        vo.setItemName(record.getItemName());
         vo.setQuantity(record.getQuantity());
-        vo.setUnit_code(record.getUnitCode());
-        vo.setUnit_name(getUnitName(record.getUnitCode()));
-        vo.setPatient_id(record.getPatientId());
-        vo.setEncounter_id(record.getEncounterId());
-        vo.setAuthored_time(record.getAuthoredTime() != null ?
+        vo.setUnitCode(record.getUnitCode());
+        vo.setUnitName(getUnitName(record.getUnitCode()));
+        vo.setPatientId(record.getPatientId());
+        vo.setEncounterId(record.getEncounterId());
+        vo.setAuthoredTime(record.getAuthoredTime() != null ?
                 record.getAuthoredTime().format(DATE_TIME_FORMATTER) : null);
-        vo.setRequester_id(record.getRequesterId());
-        vo.setRequester_name(record.getRequesterName());
-        vo.setPerformer_type_code(record.getPerformerTypeCode());
-        vo.setPerformer_id(record.getPerformerId());
-        vo.setPerformer_name(record.getPerformerName());
-        vo.setPerformer_check_id(record.getPerformerCheckId());
-        vo.setCheck_time(record.getCheckTime() != null ?
+        vo.setRequesterId(record.getRequesterId());
+        vo.setRequesterName(record.getRequesterName());
+        vo.setPerformerTypeCode(record.getPerformerTypeCode());
+        vo.setPerformerId(record.getPerformerId());
+        vo.setPerformerName(record.getPerformerName());
+        vo.setPerformerCheckId(record.getPerformerCheckId());
+        vo.setCheckTime(record.getCheckTime() != null ?
                 record.getCheckTime().format(DATE_TIME_FORMATTER) : null);
-        vo.setLocation_id(record.getLocationId());
-        vo.setLocation_name(record.getLocationName());
-        vo.setOrg_id(record.getOrgId());
-        vo.setReason_text(record.getReasonText());
-        vo.setOccurrence_start_time(record.getOccurrenceStartTime() != null ?
+        vo.setLocationId(record.getLocationId());
+        vo.setLocationName(record.getLocationName());
+        vo.setOrgId(record.getOrgId());
+        vo.setReasonText(record.getReasonText());
+        vo.setOccurrenceStartTime(record.getOccurrenceStartTime() != null ?
                 record.getOccurrenceStartTime().format(DATE_TIME_FORMATTER) : null);
-        vo.setOccurrence_end_time(record.getOccurrenceEndTime() != null ?
+        vo.setOccurrenceEndTime(record.getOccurrenceEndTime() != null ?
                 record.getOccurrenceEndTime().format(DATE_TIME_FORMATTER) : null);
-        vo.setOccurrence_date(record.getOccurrenceStartTime() != null ?
+        vo.setOccurrenceDate(record.getOccurrenceStartTime() != null ?
                 record.getOccurrenceStartTime().format(DATE_FORMATTER) : null);
-        vo.setContent_json(record.getContentJson());
-        vo.setYb_class_enum(record.getYbClassEnum());
-        vo.setPrint_count(record.getPrintCount());
+        vo.setContentJson(record.getContentJson());
+        vo.setYbClassEnum(record.getYbClassEnum());
+        vo.setPrintCount(record.getPrintCount());
         vo.setRemark(record.getRemark());
-        vo.setEntrust_content(record.getEntrustContent());
-        vo.setExecution_count(record.getExecutionCount());
+        vo.setEntrustContent(record.getEntrustContent());
+        vo.setExecutionCount(record.getExecutionCount());
         // 统一执行状态计算：0-待执行、1-已执行、2-已取消
         Integer executionStatus;
         String executionStatusName;
@@ -532,9 +532,9 @@ public class OnsServiceImpl implements IOnsService {
             executionStatus = 0;
             executionStatusName = "待执行";
         }
-        vo.setExecution_status(executionStatus);
-        vo.setExecution_status_name(executionStatusName);
-        vo.setCreated_at(record.getCreatedAt() != null ?
+        vo.setExecutionStatus(executionStatus);
+        vo.setExecutionStatusName(executionStatusName);
+        vo.setCreatedAt(record.getCreatedAt() != null ?
                 record.getCreatedAt().format(DATE_TIME_FORMATTER) : null);
         return vo;
     }

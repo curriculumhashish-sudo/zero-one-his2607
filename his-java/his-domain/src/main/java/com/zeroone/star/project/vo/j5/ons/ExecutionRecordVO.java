@@ -13,137 +13,137 @@ public class ExecutionRecordVO {
     private String id;
 
     @Schema(description = "业务编号", example = "SR20240115001")
-    private String bus_no;
+    private String busNo;
 
     @Schema(description = "处方编号", example = "P20240115001")
-    private String prescription_no;
+    private String prescriptionNo;
 
     @Schema(description = "依据表名", example = "wkf_service_request")
-    private String based_on_table;
+    private String basedOnTable;
 
     @Schema(description = "依据标识", example = "1")
-    private String based_on_id;
+    private String basedOnId;
 
     @Schema(description = "状态枚举值", example = "ACTIVE")
-    private String status_enum;
+    private String statusEnum;
 
     @Schema(description = "状态名称", example = "活动")
-    private String status_name;
+    private String statusName;
 
     @Schema(description = "意图枚举值", example = "ORDER")
-    private String intent_enum;
+    private String intentEnum;
 
     @Schema(description = "分类枚举值", example = "MEDICATION")
-    private String category_enum;
+    private String categoryEnum;
 
     @Schema(description = "分类名称", example = "药品")
-    private String category_name;
+    private String categoryName;
 
     @Schema(description = "优先级枚举值", example = "ROUTINE")
-    private String priority_enum;
+    private String priorityEnum;
 
     @Schema(description = "优先级名称", example = "普通")
-    private String priority_name;
+    private String priorityName;
 
     @Schema(description = "执行标志位", example = "1")
-    private Integer perform_flag;
+    private Integer performFlag;
 
     @Schema(description = "活动标识", example = "1")
-    private String activity_id;
+    private String activityId;
 
     @Schema(description = "项目名称", example = "血压测量")
-    private String item_name;
+    private String itemName;
 
     @Schema(description = "数量", example = "1.00")
     private BigDecimal quantity;
 
     @Schema(description = "单元编码", example = "BOX")
-    private String unit_code;
+    private String unitCode;
 
     @Schema(description = "单位名称", example = "盒")
-    private String unit_name;
+    private String unitName;
 
     @Schema(description = "患者标识", example = "1")
-    private String patient_id;
+    private String patientId;
 
     @Schema(description = "患者姓名", example = "张三")
-    private String patient_name;
+    private String patientName;
 
     @Schema(description = "患者性别", example = "MALE")
-    private String patient_gender;
+    private String patientGender;
 
     @Schema(description = "就诊标识", example = "1")
-    private String encounter_id;
+    private String encounterId;
 
     @Schema(description = "开立时间", example = "2024-01-15 09:00:00")
-    private String authored_time;
+    private String authoredTime;
 
     @Schema(description = "申请人标识", example = "1")
-    private String requester_id;
+    private String requesterId;
 
     @Schema(description = "申请人姓名", example = "张医生")
-    private String requester_name;
+    private String requesterName;
 
     @Schema(description = "执行者类型编码", example = "NURSE")
-    private String performer_type_code;
+    private String performerTypeCode;
 
     @Schema(description = "执行者标识", example = "1")
-    private String performer_id;
+    private String performerId;
 
     @Schema(description = "执行者姓名", example = "护士小王")
-    private String performer_name;
+    private String performerName;
 
     @Schema(description = "执行者核对标识", example = "1")
-    private String performer_check_id;
+    private String performerCheckId;
 
     @Schema(description = "核对时间", example = "2024-01-15 10:00:00")
-    private String check_time;
+    private String checkTime;
 
     @Schema(description = "位置/科室标识", example = "1")
-    private String location_id;
+    private String locationId;
 
     @Schema(description = "位置/科室名称", example = "内科")
-    private String location_name;
+    private String locationName;
 
     @Schema(description = "机构标识", example = "1")
-    private String org_id;
+    private String orgId;
 
     @Schema(description = "原因文本", example = "感冒")
-    private String reason_text;
+    private String reasonText;
 
     @Schema(description = "执行开始时间", example = "2024-01-15 10:30:00")
-    private String occurrence_start_time;
+    private String occurrenceStartTime;
 
     @Schema(description = "执行结束时间", example = "2024-01-15 11:00:00")
-    private String occurrence_end_time;
+    private String occurrenceEndTime;
 
     @Schema(description = "执行日期", example = "2024-01-15")
-    private String occurrence_date;
+    private String occurrenceDate;
 
     @Schema(description = "内容JSON", example = "{\"dose\":\"500mg\"}")
-    private String content_json;
+    private String contentJson;
 
     @Schema(description = "医保分类枚举值", example = "MEDICAL_INSURANCE")
-    private String yb_class_enum;
+    private String ybClassEnum;
 
     @Schema(description = "打印次数", example = "1")
-    private Integer print_count;
+    private Integer printCount;
 
     @Schema(description = "备注", example = "注意事项")
     private String remark;
 
     @Schema(description = "嘱托内容", example = "饭后服用")
-    private String entrust_content;
+    private String entrustContent;
 
     @Schema(description = "执行次数", example = "1")
-    private Integer execution_count;
+    private Integer executionCount;
 
     @Schema(description = "执行状态（0-未执行，1-已执行，2-已取消）", example = "1")
-    private Integer execution_status;
+    private Integer executionStatus;
 
     @Schema(description = "执行状态名称", example = "已执行")
-    private String execution_status_name;
+    private String executionStatusName;
 
     @Schema(description = "创建时间", example = "2024-01-15 09:00:00")
-    private String created_at;
+    private String createdAt;
 }
