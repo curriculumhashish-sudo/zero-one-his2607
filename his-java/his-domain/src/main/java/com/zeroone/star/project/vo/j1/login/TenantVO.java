@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public class TenantVO {
 
     @Schema(description = "租户ID", example = "1")
-    private Long id;
+    private String id;
 
     @Schema(description = "租户名称", example = "默认租户")
     private String name;

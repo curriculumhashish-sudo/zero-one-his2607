@@ -11,22 +11,22 @@ public interface TenantService {
     /**
      * 获取用户可选租户列表（带 Redis 缓存）
      */
-    List<TenantVO> getTenantList(Long userId);
+    List<TenantVO> getTenantList(String userId);
 
     /**
      * 根据ID获取单个租户信息
      */
-    TenantVO getTenantById(Long tenantId);
+    TenantVO getTenantById(String tenantId);
 
     /**
      * 校验用户是否有指定租户权限
      */
-    boolean checkUserTenant(Long userId, Long tenantId);
+    boolean checkUserTenant(String userId, String tenantId);
 
     /**
      * 获取租户下的医院列表（带 Redis 缓存）
      */
-    List<HospitalVO> getHospitalList(Long tenantId, HospitalQuery query);
+    List<HospitalVO> getHospitalList(String tenantId, HospitalQuery query);
 
     /**
      * 根据ID获取单个医院信息
@@ -36,12 +36,12 @@ public interface TenantService {
     /**
      * 校验医院是否属于指定租户且状态正常
      */
-    boolean checkHospitalBelongsToTenant(String hospitalId, Long tenantId);
+    boolean checkHospitalBelongsToTenant(String hospitalId, String tenantId);
 
     /**
      * 缓存用户选中的租户到 Redis（user:session & his:login:context）
      */
-    void cacheSelectedTenant(String userId, Long tenantId);
+    void cacheSelectedTenant(String userId, String tenantId);
 
     /**
      * 缓存用户选中的医院到 Redis（user:session & his:login:context）

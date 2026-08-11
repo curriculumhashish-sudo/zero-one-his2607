@@ -55,12 +55,8 @@ public class TenantController {
         if (userId == null) {
             return JsonVO.fail("未登录");
         }
-        Long uid = parseUserId(userId);
-        if (uid == null) {
-            return JsonVO.fail("用户ID格式异常");
-        }
 
-        List<TenantVO> list = tenantService.getTenantList(uid);
+        List<TenantVO> list = tenantService.getTenantList(userId);
         return JsonVO.success(list);
     }
 
@@ -73,7 +69,7 @@ public class TenantController {
         if (userId == null) {
             return JsonVO.fail("未登录");
         }
-        Long currentTenantId = getCurrentTenantId(userId);
+        String currentTenantId = getCurrentTenantId(userId);
         if (currentTenantId == null) {
             return JsonVO.fail("请先选择租户");
         }
@@ -96,12 +92,8 @@ public class TenantController {
         if (userId == null) {
             return JsonVO.fail("未登录");
         }
-        Long uid = parseUserId(userId);
-        if (uid == null) {
-            return JsonVO.fail("用户ID格式异常");
-        }
 
-        boolean hasPermission = tenantService.checkUserTenant(uid, dto.getTenantId());
+        boolean hasPermission = tenantService.checkUserTenant(userId, dto.getTenantId());
         if (!hasPermission) {
             return JsonVO.fail("无权访问该租户");
         }
@@ -129,7 +121,7 @@ public class TenantController {
         if (userId == null) {
             return JsonVO.fail("未登录");
         }
-        Long currentTenantId = getCurrentTenantId(userId);
+        String currentTenantId = getCurrentTenantId(userId);
         if (currentTenantId == null) {
             return JsonVO.fail("请先选择租户");
         }
@@ -174,29 +166,15 @@ public class TenantController {
         }
     }
 
-    private Long parseUserId(String userId) {
-        try {
-            return Long.valueOf(userId);
-        } catch (NumberFormatException e) {
-            log.warn("用户ID转Long失败: {}", userId);
-            return null;
-        }
-    }
-
     /**
      * 从 Redis user:session:{userId} 取当前已选租户
      */
-    private Long getCurrentTenantId(String userId) {
+    private String getCurrentTenantId(String userId) {
         String key = RedisConstant.USER_SESSION_PREFIX + userId;
         Object tenantId = redisTemplate.opsForHash().get(key, "tenant_id");
         if (tenantId == null) {
             return null;
         }
-        try {
-            return Long.valueOf(tenantId.toString());
-        } catch (NumberFormatException e) {
-            log.warn("Redis 中 tenant_id 格式异常: {}", tenantId);
-            return null;
-        }
+        return tenantId.toString();
     }
 }

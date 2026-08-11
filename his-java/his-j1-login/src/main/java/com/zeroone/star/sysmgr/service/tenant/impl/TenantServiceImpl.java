@@ -40,8 +40,8 @@ public class TenantServiceImpl implements TenantService {
     // ==================== 租户列表（带缓存） ====================
 
     @Override
-    public List<TenantVO> getTenantList(Long userId) {
-        String cacheKey = LoginRedisConstant.loginTenantsKey(String.valueOf(userId));
+    public List<TenantVO> getTenantList(String userId) {
+        String cacheKey = LoginRedisConstant.loginTenantsKey(userId);
 
         // 1. 先读 Redis 缓存
         List<TenantVO> cached = getCache(cacheKey, new TypeReference<List<TenantVO>>() {});
@@ -59,7 +59,7 @@ public class TenantServiceImpl implements TenantService {
             return Collections.emptyList();
         }
 
-        List<Long> tenantIds = relations.stream()
+        List<String> tenantIds = relations.stream()
                 .map(UserTenantDO::getTenantId)
                 .distinct()
                 .collect(Collectors.toList());
@@ -95,7 +95,7 @@ public class TenantServiceImpl implements TenantService {
     }
 
     @Override
-    public TenantVO getTenantById(Long tenantId) {
+    public TenantVO getTenantById(String tenantId) {
         // 使用 selectList + LIMIT 1，避免 whale_tenants 表存在重复 id 时 selectById 报 TooManyResults
         TenantDO tenant = TenantMapper.selectList(
                 new LambdaQueryWrapper<TenantDO>()
@@ -111,8 +111,8 @@ public class TenantServiceImpl implements TenantService {
     // ==================== 医院列表（带缓存） ====================
 
     @Override
-    public List<HospitalVO> getHospitalList(Long tenantId, HospitalQuery query) {
-        String cacheKey = LoginRedisConstant.loginHospitalsKey(String.valueOf(tenantId));
+    public List<HospitalVO> getHospitalList(String tenantId, HospitalQuery query) {
+        String cacheKey = LoginRedisConstant.loginHospitalsKey(tenantId);
 
         // 1. 先读 Redis 缓存
         List<HospitalVO> cached = getCache(cacheKey, new TypeReference<List<HospitalVO>>() {});
@@ -122,9 +122,8 @@ public class TenantServiceImpl implements TenantService {
         }
 
         // 2. 查 DB
-        String tenantIdStr = String.valueOf(tenantId);
         LambdaQueryWrapper<AdmOrganizationDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(AdmOrganizationDO::getTenantId, tenantIdStr)
+        wrapper.eq(AdmOrganizationDO::getTenantId, tenantId)
                 .eq(AdmOrganizationDO::getIsDeleted, 0)
                 .eq(AdmOrganizationDO::getActiveFlag, 1)
                 .eq(AdmOrganizationDO::getStatusEnum, "ACTIVE")
@@ -152,7 +151,6 @@ public class TenantServiceImpl implements TenantService {
             vo.setId(Long.valueOf(h.getId()));
         } catch (NumberFormatException e) {
             log.warn("医院ID转Long失败, id={}", h.getId());
-            return vo; // id 为 null，外层过滤
         }
         vo.setCode(h.getBusNo());
         vo.setName(h.getName());
@@ -187,7 +185,7 @@ public class TenantServiceImpl implements TenantService {
     // ==================== 权限校验 ====================
 
     @Override
-    public boolean checkUserTenant(Long userId, Long tenantId) {
+    public boolean checkUserTenant(String userId, String tenantId) {
         Long count = UserTenantMapper.selectCount(
                 new LambdaQueryWrapper<UserTenantDO>()
                         .eq(UserTenantDO::getUserId, userId)
@@ -198,12 +196,11 @@ public class TenantServiceImpl implements TenantService {
     }
 
     @Override
-    public boolean checkHospitalBelongsToTenant(String hospitalId, Long tenantId) {
-        String tenantIdStr = String.valueOf(tenantId);
+    public boolean checkHospitalBelongsToTenant(String hospitalId, String tenantId) {
         Long count = admOrganizationMapper.selectCount(
                 new LambdaQueryWrapper<AdmOrganizationDO>()
                         .eq(AdmOrganizationDO::getId, hospitalId)
-                        .eq(AdmOrganizationDO::getTenantId, tenantIdStr)
+                        .eq(AdmOrganizationDO::getTenantId, tenantId)
                         .eq(AdmOrganizationDO::getIsDeleted, 0)
                         .eq(AdmOrganizationDO::getActiveFlag, 1)
         );
@@ -213,16 +210,16 @@ public class TenantServiceImpl implements TenantService {
     // ==================== Redis 选择状态写入 ====================
 
     @Override
-    public void cacheSelectedTenant(String userId, Long tenantId) {
+    public void cacheSelectedTenant(String userId, String tenantId) {
         try {
             String key = LoginRedisConstant.userSessionKey(userId);
-            redisTemplate.opsForHash().put(key, "tenant_id", tenantId.toString());
+            redisTemplate.opsForHash().put(key, "tenant_id", tenantId);
             redisTemplate.expire(key, LoginRedisConstant.USER_SESSION_TTL, TimeUnit.SECONDS);
 
                 // 同步更新 his:login:context（如果存在）
             String ctxKey = LoginRedisConstant.loginContextKey(userId);
             if (Boolean.TRUE.equals(redisTemplate.hasKey(ctxKey))) {
-                redisTemplate.opsForHash().put(ctxKey, "tenant_id", tenantId.toString());
+                redisTemplate.opsForHash().put(ctxKey, "tenant_id", tenantId);
                 redisTemplate.expire(ctxKey, LoginRedisConstant.USER_SESSION_TTL, TimeUnit.SECONDS);
             }
         } catch (Exception e) {

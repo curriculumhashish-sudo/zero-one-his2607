@@ -9,5 +9,5 @@ import lombok.Data;
 public class SelectTenantDTO {
     @Schema(description = "租户ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "租户ID不能为空")
-    private Long tenantId;
+    private String tenantId;
 }

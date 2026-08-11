@@ -12,11 +12,11 @@ import java.time.LocalDateTime;
 public class UserTenantDO {
 
     @TableId(type = IdType.ASSIGN_ID)
-    private Long id;
+    private String id;
 
-    private Long userId;
+    private String userId;
 
-    private Long tenantId;
+    private String tenantId;
 
     private LocalDateTime createdAt;
 
