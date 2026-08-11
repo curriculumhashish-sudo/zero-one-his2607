@@ -50,6 +50,17 @@ public class OnsServiceImpl implements IOnsService {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
+    /**
+     * 安全查询单条记录，兼容数据库存在重复ID的情况
+     */
+    private WkfServiceRequest getByIdSafe(String id) {
+        LambdaQueryWrapper<WkfServiceRequest> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(WkfServiceRequest::getId, id)
+               .eq(WkfServiceRequest::getIsDeleted, 0)
+               .last("LIMIT 1");
+        return wkfServiceRequestMapper.selectOne(wrapper);
+    }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public JsonVO<BatchExecuteResultVO> execute(ExecuteRequest request) {
@@ -87,7 +98,7 @@ public class OnsServiceImpl implements IOnsService {
 
         for (String recordId : request.getRecord_ids()) {
             try {
-                WkfServiceRequest requestDO = wkfServiceRequestMapper.selectById(recordId);
+                WkfServiceRequest requestDO = getByIdSafe(recordId);
                 if (requestDO == null) {
                     addFailedItem(result, recordId, "NOT_FOUND", "记录不存在");
                     failedCount++;
@@ -170,7 +181,7 @@ public class OnsServiceImpl implements IOnsService {
 
         for (String recordId : request.getRecord_ids()) {
             try {
-                WkfServiceRequest requestDO = wkfServiceRequestMapper.selectById(recordId);
+                WkfServiceRequest requestDO = getByIdSafe(recordId);
                 if (requestDO == null) {
                     addFailedItem(result, recordId, "NOT_FOUND", "记录不存在");
                     failedCount++;
@@ -239,7 +250,7 @@ public class OnsServiceImpl implements IOnsService {
 
         List<WkfServiceRequest> records = new ArrayList<>();
         for (String recordId : request.getRecord_ids()) {
-            WkfServiceRequest record = wkfServiceRequestMapper.selectById(recordId);
+            WkfServiceRequest record = getByIdSafe(recordId);
             if (record != null) {
                 records.add(record);
             }
