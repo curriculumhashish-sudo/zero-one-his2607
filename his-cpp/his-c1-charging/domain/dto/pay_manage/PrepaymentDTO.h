@@ -133,6 +133,11 @@ class PrepaymentAddResponseDTO : public oatpp::DTO
         ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentAddResponseDTO.amount.description"),
         true, 1000.00);
 
+    // Account balance after transaction
+    API_DTO_FIELD(Float64, balance,
+        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentAddResponseDTO.balance.description"),
+        true, 1000.00);
+
     // Status enum
     API_DTO_FIELD(String, statusEnum,
         ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentAddResponseDTO.statusEnum.description"),
@@ -173,6 +178,11 @@ class PrepaymentRefundResponseDTO : public oatpp::DTO
     API_DTO_FIELD(Float64, amount,
         ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentRefundResponseDTO.amount.description"),
         true, 200.00);
+
+    // Account balance after refund
+    API_DTO_FIELD(Float64, balance,
+        ZH_WORDS_GETTER("Jack.charging.charge.PrepaymentRefundResponseDTO.balance.description"),
+        true, 800.00);
 
     // Status enum
     API_DTO_FIELD(String, statusEnum,

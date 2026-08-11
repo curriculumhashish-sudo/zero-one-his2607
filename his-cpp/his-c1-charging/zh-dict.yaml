@@ -897,6 +897,8 @@ Jack:
           description: 住院号
         amount:
           description: 收款总金额
+        balance:
+          description: 交易后账户余额
         statusEnum:
           description: 状态（SUCCESS-成功）
         createTime:
@@ -912,6 +914,8 @@ Jack:
           description: 住院号
         amount:
           description: 退款总金额
+        balance:
+          description: 退款后账户余额
         statusEnum:
           description: 状态（SUCCESS-成功）
         createTime:

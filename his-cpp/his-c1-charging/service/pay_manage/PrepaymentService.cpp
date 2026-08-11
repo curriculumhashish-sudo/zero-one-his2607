@@ -32,41 +32,94 @@ PrepaymentAddResponseDTO::Wrapper PrepaymentService::addPrepayment(const Prepaym
     if (!remark.empty()) payTextBuilder << "|" << remark;
     std::string payText = payTextBuilder.str();
 
-    // Validate total amount
     if (totalAmount <= 0)
     {
         throw std::runtime_error("total amount must be greater than 0");
     }
 
     UuidFacade uf;
-    std::string paymentId = uf.genUuid();
-    std::string transactionNo = "TXN" + paymentId.substr(0, 8);
     std::string now = SimpleDateTimeFormat::format();
+    std::string tenantId = "01xq";
 
-    // Get latest account snapshot for balance chain
+    // Single DAO instance for transaction scope
     PrepaymentDAO dao;
-    auto snap = dao.getAccountSnapshot(inpatientNo);
+
+    // Step 1: Resolve real encounter info from inpatient number
+    auto enc = dao.resolveEncounter(inpatientNo);
+
+    // Step 2: Get latest detail balance for chain linking
+    auto snap = dao.getAccountSnapshot(enc.accountCode);
     double afterBalance = snap.balance + totalAmount;
 
-    // Insert via native SQL
+    // Generate IDs
+    std::string paymentId = uf.genUuid();
+    std::string reconciliationId = uf.genUuid();   // PK of fin_payment_reconciliation
+    std::string transactionNo = "TXN" + paymentId.substr(0, 8);
+
+    // Step 3: Insert payment reconciliation main record
+    dao.insertReconciliation(
+        reconciliationId, now, tenantId, operatorId,
+        paymentId, "PREPAYMENT_CHARGE",
+        enc.patientId, enc.encounterId, enc.accountId,
+        totalAmount, 0.0, now);
+
+    // Step 4: Insert prepayment detail record
     dao.insertPrepayment(
-        paymentId, now, "01xq", operatorName,
-        snap.accountId, inpatientNo,
+        paymentId, now, tenantId, operatorName,
+        reconciliationId,
+        enc.accountId, enc.accountCode,
         "CHARGE", totalAmount, totalAmount, 0.0,
         transactionNo, payText, now,
         snap.balance, afterBalance,
         snap.predecessorId);
 
-    // Build response
+    // Step 5: Update account balance
+    double newBalance = enc.balance + totalAmount;
+    dao.updateAccountBalance(enc.accountId, newBalance, now);
+
+    // Build response with real encounter data
     response->paymentId = paymentId;
     response->transactionNo = transactionNo;
-    response->encounterId = inpatientNo;   // TODO: resolve encounterId from inpatientNo
+    response->encounterId = enc.encounterId;
     response->inpatientNo = inpatientNo;
     response->amount = totalAmount;
+    response->balance = newBalance;
     response->statusEnum = "SUCCESS";
     response->createTime = now;
 
     return response;
+}
+
+PrepaymentPageDTO::Wrapper PrepaymentService::queryPrepayment(const PrepaymentQuery::Wrapper& query)
+{
+    PrepaymentDAO dao;
+
+    auto page = PrepaymentPageDTO::createShared();
+    page->pageIndex = query->pageIndex.getValue(1);
+    page->pageSize = query->pageSize.getValue(10);
+
+    uint64_t total = dao.count(query);
+    page->total = total;
+
+    if (total > 0)
+    {
+        auto records = dao.selectWithPage(query);
+        oatpp::List<PrepaymentRecordDTO::Wrapper> recordList =
+            oatpp::List<PrepaymentRecordDTO::Wrapper>::createShared();
+        for (auto& doItem : records)
+        {
+            auto dto = PrepaymentRecordDTO::createShared();
+            dto->prepaymentId = doItem.getId();
+            dto->prepayType = doItem.getPayEnum();
+            dto->amount = doItem.getAmount();
+            dto->createTime = doItem.getPayTransDate();
+            dto->operatorName = doItem.getCreatedBy();
+            recordList->push_back(dto);
+        }
+        page->rows = recordList;
+    }
+
+    return page;
 }
 
 PrepaymentRefundResponseDTO::Wrapper PrepaymentService::refundPrepayment(const PrepaymentRefundDTO::Wrapper& dto)
@@ -99,80 +152,67 @@ PrepaymentRefundResponseDTO::Wrapper PrepaymentService::refundPrepayment(const P
     if (!remark.empty()) payTextBuilder << "|" << remark;
     std::string payText = payTextBuilder.str();
 
-    // Validate total amount
     if (totalAmount <= 0)
     {
         throw std::runtime_error("total refund amount must be greater than 0");
     }
 
     UuidFacade uf;
-    std::string paymentId = uf.genUuid();
-    std::string transactionNo = "TXN" + paymentId.substr(0, 8);
     std::string now = SimpleDateTimeFormat::format();
+    std::string tenantId = "01xq";
 
-    // Get latest account snapshot for balance chain
+    // Single DAO instance for transaction scope
     PrepaymentDAO dao;
-    auto snap = dao.getAccountSnapshot(inpatientNo);
 
-    // Check sufficient balance
-    if (totalAmount > snap.balance)
+    // Step 1: Resolve real encounter info from inpatient number
+    auto enc = dao.resolveEncounter(inpatientNo);
+
+    // Step 2: Get latest detail balance for chain linking
+    auto snap = dao.getAccountSnapshot(enc.accountCode);
+
+    // Check sufficient balance (use adm_account balance as source of truth)
+    if (totalAmount > enc.balance)
     {
         throw std::runtime_error("insufficient balance: available="
-            + std::to_string(snap.balance) + ", refund=" + std::to_string(totalAmount));
+            + std::to_string(enc.balance) + ", refund=" + std::to_string(totalAmount));
     }
     double afterBalance = snap.balance - totalAmount;
 
-    // Insert via native SQL
+    // Generate IDs
+    std::string paymentId = uf.genUuid();
+    std::string reconciliationId = uf.genUuid();
+    std::string transactionNo = "TXN" + paymentId.substr(0, 8);
+
+    // Step 3: Insert payment reconciliation main record
+    dao.insertReconciliation(
+        reconciliationId, now, tenantId, operatorId,
+        paymentId, "PREPAYMENT_REFUND",
+        enc.patientId, enc.encounterId, enc.accountId,
+        0.0, totalAmount, now);
+
+    // Step 4: Insert prepayment detail record (refund)
     dao.insertPrepayment(
-        paymentId, now, "01xq", operatorName,
-        snap.accountId, inpatientNo,
+        paymentId, now, tenantId, operatorName,
+        reconciliationId,
+        enc.accountId, enc.accountCode,
         "REFUND", totalAmount, 0.0, totalAmount,
         transactionNo, payText, now,
         snap.balance, afterBalance,
         snap.predecessorId);
 
-    // Build response
+    // Step 5: Update account balance
+    double newBalance = enc.balance - totalAmount;
+    dao.updateAccountBalance(enc.accountId, newBalance, now);
+
+    // Build response with real encounter data
     response->paymentId = paymentId;
     response->transactionNo = transactionNo;
-    response->encounterId = inpatientNo;   // TODO: resolve encounterId from inpatientNo
+    response->encounterId = enc.encounterId;
     response->inpatientNo = inpatientNo;
     response->amount = totalAmount;
+    response->balance = newBalance;
     response->statusEnum = "SUCCESS";
     response->createTime = now;
 
     return response;
-}
-
-PrepaymentPageDTO::Wrapper PrepaymentService::queryPrepayment(const PrepaymentQuery::Wrapper& query)
-{
-    auto page = PrepaymentPageDTO::createShared();
-    PrepaymentDAO dao;
-
-    // 统计并查询
-    uint64_t total = dao.count(query);
-    auto doList = dao.selectWithPage(query);
-
-    // DO映射到DTO
-    auto rows = oatpp::List<PrepaymentRecordDTO::Wrapper>::createShared();
-    for (auto& record : doList)
-    {
-        auto dto = PrepaymentRecordDTO::createShared();
-        dto->prepaymentId = record.getId();
-        dto->inpatientNo = record.getAccountCode();
-        dto->patientName = record.getAccountCode();  // TODO: 关联患者表获取真实姓名
-        dto->amount = record.getAmount();
-        dto->prepayType = record.getPayEnum();
-        dto->method = record.getPayTransText();
-        dto->operatorName = record.getCreatedBy();
-        dto->createTime = record.getPayTransDate();
-        rows->push_back(dto);
-    }
-
-    page->pageIndex = query->pageIndex.getValue(1);
-    page->pageSize = query->pageSize.getValue(10);
-    page->total = v_int64(total);
-    page->calcPages();
-    page->rows = rows;
-
-    return page;
 }

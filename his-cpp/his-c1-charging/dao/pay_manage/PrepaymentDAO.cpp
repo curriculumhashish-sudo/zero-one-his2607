@@ -4,23 +4,23 @@
 
 #include "NacosClient.h"
 
-// 构建带动态条件的WHERE子句
+// Build WHERE clause with dynamic conditions
 inline std::string PrepaymentDAO::queryConditionBuilder(
     const PrepaymentQuery::Wrapper& query, SqlParams& params)
 {
     std::ostringstream condition;
     condition << " WHERE target_enum = 'PREPAYMENT'";
 
-    if (query->inpatientNo)
+    if (query->inpatientNo && !query->inpatientNo->empty())
     {
         condition << " AND account_code = ?";
-        SQLPARAMS_PUSH(params, "s", std::string, query->inpatientNo->c_str());
+        SQLPARAMS_PUSH(params, "s", std::string, query->inpatientNo.getValue(""));
     }
 
     return condition.str();
 }
 
-// 统计预交金记录数
+// Count prepayment records
 uint64_t PrepaymentDAO::count(const PrepaymentQuery::Wrapper& query)
 {
     SqlParams params;
@@ -29,7 +29,7 @@ uint64_t PrepaymentDAO::count(const PrepaymentQuery::Wrapper& query)
     return sqlSession->executeQueryNumerical(sql, params);
 }
 
-// 分页查询
+// Paginated query
 std::list<PrepaymentDO> PrepaymentDAO::selectWithPage(const PrepaymentQuery::Wrapper& query)
 {
     SqlParams params;
@@ -47,7 +47,7 @@ std::list<PrepaymentDO> PrepaymentDAO::selectWithPage(const PrepaymentQuery::Wra
     return sqlSession->executeQuery<PrepaymentDO, PrepaymentMapper>(sql, mapper, params);
 }
 
-// 获取最新账户快照用于余额链接
+// Get latest account snapshot for balance chain
 AccountSnapshot PrepaymentDAO::getAccountSnapshot(const std::string& accountCode)
 {
     AccountSnapshot snap;
@@ -66,7 +66,7 @@ AccountSnapshot PrepaymentDAO::getAccountSnapshot(const std::string& accountCode
     PrepaymentMapper mapper;
     auto result = sqlSession->executeQueryOne<PrepaymentDO, PrepaymentMapper>(sql, mapper, params);
 
-    // 检查是否查到记录（默认构造DO的idPtr为空）
+    // Check if record found (default-constructed DO has null idPtr)
     auto idPtr = result.getIdPtr();
     if (idPtr)
     {
@@ -78,10 +78,136 @@ AccountSnapshot PrepaymentDAO::getAccountSnapshot(const std::string& accountCode
     return snap;
 }
 
-// 使用原生SQL插入预交金记录（收或退）
+// Local struct and mapper for resolveEncounter JOIN query
+namespace {
+    struct EncounterRow {
+        std::string encounterId;
+        std::string patientId;
+        std::string accountId;
+        std::string accountCode;
+        double balance;
+    };
+
+    class EncounterMapper : public Mapper<EncounterRow> {
+    public:
+        EncounterRow mapper(ResultSet* rs) const override {
+            EncounterRow row;
+            row.encounterId = rs->getString("encounter_id");
+            row.patientId = rs->getString("patient_id");
+            row.accountId = rs->getString("account_id");
+            row.accountCode = rs->getString("account_code");
+            row.balance = rs->getDouble("balance");
+            return row;
+        }
+    };
+}
+
+// Resolve encounter info by inpatient number (adm_encounter JOIN adm_account)
+EncounterInfo PrepaymentDAO::resolveEncounter(const std::string& inpatientNo)
+{
+    SqlParams params;
+    SQLPARAMS_PUSH(params, "s", std::string, inpatientNo);
+
+    std::string sql =
+        "SELECT e.id AS encounter_id, e.patient_id, a.id AS account_id, a.bus_no AS account_code, a.balance "
+        "FROM adm_encounter e "
+        "JOIN adm_account a ON a.encounter_id = e.id "
+        "WHERE e.bus_no = ? AND e.is_deleted = 0 AND a.is_deleted = 0 "
+        "LIMIT 1";
+
+    EncounterMapper mapper;
+    auto row = sqlSession->executeQueryOne<EncounterRow, EncounterMapper>(sql, mapper, params);
+
+    // Check if record found (default-constructed row has empty encounterId)
+    if (row.encounterId.empty())
+    {
+        throw std::runtime_error("inpatient number not found: " + inpatientNo);
+    }
+
+    EncounterInfo info;
+    info.encounterId = row.encounterId;
+    info.patientId = row.patientId;
+    info.accountId = row.accountId;
+    info.accountCode = row.accountCode;
+    info.balance = row.balance;
+    return info;
+}
+
+// Insert payment reconciliation main record
+std::string PrepaymentDAO::insertReconciliation(
+    const std::string& id, const std::string& nowStr,
+    const std::string& tenantId, const std::string& operatorId,
+    const std::string& paymentNo, const std::string& paymentEnum,
+    const std::string& patientId, const std::string& encounterId,
+    const std::string& accountId,
+    double tenderedAmount, double returnedAmount,
+    const std::string& billDate)
+{
+    SqlParams params;
+    SQLPARAMS_PUSH(params, "s", std::string, id);
+    SQLPARAMS_PUSH(params, "s", std::string, tenantId);
+    SQLPARAMS_PUSH(params, "s", std::string, nowStr);
+    SQLPARAMS_PUSH(params, "s", std::string, nowStr);
+    SQLPARAMS_PUSH(params, "s", std::string, operatorId);
+    SQLPARAMS_PUSH(params, "s", std::string, operatorId);
+    SQLPARAMS_PUSH(params, "s", std::string, "PREPAYMENT");
+    SQLPARAMS_PUSH(params, "s", std::string, paymentNo);
+    SQLPARAMS_PUSH(params, "s", std::string, paymentEnum);
+    SQLPARAMS_PUSH(params, "s", std::string, "PREPAYMENT");
+    SQLPARAMS_PUSH(params, "s", std::string, operatorId);
+    SQLPARAMS_PUSH(params, "s", std::string, patientId);
+    SQLPARAMS_PUSH(params, "s", std::string, encounterId);
+    SQLPARAMS_PUSH(params, "s", std::string, accountId);
+    SQLPARAMS_PUSH(params, "d", double, tenderedAmount);
+    SQLPARAMS_PUSH(params, "d", double, returnedAmount);
+    SQLPARAMS_PUSH(params, "d", double, tenderedAmount);
+    SQLPARAMS_PUSH(params, "s", std::string, billDate);
+    SQLPARAMS_PUSH(params, "s", std::string, std::string(""));
+    SQLPARAMS_PUSH(params, "i", int32_t, 0);
+
+    std::ostringstream sql;
+    sql << "INSERT INTO fin_payment_reconciliation"
+        << " (id, tenant_id, created_at, updated_at, created_by, updated_by,"
+        << " is_deleted, version,"
+        << " status_enum, payment_no, payment_enum, kind_enum,"
+        << " enterer_id, patient_id, encounter_id, account_id,"
+        << " tendered_amount, returned_amount, display_amount,"
+        << " bill_date, charge_item_ids, print_count)"
+        << " VALUES (?,?,?,?,?,?, 0,0, ?,?,?,?, ?,?,?,?, ?,?,?, ?, ?,?)";
+
+    int row = sqlSession->executeUpdate(sql.str(), params);
+    if (row != 1)
+    {
+        throw std::runtime_error("insertReconciliation failed: rows affected=" + std::to_string(row));
+    }
+
+    return id;
+}
+
+// Update account balance in adm_account
+void PrepaymentDAO::updateAccountBalance(const std::string& accountId, double newBalance,
+    const std::string& nowStr)
+{
+    SqlParams params;
+    SQLPARAMS_PUSH(params, "d", double, newBalance);
+    SQLPARAMS_PUSH(params, "s", std::string, nowStr);
+    SQLPARAMS_PUSH(params, "s", std::string, accountId);
+
+    std::string sql =
+        "UPDATE adm_account SET balance = ?, updated_at = ? WHERE id = ? AND is_deleted = 0";
+
+    int row = sqlSession->executeUpdate(sql, params);
+    if (row != 1)
+    {
+        throw std::runtime_error("updateAccountBalance failed: rows affected=" + std::to_string(row));
+    }
+}
+
+// Insert prepayment detail record using native SQL (charge or refund)
 void PrepaymentDAO::insertPrepayment(
     const std::string& id, const std::string& nowStr,
     const std::string& tenantId, const std::string& operatorName,
+    const std::string& reconciliationId,
     const std::string& accountId, const std::string& accountCode,
     const std::string& payEnum, double amount,
     double chargeAmount, double returnAmount,
@@ -97,7 +223,7 @@ void PrepaymentDAO::insertPrepayment(
     SQLPARAMS_PUSH(params, "s", std::string, nowStr);
     SQLPARAMS_PUSH(params, "s", std::string, operatorName);
     SQLPARAMS_PUSH(params, "s", std::string, operatorName);
-    SQLPARAMS_PUSH(params, "s", std::string, id);    // 对账ID = 支付记录ID
+    SQLPARAMS_PUSH(params, "s", std::string, reconciliationId);
     SQLPARAMS_PUSH(params, "s", std::string, "PREPAYMENT");
     SQLPARAMS_PUSH(params, "s", std::string, accountId);
     SQLPARAMS_PUSH(params, "s", std::string, accountCode);
@@ -112,7 +238,7 @@ void PrepaymentDAO::insertPrepayment(
     SQLPARAMS_PUSH(params, "d", double, afterBalance);
     SQLPARAMS_PUSH(params, "s", std::string, "SUCCESS");
 
-    // 流水链接：首条为NULL，否则指向上一条ID
+    // predecessor_id: NULL for first record, otherwise links to previous record ID
     if (!predecessorId.empty())
     {
         SQLPARAMS_PUSH(params, "s", std::string, predecessorId);
@@ -129,7 +255,7 @@ void PrepaymentDAO::insertPrepayment(
         << " before_balance, after_balance, result_enum"
         << (predecessorId.empty() ? "" : ", predecessor_id")
         << ")"
-        << " VALUES (?,?,?,?,?,?, 0,0, ?,?, ?,?, ?,?,?,?, ?,?,?, ?,?,?)"
+        << " VALUES (?,?,?,?,?,?, 0,0, ?,?, ?,?, ?,?,?,?, ?,?,?, ?,?,?"
         << (predecessorId.empty() ? "" : ",?")
         << ")";
 
