@@ -96,7 +96,7 @@ public:
 		account.setDefault_flag(1);
 		
 		ZO_STAR_DOMAIN_DTO_TO_DO(chageItem, dto, Service_id, serviceTypeId, Requesting_org_id, organization_id, Created_by, operator_id, Enterer_id, operator_id, Tenant_id, tenant_id);
-		ZO_STAR_DOMAIN_DTO_TO_DO(chageItem, dto, Performer_id,doctor_id, Discount_amount, discount);
+		ZO_STAR_DOMAIN_DTO_TO_DO(chageItem, dto, Performer_id,doctor_id);
 		chageItem.setId(charge_id);
 		chageItem.setEncounter_id(encounter_id);
 		chageItem.setCreated_at(now);
@@ -114,7 +114,7 @@ public:
 		chageItem.setBase_amount(def.getPrice_value());
 
 
-		ZO_STAR_DOMAIN_DTO_TO_DO(pay, dto, Created_by, operator_id, Enterer_id, operator_id, Tenant_id, tenant_id, Display_amount, discount);
+		ZO_STAR_DOMAIN_DTO_TO_DO(pay, dto, Created_by, operator_id, Enterer_id, operator_id, Tenant_id, tenant_id);
 		pay.setId(pay_id);
 		pay.setEncounter_id(encounter_id);
 		pay.setCreated_at(now);

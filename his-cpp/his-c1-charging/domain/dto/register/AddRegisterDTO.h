@@ -118,10 +118,6 @@ class AddRegisterDTO :public oatpp::DTO
 	DTO_FIELD_INFO(type_code) {
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.type_code");
 	}
-	DTO_FIELD(Float64, discount);
-	DTO_FIELD_INFO(discount) {
-		info->description = ZH_WORDS_GETTER("yxy.charging,register.discount");
-	}
 
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 };

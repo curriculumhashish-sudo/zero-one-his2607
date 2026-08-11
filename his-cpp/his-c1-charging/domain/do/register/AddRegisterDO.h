@@ -220,7 +220,6 @@ class ChargItemDO : public BaseDO
 	MYSQL_SYNTHESIZE(std::string, quantity_unit, Quantity_unit);
 	MYSQL_SYNTHESIZE(double, unit_price, Unit_price);
 	MYSQL_SYNTHESIZE(double, base_amount, Base_amount);
-	MYSQL_SYNTHESIZE(double, discount_amount, Discount_amount);
 	MYSQL_SYNTHESIZE(std::string, enterer_id, Enterer_id);
 	MYSQL_SYNTHESIZE(std::string, entered_date, Entered_date);
 	MYSQL_SYNTHESIZE(std::string, performer_id, Performer_id);
@@ -249,7 +248,6 @@ public:
 		MYSQL_ADD_FIELD("quantity_unit", "s", quantity_unit);
 		MYSQL_ADD_FIELD("unit_price", "d", unit_price);
 		MYSQL_ADD_FIELD("base_amount", "d", base_amount);
-		MYSQL_ADD_FIELD("discount_amount", "d", discount_amount);
 		MYSQL_ADD_FIELD("enterer_id", "s", enterer_id);
 		MYSQL_ADD_FIELD("entered_date", "dt", entered_date);
 		MYSQL_ADD_FIELD("performer_id", "s", performer_id);
@@ -282,7 +280,6 @@ class PaymentDO : public BaseDO
 	MYSQL_SYNTHESIZE(std::string, payment_enum, Payment_enum);
 	MYSQL_SYNTHESIZE(std::string, kind_enum, Kind_enum);
 	MYSQL_SYNTHESIZE(double, tendered_amount, Tendered_amount);
-	MYSQL_SYNTHESIZE(double, display_amount, Display_amount);
 	MYSQL_SYNTHESIZE(int, print_count, Print_count);
 	MYSQL_SYNTHESIZE(std::string, charge_item_ids, Charge_item_ids);
 public:
@@ -303,7 +300,6 @@ public:
 		MYSQL_ADD_FIELD("payment_enum", "s", payment_enum);
 		MYSQL_ADD_FIELD("kind_enum", "s", kind_enum);
 		MYSQL_ADD_FIELD("tendered_amount", "d", tendered_amount);
-		MYSQL_ADD_FIELD("display_amount", "d", display_amount);
 		MYSQL_ADD_FIELD("print_count", "i", print_count);
 		MYSQL_ADD_FIELD("charge_item_ids", "s", charge_item_ids);
 
