@@ -11,23 +11,23 @@ PatientLeaveJsonVO::Wrapper PatientLeaveService::execLeavePatient(const oatpp::S
     if (!encounterDO)
     {
         vo->code = 10001;
-        vo->message = u8"就诊记录不存在";
+        vo->message = u8"就诊记录不存�?;
         vo->data = nullptr;
         return vo;
     }
 
-    //2. 状态校验
+    //2. 状态校�?
     oatpp::String status = encounterDO->getStatusEnum();
-    if (status == "onHold" || status == "finished")
+    if (status == "onHold" || status == "finished" || status == "arrived")
     {
         vo->code = 10002;
-        vo->message = u8"该患者已离院或已完诊，不能重复操作";
+        vo->message = u8"�û�������Ժ����������Ѵ�������ظ�����";
         vo->data = nullptr;
         return vo;
     }
 
    
-    //3. 执行更新到离院状态 --> 前端要求在诊变成待诊(inProgress -> arrived)
+    //3. 执行更新到离院状�?--> 前端要求在诊变成待诊(inProgress -> arrived)
     uint64_t affectRows = dao.updateEncounterToLeave(tenantId, encounterId);
     if (affectRows == 0)
     {
@@ -40,7 +40,7 @@ PatientLeaveJsonVO::Wrapper PatientLeaveService::execLeavePatient(const oatpp::S
     //4. 返回成功
     auto dto = PatientLeaveDTO::createShared();
     dto->encounterId = encounterId;
-    
+    dto->visitStatus = "arrived";
 
     vo->code = 10000;
     vo->message = "success";

@@ -26,12 +26,10 @@ public:
         PtrPatientQueueCombineDO item = std::make_shared<PatientQueueCombineDO>();
 
         PtrAdmEncounterDO encDO = std::make_shared<AdmEncounterDO>();
-        encDO->setId(resultSet->getString("enc_id"));
+        encDO->setId(resultSet->getString("encounter_id"));
         encDO->setTenantId(resultSet->getString("tenant_id"));
-        encDO->setPatientId(resultSet->getString("patient_id"));
-        encDO->setBusNo(resultSet->getString("bus_no"));
         encDO->setStatusEnum(resultSet->getString("status_enum"));
-        encDO->setReceptionTime(resultSet->getInt64("reception_time"));
+        encDO->setReceptionTime(resultSet->getString("reception_time"));
         encDO->setServiceTypeId(resultSet->getString("service_type_id"));
         item->setEncounterDO(encDO);
 

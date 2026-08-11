@@ -19,7 +19,7 @@ class PatientLeaveController : public oatpp::web::server::api::ApiController
     API_ACCESS_DECLARE(PatientLeaveController);
 public:
     // 请求体只需要encounterId
-    ENDPOINT(API_M_PUT, "/cycleCtrl/leave", leavePatient, BODY_DTO(Object<PatientLeaveQuery>, leaveParam), API_HANDLER_AUTH_PARAME)
+    ENDPOINT(API_M_PUT, "/c2-opdoctor/leave", leavePatient, BODY_DTO(Object<PatientLeaveQuery>, leaveParam), API_HANDLER_AUTH_PARAME)
     {
         API_HANDLER_RESP_VO(execLeavePatient(leaveParam, authObject->getPayload()));
     }

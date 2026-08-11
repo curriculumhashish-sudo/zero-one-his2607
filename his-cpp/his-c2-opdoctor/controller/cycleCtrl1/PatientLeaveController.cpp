@@ -7,15 +7,15 @@ PatientLeaveJsonVO::Wrapper PatientLeaveController::execLeavePatient(const Patie
 {
     auto vo = PatientLeaveJsonVO::createShared();
 
-    //请求体获取参数
+    //请求体获取参�?
     oatpp::String encounterId = dto->encounterId;
    
-    // 创建 Redis 客户端以获取 tenantId
-    RedisClient re("127.0.0.1", 6379, "01star");
+    // ���� Redis �ͻ����Ի�ȡ tenantId
+    RedisClient re("8.163.102.33", 6380, "Lin@@2830564901zero-one-his");
     std::string tenantId = re.execute<std::string>([](Redis* r) {
         auto res = r->hget("his:login:context:u001", "tenantId");
         return res.value();
-    });
+        });
 
     if(tenantId.empty() || encounterId == nullptr)
     {

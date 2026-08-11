@@ -13,16 +13,14 @@ public:
     MYSQL_SYNTHESIZE(string, tenant_id, TenantId);
     //患者ID
     MYSQL_SYNTHESIZE(string, patient_id, PatientId);
-    //就诊流水号（病历号）
-    MYSQL_SYNTHESIZE(string, bus_no, BusNo);
     //就诊状态枚举
     MYSQL_SYNTHESIZE(string, status_enum, StatusEnum);
-    //接诊时间
-    MYSQL_SYNTHESIZE(int64_t, reception_time, ReceptionTime);
+    //接诊时间【改为string，直接读取datetime字符串】
+    MYSQL_SYNTHESIZE(string, reception_time, ReceptionTime);
     //就诊开始时间
-    MYSQL_SYNTHESIZE(int64_t, start_time, StartTime);
+    MYSQL_SYNTHESIZE(string, start_time, StartTime);
     //就诊结束时间
-    MYSQL_SYNTHESIZE(int64_t, end_time, EndTime);
+    MYSQL_SYNTHESIZE(string, end_time, EndTime);
     //医疗服务ID（普通号/专家号）
     MYSQL_SYNTHESIZE(string, service_type_id, ServiceTypeId);
 
@@ -42,11 +40,12 @@ public:
         MYSQL_ADD_FIELD_PK("id", "s", id);
         MYSQL_ADD_FIELD_NULLABLE("tenant_id", "s", tenant_id, false);
         MYSQL_ADD_FIELD_NULLABLE("patient_id", "s", patient_id, false);
-        MYSQL_ADD_FIELD_NULLABLE("bus_no", "s", bus_no, false);
+
         MYSQL_ADD_FIELD_NULLABLE("status_enum", "s", status_enum, false);
-        MYSQL_ADD_FIELD_NULLABLE("reception_time", "ll", reception_time, false);
-        MYSQL_ADD_FIELD_NULLABLE("start_time", "ll", start_time, true);
-        MYSQL_ADD_FIELD_NULLABLE("end_time", "ll", end_time, true);
+        // 时间字段类型改为字符串 s
+        MYSQL_ADD_FIELD_NULLABLE("reception_time", "s", reception_time, false);
+        MYSQL_ADD_FIELD_NULLABLE("start_time", "s", start_time, true);
+        MYSQL_ADD_FIELD_NULLABLE("end_time", "s", end_time, true);
         MYSQL_ADD_FIELD_NULLABLE("service_type_id", "s", service_type_id, true);
 
         MYSQL_ADD_FIELD_NULLABLE("created_by", "s", created_by, true);

@@ -9,6 +9,8 @@
 #include "domain/GlobalInclude.h"
 #include "service/cycleCtrl1/ReceptionPatientService.h"
 #include "domain/dto/PayloadDTO.h" 
+#include "domain/query/cycleCtrl1/ReceptionAcceptQuery.h"
+
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
@@ -20,15 +22,21 @@ class RecePatientController : public oatpp::web::server::api::ApiController
 	API_ACCESS_DECLARE(RecePatientController);
 
 public:
-	//2.1 æ¥å£ï¼šå°†å‡­è¯ä¼ å…¥ execQueryRece
-	ENDPOINT(API_M_GET, "/cycleCtrl/reception", recePatient, QUERIES(QueryParams, queryParams), API_HANDLER_AUTH_PARAME)
+	//2.1 ½Ó¿Ú£º½«Æ¾Ö¤´«Èë execQueryRece
+	ENDPOINT(API_M_GET, "/c2-opdoctor/reception", recePatient, QUERIES(QueryParams, queryParams), API_HANDLER_AUTH_PARAME)
 	{
-		// å°† query è§£æä¸º DTO
+		// å°?query è§£æä¸?DTO
 		API_HANDLER_QUERY_PARAM(userQuery, RecePatientQuery, queryParams);
-		// æŠŠ authObject->getPayload() 
+		// æŠ?authObject->getPayload() 
 		API_HANDLER_RESP_VO(execQueryRece(userQuery, authObject->getPayload()));
 	}
-	//2.2 æ¥å£ä¿¡æ¯ä¿æŒä¸å˜
+	//ĞÂÔö2.2 ½Ó¿Ú£º½ÓÊÕ¾ÍÕïÈËĞÅÏ¢£¨ĞŞÕı£ºÊ¹ÓÃÓëÆäËû Controller Ò»ÖÂµÄ BODY_DTO Óï·¨£©
+	ENDPOINT(API_M_POST, "/c2-opdoctor/accept", acceptPatient, BODY_DTO(Object<RecePatientAcceptQuery>, acceptParam), API_HANDLER_AUTH_PARAME)
+	{
+		API_HANDLER_RESP_VO(execAcceptRece(acceptParam, authObject->getPayload()));
+	}
+
+	//2.2 ½Ó¿ÚĞÅÏ¢±£³Ö²»±ä
 	ENDPOINT_INFO(recePatient)
 	{
 		API_DEF_ADD_AUTH();
@@ -36,14 +44,24 @@ public:
 		API_DEF_ADD_RSP_JSON_WRAPPER(RecePatientJsonVO);
 		API_DEF_ADD_TAG(API_TAG);
 
-		//åªè¾“å…¥æ—¥æœŸå³å¯
+		//åªè¾“å…¥æ—¥æœŸå³å?
 		API_DEF_ADD_QUERY_PARAMS(String, "date", ZH_WORDS_GETTER("rece.param.visitTime"), "", true);
 
 	}
+	//2.3 ½Ó¿ÚĞÅÏ¢±£³Ö²»±ä
+	ENDPOINT_INFO(acceptPatient)
+	{
+		API_DEF_ADD_AUTH();
+		API_DEF_ADD_TITLE(ZH_WORDS_GETTER("rece.accept.summary"));
+		API_DEF_ADD_RSP_JSON_WRAPPER(RecePatientJsonVO);
+		API_DEF_ADD_TAG(API_TAG);
+		
+	}
 
 private:
-	// ä¿®æ”¹ç­¾åï¼šå¢åŠ  payload å‚æ•°
+	// ä¿®æ”¹ç­¾åï¼šå¢åŠ?payload å‚æ•°
 	RecePatientJsonVO::Wrapper execQueryRece(const RecePatientQuery::Wrapper& query, const PayloadDTO& payload);
+	RecePatientJsonVO::Wrapper execAcceptRece(const RecePatientAcceptQuery::Wrapper& query, const PayloadDTO& payload);
 
 };
 

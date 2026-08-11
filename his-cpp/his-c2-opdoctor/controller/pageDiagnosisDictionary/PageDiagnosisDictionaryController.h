@@ -22,7 +22,7 @@ public:
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("dict.controller.summary"), 
 		queryPageDict, PageDiagnosisDictionaryQuery, PageDiagnosisDictionaryPageVo::Wrapper, API_TAG);
 
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/doctor-station/page-diagnosis-dictionary", 
+	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/c2-opdoctor/page-diagnosis-dictionary", 
 		queryPageDict, PageDiagnosisDictionaryQuery, executeQueryPageDict(query,authObject->getPayload()));
 
 private:

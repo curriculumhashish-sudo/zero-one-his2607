@@ -24,8 +24,8 @@ PatientFinishJsonVO::Wrapper PatientFinishService::execFinishPatient(const oatpp
         vo->data = nullptr;
         return vo;
     }
-    
-    if (status != "arrived" && status != "onHold")
+    // 允许【接诊中TREATING、待诊WAITING】执行完诊
+    if (status != "arrived" && status != "finished" && status != "in-progress")
     {
         auto vo = PatientFinishJsonVO::createShared();
         vo->code = 10003;
@@ -48,7 +48,7 @@ PatientFinishJsonVO::Wrapper PatientFinishService::execFinishPatient(const oatpp
     //4. 成功返回
     auto dto = PatientFinishDTO::createShared();
     dto->encounterId = encounterId;
-    dto->visitStatus = u8"finished";
+    dto->visitStatus = "finished";
 
     auto vo = PatientFinishJsonVO::createShared();
     vo->code = 10000;

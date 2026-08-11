@@ -18,7 +18,7 @@ class PatientQueueDTO : public oatpp::DTO
     //就诊ID
     API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("queue.dto.encounterId"), false);
 
-    // 患者姓名
+    // 患者姓�?
     API_DTO_FIELD_REQUIRE(String, patientName, ZH_WORDS_GETTER("queue.dto.patientName"), true);
 
     // 性别
@@ -30,20 +30,17 @@ class PatientQueueDTO : public oatpp::DTO
 
     // 就诊时间
     API_DTO_FIELD_REQUIRE(String, visitTime, ZH_WORDS_GETTER("queue.dto.visitTime"), true);
-    // 病历号
-    API_DTO_FIELD_REQUIRE(String, visitNo, ZH_WORDS_GETTER("queue.dto.visitNum"), true);
-    // 支付类型 自费/省医保/市医保
     API_DTO_FIELD_REQUIRE(String, payType, ZH_WORDS_GETTER("queue.dto.payType"), true);
-    // 就诊状态 待诊、在诊、完诊
+    // 就诊状�?待诊、在诊、完�?
     API_DTO_FIELD_REQUIRE(String, visitStatus, ZH_WORDS_GETTER("queue.dto.visitStatus"), true);
 
-    //排队号
+    //排队�?
     API_DTO_FIELD_REQUIRE(Int32, queueNumber, ZH_WORDS_GETTER("queue.dto.queueNum"), false);
 
     //挂号科室
     API_DTO_FIELD_REQUIRE(String, departmentName, ZH_WORDS_GETTER("queue.dto.departmentName"), false);
     
-    //优先级名称
+    //优先级名�?
     API_DTO_FIELD_REQUIRE(String, priorityName, ZH_WORDS_GETTER("queue.dto.priorityName"), false);
 
 };

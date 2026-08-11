@@ -9,30 +9,30 @@ PatientQueueJsonVO::Wrapper PatientQueueController::execQueryQueue(const Patient
 {
     auto jvo = PatientQueueJsonVO::createShared();
 
-    // 必须的 query 和 date
+    // 必须�?query �?date
     if (!query || !query->date) {
         jvo->init(nullptr, RS_PARAMS_INVALID);
         return jvo;
     }
 
-    // 从 payload 获取 userId ，后续可能需要
+    // �?payload 获取 userId ，后续可能需�?
     /*std::string userId = payload.getId();
     if (userId.empty()) {
         jvo->init(nullptr, RS_PARAMS_INVALID);
         return jvo;
     }*/
 
-    // 从 payload 获取 practitionerId
+    // �?payload 获取 practitionerId
     std::string practitionerId = payload.getPractitionerId();
 
-    // 创建 Redis 客户端以获取 tenantId
-    RedisClient re("127.0.0.1", 6379, "01star");
+    // ���� Redis �ͻ����Ի�ȡ tenantId
+    RedisClient re("8.163.102.33", 6380, "Lin@@2830564901zero-one-his");
     std::string tenantId = re.execute<std::string>([](Redis* r) {
         auto res = r->hget("his:login:context:u001", "tenantId");
         return res.value();
-    });
+        });
 
-    // 如果 practitionerId 或 tenantId 为空，则使用默认值
+    // 如果 practitionerId �?tenantId 为空，则使用默认�?
     if (practitionerId.empty() || tenantId.empty())
     {
         practitionerId = "";

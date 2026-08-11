@@ -18,23 +18,56 @@ RecePatientJsonVO::Wrapper RecePatientController::execQueryRece(const RecePatien
     // ä»payloadè¯»å–practitionerId
     std::string practitionerId = payload.getPractitionerId();
 
-    // åˆ›å»º Redis å®¢æˆ·ç«¯ä»¥è·å– tenantId
-    RedisClient re("127.0.0.1", 6379, "01star");
+    // ´´½¨ Redis ¿Í»§¶ËÒÔ»ñÈ¡ tenantId
+// ÌîÈë±í¸ñÕæÊµRedisIP¡¢¶Ë¿Ú6380¡¢Êµ¼ÊÃÜÂë
+    RedisClient re("8.163.102.33", 6380, "Lin@@2830564901zero-one-his");
     std::string tenantId = re.execute<std::string>([](Redis* r) {
         auto res = r->hget("his:login:context:u001", "tenantId");
         return res.value();
         });
 
-	//å¦‚æœpractitioneridå’ŒtenantIdä¸ºç©ºï¼Œåˆ™ä½¿ç”¨é»˜è®¤å€¼
+	//å¦‚æœpractitioneridå’ŒtenantIdä¸ºç©ºï¼Œåˆ™ä½¿ç”¨é»˜è®¤å€?
     if (practitionerId.empty() || tenantId.empty())
     {
-        practitionerId = "doc_001";
+        practitionerId = "";
         tenantId = "tenant_001";
     }
 
     auto dto = ReceptionPatientService().getRecePatient(query, tenantId, practitionerId);
 
-    // åŒ…è£…ä¸ºæˆåŠŸå“åº”
+    // åŒ…è£…ä¸ºæˆåŠŸå“åº?
+    jvo->success(dto);
+    return jvo;
+}
+
+RecePatientJsonVO::Wrapper RecePatientController::execAcceptRece(const RecePatientAcceptQuery::Wrapper& query, const PayloadDTO& payload)
+{
+    auto jvo = RecePatientJsonVO::createShared();
+
+    if (!query || !query->encounterId)
+    {
+        jvo->init(nullptr, RS_PARAMS_INVALID);
+        return jvo;
+    }
+
+    // practitionerId ´Ó payload
+    std::string practitionerId = payload.getPractitionerId();
+
+    // tenantId ÈÔÑØÓÃÏÖÓĞ»ñÈ¡·½Ê½£¨ÓëÆäËû controller Ò»ÖÂ£©
+    RedisClient re("8.163.102.33", 6380, "Lin@@2830564901zero-one-his");
+    std::string tenantId = re.execute<std::string>([](Redis* r) {
+        auto res = r->hget("his:login:context:u001", "tenantId");
+        return res.value();
+        });
+
+    if (practitionerId.empty() || tenantId.empty())
+    {
+        practitionerId = "";
+        tenantId = "tenant_001";
+    }
+
+    auto dto = ReceptionPatientService().acceptPatientByEncounterId(query->encounterId, tenantId, practitionerId);
+
     jvo->success(dto);
     return jvo;
 }

@@ -62,6 +62,8 @@ rece:
   visitStatus: "就诊状态"
  get:
   summary: "在诊患者"
+ accept:
+  summary: "将待诊变成在诊"
 
 finish:
  dto:
