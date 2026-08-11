@@ -18,9 +18,9 @@ public:
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("patient1.query.act"),
 		actPatient, PatientActListJsonVO::Wrapper, API_TAG);
 	// Endpoint binding
-	// Path:    /patient/query-act/{encounterId}
+	// Path:    /opnurse/query-act/{encounterId}
 	// Header:  Authorization
-	ENDPOINT(API_M_GET, "/patient/query-act/{encounterId}", actPatient,
+	ENDPOINT(API_M_GET, "/opnurse/query-act/{encounterId}", actPatient,
 		PATH(String, encounterId),
 		API_HANDLER_AUTH_PARAME) {
 		std::string eid = encounterId ? encounterId.getValue("") : std::string("");
