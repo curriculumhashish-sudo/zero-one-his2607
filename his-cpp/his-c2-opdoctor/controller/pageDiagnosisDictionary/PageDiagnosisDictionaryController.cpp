@@ -19,12 +19,11 @@ PageDiagnosisDictionaryPageVo::Wrapper PageDiagnosisDictionaryController::execut
 	// 从 Redis 中获取租户 id（更健壮的取值，避免对空 optional 调用 value() 抛异常）
 	std::string tenantId;
 	try {
-		RedisClient re("127.0.0.1", 6379, "01star");
-		tenantId = re.execute<std::string>([](Redis* r) -> std::string {
+		RedisClient re("8.163.102.33", 6380, "Lin@@2830564901zero-one-his");
+		std::string tenantId = re.execute<std::string>([](Redis* r) {
 			auto res = r->hget("his:login:context:u001", "tenantId");
-			if (res) return *res; // 如果存在返回值
-			return std::string(); // 否则返回空字符串
-		});
+			return res.value();
+			});
 	} catch (const std::exception&) {
 		// 捕获 Redis 或执行期间的异常，降级为默认值（避免程序崩溃）
 		tenantId.clear();

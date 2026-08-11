@@ -18,10 +18,10 @@ PatientLeaveJsonVO::Wrapper PatientLeaveService::execLeavePatient(const oatpp::S
 
     //2. 状态校验
     oatpp::String status = encounterDO->getStatusEnum();
-    if (status == "onHold" || status == "finished")
+    if (status == "onHold" || status == "finished" || status == "arrived")
     {
         vo->code = 10002;
-        vo->message = u8"该患者已离院或已完诊，不能重复操作";
+        vo->message = u8"该患者已离院或已完诊或已待诊，不能重复操作";
         vo->data = nullptr;
         return vo;
     }
@@ -40,7 +40,7 @@ PatientLeaveJsonVO::Wrapper PatientLeaveService::execLeavePatient(const oatpp::S
     //4. 返回成功
     auto dto = PatientLeaveDTO::createShared();
     dto->encounterId = encounterId;
-    
+    dto->visitStatus = "arrived";
 
     vo->code = 10000;
     vo->message = u8"success";

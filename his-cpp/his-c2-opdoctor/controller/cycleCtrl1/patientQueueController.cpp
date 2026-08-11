@@ -26,11 +26,11 @@ PatientQueueJsonVO::Wrapper PatientQueueController::execQueryQueue(const Patient
     std::string practitionerId = payload.getPractitionerId();
 
     // 创建 Redis 客户端以获取 tenantId
-    RedisClient re("127.0.0.1", 6379, "01star");
+    RedisClient re("8.163.102.33", 6380, "Lin@@2830564901zero-one-his");
     std::string tenantId = re.execute<std::string>([](Redis* r) {
         auto res = r->hget("his:login:context:u001", "tenantId");
         return res.value();
-    });
+        });
 
     // 如果 practitionerId 或 tenantId 为空，则使用默认值
     if (practitionerId.empty() || tenantId.empty())

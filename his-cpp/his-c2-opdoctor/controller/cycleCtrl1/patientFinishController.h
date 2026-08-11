@@ -18,7 +18,7 @@ class PatientFinishController : public oatpp::web::server::api::ApiController
     API_ACCESS_DECLARE(PatientFinishController);
 public:
     // ÍêÕï½Ó¿Ú PUT
-    ENDPOINT(API_M_PUT, "/cycleCtrl/finish", finishPatient, BODY_DTO(Object<PatientFinishQuery>, finishParam), API_HANDLER_AUTH_PARAME)
+    ENDPOINT(API_M_PUT, "/c2-opdoctor/finish", finishPatient, BODY_DTO(Object<PatientFinishQuery>, finishParam), API_HANDLER_AUTH_PARAME)
     {
         API_HANDLER_RESP_VO(execFinishPatient(finishParam, authObject->getPayload()));
     }

@@ -24,7 +24,8 @@ public:
     static int calcAge(const std::string& birthDate);
 
     PatientQueueService()
-        : m_mongoClient(new MongoClient("mongodb://hisuser:123456@192.168.26.135:27017/firstDb"))
+        : m_mongoClient(make_shared<MongoClient>("mongodb://994xyQ10gK1h:2rNNkUEG8C8syEOmJBK66WUnh24g4BKS@47.113.229.85:41242/hisDb"))
+
     {
     }
 

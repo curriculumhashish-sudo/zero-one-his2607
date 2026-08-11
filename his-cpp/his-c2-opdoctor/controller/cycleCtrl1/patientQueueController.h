@@ -24,7 +24,7 @@ class PatientQueueController : public oatpp::web::server::api::ApiController
 
 public:
 	//1.1定义患者队列的查询接口处理
-	ENDPOINT(API_M_GET, "/cycleCtrl/queue", queryQueue, QUERIES(QueryParams, queryParams), API_HANDLER_AUTH_PARAME)
+	ENDPOINT(API_M_GET, "/c2-opdoctor/queue", queryQueue, QUERIES(QueryParams, queryParams), API_HANDLER_AUTH_PARAME)
 	{
 		//解析查询参数为query的领域模型
 		API_HANDLER_QUERY_PARAM(userQuery, PatientQueueQuery, queryParams);

@@ -34,7 +34,7 @@ class RecePatientDTO : public oatpp::DTO
     //病历性质（自费/医保）
     API_DTO_FIELD_REQUIRE(String, payType, ZH_WORDS_GETTER("rece.dto.recordType"), true);
     //就诊时间
-    API_DTO_FIELD_REQUIRE(Int32, visitTime, ZH_WORDS_GETTER("rece.dto.time"), true);
+    API_DTO_FIELD_REQUIRE(String, visitTime, ZH_WORDS_GETTER("rece.dto.time"), true);
     //挂号科室
     API_DTO_FIELD_REQUIRE(String, registerDept, ZH_WORDS_GETTER("rece.dto.registerDept"), true);
     //电话号

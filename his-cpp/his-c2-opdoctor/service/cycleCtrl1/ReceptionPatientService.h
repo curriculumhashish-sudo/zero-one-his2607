@@ -19,10 +19,14 @@ public:
 	RecePatientDTO::Wrapper getRecePatient(const RecePatientQuery::Wrapper& query, 
 		const string& tenantId, const string& practitionerId);
 
+	// 执行接诊（arrived -> in-progress），返回完整患者上下文
+	RecePatientDTO::Wrapper acceptPatientByEncounterId(const std::string& encounterId,
+		const std::string& tenantId, const std::string& practitionerId);
+
 	static int calcAge(const std::string& birthDate);
 
 	ReceptionPatientService()
-		: m_mongoClient(new MongoClient("mongodb://hisuser:123456@192.168.26.135:27017/firstDb"))
+		: m_mongoClient(make_shared<MongoClient>("mongodb://994xyQ10gK1h:2rNNkUEG8C8syEOmJBK66WUnh24g4BKS@47.113.229.85:41242/hisDb"))
 	{
 
 	}

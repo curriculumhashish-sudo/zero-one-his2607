@@ -9,6 +9,8 @@
 #include "domain/GlobalInclude.h"
 #include "service/cycleCtrl1/ReceptionPatientService.h"
 #include "domain/dto/PayloadDTO.h" 
+#include "domain/query/cycleCtrl1/ReceptionAcceptQuery.h"
+
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
@@ -21,13 +23,19 @@ class RecePatientController : public oatpp::web::server::api::ApiController
 
 public:
 	//2.1 接口：将凭证传入 execQueryRece
-	ENDPOINT(API_M_GET, "/cycleCtrl/reception", recePatient, QUERIES(QueryParams, queryParams), API_HANDLER_AUTH_PARAME)
+	ENDPOINT(API_M_GET, "/c2-opdoctor/reception", recePatient, QUERIES(QueryParams, queryParams), API_HANDLER_AUTH_PARAME)
 	{
 		// 将 query 解析为 DTO
 		API_HANDLER_QUERY_PARAM(userQuery, RecePatientQuery, queryParams);
 		// 把 authObject->getPayload() 
 		API_HANDLER_RESP_VO(execQueryRece(userQuery, authObject->getPayload()));
 	}
+	//新增2.2 接口：接收就诊人信息（修正：使用与其他 Controller 一致的 BODY_DTO 语法）
+	ENDPOINT(API_M_POST, "/opdoctor/accept", acceptPatient, BODY_DTO(Object<RecePatientAcceptQuery>, acceptParam), API_HANDLER_AUTH_PARAME)
+	{
+		API_HANDLER_RESP_VO(execAcceptRece(acceptParam, authObject->getPayload()));
+	}
+
 	//2.2 接口信息保持不变
 	ENDPOINT_INFO(recePatient)
 	{
@@ -39,10 +47,20 @@ public:
 		//只输入日期即可
 		API_DEF_ADD_QUERY_PARAMS(String, "date", ZH_WORDS_GETTER("rece.param.visitTime"), "", true);
 	}
+	//2.3 接口信息保持不变
+	ENDPOINT_INFO(acceptPatient)
+	{
+		API_DEF_ADD_AUTH();
+		API_DEF_ADD_TITLE(ZH_WORDS_GETTER("rece.accept.summary"));
+		API_DEF_ADD_RSP_JSON_WRAPPER(RecePatientJsonVO);
+		API_DEF_ADD_TAG(API_TAG);
+		
+	}
 
 private:
 	// 修改签名：增加 payload 参数
 	RecePatientJsonVO::Wrapper execQueryRece(const RecePatientQuery::Wrapper& query, const PayloadDTO& payload);
+	RecePatientJsonVO::Wrapper execAcceptRece(const RecePatientAcceptQuery::Wrapper& query, const PayloadDTO& payload);
 
 };
 

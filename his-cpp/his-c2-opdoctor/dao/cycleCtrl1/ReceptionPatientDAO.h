@@ -19,6 +19,13 @@ class ReceptionPatientDAO : public BaseDAO
 public:
 	PtrCurrentReceptionCombineDO queryReceptionPatient(const RecePatientQuery::Wrapper& query, 
 							const std::string& tenantId, const std::string& practitionerId);
+
+    // 新增：按 encounterId 查询单条患者完整上下文
+    PtrCurrentReceptionCombineDO queryReceptionByEncounterId(const std::string& encounterId, const std::string& tenantId);
+
+    // 新增：尝试按期望状态原子更新状态（用于 arrived -> in-progress）
+    bool updateEncounterStatusIfMatch(const std::string& encounterId, const std::string& tenantId,
+                                      const std::string& newStatus, const std::string& expectedCurrentStatus);
 };
 
 
