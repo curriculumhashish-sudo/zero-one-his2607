@@ -34,11 +34,11 @@ class NurseController2 : public oatpp::web::server::api::ApiController
 public:
 	// Execute endpoint
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("nurse2.modify.operate1"), operateNurse2, NurseExecutionResultJsonVO2::Wrapper, API_TAG);
-	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/opnurse/operate1", operateNurse2, BODY_DTO(NurseOperateDTO2::Wrapper, dto), execOperateNurse(dto, authObject->getPayload()));
+	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/c2-opnurse/operate1", operateNurse2, BODY_DTO(NurseOperateDTO2::Wrapper, dto), execOperateNurse(dto, authObject->getPayload()));
 
 	// Cancel execute endpoint
 	API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("nurse2.modify.operate2"), cancelNurse2, NurseExecutionResultJsonVO2::Wrapper, API_TAG);
-	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/opnurse/operate2", cancelNurse2, BODY_DTO(NurseCancelDTO2::Wrapper, dto), execCancelNurse(dto, authObject->getPayload()));
+	API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/c2-opnurse/operate2", cancelNurse2, BODY_DTO(NurseCancelDTO2::Wrapper, dto), execCancelNurse(dto, authObject->getPayload()));
 
 private:
 	// Execute implementation
