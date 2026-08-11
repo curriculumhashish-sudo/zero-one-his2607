@@ -82,10 +82,12 @@ public class DeptServiceImpl implements DeptService {
             DeptQuery query = new DeptQuery();
             List<DepartmentVO> allowDeptList = deptList(query);
 
-            // 越权校验：选中科室必须在可选范围
-            boolean isValid = allowDeptList.stream()
-                    .anyMatch(vo -> selectDeptId.equals(vo.getId()));
-            if (!isValid) {
+            // 越权校验：选中科室必须在可选范围，并取出完整科室信息
+            DepartmentVO matchedDept = allowDeptList.stream()
+                    .filter(vo -> selectDeptId.equals(vo.getId()))
+                    .findFirst()
+                    .orElse(null);
+            if (matchedDept == null) {
                 throw new RuntimeException("所选科室不在权限范围内");
             }
 
@@ -96,9 +98,12 @@ public class DeptServiceImpl implements DeptService {
             String sessionRedisKey = "user:session:" + userId;
             redisTemplate.opsForHash().put(sessionRedisKey, "organizationUnitId", selectDeptId);
 
-            // 组装返回结果
+            // 组装返回结果，填充完整科室信息
             DeptBindResultVO vo = new DeptBindResultVO();
-            vo.setOrganizationUnitId(selectDeptId);
+            vo.setOrganizationUnitId(matchedDept.getId());
+            vo.setCode(matchedDept.getCode());
+            vo.setDisplayName(matchedDept.getDisplayName());
+            vo.setParentId(matchedDept.getParentId());
             return vo;
         }catch (Exception e){
             throw new RuntimeException(e);
