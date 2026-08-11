@@ -4,7 +4,85 @@
 // 防止 ODBC/MySQL 类型冲突
 #include "NacosClient.h"
 
-void SettleChargeDAO::insertPayment(const std::string& paymentId, const std::string& nowStr,
+// ---- Transaction control ----
+
+void SettleChargeDAO::beginTransaction()
+{
+    sqlSession->beginTransaction();
+}
+
+void SettleChargeDAO::commitTransaction()
+{
+    sqlSession->commitTransaction();
+}
+
+void SettleChargeDAO::rollbackTransaction()
+{
+    sqlSession->rollbackTransaction();
+}
+
+// ---- Read ----
+
+namespace
+{
+    struct EncounterPatient
+    {
+        std::string patientId;
+    };
+
+    class EncounterPatientMapper : public Mapper<EncounterPatient>
+    {
+    public:
+        EncounterPatient mapper(ResultSet* rs) const override
+        {
+            EncounterPatient result;
+            result.patientId = rs->getString("patient_id");
+            return result;
+        }
+    };
+
+    class AccountInfoMapper : public Mapper<SettleChargeDAO::AccountInfo>
+    {
+    public:
+        SettleChargeDAO::AccountInfo mapper(ResultSet* rs) const override
+        {
+            SettleChargeDAO::AccountInfo result;
+            result.accountId = rs->getString("id");
+            result.accountCode = rs->getString("bus_no");
+            return result;
+        }
+    };
+}
+
+std::string SettleChargeDAO::selectPatientIdByEncounter(const std::string& encounterId)
+{
+    SqlParams params;
+    SQLPARAMS_PUSH(params, "s", std::string, encounterId);
+
+    std::ostringstream sql;
+    sql << "SELECT patient_id FROM adm_encounter"
+        << " WHERE id = ? AND is_deleted = 0";
+
+    auto result = sqlSession->executeQueryOne<EncounterPatient>(
+        sql.str(), EncounterPatientMapper(), params);
+    return result.patientId;
+}
+
+SettleChargeDAO::AccountInfo SettleChargeDAO::selectAccountByEncounter(const std::string& encounterId)
+{
+    SqlParams params;
+    SQLPARAMS_PUSH(params, "s", std::string, encounterId);
+
+    std::ostringstream sql;
+    sql << "SELECT id, bus_no FROM adm_account"
+        << " WHERE encounter_id = ? AND is_deleted = 0";
+
+    auto result = sqlSession->executeQueryOne<AccountInfo>(
+        sql.str(), AccountInfoMapper(), params);
+    return result;
+}
+
+int SettleChargeDAO::insertPayment(const std::string& paymentId, const std::string& nowStr,
     const std::string& paymentNo, const std::string& entererId,
     const std::string& patientId, const std::string& totalAmountStr,
     const std::string& chargeItemIdsStr,
@@ -35,11 +113,39 @@ void SettleChargeDAO::insertPayment(const std::string& paymentId, const std::str
         << " VALUES (?,NULL,?,0,0, 'SUCCESS',?,?,?,"
         << " ?,?,?,?, 0,?,?,?,?)";
 
-    sqlSession->executeUpdate(sql.str(), params);
+    return sqlSession->executeUpdate(sql.str(), params);
 }
 
-void SettleChargeDAO::insertInvoice(const std::string& invoiceId, const std::string& nowStr,
-    const std::string& encounterId, const std::string& paymentId,
+int SettleChargeDAO::insertPaymentDetail(const std::string& detailId, const std::string& nowStr,
+    const std::string& reconciliationId, const std::string& payChannelCode,
+    const std::string& amountStr, const std::string& entererId,
+    const std::string& accountId, const std::string& accountCode)
+{
+    SqlParams params;
+    SQLPARAMS_PUSH(params, "s", std::string, detailId);
+    SQLPARAMS_PUSH(params, "s", std::string, nowStr);
+    SQLPARAMS_PUSH(params, "s", std::string, reconciliationId);
+    SQLPARAMS_PUSH(params, "s", std::string, payChannelCode);
+    SQLPARAMS_PUSH(params, "s", std::string, amountStr);
+    SQLPARAMS_PUSH(params, "s", std::string, amountStr);
+    SQLPARAMS_PUSH(params, "s", std::string, accountId);
+    SQLPARAMS_PUSH(params, "s", std::string, accountCode);
+    SQLPARAMS_PUSH(params, "s", std::string, entererId);
+
+    std::ostringstream sql;
+    sql << "INSERT INTO fin_payment_rec_detail"
+        << " (id, tenant_id, created_at, is_deleted, version,"
+        << " reconciliation_id, pay_enum, amount, charge_amount,"
+        << " account_id, account_code, result_enum, created_by)"
+        << " VALUES (?,NULL,?,0,0,"
+        << " ?,?,?,?,"
+        << " ?,?,'SUCCESS',?)";
+
+    return sqlSession->executeUpdate(sql.str(), params);
+}
+
+int SettleChargeDAO::insertInvoice(const std::string& invoiceId, const std::string& nowStr,
+    const std::string& patientId, const std::string& paymentId,
     const std::string& chargeItemIdsStr, const std::string& totalAmountStr,
     const std::string& busNo)
 {
@@ -48,7 +154,7 @@ void SettleChargeDAO::insertInvoice(const std::string& invoiceId, const std::str
     SQLPARAMS_PUSH(params, "s", std::string, nowStr);
     SQLPARAMS_PUSH(params, "s", std::string, busNo);
     SQLPARAMS_PUSH(params, "s", std::string, "OUTPATIENT");
-    SQLPARAMS_PUSH(params, "s", std::string, encounterId);
+    SQLPARAMS_PUSH(params, "s", std::string, patientId);
     SQLPARAMS_PUSH(params, "s", std::string, paymentId);
     SQLPARAMS_PUSH(params, "s", std::string, paymentId);
     SQLPARAMS_PUSH(params, "s", std::string, chargeItemIdsStr);
@@ -62,10 +168,10 @@ void SettleChargeDAO::insertInvoice(const std::string& invoiceId, const std::str
         << " charge_item_ids, amount, status_enum)"
         << " VALUES (?,NULL,?,0,0, ?,?, ?,?,?, ?,?,'DRAFT')";
 
-    sqlSession->executeUpdate(sql.str(), params);
+    return sqlSession->executeUpdate(sql.str(), params);
 }
 
-void SettleChargeDAO::updateChargeItemsToSettled(const std::string& chargeItemIdsStr,
+int SettleChargeDAO::updateChargeItemsToSettled(const std::string& chargeItemIdsStr,
     const std::string& nowStr)
 {
     SqlParams params;
@@ -77,5 +183,5 @@ void SettleChargeDAO::updateChargeItemsToSettled(const std::string& chargeItemId
 
     SQLPARAMS_PUSH(params, "s", std::string, chargeItemIdsStr);
 
-    sqlSession->executeUpdate(sql.str(), params);
+    return sqlSession->executeUpdate(sql.str(), params);
 }
