@@ -119,12 +119,13 @@ public class ClinicScheduleServiceImpl implements ClinicScheduleService {
         String substitutePractitionerId = schedule.getSubstitutePractitionerId();
         String substituteReason = schedule.getSubstituteReason();
 
-        // 4. 执行撤销：清空替诊信息
-        WkfSchedule updateEntity = new WkfSchedule();
-        updateEntity.setId(scheduleId);
-        updateEntity.setSubstitutePractitionerId(null);
-        updateEntity.setSubstituteReason(null);
-        scheduleService.updateById(updateEntity);
+        // 4. 执行撤销：清空替诊信息（使用 UpdateWrapper 强制更新 null 值）
+        scheduleService.update(
+                new LambdaUpdateWrapper<WkfSchedule>()
+                        .eq(WkfSchedule::getId, scheduleId)
+                        .set(WkfSchedule::getSubstitutePractitionerId, null)
+                        .set(WkfSchedule::getSubstituteReason, null)
+        );
 
         // 5. 构建返回对象
         SubstituteVO vo = new SubstituteVO();
@@ -195,11 +196,11 @@ public class ClinicScheduleServiceImpl implements ClinicScheduleService {
         updateSchedule.setStatusEnum("inactive");
         scheduleService.updateById(updateSchedule);
 
-        // 6. 将所有号源状态改为 busy-unavailable
+        // 6. 将所有号源状态改为 busy-stop-clinic（停诊专用状态）
         for (WkfSlot slot : slots) {
             WkfSlot updateSlot = new WkfSlot();
             updateSlot.setId(slot.getId());
-            updateSlot.setStatusCode("busy-unavailable");
+            updateSlot.setStatusCode("busy-stop-clinic");
             slotService.updateById(updateSlot);
         }
 
@@ -292,11 +293,11 @@ public class ClinicScheduleServiceImpl implements ClinicScheduleService {
             }
         }
 
-        // 8. 将受影响的号源状态改为 busy-unavailable
+        // 8. 将受影响的号源状态改为 busy-stop-clinic（停诊专用状态）
         for (WkfSlot slot : affectedSlots) {
             WkfSlot updateSlot = new WkfSlot();
             updateSlot.setId(slot.getId());
-            updateSlot.setStatusCode("busy-unavailable");
+            updateSlot.setStatusCode("busy-stop-clinic");
             slotService.updateById(updateSlot);
         }
 
@@ -345,6 +346,31 @@ public class ClinicScheduleServiceImpl implements ClinicScheduleService {
 
         if (!updated) {
             log.warn("没有找到需要释放的冻结记录，scheduleId: {}", dto.getScheduleId());
+        }
+
+        // 3. 恢复号源状态：将停诊的号源从 busy-stop-clinic 恢复为 free
+        List<String> targetSlotIds = dto.getSlotIds();
+        if (targetSlotIds != null && !targetSlotIds.isEmpty()) {
+            // 如果指定了 slotIds，只恢复这些号源
+            slotService.update(
+                    new LambdaUpdateWrapper<WkfSlot>()
+                            .in(WkfSlot::getId, targetSlotIds)
+                            .eq(WkfSlot::getScheduleId, dto.getScheduleId())
+                            .eq(WkfSlot::getStatusCode, "busy-stop-clinic")
+                            .eq(WkfSlot::getIsDeleted, false)
+                            .set(WkfSlot::getStatusCode, "free")
+            );
+            log.info("已恢复指定号源状态，scheduleId: {}, slotIds: {}", dto.getScheduleId(), targetSlotIds);
+        } else {
+            // 如果没有指定 slotIds，恢复该日程下所有停诊号源
+            slotService.update(
+                    new LambdaUpdateWrapper<WkfSlot>()
+                            .eq(WkfSlot::getScheduleId, dto.getScheduleId())
+                            .eq(WkfSlot::getStatusCode, "busy-stop-clinic")
+                            .eq(WkfSlot::getIsDeleted, false)
+                            .set(WkfSlot::getStatusCode, "free")
+            );
+            log.info("已恢复日程下所有停诊号源，scheduleId: {}", dto.getScheduleId());
         }
 
         log.info("停诊解锁成功，scheduleId: {}, 释放冻结记录: {}", dto.getScheduleId(), updated);
