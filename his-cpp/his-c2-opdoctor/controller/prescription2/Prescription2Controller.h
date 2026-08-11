@@ -10,7 +10,7 @@
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-#define API_TAG ZH_WORDS_GETTER("medical-advice.tags.tag")
+#define API_TAG ZH_WORDS_GETTER("c2-opdoctor.tags.tag")
 
 // 医嘱业务操作控制器
 class Prescription2Controller : public oatpp::web::server::api::ApiController
@@ -19,23 +19,23 @@ class Prescription2Controller : public oatpp::web::server::api::ApiController
 
 public:
     // 签发选中的草稿状态医嘱记录
-    API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medical-advice.sign.summary"),
+    API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("c2-opdoctor.sign.summary"),
         signMedicalAdvice, SignMedicalAdviceJsonVO::Wrapper, API_TAG);
-    API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/medical-advice/sign", signMedicalAdvice,
+    API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/c2-opdoctor/sign", signMedicalAdvice,
         BODY_DTO(SignMedicalAdviceDTO::Wrapper, dto),
         execSignMedicalAdvice(dto, authObject->getPayload()));
 
     // 撤回选中的有效医嘱记录
-    API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medical-advice.withdraw.summary"),
+    API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("c2-opdoctor.withdraw.summary"),
         withdrawMedicalAdvice, WithdrawMedicalAdviceJsonVO::Wrapper, API_TAG);
-    API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/medical-advice/withdraw", withdrawMedicalAdvice,
+    API_HANDLER_ENDPOINT_AUTH(API_M_PUT, "/c2-opdoctor/withdraw", withdrawMedicalAdvice,
         BODY_DTO(WithdrawMedicalAdviceDTO::Wrapper, dto),
         execWithdrawMedicalAdvice(dto, authObject->getPayload()));
 
     // 增加一条服务申请单的打印次数
-    API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("medical-advice.print-application-form.summary"),
+    API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("c2-opdoctor.print-application-form.summary"),
         printApplicationForm, PrintApplicationFormJsonVO::Wrapper, API_TAG);
-    API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/medical-advice/print-application-form", printApplicationForm,
+    API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/c2-opdoctor/print-application-form", printApplicationForm,
         BODY_DTO(PrintApplicationFormDTO::Wrapper, dto),
         execPrintApplicationForm(dto, authObject->getPayload()));
 

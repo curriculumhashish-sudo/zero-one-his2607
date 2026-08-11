@@ -15,13 +15,13 @@ class WithdrawMedicalAdviceDTO : public oatpp::DTO
 
     // 包含医嘱记录的就诊标识
     API_DTO_FIELD_REQUIRE(String, encounterId,
-        ZH_WORDS_GETTER("medical-advice.field.encounter-id"), true);
+        ZH_WORDS_GETTER("c2-opdoctor.field.encounter-id"), true);
     // 期望的乐观锁版本号
     API_DTO_FIELD_REQUIRE(Int32, version,
-        ZH_WORDS_GETTER("medical-advice.field.version"), true);
+        ZH_WORDS_GETTER("c2-opdoctor.field.version"), true);
     // 待撤回的医嘱标识列表
     API_DTO_FIELD_REQUIRE(List<String>, adviceIds,
-        ZH_WORDS_GETTER("medical-advice.field.advice-ids"), true);
+        ZH_WORDS_GETTER("c2-opdoctor.field.advice-ids"), true);
 };
 
 #include OATPP_CODEGEN_END(DTO)
