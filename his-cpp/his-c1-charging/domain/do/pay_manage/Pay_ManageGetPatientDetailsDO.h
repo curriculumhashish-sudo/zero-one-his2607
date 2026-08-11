@@ -36,9 +36,9 @@ class Pay_ManageGetPatientDetailsDO : public BaseDO
     MYSQL_SYNTHESIZE(std::string, patientName, PatientName);
     // Department name (from adm_organization)
     MYSQL_SYNTHESIZE(std::string, departmentName, DepartmentName);
-    // Ward name (from adm_organization parent)
+    // Ward name (from adm_location via adm_encounter_location, form_enum = WARD)
     MYSQL_SYNTHESIZE(std::string, wardName, WardName);
-    // Bed number (from adm_location)
+    // Bed number (from adm_location via adm_encounter_location, form_enum = BED)
     MYSQL_SYNTHESIZE(std::string, bedNumber, BedNumber);
     // Account balance (from adm_account)
     MYSQL_SYNTHESIZE(std::string, accountBalance, AccountBalance);
