@@ -95,7 +95,6 @@ public class EnumController implements EnumApis {
     @Override
     public JsonVO<String> modifyEnumType(@RequestBody @Valid EnumTypeModifyDTO data) {
         enumTypeService.updateEnumType(data);
-
         return JsonVO.success("success");
     }
 
@@ -104,7 +103,8 @@ public class EnumController implements EnumApis {
     @Operation(summary = "删除枚举类型")
     @DeleteMapping("/sys/delete-enum-type/{id}")
     public JsonVO<String> deleteEnumType(@PathVariable(value = "id", required = true) String id) {
-        return enumTypeService.deleteEnumType(id);
+        enumTypeService.deleteEnumType(id);
+        return JsonVO.success("success");
     }
 
 

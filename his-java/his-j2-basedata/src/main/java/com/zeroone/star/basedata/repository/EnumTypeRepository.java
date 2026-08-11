@@ -1,5 +1,6 @@
 package com.zeroone.star.basedata.repository;
 
+import com.zeroone.star.basedata.constant.DefaultConstant;
 import com.zeroone.star.basedata.entity.EnumValue;
 import org.springframework.data.mongodb.repository.Aggregation;
 import com.zeroone.star.basedata.entity.EnumType;
@@ -13,7 +14,7 @@ import java.util.List;
 import org.springframework.data.mongodb.repository.Query;
 public interface EnumTypeRepository extends MongoRepository<EnumType, String> {
 
-    @Query(value = "{ 'enumTypeKey': ?1, $or: [ { 'tenantId': ?0 }, { 'tenantId': 'sys_tenant' } ] }", exists = true)
+    @Query(value = "{ 'enumTypeKey': ?1, $or: [ { 'tenantId': ?0 }, { 'tenantId': "+ DefaultConstant.DEFAULT_TENANT_ID +" } ] }", exists = true)
     boolean existsByEnumTypeKey(String tenantId, String enumTypeKey);
     @Aggregation(pipeline = {
             "{$addFields: {_idStr: {$toString: '$_id'}}}",
@@ -25,6 +26,7 @@ public interface EnumTypeRepository extends MongoRepository<EnumType, String> {
     List<EnumValue> findByEnumTypeId(String id);
 
     boolean existsByTenantIdAndEnumTypeKey(String tenantId, String enumTypeKey);
+
     /**
      * 根据关键字查询枚举类型，这里会额外查询默认系统租户的枚举类型
      * @param tenatId 枚举类型所属租户ID
@@ -33,7 +35,7 @@ public interface EnumTypeRepository extends MongoRepository<EnumType, String> {
      * @return 枚举类型列表
      */
     @Query("{$and: ["
-            + "{'tenantId': {$in: ['sys_tenant', ?0]}}, "
+            + "{'tenantId': {$in: ["+ DefaultConstant.DEFAULT_TENANT_ID +", ?0]}}, "
             + "{'isDeleted': false}, "
             + "{$or: ["
             + "{'enumTypeKey': {$regex: ?1, $options: 'i'}}, "
@@ -46,7 +48,8 @@ public interface EnumTypeRepository extends MongoRepository<EnumType, String> {
             Pageable pageable);
 
 
-    String findEnumTypeIdByEnumTypeKey(String enumTypeKey);
+    @Query("{'tenantId': {$in: ["+ DefaultConstant.DEFAULT_TENANT_ID +", ?0]}, 'isDeleted': false}")
+    Page<EnumTypeDTO> findByTenantIdAndIsDeletedFalse(String tenantId, Pageable pageable);
 
     /**
      * 根据枚举类型关键字查询枚举类型ID，包含默认系统租户的枚举类型
@@ -54,7 +57,7 @@ public interface EnumTypeRepository extends MongoRepository<EnumType, String> {
      * @param enumTypeKey 枚举类型关键字
      * @return 枚举类型ID
      */
-    @Query("{'enumTypeKey': ?1, 'tenantId': {$in: ['sys_tenant', ?0]}, 'isDeleted': false}")
+    @Query("{'enumTypeKey': ?1, 'tenantId': {$in: ["+ DefaultConstant.DEFAULT_TENANT_ID +", ?0]}, 'isDeleted': false}")
     EnumType findActiveByEnumTypeKey(String tenantId, String enumTypeKey);
 
 }

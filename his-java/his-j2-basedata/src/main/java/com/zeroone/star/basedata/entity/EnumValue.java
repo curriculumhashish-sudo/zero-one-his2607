@@ -102,7 +102,7 @@ public class EnumValue {
 
     public static List<EnumSimpleDTO> toSimpleDTOList(List<EnumValue> enumValues) {
         return enumValues.stream().map(e -> {
-            return new EnumSimpleDTO(e.getId(), e.getEnumTypeId(), e.getEnumKey(), e.getEnumCode(), e.getDisplay());
+            return new EnumSimpleDTO(e.getId(), e.getEnumTypeId(), e.getEnumKey(), e.getEnumCode(), e.getDisplay(), e.getDescription());
         }).toList();
     }
 

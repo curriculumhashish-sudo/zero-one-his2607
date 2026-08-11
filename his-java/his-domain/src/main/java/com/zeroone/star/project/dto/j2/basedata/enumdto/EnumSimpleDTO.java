@@ -24,4 +24,7 @@ public class EnumSimpleDTO {
 
     @Schema(description = "标签，显示的名称", example = "男性", requiredMode = Schema.RequiredMode.REQUIRED)
     private String display;
+
+    @Schema(description = "描述", example = "生理性别为男性", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String description;
 }
