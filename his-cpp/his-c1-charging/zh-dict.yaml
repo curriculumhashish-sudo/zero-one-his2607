@@ -845,6 +845,7 @@ xbzml:
         amount: 退款金额
         payChannelCode: 支付渠道编码
         success: 是否执行成功
+        errorCode: 错误码（成功时为空）
         reversePaymentId: 冲正支付记录ID
         halfRefundExecuted: 是否为半退
         insuranceRevoked: 医保是否已撤销
