@@ -180,31 +180,81 @@ ConfirmSettleChargeResponseDTO::Wrapper SettleChargeService::confirmSettle(
     // 发票业务号 IVYYYY-MM-DDNNNN
     std::string invoiceBusNo = std::string("IV") + dateBuf + seqBuf;
 
-    // 1. 插入支付流水
-    dao.insertPayment(paymentId, nowStr, paymentNo, entererId,
-        patientId, totalAmountStr, chargeItemIdsStr, billDate, invoiceId,
-        encounterId);
+    // ---- 事务写入 ----
+    dao.beginTransaction();
 
-    // 2. 逐条保存支付明细到 fin_payment_rec_detail
-    if (dto->paymentDetails)
+    try
     {
-        for (auto& detail : *dto->paymentDetails)
+        // 1. 插入支付流水
+        if (dao.insertPayment(paymentId, nowStr, paymentNo, entererId,
+                patientId, totalAmountStr, chargeItemIdsStr, billDate, invoiceId,
+                encounterId) < 1)
         {
-            std::string detailId = UuidFacade().genUuid();
-            std::string channelCode = detail->payChannelCode
-                ? std::string(detail->payChannelCode->c_str()) : "CASH";
-            std::string amountStr = std::to_string(detail->amount.getValue(0.0));
-            dao.insertPaymentDetail(detailId, nowStr, paymentId,
-                channelCode, amountStr, entererId);
+            dao.rollbackTransaction();
+            resp->successMessageCode = "EX-INSERT-PAYMENT-FAILED";
+            resp->paymentId = "";
+            resp->invoiceId = "";
+            resp->invoiceStatus = "";
+            return resp;
         }
+
+        // 2. 逐条保存支付明细到 fin_payment_rec_detail
+        if (dto->paymentDetails)
+        {
+            for (auto& detail : *dto->paymentDetails)
+            {
+                std::string detailId = UuidFacade().genUuid();
+                std::string channelCode = detail->payChannelCode
+                    ? std::string(detail->payChannelCode->c_str()) : "CASH";
+                std::string amountStr = std::to_string(detail->amount.getValue(0.0));
+                if (dao.insertPaymentDetail(detailId, nowStr, paymentId,
+                        channelCode, amountStr, entererId) < 1)
+                {
+                    dao.rollbackTransaction();
+                    resp->successMessageCode = "EX-INSERT-PAYMENT-DETAIL-FAILED";
+                    resp->paymentId = "";
+                    resp->invoiceId = "";
+                    resp->invoiceStatus = "";
+                    return resp;
+                }
+            }
+        }
+
+        // 3. 插入发票草稿
+        if (dao.insertInvoice(invoiceId, nowStr, patientId, paymentId,
+                chargeItemIdsStr, totalAmountStr, invoiceBusNo) < 1)
+        {
+            dao.rollbackTransaction();
+            resp->successMessageCode = "EX-INSERT-INVOICE-FAILED";
+            resp->paymentId = "";
+            resp->invoiceId = "";
+            resp->invoiceStatus = "";
+            return resp;
+        }
+
+        // 4. 更新选中的收费项状态为已结算
+        int expectedRows = static_cast<int>(draft.chargeItemIds.size());
+        if (dao.updateChargeItemsToSettled(chargeItemIdsStr, nowStr) < expectedRows)
+        {
+            dao.rollbackTransaction();
+            resp->successMessageCode = "EX-UPDATE-CHARGE-ITEMS-FAILED";
+            resp->paymentId = "";
+            resp->invoiceId = "";
+            resp->invoiceStatus = "";
+            return resp;
+        }
+
+        dao.commitTransaction();
     }
-
-    // 3. 插入发票草稿
-    dao.insertInvoice(invoiceId, nowStr, patientId, paymentId,
-        chargeItemIdsStr, totalAmountStr, invoiceBusNo);
-
-    // 3. 更新选中的收费项状态
-    dao.updateChargeItemsToSettled(chargeItemIdsStr, nowStr);
+    catch (...)
+    {
+        dao.rollbackTransaction();
+        resp->successMessageCode = "EX-SETTLE-TRANSACTION-FAILED";
+        resp->paymentId = "";
+        resp->invoiceId = "";
+        resp->invoiceStatus = "";
+        return resp;
+    }
 
     resp->paymentId = paymentId;
     resp->invoiceId = invoiceId;

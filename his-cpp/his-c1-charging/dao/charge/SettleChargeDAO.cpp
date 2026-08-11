@@ -4,6 +4,25 @@
 // 防止 ODBC/MySQL 类型冲突
 #include "NacosClient.h"
 
+// ---- Transaction control ----
+
+void SettleChargeDAO::beginTransaction()
+{
+    sqlSession->beginTransaction();
+}
+
+void SettleChargeDAO::commitTransaction()
+{
+    sqlSession->commitTransaction();
+}
+
+void SettleChargeDAO::rollbackTransaction()
+{
+    sqlSession->rollbackTransaction();
+}
+
+// ---- Read ----
+
 namespace
 {
     struct EncounterPatient
@@ -37,7 +56,7 @@ std::string SettleChargeDAO::selectPatientIdByEncounter(const std::string& encou
     return result.patientId;
 }
 
-void SettleChargeDAO::insertPayment(const std::string& paymentId, const std::string& nowStr,
+int SettleChargeDAO::insertPayment(const std::string& paymentId, const std::string& nowStr,
     const std::string& paymentNo, const std::string& entererId,
     const std::string& patientId, const std::string& totalAmountStr,
     const std::string& chargeItemIdsStr,
@@ -68,10 +87,10 @@ void SettleChargeDAO::insertPayment(const std::string& paymentId, const std::str
         << " VALUES (?,NULL,?,0,0, 'SUCCESS',?,?,?,"
         << " ?,?,?,?, 0,?,?,?,?)";
 
-    sqlSession->executeUpdate(sql.str(), params);
+    return sqlSession->executeUpdate(sql.str(), params);
 }
 
-void SettleChargeDAO::insertPaymentDetail(const std::string& detailId, const std::string& nowStr,
+int SettleChargeDAO::insertPaymentDetail(const std::string& detailId, const std::string& nowStr,
     const std::string& reconciliationId, const std::string& payChannelCode,
     const std::string& amountStr, const std::string& entererId)
 {
@@ -93,10 +112,10 @@ void SettleChargeDAO::insertPaymentDetail(const std::string& detailId, const std
         << " ?,?,?,?,"
         << " 'SUCCESS',?)";
 
-    sqlSession->executeUpdate(sql.str(), params);
+    return sqlSession->executeUpdate(sql.str(), params);
 }
 
-void SettleChargeDAO::insertInvoice(const std::string& invoiceId, const std::string& nowStr,
+int SettleChargeDAO::insertInvoice(const std::string& invoiceId, const std::string& nowStr,
     const std::string& patientId, const std::string& paymentId,
     const std::string& chargeItemIdsStr, const std::string& totalAmountStr,
     const std::string& busNo)
@@ -120,10 +139,10 @@ void SettleChargeDAO::insertInvoice(const std::string& invoiceId, const std::str
         << " charge_item_ids, amount, status_enum)"
         << " VALUES (?,NULL,?,0,0, ?,?, ?,?,?, ?,?,'DRAFT')";
 
-    sqlSession->executeUpdate(sql.str(), params);
+    return sqlSession->executeUpdate(sql.str(), params);
 }
 
-void SettleChargeDAO::updateChargeItemsToSettled(const std::string& chargeItemIdsStr,
+int SettleChargeDAO::updateChargeItemsToSettled(const std::string& chargeItemIdsStr,
     const std::string& nowStr)
 {
     SqlParams params;
@@ -135,5 +154,5 @@ void SettleChargeDAO::updateChargeItemsToSettled(const std::string& chargeItemId
 
     SQLPARAMS_PUSH(params, "s", std::string, chargeItemIdsStr);
 
-    sqlSession->executeUpdate(sql.str(), params);
+    return sqlSession->executeUpdate(sql.str(), params);
 }

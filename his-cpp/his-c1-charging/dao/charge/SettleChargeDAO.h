@@ -11,15 +11,25 @@
 class SettleChargeDAO : public BaseDAO
 {
 public:
+    // ---- Transaction control ----
+
+    void beginTransaction();
+    void commitTransaction();
+    void rollbackTransaction();
+
+    // ---- Read ----
+
     /**
      * 根据 encounterId 查询真实 patientId
      */
     std::string selectPatientIdByEncounter(const std::string& encounterId);
 
+    // ---- Write ----
+
     /**
      * 插入支付流水记录
      */
-    void insertPayment(const std::string& paymentId, const std::string& nowStr,
+    int insertPayment(const std::string& paymentId, const std::string& nowStr,
         const std::string& paymentNo, const std::string& entererId,
         const std::string& patientId, const std::string& totalAmountStr,
         const std::string& chargeItemIdsStr,
@@ -27,24 +37,24 @@ public:
         const std::string& encounterId);
 
     /**
+     * 插入支付明细记录（fin_payment_rec_detail）
+     */
+    int insertPaymentDetail(const std::string& detailId, const std::string& nowStr,
+        const std::string& reconciliationId, const std::string& payChannelCode,
+        const std::string& amountStr, const std::string& entererId);
+
+    /**
      * 插入发票草稿记录
      */
-    void insertInvoice(const std::string& invoiceId, const std::string& nowStr,
+    int insertInvoice(const std::string& invoiceId, const std::string& nowStr,
         const std::string& patientId, const std::string& paymentId,
         const std::string& chargeItemIdsStr, const std::string& totalAmountStr,
         const std::string& busNo);
 
     /**
-     * 插入支付明细记录（fin_payment_rec_detail）
-     */
-    void insertPaymentDetail(const std::string& detailId, const std::string& nowStr,
-        const std::string& reconciliationId, const std::string& payChannelCode,
-        const std::string& amountStr, const std::string& entererId);
-
-    /**
      * 更新指定收费项状态为已结算
      */
-    void updateChargeItemsToSettled(const std::string& chargeItemIdsStr,
+    int updateChargeItemsToSettled(const std::string& chargeItemIdsStr,
         const std::string& nowStr);
 };
 
