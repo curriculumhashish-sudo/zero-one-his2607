@@ -25,7 +25,7 @@ public:
 	// 根据ID查询详情（对标User getUserDetail）
 	DiagnoseDetailDTO::Wrapper getDiagnoseDetail(const oatpp::String& id);
 	//新增
-	std::string saveData(const DiagnoseAddDTO::Wrapper& dto);
+	AddreturnDTO::Wrapper saveData(const DiagnoseAddDTO::Wrapper& dto);
 	//更新
 	bool updateData(const DiagnoseDTO::Wrapper& dto);
 	//逻辑批量删不带鉴权

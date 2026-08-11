@@ -57,6 +57,9 @@ public:
 	std::list<PtrClnConditionDefinitionDO> DiagnoseDAO::selectAll(const DiagnoseSelectQuery::Wrapper& query);
 
 	PtrTERconceptDO selectdtic(std::string catname);
+	PtrWhaleSequenceDO selectwhale(std::string seqkey);
+	int insertwhale(const BaseDO& bd);
+
 };
 
 

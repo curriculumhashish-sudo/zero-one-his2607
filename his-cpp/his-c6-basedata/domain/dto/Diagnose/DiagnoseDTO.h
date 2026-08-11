@@ -129,6 +129,16 @@ class DiagnoseRemoveDTO : public oatpp::DTO
 	CC_SYNTHESIZE(const PayloadDTO*, _payload, Payload);
 };
 
+//增加字段返回
+class AddreturnDTO : public oatpp::DTO
+{
+	DTO_INIT(AddreturnDTO, DTO);
+
+	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("diagnose.field.diag.id"), true);//主键id  id
+	API_DTO_FIELD_REQUIRE(String, conditioncode, ZH_WORDS_GETTER("diagnose.field.diag.condition_code"), true);//主键id  id
+};
+
+
 
 #include OATPP_CODEGEN_END(DTO)
 

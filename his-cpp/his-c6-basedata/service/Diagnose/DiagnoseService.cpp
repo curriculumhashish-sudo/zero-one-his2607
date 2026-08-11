@@ -277,7 +277,7 @@ DiagnoseDetailDTO::Wrapper DiagnoseService::getDiagnoseDetail(const oatpp::Strin
 //
 //}
 //增加一条数据
-std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
+AddreturnDTO::Wrapper DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
 {
 	DiagnoseDO data;//别改我这里
 	ZO_STAR_DOMAIN_DTO_TO_DO(
@@ -326,10 +326,48 @@ std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
 	std::string diagtype = *dto->diagType;
 
 	DiagnoseDAO dao;
-	PtrTERconceptDO data2 = dao.selectdtic(catname);
-	PtrTERconceptDO data3 = dao.selectdtic(diagtype);
-	data.setSource_enum(data2->getCode());
-	data.setdiagnoseType(data3->getCode());
+	auto data2 = dao.selectdtic(catname);
+	auto data3 = dao.selectdtic(diagtype);
+	//OATPP_LOGD("DIAG_DTIC_QUERY",
+	//	"catname=[%s], data2 ptr valid=%d; diagtype=[%s], data3 ptr valid=%d",
+	//	catname.c_str(), data2 != nullptr,
+	//	diagtype.c_str(), data3 != nullptr);
+	if (data2 != nullptr)
+	{
+		data.setSource_enum(data2->getCode());
+	}
+	if (data3 != nullptr)
+	{
+		data.setdiagnoseType(data3->getCode());
+	}
+
+
+	auto data4 = dao.selectwhale("1:CDF");
+	WhaleSequenceDO data_;
+	auto result_ = AddreturnDTO::createShared();
+
+	if (data4 != nullptr)
+	{
+		int64_t num = 0;
+			num= data4->getConditioncode();
+			num++;
+			if (num == 0)
+				std::cout << "data4 select error"<<std::endl;
+			char buffer[32] = { 0 };
+			snprintf(buffer, sizeof(buffer), "CDF%08lld", num);
+		data.setConditioncode(std::string(buffer));
+		result_->conditioncode=std::string(buffer);
+		data_.setConditioncode(num);
+	}
+	data_.setUpdatedat(SimpleDateTimeFormat::format());
+	data_.setSeqkey("1:CDF");
+	if (dao.update(data_)!=1)
+	{
+		std::cout << "whale insert error" << std::endl;
+	}
+
+	/*data.setSource_enum(data2->getCode());
+	data.setdiagnoseType(data3->getCode());*/
 
 
 
@@ -399,7 +437,8 @@ std::string DiagnoseService::saveData(const DiagnoseAddDTO::Wrapper& dto)
 	
 
 	DiagnoseDAO dao1;
-	return dao1.insert(data) == 1 ? data.getId() : "";
+	 result_->id= dao1.insert(data) == 1 ? data.getId() : "";
+	 return result_;
 }
 
 bool DiagnoseService::updateData(const DiagnoseDTO::Wrapper& dto)
