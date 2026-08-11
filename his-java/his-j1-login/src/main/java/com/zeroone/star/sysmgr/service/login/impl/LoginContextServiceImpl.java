@@ -20,10 +20,10 @@ public class LoginContextServiceImpl implements LoginContextService {
     private static final long LOGIN_CONTEXT_TTL_SECONDS = 7200L;
     private static final long USER_INFO_TTL_SECONDS = 3600L;
     private static final List<String> REQUIRED_CONTEXT_FIELDS = List.of(
-            "token", "userId", "username", "realName", "tenantId", "tenantName",
-            "hospitalId", "hospitalName", "deptId", "deptName", "role", "permissions",
+            "token", "userId", "username", "realName", "tenant_id", "tenantName",
+            "hospital_organization_id", "hospitalName", "organization_unit_id", "deptName", "role", "permissions",
             "loginTime", "lastActiveTime", "email", "phone_number", "is_enabled",
-            "is_locked_out", "practitionerId", "practitionerName", "practitionerStatus"
+            "is_locked_out", "practitioner_id", "practitionerName", "practitionerStatus"
     );
 
     @Resource
@@ -39,11 +39,11 @@ public class LoginContextServiceImpl implements LoginContextService {
         context.put("userId", value(userId));
         context.put("username", value(profile == null ? null : profile.getUsername()));
         context.put("realName", value(profile == null ? null : profile.getName()));
-        context.put("tenantId", value(profile == null ? null : profile.getTenantId()));
+        context.put("tenant_id", value(profile == null ? null : profile.getTenantId()));
         context.put("tenantName", value(profile == null ? null : profile.getTenantName()));
-        context.put("hospitalId", value(profile == null ? null : profile.getHospitalOrganizationId()));
+        context.put("hospital_organization_id", value(profile == null ? null : profile.getHospitalOrganizationId()));
         context.put("hospitalName", value(profile == null ? null : profile.getHospitalName()));
-        context.put("deptId", value(profile == null ? null : profile.getOrganizationUnitId()));
+        context.put("organization_unit_id", value(profile == null ? null : profile.getOrganizationUnitId()));
         context.put("deptName", value(profile == null ? null : profile.getOrganizationUnitName()));
         context.put("role", roles == null ? "" : roles.stream().collect(Collectors.joining(",")));
         context.put("permissions", value(permissionsJson));
@@ -54,7 +54,7 @@ public class LoginContextServiceImpl implements LoginContextService {
         context.put("phone_number", value(profile == null ? null : profile.getPhoneNumber()));
         context.put("is_enabled", value(profile == null ? null : profile.getIsEnabled()));
         context.put("is_locked_out", value(profile == null ? null : profile.getLockedOut()));
-        context.put("practitionerId", value(profile == null ? null : profile.getPractitionerId()));
+        context.put("practitioner_id", value(profile == null ? null : profile.getPractitionerId()));
         context.put("practitionerName", value(profile == null ? null : profile.getPractitionerName()));
         context.put("practitionerStatus", value(profile == null ? null : profile.getPractitionerStatus()));
         String key = contextKey(userId);

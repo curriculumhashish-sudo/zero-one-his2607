@@ -186,10 +186,10 @@ public class LoginServiceImpl implements ILoginService {
             vo.setPhoneNumber(ctx.get("phone_number"));
             vo.setIsEnabled(toByte(ctx.get("is_enabled")));
             vo.setLockedOut(toBoolean(ctx.get("is_locked_out")));
-            vo.setTenantId(ctx.get("tenantId"));
-            vo.setHospitalOrganizationId(ctx.get("hospitalId"));
-            vo.setOrganizationUnitId(ctx.get("deptId"));
-            vo.setPractitionerId(ctx.get("practitionerId"));
+            vo.setTenantId(ctx.get("tenant_id"));
+            vo.setHospitalOrganizationId(ctx.get("hospital_organization_id"));
+            vo.setOrganizationUnitId(ctx.get("organization_unit_id"));
+            vo.setPractitionerId(ctx.get("practitioner_id"));
             vo.setPractitionerName(ctx.get("practitionerName"));
             vo.setPractitionerStatus(ctx.get("practitionerStatus"));
             return vo;

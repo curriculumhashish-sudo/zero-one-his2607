@@ -222,7 +222,7 @@ public class TenantServiceImpl implements TenantService {
                 // 同步更新 his:login:context（如果存在）
             String ctxKey = LoginRedisConstant.loginContextKey(userId);
             if (Boolean.TRUE.equals(redisTemplate.hasKey(ctxKey))) {
-                redisTemplate.opsForHash().put(ctxKey, "tenantId", tenantId.toString());
+                redisTemplate.opsForHash().put(ctxKey, "tenant_id", tenantId.toString());
                 redisTemplate.expire(ctxKey, LoginRedisConstant.USER_SESSION_TTL, TimeUnit.SECONDS);
             }
         } catch (Exception e) {
@@ -240,7 +240,7 @@ public class TenantServiceImpl implements TenantService {
             // 同步更新 his:login:context（如果存在）
             String ctxKey = LoginRedisConstant.loginContextKey(userId);
             if (Boolean.TRUE.equals(redisTemplate.hasKey(ctxKey))) {
-                redisTemplate.opsForHash().put(ctxKey, "hospitalId", hospitalId);
+                redisTemplate.opsForHash().put(ctxKey, "hospital_organization_id", hospitalId);
                 redisTemplate.expire(ctxKey, LoginRedisConstant.USER_SESSION_TTL, TimeUnit.SECONDS);
             }
         } catch (Exception e) {

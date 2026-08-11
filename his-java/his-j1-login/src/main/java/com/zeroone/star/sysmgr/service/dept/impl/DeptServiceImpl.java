@@ -96,7 +96,7 @@ public class DeptServiceImpl implements DeptService {
 
             // 同步更新Redis会话缓存
             String sessionRedisKey = "user:session:" + userId;
-            redisTemplate.opsForHash().put(sessionRedisKey, "organizationUnitId", selectDeptId);
+            redisTemplate.opsForHash().put(sessionRedisKey, "organization_unit_id", selectDeptId);
 
             // 组装返回结果，填充完整科室信息
             DeptBindResultVO vo = new DeptBindResultVO();
