@@ -39,7 +39,7 @@ public class EnumController implements EnumApis {
     @Override
     @Operation(summary = "根据枚举类型key查询枚举列表", description = "注意这里使用的是key")
     @GetMapping("/sys/init-table-enum")
-    public JsonVO<Map<String, List<EnumDTO>>> initTableEnums(@RequestParam List<String> enumTypeKeys) {
+    public JsonVO<Map<String, List<EnumSimpleDTO>>> initTableEnums(@RequestParam List<String> enumTypeKeys) {
         return JsonVO.success(enumValueService.initTableEnums(enumTypeKeys));
     }
 

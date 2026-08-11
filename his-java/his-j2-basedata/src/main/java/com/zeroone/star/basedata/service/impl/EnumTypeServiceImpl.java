@@ -21,6 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -42,31 +44,36 @@ public class EnumTypeServiceImpl implements EnumTypeService {
 
     @Resource
     private EnumValueRepository enumValueRepository;
-
+    @Resource
+    MongoTemplate template;
     @Resource
     private UserHolder userHolder;
 
     // TODO: redis上对于租户id是怎么存储的？
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
-
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
     private String getCurrentUserTenantId(String userId) {
 
-        Object tenantInfo = redisTemplate.opsForValue().get("user:session:" + userId);
+        Object tenantInfo = stringRedisTemplate.opsForHash().get("user:session:" + userId, "tenant_id");
+
 
         if (tenantInfo == null) {
+            log.warn("租户信息为空，使用默认租户id");
             return DefaultConstant.DEFAULT_TENANT_ID;
         }
         String tenantId = tenantInfo.toString();
-        log.debug("tenantId: {}", tenantId);
+        log.info("租户id:\t {}", tenantId);
         return tenantId;
     }
+
 
     private String getCurrentUserId() {
         String currentUserId;
         try {
             currentUserId = userHolder.getCurrentUser().getId();
-            log.debug("currentUserId: {}", currentUserId);
+            log.info("当前用户id:\t {}", currentUserId);
         } catch (Exception e) {
             log.warn("使用 UserHolder 失败:\t" + e.getMessage());
             currentUserId = DefaultConstant.DEFAULT_USER_ID;

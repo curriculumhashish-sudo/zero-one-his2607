@@ -19,7 +19,7 @@ public interface EnumValueService {
 
     public void deleteEnum(String enumValueId);
 
-    public Map<String, List<EnumDTO>> initTableEnums(List<String> enumTypeKeys);
+    public Map<String, List<EnumSimpleDTO>> initTableEnums(List<String> enumTypeKeys);
 
     JsonVO<List<String>> getEnumNameList(String id);
 

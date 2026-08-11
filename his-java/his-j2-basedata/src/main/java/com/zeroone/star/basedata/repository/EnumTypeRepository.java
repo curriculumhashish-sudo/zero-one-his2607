@@ -27,6 +27,8 @@ public interface EnumTypeRepository extends MongoRepository<EnumType, String> {
 
     boolean existsByTenantIdAndEnumTypeKey(String tenantId, String enumTypeKey);
 
+    String findEnumTypeIdByEnumTypeKey(String enumTypeKey);
+
     /**
      * 根据关键字查询枚举类型，这里会额外查询默认系统租户的枚举类型
      * @param tenatId 枚举类型所属租户ID

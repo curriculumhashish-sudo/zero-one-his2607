@@ -17,7 +17,7 @@ public interface EnumValueRepository extends MongoRepository<EnumValue, String> 
             value = "{ 'enumTypeId': ?1, 'isDeleted': false, $or: [ { 'tenantId': ?0 }, { 'tenantId': "+ DefaultConstant.DEFAULT_TENANT_ID +" } ] }",
             sort = "{ 'order': 1 }"  // 1 表示升序，-1 表示降序
     )
-    List<EnumValue> findByEnumTypeIdAndIsDeletedFalse(String tenantId, String enumTypeId);
+    List<EnumSimpleDTO> findByEnumTypeIdAndIsDeletedFalse(String tenantId, String enumTypeId);
 
     @Query(value = "{ 'enumTypeId': ?1, 'enumKey': ?2, $or: [ { 'tenantId': ?0 }, { 'tenantId': "+ DefaultConstant.DEFAULT_TENANT_ID +" } ] }", exists = true)
     boolean existsByEnumTypeIdAndEnumKey(String tenantId, String enumTypeId, String enumKey);

@@ -14,6 +14,7 @@ import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumAddDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumDTO;
 import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumModifyDTO;
+import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumSimpleDTO;
 import com.zeroone.star.project.query.j2.basedata.EnumQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import jakarta.annotation.Resource;
@@ -45,7 +46,8 @@ public class EnumValueServiceImpl implements EnumValueService {
 
     @Resource
     private UserHolder userHolder;
-
+    @Resource
+    MongoTemplate template;
 
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
@@ -161,12 +163,12 @@ public class EnumValueServiceImpl implements EnumValueService {
 
 
     @Override
-    public Map<String, List<EnumDTO>> initTableEnums(List<String> enumTypeKeys) {
-        String tenantId = getTenantId();
-        Map<String, List<EnumDTO>> enumTypeMap = new HashMap<>();
+    public Map<String, List<EnumSimpleDTO>> initTableEnums(List<String> enumTypeKeys) {
+
+        Map<String, List<EnumSimpleDTO>> enumTypeMap = new HashMap<>();
 
         for (String enumTypeKey : enumTypeKeys) {
-            EnumType enumType = enumTypeRepository.findActiveByEnumTypeKey(tenantId, enumTypeKey);
+            EnumType enumType = enumTypeRepository.findActiveByEnumTypeKey(TENANT_ID, enumTypeKey);
             if (enumType == null) {
                 // TODO: 这里需要对为查找到相关类型的情况做出处理，是否应该返回错误？
                 // enumTypeMap.put(enumTypeKey, new ArrayList<EnumDTO>());
@@ -175,14 +177,12 @@ public class EnumValueServiceImpl implements EnumValueService {
                 // continue;
             }
             String enumTypeId = enumType.getId();
-            List<EnumDTO> enumDTOList = EnumValue.toDTOList(
-                    enumValueRepository.findByEnumTypeIdAndIsDeletedFalse(tenantId, enumTypeId));
+            List<EnumSimpleDTO> enumDTOList = enumValueRepository.findByEnumTypeIdAndIsDeletedFalse(TENANT_ID, enumTypeId);
             enumTypeMap.put(enumTypeKey, enumDTOList);
         }
 
         return enumTypeMap;
     }
-
     @Override
     public JsonVO<List<String>> getEnumNameList(String id) {
         if (StringUtils.hasText(id)) {
@@ -292,4 +292,6 @@ public class EnumValueServiceImpl implements EnumValueService {
         // ========== 5. 返回 Page ==========
         return new PageImpl<>(list, pageRequest, total);
     }
+
+
   }
