@@ -30,9 +30,16 @@ public:
      * 插入发票草稿记录
      */
     void insertInvoice(const std::string& invoiceId, const std::string& nowStr,
-        const std::string& encounterId, const std::string& paymentId,
+        const std::string& patientId, const std::string& paymentId,
         const std::string& chargeItemIdsStr, const std::string& totalAmountStr,
         const std::string& busNo);
+
+    /**
+     * 插入支付明细记录（fin_payment_rec_detail）
+     */
+    void insertPaymentDetail(const std::string& detailId, const std::string& nowStr,
+        const std::string& reconciliationId, const std::string& payChannelCode,
+        const std::string& amountStr, const std::string& entererId);
 
     /**
      * 更新指定收费项状态为已结算

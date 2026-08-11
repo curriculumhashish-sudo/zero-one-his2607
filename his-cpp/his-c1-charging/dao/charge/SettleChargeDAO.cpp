@@ -71,8 +71,33 @@ void SettleChargeDAO::insertPayment(const std::string& paymentId, const std::str
     sqlSession->executeUpdate(sql.str(), params);
 }
 
+void SettleChargeDAO::insertPaymentDetail(const std::string& detailId, const std::string& nowStr,
+    const std::string& reconciliationId, const std::string& payChannelCode,
+    const std::string& amountStr, const std::string& entererId)
+{
+    SqlParams params;
+    SQLPARAMS_PUSH(params, "s", std::string, detailId);
+    SQLPARAMS_PUSH(params, "s", std::string, nowStr);
+    SQLPARAMS_PUSH(params, "s", std::string, reconciliationId);
+    SQLPARAMS_PUSH(params, "s", std::string, payChannelCode);
+    SQLPARAMS_PUSH(params, "s", std::string, amountStr);
+    SQLPARAMS_PUSH(params, "s", std::string, amountStr);
+    SQLPARAMS_PUSH(params, "s", std::string, entererId);
+
+    std::ostringstream sql;
+    sql << "INSERT INTO fin_payment_rec_detail"
+        << " (id, tenant_id, created_at, is_deleted, version,"
+        << " reconciliation_id, pay_enum, amount, charge_amount,"
+        << " result_enum, created_by)"
+        << " VALUES (?,NULL,?,0,0,"
+        << " ?,?,?,?,"
+        << " 'SUCCESS',?)";
+
+    sqlSession->executeUpdate(sql.str(), params);
+}
+
 void SettleChargeDAO::insertInvoice(const std::string& invoiceId, const std::string& nowStr,
-    const std::string& encounterId, const std::string& paymentId,
+    const std::string& patientId, const std::string& paymentId,
     const std::string& chargeItemIdsStr, const std::string& totalAmountStr,
     const std::string& busNo)
 {
@@ -81,7 +106,7 @@ void SettleChargeDAO::insertInvoice(const std::string& invoiceId, const std::str
     SQLPARAMS_PUSH(params, "s", std::string, nowStr);
     SQLPARAMS_PUSH(params, "s", std::string, busNo);
     SQLPARAMS_PUSH(params, "s", std::string, "OUTPATIENT");
-    SQLPARAMS_PUSH(params, "s", std::string, encounterId);
+    SQLPARAMS_PUSH(params, "s", std::string, patientId);
     SQLPARAMS_PUSH(params, "s", std::string, paymentId);
     SQLPARAMS_PUSH(params, "s", std::string, paymentId);
     SQLPARAMS_PUSH(params, "s", std::string, chargeItemIdsStr);

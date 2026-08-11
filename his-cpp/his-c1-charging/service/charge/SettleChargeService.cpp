@@ -185,8 +185,22 @@ ConfirmSettleChargeResponseDTO::Wrapper SettleChargeService::confirmSettle(
         patientId, totalAmountStr, chargeItemIdsStr, billDate, invoiceId,
         encounterId);
 
-    // 2. 插入发票草稿
-    dao.insertInvoice(invoiceId, nowStr, encounterId, paymentId,
+    // 2. 逐条保存支付明细到 fin_payment_rec_detail
+    if (dto->paymentDetails)
+    {
+        for (auto& detail : *dto->paymentDetails)
+        {
+            std::string detailId = UuidFacade().genUuid();
+            std::string channelCode = detail->payChannelCode
+                ? std::string(detail->payChannelCode->c_str()) : "CASH";
+            std::string amountStr = std::to_string(detail->amount.getValue(0.0));
+            dao.insertPaymentDetail(detailId, nowStr, paymentId,
+                channelCode, amountStr, entererId);
+        }
+    }
+
+    // 3. 插入发票草稿
+    dao.insertInvoice(invoiceId, nowStr, patientId, paymentId,
         chargeItemIdsStr, totalAmountStr, invoiceBusNo);
 
     // 3. 更新选中的收费项状态
