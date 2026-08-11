@@ -130,17 +130,20 @@ public class StocktakeServiceImpl
     /**
      * 查询盘点单详情（含明细列表）
      *
-     * @param id 盘点单号（bus_no）
-     * @return 盘点单详情；不存在返回 null
+     * @param id 盘点单号（bus_no）或明细行 ID
+     * @return 盘点单详情
      */
     @Override
     public StocktakeDetailVO queryStocktakeDetail(String id) {
-        StocktakeDetailVO detailVO = stocktakeMapper.selectStocktakeDetail(id);
+        if (!StringUtils.hasText(id)) {
+            throw new IllegalArgumentException("盘点单号不能为空");
+        }
+        StocktakeDetailVO detailVO = stocktakeMapper.selectStocktakeDetail(id.trim());
         if (detailVO == null) {
-            return null;
+            throw new IllegalArgumentException("盘点单不存在：" + id);
         }
 
-        List<StocktakeItemVO> items = stocktakeMapper.selectStocktakeItems(id);
+        List<StocktakeItemVO> items = stocktakeMapper.selectStocktakeItems(detailVO.getBusNo());
         detailVO.setItems(items == null ? Collections.emptyList() : items);
         return detailVO;
     }

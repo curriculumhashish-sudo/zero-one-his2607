@@ -74,7 +74,11 @@ public class StocktakeController implements StocktakeApis {
                 examples = @ExampleObject(value = "{\"code\":10000,\"message\":\"操作成功\",\"data\":{\"id\":\"PST202608080001\",\"busNo\":\"PST202608080001\",\"statusEnum\":\"DRAFT\",\"statusDesc\":\"草稿\",\"warehouseId\":\"322954949549363200\",\"warehouseName\":\"西药房\",\"stocktakePharmacy\":\"西药房\",\"stocktakeType\":\"PHARMACY\",\"totalPrice\":1187.50,\"totalProfitPrice\":0,\"totalLossPrice\":25.00,\"profitLossPrice\":-25.00,\"itemCount\":1,\"createdBy\":\"308791351298756608\",\"createdByName\":\"张三\",\"applicantId\":\"308791351298756608\",\"applicantName\":\"张三\",\"applyTime\":\"2026-08-08 09:30:00\",\"approverId\":\"308791351298756609\",\"approverName\":\"李四\",\"approvalTime\":\"2026-08-08 10:00:00\",\"remark\":\"月度盘点\",\"createdAt\":\"2026-08-08 09:00:00\",\"items\":[{\"id\":\"1\",\"itemId\":\"322998385762111488\",\"itemName\":\"阿莫西林胶囊\",\"specification\":\"0.25g*24粒\",\"manufacturer\":\"广州白云山制药\",\"lotNumber\":\"001-009\",\"bookQuantity\":100,\"totalQuantity\":98,\"itemQuantity\":-2,\"unitCode\":\"box\",\"unitName\":\"box\",\"price\":12.50,\"totalPrice\":1225.00,\"profitLossPrice\":-25.00,\"remark\":\"正常损耗\"}]}}")))
     })
     public JsonVO<StocktakeDetailVO> queryStocktakeDetail(@PathVariable("id") String id) {
-        return JsonVO.success(stocktakeService.queryStocktakeDetail(id));
+        try {
+            return JsonVO.success(stocktakeService.queryStocktakeDetail(id));
+        } catch (IllegalArgumentException e) {
+            return JsonVO.fail(e.getMessage());
+        }
     }
 
     @Override
