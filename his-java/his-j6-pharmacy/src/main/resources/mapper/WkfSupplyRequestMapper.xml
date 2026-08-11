@@ -111,6 +111,7 @@
                    MAX(approver_id) AS approver_id
             FROM wkf_supply_request
             WHERE is_deleted = 0
+              AND type_enum = 'WAREHOUSE_STOCKOUT'
             <if test="query.keyword != null and query.keyword != ''">
                 AND bus_no LIKE CONCAT('%', #{query.keyword}, '%')
             </if>

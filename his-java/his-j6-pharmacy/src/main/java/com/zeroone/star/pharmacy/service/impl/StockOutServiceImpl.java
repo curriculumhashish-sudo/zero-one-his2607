@@ -453,10 +453,26 @@ public class StockOutServiceImpl implements IStockOutService {
         Map<String, com.zeroone.star.pharmacy.entity.MedMedicationDefinition> medMap = new java.util.HashMap<>();
         Map<String, com.zeroone.star.pharmacy.entity.AdmDeviceDefinition> devMap = new java.util.HashMap<>();
         if (!medIds.isEmpty()) {
-            medMedicationDefinitionMapper.selectBatchIds(medIds).forEach(m -> medMap.put(m.getId(), m));
+            // 先按主键ID查
+            medMedicationDefinitionMapper.selectBatchIds(medIds).forEach(m -> { medMap.put(m.getId(), m); medMap.put(m.getBusNo(), m); });
+            // 未命中的按busNo查
+            List<String> missed = medIds.stream().filter(id -> !medMap.containsKey(id)).toList();
+            if (!missed.isEmpty()) {
+                medMedicationDefinitionMapper.selectList(
+                    new LambdaQueryWrapper<com.zeroone.star.pharmacy.entity.MedMedicationDefinition>()
+                        .in(com.zeroone.star.pharmacy.entity.MedMedicationDefinition::getBusNo, missed))
+                    .forEach(m -> medMap.put(m.getBusNo(), m));
+            }
         }
         if (!devIds.isEmpty()) {
-            admDeviceDefinitionMapper.selectBatchIds(devIds).forEach(d -> devMap.put(d.getId(), d));
+            admDeviceDefinitionMapper.selectBatchIds(devIds).forEach(d -> { devMap.put(d.getId(), d); devMap.put(d.getBusNo(), d); });
+            List<String> missed = devIds.stream().filter(id -> !devMap.containsKey(id)).toList();
+            if (!missed.isEmpty()) {
+                admDeviceDefinitionMapper.selectList(
+                    new LambdaQueryWrapper<com.zeroone.star.pharmacy.entity.AdmDeviceDefinition>()
+                        .in(com.zeroone.star.pharmacy.entity.AdmDeviceDefinition::getBusNo, missed))
+                    .forEach(d -> devMap.put(d.getBusNo(), d));
+            }
         }
 
         List<StockOutLineVO> lines = new ArrayList<>();

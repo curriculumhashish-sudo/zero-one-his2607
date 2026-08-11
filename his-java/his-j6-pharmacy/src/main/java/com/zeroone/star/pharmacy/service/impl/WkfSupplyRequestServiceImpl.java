@@ -361,10 +361,24 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
             Map<String, MedMedicationDefinition> medMap = new HashMap<>();
             Map<String, AdmDeviceDefinition> devMap = new HashMap<>();
             if (!medIds.isEmpty()) {
-                medMedicationDefinitionMapper.selectBatchIds(medIds).forEach(m -> medMap.put(m.getId(), m));
+                medMedicationDefinitionMapper.selectBatchIds(medIds).forEach(m -> { medMap.put(m.getId(), m); medMap.put(m.getBusNo(), m); });
+                List<String> missed = medIds.stream().filter(id -> !medMap.containsKey(id)).toList();
+                if (!missed.isEmpty()) {
+                    medMedicationDefinitionMapper.selectList(
+                        new LambdaQueryWrapper<MedMedicationDefinition>()
+                            .in(MedMedicationDefinition::getBusNo, missed))
+                        .forEach(m -> medMap.put(m.getBusNo(), m));
+                }
             }
             if (!devIds.isEmpty()) {
-                admDeviceDefinitionMapper.selectBatchIds(devIds).forEach(d -> devMap.put(d.getId(), d));
+                admDeviceDefinitionMapper.selectBatchIds(devIds).forEach(d -> { devMap.put(d.getId(), d); devMap.put(d.getBusNo(), d); });
+                List<String> missed = devIds.stream().filter(id -> !devMap.containsKey(id)).toList();
+                if (!missed.isEmpty()) {
+                    admDeviceDefinitionMapper.selectList(
+                        new LambdaQueryWrapper<AdmDeviceDefinition>()
+                            .in(AdmDeviceDefinition::getBusNo, missed))
+                        .forEach(d -> devMap.put(d.getBusNo(), d));
+                }
             }
 
             List<InboundReceiptDetailLineVO> lines = rows.stream().map(r -> {
