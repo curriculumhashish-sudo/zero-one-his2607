@@ -11,7 +11,7 @@ PatientLeaveJsonVO::Wrapper PatientLeaveService::execLeavePatient(const oatpp::S
     if (!encounterDO)
     {
         vo->code = 10001;
-        vo->message = u8"å°±è¯Šè®°å½•ä¸å­˜åœ?;
+        vo->message = u8"¸Ã¾ÍÕï¼ÇÂ¼²»´æÔÚ";
         vo->data = nullptr;
         return vo;
     }
@@ -32,7 +32,7 @@ PatientLeaveJsonVO::Wrapper PatientLeaveService::execLeavePatient(const oatpp::S
     if (affectRows == 0)
     {
         vo->code = 10004;
-        vo->message = u8"ç¦»é™¢æ“ä½œå¤±è´¥";
+        vo->message = u8"ÐÞ¸Ä¾ÍÕï¼ÇÂ¼×´Ì¬Ê§°Ü";
         vo->data = nullptr;
         return vo;
     }
