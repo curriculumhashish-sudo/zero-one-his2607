@@ -30,7 +30,7 @@ public:
 
     API_HANDLER_ENDPOINT_AUTH(
         API_M_DEL,
-        "/prescription3/batch",
+        "/c2-opdoctor/prescription3/batch",
         batchDeletePrescription3,
         BODY_DTO(Prescription3BatchDeleteDTO::Wrapper, dto),
         execBatchDeletePrescription3(dto, authObject->getPayload())
@@ -46,7 +46,7 @@ public:
 
     API_HANDLER_ENDPOINT_AUTH(
         API_M_PUT,
-        "/prescription3/group/merge",
+        "/c2-opdoctor/prescription3/group/merge",
         mergePrescription3Group,
         BODY_DTO(Prescription3MergeGroupDTO::Wrapper, dto),
         execMergePrescription3Group(dto, authObject->getPayload())
@@ -62,7 +62,7 @@ public:
 
     API_HANDLER_ENDPOINT_AUTH(
         API_M_PUT,
-        "/prescription3/group/split",
+        "/c2-opdoctor/prescription3/group/split",
         splitPrescription3Group,
         BODY_DTO(Prescription3SplitGroupDTO::Wrapper, dto),
         execSplitPrescription3Group(dto, authObject->getPayload())
