@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroone.star.pharmacy.mapper.InStockOrderDetailMapper">
+
+    <!-- ==================== 插入入库明细行 ==================== -->
+    <!-- 明细行与主表行同表（wkf_supply_request）共享 bus_no；
+         表头必填字段（bus_no、type_enum、status_enum、category_enum、applicant_id 等）从主表行复制 -->
+    <insert id="insertDetail">
+        INSERT INTO wkf_supply_request (
+            id, tenant_id, created_at, updated_at, created_by, updated_by,
+            is_deleted, version, bus_no, type_enum, status_enum, category_enum,
+            item_table, item_quantity, total_quantity, item_id, unit_code,
+            occurrence_time, supplier_id, source_location_id, purpose_location_id,
+            applicant_id, end_time, lot_number, trace_no, price, total_price, remake
+        )
+        SELECT
+            #{detail.id}, m.tenant_id, NOW(6), NOW(6), m.created_by, m.updated_by,
+            0, 0, m.bus_no, m.type_enum, m.status_enum, m.category_enum,
+            'med_medication_definition', #{detail.quantity}, #{detail.quantity},
+            IFNULL(#{detail.itemId}, '0'), '-',
+            m.occurrence_time, m.supplier_id, m.source_location_id, m.purpose_location_id,
+            m.applicant_id, #{detail.expireDate}, #{detail.batchNo}, #{detail.traceNo},
+            #{detail.unitPrice}, #{detail.totalAmount}, #{detail.itemRemark}
+        FROM wkf_supply_request m
+        WHERE m.id = #{orderId}
+          AND m.is_deleted = 0
+    </insert>
+
+    <!-- ==================== 查询入库明细列表 ==================== -->
+    <!-- 明细行以 item_quantity > 0 与主表占位行（item_quantity = 0）区分；
+         药品名称/规格/厂家关联 med_medication_definition 回显 -->
+    <select id="selectDetailsByOrderId" resultType="com.zeroone.star.pharmacy.entity.InStockOrderDetail">
+        SELECT
+            d.id                                            AS id,
+            d.bus_no                                        AS pharmacyId,
+            ROW_NUMBER() OVER (ORDER BY d.created_at, d.id) AS seqNo,
+            NULLIF(d.item_id, '0')                          AS itemId,
+            md.name                                         AS drugName,
+            md.total_volume                                 AS spec,
+            md.manufacturer_text                            AS manufacturer,
+            d.item_quantity                                 AS quantity,
+            d.price                                         AS unitPrice,
+            d.total_price                                   AS totalAmount,
+            d.lot_number                                    AS batchNo,
+            d.trace_no                                      AS traceNo,
+            d.end_time                                      AS expireDate,
+            d.remake                                        AS itemRemark
+        FROM wkf_supply_request d
+        JOIN wkf_supply_request m
+            ON m.bus_no = d.bus_no AND m.is_deleted = 0
+        LEFT JOIN med_medication_definition md
+            ON md.id = d.item_id AND md.is_deleted = 0
+        WHERE m.id = #{orderId}
+          AND d.is_deleted = 0
+          AND d.item_quantity &gt; 0
+          AND d.type_enum IN ('PHARMACY_STOCK_IN', 'INVENTORY_IN')
+        ORDER BY d.created_at, d.id
+    </select>
+
+    <!-- ==================== 软删除入库明细行 ==================== -->
+    <update id="softDeleteDetailsByOrderId">
+        UPDATE wkf_supply_request d
+        JOIN wkf_supply_request m
+            ON m.bus_no = d.bus_no AND m.is_deleted = 0
+        SET d.is_deleted = 1,
+            d.deleted_at = #{deletedAt},
+            d.deleted_by = #{deletedBy},
+            d.updated_at = #{deletedAt},
+            d.updated_by = #{deletedBy},
+            d.version = d.version + 1
+        WHERE m.id = #{orderId}
+          AND d.is_deleted = 0
+          AND d.item_quantity &gt; 0
+          AND d.type_enum IN ('PHARMACY_STOCK_IN', 'INVENTORY_IN')
+    </update>
+
+</mapper>

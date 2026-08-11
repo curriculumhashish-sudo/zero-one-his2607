@@ -36,7 +36,7 @@
             approver.name AS approverName,
             COALESCE(t.apply_time, MIN(t.created_at)) AS applyTime,
             CONCAT(IFNULL(source_org.name, '未知来源'), ' → ', IFNULL(purpose_org.name, '未知目的')) AS transferPath,
-            IFNULL(SUM(t.total_price), 0) AS totalPrice
+            IFNULL(SUM(CASE WHEN t.item_quantity &gt; 0 THEN t.total_price ELSE 0 END), 0) AS totalPrice
         FROM wkf_supply_request t
         LEFT JOIN adm_practitioner creator
             ON creator.id = t.created_by AND creator.is_deleted = 0

@@ -13,7 +13,8 @@ import java.time.LocalDate;
 
 /**
  * <p>
- * 描述：入库单明细实体类，对应数据库表 {@code pharmacy_in_item}
+ * 描述：入库单明细实体类，明细以“同表多行”方式存储于 {@code wkf_supply_request}，
+ * 与主表通过 {@code bus_no} 关联（与盘点模块一致），药品名称等经 {@code med_medication_definition} 关联回显
  * </p>
  * <p>
  * 功能说明：存储每条入库药品的详细信息，通过 {@code pharmacy_id} 与主表关联。
@@ -25,13 +26,13 @@ import java.time.LocalDate;
  * @version 1.0.0
  */
 @Data
-@TableName("pharmacy_in_item")
+@TableName("wkf_supply_request")
 public class InStockOrderDetail implements Serializable {
 
-    @TableId(type = IdType.AUTO)
-    private Long id;
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
+    private String id;
 
-    /** 关联主表 ID，对应 wkf_supply_request.id */
+    /** 关联主表业务单号，对应 wkf_supply_request.bus_no */
     private String pharmacyId;
 
     private Integer seqNo;

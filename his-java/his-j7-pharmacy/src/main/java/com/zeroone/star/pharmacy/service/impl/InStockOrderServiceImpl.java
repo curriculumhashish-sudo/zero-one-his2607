@@ -4,6 +4,7 @@ package com.zeroone.star.pharmacy.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zeroone.star.pharmacy.entity.InStockOrder;
 import com.zeroone.star.pharmacy.entity.InStockOrderDetail;
@@ -132,14 +133,10 @@ public class InStockOrderServiceImpl implements InStockOrderService {
         detailVO.setApproverName(order.getApproverId());
         detailVO.setApproveTime(order.getApprovalTime());
 
-        List<InStockOrderDetail> detailItems = detailMapper.selectList(
-                new LambdaQueryWrapper<InStockOrderDetail>()
-                        .eq(InStockOrderDetail::getPharmacyId, order.getId())
-                        .orderByAsc(InStockOrderDetail::getSeqNo));
-
+        List<InStockOrderDetail> detailItems = detailMapper.selectDetailsByOrderId(order.getId());
         List<PurchaseInboundItemVO> itemVOs = detailItems.stream().map(item -> {
             PurchaseInboundItemVO itemVO = new PurchaseInboundItemVO();
-            itemVO.setId(String.valueOf(item.getId()));
+            itemVO.setId(item.getId());
             itemVO.setItemId(item.getItemId());
             itemVO.setItemName(item.getDrugName());
             itemVO.setSpec(item.getSpec());
@@ -243,8 +240,8 @@ public class InStockOrderServiceImpl implements InStockOrderService {
         inStockOrderMapper.updateById(updateOrder);
 
         // 明细全量替换
-        detailMapper.delete(new LambdaQueryWrapper<InStockOrderDetail>()
-                .eq(InStockOrderDetail::getPharmacyId, orderId));
+        detailMapper.softDeleteDetailsByOrderId(orderId, getCurrentUserId(),
+                LocalDateTime.now().format(DATE_TIME_FORMATTER));
         saveItems(orderId, dto.getItems());
 
         updateTotalPrice(orderId);
@@ -309,11 +306,11 @@ public class InStockOrderServiceImpl implements InStockOrderService {
             log.warn("删除库存锁定记录失败：busNo={}, error={}", busNo, e.getMessage());
         }
 
-        detailMapper.delete(new LambdaQueryWrapper<InStockOrderDetail>()
-                .eq(InStockOrderDetail::getPharmacyId, order.getId()));
-
         LocalDateTime now = LocalDateTime.now();
         String deletedBy = getCurrentUserId();
+        detailMapper.softDeleteDetailsByOrderId(order.getId(), deletedBy,
+                now.format(DATE_TIME_FORMATTER));
+
         int deletedLines = inStockOrderMapper.softDeleteByBusNo(
                 busNo, deletedBy, now.format(DATE_TIME_FORMATTER));
         if (deletedLines == 0) {
@@ -348,11 +345,9 @@ public class InStockOrderServiceImpl implements InStockOrderService {
     }
 
     private void saveItems(String orderId, List<InStockOrderDetailDTO> itemDTOs) {
-        List<InStockOrderDetail> items = new ArrayList<>();
         for (InStockOrderDetailDTO dto : itemDTOs) {
             InStockOrderDetail item = new InStockOrderDetail();
-            item.setPharmacyId(orderId);
-            item.setSeqNo(dto.getSeqNo());
+            item.setId(IdWorker.getIdStr());
             item.setItemId(dto.getItemId());
             item.setDrugName(dto.getDrugName());
             item.setSpec(dto.getSpec());
@@ -364,17 +359,12 @@ public class InStockOrderServiceImpl implements InStockOrderService {
             item.setTraceNo(dto.getTraceNo());
             item.setExpireDate(dto.getExpireDate());
             item.setItemRemark(dto.getItemRemark());
-            items.add(item);
-        }
-        for (InStockOrderDetail item : items) {
-            detailMapper.insert(item);
+            detailMapper.insertDetail(orderId, item);
         }
     }
 
     private void updateTotalPrice(String orderId) {
-        List<InStockOrderDetail> items = detailMapper.selectList(
-                new LambdaQueryWrapper<InStockOrderDetail>()
-                        .eq(InStockOrderDetail::getPharmacyId, orderId));
+        List<InStockOrderDetail> items = detailMapper.selectDetailsByOrderId(orderId);
         BigDecimal total = items.stream()
                 .map(InStockOrderDetail::getTotalAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);

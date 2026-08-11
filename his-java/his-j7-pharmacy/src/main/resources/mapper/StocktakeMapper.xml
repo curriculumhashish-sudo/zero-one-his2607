@@ -119,7 +119,7 @@
         WHERE t.is_deleted = 0
           AND t.type_enum IN ('INVENTORY_CHECK', 'PHARMACY_STOCKTAKE', 'CABINET_STOCKTAKE')
           AND t.bus_no = #{busNo}
-        GROUP BY t.bus_no, t.status_enum, t.purpose_location_id, o.name,
+        GROUP BY t.bus_no, t.status_enum, t.type_enum, t.purpose_location_id, o.name,
                  t.created_by, creator.name,
                  t.applicant_id, app.name, t.apply_time,
                  t.approver_id, appr.name, t.approval_time, t.remake
