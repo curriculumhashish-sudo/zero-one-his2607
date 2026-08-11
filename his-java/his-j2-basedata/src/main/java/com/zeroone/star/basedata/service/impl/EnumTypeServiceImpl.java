@@ -17,6 +17,7 @@ import com.zeroone.star.project.dto.j2.basedata.enumdto.EnumTypeModifyDTO;
 import com.zeroone.star.project.query.j2.basedata.EnumTypeQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +33,7 @@ import org.bson.Document;
 import java.util.Date;
 import java.util.List;
 
+@Slf4j
 @Service
 public class EnumTypeServiceImpl implements EnumTypeService {
 
@@ -49,29 +51,33 @@ public class EnumTypeServiceImpl implements EnumTypeService {
     private RedisTemplate<String, Object> redisTemplate;
 
     private String getCurrentUserTenantId(String userId) {
-        try {
-            String tenantId = redisTemplate.opsForValue().get("user:session:" + userId).toString();
-            if (tenantId != null) {
-                return tenantId;
-            } else {
-                return DefaultConstant.DEFAULT_TENANT_ID;
-                // TODO: 这里在正式使用中也需要报错
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("获取用户租户id失败");
+
+        Object tenantInfo = redisTemplate.opsForValue().get("user:session:" + userId);
+
+        if (tenantInfo == null) {
+            return DefaultConstant.DEFAULT_TENANT_ID;
         }
+        String tenantId = tenantInfo.toString();
+        log.debug("tenantId: {}", tenantId);
+        return tenantId;
+    }
+
+    private String getCurrentUserId() {
+        String currentUserId;
+        try {
+            currentUserId = userHolder.getCurrentUser().getId();
+            log.debug("currentUserId: {}", currentUserId);
+        } catch (Exception e) {
+            log.warn("使用 UserHolder 失败:\t" + e.getMessage());
+            currentUserId = DefaultConstant.DEFAULT_USER_ID;
+        }
+        return currentUserId;
     }
 
     @Override
     public PageDTO<EnumTypeDTO> queryAllEnumType(EnumTypeQuery query) {
 
-        String currentUserId;
-        try {
-            currentUserId = userHolder.getCurrentUser().getId();
-        } catch (Exception e) {
-            currentUserId = DefaultConstant.DEFAULT_USER_ID;
-        }
-        String tenantId = getCurrentUserTenantId(currentUserId);
+        String tenantId = getCurrentUserTenantId(getCurrentUserId());
 
         Pageable pageable = PageRequest.of(
                 (int) query.getPageIndex() - 1,
@@ -96,12 +102,7 @@ public class EnumTypeServiceImpl implements EnumTypeService {
     @Override
     public void saveEnumType(EnumTypeAddDTO dto) {
 
-        String currentUserId;
-        try {
-            currentUserId = userHolder.getCurrentUser().getId();
-        } catch (Exception e) {
-            currentUserId = DefaultConstant.DEFAULT_USER_ID;
-        }
+        String currentUserId = getCurrentUserId();
         String tenantId = getCurrentUserTenantId(currentUserId);
 
         if (enumTypeRepository.existsByEnumTypeKey(tenantId, dto.getEnumTypeKey())) {
@@ -124,12 +125,7 @@ public class EnumTypeServiceImpl implements EnumTypeService {
     @Override
     public void updateEnumType(EnumTypeModifyDTO dto) {
 
-        String currentUserId;
-        try {
-            currentUserId = userHolder.getCurrentUser().getId();
-        } catch (Exception e) {
-            currentUserId = DefaultConstant.DEFAULT_USER_ID;
-        }
+        String currentUserId = getCurrentUserId();
         String tenantId = getCurrentUserTenantId(currentUserId);
 
         EnumType existing = enumTypeRepository.findById(dto.getId())
@@ -159,12 +155,7 @@ public class EnumTypeServiceImpl implements EnumTypeService {
     @Override
     public void deleteEnumType(String id) {
 
-        String currentUserId;
-        try {
-            currentUserId = userHolder.getCurrentUser().getId();
-        } catch (Exception e) {
-            currentUserId = DefaultConstant.DEFAULT_USER_ID;
-        }
+        String currentUserId = getCurrentUserId();
         String tenantId = getCurrentUserTenantId(currentUserId);
 
 
