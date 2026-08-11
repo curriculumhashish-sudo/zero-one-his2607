@@ -35,6 +35,8 @@ class ChinapresDetailDTO1 : public oatpp::DTO
 	DTO_INIT(ChinapresDetailDTO1, DTO);
 	// 处方记录ID（处方号）
 	API_DTO_FIELD_REQUIRE(String, prescriptionId, ZH_WORDS_GETTER("chinapres1.field.prescriptionid"), true);
+	//id
+	API_DTO_FIELD_REQUIRE(String, id, ZH_WORDS_GETTER("chinapres1.field.id"), true);
 	// 就诊ID
 	API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("chinapres1.field.encounterid"), true);
 	// 患者ID

@@ -25,7 +25,6 @@
 #include "prescription2/Prescription2Controller.h"
 
 #include "chinapres1/ChinapresController1.h"
-#include"outpatientrecord/MedicalRecordController.h"
 
 #include "prescription4/historyOrderDetailController.h"
 #include "prescription4/historyOrderListController.h"
@@ -119,7 +118,6 @@ void Router::initRouter()
 
 
 	ROUTER_SIMPLE_BIND(ChinapresController1);
-	ROUTER_SIMPLE_BIND(MedicalRecordController);
 	ROUTER_SIMPLE_BIND(Chinapres2Controller);
 
 	ROUTER_SIMPLE_BIND(chinapres3Controller);
