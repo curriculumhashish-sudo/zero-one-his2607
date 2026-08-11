@@ -56,6 +56,12 @@ public class PageDTO<T> implements Serializable {
     protected List<T> rows;
 
     /**
+     * 枚举类型ID（查询上下文附加信息）
+     */
+    @Schema(description = "枚举类型ID")
+    protected String enumTypeId;
+
+    /**
      * 静态构建方法，将分页插件的page对象转换成当前pageDto对象
      * @param page 分页插件的page对象
      * @param <T>  列表元素类型模板一般是DO

@@ -30,23 +30,26 @@ public class BodyPartServiceImpl_qingzhou implements IBodyPartService {
     @Override
     public PageDTO<BodyPartListVO> getList(BodyPartPageQuery query) {
         Long total = mapper.selectListCount(query);
+
+        PageDTO<BodyPartListVO> pageDTO = new PageDTO<>();
+        pageDTO.setPageIndex((long) query.getPageIndex());
+        pageDTO.setPageSize((long) query.getPageSize());
+        pageDTO.setTotal(total);
+
         if (total == 0) {
-            return new PageDTO<>(
-                    (long) query.getPageIndex(),
-                    (long) query.getPageSize(),
-                    0L, 0L,
-                    new ArrayList<>()
-            );
+            pageDTO.setPages(0L);
+            pageDTO.setRows(new ArrayList<>());
+            return pageDTO;
         }
+
         int offset = (query.getPageIndex() - 1) * query.getPageSize();
         int limit = query.getPageSize();
         List<BodyPartListVO> rows = mapper.selectList(query, offset, limit);
         long pages = (total + limit - 1) / limit;
-        return new PageDTO<>(
-                (long) query.getPageIndex(),
-                (long) query.getPageSize(),
-                total, pages, rows
-        );
+
+        pageDTO.setPages(pages);
+        pageDTO.setRows(rows);
+        return pageDTO;
     }
 
     @Override

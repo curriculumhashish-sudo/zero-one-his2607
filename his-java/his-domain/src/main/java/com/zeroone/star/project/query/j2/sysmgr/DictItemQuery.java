@@ -16,6 +16,8 @@ import lombok.Data;
 @Data
 @Schema(description = "字典编码查询对象")
 public class DictItemQuery extends PageQuery {
+    @Schema(description = "代码体系ID", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private Long codeSystemId;
     @Schema(description = "字典类型编码", example = "ADMISSION", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String dictCode;
     @Schema(description = "关键词:可以是字典列表名称或代码", example = "入院", requiredMode = Schema.RequiredMode.NOT_REQUIRED)

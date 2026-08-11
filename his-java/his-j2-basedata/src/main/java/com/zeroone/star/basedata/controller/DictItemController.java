@@ -58,6 +58,7 @@ public class DictItemController implements DictItemApis {
     public JsonVO<PageDTO<DictItemDTO>> queryAllDictItems(DictItemQuery query) {
         Page<Dict> page = new Page<>(query.getPageIndex(), query.getPageSize());
         LambdaQueryWrapper<Dict> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(query.getCodeSystemId() != null, Dict::getCodeSystemId, query.getCodeSystemId());
         wrapper.eq(StringUtils.hasText(query.getDictCode()), Dict::getCode, query.getDictCode());
         if (StringUtils.hasText(query.getDicitemKeyword())) {
             wrapper.and(w -> w
@@ -70,10 +71,11 @@ public class DictItemController implements DictItemApis {
         PageDTO<DictItemDTO> pageDTO = PageDTO.create(result, dict -> {
             DictItemDTO dto = new DictItemDTO();
             dto.setDicId(String.valueOf(dict.getId()));
-            dto.setDicCode(dict.getCode());           // ✅ code
-            dto.setDicName(dict.getDisplay());        // ✅ display
-            dto.setDicDescription(dict.getDefinition()); // ✅ definition
-            dto.setDicSort(dict.getSortOrder() != null ? dict.getSortOrder().intValue() : null);      // ✅ sortOrder
+            dto.setCodeSystemId(dict.getCodeSystemId());
+            dto.setDicCode(dict.getCode());
+            dto.setDicName(dict.getDisplay());
+            dto.setDicDescription(dict.getDefinition());
+            dto.setDicSort(dict.getSortOrder() != null ? dict.getSortOrder().intValue() : null);     // ✅ sortOrder
             return dto;
         });
         return JsonVO.success(pageDTO);
