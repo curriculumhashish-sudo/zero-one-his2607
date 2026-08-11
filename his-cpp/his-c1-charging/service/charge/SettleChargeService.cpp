@@ -137,6 +137,11 @@ ConfirmSettleChargeResponseDTO::Wrapper SettleChargeService::confirmSettle(
     SettleChargeDAO dao;
     std::string patientId = dao.selectPatientIdByEncounter(encounterId);
 
+    // 查询账户信息（accountId + accountCode）
+    auto accountInfo = dao.selectAccountByEncounter(encounterId);
+    std::string accountId = accountInfo.accountId;
+    std::string accountCode = accountInfo.accountCode;
+
     // 计算总金额
     double totalAmount = 0.0;
     if (dto->paymentDetails)
@@ -219,7 +224,8 @@ ConfirmSettleChargeResponseDTO::Wrapper SettleChargeService::confirmSettle(
                     ? std::string(detail->payChannelCode->c_str()) : "CASH";
                 std::string amountStr = std::to_string(detail->amount.getValue(0.0));
                 if (dao.insertPaymentDetail(detailId, nowStr, paymentId,
-                        channelCode, amountStr, entererId) < 1)
+                        channelCode, amountStr, entererId,
+                        accountId, accountCode) < 1)
                 {
                     dao.rollbackTransaction();
                     resp->successMessageCode = "EX-INSERT-PAYMENT-DETAIL-FAILED";

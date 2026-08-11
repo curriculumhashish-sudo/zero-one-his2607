@@ -24,6 +24,16 @@ public:
      */
     std::string selectPatientIdByEncounter(const std::string& encounterId);
 
+    /**
+     * 根据 encounterId 查询账户信息（accountId + accountCode）
+     */
+    struct AccountInfo
+    {
+        std::string accountId;
+        std::string accountCode;
+    };
+    AccountInfo selectAccountByEncounter(const std::string& encounterId);
+
     // ---- Write ----
 
     /**
@@ -41,7 +51,8 @@ public:
      */
     int insertPaymentDetail(const std::string& detailId, const std::string& nowStr,
         const std::string& reconciliationId, const std::string& payChannelCode,
-        const std::string& amountStr, const std::string& entererId);
+        const std::string& amountStr, const std::string& entererId,
+        const std::string& accountId, const std::string& accountCode);
 
     /**
      * 插入发票草稿记录
