@@ -57,23 +57,24 @@ export interface InpatientDispenseItemDto {
 }
 
 export interface InpatientDispensePreparationData {
-  encounterId: string
+  summaryNo: string
   items: {
     dispenseId: string
-    pharmacyOrganizationId?: string
+    dispenseQuantity: number
     lotNumber?: string
-    traceCode?: string
   }[]
+  practitionerId?: string
+  recPractitionerId?: string
 }
 
 export interface InpatientDispenseResultDto {
   success: boolean
   message: string
-  results: {
-    dispenseId: string
-    success: boolean
-    message: string
-  }[]
+}
+
+export interface DispenseRejectData {
+  summaryNo: string
+  rejectReason: string
 }
 
 export interface MedicationSummarySlipDto {
@@ -102,9 +103,14 @@ export interface PageSummarySlipResult {
 }
 
 export interface SummaryDispenseData {
-  summaryId: string
-  dispenserId: string
-  receiverId: string
+  summaryNo: string
+  items: {
+    dispenseId: string
+    dispenseQuantity: number
+    lotNumber?: string
+  }[]
+  practitionerId?: string
+  recPractitionerId?: string
 }
 
 export interface SummaryDispenseResultDto {

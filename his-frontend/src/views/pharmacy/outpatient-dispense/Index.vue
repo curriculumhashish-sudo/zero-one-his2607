@@ -459,7 +459,7 @@ async function handleDispense(params: { dispenseIds: string[] }) {
   }[] = []
 
   for (const item of items) {
-    const pickValue = ''
+    const pickValue = item.selectedInventoryPick || ''
     let dispenseLocationId = ''
     let lotNumber: string | undefined
 
@@ -493,12 +493,16 @@ async function handleDispense(params: { dispenseIds: string[] }) {
       lines: prepLines
     })
 
-    await confirmMedicationDispense({
-      encounterId,
-      lines: params.dispenseIds.map((id) => ({ dispenseId: id }))
+    const result = await confirmMedicationDispense({
+      dispenseIds: params.dispenseIds,
+      practitionerId: selectedDispenserId.value || undefined
     })
 
-    ElMessage.success('发药成功')
+    if (result.failCount > 0) {
+      ElMessage.warning(result.failMessage || `发药完成：成功 ${result.successCount} 条，失败 ${result.failCount} 条`)
+    } else {
+      ElMessage.success('发药成功')
+    }
 
     traceCodes.value = {}
     await loadPrescriptions(enc)

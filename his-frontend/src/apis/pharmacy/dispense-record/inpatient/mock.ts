@@ -21,11 +21,6 @@ const initData: InpatientDispenseRecordInitDTO = {
     { label: '住院西药房', value: 'west' },
     { label: '住院中药房', value: 'chinese' }
   ],
-  categoryOptions: [
-    { label: '西药', value: 'western' },
-    { label: '中成药', value: 'patent' },
-    { label: '中草药', value: 'herb' }
-  ],
   dispenserOptions: [
     { label: '张药师', value: 'u001' },
     { label: '李药师', value: 'u002' },

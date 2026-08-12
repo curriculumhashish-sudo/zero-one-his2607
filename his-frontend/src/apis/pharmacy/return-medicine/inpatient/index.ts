@@ -31,11 +31,11 @@ export async function getInpatientReturnMedicineDetail(encounterId: string): Pro
 }
 
 export async function confirmInpatientMedicineReturn(data: ConfirmInpatientMedicineReturnData): Promise<InpatientReturnMedicineResultDto> {
-  return mockConfirmInpatientMedicineReturn()
+  return mockConfirmInpatientMedicineReturn(data)
 }
 
 export async function rejectInpatientMedicineReturn(data: RejectInpatientMedicineReturnData): Promise<InpatientReturnMedicineResultDto> {
-  return mockRejectInpatientMedicineReturn()
+  return mockRejectInpatientMedicineReturn(data)
 }
 
 export function adaptPatientSummary(dto: InpatientReturnPatientQueueRowDto): PatientSummary {

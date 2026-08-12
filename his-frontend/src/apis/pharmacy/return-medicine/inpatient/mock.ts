@@ -3,7 +3,9 @@ import type {
   PageInpatientReturnPatientQueueParams,
   PageInpatientReturnPatientQueueResult,
   InpatientReturnMedicineDetailDto,
-  InpatientReturnMedicineResultDto
+  InpatientReturnMedicineResultDto,
+  ConfirmInpatientMedicineReturnData,
+  RejectInpatientMedicineReturnData
 } from './type'
 
 export const mockInitData: InpatientReturnMedicineInitDto = {
@@ -239,23 +241,60 @@ export async function mockGetInpatientReturnMedicineDetail(encounterId: string):
   return mockReturnDetailData[encounterId]
 }
 
-export async function mockConfirmInpatientMedicineReturn(): Promise<InpatientReturnMedicineResultDto> {
+export async function mockConfirmInpatientMedicineReturn(
+  data: ConfirmInpatientMedicineReturnData
+): Promise<InpatientReturnMedicineResultDto> {
   await new Promise(resolve => setTimeout(resolve, 500))
+
+  const detail = mockReturnDetailData[data.summaryNo]
+  if (detail) {
+    for (const item of data.items) {
+      const found = detail.items.find(i => i.itemId === item.dispenseId)
+      if (found) {
+        found.status = 'refunded'
+        found.refundQuantity = item.dispenseQuantity
+      }
+    }
+
+    const allRefunded = detail.items.every(i => i.status === 'refunded')
+    const patient = mockPatientQueueData.records.find(p => p.encounterId === data.summaryNo)
+    if (patient && allRefunded) {
+      patient.status = 'completed'
+    }
+  }
+
+  const results = data.items.map(item => ({
+    itemId: item.dispenseId,
+    success: true,
+    message: '成功'
+  }))
+
   return {
     success: true,
     message: '退药成功',
-    results: [
-      { itemId: 'INP-RETURN-ITEM-001', success: true, message: '成功' },
-      { itemId: 'INP-RETURN-ITEM-002', success: true, message: '成功' }
-    ]
+    results
   }
 }
 
-export async function mockRejectInpatientMedicineReturn(): Promise<InpatientReturnMedicineResultDto> {
+export async function mockRejectInpatientMedicineReturn(
+  data: RejectInpatientMedicineReturnData
+): Promise<InpatientReturnMedicineResultDto> {
   await new Promise(resolve => setTimeout(resolve, 300))
+
+  const detail = mockReturnDetailData[data.returnId]
+  if (detail && data.itemIds) {
+    for (const itemId of data.itemIds) {
+      const found = detail.items.find(i => i.itemId === itemId)
+      if (found) {
+        found.status = 'refundable'
+        found.refundQuantity = 0
+      }
+    }
+  }
+
   return {
     success: true,
-    message: '拒绝退药成功',
+    message: '驳回成功',
     results: []
   }
 }

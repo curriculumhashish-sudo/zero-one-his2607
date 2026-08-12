@@ -281,11 +281,15 @@ async function handleConfirmDispense() {
     })
 
     const result = await confirmMedicationDispense({
-      encounterId: selectedPatientId.value,
-      lines: selectedIds.value.map(id => ({ dispenseId: id }))
+      dispenseIds: selectedIds.value,
+      practitionerId: selectedDispenserId.value || undefined
     })
 
-    ElMessage.success(result.message || '发药成功')
+    if (result.failCount > 0) {
+      ElMessage.warning(result.failMessage || `发药完成：成功 ${result.successCount} 条，失败 ${result.failCount} 条`)
+    } else {
+      ElMessage.success('发药成功')
+    }
     await loadPatients()
     const patient = patientSummaries.value.find(p => String(p.id) === selectedPatientId.value)
     if (patient) {

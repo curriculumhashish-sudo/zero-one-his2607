@@ -3,12 +3,14 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import type { ProfileInfo } from '@/apis/account/profile'
 import { getProfile } from '@/apis/account/profile'
+import { useUserStore } from '@/stores/user'
 import BasicSetting from './components/basic-setting.vue'
 import PasswordSetting from './components/password-setting.vue'
 
 defineOptions({ name: 'MyProfile' })
 
 const route = useRoute()
+const userStore = useUserStore()
 const tabsValue = ref<string>('basic')
 
 const tabs = ref([
@@ -19,12 +21,44 @@ const tabs = ref([
 const profile = ref<ProfileInfo | null>(null)
 const loading = ref(false)
 
+function getLoginTimeFromToken(): string {
+  try {
+    const token = localStorage.getItem('token') || ''
+    if (!token) return ''
+    const parts = token.split('.')
+    if (parts.length !== 3) return ''
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')))
+    if (payload.iat) {
+      const d = new Date(payload.iat * 1000)
+      const pad = (n: number) => String(n).padStart(2, '0')
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+    }
+  } catch { /* ignore */ }
+  return ''
+}
+
+function buildFallbackProfile(): ProfileInfo {
+  const u = userStore.user
+  return {
+    id: u?.id ?? '',
+    username: u?.username ?? '',
+    name: u?.realName ?? u?.username ?? '',
+    avatar: u?.avatar ?? '',
+    email: '',
+    phone: '',
+    gender: '',
+    department: '',
+    roles: u?.roles ?? [],
+    createdAt: getLoginTimeFromToken()
+  }
+}
+
 async function loadProfile() {
   loading.value = true
   try {
     profile.value = await getProfile()
   } catch {
-    profile.value = null
+    profile.value = buildFallbackProfile()
   } finally {
     loading.value = false
   }
@@ -49,14 +83,14 @@ onMounted(() => {
           </el-avatar>
         </div>
         <div class="profile-info">
-          <h2 class="profile-name">{{ profile?.name || '未登录用户' }}</h2>
+          <h2 class="profile-name">{{ profile?.name || profile?.username || '未登录用户' }}</h2>
           <div class="profile-meta">
             <el-tag v-for="r in profile?.roles" :key="r" size="small" style="margin-right: 6px">
               {{ r }}
             </el-tag>
           </div>
           <div class="profile-desc">
-            账号：{{ profile?.username }} · 科室：{{ profile?.department }} · 创建于 {{ profile?.createdAt }}
+            账号：{{ profile?.username || '-' }} · 科室：{{ profile?.department || '-' }} {{ profile?.createdAt ? '· 登录时间 ' + profile.createdAt : '' }}
           </div>
         </div>
       </div>

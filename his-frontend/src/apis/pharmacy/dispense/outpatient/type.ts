@@ -176,11 +176,16 @@ export interface SavePreparationParams {
 }
 
 export interface ConfirmDispenseParams {
-  encounterId: string
-  contractBusNo?: string
-  lines: {
-    dispenseId: string
-  }[]
+  dispenseIds: string[]
+  practitionerId?: string
+}
+
+export interface BatchDispenseResultDto {
+  successCount: number
+  failCount: number
+  successIds: string[]
+  failIds: string[]
+  failMessage?: string
 }
 
 export interface PractitionerOptionDto {

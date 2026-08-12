@@ -59,18 +59,32 @@ const props = defineProps<{
   prescriptionType: 'western' | 'herbal'
 }>()
 
+const emit = defineEmits<{
+  (e: 'selection-change', ids: string[]): void
+}>()
+
 const selectedRowKeys = ref<string[]>([])
 const orderTableRef = ref<any>(null)
 
 const filteredBlocks = computed(() => {
-  return props.prescriptionBlocks.filter((block) => block.rxType === props.prescriptionType)
+  let blocks = props.prescriptionBlocks.filter((block) => block.rxType === props.prescriptionType)
+  if (props.queueScope === 'completed') {
+    blocks = blocks
+      .map(block => ({ ...block, items: block.items.filter(item => item.status === 'completed') }))
+      .filter(block => block.items.length > 0)
+  } else {
+    blocks = blocks
+      .map(block => ({ ...block, items: block.items.filter(item => item.status !== 'completed') }))
+      .filter(block => block.items.length > 0)
+  }
+  return blocks
 })
 
 const displayRows = computed(() => {
   const rows: DispensePrescriptionItemRow[] = []
   for (const block of filteredBlocks.value) {
     for (const item of block.items) {
-      rows.push({ ...item })
+      rows.push(item)
     }
   }
   return rows
@@ -89,11 +103,13 @@ const statusOptions = [
 
 function handleSelectionChange(selected: any[]) {
   selectedRowKeys.value = selected.map((row: any) => String(row.key))
+  emit('selection-change', selectedRowKeys.value)
 }
 
 function clearSelection() {
   selectedRowKeys.value = []
   orderTableRef.value?.clearSelection()
+  emit('selection-change', [])
 }
 
 defineExpose({

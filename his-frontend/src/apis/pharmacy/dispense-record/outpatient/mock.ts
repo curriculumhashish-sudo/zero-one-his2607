@@ -23,11 +23,6 @@ const initData = {
     { label: '门诊中药房', value: 'chinese' },
     { label: '门诊成药房', value: 'patent' }
   ],
-  categoryOptions: [
-    { label: '西药', value: 'western' },
-    { label: '中成药', value: 'patent' },
-    { label: '中草药', value: 'herb' }
-  ],
   dispenserOptions: [
     { label: '张药师', value: 'u001' },
     { label: '李药师', value: 'u002' },

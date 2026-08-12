@@ -7,6 +7,8 @@ export interface ReturnMedicinePrescriptionBlock {
 
 export interface ReturnMedicinePrescriptionItemRow {
   key: string
+  itemId: string
+  dispenseId: string
   rxNo: string
   status: 'pending' | 'partial' | 'completed' | 'blocking'
   medicationType: 'western' | 'chinese'

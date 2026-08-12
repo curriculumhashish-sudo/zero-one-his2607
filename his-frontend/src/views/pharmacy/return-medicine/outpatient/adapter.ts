@@ -31,6 +31,8 @@ export function adaptReturnMedicineBlocks(dtos: OutpatientReturnMedicineSlipDTO[
   for (const dto of dtos) {
     const items: ReturnMedicinePrescriptionItemRow[] = dto.items.map((item, index) => ({
       key: `${dto.slipId}-${item.itemId}-${index}`,
+      itemId: item.itemId,
+      dispenseId: item.itemId,
       rxNo: dto.slipId,
       status: inferRowStatus(item.status),
       medicationType: inferMedicationType(item.itemName),

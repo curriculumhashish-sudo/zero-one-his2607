@@ -6,7 +6,9 @@ import type {
   DispenseSlipDto,
   InventoryLotDto,
   PharmacyDispenserDto,
-  TraceCodeConfirmResult
+  TraceCodeConfirmResult,
+  ConfirmDispenseParams,
+  BatchDispenseResultDto
 } from './type'
 
 function formatDateTime(date: Date): string {
@@ -200,7 +202,7 @@ const mockDispenserList: PharmacyDispenserDto[] = [
   { dispenserId: 'DISP003', name: '王药师', code: 'Y003' }
 ]
 
-function buildSlipsForEncounter(encounterId: string): DispenseSlipDto[] {
+function buildSlipStore(): Record<string, DispenseSlipDto[]> {
   const slipMap: Record<string, DispenseSlipDto> = {
     ENC001: {
       slipId: 'SLIP001',
@@ -576,8 +578,14 @@ function buildSlipsForEncounter(encounterId: string): DispenseSlipDto[] {
     }
   }
 
-  return slipMap[encounterId] ? [slipMap[encounterId]!] : []
+  const result: Record<string, DispenseSlipDto[]> = {}
+  for (const [key, value] of Object.entries(slipMap)) {
+    result[key] = [value]
+  }
+  return result
 }
+
+const mockSlipStore = buildSlipStore()
 
 export function mockPageDispenseQueue(params: PageDispenseQueueParams): PageDispenseQueueResult {
   const filtered = mockPatients.filter((p) => {
@@ -610,7 +618,7 @@ export function mockPageDispenseQueue(params: PageDispenseQueueParams): PageDisp
 }
 
 export function mockListDispenseSlips(encounterId: string): DispenseSlipDto[] {
-  return buildSlipsForEncounter(encounterId)
+  return mockSlipStore[encounterId] || []
 }
 
 export function mockConfirmMedicationDispense() {
@@ -647,8 +655,51 @@ export function mockSavePreparation() {
   return { success: true }
 }
 
-export function mockConfirmDispense() {
-  return { message: '发药成功' }
+export function mockConfirmDispense(params: ConfirmDispenseParams): BatchDispenseResultDto {
+  const successIds: string[] = []
+  const failIds: string[] = []
+
+  for (const dispenseId of params.dispenseIds) {
+    let found = false
+    for (const [encounterId, slips] of Object.entries(mockSlipStore)) {
+      for (const slip of slips) {
+        const item = slip.items.find(i => i.itemId === dispenseId)
+        if (item) {
+          item.status = 'completed'
+          found = true
+          if (!successIds.includes(dispenseId)) {
+            successIds.push(dispenseId)
+          }
+          const allCompleted = slip.items.every(i => i.status === 'completed')
+          slip.status = allCompleted ? 'completed' : 'pending'
+
+          const patient = mockPatients.find(p => p.encounterId === encounterId)
+          if (patient) {
+            const allSlips = mockSlipStore[encounterId] || []
+            const allDone = allSlips.length > 0 && allSlips.every(s =>
+              s.items.every(i => i.status === 'completed')
+            )
+            if (allDone) {
+              patient.dispenseStatus = 'COMPLETED'
+            }
+          }
+          break
+        }
+      }
+      if (found) break
+    }
+    if (!found) {
+      failIds.push(dispenseId)
+    }
+  }
+
+  return {
+    successCount: successIds.length,
+    failCount: failIds.length,
+    successIds,
+    failIds,
+    failMessage: failIds.length > 0 ? `发药完成：成功 ${successIds.length} 条，失败 ${failIds.length} 条` : undefined
+  }
 }
 
 export function mockLoadDispenserOptions(keyword: string) {

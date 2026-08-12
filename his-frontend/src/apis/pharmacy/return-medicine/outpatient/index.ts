@@ -6,7 +6,8 @@ import type {
   PageOutpatientReturnMedicinePatientQueueParams,
   PageOutpatientReturnMedicinePatientQueueResult,
   OutpatientReturnMedicineRequest,
-  OutpatientReturnMedicineResult
+  OutpatientReturnMedicineResult,
+  OutpatientRejectReturnRequest
 } from './type'
 
 import {
@@ -36,6 +37,12 @@ export async function returnOutpatientMedicine(
   request: OutpatientReturnMedicineRequest
 ): Promise<OutpatientReturnMedicineResult> {
   return mockReturnOutpatientMedicine(request)
+}
+
+export async function rejectOutpatientReturn(
+  _request: OutpatientRejectReturnRequest
+): Promise<OutpatientReturnMedicineResult> {
+  return { success: true, message: '驳回成功' }
 }
 
 export function adaptPatientSummary(dto: OutpatientReturnMedicinePatientQueueDTO): PatientSummary {

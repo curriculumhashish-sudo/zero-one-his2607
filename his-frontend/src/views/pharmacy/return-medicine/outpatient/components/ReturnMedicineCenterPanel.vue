@@ -70,6 +70,7 @@ import type { ReturnMedicinePrescriptionBlock, ReturnMedicinePrescriptionItemRow
 const props = defineProps<{
   prescriptionBlocks: ReturnMedicinePrescriptionBlock[]
   loading: boolean
+  queueScope: 'pending' | 'completed'
 }>()
 
 const emit = defineEmits<{
@@ -80,9 +81,20 @@ const selectedRowKeys = ref<string[]>([])
 const orderTableRef = ref<any>(null)
 const reasons = reactive<Record<string, string>>({})
 
+const filteredBlocks = computed(() => {
+  if (props.queueScope === 'completed') {
+    return props.prescriptionBlocks
+      .map(block => ({ ...block, items: block.items.filter(item => item.status === 'completed') }))
+      .filter(block => block.items.length > 0)
+  }
+  return props.prescriptionBlocks
+    .map(block => ({ ...block, items: block.items.filter(item => item.status !== 'completed') }))
+    .filter(block => block.items.length > 0)
+})
+
 const displayRows = computed(() => {
   const rows: ReturnMedicinePrescriptionItemRow[] = []
-  for (const block of props.prescriptionBlocks) {
+  for (const block of filteredBlocks.value) {
     for (const item of block.items) {
       rows.push({ ...item })
     }

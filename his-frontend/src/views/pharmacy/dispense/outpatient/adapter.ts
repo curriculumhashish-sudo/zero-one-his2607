@@ -93,7 +93,7 @@ function toPrescriptionItemRow(
     days: row.days || 0,
     totalPrice: row.totalPrice || 0,
     status: inferRowStatus(row.statusEnum),
-    medicationType: inferMedicationType(row.medicationName),
+    medicationType: (row.rxType === 'herbal' ? 'chinese' : 'western') as 'western' | 'chinese',
     pharmacy: row.pharmacyName || '',
     batchNo: row.lotNumber || '',
     traceCode: row.traceNo || '',
@@ -112,24 +112,6 @@ function inferRowStatus(statusEnum: string): 'pending' | 'partial' | 'completed'
   if (statusEnum === 'BLOCKED' || statusEnum === 'ERROR') return 'blocking'
   if (statusEnum === 'PARTIAL') return 'partial'
   return 'pending'
-}
-
-/** ===== 判断药品类型 ===== */
-function inferMedicationType(itemName: string): 'western' | 'chinese' {
-  const chineseDrugKeywords = ['丸', '颗粒', '片', '胶囊', '膏', '散', '丹', '口服液', '注射液', '滴丸', '贴膏']
-  const chineseHerbKeywords = ['丹参', '益母', '当归', '黄芪', '党参', '白术', '茯苓', '甘草', '川芎', '白芍', '熟地', '山药', '枸杞', '陈皮', '半夏', '柴胡', '黄芩', '黄连', '大黄', '生姜', '大枣', '桂枝', '麻黄', '杏仁', '石膏', '知母', '麦冬', '五味子', '人参', '鹿茸', '阿胶', '蜂蜜']
-
-  const name = itemName || ''
-  if (chineseHerbKeywords.some(kw => name.includes(kw))) {
-    return 'chinese'
-  }
-  if (chineseDrugKeywords.some(kw => name.includes(kw))) {
-    const chineseOnlyKeywords = ['丹参滴丸', '益母草颗粒', '妇科千金片']
-    if (chineseOnlyKeywords.some(kw => name.includes(kw))) {
-      return 'chinese'
-    }
-  }
-  return 'western'
 }
 
 /** ===== 构建库房选择选项 ===== */

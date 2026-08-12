@@ -121,7 +121,7 @@ export interface RouteMenuRecord {
   path: string
   name: string
   component: string
-  meta: { title: string; icon?: string }
+  meta?: { title: string; icon?: string }
   children?: RouteMenuRecord[]
 }
 

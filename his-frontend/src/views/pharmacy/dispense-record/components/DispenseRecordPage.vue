@@ -41,23 +41,6 @@
           </el-select>
         </div>
         <div class="query-shell__field">
-          <label class="query-shell__label">药品类别</label>
-          <el-select
-            v-model="searchForm.category"
-            placeholder="全部"
-            clearable
-            size="default"
-            style="width: 100%"
-          >
-            <el-option
-              v-for="opt in initOptions?.categoryOptions || []"
-              :key="opt.value"
-              :label="opt.label"
-              :value="opt.value"
-            />
-          </el-select>
-        </div>
-        <div class="query-shell__field">
           <label class="query-shell__label">发药人</label>
           <el-select
             v-model="searchForm.dispenserId"
@@ -126,6 +109,7 @@
     >
       <el-table-column
         label="处方号"
+        prop="prescriptionNo"
         width="180"
       />
 
@@ -292,11 +276,11 @@ import type {
 } from '../type'
 import { DISPLAY_MODES, RECORD_TYPE_OPTIONS } from '../constants'
 import { adaptOutpatientRecord, adaptInpatientRecord } from '../adapter'
+import * as XLSX from 'xlsx'
 
 import {
   loadOutpatientDispenseRecordInit,
-  pageOutpatientDispenseRecords,
-  exportOutpatientDispenseRecords
+  pageOutpatientDispenseRecords
 } from '@/apis/pharmacy/dispense-record/outpatient'
 import type {
   PageOutpatientDispenseRecordsParams
@@ -305,8 +289,7 @@ import type { OutpatientDispenseRecordItemDTO } from '@/apis/pharmacy/dispense-r
 
 import {
   loadInpatientDispenseRecordInit,
-  pageInpatientDispenseRecords,
-  exportInpatientDispenseRecords
+  pageInpatientDispenseRecords
 } from '@/apis/pharmacy/dispense-record/inpatient'
 import type {
   PageInpatientDispenseRecordsParams
@@ -328,7 +311,6 @@ const searchForm = reactive<SearchFormState>({
   endDate: undefined,
   recordType: undefined,
   pharmacyId: undefined,
-  category: undefined,
   dispenserId: undefined,
   drugKeyword: undefined,
   patientKeyword: undefined
@@ -439,7 +421,6 @@ function handleReset() {
   searchForm.endDate = initOptions.value?.defaultDateRange?.[1]
   searchForm.recordType = undefined
   searchForm.pharmacyId = undefined
-  searchForm.category = undefined
   searchForm.dispenserId = undefined
   searchForm.drugKeyword = undefined
   searchForm.patientKeyword = undefined
@@ -483,7 +464,6 @@ async function loadData() {
       endDate: searchForm.endDate,
       recordType: searchForm.recordType,
       pharmacyId: searchForm.pharmacyId,
-      category: searchForm.category,
       dispenserId: searchForm.dispenserId,
       drugKeyword: searchForm.drugKeyword,
       patientKeyword: searchForm.patientKeyword,
@@ -519,35 +499,69 @@ async function loadData() {
 }
 
 async function handleExport() {
+  if (!rawRecords.value.length) {
+    ElMessage.warning('当前没有可导出的数据')
+    return
+  }
   exporting.value = true
   try {
-    const baseParams = {
-      startDate: searchForm.startDate,
-      endDate: searchForm.endDate,
-      recordType: searchForm.recordType,
-      pharmacyId: searchForm.pharmacyId,
-      category: searchForm.category,
-      dispenserId: searchForm.dispenserId,
-      drugKeyword: searchForm.drugKeyword,
-      patientKeyword: searchForm.patientKeyword,
-      pageIndex: 1,
-      pageSize: 5000
-    }
+    // 字段映射：prop -> 中文列名
+    const columns: { prop: keyof DispenseRecordItem; label: string }[] = [
+      { prop: 'prescriptionNo', label: '处方号' },
+      { prop: 'visitNo', label: '门诊/住院号' },
+      { prop: 'patientName', label: '患者姓名' },
+      { prop: 'wardName', label: '病区' },
+      { prop: 'bedNo', label: '床号' },
+      { prop: 'departmentName', label: '科室' },
+      { prop: 'dispenseTime', label: '发药时间' },
+      { prop: 'pharmacyName', label: '药房' },
+      { prop: 'dispenserName', label: '发药人' },
+      { prop: 'drugName', label: '药品名称' },
+      { prop: 'spec', label: '规格' },
+      { prop: 'quantity', label: '数量' },
+      { prop: 'unit', label: '单位' },
+      { prop: 'price', label: '单价' },
+      { prop: 'amount', label: '金额' },
+      { prop: 'batchNo', label: '批号' },
+      { prop: 'traceCode', label: '追溯码' },
+      { prop: 'dosage', label: '用法' },
+      { prop: 'summaryNo', label: '汇总单号' },
+      { prop: 'recordTypeLabel', label: '记录类型' }
+    ]
 
-    const result = isInpatient.value
-      ? await exportInpatientDispenseRecords(
-          baseParams as PageInpatientDispenseRecordsParams
-        )
-      : await exportOutpatientDispenseRecords(
-          baseParams as PageOutpatientDispenseRecordsParams
-        )
+    // 转换为导出行
+    const rows = rawRecords.value.map(item => {
+      const row: Record<string, any> = {}
+      for (const col of columns) {
+        const val = item[col.prop]
+        row[col.label] = val === undefined || val === null || val === '' ? '-' : val
+      }
+      return row
+    })
 
-    if (result.success) {
-      ElMessage.success(result.message)
-    } else {
-      ElMessage.warning(result.message)
-    }
+    // 生成工作表
+    const worksheet = XLSX.utils.json_to_sheet(rows, {
+      header: columns.map(c => c.label)
+    })
+    // 列宽自适应（简单按字符长度估算）
+    worksheet['!cols'] = columns.map(c => ({
+      wch: Math.max(c.label.length * 2, 12)
+    }))
+
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, '发退药记录')
+
+    // 文件名：发退药记录_门诊/住院_YYYYMMDDHHmmss.xlsx
+    const scopeLabel = isInpatient.value ? '住院' : '门诊'
+    const ts = new Date()
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const tsStr = `${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}`
+    const filename = `发退药记录_${scopeLabel}_${tsStr}.xlsx`
+
+    XLSX.writeFile(workbook, filename)
+    ElMessage.success(`导出成功，共${rows.length}条记录`)
   } catch (e) {
+    console.error(e)
     ElMessage.error('导出失败，请重试')
   } finally {
     exporting.value = false

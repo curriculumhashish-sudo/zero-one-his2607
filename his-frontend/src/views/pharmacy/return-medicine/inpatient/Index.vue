@@ -98,7 +98,7 @@
           <div v-else class="right-panel__table-wrapper">
             <el-table
               ref="returnTableRef"
-              :data="returnItems"
+              :data="filteredReturnItems"
               row-key="key"
               :loading="detailLoading"
               @selection-change="handleSelectionChange"
@@ -193,6 +193,12 @@ const insuranceContractOptions = ref<{ label: string; value: string }[]>([])
 const wardOptions = ref<{ label: string; value: string }[]>([])
 const patientSummaries = ref<PatientSummary[]>([])
 const returnItems = ref<InpatientReturnMedicineItemRow[]>([])
+const filteredReturnItems = computed(() => {
+  if (queueScope.value === 'completed') {
+    return returnItems.value.filter(i => i.status === 'refunded')
+  }
+  return returnItems.value.filter(i => i.status !== 'refunded')
+})
 const queueLoading = ref(false)
 const detailLoading = ref(false)
 const patientKeyword = ref('')
@@ -265,10 +271,14 @@ async function handleConfirmReturn() {
   try {
     const items = selectedRowKeys.value.map(key => {
       const item = returnItems.value.find(i => i.key === key)
-      return { itemId: item?.itemId || key, quantity: item?.quantity || 0 }
+      return {
+        dispenseId: item?.itemId || key,
+        dispenseQuantity: item?.quantity || 0,
+        lotNumber: item?.batchNo || undefined
+      }
     })
     const result = await confirmInpatientMedicineReturn({
-      encounterId: selectedPatientId.value!,
+      summaryNo: selectedPatientId.value!,
       items
     })
     if (result.success) {
@@ -277,6 +287,9 @@ async function handleConfirmReturn() {
       const patient = patientSummaries.value.find(p => String(p.id) === selectedPatientId.value)
       if (patient) {
         await handleSelectPatient(patient)
+      } else {
+        selectedPatientId.value = null
+        returnItems.value = []
       }
       selectedRowKeys.value = []
       returnTableRef.value?.clearSelection()

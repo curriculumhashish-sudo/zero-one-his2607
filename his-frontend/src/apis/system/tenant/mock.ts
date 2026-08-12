@@ -153,7 +153,9 @@ export function mockPageTenantUsers(tenantId: string, query: TenantUserQuery): P
 
 export function mockAddTenantUsers(payload: TenantAddUsersPayload): Promise<void> {
   const ids = tenantUsersMap.get(payload.tenantId) ?? []
-  const merged = Array.from(new Set([...ids, ...payload.userIds]))
+  // payload.users 为 [{username, name}]，这里转成内部 id 存储
+  const newUserIds = payload.users.map((u) => u.username)
+  const merged = Array.from(new Set([...ids, ...newUserIds]))
   tenantUsersMap.set(payload.tenantId, merged)
   return delay(undefined)
 }
@@ -162,7 +164,7 @@ export function mockRemoveTenantUsers(payload: TenantRemoveUsersPayload): Promis
   const ids = tenantUsersMap.get(payload.tenantId) ?? []
   tenantUsersMap.set(
     payload.tenantId,
-    ids.filter((id) => !payload.userIds.includes(id))
+    ids.filter((id) => !payload.usernames.includes(id))
   )
   return delay(undefined)
 }

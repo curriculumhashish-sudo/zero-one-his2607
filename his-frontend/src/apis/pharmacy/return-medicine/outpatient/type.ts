@@ -61,14 +61,26 @@ export interface OutpatientReturnMedicineInitDTO {
 }
 
 export interface OutpatientReturnMedicineRequest {
-  encounterId: string
-  dispenserId: string
-  items: { itemId: string; reason: string }[]
+  summaryNo: string
+  items: {
+    dispenseId: string
+    dispenseQuantity: number
+    lotNumber?: string
+  }[]
+  practitionerId?: string
 }
 
 export interface OutpatientReturnMedicineResult {
   success: boolean
   message: string
+}
+
+export interface OutpatientRejectReturnRequest {
+  returnId: string
+  patientId: string
+  patientName?: string
+  rejectReason: string
+  itemIds?: string[]
 }
 
 export interface PageOutpatientReturnMedicinePatientQueueParams {

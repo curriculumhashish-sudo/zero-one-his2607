@@ -173,6 +173,22 @@ export default defineConfig({
         // 药房入库/盘点
         changeOrigin: true,
         target: 'http://121.199.165.157:10500'
+      },
+      '/j2-personcenter': {
+        // J2 用户个人中心服务（context-path: /j2-personcenter）
+        changeOrigin: true,
+        target: 'http://47.95.240.7:10600'
+      },
+      '/j2-workbench': {
+        // J2 工作台服务（context-path: /workbench）
+        changeOrigin: true,
+        target: 'http://47.99.84.57:10500',
+        rewrite: (path) => path.replace(/^\/j2-workbench/, '/workbench')
+      },
+      '/j2-sysmgr': {
+        // J2 系统管理服务（context-path: /j2-sysmgr；配置项/租户/租户用户）
+        changeOrigin: true,
+        target: 'http://47.98.131.88:10400'
       }
     }
   },

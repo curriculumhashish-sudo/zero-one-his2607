@@ -48,7 +48,9 @@ async function loadTenants() {
     })
     rows.value = res.list
     total.value = res.total
-  } catch {
+  } catch (error) {
+    console.error('[tenant] 加载租户列表失败:', error)
+    ElMessage.error(error instanceof Error ? error.message : '加载租户列表失败')
     rows.value = []
     total.value = 0
   } finally {
@@ -166,9 +168,10 @@ function openAddUserDialog() {
 async function handleAddUsers(users: TenantUserRecord[]) {
   if (!selectedTenant.value || users.length === 0) return
   try {
+    // 后端 AddTenantUserDTO 要求 users: [{username, name}]
     await addTenantUsers({
       tenantId: selectedTenant.value.id,
-      userIds: users.map((u) => u.id)
+      users: users.map((u) => ({ username: u.userName || u.id, name: u.name }))
     })
     ElMessage.success(`成功添加 ${users.length} 个用户`)
     loadUserList()
@@ -184,9 +187,11 @@ async function handleRemoveUsers() {
   }
   try {
     await ElMessageBox.confirm(`确定移除选中的 ${selectedUserIds.value.length} 个用户？`, '确认', { type: 'warning' })
+    // 后端 RemoveTenantUserDTO 要求 usernames: string[]
+    // TenantUserRecord.id 实际存的就是 username（见 toTenantUserRecord）
     await removeTenantUsers({
       tenantId: selectedTenant.value.id,
-      userIds: selectedUserIds.value
+      usernames: selectedUserIds.value
     })
     ElMessage.success('移除成功')
     selectedUserIds.value = []
@@ -200,7 +205,7 @@ async function handleRemoveSingleUser(user: TenantUserRecord) {
     await ElMessageBox.confirm(`确定移除用户「${user.name}」？`, '确认', { type: 'warning' })
     await removeTenantUsers({
       tenantId: selectedTenant.value.id,
-      userIds: [user.id]
+      usernames: [user.id]
     })
     ElMessage.success('移除成功')
     loadUserList()

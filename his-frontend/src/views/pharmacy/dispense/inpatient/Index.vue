@@ -110,6 +110,7 @@
               :loading="patientDetailLoading"
               :queue-scope="patientScope"
               :prescription-type="prescriptionType"
+              @selection-change="handlePatientSelectionChange"
             />
           </div>
         </div>
@@ -310,7 +311,11 @@ const receiverOptions = ref<{ label: string; value: string }[]>([])
 
 const patientCenterRef = ref<InstanceType<typeof DispenseCenterPanel> | null>(null)
 
-const patientSelectedIds = computed(() => patientCenterRef.value?.getSelectedIds() || [])
+const patientSelectedIds = ref<string[]>([])
+
+function handlePatientSelectionChange(ids: string[]) {
+  patientSelectedIds.value = ids
+}
 
 const canPatientDispense = computed(() => {
   return selectedPatientId.value && selectedDispenserId.value && patientSelectedIds.value.length > 0 && patientScope.value === 'pending'
@@ -387,6 +392,7 @@ async function loadPatientQueue() {
 async function handleSelectPatient(patient: PatientSummary) {
   selectedPatientId.value = String(patient.id)
   patientCenterRef.value?.clearSelection()
+  patientSelectedIds.value = []
   patientDetailLoading.value = true
   try {
     const slips = await pageInpatientMedicationDispenseSlips(selectedPatientId.value)
@@ -449,15 +455,31 @@ async function handleConfirmPatientDispense() {
 
   dispensing.value = true
   try {
+    const items = patientSelectedIds.value.map(id => {
+      let foundItem: { quantity: number; batchNo: string } | undefined
+      for (const block of patientPrescriptionBlocks.value) {
+        const found = block.items.find((item: any) => item.key === id || item.dispenseId === id)
+        if (found) {
+          foundItem = found
+          break
+        }
+      }
+      return {
+        dispenseId: id,
+        dispenseQuantity: foundItem?.quantity ?? 1,
+        lotNumber: foundItem?.batchNo
+      }
+    })
+
     await saveInpatientDispensePreparation({
-      encounterId: selectedPatientId.value,
-      items: patientSelectedIds.value.map(id => ({ dispenseId: id }))
+      summaryNo: selectedPatientId.value!,
+      items
     })
 
     const result = await dispenseInpatientMedications({
-      encounterId: selectedPatientId.value,
-      dispenserId: selectedDispenserId.value,
-      items: patientSelectedIds.value.map(id => ({ dispenseId: id }))
+      summaryNo: selectedPatientId.value!,
+      items,
+      practitionerId: selectedDispenserId.value || undefined
     })
 
     if (result.success) {
@@ -526,10 +548,19 @@ async function handleConfirmSummaryDispense() {
 
   summaryDispensing.value = true
   try {
+    const items = (selectedSummary.value?.items || [])
+      .filter(item => item.status !== 'completed')
+      .map(item => ({
+        dispenseId: item.dispenseId,
+        dispenseQuantity: item.quantity,
+        lotNumber: item.batchNo
+      }))
+
     const result = await dispenseSummaryMedications({
-      summaryId: selectedSummaryId.value,
-      dispenserId: summaryDispenserId.value,
-      receiverId: summaryReceiverId.value
+      summaryNo: selectedSummary.value?.summaryNo || '',
+      items,
+      practitionerId: summaryDispenserId.value || undefined,
+      recPractitionerId: summaryReceiverId.value || undefined
     })
     if (result.success) {
       ElMessage.success(result.message || '发药成功')
@@ -561,7 +592,10 @@ async function handleConfirmReject() {
 
   rejecting.value = true
   try {
-    const result = await rejectSummaryDispense(selectedSummaryId.value, rejectReason.value)
+    const result = await rejectSummaryDispense({
+      summaryNo: selectedSummary.value?.summaryNo || '',
+      rejectReason: rejectReason.value
+    })
     if (result.success) {
       ElMessage.success('已驳回')
       rejectDialogVisible.value = false

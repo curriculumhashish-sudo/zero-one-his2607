@@ -11,7 +11,8 @@ import type {
   PageSummarySlipResult,
   MedicationSummarySlipDto,
   SummaryDispenseData,
-  SummaryDispenseResultDto
+  SummaryDispenseResultDto,
+  DispenseRejectData
 } from './type'
 
 import {
@@ -42,12 +43,8 @@ export async function saveInpatientDispensePreparation(data: InpatientDispensePr
   return mockSaveInpatientDispensePreparation()
 }
 
-export async function dispenseInpatientMedications(data: {
-  encounterId: string
-  dispenserId: string
-  items: { dispenseId: string }[]
-}): Promise<InpatientDispenseResultDto> {
-  return mockDispenseInpatientMedications()
+export async function dispenseInpatientMedications(data: InpatientDispensePreparationData): Promise<InpatientDispenseResultDto> {
+  return mockDispenseInpatientMedications(data)
 }
 
 export async function pagePendingMedicationSummarySlips(params: PageSummarySlipParams): Promise<PageSummarySlipResult> {
@@ -59,11 +56,11 @@ export async function getMedicationSummaryDispenseDetail(summaryId: string): Pro
 }
 
 export async function dispenseSummaryMedications(data: SummaryDispenseData): Promise<SummaryDispenseResultDto> {
-  return mockDispenseSummaryMedications()
+  return mockDispenseSummaryMedications(data)
 }
 
-export async function rejectSummaryDispense(id: string, reason: string): Promise<SummaryDispenseResultDto> {
-  return mockRejectSummaryDispense()
+export async function rejectSummaryDispense(data: DispenseRejectData): Promise<SummaryDispenseResultDto> {
+  return mockRejectSummaryDispense(data.summaryNo, data.rejectReason)
 }
 
 export function adaptPatientSummary(dto: PendingInpatientDispenseQueueRowDto): PatientSummary {

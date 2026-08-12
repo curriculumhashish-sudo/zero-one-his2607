@@ -353,13 +353,6 @@ const FRONTEND_MENUS: Menu[] = [
     icon: 'IconMenu',
     children: [
       {
-        id: 'frontend-outpatient-dispense-v1',
-        pid: 'frontend-dispense',
-        text: '门诊发药工作站',
-        icon: 'IconTickets',
-        href: '/pharmacy/outpatient-dispense'
-      },
-      {
         id: 'frontend-outpatient-dispense',
         pid: 'frontend-dispense',
         text: '门诊发药',
@@ -473,29 +466,35 @@ export function createFrontendMenus(): Menu[] {
 }
 
 /**
- * 后端菜单仍然保留；相同分组按名称合并，相同页面按 href 去重。
- * 后续启用完整权限菜单时，只需停止传入前端菜单，不需要改 HomeView。
+ * 后端菜单为权威来源（按角色过滤），前端菜单仅用于补充图标、中文名等元数据。
+ * 当后端无数据时，退回到前端全量菜单。
  */
 export function mergeFrontendMenus(serverMenus: Menu[] = []): Menu[] {
+  if (!serverMenus.length) {
+    return FRONTEND_MENUS.map(cloneMenu)
+  }
+
   const result = serverMenus.map(cloneMenu)
 
-  for (const frontendGroup of FRONTEND_MENUS) {
-    const existingGroup = result.find(
-      (item) => item.id === frontendGroup.id || item.text === frontendGroup.text
+  for (const serverGroup of result) {
+    const frontendGroup = FRONTEND_MENUS.find(
+      (f) => f.id === serverGroup.id || f.text === serverGroup.text
     )
-    if (!existingGroup) {
-      result.push(cloneMenu(frontendGroup))
-      continue
-    }
+    if (!frontendGroup) continue
 
-    const children = existingGroup.children ?? []
-    for (const frontendChild of frontendGroup.children ?? []) {
-      const duplicated = children.some(
-        (item) => item.id === frontendChild.id || item.href === frontendChild.href
+    serverGroup.icon = frontendGroup.icon || serverGroup.icon
+
+    if (!serverGroup.children?.length || !frontendGroup.children?.length) continue
+
+    for (const serverChild of serverGroup.children) {
+      const frontendChild = frontendGroup.children.find(
+        (f) => f.id === serverChild.id || f.href === serverChild.href
       )
-      if (!duplicated) children.push(cloneMenu(frontendChild))
+      if (frontendChild) {
+        serverChild.icon = frontendChild.icon || serverChild.icon
+        serverChild.text = frontendChild.text || serverChild.text
+      }
     }
-    existingGroup.children = children
   }
 
   return result

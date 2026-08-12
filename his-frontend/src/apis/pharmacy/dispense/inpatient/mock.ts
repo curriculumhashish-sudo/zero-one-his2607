@@ -7,7 +7,9 @@ import type {
   PageSummarySlipParams,
   PageSummarySlipResult,
   MedicationSummarySlipDto,
-  SummaryDispenseResultDto
+  SummaryDispenseData,
+  SummaryDispenseResultDto,
+  DispenseRejectData
 } from './type'
 
 export const mockInitData: InpatientDispenseInitDto = {
@@ -367,15 +369,41 @@ export async function mockSaveInpatientDispensePreparation(): Promise<void> {
   await new Promise(resolve => setTimeout(resolve, 300))
 }
 
-export async function mockDispenseInpatientMedications(): Promise<InpatientDispenseResultDto> {
+export async function mockDispenseInpatientMedications(data: {
+  summaryNo: string
+  items: { dispenseId: string; dispenseQuantity: number; lotNumber?: string }[]
+  practitionerId?: string
+  recPractitionerId?: string
+}): Promise<InpatientDispenseResultDto> {
   await new Promise(resolve => setTimeout(resolve, 500))
+
+  const dispenseIds = data.items.map(i => i.dispenseId)
+
+  for (const [encounterId, slips] of Object.entries(mockDispenseSlipData)) {
+    for (const slip of slips) {
+      for (const item of slip.items) {
+        if (dispenseIds.includes(item.dispenseId)) {
+          item.status = 'completed'
+        }
+      }
+      slip.status = slip.items.every(i => i.status === 'completed') ? 'completed' : 'pending'
+    }
+
+    const patient = mockPatientQueueData.records.find(p => p.encounterId === encounterId)
+    if (patient) {
+      const allSlips = mockDispenseSlipData[encounterId] || []
+      const allDone = allSlips.length > 0 && allSlips.every(s =>
+        s.items.every(i => i.status === 'completed')
+      )
+      if (allDone) {
+        patient.status = 'completed'
+      }
+    }
+  }
+
   return {
     success: true,
-    message: '发药成功',
-    results: [
-      { dispenseId: 'ITEM-001', success: true, message: '成功' },
-      { dispenseId: 'ITEM-002', success: true, message: '成功' }
-    ]
+    message: '发药成功'
   }
 }
 
@@ -405,12 +433,30 @@ export async function mockGetMedicationSummaryDispenseDetail(summaryId: string):
   return mockSummarySlipData.records.find(r => r.summaryId === summaryId)
 }
 
-export async function mockDispenseSummaryMedications(): Promise<SummaryDispenseResultDto> {
+export async function mockDispenseSummaryMedications(data: SummaryDispenseData): Promise<SummaryDispenseResultDto> {
   await new Promise(resolve => setTimeout(resolve, 500))
+
+  const slip = mockSummarySlipData.records.find(s => s.summaryNo === data.summaryNo)
+  if (slip) {
+    slip.status = 'completed'
+    const dispenseIds = data.items.map(i => i.dispenseId)
+    for (const item of slip.items) {
+      if (dispenseIds.includes(item.dispenseId)) {
+        item.status = 'completed'
+      }
+    }
+  }
+
   return { success: true, message: '汇总发药成功' }
 }
 
-export async function mockRejectSummaryDispense(): Promise<SummaryDispenseResultDto> {
+export async function mockRejectSummaryDispense(summaryNo: string, _reason: string): Promise<SummaryDispenseResultDto> {
   await new Promise(resolve => setTimeout(resolve, 300))
+
+  const slip = mockSummarySlipData.records.find(s => s.summaryNo === summaryNo)
+  if (slip) {
+    slip.status = 'rejected'
+  }
+
   return { success: true, message: '驳回成功' }
 }

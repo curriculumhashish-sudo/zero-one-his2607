@@ -58,11 +58,13 @@ export interface InpatientReturnMedicineDetailDto {
 }
 
 export interface ConfirmInpatientMedicineReturnData {
-  encounterId: string
+  summaryNo: string
   items: {
-    itemId: string
-    quantity: number
+    dispenseId: string
+    dispenseQuantity: number
+    lotNumber?: string
   }[]
+  practitionerId?: string
 }
 
 export interface InpatientReturnMedicineResultDto {
@@ -76,6 +78,9 @@ export interface InpatientReturnMedicineResultDto {
 }
 
 export interface RejectInpatientMedicineReturnData {
-  encounterId: string
-  reason: string
+  returnId: string
+  patientId: string
+  patientName?: string
+  rejectReason: string
+  itemIds?: string[]
 }

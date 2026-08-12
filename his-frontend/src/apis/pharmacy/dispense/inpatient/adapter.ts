@@ -147,8 +147,7 @@ export function adaptPatientSummary(dto: PendingInpatientDispenseQueueRowDto): P
 export function adaptVerifyResult(success: boolean, message: string): InpatientDispenseResultDto {
   return {
     success,
-    message,
-    results: []
+    message
   }
 }
 

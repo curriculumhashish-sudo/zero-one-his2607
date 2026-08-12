@@ -8,6 +8,8 @@ import type {
   OutpatientReturnMedicineResult
 } from './type'
 
+let mockReturnCounter = 0
+
 function formatDateTime(date: Date): string {
   return date.toLocaleString('zh-CN', {
     month: '2-digit',
@@ -330,13 +332,13 @@ export async function mockPageOutpatientReturnMedicinePatientQueue(
   params: PageOutpatientReturnMedicinePatientQueueParams
 ): Promise<PageOutpatientReturnMedicinePatientQueueResult> {
   await new Promise(resolve => setTimeout(resolve, 300))
-  
+
   let filtered = [...mockPatients]
-  
+
   if (params.status && params.status !== 'all') {
     filtered = filtered.filter(p => p.status === params.status)
   }
-  
+
   if (params.keyword) {
     const keyword = params.keyword.toLowerCase()
     filtered = filtered.filter(p =>
@@ -345,7 +347,7 @@ export async function mockPageOutpatientReturnMedicinePatientQueue(
       p.visitNo.toLowerCase().includes(keyword)
     )
   }
-  
+
   return {
     records: filtered,
     total: filtered.length,
@@ -365,6 +367,44 @@ export async function mockReturnOutpatientMedicine(
   request: OutpatientReturnMedicineRequest
 ): Promise<OutpatientReturnMedicineResult> {
   await new Promise(resolve => setTimeout(resolve, 500))
+
+  mockReturnCounter++
+  const dispenseIds = request.items.map(i => i.dispenseId)
+
+  for (const [encounterId, slips] of Object.entries(mockSlips)) {
+    for (const slip of slips) {
+      for (const item of slip.items) {
+        if (dispenseIds.includes(item.itemId)) {
+          item.status = 'completed'
+          const reqItem = request.items.find(i => i.dispenseId === item.itemId)
+          if (reqItem?.lotNumber) {
+            item.batchNo = reqItem.lotNumber
+          }
+        }
+      }
+      const allCompleted = slip.items.every(i => i.status === 'completed')
+      slip.status = allCompleted ? 'completed' : 'partial'
+    }
+
+    const patient = mockPatients.find(p => p.encounterId === encounterId)
+    if (patient) {
+      const allSlips = mockSlips[encounterId] || []
+      const allItemsCompleted = allSlips.length > 0 && allSlips.every(s =>
+        s.items.every(i => i.status === 'completed')
+      )
+      const someCompleted = allSlips.some(s =>
+        s.items.some(i => i.status === 'completed')
+      )
+      if (allItemsCompleted) {
+        patient.status = 'completed'
+        patient.statusTone = 'success'
+      } else if (someCompleted) {
+        patient.status = 'partial'
+        patient.statusTone = 'info'
+      }
+    }
+  }
+
   return {
     success: true,
     message: '退药成功'

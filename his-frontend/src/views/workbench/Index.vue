@@ -11,8 +11,10 @@ import { useUserStore } from '@/stores/user'
 defineOptions({ name: 'WorkbenchHome' })
 
 const router = useRouter()
-const { user, getMenus: menus } = storeToRefs(useUserStore())
+const userStore = useUserStore()
+const { user } = storeToRefs(userStore)
 const searchKeyword = ref('')
+const loading = ref(false)
 const data = ref<WorkbenchData>({
   notices: [],
   actions: [],
@@ -36,10 +38,17 @@ const filteredGroups = computed(() => {
 })
 
 async function loadData() {
-  data.value = await loadWorkbenchData(user.value?.roles ?? [], menus.value)
+  if (loading.value) return
+  loading.value = true
+  try {
+    data.value = await loadWorkbenchData(user.value?.roles ?? [])
+  } finally {
+    loading.value = false
+  }
 }
 
 function handleNavigate(path: string) {
+  if (!path) return
   router.push(path)
 }
 
@@ -81,7 +90,7 @@ onMounted(() => {
     </div>
 
     <div class="workbench-home__main">
-      <div class="workbench-home__left">
+      <div v-loading="loading" class="workbench-home__left">
         <div class="stat-grid">
           <div v-for="stat in data.statistics" :key="stat.key" class="stat-card">
             <div class="stat-card__label">{{ stat.label }}</div>
@@ -114,7 +123,7 @@ onMounted(() => {
         </div>
 
         <el-empty
-          v-else
+          v-else-if="!loading"
           class="workbench-home__empty"
           :description="data.actions.length > 0 ? '未找到匹配的菜单' : '暂无可用快捷入口'"
         />

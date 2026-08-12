@@ -10,6 +10,12 @@
         @selection-change="handleSelectionChange"
         style="width: 100%;"
       >
+        <template #empty>
+          <span v-if="prescriptionBlocks.length > 0 && displayRows.length === 0">
+            当前患者没有{{ prescriptionType === 'chinese' ? '中药' : '西药' }}处方
+          </span>
+          <span v-else>暂无数据</span>
+        </template>
         <el-table-column
           type="selection"
           width="44"
@@ -68,12 +74,21 @@ const orderTableRef = ref<any>(null)
 
 const filteredBlocks = computed(() => {
   const type = props.prescriptionType
-  if (!type) return props.prescriptionBlocks
-
-  return props.prescriptionBlocks.map(block => ({
-    ...block,
-    items: block.items.filter(item => item.medicationType === type)
-  })).filter(block => block.items.length > 0)
+  let blocks = props.prescriptionBlocks
+  if (type) {
+    blocks = blocks.map(block => ({
+      ...block,
+      items: block.items.filter(item => item.medicationType === type)
+    })).filter(block => block.items.length > 0)
+  }
+  if (props.queueScope === 'completed') {
+    return blocks
+      .map(block => ({ ...block, items: block.items.filter(item => item.status === 'completed') }))
+      .filter(block => block.items.length > 0)
+  }
+  return blocks
+    .map(block => ({ ...block, items: block.items.filter(item => item.status !== 'completed') }))
+    .filter(block => block.items.length > 0)
 })
 
 const displayRows = computed(() => {

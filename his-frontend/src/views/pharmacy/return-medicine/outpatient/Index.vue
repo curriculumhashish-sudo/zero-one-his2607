@@ -92,6 +92,7 @@
             ref="centerPanelRef"
             :prescription-blocks="prescriptionBlocks"
             :loading="loading"
+            :queue-scope="queueScope"
             @update:reasons="handleReasonsUpdate"
           />
         </div>
@@ -170,17 +171,26 @@ async function handleBatchReturn() {
     return
   }
 
-  const itemsWithReasons = selectedIds.map(id => {
-    const reason = returnReasons.value[id] || '患者申请退药'
-    return { itemId: id, reason }
-  })
+  const selectedItems: { dispenseId: string; dispenseQuantity: number; lotNumber?: string }[] = []
+  for (const block of prescriptionBlocks.value) {
+    for (const item of block.items) {
+      if (selectedIds.includes(item.key)) {
+        selectedItems.push({
+          dispenseId: item.dispenseId,
+          dispenseQuantity: item.quantity,
+          lotNumber: item.batchNo || undefined
+        })
+      }
+    }
+  }
+
+  const summaryNo = selectedPatientId.value!
 
   loading.value = true
   try {
     const result = await returnOutpatientMedicine({
-      encounterId: selectedPatientId.value!,
-      dispenserId: '',
-      items: itemsWithReasons
+      summaryNo,
+      items: selectedItems
     })
     if (result.success) {
       ElMessage.success(result.message)
@@ -188,6 +198,10 @@ async function handleBatchReturn() {
       const patient = patientSummaries.value.find(p => String(p.id) === selectedPatientId.value)
       if (patient) {
         await handleSelectPatient(patient)
+      } else {
+        selectedPatientId.value = null
+        prescriptionBlocks.value = []
+        centerPanelRef.value?.clearSelection()
       }
     } else {
       ElMessage.error(result.message)

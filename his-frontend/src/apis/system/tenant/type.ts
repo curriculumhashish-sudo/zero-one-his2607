@@ -52,14 +52,22 @@ export interface TenantUserQuery {
   keyword?: string
 }
 
+/**
+ * 添加租户用户载荷
+ * 后端 AddTenantUserDTO 要求 users: [{username, name}]
+ */
 export interface TenantAddUsersPayload {
   tenantId: string
-  userIds: string[]
+  users: Array<{ username: string; name: string }>
 }
 
+/**
+ * 移除租户用户载荷
+ * 后端 RemoveTenantUserDTO 要求 usernames: string[]
+ */
 export interface TenantRemoveUsersPayload {
   tenantId: string
-  userIds: string[]
+  usernames: string[]
 }
 
 export interface TenantOption {

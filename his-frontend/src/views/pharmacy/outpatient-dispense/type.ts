@@ -29,6 +29,7 @@ export type DispensePrescriptionItemRow = AdviceOrder & {
   traceCode: string
   factory: string
   inventoryPickOptions: { label: string; value: string }[]
+  selectedInventoryPick?: string
   checked?: boolean
 }
 

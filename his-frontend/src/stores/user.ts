@@ -7,6 +7,7 @@ import type {
   UserInfo
 } from '@/apis/login/type'
 import { loadCurrentMenus, loadCurrentUser, logout } from '@/apis/login'
+import { loadMenusForNavigation } from '@/apis/workbench'
 import { DataUpType, useHttp } from '@/plugins/http'
 import { useAuthManager } from '@/plugins/auth-manager'
 import { createFrontendMenus, filterFrontendMenus } from '@/config/frontend-menus'
@@ -27,15 +28,20 @@ function readLoginContext() {
   }
 }
 
-function toMenu(route: RouteMenuRecord, parentId?: string): Menu {
+function toMenu(route: RouteMenuRecord, parentId?: string): Menu | null {
+  const title = route.meta?.title
+  if (!title) return null
   const id = route.name || route.path
+  const children = route.children?.length
+    ? route.children.map((item) => toMenu(item, id)).filter((m): m is Menu => m !== null)
+    : undefined
   return {
     id,
     pid: parentId,
-    text: route.meta.title,
-    icon: route.meta.icon ?? 'IconMenu',
-    href: route.children?.length ? undefined : route.path,
-    children: route.children?.map((item) => toMenu(item, id))
+    text: title,
+    icon: route.meta?.icon ?? 'IconMenu',
+    href: children ? undefined : route.path,
+    children
   }
 }
 
@@ -96,11 +102,26 @@ export const useUserStore = defineStore('user', {
     async loadMenus() {
       try {
         const routes = await loadCurrentMenus()
-        this.menus = filterFrontendMenus(routes.map((route) => toMenu(route)))
+        console.log('[menus] /auth/menus 返回路由数:', routes.length)
+        const serverMenus = routes.map((route) => toMenu(route)).filter((m): m is Menu => m !== null)
+        console.log('[menus] 转换后菜单数:', serverMenus.length)
+        const authorizedMenus = filterFrontendMenus(serverMenus)
+        if (authorizedMenus.length > 0) {
+          this.menus = authorizedMenus
+          console.log('[menus] 使用后端授权菜单，过滤后分组数:', this.menus.length)
+        } else {
+          // 后端返回空，从 J2 工作台数据构建（已按角色过滤）
+          console.warn('[menus] 后端菜单为空，尝试从工作台数据构建导航')
+          this.menus = await loadMenusForNavigation()
+        }
       } catch (error) {
-        // 主框架的业务菜单由前端维护；菜单服务暂不可用时不应阻止已验证的用户进入系统。
-        this.menus = createFrontendMenus()
-        console.warn('加载权限菜单失败，已使用前端业务菜单。', error)
+        console.warn('[menus] 加载权限菜单失败，尝试从工作台数据构建导航:', error)
+        try {
+          this.menus = await loadMenusForNavigation()
+        } catch {
+          console.warn('[menus] 工作台数据也失败，使用前端全量菜单兜底')
+          this.menus = createFrontendMenus()
+        }
       }
     },
     loadRefreshToken() {

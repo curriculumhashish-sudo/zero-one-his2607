@@ -1,6 +1,5 @@
 export interface InpatientDispenseRecordInitDTO {
   pharmacyOptions: { label: string; value: string }[]
-  categoryOptions: { label: string; value: string }[]
   dispenserOptions: { label: string; value: string }[]
   recordTypeOptions: { label: string; value: string }[]
   defaultDateRange: [string, string]
@@ -37,7 +36,6 @@ export interface PageInpatientDispenseRecordsParams {
   endDate?: string
   recordType?: string
   pharmacyId?: string
-  category?: string
   dispenserId?: string
   drugKeyword?: string
   patientKeyword?: string

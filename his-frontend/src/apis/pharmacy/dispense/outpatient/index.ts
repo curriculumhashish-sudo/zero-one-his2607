@@ -4,6 +4,7 @@ import type {
   EncounterMedicationDispenseSlipRowDto,
   SavePreparationParams,
   ConfirmDispenseParams,
+  BatchDispenseResultDto,
   PractitionerOptionDto,
   PharmacyOptionDto,
   DispenseSlipDto
@@ -76,6 +77,7 @@ export async function listPatientPrescriptions(
         dispenseId: item.itemId,
         prescriptionNo: rxNo,
         medicationName: item.itemName,
+        rxType: inferRxType(item.itemName),
         specText: item.spec,
         quantity: item.quantity,
         unitName: item.unit,
@@ -121,6 +123,18 @@ function getFactoryName(drugName: string): string {
   return factoryMap[drugName] || '未知厂家'
 }
 
+/** 根据药品名推断处方类型（西药/成药 vs 中药饮片） */
+function inferRxType(itemName: string): 'western' | 'herbal' {
+  const herbalDrugs = new Set([
+    '丹参滴丸',
+    '妇科千金片',
+    '益母草颗粒',
+    '骨痛贴膏',
+    '珍珠明目滴眼液',
+  ])
+  return herbalDrugs.has(itemName) ? 'herbal' : 'western'
+}
+
 export async function listDispenseSlips(encounterId: string): Promise<DispenseSlipDto[]> {
   return mockListDispenseSlips(encounterId)
 }
@@ -132,9 +146,9 @@ export async function saveDispensePreparation(
 }
 
 export async function confirmMedicationDispense(
-  _params: ConfirmDispenseParams,
-): Promise<{ message: string }> {
-  return mockConfirmDispense()
+  params: ConfirmDispenseParams,
+): Promise<BatchDispenseResultDto> {
+  return mockConfirmDispense(params)
 }
 
 export async function loadDispenserOptions(

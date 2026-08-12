@@ -42,6 +42,27 @@
           :width="column.width"
           :min-width="column.minWidth"
         />
+        <el-table-column
+          v-if="queueScope !== 'completed'"
+          label="发放库房"
+          width="200"
+        >
+          <template #default="{ row }">
+            <el-select
+              v-model="row.selectedInventoryPick"
+              placeholder="请选择库房"
+              size="small"
+              style="width: 100%"
+            >
+              <el-option
+                v-for="opt in row.inventoryPickOptions"
+                :key="opt.value"
+                :label="opt.label"
+                :value="opt.value"
+              />
+            </el-select>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
   </div>
@@ -64,14 +85,21 @@ const selectedRowKeys = ref<string[]>([])
 const orderTableRef = ref<any>(null)
 
 const filteredBlocks = computed(() => {
+  if (props.queueScope === 'completed') {
+    return props.prescriptionBlocks
+      .map(block => ({ ...block, items: block.items.filter(item => item.status === 'completed') }))
+      .filter(block => block.items.length > 0)
+  }
   return props.prescriptionBlocks
+    .map(block => ({ ...block, items: block.items.filter(item => item.status !== 'completed') }))
+    .filter(block => block.items.length > 0)
 })
 
 const displayRows = computed(() => {
   const rows: DispensePrescriptionItemRow[] = []
   for (const block of filteredBlocks.value) {
     for (const item of block.items) {
-      rows.push({ ...item })
+      rows.push(item)
     }
   }
   return rows
