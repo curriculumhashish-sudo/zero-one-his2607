@@ -3,134 +3,70 @@ import { computed, ref } from 'vue'
 import {
   createInpatientDiagnosis,
   deleteInpatientDiagnosis,
-  getInpatientDiagnosisUsageHistory,
-  pageInpatientDiagnosisDictionary,
+  listInpatientDiagnosisBrief,
   pageInpatientDiagnosisRecords,
   updateInpatientDiagnosis,
-  type InpatientDiagnosisRecordVO,
-  type InpatientDiagnosisUsageHistoryVO
+  type InpatientDiagnosisBriefVO,
+  type InpatientDiagnosisRecordVO
 } from '@/apis/inpatient/doctor-station'
-import {
-  addClinicalDiagnoses,
-  hasValidPrimaryDiagnosis,
-  type ClinicalDiagnosisDictionaryLoader,
-  type ClinicalDiagnosisItem
-} from '@/components/clinical/diagnosis'
-import {
-  toCreateInpatientDiagnosisDTO,
-  toInpatientClinicalDiagnosis,
-  toInpatientDiagnosisCandidate,
-  toUpdateInpatientDiagnosisDTO
-} from '../adapter'
+import type { InpatientDiagnosisItem } from '../type'
 
-function serializeDiagnoses(items: ClinicalDiagnosisItem[]) {
+let nextDraftKey = 1
+
+function toDiagnosisItem(record: InpatientDiagnosisRecordVO): InpatientDiagnosisItem {
+  return {
+    key: record.id,
+    id: record.id,
+    conditionId: record.conditionId,
+    definitionCode: record.definitionCode,
+    description: record.description,
+    kindName: record.kindName,
+    diagnosisTypeCode: record.diagnosisTypeCode,
+    diagnosisTypeName: record.diagnosisTypeName,
+    primaryFlag: record.primaryFlag,
+    rank: record.rank,
+    tcmFlag: record.tcmFlag
+  }
+}
+
+function normalizeRanks(items: InpatientDiagnosisItem[]): InpatientDiagnosisItem[] {
+  return items.map((item, index) => ({ ...item, rank: index + 1 }))
+}
+
+function serializeDiagnoses(items: InpatientDiagnosisItem[]) {
   return JSON.stringify(
-    items.map((item, index) => ({
-      recordId: item.recordId,
-      catalogId: item.catalogId,
-      code: item.code,
-      name: item.name,
-      typeName: item.typeName,
-      primary: item.primary,
-      orderNo: index + 1
+    normalizeRanks(items).map((item) => ({
+      id: item.id,
+      conditionId: item.conditionId,
+      definitionCode: item.definitionCode,
+      description: item.description.trim(),
+      kindName: item.kindName,
+      diagnosisTypeCode: item.diagnosisTypeCode,
+      diagnosisTypeName: item.diagnosisTypeName,
+      primaryFlag: item.primaryFlag,
+      rank: item.rank,
+      tcmFlag: item.tcmFlag
     }))
   )
 }
 
-function diagnosisChanged(
-  saved: InpatientDiagnosisRecordVO,
-  current: ClinicalDiagnosisItem,
-  index: number
-) {
-  return (
-    saved.catalogId !== current.catalogId ||
-    saved.code !== current.code ||
-    saved.name !== current.name ||
-    saved.typeName !== current.typeName ||
-    saved.primary !== current.primary ||
-    saved.orderNo !== index + 1
-  )
-}
-
-const realDiagnosisCachePrefix = 'inpatient-doctor-station:diagnosis:'
-
-function diagnosisCacheKey(record: InpatientDiagnosisRecordVO) {
-  return record.backendId || record.id
-}
-
-function diagnosisBusinessKey(record: InpatientDiagnosisRecordVO) {
-  return [record.catalogId, record.code, record.name].join('|')
-}
-
-function readRealDiagnosisCache(encounterId: string): InpatientDiagnosisRecordVO[] {
-  try {
-    const raw = window.sessionStorage.getItem(`${realDiagnosisCachePrefix}${encounterId}`)
-    if (!raw) return []
-    const rows = JSON.parse(raw) as InpatientDiagnosisRecordVO[]
-    return Array.isArray(rows)
-      ? rows.filter((row) => row?.source === 'real' && row.encounterId === encounterId)
-      : []
-  } catch {
-    return []
-  }
-}
-
-function writeRealDiagnosisCache(encounterId: string, rows: InpatientDiagnosisRecordVO[]) {
-  try {
-    window.sessionStorage.setItem(
-      `${realDiagnosisCachePrefix}${encounterId}`,
-      JSON.stringify(rows.filter((row) => row.source === 'real'))
-    )
-  } catch {
-    // 会话缓存不可用时仍保留当前页面内的真实诊断结果。
-  }
-}
-
-function mergeDiagnosisRecords(
-  encounterId: string,
-  rows: InpatientDiagnosisRecordVO[]
-): InpatientDiagnosisRecordVO[] {
-  const cachedRows = readRealDiagnosisCache(encounterId)
-  const merged = new Map<string, InpatientDiagnosisRecordVO>()
-  for (const row of cachedRows) merged.set(diagnosisBusinessKey(row), row)
-  for (const row of rows) {
-    const normalized = { ...row, source: row.source ?? 'mock' as const }
-    if (!merged.has(diagnosisBusinessKey(normalized))) {
-      merged.set(diagnosisBusinessKey(normalized), normalized)
-    }
-  }
-  return [...merged.values()].sort((left, right) => left.orderNo - right.orderNo)
-}
-
-function updateRealDiagnosisCache(encounterId: string, record: InpatientDiagnosisRecordVO) {
-  const rows = readRealDiagnosisCache(encounterId)
-  const key = diagnosisCacheKey(record)
-  const next = rows.filter((row) => diagnosisCacheKey(row) !== key)
-  next.push(record)
-  writeRealDiagnosisCache(encounterId, next)
-}
-
-function removeRealDiagnosisCache(encounterId: string, record: InpatientDiagnosisRecordVO) {
-  const key = diagnosisCacheKey(record)
-  writeRealDiagnosisCache(
-    encounterId,
-    readRealDiagnosisCache(encounterId).filter((row) => diagnosisCacheKey(row) !== key)
-  )
+function diagnosisChanged(saved: InpatientDiagnosisRecordVO, current: InpatientDiagnosisItem) {
+  return saved.diagnosisTypeCode !== current.diagnosisTypeCode
 }
 
 export function useInpatientDiagnosis() {
   const diagnosisRecords = ref<InpatientDiagnosisRecordVO[]>([])
-  const diagnoses = ref<ClinicalDiagnosisItem[]>([])
+  const diagnoses = ref<InpatientDiagnosisItem[]>([])
   const savedDiagnosisSnapshot = ref('[]')
   const loadedEncounterId = ref('')
+  const loadedPatientId = ref('')
   const diagnosesLoading = ref(false)
   const diagnosesSaving = ref(false)
   const diagnosesError = ref('')
 
-  const usageHistory = ref<InpatientDiagnosisUsageHistoryVO[]>([])
-  const usageHistoryLoading = ref(false)
-  const usageHistoryError = ref('')
-  const usageHistoryKeyword = ref('')
+  const diagnosisBriefs = ref<InpatientDiagnosisBriefVO[]>([])
+  const diagnosisBriefsLoading = ref(false)
+  const diagnosisBriefsError = ref('')
 
   const diagnosesDirty = computed(
     () =>
@@ -138,19 +74,14 @@ export function useInpatientDiagnosis() {
       !diagnosesLoading.value &&
       serializeDiagnoses(diagnoses.value) !== savedDiagnosisSnapshot.value
   )
-  const diagnosisUpdatedAt = computed(
-    () =>
-      diagnosisRecords.value
-        .map((record) => record.updatedAt)
-        .sort((left, right) => right.localeCompare(left))[0] ?? ''
-  )
 
   let latestDiagnosisRequestId = 0
-  let latestUsageHistoryRequestId = 0
+  let latestBriefRequestId = 0
 
   function resetDiagnoses() {
     latestDiagnosisRequestId += 1
     loadedEncounterId.value = ''
+    loadedPatientId.value = ''
     diagnosisRecords.value = []
     diagnoses.value = []
     savedDiagnosisSnapshot.value = '[]'
@@ -159,9 +90,10 @@ export function useInpatientDiagnosis() {
     diagnosesError.value = ''
   }
 
-  async function loadDiagnoses(encounterId: string) {
+  async function loadDiagnoses(encounterId: string, patientId: string) {
     const requestId = ++latestDiagnosisRequestId
     loadedEncounterId.value = encounterId
+    loadedPatientId.value = patientId
     diagnosisRecords.value = []
     diagnoses.value = []
     savedDiagnosisSnapshot.value = '[]'
@@ -172,148 +104,126 @@ export function useInpatientDiagnosis() {
       const result = await pageInpatientDiagnosisRecords({
         pageIndex: 1,
         pageSize: 100,
-        encounterId
+        encounterId,
+        patientId
       })
       if (requestId !== latestDiagnosisRequestId || loadedEncounterId.value !== encounterId) return
 
-      const records = mergeDiagnosisRecords(encounterId, result.rows ?? [])
-      const clinicalRows = records.map(toInpatientClinicalDiagnosis)
+      const records = (result.rows ?? []).slice().sort((left, right) => left.rank - right.rank)
+      const items = normalizeRanks(records.map(toDiagnosisItem))
       diagnosisRecords.value = records
-      diagnoses.value = clinicalRows
-      savedDiagnosisSnapshot.value = serializeDiagnoses(clinicalRows)
+      diagnoses.value = items
+      savedDiagnosisSnapshot.value = serializeDiagnoses(items)
     } catch (error) {
       if (requestId !== latestDiagnosisRequestId || loadedEncounterId.value !== encounterId) return
       diagnosesError.value = error instanceof Error ? error.message : '住院诊断加载失败'
     } finally {
-      if (requestId === latestDiagnosisRequestId) {
-        diagnosesLoading.value = false
-      }
+      if (requestId === latestDiagnosisRequestId) diagnosesLoading.value = false
     }
   }
 
-  async function loadUsageHistory(keyword = usageHistoryKeyword.value) {
-    const requestId = ++latestUsageHistoryRequestId
-    usageHistoryKeyword.value = keyword.trim()
-    usageHistoryLoading.value = true
-    usageHistoryError.value = ''
-
+  async function loadDiagnosisBriefs() {
+    const requestId = ++latestBriefRequestId
+    diagnosisBriefsLoading.value = true
+    diagnosisBriefsError.value = ''
     try {
-      const rows = await getInpatientDiagnosisUsageHistory({
-        keyword: usageHistoryKeyword.value || undefined,
-        limit: 20
-      })
-      if (requestId !== latestUsageHistoryRequestId) return
-      usageHistory.value = rows
+      const rows = await listInpatientDiagnosisBrief()
+      if (requestId !== latestBriefRequestId) return
+      diagnosisBriefs.value = rows
     } catch (error) {
-      if (requestId !== latestUsageHistoryRequestId) return
-      usageHistory.value = []
-      usageHistoryError.value = error instanceof Error ? error.message : '诊断使用历史加载失败'
+      if (requestId !== latestBriefRequestId) return
+      diagnosisBriefs.value = []
+      diagnosisBriefsError.value = error instanceof Error ? error.message : '历史诊断加载失败'
     } finally {
-      if (requestId === latestUsageHistoryRequestId) {
-        usageHistoryLoading.value = false
+      if (requestId === latestBriefRequestId) diagnosisBriefsLoading.value = false
+    }
+  }
+
+  function addDiagnosisFromBrief(brief: InpatientDiagnosisBriefVO) {
+    const description = brief.definitionName.trim()
+    if (!description) return
+    if (diagnoses.value.some((item) => item.description.trim() === description)) return
+
+    diagnoses.value = normalizeRanks([
+      ...diagnoses.value,
+      {
+        key: `draft-${nextDraftKey++}`,
+        definitionCode: '',
+        description,
+        kindName: '西医',
+        diagnosisTypeCode: '入院初步诊断',
+        diagnosisTypeName: '入院初步诊断',
+        primaryFlag: diagnoses.value.length === 0 ? 1 : 0,
+        rank: diagnoses.value.length + 1,
+        tcmFlag: 0
       }
-    }
-  }
-
-  const loadDiagnosisDictionary: ClinicalDiagnosisDictionaryLoader = async (query, context) => {
-    if (context.signal.aborted) return { rows: [], total: 0 }
-
-    const result = await pageInpatientDiagnosisDictionary({
-      pageIndex: query.pageIndex,
-      pageSize: query.pageSize,
-      keyword: query.keyword || undefined
-    })
-
-    if (context.signal.aborted) return { rows: [], total: 0 }
-    return {
-      rows: (result.rows ?? []).map(toInpatientDiagnosisCandidate),
-      total: result.total
-    }
-  }
-
-  function addDiagnosisFromHistory(history: InpatientDiagnosisUsageHistoryVO) {
-    diagnoses.value = addClinicalDiagnoses(diagnoses.value, [
-      toInpatientDiagnosisCandidate(history)
     ])
   }
 
   async function saveDiagnoses(encounterId: string, patientId: string) {
-    if (loadedEncounterId.value !== encounterId || diagnosesSaving.value) return false
-    if (!hasValidPrimaryDiagnosis(diagnoses.value)) {
-      throw new Error('请至少添加一条诊断，并且只能设置一个主诊断')
+    if (
+      loadedEncounterId.value !== encounterId ||
+      loadedPatientId.value !== patientId ||
+      diagnosesSaving.value
+    ) {
+      return false
     }
 
+    const normalized = normalizeRanks(diagnoses.value)
+    const descriptions = normalized.map((item) => item.description.trim())
+    if (normalized.length === 0) throw new Error('请至少添加一条诊断')
+    if (descriptions.some((description) => !description)) throw new Error('诊断描述不能为空')
+    if (new Set(descriptions).size !== descriptions.length) throw new Error('诊断描述不能重复')
+    if (normalized.filter((item) => item.primaryFlag === 1).length !== 1) {
+      throw new Error('只能存在一个主诊断')
+    }
+
+    diagnoses.value = normalized
     const savedById = new Map(diagnosisRecords.value.map((record) => [record.id, record]))
-    const currentRecordIds = new Set(
-      diagnoses.value
-        .map((diagnosis) => diagnosis.recordId)
-        .filter((id): id is string => Boolean(id))
-    )
-    const deletedRecords = diagnosisRecords.value.filter(
-      (record) => !currentRecordIds.has(record.id)
-    )
+    const currentIds = new Set(normalized.flatMap((item) => (item.id ? [item.id] : [])))
+    const deletedRecords = diagnosisRecords.value.filter((record) => !currentIds.has(record.id))
     let changedCount = 0
     diagnosesSaving.value = true
 
     try {
       for (const record of deletedRecords) {
-        if (record.source === 'real') {
-          await deleteInpatientDiagnosis(record.id, record.version, {
-            source: record.source,
-            backendId: record.backendId
-          })
-        } else {
-          await deleteInpatientDiagnosis(record.id, record.version)
-        }
-        if (record.source === 'real') removeRealDiagnosisCache(encounterId, record)
+        await deleteInpatientDiagnosis({ id: record.id, conditionId: record.conditionId })
         changedCount += 1
       }
 
-      for (const [index, diagnosis] of diagnoses.value.entries()) {
-        if (!diagnosis.recordId) {
-          const created = await createInpatientDiagnosis(
-            toCreateInpatientDiagnosisDTO(diagnosis, index, encounterId, patientId)
-          )
-          if (created.source === 'real') updateRealDiagnosisCache(encounterId, created)
+      for (const item of normalized) {
+        if (!item.id) {
+          await createInpatientDiagnosis({
+            encounterId,
+            patientId,
+            definitionCode: item.definitionCode,
+            description: item.description.trim(),
+            diagnosisTypeCode: item.diagnosisTypeCode,
+            primaryFlag: item.primaryFlag,
+            rank: item.rank,
+            tcmFlag: item.tcmFlag
+          })
           changedCount += 1
           continue
         }
 
-        const saved = savedById.get(diagnosis.recordId)
+        const saved = savedById.get(item.id)
         if (!saved) throw new Error('诊断原始记录不存在，请刷新后重试')
-        if (!diagnosisChanged(saved, diagnosis, index)) continue
-
-        const updateData = toUpdateInpatientDiagnosisDTO(diagnosis, index, saved.version)
-        if (saved.source === 'real') {
-          const unsupportedChanged =
-            saved.catalogId !== diagnosis.catalogId ||
-            saved.code !== diagnosis.code ||
-            saved.name !== diagnosis.name ||
-            saved.primary !== diagnosis.primary ||
-            saved.orderNo !== index + 1
-          if (unsupportedChanged) {
-            throw new Error('当前后端仅支持修改诊断类型，名称、编码、主诊断和顺序暂不可修改')
-          }
-        }
-
-        const updated =
-          saved.source === 'real'
-            ? await updateInpatientDiagnosis(diagnosis.recordId, updateData, {
-                source: saved.source,
-                current: saved
-              })
-            : await updateInpatientDiagnosis(diagnosis.recordId, updateData)
-        if (updated.source === 'real') updateRealDiagnosisCache(encounterId, updated)
+        if (!diagnosisChanged(saved, item)) continue
+        await updateInpatientDiagnosis({
+          id: item.id,
+          diagnosisTypeCode: item.diagnosisTypeCode
+        })
         changedCount += 1
       }
 
-      if (loadedEncounterId.value === encounterId) {
-        await Promise.all([loadDiagnoses(encounterId), loadUsageHistory()])
+      if (loadedEncounterId.value === encounterId && loadedPatientId.value === patientId) {
+        await Promise.all([loadDiagnoses(encounterId, patientId), loadDiagnosisBriefs()])
       }
       return changedCount
     } catch (error) {
-      if (loadedEncounterId.value === encounterId) {
-        await loadDiagnoses(encounterId)
+      if (loadedEncounterId.value === encounterId && loadedPatientId.value === patientId) {
+        await loadDiagnoses(encounterId, patientId)
       }
       throw error
     } finally {
@@ -322,21 +232,18 @@ export function useInpatientDiagnosis() {
   }
 
   return {
-    addDiagnosisFromHistory,
+    addDiagnosisFromBrief,
     diagnoses,
     diagnosesDirty,
     diagnosesError,
     diagnosesLoading,
     diagnosesSaving,
-    diagnosisUpdatedAt,
+    diagnosisBriefs,
+    diagnosisBriefsError,
+    diagnosisBriefsLoading,
     loadDiagnoses,
-    loadDiagnosisDictionary,
-    loadUsageHistory,
+    loadDiagnosisBriefs,
     resetDiagnoses,
-    saveDiagnoses,
-    usageHistory,
-    usageHistoryError,
-    usageHistoryKeyword,
-    usageHistoryLoading
+    saveDiagnoses
   }
 }

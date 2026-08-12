@@ -43,7 +43,6 @@ import {
   mockQueryNurseStationOrderExecutions
 } from './order-execute-mock'
 import {
-  isNurseStationOrderExecuteRealApiEnabled,
   realExecuteNurseStationOrders,
   realQueryNurseStationOrderExecutions
 } from './order-execute-real'
@@ -217,14 +216,14 @@ export function rejectNurseStationOrders(data: NurseStationRejectOrdersDTO) {
 
 /** Query verified service requests that can be started for the selected patients. */
 export function queryNurseStationOrderExecutions(data: NurseStationOrderExecuteQueryDTO) {
-  return isNurseStationOrderExecuteRealApiEnabled
+  return isNurseStationRealApiEnabled
     ? realQueryNurseStationOrderExecutions(data)
     : mockQueryNurseStationOrderExecutions(data)
 }
 
 /** Adapt the page batch selection to the backend single-order start endpoint. */
 export function executeNurseStationOrders(data: NurseStationExecuteOrdersDTO) {
-  return isNurseStationOrderExecuteRealApiEnabled
+  return isNurseStationRealApiEnabled
     ? realExecuteNurseStationOrders(data)
     : mockExecuteNurseStationOrders(data)
 }

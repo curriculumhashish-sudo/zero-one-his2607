@@ -90,16 +90,9 @@ const previewDocument = computed(() => {
         <div>
           <strong>{{ detail.title }}</strong>
           <el-tag size="small" effect="plain">{{ detail.documentTypeName }}</el-tag>
-          <el-tag size="small" type="info" effect="plain">{{ detail.statusName }}</el-tag>
+          <el-tag size="small" type="info" effect="plain">{{ detail.statusName || detail.status }}</el-tag>
         </div>
-        <span>{{ detail.inpatientNo }} · {{ detail.departmentName }}</span>
       </header>
-
-      <div class="medical-record-history-detail__meta">
-        <span>书写医生：{{ detail.authoredByName }}</span>
-        <span>书写时间：{{ detail.authoredAt }}</span>
-        <span>版本：V{{ detail.version }}</span>
-      </div>
 
       <iframe
         class="medical-record-history-detail__preview"

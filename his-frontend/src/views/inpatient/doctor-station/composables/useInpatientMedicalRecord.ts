@@ -4,7 +4,6 @@ import {
   getInpatientMedicalRecord,
   listInpatientMedicalRecordDocumentTypes,
   saveInpatientMedicalRecord,
-  signInpatientMedicalRecord,
   type InpatientDoctorPatientQueueItemVO,
   type InpatientMedicalRecordDocumentTypeCode,
   type InpatientMedicalRecordDocumentTypeOptionVO,
@@ -31,7 +30,6 @@ export function useInpatientMedicalRecord() {
   const initialized = ref(false)
   const loading = ref(false)
   const saving = ref(false)
-  const signing = ref(false)
   const error = ref('')
 
   let latestRecordRequestId = 0
@@ -44,18 +42,16 @@ export function useInpatientMedicalRecord() {
         serializeMedicalRecord(documentTypeCode.value, title.value, content.value) !==
           savedSnapshot.value)
   )
-  const readonly = computed(() => Boolean(record.value?.readonly))
-  const canSign = computed(
-    () => Boolean(record.value?.id) && record.value?.status === 'DRAFT' && !dirty.value
-  )
+  // The current backend has no modify endpoint, so persisted records are read-only.
+  const readonly = computed(() => Boolean(record.value?.id))
 
   function hydrateRecord(nextRecord: InpatientMedicalRecordVO) {
     record.value = nextRecord
-    documentTypeCode.value = nextRecord.documentTypeCode
+    documentTypeCode.value = nextRecord.documentTypeCode ?? 'ADMISSION_RECORD'
     title.value = nextRecord.title
     content.value = nextRecord.content
     savedSnapshot.value = serializeMedicalRecord(
-      nextRecord.documentTypeCode,
+      nextRecord.documentTypeCode ?? 'ADMISSION_RECORD',
       nextRecord.title,
       nextRecord.content
     )
@@ -73,13 +69,13 @@ export function useInpatientMedicalRecord() {
     initialized.value = false
     loading.value = false
     saving.value = false
-    signing.value = false
     error.value = ''
   }
 
   async function loadDocumentTypes() {
-    if (documentTypes.value.length > 0) return
-    documentTypes.value = await listInpatientMedicalRecordDocumentTypes()
+    const rows = await listInpatientMedicalRecordDocumentTypes()
+    documentTypes.value = rows
+    return rows
   }
 
   function startNewMedicalRecord(typeCode?: EditableDocumentTypeCode) {
@@ -139,13 +135,11 @@ export function useInpatientMedicalRecord() {
     saving.value = true
     try {
       const result = await saveInpatientMedicalRecord({
-        id: record.value?.id,
         encounterId: patient.encounterId,
         patientId: patient.patientId,
         documentTypeCode: documentTypeCode.value,
         title: title.value,
-        content: content.value,
-        version: record.value?.version ?? 0
+        content: content.value
       })
       if (requestId !== latestRecordRequestId) return null
       hydrateRecord(result)
@@ -155,31 +149,8 @@ export function useInpatientMedicalRecord() {
     }
   }
 
-  async function signMedicalRecordDraft() {
-    const currentRecord = record.value
-    if (!currentRecord?.id) throw new Error('请先保存病历草稿')
-    if (dirty.value) throw new Error('病历存在未保存修改，请先保存')
-    if (currentRecord.status !== 'DRAFT') throw new Error('只有草稿病历可以签名')
-    if (signing.value) return null
-
-    const requestId = latestRecordRequestId
-    signing.value = true
-    try {
-      const result = await signInpatientMedicalRecord({
-        id: currentRecord.id,
-        version: currentRecord.version
-      })
-      if (requestId !== latestRecordRequestId) return null
-      hydrateRecord(result)
-      return result
-    } finally {
-      signing.value = false
-    }
-  }
-
   return {
     applyDocumentType,
-    canSign,
     content,
     dirty,
     documentTypeCode,
@@ -194,8 +165,6 @@ export function useInpatientMedicalRecord() {
     resetMedicalRecord,
     saveMedicalRecordDraft,
     saving,
-    signMedicalRecordDraft,
-    signing,
     startNewMedicalRecord,
     title
   }

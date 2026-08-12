@@ -24,6 +24,10 @@ export interface ClinicalTcmPrescriptionContext {
   patientId: string
   /** 当前就诊中可关联的已保存诊断。 */
   diagnoses?: ClinicalTcmPrescriptionDiagnosisOption[]
+  /** Optional method dictionary supplied by the doctor-station page. */
+  methodOptions?: Array<{ code: string; name: string }>
+  /** Optional frequency dictionary supplied by the doctor-station page. */
+  rateOptions?: Array<{ code: string; name: string }>
 }
 
 /** 可编辑的中药材明细。 */
@@ -38,36 +42,31 @@ export interface ClinicalTcmPrescriptionLine extends Omit<TcmPrescriptionLineVO,
 export interface ClinicalTcmPrescriptionDraft {
   /** 前端稳定处方标识。 */
   key: string
-  /** 已保存处方 ID。 */
+  /** Backend group key used for both drafts and signed records. */
+  prescriptionGroupKey: string
+  /** True after the record has been accepted by the backend. */
+  saved: boolean
+  /** Backend prescription number, available after signing. */
   id?: string
-  /** 处方号。 */
   prescriptionNo?: string
-  /** 本次就诊诊断记录 ID。 */
-  encounterDiagnosisId: string
-  /** 关联中医病证。 */
-  syndromeName: string
-  /** 付数。 */
-  doseCount: number
-  /** 用法。 */
-  method: string
-  /** 频次。 */
-  frequency: string
-  /** 疗程天数。 */
-  days: number
-  /** 煎药方式。 */
-  decoctionMethod?: string
-  /** 处方备注。 */
-  remark?: string
-  /** 处方状态。 */
-  status: TcmPrescriptionStatus
-  /** 处方状态名称。 */
-  statusName: string
-  /** 药材明细。 */
-  lines: ClinicalTcmPrescriptionLine[]
-  /** 最近更新时间。 */
-  updatedAt?: string
-  /** 乐观锁版本。 */
   version?: number
+  encounterDiagnosisId?: string
+  usage?: string
+  frequency?: string
+  therapyEnum?: string
+  tcmSyndromeGroup?: string
+  methodCode?: string
+  methodName?: string
+  rateCode?: string
+  rateName?: string
+  syndromeName?: string
+  doseCount: number
+  days: number
+  decoctionMethod?: string
+  remark?: string
+  status: TcmPrescriptionStatus
+  statusName: string
+  lines: ClinicalTcmPrescriptionLine[]
 }
 
 /** 中药材目录加载器。 */

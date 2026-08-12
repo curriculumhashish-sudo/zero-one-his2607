@@ -43,12 +43,7 @@ const summaryItems = computed<DetailSummaryItem[]>(() => {
     { key: 'visitDate', label: '就诊时间', value: props.item.visitDate },
     { key: 'department', label: '就诊科室', value: props.item.deptName },
     { key: 'doctor', label: '接诊医生', value: props.item.doctorName },
-    {
-      key: 'diagnosis',
-      label: '主诊断',
-      value: props.item.diagnosis,
-      span: 2
-    },
+    { key: 'diagnosis', label: '主诊断', value: props.item.diagnosis, span: 2 },
     { key: 'updatedAt', label: '病历更新时间', value: props.record?.updatedAt }
   ]
 })
@@ -81,7 +76,7 @@ const summaryItems = computed<DetailSummaryItem[]>(() => {
 
       <section class="medical-record-history-dialog__record">
         <header>病历正文</header>
-        <!-- 历史病历始终只读，不向当前病历编辑器回写任何内容。 -->
+        <!-- Historical records are always read-only. -->
         <RichTextEditorField
           :model-value="record.content"
           readonly

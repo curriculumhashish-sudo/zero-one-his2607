@@ -28,7 +28,7 @@ describe('住院护士站护理记录 Mock API', () => {
       expect.objectContaining({
         vitalSignId: 'nursing-record-001',
         version: expect.any(Number),
-        conditionMeasure: expect.any(String)
+        observation: expect.any(String)
       })
     )
   })
@@ -44,9 +44,8 @@ describe('住院护士站护理记录 Mock API', () => {
           recordDate: '2026-08-02',
           recordTime: '09:30',
           temperature: '36.6',
-          conditionMeasure: '患者一般情况稳定。',
-          nurseSignature: '周护士',
-          rowType: 'extra' as const
+          observation: '患者一般情况稳定。',
+          nurseSignature: '周护士'
         }
       ]
     }

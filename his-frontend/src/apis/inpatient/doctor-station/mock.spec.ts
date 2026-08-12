@@ -2,18 +2,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   mockCancelStopInpatientMedicalOrders,
-  mockCreateInpatientDischargeAdvice,
   mockCreateInpatientDiagnosis,
+  mockCreateInpatientDischargeAdvice,
   mockCreateInpatientMedicalOrder,
-  mockDeleteInpatientDiagnosis,
-  mockGetInpatientDiagnosisUsageHistory,
-  mockGetInpatientDischargeAdvicePreparation,
   mockGetInpatientMedicalRecord,
   mockGetInpatientMedicalRecordHistoryDetail,
+  mockListInpatientDiagnosisBrief,
   mockListInpatientMedicalRecordDocumentTypes,
-  mockPageInpatientDiagnosisDictionary,
-  mockPageInpatientDiagnosisRecords,
   mockPageInpatientDoctorPatientQueue,
+  mockPageInpatientDiagnosisRecords,
   mockPageInpatientMedicalOrderCatalog,
   mockPageInpatientMedicalOrders,
   mockPageInpatientMedicalRecordHistory,
@@ -22,6 +19,7 @@ import {
   mockSignInpatientMedicalOrders,
   mockStopInpatientMedicalOrders,
   mockUpdateInpatientDiagnosis,
+  mockDeleteInpatientDiagnosis,
   mockWithdrawInpatientMedicalOrders
 } from './mock'
 
@@ -45,7 +43,7 @@ describe('inpatient doctor-station patient queue mock', () => {
     vi.useRealTimers()
   })
 
-  it('按住院号、床号和拼音简码检索患者', async () => {
+  it('按住院号和床号检索患者', async () => {
     const byInpatientNo = await resolveMockRequest(
       mockPageInpatientDoctorPatientQueue({
         pageIndex: 1,
@@ -59,19 +57,10 @@ describe('inpatient doctor-station patient queue mock', () => {
       mockPageInpatientDoctorPatientQueue({
         pageIndex: 1,
         pageSize: 20,
-        keyword: '18床'
+        keyword: '12床'
       })
     )
-    expect(byBed.rows?.[0]?.patientName).toBe('刘春梅')
-
-    const byPinyin = await resolveMockRequest(
-      mockPageInpatientDoctorPatientQueue({
-        pageIndex: 1,
-        pageSize: 20,
-        keyword: 'HXL'
-      })
-    )
-    expect(byPinyin.rows?.[0]?.patientName).toBe('何秀兰')
+    expect(byBed.rows?.[0]?.patientName).toBe('赵桂芳')
   })
 
   it('返回稳定的分页结果且不暴露 Mock 内部对象', async () => {
@@ -81,8 +70,8 @@ describe('inpatient doctor-station patient queue mock', () => {
         pageSize: 2
       })
     )
-    expect(firstPage.total).toBe(6)
-    expect(firstPage.pages).toBe(3)
+    expect(firstPage.total).toBe(3)
+    expect(firstPage.pages).toBe(2)
     expect(firstPage.rows).toHaveLength(2)
 
     if (firstPage.rows?.[0]) firstPage.rows[0].patientName = '被修改'
@@ -140,12 +129,11 @@ describe('inpatient doctor-station patient queue mock', () => {
 
     const created = await resolveMockRequest(
       mockSaveInpatientMedicalRecord({
-        encounterId: 'ipt-enc-20260705-005',
-        patientId: 'patient-10005',
+        encounterId: 'ipt-enc-20260702-002',
+        patientId: 'patient-10002',
         documentTypeCode: 'DAILY_COURSE_RECORD',
         title: '2026-07-28 日常病程记录',
-        content: '<p>患者今日胸闷较前缓解，继续观察。</p>',
-        version: 0
+        content: '<p>患者今日胸闷较前缓解，继续观察。</p>'
       })
     )
     expect(created).toEqual(
@@ -215,109 +203,6 @@ describe('inpatient doctor-station patient queue mock', () => {
     )
   })
 
-  it('分页查询当前住院诊断并搜索诊断字典和使用历史', async () => {
-    const records = await resolveMockRequest(
-      mockPageInpatientDiagnosisRecords({
-        pageIndex: 1,
-        pageSize: 20,
-        encounterId: 'ipt-enc-20260701-001'
-      })
-    )
-    expect(records.rows?.map((record) => record.code)).toEqual(['I25.1', 'E78.5'])
-
-    const dictionary = await resolveMockRequest(
-      mockPageInpatientDiagnosisDictionary({
-        pageIndex: 1,
-        pageSize: 10,
-        keyword: '胸痛'
-      })
-    )
-    expect(dictionary.rows?.[0]?.code).toBe('R07.4')
-
-    const history = await resolveMockRequest(
-      mockGetInpatientDiagnosisUsageHistory({ keyword: '高血压' })
-    )
-    expect(history.map((item) => item.code)).toEqual(['I10'])
-  })
-
-  it('支持住院诊断新增、修改、删除并校验版本号', async () => {
-    const created = await resolveMockRequest(
-      mockCreateInpatientDiagnosis({
-        encounterId: 'ipt-enc-20260702-002',
-        patientId: 'patient-10002',
-        catalogId: 'diag-R002',
-        code: 'R00.2',
-        name: '心悸',
-        typeName: '症状诊断',
-        primary: false,
-        orderNo: 2
-      })
-    )
-    expect(created.version).toBe(1)
-
-    const updated = await resolveMockRequest(
-      mockUpdateInpatientDiagnosis(created.id, {
-        catalogId: created.catalogId,
-        code: created.code,
-        name: created.name,
-        typeName: created.typeName,
-        primary: true,
-        orderNo: 1,
-        version: created.version
-      })
-    )
-    expect(updated.primary).toBe(true)
-    expect(updated.version).toBe(2)
-
-    await expectMockRequestToReject(
-      mockUpdateInpatientDiagnosis(created.id, {
-        catalogId: created.catalogId,
-        code: created.code,
-        name: created.name,
-        typeName: created.typeName,
-        primary: false,
-        orderNo: 2,
-        version: 1
-      }),
-      '已被他人修改'
-    )
-
-    await resolveMockRequest(mockDeleteInpatientDiagnosis(created.id, updated.version))
-    const records = await resolveMockRequest(
-      mockPageInpatientDiagnosisRecords({
-        pageIndex: 1,
-        pageSize: 20,
-        encounterId: 'ipt-enc-20260702-002'
-      })
-    )
-    expect(records.rows?.some((record) => record.id === created.id)).toBe(false)
-  })
-
-  it('待出院患者仍在医生站队列时可以维护诊断', async () => {
-    const records = await resolveMockRequest(
-      mockPageInpatientDiagnosisRecords({
-        pageIndex: 1,
-        pageSize: 20,
-        encounterId: 'ipt-enc-20260703-003'
-      })
-    )
-    const record = records.rows?.[0]
-    expect(record).toBeTruthy()
-
-    const updated = await resolveMockRequest(
-      mockUpdateInpatientDiagnosis(record!.id, {
-        catalogId: record!.catalogId,
-        code: record!.code,
-        name: record!.name,
-        typeName: record!.typeName,
-        primary: record!.primary,
-        orderNo: record!.orderNo,
-        version: record!.version
-      })
-    )
-    expect(updated.version).toBe(record!.version + 1)
-  })
-
   it('搜索医嘱目录并分页查询当前住院医嘱', async () => {
     const catalog = await resolveMockRequest(
       mockPageInpatientMedicalOrderCatalog({
@@ -339,6 +224,69 @@ describe('inpatient doctor-station patient queue mock', () => {
     expect(records.rows?.every((record) => record.encounterId === 'ipt-enc-20260701-001')).toBe(
       true
     )
+  })
+
+  it('诊断 Mock 支持患者隔离和完整增删改流程', async () => {
+    const before = await resolveMockRequest(
+      mockPageInpatientDiagnosisRecords({
+        pageIndex: 1,
+        pageSize: 20,
+        encounterId: 'ipt-enc-20260702-002',
+        patientId: 'patient-10002'
+      })
+    )
+    expect(before.rows).toHaveLength(1)
+
+    const created = await resolveMockRequest(
+      mockCreateInpatientDiagnosis({
+        encounterId: 'ipt-enc-20260702-002',
+        patientId: 'patient-10002',
+        description: '高脂血症',
+        primaryFlag: 0,
+        rank: 2,
+        tcmFlag: 0
+      })
+    )
+    expect(created).toEqual(expect.objectContaining({ description: '高脂血症', rank: 2 }))
+
+    await resolveMockRequest(
+      mockUpdateInpatientDiagnosis({ id: created.id, diagnosisTypeCode: '出院诊断' })
+    )
+    const updated = await resolveMockRequest(
+      mockPageInpatientDiagnosisRecords({
+        pageIndex: 1,
+        pageSize: 20,
+        encounterId: 'ipt-enc-20260702-002',
+        patientId: 'patient-10002'
+      })
+    )
+    expect(updated.rows?.find((item) => item.id === created.id)?.diagnosisTypeName).toBe('出院诊断')
+
+    const otherPatient = await resolveMockRequest(
+      mockPageInpatientDiagnosisRecords({
+        pageIndex: 1,
+        pageSize: 20,
+        encounterId: 'ipt-enc-20260701-001',
+        patientId: 'patient-10001'
+      })
+    )
+    expect(otherPatient.rows?.some((item) => item.id === created.id)).toBe(false)
+
+    const briefs = await resolveMockRequest(mockListInpatientDiagnosisBrief())
+    expect(briefs).toContainEqual({ definitionName: '高脂血症' })
+
+    await resolveMockRequest(
+      mockDeleteInpatientDiagnosis({ id: created.id, conditionId: created.conditionId })
+    )
+    const after = await resolveMockRequest(
+      mockPageInpatientDiagnosisRecords({
+        pageIndex: 1,
+        pageSize: 20,
+        encounterId: 'ipt-enc-20260702-002',
+        patientId: 'patient-10002'
+      })
+    )
+    expect(after.rows?.some((item) => item.id === created.id)).toBe(false)
   })
 
   it('支持住院医嘱新增、签发、停嘱、取消停嘱和撤回', async () => {
@@ -397,49 +345,20 @@ describe('inpatient doctor-station patient queue mock', () => {
     expect(withdrawn.rows[0]?.version).toBe(created.version + 4)
   })
 
-  it('出院医嘱前置校验会阻止重复开立并提示待处理医嘱', async () => {
-    const ready = await resolveMockRequest(
-      mockGetInpatientDischargeAdvicePreparation('ipt-enc-20260701-001', 'patient-10001')
-    )
-    expect(ready.canCreate).toBe(true)
-    expect(ready.checks).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ code: 'ORDER_DRAFT', level: 'REMINDER' }),
-        expect.objectContaining({ code: 'LONG_TERM_ORDER_ACTIVE', level: 'REMINDER' })
-      ])
-    )
-    expect(ready.outWayOptions).toEqual(
-      expect.arrayContaining([expect.objectContaining({ value: '1', label: '医嘱离院' })])
-    )
-
-    const pending = await resolveMockRequest(
-      mockGetInpatientDischargeAdvicePreparation('ipt-enc-20260703-003', 'patient-10003')
-    )
-    expect(pending.canCreate).toBe(false)
-    expect(pending.existingAdvice?.outWayName).toBe('医嘱离院')
-    expect(pending.checks[0]).toEqual(
-      expect.objectContaining({ code: 'DISCHARGE_ALREADY_PENDING', level: 'BLOCKER' })
-    )
-  })
-
-  it('开立出院医嘱后患者保留在队列并更新为待出院状态', async () => {
-    const preparation = await resolveMockRequest(
-      mockGetInpatientDischargeAdvicePreparation('ipt-enc-20260704-004', 'patient-10004')
-    )
+  it('开立出院医嘱后患者移出在院队列', async () => {
     const advice = await resolveMockRequest(
       mockCreateInpatientDischargeAdvice({
-        encounterId: preparation.encounterId,
-        patientId: preparation.patientId,
-        encounterVersion: preparation.encounterVersion,
+        encounterId: 'ipt-enc-20260702-002',
         plannedDischargeTime: '2026-07-28 16:00:00',
-        outWayCode: '1',
-        reasonText: '病情稳定'
+        outWayCode: '1'
       })
     )
     expect(advice).toEqual(
       expect.objectContaining({
         outWayName: '医嘱离院',
-        plannedDischargeTime: '2026-07-28 16:00:00'
+        plannedDischargeTime: '2026-07-28 16:00:00',
+        statusEnum: 'ACTIVE',
+        encounterNewStatus: 'ON_HOLD'
       })
     )
 
@@ -447,22 +366,16 @@ describe('inpatient doctor-station patient queue mock', () => {
       mockPageInpatientDoctorPatientQueue({
         pageIndex: 1,
         pageSize: 20,
-        keyword: 'ZY20260704009'
+        keyword: 'ZY20260702006'
       })
     )
-    expect(queue.rows?.[0]).toEqual(
-      expect.objectContaining({
-        encounterStatus: 'DISCHARGE_PENDING',
-        encounterStatusName: '待出院',
-        version: preparation.encounterVersion + 1
-      })
-    )
+    expect(queue.rows).toEqual([])
 
     const orders = await resolveMockRequest(
       mockPageInpatientMedicalOrders({
         pageIndex: 1,
         pageSize: 20,
-        encounterId: preparation.encounterId
+        encounterId: 'ipt-enc-20260702-002'
       })
     )
     expect(orders.rows).toEqual(
@@ -476,26 +389,17 @@ describe('inpatient doctor-station patient queue mock', () => {
     )
   })
 
-  it('出院医嘱使用住院版本号控制并发且不能重复提交', async () => {
-    const preparation = await resolveMockRequest(
-      mockGetInpatientDischargeAdvicePreparation('ipt-enc-20260706-006', 'patient-10006')
-    )
-    await expectMockRequestToReject(
+  it('已存在出院医嘱时拒绝重复提交', async () => {
+    await resolveMockRequest(
       mockCreateInpatientDischargeAdvice({
-        encounterId: preparation.encounterId,
-        patientId: preparation.patientId,
-        encounterVersion: preparation.encounterVersion + 1,
+        encounterId: 'ipt-enc-20260703-003',
         plannedDischargeTime: '2026-07-29 09:00:00',
         outWayCode: '1'
-      }),
-      '已被他人修改'
+      })
     )
-
     await expectMockRequestToReject(
       mockCreateInpatientDischargeAdvice({
         encounterId: 'ipt-enc-20260703-003',
-        patientId: 'patient-10003',
-        encounterVersion: 2,
         plannedDischargeTime: '2026-07-29 09:00:00',
         outWayCode: '1'
       }),

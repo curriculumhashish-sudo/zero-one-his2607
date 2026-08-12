@@ -7,17 +7,12 @@ import type {
   NurseStationPatientQueueQuery,
   NurseStationPatientStatisticsVO
 } from './type'
+import {
+  isNurseStationRealApiEnabled,
+  realApiBaseURL
+} from './runtime-config'
 
-/**
- * 护士站真实接口的代理前缀。
- *
- * 开发环境通过 Vite 代理转发到后端，浏览器不会因为跨域直接失败；
- * 生产环境可以把它改成网关前缀。页面组件不需要知道这个地址。
- */
-export const realApiBaseURL = import.meta.env.VITE_NURSE_STATION_API_URL || '/api'
-
-/** 只有显式打开 real 模式时才访问后端，测试环境默认继续使用 Mock。 */
-export const isNurseStationRealApiEnabled = import.meta.env.VITE_NURSE_STATION_API_MODE === 'real'
+export { isNurseStationRealApiEnabled, realApiBaseURL } from './runtime-config'
 
 interface BackendPatientQueuePage {
   pageIndex?: number

@@ -5,6 +5,7 @@ import {
   mockGetNurseExecutionItems,
   mockPageNursePatientQueue,
   mockPagePatientExecutionHistory,
+  mockPrintNurseExecutions,
   mockPerformNurseExecutions
 } from './mock'
 import {
@@ -14,6 +15,7 @@ import {
   realGetNurseExecutionItems,
   realPageNursePatientQueue,
   realPagePatientExecutionHistory,
+  realPrintNurseExecutions,
   realPerformNurseExecutions
 } from './real'
 import type {
@@ -25,6 +27,7 @@ import type {
   NurseBatchResultVO,
   NursePatientQueueItemVO,
   NursePatientQueueQuery,
+  PrintNurseExecutionsDTO,
   PerformNurseExecutionsDTO
 } from './type'
 
@@ -40,7 +43,7 @@ export function pageNursePatientQueue(
 /** 查询当前就诊的执行项目。 */
 export function getNurseExecutionItems(
   patientId: string,
-  encounterId?: string
+  encounterId: string
 ): Promise<NurseExecutionItemVO[]> {
   return isOutpatientNurseStationRealApiEnabled
     ? realGetNurseExecutionItems(patientId, encounterId)
@@ -50,7 +53,7 @@ export function getNurseExecutionItems(
 /** 查询当前就诊的耗材项目。 */
 export function getNurseConsumables(
   patientId: string,
-  encounterId?: string
+  encounterId: string
 ): Promise<NurseConsumableItemVO[]> {
   return isOutpatientNurseStationRealApiEnabled
     ? realGetNurseConsumables(patientId, encounterId)
@@ -73,6 +76,13 @@ export function cancelNurseExecution(
   return isOutpatientNurseStationRealApiEnabled
     ? realCancelNurseExecution(request)
     : mockCancelNurseExecution(request)
+}
+
+/** 获取可交给浏览器打印的服务请求文本。 */
+export function printNurseExecutions(request: PrintNurseExecutionsDTO): Promise<string> {
+  return isOutpatientNurseStationRealApiEnabled
+    ? realPrintNurseExecutions(request)
+    : mockPrintNurseExecutions(request)
 }
 
 /** 分页查询患者历史执行记录（跨就诊）。 */
@@ -100,5 +110,6 @@ export type {
   NursePatientQueueItemVO,
   NursePatientQueueQuery,
   NursePatientStatus,
+  PrintNurseExecutionsDTO,
   PerformNurseExecutionsDTO
 } from './type'

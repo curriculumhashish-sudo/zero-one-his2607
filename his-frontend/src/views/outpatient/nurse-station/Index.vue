@@ -9,6 +9,7 @@ import {
   getNurseExecutionItems,
   pageNursePatientQueue,
   performNurseExecutions,
+  printNurseExecutions,
   type NurseConsumableItemVO,
   type NurseExecutionItemVO,
   type NursePatientQueueItemVO
@@ -43,6 +44,7 @@ const queueLoading = ref(false)
 const workbenchLoading = ref(false)
 const executing = ref(false)
 const cancellingItemId = ref('')
+const printingItemId = ref('')
 const executionPanelRef = ref<InstanceType<typeof NurseExecutionPanel> | null>(null)
 let workbenchRequestId = 0
 
@@ -101,13 +103,14 @@ async function loadWorkbench(encounterId: string) {
   selectedExecutionIds.value = []
   executionPanelRef.value?.clearSelection()
   try {
-    const [items, supplies] = await Promise.all([
+    const [itemsResult, suppliesResult] = await Promise.allSettled([
       getNurseExecutionItems(queueRow.patientId, encounterId),
       getNurseConsumables(queueRow.patientId, encounterId)
     ])
     if (requestId !== workbenchRequestId || encounterId !== selectedEncounterId.value) return
-    executionItems.value = items
-    consumableItems.value = supplies
+    if (itemsResult.status === 'rejected') throw itemsResult.reason
+    executionItems.value = itemsResult.value
+    consumableItems.value = suppliesResult.status === 'fulfilled' ? suppliesResult.value : []
   } catch {
     if (requestId === workbenchRequestId) {
       ElMessage.error('患者工作台加载失败')
@@ -151,8 +154,58 @@ function clearSelection() {
   executionPanelRef.value?.clearSelection()
 }
 
-function createIdempotencyKey() {
-  return globalThis.crypto?.randomUUID?.() ?? `nurse-${Date.now()}-${Math.random()}`
+function openTextPrintWindow() {
+  const printWindow = window.open('', '_blank', 'width=900,height=720')
+  if (!printWindow) return null
+  printWindow.opener = null
+  printWindow.document.title = '服务请求打印单'
+  printWindow.document.body.textContent = '正在生成打印内容…'
+  return printWindow
+}
+
+function renderTextPrintWindow(printWindow: Window, content: string) {
+  const style = printWindow.document.createElement('style')
+  style.textContent = `
+    @page { size: A4; margin: 16mm; }
+    body { margin: 0; color: #000; background: #fff; }
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font: 14px/1.7 "Microsoft YaHei", "PingFang SC", sans-serif;
+    }
+  `
+  const text = printWindow.document.createElement('pre')
+  text.textContent = content
+  printWindow.document.head.replaceChildren(style)
+  printWindow.document.body.replaceChildren(text)
+  printWindow.document.title = '服务请求打印单'
+  printWindow.focus()
+  printWindow.print()
+}
+
+async function handlePrintExecution(item: NurseExecutionItemVO) {
+  if (printingItemId.value) return
+  const printWindow = openTextPrintWindow()
+  if (!printWindow) {
+    ElMessage.error('浏览器阻止了打印窗口，请允许弹出窗口后重试')
+    return
+  }
+
+  printingItemId.value = item.itemId
+  try {
+    const content = await printNurseExecutions({
+      recordIds: [item.itemId],
+      printType: 'EXECUTION_RECORD'
+    })
+    if (printWindow.closed) throw new Error('打印窗口已关闭')
+    renderTextPrintWindow(printWindow, content)
+  } catch (error) {
+    if (!printWindow.closed) printWindow.close()
+    ElMessage.error(error instanceof Error ? error.message : '打印内容生成失败')
+  } finally {
+    printingItemId.value = ''
+  }
 }
 
 function selectedExecutionCommands() {
@@ -190,9 +243,7 @@ async function handleExecuteEntry() {
     const result = await performNurseExecutions({
       encounterId: selectedEncounterId.value,
       items: commands,
-      idempotencyKey: createIdempotencyKey(),
-      executorId,
-      executorName: userStore.getUser?.realName || userStore.getUser?.username
+      executorId
     })
     if (result.failedCount === 0) {
       ElMessage.success(`成功执行 ${result.successCount} 个项目`)
@@ -233,12 +284,7 @@ async function handleCancelExecute(item: NurseExecutionItemVO) {
     const result = await cancelNurseExecution({
       encounterId: selectedEncounterId.value,
       item: { itemId: item.itemId },
-      reason,
-      operatorId:
-        String(userStore.getUser?.practitionerId || userStore.getUser?.id || '').trim() ||
-        undefined,
-      operatorName: userStore.getUser?.realName || userStore.getUser?.username,
-      idempotencyKey: createIdempotencyKey()
+      reason
     })
     if (result.successCount > 0) {
       ElMessage.success('已取消最近一次执行')
@@ -286,14 +332,16 @@ onMounted(() => {
 
       <template #main>
         <section class="nurse-workbench">
-          <PatientInfoBar :patient="currentPatient" display-mode="outpatient-registration" />
+          <PatientInfoBar :patient="currentPatient" />
           <div class="nurse-workbench__content">
             <NurseExecutionPanel
               ref="executionPanelRef"
               :items="executionItems"
               :loading="workbenchLoading || executing || Boolean(cancellingItemId)"
               :has-patient="Boolean(currentPatient)"
+              :printing-item-id="printingItemId"
               @cancel-execute="handleCancelExecute"
+              @print="handlePrintExecution"
               @selection-change="selectedExecutionIds = $event"
               @refresh="handleRefreshWorkbench"
             />
@@ -309,7 +357,6 @@ onMounted(() => {
 
       <template #right>
         <NurseRightSidebar
-          :execution-items="executionItems"
           :items="consumableItems"
           :loading="workbenchLoading"
           :patient-id="currentPatientId"

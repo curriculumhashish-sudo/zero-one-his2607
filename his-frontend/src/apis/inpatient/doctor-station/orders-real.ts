@@ -234,7 +234,7 @@ function buildUpdatePayload(
   }
 }
 
-/** 查询真实住院医嘱；后端按患者返回全部住院记录。 */
+/** 查询真实住院医嘱；按当前就诊和患者上下文请求。 */
 export async function realPageInpatientMedicalOrders(
   query: InpatientMedicalOrderQuery
 ): Promise<PageDTO<InpatientMedicalOrderRecordVO>> {
@@ -246,7 +246,8 @@ export async function realPageInpatientMedicalOrders(
         pageIndex: query.pageIndex,
         pageSize: query.pageSize,
         tenant_id: getTenantId(),
-        'patient-id': query.patientId
+        patient_id: query.patientId,
+        encounter_id: query.encounterId
       },
       { baseURL: realApiBaseURL }
     )

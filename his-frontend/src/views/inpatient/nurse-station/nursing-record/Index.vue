@@ -5,7 +5,6 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 
 import {
   deleteNurseStationNursingRecord,
-  isNurseStationRealApiEnabled,
   queryNurseStationNursingRecords,
   saveNurseStationNursingRecords,
   type NurseStationNursingRecordPaperHeaderVO
@@ -155,7 +154,7 @@ async function handleSaveAll() {
     return
   }
   if (records.some((item) => !/^\d{4}-\d{2}-\d{2}$/.test(item.recordDate))) {
-    ElMessage.warning('请按 MM-DD 填写记录日期')
+    ElMessage.warning('请按 YYYY-MM-DD 填写记录日期')
     return
   }
   if (records.some((item) => !/^\d{2}:\d{2}$/.test(item.recordTime))) {
@@ -195,11 +194,6 @@ async function handleDeleteRow(row: NursingRecordViewRow) {
     rows.value = rows.value.filter((item) => item.clientRowId !== row.clientRowId)
     return
   }
-  if (isNurseStationRealApiEnabled) {
-    ElMessage.info('当前后端暂未提供护理记录删除接口，已保存记录暂不可删除')
-    return
-  }
-
   try {
     await ElMessageBox.confirm('确认删除这条护理记录？删除操作将保留审计记录。', '删除护理记录', {
       type: 'warning',
@@ -236,7 +230,6 @@ async function handleDeleteRow(row: NursingRecordViewRow) {
         :saving="saving"
         :unsaved-count="unsavedCount"
         :week-range-label="weekRange.label"
-        :signature-readonly="isNurseStationRealApiEnabled"
         @add-row="handleAddRow"
         @delete-row="handleDeleteRow"
         @ensure-datetime="handleEnsureDatetime"

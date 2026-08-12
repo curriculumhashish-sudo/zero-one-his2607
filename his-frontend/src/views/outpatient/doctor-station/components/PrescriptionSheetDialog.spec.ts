@@ -105,6 +105,8 @@ describe('PrescriptionSheetDialog', () => {
 
     expect(apiMocks.queryDoctorPrescriptionSheets).toHaveBeenCalledWith({
       num: 'MR20260008',
+      encounterId: 'enc-prescription-test',
+      paymentTypeName: undefined,
       type: 'CURRENT_ENCOUNTER'
     })
     const sheet = wrapper.getComponent({ name: 'PrescriptionSheetView' })
@@ -122,6 +124,8 @@ describe('PrescriptionSheetDialog', () => {
 
     expect(apiMocks.queryDoctorPrescriptionSheets).toHaveBeenLastCalledWith({
       num: 'MR20260008',
+      encounterId: 'enc-prescription-test',
+      paymentTypeName: undefined,
       type: 'HISTORY'
     })
     expect(

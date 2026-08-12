@@ -9,6 +9,7 @@ import type {
   NurseBatchResultVO,
   NursePatientQueueItemVO,
   NursePatientQueueQuery,
+  PrintNurseExecutionsDTO,
   PerformNurseExecutionsDTO
 } from './type'
 
@@ -34,9 +35,7 @@ const patients: NursePatientQueueItemVO[] = [
     patientName: '林安然',
     genderName: '女',
     ageText: '32岁',
-    visitNo: 'MOCK-QUEUE-001',
-    queueNumber: 1,
-    registeredAt: `${MOCK_TODAY} 08:35`,
+    bookingDate: MOCK_TODAY,
     departmentName: '内科门诊',
     visitTypeName: '普通门诊',
     status: 'READY',
@@ -49,9 +48,7 @@ const patients: NursePatientQueueItemVO[] = [
     patientName: '林安然',
     genderName: '女',
     ageText: '32岁',
-    visitNo: 'MOCK-HISTORY-001',
-    queueNumber: 3,
-    registeredAt: `${MOCK_HISTORY_DATE} 08:20`,
+    bookingDate: MOCK_HISTORY_DATE,
     departmentName: '内科门诊',
     visitTypeName: '普通门诊',
     status: 'COMPLETED',
@@ -63,9 +60,7 @@ const patients: NursePatientQueueItemVO[] = [
     patientName: '周远航',
     genderName: '男',
     ageText: '46岁',
-    visitNo: 'MOCK-QUEUE-002',
-    queueNumber: 2,
-    registeredAt: `${MOCK_TODAY} 09:05`,
+    bookingDate: MOCK_TODAY,
     departmentName: '外科门诊',
     visitTypeName: '普通门诊',
     status: 'WAITING',
@@ -205,8 +200,6 @@ const consumables: Record<string, NurseConsumableItemVO[]> = {
   [EMPTY_DEMO_ENCOUNTER_ID]: []
 }
 
-const executionIdempotencyResults = new Map<string, NurseBatchResultVO>()
-
 function delay<T>(value: T): Promise<T> {
   return new Promise((resolve) => {
     window.setTimeout(() => resolve(value), MOCK_DELAY)
@@ -222,7 +215,7 @@ export async function mockPageNursePatientQueue(
   query: NursePatientQueueQuery
 ): Promise<PageDTO<NursePatientQueueItemVO>> {
   const filtered = patients.filter(
-    (patient) => !query.bookingDate || patient.registeredAt.slice(0, 10) === query.bookingDate
+    (patient) => !query.bookingDate || patient.bookingDate === query.bookingDate
   )
   const start = Math.max(0, (query.pageIndex - 1) * query.pageSize)
   const page = createPageDTO<NursePatientQueueItemVO>()
@@ -235,22 +228,18 @@ export async function mockPageNursePatientQueue(
 }
 
 /** Mock：查询当前就诊的执行项目，签名与真实接口保持一致。 */
-export function mockGetNurseExecutionItems(patientId: string, encounterId?: string) {
-  const targetEncounterId = encounterId || patientId
-  return delay(copy(executionItems[targetEncounterId] ?? []))
+export function mockGetNurseExecutionItems(_patientId: string, encounterId: string) {
+  return delay(copy(executionItems[encounterId] ?? []))
 }
 
 function formatMockDateTime() {
   return dayjs().format('YYYY-MM-DD HH:mm:ss')
 }
 
-/** Mock：批量执行选中的护士项目，支持幂等与逐项版本检查。 */
+/** Mock：批量执行选中的护士项目。 */
 export function mockPerformNurseExecutions(
   request: PerformNurseExecutionsDTO
 ): Promise<NurseBatchResultVO> {
-  const cached = executionIdempotencyResults.get(request.idempotencyKey)
-  if (cached) return delay(copy(cached))
-
   const rows = executionItems[request.encounterId] ?? []
   const result: NurseBatchResultVO = {
     totalCount: request.items.length,
@@ -289,7 +278,6 @@ export function mockPerformNurseExecutions(
 
   result.successCount = result.successIds.length
   result.failedCount = result.failedItems.length
-  executionIdempotencyResults.set(request.idempotencyKey, copy(result))
   return delay(result)
 }
 
@@ -333,10 +321,42 @@ export function mockCancelNurseExecution(
   return delay(result)
 }
 
+/** Mock：生成与真实接口一致的纯文本打印内容。 */
+export async function mockPrintNurseExecutions(request: PrintNurseExecutionsDTO) {
+  const allItems = Object.values(executionItems).flat()
+  const records = request.recordIds
+    .map((recordId) => allItems.find((item) => item.itemId === recordId))
+    .filter((item): item is NurseExecutionItemVO => Boolean(item))
+
+  if (records.length === 0) throw new Error('未找到有效的服务请求记录')
+
+  const lines = [
+    '========================================',
+    '         服务请求打印单',
+    '========================================',
+    '打印类型：执行记录',
+    `打印时间：${formatMockDateTime()}`,
+    '----------------------------------------'
+  ]
+  records.forEach((record, index) => {
+    lines.push(
+      '',
+      `${index + 1}. 记录ID：${record.itemId}`,
+      `   就诊ID：${record.encounterId}`,
+      `   项目名称：${record.itemName}`,
+      `   数量：${record.quantity ?? '—'} ${record.unitName ?? ''}`.trimEnd(),
+      `   状态：${record.statusName}`,
+      `   执行者：${record.executorName ?? '未指定'}`,
+      `   备注：${record.remark ?? '无'}`
+    )
+  })
+  lines.push('', '========================================')
+  return delay(lines.join('\n'))
+}
+
 /** Mock：查询当前就诊的耗材项目，签名与真实接口保持一致。 */
-export function mockGetNurseConsumables(patientId: string, encounterId?: string) {
-  const targetEncounterId = encounterId || patientId
-  return delay(copy(consumables[targetEncounterId] ?? []))
+export function mockGetNurseConsumables(_patientId: string, encounterId: string) {
+  return delay(copy(consumables[encounterId] ?? []))
 }
 
 /** Mock：分页查询患者历史执行记录（跨就诊）。 */
@@ -355,8 +375,7 @@ export async function mockPagePatientExecutionHistory(
       if (item.executionCount <= 0 || !item.executedAt) return
       allRecords.push({
         ...copy(item),
-        encounterId: encounter.encounterId,
-        visitNo: encounter.visitNo
+        encounterId: encounter.encounterId
       })
     })
   })

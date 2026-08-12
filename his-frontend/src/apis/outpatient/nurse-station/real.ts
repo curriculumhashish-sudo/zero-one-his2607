@@ -10,6 +10,7 @@ import type {
   NurseBatchResultVO,
   NursePatientQueueItemVO,
   NursePatientQueueQuery,
+  PrintNurseExecutionsDTO,
   PerformNurseExecutionsDTO
 } from './type'
 
@@ -58,27 +59,48 @@ interface BackendPatientQueueRow {
 
 interface BackendExecutionRecord {
   id?: string
+  busNo?: string
   bus_no?: string
+  statusEnum?: string
   status_enum?: string
+  statusName?: string
   status_name?: string
+  categoryEnum?: string
   category_enum?: string
+  categoryName?: string
   category_name?: string
+  priorityEnum?: string
+  priorityName?: string
   priority_name?: string
+  itemName?: string
   item_name?: string
   quantity?: number
+  unitCode?: string
   unit_code?: string
+  unitName?: string
   unit_name?: string
+  patientId?: string
   patient_id?: string
+  encounterId?: string
   encounter_id?: string
+  authoredTime?: string
   authored_time?: string
+  performerName?: string
   performer_name?: string
+  checkTime?: string
   check_time?: string
+  occurrenceStartTime?: string
   occurrence_start_time?: string
+  occurrenceEndTime?: string
   occurrence_end_time?: string
   remark?: string
+  executionCount?: number
   execution_count?: number
+  executionStatus?: number
   execution_status?: number
+  executionStatusName?: string
   execution_status_name?: string
+  createdAt?: string
   created_at?: string
 }
 
@@ -86,6 +108,7 @@ interface BackendConsumableItem {
   id?: string
   busNo?: string
   deviceReqId?: string
+  deviceName?: string
   statusEnum?: string
   quantity?: number
   unitCode?: string
@@ -163,68 +186,149 @@ function mapPatientQueueRow(row: BackendPatientQueueRow): NursePatientQueueItemV
     patientName: text(row.patient_name) || '未提供患者姓名',
     genderName: mapGender(row.patient_gender),
     ageText: rawAge && !/[岁月天]/.test(rawAge) ? `${rawAge}岁` : rawAge || '未知',
-    // 当前后端未返回独立就诊号，优先显示队列业务号，其次显示 encounterId。
-    visitNo: text(row.bus_no) || encounterId,
-    queueNumber: number(row.display_order),
-    registeredAt:
-      text(row.triage_time) ||
-      text(row.start_instant) ||
-      text(row.created_at) ||
-      text(row.booking_date) ||
-      '',
+    bookingDate: text(row.booking_date),
     departmentName: text(row.destination_location_name) || '未提供科室',
-    visitTypeName:
+    visitTypeName: mapVisitType(
       text(row.service_type_name) ||
-      text(row.appointment_type_name) ||
-      text(row.appointment_kind) ||
-      '门诊',
+        text(row.appointment_type_name) ||
+        text(row.appointment_kind) ||
+        '门诊'
+    ),
     status,
     statusName: text(row.triage_status_name) || '',
-    priorityName: text(row.triage_level_name) || text(row.triage_priority_code)
+    priorityName: mapPriority(text(row.triage_level_name) || text(row.triage_priority_code))
   }
 }
 
 function mapExecutionStatus(row: BackendExecutionRecord): NurseExecutionItemVO['status'] {
-  if (row.execution_status === 1) return 'COMPLETED'
-  if (row.execution_status === 2) return 'CANCELLED'
-  const display = `${row.execution_status_name ?? ''} ${row.status_name ?? ''}`
+  const executionStatus = row.executionStatus ?? row.execution_status
+  if (executionStatus === 1) return 'COMPLETED'
+  if (executionStatus === 2) return 'CANCELLED'
+  const statusEnum = (row.statusEnum ?? row.status_enum)?.toUpperCase()
+  if (executionStatus === undefined && statusEnum === 'COMPLETED') return 'COMPLETED'
+  if (executionStatus === undefined && (statusEnum === 'CANCELLED' || statusEnum === 'CANCELED')) {
+    return 'CANCELLED'
+  }
+  const display = `${row.executionStatusName ?? row.execution_status_name ?? ''} ${
+    row.statusName ?? row.status_name ?? ''
+  }`
   if (/取消|作废/.test(display)) return 'CANCELLED'
   if (/已执行|完成/.test(display) && row.execution_status === undefined) return 'COMPLETED'
   return 'PENDING'
 }
 
 function mapExecutionRecord(row: BackendExecutionRecord): NurseExecutionItemVO {
-  const itemId = text(row.id) || text(row.bus_no) || ''
+  const itemId = text(row.id) || text(row.busNo) || text(row.bus_no) || ''
   const status = mapExecutionStatus(row)
+  const categoryCode = text(row.categoryEnum ?? row.category_enum)
+  const statusName =
+    text(row.executionStatusName ?? row.execution_status_name) ||
+    text(row.statusName ?? row.status_name)
   return {
     itemId,
-    encounterId: text(row.encounter_id) || '',
-    categoryCode: text(row.category_enum),
-    categoryName: text(row.category_name),
-    itemName: text(row.item_name) || '',
+    encounterId: text(row.encounterId) || text(row.encounter_id) || '',
+    categoryCode,
+    categoryName: mapCategory(text(row.categoryName ?? row.category_name) || categoryCode),
+    itemName: text(row.itemName) || text(row.item_name) || '',
     quantity: row.quantity,
-    unitName: text(row.unit_name) || text(row.unit_code),
+    unitName:
+      text(row.unitName) || text(row.unit_name) || text(row.unitCode) || text(row.unit_code),
     status,
-    statusName: text(row.execution_status_name) || text(row.status_name) || '',
-    executionCount: number(row.execution_count),
-    executorName: text(row.performer_name),
+    statusName: mapExecutionStatusName(statusName, status),
+    executionCount: number(row.executionCount ?? row.execution_count),
+    executorName: text(row.performerName) || text(row.performer_name),
     executedAt:
-      text(row.occurrence_end_time) || text(row.occurrence_start_time) || text(row.check_time),
+      text(row.occurrenceEndTime) ||
+      text(row.occurrence_end_time) ||
+      text(row.occurrenceStartTime) ||
+      text(row.occurrence_start_time) ||
+      text(row.checkTime) ||
+      text(row.check_time),
     remark: text(row.remark)
   }
+}
+
+function mapVisitType(value?: string) {
+  return (
+    mapEnum(value, {
+      OUTPATIENT: '门诊',
+      GENERAL: '普通门诊',
+      SPECIALIST: '专家门诊',
+      EMERGENCY: '急诊',
+      CHILDREN: '儿科门诊',
+      OBSTETRICS: '妇产科门诊',
+      CONSULTATION: '会诊'
+    }) || '门诊'
+  )
+}
+
+function mapPriority(value?: string) {
+  return mapEnum(value, {
+    ROUTINE: '常规',
+    URGENT: '紧急',
+    ASAP: '尽快',
+    STAT: '即刻'
+  })
+}
+
+function mapCategory(value?: string) {
+  return mapEnum(value, {
+    MEDICATION: '药品',
+    EXAMINATION: '检查',
+    TREATMENT: '治疗',
+    SURGERY: '手术',
+    NURSING: '护理',
+    LAB: '检验',
+    LABORATORY: '检验',
+    IMAGING: '影像',
+    CONSUMABLE: '耗材',
+    PROCEDURE: '操作',
+    DISCHARGE: '出院'
+  })
+}
+
+function mapExecutionStatusName(value: string | undefined, status: NurseExecutionItemVO['status']) {
+  return (
+    mapEnum(value, {
+      ACTIVE: '待执行',
+      PENDING: '待执行',
+      COMPLETED: '已完成',
+      CANCELLED: '已取消',
+      CANCELED: '已取消'
+    }) || (status === 'COMPLETED' ? '已完成' : status === 'CANCELLED' ? '已取消' : '待执行')
+  )
+}
+
+function mapEnum(value: string | undefined, labels: Record<string, string>) {
+  const normalized = text(value)
+  if (!normalized) return undefined
+  return labels[normalized.toUpperCase()] || normalized
 }
 
 function mapConsumable(row: BackendConsumableItem): NurseConsumableItemVO {
   return {
     deviceDefId: text(row.deviceDefId) || '',
+    deviceName: text(row.deviceName),
     quantity: row.quantity,
     unitCode: text(row.unitCode),
     usageInstruction: text(row.usageInstruction),
     lotNumber: text(row.lotNumber),
-    statusEnum: text(row.statusEnum),
+    statusEnum: mapConsumableStatus(text(row.statusEnum)),
     dispenseTime: text(row.dispenseTime),
     supportInfo: text(row.supportInfo)
   }
+}
+
+function mapConsumableStatus(value?: string) {
+  return mapEnum(value, {
+    ACTIVE: '有效',
+    PENDING: '待发放',
+    PREPARED: '已备货',
+    DISPENSED: '已发放',
+    COMPLETED: '已完成',
+    CANCELLED: '已取消',
+    CANCELED: '已取消'
+  })
 }
 
 function queueParams(
@@ -269,28 +373,24 @@ export async function realPageNursePatientQueue(
   }
 }
 
-/** 按患者读取执行项目，并在前端按当前 encounterId 收窄。 */
-export async function realGetNurseExecutionItems(patientId: string, encounterId?: string) {
+/** 按患者和当前 encounterId 读取执行项目。 */
+export async function realGetNurseExecutionItems(patientId: string, encounterId: string) {
   const response = await getRealHttp().get<BackendExecutionRecord[]>(
     `/ons/patient/${encodeURIComponent(patientId)}/service-requests`,
-    undefined,
+    { encounter_id: encounterId },
     { baseURL: outpatientNurseStationApiBaseURL }
   )
-  return unwrapData(response)
-    .filter((row) => !encounterId || !row.encounter_id || row.encounter_id === encounterId)
-    .map(mapExecutionRecord)
+  return unwrapData(response).map(mapExecutionRecord)
 }
 
-/** 按患者读取耗材，并在前端按当前 encounterId 收窄。 */
-export async function realGetNurseConsumables(patientId: string, encounterId?: string) {
+/** 按患者和当前 encounterId 读取耗材。 */
+export async function realGetNurseConsumables(patientId: string, encounterId: string) {
   const response = await getRealHttp().get<BackendConsumableItem[]>(
     `/ons/patient/${encodeURIComponent(patientId)}/consumable-items`,
-    undefined,
+    { encounter_id: encounterId },
     { baseURL: outpatientNurseStationApiBaseURL }
   )
-  return unwrapData(response)
-    .filter((row) => !encounterId || !row.encounterId || row.encounterId === encounterId)
-    .map(mapConsumable)
+  return unwrapData(response).map(mapConsumable)
 }
 
 /** 批量执行真实服务请求。 */
@@ -303,12 +403,7 @@ export async function realPerformNurseExecutions(
     {
       record_ids: recordIds,
       encounter_id: request.encounterId,
-      executor_id: request.executorId,
-      executor_name: request.executorName,
-      execute_time: request.executeTime,
-      idempotency_key: request.idempotencyKey,
-      execute_type: request.executeType,
-      remark: request.remark
+      executor_id: request.executorId
     },
     { baseURL: outpatientNurseStationApiBaseURL }
   )
@@ -325,11 +420,20 @@ export async function realCancelNurseExecution(
     {
       record_ids: recordIds,
       encounter_id: request.encounterId,
-      cancel_reason: request.reason,
-      cancel_reason_code: request.reasonCode,
-      operator_id: request.operatorId,
-      operator_name: request.operatorName,
-      idempotency_key: request.idempotencyKey
+      cancel_reason: request.reason
+    },
+    { baseURL: outpatientNurseStationApiBaseURL }
+  )
+  return unwrapData(response)
+}
+
+/** 获取后端生成的服务请求打印文本。 */
+export async function realPrintNurseExecutions(request: PrintNurseExecutionsDTO): Promise<string> {
+  const response = await getRealHttp().post<string>(
+    '/ons/print',
+    {
+      record_ids: request.recordIds,
+      print_type: request.printType ?? 'EXECUTION_RECORD'
     },
     { baseURL: outpatientNurseStationApiBaseURL }
   )
@@ -362,8 +466,7 @@ export async function realPagePatientExecutionHistory(
   const page = unwrapData(response)
   const rows = (page.rows ?? []).map((row) => ({
     ...mapExecutionRecord(row),
-    encounterId: text(row.encounter_id) || '',
-    visitNo: text(row.encounter_id) || text(row.bus_no) || ''
+    encounterId: text(row.encounterId) || text(row.encounter_id) || ''
   }))
   const pageSize = number(page.pageSize, query.pageSize)
   const total = number(page.total, rows.length)

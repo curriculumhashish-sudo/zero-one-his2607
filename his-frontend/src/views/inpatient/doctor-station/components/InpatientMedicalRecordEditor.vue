@@ -51,16 +51,12 @@ const emit = defineEmits<{
 
 const recordStateText = computed(() => {
   if (!props.record) return '新建文书，尚未保存'
-  if (props.record.status === 'SIGNED') return '已签名，只读'
-  if (props.record.status === 'ARCHIVED') return '已归档，只读'
   if (props.dirty) return '草稿有未保存修改'
-  return '草稿已保存'
+  return '已保存，只读'
 })
 
 const recordStateType = computed(() => {
   if (!props.record) return 'info'
-  if (props.record.status === 'SIGNED') return 'success'
-  if (props.record.status === 'ARCHIVED') return 'info'
   return props.dirty ? 'warning' : 'primary'
 })
 
@@ -89,8 +85,6 @@ function handleDocumentTypeChange(value: string) {
     heading="住院病历"
     :status-text="recordStateText"
     :status-type="recordStateType"
-    :updated-at="record?.updatedAt"
-    :version="record?.version"
     show-document-meta
     patient-empty-description="从左侧在院患者列表选择患者后书写住院病历"
     inactive-title="请选择或新建病历"

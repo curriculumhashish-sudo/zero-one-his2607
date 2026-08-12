@@ -86,8 +86,15 @@ export function useDoctorMedicalRecordHistory(options: DoctorMedicalRecordHistor
       })
       if (requestId !== latestHistoryRequestId || contextKey !== currentContextKey()) return
 
-      historyRows.value = result.rows ?? []
-      historyTotal.value = result.total
+      const currentEncounterId = context.encounterId
+      historyRows.value = (result.rows ?? []).filter(
+        (item) => item.encounterId !== currentEncounterId
+      )
+      historyTotal.value = Math.max(
+        0,
+        result.total -
+          (result.rows?.some((item) => item.encounterId === currentEncounterId) ? 1 : 0)
+      )
       loadedContextKey = contextKey
     } catch (error) {
       if (requestId !== latestHistoryRequestId || contextKey !== currentContextKey()) return

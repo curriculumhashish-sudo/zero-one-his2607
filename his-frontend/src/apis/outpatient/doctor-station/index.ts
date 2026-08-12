@@ -13,7 +13,6 @@ import {
   mockPageAdviceOrderCatalog,
   mockPageAdviceOrders,
   mockPageDiagnosisDictionary,
-  mockPageDiagnosisUsageHistory,
   mockPagePatientDiagnosisHistory,
   mockPagePatientAdviceOrderHistory,
   mockPagePatientAdviceOrderHistoryDetails,
@@ -42,8 +41,6 @@ import type {
   DoctorDiagnosisDictionaryItemVO,
   DoctorDiagnosisDictionaryQuery,
   DoctorDiagnosisListVO,
-  DoctorDiagnosisUsageHistoryItemVO,
-  DoctorDiagnosisUsageHistoryQuery,
   DoctorMedicalRecordHistoryItemVO,
   DoctorMedicalRecordHistoryQuery,
   DoctorMedicalRecordVO,
@@ -62,7 +59,6 @@ import type {
   WithdrawDoctorAdviceOrdersDTO
 } from './type'
 import {
-  isDoctorAdviceRealApiEnabled,
   realCreateAdviceOrder,
   realDeleteAdviceOrders,
   realGroupAdviceOrders,
@@ -76,11 +72,31 @@ import {
   realWithdrawAdviceOrders
 } from './advice-real'
 import {
-  isDoctorMedicalRecordRealApiEnabled,
+  realCreateDiagnosis,
+  realDeleteDiagnosis,
+  realGetDiagnoses,
+  realListDoctorPatientQueue,
+  realPagePatientDiagnosisHistory
+} from './queue-diagnosis-real'
+import {
   realGetMedicalRecord,
   realPagePatientMedicalRecordHistory,
   realSaveMedicalRecord
 } from './medical-record-real'
+import {
+  realCheckInpatientAdmission,
+  realAcceptPatient,
+  realCompletePatient,
+  realLeavePatient,
+  realListInpatientAdmissionWards,
+  realLoadInpatientAdmissionOptions,
+  realPageDiagnosisDictionary,
+  realRequestInpatientAdmission
+} from './station-real'
+import { isOutpatientDoctorStationRealApiEnabled } from './mode'
+
+// All outpatient doctor-station API branches use this single mode value.
+const useRealApi = isOutpatientDoctorStationRealApiEnabled
 
 /**
  * 门诊医嘱列表级 version 缓存。
@@ -89,17 +105,13 @@ import {
  * 操作响应的值。这里按 encounterId 保存最近一次 version，变更请求由 API 层自动
  * 携带，页面无需感知；查询响应也会刷新缓存。
  */
-const adviceOrderVersionCache = new Map<string, number>()
+const encounterVersionCache = new Map<string, number>()
 
-function rememberAdviceOrderVersion(encounterId: string, version?: number) {
-  if (version !== undefined) adviceOrderVersionCache.set(encounterId, version)
+function rememberEncounterVersion(encounterId: string, version?: number) {
+  if (version !== undefined) encounterVersionCache.set(encounterId, version)
 }
 
 /** 取缓存中的医嘱版本；未查询过则从 0 开始，由 mock/后端决定是否拒绝。 */
-function resolveAdviceOrderVersion(encounterId: string): number {
-  return adviceOrderVersionCache.get(encounterId) ?? 0
-}
-
 /**
  * 按单日查询门诊医生工作站患者队列。
  *
@@ -108,27 +120,31 @@ function resolveAdviceOrderVersion(encounterId: string): number {
 export function listDoctorPatientQueue(
   query: DoctorPatientQueueQuery
 ): Promise<DoctorPatientQueueItemVO[]> {
+  if (useRealApi) return realListDoctorPatientQueue(query)
   return mockListDoctorPatientQueue(query)
 }
 
 /** 接诊待诊患者，或读取在诊、完诊患者的就诊上下文 */
 export function acceptPatient(encounterId: string): Promise<DoctorPatientContextVO> {
+  if (useRealApi) return realAcceptPatient(encounterId)
   return mockAcceptPatient(encounterId)
 }
 
 /** 暂离当前患者；在现有三状态模型中，患者会从“在诊”返回“候诊” */
 export function leavePatient(encounterId: string): Promise<DoctorPatientContextVO> {
+  if (useRealApi) return realLeavePatient(encounterId)
   return mockLeavePatient(encounterId)
 }
 
 /** 完成本次门诊就诊，并返回状态更新后的只读上下文 */
 export function completePatient(encounterId: string): Promise<DoctorPatientContextVO> {
+  if (useRealApi) return realCompletePatient(encounterId)
   return mockCompletePatient(encounterId)
 }
 
 /** 获取当前就诊的门诊病历；尚未保存时返回一份空病历 */
 export function getMedicalRecord(encounterId: string): Promise<DoctorMedicalRecordVO> {
-  if (isDoctorMedicalRecordRealApiEnabled) return realGetMedicalRecord(encounterId)
+  if (useRealApi) return realGetMedicalRecord(encounterId)
   return mockGetMedicalRecord(encounterId)
 }
 
@@ -137,7 +153,7 @@ export function saveMedicalRecord(
   encounterId: string,
   data: SaveDoctorMedicalRecordDTO
 ): Promise<DoctorMedicalRecordVO> {
-  if (isDoctorMedicalRecordRealApiEnabled) return realSaveMedicalRecord(encounterId, data)
+  if (useRealApi) return realSaveMedicalRecord(encounterId, data)
   return mockSaveMedicalRecord(encounterId, data)
 }
 
@@ -145,12 +161,13 @@ export function saveMedicalRecord(
 export function pagePatientMedicalRecordHistory(
   query: DoctorMedicalRecordHistoryQuery
 ): Promise<PageDTO<DoctorMedicalRecordHistoryItemVO>> {
-  if (isDoctorMedicalRecordRealApiEnabled) return realPagePatientMedicalRecordHistory(query)
+  if (useRealApi) return realPagePatientMedicalRecordHistory(query)
   return mockPagePatientMedicalRecordHistory(query)
 }
 
-/** 获取当前就诊的诊断列表 */
-export function getDiagnoses(encounterId: string): Promise<DoctorDiagnosisListVO> {
+/** 获取当前就诊的诊断列表。 */
+export function getDiagnoses(encounterId: string, patientId: string): Promise<DoctorDiagnosisListVO> {
+  if (useRealApi) return realGetDiagnoses(encounterId, patientId)
   return mockGetDiagnoses(encounterId)
 }
 
@@ -158,51 +175,51 @@ export function getDiagnoses(encounterId: string): Promise<DoctorDiagnosisListVO
 export function pageDiagnosisDictionary(
   query: DoctorDiagnosisDictionaryQuery
 ): Promise<PageDTO<DoctorDiagnosisDictionaryItemVO>> {
+  if (useRealApi) return realPageDiagnosisDictionary(query)
   return mockPageDiagnosisDictionary(query)
-}
-
-/** 分页查询患者历史、医生常用、个人和科室常用诊断。 */
-export function pageDiagnosisUsageHistory(
-  query: DoctorDiagnosisUsageHistoryQuery
-): Promise<PageDTO<DoctorDiagnosisUsageHistoryItemVO>> {
-  return mockPageDiagnosisUsageHistory(query)
 }
 
 /** 按患者、关键词、分类、主诊断和日期分页查询历史诊断。 */
 export function pagePatientDiagnosisHistory(
   query: DoctorPatientDiagnosisHistoryQuery
 ): Promise<PageDTO<DoctorPatientDiagnosisHistoryItemVO>> {
+  if (useRealApi) return realPagePatientDiagnosisHistory(query)
   return mockPagePatientDiagnosisHistory(query)
 }
 
 /** 单条新增诊断。 */
-export function createDiagnosis(data: OpdoctorCreateDiagnosisDTO): Promise<DoctorDiagnosisListVO> {
+export function createDiagnosis(
+  data: OpdoctorCreateDiagnosisDTO,
+  patientId?: string
+): Promise<DoctorDiagnosisListVO> {
+  if (useRealApi) return realCreateDiagnosis(data, patientId ?? '')
   return mockCreateDiagnosis(data)
 }
 
 /** 单条删除诊断。 */
-export function deleteDiagnosis(id: string): Promise<DoctorDiagnosisListVO> {
+export function deleteDiagnosis(id: string, patientId?: string): Promise<DoctorDiagnosisListVO> {
+  if (useRealApi) return realDeleteDiagnosis(id, patientId ?? '')
   return mockDeleteDiagnosis(id)
 }
 
 /** 获取当前就诊的门诊医嘱列表 */
 export function getAdviceOrders(encounterId: string): Promise<DoctorAdviceOrderListVO> {
   return mockGetAdviceOrders(encounterId).then((result) => {
-    rememberAdviceOrderVersion(encounterId, result.version)
+    rememberEncounterVersion(encounterId, result.encounterVersion ?? result.version)
     return result
   })
 }
 
 /** 按条件分页查询当前就诊的医嘱。 */
 export function pageAdviceOrders(query: DoctorAdviceOrderQuery): Promise<DoctorAdviceOrderPageVO> {
-  if (isDoctorAdviceRealApiEnabled) {
+  if (useRealApi) {
     return realPageAdviceOrders(query).then((result) => {
-      rememberAdviceOrderVersion(query.encounterId, result.version)
+      rememberEncounterVersion(query.encounterId, result.encounterVersion ?? result.version)
       return result
     })
   }
   return mockPageAdviceOrders(query).then((result) => {
-    rememberAdviceOrderVersion(query.encounterId, result.version)
+    rememberEncounterVersion(query.encounterId, result.encounterVersion ?? result.version)
     return result
   })
 }
@@ -211,7 +228,7 @@ export function pageAdviceOrders(query: DoctorAdviceOrderQuery): Promise<DoctorA
 export function pageAdviceOrderCatalog(
   query: DoctorAdviceOrderCatalogQuery
 ): Promise<PageDTO<DoctorAdviceOrderCatalogItemVO>> {
-  if (isDoctorAdviceRealApiEnabled) return realPageAdviceOrderCatalog(query)
+  if (useRealApi) return realPageAdviceOrderCatalog(query)
   return mockPageAdviceOrderCatalog(query)
 }
 
@@ -221,7 +238,7 @@ export function saveAdviceOrders(
   data: SaveDoctorAdviceOrdersDTO
 ): Promise<DoctorAdviceOrderListVO> {
   return mockSaveAdviceOrders(encounterId, data).then((result) => {
-    rememberAdviceOrderVersion(encounterId, result.version)
+    rememberEncounterVersion(encounterId, result.encounterVersion ?? result.version)
     return result
   })
 }
@@ -230,14 +247,15 @@ export function saveAdviceOrders(
 export function createAdviceOrder(
   data: CreateDoctorAdviceOrderDTO
 ): Promise<DoctorAdviceOrderListVO> {
-  if (isDoctorAdviceRealApiEnabled) {
-    return realCreateAdviceOrder(data).then((result) => {
-      rememberAdviceOrderVersion(data.encounterId, result.version)
+  if (useRealApi) {
+    const encounterVersion = data.encounterVersion
+    return realCreateAdviceOrder({ ...data, encounterVersion }).then((result) => {
+      rememberEncounterVersion(data.encounterId, result.encounterVersion ?? result.version)
       return result
     })
   }
   return mockCreateAdviceOrder(data).then((result) => {
-    rememberAdviceOrderVersion(data.encounterId, result.version)
+    rememberEncounterVersion(data.encounterId, result.encounterVersion ?? result.version)
     return result
   })
 }
@@ -246,16 +264,14 @@ export function createAdviceOrder(
 export function updateAdviceOrder(
   data: UpdateDoctorAdviceOrderDTO
 ): Promise<DoctorAdviceOrderListVO> {
-  if (isDoctorAdviceRealApiEnabled) {
-    const version = data.version ?? resolveAdviceOrderVersion(data.encounterId)
-    return realUpdateAdviceOrder({ ...data, version }).then((result) => {
-      rememberAdviceOrderVersion(data.encounterId, result.version)
+  if (useRealApi) {
+    return realUpdateAdviceOrder(data).then((result) => {
+      rememberEncounterVersion(data.encounterId, result.encounterVersion ?? result.version)
       return result
     })
   }
-  const version = data.version ?? resolveAdviceOrderVersion(data.encounterId)
-  return mockUpdateAdviceOrder({ ...data, version }).then((result) => {
-    rememberAdviceOrderVersion(data.encounterId, result.version)
+  return mockUpdateAdviceOrder(data).then((result) => {
+    rememberEncounterVersion(data.encounterId, result.encounterVersion ?? result.version)
     return result
   })
 }
@@ -264,16 +280,14 @@ export function updateAdviceOrder(
 export function deleteAdviceOrders(
   data: DeleteDoctorAdviceOrdersDTO
 ): Promise<DoctorAdviceOrderListVO> {
-  if (isDoctorAdviceRealApiEnabled) {
-    const version = data.version ?? resolveAdviceOrderVersion(data.encounterId)
-    return realDeleteAdviceOrders({ ...data, version }).then((result) => {
-      rememberAdviceOrderVersion(data.encounterId, result.version)
+  if (useRealApi) {
+    return realDeleteAdviceOrders(data).then((result) => {
+      rememberEncounterVersion(data.encounterId, result.encounterVersion ?? result.version)
       return result
     })
   }
-  const version = data.version ?? resolveAdviceOrderVersion(data.encounterId)
-  return mockDeleteAdviceOrders({ ...data, version }).then((result) => {
-    rememberAdviceOrderVersion(data.encounterId, result.version)
+  return mockDeleteAdviceOrders(data).then((result) => {
+    rememberEncounterVersion(data.encounterId, result.encounterVersion ?? result.version)
     return result
   })
 }
@@ -282,16 +296,14 @@ export function deleteAdviceOrders(
 export function groupAdviceOrders(
   data: GroupDoctorAdviceOrdersDTO
 ): Promise<DoctorAdviceOrderListVO> {
-  if (isDoctorAdviceRealApiEnabled) {
-    const version = data.version ?? resolveAdviceOrderVersion(data.encounterId)
-    return realGroupAdviceOrders({ ...data, version }).then((result) => {
-      rememberAdviceOrderVersion(data.encounterId, result.version)
+  if (useRealApi) {
+    return realGroupAdviceOrders(data).then((result) => {
+      rememberEncounterVersion(data.encounterId, result.encounterVersion ?? result.version)
       return result
     })
   }
-  const version = data.version ?? resolveAdviceOrderVersion(data.encounterId)
-  return mockGroupAdviceOrders({ ...data, version }).then((result) => {
-    rememberAdviceOrderVersion(data.encounterId, result.version)
+  return mockGroupAdviceOrders(data).then((result) => {
+    rememberEncounterVersion(data.encounterId, result.encounterVersion ?? result.version)
     return result
   })
 }
@@ -300,16 +312,14 @@ export function groupAdviceOrders(
 export function ungroupAdviceOrders(
   data: UngroupDoctorAdviceOrdersDTO
 ): Promise<DoctorAdviceOrderListVO> {
-  if (isDoctorAdviceRealApiEnabled) {
-    const version = data.version ?? resolveAdviceOrderVersion(data.encounterId)
-    return realUngroupAdviceOrders({ ...data, version }).then((result) => {
-      rememberAdviceOrderVersion(data.encounterId, result.version)
+  if (useRealApi) {
+    return realUngroupAdviceOrders(data).then((result) => {
+      rememberEncounterVersion(data.encounterId, result.encounterVersion ?? result.version)
       return result
     })
   }
-  const version = data.version ?? resolveAdviceOrderVersion(data.encounterId)
-  return mockUngroupAdviceOrders({ ...data, version }).then((result) => {
-    rememberAdviceOrderVersion(data.encounterId, result.version)
+  return mockUngroupAdviceOrders(data).then((result) => {
+    rememberEncounterVersion(data.encounterId, result.encounterVersion ?? result.version)
     return result
   })
 }
@@ -318,16 +328,11 @@ export function ungroupAdviceOrders(
 export function signAdviceOrders(
   data: SignDoctorAdviceOrdersDTO
 ): Promise<DoctorAdviceOrderListVO> {
-  if (isDoctorAdviceRealApiEnabled) {
-    const version = data.version ?? resolveAdviceOrderVersion(data.encounterId)
-    return realSignAdviceOrders({ ...data, version }).then((result) => {
-      rememberAdviceOrderVersion(data.encounterId, result.version)
-      return result
-    })
+  if (useRealApi) {
+    return realSignAdviceOrders(data)
   }
-  const version = data.version ?? resolveAdviceOrderVersion(data.encounterId)
-  return mockSignAdviceOrders({ ...data, version }).then((result) => {
-    rememberAdviceOrderVersion(data.encounterId, result.version)
+  return mockSignAdviceOrders(data).then((result) => {
+    rememberEncounterVersion(data.encounterId, result.encounterVersion ?? result.version)
     return result
   })
 }
@@ -336,16 +341,11 @@ export function signAdviceOrders(
 export function withdrawAdviceOrders(
   data: WithdrawDoctorAdviceOrdersDTO
 ): Promise<DoctorAdviceOrderListVO> {
-  if (isDoctorAdviceRealApiEnabled) {
-    const version = data.version ?? resolveAdviceOrderVersion(data.encounterId)
-    return realWithdrawAdviceOrders({ ...data, version }).then((result) => {
-      rememberAdviceOrderVersion(data.encounterId, result.version)
-      return result
-    })
+  if (useRealApi) {
+    return realWithdrawAdviceOrders(data)
   }
-  const version = data.version ?? resolveAdviceOrderVersion(data.encounterId)
-  return mockWithdrawAdviceOrders({ ...data, version }).then((result) => {
-    rememberAdviceOrderVersion(data.encounterId, result.version)
+  return mockWithdrawAdviceOrders(data).then((result) => {
+    rememberEncounterVersion(data.encounterId, result.encounterVersion ?? result.version)
     return result
   })
 }
@@ -354,7 +354,7 @@ export function withdrawAdviceOrders(
 export function pagePatientAdviceOrderHistory(
   query: DoctorAdviceOrderHistoryQuery
 ): Promise<PageDTO<DoctorAdviceOrderHistoryEncounterVO>> {
-  if (isDoctorAdviceRealApiEnabled) return realPagePatientAdviceOrderHistory(query)
+  if (useRealApi) return realPagePatientAdviceOrderHistory(query)
   return mockPagePatientAdviceOrderHistory(query)
 }
 
@@ -362,7 +362,7 @@ export function pagePatientAdviceOrderHistory(
 export function pagePatientAdviceOrderHistoryDetails(
   query: DoctorAdviceOrderHistoryDetailQuery
 ): Promise<PageDTO<DoctorAdviceOrderVO>> {
-  if (isDoctorAdviceRealApiEnabled) return realPagePatientAdviceOrderHistoryDetails(query)
+  if (useRealApi) return realPagePatientAdviceOrderHistoryDetails(query)
   return mockPagePatientAdviceOrderHistoryDetails(query)
 }
 
@@ -383,8 +383,6 @@ export type {
   DoctorDiagnosisDictionaryItemVO,
   DoctorDiagnosisDictionaryQuery,
   DoctorDiagnosisListVO,
-  DoctorDiagnosisUsageHistoryItemVO,
-  DoctorDiagnosisUsageHistoryQuery,
   DoctorDiagnosisVO,
   DoctorMedicalRecordHistoryItemVO,
   DoctorMedicalRecordHistoryQuery,
@@ -419,13 +417,6 @@ export { applyDoctorRefund, queryDoctorRefundItems } from './refund'
 export type { DoctorRefundApplicationDTO, DoctorRefundItemVO, DoctorRefundQuery } from './refund'
 
 export { queryDoctorPrescriptionSheets } from './prescription-sheet'
-
-export { printAdviceApplicationForm } from './application-form'
-
-export type {
-  DoctorAdviceApplicationFormVO,
-  PrintDoctorAdviceApplicationFormDTO
-} from './application-form'
 
 export type {
   DoctorPrescriptionScope,

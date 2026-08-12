@@ -19,8 +19,6 @@ const props = defineProps<{
   unsavedCount: number
   /** 当前周日期范围说明。 */
   weekRangeLabel: string
-  /** 旧后端保存契约不接收护士签名时，只展示后端返回值。 */
-  signatureReadonly: boolean
 }>()
 
 const emit = defineEmits<{
@@ -72,9 +70,6 @@ function inputValue(event: Event) {
           <span>{{ props.weekRangeLabel }}</span>
           <span v-if="props.unsavedCount" class="paper-record__unsaved">
             未保存 {{ props.unsavedCount }} 条
-          </span>
-          <span v-if="props.signatureReadonly" class="paper-record__hint">
-            护士签名由后端身份生成
           </span>
         </div>
         <div class="paper-record__toolbar-actions">
@@ -203,8 +198,8 @@ function inputValue(event: Event) {
                 <td>
                   <input
                     class="paper-field"
-                    :value="row.respiratory"
-                    @input="emit('updateField', row.clientRowId, 'respiratory', inputValue($event))"
+                    :value="row.respiration"
+                    @input="emit('updateField', row.clientRowId, 'respiration', inputValue($event))"
                   />
                 </td>
                 <td>
@@ -249,9 +244,9 @@ function inputValue(event: Event) {
                 <td>
                   <input
                     class="paper-field"
-                    :value="row.intakeAmount"
+                    :value="row.intakeVolume"
                     @input="
-                      emit('updateField', row.clientRowId, 'intakeAmount', inputValue($event))
+                      emit('updateField', row.clientRowId, 'intakeVolume', inputValue($event))
                     "
                   />
                 </td>
@@ -265,42 +260,31 @@ function inputValue(event: Event) {
                 <td>
                   <input
                     class="paper-field"
-                    :value="row.outputAmount"
+                    :value="row.outputVolume"
                     @input="
-                      emit('updateField', row.clientRowId, 'outputAmount', inputValue($event))
+                      emit('updateField', row.clientRowId, 'outputVolume', inputValue($event))
                     "
                   />
                 </td>
                 <td>
                   <input
                     class="paper-field paper-field--left"
-                    :value="row.outputColorCharacter"
-                    @input="
-                      emit(
-                        'updateField',
-                        row.clientRowId,
-                        'outputColorCharacter',
-                        inputValue($event)
-                      )
-                    "
+                    :value="row.outputColor"
+                    @input="emit('updateField', row.clientRowId, 'outputColor', inputValue($event))"
                   />
                 </td>
                 <td class="col-observation">
                   <textarea
                     class="paper-field paper-field--textarea"
                     rows="1"
-                    :value="row.conditionMeasure"
-                    @input="
-                      emit('updateField', row.clientRowId, 'conditionMeasure', inputValue($event))
-                    "
+                    :value="row.observation"
+                    @input="emit('updateField', row.clientRowId, 'observation', inputValue($event))"
                   />
                 </td>
                 <td>
                   <input
                     class="paper-field"
                     :value="row.nurseSignature"
-                    :readonly="props.signatureReadonly"
-                    :title="props.signatureReadonly ? '当前后端不接收手工护士签名' : undefined"
                     @input="
                       emit('updateField', row.clientRowId, 'nurseSignature', inputValue($event))
                     "
@@ -361,11 +345,6 @@ function inputValue(event: Event) {
 .paper-record__unsaved {
   color: #b45309;
   font-weight: 600;
-}
-
-.paper-record__hint {
-  color: var(--el-color-info);
-  font-size: 12px;
 }
 
 .paper-record__viewport {

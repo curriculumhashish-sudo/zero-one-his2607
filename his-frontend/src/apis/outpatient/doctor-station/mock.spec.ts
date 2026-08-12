@@ -81,7 +81,7 @@ describe('doctor-station mock', () => {
   })
 
   it('暂离后将患者退回候诊队列，并隐藏本轮接诊信息', async () => {
-    const encounterId = 'enc-20260723-002'
+    const encounterId = 'enc-20260723-001'
     await resolveMockRequest(mockAcceptPatient(encounterId))
 
     const left = await resolveMockRequest(mockLeavePatient(encounterId))
@@ -243,7 +243,7 @@ describe('doctor-station mock', () => {
   })
 
   it('拒绝未接诊患者直接完诊', async () => {
-    const completeRequest = mockCompletePatient('enc-20260723-002')
+    const completeRequest = mockCompletePatient('enc-20260723-001')
     const rejection = expect(completeRequest).rejects.toThrow('请先接诊患者')
 
     await vi.runAllTimersAsync()
@@ -251,7 +251,7 @@ describe('doctor-station mock', () => {
   })
 
   it('完成就诊后进入完诊队列，并禁止继续修改诊疗内容', async () => {
-    const encounterId = 'enc-20260723-008'
+    const encounterId = 'enc-demo-in-progress'
     const recordBeforeComplete = await resolveMockRequest(mockGetMedicalRecord(encounterId))
 
     const completed = await resolveMockRequest(mockCompletePatient(encounterId))

@@ -10,14 +10,17 @@ vi.mock('@/plugins/http', () => ({
 }))
 
 import {
-  isInpatientDoctorStationRealApiEnabled,
   realCreateInpatientDischargeAdvice,
   realGetInpatientMedicalRecord,
   realPageInpatientDoctorPatientQueue,
   realPageInpatientMedicalRecordHistory,
   realSaveInpatientMedicalRecord
 } from './patient-real'
-import { pageInpatientDoctorPatientQueue } from './index'
+import {
+  isInpatientDoctorStationRealApiEnabled,
+  pageInpatientDiagnosisRecords,
+  pageInpatientDoctorPatientQueue
+} from './index'
 
 describe('住院医生站真实接口适配', () => {
   beforeEach(() => {
@@ -71,6 +74,18 @@ describe('住院医生站真实接口适配', () => {
     expect(httpMock.get).not.toHaveBeenCalled()
   })
 
+  it('Mock 模式下诊断列表也不会访问真实 HTTP', async () => {
+    const result = await pageInpatientDiagnosisRecords({
+      pageIndex: 1,
+      pageSize: 20,
+      encounterId: 'ipt-enc-20260701-001',
+      patientId: 'patient-10001'
+    })
+
+    expect(result.rows?.[0]?.description).toBe('冠状动脉粥样硬化性心脏病')
+    expect(httpMock.get).not.toHaveBeenCalled()
+  })
+
   it('使用后端病历列表参数并补齐前端摘要字段', async () => {
     httpMock.get.mockResolvedValue({
       message: '',
@@ -101,7 +116,7 @@ describe('住院医生站真实接口适配', () => {
 
     expect(httpMock.get).toHaveBeenCalledWith(
       '/inpatient-record/brief',
-      { pageIndex: 1, pageSize: 10, title: '入院' },
+      { pageIndex: 1, pageSize: 10, patient_id: 'patient-1', title: '入院' },
       { baseURL: '/inpatient-doctor-station-api' }
     )
     expect(result.rows?.[0]).toMatchObject({
@@ -111,7 +126,7 @@ describe('住院医生站真实接口适配', () => {
       documentTypeCode: 'ADMISSION_RECORD',
       status: 'SIGNED',
       statusName: '已签名',
-      authoredByName: 'admin'
+      authoredByName: ''
     })
   })
 
@@ -149,15 +164,12 @@ describe('住院医生站真实接口适配', () => {
         patient_id: 'patient-1',
         encounter_id: 'enc-1',
         document_type_code: 'FIRST_COURSE_RECORD',
-        document_type_name: '首次病程记录',
         title: '首次病程记录',
-        status: 'DRAFT',
-        content: '<p>病程</p>',
-        update_by: 'current-user'
+        content: '<p>病程</p>'
       }),
       { baseURL: '/inpatient-doctor-station-api' }
     )
-    expect(result).toMatchObject({ id: 'record-3', status: 'DRAFT', readonly: false })
+    expect(result).toMatchObject({ id: 'record-3', status: 'DRAFT', readonly: true })
   })
 
   it('只向出院接口发送后端支持的三个字段', async () => {
@@ -166,22 +178,17 @@ describe('住院医生站真实接口适配', () => {
       data: {
         orderId: 'order-1',
         encounterId: 'enc-1',
-        statusEnum: 'SIGNED',
+        statusEnum: 'ACTIVE',
         dischargeWay: '1',
         dischargeTime: '2026-08-08 18:00:00',
-        encounterNewStatus: 'DISCHARGE_PENDING'
+        encounterNewStatus: 'ON_HOLD'
       }
     })
 
     const result = await realCreateInpatientDischargeAdvice({
       encounterId: 'enc-1',
-      patientId: 'patient-1',
-      encounterVersion: 3,
       plannedDischargeTime: '2026-08-08 18:00:00',
-      outWayCode: '1',
-      reasonText: '病情稳定',
-      sourceOrgId: 'org-1',
-      sourceLocationId: 'bed-8'
+      outWayCode: '1'
     })
 
     expect(httpMock.post).toHaveBeenCalledWith(
@@ -194,5 +201,18 @@ describe('住院医生站真实接口适配', () => {
       { baseURL: '/inpatient-doctor-station-api' }
     )
     expect(result).toMatchObject({ id: 'order-1', outWayCode: '1', outWayName: '医嘱离院' })
+  })
+
+  it.each([
+    [{ message: '直接错误信息' }, '直接错误信息'],
+    [{ data: { message: '响应数据错误信息' } }, '响应数据错误信息'],
+    [{ response: { data: { message: 'Axios 错误信息' } } }, 'Axios 错误信息'],
+    [{}, '住院患者队列加载失败']
+  ])('保留真实接口错误信息 %#', async (error, expected) => {
+    httpMock.get.mockRejectedValue(error)
+
+    await expect(
+      realPageInpatientDoctorPatientQueue({ pageIndex: 1, pageSize: 20 })
+    ).rejects.toThrow(expected)
   })
 })

@@ -37,6 +37,9 @@ describe('useDoctorMedicalRecordHistory', () => {
     await vi.runAllTimersAsync()
     expect(state.historyRows.value).toHaveLength(10)
     expect(state.historyTotal.value).toBe(12)
+    expect(
+      state.historyRows.value.some((item) => item.encounterId === patient1003.encounterId)
+    ).toBe(false)
 
     state.searchHistory('高血压')
     await vi.runAllTimersAsync()

@@ -23,6 +23,7 @@ import {
 
 interface DoctorDiagnosisOptions {
   selectedPatientId: Ref<string | number | null>
+  patientId: Ref<string | number | null>
   patientAccepted: ComputedRef<boolean>
 }
 
@@ -42,7 +43,7 @@ function serializeDiagnoses(items: ClinicalDiagnosisItem[]) {
 
 /** 管理门诊诊断加载、字典查询、脏状态和保存。 */
 export function useDoctorDiagnosis(options: DoctorDiagnosisOptions) {
-  const { selectedPatientId, patientAccepted } = options
+  const { selectedPatientId, patientId, patientAccepted } = options
 
   const diagnosisList = ref<DoctorDiagnosisListVO | null>(null)
   const diagnoses = ref<ClinicalDiagnosisItem[]>([])
@@ -77,7 +78,9 @@ export function useDoctorDiagnosis(options: DoctorDiagnosisOptions) {
     savedDiagnosisSnapshot.value = serializeDiagnoses([])
 
     try {
-      const result = await getDiagnoses(String(encounterId))
+      const patientIdText = patientId.value ? String(patientId.value) : ''
+      if (!patientIdText) throw new Error('当前患者缺少患者 ID，无法加载诊断')
+      const result = await getDiagnoses(String(encounterId), patientIdText)
       if (requestId !== latestDiagnosesRequestId) return
 
       const clinicalRows = result.rows
@@ -111,7 +114,7 @@ export function useDoctorDiagnosis(options: DoctorDiagnosisOptions) {
     const result = await pageDiagnosisDictionary({
       pageIndex: query.pageIndex,
       pageSize: query.pageSize,
-      keyword: query.keyword || undefined
+      keyword: query.keyword?.trim() ?? ''
     })
     if (context.signal.aborted) return { rows: [], total: 0 }
 
@@ -123,7 +126,14 @@ export function useDoctorDiagnosis(options: DoctorDiagnosisOptions) {
 
   async function saveCurrentDiagnoses(notifySuccess = true): Promise<boolean> {
     const encounterId = selectedPatientId.value
-    if (!encounterId || !patientAccepted.value || !diagnosisList.value || diagnosesSaving.value) {
+    const patientIdValue = patientId.value
+    if (
+      !encounterId ||
+      !patientIdValue ||
+      !patientAccepted.value ||
+      !diagnosisList.value ||
+      diagnosesSaving.value
+    ) {
       return false
     }
 
@@ -148,20 +158,21 @@ export function useDoctorDiagnosis(options: DoctorDiagnosisOptions) {
         .filter((id) => !currentRecordIds.has(id))
 
       for (const id of deletedIds) {
-        await deleteDiagnosis(id)
+        await deleteDiagnosis(id, String(patientIdValue))
         if (String(selectedPatientId.value) !== encounterIdText) return false
       }
 
       for (const [index, diagnosis] of diagnoses.value.entries()) {
         if (diagnosis.recordId) continue
         await createDiagnosis(
-          toOpdoctorCreateDiagnosis(encounterIdText, toSaveDoctorDiagnosisItem(diagnosis, index))
+          toOpdoctorCreateDiagnosis(encounterIdText, toSaveDoctorDiagnosisItem(diagnosis, index)),
+          String(patientIdValue)
         )
         if (String(selectedPatientId.value) !== encounterIdText) return false
       }
 
       // 保存成功后重新拉取列表，同步后端生成的记录 ID、主诊断和顺序。
-      const result = await getDiagnoses(encounterIdText)
+      const result = await getDiagnoses(encounterIdText, String(patientIdValue))
       if (String(selectedPatientId.value) !== encounterIdText) return false
 
       const clinicalRows = result.rows

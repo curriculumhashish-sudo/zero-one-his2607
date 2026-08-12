@@ -2,11 +2,7 @@
 import { ref, watch } from 'vue'
 
 import { pagePatientExecutionHistory } from '@/apis/outpatient/nurse-station'
-import type {
-  NurseConsumableItemVO,
-  NurseExecutionItemVO,
-  NurseExecutionRecordVO
-} from '@/apis/outpatient/nurse-station'
+import type { NurseConsumableItemVO, NurseExecutionRecordVO } from '@/apis/outpatient/nurse-station'
 import EmptyState from '@/components/common/EmptyState.vue'
 
 import { executionStatusTagType } from '../adapter'
@@ -16,14 +12,12 @@ defineOptions({
 })
 
 interface Props {
-  executionItems?: NurseExecutionItemVO[]
   items?: NurseConsumableItemVO[]
   loading?: boolean
   patientId?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  executionItems: () => [],
   items: () => [],
   loading: false,
   patientId: ''
@@ -102,7 +96,7 @@ watch(
               class="supply-card"
             >
               <div class="supply-card__header">
-                <strong>{{ item.supportInfo || item.deviceDefId || '—' }}</strong>
+                <strong>{{ item.deviceName || item.supportInfo || item.deviceDefId || '—' }}</strong>
                 <el-tag size="small">{{ item.statusEnum || '—' }}</el-tag>
               </div>
               <div v-if="item.usageInstruction" class="supply-card__meta">
@@ -150,8 +144,8 @@ watch(
                 </div>
                 <dl>
                   <div>
-                    <dt>就诊号</dt>
-                    <dd>{{ item.visitNo }}</dd>
+                    <dt>就诊ID</dt>
+                    <dd>{{ item.encounterId || '—' }}</dd>
                   </div>
                   <div>
                     <dt>执行人</dt>

@@ -56,7 +56,7 @@ function serializeOrders(orders: ClinicalOrderDraft[]) {
       quantityUnit: order.quantityUnit,
       remark: order.remark,
       therapyType: order.therapyType,
-      group: order.group,
+      groupId: order.groupId,
       statusCode: order.statusCode,
       orderNo: index + 1
     }))
@@ -137,10 +137,9 @@ export function useInpatientMedicalOrder() {
     group:
       selectedOrders.value.length >= 2 &&
       allSelectedDraft.value &&
-      selectedOrders.value.every((order) => order.category === 'DRUG' && !order.group),
+      selectedOrders.value.every((order) => order.category === 'DRUG' && !order.groupId),
     ungroup:
-      allSelectedDraft.value &&
-      selectedOrders.value.every((order) => Boolean(order.group)),
+      allSelectedDraft.value && selectedOrders.value.every((order) => Boolean(order.groupId)),
     sign: allSelectedDraft.value && realLifecycleFieldsReady.value,
     withdraw: allSelectedSigned.value && realLifecycleFieldsReady.value,
     stop:
@@ -234,8 +233,7 @@ export function useInpatientMedicalOrder() {
   function selectionDisabledRow(order: ClinicalOrderDraft) {
     const record = order.raw as InpatientMedicalOrderRecordVO | undefined
     return (
-      Boolean(record?.encounterMismatch || record?.readonly) ||
-      order.statusCode === 'WITHDRAWN'
+      Boolean(record?.encounterMismatch || record?.readonly) || order.statusCode === 'WITHDRAWN'
     )
   }
 
@@ -289,7 +287,8 @@ export function useInpatientMedicalOrder() {
           saved.readonly ||
           saved.status !== 'DRAFT' ||
           !orderChanged(saved, order, index)
-        ) continue
+        )
+          continue
         const updateData = toUpdateInpatientMedicalOrderDTO(order, index, saved.version)
         if (saved.source === 'real') {
           await updateInpatientMedicalOrder(saved.id, updateData, {

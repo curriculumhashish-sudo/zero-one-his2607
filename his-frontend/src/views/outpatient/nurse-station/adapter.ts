@@ -10,11 +10,8 @@ export function toNursePatientSummary(patient: NursePatientQueueItemVO): Patient
     age: patient.ageText,
     patientType: 'outpatient',
     serviceType: patient.visitTypeName,
-    // 后端暂未提供病历号，患者号位置直接展示 patientId。
+    // 后端提供患者 ID，但未提供独立病历号；患者号位置展示患者 ID。
     patientNo: patient.patientId,
-    visitNo: patient.visitNo,
-    queueNumber: patient.queueNumber,
-    visitTime: patient.registeredAt,
     departmentName: patient.departmentName,
     priority: patient.priorityName,
     status: patient.statusName,

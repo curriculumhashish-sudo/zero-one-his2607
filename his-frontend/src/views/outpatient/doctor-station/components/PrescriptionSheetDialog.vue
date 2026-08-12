@@ -48,6 +48,8 @@ async function loadSheets() {
   try {
     const result = await queryDoctorPrescriptionSheets({
       num: patientNo,
+      encounterId: props.patient?.id ? String(props.patient.id) : undefined,
+      paymentTypeName: props.patient?.paymentType ?? undefined,
       type: scope.value
     })
     if (currentRequest !== requestSequence) return

@@ -11,6 +11,13 @@ import type {
   RequestInpatientAdmissionDTO,
   RequestInpatientAdmissionVO
 } from './type'
+import {
+  realCheckInpatientAdmission,
+  realListInpatientAdmissionWards,
+  realLoadInpatientAdmissionOptions,
+  realRequestInpatientAdmission
+} from '../station-real'
+import { isOutpatientDoctorStationRealApiEnabled as isRealApiEnabled } from '../mode'
 
 /**
  * 查询当前门诊就诊是否已经存在未取消的住院申请。
@@ -18,11 +25,13 @@ import type {
  * 接入后端后替换为 POST /doctor-station/inpatient-admission/check。
  */
 export function checkInpatientAdmission(encounterId: string): Promise<CheckInpatientAdmissionVO> {
+  if (isRealApiEnabled) return realCheckInpatientAdmission(encounterId)
   return mockCheckInpatientAdmission(encounterId)
 }
 
 /** 加载住院科室、入院类型、入院方式和优先级。 */
 export function loadInpatientAdmissionOptions(): Promise<InpatientAdmissionFormOptionsVO> {
+  if (isRealApiEnabled) return realLoadInpatientAdmissionOptions()
   return mockLoadInpatientAdmissionOptions()
 }
 
@@ -30,6 +39,7 @@ export function loadInpatientAdmissionOptions(): Promise<InpatientAdmissionFormO
 export function listInpatientAdmissionWards(
   departmentId: string
 ): Promise<InpatientAdmissionWardVO[]> {
+  if (isRealApiEnabled) return realListInpatientAdmissionWards(departmentId)
   return mockListInpatientAdmissionWards(departmentId)
 }
 
@@ -41,6 +51,7 @@ export function listInpatientAdmissionWards(
 export function requestInpatientAdmission(
   data: RequestInpatientAdmissionDTO
 ): Promise<RequestInpatientAdmissionVO> {
+  if (isRealApiEnabled) return realRequestInpatientAdmission(data)
   return mockRequestInpatientAdmission(data)
 }
 

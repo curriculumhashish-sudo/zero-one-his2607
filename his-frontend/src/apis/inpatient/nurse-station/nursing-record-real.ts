@@ -13,14 +13,31 @@ import type {
   NurseStationSaveNursingRecordsResultVO
 } from './nursing-record-type'
 
+interface BackendNursingPaperHeader {
+  inpatientNo?: string
+  name?: string
+  gender?: string
+  age?: string | number
+  admitAt?: string
+  dischargeAt?: string
+  wardName?: string
+  bedNo?: string
+}
+
 interface BackendNursingListResponse {
-  paperHeader?: NurseStationNursingRecordPaperHeaderVO
+  paperHeader?: BackendNursingPaperHeader
   rows?: Array<Partial<NurseStationNursingRecordRowVO>>
 }
 
 interface BackendNursingSaveResponse {
   rows?: Array<Partial<NurseStationNursingRecordRowVO>>
   savedCount?: number
+}
+
+interface BackendNursingDeleteResponse {
+  success?: boolean
+  vitalSignId?: string
+  statusEnum?: string
 }
 
 function getRealHttp() {
@@ -32,14 +49,20 @@ function readString(value: unknown) {
 }
 
 function mapHeader(
-  header: NurseStationNursingRecordPaperHeaderVO | undefined,
+  header: BackendNursingPaperHeader | undefined,
   fallback?: NurseStationNursingRecordPaperHeaderVO
 ) {
-  const merged = {
-    ...(fallback ?? {}),
-    ...(header ?? {})
+  const normalized = {
+    patientName: readString(header?.name) || fallback?.patientName || '未知患者',
+    genderText: readString(header?.gender) || fallback?.genderText,
+    ageText: header?.age === undefined ? fallback?.ageText : String(header.age),
+    wardName: readString(header?.wardName) || fallback?.wardName,
+    bedName: readString(header?.bedNo) || fallback?.bedName,
+    encounterBusNo: readString(header?.inpatientNo) || fallback?.encounterBusNo,
+    admissionDate: readString(header?.admitAt)?.slice(0, 10) || fallback?.admissionDate,
+    dischargeDate: readString(header?.dischargeAt)?.slice(0, 10) || fallback?.dischargeDate
   }
-  return { ...merged, patientName: merged.patientName || '未知患者' }
+  return normalized
 }
 
 function mapRow(row: Partial<NurseStationNursingRecordRowVO>): NurseStationNursingRecordRowVO {
@@ -50,24 +73,17 @@ function mapRow(row: Partial<NurseStationNursingRecordRowVO>): NurseStationNursi
     temperature: readString(row.temperature),
     pulse: readString(row.pulse),
     heartRate: readString(row.heartRate),
-    respiratory: readString(row.respiratory),
+    respiration: readString(row.respiration),
     bloodPressure: readString(row.bloodPressure),
-    oxygenSaturation: readString(row.oxygenSaturation),
-    oxygenFlow: readString(row.oxygenFlow),
-    oxygenMode: readString(row.oxygenMode),
-    oxygenRate: readString(row.oxygenRate),
     consciousness: readString(row.consciousness),
     pupilLeft: readString(row.pupilLeft),
     pupilRight: readString(row.pupilRight),
-    skinStatus: readString(row.skinStatus),
-    tubeCare: readString(row.tubeCare),
-    conditionMeasure: readString(row.conditionMeasure),
+    observation: readString(row.observation),
     intakeName: readString(row.intakeName),
-    intakeAmount: readString(row.intakeAmount),
-    intakeRoute: readString(row.intakeRoute),
+    intakeVolume: readString(row.intakeVolume),
     outputName: readString(row.outputName),
-    outputAmount: readString(row.outputAmount),
-    outputColorCharacter: readString(row.outputColorCharacter),
+    outputVolume: readString(row.outputVolume),
+    outputColor: readString(row.outputColor),
     nurseSignature: readString(row.nurseSignature),
     version: typeof row.version === 'number' ? row.version : 0,
     createdAt: readString(row.createdAt),
@@ -97,33 +113,27 @@ export async function realQueryNurseStationNursingRecords(
 }
 
 function toBackendSaveItem(item: NurseStationNursingRecordSaveItemDTO) {
-  // 当前 Swagger 不接收幂等键、版本、clientRowId 和护士签名，避免发送未知字段导致 400。
   return {
+    clientRowId: item.clientRowId,
     vitalSignId: item.vitalSignId,
+    expectedVersion: item.expectedVersion,
     recordDate: item.recordDate,
     recordTime: item.recordTime,
     temperature: item.temperature,
     pulse: item.pulse,
     heartRate: item.heartRate,
-    respiratory: item.respiratory,
+    respiration: item.respiration,
     bloodPressure: item.bloodPressure,
-    oxygenSaturation: item.oxygenSaturation,
     consciousness: item.consciousness,
     pupilLeft: item.pupilLeft,
     pupilRight: item.pupilRight,
-    skinStatus: item.skinStatus,
-    conditionMeasure: item.conditionMeasure,
-    tubeCare: item.tubeCare,
+    observation: item.observation,
     intakeName: item.intakeName,
-    intakeAmount: item.intakeAmount,
-    intakeRoute: item.intakeRoute,
+    intakeVolume: item.intakeVolume,
     outputName: item.outputName,
-    outputAmount: item.outputAmount,
-    outputColorCharacter: item.outputColorCharacter,
-    oxygenFlow: item.oxygenFlow,
-    oxygenMode: item.oxygenMode,
-    oxygenRate: item.oxygenRate,
-    rowType: item.rowType
+    outputVolume: item.outputVolume,
+    outputColor: item.outputColor,
+    nurseSignature: item.nurseSignature
   }
 }
 
@@ -145,6 +155,7 @@ export async function realSaveNurseStationNursingRecords(
   const response = await getRealHttp().post<BackendNursingSaveResponse>(
     '/nursing/save-records',
     {
+      idempotencyKey: data.idempotencyKey,
       encounterId: data.encounterId,
       patientId: data.patientId,
       records: data.records.map(toBackendSaveItem)
@@ -176,9 +187,19 @@ export async function realSaveNurseStationNursingRecords(
   }
 }
 
-/** 当前 Swagger 没有删除护理记录接口，真实模式禁止伪造删除请求。 */
 export async function realDeleteNurseStationNursingRecord(
-  _data: NurseStationDeleteNursingRecordDTO
+  data: NurseStationDeleteNursingRecordDTO
 ): Promise<NurseStationDeleteNursingRecordResultVO> {
-  throw new Error('当前后端暂未提供护理记录删除接口，已保存记录暂不可删除')
+  const response = await getRealHttp().post<BackendNursingDeleteResponse>(
+    '/nursing/delete-record',
+    data,
+    { baseURL: realApiBaseURL }
+  )
+  const result = response.data ?? {}
+  const success = result.success === true && result.statusEnum === 'DELETED'
+  return {
+    success,
+    vitalSignId: result.vitalSignId || data.vitalSignId,
+    message: success ? '护理记录已删除' : '护理记录删除失败'
+  }
 }

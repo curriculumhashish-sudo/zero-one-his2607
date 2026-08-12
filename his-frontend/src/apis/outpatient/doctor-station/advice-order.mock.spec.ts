@@ -200,7 +200,6 @@ describe('doctor advice order mock workflow', () => {
     const encounters = await resolveMockRequest(
       mockPagePatientAdviceOrderHistory({
         patientId: 'patient-1003',
-        excludeEncounterId: 'enc-20260723-003',
         pageIndex: 1,
         pageSize: 10
       })
@@ -209,7 +208,7 @@ describe('doctor advice order mock workflow', () => {
     expect(encounters.total).toBeGreaterThan(1)
     expect(
       historyRows.every(
-        (item) => item.patientId === 'patient-1003' && item.encounterId !== 'enc-20260723-003'
+        (item) => item.patientId === 'patient-1003'
       )
     ).toBe(true)
     expect(historyRows[0]!.visitedAt >= historyRows[1]!.visitedAt).toBe(true)

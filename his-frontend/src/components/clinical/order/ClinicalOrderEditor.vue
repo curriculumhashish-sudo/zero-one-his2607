@@ -51,6 +51,12 @@ const props = withDefaults(
     showStopActions?: boolean
     stopDisabled?: boolean
     cancelStopDisabled?: boolean
+    showDeleteAction?: boolean
+    showGroupActions?: boolean
+    showHistoryAction?: boolean
+    showCreateAction?: boolean
+    showQuantityColumn?: boolean
+    showEditFields?: boolean
     updatedAt?: string
     keyword?: string
     category?: '' | ClinicalOrderCategory
@@ -78,6 +84,12 @@ const props = withDefaults(
     showStopActions: false,
     stopDisabled: true,
     cancelStopDisabled: true,
+    showDeleteAction: true,
+    showGroupActions: true,
+    showHistoryAction: true,
+    showCreateAction: true,
+    showQuantityColumn: true,
+    showEditFields: true,
     updatedAt: '',
     keyword: '',
     category: '',
@@ -155,7 +167,7 @@ watch(
   }
 )
 
-const columns: AdviceColumn[] = [
+const allColumns: AdviceColumn[] = [
   { prop: 'order', label: '医嘱内容', minWidth: 220, fixed: 'left' },
   { prop: 'categoryName', label: '分类', width: 82, align: 'center' },
   { prop: 'status', label: '状态', width: 82, align: 'center' },
@@ -165,6 +177,10 @@ const columns: AdviceColumn[] = [
   { prop: 'quantity', label: '开立数量', width: 150 },
   { prop: 'remark', label: '备注', minWidth: 150 }
 ]
+
+const columns = computed(() =>
+  props.showQuantityColumn ? allColumns : allColumns.filter((column) => column.prop !== 'quantity')
+)
 
 const categoryOptions: Array<{ label: string; value: ClinicalOrderCategory }> = [
   { label: '药品', value: 'DRUG' },
@@ -217,7 +233,7 @@ function isDraft(row: unknown) {
 
 function isOrderEditable(row: unknown) {
   const order = asOrder(row)
-  return !props.readonly && isDraft(order) && props.canEditOrder(order)
+  return props.showEditFields && !props.readonly && isDraft(order) && props.canEditOrder(order)
 }
 
 function updateOrder(row: unknown, patch: Partial<ClinicalOrderDraft>) {
@@ -350,9 +366,16 @@ function resetFilters() {
           </span>
           <span>已选 {{ selectedRows.length }} 条</span>
           <template v-if="!readonly">
-            <el-button :disabled="!canDeleteSelected" @click="removeSelected">删除</el-button>
-            <el-button :disabled="!canGroupSelected" @click="groupSelected">并组</el-button>
-            <el-button :disabled="!canUngroupSelected" @click="ungroupSelected">拆组</el-button>
+            <el-button
+              v-if="showDeleteAction"
+              :disabled="!canDeleteSelected"
+              @click="removeSelected"
+              >删除</el-button
+            >
+            <template v-if="showGroupActions">
+              <el-button :disabled="!canGroupSelected" @click="groupSelected">并组</el-button>
+              <el-button :disabled="!canUngroupSelected" @click="ungroupSelected">拆组</el-button>
+            </template>
             <el-button
               type="success"
               :loading="actionLoading"
@@ -389,9 +412,9 @@ function resetFilters() {
               </el-button>
             </template>
           </template>
-          <el-button @click="emit('openHistory')">历史医嘱</el-button>
+          <el-button v-if="showHistoryAction" @click="emit('openHistory')">历史医嘱</el-button>
           <el-button
-            v-if="!readonly"
+            v-if="!readonly && showCreateAction"
             type="primary"
             :icon="Plus"
             :disabled="!loadCatalog || !context"
@@ -469,7 +492,10 @@ function resetFilters() {
         </template>
 
         <template #cell-usage="{ row }">
-          <div v-if="asOrder(row).category === 'DRUG'" class="clinical-order-editor__usage">
+          <div
+            v-if="asOrder(row).category === 'DRUG' && showEditFields"
+            class="clinical-order-editor__usage"
+          >
             <el-input-number
               :model-value="Number(asOrder(row).dose || 0)"
               :min="0"
@@ -513,6 +539,22 @@ function resetFilters() {
             />
             <span>天</span>
           </div>
+          <span
+            v-else-if="asOrder(row).category === 'DRUG'"
+            class="clinical-order-editor__usage-text"
+          >
+            {{
+              [
+                asOrder(row).dose,
+                asOrder(row).unit,
+                asOrder(row).route,
+                asOrder(row).frequency,
+                asOrder(row).days ? `${asOrder(row).days}天` : ''
+              ]
+                .filter(Boolean)
+                .join(' / ') || '—'
+            }}
+          </span>
           <span v-else class="clinical-order-editor__non-drug">按项目执行</span>
         </template>
 
@@ -532,12 +574,14 @@ function resetFilters() {
 
         <template #cell-remark="{ row }">
           <el-input
+            v-if="showEditFields"
             :model-value="asOrder(row).remark"
             clearable
             placeholder="备注"
             :disabled="!isOrderEditable(row)"
             @update:model-value="updateOrder(row, { remark: $event })"
           />
+          <span v-else>{{ asOrder(row).remark || '—' }}</span>
         </template>
 
         <template #summary>

@@ -124,6 +124,20 @@ describe('NurseExecutionPanel', () => {
     expect(wrapper.emitted('cancelExecute')?.[0]).toEqual([items[1]])
   })
 
+  it('每个执行项目都提供文本打印入口', async () => {
+    const wrapper = mount(NurseExecutionPanel, {
+      props: { items, hasPatient: true },
+      global
+    })
+    const printButtons = wrapper
+      .findAll('button')
+      .filter((button) => button.text().trim() === '打印')
+
+    expect(printButtons).toHaveLength(2)
+    await printButtons[1]?.trigger('click')
+    expect(wrapper.emitted('print')?.[0]).toEqual([items[1]])
+  })
+
   it('向公共表格转发清空勾选', () => {
     const wrapper = mount(NurseExecutionPanel, {
       props: { items, hasPatient: true },

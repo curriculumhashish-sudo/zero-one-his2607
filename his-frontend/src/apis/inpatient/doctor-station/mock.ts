@@ -3,14 +3,11 @@ import type {
   CreateInpatientDischargeAdviceDTO,
   CreateInpatientDiagnosisDTO,
   CreateInpatientMedicalOrderDTO,
+  DeleteInpatientDiagnosisDTO,
   GroupInpatientMedicalOrdersDTO,
-  InpatientDiagnosisDictionaryItemVO,
-  InpatientDiagnosisDictionaryQuery,
+  InpatientDiagnosisBriefVO,
   InpatientDiagnosisRecordQuery,
   InpatientDiagnosisRecordVO,
-  InpatientDiagnosisUsageHistoryQuery,
-  InpatientDiagnosisUsageHistoryVO,
-  InpatientDischargeAdvicePreparationVO,
   InpatientDischargeAdviceVO,
   InpatientDoctorPatientQueueItemVO,
   InpatientDoctorPatientQueueQuery,
@@ -41,7 +38,6 @@ const inpatientPatientSeed: InpatientDoctorPatientQueueItemVO[] = [
     patientName: '王建国',
     genderName: '男',
     ageText: '68岁',
-    patientNo: 'P10001',
     inpatientNo: 'ZY20260701001',
     admissionAt: '2026-07-21 09:20',
     departmentName: '心血管内科',
@@ -49,15 +45,8 @@ const inpatientPatientSeed: InpatientDoctorPatientQueueItemVO[] = [
     wardName: '心内一病区',
     bedId: 'bed-cardiology-08',
     bedName: '08床',
-    encounterStatus: 'IN_HOSPITAL',
-    encounterStatusName: '在院',
-    attendingDoctorName: '李尔王',
-    primaryNurseName: '周敏',
-    paymentTypeName: '职工医保',
-    diagnosisSummary: '冠状动脉粥样硬化性心脏病',
-    riskHint: '青霉素过敏',
-    pinyinCode: 'WJG',
-    version: 1
+    statusEnum: 'IN_PROGRESS',
+    diagnosisSummary: '冠状动脉粥样硬化性心脏病'
   },
   {
     encounterId: 'ipt-enc-20260702-002',
@@ -65,7 +54,6 @@ const inpatientPatientSeed: InpatientDoctorPatientQueueItemVO[] = [
     patientName: '赵桂芳',
     genderName: '女',
     ageText: '74岁',
-    patientNo: 'P10002',
     inpatientNo: 'ZY20260702006',
     admissionAt: '2026-07-22 14:05',
     departmentName: '心血管内科',
@@ -73,14 +61,8 @@ const inpatientPatientSeed: InpatientDoctorPatientQueueItemVO[] = [
     wardName: '心内一病区',
     bedId: 'bed-cardiology-12',
     bedName: '12床',
-    encounterStatus: 'IN_HOSPITAL',
-    encounterStatusName: '在院',
-    attendingDoctorName: '李尔王',
-    primaryNurseName: '周敏',
-    paymentTypeName: '居民医保',
-    diagnosisSummary: '原发性高血压3级',
-    pinyinCode: 'ZGF',
-    version: 1
+    statusEnum: 'IN_PROGRESS',
+    diagnosisSummary: '原发性高血压3级'
   },
   {
     encounterId: 'ipt-enc-20260703-003',
@@ -88,7 +70,6 @@ const inpatientPatientSeed: InpatientDoctorPatientQueueItemVO[] = [
     patientName: '陈志强',
     genderName: '男',
     ageText: '56岁',
-    patientNo: 'P10003',
     inpatientNo: 'ZY20260703003',
     admissionAt: '2026-07-23 10:32',
     departmentName: '心血管内科',
@@ -96,84 +77,8 @@ const inpatientPatientSeed: InpatientDoctorPatientQueueItemVO[] = [
     wardName: '心内一病区',
     bedId: 'bed-cardiology-15',
     bedName: '15床',
-    encounterStatus: 'DISCHARGE_PENDING',
-    encounterStatusName: '待出院',
-    attendingDoctorName: '李尔王',
-    primaryNurseName: '郑洁',
-    paymentTypeName: '自费',
-    diagnosisSummary: '阵发性心房颤动',
-    pinyinCode: 'CZQ',
-    version: 2
-  },
-  {
-    encounterId: 'ipt-enc-20260704-004',
-    patientId: 'patient-10004',
-    patientName: '刘春梅',
-    genderName: '女',
-    ageText: '49岁',
-    patientNo: 'P10004',
-    inpatientNo: 'ZY20260704009',
-    admissionAt: '2026-07-24 08:46',
-    departmentName: '心血管内科',
-    wardId: 'ward-cardiology-1',
-    wardName: '心内一病区',
-    bedId: 'bed-cardiology-18',
-    bedName: '18床',
-    encounterStatus: 'IN_HOSPITAL',
-    encounterStatusName: '在院',
-    attendingDoctorName: '李尔王',
-    primaryNurseName: '郑洁',
-    paymentTypeName: '职工医保',
-    diagnosisSummary: '急性心肌炎',
-    riskHint: '账户余额不足',
-    pinyinCode: 'LCM',
-    version: 1
-  },
-  {
-    encounterId: 'ipt-enc-20260705-005',
-    patientId: 'patient-10005',
-    patientName: '孙大勇',
-    genderName: '男',
-    ageText: '62岁',
-    patientNo: 'P10005',
-    inpatientNo: 'ZY20260705011',
-    admissionAt: '2026-07-25 11:18',
-    departmentName: '心血管内科',
-    wardId: 'ward-cardiology-1',
-    wardName: '心内一病区',
-    bedId: 'bed-cardiology-21',
-    bedName: '21床',
-    encounterStatus: 'IN_HOSPITAL',
-    encounterStatusName: '在院',
-    attendingDoctorName: '李尔王',
-    primaryNurseName: '黄娟',
-    paymentTypeName: '居民医保',
-    diagnosisSummary: '慢性心力衰竭',
-    pinyinCode: 'SDY',
-    version: 1
-  },
-  {
-    encounterId: 'ipt-enc-20260706-006',
-    patientId: 'patient-10006',
-    patientName: '何秀兰',
-    genderName: '女',
-    ageText: '81岁',
-    patientNo: 'P10006',
-    inpatientNo: 'ZY20260706002',
-    admissionAt: '2026-07-26 16:40',
-    departmentName: '心血管内科',
-    wardId: 'ward-cardiology-1',
-    wardName: '心内一病区',
-    bedId: 'bed-cardiology-23',
-    bedName: '23床',
-    encounterStatus: 'IN_HOSPITAL',
-    encounterStatusName: '在院',
-    attendingDoctorName: '李尔王',
-    primaryNurseName: '黄娟',
-    paymentTypeName: '职工医保',
-    diagnosisSummary: '病态窦房结综合征',
-    pinyinCode: 'HXL',
-    version: 1
+    statusEnum: 'ON_HOLD',
+    diagnosisSummary: '阵发性心房颤动'
   }
 ]
 
@@ -272,12 +177,7 @@ const inpatientMedicalRecordSeed: InpatientMedicalRecordVO[] = [
     version: 2,
     readonly: true
   },
-  ...[
-    ['10003', 'ipt-enc-20260703-003', 'ZY20260703003', '阵发性心房颤动入院记录'],
-    ['10004', 'ipt-enc-20260704-004', 'ZY20260704009', '急性心肌炎入院记录'],
-    ['10005', 'ipt-enc-20260705-005', 'ZY20260705011', '慢性心力衰竭入院记录'],
-    ['10006', 'ipt-enc-20260706-006', 'ZY20260706002', '病态窦房结综合征入院记录']
-  ].map(
+  ...[['10003', 'ipt-enc-20260703-003', 'ZY20260703003', '阵发性心房颤动入院记录']].map(
     ([patientSuffix, encounterId, inpatientNo, title]): InpatientMedicalRecordHistoryDetailVO => ({
       id: `ipt-record-${patientSuffix}-admission`,
       patientId: `patient-${patientSuffix}`,
@@ -330,64 +230,54 @@ const inpatientMedicalRecordDocumentTypeOptions: InpatientMedicalRecordDocumentT
   }
 ]
 
-const inpatientDiagnosisDictionary: InpatientDiagnosisDictionaryItemVO[] = [
-  {
-    id: 'diag-I251',
-    code: 'I25.1',
-    name: '冠状动脉粥样硬化性心脏病',
-    typeName: '西医诊断'
-  },
-  { id: 'diag-I10', code: 'I10', name: '原发性高血压', typeName: '西医诊断' },
-  { id: 'diag-I489', code: 'I48.9', name: '心房颤动和心房扑动', typeName: '西医诊断' },
-  { id: 'diag-I409', code: 'I40.9', name: '急性心肌炎', typeName: '西医诊断' },
-  { id: 'diag-I509', code: 'I50.9', name: '心力衰竭', typeName: '西医诊断' },
-  { id: 'diag-I495', code: 'I49.5', name: '病态窦房结综合征', typeName: '西医诊断' },
-  { id: 'diag-E785', code: 'E78.5', name: '高脂血症', typeName: '西医诊断' },
-  { id: 'diag-R074', code: 'R07.4', name: '胸痛', typeName: '症状诊断' },
-  { id: 'diag-R002', code: 'R00.2', name: '心悸', typeName: '症状诊断' }
-]
-
-function createDiagnosisRecord(
-  encounterId: string,
-  patientId: string,
-  dictionaryIndex: number,
-  primary: boolean,
-  orderNo: number
-): InpatientDiagnosisRecordVO {
-  const item = inpatientDiagnosisDictionary[dictionaryIndex]!
-  return {
-    id: `ipt-diagnosis-${encounterId}-${item.id}`,
-    encounterId,
-    patientId,
-    catalogId: item.id,
-    code: item.code,
-    name: item.name,
-    typeName: item.typeName,
-    primary,
-    orderNo,
-    diagnosedAt: '2026-07-27 09:30:00',
-    updatedAt: '2026-07-27 09:30:00',
-    version: 1
+const inpatientDiagnosisRecords: Array<
+  InpatientDiagnosisRecordVO & {
+    encounterId: string
+    patientId: string
   }
-}
-
-const inpatientDiagnosisRecords: InpatientDiagnosisRecordVO[] = [
-  createDiagnosisRecord('ipt-enc-20260701-001', 'patient-10001', 0, true, 1),
-  createDiagnosisRecord('ipt-enc-20260701-001', 'patient-10001', 6, false, 2),
-  createDiagnosisRecord('ipt-enc-20260702-002', 'patient-10002', 1, true, 1),
-  createDiagnosisRecord('ipt-enc-20260703-003', 'patient-10003', 2, true, 1),
-  createDiagnosisRecord('ipt-enc-20260704-004', 'patient-10004', 3, true, 1),
-  createDiagnosisRecord('ipt-enc-20260705-005', 'patient-10005', 4, true, 1),
-  createDiagnosisRecord('ipt-enc-20260706-006', 'patient-10006', 5, true, 1)
-]
-
-const inpatientDiagnosisUsageHistory: InpatientDiagnosisUsageHistoryVO[] = [
-  { ...inpatientDiagnosisDictionary[1]!, useCount: 36, lastUsedAt: '2026-07-27 09:30:00' },
-  { ...inpatientDiagnosisDictionary[0]!, useCount: 28, lastUsedAt: '2026-07-27 09:25:00' },
-  { ...inpatientDiagnosisDictionary[4]!, useCount: 21, lastUsedAt: '2026-07-26 16:40:00' },
-  { ...inpatientDiagnosisDictionary[2]!, useCount: 18, lastUsedAt: '2026-07-26 15:10:00' },
-  { ...inpatientDiagnosisDictionary[6]!, useCount: 15, lastUsedAt: '2026-07-25 11:20:00' },
-  { ...inpatientDiagnosisDictionary[7]!, useCount: 12, lastUsedAt: '2026-07-24 14:05:00' }
+> = [
+  {
+    id: 'ipt-diagnosis-10001-1',
+    conditionId: 'condition-i25-10',
+    encounterId: 'ipt-enc-20260701-001',
+    patientId: 'patient-10001',
+    definitionCode: 'I25.10',
+    description: '冠状动脉粥样硬化性心脏病',
+    kindName: '西医',
+    diagnosisTypeCode: '入院初步诊断',
+    diagnosisTypeName: '入院初步诊断',
+    primaryFlag: 1,
+    rank: 1,
+    tcmFlag: 0
+  },
+  {
+    id: 'ipt-diagnosis-10001-2',
+    conditionId: 'condition-i10',
+    encounterId: 'ipt-enc-20260701-001',
+    patientId: 'patient-10001',
+    definitionCode: 'I10',
+    description: '原发性高血压',
+    kindName: '西医',
+    diagnosisTypeCode: '入院初步诊断',
+    diagnosisTypeName: '入院初步诊断',
+    primaryFlag: 0,
+    rank: 2,
+    tcmFlag: 0
+  },
+  ...inpatientPatientSeed.slice(1).map((patient, index) => ({
+    id: `ipt-diagnosis-${index + 2}-1`,
+    conditionId: `condition-mock-${index + 2}`,
+    encounterId: patient.encounterId,
+    patientId: patient.patientId,
+    definitionCode: `MOCK-${String(index + 2).padStart(4, '0')}`,
+    description: patient.diagnosisSummary || '待明确诊断',
+    kindName: '西医',
+    diagnosisTypeCode: '入院初步诊断',
+    diagnosisTypeName: '入院初步诊断',
+    primaryFlag: 1,
+    rank: 1,
+    tcmFlag: 0
+  }))
 ]
 
 const inpatientMedicalOrderCatalog: InpatientMedicalOrderCatalogItemVO[] = [
@@ -563,10 +453,7 @@ const inpatientMedicalOrderRecords: InpatientMedicalOrderRecordVO[] = [
   createMedicalOrderRecord('ipt-enc-20260701-001', 'patient-10001', 4, 'SIGNED', 5),
   createMedicalOrderRecord('ipt-enc-20260702-002', 'patient-10002', 1, 'DRAFT', 1),
   createMedicalOrderRecord('ipt-enc-20260702-002', 'patient-10002', 5, 'SIGNED', 2),
-  createMedicalOrderRecord('ipt-enc-20260703-003', 'patient-10003', 0, 'SIGNED', 1),
-  createMedicalOrderRecord('ipt-enc-20260704-004', 'patient-10004', 4, 'DRAFT', 1),
-  createMedicalOrderRecord('ipt-enc-20260705-005', 'patient-10005', 4, 'SIGNED', 1),
-  createMedicalOrderRecord('ipt-enc-20260706-006', 'patient-10006', 6, 'DRAFT', 1)
+  createMedicalOrderRecord('ipt-enc-20260703-003', 'patient-10003', 0, 'SIGNED', 1)
 ]
 
 const inpatientDischargeWayOptions = [
@@ -575,31 +462,16 @@ const inpatientDischargeWayOptions = [
   { value: '3', label: '医嘱转社区卫生服务机构' },
   { value: '4', label: '非医嘱离院' },
   { value: '5', label: '死亡' },
-  { value: '9', label: '其他' }
+  { value: '6', label: '其他' }
 ]
 
-const inpatientDischargeAdviceRecords: InpatientDischargeAdviceVO[] = [
-  {
-    id: 'ipt-discharge-advice-001',
-    encounterId: 'ipt-enc-20260703-003',
-    patientId: 'patient-10003',
-    plannedDischargeTime: '2026-07-28 10:00:00',
-    outWayCode: '1',
-    outWayName: '医嘱离院',
-    reasonText: '病情稳定，计划出院',
-    sourceOrgId: '心血管内科',
-    sourceLocationId: 'bed-cardiology-15',
-    createdAt: '2026-07-27 16:20:00',
-    createdByName: '李尔王',
-    version: 1
-  }
-]
+const inpatientDischargeAdviceRecords: InpatientDischargeAdviceVO[] = []
 
-let nextDiagnosisId = 100
 let nextMedicalOrderId = 200
 let nextMedicalOrderGroupId = 1
 let nextDischargeAdviceId = 10
 let nextMedicalRecordId = 100
+let nextDiagnosisId = 100
 
 function delay<T>(value: T): Promise<T> {
   return new Promise((resolve) => {
@@ -623,22 +495,21 @@ function ensureDiagnosisEditable(encounterId: string) {
   return findInpatientPatientOrThrow(encounterId)
 }
 
-function updateDiagnosisUsage(data: CreateInpatientDiagnosisDTO) {
-  const history = inpatientDiagnosisUsageHistory.find((item) => item.id === data.catalogId)
-  if (history) {
-    history.useCount += 1
-    history.lastUsedAt = '2026-07-27 10:00:00'
-    return
+function toMockDiagnosisVO(
+  record: InpatientDiagnosisRecordVO & { encounterId: string; patientId: string }
+): InpatientDiagnosisRecordVO {
+  return {
+    id: record.id,
+    conditionId: record.conditionId,
+    definitionCode: record.definitionCode,
+    description: record.description,
+    kindName: record.kindName,
+    diagnosisTypeCode: record.diagnosisTypeCode,
+    diagnosisTypeName: record.diagnosisTypeName,
+    primaryFlag: record.primaryFlag,
+    rank: record.rank,
+    tcmFlag: record.tcmFlag
   }
-
-  inpatientDiagnosisUsageHistory.push({
-    id: data.catalogId,
-    code: data.code,
-    name: data.name,
-    typeName: data.typeName,
-    useCount: 1,
-    lastUsedAt: '2026-07-27 10:00:00'
-  })
 }
 
 /** 模拟分页查询住院医生站在院患者队列。 */
@@ -650,16 +521,14 @@ export async function mockPageInpatientDoctorPatientQueue(
   const pageSize = Math.max(1, query.pageSize)
 
   const matched = inpatientPatientSeed.filter((patient) => {
+    if (inpatientDischargeAdviceRecords.some((item) => item.encounterId === patient.encounterId)) {
+      return false
+    }
     if (!keyword) return true
 
-    return [
-      patient.patientName,
-      patient.patientNo,
-      patient.inpatientNo,
-      patient.bedName,
-      patient.diagnosisSummary,
-      patient.pinyinCode
-    ].some((value) => value?.toLowerCase().includes(keyword))
+    return [patient.patientName, patient.inpatientNo, patient.bedName].some((value) =>
+      value?.toLowerCase().includes(keyword)
+    )
   })
 
   const start = (pageIndex - 1) * pageSize
@@ -768,7 +637,8 @@ export function mockSaveInpatientMedicalRecord(
 
     const now = '2026-07-28 10:15:00'
     if (!data.id) {
-      if (data.version !== 0) throw new Error('新建病历的版本号必须为 0')
+      // Version is no longer part of the frontend create payload; keep zero as the Mock default.
+      if ((data.version ?? 0) !== 0) throw new Error('新建病历的版本号必须为 0')
       const created: InpatientMedicalRecordVO = {
         id: `ipt-record-${nextMedicalRecordId++}`,
         patientId: data.patientId,
@@ -780,7 +650,7 @@ export function mockSaveInpatientMedicalRecord(
         status: 'DRAFT',
         statusName: '草稿',
         departmentName: patient.departmentName,
-        authoredByName: patient.attendingDoctorName ?? '当前医生',
+        authoredByName: '当前医生',
         authoredAt: now,
         updatedAt: now,
         content: data.content,
@@ -840,163 +710,116 @@ export function mockSignInpatientMedicalRecord(
 }
 
 /** 模拟分页查询当前住院就诊的诊断记录。 */
-export async function mockPageInpatientDiagnosisRecords(
+export function mockPageInpatientDiagnosisRecords(
   query: InpatientDiagnosisRecordQuery
 ): Promise<PageDTO<InpatientDiagnosisRecordVO>> {
   try {
-    findInpatientPatientOrThrow(query.encounterId)
-  } catch (error) {
-    return delayReject(error instanceof Error ? error.message : '住院患者不存在或已出院')
-  }
+    const patient = findInpatientPatientOrThrow(query.encounterId)
+    if (patient.patientId !== query.patientId) throw new Error('患者档案与住院就诊不匹配')
 
-  const keyword = query.keyword?.trim().toLowerCase() ?? ''
-  const pageIndex = Math.max(1, query.pageIndex)
-  const pageSize = Math.max(1, query.pageSize)
-  const matched = inpatientDiagnosisRecords
-    .filter((record) => record.encounterId === query.encounterId)
-    .filter((record) => {
-      if (!keyword) return true
-      return [record.code, record.name, record.typeName].some((value) =>
-        value.toLowerCase().includes(keyword)
+    const pageIndex = Math.max(1, query.pageIndex)
+    const pageSize = Math.max(1, query.pageSize)
+    const matched = inpatientDiagnosisRecords
+      .filter(
+        (record) => record.encounterId === query.encounterId && record.patientId === query.patientId
       )
-    })
-    .slice()
-    .sort((left, right) => left.orderNo - right.orderNo)
+      .slice()
+      .sort((left, right) => left.rank - right.rank)
+    const start = (pageIndex - 1) * pageSize
 
-  const start = (pageIndex - 1) * pageSize
-  const rows = matched.slice(start, start + pageSize).map((record) => ({ ...record }))
-
-  return delay(
-    createPageDTO({
-      pageIndex,
-      pageSize,
-      total: matched.length,
-      rows
-    })
-  )
-}
-
-/** 模拟分页查询住院诊断字典。 */
-export function mockPageInpatientDiagnosisDictionary(
-  query: InpatientDiagnosisDictionaryQuery
-): Promise<PageDTO<InpatientDiagnosisDictionaryItemVO>> {
-  const keyword = query.keyword?.trim().toLowerCase() ?? ''
-  const pageIndex = Math.max(1, query.pageIndex)
-  const pageSize = Math.max(1, query.pageSize)
-  const matched = inpatientDiagnosisDictionary.filter((item) => {
-    if (!keyword) return true
-    return [item.code, item.name, item.typeName].some((value) =>
-      value.toLowerCase().includes(keyword)
+    return delay(
+      createPageDTO({
+        pageIndex,
+        pageSize,
+        total: matched.length,
+        rows: matched.slice(start, start + pageSize).map(toMockDiagnosisVO)
+      })
     )
-  })
-  const start = (pageIndex - 1) * pageSize
+  } catch (error) {
+    return delayReject(error instanceof Error ? error.message : '住院诊断加载失败')
+  }
+}
 
-  return delay(
-    createPageDTO({
-      pageIndex,
-      pageSize,
-      total: matched.length,
-      rows: matched.slice(start, start + pageSize).map((item) => ({ ...item }))
-    })
+/** 模拟租户范围内的历史诊断候选。 */
+export function mockListInpatientDiagnosisBrief(): Promise<InpatientDiagnosisBriefVO[]> {
+  const names = new Set(
+    inpatientDiagnosisRecords.map((record) => record.description.trim()).filter(Boolean)
   )
+  return delay(Array.from(names, (definitionName) => ({ definitionName })))
 }
 
-/** 模拟获取当前医生最近使用的诊断。 */
-export function mockGetInpatientDiagnosisUsageHistory(
-  query: InpatientDiagnosisUsageHistoryQuery = {}
-): Promise<InpatientDiagnosisUsageHistoryVO[]> {
-  const keyword = query.keyword?.trim().toLowerCase() ?? ''
-  const limit = Math.max(1, query.limit ?? 20)
-  const rows = inpatientDiagnosisUsageHistory
-    .filter((item) => {
-      if (!keyword) return true
-      return [item.code, item.name, item.typeName].some((value) =>
-        value.toLowerCase().includes(keyword)
-      )
-    })
-    .slice()
-    .sort((left, right) => right.useCount - left.useCount)
-    .slice(0, limit)
-    .map((item) => ({ ...item }))
-
-  return delay(rows)
-}
-
-/** 模拟新增一条住院诊断。 */
+/** 模拟新增住院诊断。 */
 export function mockCreateInpatientDiagnosis(
   data: CreateInpatientDiagnosisDTO
 ): Promise<InpatientDiagnosisRecordVO> {
   try {
     const patient = ensureDiagnosisEditable(data.encounterId)
-    if (patient.patientId !== data.patientId) {
-      return delayReject('患者档案与住院就诊不匹配')
+    if (patient.patientId !== data.patientId) throw new Error('患者档案与住院就诊不匹配')
+
+    const description = data.description.trim()
+    if (!description) throw new Error('诊断描述不能为空')
+    if (
+      inpatientDiagnosisRecords.some(
+        (record) =>
+          record.encounterId === data.encounterId && record.description.trim() === description
+      )
+    ) {
+      throw new Error('该诊断已存在')
     }
+
+    const sequence = nextDiagnosisId++
+    const record = {
+      id: `ipt-diagnosis-${sequence}`,
+      conditionId: `condition-mock-${sequence}`,
+      encounterId: data.encounterId,
+      patientId: data.patientId,
+      definitionCode: data.definitionCode ?? '',
+      description,
+      kindName: data.tcmFlag === 1 ? '中医' : '西医',
+      diagnosisTypeCode: data.diagnosisTypeCode ?? '入院初步诊断',
+      diagnosisTypeName: data.diagnosisTypeCode ?? '入院初步诊断',
+      primaryFlag: data.primaryFlag,
+      rank: data.rank,
+      tcmFlag: data.tcmFlag
+    }
+    inpatientDiagnosisRecords.push(record)
+    return delay(toMockDiagnosisVO(record))
   } catch (error) {
-    return delayReject(error instanceof Error ? error.message : '住院诊断新增失败')
+    return delayReject(error instanceof Error ? error.message : '新增住院诊断失败')
   }
-
-  const duplicated = inpatientDiagnosisRecords.some(
-    (record) => record.encounterId === data.encounterId && record.catalogId === data.catalogId
-  )
-  if (duplicated) return delayReject('本次住院已经存在相同诊断')
-
-  const record: InpatientDiagnosisRecordVO = {
-    id: `ipt-diagnosis-${nextDiagnosisId++}`,
-    ...data,
-    diagnosedAt: '2026-07-27 10:00:00',
-    updatedAt: '2026-07-27 10:00:00',
-    version: 1
-  }
-  inpatientDiagnosisRecords.push(record)
-  updateDiagnosisUsage(data)
-  return delay({ ...record })
 }
 
-/** 模拟修改一条住院诊断。 */
-export function mockUpdateInpatientDiagnosis(
-  diagnosisId: string,
-  data: UpdateInpatientDiagnosisDTO
-): Promise<InpatientDiagnosisRecordVO> {
-  const record = inpatientDiagnosisRecords.find((item) => item.id === diagnosisId)
-  if (!record) return delayReject('住院诊断不存在或已被删除')
-
+/** 模拟修改住院诊断类型。 */
+export function mockUpdateInpatientDiagnosis(data: UpdateInpatientDiagnosisDTO): Promise<void> {
   try {
+    const record = inpatientDiagnosisRecords.find((item) => item.id === data.id)
+    if (!record) throw new Error('住院诊断不存在或已被删除')
     ensureDiagnosisEditable(record.encounterId)
+    record.diagnosisTypeCode = data.diagnosisTypeCode
+    record.diagnosisTypeName = data.diagnosisTypeCode
+    return delay(undefined)
   } catch (error) {
-    return delayReject(error instanceof Error ? error.message : '住院诊断修改失败')
+    return delayReject(error instanceof Error ? error.message : '修改住院诊断失败')
   }
-  if (record.version !== data.version) return delayReject('住院诊断已被他人修改，请刷新后重试')
-
-  Object.assign(record, {
-    catalogId: data.catalogId,
-    code: data.code,
-    name: data.name,
-    typeName: data.typeName,
-    primary: data.primary,
-    orderNo: data.orderNo,
-    updatedAt: '2026-07-27 10:00:00',
-    version: record.version + 1
-  })
-  return delay({ ...record })
 }
 
-/** 模拟删除一条住院诊断。 */
-export function mockDeleteInpatientDiagnosis(diagnosisId: string, version: number): Promise<void> {
-  const index = inpatientDiagnosisRecords.findIndex((item) => item.id === diagnosisId)
-  if (index < 0) return delayReject('住院诊断不存在或已被删除')
-
-  const record = inpatientDiagnosisRecords[index]!
+/** 模拟删除住院诊断。 */
+export function mockDeleteInpatientDiagnosis(data: DeleteInpatientDiagnosisDTO): Promise<void> {
   try {
+    const index = inpatientDiagnosisRecords.findIndex((item) => item.id === data.id)
+    const record = inpatientDiagnosisRecords[index]
+    if (!record || record.conditionId !== data.conditionId) {
+      throw new Error('住院诊断不存在或已被删除')
+    }
     ensureDiagnosisEditable(record.encounterId)
+    inpatientDiagnosisRecords.splice(index, 1)
+    return delay(undefined)
   } catch (error) {
-    return delayReject(error instanceof Error ? error.message : '住院诊断删除失败')
+    return delayReject(error instanceof Error ? error.message : '删除住院诊断失败')
   }
-  if (record.version !== version) return delayReject('住院诊断已被他人修改，请刷新后重试')
-
-  inpatientDiagnosisRecords.splice(index, 1)
-  return delay(undefined)
 }
 
+/** 校验批量医嘱操作并返回对应医嘱。 */
 function medicalOrderBatchRows(
   data: InpatientMedicalOrderBatchActionDTO,
   allowedStatuses: InpatientMedicalOrderStatus[],
@@ -1300,112 +1123,14 @@ export function mockCancelStopInpatientMedicalOrders(
   }
 }
 
-function buildDischargeAdvicePreparation(
-  encounterId: string,
-  patientId: string
-): InpatientDischargeAdvicePreparationVO {
-  const patient = findInpatientPatientOrThrow(encounterId)
-  if (patient.patientId !== patientId) throw new Error('患者档案与住院就诊不匹配')
-
-  const existingAdvice = inpatientDischargeAdviceRecords.find(
-    (item) => item.encounterId === encounterId
-  )
-  const diagnosisCount = inpatientDiagnosisRecords.filter(
-    (record) => record.encounterId === encounterId
-  ).length
-  const draftMedicalRecordCount = inpatientMedicalRecordSeed.filter(
-    (record) => record.encounterId === encounterId && record.status === 'DRAFT'
-  ).length
-  const draftOrderCount = inpatientMedicalOrderRecords.filter(
-    (record) => record.encounterId === encounterId && record.status === 'DRAFT'
-  ).length
-  const activeLongTermOrderCount = inpatientMedicalOrderRecords.filter(
-    (record) =>
-      record.encounterId === encounterId &&
-      record.status === 'SIGNED' &&
-      record.therapyType === 'LONG_TERM'
-  ).length
-  const checks: InpatientDischargeAdvicePreparationVO['checks'] = []
-
-  if (patient.encounterStatus === 'DISCHARGE_PENDING' || existingAdvice) {
-    checks.push({
-      code: 'DISCHARGE_ALREADY_PENDING',
-      level: 'BLOCKER',
-      message: '该患者已经开立出院医嘱，不能重复开立'
-    })
-  }
-  if (diagnosisCount === 0) {
-    checks.push({
-      code: 'DIAGNOSIS_MISSING',
-      level: 'BLOCKER',
-      message: '当前住院就诊尚未维护诊断，请先完成诊断录入',
-      targetTab: 'diagnosis'
-    })
-  }
-  if (draftMedicalRecordCount > 0) {
-    checks.push({
-      code: 'MEDICAL_RECORD_DRAFT',
-      level: 'REMINDER',
-      message: `存在 ${draftMedicalRecordCount} 份未签名病历，请确认后续补签安排`,
-      count: draftMedicalRecordCount,
-      targetTab: 'medicalRecord'
-    })
-  }
-  if (draftOrderCount > 0) {
-    checks.push({
-      code: 'ORDER_DRAFT',
-      level: 'REMINDER',
-      message: `存在 ${draftOrderCount} 条待签发医嘱，请确认是否继续保留`,
-      count: draftOrderCount,
-      targetTab: 'orders'
-    })
-  }
-  if (activeLongTermOrderCount > 0) {
-    checks.push({
-      code: 'LONG_TERM_ORDER_ACTIVE',
-      level: 'REMINDER',
-      message: `存在 ${activeLongTermOrderCount} 条执行中的长期医嘱，请安排后续停嘱`,
-      count: activeLongTermOrderCount,
-      targetTab: 'orders'
-    })
-  }
-
-  return {
-    encounterId,
-    patientId,
-    encounterVersion: patient.version,
-    canCreate: !checks.some((check) => check.level === 'BLOCKER'),
-    checks,
-    outWayOptions: inpatientDischargeWayOptions.map((item) => ({ ...item })),
-    existingAdvice: existingAdvice ? { ...existingAdvice } : undefined
-  }
-}
-
-/** 模拟加载出院医嘱弹窗及前置校验信息。 */
-export function mockGetInpatientDischargeAdvicePreparation(
-  encounterId: string,
-  patientId: string
-): Promise<InpatientDischargeAdvicePreparationVO> {
-  try {
-    return delay(buildDischargeAdvicePreparation(encounterId, patientId))
-  } catch (error) {
-    return delayReject(error instanceof Error ? error.message : '出院医嘱前置校验失败')
-  }
-}
-
-/** 模拟开立出院医嘱并将患者更新为待出院状态。 */
+/** 模拟开立出院医嘱并将患者移出在院队列。 */
 export function mockCreateInpatientDischargeAdvice(
   data: CreateInpatientDischargeAdviceDTO
 ): Promise<InpatientDischargeAdviceVO> {
   try {
-    const preparation = buildDischargeAdvicePreparation(data.encounterId, data.patientId)
     const patient = findInpatientPatientOrThrow(data.encounterId)
-    if (!preparation.canCreate) {
-      const blocker = preparation.checks.find((check) => check.level === 'BLOCKER')
-      throw new Error(blocker?.message ?? '当前患者不能开立出院医嘱')
-    }
-    if (patient.version !== data.encounterVersion) {
-      throw new Error('患者住院状态已被他人修改，请刷新后重试')
+    if (inpatientDischargeAdviceRecords.some((item) => item.encounterId === data.encounterId)) {
+      throw new Error('该患者已经开立出院医嘱，不能重复开立')
     }
     if (!data.plannedDischargeTime.trim()) throw new Error('请选择计划出院时间')
     const outWay = inpatientDischargeWayOptions.find((item) => item.value === data.outWayCode)
@@ -1415,16 +1140,11 @@ export function mockCreateInpatientDischargeAdvice(
     const advice: InpatientDischargeAdviceVO = {
       id: `ipt-discharge-advice-${nextDischargeAdviceId++}`,
       encounterId: data.encounterId,
-      patientId: data.patientId,
+      statusEnum: 'ACTIVE',
       plannedDischargeTime: data.plannedDischargeTime,
       outWayCode: outWay.value,
       outWayName: outWay.label,
-      reasonText: data.reasonText?.trim() || undefined,
-      sourceOrgId: data.sourceOrgId,
-      sourceLocationId: data.sourceLocationId,
-      createdAt: now,
-      createdByName: patient.attendingDoctorName ?? '当前医生',
-      version: 1
+      encounterNewStatus: 'ON_HOLD'
     }
     inpatientDischargeAdviceRecords.push(advice)
 
@@ -1434,7 +1154,7 @@ export function mockCreateInpatientDischargeAdvice(
     inpatientMedicalOrderRecords.push({
       id: `ipt-order-${nextMedicalOrderId++}`,
       encounterId: data.encounterId,
-      patientId: data.patientId,
+      patientId: patient.patientId,
       catalogId: 'system-discharge-advice',
       code: 'DISCHARGE',
       name: `出院（${outWay.label}）`,
@@ -1442,7 +1162,7 @@ export function mockCreateInpatientDischargeAdvice(
       categoryName: '出院医嘱',
       quantity: 1,
       quantityUnit: '次',
-      remark: [data.plannedDischargeTime, data.reasonText?.trim()].filter(Boolean).join(' · '),
+      remark: data.plannedDischargeTime,
       therapyType: 'TEMPORARY',
       therapyTypeName: '临时',
       status: 'SIGNED',
@@ -1454,9 +1174,7 @@ export function mockCreateInpatientDischargeAdvice(
       version: 1
     })
 
-    patient.encounterStatus = 'DISCHARGE_PENDING'
-    patient.encounterStatusName = '待出院'
-    patient.version += 1
+    patient.statusEnum = 'ON_HOLD'
     return delay({ ...advice })
   } catch (error) {
     return delayReject(error instanceof Error ? error.message : '开立出院医嘱失败')

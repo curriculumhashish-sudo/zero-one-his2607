@@ -6,13 +6,22 @@ import {
   saveMedicalRecord,
   type DoctorMedicalRecordVO
 } from '@/apis/outpatient/doctor-station'
+import { isMedicalRecordNotFoundError } from '@/apis/outpatient/doctor-station/medical-record-real'
 
 interface DoctorMedicalRecordOptions {
   selectedPatientId: Ref<string | number | null>
   patientAccepted: ComputedRef<boolean>
 }
 
-/** 管理门诊病历正文、服务端快照和保存流程。 */
+function hasMeaningfulMedicalRecordContent(content: string): boolean {
+  return Boolean(
+    content
+      .replace(/<[^>]*>/g, '')
+      .replace(/&nbsp;|&#160;/gi, '')
+      .trim()
+  )
+}
+
 export function useDoctorMedicalRecord(options: DoctorMedicalRecordOptions) {
   const { selectedPatientId, patientAccepted } = options
 
@@ -41,11 +50,18 @@ export function useDoctorMedicalRecord(options: DoctorMedicalRecordOptions) {
       if (requestId !== latestMedicalRecordRequestId) return
 
       medicalRecord.value = result
-      medicalRecordContent.value = result.content
-      savedMedicalRecordContent.value = result.content
+      medicalRecordContent.value = result.content ?? ''
+      savedMedicalRecordContent.value = result.content ?? ''
     } catch (error) {
       if (requestId !== latestMedicalRecordRequestId) return
-      medicalRecordError.value = error instanceof Error ? error.message : '门诊病历加载失败'
+      const message = error instanceof Error ? error.message : '门诊病历加载失败'
+      if (isMedicalRecordNotFoundError(error)) {
+        medicalRecord.value = { encounterId: String(encounterId), content: '' }
+        medicalRecordContent.value = ''
+        savedMedicalRecordContent.value = ''
+      } else {
+        medicalRecordError.value = message
+      }
     } finally {
       if (requestId === latestMedicalRecordRequestId) medicalRecordLoading.value = false
     }
@@ -62,27 +78,19 @@ export function useDoctorMedicalRecord(options: DoctorMedicalRecordOptions) {
 
   async function saveCurrentMedicalRecord(notifySuccess = true): Promise<boolean> {
     const encounterId = selectedPatientId.value
-    if (
-      !encounterId ||
-      !patientAccepted.value ||
-      !medicalRecord.value ||
-      medicalRecordSaving.value
-    ) {
-      return false
-    }
+    if (!encounterId || !patientAccepted.value || medicalRecordSaving.value) return false
 
     const encounterIdText = String(encounterId)
     const contentToSave = medicalRecordContent.value
     medicalRecordSaving.value = true
 
     try {
-      const result = await saveMedicalRecord(encounterIdText, {
-        content: contentToSave
-      })
+      const result = await saveMedicalRecord(encounterIdText, { content: contentToSave })
       if (String(selectedPatientId.value) !== encounterIdText) return false
 
       medicalRecord.value = result
-      savedMedicalRecordContent.value = result.content
+      savedMedicalRecordContent.value = result.content ?? contentToSave
+      medicalRecordContent.value = savedMedicalRecordContent.value
       if (notifySuccess) ElMessage.success('门诊病历保存成功')
       return true
     } catch (error) {
@@ -92,16 +100,6 @@ export function useDoctorMedicalRecord(options: DoctorMedicalRecordOptions) {
     } finally {
       medicalRecordSaving.value = false
     }
-  }
-
-  /** 富文本只有空标签或空格时，不能作为已完成病历。 */
-  function hasMeaningfulMedicalRecordContent() {
-    return Boolean(
-      savedMedicalRecordContent.value
-        .replace(/<[^>]*>/g, '')
-        .replace(/&nbsp;|&#160;/gi, '')
-        .trim()
-    )
   }
 
   return {
@@ -115,6 +113,7 @@ export function useDoctorMedicalRecord(options: DoctorMedicalRecordOptions) {
     loadCurrentMedicalRecord,
     resetMedicalRecord,
     saveCurrentMedicalRecord,
-    hasMeaningfulMedicalRecordContent
+    hasMeaningfulMedicalRecordContent: () =>
+      hasMeaningfulMedicalRecordContent(savedMedicalRecordContent.value)
   }
 }

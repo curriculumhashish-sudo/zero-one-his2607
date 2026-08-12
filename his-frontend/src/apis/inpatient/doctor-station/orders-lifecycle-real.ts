@@ -34,6 +34,7 @@ interface StopFailDetailDTO {
 interface StopResultDTO {
   successCount?: number
   failCount?: number
+  failReasons?: string[]
   failDetails?: StopFailDetailDTO[]
 }
 
@@ -66,6 +67,12 @@ function unwrap<T>(response: { data?: T | JsonVO<T>; message?: string }, fallbac
   return body as T
 }
 
+function ensureSuccess(response: { code?: number; message?: string }, fallback: string) {
+  if (response.code !== undefined && response.code !== 10000) {
+    throw new Error(response.message || fallback)
+  }
+}
+
 function ensureProductTableNames(data: InpatientMedicalOrderBatchActionDTO) {
   const missing = data.items.find((item) => !item.id || !item.productTableName?.trim())
   if (missing) throw new Error('所选医嘱缺少产品定义表名，暂不能执行真实生命周期操作')
@@ -79,7 +86,10 @@ function basePayload(data: InpatientMedicalOrderBatchActionDTO) {
   }
 }
 
-function countResult(updatedCount: number, extra: Partial<InpatientMedicalOrderBatchResultVO> = {}) {
+function countResult(
+  updatedCount: number,
+  extra: Partial<InpatientMedicalOrderBatchResultVO> = {}
+) {
   return { updatedCount, rows: [], ...extra }
 }
 
@@ -101,7 +111,7 @@ export async function realSignInpatientMedicalOrders(
       },
       { baseURL: realApiBaseURL }
     )
-    unwrap(response, '真实医嘱签发失败')
+    ensureSuccess(response, '真实医嘱签发失败')
     return countResult(data.items.length)
   } catch (error) {
     throw toError(error, '真实医嘱签发失败')
@@ -126,7 +136,7 @@ export async function realWithdrawInpatientMedicalOrders(
       },
       { baseURL: realApiBaseURL }
     )
-    unwrap(response, '真实医嘱撤回失败')
+    ensureSuccess(response, '真实医嘱撤回失败')
     return countResult(data.items.length)
   } catch (error) {
     throw toError(error, '真实医嘱撤回失败')
@@ -153,9 +163,11 @@ export async function realStopInpatientMedicalOrders(
       { baseURL: realApiBaseURL }
     )
     const result = unwrap(response, '真实医嘱停嘱失败')
-    const failureMessages = (result.failDetails ?? [])
-      .map((item) => item.reason?.trim())
-      .filter((reason): reason is string => Boolean(reason))
+    const failureMessages =
+      result.failReasons?.map((reason) => reason.trim()).filter(Boolean) ??
+      (result.failDetails ?? [])
+        .map((item) => item.reason?.trim())
+        .filter((reason): reason is string => Boolean(reason))
     return countResult(result.successCount ?? 0, {
       failedCount: result.failCount ?? 0,
       failureMessages
@@ -183,7 +195,7 @@ export async function realCancelStopInpatientMedicalOrders(
       },
       { baseURL: realApiBaseURL }
     )
-    unwrap(response, '真实医嘱取消停嘱失败')
+    ensureSuccess(response, '真实医嘱取消停嘱失败')
     return countResult(data.items.length)
   } catch (error) {
     throw toError(error, '真实医嘱取消停嘱失败')

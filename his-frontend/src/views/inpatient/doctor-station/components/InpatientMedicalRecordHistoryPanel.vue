@@ -43,10 +43,9 @@ const emit = defineEmits<{
 const sidebarItems = computed<RecordSidebarItem[]>(() =>
   props.rows.map((record) => ({
     key: record.id,
-    title: `${record.documentTypeName} · ${record.title}`,
-    subtitle: `${record.inpatientNo} · ${record.departmentName}`,
-    description: `${record.authoredByName} · ${record.authoredAt}`,
-    status: record.statusName
+    title: record.title,
+    subtitle: record.documentTypeName,
+    status: record.statusName || record.status
   }))
 )
 
@@ -65,7 +64,7 @@ function handleSelect(item: RecordSidebarItem) {
     :loading="loading"
     :empty-description="error || '暂无历史病历'"
     :keyword="keyword"
-    search-placeholder="标题/类型/住院号/医生"
+    search-placeholder="请输入病历标题"
     @update:keyword="emit('update:keyword', $event)"
     @search="emit('search', $event)"
     @select="handleSelect"

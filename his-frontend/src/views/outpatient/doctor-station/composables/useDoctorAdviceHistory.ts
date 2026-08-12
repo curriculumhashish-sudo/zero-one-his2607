@@ -24,7 +24,8 @@ export function useDoctorAdviceHistory(options: DoctorAdviceHistoryOptions) {
   const historyEncounterQuery = reactive({
     pageIndex: 1,
     pageSize: 10,
-    keyword: ''
+    keyword: '',
+    visitType: ''
   })
 
   const selectedHistoryEncounter = ref<DoctorAdviceOrderHistoryEncounterVO | null>(null)
@@ -62,6 +63,7 @@ export function useDoctorAdviceHistory(options: DoctorAdviceHistoryOptions) {
     historyEncounterQuery.pageIndex = 1
     historyEncounterQuery.pageSize = 10
     historyEncounterQuery.keyword = ''
+    historyEncounterQuery.visitType = ''
     resetDetails()
   }
 
@@ -79,6 +81,7 @@ export function useDoctorAdviceHistory(options: DoctorAdviceHistoryOptions) {
       const result = await pagePatientAdviceOrderHistory({
         patientId,
         keyword: historyEncounterQuery.keyword.trim() || undefined,
+        visitType: historyEncounterQuery.visitType.trim() || undefined,
         pageIndex: historyEncounterQuery.pageIndex,
         pageSize: historyEncounterQuery.pageSize
       })

@@ -112,6 +112,8 @@ export interface DoctorPatientContextVO {
   phone: string
 }
 
+export type DoctorAdviceExpenseType = 'SELF_PAY' | 'MEDICAL_INSURANCE'
+
 /**
  * 门诊病历详情。
  *
@@ -228,47 +230,15 @@ export interface DoctorDiagnosisDictionaryItemVO extends Record<string, unknown>
   typeName: string
 }
 
-/** 诊断使用历史或常用诊断候选项。 */
-export interface DoctorDiagnosisUsageHistoryItemVO extends Record<string, unknown> {
-  /** 诊断字典项目 ID */
-  catalogId: string
-  /** ICD 编码 */
-  code: string
-  /** 诊断名称 */
-  name: string
-  /** 诊断分类名称 */
-  typeName: string
-  /** 使用次数 */
-  useCount: number
-  /** 最近使用时间 */
-  lastUsedAt: string
-}
-
-/** 分页查询诊断使用历史。 */
-export interface DoctorDiagnosisUsageHistoryQuery extends PageQuery {
-  /** 当前患者 ID；用于生成患者历史候选 */
-  patientId?: string
-  /** ICD 编码或诊断名称 */
-  keyword?: string
-}
-
 /** 患者跨就诊历史诊断记录。 */
 export interface DoctorPatientDiagnosisHistoryItemVO extends DoctorDiagnosisVO {
-  /** 门诊就诊号 */
-  visitNo: string
-  /** 就诊科室 */
-  departmentName: string
-  /** 接诊医生 */
-  attendingDoctorName: string
-  /** 就诊时间 */
-  visitedAt: string
 }
 
 /** 患者历史诊断条件分页查询。 */
 export interface DoctorPatientDiagnosisHistoryQuery extends PageQuery {
   /** 患者档案 ID */
   patientId: string
-  /** 就诊号、科室、医生、ICD 编码或诊断名称 */
+  /** 诊断名称关键词 */
   keyword?: string
   /** 诊断开始日期，YYYY-MM-DD */
   startDate?: string
@@ -300,7 +270,7 @@ export interface SaveDoctorDiagnosisItemDTO {
  * 后端单条新增诊断请求体。
  *
  * 字段名与后端 /opdoctor/diagnose 对齐；conditionId、diagCode 已确认，
- * diagTypeCode 的分类编码值待后端提供编码表。
+ * diagTypeCode uses the backend diagnosis type code.
  */
 export interface OpdoctorCreateDiagnosisDTO {
   /** 本次就诊记录 ID */
@@ -396,6 +366,8 @@ export interface DoctorAdviceOrderListVO {
   /** 最近保存时间 */
   updatedAt?: string
   /** 医嘱列表整体版本；取最近一次查询或操作响应中的值 */
+  encounterVersion?: number
+  /** @deprecated Mock compatibility alias; real responses use encounterVersion. */
   version?: number
 }
 
@@ -410,6 +382,8 @@ export interface DoctorAdviceOrderPageVO extends PageDTO<DoctorAdviceOrderVO> {
   /** 最近变更时间 */
   updatedAt?: string
   /** 医嘱列表整体版本 */
+  encounterVersion?: number
+  /** @deprecated Mock compatibility alias; real responses use encounterVersion. */
   version?: number
 }
 
@@ -517,6 +491,9 @@ export interface CreateDoctorAdviceOrderDTO {
   encounterId: string
   /** 新增草稿 */
   item: SaveDoctorAdviceOrderItemDTO
+  /** Optional backend expense type. */
+  /** Encounter optimistic-lock version. */
+  encounterVersion?: number
 }
 
 /** 单条修改医嘱请求。 */
@@ -526,6 +503,11 @@ export interface UpdateDoctorAdviceOrderDTO {
   /** 待修改医嘱 ID */
   adviceId: string
   /** 医嘱列表整体版本；API 层自动填充最近一次查询/操作的版本，页面可不传 */
+  /** Single-order optimistic-lock version. */
+  orderVersion?: number
+  /** Encounter optimistic-lock version. */
+  encounterVersion?: number
+  /** @deprecated Legacy mock-only list version. */
   version?: number
   /** 修改后的完整草稿 */
   item: SaveDoctorAdviceOrderItemDTO
@@ -616,7 +598,7 @@ export interface DoctorAdviceOrderHistoryQuery extends PageQuery {
   /** 患者档案 ID */
   patientId: string
   /** 排除当前就诊 */
-  excludeEncounterId?: string
+  visitType?: string
   /** 就诊号、科室或医生关键词 */
   keyword?: string
 }
@@ -631,6 +613,7 @@ export interface DoctorAdviceOrderHistoryDetailQuery extends PageQuery {
   keyword?: string
   /** 医嘱分类 */
   category?: DoctorAdviceOrderCategory
-  /** 已签发或已撤回状态 */
+  /** @deprecated Mock-only compatibility field; ignored by real API. */
   status?: Extract<DoctorAdviceOrderStatus, 'SIGNED' | 'WITHDRAWN'>
+  /** 已签发或已撤回状态 */
 }

@@ -5,6 +5,10 @@ export type DoctorPrescriptionScope = 'CURRENT_ENCOUNTER' | 'HISTORY'
 export interface DoctorPrescriptionSheetQuery {
   /** 患者病历号，对应后端参数 num */
   num?: string
+  /** Current encounter identifier used by the backend for today queries. */
+  encounterId?: string
+  /** Current patient payment type used as a fallback when backend costType is invalid. */
+  paymentTypeName?: string
   /** 查询本次就诊或历史处方，对应后端参数 type */
   type?: DoctorPrescriptionScope
 }

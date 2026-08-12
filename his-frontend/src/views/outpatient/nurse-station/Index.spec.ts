@@ -19,6 +19,7 @@ const api = vi.hoisted(() => ({
   getNurseConsumables: vi.fn(),
   getNurseExecutionItems: vi.fn(),
   pageNursePatientQueue: vi.fn(),
+  printNurseExecutions: vi.fn(),
   performNurseExecutions: vi.fn()
 }))
 
@@ -44,9 +45,7 @@ const patientRows: NursePatientQueueItemVO[] = [
     patientName: '患者甲',
     genderName: '女',
     ageText: '30岁',
-    visitNo: 'V-A',
-    queueNumber: 1,
-    registeredAt: '2026-07-29 08:00',
+    bookingDate: '2026-07-29',
     departmentName: '内科',
     visitTypeName: '普通门诊',
     status: 'READY',
@@ -59,9 +58,7 @@ const patientRows: NursePatientQueueItemVO[] = [
     patientName: '患者乙',
     genderName: '男',
     ageText: '40岁',
-    visitNo: 'V-B',
-    queueNumber: 2,
-    registeredAt: '2026-07-29 08:10',
+    bookingDate: '2026-07-29',
     departmentName: '外科',
     visitTypeName: '普通门诊',
     status: 'READY',
@@ -104,9 +101,10 @@ const NurseExecutionPanelStub = defineComponent({
   props: {
     items: { type: Array, default: () => [] },
     hasPatient: Boolean,
-    loading: Boolean
+    loading: Boolean,
+    printingItemId: String
   },
-  emits: ['selectionChange', 'refresh', 'cancelExecute'],
+  emits: ['selectionChange', 'refresh', 'cancelExecute', 'print'],
   setup(_, { expose }) {
     expose({ clearSelection: vi.fn() })
     return {}
@@ -221,5 +219,33 @@ describe('OutpatientNurseStation', () => {
     await flushPromises()
 
     expect(executionPanel.props('items')).toEqual([expect.objectContaining({ itemId: 'item-b' })])
+  })
+
+  it('请求打印文本并交给新窗口打印', async () => {
+    const printDocument = document.implementation.createHTMLDocument('')
+    const print = vi.fn()
+    const printWindow = {
+      document: printDocument,
+      opener: window,
+      closed: false,
+      focus: vi.fn(),
+      print,
+      close: vi.fn()
+    } as unknown as Window
+    const openSpy = vi.spyOn(window, 'open').mockReturnValue(printWindow)
+    api.printNurseExecutions.mockResolvedValue('服务请求打印单\n1. 记录ID：item-print')
+
+    const wrapper = mount(NurseStation, { global })
+    await flushPromises()
+    wrapper.findComponent(NurseExecutionPanelStub).vm.$emit('print', executionItem('item-print'))
+    await flushPromises()
+
+    expect(api.printNurseExecutions).toHaveBeenCalledWith({
+      recordIds: ['item-print'],
+      printType: 'EXECUTION_RECORD'
+    })
+    expect(printDocument.body.textContent).toContain('服务请求打印单')
+    expect(print).toHaveBeenCalledOnce()
+    openSpy.mockRestore()
   })
 })

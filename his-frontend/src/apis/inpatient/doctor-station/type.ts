@@ -1,13 +1,5 @@
 import type { PageQuery } from '../../type'
 
-/**
- * 住院医生站患者状态。
- *
- * 医生站患者队列只展示仍处于住院流程中的患者；已经开立出院医嘱的患者
- * 仍可能停留在队列中，直至护士站完成正式出院。
- */
-export type InpatientEncounterStatus = 'IN_HOSPITAL' | 'DISCHARGE_PENDING'
-
 /** 住院医生站患者队列中的单条后端数据。 */
 export interface InpatientDoctorPatientQueueItemVO {
   /** 本次住院就诊 ID，住院医生站业务的主键。 */
@@ -20,8 +12,6 @@ export interface InpatientDoctorPatientQueueItemVO {
   genderName: string
   /** 已格式化年龄，例如“46岁”。 */
   ageText: string
-  /** 患者号。 */
-  patientNo: string
   /** 住院号。 */
   inpatientNo: string
   /** 入院时间，格式为 YYYY-MM-DD HH:mm。 */
@@ -36,29 +26,15 @@ export interface InpatientDoctorPatientQueueItemVO {
   bedId: string
   /** 当前床位名称。 */
   bedName: string
-  /** 住院状态码。 */
-  encounterStatus: InpatientEncounterStatus
-  /** 住院状态名称。 */
-  encounterStatusName: string
-  /** 主管医生姓名。 */
-  attendingDoctorName?: string
-  /** 责任护士姓名。 */
-  primaryNurseName?: string
-  /** 费用性质或医保类型名称。 */
-  paymentTypeName?: string
+  /** 后端就诊状态码。 */
+  statusEnum: string
   /** 当前诊断摘要。 */
   diagnosisSummary?: string
-  /** 余额不足等需要突出显示的风险提示。 */
-  riskHint?: string
-  /** 拼音简码，用于队列关键字检索。 */
-  pinyinCode?: string
-  /** 就诊记录版本号，用于出院医嘱等状态操作的并发控制。 */
-  version: number
 }
 
 /** 住院医生站患者队列查询参数。 */
 export interface InpatientDoctorPatientQueueQuery extends PageQuery {
-  /** 姓名、患者号、住院号、床号、诊断或拼音简码。 */
+  /** 姓名、住院号或床号。 */
   keyword?: string
 }
 
@@ -92,31 +68,18 @@ export interface InpatientMedicalRecordDocumentTypeOptionVO {
  * 具体住院记录，不能使用住院号代替。
  */
 export interface InpatientMedicalRecordHistoryItemVO {
-  /** 病历文书 ID。 */
   id: string
-  /** 患者档案 ID。 */
-  patientId: string
-  /** 文书所属住院就诊 ID。 */
-  encounterId: string
-  /** 文书所属住院号。 */
-  inpatientNo: string
-  /** 文书类型编码。 */
-  documentTypeCode: InpatientMedicalRecordDocumentTypeCode
-  /** 文书类型名称。 */
   documentTypeName: string
-  /** 文书标题。 */
   title: string
-  /** 文书状态。 */
   status: InpatientMedicalRecordStatus
-  /** 文书状态名称。 */
+  patientId: string
+  encounterId: string
+  inpatientNo: string
+  documentTypeCode: InpatientMedicalRecordDocumentTypeCode
   statusName: string
-  /** 文书所属科室。 */
   departmentName: string
-  /** 书写医生姓名。 */
   authoredByName: string
-  /** 书写时间，格式为 YYYY-MM-DD HH:mm:ss。 */
   authoredAt: string
-  /** 最近更新时间，格式为 YYYY-MM-DD HH:mm:ss。 */
   updatedAt: string
 }
 
@@ -124,11 +87,9 @@ export interface InpatientMedicalRecordHistoryItemVO {
 export interface InpatientMedicalRecordHistoryQuery extends PageQuery {
   /** 患者档案 ID，用于查询患者跨住院历史。 */
   patientId: string
-  /** 当前住院就诊 ID；传入后当前住院文书优先展示。 */
-  currentEncounterId?: string
-  /** 标题、文书类型、住院号、科室或医生关键词。 */
+  /** Backend currently supports title filtering only. */
   keyword?: string
-  /** 可选文书类型编码。 */
+  currentEncounterId?: string
   documentTypeCode?: string
 }
 
@@ -163,7 +124,7 @@ export interface SaveInpatientMedicalRecordDTO {
   /** 富文本病历正文。 */
   content: string
   /** 页面加载时取得的版本号；首次保存为 0。 */
-  version: number
+  version?: number
 }
 
 /** 签名住院病历参数。 */
@@ -176,118 +137,55 @@ export interface SignInpatientMedicalRecordDTO {
 
 /** 住院诊断记录。 */
 export interface InpatientDiagnosisRecordVO {
-  /** 诊断记录 ID。 */
   id: string
-  /** 本次住院就诊 ID。 */
-  encounterId: string
-  /** 患者档案 ID。 */
-  patientId: string
-  /** 诊断字典项目 ID。 */
-  catalogId: string
-  /** ICD 编码。 */
-  code: string
-  /** 诊断名称。 */
-  name: string
-  /** 诊断分类名称。 */
-  typeName: string
-  /** 是否为主诊断。 */
-  primary: boolean
-  /** 诊断显示顺序。 */
-  orderNo: number
-  /** 诊断时间，格式为 YYYY-MM-DD HH:mm:ss。 */
-  diagnosedAt: string
-  /** 最近更新时间，格式为 YYYY-MM-DD HH:mm:ss。 */
-  updatedAt: string
-  /** 记录版本号，用于修改和删除时的并发控制。 */
-  version: number
-  /** 记录来源；Mock 记录继续使用本地接口，Real 记录使用后端写接口。 */
-  source?: 'mock' | 'real'
-  /** 真实后端诊断记录 ID；列表 Mock 记录没有该字段。 */
-  backendId?: string
-  /** 后端诊断类型编码；当前后端 modify 接口仅支持修改该字段。 */
-  typeCode?: string
-  /** 是否限制编辑后端未支持的字段。 */
-  readonlyFields?: boolean
+  conditionId: string
+  /** Diagnosis definition code returned by the diagnosis-entry detail API. */
+  definitionCode: string
+  description: string
+  /** Medical category name, for example Chinese medicine or Western medicine. */
+  kindName: string
+  /** Diagnosis type code used by the diagnosis modify API. */
+  diagnosisTypeCode: string
+  /** Diagnosis type display name. */
+  diagnosisTypeName: string
+  primaryFlag: number
+  rank: number
+  tcmFlag: number
 }
 
-/** 当前住院诊断记录分页查询条件。 */
 export interface InpatientDiagnosisRecordQuery extends PageQuery {
-  /** 本次住院就诊 ID。 */
   encounterId: string
-  /** ICD 编码、诊断名称或诊断分类关键词。 */
-  keyword?: string
-}
-
-/** 诊断字典候选项。 */
-export interface InpatientDiagnosisDictionaryItemVO extends Record<string, unknown> {
-  /** 诊断字典项目 ID。 */
-  id: string
-  /** ICD 编码。 */
-  code: string
-  /** 诊断名称。 */
-  name: string
-  /** 诊断分类名称。 */
-  typeName: string
-}
-
-/** 诊断字典分页查询条件。 */
-export interface InpatientDiagnosisDictionaryQuery extends PageQuery {
-  /** ICD 编码、诊断名称或诊断分类关键词。 */
-  keyword?: string
-}
-
-/** 医生诊断使用历史。 */
-export interface InpatientDiagnosisUsageHistoryVO extends InpatientDiagnosisDictionaryItemVO {
-  /** 历史使用次数。 */
-  useCount: number
-  /** 最近使用时间，格式为 YYYY-MM-DD HH:mm:ss。 */
-  lastUsedAt: string
-}
-
-/** 诊断使用历史查询条件。 */
-export interface InpatientDiagnosisUsageHistoryQuery {
-  /** ICD 编码或诊断名称关键词。 */
-  keyword?: string
-  /** 最多返回条数。 */
-  limit?: number
-}
-
-/** 新增住院诊断参数。 */
-export interface CreateInpatientDiagnosisDTO {
-  /** 本次住院就诊 ID。 */
-  encounterId: string
-  /** 患者档案 ID。 */
   patientId: string
-  /** 诊断字典项目 ID。 */
-  catalogId: string
-  /** ICD 编码。 */
-  code: string
-  /** 诊断名称。 */
-  name: string
-  /** 诊断分类名称。 */
-  typeName: string
-  /** 是否为主诊断。 */
-  primary: boolean
-  /** 诊断显示顺序。 */
-  orderNo: number
 }
 
-/** 修改住院诊断参数。 */
+export interface InpatientDiagnosisBriefVO {
+  definitionName: string
+}
+
+export interface CreateInpatientDiagnosisDTO {
+  encounterId: string
+  patientId: string
+  definitionCode?: string
+  description: string
+  diagnosisTypeCode?: string
+  primaryFlag: number
+  rank: number
+  tcmFlag: number
+}
+
 export interface UpdateInpatientDiagnosisDTO {
-  /** 诊断字典项目 ID。 */
-  catalogId: string
-  /** ICD 编码。 */
-  code: string
-  /** 诊断名称。 */
-  name: string
-  /** 诊断分类名称。 */
-  typeName: string
-  /** 是否为主诊断。 */
-  primary: boolean
-  /** 诊断显示顺序。 */
-  orderNo: number
-  /** 当前记录版本号。 */
-  version: number
+  id: string
+  diagnosisTypeCode: string
+}
+
+export interface DeleteInpatientDiagnosisDTO {
+  id: string
+  conditionId: string
+}
+
+export interface InpatientDiagnosisAddResultVO {
+  diagnosisId: string
+  conditionId: string
 }
 
 /** 住院医嘱状态。 */
@@ -540,98 +438,30 @@ export interface SaveInpatientMedicalOrderDraftsDTO {
   items: SaveInpatientMedicalOrderDraftItemDTO[]
 }
 
-/** 出院医嘱前置校验提示级别。 */
-export type InpatientDischargeAdviceCheckLevel = 'BLOCKER' | 'REMINDER'
-
-/** 出院医嘱前置校验项。 */
-export interface InpatientDischargeAdviceCheckItemVO {
-  /** 稳定校验编码。 */
-  code:
-    | 'DISCHARGE_ALREADY_PENDING'
-    | 'DIAGNOSIS_MISSING'
-    | 'MEDICAL_RECORD_DRAFT'
-    | 'ORDER_DRAFT'
-    | 'LONG_TERM_ORDER_ACTIVE'
-  /** 阻断或提醒。 */
-  level: InpatientDischargeAdviceCheckLevel
-  /** 给医生展示的说明。 */
-  message: string
-  /** 涉及记录数。 */
-  count?: number
-  /** 建议跳转的工作区。 */
-  targetTab?: 'medicalRecord' | 'diagnosis' | 'orders'
-}
-
-/** 出院方式选项。 */
-export interface InpatientDischargeWayOptionVO {
-  /** 后端字典编码。 */
-  value: string
-  /** 展示名称。 */
-  label: string
-}
-
 /** 已开立的出院医嘱。 */
 export interface InpatientDischargeAdviceVO {
   /** 出院医嘱 ID。 */
   id: string
   /** 本次住院就诊 ID。 */
   encounterId: string
-  /** 患者档案 ID。 */
-  patientId: string
+  /** 医嘱状态。 */
+  statusEnum: string
   /** 计划出院时间。 */
   plannedDischargeTime: string
   /** 出院方式编码。 */
   outWayCode: string
   /** 出院方式名称。 */
   outWayName: string
-  /** 出院原因。 */
-  reasonText?: string
-  /** 原科室 ID。 */
-  sourceOrgId?: string
-  /** 原病区或床位 ID。 */
-  sourceLocationId?: string
-  /** 开立时间。 */
-  createdAt: string
-  /** 开立医生。 */
-  createdByName: string
-  /** 记录版本号。 */
-  version: number
-}
-
-/** 打开出院医嘱弹窗前加载的数据。 */
-export interface InpatientDischargeAdvicePreparationVO {
-  /** 本次住院就诊 ID。 */
-  encounterId: string
-  /** 患者档案 ID。 */
-  patientId: string
-  /** 当前就诊版本。 */
-  encounterVersion: number
-  /** 是否允许开立。 */
-  canCreate: boolean
-  /** 前置校验结果。 */
-  checks: InpatientDischargeAdviceCheckItemVO[]
-  /** 出院方式字典。 */
-  outWayOptions: InpatientDischargeWayOptionVO[]
-  /** 已存在的出院医嘱。 */
-  existingAdvice?: InpatientDischargeAdviceVO
+  /** 创建医嘱后的就诊状态。 */
+  encounterNewStatus: string
 }
 
 /** 开立出院医嘱参数。 */
 export interface CreateInpatientDischargeAdviceDTO {
   /** 本次住院就诊 ID。 */
   encounterId: string
-  /** 患者档案 ID。 */
-  patientId: string
-  /** 当前就诊版本。 */
-  encounterVersion: number
   /** 计划出院时间。 */
   plannedDischargeTime: string
   /** 出院方式编码。 */
   outWayCode: string
-  /** 出院原因。 */
-  reasonText?: string
-  /** 原科室 ID。 */
-  sourceOrgId?: string
-  /** 原病区或床位 ID。 */
-  sourceLocationId?: string
 }

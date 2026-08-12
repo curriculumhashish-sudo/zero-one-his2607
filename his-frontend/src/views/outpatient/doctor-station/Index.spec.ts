@@ -47,7 +47,6 @@ const stationStubs = {
   ClinicalOrderEditor: true,
   ClinicalTcmPrescriptionWorkspace: tcmWorkspaceStub,
   DoctorStationAssistantPanel: true,
-  AdviceApplicationFormDialog: true,
   AdviceOrderHistoryDrawer: true,
   DiagnosisHistoryDrawer: true,
   InpatientAdmissionDialog: true,
@@ -155,7 +154,7 @@ describe('OutpatientDoctorStation composable assembly', () => {
     const queue = wrapper.getComponent({ name: 'PatientQueuePanel' })
     const patient = queue
       .props('patients')
-      .find((item: { id: string }) => item.id === 'enc-20260723-003')
+      .find((item: { id: string }) => item.id === 'enc-demo-in-progress')
     expect(patient).toBeTruthy()
 
     queue.vm.$emit('select', patient)
@@ -167,8 +166,8 @@ describe('OutpatientDoctorStation composable assembly', () => {
     await vi.runAllTimersAsync()
     await flushPromises()
 
-    expect(assistant.props('historyRows')).toHaveLength(10)
-    expect(assistant.props('historyTotal')).toBe(12)
+    expect(assistant.props('historyRows')).toHaveLength(3)
+    expect(assistant.props('historyTotal')).toBe(3)
 
     assistant.vm.$emit('select-history', assistant.props('historyRows')[0])
     await vi.runAllTimersAsync()
@@ -189,7 +188,7 @@ describe('OutpatientDoctorStation composable assembly', () => {
     const queue = wrapper.getComponent({ name: 'PatientQueuePanel' })
     const patient = queue
       .props('patients')
-      .find((item: { id: string }) => item.id === 'enc-20260723-003')
+      .find((item: { id: string }) => item.id === 'enc-demo-in-progress')
     queue.vm.$emit('select', patient)
     await vi.runAllTimersAsync()
     await flushPromises()
@@ -199,7 +198,7 @@ describe('OutpatientDoctorStation composable assembly', () => {
     expect(editor.props('updatedAt')).toBe('')
     expect(editor.props('page')).toBe(1)
     expect(editor.props('pageSize')).toBe(10)
-    expect(editor.props('total')).toBe(2)
+    expect(editor.props('total')).toBe(6)
 
     editor.vm.$emit('open-history')
     await vi.runAllTimersAsync()
@@ -211,7 +210,7 @@ describe('OutpatientDoctorStation composable assembly', () => {
     expect(
       drawer
         .props('encounters')
-        .every((item: { patientId: string }) => item.patientId === 'patient-1003')
+        .every((item: { patientId: string }) => item.patientId === 'patient-demo-001')
     ).toBe(true)
 
     wrapper.unmount()
@@ -225,17 +224,19 @@ describe('OutpatientDoctorStation composable assembly', () => {
     const queue = wrapper.getComponent({ name: 'PatientQueuePanel' })
     const patient = queue
       .props('patients')
-      .find((item: { id: string }) => item.id === 'enc-20260723-003')
+      .find((item: { id: string }) => item.id === 'enc-demo-in-progress')
     queue.vm.$emit('select', patient)
     await vi.runAllTimersAsync()
     await flushPromises()
 
     const workspace = wrapper.getComponent({ name: 'ClinicalTcmPrescriptionWorkspace' })
-    expect(workspace.props('context')).toEqual({
-      scope: 'outpatient',
-      encounterId: 'enc-20260723-003',
-      patientId: 'patient-1003'
-    })
+    expect(workspace.props('context')).toEqual(
+      expect.objectContaining({
+        scope: 'outpatient',
+        encounterId: 'enc-demo-in-progress',
+        patientId: 'patient-demo-001'
+      })
+    )
     expect(workspace.props('accepted')).toBe(true)
     expect(workspace.props('showSaveAction')).toBe(true)
     expect(workspace.props('showRefreshAction')).toBe(false)
@@ -278,7 +279,7 @@ describe('OutpatientDoctorStation composable assembly', () => {
     const queue = wrapper.getComponent({ name: 'PatientQueuePanel' })
     const patient = queue
       .props('patients')
-      .find((item: { id: string }) => item.id === 'enc-20260723-003')
+      .find((item: { id: string }) => item.id === 'enc-demo-in-progress')
     queue.vm.$emit('select', patient)
     await vi.runAllTimersAsync()
     await flushPromises()
@@ -292,7 +293,9 @@ describe('OutpatientDoctorStation composable assembly', () => {
     expect(drawer.props('modelValue')).toBe(true)
     expect(drawer.props('rows').length).toBeGreaterThan(0)
     expect(
-      drawer.props('rows').every((item: { patientId: string }) => item.patientId === 'patient-1003')
+      drawer
+        .props('rows')
+        .every((item: { patientId: string }) => item.patientId === 'patient-demo-001')
     ).toBe(true)
 
     drawer.vm.$emit('query-change', { keyword: '高血压' }, true)
@@ -352,7 +355,7 @@ describe('OutpatientDoctorStation composable assembly', () => {
     const queue = wrapper.getComponent({ name: 'PatientQueuePanel' })
     const patient = queue
       .props('patients')
-      .find((item: { id: string }) => item.id === 'enc-20260723-010')
+      .find((item: { id: string }) => item.id === 'enc-demo-in-progress')
     expect(patient).toBeTruthy()
     queue.vm.$emit('select', patient)
     await vi.runAllTimersAsync()
@@ -389,8 +392,9 @@ describe('OutpatientDoctorStation composable assembly', () => {
     editor.vm.$emit('change', [])
     await vi.runAllTimersAsync()
     await flushPromises()
-    expect(editor.props('modelValue')).toEqual([])
-    expect(editor.props('total')).toBe(0)
+    // 演示患者已有 4 条正式医嘱；本段只删除新增的草稿，正式医嘱应继续保留。
+    expect(editor.props('modelValue')).toHaveLength(4)
+    expect(editor.props('total')).toBe(4)
 
     wrapper.unmount()
   })
@@ -403,7 +407,7 @@ describe('OutpatientDoctorStation composable assembly', () => {
     const queue = wrapper.getComponent({ name: 'PatientQueuePanel' })
     const patient = queue
       .props('patients')
-      .find((item: { id: string }) => item.id === 'enc-20260723-003')
+      .find((item: { id: string }) => item.id === 'enc-demo-in-progress')
     expect(patient).toBeTruthy()
 
     queue.vm.$emit('select', patient)
@@ -425,7 +429,7 @@ describe('OutpatientDoctorStation composable assembly', () => {
     wrapper.unmount()
   })
 
-  it('没有已保存主诊断时定位诊断页签且不打开办理住院弹窗', async () => {
+  it('候诊患者不能直接办理住院', async () => {
     const wrapper = mountStation()
     await vi.runAllTimersAsync()
     await flushPromises()
@@ -433,7 +437,7 @@ describe('OutpatientDoctorStation composable assembly', () => {
     const queue = wrapper.getComponent({ name: 'PatientQueuePanel' })
     const patient = queue
       .props('patients')
-      .find((item: { id: string }) => item.id === 'enc-20260723-010')
+      .find((item: { id: string }) => item.id === 'enc-20260723-001')
     expect(patient).toBeTruthy()
 
     queue.vm.$emit('select', patient)
@@ -444,10 +448,11 @@ describe('OutpatientDoctorStation composable assembly', () => {
     const admissionAction = header
       .props('actions')
       .find((action: { key: string }) => action.key === 'admission')
+    expect(admissionAction?.disabled).toBe(true)
     header.vm.$emit('action', admissionAction)
     await wrapper.vm.$nextTick()
 
-    expect(header.props('activeTab')).toBe('diagnosis')
+    expect(header.props('activeTab')).toBe('record')
     expect(wrapper.getComponent({ name: 'InpatientAdmissionDialog' }).props('modelValue')).toBe(
       false
     )
@@ -462,7 +467,7 @@ describe('OutpatientDoctorStation composable assembly', () => {
     const queue = wrapper.getComponent({ name: 'PatientQueuePanel' })
     const patient = queue
       .props('patients')
-      .find((item: { id: string }) => item.id === 'enc-20260723-003')
+      .find((item: { id: string }) => item.id === 'enc-demo-in-progress')
     queue.vm.$emit('select', patient)
     await vi.runAllTimersAsync()
     await flushPromises()
@@ -500,7 +505,7 @@ describe('OutpatientDoctorStation composable assembly', () => {
     const queue = wrapper.getComponent({ name: 'PatientQueuePanel' })
     const patient = queue
       .props('patients')
-      .find((item: { id: string }) => item.id === 'enc-20260723-003')
+      .find((item: { id: string }) => item.id === 'enc-demo-in-progress')
     queue.vm.$emit('select', patient)
     await vi.runAllTimersAsync()
     await flushPromises()
@@ -516,7 +521,7 @@ describe('OutpatientDoctorStation composable assembly', () => {
 
     const dialog = wrapper.getComponent({ name: 'RefundApplicationDialog' })
     expect(dialog.props('modelValue')).toBe(true)
-    expect(dialog.props('patient')?.patientNo).toBe('MR20260003')
+    expect(dialog.props('patient')?.patientNo).toBe('MR-DEMO-0001')
     wrapper.unmount()
   })
 
@@ -528,7 +533,7 @@ describe('OutpatientDoctorStation composable assembly', () => {
     const queue = wrapper.getComponent({ name: 'PatientQueuePanel' })
     const patient = queue
       .props('patients')
-      .find((item: { id: string }) => item.id === 'enc-20260723-008')
+      .find((item: { id: string }) => item.id === 'enc-demo-in-progress')
     queue.vm.$emit('select', patient)
     await vi.runAllTimersAsync()
     await flushPromises()
@@ -544,7 +549,7 @@ describe('OutpatientDoctorStation composable assembly', () => {
 
     const dialog = wrapper.getComponent({ name: 'PrescriptionSheetDialog' })
     expect(dialog.props('modelValue')).toBe(true)
-    expect(dialog.props('patient')?.patientNo).toBe('MR20260008')
+    expect(dialog.props('patient')?.patientNo).toBe('MR-DEMO-0001')
     wrapper.unmount()
   })
 })

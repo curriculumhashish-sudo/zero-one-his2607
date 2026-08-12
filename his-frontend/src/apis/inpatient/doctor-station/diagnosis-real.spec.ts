@@ -1,12 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+const get = vi.fn()
 const post = vi.fn()
 const put = vi.fn()
 const deleteRequest = vi.fn()
 const userStore = { tenantId: '1001' as string | number | null }
 
 vi.mock('@/plugins/http', () => ({
-  useHttp: () => ({ post, put, delete: deleteRequest })
+  useHttp: () => ({ get, post, put, delete: deleteRequest })
 }))
 
 vi.mock('@/stores/user', () => ({
@@ -16,6 +17,8 @@ vi.mock('@/stores/user', () => ({
 import {
   realCreateInpatientDiagnosis,
   realDeleteInpatientDiagnosis,
+  realListInpatientDiagnosisBrief,
+  realPageInpatientDiagnosisRecords,
   realUpdateInpatientDiagnosis
 } from './diagnosis-real'
 
@@ -25,18 +28,89 @@ describe('inpatient diagnosis real api', () => {
     userStore.tenantId = '1001'
   })
 
-  it('新增诊断时映射后端字段并保存返回的真实 ID', async () => {
-    post.mockResolvedValue({ data: 'diag-real-1' })
+  it('loads current encounter diagnoses and normalizes backend fields', async () => {
+    get.mockResolvedValue({
+      data: {
+        pageIndex: 1,
+        pageSize: 20,
+        total: 1,
+        rows: [
+          {
+            diagnosis_id: 'diag-1',
+            condition_id: 'condition-1',
+            definition_code: 'I10',
+            description: '原发性高血压',
+            main_flag: '是',
+            rank: 1,
+            kind_name: '西医',
+            type_name: '入院初步诊断'
+          }
+        ]
+      }
+    })
+
+    const result = await realPageInpatientDiagnosisRecords({
+      pageIndex: 1,
+      pageSize: 20,
+      encounterId: 'enc-1',
+      patientId: 'patient-1'
+    })
+
+    expect(get).toHaveBeenCalledWith(
+      '/diagnosis-entry/detail',
+      {
+        tenant_id: '1001',
+        'patient-id': 'patient-1',
+        pageIndex: 1,
+        pageSize: 20
+      },
+      expect.objectContaining({ baseURL: expect.any(String) })
+    )
+    expect(result.rows).toEqual([
+      {
+        id: 'diag-1',
+        conditionId: 'condition-1',
+        definitionCode: 'I10',
+        description: '原发性高血压',
+        kindName: '西医',
+        diagnosisTypeCode: '入院初步诊断',
+        diagnosisTypeName: '入院初步诊断',
+        primaryFlag: 1,
+        rank: 1,
+        tcmFlag: 0
+      }
+    ])
+  })
+
+  it('loads a simplified diagnosis history list', async () => {
+    get.mockResolvedValue({
+      data: {
+        rows: [
+          { definition_name: '原发性高血压' },
+          { definition_name: '原发性高血压' },
+          { definition_name: '心房颤动' }
+        ]
+      }
+    })
+
+    await expect(realListInpatientDiagnosisBrief()).resolves.toEqual([
+      { definitionName: '原发性高血压' },
+      { definitionName: '心房颤动' }
+    ])
+  })
+
+  it('creates a diagnosis with backend snake_case fields and parses both ids', async () => {
+    post.mockResolvedValue({
+      data: { diagnosisId: 'diag-1', conditionId: 'condition-1' }
+    })
 
     const result = await realCreateInpatientDiagnosis({
       encounterId: 'enc-1',
       patientId: 'patient-1',
-      catalogId: 'catalog-1',
-      code: '123',
-      name: '高血压',
-      typeName: '西医诊断',
-      primary: true,
-      orderNo: 1
+      description: '原发性高血压',
+      primaryFlag: 1,
+      rank: 1,
+      tcmFlag: 0
     })
 
     expect(post).toHaveBeenCalledWith(
@@ -44,89 +118,37 @@ describe('inpatient diagnosis real api', () => {
       {
         tenant_id: '1001',
         encounter_id: 'enc-1',
-        description: '高血压',
-        tcm_flag: 0,
+        description: '原发性高血压',
         primary_flag: 1,
+        set_always: 0,
         rank: 1,
-        condition_code: 123
+        tcm_flag: 0
       },
       expect.objectContaining({ baseURL: expect.any(String) })
     )
-    expect(result).toEqual(
-      expect.objectContaining({
-        id: 'diag-real-1',
-        backendId: 'diag-real-1',
-        source: 'real',
-        readonlyFields: true,
-        encounterId: 'enc-1'
-      })
-    )
+    expect(result.id).toBe('diag-1')
+    expect(result.conditionId).toBe('condition-1')
   })
 
-  it('租户上下文缺失时不发送新增请求', async () => {
-    userStore.tenantId = null
+  it('updates the diagnosis type code', async () => {
+    put.mockResolvedValue({ data: 'diag-1' })
 
-    await expect(
-      realCreateInpatientDiagnosis({
-        encounterId: 'enc-1',
-        patientId: 'patient-1',
-        catalogId: 'catalog-1',
-        code: 'I10',
-        name: '高血压',
-        typeName: '西医诊断',
-        primary: true,
-        orderNo: 1
-      })
-    ).rejects.toThrow('缺少租户 ID')
-    expect(post).not.toHaveBeenCalled()
-  })
-
-  it('真实诊断修改只发送诊断类型', async () => {
-    put.mockResolvedValue({ data: 'diag-real-1' })
-    const result = await realUpdateInpatientDiagnosis(
-      'diag-real-1',
-      {
-        catalogId: 'catalog-1',
-        code: 'I10',
-        name: '高血压',
-        typeName: '出院诊断',
-        primary: true,
-        orderNo: 1,
-        version: 0
-      },
-      {
-        id: 'diag-real-1',
-        backendId: 'diag-real-1',
-        source: 'real',
-        encounterId: 'enc-1',
-        patientId: 'patient-1',
-        catalogId: 'catalog-1',
-        code: 'I10',
-        name: '高血压',
-        typeName: '西医诊断',
-        primary: true,
-        orderNo: 1,
-        diagnosedAt: '',
-        updatedAt: '',
-        version: 0
-      }
-    )
+    await realUpdateInpatientDiagnosis({ id: 'diag-1', diagnosisTypeCode: '入院初步诊断' })
 
     expect(put).toHaveBeenCalledWith(
       '/diagnosis/modify',
-      { id: 'diag-real-1', diag_type_code: '出院诊断' },
+      { id: 'diag-1', diag_type_code: '入院初步诊断' },
       expect.objectContaining({ baseURL: expect.any(String) })
     )
-    expect(result.typeName).toBe('出院诊断')
   })
 
-  it('真实诊断删除使用 backendId', async () => {
+  it('deletes with diagnosis and condition ids', async () => {
     deleteRequest.mockResolvedValue({ data: true })
 
-    await realDeleteInpatientDiagnosis('local-id', 'diag-real-1')
+    await realDeleteInpatientDiagnosis({ id: 'diag-1', conditionId: 'condition-1' })
 
     expect(deleteRequest).toHaveBeenCalledWith(
-      '/diagnosis/diag-real-1',
+      '/diagnosis/diag-1',
       undefined,
       expect.objectContaining({ baseURL: expect.any(String) })
     )

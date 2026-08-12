@@ -2,10 +2,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const get = vi.fn()
 const post = vi.fn()
-const put = vi.fn()
+const del = vi.fn()
+const userStore = { tenantId: 'tenant-1' as string | number | null }
 
 vi.mock('@/plugins/http', () => ({
-  useHttp: () => ({ get, post, put })
+  useHttp: () => ({ get, post, delete: del })
+}))
+
+vi.mock('@/stores/user', () => ({
+  useUserStore: () => userStore
 }))
 
 import {
@@ -14,11 +19,13 @@ import {
   realPageTcmHerbCatalog,
   realSaveTcmPrescriptionDraft,
   realSignTcmPrescription,
-  realWithdrawTcmPrescription
+  realWithdrawTcmPrescription,
+  realStopTcmPrescription,
+  realCancelStopTcmPrescription
 } from './real'
 
 const query = {
-  scope: 'outpatient' as const,
+  scope: 'inpatient' as const,
   encounterId: 'enc-1',
   patientId: 'patient-1'
 }
@@ -26,138 +33,158 @@ const query = {
 describe('tcm prescription real api', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    userStore.tenantId = 'tenant-1'
   })
 
-  it('loads prescription summaries and details from the opdoctor routes', async () => {
-    get
-      .mockResolvedValueOnce({ data: { records: [{ prescriptionNo: 'RX-001' }] } })
-      .mockResolvedValueOnce({
-        data: {
-          prescriptionId: 'RX-001',
-          encounterId: 'enc-1',
-          patientId: 'patient-1',
-          diagnosis: 'diagnosis-1',
-          diagnosisName: '气虚证',
-          status: 'ACTIVE',
-          usage: '水煎服',
-          frequency: '每日一剂',
-          days: 7,
-          copies: 7,
-          decoction: true,
-          version: 2,
-          details: [
-            {
-              medicineId: 'herb-1',
-              medicineCode: 'H001',
-              name: '黄芪',
-              quantity: 15,
-              unit: 'g',
-              unitPrice: 0.18,
-              sortNumber: 1
-            }
-          ]
-        }
-      })
+  it('loads current prescriptions from the backend list endpoint', async () => {
+    get.mockResolvedValueOnce({
+      data: {
+        prescriptions: [
+          {
+            id: 'RX-001',
+            prescriptionGroupKey: 'group-1',
+            statusEnum: 'COMPLETED',
+            days: 7,
+            chineseHerbsDoseQuantity: 7,
+            sufferingFlag: 1,
+            description: '气虚证',
+            lines: [
+              {
+                medicationRequestId: 'request-1',
+                medicationDefinitionId: 'herb-1',
+                medicationName: '黄芪',
+                dose: 15,
+                unitName: 'g'
+              }
+            ]
+          }
+        ]
+      }
+    })
 
     const result = await realListTcmPrescriptions(query)
 
-    expect(get).toHaveBeenNthCalledWith(
-      1,
-      '/chinapres',
-      { patientId: 'patient-1', encounterId: 'enc-1' },
-      expect.objectContaining({ baseURL: expect.any(String) })
-    )
-    expect(get).toHaveBeenNthCalledWith(
-      2,
-      '/chinapres-detail',
-      { patientId: 'patient-1', presId: 'RX-001', encounterId: 'enc-1' },
+    expect(get).toHaveBeenCalledWith(
+      '/c2-opdoctor/chinapres',
+      { encounterId: 'enc-1', patientId: 'patient-1' },
       expect.objectContaining({ baseURL: expect.any(String) })
     )
     expect(result[0]).toEqual(
       expect.objectContaining({
         id: 'RX-001',
-        encounterDiagnosisId: 'diagnosis-1',
-        status: 'SIGNED',
+        prescriptionGroupKey: 'group-1',
+        status: 'COMPLETED',
         doseCount: 7
+      })
+    )
+    expect(result[0]?.lines[0]).toEqual(
+      expect.objectContaining({
+        medicationRequestId: 'request-1',
+        medicationDefinitionId: 'herb-1'
       })
     )
   })
 
-  it('uses the real herb catalog endpoint', async () => {
-    post.mockResolvedValue({ data: { pageIndex: 1, pageSize: 20, total: 0, rows: [] } })
-    await realPageTcmHerbCatalog({ scope: 'outpatient', pageIndex: 1, pageSize: 20 })
+  it('loads the minimal herb catalog endpoint', async () => {
+    post.mockResolvedValue({ data: { pageIndex: 1, pageSize: 20, total: 1, rows: [] } })
+    await realPageTcmHerbCatalog({ scope: 'inpatient', pageIndex: 1, pageSize: 20 })
     expect(post).toHaveBeenCalledWith(
       '/tcm-prescription/page-herb-catalog',
-      { scope: 'outpatient', pageIndex: 1, pageSize: 20 },
+      { scope: 'inpatient', keyword: undefined, pageIndex: 1, pageSize: 20 },
       expect.objectContaining({ baseURL: expect.any(String) })
     )
   })
 
-  it('maps add and update requests to the backend DTO', async () => {
+  it('maps a new prescription to the backend add DTO', async () => {
+    post.mockResolvedValue({ data: { success: true, newMedicationRequestIds: ['request-1'] } })
     const data = {
       ...query,
-      encounterDiagnosisId: 'diagnosis-1',
-      diagnosisName: '气虚证',
-      copies: 5,
-      usage: '水煎服',
-      frequency: '每日一剂',
+      prescriptionGroupKey: 'group-1',
+      therapyEnum: 'TEMPORARY',
+      chineseHerbsDoseQuantity: 5,
+      sufferingFlag: true,
       days: 5,
-      decoction: 1,
-      details: [{ medicineId: 'herb-1', quantity: 15, unit: 'g', sortNo: 1 }]
+      details: [{ medicineId: 'herb-1', quantity: 15, doseUnitCode: 'g' }]
     }
-    post.mockResolvedValue({ id: 'request-1', prescriptionNo: 'RX-001', status: 'UNSIGNED' })
-    put.mockResolvedValue({ id: 'request-1', prescriptionNo: 'RX-001', status: 'UNSIGNED' })
 
     await realSaveTcmPrescriptionDraft(data)
-    await realSaveTcmPrescriptionDraft({ ...data, id: 'request-1', version: 2 })
 
     expect(post).toHaveBeenCalledWith(
-      '/chinapres2/add',
-      expect.objectContaining({
-        encounterDiagnosisId: 'diagnosis-1',
+      '/c2-opdoctor/chinapres2/add',
+      {
+        encounterId: 'enc-1',
+        patientId: 'patient-1',
+        encounterDiagnosisId: '',
+        usage: '',
+        frequency: '',
+        days: 5,
         copies: 5,
-        usage: '水煎服',
-        details: [{ medicineId: 'herb-1', quantity: 15, unit: 'g', sortNo: 1 }]
-      }),
-      expect.objectContaining({ baseURL: expect.any(String) })
-    )
-    expect(put).toHaveBeenCalledWith(
-      '/chinapres2/update',
-      expect.objectContaining({ id: 'request-1', version: 2 }),
+        decoction: 1,
+        remark: '',
+        details: [{ medicineId: 'herb-1', quantity: 15, dose: undefined, doseUnit: 'g', unit: undefined, sortNo: 1 }]
+      },
       expect.objectContaining({ baseURL: expect.any(String) })
     )
   })
 
-  it('uses only backend-supported delete, issue, and revoke fields', async () => {
-    post.mockResolvedValue({ data: {} })
+  it('uses the backend delete, sign, and withdraw contracts', async () => {
+    del.mockResolvedValue({ data: {} })
+    post.mockResolvedValue({ data: { success: true } })
     const action = {
-      scope: 'outpatient' as const,
-      encounterId: 'enc-1',
-      id: 'request-1',
-      version: 2
+      ...query,
+      patientId: 'patient-1',
+      id: 'RX-001',
+      prescriptionNo: 'RX-001',
+      prescriptionGroupKey: 'group-1',
+      medicationRequestIds: ['request-1']
     }
 
     await realDeleteTcmPrescription(action)
-    await realSignTcmPrescription(action)
+    post.mockResolvedValueOnce({
+      data: {
+        success: true,
+        prescriptionNoByGroupKey: { 'group-1': 'CP202608120001' }
+      }
+    })
+    const signed = await realSignTcmPrescription(action)
     await realWithdrawTcmPrescription(action)
+    expect(signed.prescriptionNo).toBe('CP202608120001')
 
     expect(post).toHaveBeenNthCalledWith(
       1,
-      '/chinapres2/remove',
-      { id: 'request-1', encounterId: 'enc-1', version: 2 },
+      '/c2-opdoctor/chinapres2/remove',
+      {
+        id: 'RX-001',
+        encounterId: 'enc-1',
+        version: 0
+      },
       expect.objectContaining({ baseURL: expect.any(String) })
     )
     expect(post).toHaveBeenNthCalledWith(
       2,
-      '/chinapres3/issue',
-      { encounterId: 'enc-1', signTargets: [{ medicationRequestId: 'request-1' }] },
+      '/c2-opdoctor/chinapres3/issue',
+      expect.objectContaining({
+        encounterId: 'enc-1',
+        signTargets: [{ medicationRequestId: 'RX-001' }]
+      }),
       expect.objectContaining({ baseURL: expect.any(String) })
     )
     expect(post).toHaveBeenNthCalledWith(
       3,
-      '/chinapres3/revoke',
-      { medicationRequestIds: ['request-1'] },
+      '/c2-opdoctor/chinapres3/revoke',
+      { medicationRequestIds: ['RX-001'] },
       expect.objectContaining({ baseURL: expect.any(String) })
     )
+  })
+
+  it('supports stopping and canceling a long-term prescription', async () => {
+    const action = {
+      ...query,
+      patientId: 'patient-1',
+      prescriptionNo: 'CP202608120001'
+    }
+
+    await expect(realStopTcmPrescription(action)).rejects.toThrow('后端暂未提供中医处方停用接口')
+    await expect(realCancelStopTcmPrescription(action)).rejects.toThrow('后端暂未提供中医处方取消停用接口')
   })
 })

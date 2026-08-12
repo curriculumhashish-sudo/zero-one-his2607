@@ -9,10 +9,6 @@ import type {
   NurseStationOrderExecuteRowVO
 } from './order-execute-type'
 
-/** Enable the real execution API without switching unrelated nurse-station modules. */
-export const isNurseStationOrderExecuteRealApiEnabled =
-  import.meta.env.VITE_NURSE_STATION_ORDER_EXECUTE_API_MODE === 'real'
-
 interface BackendExecutionItem {
   id?: string
   busNo?: string

@@ -40,7 +40,7 @@ export function toInpatientClinicalOrder(order: InpatientMedicalOrderRecordVO): 
     statusName: order.statusName,
     therapyType: order.therapyType,
     therapyTypeName: order.therapyTypeName,
-    group: order.groupId,
+    groupId: order.groupId,
     raw: order
   }
 }

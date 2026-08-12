@@ -181,7 +181,8 @@ export function useDoctorAdviceOrders(options: DoctorAdviceOrderOptions) {
       adviceOrderList.value = {
         encounterId: result.encounterId,
         rows: pageRows,
-        updatedAt: result.updatedAt
+        updatedAt: result.updatedAt,
+        encounterVersion: result.encounterVersion ?? result.version
       }
       adviceOrders.value = clinicalRows
       savedAdviceOrders.value = clinicalRows.map((item) => ({ ...item }))
@@ -268,6 +269,7 @@ export function useDoctorAdviceOrders(options: DoctorAdviceOrderOptions) {
     if (idsToUngroup.length > 0) {
       result = await ungroupAdviceOrders({
         encounterId,
+        version: result.encounterVersion ?? result.version ?? 0,
         adviceIds: idsToUngroup
       })
     }
@@ -287,6 +289,7 @@ export function useDoctorAdviceOrders(options: DoctorAdviceOrderOptions) {
       if (!needsUpdate) continue
       result = await groupAdviceOrders({
         encounterId,
+        version: result.encounterVersion ?? result.version ?? 0,
         adviceIds,
         groupId
       })
@@ -315,6 +318,7 @@ export function useDoctorAdviceOrders(options: DoctorAdviceOrderOptions) {
     }
 
     const encounterIdText = String(encounterId)
+    const encounterVersion = adviceOrderList.value.encounterVersion ?? 0
     const changes = buildClinicalOrderDraftChanges(adviceOrders.value, savedAdviceOrders.value)
     const desiredRows = adviceOrders.value.map((item) => ({ ...item }))
     const pageOffset = (adviceOrderQuery.pageIndex - 1) * adviceOrderQuery.pageSize
@@ -324,15 +328,19 @@ export function useDoctorAdviceOrders(options: DoctorAdviceOrderOptions) {
       if (changes.deletedRecordIds.length > 0) {
         await deleteAdviceOrders({
           encounterId: encounterIdText,
+          version: encounterVersion,
           adviceIds: changes.deletedRecordIds
         })
       }
 
       for (const order of changes.updated) {
         const index = adviceOrders.value.findIndex((item) => item.key === order.key)
+        const savedRow = adviceOrderList.value.rows.find((row) => row.id === order.recordId)
         await updateAdviceOrder({
           encounterId: encounterIdText,
           adviceId: order.recordId!,
+          orderVersion: savedRow?.version ?? 0,
+          encounterVersion,
           item: toSaveItem(order, pageOffset + index + 1)
         })
       }
@@ -341,6 +349,7 @@ export function useDoctorAdviceOrders(options: DoctorAdviceOrderOptions) {
         const index = adviceOrders.value.findIndex((item) => item.key === order.key)
         await createAdviceOrder({
           encounterId: encounterIdText,
+          encounterVersion,
           item: toSaveItem(order, pageOffset + index + 1)
         })
       }
@@ -457,6 +466,19 @@ export function useDoctorAdviceOrders(options: DoctorAdviceOrderOptions) {
       return false
     }
 
+    const backendRows = refreshedRows.map((row) =>
+      adviceOrderList.value!.rows.find((savedRow) => savedRow.id === row.recordId)
+    )
+    const orderVersions = backendRows.map((row) => row?.version)
+    const hasOrderVersions = orderVersions.every((version) => version !== undefined)
+    const expectedVersion = hasOrderVersions
+      ? orderVersions[0]
+      : adviceOrderList.value.encounterVersion
+    if (expectedVersion === undefined || (hasOrderVersions && orderVersions.some((version) => version !== expectedVersion))) {
+      ElMessage.warning('医嘱版本已变化，请刷新后重试')
+      return false
+    }
+
     try {
       await ElMessageBox.confirm(
         action === 'sign'
@@ -473,6 +495,7 @@ export function useDoctorAdviceOrders(options: DoctorAdviceOrderOptions) {
     try {
       const request = {
         encounterId: String(encounterId),
+        version: expectedVersion,
         adviceIds: refreshedRows.map((row) => row.recordId!)
       }
       if (action === 'sign') await signAdviceOrders(request)

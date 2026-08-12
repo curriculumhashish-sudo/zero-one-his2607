@@ -20,11 +20,15 @@ import type {
   UpdateDoctorAdviceOrderDTO,
   WithdrawDoctorAdviceOrdersDTO
 } from './type'
+import {
+  isOutpatientDoctorStationRealApiEnabled,
+  outpatientDoctorStationApiBaseURL
+} from './mode'
 
-const realApiBaseURL = import.meta.env.VITE_OUTPATIENT_DOCTOR_STATION_API_URL || undefined
+const realApiBaseURL = outpatientDoctorStationApiBaseURL
 
-export const isDoctorAdviceRealApiEnabled =
-  import.meta.env.VITE_OUTPATIENT_DOCTOR_STATION_API_MODE === 'real'
+/** Backward-compatible alias; the mode itself is owned by ./mode. */
+export const isDoctorAdviceRealApiEnabled = isOutpatientDoctorStationRealApiEnabled
 
 interface BackendJsonVO<T> {
   code?: number
@@ -40,7 +44,7 @@ interface BackendPage<T> {
   rows?: T[]
   data?: T[]
   encounterId?: string
-  version?: number
+  encounterVersion?: number
   updatedAt?: string
 }
 
@@ -80,6 +84,8 @@ interface BackendOrder {
   serviceRequestId?: string
   orderNo?: number
   version?: number
+  orderVersion?: number
+  encounterVersion?: number
   updatedAt?: string
   createTime?: string
 }
@@ -120,6 +126,8 @@ interface BackendHistoryOrder {
 }
 
 interface BackendMutationResult {
+  success?: boolean
+  affectedCount?: number
   version?: number
   updatedAt?: string
 }
@@ -133,6 +141,9 @@ function number(value: unknown, fallback = 0): number {
 }
 
 function unwrapData<T>(response: BackendJsonVO<T>, fallback: string): T {
+  if (typeof response.code === 'number' && response.code !== 10000) {
+    throw new Error(response.message || fallback)
+  }
   if (response.data === undefined || response.data === null) {
     throw new Error(response.message || fallback)
   }
@@ -197,7 +208,7 @@ function mapOrder(row: BackendOrder, fallbackEncounterId = ''): DoctorAdviceOrde
     prescriptionNo: text(row.prescriptionNo),
     serviceRequestId: text(row.serviceRequestId),
     orderNo: number(row.orderNo),
-    version: row.version
+    version: row.orderVersion ?? row.version
   }
 }
 
@@ -227,7 +238,10 @@ function toOrderType(item: SaveDoctorAdviceOrderItemDTO) {
   return item.category === 'DRUG' ? 'medication' : 'service'
 }
 
-function toBackendItem(item: SaveDoctorAdviceOrderItemDTO, orderNo = item.orderNo) {
+function toBackendItem(
+  item: SaveDoctorAdviceOrderItemDTO,
+  orderNo = item.orderNo
+) {
   return {
     catalogId: item.catalogId,
     orderType: toOrderType(item),
@@ -250,7 +264,7 @@ function emptyMutationResult(
   return {
     encounterId,
     rows: [],
-    version: data?.version,
+    encounterVersion: data?.version,
     updatedAt: data?.updatedAt
   }
 }
@@ -271,7 +285,7 @@ export async function realPageAdviceOrders(
   query: DoctorAdviceOrderQuery
 ): Promise<DoctorAdviceOrderPageVO> {
   const response = await useHttp().get<BackendPage<BackendOrder>>(
-    '/createOrder/query',
+    '/c2-opdoctor/createOrder/query',
     {
       encounterId: query.encounterId,
       keyword: query.keyword,
@@ -295,7 +309,7 @@ export async function realPageAdviceOrders(
   return {
     ...pageResult(data, rows),
     encounterId: data.encounterId || query.encounterId,
-    version: data.version,
+    encounterVersion: data.encounterVersion,
     updatedAt: data.updatedAt
   }
 }
@@ -304,7 +318,7 @@ export async function realPageAdviceOrderCatalog(
   query: DoctorAdviceOrderCatalogQuery
 ): Promise<PageDTO<DoctorAdviceOrderCatalogItemVO>> {
   const response = await useHttp().get<BackendPage<BackendCatalogItem>>(
-    '/doctor-station/page-advice-order-catalog',
+    '/c2-opdoctor/doctor-station/page-advice-order-catalog',
     { ...query },
     { baseURL: realApiBaseURL }
   )
@@ -313,30 +327,43 @@ export async function realPageAdviceOrderCatalog(
 }
 
 export async function realCreateAdviceOrder(data: CreateDoctorAdviceOrderDTO) {
-  const payload = { ...toBackendItem(data.item), encounterId: data.encounterId }
-  const response = await useHttp().post<BackendOrder>('/createOrder/add', payload, {
+  if (data.encounterVersion === undefined) throw new Error('Encounter version is required')
+  const payload = {
+    ...toBackendItem(data.item, data.item.orderNo),
+    encounterId: data.encounterId,
+    encounterVersion: data.encounterVersion
+  }
+  const response = await useHttp().post<BackendOrder>('/c2-opdoctor/createOrder/add', payload, {
     baseURL: realApiBaseURL
   })
   const result = unwrapData(response, '门诊医嘱新增失败')
   return {
-    ...emptyMutationResult(data.encounterId),
+    ...emptyMutationResult(data.encounterId, {
+      version: result.encounterVersion
+    }),
     rows: [mapOrder(result, data.encounterId)]
   }
 }
 
 export async function realUpdateAdviceOrder(data: UpdateDoctorAdviceOrderDTO) {
+  if (data.orderVersion === undefined || data.encounterVersion === undefined) {
+    throw new Error('Order and encounter versions are required')
+  }
   const payload = {
     orderId: data.adviceId,
     encounterId: data.encounterId,
-    version: data.version,
-    ...toBackendItem(data.item)
+    orderVersion: data.orderVersion,
+    encounterVersion: data.encounterVersion,
+    ...toBackendItem(data.item, data.item.orderNo)
   }
-  const response = await useHttp().put<BackendOrder>('/createOrder/modify', payload, {
+  const response = await useHttp().put<BackendOrder>('/c2-opdoctor/createOrder/modify', payload, {
     baseURL: realApiBaseURL
   })
   const result = unwrapData(response, '门诊医嘱修改失败')
   return {
-    ...emptyMutationResult(data.encounterId),
+    ...emptyMutationResult(data.encounterId, {
+      version: result.encounterVersion
+    }),
     rows: [mapOrder(result, data.encounterId)]
   }
 }
@@ -346,42 +373,48 @@ async function realOperation(
   url: string,
   data: { encounterId: string; version?: number; adviceIds: string[] }
 ) {
+  if (data.version === undefined) throw new Error('Medical advice version is required')
   const response =
     method === 'delete'
-      ? await useHttp().delete<BackendMutationResult>(url, data, { baseURL: realApiBaseURL })
-      : await useHttp().put<BackendMutationResult>(url, data, { baseURL: realApiBaseURL })
+      ? await useHttp().delete<BackendMutationResult | string[]>(url, data, {
+          baseURL: realApiBaseURL
+        })
+      : await useHttp().put<BackendMutationResult | string[]>(url, data, {
+          baseURL: realApiBaseURL
+        })
   const result = unwrapData(response, '门诊医嘱操作失败')
-  return emptyMutationResult(data.encounterId, result)
+  return emptyMutationResult(data.encounterId, Array.isArray(result) ? undefined : result)
 }
 
 export function realDeleteAdviceOrders(data: DeleteDoctorAdviceOrdersDTO) {
-  return realOperation('delete', '/prescription3/batch', data)
+  return realOperation('delete', '/c2-opdoctor/prescription3/batch', data)
 }
 
 export function realGroupAdviceOrders(data: GroupDoctorAdviceOrdersDTO) {
-  return realOperation('put', '/prescription3/group/merge', data)
+  return realOperation('put', '/c2-opdoctor/prescription3/group/merge', data)
 }
 
 export function realUngroupAdviceOrders(data: UngroupDoctorAdviceOrdersDTO) {
-  return realOperation('put', '/prescription3/group/split', data)
+  return realOperation('put', '/c2-opdoctor/prescription3/group/split', data)
 }
 
 export function realSignAdviceOrders(data: SignDoctorAdviceOrdersDTO) {
-  return realOperation('put', '/medical-advice/sign', data)
+  return realOperation('put', '/c2-opdoctor/sign', data)
 }
 
 export function realWithdrawAdviceOrders(data: WithdrawDoctorAdviceOrdersDTO) {
-  return realOperation('put', '/medical-advice/withdraw', data)
+  return realOperation('put', '/c2-opdoctor/withdraw', data)
 }
 
 export async function realPagePatientAdviceOrderHistory(
   query: DoctorAdviceOrderHistoryQuery
 ): Promise<PageDTO<DoctorAdviceOrderHistoryEncounterVO>> {
   const response = await useHttp().get<BackendPage<BackendHistoryEncounter>>(
-    '/historyOrder/list',
+    '/c2-opdoctor/historyOrder/list',
     {
       patientId: query.patientId,
       keyword: query.keyword,
+      visitType: query.visitType,
       pageIndex: query.pageIndex,
       pageSize: query.pageSize
     },
@@ -411,7 +444,7 @@ export async function realPagePatientAdviceOrderHistoryDetails(
   query: DoctorAdviceOrderHistoryDetailQuery
 ): Promise<PageDTO<DoctorAdviceOrderVO>> {
   const response = await useHttp().get<BackendPage<BackendHistoryOrder>>(
-    '/historyOrder/detail',
+    '/c2-opdoctor/historyOrder/detail',
     {
       visitId: query.encounterId,
       orderType: query.category === 'DRUG' ? 'medication' : query.category ? 'service' : undefined,

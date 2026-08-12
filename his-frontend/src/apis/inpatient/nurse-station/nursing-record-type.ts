@@ -33,41 +33,27 @@ export interface NurseStationNursingRecordRowVO {
   /** 心率，单位次/分。 */
   heartRate?: string
   /** 呼吸，单位次/分。 */
-  respiratory?: string
+  respiration?: string
   /** 血压，例如 120/80。 */
   bloodPressure?: string
-  /** 血氧饱和度，单位百分比。 */
-  oxygenSaturation?: string
-  /** 氧流量。 */
-  oxygenFlow?: string
-  /** 给氧方式。 */
-  oxygenMode?: string
-  /** 氧浓度或吸氧速率。 */
-  oxygenRate?: string
   /** 意识状态。 */
   consciousness?: string
   /** 左侧瞳孔观察结果。 */
   pupilLeft?: string
   /** 右侧瞳孔观察结果。 */
   pupilRight?: string
-  /** 皮肤状况。 */
-  skinStatus?: string
-  /** 管路护理。 */
-  tubeCare?: string
   /** 病情观察及护理措施。 */
-  conditionMeasure?: string
+  observation?: string
   /** 入量名称。 */
   intakeName?: string
   /** 入量数值，单位 ml。 */
-  intakeAmount?: string
-  /** 入量途径。 */
-  intakeRoute?: string
+  intakeVolume?: string
   /** 出量名称。 */
   outputName?: string
   /** 出量数值，单位 ml。 */
-  outputAmount?: string
+  outputVolume?: string
   /** 出量颜色或性状。 */
-  outputColorCharacter?: string
+  outputColor?: string
   /** 护士签名显示文本。 */
   nurseSignature?: string
   /** 乐观锁版本；每次更新后递增。 */
@@ -121,45 +107,29 @@ export interface NurseStationNursingRecordSaveItemDTO {
   /** 心率。 */
   heartRate?: string
   /** 呼吸。 */
-  respiratory?: string
+  respiration?: string
   /** 血压。 */
   bloodPressure?: string
-  /** 血氧饱和度。 */
-  oxygenSaturation?: string
-  /** 氧流量。 */
-  oxygenFlow?: string
-  /** 给氧方式。 */
-  oxygenMode?: string
-  /** 氧浓度或吸氧速率。 */
-  oxygenRate?: string
   /** 意识状态。 */
   consciousness?: string
   /** 左侧瞳孔。 */
   pupilLeft?: string
   /** 右侧瞳孔。 */
   pupilRight?: string
-  /** 皮肤状况。 */
-  skinStatus?: string
-  /** 管路护理。 */
-  tubeCare?: string
   /** 病情观察及护理措施。 */
-  conditionMeasure?: string
+  observation?: string
   /** 入量名称。 */
   intakeName?: string
   /** 入量。 */
-  intakeAmount?: string
-  /** 入量途径。 */
-  intakeRoute?: string
+  intakeVolume?: string
   /** 出量名称。 */
   outputName?: string
   /** 出量。 */
-  outputAmount?: string
+  outputVolume?: string
   /** 出量颜色或性状。 */
-  outputColorCharacter?: string
+  outputColor?: string
   /** 护士签名。真实后端仍应以登录身份校验签名权限。 */
   nurseSignature?: string
-  /** extra 表示护士主动添加的额外时点。 */
-  rowType?: 'extra'
 }
 
 /** 批量保存护理记录请求。 */

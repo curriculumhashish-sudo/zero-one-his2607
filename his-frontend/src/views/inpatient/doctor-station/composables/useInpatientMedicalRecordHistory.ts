@@ -13,7 +13,6 @@ export function useInpatientMedicalRecordHistory() {
     pageIndex: 1,
     pageSize: 10,
     patientId: '',
-    currentEncounterId: undefined,
     keyword: undefined
   })
   const historyRows = ref<InpatientMedicalRecordHistoryItemVO[]>([])
@@ -82,7 +81,6 @@ export function useInpatientMedicalRecordHistory() {
     const patientChanged = historyQuery.patientId !== patientId
     if (patientChanged) {
       historyQuery.keyword = undefined
-      historyQuery.documentTypeCode = undefined
       historyQuery.pageIndex = 1
       selectedRecordId.value = null
     }

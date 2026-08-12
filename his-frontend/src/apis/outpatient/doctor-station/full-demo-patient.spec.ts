@@ -20,7 +20,6 @@ import {
   pagePatientAdviceOrderHistoryDetails,
   pagePatientDiagnosisHistory,
   pagePatientMedicalRecordHistory,
-  printAdviceApplicationForm,
   queryDoctorPrescriptionSheets,
   queryDoctorRefundItems
 } from './index'
@@ -83,7 +82,7 @@ describe('全功能在诊演示患者', () => {
     expect(record.id).toBeTruthy()
     expect(record.content).toContain('处理意见')
 
-    const diagnoses = await resolveRequest(getDiagnoses(encounterId))
+    const diagnoses = await resolveRequest(getDiagnoses(encounterId, 'patient-full-demo'))
     expect(diagnoses.rows).toHaveLength(2)
     expect(diagnoses.rows.filter((item) => item.primary)).toHaveLength(1)
 
@@ -98,17 +97,6 @@ describe('全功能在诊演示患者', () => {
       new Set(['DRUG', 'LAB', 'EXAM', 'TREATMENT'])
     )
 
-    const printable = orders.rows?.filter(
-      (item) => item.status === 'SIGNED' && item.category !== 'DRUG'
-    )
-    expect(printable).toHaveLength(2)
-    for (const order of printable ?? []) {
-      const form = await resolveRequest(
-        printAdviceApplicationForm({ serviceRequestId: order.serviceRequestId! })
-      )
-      expect(form.adviceId).toBe(order.id)
-      expect(form.patientName).toBe('全功能演示患者')
-    }
   })
 
   it('具备病历、诊断、医嘱、处方和退费历史，并且允许办理住院', async () => {
@@ -133,7 +121,6 @@ describe('全功能在诊演示患者', () => {
     const adviceEncounters = await resolveRequest(
       pagePatientAdviceOrderHistory({
         patientId,
-        excludeEncounterId: encounterId,
         pageIndex: 1,
         pageSize: 10
       })

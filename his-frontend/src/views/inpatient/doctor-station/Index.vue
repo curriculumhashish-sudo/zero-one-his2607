@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import { DocumentAdd, EditPen, Refresh, Select, SwitchButton } from '@element-plus/icons-vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { DocumentAdd, Refresh, Select, SwitchButton } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 import {
+  inpatientDoctorStationCapabilities,
   isInpatientDoctorStationRealApiEnabled,
+  type InpatientDischargeAdviceVO,
   type InpatientMedicalRecordHistoryItemVO
 } from '@/apis/inpatient/doctor-station'
 import StationTriPaneLayout from '@/components/common/StationTriPaneLayout.vue'
@@ -17,10 +19,6 @@ import {
   type ClinicalTcmPrescriptionWorkspaceExpose
 } from '@/components/clinical/tcm-prescription'
 import {
-  ClinicalDiagnosisEditor,
-  type ClinicalDiagnosisItem
-} from '@/components/clinical/diagnosis'
-import {
   ClinicalOrderEditor,
   type ClinicalOrderContext,
   type ClinicalOrderDraft
@@ -30,6 +28,7 @@ import PatientQueuePanel from '@/components/patient/PatientQueuePanel.vue'
 import type { PatientSummary } from '@/components/patient/type'
 
 import { inpatientAdviceAdapter } from './advice/inpatientAdviceAdapter'
+import InpatientDiagnosisEditor from './components/InpatientDiagnosisEditor.vue'
 import InpatientDiagnosisHistoryPanel from './components/InpatientDiagnosisHistoryPanel.vue'
 import InpatientDischargeAdviceDialog from './components/InpatientDischargeAdviceDialog.vue'
 import InpatientMedicalRecordEditor from './components/InpatientMedicalRecordEditor.vue'
@@ -44,7 +43,11 @@ import {
 } from './composables/useInpatientMedicalOrder'
 import { useInpatientMedicalRecordHistory } from './composables/useInpatientMedicalRecordHistory'
 import { useInpatientPatientQueue } from './composables/useInpatientPatientQueue'
-import type { InpatientDoctorStationAction, InpatientDoctorStationTab } from './type'
+import type {
+  InpatientDiagnosisItem,
+  InpatientDoctorStationAction,
+  InpatientDoctorStationTab
+} from './type'
 
 defineOptions({
   name: 'InpatientDoctorStation'
@@ -57,12 +60,17 @@ const tcmWorkspaceRef = ref<ClinicalTcmPrescriptionWorkspaceExpose | null>(null)
 const tcmDirty = ref(false)
 const tcmLoading = ref(false)
 const dischargeDialogVisible = ref(false)
+const submittedDischargeEncounterIds = reactive(new Set<string>())
 
 const queue = useInpatientPatientQueue()
 const {
+  changePatientPage,
   loadPatients,
   patients,
   queueLoading,
+  queueQuery,
+  queueTotal,
+  reconcileDischarge,
   searchPatients,
   selectPatient,
   selectedPatient,
@@ -90,7 +98,6 @@ const {
 const inpatientMedicalRecord = useInpatientMedicalRecord()
 const {
   applyDocumentType: applyMedicalRecordDocumentType,
-  canSign: medicalRecordCanSign,
   content: medicalRecordContent,
   dirty: medicalRecordDirty,
   documentTypeCode: medicalRecordDocumentTypeCode,
@@ -105,30 +112,25 @@ const {
   resetMedicalRecord,
   saveMedicalRecordDraft,
   saving: medicalRecordSaving,
-  signMedicalRecordDraft,
-  signing: medicalRecordSigning,
   startNewMedicalRecord,
   title: medicalRecordTitle
 } = inpatientMedicalRecord
 
 const inpatientDiagnosis = useInpatientDiagnosis()
 const {
-  addDiagnosisFromHistory,
+  addDiagnosisFromBrief,
+  diagnosisBriefs,
+  diagnosisBriefsError,
+  diagnosisBriefsLoading,
   diagnoses,
   diagnosesDirty,
   diagnosesError,
   diagnosesLoading,
   diagnosesSaving,
-  diagnosisUpdatedAt,
   loadDiagnoses,
-  loadDiagnosisDictionary,
-  loadUsageHistory,
+  loadDiagnosisBriefs,
   resetDiagnoses,
-  saveDiagnoses,
-  usageHistory,
-  usageHistoryError,
-  usageHistoryKeyword,
-  usageHistoryLoading
+  saveDiagnoses
 } = inpatientDiagnosis
 
 const inpatientMedicalOrder = useInpatientMedicalOrder()
@@ -175,13 +177,13 @@ const tcmPrescriptionContext = computed<ClinicalTcmPrescriptionContext | null>((
     encounterId: patient.encounterId,
     patientId: patient.patientId,
     diagnoses: diagnoses.value
-      .filter((item) => Boolean(item.recordId))
-      .map((item) => ({ id: item.recordId!, name: item.name }))
+      .filter((item) => Boolean(item.id))
+      .map((item) => ({ id: item.id!, name: item.description }))
   }
 })
 
-const existingDiagnosisCatalogIds = computed(() =>
-  diagnoses.value.map((diagnosis) => diagnosis.catalogId)
+const existingDiagnosisDescriptions = computed(() =>
+  diagnoses.value.map((diagnosis) => diagnosis.description)
 )
 
 const stationHeaderActions = computed<ActionToolbarItem[]>(() => {
@@ -189,14 +191,13 @@ const stationHeaderActions = computed<ActionToolbarItem[]>(() => {
   const actions: ActionToolbarItem[] = [
     {
       key: 'discharge',
-      label: patient?.encounterStatus === 'DISCHARGE_PENDING' ? '已开出院医嘱' : '出院',
+      label: '出院',
       type: 'warning',
       icon: SwitchButton,
       disabled:
         !patient ||
-        patient.encounterStatus === 'DISCHARGE_PENDING' ||
+        submittedDischargeEncounterIds.has(patient.encounterId) ||
         medicalRecordSaving.value ||
-        medicalRecordSigning.value ||
         diagnosesSaving.value ||
         orderMutationLoading.value ||
         tcmLoading.value
@@ -213,7 +214,6 @@ const stationHeaderActions = computed<ActionToolbarItem[]>(() => {
         tcmLoading.value,
       disabled:
         medicalRecordSaving.value ||
-        medicalRecordSigning.value ||
         diagnosesSaving.value ||
         orderMutationLoading.value ||
         tcmLoading.value
@@ -228,9 +228,9 @@ const stationHeaderActions = computed<ActionToolbarItem[]>(() => {
         icon: DocumentAdd,
         disabled:
           !patient ||
+          !inpatientDoctorStationCapabilities.medicalRecordDocumentTypes ||
           medicalRecordLoading.value ||
-          medicalRecordSaving.value ||
-          medicalRecordSigning.value
+          medicalRecordSaving.value
       },
       {
         key: 'saveMedicalRecord',
@@ -242,20 +242,7 @@ const stationHeaderActions = computed<ActionToolbarItem[]>(() => {
           !patient ||
           !medicalRecordInitialized.value ||
           medicalRecordReadonly.value ||
-          !medicalRecordDirty.value ||
-          medicalRecordSigning.value
-      },
-      {
-        key: 'signMedicalRecord',
-        label: '签名病历',
-        type: 'success',
-        icon: EditPen,
-        loading: medicalRecordSigning.value,
-        disabled:
-          !patient ||
-          !medicalRecordCanSign.value ||
-          medicalRecordSaving.value ||
-          medicalRecordLoading.value
+          !medicalRecordDirty.value
       }
     )
   }
@@ -268,28 +255,6 @@ const stationHeaderActions = computed<ActionToolbarItem[]>(() => {
       icon: Select,
       loading: diagnosesSaving.value,
       disabled: !selectedQueueItem.value || !diagnosesDirty.value
-    })
-  }
-
-  if (activeTab.value === 'orders') {
-    actions.unshift({
-      key: 'saveOrder',
-      label: '保存医嘱',
-      type: 'primary',
-      icon: Select,
-      loading: orderMutationLoading.value,
-      disabled: !orderContext.value || !ordersDirty.value
-    })
-  }
-
-  if (activeTab.value === 'tcmPrescription') {
-    actions.unshift({
-      key: 'saveTcmPrescription',
-      label: '保存处方',
-      type: 'primary',
-      icon: Select,
-      loading: tcmLoading.value,
-      disabled: !tcmPrescriptionContext.value || !tcmDirty.value
     })
   }
 
@@ -323,10 +288,6 @@ async function handleHeaderAction(action: ActionToolbarItem) {
     await handleSaveMedicalRecord()
     return
   }
-  if (key === 'signMedicalRecord') {
-    await handleSignMedicalRecord()
-    return
-  }
   if (key === 'saveDiagnosis') {
     await handleSaveDiagnosis()
     return
@@ -348,7 +309,7 @@ async function handleHeaderAction(action: ActionToolbarItem) {
   }
 }
 
-function handleDiagnosisChange(items: ClinicalDiagnosisItem[]) {
+function handleDiagnosisChange(items: InpatientDiagnosisItem[]) {
   diagnoses.value = items
 }
 
@@ -375,6 +336,10 @@ async function confirmDiscardMedicalRecordChanges() {
 }
 
 async function handleNewMedicalRecord() {
+  if (!inpatientDoctorStationCapabilities.medicalRecordDocumentTypes) {
+    ElMessage.warning('后端暂未提供病历文书类型接口，Real 模式下无法新建病历')
+    return
+  }
   if (!selectedQueueItem.value) {
     ElMessage.warning('请先选择患者')
     return
@@ -430,28 +395,6 @@ async function handleSaveMedicalRecord() {
   }
 }
 
-async function handleSignMedicalRecord() {
-  if (!medicalRecordCanSign.value) return
-  try {
-    await ElMessageBox.confirm(
-      '签名后病历将转为只读，不能继续修改。确定签名当前病历吗？',
-      '签名住院病历',
-      {
-        type: 'warning',
-        confirmButtonText: '确定签名',
-        cancelButtonText: '取消'
-      }
-    )
-    const signed = await signMedicalRecordDraft()
-    if (!signed) return
-    await reloadHistory()
-    ElMessage.success('住院病历签名成功')
-  } catch (error) {
-    if (error === 'cancel' || error === 'close') return
-    ElMessage.error(error instanceof Error ? error.message : '住院病历签名失败')
-  }
-}
-
 function handleRetryMedicalRecord() {
   const recordId = currentMedicalRecord.value?.id ?? selectedRecordId.value
   if (recordId) void loadMedicalRecord(recordId)
@@ -472,11 +415,10 @@ function handleOpenDischargeAdvice() {
     ElMessage.warning('请先选择患者')
     return
   }
-  if (patient.encounterStatus === 'DISCHARGE_PENDING') {
-    ElMessage.info('该患者已经开立出院医嘱')
+  if (submittedDischargeEncounterIds.has(patient.encounterId)) {
+    ElMessage.warning('该患者的出院医嘱已提交，请勿重复提交')
     return
   }
-
   const dirtyModules = dirtyClinicalModuleNames()
   if (dirtyModules.length > 0) {
     if (medicalRecordDirty.value) activeTab.value = 'medicalRecord'
@@ -489,11 +431,15 @@ function handleOpenDischargeAdvice() {
   dischargeDialogVisible.value = true
 }
 
-async function handleDischargeAdviceSuccess() {
-  const encounterId = selectedQueueItem.value?.encounterId
-  await loadPatients()
-  if (encounterId && selectedQueueItem.value?.encounterId === encounterId) {
-    await loadOrders(encounterId, selectedQueueItem.value.patientId)
+async function handleDischargeAdviceSuccess(advice: InpatientDischargeAdviceVO) {
+  submittedDischargeEncounterIds.add(advice.encounterId)
+  const reconcileStatus = await reconcileDischarge(advice.encounterId)
+  if (reconcileStatus === 'removed') {
+    ElMessage.success('出院医嘱已开立，患者已移出在院队列')
+  } else if (reconcileStatus === 'still-present') {
+    ElMessage.warning('医嘱已提交，但队列状态未同步，请勿重复提交并联系管理员')
+  } else {
+    ElMessage.warning('医嘱已提交，队列刷新失败，请手动刷新确认，勿重复提交')
   }
 }
 
@@ -596,6 +542,11 @@ async function handleSearchPatients(keyword: string) {
   await searchPatients(keyword)
 }
 
+async function handlePatientPageChange(pageIndex: number) {
+  if (!(await confirmDiscardClinicalChanges())) return
+  await changePatientPage(pageIndex)
+}
+
 async function handleRefreshPatients() {
   if (!(await confirmDiscardClinicalChanges())) return
   await loadPatients()
@@ -625,9 +576,11 @@ watch(
     void Promise.all([
       (async () => {
         await Promise.all([
-          loadMedicalRecordDocumentTypes().catch((error) => {
-            ElMessage.error(error instanceof Error ? error.message : '病历文书类型加载失败')
-          }),
+          inpatientDoctorStationCapabilities.medicalRecordDocumentTypes
+            ? loadMedicalRecordDocumentTypes().catch((error) => {
+                ElMessage.error(error instanceof Error ? error.message : '病历文书类型加载失败')
+              })
+            : Promise.resolve([]),
           loadHistory(patient.patientId, encounterId)
         ])
         if (selectedQueueItem.value?.encounterId !== encounterId) return
@@ -635,8 +588,8 @@ watch(
         if (firstRecord) await loadMedicalRecord(firstRecord.id)
         else resetMedicalRecord()
       })(),
-      loadDiagnoses(encounterId),
-      loadUsageHistory(),
+      loadDiagnoses(encounterId, patient.patientId),
+      loadDiagnosisBriefs(),
       loadOrders(encounterId, patient.patientId)
     ])
   },
@@ -662,10 +615,16 @@ onMounted(() => {
           :patients="patients"
           :loading="queueLoading"
           :selected-id="selectedPatientId"
+          :pagination="{
+            pageIndex: queueQuery.pageIndex,
+            pageSize: queueQuery.pageSize,
+            total: queueTotal
+          }"
           title="在院患者"
-          keyword-placeholder="姓名/患者号/住院号/床号"
+          keyword-placeholder="姓名/住院号/床号"
           :show-date-filter="false"
           @search="handleSearchPatients"
+          @page-change="handlePatientPageChange"
           @refresh="handleRefreshPatients"
           @select="handleSelectPatient"
           @view="handleSelectPatient"
@@ -674,11 +633,7 @@ onMounted(() => {
 
       <template #main>
         <section class="inpatient-doctor-station__main">
-          <PatientInfoBar
-            :patient="selectedPatient"
-            display-mode="inpatient-registration"
-            :doctor-name="selectedQueueItem?.attendingDoctorName"
-          />
+          <PatientInfoBar :patient="selectedPatient" display-mode="inpatient-registration" />
 
           <DoctorStationHeader
             :active-tab="activeTab"
@@ -690,50 +645,70 @@ onMounted(() => {
           />
 
           <div class="inpatient-doctor-station__workspace">
-            <InpatientMedicalRecordEditor
-              v-if="activeTab === 'medicalRecord'"
-              :patient-selected="Boolean(selectedPatient)"
-              :initialized="medicalRecordInitialized"
-              :record="currentMedicalRecord"
-              :document-types="medicalRecordDocumentTypes"
-              :document-type-code="medicalRecordDocumentTypeCode"
-              :title="medicalRecordTitle"
-              :content="medicalRecordContent"
-              :loading="medicalRecordLoading || historyLoading"
-              :error="medicalRecordError || historyError"
-              :dirty="medicalRecordDirty"
-              :readonly="medicalRecordReadonly"
-              @update:document-type-code="medicalRecordDocumentTypeCode = $event"
-              @update:title="medicalRecordTitle = $event"
-              @update:content="medicalRecordContent = $event"
-              @document-type-change="applyMedicalRecordDocumentType"
-              @retry="handleRetryMedicalRecord"
-            />
+            <template v-if="activeTab === 'medicalRecord'">
+              <div class="inpatient-doctor-station__medical-record">
+                <el-alert
+                  v-if="!inpatientDoctorStationCapabilities.medicalRecordDocumentTypes"
+                  class="inpatient-doctor-station__capability-alert"
+                  title="Real 模式暂仅支持查看已有病历"
+                  type="warning"
+                  :closable="false"
+                  show-icon
+                />
+                <InpatientMedicalRecordEditor
+                  :patient-selected="Boolean(selectedPatient)"
+                  :initialized="medicalRecordInitialized"
+                  :record="currentMedicalRecord"
+                  :document-types="medicalRecordDocumentTypes"
+                  :document-type-code="medicalRecordDocumentTypeCode"
+                  :title="medicalRecordTitle"
+                  :content="medicalRecordContent"
+                  :loading="medicalRecordLoading || historyLoading"
+                  :error="medicalRecordError || historyError"
+                  :dirty="medicalRecordDirty"
+                  :readonly="medicalRecordReadonly"
+                  @update:document-type-code="medicalRecordDocumentTypeCode = $event"
+                  @update:title="medicalRecordTitle = $event"
+                  @update:content="medicalRecordContent = $event"
+                  @document-type-change="applyMedicalRecordDocumentType"
+                  @retry="handleRetryMedicalRecord"
+                />
+              </div>
+            </template>
 
-            <ClinicalDiagnosisEditor
+            <InpatientDiagnosisEditor
               v-else-if="activeTab === 'diagnosis'"
               :model-value="diagnoses"
               :patient-selected="Boolean(selectedPatient)"
               :accepted="Boolean(selectedQueueItem)"
               :loading="diagnosesLoading"
+              :saving="diagnosesSaving"
               :error="diagnosesError"
               :dirty="diagnosesDirty"
-              :updated-at="diagnosisUpdatedAt"
-              :load-dictionary="loadDiagnosisDictionary"
-              inactive-title="当前患者不可编辑"
-              inactive-description="仅在患者住院诊疗阶段允许维护诊断"
-              readonly-text="住院诊断只读"
               @update:model-value="handleDiagnosisChange"
-              @retry="selectedQueueItem && loadDiagnoses(selectedQueueItem.encounterId)"
-              @dictionary-error="ElMessage.error('诊断字典加载失败，请重试')"
+              @retry="
+                selectedQueueItem &&
+                loadDiagnoses(selectedQueueItem.encounterId, selectedQueueItem.patientId)
+              "
             />
 
             <div v-else-if="activeTab === 'orders'" class="inpatient-doctor-station__orders">
+              <el-alert
+                v-if="!inpatientDoctorStationCapabilities.medicalOrderCatalog"
+                title="后端暂未提供医嘱目录接口，Real 模式下仅支持维护已有医嘱"
+                type="warning"
+                :closable="false"
+                show-icon
+              />
               <ClinicalOrderEditor
                 :model-value="orders"
                 :context="orderContext"
                 :adapter="inpatientAdviceAdapter"
-                :load-catalog="loadOrderCatalog"
+                :load-catalog="
+                  inpatientDoctorStationCapabilities.medicalOrderCatalog
+                    ? loadOrderCatalog
+                    : undefined
+                "
                 :patient-selected="Boolean(selectedPatient)"
                 :accepted="Boolean(selectedQueueItem)"
                 :loading="ordersLoading"
@@ -742,6 +717,12 @@ onMounted(() => {
                 :updated-at="ordersUpdatedAt"
                 :show-filters="false"
                 :show-stop-actions="true"
+                :show-delete-action="false"
+                :show-group-actions="false"
+                :show-history-action="false"
+                :show-create-action="false"
+                :show-quantity-column="false"
+                :show-edit-fields="false"
                 :stop-disabled="!orderActionAvailability.stop"
                 :cancel-stop-disabled="!orderActionAvailability.cancelStop"
                 :selectable="true"
@@ -780,7 +761,6 @@ onMounted(() => {
               :context="tcmPrescriptionContext"
               :patient-selected="Boolean(selectedPatient)"
               :accepted="Boolean(selectedQueueItem)"
-              :show-save-action="false"
               @dirty-change="tcmDirty = $event"
               @loading-change="tcmLoading = $event"
             />
@@ -807,16 +787,13 @@ onMounted(() => {
         />
         <InpatientDiagnosisHistoryPanel
           v-else-if="activeTab === 'diagnosis'"
-          :rows="usageHistory"
-          :existing-catalog-ids="existingDiagnosisCatalogIds"
-          :loading="usageHistoryLoading"
-          :error="usageHistoryError"
-          :keyword="usageHistoryKeyword"
+          :rows="diagnosisBriefs"
+          :existing-descriptions="existingDiagnosisDescriptions"
+          :loading="diagnosisBriefsLoading"
+          :error="diagnosisBriefsError"
           :readonly="!selectedQueueItem"
-          @update:keyword="usageHistoryKeyword = $event"
-          @search="loadUsageHistory"
-          @add="addDiagnosisFromHistory"
-          @retry="loadUsageHistory()"
+          @add="addDiagnosisFromBrief"
+          @retry="loadDiagnosisBriefs()"
         />
         <InpatientPatientContextPanel v-else :patient="selectedQueueItem" />
       </template>
@@ -826,7 +803,6 @@ onMounted(() => {
       v-model="dischargeDialogVisible"
       :patient="selectedQueueItem"
       @success="handleDischargeAdviceSuccess"
-      @review="activeTab = $event"
     />
   </div>
 </template>
@@ -874,6 +850,34 @@ onMounted(() => {
   min-height: 100%;
   flex-direction: column;
   align-self: stretch;
+}
+
+.inpatient-doctor-station__medical-record {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  min-height: 100%;
+  flex-direction: column;
+  align-self: stretch;
+}
+
+.inpatient-doctor-station__medical-record :deep(.clinical-medical-record-editor) {
+  min-height: 0;
+  flex: 1;
+}
+
+.inpatient-doctor-station__capability-alert {
+  padding: 6px 10px;
+}
+
+.inpatient-doctor-station__capability-alert :deep(.el-alert__icon) {
+  width: 14px;
+  font-size: 14px;
+}
+
+.inpatient-doctor-station__capability-alert :deep(.el-alert__title) {
+  font-size: 12px;
+  line-height: 18px;
 }
 
 .inpatient-doctor-station__orders :deep(.clinical-order-editor) {

@@ -17,16 +17,19 @@ interface Props {
   items?: NurseExecutionItemVO[]
   loading?: boolean
   hasPatient?: boolean
+  printingItemId?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   items: () => [],
   loading: false,
-  hasPatient: false
+  hasPatient: false,
+  printingItemId: ''
 })
 
 const emit = defineEmits<{
   cancelExecute: [item: NurseExecutionItemVO]
+  print: [item: NurseExecutionItemVO]
   selectionChange: [ids: string[]]
   refresh: []
 }>()
@@ -123,15 +126,25 @@ function executionItem(row: AdviceOrder): NurseExecutionItemVO {
         </el-tag>
       </template>
       <template #actions="{ row }">
-        <el-button
-          v-if="executionItem(row).executionCount > 0"
-          link
-          type="danger"
-          @click="emit('cancelExecute', executionItem(row))"
-        >
-          取消执行
-        </el-button>
-        <span v-else>—</span>
+        <div class="nurse-execution-panel__actions">
+          <el-button
+            link
+            type="primary"
+            :loading="printingItemId === executionItem(row).itemId"
+            :disabled="Boolean(printingItemId)"
+            @click="emit('print', executionItem(row))"
+          >
+            打印
+          </el-button>
+          <el-button
+            v-if="executionItem(row).status === 'COMPLETED'"
+            link
+            type="danger"
+            @click="emit('cancelExecute', executionItem(row))"
+          >
+            取消执行
+          </el-button>
+        </div>
       </template>
     </AdviceOrderTable>
   </section>
@@ -178,5 +191,16 @@ function executionItem(row: AdviceOrder): NurseExecutionItemVO {
 
 .nurse-execution-panel__table :deep(.el-table__header-wrapper .cell) {
   color: inherit;
+}
+
+.nurse-execution-panel__actions {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.nurse-execution-panel__actions :deep(.el-button) {
+  margin-left: 0;
 }
 </style>

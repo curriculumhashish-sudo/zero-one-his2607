@@ -78,7 +78,7 @@ function resetFilters() {
         <el-input
           v-model="keywordInput"
           clearable
-          placeholder="就诊号、科室、医生、诊断编码或诊断名称"
+          placeholder="请输入诊断名称"
           @keyup.enter="submitSearch"
         />
         <el-date-picker
@@ -108,10 +108,7 @@ function resetFilters() {
 
       <template v-else>
         <el-table :data="rows" row-key="id" border stripe class="diagnosis-history__table">
-          <el-table-column prop="visitedAt" label="就诊时间" width="156" />
-          <el-table-column prop="visitNo" label="就诊号" min-width="150" />
-          <el-table-column prop="departmentName" label="科室" min-width="120" />
-          <el-table-column prop="attendingDoctorName" label="接诊医生" width="110" />
+          <el-table-column prop="diagnosedAt" label="诊断时间" width="156" />
           <el-table-column label="主次" width="92" align="center">
             <template #default="{ row }">
               <el-tag :type="row.primary ? 'danger' : 'info'" effect="light">

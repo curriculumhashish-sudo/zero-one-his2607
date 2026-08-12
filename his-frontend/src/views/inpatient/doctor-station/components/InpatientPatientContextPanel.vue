@@ -33,12 +33,6 @@ withDefaults(
       <el-descriptions-item label="病区">{{ patient.wardName }}</el-descriptions-item>
       <el-descriptions-item label="床位">{{ patient.bedName }}</el-descriptions-item>
       <el-descriptions-item label="入院时间">{{ patient.admissionAt }}</el-descriptions-item>
-      <el-descriptions-item label="主管医生">
-        {{ patient.attendingDoctorName || '—' }}
-      </el-descriptions-item>
-      <el-descriptions-item label="责任护士">
-        {{ patient.primaryNurseName || '—' }}
-      </el-descriptions-item>
       <el-descriptions-item label="当前诊断">
         {{ patient.diagnosisSummary || '—' }}
       </el-descriptions-item>

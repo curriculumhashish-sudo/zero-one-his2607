@@ -363,7 +363,10 @@ export function useDoctorStationWorkflow(options: DoctorStationWorkflowOptions) 
         diagnosis.resetDiagnoses()
         adviceOrders.resetAdviceOrders()
       } else {
-        context.patientContext.value = result
+        context.patientContext.value = {
+          ...context.patientContext.value,
+          ...result
+        }
       }
       if (queue.selectedQueueStatus.value === 'in-progress') queue.setQueueStatus('arrived')
 
@@ -432,7 +435,10 @@ export function useDoctorStationWorkflow(options: DoctorStationWorkflowOptions) 
       const result = await completePatient(encounterIdText)
       if (String(queue.selectedPatientId.value) !== encounterIdText) return
 
-      context.patientContext.value = result
+      context.patientContext.value = {
+        ...context.patientContext.value,
+        ...result
+      }
       if (queue.selectedQueueStatus.value === 'in-progress') queue.setQueueStatus('finished')
 
       await queue.loadPatients()

@@ -4,7 +4,6 @@ import {
   getInpatientMedicalRecord,
   listInpatientMedicalRecordDocumentTypes,
   saveInpatientMedicalRecord,
-  signInpatientMedicalRecord,
   type InpatientDoctorPatientQueueItemVO,
   type InpatientMedicalRecordVO
 } from '@/apis/inpatient/doctor-station'
@@ -13,8 +12,7 @@ import { useInpatientMedicalRecord } from './useInpatientMedicalRecord'
 vi.mock('@/apis/inpatient/doctor-station', () => ({
   getInpatientMedicalRecord: vi.fn(),
   listInpatientMedicalRecordDocumentTypes: vi.fn(),
-  saveInpatientMedicalRecord: vi.fn(),
-  signInpatientMedicalRecord: vi.fn()
+  saveInpatientMedicalRecord: vi.fn()
 }))
 
 const patient: InpatientDoctorPatientQueueItemVO = {
@@ -23,7 +21,6 @@ const patient: InpatientDoctorPatientQueueItemVO = {
   patientName: '测试患者',
   genderName: '男',
   ageText: '50岁',
-  patientNo: 'P001',
   inpatientNo: 'ZY001',
   admissionAt: '2026-07-28 08:00',
   departmentName: '心血管内科',
@@ -31,9 +28,7 @@ const patient: InpatientDoctorPatientQueueItemVO = {
   wardName: '心内一病区',
   bedId: 'bed-1',
   bedName: '01床',
-  encounterStatus: 'IN_HOSPITAL',
-  encounterStatusName: '在院',
-  version: 1
+  statusEnum: 'IN_PROGRESS'
 }
 
 function draftRecord(overrides: Partial<InpatientMedicalRecordVO> = {}): InpatientMedicalRecordVO {
@@ -86,46 +81,12 @@ describe('useInpatientMedicalRecord', () => {
 
     expect(saveInpatientMedicalRecord).toHaveBeenCalledWith(
       expect.objectContaining({
-        id: undefined,
         encounterId: patient.encounterId,
         patientId: patient.patientId,
-        documentTypeCode: 'DAILY_COURSE_RECORD',
-        version: 0
+        documentTypeCode: 'DAILY_COURSE_RECORD'
       })
     )
     expect(saved?.id).toBe(created.id)
-    expect(state.dirty.value).toBe(false)
-    expect(state.canSign.value).toBe(true)
-  })
-
-  it('病历有未保存修改时禁止签名，保存后签名会切换为只读', async () => {
-    const draft = draftRecord()
-    const updated = draftRecord({ content: '<p>病情继续改善。</p>', version: 2 })
-    const signed = draftRecord({
-      content: updated.content,
-      status: 'SIGNED',
-      statusName: '已签名',
-      version: 3,
-      readonly: true
-    })
-    vi.mocked(getInpatientMedicalRecord).mockResolvedValue(draft)
-    vi.mocked(saveInpatientMedicalRecord).mockResolvedValue(updated)
-    vi.mocked(signInpatientMedicalRecord).mockResolvedValue(signed)
-    const state = useInpatientMedicalRecord()
-
-    await state.loadMedicalRecord(draft.id)
-    state.content.value = updated.content
-
-    await expect(state.signMedicalRecordDraft()).rejects.toThrow('请先保存')
-    await state.saveMedicalRecordDraft(patient)
-    await state.signMedicalRecordDraft()
-
-    expect(signInpatientMedicalRecord).toHaveBeenCalledWith({
-      id: draft.id,
-      version: updated.version
-    })
-    expect(state.record.value?.status).toBe('SIGNED')
-    expect(state.readonly.value).toBe(true)
     expect(state.dirty.value).toBe(false)
   })
 })

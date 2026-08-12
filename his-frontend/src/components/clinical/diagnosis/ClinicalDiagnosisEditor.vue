@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { Delete, Plus } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 
 import EmptyState from '@/components/common/EmptyState.vue'
 
@@ -28,6 +29,8 @@ const props = withDefaults(
     readonly?: boolean
     /** 是否允许手动设置主诊断；为 false 时仅只读展示主诊断标签 */
     allowSetPrimary?: boolean
+    /** 是否允许删除已保存的主诊断 */
+    allowDeletePrimary?: boolean
     /** 诊断列表是否正在加载 */
     loading?: boolean
     /** 诊断列表加载失败信息 */
@@ -47,6 +50,7 @@ const props = withDefaults(
     accepted: false,
     readonly: false,
     allowSetPrimary: true,
+    allowDeletePrimary: true,
     loading: false,
     error: '',
     dirty: false,
@@ -80,6 +84,10 @@ function addDiagnoses(candidates: ClinicalDiagnosisCandidate[]) {
 
 function removeDiagnosis(row: unknown) {
   const item = row as ClinicalDiagnosisItem
+  if (item.primary && item.recordId && !props.allowDeletePrimary) {
+    ElMessage.warning('后端暂不支持主诊断切换，请先保留当前主诊断')
+    return
+  }
   commit(removeClinicalDiagnosis(props.modelValue, item.key))
 }
 
@@ -177,7 +185,12 @@ function setPrimary(row: unknown) {
         </el-table-column>
         <el-table-column v-if="!readonly" label="操作" width="90" fixed="right">
           <template #default="{ row }">
-            <el-button type="danger" link :icon="Delete" @click="removeDiagnosis(row)">
+            <el-button
+              type="danger"
+              link
+              :icon="Delete"
+              @click="removeDiagnosis(row)"
+            >
               删除
             </el-button>
           </template>

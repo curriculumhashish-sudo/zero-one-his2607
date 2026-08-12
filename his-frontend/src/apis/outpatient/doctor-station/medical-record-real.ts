@@ -7,11 +7,12 @@ import type {
   DoctorMedicalRecordVO,
   SaveDoctorMedicalRecordDTO
 } from './type'
+import { isOutpatientDoctorStationRealApiEnabled, outpatientDoctorStationApiBaseURL } from './mode'
 
-const realApiBaseURL = import.meta.env.VITE_OUTPATIENT_DOCTOR_STATION_API_URL || undefined
+const realApiBaseURL = outpatientDoctorStationApiBaseURL
 
-export const isDoctorMedicalRecordRealApiEnabled =
-  import.meta.env.VITE_OUTPATIENT_DOCTOR_STATION_API_MODE === 'real'
+/** Backward-compatible alias; the mode itself is owned by ./mode. */
+export const isDoctorMedicalRecordRealApiEnabled = isOutpatientDoctorStationRealApiEnabled
 
 interface BackendJsonVO<T> {
   code?: number
@@ -51,7 +52,7 @@ function text(value: unknown): string | undefined {
 
 function unwrap<T>(response: BackendJsonVO<T> | T, fallback: string): T {
   const body = response as BackendJsonVO<T>
-  if (typeof body.code === 'number' && body.code !== 10000) {
+  if (typeof body.code === 'number' && body.code !== 0 && body.code !== 10000) {
     throw new Error(body.message || fallback)
   }
   if (body.data !== undefined) {
@@ -59,6 +60,27 @@ function unwrap<T>(response: BackendJsonVO<T> | T, fallback: string): T {
     return body.data
   }
   return response as T
+}
+
+export function isMedicalRecordNotFoundError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase()
+  return (
+    message.includes('medical record content not found') || message.includes('record not found')
+  )
+}
+
+export const MEDICAL_RECORD_CONTENT_FORMAT_ERROR =
+  '当前后端仅支持 JSON 病历格式，WangEditor HTML 内容暂不可保存'
+
+function isSupportedMedicalRecordContent(content: string): boolean {
+  if (!content.trim()) return false
+
+  try {
+    const parsed: unknown = JSON.parse(content)
+    return Boolean(parsed && typeof parsed === 'object')
+  } catch {
+    return false
+  }
 }
 
 function pageResult<T>(page: BackendPage<unknown>, rows: T[]): PageDTO<T> {
@@ -95,20 +117,33 @@ function mapHistoryItem(row: BackendHistoryItem): DoctorMedicalRecordHistoryItem
 }
 
 export async function realGetMedicalRecord(encounterId: string): Promise<DoctorMedicalRecordVO> {
-  const response = await useHttp().get<BackendRecord>(
-    `/outpatientrecord2/detail/${encodeURIComponent(encounterId)}`,
-    undefined,
-    { baseURL: realApiBaseURL }
-  )
-  return mapRecord(unwrap(response, '门诊病历加载失败'), encounterId)
+  try {
+    const response = await useHttp().get<BackendRecord>(
+      `/outpatientrecord2/detail/${encodeURIComponent(encounterId)}`,
+      undefined,
+      { baseURL: realApiBaseURL }
+    )
+    return mapRecord(unwrap(response, '门诊病历加载失败'), encounterId)
+  } catch (error) {
+    if (isMedicalRecordNotFoundError(error)) {
+      const notFoundError = new Error('Medical record content not found')
+      notFoundError.name = 'MedicalRecordNotFoundError'
+      throw notFoundError
+    }
+    throw error
+  }
 }
 
 export async function realSaveMedicalRecord(
   encounterId: string,
   data: SaveDoctorMedicalRecordDTO
 ): Promise<DoctorMedicalRecordVO> {
+  if (!isSupportedMedicalRecordContent(data.content)) {
+    throw new Error(MEDICAL_RECORD_CONTENT_FORMAT_ERROR)
+  }
+
   const response = await useHttp().post<BackendRecord>(
-    '/outpatientrecord3/save',
+    '/c2-opdoctor/outpatientrecord3/save',
     { encounterId, content: data.content },
     { baseURL: realApiBaseURL }
   )
@@ -130,6 +165,12 @@ export async function realPagePatientMedicalRecordHistory(
     { baseURL: realApiBaseURL }
   )
   const data = unwrap(response, '历史病历加载失败')
-  const rows = (data.rows ?? data.data ?? []).map(mapHistoryItem)
-  return pageResult(data, rows)
+  const allRows = (data.rows ?? data.data ?? []).map(mapHistoryItem)
+  const pageSize = data.pageSize ?? query.pageSize
+  const pageIndex = data.pageIndex ?? query.pageIndex
+  const rows =
+    allRows.length > pageSize
+      ? allRows.slice((pageIndex - 1) * pageSize, pageIndex * pageSize)
+      : allRows
+  return pageResult({ ...data, pageIndex, pageSize }, rows)
 }

@@ -6,56 +6,41 @@ import {
   mockPageTcmHerbCatalog,
   mockSaveTcmPrescriptionDraft,
   mockSignTcmPrescription,
-  mockWithdrawTcmPrescription
+  mockWithdrawTcmPrescription,
+  mockStopTcmPrescription,
+  mockCancelStopTcmPrescription
 } from './mock'
 import {
-  isTcmPrescriptionRealApiEnabled,
   realDeleteTcmPrescription,
   realListTcmPrescriptionHistory,
+  realListTcmPrescriptionHistoryDetails,
   realListTcmPrescriptions,
   realPageTcmHerbCatalog,
   realSaveTcmPrescriptionDraft,
   realSignTcmPrescription,
-  realWithdrawTcmPrescription
+  realWithdrawTcmPrescription,
+  realStopTcmPrescription,
+  realCancelStopTcmPrescription
 } from './real'
+import { isTcmPrescriptionRealApiEnabled } from './mode'
 import type {
   SaveTcmPrescriptionDTO,
   TcmHerbCatalogItemVO,
   TcmHerbCatalogQuery,
   TcmPrescriptionActionDTO,
   TcmPrescriptionHistoryQuery,
+  TcmPrescriptionHistoryDetailVO,
   TcmPrescriptionHistoryVO,
   TcmPrescriptionQuery,
+  TcmPrescriptionStationScope,
   TcmPrescriptionVO
 } from './type'
 
-/**
- * 中医处方版本缓存（处方级）。
- *
- * 后端中医处方保存/删除/状态变更接口要求携带处方版本，取最近一次查询或
- * 操作响应的值。这里按处方 ID 保存最近一次 version，操作请求由 API 层自动
- * 携带，页面无需感知。
- */
-const tcmPrescriptionVersionCache = new Map<string, number>()
-
-function rememberTcmVersion(id: string, version?: number) {
-  if (version !== undefined) tcmPrescriptionVersionCache.set(id, version)
-}
-
-/** 取缓存中的处方版本；未查询过则从 0 开始，由 mock/后端决定是否拒绝。 */
-function resolveTcmVersion(id: string): number {
-  return tcmPrescriptionVersionCache.get(id) ?? 0
-}
-
 /** 查询当前就诊中医处方。 */
 export function listTcmPrescriptions(query: TcmPrescriptionQuery): Promise<TcmPrescriptionVO[]> {
-  const request = isTcmPrescriptionRealApiEnabled(query.scope)
+  return isTcmPrescriptionRealApiEnabled(query.scope)
     ? realListTcmPrescriptions(query)
     : mockListTcmPrescriptions(query)
-  return request.then((result) => {
-    for (const record of result) rememberTcmVersion(record.id, record.version)
-    return result
-  })
 }
 
 /** 查询患者历史中医处方。 */
@@ -67,6 +52,17 @@ export function listTcmPrescriptionHistory(
     : mockListTcmPrescriptionHistory(query)
 }
 
+export function listTcmPrescriptionHistoryDetails(query: {
+  scope: TcmPrescriptionStationScope
+  visitId: string
+  keyword?: string
+}) {
+  if (isTcmPrescriptionRealApiEnabled(query.scope)) {
+    return realListTcmPrescriptionHistoryDetails(query)
+  }
+  return Promise.resolve([] as TcmPrescriptionHistoryDetailVO[])
+}
+
 /** 分页查询中药材目录。 */
 export function pageTcmHerbCatalog(
   query: TcmHerbCatalogQuery
@@ -76,36 +72,23 @@ export function pageTcmHerbCatalog(
     : mockPageTcmHerbCatalog(query)
 }
 
-/** 新增或修改中医处方草稿。 */
+/** 新增中医处方草稿。已保存处方暂不支持修改。 */
 export function saveTcmPrescriptionDraft(data: SaveTcmPrescriptionDTO): Promise<TcmPrescriptionVO> {
-  if (isTcmPrescriptionRealApiEnabled(data.scope)) return realSaveTcmPrescriptionDraft(data)
-  const withVersion: SaveTcmPrescriptionDTO =
-    data.id !== undefined ? { ...data, version: data.version ?? resolveTcmVersion(data.id) } : data
-  return mockSaveTcmPrescriptionDraft(withVersion).then((result) => {
-    rememberTcmVersion(result.id, result.version)
-    return result
-  })
+  return isTcmPrescriptionRealApiEnabled(data.scope)
+    ? realSaveTcmPrescriptionDraft(data)
+    : mockSaveTcmPrescriptionDraft(data)
 }
 
 /** 删除待签发中医处方。 */
 export function deleteTcmPrescription(data: TcmPrescriptionActionDTO): Promise<void> {
   if (isTcmPrescriptionRealApiEnabled(data.scope)) return realDeleteTcmPrescription(data)
-  return mockDeleteTcmPrescription({
-    ...data,
-    version: data.version ?? resolveTcmVersion(data.id)
-  })
+  return mockDeleteTcmPrescription(data)
 }
 
 /** 签发中医处方。 */
 export function signTcmPrescription(data: TcmPrescriptionActionDTO): Promise<TcmPrescriptionVO> {
   if (isTcmPrescriptionRealApiEnabled(data.scope)) return realSignTcmPrescription(data)
-  return mockSignTcmPrescription({
-    ...data,
-    version: data.version ?? resolveTcmVersion(data.id)
-  }).then((result) => {
-    rememberTcmVersion(result.id, result.version)
-    return result
-  })
+  return mockSignTcmPrescription(data)
 }
 
 /** 撤回已签发中医处方。 */
@@ -113,13 +96,19 @@ export function withdrawTcmPrescription(
   data: TcmPrescriptionActionDTO
 ): Promise<TcmPrescriptionVO> {
   if (isTcmPrescriptionRealApiEnabled(data.scope)) return realWithdrawTcmPrescription(data)
-  return mockWithdrawTcmPrescription({
-    ...data,
-    version: data.version ?? resolveTcmVersion(data.id)
-  }).then((result) => {
-    rememberTcmVersion(result.id, result.version)
-    return result
-  })
+  return mockWithdrawTcmPrescription(data)
+}
+
+export function stopTcmPrescription(data: TcmPrescriptionActionDTO): Promise<void> {
+  return isTcmPrescriptionRealApiEnabled(data.scope)
+    ? realStopTcmPrescription(data)
+    : mockStopTcmPrescription(data)
+}
+
+export function cancelStopTcmPrescription(data: TcmPrescriptionActionDTO): Promise<void> {
+  return isTcmPrescriptionRealApiEnabled(data.scope)
+    ? realCancelStopTcmPrescription(data)
+    : mockCancelStopTcmPrescription(data)
 }
 
 export type {
@@ -129,6 +118,7 @@ export type {
   TcmHerbCatalogQuery,
   TcmPrescriptionActionDTO,
   TcmPrescriptionHistoryQuery,
+  TcmPrescriptionHistoryDetailVO,
   TcmPrescriptionHistoryVO,
   TcmPrescriptionLineVO,
   TcmPrescriptionQuery,

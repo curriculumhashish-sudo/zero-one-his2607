@@ -27,11 +27,8 @@ const visible = defineModel<boolean>('visible', { default: false })
 const selectedIds = ref<SelectValue[]>([])
 
 const columns: SelectTableColumn<TcmHerbCatalogItemVO>[] = [
-  { prop: 'code', label: '药品编码', width: 130 },
-  { prop: 'name', label: '药材名称', minWidth: 180 },
-  { prop: 'specification', label: '规格', width: 120 },
-  { prop: 'defaultDose', label: '默认剂量', width: 100, align: 'right' },
-  { prop: 'retailPrice', label: '单价', width: 90, align: 'right' }
+  { prop: 'name', label: '药材名称', minWidth: 220 },
+  { prop: 'defaultDose', label: '默认剂量', width: 120, align: 'right' }
 ]
 
 function isExisting(row: unknown) {
@@ -53,7 +50,7 @@ watch(visible, (value) => {
     :columns="columns"
     :load-page="loadPage"
     :disabled-row="isExisting"
-    keyword-placeholder="请输入药材编码或名称"
+    keyword-placeholder="请输入药材名称"
     search-label="中药材"
     empty-text="暂无匹配的中药材"
     @confirm="
@@ -62,15 +59,11 @@ watch(visible, (value) => {
     "
     @load-error="emit('loadError', $event)"
   >
-    <template #cell-code="{ row }">
-      <el-tag effect="plain">{{ row.code }}</el-tag>
-    </template>
     <template #cell-name="{ row }">
       <span>{{ row.name }}</span>
       <el-tag v-if="isExisting(row)" class="tcm-herb-selector__added" type="info"> 已添加 </el-tag>
     </template>
     <template #cell-defaultDose="{ row }"> {{ row.defaultDose }}{{ row.doseUnit }} </template>
-    <template #cell-retailPrice="{ row }"> ¥{{ Number(row.retailPrice).toFixed(2) }} </template>
   </SelectTable>
 </template>
 

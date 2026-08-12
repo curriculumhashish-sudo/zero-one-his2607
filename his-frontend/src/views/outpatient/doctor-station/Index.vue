@@ -63,6 +63,7 @@ const medicalRecordHistoryState = useDoctorMedicalRecordHistory({
 
 const diagnosisState = useDoctorDiagnosis({
   selectedPatientId: patientQueueState.selectedPatientId,
+  patientId: computed(() => patientContextState.patientContext.value?.patientId ?? null),
   patientAccepted: patientContextState.patientAccepted
 })
 
@@ -330,6 +331,7 @@ const {
               :dirty="diagnosesDirty"
               auto-save
               :updated-at="diagnosisList?.updatedAt"
+              :allow-delete-primary="false"
               :load-dictionary="loadDiagnosisDictionary"
               @retry="selectedPatientId !== null && loadCurrentDiagnoses(selectedPatientId)"
               @change="scheduleDiagnosisAutoSave()"

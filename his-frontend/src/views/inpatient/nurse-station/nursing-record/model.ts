@@ -22,24 +22,17 @@ export interface NursingRecordViewRow {
   temperature: string
   pulse: string
   heartRate: string
-  respiratory: string
+  respiration: string
   bloodPressure: string
-  oxygenSaturation: string
-  oxygenFlow: string
-  oxygenMode: string
-  oxygenRate: string
   consciousness: string
   pupilLeft: string
   pupilRight: string
-  skinStatus: string
-  tubeCare: string
-  conditionMeasure: string
+  observation: string
   intakeName: string
-  intakeAmount: string
-  intakeRoute: string
+  intakeVolume: string
   outputName: string
-  outputAmount: string
-  outputColorCharacter: string
+  outputVolume: string
+  outputColor: string
   nurseSignature: string
 }
 
@@ -63,24 +56,17 @@ export function createEmptyNursingRecordRow(
     temperature: '',
     pulse: '',
     heartRate: '',
-    respiratory: '',
+    respiration: '',
     bloodPressure: '',
-    oxygenSaturation: '',
-    oxygenFlow: '',
-    oxygenMode: '',
-    oxygenRate: '',
     consciousness: '',
     pupilLeft: '',
     pupilRight: '',
-    skinStatus: '',
-    tubeCare: '',
-    conditionMeasure: '',
+    observation: '',
     intakeName: '',
-    intakeAmount: '',
-    intakeRoute: '',
+    intakeVolume: '',
     outputName: '',
-    outputAmount: '',
-    outputColorCharacter: '',
+    outputVolume: '',
+    outputColor: '',
     nurseSignature: '',
     ...partial
   }
@@ -107,24 +93,17 @@ export function mapNursingRecordToViewRow(
     temperature: row.temperature ?? '',
     pulse: row.pulse ?? '',
     heartRate: row.heartRate ?? '',
-    respiratory: row.respiratory ?? '',
+    respiration: row.respiration ?? '',
     bloodPressure: row.bloodPressure ?? '',
-    oxygenSaturation: row.oxygenSaturation ?? '',
-    oxygenFlow: row.oxygenFlow ?? '',
-    oxygenMode: row.oxygenMode ?? '',
-    oxygenRate: row.oxygenRate ?? '',
     consciousness: row.consciousness ?? '',
     pupilLeft: row.pupilLeft ?? '',
     pupilRight: row.pupilRight ?? '',
-    skinStatus: row.skinStatus ?? '',
-    tubeCare: row.tubeCare ?? '',
-    conditionMeasure: row.conditionMeasure ?? '',
+    observation: row.observation ?? '',
     intakeName: row.intakeName ?? '',
-    intakeAmount: row.intakeAmount ?? '',
-    intakeRoute: row.intakeRoute ?? '',
+    intakeVolume: row.intakeVolume ?? '',
     outputName: row.outputName ?? '',
-    outputAmount: row.outputAmount ?? '',
-    outputColorCharacter: row.outputColorCharacter ?? '',
+    outputVolume: row.outputVolume ?? '',
+    outputColor: row.outputColor ?? '',
     nurseSignature: row.nurseSignature ?? ''
   }
 }
@@ -147,24 +126,17 @@ const contentKeys: Array<keyof NursingRecordViewRow> = [
   'temperature',
   'pulse',
   'heartRate',
-  'respiratory',
+  'respiration',
   'bloodPressure',
-  'oxygenSaturation',
-  'oxygenFlow',
-  'oxygenMode',
-  'oxygenRate',
   'consciousness',
   'pupilLeft',
   'pupilRight',
-  'skinStatus',
-  'tubeCare',
-  'conditionMeasure',
+  'observation',
   'intakeName',
-  'intakeAmount',
-  'intakeRoute',
+  'intakeVolume',
   'outputName',
-  'outputAmount',
-  'outputColorCharacter',
+  'outputVolume',
+  'outputColor',
   'nurseSignature'
 ]
 
@@ -190,26 +162,18 @@ export function mapViewRowToSaveItem(
     temperature: row.temperature || undefined,
     pulse: row.pulse || undefined,
     heartRate: row.heartRate || undefined,
-    respiratory: row.respiratory || undefined,
+    respiration: row.respiration || undefined,
     bloodPressure: row.bloodPressure || undefined,
-    oxygenSaturation: row.oxygenSaturation || undefined,
-    oxygenFlow: row.oxygenFlow || undefined,
-    oxygenMode: row.oxygenMode || undefined,
-    oxygenRate: row.oxygenRate || undefined,
     consciousness: row.consciousness || undefined,
     pupilLeft: row.pupilLeft || undefined,
     pupilRight: row.pupilRight || undefined,
-    skinStatus: row.skinStatus || undefined,
-    tubeCare: row.tubeCare || undefined,
-    conditionMeasure: row.conditionMeasure || undefined,
+    observation: row.observation || undefined,
     intakeName: row.intakeName || undefined,
-    intakeAmount: row.intakeAmount || undefined,
-    intakeRoute: row.intakeRoute || undefined,
+    intakeVolume: row.intakeVolume || undefined,
     outputName: row.outputName || undefined,
-    outputAmount: row.outputAmount || undefined,
-    outputColorCharacter: row.outputColorCharacter || undefined,
-    nurseSignature: row.nurseSignature || undefined,
-    rowType: row.rowType === 'extra' ? 'extra' : undefined
+    outputVolume: row.outputVolume || undefined,
+    outputColor: row.outputColor || undefined,
+    nurseSignature: row.nurseSignature || undefined
   }
 }
 

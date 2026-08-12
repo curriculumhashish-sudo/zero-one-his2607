@@ -2,7 +2,6 @@ import type { PageDTO } from '../../type'
 import type {
   InpatientDischargeAdviceVO,
   InpatientDoctorPatientQueueItemVO,
-  InpatientEncounterStatus,
   CreateInpatientDischargeAdviceDTO
 } from './type'
 
@@ -53,31 +52,21 @@ export const INPATIENT_DISCHARGE_WAY_OPTIONS = [
   { value: '3', label: '医嘱转社区卫生服务机构' },
   { value: '4', label: '非医嘱离院' },
   { value: '5', label: '死亡' },
-  { value: '9', label: '其他' }
+  { value: '6', label: '其他' }
 ] as const
-
-const statusLabels: Record<InpatientEncounterStatus, string> = {
-  IN_HOSPITAL: '在院',
-  DISCHARGE_PENDING: '待出院'
-}
-
-function normalizeStatus(value?: string): InpatientEncounterStatus {
-  const normalized = value?.trim().toUpperCase()
-  if (
-    normalized === 'DISCHARGE_PENDING' ||
-    normalized === 'PENDING_DISCHARGE' ||
-    normalized === '待出院' ||
-    normalized?.includes('DISCHARGE')
-  ) {
-    return 'DISCHARGE_PENDING'
-  }
-  return 'IN_HOSPITAL'
-}
 
 function formatAge(age?: number | string) {
   if (age === undefined || age === null || age === '') return ''
   const text = String(age)
   return text.endsWith('岁') ? text : `${text}岁`
+}
+
+function formatGender(gender?: string) {
+  const text = gender?.trim() ?? ''
+  const normalized = text.toUpperCase()
+  if (normalized === 'MALE' || normalized === 'M' || text === '男') return '男'
+  if (normalized === 'FEMALE' || normalized === 'F' || text === '女') return '女'
+  return text
 }
 
 /** 将 Swagger 队列分页 DTO 转为工作站现有分页模型。 */
@@ -98,28 +87,21 @@ export function mapInpatientPatientQueuePage(
 export function mapInpatientPatientQueueItem(
   row: InpatientPatientQueueDTO
 ): InpatientDoctorPatientQueueItemVO {
-  const encounterId = row.encounterId ?? row.patientId ?? ''
-  const patientId = row.patientId ?? encounterId
-  const encounterStatus = normalizeStatus(row.statusEnum)
-
   return {
-    encounterId,
-    patientId,
+    encounterId: row.encounterId ?? '',
+    patientId: row.patientId ?? '',
     patientName: row.patientName ?? '',
-    genderName: row.gender ?? '',
+    genderName: formatGender(row.gender),
     ageText: formatAge(row.age),
-    patientNo: patientId,
-    inpatientNo: row.encounterBusNo ?? encounterId,
+    inpatientNo: row.encounterBusNo ?? '',
     admissionAt: row.admitTime ?? '',
-    departmentName: row.organizationName || row.houseName || row.wardName || '',
+    departmentName: row.organizationName ?? '',
     wardId: row.wardId ?? '',
     wardName: row.wardName ?? '',
     bedId: row.bedId ?? '',
     bedName: row.bedName ?? '',
-    encounterStatus,
-    encounterStatusName: statusLabels[encounterStatus],
-    diagnosisSummary: row.diagnosisSummary,
-    version: 0
+    statusEnum: row.statusEnum ?? '',
+    diagnosisSummary: row.diagnosisSummary
   }
 }
 
@@ -130,21 +112,15 @@ export function mapDischargeOrderDetail(
 ): InpatientDischargeAdviceVO {
   const outWayCode = detail.dischargeWay ?? request.outWayCode
   const outWayName =
-    INPATIENT_DISCHARGE_WAY_OPTIONS.find((item) => item.value === outWayCode)?.label ??
-    outWayCode
+    INPATIENT_DISCHARGE_WAY_OPTIONS.find((item) => item.value === outWayCode)?.label ?? outWayCode
 
   return {
     id: detail.orderId ?? '',
     encounterId: detail.encounterId ?? request.encounterId,
-    patientId: request.patientId,
+    statusEnum: detail.statusEnum ?? '',
     plannedDischargeTime: detail.dischargeTime ?? request.plannedDischargeTime,
     outWayCode,
     outWayName,
-    reasonText: request.reasonText,
-    sourceOrgId: request.sourceOrgId,
-    sourceLocationId: request.sourceLocationId,
-    createdAt: '',
-    createdByName: '',
-    version: 0
+    encounterNewStatus: detail.encounterNewStatus ?? ''
   }
 }

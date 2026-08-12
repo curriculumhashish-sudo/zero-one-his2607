@@ -204,7 +204,6 @@ describe('doctor advice order API mock', () => {
     const history = await resolveRequest(
       pagePatientAdviceOrderHistory({
         patientId: 'patient-1003',
-        excludeEncounterId: 'enc-20260723-003',
         pageIndex: 1,
         pageSize: 1
       })

@@ -4,7 +4,8 @@ import dayjs from 'dayjs'
 import {
   getNurseExecutionItems,
   isOutpatientNurseStationRealApiEnabled,
-  pageNursePatientQueue
+  pageNursePatientQueue,
+  printNurseExecutions
 } from './index'
 
 describe('outpatient nurse-station API facade', () => {
@@ -42,5 +43,10 @@ describe('outpatient nurse-station API facade', () => {
       'COMPLETED',
       'CANCELLED'
     ])
+
+    const printRequest = printNurseExecutions({ recordIds: ['mock-exec-completed-001'] })
+    await vi.runAllTimersAsync()
+    const printContent = await printRequest
+    expect(printContent).toContain('服务请求打印单')
   })
 })

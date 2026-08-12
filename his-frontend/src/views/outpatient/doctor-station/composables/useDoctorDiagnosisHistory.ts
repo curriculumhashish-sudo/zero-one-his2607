@@ -10,6 +10,10 @@ interface DoctorDiagnosisHistoryOptions {
   patientContext: Ref<DoctorPatientContextVO | null>
 }
 
+function endOfDay(value: string | undefined): string | undefined {
+  return value ? `${value} 23:59:59` : undefined
+}
+
 /** 管理患者历史诊断，不触碰本次诊断草稿。 */
 export function useDoctorDiagnosisHistory(options: DoctorDiagnosisHistoryOptions) {
   const { patientContext } = options
@@ -54,7 +58,7 @@ export function useDoctorDiagnosisHistory(options: DoctorDiagnosisHistoryOptions
         patientId: context.patientId,
         keyword: patientDiagnosisHistoryQuery.keyword.trim() || undefined,
         startDate: patientDiagnosisHistoryQuery.dateRange[0] || undefined,
-        endDate: patientDiagnosisHistoryQuery.dateRange[1] || undefined,
+        endDate: endOfDay(patientDiagnosisHistoryQuery.dateRange[1]),
         pageIndex: patientDiagnosisHistoryQuery.pageIndex,
         pageSize: patientDiagnosisHistoryQuery.pageSize
       })

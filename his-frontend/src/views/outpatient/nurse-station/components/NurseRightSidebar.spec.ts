@@ -137,8 +137,7 @@ describe('NurseRightSidebar', () => {
           statusName: '已完成',
           executionCount: 1,
           executorName: '模拟护士',
-          executedAt: '2026-07-29 09:00:00',
-          visitNo: 'V20260729001'
+          executedAt: '2026-07-29 09:00:00'
         }
       ],
       total: 1,

@@ -4,12 +4,9 @@ import dayjs from 'dayjs'
 import { ElMessage } from 'element-plus'
 
 import {
-  isNurseStationRealApiEnabled,
   queryNurseStationTemperatureSheet,
   saveNurseStationTemperatureSheet,
-  type NurseStationTemperatureDailySupplementVO,
   type NurseStationTemperatureGridDayVO,
-  type NurseStationTemperatureSheetHeaderVO,
   type NurseStationTemperatureSpecialEventCode,
   type NurseStationTemperatureTimeSlot
 } from '@/apis/inpatient/nurse-station'
@@ -26,7 +23,6 @@ const props = defineProps<{
 interface TemperatureFillRow {
   timeSlot: NurseStationTemperatureTimeSlot
   vitalSignId?: string
-  version?: number
   temperature: string
   pulse: string
   heartRate: string
@@ -63,27 +59,21 @@ const specialEventOptions: Array<{
   { label: '分娩', value: 'DELIVERY' },
   { label: '出院', value: 'DISCHARGE' },
   { label: '死亡', value: 'DEATH' },
-  { label: '外出检查', value: 'OUT_FOR_EXAM' },
-  { label: '拒测体温', value: 'REFUSE_TEMP' },
+  { label: '外出检查', value: 'EXTERNAL_EXAM' },
+  { label: '拒测体温', value: 'REFUSED' },
   { label: '物理降温', value: 'PHYSICAL_COOLING' },
-  { label: '药物降温', value: 'MEDICATION_COOLING' },
+  { label: '药物降温', value: 'DRUG_COOLING' },
   { label: '体温不升', value: 'TEMP_NOT_RISING' }
 ]
 
 const selectedPatient = computed(() => (props.patients.length === 1 ? props.patients[0] : null))
 const loading = ref(false)
 const saving = ref(false)
-const pageIndex = ref(0)
-const totalPages = ref(1)
-const paperHeader = ref<NurseStationTemperatureSheetHeaderVO | null>(null)
 const gridDays = ref<NurseStationTemperatureGridDayVO[]>([])
-const hospitalizationDays = ref<Record<string, number>>({})
-const postoperativeDays = ref<Record<string, number>>({})
 const drawerVisible = ref(false)
 const fullscreen = ref(false)
 const editDate = ref(dayjs().format('YYYY-MM-DD'))
 const fillRows = ref<TemperatureFillRow[]>([])
-const dailySupplement = ref<NurseStationTemperatureDailySupplementVO>({})
 let requestSerial = 0
 
 const chartWidth = 1060
@@ -199,15 +189,10 @@ function createEmptyFillRow(timeSlot: NurseStationTemperatureTimeSlot): Temperat
   }
 }
 
-function createIdempotencyKey() {
-  return `save-temperature-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
-}
-
 /** 快速切换患者或翻页时，只接受最后一次请求返回的数据，防止旧请求覆盖新患者。 */
 async function loadSheet() {
   const serial = ++requestSerial
   const patient = selectedPatient.value
-  paperHeader.value = null
   gridDays.value = []
   if (!patient) return
 
@@ -217,23 +202,9 @@ async function loadSheet() {
       encounterId: patient.encounterId,
       patientId: patient.patientId,
       windowRange: '7d',
-      pageIndex: pageIndex.value,
-      patientContext: {
-        patientName: patient.patientName,
-        genderText: patient.genderText,
-        ageText: patient.ageText,
-        wardName: patient.wardName,
-        bedName: patient.bedName,
-        encounterBusNo: patient.encounterBusNo,
-        admissionDate: patient.admissionTime?.slice(0, 10)
-      }
     })
     if (serial !== requestSerial) return
-    paperHeader.value = result.paperHeader
     gridDays.value = result.gridDays
-    hospitalizationDays.value = result.hospitalizationDaysByDate
-    postoperativeDays.value = result.postoperativeDaysByDate
-    totalPages.value = result.pagination.totalPages
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '加载体温单失败')
   } finally {
@@ -244,18 +215,10 @@ async function loadSheet() {
 watch(
   selectedPatient,
   () => {
-    pageIndex.value = 0
     void loadSheet()
   },
   { immediate: true }
 )
-
-function changePage(direction: 'newer' | 'older') {
-  const next = direction === 'older' ? pageIndex.value + 1 : pageIndex.value - 1
-  if (next < 0 || next >= totalPages.value) return
-  pageIndex.value = next
-  void loadSheet()
-}
 
 /** 把选中日期已经保存的数据复制进录入表，编辑时即可携带记录 ID 和版本号。 */
 function hydrateEditor(recordDate: string) {
@@ -267,7 +230,6 @@ function hydrateEditor(recordDate: string) {
     return {
       timeSlot,
       vitalSignId: slot.vitalSignId,
-      version: slot.version,
       temperature: slot.temperature ?? '',
       pulse: slot.pulse ?? '',
       heartRate: slot.heartRate ?? '',
@@ -279,7 +241,6 @@ function hydrateEditor(recordDate: string) {
       cooledTemperature: event?.cooledTemperature ?? ''
     }
   })
-  dailySupplement.value = { ...(day?.dailySupplement ?? {}) }
 }
 
 function openEditor(recordDate?: string) {
@@ -336,14 +297,12 @@ async function saveSheet() {
   saving.value = true
   try {
     const result = await saveNurseStationTemperatureSheet({
-      idempotencyKey: createIdempotencyKey(),
       encounterId: patient.encounterId,
       patientId: patient.patientId,
       recordDate: editDate.value,
       slots: rows.map((row) => ({
         timeSlot: row.timeSlot,
         vitalSignId: row.vitalSignId,
-        expectedVersion: row.version,
         temperature: row.temperature || undefined,
         pulse: row.pulse || undefined,
         heartRate: row.heartRate || undefined,
@@ -363,7 +322,6 @@ async function saveSheet() {
             ]
           : []
       })),
-      dailySupplement: { ...dailySupplement.value }
     })
     if (result.savedCount) ElMessage.success(`已保存 ${result.savedCount} 个测量时次`)
     if (!result.success) {
@@ -385,10 +343,6 @@ async function saveSheet() {
 
     <div v-else v-loading="loading" class="temperature-sheet-layout">
       <aside class="sheet-actions" aria-label="体温单操作">
-        <el-button :disabled="pageIndex >= totalPages - 1" @click="changePage('older')">
-          上一页
-        </el-button>
-        <el-button :disabled="pageIndex === 0" @click="changePage('newer')">下一页</el-button>
         <el-button @click="fullscreen = !fullscreen">{{
           fullscreen ? '退出全屏' : '全屏'
         }}</el-button>
@@ -400,33 +354,32 @@ async function saveSheet() {
           <header class="paper-heading">
             <div class="hospital-name">示范医院</div>
             <h2>体 温 单</h2>
-            <div class="paper-number">第 {{ pageIndex + 1 }} 页</div>
           </header>
 
           <dl class="patient-header">
             <div>
               <dt>姓名</dt>
-              <dd>{{ paperHeader?.patientName }}</dd>
+              <dd>{{ selectedPatient?.patientName }}</dd>
             </div>
             <div>
               <dt>性别</dt>
-              <dd>{{ paperHeader?.genderText || '—' }}</dd>
+              <dd>{{ selectedPatient?.genderText || '—' }}</dd>
             </div>
             <div>
               <dt>年龄</dt>
-              <dd>{{ paperHeader?.ageText || '—' }}</dd>
+              <dd>{{ selectedPatient?.ageText || '—' }}</dd>
             </div>
             <div>
               <dt>科室</dt>
-              <dd>{{ paperHeader?.wardName || '—' }}</dd>
+              <dd>{{ selectedPatient?.wardName || '—' }}</dd>
             </div>
             <div>
               <dt>床号</dt>
-              <dd>{{ paperHeader?.bedName || '—' }}</dd>
+              <dd>{{ selectedPatient?.bedName || '—' }}</dd>
             </div>
             <div>
               <dt>住院号</dt>
-              <dd>{{ paperHeader?.encounterBusNo || '—' }}</dd>
+              <dd>{{ selectedPatient?.encounterBusNo || '—' }}</dd>
             </div>
           </dl>
 
@@ -441,14 +394,6 @@ async function saveSheet() {
             >
               {{ dayjs(day.recordDate).format('MM-DD') }}
             </button>
-            <div class="head-label">住院日数</div>
-            <div v-for="day in gridDays" :key="`in-${day.recordDate}`" class="day-cell">
-              {{ hospitalizationDays[day.recordDate] }}
-            </div>
-            <div class="head-label">术后日数</div>
-            <div v-for="day in gridDays" :key="`post-${day.recordDate}`" class="day-cell">
-              {{ postoperativeDays[day.recordDate] || '' }}
-            </div>
             <div class="head-label">时间</div>
             <div v-for="day in gridDays" :key="`times-${day.recordDate}`" class="time-group">
               <span v-for="timeSlot in timeSlots" :key="timeSlot">{{ timeSlot }}</span>
@@ -589,27 +534,6 @@ async function saveSheet() {
               </span>
             </div>
 
-            <template
-              v-for="item in [
-                ['大便（次）', 'stoolCount'],
-                ['小便（次）', 'urineCount'],
-                ['总入量（ml）', 'intake'],
-                ['尿量（ml）', 'urine'],
-                ['其他出量（ml）', 'other'],
-                ['体重（kg）', 'weight'],
-                ['身高（cm）', 'height']
-              ]"
-              :key="item[1]"
-            >
-              <div class="footer-label">{{ item[0] }}</div>
-              <div
-                v-for="day in gridDays"
-                :key="`${item[1]}-${day.recordDate}`"
-                class="daily-value"
-              >
-                {{ day.dailySupplement[item[1] as keyof NurseStationTemperatureDailySupplementVO] }}
-              </div>
-            </template>
           </div>
         </article>
       </div>
@@ -625,7 +549,7 @@ async function saveSheet() {
       <div class="drawer-heading">
         <div>
           <h3>体温单录入</h3>
-          <p>{{ paperHeader?.patientName }} · {{ paperHeader?.bedName }}</p>
+          <p>{{ selectedPatient?.patientName }} · {{ selectedPatient?.bedName }}</p>
         </div>
         <div class="date-switcher">
           <el-button @click="changeEditDate(-1)">前一天</el-button>
@@ -697,7 +621,7 @@ async function saveSheet() {
                   v-model="row.cooledTemperature"
                   :disabled="
                     !row.specialEventCode ||
-                    !['PHYSICAL_COOLING', 'MEDICATION_COOLING'].includes(row.specialEventCode)
+                    !['PHYSICAL_COOLING', 'DRUG_COOLING'].includes(row.specialEventCode)
                   "
                 />
               </td>
@@ -715,26 +639,6 @@ async function saveSheet() {
           </tbody>
         </table>
 
-        <el-alert
-          v-if="isNurseStationRealApiEnabled"
-          title="当前后端单时次保存接口不支持当日补充项目，以下数据仅供查看"
-          type="info"
-          show-icon
-          :closable="false"
-        />
-        <section v-else class="daily-supplement">
-          <h4>当日补充项目</h4>
-          <div class="supplement-grid">
-            <label>大便（次）<el-input v-model="dailySupplement.stoolCount" /></label>
-            <label>小便（次）<el-input v-model="dailySupplement.urineCount" /></label>
-            <label>总入量（ml）<el-input v-model="dailySupplement.intake" /></label>
-            <label>尿量（ml）<el-input v-model="dailySupplement.urine" /></label>
-            <label>其他出量（ml）<el-input v-model="dailySupplement.other" /></label>
-            <label>体重（kg）<el-input v-model="dailySupplement.weight" /></label>
-            <label>身高（cm）<el-input v-model="dailySupplement.height" /></label>
-            <label>腹围（cm）<el-input v-model="dailySupplement.abdominalCircumference" /></label>
-          </div>
-        </section>
       </div>
     </el-drawer>
   </section>
@@ -823,8 +727,7 @@ async function saveSheet() {
   letter-spacing: 12px;
 }
 
-.hospital-name,
-.paper-number {
+.hospital-name {
   padding-bottom: 4px;
   color: #374151;
   -webkit-text-fill-color: #374151;
@@ -834,10 +737,6 @@ async function saveSheet() {
 .hospital-name {
   text-align: left;
 }
-.paper-number {
-  text-align: right;
-}
-
 .patient-header {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -1095,32 +994,6 @@ async function saveSheet() {
   text-align: center;
 }
 
-.daily-supplement {
-  margin-top: 16px;
-  padding: 14px;
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-  background: #fafafa;
-  color: #303133;
-  -webkit-text-fill-color: #303133;
-}
-
-.daily-supplement h4 {
-  margin: 0 0 12px;
-}
-.supplement-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(180px, 1fr));
-  gap: 12px;
-}
-.supplement-grid label {
-  display: grid;
-  grid-template-columns: 92px minmax(0, 1fr);
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-}
-
 .temperature-sheet-module > :deep(.el-empty) {
   min-height: 0;
   flex: 1;
@@ -1137,9 +1010,6 @@ async function saveSheet() {
   }
   .temperature-paper {
     padding-inline: 16px;
-  }
-  .supplement-grid {
-    grid-template-columns: repeat(3, minmax(180px, 1fr));
   }
 }
 </style>

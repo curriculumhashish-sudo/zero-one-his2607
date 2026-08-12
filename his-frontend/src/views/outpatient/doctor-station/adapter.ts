@@ -12,6 +12,35 @@ import type {
 } from '@/components/clinical/diagnosis'
 import type { PatientStatusTone, PatientSummary } from '@/components/patient/type'
 
+const diagnosisTypeNameMap: Record<string, string> = {
+  '1': '西医诊断',
+  '2': '症状诊断',
+  '3': '中医诊断',
+  WESTERN: '西医诊断',
+  SYMPTOM: '症状诊断',
+  TCM: '中医诊断',
+  '西医诊断': '西医诊断',
+  '症状诊断': '症状诊断',
+  '中医诊断': '中医诊断'
+}
+
+const diagnosisTypeCodeMap: Record<string, string> = {
+  西医诊断: '1',
+  症状诊断: '2',
+  中医诊断: '3',
+  WESTERN: '1',
+  SYMPTOM: '2',
+  TCM: '3',
+  '1': '1',
+  '2': '2',
+  '3': '3'
+}
+
+function toDiagnosisTypeName(value: string): string {
+  const normalized = value.trim()
+  return diagnosisTypeNameMap[normalized] ?? normalized
+}
+
 /**
  * 后端状态码与公共患者组件语义色的对应关系。
  *
@@ -74,7 +103,7 @@ export function toClinicalDiagnosis(diagnosis: DoctorDiagnosisVO): ClinicalDiagn
     catalogId: diagnosis.catalogId,
     code: diagnosis.code,
     name: diagnosis.name,
-    typeName: diagnosis.typeName,
+    typeName: toDiagnosisTypeName(diagnosis.typeName),
     primary: diagnosis.primary,
     diagnosedAt: diagnosis.diagnosedAt
   }
@@ -88,7 +117,7 @@ export function toClinicalDiagnosisCandidate(
     id: diagnosis.id,
     code: diagnosis.code,
     name: diagnosis.name,
-    typeName: diagnosis.typeName
+    typeName: toDiagnosisTypeName(diagnosis.typeName)
   }
 }
 
@@ -111,9 +140,7 @@ export function toSaveDoctorDiagnosisItem(
 /**
  * 将门诊诊断项映射为后端新增诊断请求体。
  *
- * conditionId（= catalogId）、diagCode（= ICD 编码）已与后端确认；
- * diagTypeCode 的分类编码值待后端提供编码表，当前先直传分类名称。
- * primary 转 primaryFlag（1/0）。
+ * Map the shared diagnosis model to the backend add-diagnosis request.
  */
 export function toOpdoctorCreateDiagnosis(
   encounterId: string,
@@ -124,7 +151,7 @@ export function toOpdoctorCreateDiagnosis(
     conditionId: item.catalogId,
     diagCode: item.code,
     description: item.name,
-    diagTypeCode: item.typeName,
+    diagTypeCode: diagnosisTypeCodeMap[item.typeName.trim()] ?? item.typeName,
     primaryFlag: item.primary ? 1 : 0,
     rank: item.orderNo
   }

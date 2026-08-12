@@ -30,9 +30,8 @@ describe('tcm prescription mock api', () => {
       scope,
       encounterId,
       patientId: 'patient-mock',
-      encounterDiagnosisId: 'diagnosis-mock',
-      diagnosisName: '气虚证',
-      copies: 5,
+      chineseHerbsDoseQuantity: 5,
+      therapyEnum: 'TEMPORARY',
       usage: '水煎服',
       frequency: '每日一剂',
       days: 5,
@@ -51,8 +50,7 @@ describe('tcm prescription mock api', () => {
 
     expect(saved).toEqual(
       expect.objectContaining({
-        encounterDiagnosisId: 'diagnosis-mock',
-        syndromeName: '气虚证',
+        therapyEnum: 'TEMPORARY',
         doseCount: 5,
         method: '水煎服',
         decoctionMethod: '代煎',
@@ -71,11 +69,8 @@ describe('tcm prescription mock api', () => {
       scope,
       encounterId,
       patientId: 'patient-actions',
-      encounterDiagnosisId: 'diagnosis-actions',
-      diagnosisName: '脾气虚证',
-      copies: 3,
-      usage: '水煎服',
-      frequency: '每日一剂',
+      chineseHerbsDoseQuantity: 3,
+      therapyEnum: 'TEMPORARY',
       days: 3,
       details: [{ medicineId: 'herb-002', quantity: 12, unit: 'g', sortNo: 1 }]
     })

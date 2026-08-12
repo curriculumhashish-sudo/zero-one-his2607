@@ -25,7 +25,7 @@ describe('住院医生站后端适配器', () => {
           organizationName: '心血管内科',
           wardName: '心内一病区',
           bedName: '08床',
-          statusEnum: 'DISCHARGE_PENDING'
+          statusEnum: 'IN_PROGRESS'
         }
       ]
     }
@@ -38,12 +38,9 @@ describe('住院医生站后端适配器', () => {
       patientName: '王建国',
       genderName: '男',
       ageText: '68岁',
-      patientNo: 'patient-1',
       inpatientNo: 'ZY001',
       departmentName: '心血管内科',
-      encounterStatus: 'DISCHARGE_PENDING',
-      encounterStatusName: '待出院',
-      version: 0
+      statusEnum: 'IN_PROGRESS'
     })
   })
 
@@ -52,13 +49,25 @@ describe('住院医生站后端适配器', () => {
     expect(result.rows?.[0]).toMatchObject({
       encounterId: '',
       patientId: '',
-      patientNo: '',
       inpatientNo: '',
       departmentName: '',
-      encounterStatus: 'IN_HOSPITAL',
-      encounterStatusName: '在院',
-      version: 0
+      statusEnum: ''
     })
+  })
+
+  it.each([
+    ['MALE', '男'],
+    ['M', '男'],
+    ['男', '男'],
+    ['FEMALE', '女'],
+    ['F', '女'],
+    ['女', '女'],
+    ['UNKNOWN', 'UNKNOWN'],
+    [undefined, '']
+  ])('将后端性别值 %s 映射为 %s', (gender, expected) => {
+    const result = mapInpatientPatientQueuePage({ rows: [{ gender }] })
+
+    expect(result.rows?.[0]?.genderName).toBe(expected)
   })
 
   it('将出院医嘱响应映射为前端模型并保留表单字段', () => {
@@ -66,31 +75,26 @@ describe('住院医生站后端适配器', () => {
       {
         orderId: 'order-1',
         encounterId: 'enc-1',
-        statusEnum: 'SIGNED',
+        statusEnum: 'ACTIVE',
         dischargeWay: '1',
         dischargeTime: '2026-08-08 18:00:00',
-        encounterNewStatus: 'DISCHARGE_PENDING'
+        encounterNewStatus: 'ON_HOLD'
       },
       {
         encounterId: 'enc-1',
-        patientId: 'patient-1',
-        encounterVersion: 0,
         plannedDischargeTime: '2026-08-08 18:00:00',
-        outWayCode: '1',
-        reasonText: '病情稳定',
-        sourceLocationId: 'bed-8'
+        outWayCode: '1'
       }
     )
 
     expect(result).toMatchObject({
       id: 'order-1',
       encounterId: 'enc-1',
-      patientId: 'patient-1',
+      statusEnum: 'ACTIVE',
       plannedDischargeTime: '2026-08-08 18:00:00',
       outWayCode: '1',
       outWayName: '医嘱离院',
-      reasonText: '病情稳定',
-      sourceLocationId: 'bed-8'
+      encounterNewStatus: 'ON_HOLD'
     })
   })
 })

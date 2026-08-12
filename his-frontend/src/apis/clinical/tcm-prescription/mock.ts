@@ -86,9 +86,12 @@ const herbs: TcmHerbCatalogItemVO[] = [
   }
 ]
 
-const statusNames: Record<TcmPrescriptionStatus, string> = {
+const statusNames: Record<string, string> = {
   DRAFT: '待签发',
-  SIGNED: '已签发'
+  ACTIVE: '已激活',
+  SIGNED: '已签发',
+  COMPLETED: '已完成',
+  STOPPED: '已停用'
 }
 
 const records: TcmPrescriptionVO[] = [
@@ -434,7 +437,7 @@ export function mockPageTcmHerbCatalog(
     (item) =>
       !keyword ||
       [item.code, item.name, item.specification].some((value) =>
-        value.toLowerCase().includes(keyword)
+        value?.toLowerCase().includes(keyword)
       )
   )
   const pageIndex = Math.max(1, query.pageIndex)
@@ -454,7 +457,6 @@ export function mockSaveTcmPrescriptionDraft(
   data: SaveTcmPrescriptionDTO
 ): Promise<TcmPrescriptionVO> {
   if (data.details.length === 0) return delayReject('请至少添加一味中药材')
-  if (!data.encounterDiagnosisId) return delayReject('请选择已保存的就诊诊断')
 
   const current = data.id ? records.find((item) => item.id === data.id) : undefined
   if (data.id && !current) return delayReject('中医处方不存在或已被删除')
@@ -475,11 +477,14 @@ export function mockSaveTcmPrescriptionDraft(
   }))
   if (current) {
     touch(current, {
-      encounterDiagnosisId: data.encounterDiagnosisId,
-      syndromeName: data.diagnosisName,
-      doseCount: data.copies,
+      encounterDiagnosisId: data.encounterDiagnosisId || data.tcmSyndromeGroup,
+      syndromeName: data.diagnosisName || data.tcmSyndromeGroup,
+      doseCount: data.chineseHerbsDoseQuantity ?? data.copies ?? 0,
       method: data.usage,
       frequency: data.frequency,
+      therapyEnum: data.therapyEnum,
+      methodCode: data.methodCode,
+      rateCode: data.rateCode,
       days: data.days,
       decoctionMethod: data.decoction ? '代煎' : '自煎',
       remark: data.remark,
@@ -493,16 +498,19 @@ export function mockSaveTcmPrescriptionDraft(
     scope: data.scope,
     encounterId: data.encounterId,
     patientId: data.patientId,
-    encounterDiagnosisId: data.encounterDiagnosisId,
-    syndromeName: data.diagnosisName,
-    doseCount: data.copies,
+    encounterDiagnosisId: data.encounterDiagnosisId || data.tcmSyndromeGroup,
+    syndromeName: data.diagnosisName || data.tcmSyndromeGroup,
+    doseCount: data.chineseHerbsDoseQuantity ?? data.copies ?? 0,
     method: data.usage,
     frequency: data.frequency,
+    therapyEnum: data.therapyEnum,
+    methodCode: data.methodCode,
+    rateCode: data.rateCode,
     days: data.days,
     decoctionMethod: data.decoction ? '代煎' : '自煎',
     remark: data.remark,
     status: 'DRAFT',
-    statusName: statusNames.DRAFT,
+    statusName: statusNames.DRAFT || '',
     lines,
     authoredAt: '2026-07-27 11:30:00',
     updatedAt: '2026-07-27 11:30:00',
@@ -553,4 +561,12 @@ export function mockSignTcmPrescription(data: TcmPrescriptionActionDTO) {
 
 export function mockWithdrawTcmPrescription(data: TcmPrescriptionActionDTO) {
   return changeStatus(data, 'SIGNED', 'DRAFT')
+}
+
+export function mockStopTcmPrescription(data: TcmPrescriptionActionDTO): Promise<void> {
+  return changeStatus(data, 'COMPLETED', 'STOPPED').then(() => undefined)
+}
+
+export function mockCancelStopTcmPrescription(data: TcmPrescriptionActionDTO): Promise<void> {
+  return changeStatus(data, 'STOPPED', 'COMPLETED').then(() => undefined)
 }

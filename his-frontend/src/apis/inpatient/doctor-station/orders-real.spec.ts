@@ -77,7 +77,8 @@ describe('inpatient medical order real api', () => {
         pageIndex: 1,
         pageSize: 20,
         tenant_id: '1001',
-        'patient-id': 'patient-1'
+        patient_id: 'patient-1',
+        encounter_id: 'enc-1'
       },
       expect.objectContaining({ baseURL: expect.any(String) })
     )

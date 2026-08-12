@@ -15,12 +15,8 @@ export interface NursePatientQueueItemVO {
   genderName: string
   /** 年龄展示文本。 */
   ageText: string
-  /** 队列业务号（后端 bus_no）。 */
-  visitNo: string
-  /** 当前排队号。 */
-  queueNumber: number
-  /** 挂号时间。 */
-  registeredAt: string
+  /** 预约日期（后端 booking_date）。 */
+  bookingDate?: string
   /** 接诊科室名称。 */
   departmentName: string
   /** 门诊类别。 */
@@ -84,18 +80,8 @@ export interface PerformNurseExecutionsDTO {
   encounterId: string
   /** 本次选择的执行项目。 */
   items: NurseExecutionCommandItemDTO[]
-  /** 防止重复提交的幂等键。 */
-  idempotencyKey: string
   /** 当前执行者 ID；真实后端必填。 */
   executorId: string
-  /** 当前执行者姓名。 */
-  executorName?: string
-  /** 指定执行时间；为空时由后端使用当前时间。 */
-  executeTime?: string
-  /** 执行类型。 */
-  executeType?: string
-  /** 执行备注。 */
-  remark?: string
 }
 
 /** 取消执行请求。 */
@@ -106,14 +92,14 @@ export interface CancelNurseExecutionDTO {
   item: NurseExecutionCommandItemDTO
   /** 取消原因。 */
   reason: string
-  /** 取消原因编码。 */
-  reasonCode?: string
-  /** 当前操作人 ID。 */
-  operatorId?: string
-  /** 当前操作人姓名。 */
-  operatorName?: string
-  /** 防止重复取消的幂等键。 */
-  idempotencyKey?: string
+}
+
+/** 文本打印请求。 */
+export interface PrintNurseExecutionsDTO {
+  /** 需要打印的服务请求记录 ID。 */
+  recordIds: string[]
+  /** 当前仅接入执行记录文本打印。 */
+  printType?: 'EXECUTION_RECORD'
 }
 
 /** 后端批量执行/取消失败项目。 */
@@ -144,6 +130,7 @@ export interface NurseBatchResultVO {
 export interface NurseConsumableItemVO {
   /** 器械定义 ID。 */
   deviceDefId: string
+  deviceName?: string
   /** 数量。 */
   quantity?: number
   /** 单位编码。 */
@@ -169,7 +156,4 @@ export interface NurseExecutionHistoryQuery extends PageQuery {
 }
 
 /** 患者历史执行记录行（跨就诊）。 */
-export interface NurseExecutionRecordVO extends NurseExecutionItemVO {
-  /** 就诊号。 */
-  visitNo: string
-}
+export type NurseExecutionRecordVO = NurseExecutionItemVO

@@ -7,6 +7,7 @@ import {
   mockGetNurseExecutionItems,
   mockPageNursePatientQueue,
   mockPagePatientExecutionHistory,
+  mockPrintNurseExecutions,
   mockPerformNurseExecutions
 } from './mock'
 
@@ -109,11 +110,10 @@ describe('nurse-station mock', () => {
     expect(secondPage.rows).toHaveLength(2)
   })
 
-  it('使用幂等键防止同一执行请求重复计数', async () => {
+  it('重复执行同一项目时返回状态错误', async () => {
     const request = {
       encounterId: 'mock-encounter-001',
       items: [{ itemId: 'mock-exec-pending-001' }],
-      idempotencyKey: 'idempotency-mock-exec-pending-001',
       executorId: 'nurse-001'
     }
 
@@ -126,9 +126,9 @@ describe('nurse-station mock', () => {
     const repeated = await repeatedRequest
 
     expect(first.successIds).toEqual(['mock-exec-pending-001'])
-    expect(repeated).toEqual(first)
+    expect(repeated.failedItems[0]?.errorCode).toBe('INVALID_STATUS')
 
-    const rowsRequest = mockGetNurseExecutionItems(request.encounterId)
+    const rowsRequest = mockGetNurseExecutionItems('mock-patient-001', request.encounterId)
     await vi.runAllTimersAsync()
     const rows = await rowsRequest
     expect(rows.find((item) => item.itemId === 'mock-exec-pending-001')?.executionCount).toBe(1)
@@ -147,7 +147,6 @@ describe('nurse-station mock', () => {
     const resultRequest = mockPerformNurseExecutions({
       encounterId: 'mock-encounter-001',
       items: [{ itemId: 'mock-exec-pending-002' }, { itemId: 'mock-exec-completed-001' }],
-      idempotencyKey: 'partial-success',
       executorId: 'nurse-001'
     })
     await vi.runAllTimersAsync()
@@ -182,5 +181,14 @@ describe('nurse-station mock', () => {
     const stale = await staleRequest
 
     expect(stale.failedItems[0]?.errorCode).toBe('INVALID_STATUS')
+  })
+
+  it('生成可供浏览器打印的服务请求文本', async () => {
+    const content = await resolveMockRequest(
+      mockPrintNurseExecutions({ recordIds: ['mock-exec-completed-001'] })
+    )
+
+    expect(content).toContain('服务请求打印单')
+    expect(content).toContain('生命体征测量')
   })
 })

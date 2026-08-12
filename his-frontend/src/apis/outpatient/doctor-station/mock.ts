@@ -21,8 +21,6 @@ import type {
   DoctorDiagnosisDictionaryItemVO,
   DoctorDiagnosisDictionaryQuery,
   DoctorDiagnosisListVO,
-  DoctorDiagnosisUsageHistoryItemVO,
-  DoctorDiagnosisUsageHistoryQuery,
   DoctorDiagnosisVO,
   DoctorMedicalRecordHistoryItemVO,
   DoctorMedicalRecordHistoryQuery,
@@ -86,6 +84,24 @@ const basePatientQueue: DoctorPatientQueueItemVO[] = [
     paymentTypeName: '职工医保'
   },
   {
+    encounterId: 'enc-20260723-005',
+    patientId: 'patient-1005',
+    patientName: '陈晨',
+    gender: '男',
+    age: 29,
+    visitNo: 'MR20260005',
+    queueNumber: 5,
+    visitTime: `${mockYesterday} 09:25`,
+    departmentName: '心血管内科',
+    registerType: '普通门诊',
+    visitStatus: 'finished',
+    paymentTypeName: '居民医保'
+  }
+]
+
+/** 仅供接口单测使用的隐藏就诊夹具，不进入浏览器患者队列。 */
+const hiddenPatientFixtures: DoctorPatientQueueItemVO[] = [
+  {
     encounterId: 'enc-20260723-002',
     patientId: 'patient-1002',
     patientName: '李晓梅',
@@ -113,62 +129,6 @@ const basePatientQueue: DoctorPatientQueueItemVO[] = [
     registerType: '普通门诊',
     visitStatus: 'in-progress',
     paymentTypeName: '自费'
-  },
-  {
-    encounterId: 'enc-20260723-004',
-    patientId: 'patient-1004',
-    patientName: '赵敏',
-    gender: '女',
-    age: 35,
-    visitNo: 'MR20260004',
-    queueNumber: 4,
-    visitTime: `${mockToday} 09:06`,
-    departmentName: '心血管内科',
-    registerType: '复诊',
-    visitStatus: 'arrived',
-    paymentTypeName: '职工医保'
-  },
-  {
-    encounterId: 'enc-20260723-005',
-    patientId: 'patient-1005',
-    patientName: '陈晨',
-    gender: '男',
-    age: 29,
-    visitNo: 'MR20260005',
-    queueNumber: 5,
-    visitTime: `${mockToday} 09:25`,
-    departmentName: '心血管内科',
-    registerType: '普通门诊',
-    visitStatus: 'finished',
-    paymentTypeName: '居民医保'
-  },
-  {
-    encounterId: 'enc-20260722-006',
-    patientId: 'patient-1006',
-    patientName: '周淑芬',
-    gender: '女',
-    age: 61,
-    visitNo: 'MR20260006',
-    queueNumber: 6,
-    visitTime: `${mockYesterday} 15:10`,
-    departmentName: '心血管内科',
-    registerType: '普通门诊',
-    visitStatus: 'finished',
-    paymentTypeName: '职工医保'
-  },
-  {
-    encounterId: 'enc-20260723-007',
-    patientId: 'patient-1007',
-    patientName: '孙丽华',
-    gender: '女',
-    age: 48,
-    visitNo: 'MR20260007',
-    queueNumber: 7,
-    visitTime: `${mockToday} 09:40`,
-    departmentName: '心血管内科',
-    registerType: '普通门诊',
-    visitStatus: 'arrived',
-    paymentTypeName: '居民医保'
   },
   {
     encounterId: 'enc-20260723-008',
@@ -211,43 +171,14 @@ const basePatientQueue: DoctorPatientQueueItemVO[] = [
     registerType: '普通门诊',
     visitStatus: 'in-progress',
     paymentTypeName: '自费'
-  },
-  {
-    encounterId: 'enc-20260723-011',
-    patientId: 'patient-1011',
-    patientName: '何芳',
-    gender: '女',
-    age: 38,
-    visitNo: 'MR20260011',
-    queueNumber: 11,
-    visitTime: `${mockToday} 07:50`,
-    departmentName: '心血管内科',
-    registerType: '普通门诊',
-    visitStatus: 'finished',
-    paymentTypeName: '职工医保'
-  },
-  {
-    encounterId: 'enc-20260722-012',
-    patientId: 'patient-1012',
-    patientName: '高玉明',
-    gender: '男',
-    age: 70,
-    visitNo: 'MR20260012',
-    queueNumber: 12,
-    visitTime: `${mockYesterday} 14:20`,
-    departmentName: '心血管内科',
-    registerType: '专家门诊',
-    visitStatus: 'finished',
-    paymentTypeName: '居民医保',
-    priorityName: '高龄'
   }
 ]
 
 /**
  * 仅供 CRUD 单元测试使用的空白在诊就诊。
  *
- * 它们不进入 patientQueue，因此浏览器里的医生患者队列不会再显示
- * “测试患者13～27”；接口测试仍可在互不干扰的就诊上验证新增和删除。
+ * 它们不进入 patientQueue，因此浏览器里的医生患者队列不会显示测试患者；
+ * 接口测试仍可在互不干扰的就诊上验证新增、删除和分组。
  */
 const apiTestPatientFixtures: DoctorPatientQueueItemVO[] = [14, 17, 20, 30].map((sequence) => ({
   encounterId: `enc-extra-${sequence}`,
@@ -268,6 +199,7 @@ const apiTestPatientFixtures: DoctorPatientQueueItemVO[] = [14, 17, 20, 30].map(
 const patientQueue: DoctorPatientQueueItemVO[] = [...basePatientQueue]
 const currentEncounterRegistry: DoctorPatientQueueItemVO[] = [
   ...patientQueue,
+  ...hiddenPatientFixtures,
   ...apiTestPatientFixtures
 ]
 
@@ -454,6 +386,15 @@ function toMedicalRecordHistoryItem(
  */
 const medicalRecordByEncounterId: Record<string, DoctorMedicalRecordVO> = {
   ...historicalMedicalRecordByEncounterId,
+  'enc-20260723-001': {
+    id: 'record-001',
+    encounterId: 'enc-20260723-001',
+    content:
+      '<h3>主诉</h3><p>近期血压波动，前来复诊。</p>' +
+      '<h3>现病史</h3><p>患者自述偶有头晕，无胸痛、呼吸困难。</p>' +
+      '<h3>查体</h3><p>神志清楚，心肺听诊未见明显异常。</p>',
+    updatedAt: `${mockToday} 08:10:00`
+  },
   [fullDemoEncounterId]: {
     id: 'record-demo-current',
     encounterId: fullDemoEncounterId,
@@ -578,55 +519,13 @@ const diagnosisListByEncounterId: Record<string, DoctorDiagnosisListVO> = {
   }
 }
 
-/** 诊断使用历史 Mock 数据。 */
-const diagnosisUsageHistory: DoctorDiagnosisUsageHistoryItemVO[] = [
-  {
-    ...diagnosisDictionary[0]!,
-    catalogId: diagnosisDictionary[0]!.id,
-    useCount: 6,
-    lastUsedAt: dayjs().subtract(1, 'month').format('YYYY-MM-DD HH:mm:ss')
-  },
-  {
-    ...diagnosisDictionary[1]!,
-    catalogId: diagnosisDictionary[1]!.id,
-    useCount: 4,
-    lastUsedAt: dayjs().subtract(3, 'month').format('YYYY-MM-DD HH:mm:ss')
-  },
-  {
-    ...diagnosisDictionary[5]!,
-    catalogId: diagnosisDictionary[5]!.id,
-    useCount: 28,
-    lastUsedAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD HH:mm:ss')
-  },
-  {
-    ...diagnosisDictionary[4]!,
-    catalogId: diagnosisDictionary[4]!.id,
-    useCount: 24,
-    lastUsedAt: dayjs().subtract(2, 'day').format('YYYY-MM-DD HH:mm:ss')
-  },
-  {
-    ...diagnosisDictionary[7]!,
-    catalogId: diagnosisDictionary[7]!.id,
-    useCount: 15,
-    lastUsedAt: dayjs().subtract(4, 'day').format('YYYY-MM-DD HH:mm:ss')
-  },
-  {
-    ...diagnosisDictionary[8]!,
-    catalogId: diagnosisDictionary[8]!.id,
-    useCount: 41,
-    lastUsedAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD HH:mm:ss')
-  },
-  {
-    ...diagnosisDictionary[2]!,
-    catalogId: diagnosisDictionary[2]!.id,
-    useCount: 36,
-    lastUsedAt: dayjs().subtract(2, 'day').format('YYYY-MM-DD HH:mm:ss')
-  }
-]
-
 /** 根据历史病历生成跨科室、跨医生的患者历史诊断 Mock。 */
 type MockPatientDiagnosisHistoryItem = DoctorPatientDiagnosisHistoryItemVO & {
   patientId: string
+  visitNo: string
+  departmentName: string
+  attendingDoctorName: string
+  visitedAt: string
 }
 
 const historicalPatientDiagnoses: MockPatientDiagnosisHistoryItem[] =
@@ -1293,40 +1192,6 @@ export async function mockPageDiagnosisDictionary(
   })
 }
 
-/** 模拟分页查询诊断使用历史。 */
-export async function mockPageDiagnosisUsageHistory(
-  query: DoctorDiagnosisUsageHistoryQuery
-): Promise<PageDTO<DoctorDiagnosisUsageHistoryItemVO>> {
-  const keyword = query.keyword?.trim() ?? ''
-  await waitForMockRequest(keyword || query.patientId || 'diagnosis-usage')
-  if (keyword === '失败') throw new Error('模拟诊断使用历史加载失败')
-
-  const normalizedKeyword = keyword.toLocaleLowerCase()
-  const filteredRows = diagnosisUsageHistory
-    .filter((item) => {
-      const matchesKeyword =
-        !normalizedKeyword ||
-        [item.code, item.name, item.typeName]
-          .join(' ')
-          .toLocaleLowerCase()
-          .includes(normalizedKeyword)
-      return matchesKeyword
-    })
-    .sort(
-      (left, right) =>
-        right.useCount - left.useCount || right.lastUsedAt.localeCompare(left.lastUsedAt)
-    )
-  const pageIndex = Math.max(1, query.pageIndex)
-  const pageSize = Math.max(1, query.pageSize)
-  const startIndex = (pageIndex - 1) * pageSize
-  return createPageDTO({
-    pageIndex,
-    pageSize,
-    total: filteredRows.length,
-    rows: filteredRows.slice(startIndex, startIndex + pageSize).map((item) => ({ ...item }))
-  })
-}
-
 /** 模拟患者跨就诊历史诊断的条件分页查询。 */
 export async function mockPagePatientDiagnosisHistory(
   query: DoctorPatientDiagnosisHistoryQuery
@@ -1365,7 +1230,17 @@ export async function mockPagePatientDiagnosisHistory(
     pageIndex,
     pageSize,
     total: filteredRows.length,
-    rows: filteredRows.slice(startIndex, startIndex + pageSize).map((item) => ({ ...item }))
+    rows: filteredRows.slice(startIndex, startIndex + pageSize).map((item) => ({
+      id: item.id,
+      encounterId: item.encounterId,
+      catalogId: item.catalogId,
+      code: item.code,
+      name: item.name,
+      typeName: item.typeName,
+      primary: item.primary,
+      diagnosedAt: item.diagnosedAt,
+      orderNo: item.orderNo
+    }))
   })
 }
 
@@ -1880,7 +1755,7 @@ export async function mockPagePatientAdviceOrderHistory(
           .includes(normalizedKeyword)
       return (
         item.patientId === query.patientId &&
-        item.encounterId !== query.excludeEncounterId &&
+        (!query.visitType || item.visitType === query.visitType) &&
         matchesKeyword
       )
     })
@@ -1917,8 +1792,7 @@ export async function mockPagePatientAdviceOrderHistoryDetails(
         .toLocaleLowerCase()
         .includes(normalizedKeyword)
     const matchesCategory = !query.category || item.category === query.category
-    const matchesStatus = !query.status || item.status === query.status
-    return matchesKeyword && matchesCategory && matchesStatus
+    return matchesKeyword && matchesCategory
   })
   const pageIndex = Math.max(1, query.pageIndex)
   const pageSize = Math.max(1, query.pageSize)

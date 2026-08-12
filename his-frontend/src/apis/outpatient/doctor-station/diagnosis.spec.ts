@@ -4,7 +4,6 @@ import {
   createDiagnosis,
   deleteDiagnosis,
   getDiagnoses,
-  pageDiagnosisUsageHistory,
   pagePatientDiagnosisHistory
 } from './index'
 
@@ -32,19 +31,6 @@ describe('doctor-station diagnosis API', () => {
     vi.useRealTimers()
   })
 
-  it('分页查询诊断使用历史', async () => {
-    const result = await resolveMockRequest(
-      pageDiagnosisUsageHistory({
-        patientId: 'patient-1003',
-        pageIndex: 1,
-        pageSize: 2
-      })
-    )
-
-    expect(result.total).toBeGreaterThan(0)
-    expect(result.rows).toHaveLength(Math.min(2, result.total))
-  })
-
   it('按患者、关键词和主次条件分页查询历史诊断', async () => {
     const result = await resolveMockRequest(
       pagePatientDiagnosisHistory({
@@ -62,7 +48,7 @@ describe('doctor-station diagnosis API', () => {
 
   it('独立新增和删除诊断，并在删除主诊断后自动补位', async () => {
     const encounterId = 'enc-extra-14'
-    await resolveMockRequest(getDiagnoses(encounterId))
+    await resolveMockRequest(getDiagnoses(encounterId, 'patient-extra-14'))
 
     const first = await resolveMockRequest(
       createDiagnosis({
@@ -100,7 +86,7 @@ describe('doctor-station diagnosis API', () => {
 
   it('不允许删除最后一条诊断', async () => {
     const encounterId = 'enc-extra-17'
-    await resolveMockRequest(getDiagnoses(encounterId))
+    await resolveMockRequest(getDiagnoses(encounterId, 'patient-extra-17'))
     const current = await resolveMockRequest(
       createDiagnosis({
         encounterId,
