@@ -197,7 +197,7 @@ INSERT INTO adm_encounter
 VALUES
 (?, ?, NOW(6), NOW(6), ?, ?,
  0, NULL, NULL, 1,
- ?, NULL, ?, 'INHOSPITAL', 'COMMON',
+ ?, NULL, ?, 'INHOSPITAL', 'IMP',
  ?, ?, ?, STR_TO_DATE(?,'%Y-%m-%d'), NULL,
  ?, ?, NOW(6))
 )";

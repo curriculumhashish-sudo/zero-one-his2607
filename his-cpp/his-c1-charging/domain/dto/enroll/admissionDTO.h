@@ -246,5 +246,32 @@ public:
 	}
 };
 
+/**
+ * Admission registration result.
+ * Returned on successful POST /charging/admission/add.
+ */
+class AdmissionAddResultDTO : public oatpp::DTO
+{
+	DTO_INIT(AdmissionAddResultDTO, DTO);
+
+	// Generated encounter ID (adm_encounter.id)
+	DTO_FIELD(String, encounterId);
+	DTO_FIELD_INFO(encounterId) {
+		info->description = ZH_WORDS_GETTER("charging.admission.resultEncounterId");
+	}
+
+	// Generated patient ID (adm_patient.id)
+	DTO_FIELD(String, patientId);
+	DTO_FIELD_INFO(patientId) {
+		info->description = ZH_WORDS_GETTER("charging.admission.resultPatientId");
+	}
+
+	// Generated encounter business number (adm_encounter.bus_no)
+	DTO_FIELD(String, encounterBusNo);
+	DTO_FIELD_INFO(encounterBusNo) {
+		info->description = ZH_WORDS_GETTER("charging.admission.resultEncounterBusNo");
+	}
+};
+
 #include OATPP_CODEGEN_END(DTO)
 #endif // !_ADMISSION_DTO_

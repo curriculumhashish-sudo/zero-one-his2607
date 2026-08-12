@@ -32,7 +32,10 @@ charging:
   insuranceRevoked: 医保是否已撤销(仅记录标记,不做冲正)
   add_success: 住院登记成功
   delete_success: 取消登记成功
-  add_error_codes: "错误码说明:200-成功;401-未登录或TOKEN过期;403-无权限;9995-参数校验失败;9999-业务失败(日期格式无效/登记失败);9994-服务器异常"
+  resultEncounterId: 生成的住院登记记录ID(adm_encounter.id)
+  resultPatientId: 生成的患者ID(adm_patient.id)
+  resultEncounterBusNo: 生成的住院号(adm_encounter.bus_no)
+  add_error_codes: "错误码说明:200-成功(data含encounterId/patientId/encounterBusNo);401-未登录或TOKEN过期;403-无权限;9995-参数校验失败;9999-业务失败(日期格式无效/登记失败);9994-服务器异常"
   delete_error_codes: "错误码说明:200-成功;401-未登录或TOKEN过期;403-无权限;9995-参数校验失败(encounterId、cancelReason 必填);9999-业务失败(登记不存在/状态不可取消/取消失败);9994-服务器异常"
   error_date_invalid: 入院日期或出生日期格式无效(需 YYYY-MM-DD)
   error_encounter_not_found: 未找到对应的住院登记记录

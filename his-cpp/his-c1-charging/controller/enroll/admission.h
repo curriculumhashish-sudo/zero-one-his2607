@@ -2,6 +2,7 @@
 #define _ADMISSION_CONTROLLER_
 
 #include "domain/vo/BaseJsonVO.h"
+#include "domain/vo/enroll/AdmissionVO.h"
 #include "domain/dto/enroll/admissionDTO.h"
 
 #include OATPP_CODEGEN_BEGIN(ApiController) //<- Begin Codegen
@@ -17,7 +18,7 @@ public:
 	ENDPOINT_INFO(admission_add) {
 		API_DEF_ADD_TITLE(ZH_WORDS_GETTER("charging.admission.add_discription"));
 		API_DEF_ADD_AUTH();
-		API_DEF_ADD_RSP_JSON_WRAPPER(StringJsonVO);
+		API_DEF_ADD_RSP_JSON_WRAPPER(AdmissionAddResultJsonVO);
 		info->summary = ZH_WORDS_GETTER("charging.admission.add_discription");
 		info->description = ZH_WORDS_GETTER("charging.admission.add_error_codes");
 		API_DEF_ADD_TAG(API_TAG);
@@ -41,9 +42,9 @@ public:
 	}
 
 private:
-	StringJsonVO::Wrapper execAdmissionAdd(const AdmissionAddDTO::Wrapper& dto, const std::shared_ptr<CustomerAuthorizeObject>& authObject);
-
 	StringJsonVO::Wrapper execAdmissionDelete(const AdmissionDeleteDTO::Wrapper& dto, const std::shared_ptr<CustomerAuthorizeObject>& authObject);
+
+	AdmissionAddResultJsonVO::Wrapper execAdmissionAdd(const AdmissionAddDTO::Wrapper& dto, const std::shared_ptr<CustomerAuthorizeObject>& authObject);
 };
 
 

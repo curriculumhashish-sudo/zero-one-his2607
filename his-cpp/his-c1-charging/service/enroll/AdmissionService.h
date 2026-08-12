@@ -6,13 +6,21 @@
 #include "domain/dto/PayloadDTO.h"
 #include <string>
 
+// Result struct returned by AdmissionService::insertAdmission.
+// code is empty on success, or a failure code ("DATE_INVALID", "INSERT_FAILED").
+struct AdmissionInsertResult
+{
+	std::string code;
+	std::string patientId;
+	std::string encounterId;
+	std::string encounterBusNo;
+};
+
 class AdmissionService
 {
 public:
 	// Inpatient admission registration.
-	// Returns an empty string on success, or a failure code
-	// ("DATE_INVALID", "INSERT_FAILED").
-	std::string insertAdmission(const AdmissionAddDTO::Wrapper& dto, const PayloadDTO& payload);
+	AdmissionInsertResult insertAdmission(const AdmissionAddDTO::Wrapper& dto, const PayloadDTO& payload);
 
 	// Cancel admission registration.
 	// Returns an empty string on success, or a failure code

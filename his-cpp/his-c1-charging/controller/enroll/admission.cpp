@@ -22,30 +22,34 @@ static ResultStatus buildErrorStatus(const std::string& code)
 	return RS_SERVER_ERROR;
 }
 
-StringJsonVO::Wrapper AdmissionController::execAdmissionAdd(const AdmissionAddDTO::Wrapper& dto, const std::shared_ptr<CustomerAuthorizeObject>& authObject)
+AdmissionAddResultJsonVO::Wrapper AdmissionController::execAdmissionAdd(const AdmissionAddDTO::Wrapper& dto, const std::shared_ptr<CustomerAuthorizeObject>& authObject)
 {
 	// Build unified JSON response
-	auto result = StringJsonVO::createShared();
+	auto result = AdmissionAddResultJsonVO::createShared();
 
 	// Validate required fields
 	std::string errMsg = dto->validate();
 	if (!errMsg.empty())
 	{
-		result->init(oatpp::String(errMsg), RS_PARAMS_INVALID);
+		result->init(nullptr, RS_PARAMS_INVALID);
 		return result;
 	}
 
 	// Call service to execute admission registration
 	AdmissionService service;
-	std::string code = service.insertAdmission(dto, authObject->getPayload());
+	AdmissionInsertResult r = service.insertAdmission(dto, authObject->getPayload());
 
-	if (code.empty())
+	if (r.code.empty())
 	{
-		result->success(oatpp::String(ZH_WORDS_GETTER("charging.admission.add_success")));
+		auto data = AdmissionAddResultDTO::createShared();
+		data->encounterId = r.encounterId.c_str();
+		data->patientId = r.patientId.c_str();
+		data->encounterBusNo = r.encounterBusNo.c_str();
+		result->init(data, ResultStatus(ZH_WORDS_GETTER("charging.admission.add_success")));
 	}
 	else
 	{
-		result->init(nullptr, buildErrorStatus(code));
+		result->init(nullptr, buildErrorStatus(r.code));
 	}
 	return result;
 }

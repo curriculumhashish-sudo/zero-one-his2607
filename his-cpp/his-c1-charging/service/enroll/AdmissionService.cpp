@@ -22,12 +22,18 @@ static std::string toNumericStr(const oatpp::Int64& field, const std::string& fa
 }
 
 // Inpatient admission registration.
-// Returns an empty string on success, or a failure code on error.
-std::string AdmissionService::insertAdmission(const AdmissionAddDTO::Wrapper& dto, const PayloadDTO& payload)
+// Returns AdmissionInsertResult with code empty on success.
+AdmissionInsertResult AdmissionService::insertAdmission(const AdmissionAddDTO::Wrapper& dto, const PayloadDTO& payload)
 {
+	AdmissionInsertResult result;
+
 	// Validate required fields
 	std::string errMsg = dto->validate();
-	if (!errMsg.empty()) return "PARAMS_INVALID";
+	if (!errMsg.empty())
+	{
+		result.code = "PARAMS_INVALID";
+		return result;
+	}
 
 	// Extract fields from DTO and convert to std::string
 	std::string name = toStr(dto->name);
@@ -98,14 +104,15 @@ std::string AdmissionService::insertAdmission(const AdmissionAddDTO::Wrapper& dt
 
 	// Call DAO to insert admission record
 	AdmissionDAO dao;
-	return dao.insertAdmission(
+	result.code = dao.insertAdmission(
 		name, idCard, birthTime, age, sex, phone,
 		organizationId, wardId, attendingDoctorId, contractId,
 		admissionDiagnosis, diagnosisDesc, patientCondition,
 		admissionType, admissionMode, feeNature, admissionDate,
 		prepayAmount, paymentDetails, tenantId, operUserId,
-		outPatientId, outEncounterId, outBusNo
+		result.patientId, result.encounterId, result.encounterBusNo
 	);
+	return result;
 }
 
 // Cancel admission registration.
