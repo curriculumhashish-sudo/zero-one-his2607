@@ -22,6 +22,7 @@ Litguidyo:
    tag2: 物资有效期预警分布
    summary2: 物资有效期查询
    query-by-id: 通过id获取单条数据
+   InventoryName: 物资名称
 rhqm:
  form:
   cost_info:

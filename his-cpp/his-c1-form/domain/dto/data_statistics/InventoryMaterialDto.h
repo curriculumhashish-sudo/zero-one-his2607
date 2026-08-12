@@ -32,25 +32,31 @@
 class InventoryMaterialAddDto : public oatpp::DTO {
 	DTO_INIT(InventoryMaterialAddDto, DTO);
 
+	// Material name
+	DTO_FIELD(String, name);
+	DTO_FIELD_INFO(name) {
+		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.InventoryName");
+	}
+
 	// Expiration date
 	DTO_FIELD(String, time);
 	DTO_FIELD_INFO(time) {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.time");
 	}
 
-	// 该有效期对应的数量 (采用云端的 Float64 类型)
+	// Quantity for the expiration date
 	DTO_FIELD(Float64, numbers);
 	DTO_FIELD_INFO(numbers) {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.numbers");
 	}
 
-	// 库存ID (采用云端的新字段)
+	// Inventory identifier
 	DTO_FIELD(String, bus_no);
 	DTO_FIELD_INFO(bus_no) {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.bus_no");
 	}
 
-	// Batch number (保留本地的批号字段以防其他地方调用)
+	// Batch number
 	DTO_FIELD(String, batch_number);
 	DTO_FIELD_INFO(batch_number) {
 		info->description = ZH_WORDS_GETTER("Litguidyo.form.inoutbound.batch_number");
