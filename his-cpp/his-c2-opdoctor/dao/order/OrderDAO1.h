@@ -56,6 +56,10 @@ private:
      */
     std::string buildStatusCondition(const std::list<std::string>& statusList);
 
+    
+
+public:
+
     /**
      * 从 DO 构建药品医嘱 DTO
      */
@@ -76,8 +80,6 @@ private:
     OrderDetailDTO1::Wrapper buildDeviceDTO(const DeviceRequestDO1& item,
         const DeviceDefinitionDO1& def,
         const std::string& doctorName);
-
-public:
     /**
      * 获取物品单价（从 adm_charge_item_definition 查询）
      */
@@ -123,7 +125,8 @@ public:
         uint64_t pageIndex,
         uint64_t pageSize,
         uint64_t& total,
-        const std::string& doctorName = ""
+        const std::string& doctorName = "",
+        int encounterVersion = 0
     );
 
     /**

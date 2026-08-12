@@ -30,7 +30,7 @@ public:
     );
     API_HANDLER_ENDPOINT_QUERY_AUTH(
         API_M_GET,
-        "/createOrder/query",
+        "/c2-opdoctor/createOrder/query",
         queryOrder,
         OrderQuery1,
         execQueryOrder(query, authObject->getPayload())
@@ -45,7 +45,7 @@ public:
     );
     API_HANDLER_ENDPOINT_AUTH(
         API_M_POST,
-        "/createOrder/add",
+        "/c2-opdoctor/createOrder/add",
         addOrder,
         BODY_DTO(OrderAddDTO1::Wrapper, dto),
         execAddOrder(dto, authObject->getPayload())
@@ -60,7 +60,7 @@ public:
     );
     API_HANDLER_ENDPOINT_AUTH(
         API_M_PUT,
-        "/createOrder/modify",
+        "/c2-opdoctor/createOrder/modify",
         modifyOrder,
         BODY_DTO(OrderModifyDTO1::Wrapper, dto),
         execModifyOrder(dto, authObject->getPayload())
@@ -76,7 +76,7 @@ public:
     );
     API_HANDLER_ENDPOINT_AUTH(
         API_M_POST,
-        "/createOrder/batchAdd",
+        "/c2-opdoctor/createOrder/batchAdd",
         batchAddOrder,
         BODY_DTO(OrderBatchAddDTO1::Wrapper, dto),
         execBatchAddOrder(dto, authObject->getPayload())

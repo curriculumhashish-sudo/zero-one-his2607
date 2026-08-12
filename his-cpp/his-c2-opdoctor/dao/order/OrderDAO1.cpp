@@ -195,7 +195,7 @@ OrderDetailDTO1::Wrapper OrderDAO1::buildMedicationDTO(
     // 时间与版本
     dto->createTime = oatpp::String(item.getCreatedAt());
     dto->updatedAt = oatpp::String(item.getUpdatedAt());
-    dto->version = oatpp::Int32(item.getVersion());
+    dto->orderVersion = oatpp::Int32(item.getVersion());
 
     // 其他
     dto->prescriptionNo = oatpp::String(item.getPrescriptionNo());
@@ -282,7 +282,7 @@ OrderDetailDTO1::Wrapper OrderDAO1::buildServiceDTO(
     // 时间与版本
     dto->createTime = oatpp::String(item.getCreatedAt());
     dto->updatedAt = oatpp::String(item.getUpdatedAt());
-    dto->version = oatpp::Int32(item.getVersion());
+    dto->orderVersion = oatpp::Int32(item.getVersion());
 
     // 其他
     dto->prescriptionNo = oatpp::String(item.getPrescriptionNo());
@@ -361,7 +361,9 @@ OrderDetailDTO1::Wrapper OrderDAO1::buildDeviceDTO(
     // 时间与版本
     dto->createTime = oatpp::String(item.getCreatedAt());
     dto->updatedAt = oatpp::String(item.getUpdatedAt());
-    dto->version = oatpp::Int32(item.getVersion());
+    dto->orderVersion = oatpp::Int32(item.getVersion());
+    // �� buildXXXDTO ��
+    
 
     // 其他
     dto->prescriptionNo = oatpp::String(item.getPrescriptionNo());
@@ -403,7 +405,8 @@ std::list<OrderDetailDTO1::Wrapper> OrderDAO1::queryOrderList(
     uint64_t pageIndex,
     uint64_t pageSize,
     uint64_t& total,
-    const std::string& doctorName)
+    const std::string& doctorName,
+    int encounterVersion)
 {
     std::list<OrderDetailDTO1::Wrapper> resultList;
 
@@ -437,6 +440,7 @@ std::list<OrderDetailDTO1::Wrapper> OrderDAO1::queryOrderList(
             auto def = selectMedicationDefinitionById(item.getMedicationId());
             if (def) {
                 auto dto = buildMedicationDTO(item, *def, doctorName);
+                dto->encounterVersion = oatpp::Int32(encounterVersion);
                 mergedList.push_back({ item.getCreatedAt(), dto });
             }
         }
@@ -458,6 +462,7 @@ std::list<OrderDetailDTO1::Wrapper> OrderDAO1::queryOrderList(
             auto def = selectActivityDefinitionById(item.getActivityId());
             if (def) {
                 auto dto = buildServiceDTO(item, *def, doctorName);
+                dto->encounterVersion = oatpp::Int32(encounterVersion);
                 mergedList.push_back({ item.getCreatedAt(), dto });
             }
         }
@@ -479,6 +484,7 @@ std::list<OrderDetailDTO1::Wrapper> OrderDAO1::queryOrderList(
             auto def = selectDeviceDefinitionById(item.getDeviceDefId());
             if (def) {
                 auto dto = buildDeviceDTO(item, *def, doctorName);
+                dto->encounterVersion = oatpp::Int32(encounterVersion);
                 mergedList.push_back({ item.getCreatedAt(), dto });
             }
         }

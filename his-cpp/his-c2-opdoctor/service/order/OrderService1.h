@@ -73,6 +73,21 @@ private:
     );
 
     /**
+     * 获取就诊级版本号
+     */
+    int getEncounterVersion(const std::string& encounterId, OrderDAO1& dao);
+
+    /**
+     * 递增就诊级版本号，并更新 updatedAt
+     */
+    void incrementEncounterVersion(const std::string& encounterId, OrderDAO1& dao);
+
+    /**
+     * 校验就诊级版本号
+     */
+    bool checkEncounterVersion(const std::string& encounterId, int clientVersion, OrderDAO1& dao);
+
+    /**
      * 校验枚举值是否存在（新 MongoDB 双集合结构）
      */
     bool validateEnumCode(const std::string& enumTypeKey,
@@ -198,6 +213,9 @@ public:
     OrderService1(std::shared_ptr<RedisClient> redisClient,
         std::shared_ptr<MongoClient> mongoClient);
     ~OrderService1() = default;
+
+    bool checkEncounterAccess(const std::string& encounterId, const ServiceContext& ctx, OrderDAO1& dao);
+   
 
     /**
      * 查询医嘱列表

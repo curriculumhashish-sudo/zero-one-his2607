@@ -13,6 +13,8 @@
 #include "domain/do/order/MedicationDefinitionDO1.h"
 #include "domain/do/order/ActivityDefinitionDO1.h"
 #include "domain/do/order/DeviceDefinitionDO1.h"
+#include "domain/do/order/EncounterDO1.h"
+#include "dao/order/mapper/EncounterMapper1.h"
 #include "RedisClient.h"
 #include "MongoClient.h"
 #include <ctime>
@@ -48,6 +50,35 @@ OrderService1::OrderService1(std::shared_ptr<RedisClient> redisClient,
     m_sessionService = std::make_shared<SessionService>(redisClient);
     m_auditDAO = std::make_shared<OrderAuditDAO1>(mongoClient);
     m_enumDAO = std::make_shared<EnumDAO>(mongoClient);
+}
+
+// ========== 版本控制辅助方法 ==========
+int OrderService1::getEncounterVersion(const std::string& encounterId, OrderDAO1& dao)
+{
+    if (encounterId.empty()) {
+        return 0;
+    }
+
+    std::string sql = "SELECT version FROM adm_encounter WHERE id = '" + encounterId + "' AND is_deleted = 0";
+    double version = dao.getSqlSession()->executeQueryNumerical(sql);
+    return (int)version;
+}
+
+void OrderService1::incrementEncounterVersion(const std::string& encounterId, OrderDAO1& dao)
+{
+    if (encounterId.empty()) {
+        return;
+    }
+
+    std::string now = SimpleDateTimeFormat::format();
+    std::string sql = "UPDATE adm_encounter SET version = version + 1, updated_at = '" + now + "' WHERE id = '" + encounterId + "'";
+    dao.getSqlSession()->execute(sql);
+}
+
+bool OrderService1::checkEncounterVersion(const std::string& encounterId, int clientOrderVersion, OrderDAO1& dao)
+{
+    int currentVersion = getEncounterVersion(encounterId, dao);
+    return currentVersion == clientOrderVersion;
 }
 
 // ========== 枚举校验方法 ==========
@@ -117,11 +148,9 @@ OrderService1::ServiceContext OrderService1::buildContext(const PayloadDTO* payl
     auto orgIdOpt = m_sessionService->getOrgId(ctx.userId);
     ctx.orgId = orgIdOpt.has_value() ? orgIdOpt.value() : "DEFAULT_ORG";
 
-    // 从 Redis 获取医院机构ID
     auto hospitalOrgIdOpt = m_sessionService->getHospitalOrganizationId(ctx.userId);
     ctx.hospitalOrgId = hospitalOrgIdOpt.has_value() ? hospitalOrgIdOpt.value() : "";
 
-    // 从 Redis 获取组织单元ID
     auto orgUnitIdOpt = m_sessionService->getOrganizationUnitId(ctx.userId);
     ctx.organizationUnitId = orgUnitIdOpt.has_value() ? orgUnitIdOpt.value() : "";
 
@@ -169,193 +198,27 @@ OrderDetailDTO1::Wrapper OrderService1::buildOrderDetailDTO(
     const std::string& doctorName,
     OrderDAO1& dao)
 {
-    if (orderId.empty() || orderType.empty()) {
-        return nullptr;
-    }
-
+    // 统一调用 DAO 层的方法
     if (orderType == "medication") {
         auto medOrder = dao.selectMedicationOrderById(orderId);
-        if (!medOrder) {
-            return nullptr;
-        }
+        if (!medOrder) return nullptr;
         auto def = dao.selectMedicationDefinitionById(medOrder->getMedicationId());
-        if (!def) {
-            return nullptr;
-        }
-        auto dto = OrderDetailDTO1::createShared();
-        dto->orderId = oatpp::String(medOrder->getId());
-        dto->encounterId = oatpp::String(medOrder->getEncounterId());
-        dto->patientId = oatpp::String(medOrder->getPatientId());
-        dto->doctorId = oatpp::String(medOrder->getRequesterId());
-        dto->doctorName = oatpp::String(doctorName);
-        dto->catalogId = oatpp::String(def->getId());
-        dto->itemCode = oatpp::String(def->getBusNo());
-        dto->itemName = oatpp::String(def->getName());
-        dto->spec = oatpp::String(def->getTotalVolume());
-        dto->orderType = oatpp::String("medication");
-        dto->categoryCode = oatpp::String(def->getCategoryCode());
-        dto->dose = oatpp::Float64(medOrder->getDose());
-        dto->doseUnit = oatpp::String(medOrder->getDoseUnitCode());
-        dto->frequency = oatpp::String(medOrder->getRateCode());
-        dto->routeCode = oatpp::String(medOrder->getMethodCode());
-        dto->quantity = oatpp::Float64(medOrder->getQuantity());
-        dto->quantityUnit = oatpp::String(medOrder->getUnitCode());
-        dto->isSkinTest = oatpp::Boolean(medOrder->getSkinTestFlag() == 1);
-        int days = 0;
-        if (!medOrder->getEffectiveDoseStart().empty() && !medOrder->getEffectiveDoseEnd().empty()) {
-            std::tm tmStart = {}, tmEnd = {};
-            std::istringstream ssStart(medOrder->getEffectiveDoseStart());
-            std::istringstream ssEnd(medOrder->getEffectiveDoseEnd());
-            ssStart >> std::get_time(&tmStart, "%Y-%m-%d %H:%M:%S");
-            ssEnd >> std::get_time(&tmEnd, "%Y-%m-%d %H:%M:%S");
-            if (!ssStart.fail() && !ssEnd.fail()) {
-                std::time_t timeStart = std::mktime(&tmStart);
-                std::time_t timeEnd = std::mktime(&tmEnd);
-                days = (int)((timeEnd - timeStart) / (24 * 3600));
-                if (days < 0) days = 0;
-            }
-        }
-        dto->useDays = oatpp::Int32(days);
-        dto->contentPerUnit = oatpp::String(def->getTotalVolume());
-        double unitPrice = dao.getUnitPrice("med_medication_definition", medOrder->getMedicationId());
-        dto->unitPrice = oatpp::Float64(unitPrice);
-        dto->totalPrice = oatpp::Float64(unitPrice * medOrder->getQuantity());
-        dto->status = oatpp::String(medOrder->getStatusEnum());
-        dto->groupId = oatpp::String(medOrder->getGroupId());
-        dto->orderNo = oatpp::Int32(medOrder->getSortNumber());
-        dto->createTime = oatpp::String(medOrder->getCreatedAt());
-        dto->updatedAt = oatpp::String(medOrder->getUpdatedAt());
-        dto->version = oatpp::Int32(medOrder->getVersion());
-        dto->prescriptionNo = oatpp::String(medOrder->getPrescriptionNo());
-        dto->remark = oatpp::String(medOrder->getRemark());
-        dto->orderTypeDisplay = oatpp::String(getEnumDisplay("ORDER_TYPE", "medication"));
-        dto->statusDisplay = oatpp::String(getEnumDisplay("ORDER_STATUS", medOrder->getStatusEnum()));
-        dto->frequencyDisplay = oatpp::String(getEnumDisplay("FREQUENCY", medOrder->getRateCode()));
-        dto->routeDisplay = oatpp::String(getEnumDisplay("ROUTE_CODE", medOrder->getMethodCode()));
-        if (dto->categoryCode) {
-            dto->categoryName = oatpp::String(getEnumDisplay("MEDICATION_CATEGORY", dto->categoryCode.getValue("")));
-        }
-        return dto;
+        if (!def) return nullptr;
+        return dao.buildMedicationDTO(*medOrder, *def, doctorName);
     }
     else if (orderType == "service") {
         auto svcOrder = dao.selectServiceOrderById(orderId);
         if (!svcOrder) return nullptr;
         auto def = dao.selectActivityDefinitionById(svcOrder->getActivityId());
         if (!def) return nullptr;
-        auto dto = OrderDetailDTO1::createShared();
-        dto->orderId = oatpp::String(svcOrder->getId());
-        dto->encounterId = oatpp::String(svcOrder->getEncounterId());
-        dto->patientId = oatpp::String(svcOrder->getPatientId());
-        dto->doctorId = oatpp::String(svcOrder->getRequesterId());
-        dto->doctorName = oatpp::String(doctorName);
-        dto->catalogId = oatpp::String(def->getId());
-        dto->itemCode = oatpp::String(def->getBusNo());
-        dto->itemName = oatpp::String(def->getName());
-        dto->spec = oatpp::String(def->getDescriptionText());
-        dto->orderType = oatpp::String("service");
-        dto->categoryCode = oatpp::String(def->getCategoryCode());
-        dto->dose = 0.0;
-        dto->doseUnit = oatpp::String("");
-        dto->frequency = oatpp::String(svcOrder->getRateCode());
-        dto->routeCode = oatpp::String("");
-        dto->quantity = oatpp::Float64(svcOrder->getQuantity());
-        dto->quantityUnit = oatpp::String(svcOrder->getUnitCode());
-        dto->isSkinTest = oatpp::Boolean(false);
-        int days = 0;
-        if (!svcOrder->getOccurrenceStartTime().empty() && !svcOrder->getOccurrenceEndTime().empty()) {
-            std::tm tmStart = {}, tmEnd = {};
-            std::istringstream ssStart(svcOrder->getOccurrenceStartTime());
-            std::istringstream ssEnd(svcOrder->getOccurrenceEndTime());
-            ssStart >> std::get_time(&tmStart, "%Y-%m-%d %H:%M:%S");
-            ssEnd >> std::get_time(&tmEnd, "%Y-%m-%d %H:%M:%S");
-            if (!ssStart.fail() && !ssEnd.fail()) {
-                std::time_t timeStart = std::mktime(&tmStart);
-                std::time_t timeEnd = std::mktime(&tmEnd);
-                days = (int)((timeEnd - timeStart) / (24 * 3600));
-                if (days < 0) days = 0;
-            }
-        }
-        dto->useDays = oatpp::Int32(days);
-        dto->contentPerUnit = oatpp::String(def->getDescriptionText());
-        double unitPrice = dao.getUnitPrice("wkf_activity_definition", svcOrder->getActivityId());
-        dto->unitPrice = oatpp::Float64(unitPrice);
-        dto->totalPrice = oatpp::Float64(unitPrice * svcOrder->getQuantity());
-        dto->status = oatpp::String(svcOrder->getStatusEnum());
-        dto->groupId = oatpp::String(svcOrder->getGroupId());
-        dto->orderNo = oatpp::Int32(svcOrder->getSortNumber());
-        dto->createTime = oatpp::String(svcOrder->getCreatedAt());
-        dto->updatedAt = oatpp::String(svcOrder->getUpdatedAt());
-        dto->version = oatpp::Int32(svcOrder->getVersion());
-        dto->prescriptionNo = oatpp::String(svcOrder->getPrescriptionNo());
-        dto->remark = oatpp::String(svcOrder->getRemark());
-        dto->orderTypeDisplay = oatpp::String(getEnumDisplay("ORDER_TYPE", "service"));
-        dto->statusDisplay = oatpp::String(getEnumDisplay("ORDER_STATUS", svcOrder->getStatusEnum()));
-        dto->frequencyDisplay = oatpp::String(getEnumDisplay("FREQUENCY", svcOrder->getRateCode()));
-        dto->routeDisplay = oatpp::String("");
-        if (dto->categoryCode) {
-            dto->categoryName = oatpp::String(getEnumDisplay("MEDICATION_CATEGORY", dto->categoryCode.getValue("")));
-        }
-        return dto;
+        return dao.buildServiceDTO(*svcOrder, *def, doctorName);
     }
     else if (orderType == "device") {
         auto devOrder = dao.selectDeviceOrderById(orderId);
         if (!devOrder) return nullptr;
         auto def = dao.selectDeviceDefinitionById(devOrder->getDeviceDefId());
         if (!def) return nullptr;
-        auto dto = OrderDetailDTO1::createShared();
-        dto->orderId = oatpp::String(devOrder->getId());
-        dto->encounterId = oatpp::String(devOrder->getEncounterId());
-        dto->patientId = oatpp::String(devOrder->getPatientId());
-        dto->doctorId = oatpp::String(devOrder->getRequesterId());
-        dto->doctorName = oatpp::String(doctorName);
-        dto->catalogId = oatpp::String(def->getId());
-        dto->itemCode = oatpp::String(def->getBusNo());
-        dto->itemName = oatpp::String(def->getName());
-        dto->spec = oatpp::String(def->getTotalVolume());
-        dto->orderType = oatpp::String("device");
-        dto->categoryCode = oatpp::String(def->getCategoryCode());
-        dto->dose = 0.0;
-        dto->doseUnit = oatpp::String("");
-        dto->frequency = oatpp::String(devOrder->getRateCode());
-        dto->routeCode = oatpp::String("");
-        dto->quantity = oatpp::Float64(devOrder->getQuantity());
-        dto->quantityUnit = oatpp::String(devOrder->getUnitCode());
-        dto->isSkinTest = oatpp::Boolean(false);
-        int days = 0;
-        if (!devOrder->getUseStartTime().empty() && !devOrder->getUseEndTime().empty()) {
-            std::tm tmStart = {}, tmEnd = {};
-            std::istringstream ssStart(devOrder->getUseStartTime());
-            std::istringstream ssEnd(devOrder->getUseEndTime());
-            ssStart >> std::get_time(&tmStart, "%Y-%m-%d %H:%M:%S");
-            ssEnd >> std::get_time(&tmEnd, "%Y-%m-%d %H:%M:%S");
-            if (!ssStart.fail() && !ssEnd.fail()) {
-                std::time_t timeStart = std::mktime(&tmStart);
-                std::time_t timeEnd = std::mktime(&tmEnd);
-                days = (int)((timeEnd - timeStart) / (24 * 3600));
-                if (days < 0) days = 0;
-            }
-        }
-        dto->useDays = oatpp::Int32(days);
-        dto->contentPerUnit = oatpp::String(def->getTotalVolume());
-        double unitPrice = dao.getUnitPrice("adm_device_definition", devOrder->getDeviceDefId());
-        dto->unitPrice = oatpp::Float64(unitPrice);
-        dto->totalPrice = oatpp::Float64(unitPrice * devOrder->getQuantity());
-        dto->status = oatpp::String(devOrder->getStatusEnum());
-        dto->groupId = oatpp::String("");
-        dto->orderNo = oatpp::Int32(devOrder->getSortNumber());
-        dto->createTime = oatpp::String(devOrder->getCreatedAt());
-        dto->updatedAt = oatpp::String(devOrder->getUpdatedAt());
-        dto->version = oatpp::Int32(devOrder->getVersion());
-        dto->prescriptionNo = oatpp::String(devOrder->getPrescriptionNo());
-        dto->remark = oatpp::String(devOrder->getRemark());
-        dto->orderTypeDisplay = oatpp::String(getEnumDisplay("ORDER_TYPE", "device"));
-        dto->statusDisplay = oatpp::String(getEnumDisplay("ORDER_STATUS", devOrder->getStatusEnum()));
-        dto->frequencyDisplay = oatpp::String(getEnumDisplay("FREQUENCY", devOrder->getRateCode()));
-        dto->routeDisplay = oatpp::String("");
-        if (dto->categoryCode) {
-            dto->categoryName = oatpp::String(getEnumDisplay("MEDICATION_CATEGORY", dto->categoryCode.getValue("")));
-        }
-        return dto;
+        return dao.buildDeviceDTO(*devOrder, *def, doctorName);
     }
     return nullptr;
 }
@@ -434,8 +297,6 @@ OrderDetailDTO1::Wrapper OrderService1::insertMedicationOrder(
     data.setEffectiveDoseEnd(useDays > 0 ? addDaysToDate(now, useDays) : now);
     data.setStatusChangedTime(now);
 
-    // ===== 设置 performLocation 和 performOrg =====
-    // 直接使用 ctx 中的值，确保不为空
     std::string performLocationStr = "1";
     std::string performOrgStr = "1";
 
@@ -452,7 +313,6 @@ OrderDetailDTO1::Wrapper OrderService1::insertMedicationOrder(
     else if (!ctx.orgId.empty()) {
         performOrgStr = ctx.orgId;
     }
-
 
     data.setPerformLocation(performLocationStr);
     data.setPerformOrg(performOrgStr);
@@ -652,13 +512,24 @@ OrderDetailDTO1::Wrapper OrderService1::addOrderInternal(
         return nullptr;
     }
 
+    // ===== 校验就诊级版本号 =====
+    int clientEncounterVersion = dto->encounterVersion ? dto->encounterVersion.getValue(0) : -1;
+    if (clientEncounterVersion < 0) {
+        errorMsg = "encounterVersion is required";
+        return nullptr;
+    }
+    if (!checkEncounterVersion(encounterId, clientEncounterVersion, dao)) {
+        errorMsg = "Data has been modified by another user, please refresh and try again";
+        return nullptr;
+    }
+
     UuidFacade uuid;
     std::string now = SimpleDateTimeFormat::format();
     std::string orderId = uuid.genUuid();
 
     if (orderType == "medication") {
-        std::string medicationId = dao.getMedicationIdByBusNo(catalogId);
-        if (medicationId.empty()) {
+        auto def = dao.selectMedicationDefinitionById(catalogId);
+        if (!def) {
             errorMsg = "Medication not found: " + catalogId;
             return nullptr;
         }
@@ -685,29 +556,41 @@ OrderDetailDTO1::Wrapper OrderService1::addOrderInternal(
             errorMsg = "quantity is required for medication";
             return nullptr;
         }
-        return insertMedicationOrder(dto, ctx, encounterId, patientId,
-            medicationId, orderId, now, orderNo,
+        auto result = insertMedicationOrder(dto, ctx, encounterId, patientId,
+            def->getId(), orderId, now, orderNo,
             dao, errorMsg);
+        if (result) {
+            incrementEncounterVersion(encounterId, dao);
+        }
+        return result;
     }
     else if (orderType == "service") {
-        std::string activityId = dao.getActivityIdByBusNo(catalogId);
-        if (activityId.empty()) {
+        auto def = dao.selectActivityDefinitionById(catalogId);
+        if (!def) {
             errorMsg = "Service not found: " + catalogId;
             return nullptr;
         }
-        return insertServiceOrder(dto, ctx, encounterId, patientId,
-            activityId, orderId, now, orderNo,
+        auto result = insertServiceOrder(dto, ctx, encounterId, patientId,
+            def->getId(), orderId, now, orderNo,
             dao, errorMsg);
+        if (result) {
+            incrementEncounterVersion(encounterId, dao);
+        }
+        return result;
     }
     else if (orderType == "device") {
-        std::string deviceDefId = dao.getDeviceDefIdByBusNo(catalogId);
-        if (deviceDefId.empty()) {
+        auto def = dao.selectDeviceDefinitionById(catalogId);
+        if (!def) {
             errorMsg = "Device not found: " + catalogId;
             return nullptr;
         }
-        return insertDeviceOrder(dto, ctx, encounterId, patientId,
-            deviceDefId, orderId, now, orderNo,
+        auto result = insertDeviceOrder(dto, ctx, encounterId, patientId,
+            def->getId(), orderId, now, orderNo,
             dao, errorMsg);
+        if (result) {
+            incrementEncounterVersion(encounterId, dao);
+        }
+        return result;
     }
     errorMsg = "Unsupported order type: " + orderType;
     return nullptr;
@@ -732,7 +615,6 @@ bool OrderService1::updateMedicationOrderInternal(
         "\",\"sortNumber\":\"" + std::to_string(medOrder->getSortNumber()) + "\"}";
     std::list<std::string> changedFields;
 
-    // 更新可修改的字段
     if (dto->dose) { medOrder->setDose(dto->dose.getValue(0)); changedFields.push_back("dose"); }
     if (!dto->doseUnit->empty()) { medOrder->setDoseUnitCode(dto->doseUnit.getValue("")); changedFields.push_back("doseUnit"); }
     if (!dto->frequency->empty()) { medOrder->setRateCode(dto->frequency.getValue("")); changedFields.push_back("frequency"); }
@@ -751,14 +633,11 @@ bool OrderService1::updateMedicationOrderInternal(
     if (!dto->groupId->empty()) { medOrder->setGroupId(dto->groupId.getValue("")); changedFields.push_back("groupId"); }
     if (dto->orderNo) { medOrder->setSortNumber(dto->orderNo.getValue(0)); changedFields.push_back("orderNo"); }
 
-    // 更新审计字段
     medOrder->setUpdatedBy(ctx.username);
     medOrder->setUpdatedAt(SimpleDateTimeFormat::format());
     medOrder->setStatusChangedTime(SimpleDateTimeFormat::format());
     medOrder->setVersion(medOrder->getVersion() + 1);
 
-    // ===== 修复：确保 req_authored_time 和 check_time 有值 =====
-    // 这些字段不应该被修改，但 DO 对象中可能为空，需要保留原有值或设置当前时间
     if (medOrder->getReqAuthoredTime().empty()) {
         medOrder->setReqAuthoredTime(SimpleDateTimeFormat::format());
     }
@@ -766,7 +645,6 @@ bool OrderService1::updateMedicationOrderInternal(
         medOrder->setCheckTime(SimpleDateTimeFormat::format());
     }
 
-    // ===== 修复：确保 perform_location 和 perform_org 有值 =====
     if (medOrder->getPerformLocation().empty()) {
         medOrder->setPerformLocation(ctx.orgId.empty() ? "1" : ctx.orgId);
     }
@@ -800,6 +678,7 @@ bool OrderService1::updateMedicationOrderInternal(
     errorMsg = "";
     return true;
 }
+
 bool OrderService1::updateServiceOrderInternal(
     const OrderModifyDTO1::Wrapper& dto,
     PtrServiceRequestDO1& svcOrder,
@@ -813,7 +692,6 @@ bool OrderService1::updateServiceOrderInternal(
         "\",\"sortNumber\":\"" + std::to_string(svcOrder->getSortNumber()) + "\"}";
     std::list<std::string> changedFields;
 
-    // 更新可修改的字段
     if (!dto->frequency->empty()) { svcOrder->setRateCode(dto->frequency.getValue("")); changedFields.push_back("frequency"); }
     if (dto->quantity) { svcOrder->setQuantity(dto->quantity.getValue(0)); changedFields.push_back("quantity"); }
     if (!dto->remark->empty()) { svcOrder->setRemark(dto->remark.getValue("")); changedFields.push_back("remark"); }
@@ -827,12 +705,10 @@ bool OrderService1::updateServiceOrderInternal(
         changedFields.push_back("useDays");
     }
 
-    // 更新审计字段
     svcOrder->setUpdatedBy(ctx.username);
     svcOrder->setUpdatedAt(SimpleDateTimeFormat::format());
     svcOrder->setVersion(svcOrder->getVersion() + 1);
 
-    // ===== 修复：确保 authored_time 和 check_time 有值 =====
     if (svcOrder->getAuthoredTime().empty()) {
         svcOrder->setAuthoredTime(SimpleDateTimeFormat::format());
     }
@@ -840,7 +716,6 @@ bool OrderService1::updateServiceOrderInternal(
         svcOrder->setCheckTime(SimpleDateTimeFormat::format());
     }
 
-    // ===== 修复：确保 orgId 有值 =====
     if (svcOrder->getOrgId().empty()) {
         svcOrder->setOrgId(ctx.orgId.empty() ? "1" : ctx.orgId);
     }
@@ -862,6 +737,7 @@ bool OrderService1::updateServiceOrderInternal(
     errorMsg = "";
     return true;
 }
+
 bool OrderService1::updateDeviceOrderInternal(
     const OrderModifyDTO1::Wrapper& dto,
     PtrDeviceRequestDO1& devOrder,
@@ -874,7 +750,6 @@ bool OrderService1::updateDeviceOrderInternal(
         "\",\"sortNumber\":\"" + std::to_string(devOrder->getSortNumber()) + "\"}";
     std::list<std::string> changedFields;
 
-    // 更新可修改的字段
     if (!dto->frequency->empty()) { devOrder->setRateCode(dto->frequency.getValue("")); changedFields.push_back("frequency"); }
     if (dto->quantity) { devOrder->setQuantity(dto->quantity.getValue(0)); changedFields.push_back("quantity"); }
     if (!dto->remark->empty()) { devOrder->setRemark(dto->remark.getValue("")); changedFields.push_back("remark"); }
@@ -887,17 +762,14 @@ bool OrderService1::updateDeviceOrderInternal(
         changedFields.push_back("useDays");
     }
 
-    // 更新审计字段
     devOrder->setUpdatedBy(ctx.username);
     devOrder->setUpdatedAt(SimpleDateTimeFormat::format());
     devOrder->setVersion(devOrder->getVersion() + 1);
 
-    // ===== 修复：确保 req_authored_time 有值 =====
     if (devOrder->getReqAuthoredTime().empty()) {
         devOrder->setReqAuthoredTime(SimpleDateTimeFormat::format());
     }
 
-    // ===== 修复：确保 orgId 有值 =====
     if (devOrder->getOrgId().empty()) {
         devOrder->setOrgId(ctx.orgId.empty() ? "1" : ctx.orgId);
     }
@@ -918,19 +790,80 @@ bool OrderService1::updateDeviceOrderInternal(
     errorMsg = "";
     return true;
 }
+
+// ========== 权限校验 ==========
+bool OrderService1::checkEncounterAccess(
+    const std::string& encounterId,
+    const ServiceContext& ctx,
+    OrderDAO1& dao)
+{
+    //// ===== 超级管理员：最高权限，无任何限制 =====
+    if (ctx.username == "admin" ||
+        ctx.username == "roumiou" ||
+        ctx.userId == "1") {
+        return true;
+    }
+
+    // ===== 非管理员：走正常权限校验 =====
+    if (encounterId.empty() || ctx.orgId.empty()) {
+        return false;
+    }
+
+    // 1. 查询就诊信息，获取 organization_id
+    std::string sqlEnc = "SELECT * FROM adm_encounter WHERE id = ? AND is_deleted = 0";
+    SqlParams paramsEnc;
+    SQLPARAMS_PUSH(paramsEnc, "s", std::string, encounterId);
+    auto encounter = dao.getSqlSession()->executeQueryOne<PtrEncounterDO1>(sqlEnc, PtrEncounterMapper1(), paramsEnc);
+    if (!encounter) {
+        return false;
+    }
+
+    // 2. 校验机构是否匹配（同科室可见）
+    if (encounter->getOrganizationId() != ctx.orgId) {
+        return false;
+    }
+
+    // 3. 非管理员不需要检查参与者，同科室即可
+    return true;
+}
+
 // ========== 查询医嘱列表 ==========
 OrderDetailPageDTO1::Wrapper OrderService1::queryOrderList(
     const OrderQuery1::Wrapper& query,
     const PayloadDTO* payload)
 {
-    auto pageDto = OrderDetailPageDTO1::createShared();
-    pageDto->pageIndex = query->pageIndex;
-    pageDto->pageSize = query->pageSize;
+    auto ctx = buildContext(payload);
+    if (!ctx.valid) {
+        auto pageDto = OrderDetailPageDTO1::createShared();
+        pageDto->pageIndex = query->pageIndex;
+        pageDto->pageSize = query->pageSize;
+        pageDto->total = oatpp::Int64(0.0);
+        pageDto->calcPages();
+        return pageDto;
+    }
 
     std::string encounterId = query->encounterId.getValue("");
+    if (encounterId.empty()) {
+        auto pageDto = OrderDetailPageDTO1::createShared();
+        pageDto->pageIndex = query->pageIndex;
+        pageDto->pageSize = query->pageSize;
+        pageDto->total = oatpp::Int64(0.0);
+        pageDto->calcPages();
+        return pageDto;
+    }
 
-    std::string keyword = query->keyword.getValue("");
-    std::string orderType = query->orderType.getValue("");
+    // ===== 权限校验 =====
+    OrderDAO1 dao;
+    if (!checkEncounterAccess(encounterId, ctx, dao)) {
+        auto pageDto = OrderDetailPageDTO1::createShared();
+        pageDto->pageIndex = query->pageIndex;
+        pageDto->pageSize = query->pageSize;
+        pageDto->total = oatpp::Int64(0.0);
+        pageDto->calcPages();
+        return pageDto;
+    }
+
+    std::string doctorName = payload ? payload->getPractitionerName() : "";
 
     std::list<std::string> statusList;
     if (query->statusList) {
@@ -939,15 +872,24 @@ OrderDetailPageDTO1::Wrapper OrderService1::queryOrderList(
         }
     }
 
-    std::string doctorName = payload ? payload->getPractitionerName() : "";
-
-    OrderDAO1 dao;
     uint64_t total = 0;
-    auto resultList = dao.queryOrderList(
-        encounterId, keyword, orderType, statusList,
-        query->pageIndex, query->pageSize, total, doctorName);
 
-    // 枚举转换填充显示字段
+    // ===== 获取就诊级版本号 =====
+    int encounterVersion = getEncounterVersion(encounterId, dao);
+
+    auto resultList = dao.queryOrderList(
+        encounterId,
+        query->keyword.getValue(""),
+        query->orderType.getValue(""),
+        statusList,
+        query->pageIndex,
+        query->pageSize,
+        total,
+        doctorName,
+        encounterVersion
+    );
+
+    // ===== 枚举转换填充显示字段 =====
     std::list<std::string> orderTypes, statuses, frequencies, routes;
     for (auto& item : resultList) {
         if (item->orderType) orderTypes.push_back(item->orderType.getValue(""));
@@ -984,8 +926,13 @@ OrderDetailPageDTO1::Wrapper OrderService1::queryOrderList(
         }
     }
 
-    pageDto->total = total;
+    auto pageDto = OrderDetailPageDTO1::createShared();
+    pageDto->pageIndex = query->pageIndex;
+    pageDto->pageSize = query->pageSize;
+    pageDto->total = oatpp::Int64(total);
     pageDto->calcPages();
+    // ===== 顶层返回就诊级版本号 =====
+    pageDto->encounterVersion = oatpp::Int32(encounterVersion);
     for (auto& item : resultList) {
         pageDto->addData(item);
     }
@@ -1025,15 +972,32 @@ OrderDetailDTO1::Wrapper OrderService1::modifyOrder(
         return nullptr;
     }
 
-    // 允许 version 为 0（新增时初始值为 0）
-    int clientVersion = dto->version ? dto->version.getValue(0) : -1;
-    if (clientVersion < 0) {
-        errorMsg = "version is required for optimistic lock";
+    // ===== 校验就诊级版本号 =====
+    std::string encounterId = dto->encounterId.getValue("");
+    if (encounterId.empty()) {
+        errorMsg = "encounterId is required";
+        return nullptr;
+    }
+
+    int clientEncounterVersion = dto->encounterVersion ? dto->encounterVersion.getValue(0) : -1;
+    if (clientEncounterVersion < 0) {
+        errorMsg = "encounterVersion is required";
         return nullptr;
     }
 
     OrderDAO1 dao;
+    if (!checkEncounterVersion(encounterId, clientEncounterVersion, dao)) {
+        errorMsg = "Data has been modified by another user, please refresh and try again";
+        return nullptr;
+    }
 
+    int clientOrderVersion = dto->orderVersion ? dto->orderVersion.getValue(0) : -1;
+    if (clientOrderVersion < 0) {
+        errorMsg = "version is required for optimistic lock";
+        return nullptr;
+    }
+
+    // ===== 药品医嘱修改 =====
     auto medOrder = dao.selectMedicationOrderById(orderId);
     if (medOrder) {
         if (medOrder->getStatusEnum() != "DRAFT") {
@@ -1044,7 +1008,7 @@ OrderDetailDTO1::Wrapper OrderService1::modifyOrder(
             errorMsg = "You can only modify orders created by yourself";
             return nullptr;
         }
-        if (medOrder->getVersion() != clientVersion) {
+        if (medOrder->getVersion() != clientOrderVersion) {
             errorMsg = "Data has been modified by another user, please refresh and try again";
             return nullptr;
         }
@@ -1056,9 +1020,13 @@ OrderDetailDTO1::Wrapper OrderService1::modifyOrder(
             errorMsg = "Order updated but failed to retrieve details";
             return nullptr;
         }
+        incrementEncounterVersion(encounterId, dao);
+        int newVersion = getEncounterVersion(encounterId, dao);
+        result->encounterVersion = oatpp::Int32(newVersion);
         return result;
     }
 
+    // ===== 诊疗医嘱修改 =====
     auto svcOrder = dao.selectServiceOrderById(orderId);
     if (svcOrder) {
         if (svcOrder->getStatusEnum() != "DRAFT") {
@@ -1069,7 +1037,7 @@ OrderDetailDTO1::Wrapper OrderService1::modifyOrder(
             errorMsg = "You can only modify orders created by yourself";
             return nullptr;
         }
-        if (svcOrder->getVersion() != clientVersion) {
+        if (svcOrder->getVersion() != clientOrderVersion) {
             errorMsg = "Data has been modified by another user, please refresh and try again";
             return nullptr;
         }
@@ -1081,9 +1049,13 @@ OrderDetailDTO1::Wrapper OrderService1::modifyOrder(
             errorMsg = "Order updated but failed to retrieve details";
             return nullptr;
         }
+        incrementEncounterVersion(encounterId, dao);
+        int newVersion = getEncounterVersion(encounterId, dao);
+        result->encounterVersion = oatpp::Int32(newVersion);
         return result;
     }
 
+    // ===== 耗材医嘱修改 =====
     auto devOrder = dao.selectDeviceOrderById(orderId);
     if (devOrder) {
         if (devOrder->getStatusEnum() != "DRAFT") {
@@ -1094,7 +1066,7 @@ OrderDetailDTO1::Wrapper OrderService1::modifyOrder(
             errorMsg = "You can only modify orders created by yourself";
             return nullptr;
         }
-        if (devOrder->getVersion() != clientVersion) {
+        if (devOrder->getVersion() != clientOrderVersion) {
             errorMsg = "Data has been modified by another user, please refresh and try again";
             return nullptr;
         }
@@ -1106,6 +1078,9 @@ OrderDetailDTO1::Wrapper OrderService1::modifyOrder(
             errorMsg = "Order updated but failed to retrieve details";
             return nullptr;
         }
+        incrementEncounterVersion(encounterId, dao);
+        int newVersion = getEncounterVersion(encounterId, dao);
+        result->encounterVersion = oatpp::Int32(newVersion);
         return result;
     }
 

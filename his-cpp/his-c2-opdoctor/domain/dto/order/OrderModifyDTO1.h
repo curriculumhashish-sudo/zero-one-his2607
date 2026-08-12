@@ -27,7 +27,8 @@ class OrderModifyDTO1 : public oatpp::DTO {
     // 定位字段
     API_DTO_FIELD_REQUIRE(String, orderId, ZH_WORDS_GETTER("createOrder.order.field.orderId"), true);
     API_DTO_FIELD_REQUIRE(String, encounterId, ZH_WORDS_GETTER("createOrder.order.field.encounterId"), true);
-    API_DTO_FIELD_REQUIRE(Int32, version, ZH_WORDS_GETTER("createOrder.order.field.version"), true);
+    API_DTO_FIELD_REQUIRE(Int32, orderVersion, ZH_WORDS_GETTER("createOrder.order.field.orderVersion"), true);
+    API_DTO_FIELD_REQUIRE(Int32, encounterVersion, ZH_WORDS_GETTER("createOrder.order.field.encounterVersion"), true);
 
     // 允许修改的字段
     API_DTO_FIELD_REQUIRE(Float64, dose, ZH_WORDS_GETTER("createOrder.order.field.dose"), false);

@@ -79,7 +79,7 @@ finish:
   visitStatus: "其他状态"
  get:
   summary: "完诊"
-  
+
 leave:
  dto:
   newVisitStatus: "暂离"
@@ -107,7 +107,6 @@ dict:
   text: "诊断(ICD)字典分页"
  controller:
   summary: "诊断(ICD)字典分页"
-
 
 cyclectrl2:
  test:
@@ -202,6 +201,7 @@ cyclectrl2:
   admissionType: 入院类型
   admissionMethod: 入院方式
   priority: 病情优先级
+
 doctor-station:
  inpatient:
   check:
@@ -214,6 +214,7 @@ doctor-station:
    inpatientEncounterNo: 住院号
    status: 状态码
    statusName: 状态名称
+
 adm-req:
  encounterId: 就诊ID
  patientId: 患者ID
@@ -223,6 +224,7 @@ adm-req:
  admissionWayCode: 入院方式编码
  priorityCode: 优先级编码
  admissionDiagnoses: 入院诊断列表
+
 adm-diag:
  catalogId: 目录ID
  code: ICD编码
@@ -230,6 +232,7 @@ adm-diag:
  diagnosisRecordId: 诊断记录ID
  description: 诊断说明
  primary: 是否主诊断
+
 adm-result:
  inpatientEncounterId: 住院就诊ID
  inpatientEncounterNo: 住院号
@@ -293,7 +296,6 @@ createOrder:
   get:
    summary: 查询测试接口
    result: 这个是测试接口，返回测试数据
-
  common:
   keyword: 关键词
   catalog: 项目目录
@@ -331,11 +333,9 @@ createOrder:
    catalogId: 项目目录ID
    orderType: 医嘱类型
    expenseType: 费用性质
-
    # === 查询筛选 ===
    keyword: 关键词
    status: 状态
-
    # === 项目信息 ===
    itemCode: 项目编码
    itemName: 项目名称
@@ -345,7 +345,6 @@ createOrder:
    spec: 规格
    unitPrice: 单价
    serviceRequestId: 服务请求ID
-
    # === 临床决策 ===
    dosage: 用量
    dose: 单次剂量
@@ -358,34 +357,29 @@ createOrder:
    contentPerUnit: 每单位含量
    isSkinTest: 是否皮试
    remark: 备注
-
    # === 分组与排序 ===
    groupId: 组套ID
    orderNo: 排序号
+   orderVersion: 单条医嘱版本号
+   encounterVersion: 就诊版本号
    version: 版本号
-
    # === 医嘱标识 ===
    orderId: 医嘱ID
    prescriptionNo: 处方号
-
    # === 医生信息 ===
    doctorId: 医生ID
    doctorName: 医生姓名
-
    # === 状态与时间 ===
    createTime: 开立时间
    updatedAt: 更新时间
    totalPrice: 总价
-
    # === 显示名 ===
    routeDisplay: 途径显示名
    frequencyDisplay: 频次显示名
    statusDisplay: 状态显示名
    orderTypeDisplay: 医嘱类型显示名
-
    # === 批量新增 ===
    orderList: 医嘱列表
-
   audit:
    orderId: 医嘱ID
    orderType: 医嘱类型
@@ -399,23 +393,18 @@ createOrder:
    changedFields: 变更字段列表
    remark: 备注
 
-
 prescription3:
  tags:
   tag: 开立医嘱
-
  batchDelete:
   summary: 删除待签发医嘱
   description: "软删除 DRAFT 医嘱；选中组内任意医嘱时删除整个组。仅允许 IN_PROGRESS 就诊，version 为当前医嘱列表整体版本。支持药品、服务和器材医嘱。业务码：21001 参数错误、21002 记录不存在、21003 状态错误、21004 分组错误、21005 范围不一致、21006 版本冲突、21007 数据库错误。"
-
  mergeGroup:
   summary: 合并待签发医嘱组
   description: "将至少两个独立医嘱或已有医嘱组合并为新组。仅允许 IN_PROGRESS 就诊，version 为当前医嘱列表整体版本。允许跨医嘱类型，groupId 由后端生成。业务码：21001 参数错误、21002 记录不存在、21003 状态错误、21004 分组错误、21005 范围不一致、21006 版本冲突、21007 数据库错误。"
-
  splitGroup:
   summary: 拆分待签发医嘱组
   description: "选中组内任意医嘱后拆分整个组，全部成员恢复为独立医嘱，不恢复历史分组。仅允许 IN_PROGRESS 就诊，version 为当前医嘱列表整体版本。业务码：21001 参数错误、21002 记录不存在、21003 状态错误、21004 分组错误、21005 范围不一致、21006 版本冲突、21007 数据库错误。"
-
  field:
   encounterId: "本次门诊就诊记录 ID，长度 1‑64"
   version: "当前医嘱列表整体版本，非负整数；取最近一次查询或操作响应中的 version"
@@ -439,11 +428,9 @@ prescription3:
 pageTcmHerbCatalog:
  tags:
   tag: 中药处方
-
  page:
   summary: 中药材目录分页
   description: "分页查询当前租户和医院范围内可开立的中药材。scope=outpatient 使用门诊中药房库存，scope=inpatient 使用住院中药房库存。仅返回启用、价格有效、库存大于零且未过期的数据。业务码：9995 参数错误、9999 服务不可用。"
-
  field:
   scope: "使用范围：outpatient（门诊）或 inpatient（住院），默认 outpatient"
   pageIndex: "页码，从 1 开始，默认 1"
@@ -476,7 +463,6 @@ medical-advice:
   advice-ids: 医嘱ID列表
   service-request-id: 申请单ID
 
-
 historyOrder:
  tags:
   tag: 历史医嘱管理
@@ -504,8 +490,6 @@ historyOrder:
   createTime: 开立时间
   diagnosis: 诊断
   isSkinTest: 是否皮试
-
-
 
 chinapres1:
  field:
@@ -556,7 +540,6 @@ chinapres1:
   summary: "获取历史处方"
  detail:
   summary: "获取指定患者本次就诊中医处方单"
-
 
 medicalrecord:
  tags:
@@ -633,9 +616,9 @@ outpatientRecord:
   summary: 获取门诊病历详情
  field:
   id: 就诊编号
-  encounterId: 就诊ID       # 🆕
+  encounterId: 就诊ID
   patientName: 患者姓名
-  patientId: 患者ID         # 🆕
+  patientId: 患者ID
   gender: 性别
   visitDate: 就诊日期
   diagnosis: 诊断
@@ -648,8 +631,7 @@ outpatientRecord:
   editable: 是否可编辑
   startDate: 开始日期
   endDate: 结束日期
-  keyword: 关键词            # 🆕
-
+  keyword: 关键词
 
 chinapres3:
  tags:
