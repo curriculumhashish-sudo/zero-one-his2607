@@ -26,7 +26,7 @@ std::string EnrollDAO::buildCondition(const EnrollQuery::Wrapper& query, SqlPara
     condition << R"(
         WHERE e.is_deleted = 0
           AND p.is_deleted = 0
-          AND e.class_enum = 'IMP'
+          AND e.class_enum IN ('IMP', 'COMMON')
     )";
 
     // 有关键字时，同时按患者姓名和住院号进行模糊查询。
@@ -539,7 +539,7 @@ PtrEnrollDetailDO EnrollDAO::selectDetailById(const std::string& encounterId)
             FROM adm_encounter
 
             WHERE is_deleted = 0
-                AND class_enum = 'IMP'
+                AND class_enum IN ('IMP', 'COMMON')
 
             GROUP BY patient_id
         ) history
@@ -547,7 +547,7 @@ PtrEnrollDetailDO EnrollDAO::selectDetailById(const std::string& encounterId)
 
         WHERE e.id = ?
             AND e.is_deleted = 0
-            AND e.class_enum = 'IMP'
+            AND e.class_enum IN ('IMP', 'COMMON')
     )";
 
     SQLPARAMS_PUSH(params, "s", std::string, encounterId);
