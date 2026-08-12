@@ -328,7 +328,7 @@ public class StocktakeServiceImpl
         record.setUnitCode(resolveUnitCode(item, warehouseId, rowNo));
         record.setOccurrenceTime(dto.getOccurrenceTime() == null ? now : dto.getOccurrenceTime());
         record.setPurposeTypeEnum(firstText(dto.getPurposeTypeEnum(), PURPOSE_TYPE_PHARMACY));
-        record.setPurposeLocationId(warehouseId);
+        record.setPurposeLocationId(resolveWarehouseId(dto.getWarehouseId()));
         record.setApplicantId(applicantId);
         record.setApplyTime(STATUS_PENDING_APPROVAL.equals(statusEnum) ? now : null);
         record.setLotNumber(trimToNull(item.getLotNumber()));
