@@ -177,6 +177,8 @@ async function confirmHospital() {
       selectedDepartmentId.value = undefined
       step.value = 'department'
     }
+    // 只要有科室就展示选择步骤，不再因“只有 1 个”而自动跳过
+    step.value = 'department'
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '医院选择失败，请重试')
   } finally {

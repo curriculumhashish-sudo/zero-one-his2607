@@ -251,8 +251,9 @@ export async function listDoctorStationDiagnosis(
     '/doctor-station/page-diagnosis-dictionary',
     { pageIndex: query.pageIndex, pageSize: query.pageSize, ...(query.keyword?.trim() ? { keyword: query.keyword.trim() } : {}) }
   )
-  if (response.code !== 10000 || !response.data || !Array.isArray(response.data.rows)) {
-    throw new Error(response.message || '诊断字典加载失败')
+  if (response.code !== 10000) throw new Error(response.message || '诊断字典加载失败')
+  if (!response.data || !Array.isArray(response.data.rows)) {
+    throw new Error('诊断字典返回数据格式错误')
   }
   return { rows: response.data.rows, total: Number(response.data.total ?? 0) }
 }

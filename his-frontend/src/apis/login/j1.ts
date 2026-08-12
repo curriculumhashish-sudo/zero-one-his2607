@@ -14,6 +14,40 @@ import type {
 const J1_BASE_URL = import.meta.env.VITE_J1_API_URL
 
 /**
+ * 从 localStorage 中的 JWT Token 解析用户角色
+ * 用于 /user/info 接口不返回 roles 字段时的降级方案
+ * 将 JWT 中的 ROLE_DOCTOR 格式归一化为 doctor
+ */
+function parseRolesFromToken(): string[] {
+  try {
+    const token = localStorage.getItem('token')
+    if (!token) return []
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    const roles: string[] = payload.roles ?? []
+    return roles.map((r) => r.replace(/^ROLE_/, '').toLowerCase())
+  } catch {
+    return []
+  }
+}
+
+/**
+ * 从 JWT Token 中解析第一个 organizationUnit ID
+ * 用于非医生用户登录时自动设置科室上下文
+ */
+export function getFirstOrganizationUnitFromToken(): string | null {
+  try {
+    const token = localStorage.getItem('token')
+    if (!token) return null
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    const units: Record<string, string> = payload.organizationUnits ?? {}
+    const keys = Object.keys(units)
+    return keys.length > 0 ? keys[0] : null
+  } catch {
+    return null
+  }
+}
+
+/**
  * 生成验证码
  * POST /auth/captcha/generate
  * 返回 { uuid, imageBase64 }
@@ -100,19 +134,17 @@ export async function j1GetHospitals(): Promise<LoginOrganizationOption[]> {
       baseURL: J1_BASE_URL
     })
     const list = vo.data ?? []
-    const mapped = list.map((item) => ({
+    // 返回 J1 真实返回的医院列表（可能为 0 条）。
+    // 不再兜底注入“默认医院”，避免列表只有 1 条时被登录向导自动跳过选择步骤。
+    return list.map((item) => ({
       ...item,
       id: String(item.id)
     }))
-    // J1 可能返回空数组（当前租户未配置医院），返回默认医院以保证登录流程继续
-    if (!mapped.length) {
-      return [{ id: '1', displayName: '默认医院', name: '默认医院' }]
-    }
-    return mapped
   } catch {
-    // J1 租户选择有后端 SQL bug，医院列表可能无法获取
-    // 返回默认医院以保证登录流程继续（C6 后端不需要医院上下文）
-    return [{ id: '1', displayName: '默认医院', name: '默认医院' }]
+    // J1 租户选择有后端 SQL bug，医院列表可能无法获取；返回空数组，
+    // 由登录向导在“当前租户未配置医院”时直接进入后续流程（C6 后端不需要医院上下文）。
+    console.warn('j1GetHospitals 失败（后端可能存在 SQL bug），返回空列表')
+    return []
   }
 }
 
@@ -157,7 +189,7 @@ export async function j1GetDepartments(): Promise<OrganizationInfo[]> {
 export async function j1SelectDepartment(departmentId: string): Promise<void> {
   const http = useHttp()
   try {
-    await http.post('/auth/dept/select', { departmentId }, { baseURL: J1_BASE_URL })
+    await http.post('/auth/dept/select', { organizationUnitId: departmentId }, { baseURL: J1_BASE_URL })
   } catch {
     // J1 后端可能有 bug，容错处理
   }
@@ -176,7 +208,7 @@ export async function j1GetCurrentUser(): Promise<UserInfo> {
   return {
     avatar: data.avatar ?? '',
     realName: data.realName ?? data.name ?? '',
-    roles: Array.isArray(data.roles) ? data.roles : [],
+    roles: Array.isArray(data.roles) && data.roles.length > 0 ? data.roles : parseRolesFromToken(),
     userId: String(data.userId ?? data.id ?? ''),
     username: data.username ?? '',
     desc: data.desc ?? '',
