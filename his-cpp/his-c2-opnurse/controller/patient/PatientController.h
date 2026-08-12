@@ -17,7 +17,7 @@ public:
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("patient1.query.summary"),
 		queryPatient, PatientQuery, PatientQueuePageJsonVO::Wrapper, API_TAG);
 	// Endpoint binding
-	API_HANDLER_ENDPOINT_OPTION_AUTH(API_M_GET, "/opnurse/query",
+	API_HANDLER_ENDPOINT_OPTION_AUTH(API_M_GET, "/c2-opnurse/query",
 		queryPatient, QUERIES(QueryParams, queryParams),
 		API_HANDLER_QUERY_PARAM(query, PatientQuery, queryParams);
 		std::string userId = authObject->getPayload().getId();
