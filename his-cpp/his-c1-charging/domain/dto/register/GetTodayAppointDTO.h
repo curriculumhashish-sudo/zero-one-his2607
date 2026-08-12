@@ -51,7 +51,7 @@ class GetTodayAppointDTO :public oatpp::DTO
 	DTO_FIELD_INFO(serviceTypeId) {
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.serviceTypeId");
 	}
-	DTO_FIELD(String, cost);
+	DTO_FIELD(Float64, cost);
 	DTO_FIELD_INFO(cost) {
 		info->description = ZH_WORDS_GETTER("yxy.charging,register.cost");
 	}
