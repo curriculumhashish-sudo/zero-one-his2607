@@ -25,7 +25,7 @@ public:
 	// Path:    /opnurse/query-consum/{encounterId}
 	// Query:   consumableRoom
 	// Header:  Authorization
-	ENDPOINT(API_M_GET, "/opnurse/query-consum/{encounterId}", consumPatient,
+	ENDPOINT(API_M_GET, "/c2-opnurse/query-consum/{encounterId}", consumPatient,
 		PATH(String, encounterId),
 		QUERIES(QueryParams, queryParams),
 		API_HANDLER_AUTH_PARAME) {
