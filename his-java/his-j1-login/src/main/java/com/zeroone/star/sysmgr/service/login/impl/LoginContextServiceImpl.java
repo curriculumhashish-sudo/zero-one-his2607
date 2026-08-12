@@ -45,6 +45,10 @@ public class LoginContextServiceImpl implements LoginContextService {
         context.put("hospitalName", value(profile == null ? null : profile.getHospitalName()));
         context.put("organization_unit_id", value(profile == null ? null : profile.getOrganizationUnitId()));
         context.put("deptName", value(profile == null ? null : profile.getOrganizationUnitName()));
+        // J4 组兼容：camelCase 别名
+        context.put("tenantId", value(profile == null ? null : profile.getTenantId()));
+        context.put("deptId", value(profile == null ? null : profile.getOrganizationUnitId()));
+        context.put("locationId", value(profile == null ? null : profile.getHospitalOrganizationId()));
         context.put("role", roles == null ? "" : roles.stream().collect(Collectors.joining(",")));
         context.put("permissions", value(permissionsJson));
         context.put("loginTime", now);

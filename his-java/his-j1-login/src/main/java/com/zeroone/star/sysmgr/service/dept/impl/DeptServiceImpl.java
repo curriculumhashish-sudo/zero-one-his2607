@@ -100,11 +100,13 @@ public class DeptServiceImpl implements DeptService {
             // 同步更新Redis会话缓存
             String sessionRedisKey = "user:session:" + userId;
             stringRedisTemplate.opsForHash().put(sessionRedisKey, "organization_unit_id", selectDeptId);
+            stringRedisTemplate.opsForHash().put(sessionRedisKey, "deptId", selectDeptId);
 
             // 同步更新 his:login:context（如果存在）
             String ctxKey = "his:login:context:" + userId;
             if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(ctxKey))) {
                 stringRedisTemplate.opsForHash().put(ctxKey, "organization_unit_id", selectDeptId);
+                stringRedisTemplate.opsForHash().put(ctxKey, "deptId", selectDeptId);
             }
 
             // 组装返回结果，填充完整科室信息

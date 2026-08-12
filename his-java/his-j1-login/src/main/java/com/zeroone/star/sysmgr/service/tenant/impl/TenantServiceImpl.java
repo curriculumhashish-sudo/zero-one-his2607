@@ -218,12 +218,14 @@ public class TenantServiceImpl implements TenantService {
         try {
             String key = LoginRedisConstant.userSessionKey(userId);
             stringRedisTemplate.opsForHash().put(key, "tenant_id", tenantId);
+            stringRedisTemplate.opsForHash().put(key, "tenantId", tenantId);
             stringRedisTemplate.expire(key, LoginRedisConstant.USER_SESSION_TTL, TimeUnit.SECONDS);
 
                 // 同步更新 his:login:context（如果存在）
             String ctxKey = LoginRedisConstant.loginContextKey(userId);
             if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(ctxKey))) {
                 stringRedisTemplate.opsForHash().put(ctxKey, "tenant_id", tenantId);
+                stringRedisTemplate.opsForHash().put(ctxKey, "tenantId", tenantId);
                 stringRedisTemplate.expire(ctxKey, LoginRedisConstant.USER_SESSION_TTL, TimeUnit.SECONDS);
             }
         } catch (Exception e) {
@@ -236,12 +238,14 @@ public class TenantServiceImpl implements TenantService {
         try {
             String key = LoginRedisConstant.userSessionKey(userId);
             stringRedisTemplate.opsForHash().put(key, "hospital_organization_id", hospitalId);
+            stringRedisTemplate.opsForHash().put(key, "locationId", hospitalId);
             stringRedisTemplate.expire(key, LoginRedisConstant.USER_SESSION_TTL, TimeUnit.SECONDS);
 
             // 同步更新 his:login:context（如果存在）
             String ctxKey = LoginRedisConstant.loginContextKey(userId);
             if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(ctxKey))) {
                 stringRedisTemplate.opsForHash().put(ctxKey, "hospital_organization_id", hospitalId);
+                stringRedisTemplate.opsForHash().put(ctxKey, "locationId", hospitalId);
                 stringRedisTemplate.expire(ctxKey, LoginRedisConstant.USER_SESSION_TTL, TimeUnit.SECONDS);
             }
         } catch (Exception e) {
