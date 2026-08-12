@@ -34,9 +34,12 @@ public:
 		data.setCashierID(resultSet->getString("cashierID"));
 		data.setName(resultSet->getString("name"));
 		data.setRoom(resultSet->getString("room"));
+		data.setRoomID(resultSet->getString("roomID"));
 		data.setDate(resultSet->getString("date"));
 		data.setFeeClass(resultSet->getString("feeClass"));
+		data.setFeeClassCode(resultSet->getString("feeClassCode"));
 		data.setDetailClass(resultSet->getString("detailClass"));
+		data.setDetailClassCode(resultSet->getString("detailClassCode"));
 		data.setProjectName(resultSet->getString("projectName"));
 		data.setHisID(resultSet->getString("hisID"));
 		data.setSpec(resultSet->getString("spec"));
@@ -73,9 +76,12 @@ public:
 		file->setCashierID(resultSet->getString("cashierID"));
 		file->setName(resultSet->getString("name"));
 		file->setRoom(resultSet->getString("room"));
+		file->setRoomID(resultSet->getString("roomID"));
 		file->setDate(resultSet->getString("date"));
 		file->setFeeClass(resultSet->getString("feeClass"));
+		file->setFeeClassCode(resultSet->getString("feeClassCode"));
 		file->setDetailClass(resultSet->getString("detailClass"));
+		file->setDetailClassCode(resultSet->getString("detailClassCode"));
 		file->setProjectName(resultSet->getString("projectName"));
 		file->setHisID(resultSet->getString("hisID"));
 		file->setSpec(resultSet->getString("spec"));
