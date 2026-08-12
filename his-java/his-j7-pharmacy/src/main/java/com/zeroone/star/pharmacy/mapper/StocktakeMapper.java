@@ -73,6 +73,21 @@ public interface StocktakeMapper extends BaseMapper<WkfSupplyRequest> {
     WkfSupplyRequest selectOneByBusNo(@Param("busNo") String busNo);
 
     /**
+     * 将库房标识归一为 adm_organization 的 ID：
+     * 兼容前端传库房 ID 或库房名称（如"门诊西药房"）两种情况
+     * @param warehouse 库房 ID 或库房名称
+     * @return 机构 ID；不存在时返回 null
+     */
+    String resolveLocationId(@Param("warehouse") String warehouse);
+
+    /**
+     * 查询药品定义的库存单位编码（unit_code 缺失时的回填兜底来源）
+     * @param itemId 药品定义标识
+     * @return 库存单位编码；不存在时返回 null
+     */
+    String findStockUnitCodeByItemId(@Param("itemId") String itemId);
+
+    /**
      * 统计某盘点单的明细行数
      * @param busNo 盘点单号
      * @return 明细行数

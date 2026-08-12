@@ -6,7 +6,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zeroone.star.pharmacy.entity.WkfSupplyRequest;
+import com.zeroone.star.pharmacy.entity.WkfInventoryItem;
 import com.zeroone.star.pharmacy.mapper.StocktakeMapper;
+import com.zeroone.star.pharmacy.mapper.WkfInventoryItemMapper;
 import com.zeroone.star.pharmacy.service.IStocktakeService;
 import com.zeroone.star.pharmacy.service.IWkfSupplyRequestService;
 import com.zeroone.star.project.components.user.UserDTO;
@@ -78,6 +80,9 @@ public class StocktakeServiceImpl
 
     @Resource
     private StocktakeMapper stocktakeMapper;
+
+    @Resource
+    private WkfInventoryItemMapper wkfInventoryItemMapper;
 
     @Resource
     private InventoryLockMapper inventoryLockMapper;
@@ -242,6 +247,9 @@ public class StocktakeServiceImpl
                 ? existingRecord.getTypeEnum()
                 : TYPE_ENUM_INVENTORY_CHECK;
 
+        // 库房标识统一归一为机构 ID（兼容前端传库房名称），一次解析全明细复用
+        String warehouseId = resolveWarehouseId(dto.getWarehouseId());
+
         // 盘点单编辑保存采用全量替换：同一 bus_no 下旧明细先逻辑删除，再插入最新明细。
         stocktakeMapper.delete(new LambdaQueryWrapper<WkfSupplyRequest>()
                 .eq(WkfSupplyRequest::getBusNo, busNo));
@@ -257,7 +265,8 @@ public class StocktakeServiceImpl
 
         BigDecimal totalPrice = BigDecimal.ZERO;
         int itemCount = 0;
-        for (StocktakeItemSaveDTO item : dto.getItems()) {
+        for (int i = 0; i < dto.getItems().size(); i++) {
+            StocktakeItemSaveDTO item = dto.getItems().get(i);
             WkfSupplyRequest record = buildStocktakeRecord(
                     dto,
                     item,
@@ -267,7 +276,9 @@ public class StocktakeServiceImpl
                     tenantId,
                     applicantId,
                     operatorId,
-                    now
+                    now,
+                    warehouseId,
+                    i + 1
             );
             int rows = stocktakeMapper.insert(record);
             if (rows <= 0) {
@@ -288,7 +299,9 @@ public class StocktakeServiceImpl
                                                  String tenantId,
                                                  String applicantId,
                                                  String operatorId,
-                                                 LocalDateTime now) {
+                                                 LocalDateTime now,
+                                                 String warehouseId,
+                                                 int rowNo) {
         BigDecimal itemQuantity = resolveItemQuantity(item);
         BigDecimal totalPrice = resolveTotalPrice(item);
         BigDecimal profitLossPrice = resolveProfitLossPrice(item, itemQuantity);
@@ -305,17 +318,17 @@ public class StocktakeServiceImpl
         record.setTypeEnum(typeEnum);
         record.setStatusEnum(statusEnum);
         record.setCategoryEnum(CATEGORY_ENUM_INVENTORY);
-        record.setItemTable(firstText(item.getItemTable(), DEFAULT_ITEM_TABLE));
+        record.setItemTable(DEFAULT_ITEM_TABLE);
         record.setItemQuantity(itemQuantity);
         record.setTotalQuantity(item.getTotalQuantity());
         record.setItemId(item.getItemId().trim());
         record.setItemName(trimToNull(item.getItemName()));
         record.setSpecification(trimToNull(item.getSpecification()));
         record.setManufacturer(trimToNull(item.getManufacturer()));
-        record.setUnitCode(item.getUnitCode().trim());
+        record.setUnitCode(resolveUnitCode(item, warehouseId, rowNo));
         record.setOccurrenceTime(dto.getOccurrenceTime() == null ? now : dto.getOccurrenceTime());
         record.setPurposeTypeEnum(firstText(dto.getPurposeTypeEnum(), PURPOSE_TYPE_PHARMACY));
-        record.setPurposeLocationId(dto.getWarehouseId().trim());
+        record.setPurposeLocationId(warehouseId);
         record.setApplicantId(applicantId);
         record.setApplyTime(STATUS_PENDING_APPROVAL.equals(statusEnum) ? now : null);
         record.setLotNumber(trimToNull(item.getLotNumber()));
@@ -349,15 +362,36 @@ public class StocktakeServiceImpl
         if (!StringUtils.hasText(item.getItemId())) {
             throw new IllegalArgumentException("第" + rowNo + "行物品标识不能为空");
         }
-        if (!StringUtils.hasText(item.getUnitCode())) {
-            throw new IllegalArgumentException("第" + rowNo + "行单位编码不能为空");
-        }
         if (item.getTotalQuantity() == null) {
             throw new IllegalArgumentException("第" + rowNo + "行实盘数量不能为空");
         }
         if (item.getItemQuantity() == null && item.getBookQuantity() == null) {
             throw new IllegalArgumentException("第" + rowNo + "行盈亏数量不能为空，或传入账面数量用于计算");
         }
+    }
+
+    /**
+     * 解析单位编码：前端传了直接用；未传时依次从
+     * 库存记录（同库房+药品+批号）→ 药品定义库存单位 自动回填，
+     * 与审批环节定位库存的口径保持一致
+     */
+    private String resolveUnitCode(StocktakeItemSaveDTO item, String warehouseId, int rowNo) {
+        if (StringUtils.hasText(item.getUnitCode())) {
+            return item.getUnitCode().trim();
+        }
+        if (StringUtils.hasText(item.getLotNumber())) {
+            WkfInventoryItem inventoryItem = wkfInventoryItemMapper.findByItemLotAndLocation(
+                    item.getItemId().trim(), item.getLotNumber().trim(), warehouseId);
+            if (inventoryItem != null && StringUtils.hasText(inventoryItem.getUnitCode())) {
+                return inventoryItem.getUnitCode();
+            }
+        }
+        String stockUnitCode = stocktakeMapper.findStockUnitCodeByItemId(item.getItemId().trim());
+        if (StringUtils.hasText(stockUnitCode)) {
+            return stockUnitCode;
+        }
+        throw new IllegalArgumentException("第" + rowNo + "行单位编码不能为空，且无法自动回填："
+                + item.getItemId());
     }
 
     private BigDecimal resolveItemQuantity(StocktakeItemSaveDTO item) {
@@ -393,6 +427,23 @@ public class StocktakeServiceImpl
 
     private boolean isStocktakeType(String typeEnum) {
         return STOCKTAKE_TYPE_ENUMS.contains(typeEnum);
+    }
+
+    /**
+     * 将前端传入的库房标识（可能是机构 ID，也可能是库房名称）归一为 adm_organization 的 ID，
+     * 保证 purpose_location_id 与库存表 location_id 口径一致；无法识别时原样保留并记录告警
+     */
+    private String resolveWarehouseId(String warehouseId) {
+        String trimmed = warehouseId == null ? null : warehouseId.trim();
+        if (!StringUtils.hasText(trimmed)) {
+            return trimmed;
+        }
+        String resolved = stocktakeMapper.resolveLocationId(trimmed);
+        if (resolved == null) {
+            log.warn("库房标识无法解析为机构ID，按原值保存: {}", trimmed);
+            return trimmed;
+        }
+        return resolved;
     }
 
     private StocktakeSaveVO buildSaveVO(String busNo,

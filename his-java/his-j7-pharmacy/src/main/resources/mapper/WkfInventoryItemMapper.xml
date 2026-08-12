@@ -6,8 +6,11 @@
         SELECT * FROM wkf_inventory_item
         WHERE item_id = #{itemId}
         AND lot_number = #{lotNumber}
-        AND location_id = #{locationId}
+        AND (location_id = #{locationId}
+             OR location_id IN (SELECT id FROM adm_organization
+                                WHERE name = #{locationId} AND is_deleted = 0))
         AND is_deleted = 0
+        LIMIT 1
     </select>
 
     <update id="updateQuantity">

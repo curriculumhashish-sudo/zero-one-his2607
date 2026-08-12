@@ -105,8 +105,12 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
                     request.getLotNumber(),
                     request.getPurposeLocationId());
             if (item == null){
-                log.error("盘点单明细中没有对应的库存记录: {}", request.getId());
-                throw new IllegalArgumentException("盘点单明细中没有对应的库存记录: " + request.getId());
+                log.error("盘点单明细中没有对应的库存记录: id={}, itemId={}, lotNumber={}, locationId={}",
+                        request.getId(), request.getItemId(), request.getLotNumber(), request.getPurposeLocationId());
+                throw new IllegalArgumentException("盘点单明细中没有对应的库存记录: " + request.getId()
+                        + "（药品=" + request.getItemId()
+                        + ", 批号=" + request.getLotNumber()
+                        + ", 库房=" + request.getPurposeLocationId() + "）");
             }
 
             //2.检查其他盘点单是否有锁住

@@ -57,7 +57,7 @@ public class StocktakeItemSaveDTO {
     @Schema(description = "盈亏数量（可由实盘数量-账面数量计算）", example = "-5.00")
     private BigDecimal itemQuantity;
 
-    @Schema(description = "包装单位编码", example = "1001")
+    @Schema(description = "包装单位编码；可不传，后端按库存记录/药品定义自动回填", example = "1001")
     @Size(max = 100, message = "包装单位编码最长 100 个字符")
     @JsonAlias("packagingUnit")
     private String unitCode;

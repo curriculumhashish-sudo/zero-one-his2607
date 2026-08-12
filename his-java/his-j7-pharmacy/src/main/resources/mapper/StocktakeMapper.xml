@@ -173,6 +173,24 @@
         LIMIT 1
     </select>
 
+    <!-- ==================== 库房标识归一（ID/名称 → 机构ID） ==================== -->
+    <select id="resolveLocationId" resultType="java.lang.String">
+        SELECT id
+        FROM adm_organization
+        WHERE is_deleted = 0
+          AND (id = #{warehouse} OR name = #{warehouse})
+        LIMIT 1
+    </select>
+
+    <!-- ==================== 查询药品定义的库存单位编码（unit_code 回填兜底） ==================== -->
+    <select id="findStockUnitCodeByItemId" resultType="java.lang.String">
+        SELECT stock_unit_code
+        FROM med_medication_definition
+        WHERE id = #{itemId}
+          AND is_deleted = 0
+        LIMIT 1
+    </select>
+
     <!-- ==================== 统计盘点单明细行数 ==================== -->
     <select id="countItemsByBusNo" resultType="java.lang.Long">
         SELECT COUNT(*)
