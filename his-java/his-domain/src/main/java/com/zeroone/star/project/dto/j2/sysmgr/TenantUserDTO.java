@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+import java.util.List;
 /**
  * <p>
  * 描述：租户用户传输数据
@@ -20,12 +20,20 @@ import lombok.NoArgsConstructor;
 @Schema(description = "租户用户")
 public class TenantUserDTO {
 
-    @Schema(description = "当前租户", example = "123")
+    @Schema(description = "租户ID", example = "123", requiredMode = Schema.RequiredMode.REQUIRED)
     private String tenantId;
 
-    @Schema(description = "用户名", example = "zhangsan")
+    @Schema(description = "用户名", example = "zhangsan", requiredMode = Schema.RequiredMode.REQUIRED)
     private String username;
 
-    @Schema(description = "姓名", example = "张三")
+    @Schema(description = "姓名", example = "张三", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
+    @Schema(description = "用户唯一标识", example = "10001")
+    private String id;
+    @Schema(description = "邮箱", example = "zhangsan@example.com")
+    private String email;
+    @Schema(description = "手机号", example = "13800138000")
+    private String phone;
+    @Schema(description = "角色名称列表", example = "\"医生\",\"管理员\"")
+    private List<String> roleNames;
 }

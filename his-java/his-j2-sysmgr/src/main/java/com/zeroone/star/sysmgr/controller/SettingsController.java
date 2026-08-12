@@ -89,7 +89,8 @@ public class SettingsController implements SettingDefinitionApis, SettingsApis {
         Boolean result = settingsService2.updateSetting(settingUpdateDTO);
 
         if(!result){
-            return JsonVO.success("更新失败");
+
+            return JsonVO.fail("更新失败");
         }
         return JsonVO.success("更新成功");
     }
@@ -101,8 +102,8 @@ public class SettingsController implements SettingDefinitionApis, SettingsApis {
         Boolean result = settingsService2.deleteSetting(settingDeleteDTO);
 
         if(!result){
-            return JsonVO.success("更新失败");
+            return JsonVO.fail("删除失败");
         }
-        return JsonVO.success("更新成功");
+        return JsonVO.success("删除成功");
     }
 }

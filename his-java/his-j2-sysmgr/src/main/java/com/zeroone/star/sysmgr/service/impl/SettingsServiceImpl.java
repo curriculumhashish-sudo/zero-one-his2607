@@ -95,10 +95,14 @@ public class SettingsServiceImpl implements SettingsService {
         List<SettingsDTO> dtoList = result.getRecords().stream()
                 .map(doObj -> {
                     SettingsDTO dto = new SettingsDTO();
-                    dto.setId(doObj.getId());          // 加上这行
+                    dto.setId(doObj.getId());
+                    dto.setName(doObj.getName());
+                    dto.setDescription(doObj.getDescription());
                     dto.setValue(doObj.getValue());
                     dto.setProvider_name(doObj.getProviderName());
                     dto.setProvider_key(doObj.getProviderKey());
+                    dto.setCreatedAt(doObj.getCreatedAt() != null ? doObj.getCreatedAt().toString() : null);
+                    dto.setUpdatedAt(doObj.getUpdatedAt() != null ? doObj.getUpdatedAt().toString() : null);
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -217,7 +221,8 @@ public class SettingsServiceImpl implements SettingsService {
      * 判断查询条件是否为空
      */
     private boolean hasCondition(SettingsQuery query) {
-        return StrUtil.isNotBlank(query.getProvider_name())
+        return StrUtil.isNotBlank(query.getName())
+                || StrUtil.isNotBlank(query.getProvider_name())
                 || StrUtil.isNotBlank(query.getProvider_key())
                 || StrUtil.isNotBlank(query.getValue());
     }

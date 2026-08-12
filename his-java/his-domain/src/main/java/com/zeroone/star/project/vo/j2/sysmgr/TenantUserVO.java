@@ -16,12 +16,12 @@ import lombok.Data;
 @Schema(description = "租户用户信息")
 public class TenantUserVO {
 
-    @Schema(description = "当前租户", example = "123")
-    private String currentTenant;
+    @Schema(description = "租户ID", example = "123", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String tenantId;
 
-    @Schema(description = "用户名", example = "zhangsan")
+    @Schema(description = "用户名", example = "zhangsan", requiredMode = Schema.RequiredMode.REQUIRED)
     private String username;
 
-    @Schema(description = "姓名", example = "张三")
+    @Schema(description = "姓名", example = "张三", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
 }

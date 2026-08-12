@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.util.List;
+
 @Data
 @Accessors(chain = true)
 @Schema(description = "用户信息详情")
@@ -52,4 +54,11 @@ public class UserInfoDTO {
 
     @Schema(description = "更新时间", example = "2026-01-01T10:00:00")
     private String updatedAt;
+
+    @Schema(description = "用户角色编码列表")
+    private List<String> roles;
+    @Schema(description = "性别")
+    private String gender;
+    @Schema(description = "所属科室名称")
+    private String departmentName;
 }

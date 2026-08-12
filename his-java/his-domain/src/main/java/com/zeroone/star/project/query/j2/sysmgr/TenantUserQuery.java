@@ -15,14 +15,15 @@ import lombok.Data;
  */
 @Data
 @Schema(description = "租户用户查询")
+
 public class TenantUserQuery extends PageQuery {
 
-    @Schema(description = "当前租户")
-    private String newTenant;
+    @Schema(description = "租户ID", example = "123", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String tenantId;
 
-    @Schema(description = "用户名称")
-    private String userName;
+    @Schema(description = "用户名", example = "zhangsan", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String username;
 
-    @Schema(description = "姓名")
+    @Schema(description = "姓名", example = "张三", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String name;
 }

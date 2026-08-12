@@ -10,7 +10,7 @@ import com.zeroone.star.project.dto.PageDTO;
 import com.zeroone.star.project.dto.j2.sysmgr.tenant_userdto.AddTenantUserDTO;
 import com.zeroone.star.project.dto.j2.sysmgr.tenant_userdto.RemoveTenantUserDTO;
 import com.zeroone.star.project.dto.j2.sysmgr.tenant_userdto.TenantUserDTO;
-import com.zeroone.star.project.query.j2.sysmgr.tenant_user_query.TenantUserQuery;
+import com.zeroone.star.project.query.j2.sysmgr.TenantUserQuery;
 import com.zeroone.star.project.vo.JsonVO;
 import com.zeroone.star.sysmgr.entity.tenant_user.User;
 import com.zeroone.star.sysmgr.mapper.tenant_user.UserMapper;
@@ -20,7 +20,10 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 @Service
 public class TenantUserServiceImpl implements ITenantUserService {
 
@@ -38,10 +41,17 @@ public class TenantUserServiceImpl implements ITenantUserService {
         Page<TenantUserDTO> page = new Page<>(query.getPageIndex(), query.getPageSize());
         IPage<TenantUserDTO> result = userTenantMapper.listTenantUsers(
                 page,
-                query.getNewTenant(),
-                query.getUserName(),
+
+                query.getTenantId(),
+                query.getUsername(),
                 query.getName()
         );
+
+        result.getRecords().forEach(dto -> {
+            if (dto.getRoleNames() == null) {
+                dto.setRoleNames(new ArrayList<>());
+            }
+        });
         return JsonVO.success(PageDTO.create((Page<TenantUserDTO>) result));
     }
 
@@ -50,8 +60,20 @@ public class TenantUserServiceImpl implements ITenantUserService {
         if (data.getUsers() == null || data.getUsers().isEmpty()) {
             return JsonVO.fail("用户列表不能为空");
         }
+        // 按用户名去重，保留首次出现的记录（对应 rent 模式中的重复检查）
+        List<AddTenantUserDTO.TenantUserItem> dedupedUsers = data.getUsers().stream()
+                .collect(Collectors.toMap(
+                        AddTenantUserDTO.TenantUserItem::getUsername,
+                        item -> item,
+                        (existing, replacement) -> existing,
+                        LinkedHashMap::new
+                ))
+                .values()
+                .stream()
+                .toList();
         String currentUser = getCurrentUsername();
-        for (AddTenantUserDTO.TenantUserItem item : data.getUsers()) {
+
+        for (AddTenantUserDTO.TenantUserItem item : dedupedUsers) {
             User user = userMapper.selectOne(
                     new LambdaQueryWrapper<User>()
                             .eq(User::getUserName, item.getUsername())

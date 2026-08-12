@@ -16,7 +16,10 @@ import lombok.Data;
 public class SettingsDTO {
     @Schema(description = "配置项ID", example = "123456")
     private String id;
-
+    @Schema(description = "配置键名", example = "ybSwich")
+    private String name;
+    @Schema(description = "配置描述", example = "医保开关")
+    private String description;
     @Schema(description = "提供者名称", example = "U", requiredMode = Schema.RequiredMode.REQUIRED)
     private String provider_name;
 
@@ -25,4 +28,9 @@ public class SettingsDTO {
 
     @Schema(description = "值", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private String value;
+
+    @Schema(description = "创建时间", example = "2026-07-26 18:57:06")
+    private String createdAt;
+    @Schema(description = "更新时间", example = "2026-08-11 10:30:00")
+    private String updatedAt;
 }

@@ -85,6 +85,15 @@ public class DictItemController implements DictItemApis {
     @PostMapping("/addDictItem")
     @Override
     public JsonVO<String> addDictItem(@RequestBody DictItemAddDTO addDTO) {
+        if (addDTO.getCodeSystemId() == null) {
+            return JsonVO.fail("codeSystemId不能为空");
+        }
+        if (!StringUtils.hasText(addDTO.getDicCode())) {
+            return JsonVO.fail("字典编码(dicCode)不能为空");
+        }
+        if (!StringUtils.hasText(addDTO.getDicName())) {
+            return JsonVO.fail("字典名称(dicName)不能为空");
+        }
         Dict dict = new Dict();
         dict.setCodeSystemId(addDTO.getCodeSystemId());
         dict.setCode(addDTO.getDicCode());              // ✅ code

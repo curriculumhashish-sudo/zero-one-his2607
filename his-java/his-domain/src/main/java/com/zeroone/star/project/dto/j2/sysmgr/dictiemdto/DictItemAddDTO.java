@@ -1,6 +1,6 @@
 package com.zeroone.star.project.dto.j2.sysmgr.dictiemdto;
 
-
+import com.fasterxml.jackson.annotation.JsonAlias;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -16,14 +16,19 @@ import lombok.Data;
 @Data
 @Schema(description = "新增字典编码数据传输对象")
 public class DictItemAddDTO {
+    @JsonAlias("dictTypeId")
     @Schema(description = "代码体系ID", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Long codeSystemId;  // ✅ 新增
+    @JsonAlias({"dictCode", "code"})
     @Schema(description = "字典编码(只读，传参后端自动忽略)", accessMode = Schema.AccessMode.READ_ONLY)
     private String dicCode;
+    @JsonAlias({"dictName", "display"})
     @Schema(description = "字典名称", example = "入院", requiredMode = Schema.RequiredMode.REQUIRED)
     private String dicName;
+    @JsonAlias({"dictDescription", "definition"})
     @Schema(description = "字典描述", example = "无", requiredMode = Schema.RequiredMode.REQUIRED)
     private String dicDescription;
+    @JsonAlias({"dictSort", "sortOrder"})
     @Schema(description = "字典排序", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Integer dicSort;
 }

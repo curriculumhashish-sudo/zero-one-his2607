@@ -37,6 +37,9 @@ public interface SettingsMapper extends BaseMapper<WhaleSettingsDO> {
             "created_at, updated_at, created_by, updated_by " +
             "FROM whale_settings " +
             "WHERE tenant_id = #{tenantId} AND is_deleted = 0" +
+            "<if test='query.name != null and query.name != \"\"'>" +
+            " AND name = #{query.name}" +
+            "</if>" +
             "<if test='query.provider_name != null and query.provider_name != \"\"'>" +
             " AND provider_name = #{query.provider_name}" +
             "</if>" +
