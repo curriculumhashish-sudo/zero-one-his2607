@@ -88,7 +88,7 @@
                 <artifactId>docker-maven-plugin</artifactId>
                 <version>0.48.1</version>
                 <configuration>
-                    <dockerHost>https://47.99.167.11:2376</dockerHost>
+                    <dockerHost>https://47.99.167.11:2375</dockerHost>
                     <certPath>D:/Dr.BIG/ca/docker-ca-calendar</certPath>
                     <skip>false</skip>
                     <images>
