@@ -42,10 +42,16 @@ class ChargeConfirmDTO : public oatpp::DTO {
         info->description = ZH_WORDS_GETTER("macchiato.charging.register.amount");
     }
 
-    // 支付方式草稿号
+    // 支付草稿号 (fin_payment_reconciliation.id)
     DTO_FIELD(String, paymentDraft);
     DTO_FIELD_INFO(paymentDraft) {
         info->description = ZH_WORDS_GETTER("macchiato.charging.register.paymentDraft");
+    }
+
+    // 收费项标识 (adm_charge_item.id)
+    DTO_FIELD(String, chargeItemId);
+    DTO_FIELD_INFO(chargeItemId) {
+        info->description = ZH_WORDS_GETTER("macchiato.charging.register.chargeItemId");
     }
 
     // 挂号类型
