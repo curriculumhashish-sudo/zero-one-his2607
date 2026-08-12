@@ -7,9 +7,20 @@ class GetPatientListDTO : public oatpp::DTO
 {
 	DTO_INIT(GetPatientListDTO, DTO);
 
-	DTO_FIELD(UInt64, encounter_id);
+	// 就诊主键，直接返回数据库主键字符串，避免转数字丢精度或变0
+	DTO_FIELD(String, encounter_id);
 	DTO_FIELD_INFO(encounter_id) {
 		info->description = ZH_WORDS_GETTER("qi.charging.settle.encounter_id");
+	}
+	// 患者主键，可直接用于费用明细/费用合计/历史结算查询
+	DTO_FIELD(String, patient_id);
+	DTO_FIELD_INFO(patient_id) {
+		info->description = ZH_WORDS_GETTER("qi.charging.settle.patient_id");
+	}
+	// 账户主键，正式结算时必传
+	DTO_FIELD(String, account_id);
+	DTO_FIELD_INFO(account_id) {
+		info->description = ZH_WORDS_GETTER("qi.charging.settle.account_id");
 	}
 	DTO_FIELD(String, inpatient_no);
 	DTO_FIELD_INFO(inpatient_no) {
@@ -39,7 +50,8 @@ class GetPatientListDTO : public oatpp::DTO
 	DTO_FIELD_INFO(bed_no) {
 		info->description = ZH_WORDS_GETTER("qi.charging.settle.bed_no");
 	}
-	DTO_FIELD(UInt64, admit_date);
+	// 入院日期按日期字符串返回，不能转数字
+	DTO_FIELD(String, admit_date);
 	DTO_FIELD_INFO(admit_date) {
 		info->description = ZH_WORDS_GETTER("qi.charging.settle.admit_date");
 	}

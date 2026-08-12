@@ -6,7 +6,6 @@
 #include "domain/dto/settle/GetPatientListDTO.h"
 #include "domain/do/settle/GetPatientListDO.h"
 #include "../../dao/settle/GetPatientListDAO.h"
-#include <iostream> // 控制台输出头文件
 
 class GetPatientListService
 {
@@ -21,12 +20,10 @@ public:
         // 2. 初始化 DAO 并查询总数
         GetPatientListDAO dao;
         uint64_t count = dao.count(query);
-        std::cout << "[DEBUG] total count = " << count << std::endl;
 
         // 如果没有数据，直接返回空分页对象
         if (count <= 0)
         {
-            std::cout << "[DEBUG] count <= 0，直接返回空分页" << std::endl;
             return pages;
         }
 
@@ -36,44 +33,21 @@ public:
 
         // 4. 查询数据列表
         std::list<GetPatientListDO> result = dao.selectWithPage(query);
-        std::cout << "[DEBUG] DO列表数量：" << result.size() << std::endl;
 
-        // ========== 循环打印DO，同事要求的调试代码 ==========
-        for (auto& sub : result)
-        {
-            std::cout << "==== DO数据 ====" << std::endl;
-            std::cout << "encounter_id:" << sub.getId() << std::endl;
-            std::cout << "name:" << sub.getName() << std::endl;
-            std::cout << "bus_no:" << sub.getBus_no() << std::endl;
-            std::cout << "admit_date:" << sub.getAdmit_date() << std::endl;
-        }
-        // =================================================
-
-        // 5. DO 转 DTO (手动处理类型转换)
-        uint64_t startSort = (pages->pageIndex - 1) * pages->pageSize + 1;
+        // 5. DO 转 DTO（主键与日期按字符串直接赋值，保持数据库原样，不转数字）
         for (GetPatientListDO& sub : result)
         {
             auto dto = GetPatientListDTO::createShared();
-            //dto->sort_num = startSort++;
 
-            // --- 1. 处理 ID (String -> UInt64) ---
-            if (!sub.getId().empty()) {
-                try { dto->encounter_id = std::stoull(sub.getId()); }
-                catch (...) { dto->encounter_id = (v_uint64)0; }
-            }
+            // 就诊/患者/账户主键直接返回数据库主键字符串
+            dto->encounter_id = sub.getId();
+            dto->patient_id = sub.getPatient_id();
+            dto->account_id = sub.getAccount_id();
 
-            // ⚠️警告："2026-07-01"字符串无法使用stoull，必然捕获异常置0
-            if (!sub.getAdmit_date().empty()) {
-                try {
-                    dto->admit_date = (v_uint64)std::stoull(sub.getAdmit_date());
-                }
-                catch (...) {
-                    dto->admit_date = (v_uint64)0;
-                    std::cout << "[WARN] admit_date 转换异常，日期字符串无法转为数字" << std::endl;
-                }
-            }
+            // 入院日期按日期字符串返回
+            dto->admit_date = sub.getAdmit_date();
 
-            // --- 3. std::string → oatpp::String ---
+            // 业务展示字段
             dto->inpatient_no = sub.getBus_no();
             dto->patient_name = sub.getName();
             dto->dept_name = sub.getOrg_name();
@@ -81,14 +55,13 @@ public:
             dto->bed_no = sub.getBed_no();
             // dto->doctor_name = sub.getDoctor_name(); // 已注释，DAO无此字段
 
-            // --- 4. 数值类型转换 ---
+            // 数值类型转换
             dto->gender = (v_uint8)sub.getGender_enum();
             dto->age = (v_uint32)sub.getAge();
             dto->insurance_type = (v_uint8)sub.getInsurance_type();
 
             pages->addData(dto);
         }
-        //        std::cout << "[DEBUG] 最终分页data数量：" << pages->data->size() << std::endl;
         return pages;
     }
 };

@@ -13,7 +13,7 @@ class GetPatientListQuery : public PageQuery
 
 
 
-	DTO_FIELD(UInt64, encounter_id);
+	DTO_FIELD(String, encounter_id);
 	DTO_FIELD_INFO(encounter_id) {
 		info->description = ZH_WORDS_GETTER("qi.charging.settle.encounter_id");
 	}
@@ -53,7 +53,7 @@ class GetPatientListQuery : public PageQuery
 		info->description = ZH_WORDS_GETTER("qi.charging.settle.bed_no");
 	}
 
-	DTO_FIELD(UInt64, admit_date);
+	DTO_FIELD(String, admit_date);
 	DTO_FIELD_INFO(admit_date) {
 		info->description = ZH_WORDS_GETTER("qi.charging.settle.admit_date");
 	}
