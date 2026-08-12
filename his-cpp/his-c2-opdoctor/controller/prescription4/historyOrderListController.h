@@ -32,7 +32,7 @@ class HistoryOrderListController : public oatpp::web::server::api::ApiController
 	API_ACCESS_DECLARE(HistoryOrderListController);
 public:
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("historyOrder.list.summary"), queryHistoryOrderList, HistoryOrderListQuery, HistoryOrderListPageJsonVO::Wrapper, API_TAG);
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/historyOrder/list", queryHistoryOrderList, HistoryOrderListQuery, execQueryHistoryOrderList(query));
+	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/c2-opdoctor/historyOrder/list", queryHistoryOrderList, HistoryOrderListQuery, execQueryHistoryOrderList(query));
 
 private:
 	HistoryOrderListPageJsonVO::Wrapper execQueryHistoryOrderList(const HistoryOrderListQuery::Wrapper& query);
