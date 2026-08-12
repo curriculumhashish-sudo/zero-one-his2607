@@ -267,6 +267,7 @@ PtrClnConditionDefinitionDO DiagnoseDAO::selectById(const std::string& id)
 
 PtrTERconceptDO DiagnoseDAO::selectdtic(std::string catname)
 {
+	std::cout << "star search";
 	std::string sql = "SELECT code FROM ter_concept WHERE display= ?";
 	SqlParams params;
 	/*if (!catname.empty())
@@ -274,6 +275,52 @@ PtrTERconceptDO DiagnoseDAO::selectdtic(std::string catname)
 		sql += " display= ? ";
 		SQLPARAMS_PUSH(params, "s", std::string, catname);
 	}*/
+	std::cout << "search success";
 	return sqlSession->executeQueryOne<PtrTERconceptDO>(sql, DiagnoseDticMapper(), "%s", catname);
 
 }
+
+PtrWhaleSequenceDO DiagnoseDAO::selectwhale(std::string seqkey)
+{
+	std::string sql = "SELECT current_value FROM whale_sequence WHERE seq_key= ?";
+	SqlParams params;
+	/*if (!catname.empty())
+	{
+		sql += " display= ? ";
+		SQLPARAMS_PUSH(params, "s", std::string, catname);
+	}*/
+	return sqlSession->executeQueryOne<PtrWhaleSequenceDO>(sql, WhaleSequenceMapper(), "%s", seqkey);
+
+}
+
+//int DiagnoseDAO::insertwhale(const BaseDO& bd)
+//{
+//	
+//	SqlParams params;
+//	std::ostringstream col;
+//	std::ostringstream val;
+//	val << ") VALUES (";
+//		int num = 0;
+//	// 普通字段
+//	for (auto field : bd.getFields())
+//	{
+//		if (extractFieldValue(field, &params))
+//		{
+//			num++;
+//
+//			if(num==2)
+//			{
+//				col << field->getColumn();
+//				val << " ?";
+//				break;
+//			}
+//			col << field->getColumn()<< " ,";
+//			val << " ?,";
+//		}
+//	}
+//	// 构造SQL
+//	std::ostringstream sql;
+//	sql << "INSERT INTO " << bd.getTable() << " (";
+//	sql << col.str() << val.str() << " )";
+//	return sqlSession->executeUpdate(sql.str(), params);
+//}

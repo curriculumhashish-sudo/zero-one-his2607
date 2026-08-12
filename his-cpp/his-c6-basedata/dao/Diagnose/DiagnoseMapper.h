@@ -97,4 +97,16 @@ public:
 
 };
 
+class WhaleSequenceMapper :public Mapper<PtrWhaleSequenceDO>
+{
+public:
+	PtrWhaleSequenceDO mapper(ResultSet* resultSet) const override
+	{
+		PtrWhaleSequenceDO terdo = std::make_shared<WhaleSequenceDO>();
+		terdo->setConditioncode(resultSet->getInt64("current_value"));
+		return terdo;
+	}
+
+};
+
 #endif // !_diagnose_SELECT_MAPPER_H_

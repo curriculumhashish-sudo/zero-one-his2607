@@ -295,7 +295,7 @@ diagnose:
  field:
   category: 
     id: 诊断分类ID
-    cat_name: 诊断目录/病情编码（非空）
+    cat_name: 诊断目录（非空）
   diag:
     id: 诊断主键ID
     diag_code: 诊断编码
@@ -319,6 +319,7 @@ diagnose:
     tenant_id: 租户标识
     source_enum: 来源枚举值——对应诊断目录
     version: 当前乐观锁版本
+    condition_code: 病情编码/编码
   select:
     condition_definition_id: 诊断定义ID
     condition_code: 诊断编码

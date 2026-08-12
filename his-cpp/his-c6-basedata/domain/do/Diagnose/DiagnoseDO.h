@@ -175,6 +175,8 @@ class DiagnoseDO : public BaseDO
 	MYSQL_SYNTHESIZE(int, version, Version);//version
 	//来源枚举值
 	MYSQL_SYNTHESIZE(string, source_enum, Source_enum);//source_enum
+	//病情编码
+	MYSQL_SYNTHESIZE(string, conditioncode, Conditioncode);//condition_code
 public:
 	DiagnoseDO() : BaseDO("cln_condition_definition")
 	{
@@ -215,7 +217,7 @@ public:
 		// 删除标记 is_deleted 
 		MYSQL_ADD_FIELD("is_deleted", "b", isDelete);
 		// 诊断病情码 condition_code
-		MYSQL_ADD_FIELD("condition_code", "s", medicalInsuranceCode);
+		MYSQL_ADD_FIELD("condition_code", "s", conditioncode);
 		// 租户标识 tenant_id
 		MYSQL_ADD_FIELD("tenant_id", "s", tenantId);
 		//乐观锁版本version
@@ -233,7 +235,7 @@ typedef std::shared_ptr<DiagnoseDO> PtrDiagnoseDO;
 
 class TERconceptDO :public BaseDO
 {
-	MYSQL_SYNTHESIZE(string, code, Code);//source_enum
+	MYSQL_SYNTHESIZE(std::string, code, Code);//source_enum
 	//MYSQL_SYNTHESIZE(string, diagnoseCode, diagnoseCode);//诊断编码/特慢病编码 disease_code
 
 public:
@@ -248,8 +250,23 @@ public:
 typedef std::shared_ptr<TERconceptDO> PtrTERconceptDO;
 
 
+class WhaleSequenceDO :public BaseDO
+{
+	MYSQL_SYNTHESIZE(int64_t, conditioncode, Conditioncode);//condition_code
+	MYSQL_SYNTHESIZE(std::string, seqkey, Seqkey);//seq_key
+	MYSQL_SYNTHESIZE(string, updatedat, Updatedat);//updated_at
+public:
+	WhaleSequenceDO() : BaseDO("whale_sequence")
+	{
+		// 诊断病情码 condition_code
+		MYSQL_ADD_FIELD("current_value", "ll", conditioncode);
+		MYSQL_ADD_FIELD_PK("seq_key", "s", seqkey);
+		MYSQL_ADD_FIELD("updated_at", "s", updatedat);
+	}
 
 
+};
+typedef std::shared_ptr<WhaleSequenceDO> PtrWhaleSequenceDO;
 
 
 #endif // !_diagnose_DO_

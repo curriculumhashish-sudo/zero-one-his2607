@@ -53,26 +53,30 @@ DiagnoseDetailJsonVO::Wrapper DiagnoseController::executeGetDiagnoseDetail(const
 		jvo->fail({});
 	return jvo;
 }
-StringJsonVO::Wrapper DiagnoseController::execAddDiagnose(const DiagnoseAddDTO::Wrapper& dto, const PayloadDTO& payload)
+AddreturnJsonVO::Wrapper DiagnoseController::execAddDiagnose(const DiagnoseAddDTO::Wrapper& dto, const PayloadDTO& payload)
 {
-	auto response = StringJsonVO::createShared();
+	auto response = AddreturnJsonVO::createShared();
 
 	const std::string errorMessage = dto->validate();
 	if (!errorMessage.empty())
 	{
-		response->init(errorMessage, RS_PARAMS_INVALID);
+		AddreturnDTO::Wrapper mess;
+		mess->id = errorMessage;
+		response->init(mess, RS_PARAMS_INVALID);
 		return response;
 	}
 
 	dto->setPayload(&payload);
-	const std::string id = DiagnoseService().saveData(dto);
-	if (!id.empty())
+	auto result = AddreturnDTO::createShared();
+ result = DiagnoseService().saveData(dto);
+	if (result->id && result->conditioncode)
 	{
-		response->success(id);
+		//response->success("");
+		response->success(result);
 	}
 	else
 	{
-		response->fail("");
+		response->fail(AddreturnDTO::Wrapper());
 	}
 	return response;
 }

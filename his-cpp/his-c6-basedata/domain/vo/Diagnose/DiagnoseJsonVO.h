@@ -12,6 +12,12 @@ class DiagnoseRemoveJsonVO : public JsonVO<DiagnoseRemoveDTO::Wrapper>
 	DTO_INIT(DiagnoseRemoveJsonVO, JsonVO<DiagnoseRemoveDTO::Wrapper>);
 
 };
+//增加返回的字段
+class AddreturnJsonVO : public JsonVO<AddreturnDTO::Wrapper>
+{
+	DTO_INIT(AddreturnJsonVO, JsonVO<AddreturnDTO::Wrapper>);
+
+};
 
 #include OATPP_CODEGEN_END(DTO)
 
