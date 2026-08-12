@@ -17,12 +17,12 @@ public:
     // 列表查询（保留 QUERY_AUTH 宏，但传递 payload）
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("outpatientRecord.queryList.summary"), queryRecordList,
         OutpatientRecordQuery, OutpatientRecordPageJsonVO::Wrapper, API_TAG);
-    API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "c2-opdoctor/outpatientrecord2", queryRecordList,
+    API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/outpatientrecord2", queryRecordList,
         OutpatientRecordQuery, execQueryRecordList(query, authObject->getPayload()));
 
     API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("outpatientRecord.detail.summary"), getRecordDetail,
         OutpatientRecordDetailJsonVO::Wrapper, API_TAG);
-    API_HANDLER_ENDPOINT_AUTH(API_M_GET, "c2-opdoctor/outpatientrecord2/detail/{encounterId}", getRecordDetail,
+    API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/outpatientrecord2/detail/{encounterId}", getRecordDetail,
         PATH(String, encounterId), execGetRecordDetail(encounterId, authObject->getPayload()));
 
 private:
