@@ -17,6 +17,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,6 +40,9 @@ public class TenantController {
 
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     @Resource
     private Validator validator;
@@ -171,7 +175,7 @@ public class TenantController {
      */
     private String getCurrentTenantId(String userId) {
         String key = RedisConstant.USER_SESSION_PREFIX + userId;
-        Object tenantId = redisTemplate.opsForHash().get(key, "tenant_id");
+        Object tenantId = stringRedisTemplate.opsForHash().get(key, "tenant_id");
         if (tenantId == null) {
             return null;
         }

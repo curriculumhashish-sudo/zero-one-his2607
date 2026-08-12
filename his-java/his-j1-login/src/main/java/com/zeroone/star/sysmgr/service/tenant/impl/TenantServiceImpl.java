@@ -17,6 +17,7 @@ import com.zeroone.star.project.vo.j1.login.TenantVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -35,6 +36,7 @@ public class TenantServiceImpl implements TenantService {
     private final UserTenantMapper UserTenantMapper;
     private final AdmOrganizationMapper admOrganizationMapper;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final StringRedisTemplate stringRedisTemplate;
     private final ObjectMapper objectMapper;
 
     // ==================== 租户列表（带缓存） ====================
@@ -215,14 +217,14 @@ public class TenantServiceImpl implements TenantService {
     public void cacheSelectedTenant(String userId, String tenantId) {
         try {
             String key = LoginRedisConstant.userSessionKey(userId);
-            redisTemplate.opsForHash().put(key, "tenant_id", tenantId);
-            redisTemplate.expire(key, LoginRedisConstant.USER_SESSION_TTL, TimeUnit.SECONDS);
+            stringRedisTemplate.opsForHash().put(key, "tenant_id", tenantId);
+            stringRedisTemplate.expire(key, LoginRedisConstant.USER_SESSION_TTL, TimeUnit.SECONDS);
 
                 // 同步更新 his:login:context（如果存在）
             String ctxKey = LoginRedisConstant.loginContextKey(userId);
-            if (Boolean.TRUE.equals(redisTemplate.hasKey(ctxKey))) {
-                redisTemplate.opsForHash().put(ctxKey, "tenant_id", tenantId);
-                redisTemplate.expire(ctxKey, LoginRedisConstant.USER_SESSION_TTL, TimeUnit.SECONDS);
+            if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(ctxKey))) {
+                stringRedisTemplate.opsForHash().put(ctxKey, "tenant_id", tenantId);
+                stringRedisTemplate.expire(ctxKey, LoginRedisConstant.USER_SESSION_TTL, TimeUnit.SECONDS);
             }
         } catch (Exception e) {
             log.warn("缓存租户选择失败, userId={}, tenantId={}", userId, tenantId, e);
@@ -233,14 +235,14 @@ public class TenantServiceImpl implements TenantService {
     public void cacheSelectedHospital(String userId, String hospitalId) {
         try {
             String key = LoginRedisConstant.userSessionKey(userId);
-            redisTemplate.opsForHash().put(key, "hospital_organization_id", hospitalId);
-            redisTemplate.expire(key, LoginRedisConstant.USER_SESSION_TTL, TimeUnit.SECONDS);
+            stringRedisTemplate.opsForHash().put(key, "hospital_organization_id", hospitalId);
+            stringRedisTemplate.expire(key, LoginRedisConstant.USER_SESSION_TTL, TimeUnit.SECONDS);
 
             // 同步更新 his:login:context（如果存在）
             String ctxKey = LoginRedisConstant.loginContextKey(userId);
-            if (Boolean.TRUE.equals(redisTemplate.hasKey(ctxKey))) {
-                redisTemplate.opsForHash().put(ctxKey, "hospital_organization_id", hospitalId);
-                redisTemplate.expire(ctxKey, LoginRedisConstant.USER_SESSION_TTL, TimeUnit.SECONDS);
+            if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(ctxKey))) {
+                stringRedisTemplate.opsForHash().put(ctxKey, "hospital_organization_id", hospitalId);
+                stringRedisTemplate.expire(ctxKey, LoginRedisConstant.USER_SESSION_TTL, TimeUnit.SECONDS);
             }
         } catch (Exception e) {
             log.warn("缓存医院选择失败, userId={}, hospitalId={}", userId, hospitalId, e);

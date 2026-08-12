@@ -16,6 +16,7 @@ import com.zeroone.star.sysmgr.mapper.login.LoginSessionMapper;
 import com.zeroone.star.sysmgr.service.dept.DeptService;
 import jakarta.annotation.Resource;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,6 +33,8 @@ public class DeptServiceImpl implements DeptService {
     private LoginSessionMapper loginSessionMapper;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
     private static final String ROLE_DOCTOR = "ROLE_DOCTOR";
 
     @Override
@@ -96,14 +99,13 @@ public class DeptServiceImpl implements DeptService {
 
             // 同步更新Redis会话缓存
             String sessionRedisKey = "user:session:" + userId;
-            redisTemplate.opsForHash().put(sessionRedisKey, "organization_unit_id", selectDeptId);
+            stringRedisTemplate.opsForHash().put(sessionRedisKey, "organization_unit_id", selectDeptId);
 
             // 同步更新 his:login:context（如果存在）
             String ctxKey = "his:login:context:" + userId;
-            if (Boolean.TRUE.equals(redisTemplate.hasKey(ctxKey))) {
-                redisTemplate.opsForHash().put(ctxKey, "organization_unit_id", selectDeptId);
+            if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(ctxKey))) {
+                stringRedisTemplate.opsForHash().put(ctxKey, "organization_unit_id", selectDeptId);
             }
-
 
             // 组装返回结果，填充完整科室信息
             DeptBindResultVO vo = new DeptBindResultVO();
@@ -145,7 +147,7 @@ public class DeptServiceImpl implements DeptService {
      */
     private String getTenantIdByUserId(String userId) {
         String sessionKey = RedisConstant.USER_SESSION_PREFIX + userId;
-        Object tenantObj = redisTemplate.opsForHash().get(sessionKey, "tenant_id");
+        Object tenantObj = stringRedisTemplate.opsForHash().get(sessionKey, "tenant_id");
         if (tenantObj == null) {
             throw new RuntimeException("会话租户信息缺失，请重新登录");
         }
