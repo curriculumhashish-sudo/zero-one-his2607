@@ -86,15 +86,17 @@
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
-                <version>0.43.4</version>
+                <version>0.48.1</version>
                 <configuration>
-                    <dockerHost>http://47.99.167.11:2375</dockerHost>
+                    <dockerHost>https://47.99.167.11:2376</dockerHost>
+                    <certPath>D:/Dr.BIG/ca/docker-ca-calendar</certPath>
                     <skip>false</skip>
                     <images>
                         <image>
                             <name>01star/${project.artifactId}:${project.version}</name>
                             <build>
                                 <contextDir>${project.basedir}</contextDir>
+                                <noCache>true</noCache>
                             </build>
                             <alias>${project.artifactId}</alias>
                             <run>
