@@ -22,10 +22,10 @@ public:
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("patient1.queryconsum.consum"),
 		consumPatient, PatientConsumQuery, PatientConsumListJsonVO::Wrapper, API_TAG);
 	// Endpoint binding
-	// Path:    /patient/query-consum/{encounterId}
+	// Path:    /opnurse/query-consum/{encounterId}
 	// Query:   consumableRoom
 	// Header:  Authorization
-	ENDPOINT(API_M_GET, "/patient/query-consum/{encounterId}", consumPatient,
+	ENDPOINT(API_M_GET, "/opnurse/query-consum/{encounterId}", consumPatient,
 		PATH(String, encounterId),
 		QUERIES(QueryParams, queryParams),
 		API_HANDLER_AUTH_PARAME) {

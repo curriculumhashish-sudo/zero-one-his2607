@@ -33,7 +33,7 @@ public:
 		API_DEF_ADD_QUERY_PARAMS(String, "endDate", ZH_WORDS_GETTER("opnurse3.field.endDate"), "", false);
 	}
 	// GET /opnurse/records
-	ENDPOINT(API_M_GET, "/opnurse/records", queryRecords, QUERIES(QueryParams, params), API_HANDLER_AUTH_PARAME) {
+	ENDPOINT(API_M_GET, "/c2-opnurse/records", queryRecords, QUERIES(QueryParams, params), API_HANDLER_AUTH_PARAME) {
 		API_HANDLER_QUERY_PARAM(query, PrintLogQuery, params);
 		return createDtoResponse(Status::CODE_200, executeQueryRecords(query));
 	}

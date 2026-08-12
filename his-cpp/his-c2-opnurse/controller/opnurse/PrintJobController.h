@@ -28,7 +28,7 @@ public:
 		API_DEF_ADD_TAG(API_TAG);
 	}
 	// POST /opnurse/print
-	ENDPOINT(API_M_POST, "/opnurse/print", printJob, BODY_DTO(PrintRequestDTO::Wrapper, dto), API_HANDLER_AUTH_PARAME) {
+	ENDPOINT(API_M_POST, "/c2-opnurse/print", printJob, BODY_DTO(PrintRequestDTO::Wrapper, dto), API_HANDLER_AUTH_PARAME) {
 		return createDtoResponse(Status::CODE_200, executePrint(dto));
 	}
 
