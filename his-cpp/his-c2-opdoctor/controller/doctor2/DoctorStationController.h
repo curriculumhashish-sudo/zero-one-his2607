@@ -36,7 +36,7 @@ public:
         InpatientAdmissionFormOptionsJsonVO::Wrapper,
         API_TAG);
     API_HANDLER_ENDPOINT_NOPARAM_AUTH(API_M_POST,
-        "/doctor-station/inpatient-admission/options",
+        "//c2-opdoctor/inpatient-admission/options",
         loadInpatientAdmissionOptions,
         execLoadInpatientAdmissionOptions(authObject->getPayload()));
 
