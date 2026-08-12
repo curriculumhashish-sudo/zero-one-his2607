@@ -74,6 +74,16 @@ class InboundApprovalServiceImplTest {
     }
 
     @Test
+    void withdrawSucceedsWithoutRemark() {
+        mockPendingOrderAndUpdatedRows(1);
+
+        var result = service.withdrawApproval(new InboundApprovalDTO(BUS_NO, null, "user-001", null));
+
+        assertEquals("WITHDRAW", result.getStatus());
+        verify(inboundApprovalMapper).update(isNull(), any(Wrapper.class));
+    }
+
+    @Test
     void approveUpdatesAllDetails() {
         mockPendingOrderAndUpdatedRows(2);
 

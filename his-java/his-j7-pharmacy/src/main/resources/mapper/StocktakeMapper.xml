@@ -127,10 +127,9 @@
     </select>
 
     <!-- ==================== 查询盘点单明细列表 ==================== -->
-    <!-- 根据 bus_no 查询所有明细行，关联药品定义 -->
+    <!-- 根据 bus_no 查询所有明细行，关联药品定义；仅引用 wkf_supply_request 真实存在的列 -->
     <select id="selectStocktakeItems" resultType="com.zeroone.star.project.vo.stocktake.StocktakeItemVO">
         SELECT t.id,
-               t.bus_no                     AS busNo,
                t.item_id                    AS itemId,
                md.name                      AS itemName,
                md.name                      AS drugName,
@@ -138,18 +137,16 @@
                md.total_volume              AS spec,
                md.manufacturer_text         AS manufacturer,
                t.lot_number                 AS lotNumber,
-               t.purpose_location_id        AS purposeLocationId,
-               wl.name                      AS purposeLocationName,
-               t.inbound_time               AS inboundTime,
-               t.theoretical_quantity       AS theoreticalQuantity,
-               t.stocktake_quantity         AS totalQuantity,
+               (IFNULL(t.total_quantity, 0) - IFNULL(t.item_quantity, 0)) AS bookQuantity,
+               t.total_quantity             AS totalQuantity,
+               t.item_quantity              AS itemQuantity,
                t.unit_code                  AS unitCode,
-               t.retail_price               AS retailPrice,
-               t.retail_price * t.stocktake_quantity AS totalPrice,
-               t.remark                     AS remark
+               t.price                      AS price,
+               t.total_price                AS totalPrice,
+               t.profit_loss_price          AS profitLossPrice,
+               t.remake                     AS remark
         FROM wkf_supply_request t
                  LEFT JOIN med_medication_definition md ON md.id = t.item_id AND md.is_deleted = 0
-                 LEFT JOIN whs_location wl ON wl.id = t.purpose_location_id AND wl.is_deleted = 0
         WHERE t.bus_no = #{busNo}
           AND t.is_deleted = 0
           AND t.type_enum IN ('INVENTORY_CHECK', 'PHARMACY_STOCKTAKE', 'CABINET_STOCKTAKE')

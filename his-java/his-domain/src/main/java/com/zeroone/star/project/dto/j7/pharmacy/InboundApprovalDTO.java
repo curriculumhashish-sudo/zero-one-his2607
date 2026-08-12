@@ -25,7 +25,7 @@ public class InboundApprovalDTO {
     @Schema(description = "入库单业务单号", example = "CIR2026-06-300001", requiredMode = Schema.RequiredMode.REQUIRED)
     private String busNo;
     @Size(max = 255, message = "审批意见长度不能超过255个字符")
-    @Schema(description = "审批意见；驳回审批、撤回审批时填写原因", example = "库存数量有误，驳回后请重新提交")
+    @Schema(description = "审批意见；驳回审批时必填原因，撤回审批时选填", example = "库存数量有误，驳回后请重新提交")
     private String remark;
     @NotBlank(message = "审批人不能为空")
     @Size(max = 64, message = "审批人标识长度不能超过64个字符")

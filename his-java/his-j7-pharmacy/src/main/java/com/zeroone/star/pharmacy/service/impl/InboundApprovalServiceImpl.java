@@ -86,10 +86,16 @@ public class InboundApprovalServiceImpl implements IInboundApprovalService {
 
     /**
      * lvv：查询并校验入库单存在且仍处于可审批状态（审批中/待审批）。
+     * 仅查询表中真实存在的列，避免实体中的快照字段（item_name 等）生成 Unknown column 导致 500。
      */
     private WkfSupplyRequest requireTransitionableInboundOrder(String busNo) {
         LambdaQueryWrapper<WkfSupplyRequest> query = new LambdaQueryWrapper<>();
-        query.eq(WkfSupplyRequest::getBusNo, busNo)
+        query.select(WkfSupplyRequest::getId,
+                        WkfSupplyRequest::getBusNo,
+                        WkfSupplyRequest::getTypeEnum,
+                        WkfSupplyRequest::getStatusEnum,
+                        WkfSupplyRequest::getApplicantId)
+                .eq(WkfSupplyRequest::getBusNo, busNo)
                 .in(WkfSupplyRequest::getTypeEnum, INBOUND_TYPE_ENUMS)
                 .last("LIMIT 1");
         WkfSupplyRequest record = inboundApprovalMapper.selectOne(query);
@@ -121,7 +127,7 @@ public class InboundApprovalServiceImpl implements IInboundApprovalService {
                 .in(WkfSupplyRequest::getTypeEnum, INBOUND_TYPE_ENUMS)
                 .in(WkfSupplyRequest::getStatusEnum, TRANSITIONABLE_STATUSES)
                 .set(WkfSupplyRequest::getStatusEnum, targetStatus)
-                .set(WkfSupplyRequest::getRemake, dto.getRemark())
+                .set(StringUtils.hasText(dto.getRemark()), WkfSupplyRequest::getRemake, dto.getRemark())
                 .set(WkfSupplyRequest::getUpdatedBy, operatorName)
                 .set(WkfSupplyRequest::getUpdatedAt, now)
                 .setSql("version = version + 1");
@@ -183,7 +189,6 @@ public class InboundApprovalServiceImpl implements IInboundApprovalService {
     @Transactional(rollbackFor = Exception.class)
     public InboundApprovalVO withdrawApproval(InboundApprovalDTO dto) {
         normalize(dto);
-        requireRemark(dto, "撤回原因不能为空");
         WkfSupplyRequest record = requireTransitionableInboundOrder(dto.getBusNo());
         UserDTO operator = requireCurrentUser();
 

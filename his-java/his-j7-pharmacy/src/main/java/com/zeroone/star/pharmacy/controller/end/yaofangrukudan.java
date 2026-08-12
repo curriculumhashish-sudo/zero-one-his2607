@@ -51,7 +51,7 @@ public class yaofangrukudan {
      * lvv：撤回处于待审批状态的入库单。
      */
     @PostMapping("/withdraw")
-    @Operation(summary = "撤回审批", description = "仅原申请人可撤回 APPROVAL（审批中）/ PENDING_APPROVAL（待审批）状态的入库单；撤回原因必填，状态变为 WITHDRAW")
+    @Operation(summary = "撤回审批", description = "仅原申请人可撤回 APPROVAL（审批中）/ PENDING_APPROVAL（待审批）状态的入库单；撤回原因选填，状态变为 WITHDRAW")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "10000 操作成功；9999 参数错误；9995 业务失败",
             content = @Content(mediaType = "application/json",
