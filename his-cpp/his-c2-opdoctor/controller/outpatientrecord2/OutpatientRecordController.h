@@ -4,7 +4,7 @@
 #include "domain/vo/BaseJsonVO.h"
 #include "domain/query/outpatientrecord2/OutpatientRecordQuery.h"
 #include "domain/vo/outpatientrecord2/OutpatientRecordVO.h"
-#include "domain/dto/outpatientrecord2/OutpatientRecordDetailDTO.h"  // ÐÂÔö
+#include "domain/dto/outpatientrecord2/OutpatientRecordDetailDTO.h"  // æ–°å¢ž
 #include "domain/vo/outpatientrecord2/OutpatientRecordDetailJsonVO.h"  
 #include OATPP_CODEGEN_BEGIN(ApiController)
 #define API_TAG ZH_WORDS_GETTER("outpatientRecord.tags.tag")
@@ -13,8 +13,8 @@ class OutpatientRecordController : public oatpp::web::server::api::ApiController
 {
     API_ACCESS_DECLARE(OutpatientRecordController);
 public:
-    // 1. ÁÐ±í²éÑ¯£¨Ô­½Ó¿Ú£¬¸ÄÃûÎª²éÑ¯ÁÐ±í£©
-    // ÁÐ±í²éÑ¯£¨±£Áô QUERY_AUTH ºê£¬µ«´«µÝ payload£©
+    // 1. åˆ—è¡¨æŸ¥è¯¢ï¼ˆåŽŸæŽ¥å£ï¼Œæ”¹åä¸ºæŸ¥è¯¢åˆ—è¡¨ï¼‰
+    // åˆ—è¡¨æŸ¥è¯¢ï¼ˆä¿ç•™ QUERY_AUTH å®ï¼Œä½†ä¼ é€’ payloadï¼‰
     API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("outpatientRecord.queryList.summary"), queryRecordList,
         OutpatientRecordQuery, OutpatientRecordPageJsonVO::Wrapper, API_TAG);
     API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/outpatientrecord2", queryRecordList,
@@ -22,7 +22,7 @@ public:
 
     API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("outpatientRecord.detail.summary"), getRecordDetail,
         OutpatientRecordDetailJsonVO::Wrapper, API_TAG);
-    API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/outpatientrecord2/detail/{encounterId}", getRecordDetail,
+    API_HANDLER_ENDPOINT_AUTH(API_M_GET, "/c2-opdoctor/outpatientrecord2/detail/{encounterId}", getRecordDetail,
         PATH(String, encounterId), execGetRecordDetail(encounterId, authObject->getPayload()));
 
 private:
