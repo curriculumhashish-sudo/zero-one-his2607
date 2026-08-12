@@ -14,7 +14,7 @@
 #include "domain/do/order/ActivityDefinitionDO1.h"
 #include "domain/do/order/DeviceDefinitionDO1.h"
 #include "domain/do/order/EncounterDO1.h"
-#include "dao/order/mapper/EncounterMapper1.h"
+#include "dao/order/Mapper/EncounterMapper1.h"
 #include "RedisClient.h"
 #include "MongoClient.h"
 #include <ctime>
