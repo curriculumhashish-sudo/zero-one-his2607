@@ -59,6 +59,7 @@ import PurchaseInboundQueuePane from '@/views/inventory/components/PurchaseInbou
 import type { QueueSearchParams } from '@/views/inventory/components/PurchaseInboundQueuePane.vue'
 import PurchaseInboundMainPane from '@/views/inventory/components/PurchaseInboundMainPane.vue'
 import type { ExtraSearchField } from '@/views/inventory/components/PurchaseInboundMainPane.vue'
+import { ElMessage } from 'element-plus'
 import { useApprovalFlow } from '@/views/inventory/common/useApprovalFlow'
 import {
   loadSupplierOptions,
@@ -111,6 +112,9 @@ const approval = useApprovalFlow({
   getSearchPharmacy: () => (mainPaneRef.value?.getSearchValue('warehouse') as string) ?? '',
   getSearchTargetPharmacy: () => '',
   getSearchSupplier: () => (mainPaneRef.value?.getSearchValue('supplier') as string) ?? '',
+  refreshQueue: () => {
+    if (lastSearchParams.value) handleQueueSearch(lastSearchParams.value)
+  },
   apis: {
     createPurchaseInbound,
     updatePurchaseInbound,
@@ -121,13 +125,40 @@ const approval = useApprovalFlow({
     rejectPurchaseInbound
   } as any
 })
-const { handleAction, rejectVisible, rejectReason, confirmReject, cancelReject } = approval
+const { handleAction: approvalHandleAction, rejectVisible, rejectReason, confirmReject, cancelReject } = approval
+
+/** 保存类的操作需校验必填项 */
+async function handleAction(action: string) {
+  if (action === 'save' || action === 'saveAndSubmit') {
+    const supplier = mainPaneRef.value?.getSearchValue('supplier') as string | undefined
+    const warehouse = mainPaneRef.value?.getSearchValue('warehouse') as string | undefined
+    if (!supplier) {
+      ElMessage.warning('请选择供应商')
+      return
+    }
+    if (!warehouse) {
+      ElMessage.warning('请选择库房')
+      return
+    }
+  }
+  return approvalHandleAction(action)
+}
+/** 缓存最近一次搜索参数，供操作成功后刷新列表使用 */
+const lastSearchParams = ref<QueueSearchParams>({
+  checkNo: '',
+  pageSize: 10,
+  checkType: '',
+  startDate: '',
+  endDate: '',
+  pageIndex: 1
+})
 /** 新增空单据自增计数器 */
 let idCounter = 0
 
 // ==================== Queue 事件处理 ====================
 
 async function handleQueueSearch(params: QueueSearchParams) {
+  lastSearchParams.value = params
   loading.value = true
   try {
     const result = await pagePurchaseInboundOrders(params as any)
@@ -196,7 +227,8 @@ const mainSearchFields = reactive<ExtraSearchField[]>([
     prop: 'supplier',
     type: 'select',
     placeholder: '请选择',
-    options: supplierOptions
+    options: supplierOptions,
+    required: true
   },
   {
     label: '制单时间',
@@ -210,7 +242,8 @@ const mainSearchFields = reactive<ExtraSearchField[]>([
     prop: 'warehouse',
     type: 'select',
     placeholder: '请选择',
-    options: drugSourceDatabase
+    options: drugSourceDatabase,
+    required: true
   },
   {
     label: '项目类型',
@@ -235,7 +268,7 @@ function onSupplierFill(row: Record<string, any>, item: Record<string, any>) {
   const actualAmount = computeActualAmount(item.purchasePrice, item.stockQuantity)
   return {
     ...row,
-    itemCode: item.itemCode,
+    inventoryItemId: item.inventoryItemId,
     itemName: item.itemName,
     specification: item.specification,
     manufacturer: item.manufacturer,

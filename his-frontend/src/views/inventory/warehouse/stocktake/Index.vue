@@ -107,6 +107,9 @@ const approval = useApprovalFlow({
   getSearchPharmacy: () => (mainPaneRef.value?.getSearchValue('pharmacy') as string) ?? '',
   getSearchTargetPharmacy: () => '',
   getSearchSupplier: () => '',
+  refreshQueue: () => {
+    if (lastSearchParams.value) handleQueueSearch(lastSearchParams.value)
+  },
   apis: {
     createPurchaseInbound,
     updatePurchaseInbound,
@@ -118,6 +121,15 @@ const approval = useApprovalFlow({
   } as any
 })
 const { handleAction, rejectVisible, rejectReason, confirmReject, cancelReject } = approval
+/** 缓存最近一次搜索参数，供操作成功后刷新列表使用 */
+const lastSearchParams = ref<QueueSearchParams>({
+  checkNo: '',
+  pageSize: 10,
+  checkType: '',
+  startDate: '',
+  endDate: '',
+  pageIndex: 1
+})
 
 let idCounter = 0
 
@@ -127,6 +139,7 @@ let queuePharmacyValue = ''
 // ==================== Queue 事件处理 ====================
 
 async function handleQueueSearch(params: QueueSearchParams) {
+  lastSearchParams.value = params
   queuePharmacyValue = params.checkType ?? ''
   loading.value = true
   try {
@@ -143,12 +156,16 @@ async function handleQueueSearch(params: QueueSearchParams) {
 
 function handleQueueSelect(order: Record<string, unknown>) {
   selectedOrder.value = order
-  mainPaneRef.value?.setSearchValue('pharmacy', (order.sourceLocationId as string) ?? (order.sourceLocationId_dictText as string) ?? '')
+  mainPaneRef.value?.setSearchValue(
+    'pharmacy',
+    (order.sourceLocationId as string) ?? (order.sourceLocationId_dictText as string) ?? ''
+  )
 }
 
 function handleQueueAdd() {
   idCounter++
-  const pharmacyId = (queuePharmacyValue || (mainPaneRef.value?.getSearchValue('pharmacy') as string)) ?? ''
+  const pharmacyId =
+    (queuePharmacyValue || (mainPaneRef.value?.getSearchValue('pharmacy') as string)) ?? ''
   const pharmacyLabel = warehouseOptions.find((o) => o.value === pharmacyId)?.label ?? ''
   const newOrder: Record<string, unknown> = {
     id: `pi-new-${idCounter}`,
@@ -216,9 +233,9 @@ const rowDefaults = ref(ROW_DEFAULTS)
 const selectTableColumns = ref(SELECT_TABLE_COLUMNS)
 
 function handleSelectTableLoad(query: { keyword: string; pageIndex: number; pageSize: number }) {
-  const pharmacy = mainPaneRef.value?.getSearchValue('pharmacy') as string | undefined
-  // 非西药库时暂不加载项目（后续中药库/耗材库接入后可放开此限制）
-  if (pharmacy !== '322954885380706304') return Promise.resolve({ rows: [], total: 0 })
+  // const pharmacy = mainPaneRef.value?.getSearchValue('pharmacy') as string | undefined
+  // // 非西药库时暂不加载项目（后续中药库/耗材库接入后可放开此限制）
+  // if (pharmacy !== '322954885380706304') return Promise.resolve({ rows: [], total: 0 })
   return loadSupplierOptions(query)
 }
 

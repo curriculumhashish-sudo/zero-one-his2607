@@ -16,6 +16,7 @@ import type {
   RawDictTypeItem,
   RawDictTypeAllItem,
   RawEnumTypeItem,
+  RawEnumItem,
   CodeItemQuery,
   CodeItemSavePayload,
   CodeTypeQuery,
@@ -52,7 +53,7 @@ export const pageDictionaryTypes = async (
       name: item.dictTypeCode,
       title: item.dictTypeName,
       description: '',
-      codeSystemId: undefined,
+      codeSystemId: item.dictTypeId,
       createdAt: '',
       updatedAt: ''
     }))
@@ -113,10 +114,10 @@ export const pageDictionaryItems = async (
     }>(
       '/dictionary/queryDictItem',
       {
-        dictCode: query.dictCode ?? query.typeId,
+        codeSystemId: query.codeSystemId ?? query.typeId,
         dicitemKeyword: query.keyword,
-        pageIndex: 1,
-        pageSize: 100
+        pageIndex: query.pageIndex ?? 1,
+        pageSize: query.pageSize ?? 100
       },
       { baseURL }
     )
@@ -146,7 +147,7 @@ export const createDictionaryItem = async (typeId: string, data: CodeItemSavePay
     await http.post(
       '/dictionary/addDictItem',
       {
-        codeSystemId: 1,
+        codeSystemId: typeId,
         dicCode: data.code,
         dicName: data.name,
         dicDescription: data.description,
@@ -269,15 +270,111 @@ export const loadEnumOptions = (keyword?: string) => mockLoadCodeOptions('enum',
 
 // ---- 枚举项 ----
 
-export const pageEnumItems = (query: Omit<CodeItemQuery, 'system'>) =>
-  mockPageCodeItems({ ...query, system: 'enum' })
+/**
+ * 获取枚举值列表（右侧表格数据）
+ * 对接后端 GET /j2-basedata/sys/query-all-enum
+ */
+export const pageEnumItems = async (
+  query: Omit<CodeItemQuery, 'system'>
+): Promise<CodeItemRecord[]> => {
+  try {
+    const http = useHttp()
+    const res = await http.get<{
+      rows?: RawEnumItem[]
+      total?: number
+    }>(
+      '/sys/query-all-enum',
+      {
+        enumTypeId: query.typeId,
+        display: query.name || query.keyword || undefined,
+        pageIndex: 1,
+        pageSize: 100
+      },
+      { baseURL }
+    )
+    const payload = res.data
+    return (payload?.rows ?? []).map((item) => ({
+      id: item.id,
+      typeId: query.typeId,
+      code: String(item.enumCode),
+      name: item.display,
+      description: item.description ?? '',
+      sort: item.order ?? 0,
+      createdAt: '',
+      updatedAt: ''
+    }))
+  } catch {
+    return mockPageCodeItems({ ...query, system: 'enum' })
+  }
+}
 
-export const createEnumItem = (typeId: string, data: CodeItemSavePayload) =>
-  mockCreateCodeItem('enum', typeId, data)
+export const createEnumItem = async (typeId: string, data: CodeItemSavePayload) => {
+  try {
+    const http = useHttp()
+    // 先通过枚举类型编码查询真实 enumTypeId
+    const typeRes = await http.get<{ rows?: { id: string }[] }>(
+      '/sys/query-all-enum-type',
+      { enumTypeKeyword: typeId, pageIndex: 1, pageSize: 1 },
+      { baseURL }
+    )
+    const enumTypeId: string = typeRes.data?.rows?.[0]?.id ?? typeId
+    console.log('enumTypeId:', enumTypeId)
 
-export const updateEnumItem = (id: string, data: CodeItemSavePayload) =>
-  mockUpdateCodeItem('enum', id, data)
+    await http.post(
+      '/sys/add-enum',
+      {
+        enumTypeId,
+        enumKey: data.code,
+        enumCode: Math.floor(Math.random() * 100) + 1,
+        display: data.name,
+        description: data.description,
+        order: data.sort || 1,
+        status: 0
+      },
+      { baseURL, upType: DataUpType.json }
+    )
+  } catch {
+    return mockCreateCodeItem('enum', typeId, data)
+  }
+}
 
-export const removeEnumItem = (id: string) => mockRemoveCodeItem('enum', id)
+/**
+ * 修改枚举值（右侧表格编辑）
+ * 对接后端 PUT /j2-basedata/sys/modify-enum
+ */
+export const updateEnumItem = async (id: string, data: CodeItemSavePayload, typeId?: string) => {
+  try {
+    const http = useHttp()
+    await http.put(
+      '/sys/modify-enum',
+      {
+        id,
+        enumTypeId: typeId || '',
+        enumKey: data.code,
+        enumCode: Math.floor(Math.random() * 100) + 1,
+        display: data.name,
+        description: data.description,
+        order: data.sort || 1,
+        status: 0
+      },
+      { baseURL, upType: DataUpType.json }
+    )
+  } catch {
+    return mockUpdateCodeItem('enum', id, data)
+  }
+}
+
+/**
+ * 删除枚举值（右侧表格删除）
+ * 对接后端 DELETE /j2-basedata/sys/delete-enum/{id}
+ */
+export const removeEnumItem = async (id: string) => {
+  try {
+    const http = useHttp()
+    await http.delete(`/sys/delete-enum/${id}`, undefined, { baseURL })
+  } catch {
+    return mockRemoveCodeItem('enum', id)
+  }
+}
 
 export type * from './type'

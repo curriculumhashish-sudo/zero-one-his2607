@@ -69,6 +69,8 @@ export interface PageResult<T> {
 export interface PurchaseInboundDetail {
   id: string
   itemCode: string
+  /** 库存物品ID（warehouse stock-out 用于保存时映射 itemId） */
+  inventoryItemId?: string
   itemName: string
   specification: string
   manufacturer: string
@@ -76,10 +78,12 @@ export interface PurchaseInboundDetail {
   bookQuantity: number
   actualQuantity: number
   actualUnit: string
+  unitCode?: string
   profitLoss: number
   unitPrice: number
   actualAmount: number
   profitLossAmount: number
+  traceCode?: string
   remark: string
 }
 

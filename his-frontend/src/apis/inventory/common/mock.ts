@@ -66,7 +66,7 @@ const supplierData: SupplierItem[] = [
     stockQuantity: 20,
     approvalNo: '',
     itemType: '西药',
-    inventoryItemId: '323016347827048448'
+    inventoryItemId: '322998385762111488'
   },
   {
     itemCode: 'MD0028',
@@ -80,7 +80,7 @@ const supplierData: SupplierItem[] = [
     stockQuantity: 20,
     approvalNo: '',
     itemType: '西药',
-    inventoryItemId: '323016347810271232'
+    inventoryItemId: '322997883812974592'
   },
   {
     itemCode: 'MD0027',
@@ -94,7 +94,7 @@ const supplierData: SupplierItem[] = [
     stockQuantity: 200,
     approvalNo: '',
     itemType: '西药',
-    inventoryItemId: '323024481220038656'
+    inventoryItemId: '322996998399594496'
   },
   {
     itemCode: 'MD0026',
@@ -108,7 +108,7 @@ const supplierData: SupplierItem[] = [
     stockQuantity: 200,
     approvalNo: '',
     itemType: '西药',
-    inventoryItemId: '323024481236815872'
+    inventoryItemId: '322996752743403520'
   },
   {
     itemCode: 'MD0025',
@@ -122,7 +122,7 @@ const supplierData: SupplierItem[] = [
     stockQuantity: 10,
     approvalNo: '',
     itemType: '西药',
-    inventoryItemId: '323024481249398784'
+    inventoryItemId: '322995606410760192'
   },
   {
     itemCode: 'MD0024',
@@ -136,7 +136,7 @@ const supplierData: SupplierItem[] = [
     stockQuantity: 10,
     approvalNo: '',
     itemType: '西药',
-    inventoryItemId: '323016347743162368'
+    inventoryItemId: '322995328642977792'
   },
   {
     itemCode: 'MD0023',
@@ -150,7 +150,7 @@ const supplierData: SupplierItem[] = [
     stockQuantity: 10,
     approvalNo: '',
     itemType: '西药',
-    inventoryItemId: '323024303205388288'
+    inventoryItemId: '322994878225059840'
   },
   {
     itemCode: 'MD0022',
@@ -164,7 +164,7 @@ const supplierData: SupplierItem[] = [
     stockQuantity: 10,
     approvalNo: '',
     itemType: '西药',
-    inventoryItemId: '323016347713802240'
+    inventoryItemId: '322994478289784832'
   },
   {
     itemCode: 'MD0021',
@@ -178,7 +178,7 @@ const supplierData: SupplierItem[] = [
     stockQuantity: 10,
     approvalNo: '',
     itemType: '西药',
-    inventoryItemId: '323024481308119040'
+    inventoryItemId: '322994171216400384'
   }
 ]
 

@@ -71,6 +71,7 @@ function mapDetailResult(data: RawInboundDetail): PurchaseInboundDetailResult {
   const details: PurchaseInboundDetail[] = (data.lines ?? []).map((line) => ({
     id: line.id,
     itemCode: line.itemId,
+    inventoryItemId: line.itemId,
     itemName: line.productName,
     specification: line.specification,
     manufacturer: line.manufacturer,
@@ -106,9 +107,21 @@ function buildSaveDTO(
     sourceTypeEnum: SOURCE_TYPE_ENUM,
     sourceLocationId: (payload.sourceLocationId as string) || '',
     purposeTypeEnum: PURPOSE_TYPE_ENUM,
-    purposeLocationId: (payload.purposeLocationId as string) || (payload.sourceLocationId as string) || (payload.warehouse as string) || '',
-    purposeLocationName: (payload.purposeLocationId_dictText as string) || (payload.sourceLocationId_dictText as string) || (payload.warehouse as string) || '',
-    supplierId: (payload.supplierId as string) || (payload.supplierId_dictText as string) || (payload.supplier as string) || '',
+    purposeLocationId:
+      (payload.purposeLocationId as string) ||
+      (payload.sourceLocationId as string) ||
+      (payload.warehouse as string) ||
+      '',
+    purposeLocationName:
+      (payload.purposeLocationId_dictText as string) ||
+      (payload.sourceLocationId_dictText as string) ||
+      (payload.warehouse as string) ||
+      '',
+    supplierId:
+      (payload.supplierId as string) ||
+      (payload.supplierId_dictText as string) ||
+      (payload.supplier as string) ||
+      '',
     supplierName: (payload.supplierId_dictText as string) || (payload.supplier as string) || '',
     practitionerId: (payload.practitionerId as string) || '',
     creatorId: (payload.creatorId as string) || '',
@@ -124,7 +137,7 @@ function buildSaveDTO(
     version,
     lines: ((payload.details || []) as any[]).map((d) => ({
       itemTable: ITEM_TABLE_DEFAULT,
-      itemId: (d.itemCode as string) || '',
+      itemId: (d.inventoryItemId as string) || '',
       itemQuantity: Number(d.actualQuantity) || 0,
       unitCode: (d.unitCode as string) || '',
       productName: (d.itemName as string) || '',
@@ -167,7 +180,8 @@ export async function pagePurchaseInboundOrders(
     )
     const data = res.data ?? []
     const rows: PurchaseInboundOrder[] = data.map((item) => {
-      const status: PurchaseInboundStatus = (STATUS_MAP[item.statusEnum] ?? 0) as PurchaseInboundStatus
+      const status: PurchaseInboundStatus = (STATUS_MAP[item.statusEnum] ??
+        0) as PurchaseInboundStatus
       return {
         id: item.busNo,
         status,
@@ -202,11 +216,7 @@ export async function getPurchaseInboundDetail(
 ): Promise<PurchaseInboundDetailResult> {
   try {
     const http = useHttp()
-    const res = await http.get<RawInboundDetail>(
-      '/inbound/detail',
-      { busNo },
-      { baseURL }
-    )
+    const res = await http.get<RawInboundDetail>('/inbound/detail', { busNo }, { baseURL })
     return mapDetailResult(res.data!)
   } catch {
     return mockGetPurchaseInboundDetail(busNo)
@@ -222,11 +232,10 @@ export async function getPurchaseInboundDetail(
 async function addInbound(params: InboundAddDTO): Promise<PurchaseInboundDetailResult> {
   try {
     const http = useHttp()
-    const res = await http.post<RawInboundDetail>(
-      '/inbound/add',
-      params,
-      { baseURL, upType: DataUpType.json }
-    )
+    const res = await http.post<RawInboundDetail>('/inbound/add', params, {
+      baseURL,
+      upType: DataUpType.json
+    })
     return mapDetailResult(res.data!)
   } catch {
     return mockCreatePurchaseInbound({
@@ -249,8 +258,16 @@ export async function createPurchaseInbound(
   try {
     // 第一步：新增空白草稿，获取 busNo
     const addResult = await addInbound({
-      purposeLocationId: (payload.purposeLocationId as string) || (payload.sourceLocationId as string) || (payload.warehouse as string) || '',
-      supplierId: (payload.supplierId as string) || (payload.supplierId_dictText as string) || (payload.supplier as string) || '',
+      purposeLocationId:
+        (payload.purposeLocationId as string) ||
+        (payload.sourceLocationId as string) ||
+        (payload.warehouse as string) ||
+        '',
+      supplierId:
+        (payload.supplierId as string) ||
+        (payload.supplierId_dictText as string) ||
+        (payload.supplier as string) ||
+        '',
       practitionerId: (payload.practitionerId as string) || '',
       originalBusNo: (payload.originalBusNo as string) || undefined,
       reason: (payload.remark as string) || ''
@@ -276,14 +293,14 @@ export async function updatePurchaseInbound(
   try {
     const http = useHttp()
     // 如果 payload 已经是 InboundSaveDTO 格式则直接使用，否则转换
-    const saveDTO: InboundSaveDTO = (payload as any).typeEnum === TYPE_ENUM
-      ? (payload as unknown as InboundSaveDTO)
-      : buildSaveDTO(payload, id, (payload as any).version ?? (payload as any).rowVersion ?? 0)
-    const res = await http.put<RawInboundDetail>(
-      '/inbound/save',
-      saveDTO,
-      { baseURL, upType: DataUpType.json }
-    )
+    const saveDTO: InboundSaveDTO =
+      (payload as any).typeEnum === TYPE_ENUM
+        ? (payload as unknown as InboundSaveDTO)
+        : buildSaveDTO(payload, id, (payload as any).version ?? (payload as any).rowVersion ?? 0)
+    const res = await http.put<RawInboundDetail>('/inbound/save', saveDTO, {
+      baseURL,
+      upType: DataUpType.json
+    })
     return mapDetailResult(res.data!)
   } catch {
     return mockUpdatePurchaseInbound(id, payload as any)
@@ -354,7 +371,10 @@ export async function approvePurchaseInbound(busNo: string): Promise<PurchaseInb
  * 驳回审批
  * 对接后端 POST /j6-pharmacy/inbound/rejectInboundReceipt
  */
-export async function rejectPurchaseInbound(busNo: string, reason: string): Promise<PurchaseInboundOrder> {
+export async function rejectPurchaseInbound(
+  busNo: string,
+  reason: string
+): Promise<PurchaseInboundOrder> {
   try {
     const http = useHttp()
     await http.post<InboundApprovalResult>(
@@ -377,11 +397,7 @@ export async function rejectPurchaseInbound(busNo: string, reason: string): Prom
 export async function removePurchaseInbound(busNo: string): Promise<void> {
   try {
     const http = useHttp()
-    await http.delete(
-      '/inbound/remove',
-      { busNo } satisfies InboundDeleteDTO,
-      { baseURL }
-    )
+    await http.delete('/inbound/remove', { busNo } satisfies InboundDeleteDTO, { baseURL })
   } catch {
     return mockRemovePurchaseInbound(busNo)
   }

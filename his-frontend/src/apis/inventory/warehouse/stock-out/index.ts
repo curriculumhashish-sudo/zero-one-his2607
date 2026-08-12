@@ -44,6 +44,13 @@ const CATEGORY_ENUM = 'STOCK_OUT'
 const SOURCE_TYPE_ENUM = 'WAREHOUSE'
 const PURPOSE_TYPE_ENUM = 'PHARMACY'
 
+/** 药源库名称 → ID 映射 */
+const DRUG_DATABASE_ID_MAP: Record<string, string> = {
+  耗材库: '322954857622802432',
+  西药库: '322954885380706304',
+  中药库: '322954919841107968'
+}
+
 // ==================== 工具函数 ====================
 
 /** 将后端 StockOutDetailVO 映射为前端 PurchaseInboundDetailResult */
@@ -61,7 +68,7 @@ function mapDetailResult(data: RawStockOutDetail): PurchaseInboundDetailResult {
     approverId_dictText: data.approverName,
     approvalTime: data.approvalTime,
     supplierId_dictText: '',
-    sourceLocationId: data.sourceLocationId,
+    sourceLocationId: '322954885380706304',
     sourceLocationId_dictText: data.sourceLocationName,
     purposeLocationId: data.purposeLocationId,
     purposeLocationId_dictText: data.purposeLocationName,
@@ -70,6 +77,7 @@ function mapDetailResult(data: RawStockOutDetail): PurchaseInboundDetailResult {
   const details: PurchaseInboundDetail[] = (data.lines ?? []).map((line) => ({
     id: line.id,
     itemCode: line.itemId,
+    inventoryItemId: line.itemId,
     itemName: line.productName,
     specification: line.specification,
     manufacturer: line.manufacturer,
@@ -130,7 +138,7 @@ function buildSaveDTO(
     version,
     lines: ((payload.details || []) as any[]).map((d) => ({
       itemTable: 'med_medication_definition',
-      itemId: (d.itemCode as string) || '',
+      itemId: (d.inventoryItemId as string) || '',
       itemQuantity: Number(d.actualQuantity) || 0,
       unitCode: (d.unitCode as string) || '',
       productName: (d.itemName as string) || '', // 项目名称
@@ -168,7 +176,7 @@ export async function pagePurchaseInboundOrders(
         keyword: query.busNokey,
         applyTimeFrom: toDateTime(query.startDate, false),
         applyTimeTo: toDateTime(query.endDate, true),
-        sourceLocationId: query.drugDatabase,
+        sourceLocationId: DRUG_DATABASE_ID_MAP[query.drugDatabase ?? ''] ?? query.drugDatabase,
         purposeLocationId: query.pharmacyWarehouse,
         pageIndex: String(query.pageIndex),
         pageSize: String(query.pageSize)
@@ -319,7 +327,7 @@ export async function submitPurchaseInbound(busNo: string): Promise<PurchaseInbo
     const http = useHttp()
     await http.post<StockOutApprovalResult>(
       '/stockout/submit-approval',
-      { busNo, approverId: 'admin' } satisfies StockOutSubmitDTO,
+      { busNo, approverId: '308791351298756608' } satisfies StockOutSubmitDTO,
       { baseURL, upType: DataUpType.json }
     )
     const detail = await getPurchaseInboundDetail(busNo)
@@ -357,7 +365,11 @@ export async function approvePurchaseInbound(busNo: string): Promise<PurchaseInb
     const http = useHttp()
     await http.post<StockOutApprovalResult>(
       '/stockout/agree',
-      { busNo, approverId: 'admin' } satisfies StockOutApproveDTO,
+      {
+        busNo,
+        approverId: '308791351298756608',
+        approvalClock: new Date().toISOString()
+      } satisfies StockOutApproveDTO,
       { baseURL, upType: DataUpType.json }
     )
     const detail = await getPurchaseInboundDetail(busNo)
@@ -396,7 +408,7 @@ export async function rejectPurchaseInbound(
 export async function removePurchaseInbound(busNo: string): Promise<void> {
   try {
     const http = useHttp()
-    await http.delete(`/stockout/${encodeURIComponent(busNo)}/delete`, { baseURL })
+    await http.delete(`/stockout/${encodeURIComponent(busNo)}/delete`, undefined, { baseURL })
   } catch {
     return mockRemovePurchaseInbound(busNo)
   }

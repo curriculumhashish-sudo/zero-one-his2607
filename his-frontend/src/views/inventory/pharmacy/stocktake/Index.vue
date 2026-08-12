@@ -2,7 +2,24 @@
   <DocumentWorkstationShell :has-selection="true">
     <!-- 左侧标题 -->
     <template #queue-header>
-      <span class="queue-header-title">历史盘点单</span>
+      <div class="queue-header-bar">
+        <span class="queue-header-title">历史盘点单</span>
+        <el-dropdown trigger="click" @command="handleApiProfileCommand">
+          <el-button class="api-profile-button" size="small" plain>
+            接口：{{ apiProfileLabel }}
+          </el-button>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item command="j7" :disabled="apiProfile === 'j7'">
+                J7 接口
+              </el-dropdown-item>
+              <el-dropdown-item command="c8" :disabled="apiProfile === 'c8'">
+                C8 接口
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+      </div>
     </template>
 
     <!-- 左侧 Queue 区 -->
@@ -60,6 +77,7 @@ import PurchaseInboundQueuePane from '@/views/inventory/components/PurchaseInbou
 import type { QueueSearchParams } from '@/views/inventory/components/PurchaseInboundQueuePane.vue'
 import PurchaseInboundMainPane from '@/views/inventory/components/PurchaseInboundMainPane.vue'
 import type { ExtraSearchField } from '@/views/inventory/components/PurchaseInboundMainPane.vue'
+import { ElMessage } from 'element-plus'
 import { useApprovalFlow } from '@/views/inventory/common/useApprovalFlow'
 import {
   loadSupplierOptions,
@@ -69,6 +87,7 @@ import {
   updatePurchaseInbound,
   removePurchaseInbound,
   submitPurchaseInbound,
+  saveAndSubmitPurchaseInbound,
   withdrawPurchaseInbound,
   approvePurchaseInbound,
   rejectPurchaseInbound
@@ -81,15 +100,36 @@ import {
   computeProfitLossAmount
 } from '@/views/inventory/common/utils'
 
+// ==================== 接口切换 ====================
+
+const API_PROFILE_KEY = 'his-inventory-api-profile'
+type ApiProfile = 'j7' | 'c8'
+
+function getStoredApiProfile(): ApiProfile {
+  if (typeof window === 'undefined') return 'j7'
+  return window.localStorage.getItem(API_PROFILE_KEY) === 'c8' ? 'c8' : 'j7'
+}
+
+const apiProfile = ref<ApiProfile>(getStoredApiProfile())
+const apiProfileLabel = computed(() => (apiProfile.value === 'c8' ? 'C8 接口' : 'J7 接口'))
+
+function handleApiProfileCommand(command: string | number | object) {
+  if (command !== 'j7' && command !== 'c8') return
+  if (command === apiProfile.value) return
+  apiProfile.value = command
+  window.localStorage.setItem(API_PROFILE_KEY, command)
+  window.location.reload()
+}
+
 // ==================== 药房列表（静态数据） ====================
 
 const pharmacyOptions = [
-  { label: '门诊西药房', value: '门诊西药房' },
-  { label: '门诊中药房', value: '门诊中药房' },
-  { label: '门诊耗材房', value: '门诊耗材房' },
-  { label: '住院西药房', value: '住院西药房' },
-  { label: '住院中药房', value: '住院中药房' },
-  { label: '住院耗材房', value: '住院耗材房' }
+  { label: '门诊西药房', value: '322954949549363200' },
+  { label: '门诊中药房', value: '322954949549363200' },
+  { label: '门诊耗材房', value: '322954949549363200' },
+  { label: '住院西药房', value: '322954949549363200' },
+  { label: '住院中药房', value: '322954949549363200' },
+  { label: '住院耗材房', value: '322954949549363200' }
 ]
 
 // ==================== 左侧 Queue 区下拉菜单配置 ====================
@@ -118,17 +158,48 @@ const approval = useApprovalFlow({
   getSearchPharmacy: () => (mainPaneRef.value?.getSearchValue('pharmacy') as string) ?? '',
   getSearchTargetPharmacy: () => '',
   getSearchSupplier: () => '',
+  refreshQueue: () => {
+    if (lastSearchParams.value) handleQueueSearch(lastSearchParams.value)
+  },
   apis: {
     createPurchaseInbound,
     updatePurchaseInbound,
     removePurchaseInbound,
     submitPurchaseInbound,
+    saveAndSubmitPurchaseInbound,
     withdrawPurchaseInbound,
     approvePurchaseInbound,
     rejectPurchaseInbound
   } as any
 })
-const { handleAction, rejectVisible, rejectReason, confirmReject, cancelReject } = approval
+const {
+  handleAction: approvalHandleAction,
+  rejectVisible,
+  rejectReason,
+  confirmReject,
+  cancelReject
+} = approval
+
+/** 保存类的操作需校验必填的盘点药房 */
+async function handleAction(action: string) {
+  if (action === 'save' || action === 'saveAndSubmit') {
+    const pharmacy = mainPaneRef.value?.getSearchValue('pharmacy') as string | undefined
+    if (!pharmacy) {
+      ElMessage.warning('请选择盘点药房')
+      return
+    }
+  }
+  return approvalHandleAction(action)
+}
+/** 缓存最近一次搜索参数，供操作成功后刷新列表使用 */
+const lastSearchParams = ref<QueueSearchParams>({
+  checkNo: '',
+  pageSize: 10,
+  checkType: '',
+  startDate: '',
+  endDate: '',
+  pageIndex: 1
+})
 /** 新增空单据自增计数器 */
 let idCounter = 0
 
@@ -136,6 +207,7 @@ let idCounter = 0
 
 // 分页查询
 async function handleQueueSearch(params: QueueSearchParams) {
+  lastSearchParams.value = params
   loading.value = true
   try {
     const result = await pagePurchaseInboundOrders({
@@ -213,7 +285,8 @@ const mainSearchFields = reactive<ExtraSearchField[]>([
     prop: 'pharmacy',
     type: 'select',
     placeholder: '请选择',
-    options: pharmacyOptions
+    options: pharmacyOptions,
+    required: true
   },
   {
     label: '项目类型',
@@ -235,8 +308,8 @@ const selectTableColumns = ref(SELECT_TABLE_COLUMNS)
 
 /** SelectTable 数据加载：仅"门诊西药房"返回 mock 数据，其余为空 */
 function handleSelectTableLoad(query: { keyword: string; pageIndex: number; pageSize: number }) {
-  const pharmacy = mainPaneRef.value?.getSearchValue('pharmacy') as string | undefined
-  if (pharmacy !== '门诊西药房') return Promise.resolve({ rows: [], total: 0 })
+  // const pharmacy = mainPaneRef.value?.getSearchValue('pharmacy') as string | undefined
+  // if (pharmacy !== '门诊西药房') return Promise.resolve({ rows: [], total: 0 })
   return loadSupplierOptions(query)
 }
 
@@ -249,6 +322,7 @@ function onSupplierFill(row: Record<string, any>, item: Record<string, any>) {
   const profitLossAmount = computeProfitLossAmount(profitLoss, item.purchasePrice)
   return {
     ...row,
+    inventoryItemId: item.inventoryItemId,
     itemName: item.itemName,
     specification: item.specification,
     manufacturer: item.manufacturer,
@@ -286,6 +360,13 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.queue-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
 .queue-header-title {
   font-size: 16px;
   font-weight: 600;
@@ -304,5 +385,11 @@ onMounted(() => {
   border-radius: 2px;
   content: '';
   transform: translateY(-50%);
+}
+
+.api-profile-button {
+  font-weight: 600;
+  color: var(--el-color-primary);
+  border-color: var(--el-color-primary-light-5);
 }
 </style>

@@ -463,13 +463,15 @@ async function loadItems() {
   itemLoading.value = true
   try {
     const selectedType = typeList.value.find((t) => t.id === selectedTypeId.value)
-    const dictCode = selectedType?.title ?? ''
+    const codeSystemId = selectedType?.codeSystemId ?? ''
     const fetcher = activeSystem.value === 'dict' ? pageDictionaryItems : pageEnumItems
     itemList.value = await fetcher({
       typeId: selectedTypeId.value,
       keyword: rightQuery.keyword,
       name: rightQuery.name,
-      ...(activeSystem.value === 'dict' ? { dictCode } : {})
+      ...(activeSystem.value === 'dict'
+        ? { codeSystemId, pageIndex: 1, pageSize: 100 }
+        : {})
     })
   } catch (error) {
     if (seq !== requestSequence) return
@@ -529,12 +531,17 @@ async function submitItemForm() {
       sort: itemForm.sort
     }
     if (itemFormMode.value === 'edit') {
-      const updater = activeSystem.value === 'dict' ? updateDictionaryItem : updateEnumItem
-      await updater(itemForm.id, payload)
+      if (activeSystem.value === 'dict') {
+        await updateDictionaryItem(itemForm.id, payload)
+      } else {
+        await updateEnumItem(itemForm.id, payload, itemForm.typeId)
+      }
       ElMessage.success('编码项编辑成功')
     } else {
       const creator = activeSystem.value === 'dict' ? createDictionaryItem : createEnumItem
-      await creator(selectedTypeId.value!, payload)
+      const currentType = typeList.value.find((t) => t.id === selectedTypeId.value)
+      const typeIdOrCode = activeSystem.value === 'dict' ? selectedTypeId.value! : (currentType?.name ?? selectedTypeId.value!)
+      await creator(typeIdOrCode, payload)
       ElMessage.success('编码项创建成功')
     }
     itemDialogRef.value?.closeDialog()

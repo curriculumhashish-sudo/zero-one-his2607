@@ -80,17 +80,17 @@ import { computeBatchNo, computeActualAmount } from '@/views/inventory/common/ut
 // ==================== 选项 ====================
 
 const drugSourceDatabase = [
-  { label: '耗材库', value: '耗材库' },
-  { label: '西药库', value: '西药库' },
-  { label: '中药库', value: '中药库' }
+  { label: '耗材库', value: '322954857622802432' },
+  { label: '西药库', value: '322954885380706304' },
+  { label: '中药库', value: '322954919841107968' }
 ]
 const pharmacyOptions = [
-  { label: '门诊西药房', value: '门诊西药房' },
-  { label: '门诊中药房', value: '门诊中药房' },
-  { label: '门诊耗材房', value: '门诊耗材房' },
-  { label: '住院西药房', value: '住院西药房' },
-  { label: '住院中药房', value: '住院中药房' },
-  { label: '住院耗材房', value: '住院耗材房' }
+  { label: '门诊西药房', value: '322954949549363200' },
+  { label: '门诊中药房', value: '322954984441778176' },
+  { label: '门诊耗材房', value: '322955075642724352' },
+  { label: '住院西药房', value: '322955009603407872' },
+  { label: '住院中药房', value: '322955039064199168' },
+  { label: '住院耗材房', value: '322955098803671040' }
 ]
 
 const queueDropdown1Options = drugSourceDatabase
@@ -115,6 +115,9 @@ const approval = useApprovalFlow({
   getSearchTargetPharmacy: () =>
     (mainPaneRef.value?.getSearchValue('targetPharmacy') as string) ?? '',
   getSearchSupplier: () => '',
+  refreshQueue: () => {
+    if (lastSearchParams.value) handleQueueSearch(lastSearchParams.value)
+  },
   apis: {
     createPurchaseInbound,
     updatePurchaseInbound,
@@ -260,7 +263,7 @@ function onSupplierFill(row: Record<string, any>, item: Record<string, any>) {
   const actualAmount = computeActualAmount(item.purchasePrice, item.stockQuantity)
   return {
     ...row,
-    itemCode: item.itemCode,
+    inventoryItemId: item.inventoryItemId,
     itemName: item.itemName,
     specification: item.specification,
     manufacturer: item.manufacturer,

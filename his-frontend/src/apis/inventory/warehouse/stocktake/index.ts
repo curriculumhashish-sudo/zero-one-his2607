@@ -87,16 +87,21 @@ function mapDetailResult(data: RawStocktakeDetail): PurchaseInboundDetailResult 
 }
 
 /** 将前端保存参数转为后端 StocktakeSaveDTO */
-function buildSaveDTO(
-  payload: Record<string, any>,
-  busNo: string
-): StocktakeSaveDTO {
+function buildSaveDTO(payload: Record<string, any>, busNo: string): StocktakeSaveDTO {
   const targetStatus = payload.targetStatus as number | undefined
   return {
     busNo,
     statusEnum: targetStatus != null ? STATUS_ENUM_MAP[targetStatus] : undefined,
-    purposeLocationId: (payload.purposeLocationId as string) || (payload.sourceLocationId as string) || (payload.pharmacy as string) || '',
-    purposeLocationName: (payload.purposeLocationId_dictText as string) || (payload.sourceLocationId_dictText as string) || (payload.pharmacy as string) || '',
+    purposeLocationId:
+      (payload.purposeLocationId as string) ||
+      (payload.sourceLocationId as string) ||
+      (payload.pharmacy as string) ||
+      '',
+    purposeLocationName:
+      (payload.purposeLocationId_dictText as string) ||
+      (payload.sourceLocationId_dictText as string) ||
+      (payload.pharmacy as string) ||
+      '',
     practitionerId: (payload.practitionerId as string) || '',
     practitionerName: (payload.practitionerName as string) || '',
     creatorId: (payload.creatorId as string) || '',
@@ -149,7 +154,8 @@ export async function pagePurchaseInboundOrders(
     )
     const data = res.data
     const rows: PurchaseInboundOrder[] = (data?.content ?? []).map((item) => {
-      const status: PurchaseInboundStatus = (STATUS_MAP[item.statusEnum] ?? 0) as PurchaseInboundStatus
+      const status: PurchaseInboundStatus = (STATUS_MAP[item.statusEnum] ??
+        0) as PurchaseInboundStatus
       return {
         id: item.busNo,
         status,
@@ -206,11 +212,10 @@ export async function getPurchaseInboundDetail(
 async function addStocktake(params: StocktakeAddDTO): Promise<PurchaseInboundDetailResult> {
   try {
     const http = useHttp()
-    const res = await http.post<RawStocktakeDetail>(
-      '/stocktake/create',
-      params,
-      { baseURL, upType: DataUpType.json }
-    )
+    const res = await http.post<RawStocktakeDetail>('/stocktake/create', params, {
+      baseURL,
+      upType: DataUpType.json
+    })
     return mapDetailResult(res.data!)
   } catch {
     return mockCreatePurchaseInbound({
@@ -233,7 +238,11 @@ export async function createPurchaseInbound(
   try {
     // 第一步：新增空白草稿，获取 busNo
     const addResult = await addStocktake({
-      purposeLocationId: (payload.purposeLocationId as string) || (payload.sourceLocationId as string) || (payload.pharmacy as string) || '',
+      purposeLocationId:
+        (payload.purposeLocationId as string) ||
+        (payload.sourceLocationId as string) ||
+        (payload.pharmacy as string) ||
+        '',
       practitionerId: (payload.practitionerId as string) || '',
       categoryEnum: CATEGORY_ENUM
     })
@@ -258,9 +267,10 @@ export async function updatePurchaseInbound(
   try {
     const http = useHttp()
     // 如果 payload 已经是 StocktakeSaveDTO 格式则直接使用，否则转换
-    const saveDTO: StocktakeSaveDTO = (payload as any).categoryEnum === CATEGORY_ENUM
-      ? (payload as unknown as StocktakeSaveDTO)
-      : buildSaveDTO(payload, id)
+    const saveDTO: StocktakeSaveDTO =
+      (payload as any).categoryEnum === CATEGORY_ENUM
+        ? (payload as unknown as StocktakeSaveDTO)
+        : buildSaveDTO(payload, id)
     const res = await http.put<RawStocktakeDetail>(
       `/stocktake/${encodeURIComponent(saveDTO.busNo)}/save`,
       saveDTO,
@@ -336,7 +346,10 @@ export async function approvePurchaseInbound(busNo: string): Promise<PurchaseInb
  * 驳回审批
  * 对接后端 POST /j6-pharmacy/stocktake/reject
  */
-export async function rejectPurchaseInbound(busNo: string, reason: string): Promise<PurchaseInboundOrder> {
+export async function rejectPurchaseInbound(
+  busNo: string,
+  reason: string
+): Promise<PurchaseInboundOrder> {
   try {
     const http = useHttp()
     await http.post<StocktakeApprovalResult>(
@@ -358,7 +371,7 @@ export async function rejectPurchaseInbound(busNo: string, reason: string): Prom
 export async function removePurchaseInbound(busNo: string): Promise<void> {
   try {
     const http = useHttp()
-    await http.delete(`/stocktake/${encodeURIComponent(busNo)}`, { baseURL })
+    await http.delete(`/stocktake/${encodeURIComponent(busNo)}`, undefined, { baseURL })
   } catch {
     return mockRemovePurchaseInbound(busNo)
   }

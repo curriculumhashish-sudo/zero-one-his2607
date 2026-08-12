@@ -67,7 +67,7 @@
         <template #default="{ row }">
           <el-button link type="primary" @click="handleTrace(row)">追溯码</el-button>
           <el-button
-            v-if="row.inventoryStatusEnum !== 'STOP_SUPPLY'"
+            v-if="row.inventoryStatusEnum !== 'INACTIVE'"
             link
             type="danger"
             @click="handleRetire(row)"
@@ -113,7 +113,12 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { Search, RefreshRight, Download, ArrowUp, ArrowDown } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { StockListQuery } from '@/apis/inventory/stock-list'
-import { queryStockList, retireItem, resumeItem, exportStockList } from '@/apis/inventory/stock-list'
+import {
+  queryStockList,
+  retireItem,
+  resumeItem,
+  exportStockList
+} from '@/apis/inventory/stock-list'
 import { formFieldConfigs, tableColumnConfigs, sumLineCostTotal, sumLinePriceTotal } from './type'
 
 defineOptions({ name: 'InventoryStockListPage' })
@@ -242,13 +247,13 @@ function handleTrace(row: any) {
 }
 
 // ==================== 停供 / 取消停供 ====================
-function toggleRowStatus(id: string, status: 'STOP_SUPPLY' | 'NORMAL') {
+function toggleRowStatus(id: string, status: 'INACTIVE' | 'NORMAL') {
   const idx = tableData.value.findIndex((r: any) => r.id === id)
   if (idx === -1) return
   tableData.value.splice(idx, 1, {
     ...tableData.value[idx],
     inventoryStatusEnum: status,
-    inventoryStatusLabel: status === 'STOP_SUPPLY' ? '停供' : '正常'
+    inventoryStatusLabel: status === 'INACTIVE' ? '停供' : '正常'
   })
 }
 
@@ -260,7 +265,7 @@ async function handleRetire(row: any) {
       cancelButtonText: '取消'
     })
     await retireItem(row.id)
-    toggleRowStatus(row.id, 'STOP_SUPPLY')
+    toggleRowStatus(row.id, 'INACTIVE')
     ElMessage.success('停供成功')
   } catch {
     /* 取消或报错由框架处理 */

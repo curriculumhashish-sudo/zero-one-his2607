@@ -30,13 +30,25 @@ export interface RawEnumTypeItem {
   updatedBy: string
 }
 
+/** 后端 /sys/query-all-enum 返回的枚举值项 */
+export interface RawEnumItem {
+  enumTypeId: string
+  enumKey: string
+  enumCode: number
+  display: string
+  description: string
+  order: number
+  status: number
+  id: string
+}
+
 /** 字典 / 枚举类型记录（左侧列表项） */
 export interface CodeTypeRecord {
   id: string
   name: string
   title: string
   description: string
-  codeSystemId?: number
+  codeSystemId?: string
   createdAt: string
   updatedAt: string
 }
@@ -69,6 +81,10 @@ export interface CodeItemQuery {
   system: 'dict' | 'enum'
   /** 字典类型编码，用于后端接口过滤 */
   dictCode?: string
+  /** 字典体系ID（/dictionarytype/queryall 返回的 dictTypeId） */
+  codeSystemId?: string
+  pageIndex?: number
+  pageSize?: number
 }
 
 /** 字典 / 枚举类型保存参数 */

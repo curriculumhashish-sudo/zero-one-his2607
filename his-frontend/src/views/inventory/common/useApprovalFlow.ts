@@ -22,6 +22,8 @@ export interface ApprovalFlowApis {
   withdrawPurchaseInbound: (id: string) => Promise<Record<string, unknown>>
   approvePurchaseInbound: (id: string) => Promise<Record<string, unknown>>
   rejectPurchaseInbound: (id: string, reason: string) => Promise<Record<string, unknown>>
+  /** 保存并提交（一次调用），优先于 update+submit 两步；未提供时回退两步 */
+  saveAndSubmitPurchaseInbound?: (id: string, payload: any) => Promise<Record<string, unknown>>
 }
 
 export function useApprovalFlow(options: {
@@ -37,10 +39,12 @@ export function useApprovalFlow(options: {
   getSearchTargetPharmacy: () => string
   /** 获取检索区"供应商"选中值（purchase-inbound2 用，其他为空字符串） */
   getSearchSupplier: () => string
+  /** 接口调用成功后重新拉取左侧单据列表（各页面传入自己的查询实现） */
+  refreshQueue?: () => void
   /** API 函数集（各页面注入自己的 API 模块） */
   apis: ApprovalFlowApis
 }) {
-  const { orders, selectedOrder, getDetails, refreshMainPane, getSearchPharmacy, getSearchTargetPharmacy, getSearchSupplier, apis } = options
+  const { orders, selectedOrder, getDetails, refreshMainPane, getSearchPharmacy, getSearchTargetPharmacy, getSearchSupplier, refreshQueue, apis } = options
 
   // ==================== 驳回弹窗 ====================
 
@@ -123,13 +127,13 @@ export function useApprovalFlow(options: {
       details: getDetails() as unknown as PurchaseInboundDetail[],
       applicantId_dictText: (o?.applicantId_dictText as string) ?? '',
       sourceLocationId: (o?.sourceLocationId as string) ?? '',
-      sourceLocationId_dictText: (o?.sourceLocationId_dictText as string) ?? '',
+      sourceLocationId_dictText: (o?.sourceLocationId_dictText as string) || getSearchPharmacy(),
       purposeLocationId: (o?.purposeLocationId as string) ?? '',
-      purposeLocationId_dictText: (o?.purposeLocationId_dictText as string) ?? getSearchTargetPharmacy(),
+      purposeLocationId_dictText: (o?.purposeLocationId_dictText as string) || getSearchTargetPharmacy(),
       targetPharmacy: getSearchTargetPharmacy(),
       // purchase-inbound2 专用：进货单 addInbound 需要的库房和供应商
       // 优先从当前选中单据取值（handleQueueAdd 在 resetSearchValues 前已写入），再回退检索区
-      warehouse: (o?.sourceLocationId_dictText as string) ?? getSearchPharmacy(),
+      warehouse: (o?.sourceLocationId_dictText as string) || getSearchPharmacy(),
       supplierId_dictText: (o?.supplierId_dictText as string) ?? '',
       supplier: (o?.supplierId_dictText as string) ?? getSearchSupplier(),
     }
@@ -154,6 +158,7 @@ export function useApprovalFlow(options: {
         : await apis.updatePurchaseInbound(o.id as string, payload as any)
       syncOrder(result.order as unknown as Record<string, unknown>, o)
       patchCardFields({ applicantId_dictText: 'admin', sourceLocationId_dictText: (o?.sourceLocationId_dictText as string) || getSearchPharmacy(), purposeLocationId_dictText: getSearchTargetPharmacy(), supplierId_dictText: (o?.supplierId_dictText as string) || getSearchSupplier() })
+      refreshQueue?.()
       ElMessage.success('保存成功')
     } catch {
       ElMessage.error('保存失败')
@@ -167,12 +172,22 @@ export function useApprovalFlow(options: {
     const payload = buildSavePayload(1)
     if (!validateBeforeSave(payload as any)) return
     try {
-      const result = isDraft(o)
-        ? await apis.createPurchaseInbound(payload as any)
-        : await apis.updatePurchaseInbound(o.id as string, payload as any)
-      const submitted = await apis.submitPurchaseInbound(result.order.id as string)
-      syncOrder(submitted as unknown as Record<string, unknown>, o)
+      let submitted: Record<string, unknown>
+      if (isDraft(o)) {
+        // 新草稿：先创建再提交
+        const result = await apis.createPurchaseInbound(payload as any)
+        submitted = await apis.submitPurchaseInbound(result.order.id as string) as unknown as Record<string, unknown>
+      } else if (apis.saveAndSubmitPurchaseInbound) {
+        // 已有单据：保存并提交一次调用
+        submitted = await apis.saveAndSubmitPurchaseInbound(o.id as string, payload as any) as unknown as Record<string, unknown>
+      } else {
+        // 回退：先保存再提交
+        const result = await apis.updatePurchaseInbound(o.id as string, payload as any)
+        submitted = await apis.submitPurchaseInbound(result.order.id as string) as unknown as Record<string, unknown>
+      }
+      syncOrder(submitted, o)
       patchCardFields({ applicantId_dictText: 'admin', sourceLocationId_dictText: (o?.sourceLocationId_dictText as string) || getSearchPharmacy(), purposeLocationId_dictText: getSearchTargetPharmacy(), supplierId_dictText: (o?.supplierId_dictText as string) || getSearchSupplier(), applyTime: nowTime() })
+      refreshQueue?.()
       ElMessage.success('已保存并提交审批')
     } catch {
       ElMessage.error('操作失败')
@@ -189,10 +204,11 @@ export function useApprovalFlow(options: {
         cancelButtonText: '取消',
         type: 'warning',
       })
-      await apis.removePurchaseInbound(o.id as string)
+      await apis.removePurchaseInbound((o.busNo as string) || (o.id as string))
       const idx = orders.value.findIndex((item) => item.id === o.id)
       if (idx !== -1) orders.value.splice(idx, 1)
       selectedOrder.value = orders.value.length > 0 ? orders.value[0]! : null
+      refreshQueue?.()
       ElMessage.success('删除成功')
     } catch (err) {
       if (err !== 'cancel') ElMessage.error('删除失败')
@@ -207,6 +223,7 @@ export function useApprovalFlow(options: {
       const result = await apis.submitPurchaseInbound(o.id as string)
       syncOrder(result as unknown as Record<string, unknown>)
       patchCardFields({ applyTime: nowTime() })
+      refreshQueue?.()
       ElMessage.success('已提交审批')
     } catch {
       ElMessage.error('提交失败')
@@ -220,6 +237,7 @@ export function useApprovalFlow(options: {
     try {
       const result = await apis.withdrawPurchaseInbound(o.id as string)
       syncOrder(result as unknown as Record<string, unknown>)
+      refreshQueue?.()
       ElMessage.success('已撤回')
     } catch {
       ElMessage.error('撤回失败')
@@ -234,6 +252,7 @@ export function useApprovalFlow(options: {
       const result = await apis.approvePurchaseInbound(o.id as string)
       syncOrder(result as unknown as Record<string, unknown>)
       patchCardFields({ approverId_dictText: 'admin', approvalTime: nowTime() })
+      refreshQueue?.()
       ElMessage.success('审批通过')
     } catch {
       ElMessage.error('审批失败')
@@ -254,6 +273,7 @@ export function useApprovalFlow(options: {
       const result = await apis.rejectPurchaseInbound(o.id as string, reason)
       syncOrder(result as unknown as Record<string, unknown>)
       patchCardFields({ approverId_dictText: 'admin', approvalTime: nowTime() })
+      refreshQueue?.()
       ElMessage.success('已驳回')
     } catch {
       ElMessage.error('驳回失败')

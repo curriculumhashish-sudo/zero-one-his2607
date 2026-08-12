@@ -11,7 +11,10 @@
         <div v-if="extraSearchFields.length" class="main-pane__search">
           <template v-for="field in extraSearchFields" :key="field.prop">
             <div v-if="!field.hidden" class="main-pane__search-field">
-              <label class="main-pane__search-label">{{ field.label }}</label>
+              <label class="main-pane__search-label">
+                <span v-if="field.required" class="main-pane__search-required">*</span>
+                {{ field.label }}
+              </label>
               <!-- 输入框 -->
               <el-input
                 v-if="field.type === 'input'"
@@ -241,6 +244,8 @@ export interface ExtraSearchField {
   disabled?: boolean
   /** 是否隐藏该字段 */
   hidden?: boolean
+  /** 是否必填 */
+  required?: boolean
 }
 
 // ==================== Props ====================
@@ -523,6 +528,11 @@ defineExpose({
   font-weight: 500;
   color: var(--el-text-color-regular);
   white-space: nowrap;
+}
+
+.main-pane__search-required {
+  margin-right: 2px;
+  color: var(--el-color-danger);
 }
 
 .main-pane__search-field .el-input,
