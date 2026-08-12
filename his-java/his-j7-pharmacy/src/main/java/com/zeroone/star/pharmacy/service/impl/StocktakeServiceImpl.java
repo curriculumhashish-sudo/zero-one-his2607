@@ -66,6 +66,7 @@ public class StocktakeServiceImpl
 
     private static final String STATUS_DRAFT = "DRAFT";
     private static final String STATUS_PENDING_APPROVAL = "PENDING_APPROVAL";
+    private static final String STATUS_APPROVAL = "APPROVAL";
     private static final String CATEGORY_ENUM_INVENTORY = "INVENTORY";
     private static final String PURPOSE_TYPE_PHARMACY = "PHARMACY";
     private static final String DEFAULT_TENANT_ID = "1";
@@ -180,7 +181,7 @@ public class StocktakeServiceImpl
                 "system"));
         wkfSupplyRequestService.submit(operator);
 
-        return buildSaveVO(draftVO.getBusNo(), STATUS_PENDING_APPROVAL,
+        return buildSaveVO(draftVO.getBusNo(), STATUS_APPROVAL,
                 draftVO.getItemCount(), draftVO.getTotalPrice(), LocalDateTime.now(), dto.getWarehouseId());
     }
 

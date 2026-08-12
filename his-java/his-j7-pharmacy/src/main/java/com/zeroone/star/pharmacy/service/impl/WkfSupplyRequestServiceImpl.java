@@ -67,19 +67,21 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
         }
         //校验审批状态
         boolean allDraft = true;
-        boolean allPending = true;
+        boolean allSubmitted = true;
         for (WkfSupplyRequest next : list) {
             if (!"DRAFT".equals(next.getStatusEnum())) {
                 allDraft = false;
             }
-            if (!"PENDING_APPROVAL".equals(next.getStatusEnum())) {
-                allPending = false;
+            // 已提交状态：审核中（新口径）/ 待审批（存量数据）
+            if (!"APPROVAL".equals(next.getStatusEnum())
+                    && !"PENDING_APPROVAL".equals(next.getStatusEnum())) {
+                allSubmitted = false;
             }
         }
-        // 重复提交幂等：明细已全部待审批时直接返回当前状态，不重复加锁/冻结快照
-        if (allPending) {
-            log.info("盘点单已处于待审批状态，幂等返回: {}", dto.getBusNo());
-            return buildPendingApprovalVO(list.get(0), dto.getOperatorId());
+        // 重复提交幂等：明细已全部处于已提交状态时直接返回当前状态，不重复加锁/冻结快照
+        if (allSubmitted) {
+            log.info("盘点单已处于已提交状态，幂等返回: {}", dto.getBusNo());
+            return buildSubmittedVO(list.get(0).getStatusEnum(), list.get(0), dto.getOperatorId());
         }
         if (!allDraft) {
             WkfSupplyRequest illegal = list.stream()
@@ -91,8 +93,8 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
                     + ", 当前状态: " + illegal.getStatusEnum());
         }
 
-        //修改审批状态
-        wkfSupplyRequestMapper.updateStatusForSubmit("PENDING_APPROVAL", dto.getOperatorId(), LocalDateTime.now(), dto.getBusNo());
+        //修改审批状态（对齐入库单口径：提交后为 APPROVAL 审核中）
+        wkfSupplyRequestMapper.updateStatusForSubmit("APPROVAL", dto.getOperatorId(), LocalDateTime.now(), dto.getBusNo());
         log.info("审批状态修改成功: {}", dto.getBusNo());
 
         //2.查询库存记录与盘点单但情况，加锁，冻结快照
@@ -162,7 +164,7 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
 
         }
         log.info("盘点单提交审批成功: {}", dto.getBusNo());
-        return buildPendingApprovalVO(list.get(0), dto.getOperatorId());
+        return buildSubmittedVO("APPROVAL", list.get(0), dto.getOperatorId());
     }
 
     /**
@@ -180,9 +182,10 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
             throw new IllegalArgumentException("盘点单明细中没有数据: " + dto.getBusNo());
         }
         for (WkfSupplyRequest request : pharmacyStockTakeList) {
-            if (!"PENDING_APPROVAL".equals(request.getStatusEnum())) {
+            if (!"APPROVAL".equals(request.getStatusEnum())
+                    && !"PENDING_APPROVAL".equals(request.getStatusEnum())) {
                 log.error("盘点单明细状态异常: {}", request.getId());
-                throw new IllegalArgumentException("盘点单明细状态异常，不是待审批状态: " + request.getId());
+                throw new IllegalArgumentException("盘点单明细状态异常，不是审核中/待审批状态: " + request.getId());
             }
         }
 
@@ -259,9 +262,10 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
             throw new IllegalArgumentException("盘点单明细中没有数据: " + dto.getBusNo());
         }
         for (WkfSupplyRequest request : list) {
-            if (!"PENDING_APPROVAL".equals(request.getStatusEnum())) {
+            if (!"APPROVAL".equals(request.getStatusEnum())
+                    && !"PENDING_APPROVAL".equals(request.getStatusEnum())) {
                 log.error("盘点单明细状态异常: {}", request.getId());
-                throw new IllegalArgumentException("盘点单明细状态异常，不是待审批状态: " + request.getId());
+                throw new IllegalArgumentException("盘点单明细状态异常，不是审核中/待审批状态: " + request.getId());
             }
         }
 
@@ -305,9 +309,10 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
             throw new IllegalArgumentException("盘点单明细中没有数据: " + dto.getBusNo());
         }
         for (WkfSupplyRequest request : list) {
-            if (!"PENDING_APPROVAL".equals(request.getStatusEnum())) {
+            if (!"APPROVAL".equals(request.getStatusEnum())
+                    && !"PENDING_APPROVAL".equals(request.getStatusEnum())) {
                 log.error("盘点单明细状态异常: {}", request.getId());
-                throw new IllegalArgumentException("盘点单明细状态异常，不是待审批状态: " + request.getId());
+                throw new IllegalArgumentException("盘点单明细状态异常，不是审核中/待审批状态: " + request.getId());
             }
         }
 
@@ -333,16 +338,17 @@ public class WkfSupplyRequestServiceImpl extends ServiceImpl<WkfSupplyRequestMap
     }
 
     /**
-     * 构造待审批状态返回对象（正常提交与重复提交幂等返回共用）
+     * 构造已提交状态返回对象（正常提交与重复提交幂等返回共用）
+     * @param statusEnum 提交后状态（APPROVAL 审核中；存量数据可能为 PENDING_APPROVAL）
      * @param first 单据首行记录
      * @param operatorId 操作人标识
-     * @return 待审批状态信息
+     * @return 已提交状态信息
      */
-    private StocktakeStatusVO buildPendingApprovalVO(WkfSupplyRequest first, String operatorId) {
+    private StocktakeStatusVO buildSubmittedVO(String statusEnum, WkfSupplyRequest first, String operatorId) {
         StocktakeStatusVO vo = new StocktakeStatusVO();
         vo.setBusNo(first.getBusNo());
         vo.setTypeEnum(first.getTypeEnum());
-        vo.setStatusEnum("PENDING_APPROVAL");
+        vo.setStatusEnum(statusEnum);
         vo.setCreatedBy(first.getCreatedBy());
         vo.setCreatedAt(first.getCreatedAt());
         vo.setApplicantId(first.getApplicantId() != null ? first.getApplicantId() : operatorId);

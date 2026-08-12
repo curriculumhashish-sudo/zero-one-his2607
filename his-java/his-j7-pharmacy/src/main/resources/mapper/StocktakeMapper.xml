@@ -76,6 +76,7 @@
             CASE t.status_enum
                 WHEN 'DRAFT'            THEN '草稿'
                 WHEN 'PENDING_APPROVAL' THEN '待审批'
+                WHEN 'APPROVAL'         THEN '审核中'
                 WHEN 'APPROVED'         THEN '已审批'
                 WHEN 'AGREE'            THEN '已通过'
                 WHEN 'REJECTED'         THEN '已驳回'
