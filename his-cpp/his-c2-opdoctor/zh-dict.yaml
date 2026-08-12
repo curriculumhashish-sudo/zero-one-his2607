@@ -300,6 +300,16 @@ createOrder:
   keyword: 关键词
   catalog: 项目目录
 
+c2-opdoctor:
+ tags:
+  tag: 开立医嘱
+ sign:
+  summary: 批量签发医嘱
+ withdraw:
+  summary: 批量撤回医嘱
+ print-application-form:
+  summary: 打印申请单
+
  orderCatalog:
   tag: 医嘱目录
   query:

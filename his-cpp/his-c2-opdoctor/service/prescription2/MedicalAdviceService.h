@@ -12,13 +12,13 @@
 class MedicalAdviceService
 {
 public:
-    // 将草稿状态医嘱记录变更为已签发状态
+    // 将草稿状态医嘱记录变更为有效状态
     std::list<std::string> signMedicalAdvice(
         const SignMedicalAdviceDTO::Wrapper& dto, const PayloadDTO& payload);
-    // 将已签发医嘱记录变更为撤回状态
+    // 将有效医嘱记录变更为已取消状态
     std::list<std::string> withdrawMedicalAdvice(
         const WithdrawMedicalAdviceDTO::Wrapper& dto, const PayloadDTO& payload);
-    // 记录一次服务申请单打印操作
+    // 增加打印次数并返回服务申请单标识
     std::string printApplicationForm(
         const PrintApplicationFormDTO::Wrapper& dto, const PayloadDTO& payload);
 

@@ -240,13 +240,13 @@ std::string MedicalAdviceService::printApplicationForm(
             transaction.rollback();
             return "";
         }
+
+        transaction.commit();
+        return serviceRequestId;
     }
     catch (...)
     {
         transaction.rollback();
         return "";
     }
-
-    transaction.commit();
-    return serviceRequestId;
 }

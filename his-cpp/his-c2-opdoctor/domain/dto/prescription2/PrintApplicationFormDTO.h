@@ -13,9 +13,9 @@ class PrintApplicationFormDTO : public oatpp::DTO
 {
     DTO_INIT(PrintApplicationFormDTO, DTO);
 
-    // 待打印服务申请单标识
+    // 待标记为已打印的服务申请单标识
     API_DTO_FIELD_REQUIRE(String, serviceRequestId,
-        ZH_WORDS_GETTER("medical-advice.field.service-request-id"), true);
+        ZH_WORDS_GETTER("c2-opdoctor.field.service-request-id"), true);
 };
 
 #include OATPP_CODEGEN_END(DTO)
