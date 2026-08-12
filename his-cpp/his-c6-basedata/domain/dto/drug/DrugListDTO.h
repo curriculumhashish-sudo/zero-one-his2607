@@ -16,7 +16,7 @@ class DrugListDTO:public oatpp::DTO
 	API_DTO_FIELD_REQUIRE(Int32, status, ZH_WORDS_GETTER("Drug.field.status"), true);
 	API_DTO_FIELD_REQUIRE(String, kinds, ZH_WORDS_GETTER("Drug.field.kinds"), true);
 	API_DTO_FIELD_REQUIRE(String, changjia, ZH_WORDS_GETTER("Drug.field.changjia"), true);
-	API_DTO_FIELD_REQUIRE(String, price, ZH_WORDS_GETTER("Drug.field.price"), true);
+	// API_DTO_FIELD_REQUIRE(String, price, ZH_WORDS_GETTER("Drug.field.price"), true);
 };
 class DrugListPageDTO :public PageDTO< DrugListDTO::Wrapper>
 {
