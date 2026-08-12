@@ -48,6 +48,12 @@ class CostInfoDTO : public oatpp::DTO
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.room");
 	}
 
+	// 科室ID
+	DTO_FIELD(String, roomID);
+	DTO_FIELD_INFO(roomID) {
+		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.roomID");
+	}
+
 	// 就诊日期
 	DTO_FIELD(String, date);
 	DTO_FIELD_INFO(date) {
@@ -60,10 +66,22 @@ class CostInfoDTO : public oatpp::DTO
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.feeClass");
 	}
 
+	// 大类编码
+	DTO_FIELD(String, feeClassCode);
+	DTO_FIELD_INFO(feeClassCode) {
+		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.feeClassCode");
+	}
+
 	// 细分类
 	DTO_FIELD(String, detailClass);
 	DTO_FIELD_INFO(detailClass) {
 		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.detailClass");
+	}
+
+	// 细分类编码
+	DTO_FIELD(String, detailClassCode);
+	DTO_FIELD_INFO(detailClassCode) {
+		info->description = ZH_WORDS_GETTER("rhqm.form.cost_info.data.detailClassCode");
 	}
 
 	// 项目名称

@@ -32,10 +32,11 @@ CostInfoDataDTO::Wrapper CostInfoService::listAll(const CostInfoQuery::Wrapper& 
 
 		ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub,
 			chargeID, ChargeID, encounterID, EncounterID, paymentID, PaymentID,
-			cashierID, CashierID, name, Name, room, Room,
-			date, Date, feeClass, FeeClass, detailClass, DetailClass,
+			cashierID, CashierID, name, Name, room, Room, roomID, RoomID,
+			date, Date, feeClass, FeeClass, feeClassCode, FeeClassCode, detailClass, DetailClass, detailClassCode, DetailClassCode,
 			projectName, ProjectName, hisID, HisID, spec, Spec,
-			number, Number, unit, Unit, doctor, Doctor, checker, Checker,
+			number, Number, unit, Unit, doctor, Doctor, checker, Checker);
+		ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub,
 			settleTime, SettleTime, source, Source,
 			insuranceLevel, InsuranceLevel, insuranceType, InsuranceType,
 			originalPrice, OriginalPrice, discountAmount, DiscountAmount,
@@ -77,11 +78,13 @@ CostInfoDataDTO::Wrapper CostInfoService::exportAll(const CostInfoQuery::Wrapper
 
 		ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub,
 			chargeID, ChargeID, encounterID, EncounterID, paymentID, PaymentID,
-			cashierID, CashierID, name, Name, room, Room,
-			date, Date, feeClass, FeeClass, detailClass, DetailClass,
+			cashierID, CashierID, name, Name, room, Room, roomID, RoomID,
+			date, Date, feeClass, FeeClass, feeClassCode, FeeClassCode, detailClass, DetailClass, detailClassCode, DetailClassCode,
 			projectName, ProjectName, hisID, HisID, spec, Spec,
 			number, Number, unit, Unit, doctor, Doctor, checker, Checker,
-			settleTime, SettleTime, source, Source,
+			settleTime, SettleTime, source, Source);
+
+		ZO_STAR_DOMAIN_DO_TO_DTO(dto, sub,
 			insuranceLevel, InsuranceLevel, insuranceType, InsuranceType,
 			originalPrice, OriginalPrice, discountAmount, DiscountAmount,
 			receivableAmount, ReceivableAmount, discountedPrice, DiscountedPrice,

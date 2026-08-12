@@ -34,9 +34,12 @@
 	" fcs.`cashier_id` AS cashierID," \
 	" a_pa.`name` AS name," \
 	" al.`name` AS room," \
+	" al.`id` AS roomID," \
 	" aci.`occurrence_time` AS date," \
 	" tc.`display` AS feeClass," \
+	" acid.`type_code` AS feeClassCode," \
 	" COALESCE(tc_mmd.`display`, tc_add.`display`, tc_wad.`display`) AS detailClass," \
+	" COALESCE(mmd.`category_code`, `add`.`category_code`, wad.`category_code`) AS detailClassCode," \
 	" acid.`charge_name` AS projectName," \
 	" COALESCE(mmd.`bus_no`, `add`.`bus_no`, wad.`bus_no`) AS hisID," \
 	" COALESCE(mmd.`total_volume`, `add`.`total_volume`, NULL) AS spec," \

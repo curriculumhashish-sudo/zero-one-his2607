@@ -50,9 +50,12 @@ rhqm:
     cashierID: 收费员ID
     name: 患者姓名
     room: 挂号科室
+    roomID: 科室ID
     date: 就诊日期
     feeClass: 大类
+    feeClassCode: 费用大类编码
     detailClass: 细分类
+    detailClassCode: 细分类编码
     projectName: 项目名称
     hisID: 院内编码
     spec: 规格
