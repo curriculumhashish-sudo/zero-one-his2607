@@ -137,17 +137,12 @@ async function confirmHospital() {
   try {
     await selectHospital(selectedHospitalId.value)
     userStore.setLoginContext({ hospitalId: selectedHospitalId.value, departmentId: null })
-    const doctor = userStore.getUser?.roles?.some((role) => {
-      const normalized = role.toUpperCase()
-      return normalized === 'DOCTOR' || normalized === 'ROLE_DOCTOR'
-    }) ?? false
-    if (!doctor) {
+    departments.value = await loadAvailableDepartments()
+    if (!departments.value.length) {
       await finishLogin()
       return
     }
-    departments.value = await loadAvailableDepartments()
-    if (!departments.value.length) throw new Error('当前医生没有可用机构（科室）')
-    selectedDepartmentId.value = departments.value.length === 1 ? departments.value[0]!.id : undefined
+    selectedDepartmentId.value = undefined
     step.value = 'department'
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '医院选择失败，请重试')
@@ -174,7 +169,7 @@ async function finishLogin() {
   await Promise.all([userStore.loadUser(), userStore.loadMenus()])
   userStore.setLoaded(true)
   tabStore.reset()
-  await router.replace({ name: 'Dashboard' })
+  await router.replace({ name: 'WorkbenchHome' })
   ElMessage.success('登录成功')
 }
 
@@ -219,7 +214,7 @@ function backStep() {
       <div v-else class="context-form">
         <el-select v-if="step === 'tenant'" v-model="selectedTenantId" placeholder="请选择租户" size="large"><el-option v-for="item in tenants" :key="item.id" :label="item.name" :value="item.id" /></el-select>
         <el-select v-if="step === 'hospital'" v-model="selectedHospitalId" placeholder="请选择医院" size="large"><el-option v-for="item in hospitals" :key="item.id" :label="item.displayName ?? item.name" :value="item.id" /></el-select>
-        <el-select v-if="step === 'department'" v-model="selectedDepartmentId" placeholder="请选择机构（科室）" size="large"><el-option v-for="item in departments" :key="item.id" :label="item.displayName" :value="item.id" :disabled="!item.isEnabled" /></el-select>
+        <el-select v-if="step === 'department'" v-model="selectedDepartmentId" placeholder="请选择机构（科室）" size="large"><el-option v-for="item in departments" :key="item.id" :label="item.displayName" :value="item.id" :disabled="item.isEnabled === false || item.isEnabled === 0" /></el-select>
         <div class="context-actions">
           <el-button :icon="ArrowLeft" :disabled="loading" @click="backStep">返回</el-button>
           <el-button v-if="step === 'tenant'" type="primary" :loading="loading" :disabled="!selectedTenantId" @click="confirmTenant">确认租户</el-button>
@@ -254,4 +249,3 @@ function backStep() {
 .login-panel__footer :deep(svg) { width: 16px; height: 16px; flex: none; }
 @media (max-width: 560px) { .login-panel { padding: 24px 18px; } .login-steps :deep(.el-step__title) { font-size: 12px; } }
 </style>
-

@@ -95,7 +95,7 @@ export interface OrganizationInfo {
   createdAt: string
   displayName: string
   id: string
-  isEnabled: boolean
+  isEnabled: boolean | number
   parentDisplayName: null | string
   parentId: null | string
   remark: null | string

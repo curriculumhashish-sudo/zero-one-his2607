@@ -11,7 +11,7 @@ import { useUserStore } from '@/stores/user'
 defineOptions({ name: 'WorkbenchHome' })
 
 const router = useRouter()
-const { user } = storeToRefs(useUserStore())
+const { user, getMenus: menus } = storeToRefs(useUserStore())
 const searchKeyword = ref('')
 const data = ref<WorkbenchData>({
   notices: [],
@@ -36,7 +36,7 @@ const filteredGroups = computed(() => {
 })
 
 async function loadData() {
-  data.value = await loadWorkbenchData(user.value?.roles ?? [])
+  data.value = await loadWorkbenchData(user.value?.roles ?? [], menus.value)
 }
 
 function handleNavigate(path: string) {

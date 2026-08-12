@@ -60,7 +60,7 @@ function resolveActionRule(path: string, parentText: string): ActionRule {
   return { group: parentText, roles: ['administrator'] }
 }
 
-function collectMenuActions(menus: Menu[], roles: Set<string>): WorkbenchAction[] {
+function collectMenuActions(menus: Menu[], roles: Set<string>, enforceRoleRules = false): WorkbenchAction[] {
   const actions: WorkbenchAction[] = []
 
   for (const menu of menus) {
@@ -71,8 +71,10 @@ function collectMenuActions(menus: Menu[], roles: Set<string>): WorkbenchAction[
     for (const entry of entries) {
       if (!entry.href || entry.href === '/workbench') continue
       const rule = resolveActionRule(entry.href, menu.text)
-      const hasAccess = roles.has('administrator') || rule.roles.some((role) => roles.has(role))
-      if (!hasAccess) continue
+      if (enforceRoleRules) {
+        const hasAccess = roles.has('administrator') || rule.roles.some((role) => roles.has(role))
+        if (!hasAccess) continue
+      }
       actions.push({
         id: entry.id,
         title: entry.text,
@@ -96,9 +98,10 @@ function delay<T>(data: T, ms = 200): Promise<T> {
   return new Promise((resolve) => setTimeout(() => resolve(data), ms))
 }
 
-export function mockLoadWorkbenchData(userRoles: string[] = []): Promise<WorkbenchData> {
+export function mockLoadWorkbenchData(userRoles: string[] = [], menus: Menu[] = createFrontendMenus()): Promise<WorkbenchData> {
   const roles = new Set(userRoles.map((role) => role.toLowerCase()))
-  const actions = [...collectMenuActions(createFrontendMenus(), roles), ...COMMON_ACTIONS]
+  // 真实登录时 menus 已由后端按角色过滤；工作台不再重复用前端角色名猜测权限。
+  const actions = [...collectMenuActions(menus, roles), ...COMMON_ACTIONS]
   const groups = new Set(actions.map((action) => action.group))
 
   return delay({

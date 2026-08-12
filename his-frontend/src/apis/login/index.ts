@@ -68,7 +68,43 @@ export const selectDepartment = (departmentId: string) =>
   }))
 
 export const loadCurrentMenus = () =>
-  request<RouteMenuRecord[]>(authHttp.get('/auth/menus'))
+  request<unknown>(authHttp.get('/auth/menus')).then((data) => normalizeMenus(data))
+
+function normalizeMenus(data: unknown): RouteMenuRecord[] {
+  if (!Array.isArray(data)) return []
+
+  const normalize = (item: Record<string, unknown>): RouteMenuRecord | null => {
+    const path = String(item.path ?? item.href ?? '').trim()
+    const id = String(item.name ?? item.id ?? path).trim()
+    const meta = item.meta && typeof item.meta === 'object'
+      ? item.meta as Record<string, unknown>
+      : {}
+    const title = String(meta.title ?? item.text ?? item.title ?? '').trim()
+    const children = Array.isArray(item.children)
+      ? item.children
+          .filter((child): child is Record<string, unknown> => Boolean(child && typeof child === 'object'))
+          .map(normalize)
+          .filter((child): child is RouteMenuRecord => child !== null)
+      : undefined
+
+    if (!path && !children?.length) return null
+    return {
+      path,
+      name: id || path,
+      component: String(item.component ?? 'Layout'),
+      meta: {
+        title: title || id || path,
+        icon: String(meta.icon ?? item.icon ?? 'IconMenu')
+      },
+      children: children?.length ? children : undefined
+    }
+  }
+
+  return data
+    .filter((item): item is Record<string, unknown> => Boolean(item && typeof item === 'object'))
+    .map(normalize)
+    .filter((item): item is RouteMenuRecord => item !== null)
+}
 
 export async function loadCurrentUser(): Promise<UserInfo> {
   const user = await request<BackendLoginUser>(authHttp.get('/user/info'))
@@ -108,4 +144,3 @@ interface BackendLoginUser {
 export const logout = () => request(authHttp.post<string>('/logout'))
 
 export type * from './type'
-

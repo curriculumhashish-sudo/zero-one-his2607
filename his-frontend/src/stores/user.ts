@@ -9,7 +9,7 @@ import type {
 import { loadCurrentMenus, loadCurrentUser, logout } from '@/apis/login'
 import { DataUpType, useHttp } from '@/plugins/http'
 import { useAuthManager } from '@/plugins/auth-manager'
-import { createFrontendMenus, mergeFrontendMenus } from '@/config/frontend-menus'
+import { createFrontendMenus, filterFrontendMenus } from '@/config/frontend-menus'
 
 type StoredUser = Partial<UserInfo> & { id: string; username: string }
 
@@ -68,7 +68,7 @@ export const useUserStore = defineStore('user', {
     },
     isLoaded: (state) => state.loaded,
     getUser: (state) => state.user,
-    getMenus: (state) => mergeFrontendMenus(state.menus)
+    getMenus: (state) => state.menus
   },
   actions: {
     enableDevBypass() {
@@ -96,7 +96,7 @@ export const useUserStore = defineStore('user', {
     async loadMenus() {
       try {
         const routes = await loadCurrentMenus()
-        this.menus = mergeFrontendMenus(routes.map((route) => toMenu(route)))
+        this.menus = filterFrontendMenus(routes.map((route) => toMenu(route)))
       } catch (error) {
         // 主框架的业务菜单由前端维护；菜单服务暂不可用时不应阻止已验证的用户进入系统。
         this.menus = createFrontendMenus()

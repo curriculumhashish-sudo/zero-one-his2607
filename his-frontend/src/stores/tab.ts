@@ -1,8 +1,7 @@
 import { defineStore } from 'pinia'
 import type { TabRoute } from '@/types/Route'
 
-//FIXME 如果主界面首页路径不是/dashboard则需要修改此变量的值
-const INDEX_PATH = '/dashboard'
+const INDEX_PATH = '/workbench'
 
 export const useTabStore = defineStore('tab', {
   state: () => ({

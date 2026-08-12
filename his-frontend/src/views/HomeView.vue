@@ -70,7 +70,7 @@
         <el-icon>
           <IconHomeFilled />
         </el-icon>
-        <span>首页</span>
+        <span>工作台</span>
       </el-menu-item>
       <template v-for="item in menus" :key="item.id">
         <el-menu-item v-if="item.href && !item.children?.length" :index="item.href">
@@ -113,7 +113,7 @@
             <el-icon>
               <IconHomeFilled />
             </el-icon>
-            <span style="padding-left: 5px">首页</span>
+            <span style="padding-left: 5px">工作台</span>
           </template>
         </el-tab-pane>
         <!-- 动态标签页 -->

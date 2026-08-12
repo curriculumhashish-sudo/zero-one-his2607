@@ -41,7 +41,7 @@ routes.push(
   // 跳过登录
   {
     path: '/',
-    redirect: '/dashboard'
+    redirect: '/workbench'
   }
 )
 
@@ -88,7 +88,7 @@ router.beforeEach(async function (to, _from) {
   if (skipLogin) {
     const store = useUserStore()
     store.enableDevBypass()
-    if (to.name === 'Login') return { name: 'Home', replace: true }
+    if (to.name === 'Login') return { path: '/workbench', replace: true }
     return true
   }
 

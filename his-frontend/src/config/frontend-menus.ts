@@ -500,3 +500,24 @@ export function mergeFrontendMenus(serverMenus: Menu[] = []): Menu[] {
 
   return result
 }
+
+/** 仅保留后端授权且前端存在对应页面的菜单。 */
+export function filterFrontendMenus(serverMenus: Menu[] = []): Menu[] {
+  const authorizedPaths = new Set<string>()
+
+  const collectPaths = (menus: Menu[]) => {
+    for (const menu of menus) {
+      if (menu.href) authorizedPaths.add(menu.href)
+      if (menu.children?.length) collectPaths(menu.children)
+    }
+  }
+  collectPaths(serverMenus)
+
+  const filter = (menus: Menu[]): Menu[] => menus.flatMap((menu) => {
+    if (menu.href) return authorizedPaths.has(menu.href) ? [cloneMenu(menu)] : []
+    const children = filter(menu.children ?? [])
+    return children.length ? [{ ...cloneMenu(menu), children }] : []
+  })
+
+  return filter(createFrontendMenus())
+}

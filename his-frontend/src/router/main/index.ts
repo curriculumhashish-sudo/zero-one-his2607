@@ -4,16 +4,10 @@ import type { RouteRecordRaw } from 'vue-router'
 const routes = [
   {
     path: '/home',
-    name: 'Home',
-    redirect: { name: 'Dashboard' },
+    name: 'ApplicationLayout',
+    redirect: { path: '/workbench' },
     component: () => import('@/views/HomeView.vue'),
-    children: [
-      {
-        path: '/dashboard',
-        name: 'Dashboard',
-        component: () => import('@/views/dashboard/Dashboard.vue')
-      }
-    ] as RouteRecordRaw[]
+    children: [] as RouteRecordRaw[]
   }
 ]
 
