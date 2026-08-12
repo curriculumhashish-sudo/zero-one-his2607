@@ -1,4 +1,5 @@
 export type StatisticsGranularity = 'DAY' | 'WEEK' | 'MONTH'
+export type StatisticsProvider = 'j8' | 'j6' | 'c1'
 
 export interface StatisticsQuery {
   dateFrom: string

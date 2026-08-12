@@ -14,7 +14,7 @@ const visible = ref(false)
 const statusOptions: StatusDisplayOption[] = [
   { value: 'available', label: '可约', type: 'success' },
   { value: 'full', label: '已满', type: 'danger' },
-  { value: 'stopped', label: '停诊', type: 'warning' },
+  { value: 'stopped', label: '停诊', type: 'info' },
   { value: 'blocked', label: '已封锁', type: 'warning' },
   { value: 'expired', label: '过期', type: 'info' }
 ]
@@ -55,7 +55,6 @@ const displayData = computed(() =>
       }
     : null
 )
-
 function open() {
   visible.value = true
 }
@@ -88,7 +87,6 @@ defineExpose({ open, close })
     </div>
     <template #footer>
       <div class="slot-detail__actions">
-        <el-button type="primary" disabled>预约登记</el-button>
         <el-button @click="close">关闭</el-button>
       </div>
     </template>

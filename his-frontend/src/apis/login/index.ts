@@ -34,7 +34,12 @@ async function request<T>(promise: Promise<JsonVO<T>>): Promise<T> {
 export const getCaptcha = () => request(authHttp.post<CaptchaResult>('/auth/captcha/generate'))
 
 export const verifyCaptcha = (data: CaptchaVerifyData) =>
-  request(authHttp.post<boolean>('/auth/captcha/verify', data)).then((valid) => {
+  request(
+    authHttp.post<boolean>('/auth/captcha/verify', {
+      uuid: data.id ?? data.uuid,
+      code: data.code
+    })
+  ).then((valid) => {
     if (!valid) throw new Error('验证码错误，请重试')
   })
 
@@ -42,7 +47,11 @@ export const loginAccount = (data: LoginParams) =>
   request(authHttp.post<Oauth2TokenDTO>('/login', data))
 
 export const loadAvailableTenants = () =>
-  request(authHttp.get<TenantInfo[]>('/auth/tenants'))
+  request(
+    authHttp.get<TenantInfo[]>('/auth/tenants', undefined, {
+      transformResponse: [(data: unknown) => parseLoginContextResponse(data)]
+    })
+  )
 
 export const selectTenant = (tenantId: number | string) =>
   request(authHttp.post<TenantInfo>('/auth/select', { tenantId: String(tenantId) }))
@@ -50,7 +59,7 @@ export const selectTenant = (tenantId: number | string) =>
 export const loadAvailableHospitals = () =>
   request(
     authHttp.get<LoginOrganizationOption[]>('/auth/hospitals', undefined, {
-      transformResponse: [(data: unknown) => parseHospitalResponse(data)]
+      transformResponse: [(data: unknown) => parseLoginContextResponse(data)]
     })
   )
 
@@ -60,7 +69,11 @@ export const selectHospital = (hospitalId: number | string) =>
   }))
 
 export const loadAvailableDepartments = () =>
-  request(authHttp.get<OrganizationInfo[]>('/auth/dept/list'))
+  request(
+    authHttp.get<OrganizationInfo[]>('/auth/dept/list', undefined, {
+      transformResponse: [(data: unknown) => parseLoginContextResponse(data)]
+    })
+  )
 
 export const selectDepartment = (departmentId: string) =>
   request(authHttp.post<{ organizationUnitId: string }>('/auth/dept/select', {
@@ -120,11 +133,17 @@ export async function loadCurrentUser(): Promise<UserInfo> {
   }
 }
 
-function parseHospitalResponse(data: unknown) {
+/**
+ * 登录上下文接口的主键可能是 Java long。必须在 JSON.parse 之前保留为字符串，
+ * 否则超过 Number.MAX_SAFE_INTEGER 后无法恢复原始值。
+ */
+export function parseLoginContextResponse(data: unknown) {
   if (typeof data !== 'string') return data
 
-  // 医院 ID 超过 JavaScript 安全整数范围，先转成字符串再交给业务层。
-  const safeJson = data.replace(/("id"\s*:\s*)(\d{16,})(?=\s*[,}])/g, '$1"$2"')
+  const safeJson = data.replace(
+    /("(?:id|tenantId|hospitalId|organizationId|organizationUnitId)"\s*:\s*)(-?\d{16,})(?=\s*[,}])/gi,
+    '$1"$2"'
+  )
   return JSON.parse(safeJson)
 }
 

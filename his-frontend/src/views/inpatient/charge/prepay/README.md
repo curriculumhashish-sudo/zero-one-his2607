@@ -19,4 +19,4 @@
 | 收款 | `encounterId`、`patientId`、`amount`、`paymentDetails[].accountId/amount/payChannelCode`、`paymentCode`、`paymentDraftId`、`clientScanResult`、`operatorId`、`remark` |
 | 退款 | `encounterId`、`patientId`、`originalPaymentId`、`refundAmount`、`paymentDetails`、`clientRefundResult`、`operatorId`、`remark` |
 
-页面使用患者队列自带的日期范围筛选入院日期；单日查询同时映射原型字段 `admissionDate`。页面的扫码码值只转换为原型 `clientScanResult/clientRefundResult`，正式请求不发送自定义 `scanCode`、`channel` 或 `recordId`。收退款提交前必须取得非空 `patientId`，响应只依赖原型 `accountBalance/paymentId`。`operatorId` 已在接口类型中预留，接入登录用户上下文后由接口层补充，页面不伪造操作员。
+页面使用患者队列自带的日期范围筛选入院日期；单日查询同时映射原型字段 `admissionDate`。页面的扫码码值只转换为原型 `clientScanResult/clientRefundResult`，正式请求不发送自定义 `scanCode`、`channel` 或 `recordId`。通用原型接口使用 `patientId`；C1 适配层按其接口文档改用 `inpatientNo`，不要求 C1 患者队列返回 `patientId`。响应只依赖原型 `accountBalance/paymentId`。`operatorId` 已在接口类型中预留，接入登录用户上下文后由接口层补充，页面不伪造操作员。

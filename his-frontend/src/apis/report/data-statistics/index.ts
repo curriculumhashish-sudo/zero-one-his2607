@@ -15,6 +15,7 @@ import type {
   MonthlyVisitCountResponse,
   RequestContext,
   StatisticsQuery,
+  StatisticsProvider,
   TrendResponse
 } from './type'
 
@@ -22,8 +23,20 @@ type Provider = 'mock' | 'j8' | 'j6' | 'c1'
 type LooseRecord = Record<string, any>
 type BackendEnvelope<T> = { code?: number; message?: string; data?: T }
 
-const provider = String(import.meta.env.VITE_REPORT_STATISTICS_PROVIDER ?? 'mock').toLowerCase() as Provider
-const useMock = import.meta.env.MODE === 'test' || provider === 'mock'
+const configuredProvider = String(import.meta.env.VITE_REPORT_STATISTICS_PROVIDER ?? 'mock').toLowerCase() as Provider
+let provider: Provider = configuredProvider
+
+function useMockProvider() {
+  return import.meta.env.MODE === 'test' || provider === 'mock'
+}
+
+export function setStatisticsProvider(nextProvider: StatisticsProvider) {
+  provider = nextProvider
+}
+
+export function getStatisticsProvider(): StatisticsProvider {
+  return provider === 'j6' || provider === 'c1' ? provider : 'j8'
+}
 // 有效期预警不使用时间统计粒度。后端未指定 goodsType 时返回全部物品类型，
 // 因此页面当前不把 DAY/WEEK/MONTH 错误映射成 drug/consumable/device。
 const expiryWarningPath = import.meta.env.VITE_J8_STATISTICS_EXPIRY_PATH || '/j8/statdata/getExpireWarningPie'
@@ -168,7 +181,7 @@ async function getReal<T>(path: string, params: LooseRecord, context?: RequestCo
 }
 
 export const getTrafficTrend = async (query: StatisticsQuery, context?: RequestContext): Promise<TrendResponse> => {
-  if (useMock) return mockGetTrafficTrend(query, context)
+  if (useMockProvider()) return mockGetTrafficTrend(query, context)
   if (provider === 'j8') return toTrend(await getReal('/j8/statdata/hour-trend', commonParams(query, 'DAY'), context) as LooseRecord)
   if (provider === 'j6') return toTrend(await getReal('/data-statistics/traffic-trend', commonParams(query), context) as LooseRecord)
   return toTrend(await getReal('/data-statistics/flow-trend', {
@@ -182,7 +195,7 @@ export const getTrafficTrend = async (query: StatisticsQuery, context?: RequestC
 }
 
 export const getMonthlyVisitCount = async (query: StatisticsQuery, context?: RequestContext): Promise<MonthlyVisitCountResponse> => {
-  if (useMock) return mockGetMonthlyVisitCount(query, context)
+  if (useMockProvider()) return mockGetMonthlyVisitCount(query, context)
   if (provider === 'j8') return toTrend(await getReal('/j8/statdata/month-trend', monthParams(query), context) as LooseRecord)
   if (provider === 'j6') return toTrend(await getReal('/data-statistics/monthly-access', commonParams(query, 'MONTH'), context) as LooseRecord)
   return toTrend(await getReal('/data-statistics/month-visit', {
@@ -195,28 +208,28 @@ export const getMonthlyVisitCount = async (query: StatisticsQuery, context?: Req
 }
 
 export const getWeeklyOutpatientTrend = async (query: StatisticsQuery, context?: RequestContext): Promise<TrendResponse> => {
-  if (useMock) return mockGetWeeklyOutpatientTrend(query, context)
+  if (useMockProvider()) return mockGetWeeklyOutpatientTrend(query, context)
   if (provider === 'j8') return toTrend(await getReal('/outpatient/visit-trend/weekly', commonParams(query, 'WEEK'), context) as LooseRecord)
   if (provider === 'j6') return toTrend(await getReal('/data-statistics/week-trend', commonParams(query, 'WEEK'), context) as LooseRecord)
   return toTrend(await getReal('/form/data_statistics/query_trend', { timeType: 1, startDate: query.dateFrom, endDate: query.dateTo, orgId: query.organizationId }, context) as LooseRecord)
 }
 
 export const getMonthlyOutpatientTrend = async (query: StatisticsQuery, context?: RequestContext): Promise<TrendResponse> => {
-  if (useMock) return mockGetMonthlyOutpatientTrend(query, context)
+  if (useMockProvider()) return mockGetMonthlyOutpatientTrend(query, context)
   if (provider === 'j8') return toTrend(await getReal('/outpatient/visit-trend/monthly', commonParams(query, 'MONTH'), context) as LooseRecord)
   if (provider === 'j6') return toTrend(await getReal('/data-statistics/month-trend', commonParams(query, 'MONTH'), context) as LooseRecord)
   return toTrend(await getReal('/form/data_statistics/query_trend', { timeType: 2, startDate: query.dateFrom, endDate: query.dateTo, orgId: query.organizationId }, context) as LooseRecord)
 }
 
 export const getPatientDiseaseDistribution = async (query: StatisticsQuery, context?: RequestContext): Promise<DiseaseDistributionResponse> => {
-  if (useMock) return mockGetPatientDiseaseDistribution(query, context)
+  if (useMockProvider()) return mockGetPatientDiseaseDistribution(query, context)
   if (provider === 'j8') return toDisease(await getReal('/outpatient/disease-distribution', commonParams(query), context) as LooseRecord)
   if (provider === 'j6') return toDisease(await getReal('/data-statistics/disease-statistic', commonParams(query), context) as LooseRecord)
   return toDisease(await getReal('/form/data_statistics/query_disease_distribution', { startDate: query.dateFrom, endDate: query.dateTo, orgId: query.organizationId }, context) as LooseRecord)
 }
 
 export const getInventoryAmountComparison = async (query: StatisticsQuery, context?: RequestContext): Promise<InventoryAmountComparisonResponse> => {
-  if (useMock) return mockGetInventoryAmountComparison(query, context)
+  if (useMockProvider()) return mockGetInventoryAmountComparison(query, context)
   if (provider === 'j8') return toInventory(await getReal('/j8/statdata/in-out', inventoryMonthParams(query), context) as LooseRecord)
   if (provider === 'j6') return toInventory(await getReal('/data-statistics/supply-amount-compare', commonParams(query, 'MONTH'), context) as LooseRecord)
   const data = await getReal<LooseRecord>('/form/data_statistics/InOutbound', { pageIndex: 1, pageSize: 500 }, context)
@@ -224,7 +237,7 @@ export const getInventoryAmountComparison = async (query: StatisticsQuery, conte
 }
 
 export const getInventoryExpiryWarningDistribution = async (query: StatisticsQuery, context?: RequestContext): Promise<InventoryExpiryWarningDistributionResponse> => {
-  if (useMock) return mockGetInventoryExpiryWarningDistribution(query, context)
+  if (useMockProvider()) return mockGetInventoryExpiryWarningDistribution(query, context)
   if (provider === 'j8') {
     const path = expiryWarningGoodsType
       ? `${expiryWarningPath}/${encodeURIComponent(expiryWarningGoodsType)}`

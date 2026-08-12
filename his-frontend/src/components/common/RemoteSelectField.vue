@@ -102,6 +102,11 @@ watch(
     // 仅保留当前候选项和仍被选中的远程项，避免科室切换后混入旧科室医生。
     const selectedOptions = getSelectedOptions(options.value)
     options.value = mergeOptions(initialOptions, selectedOptions)
+    if (initialOptions.length > 0) {
+      // 初始化候选项可能晚于首次远程请求返回；候选项到达后清除旧的失败状态。
+      errorMessage.value = ''
+      hasLoaded.value = true
+    }
   },
   { immediate: true }
 )
@@ -149,7 +154,12 @@ async function load(keyword: string) {
 
     if (controller.signal.aborted || currentSequence !== requestSequence) return
     const selectedOptions = getSelectedOptions(mergeOptions(props.initialOptions, options.value))
-    options.value = mergeOptions(selectedOptions, loadedOptions)
+    // 空关键字表示打开下拉或清空搜索，此时远程接口可能暂时返回空数组。
+    // 保留上层已经从真实接口加载的初始候选，避免下拉一打开就把医生等选项清空。
+    const candidates = normalizedKeyword
+      ? loadedOptions
+      : mergeOptions(props.initialOptions, loadedOptions)
+    options.value = mergeOptions(selectedOptions, candidates)
     hasLoaded.value = true
     if (!normalizedKeyword) skipOpeningEmptySearch = true
   } catch (error) {

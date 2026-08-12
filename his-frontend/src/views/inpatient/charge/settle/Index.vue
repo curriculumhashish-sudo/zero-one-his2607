@@ -105,7 +105,26 @@ const selectedPatientRows = computed(() =>
     ? [selectedPatient.value as InpatientSettlePatient & Record<string, unknown>]
     : []
 )
-const summaryItems = computed(() => toSettleSummaryItems(summary.value))
+const selectedLineTotal = computed(() => Number(selectedLines.value.reduce(
+  (total, line) => total + (Number(line.lineAmount) || 0),
+  0
+).toFixed(2)))
+const pendingLineTotal = computed(() => Number(lines.value.reduce(
+  (total, line) => total + (line.statusEnum === 'PENDING' ? (Number(line.lineAmount) || 0) : 0),
+  0
+).toFixed(2)))
+const displaySummary = computed<InpatientSettleSummary | null>(() => {
+  if (!summary.value) return null
+  const pendingSettlementTotal = Number(summary.value.pendingSettlementTotal) || pendingLineTotal.value
+  const prepayNetBalance = Number(summary.value.prepayNetBalance) || 0
+  return {
+    ...summary.value,
+    pendingSettlementTotal,
+    selectedTotal: selectedLineTotal.value,
+    balanceHint: Number((prepayNetBalance - selectedLineTotal.value).toFixed(2))
+  }
+})
+const summaryItems = computed(() => toSettleSummaryItems(displaySummary.value))
 const actions = computed<ActionToolbarItem[]>(() => [
   {
     key: 'settle',
@@ -385,8 +404,10 @@ async function preSettle() {
   submitting.value = true
   try {
     preview.value = await preSettleInpatientCharges({
+      accountId: patient.accountId,
       chargeItemIds: selectedLines.value.map((line) => line.chargeItemId),
       contractId: patient.contractId,
+      contractNo: patient.contractNo,
       encounterId: patient.encounterId,
       patientId: patient.patientId,
       settleMode: settleMode.value
@@ -440,12 +461,16 @@ async function confirmSettle(data: { payChannelCode: string; scanCode?: string }
     return
   }
   const payload: ConfirmInpatientSettlePayload = {
+    accountId: draft.accountId ?? patient.accountId,
     chargeItemIds: selectedLines.value.map((line) => line.chargeItemId),
+    contractNo: draft.contractNo ?? patient.contractNo,
+    displayAmount: payableAmount,
     encounterId: patient.encounterId,
     patientId: patient.patientId,
     paymentDetails:
       payableAmount > 0 ? [{ amount: payableAmount, payChannelCode: data.payChannelCode }] : [],
     paymentDraftId: draft.paymentDraftId,
+    billDate: new Date().toLocaleString('sv-SE').replace('T', ' ').slice(0, 19),
     ybPreSettleId: draft.ybPreSettleId
   }
   if (data.payChannelCode === 'SCAN_PAY' && data.scanCode) {

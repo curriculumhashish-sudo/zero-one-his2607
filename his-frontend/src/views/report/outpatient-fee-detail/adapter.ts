@@ -5,7 +5,9 @@ import type {
 } from '@/apis/report/outpatient-fee-detail'
 import type { FeeDetailTableRow } from './type'
 
-export function flattenEncounterBlocks(blocks: OutpatientFeeDetailEncounterBlockDto[]): FeeDetailTableRow[] {
+export function flattenEncounterBlocks(
+  blocks: OutpatientFeeDetailEncounterBlockDto[]
+): FeeDetailTableRow[] {
   const rows: FeeDetailTableRow[] = []
   blocks.forEach((block) => {
     const key = String(block.encounterId ?? block.busNo ?? rows.length)
@@ -22,9 +24,7 @@ export function flattenEncounterBlocks(blocks: OutpatientFeeDetailEncounterBlock
         encounterDate: block.encounterDate
       })
     })
-    if (lines.length && block.subtotal) {
-      rows.push({ ...subtotalRow(block.subtotal, key), patientName: '就诊小计' })
-    }
+    if (lines.length && block.subtotal) rows.push(subtotalRow(block.subtotal, key))
   })
   return rows
 }
@@ -33,6 +33,7 @@ function subtotalRow(summary: OutpatientFeeDetailAmountSummaryDto, key: string):
   return {
     rowKey: `subtotal-${key}`,
     rowType: 'subtotal',
+    busNo: '就诊小计',
     baseAmount: summary.baseAmountTotal,
     discountAmount: summary.discountAmountTotal,
     receivableAmount: summary.receivableAmountTotal,
@@ -48,6 +49,21 @@ export function isSubtotal(row: { rowType?: unknown }) {
   return row.rowType === 'subtotal'
 }
 
+export function feeDetailSpanMethod({
+  row,
+  columnIndex
+}: {
+  row: FeeDetailTableRow
+  columnIndex: number
+}): [number, number] {
+  if (!isSubtotal(row)) return [1, 1]
+  if (columnIndex === 0) return [1, 17]
+  if (columnIndex < 17) return [0, 0]
+  return [1, 1]
+}
+
 export function displayAmount(value: OutpatientFeeDetailLineDto[keyof OutpatientFeeDetailLineDto]) {
-  return value === undefined || value === null || value === '' ? '—' : String(value)
+  if (value === undefined || value === null || value === '') return '—'
+  const amount = Number(value)
+  return Number.isFinite(amount) ? amount.toFixed(2) : String(value)
 }

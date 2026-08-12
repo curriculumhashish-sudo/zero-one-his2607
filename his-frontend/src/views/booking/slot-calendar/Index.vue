@@ -104,7 +104,7 @@ const toolbarActions = computed<ActionToolbarItem[]>(() => [
 const slotStatusMap: TimeSlotStatusMap = {
   available: { text: '可约', type: 'success', selectable: true },
   full: { text: '已满', type: 'danger', selectable: false },
-  stopped: { text: '停诊', type: 'warning', selectable: false },
+  stopped: { text: '停诊', type: 'info', selectable: false },
   blocked: { text: '已封锁', type: 'warning', selectable: false },
   expired: { text: '过期', type: 'info', selectable: false }
 }
@@ -413,7 +413,7 @@ onBeforeUnmount(() => {
         <div class="slot-page__legend">
           <el-tag type="success" effect="plain">可约</el-tag>
           <el-tag type="danger" effect="plain">已满</el-tag>
-          <el-tag type="warning" effect="plain">停诊</el-tag>
+          <el-tag type="info" effect="plain">停诊</el-tag>
           <el-tag type="warning" effect="dark">已封锁</el-tag>
           <el-tag type="info" effect="plain">过期</el-tag>
         </div>

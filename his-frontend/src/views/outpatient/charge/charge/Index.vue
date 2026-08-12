@@ -159,6 +159,10 @@ function hasPatientValue(value: unknown) {
   return value !== undefined && value !== null && (typeof value !== 'string' || value.trim() !== '')
 }
 
+function isSettledChargeStatus(value: unknown) {
+  return /^(SETTLED|COMPLETED|PAID|SUCCESS)$/i.test(String(value ?? '').trim())
+}
+
 /**
  * C1 的费用明细接口有时只返回费用项目，不返回 patient 对象。
  * 这时不能用空对象覆盖左侧已经选中的患者，否则右侧会显示“无档案登记”。
@@ -174,6 +178,13 @@ function mergeSelectedPatient(
       Object.entries(detailPatient).filter(([, value]) => hasPatientValue(value))
     )
   } as Partial<ChargePatient>
+
+  // 明细接口未返回状态时，不能以 pending 默认值覆盖队列中已结算的状态。
+  const detailStatus = String(
+    (detailPatient as ChargePatient & { statusEnum?: unknown }).statusEnum ?? ''
+  ).trim()
+  const detailSettled = detailPatient.status === 'settled' || isSettledChargeStatus(detailStatus)
+  const status = detailSettled ? 'settled' : queuePatient?.status ?? detailPatient.status
 
   return {
     id: String(merged.id || encounterId),
@@ -198,7 +209,7 @@ function mergeSelectedPatient(
     totalAmount: merged.totalAmount,
     paidAmount: merged.paidAmount,
     paymentId: merged.paymentId,
-    status: merged.status === 'settled' ? 'settled' : 'pending',
+    status: status === 'settled' ? 'settled' : 'pending',
     paymentType: String(merged.paymentType || '')
   }
 }

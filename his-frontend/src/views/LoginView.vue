@@ -10,7 +10,7 @@ import type {
 import { computed, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { ArrowLeft, Lock, OfficeBuilding, User } from '@element-plus/icons-vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import {
   getCaptcha,
@@ -24,6 +24,7 @@ import {
   verifyCaptcha
 } from '@/apis/login'
 import PolygonBackground from '@/components/background/PolygonBackground.vue'
+import TianaiCaptcha from '@/components/captcha/TianaiCaptcha.vue'
 import { useTabStore } from '@/stores/tab'
 import { useUserStore } from '@/stores/user'
 
@@ -32,13 +33,14 @@ defineOptions({ name: 'LoginView' })
 type LoginStep = 'account' | 'tenant' | 'hospital' | 'department'
 
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore()
 const tabStore = useTabStore()
 const formData = reactive({ username: '', password: '' })
 const step = ref<LoginStep>('account')
 const loading = ref(false)
 const captcha = ref<CaptchaResult>()
-const captchaCode = ref('')
+const pendingCaptcha = ref<{ id: string; code: string }>()
 const showCaptcha = ref(false)
 const loginResult = ref<Oauth2TokenDTO>()
 const tenants = ref<TenantInfo[]>([])
@@ -60,7 +62,8 @@ async function submitAccount() {
   try {
     loading.value = true
     captcha.value = await getCaptcha()
-    captchaCode.value = ''
+    if (!captcha.value.id && captcha.value.uuid) captcha.value.id = captcha.value.uuid
+    pendingCaptcha.value = undefined
     showCaptcha.value = true
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '验证码加载失败')
@@ -69,14 +72,26 @@ async function submitAccount() {
   }
 }
 
-async function submitCaptcha() {
-  if (!captcha.value?.uuid || !captchaCode.value.trim()) {
-    ElMessage.warning('请输入验证码')
+async function refreshCaptcha() {
+  try {
+    captcha.value = await getCaptcha()
+    if (!captcha.value.id && captcha.value.uuid) captcha.value.id = captcha.value.uuid
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '验证码加载失败')
+  }
+}
+
+async function handleCaptchaSuccess(payload: string | { id: string; code: string }) {
+  const id = typeof payload === 'string' ? payload : payload.id
+  const code = typeof payload === 'string' ? '' : payload.code
+  if (!id) {
+    ElMessage.warning('请完成图片验证码')
     return
   }
   try {
     loading.value = true
-    await verifyCaptcha({ uuid: captcha.value.uuid, code: captchaCode.value.trim() })
+    await verifyCaptcha(code ? { id, code } : { id })
+    pendingCaptcha.value = { id, code }
     await completeAccountLogin()
     showCaptcha.value = false
   } catch (error) {
@@ -92,12 +107,12 @@ async function completeAccountLogin() {
     const result = await loginAccount({
       username: formData.username.trim(),
       password: formData.password,
-      captchaUuid: captcha.value?.uuid ?? '',
-      code: captchaCode.value.trim()
+      ...(pendingCaptcha.value?.code
+        ? { captchaUuid: pendingCaptcha.value.id, code: pendingCaptcha.value.code }
+        : {})
     })
     loginResult.value = result
     userStore.setToken(result)
-    await userStore.loadUser()
     tenants.value = await loadAvailableTenants()
     if (!tenants.value.length) throw new Error('当前账号没有可用租户')
     if (tenants.value.length === 1) {
@@ -121,7 +136,20 @@ async function confirmTenant() {
     await selectTenant(selectedTenantId.value)
     userStore.setLoginContext({ tenantId: selectedTenantId.value, hospitalId: null, departmentId: null })
     hospitals.value = await loadAvailableHospitals()
-    if (!hospitals.value.length) throw new Error('当前租户没有可用医院')
+    if (!hospitals.value.length) {
+      departments.value = await loadAvailableDepartments()
+      if (!departments.value.length) {
+        await finishLogin()
+        return
+      }
+      if (departments.value.length === 1) {
+        selectedDepartmentId.value = departments.value[0]!.id
+        await confirmDepartment()
+      } else {
+        step.value = 'department'
+      }
+      return
+    }
     selectedHospitalId.value = hospitals.value.length === 1 ? hospitals.value[0]!.id : undefined
     step.value = 'hospital'
   } catch (error) {
@@ -142,8 +170,13 @@ async function confirmHospital() {
       await finishLogin()
       return
     }
-    selectedDepartmentId.value = undefined
-    step.value = 'department'
+    if (departments.value.length === 1) {
+      selectedDepartmentId.value = departments.value[0]!.id
+      await confirmDepartment()
+    } else {
+      selectedDepartmentId.value = undefined
+      step.value = 'department'
+    }
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '医院选择失败，请重试')
   } finally {
@@ -169,7 +202,10 @@ async function finishLogin() {
   await Promise.all([userStore.loadUser(), userStore.loadMenus()])
   userStore.setLoaded(true)
   tabStore.reset()
-  await router.replace({ name: 'WorkbenchHome' })
+  const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : ''
+  const targetPath = redirect.startsWith('/') && !redirect.startsWith('//') ? redirect : ''
+  const homePath = userStore.getUser?.homePath
+  await router.replace(targetPath || (homePath && homePath.startsWith('/') ? homePath : '/home'))
   ElMessage.success('登录成功')
 }
 
@@ -202,16 +238,7 @@ function backStep() {
         <el-button native-type="button" type="primary" class="primary-action" :loading="loading" @click="submitAccount">登录</el-button>
       </el-form>
 
-      <div v-if="showCaptcha" class="captcha-form">
-        <img v-if="captcha?.imageBase64" :src="captcha.imageBase64" alt="算术验证码" class="captcha-image" />
-        <el-input v-model="captchaCode" placeholder="请输入验证码" maxlength="8" @keyup.enter="submitCaptcha" />
-        <div class="context-actions">
-          <el-button :disabled="loading" @click="showCaptcha = false">取消</el-button>
-          <el-button type="primary" :loading="loading" @click="submitCaptcha">验证并登录</el-button>
-        </div>
-      </div>
-
-      <div v-else class="context-form">
+      <div v-if="!showCaptcha" class="context-form">
         <el-select v-if="step === 'tenant'" v-model="selectedTenantId" placeholder="请选择租户" size="large"><el-option v-for="item in tenants" :key="item.id" :label="item.name" :value="item.id" /></el-select>
         <el-select v-if="step === 'hospital'" v-model="selectedHospitalId" placeholder="请选择医院" size="large"><el-option v-for="item in hospitals" :key="item.id" :label="item.displayName ?? item.name" :value="item.id" /></el-select>
         <el-select v-if="step === 'department'" v-model="selectedDepartmentId" placeholder="请选择机构（科室）" size="large"><el-option v-for="item in departments" :key="item.id" :label="item.displayName" :value="item.id" :disabled="item.isEnabled === false || item.isEnabled === 0" /></el-select>
@@ -225,6 +252,15 @@ function backStep() {
 
       <div class="login-panel__footer"><OfficeBuilding /><span>零壹医院信息系统</span></div>
     </section>
+    <TianaiCaptcha
+      v-model="showCaptcha"
+      mode="popup"
+      type="WORD_IMAGE_CLICK"
+      :captcha="captcha"
+      @refresh="refreshCaptcha"
+      @success="handleCaptchaSuccess"
+      @error="ElMessage.error('验证码加载失败，请重试')"
+    />
   </main>
 </template>
 
@@ -237,8 +273,6 @@ function backStep() {
 .login-panel__header p { margin: 4px 0 0; color: #4b5563; font-size: 14px; }
 .login-steps { margin-bottom: 26px; }
 .login-form, .context-form { display: flex; flex-direction: column; gap: 14px; }
-.captcha-form { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
-.captcha-image { width: 130px; height: 48px; align-self: center; border: 1px solid #d9e2f0; border-radius: 4px; }
 .login-form :deep(.el-form-item) { margin-bottom: 0; }
 .login-form :deep(.el-input__wrapper), .context-form :deep(.el-select__wrapper) { min-height: 46px; }
 .captcha-switch { display: flex; align-items: center; justify-content: space-between; color: #374151; font-size: 14px; }

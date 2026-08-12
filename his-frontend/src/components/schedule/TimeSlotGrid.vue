@@ -229,13 +229,13 @@ defineExpose({ groups })
   color: var(--el-color-warning);
 }
 
+.time-slot-grid__item.is-info .time-slot-grid__status {
+  color: var(--el-color-info);
+}
+
 .time-slot-grid__item.is-disabled {
   cursor: not-allowed;
   opacity: 0.6;
-}
-
-.time-slot-grid__item.is-disabled .time-slot-grid__status {
-  color: var(--el-text-color-secondary);
 }
 
 .time-slot-grid__capacity {

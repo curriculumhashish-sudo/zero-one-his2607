@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 import OutpatientSchedulePage from './outpatient-schedule/Index.vue'
+import ScheduleDetailPanelComponent from './outpatient-schedule/components/ScheduleDetailPanel.vue'
 import SlotCalendarPage from './slot-calendar/Index.vue'
 import SlotDetailDialogComponent from './slot-calendar/components/SlotDetailDialog.vue'
 
@@ -203,6 +204,12 @@ beforeEach(() => {
   })
   scheduleApi.pageSchedulesByRange.mockResolvedValue({ records: [], days: [], summary: {} })
   scheduleApi.getScheduleDetail.mockResolvedValue({ id: 'schedule-1' })
+  scheduleApi.listReleasedSlots.mockResolvedValue({
+    content: [],
+    totalCount: 0,
+    pageIndex: 1,
+    pageSize: 500
+  })
   scheduleApi.loadDepartmentOptions.mockResolvedValue([])
   scheduleApi.loadDoctorOptions.mockResolvedValue([])
   scheduleApi.loadScheduleGenerationOptions.mockResolvedValue({
@@ -266,6 +273,119 @@ describe('B组页面事件连接', () => {
     calendar.vm.$emit('eventClick', { key: 'schedule-1', raw: { id: 'schedule-1' } })
     await flushPromises()
     expect(scheduleApi.getScheduleDetail).toHaveBeenCalledWith('schedule-1')
+  })
+
+  it('按排班日期查询真实号源并在日历事件中汇总数量', async () => {
+    scheduleApi.pageSchedulesByRange.mockResolvedValue({
+      records: [
+        {
+          id: 'schedule-counts',
+          scheduleId: 'schedule-counts',
+          departmentId: 'healthcare-service-1',
+          departmentName: '门诊内科',
+          doctorId: 'doctor-1',
+          doctorName: '门诊医生',
+          roomId: '',
+          roomName: '',
+          date: '2026-08-12',
+          startTime: '00:00',
+          endTime: '12:00',
+          capacity: 0,
+          status: 'published',
+          updatedAt: ''
+        }
+      ],
+      days: [],
+      summary: {}
+    })
+    scheduleApi.listReleasedSlots.mockResolvedValue({
+      content: [
+        { capacity: 20, bookedCount: 5, remainingCount: 15 },
+        { capacity: 10, bookedCount: 2, remainingCount: 8 }
+      ],
+      totalCount: 2,
+      pageIndex: 1,
+      pageSize: 500
+    })
+    const wrapper = mountSchedulePage()
+    await flushPromises()
+    const calendar = wrapper.findComponent(CalendarStub)
+
+    calendar.vm.$emit('rangeChange', { start: '2026-08-10', end: '2026-08-16' })
+    await flushPromises()
+
+    expect(scheduleApi.listReleasedSlots).toHaveBeenCalledWith(
+      expect.objectContaining({
+        scheduleId: 'schedule-counts',
+        organizationId: 'org-main',
+        date: '2026-08-12'
+      }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
+    )
+    expect(calendar.props('events')[0].raw).toEqual(
+      expect.objectContaining({
+        capacity: 30,
+        bookedCount: 7,
+        remainingCount: 23,
+        slotCount: 2,
+        slotCountsLoaded: true
+      })
+    )
+  })
+
+  it('切换科室查询时用该科室医生下拉映射排班中的医生编号', async () => {
+    scheduleApi.loadDoctorOptions.mockResolvedValue([
+      {
+        value: '308791351298756608',
+        label: '张医生',
+        departmentId: 'department-2'
+      }
+    ])
+    scheduleApi.pageSchedulesByRange.mockResolvedValue({
+      records: [
+        {
+          id: 'schedule-department-2',
+          scheduleId: 'schedule-department-2',
+          organizationId: 'department-2',
+          departmentId: 'department-2',
+          departmentName: '第二科室',
+          practitionerId: '308791351298756608',
+          doctorId: '308791351298756608',
+          doctorName: '308791351298756608',
+          roomId: '',
+          roomName: '',
+          date: '2026-08-12',
+          startTime: '00:00',
+          endTime: '12:00',
+          capacity: 0,
+          status: 'published',
+          updatedAt: ''
+        }
+      ],
+      days: [],
+      summary: {}
+    })
+    const wrapper = mountSchedulePage()
+    await flushPromises()
+    const calendar = wrapper.findComponent(CalendarStub)
+    ;(wrapper.vm as unknown as { query: { departmentId: string } }).query.departmentId =
+      'department-2'
+
+    calendar.vm.$emit('rangeChange', { start: '2026-08-10', end: '2026-08-16' })
+    await flushPromises()
+
+    expect(scheduleApi.loadDoctorOptions).toHaveBeenCalledWith(
+      '',
+      'department-2',
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
+    )
+    expect(calendar.props('events')[0].raw).toEqual(
+      expect.objectContaining({
+        doctorId: '308791351298756608',
+        doctorName: '张医生',
+        practitionerName: '张医生'
+      })
+    )
   })
 
   it('排班初始化失败后重新加载筛选选项', async () => {
@@ -473,7 +593,7 @@ describe('B组页面事件连接', () => {
     promptSpy.mockRestore()
   })
 
-  it('号源详情按原型 SlotDetailDto 字段和单列顺序展示', () => {
+  it('号源详情按原型字段展示，且不再提供无效的预约登记入口', async () => {
     const wrapper = shallowMount(SlotDetailDialogComponent, {
       props: {
         data: {
@@ -513,7 +633,7 @@ describe('B组页面事件连接', () => {
           DescriptionList: DescriptionListStub,
           StatusDisplay: true,
           ElEmpty: true,
-          ElButton: true
+          ElButton: ButtonStub
         },
         directives: { loading: () => undefined }
       }
@@ -545,6 +665,44 @@ describe('B组页面事件连接', () => {
       overbookedText: '否',
       commentText: '演示号源'
     })
+    expect(wrapper.text()).not.toContain('预约登记')
+    expect(wrapper.findAll('button')).toHaveLength(1)
+    expect(wrapper.find('button').text()).toBe('关闭')
+  })
+
+  it('已有号源的排班详情不再提供重复批量放号入口', async () => {
+    const wrapper = shallowMount(ScheduleDetailPanelComponent, {
+      props: {
+        modelValue: true,
+        data: {
+          id: 'schedule-with-slots',
+          scheduleId: 'schedule-with-slots',
+          date: '2026-08-16',
+          startTime: '00:00',
+          endTime: '23:59',
+          capacity: 30,
+          status: 'published',
+          doctorId: 'doctor-1',
+          doctorName: '门诊医生'
+        } as never
+      },
+      global: {
+        stubs: {
+          ElDrawer: DrawerStub,
+          ElDropdown: { template: '<div><slot /><slot name="dropdown" /></div>' },
+          ElDropdownMenu: { template: '<div><slot /></div>' },
+          ElDropdownItem: { template: '<div><slot /></div>' },
+          ElButton: ButtonStub,
+          DescriptionList: true,
+          StatusDisplay: true
+        },
+        directives: { loading: () => undefined }
+      }
+    })
+
+    expect(wrapper.text()).not.toContain('批量放号')
+    await wrapper.setProps({ data: { ...wrapper.props('data'), capacity: 0 } as never })
+    expect(wrapper.text()).toContain('批量放号')
   })
 
   it('快速切换号源详情时旧请求不能覆盖新选择', async () => {

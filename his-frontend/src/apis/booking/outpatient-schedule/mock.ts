@@ -187,8 +187,8 @@ function syncPrototypeFields(record: ScheduleRecord): ScheduleRecord {
   record.bookable = record.status === 'published'
   record.actors = [
     { actorType: 10, actorId: record.doctorId, sortNo: 1 },
-    { actorType: 20, actorId: record.roomId, sortNo: 2 },
-    { actorType: 30, actorId: record.departmentId, sortNo: 3 }
+    ...(record.roomId ? [{ actorType: 20, actorId: record.roomId, sortNo: 2 }] : []),
+    { actorType: 30, actorId: record.departmentId, sortNo: record.roomId ? 3 : 2 }
   ]
   record.fromTemplate = record.fromTemplate ?? false
   return record
@@ -228,7 +228,7 @@ function toRecord(payload: InternalScheduleSavePayload, id: string): ScheduleRec
   if (payload.endTime <= payload.startTime) throw new Error('结束时间必须晚于开始时间')
   const department = findOption(departments, payload.departmentId, '科室')
   const doctor = findOption(doctors, payload.doctorId, '医生')
-  const room = findOption(rooms, payload.roomId, '诊室')
+  const room = payload.roomId ? findOption(rooms, payload.roomId, '诊室') : { value: '', label: '' }
   if (doctor.departmentId !== department.value) throw new Error('医生不属于所选科室')
   return syncPrototypeFields({
     id,

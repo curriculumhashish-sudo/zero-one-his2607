@@ -85,6 +85,8 @@ export interface PrepayRecordQuery {
 }
 export interface CollectPrepayAdvanceDepositParams {
   encounterId: string
+  /** C1 预交金接口使用住院号关联账户。 */
+  inpatientNo?: string
   patientId: string
   amount: number | string
   paymentDetails: Array<{ accountId?: string; amount: number | string; payChannelCode: string }>
@@ -108,6 +110,8 @@ export interface CollectPrepayAdvanceDepositResult {
 export interface PreparePrepayAdvanceDepositResult { paymentDraftId: string }
 export interface RefundPrepayAdvanceDepositParams {
   encounterId: string
+  /** C1 预交金接口使用住院号关联账户。 */
+  inpatientNo?: string
   patientId: string
   originalPaymentId?: string
   refundAmount: number | string

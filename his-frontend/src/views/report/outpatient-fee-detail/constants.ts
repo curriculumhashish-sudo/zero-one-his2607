@@ -26,6 +26,14 @@ export const feeDetailOptions = {
   ]
 }
 
+// J8 查询接口实际按展示文案筛选，而不是 MEDICATION/ACTIVITY/DEVICE 等编码。
+export const j8FeeCategoryOptions = [
+  { value: '挂号', label: '挂号' },
+  { value: '药品', label: '药品' },
+  { value: '耗材', label: '耗材' },
+  { value: '医疗服务', label: '医疗服务' }
+]
+
 export const summaryFields = [
   ['原价合计', 'baseAmountTotal'],
   ['优惠合计', 'discountAmountTotal'],

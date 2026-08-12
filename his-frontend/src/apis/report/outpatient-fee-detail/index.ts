@@ -408,6 +408,38 @@ function toC1ExportQuery(query: ExportOutpatientFeeDetailParams) {
   }
 }
 
+export async function createJ6ExportFile(
+  rows: LooseRecord[]
+): Promise<ExportOutpatientFeeDetailResponse> {
+  const exportRows = rows.flatMap((row) =>
+    (Array.isArray(row.lines) ? row.lines : []).map((line: LooseRecord) => ({
+      门诊号: row.busNo,
+      患者: row.patientName,
+      挂号科室: row.registrationDepartmentName,
+      就诊日期: row.encounterDate,
+      大类: line.feeCategoryDisplay,
+      细分类: line.subCategoryDisplay,
+      项目名称: line.productName,
+      院内编码: line.productCode,
+      数量: line.quantityValue,
+      单位: line.quantityUnitDisplay,
+      单价: line.unitAmount ?? line.unitPrice,
+      行金额: line.lineAmount,
+      实收金额: line.actualReceivedAmount
+    }))
+  )
+  const { utils, write } = await import('xlsx')
+  const workbook = utils.book_new()
+  utils.book_append_sheet(workbook, utils.json_to_sheet(exportRows), '门诊费用明细')
+  return {
+    fileName: 'J6门诊费用明细.xlsx',
+    contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    body: write(workbook, { bookType: 'xlsx', type: 'base64' }),
+    exportedRowCount: exportRows.length,
+    truncated: false
+  }
+}
+
 export const pageOutpatientFeeDetails = async (
   query: PageOutpatientFeeDetailParams,
   context?: RequestContext

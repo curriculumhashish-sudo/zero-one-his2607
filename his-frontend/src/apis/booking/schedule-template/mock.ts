@@ -209,7 +209,7 @@ function toPage<T>(rows: T[], page = 1, pageSize = 10): PageResult<T> {
 
 function syncPeriodFields(row: TimePeriod) {
   row.organizationId = departments[0]!.value
-  row.templateCode = row.id
+  row.templateCode ||= row.id
   row.templateName = row.name
   row.segments.forEach((segment) => {
     segment.startTime = segment.start
@@ -235,7 +235,7 @@ function syncDailyFields(row: DailyTemplate) {
 
 function syncWeeklyFields(row: WeeklyTemplate) {
   row.organizationId = departments[0]!.value
-  row.templateCode = row.id
+  row.templateCode ||= row.id
   row.templateName = row.name
   row.fallbackBookable = row.appointmentOpen
   row.enabled = row.status === 'enabled'
@@ -326,8 +326,8 @@ export async function mockSaveTimePeriod(
 ) {
   const id = payload.id
   await delay(context)
-  if (!payload.templateName.trim() || !payload.slotTemplates.length)
-    throw new Error('时段名称和时间段不能为空')
+  if (!payload.templateCode.trim() || !payload.templateName.trim() || !payload.slotTemplates.length)
+    throw new Error('模板编码、时段名称和时间段不能为空')
   if (payload.slotTemplates.some((item) => item.endTime <= item.startTime))
     throw new Error('结束时间必须晚于开始时间')
   const segments = payload.slotTemplates.map((item, index) => ({
@@ -350,6 +350,7 @@ export async function mockSaveTimePeriod(
   }
   const row: TimePeriod = {
     id: `period-${sequence++}`,
+    templateCode: payload.templateCode.trim(),
     name: payload.templateName.trim(),
     segments,
     status: payload.enabled ? 'enabled' : 'disabled',
@@ -393,8 +394,7 @@ export async function mockSaveDailyTemplate(
     !payload.templateName.trim() ||
     !payload.slotProvisionTemplateId ||
     !payload.healthcareServiceId ||
-    !payload.practitionerId ||
-    !payload.locationId
+    !payload.practitionerId
   )
     throw new Error('请完整填写日排班模板')
   if (
@@ -412,7 +412,7 @@ export async function mockSaveDailyTemplate(
     )
   )
   const doctor = option(doctors, payload.practitionerId, '医生')
-  const room = option(rooms, payload.locationId, '诊室')
+  const room = payload.locationId ? option(rooms, payload.locationId, '诊室') : undefined
   if (
     payload.defaultReleasePolicyId &&
     !policies.some((item) => item.id === payload.defaultReleasePolicyId)
@@ -432,14 +432,14 @@ export async function mockSaveDailyTemplate(
       serviceType: payload.healthcareServiceId,
       periodIds,
       doctorId: payload.practitionerId,
-      roomId: payload.locationId,
+      roomId: payload.locationId ?? '',
       releasePolicyId: payload.defaultReleasePolicyId ?? '',
       effectiveStart: payload.effectiveStart ?? '',
       effectiveEnd: payload.effectiveEnd ?? '',
       priority: payload.priority ?? 0,
       status: payload.enabled ? 'enabled' : 'disabled',
       doctorName: doctor.label,
-      roomName: room.label
+      roomName: room?.label ?? ''
     })
     periodIds.forEach((periodId) => {
       const period = periods.find((item) => item.id === periodId)
@@ -455,7 +455,7 @@ export async function mockSaveDailyTemplate(
     serviceType: payload.healthcareServiceId,
     periodIds,
     doctorId: payload.practitionerId,
-    roomId: payload.locationId,
+    roomId: payload.locationId ?? '',
     releasePolicyId: payload.defaultReleasePolicyId ?? '',
     effectiveStart: payload.effectiveStart ?? '',
     effectiveEnd: payload.effectiveEnd ?? '',
@@ -463,7 +463,7 @@ export async function mockSaveDailyTemplate(
     defaultAppointment: false,
     status: payload.enabled ? 'enabled' : 'disabled',
     doctorName: doctor.label,
-    roomName: room.label
+    roomName: room?.label ?? ''
   }
   dailyTemplates.push(row)
   periodIds.forEach((periodId) => {
@@ -507,8 +507,8 @@ export async function mockSaveWeeklyTemplate(
   const id = payload.id
   await delay(context)
   const payloadItems = payload.items ?? []
-  if (!payload.templateName.trim() || !payloadItems.length)
-    throw new Error('周排班名称和周明细不能为空')
+  if (!payload.templateCode.trim() || !payload.templateName.trim() || !payloadItems.length)
+    throw new Error('周排班编码、名称和周明细不能为空')
   if (new Set(payloadItems.map((item) => item.weekday)).size !== payloadItems.length)
     throw new Error('同一周排班中不能重复配置星期')
   const items = payloadItems.map((item, index) => {
@@ -527,6 +527,8 @@ export async function mockSaveWeeklyTemplate(
     }
   })
   const value: Omit<WeeklyTemplate, 'id'> = {
+    organizationId: payload.organizationId,
+    templateCode: payload.templateCode.trim(),
     name: payload.templateName.trim(),
     isDefault: payload.isDefault ?? false,
     appointmentOpen: payload.fallbackBookable ?? false,
@@ -583,7 +585,6 @@ export async function mockSaveReleasePolicy(
   if (payload.id) {
     const row = findOrThrow(policies, payload.id, '放号策略不存在')
     Object.assign(row, {
-      policyCode: payload.policyCode || row.policyCode,
       policyName: payload.policyName.trim(),
       name: payload.policyName.trim(),
       advanceDays: payload.advanceDays,
@@ -598,7 +599,7 @@ export async function mockSaveReleasePolicy(
   }
   const row: ReleasePolicy = {
     id: `policy-${sequence++}`,
-    policyCode: payload.policyCode || `POLICY-${sequence}`,
+    policyCode: `RP-${sequence}`,
     policyName: payload.policyName.trim(),
     name: payload.policyName.trim(),
     enabled: true,

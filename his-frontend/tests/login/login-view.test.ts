@@ -23,6 +23,7 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('vue-router', async (importOriginal) => ({
   ...(await importOriginal<typeof import('vue-router')>()),
+  useRoute: () => ({ query: {} }),
   useRouter: () => ({ push: mocks.push, replace: mocks.replace })
 }))
 
@@ -75,7 +76,7 @@ describe('LoginView', () => {
     })
   })
 
-  it('验证码成功后继续完成账号和登录上下文流程', async () => {
+  it('验证码成功后进入医院确认步骤，不在租户页自动提交医院', async () => {
     const wrapper = mount(LoginView, {
       global: {
         stubs: {
@@ -99,6 +100,7 @@ describe('LoginView', () => {
       enableVerify: boolean
       submitAccount: () => Promise<void>
       handleCaptchaSuccess: (id: string) => Promise<void>
+      confirmHospital: () => Promise<void>
     }
     vm.formData.username = 'admin'
     vm.formData.password = '123456'
@@ -111,6 +113,11 @@ describe('LoginView', () => {
     expect(mocks.verifyCaptcha).toHaveBeenCalledWith({ id: 'captcha-1' })
     expect(mocks.loginAccount).toHaveBeenCalledWith({ username: 'admin', password: '123456' })
     expect(mocks.selectTenant).toHaveBeenCalledWith(1001)
+    expect(mocks.selectHospital).not.toHaveBeenCalled()
+
+    await vm.confirmHospital()
+    await flushPromises()
+
     expect(mocks.selectHospital).toHaveBeenCalledWith('hospital-1')
     expect(mocks.loadCurrentMenus).toHaveBeenCalledOnce()
     expect(mocks.loadCurrentUser).toHaveBeenCalledOnce()

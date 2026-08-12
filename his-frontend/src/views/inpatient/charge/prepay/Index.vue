@@ -36,6 +36,7 @@ import RefundPrepayDialog from './components/RefundPrepayDialog.vue'
 import type { PrepayPageQuery } from './type'
 
 defineOptions({ name: 'InpatientPrepay' })
+const useC1Prepay = (import.meta.env.VITE_CHARGE_PROVIDER ?? '').toLowerCase() === 'c1'
 const query = reactive<PrepayPageQuery>({
   admissionDate: null,
   admissionStartDate: null,
@@ -201,6 +202,17 @@ async function selectPatient(patient: PatientSummary) {
     if (recordResult.status === 'fulfilled') {
       records.value = recordResult.value.rows
       recordTotal.value = recordResult.value.total
+      if (summary.value) {
+        summary.value.totalCollected = records.value
+          .filter((item) => item.type === 'collect' && item.status === 'settled')
+          .reduce((total, item) => total + item.amount, 0)
+        summary.value.totalRefunded = records.value
+          .filter(
+            (item) =>
+              item.type === 'refund' && (item.status === 'settled' || item.status === 'refunded')
+          )
+          .reduce((total, item) => total + item.amount, 0)
+      }
     } else {
       records.value = []
       recordTotal.value = 0
@@ -210,9 +222,18 @@ async function selectPatient(patient: PatientSummary) {
       )
     }
     if (detailErrorMessage.value) ElMessage.warning(detailErrorMessage.value)
-    pendingPaymentId.value =
-      (recordResult.status === 'fulfilled' ? recordResult.value.rows.find((item) => item.status === 'processing')?.id : '') ?? ''
-    if (pendingPaymentId.value) startPaymentPolling(pendingPaymentId.value)
+    if (useC1Prepay) {
+      // C1 的 getpatientpayrecords 仅支持 hospitalized_number，不支持 paymentId。
+      // 禁止按交易号轮询，避免后端缺少 hospitalized_number 时抛出 unordered_map::at。
+      stopPaymentPolling()
+      pendingPaymentId.value = ''
+    } else {
+      pendingPaymentId.value =
+        (recordResult.status === 'fulfilled'
+          ? recordResult.value.rows.find((item) => item.status === 'processing')?.id
+          : '') ?? ''
+      if (pendingPaymentId.value) startPaymentPolling(pendingPaymentId.value)
+    }
   } catch (error) {
     if (seq === detailSequence) {
       detailErrorMessage.value = error instanceof Error ? error.message : '预交金数据加载失败'
@@ -264,10 +285,14 @@ async function collect(data: {
   }
   submitting.value = true
   try {
-    const patientId = summary.value?.patient.patientId ?? summary.value?.patient.id
-    if (!patientId) throw new Error('当前患者缺少 patientId，无法办理预交金收款')
+    const patientId =
+      summary.value?.patient.patientId || summary.value?.patient.id || selectedEncounterId.value
     const result = await collectInpatientPrepay({
       encounterId: selectedEncounterId.value,
+      inpatientNo:
+        selectedQueuePatient.value?.encounterBusNo ??
+        selectedQueuePatient.value?.patientNo ??
+        selectedEncounterId.value,
       patientId,
       amount: data.amount,
       paymentCode: data.channel.toUpperCase(),
@@ -285,7 +310,7 @@ async function collect(data: {
       remark: data.remark
     })
     collectDialog.value?.close()
-    pendingPaymentId.value = data.scanCode ? result.paymentId : ''
+    pendingPaymentId.value = !useC1Prepay && data.scanCode ? result.paymentId : ''
     ElMessage.success(data.scanCode ? '扫码收款已发起，请确认支付结果' : '预交金收取成功')
     await refreshCurrent()
   } catch (error) {
@@ -314,10 +339,14 @@ async function refund(data: {
   }
   submitting.value = true
   try {
-    const patientId = summary.value?.patient.patientId ?? summary.value?.patient.id
-    if (!patientId) throw new Error('当前患者缺少 patientId，无法办理预交金退款')
+    const patientId =
+      summary.value?.patient.patientId || summary.value?.patient.id || selectedEncounterId.value
     const result = await refundInpatientPrepay({
       encounterId: selectedEncounterId.value,
+      inpatientNo:
+        selectedQueuePatient.value?.encounterBusNo ??
+        selectedQueuePatient.value?.patientNo ??
+        selectedEncounterId.value,
       patientId,
       originalPaymentId: refundRecord.value.paymentId ?? refundRecord.value.id,
       refundAmount: data.amount,
@@ -334,7 +363,7 @@ async function refund(data: {
         : undefined
     })
     refundDialog.value?.close()
-    pendingPaymentId.value = data.scanCode ? result.paymentId : ''
+    pendingPaymentId.value = !useC1Prepay && data.scanCode ? result.paymentId : ''
     ElMessage.success(data.scanCode ? '扫码退款已发起，系统将自动查询结果' : '预交金退款成功')
     await refreshCurrent()
   } catch (error) {

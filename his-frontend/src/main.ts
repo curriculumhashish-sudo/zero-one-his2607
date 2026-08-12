@@ -6,12 +6,15 @@ import 'element-plus/es/components/message/style/css'
 import 'element-plus/es/components/message-box/style/css'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import './assets/main.css'
+import { persistNavigationAuth } from './utils/navigation-auth'
 
 // 使用ElementPlus和FcDesigner
 import FcDesigner from '@form-create/designer'
 import ElementPlus from 'element-plus'
 
-/** 开发联调固定 JWT，用于跳过前端登录页。 */
+// 外部系统通过 URL 携带登录态时，必须在安装路由、执行鉴权守卫前完成持久化。
+persistNavigationAuth()
+
 const app = createApp(App)
 
 app.use(createPinia())

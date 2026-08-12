@@ -21,9 +21,10 @@ import {
   batchBlockSlots,
   batchUnblockSlots,
   markSlotOverbooked,
+  normalizeSlotStatus,
   pageSlotsByDate
 } from '@/apis/booking/slot-calendar'
-import { toScheduleEvents } from './outpatient-schedule/adapter'
+import { resolveScheduleDoctor, toScheduleEvents } from './outpatient-schedule/adapter'
 import { toTimeSlots } from './slot-calendar/adapter'
 import { isSlotExpired } from '@/apis/booking/slot-calendar/mock'
 
@@ -48,6 +49,15 @@ describe('B组门诊排班和号源业务', () => {
     expect(isSlotExpired('2026-07-31', '10:30', now)).toBe(false)
     expect(isSlotExpired('2026-07-30', '23:59', now)).toBe(true)
     expect(isSlotExpired('2026-08-01', '00:01', now)).toBe(false)
+  })
+
+  it('优先按后端展示状态区分封锁和停诊', () => {
+    expect(normalizeSlotStatus({ statusCode: 'busy-unavailable', displayStatus: '封锁' })).toBe(
+      'blocked'
+    )
+    expect(normalizeSlotStatus({ statusCode: 'busy-unavailable', displayStatus: '停诊' })).toBe(
+      'stopped'
+    )
   })
   it('将接口排班转换为公共日历事件', async () => {
     const date = todayText()
@@ -97,6 +107,54 @@ describe('B组门诊排班和号源业务', () => {
       { key: 'week-record', date: '2026-07-20', status: 'published' },
       { key: 'month-record', date: '2026-08-23', status: 'draft' }
     ])
+  })
+
+  it('设置替诊后显示替诊医生，撤销后恢复原医生', () => {
+    const record: ScheduleRecord = {
+      id: 'schedule-substitute',
+      departmentId: 'dept-internal',
+      departmentName: '心血管内科',
+      practitionerId: 'doctor-original',
+      doctorId: 'doctor-original',
+      doctorName: '原医生',
+      practitionerName: '原医生',
+      substitutePractitionerId: 'doctor-substitute',
+      roomId: 'room-101',
+      roomName: '门诊 101 诊室',
+      date: '2026-08-11',
+      startTime: '08:00',
+      endTime: '12:00',
+      capacity: 20,
+      status: 'published',
+      updatedAt: '2026-08-11T00:00:00.000Z'
+    }
+    const doctors = [
+      { value: 'doctor-original', label: '原医生' },
+      { value: 'doctor-substitute', label: '替诊医生' }
+    ]
+
+    const substituted = resolveScheduleDoctor(record, doctors, record.practitionerName)
+    expect(substituted).toMatchObject({
+      originalPractitionerId: 'doctor-original',
+      practitionerId: 'doctor-substitute',
+      doctorId: 'doctor-substitute',
+      doctorName: '替诊医生',
+      practitionerName: '替诊医生',
+      substituteDisplay: '替诊医生'
+    })
+
+    expect(
+      resolveScheduleDoctor(
+        { ...substituted, substitutePractitionerId: undefined, substituteDisplay: undefined },
+        doctors,
+        '原医生'
+      )
+    ).toMatchObject({
+      practitionerId: 'doctor-original',
+      doctorId: 'doctor-original',
+      doctorName: '原医生',
+      practitionerName: '原医生'
+    })
   })
 
   it('完成新增、编辑、发布和停诊状态流转', async () => {

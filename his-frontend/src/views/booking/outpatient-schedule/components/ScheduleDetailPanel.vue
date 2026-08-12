@@ -40,6 +40,7 @@ const isDraft = computed(() => props.data?.status === 'draft' && !isVoided.value
 const isPublished = computed(() => props.data?.status === 'published' && !isVoided.value)
 const isStopped = computed(() => props.data?.status === 'stopped' && !isVoided.value)
 const hasPartialStoppedSlots = computed(() => (props.data?.partialStoppedSlotIds?.length ?? 0) > 0)
+const hasReleasedSlots = computed(() => (props.data?.capacity ?? 0) > 0)
 
 const items: DescriptionItem[] = [
   { prop: 'departmentName', label: '科室' },
@@ -85,6 +86,50 @@ function handleMore(command: string) {
         <span>当前状态</span>
         <StatusDisplay :value="data.status" :options="scheduleStatusOptions" />
       </div>
+      <div
+        v-if="data && !isVoided && (isPublished || isDraft || isStopped)"
+        class="schedule-detail__more-actions"
+      >
+        <el-dropdown trigger="click" :disabled="actionLoading" @command="handleMore">
+          <el-button>更多操作</el-button>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <template v-if="isPublished">
+                <el-dropdown-item
+                  v-for="doctor in doctors ?? []"
+                  :key="doctor.value"
+                  :command="`substitute:${doctor.value}`"
+                  :disabled="
+                    doctor.value === data.doctorId || doctor.value === data.originalPractitionerId
+                  "
+                  >替诊：{{ doctor.label }}</el-dropdown-item
+                >
+              </template>
+              <el-dropdown-item
+                v-if="isPublished && data.substitutePractitionerId"
+                command="clear-substitute"
+                divided
+                >撤销替诊</el-dropdown-item
+              >
+              <el-dropdown-item v-if="isPublished" command="partial-stop" divided
+                >部分停诊</el-dropdown-item
+              >
+              <el-dropdown-item v-if="isPublished && hasPartialStoppedSlots" command="unlock"
+                >解锁停诊</el-dropdown-item
+              >
+              <el-dropdown-item v-if="isPublished && !hasReleasedSlots" command="provision"
+                >批量放号</el-dropdown-item
+              >
+              <el-dropdown-item v-if="isPublished" command="delete-slots"
+                >删除号源</el-dropdown-item
+              >
+              <el-dropdown-item v-if="isDraft || isStopped" command="void" divided
+                >作废日程</el-dropdown-item
+              >
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+      </div>
       <DescriptionList v-if="data" :data="displayData" :items="items" :column="2" dense />
       <el-empty v-else description="未找到排班详情" />
     </div>
@@ -114,46 +159,6 @@ function handleMore(command: string) {
           @click="emit('resume', data)"
           >恢复开诊</el-button
         >
-        <el-dropdown
-          v-if="isPublished || isDraft || isStopped"
-          trigger="click"
-          :disabled="actionLoading"
-          @command="handleMore"
-        >
-          <el-button>更多操作</el-button>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <template v-if="isPublished">
-                <el-dropdown-item
-                  v-for="doctor in doctors ?? []"
-                  :key="doctor.value"
-                  :command="`substitute:${doctor.value}`"
-                  :disabled="doctor.value === data.doctorId"
-                  >替诊：{{ doctor.label }}</el-dropdown-item
-                >
-              </template>
-              <el-dropdown-item
-                v-if="isPublished && data.substitutePractitionerId"
-                command="clear-substitute"
-                divided
-                >撤销替诊</el-dropdown-item
-              >
-              <el-dropdown-item v-if="isPublished" command="partial-stop" divided
-                >部分停诊</el-dropdown-item
-              >
-              <el-dropdown-item v-if="isPublished && hasPartialStoppedSlots" command="unlock"
-                >解锁停诊</el-dropdown-item
-              >
-              <el-dropdown-item v-if="isPublished" command="provision">批量放号</el-dropdown-item>
-              <el-dropdown-item v-if="isPublished" command="delete-slots"
-                >删除号源</el-dropdown-item
-              >
-              <el-dropdown-item v-if="isDraft || isStopped" command="void" divided
-                >作废日程</el-dropdown-item
-              >
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
       </div>
     </template>
   </el-drawer>
@@ -179,6 +184,11 @@ function handleMore(command: string) {
   color: #303133;
   background: #f5f7fa;
   border-radius: 6px;
+}
+.schedule-detail__more-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: -4px 0 16px;
 }
 .schedule-detail :deep(.el-descriptions__label) {
   color: #606266 !important;

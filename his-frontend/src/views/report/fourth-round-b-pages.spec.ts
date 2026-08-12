@@ -7,10 +7,10 @@ import * as loginApi from '@/apis/login'
 import * as feeDetailApi from '@/apis/report/outpatient-fee-detail'
 import * as statisticsApi from '@/apis/report/data-statistics'
 import reportRoutes from '@/router/main/report-center'
-import { flattenEncounterBlocks } from './outpatient-fee-detail/adapter'
+import { feeDetailSpanMethod, flattenEncounterBlocks } from './outpatient-fee-detail/adapter'
 
 describe('第四轮 B 组功能与接口契约', () => {
-  it('接口函数数量与思维导图 12 + 2 + 7 一致', () => {
+  it('接口函数数量与思维导图一致，并包含数据统计小组切换', () => {
     expect(Object.keys(loginApi).sort()).toEqual([
       'getCaptcha',
       'loadAvailableDepartments',
@@ -26,6 +26,7 @@ describe('第四轮 B 组功能与接口契约', () => {
       'verifyCaptcha'
     ])
     expect(Object.keys(feeDetailApi).sort()).toEqual([
+      'createJ6ExportFile',
       'exportOutpatientFeeDetails',
       'pageOutpatientFeeDetails'
     ])
@@ -35,8 +36,10 @@ describe('第四轮 B 组功能与接口契约', () => {
       'getMonthlyOutpatientTrend',
       'getMonthlyVisitCount',
       'getPatientDiseaseDistribution',
+      'getStatisticsProvider',
       'getTrafficTrend',
-      'getWeeklyOutpatientTrend'
+      'getWeeklyOutpatientTrend',
+      'setStatisticsProvider'
     ])
   })
 
@@ -117,6 +120,12 @@ describe('第四轮 B 组功能与接口契约', () => {
     expect(page.content?.[0]?.lines?.[0]).toHaveProperty('chargeItemId')
     const flattened = flattenEncounterBlocks(page.content ?? [])
     expect(flattened.filter((row) => row.rowType === 'subtotal')).toHaveLength(2)
+    const subtotal = flattened.find((row) => row.rowType === 'subtotal')!
+    expect(subtotal.busNo).toBe('就诊小计')
+    expect(subtotal).not.toHaveProperty('patientName')
+    expect(feeDetailSpanMethod({ row: subtotal, columnIndex: 0 })).toEqual([1, 17])
+    expect(feeDetailSpanMethod({ row: subtotal, columnIndex: 1 })).toEqual([0, 0])
+    expect(feeDetailSpanMethod({ row: subtotal, columnIndex: 17 })).toEqual([1, 1])
   })
 
   it('门诊费用明细导出使用全部筛选结果且返回原型二进制字段', async () => {
@@ -152,7 +161,9 @@ describe('第四轮 B 组功能与接口契约', () => {
       tradeDirection: 'ALL'
     })
     expect(fullPage.content).toHaveLength(firstPage.totalCount ?? 0)
-    expect(flattenEncounterBlocks(fullPage.content ?? []).filter((row) => row.rowType === 'line')).toHaveLength(36)
+    expect(
+      flattenEncounterBlocks(fullPage.content ?? []).filter((row) => row.rowType === 'line')
+    ).toHaveLength(36)
   })
 
   it('数据统计七项功能均返回可展示数据', async () => {

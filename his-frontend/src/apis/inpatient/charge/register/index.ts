@@ -53,10 +53,33 @@ export function submitInpatientRegistration(data: SubmitRegistrationPayload) {
   return (useC1 ? c1.c1SubmitInpatientRegistration(data) : mock.mockSubmitInpatientRegistration(data)) as ReturnType<typeof mock.mockSubmitInpatientRegistration>
 }
 
+function readOperatorIdFromToken(token: string) {
+  try {
+    const encoded = token.split('.')[1]
+    if (!encoded || typeof atob !== 'function') return ''
+    const base64 = encoded.replaceAll('-', '+').replaceAll('_', '/')
+    const bytes = atob(base64.padEnd(Math.ceil(base64.length / 4) * 4, '='))
+    const json = decodeURIComponent(
+      Array.from(bytes, (char) => `%${char.charCodeAt(0).toString(16).padStart(2, '0')}`).join('')
+    )
+    const claims = JSON.parse(json) as Record<string, unknown>
+    return String(claims.operatorId ?? claims.operator_id ?? claims.userId ?? claims.user_id ?? claims.id ?? '').trim()
+  } catch {
+    return ''
+  }
+}
+
 function getOperatorId() {
-  const operatorId = useUserStore().getUser?.id
-  if (!operatorId) throw new Error('当前登录用户信息未加载，无法执行登记操作')
-  return operatorId
+  const store = useUserStore()
+  const fromUser = String(store.getUser?.id ?? '').trim()
+  if (fromUser) return fromUser
+  if (typeof localStorage !== 'undefined') {
+    const fromStorage = String(localStorage.getItem('operatorId') ?? localStorage.getItem('userId') ?? '').trim()
+    if (fromStorage) return fromStorage
+  }
+  const fromToken = readOperatorIdFromToken(String(store.getToken ?? '').trim())
+  if (fromToken) return fromToken
+  throw new Error('当前登录用户信息未加载，无法执行登记操作')
 }
 
 export function cancelInpatientRegistration(

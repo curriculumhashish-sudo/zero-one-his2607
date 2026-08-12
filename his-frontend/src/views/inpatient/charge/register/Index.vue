@@ -102,13 +102,22 @@ async function loadRows() {
   loading.value = true
   errorMessage.value = ''
   try {
+    const registrationListStatuses = query.status
+      ? query.status === 'ADMITTED'
+        ? ['REGISTERED', 'IN_PROGRESS', 'INHOSPITAL']
+        : query.status === 'WAIT_ADMISSION'
+          ? ['PLANNED', 'WAITING', 'PENDING']
+          : ['CANCELLED', 'CANCELED']
+      : ['PLANNED', 'REGISTERED', 'IN_PROGRESS', 'INHOSPITAL']
     const result = await pageInpatientRegistrationQueue(
       {
         pageIndex: query.pageIndex,
         pageSize: query.pageSize,
         keyword: query.keyword,
         idCard: query.idCard,
-        registrationListStatuses: query.status ? [query.status] : []
+        // C1 后端 DTO 要求逗号分隔的字符串，不能传数组；同时显式包含 INHOSPITAL，
+        // 否则新增住院登记成功后会被后端默认状态过滤掉。
+        registrationListStatuses: registrationListStatuses.join(',')
       },
       { signal: controller.signal },
       { dateFrom: query.dateRange?.[0], dateTo: query.dateRange?.[1] }
@@ -152,6 +161,8 @@ async function openDialog(record?: RegistrationQueueRecord) {
 async function save(payload: RegistrationSubmitData) {
   if (submitting.value) return
   const operatorId = userStore.getUser?.id
+  const previousTotal = total.value
+  const previousEncounterIds = new Set(rows.value.map((item) => item.encounterId))
   submitting.value = true
   try {
     const result = await submitInpatientRegistration({
@@ -160,8 +171,15 @@ async function save(payload: RegistrationSubmitData) {
     })
     dialogRef.value?.resetDirty()
     dialogVisible.value = false
-    ElMessage.success(result.paymentId ? '住院登记成功，预交金支付已完成' : '住院登记成功')
     await loadRows()
+    const listContainsNewRecord =
+      total.value > previousTotal ||
+      rows.value.some((item) => !previousEncounterIds.has(item.encounterId))
+    if (!listContainsNewRecord) {
+      ElMessage.warning('后端已返回登记成功，但登记列表未返回新记录，请后端修正新增与列表的数据范围')
+      return
+    }
+    ElMessage.success(result.paymentId ? '住院登记成功，预交金支付已完成' : '住院登记成功')
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '住院登记失败')
   } finally {

@@ -43,6 +43,7 @@ export interface DailyTemplate {
   scheduleMode: ScheduleMode
   serviceType: string
   healthcareServiceId?: string
+  healthcareServiceName?: string
   periodIds: string[]
   slotProvisionTemplateId?: string
   practitionerId?: string
@@ -111,7 +112,6 @@ export interface ReleasePolicy {
 }
 
 export interface ReleasePolicyQuery {
-  organizationId?: string
   keyword?: string
   pageIndex: number
   pageSize: number
@@ -119,7 +119,6 @@ export interface ReleasePolicyQuery {
 
 export interface SaveReleasePolicyRequest {
   id?: string
-  policyCode?: string
   policyName: string
   advanceDays: number
   slotMinutes: number
@@ -188,9 +187,9 @@ export interface WeeklyTemplateQuery {
 export interface SaveSlotProvisionTemplateRequest {
   id?: string
   organizationId?: string
-  templateCode?: string
+  templateCode: string
   templateName: string
-  slotTemplates: Array<{ startTime: string; endTime: string; capacity?: number }>
+  slotTemplates: Array<{ startTime: string; endTime: string; capacity: number }>
   enabled: boolean
 }
 
@@ -214,7 +213,7 @@ export interface SaveScheduleTemplateRequest {
 export interface SaveWeekScheduleTemplateRequest {
   id?: string
   organizationId: string
-  templateCode?: string
+  templateCode: string
   templateName: string
   fallbackBookable?: boolean
   isDefault?: boolean
@@ -222,6 +221,7 @@ export interface SaveWeekScheduleTemplateRequest {
   effectiveStart?: string
   effectiveEnd?: string
   items: Array<{
+    id?: string
     weekday: number
     dayScheduleTemplateId: string
     sortNo?: number

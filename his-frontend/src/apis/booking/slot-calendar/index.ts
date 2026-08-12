@@ -67,7 +67,8 @@ function requestConfig(context: RequestContext) {
 
 // 后端该接口沿用 organizationId 字段承载科室 ID；页面内部仍使用 departmentId，
 // 字段转换只放在接口适配层，避免影响其他接口的 organizationId 语义。
-const practitionerOptionsPath = import.meta.env.VITE_J8_CALENDAR_PRACTITIONER_OPTIONS_PATH || '/j8/calendar/getPractitioners'
+const practitionerOptionsPath =
+  import.meta.env.VITE_J8_CALENDAR_PRACTITIONER_OPTIONS_PATH || '/j8/calendar/listPractitioners'
 
 function toDoctorOptions(data: unknown, keyword = ''): BookingOption[] {
   const raw = data as { list?: unknown; content?: unknown } | unknown[] | null | undefined
@@ -116,11 +117,13 @@ function isExpired(startTime: string, endTime: string) {
   return Number.isFinite(timestamp) && timestamp <= Date.now()
 }
 
-function toStatus(item: SlotListItemDto): SlotStatus {
+export function normalizeSlotStatus(item: SlotListItemDto): SlotStatus {
   const code = String(item.statusCode ?? '').toLowerCase()
   const display = String(item.displayStatus ?? '')
-  if (code.includes('block') || code.includes('封锁')) return 'blocked'
-  if (code === 'busy-unavailable' || code.includes('stop') || display.includes('停诊')) return 'stopped'
+  if (display.includes('封锁') || display.includes('锁定')) return 'blocked'
+  if (display.includes('停诊')) return 'stopped'
+  if (code.includes('block') || code.includes('封锁') || code === 'busy-unavailable') return 'blocked'
+  if (code.includes('stop')) return 'stopped'
   if (isExpired(String(item.startTime ?? ''), String(item.endTime ?? ''))) return 'expired'
   if (code === 'busy' || code === 'full' || Number(item.remainingCount ?? 0) <= 0 || display.includes('已满')) return 'full'
   return 'available'
@@ -132,7 +135,7 @@ function toSlotRecord(item: SlotListItemDto, fallbackDate: string): SlotRecord {
   const practitionerId = String(item.practitionerId ?? '')
   const startTime = String(item.startTime ?? '')
   const endTime = String(item.endTime ?? '')
-  const status = toStatus(item)
+  const status = normalizeSlotStatus(item)
   const bookedCount = Number(item.bookedCount ?? 0)
   const remainingCount = Number(item.remainingCount ?? 0)
   return {

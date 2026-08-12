@@ -26,7 +26,12 @@ import type {
   PublishScheduleRequest,
   ResumeScheduleResult
 } from './type'
-import { pageDailyTemplates, pageTimePeriods, pageWeeklyTemplates } from '../schedule-template'
+import {
+  loadScheduleTemplateInit,
+  pageDailyTemplates,
+  pageTimePeriods,
+  pageWeeklyTemplates
+} from '../schedule-template'
 import { loadDoctorOptions as loadCalendarDoctorOptions } from '../slot-calendar'
 
 type LooseRecord = Record<string, any>
@@ -162,10 +167,26 @@ function organizationIdOf(query?: { organizationId?: string }) {
 
 export async function loadScheduleInit(context: RequestContext = {}): Promise<ScheduleInitResult> {
   if (useMock) return mock.mockLoadScheduleInit(context)
-  const organizationId = organizationIdOf()
-  // 当前项目不展示“机构”维度，后端 organizationId 按约定承载科室 ID。
-  const option: BookingOption = { value: organizationId, label: organizationId ? '当前科室' : '未选择科室' }
-  return { organizationId, departments: organizationId ? [option] : [], practitioners: [], doctors: [], clinicLocations: [], rooms: [], healthcareServices: [] }
+  const templateInit = await loadScheduleTemplateInit(context)
+  const organizationId = templateInit.organizationId ?? organizationIdOf()
+  const toOption = (option: { value: string; label: string }): BookingOption => ({
+    value: option.value,
+    label: option.label
+  })
+  const toDoctorOption = (option: { value: string; label: string; departmentId?: string }): BookingOption => ({
+    value: option.value,
+    label: option.label,
+    departmentId: option.departmentId ?? organizationId
+  })
+  return {
+    organizationId,
+    departments: templateInit.departments.map(toOption),
+    practitioners: templateInit.doctors.map(toDoctorOption),
+    doctors: templateInit.doctors.map(toDoctorOption),
+    clinicLocations: templateInit.rooms.map(toOption),
+    rooms: templateInit.rooms.map(toOption),
+    healthcareServices: templateInit.serviceTypes.map(toOption)
+  }
 }
 
 export async function pageSchedulesByRange(query: ScheduleRangeQuery, context: RequestContext = {}) {
@@ -210,7 +231,38 @@ export async function loadDepartmentOptions(keyword = '', context: RequestContex
 
 export async function loadDoctorOptions(keyword = '', departmentId?: string | null, context: RequestContext = {}) {
   if (useMock) return mock.mockLoadDoctorOptions(keyword, departmentId, context)
-  return loadCalendarDoctorOptions(keyword, departmentId, context)
+  const requestedDepartmentId = String(departmentId ?? '').trim()
+  const loadFromDepartment = async (sourceDepartmentId: string) => {
+    try {
+      const options = await loadCalendarDoctorOptions(keyword, sourceDepartmentId, context)
+      if (options.length) return options
+    } catch (error) {
+      if (context.signal?.aborted) throw error
+    }
+    // 日历服务人员接口为空时，用已维护的日排班模板补充真实人员，不制造前端假数据。
+    try {
+      const fallback = await pageDailyTemplates(
+        { organizationId: sourceDepartmentId || undefined, pageIndex: 1, pageSize: 200 },
+        context
+      )
+      const normalizedKeyword = keyword.trim().toLowerCase()
+      return fallback.content
+        .map((row) => ({ value: row.doctorId, label: row.doctorName || row.doctorId }))
+        .filter((item) => !normalizedKeyword || item.label.toLowerCase().includes(normalizedKeyword))
+    } catch (error) {
+      if (context.signal?.aborted) throw error
+      return []
+    }
+  }
+  let options = await loadFromDepartment(requestedDepartmentId)
+  const defaultDepartmentId = String(import.meta.env.VITE_J8_DEFAULT_ORGANIZATION_ID ?? '').trim()
+  if (!options.length && defaultDepartmentId && defaultDepartmentId !== requestedDepartmentId) {
+    options = await loadFromDepartment(defaultDepartmentId)
+  }
+  return options.map((option) => ({
+    ...option,
+    departmentId: requestedDepartmentId || defaultDepartmentId || undefined
+  }))
 }
 
 export async function generateFormalSchedules(payload: GenerateFormalSchedulesPayload, context: RequestContext = {}): Promise<GenerateFormalSchedulesResult> {

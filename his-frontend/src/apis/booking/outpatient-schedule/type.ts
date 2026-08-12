@@ -31,6 +31,10 @@ export interface ScheduleRecord {
   startTime: string
   endTime: string
   capacity: number
+  bookedCount?: number
+  remainingCount?: number
+  slotCount?: number
+  slotCountsLoaded?: boolean
   statusEnum?: ScheduleStatus
   status: ScheduleStatus
   bookable?: boolean

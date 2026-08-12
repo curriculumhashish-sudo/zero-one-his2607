@@ -16,6 +16,7 @@ export interface InpatientSettleInitResult {
 }
 
 export interface InpatientSettlePatient {
+  accountId?: string
   accountBalance?: null | number | string
   accountBalanceDisplayMode?: string
   accountBalanceSubText?: string
@@ -26,6 +27,7 @@ export interface InpatientSettlePatient {
   bedName?: string
   contractDisplay?: string
   contractId?: string
+  contractNo?: string
   encounterBusNo: string
   encounterId: string
   genderEnum?: string
@@ -121,9 +123,11 @@ export interface InpatientSettleChargeResult {
 }
 
 export interface PreSettleInpatientPayload {
+  accountId?: string
   acctUsedFlag?: string
   chargeItemIds: string[]
   contractId?: string
+  contractNo?: string
   encounterId: string
   insuplcAdmdvs?: string
   insutype?: string
@@ -136,6 +140,8 @@ export interface PreSettleInpatientPayload {
 }
 
 export interface PreSettleInpatientResult {
+  accountId?: string
+  contractNo?: string
   displayAmount?: null | number | string
   insurancePreSettled?: boolean
   paymentDraftId: string
@@ -165,13 +171,18 @@ export interface ClientScanResultDto {
 }
 
 export interface ConfirmInpatientSettlePayload {
+  accountId?: string
   billDate?: string
   chargeItemIds: string[]
   clientScanResult?: ClientScanResultDto
+  contractNo?: string
+  displayAmount?: number | string
   encounterId: string
   patientId: string
   paymentDetails: InpatientSettlePaymentDetail[]
   paymentDraftId: string
+  remark?: string
+  ybChrgBchno?: string
   ybPreSettleId?: string
 }
 

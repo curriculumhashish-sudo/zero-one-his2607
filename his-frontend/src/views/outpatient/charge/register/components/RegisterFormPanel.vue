@@ -21,6 +21,7 @@ type UiRegisterOption = RegisterOption & Record<string, unknown>
 
 const props = defineProps<{
   disabled: boolean
+  doctorRequired: boolean
   doctorOptions: UiRegisterOption[]
   init: RegisterInitResult | null
   benefitPreview: LoadRegisterBenefitPreviewResult | null
@@ -205,7 +206,7 @@ function handleAgeChange(value: number | undefined) {
                 :value="item.value" /></el-select></el-form-item
         ></el-col>
         <el-col :span="12"
-          ><el-form-item label="医生" required
+          ><el-form-item label="医生" :required="doctorRequired"
             ><RemoteSelectField
               v-model="model.practitionerId"
               :load-options="props.loadDoctors"

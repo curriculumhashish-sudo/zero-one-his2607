@@ -43,10 +43,13 @@ import RegisterConfirmDialog from './components/RegisterConfirmDialog.vue'
 import RegisterFormPanel from './components/RegisterFormPanel.vue'
 import RegisterHistoryPanel from './components/RegisterHistoryPanel.vue'
 import type { OutpatientRegisterFormModel } from './type'
+import { persistNavigationAuth } from '@/utils/navigation-auth'
+import router from '@/router'
 
 defineOptions({ name: 'OutpatientChargeRegister' })
 
 const today = formatLocalDate()
+const useUnfilteredC1Slots = import.meta.env.VITE_CHARGE_PROVIDER === 'c1'
 type UiRegisterOption = RegisterOption & Record<string, unknown>
 const init = ref<RegisterInitResult | null>(null)
 const form = reactive<OutpatientRegisterFormModel>({
@@ -182,6 +185,14 @@ function updateForm(value: OutpatientRegisterFormModel) {
 }
 
 async function initialize() {
+  const auth = persistNavigationAuth()
+  if (useUnfilteredC1Slots && !auth.token) {
+    await router.replace({
+      name: 'Login',
+      query: { redirect: router.currentRoute.value.fullPath }
+    })
+    return
+  }
   loading.value = true
   try {
     init.value = await loadOutpatientRegisterInit()
@@ -240,7 +251,7 @@ async function loadSlots() {
   const sequence = ++slotSequence
   form.slotId = ''
   preview.value = null
-  if (!form.organizationId) {
+  if (!form.organizationId && !useUnfilteredC1Slots) {
     slots.value = []
     return
   }
@@ -399,12 +410,16 @@ async function preSettle() {
     !form.idCardNo ||
     !form.phone ||
     !form.organizationId ||
-    !form.practitionerId ||
+    (!useUnfilteredC1Slots && !form.practitionerId) ||
     !form.serviceTypeId ||
     !form.contractId ||
     !form.slotId
   ) {
-    ElMessage.warning('请完整填写患者、科室、医生、服务类型、费用性质并选择号源')
+    ElMessage.warning(
+      useUnfilteredC1Slots
+        ? '请完整填写患者、科室、服务类型、费用性质并选择号源'
+        : '请完整填写患者、科室、医生、服务类型、费用性质并选择号源'
+    )
     return
   }
   if (insuranceSelected.value) {
@@ -637,6 +652,7 @@ onBeforeUnmount(() => {
           :disabled="submitting || Boolean(pendingRegisterPayload)"
           :benefit-preview="benefitPreview"
           :benefit-loading="benefitLoading"
+          :doctor-required="!useUnfilteredC1Slots"
           :doctor-options="doctorOptions"
           :load-doctors="loadDoctors"
           :load-patients="loadPatients"

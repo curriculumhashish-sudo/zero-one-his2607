@@ -1,4 +1,8 @@
-import type { HolidayExceptionType, ScheduleMode, TemplateStatus } from '@/apis/booking/schedule-template'
+import type {
+  HolidayExceptionType,
+  ScheduleMode,
+  TemplateStatus
+} from '@/apis/booking/schedule-template'
 
 export interface ScheduleTemplatePageQuery {
   keyword: string
@@ -8,6 +12,7 @@ export interface ScheduleTemplatePageQuery {
 }
 
 export interface TimePeriodForm {
+  code: string
   name: string
   segments: Array<{ start: string; end: string; capacity: number }>
   status: TemplateStatus
@@ -29,11 +34,12 @@ export interface DailyTemplateForm {
 }
 
 export interface WeeklyTemplateForm {
+  code: string
   name: string
   isDefault: boolean
   appointmentOpen: boolean
   status: TemplateStatus
-  items: Array<{ weekday: number; dailyTemplateId: string; enabled: boolean }>
+  items: Array<{ id?: string; weekday: number; dailyTemplateId: string; enabled: boolean }>
 }
 
 export interface HolidayExceptionForm {
