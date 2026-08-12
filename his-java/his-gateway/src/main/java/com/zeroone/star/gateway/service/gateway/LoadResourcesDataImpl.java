@@ -1,6 +1,6 @@
 package com.zeroone.star.gateway.service.gateway;
 
-import cn.hutool.core.convert.Convert;
+import cn.hutool.json.JSONUtil;
 import com.zeroone.cloud.starter.gateway.service.LoadResourcesData;
 import com.zeroone.star.project.constant.RedisConstant;
 import jakarta.annotation.Resource;
@@ -30,6 +30,7 @@ public class LoadResourcesDataImpl implements LoadResourcesData {
         if (obj == null) {
             return null;
         }
-        return Convert.toList(String.class, obj);
+        // OAUTH2存储时将角色列表序列化为JSON字符串，此处反序列化
+        return JSONUtil.toList(String.valueOf(obj), String.class);
     }
 }

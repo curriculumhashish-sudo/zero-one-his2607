@@ -1,5 +1,6 @@
 package com.zeroone.star.oauth2.service.impl.oauth2;
 
+import cn.hutool.json.JSONUtil;
 import com.zeroone.star.oauth2.entity.Menu;
 import com.zeroone.star.oauth2.entity.Role;
 import com.zeroone.star.oauth2.service.IMenuService;
@@ -44,8 +45,8 @@ public class ResourcesServiceImpl {
         }
 
         // TODO：缓存权限资源逻辑,需要根据自己数据库设计来初始化--start
-        // 定义缓存map
-        Map<String, List<String>> resourceRolesMap = new TreeMap<>();
+        // 定义缓存map（Hash值序列化为String，需将角色列表转为JSON字符串）
+        Map<String, String> resourceRolesMap = new TreeMap<>();
         // 1 获取所有菜单路径
         List<Menu> tMenus = menuService.listAllLinkUrl();
         tMenus.forEach(menu -> {
@@ -53,7 +54,8 @@ public class ResourcesServiceImpl {
             List<Role> rolesMenu = roleService.listRoleByMenuPath(menu.getPath());
             List<String> roles = new ArrayList<>();
             rolesMenu.forEach(role -> roles.add(role.getCode()));
-            resourceRolesMap.put(menu.getPath(), roles);
+            // 将角色列表序列化为JSON字符串存入Hash
+            resourceRolesMap.put(menu.getPath(), JSONUtil.toJsonStr(roles));
         });
         // TODO：缓存权限资源逻辑,需要根据自己数据库设计来初始化--end
 
