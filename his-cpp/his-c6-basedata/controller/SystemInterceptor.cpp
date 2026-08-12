@@ -24,7 +24,6 @@
 #include "SystemInterceptor.h"
 #include "Message.h"
 #include "domain/vo/NoDataJsonVO.h"
-#include "domain/vo/drug/MedicineV2VO.h"
 #include "ApiHelper.h"
 
 using namespace oatpp::web::protocol::http;
@@ -68,29 +67,6 @@ std::shared_ptr<Response> createErrorRespone(std::string message, std::shared_pt
 	return response;
 }
 
-static std::shared_ptr<Response> createMedicineV2UnauthorizedResponse(
-	const std::string& path,
-	const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& mapper)
-{
-	const ResultStatus status(ZH_WORDS_GETTER("drug.v2.message.unauthorized"),
-		MedicineV2BusinessCode::UNAUTHORIZED);
-	std::shared_ptr<Response> response;
-	if (path == "/drug/modify-status" || path == "/drug/remove-drug")
-	{
-		auto error = MedicineBatchJsonVO::createShared();
-		error->init(MedicineBatchResultDTO::createEmpty(), status);
-		response = ResponseFactory::createResponse(Status::CODE_401, error, mapper);
-	}
-	else
-	{
-		auto error = MedicineVersionJsonVO::createShared();
-		error->init(MedicineVersionItemDTO::createShared(), status);
-		response = ResponseFactory::createResponse(Status::CODE_401, error, mapper);
-	}
-	response->putHeader(Header::WWW_AUTHENTICATE, "Bearer realm=\"API\"");
-	return response;
-}
-
 CheckRequestInterceptor::CheckRequestInterceptor(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper)
 {
 	m_objectMapper = objectMapper;
@@ -112,14 +88,6 @@ std::shared_ptr<oatpp::web::server::interceptor::RequestInterceptor::OutgoingRes
 	// Get request credentials
 	oatpp::String token = request->getHeader(API_H_TOKEN);
 	if (!token || token->empty()) {
-		// 新版药品接口按联调协议返回真实 HTTP 401 和业务码 10002。
-		const bool isMedicineModifyPath = path == "/drug/modify";
-		if (path == "/drug/modify-status" ||
-			path == "/drug/remove-drug" ||
-			isMedicineModifyPath)
-		{
-			return createMedicineV2UnauthorizedResponse(path, m_objectMapper);
-		}
 		return createErrorRespone("empty token", m_objectMapper);
 	}
 	return nullptr;
