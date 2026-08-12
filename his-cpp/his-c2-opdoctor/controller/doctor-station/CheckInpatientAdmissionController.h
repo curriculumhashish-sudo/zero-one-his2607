@@ -15,7 +15,7 @@ class CheckInpatientAdmissionController : public oatpp::web::server::api::ApiCon
     API_ACCESS_DECLARE(CheckInpatientAdmissionController);
 public:
     API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("doctor-station.inpatient.check.summary"),
-        checkInpatientAdmission, CheckInpatientAdmissionJsonVO::Wrapper, API_TAG_CHK);
+        checkInpatientAdmission, CheckInpatientAdmissionJsonVO::Wrapper, API_TAG);
     API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/c2-opdoctor/inpatient-admission/check",
         checkInpatientAdmission,
         BODY_DTO(CheckInpatientAdmissionDTO::Wrapper, dto),
