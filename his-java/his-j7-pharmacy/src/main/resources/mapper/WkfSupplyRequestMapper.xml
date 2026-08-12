@@ -35,7 +35,6 @@
     <update id="updateStatusForWithdraw">
         UPDATE wkf_supply_request
         SET status_enum = #{statusEnum},
-            applicant_id = NULL,
             apply_time = NULL,
             version = version + 1
         WHERE bus_no = #{busNo}
