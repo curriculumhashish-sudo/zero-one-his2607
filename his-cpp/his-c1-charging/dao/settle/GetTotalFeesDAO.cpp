@@ -2,13 +2,13 @@
 #include "GetTotalFeesDAO.h"
 #include "GetTotalFeesMapper.h"
 
-// ¹¹½¨¶¯Ì¬ WHERE Ìõ¼ş£ºÖ»·µ»Ø AND Ìõ¼şÆ¬¶Î
+// æ„å»ºåŠ¨æ€ WHERE æ¡ä»¶ï¼šåªè¿”å› AND æ¡ä»¶ç‰‡æ®µ
 inline std::string GetTotalFeesDAO::queryConditionBuilder(const GetTotalFeesQuery::Wrapper& query, SqlParams& params)
 {
-    std::ostringstream sqlCondition; // Í³Ò»±äÁ¿Ãû
+    std::ostringstream sqlCondition; // ç»Ÿä¸€å˜é‡å
     bool firstCond = true;
 
-    // ¾ÍÕïID É¸Ñ¡ (ºËĞÄ)
+    // å°±è¯ŠID ç­›é€‰ (æ ¸å¿ƒ)
     if (query->encounter_id && !query->encounter_id->empty())
     {
         if (!firstCond) sqlCondition << " AND ";
@@ -16,7 +16,7 @@ inline std::string GetTotalFeesDAO::queryConditionBuilder(const GetTotalFeesQuer
         SQLPARAMS_PUSH(params, "s", std::string, *query->encounter_id);
         firstCond = false;
     }
-    // ×¡ÔººÅÉ¸Ñ¡
+    // ä½é™¢å·ç­›é€‰
     if (query->inpatient_no && !query->inpatient_no->empty())
     {
         if (!firstCond) sqlCondition << " AND ";
@@ -25,7 +25,7 @@ inline std::string GetTotalFeesDAO::queryConditionBuilder(const GetTotalFeesQuer
         firstCond = false;
     }
 
-    // Èç¹û´æÔÚÌõ¼ş£¬Æ´½Ó WHERE
+    // å¦‚æœå­˜åœ¨æ¡ä»¶ï¼Œæ‹¼æ¥ WHERE
     if (!sqlCondition.str().empty())
     {
         return " WHERE " + sqlCondition.str();
@@ -33,7 +33,7 @@ inline std::string GetTotalFeesDAO::queryConditionBuilder(const GetTotalFeesQuer
     return "";
 }
 
-// Í³¼Æ×ÜÊı (Í¨³£·ÑÓÃºÏ¼ÆÖ»ÓĞÒ»Ìõ£¬ÕâÀï·µ»Ø 1 »ò 0)
+// ç»Ÿè®¡æ€»æ•° (é€šå¸¸è´¹ç”¨åˆè®¡åªæœ‰ä¸€æ¡ï¼Œè¿™é‡Œè¿”å› 1 æˆ– 0)
 uint64_t GetTotalFeesDAO::count(const GetTotalFeesQuery::Wrapper& query)
 {
     SqlParams params;
@@ -45,25 +45,37 @@ uint64_t GetTotalFeesDAO::count(const GetTotalFeesQuery::Wrapper& query)
     return sqlSession->executeQueryNumerical(sql.str(), params);
 }
 
-// ²éÑ¯»¼Õß·ÑÓÃºÏ¼Æ»ã×Ü
+// æŸ¥è¯¢æ‚£è€…è´¹ç”¨åˆè®¡æ±‡æ€»
 std::list<GetTotalFeesDO> GetTotalFeesDAO::selectWithPage(const GetTotalFeesQuery::Wrapper& query)
 {
     SqlParams params;
     std::ostringstream sql;
 
     sql << " SELECT enc.id AS encounter_id, "
-        << "(SELECT COALESCE(SUM(fee.amount),0) FROM fin_fee fee WHERE fee.encounter_id = enc.id AND fee.is_deleted=0) AS total_hospital_fee,"
-        << "(SELECT COALESCE(SUM(pre.amount),0) FROM fin_prepay pre WHERE pre.encounter_id = enc.id AND pre.is_deleted=0) AS prepay_total_fee,"
-        << "(SELECT COALESCE(SUM(st.amount),0) FROM fin_settle st WHERE st.encounter_id = enc.id AND st.is_deleted=0) AS final_balance_fee,"
-        << "(SELECT COALESCE(SUM(pre.amount),0) - COALESCE(SUM(st.amount),0) "
-        << "FROM fin_prepay pre LEFT JOIN fin_settle st ON pre.encounter_id=st.encounter_id "
-        << "WHERE pre.encounter_id = enc.id AND pre.is_deleted=0) AS account_balance "
+        // ä½é™¢æ€»è´¹ç”¨ï¼šä¸è´¹ç”¨æ˜ç»†åŒå£å¾„ï¼Œå– adm_charge_item å·²ç»“+æœªç»“ä¹‹å’Œ
+        << "(SELECT COALESCE(SUM(ci.total_price),0) FROM adm_charge_item ci "
+        << "WHERE ci.encounter_id=enc.id AND ci.is_deleted=0 "
+        << "AND ci.status_enum IN ('DRAFT','UNSETTLED','SETTLED')) AS total_hospital_fee,"
+        // åŒ»ä¿æ”¯ä»˜é‡‘é¢ï¼šåŒ»ä¿æ•°æ®æœªæ¥å…¥ï¼Œæš‚ç½® 0
+        << "0 AS insurance_pay_fee,"
+        // ä¸ªäººè‡ªä»˜é‡‘é¢ï¼šæ— åŒ»ä¿åœºæ™¯ä¸‹ç­‰äºæ€»è´¹ç”¨
+        << "(SELECT COALESCE(SUM(ci.total_price),0) FROM adm_charge_item ci "
+        << "WHERE ci.encounter_id=enc.id AND ci.is_deleted=0 "
+        << "AND ci.status_enum IN ('DRAFT','UNSETTLED','SETTLED')) AS personal_pay_fee,"
+        // é¢„äº¤æŠ¼é‡‘æ€»é¢ï¼šä½é™¢é¢„äº¤é‡‘æˆåŠŸæ”¯ä»˜æµæ°´ä¹‹å’Œ
+        << "(SELECT COALESCE(SUM(fpr.tendered_amount),0) FROM fin_payment_reconciliation fpr "
+        << "WHERE fpr.encounter_id=enc.id AND fpr.is_deleted=0 "
+        << "AND fpr.kind_enum='HOSPITAL_DEPOSIT' AND fpr.status_enum='SUCCESS') AS prepay_total_fee,"
+        // åº”è¡¥/åº”é€€é‡‘é¢ï¼šæœªç»“ç®—è´¹ç”¨ä¹‹å’Œ
+        << "(SELECT COALESCE(SUM(ci.total_price),0) FROM adm_charge_item ci "
+        << "WHERE ci.encounter_id=enc.id AND ci.is_deleted=0 "
+        << "AND ci.status_enum IN ('DRAFT','UNSETTLED')) AS final_balance_fee,"
+        // è´¦æˆ·ä½™é¢ï¼šå½“å‰é¢„äº¤é‡‘è´¦æˆ·å¯ç”¨ä½™é¢
+        << "(SELECT COALESCE(acc.balance,0) FROM adm_account acc "
+        << "WHERE acc.encounter_id=enc.id AND acc.is_deleted=0 AND acc.default_flag=1 LIMIT 1) AS account_balance "
         << " FROM adm_encounter enc ";
-    // Æ´½ÓWHEREÌõ¼ş
+    // æ‹¼æ¥WHEREæ¡ä»¶
     sql << this->queryConditionBuilder(query, params);
-
-    // SQLµ÷ÊÔÈÕÖ¾£¨Î»ÖÃÕıÈ·£¬²»ÔÚSQL×Ö·û´®ÄÚ£©
-    OATPP_LOGD("SQL_DEBUG", "¡¾ÍêÕûÖ´ĞĞSQL¡¿:\n%s", sql.str().c_str());
 
     return sqlSession->executeQuery<GetTotalFeesDO>(sql.str(), GetTotalFeesMapper(), params);
 }

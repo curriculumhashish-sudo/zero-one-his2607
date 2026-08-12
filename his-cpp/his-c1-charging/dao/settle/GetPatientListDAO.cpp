@@ -6,13 +6,16 @@
 inline std::string GetPatientListDAO::queryConditionBuilder(const GetPatientListQuery::Wrapper & query, SqlParams & params)
 {
     std::ostringstream sqlCondition;
-    sqlCondition << " WHERE 1=1 ";
+    // 只查住院就诊，且排除软删记录
+    sqlCondition << " WHERE 1=1 "
+        << " AND enc.is_deleted=0 "
+        << " AND enc.class_enum='IMP' ";
 
     // 就诊ID
-    if (query->encounter_id)
+    if (query->encounter_id && !query->encounter_id->empty())
     {
         sqlCondition << " AND enc.id = ? ";
-        SQLPARAMS_PUSH(params, "ll", uint64_t, query->encounter_id);
+        SQLPARAMS_PUSH(params, "s", std::string, *query->encounter_id);
     }
     // 住院号 精确匹配 (对应 enc.bus_no)
     if (query->inpatient_no && !query->inpatient_no->empty())
@@ -102,6 +105,8 @@ std::list<GetPatientListDO> GetPatientListDAO::selectWithPage(const GetPatientLi
 
     sql << "SELECT DISTINCT " // DISTINCT 消除重复就诊记录
         << " enc.id AS id, "
+        << " pat.id AS patient_id, "
+        << " (SELECT acc.id FROM adm_account acc WHERE acc.encounter_id=enc.id AND acc.is_deleted=0 AND acc.default_flag=1 LIMIT 1) AS account_id, "
         << " enc.bus_no AS bus_no, "
         << " pat.name AS name, "
         << " pat.gender_enum AS gender_enum, "

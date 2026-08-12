@@ -25,7 +25,7 @@ public:
 		API_DEF_ADD_RSP_JSON_WRAPPER(GetPatientListPageJsonVO);
 		API_DEF_ADD_TAG(API_TAG);
 		API_DEF_ADD_PAGE_PARAMS();
-		API_DEF_ADD_QUERY_PARAMS(UInt64, "encounter_id", ZH_WORDS_GETTER("qi.charging.settle.encounter_id"), 1, false);
+		API_DEF_ADD_QUERY_PARAMS(String, "encounter_id", ZH_WORDS_GETTER("qi.charging.settle.encounter_id"), "", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "inpatient_no", ZH_WORDS_GETTER("qi.charging.settle.inpatient_no"), "", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "patient_name", ZH_WORDS_GETTER("qi.charging.settle.patient_name"), "", false);
 		API_DEF_ADD_QUERY_PARAMS(UInt8, "gender", ZH_WORDS_GETTER("qi.charging.settle.gender"), 1, false);
@@ -33,7 +33,7 @@ public:
 		API_DEF_ADD_QUERY_PARAMS(String, "dept_name", ZH_WORDS_GETTER("qi.charging.settle.dept_name"), "", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "ward_name", ZH_WORDS_GETTER("qi.charging.settle.ward_name"), "", false);
 		API_DEF_ADD_QUERY_PARAMS(String, "bed_no", ZH_WORDS_GETTER("qi.charging.settle.bed_no"), "", false);
-		API_DEF_ADD_QUERY_PARAMS(UInt64, "admit_date", ZH_WORDS_GETTER("qi.charging.settle.admit_date"), 1, false);
+		API_DEF_ADD_QUERY_PARAMS(String, "admit_date", ZH_WORDS_GETTER("qi.charging.settle.admit_date"), "", false);
 		API_DEF_ADD_QUERY_PARAMS(UInt8, "insurance_type", ZH_WORDS_GETTER("qi.charging.settle.insurance_type"), 1, false);
 		API_DEF_ADD_QUERY_PARAMS(String, "doctor_name", ZH_WORDS_GETTER("qi.charging.settle.doctor_name"), "", false);
 

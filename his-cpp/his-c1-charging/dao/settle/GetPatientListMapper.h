@@ -2,7 +2,7 @@
 #include "Mapper.h"
 #include "../../domain/do/settle/GetPatientListDO.h"
 
-// ÖµÓïÒåMapper£¬ÓÃÓÚÁĞ±í²éÑ¯£¨·µ»Ø std::list<GetPatientListDO>£©
+// å€¼è¯­ä¹‰Mapperï¼Œç”¨äºåˆ—è¡¨æŸ¥è¯¢ï¼ˆè¿”å› std::list<GetPatientListDO>ï¼‰
 class GetPatientListMapper : public Mapper<GetPatientListDO>
 {
 public:
@@ -10,44 +10,50 @@ public:
     {
         GetPatientListDO data;
 
-        // 1. Ó³Éä ID (SQL Alias: id)
+        // 1. æ˜ å°„ ID (SQL Alias: id)
         data.setId(resultSet->getString("id"));
 
-        // 2. Ó³Éä×¡ÔººÅ (SQL Alias: bus_no) -> DO Setter: setBus_no
+        // 2. æ˜ å°„æ‚£è€…ä¸»é”® (SQL Alias: patient_id) -> DO Setter: setPatient_id
+        data.setPatient_id(resultSet->getString("patient_id"));
+
+        // 3. æ˜ å°„è´¦æˆ·ä¸»é”® (SQL Alias: account_id) -> DO Setter: setAccount_id
+        data.setAccount_id(resultSet->getString("account_id"));
+
+        // 4. æ˜ å°„ä½é™¢å· (SQL Alias: bus_no) -> DO Setter: setBus_no
         data.setBus_no(resultSet->getString("bus_no"));
 
-        // 3. Ó³ÉäĞÕÃû (SQL Alias: name) -> DO Setter: setName
+        // 3. æ˜ å°„å§“å (SQL Alias: name) -> DO Setter: setName
         data.setName(resultSet->getString("name"));
 
-        // 4. Ó³ÉäĞÔ±ğ (SQL Alias: gender_enum) -> DO Setter: setGender_enum
+        // 4. æ˜ å°„æ€§åˆ« (SQL Alias: gender_enum) -> DO Setter: setGender_enum
         data.setGender_enum(resultSet->getInt("gender_enum"));
 
-        // 5. Ó³ÉäÄêÁä (SQL Alias: age) -> DO Setter: setAge
+        // 5. æ˜ å°„å¹´é¾„ (SQL Alias: age) -> DO Setter: setAge
         data.setAge(resultSet->getInt("age"));
 
-        // 6. Ó³Éä¿ÆÊÒ (SQL Alias: org_name) -> DO Setter: setOrg_name
+        // 6. æ˜ å°„ç§‘å®¤ (SQL Alias: org_name) -> DO Setter: setOrg_name
         data.setOrg_name(resultSet->getString("org_name"));
 
-        // 7. Ó³Éä²¡Çø (SQL Alias: ward_name) -> DO Setter: setWard_name
+        // 7. æ˜ å°„ç—…åŒº (SQL Alias: ward_name) -> DO Setter: setWard_name
         data.setWard_name(resultSet->getString("ward_name"));
 
-        // 8. Ó³Éä´²Î» (SQL Alias: bed_no) -> DO Setter: setBed_no
+        // 8. æ˜ å°„åºŠä½ (SQL Alias: bed_no) -> DO Setter: setBed_no
         data.setBed_no(resultSet->getString("bed_no"));
 
-        // 9. Ó³ÉäÈëÔºÈÕÆÚ (SQL Alias: admit_date) -> DO Setter: setAdmit_date
+        // 9. æ˜ å°„å…¥é™¢æ—¥æœŸ (SQL Alias: admit_date) -> DO Setter: setAdmit_date
         data.setAdmit_date(resultSet->getString("admit_date"));
 
-        // 10. Ó³ÉäÒ½±£ÀàĞÍ (SQL Alias: insurance_type) -> DO Setter: setInsurance_type
+        // 10. æ˜ å°„åŒ»ä¿ç±»å‹ (SQL Alias: insurance_type) -> DO Setter: setInsurance_type
         data.setInsurance_type(resultSet->getInt("insurance_type"));
 
-        // 11. Ó³ÉäÒ½Éú (SQL Alias: doctor_name) -> DO Setter: setDoctor_name
+        // 11. æ˜ å°„åŒ»ç”Ÿ (SQL Alias: doctor_name) -> DO Setter: setDoctor_name
         data.setDoctor_name(resultSet->getString("doctor_name"));
 
         return data;
     }
 };
 
-// Ö¸ÕëÓïÒåMapper - ÓÃÓÚĞèÒª shared_ptr µÄ³¡¾°
+// æŒ‡é’ˆè¯­ä¹‰Mapper - ç”¨äºéœ€è¦ shared_ptr çš„åœºæ™¯
 class PtrGetPatientListMapper : public Mapper<PtrGetPatientListDO>
 {
 public:
@@ -56,6 +62,8 @@ public:
         auto data = std::make_shared<GetPatientListDO>();
 
         data->setId(resultSet->getString("id"));
+        data->setPatient_id(resultSet->getString("patient_id"));
+        data->setAccount_id(resultSet->getString("account_id"));
         data->setBus_no(resultSet->getString("bus_no"));
         data->setName(resultSet->getString("name"));
         data->setGender_enum(resultSet->getInt("gender_enum"));

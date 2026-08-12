@@ -7,6 +7,10 @@ class GetPatientListDO : public BaseDO
 {
     // 就诊ID
     MYSQL_SYNTHESIZE(string, id, Id);
+    // 患者主键 (对应 pat.id)
+    MYSQL_SYNTHESIZE(string, patient_id, Patient_id);
+    // 账户主键 (对应 adm_account.id)
+    MYSQL_SYNTHESIZE(string, account_id, Account_id);
     // 住院号 (对应 enc.bus_no)
     MYSQL_SYNTHESIZE(string, bus_no, Bus_no);
     // 患者姓名 (对应 pat.name)
@@ -35,6 +39,8 @@ public:
     GetPatientListDO() : BaseDO("")
     {
         MYSQL_ADD_FIELD_PK("id", "s", id);
+        MYSQL_ADD_FIELD("patient_id", "s", patient_id);
+        MYSQL_ADD_FIELD("account_id", "s", account_id);
         MYSQL_ADD_FIELD("bus_no", "s", bus_no);
         MYSQL_ADD_FIELD("name", "s", name);
         MYSQL_ADD_FIELD("gender_enum", "i", gender_enum);
