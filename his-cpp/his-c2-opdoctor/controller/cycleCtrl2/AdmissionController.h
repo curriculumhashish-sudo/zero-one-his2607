@@ -15,7 +15,7 @@ class Admission2Controller : public oatpp::web::server::api::ApiController
     API_ACCESS_DECLARE(Admission2Controller);
 public:
     API_DEF_ENDPOINT_INFO_AUTH(ZH_WORDS_GETTER("cyclectrl2.admission.apply"), apply2Admission, Admission2ResultJsonVO::Wrapper, API_TAG2);
-    API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/cyclectrl/admission_apply", apply2Admission,
+    API_HANDLER_ENDPOINT_AUTH(API_M_POST, "/c2-opdoctor/admission_apply", apply2Admission,
         BODY_DTO(RequestInpatientAdmissionDTO::Wrapper, dto),
         execApplyAdmission(dto, authObject->getPayload()));
 private:

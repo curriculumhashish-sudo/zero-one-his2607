@@ -29,15 +29,14 @@
 
 class PrescriptionController2 : public oatpp::web::server::api::ApiController
 {
-	//添加访问定义
 	API_ACCESS_DECLARE(PrescriptionController2);
-public://定义接口
-	// 3.1.1 定义处方单单接口描述
+public://锟斤拷锟斤拷涌锟?
+	// 3.1.1 锟斤拷锟藉处锟斤拷锟斤拷锟斤拷锟接匡拷锟斤拷锟斤拷
 	API_DEF_ENDPOINT_INFO_QUERY_AUTH(ZH_WORDS_GETTER("cyclectrl2.prescription.query"), query2Prescription, Prescription2Query, Prescription2DetailJsonVO::Wrapper, API_TAG1);
-	// 3.1.2 定义处方单接口处理
-	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/cyclectrl/prescription_query", query2Prescription, Prescription2Query, executeQueryPrescription(query));
-private://定义接口执行函数
-	//3.3定义处方单接口执行函数
+	// 3.1.2 锟斤拷锟藉处锟斤拷锟斤拷锟接口达拷锟斤拷
+	API_HANDLER_ENDPOINT_QUERY_AUTH(API_M_GET, "/c2-opdoctor/prescription_query", query2Prescription, Prescription2Query, executeQueryPrescription(query));
+private://锟斤拷锟斤拷涌锟街达拷泻锟斤拷锟?
+	//3.3锟斤拷锟藉处锟斤拷锟斤拷锟接匡拷执锟叫猴拷锟斤拷
 	Prescription2DetailJsonVO::Wrapper executeQueryPrescription(const Prescription2Query::Wrapper& query);
 };
 #undef API_TAG1

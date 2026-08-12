@@ -33,7 +33,7 @@ oatpp::Object<Admission2ResultDTO> AdmissionService::applyAdmission(const Reques
     std::string encId = ss->executeQueryOne<ScalarStr>(
         "SELECT id FROM adm_encounter "
         "WHERE id = ? AND patient_id = ? AND class_enum = 'AMB' "
-        "AND status_enum = 'arrived' AND is_deleted = 0 LIMIT 1",
+        "AND status_enum IN ('arrived','in-progress') AND is_deleted = 0 LIMIT 1",
         ScalarStrMapper(), "%s%s", encounterId, patientId).val;
 
     if (encId.empty())
@@ -90,29 +90,32 @@ oatpp::Object<Admission2ResultDTO> AdmissionService::applyAdmission(const Reques
         return result;
     }
 
-    auto& diagnoses = *dto->admissionDiagnoses;
-    for (auto& diag : diagnoses)
+    if (dto->admissionDiagnoses && !dto->admissionDiagnoses->empty())
     {
-        std::string diagName = diag->name.getValue("");
-        std::string diagCode = diag->code.getValue("");
-        std::string diagDesc = diag->description.getValue("");
-        std::string catalogId = diag->catalogId.getValue("");
-        bool primary = diag->primary.getValue(false);
+        auto& diagnoses = *dto->admissionDiagnoses;
+        for (auto& diag : diagnoses)
+        {
+            std::string diagName = diag->name.getValue("");
+            std::string diagCode = diag->code.getValue("");
+            std::string diagDesc = diag->description.getValue("");
+            std::string catalogId = diag->catalogId.getValue("");
+            bool primary = diag->primary.getValue(false);
 
-        if (diagName.empty()) continue;
+            if (diagName.empty()) continue;
 
-        if (diagDesc.empty()) diagDesc = diagName;
+            if (diagDesc.empty()) diagDesc = diagName;
 
-        std::string diagId = uf.genUuid();
-        std::string sql =
-            "INSERT INTO adm_encounter_diagnosis "
-            "(id, tenant_id, created_at, updated_at, created_by, updated_by, is_deleted, version, "
-            "encounter_id, condition_id, primary_flag, `rank`, description, "
-            "diag_type_code, condition_code, tcm_syndrome_group, tcm_flag) "
-            "VALUES (?, '1', ?, ?, ?, 1, 0, 0, ?, ?, ?, 1, ?, 'WESTERN', ?, '', 0)";
-        ss->executeUpdate(sql, "%s%s%s%s%s%s%s%i%s",
-            diagId, now, now, operatorId, newId, catalogId,
-            primary ? 1 : 0, diagDesc, diagCode);
+            std::string diagId = uf.genUuid();
+            std::string sql =
+                "INSERT INTO adm_encounter_diagnosis "
+                "(id, tenant_id, created_at, updated_at, created_by, updated_by, is_deleted, version, "
+                "encounter_id, condition_id, primary_flag, `rank`, description, "
+                "diag_type_code, condition_code, tcm_syndrome_group, tcm_flag) "
+                "VALUES (?, '1', ?, ?, ?, 1, 0, 0, ?, ?, ?, 1, ?, 'WESTERN', ?, '', 0)";
+            ss->executeUpdate(sql, "%s%s%s%s%s%s%s%i%s",
+                diagId, now, now, operatorId, newId, catalogId,
+                primary ? 1 : 0, diagDesc, diagCode);
+        }
     }
 
     std::string busNo = ss->executeQueryOne<ScalarStr>(

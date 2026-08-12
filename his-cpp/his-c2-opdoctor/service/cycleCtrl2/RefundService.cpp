@@ -95,7 +95,7 @@ oatpp::List<oatpp::Object<Refund2DetailDTO>> RefundService::queryRefundList(cons
 
         encounterId = ss->executeQueryOne<ScalarStr>(
             "SELECT id FROM adm_encounter "
-            "WHERE patient_id = ? AND is_deleted = 0 "
+            "WHERE patient_id = ? AND class_enum = 'AMB' AND is_deleted = 0 "
             "ORDER BY start_time DESC LIMIT 1",
             ScalarStrMapper(), "%s", pid).val;
         if (encounterId.empty()) return resultList;
@@ -122,8 +122,12 @@ oatpp::List<oatpp::Object<Refund2DetailDTO>> RefundService::queryRefundList(cons
         auto dto = Refund2DetailDTO::createShared();
         dto->patientName = patientName;
         dto->paymentNo = item.getId();
-        dto->itemName = item.getDefinition_id();
-        dto->itemCode = item.getDefinition_id();
+        std::string defId = item.getDefinition_id();
+        dto->itemCode = defId;
+        std::string itemName = ss->executeQueryOne<ScalarStr>(
+            "SELECT name FROM def_detail WHERE id = ?",
+            ScalarStrMapper(), "%s", defId).val;
+        dto->itemName = itemName.empty() ? defId : itemName;
         dto->itemType = item.getService_table();
         dto->quantity = item.getQuantity_value();
         dto->quantityUnit = item.getQuantity_unit();
