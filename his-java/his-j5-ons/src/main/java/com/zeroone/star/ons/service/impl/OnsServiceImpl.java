@@ -458,6 +458,7 @@ public class OnsServiceImpl implements IOnsService {
         vo.setUnitCode(item.getUnitCode());
         vo.setLotNumber(item.getLotNumber());
         vo.setDeviceDefId(item.getDeviceDefId());
+        vo.setDeviceName(item.getDeviceName());
         vo.setPatientId(item.getPatientId());
         vo.setEncounterId(item.getEncounterId());
         vo.setPerformerId(item.getPerformerId());

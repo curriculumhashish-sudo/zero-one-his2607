@@ -49,6 +49,9 @@ public class PatientConsumableItemVO {
     @Schema(description = "设备定义ID")
     private String deviceDefId;
 
+    @Schema(description = "设备名称")
+    private String deviceName;
+
     @Schema(description = "患者ID")
     private String patientId;
 

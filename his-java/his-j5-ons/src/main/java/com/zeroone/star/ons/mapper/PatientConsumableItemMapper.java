@@ -19,31 +19,35 @@ import java.util.List;
 public interface PatientConsumableItemMapper extends BaseMapper<PatientConsumableItemDO> {
 
     /**
-     * 根据患者ID查询耗材项目列表（指定字段，避免select *）
+     * 根据患者ID查询耗材项目列表（指定字段，避免select *，LEFT JOIN设备定义表获取设备名称）
      */
-    @Select("SELECT id, bus_no, device_req_id, status_enum, based_on_table, based_on_id, " +
-            "not_performed_reason_enum, dispense_category_enum, quantity, unit_code, " +
-            "lot_number, device_def_id, patient_id, encounter_id, performer_id, " +
-            "location_id, part_type_code, dispense_quantity, preparer_id, prepare_time, " +
-            "dispense_time, limit_time, planned_dispense_time, des_location_id, " +
-            "rec_practitioner_id, support_info, usage_instruction, dispense_frequency_code, " +
-            "trace_no, procedure_id " +
-            "FROM wkf_device_dispense WHERE patient_id = #{patientId} AND is_deleted = 0 " +
-            "ORDER BY created_at DESC")
+    @Select("SELECT d.id, d.bus_no, d.device_req_id, d.status_enum, d.based_on_table, d.based_on_id, " +
+            "d.not_performed_reason_enum, d.dispense_category_enum, d.quantity, d.unit_code, " +
+            "d.lot_number, d.device_def_id, dev.name as device_name, d.patient_id, d.encounter_id, d.performer_id, " +
+            "d.location_id, d.part_type_code, d.dispense_quantity, d.preparer_id, d.prepare_time, " +
+            "d.dispense_time, d.limit_time, d.planned_dispense_time, d.des_location_id, " +
+            "d.rec_practitioner_id, d.support_info, d.usage_instruction, d.dispense_frequency_code, " +
+            "d.trace_no, d.procedure_id " +
+            "FROM wkf_device_dispense d " +
+            "LEFT JOIN adm_device_definition dev ON d.device_def_id = dev.id AND dev.is_deleted = 0 " +
+            "WHERE d.patient_id = #{patientId} AND d.is_deleted = 0 " +
+            "ORDER BY d.created_at DESC")
     List<PatientConsumableItemDO> selectByPatientId(@Param("patientId") String patientId);
 
     /**
-     * 根据患者ID和就诊ID查询耗材项目列表（指定字段，避免select *）
+     * 根据患者ID和就诊ID查询耗材项目列表（指定字段，避免select *，LEFT JOIN设备定义表获取设备名称）
      */
-    @Select("SELECT id, bus_no, device_req_id, status_enum, based_on_table, based_on_id, " +
-            "not_performed_reason_enum, dispense_category_enum, quantity, unit_code, " +
-            "lot_number, device_def_id, patient_id, encounter_id, performer_id, " +
-            "location_id, part_type_code, dispense_quantity, preparer_id, prepare_time, " +
-            "dispense_time, limit_time, planned_dispense_time, des_location_id, " +
-            "rec_practitioner_id, support_info, usage_instruction, dispense_frequency_code, " +
-            "trace_no, procedure_id " +
-            "FROM wkf_device_dispense WHERE patient_id = #{patientId} AND encounter_id = #{encounterId} AND is_deleted = 0 " +
-            "ORDER BY created_at DESC")
+    @Select("SELECT d.id, d.bus_no, d.device_req_id, d.status_enum, d.based_on_table, d.based_on_id, " +
+            "d.not_performed_reason_enum, d.dispense_category_enum, d.quantity, d.unit_code, " +
+            "d.lot_number, d.device_def_id, dev.name as device_name, d.patient_id, d.encounter_id, d.performer_id, " +
+            "d.location_id, d.part_type_code, d.dispense_quantity, d.preparer_id, d.prepare_time, " +
+            "d.dispense_time, d.limit_time, d.planned_dispense_time, d.des_location_id, " +
+            "d.rec_practitioner_id, d.support_info, d.usage_instruction, d.dispense_frequency_code, " +
+            "d.trace_no, d.procedure_id " +
+            "FROM wkf_device_dispense d " +
+            "LEFT JOIN adm_device_definition dev ON d.device_def_id = dev.id AND dev.is_deleted = 0 " +
+            "WHERE d.patient_id = #{patientId} AND d.encounter_id = #{encounterId} AND d.is_deleted = 0 " +
+            "ORDER BY d.created_at DESC")
     List<PatientConsumableItemDO> selectByPatientIdAndEncounterId(
             @Param("patientId") String patientId,
             @Param("encounterId") String encounterId);

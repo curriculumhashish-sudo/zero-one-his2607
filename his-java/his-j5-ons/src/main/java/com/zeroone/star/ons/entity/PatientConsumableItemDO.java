@@ -76,6 +76,11 @@ public class PatientConsumableItemDO extends BaseEntity {
     private String deviceDefId;
 
     /**
+     * 设备名称（来自adm_device_definition表）
+     */
+    private String deviceName;
+
+    /**
      * 患者ID
      */
     private String patientId;
