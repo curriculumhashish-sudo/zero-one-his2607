@@ -38,29 +38,52 @@ inline std::string RefundGetPatientDAO::queryConditionBuilder(const RefundGetPat
         }
     }
 
-    // Queue tab filter: PENDING = has refundable items, SETTLED = all items refunded
-    if (query->queueTabCode) {
-        std::string tabCode = query->queueTabCode.getValue("");
-        if (tabCode == "PENDING") {
-            // Encounters that have at least one charge item not yet refunded
-            sqlCondition << " AND EXISTS ("
-                "SELECT 1 FROM adm_charge_item ci_filter"
-                " WHERE ci_filter.encounter_id = e.id"
-                " AND ci_filter.status_enum != 'REFUNDED'"
-                ")";
-        }
-        else if (tabCode == "SETTLED") {
-            // Encounters that have charge items AND all are refunded
-            sqlCondition << " AND EXISTS ("
-                "SELECT 1 FROM adm_charge_item ci_filter"
-                " WHERE ci_filter.encounter_id = e.id"
-                ") AND NOT EXISTS ("
-                "SELECT 1 FROM adm_charge_item ci_filter2"
-                " WHERE ci_filter2.encounter_id = e.id"
-                " AND ci_filter2.status_enum != 'REFUNDED'"
-                ")";
-        }
-        // "ALL" or empty: no queue filter
+    // Payment validity filter: exclude DRAFT/UNPAID and fully-refunded payments.
+    // Only encounters with at least one successful payment that still has refundable
+    // balance may appear in the refund queue.
+    std::string tabCode = query->queueTabCode ? query->queueTabCode.getValue("") : "";
+    if (tabCode == "PENDING") {
+        // PENDING: encounters with at least one refundable charge item linked
+        // to a valid payment that still has remaining balance.
+        sqlCondition << " AND EXISTS ("
+            "SELECT 1 FROM adm_charge_item ci_filter"
+            " JOIN fin_payment_reconciliation fpr_filter"
+            "  ON fpr_filter.encounter_id = e.id"
+            "  AND fpr_filter.is_deleted = 0"
+            "  AND fpr_filter.status_enum IN ('SUCCESS', 'PARTIAL_REFUNDED')"
+            "  AND fpr_filter.tendered_amount > COALESCE(fpr_filter.returned_amount, 0)"
+            "  AND FIND_IN_SET(ci_filter.id, fpr_filter.charge_item_ids) > 0"
+            " WHERE ci_filter.encounter_id = e.id"
+            " AND ci_filter.is_deleted = 0"
+            " AND ci_filter.status_enum != 'REFUNDED'"
+            ")";
+    }
+    else if (tabCode == "SETTLED") {
+        // SETTLED: encounters whose charge items are all refunded.
+        // Also require at least one payment record to exist.
+        sqlCondition << " AND EXISTS ("
+            "SELECT 1 FROM fin_payment_reconciliation fpr_base"
+            " WHERE fpr_base.encounter_id = e.id"
+            " AND fpr_base.is_deleted = 0"
+            ") AND EXISTS ("
+            "SELECT 1 FROM adm_charge_item ci_filter"
+            " WHERE ci_filter.encounter_id = e.id"
+            ") AND NOT EXISTS ("
+            "SELECT 1 FROM adm_charge_item ci_filter2"
+            " WHERE ci_filter2.encounter_id = e.id"
+            " AND ci_filter2.status_enum != 'REFUNDED'"
+            ")";
+    }
+    else {
+        // ALL (default): encounters with at least one valid payment that has remaining
+        // refundable balance (SUCCESS or PARTIAL_REFUNDED, not fully refunded).
+        sqlCondition << " AND EXISTS ("
+            "SELECT 1 FROM fin_payment_reconciliation fpr_base"
+            " WHERE fpr_base.encounter_id = e.id"
+            " AND fpr_base.is_deleted = 0"
+            " AND fpr_base.status_enum IN ('SUCCESS', 'PARTIAL_REFUNDED')"
+            " AND fpr_base.tendered_amount > COALESCE(fpr_base.returned_amount, 0)"
+            ")";
     }
 
     // Date range filter on encounter start_time
@@ -123,8 +146,10 @@ std::list<RefundGetPatientDO> RefundGetPatientDAO::selectWithPage(const RefundGe
         << " MAX(o.name) AS organization_name,"
         << " MAX(doc.name) AS doctor_name,"
         << " DATE_FORMAT(e.start_time, '%Y-%m-%d %H:%i:%s') AS start_time,"
-        << " COALESCE(SUM(ci.total_price), 0) AS total_amount,"
-        << " COALESCE(SUM(fpr.tendered_amount), 0) AS paid_amount"
+        << " COALESCE((SELECT SUM(ci2.total_price) FROM adm_charge_item ci2"
+            << " WHERE ci2.encounter_id = e.id AND ci2.is_deleted = 0), 0) AS total_amount,"
+        << " COALESCE((SELECT SUM(fpr2.tendered_amount) FROM fin_payment_reconciliation fpr2"
+            << " WHERE fpr2.encounter_id = e.id AND fpr2.is_deleted = 0), 0) AS paid_amount"
 
         << " FROM adm_encounter e"
         << " LEFT JOIN adm_patient p ON e.patient_id = p.id"
