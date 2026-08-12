@@ -99,9 +99,9 @@
                 <version>0.40.2</version>
                 <configuration>
                     <!-- Docker 远程管理地址-->
-                    <dockerHost>https://192.168.220.128:2375</dockerHost>
+                    <dockerHost>https://8.149.141.110:2375</dockerHost>
                     <!-- CA 证书位置 -->
-                    <certPath>/home/docker-ca</certPath>
+                    <certPath>C:/Users/ASUS/.ssh/fz</certPath>
                     <!-- 镜像设置 -->
                     <images>
                         <image>
@@ -134,7 +134,7 @@
                                     <JAVA_OPTS>-Xms256m -Xmx256m</JAVA_OPTS>
                                     <!-- 启动替换参数 -->
                                     <SPRING_ARGS>
-                                        --spring.profiles.active=test --spring.cloud.nacos.discovery.ip=192.168.220.128
+                                        --spring.profiles.active=test --spring.cloud.nacos.discovery.ip=8.149.141.110
                                     </SPRING_ARGS>
                                 </env>
                             </run>
