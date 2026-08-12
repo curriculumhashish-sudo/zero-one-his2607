@@ -50,8 +50,7 @@
             ON s.schedule_id = sch.id AND sch.is_deleted = 0
         LEFT JOIN wkf_schedule_actor sa
             ON sch.id = sa.schedule_id
-            AND sa.actor_type = 10
-            AND sa.sort_no = 1
+            AND sa.actor_type = 1
             AND sa.is_deleted = 0
         LEFT JOIN adm_organization ao
             ON s.organization_id = ao.id AND ao.is_deleted = 0
@@ -103,8 +102,7 @@
             ON s.schedule_id = sch.id AND sch.is_deleted = 0
         LEFT JOIN wkf_schedule_actor sa
             ON sch.id = sa.schedule_id
-            AND sa.actor_type = 10
-            AND sa.sort_no = 1
+            AND sa.actor_type = 1
             AND sa.is_deleted = 0
         LEFT JOIN adm_organization ao
             ON s.organization_id = ao.id AND ao.is_deleted = 0
@@ -123,7 +121,7 @@
         FROM wkf_schedule sch
         INNER JOIN wkf_schedule_actor sa
             ON sch.id = sa.schedule_id
-            AND sa.actor_type = 10
+            AND sa.actor_type = 1
             AND sa.is_deleted = 0
         INNER JOIN adm_practitioner ap
             ON sa.actor_id = ap.id
