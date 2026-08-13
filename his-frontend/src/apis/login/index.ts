@@ -89,7 +89,15 @@ export const verifyCaptcha = (data: CaptchaVerifyData): Promise<void> => {
 }
 
 export const loginAccount = (data: LoginParams): Promise<Oauth2TokenDTO> => {
-  if (useMock) return mockLoginAccount(data) as Promise<Oauth2TokenDTO>
+  if (useMock) {
+    return mockLoginAccount(data).then((result) => ({
+      token: result.accessToken,
+      refreshToken: result.refreshToken,
+      tokenHead: result.tokenHead,
+      user: result.user,
+      configuration: result.configuration
+    }))
+  }
   return useJ1Adapter ? j1Login(data) : request(authHttp.post<Oauth2TokenDTO>('/login', data))
 }
 

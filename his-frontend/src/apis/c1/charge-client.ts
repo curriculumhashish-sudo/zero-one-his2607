@@ -1227,10 +1227,16 @@ export async function c1PageInpatientRegistrationQueue(
   context: Context = {},
   _mockFilter: any = {}
 ) {
+  const requestQuery = {
+    ...query,
+    registrationListStatuses: Array.isArray(query.registrationListStatuses)
+      ? query.registrationListStatuses.join(',')
+      : query.registrationListStatuses
+  }
   const data = await unwrap(
     client.get(
       '/charging/enroll/query-all',
-      { ...query, pageIndex: query.pageIndex ?? 1, pageSize: query.pageSize ?? 20 },
+      { ...requestQuery, pageIndex: query.pageIndex ?? 1, pageSize: query.pageSize ?? 20 },
       cfg(context)
     )
   )

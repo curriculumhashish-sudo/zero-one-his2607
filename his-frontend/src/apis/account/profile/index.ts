@@ -64,7 +64,7 @@ function formatDateTime(raw: string | undefined): string {
       return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
     }
   } catch { /* ignore */ }
-  return raw.split('.')[0].replace('T', ' ')
+  return (raw.split('.')[0] ?? raw).replace('T', ' ')
 }
 
 /** 将后端 UserInfoDTO 转换为前端 ProfileInfo */
@@ -92,7 +92,9 @@ function getUserIdFromToken(): string {
     if (!token) return ''
     const parts = token.split('.')
     if (parts.length !== 3) return ''
-    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')))
+    const encodedPayload = parts[1]
+    if (!encodedPayload) return ''
+    const payload = JSON.parse(atob(encodedPayload.replace(/-/g, '+').replace(/_/g, '/')))
     return String(payload.id ?? payload.userId ?? payload.sub ?? '')
   } catch {
     return ''

@@ -19,6 +19,8 @@ export interface ScheduleSavePayload {
   doctorId: string
   roomId: string
   date: string
+  startTime: string
+  endTime: string
   capacity: number
   publish: boolean
 }

@@ -74,6 +74,7 @@ describe('第二轮 B 组 API 流程', () => {
     expect((await getReleasePolicy()).openDays).toBeGreaterThan(0)
     const created = await saveTimePeriod({
       organizationId: init.organizationId,
+      templateCode: 'TEST_PERIOD',
       templateName: '测试时段',
       slotTemplates: [{ startTime: '09:00', endTime: '10:00', capacity: 10 }],
       enabled: true
@@ -100,6 +101,7 @@ describe('第二轮 B 组 API 流程', () => {
     const init = await loadScheduleTemplateInit()
     const weekly = await saveWeeklyTemplate({
       organizationId: init.organizationId!,
+      templateCode: 'TEST_WEEKLY',
       templateName: '测试周模板',
       isDefault: false,
       fallbackBookable: true,

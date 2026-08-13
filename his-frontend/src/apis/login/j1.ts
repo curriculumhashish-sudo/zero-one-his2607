@@ -22,7 +22,9 @@ function parseRolesFromToken(): string[] {
   try {
     const token = localStorage.getItem('token')
     if (!token) return []
-    const payload = JSON.parse(atob(token.split('.')[1]))
+    const encodedPayload = token.split('.')[1]
+    if (!encodedPayload) return []
+    const payload = JSON.parse(atob(encodedPayload))
     const roles: string[] = payload.roles ?? []
     return roles.map((r) => r.replace(/^ROLE_/, '').toLowerCase())
   } catch {
@@ -38,10 +40,12 @@ export function getFirstOrganizationUnitFromToken(): string | null {
   try {
     const token = localStorage.getItem('token')
     if (!token) return null
-    const payload = JSON.parse(atob(token.split('.')[1]))
+    const encodedPayload = token.split('.')[1]
+    if (!encodedPayload) return null
+    const payload = JSON.parse(atob(encodedPayload))
     const units: Record<string, string> = payload.organizationUnits ?? {}
     const keys = Object.keys(units)
-    return keys.length > 0 ? keys[0] : null
+    return keys[0] ?? null
   } catch {
     return null
   }

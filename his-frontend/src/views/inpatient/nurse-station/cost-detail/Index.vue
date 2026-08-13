@@ -191,7 +191,7 @@ function handlePageChange(page: number) {
         <div class="filter-left">
           <el-radio-group
             :model-value="quickDay"
-            @change="(value) => changeQuickDay(value as QuickDay)"
+            @change="(value: string | number | boolean | undefined) => changeQuickDay(value as QuickDay)"
           >
             <el-radio-button value="today">今日</el-radio-button>
             <el-radio-button value="yesterday">昨日</el-radio-button>

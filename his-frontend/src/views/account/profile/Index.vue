@@ -27,7 +27,9 @@ function getLoginTimeFromToken(): string {
     if (!token) return ''
     const parts = token.split('.')
     if (parts.length !== 3) return ''
-    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')))
+    const encodedPayload = parts[1]
+    if (!encodedPayload) return ''
+    const payload = JSON.parse(atob(encodedPayload.replace(/-/g, '+').replace(/_/g, '/')))
     if (payload.iat) {
       const d = new Date(payload.iat * 1000)
       const pad = (n: number) => String(n).padStart(2, '0')

@@ -92,7 +92,7 @@ export interface CodeTypeSavePayload {
   name: string
   title: string
   description: string
-  codeSystemId?: number
+  codeSystemId?: string | number
 }
 
 /** 字典 / 枚举编码项保存参数 */

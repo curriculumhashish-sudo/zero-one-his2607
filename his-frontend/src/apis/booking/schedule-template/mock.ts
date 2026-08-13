@@ -585,6 +585,7 @@ export async function mockSaveReleasePolicy(
   if (payload.id) {
     const row = findOrThrow(policies, payload.id, '放号策略不存在')
     Object.assign(row, {
+      policyCode: payload.policyCode?.trim() || row.policyCode,
       policyName: payload.policyName.trim(),
       name: payload.policyName.trim(),
       advanceDays: payload.advanceDays,
@@ -599,7 +600,7 @@ export async function mockSaveReleasePolicy(
   }
   const row: ReleasePolicy = {
     id: `policy-${sequence++}`,
-    policyCode: `RP-${sequence}`,
+    policyCode: payload.policyCode?.trim() || `RP-${sequence}`,
     policyName: payload.policyName.trim(),
     name: payload.policyName.trim(),
     enabled: true,

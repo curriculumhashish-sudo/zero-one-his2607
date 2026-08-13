@@ -116,6 +116,7 @@ export interface ExportOutpatientFeeDetailResponse {
   fileName?: string
   contentType?: string
   body?: string
+  downloadUrl?: string
   rowCount?: number
   exportedRowCount?: number
   truncated?: boolean

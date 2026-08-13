@@ -145,8 +145,11 @@ function getLoginContext(): { tenantId: string; userId: string } {
       if (token) {
         const parts = token.split('.')
         if (parts.length === 3) {
-          const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')))
-          userId = String(payload.id ?? payload.userId ?? payload.sub ?? '')
+          const encodedPayload = parts[1]
+          if (encodedPayload) {
+            const payload = JSON.parse(atob(encodedPayload.replace(/-/g, '+').replace(/_/g, '/')))
+            userId = String(payload.id ?? payload.userId ?? payload.sub ?? '')
+          }
         }
       }
     } catch { /* ignore */ }

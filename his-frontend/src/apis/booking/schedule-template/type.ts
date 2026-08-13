@@ -112,6 +112,7 @@ export interface ReleasePolicy {
 }
 
 export interface ReleasePolicyQuery {
+  organizationId?: string
   keyword?: string
   pageIndex: number
   pageSize: number
@@ -119,6 +120,7 @@ export interface ReleasePolicyQuery {
 
 export interface SaveReleasePolicyRequest {
   id?: string
+  policyCode?: string
   policyName: string
   advanceDays: number
   slotMinutes: number

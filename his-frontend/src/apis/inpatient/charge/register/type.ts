@@ -8,6 +8,11 @@ export type RegistrationStatus =
   | 'PENDING'
   | 'PLANNED'
   | 'PRE_ADMISSION'
+  | 'REGISTERED'
+  | 'IN_PROGRESS'
+  | 'INHOSPITAL'
+  | 'WAITING'
+  | 'CANCELED'
   | 'WAIT_ADMISSION'
 
 export interface RegistrationOption {

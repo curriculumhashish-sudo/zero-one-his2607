@@ -540,7 +540,7 @@ function submitSingleFromTable(row: unknown) {
                           :value="point.dispenseId"
                           :model-value="isSlotSelected(group.encounterId, point.dispenseId)"
                           @change="
-                            (checked) =>
+                            (checked: string | number | boolean) =>
                               handleSlotChange(group.encounterId, point.dispenseId, checked)
                           "
                         >

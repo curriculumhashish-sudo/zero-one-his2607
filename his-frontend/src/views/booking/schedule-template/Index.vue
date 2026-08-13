@@ -93,6 +93,7 @@ const holidayCalendarDate = ref(new Date(2026, 9, 1))
 const periodDialog = ref(false)
 const periodId = ref<string>()
 const periodForm = reactive<TimePeriodForm>({
+  code: '',
   name: '',
   segments: [{ start: '08:00', end: '12:00', capacity: 40 }],
   status: 'enabled'
@@ -116,6 +117,7 @@ const dailyForm = reactive<DailyTemplateForm>({
 const weeklyDialog = ref(false)
 const weeklyId = ref<string>()
 const weeklyForm = reactive<WeeklyTemplateForm>({
+  code: '',
   name: '',
   isDefault: true,
   appointmentOpen: true,
@@ -314,6 +316,7 @@ function rowActions(): RowActionItem[] {
 function openPeriod(row?: TimePeriod) {
   periodId.value = row?.id
   Object.assign(periodForm, {
+    code: row?.templateCode ?? '',
     name: row?.name ?? '',
     segments: row?.segments.map((item) => ({
       start: item.start,
@@ -345,6 +348,7 @@ function openDaily(row?: DailyTemplate) {
 function openWeekly(row?: WeeklyTemplate) {
   weeklyId.value = row?.id
   Object.assign(weeklyForm, {
+    code: row?.templateCode ?? '',
     name: row?.name ?? '',
     isDefault: row?.isDefault ?? true,
     appointmentOpen: row?.appointmentOpen ?? true,
@@ -419,6 +423,7 @@ async function persist(
 function savePeriodForm() {
   if (!ensureCurrentDepartment()) return
   if (
+    !periodForm.code.trim() ||
     !periodForm.name.trim() ||
     !periodForm.segments.length ||
     periodForm.segments.some(
@@ -433,6 +438,7 @@ function savePeriodForm() {
       const payload: SaveSlotProvisionTemplateRequest = {
         id: periodId.value,
         organizationId: init.value?.organizationId,
+        templateCode: periodForm.code.trim(),
         templateName: periodForm.name.trim(),
         slotTemplates: periodForm.segments.map((item) => ({
           startTime: item.start,
@@ -493,6 +499,7 @@ function saveDailyForm() {
 function saveWeeklyForm() {
   if (!ensureCurrentDepartment()) return
   if (
+    !weeklyForm.code.trim() ||
     !weeklyForm.name.trim() ||
     !weeklyForm.items.length ||
     weeklyForm.items.some((item) => !item.dailyTemplateId) ||
@@ -506,6 +513,7 @@ function saveWeeklyForm() {
       const payload: SaveWeekScheduleTemplateRequest = {
         id: weeklyId.value,
         organizationId: init.value!.organizationId ?? init.value!.department.value,
+        templateCode: weeklyForm.code.trim(),
         templateName: weeklyForm.name.trim(),
         fallbackBookable: weeklyForm.appointmentOpen,
         isDefault: weeklyForm.isDefault,
@@ -957,6 +965,7 @@ onBeforeUnmount(() => requestController.value?.abort())
       width="620px"
       :close-on-click-modal="false"
       ><el-form label-width="90px"
+        ><el-form-item label="模板编码" required><el-input v-model="periodForm.code" /></el-form-item
         ><el-form-item label="名称" required><el-input v-model="periodForm.name" /></el-form-item
         ><el-form-item label="状态"
           ><el-radio-group v-model="periodForm.status"
@@ -1074,6 +1083,8 @@ onBeforeUnmount(() => requestController.value?.abort())
       width="720px"
       :close-on-click-modal="false"
       ><el-form label-width="100px"
+        ><el-form-item label="模板编码" required
+          ><el-input v-model="weeklyForm.code" /></el-form-item
         ><el-form-item label="模板名称" required
           ><el-input v-model="weeklyForm.name" /></el-form-item
         ><el-form-item label="科室默认"><el-switch v-model="weeklyForm.isDefault" /></el-form-item

@@ -3,6 +3,7 @@ import type {
   RegistrationContext,
   RegistrationPatientOption,
   RegistrationQueueRecord,
+  RegistrationStatus,
   SubmitRegistrationPayload
 } from '@/apis/inpatient/charge/register'
 import type { ActionToolbarItem, DateRangeValue, RowActionItem } from '@/components/common/type'
@@ -102,7 +103,7 @@ async function loadRows() {
   loading.value = true
   errorMessage.value = ''
   try {
-    const registrationListStatuses = query.status
+    const registrationListStatuses: RegistrationStatus[] = query.status
       ? query.status === 'ADMITTED'
         ? ['REGISTERED', 'IN_PROGRESS', 'INHOSPITAL']
         : query.status === 'WAIT_ADMISSION'
@@ -115,9 +116,9 @@ async function loadRows() {
         pageSize: query.pageSize,
         keyword: query.keyword,
         idCard: query.idCard,
-        // C1 后端 DTO 要求逗号分隔的字符串，不能传数组；同时显式包含 INHOSPITAL，
-        // 否则新增住院登记成功后会被后端默认状态过滤掉。
-        registrationListStatuses: registrationListStatuses.join(',')
+        // 页面与 mock 保持数组语义；C1 适配层会在真实请求边界转换为逗号分隔字符串。
+        // 显式包含 INHOSPITAL，避免新增住院登记成功后被后端默认状态过滤掉。
+        registrationListStatuses
       },
       { signal: controller.signal },
       { dateFrom: query.dateRange?.[0], dateTo: query.dateRange?.[1] }
